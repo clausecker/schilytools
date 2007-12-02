@@ -1,0 +1,22 @@
+PAX is computing the TAR checksum wrong. The standard says that
+the checksum needs to be computed over the whole 512 bytes of the
+header. PAX only computes the checksum for 500 bytes which is 
+incorrect.
+
+A recent version of the files is always on:
+
+	ftp://ftp.berlios.de/pub/star/testscripts/
+
+
+To verify the problem try:
+
+	pax -itv < not_a_tar_file
+
+And see what's happening.
+
+Any correct TAR implementation will correctly state that the checksum is
+wrong and not try to interpret the data as TAR archive.
+
+To understand what's happening, have a look into the file 'not_a_tar_file',
+it is a plain text file.....
+

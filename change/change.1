@@ -1,0 +1,123 @@
+. \" @(#)change.1	1.3 01/04/22 Copyr 1982-1995 J. Schilling
+. \"  Manual page for change
+. \"
+.if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
+.if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
+.if t .ds u \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'u
+.if t .ds A \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'A
+.if t .ds O \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'O
+.if t .ds U \v'-0.77m'\h'0.30n'\z.\h'0.45n'\z.\v'0.77m'\h'-.75n'U
+.if t .ds s \(*b
+.if t .ds S SS
+.if n .ds a ae
+.if n .ds o oe
+.if n .ds u ue
+.if n .ds s sz
+.TH CHANGE 1 "01/04/22" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.SH NAME
+change \- non interactive editor to change patterns in files
+.SH SYNOPSIS
+.B
+change [
+.B options
+]
+.B from to 
+[
+.I file1 .\|.\|. filen
+]
+.SH DESCRIPTION
+.B Change
+substitutes the
+.I from
+string or pattern by the
+.I to
+string or pattern.
+.PP
+.B Change
+uses the same pattern matcher as
+.BR match .
+If a pattern contains special characters from the pattern
+matcher, these characters must be preceded by a backslash '\\'.
+It is a good idea to put strings in single quotes if they
+contain special characters from the pattern matcher.
+This prevents the shell from treating such a string and eating
+up the quote characters before they are seen by
+.BR change.
+.PP
+If the character '&' appears in the
+.IR to_string ,
+it replaces what has matched in the
+.IR from_string .
+Multiple occurrences of '&' are possible.
+.PP
+.B Change
+by default creates backup files similar to
+.BR ved .
+The old file is renamed to 
+.I xxx.bak
+and a new file with the old name and old permissions is created.
+If the
+.B \-nobak
+option is present, the old file is removed and a new file is created.
+.PP
+The file is treated line by line. If a pattern occurs more than once
+on a single line, all occurrences of that pattern are changed unless
+the 
+.B \-#
+option is present.
+.PP
+If no file names are present, 
+.B change
+operates as filter from 
+.B stdin
+to
+.BR stdout .
+.SH OPTIONS
+.TP
+.B \-v
+Be verbose: Displays lines before they are changed.
+.TP
+.B \-c
+Displays lines after they are changed.
+.TP
+.B \-i
+Interactive prompting for each change
+.TP
+.B \-#
+Maximum number of changes per line
+.TP
+.B \-nobak
+Do not create a 
+.I xxx.bak
+file with the old content.
+.TP
+.B \-help
+Prints a short summary of the 
+.B change
+options and exists.
+.TP
+.B \-version
+Prints the 
+.B change
+version number string and exists.
+.SH "SEE ALSO"
+.BR match (1)
+.SH NOTES
+.PP
+If no match for the 
+.I from_pattern
+occurs in a file, it is not changed and the time stamp of that
+file is not affected. If 
+.B change 
+is used on several source files, this help the
+.B make
+program to know that only the changed files need to be recompiled.
+.PP
+If a file with more than name is changed, a new file is created.
+The new file is no more linked to the other files and the content
+of the other files is not changed.
+.PP
+See
+.BR match (1)
+for a detailed description of allowed patterns.
+.SH BUGS

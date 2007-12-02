@@ -1,0 +1,200 @@
+. \" @(#)rmtstatus.3	1.2 07/05/06 Copyr 2002 J. Schilling
+. \" Manual page for rmtstatus
+. \"
+.if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
+.if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
+.if t .ds u \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'u
+.if t .ds A \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'A
+.if t .ds O \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'O
+.if t .ds U \v'-0.77m'\h'0.30n'\z.\h'0.45n'\z.\v'0.77m'\h'-.75n'U
+.if t .ds s \(*b
+.if t .ds S SS
+.if n .ds a ae
+.if n .ds o oe
+.if n .ds u ue
+.if n .ds s sz
+.TH RMTSTATUS 3L "07/05/06" "J\*org Schilling" "Schily\'s LIBRARY FUNCTIONS"
+.SH NAME
+rmtstatus, rmtxstatus, _mtg2rmtg, _rmtg2mtg \- request MTIOCGET on a connection to a remote tape server
+.SH SYNOPSIS
+.LP
+.B cc
+.RI "[ " "flag" " \|.\|.\|. ] " "file" " \|.\|.\|."
+.B \-lrmt
+.B \-lsocket
+.B \-lnsl
+.RI "[ " "library" " \|.\|.\|. ]"
+.LP
+.nf
+.B
+#include <schily/librmt.h>
+.B
+#include <schily/rmtio.h>
+.sp
+.B
+int rmtstatus(int remfd, struct mtget *mtp);
+.sp
+.B
+int rmtxstatus(int remfd, struct rmtget *mtp);
+.sp
+.B
+void _rmtg2mtg(struct mtget *mtp, struct rmtget *rmtp);
+.sp
+.B
+int _mtg2rmtg(struct rmtget *rmtp, struct mtget *mtp);
+.fi
+.SH DESCRIPTION
+.TP
+.BR rmtstatus() " and " rmtxstatus()
+perform a MTIOCGET
+request to the remote server, 
+.I remfd
+is a file descriptor previously obtained from a call to 
+.BR rmtgetconn() ,
+.B "struct mtget
+is the local magnetic tape status structure,
+.B "struct rmtget
+is the enhanced magnetic tape status structure from
+.BR librmt .
+.B rmtstatus()
+and
+.B rmtxstatus()
+will fail if there was no previous successful 
+.B rmtopen()
+before.
+.B rmtstatus()
+and
+.B rmtxstatus()
+take care of using
+.B RMT protocol VERSION 1 
+if the remote side implements support for protocol version 1.
+The function
+.B rmtstatus()
+is outdated and should be avoided as the results in
+.B "struct mtget
+will be the least common denominator of the local and remote variants
+of the structure.
+Use
+.B rmtxstatus()
+instead.
+The member
+.B mt_xflags
+in 
+.B "struct rmtget
+contains a bitmap that indicates which members of the structure contain
+valid values.
+See
+.B mtio(7)
+for more information.
+.TP
+.B _rmtg2mtg()
+converts a
+.B "struct rmtget
+into a
+.BR "struct mtget" .
+.TP
+.B _mtg2rmtg()
+converts a
+.B "struct mtget
+into a
+.B "struct rmtget"
+and sets the member
+.B mt_xflags
+in 
+.B "struct rmtget
+to contain a bitmap that indicates which members of 
+.B "struct mtget
+are present in the local implementation.
+.SH RETURNS
+.TP
+.BR rmtstatus() " and "rmtxstatus()
+return a value >= 0 if the remote 
+.B ioctl(f, MTIOCGET, struct mtget *)
+succeeds.
+
+.SH ERRORS
+.BR rmtstatus() " and "rmtxstatus()
+return -1 on error and set 
+.B errno
+to the 
+.B errno
+value retrieved from the remote server.
+.TP
+.B _mtg2rmtg()
+returns -1 if no value from the local
+.B "struct mtget
+could be converted to the abstract
+.BR "struct rmtget" .
+.SH EXAMPLES
+.LP
+\fB
+.nf
+int	remfd;
+char	*remfn;
+char	host[256];
+struct rmtget rmtg;
+
+if ((remfn = rmtfilename(filename)) != NULL) {
+	rmthostname(host, sizeof (host), filename);
+
+	if ((remfd = rmtgetconn(host, iosize, 0)) < 0)
+		comerrno(EX_BAD, "Cannot get connection to '%s'.\en",
+			/* errno not valid !! */		host);
+}
+
+if (rmtopen(remfd, remfn, mode) < 0)
+	comerr("Cannot open '%s'.\en", remfn);
+
+if (rmtxstatus(remfd, &rmtg) < 0)
+	comerr("Cannot retrieve magnetic tape status fom '%s'.\en", remfn);
+
+rmtclose(remfd);
+.fi
+\fP
+.SH ENVIRONMENT
+.\".SH FILES
+.SH "SEE ALSO"
+.BR rmt (1),
+.BR rsh (1),
+.BR ssh (1),
+.BR rcmd (3),
+.BR rmtinit (3),
+.BR rmtdebug (3),
+.BR rmthostname (3),
+.BR rmtfilename (3),
+.BR rmtgetconn (3),
+.BR rmtopen (3),
+.BR rmtioctl (3),
+.BR rmtclose (3),
+.BR rmtread (3),
+.BR rmtwrite (3),
+.BR rmtseek (3),
+.BR rmtxstatus (3),
+.BR rmtstatus (3),
+.BR _mtg2rmtg (3),
+.BR _rmtg2mtg (3),
+.BR errmsgno (3),
+.BR mtio (7)
+
+.SH DIAGNOSTICS
+.SH NOTES
+.SH BUGS
+.LP
+If local and remote
+.B errno
+values do not match, programs may get confused.
+.SH AUTHOR
+.nf
+J\*org Schilling
+Seestr. 110
+D\-13353 Berlin
+Germany
+.fi
+.PP
+Mail bugs and suggestions to:
+.PP
+.B
+schilling@fokus.fhg.de
+or
+.B
+js@cs.tu\-berlin.de

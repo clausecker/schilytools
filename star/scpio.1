@@ -1,0 +1,775 @@
+. \" @(#)scpio.1	1.6 07/06/03 Copyright (C) 1997 by The Open Group, Copyright (C) 2004 J. Schilling
+. \" Manual page for scpio
+. \"
+.if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
+.if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
+.if t .ds u \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'u
+.if t .ds A \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'A
+.if t .ds O \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'O
+.if t .ds U \v'-0.77m'\h'0.30n'\z.\h'0.45n'\z.\v'0.77m'\h'-.75n'U
+.if t .ds s \(*b
+.if t .ds S SS
+.if n .ds a ae
+.if n .ds o oe
+.if n .ds u ue
+.if n .ds s sz
+.TH SCPIO 1L "07/06/03" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.SH NAME
+scpio \- copy file archives in and out (LEGACY)
+.SH SYNOPSIS
+.B
+scpio
+[
+.I "other options
+]
+\-o[aBcv]
+.br
+.B
+scpio
+[
+.I "other options
+]
+\-i[Bcdmruvf]
+[
+.I "pattern ...
+]
+.br
+.B
+scpio
+[
+.I "other options
+]
+\-it[Bcvf]
+[
+.I "pattern ...
+]
+.br
+.B
+scpio
+[
+.I "other options
+]
+\-p[adlmuv]
+.I directory
+.SH DESCRIPTION
+The
+.B scpio
+utility, depending on the options used:
+.TP
+.B \(bu
+copies files to an archive file
+.TP
+.B \(bu
+extracts files from an archive file
+.TP
+.B \(bu
+lists files from an archive file
+.TP
+.B \(bu
+copies files from one directory tree to another.
+. \" .SH RETURNS
+. \" .SH ERRORS
+.SH OPTIONS
+The
+.B scpio
+utility supports the XBD specification Utility Syntax
+Guidelines. The 
+.B cpio 
+standard does not allow
+the option modifiers to be presented as
+separate arguments from the option letters.
+The
+.B scpio
+implementation allows option modifiers to be presented as
+separate arguments from the option letters. When writing
+portable shell scripts do never make use of this feature.
+.PP
+The following options are supported:
+.TP
+.B \-o
+(Copy Out.) Read the standard input to obtain a list of
+pathnames and copy those files onto the standard output
+together with pathname and status information. Output is
+padded to a 512-byte boundary.
+.TP
+.B \-i
+(Copy In.) Extract files from the standard input, which is
+assumed to be the product of a previous
+.BR "scpio \-o" .
+Only files
+with names that match
+.I patterns
+are selected. The extracted
+files are conditionally created and copied into the current
+directory tree based upon the options described below. The
+permissions of the files will be those of the previous
+.BR "scpio \-o" .
+The owner and group of the files will be that of the
+current user unless the user has appropriate privileges,
+which causes
+.B scpio
+to retain the owner and group of the files
+of the previous
+.BR "scpio \-o" .
+If the archive being read does not
+match the modifier specified,
+.B scpio
+may consider this to be an
+error and exit or may recognise the archive and continue
+processing. Only a user with appropriate privileges can
+extract block special or character special files from an
+archive.
+.TP
+.B \-it
+(List.) List files from the archive. This is a sub mode of the
+copy in mode, no files are created in list mode.
+.TP
+.B \-p
+(Pass.) Read the standard input to obtain a list of pathnames
+of files that are conditionally created and copied into the
+destination directory tree based upon the option modifiers
+described below.
+.PP
+The following option modifiers can be appended in any sequence to
+the
+.BR \-o ", " \-i " or " \-p
+options:
+.TP
+.B a
+Reset access times of input files after they have been
+copied. (When option
+.B l
+(see below) is also specified, the
+access times of the linked files are not reset.)
+.TP
+.B B
+Block input/output 5120 bytes to the record (does not apply
+to the
+.B \-p
+option; meaningful only with data directed to or
+from character special files).
+.TP
+.B d
+Create directories as needed.
+.TP
+.B c
+Write or read header information in character form for
+portability.
+Note that the Open Group standard does not specify the archive
+format that should be used with the
+.B c
+option.
+For this reason it is questionable wether the
+.B c
+option increases portability in general.
+.sp
+The archive format used by
+.B scpio
+with the
+.B c
+option is the format from the
+.B "\-H asc
+option.
+It gives best
+.B cpio
+compatibility when transferring files to SVR4-based systems
+(except that the file size is limited to 2\ gigabytes).
+When transferring files in
+.B cpio
+archives to unknown operating systems, it is unwise to use the
+.BR c "\ option.
+.TP
+.B r
+Interactively rename files. For each archive member matching
+.I pattern
+operand, a prompt will be written to the file
+.BR /dev/tty .
+The prompt will contain the name of the archive
+member, but the format is otherwise unspecified. A line will
+then be read from 
+.BR /dev/tty .
+If this line is blank, the
+archive member will be skipped. If this line consists of a
+single period, the archive member will be processed with no
+modification to its name. Otherwise, its name will be
+replaced with the contents of the line. The
+.B scpio
+utility will
+immediately exit with a non-zero exit status if end-of-file is
+encountered when reading a response, or if
+.B /dev/tty
+cannot be
+opened for reading and writing.
+.TP
+.B t
+Write a table of contents of the input. No files are created.
+.TP
+.B u
+Copy unconditionally (normally, an older file will not
+replace a newer file with the same name).
+.TP
+.B v
+Verbose: print the names of the affected files. With the
+.B t
+option, provides a detailed listing.
+.TP
+.B l
+Whenever possible, link files rather than copying them.
+Usable only with the
+.B \-p
+option.
+The
+.B l
+option modifier is not yet supported by
+.BR scpio .
+
+.TP
+.B m
+Retain previous file modification time. This option is
+ineffective on directories that are being copied.
+.TP
+.B f
+Copy in all files except those in
+.IR patterns .
+
+.PP
+The following 
+.I "other options
+are implemented as 
+.B SVr4 compliant
+extension to the Open Group standard:
+.PP
+.TP
+.B \-6
+Extract
+.B UNIX System Sixth Edition
+cpio archives. This option is not valid in archive create mode,
+it is mutually exclusive with
+.BR \-c ,
+.BR \-H ,
+and
+.BR artype= .
+As is is unclear how
+.B UNIX System Sixth Edition
+cpio archives look like, this option is currently unsupported.
+.TP
+.B \-@
+Include extended file attributes in the archive.
+This option is currently unsupported.
+.TP
+.B \-A
+Append files to an existing archive.
+The
+.B \-A
+option only works together with the
+.B \-O 
+option.
+See
+.B star -r
+for more information.
+.TP
+.B \-b
+Reverses the order of the bytes within each word.
+It is unclear what a
+.I word
+is supposed to be.
+This option is unsupported but not needed as
+.B scpio
+includes automatic byte order recognition.
+.TP
+.BI \-C " #
+Sets (input/output) archive block size to # bytes.
+.TP
+.BI \-E " name
+Read filenames for store/create/list command from
+.IR name .
+The file
+.I name
+must contain a list of filenames, each on a separate line.
+.TP
+.BI \-H " header
+Set the archive type to
+.IR header .
+See
+.BR star (1)
+for more information.
+.TP
+.BI \-I " nm
+Use
+.I nm
+as archive file name instead of stdin.
+.TP
+.B \-k
+Try to skip corrupt archive headers.
+.TP
+.B \-L
+Follow symbolic links as if they were files.
+.TP
+.BI \-M " message
+Define a message that is uses when switching media.
+This option is currently unsupported.
+.TP
+.BI \-O " nm
+Use
+.I nm
+as archive file name instead of stdout.
+.TP
+.B \-P
+Handle 
+.B Access Control List
+(ACL) information in create and extract mode.
+See
+.B star -acl
+for more information.
+.TP
+.BI \-R " nm
+Reassign ownership and group for all files based on
+.IR nm .
+This option is currently unsupported.
+.TP
+.B \-s
+Reverses the order of the bytes within each word.
+It is unclear what a
+.I word
+is supposed to be.
+This option is unsupported but not needed as
+.B scpio
+includes automatic byte order recognition.
+.TP
+.B \-S
+Reverses the order of the halfwords within each word.
+It is unclear what a
+.I word
+is supposed to be.
+This option is unsupported but not needed as
+.B scpio
+includes automatic byte order recognition.
+.TP
+.B \-V
+Special verbose. Print a dot for each file that is read or written.
+This option is currently unsupported.
+.PP
+The following 
+.I "other options
+are implemented as 
+.B star
+extension to the Open Group standard:
+.TP
+.B \-help
+Prints a summary of the most important options for
+.BR scpio (1)
+and exits.
+.TP
+.B \-xhelp
+Prints a summary of the less important options for
+.BR scpio (1)
+and exits.
+.TP
+.B \-version
+Prints the 
+.B scpio
+version number string and exists.
+.TP
+.B \-/
+Don't strip leading slashes from file names when extracting an archive.  
+See
+.BR star (1)
+for more information.
+.TP
+.B ..
+Don't skip files that contain /../ in the name.
+See
+.BR star (1)
+for more information.
+.TP
+.B \-7z
+run the input or output through a
+.B p7zip
+pipe - see option
+.B \-z
+below.
+.sp
+Note that the
+.B p7zip
+program currently does not operate on a pipe but on a
+/tmp file copy and thus limits the maximum archive size.
+
+.TP
+.B \-acl
+Handle 
+.B Access Control List
+(ACL) information in create and extract mode.
+See
+.BR star (1)
+for more information.
+.TP
+.BI artype= header
+Set the archive type to
+.IR header .
+See
+.BR star (1)
+for more information.
+.TP
+.B \-lzo
+Run the input or output through a
+.B lzop
+pipe - see option
+.B \-z
+below.
+.TP
+.B \-bz
+Run the input or output through a
+.B bzip2
+pipe - see option
+.B \-z
+below. As the
+.B \-bz
+the
+.B \-z
+options are non standard, it makes sense to omit
+.B \-bz  
+options the inside shell scripts.
+If you are going to extract a compressed archive that is located
+inside a plain file,
+.B scpio
+will auto detect compression and choose the right
+decompression option to extract.
+.TP
+.BI bs= #
+Set block size to #. You may use the same method as in
+.BR dd (1)
+and
+.BR sdd (1). 
+See
+.BR star (1)
+for more information.
+.TP
+.B \-fifostats
+Print fifo statistics at the end of a
+.B scpio
+run when the fifo has been in effect.
+.TP
+.BI fs= #
+Set fifo size to #.
+See
+.BR star (1)
+for more information.
+.TP
+.B \-no\-fifo
+Do not use a fifo to optimize data flow from/to tape.
+See 
+.BR star (1)
+for more information.
+.TP
+.B \-no\-fsync
+Do not call
+.BR fsync (2)
+for each file that has been extracted from the archive.
+See
+.BR star (1)
+for more information.
+.TP
+.B \-no-statistics
+Do not print statistic messages at the end of a
+.B scpio
+run.
+.TP
+.B \-secure\-links
+Do not extract hard links or symbolic links if the link
+name (the target of the link) starts with a slash (/)
+or if /../ is contained in the link name. 
+See
+.BR star (1)
+for more information.
+.TP
+.B \-numeric
+Use the numeric user/group fields in the listing rather than the default.
+See
+.BR star (1)
+for more information.
+.TP
+.B \-time
+Print timing info.
+See
+.BR star (1)
+for more information.
+.TP
+.B -xfflags
+Store and extract extended file flags as found on BSD
+and Linux systems.
+See
+.B star -acl
+for more information.
+.TP
+.B \-z
+Run the input or output through a
+.B gzip
+pipe - see option
+.B \-bz
+above. As the
+.B \-bz
+the
+.B \-z
+options are non standard, it makes sense to omit
+.B \-bz  
+options the inside shell scripts.
+If you are going to extract a compressed archive that is located
+inside a plain file,
+.B scpio
+will auto detect compression and choose the right
+decompression option to extract.
+
+.SH OPERANDS
+.PP
+The following operands are supported:
+.TP
+.I directory
+A pathname of an existing directory to be used as the target
+of
+.BR "scpio \-p" .
+.TP
+.I pattern
+Expressions making use of a pattern-matching notation similar
+to that used by the shell for filename pattern matching, and
+similar to regular expressions. The following metacharacters
+are defined:
+.RS
+.TP
+.B "*"
+Matches any string, including the empty string.
+.TP
+.B "?"
+Matches any single character.
+.TP
+.B "[...]"
+Matches any one of the enclosed characters. A pair of
+characters separated by `-' matches any symbol between
+the pair (inclusive), as defined by the system default
+collating sequence. If the first character following the
+opening `[' is a `!', the results are unspecified.
+.PP
+In
+.IR pattern ,
+the special characters "?", "*" and "[" also
+match the "/" character. Multiple cases of
+.I pattern
+can be
+specified and if no
+.I pattern
+is specified, the default for
+.I pattern
+is "*" (that is, select all files).
+.PP
+Note that
+.B scpio
+does not use
+.BR fnmatch (3)
+based pattern matching as documented above,
+it rather uses the pattern matcher documented in
+.BR match (1).
+.RE
+.SH STDIN
+.PP
+When the
+.BR \-o " or " \-p
+options are used, the standard input is a text
+file containing a list of pathnames, one per line, to be copied.
+.PP
+When the
+.B \-i
+option is used, the standard input is an archive file
+formatted in any way that is understood by the archive handling
+engine (see
+.B "\-H help
+option for a complete list).
+.SH "INPUT FILES
+.PP
+The files identified by the pathnames in the standard input are of
+any type.
+.PP
+When the
+.B \-r
+option is used, the file
+.B /dev/tty
+is used to write
+prompts and read responses.
+.SH "ASYNCHRONOUS EVENTS
+.PP
+Default.
+.SH STDOUT
+When the
+.B \-o
+option is used, the standard output is an archive file
+formatted as specified by
+.B pax
+with the
+.B "\-x cpio
+option. For better compatibility with SVR4-based systems that
+do not implement the 
+.B cpio
+format correctly,
+.B scpio
+by default limits the length of file names to 256 bytes.
+Use 
+.B "scpio \-H cpio
+to explicitly switch to the full POSIX 1003.1-1988
+.B cpio
+archive format.
+.PP
+Otherwise,
+the standard output contains commentary in an unspecified format
+concerning the progress of the execution.
+.SH STDERR
+When the
+.B \-o
+option is not used, the standard error contains
+commentary in an unspecified format concerning the progress of the
+execution. Otherwise, the standard error is used only for
+diagnostic messages.
+.SH "OUTPUT FILES
+Output files are created, as specified by the archive, when the
+.B \-i
+or
+.B \-p
+options are used.
+.SH "EXTENDED DESCRIPTION
+.PP
+None.
+
+.SH "EXIT STATUS
+.PP
+The following exit values are returned:
+.TP
+.B 0
+Successful completion.
+.TP
+.B >0
+An error occurred.
+.SH "CONSEQUENCES OF ERRORS
+.PP
+If a file or directory cannot be created or overwritten,
+.B scpio
+continues with the next file in the archive or file to be added to
+the archive.
+
+.SH "APPLICATION USAGE
+.PP
+Archives created by
+.B scpio
+are portable between XSI-conformant
+systems provided the same procedures are used.
+.PP
+The shell metacharacter notation is not fully compatible with that
+used by the shell and the
+.B pax
+utility. Not all systems support the
+use of the negation character [! ...] in
+.B cpio
+patterns. Portable
+applications must avoid the use of this notation.
+.PP
+For portable communication of data between XSI-conformant systems,
+it is recommended that only characters defined in the
+ISO/IEC 646:1991 standard International Reference Version
+(equivalent to ASCII) 7-bit range of characters be used and that
+only characters defined in the Portable Filename Character Set be
+used for naming files. This recommendation is given because
+XSI-conformant systems support diverse codesets and run in various
+geographical areas and there is no single, well-established
+codeset that incorporates all of the characters of the languages
+of the various geographical areas.
+.PP
+The
+.B cpio
+archive format only supports file sizes up to 8\ gigabytes.
+.PP
+Applications should migrate to the
+.B pax
+archive format which is the POSIX 1003.1-2001 standard archive format
+and based on an extended
+.B tar
+format.
+
+.SH "FUTURE DIRECTIONS
+None.
+
+.SH EXAMPLES
+.PP
+1. Copy the contents of a directory onto an archive:
+.PP
+.B          ls | scpio -o >../cpio.out
+.PP
+2. Duplicate a directory hierarchy:
+.PP
+.B          cd olddir
+.br
+.B          find . -depth -print | scpio -pd ../newdir
+
+.SH ENVIRONMENT
+.PP
+The following environment variables may affect the execution of
+.BR scpio :
+.TP
+.B TZ
+Determine the timezone used with date and time strings.
+.\".SH FILES
+.SH "SEE ALSO"
+.BR ar (1),
+.BR find (1),
+.BR sfind (1),
+.BR ls (1),
+.BR match (1),
+.BR pax (1),
+.BR spax (1),
+.BR tar (1),
+.BR star (1).
+.SH DIAGNOSTICS
+.SH NOTES
+.PP
+The default block size for
+.B cpio
+is 512 bytes, this slows down write speed.
+Use 
+.BR \-B ", " \-C ", or " bs=
+to set a different block size.
+.PP
+.B "Scpio -iu
+is equivalent to
+.B "star \-xU \-install \-force\-remove \-remove\-recursive
+and for this reason may remove nonempty directory trees in extrace mode
+without printing a warning.
+.PP
+The Open Group,
+have given us permission to reprint portions of their documentation. In
+the following statement, the phrase ``this text'' refers to portions of
+the system documentation.
+.PP
+Portions of this text are reprinted and reproduced in electronic form
+in the 
+.B scpio
+manual,
+from The Open Group Base Specifications
+Issue 5, Copyright (C) 1997 by The Open Group. In the event
+of any discrepancy between these versions and the original
+specification, the original The Open Group Standard is the
+referee document. The original Standard can be obtained online at
+.BR "http://www.opengroup.org/unix/single_unix_specification_v2" .
+.SH BUGS
+.SH AUTHOR
+.nf
+J\*org Schilling
+Seestr. 110
+D\-13353 Berlin
+Germany
+.fi
+.PP
+Mail bugs and suggestions to:
+.PP
+.B
+schilling@fokus.fraunhofer.de
+or
+.B
+js@cs.tu\-berlin.de
+or
+.B
+joerg@schily.isdn.cs.tu\-berlin.de

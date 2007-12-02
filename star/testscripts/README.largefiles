@@ -1,0 +1,47 @@
+Note that the test tar archives used for this conformance test are bzip2
+compressed. This has been done because it is the only widely available
+compression format that allows to compress several gigabytes of nulls
+into a few bytes.
+
+A recent version of the files is always on:
+
+	ftp://ftp.berlios.de/pub/star/testscripts/
+
+
+The file 'ustar-big-2g.tar.bz2' contains a file with the largest size that
+a historic tar implementation is able to understand.
+
+star tvf ustar-big-2g.tar.bz2 
+star: WARNING: Archive is bzip2 compressed, trying to use the -bz option.
+2147483647 -rw-------  jes/glone Jun 15 16:53 2002 big
+         0 -rw-r--r--  jes/glone Jun 15 16:53 2002 file
+star: 209715 blocks + 4096 bytes (total of 2147485696 bytes = 2097154.00k).
+star: Total time 104.572sec (20054 kBytes/sec)
+
+
+The file 'ustar-big-8g.tar.bz2' contains a file with the largest size that
+may be used with the ustar (POSIX.1-1990 tar) format.
+
+star tvf ustar-big-8g.tar.bz2 
+star: WARNING: Archive is bzip2 compressed, trying to use the -bz option.
+8589934591 -rw-------  jes/glone Jun 15 17:08 2002 8gb-1
+         0 -rw-r--r--  jes/glone Jun 15 16:53 2002 file
+star: 838861 blocks + 0 bytes (total of 8589936640 bytes = 8388610.00k).
+star: Total time 405.927sec (20665 kBytes/sec)
+
+The file 'pax-big-10g.tar.bz2' contains a file with size 1 GB.
+This file may only be represented using the new POSIX.1-2001 extended tar
+format using extended headers. This extended archive format has been called
+PAX.
+
+star tvf pax-big-10g.tar.bz2 
+star: WARNING: Archive is bzip2 compressed, trying to use the -bz option.
+10737418240 -rw-------  jes/glone Jun 15 23:18 2002 10g
+          0 -rw-r--r--  jes/glone Jun 15 16:53 2002 file
+star: 1048576 blocks + 3072 bytes (total of 10737421312 bytes = 10485763.00k).
+star: Total time 563.352sec (18613 kBytes/sec)
+
+Only a POSIX.1-2001 conforming program will be able to read the archive
+correctly. For now, June 2002 star seems to be the only POSIX.1-2001 conforming
+TAR program.
+

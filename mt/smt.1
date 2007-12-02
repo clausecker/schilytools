@@ -1,0 +1,335 @@
+. \" @(#)smt.1	1.1 04/09/26 Copyr 2004 J. Schilling
+. \"  Manual Seite fuer smt
+. \"
+.if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
+.if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
+.if t .ds u \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'u
+.if t .ds A \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'A
+.if t .ds O \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'O
+.if t .ds U \v'-0.77m'\h'0.30n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.75n'U
+.if t .ds s \\(*b
+.if t .ds S SS
+.if n .ds a ae
+.if n .ds o oe
+.if n .ds u ue
+.if n .ds s sz
+.TH SMT 1 "04/09/26" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.SH NAME
+smt \- magnetic tape control
+.SH SYNOPSIS
+.B smt
+[
+.BI \-f " tapename
+]
+.I command
+[
+.I count
+] 
+.SH DESCRIPTION
+.PP
+The
+.B smt
+program sends commands to a local or a remote magnetic tape drive.
+.PP
+The
+.I count
+operand specifies the number of times the requested command is
+to be performed. If
+.I count
+is omitted, the value of
+.I count
+defaults to one.
+.SH OPTIONS
+.TP
+.B \-help
+Prints a summary of the options for
+.BR smt (1)
+and exits.
+.TP
+.B \-version
+Prints the 
+.B smt
+version number string and exists.
+.TP
+.B \-debug
+print additional debug messages.
+.TP
+.BI \-f " tapename
+.TP
+.BI \-t " tapename
+Set the raw tape device to use, otherwise
+.B smt
+uses a system specific default for the rtape device.
+If 
+.B smt
+is installed suid root or if it has been called by root,
+.I tapename
+may be in remote syntax: user@host:filename as in 
+.BR rcp (1)
+even if 
+invoked by non root users.
+See SUID NOTES for more information.
+.sp
+To make a file local although it includes a colon (:), the filename
+must start with:
+.IR "'/'" ,
+.IR "'./'" " or"
+.I "'../'"
+.sp
+Note that if
+.B smt 
+talks to an old 
+.B rmt
+remote tape server that does not support symbolic open modes,
+it does not open a remote tape with the 
+.B O_CREAT
+open flag because this would be extremely dangerous.
+If the 
+.B rmt 
+server on the other side is the 
+.B rmt
+server that comes with 
+.B star
+or the GNU
+.B rmt
+server,
+.B smt
+may use the symbolic mode for the open flags.
+Only the symbolic open modes allow to send all possible open
+modes in a portable way to remote tape servers.
+.sp
+It is recommended to use the 
+.B rmt
+server that comes with
+.BR star .
+It is the only
+.B rmt
+server that gives platform independent compatibility with BSD, Sun and GNU
+.B rmt 
+clients and it includes security features that may be set up in /etc/default/rmt.
+.sp
+See ENVIRONMENT section for information on how to use 
+.B ssh(1)
+to create a remote tape server connection.
+.TP
+.B \-wready
+Wait for the tape drive to become ready before executing the command.
+.SH COMMANDS
+The following commands are supported:
+.TP 12
+.B eof
+.TP
+.B weof
+Write
+.I count
+EOF (FILE) marks at the current position on the tape.
+.sp
+This command may be run remotely with any BSD compliant old rmt server.
+.TP
+.B fsf
+Forward skip over
+.I count
+FILE marks.
+The tape is positioned on the first block of the file.
+.sp
+This command may be run remotely with any BSD compliant old rmt server.
+.TP
+.B bsf
+Backward skip 
+.I count
+FILE marks.
+The tape is positioned on side of the FILE mark
+that is closer to the beginning of the tape.
+.sp
+This command may be run remotely with any BSD compliant old rmt server.
+.TP
+.B asf
+Absolute FILE mark positioning to file number
+.IR count .
+This is equivalent to a rewind followed by a
+.BI fsf " count.
+.sp
+A RMT version 1 server is needed to run this command on a remote tape drive.
+.TP
+.B fsr
+Forward skip
+.I count 
+tape records.
+.sp
+This command may be run remotely with any BSD compliant old rmt server.
+.TP
+.B bsr
+Backward skip
+.I count 
+tape records.
+.sp
+This command may be run remotely with any BSD compliant old rmt server.
+.TP
+.B rewind
+Rewind the tape.
+.sp
+This command may be run remotely with any BSD compliant old rmt server.
+.TP
+.B offline
+.TP
+.B rewoffl
+Rewind the tape.
+If the specified tape drive allows to take the drive off-line
+or to unload the tape, a off-line or unload operation is performed
+in addition.
+.sp
+This command may be run remotely with any BSD compliant old rmt server.
+.TP
+.B status
+Retrieve and print status information for the tape drive.
+.sp
+A RMT version 1 server is needed to get correct status information
+on a remote tape drive.
+.TP
+.B nop
+No operation.
+If you only like to wait for the tape drive to become ready, call
+.BR "smt -wready nop" .
+.sp
+This command may be run remotely with any BSD compliant old rmt server.
+.TP
+.B retension
+Retension the tape. This only makes sende with cartridge tape drives.
+.sp
+A RMT version 1 server is needed to run this command on a remote tape drive.
+.TP
+.B erase
+Erase the entire tape. This may take a long time (up to several hours)
+depending on the tape drive and the medium.
+.sp
+A RMT version 1 server is needed to run this command on a remote tape drive.
+.TP
+.B eom
+Position the tape to the end of the recorded media.
+This allows to append data to previously written tapes.
+.sp
+A RMT version 1 server is needed to run this command on a remote tape drive.
+.TP
+.B nbsf
+Backward skip 
+.I count
+FILE marks.
+The tape is positioned on side of the FILE mark
+that is closer to the end of the tape. This is before the first
+block of the file.
+The 
+.B nbsf 
+command is equivalent to 
+.I count+1
+.B bsf's
+followed by one
+.BR fsf .
+.sp
+A RMT version 1 server is needed to run this command on a remote tape drive.
+.TP
+.B load
+If the specified tape drive allows to take the drive on-line
+or to load the tape, a on-line or load operation is performed.
+in addition.
+For remote tape drives, this command only works if the remote tape server
+supports symbolic open modes as the command needs the 
+.I O_NDELAY
+flag to succeed.
+.sp
+A RMT version 1 server is needed to run this command on a remote tape drive.
+.SH EXAMPLES
+.SH ENVIRONMENT
+.TP
+.B RSH
+If the 
+.B RSH
+environment is present, the remote connection will not be created via
+.BR rcmd (3)
+but by calling the program pointed to by
+.BR RSH .
+Use e.g. 
+.BR RSH= /usr/bin/ssh
+to create a secure shell connection.
+.sp
+Note that this forces 
+.B smt
+to create a pipe to the 
+.B rsh(1)
+program and disallows
+.B smt
+to directly access the network socket to the remote server.
+This makes it impossible to set up performance parameters and slows down
+the connection compared to a 
+.B root
+initiated
+.B rcmd(3)
+connection.
+.TP
+.B RMT
+If the 
+.B RMT
+environment is present, the remote tape server will not be the program
+.B /etc/rmt
+but the program pointed to by
+.BR RMT .
+Note that the remote tape server program name will be ignored if you log in
+using an account that has been created with a remote tape server program as
+login shell.
+.TP
+.B TAPE
+In case no 
+.B \-f
+option pas been specified, the default tape name is taken from the
+.B TAPE
+environment.
+
+.SH FILES
+.SH "SEE ALSO"
+.BR spax (1), 
+.BR suntar (1), 
+.BR scpio (1), 
+.BR tar (1), 
+.BR cpio (1), 
+.BR pax (1), 
+.BR rcp (1), 
+.BR mt (1),
+.BR rmt (1), 
+.BR match (1), 
+.BR dd (1), 
+.BR sdd (1), 
+.BR rsh (1),
+.BR ssh (1),
+.BR star (1),
+.BR star (4/5),
+.BR rcmd (3),
+.SH DIAGNOSTICS
+.SH NOTES
+If the remote tape server is running Linux and the remote tape server on
+such a system is not the rmt server that comes with 
+.BR star (1),
+then completely unexpected results (including unexpectedly erased tapes)
+may occur. This is because Linux ignores the numbering values for the
+magnetic tape op codes and only the rmt server from
+.BR star (1)
+maps to standard values.
+The standard rmt server on Linux for this reason may not be called
+BSD compliant.
+.SH BUGS
+.SH AUTHOR
+.nf
+J\*org Schilling
+Seestr. 110
+D\-13353 Berlin
+Germany
+.fi
+.PP
+Mail bugs and suggestions to:
+.PP
+.B
+schilling@fokus.fraunhofer.de
+or
+.B
+js@cs.tu\-berlin.de
+or
+.B
+joerg@schily.isdn.cs.tu\-berlin.de

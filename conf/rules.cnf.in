@@ -1,0 +1,22 @@
+# @(#)rules.cnf.in	1.16 07/09/11 Copyright 1998-2007 J. Schilling
+
+EXEEXT= @EXEEXT@
+XEXEEXT= @XEXEEXT@
+OBJEXT= @OBJEXT@
+
+LARGEFILE_CC_OPT= @largefile_cc_opt@
+
+MAY_LINUX_SRC_INCLUDE= @may_linux_src_include@
+
+SCSILIB= @scsi_lib@
+LIB_SCSI= @lib_scsi@
+LIB_RESOLV= @lib_resolv@
+LIB_CRYPT= @lib_crypt@
+LIB_INTL= @lib_intl@
+LIB_ICONV= @lib_iconv@
+LIB_ACL= @lib_acl@		# Full (test/set) ACL users like star
+LIB_ACL_TEST= @lib_acl_test@	# Test only ACL users like libfind
+LIB_ATTR = @lib_attr@
+LIB_SECDB = @lib_secdb@
+LIB_PTHREAD = @lib_pthread@
+LIB_RT = @lib_rt@

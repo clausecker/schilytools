@@ -1,0 +1,20 @@
+A recent version of the files is always on:
+
+	ftp://ftp.berlios.de/pub/star/testscripts/
+
+100char_longlink.tar		A tar archive containing a file with exactly 100 char and a link to it
+README.gtarfail			A description for the files 'gtarfail.tar' and 'gtarfail2.tar'
+README.longnames		A description for the files 'long.ustar.gz' 'mk' 'mk2'
+README.paxbug			A description for the file 'not_a_tar_file'
+gtarfail.tar			A POSIX.1-1990 tar file that causes GNU tar to fail
+gtarfail2.tar			A POSIX.1-1990 tar file that causes GNU tar to fail
+long.ustar.gz			A 100% POSIX.1-1990 compliant tar file with lone file names
+mk				Shell script. Use as described in README.longnames
+mk2				Shell script. Use as described in README.longnames
+not_a_tar_file			A funny text file that most PAX implementations treat as tar archive
+typescript			Typescript to demonstrate a GNU tar bug
+ustar-all-filetytes.tar		A 100% POSIX.1-1990 compliant tar file with all file types
+ustar-bad-filetypes.tar		A POSIX.1-1990 tar with one corect file followed by 4 bad files
+ustar-big-2g.tar.bz2		A 100% POSIX.1-1990 compliant tar file with a file 2GB-1 followed by a file
+ustar-big-8g.tar.bz2		A 100% POSIX.1-1990 compliant tar file with a file 8GB-1 followed by a file
+zwicky/				Subdirectory containing the Backup testsuit from Elizabeth Zwicky

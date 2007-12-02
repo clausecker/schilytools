@@ -1,0 +1,2221 @@
+# @(#)sformat.src	1.51 00/08/29 Copyright 1991 J. Schilling
+#
+# Database for use with the 'sformat' program.
+###############################################################################
+# The contents of this file are subject to the terms of the
+# Common Development and Distribution License, Version 1.0 only
+# (the "License").  You may not use this file except in compliance
+# with the License.
+#
+# See the file CDDL.Schily.txt in this distribution for details.
+#
+# When distributing Covered Code, include this CDDL HEADER in each
+# file and include the License file CDDL.Schily.txt from this distribution.
+###############################################################################
+#
+# First part:   'Inquiry' strings and some parameters to identify
+#		the controller and the drive. Some parameters for
+#		Mode Page 1 (Error recovery)
+#			NOTE:
+#				if {rd/wr}_retry_count is less then 16
+#				as drive default value, enhance it to 16
+#				if you proved that the disk supports the
+#				enhanced value
+#		Mode Page 2 (Disconnect/Reconnect)
+#			NOTE:
+#				for minimum Bus overhead bus_inact_limit
+#				should be set to 40 (4 ms)
+#		Mode Page 3 (Direct access format)
+#		Mode Page 4 (Rigid disk geometry),
+#		definition of the disk_type, default_partition and
+#		mode_pages.
+#
+# Second part:	Required changes of parameters in all Mode Pages.
+#		Attention !!	Don't change parameters which have been
+#		Caution !!	defined in the first part for mode page 1-4.
+#				If you want to change values for pages 1-4
+#				only the current page should be read
+#				and changed.
+#				If in this case the default page is read and
+#				changed, the parameter changes from
+#				the first part are lost.
+#
+# Third part:	Label parameters and partition tables for the known
+#		drives. It is possible to define more than one
+#		partition table for one	disk_type.
+#
+# First occurrence of '#' means comment out rest of line .
+# All content lines for a specified disk/mode/label must begin with a TAB.
+#
+#
+#------------------------------------------------------------------------------
+# NOTE for "Generic" disks:
+#
+# On disks where disk_type or partition contains the word "Generic" you have
+# one partition that fits for several different disks.
+# The purpose for doing that is to have a single Partition for all possible
+# disks from one or even different brands that are in the same size category.
+#
+# If you ever create such an entry, you need to pay attention that the
+# sum of Partition 'c' (Partition '2' on Solaris) that is the whole disk and
+# the space in the "alternate cylinders" never exceeds the size of the
+# smallest disk in that category.
+#
+# If sformat will be ported for PC's, you will need to pay similar attention
+# for the PC master partition record.
+#
+# You then will be able to copy such a disk at once with 'dd' or 'sdd'.
+#
+# You will have no trouble to replace a disk in case of a failure.
+# Even a smaller one from the same size category would be able to hold the
+# file systems.
+#------------------------------------------------------------------------------
+#
+#
+# First version for this type of data base: December 1991
+#
+#==============================================================================
+#
+# The real contents:
+#
+#	First part: Format Parameters
+#       -----------------------------
+
+###############################################################################
+#
+#
+#	magneto optical drives
+#
+#
+###############################################################################
+disk_type = "Generic 280MB (magneto optical) Mode 0 (xdebug)"
+	inquiry = "SONY    SMO-C501-00     2.07" :	# Buggy, don't use
+	inquiry = "SONY    SMO-C501-00     2.22" :
+	inquiry = "SONY    SMO-C501-00E    3.01" :
+	inquiry = "SONY    SMO-C501-00E    3.02" :
+	inquiry = "SONY    SMO-C501-00E    3.05" :
+	fmt_time = 1420 : veri_time = 480 :
+	nhead = 1 : pcyl = 18852 : spt = 31 : secsize = 512 :
+	atrk = 0 : tpz = 1 : aspz = 0 :
+	capacity = 584040 :				# actually more
+	fmt_mode = 0 : spare_band_size = 0 :
+	interleave = 0 : rpm = 2400 : fmt_pattern = 3 :
+	rd_retry_count = 2 :
+	buf_full_ratio = 128 : buf_empt_ratio = 128 :
+	default_partition = "Generic 280MB mode0" :
+
+disk_type = "Generic 280MB (magneto optical) Mode 1 (debug)"
+	inquiry = "SONY    SMO-C501-00     2.07" :	# Buggy, don't use
+	inquiry = "SONY    SMO-C501-00     2.22" :
+	inquiry = "SONY    SMO-C501-00E    3.01" :
+	inquiry = "SONY    SMO-C501-00E    3.02" :
+	inquiry = "SONY    SMO-C501-00E    3.05" :
+	fmt_time = 1420 : veri_time = 480 :
+	nhead = 1 : pcyl = 18852 : spt = 31 : secsize = 512 :
+	atrk = 0 : tpz = 1 : aspz = 0 :
+	capacity = 581095 :				# actually more
+	fmt_mode = 1 : spare_band_size = 0 :
+	interleave = 0 : rpm = 2400 : fmt_pattern = 3 :
+	rd_retry_count = 2 :
+	buf_full_ratio = 128 : buf_empt_ratio = 128 :
+	default_partition = "Generic 280MB mode1" :
+
+disk_type = "Generic 280MB (magneto optical) Mode 2 (SONY)"
+	inquiry = "SONY    SMO-C501-00     2.07" :	# Buggy, don't use
+	inquiry = "SONY    SMO-C501-00     2.22" :
+	inquiry = "SONY    SMO-C501-00E    3.01" :
+	inquiry = "SONY    SMO-C501-00E    3.02" :
+	inquiry = "SONY    SMO-C501-00E    3.05" :
+	fmt_time = 1420 : veri_time = 480 :
+	nhead = 1 : pcyl = 18852 : spt = 31 : secsize = 512 :
+	atrk = 66 : tpz = 1 : aspz = 0 :
+	capacity = 577001 :
+	fmt_mode = 2 : spare_band_size = 1535 :
+	interleave = 0 : rpm = 2400 : fmt_pattern = 3 :
+	rd_retry_count = 16 :
+	buf_full_ratio = 128 : buf_empt_ratio = 128 :
+	default_partition = "Generic 280MB mode2" :
+
+disk_type = "Generic 280MB (magneto optical) Mode 3 (ISO)"
+	inquiry = "SONY    SMO-C501-00     2.07" :	# Buggy, don't use
+	inquiry = "SONY    SMO-C501-00     2.22" :
+	inquiry = "SONY    SMO-C501-00E    3.01" :
+	inquiry = "SONY    SMO-C501-00E    3.02" :
+	inquiry = "SONY    SMO-C501-00E    3.05" :
+	#
+	# The next two are really SMO-E502
+	#
+	inquiry = "SONY    SMO-C501-00G    1.04" :
+	inquiry = "SONY    SMO-C501-00G    1.07" :
+	default_data = TRUE :
+	fmt_time = 1420 : veri_time = 480 :
+	nhead = 1 : pcyl = 18852 : spt = 31 : secsize = 512 :
+	atrk = 66 : tpz = 1 : aspz = 0 :
+	capacity = 577001 :
+	fmt_mode = 3 : spare_band_size = 2046 :
+	interleave = 0 : rpm = 2400 : fmt_pattern = 3 :
+	rd_retry_count = 2 :
+	buf_full_ratio = 128 : buf_empt_ratio = 128 :
+	default_partition = "Generic 280MB mode3" :
+
+disk_type = "Generic 595MB (magneto optical)"
+	inquiry = "SONY    SMO-F521-00     2.03" :
+	inquiry = "SONY    SMO-F521-01     2.04" :
+	default_data = TRUE :
+	fmt_time = 1420 : veri_time = 480 :
+	nhead = 1 : pcyl = 37527 : spt = 31 : secsize = 512 :
+	atrk = 0 : tpz = 0 : aspz = 0 :
+	capacity = 1163337 :
+	interleave = 0 : rpm = 3000 :
+	default_partition = "Generic 595MB (magneto optical)" :
+	#
+	# Pages: 0x1 0x2 0x8 0xA 0xB 0x20
+	# Mode Sense Data 4F 03 00 08 0A 11 C0 49 00 00 02 00
+	# 01 0A 80 05 00 00 00 00 05 00 00 00
+	# 02 0E 20 20 00 00 00 00 00 00 00 00 00 00 00 00
+	# 08 0A 02 00 00 40 00 01 00 01 00 40
+	# 0A 06 00 00 00 00 00 00
+	# 0B 06 00 00 02 03 00 00
+	# 20 0A 00 00 00 00 00 00 00 00 00 00 # Default
+	# 20 0A 04 00 00 00 00 00 00 00 00 01 # Current
+
+disk_type = "Generic 595MB (magneto optical) 280MB medium"
+	inquiry = "SONY    SMO-F521-00     2.03" :
+	inquiry = "SONY    SMO-F521-01     2.04" :
+	fmt_time = 1299 : veri_time = 478 :
+	nhead = 1 : pcyl = 18852 : spt = 31 : secsize = 512 :
+	atrk = 66 : tpz = 0 : aspz = 0 :
+	capacity = 577001 :
+	fmt_mode = 3 : spare_band_size = 2046 :
+	interleave = 0 : rpm = 2400 : fmt_pattern = 3 :
+	default_partition = "Generic 280MB mode3" :
+	#
+	# Pages: 0x1 0x2 0x8 0xA 0xB 0x20
+	# Mode Sense Data 4F 03 00 08 03 08 CD E7 00 00 02 00
+	# 01 0A 80 05 00 00 00 00 05 00 00 00
+	# 02 0E 20 20 00 00 00 00 00 00 00 00 00 00 00 00
+	# 08 0A 02 00 00 40 00 01 00 01 00 40
+	# 0A 06 00 00 00 00 00 00
+	# 0B 06 00 00 02 03 00 00
+	# 20 0A 00 00 00 00 00 00 00 00 00 00 # Default
+	# 20 0A 03 00 00 08 CD E7 08 00 00 01 # Current
+
+disk_type = "Generic 595MB (magneto optical)"
+	inquiry = "MaxoptixT3-1304         11ba" :
+	inquiry = "MaxoptixT3-1304         1.1c" :
+	# ??? fmt_time = 2520 : veri_time = 1260 :
+	fmt_time = 1400 : veri_time = 410 :
+	nhead = 1 : pcyl = 37594 : spt = 31 : secsize = 512 :
+	#bei defmodes kommt dieser Schrott:
+	#atrk = 0 : tpz = 49225 : aspz = 64387 :
+	atrk = 0 : tpz = 37527 : aspz = 67 :
+	capacity = 1163337 :
+	interleave = 1 : rpm = 3600 :
+	rd_retry_count = 8 : wr_retry_count = 3 :
+	buf_full_ratio = 2 :
+	default_partition = "Generic 595MB (magneto optical)" :
+
+disk_type = "Generic 595MB (magneto optical) 280MB medium"
+	inquiry = "MaxoptixT3-1304         11ba" :
+	inquiry = "MaxoptixT3-1304         1.1c" : 
+	fmt_time = 2520 : veri_time = 1260 :
+	nhead = 1 : pcyl = 18745 : spt = 31 : secsize = 512 :
+	atrk = 0 : tpz = 18745 : aspz = 2046 :
+	capacity = 577001 :
+	interleave = 1 : rpm = 3600 :
+	rd_retry_count = 8 : wr_retry_count = 3 :
+	buf_full_ratio = 2 :
+	default_partition = "Generic 280MB mode3" :
+	# Pages: 0x1 0x2 0x3 0x4 0x8 0x12 0x2A 0x3C 0x0
+
+###############################################################################
+#
+#
+#	bridge controller scsi-st506/st412, scsi-esdi
+#
+#
+###############################################################################
+disk_type = "Generic 103MB (Bull D585)"
+	inquiry = "ADAPTEC ACB-40X0        FAKE" :
+	inquiry = "ADAPTEC ACB-4070        FAKE" :
+	bridge_controller = TRUE :
+	fmt_time = 300 : veri_time = 180 :
+	nhead = 7 : pcyl = 1166 : spt = 26 : secsize = 512 :
+	reduced_curr = 1166 : write_precomp = 1166 : step_rate = 2 :
+	capacity = 212212 : min_capacity = 212085 :
+	interleave = 2 : rpm = 3600 :
+	default_partition = "Generic 103MB" :
+
+disk_type = "Generic 160MB (MegaFile 1200)"
+	inquiry = "EMULEX  MD21/S2     ESDIB00 " :
+	inquiry = "EMULEX  MD21/S2     ESDIC00 " :
+	inquiry = "EMULEX  MD21/S2     ESDID00 " :
+	inquiry = "EMULEX  MD21/S2     ESDIE00 " :
+	inquiry = "EMULEX  MD21/S2     ESDIF00 " :
+	inquiry = "EMULEX  MD21/S2     ESDIG00 " :
+	bridge_controller = TRUE :
+	fmt_time = 360 : veri_time = 180 : wr_veri_count = 20 :
+	nhead = 8 : pcyl = 1216 : spt = 35 : secsize = 512 :
+	atrk = 16 : tpz = 1 : aspz = 1 :
+	capacity = 329392 :
+	track_skew = 8 : cyl_skew = 14 :
+	interleave = 1 : rpm = 3524 :
+	rd_retry_count = 16 :
+	bus_inact_limit = 40 :
+	default_partition = "Generic 160MB" :
+
+disk_type = "Generic 160MB (MegaFile 1200)"
+	inquiry = "ADAPTEC ACB-4525Z       A   " :
+	bridge_controller = TRUE :
+	fmt_time = 360 : veri_time = 180 :
+	nhead = 8 : pcyl = 1214 : spt = 35 : secsize = 512 : #608
+	atrk = 16 : tpz = 8 : aspz = 8 :
+	track_skew = 8 : cyl_skew = 14 :
+	interleave = 1 : rpm = 3524 :
+	default_partition = "Generic 160MB" :
+
+disk_type = "Generic 250MB (MegaFile 1300)"
+	inquiry = "EMULEX  MD21/S2     ESDIB00 " :
+	inquiry = "EMULEX  MD21/S2     ESDIC00 " :
+	inquiry = "EMULEX  MD21/S2     ESDID00 " :
+	inquiry = "EMULEX  MD21/S2     ESDIE00 " :
+	inquiry = "EMULEX  MD21/S2     ESDIF00 " :
+	inquiry = "EMULEX  MD21/S2     ESDIG00 " :
+	bridge_controller = TRUE :
+	fmt_time = 540 : veri_time = 240 : wr_veri_count = 20 :
+	nhead = 12 : pcyl = 1216 : spt = 35 : secsize = 512 :
+	atrk = 24 : tpz = 1 : aspz = 1 :
+	capacity = 494088 :
+	track_skew = 8 : cyl_skew = 14 :
+	interleave = 1 : rpm = 3524 :
+	rd_retry_count = 16 :
+	bus_inact_limit = 40 :
+	default_partition = "Generic 250MB" :
+
+disk_type = "Generic 250MB (MegaFile 1300)"
+	inquiry = "ADAPTEC ACB-4525Z       A   " :
+	bridge_controller = TRUE :
+	fmt_time = 360 : veri_time = 180 :
+	nhead = 12 : pcyl = 1214 : spt = 35 : secsize = 512 : #608
+	atrk = 24 : tpz = 8 : aspz = 8 :
+	track_skew = 8 : cyl_skew = 14 :
+	interleave = 1 : rpm = 3524 :
+	default_partition = "Generic 250MB" :
+
+#
+# New disk/partition type Maxtor 4380
+# saved by joerg@sparky.isdn.cs.tu-berlin.de on Tue Nov 28 23:26:39 1995
+#
+# current data
+disk_type = "Maxtor 4380"
+	inquiry = "EMULEX  MD21/S2     ESDIB00 " :
+	inquiry = "EMULEX  MD21/S2     ESDIC00 " :
+	inquiry = "EMULEX  MD21/S2     ESDID00 " :
+	inquiry = "EMULEX  MD21/S2     ESDIE00 " :
+	inquiry = "EMULEX  MD21/S2     ESDIF00 " :
+	inquiry = "EMULEX  MD21/S2     ESDIG00 " :
+	bridge_controller = TRUE :
+	fmt_time = 660 : veri_time = 300 :
+	nhead = 15 : pcyl = 1224 : spt = 34 : secsize = 512 :
+	atrk = 30 : tpz = 1 : aspz = 1 : 
+	capacity = 603405 :
+	track_skew = 0 : cyl_skew = 10 :
+	interleave = 1 : rpm = 3600 :
+	rd_retry_count = 10 :
+	bus_inact_limit = 30 :
+	default_partition = "Maxtor 4380" :
+
+# default data
+#disk_type = "Maxtor 4380"
+#	inquiry = "EMULEX  MD21/S2     ESDID00 " :
+#	fmt_time = 660 : veri_time = 300 :
+#	nhead = 15 : pcyl = 1224 : spt = 34 : secsize = 512 :
+#	atrk = 45 : tpz = 1 : aspz = 1 : 
+#	capacity = 603405 :
+#	interleave = 1 : rpm = 3600 :
+#	rd_retry_count = 10 :
+#	bus_inact_limit = 5 :
+#	default_partition = "Maxtor 4380" :
+
+disk_type = "Miniscribe 9380E"
+	inquiry = "EMULEX  MD21/S2     ESDIB00 " :
+	inquiry = "EMULEX  MD21/S2     ESDIC00 " :
+	inquiry = "EMULEX  MD21/S2     ESDID00 " :
+	inquiry = "EMULEX  MD21/S2     ESDIE00 " :
+	inquiry = "EMULEX  MD21/S2     ESDIF00 " :
+	inquiry = "EMULEX  MD21/S2     ESDIG00 " :
+	bridge_controller = TRUE :
+	fmt_time = 660 : veri_time = 300 :
+	nhead = 15 : pcyl = 1224 : spt = 36 : secsize = 512 :
+	atrk = 30 : tpz = 1 : aspz = 1 :
+	capacity = 639975 :
+	track_skew = 0 : cyl_skew = 10 :
+	interleave = 1 : rpm = 3600 :
+	rd_retry_count = 16 :
+	bus_inact_limit = 40 :
+	default_partition = "Miniscribe 9380E" :
+
+disk_type = "Siemens MegaFile 1300 - MD25"
+	inquiry = "EMULEX  MD25/S2+    G147A00 " :
+	bridge_controller = TRUE :
+	fmt_time = 540 : veri_time = 240 :
+	nhead = 12 : pcyl = 1216 : spt = 35 : secsize = 512 :
+	atrk = 24 : tpz = 1 : aspz = 1 :
+	capacity = 494088 :
+	track_skew = 7 : cyl_skew = 15 :
+	interleave = 1 : rpm = 3524 :
+	rd_retry_count = 16 : wr_retry_count = 16 :
+	buf_full_ratio = 0 : buf_empt_ratio = 0 : bus_inact_limit = 40 :
+	default_partition = "Siemens MegaFile 1300" :
+
+disk_type = "Siemens MegaFile 5810 - 15 tpz 650MB"
+	inquiry = "EMULEX  MD25/S2+    G147A00 " :
+	bridge_controller = TRUE :
+	default_data = TRUE :
+	fmt_time = 1100 : veri_time = 450 :
+	nhead = 15 : pcyl = 1658 : spt = 54 : secsize = 512 :
+	atrk = 30 : tpz = 15 : aspz = 2 :
+	capacity = 1335624 :
+	track_skew = 0 : cyl_skew = 16 :
+	interleave = 1 : rpm = 3600 :
+	rd_retry_count = 16 : wr_retry_count = 16 :
+	buf_full_ratio = 0 : buf_empt_ratio = 0 : bus_inact_limit = 40 :
+	default_partition = "Siemens MegaFile 5810" :
+
+disk_type = "Siemens MegaFile 5810 - 1 tpz 650MB"
+	inquiry = "EMULEX  MD25/S2+    G147A00 " :
+	bridge_controller = TRUE :
+	fmt_time = 1100 : veri_time = 450 :
+	nhead = 15 : pcyl = 1658 : spt = 54 : secsize = 512 :
+	atrk = 30 : tpz = 1 : aspz = 1 :
+	capacity = 1314135 :
+	track_skew = 0 : cyl_skew = 16 :
+	interleave = 1 : rpm = 3600 :
+	rd_retry_count = 16 : wr_retry_count = 16 :
+	buf_full_ratio = 0 : buf_empt_ratio = 0 : bus_inact_limit = 40 :
+	default_partition = "Siemens MegaFile 5810 - 1 tpz" :
+
+###############################################################################
+#
+#
+#       drives with build-in controller
+#
+#
+###############################################################################
+disk_type = "Especially for Joerg"
+	inquiry = " SEAGATE          ST225N" :
+	fmt_time = 120 : veri_time = 60 :
+	nhead = 4 : pcyl = 615 : spt = 17 : secsize = 512 :
+	atrk = 0 : tpz = 2460 : aspz = 100 : 
+	capacity = 41721 :
+	interleave = 1 : rpm = 3600 :
+	default_partition = "Especially for Joerg" :
+
+disk_type = "Internal use only 80MB Quantum"
+	inquiry = "QUANTUM P80S 980-80-94xxA.2 " :
+	fmt_time = 125 : veri_time = 120 :
+	nhead = 6 : pcyl = 834 : spt = 32 : secsize = 512 :
+	atrk = 12 : tpz = 6 : aspz = 1 :
+	track_skew = 7 : cyl_skew = 15 :
+	interleave = 1 : rpm = 3662 :
+	rd_retry_count = 16 :
+	buf_full_ratio = 0 : buf_empt_ratio = 255 :
+	default_partition = "Internal use only 80MB" :
+	mode_pages = "Internal use only 80MB Quantum" :
+
+disk_type = "Generic 100MB Quantum"
+	inquiry = "QUANTUM P105S 910-10-94xA.1 " :
+	inquiry = "QUANTUM P105SS 910-10-94A.1 " :
+	fmt_time = 128 : veri_time = 120 :
+	nhead = 6 : pcyl = 1019 : spt = 35 : secsize = 512 :
+	atrk = 0 : tpz = 6 : aspz = 1 :
+	capacity = 205075 :
+	track_skew = 7 : cyl_skew = 15 :
+	interleave = 1 : rpm = 3662 :
+	rd_retry_count = 11 :
+	#buf_full_ratio = 0 : buf_empt_ratio = 0 :
+	buf_full_ratio = 0 : buf_empt_ratio = 255 :
+	default_partition = "Generic 100MB" :
+	mode_pages = "Generic 100MB Quantum" :
+
+disk_type = "Generic 100MB Quantum"
+	inquiry = "QUANTUM P105S 910-10-94xA.3 " :
+	inquiry = "QUANTUM P105S 910-10-94x8.9 " :
+	inquiry = "QUANTUM P105SS 910-10-948.9 " :
+	fmt_time = 128 : veri_time = 120 :
+	nhead = 6 : pcyl = 1019 : spt = 35 : secsize = 512 :
+	atrk = 0 : tpz = 6 : aspz = 1 :
+	capacity = 205075 :
+	track_skew = 7 : cyl_skew = 15 :
+	interleave = 1 : rpm = 3662 :
+	rd_retry_count = 16 :
+	buf_full_ratio = 0 : buf_empt_ratio = 255 :
+	default_partition = "Generic 100MB" :
+	mode_pages = "Generic 100MB Quantum" :
+
+disk_type = "Generic 114MB Quantum (Monotype)"
+	inquiry = "QUANTUM PD120S          508D" :
+	fmt_time = 440 : veri_time = 120 :
+	nhead = 5 : pcyl = 1123 : spt = 48 : secsize = 512 :
+	atrk = 2 : tpz = 5 : aspz = 2 :
+	track_skew = 10 : cyl_skew = 15 :
+	interleave = 1 : rpm = 3600 :
+	rd_retry_count = 16 :
+	buf_full_ratio = 128 : buf_empt_ratio = 128 :
+	default_partition = "Generic 114MB" :
+	mode_pages = "Generic 100MB Quantum"
+
+disk_type = "Generic 190MB Maxtor"
+	inquiry = "MAXTOR  LXT-200S        2.01" :
+	inquiry = "MAXTOR  LXT-200S        2.11" :
+	inquiry = "MAXTOR  LXT-200S        2.16" :
+	inquiry = "MAXTOR  LXT-200S        3.10" :
+	fmt_time = 614 : veri_time = 166 :
+	nhead = 7 : pcyl = 1314 : spt = 42 : secsize = 512 :
+	atrk = 14 : tpz = 1 : aspz = 1 :
+	capacity = 392056 :
+	track_skew = 1 : cyl_skew = 21 :
+	def_lst_format = 4 :
+	interleave = 1 : rpm = 3600 :
+	rd_retry_count = 16 :
+	buf_full_ratio = 0 : buf_empt_ratio = 64 :
+	default_partition = "Generic 190MB" :
+	mode_pages = "Generic 190MB Maxtor" :
+
+disk_type = "Generic 200MB Quantum"
+	inquiry = "QUANTUM PD210S          478S" :
+	inquiry = "QUANTUM PD210S   SUN0207492S" :
+	inquiry = "QUANTUM PD210S          527_" :
+	inquiry = "QUANTUM PD210S          501C" :
+	fmt_time = 479 : veri_time = 180 :
+	nhead = 7 : pcyl = 1156 : spt = 59 : secsize = 512 :
+	atrk = 14 : tpz = 7 : aspz = 2 :
+	capacity = 408574 :
+	track_skew = 14 : cyl_skew = 26 :
+	interleave = 1 : rpm = 3605 :
+	rd_retry_count = 16 :
+	buf_full_ratio = 128 : buf_empt_ratio = 128 :
+	default_partition = "Generic 200MB" :
+	mode_pages = "Generic 200MB Quantum" :
+
+disk_type = "RODIME RO3000T"
+	inquiry = "RODIME  RO3000T         5.04" :
+	fmt_time = 370 : veri_time = 230 :
+	nhead = 9 : pcyl = 1216 : spt = 41 : secsize = 512 :
+	atrk = 6 : tpz = 1219 : aspz = 1219 : 
+	capacity = 410211 :
+	track_skew = 7 : cyl_skew = 11 :
+	interleave = 1 : rpm = 3600 :
+	rd_retry_count = 4 :
+	default_partition = "RODIME RO3000T" :
+
+disk_type = "Generic 202MB Maxtor"
+	inquiry = "MAXTOR  LXT-213S        4.15" :
+	inquiry = "MAXTOR  LXT-213S        4.18" :
+	inquiry = "MAXTOR  LXT-213S        4.20" :
+	inquiry = "MAXTOR  LXT-213S        4.55" :
+	inquiry = "MAXTOR  LXT-213S        4.57" :
+	fmt_time = 333 : veri_time = 165 :
+	nhead = 7 : pcyl = 1310 : spt = 42 : secsize = 512 :
+	atrk = 7 : tpz = 1 : aspz = 1 :
+	track_skew = 1 :
+	interleave = 1 : rpm = 3600 :
+	rd_retry_count = 16 :
+	buf_full_ratio = 16 : buf_empt_ratio = 64 :
+	default_partition = "Generic 202MB" :
+	mode_pages = "Generic 202MB Maxtor" :
+
+disk_type = "Generic 202MB Maxtor"
+	inquiry = "MAXTOR  LXT-213S SUN02074.15" :
+	inquiry = "MAXTOR  LXT-213S SUN02074.17" :
+	inquiry = "MAXTOR  LXT-213S SUN02074.20" :
+	inquiry = "MAXTOR  LXT-213S SUN02074.22" :
+	inquiry = "MAXTOR  LXT-213S SUN02074.24" :
+	inquiry = "MAXTOR  LXT-213S SUN02074.26" :
+	fmt_time = 333 : veri_time = 165 :
+	nhead = 7 : pcyl = 1310 : spt = 42 : secsize = 512 :
+	atrk = 7 : tpz = 7 : aspz = 1 :
+	capacity = 415436 :
+	track_skew = 1 :
+	interleave = 1 : rpm = 3600 :
+	rd_retry_count = 16 :
+	buf_full_ratio = 16 : buf_empt_ratio = 64 :
+	default_partition = "Generic 202MB" :
+	mode_pages = "Generic 202MB Maxtor" :
+
+disk_type = "Generic 203MB Conner"
+	inquiry = "CONNER  CP30200  SUN02074234" :
+	fmt_time = 164 : veri_time = 134 :
+	veri_count = 200 : wr_veri_count = 200 :
+	nhead = 4 : pcyl = 2123 : spt = 50 : secsize = 512 :
+	atrk = 8 : tpz = 1 : aspz = 1 :
+	track_skew = 8 : cyl_skew = 25 :
+	interleave = 1 : rpm = 3600 :
+	rd_retry_count = 16 :
+	buf_full_ratio = 128 : buf_empt_ratio = 128 :
+	default_partition = "Generic 202MB" :
+	mode_pages = "Generic 203MB Conner" :
+
+disk_type = "Generic 237MB Seagate"
+	inquiry = "SEAGATE ST3283N         0061" :	# Drive not ready
+	inquiry = "SEAGATE ST3283N         9303" :
+	fmt_time = 233 : veri_time = 142 :
+	nhead = 5 : pcyl = 1691 : spt = 70 : secsize = 512 :
+	atrk = 10 : tpz = 5 : aspz = 1 :
+	track_skew = 1 : cyl_skew = 9 :
+	interleave = 1 : rpm = 3600 :
+	rd_retry_count = 27 :
+	buf_full_ratio = 192 : buf_empt_ratio = 64 :
+	default_partition = "Generic 202MB" :
+	mode_pages = "Generic 237MB Seagate" :
+
+disk_type = "Alps 201MB"
+	inquiry = "ALPS    DR312D           1.B" :
+	fmt_time = 300 : veri_time = 215 :
+	nhead = 4 : pcyl = 2108 : spt = 49 : secsize = 512 :
+	atrk = 8 : tpz = 4 : aspz = 4 :
+	capacity = 413168 :
+	interleave = 1 : rpm = 3600 :
+	rd_retry_count = 16 :
+	default_partition = "Alps 200MB" :
+	mode_pages = "Alps 201MB :
+
+disk_type = "Maxtor 7290"
+	inquiry = "MAXTOR  7290-SCSI       2065" :
+	fmt_time = 300 : veri_time = 120 :
+	nhead = 4 : pcyl = 1751 : spt = 96 : secsize = 512 :
+	atrk = 4 : tpz = 4 : aspz = 4 :
+	capacity = 566456 :
+	track_skew = 23 : cyl_skew = 26 :
+	interleave = 1 : rpm = 3600 :
+	rd_retry_count = 16 :
+	buf_full_ratio = 160 : buf_empt_ratio = 192 :
+	default_partition = "Maxtor 7290" :
+
+disk_type = "Wren Runner 300MB"
+#		   Seagate ST4385N	WREN Runner
+	inquiry = "CDC     94181-          5474" :	# Not Ready
+	inquiry = "CDC     94181-15        0297" :
+	inquiry = "CDC     94181-15        5474" :
+	fmt_time = 800 : veri_time = 360 :
+	nhead = 15 : pcyl = 791 : spt = 56 : secsize = 512 :
+	atrk = 30 : tpz = 1 : aspz = 1 :
+	capacity = 645300 :
+	track_skew = 2 : cyl_skew = 19 :
+	interleave = 1 : rpm = 3597 :
+	rd_retry_count = 27 :
+	buf_full_ratio = 4 : buf_empt_ratio = 4 :
+	default_partition = "Wren Runner 300MB" :
+	mode_pages = "Wren Runner 300MB" :
+
+disk_type = "Fujitsu 320MB"
+	inquiry = "FUJITSU M2249SA         0103" :
+	inquiry = "FUJITSU M2249SB         0103" :
+	fmt_time = 660 : veri_time = 360 :
+	nhead = 15 : pcyl = 1243 : spt = 36 : secsize = 512 :
+	atrk = 0 : tpz = 0 : aspz = 0 :
+	capacity = 651525 :
+	interleave = 1 : rpm = 3600 :
+	rd_retry_count = 16 :
+	buf_full_ratio = 1 : buf_empt_ratio = 1 :
+	default_partition = "Fujitsu 320MB" :
+
+disk_type = "FUJITSU M2623F-512"
+	inquiry = "FUJITSU M2623F-512      0405" :
+	#fmt_time = 480 : veri_time = 240 :
+	fmt_time = 560 : veri_time = 220 :
+	nhead = 9 : pcyl = 1429 : spt = 63 : secsize = 512 :
+	atrk = 9 : tpz = 9 : aspz = 3 : 
+	capacity = 830340 :
+	track_skew = 10 : cyl_skew = 22 :
+	interleave = 1 : rpm = 3600 :
+	rd_retry_count = 18 :
+	buf_full_ratio = 128 : buf_empt_ratio = 128 :
+	default_partition = "FUJITSU M2623F-512" :
+
+disk_type = "Generic 400MB Seagate"
+	inquiry = "SEAGATE ST1480          5129" :
+	inquiry = "SEAGATE ST1480          5736" :
+	inquiry = "SEAGATE ST1480          5830" :
+	inquiry = "SEAGATE ST1480          7336" :
+	inquiry = "SEAGATE ST1480          7750" : # Apple Drive no Page 8 & A
+	inquiry = "SEAGATE ST1480          8650" :
+	fmt_time = 731 : veri_time = 300 :
+	nhead = 9 : pcyl = 1476 : spt = 64 : secsize = 512 :
+	atrk = 18 : tpz = 9 : aspz = 3 :
+	capacity = 841371 :
+	track_skew = 7 : cyl_skew = 26 :
+	interleave = 1 : rpm = 4412 :
+	rd_retry_count = 27 :
+	#buf_full_ratio = 2 : buf_empt_ratio = 2 :
+	buf_full_ratio = 128 : buf_empt_ratio = 128 :
+	default_partition = "Generic 400MB-F" :
+	mode_pages = "Generic 400MB Seagate" :
+
+disk_type = "Generic 400MB Seagate"
+	inquiry = "SEAGATE ST1480   SUN04245826" :
+	inquiry = "SEAGATE ST1480   SUN04247516" :
+	inquiry = "SEAGATE ST1480   SUN04248628" :
+	fmt_time = 731 : veri_time = 300 :
+	nhead = 9 : pcyl = 1476 : spt = 64 : secsize = 512 :
+	atrk = 18 : tpz = 9 : aspz = 3 :
+	capacity = 843284 :
+	track_skew = 7 : cyl_skew = 26 :
+	interleave = 1 : rpm = 4412 :
+	rd_retry_count = 27 :
+	buf_full_ratio = 128 : buf_empt_ratio = 128 :
+	default_partition = "Generic 400MB-F" :
+	mode_pages = "Generic 400MB Seagate" :
+
+disk_type = "Generic 435MB Seagate"
+	inquiry = "SEAGATE ST3550N         9416" :
+	fmt_time = 296 : veri_time = 180 :
+	nhead = 5 : pcyl = 2128 : spt = 82 : secsize = 512 :
+	atrk = 10 : tpz = 5 : aspz = 1 :
+	track_skew = 2 : cyl_skew = 9 :
+	interleave = 1 : rpm = 4500 :
+	rd_retry_count = 27 :
+	buf_full_ratio = 2 : buf_empt_ratio = 2 :
+	default_partition = "Generic 400MB-F" :
+	mode_pages = "Generic 435MB Seagate":
+
+disk_type = "Generic 520MB Conner"
+	inquiry = "CONNER  CP30540  SUN0535B0BB" :
+	inquiry = "CONNER  CP30540  SUN0535B0CC" :
+	inquiry = "CONNER  CP30540  SUN0535B0CD" :
+	fmt_time = 275 : veri_time = 180 :
+	nhead = 6 : pcyl = 2242 : spt = 90 : secsize = 512 :
+	atrk = 0 : tpz = 1 : aspz = 1 :
+	capacity = 1065912 :
+	track_skew = 5 : cyl_skew = 45 :
+	interleave = 1 : rpm = 5400 :
+	rd_retry_count = 16 : wr_retry_count = 16 :
+	buf_full_ratio = 192 : buf_empt_ratio = 192 :
+	default_partition = "Generic 500MB-F" :
+	mode_pages = "Generic 520MB Conner":
+
+disk_type = "CDC Wren VI 94191-766"
+	inquiry = "CDC     94191-          5374" :	# not ready
+	inquiry = "CDC     94191-15        0136" :
+	fmt_time = 1640 : veri_time = 765 :
+	nhead = 15 : pcyl = 1632 : spt = 54 : secsize = 512 :
+	atrk = 30 : tpz = 1 : aspz = 1 : 
+	capacity = 1295850 :
+	track_skew = 2 : cyl_skew = 20 :
+	interleave = 1 : rpm = 3600 :
+	rd_retry_count = 27 :
+	buf_full_ratio = 4 : buf_empt_ratio = 4 :
+	default_partition = "CDC Wren VI 94191-766" :
+
+disk_type = "QUANTUM LIGHTNING"
+	inquiry = "QUANTUM LIGHTNING 730S  241E" :
+	fmt_time = 300 : veri_time = 280 :
+	#nhead = 2 : pcyl = 3658 : spt = 95 : secsize = 512 :	# firmware bug
+	nhead = 4 : pcyl = 3658 : spt = 128 : secsize = 512 :
+	atrk = 0 : tpz = 4 : aspz = 2 :
+	capacity = 1431760 :
+	track_skew = 21 : cyl_skew = 27 :
+	interleave = 1 : rpm = 4500 :
+	rd_retry_count = 8 :
+	buf_full_ratio = 0 : buf_empt_ratio = 194 :
+	default_partition = "QUANTUM LIGHTNING" :
+	mode_pages = "Generic 730MB Quantum" :
+
+disk_type = "Generic 1000MB Seagate"
+#		   SEAGATE ST41200N
+	inquiry = "IMPRIMIS94601-          2342" :	# drive not ready
+	inquiry = "IMPRIMIS94601-15        0368" :
+	inquiry = "IMPRIMIS94601-15        2338" :
+	inquiry = "IMPRIMIS94601-15        4202" :
+	inquiry = "IMPRIMIS94601-15        4614" :
+	inquiry = "IMPRIMIS94601-15        4638" :
+	inquiry = "IMPRIMIS94601-15        6372" :
+	fmt_time = 1957 : veri_time = 2220 :
+	nhead = 15 : pcyl = 1931 : spt = 71 : secsize = 512 :
+	atrk = 30 : tpz = 15 : aspz = 5 :
+	capacity = 2050995 :
+	track_skew = 6 : cyl_skew = 23 :
+	interleave = 1 : rpm = 3597 :
+	rd_retry_count = 27 :
+	buf_full_ratio = 0 : buf_empt_ratio = 0 :
+	default_partition = "Generic 1000MB-F" :
+	mode_pages = "Generic 1000MB Seagate" :
+
+disk_type = "Generic 1001MB Micropolis"
+	inquiry = "MICROP  2112-15MQ10686054848" :
+	fmt_time = 1586 : veri_time = 500 :
+	nhead = 15 : pcyl = 1760 : spt = 77 : secsize = 512 :
+	atrk = 30 : tpz = 15 : aspz = 6 :
+	track_skew = 10 : cyl_skew = 31 :
+	interleave = 1 : rpm = 5400 :
+	rd_retry_count = 16 : wr_retry_count = 16 : recov_timelim = 0 :
+	buf_full_ratio = 128 : buf_empt_ratio = 128 : bus_inact_limit = 40 :
+	default_partition = "Generic 1000MB-F" :
+	mode_pages = "Generic 1001MB Micropolis" :
+
+disk_type = "Internal use only 1003MB Hewlett Packard"
+	inquiry = "HP      C2247-300       0B03" :
+	fmt_time = 633 : veri_time = 350 :
+	nhead = 13 : pcyl = 2051 : spt = 96 : secsize = 512 :
+	atrk = 26 : tpz = 6925 : aspz = 1 :
+	track_skew = 14 : cyl_skew = 32 :
+	interleave = 1 : rpm = 5400 :
+	rd_retry_count = 16 : wr_retry_count = 16 : recov_timelim = 0 :
+	buf_full_ratio = 192 : buf_empt_ratio = 192 : bus_inact_limit = 40 :
+	disc_time_limit = 0 : conn_time_limit = 0 : max_burst_size = 0 :
+	data_tr_dis_ctl = 0 :
+	default_partition = "Internal use only 1003MB" :
+
+#
+# New disk/partition type HP C2247
+# saved by joerg@sparky.isdn.cs.tu-berlin.de on Sat Oct 14 18:56:27 1995
+#
+disk_type = "HP C2247"
+	inquiry = "HP      C2247           0BH4" :
+	fmt_time = 630 : veri_time = 360 :
+	nhead = 13 : pcyl = 2051 : spt = 96 : secsize = 512 :
+	atrk = 897 : tpz = 6925 : aspz = 0 : 
+	capacity = 2054864 :
+	track_skew = 14 : cyl_skew = 32 :
+	interleave = 1 : rpm = 5400 :
+	rd_retry_count = 8 : wr_retry_count = 8 : recov_timelim = 0 :
+	buf_full_ratio = 192 : buf_empt_ratio = 192 : bus_inact_limit = 4 :
+	disc_time_limit = 0 : conn_time_limit = 0 : max_burst_size = 0 : data_tr_dis_ctl = 0 :
+	default_partition = "HP C2247" :
+
+disk_type = "IBM 0663"
+	inquiry = "IBM OEM 0663L12         s t " :
+	fmt_time = 1400 : veri_time = 570 :
+	nhead = 15 : pcyl = 2051 : spt = 66 : secsize = 512 :
+	atrk = 0 : tpz = 15 : aspz = 0 :
+	capacity = 1962030 :
+	track_skew = 4 : cyl_skew = 15 :
+	interleave = 1 : rpm = 4316 :
+	rd_retry_count = 1 :
+	buf_full_ratio = 131 : buf_empt_ratio = 131 : max_burst_size = 0 :
+	default_partition = "IBM 0663" :
+	mode_pages = "IBM 0663"
+
+disk_type = "Generic 1003MB IBM"
+	inquiry = "IBM OEM 0662S12         1011" :
+	inquiry = "IBM OEM 0662S12         3 30" :
+	fmt_time = 970 : veri_time = 270 :
+	nhead = 5 : pcyl = 4119 : spt = 108 : secsize = 512 :
+	atrk = 0 : tpz = 5 : aspz = 16 :
+	capacity = 2055035 :
+	track_skew = 8 : cyl_skew = 16 :
+	interleave = 1 : rpm = 5400 :
+	rd_retry_count = 1 :
+	buf_full_ratio = 0 : buf_empt_ratio = 0 : max_burst_size = 0 :
+	data_tr_dis_ctl = 0 :
+	default_partition = "Generic 1000MB-F" :
+	#mode-pages= "" :
+
+disk_type = "Internal use only 1003MB Quantum"
+	inquiry = "QUANTUM PD1050iS        3072" :
+	fmt_time = 531 : veri_time = 424 :
+	nhead = 12 : pcyl = 2448 : spt = 92 : secsize = 512 :
+	atrk = 24 : tpz = 12 : aspz = 2 :
+	track_skew = 19 : cyl_skew = 25 :
+	interleave = 1 : rpm = 5400 :			# rpm geschaetzt !
+	rd_retry_count = 16 :
+	buf_full_ratio = 217 : buf_empt_ratio = 217 :
+	default_partition = "Internal use only 1003MB" :
+	mode_pages = "Internal use only 1003MB Quantum" :
+
+disk_type = "Generic 1005MB Seagate"
+	inquiry = "SEAGATE ST11200N        8334" :
+	inquiry = "SEAGATE ST11200N        8770" :
+	inquiry = "SEAGATE ST11200N        9300" :
+	inquiry = "SEAGATE ST11200N SUN1.059500" :
+	inquiry = "SEAGATE ST11200N SUN1.058258" :
+	inquiry = "SEAGATE ST11200N SUN1.058808" :
+	fmt_time = 1380 : veri_time = 390 :
+	nhead = 15 : pcyl = 1872 : spt = 74 : secsize = 512 :
+	atrk = 30 : tpz = 15 : aspz = 12 :
+	capacity = 2059140 :
+	track_skew = 13 : cyl_skew = 21 :
+	interleave = 1 : rpm = 5411 :
+	rd_retry_count = 27 : wr_retry_count = 3 :
+	buf_full_ratio = 128 : buf_empt_ratio = 128 :
+	default_partition = "Generic 1000MB-F" :
+	mode_pages = "Generic 1005MB Seagate" :
+
+disk_type = "Generic 1006MB Seagate SUN"
+	inquiry = "SEAGATE ST31200W SUN1.058566" :
+	inquiry = "SEAGATE ST31200W SUN1.058724" :
+	inquiry = "SEAGATE ST31200W SUN1.058725" :
+	fmt_time = 1200 : veri_time = 340 :
+	nhead = 9 : pcyl = 2700 : spt = 85 : secsize = 512 :
+	atrk = 18 : tpz = 9 : aspz = 9 :
+	capacity = 2061108 :
+	track_skew = 13 : cyl_skew = 23 :
+	interleave = 1 : rpm = 5411 :
+	rd_retry_count = 16 : wr_retry_count = 22 :
+	buf_full_ratio = 128 : buf_empt_ratio = 128 :
+	default_partition = "Generic 1000MB-F" :
+	mode_pages = "Generic 1006MB Seagate SUN" :
+
+disk_type = "Generic 1006MB Seagate"
+	inquiry = "SEAGATE ST31200N        8008" :
+	inquiry = "SEAGATE ST31200N        8630" :
+	inquiry = "SEAGATE ST31200N        8648" :
+	inquiry = "SEAGATE ST31200N        8588" :
+	inquiry = "SEAGATE ST31200N SUN1.058564" :
+	inquiry = "SEAGATE ST31200N SUN1.058722" :
+	fmt_time = 1200 : veri_time = 340 :
+	nhead = 9 : pcyl = 2700 : spt = 85 : secsize = 512 :
+	atrk = 18 : tpz = 9 : aspz = 9 :
+	capacity = 2061108 :
+	track_skew = 13 : cyl_skew = 23 :
+	interleave = 1 : rpm = 5411 :
+	rd_retry_count = 33 : wr_retry_count = 22 :
+	buf_full_ratio = 128 : buf_empt_ratio = 128 :
+	default_partition = "Generic 1000MB-F" :
+	mode_pages = "Generic 1006MB Seagate" :
+
+disk_type = "Conner 1013MB"
+	inquiry = "CONNER  CFP1060S 1.05GB 1823" :
+	fmt_time = 440 : veri_time = 425 :
+	nhead = 8 : pcyl = 2756 : spt = 112 : secsize = 512 :
+	atrk = 0 : tpz = 1 : aspz = 1 :
+	capacity = 2074880 :
+	track_skew = 5 : cyl_skew = 60 :
+	interleave = 1 : rpm = 5400 :
+	rd_retry_count = 16 : wr_retry_count = 16 :
+	buf_full_ratio = 160 : buf_empt_ratio = 96 :
+	default_partition = "Conner 1013MB" :
+	mode_pages = "Conner 1013MB" :
+
+#
+# New disk/partition type CONNER CFP1080E
+# saved by schilling@sherwood.fokus.gmd.de on Fri Nov  3 14:18:14 1995
+#
+disk_type = "CONNER CFP1080E"
+	inquiry = "CONNER  CFP1080E SUN1.054649" :
+	fmt_time = 540 : veri_time = 300 :
+	nhead = 6 : pcyl = 3658 : spt = 120 : secsize = 512 :
+	atrk = 0 : tpz = 1 : aspz = 1 : 
+	capacity = 2110812 :
+	track_skew = 12 : cyl_skew = 16 :
+	interleave = 1 : rpm = 5400 :
+	rd_retry_count = 16 : wr_retry_count = 16 :
+	buf_full_ratio = 128 : buf_empt_ratio = 128 :
+	default_partition = "CONNER CFP1080E" :
+
+disk_type = "Fujitsu 1033MB"
+	inquiry = "FUJITSU M2694ES-512     812A" :
+	fmt_time = 970 : veri_time = 380 :
+	nhead = 15 : pcyl = 1819 : spt = 77 : secsize = 512 :
+	atrk = 15 : tpz = 15 : aspz = 5 :
+	capacity = 2117025 :
+	track_skew = 12 : cyl_skew = 19 :
+	interleave = 1 : rpm = 5400 :
+	rd_retry_count = 18 : wr_retry_count = 18 :
+	buf_full_ratio = 128 : buf_empt_ratio = 128 :
+	default_partition = "Fujitsu 1033MB" :
+
+disk_type = "Toshiba 1015MB"
+	inquiry = "TOSHIBA MK537FB/        6258" :
+	fmt_time = 1200 : veri_time = 630 :
+	nhead = 13 : pcyl = 1980 : spt = 109 : secsize = 512 :
+	atrk = 0 : tpz = 0 : aspz = 0 :
+	capacity = 2079838 :
+	track_skew = 17 : cyl_skew = 28 :
+	interleave = 1 : rpm = 3600 :
+	#rd_retry_count = 7 : wr_retry_count = 3 :
+	rd_retry_count = 16 : wr_retry_count = 16 :
+	buf_full_ratio = 1 : buf_empt_ratio = 160 :
+	default_partition = "Toshiba 1015MB" :
+
+#
+# New disk/partition type IBM DPES-31080
+# saved by schilling@sherwood.fokus.gmd.de on Fri Nov  3 12:51:07 1995
+#
+disk_type = "IBM DPES-31080"
+	inquiry = "IBM     DPES-31080      S31Q" :
+	fmt_time = 470 : veri_time = 280 :
+	nhead = 4 : pcyl = 4903 : spt = 108 : secsize = 512 :
+	atrk = 8 : tpz = 484 : aspz = 50 : 
+	capacity = 2118144 :
+	track_skew = 11 : cyl_skew = 15 :
+	interleave = 1 : rpm = 5400 :
+	rd_retry_count = 1 : wr_retry_count = 1 :
+	buf_full_ratio = 0 : buf_empt_ratio = 0 :
+	default_partition = "IBM DPES-31080" :
+
+#
+# New disk/partition type Quantum XP31070W
+# saved by joerg@sparky.isdn.cs.tu-berlin.de on Sun Dec  8 11:50:48 1996
+#
+disk_type = "Quantum XP31070W"
+	inquiry = "Quantum XP31070W        L912" :
+	#fmt_time = 420 : veri_time = 180 :
+	fmt_time = 870 : veri_time = 205 :
+	nhead = 5 : pcyl = 3907 : spt = 115 : secsize = 512 :
+	atrk = 0 : tpz = 5 : aspz = 5 : 
+	capacity = 2203480 :
+	track_skew = 9 : cyl_skew = 18 :
+	interleave = 1 : rpm = 7200 :
+	rd_retry_count = 8 : wr_retry_count = 8 : recov_timelim = 0 :
+	buf_full_ratio = 0 : buf_empt_ratio = 0 : bus_inact_limit = 0 :
+	disc_time_limit = 0 : conn_time_limit = 0 : max_burst_size = 0 :
+	data_tr_dis_ctl = 0 :
+	default_partition = "Quantum XP31070" :
+
+disk_type = "Toshiba 1171MB"
+	inquiry = "TOSHIBA MK538FB         6030" :
+	fmt_time = 1370 : veri_time = 540 :
+	nhead = 15 : pcyl = 1980 : spt = 109 : secsize = 512 :
+	atrk = 0 : tpz = 0 : aspz = 0 :
+	track_skew = 17 : cyl_skew = 28 :
+	interleave = 1 : rpm = 3600 :
+	rd_retry_count = 16 : wr_retry_count = 16 :
+	buf_full_ratio = 1 : buf_empt_ratio = 160 :
+	default_partition = "Toshiba 1171MB" :
+
+disk_type = "Internal use only 1909MB Hewlett Packard"
+	inquiry = "HP      C3010-300       0B02" :
+	fmt_time = 1020 : veri_time = 540 :
+	nhead = 19 : pcyl = 2325 : spt = 96 : secsize = 512 :
+	atrk = 38 : tpz = 28515 : aspz = 1 :
+	track_skew = 14 : cyl_skew = 31 :
+	interleave = 1 : rpm = 5400 :
+	rd_retry_count = 16 : wr_retry_count = 16 : recov_timelim = 0 :
+	buf_full_ratio = 192 : buf_empt_ratio = 192 : bus_inact_limit = 40 :
+	disc_time_limit = 0 : conn_time_limit = 0 : max_burst_size = 0 :
+	data_tr_dis_ctl = 0 :
+	default_partition = "Internal use only 1909MB" :
+
+disk_type = "IBM 1920MB"
+	inquiry = "IBM OEM 0664M1H         5 50" :
+	fmt_time = 2040 : veri_time = 560 :
+	nhead = 15 : pcyl = 2857 : spt = 94 : secsize = 512 :
+	atrk = 0 : tpz = 15 : aspz = 34 :
+	track_skew = 8 : cyl_skew = 17 :
+	interleave = 1 : rpm = 5400 :
+	rd_retry_count = 1 :
+	buf_full_ratio = 138 : buf_empt_ratio = 138 : max_burst_size = 0 :
+	data_tr_dis_ctl = 0 :
+	default_partition = "IBM 1920MB" :
+	mode_pages = "IBM 1920MB" :
+
+disk_type = "Generic 2001MB Micropolis"
+	inquiry = "MICROP  1924-21MZ10784043861" :
+	fmt_time = 2955 : veri_time = 540 :
+	nhead = 21 : pcyl = 2280 : spt = 85 : secsize = 512 :
+	atrk = 42 : tpz = 21 : aspz = 11 :
+	capacity = 4098700 :				# ??? Knut's Liste
+	track_skew = 14 : cyl_skew = 31 :
+	interleave = 1 : rpm = 5400 :
+	rd_retry_count = 16 :
+	buf_full_ratio = 128 : buf_empt_ratio = 128 : bus_inact_limit = 40 :
+	default_partition = "Generic 2000MB-F" :
+	mode_pages = "Generic 2001MB Micropolis" :
+
+disk_type = "Generic 2030MB Seagate"
+	inquiry = "SEAGATE ST42400N        0116" :
+	inquiry = "SEAGATE ST42400N        0119" :
+	fmt_time = 2103 : veri_time = 600 :
+	nhead = 19 : pcyl = 2626 : spt = 84 : secsize = 512 :
+	atrk = 38 : tpz = 19 : aspz = 6 :
+	capacity = 4158138 :
+	track_skew = 2 : cyl_skew = 21 :
+	interleave = 1 : rpm = 5400 :
+	rd_retry_count = 27 :
+	buf_full_ratio = 0 : buf_empt_ratio = 0 : data_tr_dis_ctl = 0 :
+	default_partition = "Generic 2000MB-F" :
+	mode_pages = "Generic 2030MB Seagate" :
+
+#
+# New disk/partition type SEAGATE ST12550N saved on Sun Sep 24 21:41:18 1995
+#
+disk_type = "SEAGATE ST12550N"
+	inquiry = "SEAGATE ST12550N        0008" :
+	fmt_time = 900 : veri_time = 480 :
+	nhead = 19 : pcyl = 2708 : spt = 81 : secsize = 512 :
+	atrk = 19 : tpz = 19 : aspz = 9 : 
+	track_skew = 7 : cyl_skew = 16 :
+	interleave = 1 : rpm = 7200 :
+	rd_retry_count = 27 : wr_retry_count = 3 :
+	buf_full_ratio = 128 : buf_empt_ratio = 128 :
+	default_partition = "SEAGATE ST12550N" :
+
+disk_type = "SEAGATE ST32550N"
+	inquiry = "SEAGATE ST32550N        0016" :
+	fmt_time = 1980 : veri_time = 390 :
+	nhead = 11 : pcyl = 3511 : spt = 109 : secsize = 512 :
+	atrk = 22 : tpz = 11 : aspz = 9 : 
+	capacity = 4194058 :
+	track_skew = 8 : cyl_skew = 16 :
+	interleave = 1 : rpm = 7200 :
+	rd_retry_count = 33 : wr_retry_count = 3 :
+	buf_full_ratio = 128 : buf_empt_ratio = 128 : data_tr_dis_ctl = 0 :
+	default_partition = "SEAGATE ST32550N" :
+
+disk_type = "Generic 2048MB Seagate"
+	inquiry = "SEAGATE ST12400N        8010" :
+	inquiry = "SEAGATE ST12400N        8650" :
+	fmt_time = 2420 : veri_time = 690 :
+	nhead = 19 : pcyl = 2621 : spt = 84 : secsize = 512 :
+	atrk = 38 : tpz = 19 : aspz = 12 :
+	capacity = 4194685 :
+	track_skew = 13 : cyl_skew = 22 :
+	interleave = 1 : rpm = 5411 :
+	rd_retry_count = 33 : wr_retry_count = 22 :
+	buf_full_ratio = 128 : buf_empt_ratio = 128 :
+	default_partition = "Generic 2000MB-F" :
+	mode_pages = "Generic 2048MB Seagate" :
+
+disk_type = "Generic 2048MB Seagate"		# Alte Version m. Fehlern
+	inquiry = "SEAGATE ST12400N        9200" :
+	default_data = TRUE :
+	fmt_time = 2420 : veri_time = 690 :
+	nhead = 19 : pcyl = 2621 : spt = 84 : secsize = 512 :
+	# default values differ (firmware bug)
+	# nhead = 19 : pcyl = 2621 : spt = 83 : secsize = 512 :
+	atrk = 38 : tpz = 19 : aspz = 12 :
+	capacity = 4194685 :
+	track_skew = 13 : cyl_skew = 22 :
+	# default values differ (firmware bug)
+	# track_skew = 14 : cyl_skew = 22 :
+	interleave = 1 : rpm = 5411 :
+	rd_retry_count = 27 : wr_retry_count = 3 :
+	buf_full_ratio = 128 : buf_empt_ratio = 128 :
+	default_partition = "Generic 2000MB-F" :
+	mode_pages = "Generic 2048MB Seagate" :
+
+#
+# New disk/partition type SEAGATE ST32151N
+# saved by schilling@iowa.fokus.gmd.de on Wed Dec  4 18:16:48 1996
+#
+disk_type = "SEAGATE ST32151"
+	inquiry = "SEAGATE ST32151N        0530" :
+	inquiry = "SEAGATE ST32151W        0526" :
+	fmt_time = 840 : veri_time = 420 :
+	nhead = 8 : pcyl = 4177 : spt = 126 : secsize = 512 :
+	atrk = 16 : tpz = 8 : aspz = 10 : 
+	capacity = 4197405 :
+	track_skew = 36 : cyl_skew = 48 :
+	interleave = 1 : rpm = 5410 :
+	rd_retry_count = 17 : wr_retry_count = 13 :
+	buf_full_ratio = 128 : buf_empt_ratio = 128 :
+	data_tr_dis_ctl = 0 :
+	default_partition = "SEAGATE ST32151" :
+	mode_pages = "Generic 2048MB Seagate" :
+
+disk_type = "Quantum XP32150"
+	inquiry = "Quantum XP32150         576D" :
+	fmt_time = 1210 : veri_time = 2410 :
+	nhead = 10 : pcyl = 3907 : spt = 109 : secsize = 512 :
+	atrk = 0 : tpz = 10 : aspz = 10 : 
+	capacity = 4199760 :
+	track_skew = 9 : cyl_skew = 27 :
+	interleave = 0 : rpm = 7200 :
+	rd_retry_count = 8 : wr_retry_count = 8 : recov_timelim = 0 :
+	buf_full_ratio = 0 : buf_empt_ratio = 0 : bus_inact_limit = 0 :
+	disc_time_limit = 0 : conn_time_limit = 0 : 
+	max_burst_size = 0 : data_tr_dis_ctl = 0 :
+	default_partition = "Quantum XP32150" :
+
+#
+# New disk/partition type QUANTUM VP32210
+# saved by schilling@sherwood.fokus.gmd.de on Mon Oct  7 18:34:26 1996
+#
+disk_type = "QUANTUM VP32210"
+	inquiry = "QUANTUM VP32210         81H8" :
+	fmt_time = 1600 : veri_time = 3090 :
+	nhead = 8 : pcyl = 4243 : spt = 129 : secsize = 512 :
+	atrk = 0 : tpz = 8 : aspz = 8 : 
+	capacity = 4308352 :
+	track_skew = 9 : cyl_skew = 9 :
+	interleave = 0 : rpm = 5403 :
+	rd_retry_count = 8 : wr_retry_count = 8 : recov_timelim = 0 :
+	buf_full_ratio = 0 : buf_empt_ratio = 0 : bus_inact_limit = 0 :
+	disc_time_limit = 0 : conn_time_limit = 0 : max_burst_size = 0 :
+	data_tr_dis_ctl = 0 :
+	default_partition = "QUANTUM VP32210" :
+
+#
+# New disk/partition type IBM DORS-32160
+# saved by joerg@sparky.isdn.cs.tu-berlin.de on Sat Nov  2 22:27:14 1996
+#
+disk_type = "IBM DORS-32160"
+	inquiry = "IBM     DORS-32160      WA6A" :
+	inquiry = "IBM     DORS-32160W     WA6A" :
+	fmt_time = 500 : veri_time = 450 :
+	nhead = 5 : pcyl = 6703 : spt = 125 : secsize = 512 :
+	atrk = 0 : tpz = 33515 : aspz = 0 : 
+	capacity = 4226725 :
+	track_skew = 21 : cyl_skew = 39 :
+	interleave = 1 : rpm = 5400 :
+	rd_retry_count = 1 : wr_retry_count = 1 :
+	buf_full_ratio = 0 : buf_empt_ratio = 0 :
+	default_partition = "IBM DORS-32160" :
+
+disk_type = "MICROPOLIS 1936 2882MB"
+	inquiry = "MICROP  1936-21MW1002004HW0A" : # firmware bug (spt)
+	fmt_time = 2200 : veri_time = 1240 :
+	nhead = 21 : pcyl = 2772 : spt = 101 : secsize = 512 : # default
+	#nhead = 21 : pcyl = 2772 : spt = 111 : secsize = 512 : # current
+	atrk = 63 : tpz = 21 : aspz = 11 : 
+	capacity = 5903825 :
+	track_skew = 11 : cyl_skew = 26 :
+	interleave = 1 : rpm = 5400 :
+	rd_retry_count = 15 : wr_retry_count = 15 : recov_timelim = 0 :
+	buf_full_ratio = 128 : buf_empt_ratio = 128 : bus_inact_limit = 5 :
+	default_partition = "Micropolis 2882 MB" :
+
+disk_type = "MICROPOLIS 1936 2882MB"
+	inquiry = "MICROP  1936-21MW1002004HW0A" : # firmware bug (spt)
+	default_data = TRUE :			   # formatted & label
+	fmt_time = 2200 : veri_time = 1240 :
+	nhead = 21 : pcyl = 2772 : spt = 111 : secsize = 512 : # current
+	atrk = 63 : tpz = 21 : aspz = 11 : 
+	capacity = 5903825 :
+	track_skew = 11 : cyl_skew = 26 :
+	interleave = 1 : rpm = 5400 :
+	rd_retry_count = 15 : wr_retry_count = 15 : recov_timelim = 0 :
+	buf_full_ratio = 128 : buf_empt_ratio = 128 : bus_inact_limit = 5 :
+	default_partition = "Micropolis 2882 MB" :
+
+disk_type = "Generic 3840MB IBM"
+	inquiry = "IBM OEM 0664CSH         5 5 " :
+	inquiry = "IBM OEM 0664CSH         6 5 " :
+	inquiry = "IBM OEM 0664CSH         6 6 " :
+	fmt_time = 2100 : veri_time = 620 :
+	nhead = 30 : pcyl = 2857 : spt = 94 : secsize = 512 :
+	atrk = 0 : tpz = 30 : aspz = 34 :
+	capacity = 7866080 :
+	track_skew = 8 : cyl_skew = 17 :
+	interleave = 1 : rpm = 5400 :
+	rd_retry_count = 16 :
+	buf_full_ratio = 138 : buf_empt_ratio = 138 : max_burst_size = 0 :
+	data_tr_dis_ctl = 0 :
+	default_partition = "Generic 3800MB-F" :
+
+#
+# New disk/partition type SEAGATE ST34371W
+# saved by schilling@mimosa.fokus.gmd.de on Tue Aug 29 16:23:58 2000
+#
+disk_type = "SEAGATE ST34371W"
+	inquiry = "SEAGATE ST34371W SUN4.2G7462" :
+	# Time not known
+	#fmt_time = 1080 : veri_time = 540 :
+	nhead = 16 : pcyl = 3882 : spt = 135 : secsize = 512 :
+	atrk = 0 : tpz = 60 : aspz = 118 : 
+	capacity = 8385121 :
+	track_skew = 40 : cyl_skew = 75 :
+	queue_alg_mod = 0 :
+	interleave = 1 : rpm = 7228 :
+	rd_retry_count = 82 : wr_retry_count = 46 :
+	buf_full_ratio = 128 : buf_empt_ratio = 128 : data_tr_dis_ctl = 0 :
+	default_partition = "SEAGATE ST34371W" :
+
+disk_type = "Generic 4095MB Seagate"
+	inquiry = "SEAGATE ST15150N        0014" :
+	inquiry = "SEAGATE ST15150N        0017" :
+	fmt_time = 3475 : veri_time = 660 :
+	nhead = 21 : pcyl = 3712 : spt = 108 : secsize = 512 :
+	atrk = 21 : tpz = 21 : aspz = 9 :
+	capacity = 8388315 :
+	track_skew = 10 : cyl_skew = 22 :
+	interleave = 1 : rpm = 7200 :
+	rd_retry_count = 27 : wr_retry_count = 3 :
+	buf_full_ratio = 128 : buf_empt_ratio = 128 : data_tr_dis_ctl = 0 :
+	default_partition = "Generic 4095MB-F" :
+
+disk_type = "SEAGATE ST15150W"
+	inquiry = "SEAGATE ST15150W        0017" :
+	fmt_time = 3800 : veri_time = 785 :
+	nhead = 21 : pcyl = 3712 : spt = 108 : secsize = 512 :
+	atrk = 21 : tpz = 21 : aspz = 9 :
+	capacity = 8388315 :
+	track_skew = 9 : cyl_skew = 16 :
+	interleave = 1 : rpm = 7200 :
+	rd_retry_count = 33 : wr_retry_count = 3 :
+	buf_full_ratio = 128 : buf_empt_ratio = 128 : data_tr_dis_ctl = 0 :
+	default_partition = "SEAGATE ST15150" :
+
+disk_type = "Quantum XP34300"
+	inquiry = "Quantum XP34300         F76D" :
+	fmt_time = 2580: veri_time = 4820 :
+	nhead = 20 : pcyl = 3907 : spt = 109 : secsize = 512 :
+	atrk = 0 : tpz = 20 : aspz = 20 : 
+	capacity = 8399520 :
+	track_skew = 9 : cyl_skew = 45 :
+	interleave = 0 : rpm = 7200 :
+	rd_retry_count = 8 : wr_retry_count = 8 : recov_timelim = 0 :
+	buf_full_ratio = 0 : buf_empt_ratio = 0 : bus_inact_limit = 0 :
+	disc_time_limit = 0 : conn_time_limit = 0 : max_burst_size = 0 :
+	data_tr_dis_ctl = 0 :
+	default_partition = "Quantum XP34300" :
+
+#
+# New disk/partition type QUANTUM XP34550S
+# saved by schilling@sherwood.fokus.gmd.de on Fri Dec 20 15:19:44 1996
+#
+disk_type = "QUANTUM XP34550S"
+	inquiry = "QUANTUM XP34550S        LXQ1" :
+	#fmt_time = 1080 : veri_time = 540 :
+	fmt_time = 2620 : veri_time = 600 :
+	nhead = 10 : pcyl = 5899 : spt = 152 : secsize = 512 :
+	atrk = 0 : tpz = 10 : aspz = 10 : 
+	capacity = 8890760 :
+	track_skew = 9 : cyl_skew = 9 :
+	interleave = 1 : rpm = 7200 :
+	rd_retry_count = 8 : wr_retry_count = 8 : recov_timelim = 0 :
+	buf_full_ratio = 0 : buf_empt_ratio = 0 : max_burst_size = 0 :
+	data_tr_dis_ctl = 0 :
+	default_partition = "QUANTUM XP34550S" :
+
+disk_type = "Generic 8000MB Seagate"
+	inquiry = "SEAGATE ST410800N       0016" :
+	fmt_time = 7500 : veri_time = 1560 :
+	nhead = 27 : pcyl = 4926 : spt = 133 : secsize = 512 :
+	atrk = 27 : tpz = 27 : aspz = 9 :
+	capacity = 17755614 :
+	track_skew = 10 : cyl_skew = 21 :
+	interleave = 1 : rpm = 5400 :
+	rd_retry_count = 27 : wr_retry_count = 3 :
+	buf_full_ratio = 128 : buf_empt_ratio = 128 : data_tr_dis_ctl = 0 :
+	default_partition = "Generic 8000MB-F-System" :
+
+#
+# New disk/partition type SEAGATE ST19171W
+# saved by schilling@lynx.fokus.gmd.de on Mon Jan  6 15:58:28 1997
+#
+disk_type = "SEAGATE ST19171W"
+	inquiry = "SEAGATE ST19171W        0019" :
+	#fmt_time = 1860 : veri_time = 900 :
+	fmt_time = 8451 : veri_time = 1164 :
+	nhead = 20 : pcyl = 5268 : spt = 168 : secsize = 512 :
+	atrk = 0 : tpz = 120 : aspz = 96 : 
+	capacity = 17783112 :
+	track_skew = 20 : cyl_skew = 50 :
+	queue_alg_mod = 0 :
+	interleave = 1 : rpm = 7200 :
+	rd_retry_count = 79 : wr_retry_count = 43 :
+	buf_full_ratio = 128 : buf_empt_ratio = 128 : data_tr_dis_ctl = 0 :
+	default_partition = "SEAGATE ST19171W" :
+
+#
+# New disk/partition type IBM DDRS-39130
+# saved by schilling@burner.fokus.gmd.de on Fri Nov 27 11:37:20 1998
+#
+disk_type = "IBM DDRS-39130"
+	inquiry = "IBM     DDRS-39130      S97B" :
+	#fmt_time = 1560 : veri_time = 780 :
+	fmt_time = 820 : veri_time = 842 :
+	nhead = 10 : pcyl = 8387 : spt = 218 : secsize = 512 :
+	atrk = 0 : tpz = 10483 : aspz = 0 : 
+	#capacity = 17850000 :	XXX before formatting
+	capacity = 16777216 :
+	track_skew = 11 : cyl_skew = 20 :
+	queue_alg_mod = 0 :
+	interleave = 1 : rpm = 7200 :
+	rd_retry_count = 1 : wr_retry_count = 1 : recov_timelim = 0 :
+	buf_full_ratio = 0 : buf_empt_ratio = 0 :
+	default_partition = "IBM DDRS-39130" :
+
+#
+# New disk/partition type 
+# saved by schilling@mimosa.fokus.gmd.de on Fri Aug 11 15:32:32 2000
+#
+disk_type = "SEAGATE ST336704LC"
+	inquiry = "SEAGATE ST336704LC      0003" :
+	fmt_time = 2345 : veri_time = 1460 :
+	nhead = 12 : pcyl = 14100 : spt = 424 : secsize = 512 :
+	atrk = 0 : tpz = 905 : aspz = 0 : 
+	#capacity = 71687369 : XXX before formatting
+	capacity = 67108864 :
+	track_skew = 85 : cyl_skew = 90 :
+	queue_alg_mod = 0 :
+	interleave = 1 : rpm = 10016 :
+	rd_retry_count = 11 : wr_retry_count = 5 : recov_timelim = 65280 :
+	buf_full_ratio = 128 : buf_empt_ratio = 128 : data_tr_dis_ctl = 0 :
+	default_partition = "SEAGATE ST336704LC" :
+
+#==============================================================================
+#
+#	Second part: Modify Mode Pages Parameters
+#	-----------------------------------------
+#
+#       Default is to read default page and to modify and save mode page.
+#
+#	Syntax:
+#
+#       Page %d [default|current|changeable|saved] [save|nosave|noset]
+#       Byte offset size op val
+#	|    |      |    |  |
+#	|    |	    |	 |  val:
+#	|    |	    |	 |	integer value as specified in size field
+#	|    |	    |	 |	or
+#	|    |	    |	 |	format string for print in 'C' - style
+#	|    |	    |	 |	if op is print, printall or printpages
+#	|    |	    |	 op:
+#	|    |	    |		=
+#	|    |	    |		&=
+#	|    |	    |		|=
+#	|    |	    |		print	   print value from off/size
+#	|    |	    |		printall   print page content in hex
+#	|    |	    |		printpages print page numbers in buffer
+#	|    |	    size:
+#	|    |			bit 0  bit 1 ...  bit 0..7
+#	|    |			char
+#	|    |			byte
+#	|    |			short
+#	|    |			3byte
+#	|    |			long
+#       |    offset is in bytes:
+#	     0 = Page Code,
+#	     1 = Page Length,
+#	     2 = first parameter byte of the page
+#			
+#==============================================================================
+mode_pages = "Internal use only 80MB Quantum"
+	Page    0x01	current         # Read / Write Error Recovery Page
+	Byte    2       bit 2 = 1       # PER Report recovered error
+	Page    0x37                    # Quantum Unique Control Parameters
+	Byte    2       bit 0 = 1       # CE Cache enable
+	Byte    2       bit 1 = 1       # PE Pre-Fetch enable
+	Byte    2       bit 3 = 1       # PO Pre-Fetch Only
+	Page    0x39                    # Quantum Unique Drive Control Parameters
+	Byte    2       bit 3 = 1       # FDPE Format Data Pattern Enable
+
+mode_pages = "Generic 100MB Quantum"
+	Page    0x01	current         # Read / Write Error Recovery Page
+	Byte    2       bit 2 = 1       # PER Report recovered error
+	Page	0x37			# Quantum Unique Control Parameters
+	Byte	2	bit 0 = 1	# CE Cache enable
+	Byte	2	bit 1 = 1	# PE Pre-Fetch enable
+	Byte	2	bit 3 = 1	# PO Pre-Fetch Only
+	Page	0x39			# Quantum Unique Drive Control Parameters
+	Byte	2	bit 3 = 1	# FDPE Format Data Pattern Enable
+
+mode_pages = "Generic 200MB Quantum"
+	Page    0x01    current         # Read / Write Error Recovery Page
+	Byte    2       bit 2 = 1       # PER Report recovered error
+	Page	0x07			# Verify Error Recovery Page
+	Byte	3	byte = 16	# Verify Retry Count
+	Page    0x37                    # Quantum Unique Control Parameters
+	Byte    2       bit 0 = 1       # CE Cache enable
+	Byte    2       bit 1 = 1       # PE Pre-Fetch enable
+	Byte    2       bit 3 = 1       # PO Pre-Fetch Only
+	Page    0x39                    # Quantum Unique Drive Control Parameters
+	Byte    2       bit 3 = 1       # FDPE Format Data Pattern Enable
+
+mode_pages = "Generic 190MB Maxtor"
+	Page    0x01	current         # Read / Write Error Recovery Page
+	Byte    2       bit 2 = 1       # PER Report recovered error
+
+mode_pages = "Generic 202MB Quantum"
+	Page	0x01	current		# Read / Write Error Recovery Page
+	Byte	2	bit 2 = 1	# PER Report recovered error
+	Byte	2	bit 5 = 0	# TB Transfer Block
+
+mode_pages = "Generic 203MB Conner"
+	Page    0x01	current		# Read / Write Error Recovery Page
+	Byte    2       bit 5 = 0       # TB   Transfer Block
+	Byte    2       bit 6 = 0       # ARRE Automatic Read Reallocation
+
+mode_pages = "Generic 237MB Seagate"
+	Page    0x01    current         # Read / Write Error Recovery Page
+	Byte    2       bit 2 = 1       # PER Report recovered error
+	
+mode_pages = "Alps 201MB"
+	Page    0x01    current         # Read / Write Error Recovery Page
+	Byte    2       bit 2 = 1       # PER Report recovered error
+	
+mode_pages = "Wren Runner 300MB"
+	Page	0x01	current		# Read / Write Error Recovery Page
+	Byte	2	bit 2 = 1	# PER Report recovered error
+	Page	0x38			# Cache Control Parameters
+	Byte	2	bit 4 = 1	# CE Cache Enable
+
+mode_pages = "Generic 400MB Seagate"
+	Page	0x01	current		# Read / Write Error Recovery Page
+	Byte	2	bit 5 = 0	# TB  Transfer Block
+	Byte	2	bit 2 = 1	# PER Report recovered errors
+	Page	0x08			# Caching Parameters
+	Byte	8	short = 0x0078	# Maximum Prefetch
+	Page	0x0A			# Control Modes
+	Byte	3	bit 0 = 1	# DQUE Disable Queue
+
+mode_pages = "Generic 435MB Seagate"
+	Page    0x01    current         # Read / Write Error Recovery Page
+	Byte    2       bit 2 = 1       # PER Report recovered errors
+
+mode_pages = "Generic 520MB Conner"
+	Page    0x01    current         # Read / Write Error Recovery Page
+	Byte    2       bit 2 = 1       # PER Report recovered errors
+
+mode_pages = "Generic 730MB Quantum"
+	Page    0x39                    # Quantum Unique Drive Control Parameters
+	Byte    2       bit 3 = 1       # FDPE Format Data Pattern Enable
+
+mode_pages = "Generic 1000MB Seagate"
+	Page    0x01	current		# Read / Write Error Recovery Page
+	Byte    2       bit 2 = 1	# PER Report recovered errors
+
+mode_pages = "Generic 1001MB Micropolis"
+	Page	0x01	current		# Read / Write Error Recovery Page
+	Byte    2       bit 7 = 0       # AWRE Automatic Write Reallocation
+	Byte    2       bit 6 = 0       # ARRE Automatic Read Reallocation
+	Byte    2       bit 5 = 0       # TB   Transfer Block
+	Byte	2	bit 2 = 1	# PER  Report recovered errors
+
+mode_pages = "IBM 0663"
+	Page	0x01	current nosave
+	Byte	2	byte	= 0xe4
+
+mode_pages = "Internal use only 1003MB Quantum"
+	Page	0x01	current		# Read / Write Error Recovery Page
+	Byte	2	bit 7 = 0	# AWRE Automatic Write Reallocation
+	Byte	2	bit 6 = 0	# ARRE Automatic Read Reallocation
+	Byte	2	bit 2 = 1	# PER  Report recovered errors
+	Page    0x39                    # Quantum Unique Drive Control Parameters
+	Byte    2       bit 3 = 1       # FDPE Format Data Pattern Enable
+
+mode_pages = "Generic 1005MB Seagate"
+	Page	0x01	current		# Read / Write Error Recovery Page
+	Byte	2	bit 2 = 1	# PER Report recovered errors
+
+mode_pages = "Generic 1006MB Seagate SUN"
+	Page    0x01    current         # Read / Write Error Recovery Page
+	Byte    2       bit 2 = 1       # PER Report recovered errors  
+
+mode_pages = "Generic 1006MB Seagate"
+	Page    0x01    current         # Read / Write Error Recovery Page
+	Byte    2       bit 2 = 1       # PER Report recovered errors
+
+mode_pages = "Conner 1013MB"
+	Page	0x01	current		# Read / Write Error Recovery Page
+	Byte	2	bit 2 = 1	# PER Report recovered errors
+
+mode_pages = "IBM 1920MB"
+	Page    0x01    current         # Read / Write Error Recovery Page
+	Byte    2       bit 2 = 1       # PER Report recovered errors
+
+mode_pages = "Generic 2001MB Micropolis"
+	Page    0x01    current         # Read / Write Error Recovery Page
+	Byte    2       bit 5 = 0       # TB Transfer Block
+	Byte    2       bit 2 = 1       # PER Report recovered errors
+
+mode_pages = "Generic 2030MB Seagate"
+	Page	0x01	current		# Read / Write Error Recovery Page
+	Byte	2	bit 5 = 0	# TB Transfer Block
+	Byte	2	bit 2 = 1	# PER Report recovered errors
+
+mode_pages = "Generic 2048MB Seagate"
+	Page	0x01	current		# Read / Write Error Recovery Page
+	Byte	2	bit 5 = 0	# TB Transfer Block
+	Byte	2	bit 2 = 1	# PER Report recovered errors
+
+#==============================================================================
+#
+#	Third part: Label Parameters and Partition Tables
+#	-------------------------------------------------
+#
+#	NOTE for disks with zone bit recording:
+#
+#	Different number of sectors per track are compensated by
+#	reducing the number of lncyl.
+#
+#==============================================================================
+partition = "Generic 280MB mode0"
+	disk = "Generic 280MB (magneto optical) Mode 0 (xdebug)"
+	lncyl = 18838 : lacyl = 2 : lhead = 1 : lspt = 31 :
+	a = 0, 15500 : b = 500, 31000 : c = 0, 583978 : d = 1500, 15500
+	g = 2000, 136710 : h = 6410, 378200
+
+partition = "Generic 280MB mode1"
+	disk = "Generic 280MB (magneto optical) Mode 1 (debug)"
+	lncyl = 18743 : lacyl = 2 : lhead = 1 : lspt = 31 :
+	a = 0, 15500 : b = 500, 31000 : c = 0, 581033 : d = 1500, 15500
+	g = 2000, 136710 : h = 6410, 378200
+
+partition = "Generic 280MB mode2"
+	disk = "Generic 280MB (magneto optical) Mode 2 (SONY)"
+	lncyl = 18610 : lacyl = 2 : lhead = 1 : lspt = 31 :
+	a = 0, 15500 : b = 500, 31000 : c = 0, 576910 : d = 1500, 15500
+	g = 2000, 136710 : h = 6410, 378200
+
+partition = "Generic 280MB mode3"
+	disk = "Generic 280MB (magneto optical) Mode 3 (ISO)"
+	disk = "Generic 595MB (magneto optical) 280MB medium"
+	lncyl = 18610 : lacyl = 2 : lhead = 1 : lspt = 31 :
+	a = 0, 15500 : b = 500, 31000 : c = 0, 576910 : d = 1500, 15500
+	g = 2000, 136710 : h = 6410, 378200
+
+partition = "Generic 595MB (magneto optical)" 
+	disk = "Generic 595MB (magneto optical)"
+	lncyl = 37525 : lacyl = 2 : lhead = 1 : lspt = 31 :
+	a = 0, 15500 : b = 500, 31000 : c = 0, 1163275 : d = 1500, 15500
+	g = 2000, 136710 : h = 6410, 964565
+
+partition = "Generic 103MB"
+	disk = "Generic 103MB (Bull D585)"
+	lncyl = 1163 : lacyl = 3 : lhead = 7 : lspt = 26 :
+	a = 0, 19474 : b = 107, 77896 : c = 0, 211666 : d = 0, 97370
+	f = 535, 54418 : g = 834, 59878
+
+partition = "Generic 160MB A"
+	disk = "Generic 160MB (MegaFile 1200)"
+	lncyl = 1210 : lacyl = 1 : lhead = 8 : lspt = 34 :
+	a = 0, 19584 : b = 48, 78336 : c = 0, 329936 : d = 374, 97920
+	e = 180, 24480 : f = 240, 54672 : g = 614, 243168 : h = 374, 341088
+
+partition = "Generic 160MB"
+	disk = "Generic 160MB (MegaFile 1200)"
+	lncyl = 1210 : lacyl = 1 : lhead = 8 : lspt = 34 :
+	a = 0, 19584 : b = 72, 58480 : c = 0, 329120 : d = 489, 58752
+	f = 287, 54944 : g = 705, 137360 : h = 489, 196112
+
+partition = "Generic 250MB"
+	disk = "Generic 250MB (MegaFile 1300)"
+	lncyl = 1210 : lacyl = 1 : lhead = 12 : lspt = 34 :
+	a = 0, 19584 : b = 48, 78336 : c = 0, 493680 : d = 374, 97920
+	e = 180, 24480 : f = 240, 54672 : g = 614, 243168 : h = 374, 341088
+
+partition = "Siemens MegaFile 1300"
+	disk = "Generic 250MB (MegaFile 1300)"
+	disk = "Siemens MegaFile 1300 - MD25"
+	lncyl = 1210 : lacyl = 1 : lhead = 12 : lspt = 34 :
+	a = 0, 19584 : b = 48, 61200 : c = 0, 493680 : g = 198, 149736
+	h = 565, 263160
+
+partition = "Siemens MegaFile 1300 -B"
+	disk = "Generic 250MB (MegaFile 1300)"
+	disk = "Siemens MegaFile 1300 - MD25"
+	lncyl = 1210 : lacyl = 1 : lhead = 12 : lspt = 34 : 
+	a = 0, 16728 : b = 41, 44064 : c = 0, 493680 : f = 367, 62016
+	g = 149, 88944 : h = 519, 281928
+
+partition = "Maxtor 4380"
+	disk = "Maxtor 4380"
+	lncyl = 1218 : lacyl = 1 : lhead = 15 : lspt = 33 : 
+	0 = 0, 19800 : 1 = wm, 40, 61380
+	2 = wm, 0, 602910 : 6 = 164, 131670 : 7 = 430, 390060
+
+partition = "Miniscribe 9380E"
+	disk = "Miniscribe 9380E"
+	lncyl = 1218 : lacyl = 1 : lhead = 15 : lspt = 35 :
+	a = 0, 21000 : b = 40, 63000 : c = 0, 639450 : g = 160, 131250
+	h = 410, 424200
+
+partition = "Siemens MegaFile 5810"
+	disk = "Siemens MegaFile 5810 - 15 tpz 650MB"
+	lncyl = 1647 : lacyl = 1 : lhead = 15 : lspt = 54 :
+	a = 0, 40500 : b = 50, 60750 : c = 0, 1334070 : g = 125, 149850
+	h = 310, 1082970
+
+partition = "Siemens MegaFile 5810 - 1 tpz"
+	disk = "Siemens MegaFile 5810 - 1 tpz 650MB"
+	lncyl = 1621 : lacyl = 1 : lhead = 15 : lspt = 54 :
+	a = 0, 40500 : b = 50, 60750 : c = 0, 1313010 : g = 125, 149850
+	h = 310, 1061910
+
+partition = "Especially for Joerg"
+	disk = "Especially for Joerg"
+	lncyl = 612 : lacyl = 1 : lhead = 4 : lspt = 17 : 
+	2 = 0, 41616 : 6 = 0, 41616
+
+partition = "Internal use only 80MB"
+	disk = "Internal use only 80MB Quantum"
+	lncyl = 831 : lacyl = 1 : lhead = 6 : lspt = 32 :
+	c = 0, 159552
+
+partition = "Generic 100MB"
+	disk = "Generic 100MB Quantum"
+	lncyl = 975 : lacyl = 1 : lhead = 6 : lspt = 35 :
+	a = 0, 19740 : b = 94, 78540 : c = 0, 204750 : d = 94, 39270
+	e = 281, 39270 : f = 468, 106470 : g = 468, 106470
+
+partition = "Generic 114MB"
+	disk = "Generic 114MB Quantum (Monotype)"
+	lncyl = 975 : lacyl = 1 : lhead = 5 : lspt = 48 :
+	c = 0, 234000
+
+partition = "Generic 190MB"
+	disk = "Generic 190MB Maxtor"
+	lncyl = 1055 : lacyl = 1 : lhead = 7 : lspt = 52 :
+	a = 0, 19292 : b = 53, 77168 : c = 0, 384020 : d = 576, 77896
+	e = 158, 38948 : f = 265, 113204 : g = 790, 96460 : h = 576, 174356
+
+partition = "Generic 200MB"
+	disk = "Generic 200MB Quantum"
+	lncyl = 1005 : lacyl = 1 : lhead = 7 : lspt = 58 :
+	a = 0, 19894 : b = 49, 77952 : c = 0, 408030 : d = 521, 77952
+	e = 145, 38976 : f = 241, 113680 : g = 713, 118552 : h = 521, 196504
+
+partition = "RODIME RO3000T"
+	disk = "RODIME RO3000T"
+	lncyl = 1110 : lacyl = 1 : lhead = 9 : lspt = 41 : 
+	0 = 0, 49446 : 1 = wm, 134, 65682 : 2 = 0, 409590
+	6 = 312, 294462
+
+partition = "Generic 202MB"
+	disk = "Generic 202MB Maxtor"
+	disk = "Generic 203MB Conner"
+	disk = "Generic 237MB Seagate"
+	lncyl = 1098 : lacyl = 1 : lhead = 7 : lspt = 54 :
+	a = 0, 19656 : b = 52, 77868 : c = 0, 415044 : d = 558, 77868
+	e = 155, 38934 : f = 258, 113400 : g = 764, 126252 : h = 558, 204120
+
+partition = "Generic 200MB-EW"
+	disk = "Generic 190MB Maxtor"
+	disk = "Generic 202MB Maxtor"
+	disk = "Generic 200MB Quantum"
+	lncyl = 1036 : lacyl = 1 : lhead = 7 : lspt = 54 :
+	a = 0, 49140 : b = 130, 102060 : c = 0, 391608 : g = 400, 172368
+	h = 856, 68040
+
+partition = "Generic 200MB-EW-Swap"
+	disk = "Generic 190MB Maxtor"
+	disk = "Generic 202MB Maxtor"
+	disk = "Generic 200MB Quantum"
+	lncyl = 1036 : lacyl = 1 : lhead = 7 : lspt = 54 :
+	a = 0, 49140 : b = 130, 170100 : c = 0, 391608 : g = 580, 172368
+
+partition = "Generic 200MB-EW-Serv"
+	disk = "Generic 202MB Maxtor"
+	lncyl = 1098 : lacyl = 1 : lhead = 7 : lspt = 54 :
+	a = 0, 49140 : b = 130, 102060 : c = 0, 415044 : g = 400, 172368
+	h = 856, 91476
+
+partition = "Internal use only 237MB"
+	disk = "Generic 237MB Seagate"
+	lncyl = 1386 : lacyl = 1 : lhead = 5 : lspt = 70 :
+	c = 0, 485100
+
+partition = "Alps 200MB"
+	disk = "Alps 201MB"
+	lncyl = 2107 : lacyl = 1 : lhead = 4 : lspt = 49 : 
+	c = 0, 412972
+
+partition = "Maxtor 7290"
+	disk = "Maxtor 7290"
+	lncyl = 1474 : lacyl = 1 : lhead = 4 : lspt = 96 : 
+	a = 0, 49152 : b = 128, 102144 : c = 0, 566016 : g = 394, 172416
+	h = 843, 242304
+
+partition = "Wren Runner 300MB"
+	disk = "Wren Runner 300MB"
+	lncyl = 826 : lacyl = 1 : lhead = 15 : lspt = 52 : 
+	a = 0, 31200 : b = 40, 62400 : c = 0, 644280 : g = 120, 179400
+	h = 350, 371280
+
+partition = "Fujitsu 320MB"
+	disk = "Fujitsu 320MB"
+	lncyl = 1205 : lacyl = 1 : lhead = 15 : lspt = 36 :
+	a = 0, 48600 : b = 90, 59400 : c = 0, 650700 : g = 200, 270000
+	h = 700, 272700
+
+partition = "FUJITSU M2623F-512"
+	disk = "FUJITSU M2623F-512"
+	lncyl = 1463 : lacyl = 1 : lhead = 9 : lspt = 63 : 
+	0 = 0, 49329 : 1 = 87, 131544 : 2 = 0, 829521 : 6 = 319, 648648
+
+partition = "Generic 400MB"
+	disk = "Generic 400MB Seagate"
+	disk = "Generic 435MB Seagate"
+	lncyl = 1151 : lacyl = 2 : lhead = 9 : lspt = 80 :
+	a = 0, 31680 : b = 44, 169200 : c = 0, 828720 : e = 191, 63360
+	f = 279, 127440 : g = 279, 127440 : h = 456, 500400
+
+partition = "Generic 400MB Klient"
+	disk = "Generic 400MB Seagate"
+	disk = "Generic 435MB Seagate"
+	lncyl = 1151 : lacyl = 2 : lhead = 9 : lspt = 80 :
+	a = 0, 20160 : b = 28, 77760 : c = 0, 828720 : d = 250, 103680
+	e = 136, 27360 : f = 174, 54720 : g = 394, 545040 : h = 250, 648720
+
+partition = "Generic 400MB-EW"
+	disk = "Generic 400MB Seagate"
+	disk = "Generic 435MB Seagate"
+	lncyl = 2224 : lacyl = 1 : lhead = 7 : lspt = 54 :
+	a = 0, 49140 : b = 130, 102060 : c = 0, 840672 : g = 400, 172368
+	h = 856, 517104
+
+partition = "Generic 400MB-EW-Swap"
+	disk = "Generic 400MB Seagate"
+	disk = "Generic 435MB Seagate"
+	lncyl = 2224 : lacyl = 1 : lhead = 7 : lspt = 54 :
+	a = 0, 49140 : b = 130, 253260 : c = 0, 840672 : g = 800, 172368
+	h = 1256, 365904
+
+partition = "Generic 400MB-F"
+	disk = "Generic 400MB Seagate"
+	disk = "Generic 435MB Seagate"
+	lncyl = 736 : lacyl = 1 : lhead = 15 : lspt = 76 :
+	a = 0, 51300 : b = 45, 165300 : c = 0, 839040 : g = 190, 273600
+	h = 430, 348840
+
+partition = "Generic 400MB-F-Swap"
+	disk = "Generic 520MB Conner"
+	lncyl = 736 : lacyl = 1 : lhead = 15 : lspt = 76 :
+	a = 0, 51300 : b = 45, 267900 : c = 0, 839040 : g = 280, 273600
+	h = 520, 246240
+
+partition = "Internal use only 435MB"
+	disk = "Generic 435MB Seagate"
+	lncyl = 2173 : lacyl = 1 : lhead = 5 : lspt = 82 :
+	c = 0, 890930
+
+partition = "Generic 500MB"
+	disk = "Generic 520MB Conner"
+	lncyl = 1451 : lacyl = 1 : lhead = 9 : lspt = 80 :
+	a = 0, 31680 : b = 44, 169200 : c = 0, 1044720 : e = 191, 63360
+	f = 279, 127440 : g = 279, 127440 : h = 456, 716400
+
+partition = "Generic 500MB Klient"
+	disk = "Generic 520MB Conner"
+	lncyl = 1451 : lacyl = 1 : lhead = 9 : lspt = 80 :
+	a = 0, 20160 : b = 28, 77760 : c = 0, 1044720 : d = 250, 103680
+	e = 136, 27360 : f = 174, 54720 : g = 394, 761040 : h = 250, 864720
+
+partition = "Generic 500MB-EW"
+	disk = "Generic 520MB Conner"
+	lncyl = 2763 : lacyl = 1 : lhead = 7 : lspt = 54 : 
+	a = 0, 49140 : b = 130, 102060 : c = 0, 1044414 : g = 400, 172368
+	h = 856, 720846
+
+partition = "Generic 500MB-EW-Swap"
+	disk = "Generic 520MB Conner"
+	lncyl = 2763 : lacyl = 1 : lhead = 7 : lspt = 54 : 
+	a = 0, 49140 : b = 130, 253260 : c = 0, 1044414 : g = 800, 172368
+	h = 1256, 569646
+
+partition = "Generic 500MB-F"
+	disk = "Generic 520MB Conner"
+	lncyl = 916 : lacyl = 1 : lhead = 15 : lspt = 76 :
+	a = 0, 51300 : b = 45, 165300 : c = 0, 1044240 : g = 190, 273600
+	h = 430, 554040
+
+partition = "Generic 500MB-F-Swap"
+	disk = "Generic 520MB Conner"
+	lncyl = 916 : lacyl = 1 : lhead = 15 : lspt = 76 :
+	a = 0, 51300 : b = 45, 267900 : c = 0, 1044240 : g = 280, 273600
+	h = 520, 451440
+
+partition = "Conner 520MB"
+	disk = "Generic 520MB Conner"
+	lncyl = 1972 : lacyl = 1 : lhead = 6 : lspt = 90 :
+	a = 0, 48600 : b = 90, 113400 : c = 0, 1064880 : g = 300, 189000
+	h = 650, 713880
+
+partition = "CDC 94191-15 Wren VI"
+	disk = "CDC Wren VI 94191-766"
+	lncyl = 1629 : lacyl = 1 : lhead = 15 : lspt = 53 : 
+	0 = 0, 33390 : 1 = 42, 131175 : 2 = 0, 1295055 : 6 = 207, 246450
+	7 = home, 517, 884040
+
+partition = "QUANTUM LIGHTNING"
+	disk = "QUANTUM LIGHTNING"
+	lncyl = 2795 : lacyl = 1 : lhead = 4 : lspt = 128 : 
+	0 = 0, 49152 : 1 = 96, 131072 : 2 = 0, 1431040 : 6 = 352, 1250816
+
+partition = "Generic 1000MB"
+	disk = "Generic 1000MB Seagate"
+	disk = "Generic 1005MB Seagate"
+	disk = "Generic 1001MB Micropolis"
+	disk = "Generic 1003MB IBM"
+	disk = "Generic 1006MB Seagate"
+	disk = "Toshiba 1015MB"
+	disk = "Fujitsu 1033MB"
+	disk = "HP C2247"
+	lncyl = 1798 : lacyl = 1 : lhead = 15 : lspt = 76 :
+	a = 0, 31920 : b = 28, 169860 : c = 0, 2049720 : d = 289, 106020
+	e = 121, 63840 : f = 177, 127680 : g = 382, 1614240 : h = 289, 1720260
+
+partition = "Generic 1000MB Klient"
+	disk = "Generic 1000MB Seagate"
+	disk = "Generic 1005MB Seagate"
+	disk = "Generic 1001MB Micropolis"
+	disk = "Generic 1003MB IBM"
+	disk = "Generic 1006MB Seagate"
+	disk = "Toshiba 1015MB"
+	disk = "Fujitsu 1033MB"
+	disk = "HP C2247"
+	lncyl = 1798 : lacyl = 1 : lhead = 15 : lspt = 76 :
+	a = 0, 20520 : b = 18, 78660 : c = 0, 2049720 : d = 159, 115140
+	e = 87, 27360 : f = 111, 54720 : g = 260, 1614240 : h = 159, 1720260
+
+partition = "Generic 1000MB Swap"
+	disk = "Generic 1000MB Seagate"
+	disk = "Generic 1005MB Seagate"
+	disk = "Generic 1001MB Micropolis"
+	disk = "Generic 1003MB IBM"
+	disk = "Generic 1006MB Seagate"
+	disk = "Toshiba 1015MB"
+	disk = "Fujitsu 1033MB"
+	disk = "HP C2247"
+	lncyl = 1798 : lacyl = 1 : lhead = 15 : lspt = 76 : 
+	a = 0, 51300 : b = 45, 584820 : c = 0, 2049720 : f = 558, 273600
+	g = 558, 273600 : h = 798, 1140000
+
+partition = "Generic 1000MB-EW"
+	disk = "Generic 1000MB Seagate"
+	disk = "Generic 1005MB Seagate"
+	disk = "Generic 1001MB Micropolis"
+	disk = "Generic 1003MB IBM"
+	disk = "Generic 1006MB Seagate"
+	disk = "Toshiba 1015MB"
+	disk = "Fujitsu 1033MB"
+	disk = "HP C2247"
+	lncyl = 1798 : lacyl = 1 : lhead = 15 : lspt = 76 :
+	a = 0, 51300 : b = 45, 233700 : c = 0, 2049720 : e = 425, 1565220
+	f = 425, 199500 : g = 250, 199500 : h = 600, 1365720
+
+partition = "Generic 1000MB-F"
+	disk = "Generic 1000MB Seagate"
+	disk = "Generic 1005MB Seagate"
+	disk = "Generic 1001MB Micropolis"
+	disk = "Generic 1003MB IBM"
+	disk = "Generic 1006MB Seagate"
+	disk = "Generic 1006MB Seagate SUN"
+	disk = "Toshiba 1015MB"
+	disk = "Fujitsu 1033MB"
+	disk = "HP C2247"
+	lncyl = 1798 : lacyl = 1 : lhead = 15 : lspt = 76 :
+	a = 0, 51300 : b = 45, 267900 : c = 0, 2049720 : g = 280, 273600
+	h = 520, 1456920
+
+partition = "Generic 1000MB RipExpress"
+	disk = "Generic 1000MB Seagate"
+	disk = "Generic 1005MB Seagate"
+	disk = "Generic 1001MB Micropolis"
+	disk = "Generic 1003MB IBM"
+	disk = "Generic 1006MB Seagate"
+	disk = "Toshiba 1015MB"
+	disk = "Fujitsu 1033MB"
+	disk = "HP C2247"
+	lncyl = 1798 : lacyl = 1 : lhead = 15 : lspt = 76 : 
+	a = 0, 51300 : b = 45, 256500 : c = 0, 2049720 : g = 270, 182400
+	h = 430, 1559520
+
+partition = "IBM 0663"
+	disk = "IBM 0663"
+	lncyl = 1980 : lacyl = 1 : lhead = 15 : lspt = 66 : 
+	a = 0, 19800 : b = 20, 128700 : c = 0, 1960200 : g = 150, 267300
+	h = 420, 1544400
+
+partition = "IBM 1000MB"
+	disk = "Generic 1003MB IBM"
+	lncyl = 3804 : lacyl = 1 : lhead = 5 : lspt = 108 :
+	a = 0, 19980 : b = 37, 131220 : c = 0, 2054160 : d = 280, 16200
+	g = 310, 270000 : h = 810, 1616760
+
+partition = "Internal use only 1003MB"
+	disk = "Internal use only 1003MB Quantum"
+	disk = "Internal use only 1003MB Hewlett Packard"
+	lncyl = 1860 : lacyl = 1 : lhead = 12 : lspt = 92 :
+	c = 0, 2053440
+
+partition = "HP C2247"
+	disk = "HP C2247"
+	lncyl = 1645 : lacyl = 1 : lhead = 13 : lspt = 96 : 
+	0 = 0, 49920 : 1 = 40, 263328 : 2 = 0, 2052960 : 6 = 251, 1739712
+
+partition = "HP C2247 SunOS"
+	disk = "HP C2247"
+	lncyl = 1645 : lacyl = 1 : lhead = 13 : lspt = 96 : 
+	0 = 0, 49920 : 1 = 40, 263328 : 2 = 0, 2052960 : 4 = var, 251, 49920
+	6 = 291, 308256 : 7 = home, 538, 1381536
+
+partition = "Generic 1000MB IPX-RIP"
+	disk = "Generic 1000MB Seagate"
+	disk = "Generic 1005MB Seagate"
+	disk = "Generic 1001MB Micropolis"
+	disk = "Generic 1003MB IBM"
+	disk = "Generic 1006MB Seagate"
+	disk = "Toshiba 1015MB"
+	disk = "Fujitsu 1033MB"
+	disk = "HP C2247"
+	lncyl = 1798 : lacyl = 1 : lhead = 15 : lspt = 76 :
+	a = 0, 30780 : b = 27, 318060 : c = 0, 2049720 : g = 306, 240540
+	h = 517, 1460340
+
+partition = "IMPRIMIS 94601-12G"
+	disk = "Generic 1000MB Seagate"
+	disk = "Generic 1005MB Seagate"
+	disk = "Generic 1001MB Micropolis"
+	disk = "Generic 1003MB IBM"
+	disk = "Generic 1006MB Seagate"
+	disk = "Toshiba 1015MB"
+	disk = "Fujitsu 1033MB"
+	disk = "HP C2247"
+	lncyl = 1798 : lacyl = 1 : lhead = 15 : lspt = 76 : 
+	a = 0, 25080 : b = 22, 123120 : c = 0, 2049720 : g = 130, 148200
+	h = 260, 1753320
+
+partition = "Internal use only 1005MB"
+	disk = "Generic 1005MB Seagate"
+	lncyl = 1854 : lacyl = 1 : lhead = 15 : lspt = 74 :
+	c = 0, 2057940
+
+partition = "SUN1.05"
+	disk = "SUN1.05"
+	disk = "IBM DPES-31080"
+	lncyl = 2036 : lacyl = 2 : lhead = 14 : lspt = 72 : 
+	0 = 0, 205632 : 1 = wm, 204, 307440 : 2 = 0, 2052288
+	6 = 509, 1539216
+
+partition = "CONNER CFP1080E"
+	disk = "SUN1.05"
+	disk = "CONNER CFP1080E"
+	lncyl = 2036 : lacyl = 2 : lhead = 14 : lspt = 72 : 
+	0 = 0, 49392 : 1 = 49, 263088 : 2 = 0, 2052288 : 6 = 310, 1739808
+
+partition = "Seagate 1006MB"
+	disk = "Generic 1006MB Seagate"
+	lncyl = 2693 : lacyl = 1 : lhead = 9 : lspt = 85 :
+	a = 0, 45900 : b = 60, 229500 : c = 0, 2060145 : g = 360, 344250
+	h = 810, 1440495
+
+partition = "Conner 1013MB"
+	disk = "Conner 1013MB"
+	lncyl = 2335 : lacyl = 1 : lhead = 8 : lspt = 111 : 
+	a = 0, 53280 : b = 60, 124320 : c = 0, 2073480 : g = 200, 204240
+	h = 430, 1691640
+
+partition = "Fujitsu 1033MB"
+	disk = "Fujitsu 1033MB"
+	lncyl = 1831 : lacyl = 1 : lhead = 15 : lspt = 77 :
+	a = 0, 51975 : b = 45, 179025 : c = 0, 2114805 : g = 200, 288750
+	h = 450, 1595055
+
+partition = "Toshiba 1015MB"
+	disk = "Toshiba 1015MB"
+	lncyl = 1466 : lacyl = 1 : lhead = 13 : lspt = 109 : 
+	a = 0, 49595 : b = 35, 198380 : c = 0, 2077322 : g = 175, 283400
+	h = 375, 1545947
+
+partition = "Toshiba 1015MB-sol"
+	disk = "Toshiba 1015MB"
+	lncyl = 1466 : lacyl = 1 : lhead = 13 : lspt = 109 : 
+	a = 0, 49595 : b = 35, 205465 : c = 0, 2077322 : f = 180, 481780
+	g = 520, 396760 : h = 800, 943722
+
+partition = "Toshiba 1015MB-sol-sun"
+	disk = "Toshiba 1015MB"
+	lncyl = 1466 : lacyl = 1 : lhead = 13 : lspt = 109 : 
+	a = 0, 52429 : b = 37, 205465 : c = 0, 2077322 : f = 182, 717002
+	g = 688, 456274 : h = 1010, 646152
+
+partition = "IBM DPES-31080"
+	disk = "IBM DPES-31080"
+	lncyl = 4902 : lacyl = 1 : lhead = 4 : lspt = 108 : 
+	0 = 0, 49248 : 1 = 114, 262224 : 2 = 0, 2117664 : 6 = 721, 1806192
+
+partition = "Quantum XP31070"
+	disk = "Quantum XP31070W"
+	lncyl = 3831 : lacyl = 1 : lhead = 5 : lspt = 115 : 
+	0 = 0, 65550 : 1 = 114, 262200 : 2 = 0, 2202825 : 6 = 570, 1875075
+
+partition = "Quantum XP31070 SunOS"
+	disk = "Quantum XP31070W"
+	lncyl = 3831 : lacyl = 1 : lhead = 5 : lspt = 115 : 
+	0 = 0, 65550 : 1 = 114, 262200 : 2 = 0, 2202825 : 6 = 570, 205275
+	7 = home, 927, 1669800
+
+partition = "Toshiba 1171MB"
+	disk = "Toshiba 1171MB"
+	lncyl = 1467 : lacyl = 1 : lhead = 15 : lspt = 109 :
+	a = 0, 40875 : b = 25, 122625 : c = 0, 2398545 : g = 100, 294300
+	h = 280, 1940745
+
+partition = "Internal use only 1909MB"
+	disk = "Internal use only 1909MB Hewlett Packard"
+	lncyl = 1960 : lacyl = 1 : lhead = 19 : lspt = 96 :
+	c = 0, 3910200
+
+partition = "IBM 1920MB"
+	disk = "IBM 1920MB"
+	lncyl = 2788 : lacyl = 1 : lhead = 15 : lspt = 94 : 
+	c = 0, 3931080
+
+partition = "Generic 2000MB"
+	disk = "Generic 2030MB Seagate"
+	disk = "Generic 2048MB Seagate"
+#	disk = "Generic 2001MB Micropolis"
+	lncyl = 2295 : lacyl = 1 : lhead = 21 : lspt = 85 :
+	a = 0, 32130 : b = 18, 171360 : c = 0, 4096575 : d = 186, 107100
+	e = 77, 66045 : f = 114, 128520 : g = 246, 3657465 : h = 186, 3764565
+
+partition = "Generic 2000MB-F"
+	disk = "Generic 2030MB Seagate"
+	disk = "Generic 2048MB Seagate"
+#	disk = "Generic 2001MB Micropolis"
+	lncyl = 3592 : lacyl = 1 : lhead = 15 : lspt = 76 :
+	a = 0, 51300 : b = 45, 267900 : c = 0, 4094880 : d = 0, 2047440
+	e = 1796, 2047440 : g = 280, 273600 : h = 520, 3502080
+
+partition = "Internal use only 2030MB"
+	disk = "Generic 2030MB Seagate"
+	lncyl = 2605 : lacyl = 1 : lhead = 19 : lspt = 84 :
+	c = 0, 4157580
+
+partition = "SEAGATE ST12550N"
+	disk = "SEAGATE ST12550N"
+	lncyl = 2714 : lacyl = 1 : lhead = 19 : lspt = 81 : 
+	0 = 0, 66177 : 1 = 43, 263169 : 2 = 0, 4176846 : 6 = 214, 3847500
+
+partition = "SEAGATE ST32550N"
+	disk = "SEAGATE ST32550N"
+	lncyl = 3496 : lacyl = 1 : lhead = 11 : lspt = 109 : 
+	0 = 0, 65945 : 1 = 55, 262581 : 2 = 0, 4191704 : 6 = 274, 3863178
+
+partition = "Internal use only 2048MB"
+	disk = "Generic 2048MB Seagate"
+	lncyl = 2627 : lacyl = 1 : lhead = 19 : lspt = 84 :
+	a = 0, 31920 : b = 20, 127680 : c = 0, 4192692 : g = 100, 319200
+	h = 300, 3713892
+
+partition = "SEAGATE ST32151"
+	disk = "SEAGATE ST32151"
+	lncyl = 4163 : lacyl = 1 : lhead = 8 : lspt = 126 : 
+	0 = 0, 205632 : 1 = 204, 525168 : 2 = 0, 4196304 : 6 = 725, 1024128
+	7 = home, 1741, 2441376
+
+partition = "Quantum XP32150"
+	disk = "QUANTUM VP32210"
+	disk = "Quantum XP32150"
+	lncyl = 3851 : lacyl = 1 : lhead = 10 : lspt = 109 : 
+	0 = 0, 66490 : 1 = 61, 262690 : 2 = 0, 4197590 :
+	3 = home, 1524, 2536430
+	4 = var, 1336, 204920 : 5 = stand, 302, 717220
+	6 = 960, 409840 : 7 = home, 1336, 2741350
+
+partition = "QUANTUM VP32210"
+	disk = "QUANTUM VP32210"
+	lncyl = 4173 : lacyl = 1 : lhead = 8 : lspt = 129 : 
+	0 = 0, 205368 : 1 = unassigned, wm, 199, 409704
+	2 = wm, 0, 4306536 : 4 = 596, 717240 : 5 = usr, 1291, 717240
+	6 = 596, 1434480 : 7 = home, 1986, 2256984
+
+partition = "IBM DORS-32160"
+	disk = "IBM DORS-32160"
+	lncyl = 6761 : lacyl = 1 : lhead = 5 : lspt = 125 : 
+	0 = 0, 65625 : 1 = 105, 262500 : 2 = 0, 4225625 : 6 = 525, 3897500
+
+partition = "IBM DORS-32160 SunOS"
+	disk = "IBM DORS-32160"
+	lncyl = 6761 : lacyl = 1 : lhead = 5 : lspt = 125 : 
+	0 = 0, 50000 : 1 = 80, 206250 : 2 = 0, 4225625 : 5 = home, 740, 1881250
+	6 = 410, 206250 : 7 = stand, 3750, 1881875
+
+partition = "Micropolis 2882 MB"
+	disk = "MICROPOLIS 1936 2882MB"
+	lncyl = 2782 : lacyl = 1 : lhead = 21 : lspt = 101 : 
+	0 = 0, 131502 : 1 = 62, 263004 : 2 = 0, 5900622
+	5 = stand, 186, 820827 : 6 = 573, 411474 : 7 = home, 767, 4273815
+
+partition = "Micropolis 2882 MB 4.x"
+	disk = "MICROPOLIS 1936 2882MB"
+	lncyl = 2782 : lacyl = 1 : lhead = 21 : lspt = 101 : 
+	0 = 0, 33936 : 1 = 16, 263004 : 2 = 0, 5900622 : 3 = var, 140, 131502
+	5 = stand, 202, 922635 : 6 = 637, 411474 : 7 = home, 831, 4138071
+
+partition = "Generic 3800MB-F"
+	disk = "Generic 3840MB IBM"
+	lncyl = 6898 : lacyl = 1 : lhead = 15 : lspt = 76 : 
+	a = 0, 51300 : b = 45, 267900 : c = 0, 7863720 : d = 0, 3931860
+	e = 3449, 3931860 : f = 3592, 3768840 : g = 280, 273600 :
+	h = 520, 3502080
+
+partition = "IBM 3840MB"
+	disk = "Generic 3840MB IBM"
+	lncyl = 2788 : lacyl = 1 : lhead = 30 : lspt = 94 :
+	a = 0, 56400 : b = 20, 267900 : c = 0, 7862160 : f = 1499, 3634980
+	g = 115, 267900 : h = 210, 3634980
+
+partition = "SEAGATE ST34371W"
+	disk = "SEAGATE ST34371W"
+	lncyl = 3881 : lacyl = 1 : lhead = 16 : lspt = 135 : 
+	0 = 0, 131760 : 1 = 61, 263520 : 2 = 0, 8382960 : 6 = 183, 7987680
+
+partition = "Generic 4095MB-F"
+	disk = "Generic 4095MB Seagate"
+	disk = "SEAGATE ST15150W"
+	lncyl = 7354 : lacyl = 1 : lhead = 15 : lspt = 76 :
+	a = 0, 51300 : b = 45, 267900 : c = 0, 8383560 : d = 0, 4191780
+	e = 3677, 4191780 : f = 3677, 4191780 : g = 280, 273600
+	h = 520, 3598980
+
+partition = "SEAGATE ST15150"
+	disk = "Generic 4095MB Seagate"
+	disk = "SEAGATE ST15150W"
+	lncyl = 3697 : lacyl = 1 : lhead = 21 : lspt = 108 :
+	0 = 0, 131544 : 1 = 58, 263088 : 2 = 0, 8384796 : 6 = 174, 7990164
+
+partition = "Quantum XP34300"
+	disk = "Quantum XP34300"
+	lncyl = 3851 : lacyl = 1 : lhead = 20 : lspt = 109 : 
+	0 = 0, 132980 : 1 = 61, 263780 : 2 = 0, 8395180
+	6 = 182, 7998420
+
+partition = "QUANTUM XP34550S"
+	disk = "QUANTUM XP34550S"
+	lncyl = 5848 : lacyl = 1 : lhead = 10 : lspt = 152 : 
+	0 = 0, 132240 : 1 = 87, 262960 : 2 = 0, 8888960 : 6 = 260, 8493760
+
+partition = "Generic 8000MB-F-System"
+	disk = "Generic 8000MB Seagate"
+	lncyl = 4943 : lacyl = 1 : lhead = 27 : lspt = 133 : 
+	a = 0, 100548 : b = 28, 470421 : c = 0, 17750313 : d = 1439, 4194288
+	e = 2607, 4194288 : f = 3775, 4194288 : g = 159, 402192 : h = 271, 4194288
+
+partition = "Generic 8000MB-F"
+	disk = "Generic 8000MB Seagate"
+	lncyl = 4943 : lacyl = 1 : lhead = 27 : lspt = 133 :
+	a = 0, 3547908 : b = 988, 3547908 : c = 0, 17750313 : d = 1976, 3547908
+	e = 2964, 3547908 : f = 3952, 3558681
+
+#partition = "SEAGATE ST19171W"
+#	disk = "SEAGATE ST19171W"
+#	lncyl = 5291 : lacyl = 1 : lhead = 20 : lspt = 168 : 
+#	0 = 0, 134400 : 1 = 40, 265440 : 2 = 0, 17777760 : 6 = 119, 17377920
+# based on not yet shrinked size ;-)
+
+#
+# After formatting
+partition = "SEAGATE ST19171W"
+	disk = "SEAGATE ST19171W"
+	lncyl = 4992 : lacyl = 1 : lhead = 20 : lspt = 168 : 
+	0 = 0, 134400 : 1 = 40, 265440 : 2 = 0, 16773120 : 6 = 119, 16373280
+
+#partition = "IBM DDRS-39130"
+#	disk = "IBM DDRS-39130"
+#	lncyl = 8187 : lacyl = 1 : lhead = 10 : lspt = 218 : 
+#	0 = 0, 132980 : 1 = 61, 263780 : 2 = 0, 17847660 : 6 = 182, 17450900
+# based on not yet shrinked size ;-)
+
+#
+# After formatting
+partition = "IBM DDRS-39130"
+	disk = "IBM DDRS-39130"
+	lncyl = 7694 : lacyl = 1 : lhead = 10 : lspt = 218 : 
+	0 = 0, 132980 : 1 = 61, 263780 : 2 = 0, 16772920 : 6 = 182, 16376160
+
+
+#partition = "SEAGATE ST336704LC"
+#	disk = "SEAGATE ST336704LC"
+#	lncyl = 14088 : lacyl = 1 : lhead = 12 : lspt = 424 : 
+#	0 = 0, 132288 : 1 = 26, 264576 : 2 = 0, 71679744 : 6 = 78, 71282880
+# based on not yet shrinked size ;-)
+
+#
+# After formatting
+partition = "SEAGATE ST336704LC"
+	disk = "SEAGATE ST336704LC"
+	lncyl = 13188 : lacyl = 1 : lhead = 12 : lspt = 424 : 
+	0 = 0, 8191680 : 1 = wm, 1610, 2101344 : 2 = 0, 67100544
+	7 = home, 2023, 56807520
+
+signature = "QvmHu"
+
+#
+# Add local extensions past this line.
+#

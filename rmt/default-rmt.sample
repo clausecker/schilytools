@@ -1,0 +1,50 @@
+#ident @(#)rmt.dfl	1.2 05/08/09 Copyr 2000 J. Schilling
+#
+# This file is /etc/default/rmt
+#
+# NOTE: If this file is not present, rmt will reject to work for root.
+#
+# If no USER= entry is present, nobody is allowed to run rmt.
+# If no ACCESS= entry is present, no device may to be used by remote users.
+
+# 
+# The file where debug info should go to.
+# If you don't like debugging (e.g. for speed) comment out
+# the this line.
+#
+#DEBUG=/tmp/RMT
+
+#
+# Each USER= entry adds the listed user to the users who may run rmt
+#
+# A typical passwd entry looks like this:
+# rtape:x:1999:1000:Remote TAPE:/export/home/rtape:/opt/csw/sbin/rmt
+#
+# Add entries for all valid remote users to /export/home/rtape/.rhosts
+#
+USER=rtape
+#USER=joerg
+# Default to old SunOS behavior. If you like to be more restrictive, comment
+# out the entry below and enable the explicit USER= entries above.
+USER=*
+
+#
+# Each ACCESS= entry adds a target or group of targets to the list of visible
+# targets for all users that do remote tape/file access from a specific host.
+#
+#	Username is the name of the user that runs rmt. If you create
+#	different users, you may assign different permissions to different
+#	users from the same host.
+#
+#	Hostname must be in the same notation as needed for .rhosts (e.g. in
+#	the way you will be listed by 'who' if you log in from this host).
+#
+#	local	remote
+#	user	host	file
+#	name	name
+#
+#ACCESS=rtape	sparky	/dev/rmt/*
+ACCESS=*	*	/dev/rmt/*
+ACCESS=*	*	/dev/null
+ACCESS=*	*	/dev/zero
+#ACCESS=*	*	*

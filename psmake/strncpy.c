@@ -1,0 +1,1 @@
+../libschily/strncpy.c

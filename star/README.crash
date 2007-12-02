@@ -1,0 +1,26 @@
+Star is the best program for automatically recovering
+from system crashes.
+
+Consider the case where you have a corrupted filesystem and
+no actual backup. It can be repaired with only few manual
+actions by using star. Simply follow the following steps:
+
+
+1)	Do a fsck -y to repair the filesystem.
+	Many files will be lost but you may have luck
+	and some/all recent files remain intact.
+
+2)	Run star -xp  from the most recent backup you have.
+	This will only extract all files that have been
+	deleted on the fsck -y run.
+
+3)	Rewind the tape and run:
+	star -diff -c diffopts=!times
+	to check for file corruptions that have not been
+	detected by the fsck -y run.
+
+4)	Do a full backup of the new system to prevent further
+	data loss.
+
+
+

@@ -1,0 +1,55 @@
+The new command 'spax' implements a POSIX.1 pax style command line interface
+on top of star. The command is basically SUSv2/UNIX-98 
+
+The following extensions from SVSv3 / POSIX.1-2001 are implemented:
+
+-	The options -H and -L
+
+-	Support for the PSOX.1-2001 extended TAR header format
+	called 'pax'. This makes 'spax' the first pax like command that
+	supports this infinitely extensible and highly portable archive
+	format.
+
+The following limitations currently apply:
+
+-	No support for the -l option (create hard links if possible
+	in copy mode).
+
+-	The privileges option -pa is ignored
+
+-	The privileges option -pm will not only not set the mtime
+	but also not set the atime in extract and copy mode.
+
+-	without  -po SUID/SGID permission bits are not masked off.
+
+-	Pattern matching for command line type args is not yet POSIX/PAX
+	compliant. It should emulate the shell's way of matching file names
+	where '/' is not part of the pattern and each path name component
+	needs to match separately, but it treats a filename like an unstructured
+	piece of text.
+
+Although there are several limitations, spax should be POSIX compliant enough
+for the everyday work.
+
+Rationale: spax only implements a limited set of options to grant best POSIX
+compliance. Anything you can do with spax may also be done with star. To be able
+to do this, a new set of options has been added to star for this reason.
+
+/*--------------------------------------------------------------------------*/
+
+The following non POSIX related CPIO limitations currently apply:
+
+-	The checksum with the -Hcrc format is not evaluated in extract mode.
+
+-	Reading the binary cpio format is not yet fully supported.
+	This format suffers from design related byte order problems.
+	Star thus is unable to auto-detect the byte order status in
+	all cases. Auto-detection should work if the string lenght
+	if the first filename is odd.
+
+-	Append & Update (star -r & star -u) does not yet work for
+	CPIO archives.
+
+
+These CPIO limitations would be of interest if we would create a 'cpio'
+command line program from the star sources.

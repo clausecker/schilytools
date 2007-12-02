@@ -1,0 +1,1528 @@
+     This is the on line help for ved.  It contains a summary  of
+     the content of the ved man page.
+
+     You may modify the content of the edit buffer  but  you  are
+     not allowed to write it back.
+
+     To step through this file, you may use the ved cursor  move-
+     ment commands:
+
+     ^N   to move the cursor down one line
+
+     ^P   to move the cursor up one line
+
+     <ESC>^N
+          to move the cursor to the beginning of the  next  para-
+          graph
+
+     <ESC>^P
+          to move the cursor to the  beginning  of  the  previous
+          paragraph
+
+     <ESC>n
+          to move the cursor down one page
+
+     <ESC>p
+          to move the cursor up one page
+
+     The notation ^N represents control-N (press  and  hold  down
+     the  control key then the key N). All descriptions use upper
+     case charactersm but you don't need to press the  shift  key
+     in addition.
+
+     The notation <ESC>n represents escape-n  (press  the  escape
+     key, then press - as a separate keystroke - the key n).
+
+The following table summarizes all ved commands:
+
+Key      CTRL              ESC CTRL          ALT                ALT ESC
+Label                                        set mark first     set mark first
+
+|<-  A   start of line     start of para     start of line      start of para
+F2   B   go to beginning   go to bottom      go to beginning    go to bottom
+F1   C   exit              backup file       ~                  ~
+F3   D   delete char       delete words      ~                  ~
+->|  E   end of line       end of para       end of line        end of para
+->   F   forward char      forward word      forward char       forward word
+F11  G   get file          change file       edit macro file    ~
+<-   H   back char         back word         back char          back word
+TAB  I   tab               ~                 tab                ~
+NL   J   insert new line   ~                 jump to mark       switch mark
+                                                                and cursor
+F4   K   kill line         kill para         kill selection     ~
+     L   re-display        adjust window     curr line -> top   ~
+CR   M   insert new line   change modes      sets mark          ~
+v    N   down line         down para         down line          down para
+F5   O   open line         ~                 open line          ~
+^    P   up line           up para           up line            up para
+     Q   XON               ~                 ~                  ~
+F9   R   forward search    reverse search    forward search     reverse search
+     S   XOFF              ~                 ~                  ~
+F6   T   save line         save para         save selection     ~
+         into paste buf    into paste buf    into paste buf     into paste buf
+     U   multiply          mult=#            ~                  ~
+F7   V   paste             paste and         replace select     replace select
+                           clear paste buf   with paste buf     clear paste buf
+F12  W   write file        write paste buf   write selection    ~
+     X   XTD               execute buf       exec selection     ~
+     Y   save char         save word         ~                  ~
+         into paste buf    into paste buf
+F10  Z   re-search         reverse re-srch   re-srch            reverse re-srch
+     @   where from        where from        where mark         where mark
+         top               bot               from top           from bot
+ESC  [   ESC               ~                 ALT ESC            ~
+     ]   ALT               ALT ESC           goto tag           pop tag stack
+F8   \   chng paste buf    clr paste buf     ~                  ~
+     ^   quote char        quote to 8 bit    quote to 8bit ctl  quote hex
+     _   undo delete       ~                 clear mark         ~
+DEL  DEL erase char        erase word        ~                  ~
+
+
+     XTD commands:
+Key      CTRL          ESC CTRL   ALT              ALT ESC
+Label                             set mark first   set mark first
+
+     H   help          ~          ~                ~
+     X   execute cmd   ~          ~                ~
+     Z   suspend       ~          ~                ~
+
+
+Special Escape commands:
+         ESC #       Set mult to # for next command. (# is any number)
+         ESC %       Search matching parenthesis.
+         ESC *       Call temporary macro.
+         ESC :       Introduce colon command.
+         ESC n       Next Page.
+         ESC p       Previous Page.
+         ALT ESC n   Set Mark then next Page.
+         ALT ESC p   Set Mark then previous Page.
+
+Colon commands:
+         backup       Backup file (same as ESC ^C)
+         bind         Print or set command bindings
+         help         Print colon command help
+         macro        Set temporary macro
+         map          Set/view mappings
+         next         Switch to next file
+         prev         Switch to previous file
+         quit         Quit editor (same as ^C)
+         set          Set parameters
+         substitute   Substitute pattern
+         tag          Go to named tag
+
+Colon set commands:
+*        autoindent   Set autoindent mode.
+         linelen      Set line length to arg.
+*        magic        Set magic search mode
+*        markwrap     Mark wrapping lines
+         optline      Set optimal line number to arg.
+         pmargin      Set page margin for scrolling to arg.
+         psize        Set page length to arg.
+         tabstop      Set tab width to arg.
+         taglength    Set number of significant chars for tag search to arg.
+         tags         Set tag file search path to arg.
+         wrapmargin   Set wrap margin for auto new line to arg.
+
+Commands marked with an asterix are boolean. They may be  set  to
+false by prepending a no to the name.
+
+THE STATUS LINE
+     The first (top) line of  the  screen  is  reserved  for  ved
+     status  information.  The  status  line is divided into five
+     fields.  The fields are (from left to right):
+
+     Info/Input
+          The first field is used to display  informational  mes-
+          sages  and  to  fetch additional input that is required
+          for some commands.  Each command that  needs  confirma-
+          tion  requests input from this field.  The size of this
+          field defaults to 1/4th of the length of  a  line.   It
+          may use more if needed.
+
+     Number
+          The second field contains the  current  multiplier  for
+          the next command.  The current multiplier is reset to 1
+          after each command, it may be set to a different  value
+          by  the  user (See NUMBERS section below).  This multi-
+          plier will be referred to as number  in  the  following
+          text.   The size of this field is fixed to 1/8th of the
+          length of a line.
+
+     Takebuf
+          The third field contains is the name of the actual take
+          buffer.  The name of this buffer defaults to default on
+          startup. It may be changed by the user.   The  size  of
+          this field is fixed to 1/4th of the length of a line.
+
+     Filename
+          The fourth field usually displays the current filename.
+          The  size of this field defaults to 1/4th of the length
+          of a line.  It may use up more if needed and  no  error
+          text is displayed.  It may be hidden for some time if a
+          long error message is displayed.
+
+     Error text
+          The fifth field is used to display all  error  messages
+          and warnings.  The size of this field defaults to 1/4th
+          of the length of a line.  If needed,  it  may  use  the
+          space of the filename field too.
+
+BASIC COMMAND FORMAT
+     Ved does not distinguish between  command  mode  and  insert
+     mode.   All  non  control  characters  are  treated as input
+     (which should be inserted into the file buffer) unless  they
+     are prefixed by some commands that need arguments.
+
+     All basic ved commands  are  control  characters  or  escape
+     sequences.   To  enter  a control character, use the control
+     key like the shift key together with  a  character  key;  to
+     enter  an  escape  sequence, press the <ESC> key followed by
+     another key.
+
+     In the following description, ^ represents the  control  key
+     and  <ESC>  the  escape  key (which is identical to pressing
+     ^[).  <ALT> has a similar usage as <ESC> but different mean-
+     ing  in ved and represents the combination ^].  The combina-
+     tion  ^char  is  a  single  keystroke,  while  <ESC>char  or
+     <ALT>char  are two keystrokes. If the command takes an argu-
+     ment, the argument is  terminated  with  a  carriage  return
+     <CR>.
+
+     A command may be modified in four ways:
+
+     Escape commands
+          Typing the <ESC> key (or ^[) before  the  command  will
+          modify it to an alternate form, usually a related func-
+          tion.
+
+     Alt commands
+          Typing the ALT key ( ^] ) before the command, inserts a
+          mark (with a few exceptions) in the text usually at the
+          current cursor position. You can  precede  any  command
+          that moves the cursor with the ALT key and ved sets the
+          mark before moving the cursor.
+
+     Extended commands
+          Typing a ^X before another command enters the  extended
+          mode.  The  extended  mode just enters another level of
+          commands.
+
+     Multiplied execution
+          Numbers  that  are  entered  by  typing  <ESC>#<CR>  (#
+          represents  a  positive number) will set the multiplier
+          to that number and display it in  the  status  line  of
+          ved.   If a number greater than one is entered before a
+          command, that command is usually repeated number times.
+          Exceptions are some cursor movement commands where dif-
+          ferent functions will be executed number times  instead
+          of  repeating  the  visible  basic functionality of the
+          command.
+
+CURSOR MOVEMENT
+     Like every editor, ved has a typing  point,  called  cursor,
+     which  is  indicated  by the (in most cases) flashing bar or
+     box (depending on your terminal/window type) on your screen.
+     The  cursor indicates the point within the file buffer where
+     the typed characters are going to. It is your current  place
+     in  the  file  buffer.   The  commands  that move the cursor
+     within the file buffer are explained in this section.
+
+     Cursor movement command overview:
+
+Key         CTRL              ESC CTRL        ALT               ALT ESC
+Label                                         set mark first    set mark first
+
+|<-     A   start of line     start of para   start of line     start of para
+F2      B   go to beginning   go to bottom    go to beginning   go to bottom
+->|     E   end of line       end of para     end of line       end of para
+->      F   forward char      forward word    forward char      forward word
+<-      H   back char         back word       back char         back word
+v       N   down line         down para       down line         down para
+^       P   up line           up para         up line           up para
+
+     Cursor movement commands in detail:
+
+     ^A   moves the cursor to the beginning of the current  line.
+          If  the cursor is already at the beginning, it will not
+          move.
+
+          If number is greater than one, ^A moves the cursor that
+          number  of characters from the beginning of the current
+          line.
+
+     <ESC>^A
+          moves the cursor to the beginning of the current  para-
+          graph.  If  the  cursor is already at the beginning, it
+          will not move.
+
+          If number is greater than one, <ESC>^A moves the cursor
+          that  number of words from the beginning of the current
+          paragraph.
+
+     <ALT>^A
+          inserts the mark at the current cursor position  before
+          moving the cursor to the beginning of the current line.
+          If the cursor is already at the beginning, it will  not
+          move, but ved will still inserts the mark.
+
+          If number is greater  than  one,  <ALT>^A  inserts  the
+          mark,  then  moves the cursor that number of characters
+          from the beginning of the current line.
+
+     <ALT><ESC>^A
+          inserts the mark at the current cursor position  before
+          moving the cursor to the beginning of the current para-
+          graph. If the cursor is already at  the  beginning,  it
+          will not move, but ved will still inserts the mark.
+
+          If number is greater than one, <ALT><ESC>^A inserts the
+          mark,  then  moves the cursor that number of words from
+          the beginning of the current paragraph.
+
+     ^B   moves the cursor to the beginning of the file.  If  the
+          cursor is already at the beginning of the file, it will
+          not move.
+
+          If number is greater than one, ^B moves the cursor that
+          number of lines from the beginning of the file.
+
+     <ESC>^B
+          moves the cursor to the end of the file. If the  cursor
+          is already at the end of the file, it will not move.
+
+          If number is greater than one, <ESC>^B moves the cursor
+          that number of lines from the end of the file.
+
+     <ALT>^B
+          inserts the mark at the current cursor position  before
+          moving  the cursor to the beginning of the file. If the
+          cursor is already at the beginning of the file, it will
+          not move, but ved still inserts the mark.
+
+          If number is greater  than  one,  <ALT>^B  inserts  the
+          mark,  then  moves the cursor that number of lines from
+          the beginning of the file.
+
+     <ALT><ESC>^B
+          inserts the mark at the current cursor position  before
+          moving the cursor to the end of the file. If the cursor
+          is already at the end of the file, it  will  not  move,
+          but ved still inserts the mark.
+
+          If number is greater than one, <ALT><ESC>^B inserts the
+          mark,  then  moves the cursor that number of lines from
+          the end of the file.
+
+     ^E   moves the cursor to the end of the current line. If the
+          cursor  is  already at the end of the line, it will not
+          move. The last character on the line is  the  invisible
+          ASCII  newline  character NL; when the cursor is at the
+          end of the line, it is not on a visible character.
+
+          If number is greater than one, ^E moves the cursor that
+          number of characters from the end of the current line.
+
+     <ESC>^E
+          moves the cursor to the end of the  current  paragraph.
+          If the cursor is already at the end, it will not move.
+
+          If number is greater than one, <ESC>^E moves the cursor
+          that  number of words from the end of the current para-
+          graph.
+
+     <ALT>^E
+          inserts the mark at the current cursor position  before
+          moving  the  cursor  to the end of the current line. If
+          the cursor is already at the end of the line,  it  will
+          not move, but ved still inserts the mark.
+
+          If number is greater  than  one,  <ALT>^E  inserts  the
+          mark,  then  moves the cursor that number of characters
+          from the end of the current line.
+
+     <ALT><ESC>^E
+          inserts the mark at the current cursor position  before
+          moving  the cursor to the end of the current paragraph.
+          If the cursor is already at the end of  the  paragraph,
+          it will not move, but ved still inserts the mark.
+
+          If number is greater than one, <ALT><ESC>^E inserts the
+          mark,  then  moves the cursor that number of words from
+          the end of the current paragraph.
+
+     ^F   moves the cursor one character position to the right.
+
+          If number is greater than one, ^F moves the cursor that
+          number of characters to the right.
+
+          Depending on  the  cursor  position,  with  or  without
+          number being greater than one, ^F could move the cursor
+          down to the next line. If the cursor is at the  end  of
+          the line, the cursor will move to the first position of
+          the next line.
+
+     <ESC>^F
+          moves the cursor forward to the  first  letter  of  the
+          next word.
+
+          If number is greater than one, <ESC>^F moves the cursor
+          forward that number of words.
+
+          Depending on the current cursor position and the  value
+          of  number,  <ESC>^F  might move the cursor down one or
+          more lines.
+
+     <ALT>^F
+          inserts the mark at the current cursor position  before
+          moving the cursor one character to the right.
+
+          If number is greater  than  one,  <ALT>^F  inserts  the
+          mark,  then  moves the cursor that number of characters
+          to the right.
+
+     <ALT><ESC>^F
+          inserts the mark at the current cursor position  before
+          moving the cursor to the first letter of the next word.
+
+          If number is greater than one, <ALT><ESC>^F inserts the
+          mark, then moves the cursor that number of words to the
+          right.
+
+     ^H   moves the cursor one character position to the left.
+
+          If number is greater than one, ^H moves the cursor that
+          number of characters to the left.
+
+          Depending on the cursor position, ^H, with  or  without
+          number being greater than one, could move the cursor up
+          to the previous line. If the cursor is at the beginning
+          of  the line when you press ^H, the cursor will move to
+          the last position of the previous line.
+
+     <ESC>^H
+          moves the cursor to the first letter of the  word  just
+          prior to its current position.
+
+          If number is greater than one, <ESC>^H moves the cursor
+          that  number  of  words  backwards.   Depending  on the
+          current cursor position and the value  of  number,  the
+          cursor may move up one or more lines.
+
+     <ALT>^H
+          inserts the mark at the current cursor position  before
+          moving the cursor one character position to the left.
+
+          If number is greater  than  one,  <ALT>^H  inserts  the
+          mark,  then  moves the cursor that number of characters
+          to the left.
+
+     <ALT><ESC>^H
+          inserts the mark at the current cursor position  before
+          moving  the  cursor to the first letter of the previous
+          word.
+
+          If number is greater than one, <ALT><ESC>^H inserts the
+          mark, then moves the cursor that number of words to the
+          left.
+
+     ^N   moves the cursor down one line  while  maintaining  its
+          horizontal position. If the cursor is on the last char-
+          acter of the last line when you press  ^N,  the  cursor
+          will not move and you will hear a beep.
+
+          If number is greater than one, ^N moves the cursor down
+          that  number  of  lines.  If number is greater than the
+          number lines remaining in the  file,  the  cursor  will
+          stop moving at the end of the file.
+
+     <ESC>^N
+          moves the cursor to the beginning  of  the  next  para-
+          graph.
+
+          If number is greater than one, <ESC>^N moves the cursor
+          down that number of paragraphs.
+
+     <ALT>^N
+          inserts the mark at the current cursor position  before
+          moving  the  cursor down one line. Note that the cursor
+          maintains its horizontal position on the line; i.e., if
+          the  cursor was on the fifth character of the line when
+          you pressed <ALT>^N, it will move to the fifth  charac-
+          ter of the line below.
+
+          If number is greater  than  one,  <ALT>^N  inserts  the
+          mark, then moves the cursor down that number of lines.
+
+     <ALT><ESC>^N
+          inserts the mark at the current cursor position  before
+          moving  the  cursor  to the beginning of the next para-
+          graph.
+
+          If number  is  greater  than  one,  <ALT><ESC>^N  first
+          inserts  the  mark,  then  moves  the  cursor down that
+          number of paragraphs.
+
+     ^P   moves the cursor up one line while maintaining its hor-
+          izontal position. If the cursor is on the first line of
+          the file when you press ^P, the cursor  will  not  move
+          and you will hear a beep.
+
+          If number is greater than one, ^P moves the  cursor  up
+          that  number  of  lines.  If number is greater than the
+          number of lines between the cursor and the beginning of
+          the  file, the cursor will stop moving at the beginning
+          of the file.
+
+     <ESC>^P
+          moves the cursor to the beginning of the previous para-
+          graph.
+
+          If number is greater than one, <ESC>^P moves the cursor
+          that  number  of paragraphs prior to the cursor's posi-
+          tion.
+
+     <ALT>^P
+          inserts the mark at the current cursor position  before
+          moving  the  cursor  up  one line. Note that the cursor
+          maintains its horizontal position on the line; i.e., if
+          the  cursor was on the fifth character of the line when
+          you pressed <ALT>^P, it will move to the fifth  charac-
+          ter of the line above.
+
+          If number is greater  than  one,  <ALT>^P  inserts  the
+          mark, then moves the cursor up that number of lines.
+
+     <ALT><ESC>^P
+          inserts the mark at the current cursor position  before
+          moving  the  cursor  to  the  beginning of the previous
+          paragraph.
+
+          If number  is  greater  than  one,  <ALT><ESC>^P  first
+          inserts  the mark, then moves the cursor up that number
+          of paragraphs prior to its current position.
+
+ADDITION/DELETION
+     All additions are always made at the place where the visible
+     cursor is.
+
+     All deletions are saved in two buffers: the  forward  delete
+     buffer  and  the backwards delete buffer.  The characters in
+     the backward delete buffer are saved  in  reverse  order  to
+     allow to reinsert them in the correct order.  As long as you
+     don't move the cursor and start deleting new text, the  con-
+     tent  of  both,  the forward and the backwards delete buffer
+     may be reinserted with the undo delete command. This  allows
+     you to move text by deleting it and reinserting it after you
+     moved the cursor to another position in the file
+
+     Addition/Deletion command overview:
+
+Key           CTRL              ESC CTRL       ALT              ALT ESC
+Label                                          set mark first   set mark first
+
+F3      D     delete char       delete words   ~                ~
+TAB     I     tab               ~              tab              ~
+NL      J     insert new line   ~              jump to mark     switch mark
+                                                                and cursor
+F4      K     kill line         kill para      kill selection   ~
+CR      M     insert new line   change modes   sets mark        ~
+F5      O     open line         ~              open line        ~
+        _     undo delete       ~              clear mark       ~
+DEL     DEL   erase char        erase word     ~                ~
+
+     Addition/Deletion commands in detail:
+
+     ^D   erases the character at the cursor position.
+
+          If number is greater than one, ^D erases that number of
+          characters to the right of the cursor.
+
+     <ESC>^D
+          erases the next  word.  A  word  is  defined  from  the
+          current  cursor  position to the next blank or carriage
+          return.
+
+          If number is greater  than  one,  <ESC>^D  erases  that
+          number of words to the right of the cursor.
+
+     ^I   inserts a TAB character.
+
+          If number is greater than one, ^I inserts  that  number
+          of TAB characters.
+
+     <ALT>^I
+          inserts the mark at the current cursor position  before
+          inserting a TAB character.
+
+          If number is greater  than  one,  <ALT>^I  inserts  the
+          mark, then inserts that number of TAB characters.
+
+     ^J   inserts a new line at the current cursor  position  and
+          moves the cursor to the beginning of the next line.
+
+          If number is greater than one, ^J inserts  that  number
+          of new lines.
+
+     ^K   erases the current line. If the cursor  is  located  at
+          the  beginning  of the line, the entire line is erased,
+          including the carriage return at the end of  the  line.
+          If  the cursor is located between the beginning and end
+          of the line, everything right of the cursor is  erased,
+          including  the  carriage return at the end of the line.
+          You can use ^K to erase blank lines.
+
+          If number is greater than one, ^K erases that number of
+          lines from the current cursor position.
+
+     <ESC>^K
+          erases from the current cursor position to the  end  of
+          the  paragraph.  The end of a paragraph is indicated by
+          two successive carriage returns--one at the end of  the
+          last  line  and  one on the blank line that follows the
+          paragraph.
+
+          If number is greater  than  one,  <ESC>^K  erases  that
+          number of paragraphs.
+
+     <ALT>^K
+          erases text between the mark  and  the  current  cursor
+          position. For instance, if the mark is in the middle of
+          the file and the cursor is at the end, the last half of
+          the file will be erased.
+
+     ^M   inserts a new line at the current cursor  position  and
+          moves the cursor to the beginning of the next line.
+
+          If number is greater than one, ^M inserts  that  number
+          of new lines.
+
+     ^O   inserts a new line at the current cursor position,  but
+          does  not move the cursor. Any text to the right of the
+          cursor moves down to start a new line.
+
+          If number is greater than one, ^O inserts  that  number
+          of new lines without moving the cursor.
+
+     <ALT>^O
+          inserts a new  line  without  moving  the  cursor.   It
+          inserts  the  mark  at  the beginning of the next (new)
+          line.
+
+          If number is greater than  one,  <ALT>^O  inserts  that
+          number  of  new  lines  without  moving the cursor.  It
+          inserts the mark after the last new line.
+
+     ^DELETE
+          erases the character to the left of  the  cursor.  This
+          acts the same as using the DELETE key alone.
+
+          If number is greater  than  one,  ^DELETE  erases  that
+          number of characters to the left of the cursor.
+
+     <ESC>^DELETE
+          erases the word to the left of the  cursor.  This  acts
+          the same as using ^DELETE.
+
+          If number is greater than one, <ESC>^DELETE erases that
+          number of words to the left of the cursor.
+
+     ^_   reinserts the last deletion. The content of the forward
+          and backward delete buffer is cleared after reinserting
+          the deleted text.
+
+     <ALT>^_
+          erases the mark.
+
+CUT/PASTE
+     These commands deal with the 'take' buffers. You can have up
+     to 32 take buffers, each named as you choose when you use it
+     for the first time.  The name appears on  the  status  (top)
+     line  of the terminal screen following \:.  The default take
+     buffer is "default".
+
+     Cut/Paste command overview:
+
+Key          CTRL             ESC CTRL          ALT              ALT ESC
+Label                                           set mark first   set mark first
+
+        T    save line        save para         save selection   ~
+             into paste buf   into paste buf    into paste buf   into paste buf
+F7      V    paste            paste and         replace select   replace select
+                              clear paste buf   with paste buf   clear paste buf
+        Y    save char        save word         ~                ~
+             into paste buf   into paste buf
+F8      \    chng paste buf   clr paste buf     ~                ~
+
+     Cut/Paste commands in detail:
+
+     ^T   removes a line from the file and puts it in the current
+          take  buffer. The line is defined from the current cur-
+          sor position to the next carriage return.
+
+          If number is greater than one, ^T removes  that  number
+          of  lines  from  the  file and puts them in the current
+          take buffer.
+
+     <ESC>^T
+          removes a paragraph from the file and puts  it  in  the
+          current  take  buffer.  A paragraph is defined from the
+          current cursor  position  to  two  successive  carriage
+          returns--one at the end of the last line and one on the
+          blank line that follows the paragraph.
+
+          If number is greater than  one,  <ESC>^T  removes  that
+          number of paragraphs from the file and puts them in the
+          current take buffer.
+
+     <ALT>^T
+          removes the selection (what lies between the  mark  and
+          the cursor) and puts it in the current take buffer.
+
+     ^V   pastes the contents of the current take buffer into the
+          file  at  the  current cursor position. The take buffer
+          will still contain a copy of the text.
+
+     <ESC>^V
+          pastes and clears the  contents  of  the  current  take
+          buffer  into  the  file at the current cursor position.
+          The take buffer will be empty.
+
+     <ALT>^V
+          replaces the selection (what lies between the mark  and
+          the  cursor)  with  whatever  is  in  the  current take
+          buffer.  The old content of the selection is lost.  The
+          take buffer will still contain a copy of the text.
+
+     <ALT><ESC>^V
+          replaces the selection (what lies between the mark  and
+          the cursor) with whatever is in the current take buffer
+          and clears the take buffer.  The  old  content  of  the
+          selection is lost.  The take buffer will be empty.
+
+     ^Y   removes a character from the file and puts  it  in  the
+          current  take buffer. The character at the current cur-
+          sor position is the one taken.
+
+          If number is greater than one, ^Y takes that number  of
+          characters and puts them in the current buffer.
+
+     <ESC>^Y
+          removes a word from the file and puts it in the current
+          take buffer. A word consists of any characters from the
+          current cursor position up to the next  blank  or  car-
+          riage return.
+
+          If number is  greater  than  one,  <ESC>^Y  takes  that
+          number of words and puts them in the current buffer.
+
+     ^\   changes the current take buffer.
+
+          On the information line you will see the  Take  Buffer:
+          prompt.  Type  a  take buffer name and press the RETURN
+          key.
+
+          If you type a new name, a new take buffer  is  created.
+          If  you  type  a  name you have already used during the
+          current  editing  session,  you  can  reuse  that  take
+          buffer.   The  take  buffer name is always displayed on
+          the information line.
+
+     <ESC>^\
+          clears any text out of the current take buffer. On  the
+          information  line  you will see the Buffer cleared mes-
+          sage.
+
+SEARCH
+     Search command overview:
+
+Key         CTRL             ESC CTRL          ALT              ALT ESC
+Label                                          set mark first   set mark first
+
+F9      R   forward search   reverse search    forward search   reverse search
+F10     Z   re-search        reverse re-srch   re-srch          reverse re-srch
+
+     Search commands in detail:
+
+     ^R   searches forward in  a  file  for  the  specified  text
+          string.
+
+          On the information  line  you  will  see  the  +Search:
+          prompt. Type the string you want to find. If the string
+          exists between the cursor's current  position  and  the
+          end of the file, ved moves the cursor to that location.
+          If ved can not find the specified  string,  the  cursor
+          does not move and you will hear a beep.
+
+          If number is greater than one, ^R finds  that  numbered
+          occurrence of the string.
+
+     <ESC>^R
+          searches backwards in a file  for  the  specified  text
+          string.
+
+          On the information line you  will  see  the   - Search:
+          prompt. Type the string you want to find. If the string
+          exists between the cursor's current  position  and  the
+          beginning  of  the  file,  ved moves the cursor to that
+          location. If ved can not find the  string,  the  cursor
+          does not move and you will hear a beep.
+
+          If number is greater than one, <ESC>^R finds that  num-
+          bered occurrence of the string.
+
+     <ALT>^R
+          searches forward in  a  file  for  the  specified  text
+          string.
+
+          On the information  line  you  will  see  the  +Search:
+          prompt. Type the string you want to find. When (and if)
+          found, the mark is inserted at  the  beginning  of  the
+          string  and  the cursor moves to the end of the string;
+          the string is then considered selected. If ved can  not
+          find  the  string, the cursor does not move, no mark is
+          inserted, and you will hear a beep.
+
+          If number is greater than one, <ALT>^R finds that  num-
+          bered occurrence of the string.
+
+     <ALT><ESC>^R
+          searches backwards in a file  for  the  specified  text
+          string.
+
+          On the information line you  will  see  the   - Search:
+          prompt.  Type  the string you want to find. When found,
+          the mark is inserted at the  beginning  of  the  search
+          string  and  the cursor moves to the end of the string;
+          the string is then considered selected. If ved can  not
+          find  the  string, the cursor does not move, no mark is
+          inserted, and you will hear a beep.
+
+          If number is greater than one, <ALT><ESC>^R finds  that
+          numbered occurrence of the string.
+
+     ^Z   re-searches for the last text string you asked  to  for
+          with the ^R, <ESC>^R, <ALT>^R, or <ALT><ESC>^R command.
+          If you already found one occurrence of the text string,
+          ^Z  will  find the next occurrence. If ved can not find
+          another occurrence, the cursor does not  move  and  you
+          will hear a beep.
+
+          If number is greater than one, instance, ^Z finds  that
+          numbered occurrence of the string.
+
+     <ESC>^Z
+          reverses direction and re-searches for  the  last  text
+          string  you asked for with the ^R, <ESC>^R, <ALT>^R, or
+          <ALT><ESC>^R  command.  If  you   already   found   one
+          occurrence  of  the  text string, <ESC>^Z will find the
+          next, or previous, occurrence, depending on which  your
+          direction.  For  instance,  if the original command was
+          ^R, <ESC>^Z will find the previous occurrence.  If  ved
+          can  not  find  another occurrence, the cursor does not
+          move and you will hear a beep.
+
+          If number is greater than one, instance, <ESC>^Z  finds
+          that numbered occurrence of the string.
+
+     <ALT>^Z
+          re-searches for the last text string you asked for with
+          the  ^R,  <ESC>^R, <ALT>^R, or <ALT><ESC>^R command. If
+          you already found one occurrence of  the  text  string,
+          <ALT>^Z  will find the next occurrence, set the mark at
+          the beginning of it, and move the cursor to the end  of
+          it.   This  occurrence of the string is then considered
+          selected. If ved can not find another  occurrence,  the
+          cursor does not move, no mark is inserted, and you will
+          hear a beep.
+
+          If number is greater than one, instance, <ALT>^Z  finds
+          that numbered occurrence of the search string, with the
+          numbering beginning from the current  cursor  position.
+          For   instance,   if   number  is  4,  the  next  three
+          occurrences are skipped and the mark is inserted at the
+          beginning  of the fourth occurrence of the string. This
+          happens regardless  of  how  many  occurrences  of  the
+          string  have already been located, unless there are not
+          that many occurrences of the string in the file.
+
+     <ALT><ESC>^Z
+          reverses direction and re-searches for  the  last  text
+          string  you asked for with the ^R, <ESC>^R, <ALT>^R, or
+          <ALT><ESC>^R  command.  If  you   already   found   one
+          occurrence  of  the text string, <ALT><ESC>^Z will find
+          the next, or previous, occurrence,  depending  on  your
+          direction.  For  instance,  if the original command was
+          ^R, <ALT><ESC>^Z will find the previous occurrence, set
+          the mark at the beginning of it, and move the cursor to
+          the end of it. This occurrence of the search string  is
+          then considered selected.
+
+          If number is greater than one,  instance,  <ALT><ESC>^Z
+          finds  that  numbered  occurrence of the search string,
+          with the numbering beginning from  the  current  cursor
+          position.
+
+EXITING/PUTTING
+     ^C   The QUIT command ends the editing session.
+
+          On the information line you will see the QUITTING.  PUT
+          EDITS? (Y/W/N/F/!) prompt.
+
+          Type Y  if you want to save  the  changes  made  during
+                  this  editing session by creating a backup file
+                  and creating a new file that holds the modified
+                  content.   The  backup process is done the fol-
+                  lowing way:
+
+                  The current  backup  file  (if  there  is  one)
+                  (called  filename.bak)  is deleted, the current
+                  file is renamed to filename.bak, and a  version
+                  of  the  file  containing  the  latest  changes
+                  becomes filename.  If there is no filename.bak,
+                  filename becomes filename.bak.
+
+          Type W  if you want to save  the  changes  made  during
+                  this  editing  session  by directly writing the
+                  new content into the old file.
+
+          Type F  if you want to forcibly save the  changes  made
+                  during  this  editing  session.   This  command
+                  works similar to the Y command,  but  ved  will
+                  ignore  the state of the -readonly flag and the
+                  access rights of the  file.   The  latter  will
+                  allow  you  to  write  into files without write
+                  permissions if you are super user.  For  execp-
+                  tions  on  this  rule, see description of the -
+                  readonly flag.
+
+          Type !  if you want to forcibly save the  changes  made
+                  during this editing session by directly writing
+                  the new content into the old file.
+
+          Type N  if you want to end the session but  don't  want
+                  to save the changes.
+
+          If you don't want to end  the  session,  type  anything
+          except Y, W, F, ! or N.
+
+          If the file has been locked before by another edit ses-
+          sion  or  if  the  file has been modified more recently
+          than the copy that has been used for the  current  ses-
+          sion,  you  will  not be allowed to save the file.  Use
+          the force commands (F or !)  or write back  using  dif-
+          ferent file name.
+
+     <ESC>^C
+          The BACKUP command backs up the current file.
+
+          On   the   information   line   you   will   see    the
+          BACKUP?(Y/W/N/F/!) prompt.
+
+          If you enter one of the expected answers ( Y, W,  !  or
+          N)  The  same actions as with the QUIT command are per-
+          formed except that the controls stays inside ved  after
+          the backup command has completed.
+
+     ^X^H calls on-line help.
+
+          On the information  line  you  will  see  the  HELP(Y?)
+          prompt.  To  continue editing (and abort this command),
+          type N.  To see the help file, type Y.
+
+     ^X^Z suspends the current editing session.
+
+          On the information line you will  see  the  SUSPENDING.
+          PUT EDITS? (Y/W/N/F/!) prompt.
+
+          Type Y  if you want the file to be backuped and updated
+                  before  suspending  ved.   See the QUIT command
+                  for a description of the backup process.
+
+          Type W  if you want the the file to be updated in place
+                  before suspending ved.
+
+          Type F  if you want file to be forcibly updated  before
+                  suspending  ved.  This command works similar to
+                  the Y command, but ved will ignore the state of
+                  the -readonly flag and the access rights of the
+                  file.  The latter will allow you to write  into
+                  files  without  write  permissions  if  you are
+                  super user.  For execptions on this  rule,  see
+                  description of the -readonly flag.
+
+          Type !  if you want file  to  be  forcibly  updated  in
+                  place before suspending ved.
+
+          Type N  if you want to suspend ved but  don't  want  to
+                  save the changes before.
+
+          If you don't want to suspend ved, type anything  except
+          Y, W, F, ! or N.
+
+          If the file has been locked before by another edit ses-
+          sion  or  if  the  file has been modified more recently
+          than the copy that has been used for the  current  ses-
+          sion,  you  will  not be allowed to save the file.  Use
+          the force commands (F or !)  or write back  using  dif-
+          ferent file name.
+
+          When you are ready to continue editing, use the  fg  or
+          resume  command  of  your shell. You will return to the
+          editing session. The cursor will be in the  same  place
+          it  was  when  you suspended the session, regardless of
+          whether or not you saved your edits.
+
+FILE COMMANDS
+     ^G   lets you insert another  file  at  the  current  cursor
+          position.
+
+          On the information line you  will  see  the  Get  from:
+          prompt. Type a file name and press the RETURN key.
+
+          You can insert files from the current working directory
+          or  from  other directories (as long as you use a valid
+          path name). The path name is subject of filename  glob-
+          bing by your shell (e.g. wild cards are working as long
+          as they expand to exactly one filename).
+
+     <ESC>^G
+          exits the current file and enters another file.
+
+          On the information line you will  see  the  Change  to:
+          prompt.  Type the name of the file you wish to edit and
+          press the RETURN key.
+
+          If the old file was modified, you will see the CHANGING
+          TO:  filename.   PUT  EDITS?(Y/W/N/F/!)  prompt; if you
+          want to save and backup the edits in the current file.
+
+          Type Y  if you want the file to be backuped and updated
+                  before changing the file.  See the QUIT command
+                  for a description of the backup process.
+
+          Type W  if you want the the file to be updated in place
+                  before changing the file.
+
+          Type F  if you want file to be forcibly updated  before
+                  changing  the file.  This command works similar
+                  to the Y command, but ved will ignore the state
+                  of  the -readonly flag and the access rights of
+                  the file.  The latter will allow you  to  write
+                  into files without write permissions if you are
+                  super user.  For execptions on this  rule,  see
+                  description of the -readonly flag.
+
+          Type !  if you want file  to  be  forcibly  updated  in
+                  place before changing the file.
+
+          Type N  if you want to change the file but  don't  want
+                  to save the changes before.
+
+          If you don't want to change the edited file, type  any-
+          thing except Y, W, F, ! or N.
+
+          If the file has been locked before by another edit ses-
+          sion  or  if  the  file has been modified more recently
+          than the copy that has been used for the  current  ses-
+          sion,  you  will  not be allowed to save the file.  Use
+          the force commands (F or !)  or write back  using  dif-
+          ferent file name.
+
+     ^W   writes a copy of the file you are editing to  the  file
+          you specify.
+
+          On the information line you  will  see  the  Write  to:
+          prompt.  Type  a file name and press the RETURN key. If
+          the file exists, its contents are overwritten.  If  the
+          file does not exist, it is created.
+
+     <ESC>^W
+          writes the contents of the current take buffer  to  the
+          file you specify.
+
+          On the information line you will see  the  \  to  file:
+          prompt.  Type  a file name and press the RETURN key. If
+          the file exists, its contents are overwritten.  If  the
+          file  does  not  exist,  it is created. The take buffer
+          contents will remain intact.
+
+     <ALT>^W
+          writes a copy of the selection (what lies  between  the
+          mark and the cursor) to the file you specify.
+
+          On the information  line  you  will  see  the  Sel  to:
+          prompt.  Type  a file name and press the RETURN key. If
+          the file exists, its contents are overwritten.  If  the
+          file does not exist, it is created.
+
+NUMBERS
+     <ESC>#<CR>
+          To enter a multiplier that only works for the next com-
+          mand,  type  <ESC>,  enter  a number and then press the
+          RETURN key.  If you entered a number by mistake, simply
+          enter  <ESC>1<CR>  to  reset the number to it's default
+          value.
+
+     ^U   multiplies number by the multiplier. The default multi-
+          plier  is  4.  Each time you press ^U number changes to
+          the next multiple of 4 (16, 16, 64, and so on).
+
+     <ESC>^U
+          changes the multiplier.
+
+          The default multiplier is 4. If you  want  to  multiply
+          number  by  a  different  value,  use  <ESC>^U.  On the
+          information line you will see the Mult = prompt. Type a
+          number and press the RETURN key.
+
+MISCELLANEOUS
+     <ALT>^G
+          lets you edit your editing macro  file  called  .vedmac
+          (which  is located in your $HOME directory).  It is the
+          same as if you used ^X^X  to  execute  a  new  ved  and
+          answered  N  to  the put question. When you are through
+          editing .vedmac, press ^C to continue editing the  file
+          you  were  in  when you issued the <ALT>^G command; you
+          will be asked whether or not you want to put the  edits
+          from .vedmac before you return to the original file.
+
+     <ALT>^J
+          moves the cursor to the mark.
+
+          The current cursor position determines whether this  is
+          a  forward  or  backward movement. For instance, if the
+          mark is in the middle of the file and the cursor is  at
+          the beginning, its a forward movement; if the cursor is
+          at the end, its a backward movement.
+
+     <ALT><ESC>^J
+          switches the cursor and the mark.
+
+     ^L   redisplays the current screenful of text. This is  use-
+          ful  after  a  message  has  been sent to your terminal
+          which may have overwritten some of the text.
+
+     <ESC>^L
+          adjusts the text displayed on the  terminal  screen  so
+          that the line the cursor is on becomes the optimum line
+          on the screen.  This usually is the center line of  the
+          display  but it may be changed using the <ESC>:set opt-
+          line # <CR> command.  This may involve displaying  dif-
+          ferent  text, depending on where the cursor is when you
+          use this command.
+
+     <ALT>^L
+          Adjusts the current Line of the Cursor to be the  first
+          Line on Screen.
+
+     <ESC>^M
+          changes modes.
+
+          On the information line you will  see  the  Mode?(ORV8)
+          prompt.  Type
+
+          D    to enable or disable DOS mode.
+
+          V    for visible mode.
+
+          O    for overstrike mode.
+
+          8    to enable or disable raw8 mode.
+
+          R    to reset back to default mode.
+
+          <CR> to list the current mode settings.
+
+          If you type anything else, you will abort the command.
+
+     <ALT>^M
+          sets a mark at the current cursor position.
+
+     <ESC>n
+          displays the next Page of file.
+
+     <ESC>p
+          displays the previous Page of file.
+
+     <ALT><ESC>n
+          Sets a Mark, then displays the next Page of file.
+
+     <ALT><ESC>p
+          Sets a Mark, then displays the previous Page of file.
+
+     ^Q   unfreezes the screen which was frozen by pressing ^S.
+
+     ^S   freezes cursor and text movement on the screen. Use  ^Q
+          to unfreeze it.
+
+     ^X^X lets you execute a shell  command  without  terminating
+          the editing session.
+
+          Control temporarily returns to the Command  Interpreter
+          while  the  command  is executed, then you can continue
+          editing. For instance, if you want to read another file
+          into  the  one you are editing but can not remember the
+          file name, you can execute an ls command  to  find  its
+          name.  When  you  type  ^X^X, you will see the Execute:
+          prompt on the information line. Type the  command  line
+          and  press  the  RETURN  key.  If the file was modified
+          before you called ^X^X, you will see the EXECUTING. PUT
+          EDITS? (Y/W/N/F/!) prompt.
+
+          Type Y  if you want the file to be backuped and updated
+                  before  executing  the  command.   See the QUIT
+                  command for a description of  the  backup  pro-
+                  cess.
+
+          Type W  if you want the the file to be updated in place
+                  before executing the command.
+
+          Type F  if you want file to be forcibly updated  before
+                  executing  the  command.   This  command  works
+                  similar to the Y command, but ved  will  ignore
+                  the  state of the -readonly flag and the access
+                  rights of the file.  The latter will allow  you
+                  to  write  into files without write permissions
+                  if you are super user.  For execptions on  this
+                  rule, see description of the -readonly flag.
+
+          Type !  if you want file  to  be  forcibly  updated  in
+                  place before executing the command.
+
+          Type N  if you want to execute the  command  but  don't
+                  want to save the changes before.
+
+          If the file has been locked before by another edit ses-
+          sion  or  if  the  file has been modified more recently
+          than the copy that has been used for the  current  ses-
+          sion,  you  will  not be allowed to save the file.  Use
+          the force commands (F or !)  or write back  using  dif-
+          ferent file name.
+
+          In all cases, after returning  from  the  command,  the
+          cursor  will be on the same place as it was before typ-
+          ing ^X^X.
+
+          Note that if the shell  command  you  want  to  execute
+          requires  the  current  file  as an argument, you might
+          need to update it. For instance, if you  the  file  you
+          are  editing contains formatting commands that you want
+          to test, you will need to update the file so  that  the
+          version  of  the  file  you format and view is the most
+          up-to-date one.
+
+          To abort the command while you  can  see  the  Execute:
+          prompt,  do not type a command; simply press the RETURN
+          key. If you had started to  type  a  command,  use  the
+          DELETE  key to erase it; the field following the prompt
+          must be blank. To abort the command while you  can  see
+          the EXECUTING. PUT EDITS? (Y/W/N/F/!) prompt, type any-
+          thing except Y, W, F, ! N.
+
+     <ESC>^X
+          executes the contents of the current take buffer.
+
+          You can type a shell command line in your file and then
+          save  it in a take buffer (using the ^T, <ESC>^T, ^Y or
+          <ESC>^Y commands).
+
+          When you type <ESC>^X, you will see the EXECUTING.  PUT
+          EDITS? (Y/W/N/F/!) prompt on the information line.
+
+          Type Y  if you want the file to be backuped and updated
+                  before  executing  the  command.   See the QUIT
+                  command for a description of  the  backup  pro-
+                  cess.
+
+          Type W  if you want the the file to be updated in place
+                  before executing the command.
+
+          Type F  if you want file to be forcibly updated  before
+                  executing  the  command.   This  command  works
+                  similar to the Y command, but ved  will  ignore
+                  the  state of the -readonly flag and the access
+                  rights of the file.  The latter will allow  you
+                  to  write  into files without write permissions
+                  if you are super user.  For execptions on  this
+                  rule, see description of the -readonly flag.
+
+          Type !  if you want file  to  be  forcibly  updated  in
+                  place before executing the command.
+
+          Type N  if you want to execute the  command  but  don't
+                  want to save the changes before.
+
+          If you don't want to execute the command, type anything
+          except Y, W, F, ! or N.
+
+          If the file has been locked before by another edit ses-
+          sion  or  if  the  file has been modified more recently
+          than the copy that has been used for the  current  ses-
+          sion,  you  will  not be allowed to save the file.  Use
+          the force commands (F or !)  or write back  using  dif-
+          ferent file name.
+
+     <ALT>^X
+          executes the selection (what lies between the mark  and
+          the cursor).
+
+          You can type a shell command  line  in  your  file  and
+          select it.
+
+          When you type <ALT>^X, you will see the EXECUTING.  PUT
+          EDITS? (Y/W/N/F/!) prompt on the information line.
+
+          Type Y  if you want the file to be backuped and updated
+                  before  executing  the  command.   See the QUIT
+                  command for a description of  the  backup  pro-
+                  cess.
+
+          Type W  if you want the the file to be updated in place
+                  before executing the command.
+
+          Type F  if you want file to be forcibly updated  before
+                  executing  the  command.   This  command  works
+                  similar to the Y command, but ved  will  ignore
+                  the  state of the -readonly flag and the access
+                  rights of the file.  The latter will allow  you
+                  to  write  into files without write permissions
+                  if you are super user.  For execptions on  this
+                  rule, see description of the -readonly flag.
+
+          Type !  if you want file  to  be  forcibly  updated  in
+                  place before executing the command.
+
+          Type N  if you want to execute the  command  but  don't
+                  want to save the changes before.
+
+          If you don't want to execute the command, type anything
+          except Y, W, F, ! or N.
+
+          If the file has been locked before by another edit ses-
+          sion  or  if  the  file has been modified more recently
+          than the copy that has been used for the  current  ses-
+          sion,  you  will  not be allowed to save the file.  Use
+          the force commands (F or !)  or write back  using  dif-
+          ferent file name.
+
+     ^@   indicates the current line number.  This  number  tells
+          you  how  many lines exist between the beginning of the
+          file and the current cursor position.
+
+          On the information line you will see +Line:  333  where
+          333 is the current line number.
+
+     <ESC>^@
+          indicates how many lines exist between the current cur-
+          sor position and the end of the file.
+
+          On the information line you will see -Line: 22 where 22
+          is the number of lines remaining in the file.
+
+     <ALT>^@
+          indicates what line the mark is on, in relation to  the
+          beginning of the file.
+
+          On the information line you will see +Line: 45 where 45
+          is  the  positive  line  number  on  which  the mark is
+          located.
+
+          If there is no mark, you will see No mark! displayed on
+          the far right of the information line.
+
+     <ALT><ESC>^@
+          indicates what line the mark is on, in relation to  the
+          end of the file.
+
+          On the information line you will see -Line:  109  where
+          109  is  the  negative line number on which the mark is
+          located.
+
+          If there is no mark, you will see No mark! displayed on
+          the far right of the information line.
+
+     ^[   is the same as using the <ESC> key.
+
+     ^]   is <ALT>.  Use this sequence of keystrokes to start  an
+          ALT command.
+
+     ^X   is the lead in character for an extended command.
+
+     <ESC>^]
+          is the same as using <ALT><ESC>.
+
+     ^^   quotes the next character so that it is taken literally
+          and  then  is  converted  to  a control character.  For
+          instance, if you want to include a command in  a  macro
+          definition, you must quote the keystroke sequence. Oth-
+          erwise, the command will be executed rather than become
+          part of your macro.
+
+     <ESC>^^
+          quotes the next character so that is becomes  a  8  bit
+          character.
+
+     <ALT>^^
+          quotes the next character so that is becomes  a  8  bit
+          control character.
+
+     <ALT><ESC>^^
+          quotes the next character so that you type it in  in  a
+          hexadecimal notation.
+
+     <ALT><ALT>
+          goto tag that is a word  located  at  cursor  position.
+          See FILES section for more information on the tag file.
+
+     <ESC><ALT><ALT>
+          pop the tag stack by one entry.  Every time you go to a
+          tag,  the  old  location  is  puched  on top of the tag
+          stack.
+
+     <ESC>%
+          search for matching parenthesis.  If  this  command  is
+          entered,  the  cursor  is  put  to the parenthesis that
+          matches the parenthesis where the cursor  is  currently
+          located.
+
+     <ESC>*
+          Execute temporary macro.  One temporary  macro  may  be
+          set up using the command <ESC>:macro command.
+
+     <ESC>:
+          introduce a colon command.  See section COLON  COMMANDS
+          for more information.
+
+COLON COMMANDS
+     Colon commands are introduced via <ESC>:
+     The command then may be entered on the (top) status line  of
+     ved.
+
+     The colon commands are:
+
+     backup
+          Backup current file. This command is the same  as  when
+          <ESC>^C  is entered.  It may be needed if for some rea-
+          son it it not possible to enter the interrupt character
+          of the terminal driver.
+
+     bind Print the current command binding for ved.  Later  ver-
+          sions  of ved may allow to modify the binding with this
+          command.
+
+     help print online help for available colon commands.
+
+     macro macro body
+          set up a temporary  macro  that  may  be  executed  via
+          <ESC>*
+
+     map
+
+     map from-string to-string
+          The first form lists all currently active mappings, the
+          second form sets up a new mapping.
+
+     next switch to next file in file  list.   This  command  may
+          only  be used if ved has been called with more than one
+          file argument.
+
+     prev switch to previous file in file list.  This command may
+          only  be used if ved has been called with more than one
+          file argument.
+
+     quit Quit ved.  This command is  the  same  as  when  ^C  is
+          entered.  It may be needed if for some reason it it not
+          possible to enter the interrupt character of the termi-
+          nal driver.
+
+     set
+
+     set set-variable set-args
+          The first form lists the current settings of  ved,  the
+          second  form sets a specific property of ved.  The vai-
+          ables that may be modified via the set command are:
+
+          autoindent
+               If set, ved activates the auto indent mode. Subse-
+               quent  lines  will  be automatically indented with
+               the same indent as the previous line.  Switch  off
+               with <ESC>:set noautoindent
+
+          linelen new-linelen
+               Set linelength that is used  as  base  for  screen
+               updates.  This linenength usually is retrived from
+               the terminal driver but may be modified manually.
+
+          magic
+               Switch to magic mode for pattern matching (this is
+               the  default  when  ved  has  been started). If in
+               magic mode, matching is done using regular expres-
+               sion  pattern matching.  This mode may be switched
+               off with <ESC>:set  nomagic.   If  magic  mode  is
+               turned off, matching is done without using regular
+               expression matching even if the  pattern  contains
+               magic characters for pattern matching.
+
+          markwrap
+               Mark wrapped lines with a \ character at  the  end
+               of  a  visible  terminal line (this is the default
+               when ved has been  started).   This  mode  may  be
+               switched off with <ESC>:set nomarkwrap.
+
+          optline opt-line
+               Set the optimal line.  This is the  line  (counted
+               from  the top of the terminal) where the cursor is
+               adjusted to when ved does scrolling.  It is set by
+               default  to the half of the number of lines of the
+               terminal.
+
+          pmargin page-margin
+               Set the distance you need to have between the cur-
+               soe and the upper or lower border of the terminal.
+               If you cross this border, ved will start to scroll
+               and  adjust the cursor to the optimal line.  It is
+               set by default to 0 and allows to place the cursor
+               to any visible line on the screen.
+
+          psize page-size
+               Set pagesize that  is  used  as  base  for  screen
+               updates.   This  pagesize usually is retrived from
+               the terminal driver but may be modified manually.
+
+          tabstop tab-width
+               Set the size of a visible  tab  chacaracter.  This
+               width is set to 8 by default.
+
+          taglength tag-len-value
+               Set the number of characters that are used to com-
+               pare a tag name with a tag label in the tags file.
+               If it is set to 0 (the default), ved compares  the
+               complete tag length.
+
+          tags tag-file-list
+               Set the list if files that is searched when  look-
+               ing  for  a  tag  data base.  The tag file list is
+               separated by blanks and by default set to
+
+               tags .. /usr/lib/tags
+
+               This means that ved will first  look  for  a  file
+               tags  in the current directory, then search up for
+               (directory by directory until the  root  directors
+               is  reached) a file tags and last it vill look for
+               a file /usr/lib/tags.
+
+          wrapmargin wrap-margin
+               If wrapmagin is set, ved will activate  the  auto-
+               warp  mode.  In auto-wrap mode, ved will automati-
+               cally insert a new-line before a word if the  cur-
+               sor  is less than wrap-magin from the right termi-
+               nal border.
+
+     substitute /old/new/
+          Substitute pattern old by new.   The  pattern  new  may
+          contain an & for the old string.
+
+     tag tag-name
+          goto tag named tag-name.  See FILES  section  for  more
+          information on the tag file.

@@ -1,0 +1,15 @@
+#!/bin/sh
+
+#
+# Check if there already is a working 'smake' in the current directory
+#
+echo "Checking for working bootstrap make..."
+./smake -version && exit
+echo "Creating bootstrap make..."
+
+sh ./.clean
+
+#
+# Now start the actual make precedure...
+#
+sh ./MAKE-sh

@@ -1,0 +1,20 @@
+#ident %W% %E% %Q%
+###########################################################################
+# Sample makefile for installing non english manual pages
+###########################################################################
+SRCROOT=	..
+RULESDIR=	RULES
+include		$(SRCROOT)/$(RULESDIR)/rules.top
+###########################################################################
+# Rules for German manual pages (replace de with your locale)
+###########################################################################
+
+MANDIR=		man/de
+TARGETMAN=	sdd
+MANSECT=	$(MANSECT_CMD)
+MANSUFFIX=	$(MANSUFF_CMD)
+MANFILE=	sdd_de.1
+
+###########################################################################
+include		$(SRCROOT)/$(RULESDIR)/rules.man
+###########################################################################

@@ -1,0 +1,271 @@
+. \" @(#)p.1	1.6 07/06/29 Copyr 1982-2007 J. Schilling
+. \"  Manual page for p
+. \"
+.if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
+.if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
+.if t .ds u \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'u
+.if t .ds A \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'A
+.if t .ds O \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'O
+.if t .ds U \v'-0.77m'\h'0.30n'\z.\h'0.45n'\z.\v'0.77m'\h'-.75n'U
+.if t .ds s \(*b
+.if t .ds S SS
+.if n .ds a ae
+.if n .ds o oe
+.if n .ds u ue
+.if n .ds s sz
+.TH P 1L "15. Juli 1988" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.SH NAME
+p \- browse or page through files and filter unprintable characters
+.SH SYNOPSIS
+.B
+p
+[
+.I options
+] [
+.I file1 .\|.\. filen
+]
+.SH DESCRIPTION
+.B p
+reads the files from the argument list and displays them on standard
+out. If the argument list is empty and standard in is not connected to
+a terminal, 
+.B p
+reads from standard in.
+After displaying a screen full of text, 
+.B p 
+stops and displays a 
+.B "MORE ?"
+prompt.
+If 
+.B p
+is reading input from a file and not from a pipe, it displays the
+percentage of characters already typed together with the MORE prompt.
+.PP
+.B p
+interprets non printable characters, such as control characters.
+Control characters are transformed into the printable character space
+and preceded by a "^" character. If the eight bit in a character
+is on and the character appears to unprintable, a tilde "~" character
+is preceded in addition. Tabs are expanded into spaces as usual on 
+UNIX and lines that exceed the line length of the terminal are
+wrapped around and continued on the next line of the screen.
+
+.SH OPTIONS
+All options can be abbreviated by their first letter.
+.TP
+.BR length =#
+Set the number of lines per page.
+If no termcap entry could be found 
+.B length
+defaults to 24.
+.TP
+.BR width =#
+Set the number of characters per line.
+If no termcap entry could be found 
+.B width
+defaults to 79.
+.TP
+.B \-blank
+Suppress multiple blank lines on the output.
+.TP
+.B \-clear
+Clear the screen before displaying each new page.
+.TP
+.B \-debug
+Print additional debugging information.
+.TP
+.B \-dos
+Hide carriage-return characters that are directly followed by a new-line.
+As
+.B p
+is binary transparent, reading in files that do not follow DOS
+newline conventions will not be automatically converted.
+.TP
+.B \-end
+Mark the end of each line with the character '$'.
+.TP
+.B \-help
+Print a short summary of the available options and commands.
+.TP
+.B \-raw
+Do not expand control characters.
+.TP
+.B \-raw8
+Do not expand characters with top bit set.
+.TP
+.B \-silent
+Do not print a 
+.B "MORE ?"
+prompt. Only do the formatting for the content of the files.
+This option may be used when 
+.B p
+is only used as a filter.
+.TP
+.B \-tab
+Do not expand tabs to spaces, expand them to '^I'.
+.TP
+.B \-visible
+Underlining and bold sequences become visible.
+.TP
+.B \-help
+Prints a short summary of the 
+.BR p (1)
+options and exists.
+.TP
+.B \-version
+Prints the 
+.BR p (1)
+version number string and exists.
+
+.SH Commands
+If a 
+.B "MORE ?"
+prompt is displayed, the following commands are valid:
+.TP 15
+.B y,Y,<CR>,<LF>
+.B Yes.
+Display the next full screen of text.
+.TP
+.B h,H 
+.B Half.
+Display the next half screen of text.
+.TP
+.B q,Q
+.B Quarter.
+Display the next quarter screen of text.
+.TP
+.B l,L
+.B Line.
+Display the next line of text.
+.TP 
+.B 1-9
+.B Lines.
+Dislay the next 1-9 lines of text.
+.TP 
+.B n,N
+.BR Next / No .
+Display the next file. If the current file is the last file in the
+list exit
+.BR p .
+.TP 
+.B p,P
+.B Previous.
+Display the previous file. If the current file is the first file in the
+list just start to display the first file.
+.TP
+.B s,S
+.B Stop.
+Exit the 
+.B p
+program.
+.TP
+.BI / pattern
+.B Search.
+Start searching for 
+.IR pattern .
+.TP
+.B r,R
+.B Research.
+Re search for previous pattern.
+.TP
+.B ^L
+.B Redraw.
+Redisplay the current screen content.
+.TP
+.B v,V
+.B View (Edit).
+Start the editor in read only mode with cursor position set to the current
+line.
+.TP
+.B !
+.B Shell.
+Execute a shell using the rest of the input line as shell command.
+.TP
+.B ?
+.B Help.
+Print a short help message that lists valid commands.
+.TP 
+other
+.B Error.
+All other input will cause a beep if the environment 
+.B BEEP
+is not set to
+.IR off.
+.PP
+If the end of a file is reached,
+.B p
+will start with the next file.
+
+.SH ENVIRONMENT
+.TP
+.B SHELL
+For the shell to use for shell command escapes, file name globbing
+and similar.
+.TP
+.B EDITOR
+The name of the editor (used for the v command).
+.TP
+.B HOME
+To find the private files like
+.B ~/.termcap
+.TP
+.B TERM
+The type of terminal for which the output should be formatted.
+.TP
+.B TERMCAP
+This environment variable holds either a precompiled termcap entry
+or the pathname to be used to find a termcap database file.
+If it holds a precompiled entry that does not match the
+.B TERM
+environment, the termcap database is parsed as if the
+.B TERMCAP 
+environment is not set.
+.TP
+.B TERMPATH
+If 
+.B TERMCAP
+is empty, then the
+.B TERMPATH
+environment is scanned for pathnames of files that contain a
+.B termcap
+database.
+It holds a list of filenames separated by colons or spaces (i.e.,  ":" or " ").
+If the TERMPATH symbol is not set, the files
+.I $HOME/.termcap
+and
+.I /etc/termcap
+are scanned in that order.
+If a pathname in 
+.B TERMPATH
+does not start with a slash ("/"), then the 
+.B HOME
+environment is prepended to the name.
+.TP
+.B BEEP
+The environment variable
+.B BEEP
+is used to suppress beeping when set to
+.IR off.
+This helps to use 
+.B p
+on a notebook in a meeting.
+
+.SH FILES
+.TP
+.B /etc/termcap
+The system's terminal capabilities database.
+.TP
+.B ~/.termcap
+The private terminal capabilities database.
+
+.SH NOTES
+If you type p with no arguments and do not redirect its standard
+input, p will display its usage message.
+.PP
+If the terminal driver is configured to strip the eight bit
+in characters, 
+.B p
+will display a tilde character before any character that has the
+eight bit set (i.e. ~V).
+
+.SH BUGS

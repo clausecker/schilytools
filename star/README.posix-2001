@@ -1,0 +1,82 @@
+Hints for using extended POSIX.1-2001 headers:
+
+	Star will understand extended headers if the archive format
+	is from 'star', 'ustar', 'pax', 'xustar', 'exustar'.
+	In addition, star will understand the POSIX-look-alike
+	extended headers from Sun's tar (Solaris) if 'suntar' is selected
+	or autodetected.
+
+	Star will create extended POSIX headers when the archive format
+	is 'pax', 'xustar' or 'exustar'. When the archive format is
+	'exustar', every file will get an extended header which holds
+	at least atime/ctime/mtime in sub-second resolution.
+	If the archive format is 'pax' or 'xustar', star will create
+	the extended header only if there is a need for the extended header
+	because one or more of the fields do not fit into the standard ustar
+	header.
+
+	Star supports the following fields in the extended header:
+
+	times: "atime"  "ctime"  "mtime"	(create/extract)
+
+	id's (numeric): "uid", "gid"		(create/extract)
+
+	id's (names): "uname", "gname"		(extract only)
+
+	pathnames: "path" "linkpath"		(create/extract)
+
+	filesize: "size"			(create/extract)
+ 
+	Additional: "charset", "comment"	(extract only - ignored)
+
+	Vendor unique:
+	"SCHILY.devmajor" "SCHILY.devminor"	(create/extract)
+
+	In -dump mode (a preparation for incremental dumps) star archives:
+
+	"SCHILY.dev"		The field stat.st_dev	- the filesys indicator
+	"SCHILY.ino"		The field stat.st_ino	- the file ID #
+	"SCHILY.nlink"		The field stat.st_nlink	- the hard link count
+	"SCHILY.filetype"	The real file type 	- this allows e.g.
+							  socket/door
+
+	These fields will in future allow star to archive and extract all
+	information that is needed for incremental dumps.
+
+	Star now includes ALL file metadata that is available. This allows a
+	complete restauration of all file properties and a diff mode that
+	checks for diffs in all file properties.
+
+	Sun compatibility:
+	"SUN.devmajor"  "SUN.devminor"		(extract only)
+
+	With -Hsuntar:
+	"SUN.devmajor"  "SUN.devminor"		(create/extract)
+
+	TODO List for extended headers:
+
+	-	Add better UNICODE support
+
+	-	Add some way of handling UID/GID Overflow in the
+		traditional 7 char fields which limit to 2097151.
+
+	-	Add support for sparse files and continuation Files
+		into the extended header stuff (as Vendor UNIQUE extensions
+		with 'SCHILY.*' name).
+
+	How to use extended POSIX.1-2001 headers:
+
+	-	To emmit xhdr's only if really needed, use 'star -Hpax'
+		or 'star -Hxustar'. In this case extended headers will be
+		created if the path/linkname will not fit into the 'ustar'
+		header or if the filesize is > 8 GB or uid/gid will not fit
+		07777777.
+
+	-	To emmit xhdr's always, use 'star -Hexustar' and even when
+		no other extended attribute is needed atime/mtime/ctime are
+		written in sub-second resolution.
+
+	-	To write extended headers similar to POSIX.1-2001 as used by
+		the Solaris tar, use 'star -Hsuntar' and every file will at
+		least get a sub-second resolution mtime. Note that Sun's main
+		intention was to handle very long filenames and big uid/gid's.

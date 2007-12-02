@@ -1,0 +1,63 @@
+. \" @(#)tartest.1	1.1 02/06/23 Copyr 2002 J. Schilling
+. \"  Manual page for tartest
+. \"
+.if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
+.if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
+.if t .ds u \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'u
+.if t .ds A \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'A
+.if t .ds O \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'O
+.if t .ds U \v'-0.77m'\h'0.30n'\z.\h'0.45n'\z.\v'0.77m'\h'-.75n'U
+.if t .ds s \(*b
+.if t .ds S SS
+.if n .ds a ae
+.if n .ds o oe
+.if n .ds u ue
+.if n .ds s sz
+.TH TARTEST 1 "02/06/23" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.SH NAME
+tartest \- test tar archive for POSIX.1-1990 compliance
+.SH SYNOPSIS
+.B
+tartest
+[
+.I options
+]
+.I < file
+.SH DESCRIPTION
+.B Tartest
+reads a tar archive from 
+.B stdin
+and checks this archive for compliance with POSIX.1-1990.
+
+.SH OPTIONS
+All options can be abbreviated by their first letter.
+.TP
+.B \-help
+Print a short help message.
+.TP
+.B \-v
+print all filenames during verification.
+
+.SH ENVIRONMENT
+none
+
+.SH FILES
+none
+
+.SH NOTES
+As
+.B tartest
+is limited to tests the data that is delivered by the tar archiver that is going
+to be checked, it cannot tests if the tar archiver in question will produce
+correct archives under all circumstances. There may be borderline cases that 
+trigger bugs in the tar archiver.
+.LP
+If you like to to a more complete test, you should have a look at the file
+.B READE.quicktest
+in the directory 
+.B testscripts
+of either the 
+.B star
+distribution or the ftp server.
+
+.SH BUGS

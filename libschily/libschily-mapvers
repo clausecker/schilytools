@@ -1,0 +1,167 @@
+# @(#)libschily-mapvers	1.10 07/04/03 Copyright 2005-2006 J. Schilling
+
+SCHILY_1.2 {
+global:
+	getnum;
+	getllnum;
+	getxnum;
+	getllxnum;
+	gettnum;
+	getlltnum;
+	getxtnum;
+	getllxtnum;
+	getvargs;
+	getvallargs;
+	getvfiles;
+	getargerror;
+
+#	fnmatch;
+#	strlcpy;
+#	strncpy;
+
+	js_malloc;
+	js_realloc;
+	js_savestr;
+	js_jmalloc;
+	js_jrealloc;
+	js_jsavestr;
+	js_fjmalloc;
+	js_fjrealloc;
+	js_fjsavestr;
+
+	fcomerr;
+	fcomerrno;
+	ferrmsg;
+	ferrmsgno;
+	_comerr;
+
+	file_getraise;
+} SCHILY_1.1;
+
+SCHILY_1.1 {
+global:
+	astoull;
+	astoullb;
+} SCHILY_1.0;
+
+SCHILY_1.0 {
+global:
+	_cvmod;
+	_fcons;
+	_fcons64;
+	_getargs;
+	_niread;
+	_niwrite;
+	_nixread;
+	_nixwrite;
+	_openfd;
+	_openfd64;
+	astoi;
+	astol;
+	astolb;
+	astoll;
+	astollb;
+	breakline;
+	cmpbytes;
+	cmpnullbytes;
+	comerr;
+	comerrno;
+	comexit;
+	errmsg;
+	errmsgno;
+	errmsgstr;
+	error;
+	fdown;
+	fdup;
+	fdup64;
+	fexecl;
+	fexecle;
+	fexecv;
+	fexecve;
+	ffileread;
+	ffilewrite;
+	fgetline;
+	fgetstr;
+	file_raise;
+	fileclose;
+	fileluopen;
+	fileluopen64;
+	filemopen;
+	filemopen64;
+	fileopen;
+	fileopen64;
+	filepos;
+	filepos64;
+	fileread;
+	filereopen;
+	filereopen64;
+	fileseek;
+	fileseek64;
+	filesize;
+	filesize64;
+	filestat;
+	filestat64;
+	filewrite;
+	fillbytes;
+	findbytes;
+	findline;
+	flush;
+	format;
+	fpipe;
+	fspawnl;
+	fspawnv;
+	fspawnv_nowait;
+	ftoes;
+	ftofs;
+	get_progname;
+	getallargs;
+	getargs;
+	getav0;
+	getavp;
+	getbroken;
+	getdomainname;
+	geterrno;
+	getfiles;
+	getfp;
+	getline;
+	getmainfp;
+	getstr;
+	handlecond;
+	js_fprintf;
+	js_printf;
+	js_snprintf;
+	js_sprintf;
+	movebytes;
+	ofindline;
+	on_comerr;
+	opatlmatch;
+	opatmatch;
+	patcompile;
+	patlmatch;
+	patmatch;
+	peekc;
+	raisecond;
+	save_args;
+	saved_ac;
+	saved_av;
+	saved_av0;
+	serrmsg;
+	serrmsgno;
+	set_progname;
+	seterrno;
+	setfp;
+	starthandlecond;
+	strcatl;
+	streql;
+	swabbytes;
+	unhandlecond;
+	wait_chld;
+
+#	fprintf;
+#	printf;
+#	snprintf;
+#	sprintf;
+
+local:
+	*;
+};

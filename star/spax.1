@@ -1,0 +1,4271 @@
+'\" t
+. \" @(#)spax.1	1.7 07/02/17 Copyr 2004 J. Schilling
+. \" Copyright (C) 2001-2004 by the Institute of Electrical and Electronics Engineers, Inc and The Open Group.
+. \" Manual page for spax
+. \"
+.if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
+.if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
+.if t .ds u \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'u
+.if t .ds A \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'A
+.if t .ds O \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'O
+.if t .ds U \v'-0.77m'\h'0.30n'\z.\h'0.45n'\z.\v'0.77m'\h'-.75n'U
+.if t .ds s \(*b
+.if t .ds S SS
+.if n .ds a ae
+.if n .ds o oe
+.if n .ds u ue
+.if n .ds s sz
+.\" Header with no indent
+.de HD
+.ti 0
+.I \\$1
+..
+.\" Ruler line
+.de RU
+.ti 0
+\l'\n(.lu'
+..
+.\" Table caption
+.de CA
+.ce
+.B \\$1
+..
+.TH SPAX 1L "07/02/17" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.SH NAME
+pax \- portable archive interchange
+.SH SYNOPSIS
+.TP
+.B
+spax
+\ \ \ \ \ [\fIother\ options\fR]
+[\-cdnv] [\-H|\-L] [\-f\ \fIarchive] [\-o\ \fIoptions\fR].\|.\|.
+[\-s \fIreplstr].\|.\|.
+[\fIpattern\fR\&.\|.\|.\|]
+.sp
+.TP
+.B
+spax
+\-r\ \ \ [\fIother\ options\fR]
+[\-cdiknuv] [\-H|\-L] [\-f\ \fIarchive] [\-o\ \fIoptions\fR].\|.\|.
+[\-p\ \fIstring\fR].\|.\|.
+[\-s\ \fIreplstr\fR].\|.\|.
+[\fIpattern\&.\|.\|.\|]
+.sp
+.TP
+.B
+spax
+\-w\ \ \ [\fIother\ options\fR]
+[\-dituvX] [\-H|\-L] [\-b\ \fIblocksize\fR]
+[\-a]
+[\-f\ \fIarchive] [\-o\ \fIoptions\fR].\|.\|.
+[\-s\ \fIreplstr\fR].\|.\|.
+[\-x\ \fIformat\fR]
+[\fIfile\fR\&.\|.\|.\|]
+.sp
+.TP
+.B
+spax
+\-r\ \-w[\fIother\ options\fR]
+[\-diklntuvX] [\-H|\-L] [\-o\ \fIoptions\fR].\|.\|.
+[\-p\ \fIstring\fR].\|.\|.
+[\-s\ \fIreplstr\fR].\|.\|.
+[\fIfile\fR\&.\|.\|.\|]
+.I directory
+.SH DESCRIPTION
+.PP
+The 
+.B pax 
+utility shall read, write, and write lists of the members
+of archive files and copy directory hierarchies. A variety of
+archive formats shall be supported; see the
+.B \-x
+format option.
+.PP
+The action to be taken depends on the presence of the
+.B \-r
+and
+.B \-w
+options. The four combinations of
+.B \-r
+and
+.B \-w
+are referred to as the
+four modes of operation:
+.BR list ,
+.BR read ,
+.BR write ,
+and
+.B copy
+modes, corresponding respectively to the four forms shown in the SYNOPSIS
+section.
+.TP
+.B list
+In
+.B list
+mode (when neither
+.B \-r
+nor
+.B \-w
+are specified),
+.B pax
+shall write the names of the members of the archive file read
+from the standard input, with pathnames matching the
+specified
+.IR patterns ,
+to standard output. If a named file is of
+type directory, the file hierarchy rooted at that file shall
+be listed as well.
+.TP
+.B read
+In
+.B read
+mode (when
+.B \-r
+is specified, but
+.B \-w
+is not),
+.B pax
+shall extract the members of the archive file read from the
+standard input, with pathnames matching the specified
+.IR patterns .
+If an extracted file is of type directory, the file
+hierarchy rooted at that file shall be extracted as well. The
+extracted files shall be created performing pathname
+resolution with the directory in which
+.B pax
+was invoked as the
+current working directory.
+.sp
+If an attempt is made to extract a directory when the
+directory already exists, this shall not be considered an
+error. If an attempt is made to extract a FIFO when the FIFO
+already exists, this shall not be considered an error.
+.sp
+The ownership, access, and modification times, and file mode
+of the restored files are discussed under the
+.B \-p
+option.
+.TP
+.B write
+In
+.B write
+mode (when
+.B \-w
+is specified, but
+.B \-r
+is not), 
+.B pax
+shall write the contents of the file operands to the standard
+output in an archive format. If no file operands are
+specified, a list of files to copy, one per line, shall be
+read from the standard input. A file of type directory shall
+include all of the files in the file hierarchy rooted at the
+file.
+.TP
+.B copy
+In
+.B copy
+mode (when both
+.B \-r
+and
+.B \-w
+are specified), 
+.B pax
+shall copy the file operands to the destination directory.
+.sp
+If no file operands are specified, a list of files to copy,
+one per line, shall be read from the standard input. A file
+of type directory shall include all of the files in the file
+hierarchy rooted at the file.
+.sp
+The effect of the
+.B copy
+shall be as if the copied files were
+written to an archive file and then subsequently extracted,
+except that there may be hard links between the original and
+the copied files. If the destination directory is a
+subdirectory of one of the files to be copied, the results
+are unspecified. If the destination directory is a file of a
+type not defined by the System Interfaces volume of
+IEEE Std 1003.1-2001, the results are implementation-defined;
+otherwise, it shall be an error for the file named by the
+directory operand not to exist, not be writable by the user,
+or not be a file of type directory.
+.PP
+In
+.B read
+or 
+.B copy
+modes, if intermediate directories are necessary
+to extract an archive member, 
+.B pax 
+shall perform actions equivalent
+to the 
+.BR mkdir ()
+function defined in the System Interfaces volume of
+IEEE Std 1003.1-2001, called with the following arguments:
+.TP
+.B \(bu
+The intermediate directory used as the 
+.B path
+argument.
+.TP
+.B \(bu
+The value of the bitwise-inclusive 
+.B OR 
+of
+.BR S_IRWXU ,
+.BR S_IRWXG ,
+and
+.B S_IRWXO
+as the
+.I mode
+argument.
+.PP
+If any specified
+.I pattern
+or
+.I file
+operands are not matched by at
+least one file or archive member, 
+.B pax 
+shall write a diagnostic
+message to standard error for each one that did not match and exit
+with a non-zero exit status.
+.PP
+The archive formats described in the 
+.B EXTENDED DESCRIPTION
+section
+shall be automatically detected on input. The default output
+archive format shall be implementation-defined.
+.PP
+The 
+.B spax
+implementation defaults to
+.BR "\-x ustar" .
+.PP
+A single archive can span multiple files. The
+.B pax
+utility shall
+determine, in an implementation-defined manner, what file to read
+or write as the next file.
+.PP
+If the selected archive format supports the specification of
+linked files, it shall be an error if these files cannot be linked
+when the archive is extracted, except that if the files to be
+linked are symbolic links and the system is not capable of making
+hard links to symbolic links, then separate copies of the symbolic
+link shall be created instead. For archive formats that do not
+store file contents with each name that causes a hard link, if the
+file that contains the data is not extracted during this
+.B pax
+session, either the data shall be restored from the original file,
+or a diagnostic message shall be displayed with the name of a file
+that can be used to extract the data. In traversing directories,
+.B pax
+shall detect infinite loops; that is, entering a previously
+visited directory that is an ancestor of the last file visited.
+When it detects an infinite loop,
+.B pax
+shall write a diagnostic
+message to standard error and shall terminate.
+
+.SH OPTIONS
+.PP
+The
+.B pax
+utility shall conform to the Base Definitions volume of
+IEEE Std 1003.1-2001, Section 12.2, Utility Syntax Guidelines,
+except that the order of presentation of the
+.BR \-o ,
+.BR \-p ,
+and
+.B \-s
+options is significant.
+.PP
+The following options shall be supported:
+.TP
+.B \-r
+Read an archive file from standard input.
+.TP
+.B \-w
+Write files to the standard output in the specified archive
+format.
+.TP
+.B \-a
+Append files to the end of the archive. It is
+implementation-defined which devices on the system support
+appending. Additional file formats unspecified by this volume
+of IEEE Std 1003.1-2001 may impose restrictions on appending.
+.TP
+.BI \-b " blocksize
+Block the output at a positive decimal integer number of
+bytes per write to the archive file. Devices and archive
+formats may impose restrictions on blocking. Blocking shall
+be automatically determined on input. Conforming applications
+shall not specify a blocksize value larger than 32256.
+Default blocking when creating archives depends on the
+archive format. (See the 
+.B \-x 
+option below.)
+.TP
+.B \-c
+Match all file or archive members except those specified by
+the pattern or file operands.
+.TP
+.B \-d
+Cause files of type directory being copied or archived or
+archive members of type directory being extracted or listed
+to match only the file or archive member itself and not the
+file hierarchy rooted at the file.
+.....XXX Ab hier noch nicht fertig
+.TP
+.BI \-f " archive
+Specify the pathname of the input or output archive,
+overriding the default standard input (in 
+.B list
+or
+.B read
+modes)
+or standard output 
+.RB ( write 
+mode).
+.TP
+.B \-H
+If a symbolic link referencing a file of type directory is
+specified on the command line, 
+.B pax 
+shall archive the file
+hierarchy rooted in the file referenced by the link, using
+the name of the link as the root of the file hierarchy.
+Otherwise, if a symbolic link referencing a file of any other
+file type which 
+.B pax 
+can normally archive is specified on the
+command line, then 
+.B pax 
+shall archive the file referenced by
+the link, using the name of the link. The default behavior
+shall be to archive the symbolic link itself.
+.TP
+.B \-i
+Interactively rename files or archive members. For each
+archive member matching a pattern operand or file matching a
+file operand, a prompt shall be written to the file /dev/tty.
+The prompt shall contain the name of the file or archive
+member, but the format is otherwise unspecified. A line shall
+then be read from /dev/tty. If this line is blank, the file
+or archive member shall be skipped. If this line consists of
+a single period, the file or archive member shall be
+processed with no modification to its name. Otherwise, its
+name shall be replaced with the contents of the line. The 
+.B pax
+utility shall immediately exit with a non-zero exit status if
+end-of-file is encountered when reading a response or if
+/dev/tty cannot be opened for reading and writing.
+.sp
+The results of extracting a hard link to a file that has been
+renamed during extraction are unspecified.
+.TP
+.B \-k
+Prevent the overwriting of existing files.
+.TP
+.B \-l
+(The letter ell.) In copy mode, hard links shall be made
+between the source and destination file hierarchies whenever
+possible. If specified in conjunction with 
+.B \-H 
+or 
+.BR \-L ,
+when a
+symbolic link is encountered, the hard link created in the
+destination file hierarchy shall be to the file referenced by
+the symbolic link. If specified when neither 
+.B \-H 
+nor 
+.B \-L 
+is
+specified, when a symbolic link is encountered, the
+implementation shall create a hard link to the symbolic link
+in the source file hierarchy or copy the symbolic link to the
+destination.
+.TP
+.B \-L
+If a symbolic link referencing a file of type directory is
+specified on the command line or encountered during the
+traversal of a file hierarchy, 
+.B pax 
+shall archive the file
+hierarchy rooted in the file referenced by the link, using
+the name of the link as the root of the file hierarchy.
+Otherwise, if a symbolic link referencing a file of any other
+file type which 
+.B pax 
+can normally archive is specified on the
+command line or encountered during the traversal of a file
+hierarchy, 
+.B pax 
+shall archive the file referenced by the link,
+using the name of the link. The default behavior shall be to
+archive the symbolic link itself.
+.TP
+.B \-n
+Select the first archive member that matches each pattern
+operand. No more than one archive member shall be matched for
+each pattern (although members of type directory shall still
+match the file hierarchy rooted at that file).
+.TP
+.BI \-o " options
+Provide information to the implementation to modify the
+algorithm for extracting or writing files. The value of
+options shall consist of one or more comma-separated keywords
+of the form:
+.RS
+.PP
+.BI          keyword[[:]= value ][,keyword[[:]= value ], .\|.\|.\|]
+.PP
+Some keywords apply only to certain file formats, as
+indicated with each description. Use of keywords that are
+inapplicable to the file format being processed produces
+undefined results.
+.PP
+Keywords in the options argument shall be a string that would
+be a valid portable filename as described in the Base
+Definitions volume of IEEE Std 1003.1-2001, Section 3.276,
+Portable Filename Character Set.
+.TP
+.B Note:
+Keywords are not expected to be filenames, merely to
+follow the same character composition rules as portable
+filenames.
+.PP
+Keywords can be preceded with white space. The value field
+shall consist of zero or more characters; within value, the
+application shall precede any literal comma with a backslash,
+which shall be ignored, but preserves the comma as part of
+value. A comma as the final character, or a comma followed
+solely by white space as the final characters, in options
+shall be ignored. Multiple 
+.B \-o 
+options can be specified; if
+keywords given to these multiple 
+.B \-o 
+options conflict, the
+keywords and values appearing later in command line sequence
+shall take precedence and the earlier shall be silently
+ignored. The following keyword values of options shall be
+supported for the file formats as indicated:
+.TP
+.BI delete= pattern
+(Applicable only to the 
+.B "\-x pax 
+format.) When used in
+write or copy mode, 
+.B pax 
+shall omit from extended header
+records that it produces any keywords matching the
+string pattern. When used in read or list mode, 
+.B pax
+shall ignore any keywords matching the string pattern in
+the extended header records. In both cases, matching
+shall be performed using the pattern matching notation
+described in Patterns Matching a Single Character and
+Patterns Matching Multiple Characters. For example:
+.RS
+.PP
+\fB\-o\ delete=\fIsecurity.*\fR
+.PP
+would suppress security-related information. See 
+.B pax Extended Header 
+for extended header record keyword
+usage.
+.PP
+When multiple 
+.BI "\-o delete=" pattern 
+options are specified,
+the patterns shall be additive; all keywords matching
+the specified string patterns shall be omitted from
+extended header records that 
+.B pax 
+produces.
+.RE
+.TP
+.BI exthdr.name= string
+(Applicable only to the 
+.B "\-x pax 
+format.) This keyword
+allows user control over the name that is written into
+the ustar header blocks for the extended header produced
+under the circumstances described in 
+.BR "pax Header Block".
+The name shall be the contents of string, after the
+following character substitutions have been made:
+.RS
+.PP
+.TS
+center box;
+lb|lb
+l|l.
+string Includes:	Replaced By:
+_
+%d	The directory name of the file, equivalent
+	to the result of the dirname utility on the
+	translated pathname.
+_
+%f	The filename of the file, equivalent to the
+	result of the basename utility on the
+	translated pathname.
+_
+%p	The process ID of the pax process.
+_
+%%	A '%' character.
+.TE
+.PP
+Any other '%' characters in string produce undefined
+results.
+.PP
+If no \-o exthdr.name= string is specified, 
+.B pax 
+shall use
+the following default value:
+.PP
+        %d/PaxHeaders.%p/%f
+.PP
+.RE
+.TP
+.BI globexthdr.name= string
+(Applicable only to the 
+.B "\-x pax 
+format.) When used in
+write or copy mode with the appropriate options, 
+.B pax
+shall create global extended header records with ustar
+header blocks that will be treated as regular files by
+previous versions of 
+.BR pax .
+This keyword allows user
+control over the name that is written into the ustar
+header blocks for global extended header records. The
+name shall be the contents of string, after the
+following character substitutions have been made:
+.RS
+.PP
+.TS
+center box;
+lb|lb
+l|l.
+string Includes:	Replaced By:
+_
+%n	An integer that represents the sequence
+	number of the global extended header record
+	in the archive, starting at 1.
+_
+%p	The process ID of the pax process.
+_
+%%	A '%' character.
+.TE
+.PP
+Any other '%' characters in string produce undefined
+results.
+.PP
+If no 
+.BI "\-o globexthdr.name=" string
+is specified, 
+.B pax 
+shall
+use the following default value:
+.PP
+$TMPDIR/GlobalHead.%p.%n
+.PP
+where 
+.B $TMPDIR 
+represents the value of the 
+.B TMPDIR
+environment variable. If 
+.B TMPDIR 
+is not set, 
+.B pax 
+shall
+use /tmp.
+.RE
+.TP
+.BI invalid= action
+(Applicable only to the 
+.B "\-x pax 
+format.) This keyword
+allows user control over the action 
+.B pax 
+takes upon
+encountering values in an extended header record that,
+in read or copy mode, are invalid in the destination
+hierarchy or, in list mode, cannot be written in the
+codeset and current locale of the implementation. The
+following are invalid values that shall be recognized by
+.BR pax :
+.RS
+.TP
+.B +
+In read or copy mode, a filename or link name that
+contains character encodings invalid in the
+destination hierarchy. (For example, the name may
+contain embedded NULs.)
+.TP
+.B +
+In read or copy mode, a filename or link name that
+is longer than the maximum allowed in the
+destination hierarchy (for either a pathname
+component or the entire pathname).
+.TP
+.B +
+In list mode, any character string value (filename,
+link name, user name, and so on) that cannot be
+written in the codeset and current locale of the
+implementation.
+.PP
+The following mutually-exclusive values of the action
+argument are supported:
+.TP
+.B bypass
+In read or copy mode, 
+.B pax 
+shall bypass the file,
+causing no change to the destination hierarchy. In
+list mode, 
+.B pax 
+shall write all requested valid
+values for the file, but its method for writing
+invalid values is unspecified.
+.TP
+.B rename
+In read or copy mode, 
+.B pax 
+shall act as if the 
+.B \-i
+option were in effect for each file with invalid
+filename or link name values, allowing the user to
+provide a replacement name interactively. In list
+mode, 
+.B pax 
+shall behave identically to the bypass
+action.
+.TP
+.B UTF-8
+When used in read, copy, or list mode and a
+filename, link name, owner name, or any other field
+in an extended header record cannot be translated
+from the 
+.B pax 
+UTF-8 codeset format to the codeset
+and current locale of the implementation, 
+.B pax 
+shall
+use the actual UTF-8 encoding for the name.
+.TP
+.B write
+In read or copy mode, 
+.B pax 
+shall write the file,
+translating the name, regardless of whether this
+may overwrite an existing file with a valid name.
+In list mode, 
+.B pax 
+shall behave identically to the
+bypass action.
+.PP
+If no 
+.BI "\-o invalid=" option
+is specified, 
+.B pax 
+shall act as
+if 
+.B "\-o invalid= bypass 
+were specified. Any overwriting of
+existing files that may be allowed by the 
+.B "\-o invalid=
+actions shall be subject to permission(\fB\-p\fR) and
+modification time (\fB\-u\fR) restrictions, and shall be
+suppressed if the 
+.B \-k 
+option is also specified.
+.RE
+.TP
+.B linkdata
+(Applicable only to the 
+.B "\-x pax 
+format.) In write mode,
+.B pax 
+shall write the contents of a file to the archive
+even when that file is merely a hard link to a file
+whose contents have already been written to the archive.
+.TP
+.BI listopt= format
+This keyword specifies the output format of the table of
+contents produced when the 
+.B \-v 
+option is specified in
+list mode. See List Mode Format Specifications. To avoid
+ambiguity, the listopt= format shall be the only or
+final keyword= value pair in a 
+.BI "\-o " option-argument\fR;
+all characters in the remainder of the option-argument shall
+be considered part of the format string. When multiple
+-o listopt= format options are specified, the format
+strings shall be considered a single, concatenated
+string, evaluated in command line order.
+.TP
+.B times
+(Applicable only to the 
+.B "\-x pax 
+format.) When used in
+write or copy mode, 
+.B pax 
+shall include atime and mtime
+extended header records for each file. See 
+.BR "pax Extended Header File Times" .
+.PP
+In addition to these keywords, if the 
+.B "\-x pax 
+format is
+specified, any of the keywords and values defined in 
+.BR "pax Extended Header" ,
+including implementation extensions, can be
+used in 
+.BI \-o " option-arguments\fR,
+in either of two modes:
+.TP
+.BI keyword= value
+When used in write or copy mode, these keyword/value
+pairs shall be included at the beginning of the archive
+as typeflag g global extended header records. When used
+in read or list mode, these keyword/value pairs shall
+act as if they had been at the beginning of the archive
+as typeflag g global extended header records.
+.TP
+.BI keyword:= value
+When used in write or copy mode, these keyword/value
+pairs shall be included as records at the beginning of a
+typeflag x extended header for each file. (This shall be
+equivalent to the equal-sign form except that it creates
+no typeflag g global extended header records.) When used
+in read or list mode, these keyword/value pairs shall
+act as if they were included as records at the end of
+each extended header; thus, they shall override any
+global or file-specific extended header record keywords
+of the same names. For example, in the command:
+.RS
+.PP
+\fBpax \-r \-o "gname:=mygroup," <archive\fR
+.PP
+the group name will be forced to a new value for all
+files read from the archive.
+.RE
+.PP
+The precedence of 
+.B \-o
+keywords over various fields in the
+archive is described in 
+.BR "pax Extended Header Keyword Precedence" .
+.RE
+.TP
+.BI \-p " string
+Specify one or more file characteristic options (privileges).
+The string option-argument shall be a string specifying file
+characteristics to be retained or discarded on extraction.
+The string shall consist of the specification characters a ,
+e, m, o, and p. Other implementation-defined characters can
+be included. Multiple characteristics can be concatenated
+within the same string and multiple 
+.B \-p 
+options can be
+specified. The meaning of the specification characters are as
+follows:
+.RS
+.TP
+.B a
+Do not preserve file access times.
+.TP
+.B e
+Preserve the user ID, group ID, file mode bits (see the
+Base Definitions volume of IEEE Std 1003.1-2001, Section
+3.168, File Mode Bits), access time, modification time,
+and any other implementation-defined file
+characteristics.
+.TP
+.B m
+
+Do not preserve file modification times.
+.TP
+.B o
+Preserve the user ID and group ID.
+.TP
+.B p
+Preserve the file mode bits. Other
+implementation-defined file mode attributes may be
+preserved.
+.PP
+In the preceding list, "preserve" indicates that an attribute
+stored in the archive shall be given to the extracted file,
+subject to the permissions of the invoking process. The
+access and modification times of the file shall be preserved
+unless otherwise specified with the 
+.B \-p 
+option or not stored
+in the archive. All attributes that are not preserved shall
+be determined as part of the normal file creation action (see
+File Read, Write, and Creation).
+.PP
+If neither the e nor the o specification character is
+specified, or the user ID and group ID are not preserved for
+any reason, 
+.B pax 
+shall not set the S_ISUID and S_ISGID bits of
+the file mode.
+.PP
+If the preservation of any of these items fails for any
+reason,
+.B pax 
+shall write a diagnostic message to standard
+error. Failure to preserve these items shall affect the final
+exit status, but shall not cause the extracted file to be
+deleted.
+.PP
+If file characteristic letters in any of the string
+option-arguments are duplicated or conflict with each other,
+the ones given last shall take precedence. For example, if 
+.B "\-p eme
+is specified, file modification times are preserved.
+.RE
+.TP
+.BI \-s " replstr
+Modify file or archive member names named by pattern or file
+operands according to the substitution expression replstr,
+using the syntax of the ed utility. The concepts of "address"
+and "line" are meaningless in the context of the 
+.B pax 
+utility,
+and shall not be supplied. The format shall be:
+.RS
+.PP
+.B \-s /old/new/[gp]
+.PP
+where as in ed, old is a basic regular expression and new can
+contain an ampersand, '\en' (where n is a digit)
+backreferences, or subexpression matching. The old string
+shall also be permitted to contain <newline>s.
+.PP
+Any non-null character can be used as a delimiter ( '/' shown
+here). Multiple 
+.B \-s 
+expressions can be specified; the
+expressions shall be applied in the order specified,
+terminating with the first successful substitution. The
+optional trailing 'g' is as defined in the ed utility. The
+optional trailing 'p' shall cause successful substitutions to
+be written to standard error. File or archive member names
+that substitute to the empty string shall be ignored when
+reading and writing archives.
+.RE
+.TP
+.B \-t
+When reading files from the file system, and if the user has
+the permissions required by utime() to do so, set the access
+time of each file read to the access time that it had before
+being read by 
+.BR pax .
+.TP
+.B \-u
+Ignore files that are older (having a less recent file
+modification time) than a pre-existing file or archive member
+with the same name. In read mode, an archive member with the
+same name as a file in the file system shall be extracted if
+the archive member is newer than the file. In write mode, an
+archive file member with the same name as a file in the file
+system shall be superseded if the file is newer than the
+archive member. If 
+.B \-a 
+is also specified, this is accomplished
+by appending to the archive; otherwise, it is unspecified
+whether this is accomplished by actual replacement in the
+archive or by appending to the archive. In copy mode, the
+file in the destination hierarchy shall be replaced by the
+file in the source hierarchy or by a link to the file in the
+source hierarchy if the file in the source hierarchy is
+newer.
+.TP
+.B \-v
+In list mode, produce a verbose table of contents (see the
+STDOUT section). Otherwise, write archive member pathnames to
+standard error (see the STDERR section).
+.TP
+.BI \-x " format
+Specify the output archive format. The 
+.B pax 
+utility shall
+support the following formats:
+.RS
+.TP
+.B cpio
+The cpio interchange format; see the EXTENDED
+DESCRIPTION section. The default blocksize for this
+format for character special archive files shall be
+5120. Implementations shall support all blocksize values
+less than or equal to 32256 that are multiples of 512.
+.TP
+.B pax
+The 
+.B pax
+interchange format; see the 
+.B EXTENDED DESCRIPTION
+section. The default blocksize for this format for
+character special archive files shall be 5120.
+Implementations shall support all blocksize values less
+than or equal to 32256 that are multiples of 512.
+.TP
+.B ustar
+The tar interchange format; see the EXTENDED DESCRIPTION
+section. The default blocksize for this format for
+character special archive files shall be 10240.
+Implementations shall support all blocksize values less
+than or equal to 32256 that are multiples of 512.
+.PP
+Implementation-defined formats shall specify a default block
+size as well as any other block sizes supported for character
+special archive files.
+.PP
+Any attempt to append to an archive file in a format
+different from the existing archive format shall cause 
+.B pax 
+to
+exit immediately with a non-zero exit status.
+.PP
+In copy mode, if no 
+.B \-x 
+format is specified, 
+.B pax 
+shall behave
+as if 
+.B "\-x pax
+were specified.
+.RE
+.TP
+.B \-X
+When traversing the file hierarchy specified by a pathname,
+.B pax 
+shall not descend into directories that have a different
+device ID ( st_dev; see the System Interfaces volume of
+IEEE Std 1003.1-2001, stat()).
+.PP
+Specifying more than one of the mutually-exclusive options 
+.B \-H 
+and
+.B \-L 
+shall not be considered an error and the last option specified
+shall determine the behavior of the utility.
+.PP
+The options that operate on the names of files or archive members
+.RB ( \-c ,
+.BR \-i ,
+.BR \-n ,
+.BR \-s ,
+.BR \-u ,
+and 
+.BR \-v ) shall interact as follows. In read
+mode, the archive members shall be selected based on the
+user-specified pattern operands as modified by the 
+.BR \-c , 
+.BR \-n ,
+and 
+.B \-u
+options. Then, any 
+.B \-s 
+and 
+.B \-i 
+options shall modify, in that order,
+the names of the selected files. The 
+.B \-v
+option shall write names
+resulting from these modifications.
+.PP
+In write mode, the files shall be selected based on the
+user-specified pathnames as modified by the 
+.B \-n 
+and 
+.B \-u options.
+Then, any 
+.B \-s 
+and 
+.B \-i 
+options shall modify, in that order, the names
+of these selected files. The 
+.B \-v 
+option shall write names resulting
+from these modifications.
+.PP
+If both the 
+.B \-u 
+and 
+.B \-n 
+options are specified, 
+.B pax 
+shall not
+consider a file selected unless it is newer than the file to which
+it is compared.
+
+.SS "List Mode Format Specifications
+
+.PP
+The manual page for
+.B spax
+is not yet ready.
+The following text is a quotation from the POSIX.1-2001 standard.
+.PP
+In
+.B list
+mode with the
+.BI "\-o listopt=" format
+option, the
+.I format
+argument shall be applied for each selected file. The 
+.B pax 
+utility
+shall append a <newline> to the
+.B listopt
+output for each selected
+file. The
+.I format
+argument shall be used as the
+.I format
+string
+described in the Base Definitions volume of IEEE Std 1003.1-2001,
+Chapter 5, File Format Notation, with the exceptions 1. through 5.
+defined in the EXTENDED DESCRIPTION section of
+.BR printf (3),
+plus the following exceptions:
+.TP
+.B 6.
+The sequence
+.RI ( keyword )
+can occur before a format conversion
+specifier. The conversion argument is defined by the value of
+.IR keyword .
+The implementation shall support the following
+.IR keywords :
+.RS
+.TP
+.B \(bu
+Any of the Field Name entries in ustar Header Block and
+Octet-Oriented cpio Archive Entry. The implementation
+may support the
+.I cpio
+keywords without the leading 
+.B c_
+in addition to the form required by Values for 
+.B cpio
+.B c_mode
+Field.
+.TP
+.B \(bu
+Any keyword defined for the extended header in 
+.BR "pax Extended Header" .
+.TP
+.B \(bu
+Any keyword provided as an implementation-defined
+extension within the extended header defined in 
+.BR "pax Extended Header" .
+.PP
+For example, the sequence "%(charset)s" is the string value
+of the name of the character set in the extended header.
+.PP
+The result of the keyword conversion argument shall be the
+value from the applicable header field or extended header,
+without any trailing NULs.
+.PP
+All keyword values used as conversion arguments shall be
+translated from the UTF-8 encoding to the character set
+appropriate for the local file system, user database, and so
+on, as applicable.
+.RE
+.TP
+.B 7.
+An additional conversion specifier character,
+.BR T ,
+shall be
+used to specify time formats. The
+.B T
+conversion specifier
+character can be preceded by the sequence
+(\fBkeyword=\fIsubformat\fR), 
+where 
+.I subformat
+is a date format as defined by
+date operands. The default 
+.I keyword
+shall be
+.B mtime 
+and the default subformat shall be:
+.PP
+          %b %e %H:%M %Y
+.PP
+.TP
+.B 8.
+An additional conversion specifier character,
+.BR M ,
+shall be
+used to specify the file mode string as defined in
+.BR ls (1)
+Standard Output. If
+.RI ( keyword )
+is omitted, the
+.B mode 
+.I keyword
+shall be used. For example, 
+.B %.1M
+writes the single character
+corresponding to the 
+.I "<entry\ type>"
+field of the 
+.B ls -l
+command.
+.TP
+.B 9.
+An additional conversion specifier character,
+.BR D ,
+shall be used to specify the device for block or special files, if
+applicable, in an implementation-defined format. If not
+applicable, and
+.RI ( keyword )
+is specified, then this conversion
+shall be equivalent to
+.BR "%(keyword)u" .
+If not applicable, and
+.RI ( keyword )
+is omitted, then this conversion shall be equivalent
+to <space>.
+.TP
+.B 10.
+An additional conversion specifier character,
+.BR F ,
+shall be used to specify a pathname. The
+.B F
+conversion character can be
+preceded by a sequence of comma-separated keywords:
+.PP
+          (keyword[,keyword] .\|.\|. )
+.RS
+The values for all the keywords that are non-null shall be
+concatenated together, each separated by a '/'. The default
+shall be
+.RB ( path )
+if the keyword path is defined; otherwise,
+the default shall be
+.RB ( "prefix, name" ).
+.RE
+.TP
+.B 11. 
+An additional conversion specifier character, 
+.BR L ,
+shall be used to specify a symbolic line expansion. If the current
+file is a symbolic link, then 
+.B %L
+shall expand to:
+.PP
+          "%s\ \->\ %s", <value of keyword>, <contents of link>
+.PP
+Otherwise, the 
+.B %L
+conversion specification shall be the
+equivalent of 
+.BR %F .
+
+.SH OPERANDS
+.PP
+The following operands shall be supported:
+.TP
+.I directory
+The destination directory pathname for copy mode.
+.TP
+.I file
+A pathname of a file to be copied or archived.
+.TP
+.I pattern
+A pattern matching one or more pathnames of archive members.
+A pattern must be given in the name-generating notation of
+the pattern matching notation in Pattern Matching Notation ,
+including the filename expansion rules in Patterns Used for
+Filename Expansion. The default, if no pattern is specified,
+is to select all members in the archive.
+
+.SH STDIN
+.PP
+In
+.B write
+mode, the standard input shall be used only if no 
+.I file
+operands are specified. It shall be a text file containing a list
+of pathnames, one per line, without leading or trailing <blank>s.
+.PP
+In
+.B list
+and 
+.B read
+modes, if 
+.B \-f
+is not specified, the standard input
+shall be an archive file.
+.PP
+Otherwise, the standard input shall not be used.
+
+.SH "INPUT FILES
+.PP
+The input file named by the 
+.I archive 
+option-argument, or standard
+input when the archive is read from there, shall be a file
+formatted according to one of the specifications in the EXTENDED
+DESCRIPTION section or some other implementation-defined format.
+.PP
+The file 
+.B /dev/tty
+shall be used to write prompts and read
+responses.
+
+.SH "ENVIRONMENT VARIABLES
+.PP
+The following environment variables shall affect the execution of
+.BR pax :
+.TP
+.B LANG
+Provide a default value for the internationalization
+variables that are unset or null. (See the Base Definitions
+volume of IEEE Std 1003.1-2001, Section 8.2,
+Internationalization Variables for the precedence of
+internationalization variables used to determine the values
+of locale categories.)
+.TP
+.B LC_ALL
+If set to a non-empty string value, override the values of
+all the other internationalization variables.
+.TP
+.B LC_COLLATE
+Determine the locale for the behavior of ranges, equivalence
+classes, and multi-character collating elements used in the
+pattern matching expressions for the pattern operand, the
+basic regular expression for the 
+.B \-s
+option, and the extended
+regular expression defined for the 
+.B yesexpr
+locale keyword in
+the LC_MESSAGES category.
+.TP
+.B LC_CTYPE
+Determine the locale for the interpretation of sequences of
+bytes of text data as characters (for example, single-byte as
+opposed to multi-byte characters in arguments and input
+files), the behavior of character classes used in the
+extended regular expression defined for the 
+.B yesexpr
+locale
+keyword in the LC_MESSAGES category, and pattern matching.
+.TP
+.B LC_MESSAGES
+Determine the locale for the processing of affirmative
+responses that should be used to affect the format and
+contents of diagnostic messages written to standard error.
+.TP
+.B LC_TIME
+Determine the format and contents of date and time strings
+when the 
+.B \-v 
+option is specified.
+.TP
+.B NLSPATH
+[XSI] [Option Start] Determine the location of message
+catalogs for the processing of LC_MESSAGES . [Option End]
+.TP
+.B TMPDIR
+Determine the pathname that provides part of the default
+global extended header record file, as described for the 
+.B \-o globexthdr=
+keyword in the OPTIONS section.
+.TP
+.B TZ
+Determine the timezone used to calculate date and time
+strings when the 
+.B \-v 
+option is specified. If TZ is unset or
+null, an unspecified default timezone shall be used.
+
+.SH "ASYNCHRONOUS EVENTS
+.PP
+Default.
+
+.SH STDOUT
+.PP
+In
+.B write 
+mode, if 
+.B \-f 
+is not specified, the standard output shall
+be the archive formatted according to one of the specifications in
+the EXTENDED DESCRIPTION section, or some other
+implementation-defined format (see 
+.BI -x " format" ).
+.PP
+In 
+.B list 
+mode, when the 
+.B \-o listopt= 
+format has been specified, the
+selected archive members shall be written to standard output using
+the format described under List Mode Format Specifications. In
+.B list 
+mode without the 
+.B \-o listopt= 
+format option, the table of
+contents of the selected archive members shall be written to
+standard output using the following format:
+.PP
+     "%s\en", <pathname>
+.PP
+If the 
+.B \-v 
+option is specified in 
+.B list 
+mode, the table of contents
+of the selected archive members shall be written to standard
+output using the following formats.
+.PP
+For pathnames representing hard links to previous members of the
+archive:
+.PP
+.\"     "%s[Image]==[Image]%s\en", <ls \-l listing>, <linkname>
+     "%s\ ==\ %s\en", <ls \-l listing>, <linkname>
+.PP
+For all other pathnames:
+.PP
+     "%s\en", <ls \-l listing>
+.PP
+where
+.I <ls \-l listing>
+shall be the format specified by the
+.BR ls (1)
+utility with the 
+.B \-l 
+option. When writing pathnames in this format,
+it is unspecified what is written for fields for which the
+underlying archive format does not have the correct information,
+although the correct number of <blank>-separated fields shall be
+written.
+.PP
+In 
+.B list 
+mode, standard output shall not be buffered more than a
+line at a time.
+
+.SH STDERR
+.PP
+If 
+.B \-v 
+is specified in 
+.BR read , 
+.BR write , 
+or 
+.B copy 
+modes, 
+.B pax 
+shall write
+the pathnames it processes to the standard error output using the
+following format:
+.PP
+     "%s\en", <pathname>
+.PP
+These pathnames shall be written as soon as processing is begun on
+the file or archive member, and shall be flushed to standard
+error. The trailing <newline>, which shall not be buffered, is
+written when the file has been read or written.
+.PP
+If the 
+.B \-s 
+option is specified, and the replacement string has a
+trailing 
+.BR 'p' , 
+substitutions shall be written to standard error in
+the following format:
+.PP
+.\"     "%s[Image]>>[Image]%s\en", <original pathname>, <new pathname>
+     "%s\ >>\ %s\en", <original pathname>, <new pathname>
+.PP
+In all operating modes of 
+.BR pax ,
+optional messages of unspecified
+format concerning the input archive format and volume number, the
+number of files, blocks, volumes, and media parts as well as other
+diagnostic messages may be written to standard error.
+.PP
+In all formats, for both standard output and standard error, it is
+unspecified how non-printable characters in pathnames or link
+names are written.
+.PP
+When 
+.B pax
+is in 
+.B read 
+mode or 
+.B list 
+mode, using the 
+.B "\-x pax 
+archive
+format, and a filename, link name, owner name, or any other field
+in an extended header record cannot be translated from the 
+.B pax
+UTF-8 codeset format to the codeset and current locale of the
+implementation, 
+.B pax 
+shall write a diagnostic message to standard
+error, shall process the file as described for the 
+.B \-o invalid=
+option, and then shall process the next file in the archive.
+
+.SH "OUTPUT FILES
+.PP
+In 
+.B read 
+mode, the extracted output files shall be of the archived
+file type. In 
+.B copy 
+mode, the copied output files shall be the type
+of the file being copied. In either mode, existing files in the
+destination hierarchy shall be overwritten only when all
+permission 
+.RB ( \-p ), 
+modification time 
+.RB ( \-u ),
+and invalid-value 
+.RB ( "\-o invalid=" )
+tests allow it.
+.PP
+In 
+.B write 
+mode, the output file named by the 
+.B \-f 
+option-argument
+shall be a file formatted according to one of the specifications
+in the EXTENDED DESCRIPTION section, or some other
+implementation-defined format.
+
+.SH "EXTENDED DESCRIPTION
+.PP
+.SS "pax Interchange Format
+.PP
+A
+.B pax 
+archive tape or file produced in the 
+.B "\-x pax 
+format shall
+contain a series of blocks. The physical layout of the archive
+shall be identical to the 
+.B ustar 
+format described in ustar
+Interchange Format. Each file archived shall be represented by the
+following sequence:
+.RS
+.TP
+.B \(bu
+An optional header block with extended header records. This
+header block is of the form described in 
+.BR "pax Header Block" ,
+with a 
+.I typeflag 
+value of 
+.BR x " or " g .
+The extended header records,
+described in 
+.BR "pax Extended Header" ,
+shall be included as the
+data for this header block.
+.TP
+.B \(bu
+A header block that describes the file. Any fields in the
+preceding optional extended header shall override the
+associated fields in this header block for this file.
+.TP
+.B \(bu
+Zero or more blocks that contain the contents of the file.
+.RE
+.PP
+At the end of the archive file there shall be two 512-byte blocks
+filled with binary zeros, interpreted as an end-of-archive
+indicator.
+.PP
+A schematic of an example archive with global extended header
+records and two actual files is shown in 
+.B pax Format Archive
+Example. In the example, the second file in the archive has no
+extended header preceding it, presumably because it has no need
+for extended attributes.
+.PP
+.ne 30
+.CA "Figure: pax Format Archive Example"
+.TS
+center box;
+l|c
+.
+ustar Header [typeflag = 'g']
+_	Global Extended header
+Global Extended Header Data
+_	_	
+ustar Header [typeflag = 'x']
+_	
+Extended Header Data
+_	File 1: Extended Header data is included
+ustar Header [typeflag = '0']
+_	
+Data for File 1
+_	_
+ustar Header [typeflag = '0']
+_	File 2: No Extended Header data is included
+Data for File 2
+_	_
+Block of binary Zeroes
+_	End of Archive Indicator
+Block of binary Zeroes
+.TE
+
+.SS "pax Header Block
+.PP
+The
+.B pax
+header block shall be identical to the
+.B ustar
+header block
+described in
+.BR "ustar Interchange Format" ,
+except that two additional 
+.I typeflag 
+values are defined:
+.TP
+.B x
+Represents extended header records for the following file in
+the archive (which shall have its own 
+.B ustar 
+header block).
+The format of these extended header records shall be as
+described in 
+.BR "pax Extended Header" .
+.TP
+.B g
+Represents global extended header records for the following
+files in the archive. The format of these extended header
+records shall be as described in 
+.BR "pax Extended Header" .
+Each
+value shall affect all subsequent files that do not override
+that value in their own extended header record and until
+another global extended header record is reached that
+provides another value for the same field. The 
+.I typeflag 
+.B g
+global headers should not be used with interchange media that
+could suffer partial data loss in transporting the archive.
+.PP
+For both of these types, the size field shall be the size of the
+extended header records in octets. The other fields in the header
+block are not meaningful to this version of the
+.B pax
+utility.
+However, if this archive is read by a
+.B pax 
+utility conforming to
+the ISO POSIX-2:1993 standard, the header block fields are used to
+create a regular file that contains the extended header records as
+data. Therefore, header block field values should be selected to
+provide reasonable file access to this regular file.
+.PP
+A further difference from the 
+.B ustar 
+header block is that data
+blocks for files of 
+.I typeflag 
+.B 1
+(the digit one) (hard link) may be
+included, which means that the size field may be greater than
+zero. Archives created by 
+.B "pax \-o linkdata 
+shall include these data
+blocks with the hard links.
+
+.SS "pax Extended Header
+.PP
+A 
+.B pax 
+extended header contains values that are inappropriate for
+the 
+.B ustar
+header block because of limitations in that format:
+fields requiring a character encoding other than that described in
+the ISO/IEC 646:1991 standard, fields representing file attributes
+not described in the
+.B ustar
+header, and fields whose format or
+length do not fit the requirements of the
+.B ustar
+header. The values
+in an extended header add attributes to the following file (or
+files; see the description of the
+.I typeflag 
+.B g 
+header block) or
+override values in the following header block(s), as indicated in
+the following list of keywords.
+.PP
+An extended header shall consist of one or more records, each
+constructed as follows:
+.PP
+     "%d %s=%s\en", <length>, <keyword>, <value>
+.PP
+The extended header records shall be encoded according to the
+ISO/IEC 10646-1:2000 standard (UTF-8). The 
+.I <length> 
+field,
+<blank>, equals sign, and <newline> shown shall be limited to the
+portable character set, as encoded in UTF-8. The 
+.I <keyword> 
+and
+.I <value> 
+fields can be any UTF-8 characters. The 
+.I <length>
+field
+shall be the decimal length of the extended header record in
+octets, including the trailing <newline>.
+.PP
+The
+.I <keyword>
+field shall be one of the entries from the following
+list or a keyword provided as an implementation extension.
+Keywords consisting entirely of lowercase letters, digits, and
+periods are reserved for future standardization. A keyword shall
+not include an equals sign. (In the following list, the notations
+"file(s)" or "block(s)" is used to acknowledge that a keyword
+affects the following single file after a
+.I typeflag 
+.B x 
+extended
+header, but possibly multiple files after 
+.I typeflag 
+.BR g . 
+Any requirements in the list for 
+.B pax 
+to include a record when in 
+.B write
+or
+.B copy 
+mode shall apply only when such a record has not already
+been provided through the use of the 
+.B \-o 
+option. When used in 
+.B copy
+mode, 
+.B pax 
+shall behave as if an archive had been created with
+applicable extended header records and then extracted.)
+.TP
+.B atime
+The file access time for the following file(s), equivalent to
+the value of the 
+.I st_atime 
+member of the 
+.B stat 
+structure for a
+file, as described by the 
+.BR stat (2)
+function. The access time
+shall be restored if the process has the appropriate
+privilege required to do so. The format of the 
+.I <value> 
+shall be as described in 
+.BR "pax Extended Header File Times" .
+.TP
+.B charset
+The name of the character set used to encode the data in the
+following file(s). The entries in the following table are
+defined to refer to known standards; additional names may be
+agreed on between the originator and recipient.
+.PP
+.TS
+center box;
+cb|cB
+l|l.
+<value>	Formal Standard
+_
+ISO\-IR\ 646\ 1990	ISO/IEC 646:1990
+ISO\-IR\ 8859\ 1\ 1998	ISO/IEC 8859\-1:1998
+ISO\-IR\ 8859\ 2\ 1999	ISO/IEC 8859\-2:1999
+ISO\-IR\ 8859\ 3\ 1999	ISO/IEC 8859\-3:1999
+ISO\-IR\ 8859\ 4\ 1998	ISO/IEC 8859\-4:1998
+ISO\-IR\ 8859\ 5\ 1999	ISO/IEC 8859\-5:1999
+ISO\-IR\ 8859\ 6\ 1999	ISO/IEC 8859\-6:1999
+ISO\-IR\ 8859\ 7\ 1987	ISO/IEC 8859\-7:1987
+ISO\-IR\ 8859\ 8\ 1999	ISO/IEC 8859\-8:1999
+ISO\-IR\ 8859\ 9\ 1999	ISO/IEC 8859\-9:1999
+ISO\-IR\ 8859\ 10\ 1998	ISO/IEC 8859\-10:1998
+ISO\-IR\ 8859\ 13\ 1998	ISO/IEC 8859\-13:1998
+ISO\-IR\ 8859\ 14\ 1998	ISO/IEC 8859\-14:1998
+ISO\-IR\ 8859\ 15\ 1999	ISO/IEC 8859\-15:1999
+ISO\-IR\ 10646\ 2000	ISO/IEC 10646:2000
+ISO\-IR\ 10646\ 2000\ UTF\-8	ISO/IEC 10646, UTF\-8 encoding
+BINARY	None
+.TE
+.PP
+The encoding is included in an extended header for
+information only; when 
+.B pax 
+is used as described in
+IEEE Std 1003.1-2001, it shall not translate the file data
+into any other encoding. The 
+.B BINARY 
+entry indicates unencoded binary data.
+.PP
+When used in 
+.B write
+or
+.B copy 
+mode, it is implementation-defined
+whether 
+.B pax 
+includes a charset extended header record for a file.
+.TP
+.B comment
+A series of characters used as a comment. All characters in
+the
+.I <value> 
+field shall be ignored by 
+.BR pax .
+.TP
+.B gid
+The group ID of the group that owns the file, expressed as a
+decimal number using digits from the ISO/IEC 646:1991
+standard. This record shall override the 
+.I gid 
+field in the following header block(s). When used in 
+.B write 
+or 
+.B copy 
+mode,
+.B pax 
+shall include a gid extended header record for each file
+whose group ID is greater than 2097151 (octal 7777777).
+.TP
+.B gname
+The group of the file(s), formatted as a group name in the
+group database. This record shall override the 
+.B gid 
+and 
+.B gname
+fields in the following header block(s), and any 
+.B gid 
+extended
+header record. When used in 
+.BR read , 
+.BR copy ,
+or 
+.B list 
+mode, 
+.B pax
+shall translate the name from the UTF-8 encoding in the
+header record to the character set appropriate for the group
+database on the receiving system. If any of the UTF-8
+characters cannot be translated, and if the 
+.BR "\-o invalid=" UTF-8
+option is not specified, the results are
+implementation-defined. When used in 
+.B write 
+or 
+.B copy 
+mode, 
+.B pax
+shall include a 
+.B gname 
+extended header record for each file
+whose group name cannot be represented entirely with the
+letters and digits of the portable character set.
+.TP
+.B linkpath
+The pathname of a link being created to another file, of any
+type, previously archived. This record shall override the
+.I linkname 
+field in the following 
+.B ustar 
+header block(s). The
+following 
+.B ustar 
+header block shall determine the type of link
+created. If 
+.I typeflag 
+of the following header block is 1, it
+shall be a hard link. If 
+.I typeflag 
+is 2, it shall be a
+symbolic link and the linkpath value shall be the contents of
+the symbolic link. The 
+.B pax 
+utility shall translate the name
+of the link (contents of the symbolic link) from the UTF-8
+encoding to the character set appropriate for the local file
+system. When used in 
+.B write 
+or 
+.B copy 
+mode, 
+.B pax 
+shall include a
+linkpath extended header record for each link whose pathname
+cannot be represented entirely with the members of the
+portable character set other than NUL.
+.TP
+.B mtime
+The file modification time of the following file(s),
+equivalent to the value of the 
+.I st_mtime 
+member of the 
+.B stat
+structure for a file, as described in the 
+.BR stat (2)
+function.
+This record shall override the 
+.I mtime 
+field in the following
+header block(s). The modification time shall be restored if
+the process has the appropriate privilege required to do so.
+The format of the 
+.I <value> 
+shall be as described in 
+.BR "pax Extended Header File Times" .
+.TP
+.B path
+The pathname of the following file(s). This record shall
+override the 
+.I name 
+and 
+.I prefix 
+fields in the following header
+block(s). The 
+.B pax 
+utility shall translate the pathname of the
+file from the UTF-8 encoding to the character set appropriate
+for the local file system.
+.sp
+When used in 
+.B write 
+or 
+.B copy 
+mode, 
+.B pax 
+shall include a 
+.I path
+extended header record for each file whose pathname cannot be
+represented entirely with the members of the portable
+character set other than NUL.
+.TP
+.BI realtime. any
+The keywords prefixed by "realtime." are reserved for future
+standardization.
+.TP
+.BI security. any
+The keywords prefixed by "security." are reserved for future
+standardization.
+.TP
+.B size
+The size of the file in octets, expressed as a decimal number
+using digits from the ISO/IEC 646:1991 standard. This record
+shall override the 
+.I size 
+field in the following header
+block(s). When used in 
+.B write 
+or 
+.B copy 
+mode, 
+.B pax 
+shall include
+a 
+.I size 
+extended header record for each file with a size value
+greater than 8589934591 (octal 77777777777).
+.TP
+.B uid
+The user ID of the file owner, expressed as a decimal number
+using digits from the ISO/IEC 646:1991 standard. This record
+shall override the 
+.I uid 
+field in the following header
+block(s). When used in 
+.B write 
+or 
+.B copy
+mode, 
+.B pax 
+shall include a 
+.I uid 
+extended header record for each file whose owner ID is 
+greater than 2097151 (octal 7777777).
+.TP
+.B uname
+The owner of the following file(s), formatted as a user name
+in the user database. This record shall override the 
+.I uid 
+and
+.I uname 
+fields in the following header block(s), and any 
+.I uid
+extended header record. When used in 
+.BR read , 
+.BR copy ", or"
+.B list
+mode, 
+.B pax 
+shall translate the name from the UTF-8 encoding in
+the header record to the character set appropriate for the
+user database on the receiving system. If any of the UTF-8
+characters cannot be translated, and if the 
+.BR "\-o invalid=" UTF-8
+option is not specified, the results are
+implementation-defined. When used in 
+.B write 
+or 
+.B copy 
+mode, 
+.B pax
+shall include a 
+.I uname 
+extended header record for each file
+whose user name cannot be represented entirely with the
+letters and digits of the portable character set.
+.PP
+If the 
+.I <value> 
+field is zero length, it shall delete any header
+block field, previously entered extended header value, or global
+extended header value of the same name.
+.PP
+If a keyword in an extended header record (or in a 
+.B \-o
+option-argument) overrides or deletes a corresponding field in the
+.B ustar 
+header block, 
+.B pax 
+shall ignore the contents of that header block field.
+.PP
+Unlike the 
+.B ustar 
+header block fields, NULs shall not delimit
+.IR <value> s;
+all characters within the 
+.I <value> 
+field shall be
+considered data for the field. None of the length limitations of
+the
+.B ustar 
+header block fields in 
+.B "ustar Header Block 
+shall apply to the extended header records.
+
+.SS "pax Extended Header Keyword Precedence
+.PP
+This section describes the precedence in which the various header
+records and fields and command line options are selected to apply
+to a file in the archive. When 
+.B pax 
+is used in 
+.B read 
+or 
+.B list 
+modes, it shall determine a file attribute in the following sequence:
+.RS
+.TP
+1.
+If
+.BI "\-o delete=" keyword-prefix
+is used, the affected attributes
+shall be determined from step 7., if applicable, or ignored
+otherwise.
+.TP
+2.
+If 
+.BI "\-o " keyword:=
+is used, the affected attributes shall be ignored.
+.TP
+3.
+If 
+.BI "\-o " keyword:=value
+is used, the affected attribute shall be assigned the value.
+.TP
+4.
+If there is a 
+.I typeflag 
+.B x 
+extended header record, the affected
+attribute shall be assigned the 
+.IR <value> . 
+When extended header
+records conflict, the last one given in the header shall take
+precedence.
+.TP
+5.
+If 
+.BI "\-o " keyword=value
+is used, the affected attribute shall
+be assigned the value.
+.TP
+6.
+If there is a 
+.I typeflag 
+.B g 
+global extended header record, the
+affected attribute shall be assigned the 
+.IR <value> .
+When global
+extended header records conflict, the last one given in the
+global header shall take precedence.
+.TP
+7.
+Otherwise, the attribute shall be determined from the 
+.B ustar
+header block.
+.RE
+
+.SS "pax Extended Header File Times
+.PP
+The 
+.B pax 
+utility shall write an 
+.B mtime 
+record for each file in 
+.B write
+or 
+.B copy 
+modes if the file's modification time cannot be
+represented exactly in the 
+.B ustar 
+header logical record described
+in 
+.BR "ustar Interchange Format" . 
+This can occur if the time is out of
+.B ustar 
+range, or if the file system of the underlying
+implementation supports non-integer time granularities and the
+time is not an integer. All of these time records shall be
+formatted as a decimal representation of the time in seconds since
+the Epoch. If a period ('.') decimal point character is present,
+the digits to the right of the point shall represent the units of
+a subsecond timing granularity, where the first digit is tenths of
+a second and each subsequent digit is a tenth of the previous
+digit. In 
+.B read 
+or 
+.B copy 
+mode, the 
+.B pax 
+utility shall truncate the
+time of a file to the greatest value that is not greater than the
+input header file time. In 
+.B write 
+or 
+.B copy 
+mode, the 
+.B pax 
+utility
+shall output a time exactly if it can be represented exactly as a
+decimal number, and otherwise shall generate only enough digits so
+that the same time shall be recovered if the file is extracted on
+a system whose underlying implementation supports the same time
+granularity.
+
+.SS "ustar Interchange Format
+A 
+.B ustar 
+archive tape or file shall contain a series of logical
+records. Each logical record shall be a fixed-size logical record
+of 512 octets (see below). Although this format may be thought of
+as being stored on 9-track industry-standard 12.7 mm (0.5 in)
+magnetic tape, other types of transportable media are not
+excluded. Each file archived shall be represented by a header
+logical record that describes the file, followed by zero or more
+logical records that give the contents of the file. At the end of
+the archive file there shall be two 512-octet logical records
+filled with binary zeros, interpreted as an end-of-archive
+indicator.
+.PP
+The logical records may be grouped for physical I/O operations, as
+described under the 
+.BI \-b " blocksize 
+and
+.BI \-x " ustar 
+options. Each group
+of logical records may be written with a single operation
+equivalent to the 
+.BR write (2)
+function. On magnetic tape, the result
+of this write shall be a single tape physical block. The last
+physical block shall always be the full size, so logical records
+after the two zero logical records may contain undefined data.
+.PP
+The header logical record shall be structured as shown in the
+following table. All lengths and offsets are in decimal.
+.PP
+.sp
+.ne 20
+.CA "Table: ustar Header Block"
+.TS
+center box;
+cb|cb|cb
+l|n|n.
+Field Name	Octet Offset	Length (in Octets)
+_
+name	0	100
+mode	100	8
+uid	108	8
+gid	116	8
+size	124	12
+mtime	136	12
+chksum	148	8
+typeflag	156	1
+linkname	157	100
+magic	257	6
+version	263	2
+uname	265	32
+gname	297	32
+devmajor	329	8
+devminor	337	8
+prefix	345	155
+.TE
+.PP
+All characters in the header logical record shall be represented
+in the coded character set of the ISO/IEC 646:1991 standard. For
+maximum portability between implementations, names should be
+selected from characters represented by the portable filename
+character set as octets with the most significant bit zero. If an
+implementation supports the use of characters outside of slash and
+the portable filename character set in names for files, users, and
+groups, one or more implementation-defined encodings of these
+characters shall be provided for interchange purposes.
+.PP
+However, the 
+.B pax 
+utility shall never create filenames on the local
+system that cannot be accessed via the procedures described in
+IEEE Std 1003.1-2001. If a filename is found on the medium that
+would create an invalid filename, it is implementation-defined
+whether the data from the file is stored on the file hierarchy and
+under what name it is stored. The 
+.B pax 
+utility may choose to ignore
+these files as long as it produces an error indicating that the
+file is being ignored.
+.PP
+Each field within the header logical record is contiguous; that
+is, there is no padding used. Each character on the archive medium
+shall be stored contiguously.
+.PP
+The fields 
+.IR magic ,
+.IR uname ,
+and 
+.I gname 
+are character strings each
+terminated by a NUL character. The fields 
+.IR name ,
+.IR linkname ,
+and
+.I prefix 
+are NUL-terminated character strings except when all
+characters in the array contain non-NUL characters including the
+last character. The 
+.I version 
+field is two octets containing the
+characters "00" (zero-zero). The 
+.I typeflag 
+contains a single
+character. All other fields are leading zero-filled octal numbers
+using digits from the ISO/IEC 646:1991 standard IRV. Each numeric
+field is terminated by one or more <space> or NUL characters.
+.PP
+The 
+.I name 
+and the 
+.I prefix 
+fields shall produce the pathname of the
+file. A new pathname shall be formed, if 
+.I prefix 
+is not an empty
+string (its first character is not NUL), by concatenating 
+.I prefix
+(up to the first NUL character), a slash character, and 
+.IR name ;
+otherwise, 
+.I name
+is used alone. In either case, 
+.I name 
+is terminated
+at the first NUL character. If 
+.I prefix 
+begins with a NUL character,
+it shall be ignored. In this manner, pathnames of at most 256
+characters can be supported. If a pathname does not fit in the
+space provided, 
+.B pax 
+shall notify the user of the error, and shall
+not store any part of the file-header or data-on the medium.
+.PP
+The 
+.I linkname 
+field, described below, shall not use the 
+.I prefix 
+to
+produce a pathname. As such, a 
+.I linkname 
+is limited to 100
+characters. If the name does not fit in the space provided, 
+.B pax
+shall notify the user of the error, and shall not attempt to store
+the link on the medium.
+.PP
+The 
+.I mode 
+field provides 12 bits encoded in the ISO/IEC 646:1991
+standard octal digit representation. The encoded bits shall
+represent the following values:
+.PP
+.sp
+.ne 25
+.CA "Table: ustar mode Field"
+.TS
+center box;
+cb|cb|cb
+cb|cb|cb
+l|l|l.
+Bit	IEEE Std	Description
+Value	1003.1-2001 Bit	
+_
+04000	S_ISUID	Set UID on execution.
+02000	S_ISGID	Set GID on execution.
+01000	<reserved>	Reserved for future standardization.
+00400	S_IRUSR	Read permission for file owner class.
+00200	S_IWUSR	Write permission for file owner class.
+00100	S_IXUSR	Execute/search permission for file owner class.
+00040	S_IRGRP	Read permission for file group class.
+00020	S_IWGRP	Write permission for file group class.
+00010	S_IXGRP	Execute/search permission for file group class.
+00004	S_IROTH	Read permission for file other class.
+00002	S_IWOTH	Write permission for file other class.
+00001	S_IXOTH	Execute/search permission for file other class.
+.TE
+.PP
+When appropriate privilege is required to set one of these mode
+bits, and the user restoring the files from the archive does not
+have the appropriate privilege, the mode bits for which the user
+does not have appropriate privilege shall be ignored. Some of the
+mode bits in the archive format are not mentioned elsewhere in
+this volume of IEEE Std 1003.1-2001. If the implementation does
+not support those bits, they may be ignored.
+.PP
+The
+.I uid and 
+.I gid 
+fields are the user and group ID of the owner and
+group of the file, respectively.
+.PP
+The 
+.I size 
+field is the size of the file in octets. If the 
+.I typeflag
+field is set to specify a file to be of type 1 (a link) or 2 (a
+symbolic link), the 
+.I size 
+field shall be specified as zero. If the
+.I typeflag 
+field is set to specify a file of type 5 (directory), the
+size field shall be interpreted as described under the definition
+of that record type. No data logical records are stored for types
+1, 2, or 5. If the typeflag field is set to 3 (character special
+file), 4 (block special file), or 6 (FIFO), the meaning of the
+.I size 
+field is unspecified by this volume of IEEE Std 1003.1-2001,
+and no data logical records shall be stored on the medium.
+Additionally, for type 6, the 
+.I size 
+field shall be ignored when
+reading. If the 
+.I typeflag 
+field is set to any other value, the
+number of logical records written following the header shall be
+(size+511)/512, ignoring any fraction in the result of the
+division.
+.PP
+The
+.I mtime 
+field shall be the modification time of the file at the
+time it was archived. It is the ISO/IEC 646:1991 standard
+representation of the octal value of the modification time
+obtained from the 
+.BR stat (2)
+function.
+.PP
+The
+.I chksum 
+field shall be the ISO/IEC 646:1991 standard IRV
+representation of the octal value of the simple sum of all octets
+in the header logical record. Each octet in the header shall be
+treated as an unsigned value. These values shall be added to an
+unsigned integer, initialized to zero, the precision of which is
+not less than 17 bits. When calculating the checksum, the 
+.I chksum
+field is treated as if it were all spaces.
+.PP
+The 
+.I typeflag 
+field specifies the type of file archived. If a
+particular implementation does not recognize the type, or the user
+does not have appropriate privilege to create that type, the file
+shall be extracted as if it were a regular file if the file type
+is defined to have a meaning for the 
+.I size 
+field that could cause
+data logical records to be written on the medium (see the previous
+description for 
+.IR size ).
+If conversion to a regular file occurs, the
+.B pax 
+utility shall produce an error indicating that the conversion
+took place. All of the 
+.I typeflag 
+fields shall be coded in the
+ISO/IEC 646:1991 standard IRV:
+.TP
+.B 0
+Represents a regular file. For backwards-compatibility, a
+.I typeflag
+value of binary zero ('\e0') should be recognized
+as meaning a regular file when extracting files from the
+archive. Archives written with this version of the archive
+file format create regular files with a 
+.I typefla
+value of the
+ISO/IEC 646:1991 standard IRV '0'.
+.TP
+.B 1
+Represents a file linked to another file, of any type,
+previously archived. Such files are identified by having the
+same device and file serial numbers, and pathnames that refer
+to different directory entries. All such files shall be
+archived as linked files. The linked-to name is specified in
+the 
+.I linkname 
+field with a NUL-character terminator if it is
+less than 100 octets in length.
+.TP
+.B 2
+Represents a symbolic link. The contents of the symbolic link
+shall be stored in the 
+.I linkname 
+field.
+.TP
+.B 3,4 
+Represent character special files and block special files
+respectively. In this case the 
+.I devmajor 
+and 
+.I devminor 
+fields
+shall contain information defining the device, the format of
+which is unspecified by this volume of IEEE Std 1003.1-2001.
+Implementations may map the device specifications to their
+own local specification or may ignore the entry.
+.TP
+.B 5
+Specifies a directory or subdirectory. On systems where disk
+allocation is performed on a directory basis, the 
+.I size 
+field
+shall contain the maximum number of octets (which may be
+rounded to the nearest disk block allocation unit) that the
+directory may hold. A 
+.I size 
+field of zero indicates no such
+limiting. Systems that do not support limiting in this manner
+should ignore the 
+.I size 
+field.
+.TP
+.B 6
+Specifies a FIFO special file. Note that the archiving of a
+FIFO file archives the existence of this file and not its
+contents.
+.TP
+.B 7
+Reserved to represent a file to which an implementation has
+associated some high-performance attribute. Implementations
+without such extensions should treat this file as a regular
+file (type 0).
+.TP
+.B A\-Z
+The letters 'A' to 'Z', inclusive, are reserved for custom
+implementations. All other values are reserved for future
+versions of IEEE Std 1003.1-2001.
+.PP
+It is unspecified whether files with pathnames that refer to the
+same directory entry are archived as linked files or as separate
+files. If they are archived as linked files, this means that
+attempting to extract both pathnames from the resulting archive
+will always cause an error (unless the 
+.B \-u 
+option is used) because
+the link cannot be created.
+.PP
+It is unspecified whether files with the same device and file
+serial numbers being appended to an archive are treated as linked
+files to members that were in the archive before the append.
+.PP
+Attempts to archive a socket using 
+.B ustar
+interchange format shall
+produce a diagnostic message. Handling of other file types is
+implementation-defined.
+.PP
+The 
+.I magic 
+field is the specification that this archive was output
+in this archive format. If this field contains 
+.B ustar 
+(the five
+characters from the ISO/IEC 646:1991 standard IRV shown followed
+by NUL), the 
+.I uname 
+and 
+.I gname 
+fields shall contain the
+ISO/IEC 646:1991 standard IRV representation of the owner and
+group of the file, respectively (truncated to fit, if necessary).
+When the file is restored by a privileged, protection-preserving
+version of the utility, the user and group databases shall be
+scanned for these names. If found, the user and group IDs
+contained within these files shall be used rather than the values
+contained within the 
+.I uid 
+and 
+.I gid 
+fields.
+
+.SS "cpio Interchange Format
+.PP
+The octet-oriented 
+.B cpio 
+archive format shall be a series of
+entries, each comprising a header that describes the file, the
+name of the file, and then the contents of the file.
+.PP
+An archive may be recorded as a series of fixed-size blocks of
+octets. This blocking shall be used only to make physical I/O more
+efficient. The last group of blocks shall always be at the full
+size.
+.PP
+For the octet-oriented 
+.B cpio 
+archive format, the individual entry
+information shall be in the order indicated and described by the
+following table; see also the 
+.B <cpio.h> 
+header.
+.PP
+.sp
+.ne 25
+.CA "Table: Octet-Oriented cpio Archive Entry"
+.TS
+center box;
+cb|cb|cb
+l|l|l.
+Header Field Name	Length (in Octets)	Interpreted as
+_
+c_magic	6	Octal number
+c_dev	6	Octal number
+c_ino	6	Octal number
+c_mode	6	Octal number
+c_uid	6	Octal number
+c_gid	6	Octal number
+c_nlink	6	Octal number
+c_rdev	6	Octal number
+c_mtime	11	Octal number
+c_namesize	6	Octal number
+c_filesize	11	Octal number
+
+\fBFilename Field Name	Length	Interpreted as\fP
+c_name	c_namesize	Pathname string
+
+\fBFile Data Field Name	Length	Interpreted as\fP
+c_filedata	c_filesize	Data
+.TE
+.PP
+.SS "cpio Header
+.PP
+For each file in the archive, a header as defined previously shall
+be written. The information in the header fields is written as
+streams of the ISO/IEC 646:1991 standard characters interpreted as
+octal numbers. The octal numbers shall be extended to the
+necessary length by appending the ISO/IEC 646:1991 standard IRV
+zeros at the most-significant-digit end of the number; the result
+is written to the most-significant digit of the stream of octets
+first. The fields shall be interpreted as follows:
+.PP
+.TP
+.B c_magic
+Identify the archive as being a transportable archive by
+containing the identifying value "070707".
+.TP
+.BR c_dev ", " c_ino
+Contains values that uniquely identify the file within the
+archive (that is, no files contain the same pair of 
+.I c_dev 
+and
+.I c_ino 
+values unless they are links to the same file). The
+values shall be determined in an unspecified manner.
+.TP
+.B c_mode
+Contains the file type and access permissions as defined in
+the following table.
+.RS
+.PP
+.sp
+.ne 35
+.CA "Table: Values for cpio c_mode Field"
+.TS
+center box;
+cb|cb|cb
+l|l|l.
+File Permissions Name	Value	Indicates
+_
+C_IRUSR	000400	Read by owner
+C_IWUSR	000200	Write by owner
+C_IXUSR	000100	Execute by owner
+C_IRGRP	000040	Read by group
+C_IWGRP	000020	Write by group
+C_IXGRP	000010	Execute by group
+C_IROTH	000004	Read by others
+C_IWOTH	000002	Write by others
+C_IXOTH	000001	Execute by others
+C_ISUID	004000	Set uid
+C_ISGID	002000	Set gid
+C_ISVTX	001000	Reserved
+_
+\fBFile Type Name	Value	Indicates\fP
+_
+C_ISDIR	0040000	Directory
+C_ISFIFO	0010000	FIFO
+C_ISREG	0100000	Regular file
+C_ISLNK	0120000	Symbolic link
+C_ISBLK	0060000	Block special file
+C_ISCHR	0020000	Character special file
+C_ISSOCK	0140000	Socket
+C_ISCTG	0110000	Reserved
+.TE
+.PP
+Directories, FIFOs, symbolic links, and regular files shall
+be supported on a system conforming to this volume of
+IEEE Std 1003.1-2001; additional values defined previously
+are reserved for compatibility with existing systems.
+Additional file types may be supported; however, such files
+should not be written to archives intended to be transported
+to other systems.
+.RE
+.TP
+.B c_uid
+Contains the user ID of the owner.
+.TP
+.B c_gid
+Contains the group ID of the group.
+.TP
+.B c_nlink
+Contains a number greater than or equal to the number of
+links in the archive referencing the file. If the 
+.B \-a 
+option
+is used to append to a 
+.I cpio
+archive, then the 
+.B pax 
+utility
+need not account for the files in the existing part of the
+archive when calculating the 
+.I c_nlink 
+values for the appended
+part of the archive, and need not alter the 
+.I c_nlink 
+values in
+the existing part of the archive if additional files with the
+same 
+.I c_dev 
+and 
+.I c_ino 
+values are appended to the archive.
+.TP
+.B c_rdev
+Contains implementation-defined information for character or
+block special files.
+.TP
+.B c_mtime
+Contains the latest time of modification of the file at the
+time the archive was created.
+.TP
+.B c_namesize
+Contains the length of the pathname, including the
+terminating NUL character.
+.TP
+.B c_filesize
+Contains the length of the file in octets. This shall be the
+length of the data section following the header structure.
+
+.SS "cpio Filename
+.PP
+The 
+.I c_name 
+field shall contain the pathname of the file. The
+length of this field in octets is the value of 
+.IR c_namesize .
+.PP
+If a filename is found on the medium that would create an invalid
+pathname, it is implementation-defined whether the data from the
+file is stored on the file hierarchy and under what name it is
+stored.
+.PP
+All characters shall be represented in the ISO/IEC 646:1991
+standard IRV. For maximum portability between implementations,
+names should be selected from characters represented by the
+portable filename character set as octets with the most
+significant bit zero. If an implementation supports the use of
+characters outside the portable filename character set in names
+for files, users, and groups, one or more implementation-defined
+encodings of these characters shall be provided for interchange
+purposes. However, the 
+.B pax 
+utility shall never create filenames on
+the local system that cannot be accessed via the procedures
+described previously in this volume of IEEE Std 1003.1-2001. If a
+filename is found on the medium that would create an invalid
+filename, it is implementation-defined whether the data from the
+file is stored on the local file system and under what name it is
+stored. The 
+.B pax 
+utility may choose to ignore these files as long
+as it produces an error indicating that the file is being ignored.
+
+.SS cpio File Data
+.PP
+Following 
+.IR c_name ,
+there shall be 
+.I c_filesize 
+octets of data.
+Interpretation of such data occurs in a manner dependent on the
+file. If 
+.I c_filesize 
+is zero, no data shall be contained in
+.IR c_filedata .
+.PP
+When restoring from an archive:
+.TP
+.B \(bu
+If the user does not have the appropriate privilege to create
+a file of the specified type, 
+.B pax
+shall ignore the entry and
+write an error message to standard error.
+.TP
+.B \(bu
+Only regular files have data to be restored. Presuming a
+regular file meets any selection criteria that might be
+imposed on the format-reading utility by the user, such data
+shall be restored.
+.TP
+.B \(bu
+If a user does not have appropriate privilege to set a
+particular mode flag, the flag shall be ignored. Some of the
+mode flags in the archive format are not mentioned elsewhere
+in this volume of IEEE Std 1003.1-2001. If the implementation
+does not support those flags, they may be ignored.
+
+.SS "cpio Special Entries
+.PP
+FIFO special files, directories, and the trailer shall be recorded
+with 
+.I c_filesize 
+equal to zero. For other special files, 
+.I c_filesize
+is unspecified by this volume of IEEE Std 1003.1-2001. The header
+for the next file entry in the archive shall be written directly
+after the last octet of the file entry preceding it. A header
+denoting the filename 
+.B "TRAILER!!!"
+shall indicate the end of the
+archive; the contents of octets in the last block of the archive
+following such a header are undefined.
+
+.SH "EXIT STATUS
+.PP
+The following exit values shall be returned:
+.TP
+.B " 0
+All files were processed successfully.
+.TP
+.B >0
+An error occurred.
+
+.SH "CONSEQUENCES OF ERRORS
+.PP
+If 
+.B pax 
+cannot create a file or a link when reading an archive or
+cannot find a file when writing an archive, or cannot preserve the
+user ID, group ID, or file mode when the 
+.B \-p 
+option is specified, a
+diagnostic message shall be written to standard error and a
+non-zero exit status shall be returned, but processing shall
+continue. In the case where 
+.B pax 
+cannot create a link to a file,
+.B pax 
+shall not, by default, create a second copy of the file.
+.PP
+If the extraction of a file from an archive is prematurely
+terminated by a signal or error, 
+.B pax 
+may have only partially
+extracted the file or (if the 
+.B \-n 
+option was not specified) may
+have extracted a file of the same name as that specified by the
+user, but which is not the file the user wanted. Additionally, the
+file modes of extracted directories may have additional bits from
+the S_IRWXU mask set as well as incorrect modification and access
+times.
+
+.ne 5
+.PP
+.RU
+.HD "The following sections are informative."
+
+.SH "APPLICATION USAGE
+.PP
+Caution is advised when using the 
+.B \-a 
+option to append to a 
+.I cpio
+format archive. If any of the files being appended happen to be
+given the same 
+.I c_dev 
+and 
+.I c_ino 
+values as a file in the existing
+part of the archive, then they may be treated as links to that
+file on extraction. Thus, it is risky to use 
+.B \-a 
+with 
+.I cpio 
+format
+except when it is done on the same system that the original
+archive was created on, and with the same 
+.B pax 
+utility, and in the
+knowledge that there has been little or no file system activity
+since the original archive was created that could lead to any of
+the files appended being given the same 
+.I c_dev 
+and 
+.I c_ino 
+values as
+an unrelated file in the existing part of the archive. Also, when
+(intentionally) appending additional links to a file in the
+existing part of the archive, the 
+.I c_nlink 
+values in the modified
+archive can be smaller than the number of links to the file in the
+archive, which may mean that the links are not preserved on
+extraction.
+.PP
+The 
+.B \-p 
+(privileges) option was invented to reconcile differences
+between historical 
+.B tar 
+and 
+.B cpio 
+implementations. In particular,
+the two utilities use 
+.B \-m 
+in diametrically opposed ways. The 
+.B \-p
+option also provides a consistent means of extending the ways in
+which future file attributes can be addressed, such as for
+enhanced security systems or high-performance files. Although it
+may seem complex, there are really two modes that are most
+commonly used:
+.TP
+.B \-p e
+``Preserve everything". This would be used by the historical
+superuser, someone with all the appropriate privileges, to
+preserve all aspects of the files as they are recorded in the
+archive. The 
+.B e 
+flag is the sum of 
+.B o 
+and 
+.BR p ,
+and other implementation-defined attributes.
+.TP
+.B \-p p
+``Preserve" the file mode bits. This would be used by the
+user with regular privileges who wished to preserve aspects
+of the file other than the ownership. The file times are
+preserved by default, but two other flags are offered to
+disable these and use the time of extraction.
+.PP
+The one pathname per line format of standard input precludes
+pathnames containing <newline>s. Although such pathnames violate
+the portable filename guidelines, they may exist and their
+presence may inhibit usage of 
+.B pax 
+within shell scripts. This
+problem is inherited from historical archive programs. The problem
+can be avoided by listing filename arguments on the command line
+instead of on standard input.
+.PP
+It is almost certain that appropriate privileges are required for
+.B pax 
+to accomplish parts of this volume of IEEE Std 1003.1-2001.
+Specifically, creating files of type block special or character
+special, restoring file access times unless the files are owned by
+the user (the 
+.B \-t 
+option), or preserving file owner, group, and
+mode (the 
+.B \-p 
+option) all probably require appropriate privileges.
+.PP
+In 
+.B read 
+mode, implementations are permitted to overwrite files
+when the archive has multiple members with the same name. This may
+fail if permissions on the first version of the file do not permit
+it to be overwritten.
+.PP
+The 
+.B cpio 
+and 
+.B ustar 
+formats can only support files up to 8589934592
+bytes (8 * 2^30) in size.
+
+.SH EXAMPLES
+.PP
+The following command:
+.PP
+.B
+     pax \-w \-f /dev/rmt/1m .
+.PP
+copies the contents of the current directory to tape drive 1,
+medium density (assuming historical System V device naming
+procedures-the historical BSD device name would be /dev/rmt9).
+.PP
+The following commands:
+.PP
+.B
+     mkdir newdirpax \-rw olddir newdir
+.PP
+copy the olddir directory hierarchy to newdir.
+.PP
+.B
+     pax \-r \-s ',^//*usr//*,,' \-f a.pax
+.PP
+reads the archive a.pax, with all files rooted in /usr in the
+archive extracted relative to the current directory.
+.PP
+Using the option:
+.PP
+.B
+     \-o listopt="%M %(atime)T %(size)D %(name)s"
+.PP
+overrides the default output description in Standard Output and
+instead writes:
+.PP
+.B
+     -rw-rw--- Jan 12 15:53 1492 /usr/foo/bar
+.PP
+Using the options:
+.PP
+.B
+     \-o listopt='%L\et%(size)D\en%.7' \e
+.br
+.B
+     \-o listopt='(name)s\en%(atime)T\en%T'
+.P
+overrides the default output description in Standard Output and
+instead writes:
+.PP
+.B "/usr/foo/bar \-> /tmp   1492
+.br
+.B "/usr/fo
+.br
+.B "Jan 12 1991
+.br
+.B "Jan 31 15:53
+
+.SH RATIONALE
+.PP
+The 
+.B pax
+utility was new for the ISO POSIX-2:1993 standard. It
+represents a peaceful compromise between advocates of the
+historical 
+.B tar 
+and 
+.B cpio 
+utilities.
+.PP
+A fundamental difference between 
+.B cpio 
+and 
+.B tar 
+was in the way
+directories were treated. The 
+.B cpio 
+utility did not treat
+directories differently from other files, and to select a
+directory and its contents required that each file in the
+hierarchy be explicitly specified. For 
+.BR tar ,
+a directory matched
+every file in the file hierarchy it rooted.
+.PP
+The
+.B pax 
+utility offers both interfaces; by default, directories
+map into the file hierarchy they root. The 
+.B \-d 
+option causes 
+.B pax 
+to
+skip any file not explicitly referenced, as 
+.I cpio 
+historically did.
+The 
+.B tar 
+- style behavior was chosen as the default because it was
+believed that this was the more common usage and because 
+.B tar 
+is
+the more commonly available interface, as it was historically
+provided on both System V and BSD implementations.
+.PP
+The data interchange format specification in this volume of
+IEEE Std 1003.1-2001 requires that processes with "appropriate
+privileges" shall always restore the ownership and permissions of
+extracted files exactly as archived. If viewed from the historic
+equivalence between superuser and "appropriate privileges", there
+are two problems with this requirement. First, users running as
+superusers may unknowingly set dangerous permissions on extracted
+files. Second, it is needlessly limiting, in that superusers
+cannot extract files and own them as superuser unless the archive
+was created by the superuser. (It should be noted that restoration
+of ownerships and permissions for the superuser, by default, is
+historical practice in 
+.IR cpio ,
+but not in 
+.BR tar .)
+In order to avoid
+these two problems, the 
+.I pax 
+specification has an additional
+"privilege" mechanism, the 
+.B \-p 
+option. Only a 
+.B pax 
+invocation with
+the privileges needed, and which has the 
+.B \-p 
+option set using the 
+.B e
+specification character, has the "appropriate privilege" to
+restore full ownership and permission information.
+.PP
+Note also that this volume of IEEE Std 1003.1-2001 requires that
+the file ownership and access permissions shall be set, on
+extraction, in the same fashion as the 
+.BR creat (2)
+function when
+provided with the mode stored in the archive. This means that the
+file creation mask of the user is applied to the file permissions.
+.PP
+Users should note that directories may be created by 
+.B pax 
+while
+extracting files with permissions that are different from those
+that existed at the time the archive was created. When extracting
+sensitive information into a directory hierarchy that no longer
+exists, users are encouraged to set their file creation mask
+appropriately to protect these files during extraction.
+.PP
+The table of contents output is written to standard output to
+facilitate pipeline processing.
+.PP
+An early proposal had hard links displaying for all pathnames.
+This was removed because it complicates the output of the case
+where 
+.B \-v 
+is not specified and does not match historical 
+.B cpio
+usage. The hard-link information is available in the 
+.B \-v 
+display.
+.PP
+The description of the 
+.B \-l 
+option allows implementations to make
+hard links to symbolic links. IEEE Std 1003.1-2001 does not
+specify any way to create a hard link to a symbolic link, but many
+implementations provide this capability as an extension. If there
+are hard links to symbolic links when an archive is created, the
+implementation is required to archive the hard link in the archive
+(unless 
+.B \-H 
+or 
+.B \-L 
+is specified). When in 
+.B read 
+mode and in 
+.B copy
+mode, implementations supporting hard links to symbolic links
+should use them when appropriate.
+.PP
+The archive formats inherited from the POSIX.1-1990 standard have
+certain restrictions that have been brought along from historical
+usage. For example, there are restrictions on the length of
+pathnames stored in the archive. When 
+.B pax is used in 
+.BR copy " (" \-rw )
+mode (copying directory hierarchies), the ability to use
+extensions from the 
+.BI \-x " pax 
+format overcomes these restrictions.
+.PP
+The default blocksize value of 5120 bytes for 
+.B cpio 
+was selected
+because it is one of the standard block-size values for 
+.BR cpio ,
+set
+when the 
+.B \-B 
+option is specified. (The other default block-size
+value for 
+.B cpio 
+is 512 bytes, and this was considered to be too
+small.) The default block value of 10240 bytes for 
+.B tar 
+was selected because that is the standard block-size value for BSD
+.BR tar .
+The maximum block size of 32256 bytes (2^15-512 bytes) is the
+largest multiple of 512 bytes that fits into a signed 16-bit tape
+controller transfer register. There are known limitations in some
+historical systems that would prevent larger blocks from being
+accepted. Historical values were chosen to improve compatibility
+with historical scripts using
+.BR dd (1)
+or similar utilities to
+manipulate archives. Also, default block sizes for any file type
+other than character special file has been deleted from this
+volume of IEEE Std 1003.1-2001 as unimportant and not likely to
+affect the structure of the resulting archive.
+.PP
+Implementations are permitted to modify the block-size value based
+on the archive format or the device to which the archive is being
+written. This is to provide implementations with the opportunity
+to take advantage of special types of devices, and it should not
+be used without a great deal of consideration as it almost
+certainly decreases archive portability.
+.PP
+The intended use of the 
+.B \-n 
+option was to permit extraction of one
+or more files from the archive without processing the entire
+archive. This was viewed by the standard developers as offering
+significant performance advantages over historical
+implementations. The 
+.B \-n 
+option in early proposals had three
+effects; the first was to cause special characters in patterns to
+not be treated specially. The second was to cause only the first
+file that matched a pattern to be extracted. The third was to
+cause 
+.B pax 
+to write a diagnostic message to standard error when no
+file was found matching a specified pattern. Only the second
+behavior is retained by this volume of IEEE Std 1003.1-2001, for
+many reasons. First, it is in general not acceptable for a single
+option to have multiple effects. Second, the ability to make
+pattern matching characters act as normal characters is useful for
+parts of
+.B pax
+other than file extraction. Third, a finer degree of
+control over the special characters is useful because users may
+wish to normalize only a single special character in a single
+filename. Fourth, given a more general escape mechanism, the
+previous behavior of the 
+.B \-n 
+option can be easily obtained using
+the 
+.B \-s 
+option or a sed script. Finally, writing a diagnostic
+message when a pattern specified by the user is unmatched by any
+file is useful behavior in all cases.
+.PP
+In this version, the 
+.B \-n 
+was removed from the copy mode synopsis of
+.BR pax ;
+it is inapplicable because there are no pattern operands
+specified in this mode.
+.PP
+There is another method than 
+.B pax 
+for copying subtrees in
+IEEE Std 1003.1-2001 described as part of the 
+.BR cp (1)
+utility. Both
+methods are historical practice: 
+.BR cp (1)
+provides a simpler, more
+intuitive interface, while 
+.B pax 
+offers a finer granularity of
+control. Each provides additional functionality to the other; in
+particular, 
+.B pax 
+maintains the hard-link structure of the hierarchy
+while 
+.BR cp (1)
+does not. It is the intention of the standard developers
+that the results be similar (using appropriate option combinations
+in both utilities). The results are not required to be identical;
+there seemed insufficient gain to applications to balance the
+difficulty of implementations having to guarantee that the results
+would be exactly identical.
+.PP
+A single archive may span more than one file. It is suggested that
+implementations provide informative messages to the user on
+standard error whenever the archive file is changed.
+.PP
+The 
+.B \-d 
+option (do not create intermediate directories not listed
+in the archive) found in early proposals was originally provided
+as a complement to the historic 
+.B \-d 
+option of 
+.BR cpio .
+It has been deleted.
+.PP
+The 
+.B \-s 
+option in early proposals specified a subset of the
+substitution command from the ed utility. As there was no reason
+for only a subset to be supported, the 
+.B \-s 
+option is now compatible
+with the current ed specification. Since the delimiter can be any
+non-null character, the following usage with single spaces is
+valid:
+.PP
+.B
+     pax \-s " foo bar " .\|.\|.
+.PP
+The 
+.B \-t description is worded so as to note that this may cause the
+access time update caused by some other activity (which occurs
+while the file is being read) to be overwritten.
+.PP
+The default behavior of 
+.B pax 
+with regard to file modification times
+is the same as historical implementations of 
+.BR tar .
+It is not the
+historical behavior of 
+.BR cpio .
+.PP
+Because the 
+.B \-i 
+option uses 
+.BR /dev/tty ,
+utilities without a
+controlling terminal are not able to use this option.
+.PP
+The 
+.B \-y 
+option, found in early proposals, has been deleted because
+a line containing a single period for the 
+.B \-i 
+option has equivalent
+functionality. The special lines for the 
+.B \-i 
+option (a single
+period and the empty line) are historical practice in 
+.BR cpio .
+.PP
+In early drafts, a 
+.BI \-e " charmap
+option was included to increase
+portability of files between systems using different coded
+character sets. This option was omitted because it was apparent
+that consensus could not be formed for it. In this version, the
+use of UTF-8 should be an adequate substitute.
+.PP
+The 
+.B \-k 
+option was added to address international concerns about
+the dangers involved in the character set transformations of 
+.B \-e
+(if the target character set were different from the source, the
+filenames might be transformed into names matching existing files)
+and also was made more general to protect files transferred
+between file systems with different 
+.I {NAME_MAX} 
+values (truncating
+a filename on a smaller system might also inadvertently overwrite
+existing files). As stated, it prevents any overwriting, even if
+the target file is older than the source. This version adds more
+granularity of options to solve this problem by introducing the 
+.BI "\-o invalid=" option
+-specifically the UTF-8 action. (Note that an
+existing file that is named with a UTF-8 encoding is still subject
+to overwriting in this case. The 
+.B \-k 
+option closes that loophole.)
+.PP
+Some of the file characteristics referenced in this volume of
+IEEE Std 1003.1-2001 might not be supported by some archive
+formats. For example, neither the 
+.B tar 
+nor 
+.B cpio 
+formats contain the
+file access time. For this reason, the 
+.B e 
+specification character
+has been provided, intended to cause all file characteristics
+specified in the archive to be retained.
+.PP
+It is required that extracted directories, by default, have their
+access and modification times and permissions set to the values
+specified in the archive. This has obvious problems in that the
+directories are almost certainly modified after being extracted
+and that directory permissions may not permit file creation. One
+possible solution is to create directories with the mode specified
+in the archive, as modified by the 
+.I umask 
+of the user, with
+sufficient permissions to allow file creation. After all files
+have been extracted, 
+.B pax 
+would then reset the access and
+modification times and permissions as necessary.
+.PP
+The list-mode formatting description borrows heavily from the one
+defined by the 
+.BR printf (1)
+utility. However, since there is no separate
+operand list to get conversion arguments, the format was extended
+to allow specifying the name of the conversion argument as part of
+the conversion specification.
+.PP
+The
+.B T 
+conversion specifier allows time fields to be displayed in
+any of the date formats. Unlike the 
+.BR ls (1)
+utility, 
+.B pax 
+does not
+adjust the format when the date is less than six months in the
+past. This makes parsing the output more predictable.
+.PP
+The 
+.B D 
+conversion specifier handles the ability to display the
+major/minor or file size, as with 
+.BR ls (1), 
+by using %-8(size)D.
+.PP
+The 
+.B L 
+conversion specifier handles the ls display for symbolic
+links.
+.PP
+Conversion specifiers were added to generate existing known types
+used for 
+.BR ls (1).
+
+.SS "pax Interchange Format
+.PP
+The new POSIX data interchange format was developed primarily to
+satisfy international concerns that the 
+.B ustar 
+and 
+.B cpio 
+formats did
+not provide for file, user, and group names encoded in characters
+outside a subset of the ISO/IEC 646:1991 standard. The standard
+developers realized that this new POSIX data interchange format
+should be very extensible because there were other requirements
+they foresaw in the near future:
+.TP
+.B \(bu
+Support international character encodings and locale
+information
+.TP
+.B \(bu
+Support security information (ACLs, and so on)
+.TP
+.B \(bu
+Support future file types, such as realtime or contiguous files
+.TP
+.B \(bu
+Include data areas for implementation use
+.TP
+.B \(bu
+Support systems with words larger than 32 bits and timers
+with subsecond granularity
+.PP
+The following were not goals for this format because these are
+better handled by separate utilities or are inappropriate for a
+portable format:
+.TP
+.B \(bu
+Encryption
+.TP
+.B \(bu
+Compression
+.TP
+.B \(bu
+Data translation between locales and codesets
+.TP
+.B \(bu
+inode storage
+.PP
+The format chosen to support the goals is an extension of the
+.B ustar 
+format. Of the two formats previously available, only the
+.B ustar 
+format was selected for extensions because:
+.TP
+.B \(bu
+It was easier to extend in an upwards-compatible way. It
+offered version flags and header block type fields with room
+for future standardization. The 
+.B cpio 
+format, while possessing
+a more flexible file naming methodology, could not be
+extended without breaking some theoretical implementation or
+using a dummy filename that could be a legitimate filename.
+.TP
+.B \(bu
+Industry experience since the original "\fBtar\fP\ wars"
+fought in
+developing the ISO POSIX-1 standard has clearly been in favor
+of the 
+.B ustar 
+format, which is generally the default output
+format selected for 
+.B pax 
+implementations on new systems.
+.PP
+The new format was designed with one additional goal in mind:
+reasonable behavior when an older 
+.B tar 
+or 
+.B pax 
+utility happened to
+read an archive. Since the POSIX.1-1990 standard mandated that a
+"format-reading utility" had to treat unrecognized 
+.I typeflag 
+values
+as regular files, this allowed the format to include all the
+extended information in a pseudo-regular file that preceded each
+real file. An option is given that allows the archive creator to
+set up reasonable names for these files on the older systems.
+Also, the normative text suggests that reasonable file access
+values be used for this 
+.B ustar 
+header block. Making these header
+files inaccessible for convenient reading and deleting would not
+be reasonable. File permissions of 600 or 700 are suggested.
+.PP
+The ustar 
+.I typeflag 
+field was used to accommodate the additional
+functionality of the new format rather than 
+.I magic 
+or 
+.I version
+because the POSIX.1-1990 standard (and, by reference, the previous
+version of 
+.BR pax ),
+mandated the behavior of the format-reading
+utility when it encountered an unknown 
+.IR typeflag ,
+but was silent about the other two fields.
+.PP
+Early proposals of the first revision to IEEE Std 1003.1-2001
+contained a proposed archive format that was based on
+compatibility with the standard for tape files (ISO 1001, similar
+to the format used historically on many mainframes and
+minicomputers). This format was overly complex and required
+considerable overhead in volume and header records. Furthermore,
+the standard developers felt that it would not be acceptable to
+the community of POSIX developers, so it was later changed to be a
+format more closely related to historical practice on POSIX
+systems.
+.PP
+The
+.I prefix
+and 
+.I name 
+split of pathnames in 
+.B ustar 
+was replaced by
+the single path extended header record for simplicity.
+.PP
+The concept of a global extended header 
+.RB "(typeflag" " g" )
+was
+controversial. If this were applied to an archive being recorded
+on magnetic tape, a few unreadable blocks at the beginning of the
+tape could be a serious problem; a utility attempting to extract
+as many files as possible from a damaged archive could lose a
+large percentage of file header information in this case. However,
+if the archive were on a reliable medium, such as a CD-ROM, the
+global extended header offers considerable potential size
+reductions by eliminating redundant information. Thus, the text
+warns against using the global method for unreliable media and
+provides a method for implanting global information in the
+extended header for each file, rather than in the
+.IB typeflag " g
+records.
+.PP
+No facility for data translation or filtering on a per-file basis
+is included because the standard developers could not invent an
+interface that would allow this in an efficient manner. If a
+filter, such as encryption or compression, is to be applied to all
+the files, it is more efficient to apply the filter to the entire
+archive as a single file. The standard developers considered
+interfaces that would invoke a shell script for each file going
+into or out of the archive, but the system overhead in this
+approach was considered to be too high.
+.PP
+One such approach would be to have 
+.B filter= 
+records that give a
+pathname for an executable. When the program is invoked, the file
+and archive would be open for standard input/output and all the
+header fields would be available as environment variables or
+command-line arguments. The standard developers did discuss such
+schemes, but they were omitted from IEEE Std 1003.1-2001 due to
+concerns about excessive overhead. Also, the program itself would
+need to be in the archive if it were to be used portably.
+.PP
+There is currently no portable means of identifying the character
+set(s) used for a file in the file system. Therefore, 
+.B pax 
+has not
+been given a mechanism to generate charset records automatically.
+The only portable means of doing this is for the user to write the
+archive using the 
+.IR "\-o charset=" string
+command line option. This
+assumes that all of the files in the archive use the same
+encoding. The "implementation-defined" text is included to allow
+for a system that can identify the encodings used for each of its
+files.
+.PP
+The table of standards that accompanies the charset record
+description is acknowledged to be very limited. Only a limited
+number of character set standards is reasonable for maximal
+interchange. Any character set is, of course, possible by prior
+agreement. It was suggested that EBCDIC be listed, but it was
+omitted because it is not defined by a formal standard. Formal
+standards, and then only those with reasonably large followings,
+can be included here, simply as a matter of practicality. The
+.IR <value> s
+represent names of officially registered character sets
+in the format required by the ISO 2375:1985 standard.
+.PP
+The normal comma or <blank>-separated list rules are not followed
+in the case of keyword options to allow ease of argument parsing
+for 
+.BR getopts .
+.PP
+Further information on character encodings is in 
+.B pax 
+Archive
+.BR "Character Set Encoding/Decoding" .
+.PP
+The standard developers have reserved keyword name space for
+vendor extensions. It is suggested that the format to be used is:
+.PP
+.BI "    VENDOR." keyword
+.PP
+where 
+.B VENDOR 
+is the name of the vendor or organization in all
+uppercase letters. It is further suggested that the keyword
+following the period be named differently than any of the standard
+keywords so that it could be used for future standardization, if
+appropriate, by omitting the 
+.B VENDOR 
+prefix.
+.PP
+The 
+.RI < length >
+field in the extended header record was included to
+make it simpler to step through the records, even if a record
+contains an unknown format (to a particular 
+.BR pax )
+with complex
+interactions of special characters. It also provides a minor
+integrity checkpoint within the records to aid a program
+attempting to recover files from a damaged archive.
+.PP
+There are no extended header versions of the 
+.I devmajor 
+and 
+.I devminor
+fields because the unspecified format 
+.B ustar 
+header field should be
+sufficient. If they are not, vendor-specific extended keywords
+(such as 
+.BR VENDOR.devmajor )
+should be used.
+.PP
+Device and i-number labeling of files was not adopted from 
+.BR cpio ;
+files are interchanged strictly on a symbolic name basis, as in
+.BR ustar .
+.PP
+Just as with the 
+.B ustar 
+format descriptions, the new format makes
+no special arrangements for multi-volume archives. Each of the 
+.B pax
+archive types is assumed to be inside a single POSIX file and
+splitting that file over multiple volumes (diskettes, tape
+cartridges, and so on), processing their labels, and mounting each
+in the proper sequence are considered to be implementation details
+that cannot be described portably.
+.PP
+The 
+.B pax 
+format is intended for interchange, not only for backup on
+a single (family of) systems. It is not as densely packed as might
+be possible for backup:
+.TP
+.B \(bu
+It contains information as coded characters that could be
+coded in binary.
+.TP
+.B \(bu
+It identifies extended records with name fields that could be
+omitted in favor of a fixed-field layout.
+.TP
+.B \(bu
+It translates names into a portable character set and
+identifies locale-related information, both of which are
+probably unnecessary for backup.
+.PP
+The requirements on restoring from an archive are slightly
+different from the historical wording, allowing for non-monolithic
+privilege to bring forward as much as possible. In particular,
+attributes such as "high performance file" might be broadly but
+not universally granted while set-user-ID or 
+.BR chown (2)
+might be much
+more restricted. There is no implication in IEEE Std 1003.1-2001
+that the security information be honored after it is restored to
+the file hierarchy, in spite of what might be improperly inferred
+by the silence on that topic. That is a topic for another
+standard.
+.PP
+Links are recorded in the fashion described here because a link
+can be to any file type. It is desirable in general to be able to
+restore part of an archive selectively and restore all of those
+files completely. If the data is not associated with each link, it
+is not possible to do this. However, the data associated with a
+file can be large, and when selective restoration is not needed,
+this can be a significant burden. The archive is structured so
+that files that have no associated data can always be restored by
+the name of any link name of any link, and the user may choose
+whether data is recorded with each instance of a file that
+contains data. The format permits mixing of both types of links in
+a single archive; this can be done for special needs, and 
+.B pax 
+is
+expected to interpret such archives on input properly, despite the
+fact that there is no 
+.B pax 
+option that would force this mixed case
+on output. (When 
+.BI \-o " linkdata 
+is used, the output must contain the
+duplicate data, but the implementation is free to include it or
+omit it when 
+.BI \-o " linkdata 
+is not used.)
+.PP
+The time values are included as extended header records for those
+implementations needing more than the eleven octal digits allowed
+by the 
+.B ustar 
+format. Portable file timestamps cannot be negative.
+If 
+.B pax 
+encounters a file with a negative timestamp in 
+.B copy 
+or
+.B write 
+mode, it can reject the file, substitute a non-negative
+timestamp, or generate a non-portable timestamp with a leading
+'\-'. Even though some implementations can support finer file-time
+granularities than seconds, the normative text requires support
+only for seconds since the Epoch because the ISO POSIX-1 standard
+states them that way. The 
+.B ustar 
+format includes only 
+.IR mtime ;
+the
+new format adds 
+.I atime 
+and 
+.I ctime 
+for symmetry. The atime access
+time restored to the file system will be affected by the 
+.BI \-p " a
+and
+.BI \-p " e
+options. The 
+.I ctime 
+creation time (actually 
+.I inode 
+modification
+time) is described with "appropriate privilege" so that it can be
+ignored when writing to the file system. POSIX does not provide a
+portable means to change file creation time. Nothing is intended
+to prevent a non-portable implementation of 
+.B pax 
+from restoring the
+value.
+.PP
+The 
+.IR gid ,
+.IR size ,
+and 
+.I uid 
+extended header records were included to
+allow expansion beyond the sizes specified in the regular 
+.B tar
+header. New file system architectures are emerging that will
+exhaust the 12-digit size field. There are probably not many
+systems requiring more than 8 digits for user and group IDs, but
+the extended header values were included for completeness,
+allowing overrides for all of the decimal values in the 
+.B tar
+header.
+.PP
+The standard developers intended to describe the effective results
+of 
+.B pax 
+with regard to file ownerships and permissions;
+implementations are not restricted in timing or sequencing the
+restoration of such, provided the results are as specified.
+.PP
+Much of the text describing the extended headers refers to use in
+"\fBwrite\fP or \fBcopy\fP modes". The 
+.B copy 
+mode references are due to the
+normative text: "The effect of the copy shall be as if the copied
+files were written to an archive file and then subsequently
+extracted ...". There is certainly no way to test whether 
+.B pax 
+is
+actually generating the extended headers in 
+.B copy 
+mode, but the
+effects must be as if it had.
+
+.SS "pax Archive Character Set Encoding/Decoding
+.PP
+There is a need to exchange archives of files between systems of
+different native codesets. Filenames, group names, and user names
+must be preserved to the fullest extent possible when an archive
+is read on the receiving platform. Translation of the contents of
+files is not within the scope of the 
+.B pax 
+utility.
+.PP
+There will also be the need to represent characters that are not
+available on the receiving platform. These unsupported characters
+cannot be automatically folded to the local set of characters due
+to the chance of collisions. This could result in overwriting
+previous extracted files from the archive or pre-existing files on
+the system.
+.PP
+For these reasons, the codeset used to represent characters within
+the extended header records of the 
+.B pax 
+archive must be
+sufficiently rich to handle all commonly used character sets. The
+fields requiring translation include, at a minimum, filenames,
+user names, group names, and link pathnames. Implementations may
+wish to have localized extended keywords that use non-portable
+characters.
+.PP
+The standard developers considered the following options:
+.TP
+.B \(bu
+The archive creator specifies the well-defined name of the
+source codeset. The receiver must then recognize the codeset
+name and perform the appropriate translations to the
+destination codeset.
+.TP
+.B \(bu
+The archive creator includes within the archive the character
+mapping table for the source codeset used to encode extended
+header records. The receiver must then read the character
+mapping table and perform the appropriate translations to the
+destination codeset.
+.TP
+.B \(bu
+The archive creator translates the extended header records in
+the source codeset into a canonical form. The receiver must
+then perform the appropriate translations to the destination
+codeset.
+.PP
+The approach that incorporates the name of the source codeset
+poses the problem of codeset name registration, and makes the
+archive useless to 
+.B pax 
+archive decoders that do not recognize that
+codeset.
+.PP
+Because parts of an archive may be corrupted, the standard
+developers felt that including the character map of the source
+codeset was too fragile. The loss of this one key component could
+result in making the entire archive useless. (The difference
+between this and the global extended header decision was that the
+latter has a workaround-duplicating extended header records on
+unreliable media-but this would be too burdensome for large
+character set maps.)
+.PP
+Both of the above approaches also put an undue burden on the 
+.B pax
+archive receiver to handle the cross-product of all source and
+destination codesets.
+.PP
+To simplify the translation from the source codeset to the
+canonical form and from the canonical form to the destination
+codeset, the standard developers decided that the internal
+representation should be a stateless encoding. A stateless
+encoding is one where each codepoint has the same meaning, without
+regard to the decoder being in a specific state. An example of a
+stateful encoding would be the Japanese Shift-JIS; an example of a
+stateless encoding would be the ISO/IEC 646:1991 standard
+(equivalent to 7-bit ASCII).
+.PP
+For these reasons, the standard developers decided to adopt a
+canonical format for the representation of file information
+strings. The obvious, well-endorsed candidate is the
+ISO/IEC 10646-1:2000 standard (based in part on Unicode), which
+can be used to represent the characters of virtually all
+standardized character sets. The standard developers initially
+agreed upon using UCS2 (16-bit Unicode) as the internal
+representation. This repertoire of characters provides a
+sufficiently rich set to represent all commonly-used codesets.
+.PP
+However, the standard developers found that the 16-bit Unicode
+representation had some problems. It forced the issue of
+standardizing byte ordering. The 2-byte length of each character
+made the extended header records twice as long for the case of
+strings coded entirely from historical 7-bit ASCII. For these
+reasons, the standard developers chose the UTF-8 defined in the
+ISO/IEC 10646-1:2000 standard. This multi-byte representation
+encodes UCS2 or UCS4 characters reliably and deterministically,
+eliminating the need for a canonical byte ordering. In addition,
+NUL octets and other characters possibly confusing to POSIX file
+systems do not appear, except to represent themselves. It was
+realized that certain national codesets take up more space after
+the encoding, due to their placement within the UCS range; it was
+felt that the usefulness of the encoding of the names outweighs
+the disadvantage of size increase for file, user, and group names.
+.PP
+.sp
+.ne 10
+The encoding of UTF-8 is as follows:
+.PP
+.TS
+lb lb
+l l.
+UCS4 Hex Encoding	UTF-8 Binary Encoding
+00000000-0000007F	0xxxxxxx
+00000080-000007FF	110xxxxx 10xxxxxx
+00000800-0000FFFF	1110xxxx 10xxxxxx 10xxxxxx
+00010000-001FFFFF	11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
+00200000-03FFFFFF	111110xx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx
+04000000-7FFFFFFF	1111110x 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx
+.TE
+.PP
+where each '\fIx\fP' represents a bit value from the character being
+translated.
+
+.SS "ustar Interchange Format
+.PP
+The description of the 
+.B ustar 
+format reflects numerous enhancements
+over pre-1988 versions of the historical 
+.B tar 
+utility. The goal of
+these changes was not only to provide the functional enhancements
+desired, but also to retain compatibility between new and old
+versions. This compatibility has been retained. Archives written
+using the old archive format are compatible with the new format.
+.PP
+Implementors should be aware that the previous file format did not
+include a mechanism to archive directory type files. For this
+reason, the convention of using a filename ending with slash was
+adopted to specify a directory on the archive.
+.PP
+The total size of the 
+.I name 
+and 
+.I prefix 
+fields have been set to meet
+the minimum requirements for 
+.IR {PATH_MAX} 
+If a pathname will fit
+within the 
+.I name 
+field, it is recommended that the pathname be
+stored there without the use of the 
+.I prefix 
+field. Although the
+name field is known to be too small to contain 
+.I {PATH_MAX}
+characters, the value was not changed in this version of the
+archive file format to retain backwards-compatibility, and instead
+the
+.I prefix 
+was introduced. Also, because of the earlier version of
+the format, there is no way to remove the restriction on the
+.I linkname 
+field being limited in size to just that of the 
+.I name
+field.
+.PP
+The 
+.I size 
+field is required to be meaningful in all implementation
+extensions, although it could be zero. This is required so that
+the data blocks can always be properly counted.
+.PP
+It is suggested that if device special files need to be
+represented that cannot be represented in the standard format,
+that one of the extension types
+.RB ( A \- Z )
+be used, and that the
+additional information for the special file be represented as data
+and be reflected in the 
+.I size 
+field.
+.PP
+Attempting to restore a special file type, where it is converted
+to ordinary data and conflicts with an existing filename, need not
+be specially detected by the utility. If run as an ordinary user,
+.B pax 
+should not be able to overwrite the entries in, for example,
+.B /dev 
+in any case (whether the file is converted to another type or
+not). If run as a privileged user, it should be able to do so, and
+it would be considered a bug if it did not. The same is true of
+ordinary data files and similarly named special files; it is
+impossible to anticipate the needs of the user (who could really
+intend to overwrite the file), so the behavior should be
+predictable (and thus regular) and rely on the protection system
+as required.
+.PP
+The value 
+.B 7 
+in the 
+.I typeflag 
+field is intended to define how
+contiguous files can be stored in a 
+.B ustar 
+archive.
+IEEE Std 1003.1-2001 does not require the contiguous file
+extension, but does define a standard way of archiving such files
+so that all conforming systems can interpret these file types in a
+meaningful and consistent manner. On a system that does not
+support extended file types, the 
+.B pax 
+utility should do the best it
+can with the file and go on to the next.
+.PP
+The file protection modes are those conventionally used by the 
+.BR ls (1)
+utility. This is extended beyond the usage in the ISO POSIX-2
+standard to support the "shared text" or "sticky" bit. It is
+intended that the conformance document should not document
+anything beyond the existence of and support of such a mode.
+Further extensions are expected to these bits, particularly with
+overloading the set-user-ID and set-group-ID flags.
+
+.SS "cpio Interchange Format
+.PP
+The reference to appropriate privilege in the 
+.B cpio 
+format refers
+to an error on standard output; the 
+.B ustar 
+format does not make
+comparable statements.
+.PP
+The model for this format was the historical System V 
+.B "cpio \-c 
+data
+interchange format. This model documents the portable version of
+the 
+.B cpio 
+format and not the binary version. It has the flexibility
+to transfer data of any type described within
+IEEE Std 1003.1-2001, yet is extensible to transfer data types
+specific to extensions beyond IEEE Std 1003.1-2001 (for example,
+contiguous files). Because it describes existing practice, there
+is no question of maintaining upwards-compatibility.
+
+.SS "cpio Header
+.PP
+There has been some concern that the size of the 
+.I c_ino 
+field of
+the header is too small to handle those systems that have very
+large inode numbers. However, the 
+.I c_ino 
+field in the header is
+used strictly as a hard-link resolution mechanism for archives. It
+is not necessarily the same value as the inode number of the file
+in the location from which that file is extracted.
+.PP
+The name 
+.I c_magic 
+is based on historical usage.
+
+.SS "cpio Filename
+.PP
+For most historical implementations of the 
+.B cpio 
+utility,
+.I {PATH_MAX} 
+octets can be used to describe the pathname without the
+addition of any other header fields (the NUL character would be
+included in this count). 
+.I {PATH_MAX} 
+is the minimum value for
+pathname size, documented as 256 bytes. However, an implementation
+may use 
+.I c_namesize 
+to determine the exact length of the pathname.
+With the current description of the 
+.B <cpio.h> 
+header, this pathname
+size can be as large as a number that is described in six octal
+digits.
+.PP
+Two values are documented under the 
+.I c_mode
+field values to provide
+for extensibility for known file types:
+.TP
+.B "0110 000
+Reserved for contiguous files. The implementation may treat
+the rest of the information for this archive like a regular
+file. If this file type is undefined, the implementation may
+create the file as a regular file.
+.PP
+This provides for extensibility of the 
+.B cpio 
+format while allowing
+for the ability to read old archives. Files of an unknown type may
+be read as "regular files" on some implementations. On a system
+that does not support extended file types, the 
+.B pax 
+utility should
+do the best it can with the file and go on to the next.
+
+.SH "FUTURE DIRECTIONS
+.PP
+None.
+
+.ne 5
+.PP
+.HD "End of informative sections."
+.RU
+
+.SH "SEE ALSO
+.PP
+Shell Command Language, 
+.BR cp (1), 
+.BR ed (1), 
+.BR getopts (1), 
+.BR ls (1),
+.BR printf (3),
+the Base
+Definitions volume of IEEE Std 1003.1-2001, 
+.BR <cpio.h> ,
+the System
+Interfaces volume of IEEE Std 1003.1-2001, 
+.BR chown (2), 
+.BR creat (2),
+.BR mkdir (2),
+.BR mkfifo (2),
+.BR stat (2),
+.BR utime (2),
+.BR write (2).
+
+.SH "CHANGE HISTORY
+.PP
+First released in Issue 4.
+
+.SS "Issue 5
+.PP
+A note is added to the APPLICATION USAGE indicating that the 
+.B cpio
+and 
+.B tar 
+formats can only support files up to 8 gigabytes in size.
+
+.SS "Issue 6
+.PP
+The 
+.B pax 
+utility is aligned with the IEEE P1003.2b draft standard:
+.TP
+.B \(bu
+Support has been added for symbolic links in the options and
+interchange formats.
+.TP
+.B \(bu
+A new format has been devised, based on extensions to 
+.BR ustar .
+.TP
+.B \(bu
+References to the "extended" 
+.B tar 
+and 
+.B cpio 
+formats derived
+from the POSIX.1-1990 standard have been changed to remove
+the "extended" adjective because this could cause confusion
+with the extended 
+.B tar 
+header added in this revision. (All
+references to tar are actually to 
+.BR ustar .)
+.PP
+The 
+.B TZ 
+entry is added to the ENVIRONMENT VARIABLES section.
+.PP
+IEEE PASC Interpretation 1003.2 #168 is applied, clarifying that
+.BR mkdir (2)
+and 
+.BR mkfifo (2)
+calls can ignore an [EEXIST] error when
+extracting an archive.
+.PP
+IEEE PASC Interpretation 1003.2 #180 is applied, clarifying how
+extracted files are created when in 
+.B read 
+mode.
+.PP
+IEEE PASC Interpretation 1003.2 #181 is applied, clarifying the
+description of the 
+.B \-t 
+option.
+.PP
+IEEE PASC Interpretation 1003.2 #195 is applied.
+.PP
+IEEE PASC Interpretation 1003.2 #206 is applied, clarifying the
+handling of links for the 
+.BR \-H ,
+.BR \-L ,
+and 
+.B \-l 
+options.
+.PP
+IEEE Std 1003.1-2001/Cor 1-2002, item XCU/TC1/D6/35 is applied,
+adding the process ID of the 
+.B pax 
+process into certain fields. This
+change provides a method for the implementation to ensure that
+different instances of 
+.B pax 
+extracting a file named 
+.B /a/b/foo 
+will
+not collide when processing the extended header information
+associated with 
+.BR foo .
+.PP
+IEEE Std 1003.1-2001/Cor 1-2002, item XCU/TC1/D6/36 is applied,
+changing 
+.B "\-x B 
+to 
+.B "\-x pax 
+in the OPTIONS section.
+.PP
+IEEE Std 1003.1-2001/Cor 2-2004, item XCU/TC2/D6/20 is applied,
+updating the SYNOPSIS to be consistent with the normative text.
+.PP
+IEEE Std 1003.1-2001/Cor 2-2004, item XCU/TC2/D6/21 is applied,
+updating the DESCRIPTION to describe the behavior when files to be
+linked are symbolic links and the system is not capable of making
+hard links to symbolic links.
+.PP
+IEEE Std 1003.1-2001/Cor 2-2004, item XCU/TC2/D6/22 is applied,
+updating the OPTIONS section to describe the behavior for how
+multiple 
+.BI \"-o delete=" pattern
+options are to be handled.
+.PP
+IEEE Std 1003.1-2001/Cor 2-2004, item XCU/TC2/D6/23 is applied,
+updating the 
+.B write 
+option within the OPTIONS section.
+.PP
+IEEE Std 1003.1-2001/Cor 2-2004, item XCU/TC2/D6/24 is applied,
+adding a paragraph into the OPTIONS section that states that
+specifying more than one of the mutually-exclusive options 
+.RB ( \-H
+and 
+.BR \-L )
+is not considered an error and that the last option
+specified will determine the behavior of the utility.
+.PP
+IEEE Std 1003.1-2001/Cor 2-2004, item XCU/TC2/D6/25 is applied,
+removing the 
+.I ctime 
+paragraph within the EXTENDED DESCRIPTION.
+There is a contradiction in the definition of the 
+.I ctime 
+keyword
+for the 
+.B pax 
+extended header, in that the 
+.I st_ctime 
+member of the
+.B stat 
+structure does not refer to a file creation time. No field in
+the standard stat structure from 
+.B <sys/stat.h> 
+includes a file
+creation time.
+.PP
+IEEE Std 1003.1-2001/Cor 2-2004, item XCU/TC2/D6/26 is applied,
+making it clear that 
+.I typeflag 
+.B 1 
+RB ( ustar 
+Interchange Format)
+applies not only to files that are hard-linked, but also to files
+that are aliased via symlinks.
+.PP
+IEEE Std 1003.1-2001/Cor 2-2004, item XCU/TC2/D6/27 is applied,
+clarifying the 
+.B cpio 
+.I c_nlink
+field.
+.PP
+End of quoted text from the POSIX.1-2001 standard.
+. \" .SH RETURNS
+. \" .SH ERRORS
+.SH OPTIONS
+The following 
+.I "other options
+are implemented as extension to the POSIX standard:
+.TP
+.B \-help
+Prints a summary of the most important options for
+.BR spax (1)
+and exits.
+.TP
+.B \-xhelp
+Prints a summary of the less important options for
+.BR spax (1)
+and exits.
+.TP
+.B \-version
+Prints the 
+.B spax
+version number string and exists.
+
+.SH EXAMPLES
+.SH ENVIRONMENT
+.SH FILES
+.SH "SEE ALSO"
+.SH DIAGNOSTICS
+.SH NOTES
+.PP
+The Institute of Electrical and Electronics Engineers and The Open Group,
+have given us permission to reprint portions of their documentation. In
+the following statement, the phrase ``this text'' refers to portions of
+the system documentation.
+.PP
+Portions of this text are reprinted and reproduced in electronic form
+in the 
+.B sfind 
+manual,
+from IEEE Std 1003.1, 2004 Edition, Standard for
+Information Technology -- Portable Operating System Interface (POSIX),
+The Open Group Base Specifications Issue 6, Copyright (C) 2001-2004 by
+the Institute of Electrical and Electronics Engineers, Inc and The Open
+Group. In the event of any discrepancy between these versions and the
+original IEEE and The Open Group Standard, the original IEEE and The
+Open Group Standard is the referee document. The original Standard can
+be obtained online at 
+.BR "http://www.opengroup.org/unix/online.html" .
+.SH BUGS
+.SH AUTHOR
+.nf
+J\*org Schilling
+Seestr. 110
+D\-13353 Berlin
+Germany
+.fi
+.PP
+Mail bugs and suggestions to:
+.PP
+.B
+schilling@fokus.fraunhofer.de
+or
+.B
+js@cs.tu\-berlin.de
+or
+.B
+joerg@schily.isdn.cs.tu\-berlin.de

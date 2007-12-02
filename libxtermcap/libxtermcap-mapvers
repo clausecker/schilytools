@@ -1,0 +1,19 @@
+SCHILY_1.0 {
+global:
+	BC;
+	ospeed;
+	PC;
+	tcgetbuf;
+	tcsetflags;
+	tdecode;
+	tgetent;
+	tgetflag;
+	tgetnum;
+	tgetstr;
+	tgoto;
+	tputs;
+	UP;
+
+local:
+	*;
+};

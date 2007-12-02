@@ -1,0 +1,19 @@
+Big file strategy for star:
+According to Posix 1003.1-1988, a 12 byte numeric field contains
+11 octal digits and a space or a null.
+
+	1)	Use unsigned 33 bit values conforming to Posix
+		to allow 8 GB Filesize.
+
+	2)	Set the top bit of theleftmost byte in the field
+		and use base '256' digits to allow 95 bit values inside
+		12 byte fields and 63 bit values inside 8 byte fields.
+
+	3)	Use POSIX.1-2001 extended headers to have values
+		without any limit.
+
+	Files in type 2) and 3) will not be extractable with
+	other tar implementations. Any files 'behind' such a file
+	cannot be accessed.
+
+	Files of type 1) may be extractable with other implementations.

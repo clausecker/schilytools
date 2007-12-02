@@ -1,0 +1,19 @@
+Star includes a pattern matcher based on the algorithm
+presented by Martin Richards in:
+
+"A Compact Function for Regular Expression Pattern Matching", 
+Software-Practice and Experience, Vol. 9, 527-534 (1979)
+
+Several changes have been made to the original source which has been
+written in BCPL:
+
+'/'	is replaced by	'!'		(to allow UNIX filenames)
+'(',')' are replaced by	'{', '}'
+'\''	is replaced by	'\\'		(UNIX compatible quote)
+
+Character classes have been added to allow "[<character list>]"
+to be used.
+Start of line '^' and end of line '$' have been added.
+
+A description is available in the man page for the match program.
+It may be found in man/man1/match.1

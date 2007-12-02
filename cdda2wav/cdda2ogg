@@ -1,0 +1,55 @@
+#! /bin/sh
+# Demo script for processing all audio tracks with a mp3 decoder
+# based on a news article by Tom Kludy
+# This variant uses named pipes in order to save space.
+# There is another variant of this script, which uses temporary
+# wav files (see cdda2mp3.new).
+#
+# usage: cdda2ogg <name prefix for all ogg files>
+#
+# list_audio_tracks is a (symbolic) link to cdda2wav
+# and used to generate a list of audio track numbers and start
+# sectors, which in turn are used in a loop to spawn cdda2wav
+# and the post processor on a track by track basis.
+
+# specify the sampling program and its options
+# do not specify the track option here!
+CDDA2WAV=cdda2wav
+CDDA2WAV_OPTS='-H -P0 -q'
+
+# for normal use, comment out the next line
+#DEBUG='-d1'
+
+# the post processor is fed through a pipe to avoid space waste
+# specify the post processing program and its options
+MP_CODER=oggenc
+MP_OPTIONS=''
+
+$MP_CODER -h > /dev/null 2> /dev/null
+if [ $? != 0 ] ; then
+   echo "Oggenc not found. Install vorbis-tools first!"
+   exit 1
+fi
+
+FILEPREFIX=${1:-audiotrack}
+
+. /etc/default/cdda2ogg 2>/dev/null || true
+
+TRACK=1
+while :
+do
+   NAME=`printf "%02d" $TRACK`-$FILEPREFIX.ogg
+  $CDDA2WAV $CDDA2WAV_OPTS -t$TRACK $DEBUG - | \
+  $MP_CODER $MP_OPTIONS - > $NAME 
+
+  # check result code
+  RES=$?
+  if [ $RES = 0 ] ; then
+    echo File $NAME finished successfully.
+  else
+    echo File $NAME failed \(result $RES\). Aborted. >&2
+    break
+  fi
+  TRACK=`echo $(($TRACK+1))`
+done
+

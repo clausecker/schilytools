@@ -1,0 +1,10 @@
+#ident %W% %E% %Q%
+
+SCHILY_1.0 {
+global:
+	check_sub;
+	crc_check;
+	do_decode_L2;
+local:
+	*;
+};

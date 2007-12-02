@@ -1,0 +1,102 @@
+. \" @(#)librmt.3	1.2 07/05/06 Copyr 2002 J. Schilling
+. \" Manual page for librmt
+. \"
+.if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
+.if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
+.if t .ds u \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'u
+.if t .ds A \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'A
+.if t .ds O \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'O
+.if t .ds U \v'-0.77m'\h'0.30n'\z.\h'0.45n'\z.\v'0.77m'\h'-.75n'U
+.if t .ds s \(*b
+.if t .ds S SS
+.if n .ds a ae
+.if n .ds o oe
+.if n .ds u ue
+.if n .ds s sz
+.TH LIBRMT 3L "07/05/06" "J\*org Schilling" "Schily\'s LIBRARY FUNCTIONS"
+.SH NAME
+librmt \- remote magtape protocol client interface library
+.SH SYNOPSIS
+.LP
+.B cc
+.RI "[ " "flag" " \|.\|.\|. ] " "file" " \|.\|.\|."
+.B \-lrmt
+.B \-lsocket
+.B \-lnsl
+.RI "[ " "library" " \|.\|.\|. ]"
+.LP
+.B
+#include <schily/librmt.h>
+.SH DESCRIPTION
+.LP
+Functions in this library provide an interface to a remote tape server program.
+.LP
+This implementation takes care of
+.B RMT protocol VERSION 1 
+
+.SH ENVIRONMENT
+.LP
+.TP
+.B RSH
+If the 
+.B RSH
+environment is present, the remote connection will not be created via
+.BR rcmd (3)
+but by calling the program pointed to by
+.BR RSH .
+Use e.g. 
+.BR RSH= /usr/bin/ssh
+to create a secure shell connection.
+.TP
+.B RMT
+If the 
+.B RMT
+environment is present, the remote tape server will not be the program
+.B /etc/rmt
+but the program pointed to by
+.BR RMT .
+Note that the remote tape server program name will be ignored if you log in
+using an account that has been created with a remote tape server program as
+login shell.
+.SH INTERFACES
+
+.BR rmtinit (),
+.BR rmtdebug (),
+.BR rmthostname (),
+.BR rmtfilename (),
+.BR rmtgetconn (),
+.BR rmtopen (),
+.BR rmtioctl (),
+.BR rmtclose (),
+.BR rmtread (),
+.BR rmtwrite (),
+.BR rmtseek (),
+.BR rmtxstatus (),
+.BR rmtstatus (),
+.BR _mtg2rmtg (),
+.BR _rmtg2mtg ()
+
+.SH FILES
+.SH "SEE ALSO"
+.BR rmt (1),
+.BR rsh (1),
+.BR ssh (1),
+.BR rcmd (3)
+
+.\".SH NOTES
+.\".SH BUGS
+.SH AUTHOR
+.nf
+J\*org Schilling
+Seestr. 110
+D\-13353 Berlin
+Germany
+.fi
+.PP
+Mail bugs and suggestions to:
+.PP
+.B
+schilling@fokus.fhg.de
+or
+.B
+js@cs.tu\-berlin.de

@@ -1,0 +1,18 @@
+#ident @(#)rmtg2mtg.mk3	1.1 02/11/11 
+###########################################################################
+# Sample makefile for installing manual pages
+###########################################################################
+SRCROOT=	..
+RULESDIR=	RULES
+include		$(SRCROOT)/$(RULESDIR)/rules.top
+###########################################################################
+
+MANDIR=		man
+TARGETMAN=	rmtg2mtg
+MANSECT=	$(MANSECT_LIB)
+MANSUFFIX=	$(MANSUFF_LIB)
+MANFILE=	rmtg2mtg.3
+
+###########################################################################
+include		$(SRCROOT)/$(RULESDIR)/rules.man
+###########################################################################

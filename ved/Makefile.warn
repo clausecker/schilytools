@@ -1,0 +1,8 @@
+# @(#)Makefile.warn	1.1 00/12/28 Copyr 2000 J. Schilling
+
+install:
+	@echo
+	@echo
+	@echo "Don't forget to install the helper files from dotfiles.tar ..."
+	@echo
+	@echo

@@ -1,0 +1,77 @@
+#ident "@(#)mk-gmake.id	1.16 07/05/03 "
+###########################################################################
+# Written 1996 by J. Schilling
+###########################################################################
+#
+# Name of make program (make/gmake/smake)
+#
+###########################################################################
+# Copyright (c) J. Schilling
+###########################################################################
+# The contents of this file are subject to the terms of the
+# Common Development and Distribution License, Version 1.0 only
+# (the "License").  You may not use this file except in compliance
+# with the License.
+#
+# See the file CDDL.Schily.txt in this distribution for details.
+#
+# When distributing Covered Code, include this CDDL HEADER in each
+# file and include the License file CDDL.Schily.txt from this distribution.
+###########################################################################
+
+MAKEPROG=	gmake
+
+###########################################################################
+#
+# standard (automatic) machine identification
+#
+###########################################################################
+#
+# XP_ARCH = uname -p	= mach	  # Processor (sparc/mc68020)
+# XK_ARCH = uname -m	= arch -k # Kernel (sun3/sun4c/sun4m)
+# XM_ARCH = arch	~ arch -k # Machine (sun3/sun4)
+#
+###########################################################################
+
+ifndef		ARCH_DONE
+
+__gmake_warn:=	$(shell cat $(SRCROOT)/$(RULESDIR)/gmake.wrn 1>&2; sleep 2)
+
+_MACHCMD=	(mach || uname -p || true)	2> /dev/null
+_ARCHCMD=	(arch || /usr/ucb/arch || true)	2> /dev/null
+
+XP_ARCH:=	$(shell $(_MACHCMD) | tr '[A-Z]' '[a-z]' | tr ', /\\()"' ',//////' | tr ',/' ',\-')
+XK_ARCH:=	$(shell uname -m    | tr '[A-Z]' '[a-z]' | tr ', /\\()"' ',//////' | tr ',/' ',\-')
+XM_ARCH:=	$(shell $(_ARCHCMD) | tr '[A-Z]' '[a-z]' | tr ', /\\()"' ',//////' | tr ',/' ',\-')
+
+P_ARCH=		$(XP_ARCH)
+K_ARCH=		$(XK_ARCH)
+M_ARCH=		$(XM_ARCH)
+
+_XP_ARCH=	$(XP_ARCH:unknown=$(K_ARCH))
+
+_P_ARCH=	$(_UNIQ)$(_XP_ARCH)
+__P_ARCH=	$(_P_ARCH:$(_UNIQ)=$(K_ARCH))
+P_ARCH=		$(__P_ARCH:$(_UNIQ)%=%)
+
+_M_ARCH=	$(_UNIQ)$(XM_ARCH)
+__M_ARCH=	$(_M_ARCH:$(_UNIQ)=$(K_ARCH))
+M_ARCH=		$(__M_ARCH:$(_UNIQ)%=%)
+
+OSNAME:=	$(shell uname -s | tr '[A-Z]' '[a-z]' | tr ', /\\()"' ',//////' | tr ',/' ',-')
+OSREL:=		$(shell uname -r | tr '[A-Z]' '[a-z]' | tr ', /\\()"' ',//////' | tr ',/' ',-')
+OSVERSION:=	$(shell uname -v | tr '[A-Z]' '[a-z]' | tr ', /\\()"' ',//////' | tr ',/' ',-')
+
+ARCH_DONE=	TRUE
+
+export		XP_ARCH
+export		K_ARCH
+export		XM_ARCH
+export		P_ARCH
+export		M_ARCH
+export		OSNAME
+export		OSREL
+export		OSVERSION
+export		ARCH_DONE
+
+endif

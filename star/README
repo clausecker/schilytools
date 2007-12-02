@@ -1,0 +1,148 @@
+Star is a tar like archiver - TAR stands for Tape ARchiver.
+
+
+Star saves many files together into a single tape or disk archive,
+and can restore individual files from the archive. It includes a FIFO
+for speed, a pattern matcher, multivolume support, the ability to correctly 
+archive sparse files, automatic archive format detection, automatic byte order
+recognition, automatic archive compression/decompression, remote archives
+and special features that allow star to be used for full backups. it includes
+a built in find(1) command that allows to execute find(1) expressions.
+It also includes `rmt', a truly portable version of the remote tape server
+that supports remote operation between different OS and machine architectures
+(hides even Linux oddities) and a portable `mt' tape drive control program
+that is able to use the remote tape interface.
+
+The RMT program if 100% compatible with Sun's extensions for inter-platform
+operability support (MT status codes) and with GNU extensions for inter-platform
+open() interoperability. In addition, it includes my enhancements that
+hide Linux MT-ioctl non compliances with other UNIX platforms.
+
+Star is the fastest known implementation of a tar archiver.
+Star is even at least 30% faster than ufsdump.
+
+Star development started 1982, the first complete implementation has 
+been done in 1985. I never did my backups with other tools than star.
+
+Its main advantages over other tar implementations are:
+
+	built-in find		- star is built on top of libfind and thus
+				  allows you to execute "find" like expressions
+				  in create, extract and list mode. This allows
+				  to do a lot of interesting things that could
+				  not be done if star and find would be called
+				  separatedly
+
+	fifo			- keeps the tape streaming.
+				  This gives you at least 30% faster backups
+				  than you can achieve with ufsdump.
+
+	remote tape support	- a fast RMT implementation that has no
+				  probems to saturate a 100 Mb/s network.
+
+	accurate sparse files	- star is able to reproduce holes in sparse
+				  files accurately if the OS includes 
+				  the needed support functions. This is
+				  currently true for Solaris-2.3 to
+				  Solaris-2.5.1 and for Solaris-10 or newer
+
+	pattern matcher		- for a convenient user interface
+				  (see manual page for more details).
+				  To archive/extract a subset of files.
+
+	sophisticated diff	- user tailorable interface for comparing
+				  tar archives against file trees
+				  This is one of the most interesting parts
+				  of the star implementation.
+
+	no namelen limitation	- Pathnames up to 1024 Bytes may be archived.
+				  (The same limitation applies to linknames)
+				  This limit may be expanded in future
+				  without changing the method to record
+				  long names.
+
+	deals with all 3 times	- stores/restores all 3 times of a file
+				  (even creation time)
+				  With POSIX.1-2001 the times are in nanosecond
+				  granularity.
+				  Star may reset access time after doing
+				  backup. On Solaris this can be done without
+				  changing the ctime.
+
+	does not clobber files	- more recent copies on disk will not be 
+				  clobbered from tape
+				  This may be the main advantage over other
+				  tar implementations. This allows
+				  automatically repairing of corruptions
+				  after a crash & fsck (Check for differences
+				  after doing this with the diff option).
+
+	automatic byte swap	- star automatically detects swapped archives
+				  and transparently reads them the right way
+
+	automatic format detect	- star automatically detects several common
+				  archive formats and adopts to them.
+				  Supported archive types are:
+				  Old tar, gnu tar, ansi tar, star,
+				  POSIX.1-2001 PAX, Sun's Solaris tar, cpio.
+
+
+	automatic compression detect - star automatically detects whether the
+				  archive is compressed. If it has been
+				  compressed with a compression program that
+				  is compatible to decompression with "gzip"
+				  "bzip2", "lzop" or "p7zip", star automatically
+				  activates decompression.
+
+	fully ansi compatible	- Star is fully ANSI/Posix 1003.1 compatible.
+				  See README.otherbugs for a complete
+				  description of bugs found in other tar
+				  implementations. Star is the first tar
+				  implementation that supports POSIX.1-2001.
+
+	support for ACLs and file flags - star supports Access Control Lists
+				  and extended file flags (as found on FreeBSD
+				  and Linux). Support to archive and restore
+				  other file properties may be easily added.
+
+	support for all inode metadata - star supports to put all inode
+				  metadata on the archive. This allows future
+				  versions of star to perform true
+				  incremental dumps.
+
+	sophisticated error control - allows to tell star which error types
+				  should be ignored for wich file name pattern.
+				  This allows to write backup scripts that give
+				  no error messages for all problems that are
+				  tolerable (e.g. growing log files). 
+
+	'ed' like pattern substitutuions - star supports automated pattern rule
+				  based file name substitution as documented
+				  for 'pax'. 
+
+	fast built in -copy mode  - allows to make fast and accurate copies and
+				  directory tree comparisons. 
+
+	True incremental dump/restore features - tar is the first TAR based
+				  backup system that has been verified to
+				  handle typical file system changes
+				  correctly.
+
+				  Star uses the same method as
+				  ufsdump/ufsrestore but acts OS and FS
+				  indeependent.
+
+Have a look at the manual page, it is included in the distribution.
+
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.isdn.cs.tu-berlin.de, js@cs.tu-berlin.de
+	schilling@fokus.fhg.de
+
+Please mail bugs and suggestions to me.

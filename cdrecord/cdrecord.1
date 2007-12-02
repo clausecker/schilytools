@@ -1,0 +1,2532 @@
+.\" @(#)cdrecord.1	1.118 07/11/11 Copyright 1996-2007 J. Schilling
+.\"
+.\" The contents of this file are subject to the terms of the
+.\" Common Development and Distribution License, Version 1.0 only
+.\" (the "License").  You may not use this file except in compliance
+.\" with the License.
+.\"
+.\" See the file CDDL.Schily.txt in this distribution for details.
+."
+.\" When distributing Covered Code, include this CDDL HEADER in each
+.\" file and include the License file CDDL.Schily.txt from this distribution.
+.\"
+.if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
+.if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
+.if t .ds u \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'u
+.if t .ds A \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'A
+.if t .ds O \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'O
+.if t .ds U \v'-0.77m'\h'0.30n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.75n'U
+.if t .ds s \\(*b
+.if t .ds S SS
+.if n .ds a ae
+.if n .ds o oe
+.if n .ds u ue
+.if n .ds s sz
+.if t .ds m \\(*m
+.if n .ds m micro
+.TH CDRECORD 1 "Version 2.0" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.SH NAME
+cdrecord \- record audio or data Compact Disks or Digital Versatile Disks from a master
+.SH SYNOPSIS
+.B cdrecord
+[
+.I "general options
+][
+.BI dev= device
+][
+.I track options
+]
+.IR track1 .\|.\|. trackn
+
+.SH DESCRIPTION
+.B Cdrecord
+is used to record data or audio Compact Discs on an Orange Book
+CD-Recorder or to write DVD media on a DVD-Recorder.
+.PP
+The
+.I device
+refers to
+.IR scsibus / target / lun
+of the CD/DVD-Recorder. Communication on 
+.I SunOS
+is done with the SCSI general driver
+.B scg.
+Other operating systems are using a library simulation of this driver.
+Possible syntax is:
+.B dev=
+.IR scsibus , target , lun
+or
+.B dev=
+.IR target , lun .
+In the latter case, the CD/DVD-Recorder has to be connected to the default 
+SCSI bus of the machine.
+.IR Scsibus ,
+.I target 
+and 
+.I lun
+are integer numbers. 
+Some operating systems or SCSI transport implementations may require to
+specify a filename in addition.
+In this case the correct syntax for the device is:
+.B dev=
+.IR devicename : scsibus , target , lun
+or
+.B dev=
+.IR devicename : target , lun .
+If the name of the device node that has been specified on such a system
+refers to exactly one SCSI device, a shorthand in the form
+.B dev=
+.IR devicename : @
+or
+.B dev=
+.IR devicename : @ , lun
+may be used instead of
+.B dev=
+.IR devicename : scsibus , target , lun .
+
+.PP
+To access remote SCSI devices, you need to prepend the SCSI device name by
+a remote device indicator. The remote device indicator is either
+.BI REMOTE: user@host:
+or
+.BR
+.BI REMOTE: host:
+.br
+A valid remote SCSI device name may be:
+.BI REMOTE: user@host:
+to allow remote SCSI bus scanning or
+.BI REMOTE: user@host:1,0,0
+to access the SCSI device at 
+.I host
+connected to SCSI bus # 1,target 0 lun 0.
+
+.PP
+.B Cdrecord
+is completely based on 
+.B SCSI
+commands but this is no problem as all CD/DVD writers
+ever made use
+.B SCSI
+commands for the communication. Even
+.B ATAPI
+drives are just
+.B SCSI
+drives that inherently use the 
+.I "ATA packet interface
+as
+.B SCSI
+command transport layer build into the IDE (ATA) transport.
+You may need to specify an alternate transport layer on the command  line
+if your OS does not implement a fully integrated kernel driver subsystem that
+allows to access any drive using
+.B SCSI
+commands via a single unique user interface.
+
+.PP
+To access SCSI devices via alternate transport layers,
+you need to prepend the SCSI device name by a transport layer indicator.
+The transport layer indicator may be something like
+.B USCSI: 
+or
+.BR ATAPI: .
+To get a list of supported transport layers for your platform, use 
+.B dev=
+.IR HELP :
+
+
+.PP
+To make 
+.B cdrecord
+portable to all \s-2UNIX\s0 platforms, the syntax
+.B dev=
+.IR devicename : scsibus , target , lun
+is preferred as it hides OS specific knowledge about device names from the user.
+A specific OS may not necessarily support a way to specify a real device file name nor a
+way to specify 
+.IR scsibus , target , lun .
+
+.PP
+.I Scsibus 
+0 is the default SCSI bus on the machine. Watch the boot messages for more 
+information or look into 
+.B /var/adm/messages 
+for more information about the SCSI configuration of your machine.
+If you have problems to figure out what values for 
+.IR scsibus , target , lun
+should be used, try the 
+.B \-scanbus
+option of 
+.B cdrecord
+described below.
+
+.PP
+If a file /etc/default/cdrecord exists, the parameter to the
+.B dev=
+option may also be a drive name label in said file (see FILES section).
+
+.PP
+On 
+.B SVr4 
+compliant systems, 
+.B cdrecord 
+uses the real time class to get the highest scheduling priority that is
+possible (higher than all kernel processes).
+On systems with 
+.B POSIX real time scheduling
+cdrecord uses real time scheduling too, 
+but may not be able to gain a priority that is higher than all kernel processes.
+.PP
+In order to be able to use the SCSI transport subsystem of the OS, run at highest
+priority and lock itself into core
+.B
+cdrecord
+either needs to be run as root, needs to be installed suid root or
+must be called via
+.B RBACs
+pfexec mechanism.
+.PP
+In 
+.I Track At Once 
+mode, each
+.I track
+corresponds to a single file that contains the prepared data for that track.
+If the argument is 
+.RB ` \- ',
+standard input is used for that track. 
+Only one track may be taken from 
+.IR stdin .
+In the other write modes, the direct file to track relation may not be implemented.
+In 
+.B \-clone
+mode, a single file contains all data for the whole disk.
+To allow DVD writing on platforms that do not implement large file support,
+.B cdrecord
+concatenates all file arguments to a single track when writing to DVD media.
+
+.SH "GENERAL OPTIONS
+.PP
+General options must be before any track file name or track option.
+.TP
+.B \-version
+Print version information and exit.
+.TP
+.B \-v
+Increment the level of general verbosity by one.
+This is used e.g. to display the progress of the writing process.
+.TP
+.B \-V
+Increment the verbose level in respect of SCSI command transport by one.
+This helps to debug problems
+during the writing process, that occur in the CD/DVD-Recorder. 
+If you get incomprehensible error messages you should use this flag
+to get more detailed output.
+.B \-VV
+will show data buffer content in addition.
+Using
+.B \-V
+or
+.B \-VV
+slows down the process and may be the reason for a buffer underrun.
+.TP
+.BI debug= "#, " -d
+Set the misc debug value to # (with debug=#) or increment
+the misc debug level by one (with -d). If you specify
+.I -dd,
+this equals to 
+.BI debug= 2.
+This may help to find problems while opening a driver for libscg
+as well as with sector sizes and sector types.
+Using
+.B \-debug
+slows down the process and may be the reason for a buffer underrun.
+.TP
+.BR kdebug= "#, " kd= #
+Tell the 
+.BR scg -driver
+to modify the kernel debug value while SCSI commands are running.
+.TP
+.BR \-silent ", " \-s
+Do not print out a status report for failed SCSI commands.
+.TP
+.B \-force
+Force to continue on some errors. Be careful when using this option.
+.B Cdrecord
+implements several checks that prevent you from doing unwanted things
+like damaging CD-RW media by improper drives. Many of the sanity checks are 
+disabled when the 
+.B \-force
+option is used.
+.sp
+This option also implements some tricks that will allow 
+you to blank bad CD-RW disks.
+.TP
+.B \-immed
+Tell cdrecord to set the
+.B "SCSI IMMED"
+flag in certain commands
+(load/eject/blank/close_track/close_session).
+This can be useful
+on broken systems with ATAPI harddisk and CD/DVD writer on the same bus or
+with SCSI systems that don't use disconnect/reconnect.
+These systems will freeze while blanking or fixating a CD/DVD or while a DVD
+writer is filling up a session to the minimum amount (approx. 800 MB).
+Setting the
+.B \-immed
+flag will request the command to return immediately
+while the operation proceeds in background, making
+the bus usable for the other devices and avoiding the system freeze.
+This is an experimental feature which may work or not, depending on the model
+of the CD/DVD writer.
+A correct solution would be to set up a correct cabling but there seem to be 
+notebooks around that have been set up the wrong way by the manufacturer.
+As it is impossible to fix this problem in notebooks, the
+.B \-immed
+option has been added.
+.sp
+A second experimental feature of the
+.B \-immed
+flag is to tell cdrecord to try to wait short times while writing to the
+media. This is expected to free the IDE bus if the CD/DVD writer and the
+data source are connected to the same IDE cable. In this case, the CD/DVD
+writer would otherwise usually block the IDE bus for nearly all the time
+making it impossible to fetch data from the source drive. See also
+.B minbuf=
+and
+.B \-v
+option.
+.sp
+Use both features at your own risk.
+If it turns out that it would make sense to have a separate option
+for the wait feature, write to the author and convince him.
+.TP
+.BI minbuf= value
+The #
+.B minbuf=
+option allows to define the minimum drive buffer fill ratio for the
+experimental ATAPI wait mode that is intended to free the IDE bus
+to allow hard disk and CD/DVD writer to be on the same IDE cable.
+As the wait mode currently only works when the verbose option
+.B \-v
+has been specified, 
+.B cdrecord
+implies the verbose option in case the 
+.B \-immed
+or
+.B minbuf=
+option have been specified.
+Valid values for 
+.B minbuf= 
+are between 25 and 95 for 25%.\|.\|.95% minimum drive buffer fill ratio.
+.TP
+.B \-dummy
+The CD/DVD-Recorder will go through all steps of the recording process,
+but the laser is turned off during this procedure.
+It is recommended to run several tests before actually writing to a 
+Compact Disk or Digital Versatile Disk,
+if the timing and load response of the system is not known.
+.TP
+.B \-clone
+Tells 
+.B cdrecord
+to handle images created by
+.IR "readcd \-clone" .
+The
+.B \-clone
+may only be used in conjunction with with the
+.B \-raw96r
+or with the
+.B \-raw16
+option.
+Using
+.B \-clone
+together with
+.B \-raw96r
+is preferred as it allows to write all subchannel data.
+The option
+.B \-raw16
+should only be used with drives that do not support to write in
+.B \-raw96r
+mode.
+.TP
+.B \-dao
+.TP
+.B \-sao
+Set 
+.B "SAO (Session At Once)
+mode which is usually called
+.BR "Disk At Once " mode.
+This currently only works with MMC drives that support
+.B "Session At Once
+mode.
+Note that cdrecord needs to know the size of each track in advance for this mode
+(see the
+.B "mkisofs \-print-size"
+option and the 
+.I EXAMPLES
+section for more information).
+.TP
+.B \-tao
+Set
+.B "TAO (Track At Once) writing mode.
+This is the default write mode in previous
+.B cdrecord
+versions.
+With most drives, this write mode is required for multi session recording.
+.TP
+.B \-raw
+Set
+.B "RAW writing mode.
+Using this option defaults to 
+.BR \-raw96r .
+Note that cdrecord needs to know the size of each track in advance for this mode
+(see the
+.B "mkisofs \-print-size"
+option and the 
+.I EXAMPLES
+section for more information).
+.TP
+.B \-raw96r
+Select
+Set
+.B "RAW writing mode
+with 2352 byte sectors plus 96 bytes of raw P-W subchannel data resulting
+in a sector size of 2448 bytes.
+This is the preferred raw writing mode as it gives best control over the
+CD writing process.
+If you find any problems with the layout of a disk or with sub channel 
+content (e.g. wrong times on the display when playing the CD) and your drive
+supports to write in 
+.B \-raw96r
+or
+.B \-raw16
+mode, you should give it a try. There are several CD writers with bad firmware
+that result in broken disks when writing in TAO or SAO mode.
+Writing data disks in raw mode needs significantly more CPU time than other
+write modes. If your CPU is too slow, this may result in buffer underruns.
+Note that cdrecord needs to know the size of each track in advance for this mode
+(see the
+.B "mkisofs \-print-size"
+option and the 
+.I EXAMPLES
+section for more information).
+.TP
+.B \-raw96p
+Select
+Set
+.B "RAW writing mode
+with 2352 byte sectors plus 96 bytes of packed P-W subchannel data resulting
+in a sector size of 2448 bytes.
+This is the less preferred raw writing mode as only a few recorders support
+it and some of these recorders have bugs in the firmware implementation.
+Don't use this mode if your recorder supports
+.B \-raw96r
+or
+.BR \-raw16 .
+Writing data disks in raw mode needs significantly more CPU time than other
+write modes. If your CPU is too slow, this may result in buffer underruns.
+Note that cdrecord needs to know the size of each track in advance for this mode
+(see the
+.B "mkisofs \-print-size"
+option and the 
+.I EXAMPLES
+section for more information).
+.TP
+.B \-raw16
+Select
+Set
+.B "RAW writing mode
+with 2352 byte sectors plus 16 bytes of P-Q subchannel data resulting
+in a sector size of 2368 bytes.
+If a recorder does not support 
+.BR \-raw96r ,
+this is the preferred raw writing mode.
+It does not allow to write
+.I CD-Text
+or
+.I CD+Graphics
+but it is the only raw writing mode in cheap CD writers.
+As these cheap writers in most cases do not support
+.B \-dao
+mode.
+Don't use this mode if your recorder supports
+.BR \-raw96r .
+Writing data disks in raw mode needs significantly more CPU time than other
+write modes. If your CPU is too slow, this may result in buffer underruns.
+Note that cdrecord needs to know the size of each track in advance for this mode
+(see the
+.B "mkisofs \-print-size"
+option and the 
+.I EXAMPLES
+section for more information).
+.TP
+.B \-multi
+Allow multi session CDs to be made. This flag needs to be present
+on all sessions of a multi session disk,
+except you want to create a session that will be 
+the last session on the media.
+The fixation will be done in a way that allows the CD/DVD-Recorder to
+append additional sessions later. This is done by generation a TOC
+with a link to the next program area. The so generated media is not
+100% compatible to manufactured CDs (except for CDplus). 
+Use only for recording of multi session CDs.
+If this option is present, the default track type is
+.BR "CD-ROM XA mode 2 form 1"
+and the sector size is 2048 bytes. 
+The XA sector subheaders will be created by the drive. 
+The 
+.I Sony 
+drives have no hardware support for 
+.BR "CD-ROM XA mode 2 form 1" .
+You have to specify the 
+.B \-data 
+option in order to create multi session disks on these drives.
+As long as cdrecord does not have a coder for converting data sectors
+to audio sectors, you need to force 
+.B CD-ROM
+sectors by including the
+.B \-data
+option if you like to record a multisession disk in SAO mode.
+Not all drives allow multisession CDs in SAO mode.
+.TP
+.B \-media\-info
+.TP
+.B \-minfo
+Retrieve and print information about the state of the medium.
+This option currently only works for MMC compliant drives.
+.TP
+.B \-msinfo
+Retrieve multi session info in a form suitable for 
+.B "mkisofs-1.10" 
+or later.
+.sp
+This option makes only sense with a CD that contains at least
+one closed session and is appendable (not finally closed yet). 
+Some drives create error messages if you try to get the multi 
+session info for a disk that is not suitable for this operation.
+.TP
+.B \-toc
+Retrieve and print out the table of content or PMA of a CD.
+With this option, 
+.B cdrecord
+will work with CD-R drives and with CD-ROM drives.
+.TP
+.B \-atip
+Retrieve and print out the ATIP (absolute Time in Pre-groove) info of a CD/DVD
+recordable or CD/DVD re-writable media.
+With this option, 
+.B cdrecord
+will try to retrieve the ATIP info. If the actual drive does not support
+to read the ATIP info, it may be that only a reduced set of information
+records or even nothing is displayed. Only a limited number of MMC compliant
+drives support to read the ATIP info.
+.sp
+If 
+.B cdrecord
+is able to retrieve the lead-in start time for the first session, it will try to
+decode and print the manufacturer info from the media.
+DVD media does not have ATIP information but there is equivalent prerecorded
+information that is read out and printed.
+.TP
+.B \-fix
+The disk will only be fixated (i.e. a TOC for a CD-Reader will be written). 
+This may be used, if for some reason the disk has been written but not
+fixated. This option currently does not work with old TEAC drives (CD-R50S and
+CD-R55S).
+.TP
+.B \-nofix
+Do not fixate the disk after writing the tracks. This may be used
+to create an audio disk in steps. An un-fixated disk can usually not be used
+on a non CD-writer type drive but there are audio CD players that will
+be able to play such a disk.
+.TP
+.B \-waiti
+Wait for input to become available on standard input before trying to open
+the SCSI driver. This allows 
+.B cdrecord
+to read its input from a pipe even
+when writing additional sessions to a multi session disk.
+When writing another session to a multi session disk,
+.B mkisofs 
+needs to read the old session from the device before writing output.
+This cannot be done if
+.B cdrecord 
+opens the SCSI driver at the same time.
+.TP
+.B \-load
+Load the media and exit. This only works with a tray loading mechanism
+but seems to be useful when using the Kodak disk transporter.
+.TP
+.B \-lock
+Load the media, lock the door and exit. This only works with a tray loading mechanism
+but seems to be useful when using the Kodak disk transporter.
+.TP
+.B \-eject
+Eject disk after doing the work.
+Some devices (e.g. Philips) need to eject the medium before creating a new
+disk. Doing a \-dummy test and immediately creating a real disk would not
+work on these devices.
+.TP
+.BR speed= #
+Set the speed factor of the writing process to #.
+# is an integer, representing a multiple of the audio speed.
+This is about 150\ KB/s for CD-ROM, about 172\ KB/s for CD-Audio and about 1385\ kB/s
+for DVD media.
+If no 
+.I speed
+option is present,
+.B cdrecord
+will try to get a drive specific speed value from the file
+.B /etc/default/cdrecord
+and if it cannot find one, it will try to get the speed value from the
+.B CDR_SPEED
+environment and later from the 
+.B CDR_SPEED=
+entry in
+.BR /etc/default/cdrecord .
+If no speed value could be found, cdrecord uses a drive specific default speed.
+The default for all new (MMC compliant) drives is to use the maximum supported by the drive.
+If you use 
+.I "speed=0"
+with a MMC compliant drive,
+.B cdrecord
+will switch to the lowest possible speed for drive and medium.
+If you are using an old (non MMC) drive that has problems with
+.I "speed=2 
+or 
+.IR "speed=4" , 
+you should try 
+.IR "speed=0" .
+.TP
+.BI blank= type
+Blank a CD-RW and exit or blank a CD-RW before writing. The blanking type may be one of:
+.RS
+.TP 12
+help
+Display a list of possible blanking types.
+.TP
+all
+Blank the entire disk. This may take a long time.
+.TP
+fast
+Minimally blank the disk. This results in erasing the PMA, the TOC and the pregap.
+.TP
+track
+Blank a track.
+.TP
+unreserve
+Unreserve a reserved track.
+.TP
+trtail
+Blank the tail of a track.
+.TP
+unclose
+Unclose last session.
+.TP
+session
+Blank the last session.
+.RE
+Not all drives support all blanking types. It may be necessary to use
+.B "blank=all
+if a drive reports a specified command as being invalid.
+If used together with the 
+.B \-force
+flag, this option may be used to blank CD-RW disks that otherwise cannot be
+blanked. Note that you may need to specify
+.BI blank= all
+because some drives will not continue with certain types of bad CD-RW
+disks. Note also that
+.B cdrecord
+does its best if the 
+.B \-force 
+flag is used but it finally depends on the drive's firmware 
+whether the blanking operation will succeed or not.
+.TP
+.B \-format
+Format a CD-RW/DVD-RW/DVD+RW disc.
+Formatting is currently only implemented for DVD+RW media.
+A 'maiden' DVD+RW media needs to
+be formatted before you may write to it.
+However, as
+.B cdrecord
+autodetects the need for formatting in this case and auto formats the medium
+before it starts writing, the
+.B \-format
+option is only needed if you like to forcibly reformat a DVD+RW medium.
+.TP
+.BR fs= #
+Set the FIFO (ring buffer) size to #.
+You may use the same syntax as in 
+.BR dd (1),
+.BR sdd (1)
+or
+.BR star (1).
+The number representing the size is taken in bytes unless otherwise specified.
+If a number is followed directly by the letter `b', `k', `m', `s' or `f',
+the size is multiplied by 512, 1024, 1024*1024, 2048 or 2352.
+If the size consists of numbers separated by `x' or `*', multiplication of the 
+two numbers is performed.
+Thus 
+.I "fs=10x63k
+will specify a FIFO size of 630\ kBytes.
+.sp
+The size specified by the 
+.I fs=
+argument includes the shared memory that is needed for administration. This
+is at least one page of memory.
+If no
+.IR fs =
+option is present, 
+.B cdrecord
+will try to get the FIFO size value from the 
+.B CDR_FIFOSIZE
+environment.
+The default FIFO size is currently 4 MB.
+.sp
+The FIFO is used to increase buffering for the real time writing process.
+It allows to run a pipe from 
+.B mkisofs
+directly into 
+.BR cdrecord .
+If the FIFO is active and a pipe from 
+.B mkisofs
+into 
+.B cdrecord
+is used to create a CD, 
+.B cdrecord
+will abort prior to do any modifications on the disk if 
+.B mkisofs 
+dies before it starts writing.
+The recommended FIFO size is between 4 and 128\ MBytes.
+As a rule of thumb, the FIFO size should be at least equal to the size
+of the internal buffer of the CD/DVD-Recorder and no more than half of
+the physical amount of RAM available in the machine.
+If the FIFO size is big enough, the FIFO statistics will print a FIFO
+empty count of zero and the FIFO min fill is not below 20%.
+It is not wise to use too much space for the FIFO. If you need more
+than 8 MB to write a CD at a speed less than 20x from an image on a
+local file system on an idle machine, your machine is either underpowered,
+has hardware problems or is mis-configured.
+If you like to write DVDs or to write CDs at higher speed, it makes sense
+to use at least 16\ MB for the FIFO.
+.sp
+On old and small machines, you need to be more careful with the FIFO size.
+If your machine has less than 256\ MB of physical RAM, you should not
+set up a FIFO size that is more than 32\ MB.
+The sun4c architecture (e.g. a Sparcstation-2) has only MMU page table entries
+for 16\ MBytes per process. Using more than 14\ MBytes for the FIFO
+may cause the operating system in this case to spend much time to constantly
+reload the MMU tables. Newer machines from Sun do not have this MMU
+hardware problem. I have no information on PC-hardware reflecting
+this problem.
+.sp
+Old Linux systems for non x86 platforms have broken definitions for
+the shared memory size. You need to fix them and rebuild the kernel
+or manually tell
+.B cdrecord
+to use a smaller FIFO.
+.sp
+If you have buffer underruns or similar problems (like a constantly empty
+drive buffer) and observe a zero
+.IR "fifo empty count" ,
+you have hardware problems that prevents the data from flowing fast enough
+from the kernel memory to the drive. The FIFO size in this case is sufficient,
+but you should check for a working DMA setup.
+.TP
+.BR ts= #
+Set the maximum transfer size for a single SCSI command to #.
+The syntax for the 
+.B ts=
+option is the same as for cdrecord fs=# or sdd bs=#.
+.sp
+If no 
+.B ts=
+option has been specified,
+.B cdrecord
+defaults to a transfer size of 63\ kB. If libscg gets lower values from the
+operating system, the value is reduced to the maximum value that is possible
+with the current operating system.
+Sometimes, it may help to further reduce the transfer size or to enhance it,
+but note that it may take a long time to find a better value by experimenting
+with the
+.B ts=
+option.
+.TP
+.BI dev= target
+Sets the SCSI target for the CD/DVD-Recorder, see notes above.
+A typical device specification is
+.BI dev= 6,0
+\&.
+If a filename must be provided together with the numerical target 
+specification, the filename is implementation specific.
+The correct filename in this case can be found in the system specific
+manuals of the target operating system.
+On a 
+.I FreeBSD
+system without 
+.I CAM
+support, you need to use the control device (e.g.
+.IR /dev/rcd0.ctl ).
+A correct device specification in this case may be
+.BI dev= /dev/rcd0.ctl:@
+\&.
+.sp
+On Linux, drives connected to a parallel port adapter are mapped
+to a virtual SCSI bus. Different adapters are mapped to different
+targets on this virtual SCSI bus.
+.sp
+If no 
+.I dev
+option is present, 
+.B cdrecord
+will try to get the device from the 
+.B CDR_DEVICE
+environment.
+.sp
+If the argument to the
+.B dev=
+option does not contain the characters ',', '/', '@' or ':',
+it is interpreted as an label name that may be found in the file
+/etc/default/cdrecord (see FILES section).
+.sp
+If no 
+.B dev=
+option is present, or if the
+.B dev=
+option only contains a transport specifyer but no address,
+.B cdrecord
+tries to scan the SCSI address space for CD-ROM drives.
+If exactly one is found, this is used by default.
+.TP
+.BI gracetime= #
+Set the grace time before starting to write to
+.IR # " seconds.
+Values below 3 seconds are not allowed in order to prevent the volume management
+from interrupting the write process.
+.TP
+.BI timeout= #
+Set the default SCSI command timeout value to 
+.IR # " seconds.
+The default SCSI command timeout is the minimum timeout used for sending
+SCSI commands.
+If a SCSI command fails due to a timeout, you may try to raise the
+default SCSI command timeout above the timeout value of the failed command.
+If the command runs correctly with a raised command timeout,
+please report the better timeout value and the corresponding command to 
+the author of the program.
+If no 
+.I timeout 
+option is present, a default timeout of 40 seconds is used.
+.TP
+.BI driver= name
+Allows the user to manually select a driver for the device.
+The reason for the existence of the
+.BI driver= name
+option is to allow users to use
+.B cdrecord
+with drives that are similar to supported drives but not known
+directly by
+.BR cdrecord .
+All drives made after 1997 should be MMC standard compliant and
+thus supported by one of the MMC drivers.
+It is most unlikely that
+.B cdrecord
+is unable to find the right driver automatically.
+Use this option with extreme care. If a wrong driver is used for a
+device, the possibility of creating corrupted disks is high.
+The minimum problem related to a wrong driver is that the 
+.B \-speed
+or 
+.B \-dummy
+will not work.
+.br
+.RS
+.ne 8
+.PP
+The following driver names are supported:
+.TP
+.B help
+To get a list of possible drivers together with a short description.
+.TP
+.B mmc_cd
+The generic SCSI-3/mmc CD-ROM driver is auto-selected whenever
+.B cdrecord
+finds a MMC compliant drive that does not identify itself to support writing at
+all, or that only identifies to support media or write modes not implemented in
+.BR cdrecord .
+.TP
+.B mmc_cd_dvd
+The generic SCSI-3/mmc CD/DVD driver is auto-selected whenever
+.B cdrecord
+finds a MMC-2 or MMC-3 compliant drive that seems to support more than 
+one medium type and the tray is open or no medium could be found to select the
+right driver.
+This driver tries to close the tray, checks the medium found in the tray and then
+branches to the driver that matches the current medium.
+.TP
+.B mmc_cdr
+The generic SCSI-3/mmc CD-R/CD-RW driver is auto-selected whenever
+.B cdrecord
+find a MMC compliant drive that only supports to write CDs or a multi system
+drive that contains a CD as the current medium.
+.TP
+.B mmc_cdr_sony
+The generic SCSI-3/mmc CD-R/CD-RW driver is auto-selected whenever
+.B cdrecord
+would otherwise select the
+.B mmc_cdr
+driver but the device seems to be made by Sony.
+The
+.B mmc_cdr_sony
+is definitely needed for the Sony CDU 928 as this drive does not completely
+implement the MMC standard and some of the MMC SCSI commands have to be
+replaced by Sony proprietary commands. It seems that all Sony drives (even
+newer ones) still implement the Sony proprietary SCSI commands so it has
+not yet become a problem to use this driver for all Sony drives. If you find
+a newer Sony drive that does not work with this driver, please report.
+.TP
+.B mmc_dvd
+The generic SCSI-3/mmc-2 DVD-R/DVD-RW driver is auto-selected whenever
+.B cdrecord
+finds a MMC-2 or MMC-3 compliant drive that supports to write DVDs and
+an appropriate medium is loaded.
+There is no Track At Once mode for DVD writers.
+.TP
+.B mmc_dvdplus
+The generic SCSI-3/mmc-3 DVD+R/DVD+RW driver is auto-selected whenever
+one of the DVD+ media types that are incompatible to each other is found.
+It checks media and then 
+branches to the driver that matches the current medium.
+.TP
+.B mmc_dvdplusr
+The generic SCSI-3/mmc-3 DVD+R driver is auto-selected whenever
+a DVD+R medium is found in an appropriate writer.
+Note that for unknown reason, the DVD-Plus alliance does not
+like that there is a simulation mode for DVD+R media.
+The author of
+.B cdrecord
+tries to convince manufacturers to implement a simulation mode for DVD+R
+and implement support.
+DVD+R only supports one write mode that is somewhere between Track At Once
+and Packet writing; this mode is selected in 
+.B cdrecord
+via a the 
+.BR \-dao / \-sao
+option.
+.TP
+.B mmc_dvdplusrw
+The generic SCSI-3/mmc-3 DVD+RW driver is auto-selected whenever
+a DVD+RW medium is found in an appropriate writer.
+As DVD+RW media needs to be formatted before its first use, cdrecord
+auto-detects this media state and performs a format before it starts
+to write.
+Note that for unknown reason, the DVD-Plus alliance does not
+like that there is a simulation mode nor a way to erase DVD+RW media.
+DVD+RW only supports one write mode that is close to
+Packet writing; this mode is selected in 
+.B cdrecord
+via a the 
+.BR \-dao / \-sao
+option.
+.TP
+.B cw_7501
+The driver for Matsushita/Panasonic CW-7501 is auto-selected when
+.B cdrecord
+finds this old pre MMC drive.
+.B Cdrecord
+supports all write modes for this drive type.
+.TP
+.B kodak_pcd_600
+The driver for Kodak PCD-600 is auto-selected when
+.B cdrecord
+finds this old pre MMC drive which has been the first high speed (6x)
+CD writer for a long time. This drive behaves similar to the
+Philips CDD-521 drive.
+.TP
+.B philips_cdd521
+The driver for Philips CDD-521 is auto-selected when
+.B cdrecord
+finds a Philips CDD-521 drive (which is the first CD writer ever made)
+or one of the other drives that are known to behave similar to this
+drive.
+All Philips CDD-521 or similar drives (see other drivers in this list)
+do not support Session At Once recording.
+.TP
+.B philips_cdd521_old
+The driver for Philips old CDD-521 is auto-selected when
+.B cdrecord
+finds a Philips CDD-521 with very old firmware which has some known limitations.
+.TP
+.B philips_cdd522
+The driver for Philips CDD-522 is auto-selected when
+.B cdrecord
+finds a Philips CDD-522 which is the successor of the 521 or one of its variants
+with Kodak label.
+.B Cdrecord
+does not support Session At Once recording with these drives.
+.TP
+.B philips_dumb
+The driver for Philips CDD-521 with pessimistic assumptions is never auto-selected.
+It may be used by hand with drives that behave similar to the Philips CDD-521.
+.TP
+.B pioneer_dws114x
+The driver for Pioneer DW-S114X is auto-selected when
+.B cdrecord
+finds one of the old non MMC CD writers from Pioneer.
+.TP
+.B plasmon_rf4100
+The driver for Plasmon RF 4100 is auto-selected when
+.B cdrecord
+finds this specific variant of the Philips CDD-521.
+.TP
+.B ricoh_ro1060c
+The driver for Ricoh RO-1060C is auto-selected when
+.B cdrecord
+finds this drive. There is no real support for this drive yet.
+.TP
+.B ricoh_ro1420c
+The driver for Ricoh RO-1420C is auto-selected when
+.B cdrecord
+finds a drive with this specific variant of the Philips CDD-521 command set.
+.TP
+.B scsi2_cd
+The generic SCSI-2 CD-ROM driver is auto-selected whenever
+.B cdrecord
+finds a pre MMC drive that does not support writing or a pre MMC writer that is
+not supported by
+.BR cdrecord .
+.TP
+.B sony_cdu924
+The driver for Sony CDU-924 / CDU-948 is auto-selected whenever
+.B cdrecord
+finds one of the old pre MMC CD writers from Sony.
+.TP
+.B teac_cdr50
+The driver for Teac CD-R50S, Teac CD-R55S, JVC XR-W2010, Pinnacle RCD-5020
+is auto-selected whenever one of the drives is found that is known to the
+non MMC command set used by TEAC and JVC.
+Note that many drives from JVC will not work because they do not correctly implement
+the documented command set and JVC has been unwilling to fix or document the
+bugs.
+There is no support for the Session At Once write mode yet.
+.TP
+.B tyuden_ew50
+The driver for Taiyo Yuden EW-50 is auto-selected when
+.B cdrecord
+finds a drive with this specific variant of the Philips CDD-521 command set.
+.TP
+.B yamaha_cdr100
+The driver for Yamaha CDR-100 / CDR-102 is auto-selected when
+.B cdrecord
+finds one of the old pre MMC CD writers from Yamaha.
+There is no support for the Session At Once write mode yet.
+.TP
+.B cdr_simul
+The simulation CD-R driver allows to run timing and speed tests
+with parameters that match the behavior of CD writers.
+.TP
+.B dvd_simul
+The simulation DVD-R driver allows to run timing and speed tests
+with parameters that match the behavior of DVD writers.
+.PP
+
+.sp
+There are two special driver entries in the list:
+.B cdr_simul
+and
+.BR dvd_simul .
+These driver entries are designed to make timing tests at any speed
+or timing tests for drives that do not support the 
+.B \-dummy
+option.
+The simulation drivers implement a drive with a buffer size of 1\ MB
+that can be changed via the 
+.B CDR_SIMUL_BUFSIZE
+environment variable.
+The simulation driver correctly simulates even a buffer underrun condition.
+If the 
+.B \-dummy 
+option is present, the simulation is not aborted in case of a buffer underrun.
+.RE
+.TP
+.BI driveropts= "option list"
+Set driver specific options. The options are specified a comma separated list.
+To get a list of valid options use 
+.BI driveropts= help
+together with the 
+.I \-checkdrive
+option.
+If you like to set driver options without running a typical
+.B cdrecord
+task, you need to use the
+.B \-setdropts
+option in addition, otherwise the command line parser in
+.B cdrecord
+will complain.
+Currently implemented driver options are:
+.RS
+.TP
+.B burnfree 
+Turn the support for Buffer Underrun Free writing on.
+This only works for drives that support Buffer Underrun Free technology.
+This may be called:
+.BR "Sanyo BURN-Proof" ,
+.BR "Ricoh Just-Link" ,
+.B "Yamaha Lossless-Link"
+or similar.
+.sp
+The default is to turn 
+.B BURN-Free
+off, regardless of the defaults of the drive.
+.TP
+.B noburnfree 
+Turn the support for Buffer Underrun Free writing off.
+.TP
+.BI varirec= value
+Turn on the 
+.B "Plextor VariRec"
+writing mode. The mandatory parameter
+.I value
+is the laser power offset and currently may be selected from
+-2, -1, 0, 1, 2.
+In addition, you need to set the write speed to 4 in order to allow
+.B "VariRec"
+to work.
+.TP
+.BI gigarec= value
+Manage the
+.B "Plextor GigaRec"
+writing mode. The mandatory parameter
+.I value
+is the disk capacity ratio compared to normal recording and currently may be selected from
+0.6, 0.7, 0.8, 0.9, 1.0, 1,1, 1.2, 1.3, 1.4.
+If values < 1.0 are used, then the effect is similar to the
+.B "Yamaha Audio Master Q. R."
+feature. If values > 1.0 are used, then the disk capacity is 
+increased.
+.sp
+Not all drives support all 
+.B GigaRec
+values.
+When a drive uses the 
+.B GigaRec
+feature, the write speed is limited to 8x.
+.TP
+.B audiomaster
+Turn on the 
+.B "Yamaha Audio Master Q. R."
+feature which usually should result in high quality CDs that
+have less reading problems in Hi-Fi players.
+As this is implemented as a variant of the 
+Session at Once write mode, it will only work if you select 
+SAO write mode and there is no need to turn it off.
+The 
+.B "Audio Master"
+mode will work with a limited speed but
+may also be used with data CDs. In
+.B "Audio Master"
+mode, the pits on the CD will be written larger then usual so the capacity
+of the medium is reduced when turning this feature on.
+A 74 minute CD will only have a capacity of 63 minutes if
+.B "Audio Master"
+is active and the capacity of a 80 minute CD will be reduced to 68 minutes,
+the capacity in will be reduced to 85% of the original capacity.
+On newer Plextor drives, this feature is also present but the capacity
+will be redued to 86.66% of the original capacity. For other factors
+on Plextor drives, see the
+.B gigarec
+option above.
+.TP
+.B forcespeed
+Normally, modern drives know the highest possible speed for different
+media and may reduce the speed in order to grant best write quality.
+This technology may be called:
+.BR "Plextor PowerRec" ,
+.BR "Ricoh Just-Speed" ,
+.B "Yamaha Optimum Write Speed Control"
+or similar.
+Some drives (e.g. Plextor, Ricoh and Yamaha) allow to force the drive to
+use the selected speed even if the medium is so bad that the
+write quality would be poor. This option tells such a drive to
+force to use the selected speed regardless of the medium quality.
+.sp
+Use this option with extreme care and note that the drive should know better
+which medium will work at full speed.
+The default is to turn 
+.B forcespeed
+off, regardless of the defaults of the drive.
+.TP
+.B noforcespeed
+Turn off the 
+.B "force speed
+feature.
+.TP
+.B speedread
+Some ultra high speed drives such as 48x and faster drives from Plextor
+limit the read speed for unknown media to e.g. 40x in order to avoid
+damaged disks and drives.
+Using this option tells the drive to read any media as fast as possible.
+Be very careful as this may cause the media to break in the drive 
+while reading, resulting in a damaged media and drive! 
+.TP
+.B nospeedread
+Turn off unlimited read speed.
+.TP
+.B singlesession
+Turn the drive into a single session only drive.
+This allows to read defective or non-compliant (illegal) media with extremely
+non-standard additional (broken/illegal) TOC entries in the TOC from the second
+or higher session. Some of these disks become
+usable if only the information from the first session is used.
+You need to enable Single Session mode before you insert the defective disk!
+.TP
+.B nosinglesession
+Turn off single session mode. The drive will again behave as usual.
+.TP
+.B hidecdr
+Hide the fact that a medium might be a recordable medium.
+This allows to make CD-Rs look like CD-ROMs and applications believe 
+that the media in the drive is not a CD-R. 
+.TP
+.B nohidecdr
+Turn off hiding CD-R media.
+.TP
+.B tattooinfo
+Use this option together with
+.B \-checkdrive
+to retrieve the image size information for the
+.B "Yamaha DiskT@2
+feature. The images always have a line length of 3744 pixel.
+Line number 0 (radius 0) is mapped to the center of the disk.
+If you know the inner and outer radius you will be able to create a
+pre distorted image that later may appear undistorted on the disk.
+.TP
+.BI tattoofile= name
+Use this option together with
+.B \-checkdrive
+to write an image prepared for the
+.B "Yamaha DiskT@2
+feature to the medium.
+The file must be a file with raw image B&W data (one byte per pixel) 
+in a size as retrieved by a previous call to
+.BI tattoofile= name
+\&.
+If the size of the image equals the maximum possible size
+(3744 x 320 pixel), 
+.B cdrecord
+will use the first part of the file. This first part then will 
+be written to the leftover space on the CD.
+.sp
+Note that the image must be mirrored to be readable from the pick up
+side of the CD.
+.TP
+.B layerbreak
+Switch a drive with DVD-R/DL medium into 
+.B "layer jump recording
+recording mode and use automatic layer break position set up.
+.sp
+By default, DVD-R/DL media is written in
+.B "sequential recording
+mode that completely fills up both layers.
+.TP
+.BI layerbreak= value
+Set up a manual layer break value for DVD-R/DL and DVD+R/DL.
+The specified layer break value must not be set to less than half of the recorded
+data size and must not be set to more than the remaining
+.I "Layer 0 size"
+of the medium.
+The manual layer break value needs to be a multiple of the ECC sector
+size which is 16 logical 2048 byte sectors in case of DVD media
+and 32 logical 2048 byte sectors in case of HD-DVD or BD media.
+.sp
+.B Cdrecord
+does not allow to write DL media in case that the total amount of data is
+less then the
+.I "Layer 0 size
+of the medium except when a manual layer break has been specified by using the
+.BI layerbreak= value
+option.
+.RE
+.TP
+.B \-setdropts
+Set the driveropts specified by
+.BI driveropts= "option list" ,
+the 
+.B speed
+of the drive and the 
+.B dummy
+flag and exit.
+This allows cdrecord to set drive specific parameters that are not directly 
+used by
+.B cdrecord
+like e.g.
+.BR "single session mode" ", " "hide cdr"
+and similar.
+It is needed in case that 
+.BI driveropts= "option list"
+should be called without planning to run a typical
+.B cdrecord
+task.
+.TP
+.B \-checkdrive
+Checks if a driver for the current drive is present and exit.
+If the drive is a known drive, 
+.B cdrecord
+uses exit code 0.
+.TP
+.B \-prcap
+Print the drive capabilities for SCSI-3/mmc compliant drives
+as obtained from mode page 0x2A. Values marked with 
+.I kB
+use 1000 bytes as kilo-byte, values marked with
+.I KB
+use 1024 bytes as Kilo-byte.
+.TP
+.B \-inq
+Do an inquiry for the drive, print the inquiry info and exit.
+.TP
+.B \-scanbus
+Scan all SCSI devices on all SCSI busses and print the inquiry
+strings. This option may be used to find SCSI address of the 
+CD/DVD-Recorder on a system.
+The numbers printed out as labels are computed by: 
+.B "bus * 100 + target
+.TP
+.B \-reset
+Try to reset the SCSI bus where the CD recorder is located. This works not
+on all operating systems.
+.TP
+.B \-abort
+Try to send an 
+.B abort
+sequence to the drive.
+If you use 
+.B cdrecord
+only, this should never be needed; but other software may leave a drive 
+in an unusable condition.
+Calling
+.B "cdrecord \-reset
+may be needed if a previous write has been interrupted and the software did 
+not tell the drive that it will not continue to write.
+.TP
+.B \-overburn
+Allow 
+.B cdrecord 
+to write more than the official size of a medium. This feature is usually
+called 
+.I overburning
+and depends on the fact that most blank media may hold more space than the
+official size. As the official size of the lead-out area on the disk is
+90 seconds (6750 sectors) and a disk usually works if there are at least
+150 sectors of lead out, all media may be overburned by at least 88 seconds
+(6600 sectors).
+Most CD recorders only do overburning in 
+.B SAO
+or
+.B RAW
+mode. Known exceptions are TEAC CD-R50S, TEAC CD-R55S and the Panasonic
+CW-7502.
+Some drives do not allow to overburn as much as you might like and limit
+the size of a CD to e.g. 76 minutes. This problem may be circumvented by
+writing the CD in RAW mode because this way the drive has no chance to find
+the size before starting to burn.
+There is no guarantee that your drive supports overburning at all.
+Make a test to check if your drive implements the feature.
+.TP
+.B \-ignsize
+Ignore the known size of the medium. This option should be used with extreme
+care, it exists only for debugging purposes don't use it for other reasons.
+It is not needed to write disks with more than the nominal capacity.
+This option implies
+.BR \-overburn .
+.TP
+.B \-useinfo
+Use
+.B "*.inf
+files to overwrite audio options.
+If this option is used, the pregap size information is read from 
+the
+.B "*.inf
+file that is associated with the file that contains the audio
+data for a track.
+.sp
+If used together with the
+.B \-audio
+option,
+.B cdrecord
+may be used to write audio CDs from a pipe from
+.B cdda2wav
+if you call
+.B cdrecord
+with the
+.B *.inf
+files as track parameter list instead of using audio files.
+The audio data is read from 
+.B stdin
+in this case.
+See
+.B EXAMPLES
+section below.
+.B Cdrecord
+first verifies that 
+.B stdin
+is not connected to a terminal and runs some heuristic consistency checks
+on the
+.B *.inf
+files and then sets the track lengths from the information in
+the
+.B *.inf
+files.
+.sp
+If you like to write from 
+.BR stdin ,
+make sure that cdrecord is called with a large enough FIFO size, reduce the write
+speed to a value below the read speed of the source drive and switch the burn-free
+option for the recording drive on.
+.TP
+.BR defpregap= #
+Set the default pre-gap size for all tracks except track number 1.
+This option currently only makes sense with the TEAC drive when
+creating track-at-once disks without the 2 second silence before each track.
+.br
+This option may go away in future. 
+.TP
+.B \-packet
+Set 
+.B "Packet writing mode. 
+This is an experimental interface.
+.TP
+.BR pktsize= #
+Set the packet size to #, forces fixed packet mode.
+This is an experimental interface.
+.TP
+.B \-noclose
+Do not close the current track, useful only when in packet writing mode.
+This is an experimental interface.
+.TP
+.BI mcn= med_cat_nr
+Set the 
+.B "Media Catalog Number
+of the CD to 
+.IR med_cat_nr .
+.TP
+.B \-text
+Write CD-Text information
+based on information taken from a file that contains ascii information
+for the text strings. 
+.B Cdrecord
+supports CD-Text information based on the content of the
+.B *.inf
+files created by 
+.B cdda2wav 
+and CD-Text information based on the content from a
+.B "CUE sheet
+file.
+If a 
+.B "CUE sheet
+file contains both (binary CDTEXTFILE and text based SONGWRITER)
+entries, then the information based on the CDTEXTFILE entry will win.
+.sp
+You need to use the
+.B \-useinfo
+option in addition in order to tell 
+.B cdrecord
+to read the
+.B "*.inf
+files or
+.BI cuefile= filename
+in order to tell
+.B cdrecord
+to read a
+.B CUE sheet
+file in addition.
+If you like to write your own CD-Text information,
+edit the
+.B *.inf
+files or the
+.B "CUE sheet
+file with a text editor and change the fields
+that are relevant for CD-Text.
+.TP
+.BI textfile= filename
+Write CD-Text based on information found in the binary file
+.IR filename .
+This file must contain information in a data format defined in the
+SCSI-3 MMC-2 standard and in the Red Book. The four byte size header that is 
+defined in the SCSI standard is optional and allows to make the recognition of
+correct data less ambiguous.
+This is the best option to be used to copy CD-Text data from existing CDs
+that already carry CD-Text information. To get data in a format suitable
+for this option use 
+.B cdrecord \-vv \-toc
+to extract the information from disk.
+If both, 
+.BI textfile= filename
+and CD-Text information from
+.B *.inf
+or
+.B *.cue
+files are present,
+.BI textfile= filename
+will overwrite the other information.
+.TP
+.BI cuefile= filename
+Take all recording related information from a CDRWIN compliant
+.B "CUE sheet
+file.
+No track files are allowed when this option is present and one of the options
+.BR \-dao ,
+.BR \-sao ,
+.BR \-raw ,
+.BR \-raw16 ,
+.B \-raw96r
+is needed in addition.
+
+.SH "TRACK OPTIONS
+.PP
+Track options may be mixed with track file names.
+.TP
+.BI isrc= ISRC_number
+Set the 
+.B "International Standard Recording Number
+for the next track to
+.IR ISRC_number .
+.TP
+.BI index= list
+Sets an index list for the next track.
+In index list is a comma separated list of numbers that are counting
+from index 1. The first entry in this list must contain a 0, the following 
+numbers must be an ascending list of numbers (counting in 1/75 seconds) that 
+represent the start of the indices. An index list in the form:
+0,7500,15000 sets index 1 to the start of the track, index 2 100 seconds from
+the start of the track and index 3 200 seconds from the start of the track.
+.TP
+.B \-audio
+If this flag is present, all subsequent tracks are written in
+.B "CD-DA 
+(similar to Red Book) audio format.
+The file with data for this tracks should
+contain stereo, 16-bit digital audio with 44100 samples/s.
+The byte order should be the following: MSB left, LSB left, 
+MSB right, LSB right, MSB left and so on. The track should be a multiple of 
+2352 bytes. It is not possible to put the master image of an audio track 
+on a raw disk because 
+data will be read in multiple of 2352 bytes during the recording process.
+.sp
+If a filename ends in 
+.I .au
+or
+.I .wav
+the file is considered to be a structured audio data file.
+.B Cdrecord
+assumes that the file in this case is a Sun audio file or a
+Microsoft .WAV file
+and extracts the audio data from the files by skipping over the
+non-audio header information.
+In all other cases, cdrecord will only work correctly if the
+audio data stream does not have any header.
+Because many structured audio files do not have an integral
+number of blocks (1/75th second) in length,
+it is often necessary to specify the
+.B \-pad
+option as well.
+.B cdrecord
+recognizes that audio data in a .WAV file is stored in Intel
+(little-endian) byte order, and will automatically byte-swap the data
+if the CD recorder requires big-endian data.  
+.B Cdrecord
+will reject any audio file that does not match the Red Book requirements
+of 16-bit stereo samples in PCM coding at 44100 samples/second.
+.sp
+Using other structured audio data formats as input to 
+.B cdrecord
+will usually work if the structure of the data is the 
+structure described above (raw pcm data in big-endian byte order).
+However, if the data format includes a header,
+you will hear a click at the start of a track.
+.TP
+.I " "
+If neither 
+.I \-data 
+nor
+.I \-audio
+have been specified, 
+.B cdrecord
+defaults to 
+.I \-audio
+for all filenames that end in
+.I .au
+or 
+.I .wav
+and to
+.I \-data 
+for all other files.
+.TP
+.B \-swab
+If this flag is present, audio data is assumed to be in byte-swapped
+(little-endian) order.  Some types of CD-Writers e.g. Yamaha, Sony and the
+new SCSI-3/mmc drives require audio data to be presented in
+little-endian order,
+.\" (which is the order in which it's actually recorded on the CD) ????
+while other writers require audio data to be
+presented in the big-endian (network) byte order normally used by the
+SCSI protocol.
+.B Cdrecord
+knows if a CD-Recorder needs audio data in big- or little-endian order,
+and corrects the byte order of the data stream to match the needs
+of the recorder.
+You only need the 
+.I \-swab 
+flag if your data stream is in Intel (little-endian) byte order.
+.sp
+Note that the verbose output of
+.B cdrecord
+will show you if swapping is necessary to make the byte order of 
+the input data fit the required byte order of the recorder.
+.B Cdrecord
+will not show you if the 
+.I \-swab 
+flag was actually present for a track.
+.TP
+.B \-data
+If this flag is present, all subsequent tracks are written in
+.B "CD-ROM mode 1
+(Yellow Book) format. The data size is a multiple of 2048 bytes.
+The file with track data should contain an 
+.BR ISO-9660 " or " "Rock Ridge
+filesystem image (see 
+.B mkisofs
+for more details). If the track data is an
+.B ufs
+filesystem image, fragment size should be set to 2\ KB or more to allow
+CD-drives with 2\ KB sector size to be used for reading.
+.TP
+.I " "
+.I \-data
+is the default, if no other flag is present and the file does not
+appear to be of one of the well known audio file types.
+.TP
+.I " "
+If neither 
+.I \-data 
+nor
+.I \-audio
+have been specified, 
+.B cdrecord
+defaults to 
+.I \-audio
+for all filenames that end in
+.I .au
+or 
+.I .wav
+and to
+.I \-data 
+for all other files.
+.TP
+.B \-mode2
+If this flag is present, all subsequent tracks are written in
+.B "CD-ROM mode 2
+format. The data size is a multiple of 2336 bytes.
+.TP
+.B \-xa
+If this flag is present, all subsequent tracks are written in
+.B "CD-ROM XA mode 2 form 1
+format. The data size is a multiple of 2048 bytes.
+The XA sector sub headers will be created by the drive.
+With this option, the write mode is the same as with the
+.B \-multi
+option.
+.TP
+.B \-xa1
+If this flag is present, all subsequent tracks are written in
+.B "CD-ROM XA mode 2 form 1
+format. The data size is a multiple of 2056 bytes.
+The XA sector sub headers are part of the user data and have to be
+supplied by the application that prepares the data to be written.
+.TP
+.B \-xa2
+If this flag is present, all subsequent tracks are written in
+.B "CD-ROM XA mode 2 form 2
+format. The data is a multiple of 2324 bytes.
+The XA sector sub headers will be created by the drive.
+.TP
+.B \-xamix
+If this flag is present, all subsequent tracks are written in a way
+that allows a mix of 
+.B "CD-ROM XA mode 2 form 1/2
+format. The data size is a multiple of 2332 bytes.
+The XA sector sub headers are part of the user data and have to be
+supplied by the application that prepares the data to be written.
+The CRC and the P/Q parity ECC/EDC information (depending on the sector
+type) have to be supplied by the application that prepares the data to be written.
+.TP
+.B \-cdi
+If this flag is present, the TOC type for the disk is set to
+.BR CDI .
+This only makes sense with XA disks.
+.TP
+.B \-isosize
+Use the 
+.B "ISO-9660
+file system size as the size of the next track.
+This option is needed if you want 
+.B cdrecord
+to directly read the image of a track from
+a raw disk partition or from a 
+.I TAO 
+master CD. In the first case the option
+.B \-isosize
+is needed to limit the size of the CD to the size of the ISO filesystem.
+In the second case the option
+.B \-isosize
+is needed to prevent 
+.B cdrecord
+from reading the two run out blocks that are appended by each CD-recorder
+in track at once mode. These two run out blocks cannot be read and would
+cause a buffer underrun that would cause a defective copy.
+Do not use this option on files created by 
+.B mkisofs
+and in case
+.B cdrecord
+reads the track data from 
+.IR stdin .
+In the first case, you would prevent 
+.B cdrecord 
+from writing the amount of padding that has been appended by
+.B mkisofs
+and in the latter case, it will not work because 
+.I stdin
+is not seekable.
+.sp
+If 
+.B \-isosize
+is used for a track, 
+.B cdrecord
+will automatically add padding for this track as if the
+.B \-pad
+option has been used but the amount of padding may be less than the padding
+written by 
+.BR  mkisofs .
+Note that if you use
+.B \-isosize
+on a track that contains Sparc boot information, the boot information will
+be lost.
+.sp
+Note also that
+this option cannot be used to determine the size of a file system
+if the multi session option is present.
+.TP
+.B \-pad
+If the track is a data track, 15 sectors of zeroed data
+will be added to the end of this and each subsequent data track.
+In this case, the 
+.B \-pad 
+option is superseded by the 
+.B padsize=
+option. It will remain however as a shorthand for
+.BI padsize= 15s.
+If the 
+.I \-pad 
+option refers to an audio track,
+.B cdrecord 
+will pad the audio data to be a multiple of 2352 bytes. 
+The audio data padding is done with binary zeroes which is 
+equal to absolute silence.
+.sp
+.B \-pad 
+remains valid until disabled by 
+.BR \-nopad .
+.TP
+.BR padsize= #
+Set the amount of data to be appended as padding to the next track to #.
+Opposed to the behavior of the 
+.B \-pad
+option, the value for 
+.I padsize=
+is reset to zero for each new track.
+Cdrecord assumes a sector size of 2048 bytes for the
+.I padsize=
+option, independent from the real 
+sector size and independent from the write mode.
+The megabytes mentioned in the verbose mode output however are counting
+the output sector size which is e.g. 2448 bytes when writing in RAW/RAW96
+mode.
+See
+.BR fs =
+option for possible arguments.
+To pad the equivalent of 20 minutes on a CD, you may write
+.BR padsize= 20x60x75s.
+Use this option if your CD-drive is not able to read the last sectors of
+a track or if you want to be able to read the CD
+on a 
+.B Linux 
+system with the ISO-9660 filesystem read ahead bug.
+If an empty file is used for track data, 
+this option may be used to create a disk that is entirely made of padding.
+This may e.g. be used to find out how much overburning is possible with a 
+specific media.
+.TP
+.B \-nopad
+Do not pad the following tracks \- the default.
+.TP
+.B \-shorttrack
+Allow all subsequent tracks to violate the Red Book track length standard
+which requires a minimum track length of 4 seconds.
+This option is only useful when used in SAO or RAW mode.
+Not all drives support this feature. The drive must accept the
+resulting CUE sheet or support RAW writing.
+.TP
+.B \-noshorttrack
+Re-enforce the Red Book track length standard. Tracks must be
+at least 4 seconds.
+.TP
+.BR pregap= #
+Set the  pre-gap size for the next track.
+This option currently only makes sense with the TEAC drive when
+creating track-at-once disks without the 2 second silence before each track.
+.br
+This option may go away in future. 
+.TP
+.B \-preemp
+If this flag is present, all TOC entries for subsequent audio tracks 
+will indicate that the audio data has been sampled with 50/15 \*msec
+pre-emphasis.
+The data, however is not modified during the process of transferring from file
+to disk. 
+This option has no effect on data tracks.
+.TP
+.B \-nopreemp
+If this flag is present, all TOC entries for subsequent audio tracks 
+will indicate that the audio data has been mastered with linear data \- 
+this is the default.
+.TP
+.B \-copy
+If this flag is present, all TOC entries for subsequent audio tracks
+of the resulting CD
+will indicate that the audio data has permission to be copied without limit.
+This option has no effect on data tracks.
+.TP
+.B \-nocopy
+If this flag is present, all TOC entries for subsequent audio tracks 
+of the resulting CD
+will indicate that the audio data has permission to be copied only once for
+personal use \-
+this is the default.
+.TP
+.B \-scms
+If this flag is present, all TOC entries for subsequent audio tracks 
+of the resulting CD
+will indicate that the audio data has no permission to be copied anymore.
+.TP
+.BR tsize= #
+If the master image for the next track has been stored on a raw disk, 
+use this option
+to specify the valid amount of data on this disk. If the image of the next 
+track is stored in a regular file, the size of that file is taken to determine
+the length of this track.
+If the track contains an ISO 9660 filesystem image use the 
+.I \-isosize
+option to determine the length of that filesystem image.
+.br
+In Disk at Once mode and with some drives that use
+the TEAC programming interface, even in Track at Once mode,
+.B cdrecord
+needs to know the size of each track before starting to write the disk.
+Cdrecord now checks this and aborts before starting to write.
+If this happens you will need to run
+.B "mkisofs -print-size
+before and use the output (with `s' appended) as an argument to the 
+.BR tsize =
+option of 
+.B cdrecord
+(e.g. tsize=250000s).
+.br
+See
+.BR fs =
+option for possible arguments.
+
+.SH EXAMPLES
+.PP
+For all examples below, it will be assumed that the CD/DVD-Recorder is
+connected to the primary SCSI bus of the machine. The SCSI target id is
+set to 2.
+.PP
+To record a pure CD-ROM at double speed, using data from the file
+.IR cdimage.raw :
+.PP
+    cdrecord \-v speed=2 dev=2,0 cdimage.raw
+.PP
+To create an image for a ISO 9660 filesystem with Rock Ridge extensions:
+.PP
+    mkisofs \-R \-o cdimage.raw /home/joerg/master/tree
+.PP
+To check the resulting file before writing to CD on Solaris:
+.PP
+    mount \-r \-F fbk \-o type=hsfs /dev/fbk0:cdimage.raw /mnt
+.PP
+The
+.B fbk
+driver first appeared in 1988.
+.PP
+Solaris 9 or newer come with a variant of the original 
+.B fbk
+idea called
+.BR lofi .
+The command for the lofi variant is:
+.PP
+	mount \-r \-F hsfs ` lofiadm -a /tmp/cdimage.raw ` /mnt
+.PP
+Note that lofiadm needs absolute path names.
+.PP
+On Linux:
+.PP
+    mount cdimage.raw \-r \-t iso9660 \-o loop /mnt
+.PP
+Go on with:
+.br
+    ls \-lR /mnt
+.br
+    umount /mnt
+.PP
+If the overall speed of the system is sufficient and the structure of
+the filesystem is not too complex, cdrecord will run without creating an
+image of the ISO 9660 filesystem. Simply run the pipeline:
+.PP
+    mkisofs \-R /master/tree | cdrecord \-v fs=6m speed=2 dev=2,0 -
+.PP
+The recommended minimum FIFO size for running this pipeline is 4 MBytes.
+As the default FIFO size is 4 MB, the 
+.B fs=
+option needs only be present if you want to use a different FIFO size.
+If your system is loaded, you should run mkisofs in the real time class too.
+To raise the priority of 
+.B mkisofs
+replace the command
+.PP
+    mkisofs \-R /master/tree
+.br
+by
+.br
+    priocntl \-e \-c RT \-p 59 mkisofs \-R /master/tree
+.sp
+on Solaris and by
+.sp
+    nice --18 mkisofs \-R /master/tree
+.sp
+on systems that don't have
+.B "UNIX International
+compliant real-time scheduling.
+.PP
+Cdrecord runs at priority 59 on Solaris, you should run mkisofs
+at no more than priority 58. On other systems, you should run mkisofs
+at no less than nice --18.
+.PP
+Creating a CD-ROM without file system image on disk has been tested
+on a Sparcstation-2 with a Yamaha CDR-400. It did work up to quad speed
+when the machine was not loaded.
+A faster machine may be able to handle quad speed also in the loaded case.
+.PP
+To record a pure CD-DA (audio) at single speed, with each track contained
+in a file named
+.IR track01.cdaudio ,
+.IR track02.cdaudio ,
+etc:
+.PP
+    cdrecord \-v speed=1 dev=2,0 -audio track*.cdaudio
+.PP
+To check if it will be ok to use double speed for the example above. 
+Use the dummy write option:
+.PP
+    cdrecord \-v \-dummy speed=2 dev=2,0 \-audio track*.cdaudio
+.PP
+To record a mixed-mode CD with an ISO 9660 filesystem from
+.I cdimage.raw
+on the first track, the other tracks being audio tracks from the files
+.IR track01.cdaudio ,
+.IR track02.cdaudio ,
+etc:
+.PP
+    cdrecord \-v dev=2,0 cdimage.raw \-audio track*.cdaudio
+.PP
+To handle drives that need to know the size of a track before starting to write,
+first run
+.PP
+    mkisofs \-R \-quiet \-print\-size /master/tree
+.PP
+and then run
+.PP
+    mkisofs \-R /master/tree | cdrecord speed=2 dev=2,0 tsize=XXXs -
+.PP
+where 
+.I XXX
+is replaced by the output of the previous run of mkisofs.
+.PP
+To copy an audio CD in the most accurate way, first run
+.PP
+    cdda2wav dev=2,0 \-vall cddb=0 -B \-Owav
+.PP
+and then run
+.PP
+    cdrecord dev=2,0 \-v \-dao \-useinfo \-text  *.wav
+.PP
+This will try to copy track indices and to read CD-Text information from disk.
+If there is no CD-Text information, 
+.B cdda2wav
+will try to get the information from freedb.org instead.
+.PP
+To copy an audio CD from a pipe (without intermediate files), first run
+.PP
+    cdda2wav dev=1,0 \-vall cddb=0 \-info-only
+.PP
+and then run
+.PP
+    cdda2wav dev=1,0 \-no-infofile \-B \-Oraw \- | \\
+.br
+    cdrecord dev=2,0 \-v \-dao \-audio \-useinfo \-text *.inf
+.PP
+This will get all information (including track size info) from the
+.B *.inf
+files and then read the audio data from stdin.
+.sp
+If you like to write from 
+.BR stdin ,
+make sure that cdrecord is called with a large enough FIFO size (e.g.
+.BR fs=128m ),
+reduce the write speed to a value below the read speed of the source drive
+(e.g.
+.BR speed=12 ),
+and switch the burn-free
+option for the recording drive on by adding
+.BR driveropts=burnfree .
+.PP
+To set drive options without writing a CD (e.g. to switch a drive
+to single session mode), run
+.PP
+    cdrecord dev=1,0 \-setdropts driveropts=singlesession
+.PP
+If you like to do this when no CD is in the drive, call
+.PP
+    cdrecord dev=1,0 \-force \-setdropts driveropts=singlesession
+.PP
+To copy a CD in clone mode, first read the master CD using:
+.PP
+    readcd dev=b,t,l \-clone f=somefile
+.PP
+or (in case the CD contains many sectors that are unreadable by intention)
+by calling:
+.PP
+    readcd dev=1,0 -clone -nocorr f=somefile
+.PP
+will create the files
+.I somefile
+and
+.IR somefile.toc .
+Then write the CD using:
+.PP
+    cdrecord dev=1,0 -raw96r -clone -v somefile
+
+
+.SH ENVIRONMENT
+.TP
+.B CDR_DEVICE
+This may either hold a device identifier that is suitable to the open
+call of the SCSI transport library or a label in the file /etc/default/cdrecord.
+.TP
+.B CDR_SPEED
+Sets the default speed value for writing (see also 
+.B \-speed
+option).
+.TP
+.B CDR_FIFOSIZE
+Sets the default size of the FIFO (see also 
+.BR fs= #
+option).
+.TP
+.B CDR_FORCERAWSPEED
+If this environment variable is set, 
+.B cdrecord
+will allow you to write at the full RAW encoding speed a single CPU supports.
+This will create high potential of buffer underruns. Use with care.
+.TP
+.B CDR_FORCESPEED
+If this environment variable is set, 
+.B cdrecord
+will allow you to write at the full DMA speed the system supports.
+There is no DMA reserve for reading the data that is to be written from disk.
+This will create high potential of buffer underruns. Use with care.
+.sp
+If this environment variable is set to the value
+.BR any ,
+.B cdrecord
+allows to write at any speed even though it may fail later with a buffer underrun.
+.TP
+.B RSH
+If the 
+.B RSH
+environment is present, the remote connection will not be created via
+.BR rcmd (3)
+but by calling the program pointed to by
+.BR RSH .
+Use e.g. 
+.BR RSH= /usr/bin/ssh
+to create a secure shell connection.
+.sp
+Note that this forces 
+.B cdrecord
+to create a pipe to the 
+.B rsh(1)
+program and disallows
+.B cdrecord
+to directly access the network socket to the remote server.
+This makes it impossible to set up performance parameters and slows down
+the connection compared to a 
+.B root
+initiated
+.B rcmd(3)
+connection.
+.TP
+.B RSCSI
+If the 
+.B RSCSI
+environment is present, the remote SCSI server will not be the program
+.B /opt/schily/sbin/rscsi
+but the program pointed to by
+.BR RSCSI .
+Note that the remote SCSI server program name will be ignored if you log in
+using an account that has been created with a remote SCSI server program as
+login shell.
+
+.SH FILES
+.TP
+/etc/default/cdrecord
+Default values can be set for the following options in /etc/default/cdrecord.
+For example:
+.SM CDR_FIFOSIZE=8m
+or
+.SM CDR_SPEED=2
+.RS
+.TP
+CDR_DEVICE
+This may either hold a device identifier that is suitable to the open
+call of the SCSI transport library or a label in the file /etc/default/cdrecord 
+that allows to identify a specific drive on the system.
+.TP
+CDR_SPEED
+Sets the default speed value for writing (see also 
+.B \-speed
+option).
+.TP
+CDR_FIFOSIZE
+Sets the default size of the FIFO (see also 
+.BR fs= #
+option).
+.TP
+CDR_MAXFIFOSIZE
+Sets the maximum size of the FIFO (see also 
+.BR fs= #
+option).
+.TP
+Any other label
+is an identifier for a specific drive on the system.
+Such an identifier may not contain the characters ',', '/', '@' or ':'.
+.sp
+Each line that follows a label contains a TAB separated list of items.
+Currently, four items are recognized: the SCSI ID of the drive, the
+default speed that should be used for this drive, the default FIFO size
+that should be used for this drive and drive specific options. The values for 
+.I speed
+and
+.I fifosize
+may be set to -1 to tell cdrecord to use the global defaults.
+The value for driveropts may be set to "" if no driveropts are used.
+A typical line may look this way:
+.sp
+teac1= 0,5,0	4	8m	""
+.sp
+yamaha= 1,6,0	-1	-1	burnfree
+.sp
+This tells
+.B cdrecord
+that a drive named
+.I teac1
+is at scsibus 0, target 5, lun 0 and should be used with speed 4 and
+a FIFO size of 8 MB.
+A second drive may be found at scsibus 1, target 6, lun 0 and uses the
+default speed and the default FIFO size.
+.RE
+
+.SH SEE ALSO
+.BR cdda2wav (1),
+.BR readcd (1),
+.BR scg (7),
+.BR fbk (7),
+.BR mkisofs (8),
+.BR rcmd (3),
+.BR ssh (1).
+
+.SH NOTES
+.PP
+Not all options described in this manual may be supported by the OpenSource variant
+of cdrecord. Cdrecord issues a warning if an attempt is made to use an option
+that has been disabled in the OpenSource variant.
+.PP
+On Solaris before Solaris 10 Update 1,
+you need to stop the volume management if you like to use the USCSI
+fallback SCSI transport code. Even things like 
+.B "cdrecord -scanbus
+will not work if the volume management is running.
+.PP
+Disks made in 
+.B "Track At Once 
+mode are not suitable as a master for direct mass production by CD manufacturers.
+You will need the 
+.B "disk at once
+option to record such disks.
+Nevertheless the disks made in
+.B "Track At Once 
+will normally be read in all CD players. Some old
+audio CD players however may produce a two second click between two audio tracks.
+.PP
+The minimal size of a track is 4 seconds or 300 sectors. If you write 
+smaller tracks, the CD-Recorder will add dummy blocks. This is not an
+error, even though the SCSI-error message looks this way.
+.PP
+.B Cdrecord
+has been tested on an upgraded Philips CDD-521 recorder at single and 
+double speed on a SparcStation 20/502 with no problems, slower computer systems
+should work also. 
+The newer Philips/HP/Plasmon/Grundig
+drives as well as Yamaha CDR-100 and CDR-102 work also. The Plasmon RF-4100
+work, but has not tested in multi session.
+A Philips CDD-521 that has not been upgraded will not work.
+The Sony CDU-924 has been tested, but does not support XA-mode2 in hardware.
+The Sony therefore cannot create conforming multi session disks.
+The Ricoh RO-1420C works, but some people seem to have problems to 
+use them with speed=2, try speed=0 in this case.
+.PP
+The Yamaha CDR-400 and all new SCSI-3/mmc conforming drives are supported
+in single and multi-session.
+.PP
+You should run several tests in all supported speeds of your drive with the
+.B \-dummy
+option turned on if you are using 
+.B cdrecord
+on an unknown system. Writing a CD is a real-time process. 
+.B NFS
+will not always deliver constantly the needed data rates.
+If you want to use 
+.B cdrecord 
+with CD-images that are located on a
+.B NFS
+mounted filesystem, be sure that the FIFO size is big enough.
+I used
+.B cdrecord 
+with medium load on a SS20/502 and even at quad speed 
+on a Sparcstation-2 which was heavily loaded, 
+but it is recommended to leave the system
+as lightly loaded as possible while writing a CD.
+If you want to make sure that buffer underruns are not
+caused by your source disk, you may use the command
+.PP
+.B "    cdrecord -dummy dev=2,0 padsize=600m /dev/null
+.PP
+to create a disk that is entirely made of dummy data.
+.B Cdrecord
+needs to run as root to get access to the 
+.B /dev/scg?
+device nodes and to be able to lock itself into memory.
+.PP
+If you don't want to allow users to become root on your system,
+.B cdrecord
+may safely be installed suid root. This allows all users or a group of
+users with no root privileges to use 
+.B cdrecord.
+.B Cdrecord 
+in this case checks, if the real user would have been able to read 
+the specified files.
+To give all user access to use 
+.B cdrecord, 
+enter:
+.PP
+	chown root /usr/local/bin/cdrecord
+.br
+	chmod 4711 /usr/local/bin/cdrecord
+.PP
+To give a restricted group of users access to cdrecord enter:
+.PP
+	chown root /usr/local/bin/cdrecord
+.br
+	chgrp cdburners /usr/local/bin/cdrecord
+.br
+	chmod 4710 /usr/local/bin/cdrecord
+.PP
+and add a group 
+.I cdburners
+on your system.
+.PP
+Never give write permissions for non root users to the 
+.I /dev/scg?
+devices unless you would allow anybody to read/write/format
+all your disks.
+.PP
+You should not connect old drives that do not support
+disconnect/reconnect to either the SCSI bus that is connected to the
+CD-Recorder or the source disk.
+.PP
+A Compact Disc can have no more than 99 tracks.
+.PP
+When creating a disc with both audio and data tracks, 
+the data should be on track 1 otherwise you should create
+a CDplus disk which is a multi session disk with the first session 
+containing the audio tracks and the following session containing the data track.
+.PP
+Many operating systems are not able to read more than a single data track, or
+need special software to do so.
+.PP
+More information on the SCSI command set of a HP CD-Recorder can be found at:
+.PP
+	http://www.hp.com/isgsupport/cdr/index.html
+.PP
+If you have more information or SCSI command manuals for currently 
+unsupported CD/DVD-Recorders please contact the author.
+.PP
+The Philips CDD 521 CD-Recorder (even in the upgraded version)
+has several firmware bugs. Some of them will
+force you to power cycle the device or to reboot the machine.
+.PP
+When using 
+.B cdrecord
+with the broken 
+.B "Linux SCSI generic driver."
+You should note that 
+.B cdrecord
+uses a hack, that tries to emulate the functionality of the scg driver.
+Unfortunately, the sg driver on 
+.B Linux
+has several severe bugs:
+.TP
+\(bu
+It cannot see if a SCSI command could not be sent at all.
+.TP
+\(bu
+It cannot get the SCSI status byte. 
+.B Cdrecord
+for that reason cannot report failing SCSI commands in some
+situations.
+.TP
+\(bu
+It cannot get real DMA count of transfer. 
+.B Cdrecord
+cannot tell you if there is an DMA residual count.
+.TP
+\(bu
+It cannot get number of bytes valid in auto sense data.
+.B Cdrecord
+cannot tell you if device transfers no sense data at all.
+.TP
+\(bu
+It fetches to few data in auto request sense (CCS/SCSI-2/SCSI-3 needs >= 18).
+.PP
+The FIFO percent output is computed just after a block of data has been written
+to the CD/DVD-Recorder. For this reason, there will never be 100% FIFO fill ratio
+while the FIFO is in streaming mode.
+
+.SH DIAGNOSTICS
+.PP
+You have 9 seconds to type ^C to abort 
+.B cdrecord
+after you see the message:
+.PP
+Starting to write CD at speed %d in %s mode for %s session.
+.PP
+A typical error message for a SCSI command looks like:
+.sp
+.RS
+.nf
+cdrecord: I/O error. test unit ready: scsi sendcmd: no error
+CDB:  00 20 00 00 00 00
+status: 0x2 (CHECK CONDITION)
+Sense Bytes: 70 00 05 00 00 00 00 0A 00 00 00 00 25 00 00 00 00 00
+Sense Key: 0x5 Illegal Request, Segment 0
+Sense Code: 0x25 Qual 0x00 (logical unit not supported) Fru 0x0
+Sense flags: Blk 0 (not valid)
+cmd finished after 0.002s timeout 40s
+.fi
+.RE
+.sp
+The first line gives information about the transport of the command.
+The text after the first colon gives the error text for the system call
+from the view of the kernel. It usually is:
+.B "I/O error
+unless other problems happen. The next words contain a short description for
+the SCSI command that fails. The rest of the line tells you if there were
+any problems for the transport of the command over the SCSI bus.
+.B "fatal error
+means that it was not possible to transport the command (i.e. no device present
+at the requested SCSI address).
+.PP
+The second line prints the SCSI command descriptor block for the failed command.
+.PP
+The third line gives information on the SCSI status code returned by the 
+command, if the transport of the command succeeds. 
+This is error information from the SCSI device.
+.PP
+The fourth line is a hex dump of the auto request sense information for the 
+command.
+.PP
+The fifth line is the error text for the sense key if available, followed
+by the segment number that is only valid if the command was a
+.I copy
+command. If the error message is not directly related to the current command,
+the text
+.I deferred error
+is appended.
+.PP
+The sixth line is the error text for the sense code and the sense qualifier if available.
+If the type of the device is known, the sense data is decoded from tables
+in
+.IR scsierrs.c " .
+The text is followed by the error value for a field replaceable unit.
+.PP
+The seventh line prints the block number that is related to the failed command
+and text for several error flags. The block number may not be valid.
+.PP
+The eight line reports the timeout set up for this command and the time
+that the command really needed to complete.
+.PP
+The following message is not an error:
+.sp
+.RS
+.nf
+Track 01: Total bytes read/written: 2048/2048 (1 sectors).
+cdrecord: I/O error. flush cache: scsi sendcmd: no error
+CDB:  35 00 00 00 00 00 00 00 00 00
+status: 0x2 (CHECK CONDITION)
+Sense Bytes: F0 00 05 80 00 00 27 0A 00 00 00 00 B5 00 00 00 00 00
+Sense Key: 0x5 Illegal Request, Segment 0
+Sense Code: 0xB5 Qual 0x00 (dummy data blocks added) Fru 0x0
+Sense flags: Blk -2147483609 (valid)
+cmd finished after 0.002s timeout 40s
+.fi
+.RE
+.sp
+It simply notifies, that a track that is smaller than the minimum size has been
+expanded to 300 sectors.
+.SH BUGS
+.PP
+.B Cdrecord
+has even more options than 
+.BR ls .
+.PP
+There should be a recover option to make disks usable, that have been written
+during a power failure.
+
+.SH CREDITS
+.PP
+.TP 15
+Bill Swartz	(Bill_Swartz@twolf.com)
+.br
+For helping me with the TEAC driver support
+.TP
+Aaron Newsome	(aaron.d.newsome@wdc.com)
+.br
+For letting me develop Sony support on his drive
+.TP
+Eric Youngdale	(eric@andante.jic.com)
+.br
+For supplying mkisofs
+.TP
+Gadi Oxman	(gadio@netvision.net.il)
+.br
+For tips on the ATAPI standard
+.TP
+Finn Arne Gangstad	(finnag@guardian.no)
+.br
+For the first FIFO implementation.
+.TP
+Dave Platt	(dplatt@feghoot.ml.org)
+.br
+For creating the experimental packet writing support,
+the first implementation of CD-RW blanking support,
+the first .wav file decoder 
+and many nice discussions on cdrecord.
+.TP
+Chris P. Ross (cross@eng.us.uu.net)
+.br
+For the first implementation of a BSDI SCSI transport.
+.TP
+Grant R. Guenther   (grant@torque.net)
+.br
+For creating the first parallel port transport implementation
+for Linux.
+.TP
+Kenneth D. Merry (ken@kdm.org)
+.br
+for providing the CAM port for FreeBSD together with Michael Smith (msmith@freebsd.org)
+.TP
+Heiko Ei\*sfeldt (heiko@hexco.de)
+for making libedc_ecc available (needed to write RAW data sectors).
+
+.SH "MAILING LISTS
+If you want to actively take part on the development of cdrecord,
+you may join the developer mailing list via this URL:
+.sp
+.B
+http://lists.berlios.de/mailman/listinfo/cdrecord-developers 
+.PP
+The mail address of the list is:
+.B
+cdwrite@other.debian.org
+
+.SH AUTHOR
+.nf
+J\*org Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+.fi
+.PP
+Additional information can be found on:
+.br
+http://www.fokus.fhg.de/usr/schilling/cdrecord.html
+.PP
+If you have support questions, send them to:
+.PP
+.B
+cdrecord-support@berlios.de
+.br
+or
+.B
+cdwrite@other.debian.org
+.PP
+If you have definitely found a bug, send a mail to:
+.PP
+.B
+cdrecord-developers@berlios.de
+.br
+or
+.B
+schilling@fokus.fhg.de
+.PP
+To subscribe, use:
+.PP
+.B
+http://lists.berlios.de/mailman/listinfo/cdrecord-developers 
+.br
+or
+.B
+http://lists.berlios.de/mailman/listinfo/cdrecord-support 
+.PP
+The old cdwrite mailing list may be joined by sending mail to:
+.nf
+.sp
+	cdwrite-request@other.debian.org
+.sp
+.fi
+and including the word 
+.I subscribe
+in the body.
+The mail address of the list is:
+.nf
+.sp
+	cdwrite@other.debian.org
+.fi

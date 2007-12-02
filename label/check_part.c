@@ -1,0 +1,1 @@
+../sformat/check_part.c

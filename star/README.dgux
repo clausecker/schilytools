@@ -1,0 +1,11 @@
+If you are running DG/UX, you may want to do some experiments
+with unbuffered filereads.
+This will in general only work in single user mode because
+files that are already open may not be opened unbuffered,
+but may give up to 50% more throughput.
+
+The diffs are in the file:
+
+star/create.dgux.patch
+
+and should be applied to the file star/create.c

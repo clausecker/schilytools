@@ -1,0 +1,153 @@
+For compliance tests with POSIX.1-1990 you need to test the output of 
+your favorite TAR implementation and you need to test whether the TAR 
+implementation does work as expected if it encounters tar archives that 
+approach limits of the POAIS.1-1990 TAR specification.
+
+A recent version of the files is always on:
+
+	ftp://ftp.berlios.de/pub/star/testscripts/
+
+Here comes a quick test that checks most important issues for archive exchange:
+
+1) Test for compliance with files that are a bit bigger than usual:
+
+	Note that the test tar archives used for this conformance test are 
+	bzip2 compressed. This has been done because it is the only widely 
+	available compression format that allows to compress several gigabytes of 
+	nulls into a few bytes.
+
+	*** File Read tests 2 Gigabytes - 1 Byte
+
+	The file 'ustar-big-2g.tar.bz2' contains a file with the largest size 
+	that a historic tar implementation is able to understand.
+
+	star tvf ustar-big-2g.tar.bz2 
+	star: WARNING: Archive is bzip2 compressed, trying to use the -bz option.
+	2147483647 -rw-------  jes/glone Jun 15 16:53 2002 big
+	         0 -rw-r--r--  jes/glone Jun 15 16:53 2002 file
+	star: 209715 blocks + 4096 bytes (total of 2147485696 bytes = 2097154.00k).
+
+	Any tar implementation should work correctly with this archive and 
+	needs to list _both_ files without any error message if you call:
+
+	bzip2 -d < ustar-big-2g.tar.bz2 | your_tar tvf -
+
+	If any error message is printed or the second file is missing on your 
+	list, then your TAR implementation under test is broken.
+
+	*** File Read tests 8 Gigabytes - 1 Byte
+
+	The file 'ustar-big-8g.tar.bz2' contains a file with the largest size 
+	that may be used with the ustar (POSIX.1-1990 tar) format.
+
+	star tvf ustar-big-8g.tar.bz2 
+	star: WARNING: Archive is bzip2 compressed, trying to use the -bz option.
+	8589934591 -rw-------  jes/glone Jun 15 17:08 2002 8gb-1
+	         0 -rw-r--r--  jes/glone Jun 15 16:53 2002 file
+	star: 838861 blocks + 0 bytes (total of 8589936640 bytes = 8388610.00k).
+
+	On non-large file aware platforms (such as AIX) this may fail.
+	But Linux-2.4 is large file aware. On a large file aware platform,
+	any tar implementation should work correctly with this archive and 
+	needs to list _both_ files without any error message if you call:
+
+	bzip2 -d < ustar-big-8g.tar.bz2 | your_tar tvf -
+
+	If any error message is printed or the second file is missing on your 
+	list, then your TAR implementation under test is broken.
+
+
+2) Test if your TAR implementation did unpack the archive correctly by using
+   star to diff against the archive. Run:
+
+	star -diff -v diffopts=!atime,ctime < /tmp/ustar-all-quicktest.tar
+
+   Make sure you use star-1.5a04 or later to do the diff.
+
+
+3) Testing whether your TAR implementation supports all file types and long file 
+   names correctly.
+	
+	The archive "ustar-all-quicktest.tar" contains:
+
+	-	A first part that contains correct and simple versions of all
+		supported file types: plain file, hard link, sym link, cdev,
+		bdev. directory, contiguous file.
+
+	-	The second part contains a file with one character that has the 
+		8th bit set in the file name. If your TAR implementation does
+		not compute checksums correctly, it will fail here.
+
+	-	The third part contains a file and a hard link which use
+		exactly 100 characters in the filename/linkname.
+
+	-	A fourth part that contains a file name that is 256 characters 
+		long. 155 characters are in the POSIX filename prefix and 100 
+		characters are in the POSIX filename suffix.
+		This part also contains a file with a file name of 256 
+		characters and a link name of 100 characters.
+
+	-	The fifth part contains a file with 256 characters in the name
+		but the usually unused field directly after the filename prefix 
+		contains junk characters. If the TAR under test does not handle 
+		file name prefix lengths of 155 chars correctly, the file name
+		that is extracted will contain the sequence "/abcde.hihi/" 
+		instead of just "/abcde/"
+
+	-	The sixth part contains a character special, a block special, a 
+		directory and a named pipe that have the "size" field != 0.
+		A TAR implementation that does not handle the "size" field as 
+		indicated by the POSIX standard will fail here.
+
+	-	The last part contains a file called END to indicate that 
+		everything went OK and that the last file in the archive is 
+		handled correctly.
+
+	NOTE: as some tar implementions seem to have problems with extracting
+	contiguous files, I also made a tar archive called:
+
+		ustar-all-quicktest.tar-without-cont-file
+
+
+	Performing the test for the things described above:
+
+	1)	Create an empty directory and do a "chdir" into that directory.
+		Copy the test archive ustar-all-quicktest.tar into the directory 
+		/tmp, copy the file quicktest.filelist into the /tmp directory 
+		too. 
+
+	2)	Become root and call:
+
+			your_tar xf /tmp/ustar-all-quicktest.tar
+
+		If your TAR allows to handle different archive types do _not_
+		tell your tar that this is a "ustar" archive. Let it find this 
+		itself.
+
+	3)	Create a new archive using your TAR implementation:
+
+		your_tar cf /tmp/new.tar ` cat /tmp/quicktest.filelist `
+
+		If you TAR implementation allows to handle different archive 
+		types add an option to force "ustar" archive creation. For 
+		"star" this is -Hustar, for "GNU tar" this is --posix.
+
+		*** IMPORTANT:	a POSIX.1-1990 compliant Tar implementation 
+				needs to be able to archive all files without 
+				using any vendor specific extensions.
+
+	4)	Run tartest to check the archives for POSIX.1-1990 compliance.
+		The working version of the "tartest" program is part of 
+		star-1.5a04 or later.
+
+		tartest -v < /tmp/ustar-all-quicktest.tar	> /tmp/old.out
+		tartest -v < /tmp/new.tar			> /tmp/new.out
+
+	5)	Check the output file /tmp/new.out for POSIX.1-1990 
+		noncompliances. If you did not find any wrning, them run
+		"diff /tmp/old.out /tmp/new.out" to check if no file name has 
+		been changed due to a bug in your TAR program under test.
+
+	The output of the "tartest -v" run on the original test archive
+	may be found (for reference purposes)  in the file 
+	'tartest-quicktest.out'. 

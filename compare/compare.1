@@ -1,0 +1,77 @@
+. \" @(#)compare.1	1.5 01/04/29 Copyr 1982-1995 J. Schilling
+. \"  Manual page for compare
+. \"
+.if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
+.if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
+.if t .ds u \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'u
+.if t .ds A \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'A
+.if t .ds O \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'O
+.if t .ds U \v'-0.77m'\h'0.30n'\z.\h'0.45n'\z.\v'0.77m'\h'-.75n'U
+.if t .ds s \(*b
+.if t .ds S SS
+.if n .ds a ae
+.if n .ds o oe
+.if n .ds u ue
+.if n .ds s sz
+.TH COMPARE 1L "01/04/29" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.SH NAME
+compare \- fast binary comparison of two files
+.SH SYNOPSIS
+.B compare
+[
+.I options
+] 
+.I file1 file2
+.SH DESCRIPTION
+.B Compare
+examines one file and standard in, or two files on a
+byte by byte basis, and prints the file position of the first
+difference it finds, first in decimal and then in hexadecimal,
+followed by the differing byte content in hexadecimal and as 
+quoted character.
+.PP
+.B Compare 
+is similar to the UNIX utility
+.BR cmp (1)
+but faster.
+.PP
+The lines count from 1, the byte offset counts from 0.
+This is a deviation from the UNIX 
+.BR cmp (1)
+utility, which counts byte offsets beginning from 1.
+.SH OPTIONS
+Note all options can be abbreviated to their first letter.
+.TP
+.B "\-all, \-a, \-long, \-l
+Do not stop comparing the files if the first difference is found.
+.TP
+.BR \-lines , -L
+Count lines while comparing data.
+This slows down the process of comparison by a factor of two.
+.TP
+.BR begin= "#
+Start comparing at byte n, otherwise at byte 0.
+.TP
+.BR count= "#
+Stops after comparing n bytes, otherwise if the first files encounters EOF.
+.TP
+.B \-silent
+Does not print messages, just returns the exit code.
+.TP
+.B \-help
+Prints a short summary of the 
+.B compare
+options and exists.
+.TP
+.B \-version
+Prints the 
+.B compare
+version number string and exists.
+.SH NOTES
+numbers in the options begin=# and count=# are assumed to be
+bytes. However typing the character 'b' after the number means
+blocks (512 bytes). (E.g. begin=6b count=1000b). Other 
+suffixes may used as for the bs= option in
+.BR sdd (1)
+\&'k' means 1024 bytes, 'm' means 1024 KBytes.
+.SH BUGS

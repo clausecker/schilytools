@@ -1,0 +1,46 @@
+#ident "@(#)i586-linux-suncc64.rul	1.2 07/10/20 "
+###########################################################################
+# Written 2007 by J. Schilling
+###########################################################################
+#
+# Platform dependent MACROS for Linux using Sun Studio
+#
+###########################################################################
+# Copyright (c) J. Schilling
+###########################################################################
+# The contents of this file are subject to the terms of the
+# Common Development and Distribution License, Version 1.0 only
+# (the "License").  You may not use this file except in compliance
+# with the License.
+#
+# See the file CDDL.Schily.txt in this distribution for details.
+#
+# When distributing Covered Code, include this CDDL HEADER in each
+# file and include the License file CDDL.Schily.txt from this distribution.
+###########################################################################
+include $(SRCROOT)/$(RULESDIR)/rules.prg
+###########################################################################
+include $(SRCROOT)/$(RULESDIR)/cc-sunpro64.rul
+CC_COM=		suncc
+
+#
+# LINUX_SRC_INCLUDE is defined in DEFAULTS/Defaults.linux
+#
+INCDIRSX +=	$(LINUX_SRC_INCLUDE)
+OSDEFS +=
+
+KDEFINES=	-DKERNEL -D_KERNEL
+
+LIB_PREFIX=	lib
+LIB_SUFFIX=	.a
+SHL_SUFFIX=	.so.1.0
+
+LIB_SOCKET=	
+LIB_MATH=	-lm
+LIB_KVM=	
+
+#LDOPTS=		$(LIBS_PATH) $(LDPATH) $(RUNPATH:-R%=-Wl,-R%)
+LDOPTS=		$(LIBS_PATH) $(LDPATH)
+
+LORDER=		echo
+TSORT=		cat

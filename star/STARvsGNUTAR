@@ -1,0 +1,416 @@
+People often tell me that star is hard to use, because it is so different from 
+Gnu tar. In order to allow an unbiased discussion, I prepared this comparison. 
+It contains some hints for people (currently using Gnu tar) who like to like to 
+switch to 'star'. In addition, there is a list of features missing in Gnu tar
+and a smaller list of features missing in star. A list of incompatible options
+found in Gnu tar helps to find out which options from Gnu tar should be avoided.
+As I am not sure whether I will have the time to keep it in sync with future 
+changes, it is valid for May 2007.
+
+First some background notes. Star is several years older than Gnu tar and most
+of the options that have different meanings in gnu tar have been in use with
+star since 1985. This is about two years before the first versions of Gnu tar
+(called PD tar or SUG tar in 1987) have been published. Do not expect that the
+meaning of those options will be changed in star in the future.
+
+Star tries to be as compatible as possible with the BSD tar implementation
+from 1982 and with the POSIX standard. Of course, it implements a lot of
+enhancements. Gnu tar in former times (in 1987 when being called
+PD tar / SUG tar) has been compatible to the BSD tar implementation but this
+changed in 1989 when FSF adopted the program as Gnu tar. Gnu tar is not
+very POSIX compliant. The command line options from Gnu tar do not follow
+the SUSv2 (UNIX-98) and the archive format does not follow POSIX.1-1988.
+Although these problems have been reported to the GNU tar maintainers 
+in 1993 and 1994, nothing did happen for years. Since a few months, GNU tar
+is able to create and read POSIX.1-1988 compliant tar archives if called
+with a special option. By default, it still does not create POSIX compliant
+archives by default.
+
+If you know the standard and thus know where Gnu tar is not standard compliant,
+it is easy to switch between Gnu tar and star. If you only use the basic
+functionality, everything should be exactly the same. If you don't know the 
+standard and only know Gnu tar you may get into some problems but this is
+really a Gnu tar problem.
+
+Now let us compare functionality and options. Star has a lot of functions
+that are usually invisible to the user but make the daily use much easier:
+
+-	A built in find(1) allows star to execute "find" like expressions
+	in create, extract and list mode. This allows to do a lot of
+	interesting things that could not be done if star and find would
+	be called separatedly 
+
+-	A FIFO allows to keeps the tape streaming. This gives you aster backups
+	than you can achieve with other tar implementations. Star is even 
+	at least 30% faster than ufsdump.
+
+-	Fast remote tape support is built into star.
+
+-	A powerful pattern matcher for a convenient user interface (see manual
+	page for more details) to archive/extract a subset of files.
+
+-	A sophisticated diff with a user tailorable interface for comparing
+	tar archives against file trees. This is one of the most interesting parts
+	of the star implementation.
+
+-	No namelength limitation is built into star. Pathnames up to PATH_MAX
+	may be archived. (The same limitation applies to linknames). This limit
+	may be expanded in future without changing the method to record
+	long names.
+
+-	deals with all 3 times, it stores/restores all 3 times of a file
+	(even creation time)
+	On Solaris, it may reset access time after doing the backup without
+	clobbering the ctime.
+
+-	Star does not clobber files by default. More recent copies on disk will
+	not be clobbered from tape. This may be the main advantage over other
+	tar implementations; it allows automatically repairing of corruptions
+	after a crash & fsck (Check for differences after doing this with the
+	diff option).
+
+-	Star does automatic byte swapping if needed. Star automatically detects
+	swapped archives and transparently reads them the right way.
+
+-	Star has automatic compression detection. In the recent case when star
+	is used to unpack compressed files containing tar archives, star will
+	transparently detect and call the right decompression program.
+
+-	Star has automatic archive format detection. Star automatically detects
+	several common archive formats and adopts to them. Supported archive
+	types are:
+
+		v7tar		Old UNIX V7 tar format
+		tar		Old BSD tar format
+		star		Old star format from 1985
+		gnutar		GNU tar format 1989 (violates POSIX)
+		ustar		Standard POSIX.1-1988 tar format
+		xstar		Extended standard tar (star 1994)
+		xustar		'xstar' format without tar signature
+		exustar		'xustar' format - always x-header
+		pax		Extended POSIX.1-2001 standard tar
+		suntar		Sun's extended pre-POSIX.1-2001
+		bin		cpio UNIX V7 binary format
+		cpio		cpio POSIX.1-1988 format
+		odc		cpio POSIX.1-1988 with SYSv compat
+		asc		SYSvr4 cpio ascii expanded device #
+		crc		'asc' format + CRC
+
+
+-	Star is fully ANSI/Posix 1003.1 compatible. See README.otherbugs for a
+	complete description of bugs found in other tar implementations.
+
+-	Support for the new POSIX.1-2001 extended tar format. This new tar 
+	format allows to archive many new things in a standard compliant way.
+	These things are currently are implemented in Gnu tar in a proprietary 
+	way and have in former times been implemented in a proprietary way in 
+	star. To give an example, the most interesting features that are now 
+	handled in a standard compliant way are filenames without name len 
+	limitation and file size without the old 8 GB tar limitation.
+	An interesting aspect of the new extended header format is that the
+	extended header format itself is extensible without limitation. Star
+	uses this extension format to archive Access Control Lists and file
+	flags from BSD-4.4 and Linux.
+
+-	Star includes highly efficiend and 100% correct support for sparse
+	files on Solaris-2.3...Solaris-2.5.1 and for Solaris 10 and newer.
+	Star asks the OS for the locations of holes in files, this may be up
+	to 1000 times faster than with trying to find zeroed blocks.
+
+-	Star supports to put all inode metadata on the archive. This allows
+	star to perform true incremental dumps.
+
+-	Star includes support for multi level true incremental dump and 
+	restore. GNU tar claims to support incrementals but first tests with
+	the scenarios created for star did show that GNU tar does not handle
+	renamed directories correctly. Also note that incremental dumps
+	made with GNU tar need a lot more tape space than those made with
+	star.
+
+	The archive format used with incremental backups in star is more
+	compact and more effective than the archive format used by Gnu tar.
+	While Gnu tar needs to archive the complete directory tree, if 
+	directory has been renamed, star will only archive empty renamed
+	directories.
+
+-	Sophisticated error control allows to tell star which error types 
+	should be ignored for wich file name pattern. This allows to write
+	backup scripts that give no error messages for all problems that are
+	tolerable (e.g. growing log files).
+
+-	Star implements 'ed' like pattern substitutuions. Star supports
+	automated pattern rule based file name substitution as documented 
+	for 'pax'.
+
+-	Fast built in -copy mode allows to make fast and accurate copies and
+	directory tree comparisons.
+
+
+Comparing command line options from star and gnutar is a more complex task:
+
+-	Star has 157 base Options
+
+-	Gnu tar has 70 base Options
+
+-	Star has    94 Options that are missing in Gnu tar
+
+-	Gnu tar has 13 Options that are missing in star
+
+	-	6 of the Gnu tar options are not needed or do not make sense to implement
+	-	2 of the Gnu tar options are considered to be of low importance
+	-	3 of the Gnu tar options are nice to have
+	-	2 of the missing options are needed and important
+
+Only one of the Gnu tar options may be knock off criteria: the
+"ignore failed reads") but it may not work correctly in Gnu tar.
+
+/*--------------------------------------------------------------------------*/
+As a hint for readers to the star manual page, star uses getargs() to parse
+the command line. Getargs() is much more flexible than getopt() and is even
+older than getopt(). Getargs() implements the following features:
+
+-	All single char boolean options and all single char increment type
+	options may be combined into a single string starting with a single
+	dash (-).
+
+-	getargs() has a compatibility mode for GNU programs and allows to
+	preceede long options with a double dash (--) instead of the usual
+	single dash (-).
+
+-	All options that take an argument are listed in the man page for
+	better readability of the manual as:
+	
+		option=arg
+
+	but the following variants may appear in the actual command line:
+
+		option=arg
+		option= arg
+		-option=arg
+		-option= arg
+		-optionarg
+		-option arg
+
+-	A separate double dash (--) may preceede any argument that looks like
+	an option and specifies that the immediately following argument is
+	a file type argument.
+
+/*--------------------------------------------------------------------------*/
+
+STAR Option	Description							Gnu tar equiv.	Remarks
+===========	===========							=============	===================
+
+Cmds:
+
+-c/-u/-r	create/update/replace named files to tape			-c/-u/-r	identical
+-x/-t		extract/list  named files from tape				-x/-t		identical
+-n		trace named files from tape					--missing--
+-copy		copy named files to destination directory			--missing--
+-diff		diff archive against file system (see -xhelp)			--diff		Gnu --diff is not as useful
+												as star's -diff
+
+Options:
+
+-help		print this help							--help		close to identical
+-xhelp		print extended help						see above
+-version									--version	close to identical
+-debug										--missing--
+-silent		no not print informational messages				--missing--
+blocks=#,b=#	set blocking factor to #x512 Bytes (default 20)			-b		close to identical
+file=nm,f=nm	use 'nm' as tape instead of stdin/stdout			-f		close to identical
+-T		use $TAPE as tape instead of stdin/stdout			--missing--
+-[0-7]		Select an alternative tape drive				-[0-7][lmh]	close to identical
+-fifo/-no-fifo	use/don't use a fifo to optimize data flow from/to tape		--missing--
+-shm		use SysV shared memory for fifo					--missing--
+-v		be verbose							-v		identical
+-block-number	print the block numbers where the TAR headers start		--block-number	Not working in Gnu tar!
+-tpath		use with -t to list path names only				--missing--
+H=header	generate 'header' type archive (see H=help)			--missing--
+artype=header	generate 'header' type archive (see H=help)			    "
+-print-artype	check and print archive and compression type on one line and exit. --missing--
+C=dir		perform a chdir to 'dir' before storing next file		-C		identical
+-bsdchdir	do BSD style C= (only related to the next file type arg)	--missing--
+-find		Option separator: Use find command line to the right.		--missing--
+-Z		pipe input/output through compress, does not work on tapes	
+-z		pipe input/output through gzip, does not work on tapes		-z		identical
+-bz,-j		pipe input/output through bzip2, does not work on tapes		-j		identical
+-lzo		pipe input/output through lzop, does not work on tapes		--missing--
+-7z		pipe input/output through p7zip, does not work on tapes		--missing--
+compress-program=name pipe input/output through program 'name', does not work on tapes	--use-compress-program=PROG
+-B		perform multiple reads (needed on pipes)			-B		identical
+-i		ignore checksum errors						-i		similar
+-d		do not store/create directories					--missing--
+-m		do not restore access and modification time			-m		identical
+-o,-nochown	do not restore owner and group					--no-same-owner	similar
+-pax-p string	use PAX like privileges set up					--missing--
+-a,-atime	reset access time after storing file				--atime-preserve partial!!!
+-p		restore filemodes of directories				-p		similar ?
+-no-p		do not restore file permissions					--missing--
+-l		do not print a message if not all links are dumped		--missing--
+-link-dirs	look for hard linked directories in create mode			--missing--
+-dump		experimental option for incremental dumps (more ino metadata)	--missing--
+-meta		experimental option to use inode metadata only			--missing--
+-h,-L		follow symbolic links as if they were files			-h		identical
+-pax-L		follow symbolic links as if they were files (PAX style)		--missing--
+-pax-H		follow cmdline symbolic links as if they were files (PAX style)	--missing--
+-D		do not descend directories					--no-recursion	identical
+-M		do not descend mounting points					-l		GNU -l violates POSIX
+-w		do interactive creation/extraction/renaming			-w		partial
+-pax-i		do interactive creation/extraction/renaming (PAX style)		--missing--
+-O		be compatible to old tar (except for checksum bug)		-o		GNU -o violates POSIX
+-P		last record may be partial (useful on cartridge tapes)		--missing--
+-S		do not store/create special files				--missing--
+-F,-FF,-FFF,...	do not store/create SCCS/RCS, core and object files		--missing--
+-U		restore files unconditionally					--missing--
+diffopts=optlst	comma separated list of diffopts (see diffopts=help)		--missing--
+xdebug=#,xd=#	set extended debug level					--missing--
+-pax-ls		print a PAX type file listing					--missing--
+-lowmem		try to use less memory for operation				--missing--
+-not,-V		use those files which do not match pattern			--missing--
+-pax-match	use PAX like pattern matching					--missing--
+-pax-n		only one match per pattern allowed				--missing--
+-notarg,-pax-c	use those files which do not match file type pattern		--missing--
+VOLHDR=name	use name to generate a volume header				-V name		similar
+-xdir		extract dir even if the current is never			--missing--
+-xdot		extract first '.' or './' dir even if the current is never	--missing--
+-dirmode	write directories after the files they contain			--missing--
+-restore	restore incremental dumps					--missing--
+-force-restore	force to restore partial incremental dumps			--missing--
+-no-xheader	do not read or write extended headers regardless of format	--missing--
+-dupmeta	use inode metadata in dump mode if only ctime is newer		--missing--
+-keep-old-files,-k	keep existing files					-k		similar
+-refresh-old-files	refresh existing files, don't create new files		--overwrite	????
+-refresh									--overwrite	????
+-/		don't strip leading '/'s from file names			-P		similar
+-..		don't skip filenames that contain '..' in non-interactive extract	--missing--
+-secure-links	don't extract links that start with '/' or contain '..'		--missing--
+-no-dirslash	don't append a slash to directory names				--missing--
+list=name	read filenames from named file					-I --files-from=NAME	similar
+pkglist=name	read filenames from named file (unstable interface for sps)	--missing--
+-read0		read null terminated filenames with list=			-null
+-data-change-warn treat data/size changes in create more as warning only	--missing--
+-e		abort on all error conditions undefined by errctl=		--missing--
+errctl=name	read error contrl definitions from named file			--missing--
+-dodesc		do descend directories found in a list= file			--missing--
+pattern=p,pat=p	set matching pattern						PATTERN		not as mighty as star
+-match-tree	do not scan the content of non matching dirs in create mode	--missing--
+s=replstr	Apply ed like pattern substitution -s /old/new/gp on filenames	--missing--
+level=dumplevel	set current incremental dump level				--missing--
+-cumulative	make a cumulative incremental dump (relative to same level)	--missing--
+tardumps=name	set file name for tar dump dates, default is /etc/tardumps	--missing--
+-wtardumps	update file for tar dump dates if in dump mode			--missing--
+dumpdate=name	use timestamp from name instead of current time for /etc/tardumps	--missing--
+fs-name=name	use name instead of mount point for /etc/tardumps		--missing--
+maxsize=#	do not store file if it is bigger than # kBytes			--missing--
+newer=name	store only files which are newer than 'name'			--never=DATE	no find compat with GNUtar!
+-multivol	read/write/list a multi volume archive				--multi-volume
+new-volume-script=script	call 'scipt' at end of each volume		--new-volume-script=script identical
+-ctime		use ctime for newer= option					--newer-mtime	invers idea to star
+-nodump		do not dump files that have the nodump flag set			--missing--
+-acl		handle access control list					--missing--
+-xattr		handle extended file attributes					--missing--
+-xattr-linux	handle extended file attributes (Linux variant)			--missing--
+-xfflags	handle extended file flags					--missing--
+-prinodes	if archive containes inode number, print them in list mode	--missing--
+bs=#		set (output) block size to #					-b		de-facto missing
+fs=#		set fifo size to #						--missing--
+tsize=#		set tape volume size to # 512 byte blocks			-L		x 1024 bytes
+-qic24		set tape volume size to 61440 kBytes				--missing--
+-qic120		set tape volume size to 128000 kBytes				--missing--
+-qic150		set tape volume size to 153600 kBytes				--missing--
+-qic250		set tape volume size to 256000 kBytes				--missing--
+-qic525		set tape volume size to 512500 kBytes				--missing--
+-no-fsync	do not call fsync() for each extracted file (may be dangerous)	--missing--
+-nowarn		do not print warning messages					--missing--
+-time		print timing info						--totals	only partially
+-no-statistics	do not print statistics						--missing--	always
+-fifostats	print fifo statistics						--missing--
+-numeric	don't use user/group name from tape				--numeric-owner	identical
+-newest		find newest file on tape					--missing--
+-newest-file	find newest regular file on tape				--missing--
+-hpdev		use HP's non POSIX compliant method to store dev numbers	--missing--
+-modebits	include all 16 bits from stat.st_mode (violates POSIX-1003.1)	--missing--
+-copylinks	Copy hard and symlinks rather than linking			--missing--
+-copyhardlinks	Copy hardlink source files rather than linking			--missing--
+-copysymlinks	Copy symlink source files rather than linking			--missing--
+-copydlinks	Copy the content of linked dirs					--missing--
+-hardlinks	Extract symlinks as hardlinks					--missing--
+-symlinks	Extract hardlinks as symlinks					--missing--
+-signed-checksum	use signed chars to calculate checksum			--missing--
+-sparse		handle file with holes effectively on store/create		-S --sparse	similar
+-force-hole	try to extract all files with holes				--missing--
+-to-stdout	extract files to stdout						-O --to-stdout
+-wready		wait for tape drive to become ready				--missing--
+-force-remove	force to remove non writable files on extraction		--missing--
+-ask-remove	ask to remove non writable files on extraction			--missing--
+-remove-first	remove files before extraction					--unlink-first
+-remove-recursive	remove files recursive					--recursive-unlink
+dir-owner=user	Intermediate created directories will be owned by 'user'.	--missing--
+dir-group=user	Intermediate created directories will be owned by 'group'.	--missing--
+umask=mask	Set star's umask to 'mask'.					--missing--
+-onull,-nullout	simulate creating an achive to compute the size			-f/dev/null	in GNUtar worse than star (cannot do performance tests)
+
+/*--------------------------------------------------------------------------*/
+Gnu tar options that (in the single char variant) are incompatible:
+
+BsS	-F, --info-script=FILE		run script at end of each tape (implies -M)
+s	-L, --tape-length=NUM		change tape after writing NUM x 1024 bytes
+s	-M, --multi-volume		create/list/extract multi-volume archive
+s	-O, --to-stdout			extract files to standard output
+sS (+)	-P, --absolute-names		don't strip leading `/'s from file names
+s	-S, --sparse			handle sparse files efficiently
+s	-T, -I, --files-from=NAME	get names to extract or create from file NAME
+s	-U, --unlink-first		remove each file prior to extracting over it
+s	-V, --label=NAME		create archive with volume name NAME
+s	-d, --diff, --compare		find differences between archive and file system
+sP	-l, --one-file-system		stay in local file system when creating archive
+sP	-o, --old-archive, --portability write a V7 format archive
+
+B	Incompatible with BSD tar
+s	Incompatible with star
+S	Incompatible with Sun's/SVr4 tar
+P	Incompatible with POSIX
+
++)	This option is the only option where star deviates from other tar 
+	implementations, but as there is no other nice way to have an option to 
+	specify that the last record should be partial and the star option -/ 
+	is easy to remember as well as -P for Partial record is I see no need 
+	to change star.
+
+/*--------------------------------------------------------------------------*/
+Options only found in GNUtar:
+
+GNUtar option		GNUtar description					Star remarks
+====================	==================================================	=======================================
+Main operation mode:
+  -A, --catenate          append tar files to an archive			low importance
+      --delete            delete from the archive (not on mag tapes!)		low importance
+
+Operation modifiers:
+  -W, --verify               attempt to verify the archive after writing it	not needed (may be implemented via rewind
+										and -diff in star)
+
+      --remove-files         remove files after adding them to the archive	not needed
+
+      --ignore-failed-read   do not exit with nonzero on unreadable files	--needed-- and important
+
+Handling of file attributes:
+      --owner=NAME             force NAME as owner for added files		use star -find -chown name
+      --group=NAME             force NAME as group for added files		use star -find -chgrp name
+      --mode=CHANGES           force (symbolic) mode CHANGES for added files	use star -find -chmod mode
+      --no-same-owner          extract files as yourself			not needed
+  -s, --same-order             sort names to extract to match archive		????
+
+
+Device selection and switching:
+      --volno-file=FILE          use/update the volume number in FILE		--needed-- and important
+
+Local file selection:
+  -X, --exclude-from=FILE      exclude globbing patterns listed in FILE		--nice to have--
+  -K, --starting-file=NAME     begin at file NAME in the archive		--nice to have--
+      --backup[=CONTROL]       backup before removal, choose version control	not needed
+      --suffix=SUFFIX          backup before removal, override usual suffix	not needed
+
+Informative output:
+      --checkpoint      print directory names while reading the archive		--nice to have--
+

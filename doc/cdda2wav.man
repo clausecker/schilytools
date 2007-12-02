@@ -1,0 +1,802 @@
+CDDA2WAV(1)                                           CDDA2WAV(1)
+
+
+
+NNAAMMEE
+       cdda2wav  -  a  sampling  utility that dumps CD audio data
+       into wav sound files
+
+SSYYNNOOPPSSIISS
+       ccddddaa22wwaavv [--cc _c_h_a_n_s] [--ss] [--mm]  [--bb  _b_i_t_s]  [--rr  _r_a_t_e]  [--aa
+       _d_i_v_i_d_e_r]  [--tt _t_r_a_c_k[_+_e_n_d_t_r_a_c_k]] [--ii _i_n_d_e_x] [--oo _o_f_f_s_e_t] [--dd
+       _d_u_r_a_t_i_o_n] [--xx] [--qq] [--ww] [--vv _o_p_t_l_i_s_t] [--VV] [--QQ]  [--JJ]  [--LL
+       _c_d_d_b_m_o_d_e]  [--RR]  [--PP _s_e_c_t_o_r_s] [--FF] [--GG] [--TT] [--ee] [--pp _p_e_r_-
+       _c_e_n_t_a_g_e] [--nn _s_e_c_t_o_r_s] [--ll _b_u_f_f_e_r_s]  [--NN]  [--JJ]  [--HH]  [--gg]
+       [--BB]  [--DD _d_e_v_i_c_e] [--AA _a_u_x_d_e_v_i_c_e] [--II _i_n_t_e_r_f_a_c_e] [--OO _a_u_d_i_o_-
+       _t_y_p_e]  [--CC  _i_n_p_u_t_-_e_n_d_i_a_n_e_s_s]  [--EE  _o_u_t_p_u_t_-_e_n_d_i_a_n_e_s_s]   [--MM
+       _c_o_u_n_t]  [--SS  _s_p_e_e_d]  [--ppaarraannooiiaa] [ccddddbbpp--sseerrvveerr==sseerrvveerrnnaammee]
+       [ccddddbbpp--ppoorrtt==ppoorrttnnuummbbeerr] [_f_i_l_e_n_a_m_e_(_s_) or _d_i_r_e_c_t_o_r_i_e_s]
+
+DDEESSCCRRIIPPTTIIOONN
+       ccddddaa22wwaavv can retrieve audio tracks from CDROM drives  (see
+       README  for  a list of drives) that are capable of reading
+       audio data digitally to the host (CCDDDDAA).
+
+OOPPTTIIOONNSS
+       --DD _d_e_v_i_c_e  _-_-_d_e_v _-_-_d_e_v_i_c_e
+              uses ddeevviiccee as the source for  CDDA  reading.   For
+              example  /dev/cdrom  for the ccooookkeedd__iiooccttll interface
+              and Bus,ID,Lun for the ggeenneerriicc__ssccssii interface.  The
+              ddeevviiccee has to correspond with the interface setting
+              (see below).  The setting of the environment  vari-
+              able CCDDDDAA__DDEEVVIICCEE is overridden by this option.
+
+       --AA _a_u_x_d_e_v_i_c_e  _-_-_a_u_x_d_e_v_i_c_e
+              uses aauuxxddeevviiccee as CDROM drive for ioctl usage.
+
+       --II _i_n_t_e_r_f_a_c_e  _-_-_i_n_t_e_r_f_a_c_e
+              specifies   the   interface   for   CDROM   access:
+              ggeenneerriicc__ssccssii or (on  Linux,  and  FreeBSD  systems)
+              ccooookkeedd__iiooccttll.
+
+       --cc _c_h_a_n_n_e_l_s  _-_-_c_h_a_n_n_e_l_s
+              uses  11  for  mono, or 22 for stereo recording, or ss
+              for stereo recording with both channels swapped.
+
+       --ss  ----sstteerreeoo
+              sets to stereo recording.
+
+       --mm  ----mmoonnoo
+              sets to mono recording.
+
+       --xx  ----mmaaxx
+              sets maximum (CD) quality.
+
+       --bb _b_i_t_s  _-_-_b_i_t_s_-_p_e_r_-_s_a_m_p_l_e
+              sets bits per sample per channel: 88, 1122 or 1166.
+
+       --rr _r_a_t_e  _-_-_r_a_t_e
+              sets rate in samples per second.   Possible  values
+              are listed with the --RR option.
+
+       --aa _d_i_v_i_d_e_r  _-_-_d_i_v_i_d_e_r
+              sets  rate  to  44100Hz / divider.  Possible values
+              are listed with the --RR option.
+
+       --RR  ----dduummpp--rraatteess
+              shows  a  list  of  all  sample  rates  and   their
+              dividers.
+
+       --PP  sseeccttoorrss  ----sseett--oovveerrllaapp
+              sets the initial number of overlap _s_e_c_t_o_r_s for jit-
+              ter correction.
+
+       --nn _s_e_c_t_o_r_s  _-_-_s_e_c_t_o_r_s_-_p_e_r_-_r_e_q_u_e_s_t
+              reads _s_e_c_t_o_r_s per request.
+
+       --ll _b_u_f_f_e_r_s  _-_-_b_u_f_f_e_r_s_-_i_n_-_r_i_n_g
+              uses a ring buffer with _b_u_f_f_e_r_s total.
+
+       --tt _t_r_a_c_k_+_e_n_d_t_r_a_c_k  _-_-_t_r_a_c_k
+              selects the start  track  and  optionally  the  end
+              track.
+
+       --ii _i_n_d_e_x  _-_-_i_n_d_e_x
+              selects the start index.
+
+       --oo _o_f_f_s_e_t  _-_-_o_f_f_s_e_t
+              starts  _o_f_f_s_e_t sectors behind start track (one sec-
+              tor equivalents 1/75 seconds).
+
+       --OO  aauuddiioottyyppee  ----oouuttppuutt--ffoorrmmaatt
+              can be _w_a_v (for wav files) or _a_i_f_f  (for  apple/sgi
+              aiff  files)  or _a_i_f_c (for apple/sgi aifc files) or
+              _a_u or _s_u_n (for sun .au PCM files)  or  _c_d_r  or  _r_a_w
+              (for headerless files to be used for cd writers).
+
+       --CC _e_n_d_i_a_n_e_s_s  _-_-_c_d_r_o_m_-_e_n_d_i_a_n_e_s_s
+              sets  endianess  of  the input samples to 'little',
+              'big' or 'guess' to override defaults.
+
+       --EE _e_n_d_i_a_n_e_s_s  _-_-_o_u_t_p_u_t_-_e_n_d_i_a_n_e_s_s
+              sets endianess of the output samples to 'little' or
+              'big' to override defaults.
+
+       --dd _d_u_r_a_t_i_o_n  _-_-_d_u_r_a_t_i_o_n
+              sets  recording  time in seconds or frames.  Frames
+              (sectors) are indicated by a 'f' suffix  (like  75f
+              for  75 sectors).  00 sets the time for whole track.
+
+       --BB  ----bbuullkk ----aallllttrraacckkss
+              copies each track into a seperate file.
+
+       --ww  ----wwaaiitt
+              waits for signal, then start recording.
+
+       --FF  ----ffiinndd--eexxttrreemmeess
+              finds extrem amplitudes in samples.
+
+       --GG  ----ffiinndd--mmoonnoo
+              finds if input samples are in mono.
+
+       --TT  ----ddeeeemmpphhaassiizzee
+              undo the effect of pre-emphasis in the  input  sam-
+              ples.
+
+       --ee  ----eecchhoo
+              copies audio data to sound device e.g.  //ddeevv//ddsspp.
+
+       --pp  ppeerrcceennttaaggee ----sseett--ppiittcchh
+              changes pitch of audio data copied to sound device.
+
+       --vv  iitteemmlliisstt  ----vveerrbboossee--lleevveell
+              prints verbose information about the CD.  LLeevveell  is
+              a  list  of comma seperated suboptions. Each subop-
+              tion  controls  the  type  of  information  to   be
+              reported.
+  +----------+----------------------------------------------------------------+
+  |Suboption | Description                                                    |
+  +----------+----------------------------------------------------------------+
+  |  disable | no information is given, warnings appear however               |
+  |      all | all information is given                                       |
+  |      toc | show table of contents                                         |
+  |  summary | show a summary of the recording parameters                     |
+  |  indices | determine and display index offsets                            |
+  |  catalog | retrieve and display the media catalog number MCN              |
+  |  trackid | retrieve and display all Intern. Standard Recording Codes ISRC |
+  |  sectors | show the table of contents in start sector notation            |
+  |   titles | show the table of contents with track titles (when available)  |
+  +----------+----------------------------------------------------------------+
+       --NN  ----nnoo--wwrriittee
+              does not write to a file, it just reads (for debug-
+              ging purposes).
+
+       --JJ  ----iinnffoo--oonnllyy
+              does not write to a file, it just gives information
+              about the disc.
+
+       --LL  ccddddbb mmooddee ----ccddddbb
+              does a cddbp album- and track title lookup based on
+              the cddb id.  The parameter cddb mode  defines  how
+              multiple entries shall be handled.
+
+        ccddddbbpp--sseerrvveerr==sseerrvveerrnnaammee
+              sets  the server to be contacted for title lookups.
+
+        ccddddbbpp--ppoorrtt==ppoorrttnnuummbbeerr
+              sets the port number to be used for title  lookups.
+
+       --HH  ----nnoo--iinnffooffiillee
+              does not write an info file and a cddb file.
+
+       --gg  ----gguuii
+              formats  the  output  to  be better parsable by gui
+              frontends.
+
+       --MM  ccoouunntt ----mmdd55
+              enables calculation of MD-5  checksum  for  'count'
+              bytes from a beginning of a track.
+
+       --SS  ssppeeeedd ----ssppeeeedd
+              sets  the  cdrom  device  to  one of the selectable
+              speeds for reading.
+
+       --qq  ----qquuiieett
+              quiet operation, no screen output.
+
+       --VV  ----vveerrbboossee--SSCCSSII
+              enable SCSI command logging to the console. This is
+              mainly used for debugging.
+
+       --QQ  ----ssiilleenntt--SSCCSSII
+              suppress SCSI command error reports to the console.
+              This is mainly used for guis.
+
+       --ppaarraannooiiaa
+              use the paranoia library instead of cdda2wav's rou-
+              tines for reading.
+
+       --hh  ----hheellpp
+              display version of cdda2wav on standard output.
+
+       Defaults depend on the
+              MMaakkeeffiillee  and  eennvviirroonnmmeenntt  vvaarriiaabbllee settings (cur-
+              rently CCDDDDAA__DDEEVVIICCEE ).
+
+EENNVVIIRROONNMMEENNTT VVAARRIIAABBLLEESS
+       CCDDDDAA__DDEEVVIICCEE is used to set the  device  name.  The  device
+       naming  is compatible with Jörg Schilling's cdrecord pack-
+       age.
+
+       CCDDDDBBPP__SSEERRVVEERR
+              is used for cddbp title lookups when supplied.
+
+       CCDDDDBBPP__PPOORRTT
+              is used for cddbp title lookups when supplied.
+
+       RRSSHH    If the RRSSHH environment  variable  is  present,  the
+              remote  connection  will not be created via rrccmmdd(3)
+              but by calling the program pointed to by RRSSHH.   Use
+              e.g.   RRSSHH==/usr/bin/ssh  to  create  a secure shell
+              connection.
+
+              Note that this forces ccddddaa22wwaavv to create a pipe  to
+              the   rrsshh((11))  program  and  disallows  ccddddaa22wwaavv  to
+              directly access the network socket  to  the  remote
+              server.  This makes it impossible to set up perfor-
+              mance parameters and slows down the connection com-
+              pared to a rroooott initiated rrccmmdd((33)) connection.
+
+       RRSSCCSSII  If  the  RRSSCCSSII environment variable is present, the
+              remote  SCSI  server  will  not  be   the   program
+              //oopptt//sscchhiillyy//ssbbiinn//rrssccssii  but  the program pointed to
+              by RRSSCCSSII.  Note that the remote SCSI server program
+              name will be ignored if you log in using an account
+              that has been created with  a  remote  SCSI  server
+              program as login shell.
+
+RREETTUURRNN VVAALLUUEESS
+       ccddddaa22wwaavv uses the following exit codes to indicate various
+       degress of success:
++---------+--------------------------------------------------------------------+
+|Exitcode | Description                                                        |
++---------+--------------------------------------------------------------------+
+|       0 | no errors encountered, successful operation.                       |
+|       1 | usage or syntax error. cdda2wav got inconsistent arguments.        |
+|       2 | permission (un)set errors. permission changes failed.              |
+|       3 | read errors on the cdrom/burner device encountered.                |
+|       4 | write errors while writing one of the output files encountered.    |
+|       5 | errors with soundcard handling (initialization/write).             |
+|       6 | errors with stat() system call on the read device (cooked ioctl).  |
+|       7 | pipe communication errors encountered (in forked mode).            |
+|       8 | signal handler installation errors encountered.                    |
+|       9 | allocation of shared memory failed (in forked mode).               |
+|      10 | dynamic heap memory allocation failed.                             |
+|      11 | errors on the audio cd medium encountered.                         |
+|      12 | device open error in ioctl handling detected.                      |
+|      13 | race condition in ioctl interface handling detected.               |
+|      14 | error in ioctl() operation encountered.                            |
+|      15 | internal error encountered. Please report back!!!                  |
+|      16 | error in semaphore operation encountered (install / request).      |
+|      17 | could not get the scsi transfer buffer.                            |
+|      18 | could not create pipes for process communication (in forked mode). |
++---------+--------------------------------------------------------------------+
+DDIISSCCUUSSSSIIOONN
+       ccddddaa22wwaavv is able to read parts of an aauuddiioo CD or  mmuullttiimmee--
+       ddiiaa  CDROM  (containing  audio  parts) directly digitally.
+       These parts can be written to a file,  a  pipe,  or  to  a
+       sound device.
+
+       ccddddaa22wwaavv  stands  for  CCDDDDAA  to WWAAVV (where CCDDDDAA stands for
+       compact disc digital audio and WWAAVV is a sound sample  for-
+       mat  introduced  by  MS  Windows).  It allows copying CCDDDDAA
+       audio data from the CDROM drive into  a  file  in  WWAAVV  or
+       other formats.
+
+       The latest versions try to get higher real-time scheduling
+       priorities to  ensure  smooth  (uninterrupted)  operation.
+       These  priorities  are  available  for super users and are
+       higher than those of 'normal' processes. Thus  delays  are
+       minimized.
+
+       If  your  CDROM  is on device DDEEVV and it is loaded with an
+       audio CD, you may simply invoke ccddddaa22wwaavv  ddeevv==DDEEVV  and  it
+       will  create  the sound file aauuddiioo..wwaavv recording the whole
+       track beginning with track 1 in stereo at 16 bit at  44100
+       Hz sample rate, if your file system has enough space free.
+       Otherwise recording time will be limited. For details  see
+       files RREEAADDMMEE and RREEAADDMMEE..IINNSSTTAALLLL
+
+HHIINNTTSS OONN OOPPTTIIOONNSS
+       Options
+              Most  of the options are used to control the format
+              of the WAV file. In the following text all of  them
+              are described.
+
+       Select Device
+              --DD  _d_e_v_i_c_e  selects  the  CDROM  drive device to be
+              used.  The specifier given should correspond to the
+              selected  interface  (see below).  CCHHAANNGGEE!!  For the
+              cooked_ioctl interface this  is  the  cdrom  device
+              descriptor  as  before.  TThhee SSCCSSII ddeevviicceess uusseedd wwiitthh
+              tthhee  ggeenneerriicc  SSCCSSII  iinntteerrffaaccee   hhoowweevveerr   aarree   nnooww
+              aaddddrreesssseedd  wwiitthh  tthheeiirr SSCCSSII--BBuuss,, SSCCSSII--IIdd,, aanndd SSCCSSII--
+              LLuunn iinnsstteeaadd ooff tthhee  ggeenneerriicc  SSCCSSII  ddeevviiccee  ddeessccrriipp--
+              ttoorr!!!!!!  One example for a SCSI CDROM drive on bus 0
+              with SCSI ID 3 and lun 0 is -D0,3,0.
+
+       Select Auxiliary device
+              --AA _a_u_x_d_e_v_i_c_e is necessary  for  CD-Extra  handling.
+              For  Non-SCSI-CDROM  drives this is the same device
+              as given by -D (see above). For  SCSI-CDROM  drives
+              it is the CDROM drive (SCSI) device (i.e.  //ddeevv//ssrr00
+              ) corresponding to the SCSI device (i.e.  00,,33,,00  ).
+              It has to match the device used for sampling.
+
+       Select Interface
+              --II _i_n_t_e_r_f_a_c_e selects the CDROM drive interface. For
+              SCSI drives use generic_scsi (cooked_ioctl may  not
+              yet be available for all devices): ggeenneerriicc__ssccssii and
+              ccooookkeedd__iiooccttll.  The  first  uses  the  generic  SCSI
+              interface,  the  latter uses the ioctl of the CDROM
+              driver. The latter variant works only when the ker-
+              nel driver supports CCDDDDAA reading. This entry has to
+              match the selected CDROM device (see above).
+
+       Enable echo to soundcard
+              --ee copies  audio  data  to  the  sound  card  while
+              recording,  so  you  hear it nearly simultaneously.
+              The soundcard gets the same data that is  recorded.
+              This is time critical, so it works best with the --qq
+              option.  To use ccddddaa22wwaavv  as  a  pseudo  CD  player
+              without  recording in a file you could use ccddddaa22wwaavv
+              --qq --ee --tt22 --dd00 --NN to play the  whole  second  track.
+              This feature reduces the recording speed to at most
+              onefold speed. You cannot  make  better  recordings
+              than  your sound card can play (since the same data
+              is used).
+
+       Change pitch of echoed audio
+              --pp ppeerrcceennttaaggee changes the pitch of all audio echoed
+              to  a sound card. Only the copy to the soundcard is
+              affected, the recorded  audio  samples  in  a  file
+              remain  the  same.   Normal  pitch,  which  is  the
+              default, is given by 100%.  Lower percentages  cor-
+              respond  to  lower  pitches, i.e.  -p 50 transposes
+              the audio output one octave lower.   See  also  the
+              script  ppiittcchhppllaayy  as  an  example. This option was
+              contributed by Raul Sobon.
+
+       Select mono or stereo recording
+              --mm or --cc 11  selects  mono  recording  (both  stereo
+              channels  are  mixed),  --ss  or --cc 22 or --cc ss selects
+              stereo recording. Parameter s will swap both  sound
+              channels.
+
+       Select maximum quality
+              --xx  will set stereo, 16 bits per sample at 44.1 KHz
+              (full CD quality).  Note that other format  options
+              given later can change this setting.
+
+       Select sample quality
+              --bb  88  specifies  8 bit (1 Byte) for each sample in
+              each channel; --bb 1122 specifies 12 bit (2  Byte)  for
+              each sample in each channel; --bb 1166 specifies 16 bit
+              (2 Byte) for each sample in  each  channel  (Ensure
+              that your sample player or sound card is capable of
+              playing 12-bit or 16-bit samples). Selecting 12  or
+              16  bits  doubles  file  size.   12-bit samples are
+              aligned to 16-bit samples, so they waste some  disk
+              space.
+
+       Select sample rate
+              --rr  _s_a_m_p_l_e_r_a_t_e  selects  a sample rate.  _s_a_m_p_l_e_r_a_t_e
+              can be in a range between 44100 and 900. Option  --RR
+              lists all available rates.
+
+       Select sample rate divider
+              --aa  _d_i_v_i_d_e_r selects a sample rate divider.  _d_i_v_i_d_e_r
+              can be minimally 1 and maximally  50.5  and  every-
+              thing between in steps of 0.5.  Option --RR lists all
+              available rates.
+
+              To make the sound smoother at lower sampling rates,
+              ccddddaa22wwaavv  sums  over _n samples (where _n is the spe-
+              cific dividend). So for 22050 Hertz output we  have
+              to sum over 2 samples, for 900 Hertz we have to sum
+              over 49 samples.  This cancels higher  frequencies.
+              Standard sector size of an audio CD (ignoring addi-
+              tional information) is 2352 Bytes. In order to fin-
+              ish  summing  for an output sample at sector bound-
+              aries the rates above have to  be  choosen.   Arbi-
+              trary  sampling rates in high quality would require
+              some interpolation scheme, which  needs  much  more
+              sophisticated programming.
+
+       List a table of all sampling rates
+              --RR  shows  a  list  of  all  sample rates and their
+              dividers. Dividers can range  from  1  to  50.5  in
+              steps of 0.5.
+
+       Select start track and optionally end track
+              --tt  _n_+_m selects nn as the start track and optionally
+              mm as the last track of  a  range  to  be  recorded.
+              These  tracks  must  be from the table of contents.
+              This sets the track where recording begins. Record-
+              ing  can  advance  through  the following tracks as
+              well (limited by the optional end track  or  other-
+              wise depending on recording time). Whether one file
+              or different files are then created depends on  the
+              --BB option (see below).
+
+       Select start index
+              --ii  _n  selects  the  index to start recording with.
+              Indices other than 1 will invoke the index scanner,
+              which will take some time to find the correct start
+              position. An offset may be given additionally  (see
+              below).
+
+       Set recording time
+              --dd   nn  sets  recording  time  to  _n seconds or set
+              recording time for whole track if  _n  is  zero.  In
+              order  to  specify the duration in frames (sectors)
+              also, the argument can have an appended  'f'.  Then
+              the  numerical  argument  is  to be taken as frames
+              (sectors) rather than seconds.  Please note that if
+              track ranges are being used they define the record-
+              ing time as well  thus  overriding  any  --dd  option
+              specified times.
+
+              Recording time is defined as the time the generated
+              sample will play  (at  the  defined  sample  rate).
+              Since  it's related to the amount of generated sam-
+              ples, it's not the time  of  the  sampling  process
+              itself  (which  can be less or more).  It's neither
+              strictly coupled with the time information  on  the
+              audio  CD  (shown by your hifi CD player).  Differ-
+              ences can occur by the usage of the --oo option  (see
+              below).  Notice  that recording time will be short-
+              ened, unless enough disk  space  exists.  Recording
+              can  be  aborted  at  anytime by pressing the break
+              character (signal SIGQUIT).
+
+       Record all tracks of a complete audio CD in seperate files
+              --BB copies each track into a seperate file.  A  base
+              name  can  be  given.  File  names have an appended
+              track number and an extension corresponding to  the
+              audio  format.  To record all audio tracks of a CD,
+              use a sufficient high duration (i.e. -d99999).
+
+       Set start sector offset
+              --oo _s_e_c_t_o_r_s increments start sector of the track  by
+              _s_e_c_t_o_r_s.   By  this  option  you are able to skip a
+              certain amount at the beginning of a track  so  you
+              can  pick  exactly  the  part you want. Each sector
+              runs for 1/75 seconds, so you have very  fine  con-
+              trol.  If  your offset is so high that it would not
+              fit into the current track, a  warning  message  is
+              issued  and  the offset is ignored.  Recording time
+              is not reduced.  (To skip introductory  quiet  pas-
+              sages  automagically, use the --ww option see below.)
+
+       Wait for signal option
+              --ww Turning on this option will suppress all  silent
+              output  at  startup,  reducing  possibly file size.
+              ccddddaa22wwaavv will watch for any signal  in  the  output
+              signal and switches on writing to file.
+
+       Find extrem samples
+              --FF  Turning  on  this  option will display the most
+              negative and the most positive sample  value  found
+              during  recording  for  both  channels. This can be
+              useful for readjusting the volume. The values shown
+              are  not  reset at track boundaries, they cover the
+              complete sampling process. They are taken from  the
+              original  samples  and  have  the same format (i.e.
+              they are independent of the  selected  output  for-
+              mat).
+
+       Find if input samples are in mono
+              --GG  If this option is given, input samples for both
+              channels will be compared. At the end of  the  pro-
+              gram  the  result  is  printed.  Differences in the
+              channels indicate stereo, otherwise when both chan-
+              nels are equal it will indicate mono.
+
+       Undo the pre-emphasis in the input samples
+              --TT  Some  older audio CDs are recorded with a modi-
+              fied frequency response called  pre-emphasis.  This
+              is  found  mostly in classical recordings. The cor-
+              rection can be seen in the flags of  the  Table  Of
+              Contents often. But there are recordings, that show
+              this setting  only  in  the  subchannels.  If  this
+              option is given, the index scanner will be started,
+              which reads the q-subchannel of each track. If pre-
+              emphasis  is  indicated  in  the  q-subchannel of a
+              track, but not in the  TOC,  pre-emphasis  will  be
+              assumed  to  be present, and subsequently a reverse
+              filtering is done for this track before the samples
+              are written into the audio file.
+
+       Set audio format
+              --OO   aauuddiioottyyppee  can be _w_a_v (for wav files) or _a_u or
+              _s_u_n (for sun PCM files) or _c_d_r or _r_a_w (for  header-
+              less  files  to  be used for cd writers).  All file
+              samples are coded in linear pulse  code  modulation
+              (as  done  in  the audio compact disc format). This
+              holds for all audio formats.  Wav files are compat-
+              ible to Wind*ws sound files, they have lsb,msb byte
+              order as being used on the audio  cd.  The  default
+              filename  extension  is '.wav'.  Sun type files are
+              not like the older common logarithmically coded .au
+              files, but instead as mentioned above linear PCM is
+              used. The byte order is msb,lsb to  be  compatible.
+              The  default filename extension is '.au'.  The AIFF
+              and the newer variant AIFC from the Apple/SGI world
+              store  their samples in bigendian format (msb,lsb).
+              In AIFC no compression is used.  Finally the  easi-
+              est  'format',  the  cdr aka raw format. It is done
+              per default in msb,lsb byte order  to  satisfy  the
+              order  wanted by most cd writers. Since there is no
+              header  information  in  this  format,  the  sample
+              parameters  can  only  be identified by playing the
+              samples on a soundcard  or  similiar.  The  default
+              filename extension is '.cdr' or '.raw'.
+
+       Select cdrom drive reading speed
+              --SS   ssppeeeedd  allows  to  switch the cdrom drive to a
+              certain level of speed  in  order  to  reduce  read
+              errors.  The argument is transfered verbatim to the
+              drive.  Details  depend  very  much  on  the  cdrom
+              drives.   An argument of 0 for example is often the
+              default speed of the drive,  a  value  of  1  often
+              selects single speed.
+
+       Enable MD5 checksums
+              --MM   ccoouunntt enables calculation of MD-5 checksum for
+              'count' bytes from the beginning of a  track.  This
+              was introduced for quick comparisons of tracks.
+
+       Use Monty's libparanoia for reading of sectors
+              --ppaarraannooiiaa  selects  an  alternate way of extracting
+              audio sectors. Monty's library  is  used  with  the
+              following default options:
+
+              PARANOIA_MODE_FULL,  but without PARANOIA_MODE_NEV-
+              ERSKIP
+
+              for details see Monty's libparanoia  documentation.
+              In this case the option --PP has no effect.
+
+       Do linear or overlapping reading of sectors
+              (This applies unless option --ppaarraannooiiaa is used.)  --PP
+              sseeccttoorrss sets the given number of sectors  for  ini-
+              tial  overlap  sampling  for jitter correction. Two
+              cases are to be distinguished. For nonzero  values,
+              some  sectors  are  read twice to enable cdda2wav's
+              jitter correction.   If  an  argument  of  zero  is
+              given,  no  overlap  sampling  will  be  used.  For
+              nonzero  overlap   sectors   cdda2wav   dynamically
+              adjusts  the  setting during sampling (like cdpara-
+              noia does).  If no match  can  be  found,  cdda2wav
+              retries the read with an increased overlap.  If the
+              amount of jitter is lower than  the  current  over-
+              lapped  samples,  cdda2wav reduces the overlap set-
+              ting, resulting in a  higher  reading  speed.   The
+              argument  given has to be lower than the total num-
+              ber of sectors per request (see option  _-_n  below).
+              Cdda2wav will check this setting and issues a error
+              message otherwise.  The case  of  zero  sectors  is
+              nice  on low load situations or errorfree (perfect)
+              cdrom drives and perfect (not scratched) audio cds.
+
+       Set the transfer size
+              --nn  sseeccttoorrss will set the transfer size to the spec-
+              ified sectors per request.
+
+       Set number of ring buffer elements
+              --ll  bbuuffffeerrss will allocate the specified  number  of
+              ring buffer elements.
+
+       Set endianess of input samples
+              --CC  eennddiiaanneessss will override the default settings of
+              the input format.  Endianess can be set  explicitly
+              to  "little" or "big" or to the automatic endianess
+              detection based on voting with "guess".
+
+       Set endianess of output samples
+              --EE  eennddiiaanneessss (endianess can be "little" or  "big")
+              will  override  the  default settings of the output
+              format.
+
+       Verbose option
+              --vv  iitteemmlliisstt prints more information. A list allows
+              selection of different information items.
+
+              ddiissaabbllee keeps quiet
+
+              ttoocc displays the table of contents
+
+              ssuummmmaarryy displays a summary of recording parameters
+
+              iinnddiicceess  invokes  the  index  scanner  and displays
+              start positions of indices
+
+              ccaattaalloogg retrieves and displays a media catalog num-
+              ber
+
+              ttrraacckkiidd  retrieves and displays international stan-
+              dard recording codes
+
+              sseeccttoorrss displays track start positions in  absolute
+              sector notation
+
+              To  combine  several  requests just list the subop-
+              tions seperated with commas.
+
+       The table of contents
+              The display will show the table  of  contents  with
+              number  of  tracks  and  total  time  (displayed in
+              _m_m:_s_s._h_h format, _m_m=minutes, _s_s=seconds, _h_h=rounded
+              1/100  seconds).  The following list displays track
+              number and track time for each entry.  The  summary
+              gives  a  line per track describing the type of the
+              track.
+
+                ttrraacckk pprreeeemmpphhaassiiss ccooppyyppeerrmmiitttteedd ttrraacckkttyyppee cchhaannss
+
+              The ttrraacckk column holds the track number.  pprreeeemmpphhaa--
+              ssiiss shows if that track has been given a non linear
+              frequency response.  NOTE: You can undo this effect
+              with  the  --TT  option.  ccooppyy--ppeerrmmiitttteedd indicates if
+              this track is allowed to copy.   ttrraacckkttyyppee  can  be
+              data  or  audio.  On  multimedia CDs (except hidden
+              track CDs) both of them should be  present.   cchhaann--
+              nneellss is defined for audio tracks only. There can be
+              two or four channels.
+
+       No file output
+              --NN this debugging option switches off writing to  a
+              file.
+
+       No infofile generation
+              --HH  this  option  switches  off creation of an info
+              file and a cddb file.
+
+       Generation of simple output for gui frontends
+              --gg this option switches on simple line  formatting,
+              which is needed to support gui frontends (like xcd-
+              roast).
+
+       Verbose SCSI logging
+              --VV this option switches on  logging  of  SCSI  com-
+              mands. This will produce a lot of output (when SCSI
+              devices are being used).  This is needed for debug-
+              ging purposes. The format is the same as being used
+              with the cdrecord program from Jörg  Schilling.   I
+              will not describe it here.
+
+       Quiet option
+              --qq   suppresses  all  screen  output  except  error
+              messages.  That reduces cpu time resources.
+
+       Just show information option
+              --JJ does not write a file, it only  prints  informa-
+              tion  about  the disc (depending on the --vv option).
+              This is just for information purposes.
+
+CCDDDDBBPP ssuuppppoorrtt
+       Lookup album and track titles option
+              --LL  ccddddbbpp mmooddee  Cdda2wav  tries  to  retrieve  per-
+              former,  album-,  and  track  titles  from  a cddbp
+              server.   The   default   server   right   now   is
+              'freedb.freedb.org'.   It  is  planned to have more
+              control over the server handling later.  The param-
+              eter defines how multiple entries are handled:
+
+       0        interactive  mode,  the  user  chooses one of the
+       entries.
+
+       1        take the first entry without asking.
+
+       Set server for title lookups
+              ccddddbbpp--sseerrvveerr  sseerrvveerrnnaammee When using -L  or  --cddb,
+              the  server  being  contacted  can be set with this
+              option.
+
+       Set portnumber for title lookups
+              ccddddbbpp--ppoorrtt  ppoorrttnnuummbbeerr When using -L or --cddb, the
+              server  port  being  contacted can be set with this
+              option.
+
+HHIINNTTSS OONN UUSSAAGGEE
+       Don't create samples you cannot  read.  First  check  your
+       sample  player software and sound card hardware. I experi-
+       enced problems with very low sample rates (stereo <=  1575
+       Hz,  mono  <= 3675 Hz) when trying to play them with stan-
+       dard WAV players for sound blaster  (maybe  they  are  not
+       legal in WWAAVV format). Most CD-Writers insist on audio sam-
+       ples in a bigendian format.  Now cdda2wav supports the  --EE
+       eennddiiaanneessss  option  to control the endianess of the written
+       samples.
+
+       If your hardware is fast enough to run  cdda2wav  uninter-
+       rupted and your CD drive is one of the 'perfect' ones, you
+       will gain speed when switching all  overlap  sampling  off
+       with  the  --PP   00  option. Further fine tuning can be done
+       with the --nn  sseeccttoorrss option. You can specify how much sec-
+       tors should be requested in one go.
+
+       Cdda2wav  supports  ppiippeess  now. Use a filename of -- to let
+       cdda2wav output its samples to standard output.
+
+       Conversion to other sound formats can be  done  using  the
+       ssooxx  program package (although the use of ssooxx --xx to change
+       the byte order of samples should be no more necessary; see
+       option --EE to change the output byteorder).
+
+       If  you  want to sample more than one track into different
+       files in one run, this is currently possible with  the  --BB
+       option.  When recording time exceeds the track limit a new
+       file will be opened for the next track.
+
+FFIILLEESS
+       Cdda2wav can generate a lot of files for various purposes.
+
+       Audio files:
+
+       There  are  audio  files  containing  samples with default
+       extensions These files are not generated when option  (-N)
+       is given. Multiple files may be written when the bulk copy
+       option (-B) is used. Individual file names can be given as
+       arguments. If the number of file names given is sufficient
+       to cover all included audio tracks, the file names will be
+       used  verbatim.   Otherwise,  if there are less file names
+       than files needed to write the included tracks,  the  part
+       of  the  file  name  before the extension is extended with
+       '_dd' where dd represents the current track number.
+
+       Cddb and Cdindex files:
+
+       If cdda2wav  detects  cd-extra  or  cd-text  (album/track)
+       title  information, then .cddb and .cdindex files are gen-
+       erated unless suppressed by the option  -H.  They  contain
+       suitable  formatted  entries  for  submission  to audio cd
+       track title databases in the  internet.  The  CDINDEX  and
+       CDDB(tm)  systems are currently supported. For more infor-
+       mation    please     visit     www.musicbrainz.org     and
+       www.freedb.com.
+
+       Inf files:
+
+       The inf files are describing the sample files and the part
+       from the audio cd, it was taken from. They are a means  to
+       transfer   information   to  a  cd  burning  program  like
+       cdrecord. For example, if the original audio cd  had  pre-
+       emphasis  enabled,  and  cdda2wav  -T  did remove the pre-
+       emphasis, then the  inf  file  has  pre-emphasis  not  set
+       (since the audio file does not have it anymore), while the
+       .cddb and the .cdindex have pre-emphasis set as the origi-
+       nal does.
+
+WWAARRNNIINNGG
+       IIMMPPOORRTTAANNTT::  it is prohibited to sell copies of copyrighted
+       material by noncopyright holders. This program may not  be
+       used to circumvent copyrights.  The user acknowledges this
+       constraint when using the software.
+
+BBUUGGSS
+       Generation of md5 checksums is currently broken.
+
+       Performance may not be optimal on slower systems.
+
+       The index scanner may give timeouts.
+
+       The resampling  (rate  conversion  code)  uses  polynomial
+       interpolation, which is not optimal.
+
+       Cdda2wav should use threads.
+
+       Cdda2wav  currently  cannot  sample  hidden  audio  tracks
+       (track 1 index 0).
+
+AACCKKNNOOWWLLEEDDGGEEMMEENNTTSS
+       Thanks goto Project MODE (http://www.mode.net/) and Fraun-
+       hofer   Institut  für  integrierte  Schaltungen  (FhG-IIS)
+       (http://www.iis.fhg.de/) for financial  support.   Plextor
+       Europe  and  Ricoh Japan provided cdrom disk drives and cd
+       burners which helped  a  lot  to  develop  this  software.
+       Rammi has helped a lot with the debugging and showed a lot
+       of stamina when hearing 100 times the first 16 seconds  of
+       the first track of the Krupps CD.  Libparanoia contributed
+       by Monty (Christopher Montgomery) xiphmont@mit.edu.
+
+AAUUTTHHOORR
+       Heiko Eissfeldt heiko@colossus.escape.de
+
+DDAATTEE
+       11 Sep 2002
+
+
+
+                                                      CDDA2WAV(1)

@@ -1,0 +1,10 @@
+SCHILY_1.0 {
+global:
+	clean_magic;
+	get_magic_match;
+	init_magic;
+	softmagic;
+
+local:
+	*;
+};

@@ -1,0 +1,118 @@
+. \" @(#)hdump.1	1.2 01/04/29 Copyright 1985-2001 J. Schilling
+. \"  Manual page for hdump
+. \"
+.if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
+.if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
+.if t .ds u \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'u
+.if t .ds A \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'A
+.if t .ds O \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'O
+.if t .ds U \v'-0.77m'\h'0.30n'\z.\h'0.45n'\z.\v'0.77m'\h'-.75n'U
+.if t .ds s \(*b
+.if t .ds S SS
+.if n .ds a ae
+.if n .ds o oe
+.if n .ds u ue
+.if n .ds s sz
+.TH HDUMP 1 "01/04/29" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.SH NAME
+hdump \- displays (dumps) binary contents of a file
+.SH SYNOPSIS
+.B
+hdump
+[
+.I options
+] [
+.I file
+[
+.IR starting_address "[.][\fIb\f0|\fIB\f0]"
+.I count
+] ] ]
+.SH DESCRIPTION
+.PP
+.B Hdump 
+displays the contents of a file in 16-bit words unless
+otherwise specified (see options below). It dumps the data in
+hexadecimal unless otherwise specified (see options below).
+.PP
+.B Hdump 
+assumes the 
+.I "starting address
+and the 
+.I count 
+are in decimal unless  there is a leading 0--interpreted as octal, or a leading
+0x--interpreted as hexadecimal (as in C).
+If the 
+.I "starting address
+is followed by a
+.IR 'b' ,
+the number is multiplied by 512,
+if the 
+.I "starting address
+is followed by a
+.IR 'B' ,
+the number is multiplied by 1024.
+
+.PP
+The output radix of the label is hexadecimal by default and
+may be modified by the radix of the 
+.IR starting_address .
+If the 
+.I starting_address
+is specified in hexadecimal,
+the label will be displayed in hexadecimal too,
+if the 
+.I starting_address
+is specified in octal,
+the label will be displayed in octal.
+A decimal radix of the label will be displayed if the
+.I starting_address
+is followed by a dot.
+
+.SH OPTIONS
+.TP
+.B \-a
+Display content also in characters
+.TP
+.B \-b
+Display content in bytes
+.TP
+.B \-c
+Display content in quoted characters
+.TP
+.B \-d
+Display content in decimal
+.TP
+.B \-f
+Display content longs as floats
+.TP
+.B \-F
+Display content double longs as doubles
+.TP
+.B \-l
+Display content as longs
+.TP
+.B \-o
+Display content in octal
+.TP
+.B \-u
+Display content as unsigned
+.TP
+.B \-v
+Show all data even if it is identical
+.TP
+.B \-help
+Prints a short summary of the 
+.B hdump
+options and exists.
+.TP
+.B \-version
+Prints the 
+.B hdump
+version number string and exists.
+
+.PP
+Address label radix depends on starting address radix (decimal if ends with .)
+'b' after starting address multiplies with 512 'B' with 1024
+
+.SH NOTES
+none

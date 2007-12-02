@@ -1,0 +1,1402 @@
+.\" @(#)sfind.1	1.18 07/11/26 Copyr 2004 J. Schilling
+.\" Manual page for sfimd
+.\"
+.if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
+.if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
+.if t .ds u \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'u
+.if t .ds A \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'A
+.if t .ds O \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'O
+.if t .ds U \v'-0.77m'\h'0.30n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.75n'U
+.if t .ds s \\(*b
+.if t .ds S SS
+.if n .ds a ae
+.if n .ds o oe
+.if n .ds u ue
+.if n .ds s sz
+.TH SFIND 1L "07/11/26" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.SH NAME
+sfind \- find files
+.SH SYNOPSIS
+.B
+sfind
+[
+.I options
+]
+[
+.I path \|.\|.\|.
+]
+[
+.I operand_expression
+]
+.SH DESCRIPTION
+.PP
+The
+.B sfind
+utility recursively descends the directory hierarchy
+from each file specified by
+.IR path ,
+evaluating a Boolean expression
+composed of the primaries described in the
+.B OPERANDS
+section for each file encountered.
+.PP
+The
+.B sfind
+utility is able to descend to arbitrary depths in a
+file hierarchy and does not fail due to path length limitations
+(unless a path operand specified by the application exceeds
+.I PATH_MAX
+requirements).
+.PP
+The
+.B sfind
+utility detects infinite loops; that is, entering a
+previously visited directory that is an ancestor of the last file
+encountered. When it detects an infinite loop,
+.B sfind
+does not write a
+diagnostic message to standard error (the POSIX standards likes
+.B find
+to write this message) and either recovers its
+position in the hierarchy or terminates.
+. \" .SH RETURNS
+. \" .SH ERRORS
+.SH OPTIONS
+.PP
+The 
+.B sfind
+utility conforms to the Base Definitions volume of
+IEEE Std 1003.1-2001, Section 12.2, Utility Syntax Guidelines.
+.PP
+The IEEE Std 1003.1-2001 standard requirers the options
+.BR \-H " and " \-L
+to be supported. All other 
+.B sfind 
+options are local extensions.
+.PP
+.TP
+.B \-H
+Cause the file information and file type evaluated for each
+symbolic link encountered on the command line to be those of
+the file referenced by the link, and not the link itself. If
+the referenced file does not exist, the file information and
+type is for the link itself. File information for all
+symbolic links not on the command line is that of the
+link itself.
+.TP
+.B \-L
+Cause the file information and file type evaluated for each
+symbolic link to be those of the file referenced by the link,
+and not the link itself.
+.TP
+.B \-P
+Cause the file information and file type evaluated for each
+symbolic link to be those of the link itself. 
+The
+.B sfind
+utility will not follow symbolic links at any part of the file hierarchy.
+This is the default.
+.PP
+Specifying more than one of the mutually-exclusive options
+.BR \-H ,
+.B \-L
+and
+.B \-P
+is not considered an error. The last option specified
+determines the behavior of the utility.
+.TP
+.B \-help
+Prints a short summary of the 
+.B sfind
+options and exists.
+.TP
+.B \-version
+Prints the 
+.B sfind
+version number string and exists.
+
+.SH OPERANDS
+The following operands are supported:
+.TP 10
+.I path
+The
+.I path
+operand is a pathname of a starting point in the
+directory hierarchy.
+.TP
+.I operand_expression
+The first argument that starts with a
+.BR '-' ", or is a " '!' " or a " '(' ,
+and all subsequent arguments are interpreted as an expression
+made up of the following primaries and operators. In the
+descriptions, wherever 
+.B n
+is used as a primary argument, it is
+interpreted as a decimal integer optionally preceded by a plus
+.RB ( '+' )
+or minus
+.RB ( '-' )
+sign, as follows:
+.RS
+.TP
+.B +n
+More than n.
+.TP
+.B " n
+Exactly n.
+.TP
+.B \-n
+Less than n.
+.RE
+.PP
+The following logical operators are supported:
+.TP
+.B "( )
+Group an expression
+.TP
+.B "!
+Logical NOT
+.TP
+.B \-a
+Logical AND
+.TP
+.B \-o
+Logical OR
+.PP
+The following primaries are supported:
+.TP
+.B \-acl
+The primary evaluates as true if the file has additional
+.B ACLs
+defined.
+On platforms that do not support
+.B ACLs
+or where 
+.B sfind 
+does not yet support
+.BR ACLs ,
+the primary always evaluates as false.
+Currently only Solaris, Linux and FreeBSD is supported.
+.sp
+This primary is not mentioned in the POSIX standard.
+.TP
+.BI \-atime " n
+.I n
+is a simple number, 
+the primary evaluates as true if the file access time
+subtracted from the initialization time, divided by 86400
+(with any remainder discarded), is n.
+.sp
+If
+.I n
+is a number like
+.B 3h10m
+then it is representing an absolut number in seconds that is evaluated
+against the start time if
+.B sfind.
+The letters that are recognised in the time spec are taken from
+.BR smhdwy .
+.TP
+.BI \-ctime " n
+.I n
+is a simple number, 
+the primary evaluates as true if the time of last change
+of file status information subtracted from the initialization
+time, divided by 86400 (with any remainder discarded), is n.
+.sp
+If
+.I n
+is a number like
+.B 3h10m
+then it is representing an absolut number in seconds that is evaluated
+against the start time if
+.B sfind.
+The letters that are recognised in the time spec are taken from
+.BR smhdwy .
+.TP
+.B \-depth
+The primary always evaluates as true; it causes the
+descent of the directory hierarchy to be done so that all
+entries in a directory are acted on before the directory
+itself. If a
+.B \-depth
+primary is not specified, all entries in
+a directory are acted on after the directory itself. If
+any
+.B \-depth
+primary is specified, it applies to the entire
+expression even if the 
+.B -depth
+primary would not normally be
+evaluated.
+.TP
+.B \-dostat
+Call 
+.BI stat (2)
+or 
+.BI lstat (2)
+for every file, do not try to do 
+.BI stat (2)
+optimization.
+.sp
+By default,
+.B sfind
+tries to avoid 
+.BI stat (2)
+calls in case that the expression does not need to reference
+fields from 
+.B "struct stat"
+and the file system is known to behave like 
+classical UNIX filesystems. 
+.BI Stat (2)
+optimization is done
+by asuming that the number of subdirectories is st_nlink - 2
+and gives a significant increase in search speed in case that only
+filename related expressions are used.
+.TP
+.BI "\-exec " "utility_name [argument ...] \e;
+.TP
+.BI "\-exec " "utility_name [argument ...] {} +
+The end of the primary expression must be punctuated by a
+semicolon or by a plus sign. Only a plus sign that follows an
+argument containing the two characters "{}" punctuates
+the end of the primary expression. Other uses of the plus
+sign are not treated as special.
+.sp
+If the primary expression is punctuated by a semicolon, the
+utility
+.I utility_name
+is be invoked once for each pathname
+and the primary evaluates as true if the utility returns
+a zero value as exit status. A
+.I utility_name
+or argument
+containing only the two characters "{}" is replaced by
+the current pathname.
+.sp
+If the primary expression is punctuated by a plus sign, the
+primary always evaluates as true, and the pathnames for
+which the primary is evaluated is aggregated into sets.
+The utility
+.I utility_name
+is invoked once for each set
+of aggregated pathnames. Each invocation begins after
+the last pathname in the set is aggregated, and is
+completed before the 
+.B sfind
+utility exits and before the first
+pathname in the next set (if any) is aggregated for this
+primary, but it is otherwise unspecified whether the
+invocation occurs before, during, or after the evaluations of
+other primaries. If any invocation returns a non-zero value
+as exit status, the
+.B sfind
+utility returns a non-zero exit
+status. An argument containing only the two characters "{}"
+is replaced by the set of aggregated pathnames, with
+each pathname passed as a separate argument to the invoked
+utility in the same order that it was aggregated. The size of
+any set of two or more pathnames is limited such that
+execution of the utility does not cause the system's
+.I ARG_MAX
+limit to be exceeded.
+The
+.B sfind 
+utility reserves 
+.I LINE_MAX
+in the execution environment for the called utility
+to allow this utility to modify its environment and call further
+programs recursively. This results in a maximum argument 
+space of
+.B ARG_MAX-LINE_MAX 
+that is used by
+.BR sfind .
+If more than one argument
+containing only the two characters "{}" is present, the
+behavior is unspecified.
+The
+.B sfind
+implementation only expands the last "{}" argument that
+directly prepends the '+' argument.
+.sp
+If a 
+.I utility_name
+or argument string contains the two
+characters "{}" , but not just the two characters "{}" , it
+is implementation-defined whether 
+.B find
+replaces those two
+characters or uses the string without change. 
+The
+.B sfind
+implementation only expands arguments that are exactly the
+two characters "{}".
+The current
+directory for the invocation of 
+.I utility_name
+is the
+same as the current directory when the
+.B sfind
+utility was
+started. If the 
+.I utility_name
+names any of the special
+built-in utilities (see Special Built-In Utilities ), the
+results are undefined.
+.TP
+.B \-false
+This primary always evaluates to false.
+.sp
+This primary is not mentioned in the POSIX standard.
+.TP
+.B \-follow
+The primary always evaluates as true; it causes
+.B sfind
+to follow all symbolic links.
+While symbolic links that do not point to valid files,
+are evaluated as symbolic links when
+.B \-H
+or
+.B \-L
+is used, using
+.B \-follow
+causes
+.B sfind
+to write a diagnostic message and to skip the symbolic link in this case.
+.sp
+This primary is not mentioned in the POSIX standard.
+.TP
+.BI \-fstype " type
+The primary evaluates as true if the file belongs to a filesystem
+of type
+.IR type .
+This is currently done by comparing 
+.I st_fstype 
+with
+.IR type .
+.sp
+This primary is not mentioned in the POSIX standard.
+.TP
+.BI \-group " gname
+.TP
+.BI \-group " gid
+The primary evaluates as true if the file belongs to the
+group
+.IR gname .
+If 
+.I gname
+is a decimal integer and the 
+.BR getgrnam ()
+(or equivalent) function does not return a valid group name,
+gname is interpreted as a group ID.
+.TP
+.BI \-inum " #
+The primary evaluates as true if the file's inode number
+.RI ( st_ino )
+matches
+.IR #.
+.sp
+This primary is not mentioned in the POSIX standard.
+.TP
+.BI \-linkedto " path
+The primary evaluates as true if the file is liked to
+.I path 
+(i.e. evaluates to the same physical file).
+This primary is similar to the
+.B \-inum
+primary, but it evaluates
+.B st_dev
+and
+.B st_ino
+and thus correctly detects hard linked files
+even when multiple file systems are searched.
+.sp
+This primary is not mentioned in the POSIX standard.
+.TP
+.BI \-links " #
+The primary evaluates as true if the file has 
+.I #
+links.
+.TP
+.BI \-lname " glob
+The primary evaluates as true if the symbolic link target name of the
+filename being examined matches 
+.I glob
+using the pattern
+matching notation described in Pattern Matching Notation
+(see 
+.BR fnmatch (2)
+for more information).
+.sp
+This primary is not mentioned in the POSIX standard.
+.TP
+.B \-local
+The primary evaluates as true if
+.I st_fstype
+does not match remote fs types.
+.sp
+This primary is not mentioned in the POSIX standard.
+.TP
+.BI \-lpat " pattern
+The primary evaluates as true if the symbolic link target name of the
+filename being examined matches 
+.I pattern
+using the pattern
+matching notation described in 
+.BR patcompile "(3),
+.BR patmatch (3) " and
+.BR match (1).
+.sp
+This primary is not mentioned in the POSIX standard.
+.TP
+.B \-ls
+This primary always evaluates to true. 
+It causes 
+.B sfind 
+to list information
+for the current file to standard output: its inode
+number, size in 1024-byte blocks, file permissions, number of hard
+links, owner, group, size in bytes, last modification time, and
+pathname. If the file is a block or character special file, the
+major and minor numbers will be displayed instead of the size in
+bytes. If the file is a symbolic link, the pathname of the
+linked-to file will be displayed preceded by ``->''. The format
+is identical to that produced by
+.BR "'ls -ilds'" .
+.sp
+This primary is not mentioned in the POSIX standard.
+.TP
+.BI \-maxdepth " #
+The primary always evaluates as true;
+descend at most
+.I #
+directory levels below the command line arguments.
+If any
+.B \-maxdepth
+primary is specified, it applies to the entire expression even if it would
+not normally be evaluated.
+.BI \-maxdepth " 0
+limits the whole search to the command line arguments.
+.sp
+This primary is not mentioned in the POSIX standard.
+.TP
+.BI \-mindepth " #
+The primary always evaluates as true;
+do not apply any tests or actions at levels less than
+.IR # .
+If any
+.B \-mindepth
+primary is specified, it applies to the entire expression even if it would
+not normally be evaluated.
+.BI \-mindepth " 1
+processes all but the command line arguments. 
+.sp
+This primary is not mentioned in the POSIX standard.
+.TP
+.B \-mount
+An alias for 
+.BR \-xdev ,
+try to avoid. This exists only for
+backwards compatibility with old UNIX find versions.
+.sp
+This primary is not mentioned in the POSIX standard.
+.TP
+.BI \-mtime " n
+.I n
+is a simple number, 
+the primary evaluates as true if the file modification
+time subtracted from the initialization time, divided by
+86400 (with any remainder discarded), is n.
+.sp
+If
+.I n
+is a number like
+.B 3h10m
+then it is representing an absolut number in seconds that is evaluated
+against the start time if
+.B sfind.
+The letters that are recognised in the time spec are taken from
+.BR smhdwy .
+.TP
+.BI \-name " glob
+The primary evaluates as true if the basename of the
+filename being examined matches 
+.I glob
+using the pattern
+matching notation described in Pattern Matching Notation
+(see 
+.BR fnmatch (2)
+for more information).
+.TP
+.BI \-newer " file
+The primary evaluates as true if the modification time
+of the current file is more recent than the modification time
+of the file named by the pathname
+.IR file .
+.TP
+.BI \-newer "XY file
+The primary evaluates as true if the time refered to by
+.I X
+of the current file is more recent than the time refered to by
+.I Y
+of the file named by the pathname
+.IR file .
+The time type indicators
+.I X
+and
+.I Y
+may be one of:
+.RS
+.TP
+.B a
+The last access time
+.RI ( st_atime )
+.TP
+.B c
+the last inode change time
+.RI ( st_ctime )
+.TP
+.B m
+the modification time
+.RI ( st_mtime )
+.PP
+The primary
+.B \-newermm
+is equivalent to
+.BR \-newer .
+The expression
+.BI \-neweram " path
+evaluates as true if the last read access time of the current
+file is more recent than the time of the last modification
+of 
+.IR path .
+.PP
+This primary is not mentioned in the POSIX standard.
+.RE
+.TP
+.B \-nogroup
+The primary evaluates as true if the file belongs to a
+group ID for which the
+.BR getgrgid ()
+function defined in the
+System Interfaces volume of IEEE Std 1003.1-2001 (or
+equivalent) returns NULL.
+.TP
+.B \-nouser
+The primary evaluates as true if the file belongs to a
+user ID for which the
+.BR getpwuid ()
+function defined in the
+System Interfaces volume of IEEE Std 1003.1-2001 (or
+equivalent) returns NULL.
+.TP
+.BI "\-ok " "utility_name [argument ...] \e;
+The
+.B \-ok
+primary is equivalent to 
+.BR \-exec ,
+except that the
+use of a plus sign to punctuate the end of the primary
+expression need not be supported
+(in fact, 
+.B sfind
+does not support it), and
+.B sfind
+will request
+affirmation of the invocation of 
+.I utility_name 
+using the
+current file as an argument by writing to standard error as
+described in the 
+.B STDERR
+section. If the response on standard
+input is affirmative, the utility is invoked.
+Otherwise, the command is not invoked and the value of
+the 
+.B \-ok 
+operand is false.
+.TP
+.BI \-pat " pattern
+The primary evaluates as true if the basename of the
+filename being examined matches 
+.I pattern
+using the pattern
+matching notation described in 
+.BR patcompile "(3),
+.BR patmatch (3) " and
+.BR match (1).
+.sp
+This primary is not mentioned in the POSIX standard.
+.TP
+.BI \-path " glob
+The primary evaluates as true if the full path name of the
+filename being examined matches 
+.I glob
+using the pattern
+matching notation described in Pattern Matching Notation
+(see 
+.BR fnmatch (2)
+for more information).
+.sp
+This primary is not mentioned in the POSIX standard.
+.TP
+.BI \-perm " [-]mode
+The 
+.I mode
+argument is used to represent file mode bits. It
+is identical in format to the 
+.I symbolic_mode
+operand
+described in
+.BR chmod "(),
+and is interpreted as follows.
+To start, a template is assumed with all file mode bits
+cleared. An op symbol of '+' sets the appropriate mode
+bits in the template; '-' clears the appropriate bits;
+'=' sets the appropriate mode bits, without regard to
+the contents of process' file mode creation mask. The op
+symbol of '-' cannot be the first character of mode; this
+avoids ambiguity with the optional leading hyphen. Since the
+initial mode is all bits off, there are not any symbolic
+modes that need to use '-' as the first character.
+.sp
+If the hyphen is omitted, the primary evaluates as true
+when the file permission bits exactly match the value of the
+resulting template.
+.sp
+Otherwise, if
+.I mode
+is prefixed by a hyphen, the primary
+evaluates as true if at least all the bits in the resulting
+template are set in the file permission bits.
+.TP
+.BI \-perm " [-]onum
+If the hyphen is omitted, the primary evaluates as true
+when the file permission bits exactly match the value of the
+octal number 
+.I onum
+and only the bits corresponding to the
+octal mask 07777 is compared. (See the description of
+the octal mode in
+.BR chmod "() .)
+Otherwise, if
+.I onum
+is prefixed
+by a hyphen, the primary evaluates as true if at least
+all of the bits specified in
+.I onum
+that are also set in the
+octal mask 07777 are set.
+.TP
+.BI \-ppat " pattern
+The primary evaluates as true if the full path name of the
+filename being examined matches 
+.I pattern
+using the pattern
+matching notation described in
+.BR patcompile "(3),
+.BR patmatch (3) " and
+.BR match (1).
+.sp
+This primary is not mentioned in the POSIX standard.
+.TP
+.B \-print
+The primary always evaluates as true; it causes the
+current pathname (new line separated)
+to be written to standard output.
+.TP
+.B \-printnnl
+The primary always evaluates as true; it causes the
+current pathname (space separated)
+to be written to standard output.
+.sp
+This primary is not mentioned in the POSIX standard.
+.TP
+.B \-prune
+The primary always evaluates as true; it causes
+.B sfind
+not to descend the current pathname if it is a
+directory. If the 
+.B \-depth
+primary is specified, the 
+.B \-prune
+primary has no effect.
+.TP
+.B \-sparse
+The primary evaluates as true if the file appears to be sparse,
+this is when st_size > (st_blocks * DEV_BSIZE + DEV_BSIZE).
+.sp
+This primary is not mentioned in the POSIX standard.
+.TP
+.BI \-size " n[c]
+The primary evaluates as true if the file size in bytes,
+divided by 512 and rounded up to the next integer, is
+.IR n .
+If
+.I n
+is followed by the character
+.BR 'c' ,
+the size counts in
+bytes.
+If 
+.I n
+is a 
+.B "size expression
+in the form used by
+.BR sdd (1)
+(e.g.
+.BI \-size " 10m
+or
+.BI \-size " 7x8k\fR)
+the the size also counts in bytes.
+.TP
+.B \-true
+This primary always evaluates to true.
+.sp
+This primary is not mentioned in the POSIX standard.
+.TP
+.BI \-time " #
+An alias for 
+.BR \-mtime ,
+try to avoid. This exists only for
+backwards compatibility with old
+.B sfind
+versions.
+.sp
+This primary is not mentioned in the POSIX standard.
+.TP
+.BI \-type " c
+The primary evaluates as true if the type of the file is
+.IR c ,
+where
+.I c
+is 
+.BR 'b' ", " 'c' ", " 'd' ,
+.BR 'l' ", " 'p' ", " 'f' ,
+or 
+.B 's'
+for
+.BR "block special file" ,
+.BR "character special file" ,
+.BR directory ,
+.BR "symbolic link" , 
+.BR FIFO , 
+.BR "regular file" , 
+or 
+.BR socket ,
+respectively.
+The
+.B sfind
+implementation in addition supports
+.BR 'D' ", " 'e' " and " 'P'
+for the file types
+.BR door ,
+.B eventcount
+and
+.BR "event port" . 
+.TP
+.BI \-user " uname
+.TP
+.BI \-user " uid
+The primary evaluates as true if the file belongs to the
+user
+.IR uname .
+If
+.I uname
+is a decimal integer and the 
+.BR getpwnam ()
+(or equivalent) function does not return a valid user name,
+.I uname 
+is interpreted as a user ID.
+.TP
+.B \-xattr
+The primary evaluates as true if the file 
+.BR "extended attributes" .
+On platforms that do not support
+.B "extended attributes"
+or where 
+.B sfind 
+does not yet support
+.BR "extended attributes" ,
+the primary always evaluates as false.
+Currently only Solaris is supported.
+.sp
+This primary is not mentioned in the POSIX standard.
+.TP
+.B \-xdev
+The primary always evaluates as true; it causes
+.B sfind
+not to continue descending past directories that have a
+different device ID
+.RB ( st_dev ,
+see the
+.BR stat ()
+function defined
+in the System Interfaces volume of IEEE Std 1003.1-2001). If
+any
+.B \-xdev
+primary is specified, it applies to the entire
+expression even if the 
+.B \-xdev
+primary would not normally be
+evaluated.
+
+.PP
+The primaries can be combined using the following operators (in
+order of decreasing precedence):
+.TP
+.RI "( " expression " )"
+True if expression is true.
+.TP
+.BI "! " expression
+Negation of a primary; the unary NOT operator.
+.TP
+.IR expression " [\-a] " expression
+Conjunction of primaries; the AND operator is implied by the
+juxtaposition of two primaries or made explicit by the
+optional
+.B \-a
+operator. The second expression is not 
+evaluated if the first expression is false.
+.TP
+.IR expression " -o " expression
+Alternation of primaries; the OR operator. The second
+expression is not evaluated if the first expression is
+true.
+.PP
+If no expression is present, 
+.B \-print
+is used as the
+expression. Otherwise, if the given expression does not contain
+any of the primaries 
+.BR "\-exec ", " \-ok ", or " \-print ,
+the given expression is effectively replaced by:
+.PP
+.I "( given_expression ) \-print
+.PP
+The 
+.BR \-user ", " \-group ", and " \-newer
+primaries each evaluate their
+respective arguments only once.
+
+.SH EXAMPLES
+1. The following commands are equivalent:
+.PP
+.B "sfind .
+.br
+.B "sfind . -print
+.PP
+They both write out the entire directory hierarchy from the
+current directory.
+.PP
+2. The following command:
+.PP
+.B "sfind / \e( -name tmp -o -name '*.xx' \e) \e
+.br
+.B "     -atime +7 -exec rm {} \e;
+.PP
+removes all files named tmp or ending in .xx that have not
+been accessed for seven or more 24-hour periods.
+.PP
+3. The following command:
+.PP
+.B "sfind . -perm -o+w,+s
+.PP
+prints
+.RB ( -print " is assumed)
+the names of all files in or
+below the current directory, with all of the file permission
+bits S_ISUID, S_ISGID, and S_IWOTH set.
+.PP
+4. The following command:
+.PP
+.B "sfind . -name SCCS -prune -o -print
+.PP
+recursively prints pathnames of all files in the current
+directory and below, but skips directories named SCCS and
+files in them.
+.PP
+5. The following command:
+.PP
+.B "sfind . -print -name SCCS -prune
+.PP
+behaves as in the previous example, but prints the names of
+the SCCS directories.
+.PP
+6. The following command is roughly equivalent to the
+.B -nt
+extension to test:
+.PP
+.B "if [ -n `sfind file1 -prune -newer file2` ]; then
+.br
+\fB    printf %s\e\en "file1 is newer than file2"\fR
+.br
+.B fi
+.PP
+7. The descriptions of
+.BR \-atime ", " \-ctime ", and " \-mtime
+use the terminology n "86400 second periods (days)". For example, a
+file accessed at 23:59 is selected by:
+.PP
+.B "sfind . -atime -1 -print
+.PP
+at 00:01 the next day (less than 24 hours later, not more
+than one day ago); the midnight boundary between days has no
+effect on the 24-hour calculation.
+.PP
+.SH "EXAMPLES USING POSIX EXTENSIONS
+The following command:
+.PP
+.B "sfind / -mtime -1h15m -ls
+.PP
+lists all files that have been modified within less than 75 minutes
+from the start time of the
+.B sfind
+program.
+.SH RATIONALE
+.PP
+The
+.B \-a
+operator was retained as an optional operator for
+compatibility with historical shell scripts, even though it is
+redundant with expression concatenation.
+.PP
+The descriptions of the
+.B '\-'
+modifier on the mode and onum
+arguments to the
+.B \-perm
+primary agree with historical practice on
+BSD and System V implementations. System V and BSD documentation
+both describe it in terms of checking additional bits; in fact, it
+uses the same bits, but checks for having at least all of the
+matching bits set instead of having exactly the matching bits set.
+.PP
+The exact format of the interactive prompts is unspecified. Only
+the general nature of the contents of prompts are specified
+because:
+.TP
+\(bu
+Implementations may desire more descriptive prompts than
+those used on historical implementations.
+.TP
+\(bu
+Since the historical prompt strings do not terminate with
+<newline>s, there is no portable way for another program to
+interact with the prompts of this utility via pipes.
+.PP
+Therefore, an application using this prompting option relies on
+the system to provide the most suitable dialog directly with the
+user, based on the general guidelines specified.
+.PP
+The
+.B \-name
+file operand was changed to use the shell pattern
+matching notation so that 
+.B find
+is consistent with other utilities
+using pattern matching.
+.PP
+The
+.B \-size
+operand refers to the size of a file, rather than the
+number of blocks it may occupy in the file system. The intent is
+that the
+.B st_size
+field defined in the System Interfaces volume of
+IEEE Std 1003.1-2001 should be used, not the
+.B st_blocks
+found in
+historical implementations. There are at least two reasons for
+this:
+.TP
+1.
+In both System V and BSD,
+.B find
+only uses 
+.B st_size
+in size
+calculations for the operands specified by this volume of
+IEEE Std 1003.1-2001. (BSD uses
+.B st_blocks
+only when
+processing the
+.B \-ls
+primary.)
+.TP
+2.
+Users usually think of file size in terms of bytes, which is
+also the unit used by the
+.B ls
+utility for the output from the
+.B \-l
+option. (In both System V and BSD,
+.B ls
+uses
+.B st_size
+for the
+.B \-l
+option size field and uses
+.B st_blocks
+for the 
+.B "ls -s
+calculations. This volume of IEEE Std 1003.1-2001 does not
+specify
+.BR "ls -s" .)
+.PP
+The descriptions of
+.BR \-atime ", " \-ctime ", and " \-mtime
+were changed from
+the SVID description of n "days'' to n being the result of the
+integer division of the time difference in seconds by 86400. The
+description is also different in terms of the exact timeframe for
+the n case (versus the +n or -n), but it matches all known
+historical implementations. It refers to one 86400 second period
+in the past, not any time from the beginning of that period to the
+current time. For example,
+.B "-atime 2
+is true if the file was
+accessed any time in the period from 72 hours to 48 hours ago.
+.PP
+Historical implementations do not modify "{}" when it appears as a
+substring of an
+.BR \-exec " or " \-ok
+.I utility_name
+or
+.IR "argument string" .
+There have been numerous user requests for this extension, so this
+volume of IEEE Std 1003.1-2001 allows the desired behavior. At
+least one recent implementation does support this feature, but
+encountered several problems in managing memory allocation and
+dealing with multiple occurrences of "{}" in a string while it was
+being developed, so it is not yet required behavior.
+.PP
+The
+.B sfind
+implementation does not modify "{}" when it appears as a substring
+as there is no problem to handle related issues by writing shell
+scripts or macros.
+.PP
+Assuming the presence of
+.B \-print
+was added to correct a historical
+pitfall that plagues novice users, it is entirely
+upwards-compatible from the historical System V 
+.B find 
+utility. In
+its simplest form
+.RB ( "find directory" ),
+it could be confused with the
+historical BSD
+.BR "fast find" .
+The BSD developers agreed that adding
+.B \-print
+as a default expression was the correct decision and have
+added the 
+.B fast find
+functionality within a new utility called
+locate.
+.PP
+The
+.B sfind
+implementation in addition allows to be run without parameters. This
+results in the same output as if
+.B sfind . -print
+has been called.
+Do not use this extension in shell scripts for portability reasons.
+.PP
+Historically, the
+.B \-L 
+option was implemented using the primary
+.BR \-follow .
+The 
+.BR \-H " and " \-L
+options were added for two reasons. First,
+they offer a finer granularity of control and consistency with
+other programs that walk file hierarchies. Second, the
+.B \-follow
+primary always evaluated to true. As they were historically really
+global variables that took effect before the traversal began, some
+valid expressions had unexpected results. An example is the
+expression
+.BR "\-print \-o \-follow" .
+Because
+.B \-print
+always evaluates to
+true, the standard order of evaluation implies that
+.B \-follow
+would
+never be evaluated. This was never the case. Historical practice
+for the
+.B \-follow
+primary, however, is not consistent. Some
+implementations always follow symbolic links on the command line
+whether
+.B \-follow
+is specified or not. Others follow symbolic links
+on the command line only if
+.B \-follow
+is specified. Both behaviors
+are provided by the 
+.BR \-H " and " \-L
+options, but scripts using the
+current
+.B \-follow
+primary would be broken if the
+.B \-follow
+option is specified to work either way.
+.PP
+The
+.B sfind
+implementation always evaluates
+.BR \-follow .
+The difference between 
+.B \-follow
+and
+.B \-L 
+is that
+.B sfind
+writes a diagnostic message when a symbolic link does not point to
+a valid file if called with 
+.B \-follow
+while the symbolic link itself will be used with
+.BR \-L .
+.PP
+Since the
+.B \-L
+option resolves all symbolic links and the 
+.B "\-type l
+primary is true for symbolic links that still exist after symbolic
+links have been resolved, the command:
+.PP
+.B "sfind -L . -type l
+.PP
+prints a list of symbolic links reachable from the current
+directory that do not resolve to accessible files.
+.PP
+A feature of SVR4's 
+.B find
+utility was the 
+.B \-exec
+primary's
+.B +
+terminator. This allowed filenames containing special characters
+(especially <newline>s) to be grouped together without the
+problems that occur if such filenames are piped to xargs. Other
+implementations have added other ways to get around this problem,
+notably a
+.B \-print0
+primary that wrote filenames with a null byte
+terminator. This was considered here, but not adopted. Using a
+null terminator meant that any utility that was going to process
+find's 
+.B \-print0
+output had to add a new option to parse the null
+terminators it would now be reading.
+.PP
+The \fB"-exec ... {} +"\fR syntax adopted was a result of IEEE PASC
+Interpretation 1003.2 #210. It should be noted that this is an
+incompatible change to the ISO/IEC 9899:1999 standard. For
+example, the following command prints all files with a
+.B '-'
+after
+their name if they are regular files, and a 
+.B '+'
+otherwise:
+.PP
+.B "sfind / -type f -exec echo {} - ';' -o -exec echo {} + ';'
+.PP
+The change invalidates usage like this. Even though the previous
+standard stated that this usage would work, in practice many did
+not support it and the standard developers felt it better to now
+state that this was not allowable.
+
+.SH ENVIRONMENT
+.PP
+The following environment variables affect the execution of 
+.BR sfind :
+.TP
+.B LANG
+Provide a default value for the internationalization
+variables that are unset or null. (See the Base Definitions
+volume of IEEE Std 1003.1-2001, Section 8.2,
+Internationalization Variables for the precedence of
+internationalization variables used to determine the values
+of locale categories.)
+.TP
+.B LC_ALL
+If set to a non-empty string value, override the values of
+all the other internationalization variables.
+.TP
+.B LC_COLLATE
+Determine the locale for the behavior of ranges, equivalence
+classes, and multi-character collating elements used in the
+pattern matching notation for the -n option and in the
+extended regular expression defined for the
+.B yesexpr
+locale
+keyword in the
+.B LC_MESSAGES
+category.
+.TP
+.B LC_CTYPE
+This variable determines the locale for the interpretation of
+sequences of bytes of text data as characters (for example,
+single-byte as opposed to multi-byte characters in
+arguments), the behavior of character classes within the
+pattern matching notation used for the -n option, and the
+behavior of character classes within regular expressions used
+in the extended regular expression defined for the 
+.B yesexpr
+locale keyword in the
+.B LC_MESSAGES
+category.
+.TP
+.B LC_MESSAGES
+Determine the locale for the processing of affirmative
+responses that should be used to affect the format and
+contents of diagnostic messages written to standard error.
+.TP
+.B NLSPATH
+[XSI] Determine the location of message
+catalogs for the processing of 
+.BR LC_MESSAGES .
+.TP
+.B PATH
+Determine the location of the utility_name for the
+.B \-exec
+and
+.B \-ok
+primaries, as described in the Base Definitions volume of
+IEEE Std 1003.1-2001, Chapter 8, Environment Variables.
+.SH "EXIT STATUS
+The following exit values are returned:
+.TP
+.B 0
+All path operands were traversed successfully.
+.TP
+.B >0
+An error occurred.
+
+.SH STDIN
+If the
+.B \-ok
+primary is used, the response is read from the
+standard input. An entire line is read as the response.
+Otherwise, the standard input is not used.
+.SH INPUT FILES
+None.
+.SH STDOUT
+The
+.B \-print
+primary causes the current pathnames to be written
+to standard output. The format is:
+.PP
+	\fB"%s\en"\fR,
+.I <path>
+.SH STDERR
+The
+.B \-ok
+primary writes a prompt to standard error containing
+the utility_name to be invoked and the current pathname.
+In the POSIX locale, the last non- <blank> in the prompt is
+.BR "'?'" .
+The exact format used is unspecified.
+.PP
+Otherwise, the standard error is used only for diagnostic
+messages.
+.SH "OUTPUT FILES
+None.
+.SH "SEE ALSO"
+.BR chmod (1),
+.BR cpio (1),
+.BR ls (1),
+.BR match (1),
+.BR sh (1),
+.BR star (1),
+.BR test (1),
+.BR acl (2),
+.BR stat (2),
+.BR umask (2),
+.BR fnmatch (3),
+.BR patcompile (3),
+.BR patmatch (3).
+
+.SH DIAGNOSTICS
+.SH NOTES
+.PP
+When used in operands, pattern matching notation, semicolons,
+opening parentheses, and closing parentheses are special to the
+shell and must be quoted (see Quoting).
+.PP
+The bit that is traditionally used for sticky (historically 01000)
+is specified in the -perm primary using the octal number argument
+form. Since this bit is not defined by
+IEEE Std 1003.1-2001, applications must not assume that it
+actually refers to the traditional sticky bit.
+.PP
+At least one
+.B find
+implementation tries to speed up operation by avoiding to call
+.BR stat (2)
+from making the assumption that a directory with a link count of
+.I st_nlink
+has
+.I st_nlink - 2
+subdirectories.
+The IEEE Std 1003.1-2001 defines
+.I st_nlink
+to be undefined with directories.
+The rule above definitely does not apply for many file systems
+and even with traditional UNIX file systems, 
+the assumption is not always true if there are hard links to directories.
+For this reason, the command:
+.PP
+.B "find . -print
+.PP
+is fast but gives completely unpredictable results if a
+.B find
+implementation depends on this assumption.
+The 
+.B sfind 
+implementation has been made by prefering correct behavior before
+introducing dubious speed optimizations.
+
+.PP
+The Institute of Electrical and Electronics Engineers and The Open Group,
+have given us permission to reprint portions of their documentation. In
+the following statement, the phrase ``this text'' refers to portions of
+the system documentation.
+.PP
+Portions of this text are reprinted and reproduced in electronic form
+in the 
+.B sfind 
+manual,
+from IEEE Std 1003.1, 2004 Edition, Standard for
+Information Technology -- Portable Operating System Interface (POSIX),
+The Open Group Base Specifications Issue 6, Copyright (C) 2001-2004 by
+the Institute of Electrical and Electronics Engineers, Inc and The Open
+Group. In the event of any discrepancy between these versions and the
+original IEEE and The Open Group Standard, the original IEEE and The
+Open Group Standard is the referee document. The original Standard can
+be obtained online at 
+.BR "http://www.opengroup.org/unix/online.html" .
+.SH BUGS
+.SH AUTHOR
+.nf
+J\*org Schilling
+Seestr. 110
+D\-13353 Berlin
+Germany
+.fi
+.PP
+Mail bugs and suggestions to:
+.PP
+.B
+schilling@fokus.fraunhofer.de
+or
+.B
+js@cs.tu\-berlin.de
+or
+.B
+joerg@schily.isdn.cs.tu\-berlin.de

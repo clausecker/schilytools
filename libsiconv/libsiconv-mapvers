@@ -1,0 +1,11 @@
+# @(#)libsiconv-mapvers	1.1 07/05/19 Copyright 2007 J. Schilling
+
+SCHILY_1.0 {
+global:
+	sic_open;
+	sic_close;
+	sic_list;
+
+local:
+	*;
+};

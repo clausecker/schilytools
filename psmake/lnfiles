@@ -1,0 +1,84 @@
+#!/bin/sh
+# @(#)lnfiles	1.9 07/12/02 Copyright 1999 J. Schilling
+
+cp='ln -s'
+lib=libschily
+#lib=lib
+incsrc=..
+#incsrc=../..
+
+$cp ${incsrc}/smake/archconf.c			archconf.c
+$cp ${incsrc}/smake/make.c			make.c
+$cp ${incsrc}/smake/make.h			make.h
+$cp ${incsrc}/smake/memory.c			memory.c
+$cp ${incsrc}/smake/parse.c			parse.c
+$cp ${incsrc}/smake/readfile.c			readfile.c
+$cp ${incsrc}/smake/rules.c			rules.c
+$cp ${incsrc}/smake/update.c			update.c
+$cp ${incsrc}/../../include/schily/archdefs.h	include/schily/archdefs.h
+$cp ${incsrc}/../../include/schily/ccomdefs.h	include/schily/ccomdefs.h
+$cp ${incsrc}/../../include/schily/dirent.h		include/schily/dirent.h
+$cp ${incsrc}/../../include/schily/fcntl.h		include/schily/fcntl.h
+$cp ${incsrc}/../../include/schily/getargs.h	include/schily/getargs.h
+$cp ${incsrc}/../../include/schily/getcwd.h		include/schily/getcwd.h
+$cp ${incsrc}/../../include/schily/libport.h	include/schily/libport.h
+$cp ${incsrc}/../../include/schily/maxpath.h	include/schily/maxpath.h
+$cp ${incsrc}/../../include/schily/mconfig.h	include/schily/mconfig.h
+$cp ${incsrc}/../../include/schily/xconfig.h	include/schily/xconfig.h
+$cp ${incsrc}/../../include/schily/xmconfig.h	include/schily/xmconfig.h
+$cp ${incsrc}/../../include/schily/prototyp.h	include/schily/prototyp.h
+$cp ${incsrc}/../../include/schily/sigblk.h		include/schily/sigblk.h
+$cp ${incsrc}/../../include/schily/standard.h	include/schily/standard.h
+$cp ${incsrc}/../../include/schily/stat.h		include/schily/stat.h
+$cp ${incsrc}/../../include/schily/stdlib.h		include/schily/stdlib.h
+$cp ${incsrc}/../../include/schily/string.h		include/schily/string.h
+$cp ${incsrc}/../../include/schily/time.h		include/schily/time.h
+$cp ${incsrc}/../../include/schily/unistd.h		include/schily/unistd.h
+$cp ${incsrc}/../../include/schily/utime.h		include/schily/utime.h
+$cp ${incsrc}/../../include/schily/utypes.h		include/schily/utypes.h
+$cp ${incsrc}/../../include/schily/types.h		include/schily/types.h
+$cp ${incsrc}/../../include/schily/param.h		include/schily/param.h
+$cp ${incsrc}/../../include/schily/varargs.h	include/schily/varargs.h
+$cp ${incsrc}/../../include/schily/wait.h		include/schily/wait.h
+$cp ${incsrc}/../../include/schily/schily.h		include/schily/schily.h
+$cp ${incsrc}/../../include/schily/errno.h		include/schily/errno.h
+$cp ${incsrc}/../../include/schily/align.h		include/schily/align.h
+$cp ${incsrc}/../../include/schily/avoffset.h	include/schily/avoffset.h
+$cp ${incsrc}/conf/config.guess	config.guess
+$cp ${incsrc}/conf/config.sub	config.sub
+$cp ${incsrc}/conf/configure	configure
+$cp ${incsrc}/conf/rules.cnf.in	rules.cnf.in
+$cp ${incsrc}/conf/xconfig.h.in	xconfig.h.in
+$cp ${incsrc}/conf/install-sh	install-sh
+$cp ${incsrc}/${lib}/stdio/schilyio.h	schilyio.h
+$cp ${incsrc}/${lib}/astoi.c		astoi.c
+$cp ${incsrc}/${lib}/astoll.c		astoll.c
+$cp ${incsrc}/${lib}/comerr.c		comerr.c
+$cp ${incsrc}/${lib}/error.c		error.c
+$cp ${incsrc}/${lib}/format.c		format.c
+$cp ${incsrc}/${lib}/printf.c		printf.c
+$cp ${incsrc}/${lib}/sprintf.c		sprintf.c
+$cp ${incsrc}/${lib}/snprintf.c	snprintf.c
+$cp ${incsrc}/${lib}/saveargs.c	saveargs.c
+$cp ${incsrc}/${lib}/seterrno.c	seterrno.c
+$cp ${incsrc}/${lib}/strcatl.c		strcatl.c
+$cp ${incsrc}/${lib}/strlcpy.c		strlcpy.c
+$cp ${incsrc}/${lib}/strncpy.c		strncpy.c
+$cp ${incsrc}/${lib}/streql.c		streql.c
+$cp ${incsrc}/${lib}/fillbytes.c	fillbytes.c
+$cp ${incsrc}/${lib}/getargs.c		getargs.c
+$cp ${incsrc}/${lib}/geterrno.c	geterrno.c
+$cp ${incsrc}/${lib}/movebytes.c	movebytes.c
+$cp ${incsrc}/${lib}/raisecond.c	raisecond.c
+$cp ${incsrc}/${lib}/rename.c		rename.c
+$cp ${incsrc}/${lib}/jsprintf.c	jsprintf.c
+$cp ${incsrc}/${lib}/jssnprintf.c	jssnprintf.c
+$cp ${incsrc}/${lib}/stdio/cvmod.c	cvmod.c
+$cp ${incsrc}/${lib}/stdio/fcons.c	fcons.c
+$cp ${incsrc}/${lib}/stdio/fileopen.c	fileopen.c
+$cp ${incsrc}/${lib}/stdio/dat.c	dat.c
+$cp ${incsrc}/${lib}/stdio/fileread.c	fileread.c
+$cp ${incsrc}/${lib}/stdio/fileseek.c	fileseek.c
+$cp ${incsrc}/${lib}/stdio/filewrite.c	filewrite.c
+$cp ${incsrc}/${lib}/stdio/flag.c	flag.c
+$cp ${incsrc}/${lib}/stdio/niread.c	niread.c

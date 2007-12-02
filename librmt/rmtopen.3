@@ -1,0 +1,261 @@
+. \" @(#)rmtopen.3	1.3 07/05/06 Copyr 2002 J. Schilling
+. \" Manual page for rmtopen
+. \"
+.if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
+.if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
+.if t .ds u \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'u
+.if t .ds A \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'A
+.if t .ds O \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'O
+.if t .ds U \v'-0.77m'\h'0.30n'\z.\h'0.45n'\z.\v'0.77m'\h'-.75n'U
+.if t .ds s \(*b
+.if t .ds S SS
+.if n .ds a ae
+.if n .ds o oe
+.if n .ds u ue
+.if n .ds s sz
+.TH RMTOPEN 3L "07/05/06" "J\*org Schilling" "Schily\'s LIBRARY FUNCTIONS"
+.SH NAME
+rmtopen, rmtclose, rmtread, rmtwrite, rmtseek, rmtioctl \- operate on a connection to a remote tape server
+.SH SYNOPSIS
+.LP
+.B cc
+.RI "[ " "flag" " \|.\|.\|. ] " "file" " \|.\|.\|."
+.B \-lrmt
+.B \-lsocket
+.B \-lnsl
+.RI "[ " "library" " \|.\|.\|. ]"
+.LP
+.nf
+.B
+#include <schily/librmt.h>
+.B
+#include <schily/rmtio.h>
+.sp
+.B
+int rmtopen(int remfd, char *pathname, int fmode);
+.sp
+.B
+int rmtclose(int remfd);
+.sp
+.B
+int rmtread(int remfd, char *buf, int count);
+.sp
+.B
+int rmtwrite(int remfd, char *buf, int count);
+.sp
+.B
+int rmtseek(int remfd, off_t offset, int whence);
+.sp
+.B
+int rmtioctl(int remfd, int cmd, int count);
+.fi
+.SH DESCRIPTION
+.TP
+.B rmtopen()
+sends an open request to the remote server,
+.I remfd
+is a file descriptor previously obtained from a call to 
+.BR rmtgetconn() ,
+.I pathname
+is a path to be opened on the server side and
+.I fmode
+is the same as the third argument for
+.BR open (2).
+If the remote server does not support
+the GNU open flag enhancements, only the lowest two bits
+in the open flags can be send to the remote server.
+.sp
+If the open requests succeeds, 
+.B rmtopen()
+takes care of telling the remote side to switch to 
+.B RMT protocol VERSION 1 
+.TP
+.B rmtclose()
+sends a close request to the remote server,
+.I remfd
+is a file descriptor previously obtained from a call to 
+.BR rmtgetconn() .
+.TP
+.B rmtread()
+sends a read request to the remote server, 
+.I remfd
+is a file descriptor previously obtained from a call to 
+.BR rmtgetconn() .
+The other parameters are the same as for a local
+.B read(2)
+call.
+.B rmtread()
+will fail if there was no previous successful 
+.B rmtopen()
+before.
+.TP
+.B rmtwrite()
+sends a write request to the remote server, 
+.I remfd
+is a file descriptor previously obtained from a call to 
+.BR rmtgetconn() .
+The other parameters are the same as for a local
+.B write(2)
+call.
+.B rmtwrite()
+will fail if there was no previous successful 
+.B rmtopen()
+before.
+.TP
+.B rmtseek()
+sends a seek request to the remote server, 
+.I remfd
+is a file descriptor previously obtained from a call to 
+.BR rmtgetconn() .
+The other parameters are the same as for a local
+.B lseek(2)
+call.
+.B rmtseek()
+will fail if there was no previous successful 
+.B rmtopen()
+before.
+.TP
+.B rmtioctl()
+sends a 
+.B MTIOCTOP 
+request to the remote server, 
+.B cmd
+and
+.B count
+are the values that should be filled into 
+.BR "struct mtop" .
+See
+.B mtio(7)
+for more information.
+.SH RETURNS
+.TP
+.B rmtopen()
+returns a value >= 0 if the remote open succeeds.
+.TP
+.B rmtclose()
+returns a value >= 0 if the remote close succeeds.
+.TP
+.B rmtread()
+returns the return value obtained the remote 
+.B read(2)
+request.
+.TP
+.B rmtwrite()
+returns the return value obtained the remote 
+.B write(2)
+request.
+.TP
+.B rmtseek()
+returns the return value obtained the remote 
+.B lseek(2)
+request.
+.TP
+.B rmtioctl()
+returns the return value obtained the remote 
+.B ioctl(f, MTIOCTOP, struct mtop *)
+call.
+
+.SH ERRORS
+All functions return -1 on error and set 
+.B errno
+to the 
+.B errno
+value retrieved from the remote server.
+.SH EXAMPLES
+.LP
+\fB
+.nf
+int	remfd;
+char	*remfn;
+char	host[256];
+
+if ((remfn = rmtfilename(filename)) != NULL) {
+	rmthostname(host, sizeof (host), filename);
+
+	if ((remfd = rmtgetconn(host, iosize, 0)) < 0)
+		comerrno(EX_BAD, "Cannot get connection to '%s'.\en",
+			/* errno not valid !! */		host);
+}
+
+if (rmtopen(remfd, remfn, mode) < 0)
+	comerr("Cannot open '%s'.\en", remfn);
+
+if (rmtread(remfd, buf, sizeof(buf)) < 0)
+	comerr("Read error on '%s'.\en", remfn);
+
+rmtclose(remfd);
+.fi
+\fP
+.SH ENVIRONMENT
+.\".SH FILES
+.SH "SEE ALSO"
+.BR rmt (1),
+.BR rsh (1),
+.BR ssh (1),
+.BR rcmd (3),
+.BR rmtinit (3),
+.BR rmtdebug (3),
+.BR rmthostname (3),
+.BR rmtfilename (3),
+.BR rmtgetconn (3),
+.BR rmtopen (3),
+.BR rmtioctl (3),
+.BR rmtclose (3),
+.BR rmtread (3),
+.BR rmtwrite (3),
+.BR rmtseek (3),
+.BR rmtxstatus (3),
+.BR rmtstatus (3),
+.BR _mtg2rmtg (3),
+.BR _rmtg2mtg (3),
+.BR errmsgno (3),
+.BR mtio (7)
+
+.SH DIAGNOSTICS
+.SH NOTES
+While all other known
+.B rmt
+implementations limit the size of a single
+.B rmt
+command to 64 bytes, this implementation limits all standard
+command lines to 80 bytes and the file name to 4096 bytes.
+.LP
+Note that this may cause problems if the remote
+.B rmt
+server implementation is directly derived from the historic
+BSD server code. This is true for all BSD systems, for SunOS up
+to 5.9 and even for the GNU
+.B rmt
+server.
+.LP
+As some of the other
+.B rmt
+servers do not even implement bound checking, be prepared that
+other server implementations may dump core or at least stop honoring
+the
+.B rmt
+protocol.
+.LP
+If you like to use long file names, make sure that you also use the
+.B schily rmt
+server.
+.SH BUGS
+.LP
+If local and remote
+.B errno
+values do not match, programs may get confused.
+.SH AUTHOR
+.nf
+J\*org Schilling
+Seestr. 110
+D\-13353 Berlin
+Germany
+.fi
+.PP
+Mail bugs and suggestions to:
+.PP
+.B
+schilling@fokus.fhg.de
+or
+.B
+js@cs.tu\-berlin.de

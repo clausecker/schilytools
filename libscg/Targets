@@ -1,0 +1,3 @@
+CFILES=		scsitransp.c scsihack.c scsiopen.c scgsettarget.c \
+		scsierrs.c scgtimes.c scsihelp.c \
+		rdummy.c

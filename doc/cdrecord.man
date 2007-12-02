@@ -1,0 +1,1458 @@
+CDRECORD(1)           Schily's USER COMMANDS          CDRECORD(1)
+
+
+
+NNAAMMEE
+       cdrecord  - record audio or data Compact Discs from a mas-
+       ter
+
+SSYYNNOOPPSSIISS
+       ccddrreeccoorrdd [ _g_e_n_e_r_a_l _o_p_t_i_o_n_s ] ddeevv==_d_e_v_i_c_e [ _t_r_a_c_k _o_p_t_i_o_n_s  ]
+       _t_r_a_c_k_1..._t_r_a_c_k_n
+
+
+DDEESSCCRRIIPPTTIIOONN
+       CCddrreeccoorrdd  is used to record data or audio Compact Discs on
+       an Orange Book CD-Recorder.
+
+       The  _d_e_v_i_c_e  refers  to  _s_c_s_i_b_u_s/_t_a_r_g_e_t/_l_u_n  of  the   CD-
+       Recorder.  Communication  on  _S_u_n_O_S  is done with the SCSI
+       general driver ssccgg..  Other operating systems are  using  a
+       library  simulation  of  this driver.  Possible syntax is:
+       ddeevv== _s_c_s_i_b_u_s,_t_a_r_g_e_t,_l_u_n or ddeevv== _t_a_r_g_e_t,_l_u_n.  In the latter
+       case,  the  CD-Recorder has to be connected to the default
+       SCSI bus of the machine.   _S_c_s_i_b_u_s,  _t_a_r_g_e_t  and  _l_u_n  are
+       integer numbers.  Some operating systems or SCSI transport
+       implementations may require to specify a filename in addi-
+       tion.   In this case the correct syntax for the device is:
+       ddeevv== _d_e_v_i_c_e_n_a_m_e:_s_c_s_i_b_u_s,_t_a_r_g_e_t,_l_u_n or ddeevv== _d_e_v_i_c_e_n_a_m_e:_t_a_r_-
+       _g_e_t,_l_u_n.   If  the  name  of the device node that has been
+       specified on such a system  refers  to  exactly  one  SCSI
+       device,  a shorthand in the form ddeevv== _d_e_v_i_c_e_n_a_m_e:_@ or ddeevv==
+       _d_e_v_i_c_e_n_a_m_e:_@,_l_u_n may  be  used  instead  of  ddeevv==  _d_e_v_i_c_e_-
+       _n_a_m_e:_s_c_s_i_b_u_s,_t_a_r_g_e_t,_l_u_n.
+
+
+       To  access  remote  SCSI  devices, you need to prepend the
+       SCSI device name by a remote device indicator. The  remote
+       device   indicator   is   either   RREEMMOOTTEE::_u_s_e_r_@_h_o_s_t_:  or
+       RREEMMOOTTEE::_h_o_s_t_:
+       A valid remote SCSI device name may be:  RREEMMOOTTEE::_u_s_e_r_@_h_o_s_t_:
+       to     allow     remote     SCSI     bus    scanning    or
+       RREEMMOOTTEE::_u_s_e_r_@_h_o_s_t_:_1_,_0_,_0 to access the SCSI device  at  _h_o_s_t
+       connected to SCSI bus # 1,target 0 lun 0.
+
+
+       To access SCSI devices via alternate transport layers, you
+       need to prepend the SCSI device name by a transport  layer
+       indicator.  The transport layer indicator may be something
+       like UUSSCCSSII:: or AATTAAPPII::.  To get a list of supported  trans-
+       port layers for your platform, use ddeevv== _H_E_L_P:
+
+
+
+       To  make ccddrreeccoorrdd portable to all UNIX platforms, the syn-
+       tax ddeevv== _d_e_v_i_c_e_n_a_m_e:_s_c_s_i_b_u_s,_t_a_r_g_e_t,_l_u_n is preferred as  is
+       hides  OS  specific  knowledge about device names from the
+       user.  A specific OS must not necessarily support a way to
+       specify a real device file name nor a way to specify _s_c_s_i_-
+       _b_u_s,_t_a_r_g_e_t,_l_u_n.
+
+
+       _S_c_s_i_b_u_s 0 is the default SCSI bus on  the  machine.  Watch
+       the  boot  messages  for  more  information  or  look into
+       //vvaarr//aaddmm//mmeessssaaggeess for more information about the SCSI con-
+       figuration  of your machine.  If you have problems to fig-
+       ure out what values for _s_c_s_i_b_u_s,_t_a_r_g_e_t,_l_u_n should be used,
+       try the --ssccaannbbuuss option of ccddrreeccoorrdd described below.
+
+
+       If  a  file /etc/default/cdrecord exists, the parameter to
+       the ddeevv== option may also be a drive  name  label  in  said
+       file (see FILES section).
+
+
+       On SSVVrr44 compliant systems, ccddrreeccoorrdd uses the the real time
+       class to get the highest scheduling priority that is  pos-
+       sible (higher than all kernel processes).  On systems with
+       PPOOSSIIXX  rreeaall  ttiimmee  sscchheedduulliinngg  cdrecord  uses  real   time
+       scheduling  too,  but  may  not be able to gain a priority
+       that is higher than all kernel processes.
+
+       In _T_r_a_c_k _A_t _O_n_c_e mode, each _t_r_a_c_k corresponds to a  single
+       file  that  contains the prepared data for that track.  If
+       the argument is `--',  standard  input  is  used  for  that
+       track.  Only one track may be taken from _s_t_d_i_n.
+
+
+GGEENNEERRAALL OOPPTTIIOONNSS
+       General  options  must  be  before  any track file name or
+       track option.
+
+       --vveerrssiioonn
+              Print version information and exit.
+
+       --vv     Increment the level of general  verbosity  by  one.
+              This  is  used  e.g. to display the progress of the
+              writing process.
+
+       --VV     Increment the verbose level in respect of SCSI com-
+              mand  transport  by one.  This helps to debug prob-
+              lems during the writing process, that occur in  the
+              CD-Recorder.   If  you  get  incomprehensible error
+              messages you should  use  this  flag  to  get  more
+              detailed output.  --VVVV will show data buffer content
+              in addition.  Using --VV or --VVVV slows down  the  pro-
+              cess and may be the reason for a buffer underrun.
+
+       ddeebbuugg==_#_, --dd
+              Set  the  misc  debug  value to # (with debug=#) or
+              increment the misc debug level by one (with -d). If
+              you  specify _-_d_d_, this equals to ddeebbuugg==_2_.  This may
+              help to find problems while opening  a  driver  for
+              libscg  as  well  as  with  sector sizes and sector
+              types.  Using --ddeebbuugg slows down the process and may
+              be the reason for a buffer underrun.
+
+       kkddeebbuugg==#, kkdd==#
+              Tell  the  ssccgg-driver  to  modify  the kernel debug
+              value while SCSI commands are running.
+
+       --ssiilleenntt, --ss
+              Do not print out a status report  for  failed  SCSI
+              commands.
+
+       --ffoorrccee Force  to  continue on some errors. Be careful when
+              using this  option.   CCddrreeccoorrdd  implements  several
+              checks  that prevent you from doing unwanted things
+              like damaging CD-RW media by improper drives.  Many
+              of  the  sanity checks are disabled when the --ffoorrccee
+              option is used.
+
+              This option also implements some tricks  that  will
+              allow you to blank bad CD-RW disks.
+
+       --iimmmmeedd Tell cdrecord to set the SSCCSSII IIMMMMEEDD flag in certain
+              commands   (load/eject/blank/close_track/close_ses-
+              sion).   This  can be useful on broken systems with
+              ATAPI harddisk and CD/DVD writer on the same bus or
+              with  SCSI systems that don't use disconnect/recon-
+              nect.  These systems will freeze while blanking  or
+              fixating  a CD/DVD or while a DVD writer is filling
+              up a session to the  minimum  amount  (approx.  800
+              MB).  Setting the --iimmmmeedd flag will request the com-
+              mand to return immediately while the operation pro-
+              ceeds  in background, making the bus usable for the
+              other devices and avoiding the system freeze.  This
+              is  an  experimental feature which may work or not,
+              depending on the model of  the  CD/DVD  writer.   A
+              correct  solution  would  be  to  set  up a correct
+              cabling but there seem to be notebooks around  that
+              have been set up the wrong way by the manufacturer.
+              As it is impossible to fix this  problem  in  note-
+              books, the --iimmmmeedd option has been added.
+
+              A second experimental feature of the --iimmmmeedd flag is
+              to tell cdrecord to try to wait  short  times  wile
+              writing  to the media. This is expected to free the
+              IDE bus if the CD/DVD writer and  the  data  source
+              are  connected to the same IDE cable. In this case,
+              the CD/DVD writer would otherwise usually block the
+              IDE  bus for nearly all the time making it impossi-
+              ble to fetch data from the source drive.  See  also
+              mmiinnbbuuff== and --vv option.
+
+              Use  both  features  at your own risk.  It it turns
+              out that it would make sense  to  have  a  separate
+              option  for  the  the  wait  feature,  write to the
+              author and convince him.
+
+       mmiinnbbuuff==_v_a_l_u_e
+              The # mmiinnbbuuff== options allows to define the  minimum
+              drive  buffer fill ratio for the experimental ATAPI
+              wait mode that is intended to free the IDE  bus  to
+              allow hard disk and CD/DVD writer to be on the same
+              IDE cable.  As the wait mode currently  only  works
+              when  the  verbose  option  --vv  has been specified,
+              ccddrreeccoorrdd implies the verbose  option  in  case  the
+              --iimmmmeedd  or  mmiinnbbuuff==  option  have  been  specified.
+              Valid values for mmiinnbbuuff== are between 25 and 95  for
+              25%...95% minimum drive buffer fill ratio.
+
+       --dduummmmyy The  CD-Recorder  will  go through all steps of the
+              recording process, but the laser is turned off dur-
+              ing  this procedure.  It is recommended to run sev-
+              eral tests before actually  writing  to  a  Compact
+              Disk  or  Digital Versatile Disk, if the timing and
+              load response of the system is not known.
+
+       --ddaaoo   Set SSAAOO ((SSeessssiioonn AAtt OOnnccee))  mode  which  is  usually
+              called  DDiisskk  AAtt  OOnnccee  mode.   This currently only
+              works with MMC drives that support SSeessssiioonn AAtt  OOnnccee
+              mode.
+
+       --rraaww   Set  RRAAWW  wwrriittiinngg mmooddee..  Using this option defaults
+              to --rraaww9966rr.
+
+       --rraaww9966rr
+              Select Set RRAAWW wwrriittiinngg mmooddee with 2352 byte  sectors
+              plus  96 bytes of raw P-W subchannel data resulting
+              in a sector size of 2448 bytes.  This is  the  pre-
+              ferred  raw  writing  mode as it gives best control
+              over the CD writing process.  If you find any prob-
+              lems  with the layout of a disk or with sub channel
+              content (e.g. wrong times on the display when play-
+              ing  the  CD)  and  your drive supports to write in
+              --rraaww9966rr or --rraaww1166 mode, you should give it  a  try.
+              There are several CD writers with bad firmware that
+              result in broken disks when writing in TAO  or  SAO
+              mode.  Writing data disks in raw mode needs signif-
+              icantly more CPU time than other  write  modes.  If
+              your  CPU  is  too  slow, this may result in buffer
+              underruns.
+
+       --rraaww9966pp
+              Select Set RRAAWW wwrriittiinngg mmooddee with 2352 byte  sectors
+              plus 96 bytes of packed P-W subchannel data result-
+              ing in a sector size of 2448 bytes.   This  is  the
+              less  preferred  raw  writing  mode  as  only a few
+              recorders support it and some  of  these  recorders
+              have  bugs  in  the firmware implementation.  Don't
+              use this mode if your recorder supports --rraaww9966rr  or
+              --rraaww1166.   Writing data disks in raw mode needs sig-
+              nificantly more CPU time than other write modes. If
+              your  CPU  is  too  slow, this may result in buffer
+              underruns.
+
+       --rraaww1166 Select Set RRAAWW wwrriittiinngg mmooddee with 2352 byte  sectors
+              plus  6 bytes of P-Q subchannel data resulting in a
+              sector size of 2368 bytes.  If a recorder does  not
+              support  --rraaww9966rr, this is the preferred raw writing
+              mode.  It  does  not  allow  to  write  _C_D_-_T_e_x_t  or
+              _C_D_+_G_r_a_p_h_i_c_s  but it is the only raw writing mode in
+              cheap CD writers.  As these cheap writers  in  most
+              cases  do  not  support  --ddaaoo mode.  Don't use this
+              mode if your recorder  supports  --rraaww9966rr.   Writing
+              data disks in raw mode needs significantly more CPU
+              time than other write modes. If  your  CPU  is  too
+              slow, this may result in buffer underruns.
+
+       --mmuullttii Allow  multi  session  CD's  to  be made. This flag
+              needs to be present on all sessions of a multi ses-
+              sion disk, except you want to create a session that
+              will be the last session on the media.   The  fixa-
+              tion  will  be  done  in  a way that allows the CD-
+              Recorder to append additional sessions later.  This
+              is done by generation a TOC with a link to the next
+              program area. The so generated media  is  not  100%
+              compatible   to   manufactured   CD's  (except  for
+              CDplus).  Use only for recording of  multi  session
+              CD's.  If this option is present, the default track
+              type is CCDD--RROOMM XXAA mmooddee 22.  The _S_o_n_y drives have  no
+              hardware support for CCDD--RROOMM XXAA mmooddee 22.  You have to
+              specify the --ddaattaa option in order to  create  multi
+              session disks on these drives.  As long as cdrecord
+              does not have a coder for converting  data  sectors
+              to  audio sectors, you need to force CCDD--RROOMM sectors
+              by including the --ddaattaa option if you like to record
+              a  multisession  disk  in SAO mode.  Not all drives
+              allow multisession CD's in SAO mode.
+
+       --mmssiinnffoo
+              Retrieve multi session info in a form suitable  for
+              mmkkiissooffss--11..1100 or later.
+
+              This  option  makes  only sense with a CD that con-
+              tains at least one closed session and is appendable
+              (not finally closed yet).  Some drives create error
+              messages if you try to get the multi  session  info
+              for a disk that is not suitable for this operation.
+
+       --ttoocc   Retrieve and print out the table of content or  PMA
+              of a CD.  With this option, ccddrreeccoorrdd will work with
+              CD-R drives and with CD-ROM drives.
+
+       --aattiipp  Retrieve and print out the ATIP (absolute  Time  in
+              Pregroove)  info  of  a CD/DVD recordable or CD/DVD
+              rewritable media.  With this option, ccddrreeccoorrdd  will
+              try  to retrieve the ATIP info. If the actual drive
+              does not support to read the ATIP info, it  may  be
+              that  only  a reduced set of information records or
+              even nothing is displayed. Only a limited number of
+              MMC compliant drives support to read the ATIP info.
+
+              If ccddrreeccoorrdd is able to retrieve the  lead-in  start
+              time  for  the first session, it will try to decode
+              and print the manufacturer  info  from  the  media.
+              DVD  media  dos not have atip information but there
+              is equivalent prerecorded information that is  read
+              out and printed.
+
+       --ffiixx   The disk will only be fixated (i.e. a TOC for a CD-
+              Reader will be written).  This may be used, if  for
+              some  reason the disk has been written but not fix-
+              ated. This option currently does not work with  old
+              TEAC drives (CD-R50S and CD-R55S).
+
+       --nnooffiixx Do  not  fixate  the disk after writing the tracks.
+              This may be used to create an audio disk in  steps.
+              An un-fixated disk can usually not be used on a non
+              CD-writer type drive but there are audio CD players
+              that will be able to play such a disk.
+
+       --wwaaiittii Wait  for  input  to  become  available on standard
+              input before trying to open the SCSI  driver.  This
+              allows ccddrreeccoorrdd to read it's input from a pipe even
+              when writing additional sessions to a multi session
+              disk.  When writing another session to a multi ses-
+              sion disk, mmkkiissooffss needs to read  the  old  session
+              from the device before writing output.  This cannot
+              be done if ccddrreeccoorrdd opens the SCSI  driver  at  the
+              same time.
+
+       --llooaadd  Load  the  media  and  exit. This only works with a
+              tray loading mechanism but seems to be useful  when
+              using the Kodak disk transporter.
+
+       --eejjeecctt Eject  disk  after  doing  the  work.  Some Devices
+              (e.g. Philips) need to eject the medium before cre-
+              ating  a  new disk. Doing a -dummy test and immedi-
+              ately creating a real disk would not work on  these
+              devices.
+
+       ssppeeeedd==#
+              Set  the  speed factor of the writing process to #.
+              # is an integer, representing  a  multiple  of  the
+              audio speed.  This is about 150 KB/s for CD-ROM and
+              about 172 KB/s for CD-Audio.  If no _s_p_e_e_d option is
+              present,  ccddrreeccoorrdd  will try to get the speed value
+              from the CCDDRR__SSPPEEEEDD environment.  If your drive  has
+              problems  with  _s_p_e_e_d_=_2  or _s_p_e_e_d_=_4, you should try
+              _s_p_e_e_d_=_0.
+
+       bbllaannkk==_t_y_p_e
+              Blank a CD-RW and exit  or  blank  a  CD-RW  before
+              writing. The blanking type may be one of:
+
+              help        Display  a  list  of  possible blanking
+                          types.
+
+              all         Blank the entire disk. This may take  a
+                          long time.
+
+              fast        Minimally  blank the disk. This results
+                          in erasing the PMA,  the  TOC  and  the
+                          pregap.
+
+              track       Blank a track.
+
+              unreserve   Unreserve a reserved track.
+
+              trtail      Blank the tail of a track.
+
+              unclose     Unclose last session.
+
+              session     Blank the last session.
+       Not  all drives support all blanking types. It may be nec-
+       essary to use bbllaannkk==aallll if a  drive  reports  a  specified
+       command  as  being  invalid.   If  used  together with the
+       --ffoorrccee flag, this option may be used to blank CD-RW  disks
+       that  otherwise  cannot be blanked. Note that you may need
+       to specify bbllaannkk==_a_l_l because some drives will not continue
+       with  certain  types  of  bad  CD-RW disks. Note also that
+       ccddeeccoorrdd does it's best if the --ffoorrccee flag is used  but  it
+       finally depends on the drive's firmware whether the blank-
+       ing operation will succeed or not.
+
+       ffss==#   Set the fifo (ring buffer) size to #.  You may  use
+              the  same  method  as  in dddd(1), ssdddd(1) or ssttaarr(1).
+              The number representing the size is taken in  bytes
+              unless  otherwise  specified.   If a number is fol-
+              lowed directly by the letter `b', `k', `m', `s'  of
+              `f',   the   size   is  multiplied  by  512,  1024,
+              1024*1024, 2048 or 2352.  If the size  consists  of
+              numbers  separated by `x' or `*', multiplication of
+              the two numbers is performed.  Thus _f_s_=_1_0_x_6_3_k  will
+              specify a fifo size of 630 kBytes.
+
+              The size specified by the _f_s_= argument includes the
+              shared memory that is  needed  for  administration.
+              This  is  at  least  one page of memory.  If no _f_s=
+              option is present, ccddrreeccoorrdd will  try  to  get  the
+              fifo  size value from the CCDDRR__FFIIFFOOSSIIZZEE environment.
+              The default fifo size is currently 4 MB.
+
+              The fifo is used to increase buffering for the real
+              time writing process.  It allows to run a pipe from
+              mmkkiissooffss directly into ccddrreeccoorrdd.   If  the  fifo  is
+              active  and  a  pipe  from mmkkiissooffss into ccddrreeccoorrdd is
+              used to create a CD, ccddrreeccoorrdd will abort  prior  to
+              do  any  modifications  on the disk if mmkkiissooffss dies
+              before it starts  writing.   The  recommended  fifo
+              size  is  between  4  and  32 MBytes.  As a rule of
+              thumb, the fifo size should be at  least  equal  to
+              the  size of the internal buffer of the CD-Recorder
+              and no more than half of the physical amount of RAM
+              available  in the machine.  If the fifo size is big
+              enough, the fifo statistics will print a fifo empty
+              count  of  zero  and the fifo min fill is not below
+              20%.  It is not wise to use too much space for  the
+              fifo.  If  you need more than 8 MB to write a CD on
+              an idle machine, your machine is  either  underpow-
+              ered,  has  hardware problems or is mis-configured.
+              The sun4c architecture (e.g. a Sparcstation-2)  has
+              only  MMU page table entries for 16 MBytes per pro-
+              cess. Using more than 14 MBytes for  the  fifo  may
+              cause  the  operating  system in this case to spend
+              much time to  constantly  reload  the  MMU  tables.
+              Newer  machines from Sun do not have this MMU hard-
+              ware problem. I have no information on  PC-hardware
+              reflecting this problem.
+
+              If  you  have  buffer underruns or similar problems
+              and observe a zero _f_i_f_o _e_m_p_t_y _c_o_u_n_t, you have hard-
+              ware problems. The fifo size in this case is suffi-
+              cient.
+
+       ddeevv==_t_a_r_g_e_t
+              Sets the SCSI target for the CD-Recorder, see notes
+              above.  A typical device specification is ddeevv==_6_,_0 .
+              If a filename must be provided  together  with  the
+              numerical  target  specification,  the  filename is
+              implementation specific.  The correct  filename  in
+              this case can be found in the system specific manu-
+              als of the target operating system.  On  a  _F_r_e_e_B_S_D
+              system  without  _C_A_M  support,  you need to use the
+              control device (e.g.   _/_d_e_v_/_r_c_d_0_._c_t_l).   A  correct
+              device   specification   in   this   case   may  be
+              ddeevv==_/_d_e_v_/_r_c_d_0_._c_t_l_:_@ .
+
+              On Linux,  drives  connected  to  a  parallel  port
+              adapter are mapped to a virtual SCSI bus. Different
+              adapters are mapped to different  targets  on  this
+              virtual SCSI bus.
+
+              If  no  _d_e_v option is present, ccddrreeccoorrdd will try to
+              get the device from the CCDDRR__DDEEVVIICCEE environment.
+
+              If the argument to the ddeevv== option does not contain
+              the  characters  ',', '/', '@' or ':', it is inter-
+              preted as an label name that may be  found  in  the
+              file /etc/default/cdrecord (see FILES section).
+
+       ggrraacceettiimmee==_#
+              Set  the  grace  time before starting to write to _#
+              seconds.  Values below 2 seconds are not allowed.
+
+       ttiimmeeoouutt==_#
+              Set the default SCSI command  timeout  value  to  _#
+              seconds.   The  default SCSI command timeout is the
+              minimum timeout used for sending SCSI commands.  If
+              a  SCSI command fails due to a timeout, you may try
+              to raise the default SCSI command timeout above the
+              timeout  value  of the failed command.  If the com-
+              mand runs correctly with a raised command  timeout,
+              please report the better timeout value and the cor-
+              responding command to the author  of  the  program.
+              If  no _t_i_m_e_o_u_t option is present, a default timeout
+              of 40 seconds is used.
+
+       ddrriivveerr==_n_a_m_e
+              Allows to use a user supplied driver name  for  the
+              device.   To  get  a  list  of possible drivers use
+              ddrriivveerr==hheellpp.  The reason for the existence of  this
+              option  is  to  allow  users  to  use ccddrreeccoorrdd with
+              drives that are similar to supported drives but not
+              known  directly  by ccddrreeccoorrdd.  Use this option with
+              extreme care. If a  wrong  driver  is  used  for  a
+              device, the possibility of creating corrupted disks
+              is high.  The minimum problem related  to  a  wrong
+              driver  is that the --ssppeeeedd or --dduummmmyy will not work.
+
+              There are two special driver entries in  the  list:
+              ccddrr__ssiimmuull  and ddvvdd__ssiimmuull.  These driver entries are
+              designed to make timing tests at any speed or  tim-
+              ing tests for drives that do not support the --dduummmmyy
+              option.  The simulation drivers implement  a  drive
+              with  a  buffer size of 1MB that can be changed via
+              the CCDDRR__SSIIMMUULL__BBUUFFSSIIZZEE  environment  variable.   The
+              simulation driver correctly simulates even a buffer
+              underrun condition.  If the --dduummmmyy option  is  pre-
+              sent,  the  simulation  is not aborted in case of a
+              buffer underrun.
+
+       ddrriivveerrooppttss==_o_p_t_i_o_n _l_i_s_t
+              Set driver specific options. The options are speci-
+              fied  a  comma  separated  list.   To get a list of
+              valid options use ddrriivveerrooppttss==_h_e_l_p together with the
+              _-_c_h_e_c_k_d_r_i_v_e  option.   Currently implemented driver
+              options are:
+
+              bbuurrnnffrreeee
+                     Turn the support for  Buffer  Underrun  Free
+                     writing on.  This only works for drives that
+                     support  Buffer  Underrun  Free  technology.
+                     This  may be called: SSaannyyoo BBUURRNN--PPrrooooff, RRiiccoohh
+                     JJuusstt--LLiinnkk, YYaammaahhaa LLoosssslleessss--LLiinnkk or  similar.
+
+                     The   default  is  to  turn  BBUURRNN--FFrreeee  off,
+                     regardless of the defaults of the drive.
+
+              nnoobbuurrnnffrreeee
+                     Turn the support for  Buffer  Underrun  Free
+                     writing off.
+
+              vvaarriirreecc==_v_a_l_u_e
+                     Turn  on  the  PPlleexxttoorr VVaarriiRReecc writing mode.
+                     The mandatory parameter _v_a_l_u_e is  the  laser
+                     power  offset  and currently may be selected
+                     from -2, -1, 0, 1, 2.  In addition, you need
+                     to  set  the  write  speed  to 4 in order to
+                     allow VVaarriiRReecc to work.
+
+              aauuddiioommaasstteerr
+                     Turn on the YYaahhaammaa AAuuddiioo MMaasstteerr QQ.. RR..   fea-
+                     ture  which  usually  should  result in high
+                     quality CDs that have less reading  problems
+                     in  HiFi players.  As this is implemented as
+                     a variant of the Session at Once write mode,
+                     it  will  only  work if you select SAO write
+                     mode and there is no need to  turn  it  off.
+                     The  AAuuddiioo MMaasstteerr mode will work with a lim-
+                     ited speed but may also be  used  with  data
+                     CDs.  in  AAuuddiioo MMaasstteerr mode, the pits on the
+                     CD will be written larger then usual so  the
+                     capacity of the medium is reduced when turn-
+                     ing this feature on.  A 74  minute  CD  will
+                     only  have a capacity of 63 minutes if AAuuddiioo
+                     MMaasstteerr is active and the capacity  of  a  80
+                     minute CD will be reduced to 68 minutes.
+
+              ffoorrcceessppeeeedd
+                     Normally,  modern  drives  know  the highest
+                     possible speed for different media  and  may
+                     reduce  the  speed  in  order  to grant best
+                     write quality.  Some drives (e.g. Ricoh  and
+                     Yamaha)  allow to force the drive to use the
+                     selected speed even if the medium is so  bad
+                     that  the  write quality would be poor. This
+                     option tells such a drive to  force  to  use
+                     the  selected speed regardless of the medium
+                     quality.
+
+                     Use this option with extreme care  and  note
+                     that  the  drive  should  know  better which
+                     medium will work at full speed.  The default
+                     is to turn ffoorrcceessppeeeedd off, regardless of the
+                     defaults of the drive.
+
+              nnooffoorrcceessppeeeedd
+                     Turn off the ffoorrccee ssppeeeedd feature.
+
+              ttaattttooooiinnffoo
+                     Use this option together with --cchheecckkddrriivvee to
+                     retrieve  the image size information for the
+                     YYaammaahhaa DDiisskkTT@@22 feature.  The  images  always
+                     have a line length of 3744 pixel.  Line num-
+                     ber 0 (radius 0) is mapped to the center  of
+                     the  disk.   If you know the inner and outer
+                     radius you will be able to create a pre dis-
+                     torted  image  that  later may appear undis-
+                     torted on the disk.
+
+              ttaattttooooffiillee==_n_a_m_e
+                     Use this option together with --cchheecckkddrriivvee to
+                     write  an  image  prepared  for  the  YYaammaahhaa
+                     DDiisskkTT@@22 feature to  the  medium.   The  file
+                     must  be a file with raw image B&W data (one
+                     byte per pixel) in a size as retrieved by  a
+                     previous  call  to ttaattttooooffiillee==_n_a_m_e .  If the
+                     size of the image equals the maximum  possi-
+                     ble  size  (3744 x 320 pixel), ccddrreeccoorrdd will
+                     use the first part of the file.  This  first
+                     part  then  will  be written to the leftover
+                     space on the CD.
+
+                     Note that the image must be mirrored  to  be
+                     readable from the pick up side of the CD.
+
+       --cchheecckkddrriivvee
+              Checks if a driver for the current drive is present
+              and exit.  If the drive is a known drive,  ccddrreeccoorrdd
+              uses exit code 0.
+
+       --pprrccaapp Print the drive capabilities for SCSI-3/mmc compli-
+              ant drives as obtained from mode page 0x2A.  Values
+              marked  with _k_B use 1000 bytes as kilo-byte, values
+              marked with _K_B use 1024 bytes as Kilo-byte.
+
+       --iinnqq   Do an inquiry for the drive, print the inquiry info
+              and exit.
+
+       --ssccaannbbuuss
+              Scan  all SCSI devices on all SCSI busses and print
+              the inquiry strings. This option  may  be  used  to
+              find  SCSI  address of the CD-Recorder on a system.
+              The numbers printed out as labels are computed  by:
+              bbuuss ** 110000 ++ ttaarrggeett
+
+       --rreesseett Try  to reset the SCSI bus where the CD recorder is
+              located. This works not on all operating systems.
+
+       --oovveerrbbuurrnn
+              Allow ccddrreeccoorrdd to write more than the official size
+              of  a  medium. This feature is usually called _o_v_e_r_-
+              _b_u_r_n_i_n_g and depends on the  fact  that  most  blank
+              media  may  hold more space than the official size.
+              As the official size of the lead-out  area  on  the
+              disk  is  90 seconds (6750 sectors) and a disk usu-
+              ally works if there are at  least  150  sectors  of
+              lead  out,  all media may be overburned by at least
+              88 seconds (6600 sectors).  Most CD recorders  only
+              do overburning in SSAAOO or RRAAWW mode. Known exceptions
+              are TEAC CD-R50S, TEAC CD-R55S  and  the  Panasonic
+              CW-7502.   Some  drives do now allow to overburn as
+              much as you might like and limit the size of  a  CD
+              to  e.g.  76  minutes.  This problem may be circum-
+              vented by writing the CD in RAW mode  because  this
+              way the drive has no chance to find the size before
+              starting to burn.  There is no guarantee that  your
+              drive  supports overburning at all.  Make a test to
+              check if your drive implements the feature.
+
+       --iiggnnssiizzee
+              Ignore the known size of the medium.  This  options
+              should  be  used  with extreme care, it exists only
+              for debugging purposes don't use it for other  rea-
+              sons.   It  is  not needed to write disks with more
+              than the nominal  capacity.   This  option  implies
+              --oovveerrbbuurrnn.
+
+       --uusseeiinnffoo
+              Use  *.inf  files  to  overwrite audio options.  If
+              this option is used, the pregap size information is
+              read  from  the  *.inf file that is associated with
+              the file that contains the audio data for a  track.
+
+       ddeeffpprreeggaapp==#
+              Set  the default pre-gap size for all tracks except
+              track number 1.  This option currently  only  makes
+              sense  with  the TEAC drive when creating track-at-
+              once disks without the 2 second silence before each
+              track.
+              This option may go away in future.
+
+       --ppaacckkeett
+              Set  PPaacckkeett  wwrriittiinngg mmooddee..  This is an experimental
+              interface.
+
+       ppkkttssiizzee==#
+              Set the packet size to #, forces fixed packet mode.
+              This is an experimental interface.
+
+       --nnoocclloossee
+              Do not close the current track, useful only when in
+              packet  writing  mode.   This  is  an  experimental
+              interface.
+
+       mmccnn==_m_e_d___c_a_t___n_r
+              Set   the   MMeeddiiaa  CCaattaalloogg  NNuummbbeerr  of  the  CD  to
+              _m_e_d___c_a_t___n_r.
+
+       --tteexxtt  Write CD-Text created  by  ccddrreeccoorrdd  and  based  on
+              information  taken  from a file that contains ascii
+              information for the text  strings.  Currently  only
+              the  format  in the **..iinnff files created by ccddddaa22wwaavv
+              is supported. You need to use the  --uusseeiinnffoo  option
+              in addition in order to tell ccddrreeccoorrdd to read these
+              files. If you like to write your own CD-Text infor-
+              mation, edit the **..iinnff files with a text editor and
+              change the field that are relevant for CD-Text.
+
+       tteexxttffiillee==filename
+              Write CD-Text based on  information  found  in  the
+              binary  file  _f_i_l_e_n_a_m_e.   This  file  must  contain
+              information in a data format defined in the  SCSI-3
+              MMC-2  standard  and in the Red Book. The four byte
+              size header that is defined in the SCSI standard is
+              optional and allows to make the recognition of cor-
+              rect data less ambiguous.  This is the best  option
+              to  be  used to copy CD-Text data from existing CDs
+              that already carry CD-Text information. To get data
+              in  a  format suitable for this option use ccddrreeccoorrdd
+              --vvvv --ttoocc to extract the information from disk.
+
+
+TTRRAACCKK OOPPTTIIOONNSS
+       Track options may be mixed with track file names.
+
+       iissrrcc==_I_S_R_C___n_u_m_b_e_r
+              Set the IInntteerrnnaattiioonnaall SSttaannddaarrdd RReeccoorrddiinngg NNuummbbeerr for
+              the next track to _I_S_R_C___n_u_m_b_e_r.
+
+       iinnddeexx==_l_i_s_t
+              Sets  an  index  list for the next track.  In index
+              list is a comma separated list of numbers that  are
+              counting from index 1. The first entry in this list
+              must contain a 0, the following numbers must be  an
+              ascending  list  of  numbers (counting in 1/75 sec-
+              onds) that represent the start of the  indices.  An
+              index  list  in the form: 0,7500,15000 sets index 1
+              to the start of the track, index 2 100 seconds from
+              the start of the track and index 3 200 seconds from
+              the start of the track.
+
+       --aauuddiioo If this flag is present, all subsequent tracks  are
+              written  in  CCDD--DDAA (similar to Red Book) audio for-
+              mat.  The file with data  for  this  tracks  should
+              contain  stereo,  16-bit  digital  audio with 44100
+              samples/s.  The byte order should be the following:
+              MSB  left, LSB left, MSB right, LSB right, MSB left
+              and so on. The track should be a multiple  of  2352
+              bytes.  It  is not possible to put the master image
+              of an audio track on a raw disk because  data  will
+              be  read  in  multiple  of  2352  bytes  during the
+              recording process.
+
+              If a filename ends in _._a_u or _._w_a_v the file is  con-
+              sidered   to  be  a  structured  audio  data  file.
+              CCddrreeccoorrdd assumes that the file in this  case  is  a
+              Sun  audio  file  or  a  Microsoft  .WAV  file  and
+              extracts the audio data from the files by  skipping
+              over  the  non-audio  header  information.   In all
+              other cases, cdrecord will only work  correctly  if
+              the  audio  data  stream  does not have any header.
+              Because many structured audio files do not have  an
+              integral   number  of  blocks  (1/75th  second)  in
+              length, it is often necessary to specify  the  --ppaadd
+              option  as  well.   ccddrreeccoorrdd  recognizes that audio
+              data in a .WAV file is  stored  in  Intel  (little-
+              endian)  byte  order,  and will automatically byte-
+              swap the data if  the  CD  recorder  requires  big-
+              endian  data.   CCddrreeccoorrdd will reject any audio file
+              that does not match the Red  Book  requirements  of
+              16-bit  stereo  samples in PCM coding at 44100 sam-
+              ples/second.
+
+              Using other structured audio data formats as  input
+              to  ccddrreeccoorrdd  will usually work if the structure of
+              the data is the structure described above (raw  pcm
+              data  in  big-endian  byte order).  However, if the
+              data format includes a  header,  you  will  hear  a
+              click at the start of a track.
+
+              If  neither  _-_d_a_t_a  nor _-_a_u_d_i_o have been specified,
+              ccddrreeccoorrdd defaults to _-_a_u_d_i_o for all filenames  that
+              end  in  _._a_u  or  _._w_a_v  and  to _-_d_a_t_a for all other
+              files.
+
+       --sswwaabb  If this flag is present, audio data is  assumed  to
+              be  in  byte-swapped  (little-endian)  order.  Some
+              types of CD-Writers e.g. Yamaha, Sony and  the  new
+              SCSI-3/mmc  drives  require  audio  data to be pre-
+              sented in little-endian order, while other  writers
+              require  audio  data  to  be  presented in the big-
+              endian (network) byte order normally  used  by  the
+              SCSI  protocol.   CCddrreeccoorrdd  knows  if a CD-Recorder
+              needs audio data in big-  or  little-endian  order,
+              and  corrects  the byte order of the data stream to
+              match the needs of the recorder.  You only need the
+              _-_s_w_a_b flag if your data stream is in Intel (little-
+              endian) byte order.
+
+              Note that the verbose output of ccddrreeccoorrdd will  show
+              you if swapping is necessary to make the byte order
+              of the input data fit the required  byte  order  of
+              the  recorder.   CCddrreeccoorrdd  will not show you if the
+              _-_s_w_a_b flag was actually present for a track.
+
+       --ddaattaa  If this flag is present, all subsequent tracks  are
+              written  in CCDD--RROOMM mmooddee 11 (Yellow Book) format. The
+              data is a multiple of 2048 bytes.   The  file  with
+              track data should contain an IISSOO--99666600 or RRoocckk RRiiddggee
+              filesystem image (see mmkkiissooffss for more details). If
+              the track data is an uuffss filesystem image, fragment
+              size should be set to 2 KB or  more  to  allow  CR-
+              drives  with  2  KB  sector  size to to be used for
+              reading.
+
+              -data is the default, if no other flag is  present.
+
+              If  neither  _-_d_a_t_a  nor _-_a_u_d_i_o have been specified,
+              ccddrreeccoorrdd defaults to _-_a_u_d_i_o for all filenames  that
+              end  in  _._a_u  or  _._w_a_v  and  to _-_d_a_t_a for all other
+              files.
+
+       --mmooddee22 If this flag is present, all subsequent tracks  are
+              written in CCDD--RROOMM mmooddee 22 format. The data is a mul-
+              tiple of 2048 bytes.
+
+       --xxaa11   If this flag is present, all subsequent tracks  are
+              written  in  CCDD--RROOMM XXAA mmooddee 11 format. The data is a
+              multiple of 2048 bytes.
+
+       --xxaa22   If this flag is present, all subsequent tracks  are
+              written  in  CCDD--RROOMM XXAA mmooddee 22 format. The data is a
+              multiple of 2048 bytes.
+
+       --ccddii   If this flag is present, all subsequent tracks  are
+              written  in  CCDDII  format. The data is a multiple of
+              2048 bytes.
+
+       --iissoossiizzee
+              Use the IISSOO--99666600 file system size as  the  size  of
+              the  next track.  This option is needed if you want
+              ccddrreeccoorrdd to directly read the image of a track from
+              a  raw  disk  partition or from a _T_A_O master CD. In
+              the first case the option  --iissoossiizzee  is  needed  to
+              limit  the  size  of  the CD to the size of the ISO
+              filesystem.  In the second case the option --iissoossiizzee
+              is  needed to prevent ccddrreeccoorrdd from reading the two
+              run out  blocks  that  are  appended  by  each  CD-
+              recorder  in  track at once mode. These two run out
+              blocks cannot be read  and  would  cause  a  buffer
+              under  run  that  would cause a defective copy.  Do
+              not use this option on files created by mmkkiissooffss and
+              in  case  ccddrreeccoorrdd reads the track data from _s_t_d_i_n.
+              In the first case, you would prevent ccddrreeccoorrdd  from
+              writing   the  amount  of  padding  that  has  been
+              appended by mmkkiissooffss and in the latter case, it will
+              not work because _s_t_d_i_n is not seekable.
+
+              If  --iissoossiizzee  is  used  for  a track, ccddrreeccoorrdd will
+              automatically add padding for this track as if  the
+              --ppaadd option has been used but the amount of padding
+              may be less than the padding  written  by  mmkkiissooffss.
+              Note  that if you use --iissoossiizzee on a track that con-
+              tains Sparc boot information, the boot  information
+              will be lost.
+
+              Note also that this option cannot be used to deter-
+              mine the size of a file system if the multi session
+              option is present.
+
+       --ppaadd   If  the track is a data track, 15 sectors of zeroed
+              data will be added to the end of this and each sub-
+              sequent  data track.  In this case, the --ppaadd option
+              is superseded  by  the  ppaaddssiizzee==  option.  It  will
+              remain  however as a shorthand for ppaaddssiizzee==_1_5_s_.  If
+              the _-_p_a_d option refers to an audio track,  ccddrreeccoorrdd
+              will  pad  the  audio data to be a multiple of 2352
+              bytes.  The audio data padding is done with  binary
+              zeroes which is equal to absolute silence.
+
+              --ppaadd remains valid until disabled by --nnooppaadd.
+
+       ppaaddssiizzee==#
+              Set the amount of data to be appended as padding to
+              the next track to #.  Opposed to  the  behavior  of
+              the --ppaadd option, the value for _p_a_d_s_i_z_e_= is reset to
+              zero for each new track.  Cdrecord assumes a sector
+              size  of  2048 bytes for the _p_a_d_s_i_z_e_= option, inde-
+              pendent from the real sector size  and  independent
+              from  the  write  mode.  The megabytes mentioned in
+              the verbose mode output however  are  counting  the
+              output  sector  size  which is e.g. 2448 bytes when
+              writing in RAW/RAW96 mode.  See ffss= option for pos-
+              sible  arguments.  To pad the equivalent of 20 min-
+              utes on a CD, you may write ppaaddssiizzee==20x60x75s.  Use
+              this  option  if  your CD-drive is not able to read
+              the last sectors of a track or if you  want  to  be
+              able  to  read  the  CD  on a LLiinnuuxx system with the
+              ISO-9660 filesystem read ahead bug.   If  an  empty
+              file  is  used  for  track data, this option may be
+              used to create a disk  that  is  entirely  made  of
+              padding.   This  may  e.g.  be used to find out how
+              much overburning is possible with a specific media.
+
+       --nnooppaadd Do not pad the following tracks - the default.
+
+       --sshhoorrttttrraacckk
+              Allow  all  subsequent  tracks  to violate the Read
+              Book track length standard which requires a minimum
+              track  length  of  4  seconds.  This option is only
+              useful when used in  SAO  or  RAW  mode.   Not  all
+              drives  support  this  feature.  The  drive must be
+              accept the resulting CUE sheet or support RAW writ-
+              ing.
+
+       --nnoosshhoorrttttrraacckk
+              Re-enforce  the  Red  Book  track  length standard.
+              Tracks must be at least 4 seconds.
+
+       pprreeggaapp==#
+              Set the  pre-gap size for  the  next  track.   This
+              option  currently  only  makes  sense with the TEAC
+              drive when creating track-at-once disks without the
+              2 second silence before each track.
+              This option may go away in future.
+
+       --pprreeeemmpp
+              If this flag is present, all TOC entries for subse-
+              quent audio tracks will  indicate  that  the  audio
+              data  has been sampled with 50/15 µsec preemphasis.
+              The data, however is not modified during  the  pro-
+              cess  of  transferring  from  file  to  disk.  This
+              option has no effect on data tracks.
+
+       --nnoopprreeeemmpp
+              If this flag is present, all TOC entries for subse-
+              quent  audio  tracks  will  indicate that the audio
+              data has been mastered with linear data -  this  is
+              the default.
+
+       --ccooppyy  If this flag is present, all TOC entries for subse-
+              quent audio tracks of the resulting CD  will  indi-
+              cate  that  the  audio  data  has  permission to be
+              copied without limit.  This option has no effect on
+              data tracks.
+
+       --nnooccooppyy
+              If this flag is present, all TOC entries for subse-
+              quent audio tracks of the resulting CD  will  indi-
+              cate  that  the  audio  data  has  permission to be
+              copied only once for personal use  -  this  is  the
+              default.
+
+       --ssccmmss  If this flag is present, all TOC entries for subse-
+              quent audio tracks of the resulting CD  will  indi-
+              cate  that  the  audio data has no permission to be
+              copied anymore.
+
+       ttssiizzee==#
+              If the master image for the  next  track  has  been
+              stored  on  a  raw disk, use this option to specify
+              the valid amount of data on this disk. If the image
+              of  the next track is stored in a regular file, the
+              size of that file is taken to determine the  length
+              of  this  track.  If the track contains an ISO 9660
+              filesystem image use the _-_i_s_o_s_i_z_e option to  deter-
+              mine the length of that filesystem image.
+              In  Disk at Once mode and with some drives that use
+              the TEAC programming interface, even  in  Track  at
+              Once  mode, ccddrreeccoorrdd needs to know the size of each
+              track before starting to write the disk.   Cdrecord
+              now  checks  this  and  aborts  before  starting to
+              write.  If  this  happens  you  will  need  to  run
+              mmkkiissooffss --pprriinntt--ssiizzee before and use the output (with
+              `s' appended) as an argument to the  ttssiizzee=  option
+              of ccddrreeccoorrdd (e.g. tsize=250000s).
+              See ffss= option for possible arguments.
+
+
+EEXXAAMMPPLLEESS
+       For  all  examples  below, it will be assumed that the CD-
+       Recorder is connected to  the  primary  SCSI  bus  of  the
+       machine. The SCSI target id is set to 2.
+
+       To  record  a pure CD-ROM at double speed, using data from
+       the file _c_d_i_m_a_g_e_._r_a_w:
+
+           cdrecord -v speed=2 dev=2,0 cdimage.raw
+
+       To create an image for a ISO  9660  filesystem  with  Rock
+       Ridge extensions:
+
+           mkisofs -R -o cdimage.raw /home/joerg/master/tree
+
+       To  check  the  resulting  file  before  writing  to CD on
+       Solaris:
+
+           mount -r -F  fbk  -o  type=hsfs  /dev/fbk0:cdimage.raw
+       /mnt
+
+       On Linux:
+
+           mount cdimage.raw -r -t iso9660 -o loop /mnt
+
+       Go on with:
+           ls -lR /mnt
+           umount /mnt
+
+       If  the  overall speed of the system is sufficient and the
+       structure of the filesystem is not too  complex,  cdrecord
+       will  run  without  creating  an  image  of  the  ISO 9660
+       filesystem. Simply run the pipeline:
+
+           mkisofs -R /master/tree | cdrecord  -v  fs=6m  speed=2
+       dev=2,0 -
+
+       The   recommended  minimum  fifo  size  for  running  this
+       pipeline is 4 MBytes.  As the default fifo size is  4  MB,
+       the  ffss== option needs only be present if you want to use a
+       different fifo size.  If your system is loaded, you should
+       run mkisofs in the real time class too.  To raise the pri-
+       ority of mmkkiissooffss replace the command
+
+           mkisofs -R /master/tree
+       by
+           priocntl -e -c RT -p 59 mkisofs -R /master/tree
+
+       on Solaris and by
+
+           nice --18 mkisofs -R /master/tree
+
+       on systems that don't have  UUNNIIXX  IInntteerrnnaattiioonnaall  compliant
+       realtime scheduling.
+
+       Cdrecord  runs  at  priority 59 on Solaris, you should run
+       mkisofs at no more than priority 58. On other systems, you
+       should run mkisofs at no less than nice --18.
+
+       Creating  a  CD-ROM  without file system image on disk has
+       been tested on a Sparcstation-2 with a Yamaha CDR-400.  It
+       did work up to quad speed when the machine was not loaded.
+       A faster machine may be able to handle quad speed also  in
+       the loaded case.
+
+       To  record a pure CD-DA (audio) at single speed, with each
+       track  contained  in   a   file   named   _t_r_a_c_k_0_1_._c_d_a_u_d_i_o,
+       _t_r_a_c_k_0_2_._c_d_a_u_d_i_o, etc:
+
+           cdrecord -v speed=1 dev=2,0 -audio track*.cdaudio
+
+       To  check  if  it  will  be ok to use double speed for the
+       example above.  Use the dummy write option:
+
+           cdrecord -v -dummy speed=2 dev=2,0 -audio track*.cdau-
+       dio
+
+       To record a mixed-mode CD with an ISO 9660 filesystem from
+       _c_d_i_m_a_g_e_._r_a_w on the first track,  the  other  tracks  being
+       audio tracks from the files _t_r_a_c_k_0_1_._c_d_a_u_d_i_o, _t_r_a_c_k_0_2_._c_d_a_u_-
+       _d_i_o, etc:
+
+           cdrecord  -v   -dummy   dev=2,0   cdimage.raw   -audio
+       track*.cdaudio
+
+       To  handle  drives  that  need to know the size of a track
+       before starting to write, first run
+
+           mkisofs -R -q -print-size /master/tree
+
+       and then run
+
+           mkisofs -R /master/tree  |  cdrecord  speed=2  dev=2,0
+       tsize=XXXs -
+
+       where _X_X_X is replaced by the output of the previous run of
+       mkisofs.
+
+       To copy an audio CD in the most accurate way, first run
+
+           cdda2wav -vall cddb=0 -D2,0 -B -Owav
+
+       and then run
+
+           cdrecord -v dev=2,0 -dao -useinfo -text  *.wav
+
+       This will try copy  track  indices  and  to  read  CD-Text
+       information  from  disk.   If there is no CD-Text informa-
+       tion, ccddddaa22wwaavv  will  try  to  get  the  information  from
+       freedb.org instead.
+
+
+EENNVVIIRROONNMMEENNTT
+       CCDDRR__DDEEVVIICCEE
+              This  may  either  hold a device identifier that is
+              suitable to the open call  of  the  SCSI  transport
+              library     or     a     label    in    the    file
+              /etc/default/cdrecord.
+
+       CCDDRR__SSPPEEEEDD
+              Sets the default speed value for writing (see  also
+              --ssppeeeedd option).
+
+       CCDDRR__FFIIFFOOSSIIZZEE
+              Sets  the  default  size of the FIFO (see also ffss==#
+              option).
+
+       CCDDRR__FFOORRCCEERRAAWWSSPPEEEEDD
+              If this environment variable is set, ccddrreeccoorrdd  will
+              allow you to write at the full RAW encoding speed a
+              single CPU supports.  This will create high  poten-
+              tial of buffer underruns. Use with care.
+
+       RRSSHH    If  the RRSSHH environment is present, the remote con-
+              nection will not be  created  via  rrccmmdd(3)  but  by
+              calling  the  program  pointed to by RRSSHH.  Use e.g.
+              RRSSHH==/usr/bin/ssh to create a secure  shell  connec-
+              tion.
+
+              Note  that this forces ccddrreeccoorrdd to create a pipe to
+              the  rrsshh((11))  program  and  disallows  ccddrreeccoorrdd   to
+              directly  access  the  network socket to the remote
+              server.  This makes it impossible to set up perfor-
+              mance parameters and slows down the connection com-
+              pared to a rroooott initiated rrccmmdd((33)) connection.
+
+       RRSSCCSSII  If the RRSSCCSSII environment  is  present,  the  remote
+              SCSI    server    will    not    be   the   program
+              //oopptt//sscchhiillyy//ssbbiinn//rrssccssii but the program  pointed  to
+              by RRSSCCSSII.  Note that the remote SCSI server program
+              name will be ignored if you log in using an account
+              that  has  been  created  with a remote SCSI server
+              program as login shell.
+
+
+FFIILLEESS
+       /etc/default/cdrecord
+              Default values can be set for the following options
+              in  /etc/default/cdrecord.  For example: CDR_FIFOS-
+              IZE=8m or CDR_SPEED=2
+
+              CDR_DEVICE
+                     This may either  hold  a  device  identifier
+                     that  is  suitable  to  the open call of the
+                     SCSI transport library or  a  label  in  the
+                     file  /etc/default/cdrecord  that  allows to
+                     identify a specific drive on the system.
+
+              CDR_SPEED
+                     Sets the default  speed  value  for  writing
+                     (see also --ssppeeeedd option).
+
+              CDR_FIFOSIZE
+                     Sets  the default size of the FIFO (see also
+                     ffss==# option).
+
+              Any other label
+                     is an identifier for a specific drive on the
+                     system.   Such an identifier may not contain
+                     the characters ',', '/', '@' or ':'.
+
+                     Each line that follows a  label  contains  a
+                     TAB  separated  list  of  items.  Currently,
+                     three items are recognized: the SCSI  ID  of
+                     the  drive, the default speed that should be
+                     used for this drive  and  the  default  FIFO
+                     size that should be used for this drive. The
+                     values for _s_p_e_e_d and _f_i_f_o_s_i_z_e may be set  to
+                     -1  to  tell  cdrecord  to  use  the  global
+                     defaults.  A typical line may look this way:
+
+                     teac1= 0,5,0   4    8m
+
+                     yamaha= 1,6,0  -1   -1
+
+                     This tells ccddrreeccoorrdd that a drive named _t_e_a_c_1
+                     is at scsibus 0, target 5, lun 0 and  should
+                     be  used  with  speed 4 and a FIFO size of 8
+                     MB.  A second drive may be found at  scsibus
+                     1,  target  6,  lun  0  and uses the default
+                     speed and the default FIFO size.
+
+
+SSEEEE AALLSSOO
+       ccddddaa22wwaavv(1),  rreeaaddccdd(1),   ssccgg(7),   ffbbkk(7),   mmkkiissooffss(8),
+       rrccmmdd(3), sssshh(1).
+
+
+NNOOTTEESS
+       On  Solaris  you need to stop the volume management if you
+       like to use the USCSI fallback SCSI transport  code.  Even
+       things  like ccddrreeccoorrdd --ssccaannbbuuss will not work if the volume
+       management is running.
+
+       Disks made in TTrraacckk AAtt OOnnccee mode are  not  suitable  as  a
+       master  for  direct  mass  production by CD manufacturers.
+       You will need the ddiisskk  aatt  oonnccee  option  to  record  such
+       disks.   Nevertheless the disks made in TTrraacckk AAtt OOnnccee will
+       normally be read in all CD  players.  Some  old  audio  CD
+       players however may produce a two second click between two
+       audio tracks.
+
+       The minimal size of a track is 4 seconds or  300  sectors.
+       If  you  write  smaller  tracks,  the CD-Recorder will add
+       dummy blocks. This is not an error, even though the  SCSI-
+       error message looks this way.
+
+       CCddrreeccoorrdd  has  been  tested on an upgraded Philips CDD-521
+       recorder at single and  double  speed  on  a  SparcStation
+       20/502  with  no  problems, slower computer systems should
+       work also.  The newer Philips/HP/Plasmon/Grundig drives as
+       well  as Yamaha CDR-100 and CDR-102 work also. The Plasmon
+       RF-4100 work, but has not  tested  in  multi  session.   A
+       Philips  CDD-521 that has not been upgraded will not work.
+       The Sony CDU-924 has been tested, but does not support XA-
+       mode2  in hardware.  The sony therefore cannot create con-
+       forming multi session disks.  The  Ricoh  RO-1420C  works,
+       but  some  people  seem  to have problems to use them with
+       speed=2, try speed=0 in this case.
+
+       The Yamaha  CDR-400  and  all  new  SCSI-3/mmc  conforming
+       drives are supported in single and multi-session.
+
+       You  should  run  several tests in all supported speeds of
+       your drive with the --dduummmmyy option turned  on  if  you  are
+       using  ccddrreeccoorrdd  on  an  unknown system. Writing a CD is a
+       realtime process.  NNFFSS will not always deliver  constantly
+       the  needed  data rates.  If you want to use ccddrreeccoorrdd with
+       CD-images that are located on a NNFFSS mounted filesystem, be
+       sure  that  the  fifo size is big enough.  I used ccddrreeccoorrdd
+       with with medium load on a SS20/502 and even at quad speed
+       on  a  Sparcstation-2  which was heavily loaded, but it is
+       recommended to leave the system as lightly loaded as  pos-
+       sible  while  writing a CD.  If you want to make sure that
+       buffer underruns are not caused by your source  disk,  you
+       may use the command
+
+           ccddrreeccoorrdd --dduummmmyy ddeevv==22,,00 ppaaddssiizzee==660000mm //ddeevv//nnuullll
+
+       to  create  a  disk  that  is entirely made of dummy data.
+       CCddrreeccoorrdd needs to  run  as  root  to  get  access  to  the
+       //ddeevv//ssccgg??  device nodes and to be able to lock itself into
+       memory.
+
+       If you don't want to allow users to become  root  on  your
+       system,  ccddrreeccoorrdd  may safely be installed suid root. This
+       allows all users or a group of users with no  root  privi-
+       leges  to  use ccddrreeccoorrdd..  CCddrreeccoorrdd in this case checks, if
+       the real user would have been able to read  the  specified
+       files.  To give all user access to use ccddrreeccoorrdd,, enter:
+
+            chown root /usr/local/bin/cdrecord
+            chmod 4711 /usr/local/bin/cdrecord
+
+       To  give  a  restricted  group of users access to cdrecord
+       enter:
+
+            chown root /usr/local/bin/cdrecord
+            chgrp cdburners /usr/local/bin/cdrecord
+            chmod 4710 /usr/local/bin/cdrecord
+
+       and add a group _c_d_b_u_r_n_e_r_s on your system.
+
+       Never give write permissions for non  root  users  to  the
+       _/_d_e_v_/_s_c_g_?   devices  unless  you  would  allow  anybody to
+       read/write/format all your disks.
+
+       You should not connect old drives that do not support dis-
+       connect/reconnect to either the SCSI bus that is connected
+       to the CD-Recorder or the source disk.
+
+       A Compact Disc can have no more than 99 tracks.
+
+       When creating a disc with both audio and data tracks,  the
+       data  should  be  on track 1 otherwise you should create a
+       CDplus disk which is a multi session disk with  the  first
+       session containing the audio tracks and the following ses-
+       sion containing the data track.
+
+       Many operating systems are not able to read  more  than  a
+       single data track, or need special software to do so.
+
+       More  information  on  the  SCSI  command  set of a HP CD-
+       Recorder can be found at:
+
+            http://www.hp.com/isgsupport/cdr/index.html
+
+       If you have more information or SCSI command  manuals  for
+       currently  unsupported  CD-Recorders  please  contact  the
+       author.
+
+       The Philips CDD 521  CD-Recorder  (even  in  the  upgraded
+       version)  has  several  firmware  bugs.  Some of them will
+       force you to power cycle  the  device  or  to  reboot  the
+       machine.
+
+       When  using  ccddrreeccoorrdd  with  the broken LLiinnuuxx SSCCSSII ggeenneerriicc
+       ddrriivveerr..  You should note that ccddrreeccoorrdd uses a  hack,  that
+       tries  to  emulate  the  functionality  of the scg driver.
+       Unfortunately, the sg driver on LLiinnuuxx has  several  severe
+       bugs:
+
+       +o      It  cannot  see if a SCSI command could not be sent
+              at all.
+
+       +o      It cannot get the SCSI status byte.   CCddrreeccoorrdd  for
+              that  reason cannot report failing SCSI commands in
+              some situations.
+
+       +o      It cannot get real DMA count of transfer.  CCddrreeccoorrdd
+              cannot  tell you if there is an DMA residual count.
+
+       +o      It cannot get number of bytes valid in  auto  sense
+              data.  CCddrreeccoorrdd cannot tell you if device transfers
+              no sense data at all.
+
+       +o      It fetches  to  few  data  in  auto  request  sense
+              (CCS/SCSI-2/SCSI-3 needs >= 18).
+
+       The  fifo percent output is computed just after a block of
+       data has been written to the CD-Recorder. For this reason,
+       there  will  never be 100% fifo fill, while the fifo is in
+       streaming mode.
+
+
+DDIIAAGGNNOOSSTTIICCSS
+       You have 9 seconds to type ^C to abort ccddrreeccoorrdd after  you
+       see the message:
+
+       Starting  to  write  CD at speed %d in %s mode for %s ses-
+       sion.
+
+       A typical error message for a SCSI command looks like:
+
+              cdrecord: I/O error. test unit ready: scsi sendcmd: no error
+              CDB:  00 20 00 00 00 00
+              status: 0x2 (CHECK CONDITION)
+              Sense Bytes: 70 00 05 00 00 00 00 0A 00 00 00 00 25 00 00 00 00 00
+              Sense Key: 0x5 Illegal Request, Segment 0
+              Sense Code: 0x25 Qual 0x00 (logical unit not supported) Fru 0x0
+              Sense flags: Blk 0 (not valid)
+              cmd finished after 0.002s timeout 40s
+
+       The first line gives information about  the  transport  of
+       the  command.   The  text  after the first colon gives the
+       error text for the system call from the view of  the  ker-
+       nel.  It  usually is: II//OO eerrrroorr unless other problems hap-
+       pen. The next words contain a short  description  for  the
+       SCSI command that fails. The rest of the line tells you if
+       there were any problems for the transport of  the  command
+       over the SCSI bus.  ffaattaall eerrrroorr means that it was not pos-
+       sible to transport the command (i.e. no device present  at
+       the requested SCSI address).
+
+       The  second  line prints the SCSI command descriptor block
+       for the failed command.
+
+       The third line gives information on the SCSI  status  code
+       returned  by  the command, if the transport of the command
+       succeeds.  This is error information from the SCSI device.
+
+       The  fourth  line  is a hex dump of the auto request sense
+       information for the command.
+
+       The fifth line is the error text  for  the  sense  key  if
+       available,  followed  by  the  segment number that is only
+       valid if the command was a _c_o_p_y command. If the error mes-
+       sage  is  not directly related to the current command, the
+       text _d_e_f_e_r_r_e_d _e_r_r_o_r is appended.
+
+       The sixth line is the error text for the  sense  code  and
+       the  sense  qualifier  if  available.   If the type of the
+       device is known, the sense data is decoded from tables  in
+       _s_c_s_i_e_r_r_s_._c  .  The text is followed by the error value for
+       a field replaceable unit.
+
+       The seventh line prints the block number that  is  related
+       to  the  failed  command and text for several error flags.
+       The block number may not be valid.
+
+       The eight line reports the timeout set up for this command
+       and the time that the command really needed to complete.
+
+       The following message is not an error:
+              Track 01: Total bytes read/written: 2048/2048 (1 sectors).
+              cdrecord: I/O error. flush cache: scsi sendcmd: no error
+              CDB:  35 00 00 00 00 00 00 00 00 00
+              status: 0x2 (CHECK CONDITION)
+              Sense Bytes: F0 00 05 80 00 00 27 0A 00 00 00 00 B5 00 00 00 00 00
+              Sense Key: 0x5 Illegal Request, Segment 0
+              Sense Code: 0xB5 Qual 0x00 (dummy data blocks added) Fru 0x0
+              Sense flags: Blk -2147483609 (valid)
+              cmd finished after 0.002s timeout 40s
+
+       It  simply notifies, that a track that is smaller than the
+       minimum size has been expanded to 300 sectors.
+
+BBUUGGSS
+       CCddrreeccoorrdd has even more options than llss.
+
+       There should be a recover option  to  make  disks  usable,
+       that have been written during a power failure.
+
+
+CCRREEDDIITTSS
+       Bill Swartz    (Bill_Swartz@twolf.com)
+                      For helping me with the TEAC driver support
+
+       Aaron Newsome  (aaron.d.newsome@wdc.com)
+                      For letting me develop Sony support on  his
+                      drive
+
+       Eric Youngdale (eric@andante.jic.com)
+                      For supplying mkisofs
+
+       Gadi Oxman     (gadio@netvision.net.il)
+                      For tips on the ATAPI standard
+
+       Finn Arne Gangstad  (finnag@guardian.no)
+                      For the first FIFO implementation.
+
+       Dave Platt     (dplatt@feghoot.ml.org)
+                      For  creating the experimental packet writ-
+                      ing support, the  first  implementation  of
+                      CD-RW blanking support, the first .wav file
+                      decoder  and  many  nice   discussions   on
+                      cdrecord.
+
+       Chris P. Ross (cross@eng.us.uu.net)
+                      For the first implementation os a BSDI SCSI
+                      transport.
+
+       Grant R. Guenther   (grant@torque.net)
+                      For creating the first parallel port trans-
+                      port implementation for Linux.
+
+       Kenneth D. Merry (ken@kdm.org)
+                      for  providing  the  CAM  port  for FreeBSD
+                      together      with      Michael       Smith
+                      (msmith@freebsd.org)
+
+       Heiko Eiﬂfeldt (heiko@hexco.de)
+                      for  making libedc_ecc available (needed to
+                      write RAW data sectors).
+
+
+MMAAIILLIINNGG LLIISSTTSS
+       If you want to actively take part on  the  development  of
+       cdrecord, you may join the developer mailing list via this
+       URL:
+
+       hhttttpp::////lliissttss..bbeerrlliiooss..ddee//mmaaiillmmaann//lliissttiinnffoo//ccddrreeccoorrdd--ddeevveelloopp--
+       eerrss
+
+       The mail address of the list is: ccddwwrriittee@@ootthheerr..ddeebbiiaann..oorrgg
+
+
+AAUUTTHHOORR
+       Joerg Schilling
+       Seestr. 110
+       D-13353 Berlin
+       Germany
+
+       Additional information can be found on:
+       http://www.fokus.fhg.de/usr/schilling/cdrecord.html
+
+       If you have support questions, send them to:
+
+       ccddrreeccoorrdd--ssuuppppoorrtt@@bbeerrlliiooss..ddee
+       or ccddwwrriittee@@ootthheerr..ddeebbiiaann..oorrgg
+
+       Of you have definitely found a bug, send a mail to:
+
+       ccddrreeccoorrdd--ddeevveellooppeerrss@@bbeerrlliiooss..ddee
+       or sscchhiilllliinngg@@ffookkuuss..ffhhgg..ddee
+
+       To subscribe, use:
+
+       hhttttpp::////lliissttss..bbeerrlliiooss..ddee//mmaaiillmmaann//lliissttiinnffoo//ccddrreeccoorrdd--ddeevveelloopp--
+       eerrss
+       or  hhttttpp::////lliissttss..bbeerrlliiooss..ddee//mmaaiillmmaann//lliissttiinnffoo//ccddrreeccoorrdd--ssuupp--
+       ppoorrtt
+
+       The old cdwrite mailing list may be joined by sending mail
+       to:
+
+            cdwrite-request@other.debian.org
+
+       and including the word _s_u_b_s_c_r_i_b_e in the  body.   The  mail
+       address of the list is:
+
+            cdwrite@other.debian.org
+
+
+
+Joerg Schilling            Version 2.0                CDRECORD(1)

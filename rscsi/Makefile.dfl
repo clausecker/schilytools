@@ -1,0 +1,20 @@
+#ident @(#)Makefile.dfl	1.1 05/08/09 
+###########################################################################
+# Sample makefile for installing non-localized auxiliary files
+###########################################################################
+SRCROOT=	..
+RULESDIR=	RULES
+include		$(SRCROOT)/$(RULESDIR)/rules.top
+###########################################################################
+
+INSDIR=		etc/default
+TARGET=		rscsi
+#XMK_FILE=	Makefile.man
+
+###########################################################################
+include		$(SRCROOT)/$(RULESDIR)/rules.aux
+###########################################################################
+
+PTARGET=	rscsi.dfl
+rscsi:	rscsi.dfl
+	:

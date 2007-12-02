@@ -1,0 +1,124 @@
+*** create.c.orig	Sat Jun 14 15:53:45 1997
+--- create.c	Sun Jun 15 18:38:08 1997
+***************
+*** 35,40 ****
+--- 35,101 ----
+  #include <strdefs.h>
+  #include "starsubs.h"
+  
++ #if defined(DGUX) && !defined(NO_DG_FILEREAD)
++ 
++ #include <fcntl.h>
++ #include <sys/dg_unbuffered_io.h>
++ 
++ LOCAL	FILE	*dg_fileopen	__PR((FINFO *info));
++ LOCAL	int	dg_fileclose	__PR((FILE *fp));
++ LOCAL	int	dg_fileread	__PR((FILE *f, char *bp, int cnd));
++ 
++ FILE *dg_fileopen(info)
++ 	FINFO	*info;
++ {
++ 	static	FILE	__f;
++ 	int	f;
++ 
++ 	if ((f = open(info->f_name, O_DG_UNBUFFERED)) < 0)
++ 		return ((FILE *)0);
++ 
++ 	__f._file = f;
++ 	__f._cnt = 0;
++ 	__f._ptr = info->f_rsize;
++ 	return (&__f);
++ }
++ 
++ int dg_fileclose(fp)
++ 	FILE	*fp;
++ {
++ 	return (close(fp->_file));
++ }
++ 
++ int dg_fileread(fp, bp, cnt)
++ 	FILE	*fp;
++ 	char	*bp;
++ 	int	cnt;
++ {
++ 	int	n;
++ 
++ again:
++ 	n = dg_unbuffered_read(fp->_file, bp, fp->_cnt, cnt/512);
++ 	if (n < 0) {
++ 		if (geterrno() == EINTR)
++ 			goto again;
++ 		return (-1);
++ 	}
++ 	if (n == 0)
++ 		return (0);
++ 
++ 	fp->_cnt += n;
++ 	if (fp->_cnt == tarblocks((int)fp->_ptr)) {
++ 		if ((((int)fp->_ptr) % 512) == 0)
++ 			return (n * 512);
++ 
++ 		n -= 1;
++ 		n *= 512;
++ 		n += ((int)fp->_ptr) % 512;
++ 		return (n);
++ 	}
++ 	return (n * 512);
++ }
++ #endif
++ 
+  typedef	struct	links {
+  	struct	links	*l_next;
+  		long	l_ino;
+***************
+*** 227,232 ****
+--- 288,296 ----
+  	else if (is_symlink(info) && !read_symlink(name, info, ptb))
+  		;
+  	else if (is_file(info) && info->f_size != 0 && !nullout &&
++ #if defined(DGUX) && !defined(NO_DG_FILEREAD)
++ 				(f = dg_fileopen(info)) == (FILE *)NULL) {
++ #else
+  #ifdef	OLD_OPEN
+  				(f = fileopen(name,"ru")) == (FILE *)NULL) {
+  #else
+***************
+*** 236,241 ****
+--- 300,306 ----
+  				 */
+  				(f = fileopen(name,"r")) == (FILE *)NULL) {
+  #endif
++ #endif
+  		errmsg("Cannot open '%s'.\n", name);
+  	} else {
+  		if (info->f_nlink > 1 && read_link(name, namlen, info, ptb))
+***************
+*** 280,286 ****
+--- 345,355 ----
+  		if (acctime && f != NULL)
+  			rs_acctime(f, info);
+  		if (f)
++ #if defined(DGUX) && !defined(NO_DG_FILEREAD)
++ 			dg_fileclose(f);
++ #else
+  			fclose(f);
++ #endif
+  	}
+  }
+  
+***************
+*** 421,428 ****
+--- 490,502 ----
+  		cr_file(info, (int(*)__PR((void *, char *, int)))nullread,
+  							f, 0, "reading");
+  	} else {
++ #if defined(DGUX) && !defined(NO_DG_FILEREAD)
++ 		cr_file(info, (int(*)__PR((void *, char *, int)))dg_fileread,
++ 							f, 0, "reading");
++ #else
+  		cr_file(info, (int(*)__PR((void *, char *, int)))ffileread,
+  							f, 0, "reading");
++ #endif
+  	}
+  }
+  

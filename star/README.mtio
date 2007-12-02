@@ -1,0 +1,56 @@
+Magnetic Tape ioctl's are just (again) a compatibility problem with Linux.
+
+
+The /etc/rmt protocol allows to send ioctls to the remote system and relies on
+the fact that  MTIO opcodes 0..7 of all UNIX systems are mapped to the same function.
+Linux unfortunately does not follow these rules.
+
+/*--------------------------------------------------------------------------*/
+All other UNIX
+/*--------------------------------------------------------------------------*/
+/*
+ * values for mt_op
+ */
+#define	MTWEOF		0	/* write an end-of-file record */
+#define	MTFSF		1	/* forward space over file mark */
+#define	MTBSF		2	/* backward space over file mark (1/2" only ) */
+#define	MTFSR		3	/* forward space to inter-record gap */
+#define	MTBSR		4	/* backward space to inter-record gap */
+#define	MTREW		5	/* rewind */
+#define	MTOFFL		6	/* rewind and put the drive offline */
+#define	MTNOP		7	/* no operation, sets status only */
+
+/*--------------------------------------------------------------------------*/
+Linux
+/*--------------------------------------------------------------------------*/
+/* Magnetic Tape operations [Not all operations supported by all drivers]: */
+#define MTRESET	0	/* +reset drive in case of problems */
+#define MTFSF	1	/* forward space over FileMark,
+			 * position at first record of next file
+			 */
+#define MTBSF	2	/* backward space FileMark (position before FM) */
+#define MTFSR	3	/* forward space record */
+#define MTBSR	4	/* backward space record */
+#define MTWEOF	5	/* write an end-of-file record (mark) */
+#define MTREW	6	/* rewind */
+#define MTOFFL	7	/* rewind and put the drive offline (eject?) */
+#define MTNOP	8	/* no op, set status only (read with MTIOCGET) */
+
+Operation	Description			UNIX -> Linux
+====================================================================
+0 weof		writes EOF (file mark)		resets drive!!!		
+1 fsf		forward skip file mark		OK
+2 bsf		backwd skip file mark		OK
+3 fsr		forward skip record		OK
+4 bsr		backwd skip record		OK
+5 rew		rewind				writes file mark!!!
+6 offl		unload media			partially OK
+7 nop		set status in driver		unloads media
+8						NOP is mapped to the vendor dependant 
+						range. On Sun this is a retension
+						which takes a long time...
+
+
+The rmt server and client code used in the star distribution voids
+these problems with Linux.
+

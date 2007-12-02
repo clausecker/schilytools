@@ -1,0 +1,44 @@
+#ident "@(#)rules.top	1.16 06/05/14 "
+###########################################################################
+# Written 1996 by J. Schilling
+###########################################################################
+#
+# Rules that should be included at top of every Makefile
+# This is the general purpose C-language version
+#
+###########################################################################
+# Copyright (c) J. Schilling
+###########################################################################
+# The contents of this file are subject to the terms of the
+# Common Development and Distribution License, Version 1.0 only.
+# (the "License").  You may not use this file except in compliance
+# with the License.
+#
+# See the file CDDL.Schily.txt in this distribution for details.
+#
+# When distributing Covered Code, include this CDDL HEADER in each
+# file and include the License file CDDL.Schily.txt from this distribution.
+###########################################################################
+#
+# Include global language independent macros
+#
+###########################################################################
+include		$(SRCROOT)/$(RULESDIR)/rules1.top
+
+###########################################################################
+#
+# Include platform dependent macros for C-language here.
+#
+# If a project needs other languages too, additional rules may be defined.
+# These additional rules should be placed in a file that uses a hierarchy
+# similar to rules.top and mey be called e.g. yacc.top.
+#
+###########################################################################
+include		$(SRCROOT)/$(RULESDIR)/$(XARCH).rul
+
+###########################################################################
+#
+# Include global autofonfiguration rules
+#
+###########################################################################
+include		$(SRCROOT)/$(RULESDIR)/rules.cnf

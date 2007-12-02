@@ -1,0 +1,16 @@
+#ident %W% %E% %Q%
+###########################################################################
+SRCROOT=	..
+RULESDIR=	RULES
+include		$(SRCROOT)/$(RULESDIR)/rules.top
+###########################################################################
+
+MANDIR=		man
+TARGETMAN=	sformat
+MANSECT=	$(MANSECT_ADMIN)
+MANSUFFIX=	$(MANSUFF_ADMIN)
+MANFILE=	sformat.1
+
+###########################################################################
+include		$(SRCROOT)/$(RULESDIR)/rules.man
+###########################################################################

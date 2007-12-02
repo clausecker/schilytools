@@ -1,0 +1,369 @@
+. \" @(#)sdd.1	1.5 01/07/20 Copyr 1982-1995 J. Schilling
+. \"  Manual page for sdd
+. \"
+.if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
+.if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
+.if t .ds u \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'u
+.if t .ds A \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'A
+.if t .ds O \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'O
+.if t .ds U \v'-0.77m'\h'0.30n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.75n'U
+.if t .ds s \\(*b
+.if t .ds S SS
+.if n .ds a ae
+.if n .ds o oe
+.if n .ds u ue
+.if n .ds s sz
+.TH SDD 1E "01/07/20" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.SH NAME
+sdd \- disk dump and restore to and from tape or file; copy and/or reblock
+.SH SYNOPSIS
+.B
+sdd
+[
+.BR option "=value
+] [
+.B \-flag
+]
+.SH DESCRIPTION
+.I Sdd
+copies the specified input file to a specified output file performing the
+requested conversions. The standard input and output are used by default.
+The input and output block size may be specified to take advantage of
+raw physical I/O.
+.PP
+After completion, sdd reports the number of whole records, the sum of bytes 
+from partial input and output blocks and the total amount in kilo
+bytes on inout and output.
+.PP 
+If
+.I ibs
+and
+.I obs
+differ,
+.I sdd
+is faster than
+.I dd
+due to the use of an intelligent algorithm.
+.SH OPTIONS
+.TP
+.B \-help
+Print a summary of the available options.
+.TP
+.BI if= name
+Input is taken from file
+.I name;
+default is
+.I stdin.
+.sp
+If 
+.B sdd
+is installed suid root,
+.I name
+may be in remote syntax: user@host:filename as in 
+.BR rcp (1)
+even if 
+invoked by non root users.
+See SUID NOTES for more information.
+.sp
+To make a file local although it includes a colon (:), the filename
+must start with:
+.IR "'/'" ,
+.IR "'./'" " or"
+.I "'../'"
+.TP
+.BI of= name
+Output is taken from file
+.I name;
+default is
+.I stdout.
+Note that
+.I sdd
+creates and truncates the output file by default; therefore the
+.I oseek=#
+option is useless without the
+.I \-notrunc
+option except in special cases such as using magnetic tape or disk 
+special files.
+.sp
+If 
+.B sdd
+is installed suid root,
+.I name
+may be in remote syntax: user@host:filename as in 
+.BR rcp (1)
+even if 
+invoked by non root users.
+.sp
+Note that if
+.B sdd
+talks to an old 
+.B rmt
+remote tape server, it does not open a remote file with the 
+.B O_CREAT
+open flag because this would be extremely dangerous.
+If the 
+.B rmt 
+server on the other side is the 
+.B rmt
+server that comes with 
+.B star
+or the GNU
+.B rmt
+server,
+.B sdd
+may use the symbolic mode for the open flags.
+Only the symbolic open modes allow to send all possible open
+modes in a portable way to remote tape servers.
+.sp
+It is recommended to use the 
+.B rmt
+server that comes with
+.BR star .
+It is the only
+.B rmt
+server that gives platform independent compatibility with BSD, Sun and GNU
+.B rmt 
+clients and it includes security features that may be set up in /etc/default/rmt.
+
+.TP
+.B \-inull
+Do not read input from file.
+This is similar to if=/dev/zero but much faster.
+.I Sdd 
+uses a prepared cleared buffer to satisfy writes.
+.TP
+.B \-onull
+Do not produce any output. This is similar to
+.BI of= /dev/null
+but actually does not write to any file.
+.TP
+.BI ibs= "#, " obs= "#, " bs= #
+Set input block size, output block size or both to #
+(default 512 Bytes).
+.TP
+.BI cbs= #
+Set Conversion buffer size to #.
+.TP
+.BI ivsize= "#, " ovsize= #
+Set input volume size or output volume size to #. You can make copies from
+devices of different size by using this option. If you want to make a copy
+to a tape having a size of 60 MBytes you should use the option
+.BI ovsize= 60M.
+If the capacity of the tape is exceeded,
+.I sdd
+wil ask for a second volume. In case
+.I ivsize
+is exceeded, if 
+.I "N<cr>"
+is typed, it is treated as an EOF condition and
+.I sdd
+writes any buffered data to output and exits. In case
+.I ovsize
+is exceeded, if
+.I "N<cr>"
+is typed,
+.I sdd
+stops and the statistics it prints show that more data were read than written.
+.TP
+.BI count= #
+Transfer # of input records or until EOF.
+.TP
+.BI iseek= "#, " iskip= #
+Seek/skip the first # Bytes from input before beginning transfer.
+.TP
+.BI oseek= "#, " oskip= #
+Seek/skip the first # Bytes from output before beginning transfer.
+.TP
+.BI seek= "#, " skip= #
+Seek/skip the first # Bytes from input and output before beginning transfer.
+.TP
+.BI ivseek= "#, " ovseek= #
+Seek
+.I #
+Bytes from input/output at the beginning of each input/output volume before
+beginning transfer. (You can skip labels of disks and floppies with 
+this option.)
+Note that the
+.I iseek/oseek
+options still work, but only apply to the first volume.
+Their values are added to the values of
+.I ivseek
+and
+.I ovseek.
+.TP
+.B \-notrunc
+Do not truncate an already existing output file before beginning transfer.
+This enables it to copy one file into another.
+.TP
+.B \-pg
+Print a dot to
+.I stderr
+each time a record is written to indicate progress.
+.TP
+.BR \-time ", " \-t
+Report the total time and the transfer rate.
+.TP
+.B \-noerror
+Do not stop transfer on I/O errors. Error messages will appear on the screen.
+.TP
+.B \-noerrwrite
+Do not write blocks that are not read corretly. Seek on the output to skip
+the bad block.
+The output file must be seekable or 
+.B \-noerrwrite
+will not work correctly.
+.TP
+.B \-noseek
+Do not
+.I seek
+after I/O errors. This implies
+.I try=1.
+.TP
+.BI try= #
+Set retry count to
+.I #.
+Only if
+.B \-noerror
+was specified. (default 2)
+.TP
+.B \-debug
+Turn on debugging messages. You can get knowledge about record sizes on
+tapes with variable record size with this option.
+.TP
+.B \-fill
+Pad every output record with zeros up to
+.I obs.
+If
+.I ibs
+equals
+.I obs,
+or only
+.I bs
+was specified, every record will be padded with zeros, otherwise this only
+applies to the last record.
+.TP
+.B \-swab
+Swaps bytes (except for the last byte in odd block sizes and odd transfers
+due to EOF).
+.TP
+.BR \-block ", " \-unblock
+Convert fixed length records to variable records and vice versa.
+.TP
+.BR \-lcase ", " \-ucase
+Map alphabetics to lower/upper case.
+.TP
+.BR \-ascii ", " \-ebcdic ", " \-ibm
+Convert
+.I EBCDIC
+to
+.I ASCII
+resp.
+.I ASCII
+to
+.I EBCDIC
+resp.
+.I ASCII
+to the
+.I IBM
+variant of
+.I EBCDIC.
+.TP
+.B \-help
+Prints a short summary of the 
+.B sdd
+options and exists.
+.TP
+.B \-version
+Prints the 
+.B sdd
+version number string and exists.
+.
+.SH EXAMPLES
+.B sdd if=/dev/rsd0a of=/dev/nrst8 bs=2x7x17b
+.PP
+Copies the disk
+.I /dev/rsd0a
+to the tape
+.I /dev/nrst8
+using a record size of 2\|*\|7\|*\|17 blocks.
+(this is 2 Cylinders.)
+.PP
+.B sdd if=/dev/rsd0c of=/dev/rsd1c seek=1b bs=63k
+.PP
+Copy the whole disk
+.I sd0
+to
+.I sd1
+preserving the old label on disk
+.I sd1.
+.SH FILES
+None.
+.SH "SEE ALSO"
+dd(1), star(1), rmt(1), tr(1), cp(1), copy(1)
+.SH DIAGNOSTICS
+sdd: Read  f records + p bytes (total of x bytes = d.nnk).
+.br
+sdd: Wrote f records + p bytes (total of x bytes = d.nnk).
+.PP
+The number of full records, the number of bytes in partial records
+and the total amount of data in KBytes.
+.PP
+With the
+.I QUIT
+signal ( usually ^\\ ) the actual state is displayed.
+.SH NOTES
+Opposed to
+.I dd, sdd
+is able to handle
+.I \-iseek \-oseek \-seek
+as well as
+.I \-iskip \-oskip \-skip
+regardless to the buffer size. You can make a whole physical copy of a disk
+without copying the label in one pass of
+.I sdd.
+.PP
+When numbers are unspecified the are taken to be bytes.
+.PP
+You can make them `words' (2 bytes) if they are followed by a `w' or `W'.
+.PP
+You can make them blocks (512 bytes) if they are followed by a `b' or `B'.
+.PP
+You can make them Kbytes (1024 bytes) if they are followed by a `k' or `K'.
+.PP
+You can make them Mbytes (1024 * 1024 bytes) if they are followed by
+a `m' or `M'.
+.PP
+You can make them Gbytes (1024 * 1024 *1024 bytes) if they are followed by
+a `g' or `G'.
+.PP
+A pair of numbers may be separated by `*' or `x' to indicate a product.
+.SH "SUID NOTES
+If 
+.B sdd
+is installed suid root, 
+.B sdd
+is able to make connections to remote files for non root users. 
+This is done by using the
+rcmd(3) interface to get a connection to a rmt(1) server.
+.PP
+.B Sdd
+resets its effective uid back to the real user id immediately after setting up
+the remote connection to the rmt server and before opening any other file.
+.SH BUGS
+The option
+.BI iskip= #
+and
+.BI oskip= #
+and
+.BI skip= #
+as well as
+.B \-block
+and
+.B \-unblock
+are not implemented.
+.PP
+It is confusing to allow the use of all additions together with the
+record counter
+.I \-count
+as they are possible with
+.BI obs= #.

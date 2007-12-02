@@ -1,0 +1,45 @@
+# @(#)Targets	1.9 07/04/03 Copyright 1995 J. Schilling
+
+CFILES_STDIO=	cvmod.c dat.c fcons.c fdown.c fdup.c \
+		ffileread.c ffilewrite.c \
+		fgetline.c fgetstr.c file_getraise.c file_raise.c \
+		fileclose.c fileluopen.c fileopen.c filemopen.c \
+		filepos.c fileread.c filereopen.c fileseek.c filesize.c \
+		filestat.c filewrite.c flag.c flush.c fpipe.c \
+		niread.c niwrite.c nixread.c nixwrite.c openfd.c peekc.c \
+		fcons64.c fdup64.c fileluopen64.c fileopen64.c filemopen64.c \
+		filepos64.c filereopen64.c fileseek64.c filesize64.c \
+		filestat64.c openfd64.c
+
+#
+# Note: getfp.c must be before getav0.c
+# Otherwise getfp.o would be made as dependency of avoffset
+#
+
+CFILES_REST=	astoi.c astoll.c astoull.c breakline.c \
+		checkerr.c comerr.c fcomerr.c cmpbytes.c cmpnullbytes.c \
+		error.c \
+		fconv.c fexec.c fillbytes.c \
+		findbytes.c findline.c fnmatch.c format.c \
+		getargs.c getav0.c geterrno.c getfp.c \
+		getdomainname.c gethostid.c gethostname.c getpagesize.c \
+		getnum.c getxnum.c \
+		gettnum.c getxtnum.c \
+		handlecond.c \
+		jsprintf.c jssnprintf.c jssprintf.c \
+		match.c matchl.c movebytes.c \
+		mem.c jmem.c fjmem.c \
+		raisecond.c rename.c \
+		saveargs.c serrmsg.c seterrno.c setfp.c \
+		spawn.c \
+		strcatl.c strdup.c streql.c strlcpy.c strncpy.c \
+		swabbytes.c \
+		usleep.c
+
+#
+# These interfaces have been moved to libschilypr in order to make
+# programs that use libschily compatible with all software.
+#
+# printf.c snprintf.c sprintf.c 
+
+CFILES=		$(CFILES_STDIO) $(CFILES_REST)

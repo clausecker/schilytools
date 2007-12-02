@@ -1,0 +1,57 @@
+This are shell scripts to create long filenames.
+If you like more tests, write me.
+
+A recent version of the files is always on:
+
+	ftp://ftp.berlios.de/pub/star/testscripts/
+
+
+The file 'mk' creates file names that check the behaviour of
+tar close to or at the POSIX filename length limit
+
+run ./mk to create the files.
+
+
+The file 'mk2' creates files that are bejond the scope of POSIX tar
+
+run ./mk2 to create the files
+
+In all cases to test the behaviour of tar you need to run:
+
+tar cf filename _*
+ 
+to check the POSIX scope and
+ 
+tar cf filename *
+
+to check against all possibilities.
+
+The length of the filenames is computed in a way that will be wrong
+if the filename is prepended by './'
+
+In order to help to test and debug tar implementations that have not
+been tested to be corect yet, I added a file long.ustar.gz
+This file is a 100% POSIX compiliant tar archive of all files created
+by ./mk that can be archived by a POSIX compliant tar implementation.
+
+To test your tar implementation against 'star' which could be called a
+POSIX reference implementation run:
+
+gzip -d < long.ustar.gz | tar tvf -
+
+Replace tar by the name of the tar implementation that needs to be tested.
+
+If you like to check which files are not handled correctly, get the 
+latest star from ftp://ftp.berlios.de/pub/star/alpha/
+and after compilation run:
+
+star -tz < long.ustar.gz >L1
+
+Then run:
+
+gzip -d < long.ustar.gz | yourtar tf - > L2
+
+and finally:
+
+diff L1 L2
+

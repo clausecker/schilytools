@@ -1,0 +1,33 @@
+Warning:
+
+Most tar programs allow you remove arbitrary files by using hand crafted
+tar archibes that contain links to itself.
+
+A good implementation such as star/1.5a18 or newer as well as Solaris "pax"
+and FreeBSD "pax" check for problems.
+
+GNU tar does not!
+
+gtar xvf create-and-remove.tar 
+gtar: Record size = 4 blocks
+f1
+f1
+gtar: f1: Cannot link to f1: No such file or directory
+gtar: Error exit delayed from previous errors
+
+ls -l f1
+ls: f1: No such file or directory
+
+Here is what the tar archives contain:
+
+star -tv < create-and-remove.tar 
+star: Blocksize = 4 records.
+      0 -rw-r--r--  root/berlios Jul 25 20:06 2003 f1
+      0 Hrw-r--r--  root/berlios Jul 25 20:06 2003 f1 link to f1
+star: 1 blocks + 0 bytes (total of 2048 bytes = 2.00k).
+
+star -tv < remove.tar            
+star: Blocksize = 3 records.
+      0 Hrw-r--r--  root/berlios Jul 25 20:06 2003 f1 link to f1
+star: 1 blocks + 0 bytes (total of 1536 bytes = 1.50k).
+

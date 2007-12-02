@@ -1,0 +1,124 @@
+. \" @(#)calc.1	1.1 01/04/20 Copyright 1985-2001 J. Schilling
+. \" Manual page for calc
+. \"
+.if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
+.if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
+.if t .ds u \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'u
+.if t .ds A \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'A
+.if t .ds O \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'O
+.if t .ds U \v'-0.77m'\h'0.30n'\z.\h'0.45n'\z.\v'0.77m'\h'-.75n'U
+.if t .ds s \(*b
+.if t .ds S SS
+.if n .ds a ae
+.if n .ds o oe
+.if n .ds u ue
+.if n .ds s sz
+.TH CALC 1 "01/04/20" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.SH NAME
+calc \- simple integer calculator that accepts decimal/hex/octal and outputs decimal/hex/octal/binary
+.SH SYNOPSIS
+.B
+calc
+[
+.I options
+]
+.SH DESCRIPTION
+The 
+.B calc
+command may be used to do simple integer calculations or to convert
+numbers from one radix to another.
+.PP
+.B Calc
+reads commands from stdin and prints the result to stdout.
+The inpout radix for numbers may be decimal (default),
+octal (if starting with a '0') or hexadecimal (if starting with "0x").
+The output is always printed in four radixes: 
+.BR decimal , 
+.BR octal , 
+.B hexadecimal
+and
+.BR binary .
+The decimal variant is printed as signed and as unsigned representation.
+.PP
+The result is printed in two variants using 32 bit and 64 bit repesentations
+for the numbers.
+.SH "INPUT FORMAT
+.PP
+.B Calc
+accepts three types of input lines:
+.TP 16
+.B "one number
+The input line is onue number only.
+.sp
+In this case the number is converted only to the different output formats.
+.TP
+.B "unary oparator
+The input line is a unary oparator followed by a number
+.sp
+In this case the unary oparator is applied to the number and the result
+is printed in all output formats.
+.TP
+.B "binary oparator
+The input line is a number followed by a binary oparator followed by a second number.
+.sp
+In this case the binari oparator is applied to the numbers and the result
+is printed in all output formats.
+
+.SH OPARATORS
+.TP 16
+.B +
+Binary arithmetic addition.
+.TP
+.B \-
+Binary arithmetic subtraction.
+.TP
+.B *
+Binary arithmetic multiplication.
+.TP
+.B <<
+Binary logical left shift.
+.TP
+.B >>
+Binary logical right shift.
+.TP
+.B ^
+Binary logical exclusive or as in C language.
+.TP
+.B &
+Binary logical and masking as in C language.
+.TP
+.B |
+Binary logical or as in C language.
+.TP
+.B !
+Unary logical not as in C language.
+.TP
+.B ~
+Unary logical one's complement as in C language.
+.TP
+.B %
+Binary arithmetic remainder from division.
+.TP
+.B /
+Binary arithmetic division.
+.SH OPTIONS
+.TP
+.B \-help
+Prints a short summary of the 
+.B calc
+options and exists.
+.TP
+.B \-version
+Prints the 
+.B calc
+version number string and exists.
+
+.SH EXAMPLES
+.SH ENVIRONMENT
+.SH FILES
+.SH "SEE ALSO
+.BR  dc (1),
+.BR  bc (1).
+.SH NOTES
+.SH BUGS
+.SH AUTHOR

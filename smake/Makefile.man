@@ -1,0 +1,18 @@
+#ident @(#)Makefile.man	1.1 98/09/27 
+###########################################################################
+# Sample makefile for installing manual pages
+###########################################################################
+SRCROOT=	..
+RULESDIR=	RULES
+include		$(SRCROOT)/$(RULESDIR)/rules.top
+###########################################################################
+
+MANDIR=		man
+TARGETMAN=	smake
+MANSECT=	$(MANSECT_CMD)
+MANSUFFIX=	$(MANSUFF_CMD)
+MANFILE=	smake.1
+
+###########################################################################
+include		$(SRCROOT)/$(RULESDIR)/rules.man
+###########################################################################

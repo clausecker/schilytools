@@ -1,0 +1,644 @@
+%!PS
+%%Version: 3.15
+%%DocumentFonts: (atend)
+%%Pages: (atend)
+%%EndComments
+%ident	"@(#)lp:filter/postscript/postscript/dpost.ps	1.1"
+%
+% Version 3.16 prologue for troff files.
+%
+
+/#copies 1 store
+/aspectratio 1 def
+/formsperpage 1 def
+/landscape false def
+/linewidth .3 def
+/magnification 1 def
+/margin 0 def
+/orientation 0 def
+/resolution 720 def
+/xoffset 0 def
+/yoffset 0 def
+
+/roundpage true def
+/useclippath true def
+/pagebbox [0 0 612 792] def
+
+/R  /Times-Roman def
+/I  /Times-Italic def
+/B  /Times-Bold def
+/BI /Times-BoldItalic def
+/H  /Helvetica def
+/HI /Helvetica-Oblique def
+/HB /Helvetica-Bold def
+/HX /Helvetica-BoldOblique def
+/CW /Courier def
+/CO /Courier def
+/CI /Courier-Oblique def
+/CB /Courier-Bold def
+/CX /Courier-BoldOblique def
+/PA /Palatino-Roman def
+/PI /Palatino-Italic def
+/PB /Palatino-Bold def
+/PX /Palatino-BoldItalic def
+/Hr /Helvetica-Narrow def
+/Hi /Helvetica-Narrow-Oblique def
+/Hb /Helvetica-Narrow-Bold def
+/Hx /Helvetica-Narrow-BoldOblique def
+/KR /Bookman-Light def
+/KI /Bookman-LightItalic def
+/KB /Bookman-Demi def
+/KX /Bookman-DemiItalic def
+/AR /AvantGarde-Book def
+/AI /AvantGarde-BookOblique def
+/AB /AvantGarde-Demi def
+/AX /AvantGarde-DemiOblique def
+/NR /NewCenturySchlbk-Roman def
+/NI /NewCenturySchlbk-Italic def
+/NB /NewCenturySchlbk-Bold def
+/NX /NewCenturySchlbk-BoldItalic def
+/ZD /ZapfDingbats def
+/ZI /ZapfChancery-MediumItalic def
+/VR /Varitimes#Roman def
+/VI /Varitimes#Italic def
+/VB /Varitimes#Bold def
+/VX /Varitimes#BoldItalic def
+/S  /S def
+/S1 /S1 def
+/GR /Symbol def
+
+/inch {72 mul} bind def
+/min {2 copy gt {exch} if pop} bind def
+
+/setup {
+	counttomark 2 idiv {def} repeat pop
+
+	landscape {/orientation 90 orientation add def} if
+	/scaling 72 resolution div def
+	linewidth setlinewidth
+	1 setlinecap
+
+	pagedimensions
+	xcenter ycenter translate
+	orientation neg rotate
+	width 2 div neg height 2 div translate
+	xoffset inch yoffset inch translate
+	margin 2 div dup neg translate
+	magnification dup aspectratio mul scale
+	scaling scaling scale
+
+	/Symbol /S Sdefs cf
+	/Times-Roman /S1 S1defs cf
+	0 0 moveto
+} def
+
+/pagedimensions {
+	useclippath userdict /gotpagebbox known not and {
+		/pagebbox [clippath pathbbox newpath] def
+		roundpage currentdict /roundpagebbox known and {roundpagebbox} if
+	} if
+	pagebbox aload pop
+	4 -1 roll exch 4 1 roll 4 copy
+	landscape {4 2 roll} if
+	sub /width exch def
+	sub /height exch def
+	add 2 div /xcenter exch def
+	add 2 div /ycenter exch def
+	userdict /gotpagebbox true put
+} def
+
+/pagesetup {
+	/page exch def
+	currentdict /pagedict known currentdict page known and {
+		page load pagedict exch get cvx exec
+	} if
+} def
+
+/decodingdefs [
+	{counttomark 2 idiv {y moveto show} repeat}
+	{neg /y exch def counttomark 2 idiv {y moveto show} repeat}
+	{neg moveto {2 index stringwidth pop sub exch div 0 32 4 -1 roll widthshow} repeat}
+	{neg moveto {spacewidth sub 0.0 32 4 -1 roll widthshow} repeat}
+	{counttomark 2 idiv {y moveto show} repeat}
+	{neg setfunnytext}
+] def
+
+/setdecoding {/t decodingdefs 3 -1 roll get bind def} bind def
+
+/w {neg moveto show} bind def
+/m {neg dup /y exch def moveto} bind def
+/done {/lastpage where {pop lastpage} if} def
+
+/f {
+	dup /font exch def findfont exch
+	dup /ptsize exch def scaling div dup /size exch def scalefont setfont
+	linewidth ptsize mul scaling 10 mul div setlinewidth
+	/spacewidth ( ) stringwidth pop def
+} bind def
+
+/changefont {
+	/fontheight exch def
+	/fontslant exch def
+	currentfont [
+		1 0
+		fontheight ptsize div fontslant sin mul fontslant cos div
+		fontheight ptsize div
+		0 0
+	] makefont setfont
+} bind def
+
+/sf {f} bind def
+
+/cf {
+	dup length 2 idiv
+	/entries exch def
+	/chtab exch def
+	/newfont exch def
+
+	findfont dup length 1 add dict
+	/newdict exch def
+	{1 index /FID ne {newdict 3 1 roll put} {pop pop} ifelse} forall
+
+	newdict /Metrics entries dict put
+	newdict /Metrics get
+	begin
+		chtab aload pop
+		1 1 entries {pop def} for
+		newfont newdict definefont pop
+	end
+} bind def
+
+%
+% A few arrays used to adjust reference points and character widths in some
+% of the printer resident fonts. If square roots are too high try changing
+% the lines describing /radical and /radicalex to,
+%
+%	/radical	[0 -75 550 0]
+%	/radicalex	[-50 -75 500 0]
+%
+
+/Sdefs [
+	/bracketlefttp		[220 500]
+	/bracketleftbt		[220 500]
+	/bracketrighttp		[-70 380]
+	/bracketrightbt		[-70 380]
+	/braceleftbt		[220 490]
+	/bracketrightex		[220 -125 500 0]
+	/radical		[0 0 550 0]
+	% NeWSprint's \(br is too low, compensate
+	statusdict /product get (NeWS Server) eq {
+		/radicalex		[-50 100 500 0]
+		/parenleftex		[-20 100 0 0]
+
+	} {
+		/radicalex		[-50 0 500 0]
+		/parenleftex		[-20 -170 0 0]
+	} ifelse
+	/integral		[100 -50 500 0]
+	/infinity		[10 -75 730 0]
+] def
+
+/S1defs [
+	/underscore		[0 80 500 0]
+	/endash			[7 90 650 0]
+] def
+%%EndProlog
+%%BeginSetup
+mark
+/resolution 720 def
+setup
+2 setdecoding
+%%EndSetup
+%%Page: 1 1
+save
+mark
+1 pagesetup
+10 B f
+(The following table summarizes all ved commands:)6 2231 1 720 120 t
+( ESC)1 228( ALT)1 997( ALT)1 651( CTRL)1 311( ESC)1 903(Key CTRL)1 1413 6 720 360 t
+(Label)720 480 w
+10 R f
+( mark \256rst)2 427( set)1 570(set mark \256rst)2 538 3 3792 480 t
+10 S1 f
+(@)1307 720 w
+10 R f
+( mark)1 238( where)1 759( mark)1 238( where)1 724( from)1 227( where)1 759(where from)1 470 7 1855 720 t
+( bot)1 161( from)1 836( top)1 161( from)1 1017(top bot)1 1114 5 1855 840 t
+10 S f
+(\372\254)720 960 w
+10 B f
+(A)1307 960 w
+10 R f
+( of para)2 320( start)1 698( of line)2 299( start)1 631( of para)2 320( start)1 687(start of line)2 471 7 1855 960 t
+10 B f
+(F2 B)1 654 1 720 1080 t
+10 R f
+( to bottom)2 428( go)1 453( to beginning)2 544( go)1 523( to bottom)2 428( go)1 442(go to beginning)2 644 7 1855 1080 t
+10 B f
+(F1 C)1 659 1 720 1200 t
+10 R f
+( \256le)1 161(exit backup)1 1274 2 1855 1200 t
+10 S1 f
+(\304 \304)1 1030 1 3792 1200 t
+10 B f
+(F3 D)1 659 1 720 1320 t
+10 R f
+( words)1 277( delete)1 782(delete char)1 442 3 1855 1320 t
+10 S1 f
+(\304 \304)1 1030 1 3792 1320 t
+10 S f
+(\256\372)720 1440 w
+10 B f
+(E)1307 1440 w
+10 R f
+( of para)2 320( end)1 698( of line)2 299( end)1 631( of para)2 320( end)1 687(end of line)2 443 7 1855 1440 t
+10 S f
+(\256)720 1560 w
+10 B f
+(F)1307 1560 w
+10 R f
+( word)1 238( forward)1 793( char)1 204( forward)1 713( word)1 238( forward)1 782(forward char)1 519 7 1855 1560 t
+10 B f
+(F11 G)1 665 1 720 1680 t
+10 R f
+( macro \256le)2 443( edit)1 658( \256le)1 161( change)1 985(get \256le)1 283 5 1855 1680 t
+10 S1 f
+(\304)4789 1680 w
+10 S f
+(\254)720 1800 w
+10 B f
+(H)1307 1800 w
+10 R f
+( word)1 238( back)1 793( char)1 204( back)1 713( word)1 238( back)1 782(back char)1 392 7 1855 1800 t
+10 B f
+(TAB I)1 626 1 720 1920 t
+10 R f
+(tab)1855 1920 w
+10 S1 f
+(\304)2841 1920 w
+10 R f
+(tab)3792 1920 w
+10 S1 f
+(\304)4789 1920 w
+10 B f
+(NL J)1 637 1 720 2040 t
+10 R f
+(insert new line)2 604 1 1855 2040 t
+10 S1 f
+(\304)2841 2040 w
+10 R f
+( mark)1 238( switch)1 703(jump to mark)2 555 3 3792 2040 t
+(and cursor)1 426 1 4789 2160 t
+10 B f
+(F4 K)1 665 1 720 2280 t
+10 R f
+( selection)1 388( kill)1 747( para)1 204( kill)1 803(kill line)1 317 5 1855 2280 t
+10 S1 f
+(\304)4789 2280 w
+10 B f
+(L)1307 2400 w
+10 R f
+( line)1 183( curr)1 517( window)1 355(re-display adjust)1 1225 4 1855 2400 t
+10 S f
+(\256)4168 2400 w
+10 R f
+(top)4300 2400 w
+10 S1 f
+(\304)4789 2400 w
+10 B f
+(CR M)1 681 1 720 2520 t
+10 R f
+( mark)1 238( sets)1 525( modes)1 294( change)1 664(insert new line)2 604 5 1855 2520 t
+10 S1 f
+(\304)4789 2520 w
+10 S f
+(\257)720 2640 w
+10 B f
+(N)1307 2640 w
+10 R f
+( para)1 204( down)1 814( line)1 183( down)1 747( para)1 204( down)1 803(down line)1 405 7 1855 2640 t
+10 B f
+(F5 O)1 665 1 720 2760 t
+10 R f
+(open line)1 377 1 1855 2760 t
+10 S1 f
+(\304)2841 2760 w
+10 R f
+(open line)1 377 1 3792 2760 t
+10 S1 f
+(\304)4789 2760 w
+10 S f
+(\255)720 2880 w
+10 B f
+(P)1307 2880 w
+10 R f
+( para)1 204( up)1 814( line)1 183( up)1 747( para)1 204( up)1 803(up line)1 283 7 1855 2880 t
+10 B f
+(Q)1307 3000 w
+10 R f
+(XON)1855 3000 w
+10 S1 f
+( \304)1 997(\304 \304)1 984 2 2841 3000 t
+10 B f
+(F9 R)1 659 1 720 3120 t
+10 R f
+( search)1 287( reverse)1 682( search)1 287( forward)1 692( search)1 287( reverse)1 671(forward search)1 602 7 1855 3120 t
+10 B f
+(S)1307 3240 w
+10 R f
+(XOFF)1855 3240 w
+10 S1 f
+( \304)1 997(\304 \304)1 984 2 2841 3240 t
+10 B f
+(F6 T)1 654 1 720 3360 t
+10 R f
+( selection)1 388( save)1 747( para)1 204( save)1 803(save line)1 360 5 1855 3360 t
+10 S1 f
+(\304)4789 3360 w
+10 R f
+( paste buf)2 404( into)1 593( paste buf)2 404( into)1 547( paste buf)2 404( into)1 582(into paste buf)2 560 7 1855 3480 t
+10 B f
+(U)1307 3600 w
+10 R f
+(multiply mult=)1 1226 1 1855 3600 t
+10 S1 f
+( \304)1 997(# \304)1 744 2 3081 3600 t
+10 B f
+(F7 V)1 659 1 720 3720 t
+10 R f
+( select)1 260( replace)1 737( select)1 260( replace)1 856( and)1 177(paste paste)1 1191 6 1855 3720 t
+( paste buf)2 404( clear)1 608( paste buf)2 404( with)1 532(clear paste buf)2 597 5 2841 3840 t
+10 B f
+(F12 W)1 687 1 720 3960 t
+10 R f
+( selection)1 388( write)1 547( paste buf)2 404( write)1 825(write \256le)1 366 5 1855 3960 t
+10 S1 f
+(\304)4789 3960 w
+10 B f
+(X)1307 4080 w
+10 R f
+( selection)1 388( exec)1 663( buf)1 166(XTD execute)1 1290 4 1855 4080 t
+10 S1 f
+(\304)4789 4080 w
+10 B f
+(Y)1307 4200 w
+10 R f
+( word)1 238( save)1 782(save char)1 381 3 1855 4200 t
+10 S1 f
+(\304 \304)1 1030 1 3792 4200 t
+10 R f
+( paste buf)2 404( into)1 582(into paste buf)2 560 3 1855 4320 t
+10 B f
+(F10 Z)1 654 1 720 4440 t
+10 R f
+( re-srch)1 309( reverse)1 1008( re-srch)1 631( re-srch)1 309(re-search reverse)1 1273 5 1855 4440 t
+10 B f
+(ESC [)1 620 1 720 4560 t
+10 R f
+(ESC)1855 4560 w
+10 S1 f
+(\304)2841 4560 w
+10 R f
+(ALT ESC)1 411 1 3792 4560 t
+10 S1 f
+(\304)4789 4560 w
+10 B f
+(])1307 4680 w
+10 R f
+( tag stack)2 393( pop)1 814( tag)1 155( goto)1 718( ESC)1 217(ALT ALT)1 1180 6 1855 4680 t
+10 B f
+(F8)720 4800 w
+10 S1 f
+(\\)1307 4800 w
+10 R f
+( paste buf)2 404( clr)1 493(chng paste buf)2 598 3 1855 4800 t
+10 S1 f
+(\304 \304)1 1030 1 3792 4800 t
+(\303)1307 4920 w
+10 R f
+( hex)1 177( quote)1 564( to 8bit ctl)3 433( quote)1 618( to 8 bit)3 333( quote)1 782(quote char)1 426 7 1855 4920 t
+10 S f
+(_)1307 5040 w
+10 R f
+(undo delete)1 471 1 1855 5040 t
+10 S1 f
+(\304)2841 5040 w
+10 R f
+(clear mark)1 431 1 3792 5040 t
+10 S1 f
+(\304)4789 5040 w
+10 B f
+(DEL DEL)1 793 1 720 5160 t
+10 R f
+( word)1 238( erase)1 782(erase char)1 408 3 1855 5160 t
+10 S1 f
+(\304 \304)1 1030 1 3792 5160 t
+10 B f
+(XTD commands:)1 738 1 720 5400 t
+( ESC)1 228( ALT)1 1009( ALT)1 623( CTRL)1 311( ESC)1 843(Key CTRL)1 1507 6 720 5520 t
+( mark \256rst)2 471( set)1 538( mark \256rst)2 471(Label set)1 3194 4 720 5640 t
+(H)1382 5880 w
+10 R f
+(help)1949 5880 w
+10 S1 f
+( \304)1 1009(\304 \304)1 956 2 2875 5880 t
+10 B f
+(X)1382 6000 w
+10 R f
+(execute cmd)1 509 1 1949 6000 t
+10 S1 f
+( \304)1 1009(\304 \304)1 956 2 2875 6000 t
+10 B f
+(Z)1382 6120 w
+10 R f
+(suspend)1949 6120 w
+10 S1 f
+( \304)1 1009(\304 \304)1 956 2 2875 6120 t
+10 R f
+(Special Escape commands:)2 1103 1 720 6360 t
+10 B f
+(ESC)1170 6480 w
+10 S1 f
+(#)1398 6480 w
+10 R f
+(Set mult to)2 456 1 1843 6480 t
+10 S1 f
+(#)2332 6480 w
+10 R f
+(for next command. \()3 839 1 2415 6480 t
+10 S1 f
+(#)3254 6480 w
+10 R f
+(is any number\))2 615 1 3337 6480 t
+10 B f
+(ESC %)1 328 1 1170 6600 t
+10 R f
+(Search matching parenthesis.)2 1183 1 1843 6600 t
+10 B f
+(ESC)1170 6720 w
+10 S f
+(*)1398 6720 w
+10 R f
+(Call temporary macro.)2 917 1 1843 6720 t
+10 B f
+(ESC :)1 261 1 1170 6840 t
+10 R f
+(Introduce colon command.)2 1089 1 1843 6840 t
+10 B f
+(ESC n)1 284 1 1170 6960 t
+10 R f
+(Next Page.)1 446 1 1843 6960 t
+10 B f
+(ESC p)1 284 1 1170 7080 t
+10 R f
+(Previous Page.)1 602 1 1843 7080 t
+10 B f
+(ALT ESC n)2 523 1 1170 7200 t
+10 R f
+(Set Mark then next Page.)4 1039 1 1843 7200 t
+10 B f
+(ALT ESC p)2 523 1 1170 7320 t
+10 R f
+(Set Mark then previous Page.)4 1211 1 1843 7320 t
+(Colon commands:)1 739 1 720 7440 t
+10 B f
+(backup)1170 7560 w
+10 R f
+(Backup \256le \(same as ESC)4 1070 1 1737 7560 t
+10 S1 f
+(\303)2840 7560 w
+10 R f
+(C\))2873 7560 w
+10 B f
+(bind)1170 7680 w
+10 R f
+(Print or set command bindings)4 1260 1 1737 7680 t
+10 B f
+(help)1170 7800 w
+10 R f
+(Print colon command help)3 1082 1 1737 7800 t
+10 B f
+(macro)1170 7920 w
+10 R f
+(Set temporary macro)2 853 1 1737 7920 t
+cleartomark
+showpage
+restore
+%%EndPage: 1 1
+%%Page: 2 2
+save
+mark
+2 pagesetup
+10 B f
+(map)1170 120 w
+10 R f
+(Set/view mappings)1 772 1 1737 120 t
+10 B f
+(next)1170 240 w
+10 R f
+(Switch to next \256le)3 755 1 1737 240 t
+10 B f
+(prev)1170 360 w
+10 R f
+(Switch to previous \256le)3 927 1 1737 360 t
+10 B f
+(quit)1170 480 w
+10 R f
+(Quit editor \(same as)3 831 1 1737 480 t
+10 S1 f
+(\303)2601 480 w
+10 R f
+(C\))2634 480 w
+10 B f
+(set)1170 600 w
+10 R f
+(Set parameters)1 598 1 1737 600 t
+10 B f
+(substitute)1170 720 w
+10 R f
+(Substitute pattern)1 711 1 1737 720 t
+10 B f
+(tag)1170 840 w
+10 R f
+(Go to named tag)3 687 1 1737 840 t
+cleartomark
+showpage
+restore
+%%EndPage: 2 2
+%%Page: 3 3
+save
+mark
+3 pagesetup
+10 R f
+(Colon)720 120 w
+10 B f
+(set)998 120 w
+10 R f
+(commands:)1147 120 w
+10 S f
+(*)720 240 w
+10 B f
+(autoindent)1170 240 w
+10 R f
+(Set autoindent mode.)2 863 1 1853 240 t
+10 B f
+(linelen)1170 360 w
+10 R f
+(Set line length to arg.)4 890 1 1853 360 t
+10 S f
+(*)720 480 w
+10 B f
+(magic)1170 480 w
+10 R f
+(Set magic search mode)3 947 1 1853 480 t
+10 S f
+(*)720 600 w
+10 B f
+(markwrap)1170 600 w
+10 R f
+(Mark wrapping lines)2 848 1 1853 600 t
+10 B f
+(optline)1170 720 w
+10 R f
+(Set optimal line number to arg.)5 1284 1 1853 720 t
+10 B f
+(pmargin)1170 840 w
+10 R f
+(Set page margin for scrolling to arg.)6 1493 1 1853 840 t
+10 B f
+(psize)1170 960 w
+10 R f
+(Set page length to arg.)4 928 1 1853 960 t
+10 B f
+(tabstop)1170 1080 w
+10 R f
+(Set tab width to arg.)4 840 1 1853 1080 t
+10 B f
+(taglength)1170 1200 w
+10 R f
+(Set number of signi\256cant characters for tag search to arg.)9 2355 1 1853 1200 t
+10 B f
+(tags)1170 1320 w
+10 R f
+(Set tag \256le search path to arg.)6 1232 1 1853 1320 t
+10 B f
+(wrapmargin)1170 1440 w
+10 R f
+(Set wrap margin for auto new line to arg.)8 1708 1 1853 1440 t
+(Commands marked with an asterix are boolean. They may be set to)11 2778 1 720 1680 t
+10 I f
+(false)3531 1680 w
+10 R f
+(by prepending a)2 659 1 3753 1680 t
+10 B f
+(no)4445 1680 w
+10 R f
+(to the name.)2 507 1 4584 1680 t
+cleartomark
+showpage
+restore
+%%EndPage: 3 3
+%%Trailer
+done
+%%DocumentFonts: Times-Bold Times-Roman Symbol Times-Italic
+%%Pages: 3

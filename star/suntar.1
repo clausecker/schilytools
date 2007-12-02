@@ -1,0 +1,195 @@
+. \" @(#)suntar.1	1.6 07/10/20 Copyr 2004 J. Schilling
+. \"  Manual Seite fuer suntar
+. \"
+.if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
+.if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
+.if t .ds u \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'u
+.if t .ds A \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'A
+.if t .ds O \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'O
+.if t .ds U \v'-0.77m'\h'0.30n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.75n'U
+.if t .ds s \\(*b
+.if t .ds S SS
+.if n .ds a ae
+.if n .ds o oe
+.if n .ds u ue
+.if n .ds s sz
+.TH STUNAR 1 "07/10/20" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.SH NAME
+suntar \- create tape archives and add or extract files
+.SH SYNOPSIS
+.B "suntar\ "
+.I command
+[
+.I options
+] 
+.I file1 .\|.\|. filen
+.SH DESCRIPTION
+.PP
+This manual page documents an emulation of the Sun version of
+.BR tar .
+It has been implemented on top of the
+.B star
+program.
+.PP
+For a description of the Sun tar program check the Sun tar manual page.
+.SH OPTIONS
+
+.SH "EXTENDED OPTIONS
+.PP
+The extended options are options taken from
+.BR star .
+.TP
+.B \-\-help
+Prints a summary of the most important options for
+.BR suntar (1)
+and exits.
+.TP
+.B \-\-xhelp
+Prints a summary of the less important options for
+.BR suntar (1)
+and exits.
+.TP
+.B \-\-version
+Prints the 
+.B suntar
+version number string and exists.
+.TP
+.B \-\-debug
+print additional debug messages
+.TP
+.BI xdebug= #
+.TP
+.BI xd= #
+set extended debug level
+.TP
+.BI artype= headertype
+Generate a tape archive in
+.I headertype
+format. 
+For more information, see
+.BR star (1) .
+.TP
+.B \-/
+don't strip leading '/'s from file names
+.TP
+.B \-\-..
+don't skip filenames that contain '..' in non-interactive extract
+.TP
+.B \-\-7z
+run the input or output through a
+.B p7zip
+pipe - see option
+.B \-z
+below.
+.sp
+Note that the
+.B p7zip
+program currently does not operate on a pipe but on a
+/tmp file copy and thus limits the maximum archive size.
+.TP
+.B \-\-secure\-links
+don't extract links that start with '/' or contain '..'
+.TP
+.B \-\-acl
+handle access control lists
+.TP
+.B \-\-xfflags
+handle extended file flags
+.TP
+.BI bs= #
+set (output) block size to #
+.TP
+.BI fs= #
+set fifo size to #
+.TP
+.B \-\-no\-fsync
+do not call fsync() for each extracted file (may be dangerous)
+.TP
+.B \-\-time
+ print timing info
+.TP
+.B \-\-no\-statistics
+do not print statistics
+.TP
+.B \-\-do\-statistics
+rint statistics
+.TP
+.B \-\-fifostats
+print fifo statistics
+.TP
+.B \-\-no\-fifo
+don't use a fifo to optimize data flow from/to tape
+.TP
+.B \-\-numeric
+don't use user/group name from tape
+.TP
+.B \-\-lzo
+pipe input/output through lzop, does not work on tapes
+.TP
+.B \-z
+pipe input/output through gzip, does not work on tapes
+.TP
+.B \-\-bz
+pipe input/output through bzip2, does not work on tapes
+.PP
+The options above are not defined by Sun tar.
+.PP
+For a complete documentation of the
+.B star
+based optione check
+.BR star (1).
+
+.SH EXAMPLES
+.SH ENVIRONMENT
+.SH FILES
+.SH "SEE ALSO"
+.BR spax (1), 
+.BR suntar (1), 
+.BR scpio (1), 
+.BR tar (1), 
+.BR cpio (1), 
+.BR pax (1), 
+.BR rcp (1), 
+.BR mt (1),
+.BR rmt (1), 
+.BR match (1), 
+.BR dd (1), 
+.BR sdd (1), 
+.BR rsh (1),
+.BR ssh (1),
+.BR star (1),
+.BR star (4/5),
+.BR rcmd (3),
+.BR fssnap (1m)
+.SH DIAGNOSTICS
+.SH NOTES
+.PP
+This
+.B suntar
+implementation is based on the
+.B star
+implementation and does not implement all features of the original Sun tar
+program.
+.PP
+.B "Suntar \-x
+is equivalent to
+.B "star \-xU \-force\-remove \-remove\-first \-keep\-nonempty\-dirs
+.SH BUGS
+.SH AUTHOR
+.nf
+J\*org Schilling
+Seestr. 110
+D\-13353 Berlin
+Germany
+.fi
+.PP
+Mail bugs and suggestions to:
+.PP
+.B
+schilling@fokus.fraunhofer.de
+or
+.B
+js@cs.tu\-berlin.de
+or
+.B
+joerg@schily.isdn.cs.tu\-berlin.de

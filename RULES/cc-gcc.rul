@@ -1,0 +1,68 @@
+#ident "@(#)cc-gcc.rul	1.9 07/05/09 "
+###########################################################################
+# Written 1996-2006 by J. Schilling
+###########################################################################
+#
+# Platform independent MACROS for GCC
+#
+###########################################################################
+# Copyright (c) J. Schilling
+###########################################################################
+# The contents of this file are subject to the terms of the
+# Common Development and Distribution License, Version 1.0 only
+# (the "License").  You may not use this file except in compliance
+# with the License.
+#
+# See the file CDDL.Schily.txt in this distribution for details.
+#
+# When distributing Covered Code, include this CDDL HEADER in each
+# file and include the License file CDDL.Schily.txt from this distribution.
+###########################################################################
+
+CPPFLAGS=	-DSCHILY_BUILD $(CPPOPTS) $(CPPOPTX)
+CFLAGS=		$(COPTS) $(CWARNOPTS) $(COPTOPT) $(GCCOPTOPT) $(COPTX)
+C++FLAGS=	$(C++OPTS) $(C++WARNOPTS) $(C++OPTOPT) $(G++OPTOPT) $(C++OPTX)
+
+CPPOPTS=	-I$(ARCHDIR) -I$(OINCSDIR) $(INCDIRS:%=-I%) $(INCDIRSX:%=-I%) $(OSDEFS)
+COPTS=
+#		-Wtraditional now causes more pain than it helps 
+CWOPTS=		-Wall -Wtraditional
+CWOPTS=		-Wall -Wno-unknown-pragmas \
+		-Wshadow -Wmissing-prototypes -Wstrict-prototypes
+COPTOPT=	-O
+COPTDYN=	-fpic
+COPTGPROF=	-pg
+C++OPTS=
+C++WOPTS=	$(CWOPTS)
+C++OPTOPT=	$(COPTOPT)
+C++OPTDYN=	-fpic
+C++OPTGPROF=	-pg
+
+LIB_PREFIX=	lib
+LIB_SUFFIX=	.a
+SHL_SUFFIX=	.so.1
+
+LIBS_PATH=	-L$(OLIBSDIR)
+LIBS_PATH_STATIC= -L$(OLIBSDIR_STATIC) 
+
+LDFLAGS=	$(LDOPTS) $(LDOPTX)
+LDLIBS=		$(LIBS) $(LIBX)
+
+LDOPTS=		$(LIBS_PATH) $(LDPATH) $(RUNPATH:-R%=-Wl,-R%)
+LDOPTDYN=	-shared -Wl,-soname,$(TARGET)
+LNDYNLIB=	@$(RM) $(RM_FORCE) $(PTARGET_BASE).so; $(SYMLINK) $(TARGET) $(PTARGET_BASE).so
+
+FLOAT_OPTIONS=	
+
+CC=		@echo "	==> COMPILING \"$@\""; gcc
+CC++ =		@echo "	==> COMPILING \"$@\""; g++
+LDCC=		@echo "	==> LINKING \"$@\""; gcc
+LDCC++ =	@echo "	==> LINKING \"$@\""; g++
+DYNLD=		@echo "	==> LINKING dynamic library \"$@\""; gcc
+DYNLDC++ =	@echo "	==> LINKING dynamic library \"$@\""; g++
+
+RMDEP=		:
+MKDEP=		@echo "	==> MAKING DEPENDENCIES \"$@\""; $(RMDEP); gcc -M
+MKDEP_OUT=
+MKC++DEP=	@echo "	==> MAKING DEPENDENCIES \"$@\""; $(RMDEP); g++ -M
+MKC++DEP_OUT=

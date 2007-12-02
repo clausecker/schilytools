@@ -1,0 +1,116 @@
+#!/bin/sh
+#ident "@(#)MAKE-sh	1.2 07/02/13 "
+###############################################################################
+#
+# The shell variables CFLAGS & LDFLAGS may be used to pass additional flags
+# to the compile and link process.
+#
+###############################################################################
+
+#
+# Check if the current system allows to create symlinks
+# If not, it seems that all symlinks appear to be plain files of size 0
+#
+echo "Checking for rotten symlinks..."
+if [ ! -s make.c ]; then
+	echo "Copying files because symlinks do not work..."
+	sh rmlinks
+	sh cpfiles
+fi
+
+SYSTEM=unknown
+echo 'testing for uname...'
+uname > /dev/null 2> /dev/null
+if [ $? = 0 ]; then
+	SYSTEM=`uname -s`
+fi
+
+ENV_CC=${CC-none}
+CC=${CC-cc}
+CF=
+LF=
+o=o
+
+if [ $ENV_CC = none ]; then
+	echo 'Trying to find GCC'
+
+	gcc -v 2> /dev/null && CC=gcc
+fi
+if [ $CC = gcc ]; then
+	GCC_OPT=-O
+	OPT=${CC_OPT-$GCC_OPT}
+else
+	OPT=${CC_OPT-}
+	if [ $SYSTEM = HP-UX ]; then
+		CF=-Ae
+	fi
+fi
+if [ $CC = cl ]; then
+	o=obj
+fi
+#
+# Set dynamic linking and auto .exe suffix for OS/2
+#
+if [ $SYSTEM = OS/2 ]; then
+	LF="-Zexe -Zcrtdll"
+fi
+#
+# Set stack size to 256k on QNX
+#
+if [ $SYSTEM = QNX -a $CC != gcc ]; then 
+	LF="-N 256k"
+fi 
+
+echo "SYSTEM:		$SYSTEM"
+echo "CC:		$CC"
+echo "OPT:		$OPT"
+echo "CFLAGS:		$CF"
+
+if [ -r config.cache ]; then
+	echo "Using old configure run results..."
+else
+	if [ .$CF != . ]; then
+		eval CC=$CC CFLAGS=$CF CONFIG_NOFAIL=TRUE sh ./configure
+	else
+		eval CC=$CC CONFIG_NOFAIL=TRUE sh ./configure
+	fi
+fi
+
+set -x
+
+$CC $OPT $CF $CFLAGS -c -Iinclude -I. -DSCHILY_BUILD -DSCHILY_PRINT -DNO_FLOATINGPOINT -DNO_SCANSTACK -DNO_USG_STDIO   make.c
+$CC $OPT $CF $CFLAGS -c -Iinclude -I. -DSCHILY_BUILD -DSCHILY_PRINT -DNO_FLOATINGPOINT -DNO_SCANSTACK -DNO_USG_STDIO   readfile.c
+$CC $OPT $CF $CFLAGS -c -Iinclude -I. -DSCHILY_BUILD -DSCHILY_PRINT -DNO_FLOATINGPOINT -DNO_SCANSTACK -DNO_USG_STDIO   parse.c
+$CC $OPT $CF $CFLAGS -c -Iinclude -I. -DSCHILY_BUILD -DSCHILY_PRINT -DNO_FLOATINGPOINT -DNO_SCANSTACK -DNO_USG_STDIO   update.c
+$CC $OPT $CF $CFLAGS -c -Iinclude -I. -DSCHILY_BUILD -DSCHILY_PRINT -DNO_FLOATINGPOINT -DNO_SCANSTACK -DNO_USG_STDIO   rules.c
+$CC $OPT $CF $CFLAGS -c -Iinclude -I. -DSCHILY_BUILD -DSCHILY_PRINT -DNO_FLOATINGPOINT -DNO_SCANSTACK -DNO_USG_STDIO   archconf.c
+$CC $OPT $CF $CFLAGS -c -Iinclude -I. -DSCHILY_BUILD -DSCHILY_PRINT -DNO_FLOATINGPOINT -DNO_SCANSTACK -DNO_USG_STDIO   memory.c
+$CC $OPT $CF $CFLAGS -c -Iinclude -I. -DSCHILY_BUILD -DNO_FLOATINGPOINT -DNO_SCANSTACK -DNO_USG_STDIO   astoi.c
+$CC $OPT $CF $CFLAGS -c -Iinclude -I. -DSCHILY_BUILD -DNO_FLOATINGPOINT -DNO_SCANSTACK -DNO_USG_STDIO   astoll.c
+$CC $OPT $CF $CFLAGS -c -Iinclude -I. -DSCHILY_BUILD -DNO_FLOATINGPOINT -DNO_SCANSTACK -DNO_USG_STDIO   comerr.c
+$CC $OPT $CF $CFLAGS -c -Iinclude -I. -DSCHILY_BUILD -DNO_FLOATINGPOINT -DNO_SCANSTACK -DNO_USG_STDIO   error.c
+$CC $OPT $CF $CFLAGS -c -Iinclude -I. -DSCHILY_BUILD -DNO_FLOATINGPOINT -DNO_SCANSTACK -DNO_USG_STDIO   format.c
+$CC $OPT $CF $CFLAGS -c -Iinclude -I. -DSCHILY_BUILD -DNO_FLOATINGPOINT -DNO_SCANSTACK -DNO_USG_STDIO   jsprintf.c
+$CC $OPT $CF $CFLAGS -c -Iinclude -I. -DSCHILY_BUILD -DNO_FLOATINGPOINT -DNO_SCANSTACK -DNO_USG_STDIO   jssnprintf.c
+$CC $OPT $CF $CFLAGS -c -Iinclude -I. -DSCHILY_BUILD -DNO_FLOATINGPOINT -DNO_SCANSTACK -DNO_USG_STDIO   saveargs.c
+$CC $OPT $CF $CFLAGS -c -Iinclude -I. -DSCHILY_BUILD -DNO_FLOATINGPOINT -DNO_SCANSTACK -DNO_USG_STDIO   seterrno.c
+$CC $OPT $CF $CFLAGS -c -Iinclude -I. -DSCHILY_BUILD -DNO_FLOATINGPOINT -DNO_SCANSTACK -DNO_USG_STDIO   strcatl.c
+$CC $OPT $CF $CFLAGS -c -Iinclude -I. -DSCHILY_BUILD -DNO_FLOATINGPOINT -DNO_SCANSTACK -DNO_USG_STDIO   strlcpy.c
+$CC $OPT $CF $CFLAGS -c -Iinclude -I. -DSCHILY_BUILD -DNO_FLOATINGPOINT -DNO_SCANSTACK -DNO_USG_STDIO   strncpy.c
+$CC $OPT $CF $CFLAGS -c -Iinclude -I. -DSCHILY_BUILD -DNO_FLOATINGPOINT -DNO_SCANSTACK -DNO_USG_STDIO   streql.c
+$CC $OPT $CF $CFLAGS -c -Iinclude -I. -DSCHILY_BUILD -DNO_FLOATINGPOINT -DNO_SCANSTACK -DNO_USG_STDIO   getargs.c
+$CC $OPT $CF $CFLAGS -c -Iinclude -I. -DSCHILY_BUILD -DNO_FLOATINGPOINT -DNO_SCANSTACK -DNO_USG_STDIO   geterrno.c
+$CC $OPT $CF $CFLAGS -c -Iinclude -I. -DSCHILY_BUILD -DNO_FLOATINGPOINT -DNO_SCANSTACK -DNO_USG_STDIO   movebytes.c
+$CC $OPT $CF $CFLAGS -c -Iinclude -I. -DSCHILY_BUILD -DNO_FLOATINGPOINT -DNO_SCANSTACK -DNO_USG_STDIO   fillbytes.c
+$CC $OPT $CF $CFLAGS -c -Iinclude -I. -DSCHILY_BUILD -DNO_FLOATINGPOINT -DNO_SCANSTACK -DNO_USG_STDIO   raisecond.c
+$CC $OPT $CF $CFLAGS -c -Iinclude -I. -DSCHILY_BUILD -DNO_FLOATINGPOINT -DNO_SCANSTACK -DNO_USG_STDIO   rename.c
+$CC $OPT $CF $CFLAGS -c -Iinclude -I. -DSCHILY_BUILD -DNO_FLOATINGPOINT -DNO_SCANSTACK -DNO_USG_STDIO   fileopen.c
+$CC $OPT $CF $CFLAGS -c -Iinclude -I. -DSCHILY_BUILD -DNO_FLOATINGPOINT -DNO_SCANSTACK -DNO_USG_STDIO   fcons.c
+$CC $OPT $CF $CFLAGS -c -Iinclude -I. -DSCHILY_BUILD -DNO_FLOATINGPOINT -DNO_SCANSTACK -DNO_USG_STDIO   cvmod.c
+$CC $OPT $CF $CFLAGS -c -Iinclude -I. -DSCHILY_BUILD -DNO_FLOATINGPOINT -DNO_SCANSTACK -DNO_USG_STDIO   flag.c
+$CC $OPT $CF $CFLAGS -c -Iinclude -I. -DSCHILY_BUILD -DNO_FLOATINGPOINT -DNO_SCANSTACK -DNO_USG_STDIO   dat.c
+$CC $OPT $CF $CFLAGS -c -Iinclude -I. -DSCHILY_BUILD -DNO_FLOATINGPOINT -DNO_SCANSTACK -DNO_USG_STDIO   filewrite.c
+$CC $OPT $CF $CFLAGS -c -Iinclude -I. -DSCHILY_BUILD -DNO_FLOATINGPOINT -DNO_SCANSTACK -DNO_USG_STDIO   fileread.c
+$CC $OPT $CF $CFLAGS -c -Iinclude -I. -DSCHILY_BUILD -DNO_FLOATINGPOINT -DNO_SCANSTACK -DNO_USG_STDIO   fileseek.c
+$CC $OPT $CF $CFLAGS -c -Iinclude -I. -DSCHILY_BUILD -DNO_FLOATINGPOINT -DNO_SCANSTACK -DNO_USG_STDIO   niread.c
+$CC $LF $LDFLAGS -o smake make.$o readfile.$o parse.$o update.$o rules.$o archconf.$o memory.$o  astoi.$o astoll.$o comerr.$o error.$o format.$o jsprintf.$o jssnprintf.$o saveargs.$o seterrno.$o strcatl.$o strlcpy.$o strncpy.$o streql.$o getargs.$o geterrno.$o movebytes.$o fillbytes.$o raisecond.$o rename.$o fileopen.$o fcons.$o cvmod.$o flag.$o dat.$o filewrite.$o fileread.$o fileseek.$o niread.$o

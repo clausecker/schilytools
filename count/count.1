@@ -1,0 +1,103 @@
+. \" @(#)count.1	1.4 01/04/29 Copyr 1982-1995 J. Schilling
+. \"  Manual page for count
+. \"
+.if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
+.if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
+.if t .ds u \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'u
+.if t .ds A \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'A
+.if t .ds O \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'O
+.if t .ds U \v'-0.77m'\h'0.30n'\z.\h'0.45n'\z.\v'0.77m'\h'-.75n'U
+.if t .ds s \(*b
+.if t .ds S SS
+.if n .ds a ae
+.if n .ds o oe
+.if n .ds u ue
+.if n .ds s sz
+.TH COUNT 1L "01/04/29" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.SH NAME
+count \- counts items in a file
+.SH SYNOPSIS
+.B count
+[ 
+.I options 
+]
+.I file1 .\|.\|. filen
+.SH DESCRIPTION
+.B Count 
+reads all of the specified files and produces one line of
+output for each input file: the number of the characters, the
+number of 'words', and the number of lines in the specified
+files. 'Words' is an arbitrary term in reference to programs,
+because they tend to have a lot of punctuation. For text files a
+word is a sequence of characters separated by white space.
+.PP
+If more than one file is given, a grand total is also printed.
+If no filenames are given, count reads from standard input. Any
+combination of options works; the default is 
+(\-c \-w \-l \-llen \-t).
+.SH OPTIONS
+All options except 
+.B tab= 
+and
+.B \-llen
+can be abbreviated to their first letter.
+The option 
+.B \-llen
+can be abbreviated with
+.BR \-ll .
+.TP 10
+.B \-chars
+Counts characters.
+.TP
+.B \-words
+Counts words.
+.TP
+.B \-lines
+Counts lines.
+.TP
+.B \-llen
+Counts maximum line length.
+.TP
+.BI tab= "tab width"
+Set the width of a tab to
+.I tab width
+for counting maximum line length.
+.TP
+.B \-stat
+Use 
+.BR stat (2)
+system call to get the character count of a file.
+This is much faster but cannot count anything but characters.
+.TP
+.B \-total
+Grand totals of several files.
+.TP
+.B \-help
+Prints a short summary of the 
+.B count
+options and exists.
+.TP
+.B \-version
+Prints the 
+.B count
+version number string and exists.
+.SH NOTES
+none
+.SH BUGS
+none
+
+.SH AUTHOR
+.nf
+J\*org Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+.fi
+.PP
+Mail bugs and suggestions to:
+.PP
+.B
+schilling@fokus.gmd.de
+or
+.B
+js@cs.tu-berlin.de

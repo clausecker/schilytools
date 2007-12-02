@@ -1,0 +1,21 @@
+SCHILY_1.0 {
+global:
+	_mtg2rmtg;
+	_rmtg2mtg;
+	rmtclose;
+	rmtdebug;
+	rmtfilename;
+	rmtgetconn;
+	rmthostname;
+	rmtinit;
+	rmtioctl;
+	rmtopen;
+	rmtread;
+	rmtseek;
+	rmtstatus;
+	rmtwrite;
+	rmtxstatus;
+
+local:
+	*;
+};

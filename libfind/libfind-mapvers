@@ -1,0 +1,36 @@
+# @(#)libfind-mapvers	1.8 07/03/31 Copyright 2005-2007 J. Schilling
+
+SCHILY_0.1 {		# Not yet a stable interface!
+global:
+	fetchdir;	# fetchdir.c
+	find_addprint;	# find.c
+	find_argsinit;	# find.c
+	find_expr;	# find.c
+	find_firstprim;	# find.c
+	find_free;	# find.c
+	find_list;	# find_list.c
+	find_main;	# find_main.c
+	find_parse;	# find.c
+	find_plusflush;	# find.c
+	find_pname;	# find.c
+	find_primary;	# find.c
+	find_printnode;	# find.c
+	find_timeinit;	# find.c
+	find_tname;	# find.c
+	find_token;	# find.c
+	find_usage;	# find.c
+	gid_nobody;	# name.c
+	gidname;	# name.c
+	has_acl;	# find_misc.c
+	has_xattr;	# find_misc.c
+	namegid;	# name.c
+	nameuid;	# name.c
+	treewalk;	# walk.c
+	uid_nobody;	# name.c 
+	uidname;	# name.c
+	walkclose;	# walk.c
+	walkhome;	# walk.c
+	walkinitstate;	# walk.c
+local:
+	*;
+};

@@ -1,0 +1,64 @@
+The file gtarfail.tar is a POSIX compliant tar file that is
+not accepted by GNU tar.
+
+Here is a star listing of the tar archive:
+
+    518 -rw-r--r-- jes/glone May 25 16:41 2001 vedpowered.gif
+   6825 -rw-r--r-- jes/glone Apr 29 02:19 1997 cd.gif
+  33354 -rw-r--r-- jes/glone Jun 22 14:17 1999 DSCN0049c.JPG
+
+
+Here is how Sun's tar program lists the archive:
+
+-rw-r--r-- 486/1060    518 Mai 25 16:41 2001 vedpowered.gif
+-rw-r--r-- 486/1060   6825 Apr 29 02:19 1997 cd.gif
+-rw-r--r-- 486/1060  33354 Jun 22 14:17 1999 DSCN0049c.JPG
+
+
+And this is how GNU tar-1.13.25 lists is:
+
+-rw-r--r-- jes/glone       518 2001-05-25 16:41:06 vedpowered.gif
+gtar: Skipping to next header
+-rw-r--r-- jes/glone     33354 1999-06-22 14:17:38 DSCN0049c.JPG
+gtar: Error exit delayed from previous errors
+
+
+/*--------------------------------------------------------------------------*/
+Next try: gtar-1.13.25 and file gtarfail2.tar
+
+
+A star lising of the archive:
+
+    214 -rwxr-xr-x jes/glone Sep 21 16:08 2001 .clean
+      0 lrwxrwxrwx jes/cats May  7 14:39 1998 RULES -> makefiles/RULES
+      0 drwxr-sr-x jes/glone Dec 10 01:00 2001 build/
+      0 drwxr-sr-x jes/glone Nov  9 19:20 2001 build/psmake/
+    259 -rwxr-xr-x jes/glone Jan  9 17:36 2000 build/psmake/MAKE
+   4820 -rwxr-xr-x jes/glone Feb 25 23:45 2001 build/psmake/MAKE.sh
+    647 -rw-r--r-- jes/glone Feb 26 00:50 2001 build/psmake/Makefile
+      0 lrwxrwxrwx jes/glone Aug 29 12:53 2001 build/psmake/archconf.c -> ../archconf.c
+      0 lrwxrwxrwx jes/glone Aug 29 12:54 2001 build/psmake/astoi.c -> ../../lib/astoi.c
+star: 31 blocks + 8192 bytes (total of 325632 bytes = 318.00k).
+
+A Sun tar listing of the archive:
+
+-rwxr-xr-x 486/1060    214 Sep 21 16:08 2001 .clean
+lrwxrwxrwx 486/2000     15 Mai  7 14:39 1998 RULES symbolic link zu makefiles/RULES
+drwxr-sr-x 486/1060      0 Dez 10 01:00 2001 build/
+drwxr-sr-x 486/1060      0 Nov  9 19:20 2001 build/psmake/
+-rwxr-xr-x 486/1060    259 Jan  9 17:36 2000 build/psmake/MAKE
+-rwxr-xr-x 486/1060   4820 Feb 25 23:45 2001 build/psmake/MAKE.sh
+-rw-r--r-- 486/1060    647 Feb 26 00:50 2001 build/psmake/Makefile
+lrwxrwxrwx 486/1060     13 Aug 29 12:53 2001 build/psmake/archconf.c symbolic link zu ../archconf.c
+lrwxrwxrwx 486/1060     17 Aug 29 12:54 2001 build/psmake/astoi.c symbolic link zu ../../lib/astoi.c
+
+A gtar-1.13.25 listing of the archive:
+
+-rwxr-xr-x jes/glone       214 2001-09-21 16:08:36 .clean
+drwxr-sr-x jes/glone         0 2001-12-10 01:00:58 build/
+-rwxr-xr-x jes/glone       259 2000-01-09 17:36:34 build/psmake/MAKE
+gtar: Skipping to next header
+gtar: Archive contains obsolescent base-64 headers
+-rw-r--r-- jes/glone       647 2001-02-26 00:50:06 build/psmake/Makefile
+gtar: Error exit delayed from previous errors
+

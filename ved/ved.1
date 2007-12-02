@@ -1,0 +1,2764 @@
+'\" t
+.\" @(#)ved.1	1.11 07/06/29 Copyright 1984-2007 J. Schilling
+. \"  Manual page for ved
+. \"
+.if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
+.if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
+.if t .ds u \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'u
+.if t .ds A \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'A
+.if t .ds O \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'O
+.if t .ds U \v'-0.77m'\h'0.30n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.75n'U
+.if t .ds s \\(*b
+.if t .ds S SS
+.if n .ds a ae
+.if n .ds o oe
+.if n .ds u ue
+.if n .ds s sz
+.TH VED 1L "07/06/29" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.SH NAME
+ved \- visual editor (screen-oriented)
+.SH SYNOPSIS
+.B ved
+[
+.I options
+] [
+.I filename .\|.\|.\|
+]
+.SH DESCRIPTION
+.B Ved
+(visual editor) is a small and very fast screen-oriented editor that implements a user
+interface somewhere between
+.B vi
+and
+.BR emacs .
+It is powerful and easy to learn,
+it has no limitations on line length and the type of characters
+that may appear in a file.
+It has almost no limitations on file size and supports to edit large files (files > 2 GB)
+if the OS has large file support.
+.PP
+To use
+.B ved
+to edit a file for the first time, call
+.B ved
+and specify the name of the file you want to edit.
+If you edit a file for the second time,
+.B ved
+will place you at the same cursor position that was used the last
+time when editing this file.
+If you do not specify a
+file name,
+.B ved
+will assume that you want to edit the last file you edited in your current
+directory. The cursor position in this case again will be the same as with the
+last editing session for this file.
+
+.SH OPTIONS
+.TP
+.BR \-v ", " \-vedhelp
+An editing session is started with the on-line help. This is done in read-only mode.
+.TP
+.BR \-r ", " \-readonly
+In this mode, you may edit the content of the edit buffer but you
+are not allowed to write back the modified buffer by using the
+quit command of the editor.
+If you use this option more than once, the readonly value is incremented.
+If
+.B \-readonly
+is used twice or more, you are not allowed to write the
+file back even in quit force mode.
+.TP
+.BI b= "#, " buffers= #
+By default
+.B ved
+uses 10 in-core buffers, each in-core buffer takes 8 kB (the actual values that
+are compiled into
+.B ved
+may be retrieved by calling
+.BI "ved \-help" ").
+Files that are bigger than the total amount of in-core buffer space are
+edited by using the swap file of
+.BI ved .
+If you specify a number that is higher than the default, you will need
+more space in memory but the speed will slightly increase.
+.TP
+.BR \-n ", " \-nobak
+Don't create
+.I filename.bak
+when writing back the file using the quit command of the editor.
+Note that if you use this option you will still break hard links.
+If you like to write into the original file, you should better use
+the 'W' command when you quit
+.BR ved .
+.TP
+.B  \-nolock
+Don't try to use record locking to tell other editors that a file
+ie being edited or just being written to. This option may help if
+NFS record locking bugs would otherwise cause an edit session to hang
+in the
+.BR fcntl ()
+lock request.
+.TP
+.BR \-e ", " \-edtmp
+Don't write to the file
+.BI .vedtmp .uid .
+(
+.B ved
+normally stores the names and cursor positions of files in
+.BI .vedtmp .uid
+)
+.TP
+.B \-raw8
+Do not expand 8-bit characters. Note that
+.B ved
+will by default not expand 8-bit characters that seem to be printable.
+If this option is ised, the expansion of 8-bit characters is turned off
+unconditionally.
+.TP
+.B \-dos
+Map new-line to carriage-return new-line and hide carriage-return
+characters that are directly followed by a new-line.
+If you type in a new line this results in inserting a carriage-return
+new-line pair.
+But as
+.B ved
+is acting binary transparent, reading in files that do not follow DOS
+newline conventions will not cause the content of the file to
+be automatically converted to use DOS new-lines.
+.sp
+If
+.B \-nodos
+has not been specified, 
+.B ved
+tries to autodetect whether a file needs DOS mapping or not.
+.TP
+.B \-nodos
+Do not map new-line to carriage-return new-line and hide carriage-return
+characters that are directly followed by a new-line.
+If
+.B \-nodos
+has been specified, autodetection of DOS files is disabled and
+files will always be edited in POSIX mode.
+.TP
+.BI "s=" "search string"
+Start editing session with search to
+.IR searchstr .
+.TP
+.B \-tag
+First filename is really a ctag.
+.TP
+.BI wrapmargin= #
+Set default wrap margin to #.
+The wrap margin is counted from the end of a terminal line.
+.TP
+.BI maxlinelen= #
+Set max line length for autowrap to #.
+The behaviour is similar to the 
+.I wrapmargin=
+option but ved does not count the maximum linelength from 
+.TP
+.BR \-R ", " \-Recover
+Recover Session from specified filename.
+.B ved
+generates a file
+.I vedP.xxxx
+in the
+.I /tmp
+directory in which all action of the user is stored during the session.
+This file must be used as the only argument to
+.B ved
+when running a recover session.
+
+.SH "THE STATUS LINE"
+The first (top) line of the screen is reserved for
+.B ved
+status information. The status line is divided into five fields.
+The fields are (from left to right):
+.TP
+.B Info/Input
+The first field is used to display informational messages and to fetch
+additional input that is required for some commands.
+Each command that needs confirmation requests input from this field.
+The size of this field defaults to 1/4th of the length of a line.
+It may use more if needed.
+.TP
+.B Number
+The second field contains the current multiplier for the next command.
+The current multiplier is reset to 1 after each command,
+it may be set to a different value by the user (See
+.B NUMBERS
+section below).
+This multiplier will be referred to as
+.I number
+in the following text.
+The size of this field is fixed to 1/8th of the length of a line.
+.TP
+.B Takebuf
+The third field contains is the name of the actual take buffer.
+The name of this buffer defaults to
+.B default
+on startup. It may be changed by the user.
+The size of this field is fixed to 1/4th of the length of a line.
+.TP
+.B Filename
+The fourth field usually displays the current filename.
+The size of this field defaults to 1/4th of the length of a line.
+It may use up more if needed and no error text is displayed.
+It may be hidden for some time if a long error message is displayed.
+.TP
+.B "Error text
+The fifth field is used to display all error messages and warnings.
+The size of this field defaults to 1/4th of the length of a line.
+If needed, it may use the space of the filename field too.
+
+.SH "BASIC COMMAND FORMAT"
+.B Ved
+does not distinguish between
+.I "command mode
+and
+.IR "insert mode" .
+All non control characters are treated as input
+(which should be inserted into the file buffer)
+unless they are prefixed by some commands that need arguments.
+.PP
+All basic
+.B ved
+commands are control characters or escape sequences.
+To enter a control character, use the
+.B control
+key like the
+.B shift
+key together with a character key; to enter an escape sequence,
+press the
+.B <ESC>
+key followed by another key.
+.PP
+In the following description,
+.B ^
+represents the
+control key and
+.B <ESC>
+the escape key (which is identical to pressing
+.BR "^[" ).
+.B <ALT>
+has a similar usage as
+.B <ESC>
+but different meaning in
+.B ved
+and represents the combination
+.BR "^]" .
+The combination
+.BI ^ char
+is a
+single keystroke, while
+.BI <ESC> char
+or
+.BI <ALT> char
+are two keystrokes. If the
+command takes an argument, the argument is terminated with a
+carriage return
+.BR <CR> .
+.PP
+A command may be modified in four ways:
+.TP
+.B Escape commands
+Typing the
+.B <ESC>
+key (or
+.BR ^[ )
+before the command will modify it to an alternate
+form, usually a related function.
+.TP
+.B Alt commands
+Typing the
+.B ALT
+key (
+.B ^]
+) before the command,
+inserts a mark (with a few exceptions) in the text usually at the
+current cursor position. You can precede any command that
+moves the cursor with the
+.B ALT
+key and
+.B ved
+sets the mark before moving the cursor.
+.TP
+.B Extended commands
+Typing a
+.B ^X
+before another command enters the extended mode. The extended
+mode just enters another level of commands.
+.TP
+.B Multiplied execution
+Numbers that are entered by typing
+.B <ESC>#<CR>
+(# represents a positive number)
+will set the multiplier to that number and display it in the
+status line of
+.BR ved .
+If a number greater than
+.B one
+is entered before a command, that command is usually repeated
+.I number
+times. Exceptions are some cursor movement commands where
+different functions will be executed
+.I number
+times instead of repeating the visible basic functionality of
+the command.
+
+.SH "CURSOR MOVEMENT"
+Like every editor,
+.B ved
+has a typing point, called
+.BR cursor ,
+which is indicated by the (in most cases) flashing bar or
+box (depending on your terminal/window type) on your screen.
+The cursor indicates the point within the file buffer
+where the typed characters are going to. It is
+your current place in the file buffer.
+The commands that move the cursor within the file buffer
+are explained in this section.
+.PP
+.ne 12
+.B Cursor movement command overview:
+.in -0.5i
+.ne 10
+.TS
+expand tab(/);
+lb lw1b lb lb lb lb
+lb lw1b lb lb lb lb
+lb lw1b l l l l
+.
+
+Key//CTRL/ESC CTRL/ALT/ALT ESC
+Label////set mark first/set mark first
+/
+|\(<-/A/start of line/start of para/start of line/start of para
+F2/B/go to beginning/go to bottom/go to beginning/go to bottom
+\(->|/E/end of line/end of para/end of line/end of para
+\(->/F/forward char/forward word/forward char/forward word
+\(<-/H/back char/back word/back char/back word
+\(da/N/down line/down para/down line/down para
+\(ua/P/up line/up para/up line/up para
+.TE
+.in +0.5i
+
+.PP
+.B Cursor movement commands in detail:
+.TP
+.B ^A
+moves the cursor to the beginning of the current line.
+If the cursor is already at the beginning, it will not
+move.
+.RS
+.PP
+If
+.I number
+is greater than one,
+.B ^A
+moves the cursor that number of characters from the beginning
+of the current line.
+.RE
+.TP
+.B <ESC>^A
+moves the cursor to the beginning of the current
+paragraph. If the cursor is already at the beginning,
+it will not move.
+.RS
+.PP
+If
+.I number
+is greater than one,
+.B <ESC>^A
+moves the cursor that number of words from the beginning
+of the current paragraph.
+.RE
+.TP
+.B <ALT>^A
+inserts the mark at the current cursor position before
+moving the cursor to the beginning of the current line.
+If the cursor is already at the beginning, it will not
+move, but
+.B ved
+will still inserts the mark.
+.RS
+.PP
+If
+.I number
+is greater than one,
+.B <ALT>^A
+inserts the mark, then
+moves the cursor that number of characters from the beginning
+of the current line.
+.RE
+.TP
+.B <ALT><ESC>^A
+inserts the mark at the current cursor position before
+moving the cursor to the beginning of the current
+paragraph. If the cursor is already at the beginning,
+it will not move, but
+.B ved
+will still inserts the mark.
+.RS
+.PP
+If
+.I number
+is greater than one,
+.B <ALT><ESC>^A
+inserts the mark, then
+moves the cursor that number of words from the beginning
+of the current paragraph.
+.RE
+.TP
+.B ^B
+moves the cursor to the beginning of the file. If the
+cursor is already at the beginning of the file, it will
+not move.
+.RS
+.PP
+If
+.I number
+is greater than one,
+.B ^B
+moves the cursor that number of lines from the beginning of the file.
+.RE
+.TP
+.B <ESC>^B
+moves the cursor to the end of the file. If the cursor
+is already at the end of the file, it will not move.
+.RS
+.PP
+If
+.I number
+is greater than one,
+.B <ESC>^B
+moves the cursor that number of lines from the end of the file.
+.RE
+.TP
+.B <ALT>^B
+inserts the mark at the current cursor position before
+moving the cursor to the beginning of the file. If the
+cursor is already at the beginning of the file, it will
+not move, but
+.B ved
+still inserts the mark.
+.RS
+.PP
+If
+.I number
+is greater than one,
+.B <ALT>^B
+inserts the mark, then
+moves the cursor that number of lines from the beginning of the file.
+.RE
+.TP
+.B <ALT><ESC>^B
+inserts the mark at the current cursor position before
+moving the cursor to the end of the file. If the
+cursor is already at the end of the file, it will
+not move, but
+.B ved
+still inserts the mark.
+.RS
+.PP
+If
+.I number
+is greater than one,
+.B <ALT><ESC>^B
+inserts the mark, then
+moves the cursor that number of lines from the end of the file.
+.RE
+.TP
+.B ^E
+moves the cursor to the end of the current line. If
+the cursor is already at the end of the line, it will
+not move. The last character on the line is the
+invisible ASCII newline character NL; when the cursor
+is at the end of the line, it is not on a visible
+character.
+.RS
+.PP
+If
+.I number
+is greater than one,
+.B ^E
+moves the cursor that number of characters from the end of the current line.
+.RE
+.TP
+.B <ESC>^E
+moves the cursor to the end of the current paragraph.
+If the cursor is already at the end, it will not move.
+.RS
+.PP
+If
+.I number
+is greater than one,
+.B <ESC>^E
+moves the cursor that number of words from the end of the current paragraph.
+.RE
+.TP
+.B <ALT>^E
+inserts the mark at the current cursor position before
+moving the cursor to the end of the current line. If
+the cursor is already at the end of the line, it will
+not move, but
+.B ved
+still inserts the mark.
+.RS
+.PP
+If
+.I number
+is greater than one,
+.B <ALT>^E
+inserts the mark, then
+moves the cursor that number of characters from the end of the current line.
+.RE
+.TP
+.B <ALT><ESC>^E
+inserts the mark at the current cursor position before
+moving the cursor to the end of the current paragraph.
+If the cursor is already at the end of the paragraph,
+it will not move, but
+.B ved
+still inserts the mark.
+.RS
+.PP
+If
+.I number
+is greater than one,
+.B <ALT><ESC>^E
+inserts the mark, then
+moves the cursor that number of words from the end of the current paragraph.
+.RE
+.TP
+.B ^F
+moves the cursor one character position to the right.
+.RS
+.PP
+If
+.I number
+is greater than one,
+.B ^F
+moves the cursor that number of characters to the right.
+.PP
+Depending on the cursor position, with or without
+.I number
+being greater than one,
+.B ^F
+could move the cursor down to the next line. If the cursor is at
+the end of the line, the cursor will move to the first position of
+the next line.
+.RE
+.TP
+.B <ESC>^F
+moves the cursor forward to the first letter of the next word.
+.RS
+.PP
+If
+.I number
+is greater than one,
+.B <ESC>^F
+moves the cursor forward that number of words.
+.PP
+Depending on the current cursor position and the value of
+.IR number ,
+.B <ESC>^F
+might move the cursor down one or more lines.
+.RE
+.TP
+.B <ALT>^F
+inserts the mark at the current cursor position before
+moving the cursor one character to the right.
+.RS
+.PP
+If
+.I number
+is greater than one,
+.B <ALT>^F
+inserts the mark, then
+moves the cursor that number of characters to the right.
+.RE
+.TP
+.B <ALT><ESC>^F
+inserts the mark at the current cursor position before
+moving the cursor to the first letter of the next word.
+.RS
+.PP
+If
+.I number
+is greater than one,
+.B <ALT><ESC>^F
+inserts the mark, then
+moves the cursor that number of words to the right.
+.RE
+.TP
+.B ^H
+moves the cursor one character position to the left.
+.RS
+.PP
+If
+.I number
+is greater than one,
+.B ^H
+moves the cursor that number of characters to the left.
+.PP
+Depending on the cursor position,
+.BR ^H ,
+with or without
+.I number
+being greater than one, could move the cursor up to the
+previous line. If the cursor is at the beginning of the line when you press
+.BR ^H ,
+the cursor will move to the last position of the previous line.
+.RE
+.TP
+.B <ESC>^H
+moves the cursor to the first letter of the word just
+prior to its current position.
+.RS
+.PP
+If
+.I number
+is greater than one,
+.B <ESC>^H
+moves the cursor that number of words backwards.
+Depending on the current cursor position and the
+value of
+.IR number ,
+the cursor may move up one or more lines.
+.RE
+.TP
+.B <ALT>^H
+inserts the mark at the current cursor position before
+moving the cursor one character position to the left.
+.RS
+.PP
+If
+.I number
+is greater than one,
+.B <ALT>^H
+inserts the mark, then moves the cursor that number of characters to the left.
+.RE
+.TP
+.B <ALT><ESC>^H
+inserts the mark at the current cursor position before
+moving the cursor to the first letter of the previous
+word.
+.RS
+.PP
+If
+.I number
+is greater than one,
+.B <ALT><ESC>^H
+inserts the mark, then moves the cursor that number of words to the left.
+.RE
+.TP
+.B ^N
+moves the cursor down one line while maintaining its
+horizontal position. If the cursor is on the last
+character of the last line when you press
+.BR ^N ,
+the cursor will not move and you will hear a beep.
+.RS
+.PP
+If
+.I number
+is greater than one,
+.B ^N
+moves the cursor down that number of lines.
+If
+.I number
+is greater than the number lines remaining
+in the file, the cursor will stop moving at the end of the file.
+.RE
+.TP
+.B <ESC>^N
+moves the cursor to the beginning of the next
+paragraph.
+.RS
+.PP
+If
+.I number
+is greater than one,
+.B <ESC>^N
+moves the cursor down that number of paragraphs.
+.RE
+.TP
+.B <ALT>^N
+inserts the mark at the current cursor position before
+moving the cursor down one line. Note that the cursor
+maintains its horizontal position on the line; i.e., if
+the cursor was on the fifth character of the line when
+you pressed
+.BR <ALT>^N ,
+it will move to the fifth character of the line below.
+.RS
+.PP
+If
+.I number
+is greater than one,
+.B <ALT>^N
+inserts the mark, then moves the cursor down that number of lines.
+.RE
+.TP
+.B <ALT><ESC>^N
+inserts the mark at the current cursor position before
+moving the cursor to the beginning of the next
+paragraph.
+.RS
+.PP
+If
+.I number
+is greater than one,
+.B <ALT><ESC>^N
+first inserts the mark, then moves the cursor down that number of paragraphs.
+.RE
+.TP
+.B ^P
+moves the cursor up one line while maintaining its
+horizontal position. If the cursor is on the first
+line of the file when you press
+.BR ^P ,
+the cursor will not move and you will hear a beep.
+.RS
+.PP
+If
+.I number
+is greater than one,
+.B ^P
+moves the cursor up that number of lines.
+If
+.I number
+is greater than the number of lines between
+the cursor and the beginning of the file, the cursor will stop
+moving at the beginning of the file.
+.RE
+.TP
+.B <ESC>^P
+moves the cursor to the beginning of the previous
+paragraph.
+.RS
+.PP
+If
+.I number
+is greater than one,
+.B <ESC>^P
+moves the cursor that number of paragraphs prior to the cursor's position.
+.RE
+.TP
+.B <ALT>^P
+inserts the mark at the current cursor position before
+moving the cursor up one line. Note that the cursor
+maintains its horizontal position on the line; i.e., if
+the cursor was on the fifth character of the line when
+you pressed
+.BR <ALT>^P ,
+it will move to the fifth character of the line above.
+.RS
+.PP
+If
+.I number
+is greater than one,
+.B <ALT>^P
+inserts the mark, then moves the cursor up that number of lines.
+.RE
+.TP
+.B <ALT><ESC>^P
+inserts the mark at the current cursor position before
+moving the cursor to the beginning of the previous
+paragraph.
+.RS
+.PP
+If
+.I number
+is greater than one,
+.B <ALT><ESC>^P
+first inserts the mark, then moves the cursor up that number of paragraphs
+prior to its current position.
+.RE
+
+.SH "ADDITION/DELETION"
+.PP
+All additions are always made at the place where the visible cursor is.
+.PP
+All deletions are saved in two buffers: the
+.B forward delete buffer
+and the
+.BR "backwards delete buffer" .
+The characters in the backward delete buffer are saved in reverse order
+to allow to reinsert them in the correct order.
+As long as you don't move the cursor and start deleting new text, the content
+of both, the forward and the backwards delete buffer may be reinserted
+with the
+.B undo delete
+command. This allows you to move text by deleting it and reinserting it
+after you moved the cursor to another position in the file
+
+.PP
+.ne 14
+.B Addition/Deletion command overview:
+.in -0.5i
+.ne 12
+.TS
+expand tab(/);
+lb lw1b lb lb lb lb
+lb lw1b lb lb lb lb
+lb lw1b l l l l
+.
+
+Key//CTRL/ESC CTRL/ALT/ALT ESC
+Label////set mark first/set mark first
+/
+F3/D/delete char/delete words/~/~
+TAB/I/tab/~/tab/~
+NL/J/insert new line/~/jump to mark/switch mark
+/////and cursor
+F4/K/kill line/kill para/kill selection/~
+CR/M/insert new line/change modes/sets mark/~
+F5/O/open line/~/open line/~
+/\(ul/undo delete/~/clear mark/~
+DEL/DEL/erase char/erase word/~/~
+.TE
+.in +0.5i
+
+.PP
+.B Addition/Deletion commands in detail:
+.TP
+.B ^D
+erases the character at the cursor position.
+.RS
+.PP
+If
+.I number
+is greater than one,
+.B ^D
+erases that number of characters to the right of the cursor.
+.RE
+.TP
+.B <ESC>^D
+erases the next word. A word is defined from the
+current cursor position to the next blank or carriage
+return.
+.RS
+.PP
+If
+.I number
+is greater than one,
+.B <ESC>^D
+erases that number of words to the right of the cursor.
+.RE
+.TP
+.B ^I
+inserts a
+.B TAB
+character.
+.RS
+.PP
+If
+.I number
+is greater than one,
+.B ^I
+inserts that number of
+.B TAB
+characters.
+.RE
+.TP
+.B <ALT>^I
+inserts the mark at the current cursor position before
+inserting a
+.B TAB
+character.
+.RS
+.PP
+If
+.I number
+is greater than one,
+.B <ALT>^I
+inserts the mark, then inserts that number of
+.B TAB
+characters.
+.RE
+.TP
+.B ^J
+inserts a
+.B new line
+at the current cursor position and moves
+the cursor to the beginning of the next line.
+.RS
+.PP
+If
+.I number
+is greater than one,
+.B ^J
+inserts that number of new lines.
+.RE
+.TP
+.B ^K
+erases the current line. If the cursor is located at
+the beginning of the line, the entire line is erased,
+including the carriage return at the end of the line.
+If the cursor is located between the beginning and end
+of the line, everything right of the cursor is erased,
+including the carriage return at the end of the line.
+You can use
+.B ^K
+to erase blank lines.
+.RS
+.PP
+If
+.I number
+is greater than one,
+.B ^K
+erases that number of lines from the current cursor position.
+.RE
+.TP
+.B <ESC>^K
+erases from the current cursor position to the end of
+the paragraph. The end of a paragraph is indicated by
+two successive carriage returns--one at the end of the
+last line and one on the blank line that follows the
+paragraph.
+.RS
+.PP
+If
+.I number
+is greater than one,
+.B <ESC>^K
+erases that number of paragraphs.
+.RE
+.TP
+.B <ALT>^K
+erases text between the mark and the current cursor
+position. For instance, if the mark is in the middle
+of the file and the cursor is at the end, the last half
+of the file will be erased.
+.TP
+.B ^M
+inserts a
+.B new line
+at the current cursor
+position and moves the cursor to the beginning of the
+next line.
+.RS
+.PP
+If
+.I number
+is greater than one,
+.B ^M
+inserts that number of new lines.
+.RE
+.TP
+.B ^O
+inserts a
+.B new line
+at the current cursor
+position, but does not move the cursor. Any text to
+the right of the cursor moves down to start a new line.
+.RS
+.PP
+If
+.I number
+is greater than one,
+.B ^O
+inserts that number of new lines without moving the cursor.
+.RE
+.TP
+.B <ALT>^O
+inserts a new line without moving the cursor.
+It inserts the mark at the beginning of the next (new)
+line.
+.RS
+.PP
+If
+.I number
+is greater than one,
+.B <ALT>^O
+inserts that number of new lines without moving the cursor.
+It inserts the mark after the last new line.
+.RE
+.TP
+.B ^DELETE
+erases the character to the left of the cursor. This
+acts the same as using the DELETE key alone.
+.RS
+.PP
+If
+.I number
+is greater than one,
+.B ^DELETE
+erases that number of characters to the left of the cursor.
+.RE
+.TP
+.B <ESC>^DELETE
+erases the word to the left of the cursor. This acts
+the same as using ^DELETE.
+.RS
+.PP
+If
+.I number
+is greater than one,
+.B <ESC>^DELETE
+erases that number of words to the left of the cursor.
+.RE
+.TP
+.B ^_
+reinserts the last deletion. The content of the
+.B forward
+and
+.B backward
+delete buffer is cleared after reinserting the deleted text.
+.TP
+.B <ALT>^_
+erases the mark.
+
+.SH "CUT/PASTE"
+
+These commands deal with the 'take' buffers. You can have up to
+32 take buffers, each named as you choose when you use it for the first time.
+The name appears on the status (top) line of the terminal screen following
+.BR \e: .
+The default take buffer is "default".
+
+.B Cut/Paste command overview:
+.in -0.5i
+.TS
+expand tab(/);
+lb lw1b lb lb lb lb
+lb lw1b lb lb lb lb
+lb lw1b l l l l
+.
+
+Key//CTRL/ESC CTRL/ALT/ALT ESC
+Label////set mark first/set mark first
+/
+.\"F6/T/save line/save para/save selection/save selection
+/T/save line/save para/save selection/~
+//into paste buf/into paste buf/into paste buf/into paste buf/
+F7/V/paste/paste and/replace select/replace select
+///clear paste buf/with paste buf/clear paste buf
+/Y/save char/save word/~/~
+//into paste buf/into paste buf//
+F8/\\\\/chng paste buf/clr paste buf/~/~
+.TE
+.in +0.5i
+
+.PP
+.B Cut/Paste commands in detail:
+.TP
+.B ^T
+removes a line from the file and puts it in the current
+take buffer. The line is defined from the current cursor
+position to the next carriage return.
+.RS
+.PP
+If
+.I number
+is greater than one,
+.B ^T
+removes that number of lines from the file and puts them
+in the current take buffer.
+.RE
+.TP
+.B <ESC>^T
+removes a paragraph from the file and puts it in the
+current take buffer. A paragraph is defined from the
+current cursor position to two successive carriage
+returns--one at the end of the last line and one on the
+blank line that follows the paragraph.
+.RS
+.PP
+If
+.I number
+is greater than one,
+.B <ESC>^T
+removes that number of paragraphs from the file and puts them
+in the current take buffer.
+.RE
+.TP
+.B <ALT>^T
+removes the selection (what lies between the mark and
+the cursor) and puts it in the current take buffer.
+.\".TP
+.\".B <ALT><ESC>^T
+.\"removes the selection (what lies between the mark and
+.\"the cursor) and puts it in the current take buffer.
+.TP
+.B ^V
+pastes the contents of the current take buffer into the file
+at the current cursor position. The take buffer will still
+contain a copy of the text.
+.TP
+.B <ESC>^V
+pastes and clears the contents of the current take buffer
+into the file at the current cursor position. The take
+buffer will be empty.
+.TP
+.B <ALT>^V
+replaces the selection (what lies between the mark and
+the cursor) with whatever is in the current take buffer.
+The old content of the selection is lost.
+The take buffer will still contain a copy of the text.
+.TP
+.B <ALT><ESC>^V
+replaces the selection (what lies between the mark and
+the cursor) with whatever is in the current take buffer and
+clears the take buffer.
+The old content of the selection is lost.
+The take buffer will be empty.
+.TP
+.B ^Y
+removes a character from the file and puts it in the
+current take buffer. The character at the current cursor
+position is the one taken.
+.RS
+.PP
+If
+.I number
+is greater than one,
+.B ^Y
+takes that number of characters and puts them in the current buffer.
+.RE
+.TP
+.B <ESC>^Y
+removes a word from the file and puts it in the current
+take buffer. A word consists of any characters from the
+current cursor position up to the next blank or
+carriage return.
+.RS
+.PP
+If
+.I number
+is greater than one, <ESC>^Y takes that number of words and puts
+them in the current buffer.
+.RE
+.TP
+.B ^\e
+changes the current take buffer.
+.RS
+.PP
+On the information line you will see the
+.B Take Buffer:
+prompt. Type a take buffer name and press the RETURN key.
+.PP
+If you type a new name, a new take buffer is created. If
+you type a name you have already used during the
+current editing session, you can reuse that take buffer.
+The take buffer name is always displayed on the information
+line.
+.RE
+.TP
+.B <ESC>^\e
+clears any text out of the current take buffer. On the
+information line you will see the Buffer cleared
+message.
+
+.SH "SEARCH"
+.PP
+
+
+.B Search command overview:
+.in -0.5i
+.TS
+expand tab(/);
+lb lw1b lb lb lb lb
+lb lw1b lb lb lb lb
+lb lw1b l l l l
+.
+
+Key//CTRL/ESC CTRL/ALT/ALT ESC
+Label////set mark first/set mark first
+/
+F9/R/forward search/reverse search/forward search/reverse search
+F10/Z/re-search/reverse re-srch/re-srch/reverse re-srch
+.TE
+.in +0.5i
+
+.PP
+.B Search commands in detail:
+.TP
+.B ^R
+searches forward in a file for the specified text
+string.
+.RS
+.PP
+On the information line you will see the
+.B +Search:
+prompt. Type the string you want to find. If the
+string exists between the cursor's current position and
+the end of the file,
+.B ved
+moves the cursor to that
+location. If
+.B ved
+can not find the specified string,
+the cursor does not move and you will hear a beep.
+.PP
+If
+.I number
+is greater than one,
+.B ^R
+finds that numbered occurrence of the string.
+.RE
+.TP
+.B <ESC>^R
+searches backwards in a file for the specified text
+string.
+.RS
+.PP
+On the information line you will see the
+.B \-Search:
+prompt. Type the string you want to find. If the
+string exists between the cursor's current position and
+the beginning of the file,
+.B ved
+moves the cursor to that
+location. If
+.B ved
+can not find the string, the cursor
+does not move and you will hear a beep.
+.PP
+If
+.I number
+is greater than one,
+.B <ESC>^R
+finds that numbered occurrence of the string.
+.RE
+.TP
+.B <ALT>^R
+searches forward in a file for the specified text
+string.
+.RS
+.PP
+On the information line you will see the
+.B +Search:
+prompt. Type the string you want to find. When (and
+if) found, the mark is inserted at the beginning of the
+string and the cursor moves to the end of the string;
+the string is then considered selected. If
+.B ved
+can not
+find the string, the cursor does not move, no mark is
+inserted, and you will hear a beep.
+.PP
+If
+.I number
+is greater than one,
+.B <ALT>^R
+finds that numbered occurrence of the string.
+.RE
+.TP
+.B <ALT><ESC>^R
+searches backwards in a file for the specified text
+string.
+.RS
+.PP
+On the information line you will see the
+.B \-Search:
+prompt. Type the string you want to find. When found,
+the mark is inserted at the beginning of the search
+string and the cursor moves to the end of the string;
+the string is then considered selected. If
+.B ved
+can not
+find the string, the cursor does not move, no mark is
+inserted, and you will hear a beep.
+.PP
+If
+.I number
+is greater than one,
+.B <ALT><ESC>^R
+finds that numbered occurrence of the string.
+.RE
+.TP
+.B ^Z
+re-searches for the last text string you asked to for
+with the
+.BR ^R ,
+.BR <ESC>^R ,
+.BR <ALT>^R ", or
+.B <ALT><ESC>^R
+command. If you
+already found one occurrence of the text string,
+.B ^Z
+will find the next occurrence. If
+.B ved
+can not find
+another occurrence, the cursor does not move and you
+will hear a beep.
+.RS
+.PP
+If
+.I number
+is greater than one, instance,
+.B ^Z
+finds that numbered occurrence of the string.
+.RE
+.TP
+.B <ESC>^Z
+reverses direction and re-searches for the last text
+string you asked for with the
+.BR ^R ,
+.BR <ESC>^R ,
+.BR <ALT>^R ", or
+.B <ALT><ESC>^R
+command. If you already found one occurrence of the
+text string,
+.B <ESC>^Z
+will find the next, or previous,
+occurrence, depending on which your direction. For
+instance, if the original command was
+.BR ^R ,
+.B <ESC>^Z
+will find the previous occurrence. If
+.B ved
+can not find another
+occurrence, the cursor does not move and you will hear
+a beep.
+.RS
+.PP
+If
+.I number
+is greater than one, instance,
+.B <ESC>^Z
+finds that numbered occurrence of the string.
+.RE
+.TP
+.B <ALT>^Z
+re-searches for the last text string you asked for with
+the
+.BR ^R ,
+.BR <ESC>^R ,
+.BR <ALT>^R ", or
+.B <ALT><ESC>^R
+command. If you already
+found one occurrence of the text string,
+.B <ALT>^Z
+will find the next occurrence, set the mark at the
+beginning of it, and move the cursor to the end of it.
+This occurrence of the string is then considered
+selected. If
+.B ved
+can not find another occurrence, the
+cursor does not move, no mark is inserted, and you will
+hear a beep.
+.RS
+.PP
+If
+.I number
+is greater than one, instance,
+.B <ALT>^Z
+finds that numbered
+occurrence of the search string, with the numbering beginning from
+the current cursor position. For instance, if
+.I number
+is 4, the next three occurrences are skipped and the mark is inserted at
+the beginning of the fourth occurrence of the string. This happens
+regardless of how many occurrences of the string have already been
+located, unless there are not that many occurrences of the string
+in the file.
+.RE
+.TP
+.B <ALT><ESC>^Z
+reverses direction and re-searches for the last text
+string you asked for with the
+.BR ^R ,
+.BR <ESC>^R ,
+.BR <ALT>^R ", or
+.B <ALT><ESC>^R
+command. If you already found one occurrence of the
+text string,
+.B <ALT><ESC>^Z
+will find the next, or previous,
+occurrence, depending on your direction. For instance,
+if the original command was
+.BR ^R ,
+.B <ALT><ESC>^Z
+will find the
+previous occurrence, set the mark at the beginning of
+it, and move the cursor to the end of it. This
+occurrence of the search string is then considered
+selected.
+.RS
+.PP
+If
+.I number
+is greater than one, instance,
+.B <ALT><ESC>^Z
+finds that numbered occurrence of the search string,
+with the numbering beginning from the current cursor position.
+.RE
+
+.SH "EXITING/PUTTING"
+.TP
+.B ^C
+The QUIT command ends the editing session.
+.RS
+.PP
+On the information line you will see the
+.B "QUITTING. PUT EDITS? (Y/W/N/F/!)
+prompt.
+.TP 8
+Type \fBY
+if you want to save the changes made during this editing session
+by creating a backup file and creating a new
+file that holds the modified content.
+The backup process is done the following way:
+.RS
+.PP
+The current backup file (if there is one) (called
+.IR filename .bak)
+is deleted, the current file is renamed to
+.IR filename .bak,
+and a version of the file containing the
+latest changes becomes
+.IR filename .
+If there is no
+.IR filename .bak,
+.I filename
+becomes
+.IR filename .bak.
+.RE
+.TP
+Type \fBW
+if you want to save the changes made during this editing session
+by directly writing the new content into the old file.
+.TP
+Type \fBF
+if you want to 
+.B forcibly
+save the changes made during this editing session.
+This command works similar to the
+.B Y
+command, but
+.B ved
+will ignore the state of the
+.B \-readonly
+flag and the access rights of the file.
+The latter will allow you to write into files without write permissions
+if you are super user.
+For execptions on this rule, see description of the
+.B \-readonly flag.
+.TP
+Type \fB!
+if you want to 
+.B forcibly
+save the changes made during this editing session
+by directly writing the new content into the old file.
+.TP
+Type \fBN
+if you want to end the session but don't want to save the changes.
+.PP
+If you don't want to end the session, type anything except
+.BR Y ,
+.BR W ,
+.BR F ,
+.B !
+or
+.BR N .
+.PP
+If the file has been locked before by another edit session or if the
+file has been modified more recently than the copy that has been
+used for the current session, you will not be allowed to save the
+file.
+Use the force commands
+.RB ( F " or " ! )
+or write back using different file name.
+.RE
+.TP
+.B <ESC>^C
+The BACKUP command backs up the current file.
+.RS
+.PP
+On the information line you will see the
+.B "BACKUP?(Y/W/N/F/!)
+prompt.
+.PP
+If you enter one of the expected answers (
+.BR Y ,
+.BR W ,
+.B !
+or
+.BR N )
+The same actions as with the QUIT command are performed except
+that the controls stays inside
+.B ved
+after the backup command has completed.
+.RE
+.TP
+.B ^X^H
+calls on-line help.
+.RS
+.PP
+On the information line you will see the
+.B "HELP(Y?)
+prompt. To continue editing (and abort this command),
+type
+.BR N .
+To see the help file, type
+.BR Y .
+.RE
+.TP
+.B ^X^Z
+suspends the current editing session.
+.RS
+.PP
+On the information line you will see the
+.B "SUSPENDING. PUT EDITS? (Y/W/N/F/!)
+prompt.
+.TP 8
+Type \fBY
+if you want the
+file to be backuped and updated before suspending
+.BR ved .
+See the
+.B QUIT
+command for a description of the backup process.
+.TP
+Type \fBW
+if you want the
+the file to be updated in place before suspending
+.BR ved .
+.TP
+Type \fBF
+if you want file to be
+.B forcibly
+updated before suspending
+.BR ved .
+This command works similar to the
+.B Y
+command, but
+.B ved
+will ignore the state of the
+.B \-readonly
+flag and the access rights of the file.
+The latter will allow you to write into files without write permissions
+if you are super user.
+For execptions on this rule, see description of the
+.B \-readonly flag.
+.TP
+Type \fB!
+if you want file to be
+.B forcibly
+updated in place before suspending
+.BR ved .
+.TP
+Type \fBN
+if you want to suspend
+.B ved
+but don't want to save the changes before.
+.PP
+If you don't want to suspend
+.BR ved ,
+type anything except
+.BR Y ,
+.BR W ,
+.BR F ,
+.B !
+or
+.BR N .
+.PP
+If the file has been locked before by another edit session or if the
+file has been modified more recently than the copy that has been
+used for the current session, you will not be allowed to save the
+file.
+Use the force commands
+.RB ( F " or " ! )
+or write back using different file name.
+.PP
+When you are ready to continue editing, use the
+.B fg
+or
+.B resume
+command of your shell. You will return to the editing
+session. The cursor will be in the same place it was
+when you suspended the session, regardless of whether
+or not you saved your edits.
+.RE
+
+.SH "FILE COMMANDS"
+.TP
+.B ^G
+lets you insert another file at the current cursor
+position.
+.RS
+.PP
+On the information line you will see the
+.B "Get from:
+prompt. Type a file name and press the RETURN key.
+.PP
+You can insert files from the current working directory
+or from other directories (as long as you use a valid
+path name). The path name is subject of filename globbing
+by your shell (e.g. wild cards are working as long as
+they expand to exactly one filename).
+.RE
+.TP
+.B <ESC>^G
+exits the current file and enters another file.
+.RS
+.PP
+On the information line you will see the
+.B "Change to:
+prompt. Type the name of the file you wish to edit and
+press the RETURN key.
+.PP
+If the old file was modified, you will see the
+.B "CHANGING TO:
+.IR filename .
+.B "PUT EDITS?(Y/W/N/F/!)
+prompt; if you want to save and backup the edits
+in the current file.
+.TP 8
+Type \fBY
+if you want the
+file to be backuped and updated before changing the file.
+See the
+.B QUIT
+command for a description of the backup process.
+.TP
+Type \fBW
+if you want the
+the file to be updated in place before changing the file.
+.TP
+Type \fBF
+if you want file to be
+.B forcibly
+updated before changing the file.
+This command works similar to the
+.B Y
+command, but
+.B ved
+will ignore the state of the
+.B \-readonly
+flag and the access rights of the file.
+The latter will allow you to write into files without write permissions
+if you are super user.
+For execptions on this rule, see description of the
+.B \-readonly flag.
+.TP
+Type \fB!
+if you want file to be
+.B forcibly
+updated in place before changing the file.
+.TP
+Type \fBN
+if you want to change the file but don't want to save the changes before.
+.PP
+If you don't want to change the edited file, type anything except
+.BR Y ,
+.BR W ,
+.BR F ,
+.B !
+or
+.BR N .
+.PP
+If the file has been locked before by another edit session or if the
+file has been modified more recently than the copy that has been
+used for the current session, you will not be allowed to save the
+file.
+Use the force commands
+.RB ( F " or " ! )
+or write back using different file name.
+.RE
+.TP
+.B ^W
+writes a copy of the file you are editing to the file
+you specify.
+.RS
+.PP
+On the information line you will see the
+.B "Write to:
+prompt. Type a file name and press the RETURN key. If
+the file exists, its contents are overwritten. If the
+file does not exist, it is created.
+.RE
+.TP
+.B <ESC>^W
+writes the contents of the current take buffer to the file
+you specify.
+.RS
+.PP
+On the information line you will see the
+.B "\e to file:
+prompt. Type a file name and press the RETURN key. If
+the file exists, its contents are overwritten. If the
+file does not exist, it is created. The take buffer
+contents will remain intact.
+.RE
+.TP
+.B <ALT>^W
+writes a copy of the selection (what lies between the
+mark and the cursor) to the file you specify.
+.RS
+.PP
+On the information line you will see the
+.B "Sel to:
+prompt. Type a file name and press the RETURN key. If
+the file exists, its contents are overwritten. If the
+file does not exist, it is created.
+.RE
+
+.SH "NUMBERS"
+.TP
+.B <ESC>#<CR>
+To enter a multiplier that only works for the next command,
+type
+.BR <ESC> ,
+enter a number and then press the RETURN key.
+If you entered a number by mistake, simply enter
+.B <ESC>1<CR>
+to reset the number to its default value.
+.TP
+.B ^U
+multiplies
+.I number
+by the multiplier. The
+default multiplier is 4. Each time you press
+.B ^U
+.I number
+changes to the next multiple of 4 (16,
+16, 64, and so on).
+.TP
+.B <ESC>^U
+changes the multiplier.
+.RS
+.PP
+The default multiplier is 4. If you want to multiply
+.I number
+by a different value, use
+.BR <ESC>^U .
+On the information line you will see the
+.B "Mult =
+prompt. Type a number and press the RETURN key.
+.RE
+
+.SH "MISCELLANEOUS"
+.TP
+.B <ALT>^G
+lets you edit your editing macro file called
+.B .vedmac
+(which is located in your
+.I "$HOME
+directory).
+It is the same as if
+you used
+.B ^X^X
+to execute a new
+.B ved
+and answered
+.B N
+to the
+.I put
+question. When you are through editing
+.BR .vedmac ,
+press ^C to continue editing the file you were in when
+you issued the
+.B <ALT>^G
+command; you will be asked whether
+or not you want to put the edits from
+.B .vedmac
+before you
+return to the original file.
+.TP
+.B <ALT>^J
+moves the cursor to the mark.
+.RS
+.PP
+The current cursor position determines whether this is
+a forward or backward movement. For instance, if the
+mark is in the middle of the file and the cursor is at
+the beginning, its a forward movement; if the cursor is
+at the end, its a backward movement.
+.RE
+.TP
+.B <ALT><ESC>^J
+switches the cursor and the mark.
+.TP
+.B ^L
+redisplays the current screenful of text. This is
+useful after a message has been sent to your terminal
+which may have overwritten some of the text.
+.TP
+.B <ESC>^L
+adjusts the text displayed on the terminal screen so
+that the line the cursor is on becomes the optimum line on the screen.
+This usually is the center line of the display but it may be changed
+using the
+.B "<ESC>:set optline # <CR>
+command.
+This may involve displaying different text,
+depending on where the cursor is when you use this
+command.
+.TP
+.B <ALT>^L
+Adjusts the current Line of the Cursor to be the first
+Line on Screen.
+.TP
+.B <ESC>^M
+changes modes.
+.RS
+.PP
+On the information line you will see the
+.B "Mode?(ORV8)
+prompt.
+Type
+.TP
+.B D
+to enable or disable
+.B DOS
+mode.
+.TP
+.B V
+for visible mode.
+.TP
+.B O
+for overstrike mode.
+.TP
+.B 8
+to enable or disable
+.B raw8
+mode.
+.TP
+.B R
+to reset back to default mode.
+.TP
+.B <CR>
+to list the current mode settings.
+.PP
+If you type anything else, you will abort the command.
+.RE
+.TP
+.B <ALT>^M
+sets a mark at the current cursor position.
+
+.TP
+.B <ESC>n
+displays the next Page of file.
+.TP
+.B <ESC>p
+displays the previous Page of file.
+.TP
+.B <ALT><ESC>n
+Sets a Mark, then displays the next Page of file.
+.TP
+.B <ALT><ESC>p
+Sets a Mark, then displays the previous Page of file.
+.TP
+.B ^Q
+unfreezes the screen which was frozen by pressing
+.BR ^S .
+.TP
+.B ^S
+freezes cursor and text movement on the screen. Use
+.B ^Q
+to unfreeze it.
+.TP
+.B ^X^X
+lets you execute a
+.I shell
+command without terminating the
+editing session.
+.RS
+.PP
+Control temporarily returns to the Command Interpreter
+while the command is executed, then you can continue
+editing. For instance, if you want to read another file
+into the one you are editing but can not remember the
+file name, you can execute an ls command to find its
+name. When you type
+.BR ^X^X ,
+you will see the
+.B Execute:
+prompt on the information line. Type the command line
+and press the RETURN key.
+If the file was modified before you called
+.BR ^X^X ,
+you will see the
+.B "EXECUTING. PUT EDITS? (Y/W/N/F/!)
+prompt.
+.TP 8
+Type \fBY
+if you want the
+file to be backuped and updated before executing the command.
+See the
+.B QUIT
+command for a description of the backup process.
+.TP
+Type \fBW
+if you want the
+the file to be updated in place before executing the command.
+.TP
+Type \fBF
+if you want file to be
+.B forcibly
+updated before executing the command.
+This command works similar to the
+.B Y
+command, but
+.B ved
+will ignore the state of the
+.B \-readonly
+flag and the access rights of the file.
+The latter will allow you to write into files without write permissions
+if you are super user.
+For execptions on this rule, see description of the
+.B \-readonly flag.
+.TP
+Type \fB!
+if you want file to be
+.B forcibly
+updated in place before executing the command.
+.TP
+Type \fBN
+if you want to execute the command but don't want to save the changes before.
+.PP
+If the file has been locked before by another edit session or if the
+file has been modified more recently than the copy that has been
+used for the current session, you will not be allowed to save the
+file.
+Use the force commands
+.RB ( F " or " ! )
+or write back using different file name.
+.PP
+In all cases, after returning from the command, the cursor will
+be on the same place as it was before typing
+.BR ^X^X .
+.PP
+Note that if the
+.I shell
+command you want to execute
+requires the current file as an argument, you might
+need to update it. For instance, if you the file you
+are editing contains formatting commands that you want
+to test, you will need to update the file so that the
+version of the file you format and view is the most
+up-to-date one.
+.PP
+To abort the command while you can see the
+.B Execute:
+prompt, do not type a command; simply press the RETURN
+key. If you had started to type a command, use the
+DELETE key to erase it; the field following the prompt
+must be blank. To abort the command while you can see the
+.B "EXECUTING. PUT EDITS? (Y/W/N/F/!)
+prompt, type anything
+except
+.BR Y ,
+.BR W ,
+.BR F ,
+.B !
+.BR N .
+.RE
+.TP
+.B <ESC>^X
+executes the contents of the current take buffer.
+.RS
+.PP
+You can type a
+.I shell
+command line in your file and then
+save it in a take buffer (using the
+.BR ^T ,
+.BR <ESC>^T ,
+.B ^Y
+or
+.B <ESC>^Y
+commands).
+.PP
+When you type <ESC>^X, you will see the
+.B "EXECUTING. PUT EDITS? (Y/W/N/F/!)
+prompt on the information
+line.
+.TP 8
+Type \fBY
+if you want the
+file to be backuped and updated before executing the command.
+See the
+.B QUIT
+command for a description of the backup process.
+.TP
+Type \fBW
+if you want the
+the file to be updated in place before executing the command.
+.TP
+Type \fBF
+if you want file to be
+.B forcibly
+updated before executing the command.
+This command works similar to the
+.B Y
+command, but
+.B ved
+will ignore the state of the
+.B \-readonly
+flag and the access rights of the file.
+The latter will allow you to write into files without write permissions
+if you are super user.
+For execptions on this rule, see description of the
+.B \-readonly flag.
+.TP
+Type \fB!
+if you want file to be
+.B forcibly
+updated in place before executing the command.
+.TP
+Type \fBN
+if you want to execute the command but don't want to save the changes before.
+.PP
+If you don't want to execute the command, type anything except
+.BR Y ,
+.BR W ,
+.BR F ,
+.B !
+or
+.BR N .
+.PP
+If the file has been locked before by another edit session or if the
+file has been modified more recently than the copy that has been
+used for the current session, you will not be allowed to save the
+file.
+Use the force commands
+.RB ( F " or " ! )
+or write back using different file name.
+.RE
+.TP
+.B <ALT>^X
+executes the selection (what lies between the mark and
+the cursor).
+.RS
+.PP
+You can type a
+.I shell
+command line in your file and select it.
+.PP
+When you type
+.BR <ALT>^X ,
+you will see the
+.B "EXECUTING. PUT EDITS? (Y/W/N/F/!)
+prompt on the information
+line.
+.TP 8
+Type \fBY
+if you want the
+file to be backuped and updated before executing the command.
+See the
+.B QUIT
+command for a description of the backup process.
+.TP
+Type \fBW
+if you want the
+the file to be updated in place before executing the command.
+.TP
+Type \fBF
+if you want file to be
+.B forcibly
+updated before executing the command.
+This command works similar to the
+.B Y
+command, but
+.B ved
+will ignore the state of the
+.B \-readonly
+flag and the access rights of the file.
+The latter will allow you to write into files without write permissions
+if you are super user.
+For execptions on this rule, see description of the
+.B \-readonly flag.
+.TP
+Type \fB!
+if you want file to be
+.B forcibly
+updated in place before executing the command.
+.TP
+Type \fBN
+if you want to execute the command but don't want to save the changes before.
+.PP
+If you don't want to execute the command, type anything except
+.BR Y ,
+.BR W ,
+.BR F ,
+.B !
+or
+.BR N .
+.PP
+If the file has been locked before by another edit session or if the
+file has been modified more recently than the copy that has been
+used for the current session, you will not be allowed to save the
+file.
+Use the force commands
+.RB ( F " or " ! )
+or write back using different file name.
+.RE
+.TP
+.B ^@
+indicates the current line number. This number tells
+you how many lines exist between the beginning of the
+file and the current cursor position.
+.RS
+.PP
+On the information line you will see
+.BI "+Line: " 333
+where
+.I 333
+is the current line number.
+.RE
+.TP
+.B <ESC>^@
+indicates how many lines exist between the current
+cursor position and the end of the file.
+.RS
+.PP
+On the information line you will see
+.BI "\-Line: " 22
+where
+.I 22
+is the number of lines remaining in the file.
+.RE
+.TP
+.B <ALT>^@
+indicates what line the mark is on, in relation to the
+beginning of the file.
+.RS
+.PP
+On the information line you will see
+.BI "+Line: " 45
+where
+.I 45
+is the positive line number on which the mark is
+located.
+.PP
+If there is no mark, you will see
+.B No mark!
+displayed on the far right of the information line.
+.RE
+.TP
+.B <ALT><ESC>^@
+indicates what line the mark is on, in relation to the
+end of the file.
+.RS
+.PP
+On the information line you will see
+.BI "\-Line: " 109
+where
+.I 109
+is the negative line number on which the mark is
+located.
+.PP
+If there is no mark, you will see
+.B No mark!
+displayed on the far right of the information line.
+.RE
+.TP
+.B ^[
+is the same as using the
+.B <ESC>
+key.
+.TP
+.B ^]
+is
+.BR <ALT> .
+Use this sequence of keystrokes to start an
+.B ALT
+command.
+.TP
+.B ^X
+is the lead in character for an extended command.
+.TP
+.B <ESC>^]
+is the same as using
+.BR <ALT><ESC> .
+.TP
+.B ^^
+quotes the next character so that it is taken
+literally and then is converted to a control character.
+For instance, if you want to include a
+command in a macro definition, you must quote the
+keystroke sequence. Otherwise, the command will be
+executed rather than become part of your macro.
+.TP
+.B <ESC>^^
+quotes the next character so that is becomes a 8 bit
+character.
+.TP
+.B <ALT>^^
+quotes the next character so that is becomes a 8 bit
+control character.
+.TP
+.B <ALT><ESC>^^
+quotes the next character so that you type it in in a hexadecimal notation.
+.TP
+.B <ALT><ALT>
+goto tag that is a word located at cursor position.
+See
+.B FILES
+section for more information on the
+.B tag
+file.
+.TP
+.B <ESC><ALT><ALT>
+pop the tag stack by one entry.
+Every time you go to a tag, the old location is puched on top
+of the tag stack.
+.TP
+.B <ESC>%
+search for matching parenthesis.
+If this command is entered, the cursor is put to the parenthesis that
+matches the parenthesis where the cursor is currently located.
+.TP
+.B <ESC>*
+Execute temporary macro.
+One temporary macro may be set up using the command
+.B "<ESC>:macro"
+command.
+.TP
+.B <ESC>:
+introduce a colon command.
+See section
+.B "COLON COMMANDS"
+for more information.
+
+.SH "COLON COMMANDS"
+Colon commands are introduced via
+.B <ESC>:
+.br
+The command then may be entered on the (top) status line of
+.BR ved .
+.PP
+The colon commands are:
+.TP
+.B backup
+Backup current file. This command is the same as when
+.B "<ESC>^C"
+is entered.
+It may be needed if for some reason it it not possible to enter
+the interrupt character of the terminal driver.
+.TP
+.B bind
+Print the current command binding for
+.BR ved .
+Later versions of
+.B ved
+may allow to modify the binding with this command.
+.TP
+.B help
+print online help for available colon commands.
+.TP
+.BI macro " macro body"
+set up a temporary macro that may be executed via
+.B <ESC>*
+.TP
+.B map
+.TP
+.BI map " from-string to-string"
+The first form lists all currently active mappings, the second
+form sets up a new mapping.
+.TP
+.B next
+switch to next file in file list.
+This command may only be used if
+.B ved
+has been called with more than one file argument.
+.TP
+.B prev
+switch to previous file in file list.
+This command may only be used if
+.B ved
+has been called with more than one file argument.
+.TP
+.B quit
+Quit
+.BR ved .
+This command is the same as when
+.B "^C"
+is entered.
+It may be needed if for some reason it it not possible to enter
+the interrupt character of the terminal driver.
+.TP
+.B set
+.TP
+.BI set " set-variable set-args"
+The first form lists the current settings of
+.BR ved ,
+the second form sets a specific property of
+.BR ved .
+The vaiables that may be modified via the
+.B set
+command are:
+.RS
+.TP
+.B autoindent
+If set,
+.B ved
+activates the auto indent mode. Subsequent lines will be automatically
+indented with the same indent as the previous line.
+Switch off with
+.B <ESC>:set noautoindent
+.TP
+.BI linelen " new-linelen"
+Set linelength that is used as base for screen updates.
+This linenength usually is retrived from the terminal driver
+but may be modified manually.
+.TP
+.B magic
+Switch to
+.B magic
+mode for pattern matching (this is the default when 
+.B ved
+has been started). If in magic mode, matching is done
+using regular expression pattern matching.
+This mode may be switched off with
+.BR "<ESC>:set nomagic" .
+If 
+.B magic
+mode is turned off, matching is done without using regular expression
+matching even if the pattern contains 
+.I magic characters for pattern matching.
+.TP
+.B markwrap
+Mark wrapped lines with a \e character at the end of a visible terminal line
+(this is the default when 
+.B ved
+has been started).
+This mode may be switched off with
+.BR "<ESC>:set nomarkwrap" .
+.TP
+.BI optline " opt-line"
+Set the 
+.IR "optimal line" .
+This is the line (counted from the top of the terminal) where the cursor
+is adjusted to when
+.B ved
+does scrolling.
+It is set by default to the half of the number of lines
+of the terminal.
+.TP
+.BI pmargin " page-margin"
+Set the distance you need to have between the cursoe and the upper or lower
+border of the terminal. If you cross this border,
+.B ved
+will start to scroll and adjust the cursor to the optimal line.
+It is set by default to 0 and allows to place the cursor to any visible
+line on the screen.
+.TP
+.BI psize " page-size"
+Set pagesize that is used as base for screen updates.
+This pagesize usually is retrived from the terminal driver
+but may be modified manually.
+.TP
+.BI tabstop " tab-width"
+Set the size of a visible tab chacaracter. This width
+is set to 8 by default.
+.TP
+.BI taglength " tag-len-value"
+Set the number of characters that are used to compare a tag name with
+a tag label in the
+.B tags
+file.
+If it is set to 0 (the default), 
+.B ved
+compares the complete tag length.
+.TP
+.BI tags " tag-file-list"
+Set the list if files that is searched when looking for a tag data base.
+The tag file list is separated by blanks and by default set to
+.sp
+.I "tags .. /usr/lib/tags"
+.sp
+This means that
+.B ved
+will first look for a file
+.B tags
+in the current directory, then search up for (directory by directory until
+the root directors is reached) a file
+.B tags
+and last it vill look for a file
+.BR   /usr/lib/tags .
+.TP
+.BI wrapmargin " wrap-margin"
+If
+.B wrapmagin
+is set,
+.B ved
+will activate the auto-warp mode. In auto-wrap mode,
+.B ved
+will automatically insert a new-line before a word if the cursor
+is less than
+.I wrap-magin
+from the right terminal border.
+.RE
+.TP
+.BI substitute " /old/new/"
+Substitute pattern
+.I old
+by 
+.IR new .
+The pattern 
+.I new
+may contain an & for the
+.I old
+string.
+.TP
+.BI tag " tag-name"
+goto tag named
+.IR tag-name .
+See
+.B FILES
+section for more information on the
+.B tag
+file.
+
+.SH "MACROS"
+You may create macros in
+.B ved
+that are a combination of different
+.B ved
+basic commands.
+To create a macro, you need to edit the file
+.B .vedmac
+in your home directory.
+You may do this bey either explicitly typing
+.I "ved ~/.vedmac
+or by using the built in
+.B ved
+command
+.BR <ALT>^G .
+.PP
+The file
+.B "~/.vedmac
+contains a number of lines, each holds a macro definition like this:
+.PP
+.B "L:/*^[74^M-*/: Comment Line"
+.PP
+Each macro definition has three fields:
+.TP
+.B name
+The name of the macro. In our case, the name is simply
+.B L
+and the macro may executed by typing
+.BR <ESC>L .
+.TP
+.B function
+The implementation of the macro. In our case the function contains
+.B "/*^[74^M-*/"
+and will draw a C-comment line that contains 74 '-' chars as body.
+.TP
+.B comment
+A comment for better understanding of the macro file. The comment is
+ignored.
+.PP
+The fields are separated by a colon.
+.PP
+Macros may be combined to form new macros.
+They also may recursively call each other and you may set
+.I number
+to a value greater than one to execute a macro more than once.
+There is currently no way to execute a macro in a conditional way.
+
+.SH "MAPPINGS"
+You may create mappings in
+.B ved
+that contain arbitrary character sequences.
+To create a mapping, you need to edit the file
+.B .vedmap
+in your home directory.
+.PP
+The file
+.B "~/.vedmap
+contains a number of lines, each holds a map definition like this:
+.PP
+.B "\\\\E[193z:^C:Quit Editor  (L2)"
+.PP
+Each map definition has three fields:
+.TP
+.B from
+The from string (left hand side) of the map. In our case, the name is the sequence
+.B "\\\\E[193z
+which is the output of the L2 function key on a Sun keyboard.
+Every time when you type the character sequence
+.B "\\\\E[193z
+or hit a function key that emits this character sequence, it will replaced by the
+the replacement string before the input is read by
+.BR ved.
+.TP
+.B replacement
+The replacement (right hand size or to string) of the macro. In our case the map expands to
+.B "^C"
+and will quit
+.BR ved .
+.TP
+.B comment
+A comment for better understanding of the map file. The comment is
+ignored.
+.PP
+The fields are separated by a colon.
+The text in the macro file is fed through
+.B tdecode()
+to allow the same escape sequences as you may have in the termcap file.
+
+.SH ENVIRONMENT
+.TP
+.B SHELL
+For the shell to use for shell command escapes, file name globbing
+and similar.
+.TP
+.B HOME
+To find the private files
+.B ~/.vedmac ~/.vedmap
+and
+.B ~/.termcap
+.TP
+.B TERM
+The type of terminal for which the output should be formatted.
+.TP
+.B TERMCAP
+This enviroment variable holds either a precompiled termcap entry
+or the pathname to be used to find a termcap database file.
+If it holds a precompiled entry that does not match the
+.B TERM
+environment, the termcap database is parsed as if the
+.B TERMCAP 
+environment is not set.
+.TP
+.B TERMPATH
+If 
+.B TERMCAP
+is empty, then the
+.B TERMPATH
+environment is scanned for pathnames of files that contain a
+.B termcap
+database.
+It holds a list of filenames separated by colons or spaces (i.e.,  ":" or " ").
+If the TERMPATH symbol is not set, the files
+.I $HOME/.termcap
+and
+.I /etc/termcap
+are scanned in that order.
+If a pathname in 
+.B TERMPATH
+does not start with a slash ("/"), then the 
+.B HOME
+environment is prepended to the name.
+.TP
+.B BEEP
+The environment variable
+.B BEEP
+is used to suppress beeping when set to
+.IR off.
+This helps to use 
+.B p
+on a notebook in a meeting.
+.TP
+.B PATH
+The environment variable
+.B PATH
+is used to find the on-line help file of
+.BR ved .
+.TP
+.B SLASH
+If the environment variable
+.B SLASH
+is set to 'off', no slashes are
+accepted in filenames.
+.TP
+.B VED_FTMPDIR
+Fast tmp directory.
+The directory where the
+.B ved
+swap file
+.BI vedF. processid
+is stored.
+If
+.B VED_FTMPDIR
+is not specified, the swap file will usually be stored in /tmp/.
+.TP
+.B VED_TMPDIR
+General tmp directory.
+The directory where all
+.B ved
+tmp files except the
+swap file
+are stored.
+If
+.B VED_FTMPDIR
+is not defined but
+.B VED_TMPDIR
+is defined, all
+.B ved
+tmp files will be placed into this directory.
+If
+.B VED_TMPDIR
+is not specified, the other ved tmp files will usually be stored in /var/tmp/.
+.TP
+.B VED_STATISTICS
+If set and
+.B ved
+has been compiled with statistics support,
+.B ved
+will print statistic information at the end of a session.
+
+.SH FILES
+.TP
+.B /etc/termcap
+The system's terminal capabilities database.
+.TP
+.B ~/.termcap
+The private terminal capabilities database.
+.TP
+.B ~/.vedmac
+Contains private macro definitions.
+.TP
+.B ~/.vedmap
+Contains private mappings.
+.TP
+.BI ~/.vedtmp. uid
+Contains the names of the files that have been edit from the
+current directory as well as the cursor position of the last visit.
+.B Ved
+also keeps track of the last edited file.
+.TP
+.B tags
+This file contains a list of tags that tell
+.B ved
+where a definition for a tag may be found. Tags may contain
+e.g. function names, macro names and typedefs.
+By default, 
+.B ved
+looks for a 
+.B tag
+file in the current directory and if not found in all directories 
+that are closer to the root directory. If a 
+.B tag 
+file can be found in a directory closer to the root directory,
+.B ved 
+will modify the file name from within the 
+.B tag
+file to reflect the directory distance to this 
+.B tag
+file. This property is unique to
+.BR ved .
+.B Ved
+accepts
+.B tag
+files in the same notation as
+.BR vi .
+.TP
+.BI /tmp/vedF. processid
+The
+.B ved
+swap file.
+.TP
+.BI /var/tmp/vedB. processid
+The
+.B ved
+backward delete buffer.
+.TP
+.BI /var/tmp/vedD. processid
+The
+.B ved
+forward delete buffer.
+.TP
+.BI /var/tmp/vedT. processid
+The
+current take buffer.
+.TP
+.BI /var/tmp/vedT pastename.processid
+One file for every
+named take buffer.
+.TP
+.BI /var/tmp/vedP. processid
+The
+.B ved
+crash recovery protocol buffer.
+.TP
+.BI /var/tmp/vedX. processid
+The
+.B ved
+shell command execute buffer.
+.TP
+.B .../man/help/ved.help
+The on-line help file is assumed to be in the same
+directory tree as the
+.B ved
+binary.
+
+.SH "SEE ALSO"
+.BR change "(1),"
+.BR match "(1)."
+.SH NOTES
+.PP
+Unlike
+.BR vi ,
+.B ved
+is not based on a line editor. This avoids annoying bugs but may cause
+to irritate people who are used to work with
+.BR vi .
+.PP
+Since
+.B ved
+uses a private implementation of the
+.B termcap
+terminal independent screen package,
+.B ved
+uses
+.B /etc/termcap
+even on systems that usually emulate
+.B termcap
+with
+.BR terminfo .
+This allows to use the portable terminal description on all
+operating systems. From my current point of view,
+.B ved
+will never switch towards
+.BR terminfo .
+Although
+.B terminfo
+provides more functionality than
+.BR termcap ,
+it tends to be non-portable between different platforms.
+While
+.B termcap
+allows to have a private terminal database in the NFS mounted home directory,
+this tend to gives problems with
+.B terminfo
+if a vendor did make private additions.
+Because
+.B termcap
+explicitly names all capabilities, there are less problems with
+private additions;
+.B terminfo
+only uses an array index to identify a specific capability so this method
+only works if there is a global unique implementation.
+
+.PP
+Make sure that the
+.B TERM
+environment is assigned to the correct terminal type.
+.PP
+If the eighth bit of a character is "on", the tilde character
+.B ~
+appears before characters, i.e.,
+.IR ~C .
+
+.SH BUGS
+.PP
+None currently known.
+
+.SH
+AUTHOR
+.nf
+J\*org Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+.fi
+.PP
+Mail bugs and suggestions to:
+.PP
+.B
+schilling@fokus.gmd.de
+or
+.B
+js@cs.tu-berlin.de
+or
+.B
+joerg@schily.isdn.cs.tu-berlin.de

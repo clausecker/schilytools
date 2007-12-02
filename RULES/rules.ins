@@ -1,0 +1,70 @@
+#ident @(#)rules.ins	1.15 06/05/14 
+###########################################################################
+# Written 1996 by J. Schilling
+###########################################################################
+#
+# Rules for target installation
+#
+###########################################################################
+# Copyright (c) J. Schilling
+###########################################################################
+# The contents of this file are subject to the terms of the
+# Common Development and Distribution License, Version 1.0 only
+# (the "License").  You may not use this file except in compliance
+# with the License.
+#
+# See the file CDDL.Schily.txt in this distribution for details.
+#
+# When distributing Covered Code, include this CDDL HEADER in each
+# file and include the License file CDDL.Schily.txt from this distribution.
+###########################################################################
+$(DEST_DIR)$(INS_BASE)/$(INSDIR):
+			$(MKDIR) -p $@
+$(SRCROOT)/bins/$(OARCH):
+			$(MKDIR) -p $@
+
+$(DEST_DIR)$(INS_BASE)/$(INSDIR)/$(TARGET)$(_EXEEXT):	$(PTARGET)
+			$(INSTALL) $(PTARGET) $@
+
+$(SRCROOT)/bins/$(OARCH)/$(TARGET)$(_EXEEXT):	$(PTARGET)
+			$(INSTALL) $(PTARGET) $@
+
+PHARDLINKS=	$(HARDLINKS:%=$(DEST_DIR)$(INS_BASE)/$(INSDIR)/%$(_EXEEXT))
+hardlinks:	$(PHARDLINKS)
+
+PSYMLINKS=	$(SYMLINKS:%=$(DEST_DIR)$(INS_BASE)/$(INSDIR)/%$(_EXEEXT))
+symlinks:	$(PSYMLINKS)
+
+_INSMODEINS=	$(_UNIQ)$(INSMODEI)
+__INSMODEINS=	$(_INSMODEINS:$(_UNIQ)=$(INSMODEX))
+INSMODEINS=	$(__INSMODEINS:$(_UNIQ)%=%)
+
+dummy $(PHARDLINKS):	$(DEST_DIR)$(INS_BASE)/$(INSDIR)/$(TARGET)$(_EXEEXT)
+	@echo "	==> INSTALLING link \"$@\""; $(RM) $(RM_FORCE) $@; $(LN) $(DEST_DIR)$(INS_BASE)/$(INSDIR)/$(TARGET)$(_EXEEXT) $@
+
+symdummy $(PSYMLINKS):	$(DEST_DIR)$(INS_BASE)/$(INSDIR)/$(TARGET)$(_EXEEXT)
+	@echo "	==> INSTALLING symlink \"$@\""; $(RM) $(RM_FORCE) $@; $(SYMLINK) $(TARGET)$(_EXEEXT) $@
+
+xinstall:
+	@if [ ".$(XMK_FILE)" != . ] ; then				\
+		for XMK_F in $(XMK_FILE) XxZzY-- ; do			\
+			(						\
+			if [ -r ./$$XMK_F ] ; then				\
+				echo "	==> MAKING \"install\" ON SUBCOMPONENT \"$(CURDIR)/$$XMK_F\""; \
+				"$(MAKE)" -f $$XMK_F $(MAKEMACS) XARCH=$(XARCH) install;	\
+			else							\
+				if [ $$XMK_F != XxZzY-- ]; then		\
+					echo "NOTICE: Partial source ($(DIRNAME)/$$XMK_F) missing";\
+				fi					\
+			fi						\
+			);						\
+		done							\
+	fi
+
+install:	all	$(DEST_DIR)$(INS_BASE)/$(INSDIR) \
+			$(DEST_DIR)$(INS_BASE)/$(INSDIR)/$(TARGET)$(_EXEEXT) \
+			hardlinks symlinks \
+			xinstall
+
+ibins:		all	$(SRCROOT)/bins/$(OARCH) \
+			$(SRCROOT)/bins/$(OARCH)/$(TARGET)$(_EXEEXT)

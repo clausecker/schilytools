@@ -1,0 +1,12 @@
+SCHILY_1.0 {
+global:
+	defltopen;
+	defltfirst;
+	defltclose;
+	defltcntl;
+	defltnext;
+	defltread;
+
+local:
+	*;
+};

@@ -1,0 +1,78 @@
+#ident "@(#)cc-apollo.rul	1.8 07/05/08 "
+###########################################################################
+# Written 2001-2006 by J. Schilling
+###########################################################################
+#
+# Platform dependent MACROS for DomainOS (sys5.3, 10.4.1) cc
+#
+###########################################################################
+# Copyright (c) J. Schilling
+###########################################################################
+# The contents of this file are subject to the terms of the
+# Common Development and Distribution License, Version 1.0 only
+# (the "License").  You may not use this file except in compliance
+# with the License.
+#
+# See the file CDDL.Schily.txt in this distribution for details.
+#
+# When distributing Covered Code, include this CDDL HEADER in each
+# file and include the License file CDDL.Schily.txt from this distribution.
+###########################################################################
+
+CPPFLAGS=	-DSCHILY_BUILD $(CPPOPTS) $(CPPOPTX)
+CFLAGS=		$(COPTS) $(CWARNOPTS) $(COPTOPT) $(APOLLOCOPTOPT) $(COPTX)
+C++FLAGS=	$(C++OPTS) $(C++WARNOPTS) $(C++OPTOPT) $(APOLLOC++OPTOPT) $(C++OPTX)
+
+CPPOPTS=	-I$(ARCHDIR) -I$(OINCSDIR) $(INCDIRS:%=-I%) $(INCDIRSX:%=-I%) $(OSDEFS)
+COPTS=
+CWOPTS=		-W0,-info,4
+COPTOPT=	-O
+COPTDYN=	-fpic
+COPTGPROF=	-pg
+C++OPTS=
+C++WOPTS=	
+#C++OPTOPT=	-O
+#C++OPTDYN=	-Kpic
+#C++OPTGPROF=	-xpg
+
+
+LIB_PREFIX=	lib
+LIB_SUFFIX=	.a
+SHL_SUFFIX=	.so.1.0
+
+LIBS_PATH=	-L$(OLIBSDIR)
+LIBS_PATH_STATIC= -L$(OLIBSDIR_STATIC) 
+
+LDFLAGS=	$(LDOPTS) $(LDOPTX)
+LDLIBS=		$(LIBS) $(LIBX)
+
+#LDOPTS=		$(LIBS_PATH) $(LDPATH) $(RUNPATH)
+LDOPTS=		$(LIBS_PATH) $(LDPATH)
+LDOPTDYN=	-shared -Wl,-soname,$(TARGET)
+LNDYNLIB=	@$(RM) $(RM_FORCE) $(PTARGET_BASE).so; $(SYMLINK) $(TARGET) $(PTARGET_BASE).so
+
+FLOAT_OPTIONS=	
+
+#CC_COM=	cc -A systype,bsd4.3
+CC_COM=		/bsd4.3/bin/cc
+CC=		@echo "	==> COMPILING \"$@\""; $(CC_COM)
+LDCC=		@echo "	==> LINKING \"$@\""; $(CC_COM)
+DYNLD=		@echo "	==> LINKING dynamic library \"$@\""; $(CC_COM)
+RANLIB=		@echo "	==> RANDOMIZING ARCHIVE \"$@\""; true
+
+RMDEP=		:
+#MKDEP=		@echo "	==> MAKING DEPENDENCIES \"$@\""; $(RMDEP); cc -M
+MKDEP=		@echo "	==> MAKING DEPENDENCIES \"$@\""; $(RMDEP); /user/local/com/makedepend
+MKDEP_OUT=
+MKDIR=		$(MKDIR_SH)
+
+#CC++ =		@echo "	==> COMPILING \"$@\""; CC
+#LDCC++ =	@echo "	==> LINKING \"$@\""; CC
+#DYNLDC++ =	@echo "	==> LINKING dynamic library \"$@\""; CC
+#MKC++DEP=	@echo "	==> MAKING DEPENDENCIES \"$@\""; $(RMDEP); CC -xM
+#MKC++DEP_OUT=
+CC++ =		@echo "	==> COMPILING \"$@\""; echo "C++ not yet supported"; exit -1
+LDCC++ =	@echo "	==> LINKING \"$@\""; echo "C++ not yet supported"; exit -1
+DYNLDC++ =	@echo "	==> LINKING dynamic library \"$@\""; echo "C++ not yet supported"; exit -1
+MKC++DEP=	@echo "	==> MAKING DEPENDENCIES \"$@\""; $(RMDEP); echo "C++ not yet supported"; exit -1
+MKC++DEP_OUT=

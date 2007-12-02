@@ -1,0 +1,135 @@
+ISOINFO(8)                                             ISOINFO(8)
+
+
+
+NNAAMMEE
+       devdump,  isoinfo,  isovfy, isodump - Utility programs for
+       dumping and verifying iso9660 images.
+
+SSYYNNOOPPSSIISS
+       ddeevvdduummpp _i_s_o_i_m_a_g_e
+
+       iissoodduummpp _i_s_o_i_m_a_g_e
+
+       iissooiinnffoo [ --dd ] [ --hh ] [ --RR ] [ --JJ ] [ --jj _c_h_a_r_s_e_t ] [ --ff  ]
+       [  --ll ] [ --pp ] [ --TT _s_e_c_t_o_r ] [ --NN _s_e_c_t_o_r ] [ --ii _i_s_o_i_m_a_g_e ]
+       [ --xx _p_a_t_h ]
+
+       iissoovvffyy _i_s_o_i_m_a_g_e
+
+DDEESSCCRRIIPPTTIIOONN
+       ddeevvdduummpp is a crude utility to  interactively  display  the
+       contents  of  device  or  filesystem  images.  The initial
+       screen is a display of the first 256 bytes  of  the  first
+       2048  byte sector.  The commands are the same as with iissoo--
+       dduummpp.
+
+       iissoodduummpp is a crude utility to  interactively  display  the
+       contents  of  iso9660  images in order to verify directory
+       integrity.  The initial screen is a display of  the  first
+       part  of  the root directory, and the prompt shows you the
+       extent number and offset in the extent.
+
+              You can use the 'a' and 'b' commands to move  back-
+              wards  and  forwards within the image. The 'g' com-
+              mand allows you to goto an  arbitrary  extent,  and
+              the  'f'  command  specifies  a search string to be
+              used. The '+' command searches forward for the next
+              instance  of the search string, and the 'q' command
+              exits ddeevvdduummpp or iissoodduummpp.
+
+       iissooiinnffoo is a utility to perform directory like listings of
+       iso9660 images.
+
+       iissoovvffyy  is a utility to verify the integrity of an iso9660
+       image. Most of the tests in iissoovvffyy were added  after  bugs
+       were  discovered  in  early versions of mmkkiissooffss..  It isn't
+       all that clear how useful this is anymore, but it  doesn't
+       hurt to have this around.
+
+
+OOPPTTIIOONNSS
+       Only  the  iissooiinnffoo  program  has any command line options.
+       These are:
+
+       --hh     print a summary of all options.
+
+       --dd     Print information from the primary volume  descrip-
+              tor  (PVD)  of  the  iso9660  image.  This includes
+              information about Rock Ridge and Joliet  extensions
+              if present.
+
+       --ff     generate output as if a 'find . -print' command had
+              been run on the iso9660 image. You should  not  use
+              the --ll image with the --ff option.
+
+       --ii iissoo__iimmaaggee
+              Specifies  the  path  of  the iso9660 image that we
+              wish to examine.
+
+       --ll     generate output as if a 'ls -lR' command  had  been
+              run  on  the iso9660 image.  You should not use the
+              --ff image with the --ll option.
+
+       --NN sseeccttoorr
+              Quick hack to  help  examine  single  session  disc
+              files  that  are  to  be written to a multi-session
+              disc. The sector number  specified  is  the  sector
+              number at which the iso9660 image should be written
+              when send to the cd-writer. Not used for the  first
+              session on the disc.
+
+       --pp     Print path table information.
+
+       --RR     Extract  information from Rock Ridge extensions (if
+              present) for permissions,  file  names  and  owner-
+              ships.
+
+       --JJ     Extract information from Joliet extensions (if pre-
+              sent) for file names.
+
+       --jj cchhaarrsseett
+              Convert Joliet file names (if present) to the  sup-
+              plied charset. See mmkkiissooffss(8) for details.
+
+       --TT sseeccttoorr
+              Quick  hack  to  help  examine multi-session images
+              that have already been burned  to  a  multi-session
+              disc.  The  sector  number  specified is the sector
+              number for the start of the session we wish to dis-
+              play.
+
+       --xx ppaatthhnnaammee
+              Extract specified file to stdout.
+
+AAUUTTHHOORR
+       Eric       Youngdale       <ericy@gnu.ai.mit.edu>       or
+       <eric@andante.jic.com> is to blame for these shoddy hacks.
+       Patches  to  improve  general  usability  would  be gladly
+       accepted.
+
+BBUUGGSS
+       The user interface really sucks.
+
+FFUUTTUURREE IIMMPPRROOVVEEMMEENNTTSS
+       These utilities are really quick  hacks,  which  are  very
+       useful  for debugging problems in mkisofs or in an iso9660
+       filesystem. In the long run, it would be nice  to  have  a
+       daemon that would NFS export a iso9660 image.
+
+       The isoinfo program is probably the program that is of the
+       most use to the general user.
+
+AAVVAAIILLAABBIILLIITTYY
+       These utilities come with the  mkisofs  package,  and  the
+       primary      ftp     site     is     tsx-11.mit.edu     in
+       /pub/linux/BETA/cdrom/mkisofs and many other mirror sites.
+       Despite the name, the software is not beta.
+
+SSEEEE AALLSSOO
+       mkisofs(8)
+
+
+
+
+Version 2.0                  02/12/24                  ISOINFO(8)

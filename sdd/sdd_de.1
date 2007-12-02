@@ -1,0 +1,404 @@
+. \" @(#)sdd_de.1	1.5 01/07/20 Copyright 1985-1997 J. Schilling
+. \"  Manual Seite fuer sdd
+. \"
+.if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
+.if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
+.if t .ds u \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'u
+.if t .ds A \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'A
+.if t .ds O \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'O
+.if t .ds U \v'-0.77m'\h'0.30n'\z.\h'0.45n'\z.\v'0.77m'\h'-.75n'U
+.if t .ds s \\(*b
+.if t .ds S SS
+.if n .ds a ae
+.if n .ds o oe
+.if n .ds u ue
+.if n .ds s sz
+.TH SDD 1 "15. Mai 1997" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.SH NAME
+sdd \- disk dump and restore to and from tape or file; copy and/or reblock
+.SH SYNOPSIS
+.B
+sdd
+[
+.I option=value
+] 
+[
+.I \-flag
+]
+. \" .SH DESCRIPTION
+.SH BESCHREIBUNG
+.I Sdd
+kopiert den angegebenen Input auf den angegebenen Output und f\*uhrt dabei
+gegebenenfalls spezifizierte Konversionen aus.
+.I Stdin
+und
+.I stdout
+werden als Default Files benutzt.
+Die Ein- und Ausgabeblockgr\*o\*sen k\*onnen dabei zur Erh\*ohung des
+Durchsatzes bei physikalischem I/O angegeben werden.
+.PP
+Durch einen intelligenten Algorithmus ist
+.I sdd
+bei unterschiedlichen Werten von
+.I ibs
+und
+.I obs
+wesentlich schneller als
+.I dd.
+. \" .SH OPTIONS
+.SH OPTIONEN
+.TP
+.BI if= name
+Der Input wird von dem File
+.I name
+statt von
+.I stdin
+gelesen.
+.sp
+Wenn
+.B sdd
+suid root installiert ist, dann kann
+.I name
+in der remote syntax: user@host:filename wie bei
+.BR rcp (1)
+sein auch wenn es durch einen nicht root Benutzer aufgerufen wurde.
+Siehe auch SUID BEMERKUNGEN f\*ur mehr Information.
+.sp
+Um eine Datei lokal zu machen obwohl sie einen Doppelpunkt (:) enth\*alt, mu\*s
+sie mit
+.IR "'/'" ,
+.IR "'./'" " oder"
+.I "'../'"
+anfangen.
+.TP
+.BI of= name
+Der Output wird auf das File
+.I name
+statt auf
+.I stdout
+geschrieben. Man beachte, da\*s
+.I sdd
+normalerweise die Ausgabedatei erzeugt und auf die L\*ange 0 bringt,
+so da\*s die
+.I oseek=#
+Option ohne die
+.I \-notrunc
+Option sinnlos ist, es sei den, man benutzt Band- oder Plattenlaufwerke.
+.sp
+Wenn
+.B sdd
+suid root installiert ist, dann kann
+.I name
+in der remote syntax: user@host:filename wie bei
+.BR rcp (1)
+sein auch wenn es durch einen nicht root Benutzer aufgerufen wurde.
+.sp
+Beachten Sie bitte da\*s falls
+.B sdd
+mit einem alten 
+.B rmt
+Remote Tape Server verbunden ist es nicht m\*oglich ist Dateien mit dem
+.B O_CREAT
+open Flag zu \*offnen da dies extrem gef\*ahrlich w\*are.
+Wenn der 
+.B rmt 
+Server auf der anderen Seite der 
+.B rmt
+Server ist, der mit dem
+.B star
+Paket kommt oder der GNU
+.B rmt
+Server ist, dann kann
+.B sdd
+den symbolischen Mode f\*ur die Open Flags verwenden.
+Nur der symbolische Open Mode erlaubt alle m\*oglichen Open Modi in einer
+portablen Weise an Remote Tape Server zu versenden.
+.sp
+Es wird daher empfolen den
+.B rmt
+Server zu verwenden der mit dem
+.BR star 
+Paket kommt.
+Dies ist der einzige
+.B rmt
+Server der eine platformunabh\*angige Kompatibilit\*at mit BSD, Sun und GNU
+.B rmt 
+Klienten herstellt und Sicherheitsfeatures enth\*alt, die in /etc/default/rmt
+eingestellt werden k\*onnen.
+
+.TP
+.B \-inull
+Es wird nicht von einer Datei gelesen.
+Diese Option wirkt ähnlich wie if=/dev/zero ist aber schneller,
+weil 
+.B Sdd
+einen vorbereiteten, gelöschten Puffer verwendet.
+.TP
+.B \-onull
+Es erfolgt \*uberhaupt keine Ausgabe. (Diese Wirkung dieser Option ist
+\*ahnlich der Option
+.BI of= /dev/null
+)
+.TP
+.BI ibs= "#, " obs= "#, " bs= #
+Setzt die Inputbuffergr\*o\*se, die Outputbuffergr\*o\*se, oder beide auf #
+(default ist 512 Bytes).
+.TP
+.BI cbs= #
+Setzt die Konversionsbuffergr\*o\*se auf #.
+.TP
+.BI ivsize= "#, " ovsize= #
+Setzt die Inputmediumgr\*o\*se bzw. die Outputmediumgr\*o\*se auf #.
+Damit lassen sich z.B. physikalische Kopien von oder nach Ger\*aten
+unterschiedlicher Gr\*o\*se herstellen. Wird damit eine Kopie auf ein Band
+hergestellt, dann benutzt man z.B. die Option
+.BI ovsize= 60M,
+wenn man auf ein Band mit 60 Mbytes Gr\*o\*se schreiben will. Wenn dieses Band
+voll ist, dann wird von
+.B sdd
+ein neues Band angefordert. Wird bei der Anfordeung eines neuen Mediums f\*ur
+die Eingabe mit
+.I "N<cr>"
+geantwortet, dann werden alle im Buffer befindlichen Daten geschrieben und
+so getan, als ob
+.I EOF
+erreicht ist. Wird bei der Anfordeung eines neuen Mediums f\*ur die Ausgabe mit
+.I "N<cr>"
+geantwortet, dann endet
+.I sdd
+sofort, und an der Statistik erkennt man , da\*s mehr Daten gelesenen als
+geschrieben wurden.
+.TP
+.BI count= #
+Es werden maximal
+.I #
+Datens\*atze gelesen.
+.TP
+.BI iseek= "#, " iskip= #
+Seekt bzw. \*uberliest
+.I #
+Bytes vom Input, bevor der eigentliche Transfer startet.
+.TP
+.BI oseek= "#, " oskip= #
+Seekt bzw. \*uberliest
+.I #
+Bytes vom Output, bevor der eigentliche Transfer startet.
+.TP
+.BI seek= "#, " skip= #
+Seekt bzw. \*uberliest
+.I #
+Bytes vom Input und Output bevor der eigentliche Transfer startet.
+.TP
+.BI ivseek= "#, " ovseek= #
+Seekt 
+.I #
+Bytes vom Input bzw. Output bei jedem Volume, bevor der eigentliche Transfer
+startet. (Damit lassen sich z.B. Labels von Floppy's \*uberlesen.)
+Achtung: bei dem ersten Medium werden
+.I iseek
+und
+.I ivseek
+bzw.
+.I oseek
+und
+.I ovseek
+addiert.
+.I Iseek
+und
+.I oseek
+beziehen sich nur auf das erste Medium.
+.TP
+.B \-notrunc
+Ein existierendes Outputfile wird nicht auf die L\*ange 0 gek\*urzt, bevor
+der Transfer startet. Damit ist es m\*oglich, in eine bestehende Datei zu
+schreiben.
+.TP
+.B \-pg
+Bei jedem
+.I write
+wird ein Punkt auf
+.I stderr
+geschrieben um dem Fortschritt des Transfers anzuzeigen.
+.TP
+.BR \-time ", " \-t
+Es wird die gesammte Transferzeit, sowie die Daten\*ubertragungsgeschindigkeit
+angezeigt.
+.TP
+.B \-noerror
+Bei einem I/O Fehler wird der Transfer nicht unterbrochen. Fehlermeldungen
+werden auf dem Schirm angezeigt.
+.TP
+.B \-noerrwrite
+Blöcke, die nicht korrekt gelesen wurden werden nicht geschrieben.
+Der Output wird geseekt um den fehlerhaften Block zu überspringen.
+Die Outputdatei muß seekbar sein damit
+.B \-noerrwrite
+korrekt arbeiten kann.
+.TP
+.B \-noseek
+Bei Retries nach I/O Fehlern wird nicht
+.I geseekt,
+das impliziert
+.I try=1.
+.TP
+.BI try= #
+Setzt den Retryz\*ahler auf
+.I #,
+wenn die Option
+.B \-noerror
+angegeben wurde. (default 2)
+.TP
+.B \-debug
+Gibt debugging Hinweise aus. Damit kann man z.B. die Datensatzgr\*o\*se
+bei B\*andern mit variabler Datensatzgr\*o\*se erfahren.
+.TP
+.B \-fill
+Jeder Datensatz	wird bis zur
+.I obs
+mit Nullen aufgef\*ullt. Wenn
+.I ibs
+gleich
+.I obs
+ist, z.B. nur
+.I bs
+wurde angegeben, dann wird bei jedem gelesenen Datensatz die Differenz
+zwischen gelesener Menge und
+.I bs
+mit Nullen gef\*ullt, sonst wird nur der Lezte Datensatz aufgef\*ullt.
+.TP
+.B \-swab
+Vertauscht gerade und ungerade Bytes au\*ser dem lezten Byte bei ungeraden
+Gr\*o\*sen und ungeraden Tranfers (z.B. EOF)
+.TP
+.BR \-block ", " \-unblock
+Der Datenstrom wird von variabler Datensatzgr\*o\*se auf feste
+Datensatzgr\*o\*se ungebaut oder umgekehrt.
+.TP
+.BR \-lcase ", " \-ucase
+Alle Buchstaben werden in Klein- oder Gro\*sbuchstaben umgewandelt.
+.TP
+.BR \-ascii ", " \-ebcdic ", " \-ibm
+Es erfolgt eine Zeichensatzkonvertierung von
+.I EBCDIC
+nach
+.I ASCII
+bzw. von
+.I ASCII
+nach
+.I EBCDIC
+bzw. von
+.I ASCII
+zu der
+.I IBM
+Variante von
+.I EBCDIC
+.TP
+.B \-help
+Gibt eine kurze Zusammenfassung der
+.B sdd
+optionen aus und endet.
+.TP
+.B \-version
+Gibt die
+.B sdd
+versions number aus und endet.
+.
+. \" .SH EXAMPLES
+.SH BEISPIELE
+.B sdd if=/dev/rsd0a of=/dev/nrst8 bs=2x7x17b
+.PP
+Kopiert von der Platte
+.I /dev/rsd0a
+nach dem Band
+.I /dev/nrst8
+und benutzt dabei eine Blockgr\*o\*se von 2\|*\|7\|*\|17 Bl\*ocken.
+(das sind z.B. 2 Zylinder.)
+.PP
+.B sdd if=/dev/rsd0c of=/dev/rsd1c seek=1b bs=63k
+.PP
+Kopiert die ganze Platte
+.I sd0
+auf die Platte
+.I sd1
+und erh\*alt dabei das alte Label auf
+.I sd1.
+.SH FILES
+Keine.
+.SH "SEE ALSO"
+dd(1), star(1), rmt(1), tr(1), cp(1), copy(1)
+.SH DIAGNOSTICS
+sdd: Read  f records + p bytes (total of x bytes = d.nnk).
+.br
+sdd: Wrote f records + p bytes (total of x bytes = d.nnk).
+.PP
+Die Anzahl der Vollst\*andigen Datens\*atze, die Anzahl von Bytes in
+unvollst\*andigen Datens\*atze, sowie die Gesammtanzahl von Bytes und
+Kilobytes.
+.PP
+Mit dem
+.I QUIT
+Signal ( \*ublicherweise ^\\ ) kann der aktuelle Zwischenzustand zur
+Anzeige gebracht werden.
+.SH BEMERKUNGEN
+Im Gegensatz zu
+.I dd
+kann
+.I sdd \-iseek \-oseek \-seek
+sowie
+.I \-iskip \-oskip \-skip
+unabh\*angig von der Buffergr\*o\*se. Damit ist es m\*oglich, mit nur einem
+.I sdd
+Kommando eine physikalische Kopie einer Platte herzustellen, ohne das Label
+mitzukopieren.
+.PP
+Wenn Zahlen nicht spezifiziert werden, dann wird angenommen, da\*s es sich
+um Bytes handelt.
+.PP
+Durch das Nachstellen eines `w' oder `W' werden daraus
+`Worte' (2 Bytes).
+.PP
+Durch das Nachstellen eines `b' oder `B' werden daraus
+Bl\*ocke (512 Bytes).
+.PP
+Durch das Nachstellen eines `k' oder `K' werden daraus
+Kilobytes (1024 Bytes).
+.PP
+Durch das Nachstellen eines `m' oder `M' werden daraus
+Megabytes (1024*1024 Bytes).
+.PP
+Durch das Nachstellen eines `g' oder `G' werden daraus
+Gigabytes (1024*1024*1024 Bytes).
+.PP
+Werden zwei Zahlen durch ein `*' oder ein `x' getrennt, dann
+werden die beiden Zahlen miteinander multipliziert.
+.SH "SUID BEMERKUNGEN
+Wenn
+.B sdd
+suid root installiert ist, dann kann
+.B sdd
+Verbindungen zu remote files auch f\*ur nicht non root Benutzer herstellen.
+Dies erfolgt durch Verwendung des
+rcmd(3) Interfaces um eine Verbindung zum rmt(1) Server herzustellen.
+.PP
+.B Sdd
+stellt die effektive uid zur\*uck auf die reale user id direkt nach dem die
+Verbindung zum remove Server hergestellt wurde d.h. bevor andere Dateien
+ge\*offnet werden.
+.SH BUGS
+Die Option
+.BI iskip= #
+und
+.BI oskip= #
+und
+.BI skip= #
+, sowie
+.B \-block
+und
+.B \-unblock
+sind nicht implementiert.
+.PP
+Es ist verwirrend, da\*s bei der Angabe des Datensatzz\*ahlers mit der
+.I \-count
+Option auch s\*amtliche Zus\*atze, wie bei z.B.
+.BI obs= #
+m\*oglich sind.

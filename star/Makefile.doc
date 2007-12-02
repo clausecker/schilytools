@@ -1,0 +1,17 @@
+#ident "%W% %E% %Q%"
+###########################################################################
+# Sample makefile for sub-makes in one directory
+###########################################################################
+SRCROOT=	..
+RULESDIR=	RULES
+include		$(SRCROOT)/$(RULESDIR)/rules.top
+###########################################################################
+
+MK_FILES=	readme.mk Racl.mk Rcrash.mk Rlargefiles.mk Rmtio.mk \
+		Rotherbugs.mk Rpattern.mk Rposix.mk starvsgnutar.mk \
+		testscripts.mk
+#XMK_FILE=	Makefile.man
+
+###########################################################################
+include		$(SRCROOT)/$(RULESDIR)/rules.mks
+###########################################################################

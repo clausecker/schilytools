@@ -1,0 +1,14 @@
+#!/bin/sh
+
+echo 'Removing old objects...'
+rm -f *.o *.obj
+
+echo 'Removing old config cache files...'
+rm -f config.status config.cache config.log xconfig.h rules.cnf
+
+if [ $# -gt 0 ]; then
+	echo 'Removing old smake binary...'
+	rm -f smake smake.exe
+fi
+
+echo 'done.'

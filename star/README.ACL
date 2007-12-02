@@ -1,0 +1,203 @@
+First support for POSIX ACLs with help from Andreas Gruenbacher <ag@bestbits.at>
+First support for Solaris ACLs (converted into POSIX strings).
+
+ACL status for several OS:
+
+SunOS-4.x	No ACL support in the kernel
+
+SunOS-5.x	ACL Support was officially added with Solaris-2.5
+		Solaris ACL's are smilar enough to POSIX ACL's so I convert
+		them to POSIX ACLs before archiving them.
+
+		Read the man pages: getfacl, setfacl, acl
+
+		Due to a bug in libsec in function aclfromtext(),
+		restoring ACLs correctly only works if the full passwd access
+		for all users is present during star -x
+		So due to this bug, it is impossible to do ACL backup/restores
+		on passwd-less file servers.
+
+		**** Solaris BUG ***
+
+		As the function aclfromtext() on Solaris is unable to
+		recognise a numerical (all digit) user id, it is not possible
+		to do ACL backup/restore on a Solaris fileserver that has no
+		access to the same passwd data as it's NFS clients.
+
+		Even worse, aclfromtext() changes the UID for each unknown
+		user to NOBODY and the function aclfromtext() returns as if
+		there was no error. This is a serious security problem as
+		because if this behavior the file becomes (in addition to the
+		other users in the ACL) accessible by "nobody" which
+		definitely is intended.
+
+		This is Sun bug 4426407 ;-)
+
+		If Sun would make libsec true Open Source, it would be easy
+		to fix this bug in less than 10 minutes.
+
+		**** Solaris BUG ***
+
+Linux		ACL support available as Patch for Linux-2.4 and
+		Linux-2.2.20.
+
+		You need to install the Linux ACL patch _before_
+		compiling star.
+
+		By default Linux does not yet support ACLs. To
+		install ACL support get the patch from: 
+
+			http://acl.bestbits.at/
+
+		This page also lists the man pages for the ACL support 
+		commands for Linux.
+
+FreeBSD		FreeBSD-5.0 supports ACLs, but they need to be activated.
+		You need to know that you need to activate ACLs in the
+		kernel _and_ in each filesystem that should carry ACLs.
+
+True64		If you are on True64, you first need to activate extended
+		security features in order to use ACLs.
+		The administratice command names to list or set ACLs are
+		'getacl' and 'setacl'.
+
+		**** First tests on True64 show that the POSIX.1e function
+		**** acl_from_text() does not work as expected. I have no
+		**** idea how to work around this problem.
+		**** It may be that True64 does not support the ACL 'masks'
+		**** *entry. This would force us to create syntetic 'mask'
+		**** entries when in star create mode and to compute the
+		**** effective mode when in extract mode. On True64 also the
+		**** function acl_get_file() does not work properly if a file
+		**** does not have ACLs. Note that the standard requests that
+		**** in this case acl_get_file() should return a 3 entry ACL,
+		**** but on True64 it returns NULL with 'errno' unchanged.
+		**** Archiving and restoring ACLs from/to True64 will most
+		**** likely work. If you like to transfer TAR archives from/to
+		**** other platforms you will not be able to restore any ACL.
+		****
+		**** As a TAR archive with ACLs made on True64 is not usable on
+		**** any other system, ACL support on True64 could be called
+		**** broken.
+
+
+HP-UX		HP-UX ACLs are so different from POSIX.1e that it would take a
+		significant amount of time to code a translation module for
+		star. For this reason, HP-UX is currently not yet not supported.
+
+AIX		AIX ACLs are so different from POSIX.1e that it would take a
+		significant amount of time to code a translation module for
+		star. For this reason, HP-UX is not supported at the moment.
+
+IRIX		Unknown state, please report
+
+SCO/Caldera	UnixWare/OpenUnix seem to be very similar to Solaris in low
+		level but there is no high level (ACL string) support, so
+		we cannot support SCO unless Sun makes the source of the
+		libsec open.
+
+
+/*--------------------------------------------------------------------------*/
+If you list a TAR archive that contains ACLs for certain files,
+those files are marked with a '+' sign past the UNIX permissions
+if you request a long listing:
+
+      0 -rw-r--r--  gruenbacher/assis Nov  4 04:43 2001 default/file
+      0 drwxrwxr-x+ gruenbacher/assis Nov  4 04:43 2001 default/dir2/
+      0 drwxr-xr-x+ gruenbacher/assis Nov  4 04:44 2001 default/dir3/
+      0 drwxrwxr-x+ gruenbacher/assis Nov  4 04:44 2001 default/
+
+If you like ACL test tar archives, have a look at:
+
+	http://acl.bestbits.at/pre/
+
+and fetch the files acl*.tar
+
+Note: The ACL support code in star is alpha! Do not expect it to be
+stable in any part. I cannot even grant that the archive format
+will not change. However, if it turns out to be the right solution, I
+will mail the star ACL format to the POSIX.1e standard committee.
+All changes have been made in a way that does not affec the behaviour
+of star in case no ACLs are present.
+
+The format for ACLs in the extended headers used by star looks like:
+
+SCHILY.acl.access = user::rwx,user:lisa:r-x:502,group::r-x, \
+			group:toolies:rwx:102,mask::rwx,other::r-x
+
+SCHILY.acl.default = user::rwx,user:lisa:r-x:502,group::r-x, \
+			mask::r-x,other::r-x
+
+The text above has been broken into shorter lines for readability
+
+This is a legal 'vendor unique' POSIX.1-2001 extension for extended
+tar headers.
+
+If the format gets accepted by the POSIX.1 and POSIX1e committee, it
+would look like:
+
+security.acl...=user::rwx,group::rwx,mask::rwx,other::rwx,....
+
+As the text format specified by POSIX.1e is not sufficient for TAR, we
+added a numerical field for all names user and group fields.
+
+POSIX.1e named user entry:	'user:joe:rwx,'
+STAR named user entry:		'user:joe:rwx:1431,'
+
+When star extracts the ACL string, it first checks if user 'joe' is
+known if 'joe' is known, the numerical value is stripped off and a
+standard POSIX.1e ACL entry is created. If 'joe' is not known, the
+text 'joe' is replaced by the numerical value '1431' and a new
+POSIX.1e entry that looks like 'user:1431:rwx,' is created.
+
+/*--------------------------------------------------------------------------*/
+How to use ACLs with star:
+
+To archive ACLs (star in create mode, you need to specify a TAR format
+that supports extended POSIX.1-2001 headers _and_ uses them by default.
+This may currently be achieved by calling "star -Hexustar ...".
+In addition, you need to specify the -acl option.
+So you need to call "star -Hexustar -acl ...".
+
+To extract ACLs you need to call "star -acl ..."
+
+This option -acl has been introduced because it turns out that it is
+impossible to handle the extract case (when the filesystem does
+not support ACLs) in a decent way. Without -acl star would either
+be forced to suppress eror messages for ACL handling or people
+would see hundreds of ACL warnings.
+
+The intention for the -acl option was to make ACL handling easy
+to understand.
+
+Here is a description how -acl works:
+
+-	if -acl is not present in create mode, star does not
+	archive ACLs
+
+-	if -acl is present in create mode and the header type
+	is 'exustar' (selected by H=exustar), star will
+	add ACL information to the archive.
+
+-	if -acl is not present in extract mode, star does not
+	handle ACL information (i.e. if the FS does not handle
+	ACLs, no error messages will occur, if the FS handles
+	ACLs and there are default ACLs set up for the directory
+	where star puts the extracted files the extracted files
+	will have the inherited ACLs from the Default ACL od the
+	directory regardless of the ACL information in the archive).
+
+-	if -acl is present in extract mode, star handles ACLs.
+	If the tar archive does not include ACL information at all
+	or if the archiv does not include ACL information for a 
+	specific file, star will clear the ACL for this file.
+	If the tar archive includes ACL information for the file,
+	star will set up the ACL to be the same as the ACL information
+	in the archive (i.e. if -acl is present in extract mode,
+	no ACL information will be inherited from the ACL information
+	that was present in the filesystem tree before the exrtact
+	operation took place).
+
+	If -acl is present in extract mode and the filesystem where
+	the files are extracted to does not support ACLs, star will
+	display an error message fo each file that is extracted.

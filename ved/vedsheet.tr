@@ -1,0 +1,125 @@
+..in -0.5i
+.B
+The following table summarizes all ved commands:
+.TS
+expand tab(/);
+lb lw3b lb lb lb lb
+lb lw3b lb lb lb lb
+lb lw3b l l l l
+.
+
+Key//CTRL/ESC CTRL/ALT/ALT ESC
+Label////set mark first/set mark first
+/
+/@/where from/where from/where mark/where mark
+//top/bot/from top/from bot
+|\(<-/A/start of line/start of para/start of line/start of para
+F2/B/go to beginning/go to bottom/go to beginning/go to bottom
+F1/C/exit/backup file/~/~
+F3/D/delete char/delete words/~/~
+\(->|/E/end of line/end of para/end of line/end of para
+\(->/F/forward char/forward word/forward char/forward word
+F11/G/get file/change file/edit macro file /~
+\(<-/H/back char/back word/back char/back word
+TAB/I/tab/~/tab/~
+NL/J/insert new line/~/jump to mark/switch mark
+/////and cursor
+F4/K/kill line/kill para/kill selection/~
+/L/re-display/adjust window/curr line \(-> top/~
+CR/M/insert new line/change modes/sets mark/~
+\(da/N/down line/down para/down line/down para
+F5/O/open line/~/open line/~
+\(ua/P/up line/up para/up line/up para
+/Q/XON/~/~/~
+F9/R/forward search/reverse search/forward search/reverse search
+/S/XOFF/~/~/~
+F6/T/save line/save para/save selection/~
+//into paste buf/into paste buf/into paste buf/into paste buf/
+/U/multiply/mult=#/~/~
+F7/V/paste/paste and/replace select/replace select
+///clear paste buf/with paste buf/clear paste buf
+F12/W/write file/write paste buf/write selection/~
+/X/XTD/execute buf/exec selection/~
+/Y/save char/save word/~/~
+//into paste buf/into paste buf//
+F10/Z/re-search/reverse re-srch/re-srch/reverse re-srch
+ESC/[/ESC/~/ALT ESC/~
+/]/ALT/ALT ESC/goto tag/pop tag stack
+F8/\\\\/chng paste buf/clr paste buf/~/~
+/^/quote char/quote to 8 bit/quote to 8bit ctl/quote hex
+/\(ul/undo delete/~/clear mark/~
+DEL/DEL/erase char/erase word/~/~
+.TE
+..in +0.5i
+
+.B
+.ne 6
+XTD commands:
+..in -0.5i
+.TS
+expand tab(/);
+lb lw3b lb lb lb lb
+lb lw3b lb lb lb lb
+lb lw3b l l l l
+.
+Key//CTRL/ESC CTRL/ALT/ALT ESC
+Label////set mark first/set mark first
+/
+/H/help/~/~/~
+/X/execute cmd/~/~/~
+/Z/suspend/~/~/~
+.TE
+..in +0.5i
+
+Special Escape commands:
+.br
+.TS
+lw6 lb l.
+	ESC #	Set mult to # for next command. (# is any number)
+	ESC %	Search matching parenthesis.
+	ESC *	Call temporary macro.
+	ESC :	Introduce colon command.
+	ESC n	Next Page.
+	ESC p	Previous Page.
+	ALT ESC n	Set Mark then next Page.
+	ALT ESC p	Set Mark then previous Page.
+.TE
+Colon commands:
+.br
+.TS
+lw6 lb l.
+	backup	Backup file (same as ESC ^C)
+	bind	Print or set command bindings
+	help	Print colon command help
+	macro	Set temporary macro
+	map	Set/view mappings
+	next	Switch to next file
+	prev	Switch to previous file
+	quit	Quit editor (same as ^C)
+	set	Set parameters
+	substitute	Substitute pattern
+	tag	Go to named tag
+.TE
+.bp
+Colon \f3set\fP commands:
+.br
+.TS
+lw6 lb l.
+*	autoindent	Set autoindent mode.
+	linelen	Set line length to arg.
+*	magic	Set magic search mode
+*	markwrap	Mark wrapping lines
+	optline	Set optimal line number to arg.
+	pmargin	Set page margin for scrolling to arg.
+	psize	Set page length to arg.
+	tabstop	Set tab width to arg.
+	taglength	Set number of significant characters for tag search to arg.
+	tags	Set tag file search path to arg.
+	wrapmargin	Set wrap margin for auto new line to arg.
+.TE
+
+Commands marked with an asterix are boolean. They may be set to
+.I false
+by prepending a
+.B no
+to the name.

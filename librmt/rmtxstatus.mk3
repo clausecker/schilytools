@@ -1,0 +1,18 @@
+#ident @(#)rmtxstatus.mk3	1.1 02/11/11 
+###########################################################################
+# Sample makefile for installing manual pages
+###########################################################################
+SRCROOT=	..
+RULESDIR=	RULES
+include		$(SRCROOT)/$(RULESDIR)/rules.top
+###########################################################################
+
+MANDIR=		man
+TARGETMAN=	rmtxstatus
+MANSECT=	$(MANSECT_LIB)
+MANSUFFIX=	$(MANSUFF_LIB)
+MANFILE=	rmtxstatus.3
+
+###########################################################################
+include		$(SRCROOT)/$(RULESDIR)/rules.man
+###########################################################################

@@ -1,0 +1,281 @@
+. \" @(#)rmtgetconn.3	1.2 07/05/06 Copyr 2002 J. Schilling
+. \" Manual page for rmtgetconn
+. \"
+.if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
+.if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
+.if t .ds u \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'u
+.if t .ds A \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'A
+.if t .ds O \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'O
+.if t .ds U \v'-0.77m'\h'0.30n'\z.\h'0.45n'\z.\v'0.77m'\h'-.75n'U
+.if t .ds s \(*b
+.if t .ds S SS
+.if n .ds a ae
+.if n .ds o oe
+.if n .ds u ue
+.if n .ds s sz
+.TH RMTGETCONN 3L "07/05/06" "J\*org Schilling" "Schily\'s LIBRARY FUNCTIONS"
+.SH NAME
+rmtinit, rmtdebug, rmthostname, rmtfilename, rmtgetconn \- initiate a connection to a remote tape server
+.SH SYNOPSIS
+.LP
+.B cc
+.RI "[ " "flag" " \|.\|.\|. ] " "file" " \|.\|.\|."
+.B \-lrmt
+.B \-lsocket
+.B \-lnsl
+.RI "[ " "library" " \|.\|.\|. ]"
+.LP
+.nf
+.B
+#include <schily/librmt.h>
+.sp
+.B
+void rmtinit(errmsgn, eexit)
+.B
+	int     (*errmsgn) (int, const char *, ...);
+.B
+	void    (*eexit)   (int);
+.sp
+.B
+int rmtdebug(dlevel)
+.B
+	int     dlevel;
+.sp
+.B
+char *rmtfilename(name)
+.B
+	char    *name;
+.sp
+.B
+char *rmthostname(hostname, hnsize, rmtspec)
+.B
+	char    *hostname;
+.B
+	int     hnsize;
+.B
+	char    *rmtspec;
+.sp
+.B
+int rmtgetconn(host, trsize, excode)
+.B
+	char    *host;
+.B
+	int     trsize;
+.B
+	int     excode;
+.fi
+.SH DESCRIPTION
+.TP
+.B rmtinit()
+Is an optional function that allows to set up a function for 
+error printing and a function to be called to exit the program.
+If 
+.B rmtinit()
+is not called or any of the function pointers is 
+.SM NULL,
+the appropriate default function is used instead.
+The supplied error printing function needs to be compatible with
+.BR errmsgno (3)
+and the supplied exit function needs to be compatible with
+.BR exit (3).
+.TP
+.B rmtdebug()
+allows to set the debug level for the library code. The default debug
+level is 0 and does not print debug messages.
+.TP
+.B rmtfilename()
+is given a filename that may be either in remote file syntax (
+.I hostname:filename
+or
+.I user@hostname:filename
+) or not.
+If the argument turns out to be in remote file syntax, a pointer to the
+filename part is returned.
+.TP
+.B rmthostname()
+This function copies the user/host part of 
+.I rmtspec
+which should be in remote file syntax.
+The first argument is a character array that should be large enough to hold
+the user/host part of 
+.IR rmtspec .
+The second argument is the size of the character array.
+The third argument is a string in remote file syntax.
+.TP
+.B rmtgetconn()
+This function establishes a connection to the remote tape server process.
+The first parameter is the usr/host part of a string in remote file syntax
+and should be created via
+.BR rmthostname().
+The second parameter is the expected maximum transfer size. It is used to set up
+kernel buffering via 
+.B setsockopt()
+to increase performance.
+The third parameter is an alternate exit code to be used instead of the library 
+default if 
+.B rmtgetconn()
+decides to call
+.BR exit().
+This allows commands like 
+.B ufsdump
+to use the documented exit codes for startup errors.
+.SH RETURNS
+.TP
+.B rmtdebug()
+returns the old debug level.
+.TP
+.B rmtfilename()
+returns the filename part of the argument string or
+.SM NULL
+in case the argument turns out to be not in remote file syntax.
+.TP
+.B rmthostname()
+returns a pointer to the first argument or
+.SM NULL
+in case the 
+.I rmtspec
+argument turns out to be not in remote file syntax.
+.TP
+.B rmtgetconn()
+return a file descriptor which is suitable to be used as first argument
+for functions like
+.B rmtopen()
+or
+.BR rmtwrite() .
+If 
+.B rmtgetconn()
+fails to set up a connection, -1 is returned.
+If
+.B rmtgetconn()
+is unable to find the port number for shell/tcp, the current uid has no
+entry in the passwd file or the user name includes illegal characters,
+.B exit()
+is called.
+If you do not like 
+.B rmtgetconn()
+to exit in this case, call
+.B rmtinit()
+before and install a non exiting function as 
+.B exit() 
+handler; 
+.B rmtgetconn()
+then will return -2 after this function did return.
+. \" .SH ERRORS
+
+.SH EXAMPLES
+.LP
+\fB
+.nf
+int	remfd;
+char	*remfn;
+char	host[256];
+
+if ((remfn = rmtfilename(filename)) != NULL) {
+	rmthostname(host, sizeof (host), filename);
+
+	if ((remfd = rmtgetconn(host, iosize, 0)) < 0)
+		comerrno(EX_BAD, "Cannot get connection to '%s'.\en",
+			/* errno not valid !! */		host);
+}
+
+if (rmtopen(remfd, remfn, mode) < 0)
+	comerr("Cannot open '%s'.\en", remfn);
+
+if (rmtread(remfd, buf, sizeof(buf) < 0)
+	comerr("Read error on '%s'.\en", remfn);
+
+rmtclose(remfd);
+.fi
+\fP
+.SH ENVIRONMENT
+.LP
+.TP
+.B RSH
+If the 
+.B RSH
+environment is present, the remote connection will not be created via
+.BR rcmd (3)
+but by calling the program pointed to by
+.BR RSH .
+Use e.g. 
+.BR RSH= /usr/bin/ssh
+to create a secure shell connection.
+.TP
+.B RMT
+If the 
+.B RMT
+environment is present, the remote tape server will not be the program
+.B /etc/rmt
+but the program pointed to by
+.BR RMT .
+Note that the remote tape server program name will be ignored if you log in
+using an account that has been created with a remote tape server program as
+login shell.
+.\".SH FILES
+.SH "SEE ALSO"
+.BR rmt (1),
+.BR rsh (1),
+.BR ssh (1),
+.BR rcmd (3),
+.BR rmtinit (3),
+.BR rmtdebug (3),
+.BR rmthostname (3),
+.BR rmtfilename (3),
+.BR rmtgetconn (3),
+.BR rmtopen (3),
+.BR rmtioctl (3),
+.BR rmtclose (3),
+.BR rmtread (3),
+.BR rmtwrite (3),
+.BR rmtseek (3),
+.BR rmtxstatus (3),
+.BR rmtstatus (3),
+.BR _mtg2rmtg (3),
+.BR _rmtg2mtg (3),
+.BR errmsgno (3)
+
+.SH DIAGNOSTICS
+.SH NOTES
+.SH BUGS
+.LP
+For now (late 2002), we know that the following programs
+are broken and do not implement signal handling correctly:
+.TP
+rsh
+on SunOS-5.0...SunOS-5.9
+.TP
+ssh
+from ssh.com
+.TP
+ssh
+from openssh.org
+.LP
+Sun already did accept a bug report for 
+.BR rsh (1). 
+Openssh.org accepted
+a bug for their implementation of 
+.BR ssh (1).
+.LP
+If you use 
+.B rmtgetconn()
+to create a remote connection via an unfixed
+.BR rsh (1)
+or 
+.BR ssh (1),
+be prepared that terminal generated signals may interrupt the
+remote connection.
+.SH AUTHOR
+.nf
+J\*org Schilling
+Seestr. 110
+D\-13353 Berlin
+Germany
+.fi
+.PP
+Mail bugs and suggestions to:
+.PP
+.B
+schilling@fokus.fhg.de
+or
+.B
+js@cs.tu\-berlin.de
