@@ -1,0 +1,71 @@
+.\" @(#)sccslog.1	1.3 07/02/11 Copyr 1997-2007 J. Schilling
+.\" Manual page for sccslog
+.\"
+.if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
+.if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
+.if t .ds u \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'u
+.if t .ds A \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'A
+.if t .ds O \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'O
+.if t .ds U \v'-0.77m'\h'0.30n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.75n'U
+.if t .ds s \\(*b
+.if t .ds S SS
+.if n .ds a ae
+.if n .ds o oe
+.if n .ds u ue
+.if n .ds s sz
+.TH sccslog 1 "07/02/11" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.SH NAME
+sccslog \- create a changelog from SCCS history files
+.SH SYNOPSIS
+.B
+sccslog 
+.I file1 .. filen
+.SH DESCRIPTION
+.B Sccslog
+creates a Changelog file from SCCS history files.
+. \" .SH RETURNS
+. \" .SH ERRORS
+.SH OPTIONS
+.LP
+None.
+.SH EXAMPLES
+.LP
+To creates a changelog for all SCCS history files in directory SCCS call:
+.IP
+.B "sccslog SCCS/s.*"
+.SH ENVIRONMENT
+None.
+.SH FILES
+.TP
+.B $HOME/.sccs/usermap
+This file contains a map list from user names to user descriptions.
+It consists of a list of lines (each for one user) that start with
+a user name, followed by white space and a user description.
+It may e.g. look like:
+.sp
+.nf
+joerg   Joerg Schilling <schily@somewhere.com>
+ronnie  Ronnie Nowhere <ronnie@nowhere.com>
+.fi
+.SH "SEE ALSO"
+.LP
+.BR sccs (1),
+.BR sccs-admin (1),
+.BR sccs-cdc (1),
+.BR sccs-comb (1)
+.BR sccs-delta (1),
+.BR sccs-get (1),
+.BR sccs-help (1),
+.BR sccs-prs (1),
+.BR sccs-prt (1),
+.BR sccs-rmdel (1),
+.BR sccs-sact (1),
+.BR sccs-sccsdiff (1),
+.BR sccs-unget (1),
+.BR sccs-val (1),
+.BR what (1),
+.BR sccsfile (4).
+.SH DIAGNOSTICS
+.SH NOTES
+.SH BUGS
+.SH AUTHOR

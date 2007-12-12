@@ -1,7 +1,7 @@
-/* @(#)buffer.c	1.144 07/11/26 Copyright 1985, 1995, 2001-2007 J. Schilling */
+/* @(#)buffer.c	1.145 07/12/11 Copyright 1985, 1995, 2001-2007 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)buffer.c	1.144 07/11/26 Copyright 1985, 1995, 2001-2007 J. Schilling";
+	"@(#)buffer.c	1.145 07/12/11 Copyright 1985, 1995, 2001-2007 J. Schilling";
 #endif
 /*
  *	Buffer handling routines
@@ -325,6 +325,8 @@ opentape()
 		checkarch(tarf);
 	}
 	vpr = tarf == stdout ? stderr : stdout;
+	if (samefile (tarf, vpr))		/* Catch -f /dev/stdout case */
+		vpr = stderr;
 
 	/*
 	 * If the archive is a plain file and thus seekable

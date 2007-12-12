@@ -1,7 +1,7 @@
-/* @(#)star_unix.c	1.90 07/06/16 Copyright 1985, 1995, 2001-2007 J. Schilling */
+/* @(#)star_unix.c	1.91 07/12/11 Copyright 1985, 1995, 2001-2007 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)star_unix.c	1.90 07/06/16 Copyright 1985, 1995, 2001-2007 J. Schilling";
+	"@(#)star_unix.c	1.91 07/12/11 Copyright 1985, 1995, 2001-2007 J. Schilling";
 #endif
 /*
  *	Stat / mode / owner routines for unix like
@@ -80,6 +80,7 @@ EXPORT	BOOL	stat_to_info	__PR((struct stat *sp, FINFO *info));
 LOCAL	void	print_badnsec	__PR((FINFO *info, char *name, long val));
 EXPORT	void	checkarch	__PR((FILE *f));
 EXPORT	BOOL	archisnull	__PR((const char *name));
+EXPORT	BOOL	samefile	__PR((FILE *fp1, FILE *fp2));
 EXPORT	void	setmodes	__PR((FINFO *info));
 LOCAL	int	sutimes		__PR((char *name, FINFO *info));
 EXPORT	int	snulltimes	__PR((char *name, FINFO *info));
@@ -531,6 +532,25 @@ archisnull(name)
 
 	if (stbuf.st_dev == stnull.st_dev &&
 	    stbuf.st_ino == stnull.st_ino)
+		return (TRUE);
+	return (FALSE);
+}
+
+EXPORT BOOL
+samefile(fp1, fp2)
+	FILE	*fp1;
+	FILE	*fp2;
+{
+	struct stat	stbuf1;
+	struct stat	stbuf2;
+
+	if (fstat(fdown(fp1), &stbuf1) < 0)
+
+	if (fstat(fdown(fp2), &stbuf2) < 0)
+		return (FALSE);
+
+	if (stbuf1.st_dev == stbuf2.st_dev &&
+	    stbuf1.st_ino == stbuf2.st_ino)
 		return (TRUE);
 	return (FALSE);
 }

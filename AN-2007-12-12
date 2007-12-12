@@ -1,0 +1,27 @@
+New features with AN-2007-12-12:
+
+-	The match(1) program has been added to the collection
+	of Schily tools.
+
+-	SCCS has been added to to the collection of Schily tools.
+
+-	SCCS commands now all support -V/--version to verify the
+	current version.
+
+-	SCCS now installs a "sccs" symlink to /opt/schily/bin
+
+-	star now includes additional checks on whether the archive
+	is stdout to prevent the command star -cv f=/dev/stdout > file
+	from creating a defective archive.
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.isdn.cs.tu-berlin.de, js@cs.tu-berlin.de
+	schilling@fokus.fhg.de
+
+Please mail bugs and suggestions to me.

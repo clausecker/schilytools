@@ -1,0 +1,4 @@
+CFILES=	abspath.c any.c cat.c dname.c fatal.c fdfopen.c fmalloc.c \
+	had.c imatch.c index.c lockit.c patoi.c repl.c satoi.c \
+	setsig.c sname.c strend.c trnslat.c userexit.c xcreat.c \
+	xlink.c xmsg.c xopen.c xpipe.c xunlink.c zero.c

@@ -1,0 +1,190 @@
+. \" @(#)match.1	1.6 07/12/02 Copyright 1985-2007 J. Schilling
+. \"  Manual page for match
+. \"
+.if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
+.if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
+.if t .ds u \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'u
+.if t .ds A \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'A
+.if t .ds O \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'O
+.if t .ds U \v'-0.77m'\h'0.30n'\z.\h'0.45n'\z.\v'0.77m'\h'-.75n'U
+.if t .ds s \\(*b
+.if t .ds S SS
+.if n .ds a ae
+.if n .ds o oe
+.if n .ds u ue
+.if n .ds s sz
+.TH MATCH 1L "07/12/02" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.SH NAME
+match \- searches for patterns in files
+.SH SYNOPSIS
+.B
+match
+[
+.I \-option
+] 
+.I pattern
+[
+.I file \.\|.\|.
+]
+.SH DESCRIPTION
+. \" .SH BESCHREIBUNG
+.I Match
+searches the named files or standard input (if no filenames are given)
+for the occurrences of the given pattern on each line.
+The program accepts literal characters or special pattern matching characters.
+All lines that match the pattern are output on standard output.
+You can only specify one pattern string for each match, however, you can
+construct an arbitrarily complex string.
+When you do not specify a file, match can be used as a filter to display
+desired lines.
+Standard in is used if no files are specified.
+.SH OPTIONS
+. \" .SH OPTIONEN
+.TP
+.BI \-not ", " \-v
+Prints all lines that do not match.
+.TP
+.B \-i
+Ignore the case of letters
+.TP
+.B \-M
+Force to use the magic mode
+.TP
+.B \-m
+Force not to use the magic mode
+.TP
+.B \-w
+Search for
+.I pattern
+as a word
+.TP
+.B \-x
+Display only those lines which match exactly
+.TP
+.B \-c
+Display matching count for each file
+.TP
+.B \-L
+Display first matching line of each file which matches
+.TP
+.B \-l
+Display name of each file which matches
+.TP
+.B \-s
+Be silent indicate match in exit code
+.TP
+.B \-h
+Do not display filenames
+.TP
+.B \-n
+Precede matching lines with line number (with respect to the input file)
+.TP
+.B \-b
+Precede matching lines with block number
+.TP
+.B \-help
+Prints a short summary of the 
+.B match
+options and exists.
+.TP
+.B \-version
+Prints the 
+.B match
+version number string and exists.
+.TP
+.B \-V
+Display name of all files with no matches
+.SH "REGULAR EXPRESSIONS"
+The following is a table of all the pattern matching characters:
+.TP
+.I c
+An ordinary character
+.I (not
+one of the special characters discussed below) is a one character regular
+expression that matches that character.
+.TP
+.BI \e\| c
+A backslash (\|\e\|) followed by any special character is a one character 
+regular expression that matches the special character itself. The special 
+characters are:
+.RS
+.TP
+! # % * { } [ ] \|\e\| ? ^ $
+.RE
+.TP
+.B !
+Logical
+.B OR
+as in match
+.I "this!that!the_other."
+You may have to use `{}' for precedence
+grouping.
+.TP
+.B #
+A hash mark followed by any regular expression matches any number
+(including zero) occurrences of the regular expression.
+.TP
+.B ?
+Matches exactly any one character.
+.B W?
+matches
+.I "Wa, Wb, Wc, W1, W2, W3 .\|.\|."
+.TP
+.B *
+Matches any number of any character.
+.TP
+.B %
+Matches exactly nothing. It can be used in groups of ored patterns to specify
+that an empty alternative is possible.
+.TP
+.B {}
+Curly brackets may be used to enclose patterns to specify a precedence
+grouping, and may be nested.
+.B {%!{test}}version
+matches the strings
+.I "testversion"
+and
+.I version.
+.TP
+.BI [ string ]
+A non empty string of characters enclosed in square brackets
+is a one character regular expression that matches
+.I any one
+character in that string.
+If however the first character of the string is a circumflex (\|^\|),
+the one character expression matches any character which is
+.I not
+in the string. The ^ has this special meaning
+.I only
+if it occurs first in the string. The minus (\|\-\|) may be used to
+indicate a range of consecutive ASCII characters; for example, [0-9] is
+equivalent to
+.I any one of the digits.
+The \- loses its special meaning if it occurs
+first (after an initial ^, if any) or last in the string.
+The right square bracket (]) and the backslash (\|\e\|)
+must be quoted with a backslash if you want to use it within the
+.I string.
+.TP
+.B ^
+Matches the beginning of a line.
+.TP
+.B $
+Matches the end of a line. (\|^*$ matches any entire line)
+. \" .SH EXAMPLES
+.SH EXAMPLES
+. \" .SH BEISPIELE
+.SH FILES
+None.
+. \" Keine.
+.SH "SEE ALSO"
+grep(1), fgrep(1), egrep(1)
+.SH DIAGNOSTICS
+. \" .SH NOTES
+.SH NOTES
+. \" .SH BEMERKUNGEN
+Even if a match occurs more than once per line, the line is output only once.
+.PP
+Quote special pattern matching characters to prevent them from
+being expanded by the Command Interpreter.
+.SH BUGS

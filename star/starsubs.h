@@ -1,4 +1,4 @@
-/* @(#)starsubs.h	1.105 07/10/06 Copyright 1996-2007 J. Schilling */
+/* @(#)starsubs.h	1.106 07/12/11 Copyright 1996-2007 J. Schilling */
 /*
  *	Prototypes for star subroutines
  *
@@ -383,6 +383,7 @@ extern	BOOL	stat_to_info	__PR((struct stat *sp, FINFO *info));
 #endif
 #ifdef	EOF
 extern	void	checkarch	__PR((FILE *f));
+extern	BOOL	samefile	__PR((FILE *fp1, FILE *fp2));
 #endif
 extern	BOOL	archisnull	__PR((const char *name));
 extern	void	setmodes	__PR((FINFO *info));
