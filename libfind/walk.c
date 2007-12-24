@@ -1,7 +1,7 @@
-/* @(#)walk.c	1.29 07/10/06 Copyright 2004-2007 J. Schilling */
+/* @(#)walk.c	1.30 07/12/22 Copyright 2004-2007 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)walk.c	1.29 07/10/06 Copyright 2004-2007 J. Schilling";
+	"@(#)walk.c	1.30 07/12/22 Copyright 2004-2007 J. Schilling";
 #endif
 /*
  *	Walk a directory tree
@@ -53,6 +53,17 @@ static	char sccsid[] =
 #include <schily/nlsdefs.h>
 #include "walk.h"
 #include "fetchdir.h"
+
+#if	defined(IS_MACOS_X) && defined(HAVE_CRT_EXTERNS_H)
+/*
+ * The MAC OS X linker does not grok "common" varaibles.
+ * We need to fetch the address of "environ" using a hack.
+ */
+#include <crt_externs.h>
+#define	environ	*_NSGetEnviron()
+#else
+extern	char **environ;
+#endif
 
 #ifndef	HAVE_LSTAT
 #define	lstat	stat
@@ -430,6 +441,7 @@ walkinitstate(state)
 	state->std[0] = stdin;
 	state->std[1] = stdout;
 	state->std[2] = stderr;
+	state->env = environ;
 	state->quitfun = NULL;
 	state->qfarg = NULL;
 	state->maxdepth = state->mindepth = 0;

@@ -1,7 +1,7 @@
-/* @(#)write.c	1.116 07/10/20 joerg */
+/* @(#)write.c	1.117 07/12/16 joerg */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)write.c	1.116 07/10/20 joerg";
+	"@(#)write.c	1.117 07/12/16 joerg";
 #endif
 /*
  * Program write.c - dump memory  structures to  file for iso9660 filesystem.
@@ -1310,9 +1310,17 @@ assign_file_addresses(dpnt, isnest)
 					}
 					dwpnt->size = s_entry->mxroot->size;
 					s_entry->mxroot->starting_block = ext;
+					/*
+					 * Set the mxroot (mxpart == 0) to allow
+					 * the UDF code to fetch the starting
+					 * extent number.
+					 */
+					set_733((char *) s_entry->mxroot->isorec.extent, ext);
 					for (s_e = s_entry;
 					    s_e && s_e->mxroot == s_entry->mxroot;
 								s_e = s_e->next) {
+						if (s_e->mxpart == 0)
+							continue;
 						set_733((char *) s_e->isorec.extent,
 									ext);
 						ext += ISO_BLOCKS(s_e->size);

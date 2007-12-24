@@ -1,4 +1,4 @@
-/* @(#)walk.h	1.22 07/09/22 Copyright 2004-2007 J. Schilling */
+/* @(#)walk.h	1.23 07/12/22 Copyright 2004-2007 J. Schilling */
 /*
  *	Definitions for directory tree walking
  *
@@ -81,6 +81,7 @@ struct WALK {
 	int	walkflags;	/* treewalk() control flags		    */
 	void	*twprivate;	/* treewalk() private do not touch	    */
 	FILE	*std[3];	/* To redirect stdin/stdout/err in treewalk  */
+	char	**env;		/* To allow different env in treewalk/exec   */
 	sqfun_t	quitfun;	/* Function to query for shell signal quit   */
 	void	*qfarg;		/* Generic arg for shell builtin quit fun    */
 	int	maxdepth;	/* (*walkfun)() private, unused by treewalk  */

@@ -1,0 +1,29 @@
+New features with AN-2007-12-22:
+
+-	The program "lndir" has been added to the sources
+
+-	The program "sgrow" has been added to the sources
+
+-	mkisofs bug fix for multi extent files, make
+	UDF part from multi extent files working again.
+	Thanks to a hint from
+	Pav Lucistnik <pav@oook.cz> <pav@FreeBSD.org>
+
+-	cdrecord now fetches the media information again after
+	formatting or blanking the medium to get correct size information.
+
+-	libfind:find_main() now has a new enrironment parameter 
+	to allow PATH to be imported from a shell that used libfind
+	as builtin.
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.isdn.cs.tu-berlin.de, js@cs.tu-berlin.de
+	schilling@fokus.fhg.de
+
+Please mail bugs and suggestions to me.

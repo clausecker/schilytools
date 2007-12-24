@@ -1,0 +1,43 @@
+. \" @(#)sgrow.1	1.1 07/12/16 Copyr 1985-2007 J. Schilling
+. \" Manual page for sgrow
+. \"
+.if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
+.if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
+.if t .ds u \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'u
+.if t .ds A \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'A
+.if t .ds O \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'O
+.if t .ds U \v'-0.77m'\h'0.30n'\z.\h'0.45n'\z.\v'0.77m'\h'-.75n'U
+.if t .ds s \(*b
+.if t .ds S SS
+.if n .ds a ae
+.if n .ds o oe
+.if n .ds u ue
+.if n .ds s sz
+.TH SGROW 1L "07/12/16" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.SH NAME
+sgrow \- run a stack grow test
+.SH SYNOPSIS
+.B
+sgrow
+[ 
+.I options 
+]
+.I pages
+.SH DESCRIPTION
+.B Sgrow
+runs a stack grow test by allocating 
+.I pages
+* 4kByte elements on the stack.
+.SH OPTIONS
+.TP
+.B \-help
+Prints a short summary of the 
+.B sgrow
+options and exists.
+.TP
+.B \-version
+Prints the 
+.B sgrow
+version number string and exists.
+.SH NOTES
+.SH BUGS

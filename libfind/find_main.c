@@ -1,8 +1,8 @@
 /*#define	PLUS_DEBUG*/
-/* @(#)find_main.c	1.59 07/09/22 Copyright 2004-2007 J. Schilling */
+/* @(#)find_main.c	1.60 07/12/22 Copyright 2004-2007 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)find_main.c	1.59 07/09/22 Copyright 2004-2007 J. Schilling";
+	"@(#)find_main.c	1.60 07/12/22 Copyright 2004-2007 J. Schilling";
 #endif
 /*
  *	Another find implementation...
@@ -41,7 +41,7 @@ char	strvers[] = "1.3";	/* The pure version string	*/
 
 LOCAL	int	walkfunc	__PR((char *nm, struct stat *fs, int type, struct WALK *state));
 LOCAL	int	getflg		__PR((char *optstr, long *argp));
-EXPORT	int	find_main	__PR((int ac, char **av, FILE *std[3], squit_t *quit));
+EXPORT	int	find_main	__PR((int ac, char **av, char **ev, FILE *std[3], squit_t *quit));
 
 LOCAL int
 walkfunc(nm, fs, type, state)
@@ -121,9 +121,10 @@ getflg(optstr, argp)
 }
 
 EXPORT int
-find_main(ac, av, std, quit)
+find_main(ac, av, ev, std, quit)
 	int	ac;
 	char	**av;
+	char	**ev;
 	FILE	*std[3];
 	squit_t	*quit;
 {
@@ -220,6 +221,8 @@ find_main(ac, av, std, quit)
 	walkinitstate(&walkstate);
 	for (i = 0; i < 3; i++)
 		walkstate.std[i] = std[i];
+	if (ev)
+		walkstate.env = ev;
 	if (quit) {
 		walkstate.quitfun = quit->quitfun;
 		walkstate.qfarg   = quit->qfarg;

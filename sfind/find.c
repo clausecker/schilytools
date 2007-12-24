@@ -1,7 +1,7 @@
-/* @(#)find.c	1.48 07/10/31 Copyright 2004-2007 J. Schilling */
+/* @(#)find.c	1.49 07/12/22 Copyright 2004-2007 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)find.c	1.48 07/10/31 Copyright 2004-2007 J. Schilling";
+	"@(#)find.c	1.49 07/12/22 Copyright 2004-2007 J. Schilling";
 #endif
 /*
  *	Another find implementation...
@@ -41,5 +41,5 @@ main(ac, av)
 	std[0] = stdin;
 	std[1] = stdout;
 	std[2] = stderr;
-	return (find_main(ac, av, std, NULL));
+	return (find_main(ac, av, NULL, std, NULL));
 }

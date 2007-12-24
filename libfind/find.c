@@ -1,8 +1,8 @@
 /*#define	PLUS_DEBUG*/
-/* @(#)find.c	1.66 07/11/26 Copyright 2004-2007 J. Schilling */
+/* @(#)find.c	1.67 07/12/22 Copyright 2004-2007 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)find.c	1.66 07/11/26 Copyright 2004-2007 J. Schilling";
+	"@(#)find.c	1.67 07/12/22 Copyright 2004-2007 J. Schilling";
 #endif
 /*
  *	Another find implementation...
@@ -1996,7 +1996,10 @@ doexec(f, ac, av, state)
 			(plusp->endp - (char *)&plusp->nextargp[0]) -
 			(plusp->laststr - (char *)&plusp->nextargp[1]));
 #endif
-		fexecv(av[0], state->std[0], state->std[1], state->std[2], ac, av);
+		av[ac] = NULL;	/* -exec {} \; is not NULL terminated */
+
+		fexecve(av[0], state->std[0], state->std[1], state->std[2],
+							av, state->env);
 #ifdef	PLUS_DEBUG
 		error("argsize %d\n",
 			(plusp->endp - (char *)&plusp->nextargp[0]) -

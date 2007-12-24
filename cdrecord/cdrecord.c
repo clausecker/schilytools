@@ -1,7 +1,7 @@
-/* @(#)cdrecord.c	1.359 07/10/06 Copyright 1995-2007 J. Schilling */
+/* @(#)cdrecord.c	1.360 07/12/24 Copyright 1995-2007 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)cdrecord.c	1.359 07/10/06 Copyright 1995-2007 J. Schilling";
+	"@(#)cdrecord.c	1.360 07/12/24 Copyright 1995-2007 J. Schilling";
 #endif
 /*
  *	Record data on a CD/CVD-Recorder
@@ -1065,6 +1065,18 @@ main(ac, av)
 			comexit(0);
 		}
 		dp->cdr_dstat->ds_wrmode = omode;
+
+		if (tracks > 0) {
+			int	cdrflags = dp->cdr_dstat->ds_cdrflags;
+
+			dp->cdr_dstat->ds_cdrflags &= ~RF_PRATIP;
+			if ((*dp->cdr_getdisktype)(scgp, dp) < 0) {
+				errmsgno(EX_BAD, "Cannot get disk type.\n");
+				if ((flags & F_FORCE) == 0)
+					comexit(EX_BAD);
+			}
+			dp->cdr_dstat->ds_cdrflags = cdrflags;
+		}
 	}
 
 #ifdef	XXX
@@ -1093,7 +1105,8 @@ main(ac, av)
 		 * XXX How do we let the user check the remaining
 		 * XXX disk size witout starting the write process?
 		 */
-		if (!checkdsize(scgp, dp, tsize, flags))
+		if (((flags & F_BLANK) == 0) &&
+		    !checkdsize(scgp, dp, tsize, flags))
 			comexit(EX_BAD);
 	}
 	if (tracks > 0 && fs > 0l) {
@@ -1252,6 +1265,9 @@ main(ac, av)
 		}
 	}
 	if ((flags & (F_BLANK|F_FORCE)) == (F_BLANK|F_FORCE)) {
+		/*
+		 * This is a first "blind" blanking attempt.
+		 */
 		printf("Waiting for drive to calm down.\n");
 		wait_unit_ready(scgp, 120);
 		if (gracewait(dp, &gracedone) < 0) {
@@ -1333,6 +1349,20 @@ main(ac, av)
 		 */
 		if (!wait_unit_ready(scgp, 240) || tracks == 0) {
 			comexit(0);
+		}
+		if (tracks > 0) {
+			int	cdrflags = dp->cdr_dstat->ds_cdrflags;
+
+			dp->cdr_dstat->ds_cdrflags &= ~RF_PRATIP;
+			if ((*dp->cdr_getdisktype)(scgp, dp) < 0) {
+				errmsgno(EX_BAD, "Cannot get disk type.\n");
+				if ((flags & F_FORCE) == 0)
+					comexit(EX_BAD);
+			}
+			if (!checkdsize(scgp, dp, tsize, flags))
+				comexit(EX_BAD);
+
+			dp->cdr_dstat->ds_cdrflags = cdrflags;
 		}
 		/*
 		 * Reset start time so we will not see blanking time and
@@ -4221,7 +4251,7 @@ load_media(scgp, dp, doexit)
 	scgp->silent--;
 	err = geterrno();
 	if (code < 0 && (err == EPERM || err == EACCES)) {
-		linuxcheck();	/* For version 1.359 of cdrecord.c */
+		linuxcheck();	/* For version 1.360 of cdrecord.c */
 		scg_openerr("");
 	}
 
@@ -5053,7 +5083,7 @@ set_wrmode(dp, wmode, tflags)
 }
 
 /*
- * I am sorry that even for version 1.359 of cdrecord.c, I am forced to do
+ * I am sorry that even for version 1.360 of cdrecord.c, I am forced to do
  * things like this, but defective versions of cdrecord cause a lot of
  * work load to me.
  *
@@ -5070,7 +5100,7 @@ set_wrmode(dp, wmode, tflags)
 #endif
 
 LOCAL void
-linuxcheck()				/* For version 1.359 of cdrecord.c */
+linuxcheck()				/* For version 1.360 of cdrecord.c */
 {
 #if	defined(linux) || defined(__linux) || defined(__linux__)
 #ifdef	HAVE_UNAME
