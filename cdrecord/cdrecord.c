@@ -1,12 +1,12 @@
-/* @(#)cdrecord.c	1.360 07/12/24 Copyright 1995-2007 J. Schilling */
+/* @(#)cdrecord.c	1.361 08/01/02 Copyright 1995-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)cdrecord.c	1.360 07/12/24 Copyright 1995-2007 J. Schilling";
+	"@(#)cdrecord.c	1.361 08/01/02 Copyright 1995-2008 J. Schilling";
 #endif
 /*
  *	Record data on a CD/CVD-Recorder
  *
- *	Copyright (c) 1995-2007 J. Schilling
+ *	Copyright (c) 1995-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -371,7 +371,7 @@ main(ac, av)
 #	define	CLONE_TITLE	""
 #endif
 	if ((flags & F_MSINFO) == 0 || lverbose || flags & F_VERSION) {
-		printf("Cdrecord%s%s%s %s (%s-%s-%s) Copyright (C) 1995-2007 Jörg Schilling\n",
+		printf("Cdrecord%s%s%s %s (%s-%s-%s) Copyright (C) 1995-2008 Jörg Schilling\n",
 								PRODVD_TITLE,
 								PROBD_TITLE,
 								CLONE_TITLE,
@@ -682,6 +682,7 @@ main(ac, av)
 		dp->cdr_cmdflags = flags;
 
 		fillbytes(dsp, sizeof (*dsp), '\0');
+		dsp->ds_trackp		= track;
 		dsp->ds_minbuf		= 0xFFFF;
 		dsp->ds_layer_break	= -1;
 		dp->cdr_dstat		= dsp;
@@ -4251,7 +4252,7 @@ load_media(scgp, dp, doexit)
 	scgp->silent--;
 	err = geterrno();
 	if (code < 0 && (err == EPERM || err == EACCES)) {
-		linuxcheck();	/* For version 1.360 of cdrecord.c */
+		linuxcheck();	/* For version 1.361 of cdrecord.c */
 		scg_openerr("");
 	}
 
@@ -5083,7 +5084,7 @@ set_wrmode(dp, wmode, tflags)
 }
 
 /*
- * I am sorry that even for version 1.360 of cdrecord.c, I am forced to do
+ * I am sorry that even for version 1.361 of cdrecord.c, I am forced to do
  * things like this, but defective versions of cdrecord cause a lot of
  * work load to me.
  *
@@ -5100,7 +5101,7 @@ set_wrmode(dp, wmode, tflags)
 #endif
 
 LOCAL void
-linuxcheck()				/* For version 1.360 of cdrecord.c */
+linuxcheck()				/* For version 1.361 of cdrecord.c */
 {
 #if	defined(linux) || defined(__linux) || defined(__linux__)
 #ifdef	HAVE_UNAME

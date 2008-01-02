@@ -1,12 +1,12 @@
-/* @(#)cdr_drv.c	1.42 07/08/06 Copyright 1997-2007 J. Schilling */
+/* @(#)cdr_drv.c	1.43 08/01/02 Copyright 1997-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)cdr_drv.c	1.42 07/08/06 Copyright 1997-2007 J. Schilling";
+	"@(#)cdr_drv.c	1.43 08/01/02 Copyright 1997-2008 J. Schilling";
 #endif
 /*
  *	CDR device abstraction layer
  *
- *	Copyright (c) 1997-2007 J. Schilling
+ *	Copyright (c) 1997-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -69,6 +69,7 @@ EXPORT	cdr_t 	*drive_identify		__PR((SCSI *scgp, cdr_t *, struct scsi_inquiry *i
 EXPORT	int	drive_attach		__PR((SCSI *scgp, cdr_t *));
 EXPORT	int	attach_unknown		__PR((void));
 EXPORT	int	blank_dummy		__PR((SCSI *scgp, cdr_t *, long addr, int blanktype));
+EXPORT	int	blank_simul		__PR((SCSI *scgp, cdr_t *, long addr, int blanktype));
 EXPORT	int	format_dummy		__PR((SCSI *scgp, cdr_t *, int fmtflags));
 EXPORT	int	drive_getdisktype	__PR((SCSI *scgp, cdr_t *dp));
 EXPORT	int	cmd_ill			__PR((SCSI *scgp));
@@ -148,6 +149,49 @@ blank_dummy(scgp, dp, addr, blanktype)
 {
 	printf("This drive or media does not support the 'BLANK media' command\n");
 	return (-1);
+}
+
+EXPORT int
+blank_simul(scgp, dp, addr, blanktype)
+	SCSI	*scgp;
+	cdr_t	*dp;
+	long	addr;
+	int	blanktype;
+{
+	track_t	*trackp = dp->cdr_dstat->ds_trackp;
+	int	secsize = trackp->secsize;
+	Llong	padbytes;
+	int	ret = -1;
+
+	switch (blanktype) {
+
+	case BLANK_MINIMAL:
+			padbytes = 1000 * secsize;
+			break;
+	case BLANK_DISC:
+			if (dp->cdr_dstat->ds_maxblocks > 0)
+				padbytes = dp->cdr_dstat->ds_maxblocks * (Llong)secsize;
+			break;
+	default:
+			printf("Unsupported blank type for simulation mode.\n");
+			printf("Try blank=all or blank=fast\n");
+			padbytes = 0;
+	}
+	if (padbytes > 0) {
+		printf("Running pad based emulation to blank the medium.\n");
+		printf("secsize %d padbytes %lld padblocks %lld maxblocks %d\n",
+			secsize, padbytes, padbytes/secsize, dp->cdr_dstat->ds_maxblocks);
+
+		ret = pad_track(scgp, dp, trackp, 0, padbytes, TRUE, NULL);
+		printf("\n");
+		flush();
+	}
+	if (0) {
+		printf("This drive or media does not support the 'BLANK media' command\n");
+		return (-1);
+	}
+	return (ret);
+
 }
 
 EXPORT int

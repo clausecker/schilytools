@@ -1,4 +1,4 @@
-/* @(#)iconv.h	1.3 07/06/27 Copyright 2007 J. Schilling */
+/* @(#)iconv.h	1.4 08/01/02 Copyright 2007 J. Schilling */
 /*
  *	Abstraction from iconv.h
  *
@@ -40,9 +40,15 @@
 #if	defined(HAVE_LIBICONV) && defined(HAVE_LIBICONV_OPEN) && \
 	defined(HAVE_LIBICONV_CLOSE) && \
 	defined(iconv) && defined(iconv_open) && defined(iconv_close)
+#	ifndef	HAVE_ICONV
 #	define	HAVE_ICONV
+#	endif
+#	ifndef	HAVE_ICONV_OPEN
 #	define	HAVE_ICONV_OPEN
+#	endif
+#	ifndef	HAVE_ICONV_CLOSE
 #	define	HAVE_ICONV_CLOSE
+#	endif
 #endif
 
 #if	!defined(HAVE_ICONV_OPEN) || !defined(HAVE_ICONV_CLOSE)

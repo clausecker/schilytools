@@ -1,4 +1,4 @@
-#ident @(#)help.mk	1.1 07/01/07 
+#ident @(#)help.mk	1.2 08/01/02 
 ###########################################################################
 # Sample makefile for general application programs
 ###########################################################################
@@ -20,7 +20,7 @@ CPPOPTS +=	-DINS_BASE=\"${INS_BASE}\"
 
 CFILES=		help.c
 
-LIBS=		-lcomobj -lcassi -lmpw
+LIBS=		-lcomobj -lcassi -lmpw $(LIB_INTL)
 #XMK_FILE=	Makefile.man
 
 ###########################################################################

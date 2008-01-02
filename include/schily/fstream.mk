@@ -1,29 +1,17 @@
-#ident @(#)get.mk	1.4 08/01/02 
+#ident %W% %E% %Q%
 ###########################################################################
-# Sample makefile for general application programs
+# Sample makefile for installing non-localized auxiliary files
 ###########################################################################
-SRCROOT=	../../../..
+SRCROOT=	../..
 RULESDIR=	RULES
 include		$(SRCROOT)/$(RULESDIR)/rules.top
 ###########################################################################
 
-#INSDIR=	sccs
-INSDIR=		xpg4/bin
-TARGET=		get
-
-CPPOPTS +=	-DSUN5_0
-CPPOPTS +=	-DXPG4
-CPPOPTS +=	-DUSE_LARGEFILES
-CPPOPTS +=	-I../../../sgs/inc/common
-CPPOPTS +=	-I../../hdr
-CPPOPTS +=	-DUSE_NLS
-CPPOPTS +=	-DINS_BASE=\"${INS_BASE}\"
-
-CFILES=		get.c
-
-LIBS=		-lcomobj -lcassi -lmpw -lgetopt -lschily $(LIB_INTL)
+INSDIR=		include/schily
+TARGET=		fstream.h
 #XMK_FILE=	Makefile.man
 
 ###########################################################################
-include		$(SRCROOT)/$(RULESDIR)/rules.cmd
+include		$(SRCROOT)/$(RULESDIR)/rules.aux
 ###########################################################################
+

@@ -1,4 +1,21 @@
-# @(#)libschily-mapvers	1.10 07/04/03 Copyright 2005-2006 J. Schilling
+# %Z%%M%	%I% %E% Copyright 2005-2006 J. Schilling
+
+SCHILY_1.3 {
+global:
+	errabort;	# Non stable
+	errconfig;	# Non stable
+	errhidden;	# Non stable
+	errwarnonly;	# Non stable
+
+	getperm;
+
+	mkfstream;
+	fsclose;
+	fsgetc;
+	fspushcha;
+	fspushstr;
+	fssetfile;
+} SCHILY_1.2;
 
 SCHILY_1.2 {
 global:

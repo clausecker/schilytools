@@ -1,0 +1,36 @@
+New features with AN-2008-01-02:
+
+-	The function getperm() has been moved from libfind to libschily
+
+-	The file streams packet has been added to libschily
+
+-	star's new function samefile() has been fixed to avoid a core
+	dump with "star -ctv"
+
+-	star_sym and all SCCS commands are now linked against  $(LIB_INTL)
+	to allow a compilation on platforms like Mac OS X where gettext()
+	is not in libc. Thanks to Tatjana Heuser for reporting
+
+-	Correctly use strsignal() on Mac OS X in sccs.c 
+	Thanks to Tatjana Heuser for reporting
+
+-	New autoconf test HAVE_SYS_SIGLIST_DEF checks for sys_siglist[]
+	definition in signal.h Thanks to Tatjana Heuser for reporting
+
+-	Possibly double #defines HAVE_ICON HAVE_ICONV_OPEN HAVE_ICONV_CLOSE
+	in include/schily/iconv.h fixed. Thanks to Tatjana Heuser for reporting
+
+-	cdrecord now implements a simulated "blank" feature for media that
+	itself does not support blanking: currently DVD-RAM + DVD+RW
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.isdn.cs.tu-berlin.de, js@cs.tu-berlin.de
+	schilling@fokus.fhg.de
+
+Please mail bugs and suggestions to me.

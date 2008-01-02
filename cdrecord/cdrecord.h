@@ -1,8 +1,8 @@
-/* @(#)cdrecord.h	1.194 07/08/10 Copyright 1995-2007 J. Schilling */
+/* @(#)cdrecord.h	1.195 08/01/02 Copyright 1995-2008 J. Schilling */
 /*
  *	Definitions for cdrecord
  *
- *	Copyright (c) 1995-2007 J. Schilling
+ *	Copyright (c) 1995-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -612,6 +612,7 @@ typedef struct msf {
 typedef	struct disk_status	dstat_t;
 
 struct disk_status {
+	track_t	*ds_trackp;		/* Pointer to track structure	*/
 	UInt32_t ds_diskid;		/* Disk identification		*/
 	UInt16_t ds_cdrflags;		/* Recording flags from cdrecord*/
 	UInt16_t ds_flags;		/* Disk_status flags		*/
@@ -1090,6 +1091,7 @@ extern	int	drive_attach		__PR((SCSI *scgp, cdr_t *));
 extern	int	attach_unknown		__PR((void));
 #ifdef	_SCG_SCSITRANSP_H
 extern	int	blank_dummy		__PR((SCSI *scgp, cdr_t *, long addr, int blanktype));
+extern	int	blank_simul		__PR((SCSI *scgp, cdr_t *, long addr, int blanktype));
 EXPORT	int	format_dummy		__PR((SCSI *scgp, cdr_t *, int fmtflags));
 extern	int	drive_getdisktype	__PR((SCSI *scgp, cdr_t *dp));
 extern	int	cmd_ill			__PR((SCSI *scgp));

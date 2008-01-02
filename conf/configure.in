@@ -1,4 +1,4 @@
-dnl @(#)configure.in	1.143 07/09/11 Copyright 1998-2007 J. Schilling
+dnl @(#)configure.in	1.144 08/01/02 Copyright 1998-2007 J. Schilling
 dnl Process this file with autoconf to produce a configure script.
 AC_REVISION($Revision$)dnl
 
@@ -84,6 +84,7 @@ AC_CHECK_MINOR_NONCONTIG
 
 AC_HEADER_USG_STDIO
 AC_HEADER_ERRNO_DEF
+AC_HEADER_SYS_SIGLIST_DEF
 
 dnl Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST

@@ -1,4 +1,4 @@
-dnl @(#)aclocal.m4	1.58 07/05/23 Copyright 1998 J. Schilling
+dnl @(#)aclocal.m4	1.59 08/01/02 Copyright 1998 J. Schilling
 
 dnl Set VARIABLE to VALUE in C-string form, verbatim, or 1.
 dnl AC_DEFINE_STRING(VARIABLE [, VALUE])
@@ -638,6 +638,18 @@ AC_DEFUN([AC_HEADER_ERRNO_DEF],
                 [ac_cv_header_errno_def=no])])
 if test $ac_cv_header_errno_def = yes; then
   AC_DEFINE(HAVE_ERRNO_DEF)
+fi])
+
+dnl Checks for sys_siglist definition in <signal.h>
+dnl Defines HAVE_SYS_SIGLIST_DEF on success.
+AC_DEFUN([AC_HEADER_SYS_SIGLIST_DEF],
+[AC_CACHE_CHECK([for sys_siglist definition in signal.h], ac_cv_header_sys_siglist_def,
+                [AC_TRY_COMPILE([#include <signal.h>],
+[char *cp = (char *)sys_siglist[0];],
+                [ac_cv_header_sys_siglist_def=yes],
+                [ac_cv_header_sys_siglist_def=no])])
+if test $ac_cv_header_sys_siglist_def = yes; then
+  AC_DEFINE(HAVE_SYS_SIGLIST_DEF)
 fi])
 
 dnl Checks if extern long timezone exists in libc

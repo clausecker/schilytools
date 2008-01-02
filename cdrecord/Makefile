@@ -1,4 +1,4 @@
-#ident %Z%%M%	%I% %E% Copyr 1995-2007 J. Schilling
+#ident %Z%%M%	%I% %E% Copyr 1995-2008 J. Schilling
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -8,6 +8,7 @@ include		$(SRCROOT)/$(RULESDIR)/rules.top
 INSDIR=		bin
 TARGET=		cdrecord
 CPPOPTS +=	-I../libedc
+CPPOPTS +=	-DDVD_MULTI
 CPPOPTS +=	-DDRV_DVD
 CPPOPTS +=	-DDRV_BD
 CPPOPTS +=	-DFIFO

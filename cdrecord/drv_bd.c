@@ -1,10 +1,10 @@
-/* @(#)drv_bd.c	1.7 07/10/24 Copyright 2007 J. Schilling */
+/* @(#)drv_bd.c	1.8 08/01/02 Copyright 2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)drv_bd.c	1.7 07/10/24 Copyright 2007 J. Schilling";
+	"@(#)drv_bd.c	1.8 08/01/02 Copyright 2008 J. Schilling";
 #endif
 /*
- *	Copyright (c) 2007 J. Schilling
+ *	Copyright (c) 2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -45,7 +45,7 @@ static	char sccsid[] =
  *			2		print disk info & write parameters
  *			3		print log pages & dvd structure
  *
- *	Copyright (c) 2007 J. Schilling
+ *	Copyright (c) 2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

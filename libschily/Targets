@@ -21,16 +21,19 @@ CFILES_REST=	astoi.c astoll.c astoull.c breakline.c \
 		error.c \
 		fconv.c fexec.c fillbytes.c \
 		findbytes.c findline.c fnmatch.c format.c \
+		fstream.c \
 		getargs.c getav0.c geterrno.c getfp.c \
 		getdomainname.c gethostid.c gethostname.c getpagesize.c \
 		getnum.c getxnum.c \
 		gettnum.c getxtnum.c \
+		getperm.c \
 		handlecond.c \
 		jsprintf.c jssnprintf.c jssprintf.c \
 		match.c matchl.c movebytes.c \
 		mem.c jmem.c fjmem.c \
 		raisecond.c rename.c \
 		saveargs.c serrmsg.c seterrno.c setfp.c \
+		snprintf.c \
 		spawn.c \
 		strcatl.c strdup.c streql.c strlcpy.c strncpy.c \
 		swabbytes.c \
@@ -41,5 +44,8 @@ CFILES_REST=	astoi.c astoll.c astoull.c breakline.c \
 # programs that use libschily compatible with all software.
 #
 # printf.c snprintf.c sprintf.c 
+#
+# snprintf.c however is needed for portability on systems
+# that do not provide snprintf()
 
 CFILES=		$(CFILES_STDIO) $(CFILES_REST)

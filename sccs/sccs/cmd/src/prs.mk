@@ -1,4 +1,4 @@
-#ident @(#)prs.mk	1.3 07/05/13 
+#ident @(#)prs.mk	1.4 08/01/02 
 ###########################################################################
 # Sample makefile for general application programs
 ###########################################################################
@@ -20,7 +20,7 @@ CPPOPTS +=	-DINS_BASE=\"${INS_BASE}\"
 
 CFILES=		prs.c
 
-LIBS=		-lcomobj -lcassi -lmpw -lgetopt -lschily
+LIBS=		-lcomobj -lcassi -lmpw -lgetopt -lschily $(LIB_INTL)
 #XMK_FILE=	Makefile.man
 
 ###########################################################################

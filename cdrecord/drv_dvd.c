@@ -1,7 +1,7 @@
-/* @(#)drv_dvd.c	1.150 07/09/20 Copyright 1998-2007 J. Schilling */
+/* @(#)drv_dvd.c	1.151 08/01/02 Copyright 1998-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)drv_dvd.c	1.150 07/09/20 Copyright 1998-2007 J. Schilling";
+	"@(#)drv_dvd.c	1.151 08/01/02 Copyright 1998-2008 J. Schilling";
 #endif
 /*
  *	DVD-R device implementation for
@@ -31,7 +31,7 @@ static	char sccsid[] =
  *			2		print disk info & write parameters
  *			3		print log pages & dvd structure
  *
- *	Copyright (c) 1998-2007 J. Schilling
+ *	Copyright (c) 1998-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -1125,6 +1125,9 @@ blank_dvd(scgp, dp, addr, blanktype)
 	if (profile > 0)
 		dvdwr = (profile == 0x13) || (profile == 0x14) || \
 			(profile == 0x17);
+
+	if (profile == 0x12)	/* DVD-RAM */
+		return (blank_simul(scgp, dp, addr, blanktype));
 
 	if (!dvdwr)
 		return (blank_dummy(scgp, dp, addr, blanktype));

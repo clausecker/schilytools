@@ -1,4 +1,4 @@
-#ident @(#)diffh.mk	1.4 07/05/13 
+#ident @(#)diffh.mk	1.5 08/01/02 
 ###########################################################################
 SRCROOT=	../../../..
 RULESDIR=	RULES
@@ -24,7 +24,7 @@ CFILES=		diffh.c
 
 #HFILES=		make.h
 
-LIBS=		-lgetopt -lschily
+LIBS=		-lgetopt -lschily $(LIB_INTL)
 
 #XMK_FILE=	Makefile.def Makefile.man
 

@@ -1,4 +1,4 @@
-#ident @(#)Makefile	1.6 07/07/14 
+#ident @(#)Makefile	1.7 08/01/02 
 ###########################################################################
 # Sample makefile for installing non-localized auxiliary files
 ###########################################################################
@@ -13,8 +13,10 @@ XMK_FILE=	\
 		align.mk alloca.mk archdefs.mk avoffset.mk btorder.mk \
 		ccomdefs.mk checkerr.mk \
 		deflts.mk device.mk dirent.mk errno.mk fcntl.mk \
-		fnmatch.mk getargs.mk getcwd.mk iconv.mk intcvt.mk ioctl.mk \
+		fnmatch.mk fstream.mk \
+		getargs.mk getcwd.mk iconv.mk intcvt.mk ioctl.mk \
 		jmpdefs.mk \
+		jos_defs.mk jos_io.mk jos_maxp.mk \
 		libport.mk librmt.mk maxpath.mk mconfig.mk \
 		mman.mk mtio.mk nlsdefs.mk param.mk patmatch.mk prototyp.mk \
 		rmtio.mk schily.mk schilyp.mk \

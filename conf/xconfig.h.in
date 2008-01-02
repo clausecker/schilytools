@@ -1,4 +1,4 @@
-/* @(#)xconfig.h.in	1.138 07/09/09 Copyright 1998-2007 J. Schilling */
+/* @(#)xconfig.h.in	1.139 08/01/02 Copyright 1998-2007 J. Schilling */
 /*
  *	Dynamic autoconf C-include code.
  *
@@ -105,6 +105,7 @@
 #undef HAVE___FILBUF		/* if we have __filbuf() for USG derived STDIO */
 #undef HAVE_USG_STDIO		/* if we have USG derived STDIO */
 #undef HAVE_ERRNO_DEF		/* if we have errno definition in <errno.h> */
+#undef HAVE_SYS_SIGLIST_DEF	/* if we have sys_siglist definition in <signal.h> */
 #undef HAVE_VFORK_H		/* if we should include vfork.h for vfork() definitions */
 #undef HAVE_ARPA_INET_H		/* if we have arpa/inet.h (missing on BeOS) */
 				/* BeOS has inet_ntoa() in <netdb.h> */

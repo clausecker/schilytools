@@ -1,4 +1,4 @@
-#ident @(#)bdiff.mk	1.3 07/05/13 
+#ident @(#)bdiff.mk	1.4 08/01/02 
 ###########################################################################
 SRCROOT=	../../../..
 RULESDIR=	RULES
@@ -19,7 +19,7 @@ CFILES=		bdiff.c
 
 #HFILES=		make.h
 
-LIBS=		-lgetopt -lschily
+LIBS=		-lgetopt -lschily $(LIB_INTL)
 #LIBS=		-lcomobj -lcassi -lmpw -lgetopt -lschily
 
 #XMK_FILE=	Makefile.def Makefile.man

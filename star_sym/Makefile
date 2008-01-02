@@ -1,4 +1,4 @@
-#ident @(#)star_sym.mk	1.5 07/09/22 
+#ident @(#)star_sym.mk	1.6 08/01/02 
 ###########################################################################
 # Sample makefile for general application programs
 ###########################################################################
@@ -16,7 +16,7 @@ CPPOPTS +=	-DUSE_LARGEFILES
 CPPOPTS +=	-DSCHILY_PRINT
 
 CFILES=		star_sym.c restore.c dumpdate.c fetchdir.c
-LIBS=		-lfind -lschily $(LIB_ACL_TEST)
+LIBS=		-lfind -lschily $(LIB_ACL_TEST) $(LIB_INTL)
 #XMK_FILE=	Makefile.man
 #XMK_FILE=	tartestman.mk
 

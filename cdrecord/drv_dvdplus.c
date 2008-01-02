@@ -1,10 +1,10 @@
-/* @(#)drv_dvdplus.c	1.46 07/08/09 Copyright 2003-2007 J. Schilling */
+/* @(#)drv_dvdplus.c	1.47 08/01/02 Copyright 2003-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)drv_dvdplus.c	1.46 07/08/09 Copyright 2003-2007 J. Schilling";
+	"@(#)drv_dvdplus.c	1.47 08/01/02 Copyright 2003-2008 J. Schilling";
 #endif
 /*
- *	Copyright (c) 2003-2007 J. Schilling
+ *	Copyright (c) 2003-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -45,7 +45,7 @@ static	char sccsid[] =
  *			2		print disk info & write parameters
  *			3		print log pages & dvd structure
  *
- *	Copyright (c) 2003-2005 J. Schilling
+ *	Copyright (c) 2003-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -1485,12 +1485,15 @@ blank_dvdplus(scgp, dp, addr, blanktype)
 	BOOL	cdrrw	 = FALSE;	/* Read CD-RW	*/
 	BOOL	cdwrw	 = FALSE;	/* Write CD-RW	*/
 	BOOL	dvdwr	 = FALSE;	/* DVD writer	*/
+	int	profile;
 
 	int	flags = DC_ERASE;
 	int	blanksize = 0x30000;
 	int	ret;
 
 	mmc_check(scgp, &cdrr, &cdwr, &cdrrw, &cdwrw, NULL, &dvdwr);
+
+	profile = get_curprofile(scgp);
 	/*
 	 * XXX How to check for DVD drives that support DVD-RW
 	 */
@@ -1498,7 +1501,14 @@ blank_dvdplus(scgp, dp, addr, blanktype)
 /*		return (blank_dummy(scgp, dp, addr, blanktype));*/
 
 	if (!dvdplus_ricohbased(scgp)) {
-		errmsgno(EX_BAD, "Cannot blank with non Ricoh based drive.\n");
+		errmsgno(EX_BAD, "Cannot blank DVD+RW media with non Ricoh based drive.\n");
+		if (profile == 0x1A || profile == 0x2A) {
+			int	ret = blank_simul(scgp, dp, addr, blanktype);
+			waitformat(scgp, 600);
+			scsi_flush_cache(scgp, TRUE);
+			waitformat(scgp, 600);
+			return (ret);
+		}
 		return (-1);
 	}
 

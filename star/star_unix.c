@@ -1,7 +1,7 @@
-/* @(#)star_unix.c	1.91 07/12/11 Copyright 1985, 1995, 2001-2007 J. Schilling */
+/* @(#)star_unix.c	1.92 07/12/27 Copyright 1985, 1995, 2001-2007 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)star_unix.c	1.91 07/12/11 Copyright 1985, 1995, 2001-2007 J. Schilling";
+	"@(#)star_unix.c	1.92 07/12/27 Copyright 1985, 1995, 2001-2007 J. Schilling";
 #endif
 /*
  *	Stat / mode / owner routines for unix like
@@ -543,6 +543,9 @@ samefile(fp1, fp2)
 {
 	struct stat	stbuf1;
 	struct stat	stbuf2;
+
+	if (fp1 == NULL || fp2 == NULL)
+		return (FALSE);
 
 	if (fstat(fdown(fp1), &stbuf1) < 0)
 

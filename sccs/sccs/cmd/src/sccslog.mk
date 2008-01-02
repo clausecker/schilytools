@@ -1,4 +1,4 @@
-#ident @(#)sccslog.mk	1.6 07/12/11 
+#ident @(#)sccslog.mk	1.7 08/01/02 
 ###########################################################################
 SRCROOT=	../../../..
 RULESDIR=	RULES
@@ -11,7 +11,7 @@ CPPOPTS +=	-DUSE_LARGEFILES
 CPPOPTS +=	-I../../hdr
 CFILES=		sccslog.c
 HFILES=		
-LIBS=		-lschily
+LIBS=		-lschily $(LIB_INTL)
 #XMK_FILE=	Makefile.man
 
 ###########################################################################

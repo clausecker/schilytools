@@ -1,4 +1,4 @@
-#ident @(#)star_fat.mk	1.21 07/06/16 
+#ident @(#)star_fat.mk	1.22 08/01/02 
 ###########################################################################
 #include		$(MAKE_M_ARCH).def
 SRCROOT=	..
@@ -50,6 +50,9 @@ HFILES=		star.h starsubs.h dirtime.h xtab.h xutimes.h \
 #LIBS=		-lunos
 #LIBS=		-lschily -lc /usr/local/lib/gcc-gnulib
 LIBS=		-ldeflt -lrmt -lschily $(LIB_ACL) $(LIB_ATTR) $(LIB_SOCKET)
+#
+#	Wenn -lfind, dann auch  $(LIB_INTL)
+#
 XMK_FILE=	Makefile.man starformatman.mk scpioman.mk gnutarman.mk \
 		spaxman.mk suntarman.mk Makefile.dfl Makefile.doc
 

@@ -1,4 +1,4 @@
-/* @(#)schily.h	1.67 07/04/03 Copyright 1985-2007 J. Schilling */
+/* @(#)schily.h	1.68 07/12/27 Copyright 1985-2007 J. Schilling */
 /*
  *	Definitions for libschily
  *
@@ -177,6 +177,21 @@ extern	int	getllxtnum __PR((char *arg, Llong *lvalp, gnmult_t *mult));
 extern	int	getnum	__PR((char *arg, long *valp));
 #ifdef	_SCHILY_TYPES_H
 extern	int	gettnum	__PR((char *arg, time_t *valp));
+#endif
+
+#ifdef	EOF			/* stdio.h has been included */
+#ifdef	_INCL_SYS_TYPES_H
+/*
+ * getperm() flags:
+ */
+#define	GP_NOX		0	/* This is not a dir and 'X' is not valid */
+#define	GP_DOX		1	/* 'X' perm character is valid		  */
+#define	GP_XERR		2	/* 'X' perm characters are invalid	  */
+#define	GP_FPERM	4	/* TRUE if we implement find -perm	  */
+
+extern	int	getperm	__PR((FILE *f, char *perm, char *opname, \
+				mode_t *modep, int smode, int flag)); 
+#endif
 #endif
 
 extern	int	_niread __PR((int, void *, int));

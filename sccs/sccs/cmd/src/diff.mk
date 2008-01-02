@@ -1,4 +1,4 @@
-#ident @(#)diff.mk	1.5 07/05/13 
+#ident @(#)diff.mk	1.6 08/01/02 
 ###########################################################################
 SRCROOT=	../../../..
 RULESDIR=	RULES
@@ -22,7 +22,7 @@ CFILES=		diff.c
 
 HFILES=		diff.h
 
-LIBS=		-lgetopt -lschily
+LIBS=		-lgetopt -lschily $(LIB_INTL)
 #LIBS=		-lcomobj -lcassi -lmpw -lgetopt -lschily
 
 #XMK_FILE=	Makefile.def Makefile.man

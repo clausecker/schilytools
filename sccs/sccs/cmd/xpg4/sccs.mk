@@ -1,4 +1,4 @@
-#ident @(#)sccs.mk	1.3 07/05/13 
+#ident @(#)sccs.mk	1.4 08/01/02 
 ###########################################################################
 SRCROOT=	../../../..
 RULESDIR=	RULES
@@ -21,7 +21,7 @@ CFILES=		sccs.c
 
 #HFILES=		make.h
 
-LIBS=		-lcomobj -lcassi -lmpw -lgetopt -lschily
+LIBS=		-lcomobj -lcassi -lmpw -lgetopt -lschily $(LIB_INTL)
 
 #XMK_FILE=	Makefile.def Makefile.man
 
