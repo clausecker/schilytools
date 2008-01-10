@@ -1,7 +1,7 @@
-/* @(#)mkisofs.c	1.230 07/10/20 joerg */
+/* @(#)mkisofs.c	1.231 08/01/06 joerg */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)mkisofs.c	1.230 07/10/20 joerg";
+	"@(#)mkisofs.c	1.231 08/01/06 joerg";
 #endif
 /*
  * Program mkisofs.c - generate iso9660 filesystem  based upon directory
@@ -744,7 +744,7 @@ LOCAL const struct mki_option mki_options[] =
 	{{"cache-inodes", &cache_inodes },
 	"Cache inodes (needed to detect hard links)"},
 	{{"no-cache-inodes%0", &cache_inodes },
-	"Do not cache inodes (if filesystem has no unique unides)"},
+	"Do not cache inodes (if filesystem has no unique inodes)"},
 	{{"rrip110%0", &rrip112 },
 	"Create old Rock Ridge V 1.10"},
 	{{"rrip112", &rrip112 },

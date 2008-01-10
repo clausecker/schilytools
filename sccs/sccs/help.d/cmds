@@ -32,6 +32,41 @@
 -get
 	get [-r<SID>] [-c<cutoff>] [-i<list>] [-x<list>] [-a<seq no.>]
 	    [-k] [-e] [-l<p>] [-p] [-m] [-n] [-s] [-b] [-g] [-t] file ...
+
+	(do 'help get_kywds' for description of recognized ID keywords)
+
+-get_kywds
+
+	List of ID Keywords Recognized by the _g_e_t Command
+
+  ID          Value
+Keyword       Type
+
+ %A%          Shorthand notation for an ID line with %Z%%Y%  %M%  %I%%Z%
+ %B%          SID branch component
+ %C%          Current line number
+ %D%          Current date: yy/mm/dd
+ %d%          Current date: yyyy/mm/dd
+ %E%          Date newest applied delta was created: yy/mm/dd
+ %e%          Date newest applied delta was created: yyyy/mm/dd
+ %F%          SCCS s.file name
+ %G%          Date newest applied delta was created: mm/dd/yy
+ %g%          Date newest applied delta was created: mm/dd/yyyy
+ %H%          Current date: mm/dd/yy
+ %h%          Current date: mm/dd/yyyy
+ %I%          SID of the retrieved version: %R%.%L%.%B%.%S%
+ %L%          SID level component
+ %M%          Module name: value of the m flag or name of the s.file w/o prefix
+ %P%          Fully qualified s.file name
+ %Q%          Value of the q flag in the s.file
+ %R%          SID Release component
+ %S%          SID Sequence component
+ %T%          Current time: hh:mm:ss
+ %U%          Time newest applied delta was created: hh:mm:ss
+ %W%          Shorthand notation for an ID line with %Z%%M%  %I%
+ %Y%          Module type: value of the t flag in the s.file
+ %Z%          4-character string: `@(#)'
+
 -admin
      admin [-n] [-i<name>] [-r<rel>] [-t<name>] [-f<add-flag<flag-val>>] ...
            [-d<del-flag>] ... [-a<add-login>] ... [-e<erase-login>] ...
@@ -109,7 +144,9 @@ Keyword       Data Item            Section           Type           Type
   :B:   Branch number                 "              nnnn            S
   :S:   Sequence number               "              nnnn            S
   :D:   Date delta created            "         :Dy:/:Dm:/:Dd:       S
+  :d:   Date delta created            "         :DY:/:Dm:/:Dd:       S
  :Dy:   Year delta created            "               nn             S
+ :DY:   Year delta created            "              nnnn            S
  :Dm:   Month delta created           "               nn             S
  :Dd:   Day delta created             "               nn             S
   :T:   Time delta created            "          :Th::Tm::Ts:        S

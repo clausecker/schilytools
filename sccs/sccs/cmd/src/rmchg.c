@@ -27,11 +27,11 @@
 /*
  * This file contains modifications Copyright 2006-2007 J. Schilling
  *
- * @(#)rmchg.c	1.7 07/12/11 J. Schilling
+ * @(#)rmchg.c	1.8 08/01/06 J. Schilling
  */
 #if defined(sun) || defined(__GNUC__)
 
-#ident "@(#)rmchg.c 1.7 07/12/11 J. Schilling"
+#ident "@(#)rmchg.c 1.8 08/01/06 J. Schilling"
 #endif
 /*
  * @(#)rmchg.c 1.19 06/12/12
@@ -624,7 +624,10 @@ struct packet *pkt;
 				putline(pkt,line);
 				putline(pkt,"*** CHANGED *** ");
 				/* get date and time */
-				date_ba(&Timenow,line);	
+				if (Timenow > Y2038)
+					date_bal(&Timenow,line);	/* 4 digit year */
+				else
+					date_ba(&Timenow,line);		/* 2 digit year */
 				putline(pkt,line);
 				sprintf(line," %s\n",logname());
 				putline(pkt,line);

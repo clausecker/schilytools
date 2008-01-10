@@ -27,11 +27,11 @@
 /*
  * This file contains modifications Copyright 2006-2007 J. Schilling
  *
- * @(#)admin.c	1.8 07/12/11 J. Schilling
+ * @(#)admin.c	1.9 08/01/06 J. Schilling
  */
 #if defined(sun) || defined(__GNUC__)
 
-#ident "@(#)admin.c 1.8 07/12/11 J. Schilling"
+#ident "@(#)admin.c 1.9 08/01/06 J. Schilling"
 #endif
 /*
  * @(#)admin.c 1.39 06/12/12
@@ -1346,7 +1346,10 @@ char *str;
 		;
 	--p;
 	*p++ = ' ';
-	date_ba(&dt->d_datetime,p);
+	if (dt->d_datetime > Y2038)
+		date_bal(&dt->d_datetime,p);	/* 4 digit year */
+	else
+		date_ba(&dt->d_datetime,p);	/* 2 digit year */
 	while (*p++)
 		;
 	--p;

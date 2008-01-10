@@ -1,0 +1,114 @@
+. \" %Z%%M%	%I% %E% Copyright 2008 J. Schilling
+. \"  Manual page for termcap
+. \"
+.if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
+.if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
+.if t .ds u \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'u
+.if t .ds A \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'A
+.if t .ds O \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'O
+.if t .ds U \v'-0.77m'\h'0.30n'\z.\h'0.45n'\z.\v'0.77m'\h'-.75n'U
+.if t .ds s \(*b
+.if t .ds S SS
+.if n .ds a ae
+.if n .ds o oe
+.if n .ds u ue
+.if n .ds s sz
+.TH TERMCAP 1L "%E%" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.SH NAME
+termcap \- a termcap compiler
+.SH SYNOPSIS
+.B
+termcap
+[
+.I options
+]
+.SH DESCRIPTION
+.B termcap
+reads termcap entries and outputs them in standard order and
+with standard escape sequences. This allows to convert termcap
+files into a comparable format.
+
+.SH OPTIONS
+.TP
+.B \-help
+Prints a short summary of the
+.BR termcap (1)
+options and exists.
+.TP
+.B \-version
+Prints the
+.BR termcap (1)
+version number string and exists.
+.TP
+.B \-dooctal
+When printing terminal capabilities, prefer octal output like
+.B \e003
+before escape sequences like
+.BR ^C .
+.TP
+.B \-dumplist
+Dump the complete internal list of terminal capabilities.
+.TP
+.B \-inorder
+Output all capabilities in the standard order. First the boolean
+capabilities, then the numeric capabilities and at last the string
+capabilities. Without
+.BR \-inorder ,
+the obsolete capabilities are printed last.
+.TP
+.BI if= filename
+Read the file 
+.I filename
+with many termcap entries and produce compiled output in standard order
+on 
+.BR stdout .
+
+.SH ENVIRONMENT
+.TP
+.B HOME
+To find the private files like
+.B ~/.termcap
+.TP
+.B TERM
+The type of terminal for which the output should be formatted.
+.TP
+.B TERMCAP
+This environment variable holds either a precompiled termcap entry
+or the pathname to be used to find a termcap database file.
+If it holds a precompiled entry that does not match the
+.B TERM
+environment, the termcap database is parsed as if the
+.B TERMCAP 
+environment is not set.
+.TP
+.B TERMPATH
+If 
+.B TERMCAP
+is empty, then the
+.B TERMPATH
+environment is scanned for pathnames of files that contain a
+.B termcap
+database.
+It holds a list of filenames separated by colons or spaces (i.e.,  ":" or " ").
+If the TERMPATH symbol is not set, the files
+.I $HOME/.termcap
+and
+.I /etc/termcap
+are scanned in that order.
+If a pathname in 
+.B TERMPATH
+does not start with a slash ("/"), then the 
+.B HOME
+environment is prepended to the name.
+
+.SH FILES
+.TP
+.B /etc/termcap
+The system's terminal capabilities database.
+.TP
+.B ~/.termcap
+The private terminal capabilities database.
+
+.SH NOTES
+
+.SH BUGS

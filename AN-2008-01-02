@@ -17,7 +17,7 @@ New features with AN-2008-01-02:
 -	New autoconf test HAVE_SYS_SIGLIST_DEF checks for sys_siglist[]
 	definition in signal.h Thanks to Tatjana Heuser for reporting
 
--	Possibly double #defines HAVE_ICON HAVE_ICONV_OPEN HAVE_ICONV_CLOSE
+-	Possibly double #defines HAVE_ICONV HAVE_ICONV_OPEN HAVE_ICONV_CLOSE
 	in include/schily/iconv.h fixed. Thanks to Tatjana Heuser for reporting
 
 -	cdrecord now implements a simulated "blank" feature for media that

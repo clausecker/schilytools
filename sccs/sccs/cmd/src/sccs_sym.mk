@@ -1,4 +1,4 @@
-#ident @(#)sccs_sym.mk	1.1 07/12/12 
+#ident @(#)sccs_sym.mk	1.2 08/01/06 
 ###########################################################################
 SRCROOT=	../../../..
 RULESDIR=	RULES
@@ -12,4 +12,5 @@ PSYMLINKS=	$(DEST_DIR)$(INS_BASE)/$(INSDIR)/$(TARGET)$(_EXEEXT)
 install: $(PSYMLINKS)
 
 $(PSYMLINKS):	$(DEST_DIR)$(INS_BASE)/ccs/bin/$(TARGET)$(_EXEEXT)
+	$(MKDIR) -p $(DEST_DIR)$(INS_BASE)/$(INSDIR)
 	@echo "	==> INSTALLING symlink \"$@\""; $(RM) $(RM_FORCE) $@; $(SYMLINK) ../ccs/bin/$(TARGET)$(_EXEEXT) $@

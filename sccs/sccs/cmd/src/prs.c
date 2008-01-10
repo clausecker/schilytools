@@ -27,11 +27,11 @@
 /*
  * This file contains modifications Copyright 2006-2007 J. Schilling
  *
- * @(#)prs.c	1.6 07/12/11 J. Schilling
+ * @(#)prs.c	1.7 08/01/06 J. Schilling
  */
 #if defined(sun) || defined(__GNUC__)
 
-#ident "@(#)prs.c 1.6 07/12/11 J. Schilling"
+#ident "@(#)prs.c 1.7 08/01/06 J. Schilling"
 #endif
 /*
  * @(#)prs.c 1.33 06/12/12
@@ -91,6 +91,7 @@ static char	Dir[BUFSIZ];
 static char	*Type;
 static char	*Qsect;
 static char	Deltadate[18];
+static char	Deltadatel[20];
 static char	*Deltatime;
 static char	tempskel[]   =   NOGETTEXT("/tmp/prXXXXXX");	/* used to generate temp
 						   file names
@@ -636,6 +637,9 @@ struct	stats	*statp;
 			case 'D':	/* Date delta created */
 				printf("%s",Deltadate);
 				break;
+			case 'd':	/* Date delta created (4 digit year) */
+				printf("%s",Deltadatel);
+				break;
 			case 'T':	/* Time delta created */
 				printf("%s",Deltatime);
 				break;
@@ -712,6 +716,10 @@ struct	stats	*statp;
 				   Dtime->tm_year -= 100;
 				}
 				printf("%02d",Dtime->tm_year);
+				break;
+			case 256*'Y'+'D':	/* :DY: Year delta created */
+				Dtime->tm_year += 1900;
+				printf("%4d",Dtime->tm_year); /* 4 digits */
 				break;
 			case 256*'m'+'D':	/* :Dm: Month delta created */
 				printf("%02d",(Dtime->tm_mon + 1));
@@ -1364,11 +1372,14 @@ time_t	*bdate;
 
 	del_ba(dt, dt_line);				/* create delta table line for :Dt: keywd */
 	date_ba(&dt->d_datetime,Deltadate);
+	date_bal(&dt->d_datetime,Deltadatel);
 #else
 	date_ba(bdate,Deltadate);
+	date_bal(bdate,Deltadatel);
 #endif
 	Deltatime = &Deltadate[9];
 	Deltadate[8] = 0;
+	Deltadatel[10] = 0;
 	sid_ba(gsid,Sid);
 #if !(defined(BUG_1205145) || defined(GMT_TIME))
 	Dtime = localtime(bdate);

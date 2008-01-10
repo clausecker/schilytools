@@ -21,65 +21,48 @@
 /* Copyright (c) 1988 AT&T */
 /* All Rights Reserved */
 /*
- * Copyright 1994 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 2003 Sun Microsystems, Inc. All rights reserved.
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2007 J. Schilling
+ * This file contains modifications Copyright 2008 J. Schilling
  *
- * @(#)del_ba.c	1.4 08/01/05 J. Schilling
+ * @(#)date_bal.c	1.2 08/01/05 J. Schilling
+ *
+ * From Sun: @(#)sccs:lib/comobj/date_ba.c @(#)date_ba.c 1.5 06/12/12
  */
 #if defined(sun) || defined(__GNUC__)
 
-#ident "@(#)del_ba.c 1.4 08/01/05 J. Schilling"
+#ident "@(#)date_bal.c 1.2 08/01/05 J. Schilling"
 #endif
-/*
- * @(#)del_ba.c 1.3 06/12/12
- */
-
-#ident	"@(#)del_ba.c"
-#ident	"@(#)sccs:lib/comobj/del_ba.c"
 # include	<defines.h>
+
+# define DO2(p,n,c)	*p++ = ((char) ((n)/10) + '0'); *p++ = ( (char) ((n)%10) + '0'); *p++ = c;
+# define DO4(p,n,c)	*p++ = ((char) ((n)/1000) + '0'); *p++ = ( (char) ((n)%1000/100) + '0'); \
+			*p++ = ((char) ((n)%100/10) + '0'); *p++ = ( (char) ((n)%10) + '0'); *p++ = c;
 
 
 char *
-del_ba(dt,str)
-register struct deltab *dt;
-char *str;
+date_bal(bdt, adt)
+time_t	*bdt;
+char	*adt;
 {
+	register struct tm *lcltm;
 	register char *p;
 
-	p = str;
-	*p++ = CTLCHAR;
-	*p++ = BDELTAB;
-	*p++ = ' ';
-	*p++ = dt->d_type;
-	*p++ = ' ';
-	p = sid_ba(&dt->d_sid,p);
-	*p++ = ' ';
-	if (dt->d_datetime > Y2038)
-		date_bal(&dt->d_datetime,p);	/* 4 digit year */
-	else
-		date_ba(&dt->d_datetime,p);	/* 2 digit year */
-	while (*p++)
-		;
-	--p;
-	*p++ = ' ';
-	copy(dt->d_pgmr,p);
-	while (*p++)
-		;
-	--p;
-	*p++ = ' ';
-	sprintf(p,"%d",dt->d_serial);
-	while (*p++)
-		;
-	--p;
-	*p++ = ' ';
-	sprintf(p,"%d",dt->d_pred);
-	while (*p++)
-		;
-	--p;
-	*p++ = '\n';
-	*p = 0;
-	return(str);
+#if defined(BUG_1205145) || defined(GMT_TIME)
+	lcltm = gmtime(bdt);
+#else
+	lcltm = localtime(bdt);
+#endif
+	p = adt;
+	lcltm->tm_year += 1900;
+
+	DO4(p,lcltm->tm_year,'/');
+	DO2(p,lcltm->tm_mon + 1,'/');
+	DO2(p,lcltm->tm_mday,' ');
+	DO2(p,lcltm->tm_hour,':');
+	DO2(p,lcltm->tm_min,':');
+	DO2(p,lcltm->tm_sec,0);
+	return(adt);
 }

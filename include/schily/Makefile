@@ -16,7 +16,6 @@ XMK_FILE=	\
 		fnmatch.mk fstream.mk \
 		getargs.mk getcwd.mk iconv.mk intcvt.mk ioctl.mk \
 		jmpdefs.mk \
-		jos_defs.mk jos_io.mk jos_maxp.mk \
 		libport.mk librmt.mk maxpath.mk mconfig.mk \
 		mman.mk mtio.mk nlsdefs.mk param.mk patmatch.mk prototyp.mk \
 		rmtio.mk schily.mk schilyp.mk \

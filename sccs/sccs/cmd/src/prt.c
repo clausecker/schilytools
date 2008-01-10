@@ -27,11 +27,11 @@
 /*
  * This file contains modifications Copyright 2006-2007 J. Schilling
  *
- * @(#)prt.c	1.4 07/12/11 J. Schilling
+ * @(#)prt.c	1.5 08/01/06 J. Schilling
  */
 #if defined(sun) || defined(__GNUC__)
 
-#ident "@(#)prt.c 1.4 07/12/11 J. Schilling"
+#ident "@(#)prt.c 1.5 08/01/06 J. Schilling"
 #endif
 /*
  * @(#)prt.c 1.22 06/12/12
@@ -385,7 +385,10 @@ char *file;
 			tim = bindate - timezone;		/* GMT correction */
 			if((localtime(&tim))->tm_isdst)
 				tim += 1*60*60;			/* daylight savings */
-			date_ba(&tim,del.datetime);
+			if (tim > Y2038)
+				date_bal(&tim,del.datetim);	/* 4 digit year */
+			else
+				date_ba(&tim,del.datetime);	/* 2 digit year */
 #endif
 
 			if (!HADA && del.type != 'D') {

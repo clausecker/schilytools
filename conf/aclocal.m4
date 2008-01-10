@@ -1,4 +1,4 @@
-dnl @(#)aclocal.m4	1.59 08/01/02 Copyright 1998 J. Schilling
+dnl @(#)aclocal.m4	1.60 08/01/03 Copyright 1998 J. Schilling
 
 dnl Set VARIABLE to VALUE in C-string form, verbatim, or 1.
 dnl AC_DEFINE_STRING(VARIABLE [, VALUE])
@@ -752,6 +752,43 @@ AC_CACHE_CHECK([for time_t], ac_cv_type_time_t,
 if test $ac_cv_type_time_t = no; then
   AC_DEFINE(time_t, long)
 fi])
+
+dnl AC_CHECK_SIZE_TIME([CROSS-SIZE])
+dnl This must be called past AC_CHECK_SIZEOF(long int)
+AC_DEFUN(AC_CHECK_SIZE_TIME_T,
+[changequote(<<, >>)dnl
+dnl The name to #define.
+define(<<AC_TYPE_NAME>>, translit(sizeof_time_t, [a-z *], [A-Z_P]))dnl
+dnl The cache variable name.
+define(<<AC_CV_NAME>>, translit(ac_cv_sizeof_time_t, [ *], [_p]))dnl
+changequote([, ])dnl
+AC_MSG_CHECKING(size of time_t)
+AC_CACHE_VAL(AC_CV_NAME,
+[AC_TRY_RUN([#include <stdio.h>
+#include <sys/types.h>
+#ifdef	TIME_WITH_SYS_TIME_H
+#	include <sys/time.h>
+#	include <time.h>
+#else
+#ifdef	HAVE_SYS_TIME_H
+#	include <sys/time.h>
+#else
+#	include <time.h>
+#endif
+#endif
+main()
+{
+  FILE *f=fopen("conftestval", "w");
+  if (!f) exit(1);
+  fprintf(f, "%d\n", sizeof(time_t));
+  exit(0);
+}], AC_CV_NAME=`cat conftestval`, AC_CV_NAME=SIZEOF_LONG_INT, ifelse([$1], , , AC_CV_NAME=$1))])dnl
+AC_MSG_RESULT($AC_CV_NAME)
+AC_DEFINE_UNQUOTED(AC_TYPE_NAME, $AC_CV_NAME)
+undefine([AC_TYPE_NAME])dnl
+undefine([AC_CV_NAME])dnl
+])
+
 
 dnl Checks for type clock_t
 dnl Defines clock_t to long on failure.

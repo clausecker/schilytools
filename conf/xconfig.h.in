@@ -1,4 +1,4 @@
-/* @(#)xconfig.h.in	1.139 08/01/02 Copyright 1998-2007 J. Schilling */
+/* @(#)xconfig.h.in	1.140 08/01/03 Copyright 1998-2007 J. Schilling */
 /*
  *	Dynamic autoconf C-include code.
  *
@@ -572,6 +572,8 @@
 #undef SIZEOF_UNSIGNED_LONG_LONG
 #undef SIZEOF_UNSIGNED___INT64
 #undef SIZEOF_UNSIGNED_CHAR_P
+
+#undef SIZEOF_TIME_T
 
 #undef HAVE_LONGLONG		/* Compiler defines long long type */
 #undef HAVE___INT64		/* Compiler defines __int64 type */

@@ -27,11 +27,11 @@
 /*
  * This file contains modifications Copyright 2006-2007 J. Schilling
  *
- * @(#)get.c	1.9 07/12/11 J. Schilling
+ * @(#)get.c	1.12 08/01/09 J. Schilling
  */
 #if defined(sun) || defined(__GNUC__)
 
-#ident "@(#)get.c 1.9 07/12/11 J. Schilling"
+#ident "@(#)get.c 1.12 08/01/09 J. Schilling"
 #endif
 /*
  * @(#)get.c 1.59 06/12/12
@@ -50,6 +50,18 @@
 #include	<sysexits.h>
 
 #define	DATELEN	12
+
+# ifdef __STDC__
+#define INCPATH		INS_BASE "/ccs/include"	/* place to find binaries */
+#else
+/*
+ * XXX With a K&R compiler, you need to edit the following string in case
+ * XXX you like to change the install path.
+ */
+#define INCPATH		"/usr/ccs/include"	/* place to find binaries */
+#endif
+
+
 
 /*
  * Get is now much more careful than before about checking
@@ -99,8 +111,10 @@ static void	get __PR((char *file));
 static void	gen_lfile __PR((struct packet *pkt));
 static void	idsetup __PR((struct packet *pkt));
 static void	makgdate __PR((char *old, char *new));
+static void	makgdatel __PR((char *old, char *new));
 static char *	idsubst __PR((struct packet *pkt, char *line));
 static char *	_trans __PR((char *tp, char *str, char *rest));
+static int	readcopy __PR((char *name, char *tp));
 static void	prfx __PR((struct packet *pkt));
 static void	wrtpfile __PR((struct packet *pkt, char *inc, char *exc));
 static int	cmrinsert __PR((void));
@@ -393,7 +407,13 @@ char *file;
 	expand_IDs = 0;
 	if ((list_expand_IDs = Sflags[EXPANDFLAG - 'a']) != NULL) {
 		if (*list_expand_IDs) {
-			expand_IDs = 1;
+			/*
+			 * The old Sun based code did break with get -k in case
+			 * that someone did previously call admin -fy...
+			 * Make sure that this now works correctly again.
+			 */
+			if (!HADK)		/* JS fix get -k */
+				expand_IDs = 1;
 		}
 	}
 	if (HADE) {
@@ -655,7 +675,10 @@ register struct packet *pkt;
 			sid_ba(&dt.d_sid,str);
 			if (fprintf(out, "%s\t", str) == EOF)
 				xmsg(outname, NOGETTEXT("gen_lfile"));
-			date_ba(&dt.d_datetime,str);
+			if (dt.d_datetime > Y2038)
+				date_bal(&dt.d_datetime,str);	/* 4 digit year */
+			else
+				date_ba(&dt.d_datetime,str);	/* 2 digit year */
 			if (fprintf(out, "%s %s\n", str, dt.d_pgmr) == EOF)
 				xmsg(outname, NOGETTEXT("gen_lfile"));
 		}
@@ -696,12 +719,16 @@ register struct packet *pkt;
 #undef	OUTPUTC
 }
 
+static char	Curdatel[20];
 static char	Curdate[18];
 static char	*Curtime;
 static char	Gdate[DATELEN];
+static char	Gdatel[DATELEN];
 static char	Chgdate[18];
+static char	Chgdatel[20];
 static char	*Chgtime;
 static char	Gchgdate[DATELEN];
+static char	Gchgdatel[DATELEN];
 static char	Sid[32];
 static char	Mod[FILESIZE];
 static char	Olddir[BUFSIZ];
@@ -718,14 +745,18 @@ register struct packet *pkt;
 	register char *p;
 
 	date_ba(&Timenow,Curdate);
+	date_bal(&Timenow,Curdatel);
+	Curdatel[10] = 0;
 	Curtime = &Curdate[9];
 	Curdate[8] = 0;
 	makgdate(Curdate,Gdate);
+	makgdatel(Curdatel,Gdatel);
 	for (n = maxser(pkt); n; n--)
 		if (pkt->p_apply[n].a_code == APPLY)
 			break;
 	if (n) {
-		date_ba(&pkt->p_idel[n].i_datetime,Chgdate);
+		date_ba(&pkt->p_idel[n].i_datetime, Chgdate);
+		date_bal(&pkt->p_idel[n].i_datetime, Chgdatel);
 	} else {
 #ifdef XPG4
 		FILE	*xf;
@@ -738,9 +769,11 @@ register struct packet *pkt;
 #endif
 		fatal(gettext("No sid prior to cutoff date-time (ge23)"));
 	}
+	Chgdatel[10] = 0;
 	Chgtime = &Chgdate[9];
 	Chgdate[8] = 0;
 	makgdate(Chgdate,Gchgdate);
+	makgdatel(Chgdatel,Gchgdatel);
 	sid_ba(&pkt->p_gotsid,Sid);
 	if ((p = Sflags[MODFLAG - 'a']) != NULL)
 		copy(p,Mod);
@@ -750,7 +783,7 @@ register struct packet *pkt;
 		Qsect = Null;
 }
 
-#if	defined (__STDC__)
+#ifdef	HAVE_STRFTIME
 static void 
 makgdate(old,new)
 register char *old, *new;
@@ -760,27 +793,86 @@ register char *old, *new;
 	tm.tm_mon--;
 	strftime (new, (size_t) DATELEN, NOGETTEXT("%D"), &tm);
 }
+
+static void 
+makgdatel(old,new)
+register char *old, *new;
+{
+	struct tm	tm;
+	sscanf(old, "%d/%d/%d", &(tm.tm_year), &(tm.tm_mon), &(tm.tm_mday));
+	if (tm.tm_year > 1900)
+		tm.tm_year -= 1900;
+	tm.tm_mon--;
+	strftime (new, (size_t) DATELEN, NOGETTEXT("%m/%d/%Y"), &tm);
+}
 	
 
-#else	/* __STDC__ not defined */
+#else	/* HAVE_STRFTIME not defined */
 
 static void
 makgdate(old,new)
 register char *old, *new;
 {
+#define	NULL_PAD_DATE		/* Make it compatible to strftime()/man page */
+#ifndef	NULL_PAD_DATE
 	if ((*new = old[3]) != '0')
 		new++;
+#else
+	*new++ = old[3];	
+#endif
 	*new++ = old[4];
 	*new++ = '/';
+#ifndef	NULL_PAD_DATE
 	if ((*new = old[6]) != '0')
 		new++;
+#else
+	*new++ = old[6];
+#endif
 	*new++ = old[7];
 	*new++ = '/';
 	*new++ = old[0];
 	*new++ = old[1];
 	*new = 0;
 }
-#endif	/* __STDC__ */
+
+static void
+makgdatel(old,new)
+register char *old, *new;
+{
+	char	*p;
+	int	off;
+
+	for (p = old; *p >= '0' && *p <= '9'; p++)
+		;
+	off = p - old - 2;
+	if (off < 0)
+		off = 0;
+	
+#ifndef	NULL_PAD_DATE
+	if ((*new = old[3+off]) != '0')
+		new++;
+#else
+	*new++ = old[3+off];
+#endif
+	*new++ = old[4+off];
+	*new++ = '/';
+#ifndef	NULL_PAD_DATE
+	if ((*new = old[6+off]) != '0')
+		new++;
+#else
+	*new++ = old[6+off];
+#endif
+	*new++ = old[7+off];
+	*new++ = '/';
+	*new++ = old[0];
+	*new++ = old[1];
+	if (off > 0)
+		*new++ = old[2];
+	if (off > 1)
+		*new++ = old[3];
+	*new = 0;
+}
+#endif	/* HAVE_STRFTIME */
 
 
 static char Zkeywd[5] = "@(#)";
@@ -862,8 +954,14 @@ char line[];
 			case 'D':
 				tp = trans(tp,Curdate);
 				break;
+			case 'd':
+				tp = trans(tp,Curdatel);
+				break;
 			case 'H':
 				tp = trans(tp,Gdate);
+				break;
+			case 'h':
+				tp = trans(tp,Gdatel);
 				break;
 			case 'T':
 				tp = trans(tp,Curtime);
@@ -871,8 +969,14 @@ char line[];
 			case 'E':
 				tp = trans(tp,Chgdate);
 				break;
+			case 'e':
+				tp = trans(tp,Chgdatel);
+				break;
 			case 'G':
 				tp = trans(tp,Gchgdate);
+				break;
+			case 'g':
+				tp = trans(tp,Gchgdatel);
 				break;
 			case 'U':
 				tp = trans(tp,Chgtime);
@@ -951,6 +1055,19 @@ char line[];
 			if (!(Sflags['i'-'a']))
 				++Did_id;
 			lp++;
+		} else if (strncmp(lp, "%sccs.include.", 14) == 0) {
+			register char *p;
+
+			for (p = lp + 14; *p && *p != '%'; ++p);
+			if (*p == '%') {
+				*p = '\0';
+				if (readcopy(lp + 14, tline))
+					return(tline);
+				*p = '%';
+			}
+			str[0] = *lp;
+			str[1] = '\0';
+			tp = trans(tp,str);
 		} else {
 			str[0] = *lp;
 			str[1] = '\0';
@@ -978,6 +1095,73 @@ register char *tp, *str, *rest;
 	while((*tp++ = *str++) != '\0')
 		;
 	return(tp-1);
+}
+
+#ifndef	HAVE_STRERROR
+#define	strerror(p)		errmsgstr(p)	/* Use libschily version */
+#endif
+static int
+readcopy(name, tp)
+	register char *name;
+	register char *tp;
+{
+	extern int errno;
+	register FILE *fp = NULL;
+	register int ch;
+	char path[MAXPATHLEN];
+	struct stat sb;
+	register size_t filled_size	= tp - tline;
+	register size_t new_size	= filled_size;
+
+	if (!HADK && expand_IDs && (list_expand_IDs != NULL)) {
+		if (!any('*', list_expand_IDs))
+			return (0);
+	}
+	if (fp == NULL) {
+		char *np;
+		char *p = getenv(NOGETTEXT("SCCS_INCLUDEPATH"));
+
+		if (p == NULL)
+			p = INCPATH;
+		do {
+			for (np = p; *np; np++)
+				if (*np == ':')
+					break;
+			(void)snprintf(path, sizeof (path), "%.*s/%s",
+						(int)(np-p), p, name);
+			if (p == np || *p == '\0')
+				strlcpy(path, name, sizeof (path));
+			fp = fopen(path, "r");
+			p = np;
+			if (*p == '\0')
+				break;
+			if (*p == ':')
+				p++;
+		} while (fp == NULL);
+	}
+	if (fp == NULL) {
+		fprintf(stderr, gettext("WARNING: %s: %s.\n"),
+						path, strerror(errno));
+		return (0);
+	}
+	if (fstat(fileno(fp), &sb) < 0)
+		return (0);
+	new_size += sb.st_size + 1;
+
+	if (new_size > tline_size) {
+		tline_size = new_size + DEF_LINE_SIZE;
+		tline = (char*) realloc(tline, tline_size);
+		if (tline == NULL) {
+			fatal(gettext("OUT OF SPACE (ut9)"));
+		}
+		tp = tline + filled_size;
+	}
+
+	while ((ch = getc(fp)) != EOF)
+		*tp++ = ch;
+	*tp++ = '\0';
+	(void)fclose(fp);
+	return (1);
 }
 
 static void
@@ -1080,7 +1264,10 @@ char *inc, *exc;
 		xmsg(pfile, NOGETTEXT("wrtpfile"));
 	sid_ba(&pkt->p_gotsid,str1);
 	sid_ba(&pkt->p_reqsid,str2);
-	date_ba(&Timenow,line);
+	if (Timenow > Y2038)
+		date_bal(&Timenow,line);	/* 4 digit year */
+	else
+		date_ba(&Timenow,line);		/* 2 digit year */
 	if (fprintf(out,"%s %s %s %s",str1,str2,user,line) == EOF)
 		xmsg(pfile, NOGETTEXT("wrtpfile"));
 	if (inc)

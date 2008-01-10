@@ -1,22 +1,12 @@
-/* @(#)sccslog.c	1.17 07/12/11 Copyright 1997-2007 J. Schilling */
+/* @(#)sccslog.c	1.18 08/01/08 Copyright 1997-2007 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)sccslog.c	1.17 07/12/11 Copyright 1997-2007 J. Schilling";
+	"@(#)sccslog.c	1.18 08/01/08 Copyright 1997-2007 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1997-2007 J. Schilling
  */
-/*
- * The contents of this file are subject to the terms of the
- * Common Development and Distribution License, Version 1.0 only
- * (the "License").  You may not use this file except in compliance
- * with the License.
- *
- * See the file CDDL.Schily.txt in this distribution for details.
- *
- * When distributing Covered Code, include this CDDL HEADER in each
- * file and include the License file CDDL.Schily.txt from this distribution.
- */
+/*@@C@@*/
 
 #include <schily/mconfig.h>
 #include <stdio.h>
@@ -225,6 +215,8 @@ main(ac, av)
 		for (j = i+1; j < listsize; j++) {
 			if (list[i].time - list[j].time > 24*60*30)
 				break;
+			if (list[i].comment == NULL || list[j].comment == NULL)
+				continue;
 			if (streql(list[i].comment, list[j].comment)) {
 				printf("	* %s %s\n",
 					list[j].file,
@@ -356,6 +348,12 @@ doit(name)
 			}
 		}
 		if (buf[1] == 'e') {
+			/*
+			 * Check for very old SCCS history files that may have
+			 * no comment at all in special for Release 1.1.
+			 */
+			if (list[listsize].comment == NULL)
+				list[listsize].comment = strdup("");
 			listsize++;
 		}
 	}

@@ -1,4 +1,4 @@
-dnl @(#)configure.in	1.144 08/01/02 Copyright 1998-2007 J. Schilling
+dnl @(#)configure.in	1.145 08/01/03 Copyright 1998-2007 J. Schilling
 dnl Process this file with autoconf to produce a configure script.
 AC_REVISION($Revision$)dnl
 
@@ -142,6 +142,9 @@ AC_CHECK_SIZEOF(unsigned long int)
 AC_CHECK_SIZEOF(unsigned long long)
 AC_CHECK_SIZEOF(unsigned __int64)
 AC_CHECK_SIZEOF(unsigned char *)
+
+dnl This call must be past AC_CHECK_SIZEOF(long int)
+AC_CHECK_SIZE_TIME_T
 
 dnl # AC_TYPE_SIZE_T_		# Defines HAVE_SIZE_T / NO_SIZE_T
 AC_TYPE_CHAR

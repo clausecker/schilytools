@@ -27,11 +27,11 @@
 /*
  * This file contains modifications Copyright 2006-2007 J. Schilling
  *
- * @(#)defines.h	1.8 07/02/11 J. Schilling
+ * @(#)defines.h	1.9 08/01/06 J. Schilling
  */
 #if defined(sun) || defined(__GNUC__)
 
-#ident "@(#)defines.h 1.8 07/02/11 J. Schilling"
+#ident "@(#)defines.h 1.9 08/01/06 J. Schilling"
 #endif
 /*
  * @(#)defines.h 1.21 06/12/12
@@ -84,6 +84,17 @@ extern char *optarg;
 
 #ifndef	MAXPATHLEN
 #define	MAXPATHLEN	PATH_MAX
+#endif
+
+/*
+ * SCCS was written in 1972. It supports 2 digit year strings from 1969..2068.
+ * Since the Y2000 fix from 1999, it supports to read 4 digit year strings.
+ * We start to create 4 digit year strings in Y2038 when 32 bit SCCS
+ * implementations will stop working.
+ */
+#define	Y2038		0x7FFFFFFE
+#ifdef	FOUR_DIGIT_YEAR_TEST
+#define	Y2038		0x47800000	/* Jan 6th 2008 for tests */
 #endif
 
 #define ALIGNMENT  	(sizeof(long long))
@@ -300,6 +311,7 @@ extern	char*	sid_ba	__PR((struct sid *, char *));
 extern	char*	omit_sid __PR((char *));
 extern	int	date_ab	__PR((char *, time_t *));
 extern	char*	date_ba	__PR((time_t *, char *));
+extern	char*	date_bal __PR((time_t *, char *));
 extern	char	del_ab	__PR((char *, struct deltab *, struct packet *));
 extern	char*	del_ba	__PR((struct deltab *, char *));
 extern	void	stats_ab __PR((struct packet *, struct stats *));

@@ -385,8 +385,14 @@ T}
 _
 \fB%\&D%\fRCurrent date: \fIyy\fR/\fImm\fR/\fIdd\fR
 _
+\fB%\&d%\fRCurrent date: \fIyyyy\fR/\fImm\fR/\fIdd\fR
+_
 \fB%\&E%\fRT{
 Date newest applied delta was created: \fIyy\fR/\fImm\fR/\fIdd\fR
+T}
+_
+\fB%\&e%\fRT{
+Date newest applied delta was created: \fIyyyy\fR/\fImm\fR/\fIdd\fR
 T}
 _
 \fB%\&F%\fR\fBSCCS\fR \fBs.\fRfile name
@@ -395,7 +401,13 @@ _
 Date newest applied delta was created: \fImm\fR/\fIdd\fR/\fIyy\fR
 T}
 _
+\fB%\&g%\fRT{
+Date newest applied delta was created: \fImm\fR/\fIdd\fR/\fIyyyy\fR
+T}
+_
 \fB%\&H%\fRCurrent date: \fImm\fR\fB/\fR\fIdd\fR\fB/\fR\fIyy\fR
+_
+\fB%\&h%\fRCurrent date: \fImm\fR\fB/\fR\fIdd\fR\fB/\fR\fIyyyy\fR
 _
 \fB%\&I%\fR\fBSID\fR of the retrieved version: \fB%\&R%.%\&L%.%\&B%.%\&S%\fR
 _
@@ -434,6 +446,11 @@ _
 4-character string: `\fB@(#)\fR', recognized by \fBwhat\fR
 T}
 .TE
+.LP
+A line with a string in the form \fB%\&sccs.include.\fIfilename\fB\&%\fR is replaced by
+the content of the file
+.IR filename .
+The file is searched for 
 
 .SS ID String
 
@@ -563,7 +580,10 @@ Successor.
 .LP
 See 
 \fBenviron\fR(5) for descriptions of the following environment variables that affect the execution of \fBget\fR: LANG, LC_ALL, LC_COLLATE, LC_CTYPE, LC_MESSAGES, and NLSPATH.
-.sp
+.TP
+.B SCCS_INCLUDEPATH
+A colon separated list of directories where to look for include
+files for a \fB%\&sccs.include.\fIfilename\fB\&%\fR replacement.
 
 .SH FILES
 
