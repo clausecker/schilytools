@@ -1,7 +1,7 @@
-/* @(#)isoinfo.c	1.60 07/10/24 joerg */
+/* @(#)isoinfo.c	1.61 08/01/16 joerg */
 #ifndef	lint
 static	char sccsid[] =
-	"@(#)isoinfo.c	1.60 07/10/24 joerg";
+	"@(#)isoinfo.c	1.61 08/01/16 joerg";
 #endif
 /*
  * File isodump.c - dump iso9660 directory information.
@@ -961,7 +961,7 @@ main(argc, argv)
 	}
 #ifdef	USE_SCG
 	if (filename == NULL && devname == NULL)
-		cdr_defaults(&devname, NULL, NULL, NULL);
+		cdr_defaults(&devname, NULL, NULL, NULL, NULL);
 #endif
 	if (filename == NULL && devname == NULL) {
 		fprintf(stderr, "ISO-9660 image not specified\n");

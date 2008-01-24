@@ -1,7 +1,7 @@
-/* @(#)scsi.c	1.27 07/07/26 Copyright 1997-2007 J. Schilling */
+/* @(#)scsi.c	1.28 08/01/16 Copyright 1997-2007 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)scsi.c	1.27 07/07/26 Copyright 1997-2007 J. Schilling";
+	"@(#)scsi.c	1.28 08/01/16 Copyright 1997-2007 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1997-2007 J. Schilling
@@ -133,7 +133,7 @@ scsidev_open(path)
 	 */
 	scg_remote();
 
-	cdr_defaults(&path, NULL, NULL, NULL);
+	cdr_defaults(&path, NULL, NULL, NULL, NULL);
 			/* path, debug, verboseopen */
 	scgp = scg_open(path, errstr, sizeof (errstr), 0, 0);
 	if (scgp == 0) {

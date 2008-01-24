@@ -1,7 +1,7 @@
-/* @(#)update.c	1.103 07/08/19 Copyright 1985, 88, 91, 1995-2007 J. Schilling */
+/* @(#)update.c	1.104 08/01/23 Copyright 1985, 88, 91, 1995-2007 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)update.c	1.103 07/08/19 Copyright 1985, 88, 91, 1995-2007 J. Schilling";
+	"@(#)update.c	1.104 08/01/23 Copyright 1985, 88, 91, 1995-2007 J. Schilling";
 #endif
 /*
  *	Make program
@@ -302,10 +302,15 @@ _pattern_rule(prule, name)
 #ifdef	DEBUG
 		if (Debug > 1) {
 			register cmd_t	*cmd;
+			register list_t	*l;
 
-			printf("name: %s (%s %% %s): (%s %% %s)\n", name,
+			printf("name: %s (%s %% %s):%s ", name,
 				prule->p_tgt_prefix, prule->p_tgt_suffix,
-				prule->p_src_prefix, prule->p_src_suffix);
+				(prule->p_flags & PF_TERM) ? ":":"");
+
+			for (l = prule->p_list; l; l = l->l_next)
+				printf(" %s", l->l_obj->o_name);
+			printf("\n");
 
 			for (cmd = prule->p_cmd; cmd; cmd = cmd->c_next) {
 				printf("\t%s\n", cmd->c_line);
@@ -811,11 +816,6 @@ dynmac(cmd, obj, source, suffix, depends, domod)
 			blen = obj->o_namelen + 1;
 			base = bp = __realloc(bp, blen, "base name");
 		}
-		if (suffix == NULL) {
-			copy_base(obj->o_name, base, blen, suffix);
-			if (!nowarn("$*"))
-				warn_implicit(obj, "$*", base);
-		}
 #ifdef	used_to_be_in_former_versions
 		copy_base(filename(obj->o_name), base, blen, suffix);
 #endif
@@ -827,7 +827,16 @@ dynmac(cmd, obj, source, suffix, depends, domod)
 				"WARNING: Old: convert $* from '%s' -> '%s'\n",
 					obj->o_name, filename(obj->o_name));
 		}
-		copy_base(obj->o_name, base, blen, suffix);
+		if (obj->o_flags & F_PATRULE) {
+			patr_t *p= (patr_t *)obj->o_node;
+
+			copy_base(obj->o_name+p->p_tgt_pfxlen, base, blen,
+							p->p_tgt_suffix);
+		} else {
+			copy_base(obj->o_name, base, blen, suffix);
+			if (suffix == NULL && !nowarn("$*"))
+				warn_implicit(obj, "$*", base);
+		}
 		sub_s_put(base);		/* $* -> target name base */
 		break;
 	case '<':
@@ -1689,6 +1698,10 @@ exp_name(name, obj, source, suffix, depends, pat)
 		free(ep);
 }
 
+/*
+ * Copy over the time and level from the intermediate :: object
+ * to the main base object.
+ */
 LOCAL void
 dcolon_time(obj)
 	register obj_t	*obj;
@@ -1787,7 +1800,7 @@ searchobj(obj, maxlevel, mode)
 	obj->o_date = filedate;
 	obj->o_level = level;
 	if (obj->o_flags & F_DCOLON)
-		dcolon_time(obj);
+		dcolon_time(obj);	/* Copy from intermediate to main obj */
 
 	if (Debug > 2) {
 		error("search(%s, %d, %s) = %s %s %d\n",
@@ -1828,6 +1841,18 @@ patr_src(name, prule, rtypep, suffixp, pcmd, dlev)
 		size_t	plen = sizeof (_pat);
 		char	*p;
 		size_t	len;
+		obj_t	*obj;
+
+	if (prule->p_list == NULL) {
+		source = NullObj;
+		goto found;
+	}
+	if ((prule->p_list->l_obj->o_flags & F_PERCENT) == 0)
+		errmsgno(EX_BAD, 
+		"WARNING: Non-percent pattern dependencies not yet supported.\n");
+	if (prule->p_list->l_next)
+		errmsgno(EX_BAD, 
+		"WARNING: More than one pattern dependency not yet supported.\n");
 
 again:
 	*suffixp = (char *)prule->p_tgt_suffix;
@@ -1899,6 +1924,10 @@ again:
 		goto out;
 	}
 
+found:
+	obj = objlook(name, FALSE);
+	obj->o_node = (obj_t *)prule;
+	obj->o_flags |= F_PATRULE;
 	*pcmd = prule->p_cmd;
 out:
 	if (sp)
@@ -2302,6 +2331,10 @@ default_cmd(obj, depname, deptime, deplevel, must_exist, dlev)
 		errmsgno(EX_BAD, "'%s' does not exist.\n", obj->o_name);
 		return (BADTIME);
 	}
+	/*
+	 * findsrc() returns NULL if (obj->o_flags & F_TERM) != 0.
+	 * This prevents problems with rule == NULL from default_rule().
+	 */
 	if ((source =
 		findsrc(obj, rule, &rtype, &suffix, &cmd,
 						dlev)) == (obj_t *)NULL) {
@@ -2485,7 +2518,7 @@ make(obj, must_exist, dlev)
 		/*
 		 * Fake sucsess for targets listed in the makefile that have
 		 * no exlicit commands no explicit dependencies (prerequisites)
-		 * and where we * could not find implicit dependencies.
+		 * and where we could not find implicit dependencies.
 		 * These intermediate placeholde targets look similar to FORCE:
 		 */
 		if (obj->o_list == NULL && obj->o_date == NOTIME && must_exist)

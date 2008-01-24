@@ -1,7 +1,7 @@
-/* @(#)isodebug.c	1.18 07/07/26 Copyright 1996-2007 J. Schilling */
+/* @(#)isodebug.c	1.19 08/01/16 Copyright 1996-2007 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)isodebug.c	1.18 07/07/26 Copyright 1996-2007 J. Schilling";
+	"@(#)isodebug.c	1.19 08/01/16 Copyright 1996-2007 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1996-2007 J. Schilling
@@ -275,7 +275,7 @@ main(argc, argv)
 	}
 #ifdef	USE_SCG
 	if (filename == NULL && devname == NULL)
-		cdr_defaults(&devname, NULL, NULL, NULL);
+		cdr_defaults(&devname, NULL, NULL, NULL, NULL);
 #endif
 	if (filename == NULL && devname == NULL) {
 		errmsgno(EX_BAD, "ISO-9660 image not specified\n");

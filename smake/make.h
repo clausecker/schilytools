@@ -1,4 +1,4 @@
-/* @(#)make.h	1.78 07/03/07 Copyright 1985, 87, 91, 1995-2007 J. Schilling */
+/* @(#)make.h	1.80 08/01/22 Copyright 1985, 87, 91, 1995-2007 J. Schilling */
 /*
  *	Definitions for make.
  *	Copyright (c) 1985, 87, 91, 1995-2007 by J. Schilling
@@ -78,12 +78,14 @@ typedef struct obj {
 		short	o_fileindex;	/* Makefile idx for this definition */
 } obj_t;
 
-#define	F_READONLY	1
-#define	F_CMDLINE	2
-#define	F_EXPORT	4
-#define	F_MULTITARGET	8
+#define	F_READONLY	1		/* Prevents overwriting the value   */
+#define	F_CMDLINE	2		/* From commandline		    */
+#define	F_EXPORT	4		/* Export to environment	    */
+#define	F_MULTITARGET	8		/* Multiple targets for one rule    */
 #define	F_DCOLON	16		/* Intermediate :: object	    */
 #define	F_TERM		32		/* Object is source of a TERM rule  */
+#define	F_PERCENT	64		/* o_name has % in pattern dep list */
+#define	F_PATRULE	128		/* Pattern rule pointer in o_node   */
 
 /*
  * list element, used to build dependency lists from unique obj elements
@@ -103,15 +105,16 @@ typedef struct cmd {
 } cmd_t;
 
 /*
- * element used to describe pattern rules (rules that contain a '%' sign)
+ * Element used to describe pattern rules (rules that contain a '%' sign)
  * format is:
- *	target: source	(a%b: c%d)
+ *	target: source	(a%b: [ c%d ...])
  *		cmdlist
  */
 typedef struct patrule {
 	struct	patrule	*p_next;	/* Next pattern rule		    */
 	struct	cmd	*p_cmd;		/* List of commands for this rule   */
 	struct	obj	*p_name;	/* Node for complete target name    */
+	struct	list	*p_list;	/* List of dependencies for rule    */
 	int		p_flags;	/* Flags related to this rule	    */
 #ifdef	xxx
 	struct	obj	*p_tgt_prefix;	/*				    */
@@ -300,7 +303,7 @@ extern	char	chartype[256];
  * Definitions for Makefile Index values
  * The values need to be kept in sync with initmakefiles() in make.c
  */
-#define	MF_IDX_IMPICIT	0		/* Implicit rules		*/
+#define	MF_IDX_IMPLICIT	0		/* Implicit rules		*/
 #define	MF_IDX_ENVIRON	1		/* Environment strings		*/
 #define	MF_IDX_MAKEFILE	2		/* Default make file		*/
-#define	MF_IDX_BASE	MF_IDX_DEFAULT
+#define	MF_IDX_BASE	MF_IDX_MAKEFILE	/* The base for -f makefiles	*/

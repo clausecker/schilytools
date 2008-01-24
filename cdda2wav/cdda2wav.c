@@ -1,7 +1,7 @@
-/* @(#)cdda2wav.c	1.85 07/09/10 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2007 J. Schilling */
+/* @(#)cdda2wav.c	1.86 08/01/16 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2007 J. Schilling */
 #ifndef lint
 static char	sccsid[] =
-"@(#)cdda2wav.c	1.85 07/09/10 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2007 J. Schilling";
+"@(#)cdda2wav.c	1.86 08/01/16 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2007 J. Schilling";
 
 #endif
 #undef	DEBUG_BUFFER_ADDRESSES
@@ -912,7 +912,7 @@ init_globals()
 	global.channels = CHANNELS;	/* output sound channels */
 	global.nSamplesDoneInTrack = 0;	/* written samples in current track */
 	global.buffers = 4;		/* buffers to use */
-	global.bufsize = DEF_BUFSIZE;	/* The SCSI buffer size */
+	global.bufsize = -1L;		/* The SCSI buffer size */
 	global.nsectors = NSECTORS;	/* sectors to read in one request */
 	global.overlap = 1;		/* amount of overlapping sectors */
 	global.useroverlap = -1;	/* amt of overl. sect. user override */
@@ -2455,7 +2455,10 @@ static char		*user_sound_device = "";
 			comerr("Cannot open output fd %d.\n", outfd);
 	}
 	if (!global.scanbus)
-		cdr_defaults(&global.dev_name, NULL, NULL, NULL);
+		cdr_defaults(&global.dev_name, NULL, NULL, &global.bufsize, NULL);
+	if (global.bufsize < 0L)
+		global.bufsize = DEF_BUFSIZE;	/* The SCSI buffer size */
+
 	if (dump_rates) {	/* list available rates */
 		int	ii;
 

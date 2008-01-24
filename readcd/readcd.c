@@ -1,7 +1,7 @@
-/* @(#)readcd.c	1.95 07/09/01 Copyright 1987, 1995-2007 J. Schilling */
+/* @(#)readcd.c	1.96 08/01/16 Copyright 1987, 1995-2007 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)readcd.c	1.95 07/09/01 Copyright 1987, 1995-2007 J. Schilling";
+	"@(#)readcd.c	1.96 08/01/16 Copyright 1987, 1995-2007 J. Schilling";
 #endif
 /*
  *	Skeleton for the use of the scg genearal SCSI - driver
@@ -233,7 +233,7 @@ int	didintr;
 int	exsig;
 
 char	*Sbuf;
-long	Sbufsize;
+long	Sbufsize = -1L;
 
 /*#define	MAX_RETRY	32*/
 #define	MAX_RETRY	128
@@ -416,7 +416,7 @@ main(ac, av)
 	}
 /*error("dev: '%s'\n", dev);*/
 	if (!scanbus)
-		cdr_defaults(&dev, NULL, NULL, NULL);
+		cdr_defaults(&dev, NULL, NULL, &Sbufsize, NULL);
 	if (debug) {
 		printf("dev: '%s'\n", dev);
 	}
@@ -466,7 +466,7 @@ main(ac, av)
 	scgp->kdebug = kdebug;
 	scg_settimeout(scgp, deftimeout);
 
-	if (Sbufsize == 0)
+	if (Sbufsize < 0)
 		Sbufsize = 256*1024L;
 	Sbufsize = scg_bufsize(scgp, Sbufsize);
 	if ((Sbuf = scg_getbuf(scgp, Sbufsize)) == NULL)

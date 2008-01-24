@@ -1,4 +1,4 @@
-#ident @(#)libhfs_p.mk	1.2 07/06/30 
+#ident @(#)libhfs_p.mk	1.3 08/01/11 
 ###########################################################################
 # Sample makefile for non-shared libraries
 ###########################################################################
@@ -8,6 +8,7 @@ include		$(SRCROOT)/$(RULESDIR)/rules.top
 ###########################################################################
 
 SUBARCHDIR=	/profiled
+SUBINSDIR=	/profiled
 INSDIR=		lib
 TARGETLIB=	hfs
 CPPOPTS +=	-DAPPLE_HYB

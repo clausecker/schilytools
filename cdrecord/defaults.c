@@ -1,7 +1,7 @@
-/* @(#)defaults.c	1.20 06/09/13 Copyright 1998-2006 J. Schilling */
+/* @(#)defaults.c	1.21 08/01/16 Copyright 1998-2006 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)defaults.c	1.20 06/09/13 Copyright 1998-2006 J. Schilling";
+	"@(#)defaults.c	1.21 08/01/16 Copyright 1998-2006 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1998-2006 J. Schilling
@@ -31,8 +31,8 @@ static	char sccsid[] =
 #include "defaults.h"
 
 LOCAL	int	open_cdrdefaults __PR((void));
-EXPORT	void	cdr_defaults	__PR((char **devp, int *speedp, long *fsp, char **drvoptp));
-LOCAL	void	cdr_xdefaults	__PR((char **devp, int *speedp, long *fsp, char **drvoptp));
+EXPORT	void	cdr_defaults	__PR((char **devp, int *speedp, long *fsp, long *bufsizep, char **drvoptp));
+LOCAL	void	cdr_xdefaults	__PR((char **devp, int *speedp, long *fsp, long *bufsizep, char **drvoptp));
 LOCAL	char *	strsv		__PR((char *s));
 
 LOCAL int
@@ -54,15 +54,17 @@ open_cdrdefaults()
 }
 
 EXPORT void
-cdr_defaults(devp, speedp, fsp, drvoptp)
-	char	**devp;
-	int	*speedp;
-	long	*fsp;
-	char	**drvoptp;
+cdr_defaults(devp, speedp, fsp, bufsizep, drvoptp)
+	char	**devp;					/* dev=		*/
+	int	*speedp;				/* speed=	*/
+	long	*fsp;					/* fs=		*/
+	long	*bufsizep;				/* ts=		*/
+	char	**drvoptp;				/* driveropts=	*/
 {
 	char	*dev	= NULL;
 	int	speed	= 0;
 	long	fs	= 0L;
+	long	bufsize	= 0L;
 
 	if (devp != NULL)
 		dev = *devp;
@@ -70,6 +72,8 @@ cdr_defaults(devp, speedp, fsp, drvoptp)
 		speed = *speedp;
 	if (fsp != NULL)
 		fs = *fsp;
+	if (bufsizep != NULL)
+		bufsize = *bufsizep;
 
 	if (!dev && devp != NULL) {
 		*devp = getenv("CDR_DEVICE");
@@ -81,7 +85,7 @@ cdr_defaults(devp, speedp, fsp, drvoptp)
 		}
 	}
 	if (devp != NULL && *devp)
-		cdr_xdefaults(devp, &speed, &fs, drvoptp);
+		cdr_xdefaults(devp, &speed, &fs, &bufsize, drvoptp);
 
 	if (speed < 0) {
 		char	*p = getenv("CDR_SPEED");
@@ -135,6 +139,24 @@ cdr_defaults(devp, speedp, fsp, drvoptp)
 		*fsp = fs;
 	}
 
+	if (bufsize < 0L && bufsizep != NULL) {
+		char	*p = getenv("CDR_TRANSFERSIZE");
+
+		if (!p) {
+			if (open_cdrdefaults() == 0) {
+				p = defltread("CDR_TRANSFERSIZE=");
+			}
+		}
+		if (p) {
+			if (getnum(p, &bufsize) != 1) {
+				comerrno(EX_BAD,
+					"Bad transfer size environment (%s).\n", p);
+			}
+		}
+	}
+	if (bufsize > 0L && bufsizep != NULL)
+		*bufsizep = bufsize;
+
 
 	defltclose();
 }
@@ -143,11 +165,12 @@ cdr_defaults(devp, speedp, fsp, drvoptp)
  * All args except "drvoptp" are granted to be non NULL pointers.
  */
 LOCAL void
-cdr_xdefaults(devp, speedp, fsp, drvoptp)
-	char	**devp;
-	int	*speedp;
-	long	*fsp;
-	char	**drvoptp;
+cdr_xdefaults(devp, speedp, fsp, bufsizep, drvoptp)
+	char	**devp;					/* dev=		*/
+	int	*speedp;				/* speed=	*/
+	long	*fsp;					/* fs=		*/
+	long	*bufsizep;				/* ts=		*/
+	char	**drvoptp;				/* driveropts=	*/
 {
 	char	dname[256];
 	char	*p = *devp;
@@ -216,6 +239,22 @@ cdr_xdefaults(devp, speedp, fsp, drvoptp)
 				 */
 				if (drvoptp && *drvoptp == NULL)
 					*drvoptp = strsv(p);
+			}
+		}
+		if (x) {
+			p = ++x;
+			while (*p == '\t' || *p == ' ')
+				p++;
+			if ((x = strchr(p, '\t')) != NULL)
+				*x = '\0';
+			else if ((x = strchr(p, ' ')) != NULL)
+				*x = '\0';
+			if (*bufsizep < 0L) {
+				if (getnum(p, bufsizep) != 1) {
+					comerrno(EX_BAD,
+					"Bad transfer size in defaults (%s).\n",
+					p);
+				}
 			}
 		}
 	}

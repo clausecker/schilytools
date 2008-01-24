@@ -1,7 +1,7 @@
-/* @(#)parse.c	1.87 07/03/07 Copyright 1985 J. Schilling */
+/* @(#)parse.c	1.88 08/01/23 Copyright 1985 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)parse.c	1.87 07/03/07 Copyright 1985 J. Schilling";
+	"@(#)parse.c	1.88 08/01/23 Copyright 1985 J. Schilling";
 #endif
 /*
  *	Make program
@@ -326,6 +326,19 @@ define_obj(obj, n, objcnt, type, dep, cmd)
 
 /*
  * Define an intermediate target for Double Colon :: Rules
+ *
+ * a:: b
+ *	cmd_b
+ * a:: c
+ *	cmd_c
+ *
+ * results in:
+ * 	a::	::1@a ::2@a
+ * and
+ *	::1@a: b
+ *		cmd_b
+ *	::2@a: c
+ *		cmd_c
  */
 LOCAL obj_t *
 define_dcolon(obj)
@@ -349,16 +362,16 @@ static	int	serial = 0;
 	if (np)
 		free(np);
 	o->o_type = ':';
-	o->o_flags |= F_DCOLON;
+	o->o_flags |= F_DCOLON;		/* Mark as intermediate :: object */
 	l = obj->o_list;
 	lo = (list_t *) fastalloc(sizeof (list_t));
 	lo->l_next = NULL;
 	lo->l_obj = o;
 
-	listappend(obj, lo);
+	listappend(obj, lo);		/* Append this intermediate to list */
 
-	o->o_node = obj;
-	return (o);
+	o->o_node = obj;		/* Make this inter. obj aux to orig */
+	return (o);			/* Return intermediate object */
 }
 
 /*
@@ -417,10 +430,12 @@ define_patrule(obj, dep, cmd, type)
 {
 	patr_t	*p;
 	char	*s;
+	register list_t *l;
 
 	p = (patr_t *) fastalloc(sizeof (*p));
 
 	p->p_name = obj;
+	p->p_list = dep;
 	p->p_cmd = cmd;
 	s = strchr(obj->o_name, '%');
 	if (s != NULL) {
@@ -428,24 +443,36 @@ define_patrule(obj, dep, cmd, type)
 		p->p_tgt_prefix = strsave(obj->o_name);
 		p->p_tgt_suffix = strsave(&s[1]);
 		*s = '%';
-	} else {
+	} else {		/* This can never happen! */
 		p->p_tgt_prefix = strsave(Nullstr);
 		p->p_tgt_suffix = strsave(obj->o_name);
 	}
-	s = strchr(dep->l_obj->o_name, '%');
-	if (s != NULL) {
-		*s = '\0';
-		p->p_src_prefix = strsave(dep->l_obj->o_name);
-		p->p_src_suffix = strsave(&s[1]);
-		*s = '%';
-	} else {
-		p->p_src_prefix = strsave(Nullstr);
-		p->p_src_suffix = strsave(dep->l_obj->o_name);
-	}
 	p->p_tgt_pfxlen = strlen(p->p_tgt_prefix);
 	p->p_tgt_suflen = strlen(p->p_tgt_suffix);
-	p->p_src_pfxlen = strlen(p->p_src_prefix);
-	p->p_src_suflen = strlen(p->p_src_suffix);
+
+	for (l = dep; l; l = l->l_next) {
+		if (strchr(l->l_obj->o_name, '%'))
+			l->l_obj->o_flags |= F_PERCENT;
+	}
+	if (dep == NULL) {
+		p->p_src_prefix = 0;
+		p->p_src_suffix = 0;
+		p->p_src_pfxlen = 0;
+		p->p_src_suflen = 0;
+	} else {
+		s = strchr(dep->l_obj->o_name, '%');
+		if (s != NULL) {
+			*s = '\0';
+			p->p_src_prefix = strsave(dep->l_obj->o_name);
+			p->p_src_suffix = strsave(&s[1]);
+			*s = '%';
+		} else {
+			p->p_src_prefix = strsave(Nullstr);
+			p->p_src_suffix = strsave(dep->l_obj->o_name);
+		}
+		p->p_src_pfxlen = strlen(p->p_src_prefix);
+		p->p_src_suflen = strlen(p->p_src_suffix);
+	}
 	p->p_flags = 0;
 	if (type == DCOLON)
 		p->p_flags |= PF_TERM;	/* Make it a termiator rule */
@@ -465,10 +492,16 @@ print_patrules(f)
 	cmd_t	*c;
 
 	while (p) {
-		fprintf(f, "%s%%%s:%s %s%%%s\n",
+		register list_t *l;
+
+		fprintf(f, "%s%%%s:%s",
 		p->p_tgt_prefix, p->p_tgt_suffix,
-		(p->p_flags & PF_TERM) ? ":":"",
-		p->p_src_prefix, p->p_src_suffix);
+		(p->p_flags & PF_TERM) ? ":":"");
+		
+		for (l = p->p_list; l; l = l->l_next) {
+			fprintf(f, " %s", l->l_obj->o_name);
+		}
+		printf("\n");
 
 		for (c = p->p_cmd; c; c = c->c_next)
 			fprintf(f, "\t%s\n", c->c_line);

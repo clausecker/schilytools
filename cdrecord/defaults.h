@@ -1,4 +1,4 @@
-/* @(#)defaults.h	1.1 04/02/22 Copyright 1998-2004 J. Schilling */
+/* @(#)defaults.h	1.2 08/01/16 Copyright 1998-2004 J. Schilling */
 /*
  *	The cdrecord defaults (/etc/default/cdrecord) interface
  *
@@ -21,6 +21,6 @@
 /*
  * defaults.c
  */
-extern	void	cdr_defaults	__PR((char **devp, int *speedp, long *fsp, char **drvoptp));
+extern	void	cdr_defaults	__PR((char **devp, int *speedp, long *fsp, long *bufsizep, char **drvoptp));
 
 #endif	/* _DEFAULTS_H */

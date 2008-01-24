@@ -1,7 +1,7 @@
-/* @(#)make.c	1.141 07/12/02 Copyright 1985, 87, 88, 91, 1995-2007 J. Schilling */
+/* @(#)make.c	1.143 08/01/19 Copyright 1985, 87, 88, 91, 1995-2007 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)make.c	1.141 07/12/02 Copyright 1985, 87, 88, 91, 1995-2007 J. Schilling";
+	"@(#)make.c	1.143 08/01/19 Copyright 1985, 87, 88, 91, 1995-2007 J. Schilling";
 #endif
 /*
  *	Make program
@@ -316,7 +316,7 @@ read_defs()
 	extern	char	implicit_rules[]; /* Default rules compiled into make */
 
 	Dmake--;
-	Mfileindex = MF_IDX_IMPICIT;	/* Index 0 Implicit Rules */
+	Mfileindex = MF_IDX_IMPLICIT;	/* Index 0 Implicit Rules */
 
 	if (gftime(Ldefaults) != 0) {
 		MakeFileNames[0] = Ldefaults;
@@ -844,6 +844,7 @@ main(ac, av)
 		signal(SIGTERM, handler);
 	curtime = gcurtime();
 	newtime = gnewtime();
+	NullObj->o_date = newtime;	/* Make NullObj "up to date"    */
 
 	initchars();
 	initgbuf(NAMEMAX);	/* Now the Makefile parser becomes usable */
@@ -883,7 +884,7 @@ main(ac, av)
 	 */
 	Mfileindex = Mfilecount - 1;
 	if (Mfileindex < MF_IDX_MAKEFILE)
-		Mfileindex = MF_IDX_IMPICIT;
+		Mfileindex = MF_IDX_IMPLICIT;
 
 	setup_dotvars();
 	if (!Rflag)
@@ -902,20 +903,20 @@ main(ac, av)
 		printdirs();	/* .OBJDIR .OBJSEARCH .SEARCHLIST	*/
 
 	makeincs();		/* Re-make included files */
-	omake(Init, TRUE);
+	omake(Init, TRUE);	/* Make .INIT target	  */
 	cac = ac;
 	cav = av;
 	cac--; cav++;
 	for (i = 0; getfiles(&cac, &cav, options); cac--, cav++, i++)
-		if (!domake(cav[0]))
+		if (!domake(cav[0]))	/* Make targets from command line */
 			failures++;
 
-	if (i == 0 && !domake((char *) NULL))
+	if (i == 0 && !domake((char *) NULL))	/* Make default target */
 		failures++;
 	if (failures && Failed) {
-		omake(Failed, TRUE);
+		omake(Failed, TRUE);	/* Make .FAILED target */
 	} else {
-		omake(Done, TRUE);
+		omake(Done, TRUE);	/* Make .DONE target */
 	}
 #ifdef	DEBUG
 	prmem();

@@ -1,4 +1,4 @@
-#ident @(#)libdeflt_p.mk	1.2 07/06/30 
+#ident @(#)libdeflt_p.mk	1.3 08/01/11 
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -6,6 +6,7 @@ include		$(SRCROOT)/$(RULESDIR)/rules.top
 ###########################################################################
 
 SUBARCHDIR=	/profiled
+SUBINSDIR=	/profiled
 #.SEARCHLIST:	. $(ARCHDIR) stdio $(ARCHDIR)
 #VPATH=		.:stdio:$(ARCHDIR)
 INSDIR=		lib

@@ -1,4 +1,4 @@
-/* @(#)getfp.c	1.16 06/10/05 Copyright 1988-2003 J. Schilling */
+/* @(#)getfp.c	1.17 08/01/11 Copyright 1988-2003 J. Schilling */
 /*
  *	Get frame pointer
  *
@@ -90,5 +90,14 @@ flush_reg_windows(n)
 	return (0);
 }
 #endif
+
+#else	/* HAVE_SCANSTACK */
+
+EXPORT void **
+getfp()
+{
+	raisecond("getfp", 0);
+	return ((void **)0);
+}
 
 #endif	/* HAVE_SCANSTACK */

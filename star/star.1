@@ -1,4 +1,4 @@
-. \" @(#)star.1	1.155 07/10/26 Copyr 1982-2007 J. Schilling
+. \" @(#)star.1	1.156 08/01/18 Copyr 1982-2007 J. Schilling
 . \"  Manual Seite fuer star
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -13,7 +13,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH STAR 1 "07/10/26" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH STAR 1 "08/01/18" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 star \- unique standard tape archiver
 .SH SYNOPSIS
@@ -3900,6 +3900,9 @@ To create a level 1 dump call:
 .br
 .B "\ \ \ \ f=\fIarchive-name\fP -C /\fIfilestem-mount-point\fP .
 .PP
+Do not forget the dot at the end of the command line that specifies the
+directory to start the operation.
+.PP
 Backups from live filesystems should be avoided.
 On operating systems that support 
 .BR "file system snapshots" ,
@@ -3981,7 +3984,7 @@ monthly full dumps take place:
 .RE
 .DT
 .PP
-The level 9 dumps made between Monday and Friday accumulate all
+The level 10 dumps made between Monday and Friday accumulate all
 changes made within the week. If you don't like this, use the following
 backup schedule:
 .PP
@@ -4033,7 +4036,7 @@ Friday in week 2 is restored.
 after the level 5 restore has been finished, the level 10 dump from
 Wednesday in week 3 is restored.
 .PP
-The disk now contains the same files as it did when the level 9
+The disk now contains the same files as it did when the level 10
 dump has been made on Wednesday of week 3.
 .PP
 To extract a level 0 dump call:

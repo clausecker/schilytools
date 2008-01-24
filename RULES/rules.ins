@@ -1,4 +1,4 @@
-#ident @(#)rules.ins	1.15 06/05/14 
+#ident @(#)rules.ins	1.16 08/01/11 
 ###########################################################################
 # Written 1996 by J. Schilling
 ###########################################################################
@@ -18,31 +18,31 @@
 # When distributing Covered Code, include this CDDL HEADER in each
 # file and include the License file CDDL.Schily.txt from this distribution.
 ###########################################################################
-$(DEST_DIR)$(INS_BASE)/$(INSDIR):
+$(DEST_DIR)$(INS_BASE)/$(INSDIR)$(SUBINSDIR)$(SUBINS):
 			$(MKDIR) -p $@
 $(SRCROOT)/bins/$(OARCH):
 			$(MKDIR) -p $@
 
-$(DEST_DIR)$(INS_BASE)/$(INSDIR)/$(TARGET)$(_EXEEXT):	$(PTARGET)
+$(DEST_DIR)$(INS_BASE)/$(INSDIR)$(SUBINSDIR)$(SUBINS)/$(TARGET)$(_EXEEXT):	$(PTARGET)
 			$(INSTALL) $(PTARGET) $@
 
 $(SRCROOT)/bins/$(OARCH)/$(TARGET)$(_EXEEXT):	$(PTARGET)
 			$(INSTALL) $(PTARGET) $@
 
-PHARDLINKS=	$(HARDLINKS:%=$(DEST_DIR)$(INS_BASE)/$(INSDIR)/%$(_EXEEXT))
+PHARDLINKS=	$(HARDLINKS:%=$(DEST_DIR)$(INS_BASE)/$(INSDIR)$(SUBINSDIR)$(SUBINS)/%$(_EXEEXT))
 hardlinks:	$(PHARDLINKS)
 
-PSYMLINKS=	$(SYMLINKS:%=$(DEST_DIR)$(INS_BASE)/$(INSDIR)/%$(_EXEEXT))
+PSYMLINKS=	$(SYMLINKS:%=$(DEST_DIR)$(INS_BASE)/$(INSDIR)$(SUBINSDIR)$(SUBINS)/%$(_EXEEXT))
 symlinks:	$(PSYMLINKS)
 
 _INSMODEINS=	$(_UNIQ)$(INSMODEI)
 __INSMODEINS=	$(_INSMODEINS:$(_UNIQ)=$(INSMODEX))
 INSMODEINS=	$(__INSMODEINS:$(_UNIQ)%=%)
 
-dummy $(PHARDLINKS):	$(DEST_DIR)$(INS_BASE)/$(INSDIR)/$(TARGET)$(_EXEEXT)
-	@echo "	==> INSTALLING link \"$@\""; $(RM) $(RM_FORCE) $@; $(LN) $(DEST_DIR)$(INS_BASE)/$(INSDIR)/$(TARGET)$(_EXEEXT) $@
+dummy $(PHARDLINKS):	$(DEST_DIR)$(INS_BASE)/$(INSDIR)$(SUBINSDIR)$(SUBINS)/$(TARGET)$(_EXEEXT)
+	@echo "	==> INSTALLING link \"$@\""; $(RM) $(RM_FORCE) $@; $(LN) $(DEST_DIR)$(INS_BASE)/$(INSDIR)$(SUBINSDIR)$(SUBINS)/$(TARGET)$(_EXEEXT) $@
 
-symdummy $(PSYMLINKS):	$(DEST_DIR)$(INS_BASE)/$(INSDIR)/$(TARGET)$(_EXEEXT)
+symdummy $(PSYMLINKS):	$(DEST_DIR)$(INS_BASE)/$(INSDIR)$(SUBINSDIR)$(SUBINS)/$(TARGET)$(_EXEEXT)
 	@echo "	==> INSTALLING symlink \"$@\""; $(RM) $(RM_FORCE) $@; $(SYMLINK) $(TARGET)$(_EXEEXT) $@
 
 xinstall:
@@ -61,8 +61,8 @@ xinstall:
 		done							\
 	fi
 
-install:	all	$(DEST_DIR)$(INS_BASE)/$(INSDIR) \
-			$(DEST_DIR)$(INS_BASE)/$(INSDIR)/$(TARGET)$(_EXEEXT) \
+install:	all	$(DEST_DIR)$(INS_BASE)/$(INSDIR)$(SUBINSDIR)$(SUBINS) \
+			$(DEST_DIR)$(INS_BASE)/$(INSDIR)$(SUBINSDIR)$(SUBINS)/$(TARGET)$(_EXEEXT) \
 			hardlinks symlinks \
 			xinstall
 

@@ -1,7 +1,7 @@
-/* @(#)isovfy.c	1.31 07/10/24 joerg */
+/* @(#)isovfy.c	1.32 08/01/16 joerg */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)isovfy.c	1.31 07/10/24 joerg";
+	"@(#)isovfy.c	1.32 08/01/16 joerg";
 #endif
 /*
  * File isovfy.c - verify consistency of iso9660 filesystem.
@@ -728,7 +728,7 @@ main(argc, argv)
 	}
 #ifdef	USE_SCG
 	if (filename == NULL && devname == NULL)
-		cdr_defaults(&devname, NULL, NULL, NULL);
+		cdr_defaults(&devname, NULL, NULL, NULL, NULL);
 #endif
 	if (filename == NULL && devname == NULL) {
 		fprintf(stderr, "ISO-9660 image not specified\n");

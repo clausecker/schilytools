@@ -1,7 +1,7 @@
-/* @(#)getav0.c	1.18 06/10/05 Copyright 1985, 1995-2004 J. Schilling */
+/* @(#)getav0.c	1.19 08/01/11 Copyright 1985, 1995-2004 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)getav0.c	1.18 06/10/05 Copyright 1985, 1995-2004 J. Schilling";
+	"@(#)getav0.c	1.19 08/01/11 Copyright 1985, 1995-2004 J. Schilling";
 #endif
 /*
  *	Get arg vector by scanning the stack
@@ -134,6 +134,20 @@ getav0()
 }
 
 #else
+
+EXPORT char **
+getmainfp()
+{
+	raisecond("getmainfp", 0);
+	return ((char **)0);
+}
+
+EXPORT char **
+getavp()
+{
+	raisecond("getavp", 0);
+	return ((char **)0);
+}
 
 EXPORT char *
 getav0()

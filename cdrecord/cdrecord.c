@@ -1,7 +1,7 @@
-/* @(#)cdrecord.c	1.361 08/01/02 Copyright 1995-2008 J. Schilling */
+/* @(#)cdrecord.c	1.363 08/01/16 Copyright 1995-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)cdrecord.c	1.361 08/01/02 Copyright 1995-2008 J. Schilling";
+	"@(#)cdrecord.c	1.363 08/01/16 Copyright 1995-2008 J. Schilling";
 #endif
 /*
  *	Record data on a CD/CVD-Recorder
@@ -1183,7 +1183,7 @@ main(ac, av)
 		int	max_dma = (flags & F_FORCE) != 0 ? dma_speed:(dma_speed+1)*4/5;
 		char	*p = NULL;
 
-		if (getenv("CDR_FORCESPEED"))
+		if ((p = getenv("CDR_FORCESPEED")) != NULL)
 			max_dma = dma_speed;
 
 		if (speed > max_dma) {
@@ -4051,13 +4051,15 @@ gargs(ac, av, tracksp, trackp, devp, timeoutp, dpp, speedp, flagsp, blankp)
 
 	if (bufsize < 0L && bufsize != -1L)
 		comerrno(EX_BAD, "Bad transfer size option.\n");
+
+	dev = *devp;
+	cdr_defaults(&dev, &speed, &fs, &bufsize, &driveropts);
+
 	if (bufsize < 0L)
 		bufsize = CDR_BUF_SIZE;
 	if (bufsize > CDR_MAX_BUF_SIZE)
 		bufsize = CDR_MAX_BUF_SIZE;
 
-	dev = *devp;
-	cdr_defaults(&dev, &speed, &fs, &driveropts);
 	if (debug) {
 		printf("dev: '%s' speed: %d fs: %ld driveropts '%s'\n",
 					dev, speed, fs, driveropts);
@@ -4252,7 +4254,7 @@ load_media(scgp, dp, doexit)
 	scgp->silent--;
 	err = geterrno();
 	if (code < 0 && (err == EPERM || err == EACCES)) {
-		linuxcheck();	/* For version 1.361 of cdrecord.c */
+		linuxcheck();	/* For version 1.363 of cdrecord.c */
 		scg_openerr("");
 	}
 
@@ -5084,7 +5086,7 @@ set_wrmode(dp, wmode, tflags)
 }
 
 /*
- * I am sorry that even for version 1.361 of cdrecord.c, I am forced to do
+ * I am sorry that even for version 1.363 of cdrecord.c, I am forced to do
  * things like this, but defective versions of cdrecord cause a lot of
  * work load to me.
  *
@@ -5101,7 +5103,7 @@ set_wrmode(dp, wmode, tflags)
 #endif
 
 LOCAL void
-linuxcheck()				/* For version 1.361 of cdrecord.c */
+linuxcheck()				/* For version 1.363 of cdrecord.c */
 {
 #if	defined(linux) || defined(__linux) || defined(__linux__)
 #ifdef	HAVE_UNAME

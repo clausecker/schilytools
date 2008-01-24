@@ -1,4 +1,4 @@
-#ident @(#)libschily_p.mk	1.6 07/07/01 
+#ident @(#)libschily_p.mk	1.7 08/01/11 
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -6,6 +6,7 @@ include		$(SRCROOT)/$(RULESDIR)/rules.top
 ###########################################################################
 
 SUBARCHDIR=	/profiled
+SUBINSDIR=	/profiled
 .SEARCHLIST:	. $(ARCHDIR) stdio $(ARCHDIR)
 VPATH=		.:stdio:$(ARCHDIR)
 INSDIR=		lib

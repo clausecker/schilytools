@@ -1,7 +1,7 @@
-/* @(#)dump.c	1.29 07/10/24 joerg */
+/* @(#)dump.c	1.30 08/01/16 joerg */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)dump.c	1.29 07/10/24 joerg";
+	"@(#)dump.c	1.30 08/01/16 joerg";
 #endif
 /*
  * File dump.c - dump a file/device both in hex and in ASCII.
@@ -291,7 +291,7 @@ main(argc, argv)
 	}
 #ifdef	USE_SCG
 	if (filename == NULL && devname == NULL)
-		cdr_defaults(&devname, NULL, NULL, NULL);
+		cdr_defaults(&devname, NULL, NULL, NULL, NULL);
 #endif
 	if (filename == NULL && devname == NULL) {
 		fprintf(stderr, "ISO-9660 image not specified\n");
