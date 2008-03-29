@@ -1,7 +1,7 @@
-/* @(#)drv_dvd.c	1.151 08/01/02 Copyright 1998-2008 J. Schilling */
+/* @(#)drv_dvd.c	1.152 08/02/16 Copyright 1998-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)drv_dvd.c	1.151 08/01/02 Copyright 1998-2008 J. Schilling";
+	"@(#)drv_dvd.c	1.152 08/02/16 Copyright 1998-2008 J. Schilling";
 #endif
 /*
  *	DVD-R device implementation for
@@ -1123,7 +1123,7 @@ blank_dvd(scgp, dp, addr, blanktype)
 	 */
 	profile = get_curprofile(scgp);
 	if (profile > 0)
-		dvdwr = (profile == 0x13) || (profile == 0x14) || \
+		dvdwr = (profile == 0x13) || (profile == 0x14) ||
 			(profile == 0x17);
 
 	if (profile == 0x12)	/* DVD-RAM */

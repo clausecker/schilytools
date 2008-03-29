@@ -1,7 +1,7 @@
-/* @(#)tgetent.c	1.26 06/09/26 Copyright 1986 J. Schilling */
+/* @(#)tgetent.c	1.27 08/02/02 Copyright 1986 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)tgetent.c	1.26 06/09/26 Copyright 1986 J. Schilling";
+	"@(#)tgetent.c	1.27 08/02/02 Copyright 1986 J. Schilling";
 #endif
 /*
  *	Access routines for TERMCAP database.
@@ -112,12 +112,17 @@ tgetent(bp, name)
 	register	int	tfd;
 			int	err = 0;
 
-	if (name == NULL || *name == '\0')
-		return (0);
 	tbufsize = TMAX;
 	if (tbufmalloc) {
-		free(tbuf);
+		if (tbuf)
+			free(tbuf);
 		tbufmalloc = FALSE;
+	}
+	tbuf = NULL;
+	if (name == NULL || *name == '\0') {
+		if (bp)
+			bp[0] = '\0';
+		return (0);
 	}
 	if ((tbuf = bp) == NULL) {
 		tbufmalloc = TRUE;
@@ -125,6 +130,7 @@ tgetent(bp, name)
 	}
 	if ((tbuf = bp) == NULL)
 		return (0);
+	bp[0] = '\0';		/* Always start with clean termcap buffer */
 
 	/*
 	 * First look, if TERMCAP exists
@@ -294,6 +300,8 @@ out:
 		}
 		return (1);
 	}
+	if (count <= 0)		/* If no match (TERM not found) */
+		bp[0] = '\0';	/* clear termcap buffer		*/
 	return (count);
 }
 
@@ -439,6 +447,9 @@ tmatch(name)
 	register	char	*np;
 	register	char	*ep;
 
+	if (tbuf == NULL)
+		return (FALSE);
+
 	ep = tbuf;
 	if (*ep == '#')					/* Kommentar */
 		return (FALSE);
@@ -515,6 +526,9 @@ tgetnum(ent)
 	register	int	val;
 	register	int	base;
 
+	if (tbuf == NULL)
+		return (-1);
+
 	for (;;) {
 		ep = (Uchar *)tfind((char *)ep, ent);
 		if (!ep || *ep == '@')
@@ -544,6 +558,9 @@ tgetflag(ent)
 {
 	register	char	*ep = tbuf;
 
+	if (tbuf == NULL)
+		return (FALSE);
+
 	for (;;) {
 		ep = tfind(ep, ent);
 		if (!ep || *ep == '@')
@@ -565,6 +582,9 @@ tgetstr(ent, array)
 	register	char	*ep = tbuf;
 			char	*np;
 			char	buf[TMAX];
+
+	if (tbuf == NULL)
+		return ((char *)0);
 
 	if (array == NULL) {
 		np = buf;
@@ -653,6 +673,9 @@ tgetsize()
 	register	char	*cp;
 			int	len;
 
+	if (tbuf == NULL)
+		return;
+
 #ifdef	TIOCGWINSZ
 	if (ioctl (STDOUT_FILENO, TIOCGWINSZ, (char *)&ws) >= 0) {
 		lines = ws.ws_row;
@@ -709,6 +732,9 @@ tdeldup(ent)
 {
 	register	char	*ep;
 	register	char	*p;
+
+	if (tbuf == NULL)
+		return;
 
 	if ((ep = tfind(tbuf, ent)) != NULL) {
 		while ((ep = tfind(ep, ent)) && *ep == '#') {

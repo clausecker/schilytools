@@ -1,7 +1,7 @@
-/* @(#)scsi-sun.c	1.87 07/07/07 Copyright 1988,1995,2000-2004 J. Schilling */
+/* @(#)scsi-sun.c	1.89 08/03/27 Copyright 1988,1995,2000-2008 J. Schilling */
 #ifndef lint
 static	char __sccsid[] =
-	"@(#)scsi-sun.c	1.87 07/07/07 Copyright 1988,1995,2000-2004 J. Schilling";
+	"@(#)scsi-sun.c	1.89 08/03/27 Copyright 1988,1995,2000-2008 J. Schilling";
 #endif
 /*
  *	SCSI user level command transport routines for
@@ -13,7 +13,7 @@ static	char __sccsid[] =
  *	Choose your name instead of "schily" and make clear that the version
  *	string is related to a modified source.
  *
- *	Copyright (c) 1988,1995,2000-2004 J. Schilling
+ *	Copyright (c) 1988,1995,2000-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -64,8 +64,8 @@ static	char __sccsid[] =
 #	define	USE_USCSI
 #endif
 
-LOCAL	char	_scg_trans_version[] = "scg-1.87";	/* The version for /dev/scg	*/
-LOCAL	char	_scg_utrans_version[] = "uscsi-1.87";	/* The version for USCSI	*/
+LOCAL	char	_scg_trans_version[] = "scg-1.89";	/* The version for /dev/scg	*/
+LOCAL	char	_scg_utrans_version[] = "uscsi-1.89";	/* The version for USCSI	*/
 
 #ifdef	USE_USCSI
 LOCAL	int	scgo_uhelp	__PR((SCSI *scgp, FILE *f));
@@ -295,11 +295,11 @@ scgo_maxdma(scgp, amt)
 	long	amt;
 {
 	long	maxdma = MAX_DMA_OTHER;
-#if	!defined(__i386_) && !defined(i386)
+#if	!defined(__i386) && !defined(i386) && !defined(__amd64) && !defined(__x86_64)
 	int	cpu_type;
 #endif
 
-#if	defined(__i386_) || defined(i386)
+#if	defined(__i386) || defined(i386) || defined(__amd64) || defined(__x86_64)
 	maxdma = MAX_DMA_SUN386;
 #else
 	cpu_type = gethostid() >> 24;
@@ -902,7 +902,7 @@ scgo_umaxdma(scgp, amt)
 		}
 	}
 
-#if	defined(__i386_) || defined(i386)
+#if	defined(__i386) || defined(i386) || defined(__amd64) || defined(__x86_64)
 	/*
 	 * At least on Solaris 9 x86, DKIOCINFO returns a wrong value
 	 * for dki_maxtransfer if the target is an ATAPI drive.
@@ -951,7 +951,7 @@ scgo_umaxdma(scgp, amt)
 	return (maxdma);
 }
 
-#if	defined(__i386_) || defined(i386)
+#if	defined(__i386) || defined(i386) || defined(__amd64) || defined(__x86_64)
 LOCAL int
 scgo_openide()
 {

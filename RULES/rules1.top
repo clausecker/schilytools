@@ -1,4 +1,4 @@
-#ident "@(#)rules1.top	1.39 07/05/06 "
+#ident "@(#)rules1.top	1.41 08/03/18 "
 ###########################################################################
 # Written 1996 by J. Schilling
 ###########################################################################
@@ -231,6 +231,16 @@ PARCH=		$(__PARCH:$(_UNIQ)%=%)
 # See notes about $(SRCROOT)/ vs. $(SRCROOTSL) above.
 #
 ###########################################################################
+include		$(SRCROOT)/$(RULESDIR)/rules.prg
+
+$(SRCROOTSL)incs:
+	$(MKDIR_SH) -p $@
+
+$(SRCROOTSL)incs/Dnull: $(SRCROOTSL)incs
+		@echo > $@
+
+include		$(SRCROOTSL)incs/Dnull
+
 _DCC=	$(SRCROOTSL)incs/Dcc.$(PARCH)$(-O_ARCH)
 
 $(_DCC):

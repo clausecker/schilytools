@@ -1,5 +1,5 @@
 '\" t
-. \" @(#)star.4	1.14 05/10/19 Copyr 2003 J. Schilling
+. \" @(#)star.4	1.16 08/03/14 Copyr 2003-2008 J. Schilling
 . \" star archive formats
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -14,7 +14,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH STAR 4L "05/10/19" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH STAR 4L "08/03/14" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 star \- tape archive file format
 .SH DESCRIPTION
@@ -885,6 +885,34 @@ This is an example of the format used for
 SCHILY.acl.default= user::rwx,user:lisa:r-x:\fB502\fP,\ \e
                     group::r-x,mask::r-x,other::r-x
 .fi
+.TP
+.B SCHILY.acl.type
+The ACL type used for coding access control lists.
+.sp
+The following ACL types are possible:
+.RS
+.TP
+.B "POSIX\ draft"
+ACLs as defined in
+.BR "POSIX 1003.1e draft standard 17" .
+.TP
+.B NFSv4
+ACLs as used by
+.BR NFSv4 ,
+.B NTFS
+and
+.BR ZFS .
+.RE
+.sp
+.B Star
+currently only implements
+.B "POSIX\ draft"
+ACLs.
+If the
+.B SCHILY.acl.type
+keyword is missing,
+.B "POSIX\ draft"
+ACLs are asumed.
 .TP
 .B SCHILY.ddev
 The device ids for names used is the

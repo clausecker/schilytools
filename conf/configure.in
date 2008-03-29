@@ -1,4 +1,4 @@
-dnl @(#)configure.in	1.145 08/01/03 Copyright 1998-2007 J. Schilling
+dnl @(#)configure.in	1.148 08/03/27 Copyright 1998-2007 J. Schilling
 dnl Process this file with autoconf to produce a configure script.
 AC_REVISION($Revision$)dnl
 
@@ -32,22 +32,23 @@ AC_CHECK_HEADERS(stdio.h varargs.h stdarg.h stdlib.h stddef.h string.h strings.h
 AC_CHECK_HEADERS(getopt.h)
 AC_CHECK_HEADERS(limits.h)
 AC_CHECK_HEADERS(a.out.h aouthdr.h elf.h)
-AC_CHECK_HEADERS(malloc.h termios.h termio.h)
+AC_CHECK_HEADERS(malloc.h sgtty.h termios.h termio.h)
 AC_CHECK_HEADERS(pwd.h grp.h sys/acl.h acllib.h acl/libacl.h)
+AC_CHECK_HEADERS(signal.h siginfo.h sys/siginfo.h ucontext.h)
 AC_CHECK_HEADERS(shadow.h syslog.h)
 AC_CHECK_HEADERS(sys/time.h sys/times.h utime.h sys/utime.h sys/ioctl.h sys/filio.h sys/param.h sys/systeminfo.h sys/sysctl.h)
 AC_CHECK_HEADERS(sys/syscall.h)
 AC_CHECK_HEADERS(mach/machine.h)
 AC_CHECK_HEADERS(mntent.h sys/mntent.h sys/mnttab.h sys/mount.h)
 AC_CHECK_HEADERS(wait.h sys/resource.h procfs.h sys/procfs.h)
-AC_CHECK_HEADERS(sys/utsname.h sys/priocntl.h sys/rtpriocntl.h)
+AC_CHECK_HEADERS(sys/utsname.h sys/priocntl.h sys/rtpriocntl.h sys/procset.h)
 AC_CHECK_HEADERS(sys/mtio.h sys/tape.h sys/mman.h linux/pg.h camlib.h)
 AC_CHECK_HEADERS(sys/shm.h sys/ipc.h)
 AC_CHECK_HEADERS(sys/dkio.h sys/dklabel.h sun/dkio.h sun/dklabel.h)
 AC_CHECK_HEADERS(sys/types.h sys/stat.h types.h stat.h)
 AC_CHECK_HEADERS(sys/stypes.h sys/filedesc.h)
 AC_CHECK_HEADERS(poll.h sys/poll.h sys/select.h)
-AC_CHECK_HEADERS(netdb.h sys/socket.h netinet/in.h)
+AC_CHECK_HEADERS(netdb.h sys/socket.h netinet/in.h stropts.h)
 AC_CHECK_HEADERS(ieeefp.h fp.h)
 AC_CHECK_HEADERS(values.h float.h)
 AC_CHECK_HEADERS(arpa/inet.h)
@@ -66,11 +67,12 @@ dnl Check for Mas OS X ac, av, env delarations
 AC_CHECK_HEADERS(crt_externs.h)
 AC_CHECK_HEADERS(fnmatch.h)
 AC_CHECK_HEADERS(libintl.h locale.h langinfo.h nl_types.h)
-AC_CHECK_HEADERS(wchar.h iconv.h)
+AC_CHECK_HEADERS(wctype.h wchar.h iconv.h)
 AC_CHECK_HEADERS(priv.h)
 AC_CHECK_HEADERS(exec_attr.h secdb.h)
 AC_CHECK_HEADERS(direct.h)
 AC_CHECK_HEADERS(pthread.h thread.h)
+AC_CHECK_HEADERS(libgen.h)
 
 dnl from aclocal.m4 (uses AC_TRY_COMPILE)
 AC_HEADER_MAKEDEV
@@ -117,6 +119,8 @@ AC_CHECK_TYPE(blkcnt_t, Intmax_t)
 AC_TYPE_CLOCK_T
 AC_TYPE_SOCKLEN_T
 AC_HAVE_TYPE([#include <sys/frame.h>], greg_t)
+AC_TYPE_STACK_T
+AC_TYPE_SIGINFO_T
 
 dnl These types are present on all UNIX systems but should be avoided
 dnl for portability.
@@ -232,7 +236,7 @@ AC_CHECK_FUNCS(setreuid setresuid seteuid setuid)
 AC_CHECK_FUNCS(setregid setresgid setegid setgid)
 AC_CHECK_FUNCS(getuid geteuid getgid getegid)
 AC_CHECK_FUNCS(getpid getppid)
-AC_CHECK_FUNCS(getpgid setpgid)
+AC_CHECK_FUNCS(getpgid setpgid getsid setsid)
 AC_CHECK_FUNCS(getpgrp setpgrp)
 dnl			getspwnam() on HP-UX is in libsec.a
 AC_CHECK_FUNCS(getspnam getspwnam)
@@ -243,7 +247,8 @@ AC_CHECK_FUNCS(gethostid gethostname getdomainname getpagesize getdtablesize)
 AC_CHECK_FUNCS(gettimeofday settimeofday time stime gethrtime)
 AC_CHECK_FUNCS(ftime tzset mktime gmtime localtime timegm timelocal)
 AC_CHECK_FUNCS(ctime cftime ascftime strftime)
-AC_CHECK_FUNCS(poll select chown fchown lchown chmod fchmod lchmod times utime utimes futimes lutimes)
+AC_CHECK_FUNCS(poll select isastream)
+AC_CHECK_FUNCS(chown fchown lchown chmod fchmod lchmod times utime utimes futimes lutimes)
 dnl AC_CHECK_FUNCS(ecvt fcvt gcvt)
 AC_CHECK_FUNCS(ecvt_r fcvt_r gcvt_r)
 AC_CHECK_FUNCS(econvert fconvert gconvert)
@@ -417,6 +422,13 @@ LIBS="$LIBS $lib_secdb"
 AC_CHECK_FUNCS(getauthattr getuserattr getexecattr getprofattr)
 LIBS="$ac_save_LIBS"
 
+AC_CHECKING(for gmatch() support)
+AC_CHECK_LIB(gen, gmatch, lib_gen="-lgen")
+ac_save_LIBS="$LIBS"
+LIBS="$LIBS $lib_gen"
+AC_CHECK_FUNCS(gmatch)
+LIBS="$ac_save_LIBS"
+
 AC_CHECK_FUNCS(thr_yield)
 
 AC_CHECK_LIB(pthread, pthread_create, lib_pthread="-lpthread",
@@ -528,6 +540,7 @@ AC_SUBST(lib_acl)
 AC_SUBST(lib_acl_test)
 AC_SUBST(lib_attr)
 AC_SUBST(lib_secdb)
+AC_SUBST(lib_gen)
 AC_SUBST(lib_pthread)
 AC_SUBST(lib_rt)
 

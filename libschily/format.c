@@ -1,4 +1,4 @@
-/* @(#)format.c	1.41 06/12/17 Copyright 1985-2006 J. Schilling */
+/* @(#)format.c	1.42 08/02/26 Copyright 1985-2006 J. Schilling */
 /*
  *	format
  *	common code for printf fprintf & sprintf
@@ -515,6 +515,7 @@ format(fun, farg, fmt, args)
 			break;
 #ifdef	USE_LONGLONG
 		case 'J':			/* For now Intmax_t is Llong */
+			type = 'Q';		/* use 'Q' for processing    */
 		case 'Q':
 			llval = va_arg(args, Llong);
 			val = llval != 0;

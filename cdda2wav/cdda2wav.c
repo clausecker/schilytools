@@ -1,7 +1,7 @@
-/* @(#)cdda2wav.c	1.86 08/01/16 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2007 J. Schilling */
+/* @(#)cdda2wav.c	1.87 08/02/17 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2008 J. Schilling */
 #ifndef lint
 static char	sccsid[] =
-"@(#)cdda2wav.c	1.86 08/01/16 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2007 J. Schilling";
+"@(#)cdda2wav.c	1.87 08/02/17 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2008 J. Schilling";
 
 #endif
 #undef	DEBUG_BUFFER_ADDRESSES
@@ -2436,7 +2436,7 @@ static char		*user_sound_device = "";
 		/*
 		 * Make the version string similar for all cdrtools programs.
 		 */
-		printf("cdda2wav %s (%s-%s-%s) Copyright (C) 1993-2004 Heiko Eißfeldt (C) 2004-2007 Jörg Schilling\n",
+		printf("cdda2wav %s (%s-%s-%s) Copyright (C) 1993-2004 Heiko Eißfeldt (C) 2004-2008 Jörg Schilling\n",
 					VERSION,
 					HOST_CPU, HOST_VENDOR, HOST_OS);
 #endif

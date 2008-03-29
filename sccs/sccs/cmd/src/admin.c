@@ -27,11 +27,11 @@
 /*
  * This file contains modifications Copyright 2006-2007 J. Schilling
  *
- * @(#)admin.c	1.9 08/01/06 J. Schilling
+ * @(#)admin.c	1.10 08/02/20 J. Schilling
  */
 #if defined(sun) || defined(__GNUC__)
 
-#ident "@(#)admin.c 1.9 08/01/06 J. Schilling"
+#ident "@(#)admin.c 1.10 08/02/20 J. Schilling"
 #endif
 /*
  * @(#)admin.c 1.39 06/12/12
@@ -645,7 +645,7 @@ char	*afile;
 			/*
 			   perform 'val' with appropriate keyletters
 			*/
-			execlp(Valpgm, Valpgm, "-s", afile, 0);
+			execlp(Valpgm, Valpgm, "-s", afile, (char *)0);
 			sprintf(SccsError, gettext("cannot execute '%s'"),
 				Valpgm);
 			fatal(SccsError);

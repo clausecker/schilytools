@@ -1,14 +1,14 @@
-/* @(#)restore.c	1.57 07/10/06 Copyright 2003-2007 J. Schilling */
+/* @(#)restore.c	1.58 08/03/18 Copyright 2003-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)restore.c	1.57 07/10/06 Copyright 2003-2007 J. Schilling";
+	"@(#)restore.c	1.58 08/03/18 Copyright 2003-2008 J. Schilling";
 #endif
 /*
  *	Data base management for incremental restores
  *	needed to detect and execute rename() and unlink()
  *	operations between two incremental dumps.
  *
- *	Copyright (c) 2003-2007 J. Schilling
+ *	Copyright (c) 2003-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -1854,7 +1854,8 @@ checkheader()
 
 	fprintf(vpr, "Last restored dump:\n");
 	verbose++;
-	griprint(ogp);
+	if (ogp)
+		griprint(ogp);
 	fprintf(vpr, "This dump:\n");
 	griprint(grip);
 	verbose--;

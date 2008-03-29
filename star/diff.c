@@ -1,13 +1,13 @@
-/* @(#)diff.c	1.80 07/10/09 Copyright 1993-2007 J. Schilling */
+/* @(#)diff.c	1.81 08/02/17 Copyright 1993-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)diff.c	1.80 07/10/09 Copyright 1993-2007 J. Schilling";
+	"@(#)diff.c	1.81 08/02/17 Copyright 1993-2008 J. Schilling";
 #endif
 /*
  *	List differences between a (tape) archive and
  *	the filesystem
  *
- *	Copyright (c) 1993-2007 J. Schilling
+ *	Copyright (c) 1993-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -222,7 +222,8 @@ diff_tcb(info)
 
 	if ((diffopts & D_PERM) &&
 			(info->f_mode & 07777) != (finfo.f_mode & 07777)) {
-		diffs |= D_PERM;
+		if ((diffopts & D_SYMPERM) != 0 || !is_symlink(&finfo))
+			diffs |= D_PERM;
 	/*
 	 * XXX Diff ACLs not yet implemented.
 	 */
@@ -738,6 +739,8 @@ prdiffopts(f, label, flags)
 	fprintf(f, "%s", label);
 	if (flags & D_PERM)
 		prdopt(f, "perm", printed++);
+	if (flags & D_SYMPERM)
+		prdopt(f, "symperm", printed++);
 	/*
 	 * XXX Diff ACLs not yet implemented.
 	 */

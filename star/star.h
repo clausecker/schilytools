@@ -1,6 +1,6 @@
-/* @(#)star.h	1.115 07/10/25 Copyright 1985, 1995-2007 J. Schilling */
+/* @(#)star.h	1.117 08/03/14 Copyright 1985, 1995-2008 J. Schilling */
 /*
- *	Copyright (c) 1985, 1995-2007 J. Schilling
+ *	Copyright (c) 1985, 1995-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -635,6 +635,7 @@ typedef	struct	{
 #define	F_FORCE_ADD	0x40000	/* Force take_file() to add the file	  */
 #define	F_SAME		0x80000	/* Same symlink of special found	  */
 #define	F_DATA_SKIPPED	0x100000 /* The data part of the file was skipped */
+#define	F_BAD_ACL	0x200000 /* Unsupported ACL encoding type	  */
 
 /*
  * Used with f_xflags

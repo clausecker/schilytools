@@ -1,7 +1,7 @@
-/* @(#)drv_bd.c	1.8 08/01/02 Copyright 2008 J. Schilling */
+/* @(#)drv_bd.c	1.9 08/02/26 Copyright 2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)drv_bd.c	1.8 08/01/02 Copyright 2008 J. Schilling";
+	"@(#)drv_bd.c	1.9 08/02/26 Copyright 2008 J. Schilling";
 #endif
 /*
  *	Copyright (c) 2008 J. Schilling
@@ -1407,8 +1407,11 @@ blank_bd(scgp, dp, addr, blanktype)
 
 	mmc_check(scgp, &cdrr, &cdwr, &cdrrw, &cdwrw, NULL, &dvdwr);
 
-	errmsgno(EX_BAD, "Cannot blank BD.\n");
-	return (-1);
+	ret = blank_simul(scgp, dp, addr, blanktype);
+	waitformat(scgp, 600);
+	scsi_flush_cache(scgp, TRUE);
+	waitformat(scgp, 600);
+	return (ret);
 }
 
 LOCAL int

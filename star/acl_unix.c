@@ -1,12 +1,12 @@
-/* @(#)acl_unix.c	1.34 07/09/22 Copyright 2001-2007 J. Schilling */
+/* @(#)acl_unix.c	1.36 08/03/19 Copyright 2001-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)acl_unix.c	1.34 07/09/22 Copyright 2001-2007 J. Schilling";
+	"@(#)acl_unix.c	1.36 08/03/19 Copyright 2001-2008 J. Schilling";
 #endif
 /*
  *	ACL get and set routines for unix like operating systems.
  *
- *	Copyright (c) 2001-2007 J. Schilling
+ *	Copyright (c) 2001-2008 J. Schilling
  *
  *	This implementation currently supports POSIX.1e and Solaris ACLs.
  *	Thanks to Andreas Gruenbacher <ag@bestbits.at> for the first POSIX ACL
@@ -52,7 +52,6 @@ static	char sccsid[] =
 #	endif
 #endif
 
-#ifdef	USE_ACL
 #include <stdio.h>
 #include <schily/errno.h>
 #include "star.h"
@@ -67,6 +66,8 @@ static	char sccsid[] =
 #include <schily/schily.h>
 #include "starsubs.h"
 #include "checkerr.h"
+
+#ifdef	USE_ACL
 
 #ifdef	HAVE_SYS_ACL_H
 #	include <sys/acl.h>
@@ -106,6 +107,7 @@ extern	BOOL	numeric;
 LOCAL char acl_access_text[PATH_MAX+1];
 LOCAL char acl_default_text[PATH_MAX+1];
 
+EXPORT	void	opt_acl		__PR((void));
 EXPORT	BOOL	get_acls	__PR((FINFO *info));
 EXPORT	void	set_acls	__PR((FINFO *info));
 
@@ -123,6 +125,13 @@ LOCAL	void	acl_check_ids	__PR((char *acltext, char *infotext));
 
 
 #ifdef HAVE_POSIX_ACL
+
+#define	DID_OPT_ACL
+EXPORT void
+opt_acl()
+{
+	printf(" acl");
+}
 
 /*
  * Get the access control list for a file and convert it into the format
@@ -444,6 +453,13 @@ set_acls(info)
 #endif  /* HAVE_POSIX_ACL */
 
 #ifdef	HAVE_SUN_ACL	/* Solaris */
+
+#define	DID_OPT_ACL
+EXPORT void
+opt_acl()
+{
+	printf(" acl");
+}
 
 /*
  * Get the access control list for a file and convert it into the format
@@ -833,7 +849,6 @@ set_acls(info)
 
 #endif	/* HAVE_SUN_ACL Solaris */
 
-
 /*
  * Convert UNIX standard mode bits into base ACL
  */
@@ -1016,3 +1031,10 @@ acl_check_ids(acltext, infotext)
 }
 
 #endif  /* USE_ACL */
+
+#ifndef	DID_OPT_ACL
+EXPORT void
+opt_acl()
+{
+}
+#endif

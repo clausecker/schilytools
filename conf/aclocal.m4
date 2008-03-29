@@ -1,4 +1,4 @@
-dnl @(#)aclocal.m4	1.60 08/01/03 Copyright 1998 J. Schilling
+dnl @(#)aclocal.m4	1.61 08/02/20 Copyright 1998 J. Schilling
 
 dnl Set VARIABLE to VALUE in C-string form, verbatim, or 1.
 dnl AC_DEFINE_STRING(VARIABLE [, VALUE])
@@ -852,6 +852,37 @@ changequote([,]), [#include <sys/types.h>
 AC_MSG_RESULT($ac_cv_type_socklen_t)
 if test $ac_cv_type_socklen_t = no; then
   AC_DEFINE(socklen_t, int)
+fi])
+
+dnl Checks for type stack_t
+dnl Defines HAVE_STACK_T on success.
+AC_DEFUN([AC_TYPE_STACK_T],
+[AC_CACHE_CHECK([if stack_t is declared in signal.h], ac_cv_stack_t,
+                [AC_TRY_COMPILE([#include <signal.h>],
+                                [stack_t ss; ss.ss_size = 0;],
+                                [ac_cv_stack_t=yes],
+                                [ac_cv_stack_t=no])])
+if test $ac_cv_stack_t = yes; then
+  AC_DEFINE(HAVE_STACK_T)
+fi])
+
+dnl Checks for type siginfo_t
+dnl Defines HAVE_SIGINFO_T on success.
+AC_DEFUN([AC_TYPE_SIGINFO_T],
+[AC_CACHE_CHECK([if siginfo_t is declared in signal.h], ac_cv_siginfo_t,
+                [AC_TRY_COMPILE([#include <signal.h>
+#ifdef	HAVE_SIGINFO_H
+#include <siginfo.h>
+#else
+#ifdef	HAVE_SYS_SIGINFO_H
+#include <sys/siginfo.h>
+#endif
+#endif],
+                                [siginfo_t si; si.si_signo = 0;],
+                                [ac_cv_siginfo_t=yes],
+                                [ac_cv_siginfo_t=no])])
+if test $ac_cv_siginfo_t = yes; then
+  AC_DEFINE(HAVE_SIGINFO_T)
 fi])
 
 dnl Checks for type struct sockaddr_storage

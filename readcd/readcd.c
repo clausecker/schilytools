@@ -1,12 +1,12 @@
-/* @(#)readcd.c	1.96 08/01/16 Copyright 1987, 1995-2007 J. Schilling */
+/* @(#)readcd.c	1.97 08/02/17 Copyright 1987, 1995-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)readcd.c	1.96 08/01/16 Copyright 1987, 1995-2007 J. Schilling";
+	"@(#)readcd.c	1.97 08/02/17 Copyright 1987, 1995-2008 J. Schilling";
 #endif
 /*
  *	Skeleton for the use of the scg genearal SCSI - driver
  *
- *	Copyright (c) 1987, 1995-2007 J. Schilling
+ *	Copyright (c) 1987, 1995-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -372,7 +372,7 @@ main(ac, av)
 	if (help)
 		usage(0);
 	if (pversion) {
-		printf("readcd %s (%s-%s-%s) Copyright (C) 1987, 1995-2007 Jörg Schilling\n",
+		printf("readcd %s (%s-%s-%s) Copyright (C) 1987, 1995-2008 Jörg Schilling\n",
 								cdr_version,
 								HOST_CPU, HOST_VENDOR, HOST_OS);
 		exit(0);

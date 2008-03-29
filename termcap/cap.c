@@ -1,7 +1,7 @@
-/* @(#)cap.c	1.19 08/01/10 Copyright 2000-2008 J. Schilling */
+/* @(#)cap.c	1.20 08/02/26 Copyright 2000-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)cap.c	1.19 08/01/10 Copyright 2000-2008 J. Schilling";
+	"@(#)cap.c	1.20 08/02/26 Copyright 2000-2008 J. Schilling";
 #endif
 /*
  *	termcap		a TERMCAP compiler
@@ -29,6 +29,7 @@ static	char sccsid[] =
 #include <schily/string.h>
 #include <schily/termcap.h>
 #include <schily/getargs.h>
+#define	SCHILY_PRINT
 #include <schily/schily.h>
 
 #define	TBUF	2048
@@ -255,7 +256,7 @@ int	strippedlen;
 	if (help)
 		usage(0);
 	if (prvers) {
-		printf("termcap %s (%s-%s-%s)\n\n", "1.19", HOST_CPU, HOST_VENDOR, HOST_OS);
+		printf("termcap %s (%s-%s-%s)\n\n", "1.20", HOST_CPU, HOST_VENDOR, HOST_OS);
 		printf("Copyright (C) 2000-2008 Jörg Schilling\n");
 		printf("This is free software; see the source for copying conditions.  There is NO\n");
 		printf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");

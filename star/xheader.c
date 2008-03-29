@@ -1,13 +1,13 @@
-/* @(#)xheader.c	1.72 07/10/25 Copyright 2001-2007 J. Schilling */
+/* @(#)xheader.c	1.74 08/03/14 Copyright 2001-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)xheader.c	1.72 07/10/25 Copyright 2001-2007 J. Schilling";
+	"@(#)xheader.c	1.74 08/03/14 Copyright 2001-2008 J. Schilling";
 #endif
 /*
  *	Handling routines to read/write, parse/create
  *	POSIX.1-2001 extended archive headers
  *
- *	Copyright (c) 2001-2007 J. Schilling
+ *	Copyright (c) 2001-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -110,6 +110,7 @@ LOCAL	void	get_ino		__PR((FINFO *info, char *keyword, int klen, char *arg, int l
 LOCAL	void	get_nlink	__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
 LOCAL	void	get_filetype	__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
 #ifdef	USE_ACL
+LOCAL	void	get_acl_type	__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
 LOCAL	void	get_acl_access	__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
 LOCAL	void	get_acl_default	__PR((FINFO *info, char *keyword, int klen, char *arg, int len));
 #endif
@@ -153,10 +154,13 @@ LOCAL	char	*guname;
 LOCAL	char	*ggname;
 
 LOCAL	unkn_t	*unkn;	/* A list of unknown keywords to print warnings once */
+LOCAL	Ulong	badf;	/* A list of bad flags				*/
 
 /*
  * Important for the correctness of gen_number(): As long as we stay <= 55
  * chars for the keyword, a 128 bit number entry will fit into 100 chars.
+ *
+ *			x_name,		x_namelen, x_func,	x_flag
  */
 LOCAL xtab_t xtab[] = {
 			{ "atime",		5, get_atime,	0	},
@@ -182,6 +186,7 @@ LOCAL xtab_t xtab[] = {
 #ifdef	USE_ACL
 			{ "SCHILY.acl.access",	17, get_acl_access, 0	},
 			{ "SCHILY.acl.default",	18, get_acl_default, 0	},
+			{ "SCHILY.acl.type",	15, get_acl_type, 0	},
 #else
 /*
  * We don't want star to complain about unknown extended headers when it
@@ -189,6 +194,7 @@ LOCAL xtab_t xtab[] = {
  */
 			{ "SCHILY.acl.access",	17, get_dummy,	0	},
 			{ "SCHILY.acl.default",	18, get_dummy,	0	},
+			{ "SCHILY.acl.type",	15, get_dummy,	0	},
 #endif
 #ifdef  USE_XATTR
 			{ "SCHILY.xattr.*",	14, get_attr,	0	},
@@ -480,9 +486,14 @@ extern	BOOL	dodump;
 
 #ifdef	USE_ACL
 	/*
-	 * POSIX Access Control Lists, currently supported e.g. by Linux.
-	 * Solaris ACLs have been converted to POSIX before.
+	 * POSIX draft Access Control Lists, currently supported e.g. by Linux.
+	 * Solaris ACLs have been converted to POSIX draft ACLs before.
 	 */
+#ifdef	__later__
+	if (xflags & (XF_ACL_ACCESS|XF_ACL_DEFAULT)) {
+		gen_text("SCHILY.acl.type", "POSIX draft", 11, 0);
+	}
+#endif
 	if (xflags & XF_ACL_ACCESS) {
 		gen_text("SCHILY.acl.access", info->f_acl_access, -1, T_UTF8);
 	}
@@ -2091,6 +2102,28 @@ LOCAL char acl_default_text[PATH_MAX+1];
 
 /* ARGSUSED */
 LOCAL void
+get_acl_type(info, keyword, klen, arg, len)
+	FINFO	*info;
+	char	*keyword;
+	int	klen;
+	char	*arg;
+	int	len;
+{
+	if (len == 11 && streql(arg, "POSIX draft"))
+		return;
+
+	info->f_flags |= F_BAD_ACL;
+
+	if (badf & F_BAD_ACL)
+		return;
+	errmsgno(EX_BAD,
+		"Unknown ACL type '%s' ignored at %lld.\n",
+				arg, tblocks());
+	badf |= F_BAD_ACL;
+}
+
+/* ARGSUSED */
+LOCAL void
 get_acl_access(info, keyword, klen, arg, len)
 	FINFO	*info;
 	char	*keyword;
@@ -2098,7 +2131,7 @@ get_acl_access(info, keyword, klen, arg, len)
 	char	*arg;
 	int	len;
 {
-	if (len == 0) {
+	if (len == 0 || (info->f_flags & F_BAD_ACL)) {
 		info->f_xflags &= ~XF_ACL_ACCESS;
 		info->f_acl_access = NULL;
 		return;
@@ -2122,7 +2155,7 @@ get_acl_default(info, keyword, klen, arg, len)
 	char	*arg;
 	int	len;
 {
-	if (len == 0) {
+	if (len == 0 || (info->f_flags & F_BAD_ACL)) {
 		info->f_xflags &= ~XF_ACL_DEFAULT;
 		info->f_acl_default = NULL;
 		return;

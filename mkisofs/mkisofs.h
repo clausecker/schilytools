@@ -1,4 +1,4 @@
-/* @(#)mkisofs.h	1.128 07/08/20 joerg */
+/* @(#)mkisofs.h	1.129 08/02/26 joerg */
 /*
  * Header file mkisofs.h - assorted structure definitions and typecasts.
  *
@@ -845,8 +845,8 @@ extern int	create_udfsymlinks;
 #define	memchr(s, c, n)		findbytes(s, n, c)
 #endif
 #if !defined(HAVE_MEMCPY) && !defined(memcpy)
-#define	memcpy(s1, s2, n)	movebytes(s2, s1, c)
+#define	memcpy(s1, s2, n)	movebytes(s2, s1, n)
 #endif
 #if !defined(HAVE_MEMMOVE) && !defined(memmove)
-#define	memmove(s1, s2, n)	movebytes(s2, s1, c)
+#define	memmove(s1, s2, n)	movebytes(s2, s1, n)
 #endif

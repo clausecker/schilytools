@@ -1,10 +1,10 @@
-/* @(#)create.c	1.122 07/10/26 Copyright 1985, 1995, 2001-2006 J. Schilling */
+/* @(#)create.c	1.124 08/03/19 Copyright 1985, 1995, 2001-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)create.c	1.122 07/10/26 Copyright 1985, 1995, 2001-2006 J. Schilling";
+	"@(#)create.c	1.124 08/03/19 Copyright 1985, 1995, 2001-2008 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1985, 1995, 2001-2006 J. Schilling
+ *	Copyright (c) 1985, 1995, 2001-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -279,10 +279,15 @@ take_file(name, info)
 	} else if (maxsize && info->f_size > maxsize) {
 		return (FALSE);
 	} else if (dumplevel > 0) {
-		if (info->f_mtime > Newer.tv_sec) {
+		/*
+		 * For now, we cannot reliably deal with sub-second granularity
+		 * on all platforms. For this reason, some files to be on two
+		 * incrementals to make sure not to miss them completely.
+		 */
+		if (info->f_mtime >= Newer.tv_sec) {
 			/* EMPTY */
 			;
-		} else if (info->f_ctime > Newer.tv_sec) {
+		} else if (info->f_ctime >= Newer.tv_sec) {
 			if (dumpmeta)
 				info->f_xftype = XT_META;
 		} else {

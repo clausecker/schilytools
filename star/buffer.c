@@ -1,12 +1,12 @@
-/* @(#)buffer.c	1.145 07/12/11 Copyright 1985, 1995, 2001-2007 J. Schilling */
+/* @(#)buffer.c	1.146 08/03/16 Copyright 1985, 1995, 2001-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)buffer.c	1.145 07/12/11 Copyright 1985, 1995, 2001-2007 J. Schilling";
+	"@(#)buffer.c	1.146 08/03/16 Copyright 1985, 1995, 2001-2008 J. Schilling";
 #endif
 /*
  *	Buffer handling routines
  *
- *	Copyright (c) 1985, 1995, 2001-2007 J. Schilling
+ *	Copyright (c) 1985, 1995, 2001-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -128,6 +128,7 @@ extern	int	intr;
 extern	GINFO	*gip;
 
 
+EXPORT	void	opt_remote	__PR((void));
 EXPORT	BOOL	openremote	__PR((void));
 EXPORT	void	opentape	__PR((void));
 EXPORT	void	closetape	__PR((void));
@@ -178,6 +179,14 @@ EXPORT	void	excomerr	__PR((char *fmt, ...)) __printflike__(1, 2);
 EXPORT	void	die		__PR((int err));
 LOCAL	void	compressopen	__PR((void));
 LOCAL	void	compressclose	__PR((void));
+
+EXPORT void
+opt_remote()
+{
+#ifdef	USE_REMOTE
+	printf(" remote");
+#endif
+}
 
 /*
  * Check whether the current tarfiles[tarfindex] refers to a remote archive
@@ -325,7 +334,7 @@ opentape()
 		checkarch(tarf);
 	}
 	vpr = tarf == stdout ? stderr : stdout;
-	if (samefile (tarf, vpr))		/* Catch -f /dev/stdout case */
+	if (samefile(tarf, vpr))		/* Catch -f /dev/stdout case */
 		vpr = stderr;
 
 	/*

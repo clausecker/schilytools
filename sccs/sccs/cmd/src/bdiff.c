@@ -30,11 +30,11 @@
 /*
  * This file contains modifications Copyright 2006-2007 J. Schilling
  *
- * @(#)bdiff.c	1.4 07/01/10 J. Schilling
+ * @(#)bdiff.c	1.5 08/02/20 J. Schilling
  */
 #if defined(sun) || defined(__GNUC__)
 
-#ident "@(#)bdiff.c 1.4 07/01/10 J. Schilling"
+#ident "@(#)bdiff.c 1.5 08/02/20 J. Schilling"
 #endif
 
 #pragma ident	"@(#)bdiff.c	1.15	05/06/08 SMI"
@@ -311,7 +311,7 @@ main(argc, argv)
 			(void) close(pfd[1]);
 
 			/* Execute 'diff' on the segment files. */
-			(void) execlp(diff, diff, otmp, ntmp, 0);
+			(void) execlp(diff, diff, otmp, ntmp, (char *)0);
 
 			/*
 			 * Exit code here must be > 1.

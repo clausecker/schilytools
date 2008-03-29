@@ -27,11 +27,11 @@
 /*
  * This file contains modifications Copyright 2006-2007 J. Schilling
  *
- * @(#)lockit.c	1.3 07/01/11 J. Schilling
+ * @(#)lockit.c	1.4 08/02/26 J. Schilling
  */
 #if defined(sun) || defined(__GNUC__)
 
-#ident "@(#)lockit.c 1.3 07/01/11 J. Schilling"
+#ident "@(#)lockit.c 1.4 08/02/26 J. Schilling"
 #endif
 /*
  * @(#)lockit.c 1.20 06/12/12
@@ -58,6 +58,7 @@
 	the given pid, and is successfully removed; -1 otherwise.
 */
 
+# define	NEED_SCHILY_PRINT	/* We need defines for js_snprintf() */
 # include	<defines.h>
 # include	<i18n.h>
 # include	<sys/utsname.h>
@@ -92,8 +93,9 @@ char	*uuname;
 	int	uniq_nmbr;
 
 	copy(lockfile, tempfile);
-	sprintf(uniqfilename, "%s/%lu.%s%ld", dname(tempfile),
-	   pid, uuname, time((time_t *)0));
+	snprintf(uniqfilename, sizeof (uniqfilename),
+	    "%s/%ju.%s%jd", dname(tempfile),
+	   (UIntmax_t)pid, uuname, (Intmax_t)time((time_t *)0));
 	if (length(uniqfilename) >= PATH_MAX) {
 	   uniq_nmbr = (int)pid + (int)time((time_t *)0);   
 	   copy(lockfile, tempfile);

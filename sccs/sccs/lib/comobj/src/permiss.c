@@ -27,11 +27,11 @@
 /*
  * This file contains modifications Copyright 2006-2007 J. Schilling
  *
- * @(#)permiss.c	1.4 07/01/20 J. Schilling
+ * @(#)permiss.c	1.5 08/02/26 J. Schilling
  */
 #if defined(sun) || defined(__GNUC__)
 
-#ident "@(#)permiss.c 1.4 07/01/20 J. Schilling"
+#ident "@(#)permiss.c 1.5 08/02/26 J. Schilling"
 #endif
 /*
  * @(#)permiss.c 1.9 06/12/12
@@ -39,6 +39,7 @@
 
 #ident	"@(#)permiss.c"
 #ident	"@(#)sccs:lib/comobj/permiss.c"
+# define	NEED_SCHILY_PRINT	/* We need defines for js_snprintf() */
 # include	<defines.h>
 # include       <i18n.h>
 
@@ -50,7 +51,7 @@ register struct packet *pkt;
 {
 	register char *p;
 	char	*user;
-	char groupid[6];
+	char groupid[32];
 	int none;
 	int ok_user;
 	extern char saveid[];
@@ -61,7 +62,7 @@ register struct packet *pkt;
 #else
 	user = saveid;
 #endif
-	sprintf(groupid,"%lu",getgid());
+	snprintf(groupid, sizeof (groupid), "%ju", (UIntmax_t)getgid());
 	while ((p = getline(pkt)) != NULL && *p != CTLCHAR) {
 		none = 0;
 		ok_user = 1;

@@ -1,12 +1,12 @@
-/* @(#)extract.c	1.128 07/10/26 Copyright 1985-2007 J. Schilling */
+/* @(#)extract.c	1.130 08/03/16 Copyright 1985-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)extract.c	1.128 07/10/26 Copyright 1985-2007 J. Schilling";
+	"@(#)extract.c	1.130 08/03/16 Copyright 1985-2008 J. Schilling";
 #endif
 /*
  *	extract files from archive
  *
- *	Copyright (c) 1985-2007 J. Schilling
+ *	Copyright (c) 1985-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -447,7 +447,7 @@ extracti(info, imp)
 			 * Do not create a new link if the old one is the same.
 			 */
 			if (cinfo.f_rxftype != XT_NONE && (cinfo.f_flags & F_SAME))
-				goto setmodes;
+				goto set_modes;
 		}
 		if (!make_symlink(info)) {
 			void_file(info);
@@ -460,7 +460,7 @@ extracti(info, imp)
 			 * Do not create a new node if the old one is the same.
 			 */
 			if (cinfo.f_rxftype != XT_NONE && (cinfo.f_flags & F_SAME))
-				goto setmodes;
+				goto set_modes;
 		}
 		if (is_door(info)) {
 			if (!nowarn) {
@@ -504,7 +504,7 @@ extracti(info, imp)
 	    (copysymlinks && is_symlink(info)))
 		return (TRUE);
 #endif
-setmodes:
+set_modes:
 	if (!to_stdout)
 		setmodes(info);
 #ifdef	TEST_DEBUG

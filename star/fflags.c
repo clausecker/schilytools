@@ -1,12 +1,12 @@
-/* @(#)fflags.c	1.20 07/09/22 Copyright 2001-2007 J. Schilling */
+/* @(#)fflags.c	1.21 08/03/16 Copyright 2001-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)fflags.c	1.20 07/09/22 Copyright 2001-2007 J. Schilling";
+	"@(#)fflags.c	1.21 08/03/16 Copyright 2001-2008 J. Schilling";
 #endif
 /*
  *	Routines to handle extended file flags
  *
- *	Copyright (c) 2001-2007 J. Schilling
+ *	Copyright (c) 2001-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -77,10 +77,20 @@ static	char sccsid[] =
 #include <schily/ioctl.h>
 #endif	/* __linux__ */
 
+EXPORT	void	opt_fflags	__PR((void));
 EXPORT	void	get_fflags	__PR((FINFO *info));
 EXPORT	void	set_fflags	__PR((FINFO *info));
 EXPORT	char	*textfromflags	__PR((FINFO *info, char *buf));
 EXPORT	int	texttoflags	__PR((FINFO *info, char *buf));
+
+EXPORT void
+opt_fflags()
+{
+	/*	Linux							*BSD */
+#if (defined(__linux__) && defined(EXT2_IOC_GETFLAGS)) || defined(HAVE_ST_FLAGS)
+	printf(" fflags");
+#endif
+}
 
 EXPORT void
 get_fflags(info)

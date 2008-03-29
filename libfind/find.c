@@ -1,13 +1,13 @@
 /*#define	PLUS_DEBUG*/
-/* @(#)find.c	1.68 07/12/27 Copyright 2004-2007 J. Schilling */
+/* @(#)find.c	1.70 08/02/16 Copyright 2004-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)find.c	1.68 07/12/27 Copyright 2004-2007 J. Schilling";
+	"@(#)find.c	1.70 08/02/16 Copyright 2004-2008 J. Schilling";
 #endif
 /*
  *	Another find implementation...
  *
- *	Copyright (c) 2004-2007 J. Schilling
+ *	Copyright (c) 2004-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -1903,7 +1903,8 @@ plusexec(f, t, state)
 
 	size = pp->laststr - (char *)&pp->nextargp[2];
 
-	if (slen > size) {
+	if (pp->laststr < (char *)&pp->nextargp[2] ||
+	    slen > size) {
 		pp->nextargp[0] = NULL;
 		ret = doexec(NULL, pp->ac, pp->av, state);
 		pp->laststr = pp->endp;
@@ -1911,7 +1912,8 @@ plusexec(f, t, state)
 		pp->nextargp = &pp->av[t->val.i];
 		size = pp->laststr - (char *)&pp->nextargp[2];
 	}
-	if (slen > size) {
+	if (pp->laststr < (char *)&pp->nextargp[2] ||
+	    slen > size) {
 		ferrmsgno(state->std[2], EX_BAD,
 			gettext("No space for arg '%s'.\n"), f);
 		return (FALSE);
@@ -2097,7 +2099,7 @@ main(ac, av)
 		return (0);
 	}
 	if (prversion) {
-		printf("sfind release %s (%s-%s-%s) Copyright (C) 2004-2007 Jörg Schilling\n",
+		printf("sfind release %s (%s-%s-%s) Copyright (C) 2004-2008 Jörg Schilling\n",
 				strvers,
 				HOST_CPU, HOST_VENDOR, HOST_OS);
 		return (0);

@@ -1,12 +1,12 @@
-/* @(#)xattr.c	1.9 06/09/13 Copyright 2003-2006 J. Schilling */
+/* @(#)xattr.c	1.10 08/03/16 Copyright 2003-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)xattr.c	1.9 06/09/13 Copyright 2003-2006 J. Schilling";
+	"@(#)xattr.c	1.10 08/03/16 Copyright 2003-2008 J. Schilling";
 #endif
 /*
  *	Handle Extended File Attributes on Linux
  *
- *	Copyright (c) 2003-2006 J. Schilling
+ *	Copyright (c) 2003-2008 J. Schilling
  *	Thanks to Anreas Grünbacher <agruen@suse.de> for the
  *	first implemenation.
  */
@@ -56,6 +56,18 @@ LOCAL star_xattr_t	*static_xattr;
 #if defined(HAVE_LISTXATTR) && !defined(HAVE_LLISTXATTR)
 #define	llistxattr	listxattr
 #endif
+
+EXPORT void
+opt_xattr()
+{
+#if defined(USE_XATTR) && \
+	(defined(HAVE_LISTXATTR) || defined(HAVE_LLISTXATTR)) && \
+	(defined(HAVE_GETXATTR) || defined(HAVE_LGETXATTR))
+#if defined(HAVE_SETXATTR) || defined(HAVE_LSETXATTR)
+	printf(" Linux-xattr");
+#endif
+#endif
+}
 
 /* ARGSUSED */
 EXPORT BOOL

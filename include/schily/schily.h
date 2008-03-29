@@ -1,4 +1,4 @@
-/* @(#)schily.h	1.68 07/12/27 Copyright 1985-2007 J. Schilling */
+/* @(#)schily.h	1.69 08/02/16 Copyright 1985-2007 J. Schilling */
 /*
  *	Definitions for libschily
  *
@@ -100,7 +100,12 @@ extern "C" {
 extern	int	_cvmod __PR((const char *, int *, int *));
 extern	FILE	*_fcons __PR((FILE *, int, int));
 extern	FILE	*fdup __PR((FILE *));
+#if	!defined(fdown) || defined(PROTOTYPES)
+/*
+ * We cannot declare fdown() with K&R in case that fdown() has been #define'd
+ */
 extern	int	fdown __PR((FILE *));
+#endif
 extern	int	fexecl __PR((const char *, FILE *, FILE *, FILE *,
 							const char *, ...));
 extern	int	fexecle __PR((const char *, FILE *, FILE *, FILE *,

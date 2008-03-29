@@ -39,11 +39,11 @@
 /*
  * This file contains modifications Copyright 2006-2007 J. Schilling
  *
- * @(#)diff.c	1.8 07/12/11 J. Schilling
+ * @(#)diff.c	1.9 08/02/26 J. Schilling
  */
 #if defined(sun) || defined(__GNUC__)
 
-#ident "@(#)diff.c 1.8 07/12/11 J. Schilling"
+#ident "@(#)diff.c 1.9 08/02/26 J. Schilling"
 #endif
 
 #pragma ident	"@(#)diff.c	1.55	05/07/22 SMI"
@@ -153,6 +153,7 @@
 #include <schily/varargs.h>
 #include <schily/errno.h>
 #include <schily/string.h>
+#include <schily/time.h>
 #include <version.h>
 #include <sysexits.h>
 

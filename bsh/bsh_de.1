@@ -1,0 +1,2510 @@
+. \" @(#)bsh_de.1	1.1 97/02/19 Copyright 1985-1997 J. Schilling
+. \"  Manual Seite fuer bsh
+. \"
+.if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
+.if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
+.if t .ds u \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'u
+.if t .ds A \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'A
+.if t .ds O \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'O
+.if t .ds U \v'-0.77m'\h'0.30n'\z.\h'0.45n'\z.\v'0.77m'\h'-.75n'U
+.if t .ds s \(*b
+.if n .ds a ae
+.if n .ds o oe
+.if n .ds u ue
+.if n .ds A Ae
+.if n .ds O Oe
+.if n .ds U Ue
+.if n .ds s sz
+.ft 1
+.ft 8
+.if \n(.f=8 .fp 8 C
+.de Ls
+.br
+.nf
+.ft 8
+.if \\n(.f=8 \{\
+.	cs 8 6*\w'x'u/\\n(.s
+.	nr @ \\w'x'u*8
+.	ta \\n@u +\\n@u +\\n@u +\\n@u +\\n@u +\\n@u +\\n@u +\\n@u +\\n@u +\\n@u
+.	lg 0
+.\}
+..
+.de Le
+.br
+.cs 8
+.lg
+.ft 1
+.ta .5i
+.fi
+..
+.TH BSH 1L "6. Juni 1991" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.SH NAME
+bsh \- ein Kommando-Interpreter mit Bildschirmeditor und 
+History.
+.SH "SYNOPSIS"
+.B bsh
+[
+.I optinen
+] [
+.I "arg1 \|.\|.\|. argn
+]
+.PP
+Liest Kommandos aus dem File arg1.
+.br
+Wenn keine Argumente angegeben sind, liest er Kommandos von stdin.
+.SH "OPTIONS"
+.TP
+.B \-i
+Erzwingt interaktiven Prompt.
+.TP
+.B \-v
+Startet mit eingeschaltetem Verbose mode.
+.TP
+.B \-c
+Führt 
+.I arg1 
+als ein Kommando mit 
+.I arg2-n 
+als args aus.
+.TP
+.B \-e
+Bricht ab wenn ein nichtinteraktives Kommando mißlingt.
+.TP
+.B \-n
+Liest die Kommandos aber führt sie nicht aus.
+.TP
+.B \-s
+Führt Kommandos von stdin aus, auch wenn Argumente angegeben wurden.
+.TP
+.B \-t
+Liest ein Kommando und führt es aus.
+.TP
+.B \-2
+Liest nicht das 
+.I ~/.init2 
+File.
+.br
+Auch wahr, wenn \-c gesetzt und name == 
+.I command.
+.TP
+.B \-h
+Liest/Schreibt nicht das 
+.I ~/.history
+File.
+.TP
+.B \-g
+Liest/Schreibt nicht das 
+.I ~/.globals
+File.
+.TP
+.B \-l
+Liest/Schreibt nicht das 
+.I ~/.locals
+File.
+.TP
+.B \-f
+(fast) Entspricht \-2h.
+.TP
+.B \-F
+(extra fast) Entspricht \-2hgl.
+.TP
+.B \-o
+Bei einem 
+.I exec
+werden offene Files nicht geschlossen.
+.SH "DESCRIPTION"
+.B bsh 
+ist ein Kommandointerpreter, der anstelle von 
+.I sh 
+oder 
+.I csh 
+verwendet werden kann. Seine Vorteile gegenüber den beiden 
+anderen shells sind der Bildschirmeditor für die Kommandozeile 
+und der in diesen Editor integrierte History-Mechanismus.
+.PP
+
+.SS "Initialisierung
+.PP
+Wenn der 
+.I bsh 
+durch ein Login gestartet wird, (das erkennt er daran, daß sein 
+.I argv[0] 
+mit einem '-' beginnt) dann liest er 
+zunächst die Datei 
+.I /etc/initbsh 
+und führt die darin 
+enthaltenen Kommandos aus. \- Das kann auf SYSTEM V dazu benutzt 
+werden um z.B. die Environment-Variable 
+.I TZ 
+zu setzen.
+.PP
+Wenn in av[0] ein 'r' enthalten ist 
+.B (rbsh), 
+dann folgt nach der Interpretation der Anweisungen aus der Datei 
+.I /etc/initbsh 
+die Ausführung der Kommandos aus 
+.I /etc/initrbsh. 
+Das kann z.B. dazu benutzt werden weiter 
+unten beschriebene mögliche Restriktionen zu aktivieren. Da 
+die Directory 
+.I /etc/ 
+normalerweise nur durch den 
+.I Superuser 
+zu beschreiben ist, kann der so eingeschränkte Benutzer nicht 
+durch einfaches Löschen seiner 
+.I ~/.init 
+Datei diese Beschränkungen wieder unwirksam machen.
+.PP
+Nach der Interpretation der obengenannten Dateien werden die 
+Kommandos aus der Datei 
+.I ~/.init 
+ausgeführt. In dieser Datei 
+kann der Benutzer private immer nötige Anweisungen plazieren 
+z.B. Einstellen des Prompts auf einen gegenüber dem 
+Standardprompt bevorzugten Wert oder Ter\%mi\%nal\%ini\%tia\%li\%sie\%rung.
+.PP
+Jeder weitere Kommandointerpreter (nicht der Loginshell aber 
+auch das in den 
+.B bsh 
+eingebaute 
+.I suid 
+Kommando), der vom Benutzer 
+gestartet wird, führt während seiner Initialisierung die Datei 
+.I ~/.init2 
+(falls vorhanden) aus.
+.PP
+Wenn der 
+.B bsh 
+gestartet wird, dann liest er kurz vor dem ersten interaktiven Prompt das File 
+.I /etc/termcap 
+oder die Environmenvariable 
+.I TERMCAP, 
+um ein Standardmapping für die 
+Cursortasten zu bekommen. Es ist möglich, zusätzlich zu den 
+Standardeinträgen 
+.IR "ku, kd, kr " und " kl " für 
+.IR "Key-up, Key-down, Key-right " und " Key-left"
+in 
+.I /etc/termcap 
+die Einträge 
+.IR kB " und " kE 
+einzuführen, falls das Terminal die Cursortasten 
+.IR Zeilenanfang " bzw. " Zeilenende " hat.
+.PP
+Der Loginshell führt, bevor er durch die Kommandos 
+.I logout 
+oder 
+.I exit 
+beendet wird, die Datei 
+.I ~/.final aus.
+.PP
+Außerdem liest jeder 
+.B bsh 
+noch folgende Dateien, wenn er gestartet wird.:
+.TP 20
+.B ~/.bshmap
+Datei mit Maps für den Editor.
+.TP
+.B ~/.globals
+Datei mit globalen Abkürzungen.
+.TP
+.B .locals
+Datei mit lokalen Abkürzungen. (Siehe auch cd \- Kommando.)
+.PP
+Der 
+.B bsh 
+liest seine Initialisierungsdateien in folgender 
+Reihenfolge und zu folgenden Zeiten:
+.TP 20
+.B /etc/passwd
+falls es beim Starten des
+.B bsh 
+keine Environment-Variable 
+.I HOME 
+gibt.
+.TP
+.B ~/.globals
+Immer falls vorhanden.
+.TP
+.B .locals
+Immer falls vorhanden.
+.TP
+.B /etc/initbsh
+Nur Loginshell.
+.TP
+.B /etc/initrbsh
+Nur Loginshell, wenn restricted.
+.TP
+.B ~/.init
+Nur Loginshell.
+.TP
+.B ~/.init2
+Jeder nicht Loginshell.
+.TP
+.B ~/.history
+Jeder Interaktive 
+.B bsh.
+.TP
+.B /etc/termcap
+Jeder interaktive 
+.B bsh 
+kurz nach dem ersten Prompt, wenn sich der extrahierte 
+.I TERMCAP 
+Eintrag noch nicht im Environment befindet. Wenn die Variable 
+.I TERM 
+auf einen anderen Eintrag verweist als die Variable 
+.I TERMCAP, 
+dann wird auch das File 
+.I /etc/termcap 
+gelesen.
+.TP
+.B ~/.bshmap
+Nach der Initialisierung der 
+Cursormappings.
+
+.SS "Bedienung, Kommandoeingabe
+.PP
+Eingabezeilen können mit folgenden Kommandos bzw. 
+Kommandosequenzen editiert werden:
+.TP 10
+.B ^H
+ein Zeichen nach links
+.TP
+.B ^F
+ein Zeichen nach rechts
+.TP
+.B ^D
+das Zeichen unter dem Textzeiger löschen
+.TP
+.B DEL
+das Zeichen links vom Textzeiger löschen
+.TP
+.B ^U
+ganze Zeile löschen
+.TP
+.B "ESC ^H
+ein Wort nach links
+.TP
+.B "ESC ^F
+ein Wort nach rechts
+.TP
+.B "ESC ^D
+das Wort rechts vom Textzeiger löschen
+.TP
+.B "ESC DEL
+das Wort links vom Textzeiger löschen
+.PP
+Innerhalb der History kann man sich mit folgenden Kommandosequenzen 
+bewegen (näheres über die History unter Punkt 
+.I "Eingebaute Kommandos" ):
+.TP 10
+.B ^P
+vorhergehende Zeile
+.TP
+.B ^N
+nachfolgende Zeile
+.TP
+.B "ESC ^P
+rückwärts nach Zeile suchen
+.TP
+.B "ESC ^N
+vorwärts nach Zeile suchen
+.TP
+.B "ESC CR
+zurück zur Zeile vor dem letzten Suchkommando
+.PP
+Jedes andere Zeichen wird in den vorhandenen Text 
+eingeschoben. Die Tabulator-Taste erzeugt ein ^I. Sollen in 
+der Eingabe Zeichen erscheinen, die Editierungsfunktion 
+haben, so müssen sie 
+.I gequotet 
+werden, dazu muß zuerst '^^' 
+und dann das Zeichen, das in der Eingabezeile erscheinen 
+soll, eingegeben werden; es wird dann nicht interpretiert.
+.PP
+Eine Zeile wird durch die Tasten 
+.I CR 
+oder 
+.I LF 
+beendet. Hierbei ist die Stellung des Textzeigers innerhalb der Zeile 
+unerheblich.
+
+.SS "Editierungsmapping
+.PP
+Bei der Initialisierung des bsh wird ein File 
+.I ~/.bshmap 
+gelesen, in dem sich Editierungsmaps für den bsh befinden. Es 
+läßt sich fast alles ummappen. Wird ein Match festgestellt, 
+so erfolgt eine textuelle Ersetzung direkt in die 
+Eingabezeile. Es ist möglich, das Mapping für den nächsten 
+Buchstaben mit Hilfe eines Quotebuchstabens aufzuheben. 
+Dieser Quotebuchstabe ist standartmäßig auf NULL (Control @) 
+gesetzt, und läßt sich ändern(z.Zt. noch nicht implementiert. 
+.PP
+Das File 
+.I ~/.bshmap 
+hat folgenden Aufbau:
+.PP
+.Ls
+mapstr:textersatz:Kommentar
+.Le
+.PP
+.I mapstr 
+ist dabei der String, der ersetzt werden soll. 
+textersatz ist der String, der in der Eingabezeile erscheint. 
+.I Kommentar 
+ist ein optionaler Kommentar, der nicht beachtet wird. 
+.I mapstr 
+darf maximal 16 Zeichen lang sein, der 
+textersatz darf maximal 128 Zeichen lang sein. Jeder Eintrag 
+muß auf genau einer Textzeile stehen.
+.PP
+Kontrollzeichen können wie in 
+.I /etc/termcap 
+durch eine Ersatzdarstellung eingetragen werden:
+.PP
+Ein '^' vor einem Buchstaben, bedeutet, daß das entsprechende 
+Kontrollzeichen gemeint ist. Das Zeichen ESCAPE läßt sich 
+durch '\\E' darstellen. Diese beiden ebengenannten 
+Fluchtsymble lassen sich durch '\\^' bzw. '\\\\' erzeugen. Es 
+ist außerdem möglich die in c bekannte Oktaldarstellung zu 
+verwenden. Nur mit der Oktaldarstellung ist es möglich, einen 
+Doppelpunkt zu erzeugen in dem man \\072 einträgt.
+.PP
+Weiterhin stehen für:
+.TP 15
+.B "\et	^I
+Horizontaltabulator
+.TP
+.B "\ev	^K
+Vertikaltabulator
+.TP
+.B "\eb	^H
+Backspace
+.TP
+.B "\er	^M
+Carriage Return
+.TP
+.B "\en	^J
+Line Feed 
+.TP
+.B "\ef	^L
+Form Feed
+.PP
+Das File 
+.I ~/.bshmap, 
+könnte folgendermaßen aussehen.
+.PP
+.Ls
+\\Ep:\\E^P^U:Search up and clear buf
+\\En:\\E^P^U:Search down and clear buf
+.Le
+.PP
+Das Standardmapping wird aus 
+.I /etc/termcap 
+gewonnen.
+
+.SS "Lexikalische Struktur
+.PP
+Der 
+.B bsh 
+teilt Zeilen in Worte an den Stellen, wo Leerzeichen, 
+Tabs oder die besonderen Buchstaben '&' , '|' , ';' , '<' , 
+\&'>' , '(' und ')', sowie die Buchstabenpaare '&&' , '||' , 
+\&'<<' oder '>>' stehen. Die besondere Bedeutung dieser 
+Buchstaben läßt sich durch Voranstellen eines '\\' 
+verhindern. Ein '\\', das direkt von einem Newline gefolgt 
+wird, wird durch ein Blank ersetzt, falls es nicht in einem 
+mit ''' gequoteten String erscheint.
+.PP
+Strings, die in Paare von ''' oder '"' eingeschlossen sind, 
+formen Worte. Werden die Strings in Paare von '"' 
+eingeschlossen, dann erfolgt in diesen Strings eventuell eine 
+textuelle Ersetzung von Abkürzungen oder Environment-Variablen. 
+Eine textuelle Ersetzung läßt sich auch in diesem 
+Falle durch Voranstellen eines '\\' verhindern. In Strings, 
+die durch Einschließen in ''' gebildet werden, wird nichts 
+ersetzt und der Buchstabe '\\' hat keine besondere Wirkung, es 
+sei denn, er steht vor einem Newline oder einem '''. Damit 
+ist es möglich, diese Buchstaben in einen String einzugeben. 
+In beiden Fällen erfolgt jedoch in diesen Strings 
+keine Expansion von speziellen Pattern-Matching Buchstaben 
+über das File-System.
+.PP
+Der Buchstabe '#' hat eine besondere Bedeutung, wenn er am 
+Anfang einer Zeile steht. (siehe '#' \- Kommandos) Innerhalb 
+von Kommando-Files leitet er eine Kommentarzeile ein, wenn 
+direkt hinter ihm ein Blank, ein Tab oder ein Newline steht.
+.PP
+Ein einfaches Kommando ist eine Sequenz von Worten, von denen 
+das Erste Wort der 
+.I Kommando-Name 
+des auszuführenden Kommandos ist.
+.PP
+Ein einfaches Kommando oder eine Sequenz von einfachen 
+Kommandos, durch ein '|' getrennt, ergeben eine Pipeline. Der 
+Output eines jeden Programms wird in den Input des folgenden 
+geleitet. Sequenzen von Pipelines können durch ';' oder '&' 
+getrennt werden. Steht hinter einer Pipeline ein '&', wird 
+auf diese Pipeline nicht gewartet.
+.PP
+Jedes dieser oben beschriebenen Kommandos oder 
+Kommandosequenzen kann in Paare von '(' und ')' gepackt 
+werden, um so ein einfaches Kommando zu erzeugen. Es ist auch 
+möglich, einzelne Kommandos einer Pipeline durch '&&' oder 
+\&'||' zu trennen. Dabei wird wie in der Programmiersprache c 
+das zweite bzw. folgende Kommando nur dann ausgeführt, wenn 
+das Erste bzw. Vorangehende gelang oder scheiterte. Auch hier 
+können durch Verwendung von '(' und ')' Gruppen gebildet 
+werden.
+.RS
+Beispiele:
+.Ls
+Joerg> cd cmd/bsh && make bsh
+\|.\|.\|.
+.Le
+.PP
+.I "make bsh 
+wird nur ausgeführt, wenn das 'cd' \- Kommando geglückt ist.
+.Ls
+Joerg> make bsh || echo bullshit 
+\|.\|.\|.
+.Le
+.PP
+Das 
+.I echo 
+Kommando wird nur dann ausgeführt, wenn das 
+.I make 
+Kommando scheitert.
+.Ls
+Joerg> (make bsh && echo ok) || echo bullshit 
+\|.\|.\|.
+.Le
+.PP
+Wenn das 
+.I make 
+Kommando scheitert, dann wird das zweite 
+.I echo 
+Kommando ausgeführt. Wenn das 
+.I make 
+Kommando gelingt, dann wird 
+.I ok 
+ausgegeben. Das ersetzt allerdings keine 
+.I "if then else 
+Struktur, da für den Fall, daß das 
+Kommando 
+.I "echo ok 
+scheitert, zusätzlich 
+.I bullshit 
+ausgegeben wird, denn der 
+.I Exitcode 
+der Kommandogrupe in Klammern ist der 
+.I Exitcode 
+des letzten Kommandos.
+.RE
+
+.SS "Jobs und Jobkontrolle
+.PP
+XXX
+
+.SS "Textuelle Ersetzungen
+.PP
+Textuelle Ersetzungen finden auf verschieden Ebenen statt.
+.PP
+Zunächst durch das Editierungsmapping (direkt in der 
+Kommandozeile sichtbar).
+.PP
+Weiterhin durch Abkürzungsmakros aus den 
+.I ~/.globals 
+und 
+.I .locals 
+(siehe '#' \- Kommandos) sowie durch Ersetzungen über 
+den Inhalt von Environment-Variablen. Hier ist es wichtig 
+zu wissen, durch welche Trennzeichen Worte aus der 
+Eingabezeile erkannt werden, die dann auf 
+Expansionsmöglichkeiten untersucht werden. Trennzeichen für 
+diese Expansionen sind:
+.PP
+.Ls
+" \\t\\n\\\\'$~/|&;()><%\\"=-"
+.Le
+.PP
+In der letzten Stufe finden textuelle Ersetzungen durch 
+Expansion über das Filesystem statt. (siehe Pattern-Matching) 
+.I Pattern-Matching 
+Metabuchstaben sind:
+.PP
+.Ls
+! # % * { } [ ] ?
+.Le
+.PP
+Für die Expansion gilt folgende zeitliche Reihenfolge und 
+Präferenz.:
+.TP 35
+Zuerst während des Editierens
+Editierungsmapping.
+.TP 
+Vor dem Parsing
+Lokale und globale Abkürzungen alternativ mit Präferenz für 
+die lokalen Abkürzungen.
+.TP
+Noch vor dem Parsing
+z.Zt. !!! '$' \- Variablen.
+.TP
+Vom Interpreter (direkt vorder Ausführung des Programms) 
+Expansionen über das File-System.
+.PP
+Alle diese Ersetzungen lassen sich durch das Voranstellen 
+eines '\\' vor den entsprechenden Identifier verhindern.
+
+.SS "Input/Output
+.PP
+Jeder Prozess hat drei Files, mit denen er standartmäßig 
+verbunden ist.
+.TP 20
+.B stdin
+: Die Standarteingabedatei
+.TP 
+.B stdout
+: Die Standartausgabedatei
+.TP 
+stderr
+: Die Standartdiagnostikdatei
+.PP
+Diese drei Dateien sind normalerweise dem Terminal 
+zugeordnet. Sie lassen sich jedoch mit folgender Syntax 
+umleiten.:
+.TP
+< name
+Die Datei name wird als Eingabedatei eröffnet.
+.TP
+<< delimiter
+Der 
+.B bsh 
+liest solange von stdin, bis in einer Zeile 
+.I delimiter 
+steht. Alles, was bis dahin eingegeben wurde, 
+wird nach Expansion über Environment-Variablen und 
+Abkürzungen (globals und locals) dem Programm als 
+Eingabedatei übergeben. Eine Anwendung sind 
+Commandfiles, in denen eine Eingabe für ein Programm 
+z.B. für einen Editor erforderlich ist; man kann dann 
+alles in einem File halten.
+.TP
+> name
+Das File 
+.I name 
+wird als Ausgabedatei eröffnet. Falls es 
+bereits besteht, wird der alte Inhalt zerstört.
+.TP
+>> name
+Das File 
+.I name
+wird als Ausgabedatei eröffnet. Falls es 
+bereits besteht, wird der kommene Output des Programmes 
+an den bereits bestehenden Inhalt angehängt.
+.TP
+% name
+Das File 
+.I name 
+wird als Fehlerdatei eröffnet. Falls es 
+bereits besteht, wird der alte Inhalt zerstört.
+.TP
+%% name
+Das File 
+.I name 
+wird als Fehlerdatei eröffnet. Falls es 
+bereits besteht, wird der kommende Output des 
+Programmes an den bereits bestehenden Inhalt angehängt.
+.TP
+prog1 | prog2
+Der Output von 
+.I prog1 
+wird in einer Pipeline an den Input von 
+.I prog2 
+geleitet.
+.TP
+prog1 |% prog2
+Der Fehleroutput von 
+.I prog1 
+wird in einer Pipeline an den Input von 
+.I prog2 
+geleitet.
+.PP
+Bei 
+.I name 
+wird jeweils eine Expansion über die Abkürzungen und Environment-Variablen 
+vorgenommen.
+
+.SS "Variablen, Environment-Variablen
+.PP
+Im Environment (EV) können Variablen gespeichert und 
+abgerufen werden. Der 
+.B bsh 
+gibt den aktuellen Inhalt seines 
+Environments an die von ihm gestarteten Prozesse weiter.
+.PP
+Der Abruf geschieht durch Expansion. Beginnt ein Wort mit 
+\&'$', so wird innerhalb des EVs nach der entsprechenden 
+Variablen gesucht und das gesamte Wort (einschließlich '$') 
+durch den Wert dieser Variablen ersetzt.
+.PP
+Die Expansion der Variablen geschieht Zeilenweise. Es ist 
+nicht möglich, innerhalb einer Kommandozeile den Wert einer 
+Variablen zu setzen und ihren Wert danach auszugeben. Konnte 
+das Wort nicht expandiert werden, wird es direkt übernommen.
+.PP
+Beispiele:
+.Ls
+Joerg> set x=hallo
+Joerg> set
+PATH=:/bin
+HOME=:
+TERM=vterm
+PROMPT=Joerg>
+PROMPT2=>
+HISTORY=0
+x=hallo
+Joerg> echo $x $y
+hallo $y
+Joerg> set lalue=test;echo $lalue
+$lalue
+Joerg> _
+.Le
+.PP
+.TP 8
+.BI $ name 
+liefert den Wert der Variablen 
+.I name.
+.PP
+Folgende Variablen können nur gelesen, jedoch nicht explizit 
+gesetzt werden.
+.TP 8
+$0
+liefert den Namen des laufenden 
+.IR command -files.
+.TP
+$1..$n 
+liefern die aktuellen Argumente eines 
+.IR command -files.
+.TP
+$r1
+liefert alle Argumente eines 
+.IR command -files 
+(entsprechend argv in c \- files).
+.TP
+$r3
+liefert alle Argumente eines 
+.IR command -files 
+beginnend bei dem dritten Argument (entsprechend 
+argv+3 in c \- files).
+.TP
+$#
+liefert die Anzahl der Argumente des aktuellen 
+.IR command -files 
+(Entsprechend argc in c \- files $0 zählt mit).
+.TP
+$$
+liefert die 
+.I Prozess-ID 
+des gerade laufenden 
+.B bsh.
+.IP
+Beispiele:
+.Ls
+Joerg> kill $$
+name: _
+.Le
+.IP
+Beendet den laufenden bsh.
+.TP
+$!
+liefert die 
+.I Prozess-ID 
+des letzten gestarteten 
+.I Hintergrundprozesses.
+.IP
+Beispiele:
+.Ls
+Joerg> ps -l $!
+.Le
+.IP
+Gibt den Status des letzten 
+.I Hintergrundprozesses 
+aus.
+.TP
+$?
+liefert den 
+.I Rückgabewert 
+der letzten Kommandos.
+.IP
+Beispiele:
+.Ls
+Joerg> test 6 '*' 4
+Joerg> echo $?
+0
+.Le
+
+.SS "Expansion des Zeichens '~'
+.PP
+Das Zeichen '~' wird zu einem Pfadnamen expandiert. Es kann 
+durch einen Benutzernamen gefolgt werden. Ohne Benutzernamen 
+erzeugt es den Pfadnamen der eigenen HOME-Directory aus dem 
+File 
+.I /etc/passwd, 
+mit Benutzernamen erzeugt es den Pfadnamen 
+der HOME-Directory des entsprechenden Benutzers.
+.PP
+Beispiele:
+.Ls
+Joerg> pwd
+/user/joerg
+Joerg> echo ~
+/user/joerg
+Joerg> echo ~peter
+/user/peter
+Joerg> ls ~peter/bin
+/user/peter/bin:
+bsh
+Joerg> ls ~/..
+/user:
+gerd
+joerg
+peter
+reiner
+Joerg> ls ~/cmd/bsh/doc
+bsh.doc
+Joerg> _
+.Le
+
+.SS "Pattern-Matching
+.PP
+Es gibt bestimmte Buchstaben, die bei der Expansion von 
+Filenamen, beim Suchen in der History und bei der Ausgabe 
+von '#' Abkürzungen besondere Bedeutung haben. Es sind:
+.PP
+.B "! # % * { } [ ] ?
+.PP
+Ihre Bedeutung ist :
+.TP 20
+.B "!	ALT
+Oder im Matching dies!das!jenes
+.TP
+.B "*	STAR
+Jede beliebige Anzahl jedes beliebigen Buchstaben.
+.TP
+.B "?	ANY
+Genau ein beliebiges Zeichen.
+.TP
+.B "%	NIL
+Genau kein !!! Zeichen. (Muß gequotet werden, 
+damit keine Umlenkung von stderr erfolgt)
+.TP
+.B "{}	GROUP
+Für Vorrang Gruppierung. Kann geschachtelt werden.
+.TP
+.B "#c	MULT
+Jede beliebige Anzahl eines bestimmten Zeichens.
+.TP
+.B "[]	CLASS
+Unschließt eine Menge von Zeichen.
+.TP
+.B "\-	RANGE
+Bereich für Mengen.
+.TP
+.B "^	NOT/BEG
+Anfang einer Zeile, in [] das Boolsche nicht.
+.TP
+.B "\e	ESC
+Fluchtsymbol für den Pattern-Matcher.
+.TP
+.B "$	END
+Ende eine Zeile.
+.PP
+Beispiele:
+.Ls
+Joerg> echo bsh.?
+bsh.c bsh.h
+Joerg> echo *.bak
+test.c.bak bsh.c.bak mem.c.bak
+Joerg> echo test#1
+test1 test11 test111
+Joerg> echo dies!das
+dies das
+Joerg> echo b*.{lint!c}
+bsh.c bsh.lint btab.c builtin.c
+Joerg> echo [a-i]*.c
+abbrev.c abbtab.c builtin.c input.c
+Joerg> echo ab[0-9].c
+ab1.c ab2.c ab3.c
+Joerg> echo [^i]*.c
+builtin.c mem.c test.c
+.Le
+
+.SS "Eingebaute Kommandos
+.HP
+.B $
+.br
+Siehe 
+.BR fg -Kommando.
+.HP
+.B :
+.br
+Dies ist ein Dummy Kommando. Es ist damit z.B. möglich 
+Files zu erzeugen.
+.IP
+Beispiele:
+.Ls
+Joerg> :>hallo
+Joerg> echo *
+hallo test.c
+Joerg> _
+.Le
+.HP
+.B @ 
+.IR " name " = " expr "
+.br
+Der Environment-Variablen name wird der Wert des 
+einfachen Ausdrucks 
+.I expr 
+zugewiesen.
+.IP
+Statt '=' ist auch '+=' , '-=' , '/=' , '%=' oder '*=' 
+möglich. Für 
+.I expr 
+ist jeder Ausdruck erlaubt, der auch im 
+.BR test -Kommando
+möglich ist.
+.IP
+Beispiele:
+.Ls
+Joerg> @ count = 1
+Joerg> @ count = $count + 1
+Joerg> echo $count
+Joerg> 2
+Joerg> _
+.Le
+.HP 
+.BI [ " expr " ]
+.br
+Synonym für das 
+.B test 
+Kommando. Beschreibung siehe
+.B test.
+.HP
+.B alias
+.RI [ fromstr "] [" tostr ]
+.br
+Ersatz für die '#'-Kommandos (noch nicht fertig implementiert).
+.HP
+.B alloc
+.RI [ arg ]
+.br
+Dient zum debuggen der allozierungs-Routine des 
+.B bsh.
+Ohne Argumente werden Statisktiken über den allozierten Bereich ausgegeben. 
+Mit einem Argument werden die Adressen und Größen der verwalteten Stücke,
+sowie der Zustand der Stücke ausgegeben. Dabei werden zerstörte Stücke
+durch einen Stern hinter der Statusinformation gekennzeichnet.
+Mit einem 'l' als Argument wird bei jedem Stück zusätzlich der lesbare Inhalt 
+ausgegeben, mit einem 'L' als Argument wird bei nicht lesbarem Inhalt 
+eine Ersatzdarstellung gezeigt.
+.HP
+.B bg
+.RI [ job ]
+.br
+Schickt den zuletzt gestoppten oder den angegebenen 
+.I job 
+in den Hintergrund. Dazu wird er wieder gestartet. Der 
+.I job
+kann zur Zeit nur durch die 
+.I Prozessid 
+eines der Prozesse des 
+.I jobs
+spezifiziert werden. 
+.HP
+.B break
+.br
+Bricht eine Schleife ab. Die Interpretation setzt bei 
+dem, dem nächsten end folgenden Kommando fort.
+.IP
+Beispiele:
+.Ls
+Joerg> for i in 1 2 3 4 5 6
+> if test $i = 3
+> then
+> echo ende.
+> break
+> fi
+> echo $i
+> end
+1
+2
+ende.
+Joerg> _
+.Le
+.HP
+.B case
+.br
+Wird für das switch \- Kommando zum Erkennen einer 
+Möglichkeit benötigt. Außerhalb eines switch \- Kommandos 
+ist case nicht zulässig.
+.HP
+.B cd
+.RI [ name ]
+.br
+.PD 0
+.HP
+.B chdir 
+.RI [ name ]
+.br
+.PD 0
+.HP
+.B cwd 
+.RI [ name ]
+.PD
+.br
+Ändern der Arbeitsdirectory des bsh zur Directory name. 
+Ist name nicht angegeben, erfolgt ein Wechsel zu der 
+Directory, die in der Environment-Variablen HOME 
+angegeben ist.
+.IP
+Existiert die Environment-Variable CDPATH, wird name 
+auch in den entsprechenden Directories aus der Liste in 
+CDPATH gesucht. Erfolgt ein cd zu einer Directory aus 
+der Liste, wird der gesamte Name ausgegeben. Bei jedem 
+cd wird die Liste der lokalen Abkürzungen (./.locals) 
+gegen die aktuelle getauscht.
+.HP
+.B compute
+.br
+Veraltete Instrinsinc-Routine des bsh für die 
+Grundrechenarten auf Integer-Zahlen.
+.IP
+Setzt die Variable $? auf das Ergebnis der Berechnung. 
+Da es keine Möglichkeit gibt fehlerhafte Parameter am 
+Returncode zu erkennen wird Sie demnächst abgeschafft.
+.IP
+.B "Bitte nur noch @ oder test verwenden.
+.HP
+.B concat
+.I "name val1 \|.\|.\|. valn
+.br
+Die Werte der Strings val1 \|.\|.\|. valn werden zu einem 
+String in der Variablen name zusammengefaßt.
+.IP
+Beispiele:
+.Ls
+Joerg> concat test a b c . $$
+Joerg> echo $test
+abc.5123
+Joerg> _
+.Le
+.HP
+.B dirs
+.br
+Ausgabe des Directory-Stacks. Die Spitze ist links und 
+stellt die augenblickliche Arbeitsdirectory dar. Die 
+Spitze des Directory-Stacks hat den logischen Offset 0, 
+die direkt rechts danebenstehende Directory den 
+logischen Offset \-1. Der logische Offset einer Directory 
+im Stack läßt sich für das pushd und das popd Kommando 
+gebrauchen.
+.HP
+.B do
+.br
+Das erste Argument des do \- Kommandos wird als 
+Kommandozeile aufgefaßt und so interpretiert, als wären 
+die weiteren Argumente des do \- Kommandos die Argumente 
+av[2] .. av[n] des bsh. Der Effekt ist der gleiche wie 
+bsh \-c arg1 .. argn, ohne daß ein neuer Shell gestartet 
+wird.
+.IP
+Beispiele:
+.Ls
+Joerg> do 'echo hallo: $r1' 1 2 3 4 5
+hallo: 1 2 3 4 5
+Joerg> _
+.Le
+.HP
+.B echo 
+.RI "[\-n|-nnl] [" args ]
+.br
+Das echo \- Kommando hat die gleiche Funktion wie das 
+/bin/echo \- Kommando. Da es aber in den bsh eingebaut 
+ist, ist seine Ausführungszeit wesentlich kürzer 
+(wichtig in command-files). Wird als erstes Argument 
+\&'-n' oder '-nnl' angegeben, so erfolgt keine Ausgabe 
+eines Newlinecharacters am Ende der Zeile.
+.IP
+Werden keine Argumente angegeben, so erfolgt auch keine 
+Ausgabe des Newlinecharacters. Wenn man nur ein Newline 
+ausgeben möchte, dann muß man einen leeren String als 
+Paramter angeben.
+.IP
+Wenn keine Argumente angegeben werden, und stdin 
+umgeleitet wird, dann liest echo von stdin und schreibt 
+das gelesene auf stdout. (Ähnlich wie cat) 
+.IP
+Wenn das eingebaute echo \- Kommando nicht benutzt werden 
+soll, muß man /bin/echo schreiben.
+.IP
+Beispiele:
+.Ls
+Joerg> echo test *.c
+test program.c t.c zz.c
+Joerg> echo \-nnl huhu;echo .pas
+huhu.pas
+Joerg> echo < .EDTMP;echo ''
+bsh.c
+Joerg> _
+.Le
+.HP
+.B else
+.br
+.PD 0
+.HP
+.B end
+.PD
+.br
+Siehe Beschreibung von if , switch , loop und for.
+.HP 
+.B err
+.br
+Gleiche Funktion wie echo jedoch erfolgt die Ausgabe auf 
+stderr.
+.HP
+.BI errstr " errno
+.br
+Der Fehlertext zu der Fehlernummer errno wird 
+ausgegeben.
+.HP
+.B eval
+.br
+XXX
+.HP
+.B exec 
+.RI "[ av0=" name "] " command 
+.RI [ args ]
+.br
+Überschreiben des aktuellen Kommandointerpreters mit dem 
+Kommando command.
+.IP
+Mit der Option av0=name ist es möglich, dem Kommando 
+einen von seinem Namen abweichendes av[0] zu übergeben. 
+Wird beim Loginshell exec aufgerufen, so bekommt man 
+einen neuen Login-Prompt , wenn das Kommando command 
+beendet ist.
+.IP
+Beispiele:
+.Ls
+Joerg>
+Joerg2> exec date
+Tue Aug 6 1985 13:57:52
+Joerg> exec av0=- bsh
+Joerg 2> _
+.Le
+.IP
+Das letzte Beispiel startet einen bsh, der glaubt, durch 
+einen Login-Prozess entstanden zu sein.
+.HP
+.B exit
+.br
+Beenden eines Kommandointerpreters oder Abbruch einer 
+Kommandodatei. Der Rückgabewert kann durch exit <n> 
+definiert werden. exit ohne Parameter erzeugt einen 
+Rückgabewert von Null.
+.IP
+Beispiele:
+.Ls
+Joerg> bsh
+Joerg> exit 55
+Joerg> echo $?
+55
+Joerg> _
+.Le
+.HP
+.B fg
+.br
+XXX
+.HP
+.B fi
+.br
+fi ist das Ende eines if Kommandos.
+.HP
+.B for 
+.IR name " in [" Wortliste ]
+.br
+Schleife. for i in a b c führt alle folgenden Kommandos 
+(bis end) aus. Die Environment-Variable i erhält für 
+die drei Schleifendurchläufe jeweils die Werte a, b, 
+und c.
+.IP
+Beispiele:
+.Ls
+Joerg> for i in 1 2 3
+> echo $i
+> end
+1
+2
+3
+Joerg> _
+.Le
+.HP
+.B function 
+.RI [ name "] [" 'cmdlist' ]
+.br
+Definition einer Funktion mit Namen name und Body 
+cmdlist. cmdlist sollte bei der Eingabe unbedingt in ''' 
+gesetzt werden. cmdlist kann sich auch über mehrere 
+Zeilen erstrecken, wenn direkt vor dem Ende einer jeden 
+Zeile ein '\\' steht. (siehe auch quoting) Funktionen 
+können rekursiv aufgerufen werden.
+.IP
+Der Aufruf erfolgt durch Eingabe des Funktionsnamens. 
+Zur Zeit ist es nicht möglich, Argumente zu übergeben. 
+Eine Funktion kann mit return beendet werden.
+.HP
+.B glob 
+.RI [ args ]
+.br
+Hat die gleiche Funktion wie echo, nur das die einzelnen 
+Worte in der Ausgabe durch null Bytes getrennt sind.
+.HP
+.B history
+.br
+Ausgabe der letzten ausgeführten Kommandos (siehe Punkt 
+4). Erfolgt die Ausgabe auf stdout, werden die Kommandos 
+in geschweiften Klammern ausgegeben, bei einer Pipe oder 
+auf ein File entfallen die geschweiften Klammern. Für 
+die spätere Verwendung mit source \-h. 
+.IP
+Beispiele:
+.Ls
+Joerg> history
+{ cat *.c }
+{ who am i }
+{ date }
+Joerg> _
+.Le
+.HP
+.B if 
+.RI ( expr )
+.PD 0
+.HP
+.B if 
+.I "command args
+.PD
+.br
+XXXX
+.br
+.B if 
+.I "command args
+.br
+.B then
+.br
+\|.\|.\|..
+.br
+.B fi
+.br
+.B if 
+.I "command args
+.br
+.B else
+.br
+\|.\|.\|..
+.br
+.B fi
+.br
+.B if 
+.I "command args
+.br
+.B then
+.br
+\|.\|.\|..
+.br
+.B else
+.br
+\|.\|.\|..
+.br
+.B fi
+.br
+Bedingungsabfrage. Dem if-Kommando muß ein Kommando oder 
+ein einfacher Ausdruck wie in test in () folgen. Ist der 
+Rückgabewert dieses Kommandos gleich Null, wird ein TRUE 
+erkannt, andernfalls ein FALSE. Wurde ein TRUE erkannt, 
+werden die Kommandos zwischen dem nächsten then und dem 
+dazugehörigen else bzw. fi ausgeführt. Wurde ein FALSE 
+erkannt, werden die Kommandos zwischen else und fi 
+ausgeführt, falls else vorhanden ist.
+.IP
+Achtung: then , else und fi müssen auf einer eigenen 
+Zeile stehen.
+.IP
+Beispiele:
+.Ls
+Joerg> if cc \-c programm
+> then
+> cc \-o programm programm.o
+> echo fertig.
+> else
+> echo FEHLER im programm
+> fi
+programm.c:
+linking programm:
+fertig.
+Joerg> _
+.Le
+.HP
+.B kill 
+.RI "[\-l] [" \-sig "] " pid1 " \|.\|.\|. " pidn
+.br
+Mit kill lassen sich Signale an Prozesse verschicken. 
+Wird keine Signalnummer angegeben, dann wird das Signal 
+SIGTERM (15) geschickt. Es ist jedoch möglich, andere 
+Signale zu spezifizieren, indem entweder die 
+Signalnummer mit vorangestelltem '-' oder der 
+symbolische Name des Signals aus signal.h ohne den 
+Prefix SIG benutzt wird.
+.IP
+Mit der Option \-l ist es möglich, eine Liste der 
+erlaubten Signale zu bekommen.
+.IP
+Der bsh verschickt unter BSD4.2, wenn das angegebene 
+Signal SIGHUP oder SIGTERM ist, zusätzlich des Signal 
+SIGCONT, um den betreffenden Prozess aufzuwecken, falls 
+er suspendiert ist.
+.IP
+Beispiele:
+.Ls
+Joerg> kill -l
+HUP INT QUIT ILL TRAP IOT EMT FPE KILL BUS SEGV
+SYS PIPE ALRM TERM URG
+STOP TSTP CONT CHLD TTIN TTOU TINT XCPU XFSZ
+VTALRM PROF WINCH
+Joerg> kill \-HUP 1
+Joerg> kill \-9 123
+Joerg> kill 817 900
+Joerg> _
+.Le
+.HP
+.B killpg 
+.RI "[\-l] [" \-sig "] " pgrp1 " \|.\|.\|. " pgrpn
+.br
+Killpg hat die gleich Funktion wie kill, allerdings wird 
+das Signal sig den Prozessgruppen pgrp1 bis pgrpn 
+geschickt.
+.HP
+.B limit
+.br
+XXX
+.HP
+.B login 
+.RI [ name ]
+.br
+Login ist identisch mit exec /bin/login [name]. login 
+ist nur erlaubt, falls es sich um den Loginshell 
+handelt.
+.IP
+Beispiele:
+.Ls
+Joerg2> login
+Not login shell.
+Joerg2> <EOF>
+Joerg> login hansi
+Password:
+.Le
+.HP
+.B logout
+.br
+Beenden des ersten Kommandointerpreters.
+.IP
+Beispiele:
+.Ls
+Joerg2> logout
+Not login shell.
+use exit to exit.
+Joerg2> <EOF>
+Joerg> logout
+name: _
+.Le
+.HP
+.B loop
+.br
+Endlos-Schleife.
+Alle folgenden Kommandos (bis end) werden wiederholt 
+ausgeführt. Ein Verlassen der Schleife ist mit einem 
+break , mit ^C oder mit ^D möglich.
+.IP
+Beispiele:
+.Ls
+Joerg> loop
+> echo \-nnl "sag mal was: "
+> read cmd
+> echo soso, $cmd
+> end
+sag mal was: hallo
+soso, hallo
+sag mal was: huhu
+soso, huhu
+sag mal was: ^C
+1234: killed
+Joerg> _
+.Le
+.HP
+.B map 
+.RI [ fromstr "] [" tostr ]
+.br
+Mit map ist es möglich, beliebige Buchstaben oder 
+Strings des Terminalinputs, bevor sie den Editor des bsh 
+erreichen umzumappen. Damit kann unter anderem eine 
+Anpassung der Cursortasten an die Kommandos des bsh 
+vorgenommen werden. Wenn kein Argument angeben wird, 
+dann wird das aktuelle Mapping ausgegeben. Es wird 
+die unter Punkt 3 erklärte Ersatzdarstellung für 
+Controlbuchstaben verwendet.
+.IP
+Beispiele:
+.Ls
+Joerg> map
+^[[220z	^A
+^[[222z	^E
+^[[226z	^D
+^[[A	^P
+^[[B	^N
+^[[C	^F
+^[[D	^H
+^[n	^[^N^U
+^[p	^[^P^U
+Joerg> map abc def
+Joerg> _
+.Le
+.HP
+.B newgrp
+.br
+Ändern der Benutzergruppe.
+Nur bei SYSTEM V.
+.HP
+.B pgrp
+.br
+XXX
+.HP
+.B popd 
+.RI [ \-offset ]
+.br
+Popd ohne Argumente führt ein cd zu der Directory rechts 
+von der augenblicklichen Arbeitsdirectory durch. Es 
+kann aber bei Angabe eines Offsets zu einer anderen 
+Directory aus dem Stack gehen.
+.IP
+Bei jedem cd wird die Liste der lokalen Abkürzungen 
+(./.locals) gegen die aktuelle getauscht.
+.HP
+.B pushd 
+.RI [ name ]
+.PD 0
+.HP
+.B pushd
+.RI [ -offset ]
+.PD
+.br
+Wie cd, jedoch bleibt die Arbeitsdirectory auf dem 
+Stack. Anstelle eines Namens kann auch ein Offset im 
+Stack angegeben werden.
+.IP
+Bei jedem cd wird die Liste der lokalen Abkürzungen 
+(./.locals) gegen die aktuelle getauscht.
+.HP
+.B pwd
+.br
+Ausgabe der aktuellen Workingdirectory. Arbeitet wie 
+/bin/pwd erkennt aber wiederholte Benutzung in der 
+gleichen Directory und ist dadurch schneller. Außerdem 
+wird die Variable $CWD aktualisiert.
+.HP
+.BI read " name
+.br
+Mit der read \- Funktion des bsh lassen sich interaktiv 
+Environment-Variablen füllen. Damit lassen sich z.B. 
+command-files schreiben, die, je nach Antwort des 
+Benutzers, unterschiedliche Aktionen ausführen. Wenn 
+read ein ^D liest, ist in einer Schleife der Effekt der 
+gleiche, als wenn ein break ausgeführt wurde.
+.IP
+Beispiele:
+.Ls
+Joerg> read cmdline
+> huhu dies ist eine testeingabe
+Joerg> echo $cmdline
+huhu dies ist eine testeingabe
+Joerg> _
+.Le
+.HP
+.B remap
+.br
+Das File ~/.bshmap und der /etc/termcap Eintrag werden 
+neu gelesen. Das ist z.B. nötig, wenn ~/.bshmap oder 
+/etc/termcap durch Editieren erweitert oder sonstwie 
+geändert wurde, oder die Environmentvariable TERM 
+geändert wurde.
+.IP
+Beispiele:
+.Ls
+Joerg> ved ~/.bshmap
+\|.\|.\|...
+\|.\|.\|...
+Joerg> remap
+Joerg> _
+.Le
+.HP
+.B repeat 
+.RI [count= # 
+.RI "| c=" # |- # ]
+.RI [delay= # 
+.RI "| d=" # "] " command
+.br
+Das Kommando command wird wiederholt ausgeführt. Eine 
+Variablensubstitution wird nur einmal durchgeführt. Wird 
+count nicht angegeben, so ist count = MAXLONG. Wird delay 
+angegeben, ist die Zeit zwischen dem Starten von zwei 
+einander folgenden Kommandos # Sekunden.
+.IP
+Beispiele:
+.Ls
+Joerg> repeat \-5 echo hallo
+hallo
+hallo
+hallo
+hallo
+hallo
+Joerg> _
+.Le
+.HP
+.BI resume " pid
+.PD 0
+.HP
+.B resume 
+.IR pid " &
+.PD
+.br
+Setzt die Ausführung eines suspendierten Prozesses fort. 
+Der bsh wartet dann auf seine Beendigung. Wenn der bsh 
+nicht warten soll, kann der Prozess mit resume <pid> & 
+gestartet werden. Die Prozessid, die dabei ausgegeben 
+wird, ist zu ignorieren. 
+.IP
+Beispiele:
+.Ls
+Joerg> ved
+\|.\|.\|...
+\|.\|.\|..
+324: suspended.
+Joerg> resume 324
+\|.\|.\|...
+\|.\|.\|...
+Joerg> (sleep 100000;echo fertig)
+^Y
+Joerg> 328: suspended.
+Joerg> resume 328 &
+329
+Joerg> _
+.Le
+.HP
+.B return 
+.RI [ retval ]
+.br
+Mit dem return \- Kommando können Funktionen, die mit 
+function \- Kommando definiert wurden, beendet werden. Es 
+ist möglich, ein numerisches Argument zu übergeben. 
+Dieses Argument kann dann über die Variable $? abgefragt 
+werden. Wird kein Argument angegeben, ist der Return-Wert Null.
+.HP
+.B savehistory
+.br
+Mit dem savehistory \- Kommando kann der aktuelle Inhalt 
+der History im File ~/.history gesichert werden. Eine 
+Anwendung ist gegeben, wenn ein bsh gestartet werden 
+soll, der die bisherige History enthält.
+.IP
+Beispiele:
+.Ls
+Joerg> history
+set
+test a
+Joerg> savehistory
+Joerg> bsh
+Joerg 2 > history
+set
+test a
+savehistory
+Joerg 2 >
+.Le
+.HP
+.B set 
+.RI [name= val ]
+.br
+Setzen einer Environment-Variablen. set x=huhu setzt 
+die Environment-Variable 'x' auf den Wert 'huhu'. set 
+ohne Parameter gibt den Inhalt des gesamten aktuellen 
+Environment's aus.
+.IP
+Beispiele:
+.Ls
+Joerg> set x=7
+Joerg> echo $x
+7
+Joerg> set x=9
+Joerg> echo $x
+9
+Joerg> _
+.Le
+.HP
+.B setenv 
+.RI [name " val" ]
+.br
+Hat zur Zeit die gleiche Funktion wie set. Da jedoch die 
+Anzahl der Variablen, die der bsh verwaltet sehr stark 
+angestiegen ist, und es z.B. für die Funktionen 
+wünschenswert wäre, daß man auch Array-Variablen hat, 
+um z.B. Argumente an Funktionen übergeben zu können, muß 
+in absehbarer Zukunft die Expansion von Variablen und 
+damit die Funktion der Kommandos set und unset geändert 
+werden. Dabei wird die ursprüngliche Funktion von 
+den Kommandos setenv und unsetenv übernommen. Jedoch 
+werden nur bestimmte Variablen auch global bleiben. 
+Lokale Variablen müssen dann mit dem Kommando set bzw. 
+unset behandelt werden.
+.IP
+Beispiele:
+.Ls
+Joerg> setenv x 7
+Joerg> echo $x
+7
+Joerg> setenv x 9
+Joerg> echo $x
+9
+Joerg> _
+.Le
+.HP
+.B setmask
+.PD 0
+.HP
+.B setmask 
+.I "ownermask groupmask worldmask
+.HP
+.B setmask 
+[+-]{rwxd} [+-]{rwxd} [+-]{rwxd]
+.PD 
+.br
+Mit dem setmask Kommando läßt sich die File-Erzeugungsmaske 
+des bsh verändern oder ansehen. Diese 
+Maske wird immer benutzt, wenn ein Prozess ein File 
+erzeugt. Die aktuelle Maske wird durch logisches 
+Verunden der Maske und den verlangten modes erzeugt. Die 
+File-Erzeugungsmaske vererbt sich auf die Kinder und ist 
+wichtig für neu erzeugte Files.
+.RS
+.TP 10
+.B + 
+In Verbindung mit r, w, x oder d addiert diesen Mode.
+.TP
+.B \- 
+In Verbindung mit r, w, x oder d entfernt diesen Mode.
+.TP
+.B r,w,x,d 
+Ohne + oder \- erzeugt nur diesen Mode.
+.TP
+.B = 
+Die Modes bleiben erhalten.
+.TP
+.B . 
+Die Modes werden auf '\|.\|.\|..' gesetzt.
+.RE
+.IP
+Optionen müssen in der richtigen Reihenfolge angegeben 
+werden. Es muß für Owner, Group und World ein Modestring 
+angegeben werden. Wenn kein Zugriff erwünscht ist, kann 
+ein '.' angegeben werden, wenn sich ein Mode nicht 
+ändern soll, kann für diesen Mode ein '=' angegeben 
+werden. Setmask verändert nicht die modes von 
+existierenden files.
+.IP
+Wird keine Maske angegeben, so wird die aktuelle Maske 
+ausgegeben.
+.IP
+Beispiele:
+.Ls
+Joerg> setmask
+rwx r.x r.x
+Joerg> setmask rwx x \-x+w
+Joerg> setmask
+rwx ..x rw.
+.Le
+.HP
+.B shift 
+.RI [ n ]
+.br
+Mit dem shift Kommando wird, falls shift ohne Argumente 
+aufgerufen wurde, das Argument $1 aus der Argumentliste 
+des aktuellen bsh eliminiert. Wird shift mit einem 
+Argument aufgerufen, so werden entsprechen viele 
+Argumente ab dem Argument $1 entfernt.
+.IP
+Beispiele:
+.Ls
+Joerg> echo $r1
+a b c d e f g h i j
+Joerg> shift
+Joerg> echo $r1
+b c d e f g h i j
+Joerg> shift 3
+Joerg> echo $r1
+e f g h i j
+Joerg> shift 10
+cannot shift.
+Joerg> echo $r1
+Joerg> _
+.Le
+.HP
+.B signal 
+.RI [ cmdlist "] " sig#1\|.\|.\|.sig#n
+.br
+cmdlist wird ausgeführt, wenn der bsh auf ein Kind 
+wartet und ein Signal aus der angegeben Liste erhält. 
+Das ist z.B. wichtig, um in Commandfiles bei einem 
+Interrupt Files zu löschen, die temporär erzeugt wurden. 
+Das Kommando, das in cmdlist angegeben wurde muß sich in 
+av[1] befinden, d.h. wenn es Zeichen bzw. Wort-Trennzeichen 
+enthält, muß es in ''' stehen. Wenn 
+cmdlist ausgeführt wird, gibt es eine Environment-Variable 
+$signo, die die Signalnummer enthält. cmdlist 
+kann sich über mehrere Zeilen erstrecken und if then 
+else Strukturen enthalten. Siehe auch function und 
+call.
+.IP
+Eine definierte Funktion läßt sich durch:
+.Ls
+signal '' signalnummer 
+.Le
+.IP
+aus der Liste löschen. 
+.IP
+signal ohne Parameter gibt die Liste der 
+bekannten Signalhandler aus.
+.HP
+.BI source " name
+.PD 0
+.HP
+.B source 
+.RI \-h " name
+.HP
+.B source 
+\-h
+.PD
+.br
+Mit diesem Kommando kann der bsh veranlasst werden, ein 
+Kommandofile zu lesen und auszuführen. Damit lassen sich 
+z.B. Environment-Variablen setzen. Wird die Option \-h 
+angegeben, wird das File nur gelesen und in die History 
+getan, aber nicht ausgeführt. Wird bei Angabe der \-h 
+Option der Filename weggelassen, erfolgt die Eingabe 
+über stdin.
+.IP
+Beispiele:
+.Ls
+Joerg> source \-h ~/.history
+Joerg> _
+.Le
+.HP
+.B stop
+.br
+XXX
+.HP
+.B suid
+.PD 0
+.HP
+.BI suid " name
+.PD
+.br
+Nicht unter UNIX. 
+.IP
+Veränderung der aktuellen Benutzernummer. su ohne Parameter 
+startet einen bsh mit der effektiven 
+Benutzernummer Null (Administrator). su mit Parameter 
+setzt die reale Benutzernummer auf die des durch den 
+Parameter angegebenen Benutzers. Die Environment-Variable 
+.I PROMPT 
+wird entsprechend geändert. Das Password 
+des Administrators wird in allen möglichen Fällen als 
+korrekt erkannt.
+.IP
+Beispiele:
+.Ls
+Joerg> su
+Password:
+admin> _
+Die effektive Benutzernummer ist Null.
+Joerg> su admin
+Password:
+++admin> exit
+Joerg> su peter
+Password:
+++peter> _
+.Le
+.IP
+Die reale Benutzernummer ist Null oder die des 
+Benutzers 'peter'.
+.HP
+.B suspend 
+.RI [ pid1 " \|.\|.\|. " pidn ]
+.br
+Wenn suspend ohne Parameter aufgerufen wird, dann wird 
+der bsh selbst suspendiert. Mit Parametern wird der 
+Prozess mit der Prozessid pid1 \|.\|.\|. pidn suspendiert. Damit 
+ist es möglich ein su Kommando zeitweilig zu verlassen 
+und später ohne Password wieder zu starten. Das geht 
+leider nicht unter SYSTEM V.
+.HP
+.B switch 
+.IR val " of
+.br
+Bedingte Mehrfachverzweigung. Der erste Parameter wird 
+in einer folgenden Patternliste gesucht. Alle Kommandos 
+nach dem ersten Pattern, der mit dem ersten Parameter 
+übereinstimmt, werden ausgeführt. Es gelten die üblichen 
+oben erklärten Patternmatch-Regeln. Für den default \- 
+Fall steht ein '*'.
+.IP
+Beispiele:
+.Ls
+Joerg> set x=hallo
+Joerg> switch $x of
+> case a*
+> case b*
+> echo Erster Buchstabe ist ein A oder ein B
+> break
+> case h*
+> echo Erster Buchstabe ist ein H
+> break
+> case *
+> echo Erster Buchstabe ist nicht A B oder H
+> end
+Erster Buchstabe ist ein H
+Joerg> _
+.Le
+.HP
+.B sync
+.br
+Gleicht den Inhalt der Kernel \- File \- Buffer für das 
+Filesystem und den realen Inhalt der Platte an.
+.HP
+.BI test " expr
+.br
+test wertet den Ausdruck expr aus, und weist der 
+Variablen $? einen Wert ungleich Null zu, wenn der 
+Ausdruck expr Falsch ist, sonst Null. Wenn ein 
+Syntaxfehler vorliegt, dann hat die Variable $? den Wert \-1.
+.IP
+Folgende Ausdrücke sind für expr möglich.
+.IP
+Filetests:
+.RS
+.TP 10
+.BI \-r " file
+Wahr, wenn das File existiert, und lesbar ist.
+.TP
+.BI \-w " file
+Wahr, wenn das File existiert, und beschreibbar ist.
+.TP
+.BI \-x " file
+Wahr, wenn das File existiert, und ausführbar ist.
+.TP
+.BI \-e " file
+Wahr, wenn das File existiert.
+.TP
+.BI \-s " file
+Wahr, wenn das File existiert, und eine Größe ungleich Null hat.
+.TP
+.BI \-S " file
+Die Größe des Files.
+.br
+Wenn das File nicht existiert: \-1.
+.TP
+.BI \-d " file
+Wahr, wenn das File existiert, und eine directory ist.
+.TP
+.BI \-c " file
+Wahr, wenn das File existiert, und ein character \- special ist.
+.TP
+.BI \-b " file
+Wahr, wenn das File existiert, und ein block \- special ist.
+.TP
+.BI \-f " file
+Wahr, wenn das File existiert, und ein reguläres File ist.
+.TP
+.BI "\-h,\-L" " file
+Wahr, wenn das File existiert, und ein symbolischer Link ist.
+.TP
+.BI \-p " file
+Wahr, wenn das File existiert, und eine named Pipe (fifo) ist.
+.TP
+.BI \-C " file
+Wahr, wenn das File existiert, und ein Contiguous File ist.
+.TP
+.BI \-u " file
+Wahr, wenn das File existiert, und das set-user-id Bit gesetzt ist.
+.TP
+.BI \-g " file
+Wahr, wenn das File existiert, und das set-group-id Bit gesetzt ist.
+.TP
+.BI \-k " file
+Wahr, wenn das File existiert, und das sticky Bit gesetzt ist.
+.TP
+.BI \-t " fd
+Wahr, wenn der Filedescriptor fd im bsh mit einem Terminal verbunden ist.
+.TP
+.BI \-T " fd
+Wahr, wenn der Filedescriptor fd im test Kommando mit einem Terminal 
+verbunden ist.
+.RE
+.IP
+Stringtests:
+.RS
+.TP
+.BI \-l " string
+Die Länge des Strings.
+.TP
+.BI \-n " string
+Wahr, wenn der String eine Länge ungleich Null hat.
+.TP
+.BI \-z " string
+Wahr, wenn der String eine Länge gleich Null hat.
+.TP
+.IB s1 " = " s2
+Wahr, wenn 
+.I s1 
+und 
+.I s2 
+identisch sind.
+.TP
+.IB s1 " == " s2
+Wahr, wenn 
+.I s1 
+und 
+.I s2 
+identisch sind.
+.TP
+.IB s1 " != " s2
+Wahr, wenn 
+.I s1 
+und 
+.I s2 
+nicht identisch sind.
+.RE
+.IP
+Arithmetik:
+.IP
+Erlaubte Operatoren auf integer Zahlen sind:
+.IP
+\&'+' , '-' , '*' , '/' , '%' ,
+\&'&' , '|' , '&&' , '||' ,
+\&'-eq' , '-ne' , '>' oder '-gt' , '<' oder '-lt' , '>=' 
+oder '-ge' , '<=' oder '-le' ,
+\&'>>' , '<<'.
+.IP
+Diese Operatoren können mit folgenden kombiniert werden:
+.RS
+.TP
+.B !
+Negation.
+.TP
+.B \-a
+Binäres und.
+.TP
+.B \-o
+Binäres oder.
+.br
+(-a hat Vorrang gegenüber \-o).
+.TP
+.B \-and
+Logisches und.
+.TP
+.B \-or
+Logisches oder.
+.br
+(-and hat Vorrang gegenüber \-or).
+.TP
+.BI ( " expr " )
+Klammerung zum Gruppieren.
+.RE
+.IP
+Alle Operatoren und Argumente müssen in separaten Argumenten stehen.
+.IP
+Bei der Verwendung von Operatoren, die die Zeichen '>' , 
+\&'<' , '%' , '*' , '&' , oder '|' enthalten, sind die 
+Anführungszeichen bzw. ein '\\' unbedingt anzugeben, um 
+eine Interpretation durch den Parser des bsh 
+zu verhindern.
+.HP
+.B then
+.br
+Siehe if.
+.HP
+.B time
+.br
+Dieses Kommando ist zur Zeit noch nicht fertig implementiert, daher heißt 
+es in der aktuellen Version
+.I time_ .
+Geplant ist, das damit eine Anzeige der Werte der Resource-Usage Struktur 
+eines Prozesses angezeigt werden kann.
+.HP
+.B umask
+.BI [ mask ]
+.br
+Ohne Argument wird die File-Erzeugungsmaske des
+.B bsh
+angezeigt, mit Argument kann die File-Erzeugungsmaske gesetzt werden.
+Im Gegensatz zu 
+.I setmask
+ist 
+.I mask
+hier oktal, wie bei 
+.I /bin/sh
+oder
+.I /bin/csh .
+Das Kommando 
+.I umask
+ist nur aus Kompatibilitätsgründen implementiert.
+.HP
+.B unalias
+.br
+Geplante Funktion als Ersatz für ein '#' -Kommando.
+.HP
+.BI unmap " fromstr
+.br
+Mit dem unmap Kommando lassen sich Maps, die mit dem map 
+Kommando gesetzt wurden, wieder aufheben. Da es möglich 
+ist, verschiedene Fromstrings in den gleichen Tostring 
+zu mappen muß, um Eindeutigkeit zu bekommen, der 
+Fromstring als Argument angeben werden. Das ist nur 
+durch Quoten oder durch die Verwendung der 
+Ersatzdarstellung möglich, es läßt sich also kein 
+Beispiel zeigen.
+.HP 
+.B unset
+.br
+Löscht eine Environment-Variable.
+.Ls
+Beispiele:
+.Ls
+Joerg> set test=uu
+Joerg> set
+PATH=:/bin:/usr/bin
+HOME=/
+TERM=vterm
+IGNOREEOF=off
+PROMPT=Joerg>
+PROMPT2=>
+HISTORY=30
+test=uu
+Joerg> unset test
+Joerg> set
+PATH=:/bin:/usr/bin
+HOME=/
+TERM=vterm
+IGNOREEOF=off
+PROMPT=Joerg>
+PROMPT2=>
+HISTORY=30
+Joerg> _
+.Le
+.HP
+.B unsetenv
+.br
+Siehe setenv.
+.HP
+.B wait 
+.PD 0
+.HP
+.BI wait " pid1..pidn
+.PD
+.br
+Warten auf alle Kinder, die im Hintergrund 
+ausgeführt werden, oder auf den/die, die sich in der 
+Liste befinden. Das Warten kann mit ^C unterbrochen 
+werden.
+.IP
+Beispiele:
+.Ls
+Joerg> sleep 100000&
+518
+Joerg> wait 518
+.Le
+.PP
+Bei dem Versuch, das richtige Kommando zu finden, wird immer 
+zuerst nach eingebauten Funktionen gesucht (siehe Kapitel 
+.I "Eingebaute Kommandos" );
+dann wird nach Funktionen gesucht, die mit dem 
+function \- Kommando definiert wurden. Alle Kommandos, die 
+nicht auf eingebaute Funktionen referenzieren, werden mit 
+execve gestartet und bekommen die Environment-Liste mit, 
+die mit dem set \- Kommando abgefragt werden kann. 
+
+.SS "'#' Kommandos
+.PP
+Für alle Kommandos, die mit einem '#' beginnen, muß folgendes 
+beachtet werden.:
+.PP
+Sie werden nur erkannt, wenn sie das erste Kommando innerhalb 
+einer Kommandozeile sind. In diesen Kommandos findet keine 
+Expansion statt. Es ist keinerlei I/O Umleitung möglich. Für 
+alle Kommandos ist eine Online-Helpfunktion eingebaut, die 
+mit #c \-help abgerufen werden kann, wobei c der Name des 
+Kommandos ist.
+.PP
+Es gibt eine Gruppe von '#' \- Kommandos, die sich auf die 
+Abkürzungsmöglichkeiten des bsh beziehen. Bei ihnen ist es 
+möglich, sogenannte Modifier anzugeben, die das Kommando 
+präzisieren oder als Option dienen. Der bsh kennt z.Zt. zwei 
+Tabellen mit Abkürzungen. Solche, die überall gelten 
+(~/.globals) , und solche, die nur in einer bestimmten 
+Directory gelten (.locals). Bei dem Versuch, ein Wort zu 
+expandieren, wird immer zuerst die lokale Tabelle durchsucht. 
+Ist dort keine Abkürzung zu finden, wird versucht, eine 
+globale Abkürzung zu finden. Abkürzunsgexpansionen haben 
+Vorrang vor den $ \- Expansionen. Es gibt Abkürzungen, die nur 
+am Anfang eines Kommandos stehen dürfen (auch nach einem ';' 
+oder einem '&' sowie direkt nach einer '(' , die eine 
+Kommandogruppe einleitet) und solche, die überall stehen 
+dürfen. In absehbarer Zeit werden diese Kommandos mit 
+Ausnahme des #! Kommandos in einen dem csh ähnlichen alias 
+Mechanismus geändert.
+.TP
+.BI "#a[g|l]" " Name Wert
+Addiert eine neue Abkürzung zur Tabelle. Name wird 
+überall auf der Kommandozeile expandiert. Ist kein 
+Modifier angegeben, erfolgt ein Eintrag in die 
+Defaulttabelle.
+.TP
+.BI "#b[g|l]" " Name Wert
+Addiert eine neue Begin-Abkürzung zur Tabelle. Name 
+wird nur am Anfang eines Kommandos expandiert. Ist kein 
+Modifier angegeben, erfolgt ein Eintrag in die 
+Defaulttabelle.
+.TP
+.BI "#d[g|l]" " Name
+Löscht die Abkürzung Name aus der Tabelle. Ist kein 
+Modifier angegeben, wird aus der Defaulttabelle 
+gelöscht.
+.TP
+.B #h
+.PD 0
+.TP
+.B #?
+.PD
+Ausgabe von Online \- help Information über alle '#' \- 
+Kommandos.
+.TP
+.BI "#l[g|h] [h] [" "name" ]
+Ausgabe aller Abkürzungen aus der Tabelle. Ist kein 
+Modifier angegeben, wird die Defaulttabelle ausgegeben. 
+Ist name angegeben, wird nur der Eintrag für name 
+ausgegeben. Es ist erlaubt, das in name Wildcarts des 
+Pattern-Matchers stehen, um einen Teil der Tabelle 
+auszugeben.
+.PP
+Ist der Modifier 'h' angegeben, dann erfolgt zusätzlich 
+zur Ausgabe ein Eintrag in die History. Damit lassen 
+sich z.B. Einträge aus den Tabellen mit Hilfe des 
+Editors des bsh verändern und neu eintragen.
+.TP
+.BI "#p[g|l] [a|b]" " Name Wert
+Mit dem '#p' \- Kommando wird eine Abkürzung einer 
+eventuell bestehenden überlagert, ohne sie in das 
+dazugehörige File einzutragen. Damit lassen sich 
+änderungen für die Lebensdauer eines bsh erwirken. Die 
+Information wird in einem Stack verwaltet. Wird ein 
+gepushter Wert gelöscht, dann erscheint eine eventuell 
+überlagerte Abkürzung wieder.
+.TP
+.B #s[g|l]
+Setzen der Default-Tabelle für '#' \- Kommandos; also 
+der Tabelle, auf die sich die Kommandos 
+\&'#a','#b','#d','#l','#p' beziehen, wenn kein Modifier 
+angegeben ist. Das '#s' \- Kommando ohne Modifier bzw. 
+mit dem Default-Wert, bewirkt eine Ausgabe der Default-Tabelle.
+.TP
+.B #v[on|off]
+Setzen oder lesen des verbose Modes, der falls 
+eingeschaltet, jedes Kommando vor der Filenamenexpansion 
+ausgibt.
+.TP
+.BI #! " shell " [ " args " ]
+Ein alternativer Shell wird zur Ausführung des Aktuellen 
+Kommandofiles benutzt. Nur innerhalb von Command-Files 
+möglich. shell wird mit args und '$r0' gestartet.
+.TP
+.B #
+Wird innerhalb von Command-Files ein '#' direkt von 
+einem Blank, einem Tab oder einem Newline gefolgt, so 
+gilt diese Zeile als Kommentar.
+
+.SS "History
+.PP
+Mit Hilfe der History können Kommandos gespeichert, abgerufen 
+und geändert werden. Die History ist als begrenzter 
+Ringpuffer implementiert. Kommandozeilen aus der History 
+können mit den Cursor-Steuertasten (Cup und Cdown) abgerufen 
+werden. Ein Zeilenende (CR oder LF) führt das Kommando aus. 
+.PP
+Jedes ausgeführte Kommando wird wieder an das Ende der 
+History angefügt. Gleiche Kommandos werden weitgehend 
+vermieden. Das letzte Kommando aus der History läßt sich auch 
+mit '!!' wiederholen mit '!<pattern>' läßt sich ein Kommando 
+aus der History wiederholen, daß mit <pattern> beginnt.
+.PP
+Beispiele:
+.Ls
+Joerg> history
+{ cd etc }
+{ ved ttys }
+{ p ttys }
+{ who }
+{ echo huhu >/etc/tty5 }
+{ history }
+Joerg> who
+tty5 peter Fri Feb 1 1985 13:57:14
+tty0 Joerg Fri Feb 1 1985 08:01:52
+Joerg> history
+{ cd etc }
+{ ved ttys }
+{ p ttys }
+{ echo huhu >/etc/tty5 }
+{ who }
+{ history }
+Joerg> !w
+who
+joerg ttyp3 Mar 5 16:55 (HARD)
+klaus ttyp4 Mar 5 17:01 (TeSe)
+Joerg> _
+.Le
+
+.SS "Variablen mit besonderer Bedeutung für den bsh
+.PP
+Folgende Variablen können sowohl erzeugt, als auch gelesen 
+werden. Sie haben jedoch eine implizite Wirkung auf die 
+Wirkungsweise des bsh.
+.HP
+.B HISTORY
+.br
+Bestimmt die maximale Anzahl der in der History gespeicherten Zeilen.
+.IP
+Beispiele:
+.Ls
+Joerg> echo $HISTORY
+20
+Joerg> history
+{ cd etc }
+{ ved ttys }
+{ p ttys }
+{ who }
+{ echo huhu >/etc/tty5 }
+{ echo $HISTORY }
+{ history }
+Joerg> set HISTORY=4
+Joerg> history
+{ echo huhu >/etc/tty5 }
+{ echo $HISTORY }
+{ set HISTORY=4 }
+{ history }
+Joerg> _
+.Le
+.HP
+.B SAVEHISTORY
+.br
+Wenn diese Variable den Wert on hat, wird bei der 
+Beendigung eines bsh der aktuelle Inhalt der History im 
+File ~/.history gesichert. Wenn ein interaktiver bsh 
+gestartet wird und das File ~/.history existiert, wird 
+es vor der Ausgabe des ersten Prompts gelesen.
+.HP
+.B PROMPT
+.br
+Bestimmt den Benutzerprompt.
+.IP
+Beispiele:
+.Ls
+Joerg> set "PROMPT=peter> "
+peter> _
+.Le
+.HP
+.B PROMPT2
+.br
+Bestimmt den zweiten Benutzerprompt. Dieser wird 
+ausgegeben, wenn der bsh zu einem Kommando noch weitere 
+Eingaben benötigt.
+.IP
+Beispiele:
+.Ls
+Joerg> if echo ja
+> then
+> echo ja
+> fi
+ja
+ja
+Joerg> set "PROMPT2=more> "
+Joerg> if echo ja
+more> then
+more> echo ja
+more> fi
+ja
+ja
+Joerg> _
+.Le
+.HP
+.B PATH
+.br
+In dieser Variablen ist eine Liste von Directories 
+enthalten, die bei dem Versuch, ein Kommando zu starten, 
+durchsucht werden. Die Liste wird von links nach rechts 
+durchsucht. Der erste Eintrag sollte leer sein, um auf 
+die aktuelle Workingdirectory zu verweisen. Die 
+einzelnen Einträge werden durch das Zeichen ':' 
+getrennt.
+.IP
+Beispiele:
+.Ls
+Joerg> echo $PATH
+:/bin:/usr/bin:/usr/joerg/bin
+Joerg> _
+.Le
+.HP
+.B CDPATH
+.br
+Diese Variable hat den gleichen Aufbau wie PATH. Sie ist 
+für das Suchen nach Directroy's bei dem cd \- Kommando 
+zuständig. Der erste Eintrag muß !! leer sein, sonst 
+funktioniert das cd \- Kommando nicht.
+.IP
+Beispiele:
+.Ls
+Joerg> echo $CDPATH
+:/usr/joerg:/usr/joerg/cmd
+Joerg> cd bsh
+~/cmd/bsh
+Joerg> _
+.Le
+.HP
+.B CWD
+.br
+Diese Variable enthält die aktuelle Working-Directory. 
+Sie wird aber aus Effizienzgründen erst nach dem ersten 
+cd \- Kommando gesetzt.
+.IP
+Beispiele:
+.Ls
+Joerg> #b wd echo $CWD
+Joerg> wd
+/usr/joerg/cmd/bsh
+Joerg> _
+.Le
+.HP
+.B CD
+.br
+Hat die Variable CD den Wert on, oder ist nicht gesetzt, 
+ist ein Wechsel der Workingdirectory jederzeit möglich. 
+CD=off verbietet dem Benutzer ein cd \- Kommando. 
+CD=/usr/schwachsinn verbietet über die Directory 
+/usr/schwachsinn hinaufzusteigen.
+.IP
+Beispiele:
+.Ls
+Joerg> pwd
+/user/joerg
+Joerg> cd ..
+Joerg> cd
+Joerg> set CD=off
+Joerg> cd ..
+Can't change to '..'. Permission denied.
+Joerg> pwd
+/user/joerg
+Joerg> _
+.Le
+.HP
+.B EVLOCK
+.br
+Verbietet dem Benutzer das Ändern einer oder mehrerer 
+EV-Variablen. Sollen mehrere EV-Variablen gesperrt 
+werden, werden ihre Namen durch einen Doppelpunkt 
+getrennt. Hat die Variable EVLOCK den Wert on, so sind 
+alle EV-Variablen gesperrt.
+.IP
+Beispiele:
+.Ls
+Joerg> echo $HISTORY
+20
+Joerg> set HISTORY=5
+Joerg> echo $HISTORY
+5
+Joerg> set EVLOCK=HISTORY
+Joerg> set HISTORY=15
+Can't set environment 'HISTORY=15'. Variable is 
+locked
+Joerg> echo $HISTORY
+5
+Joerg> set EVLOCK=EVLOCK:PATH:CD:SU:SLASH:PROMPT
+Joerg> set PROMPT=la>
+Can't set environment 'PROMPT=la>'. Variable is 
+locked
+Joerg> set EVLOCK=off
+Can't set environment 'EVLOCK=off'. Variable is 
+locked
+Joerg> _
+.Le
+.HP
+.B SLASH
+.br
+SLASH=off bewirkt die Nichtbeachtung des Zeichens '/'. 
+SLASH=on hat keine Wirkung. Diese Variable wird auch von 
+den Utilities ved, copy, move und delete gelesen und 
+entsprechend interpretiert.
+.IP
+Beispiele:
+.Ls
+Joerg> set SLASH=off
+Joerg> /bin/echo hallo
+Can't execute ''. Permission denied.
+Joerg> set SLASH=on
+Joerg> /bin/echo hallo
+hallo
+Joerg> _
+.Le
+.HP
+.B SU
+.br
+Mit SU=off kann die Benutzung des su \- Kommandos 
+gesperrt werden.
+.HP
+.B IGNOREEOF
+.br
+Jeder Kommandointerpreter hat nach seinem Start diese 
+Variable auf off gesetzt (Auch das su Kommando). Will 
+man das verhindern, kann man in sein ~/.init \- File set 
+IGNOREEOF=on schreiben. Rekursiv aufgerufene 
+Kommandointerpreter können dann mit ^D verlassen werden, 
+falls sich der Cursor am Anfang einer leeren Zeile 
+befindet, der erste jedoch nicht. Will man auch rekursiv 
+erzeugte Kommandointerpreter schützen, gehört in das 
+~/.init2 \- File die gleiche Zeile. Rekursiv aufgerufene 
+Kommandinterpreter können jedoch mit dem pushd bzw. dem 
+popd \- Kommando weitgehend vermieden werde. Ist 
+IGNOREEOF nicht auf on, wird beim Eintippen von ^D 
+solange vorwärts gelöscht, bis evt. der Cursor sich am 
+Anfang einer leeren Zeile befindet; dann wird der bsh 
+verlassen. (Befindet der Cursor sich nicht am Anfang 
+einer Zeile, so ertönt die Glocke, wenn sich keine 
+Zeichen mehr rechts vom Cursor befinden.)
+
+.SH "FILES"
+.PD 0
+.TP 20
+.B ~/.init
+wird beim Starten des Loginshells ausgeführt.
+.TP
+.B ~/.init2
+wird beim Starten jedes weiteren Shells ausgeführt.
+.TP
+.B ~/.final
+wird beim Logout ausgeführt.
+.TP
+.B ~/.history
+enthält die gerettete History nach dem Ausloggen.
+.TP
+.B ~/.bshmap
+enthält die Tastaturmaps.
+.TP
+.B ~/.globals
+enthält Macros, die in jeder Directory gelten.
+.TP
+.B ~/.locals
+enthält Macros, die nur in der aktuellen Directory gelten.
+.TP
+.B /dev/null
+Stdin für Hintergundjobs.
+.TP
+.B /etc/initbsh
+Gemeinsames Init-Sriptfile für alle Loginshells.
+.TP
+.B /etc/initrbsh
+Gemeinsames Init-Sriptfile für alle restricted Loginshells.
+.TP
+.B /etc/passwd
+Für Homedirectory-Expansion (~name).
+.TP
+.B /etc/termcap
+Für die Standard Cursormaps.
+.TP
+.B /tmp/bsh*
+Temporäres File für <<.
+.PD
+
+.SH "BUGS"
+
+.SS "Allgemeines
+.PP
+Einige eingebaute Funktionen des bsh lassen sich nicht mit 
+mit ^C abbrechen. Alle Eingaben, die nach einem '>' Prompt 
+eingegeben wurden, erscheinen nicht in der History. Es ist 
+nicht möglich Kontroll-Strukturen aus if, for, loop und 
+switch durch ';' oder '&' zu trennen.
+.PP
+Das Quoting von speziellen Buchstaben ist verwirrend, weil an 
+vielen verschiedenen Stellen expandiert wird und jeweils das 
+Zeichen '\\' entfernt wird. Besonders verwirrend ist das bei 
+repeat signal und function. Am besten ausprobieren und 
+Meister werden.
+.PP
+Symbolische Links überlisten den bsh. Wenn ein cd über einen 
+symbolischen Link führt, hat die Variable $CWD nicht mehr den 
+korrekten Wert.
+.PP
+Das Kommando cat <<EOF& verwirrt den bsh er forkt, bevor der 
+Input gelesen ist, was zur Folge hat, daß man zwei Prompts 
+hat, und Vater und Sohn gleichzeitig lesen wollen.
+.PP
+Das killpg Kommando läßt sich nur bedingt verwenden, da es 
+unter UNIX kein Kommando gibt, mit dem man die Prozessgruppe 
+eines Prozesses bekommt.
+
+.SS "Hinweise:
+.PP
+Strings werden ähnlich wie in Programmiersprachen und in grober Annäherung
+an den sh behandelt:
+.br
+d.h.:
+.IP \(bu
+Mit dem doppelten Anführungszeichen wird nur ein String 
+zusammengefaßt und die Expansion von wildcart's 
+($*?{}[]) verhindert. Environment Variablen werden hier 
+noch expandiert.
+.IP \(bu
+Mit dem einfachen Anführungszeichen wird jegliche 
+Expansion verhindert, d.h. alle Macros, die mit dem do \- 
+Kommando arbeiten, müssen !! in einfachen 
+Anführungszeichen stehen, damit sie nicht schon vor der 
+Ausführung des eigentlichen Kommandos expandiert werden. 
+Man sollte, falls man sich nicht sicher über den Grund 
+einer möglichen Fehlfunktion eines do Macros ist das 
+Kommando:
+.Ls
+change '"' "'" ~/.globals ~/.locals
+.Le
+.sp
+absetzen, da in Strings, die mit dem " gebildet werden, 
+schon eine Expansion erfolgt und deshalb das do \- 
+Kommando nicht korrekt läuft.
+.PP
+Eine Concatenierung von Strings wie im sh ist z.Zt. nicht möglich.
+.PP
+.B "Änderungen, die dem technischen Fortschritt dienen, vorbehalten.
+.SH BUGS

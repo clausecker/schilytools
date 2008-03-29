@@ -1,7 +1,7 @@
-/* @(#)avoffset.c	1.27 07/02/22 Copyright 1987, 1995-2004 J. Schilling */
+/* @(#)avoffset.c	1.28 08/03/18 Copyright 1987, 1995-2004 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)avoffset.c	1.27 07/02/22 Copyright 1987, 1995-2004 J. Schilling";
+	"@(#)avoffset.c	1.28 08/03/18 Copyright 1987, 1995-2004 J. Schilling";
 #endif
 /*
  * This program is a tool to generate the file "avoffset.h".
@@ -153,5 +153,7 @@ stack_direction(lp)
 	}
 }
 
+#ifdef	HAVE_SCANSTACK
 #define	IS_AVOFFSET
 #include "getfp.c"
+#endif

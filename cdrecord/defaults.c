@@ -1,10 +1,10 @@
-/* @(#)defaults.c	1.21 08/01/16 Copyright 1998-2006 J. Schilling */
+/* @(#)defaults.c	1.22 08/02/17 Copyright 1998-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)defaults.c	1.21 08/01/16 Copyright 1998-2006 J. Schilling";
+	"@(#)defaults.c	1.22 08/02/17 Copyright 1998-2008 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1998-2006 J. Schilling
+ *	Copyright (c) 1998-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

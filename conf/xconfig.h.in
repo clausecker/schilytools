@@ -1,4 +1,4 @@
-/* @(#)xconfig.h.in	1.140 08/01/03 Copyright 1998-2007 J. Schilling */
+/* @(#)xconfig.h.in	1.143 08/03/27 Copyright 1998-2007 J. Schilling */
 /*
  *	Dynamic autoconf C-include code.
  *
@@ -32,10 +32,15 @@
 #undef HAVE_SYS_NDIR_H	/* to use sys/ndir.h */
 #undef HAVE_ALLOCA_H	/* if alloca.h exists */
 #undef HAVE_MALLOC_H	/* if malloc.h exists */
+#undef HAVE_SGTTY_H	/* if sgtty.h exists */
 #undef HAVE_TERMIOS_H	/* to use POSIX termios.h */
 #undef HAVE_TERMIO_H	/* to use SVR4 termio.h */
 #undef HAVE_PWD_H	/* if pwd.h exists */
 #undef HAVE_GRP_H	/* if grp.h exists */
+#undef HAVE_SIGNAL_H	/* if signal.h exists */
+#undef HAVE_SIGINFO_H	/* if siginfo.h exists */
+#undef HAVE_SYS_SIGINFO_H /* if sys/siginfo.h exists */
+#undef HAVE_UCONTEXT_H	/* if ucontext.h exists */
 #undef HAVE_SYS_ACL_H	/* to use <sys/acl.h> for ACL definitions */
 #undef HAVE_ACLLIB_H	/* if HP-UX <acllib.h> is present */
 #undef HAVE_ACL_LIBACL_H /* if Linux <acl/libacl.h> is present */
@@ -69,6 +74,7 @@
 #undef HAVE_SYS_UTSNAME_H	/* to use uname() */
 #undef HAVE_SYS_PRIOCNTL_H	/* to use SVr4 priocntl() instead of nice()/setpriority() */
 #undef HAVE_SYS_RTPRIOCNTL_H	/* if the system supports SVr4 real time classes */
+#undef HAVE_SYS_PROCSET_H	/* if the system supports SVr4 process sets */
 #undef HAVE_SYS_SYSCALL_H	/* to use syscall() */
 #undef HAVE_SYS_MTIO_H		/* to use mtio definitions from sys/mtio.h */
 #undef HAVE_SYS_TAPE_H		/* to use mtio definitions from AIX sys/tape.h */
@@ -95,6 +101,7 @@
 #undef HAVE_SYS_SOCKET_H	/* if we have sys/socket.h for socket() */
 #undef NEED_SYS_SOCKET_H	/* if we need sys/socket.h to use select() (this is nonstandard) */
 #undef HAVE_NETINET_IN_H	/* if we have netinet/in.h */
+#undef HAVE_STROPTS_H		/* if we have stropts.h */
 #undef HAVE_LINUX_PG_H		/* if we may include linux/pg.h for PP ATAPI sypport */
 #undef HAVE_CAMLIB_H		/* if we may include camlib.h for CAM SCSI transport definitions */
 #undef HAVE_IEEEFP_H		/* if we may include ieeefp.h for finite()/isnand() */
@@ -125,6 +132,7 @@
 #undef HAVE_LOCALE_H		/* if we may include locale.h */
 #undef HAVE_LANGINFO_H		/* if we may include langinfo.h */
 #undef HAVE_NL_TYPES_H		/* if we may include nl_types.h */
+#undef HAVE_WCTYPE_H		/* if we may include wctype.h */
 #undef HAVE_WCHAR_H		/* if we may include wchar.h */
 #undef HAVE_ICONV_H		/* if we may include iconv.h */
 
@@ -133,6 +141,8 @@
 #undef HAVE_SECDB_H		/* if we may include secdb.h */
 #undef HAVE_PTHREAD_H		/* if we may include pthread.h */
 #undef HAVE_THREAD_H		/* if we may include thread.h */
+
+#undef HAVE_LIBGEN_H		/* if we may include libgen.h */
 
 /*
  * Convert to SCHILY name
@@ -229,6 +239,8 @@
 #undef HAVE_GETPGID		/* getpgid() is present in libc (POSIX) */
 #undef HAVE_SETPGID		/* setpgid() is present in libc (POSIX) */
 #undef HAVE_GETPGRP		/* getpgrp() is present in libc (ANY) */
+#undef HAVE_GETSID		/* getsid() is present in libc (POSIX) */
+#undef HAVE_SETSID		/* setsid() is present in libc (POSIX) */
 #undef HAVE_SETPGRP		/* setpgrp() is present in libc (ANY) */
 #undef HAVE_BSD_GETPGRP		/* getpgrp() in libc is BSD-4.2 compliant */
 #undef HAVE_BSD_SETPGRP		/* setpgrp() in libc is BSD-4.2 compliant */
@@ -273,6 +285,7 @@
 #undef HAVE_GETHRTIME		/* gethrtime() is present in libc */
 #undef HAVE_POLL		/* poll() is present in libc */
 #undef HAVE_SELECT		/* select() is present in libc */
+#undef HAVE_ISASTREAM		/* isastream() is present in libc */
 #undef HAVE_CHMOD		/* chmod() is present in libc */
 #undef HAVE_FCHMOD		/* fchmod() is present in libc */
 #undef HAVE_LCHMOD		/* lchmod() is present in libc */
@@ -387,10 +400,12 @@
 #undef HAVE_SETPPRIV		/* setppriv() is present in libc */
 #undef HAVE_PRIV_SET		/* priv_set() is present in libc */
 
-#undef HAVE_GETAUTHATTR		/* getauthattr() is present in -lsec */
-#undef HAVE_GETUSERATTR		/* getuserattr() is present in -lsec */
-#undef HAVE_GETEXECATTR		/* getexecattr() is present in -lsec */
-#undef HAVE_GETPROFATTR		/* getprofattr() is present in -lsec */
+#undef HAVE_GETAUTHATTR		/* getauthattr() is present in -lsecdb */
+#undef HAVE_GETUSERATTR		/* getuserattr() is present in -lsecdb */
+#undef HAVE_GETEXECATTR		/* getexecattr() is present in -lsecdb */
+#undef HAVE_GETPROFATTR		/* getprofattr() is present in -lsecdb */
+
+#undef HAVE_GMATCH		/* gmatch() is present in -lgen */
 
 #undef HAVE_CLONE_AREA		/* clone_area() is present in libc */
 #undef HAVE_CREATE_AREA		/* create_area() is present in libc */
@@ -599,6 +614,9 @@
 #undef blkcnt_t			/* To be used if blkcnt_t is not present */
 
 #undef	HAVE_TYPE_GREG_T	/* if <sys/frame.h> defines greg_t */
+
+#undef	HAVE_STACK_T		/* if <signal.h> defines stack_t */
+#undef	HAVE_SIGINFO_T		/* if <signal.h> defines siginfo_t */
 
 /*
  * Important:	Next Step needs time.h for clock_t (because of a bug)

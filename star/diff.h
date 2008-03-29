@@ -1,8 +1,8 @@
-/* @(#)diff.h	1.13 06/02/14 Copyright 1993-2006 J. Schilling */
+/* @(#)diff.h	1.14 08/02/17 Copyright 1993-2008 J. Schilling */
 /*
  *	Definitions for the taylorable diff command
  *
- *	Copyright (c) 1993-2006 J. Schilling
+ *	Copyright (c) 1993-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -19,6 +19,7 @@
 #define	D_PERM		0x000001
 #define	D_TYPE		0x000002
 #define	D_NLINK		0x000004
+#define	D_SYMPERM	0x000008
 #define	D_UID		0x000010
 #define	D_GID		0x000020
 #define	D_UNAME		0x000040
@@ -46,7 +47,7 @@
  * Atime frequently changes, it makes no sense to check it by default.
  * Mtime on symlinks cannot be copies, so do not check it too.
  */
-#define	D_DEFLT	(~(D_ATIME|D_LMTIME))
+#define	D_DEFLT	(~(D_SYMPERM|D_ATIME|D_LMTIME))
 #define	D_ALL	(~0L);
 
 extern	long	diffopts;

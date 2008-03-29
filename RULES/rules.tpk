@@ -1,4 +1,4 @@
-#ident "@(#)rules.tpk	1.5 08/01/11 "
+#ident "@(#)rules.tpk	1.6 08/01/18 "
 ###########################################################################
 # Written 2005 by J. Schilling
 ###########################################################################
@@ -60,7 +60,7 @@ tarpkg1:
 	-if [ ."$(STRIPXLIST)" != . ]; then chmod u+w $(STRIPXLIST:%=tarpkg/%); strip -x $(STRIPXLIST:%=tarpkg/%); fi
 	-if [ ."$(MCSLIST)" != . ];    then chmod u+w $(MCSLIST:%=tarpkg/%); mcs -d -a "$(MCS_PROJECTNAME)" $(MCSLIST:%=tarpkg/%); fi
 	if [ ."$(POST_STRIP_CMDS)" != . ]; then cd tarpkg && eval "$(POST_STRIP_CMDS)" ; fi
-	find tarpkg -print | sort > /tmp/so.$$; diff filelist /tmp/so.$$; rm -f /tmp/so.$$
+	find tarpkg -print | sort > /tmp/so.$$$$; diff filelist /tmp/so.$$$$; rm -f /tmp/so.$$$$
 
 tarpkg2:
 	star -C tarpkg/ pkglist=pkglist -cP > $(TARGETAR).tar

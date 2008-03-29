@@ -1,12 +1,12 @@
-/* @(#)suntar.c	1.29 07/10/20 Copyright 1989, 2003-2007 J. Schilling */
+/* @(#)suntar.c	1.31 08/03/19 Copyright 1989, 2003-2008 J. Schilling */
 #ifndef lint
 static	char _s_sccsid[] =
-	"@(#)suntar.c	1.29 07/10/20 Copyright 1989, 2003-2007 J. Schilling";
+	"@(#)suntar.c	1.31 08/03/19 Copyright 1989, 2003-2008 J. Schilling";
 #endif
 /*
  *	Solaris TAR specific routines for star main program.
  *
- *	Copyright (c) 1989, 2003-2007 J. Schilling
+ *	Copyright (c) 1989, 2003-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -66,7 +66,7 @@ LOCAL	void	suntar_setopts	__PR((char *o));
  * Solaris TAR related options
  */
 /* BEGIN CSTYLED */
-char	_opts[] = "C*,help,xhelp,version,debug,xdebug#,xd#,time,no-statistics,do-statistics,fifostats,numeric,no-fifo,no-fsync,do-fsync%0,bs&,fs&,/,..,secure-links,acl,xfflags,copy,diff,artype&,O,z,bz,lzo,7z,c,r,t,u,x,b&,B,D,e,E,f&,F,h,I*,i,k&,l,m,n,o,p,P,q,v+,w,X&,@,T,?";
+char	_opts[] = "C*,help,xhelp,version,debug,xdebug#,xd#,time,no-statistics,do-statistics,fifostats,numeric,no-fifo,no-fsync,do-fsync%0,sattr,bs&,fs&,/,..,secure-links,acl,xfflags,copy,diff,artype&,O,z,bz,lzo,7z,c,r,t,u,x,b&,B,D,e,E,f&,F,h,I*,i,k&,l,m,n,o,p,P,q,v+,w,X&,@,T,?";
 /* END CSTYLED */
 char	*opts = _opts;
 
@@ -92,6 +92,7 @@ gargs(ac, av)
 	BOOL	sunxattr = FALSE;
 	BOOL	sunTflag = FALSE;
 	BOOL	do_stats = FALSE;
+	BOOL	do_sattr = FALSE;
 signed	char	archive	 = -1;		/* On IRIX, we have unsigned chars by default */
 
 	/*
@@ -130,6 +131,7 @@ signed	char	archive	 = -1;		/* On IRIX, we have unsigned chars by default */
 #ifndef	__old__lint
 				&showtime, &no_stats, &do_stats, &do_fifostats,
 				&numeric,  &no_fifo, &no_fsync, &no_fsync,
+				&do_sattr,		/* --sattr */
 				getnum, &bs,
 				getnum, &fs,
 				&abs_path, &allow_dotdot, &secure_links,
@@ -188,6 +190,10 @@ signed	char	archive	 = -1;		/* On IRIX, we have unsigned chars by default */
 		if (cflag || rflag || uflag) {
 			errmsgno(EX_BAD, "The -E option creates a deprecated archive type.\n");
 			errmsgno(EX_BAD, "Use artype=exustar to create a POSIX extended archive.\n");
+			if (sunpflag) {
+				errmsgno(EX_BAD, "Switching to artype=exustar to support ACLs.\n");
+				chdrtype = H_EXUSTAR;
+			}
 		}
 	}
 	if (sunI) {
@@ -215,6 +221,10 @@ signed	char	archive	 = -1;		/* On IRIX, we have unsigned chars by default */
 	}
 	if (sunxattr) {
 		errmsgno(EX_BAD, "The -@ option is not yet implemented.\n");
+		susage(EX_BAD);
+	}
+	if (do_sattr) {
+		errmsgno(EX_BAD, "The --sattr option is not yet implemented.\n");
 		susage(EX_BAD);
 	}
 	if (sunTflag) {
@@ -295,6 +305,7 @@ usage(ret)
 	error("\t-w\t\tdo interactive creation/extraction/renaming\n");
 	error("\t-X yy\t\tExclude files from file yy containing a list of path names\n");
 	error("\t-@\t\tXXX Not implemented\n");
+	error("\t--sattr\t\tXXX Not implemented\n");
 	error("\t-T\t\tXXX Not implemented\n");
 	error("\t-[0-7]\t\tSelect an alternative tape drive\n");
 	error("\t-z\t\t(*) pipe input/output through gzip, does not work on tapes\n");

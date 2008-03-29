@@ -1,7 +1,7 @@
-/* @(#)cdr_drv.c	1.43 08/01/02 Copyright 1997-2008 J. Schilling */
+/* @(#)cdr_drv.c	1.44 08/02/26 Copyright 1997-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)cdr_drv.c	1.43 08/01/02 Copyright 1997-2008 J. Schilling";
+	"@(#)cdr_drv.c	1.44 08/02/26 Copyright 1997-2008 J. Schilling";
 #endif
 /*
  *	CDR device abstraction layer
@@ -160,7 +160,7 @@ blank_simul(scgp, dp, addr, blanktype)
 {
 	track_t	*trackp = dp->cdr_dstat->ds_trackp;
 	int	secsize = trackp->secsize;
-	Llong	padbytes;
+	Llong	padbytes = 0;			/* Make stupid GCC happy */
 	int	ret = -1;
 
 	switch (blanktype) {

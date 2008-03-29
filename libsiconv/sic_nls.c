@@ -1,7 +1,7 @@
-/* @(#)sic_nls.c	1.4 07/11/27 Copyright 2007 J. Schilling */
+/* @(#)sic_nls.c	1.6 08/02/17 Copyright 2007-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)sic_nls.c	1.4 07/11/27 Copyright 2007 J. Schilling";
+	"@(#)sic_nls.c	1.6 08/02/17 Copyright 2007-2008 J. Schilling";
 #endif
 /*
  * This code reads translation files in the format used by
@@ -11,7 +11,7 @@ static	char sccsid[] =
  * from single byte character sets to unicode.
  * We use this code on systems that do not provide the iconv() function.
  *
- * Copyright 2007 J. Schilling
+ * Copyright 2007-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -35,17 +35,33 @@ static	char sccsid[] =
 #include <schily/siconv.h>
 
 #define	TAB_SIZE	(UINT8_MAX+1)
-#ifdef	PROTOTYPES
-#if __STDC__ || defined(__sun) /* Sun Compilers are OK even with __STDC__ 0 */
+#define	__CAN_TAB_SIZE__
+
+#ifndef	PROTOTYPES
+#undef	__CAN_TAB_SIZE__
+#endif
+#if (!defined(__STDC__) || __STDC__ < 1) && \
+	!defined(__SUNPRO_C) /* Sun Compilers are OK even with __STDC__ 0 */
 /*
  * C-preprocessors from K&R compilers cannot do the computation for TAB_SIZE
  * in the next line We need to disable this test in case of a K&R compiler.
  */
+#undef	__CAN_TAB_SIZE__
+#endif
+#ifdef	__GNUC__
+#if	__GNUC__ < 2
+#undef	__CAN_TAB_SIZE__
+#endif
+#if	__GNUC__ < 3 && __GNUC_MINOR__ < 95
+#undef	__CAN_TAB_SIZE__
+#endif
+#endif
+
+#ifdef	__CAN_TAB_SIZE__
 #if	TAB_SIZE < 256
 Error Table size too small
 #endif
-#endif	/* __STDC__ */
-#endif	/* PROTOTYPES */
+#endif
 
 LOCAL UInt8_t	nullpage[TAB_SIZE] = { 0 };
 

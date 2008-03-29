@@ -1,4 +1,4 @@
-. \" @(#)rmt.1	1.10 07/06/29 Copyr 1994-2007 J. Schilling
+. \" @(#)rmt.1	1.11 08/03/24 Copyr 1994-2008 J. Schilling
 . \"  Manual Seite fuer rmt
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -74,8 +74,8 @@ which is available in
 or reimplement its features.
 .LP
 All responses are send back in
-.SM ASCII
-and in one of the following two forms.
+.SM ASCII.
+They are in one of the following two forms.
 .LP
 Successful commands have responses of
 .IP
@@ -100,6 +100,10 @@ and
 .I error-message
 is the corresponding error string as retrieved by
 .BR strerror (3).
+.ne 4
+Note that the error number is valid on the remote system where the 
+.B rmt
+code runs and may have a different meaning on the local system.
 .LP
 .ne 5
 The protocol implements the
@@ -217,6 +221,32 @@ is encountered.
 The return value from the
 .BR write (2)
 operation is returned as reply.
+.RS
+.PP
+The following whence values are supported:
+.TP
+0
+Mapped to 
+.BR SEEK_SET .
+.TP
+1
+Mapped to 
+.BR SEEK_CUR .
+.TP
+2
+Mapped to 
+.BR SEEK_END .
+.TP
+3
+Mapped to 
+.B SEEK_DATA
+If avalable on the remote system.
+.TP
+4
+Mapped to 
+.B SEEK_HOLE
+If avalable on the remote system.
+.RE
 .br
 .ne 7
 .TP
@@ -524,6 +554,12 @@ to exit.
 .SH FILES
 .TP
 /etc/default/rmt
+The file
+.B /etc/default/rmt
+allows to set up rules to limit the accessibility of files based on rules.
+This feature is typically used when the rmt run from a non personal but
+task specific login.
+.sp
 Default values can be set for the following options in /etc/default/rmt.
 For example:
 .sp
@@ -616,11 +652,18 @@ but is not connected to an internet socket.
 .BR write (2),
 .BR ioctl (2),
 .BR lseek (2),
-.BR getpeername(3)
+.BR getpeername (3),
 .BR rcmd (3),
 .BR rexec (3),
 .BR strerror (3),
-.BR mtio (7)
+.BR mtio (7),
+.BR rmtopen (3),
+.BR rmtclose (3),
+.BR rmtread (3),
+.BR rmtwrite (3),
+.BR rmtseek (3),
+.BR rmtioctl (3),
+.BR rmtstatus (3)
 
 .SH DIAGNOSTICS
 All responses are send to the network connection.
@@ -678,7 +721,11 @@ be accepted for
 .IR open .
 If a pattern would allow to include
 .I /../
-a possible intruder could vitually access any path on your system.
+in the path,
+a possible intruder could virtually access any path on your system.
+For this reason, 
+.I /../
+is not allowed to appear in a path regardless of the pattern.
 .SH BUGS
 .LP
 None known.

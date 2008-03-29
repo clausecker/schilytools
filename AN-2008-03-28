@@ -1,0 +1,106 @@
+New features with AN-2008-02-23:
+
+-	The shell source for "bsh" has been added. Bsh is one of the very
+	"early" shells that started to support a cursor editable history 
+	in 1984. It is based on an experimental "shell" from 1982 that
+	implemented the history editor already but called the system shell
+	via system(3).
+
+-	libshedit new. This is really parts of the "bsh" shell together with
+	some wrapper code that allows to use the bsh history editing and
+	file name completion code from a shell like the Bourne Shell that
+	does not use stdio.
+
+-	The sources for the "Bourne Shell" have been added. The current
+	source code is based on OpenSolaris Nevada Build 84. The source has
+	been massively reworked (nearly 20% of the code was changed) in
+	order to make the code portable and cleanly compile. Several bugs
+	have been fixed while making the code portable.
+
+	This version of the Bourne Shell offers interactive history editing
+	and file name completion via libshedit.
+
+NOTE: If you see compiler warnings while compiling bsh, sh or libshedit on
+Linux, please make a bug report against your Linux distributor. The warnings
+are a result of broken/missing definitions in /usr/include/. As these warnings
+may prevent a clean compilation on 64 bit systems, it is important to get the
+files in /usr/include fixed.....
+
+-	include/schily.h modified to allow to compile "libshedit"
+
+-	libsiconv/sic_nls.c modified to allow compilation with older GCC
+	versions.
+
+-	libfind (used by sfind, bsh, star, mkisofs) fixed the -exec {} +
+	implementation. Before the fix, it could core dump if the built-in
+	xargs(1) would exactly fill up args to the size of ARG_MAX.
+
+-	libxtermcap/tgetent.c made safe against NULL pointers in the
+	termcap data buffer
+
+-	Cdrecord compiles again with K&R compiler
+
+-	Mkisofs now gives better warning for files > 4 GB in hope it
+	will no direct people to read the documentation.
+
+-	Star compiles again with K&R compiler
+
+-	Star now supports a new diffopts= parameter called "symperm".
+	This allows to exclude permission comparison for symlinks.
+
+-	Better portability for SCCS
+
+-	Fixed some very old AT&T bugs (missing 64 bit compliance) in SCCS that 
+	are caused by the fact that the last execl*() Parameter was not casted to a
+	true (char *)NULL pointer.
+
+-	sccs(1) now correctly used strsignal() if available
+
+-	Correctly cast pid_t to uintmax_t and use %j for portablity .
+
+-	Added a rule to the makefilesystem to auto-create the directory ./incs
+	which was the only "empty" directory without creation rule. Thanks to a hint
+	from Michael Prokop <mika@grml.org>
+
+-	star -version now prints the compile options. This helps to find out whether
+	e.g. ACL support is included. As Linux distributions usually install non
+	developer friendly, this is a common problem on Linux.
+
+-	Star has been prepared for a future POSIX.1-2001 extended tar header keyword
+	"SCHILY.acl.type" that is needed in future when ZFS ACLs support is added.
+
+-	The suntar ("tar") command line interface now switches to artype=exustar
+	if the -p (archive ACLs) option has been specified.
+
+-	Star in incremental dump mode now compares whether info->f_mtime >= Newer.tv_sec
+	instead of info->f_mtime > Newer.tv_sec to avoid race conditions. Thanks
+	to a hint from Lasse Kliemann.
+
+-	Many new autoconf tests to allow the portable compilation of the Bourne Shell sources.
+
+-	Allow libscg to work correctly on Solaris if compiled on a "amd64" platform.
+
+-	Make printf("%j", ...) work correctly
+
+-	getargs() now first checks the correctness of combined single char options before
+	it attempts to assign values.
+
+-	librmt now supports SEEK_DATA and SEEK_HOLE
+
+-	cdrecord now supports a blank= simulation for BluRay media
+
+-	Better rmt(1) man page
+
+-	rmt now always forbids to include "/../" in a path name.
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.isdn.cs.tu-berlin.de, js@cs.tu-berlin.de
+	schilling@fokus.fhg.de
+
+Please mail bugs and suggestions to me.

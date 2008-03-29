@@ -1,0 +1,59 @@
+#ident "@(#)Makefile	1.4 08/02/26 "
+###########################################################################
+SRCROOT=	..
+RULESDIR=	RULES
+include		$(SRCROOT)/$(RULESDIR)/rules.top
+###########################################################################
+
+INSDIR=		lib
+TARGETLIB=	shelledit
+
+CPPOPTS +=	-DBSH			# Tell the code that we compile for bsh
+CPPOPTS +=	-DUSE_LARGEFILES	# Allow Large Files (> 2 GB)
+CPPOPTS +=	-DINTERACTIVE		# Include command line history editor
+CPPOPTS +=	-DDO_SUID		# Include code for 'suid' builtin
+# ??? CPPOPTS +=	-DJOBCONTROL		# Include Job Control management
+CPPOPTS +=	-DVFORK			# Use vfork() if possible
+CPPOPTS +=	-DOLD_PWORD		# Use old "word" tokenizer
+CPPOPTS +=	-DFAST_MALLOC		# malloc() without freechecking
+					# and without bound checks
+#CPPOPTS +=	-DNO_USER_MALLOC	# Do not use our own malloc()
+CPPOPTS +=	-DTESTMAIL		# Do mail file checking
+
+CPPOPTS	+=	-DBOURNE
+CPPOPTS	+=	-DLIB
+CPPOPTS	+=	-Iinclude
+
+#COPTX += -g -xO0
+#LDOPTX += -g
+
+#
+# Additional defines:
+#
+#	-DFAST_MALLOC	a malloc() without freechecking and without a check
+#			for overrun size bounds.
+#	-DNO_USER_MALLOC Do not use our own (user defined) malloc()
+
+CFILES=		edit.c inputc.c expand.c node.c map.c strsubs.c str.c ttymodes.c \
+		fprint.c error.c fgetline.c fileopen.c fio.c comerr.c
+
+
+#
+# match.c nur wenn evt. a='test'cc"bbb" implementiert wird
+#		alloc.c match.c wait3.c
+
+HFILES=		bsh.h map.h node.h \
+		str.h \
+		strsubs.h bshconf.h schilyio.h
+#LIBS=		-lunos
+LIBS=		-lxtermcap -lschily $(LIB_CRYPT)
+#XMK_FILE=	Makefile.man
+XMK_FILE=	
+
+###########################################################################
+include		$(SRCROOT)/$(RULESDIR)/rules.lib
+###########################################################################
+count: $(HFILES) $(CFILES) 
+	count $r1
+
+

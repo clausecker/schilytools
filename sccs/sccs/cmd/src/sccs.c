@@ -25,11 +25,11 @@
 /*
  * This file contains modifications Copyright 2006-2007 J. Schilling
  *
- * @(#)sccs.c	1.12 08/01/02 J. Schilling
+ * @(#)sccs.c	1.14 08/02/25 J. Schilling
  */
 #if defined(sun) || defined(__GNUC__)
 
-#ident "@(#)sccs.c 1.12 08/01/02 J. Schilling"
+#ident "@(#)sccs.c 1.14 08/02/25 J. Schilling"
 #endif
 /*
  * @(#)sccs.c 1.85 06/12/12
@@ -1721,8 +1721,10 @@ callprog(progpath, flags, argv, forkflag)
 	register int sigcode;
 	register int coredumped;
 	register char *sigmsg;
-#ifndef __STDC__
+#ifndef	HAVE_STRSIGNAL
+#ifdef	HAVE_SYS_SIGLIST
 	auto char sigmsgbuf[10+1];	/* "Signal 127" + terminating '\0' */
+#endif
 #endif
 
 # ifdef DEBUG

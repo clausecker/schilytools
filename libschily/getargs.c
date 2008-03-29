@@ -1,7 +1,7 @@
-/* @(#)getargs.c	2.52 07/07/03 Copyright 1985, 1988, 1994-2007 J. Schilling */
+/* @(#)getargs.c	2.54 08/02/08 Copyright 1985, 1988, 1994-2007 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)getargs.c	2.52 07/07/03 Copyright 1985, 1988, 1994-2007 J. Schilling";
+	"@(#)getargs.c	2.54 08/02/08 Copyright 1985, 1988, 1994-2007 J. Schilling";
 #endif
 #define	NEW
 /*
@@ -701,19 +701,17 @@ again:
 					argp = sargp;
 					goto again;
 				}
-				if (singlecharflag && !doubledash &&
-				    (val = dosflags(sargp, vfmt, flags,
-							oargs)) != BADFLAG) {
-					return (val);
-				}
-				return (BADFLAG);
 			}
 			if (singlecharflag && !doubledash &&
-			    (val = dosflags(sargp, vfmt, flags, oargs)) !=
-								BADFLAG)
+			    (val = dosflags(sargp, vfmt, flags & ~SETARGS,
+							va_dummy)) == BADFLAG) {
 				return (val);
-
-
+			}
+			if (singlecharflag && !doubledash &&
+			    (val = dosflags(sargp, vfmt, flags,
+							oargs)) != BADFLAG) {
+				return (val);
+			}
 			return (BADFLAG);
 
 		case ',':

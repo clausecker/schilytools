@@ -27,11 +27,11 @@
 /*
  * This file contains modifications Copyright 2006-2007 J. Schilling
  *
- * @(#)delta.c	1.6 07/12/11 J. Schilling
+ * @(#)delta.c	1.7 08/02/20 J. Schilling
  */
 #if defined(sun) || defined(__GNUC__)
 
-#ident "@(#)delta.c 1.6 07/12/11 J. Schilling"
+#ident "@(#)delta.c 1.7 08/02/20 J. Schilling"
 #endif
 /*
  * @(#)delta.c 1.40 06/12/12
@@ -905,11 +905,11 @@ int difflim;
 			close(i);
 		sprintf(num, NOGETTEXT("%d"), difflim);
  		if (HADD) {
- 		   execl(Diffpgm,Diffpgm,oldf,newf,0);
- 		   execl(Diffpgm2,Diffpgm2,oldf,newf,0);
+ 		   execl(Diffpgm,Diffpgm,oldf,newf, (char *)0);
+ 		   execl(Diffpgm2,Diffpgm2,oldf,newf, (char *)0);
  		} else {
- 		   execl(BDiffpgm,BDiffpgm,oldf,newf,num,"-s",0);
- 		   execl(BDiffpgm2,BDiffpgm,oldf,newf,num,"-s",0);
+ 		   execl(BDiffpgm,BDiffpgm,oldf,newf,num,"-s", (char *)0);
+ 		   execl(BDiffpgm2,BDiffpgm,oldf,newf,num,"-s", (char *)0);
  		}
 		close(1);
 		_exit(32);	/* tell parent that 'execl' failed */

@@ -1,10 +1,10 @@
-/* @(#)star.c	1.310 07/10/28 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2007 J. Schilling */
+/* @(#)star.c	1.314 08/03/19 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)star.c	1.310 07/10/28 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2007 J. Schilling";
+	"@(#)star.c	1.314 08/03/19 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2008 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1985, 88-90, 92-96, 98, 99, 2000-2007 J. Schilling
+ *	Copyright (c) 1985, 88-90, 92-96, 98, 99, 2000-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -102,7 +102,7 @@ LOCAL	void	docompat	__PR((int *pac, char *const **pav));
 #define	QIC_525_TSIZE	1025000		/* 512500 kBytes */
 #define	TSIZE(s)	((s)*TBLOCK)
 
-char	strvers[] = "1.5a87";		/* The pure version string	*/
+char	strvers[] = "1.5a89";		/* The pure version string	*/
 char	*vers;				/* the full version string	*/
 
 struct star_stats	xstats;		/* for printing statistics	*/
@@ -1212,6 +1212,7 @@ dusage(ret)
 	error("\tall\t\tcompare everything\n");
 	error("\tperm\t\tcompare file permissions\n");
 	error("\tmode\t\tcompare file permissions\n");
+	error("\tsymperm\t\tcompare symlink permissions\n");
 	error("\ttype\t\tcompare file type\n");
 	error("\tnlink\t\tcompare linkcount (star dump mode only)\n");
 	error("\tuid\t\tcompare owner of file\n");
@@ -1600,7 +1601,24 @@ star_helpvers(name, help, xhelp, prvers)
 	star_mkvers();
 	if (prvers) {
 		printf("%s: %s\n\n", name, vers);
-		printf("Copyright (C) 1985, 88-90, 92-96, 98, 99, 2000-2007 Jörg Schilling\n");
+		printf("Options:");
+#ifdef	USE_ACL
+		opt_acl();
+#endif
+#ifdef	USE_FIND
+		printf(" find");
+#endif
+#ifdef	USE_FFLAGS
+		opt_fflags();
+#endif
+#ifdef	USE_REMOTE
+		opt_remote();
+#endif
+#ifdef	USE_XATTR
+		opt_xattr();
+#endif
+		printf("\n\n");
+		printf("Copyright (C) 1985, 88-90, 92-96, 98, 99, 2000-2008 Jörg Schilling\n");
 		printf("This is free software; see the source for copying conditions.  There is NO\n");
 		printf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
 		exit(0);
@@ -2154,6 +2172,8 @@ add_diffopt(optstr, flagp)
 			optflags |= D_PERM;
 		} else if (strncmp(optstr, "mode", optlen) == 0) {
 			optflags |= D_PERM;
+		} else if (strncmp(optstr, "symperm", optlen) == 0) {
+			optflags |= D_SYMPERM;
 		} else if (strncmp(optstr, "type", optlen) == 0) {
 			optflags |= D_TYPE;
 		} else if (strncmp(optstr, "nlink", optlen) == 0) {

@@ -1,4 +1,4 @@
-. \" @(#)star.1	1.156 08/01/18 Copyr 1982-2007 J. Schilling
+. \" @(#)star.1	1.159 08/03/19 Copyr 1982-2008 J. Schilling
 . \"  Manual Seite fuer star
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -13,7 +13,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH STAR 1 "08/01/18" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH STAR 1 "08/03/19" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 star \- unique standard tape archiver
 .SH SYNOPSIS
@@ -371,7 +371,9 @@ Adding one or more
 .B \-v
 options increases the verbosity. With
 .B \-vv
-and above, the directory content is compared also if in 
+and above, the directory content is compared also if
+.B star
+is reading a tar archive that has been created in 
 .B \-dump
 mode.
 .TP
@@ -1433,6 +1435,21 @@ compares the low order 12 bits of the st_mode field.
 Same as 
 .I perm.
 .TP 10
+.B symperm
+Compare permissions even in case the target file on the local
+filesystem is a symbolic link.
+By default,
+.B star
+will not compare the permission of symbolic links
+as most systems cannot set the permission
+of symbolic links.
+.B Star
+compares
+.B symperm
+only if
+.B perm
+is compared also.
+.TP 10
 .B type
 Compare file type. 
 Note that 
@@ -1542,7 +1559,9 @@ or
 .BR pax .
 .TP 10
 .B lmtime
-Compare the modification time of symbolic links.
+Compare the modification time 
+even in case the target file on the local filesystem is a
+symbolic link.
 By default,
 .B star
 will not compare the modification time of symbolic links

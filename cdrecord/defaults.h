@@ -1,8 +1,8 @@
-/* @(#)defaults.h	1.2 08/01/16 Copyright 1998-2004 J. Schilling */
+/* @(#)defaults.h	1.3 08/02/17 Copyright 1998-2008 J. Schilling */
 /*
  *	The cdrecord defaults (/etc/default/cdrecord) interface
  *
- *	Copyright (c) 1998-2004 J. Schilling
+ *	Copyright (c) 1998-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

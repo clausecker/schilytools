@@ -27,11 +27,11 @@
 /*
  * This file contains modifications Copyright 2006-2007 J. Schilling
  *
- * @(#)defines.h	1.9 08/01/06 J. Schilling
+ * @(#)defines.h	1.11 08/02/26 J. Schilling
  */
 #if defined(sun) || defined(__GNUC__)
 
-#ident "@(#)defines.h 1.9 08/01/06 J. Schilling"
+#ident "@(#)defines.h 1.11 08/02/26 J. Schilling"
 #endif
 /*
  * @(#)defines.h 1.21 06/12/12
@@ -41,6 +41,7 @@
 #ident	"@(#)sccs:hdr/defines.h"
 # include	<schily/mconfig.h>
 # include	<schily/types.h>
+# include	<schily/utypes.h>
 # include	<schily/param.h>
 # include	<schily/stat.h>
 # include	<schily/errno.h>
@@ -67,7 +68,7 @@ long	timezone;
 extern int optind, opterr, optopt;
 extern char *optarg;
 
-#include <schily/maxpath.h>
+# include	<schily/maxpath.h>
 #ifndef PATH_MAX
 #ifdef	FILENAME_MAX
 #define PATH_MAX	FILENAME_MAX
@@ -84,6 +85,15 @@ extern char *optarg;
 
 #ifndef	MAXPATHLEN
 #define	MAXPATHLEN	PATH_MAX
+#endif
+
+#if	defined(NEED_SCHILY) || defined(NEED_SCHILY_PRINT)
+#ifdef	NEED_SCHILY_PRINT
+#define	SCHILY_PRINT
+#endif
+# define error	__js_error__		/* SCCS error differs from schily.h */
+# include	<schily/schily.h>
+# undef	error
 #endif
 
 /*

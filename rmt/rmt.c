@@ -1,7 +1,7 @@
-/* @(#)rmt.c	1.33 07/05/24 Copyright 1994,2000-2002 J. Schilling */
+/* @(#)rmt.c	1.34 08/03/23 Copyright 1994,2000-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)rmt.c	1.33 07/05/24 Copyright 1994,2000-2002 J. Schilling";
+	"@(#)rmt.c	1.34 08/03/23 Copyright 1994,2000-2008 J. Schilling";
 #endif
 /*
  *	Remote tape server
@@ -21,7 +21,7 @@ static	char sccsid[] =
  *	seems that the current interface supports all what we need over the
  *	wire.
  *
- *	Copyright (c) 1994,2000-2002 J. Schilling
+ *	Copyright (c) 1994,2000-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -102,6 +102,7 @@ LOCAL	void	readbuf		__PR((char *buf, int n));
 LOCAL	int	readarg		__PR((char *buf, int n));
 LOCAL	char *	preparebuffer	__PR((int size));
 LOCAL	int	checktape	__PR((char *device));
+LOCAL	BOOL	has_dotdot	__PR((char *name));
 LOCAL	void	rmtrespond	__PR((long ret, int err));
 LOCAL	void	rmterror	__PR((char *str));
 
@@ -359,6 +360,8 @@ checkaccess(device)
 
 		DEBUG3("ACCESS %s %s %s\n", user, host, fname);
 
+		if (has_dotdot(device))		/* Do not allow ".." in name */
+			continue;
 		if (!strmatch(device, fname))
 			continue;
 		return (TRUE);
@@ -985,6 +988,12 @@ seektape()
 	case 0:	iwhence = SEEK_SET; break;
 	case 1:	iwhence = SEEK_CUR; break;
 	case 2:	iwhence = SEEK_END; break;
+#ifdef	SEEK_DATA
+	case 3:	iwhence = SEEK_DATA; break;
+#endif
+#ifdef	SEEK_HOLE
+	case 4:	iwhence = SEEK_HOLE; break;
+#endif
 
 	default:
 		DEBUG1("rmtd: Illegal lseek() whence %d\n", iwhence);
@@ -1182,7 +1191,7 @@ checktape(device)
 	char	*device;
 {
 	if (!found_dfltfile) {
-		if (strstr(device, "/../"))
+		if (has_dotdot(device))
 			return (0);
 		if (strncmp(device, "/dev/", 5) == 0)
 			return (1);
@@ -1191,6 +1200,27 @@ checktape(device)
 	return (checkaccess(device));
 }
 
+LOCAL BOOL
+has_dotdot(name)
+	char	*name;
+{
+	register char	*p = name;
+
+	while (*p) {
+		if ((p[0] == '.' && p[1] == '.') &&
+		    (p[2] == '/' || p[2] == '\0')) {
+			return (TRUE);
+		}
+		do {
+			if (*p++ == '\0')
+				return (FALSE);
+		} while (*p != '/');
+		p++;
+		while (*p == '/')	/* Skip multiple slashes */
+			p++;
+	}
+	return (FALSE);
+}
 LOCAL void
 rmtrespond(ret, err)
 	long	ret;

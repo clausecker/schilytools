@@ -1,8 +1,8 @@
-/* @(#)starsubs.h	1.106 07/12/11 Copyright 1996-2007 J. Schilling */
+/* @(#)starsubs.h	1.107 08/03/16 Copyright 1996-2008 J. Schilling */
 /*
  *	Prototypes for star subroutines
  *
- *	Copyright (c) 1996-2007 J. Schilling
+ *	Copyright (c) 1996-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -55,6 +55,7 @@ extern	void	prpatstats	__PR((void));
 /*
  * buffer.c
  */
+extern	void	opt_remote	__PR((void));
 extern	BOOL	openremote	__PR((void));
 extern	void	opentape	__PR((void));
 extern	void	closetape	__PR((void));
@@ -299,6 +300,7 @@ extern	BOOL	get_snumber	__PR((char *keyword, char *arg, Ullong *ullp, BOOL *negp
  * xattr.c
  */
 #ifdef _STAR_H
+extern	void	opt_xattr	__PR((void));
 extern	BOOL	get_xattr	__PR((register FINFO *info));
 extern	BOOL	set_xattr	__PR((register FINFO *info));
 extern	void	free_xattr	__PR((star_xattr_t **xattr));
@@ -397,6 +399,7 @@ extern	mode_t	osmode		__PR((mode_t tarmode));
 /*
  * acl_unix.c
  */
+extern	void	opt_acl		__PR((void));
 #ifdef _STAR_H
 extern	BOOL	get_acls	__PR((FINFO *info));
 extern	void	set_acls	__PR((FINFO *info));
@@ -413,6 +416,7 @@ extern	BOOL	from_utf8l	__PR((Uchar *to, Uchar *from, int *len));
 /*
  * fflags.c
  */
+extern	void	opt_fflags	__PR((void));
 #ifdef _STAR_H
 extern	void	get_fflags	__PR((FINFO *info));
 extern	void	set_fflags	__PR((FINFO *info));

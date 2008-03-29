@@ -1,15 +1,15 @@
 /*#define	USE_REMOTE*/
 /*#define	USE_RCMD_RSH*/
 /*#define	NO_LIBSCHILY*/
-/* @(#)remote.c	1.63 07/05/24 Copyright 1990-2003 J. Schilling */
+/* @(#)remote.c	1.65 08/03/23 Copyright 1990-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)remote.c	1.63 07/05/24 Copyright 1990-2003 J. Schilling";
+	"@(#)remote.c	1.65 08/03/23 Copyright 1990-2008 J. Schilling";
 #endif
 /*
  *	Remote tape client interface code
  *
- *	Copyright (c) 1990-2003 J. Schilling
+ *	Copyright (c) 1990-2008 J. Schilling
  *
  *	TOTO:
  *		Signal handler for SIGPIPE
@@ -685,9 +685,15 @@ rmtseek(fd, offset, whence)
 
 	switch (whence) {
 
-	case 0: whence = SEEK_SET; break;
-	case 1: whence = SEEK_CUR; break;
-	case 2: whence = SEEK_END; break;
+	case SEEK_SET: whence = 0; break;
+	case SEEK_CUR: whence = 1; break;
+	case SEEK_END: whence = 2; break;
+#ifdef	SEEK_DATA
+	case SEEK_DATA: whence = 3; break;
+#endif
+#ifdef	SEEK_HOLE
+	case SEEK_HOLE: whence = 4; break;
+#endif
 
 	default:
 		seterrno(EINVAL);

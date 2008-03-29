@@ -27,11 +27,11 @@
 /*
  * This file contains modifications Copyright 2006-2007 J. Schilling
  *
- * @(#)prs.c	1.7 08/01/06 J. Schilling
+ * @(#)prs.c	1.8 08/02/20 J. Schilling
  */
 #if defined(sun) || defined(__GNUC__)
 
-#ident "@(#)prs.c 1.7 08/01/06 J. Schilling"
+#ident "@(#)prs.c 1.8 08/02/20 J. Schilling"
 #endif
 /*
  * @(#)prs.c 1.33 06/12/12
@@ -1270,7 +1270,7 @@ struct packet *pkt;
 		perform 'get' and redirect output
 		to standard output
 		*/
-		execlp(Getpgm,Getpgm,NOGETTEXT("-s"),NOGETTEXT("-p"),rarg,filearg,0);
+		execlp(Getpgm,Getpgm,NOGETTEXT("-s"),NOGETTEXT("-p"),rarg,filearg, (char *)0);
 		sprintf(SccsError,gettext("cannot execute '%s'"),
 			Getpgm);
 		fatal(SccsError);

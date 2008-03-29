@@ -1,7 +1,7 @@
-/* @(#)tree.c	1.104 07/08/20 joerg */
+/* @(#)tree.c	1.106 08/02/26 joerg */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)tree.c	1.104 07/08/20 joerg";
+	"@(#)tree.c	1.106 08/02/26 joerg";
 #endif
 /*
  * File tree.c - scan directory  tree and build memory structures for iso9660
@@ -48,14 +48,6 @@ static	char sccsid[] =
 #include <sys/file.h>
 #include <vms/fabdef.h>
 #include "vms.h"
-#endif
-
-/*
- * Autoconf should be able to figure this one out for us and let us know
- * whether the system has memmove or not.
- */
-#ifndef HAVE_MEMMOVE
-#define	memmove(d, s, n)	bcopy((s), (d), (n))
 #endif
 
 LOCAL	Uchar	symlink_buff[PATH_MAX+1];
@@ -1639,7 +1631,7 @@ insert_file_entry(this_dir, whole_path, short_name, statp)
 #else
 		errno = EFBIG;
 #endif
-		errmsg("File %s is too large for current mode - ignoring\n",
+		errmsg("File %s is too large for current mkisofs settings - ignoring\n",
 			whole_path);
 		return (0);
 	}
