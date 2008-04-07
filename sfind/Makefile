@@ -1,4 +1,4 @@
-#ident @(#)Makefile	1.13 07/02/04 
+#ident @(#)Makefile	1.14 08/04/06 
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -12,7 +12,6 @@ CPPOPTS +=	-DUSE_LARGEFILES
 CPPOPTS +=	-DUSE_ACL
 CPPOPTS +=	-DUSE_XATTR
 CPPOPTS +=	-DUSE_NLS
-CPPOPTS +=	-I../libfind
 CPPOPTS +=	-DSCHILY_PRINT
 
 CFILES=		find.c

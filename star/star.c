@@ -1,7 +1,7 @@
-/* @(#)star.c	1.314 08/03/19 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2008 J. Schilling */
+/* @(#)star.c	1.315 08/04/06 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)star.c	1.314 08/03/19 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2008 J. Schilling";
+	"@(#)star.c	1.315 08/04/06 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2008 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1985, 88-90, 92-96, 98, 99, 2000-2008 J. Schilling
@@ -36,11 +36,12 @@ static	char sccsid[] =
 #include <schily/stat.h>	/* Needed for umask(2) */
 #include <schily/getargs.h>
 #include <schily/schily.h>
+#include <schily/idcache.h>
 #include "fifo.h"	/* Needed for #undef FIFO */
 #include "dumpdate.h"
 #ifdef	USE_FIND
-#include "walk.h"
-#include "find.h"
+#include <schily/walk.h>
+#include <schily/find.h>
 #endif
 #include "starsubs.h"
 #include "checkerr.h"
@@ -1489,7 +1490,7 @@ BOOL	Ointeractive	 = FALSE;
 		Llong	ll;
 		uid_t	uid;
 
-		if (!uidname(diruid, strlen(diruid), &uid)) {
+		if (!ic_uidname(diruid, strlen(diruid), &uid)) {
 			if (*astollb(diruid, &ll, 10))
 				comerrno(EX_BAD, "Bad uid '%s'.\n", diruid);
 			dir_uid = ll;
@@ -1501,7 +1502,7 @@ BOOL	Ointeractive	 = FALSE;
 		Llong	ll;
 		gid_t	gid;
 
-		if (!gidname(dirgid, strlen(dirgid), &gid)) {
+		if (!ic_gidname(dirgid, strlen(dirgid), &gid)) {
 			if (*astollb(dirgid, &ll, 10))
 				comerrno(EX_BAD, "Bad gid '%s'.\n", diruid);
 			dir_gid = ll;

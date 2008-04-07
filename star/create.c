@@ -1,7 +1,7 @@
-/* @(#)create.c	1.124 08/03/19 Copyright 1985, 1995, 2001-2008 J. Schilling */
+/* @(#)create.c	1.125 08/04/06 Copyright 1985, 1995, 2001-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)create.c	1.124 08/03/19 Copyright 1985, 1995, 2001-2008 J. Schilling";
+	"@(#)create.c	1.125 08/04/06 Copyright 1985, 1995, 2001-2008 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1985, 1995, 2001-2008 J. Schilling
@@ -30,15 +30,17 @@ static	char sccsid[] =
 #include <schily/dirent.h>
 #include <schily/string.h>
 #include <schily/schily.h>
+#include <schily/idcache.h>
 #include "restore.h"
 #ifdef	USE_FIND
 #include <schily/stat.h>	/* Fuer stat_to_info() in starsubs.h */
-#include "walk.h"
-#include "find.h"
+#include <schily/walk.h>
+#include <schily/find.h>
 #endif
 #include "starsubs.h"
 #include "checkerr.h"
 #include "fifo.h"
+#include <schily/fetchdir.h>
 
 #ifdef	USE_ACL
 
@@ -802,10 +804,10 @@ get_metainfo(line)
 		errmsgno(EX_BAD, "%s: illegal uid\n", line);
 		return (FALSE);
 	}
-	if (!streql(p, "?") && uidname(p, strlen(p), &uid))
+	if (!streql(p, "?") && ic_uidname(p, strlen(p), &uid))
 		statuid = uid;
 	p = p2;
-	if (!streql(p, "?") && gidname(p, strlen(p), &gid))
+	if (!streql(p, "?") && ic_gidname(p, strlen(p), &gid))
 		statgid = gid;
 
 	return (TRUE);

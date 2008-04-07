@@ -1,8 +1,12 @@
-# @(#)libfind-mapvers	1.8 07/03/31 Copyright 2005-2007 J. Schilling
+# @(#)libfind-mapvers	1.9 08/04/06 Copyright 2005-2008 J. Schilling
 
 SCHILY_0.1 {		# Not yet a stable interface!
 global:
+	dfetchdir;	# fetchdir.c
 	fetchdir;	# fetchdir.c
+	cmpdir;		# cmpdir.c
+	sortdir;	# cmpdir.c
+	fdircomp;	# cmpdir.c
 	find_addprint;	# find.c
 	find_argsinit;	# find.c
 	find_expr;	# find.c
@@ -19,18 +23,21 @@ global:
 	find_tname;	# find.c
 	find_token;	# find.c
 	find_usage;	# find.c
-	gid_nobody;	# name.c
-	gidname;	# name.c
 	has_acl;	# find_misc.c
 	has_xattr;	# find_misc.c
-	namegid;	# name.c
-	nameuid;	# name.c
 	treewalk;	# walk.c
-	uid_nobody;	# name.c 
-	uidname;	# name.c
+	walkopen;	# walk.c
 	walkclose;	# walk.c
 	walkhome;	# walk.c
+	walkgethome;	# walk.c
 	walkinitstate;	# walk.c
+	ic_gidname;	# idcache.c
+	ic_namegid;	# idcache.c
+	ic_nameuid;	# idcache.c
+	ic_uidname;	# idcache.c
+	ic_uid_nobody;	# idcache.c
+	ic_gid_nobody;	# idcache.c
+
 local:
 	*;
 };

@@ -1,7 +1,7 @@
-/* @(#)walk.c	1.30 07/12/22 Copyright 2004-2007 J. Schilling */
+/* @(#)walk.c	1.32 08/04/06 Copyright 2004-2007 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)walk.c	1.30 07/12/22 Copyright 2004-2007 J. Schilling";
+	"@(#)walk.c	1.32 08/04/06 Copyright 2004-2007 J. Schilling";
 #endif
 /*
  *	Walk a directory tree
@@ -51,8 +51,8 @@ static	char sccsid[] =
 #include <schily/getcwd.h>
 #include <schily/schily.h>
 #include <schily/nlsdefs.h>
-#include "walk.h"
-#include "fetchdir.h"
+#include <schily/walk.h>
+#include <schily/fetchdir.h>
 
 #if	defined(IS_MACOS_X) && defined(HAVE_CRT_EXTERNS_H)
 /*

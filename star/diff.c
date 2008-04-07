@@ -1,7 +1,7 @@
-/* @(#)diff.c	1.81 08/02/17 Copyright 1993-2008 J. Schilling */
+/* @(#)diff.c	1.82 08/04/06 Copyright 1993-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)diff.c	1.81 08/02/17 Copyright 1993-2008 J. Schilling";
+	"@(#)diff.c	1.82 08/04/06 Copyright 1993-2008 J. Schilling";
 #endif
 /*
  *	List differences between a (tape) archive and
@@ -37,8 +37,9 @@ static	char sccsid[] =
 #include <schily/dirent.h>	/* XXX Wegen S_IFLNK */
 #include "starsubs.h"
 #include "checkerr.h"
+#include <schily/fetchdir.h>
 #ifdef	USE_FIND
-#include "walk.h"
+#include <schily/walk.h>
 #endif
 
 typedef	struct {

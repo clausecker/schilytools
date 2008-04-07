@@ -1,1 +1,0 @@
-../star/find.h

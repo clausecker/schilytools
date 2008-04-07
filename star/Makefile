@@ -1,4 +1,4 @@
-#ident @(#)star_fat.mk	1.22 08/01/02 
+#ident @(#)star_fat.mk	1.23 08/04/06 
 ###########################################################################
 #include		$(MAKE_M_ARCH).def
 SRCROOT=	..
@@ -33,23 +33,22 @@ CFILES=		star_fat.c header.c cpiohdr.c xheader.c xattr.c \
 		list.c extract.c create.c append.c diff.c restore.c \
 		remove.c star_unix.c acl_unix.c acltext.c fflags.c \
 		buffer.c dirtime.c lhash.c \
-		hole.c longnames.c names.c \
+		hole.c longnames.c \
 		movearch.c table.c props.c \
-		fetchdir.c \
 		unicode.c \
 		subst.c volhdr.c \
 		chdir.c match.c defaults.c dumpdate.c \
 		fifo.c device.c checkerr.c \
 		\
-		findinfo.c find.c walk.c find_list.c find_misc.c
+		findinfo.c
+
 HFILES=		star.h starsubs.h dirtime.h xtab.h xutimes.h \
 		movearch.h table.h props.h fifo.h diff.h restore.h \
-		checkerr.h dumpdate.h bitstring.h \
-		\
-		find.h fetchdir.h walk.h find_list.h find_misc.h
+		checkerr.h dumpdate.h bitstring.h
+
 #LIBS=		-lunos
 #LIBS=		-lschily -lc /usr/local/lib/gcc-gnulib
-LIBS=		-ldeflt -lrmt -lschily $(LIB_ACL) $(LIB_ATTR) $(LIB_SOCKET)
+LIBS=		-ldeflt -lrmt -lfind -lschily $(LIB_ACL) $(LIB_ATTR) $(LIB_SOCKET) $(LIB_INTL)
 #
 #	Wenn -lfind, dann auch  $(LIB_INTL)
 #

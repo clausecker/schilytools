@@ -1,4 +1,4 @@
-#ident @(#)Makefile	1.32 07/09/11 
+#ident @(#)Makefile	1.33 08/04/06 
 ###########################################################################
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 2
@@ -22,7 +22,6 @@ INSDIR=		bin
 TARGET=		mkisofs
 SYMLINKS=	mkhybrid
 CPPOPTS +=	-DUSE_FIND
-CPPOPTS +=	-I../libfind
 #CPPOPTS +=	-DADD_FILES
 CPPOPTS +=	-DUSE_LARGEFILES
 #

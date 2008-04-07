@@ -1,7 +1,7 @@
-/* @(#)find_list.c	1.19 07/05/16 Copyright 1985, 1995, 2000-2007 J. Schilling*/
+/* @(#)find_list.c	1.21 08/04/06 Copyright 1985, 1995, 2000-2007 J. Schilling*/
 #ifndef lint
 static	char sccsid[] =
-	"@(#)find_list.c	1.19 07/05/16 Copyright 1985, 1995, 2000-2007 J. Schilling";
+	"@(#)find_list.c	1.21 08/04/06 Copyright 1985, 1995, 2000-2007 J. Schilling";
 #endif
 /*
  *	List a file
@@ -39,8 +39,9 @@ static	char sccsid[] =
 #define	DEV_BSIZE	512
 #endif
 
-#include "walk.h"
-#include "find.h"
+#include <schily/walk.h>
+#include <schily/find.h>
+#include <schily/idcache.h>
 #include "find_list.h"
 #include "find_misc.h"
 
@@ -64,11 +65,6 @@ extern	int	verbose;
 
 LOCAL	void	modstr		__PR((FILE *f, struct stat *fs, char *s, char *name, char *sname, struct WALK *state));
 EXPORT	void	find_list	__PR((FILE *std[3], struct stat *fs, char *name, char *sname, struct WALK *state));
-
-/*--------------------------------------------------------------------------*/
-extern	BOOL	nameuid	__PR((char *name, int namelen, uid_t uid));
-extern	BOOL	namegid	__PR((char *name, int namelen, gid_t gid));
-/*--------------------------------------------------------------------------*/
 
 /*
  * Convert POSIX.1 mode/permission flags into string.
@@ -176,7 +172,7 @@ char	*lnamep = lname;
 					&fs->st_ctime : &fs->st_mtime);
 		tstr = ctime(tp);
 
-		if (nameuid(nuid, sizeof (nuid), fs->st_uid)) {
+		if (ic_nameuid(nuid, sizeof (nuid), fs->st_uid)) {
 			uname = nuid;
 			umaxlen = sizeof (nuid)-1;
 		} else {
@@ -185,7 +181,7 @@ char	*lnamep = lname;
 			umaxlen = sizeof (nuid)-1;
 		}
 
-		if (namegid(ngid, sizeof (ngid), fs->st_gid)) {
+		if (ic_namegid(ngid, sizeof (ngid), fs->st_gid)) {
 			gname = ngid;
 			gmaxlen = sizeof (ngid)-1;
 		} else {

@@ -1,4 +1,4 @@
-/* @(#)starsubs.h	1.107 08/03/16 Copyright 1996-2008 J. Schilling */
+/* @(#)starsubs.h	1.108 08/04/06 Copyright 1996-2008 J. Schilling */
 /*
  *	Prototypes for star subroutines
  *
@@ -127,7 +127,7 @@ extern	void	put_file	__PR((int *fp, FINFO *info));
 #endif
 extern	void	cr_file		__PR((FINFO *info, int (*)(void *, char *, int), void *arg, int amt, char *text));
 #endif
-#if defined(_SCHILY_STAT_H) && defined(_WALK_H)
+#if defined(_SCHILY_STAT_H) && defined(_SCHILY_WALK_H)
 extern	int	walkfunc	__PR((char *nm, struct stat *fs, int type, struct WALK *state));
 #endif
 
@@ -352,18 +352,6 @@ extern	void	write_longnames	__PR((register FINFO *info));
 #endif
 
 /*
- * names.c
- */
-#ifdef	_INCL_SYS_TYPES_H
-extern	BOOL	nameuid		__PR((char *name, int namelen, uid_t uid));
-extern	BOOL	uidname		__PR((char *name, int namelen, uid_t *uidp));
-extern	BOOL	namegid		__PR((char *name, int namelen, gid_t gid));
-extern	BOOL 	gidname		__PR((char *name, int namelen, gid_t *gidp));
-#endif
-extern	uid_t	uid_nobody	__PR((void));
-extern	gid_t	gid_nobody	__PR((void));
-
-/*
  * props.c
  */
 extern	void	setprops	__PR((long htype));
@@ -423,17 +411,6 @@ extern	void	set_fflags	__PR((FINFO *info));
 extern	char	*textfromflags	__PR((FINFO *info, char *buf));
 extern	int	texttoflags	__PR((FINFO *info, char *buf));
 #endif
-
-/*
- * fetchdir.c
- */
-extern	char	*fetchdir	__PR((char *dir, int *entp, int *lenp, ino_t **inop));
-extern	int	fdircomp	__PR((const void *p1, const void *p2));
-extern	char	**sortdir	__PR((char *dir, int *entp));
-extern	int	cmpdir		__PR((int ents1, int ents2,
-					char **ep1, char **ep2,
-					char **oa, char **od,
-					int *alenp, int *dlenp));
 
 /*
  * defaults.c

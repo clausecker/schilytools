@@ -1,7 +1,7 @@
-/* @(#)findinfo.c	1.7 07/04/06 Copyright 2005-2007 J. Schilling */
+/* @(#)findinfo.c	1.8 08/04/06 Copyright 2005-2007 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)findinfo.c	1.7 07/04/06 Copyright 2005-2007 J. Schilling";
+	"@(#)findinfo.c	1.8 08/04/06 Copyright 2005-2007 J. Schilling";
 #endif
 /*
  *	Convert FINFO -> struct stat for find_expr()
@@ -25,6 +25,7 @@ static	char sccsid[] =
 #include "star.h"
 #include <schily/stat.h>
 #include <schily/schily.h>
+#include <schily/idcache.h>
 #include "starsubs.h"
 
 #ifdef	HAVE_SYS_PARAM_H
@@ -34,8 +35,8 @@ static	char sccsid[] =
 #define	DEV_BSIZE	512
 #endif
 
-#include "walk.h"
-#include "find.h"
+#include <schily/walk.h>
+#include <schily/find.h>
 
 #ifdef	USE_FIND
 
@@ -87,7 +88,7 @@ extern	struct WALK walkstate;
 		static  char    nuid[32+1];
 
 		info->f_uid = sb.st_uid;
-		if (nameuid(nuid, sizeof (nuid), info->f_uid)) {
+		if (ic_nameuid(nuid, sizeof (nuid), info->f_uid)) {
 			info->f_uname = nuid;
 			info->f_umaxlen = sizeof (nuid)-1;
 		} else {
@@ -100,7 +101,7 @@ extern	struct WALK walkstate;
 		static  char    ngid[32+1];
 
 		info->f_gid = sb.st_gid;
-		if (namegid(ngid, sizeof (ngid), info->f_gid)) {
+		if (ic_namegid(ngid, sizeof (ngid), info->f_gid)) {
 			info->f_gname = ngid;
 			info->f_gmaxlen = sizeof (ngid)-1;
 		} else {

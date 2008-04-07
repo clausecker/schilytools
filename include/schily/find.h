@@ -1,6 +1,8 @@
-/* @(#)find.h	1.18 07/12/22 Copyright 2005-2007 J. Schilling */
+/* @(#)find.h	1.19 08/04/06 Copyright 2005-2008 J. Schilling */
 /*
- * Definitions for libfind users.
+ *	Definitions for libfind users.
+ *
+ *	Copyright (c) 2004-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -14,8 +16,8 @@
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#ifndef	_FIND_H
-#define	_FIND_H
+#ifndef	_SCHILY_FIND_H
+#define	_SCHILY_FIND_H
 
 #ifndef _SCHILY_MCONFIG_H
 #include <schily/mconfig.h>
@@ -31,6 +33,10 @@
 #endif
 #ifndef _SCHILY_STAT_H
 #include <schily/stat.h>
+#endif
+
+#ifdef	__cplusplus
+extern "C" {
 #endif
 
 typedef struct find_args {
@@ -96,4 +102,8 @@ extern	int	find_plusflush	__PR((void *p, struct WALK *state));
 extern	void	find_usage	__PR((FILE *f));
 extern	int	find_main	__PR((int ac, char **av, char **ev, FILE *std[3], squit_t *__quit));
 
-#endif	/* _FIND_H */
+#ifdef	__cplusplus
+}
+#endif
+
+#endif	/* _SCHILY_FIND_H */

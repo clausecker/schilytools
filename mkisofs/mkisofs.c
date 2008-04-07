@@ -1,7 +1,7 @@
-/* @(#)mkisofs.c	1.231 08/01/06 joerg */
+/* @(#)mkisofs.c	1.232 08/04/06 joerg */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)mkisofs.c	1.231 08/01/06 joerg";
+	"@(#)mkisofs.c	1.232 08/04/06 joerg";
 #endif
 /*
  * Program mkisofs.c - generate iso9660 filesystem  based upon directory
@@ -33,8 +33,8 @@ static	char sccsid[] =
 
 #include <schily/mconfig.h>
 #ifdef	USE_FIND
-#include "walk.h"
-#include "find.h"
+#include <schily/walk.h>
+#include <schily/find.h>
 #endif
 #include "mkisofs.h"
 #include <schily/errno.h>

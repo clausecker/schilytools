@@ -1,7 +1,7 @@
-/* @(#)acl_unix.c	1.36 08/03/19 Copyright 2001-2008 J. Schilling */
+/* @(#)acl_unix.c	1.37 08/04/06 Copyright 2001-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)acl_unix.c	1.36 08/03/19 Copyright 2001-2008 J. Schilling";
+	"@(#)acl_unix.c	1.37 08/04/06 Copyright 2001-2008 J. Schilling";
 #endif
 /*
  *	ACL get and set routines for unix like operating systems.
@@ -64,6 +64,7 @@ static	char sccsid[] =
 #include <schily/string.h>
 #include <schily/stat.h>
 #include <schily/schily.h>
+#include <schily/idcache.h>
 #include "starsubs.h"
 #include "checkerr.h"
 
@@ -303,7 +304,7 @@ acl_add_ids(name, infotext, acltext)
 			while (c > username && isdigit(*(c-1)))
 				c--;
 			if (c > username &&
-			    uidname(username, c-username, &uid)) {
+			    ic_uidname(username, c-username, &uid)) {
 				len = js_snprintf(infotext, size,
 					":%lld", (Llong)uid);
 				infotext += len;
@@ -320,7 +321,7 @@ acl_add_ids(name, infotext, acltext)
 			while (c > groupname && isdigit(*(c-1)))
 				c--;
 			if (c > groupname &&
-			    gidname(groupname, c-groupname, &gid)) {
+			    ic_gidname(groupname, c-groupname, &gid)) {
 				len = js_snprintf(infotext, size,
 					":%lld", (Llong)gid);
 				infotext += len;
@@ -654,7 +655,7 @@ acl_add_ids(dst, from, end, sizep)
 		if (ep)
 			*ep = '\0';
 		if (*cp) {
-			if (uidname(cp, 1000, &uid)) {
+			if (ic_uidname(cp, 1000, &uid)) {
 				if (np[-1] == ',') {
 					--np;
 					size++;
@@ -683,7 +684,7 @@ acl_add_ids(dst, from, end, sizep)
 		if (ep)
 			*ep = '\0';
 		if (*cp) {
-			if (gidname(cp, 1000, &gid)) {
+			if (ic_gidname(cp, 1000, &gid)) {
 				if (np[-1] == ',') {
 					--np;
 					size++;
@@ -956,7 +957,7 @@ acl_check_ids(acltext, infotext)
 			 * XXX "joeuser" would be recognized as identical.
 			 */
 			if (*auid && (numeric ||
-			    !uidname(username, strlen(username)+1, &udummy)))
+			    !ic_uidname(username, strlen(username)+1, &udummy)))
 				username = auid;
 			js_snprintf(entry_buffer, PATH_MAX, "user:%s:%s",
 				username, perms);
@@ -1013,7 +1014,7 @@ acl_check_ids(acltext, infotext)
 			 * XXX "joeuser" would be compared as identical.
 			 */
 			if (*agid && (numeric ||
-			    !gidname(groupname, strlen(groupname)+1, &gdummy)))
+			    !ic_gidname(groupname, strlen(groupname)+1, &gdummy)))
 				groupname = agid;
 			js_snprintf(entry_buffer, PATH_MAX, "group:%s:%s",
 				groupname, perms);

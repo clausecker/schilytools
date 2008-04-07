@@ -1,8 +1,8 @@
-/* @(#)walk.h	1.23 07/12/22 Copyright 2004-2007 J. Schilling */
+/* @(#)walk.h	1.24 08/04/06 Copyright 2004-2008 J. Schilling */
 /*
  *	Definitions for directory tree walking
  *
- *	Copyright (c) 2004-2007 J. Schilling
+ *	Copyright (c) 2004-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -16,8 +16,8 @@
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#ifndef	_WALK_H
-#define	_WALK_H
+#ifndef	_SCHILY_WALK_H
+#define	_SCHILY_WALK_H
 
 #ifndef _SCHILY_STAT_H
 #include <schily/stat.h>
@@ -26,6 +26,10 @@
 #ifndef _INCL_STDIO_H
 #include <stdio.h>
 #define	_INCL_STDIO_H
+#endif
+
+#ifdef	__cplusplus
+extern "C" {
 #endif
 
 /*
@@ -113,4 +117,8 @@ extern	int	walkgethome	__PR((struct WALK *_state));
 extern	int	walkhome	__PR((struct WALK *_state));
 extern	int	walkclose	__PR((struct WALK *_state));
 
-#endif	/* _WALK_H */
+#ifdef	__cplusplus
+}
+#endif
+
+#endif	/* _SCHILY_WALK_H */

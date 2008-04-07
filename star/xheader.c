@@ -1,7 +1,7 @@
-/* @(#)xheader.c	1.74 08/03/14 Copyright 2001-2008 J. Schilling */
+/* @(#)xheader.c	1.76 08/04/06 Copyright 2001-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)xheader.c	1.74 08/03/14 Copyright 2001-2008 J. Schilling";
+	"@(#)xheader.c	1.76 08/04/06 Copyright 2001-2008 J. Schilling";
 #endif
 /*
  *	Handling routines to read/write, parse/create
@@ -35,6 +35,7 @@ static	char sccsid[] =
 #define	__XDEV__	/* Needed to activate _dev_major()/_dev_minor() */
 #include <schily/device.h>
 #include <schily/schily.h>
+#include <schily/idcache.h>
 #include "starsubs.h"
 #include "movearch.h"
 #include "xtab.h"
@@ -423,11 +424,11 @@ extern	BOOL	dodump;
 	}
 
 	if (xflags & XF_UNAME) {
-		nameuid(name, sizeof (name)-1, info->f_uid);
+		ic_nameuid(name, sizeof (name)-1, info->f_uid);
 		gen_text("uname", name, -1, T_UTF8);
 	}
 	if (xflags & XF_GNAME) {
-		namegid(name, sizeof (name)-1, info->f_gid);
+		ic_namegid(name, sizeof (name)-1, info->f_gid);
 		gen_text("gname", name, -1, T_UTF8);
 	}
 
@@ -1612,7 +1613,7 @@ get_uid(info, keyword, klen, arg, len)
 
 			xh_rangeerr(keyword, arg, len);
 			info->f_flags |= F_BAD_UID;
-			info->f_uid = uid_nobody();
+			info->f_uid = ic_uid_nobody();
 		}
 	}
 }
@@ -1652,7 +1653,7 @@ get_gid(info, keyword, klen, arg, len)
 
 			xh_rangeerr(keyword, arg, len);
 			info->f_flags |= F_BAD_GID;
-			info->f_gid = gid_nobody();
+			info->f_gid = ic_gid_nobody();
 		}
 	}
 }

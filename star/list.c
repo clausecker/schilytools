@@ -1,7 +1,7 @@
-/* @(#)list.c	1.69 07/09/22 Copyright 1985, 1995, 2000-2007 J. Schilling */
+/* @(#)list.c	1.70 08/04/06 Copyright 1985, 1995, 2000-2007 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)list.c	1.69 07/09/22 Copyright 1985, 1995, 2000-2007 J. Schilling";
+	"@(#)list.c	1.70 08/04/06 Copyright 1985, 1995, 2000-2007 J. Schilling";
 #endif
 /*
  *	List the content of an archive
@@ -32,7 +32,7 @@ static	char sccsid[] =
 #include <schily/schily.h>
 #include "starsubs.h"
 #ifdef	USE_FIND
-#include "walk.h"
+#include <schily/walk.h>
 #endif
 
 extern	FILE	*tarf;

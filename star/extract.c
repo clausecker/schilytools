@@ -1,7 +1,7 @@
-/* @(#)extract.c	1.130 08/03/16 Copyright 1985-2008 J. Schilling */
+/* @(#)extract.c	1.131 08/04/06 Copyright 1985-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)extract.c	1.130 08/03/16 Copyright 1985-2008 J. Schilling";
+	"@(#)extract.c	1.131 08/04/06 Copyright 1985-2008 J. Schilling";
 #endif
 /*
  *	extract files from archive
@@ -34,7 +34,7 @@ static	char sccsid[] =
 #include <schily/stdlib.h>
 #include <schily/errno.h>
 #ifdef	USE_FIND
-#include "walk.h"
+#include <schily/walk.h>
 #endif
 
 #ifdef	JOS
@@ -44,6 +44,7 @@ static	char sccsid[] =
 #include "restore.h"
 #include "starsubs.h"
 #include "checkerr.h"
+#include <schily/fetchdir.h>
 
 #define	ROOT_UID	0
 

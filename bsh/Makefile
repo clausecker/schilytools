@@ -1,4 +1,4 @@
-#ident @(#)Makefile	1.19 08/01/02 
+#ident @(#)Makefile	1.20 08/04/06 
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -45,7 +45,10 @@ HFILES=		abbrev.h bsh.h map.h node.h abbtab.h btab.h limit.h resource.h \
 		str.h \
 		strsubs.h ctype.h bshconf.h
 #LIBS=		-lunos
-LIBS=		-lxtermcap -lfind -lschily $(LIB_CRYPT)
+#
+# $(LIB_ACL_TEST) $(LIB_INTL) are needed for libfind
+#
+LIBS=		-lxtermcap -lfind -lschily $(LIB_CRYPT) $(LIB_ACL_TEST) $(LIB_INTL)
 XMK_FILE=	Makefile.man Makefile.dot
 
 ###########################################################################

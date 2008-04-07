@@ -1,7 +1,7 @@
-/* @(#)header.c	1.133 07/10/26 Copyright 1985, 1994-2007 J. Schilling */
+/* @(#)header.c	1.135 08/04/06 Copyright 1985, 1994-2007 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)header.c	1.133 07/10/26 Copyright 1985, 1994-2007 J. Schilling";
+	"@(#)header.c	1.135 08/04/06 Copyright 1985, 1994-2007 J. Schilling";
 #endif
 /*
  *	Handling routines to read/write, parse/create
@@ -33,6 +33,7 @@ static	char sccsid[] =
 #define	__XDEV__	/* Needed to activate _dev_major()/_dev_minor() */
 #include <schily/device.h>
 #include <schily/schily.h>
+#include <schily/idcache.h>
 #include "starsubs.h"
 #include "fifo.h"
 
@@ -1254,13 +1255,13 @@ info_to_star(info, ptb)
 	ptb->dbuf.t_magic[1] = 'a';
 	ptb->dbuf.t_magic[2] = 'r';
 	if (!numeric) {
-		nameuid(ptb->dbuf.t_uname, STUNMLEN, info->f_uid);
+		ic_nameuid(ptb->dbuf.t_uname, STUNMLEN, info->f_uid);
 		/* XXX Korrektes overflowchecking */
 		if (ptb->dbuf.t_uname[STUNMLEN-1] != '\0' &&
 		    props.pr_flags & PR_XHDR) {
 			info->f_xflags |= XF_UNAME;
 		}
-		namegid(ptb->dbuf.t_gname, STGNMLEN, info->f_gid);
+		ic_namegid(ptb->dbuf.t_gname, STGNMLEN, info->f_gid);
 		/* XXX Korrektes overflowchecking */
 		if (ptb->dbuf.t_gname[STGNMLEN-1] != '\0' &&
 		    props.pr_flags & PR_XHDR) {
@@ -1329,9 +1330,9 @@ info_to_ustar(info, ptb)
 
 	if (!numeric) {
 		/* XXX Korrektes overflowchecking fuer xhdr */
-		nameuid(ptb->ustar_dbuf.t_uname, TUNMLEN, info->f_uid);
+		ic_nameuid(ptb->ustar_dbuf.t_uname, TUNMLEN, info->f_uid);
 		/* XXX Korrektes overflowchecking fuer xhdr */
-		namegid(ptb->ustar_dbuf.t_gname, TGNMLEN, info->f_gid);
+		ic_namegid(ptb->ustar_dbuf.t_gname, TGNMLEN, info->f_gid);
 		if (*ptb->ustar_dbuf.t_uname) {
 			info->f_uname = ptb->ustar_dbuf.t_uname;
 			info->f_umaxlen = TUNMLEN;
@@ -1449,8 +1450,8 @@ info_to_gnutar(info, ptb)
 	strcpy(ptb->gnu_dbuf.t_magic, gmagic);
 
 	if (!numeric) {
-		nameuid(ptb->ustar_dbuf.t_uname, TUNMLEN, info->f_uid);
-		namegid(ptb->ustar_dbuf.t_gname, TGNMLEN, info->f_gid);
+		ic_nameuid(ptb->ustar_dbuf.t_uname, TUNMLEN, info->f_uid);
+		ic_namegid(ptb->ustar_dbuf.t_gname, TGNMLEN, info->f_gid);
 		if (*ptb->ustar_dbuf.t_uname) {
 			info->f_uname = ptb->ustar_dbuf.t_uname;
 			info->f_umaxlen = TUNMLEN;
@@ -1587,7 +1588,7 @@ static	BOOL	modewarn = FALSE;
 		if (info->f_uid != ul) {
 			print_hrange("uid", (Ullong)ul);
 			info->f_flags |= F_BAD_UID;
-			info->f_uid = uid_nobody();
+			info->f_uid = ic_uid_nobody();
 		}
 	}
 	if ((info->f_xflags & XF_UID) == 0) {
@@ -1596,7 +1597,7 @@ static	BOOL	modewarn = FALSE;
 		if (info->f_gid != ul) {
 			print_hrange("gid", (Ullong)ul);
 			info->f_flags |= F_BAD_GID;
-			info->f_gid = gid_nobody();
+			info->f_gid = ic_gid_nobody();
 		}
 	}
 
@@ -1856,7 +1857,7 @@ star_to_info(ptb, info)
 		}
 	}
 	if (info->f_uname) {
-		if (!numeric && uidname(info->f_uname, info->f_umaxlen, &uid)) {
+		if (!numeric && ic_uidname(info->f_uname, info->f_umaxlen, &uid)) {
 			info->f_flags &= ~F_BAD_UID;
 			info->f_uid = uid;
 		}
@@ -1868,7 +1869,7 @@ star_to_info(ptb, info)
 		}
 	}
 	if (info->f_gname) {
-		if (!numeric && gidname(info->f_gname, info->f_gmaxlen, &gid)) {
+		if (!numeric && ic_gidname(info->f_gname, info->f_gmaxlen, &gid)) {
 			info->f_flags &= ~F_BAD_GID;
 			info->f_gid = gid;
 		}
@@ -1913,7 +1914,7 @@ ustar_to_info(ptb, info)
 		}
 	}
 	if (info->f_uname) {
-		if (!numeric && uidname(info->f_uname, info->f_umaxlen, &uid)) {
+		if (!numeric && ic_uidname(info->f_uname, info->f_umaxlen, &uid)) {
 			info->f_flags &= ~F_BAD_UID;
 			info->f_uid = uid;
 		}
@@ -1925,7 +1926,7 @@ ustar_to_info(ptb, info)
 		}
 	}
 	if (info->f_gname) {
-		if (!numeric && gidname(info->f_gname, info->f_gmaxlen, &gid)) {
+		if (!numeric && ic_gidname(info->f_gname, info->f_gmaxlen, &gid)) {
 			info->f_flags &= ~F_BAD_GID;
 			info->f_gid = gid;
 		}

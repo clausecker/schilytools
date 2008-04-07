@@ -1,4 +1,4 @@
-# @(#)Targets	1.4 07/02/21 Copyright 2005 J. Schilling
+# @(#)Targets	1.5 08/04/06 Copyright 2005 J. Schilling
 
-CFILES=		find.c walk.c fetchdir.c find_misc.c find_list.c find_main.c names.c
-HFILES=		find.h fetchdir.h find_misc.h find_list.h walk.h
+CFILES=		find.c walk.c fetchdir.c cmpdir.c find_misc.c find_list.c find_main.c idcache.c
+HFILES=		find_misc.h find_list.h

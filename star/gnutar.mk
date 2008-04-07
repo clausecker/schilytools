@@ -1,4 +1,4 @@
-#ident @(#)gnutar.mk	1.14 07/02/17 
+#ident @(#)gnutar.mk	1.15 08/04/06 
 ###########################################################################
 #include		$(MAKE_M_ARCH).def
 SRCROOT=	..
@@ -15,6 +15,7 @@ CPPOPTS +=	-DSET_CTIME -DFIFO -DUSE_MMAP -DUSE_REMOTE -DUSE_RCMD_RSH
 #CPPOPTS +=	-DSET_CTIME -DUSE_MMAP
 #CPPOPTS +=	-DFIFO -DUSE_MMAP
 CPPOPTS +=	-DUSE_LARGEFILES
+CPPOPTS +=	-DUSE_FIND
 CPPOPTS +=	-DUSE_ACL
 CPPOPTS +=	-DUSE_XATTR
 CPPOPTS +=	-DUSE_FFLAGS
@@ -25,17 +26,15 @@ CFILES=		gnutar.c header.c cpiohdr.c xheader.c xattr.c \
 		buffer.c dirtime.c lhash.c \
 		hole.c longnames.c names.c \
 		movearch.c table.c props.c \
-		fetchdir.c \
 		unicode.c \
 		subst.c volhdr.c \
 		chdir.c match.c defaults.c dumpdate.c \
-		fifo.c device.c checkerr.c
+		fifo.c device.c checkerr.c \
+		findinfo.c
 HFILES=		star.h starsubs.h dirtime.h xtab.h xutimes.h \
 		movearch.h table.h props.h fifo.h diff.h \
 		checkerr.h dumpdate.h bitstring.h
-#LIBS=		-lunos
-#LIBS=		-lschily -lc /usr/local/lib/gcc-gnulib
-LIBS=		-ldeflt -lrmt -lschily $(LIB_ACL) $(LIB_ATTR) $(LIB_SOCKET)
+LIBS=		-ldeflt -lrmt -lfind -lschily $(LIB_ACL) $(LIB_ATTR) $(LIB_SOCKET) $(LIB_INTL)
 XMK_FILE=	gnutarman.mk
 
 ###########################################################################

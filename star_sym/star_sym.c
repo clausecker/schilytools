@@ -1,7 +1,7 @@
-/* @(#)star_sym.c	1.5 07/10/06 Copyright 2005-2007 J. Schilling */
+/* @(#)star_sym.c	1.6 08/04/06 Copyright 2005-2007 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)star_sym.c	1.5 07/10/06 Copyright 2005-2007 J. Schilling";
+	"@(#)star_sym.c	1.6 08/04/06 Copyright 2005-2007 J. Schilling";
 #endif
 /*
  *	Read in the star inode data base and write a human
@@ -190,8 +190,8 @@ extern	BOOL	is_star;
 /*--------------------------------------------------------------------------*/
 #include <schily/nlsdefs.h>
 
-#include "walk.h"
-#include "find.h"
+#include <schily/walk.h>
+#include <schily/find.h>
 
 
 LOCAL	int	walkfunc	__PR((char *nm, struct stat *fs, int type, struct WALK *state));

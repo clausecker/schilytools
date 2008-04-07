@@ -35,7 +35,7 @@
 /*
  * This file contains modifications Copyright 2008 J. Schilling
  *
- * @(#)defs.h	1.11 08/03/28 2008 J. Schilling
+ * @(#)defs.h	1.13 08/04/06 2008 J. Schilling
  */
 
 #ifdef	__cplusplus
@@ -175,7 +175,8 @@ extern "C" {
 #include	"ctype.h"
 #include	<ctype.h>
 #include	<schily/nlsdefs.h>
-#include	<schily/wchar.h>
+#include	<schily/wchar.h>	/* includes stdio.h */
+#undef	feof				/* to make mode.h compile with K&R */
 
 #include 	"mac.h"
 #include	"mode.h"
@@ -379,10 +380,12 @@ extern	void	freefunc	__PR((struct namnod  *n));
 extern	void	prcmd		__PR((struct trenod *t));
 extern	void	prf		__PR((struct trenod *t));
 
+#ifndef	HAVE_GMATCH
+extern	int	gmatch		__PR((const char *, const char *));
+#else
 #ifdef	HAVE_LIBGEN_H
 #include <libgen.h>
-#else
-extern	int	gmatch		__PR((const char *, const char *));
+#endif
 #endif
 
 /*

@@ -1,7 +1,7 @@
-/* @(#)restore.c	1.58 08/03/18 Copyright 2003-2008 J. Schilling */
+/* @(#)restore.c	1.59 08/04/06 Copyright 2003-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)restore.c	1.58 08/03/18 Copyright 2003-2008 J. Schilling";
+	"@(#)restore.c	1.59 08/04/06 Copyright 2003-2008 J. Schilling";
 #endif
 /*
  *	Data base management for incremental restores
@@ -58,6 +58,7 @@ static	char sccsid[] =
 #include "restore.h"
 #include "dumpdate.h"
 #include "starsubs.h"
+#include <schily/fetchdir.h>
 
 #define	PADD_NODE_DEBUG
 

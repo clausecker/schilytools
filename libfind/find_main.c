@@ -1,8 +1,8 @@
 /*#define	PLUS_DEBUG*/
-/* @(#)find_main.c	1.60 07/12/22 Copyright 2004-2007 J. Schilling */
+/* @(#)find_main.c	1.61 08/04/06 Copyright 2004-2007 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)find_main.c	1.60 07/12/22 Copyright 2004-2007 J. Schilling";
+	"@(#)find_main.c	1.61 08/04/06 Copyright 2004-2007 J. Schilling";
 #endif
 /*
  *	Another find implementation...
@@ -36,8 +36,8 @@ static	char sccsid[] =
 
 char	strvers[] = "1.3";	/* The pure version string	*/
 
-#include "walk.h"
-#include "find.h"
+#include <schily/walk.h>
+#include <schily/find.h>
 
 LOCAL	int	walkfunc	__PR((char *nm, struct stat *fs, int type, struct WALK *state));
 LOCAL	int	getflg		__PR((char *optstr, long *argp));

@@ -1,7 +1,7 @@
-/* @(#)find.c	1.49 07/12/22 Copyright 2004-2007 J. Schilling */
+/* @(#)find.c	1.50 08/04/06 Copyright 2004-2007 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)find.c	1.49 07/12/22 Copyright 2004-2007 J. Schilling";
+	"@(#)find.c	1.50 08/04/06 Copyright 2004-2007 J. Schilling";
 #endif
 /*
  *	Another find implementation...
@@ -25,9 +25,8 @@ static	char sccsid[] =
 #include <schily/unistd.h>
 #include <schily/standard.h>
 #include <schily/schily.h>
-
-#include "walk.h"
-#include "find.h"
+#include <schily/walk.h>
+#include <schily/find.h>
 
 EXPORT	int	main		__PR((int ac, char **av));
 

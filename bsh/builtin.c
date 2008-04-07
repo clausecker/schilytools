@@ -1,7 +1,7 @@
-/* @(#)builtin.c	1.59 08/03/27 Copyright 1988-2008 J. Schilling */
+/* @(#)builtin.c	1.60 08/04/06 Copyright 1988-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)builtin.c	1.59 08/03/27 Copyright 1988-2008 J. Schilling";
+	"@(#)builtin.c	1.60 08/04/06 Copyright 1988-2008 J. Schilling";
 #endif
 /*
  *	Builtin commands
@@ -1534,8 +1534,8 @@ bfalse(vp, std, flag)
 }
 
 #ifdef	DO_FIND
-#include "../libfind/walk.h"
-#include "../libfind/find.h"
+#include <schily/walk.h>
+#include <schily/find.h>
 
 LOCAL int
 quitfun(arg)

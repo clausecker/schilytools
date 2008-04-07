@@ -1,8 +1,8 @@
 /*#define	PLUS_DEBUG*/
-/* @(#)find.c	1.70 08/02/16 Copyright 2004-2008 J. Schilling */
+/* @(#)find.c	1.72 08/04/06 Copyright 2004-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)find.c	1.70 08/02/16 Copyright 2004-2008 J. Schilling";
+	"@(#)find.c	1.72 08/04/06 Copyright 2004-2008 J. Schilling";
 #endif
 /*
  *	Another find implementation...
@@ -82,9 +82,9 @@ typedef struct {
 	} val, val2;
 } findn_t;
 
-#include "walk.h"
+#include <schily/walk.h>
 #define	FIND_NODE
-#include "find.h"
+#include <schily/find.h>
 #include "find_list.h"
 #include "find_misc.h"
 
@@ -1577,11 +1577,9 @@ find_expr(f, ff, fs, state, t)
 		return (TRUE);
 
 	case NOUSER:
-/*		return (nameuid(NULL, 32, fs->st_uid));*/
 		return (getpwuid(fs->st_uid) == NULL);
 
 	case NOGRP:
-/*		return (namegid(NULL, 32, fs->st_gid));*/
 		return (getgrgid(fs->st_gid) == NULL);
 
 	case PRUNE:
