@@ -1,23 +1,26 @@
-/* @(#)change.c	1.34 06/09/26 Copyright 1985, 87-90, 95-99, 2000-2006 J. Schilling */
+/* @(#)change.c	1.36 08/04/09 Copyright 1985, 87-90, 95-99, 2000-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)change.c	1.34 06/09/26 Copyright 1985, 87-90, 95-99, 2000-2006 J. Schilling";
+	"@(#)change.c	1.36 08/04/09 Copyright 1985, 87-90, 95-99, 2000-2008 J. Schilling";
 #endif
 /*
  *	find pattern and substitute in files
  *
- *	Copyright (c) 1985, 87-90, 95-99, 2000-2006 J. Schilling
+ *	Copyright (c) 1985, 87-90, 95-99, 2000-2008 J. Schilling
  */
 /*
- * The contents of this file are subject to the terms of the
- * Common Development and Distribution License, Version 1.0 only
- * (the "License").  You may not use this file except in compliance
- * with the License.
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2
+ * as published by the Free Software Foundation.
  *
- * See the file CDDL.Schily.txt in this distribution for details.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- * When distributing Covered Code, include this CDDL HEADER in each
- * file and include the License file CDDL.Schily.txt from this distribution.
+ * You should have received a copy of the GNU General Public License along with
+ * this program; see the file COPYING.  If not, write to the Free Software
+ * Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
 #include <schily/mconfig.h>
@@ -28,10 +31,9 @@ static	char sccsid[] =
 #include <schily/string.h>
 #include <schily/errno.h>
 #include <schily/stat.h>
-#	define	FILEDESC	struct stat
-#	define	f_modes		st_mode
-#	define	fdfileno(fdp)	((fdp)->st_ino)
-#	define	fsof(fdp)	((fdp)->st_dev)
+#	define	STATBUF		struct stat
+#	define	file_ino(sp)	((sp)->st_ino)
+#	define	file_dev(sp)	((sp)->st_dev)
 #include <signal.h>
 #include <schily/standard.h>
 #include <schily/patmatch.h>
@@ -42,7 +44,7 @@ static	char sccsid[] =
 /*
  *	check for same file descriptor
  */
-#define	samefd(fd1, fd2)	(fsof(fd1) == fsof(fd2) && fdfileno(fd1) == fdfileno(fd2))
+#define	samefile(sp, sp2)	(file_dev(sp1) == file_dev(sp2) && file_ino(sp1) == file_ino(sp2))
 
 
 #define	MAXLINE	8196
@@ -61,8 +63,8 @@ char	tmpname[MAXNAME];
 int	*aux;
 int	*state;
 FILE	*tty;
-FILEDESC ostat;	/* Old stat buf */
-FILEDESC cstat;	/* Changed file stat buf */
+STATBUF ostat;	/* Old stat buf */
+STATBUF cstat;	/* Changed file stat buf */
 
 LOCAL	void	usage	__PR((int excode));
 LOCAL	RETSIGTYPE intr	__PR((int signo));
@@ -146,8 +148,8 @@ main(ac, av)
 	}
 	if (help) usage(0);
 	if (prversion) {
-		printf("Change release %s (%s-%s-%s) Copyright (C) 1985, 87-90, 95-99, 2000-2006 Jörg Schilling\n",
-				"1.34",
+		printf("Change release %s (%s-%s-%s) Copyright (C) 1985, 87-90, 95-99, 2000-2008 Jörg Schilling\n",
+				"1.36",
 				HOST_CPU, HOST_VENDOR, HOST_OS);
 		exit(0);
 	}
@@ -219,7 +221,7 @@ main(ac, av)
 #endif
 				stat(cav[0], &ostat);
 				stat(tmpname, &cstat);
-				chmod(tmpname, ostat.f_modes);
+				chmod(tmpname, ostat.st_mode);
 				cnt = change(cav[0], file, tfile, pat, subst,
 							aux, alt);
 				fclose(file);
@@ -248,7 +250,7 @@ main(ac, av)
 							cav[0]);
 
 				if (closeok && cnt > 0 && mkbak(cav[0]))
-					chmod(cav[0], ostat.f_modes);
+					chmod(cav[0], ostat.st_mode);
 				else
 					unlink(tmpname);
 			}

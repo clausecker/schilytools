@@ -1,4 +1,4 @@
-#ident "@(#)rules.pkg	1.1 07/06/16 "
+#ident "@(#)rules.pkg	1.3 08/04/19 "
 ###########################################################################
 # Written 2005 by J. Schilling
 ###########################################################################
@@ -85,7 +85,7 @@ package:
 		(								\
 		echo "	==> MAKING \"$@\" ON SUBDIRECTORY \"$(CURDIR)/$$DIR\"";\
 		if [ -d ./$$DIR -a -r ./$$DIR/Makefile ] ; then			\
-			cd ./$$DIR;"$(MAKE)" $(MAKEMACS) XARCH=$(XARCH) DIRNAME=$(CURDIR)/$$DIR all;		\
+			cd ./$$DIR $$ "$(MAKE)" $(MAKEMACS) XARCH=$(XARCH) DIRNAME=$(CURDIR)/$$DIR all;		\
 		else								\
 			echo "NOTICE: Partial source ($(CURDIR)/$$DIR) missing";\
 		fi								\

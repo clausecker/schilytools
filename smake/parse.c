@@ -1,7 +1,7 @@
-/* @(#)parse.c	1.88 08/01/23 Copyright 1985 J. Schilling */
+/* @(#)parse.c	1.89 08/04/19 Copyright 1985 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)parse.c	1.88 08/01/23 Copyright 1985 J. Schilling";
+	"@(#)parse.c	1.89 08/04/19 Copyright 1985 J. Schilling";
 #endif
 /*
  *	Make program
@@ -46,6 +46,7 @@ LOCAL	void	listappend	__PR((obj_t *obj, list_t *dep));
 LOCAL	void	define_patrule	__PR((obj_t * obj, list_t * dep, cmd_t * cmd, int type));
 LOCAL	void	print_patrules	__PR((FILE *f));
 LOCAL	obj_t	*check_ssuffrule __PR((obj_t *obj, list_t *dep));
+EXPORT	char	*get_var	__PR((char *name));
 EXPORT	void	define_var	__PR((char *name, char *val));
 LOCAL	int	getobjname	__PR((void));
 LOCAL	obj_t	*getobj		__PR((void));
@@ -544,6 +545,23 @@ check_ssuffrule(obj, dep)
 		xssrules++;
 	}
 	return (obj);
+}
+
+/*
+ * Get the macro value as in the form macro=value.
+ */
+EXPORT char *
+get_var(name)
+	char	*name;
+{
+	obj_t	*o = objlook(name, FALSE);
+
+	if (o == (obj_t *)NULL)
+		return ((char *)NULL);
+
+	if (basetype(o->o_type) == EQUAL && o->o_list != NULL)
+		return (o->o_list->l_obj->o_name);
+	return ((char *)NULL);
 }
 
 /*

@@ -1,13 +1,13 @@
-/* @(#)update.c	1.104 08/01/23 Copyright 1985, 88, 91, 1995-2007 J. Schilling */
+/* @(#)update.c	1.106 08/04/19 Copyright 1985, 88, 91, 1995-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)update.c	1.104 08/01/23 Copyright 1985, 88, 91, 1995-2007 J. Schilling";
+	"@(#)update.c	1.106 08/04/19 Copyright 1985, 88, 91, 1995-2008 J. Schilling";
 #endif
 /*
  *	Make program
  *	Macro handling / Dependency Update
  *
- *	Copyright (c) 1985, 88, 91, 1995-2007 by J. Schilling
+ *	Copyright (c) 1985, 88, 91, 1995-2008 by J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -828,10 +828,10 @@ dynmac(cmd, obj, source, suffix, depends, domod)
 					obj->o_name, filename(obj->o_name));
 		}
 		if (obj->o_flags & F_PATRULE) {
-			patr_t *p= (patr_t *)obj->o_node;
+			patr_t *pr = (patr_t *)obj->o_node;
 
-			copy_base(obj->o_name+p->p_tgt_pfxlen, base, blen,
-							p->p_tgt_suffix);
+			copy_base(obj->o_name+pr->p_tgt_pfxlen, base, blen,
+							pr->p_tgt_suffix);
 		} else {
 			copy_base(obj->o_name, base, blen, suffix);
 			if (suffix == NULL && !nowarn("$*"))

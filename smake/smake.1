@@ -1,4 +1,4 @@
-. \" @(#)smake.1	1.15 07/03/07 Copyright 1985-2007 J. Schilling
+. \" @(#)smake.1	1.17 08/04/19 Copyright 1985-2008 J. Schilling
 . \"  Manual page for smake
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -13,7 +13,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH SMAKE 1 "07/03/07" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH SMAKE 1 "08/04/19" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 smake \- maintain, update, and regenerate programs
 .SH SYNOPSIS
@@ -783,6 +783,19 @@ If this special target is found, POSIX mode is enabled.
 With this option the verbose command lines written to the
 .I stdout
 stream are prefixed by a TAB character instead of three dots (...).
+I POSIX mode,
+.B smake
+also calls commands via
+.B "/bin/sh -c 'cmd'
+instead of
+.BR "/bin/sh -ce 'cmd'" .
+This causes 
+.B smake
+not to stop at failing sub commands in complex commands. If the 
+.B \&.POSIX:
+special target is used, it is highly recommended to also specify
+.B "MAKE_SHELL_FLAG=-ce
+to make sure that the make process still stops at failed commands.
 .RE
 .TP
 .B \&.PRECIOUS:
@@ -852,6 +865,7 @@ compliant way.
 The following code fragment allows to use non standard space handling
 for one target only:
 .sp
+.ne 7
 .RS
 .BR \&.SPACE_IN_NAMES: " true
 .sp
@@ -1116,6 +1130,31 @@ features of
 .BR smake .
 It contains the serial number of the current machine
 (e.g. 1920098175).
+.
+.TP
+.B MAKE_SHELL_FLAG
+This macro contains the shell flags used when calling commands from
+.BR smake .
+The default value is
+.BR \-ce ,
+When 
+.B smake
+in in POSIX mode,
+the default value is
+.BR \-c.
+The
+.B MAKE_SHELL_FLAG
+allows to overwrite the default behavior.
+.
+.TP
+.B MAKE_SHELL_IFLAG
+This macro contains the shell flags used when calling commands from
+.BR "smake \-i" .
+The default value is
+.BR \-c .
+The
+.B MAKE_SHELL_IFLAG
+allows to overwrite the default behavior.
 .
 .TP
 .B MAKE_VERSION

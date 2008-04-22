@@ -1,7 +1,7 @@
-/* @(#)inputc.c	1.47 08/03/27 Copyright 1982, 1984-2008 J. Schilling */
+/* @(#)inputc.c	1.49 08/04/17 Copyright 1982, 1984-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)inputc.c	1.47 08/03/27 Copyright 1982, 1984-2008 J. Schilling";
+	"@(#)inputc.c	1.49 08/04/17 Copyright 1982, 1984-2008 J. Schilling";
 #endif
 /*
  *	inputc.c
@@ -1918,6 +1918,18 @@ readhistory(f)
 	while ((len = fgetline(f, s, sizeof (line))) >= 0) {
 		if (len == 0)
 			continue;
+		/*
+		 * Skip bash timestamps
+		 */
+		if (line[0] == '#' && line[1] == '+') {
+			register char	*p;
+
+			for (p = &line[2]; *p != '\0'; p++)
+				if (!isdigit((unsigned char)*p))
+					break;
+			if (*p == '\0')
+				continue;
+		}
 #ifdef	DEBUG
 		fprintf(stderr, "appending: %s\r\n", s);
 #endif

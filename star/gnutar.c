@@ -1,7 +1,7 @@
-/* @(#)gnutar.c	1.21 07/10/20 Copyright 1989, 2003-2007 J. Schilling */
+/* @(#)gnutar.c	1.22 08/04/13 Copyright 1989, 2003-2007 J. Schilling */
 #ifndef lint
 static	char _g_sccsid[] =
-	"@(#)gnutar.c	1.21 07/10/20 Copyright 1989, 2003-2007 J. Schilling";
+	"@(#)gnutar.c	1.22 08/04/13 Copyright 1989, 2003-2007 J. Schilling";
 #endif
 /*
  *	GNU TAR specific routines for star main program.
@@ -264,7 +264,7 @@ signed	char	archive	 = -1;		/* On IRIX, we have unsigned chars by default */
 				&gnuincrem, &gnuincrem,
 				&gnulinc, &gnulinc,
 				&gnuignfail,
-				&gnuowner, &gnugroup, gnumode,
+				&gnuowner, &gnugroup, &gnumode,
 				&acctime,
 				&nomtime, &nomtime,
 				&gnuchown,

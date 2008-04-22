@@ -1,7 +1,7 @@
-/* @(#)make.h	1.80 08/01/22 Copyright 1985, 87, 91, 1995-2007 J. Schilling */
+/* @(#)make.h	1.82 08/04/19 Copyright 1985, 87, 91, 1995-2008 J. Schilling */
 /*
  *	Definitions for make.
- *	Copyright (c) 1985, 87, 91, 1995-2007 by J. Schilling
+ *	Copyright (c) 1985, 87, 91, 1995-2008 by J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -188,6 +188,7 @@ extern	void	makeincs	__PR((void));
  * parse.c
  */
 extern	void	parsefile	__PR((void));
+extern	char	*get_var	__PR((char *name));
 extern	void	define_var	__PR((char *name, char *val));
 extern	list_t	*cvtvpath	__PR((list_t *l));
 extern	BOOL	nowarn		__PR((char *name));

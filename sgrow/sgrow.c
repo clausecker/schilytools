@@ -1,7 +1,7 @@
-/* @(#)sgrow.c	1.8 07/12/16 Copyr 1985 J. Schilling */
+/* @(#)sgrow.c	1.9 08/04/22 Copyr 1985 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)sgrow.c	1.8 07/12/16 Copyr 1985 J. Schilling";
+	"@(#)sgrow.c	1.9 08/04/22 Copyr 1985 J. Schilling";
 #endif
 /*
  *	Check stack growung response on a machine
@@ -46,15 +46,15 @@ main(ac, av)
 	save_args(ac, av);
 	cac--, ++cav;
 	if (getallargs(&cac, &cav, options, &help, &prversion) == -1) {
-		error("Bad option: %s.\n", cav[0]);
-		usage(1);
+		errmsgno(EX_BAD, "Bad option: %s.\n", cav[0]);
+		usage(EX_BAD);
 	}
 	if (help)
 		usage(0);
 
 	if (prversion) {
 		printf("Sgrow release %s (%s-%s-%s) Copyright (C) 1985-2007 Jörg Schilling\n",
-				"1.8",
+				"1.9",
 				HOST_CPU, HOST_VENDOR, HOST_OS);
 		exit(0);
 	}
@@ -62,12 +62,12 @@ main(ac, av)
 	cac = ac, cav = av;
 	cac--, ++cav;
 	if (getfiles(&cac, &cav, options) == 0) {
-		error("Missing Pagecount.\n");
-		usage(1);
+		errmsgno(EX_BAD, "Missing Pagecount.\n");
+		usage(EX_BAD);
 	}
 	if (*astoi(cav[0], &i) != '\0') {
-		error("not a number: %s.\n", av[1]);
-		usage(1);
+		errmsgno(EX_BAD, "not a number: %s.\n", av[1]);
+		usage(EX_BAD);
 	}
 	printf("growing %d * 4k Bytes = %d kBytes.\n", i, i*4);
 	grow(i);

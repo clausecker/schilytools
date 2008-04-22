@@ -1,0 +1,63 @@
+New features with AN-2008-04-22:
+
+-	The source for the program "copy" has been added.
+	Copy is similar to cp, but it copies any type of file
+	and it is able to copy sparse files correctcly.
+	On Solaris 10 and Solaris 11, copy uses SEEK_DATA/SEEK_HOLE
+	for 100% correct and fast sparse file copying.
+
+-	The source for the program "mountcd" has been added.
+	mountcd is a support program written for SchilliX
+
+-	The source for the program "udiff" has been added.
+	udiff is a simple diff(1) implementation that by default outputs the
+	diff information in human readable form.
+
+-	A bug in libfind was fixed that causes
+
+	find . -size -20k -ls
+
+	to check for files smaller than 20480 Blocks instead of
+	looking for files smaller than 2084 characters.
+
+-	libfind version bumped to 1.4
+
+-	star/gnutar.c fixed (added missing &) to avoid a core dump 
+	with "gnutar -mode ...."
+
+-	star bumped to star-1.5-final
+
+-	The shell command line editor (used by "bsh" and "sh") now
+	skips time stamp lines created from bash when reading the 
+	~/.history file. This helps to keep the history clean.
+
+-	Some code in mkisofs::main() has been reordered to allow mkisofs to 
+	recognize that the installation at /opt/schily/lib/siconv is missing
+	even if the --ethershare option has ben used. Before, mkisofs did dump
+	core in this case, now it mentions to install libsiconv.
+
+-	New smake special macros MAKE_SHELL_FLAG and MAKE_SHELL_IFLAG
+	allow to control the shell flags that are used to call commands from
+	smake. The default is MAKE_SHELL_IFLAG=-c for "smake -i" and
+	MAKE_SHELL_FLAG=-ce for all other calls. If the special target .POSIX:
+	is present in a makefile or if smake is called with -posix, 
+	the default is MAKE_SHELL_FLAG=-c
+
+-	Allow copy/copy.c to compile with a K&R compiler
+
+-	Include again signal.h in ved/terminal.c to make ved again act on
+	terminal resize events (SIGWINCH).
+
+
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.isdn.cs.tu-berlin.de, js@cs.tu-berlin.de
+	schilling@fokus.fhg.de
+
+Please mail bugs and suggestions to me.

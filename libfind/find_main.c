@@ -1,13 +1,13 @@
 /*#define	PLUS_DEBUG*/
-/* @(#)find_main.c	1.61 08/04/06 Copyright 2004-2007 J. Schilling */
+/* @(#)find_main.c	1.62 08/04/12 Copyright 2004-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)find_main.c	1.61 08/04/06 Copyright 2004-2007 J. Schilling";
+	"@(#)find_main.c	1.62 08/04/12 Copyright 2004-2008 J. Schilling";
 #endif
 /*
  *	Another find implementation...
  *
- *	Copyright (c) 2004-2007 J. Schilling
+ *	Copyright (c) 2004-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -34,7 +34,7 @@ static	char sccsid[] =
 
 #include <schily/nlsdefs.h>
 
-char	strvers[] = "1.3";	/* The pure version string	*/
+char	strvers[] = "1.4";	/* The pure version string	*/
 
 #include <schily/walk.h>
 #include <schily/find.h>
@@ -172,7 +172,7 @@ find_main(ac, av, ev, std, quit)
 	}
 	if (prversion) {
 		fprintf(std[1],
-		"sfind release %s (%s-%s-%s) Copyright (C) 2004-2007 Jörg Schilling\n",
+		"sfind release %s (%s-%s-%s) Copyright (C) 2004-2008 Jörg Schilling\n",
 				strvers,
 				HOST_CPU, HOST_VENDOR, HOST_OS);
 		goto out;

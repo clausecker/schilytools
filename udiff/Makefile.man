@@ -1,0 +1,18 @@
+#ident %W% %E% %Q%
+###########################################################################
+# Sample makefile for installing manual pages
+###########################################################################
+SRCROOT=	..
+RULESDIR=	RULES
+include		$(SRCROOT)/$(RULESDIR)/rules.top
+###########################################################################
+
+MANDIR=		man
+TARGETMAN=	udiff
+MANSECT=	$(MANSECT_CMD)
+MANSUFFIX=	$(MANSUFF_CMD)
+MANFILE=	udiff.1
+
+###########################################################################
+include		$(SRCROOT)/$(RULESDIR)/rules.man
+###########################################################################

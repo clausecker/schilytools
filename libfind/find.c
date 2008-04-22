@@ -1,8 +1,8 @@
 /*#define	PLUS_DEBUG*/
-/* @(#)find.c	1.72 08/04/06 Copyright 2004-2008 J. Schilling */
+/* @(#)find.c	1.74 08/04/17 Copyright 2004-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)find.c	1.72 08/04/06 Copyright 2004-2008 J. Schilling";
+	"@(#)find.c	1.74 08/04/17 Copyright 2004-2008 J. Schilling";
 #endif
 /*
  *	Another find implementation...
@@ -727,19 +727,22 @@ parseprim(fap)
 		return (n);
 	}
 
-	case SIZE:
+	case SIZE: {
+		char	*numarg;
+
 		fap->walkflags &= ~WALK_NOSTAT;
 
 		p = n->left = nextarg(fap, n);
+		numarg = p;
 		if (p[0] == '-' || p[0] == '+')
-			p++;
+			numarg = ++p;
 		p = astoll(p, &ll);
 		if (p[0] == '\0') {
 			/* EMPTY */
 			;
 		} else if (p[0] == 'c' && p[1] == '\0') {
 			n->this = p;
-		} else if (getllnum(n->left, &ll) == 1) {
+		} else if (getllnum(numarg, &ll) == 1) {
 			n->this = p;
 		} else if (*p) {
 			ferrmsgno(fap->std[2], EX_BAD,
@@ -752,6 +755,7 @@ parseprim(fap)
 		nexttoken(fap);
 		fap->jmp = ojmp;		/* Restore old jump target */
 		return (n);
+	}
 
 	case LINKS:
 		fap->walkflags &= ~WALK_NOSTAT;

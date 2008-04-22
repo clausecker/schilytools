@@ -1,7 +1,7 @@
-/* @(#)terminal.c	1.36 07/05/24 Copyright 1984-2006 J. Schilling */
+/* @(#)terminal.c	1.37 08/04/08 Copyright 1984-2006 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)terminal.c	1.36 07/05/24 Copyright 1984-2006 J. Schilling";
+	"@(#)terminal.c	1.37 08/04/08 Copyright 1984-2006 J. Schilling";
 #endif
 /*
  *	Upper layer support routines for TERMCAP
@@ -9,15 +9,18 @@ static	char sccsid[] =
  *	Copyright (c) 1984-2006 J. Schilling
  */
 /*
- * The contents of this file are subject to the terms of the
- * Common Development and Distribution License, Version 1.0 only
- * (the "License").  You may not use this file except in compliance
- * with the License.
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2
+ * as published by the Free Software Foundation.
  *
- * See the file CDDL.Schily.txt in this distribution for details.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- * When distributing Covered Code, include this CDDL HEADER in each
- * file and include the License file CDDL.Schily.txt from this distribution.
+ * You should have received a copy of the GNU General Public License along with
+ * this program; see the file COPYING.  If not, write to the Free Software
+ * Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
 /*
@@ -45,6 +48,7 @@ static	char sccsid[] =
 #include "terminal.h" /* XXX */
 #include <schily/fcntl.h>
 #include <schily/termios.h>
+#include <signal.h>
 
 /*
  * The following variables are used to tell our users

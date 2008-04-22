@@ -1,0 +1,197 @@
+. \" @(#)copy.1	1.7 08/04/12 Copyright 1985-1997 200-2008 J. Schilling
+. \"  Manual page for copy
+. \"
+.if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
+.if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
+.if t .ds u \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'u
+.if t .ds A \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'A
+.if t .ds O \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'O
+.if t .ds U \v'-0.77m'\h'0.30n'\z.\h'0.45n'\z.\v'0.77m'\h'-.75n'U
+.if t .ds s \(*b
+.if t .ds S SS
+.if n .ds a ae
+.if n .ds o oe
+.if n .ds u ue
+.if n .ds s sz
+.TH COPY 1 "08/04/12" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.SH NAME
+copy \- makes copies of file(s)
+.SH SYNOPSIS
+.B
+copy \-i
+[
+.I options
+]
+.PP
+copy with prompt for filenames
+.PP
+.B
+copy
+[
+.I options
+]
+.B from_file to_file
+.PP
+copy a single file
+.PP
+.B
+copy
+[
+.I options
+]
+.B from1\|.\|.\|.fromn targetdir
+.PP
+copy multiple files into one directory that must exist
+.SH DESCRIPTION
+.B Copy
+makes a copy of the first file and gives it the second
+filename. If the first file does not exist or cannot be opened
+or if the second file cannot be created or opened,
+.B copy
+prints an error message. If the second file already exists, it is
+overwritten.
+.PP
+Copying directories, devices, fifos and the like are
+permitted, but are treated differently. Copying a directory
+just creates the target directory. Copying a device just
+creates a new device node. Copying a fifo just
+creates a new fifo.
+.PP
+To copy multiple source files to a target directory: list the
+source files on the command line followed by the name of the
+target directory.
+.B Copy
+verifies that the last named file is
+indeed a directory before attempting the copy or reporting an
+error.
+.SH OPTIONS
+.TP
+.B \-force\-hole
+Try to enforce the target filee to be a sparse file. To achive this,
+.B copy
+reads the file in 512 Byte blocks. If a block only contains null bytes,
+no data is written to the target file. This option works if the filesystem
+for the target file allows to create sparse files, regardless of the state
+of the source file.
+.TP
+.B \-i
+Interactive.
+If file type arguments are present,
+.B copy
+will prompt for confirmation whenever the copy would overwrite an existing
+.IR target .
+A "\fBy\fP"
+answer means that the copy should proceed.
+Any other answer prevents
+.B copy
+from overwriting
+.IR target .
+If no file type arguments are present,
+.B copy
+will prompt: 
+.B "From: To: 
+until either a ^C, ^D, or an empty line is typed.
+.TP
+.B \-q
+Query.
+Requests confirmation before each file; "\fBy\fP" or "\fByes\fP"
+to do the copy, anything else to skip the file.
+.TP
+.B \-R
+POSIX recursive.
+If the from file is a directory,
+.B copy
+creates not only
+the target directory but recursively copies all
+subfiles. If the
+.I "target directory
+exists, a directory type 
+.I from
+parameter always results in a concatenation
+of the last path name component of the
+.I from 
+parameter and the
+.I "target directory
+name.
+.sp
+If the 
+.I "target directory 
+does not exist in POSIX recursive copy mode
+and there are only two directory type parameters, the 
+.I "target directory
+is created and the content of the 
+.I "from directory
+is copied to the 
+.IR "target directory" .
+This is different from the case when the
+.I "target directory 
+exists.
+.TP
+.B \-r
+Recursive.
+Same as
+.B \-R
+but if there are only two directory type path parameters, the content of the
+.I from
+directory
+will be copied into 
+.I target
+directory.
+.TP
+.B \-setowner
+Setowner.
+Attempts to copy the original user id
+(only the system administrator can do this).
+.TP
+.B \-setgrp
+Setgroup.
+Attempts to copy the original group id
+(only the system administrator can do this).
+.TP
+.B \-s
+Attempts to copy both, the owner- ant the group-id of the files
+(only the system administrator can do this).
+.TP
+.BR \-olddate , " \-o"
+Olddate
+Attempts to copy the original date and time.
+.TP
+.B \-p
+Attempt to preserve file permissions, file owner id, file group id and
+file times.
+If 
+.B copy
+fails to set the owner id or group id on the new file, the permissions
+S_ISUID and S_ISGID are cleared.
+.TP
+.B \-sparse
+Attempt to preserve holes in sparse regular files.
+On platforms that support SEEK_DATA and SEEK_HOLE
+.BR lseek (2)
+whence values,
+.B copy
+is able to effeciently and correctly restore all hole positions.
+.TP
+.B \-v
+Verbose
+Reports the result of the copy.
+.SH NOTES
+If the 
+.I "target file
+does not exist,
+.B copy
+attempts to retain the original user access modes even if 
+.B \-p
+has not been specified. Copying
+a device file results in only copying the device file entry, not
+in reading the device.
+.PP
+When copying an entire directory (using the
+.B \-r
+option), the target directory should not exist. Otherwise, a subdirectory
+with the same name as the source directory is created and used
+as the destination for all the files.
+.PP
+No slash will be accepted in the interactive mode if the
+environment variable 'SLASH=off' is set.
+.SH BUGS

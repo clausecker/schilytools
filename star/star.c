@@ -1,7 +1,7 @@
-/* @(#)star.c	1.315 08/04/06 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2008 J. Schilling */
+/* @(#)star.c	1.316 08/04/13 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)star.c	1.315 08/04/06 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2008 J. Schilling";
+	"@(#)star.c	1.316 08/04/13 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2008 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1985, 88-90, 92-96, 98, 99, 2000-2008 J. Schilling
@@ -103,7 +103,7 @@ LOCAL	void	docompat	__PR((int *pac, char *const **pav));
 #define	QIC_525_TSIZE	1025000		/* 512500 kBytes */
 #define	TSIZE(s)	((s)*TBLOCK)
 
-char	strvers[] = "1.5a89";		/* The pure version string	*/
+char	strvers[] = "1.5";		/* The pure version string	*/
 char	*vers;				/* the full version string	*/
 
 struct star_stats	xstats;		/* for printing statistics	*/

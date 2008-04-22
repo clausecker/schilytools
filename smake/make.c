@@ -1,12 +1,12 @@
-/* @(#)make.c	1.143 08/01/19 Copyright 1985, 87, 88, 91, 1995-2007 J. Schilling */
+/* @(#)make.c	1.145 08/04/19 Copyright 1985, 87, 88, 91, 1995-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)make.c	1.143 08/01/19 Copyright 1985, 87, 88, 91, 1995-2007 J. Schilling";
+	"@(#)make.c	1.145 08/04/19 Copyright 1985, 87, 88, 91, 1995-2008 J. Schilling";
 #endif
 /*
  *	Make program
  *
- *	Copyright (c) 1985, 87, 88, 91, 1995-2007 by J. Schilling
+ *	Copyright (c) 1985, 87, 88, 91, 1995-2008 by J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -60,6 +60,7 @@ LOCAL	void	read_defs	__PR((void));
 LOCAL	void	read_makefiles	__PR((void));
 EXPORT	void	setup_dotvars	__PR((void));
 LOCAL	void	setup_vars	__PR((void));
+LOCAL	void	setup_xvars	__PR((void));
 LOCAL	void	setup_MAKE	__PR((char *name));
 EXPORT	char	*searchtype	__PR((int mode));
 LOCAL	void	printdirs	__PR((void));
@@ -169,20 +170,23 @@ date_t	newtime;		/* Special time newer than all		    */
 /*
  * POSIX requieres commands to be executed via 'sh -c command' which is
  * wrong as it causes make not to stop on errors if called with complex
- * commands (e.g. commands that contain a ';').
+ * commands (e.g. commands that contain loops or a ';').
  *
  * We used to call /bin/sh -ce 'cmd' in former times which was correct,
  * but we got (unfortunately undocumented) problems on QNX and we changed
  * it to sh -c 'cmd' on 00/11/19. In hope that newer versions of QNX have
  * no problems with sh -ce, we changed it back on May 9th 2004.
  *
- * XXX Switching between both variants via .POSIX does not look like a good
- * XXX idea. We rather try to send a bug report against the POSIX standard.
+ * The solution to implement POSIX compatibility without making smake 
+ * unusable is to also set "MAKE_SHELL_FLAG=-ce" in the makefile together
+ * with .POSIX:
+ * We should also try to send a bug report against the POSIX standard. 
  */
 #define	POSIX_SHELL_CEFLAG	"-c"	/* Does not work correctly	*/
 #define	SHELL_CEFLAG		"-ce"	/* Needed for correct behavior	*/
 #define	SHELL_CFLAG		"-c"	/* Used with make -i		*/
 
+LOCAL	char	pceflag[] = POSIX_SHELL_CEFLAG; /* Cmds in posix mode	*/
 LOCAL	char	ceflag[] = SHELL_CEFLAG; /* Used by default for cmds	*/
 LOCAL	char	cflag[]  = SHELL_CFLAG;	/* Used with make -i		*/
 
@@ -531,6 +535,27 @@ setup_vars()
 }
 
 /*
+ * Set up some nice to have extended macros.
+ */
+LOCAL void
+setup_xvars()
+{
+	char	*val;
+
+	val = get_var("MAKE_SHELL_FLAG");
+	if (val == NULL || *val == '\0') {
+		if (posixmode)
+			define_var("MAKE_SHELL_FLAG", pceflag);
+		else
+			define_var("MAKE_SHELL_FLAG", ceflag);	/* Used for make */
+	}
+
+	val = get_var("MAKE_SHELL_IFLAG");
+	if (val == NULL || *val == '\0')
+		define_var("MAKE_SHELL_IFLAG", cflag);	/* Used for make -i */
+}
+
+/*
  * Set up the special macro $(MAKE).
  * If we were called with an absolute PATH or without any '/', use argv[0],
  * else compute the absolute PATH by prepending working dir to argv[0].
@@ -799,7 +824,7 @@ main(ac, av)
 	if (help)
 		usage(0);
 	if (pversion) {
-		printf("Smake release %s (%s-%s-%s) Copyright (C) 1985, 87, 88, 91, 1995-2007 Jörg Schilling\n",
+		printf("Smake release %s (%s-%s-%s) Copyright (C) 1985, 87, 88, 91, 1995-2008 Jörg Schilling\n",
 				make_version,
 				HOST_CPU, HOST_VENDOR, HOST_OS);
 		exit(0);
@@ -864,7 +889,7 @@ main(ac, av)
 		read_defs();	/* read "defaults.smk"			*/
 	setup_MAKE(av[0]);	/* Set up $(MAKE)			*/
 	setup_vars();		/* Set up some known special macros	*/
-	setup_arch();		/* Set up srch specific macros		*/
+	setup_arch();		/* Set up arch specific macros		*/
 	read_environ();		/* Sets F_READONLY if -e flag is present*/
 
 	if (Debug > 0 && Mlevel > 0)
@@ -887,6 +912,7 @@ main(ac, av)
 		Mfileindex = MF_IDX_IMPLICIT;
 
 	setup_dotvars();
+	setup_xvars();		/* Set up compat vars like MAKE_SHELL_FLAG */
 	if (!Rflag)
 		check_old_makefiles();
 
@@ -1436,6 +1462,7 @@ docmd(cmd, obj)
 	BOOL	foundplus = FALSE;
 	obj_t	*shello;
 	char	*shell = NULL;
+	char	*shellflag;
 
 	while (iswhite(*cmd))
 		cmd++;
@@ -1474,10 +1501,16 @@ docmd(cmd, obj)
 
 	curtarget = obj;
 
+	shellflag = get_var(NoError ? "MAKE_SHELL_IFLAG":"MAKE_SHELL_FLAG");
+	if (shellflag == NULL || *shellflag == '\0') {
+		if (posixmode)
+			shellflag = pceflag;
+		else
+			shellflag = NoError ? cflag:ceflag;
+	}
+
 	shello = objlook("SHELL", FALSE);
-	if (shello != NULL && basetype(shello->o_type) == EQUAL &&
-	    shello->o_list != NULL)
-		shell = shello->o_list->l_obj->o_name;
+	shell = get_var("SHELL");
 	if (shell == NULL || *shell == '\0') {
 		shello = NULL;
 		shell = "/bin/sh";
@@ -1488,7 +1521,7 @@ docmd(cmd, obj)
 
 #if defined(__EMX__) || defined(__DJGPP__)
 #ifdef	__EMX__
-	pid = spawnl(P_NOWAIT, shell, filename(shell), NoError ? cflag:ceflag,
+	pid = spawnl(P_NOWAIT, shell, filename(shell), shellflag,
 							cmd, (char *)NULL);
 	if (pid < 0)
 		comerr("Can't spawn %s.\n", shell);
@@ -1520,7 +1553,7 @@ docmd(cmd, obj)
 			comerr("Can't find sh.exe.\n");
 
 		Exit = spawnl(P_WAIT, shellname, filename(shellname),
-						NoError ? cflag:ceflag,
+							shellflag,
 							cmd, (char *)NULL);
 		if (Exit) {
 			/* TODO: DOS error code to UNIX error code */
@@ -1547,7 +1580,7 @@ docmd(cmd, obj)
 		 * and UNIX-98 requests that the command shall be called as in
 		 * system() which means /bin/sh -c 'cmd'.
 		 */
-		execl(shell, filename(shell), NoError ? cflag:ceflag,
+		execl(shell, filename(shell), shellflag,
 							cmd, (char *)NULL);
 		comerr("Can't exec %s.\n", shell);
 	}

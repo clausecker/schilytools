@@ -1,7 +1,7 @@
-/* @(#)mkisofs.c	1.232 08/04/06 joerg */
+/* @(#)mkisofs.c	1.233 08/04/17 joerg */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)mkisofs.c	1.232 08/04/06 joerg";
+	"@(#)mkisofs.c	1.233 08/04/17 joerg";
 #endif
 /*
  * Program mkisofs.c - generate iso9660 filesystem  based upon directory
@@ -2065,7 +2065,124 @@ args_ok:
 		use_mac_name = 1;
 	if (hfs_parms)
 		hfs_parms = e_strdup(hfs_parms);
+
+	if (apple_hyb && apple_ext) {
+		comerrno(EX_BAD, "Can't have both -apple and -hfs options\n");
+	}
+	/*
+	 * if -probe, -macname, any hfs selection and/or mapping file is given,
+	 * but no HFS option, then select apple_hyb
+	 */
+	if (!apple_hyb && !apple_ext) {
+		if (*afpfile || probe || use_mac_name || hfs_select ||
+				hfs_boot_file || magic_file ||
+				hfs_ishidden() || gen_pt || autoname ||
+				afe_size || icon_pos || hfs_ct ||
+				hfs_icharset || hfs_ocharset) {
+			apple_hyb = 1;
+			if ((DO_XHFS & hfs_select) && use_udf) {
+				donotwrite_macpart = 1;
+				if (!no_apple_hyb) {
+					error(
+					"Warning: no HFS hybrid will be created with -udf and --osx-hfs\n");
+				}
+			}
+		}
+	}
+#ifdef UDF
+	if (!use_udf && create_udfsymlinks)
+		create_udfsymlinks = 0;
+#if 0
+	if (use_RockRidge && use_udf && create_udfsymlinks) {
+		error("Warning: cannot create UDF symlinks with activated Rock Ridge\n");
+		create_udfsymlinks = 0;
+	}
+#endif
+#endif
+	if (no_apple_hyb) {
+		donotwrite_macpart = 1;
+	}
+	if (apple_hyb && !donotwrite_macpart && do_largefiles > 0) {
+		do_largefiles = 0;
+		maxnonlarge = (off_t)0x7FFFFFFF;
+		error("Warning: cannot support large files with -hfs\n");
+	}
+	if (apple_hyb && use_udf && !donotwrite_macpart) {
+		comerrno(EX_BAD, "Can't have -hfs with -udf\n");
+	}
+	if (apple_ext && hfs_boot_file) {
+		comerrno(EX_BAD, "Can't have -hfs-boot-file with -apple\n");
+	}
+	if (apple_ext && autoname) {
+		comerrno(EX_BAD, "Can't have -auto with -apple\n");
+	}
+	if (apple_hyb && (use_sparcboot || use_sunx86boot)) {
+		comerrno(EX_BAD, "Can't have -hfs with -sparc-boot/-sunx86-boot\n");
+	}
+	if (apple_hyb && use_genboot) {
+		comerrno(EX_BAD, "Can't have -hfs with -generic-boot\n");
+	}
+#ifdef PREP_BOOT
+	if (apple_ext && use_prep_boot) {
+		comerrno(EX_BAD, "Can't have -prep-boot with -apple\n");
+	}
+#endif	/* PREP_BOOT */
+
+	if (apple_hyb || apple_ext)
+		apple_both = 1;
+
+	if (probe)
+		/* we need to search for all types of Apple/Unix files */
+		hfs_select = ~0;
+
+	if (apple_both && verbose && !(hfs_select || *afpfile || magic_file)) {
+		errmsgno(EX_BAD,
+		"Warning: no Apple/Unix files will be decoded/mapped\n");
+	}
+	if (apple_both && verbose && !afe_size &&
+					(hfs_select & (DO_FEU | DO_FEL))) {
+		errmsgno(EX_BAD,
+		"Warning: assuming PC Exchange cluster size of 512 bytes\n");
+		afe_size = 512;
+	}
+	if (apple_both) {
+		/* set up the TYPE/CREATOR mappings */
+		hfs_init(afpfile, 0, hfs_select);
+	}
+	if (apple_ext && !use_RockRidge) {
+#ifdef	nonono
+		/* use RockRidge to set the SystemUse field ... */
+		use_RockRidge++;
+		rationalize_all++;
+#else
+		/* EMPTY */
+#endif
+	}
+	if (apple_ext && !(use_XA || use_RockRidge)) {
+		comerrno(EX_BAD, "Need either -XA/-xa or -R/-r for -apple to become active.\n");
+	}
 #endif	/* APPLE_HYB */
+
+	/*
+	 * if the -hide-joliet option has been given, set the Joliet option
+	 */
+	if (!use_Joliet && j_ishidden())
+		use_Joliet++;
+#ifdef	UDF
+	/*
+	 * if the -hide-udf option has been given, set the UDF option
+	 */
+	if (!use_udf && u_ishidden())
+		use_udf++;
+#endif
+
+	if (rationalize_all) {
+		rationalize++;
+		rationalize_uid++;
+		rationalize_gid++;
+		rationalize_filemode++;
+		rationalize_dirmode++;
+	}
 
 	/*
 	 * XXX This is a hack until we have a decent separate name handling
@@ -2270,126 +2387,6 @@ setcharset:
 #ifdef HAVE_SBRK
 	mem_start = (unsigned long) sbrk(0);
 #endif
-
-	/*
-	 * if the -hide-joliet option has been given, set the Joliet option
-	 */
-	if (!use_Joliet && j_ishidden())
-		use_Joliet++;
-#ifdef	UDF
-	/*
-	 * if the -hide-udf option has been given, set the UDF option
-	 */
-	if (!use_udf && u_ishidden())
-		use_udf++;
-#endif
-
-#ifdef APPLE_HYB
-	if (apple_hyb && apple_ext) {
-		comerrno(EX_BAD, "Can't have both -apple and -hfs options\n");
-	}
-	/*
-	 * if -probe, -macname, any hfs selection and/or mapping file is given,
-	 * but no HFS option, then select apple_hyb
-	 */
-	if (!apple_hyb && !apple_ext) {
-		if (*afpfile || probe || use_mac_name || hfs_select ||
-				hfs_boot_file || magic_file ||
-				hfs_ishidden() || gen_pt || autoname ||
-				afe_size || icon_pos || hfs_ct ||
-				hfs_icharset || hfs_ocharset) {
-			apple_hyb = 1;
-			if ((DO_XHFS & hfs_select) && use_udf) {
-				donotwrite_macpart = 1;
-				if (!no_apple_hyb) {
-					error(
-					"Warning: no HFS hybrid will be created with -udf and --osx-hfs\n");
-				}
-			}
-		}
-	}
-#ifdef UDF
-	if (!use_udf && create_udfsymlinks)
-		create_udfsymlinks = 0;
-#if 0
-	if (use_RockRidge && use_udf && create_udfsymlinks) {
-		error("Warning: cannot create UDF symlinks with activated Rock Ridge\n");
-		create_udfsymlinks = 0;
-	}
-#endif
-#endif
-	if (no_apple_hyb) {
-		donotwrite_macpart = 1;
-	}
-	if (apple_hyb && !donotwrite_macpart && do_largefiles > 0) {
-		do_largefiles = 0;
-		maxnonlarge = (off_t)0x7FFFFFFF;
-		error("Warning: cannot support large files with -hfs\n");
-	}
-	if (apple_hyb && use_udf && !donotwrite_macpart) {
-		comerrno(EX_BAD, "Can't have -hfs with -udf\n");
-	}
-	if (apple_ext && hfs_boot_file) {
-		comerrno(EX_BAD, "Can't have -hfs-boot-file with -apple\n");
-	}
-	if (apple_ext && autoname) {
-		comerrno(EX_BAD, "Can't have -auto with -apple\n");
-	}
-	if (apple_hyb && (use_sparcboot || use_sunx86boot)) {
-		comerrno(EX_BAD, "Can't have -hfs with -sparc-boot/-sunx86-boot\n");
-	}
-	if (apple_hyb && use_genboot) {
-		comerrno(EX_BAD, "Can't have -hfs with -generic-boot\n");
-	}
-#ifdef PREP_BOOT
-	if (apple_ext && use_prep_boot) {
-		comerrno(EX_BAD, "Can't have -prep-boot with -apple\n");
-	}
-#endif	/* PREP_BOOT */
-
-	if (apple_hyb || apple_ext)
-		apple_both = 1;
-
-	if (probe)
-		/* we need to search for all types of Apple/Unix files */
-		hfs_select = ~0;
-
-	if (apple_both && verbose && !(hfs_select || *afpfile || magic_file)) {
-		errmsgno(EX_BAD,
-		"Warning: no Apple/Unix files will be decoded/mapped\n");
-	}
-	if (apple_both && verbose && !afe_size &&
-					(hfs_select & (DO_FEU | DO_FEL))) {
-		errmsgno(EX_BAD,
-		"Warning: assuming PC Exchange cluster size of 512 bytes\n");
-		afe_size = 512;
-	}
-	if (apple_both) {
-		/* set up the TYPE/CREATOR mappings */
-		hfs_init(afpfile, 0, hfs_select);
-	}
-	if (apple_ext && !use_RockRidge) {
-#ifdef	nonono
-		/* use RockRidge to set the SystemUse field ... */
-		use_RockRidge++;
-		rationalize_all++;
-#else
-		/* EMPTY */
-#endif
-	}
-	if (apple_ext && !(use_XA || use_RockRidge)) {
-		comerrno(EX_BAD, "Need either -XA/-xa or -R/-r for -apple to become active.\n");
-	}
-
-#endif	/* APPLE_HYB */
-
-	if (rationalize_all) {
-		rationalize++;
-		rationalize_uid++;
-		rationalize_gid++;
-		rationalize_filemode++;
-		rationalize_dirmode++;
-	}
 
 	if (verbose > 1) {
 		fprintf(stderr, "%s (%s-%s-%s)\n",
