@@ -1,0 +1,10 @@
+ARCH=i386
+PKG=CSWved
+#PKG=XXXved
+NAME=ved - visual editor (easy to learn, fast, large file aware, going easy on resources)
+VERSION=1.7a06
+CATEGORY=application
+VENDOR=ftp://ftp.berlios.de/pub/ved/  packaged for CSW by Jörg Schilling
+HOTLINE=http://www.blastwave.org/bugtrack/
+EMAIL=joerg@blastwave.org
+BASEDIR=/opt/csw

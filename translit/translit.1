@@ -1,0 +1,127 @@
+. \" @(#)translit.1	1.4 08/04/26 Copyr 1982-1995 J. Schilling
+. \" Manual page for translit
+. \"
+.if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
+.if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
+.if t .ds u \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'u
+.if t .ds A \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'A
+.if t .ds O \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'O
+.if t .ds U \v'-0.77m'\h'0.30n'\z.\h'0.45n'\z.\v'0.77m'\h'-.75n'U
+.if t .ds s \(*b
+.if t .ds S SS
+.if n .ds a ae
+.if n .ds o oe
+.if n .ds u ue
+.if n .ds s sz
+.TH TRANSLIT 1L "08/04/26" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.SH NAME
+translit \- translates characters
+.SH SYNOPSIS
+.B
+translit 
+[ 
+.I options 
+]
+.I from_string to_string 
+.B
+[\fIfile1 .\|.\|. filen\fP]
+.SH DESCRIPTION
+.B Translit 
+performs a character substitution, changing
+the characters specified in the 
+.I from_string 
+to the corresponding
+characters in the 
+.IR to_string .
+Since the mapping is done one to one, the 
+.I from_string 
+must be equal to or larger than the 
+.IR to_string .
+If the 
+.I from_string 
+is larger, the end of the from set is mapped
+to the last character of the to set.
+.PP
+The files are not modified, all output is written to standard out.
+If no files are specified,
+.B translit 
+reads from standard input.
+.SH OPTIONS
+.TP
+.B \-help
+Prints a short summary of the 
+.B translit
+options and exists.
+.TP
+.B \-version
+Prints the 
+.B translit
+version number string and exists.
+.TP
+.B \-c
+Complement the set of values specified by
+.IR from_string .
+.TP
+.B \-d
+Delete all occurrences of input characters that are specified in
+.IR from_string .
+.TP
+.B \-s
+Replace instances of repeated characters that are specified in
+.I from_string
+with a single character.
+If the 
+.B \-d
+option has also been specified, the character set is taken from
+.IR to_string .
+
+.SH OPERANDS
+.PP
+The following notations of characters are supported:
+.PP
+.na
+.nf
+c       Any single byte character not described below
+\\ddd    Represents octal notations of characters
+\\\\      Represents the \fBbackslash\fP
+\\a      Represents the \fBaudible bell\fP
+\\b      Represents the \fBbackspace\fP character
+\\f      Represents the \fBformfeed\fP character
+\\n      Represents the \fBnewline\fP character
+\\r      Represents the \fBcarriage return\fP character
+\\t      Represents the \fBtab\fP character
+\\v      Represents the \fBvertical tab\fP character
+.ad
+.fi
+.SH NOTES
+When the 
+.I to_string
+is smaller than the 
+.IR from_string ,
+multiple
+occurrences of the folded characters are not generated.
+Translating all letters, white space and punctuation, to X's,
+for example, will cause only a single X to appear on the output
+stream.
+.PP
+If the
+.I to_string
+is empty, all occurrences of input characters that are specified in
+.I from_string
+are deleted and produce no output.
+.PP
+You can use reverse ranges,
+.IP
+.B "translit [a-z] [z-a]
+.PP
+will change every a to z and every z to a and so forth.
+.PP
+If an ordinary digit in the octal range is following an octal sequence,
+the octal sequence must use three octal digits.
+.PP
+If
+.I from_string
+or
+.I to_string
+start with the unescaped character '^', the related set is complemented.
+.SH BUGS

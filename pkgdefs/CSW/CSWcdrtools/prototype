@@ -23,6 +23,7 @@ f none share/man/man1/cdda2wav.1 0444 root bin
 f none share/man/man1/cdda2ogg.1 0444 root bin
 f none share/man/man1/cdrecord.1 0444 root bin
 f none share/man/man1/readcd.1 0444 root bin
+f none share/man/man1/rscsi.1 0444 root bin
 f none share/man/man1/scgcheck.1 0444 root bin
 d none share/man/man8 ? ? ?
 f none share/man/man8/mkisofs.8 0444 root bin

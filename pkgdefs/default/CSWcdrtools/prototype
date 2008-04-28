@@ -1,0 +1,34 @@
+i pkginfo
+i depend
+i copyright
+d none opt ? ? ?
+d none opt/schily ? ? ?
+d none opt/schily/bin ? ? ?
+f none opt/schily/bin/cdda2wav 0755 root bin
+f none opt/schily/bin/cdrecord 0755 root bin
+f none opt/schily/bin/mkisofs 0755 root bin
+s none opt/schily/bin/mkhybrid=mkisofs
+f none opt/schily/bin/devdump 0755 root bin
+f none opt/schily/bin/isodump 0755 root bin
+f none opt/schily/bin/isoinfo 0755 root bin
+f none opt/schily/bin/isovfy 0755 root bin
+f none opt/schily/bin/isodebug 0755 root bin
+f none opt/schily/bin/readcd 0755 root bin
+f none opt/schily/bin/scgcheck 0755 root bin
+f none opt/schily/bin/scgskeleton 0755 root bin
+d none opt/schily/sbin ? ? ?
+f none opt/schily/sbin/rscsi 4711 root bin
+d none opt/schily/share ? ? ?
+d none opt/schily/share/man ? ? ?
+d none opt/schily/share/man/man1 ? ? ?
+f none opt/schily/share/man/man1/cdda2wav.1 0444 root bin
+f none opt/schily/share/man/man1/cdda2ogg.1 0444 root bin
+f none opt/schily/share/man/man1/cdrecord.1 0444 root bin
+f none opt/schily/share/man/man1/readcd.1 0444 root bin
+f none opt/schily/share/man/man1/scgcheck.1 0444 root bin
+d none opt/schily/share/man/man8 ? ? ?
+f none opt/schily/share/man/man8/mkisofs.8 0444 root bin
+f none opt/schily/share/man/man8/mkhybrid.8 0444 root bin
+f none opt/schily/share/man/man8/isoinfo.8 0444 root bin
+d none opt/schily/share/man/man4 ? ? ?
+s none opt/schily/man=share/man

@@ -1,20 +1,22 @@
-#ident @(#)Makefile	1.6 08/04/06 
+#ident @(#)Makefile	1.4 07/02/04 Copyr 1995 J. Schilling
 ###########################################################################
-#include		$(MAKE_M_ARCH).def
 SRCROOT=	..
 RULESDIR=	RULES
 include		$(SRCROOT)/$(RULESDIR)/rules.top
 ###########################################################################
 
-INSDIR=		sbin
-TARGET=		rscsi
-INSMODE=	4711
-INSUSR=		root
-#CPPOPTS +=	-DUSE_REMOTE
-CFILES=		rscsi.c
-#HFILES=
-LIBS=		-lscg $(LIB_VOLMGT) -ldeflt -lschily $(SCSILIB) $(LIB_SOCKET)
-XMK_FILE=	Makefile.man Makefile.dfl Makefile.doc
+INSDIR=		bin
+TARGET=		pxupgrade
+#CPPOPTS +=	-DFIFO -DDRV_DVD -DUSE_PG -DAUINFO
+#CPPOPTS +=	-DASPI
+CPPOPTS +=	-DSCHILY_PRINT
+
+CFILES=		pxupgrade.c pcmd.c
+HFILES=		scsicmds.h
+
+#LIBS=		-lschily $(LIB_SOCKET)
+LIBS=		-lscg $(LIB_VOLMGT) -ldeflt -lschily $(SCSILIB)
+XMK_FILE=	Makefile.man
 
 ###########################################################################
 include		$(SRCROOT)/$(RULESDIR)/rules.cmd

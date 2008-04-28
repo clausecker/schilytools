@@ -1,0 +1,10 @@
+i pkginfo
+i depend
+i copyright
+d none bin ? ? ?
+f none bin/pxupgrade 0755 root bin
+d none share ? ? ?
+d none share/man ? ? ?
+d none share/man/man1 ? ? ?
+f none share/man/man1/pxupgrade.1 0444 root bin
+s none man=share/man

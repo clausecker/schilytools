@@ -1,23 +1,16 @@
-#ident @(#)Makefile	1.6 08/04/06 
+#ident @(#)Makefile.dot	1.1 07/06/12 
 ###########################################################################
-#include		$(MAKE_M_ARCH).def
+# Sample makefile for installing non-localized auxiliary files
+###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
 include		$(SRCROOT)/$(RULESDIR)/rules.top
 ###########################################################################
 
-INSDIR=		sbin
-TARGET=		rscsi
-INSMODE=	4711
-INSUSR=		root
-#CPPOPTS +=	-DUSE_REMOTE
-CFILES=		rscsi.c
-#HFILES=
-LIBS=		-lscg $(LIB_VOLMGT) -ldeflt -lschily $(SCSILIB) $(LIB_SOCKET)
-XMK_FILE=	Makefile.man Makefile.dfl Makefile.doc
+INSDIR=		share/doc/schilyutils
+TARGET=		dotfiles.tar.bz2
+#XMK_FILE=	Makefile.man
 
 ###########################################################################
-include		$(SRCROOT)/$(RULESDIR)/rules.cmd
+include		$(SRCROOT)/$(RULESDIR)/rules.aux
 ###########################################################################
-count:	$(CFILES) $(HFILES)
-	count $r1

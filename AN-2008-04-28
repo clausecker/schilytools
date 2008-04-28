@@ -1,0 +1,39 @@
+New features with AN-2008-04-28:
+
+-	The source for the program "tanslit" has been added.
+	Translit is an alternative "tr" implementation.
+
+-	.local abbreviation support in bsh has been fixed.
+	It now always calls ab_close() from the builtin "cd"
+	again to avoid to rewrite .locals when readin .locals
+	after a chdir from a directory without .locals.
+
+-	mkisofs again supports -no-bak. This option has been
+	removed by accident with cdrtools-2.01.01a22
+
+-	mkisofs again auto-adds a slash to the left part of
+	a dir=orig/ graft point spec if the right side is a
+	directory. The problem has been introduced ~ one year
+	ago when cleaning up buggy old code.
+
+-	Minimal rscsi man page added
+
+-	All "Schily" Blastwave packages now may be automatically
+	created from this source. Simply call:
+
+		smake -f Mcsw
+
+	and check the directory packages/ for the resulting packages.
+
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.isdn.cs.tu-berlin.de, js@cs.tu-berlin.de
+	schilling@fokus.fhg.de
+
+Please mail bugs and suggestions to me.

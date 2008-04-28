@@ -1,0 +1,129 @@
+. \" %Z%%M%	%I% %E% Copyr 2000-2008 J. Schilling
+. \"  Manual Seite fuer rscsi
+. \"
+.if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
+.if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
+.if t .ds u \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'u
+.if t .ds A \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'A
+.if t .ds O \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'O
+.if t .ds U \v'-0.77m'\h'0.30n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.75n'U
+.if t .ds s \\(*b
+.if t .ds S SS
+.if n .ds a ae
+.if n .ds o oe
+.if n .ds u ue
+.if n .ds s sz
+.TH RSCSI 1 "April 2008" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.SH NAME
+rscsi \- remote generic SCSI transport protocol server
+.SH SYNOPSIS
+.B /opt/schily/sbin/rscsi
+
+.SH DESCRIPTION
+.IX  "rscsi command"  ""  "\fLrscsi\fP \(em remote generic SCSI transport protocol server"
+.IX  "remote generic SCSI transport protocol server"  ""  "remote generic SCSI transport protocol server \(em \fLrscsi\fP"
+This is the description of the
+.B rscsi
+remote generic SCSI transport server program.
+.B rscsi
+is a program used by programs like
+.B cdrecord
+and
+.B sformat
+that like to access remote SCSI drives
+through an interprocess communication connection.
+.B rscsi
+is normally started up with an
+.BR rexec (3)
+or
+.BR rcmd (3)
+call.
+.LP
+The
+.B rscsi
+program accepts 
+.BR open ,
+.BR close ,
+.B sendcmd
+and
+similar requests that are all related to the interface of 
+.BR libscg .
+.B rscsi
+performs the commands and then responds with a status indication.
+.LP
+The 
+.B rscsi 
+program is prepared to be installed as a user shell in the passwd
+file to create remote SCSI specific logins and security checking.
+.LP
+All responses are send back in
+.SM ASCII
+and in one of the following two forms.
+.LP
+Successful commands have responses of
+.IP
+.BI A number\en
+.LP
+where
+.I number
+is the
+.SM ASCII
+representation of a decimal number that usually is the return
+code of the corresponding system call.
+Unsuccessful commands are responded to with
+.IP
+.BI E error-number \en error-message \en
+.LP
+where
+.I error-number
+is one of the possible error
+numbers described in
+.BR intro (2),
+and
+.I error-message
+is the corresponding error string as retrieved by
+.BR strerror (3).
+
+.SH FILES
+.TP
+/etc/default/rscsi
+Default values can be set for the following options in /etc/default/rscsi.
+.SH "SEE ALSO"
+.BR cdrecord (1),
+.BR cdda2wav (1),
+.BR reaedcd (1),
+.BR rcmd (3),
+.BR rexec (3),
+.BR strerror (3)
+
+.SH DIAGNOSTICS
+All responses are send to the network connection.
+They use the form described above.
+.SH NOTES
+.SH BUGS
+.LP
+None known.
+.SH HISTORY
+.LP
+The 
+.B rscsi
+command has been developed by J\*org Schilling in June 2000. 
+
+.SH AUTHOR
+.nf
+J\*org Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+.fi
+.PP
+Mail bugs and suggestions to:
+.PP
+.B
+schilling@fokus.fhg.de
+or
+.B
+js@cs.tu-berlin.de
+or
+.B
+joerg@schily.isdn.cs.tu-berlin.de

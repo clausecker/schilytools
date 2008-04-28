@@ -1,7 +1,7 @@
-/* @(#)mkisofs.c	1.233 08/04/17 joerg */
+/* @(#)mkisofs.c	1.234 08/04/24 joerg */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)mkisofs.c	1.233 08/04/17 joerg";
+	"@(#)mkisofs.c	1.234 08/04/24 joerg";
 #endif
 /*
  * Program mkisofs.c - generate iso9660 filesystem  based upon directory
@@ -849,6 +849,10 @@ LOCAL const struct mki_option mki_options[] =
 	"\1GLOBFILE\1Exclude file name"},
 	{{"exclude-list&", NULL, (getpargfun)add_list},
 	"\1FILE\1File with list of file names to exclude"},
+	{{"nobak%0", &all_files },
+	"Do not include backup files"},
+	{{"no-bak%0", &all_files},
+	"Do not include backup files"},
 	{{"pad", &dopad },
 	"Pad output to a multiple of 32k (default)"},
 	{{"no-pad%0", &dopad },
@@ -1074,8 +1078,9 @@ LOCAL	char *	get_pnames	__PR((int argc, char * const *argv, int opt,
 EXPORT	int	main		__PR((int argc, char *argv[]));
 LOCAL	void	list_locales	__PR((void));
 EXPORT	char *	findgequal	__PR((char *s));
-LOCAL	char *	escstrcpy	__PR((char *to, char *from));
-struct directory * get_graft	__PR((char *arg, char *graft_point, char *nodename,
+LOCAL	char *	escstrcpy	__PR((char *to, size_t tolen, char *from));
+struct directory * get_graft	__PR((char *arg, char *graft_point, size_t glen,
+						char *nodename, size_t nlen,
 						char **short_namep, BOOL do_insert));
 EXPORT	void *	e_malloc	__PR((size_t size));
 EXPORT	char *	e_strdup	__PR((const char *s));
@@ -2505,7 +2510,7 @@ setcharset:
 		node = NULL;
 	if (node == NULL) {
 		if (use_graft_ptrs && arg != NULL)
-			node = escstrcpy(nodename, arg);
+			node = escstrcpy(nodename, sizeof (nodename), arg);
 		else
 			node = arg;
 	} else {
@@ -2513,7 +2518,7 @@ setcharset:
 		 * Remove '\\' escape chars which are located
 		 * before '\\' and '=' chars
 		 */
-		node = escstrcpy(nodename, ++node);
+		node = escstrcpy(nodename, sizeof (nodename), ++node);
 	}
 
 	/*
@@ -2646,7 +2651,10 @@ extern		int	walkfunc	__PR((char *nm, struct stat *fs, int type, struct WALK *sta
 			graft_point[0] = '\0';
 			snp = NULL;
 			if (use_graft_ptrs)
-				graft_dir = get_graft(arg, graft_point, nodename, &snp, FALSE);
+				graft_dir = get_graft(arg,
+						    graft_point, sizeof (graft_point),
+						    nodename, sizeof (nodename),
+						    &snp, FALSE);
 			if (graft_point[0] != '\0') {
 				arg = nodename;
 				wa.dir = graft_dir;
@@ -2667,7 +2675,8 @@ extern		int	walkfunc	__PR((char *nm, struct stat *fs, int type, struct WALK *sta
 					sizeof (pname), pfp)) != NULL) {
 		char		graft_point[PATH_MAX + 1];
 
-		get_graft(arg, graft_point, nodename, NULL, TRUE);
+		get_graft(arg, graft_point, sizeof (graft_point),
+				nodename, sizeof (nodename), NULL, TRUE);
 		argind++;
 		no_path_names = 0;
 	}
@@ -3086,8 +3095,9 @@ findgequal(s)
  * Find unescaped equal sign in string.
  */
 LOCAL char *
-escstrcpy(to, from)
+escstrcpy(to, tolen, from)
 	char	*to;
+	size_t	tolen;
 	char	*from;
 {
 	char	*p = to;
@@ -3095,7 +3105,11 @@ escstrcpy(to, from)
 	if (debug)
 		error("FROM: '%s'\n", from);
 
-	while ((*p = *from++) != '\0') {
+	to[0] = '\0';
+	if (tolen > 0) {
+		to[--tolen] = '\0';	/* Fill in last nul char   */
+	}
+	while ((*p = *from++) != '\0' && tolen-- > 0) {
 		if (*p == '\\') {
 			if ((*p = *from++) == '\0')
 				break;
@@ -3112,10 +3126,12 @@ escstrcpy(to, from)
 }
 
 struct directory *
-get_graft(arg, graft_point, nodename, short_namep, do_insert)
+get_graft(arg, graft_point, glen, nodename, nlen, short_namep, do_insert)
 	char		*arg;
 	char		*graft_point;
+	size_t		glen;
 	char		*nodename;
+	size_t		nlen;
 	char		**short_namep;
 	BOOL		do_insert;
 {
@@ -3176,7 +3192,7 @@ get_graft(arg, graft_point, nodename, short_namep, do_insert)
 
 		if (node) {
 			*node = '\0';
-			escstrcpy(&graft_point[len], arg);
+			escstrcpy(&graft_point[len], glen - len, arg);
 			*node = '=';
 		}
 
@@ -3194,7 +3210,7 @@ get_graft(arg, graft_point, nodename, short_namep, do_insert)
 		} while (xpnt > graft_point);
 
 		if (node) {
-			node = escstrcpy(nodename, ++node);
+			node = escstrcpy(nodename, nlen, ++node);
 		} else {
 			node = arg;
 		}
@@ -3213,7 +3229,7 @@ get_graft(arg, graft_point, nodename, short_namep, do_insert)
 		if (status == 0 && S_ISDIR(st.st_mode)) {
 			len = strlen(graft_point);
 
-			if ((len <= (sizeof (graft_point) -1)) &&
+			if ((len <= (glen -1)) &&
 			    graft_point[len-1] != '/') {
 				graft_point[len++] = '/';
 				graft_point[len] = '\0';
@@ -3265,7 +3281,7 @@ get_graft(arg, graft_point, nodename, short_namep, do_insert)
 	} else {
 		graft_dir = root;
 		if (use_graft_ptrs)
-			node = escstrcpy(nodename, arg);
+			node = escstrcpy(nodename, nlen, arg);
 		else
 			node = arg;
 	}

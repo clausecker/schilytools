@@ -1,0 +1,10 @@
+ARCH=i386
+PKG=CSWpxupgrade
+#PKG=XXXpxupgrade
+NAME=pxupgrade - upgrade firmware in Plextor CD/DVD writers
+VERSION=1.00-dummy,REV=2004.10.06_x86only
+CATEGORY=application
+VENDOR=http://cdrecord.berlios.de/private/  packaged for CSW by Jörg Schilling
+HOTLINE=http://www.blastwave.org/bugtrack/
+EMAIL=joerg@blastwave.org
+BASEDIR=/opt/csw

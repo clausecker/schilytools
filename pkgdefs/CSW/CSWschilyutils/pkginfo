@@ -1,0 +1,10 @@
+ARCH=i386
+PKG=CSWschilyutils
+#PKG=XXXschilyutils
+NAME=schilyutils - A collection of utilities from J. Schilling
+VERSION=1.02,REV=2004.10.06_x86only
+CATEGORY=application
+VENDOR=http://cdrecord.berlios.de/old/private/  packaged for CSW by Jörg Schilling
+HOTLINE=http://www.blastwave.org/bugtrack/
+EMAIL=joerg@blastwave.org
+BASEDIR=/opt/csw

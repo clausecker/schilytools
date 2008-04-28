@@ -1,0 +1,5 @@
+P	CSWcommon	common - common files and dirs for CSW packages
+P	CSWschilybase	Basic framework from J. Schilling
+P	CSWschilyutils	A collection of utilities from J. Schilling
+P	SUNWcsl		Core Solaris, (Shared Libs)
+P	SUNWcsr		Core Solaris, (Root)

@@ -1,23 +1,18 @@
-#ident @(#)Makefile	1.6 08/04/06 
+#ident %W% %E% %Q%
 ###########################################################################
-#include		$(MAKE_M_ARCH).def
+# Sample makefile for installing manual pages
+###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
 include		$(SRCROOT)/$(RULESDIR)/rules.top
 ###########################################################################
 
-INSDIR=		sbin
-TARGET=		rscsi
-INSMODE=	4711
-INSUSR=		root
-#CPPOPTS +=	-DUSE_REMOTE
-CFILES=		rscsi.c
-#HFILES=
-LIBS=		-lscg $(LIB_VOLMGT) -ldeflt -lschily $(SCSILIB) $(LIB_SOCKET)
-XMK_FILE=	Makefile.man Makefile.dfl Makefile.doc
+MANDIR=		man
+TARGETMAN=	pxupgrade
+MANSECT=	$(MANSECT_CMD)
+MANSUFFIX=	$(MANSUFF_CMD)
+MANFILE=	pxupgrade.1
 
 ###########################################################################
-include		$(SRCROOT)/$(RULESDIR)/rules.cmd
+include		$(SRCROOT)/$(RULESDIR)/rules.man
 ###########################################################################
-count:	$(CFILES) $(HFILES)
-	count $r1

@@ -1,23 +1,24 @@
-#ident @(#)Makefile	1.6 08/04/06 
+#ident @(#)Makefile	1.6 08/04/26 
 ###########################################################################
-#include		$(MAKE_M_ARCH).def
 SRCROOT=	..
 RULESDIR=	RULES
 include		$(SRCROOT)/$(RULESDIR)/rules.top
 ###########################################################################
 
-INSDIR=		sbin
-TARGET=		rscsi
-INSMODE=	4711
-INSUSR=		root
-#CPPOPTS +=	-DUSE_REMOTE
-CFILES=		rscsi.c
-#HFILES=
-LIBS=		-lscg $(LIB_VOLMGT) -ldeflt -lschily $(SCSILIB) $(LIB_SOCKET)
-XMK_FILE=	Makefile.man Makefile.dfl Makefile.doc
+INSDIR=		bin
+TARGET=		translit
+CPPOPTS +=	-DUSE_LARGEFILES
+CPPOPTS +=	-DSCHILY_PRINT
+
+CFILES=		translit.c
+# HFILES=
+#LIBS=		-lunos
+LIBS=		-lschily
+XMK_FILE=	Makefile.man
 
 ###########################################################################
 include		$(SRCROOT)/$(RULESDIR)/rules.cmd
 ###########################################################################
-count:	$(CFILES) $(HFILES)
-	count $r1
+count:		$(CFILES) $(HFILES)
+		count $r1 
+

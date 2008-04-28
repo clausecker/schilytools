@@ -1,7 +1,7 @@
-/* @(#)abbrev.c	1.28 08/03/27 Copyright 1985-2008 J. Schilling */
+/* @(#)abbrev.c	1.29 08/04/25 Copyright 1985-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)abbrev.c	1.28 08/03/27 Copyright 1985-2008 J. Schilling";
+	"@(#)abbrev.c	1.29 08/04/25 Copyright 1985-2008 J. Schilling";
 #endif
 /*
  *	Abbreviation symbol handling
@@ -405,8 +405,12 @@ ab_read(tab, fname)
 		off_t	fsize;
 	register BOOL	beg;
 
-	if (ap->at_blk != NULL)
-		ab_close(tab);
+	/*
+	 * Make sure that ap->at_fname is NULL to avoid writing back to the
+	 * file when calling ab_insert().
+	 */
+	ab_close(tab);
+
 	if ((f = fileopen(fname, for_ru)) == (FILE *)NULL) {
 		ap->at_blk = NULL;
 		return;

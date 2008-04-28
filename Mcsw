@@ -29,7 +29,6 @@ MAKE_FILE=	-f Mcsw
 PRE_INST_CMDS=	mkdir -p etc/default
 POST_INST_CMDS=	mkdir -p usr/bin; \
 		(cd usr/bin; ln -s ../../$(INS_BASE)/bin/* . ; rm -f cut paste label tar mt); \
-		(cd ./$(INS_BASE)/bin; ln -s ../ccs/bin/sccs sccs); \
 		mkdir -p usr/ccs/bin; \
 		mv ./$(INS_BASE)/etc/default/* etc/default
 POST_STRIP_CMDS=	chmod -f u=rwx,g=x,o=x,u+s \
