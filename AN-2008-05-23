@@ -1,0 +1,43 @@
+New features with AN-2008-05-23:
+
+-	Several fixes for the Blastwave compile (smake -f Mcsw):
+
+	-	CSWcdrtools now depends on CSWpxupgrade, this allows
+		to either use a dummy (source) package for CSWpxupgrade
+		or the binary original package that is under NDA.
+
+	-	smake now compiles without /opt/csw/ string in the binary
+		this makes smake100% relocatable.
+
+	-	The sccs package is now a non-relocatable packet
+		because of /$INS_BASE/ccs/bin/* and because of 
+		$INS_BASE/ccs/lib/locale/
+
+	-	RULES/rules.csw now supports to create non-relocatable
+		packets by adding PKG_RELOC=no to the leaf Makefile
+
+-	Added an autoconf test for SIZEOF_FLOAT & SIZEOF_DOUBLE to allow
+	to compile the Bourne shell in 64 bit mode.
+
+-	The Bourne shell now compiles in 64 bit mode (call "smake CCOM=cc64").
+
+-	mkisofs now prints more explicit error messages if the strings (like
+	e.g. the volume name) inside the PVD do not fit. This should help
+	people that 	use e.g. UTF-8 based locales and don't understand
+	that the strings may use up more octett space than the number of
+	characters in the string.
+
+-	mkisofs now supports to import multi-extent files (> 4 GB) from old
+	sessions.
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.isdn.cs.tu-berlin.de, js@cs.tu-berlin.de
+	schilling@fokus.fhg.de
+
+Please mail bugs and suggestions to me.

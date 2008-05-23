@@ -33,7 +33,7 @@
 /*
  * This file contains modifications Copyright 2008 J. Schilling
  *
- * @(#)mode.h	1.4 08/03/28 2008 J. Schilling
+ * @(#)mode.h	1.5 08/05/15 2008 J. Schilling
  */
 
 /*
@@ -87,7 +87,19 @@ typedef union
 struct blk
 {
 	struct blk	*word;
+#ifdef	SIZEOF_DOUBLE
+
+#if SIZEOF_CHAR_P < SIZEOF_DOUBLE
 	char		pad[ALIGNSIZ - sizeof (struct blk *)];
+#endif
+
+#else
+	/*
+	 * Workaround for non-dynamic configurration in Solaris ON
+	 */
+	char		pad[ALIGNSIZ - sizeof (struct blk *) <= 0 ?
+				ALIGNSIZ : ALIGNSIZ - sizeof (struct blk *)];
+#endif
 };
 
 /*

@@ -1,4 +1,4 @@
-/* @(#)xconfig.h.in	1.143 08/03/27 Copyright 1998-2007 J. Schilling */
+/* @(#)xconfig.h.in	1.144 08/05/18 Copyright 1998-2007 J. Schilling */
 /*
  *	Dynamic autoconf C-include code.
  *
@@ -587,6 +587,8 @@
 #undef SIZEOF_UNSIGNED_LONG_LONG
 #undef SIZEOF_UNSIGNED___INT64
 #undef SIZEOF_UNSIGNED_CHAR_P
+#undef SIZEOF_FLOAT
+#undef SIZEOF_DOUBLE
 
 #undef SIZEOF_TIME_T
 

@@ -3,7 +3,6 @@ PKG=CSWcdrtools
 #PKG=XXXcdrtools
 NAME=cdrtools - tools for ripping from and recording to CDs and DVDs
 VERSION=2.01.01a39,REV=2006.7.20
-#VERSION=2.01.01a11
 CATEGORY=application
 VENDOR=http://cdrecord.berlios.de/old/private/cdrecord.html  packaged for CSW by Jörg Schilling
 HOTLINE=http://www.blastwave.org/bugtrack/

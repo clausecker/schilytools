@@ -1,4 +1,4 @@
-#ident "@(#)rules.csw	1.1 07/06/16 "
+#ident "@(#)rules.csw	1.2 08/04/29 "
 ###########################################################################
 # Written 2005 by J. Schilling
 ###########################################################################
@@ -33,7 +33,12 @@ $(SRCROOT)/packages/$(OARCH):
 		$(MKDIR) -p $@
 
 all: $(SRCROOT)/packages/$(OARCH)
-	pkgmk -o -b `pwd`/$(SRCROOT)/$(PROTODIR)/$(INS_BASE) -d $(SRCROOT)/packages/$(OARCH) -a $(P_ARCH) \
-						-v $(VERSION),$(DATE) -f $(PROTOTYPE) BASEDIR=$(INS_BASE)
+	if [ .$(PKG_RELOC) = .no ]; then		\
+		pkgmk -o -r `pwd`/$(SRCROOT)/$(PROTODIR) -d $(SRCROOT)/packages/$(OARCH) -a $(P_ARCH) \
+						-v $(VERSION),$(DATE) -f $(PROTOTYPE)_r;	\
+	else					\
+		pkgmk -o -b `pwd`/$(SRCROOT)/$(PROTODIR)/$(INS_BASE) -d $(SRCROOT)/packages/$(OARCH) -a $(P_ARCH) \
+						-v $(VERSION),$(DATE) -f $(PROTOTYPE) BASEDIR=$(INS_BASE);	\
+	fi
 	pkgtrans -s $(SRCROOT)/packages/$(OARCH) $(NAME)-$(VERSION),$(DATE)-$(OS_NAME)$(OSREL)-$(P_ARCH)$(VENDOR).pkg $(PKG)
 	gzip -9f $(SRCROOT)/packages/$(OARCH)/$(NAME)-$(VERSION),$(DATE)-$(OS_NAME)$(OSREL)-$(P_ARCH)$(VENDOR).pkg

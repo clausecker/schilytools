@@ -1,4 +1,4 @@
-#ident %Z%%M%	%I% %E% Copyr 1995-2008 J. Schilling
+#ident @(#)Makefile	1.44 08/05/18 Copyr 1995-2008 J. Schilling
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -31,6 +31,7 @@ CFILES=		cdrecord.c \
 		drv_dvd.c drv_dvdplus.c \
 		drv_bd.c \
 		drv_simul.c \
+		vendor.c \
 		scsi_scan.c scsi_cdr.c scsi_cdr_mmc4.c scsi_mmc.c scsi_mmc4.c \
 		scsilog.c \
 		modes.c misc.c crc16.c xio.c

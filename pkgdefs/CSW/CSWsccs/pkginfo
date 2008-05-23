@@ -7,4 +7,4 @@ CATEGORY=application
 VENDOR=http://sccs.berlios.de/ packaged for CSW by Jörg Schilling
 HOTLINE=http://www.blastwave.org/bugtrack/
 EMAIL=joerg@blastwave.org
-BASEDIR=/opt/csw
+#BASEDIR=/opt/csw

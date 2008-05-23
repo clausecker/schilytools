@@ -1,7 +1,7 @@
-/* @(#)multi.c	1.83 07/08/20 joerg */
+/* @(#)multi.c	1.84 08/05/23 joerg */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)multi.c	1.83 07/08/20 joerg";
+	"@(#)multi.c	1.84 08/05/23 joerg";
 #endif
 /*
  * File multi.c - scan existing iso9660 image and merge into
@@ -74,6 +74,9 @@ LOCAL	struct directory_entry **
 		read_merging_directory __PR((struct iso_directory_record *, int *));
 LOCAL	int	free_mdinfo	__PR((struct directory_entry **, int len));
 LOCAL	void	free_directory_entry __PR((struct directory_entry * dirp));
+LOCAL	int	iso_dir_ents	__PR((struct directory_entry *de));
+LOCAL	void	copy_mult_extent __PR((struct directory_entry *se1,
+					struct directory_entry *se2));
 LOCAL	void	merge_remaining_entries __PR((struct directory *,
 					struct directory_entry **, int));
 
@@ -531,6 +534,8 @@ read_merging_directory(mrootp, nentp)
 	UInt32_t	len;
 	UInt32_t	nbytes;
 	int		nent;
+	int		nmult;		/* # of multi extent root entries */
+	int		mx;
 	struct directory_entry **pnt;
 	UInt32_t	rlen;
 	struct directory_entry **rtn;
@@ -563,6 +568,8 @@ read_merging_directory(mrootp, nentp)
 	i = 0;
 	*nentp = 0;
 	nent = 0;
+	nmult = 0;
+	mx = 0;
 	while (i < len) {
 		idr = (struct iso_directory_record *) & dirbuff[i];
 		if (idr->length[0] == 0) {
@@ -570,14 +577,20 @@ read_merging_directory(mrootp, nentp)
 			continue;
 		}
 		nent++;
+		if ((mx & ISO_MULTIEXTENT) == 0 &&
+		    (idr->flags[0] & ISO_MULTIEXTENT) != 0) {
+			nmult++;	/* Need a multi extent root entry */
+		}
+		mx = idr->flags[0];
 		i += idr->length[0];
 	}
 
 	/*
 	 * Now allocate the buffer which will hold the array we are about to
-	 * return.
+	 * return. We need one entry per real directory entry and in addition
+	 * one multi-extent root entry per multi-extent file.
 	 */
-	rtn = (struct directory_entry **) e_malloc(nent * sizeof (*rtn));
+	rtn = (struct directory_entry **) e_malloc((nent+nmult) * sizeof (*rtn));
 
 	/*
 	 * Finally, scan the directory one last time, and pick out the relevant
@@ -589,6 +602,7 @@ read_merging_directory(mrootp, nentp)
 	tt_extent = 0;
 	seen_rockridge = 0;
 	tt_size = 0;
+	mx = 0;
 	while (i < len) {
 		idr = (struct iso_directory_record *) & dirbuff[i];
 		if ((i + (idr->length[0] & 0xFF)) > len) {
@@ -739,7 +753,52 @@ read_merging_directory(mrootp, nentp)
 			if (tt_extent == 0)
 				tt_size = 0;
 		}
+		/*
+		 * The beginning of a new multi extent directory chain is when
+		 * the last directory had no ISO_MULTIEXTENT flag set and the
+		 * current entry did set ISO_MULTIEXTENT.
+		 */
+		if ((mx & ISO_MULTIEXTENT) == 0 &&
+		    (idr->flags[0] & ISO_MULTIEXTENT) != 0) {
+			struct directory_entry		*s_entry;
+			struct iso_directory_record	*idr2 = idr;
+			int				i2 = i;
+			off_t				tsize = 0;
+
+			/*
+			 * Sum up the total file size for the multi extent file
+			 */
+			while (i2 < len) {
+				idr2 = (struct iso_directory_record *) &dirbuff[i2];
+
+				tsize += get_733(idr2->size);
+				if ((idr2->flags[0] & ISO_MULTIEXTENT) == 0)
+					break;
+				i2 += idr2->length[0];
+			}
+
+			s_entry = dup_directory_entry(*pnt);	/* dup first for mxroot */
+			s_entry->de_flags |= MULTI_EXTENT;
+			s_entry->de_flags |= INHIBIT_ISO9660_ENTRY|INHIBIT_JOLIET_ENTRY;
+			s_entry->size = tsize;
+			s_entry->starting_block = (*pnt)->starting_block;
+			s_entry->mxroot = s_entry;
+			s_entry->mxpart = 0;
+			s_entry->next = *pnt;	/* Next in list		*/
+			pnt[1] = pnt[0];	/* Move to next slot	*/
+			*pnt = s_entry;		/* First slot is mxroot	*/
+			pnt++;			/* Point again to cur.	*/
+		}
+		if ((mx & ISO_MULTIEXTENT) != 0 ||
+		    (idr->flags[0] & ISO_MULTIEXTENT) != 0) {
+			(*pnt)->de_flags |= MULTI_EXTENT;
+			(*pnt)->de_flags |= INHIBIT_UDF_ENTRY;
+			(pnt[-1])->next = *pnt;
+			(*pnt)->mxroot = (pnt[-1])->mxroot;
+			(*pnt)->mxpart = (pnt[-1])->mxpart + 1;
+		}
 		pnt++;
+		mx = idr->flags[0];
 		i += idr->length[0];
 	}
 #ifdef APPLE_HYB
@@ -947,7 +1006,7 @@ check_prev_session(ptr, len, curr_entry, statbuf, lstatbuf, odpnt)
 {
 	int		i;
 	int		rr;
-	int		retcode = 0;	/* Default not found */
+	int		retcode = -2;	/* Default not found */
 
 	for (i = 0; i < len; i++) {
 		if (ptr[i] == NULL) {	/* Used or empty entry skip */
@@ -982,7 +1041,7 @@ check_prev_session(ptr, len, curr_entry, statbuf, lstatbuf, odpnt)
 		 * in tree.c for an explaination of why this must be the case.
 		 */
 		if ((curr_entry->isorec.flags[0] & ISO_DIRECTORY) != 0) {
-			retcode = 2;	/* Flag directory case */
+			retcode = i;
 			goto found_it;
 		}
 		/*
@@ -995,7 +1054,7 @@ check_prev_session(ptr, len, curr_entry, statbuf, lstatbuf, odpnt)
 		 * we probably have a different file, and we need to write it
 		 * out again.
 		 */
-		retcode = 1;	/* We found a non directory */
+		retcode = i;
 
 		if (ptr[i]->rr_attributes != NULL) {
 			if ((rr = check_rr_dates(ptr[i], curr_entry, statbuf,
@@ -1024,11 +1083,24 @@ check_prev_session(ptr, len, curr_entry, statbuf, lstatbuf, odpnt)
 		memcpy(curr_entry->isorec.extent, ptr[i]->isorec.extent, 8);
 		curr_entry->starting_block = get_733(ptr[i]->isorec.extent);
 		curr_entry->de_flags |= SAFE_TO_REUSE_TABLE_ENTRY;
+
+		if ((curr_entry->isorec.flags[0] & ISO_MULTIEXTENT) ||
+		    (ptr[i]->isorec.flags[0] & ISO_MULTIEXTENT)) {
+			copy_mult_extent(curr_entry, ptr[i]);
+		}
 		goto found_it;
 	}
 	return (retcode);
 
 found_it:
+	if (ptr[i]->mxroot == ptr[i]) {	/* Remove all multi ext. entries   */
+		int	j = i + 1;	/* First one will be removed below */
+
+		while (j < len && ptr[j] && ptr[j]->mxroot == ptr[i]) {
+			free(ptr[j]);
+			ptr[j] = NULL;
+		}
+	}
 	if (odpnt != NULL) {
 		*odpnt = ptr[i];
 	} else {
@@ -1036,6 +1108,106 @@ found_it:
 	}
 	ptr[i] = NULL;
 	return (retcode);
+}
+
+/*
+ * Return the number of directory entries for a file. This is usually 1
+ * but may be 3 or more in case of multi extent files.
+ */
+LOCAL int
+iso_dir_ents(de)
+	struct directory_entry	*de;
+{
+	struct directory_entry	*de2;
+	int	ret = 0;
+
+	if (de->mxroot == NULL)
+		return (1);
+	de2 = de;
+	while (de2 != NULL && de2->mxroot == de->mxroot) {
+		ret++;
+		de2 = de2->next;
+	}
+	return (ret);
+}
+
+/*
+ * Copy old multi-extent directory information from the previous session.
+ * If both the old session and the current session are created by mkisofs
+ * then this code could be extremely simple as the information is only copied
+ * in case that the file did not change since the last session was made.
+ * As we don't know the other ISO formatter program, any combination of
+ * multi-extent files and even a single extent file could be possible.
+ * We need to handle all files the same way ad the old session was created as
+ * we reuse the data extents from the file in the old session.
+ */
+LOCAL void
+copy_mult_extent(se1, se2)
+	struct directory_entry	*se1;
+	struct directory_entry	*se2;
+{
+	struct directory_entry	*curr_entry = se1;
+	int			len1;
+	int			len2;
+	int			mxpart = 0;
+
+	len1 = iso_dir_ents(se1);
+	len2 = iso_dir_ents(se2);
+
+	if (len1 == 1) {
+		/*
+		 * Convert single-extent to multi-extent.
+		 * If *se1 is not multi-extent, *se2 definitely is
+		 * and we need to set up a MULTI_EXTENT directory header.
+		 */
+		se1->de_flags |= MULTI_EXTENT;
+		se1->isorec.flags[0] |= ISO_MULTIEXTENT;
+		se1->mxroot = curr_entry;
+		se1->mxpart = 0;
+		se1 = dup_directory_entry(se1);
+		curr_entry->de_flags |= INHIBIT_ISO9660_ENTRY|INHIBIT_JOLIET_ENTRY;
+		se1->de_flags |= INHIBIT_UDF_ENTRY;
+		se1->next = curr_entry->next;
+		curr_entry->next = se1;
+		se1 = curr_entry;
+		len1 = 2;
+	}
+
+	while (se2->isorec.flags[0] & ISO_MULTIEXTENT) {
+		len1--;
+		len2--;
+		if (len1 <= 0) {
+			struct directory_entry *sex = dup_directory_entry(se1);
+
+			sex->mxroot = curr_entry;
+			sex->next = se1->next;
+			se1->next = sex;
+			len1++;
+		}
+		memcpy(se1->isorec.extent, se2->isorec.extent, 8);
+		se1->starting_block = get_733(se2->isorec.extent);
+		se1->de_flags |= SAFE_TO_REUSE_TABLE_ENTRY;
+		se1->de_flags |= MULTI_EXTENT;
+		se1->isorec.flags[0] |= ISO_MULTIEXTENT;
+		se1->mxroot = curr_entry;
+		se1->mxpart = mxpart++;
+
+		se1 = se1->next;
+		se2 = se2->next;
+	}
+	memcpy(se1->isorec.extent, se2->isorec.extent, 8);
+	se1->starting_block = get_733(se2->isorec.extent);
+	se1->de_flags |= SAFE_TO_REUSE_TABLE_ENTRY;
+	se1->isorec.flags[0] &= ~ISO_MULTIEXTENT;	/* Last entry */
+	se1->mxpart = mxpart;
+	while (len1 > 1) {				/* Drop other entries */
+		struct directory_entry	*sex;
+
+		sex = se1->next;
+		se1->next = sex->next;
+		free(sex);	
+		len1--;
+	}
 }
 
 /*
@@ -1590,6 +1762,19 @@ merge_previous_session(this_dir, mrootp, reloc_root, reloc_old_root)
 			    &statbuf, &lstatbuf, NULL);
 			if (retcode == -1)
 				return (-1);
+			/*
+			 * Skip other directory entries for multi-extent files
+			 */
+			if (s_entry->de_flags & MULTI_EXTENT) {
+				struct directory_entry	*s_e;
+
+				for (s_e = s_entry->mxroot;
+					s_e && s_e->mxroot == s_entry->mxroot;
+						s_e = s_e->next) {
+					s_entry = s_e;
+					;
+				}
+			}
 		}
 		merge_remaining_entries(this_dir, orig_contents, n_orig);
 
@@ -1641,14 +1826,14 @@ merge_previous_session(this_dir, mrootp, reloc_root, reloc_old_root)
 		 * The check_prev_session function looks for an identical
 		 * entry in the previous session.  If we see it, then we copy
 		 * the extent number to s_entry, and cross it off the list.
-		 * It returns 2 if it's a directory
 		 */
 		retcode = check_prev_session(orig_contents, n_orig, s_entry,
 			&statbuf, &lstatbuf, &odpnt);
 		if (retcode == -1)
 			return (-1);
 
-		if (retcode == 2 && odpnt != NULL) {
+		if (odpnt != NULL &&
+		    (s_entry->isorec.flags[0] & ISO_DIRECTORY) != 0) {
 			int	dflag;
 
 			if (strcmp(s_entry->name, ".") != 0 &&
@@ -1675,6 +1860,23 @@ merge_previous_session(this_dir, mrootp, reloc_root, reloc_old_root)
 				}
 				free(odpnt);
 				odpnt = NULL;
+			}
+		}
+		if (odpnt) {
+			free(odpnt);
+			odpnt = NULL;
+		}
+		/*
+		 * Skip other directory entries for multi-extent files
+		 */
+		if (s_entry->de_flags & MULTI_EXTENT) {
+			struct directory_entry	*s_e;
+
+			for (s_e = s_entry->mxroot;
+				s_e && s_e->mxroot == s_entry->mxroot;
+					s_e = s_e->next) {
+				s_entry = s_e;
+				;
 			}
 		}
 	}

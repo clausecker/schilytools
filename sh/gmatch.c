@@ -1,4 +1,8 @@
-/* %Z%%M%	%I% %E% 2008 J. Schilling */
+/* @(#)gmatch.c	1.2 08/05/19 2008 J. Schilling */
+#ifndef lint
+static	char sccsid[] =
+	"@(#)gmatch.c	1.2 08/05/19 2008 J. Schilling";
+#endif
 
 #include <schily/mconfig.h>
 

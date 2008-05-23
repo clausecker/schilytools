@@ -1,7 +1,7 @@
-/* @(#)tree.c	1.106 08/02/26 joerg */
+/* @(#)tree.c	1.107 08/05/23 joerg */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)tree.c	1.106 08/02/26 joerg";
+	"@(#)tree.c	1.107 08/05/23 joerg";
 #endif
 /*
  * File tree.c - scan directory  tree and build memory structures for iso9660
@@ -87,7 +87,7 @@ EXPORT	int	insert_file_entry	__PR((struct directory *this_dir,
 						char *short_name,
 						struct stat *statp));
 #endif
-LOCAL	struct directory_entry *
+EXPORT	struct directory_entry *
 		dup_directory_entry	__PR((struct directory_entry *s_entry));
 EXPORT	void	generate_iso9660_directories __PR((struct directory *node,
 						FILE *outfile));
@@ -2325,6 +2325,7 @@ insert_file_entry(this_dir, whole_path, short_name, statp)
 		off_t	size;
 
 		s_entry->de_flags |= MULTI_EXTENT;
+		s_entry->isorec.flags[0] |= ISO_MULTIEXTENT;
 		s_entry->mxroot = s_entry;
 		s_entry->mxpart = 0;
 		set_733((char *)s_entry->isorec.size, LARGE_EXTENT);
@@ -2350,7 +2351,6 @@ insert_file_entry(this_dir, whole_path, short_name, statp)
 		 */
 		s_entry = s_entry1;
 		s_entry->de_flags |= INHIBIT_UDF_ENTRY;
-		s_entry->isorec.flags[0] |= ISO_MULTIEXTENT;
 		size = s_entry->size;
 		s_entry->size = LARGE_EXTENT;
 		s_entry->mxpart++;
@@ -2378,7 +2378,7 @@ insert_file_entry(this_dir, whole_path, short_name, statp)
 	return (1);
 }
 
-LOCAL struct directory_entry *
+EXPORT struct directory_entry *
 dup_directory_entry(s_entry)
 	struct directory_entry	*s_entry;
 {

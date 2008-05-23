@@ -1,7 +1,7 @@
-/* @(#)mkisofs.c	1.234 08/04/24 joerg */
+/* @(#)mkisofs.c	1.236 08/05/18 joerg */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)mkisofs.c	1.234 08/04/24 joerg";
+	"@(#)mkisofs.c	1.236 08/05/18 joerg";
 #endif
 /*
  * Program mkisofs.c - generate iso9660 filesystem  based upon directory
@@ -349,7 +349,6 @@ LOCAL	int	getH		__PR((const char *arg, void *valp, int *pac, char *const **pav, 
 LOCAL	int	getL		__PR((const char *arg, void *valp, int *pac, char *const **pav, const char *opt));
 LOCAL	int	getP		__PR((const char *arg, void *valp, int *pac, char *const **pav, const char *opt));
 
-#ifdef	APPLE_HYB
 LOCAL	int	get_boot_image	__PR((char *opt_arg));
 LOCAL	int	get_hd_boot	__PR((char *opt_arg));
 LOCAL	int	get_ne_boot	__PR((char *opt_arg));
@@ -357,6 +356,7 @@ LOCAL	int	get_no_boot	__PR((char *opt_arg));
 LOCAL	int	get_boot_addr	__PR((char *opt_arg));
 LOCAL	int	get_boot_size	__PR((char *opt_arg));
 LOCAL	int	get_boot_table	__PR((char *opt_arg));
+#ifdef	APPLE_HYB
 #ifdef PREP_BOOT
 LOCAL	int	get_prep_boot	__PR((char *opt_arg));
 LOCAL	int	get_chrp_boot	__PR((char *opt_arg));
@@ -376,6 +376,7 @@ LOCAL	int	hfs_sfm		__PR((void));
 LOCAL	int	hfs_xdbl	__PR((void));
 LOCAL	int	hfs_xhfs	__PR((void));
 LOCAL	int	hfs_nohfs	__PR((void));
+#endif	/* APPLE_HYB */
 
 
 LOCAL int
@@ -476,6 +477,7 @@ get_boot_table(opt_arg)
 	return (1);
 }
 
+#ifdef	APPLE_HYB
 #ifdef PREP_BOOT
 LOCAL int
 get_prep_boot(opt_arg)
@@ -1715,19 +1717,22 @@ args_ok:
 	if (abstract) {
 		if (strlen(abstract) > 37) {
 			comerrno(EX_BAD,
-			"Abstract filename string too long\n");
+			"Abstract filename string too long (cur. %d max. 37 chars).\n",
+			strlen(abstract));
 		}
 	}
 	if (appid) {
 		if (strlen(appid) > 128) {
 			comerrno(EX_BAD,
-			"Application-id string too long\n");
+			"Application-id string too long (cur. %d max. 128 chars).\n",
+			strlen(appid));
 		}
 	}
 	if (biblio) {
 		if (strlen(biblio) > 37) {
 			comerrno(EX_BAD,
-			"Bibliographic filename string too long\n");
+			"Bibliographic filename string too long (cur. %d max. 37 chars).\n",
+			strlen(biblio));
 		}
 	}
 	if (!cache_inodes) {
@@ -1758,7 +1763,8 @@ args_ok:
 	if (copyright) {
 		if (strlen(copyright) > 37) {
 			comerrno(EX_BAD,
-			"Copyright filename string too long\n");
+			"Copyright filename string too long (cur. %d max. 37 chars).\n",
+			strlen(copyright));
 		}
 	}
 	if (genboot_image)
@@ -1903,13 +1909,15 @@ args_ok:
 	}
 	if (preparer) {
 		if (strlen(preparer) > 128) {
-			comerrno(EX_BAD, "Preparer string too long\n");
+			comerrno(EX_BAD, "Preparer string too long (cur. %d max. 128 chars).\n",
+			strlen(preparer));
 		}
 	}
 	if (publisher) {
 		if (strlen(publisher) > 128) {
 			comerrno(EX_BAD,
-				"Publisher string too long\n");
+				"Publisher string too long (cur. %d max. 128 chars).\n",
+				strlen(publisher));
 		}
 	}
 	if (rationalize_rr) {
@@ -2000,13 +2008,15 @@ args_ok:
 	if (volume_id) {
 		if (strlen(volume_id) > 32) {
 			comerrno(EX_BAD,
-				"Volume ID string too long\n");
+				"Volume ID string too long (cur. %d max. 32 chars).\n",
+				strlen(volume_id));
 		}
 	}
 	if (volset_id) {
 		if (strlen(volset_id) > 128) {
 			comerrno(EX_BAD,
-			"Volume set ID string too long\n");
+			"Volume set ID string too long (cur. %d max. 128 chars).\n",
+			strlen(volset_id));
 		}
 	}
 	if (volume_set_size) {
