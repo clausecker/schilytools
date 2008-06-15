@@ -1,12 +1,12 @@
-/* @(#)xio.c	1.16 06/12/17 Copyright 2003-2006 J. Schilling */
+/* @(#)xio.c	1.17 08/06/14 Copyright 2003-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)xio.c	1.16 06/12/17 Copyright 2003-2006 J. Schilling";
+	"@(#)xio.c	1.17 08/06/14 Copyright 2003-2008 J. Schilling";
 #endif
 /*
  *	EXtended I/O functions for cdrecord
  *
- *	Copyright (c) 2003-2006 J. Schilling
+ *	Copyright (c) 2003-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -143,6 +143,9 @@ xmarkpos(vp)
 {
 	xio_t	*xp = vp;
 	off_t	off = (off_t)0;
+
+	if (xp == (xio_t *)NULL)
+		return ((off_t)-1);
 
 	xp->x_startoff = off = lseek(xp->x_file, (off_t)0, SEEK_CUR);
 	if (xp->x_startoff == (off_t)-1) {

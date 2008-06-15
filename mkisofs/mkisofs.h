@@ -1,11 +1,11 @@
-/* @(#)mkisofs.h	1.130 08/05/23 joerg */
+/* @(#)mkisofs.h	1.131 08/06/13 joerg */
 /*
  * Header file mkisofs.h - assorted structure definitions and typecasts.
  *
  * Written by Eric Youngdale (1993).
  *
  * Copyright 1993 Yggdrasil Computing, Incorporated
- * Copyright (c) 1999,2000-2007 J. Schilling
+ * Copyright (c) 1999,2000-2008 J. Schilling
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

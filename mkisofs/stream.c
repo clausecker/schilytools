@@ -1,12 +1,12 @@
-/* @(#)stream.c	1.9 07/02/17 Copyright 2002-2007 J. Schilling */
+/* @(#)stream.c	1.11 08/06/13 Copyright 2002-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)stream.c	1.9 07/02/17 Copyright 2002-2007 J. Schilling";
+	"@(#)stream.c	1.11 08/06/13 Copyright 2002-2008 J. Schilling";
 #endif
 /*
  *	ISO-9660 stream (pipe) file module for mkisofs
  *
- *	Copyright (c) 2002-2007 J. Schilling
+ *	Copyright (c) 2002-2008 J. Schilling
  *	Implemented after an idea from M.H. Voase
  */
 /*
@@ -171,6 +171,7 @@ write_str_file(outfile)
 		xfwrite(buf, SECTOR_SIZE, 1, outfile, 0, FALSE);
 
 	last_extent_written += avail_extent + stream_pad;
+	free(buf);
 	return (0);
 }
 

@@ -1,0 +1,27 @@
+New features with AN-2008-06-16:
+
+-	several modification have been made to fix warning messages from
+	a "coverity" test run.
+
+-	New "scgcheck" option -auto for fully automated tests
+
+-	"scgcheck" restructured for better results
+
+-	Fixed a bug in the mkisofs  graft -root code from Patrik Ohly thanks to
+	Ben Korvemaker <neb@drycold.ca> FreeBSD for reporting.
+
+-	diff(1) now again compiles inside the Sun source tree.
+
+
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.isdn.cs.tu-berlin.de, js@cs.tu-berlin.de
+	schilling@fokus.fhg.de
+
+Please mail bugs and suggestions to me.

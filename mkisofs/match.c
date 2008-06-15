@@ -1,7 +1,7 @@
-/* @(#)match.c	1.25 07/07/26 joerg */
+/* @(#)match.c	1.27 08/06/13 joerg */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)match.c	1.25 07/07/26 joerg";
+	"@(#)match.c	1.27 08/06/13 joerg";
 #endif
 /*
  * 27-Mar-96: Jan-Piet Mens <jpm@mens.de>
@@ -11,7 +11,7 @@ static	char sccsid[] =
  * Re-written 13-Apr-2000 James Pearson
  * now uses a generic set of routines
  * Conversions to make the code more portable May 2000 .. March 2004
- * Copyright (c) 2000-2007 J. Schilling
+ * Copyright (c) 2000-2008 J. Schilling
  */
 
 #include <schily/mconfig.h>
@@ -70,6 +70,7 @@ add_sort_match(fn, val)
 
 	if ((s_mat->name = strdup(fn)) == NULL) {
 		errmsg("Can't allocate memory for sort filename\n");
+		free(s_mat);
 		return (0);
 	}
 
@@ -184,6 +185,7 @@ gen_add_match(fn, n)
 
 	if ((mat->name = strdup(fn)) == NULL) {
 		errmsg("Can't allocate memory for %s filename\n", mesg[n]);
+		free(mat);
 		return (0);
 	}
 

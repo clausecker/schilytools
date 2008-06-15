@@ -1,13 +1,13 @@
-/* @(#)scsi_cdr.c	1.151 07/09/01 Copyright 1995-2007 J. Schilling */
+/* @(#)scsi_cdr.c	1.155 08/06/13 Copyright 1995-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)scsi_cdr.c	1.151 07/09/01 Copyright 1995-2007 J. Schilling";
+	"@(#)scsi_cdr.c	1.155 08/06/13 Copyright 1995-2008 J. Schilling";
 #endif
 /*
  *	SCSI command functions for cdrecord
  *	covering pre-MMC standard functions up to MMC-2
  *
- *	Copyright (c) 1995-2007 J. Schilling
+ *	Copyright (c) 1995-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -1095,7 +1095,7 @@ reserve_tr_rzone(scgp, size)
 	scmd->cdb.g1_cdb.cmd = 0x53;
 	scmd->cdb.g1_cdb.lun = scg_lun(scgp);
 
-	i_to_4_byte(&scmd->cdb.g1_cdb.addr[3], size);
+	i_to_4_byte(&scmd->cdb.cmd_cdb[5], size);
 
 	scgp->cmdname = "reserve_track_rzone";
 
@@ -1788,6 +1788,7 @@ read_trackinfo(scgp, track, offp, msfp, adrp, controlp, modep)
 	struct	diskinfo *dp;
 	char	xb[256];
 	int	len;
+	long	off;
 
 	dp = (struct diskinfo *)xb;
 
@@ -1801,8 +1802,9 @@ read_trackinfo(scgp, track, offp, msfp, adrp, controlp, modep)
 	if (len <  (int)sizeof (struct diskinfo))
 		return (-1);
 
+	off = a_to_4_byte(dp->desc[0].addr);
 	if (offp)
-		*offp = a_to_4_byte(dp->desc[0].addr);
+		*offp = off;
 	if (adrp)
 		*adrp = dp->desc[0].adr;
 	if (controlp)
@@ -1821,9 +1823,9 @@ read_trackinfo(scgp, track, offp, msfp, adrp, controlp, modep)
 			 * Some drives (e.g. the Philips CDD-522) don't support
 			 * to read the TOC in MSF mode.
 			 */
-			long off = a_to_4_byte(dp->desc[0].addr);
+			long moff = a_to_4_byte(dp->desc[0].addr);
 
-			lba_to_msf(off, msfp);
+			lba_to_msf(moff, msfp);
 		} else {
 			msfp->msf_min = 0;
 			msfp->msf_sec = 0;
@@ -1843,7 +1845,7 @@ read_trackinfo(scgp, track, offp, msfp, adrp, controlp, modep)
 	fillbytes((caddr_t)xb, sizeof (xb), '\0');
 
 	scgp->silent++;
-	if (read_header(scgp, xb, *offp, 8, 0) >= 0) {
+	if (read_header(scgp, xb, off, 8, 0) >= 0) {
 		*modep = xb[0];
 	} else if (read_track_info_philips(scgp, xb, track, 14) >= 0) {
 		*modep = xb[0xb] & 0xF;
@@ -2734,8 +2736,8 @@ scsi_load(scgp, dp)
 	int	key;
 	int	code;
 
-	if ((dp->cdr_flags & CDR_CADDYLOAD) == 0) {
-		if (scsi_start_stop_unit(scgp, 1, 1, dp && (dp->cdr_cmdflags&F_IMMED)) >= 0)
+	if (dp && (dp->cdr_flags & CDR_CADDYLOAD) == 0) {
+		if (scsi_start_stop_unit(scgp, 1, 1, dp->cdr_cmdflags&F_IMMED) >= 0)
 			return (0);
 	}
 
@@ -2747,7 +2749,7 @@ scsi_load(scgp, dp)
 
 	if (key == SC_NOT_READY && (code == 0x3A || code == 0x30)) {
 		errmsgno(EX_BAD, "Cannot load media with %s drive!\n",
-			(dp->cdr_flags & CDR_CADDYLOAD) ? "caddy" : "this");
+			dp && (dp->cdr_flags & CDR_CADDYLOAD) ? "caddy" : "this");
 		errmsgno(EX_BAD, "Try to load media by hand.\n");
 	}
 	return (-1);

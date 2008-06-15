@@ -1,7 +1,7 @@
-/* @(#)readcd.c	1.97 08/02/17 Copyright 1987, 1995-2008 J. Schilling */
+/* @(#)readcd.c	1.98 08/06/05 Copyright 1987, 1995-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)readcd.c	1.97 08/02/17 Copyright 1987, 1995-2008 J. Schilling";
+	"@(#)readcd.c	1.98 08/06/05 Copyright 1987, 1995-2008 J. Schilling";
 #endif
 /*
  *	Skeleton for the use of the scg genearal SCSI - driver
@@ -2251,7 +2251,7 @@ write_disk(scgp, parmp)
 	long	addr = 0L;
 	long	cnt;
 	long	amt;
-	long	end;
+	long	end = 0L;
 	int	msec;
 	int	start;
 

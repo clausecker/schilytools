@@ -1,13 +1,13 @@
-/* @(#)drv_philips.c	1.75 07/08/07 Copyright 1997-2006 J. Schilling */
+/* @(#)drv_philips.c	1.77 08/06/13 Copyright 1997-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)drv_philips.c	1.75 07/08/07 Copyright 1997-2006 J. Schilling";
+	"@(#)drv_philips.c	1.77 08/06/13 Copyright 1997-2008 J. Schilling";
 #endif
 /*
  *	CDR device implementation for
  *	Philips/Yamaha/Ricoh/Plasmon
  *
- *	Copyright (c) 1997-2006 J. Schilling
+ *	Copyright (c) 1997-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -1058,7 +1058,7 @@ reserve_track_philips(scgp, len)
 	scmd->sense_len = CCS_SENSE_LEN;
 	scmd->cdb.g1_cdb.cmd = 0xE4;
 	scmd->cdb.g1_cdb.lun = scg_lun(scgp);
-	i_to_4_byte(&scmd->cdb.g1_cdb.addr[3], len);
+	i_to_4_byte(&scmd->cdb.cmd_cdb[5], len);
 
 	scgp->cmdname = "philips reserve_track";
 

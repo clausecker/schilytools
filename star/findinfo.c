@@ -1,12 +1,12 @@
-/* @(#)findinfo.c	1.8 08/04/06 Copyright 2005-2007 J. Schilling */
+/* @(#)findinfo.c	1.9 08/06/13 Copyright 2005-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)findinfo.c	1.8 08/04/06 Copyright 2005-2007 J. Schilling";
+	"@(#)findinfo.c	1.9 08/06/13 Copyright 2005-2008 J. Schilling";
 #endif
 /*
  *	Convert FINFO -> struct stat for find_expr()
  *
- *	Copyright (c) 2005-2007 J. Schilling
+ *	Copyright (c) 2005-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

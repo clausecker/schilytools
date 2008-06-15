@@ -1,14 +1,14 @@
-/* @(#)multi.c	1.84 08/05/23 joerg */
+/* @(#)multi.c	1.86 08/06/13 joerg */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)multi.c	1.84 08/05/23 joerg";
+	"@(#)multi.c	1.86 08/06/13 joerg";
 #endif
 /*
  * File multi.c - scan existing iso9660 image and merge into
  * iso9660 filesystem.  Used for multisession support.
  *
  * Written by Eric Youngdale (1996).
- * Copyright (c) 1999-2007 J. Schilling
+ * Copyright (c) 1999-2008 J. Schilling
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -1428,8 +1428,10 @@ merge_remaining_entries(this_dir, pnt, n_orig)
 		if (s_entry->name != NULL && strcmp(s_entry->name, "..") == 0) {
 			continue;
 		}
-/*		if (strcmp(s_entry->name, "<translation table>") == 0)*/
-		if (strcmp(s_entry->name, trans_tbl) == 0) {
+/*		if (s_entry->name != NULL &&*/
+/*		    strcmp(s_entry->name, "<translation table>") == 0)*/
+		if (s_entry->name != NULL &&
+		    strcmp(s_entry->name, trans_tbl) == 0) {
 			continue;
 		}
 		if ((s_entry->de_flags & SAFE_TO_REUSE_TABLE_ENTRY) == 0) {

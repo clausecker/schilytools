@@ -1,10 +1,10 @@
-/* @(#)sccslog.c	1.18 08/01/08 Copyright 1997-2007 J. Schilling */
+/* @(#)sccslog.c	1.19 08/06/14 Copyright 1997-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)sccslog.c	1.18 08/01/08 Copyright 1997-2007 J. Schilling";
+	"@(#)sccslog.c	1.19 08/06/14 Copyright 1997-2008 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1997-2007 J. Schilling
+ *	Copyright (c) 1997-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -193,7 +193,7 @@ main(ac, av)
 	if (help)
 		usage(0);
 	if (pversion) {
-		printf("sccslog %s-SCCS version %s (%s-%s-%s) Copyright (C) 1997-2007 Jörg Schilling\n",
+		printf("sccslog %s-SCCS version %s (%s-%s-%s) Copyright (C) 1997-2008 Jörg Schilling\n",
 			PROVIDER,
 			VERSION,
 			HOST_CPU, HOST_VENDOR, HOST_OS);

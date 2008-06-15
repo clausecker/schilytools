@@ -1,12 +1,12 @@
-/* @(#)interface.c	1.58 07/09/10 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2006-2007 J. Schilling */
+/* @(#)interface.c	1.59 08/06/14 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2006-2008 J. Schilling */
 #ifndef lint
 static char	sccsid[] =
-"@(#)interface.c	1.58 07/09/10 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2006-2007 J. Schilling";
+"@(#)interface.c	1.59 08/06/14 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2006-2008 J. Schilling";
 
 #endif
 /*
  * Copyright (C) 1994-1997 Heiko Eissfeldt heiko@colossus.escape.de
- * Copyright (c) 2006-2007 J. Schilling
+ * Copyright (c) 2006-2008 J. Schilling
  *
  * Interface module for cdrom drive access
  *
@@ -608,6 +608,12 @@ OpenCdRom(pdev_name)
 {
 	int		retval = 0;
 	struct stat	fstatstruct;
+#ifdef HAVE_IOCTL_INTERFACE
+	struct stat	statstruct;
+	int	have_named_device = 0;
+#endif
+
+	interface = GENERIC_SCSI;
 
 	/*
 	 * The device (given by pdevname) can be:
@@ -616,13 +622,12 @@ OpenCdRom(pdev_name)
 	 * c. a non-SCSI device such as ATAPI or proprietary CDROM devices.
 	 */
 #ifdef HAVE_IOCTL_INTERFACE
-	struct stat	statstruct;
-	int	have_named_device = 0;
-
 	have_named_device = FALSE;
 	if (pdev_name) {
 		have_named_device = strchr(pdev_name, ':') == NULL &&
 					memcmp(pdev_name, "/dev/", 5) == 0;
+	} else {
+		interface = GENERIC_SCSI;	/* Paranoia for "coverity" */
 	}
 
 	if (have_named_device) {

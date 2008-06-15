@@ -1,12 +1,12 @@
-/* @(#)scsilog.c	1.20 07/04/04 Copyright 1998-2007 J. Schilling */
+/* @(#)scsilog.c	1.21 08/06/14 Copyright 1998-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)scsilog.c	1.20 07/04/04 Copyright 1998-2007 J. Schilling";
+	"@(#)scsilog.c	1.21 08/06/14 Copyright 1998-2008 J. Schilling";
 #endif
 /*
  *	SCSI log page handling
  *
- *	Copyright (c) 1998-2007 J. Schilling
+ *	Copyright (c) 1998-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -66,7 +66,7 @@ log_sense(scgp, bp, cnt, page, pc, pp)
 	scmd->cdb.g1_cdb.cmd = 0x4D;
 	scmd->cdb.g1_cdb.lun = scg_lun(scgp);
 	scmd->cdb.g1_cdb.addr[0] = (pc << 6) | (page & 0x3f);
-	i_to_2_byte(&scmd->cdb.g1_cdb.addr[3], pp);
+	i_to_2_byte(&scmd->cdb.cmd_cdb[5], pp);
 	g1_cdblen(&scmd->cdb.g1_cdb, cnt);
 
 	scgp->cmdname = "log sense";

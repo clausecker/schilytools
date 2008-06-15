@@ -1,10 +1,10 @@
-/* @(#)isodebug.c	1.19 08/01/16 Copyright 1996-2007 J. Schilling */
+/* @(#)isodebug.c	1.20 08/06/13 Copyright 1996-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)isodebug.c	1.19 08/01/16 Copyright 1996-2007 J. Schilling";
+	"@(#)isodebug.c	1.20 08/06/13 Copyright 1996-2008 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1996-2007 J. Schilling
+ *	Copyright (c) 1996-2008 J. Schilling
  */
 /*
  * This program is free software; you can redistribute it and/or modify
@@ -252,7 +252,7 @@ main(argc, argv)
 	if (help)
 		usage(0);
 	if (prvers) {
-		printf("isodebug %s (%s-%s-%s) Copyright (C) 1996-2007 Jörg Schilling\n",
+		printf("isodebug %s (%s-%s-%s) Copyright (C) 1996-2008 Jörg Schilling\n",
 					VERSION,
 					HOST_CPU, HOST_VENDOR, HOST_OS);
 		exit(0);

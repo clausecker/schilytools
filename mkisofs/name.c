@@ -1,7 +1,7 @@
-/* @(#)name.c	1.33 07/07/26 joerg */
+/* @(#)name.c	1.34 08/06/04 joerg */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)name.c	1.33 07/07/26 joerg";
+	"@(#)name.c	1.34 08/06/04 joerg";
 
 #endif
 /*
@@ -13,7 +13,7 @@ static	char sccsid[] =
  * Almost totally rewritten by J. Schilling (2000).
  *
  * Copyright 1993 Yggdrasil Computing, Incorporated
- * Copyright (c) 1999,2000-2007 J. Schilling
+ * Copyright (c) 1999,2000-2008 J. Schilling
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -124,7 +124,9 @@ iso9660_file_length(name, sresult, dirflag)
 	int		ochars_before_dot;
 	int		seen_dot = 0;
 	int		seen_semic = 0;
+#ifdef		Eric_code_does_not_work
 	int		tildes = 0;
+#endif
 
 	result = sresult->isorec.name;
 
@@ -490,6 +492,7 @@ iso9660_file_length(name, sresult, dirflag)
 	 * In case of name conflicts, this is what would end up being used as
 	 * the 'extension'.
 	 */
+#ifdef		Eric_code_does_not_work
 	if (tildes == 2) {
 		int	prio1 = 0;
 
@@ -506,6 +509,7 @@ iso9660_file_length(name, sresult, dirflag)
 		}
 		priority = prio1;
 	}
+#endif
 	/*
 	 * If this is not a directory, force a '.' in case we haven't seen one,
 	 * and add a version number if we haven't seen one of those either.

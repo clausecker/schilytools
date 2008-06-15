@@ -1,11 +1,11 @@
-/* @(#)apple.c	1.30 07/08/20 joerg, Copyright 1997, 1998, 1999, 2000 James Pearson */
+/* @(#)apple.c	1.32 08/06/13 joerg, Copyright 1997, 1998, 1999, 2000 James Pearson */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)apple.c	1.30 07/08/20 joerg, Copyright 1997, 1998, 1999, 2000 James Pearson";
+	"@(#)apple.c	1.32 08/06/13 joerg, Copyright 1997, 1998, 1999, 2000 James Pearson";
 #endif
 /*
  *      Copyright (c) 1997, 1998, 1999, 2000 James Pearson
- *	Copyright (c) 2000-2007 J. Schilling
+ *	Copyright (c) 2000-2008 J. Schilling
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -1452,9 +1452,6 @@ get_hfs_fe_info(hfs_info, name)
 			*k;
 	int		i;
 
-	if ((fp = fopen(name, "rb")) == NULL)
-		return (NULL);
-
 	/*
 	 * no longer attempt to find out FAT cluster
 	 * - rely on command line parameter
@@ -1464,6 +1461,9 @@ get_hfs_fe_info(hfs_info, name)
 
 	fe_num = afe_size / FE_SIZE;
 	fe_pad = afe_size % FE_SIZE;
+
+	if ((fp = fopen(name, "rb")) == NULL)
+		return (NULL);
 
 	while (fread(&info, 1, FE_SIZE, fp) != 0) {
 
@@ -2849,6 +2849,7 @@ hfs_init(name, fdflags, hfs_select)
 		map[map_num++] = amap;
 
 	}
+	fclose(fp);
 
 	/* free up some memory */
 	if (map_num != count) {

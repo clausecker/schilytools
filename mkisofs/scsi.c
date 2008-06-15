@@ -1,10 +1,10 @@
-/* @(#)scsi.c	1.28 08/01/16 Copyright 1997-2007 J. Schilling */
+/* @(#)scsi.c	1.29 08/06/13 Copyright 1997-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)scsi.c	1.28 08/01/16 Copyright 1997-2007 J. Schilling";
+	"@(#)scsi.c	1.29 08/06/13 Copyright 1997-2008 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1997-2007 J. Schilling
+ *	Copyright (c) 1997-2008 J. Schilling
  */
 /*
  * This program is free software; you can redistribute it and/or modify

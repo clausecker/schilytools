@@ -1,13 +1,13 @@
-/* @(#)find.c	1.50 08/04/06 Copyright 2004-2007 J. Schilling */
+/* @(#)find.c	1.51 08/06/13 Copyright 2004-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)find.c	1.50 08/04/06 Copyright 2004-2007 J. Schilling";
+	"@(#)find.c	1.51 08/06/13 Copyright 2004-2008 J. Schilling";
 #endif
 /*
  *	Another find implementation...
  *	The main code is now in libfind.
  *
- *	Copyright (c) 2004-2007 J. Schilling
+ *	Copyright (c) 2004-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

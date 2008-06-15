@@ -1,13 +1,13 @@
-/* @(#)header.c	1.135 08/04/06 Copyright 1985, 1994-2007 J. Schilling */
+/* @(#)header.c	1.136 08/06/13 Copyright 1985, 1994-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)header.c	1.135 08/04/06 Copyright 1985, 1994-2007 J. Schilling";
+	"@(#)header.c	1.136 08/06/13 Copyright 1985, 1994-2008 J. Schilling";
 #endif
 /*
  *	Handling routines to read/write, parse/create
  *	archive headers
  *
- *	Copyright (c) 1985, 1994-2007 J. Schilling
+ *	Copyright (c) 1985, 1994-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

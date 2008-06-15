@@ -28,13 +28,13 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2007 J. Schilling
+ * This file contains modifications Copyright 2006-2008 J. Schilling
  *
- * @(#)bdiff.c	1.5 08/02/20 J. Schilling
+ * @(#)bdiff.c	1.6 08/06/14 J. Schilling
  */
 #if defined(sun) || defined(__GNUC__)
 
-#ident "@(#)bdiff.c 1.5 08/02/20 J. Schilling"
+#ident "@(#)bdiff.c 1.6 08/06/14 J. Schilling"
 #endif
 
 #pragma ident	"@(#)bdiff.c	1.15	05/06/08 SMI"

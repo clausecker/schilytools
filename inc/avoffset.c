@@ -1,7 +1,7 @@
-/* @(#)avoffset.c	1.28 08/03/18 Copyright 1987, 1995-2004 J. Schilling */
+/* @(#)avoffset.c	1.29 08/06/13 Copyright 1987, 1995-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)avoffset.c	1.28 08/03/18 Copyright 1987, 1995-2004 J. Schilling";
+	"@(#)avoffset.c	1.29 08/06/13 Copyright 1987, 1995-2008 J. Schilling";
 #endif
 /*
  * This program is a tool to generate the file "avoffset.h".
@@ -12,7 +12,7 @@ static	char sccsid[] =
  *	FP_INDIR	- number of stack frames above main()
  *			  before encountering a NULL pointer.
  *
- *	Copyright (c) 1987, 1995-2004 J. Schilling
+ *	Copyright (c) 1987, 1995-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

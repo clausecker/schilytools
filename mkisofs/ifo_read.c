@@ -1,12 +1,11 @@
-/* @(#)ifo_read.c	1.8 06/10/03 joerg */
+/* @(#)ifo_read.c	1.11 08/06/13 joerg */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)ifo_read.c	1.8 06/10/03 joerg";
+	"@(#)ifo_read.c	1.11 08/06/13 joerg";
 #endif
 /*
  * Copyright (C) 2002 Olaf Beck <olaf_sc@yahoo.com>
- *		     Jörg Schilling <schilling@fokus.gmd.de>
- *		     (making the code portable)
+ * Copyright (C) 2002-2008 Jörg Schilling <schilling@fokus.gmd.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -395,6 +394,7 @@ ifoOpen(dvd, title)
 
 	if (read(file, identifier, sizeof (identifier)) != sizeof (identifier)) {
 		errmsg("Failed to read VIDEO_TS.IFO.\n");
+		free(ifofile);
 		return (0);
 	}
 
@@ -442,7 +442,7 @@ ifoClose(ifofile)
 	ifoFree_TT_SRPT(ifofile);
 
 	if (ifofile->vmgi_mat) {
-		free(ifofile->vtsi_mat);
+		free(ifofile->vmgi_mat);
 	}
 
 	if (ifofile->vtsi_mat) {

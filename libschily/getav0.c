@@ -1,12 +1,12 @@
-/* @(#)getav0.c	1.19 08/01/11 Copyright 1985, 1995-2004 J. Schilling */
+/* @(#)getav0.c	1.20 08/06/14 Copyright 1985, 1995-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)getav0.c	1.19 08/01/11 Copyright 1985, 1995-2004 J. Schilling";
+	"@(#)getav0.c	1.20 08/06/14 Copyright 1985, 1995-2008 J. Schilling";
 #endif
 /*
  *	Get arg vector by scanning the stack
  *
- *	Copyright (c) 1985, 1995-2004 J. Schilling
+ *	Copyright (c) 1985, 1995-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

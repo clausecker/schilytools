@@ -1,13 +1,12 @@
-/* @(#)dvd_file.c	1.6 06/10/03 joerg */
+/* @(#)dvd_file.c	1.8 08/06/13 joerg */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)dvd_file.c	1.6 06/10/03 joerg";
+	"@(#)dvd_file.c	1.8 08/06/13 joerg";
 #endif
 /*
  * DVD_VIDEO code
  *  Copyright (c) 2002 Olaf Beck - olaf_sc@yahoo.com
- *			Jörg Schilling <schilling@fokus.gmd.de>
- *			(making the code portable)
+ *  Copyright (c) 2002-2008 Jörg Schilling <schilling@fokus.gmd.de>
  */
 /*
  * This program is free software; you can redistribute it and/or modify
@@ -189,6 +188,8 @@ DVDGetFileSet(dvd)
 	vmg_ifo = ifoOpen(_dvd, 0);
 	if (!vmg_ifo) {
 		errmsgno(EX_BAD, "Can't open VMG info for '%s'.\n", dvd);
+		/* Close the DVD */
+		DVDClose(_dvd);
 		return (0);
 	}
 

@@ -1,12 +1,12 @@
-/* @(#)find_list.c	1.21 08/04/06 Copyright 1985, 1995, 2000-2007 J. Schilling*/
+/* @(#)find_list.c	1.22 08/06/13 Copyright 1985, 1995, 2000-2008 J. Schilling*/
 #ifndef lint
 static	char sccsid[] =
-	"@(#)find_list.c	1.21 08/04/06 Copyright 1985, 1995, 2000-2007 J. Schilling";
+	"@(#)find_list.c	1.22 08/06/13 Copyright 1985, 1995, 2000-2008 J. Schilling";
 #endif
 /*
  *	List a file
  *
- *	Copyright (c) 1985, 1995, 2000-2007 J. Schilling
+ *	Copyright (c) 1985, 1995, 2000-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

@@ -1,7 +1,7 @@
 '\" t
 .\" To print, first run through tbl
 .\" -*- nroff -*-
-.\" @(#)mkisofs.8	1.123 07/07/30 joerg
+.\" @(#)mkisofs.8	1.124 08/05/26 joerg
 .\"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
 .if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
@@ -1945,6 +1945,12 @@ root folder of an HFS volume. See README.rootinfo for more information.
 .BI \-prep\-boot " FILE
 PReP boot image file. Up to 4 are allowed. See README.prep_boot (Alpha)
 .TP
+.B \-chrp-\boot
+Create a CHRP boot in boot partition 1.
+See
+.B \-prep\-boot
+for further information.
+.TP
 .BI \-input\-hfs\-charset " charset
 Input charset that defines the characters used in HFS file names when
 used with the
@@ -3216,8 +3222,10 @@ or
 .B \-generic\-boot
 options with the 
 .B \-boot\-hfs\-file
-or
+the
 .B \-prep\-boot
+or
+.B \-chrp\-boot
 options.
 .PP
 .B mkisofs

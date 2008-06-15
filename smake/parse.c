@@ -1,13 +1,13 @@
-/* @(#)parse.c	1.89 08/04/19 Copyright 1985 J. Schilling */
+/* @(#)parse.c	1.90 08/06/13 Copyright 1985-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)parse.c	1.89 08/04/19 Copyright 1985 J. Schilling";
+	"@(#)parse.c	1.90 08/06/13 Copyright 1985-2008 J. Schilling";
 #endif
 /*
  *	Make program
  *	Parsing routines
  *
- *	Copyright (c) 1985 by J. Schilling
+ *	Copyright (c) 1985-2008 by J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

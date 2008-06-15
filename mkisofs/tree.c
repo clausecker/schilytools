@@ -1,7 +1,7 @@
-/* @(#)tree.c	1.107 08/05/23 joerg */
+/* @(#)tree.c	1.109 08/06/13 joerg */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)tree.c	1.107 08/05/23 joerg";
+	"@(#)tree.c	1.109 08/06/13 joerg";
 #endif
 /*
  * File tree.c - scan directory  tree and build memory structures for iso9660
@@ -10,7 +10,7 @@ static	char sccsid[] =
  * Written by Eric Youngdale (1993).
  *
  * Copyright 1993 Yggdrasil Computing, Incorporated
- * Copyright (c) 1999,2000-2007 J. Schilling
+ * Copyright (c) 1999,2000-2008 J. Schilling
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -1447,7 +1447,9 @@ insert_file_entry(this_dir, whole_path, short_name, statp)
 	int		lstatus;
 	int		status;
 	int		deep_flag;
+#ifdef	USE_NO_SCANDIR
 	int		no_scandir = 0;
+#endif
 
 #ifdef APPLE_HYB
 	int		x_hfs = 0;
@@ -2176,9 +2178,11 @@ insert_file_entry(this_dir, whole_path, short_name, statp)
 
 			child = find_or_create_directory(this_dir, whole_path,
 				s_entry, 1);
+#ifdef	USE_NO_SCANDIR
 			if (no_scandir)
 				dflag = 1;
 			else
+#endif
 				dflag = scan_directory_tree(child, whole_path,
 								s_entry);
 
@@ -2737,6 +2741,8 @@ delete_directory(parent, child)
 {
 	struct directory *tdir;
 
+	if (child == NULL)
+		return;
 	if (child->contents != NULL) {
 		comerrno(EX_BAD, "Unable to delete non-empty directory\n");
 	}
@@ -2754,14 +2760,14 @@ delete_directory(parent, child)
 	if (parent->subdir == child) {
 		parent->subdir = child->next;
 	} else {
-		for (tdir = parent->subdir; tdir->next != NULL;
+		for (tdir = parent->subdir; tdir != NULL && tdir->next != NULL;
 							tdir = tdir->next) {
 			if (tdir->next == child) {
 				tdir->next = child->next;
 				break;
 			}
 		}
-		if (tdir == NULL) {
+		if (tdir == NULL || tdir->next != child->next) {
 			comerrno(EX_BAD,
 			"Unable to locate child directory in parent list\n");
 		}

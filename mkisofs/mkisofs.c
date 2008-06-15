@@ -1,7 +1,7 @@
-/* @(#)mkisofs.c	1.236 08/05/18 joerg */
+/* @(#)mkisofs.c	1.238 08/06/13 joerg */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)mkisofs.c	1.236 08/05/18 joerg";
+	"@(#)mkisofs.c	1.238 08/06/13 joerg";
 #endif
 /*
  * Program mkisofs.c - generate iso9660 filesystem  based upon directory
@@ -10,7 +10,7 @@ static	char sccsid[] =
  * Written by Eric Youngdale (1993).
  *
  * Copyright 1993 Yggdrasil Computing, Incorporated
- * Copyright (c) 1999,2000-2007 J. Schilling
+ * Copyright (c) 1999,2000-2008 J. Schilling
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -1657,7 +1657,7 @@ args_ok:
 	if (help)
 		usage(0);
 	if (pversion) {
-		printf("mkisofs %s (%s-%s-%s) Copyright (C) 1993-1997 Eric Youngdale (C) 1997-2007 Jörg Schilling\n",
+		printf("mkisofs %s (%s-%s-%s) Copyright (C) 1993-1997 Eric Youngdale (C) 1997-2008 Jörg Schilling\n",
 			version_string,
 			HOST_CPU, HOST_VENDOR, HOST_OS);
 #ifdef	OPTION_SILO_BOOT
@@ -3192,10 +3192,14 @@ get_graft(arg, graft_point, glen, nodename, nlen, short_namep, do_insert)
 
 		/* insert -root prefix */
 		if (reloc_root != NULL) {
-			strlcpy(graft_point, reloc_root, PATH_MAX + 1);
+			strlcpy(graft_point, reloc_root, glen);
 			len = strlen(graft_point);
-			if (graft_point[len] != '/')
+
+			if ((len < (glen -1)) &&
+			    (len == 0 || graft_point[len-1] != '/')) {
 				graft_point[len++] = '/';
+				graft_point[len] = '\0';
+			}
 		} else {
 			len = 0;
 		}
@@ -3216,7 +3220,7 @@ get_graft(arg, graft_point, glen, nodename, nlen, short_namep, do_insert)
 			while (*xpnt == PATH_SEPARATOR) {
 				xpnt++;
 			}
-			strlcpy(graft_point, xpnt, PATH_MAX + 1);
+			strlcpy(graft_point, xpnt, glen);
 		} while (xpnt > graft_point);
 
 		if (node) {
@@ -3239,8 +3243,8 @@ get_graft(arg, graft_point, glen, nodename, nlen, short_namep, do_insert)
 		if (status == 0 && S_ISDIR(st.st_mode)) {
 			len = strlen(graft_point);
 
-			if ((len <= (glen -1)) &&
-			    graft_point[len-1] != '/') {
+			if ((len < (glen -1)) &&
+			    (len == 0 || graft_point[len-1] != '/')) {
 				graft_point[len++] = '/';
 				graft_point[len] = '\0';
 			}

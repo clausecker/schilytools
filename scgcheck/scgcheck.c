@@ -1,10 +1,10 @@
-/* @(#)scgcheck.c	1.11 07/09/30 Copyright 1998-2007 J. Schilling */
+/* @(#)scgcheck.c	1.13 08/06/13 Copyright 1998-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)scgcheck.c	1.11 07/09/30 Copyright 1998-2007 J. Schilling";
+	"@(#)scgcheck.c	1.13 08/06/13 Copyright 1998-2008 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1998-2007 J. Schilling
+ *	Copyright (c) 1998-2008 J. Schilling
  *
  * Warning: This program has been written to verify the correctness
  * of the upper layer interface from the library "libscg". If you 
@@ -48,8 +48,12 @@ EXPORT	int	main		__PR((int ac, char *av[]));
 LOCAL	SCSI	*doopen		__PR((char *dev));
 LOCAL	void	checkversion	__PR((SCSI *scgp));
 LOCAL	void	getbuf		__PR((SCSI *scgp));
+LOCAL	void	scg_openerr	__PR((char *errstr));
+LOCAL	int	find_drive	__PR((SCSI *scgp, char *dev, int flags));
 EXPORT	void	flushit		__PR((void));
 EXPORT	int	countopen	__PR((void));
+EXPORT	int	chkprint	__PR((const char *, ...)) __printflike__(1, 2);
+EXPORT	int	chkgetline	__PR((char *, int));
 
 
 	char	*dev;
@@ -60,6 +64,7 @@ int		lverbose;	/* local verbose flag */
 int		silent;		/* SCSI silent flag */
 int		deftimeout = 40; /* default SCSI timeout */
 int		xdebug;		/* extended debug flag */
+BOOL		autotest;
 
 char	*buf;			/* The transfer buffer */
 long	bufsize;		/* The size of the transfer buffer */
@@ -87,11 +92,12 @@ usage(ret)
 	error("\t-Verbose,-V	increment SCSI command transport verbose level by one\n");
 	error("\t-silent,-s	do not print status of failed SCSI commands\n");
 	error("\tf=filename	Name of file to write log data to.\n");
+	error("\t-auto		try to do a fully automated test\n");
 	error("\n");
 	exit(ret);
 }	
 
-char	opts[]   = "debug#,d+,kdebug#,kd#,timeout#,verbose+,v+,Verbose+,V+,silent,s,x+,xd#,help,h,version,dev*,f*";
+char	opts[]   = "debug#,d+,kdebug#,kd#,timeout#,verbose+,v+,Verbose+,V+,silent,s,x+,xd#,help,h,version,dev*,f*,auto";
 
 EXPORT int
 main(ac, av)
@@ -124,14 +130,14 @@ main(ac, av)
 			&xdebug, &xdebug,
 			&help, &help, &pversion,
 			&dev,
-			&filename) < 0) {
+			&filename, &autotest) < 0) {
 		errmsgno(EX_BAD, "Bad flag: %s.\n", cav[0]);
 		usage(EX_BAD);
 	}
 	if (help)
 		usage(0);
 	if (pversion) {
-		printf("scgcheck %s (%s-%s-%s) Copyright (C) 1998-2007 Jörg Schilling\n",
+		printf("scgcheck %s (%s-%s-%s) Copyright (C) 1998-2008 Jörg Schilling\n",
 								scgc_version,
 								HOST_CPU, HOST_VENDOR, HOST_OS);
 		exit(0);
@@ -154,12 +160,8 @@ main(ac, av)
 	if (logfile == NULL)
 		comerr("Cannot open logfile.\n");
 
-	printf("Scgcheck %s (%s-%s-%s) SCSI user level transport library ABI checker.\n\
-Copyright (C) 1998,2001 Jörg Schilling\n",
-						scgc_version,
-						HOST_CPU, HOST_VENDOR, HOST_OS);
-	fprintf(logfile, "Scgcheck %s (%s-%s-%s) SCSI user level transport library ABI checker.\n\
-Copyright (C) 1998,2001 Jörg Schilling\n",
+	chkprint("Scgcheck %s (%s-%s-%s) SCSI user level transport library ABI checker.\n\
+Copyright (C) 1998-2008 Jörg Schilling\n",
 						scgc_version,
 						HOST_CPU, HOST_VENDOR, HOST_OS);
 	/*
@@ -173,10 +175,8 @@ Copyright (C) 1998,2001 Jörg Schilling\n",
 	if (xdebug)
 		error("nopen: %d\n", basefds);
 
-	printf("Checking if your implementation supports to scan the SCSI bus.\n");
-	fprintf(logfile, "Checking if your implementation supports to scan the SCSI bus.\n");
-	printf("Trying to open device: '%s'.\n", dev);
-	fprintf(logfile, "Trying to open device: '%s'.\n", dev);
+	chkprint("**********> Checking whether your implementation supports to scan the SCSI bus.\n");
+	chkprint("Trying to open device: '%s'.\n", dev);
 	scgp = doopen(dev);
 
 	if (xdebug) {
@@ -195,8 +195,7 @@ Copyright (C) 1998,2001 Jörg Schilling\n",
 		if (device[0] == '\0')
 			strcpy(device, "0,6,0");
 
-		printf("Trying to open device: '%s'.\n", device);
-		fprintf(logfile, "Trying to open device: '%s'.\n", device);
+		chkprint("Trying to open device: '%s'.\n", device);
 		scgp = doopen(device);
 	} while (scgp == NULL);
 	if (scgp) {
@@ -205,36 +204,47 @@ Copyright (C) 1998,2001 Jörg Schilling\n",
 
 		ret = select_target(scgp, stdout);
 		select_target(scgp, logfile);
-		scg_close(scgp);
-		scgp = NULL;
 		if (ret < 1) {
-			printf("----------> SCSI scan bus test: found NO TARGETS\n");
-			fprintf(logfile, "----------> SCSI scan bus test: found NO TARGETS\n");
+			chkprint("----------> SCSI scan bus test: found NO TARGETS\n");
 		} else {
-			printf("----------> SCSI scan bus test PASSED\n");
-			fprintf(logfile, "----------> SCSI scan bus test PASSED\n");
+			chkprint("----------> SCSI scan bus test PASSED\n");
 		}
 	} else {
-		printf("----------> SCSI scan bus test FAILED\n");
-		fprintf(logfile, "----------> SCSI scan bus test FAILED\n");
+		chkprint("----------> SCSI scan bus test FAILED\n");
 	}
 
 	if (xdebug)
 		error("nopen: %d\n", countopen());
-	printf("For the next test we need to open a single SCSI device.\n");
-	fprintf(logfile, "For the next test we need to open a single SCSI device.\n");
-	printf("Best results will be obtained if you specify a modern CD-ROM drive.\n");
-	fprintf(logfile, "Best results will be obtained if you specify a modern CD-ROM drive.\n");
-	strcpy(device, "0,6,0");
-	do {
-		error("Enter SCSI device name [%s]: ", device);
-		flushit();
-		(void) getline(device, sizeof (device));
-		if (device[0] == '\0')
-			strcpy(device, "0,6,0");
+	chkprint("For the next test we need to open a single SCSI device.\n");
+	chkprint("Best results will be obtained if you specify a modern CD-ROM drive.\n");
 
-		printf("Trying to open device: '%s'.\n", device);
-		fprintf(logfile, "Trying to open device: '%s'.\n", device);
+	if (scgp) {		/* Scanbus works / may work */
+		int	i;
+
+		i = find_drive(scgp, dev, 0);
+		if (i < 0) {
+			scg_openerr("");
+			/* NOTREACHED */
+		}
+		snprintf(device, sizeof (device),
+			"%s%s%d,%d,%d",
+			dev?dev:"", dev?(dev[strlen(dev)-1] == ':'?"":":"):"",
+			scg_scsibus(scgp), scg_target(scgp), scg_lun(scgp));
+		scg_close(scgp);
+		scgp = NULL;
+	}
+
+	if (device[0] == '\0')
+		strcpy(device, "0,6,0");
+	do {
+		char	Device[128];
+
+		error("Enter SCSI device name [%s]: ", device);
+		(void) chkgetline(Device, sizeof (Device));
+		if (Device[0] != '\0')
+			strcpy(device, Device);
+
+		chkprint("Trying to open device: '%s'.\n", device);
 		scgp = doopen(device);
 		if (scgp) {
 			checkversion(scgp);
@@ -257,8 +267,7 @@ Copyright (C) 1998,2001 Jörg Schilling\n",
 	printinq(scgp, logfile);
 
 	printf("Ready to start test for second SCSI open? Enter <CR> to continue: ");
-	flushit();
-	(void) getline(abuf, sizeof (abuf));
+	(void) chkgetline(abuf, sizeof (abuf));
 #define	CHECK_SECOND_OPEN
 #ifdef	CHECK_SECOND_OPEN
 	if (!streql(abuf, "n")) {
@@ -272,97 +281,92 @@ Copyright (C) 1998,2001 Jörg Schilling\n",
 		if (xdebug)
 			error("ret: %d key: %d\n", ret, scg_sense_key(scgp));
 		if (ret >= 0 || scgp->scmd->error == SCG_RETRYABLE) {
-			printf("First SCSI open OK - device usable\n");
-			printf("Checking for second SCSI open.\n");
-			fprintf(logfile, "First SCSI open OK - device usable\n");
-			fprintf(logfile, "Checking for second SCSI open.\n");
+			chkprint("First SCSI open OK - device usable\n");
+			chkprint("**********> Checking for second SCSI open.\n");
 			if ((scgp2 = doopen(device)) != NULL) {
-				printf("Second SCSI open for same device succeeded, %d file descriptor(s) used.\n",
-					countopen() - oldopen);
-				fprintf(logfile,
-					"Second SCSI open for same device succeeded, %d file descriptor(s) used.\n",
+				/*
+				 * XXX Separates getbuf() fuer scgp2?
+				 */
+				chkprint("Second SCSI open for same device succeeded, %d additional file descriptor(s) used.\n",
 					countopen() - oldopen);
 				scgp->silent++;
 				ret = inquiry(scgp, buf, sizeof (struct scsi_inquiry));
 				scgp->silent--;
 				if (ret >= 0 || scgp->scmd->error == SCG_RETRYABLE) {
-					printf("Second SCSI open is usable\n");
-					fprintf(logfile, "Second SCSI open is usable\n");
+					chkprint("Second SCSI open is usable\n");
 				}
-				printf("Closing second SCSI.\n");
-				fprintf(logfile, "Closing second SCSI.\n");
+				chkprint("Closing second SCSI.\n");
 				scg_close(scgp2);
 				scgp2 = NULL;
-				printf("Checking first SCSI.\n");
-				fprintf(logfile, "Checking first SCSI.\n");
+				chkprint("Checking first SCSI.\n");
 				scgp->silent++;
 				ret = inquiry(scgp, buf, sizeof (struct scsi_inquiry));
 				scgp->silent--;
 				if (ret >= 0 || scgp->scmd->error == SCG_RETRYABLE) {
-					printf("First SCSI open is still usable\n");
-					printf("Second SCSI open test passed.\n");
-					fprintf(logfile, "First SCSI open is still usable\n");
-					fprintf(logfile, "Second SCSI open test passed.\n");
+					second_ok = TRUE;
+					chkprint("First SCSI open is still usable\n");
+					chkprint("----------> Second SCSI open test PASSED.\n");
 				} else if (ret < 0 && scgp->scmd->error == SCG_FATAL) {
 					second_ok = FALSE;
-					printf("First SCSI open does not work anymore.\n");
-					printf("Second SCSI open test FAILED.\n");
-					fprintf(logfile, "First SCSI open does not work anymore.\n");
-					fprintf(logfile, "Second SCSI open test FAILED.\n");
+					chkprint("First SCSI open does not work anymore.\n");
+					chkprint("----------> Second SCSI open test FAILED.\n");
 				} else {
 					second_ok = FALSE;
-					printf("First SCSI open has strange problems.\n");
-					printf("Second SCSI open test FAILED.\n");
-					fprintf(logfile, "First SCSI open has strange problems.\n");
-					fprintf(logfile, "Second SCSI open test FAILED.\n");
+					chkprint("First SCSI open has strange problems.\n");
+					chkprint("----------> Second SCSI open test FAILED.\n");
 				}
 			} else {
 				second_ok = FALSE;
-				printf("Cannot open same SCSI device a second time.\n");
-				printf("Second SCSI open test FAILED.\n");
-				fprintf(logfile, "Cannot open same SCSI device a second time.\n");
-				fprintf(logfile, "Second SCSI open test FAILED.\n");
+				chkprint("Cannot open same SCSI device a second time.\n");
+				chkprint("----------> Second SCSI open test FAILED.\n");
 			}
 		} else {
 			second_ok = FALSE;
-			printf("First SCSI open is not usable\n");
-			printf("Second SCSI open test FAILED.\n");
-			fprintf(logfile, "First SCSI open is not usable\n");
-			fprintf(logfile, "Second SCSI open test FAILED.\n");
+			chkprint("First SCSI open is not usable\n");
+			chkprint("----------> Second SCSI open test FAILED.\n");
 		}
-		if (!second_ok && scgp2) {
-			if (xdebug > 1)
-				error("scgp %p scgp2 %p\n", scgp, scgp2);
-			if (scgp)
+		if (xdebug > 1)
+			error("scgp %p scgp2 %p\n", scgp, scgp2);
+		if (scgp2)
+			scg_close(scgp2);
+		if (scgp) {
+			scgp->silent++;
+			ret = inquiry(scgp, buf, sizeof (struct scsi_inquiry));
+			scgp->silent--;
+			if (ret >= 0 || scgp->scmd->error == SCG_RETRYABLE) {
+				chkprint("First SCSI open is still usable\n");
+			} else {
+				scg_freebuf(scgp);
 				scg_close(scgp);
-			if (scgp2)
-				scg_close(scgp2);
-			scgp = doopen(device);
-			if (xdebug > 1)
-				error("scgp %p\n", scgp);
+				scgp = doopen(device);
+				getbuf(scgp);
+				if (xdebug > 1)
+					error("scgp %p\n", scgp);
+			}
 		}
 	}
 #endif	/* CHECK_SECOND_OPEN */
 
 	printf("Ready to start test for succeeded command? Enter <CR> to continue: ");
-	flushit();
-	(void) getline(abuf, sizeof (abuf));
+	(void) chkgetline(abuf, sizeof (abuf));
+	chkprint("**********> Checking for succeeded SCSI command.\n");
 	scgp->verbose++;
 	ret = inquiry(scgp, buf, sizeof (struct scsi_inquiry));
 	scg_vsetup(scgp);
 	scg_errfflush(scgp, logfile);
 	scgp->verbose--;
+	scg_fprbytes(logfile, "Inquiry Data   :", (Uchar *)buf,
+			sizeof (struct scsi_inquiry) - scg_getresid(scgp));
+
 	if (ret >= 0 && !scg_cmd_err(scgp)) {
-		printf("----------> SCSI succeeded command test PASSED\n");
-		fprintf(logfile, "----------> SCSI succeeded command test PASSED\n");
+		chkprint("----------> SCSI succeeded command test PASSED\n");
 	} else {
-		printf("----------> SCSI succeeded command test FAILED\n");
-		fprintf(logfile, "----------> SCSI succeeded command test FAILED\n");
+		chkprint("----------> SCSI succeeded command test FAILED\n");
 	}
 
 	sensetest(scgp);
-	printf("----------> SCSI status byte test NOT YET READY\n");
-	fprintf(logfile, "----------> SCSI status byte test NOT YET READY\n");
+	if (!autotest)
+		chkprint("----------> SCSI status byte test NOT YET READY\n");
 /*
 scan OK
 work OK
@@ -377,8 +381,7 @@ reset
 */
 
 	dmaresid(scgp);
-	printf("----------> SCSI transport code test NOT YET READY\n");
-	fprintf(logfile, "----------> SCSI transport code test NOT YET READY\n");
+	chkprint("----------> SCSI transport code test NOT YET READY\n");
 	return (0);
 }
 
@@ -419,8 +422,7 @@ checkversion(scgp)
 	 */
 	vers = scg_version(0, SCG_VERSION);
 	auth = scg_version(0, SCG_AUTHOR);
-	printf("Using libscg version '%s-%s'\n", auth, vers);
-	fprintf(logfile, "Using libscg version '%s-%s'\n", auth, vers);
+	chkprint("Using libscg version '%s-%s'\n", auth, vers);
 	if (auth == 0 || strcmp("schily", auth) != 0) {
 		errmsgno(EX_BAD,
 		"Warning: using inofficial version of libscg (%s-%s '%s').\n",
@@ -464,8 +466,7 @@ getbuf(scgp)
 	SCSI	*scgp;
 {
 	bufsize = scg_bufsize(scgp, MAX_BUF_SIZE);
-		printf("Max DMA buffer size: %ld\n", bufsize);
-		fprintf(logfile, "Max DMA buffer size: %ld\n", bufsize);
+	chkprint("Max DMA buffer size: %ld\n", bufsize);
 	seterrno(0);
 	if ((buf = scg_getbuf(scgp, bufsize)) == NULL) {
 		errmsg("Cannot get SCSI buffer (%ld bytes).\n", bufsize);
@@ -481,6 +482,66 @@ getbuf(scgp)
 	if ((buf = scg_getbuf(scgp, bufsize)) == NULL)
 		comerr("Cannot get SCSI I/O buffer.\n");
 }
+
+LOCAL void
+scg_openerr(errstr)
+	char	*errstr;
+{
+	errmsg("%s%sCannot open or use SCSI driver.\n", errstr, errstr[0]?". ":"");
+	errmsgno(EX_BAD, "For possible targets try 'cdrecord -scanbus'.%s\n",
+				geteuid() ? " Make sure you are root.":"");
+	errmsgno(EX_BAD, "For possible transport specifiers try 'cdrecord dev=help'.\n");
+	exit(EX_BAD);
+}
+
+LOCAL int
+find_drive(scgp, dev, flags)
+	SCSI	*scgp;
+	char	*dev;
+	int	flags;
+{
+	int	ntarget;
+	int	type = INQ_ROMD;
+
+	if ((flags & F_MSINFO) == 0)
+		error("No target specified, trying to find one...\n");
+	ntarget = find_target(scgp, type, -1);
+	if (ntarget < 0)
+		return (ntarget);
+	if (ntarget == 1) {
+		/*
+		 * Simple case, exactly one CD-ROM found.
+		 */
+		find_target(scgp, type, 1);
+	} else if (ntarget <= 0 && (ntarget = find_target(scgp, type = INQ_WORM, -1)) == 1) {
+		/*
+		 * Exactly one CD-ROM acting as WORM found.
+		 */
+		find_target(scgp, type, 1);
+	} else if (ntarget <= 0) {
+		/*
+		 * No single CD-ROM or WORM found.
+		 */
+		errmsgno(EX_BAD, "No CD/DVD/BD-Recorder target found.\n");
+		errmsgno(EX_BAD, "Your platform may not allow to scan for SCSI devices.\n");
+		comerrno(EX_BAD, "Call 'cdrecord dev=help' or ask your sysadmin for possible targets.\n");
+	} else {
+		errmsgno(EX_BAD, "Too many CD/DVD/BD-Recorder targets found.\n");
+/*
+		select_target(scgp, stdout);
+		comerrno(EX_BAD, "Select a target from the list above and use 'cdrecord dev=%s%sb,t,l'.\n",
+			dev?dev:"", dev?(dev[strlen(dev)-1] == ':'?"":":"):"");
+*/
+		find_target(scgp, type, 1);		
+	}
+	if ((flags & F_MSINFO) == 0)
+		error("Using dev=%s%s%d,%d,%d.\n",
+			dev?dev:"", dev?(dev[strlen(dev)-1] == ':'?"":":"):"",
+			scg_scsibus(scgp), scg_target(scgp), scg_lun(scgp));
+
+	return (ntarget);
+}
+
 
 EXPORT void
 flushit()
@@ -503,4 +564,55 @@ countopen()
 			nopen++;
 	}
 	return (nopen);
+}
+/*--------------------------------------------------------------------------*/
+#include <schily/varargs.h>
+
+/* VARARGS1 */
+#ifdef	PROTOTYPES
+EXPORT int
+chkprint(const char *fmt, ...)
+#else
+EXPORT int
+chkprint(fmt, va_alist)
+	char	*fmt;
+	va_dcl
+#endif
+{
+	va_list	args;
+	int	ret;
+
+#ifdef	PROTOTYPES
+	va_start(args, fmt);
+#else
+	va_start(args);
+#endif
+	ret = js_fprintf(stdout, "%r", fmt, args);
+	va_end(args);
+	if (ret < 0)
+		return (ret);
+#ifdef	PROTOTYPES
+	va_start(args, fmt);
+#else
+	va_start(args);
+#endif
+	ret = js_fprintf(logfile, "%r", fmt, args);
+	va_end(args);
+	return (ret);
+}
+
+EXPORT int
+chkgetline(buf, len)
+	char	*buf;
+	int	len;
+{
+	flushit();
+	if (autotest) {
+		printf("\n");
+		flush();
+		if (len > 0)
+			buf[0] = '\0';
+		return (0);
+	}
+	return (getline(buf, len));
 }

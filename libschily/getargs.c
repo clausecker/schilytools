@@ -1,11 +1,11 @@
-/* @(#)getargs.c	2.54 08/02/08 Copyright 1985, 1988, 1994-2007 J. Schilling */
+/* @(#)getargs.c	2.56 08/06/13 Copyright 1985, 1988, 1994-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)getargs.c	2.54 08/02/08 Copyright 1985, 1988, 1994-2007 J. Schilling";
+	"@(#)getargs.c	2.56 08/06/13 Copyright 1985, 1988, 1994-2008 J. Schilling";
 #endif
 #define	NEW
 /*
- *	Copyright (c) 1985, 1988, 1994-2007 J. Schilling
+ *	Copyright (c) 1985, 1988, 1994-2008 J. Schilling
  *
  *	1.3.88	 Start implementation of release 2
  */
@@ -559,7 +559,8 @@ doflag(pac, pav, argp, vfmt, flags, oargs)
 	 * check if the first flag in format string is a singlechar flag
 	 */
 again:
-	if (fmt[1] == ',' || fmt[1] == '+' || fmt[1] == '\0')
+	if (fmt[0] != '\0' &&
+	    (fmt[1] == ',' || fmt[1] == '+' || fmt[1] == '\0'))
 		singlecharflag++;
 	/*
 	 * check the whole format string for a match
@@ -716,6 +717,8 @@ again:
 
 		case ',':
 			fmt++;
+			if (fmt[0] == '\0')	/* Should we allow "a,b,c,"? */
+				return (BADFMT);
 			if (fmt[1] == ',' || fmt[1] == '+' || fmt[1] == '\0')
 				singlecharflag++;
 			if ((flags & (SETARGS|ARGVECTOR)) == SETARGS)

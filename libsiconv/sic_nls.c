@@ -1,7 +1,7 @@
-/* @(#)sic_nls.c	1.6 08/02/17 Copyright 2007-2008 J. Schilling */
+/* @(#)sic_nls.c	1.7 08/06/11 Copyright 2007-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)sic_nls.c	1.6 08/02/17 Copyright 2007-2008 J. Schilling";
+	"@(#)sic_nls.c	1.7 08/06/11 Copyright 2007-2008 J. Schilling";
 #endif
 /*
  * This code reads translation files in the format used by
@@ -283,6 +283,7 @@ create_sic(name)
 
 	if ((cs2uni = (UInt16_t *)
 			malloc(sizeof (UInt16_t) * TAB_SIZE)) == NULL) {
+		fclose(f);
 		return ((siconvt_t *)NULL);
 	}
 

@@ -1,14 +1,14 @@
-/* @(#)drv_mmc.c	1.189 07/08/07 Copyright 1997-2007 J. Schilling */
+/* @(#)drv_mmc.c	1.190 08/06/14 Copyright 1997-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)drv_mmc.c	1.189 07/08/07 Copyright 1997-2007 J. Schilling";
+	"@(#)drv_mmc.c	1.190 08/06/14 Copyright 1997-2008 J. Schilling";
 #endif
 /*
  *	CDR device implementation for
  *	SCSI-3/mmc conforming drives
  *	e.g. Yamaha CDR-400, Ricoh MP6200
  *
- *	Copyright (c) 1997-2007 J. Schilling
+ *	Copyright (c) 1997-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -2963,7 +2963,7 @@ drivemode_plextor(scgp, bp, cnt, modecode, modeval)
 	if (modeval)
 		movebytes(modeval, &scmd->cdb.g1_cdb.addr[1], 6);
 	else
-		i_to_2_byte(&scmd->cdb.g1_cdb.count[2], cnt);
+		i_to_2_byte(&scmd->cdb.cmd_cdb[9], cnt);
 
 	scgp->cmdname = "plextor drive mode";
 
@@ -3014,7 +3014,7 @@ drivemode2_plextor(scgp, bp, cnt, modecode, modeval)
 	if (modeval)
 		scmd->cdb.g5_cdb.reladr = *(char *)modeval != 0 ? 1 : 0;
 	else
-		i_to_2_byte(&scmd->cdb.g1_cdb.count[1], cnt);
+		i_to_2_byte(&scmd->cdb.cmd_cdb[8], cnt);
 
 	scgp->cmdname = "plextor drive mode2";
 
@@ -3442,7 +3442,7 @@ get_speeds_plextor(scgp, selp, maxp, lastp)
 	scmd->cdb.g5_cdb.cmd = 0xEB;
 	scmd->cdb.g5_cdb.lun = scg_lun(scgp);
 
-	i_to_2_byte(&scmd->cdb.g1_cdb.count[1], sizeof (buf));
+	i_to_2_byte(&scmd->cdb.cmd_cdb[8], sizeof (buf));
 
 	scgp->cmdname = "plextor get speedlist";
 
@@ -3488,7 +3488,7 @@ bpc_plextor(scgp, mode, bpp)
 	scmd->cdb.g5_cdb.addr[1] = 0x08;
 	scmd->cdb.g5_cdb.addr[2] = mode;
 
-	i_to_2_byte(&scmd->cdb.g1_cdb.count[1], sizeof (buf));
+	i_to_2_byte(&scmd->cdb.cmd_cdb[8], sizeof (buf));
 
 	scgp->cmdname = "plextor read bpc";
 

@@ -1,7 +1,7 @@
-.\" @(#)scgcheck.1	1.10 06/05/14 Copyright 2000 J. Schilling
+.\" @(#)scgcheck.1	1.11 08/06/13 Copyright 2000-2008 J. Schilling
 .\"
 .\" The contents of this file are subject to the terms of the
-.\" Common Development and Distribution License, Version 1.0 only.
+.\" Common Development and Distribution License, Version 1.0 only
 .\" (the "License").  You may not use this file except in compliance
 .\" with the License.
 .\"
@@ -121,6 +121,11 @@ option of
 .TP
 .B \-version
 Print version information and exit.
+.TP
+.B \-auto
+Instead of asking to confirm each test before runing it, 
+.B scgcheck
+tries to do a fully automated test.
 .TP
 .BI dev= target
 Sets the SCSI target default for SCSI Bus scanning test, see notes above.

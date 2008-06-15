@@ -1,12 +1,12 @@
-/* @(#)tgetent.c	1.27 08/02/02 Copyright 1986 J. Schilling */
+/* @(#)tgetent.c	1.28 08/06/13 Copyright 1986-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)tgetent.c	1.27 08/02/02 Copyright 1986 J. Schilling";
+	"@(#)tgetent.c	1.28 08/06/13 Copyright 1986-2008 J. Schilling";
 #endif
 /*
  *	Access routines for TERMCAP database.
  *
- *	Copyright (c) 1986 J. Schilling
+ *	Copyright (c) 1986-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

@@ -25,13 +25,13 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2007 J. Schilling
+ * This file contains modifications Copyright 2006-2008 J. Schilling
  *
- * @(#)prt.c	1.5 08/01/06 J. Schilling
+ * @(#)prt.c	1.6 08/06/14 J. Schilling
  */
 #if defined(sun) || defined(__GNUC__)
 
-#ident "@(#)prt.c 1.5 08/01/06 J. Schilling"
+#ident "@(#)prt.c 1.6 08/06/14 J. Schilling"
 #endif
 /*
  * @(#)prt.c 1.22 06/12/12

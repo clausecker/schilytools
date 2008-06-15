@@ -1,12 +1,12 @@
-/* @(#)skel.c	1.14 08/01/16 Copyright 1987, 1995-2007 J. Schilling */
+/* @(#)skel.c	1.15 08/06/13 Copyright 1987, 1995-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)skel.c	1.14 08/01/16 Copyright 1987, 1995-2007 J. Schilling";
+	"@(#)skel.c	1.15 08/06/13 Copyright 1987, 1995-2008 J. Schilling";
 #endif
 /*
  *	Skeleton for the use of the scg genearal SCSI - driver
  *
- *	Copyright (c) 1987, 1995-2007 J. Schilling
+ *	Copyright (c) 1987, 1995-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -156,7 +156,7 @@ main(ac, av)
 	if (help)
 		usage(0);
 	if (pversion) {
-		printf("btcflash %s (%s-%s-%s) Copyright (C) 1987, 1995-2007 Jörg Schilling (C) 2004 David Huang\n",
+		printf("btcflash %s (%s-%s-%s) Copyright (C) 1987, 1995-2008 Jörg Schilling (C) 2004 David Huang\n",
 								skel_version,
 								HOST_CPU, HOST_VENDOR, HOST_OS);
 		exit(0);

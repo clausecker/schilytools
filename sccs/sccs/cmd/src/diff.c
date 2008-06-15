@@ -37,13 +37,13 @@
  * contributors.
  */
 /*
- * This file contains modifications Copyright 2006-2007 J. Schilling
+ * This file contains modifications Copyright 2006-2008 J. Schilling
  *
- * @(#)diff.c	1.9 08/02/26 J. Schilling
+ * @(#)diff.c	1.11 08/06/14 J. Schilling
  */
 #if defined(sun) || defined(__GNUC__)
 
-#ident "@(#)diff.c 1.9 08/02/26 J. Schilling"
+#ident "@(#)diff.c 1.11 08/06/14 J. Schilling"
 #endif
 
 #pragma ident	"@(#)diff.c	1.55	05/07/22 SMI"
@@ -135,6 +135,8 @@
  *	In 32 bit mode, there is no need to check for an integer overflow
  *	as the process will run "out of memory" before.
  */
+#ifdef	SCHILY_BUILD
+
 #include <schily/mconfig.h>
 #include <stdio.h>
 #include <schily/wchar.h>
@@ -156,6 +158,58 @@
 #include <schily/time.h>
 #include <version.h>
 #include <sysexits.h>
+
+#else	/* non-portable SunOS definitions BEGIN */
+
+#define	_FILE_OFFSET_BITS	64
+#define	_LARGEFILE_SOURCE
+#include <stdio.h>
+#include <wchar.h>
+#include <ctype.h>
+#include <stdlib.h>
+#include <limits.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <sys/wait.h>
+#include <unistd.h>
+#include <signal.h>
+#include <fcntl.h>
+#include <dirent.h>
+#include <locale.h>
+#include <stdarg.h>
+#include <errno.h>
+#include <string.h>
+#include <sysexits.h>
+
+#define	PROVIDER	"Sun"
+#define	VERSION		"1.x"
+
+#ifdef	__sparc
+#define	HOST_CPU	"sparc"
+#define	HOST_VENDOR	"Sun"
+#endif
+#if defined(__i386) || defined(__amd64)
+#define	HOST_CPU	"i386"
+#define	HOST_VENDOR	"pc"
+#endif
+#ifndef	HOST_CPU
+#define	HOST_CPU	"unknown"
+#endif
+#ifndef	HOST_VENDOR
+#define	HOST_VENDOR	"unknown"
+#endif
+#define	HOST_OS		"SunOS"
+
+#define	PROTOTYPES
+#define	__PR(a)	a
+#define	EXPORT
+#define	LOCAL	static
+
+#define	HAVE_LARGEFILES
+#define	HAVE_CFTIME
+
+#endif	/* non-portable SunOS definitions END */
+
 
 #ifdef	HAVE_LARGEFILES
 #define	fseek		fseeko

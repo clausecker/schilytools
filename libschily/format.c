@@ -1,4 +1,4 @@
-/* @(#)format.c	1.42 08/02/26 Copyright 1985-2006 J. Schilling */
+/* @(#)format.c	1.43 08/06/13 Copyright 1985-2008 J. Schilling */
 /*
  *	format
  *	common code for printf fprintf & sprintf
@@ -6,7 +6,7 @@
  *	allows recursive printf with "%r", used in:
  *	error, comerr, comerrno, errmsg, errmsgno and the like
  *
- *	Copyright (c) 1985-2006 J. Schilling
+ *	Copyright (c) 1985-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

@@ -1,7 +1,7 @@
-/* @(#)isodump.c	1.33 08/01/16 joerg */
+/* @(#)isodump.c	1.35 08/06/13 joerg */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)isodump.c	1.33 08/01/16 joerg";
+	"@(#)isodump.c	1.35 08/06/13 joerg";
 #endif
 /*
  * File isodump.c - dump iso9660 directory information.
@@ -10,7 +10,7 @@ static	char sccsid[] =
  * Written by Eric Youngdale (1993).
  *
  * Copyright 1993 Yggdrasil Computing, Incorporated
- * Copyright (c) 1999-2007 J. Schilling
+ * Copyright (c) 1999-2008 J. Schilling
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2
@@ -275,7 +275,7 @@ parse_rr(pnt, len, cont_flag)
 	unsigned char	*pnts;
 	char		symlinkname[1024];
 	char		name[1024];
-	int		goof;
+	int		goof = 0;
 
 /*	printf(" RRlen=%d ", len); */
 
@@ -406,6 +406,9 @@ parse_rr(pnt, len, cont_flag)
 		printf("Flag %x != %x", flag1, flag2);
 		goof++;
 	}
+	/*
+	 * XXX Check goof?
+	 */
 	return (flag2);
 }
 
@@ -547,7 +550,7 @@ main(argc, argv)
 	if (help)
 		usage(0);
 	if (prvers) {
-		printf("isodump %s (%s-%s-%s) Copyright (C) 1993-1999 Eric Youngdale (C) 1999-2007 Jörg Schilling\n",
+		printf("isodump %s (%s-%s-%s) Copyright (C) 1993-1999 Eric Youngdale (C) 1999-2008 Jörg Schilling\n",
 					VERSION,
 					HOST_CPU, HOST_VENDOR, HOST_OS);
 		exit(0);

@@ -1,4 +1,4 @@
-/* @(#)scgcheck.h	1.1 01/03/18 Copyright 2001 J. Schilling */
+/* @(#)scgcheck.h	1.2 08/01/06 Copyright 2001 J. Schilling */
 /*
  *	Copyright (c) 2001 J. Schilling
  */
@@ -18,6 +18,9 @@
  * scgcheck.c
  */
 extern	void	flushit		__PR((void));
+extern	int	countopen	__PR((void));
+extern	int	chkprint	__PR((const char *, ...)) __printflike__(1, 2);
+extern	int	chkgetline	__PR((char *, int));
 
 /*
  * sense.c

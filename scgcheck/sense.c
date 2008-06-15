@@ -1,10 +1,10 @@
-/* @(#)sense.c	1.5 06/09/13 Copyright 2001 J. Schilling */
+/* @(#)sense.c	1.7 08/06/14 Copyright 2001-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)sense.c	1.5 06/09/13 Copyright 2001 J. Schilling";
+	"@(#)sense.c	1.7 08/06/14 Copyright 2001-2008 J. Schilling";
 #endif
 /*
- *	Copyright (c) 2001 J. Schilling
+ *	Copyright (c) 2001-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -58,11 +58,11 @@ sensetest(scgp)
 	int	ret;
 	int	sense_count = 0;
 	BOOL	passed = TRUE;
+	BOOL	needload = FALSE;
 
 	printf("Ready to start test for failing command? Enter <CR> to continue: ");
-	fprintf(logfile, "**********> Testing for failed SCSI command.\n");
-	flushit();
-	(void)getline(abuf, sizeof(abuf));
+	(void) chkgetline(abuf, sizeof(abuf));
+	chkprint("**********> Testing for failed SCSI command.\n");
 /*	scgp->verbose++;*/
 	fillbytes(buf, sizeof(struct scsi_inquiry), '\0');
 	fillbytes((caddr_t)scgp->scmd, sizeof(*scgp->scmd), '\0');
@@ -71,106 +71,128 @@ sensetest(scgp)
 	scg_errfflush(scgp, logfile);
 	if (ret >= 0 || !scg_cmd_err(scgp)) {
 		inq_nofail = TRUE;
-		printf("Inquiry did not fail.\n");
-		fprintf(logfile, "Inquiry did not fail.\n");
+		chkprint("Inquiry did not fail.\n");
 		printf("This may be because the firmware in your drive is buggy.\n");
 		printf("If the current drive is not a CD-ROM drive please restart\n");
 		printf("the test utility. Otherwise remove any medium from the drive.\n");
+
 		printf("Ready to start test for failing command? Enter <CR> to continue: ");
-		flushit();
-		(void)getline(abuf, sizeof(abuf));
+		(void) chkgetline(abuf, sizeof(abuf));
 		ret = test_unit_ready(scgp);
+		scg_vsetup(scgp);
+		scg_errfflush(scgp, logfile);
+
+#ifdef	XXX
+/*
+ * Another try to let the command fail with "illegal field in cdb"
+ */
+if (0) { 
+	register struct scg_cmd *scmd = scgp->scmd; 
+ 
+	fillbytes((caddr_t)scmd, sizeof (*scmd), '\0'); 
+	scmd->addr = (caddr_t)scgp->cap; 
+	scmd->size = sizeof (struct scsi_capacity); 
+	scmd->flags = SCG_RECV_DATA|SCG_DISRE_ENA; 
+	scmd->cdb_len = SC_G1_CDBLEN; 
+	scmd->sense_len = CCS_SENSE_LEN; 
+	scmd->cdb.g1_cdb.cmd = 0x25;    /* Read Capacity */ 
+	scmd->cdb.g1_cdb.lun = scg_lun(scgp); 
+	g1_cdblen(&scmd->cdb.g1_cdb, 0); /* Full Media */ 
+
+scmd->cdb.cmd_cdb[2] = 0xFF;
+scmd->cdb.cmd_cdb[9] = 0xFF;
+
+	scgp->cmdname = "read capacity";
+
+	if (scg_cmd(scgp) < 0)
+                ; 
+
+}
+#endif
+
+
 		if (ret >= 0 || !scg_cmd_err(scgp)) {
 			printf("Test Unit Ready did not fail.\n");
+
 			printf("Ready to eject tray? Enter <CR> to continue: ");
 			flushit();
-			(void)getline(abuf, sizeof(abuf));
-			scsi_unload(scgp, (cdr_t *)0);
-			ret = test_unit_ready(scgp);
+			(void) getline(abuf, sizeof(abuf));
+			if (abuf[0] != 'n') {
+				scsi_unload(scgp, (cdr_t *)0);
+				needload = TRUE;
+				ret = test_unit_ready(scgp);
+				scg_vsetup(scgp);
+				scg_errfflush(scgp, logfile);
+			}
 		}
 	}
+/*
+fprintf(logfile, "XXX\n");
 	scg_vsetup(scgp);
 	scg_errfflush(scgp, logfile);
+*/
 /*	scgp->verbose--;*/
 	if (ret < 0 &&
 	    scgp->scmd->error == SCG_NO_ERROR &&
 	    scgp->scmd->ux_errno != 0 &&
 	    *(Uchar *)&scgp->scmd->scb != 0) {
-		printf("----------> SCSI failed command test PASSED\n");
-		fprintf(logfile, "----------> SCSI failed command test PASSED\n");
+		chkprint("----------> SCSI failed command test PASSED\n");
 	} else {
 		if (ret >= 0) {
-			printf("---------->	scg_cmd() returns not -1 (%d)\n", ret);
-			fprintf(logfile, "---------->	scg_cmd() returns not -1 (%d)\n", ret);
+			chkprint("---------->	scg_cmd() returns not -1 (%d)\n", ret);
 		}
 		if (scgp->scmd->error != SCG_NO_ERROR) {
-			printf("---------->	SCSI Transport return != SCG_NO_ERROR (%d)\n", scgp->scmd->error);
-			fprintf(logfile, "---------->	SCSI Transport return != SCG_NO_ERROR (%d)\n", scgp->scmd->error);
+			chkprint("---------->	SCSI Transport return != SCG_NO_ERROR (%d)\n", scgp->scmd->error);
 		}
 		if (scgp->scmd->ux_errno == 0) {
-			printf("---------->	UNIX errno set to 0\n");
-			fprintf(logfile, "---------->	UNIX errno set to 0\n");
+			chkprint("---------->	UNIX errno set to 0\n");
 		}
 		if (*(Uchar *)&scgp->scmd->scb == 0) {
-			printf("---------->	SCSI status byte set to 0 (0x%x)\n", *(Uchar *)&scgp->scmd->scb & 0xFF);
-			fprintf(logfile, "---------->	SCSI status byte set to 0 (0x%x)\n", *(Uchar *)&scgp->scmd->scb & 0xFF);
+			chkprint("---------->	SCSI status byte set to 0 (0x%x)\n", *(Uchar *)&scgp->scmd->scb & 0xFF);
 		}
-		printf("----------> SCSI failed command test FAILED\n");
-		fprintf(logfile, "----------> SCSI failed command test FAILED\n");
+		chkprint("----------> SCSI failed command test FAILED\n");
 	}
-
+	if (needload)
+		scsi_start_stop_unit(scgp, 1, 1, 0);
 
 	printf("Ready to start test for sense data count? Enter <CR> to continue: ");
-	fprintf(logfile, "**********> Testing for SCSI sense data count.\n");
-	flushit();
-	(void)getline(abuf, sizeof(abuf));
-	printf("Testing if at least CCS_SENSE_LEN (%d) is supported...\n", CCS_SENSE_LEN);
-	fprintf(logfile, "**********> Testing if at least CCS_SENSE_LEN (%d) is supported...\n", CCS_SENSE_LEN);
+	(void) chkgetline(abuf, sizeof(abuf));
+	chkprint("**********> Testing for SCSI sense data count.\n");
+	chkprint("**********> Testing if at least CCS_SENSE_LEN (%d) is supported...\n", CCS_SENSE_LEN);
 	ret = sensecount(scgp, CCS_SENSE_LEN);
 	if (ret > sense_count)
 		sense_count = ret;
 	if (ret == CCS_SENSE_LEN) {
-		printf("---------->	Wanted %d sense bytes, got it.\n", CCS_SENSE_LEN);
-		fprintf(logfile, "---------->	Wanted %d sense bytes, got it.\n", CCS_SENSE_LEN);
+		chkprint("---------->	Wanted %d sense bytes, got it.\n", CCS_SENSE_LEN);
 	}
 	if (ret != CCS_SENSE_LEN) {
-		printf("---------->	Minimum standard (CCS) sense length failed\n");
-		printf("---------->	Wanted %d sense bytes, got (%d)\n", CCS_SENSE_LEN, ret);
-		fprintf(logfile, "---------->	Minimum standard (CCS) sense length failed\n");
-		fprintf(logfile, "---------->	Wanted %d sense bytes, got (%d)\n", CCS_SENSE_LEN, ret);
+		chkprint("---------->	Minimum standard (CCS) sense length failed\n");
+		chkprint("---------->	Wanted %d sense bytes, got (%d)\n", CCS_SENSE_LEN, ret);
 	}
 	if (ret != scgp->scmd->sense_count) {
 		passed = FALSE;
-		printf("---------->	Libscg says %d sense bytes but got (%d)\n", scgp->scmd->sense_count, ret);
-		fprintf(logfile, "---------->	Libscg says %d sense bytes but got (%d)\n", scgp->scmd->sense_count, ret);
+		chkprint("---------->	Libscg says %d sense bytes but got (%d)\n", scgp->scmd->sense_count, ret);
 	}
-	printf("Testing for %d bytes of sense data...\n", SCG_MAX_SENSE);
-	fprintf(logfile, "**********> Testing for %d bytes of sense data...\n", SCG_MAX_SENSE);
+	chkprint("**********> Testing for %d bytes of sense data...\n", SCG_MAX_SENSE);
 	ret = sensecount(scgp, SCG_MAX_SENSE);
 	if (ret > sense_count)
 		sense_count = ret;
 	if (ret == SCG_MAX_SENSE) {
-		printf("---------->	Wanted %d sense bytes, got it.\n", SCG_MAX_SENSE);
-		fprintf(logfile, "---------->	Wanted %d sense bytes, got it.\n", SCG_MAX_SENSE);
+		chkprint("---------->	Wanted %d sense bytes, got it.\n", SCG_MAX_SENSE);
 	}
 	if (ret != SCG_MAX_SENSE) {
-		printf("---------->	Wanted %d sense bytes, got (%d)\n", SCG_MAX_SENSE, ret);
-		fprintf(logfile, "---------->	Wanted %d sense bytes, got (%d)\n", SCG_MAX_SENSE, ret);
+		chkprint("---------->	Wanted %d sense bytes, got (%d)\n", SCG_MAX_SENSE, ret);
 	}
 	if (ret != scgp->scmd->sense_count) {
 		passed = FALSE;
-		printf("---------->	Libscg says %d sense bytes but got (%d)\n", scgp->scmd->sense_count, ret);
-		fprintf(logfile, "---------->	Libscg says %d sense bytes but got (%d)\n", scgp->scmd->sense_count, ret);
+		chkprint("---------->	Libscg says %d sense bytes but got (%d)\n", scgp->scmd->sense_count, ret);
 	}
 
-	printf("----------> Got a maximum of %d sense bytes\n", sense_count);
-	fprintf(logfile, "----------> Got a maximum of %d sense bytes\n", sense_count);
+	chkprint("----------> Got a maximum of %d sense bytes\n", sense_count);
 	if (passed && sense_count >= CCS_SENSE_LEN) {
-		printf("----------> SCSI sense count test PASSED\n");
-		fprintf(logfile, "----------> SCSI sense count test PASSED\n");
+		chkprint("----------> SCSI sense count test PASSED\n");
 	} else {
-		printf("----------> SCSI sense count test FAILED\n");
-		fprintf(logfile, "----------> SCSI sense count test FAILED\n");
+		chkprint("----------> SCSI sense count test FAILED\n");
 	}
 }
 
@@ -205,7 +227,7 @@ sensecount(scgp, sensecnt)
 	}
 	i++;
 	maxcnt = i;
-printf("---------->     Method 0x00: expected: %d reported: %d max found: %d\n", sensecnt, scgp->scmd->sense_count, maxcnt);
+chkprint("---------->     Method 0x00: expected: %d reported: %d max found: %d\n", sensecnt, scgp->scmd->sense_count, maxcnt);
 
 	fillbytes(buf, sizeof(struct scsi_inquiry), '\0');
 	fillbytes((caddr_t)scgp->scmd, sizeof(*scgp->scmd), '\0');
@@ -225,7 +247,7 @@ printf("---------->     Method 0x00: expected: %d reported: %d max found: %d\n",
 	i++;
 	if (i > maxcnt)
 		maxcnt = i;
-printf("---------->     Method 0xFF: expected: %d reported: %d max found: %d\n", sensecnt, scgp->scmd->sense_count, i);
+chkprint("---------->     Method 0xFF: expected: %d reported: %d max found: %d\n", sensecnt, scgp->scmd->sense_count, i);
 
 /*	scgp->verbose--;*/
 	scgp->silent--;

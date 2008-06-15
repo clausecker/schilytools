@@ -1,12 +1,12 @@
-/* @(#)walk.c	1.32 08/04/06 Copyright 2004-2007 J. Schilling */
+/* @(#)walk.c	1.33 08/06/13 Copyright 2004-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)walk.c	1.32 08/04/06 Copyright 2004-2007 J. Schilling";
+	"@(#)walk.c	1.33 08/06/13 Copyright 2004-2008 J. Schilling";
 #endif
 /*
  *	Walk a directory tree
  *
- *	Copyright (c) 2004-2007 J. Schilling
+ *	Copyright (c) 2004-2008 J. Schilling
  *
  *	In order to make treewalk() thread safe, we need to make it to not use
  *	chdir(2)/fchdir(2) which is process global.

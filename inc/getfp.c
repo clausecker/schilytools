@@ -1,8 +1,8 @@
-/* @(#)getfp.c	1.17 08/01/11 Copyright 1988-2003 J. Schilling */
+/* @(#)getfp.c	1.18 08/06/14 Copyright 1988-2008 J. Schilling */
 /*
  *	Get frame pointer
  *
- *	Copyright (c) 1988-2003 J. Schilling
+ *	Copyright (c) 1988-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

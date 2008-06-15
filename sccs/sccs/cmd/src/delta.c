@@ -25,13 +25,13 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2007 J. Schilling
+ * This file contains modifications Copyright 2006-2008 J. Schilling
  *
- * @(#)delta.c	1.7 08/02/20 J. Schilling
+ * @(#)delta.c	1.8 08/06/14 J. Schilling
  */
 #if defined(sun) || defined(__GNUC__)
 
-#ident "@(#)delta.c 1.7 08/02/20 J. Schilling"
+#ident "@(#)delta.c 1.8 08/06/14 J. Schilling"
 #endif
 /*
  * @(#)delta.c 1.40 06/12/12

@@ -1,12 +1,12 @@
-/* @(#)cue.c	1.33 07/04/08 Copyright 2001-2007 J. Schilling */
+/* @(#)cue.c	1.34 08/06/14 Copyright 2001-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)cue.c	1.33 07/04/08 Copyright 2001-2007 J. Schilling";
+	"@(#)cue.c	1.34 08/06/14 Copyright 2001-2008 J. Schilling";
 #endif
 /*
  *	Cue sheet parser
  *
- *	Copyright (c) 2001-2007 J. Schilling
+ *	Copyright (c) 2001-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -340,8 +340,10 @@ fparsecue(f, trackp)
 			 */
 			if (state.state < STATE_INDEX1 && state.state != STATE_POSTGAP)
 				cueabort("Incomplete CUE file");
-			if (state.xfp)
+			if (state.xfp) {
 				xclose(state.xfp);
+				state.xfp = NULL;
+			}
 			if (xdebug > 1) {
 				printf("---> CUE Parser got EOF, found %d tracks.\n",
 								state.track);
@@ -460,8 +462,10 @@ parse_file(trackp, sp)
 	sp->state = STATE_FILE;
 
 	word = needitem();
-	if (sp->xfp)
+	if (sp->xfp) {
 		xclose(sp->xfp);
+		sp->xfp = NULL;
+	}
 	sp->xfp = xopen(word, O_RDONLY|O_BINARY, 0, X_NOREWIND);
 	if (sp->xfp == NULL && geterrno() == ENOENT) {
 		char	*p;

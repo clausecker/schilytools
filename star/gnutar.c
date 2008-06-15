@@ -1,12 +1,12 @@
-/* @(#)gnutar.c	1.22 08/04/13 Copyright 1989, 2003-2007 J. Schilling */
+/* @(#)gnutar.c	1.23 08/06/13 Copyright 1989, 2003-2008 J. Schilling */
 #ifndef lint
 static	char _g_sccsid[] =
-	"@(#)gnutar.c	1.22 08/04/13 Copyright 1989, 2003-2007 J. Schilling";
+	"@(#)gnutar.c	1.23 08/06/13 Copyright 1989, 2003-2008 J. Schilling";
 #endif
 /*
  *	GNU TAR specific routines for star main program.
  *
- *	Copyright (c) 1989, 2003-2007 J. Schilling
+ *	Copyright (c) 1989, 2003-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

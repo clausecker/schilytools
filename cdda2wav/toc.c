@@ -1,11 +1,11 @@
-/* @(#)toc.c	1.74 07/09/21 Copyright 1998-2003 Heiko Eissfeldt, Copyright 2004-2007 J. Schilling */
+/* @(#)toc.c	1.76 08/06/14 Copyright 1998-2003 Heiko Eissfeldt, Copyright 2004-2008 J. Schilling */
 #ifndef lint
 static char	sccsid[] =
-"@(#)toc.c	1.74 07/09/21 Copyright 1998-2003 Heiko Eissfeldt, Copyright 2004-2007 J. Schilling";
+"@(#)toc.c	1.76 08/06/14 Copyright 1998-2003 Heiko Eissfeldt, Copyright 2004-2008 J. Schilling";
 #endif
 /*
  * CDDA2WAV (C) Heiko Eissfeldt heiko@hexco.de
- * Copyright (c) 2004-2007 J. Schilling
+ * Copyright (c) 2004-2008 J. Schilling
  *
  * The CDDB routines are compatible to cddbd (C) Ti Kan and Steve Scherf
  */
@@ -1267,55 +1267,40 @@ request_titles()
 	else
 		he = gethostbyname(CDDBHOST /*"freedb.freedb.org"*/);
 
-	if (he == NULL) {
-		errmsg("Cddb cannot resolve freedb host.\n");
-		he = malloc(sizeof (struct hostent));
-		memset(he, 0, sizeof (struct hostent));
-		he->h_length = 4;
-		he->h_addrtype = AF_INET;
-		he->h_addr_list = malloc(4);
-		he->h_addr_list[0] = malloc(4);
-		((struct in_addr *)(he->h_addr_list[0]))->s_addr =
-			/* kingfisher.berlios.de	freedb.freedb.de */
-			htonl(UINT_C(0xc3254d85));	/*0xc2610412*/
-		he->h_name = "freedb.freedb.org";
-#if	0
-		retval = -1;
-		goto errout;
-#endif
-	}
-
 	/*
 	 * save result data IMMEDIATELY!!
 	 */
 	memset(&sa, 0, sizeof (struct sockaddr_in));
-	sa.sin_family	   = he->h_addrtype;	/* AF_INET; */
-	sa.sin_addr.s_addr = ((struct in_addr *)((he->h_addr_list)[0]))->s_addr;
+
+	if (he != NULL) {
+		sa.sin_family	   = he->h_addrtype;	/* AF_INET; */
+		sa.sin_addr.s_addr = ((struct in_addr *)((he->h_addr_list)[0]))->s_addr;
+	} else {
+		errmsg("Cddb cannot resolve freedb host.\n");
+		sa.sin_family	   = AF_INET;
+		sa.sin_addr.s_addr = htonl(UINT_C(0x526256aa)); /* freedb.freedb.de */
+	}
 
 	se = NULL;
-	if (global.cddbp_port == NULL)
+	if (global.cddbp_port != NULL) {
+		sa.sin_port = htons(atoi(global.cddbp_port));
+	} else {
 		se = getservbyname("cddbp-alt", "tcp");
 
-	if (se == NULL) {
-		if (global.cddbp_port == NULL) {
-			se = getservbyname("cddbp", "tcp");
-		}
 		if (se == NULL) {
-			se = malloc(sizeof (struct servent));
-			memset(se, 0, sizeof (struct servent));
-			se->s_port = htons(CDDBPORT /*8880*/);
+			if (global.cddbp_port == NULL) {
+				se = getservbyname("cddbp", "tcp");
+			}
+		}
+		if (se != NULL) {
+			sa.sin_port = se->s_port;
+		} else {
 #if	0
 			errmsg("Cddb cannot resolve cddbp or cddbp-alt port.\n");
-			retval = -1;
-			goto errout;
 #endif
+			sa.sin_port = htons(CDDBPORT /*8880*/);
 		}
 	}
-	if (global.cddbp_port != NULL) {
-		se->s_port = htons(atoi(global.cddbp_port));
-	}
-
-	sa.sin_port = se->s_port;
 
 	/* TODO timeout */
 	if (0 > connect(sock_fd, (struct sockaddr *)&sa,
@@ -2621,7 +2606,7 @@ Read_MCN_toshiba(sub_ch)
 	subq_chnl	**sub_ch;
 {
 	if (Toshiba3401() != 0 && global.quiet == 0 &&
-	    ((*sub_ch) != 0 ||
+	    ((*sub_ch) != 0 &&
 	    (((subq_catalog *)(*sub_ch)->data)->mc_valid & 0x80))) {
 		/*
 		 * no valid MCN yet. do more searching

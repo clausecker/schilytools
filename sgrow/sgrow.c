@@ -1,12 +1,12 @@
-/* @(#)sgrow.c	1.9 08/04/22 Copyr 1985 J. Schilling */
+/* @(#)sgrow.c	1.10 08/06/13 Copyr 1985-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)sgrow.c	1.9 08/04/22 Copyr 1985 J. Schilling";
+	"@(#)sgrow.c	1.10 08/06/13 Copyr 1985-2008 J. Schilling";
 #endif
 /*
  *	Check stack growung response on a machine
  *
- *	Copyright (c) 1985 J. Schilling
+ *	Copyright (c) 1985-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -53,8 +53,8 @@ main(ac, av)
 		usage(0);
 
 	if (prversion) {
-		printf("Sgrow release %s (%s-%s-%s) Copyright (C) 1985-2007 Jörg Schilling\n",
-				"1.9",
+		printf("Sgrow release %s (%s-%s-%s) Copyright (C) 1985-2008 Jörg Schilling\n",
+				"1.10",
 				HOST_CPU, HOST_VENDOR, HOST_OS);
 		exit(0);
 	}

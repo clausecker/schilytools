@@ -1,13 +1,13 @@
-/* @(#)walk.c	1.6 08/04/06 Copyright 2005-2006 J. Schilling */
+/* @(#)walk.c	1.8 08/06/13 Copyright 2005-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)walk.c	1.6 08/04/06 Copyright 2005-2006 J. Schilling";
+	"@(#)walk.c	1.8 08/06/13 Copyright 2005-2008 J. Schilling";
 #endif
 /*
  *	This file contains the callback code for treewalk() as used
  *	with mkisofs -find.
  *
- *	Copyright (c) 2005-2006 J. Schilling
+ *	Copyright (c) 2005-2008 J. Schilling
  */
 /*
  * This program is free software; you can redistribute it and/or modify
@@ -83,6 +83,9 @@ walkfunc(nm, fs, type, state)
 				while (xp[0] == '/')
 					xp += 1;
 				if (xp[0] == '.' && xp[1] == '.' && xp[2] == '/') {
+					/*
+					 * de == NULL cannot really happen
+					 */
 					if (de && de != root) {
 						de = de->parent;
 						xp += 2;
@@ -96,8 +99,8 @@ walkfunc(nm, fs, type, state)
 			if (debug) {
 				error("BASE Point:'%s' in '%s : %s' (%s)\n",
 					xp,
-					de->whole_name,
-					de->de_name,
+					de?de->whole_name:"[null]",
+					de?de->de_name:"[null]",
 					nm);
 			}
 			de = find_or_create_directory(de,

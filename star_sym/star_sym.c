@@ -1,13 +1,13 @@
-/* @(#)star_sym.c	1.6 08/04/06 Copyright 2005-2007 J. Schilling */
+/* @(#)star_sym.c	1.7 08/06/13 Copyright 2005-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)star_sym.c	1.6 08/04/06 Copyright 2005-2007 J. Schilling";
+	"@(#)star_sym.c	1.7 08/06/13 Copyright 2005-2008 J. Schilling";
 #endif
 /*
  *	Read in the star inode data base and write a human
  *	readable version.
  *
- *	Copyright (c) 2005-2007 J. Schilling
+ *	Copyright (c) 2005-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

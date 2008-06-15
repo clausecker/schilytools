@@ -1,7 +1,7 @@
-/* @(#)btcflash.c	1.11 07/07/28 2004 J. Schilling */
+/* @(#)btcflash.c	1.13 08/06/13 2004-2008 J. Schilling */
 #ifndef lint
 static	char _sccsid[] =
-	"@(#)btcflash.c	1.11 07/07/28 2004 J. Schilling";
+	"@(#)btcflash.c	1.13 08/06/13 2004-2008 J. Schilling";
 #endif
 /*--------------------------------------------------------------------------*/
 /*
@@ -67,6 +67,7 @@ loadfirmware(firmware)
 	if (!f) {
 		fprintf(stderr, "%s: Unable to open: ", firmware);
 		perror(NULL);
+		free(fwbuf);
 		return (NULL);
 	}
 
@@ -101,12 +102,16 @@ loadfirmware(firmware)
 		if (length < 0 || offset < 0 || type < 0 ||
 		    (type != 0 && length != 0)) {
 			errmsgno(EX_BAD, "Malformed line: %.79s\n", line);
+			fclose(f);
+			free(fwbuf);
 			return (NULL);
 		} else if (length == 0) {
 			if (strncmp(line, ":00000155AA", 11) == 0) {
 				if (++bank >= 16) {
 					errmsgno(EX_BAD,
 					    "Firmware file larger than 1MB\n");
+					fclose(f);
+					free(fwbuf);
 					return (NULL);
 				}
 				continue;
@@ -114,6 +119,8 @@ loadfirmware(firmware)
 				break;
 			} else {
 				errmsgno(EX_BAD, "Malformed line: %.79s\n", line);
+				fclose(f);
+				free(fwbuf);
 				return (NULL);
 			}
 		}
@@ -124,6 +131,8 @@ loadfirmware(firmware)
 			hexsum = (hexsum + b) & 0xff;
 			if (b < 0) {
 				errmsgno(EX_BAD, "Short line: %.79s\n", line);
+				fclose(f);
+				free(fwbuf);
 				return (NULL);
 			}
 			fwbuf[(bank << 16) | offset] = (char)b;
@@ -131,6 +140,8 @@ loadfirmware(firmware)
 		hexsum = (0x100 - hexsum) & 0xff;
 		if (hexsum != getbyte(&p)) {
 			errmsgno(EX_BAD, "Checksum mismatch: %.79s", line);
+			fclose(f);
+			free(fwbuf);
 			return (NULL);
 		}
 	}
@@ -139,6 +150,7 @@ loadfirmware(firmware)
 
 	if (bank != 15) {
 		errmsgno(EX_BAD, "Firmware file too small\n");
+		free(fwbuf);
 		return (NULL);
 	}
 
@@ -201,7 +213,7 @@ btcmain(scgp, fwfile)
 	unsigned short	checksum;
 	unsigned int	offset;
 
-	printf("BTC DVD+/-RW firmware flash utility release %s %s\n", "1.11", "07/07/28");
+	printf("BTC DVD+/-RW firmware flash utility release %s %s\n", "1.13", "08/06/13");
 	printf("USE AT YOUR OWN RISK!\n\n");
 
 	if (!(fwbuf = loadfirmware(fwfile)))

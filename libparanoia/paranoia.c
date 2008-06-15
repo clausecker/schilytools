@@ -1,13 +1,13 @@
-/* @(#)paranoia.c	1.36 07/02/09 J. Schilling from cdparanoia-III-alpha9.8 */
+/* @(#)paranoia.c	1.37 08/06/13 J. Schilling from cdparanoia-III-alpha9.8 */
 #ifndef lint
 static	char sccsid[] =
-"@(#)paranoia.c	1.36 07/02/09 J. Schilling from cdparanoia-III-alpha9.8";
+"@(#)paranoia.c	1.37 08/06/13 J. Schilling from cdparanoia-III-alpha9.8";
 
 #endif
 /*
  * CopyPolicy: GNU Lesser General Public License v2.1 applies
  * Copyright (C) 1997-2001 by Monty (xiphmont@mit.edu)
- * Copyright (C) 2002-2006 by J. Schilling
+ * Copyright (C) 2002-2008 by J. Schilling
  *
  * Toplevel file for the paranoia abstraction over the cdda lib
  *
@@ -771,11 +771,14 @@ i_stage2_each(root, v, callback)
 	void		(*callback) __PR((long, int));
 {
 
-	cdrom_paranoia *p = v->p;
-	long		dynoverlap = p->dynoverlap / 2 * 2;
+	cdrom_paranoia *p;
+	long		dynoverlap;
 
 	if (!v || !v->one)
 		return (0);
+
+	p = v->p;
+	dynoverlap = p->dynoverlap / 2 * 2;
 
 	if (!rv(root)) {
 		return (0);
