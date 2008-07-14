@@ -1,7 +1,7 @@
-/* @(#)exec.c	1.52 08/03/27 Copyright 1985-2008 J. Schilling */
+/* @(#)exec.c	1.53 08/07/12 Copyright 1985-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)exec.c	1.52 08/03/27 Copyright 1985-2008 J. Schilling";
+	"@(#)exec.c	1.53 08/07/12 Copyright 1985-2008 J. Schilling";
 #endif
 /*
  *	bsh command interpreter - Execution of parsed Tree
@@ -487,6 +487,10 @@ execcmd(vp, std, flag)
 				if (Vtmp) {
 					free(Vtmp);
 					Vtmp = 0;
+				}
+				if (Vav) {
+					free(Vav);
+					Vav = 0;
 				}
 			}
 			if (child >= 0)

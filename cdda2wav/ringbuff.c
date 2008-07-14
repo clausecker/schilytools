@@ -1,7 +1,7 @@
-/* @(#)ringbuff.c	1.14 06/09/13 Copyright 1998,1999,2000 Heiko Eissfeldt, Copyright 2004-2006 J. Schilling */
+/* %Z%%M%	%I% %E% Copyright 1998,1999,2000 Heiko Eissfeldt, Copyright 2004-2008 J. Schilling */
 #ifndef lint
 static char	sccsid[] =
-"@(#)ringbuff.c	1.14 06/09/13 Copyright 1998,1999,2000 Heiko Eissfeldt, Copyright 2004-2006 J. Schilling";
+"%Z%%M%	%I% %E% Copyright 1998,1999,2000 Heiko Eissfeldt, Copyright 2004-2008 J. Schilling";
 #endif
 /*
  * Ringbuffer handling
@@ -167,6 +167,8 @@ drop_buffer()
 void
 drop_all_buffers()
 {
+	while (occupied_buffers() > 0)
+		drop_buffer();
 	(*total_segments_written) = (*total_segments_read);
 	semrelease(sem_id, FREE_SEM, total_buffers);
 }
@@ -189,6 +191,10 @@ occupy_buffer()
 myringbuff *
 get_next_buffer()
 {
+	if (!global.have_forked) {
+		occupy_buffer();
+		return (*he_fill_buffer);
+	}
 #ifdef WARN_INTERRUPT
 	if (free_buffers() <= 0) {
 		fprintf(stderr,
@@ -227,6 +233,9 @@ myringbuff *
 get_oldest_buffer()
 {
 	myringbuff	*retval;
+
+	if (!global.have_forked)
+		return (*he_fill_buffer);
 
 #ifdef WARN_INTERRUPT
 	if (free_buffers() == total_buffers) {

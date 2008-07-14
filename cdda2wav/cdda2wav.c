@@ -1,7 +1,7 @@
-/* @(#)cdda2wav.c	1.87 08/02/17 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2008 J. Schilling */
+/* %Z%%M%	%I% %E% Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2008 J. Schilling */
 #ifndef lint
 static char	sccsid[] =
-"@(#)cdda2wav.c	1.87 08/02/17 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2008 J. Schilling";
+"%Z%%M%	%I% %E% Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2008 J. Schilling";
 
 #endif
 #undef	DEBUG_BUFFER_ADDRESSES
@@ -118,6 +118,7 @@ static char	sccsid[] =
 #ifdef	USE_PARANOIA
 #include "cdda_paranoia.h"
 #endif
+#include "parse.h"
 #include "defaults.h"
 #include "version.h"
 
@@ -171,7 +172,7 @@ playback-realtime#L,p#L,md5#,M#,set-overlap#,P#,sound-device*,K*,\
 cddb#,L#,channels*,c*,bits-per-sample#,b#,rate#,r#,gui,g,\
 divider*,a*,track*,t*,index#,i#,duration*,d*,offset#L,o#L,start-sector#L,\
 sectors-per-request#,n#,verbose-level&,v&,buffers-in-ring#,l#,\
-stereo,s,mono,m,wait,w,echo,e,quiet,q,max,x,out-fd#,audio-fd#\
+stereo,s,mono,m,wait,w,echo,e,quiet,q,max,x,out-fd#,audio-fd#,no-fork,interactive\
 ";
 /* END CSTYLED */
 
@@ -837,6 +838,7 @@ OPTIONS:\n\
   (-L) cddb=cddbpmode		do cddbp title lookups.\n\
         resolve multiple entries according to cddbpmode: 0=interactive, 1=first entry\n\
   (-H) -no-infofile		no info file generation.\n\
+       -no-fork			do not fork for better buffering.\n\
   (-g) -gui			generate special output suitable for gui frontends.\n\
   (-Q) -silent-scsi		do not print status of erreneous scsi-commands.\n\
        -scanbus			scan the SCSI bus and exit\n\
@@ -896,6 +898,8 @@ init_globals()
 	global.no_file  =  0;		/* flag no_file */
 	global.no_infofile  =  0;	/* flag no_infofile */
 	global.no_cddbfile  =  0;	/* flag no_cddbfile */
+	global.no_fork	  =  0;		/* flag no-fork */
+	global.interactive = 0;		/* flag interactive */
 	global.quiet	  =  0;		/* flag quiet */
 	global.verbose  =  SHOW_TOC + SHOW_SUMMARY +
 				SHOW_STARTPOSITIONS +
@@ -1441,8 +1445,8 @@ paranoia_callback(inpos, function)
 }
 #endif
 
-static long		lSector;
-static long		lSector_p2;
+static long		lSector;			/* Current sector # */
+static long		lSector_p2;			/* Last sector to read */
 static double		rate = 44100.0 / UNDERSAMPLING;
 static int		bits = BITS_P_S;
 static char		fname[200];
@@ -1452,7 +1456,9 @@ static unsigned long	SamplesToWrite;
 static unsigned		minover;
 static unsigned		maxover;
 
-static unsigned long calc_SectorBurst __PR((void));
+static unsigned long	calc_SectorBurst __PR((void));
+LOCAL	void		set_newstart	__PR((long newstart));
+
 static unsigned long
 calc_SectorBurst()
 {
@@ -1463,6 +1469,26 @@ calc_SectorBurst()
 	if (lSector+(int)SectorBurst-1 >= lSector_p2)
 		SectorBurstVal = lSector_p2 - lSector;
 	return (SectorBurstVal);
+}
+
+LOCAL void
+set_newstart(newstart)
+	long	newstart;
+{
+	lSector = newstart;
+	global.iloop = (lSector_p2 - lSector) * CD_FRAMESAMPLES;
+	*nSamplesToDo = global.iloop;
+	nSamplesDone = 0;
+	if (global.paranoia_selected)
+		paranoia_seek(global.cdp, lSector, SEEK_SET);
+
+#ifdef	DEBUG_INTERACTIVE
+	error("iloop %lu (%lu sects == %lu s) lSector %ld -> %ld\n",
+		global.iloop, global.iloop/588, global.iloop/588/75,
+		lSector, lSector_p2);
+	error("*nSamplesToDo %ld nSamplesDone %ld\n",
+		*nSamplesToDo, nSamplesDone);
+#endif
 }
 
 /*
@@ -1710,7 +1736,8 @@ print_percentage(poper, c_offset)
 		Get_StartSector(current_track+1)*CD_FRAMESAMPLES)
 		- (long)start_in_track;
 
-	per = (BeginAtSample+nSamplesDone - start_in_track)/(per/100);
+	if (per > 0)
+		per = (BeginAtSample+nSamplesDone - start_in_track)/(per/100);
 
 #else
 	per = global.iloop ? (nSamplesDone)/(*nSamplesToDo/100) : 100;
@@ -2012,8 +2039,44 @@ forked_read()
 
 	minover = global.nsectors;
 
+	if (global.interactive) {
+		int	r;
+
+#ifdef	DEBUG_INTERACTIVE
+		error("iloop %lu (%lu sects == %lu s) lSector %ld -> %ld\n",
+			global.iloop, global.iloop/588, global.iloop/588/75,
+			lSector, lSector_p2);
+		error("*nSamplesToDo %ld nSamplesDone %ld\n",
+			*nSamplesToDo, nSamplesDone);
+#endif
+		lSector = Get_StartSector(FirstAudioTrack());
+		lSector_p2 = Get_LastSectorOnCd(cdtracks);
+		set_newstart(lSector);
+
+		r = parse(&lSector);
+		if (r < 0) {
+			set_nonforked(-1);
+			/* NOTREACHED */
+		}
+		set_newstart(lSector);
+	}
+
 	PRINT_OVERLAP_INIT
 	while (global.iloop) {
+/*	while (global.interactive || global.iloop) {*/
+/*
+ * So blockiert es mit get_next_buffer() + get_oldest_buffer()
+ * mit -interactive nach Ablauf des Auslesens des aktuellen Auftrags.
+ */
+
+		if (global.interactive && poll_in() > 0) {
+			int	r = parse(&lSector);
+			if (r < 0) {
+				set_nonforked(-1);
+				/* NOTREACHED */
+			}
+			set_newstart(lSector);
+		}
 
 		do_read(get_next_buffer(), &total_unsuccessful_retries);
 
@@ -2046,7 +2109,7 @@ forked_write()
 	init_parent();
 #endif
 
-	for (; nSamplesDone < *nSamplesToDo; ) {
+	for (; global.interactive || nSamplesDone < *nSamplesToDo; ) {
 		if (*eorecording == 1 &&
 		    (*total_segments_read) == (*total_segments_written))
 			break;
@@ -2075,8 +2138,30 @@ nonforked_loop()
 
 	minover = global.nsectors;
 
+	if (global.interactive) {
+		int	r;
+
+		lSector = Get_StartSector(FirstAudioTrack());
+		lSector_p2 = Get_LastSectorOnCd(cdtracks);
+		set_newstart(lSector);
+
+		r = parse(&lSector);
+		if (r < 0) {
+			return;
+		}
+		set_newstart(lSector);
+	}
+
 	PRINT_OVERLAP_INIT
 	while (global.iloop) {
+
+		if (global.interactive && poll_in() > 0) {
+			int	r = parse(&lSector);
+			if (r < 0) {
+				break;
+			}
+			set_newstart(lSector);
+		}
 
 		do_read(get_next_buffer(), &total_unsuccessful_retries);
 
@@ -2417,7 +2502,8 @@ static char		*user_sound_device = "";
 			&waitforsignal, &waitforsignal,
 			&global.echo, &global.echo,
 			&global.quiet, &global.quiet,
-			&domax, &domax, &outfd, &audiofd) < 0) {
+			&domax, &domax, &outfd, &audiofd,
+			&global.no_fork, &global.interactive) < 0) {
 		errmsgno(EX_BAD, "Bad Option: %s.\n", cav[0]);
 		fputs("use 'cdda2wav -help' to get more information.\n",
 				stderr);
@@ -3375,7 +3461,9 @@ Rate   Divider      Rate   Divider      Rate   Divider      Rate   Divider\n\
 	 */
 
 	/* forking */
-	child_pid = fork();
+	if (!global.no_fork)
+		child_pid = fork();
+
 	if (child_pid > 0 && global.gui > 0 && global.verbose > 0)
 		fprintf(stderr, "child pid is %d\n", child_pid);
 
@@ -3467,10 +3555,12 @@ Rate   Divider      Rate   Divider      Rate   Divider      Rate   Divider\n\
 		exit_wrapper(NO_ERROR);
 		/* NOTREACHED */
 	} else {
-		errmsg("Cannot fork.\n");
+		if (child_pid != -2)
+			errmsg("Cannot fork.\n");
 	}
 
-#endif
+#endif	/* defined(HAVE_FORK_AND_SHAREDMEM) */
+
 	/* version without fork */
 	{
 		global.have_forked = 0;
@@ -3480,7 +3570,8 @@ Rate   Divider      Rate   Divider      Rate   Divider      Rate   Divider\n\
 			switch_to_realtime_priority();
 		}
 #endif
-		fprintf(stderr, "a nonforking version is running...\n");
+		if (!global.quiet)
+			fprintf(stderr, "a nonforking version is running...\n");
 		nonforked_loop();
 		exit_wrapper(NO_ERROR);
 		/* NOTREACHED */

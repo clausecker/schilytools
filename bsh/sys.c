@@ -1,7 +1,7 @@
-/* @(#)sys.c	1.52 08/03/27 Copyright 1986-2008 J. Schilling */
+/* @(#)sys.c	1.53 08/07/14 Copyright 1986-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)sys.c	1.52 08/03/27 Copyright 1986-2008 J. Schilling";
+	"@(#)sys.c	1.53 08/07/14 Copyright 1986-2008 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1986-2008 J. Schilling
@@ -80,6 +80,7 @@ Error fexec canno be implemented
 #ifdef	VFORK
 	char	*Vlist;
 	char	*Vtmp;
+	char	**Vav;
 #endif
 
 #ifdef	JOBCONTROL
@@ -117,7 +118,7 @@ start(vp, std)
 	FILE	*std[];
 {
 	register int	i;
-		char	*path;
+		char	*path = NULL;
 
 	/*
 	 * Allow to stop the command before execution.
@@ -136,6 +137,14 @@ start(vp, std)
 	fflush(stderr);
 #endif
 	update_cwd();	/* Er koennte sie veraendert haben */
+#ifdef	EXECATTR_FILENAME
+	if (pfshell) {
+		i = pfexec(&path, vp->av_av[0], std[0], std[1], std[2], vp->av_av, evarray);
+		if (i != 0)
+			seterrno(i);
+	}
+	if (i == 0)	/* No pfexec() attrs for this command, retry exec() */
+#endif
 	i = fexec(&path, vp->av_av[0], std[0], std[1], std[2], vp->av_av, evarray);
 	/*
 	 * If we come here, this may be caused by the following reasons:
@@ -162,7 +171,8 @@ start(vp, std)
 		}
 	}
 	berror(ecantexecute, vp->av_av[0], errstr(i));
-	free(path);
+	if (path)
+		free(path);
 	_exit(i);
 }
 

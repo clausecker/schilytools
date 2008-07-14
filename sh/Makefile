@@ -1,4 +1,4 @@
-#ident "@(#)Makefile	1.7 08/03/28 "
+#ident "@(#)Makefile	1.8 08/07/13 "
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -6,7 +6,9 @@ include		$(SRCROOT)/$(RULESDIR)/rules.top
 ###########################################################################
 
 INSDIR=		bin
-TARGET=		sh
+TARGET=		sh			# Shell
+SYMLINKS=	pfsh			# Profile Bourne Shell
+SYMLINKS +=	bosh			# Bo rne Shell
 #CPPOPTS +=	-DBSH			# Tell the code that we compile for bsh
 #CPPOPTS +=	-DUSE_LARGEFILES	# Allow Large Files (> 2 GB)
 #CPPOPTS +=	-DINTERACTIVE		# Include command line history editor

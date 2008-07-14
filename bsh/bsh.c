@@ -1,7 +1,7 @@
-/* @(#)bsh.c	1.53 08/03/27 Copyright 1985,1988,1991,1995-2008 J. Schilling */
+/* @(#)bsh.c	1.54 08/07/12 Copyright 1985,1988,1991,1995-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)bsh.c	1.53 08/03/27 Copyright 1985,1988,1991,1995-2008 J. Schilling";
+	"@(#)bsh.c	1.54 08/07/12 Copyright 1985,1988,1991,1995-2008 J. Schilling";
 #endif
 /*
  *	bsh command interpreter - main Program
@@ -69,6 +69,7 @@ int	no_closeflg	= FALSE;
 int	no_histflg	= FALSE;
 int	mailcheck	= 600;		/* Mail check interval		    */
 int	qflg		= FALSE;
+int	pfshell		= FALSE;
 
 int	prflg		= FALSE;
 int	ttyflg		= FALSE;
@@ -371,6 +372,17 @@ error  No function to set uid available
 		osig21 = (sigtype) SIG_DFL;
 		osig22 = (sigtype) SIG_DFL;
 	}
+
+#ifdef	EXECATTR_FILENAME
+	if (ac > 0) {
+		const char	*fn = fbasename(av[0]);
+
+		if (streql(fn, "pfbsh") || streql(fn, "-pfbsh")) {
+			pfshell = TRUE;
+			pfinit();
+		}
+	}
+#endif
 
 	gargs(ac, av, bshopts, &no_i2flg, &no_gaflg, &no_laflg);
 

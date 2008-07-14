@@ -1,8 +1,8 @@
-/* @(#)interface.h	1.19 07/02/14 Copyright 1998-2001 Heiko Eissfeldt, Copyright 2005-2007 J. Schilling */
+/* @(#)interface.h	1.21 08/06/24 Copyright 1998-2001 Heiko Eissfeldt, Copyright 2005-2008 J. Schilling */
 
 /*
  * Copyright (C) by Heiko Eissfeldt
- * Copyright (c) 2005-2007 J. Schilling
+ * Copyright (c) 2005-2008 J. Schilling
  *
  * header file interface.h for cdda2wav
  */
@@ -139,6 +139,8 @@ extern	int	Toshiba3401	__PR((void));
 extern	void	priv_init	__PR((void));
 extern	void	priv_on		__PR((void));
 extern	void	priv_off	__PR((void));
+
+extern int	poll_in			__PR((void));
 
 /*
  * The callback interface for libparanoia to the CD-ROM interface

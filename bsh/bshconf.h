@@ -1,6 +1,6 @@
-/* @(#)bshconf.h	1.13 06/11/17 Copyright 1991-2006 J. Schilling */
+/* @(#)bshconf.h	1.14 08/07/12 Copyright 1991-2008 J. Schilling */
 /*
- *	Copyright (c) 1991-2006 J. Schilling
+ *	Copyright (c) 1991-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -104,4 +104,14 @@ typedef	int	sigret;
 
 #ifndef	HAVE_CRYPT
 #	undef	DO_SUID
+#endif
+
+#ifdef	DO_PFEXEC
+#ifdef	HAVE_EXEC_ATTR_H
+#include <exec_attr.h>
+#endif
+#endif
+
+#ifndef	DO_PFEXEC
+#undef	EXECATTR_FILENAME
 #endif

@@ -1,7 +1,7 @@
-/* @(#)builtin.c	1.60 08/04/06 Copyright 1988-2008 J. Schilling */
+/* @(#)builtin.c	1.61 08/07/13 Copyright 1988-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)builtin.c	1.60 08/04/06 Copyright 1988-2008 J. Schilling";
+	"@(#)builtin.c	1.61 08/07/13 Copyright 1988-2008 J. Schilling";
 #endif
 /*
  *	Builtin commands
@@ -37,6 +37,7 @@ static	char sccsid[] =
 #include <schily/stdlib.h>
 #include <schily/fcntl.h>
 #include <schily/utypes.h>
+#include <schily/getargs.h>
 
 #	include <schily/time.h>
 #	include <schily/btorder.h>
@@ -65,6 +66,8 @@ EXPORT	BOOL	tollong		__PR((FILE ** std, char *s, Llong *ll));
 LOCAL	BOOL	isbadlpid	__PR((FILE ** std, long	lpid));
 EXPORT	void	bnallo		__PR((Argvec * vp, FILE ** std, int flag));
 EXPORT	void	bdummy		__PR((Argvec * vp, FILE ** std, int flag));
+LOCAL	int	do_oset		__PR((const char *arg, void *valp, int *pac, char *const **pav, const char *opt));
+LOCAL	int	do_ounset	__PR((const char *arg, void *valp, int *pac, char *const **pav, const char *opt));
 EXPORT	void	bsetcmd		__PR((Argvec * vp, FILE ** std, int flag));
 EXPORT	void	bunset		__PR((Argvec * vp, FILE ** std, int flag));
 EXPORT	void	bsetenv		__PR((Argvec * vp, FILE ** std, int flag));
@@ -301,6 +304,70 @@ bdummy(vp, std, flag)
 	/* this procedure does nothing */
 }
 
+struct seta {
+	int	pfshell;
+	int	olist;
+};
+
+/* ARGSUSED */
+LOCAL int
+do_oset(arg, valp, pac, pav, opt)
+	const char	*arg;
+	void		*valp;
+	int		*pac;
+	char	*const	**pav;
+	const char	 *opt;
+{
+	if (arg[0] == '-' || arg[0] == '+') {
+		/*
+		 * Strange Korn Shell rules:
+		 * If next arg is an option, -o was called without parameter.
+		 */
+		if (arg == &opt[2])		/* arg concatenated with -o */
+			return (BADFLAG);
+		(*pav)--;
+		(*pac)++;
+		*(int *)valp = TRUE;
+		((struct seta *)valp)->olist = TRUE;
+		return (1);
+	}
+	if (streql(arg, "profile")) {
+		((struct seta *)valp)->pfshell = TRUE;
+		return (1);
+	}
+	((struct seta *)valp)->olist = -1;
+	return (BADFLAG);
+}
+
+/* ARGSUSED */
+LOCAL int
+do_ounset(arg, valp, pac, pav, opt)
+	const char	*arg;
+	void		*valp;
+	int		*pac;
+	char	*const	**pav;
+	const char	 *opt;
+{
+	if (arg[0] == '-' || arg[0] == '+') {
+		/*
+		 * Strange Korn Shell rules:
+		 * If next arg is an option, +o was called without parameter.
+		 */
+		if (arg == &opt[2])		/* arg concatenated with +o */
+			return (BADFLAG);
+		(*pav)--;
+		(*pac)++;
+		((struct seta *)valp)->olist = TRUE;
+		return (1);
+	}
+	if (streql(arg, "profile")) {
+		((struct seta *)valp)->pfshell = FALSE;
+		return (1);
+	}
+	((struct seta *)valp)->olist = -1;
+	return (BADFLAG);
+}
+
 /* ARGSUSED */
 EXPORT void
 bsetcmd(vp, std, flag)
@@ -308,12 +375,57 @@ bsetcmd(vp, std, flag)
 			FILE	*std[];
 			int	flag;
 {
-	if (vp->av_ac > 2)
-		wrong_args(vp, std);
-	else if (vp->av_ac == 1)
+	int	ac;
+	char	* const *av;
+	BOOL	help	= FALSE;
+	struct seta	seta;
+	int	ret;
+
+	if (vp->av_ac <= 1) {
 		ev_list(std[1]);
-	else
-		ev_insert(makestr(vp->av_av[1]));
+		return;
+	}
+	seta.pfshell	= pfshell;
+	seta.olist	= FALSE;
+
+	ac = vp->av_ac - 1;	/* set values */
+	av = &vp->av_av[1];
+	ret = getargs(&ac, &av, "help,P%1,+P%0,o&,+o&",
+			&help,
+			&seta.pfshell, &seta.pfshell,
+			do_oset, &seta, do_ounset, &seta);
+
+	/*
+	 * The Korn Shell implements a really strange syntax. 
+	 * set -o uses an optional argument which is hard to parse with a
+	 * standardized optio parser.
+	 */
+	if (ret == BADFLAG && ac == 1 && seta.olist >= 0 &&
+	    ((av[0][0] == '-' || av[0][0] == '+') && av[0][1] == 'o' && av[0][2] == '\0')) {
+		seta.olist = TRUE;
+	} else if (ret < 0 &&
+		    (av[0][0] == '-' || av[0][0] == '+' || seta.olist < 0)) {
+		fprintf(std[2], "Bad option '%s'\n", av[0]);
+		busage(vp, std);
+		ex_status = 1;
+		return;
+	}
+
+	if (seta.pfshell != pfshell) {
+		pfshell = seta.pfshell;
+		if (pfshell)
+			pfinit();
+	}
+
+	if (ret != FLAGDELIM && ac == 1)
+		ev_insert(makestr(av[0]));
+	else if (ac > 1)
+		wrong_args(vp, std);
+
+	if (seta.olist) {
+		fprintf(std[1], "Current option settings\n");
+		fprintf(std[1], "profile		%s\n", pfshell ? "on" : "off");
+	}
 }
 
 /* ARGSUSED */

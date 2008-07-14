@@ -835,6 +835,9 @@ EOF
     "i386":"Darwin":*)
 	echo i386-apple-macosx${UNAME_RELEASE}
 	exit 0 ;;
+    "x86":"Darwin":*)
+	echo i386-apple-macosx${UNAME_RELEASE}
+	exit 0 ;;
     *:OS/2:*:*)
         echo "i386-pc-os2_emx"
 	exit 0;;

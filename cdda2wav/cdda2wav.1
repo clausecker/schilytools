@@ -1,5 +1,5 @@
 '\" t
-.\" @(#)cdda2wav.1	1.24 07/10/01 Copyright 1998,1999,2000 Heiko Eissfeldt, Copyright 2004-2007 J. Schilling
+.\" @(#)cdda2wav.1	1.26 08/06/21 Copyright 1998,1999,2000 Heiko Eissfeldt, Copyright 2004-2008 J. Schilling
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
 .if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
 .if t .ds u \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'u
@@ -197,6 +197,15 @@ Redirecting the audio output to a different file descriptor
 helps gui's and other programs that call
 .B cdda2wav
 via pipes.
+.TP
+.B \-no-fork
+Do not fork for extended buffering. If
+.B \-no-fork
+is used and 
+.B cdda2wav
+is used to play back audio CDs in
+.B paranoia
+mode, the playback is not always uninterrupted.
 .TP
 .BI \-c " channels
 .TP

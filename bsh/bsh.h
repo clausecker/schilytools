@@ -1,4 +1,4 @@
-/* @(#)bsh.h	1.49 08/03/27 Copyright 1985-2008 J. Schilling */
+/* @(#)bsh.h	1.50 08/07/12 Copyright 1985-2008 J. Schilling */
 /*
  *	Bsh general definitions
  *
@@ -119,6 +119,7 @@ extern int	parseflg;	/* Shell is in parser			    */
 extern int	vflg;		/* Verbose command execution		    */
 extern int	iflg;		/* Intercative command execution (-i / tty) */
 extern int	no_histflg;	/* Don't use ~/.history file.		    */
+extern int	pfshell;	/* Be a pfexec shell			    */
 extern int	mailcheck;	/* Mail check interval			    */
 extern int	vac;		/* The arg count in global arg Argvec	$#  */
 extern char	**vav;		/* The global arg Argvec		$*  */
@@ -137,6 +138,7 @@ extern FILE	*protfile;	/* File pointer used for the cmd protocol   */
 #ifdef	VFORK
 extern	char	*Vlist;		/* To free things allocated by vfork() child */
 extern	char	*Vtmp;		/* To free things allocated by vfork() child */
+extern	char	**Vav;		/* To free things allocated by vfork() child */
 #endif
 
 #define	MOREPROMPT	"> "
@@ -396,3 +398,9 @@ extern	int	wait3	__PR((WAIT_T *status, int options, struct rusage *rusage));
 #endif
 #endif
 #endif
+
+/*
+ * pfexec.c
+ */
+extern	void	pfinit		__PR((void));
+extern	int	pfexec		__PR((char **path, char *name, FILE *in, FILE *out, FILE *err, char **av, char **env));

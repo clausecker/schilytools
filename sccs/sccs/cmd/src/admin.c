@@ -27,11 +27,11 @@
 /*
  * This file contains modifications Copyright 2006-2008 J. Schilling
  *
- * @(#)admin.c	1.11 08/06/14 J. Schilling
+ * @(#)admin.c	1.12 08/06/20 J. Schilling
  */
 #if defined(sun) || defined(__GNUC__)
 
-#ident "@(#)admin.c 1.11 08/06/14 J. Schilling"
+#ident "@(#)admin.c 1.12 08/06/20 J. Schilling"
 #endif
 /*
  * @(#)admin.c 1.39 06/12/12
@@ -117,6 +117,9 @@ static time_t	ifile_mtime;
 static char	*CMFAPPL;	/* CMF MODS */
 static char	*z;			/* for validation program name */
 static char	had_flag[NFLAGS], rm_flag[NFLAGS];
+#if	defined(PROTOTYPES) && defined(INS_BASE)
+static char	Valpgmp[]	=	NOGETTEXT(INS_BASE "/ccs/bin/" "val");
+#endif
 static char	Valpgm[]	=	NOGETTEXT("val");
 static int	fexists, num_files;
 static int	VFLAG  =  0;
@@ -645,6 +648,9 @@ char	*afile;
 			/*
 			   perform 'val' with appropriate keyletters
 			*/
+#if	defined(PROTOTYPES) && defined(INS_BASE)
+			execlp(Valpgmp, Valpgm, "-s", afile, (char *)0);
+#endif
 			execlp(Valpgm, Valpgm, "-s", afile, (char *)0);
 			sprintf(SccsError, gettext("cannot execute '%s'"),
 				Valpgm);

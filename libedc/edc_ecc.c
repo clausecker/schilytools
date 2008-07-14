@@ -1,29 +1,19 @@
-/* @(#)edc_ecc.c	1.24 06/09/25 Copyright 1998-2006 Heiko Eissfeldt, Joerg Schilling */
+/* @(#)edc_ecc.c	1.25 08/06/21 Copyright 1998-2008 Heiko Eissfeldt, Joerg Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)edc_ecc.c	1.24 06/09/25 Copyright 1998-2006 Heiko Eissfeldt, Joerg Schilling";
+	"@(#)edc_ecc.c	1.25 08/06/21 Copyright 1998-2008 Heiko Eissfeldt, Joerg Schilling";
 #endif
 
 /*
- * Copyright 1998-2002 by Heiko Eissfeldt
- * Copyright 2002-2006 by Joerg Schilling
+ * Copyright 1998-2002,2008 by Heiko Eissfeldt
+ * Copyright 2002-2008 by Joerg Schilling
  *
  * This file contains protected intellectual property.
  *
  * reed-solomon encoder / decoder for compact discs.
  *
  */
-/*
- * The contents of this file are subject to the terms of the
- * Common Development and Distribution License, Version 1.0 only
- * (the "License").  You may not use this file except in compliance
- * with the License.
- *
- * See the file CDDL.Schily.txt in this distribution for details.
- *
- * When distributing Covered Code, include this CDDL HEADER in each
- * file and include the License file CDDL.Schily.txt from this distribution.
- */
+/*@@C@@*/
 
 #include <schily/mconfig.h>
 #include <stdio.h>
@@ -334,10 +324,12 @@ encode_L1_Q(inout)
 	Q = inout + L1_RAW/2;
 
 	memset(Q, 0, L1_Q);
-	for (i = 0; i < L1_RAW + L1_Q; i++) {
+	for (i = 0; i < L1_RAW; i++) {
 		unsigned char data;
 
-		if (i == L1_RAW/2) i += L1_Q;
+		if (i == L1_RAW/2) {
+			inout += L1_Q;
+		}
 		data = inout[i];
 		if (data != 0) {
 			unsigned char base = rs_l12_log[data];
@@ -363,7 +355,7 @@ encode_L1_P(inout)
 	P = inout + L1_RAW + L1_Q;
 
 	memset(P, 0, L1_P);
-	for (i = 0; i < L2_RAW + L2_Q + L2_P; i++) {
+	for (i = 0; i < L1_RAW + L1_Q + L1_P; i++) {
 		unsigned char data;
 
 		data = inout[i];
@@ -896,7 +888,7 @@ static const unsigned sect_size[8][2] = {
    L1_RAW*FRAMES_PER_SECTOR},
 };
 
-int main	__PR(((int argc, char **argv));
+int main	__PR((int argc, char **argv));
 
 int
 main(argc, argv)
@@ -1027,6 +1019,9 @@ main(argc, argv)
 #if 0
 	/* flush the data from the delay lines with zeroed sectors, if necessary */
 #endif
+	fclose(infp);
+	fclose(outfp);
+
 	return (0);
 }
 #endif

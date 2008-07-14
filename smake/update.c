@@ -1,7 +1,7 @@
-/* @(#)update.c	1.106 08/04/19 Copyright 1985, 88, 91, 1995-2008 J. Schilling */
+/* %Z%%M%	%I% %E% Copyright 1985, 88, 91, 1995-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)update.c	1.106 08/04/19 Copyright 1985, 88, 91, 1995-2008 J. Schilling";
+	"%Z%%M%	%I% %E% Copyright 1985, 88, 91, 1995-2008 J. Schilling";
 #endif
 /*
  *	Make program
@@ -1925,7 +1925,7 @@ again:
 	}
 
 found:
-	obj = objlook(name, FALSE);
+	obj = objlook(name, TRUE);
 	obj->o_node = (obj_t *)prule;
 	obj->o_flags |= F_PATRULE;
 	*pcmd = prule->p_cmd;

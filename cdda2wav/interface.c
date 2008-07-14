@@ -1,7 +1,7 @@
-/* @(#)interface.c	1.59 08/06/14 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2006-2008 J. Schilling */
+/* @(#)interface.c	1.60 08/06/24 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2006-2008 J. Schilling */
 #ifndef lint
 static char	sccsid[] =
-"@(#)interface.c	1.59 08/06/14 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2006-2008 J. Schilling";
+"@(#)interface.c	1.60 08/06/24 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2006-2008 J. Schilling";
 
 #endif
 /*
@@ -1236,4 +1236,37 @@ priv_off()
 		PRIV_FILE_DAC_READ, PRIV_PROC_PRIOCNTL,
 		PRIV_NET_PRIVADDR, NULL);
 #endif
+}
+
+
+#include <schily/time.h>
+#ifdef	HAVE_POLL
+#include <poll.h>
+#endif
+
+EXPORT int
+poll_in()
+{
+#ifdef	HAVE_POLL
+	struct pollfd	pfd[1];
+
+	pfd[0].fd = fileno(stdin);
+	pfd[0].events = POLLIN;
+	pfd[0].revents = 0;
+	return (poll(pfd, 1, 0));
+#else
+#ifdef	HAVE_SELECT
+	struct timeval	tv;
+	fd_set		rd;
+
+	FD_ZERO(&rd);
+	FD_SET(fileno(stdin), &rd);
+
+	tv.tv_sec = 0;
+	tv.tv_usec = 0;
+	return (select(1, &rd, NULL, NULL, &tv));
+#else
+	comerrno(EX_BAD, "Poll/Select not available.\n");
+#endif
+#endif	
 }

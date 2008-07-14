@@ -1,7 +1,7 @@
-/* @(#)tree.c	1.109 08/06/13 joerg */
+/* @(#)tree.c	1.110 08/07/09 joerg */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)tree.c	1.109 08/06/13 joerg";
+	"@(#)tree.c	1.110 08/07/09 joerg";
 #endif
 /*
  * File tree.c - scan directory  tree and build memory structures for iso9660
@@ -1187,7 +1187,7 @@ extern	BOOL		nodesc;
 		d_entry = readdir(current_dir);
 	}
 
-	if (!current_dir || !d_entry) {
+	if (!current_dir || (!d_entry && errno != 0)) {
 		int	ret = 1;
 
 		errmsg("Unable to open directory %s\n", path);
@@ -1234,19 +1234,38 @@ extern	BOOL		nodesc;
 	/*
 	 * Now we scan the directory itself, and look at what is inside of it.
 	 */
-	dflag = 0;
+	whole_path[0] = '\0';
+	dflag = -2;
 	while (1 == 1) {
+		char	*d_name;
 
-		/*
-		 * The first time through, skip this, since we already asked
-		 * for the first entry when we opened the directory.
-		 */
-		if (dflag)
-			d_entry = readdir(current_dir);
-		dflag++;
-
-		if (!d_entry)
-			break;
+		if (dflag < 0) {
+			/*
+			 * Some filesystems do not deliver "." and ".." at all,
+			 * others (on Linux) deliver them in the wrong order.
+			 * Make sure we add "." and ".." before all other
+			 * entries.
+			 */
+			if (dflag < -1)
+				d_name = ".";
+			else
+				d_name = "..";
+			dflag++;
+		} else {
+			/*
+			 * The first time through, skip this, since we already
+			 * asked for the first entry when we opened the
+			 * directory.
+			 */
+			if (dflag > 0) {
+				d_entry = readdir(current_dir);
+			} else {
+				dflag++;
+			}
+			if (!d_entry)
+				break;
+			d_name = d_entry->d_name;
+		}
 
 		/*
 		 * OK, got a valid entry
@@ -1254,13 +1273,13 @@ extern	BOOL		nodesc;
 		 * If we do not want all files, then pitch the backups.
 		 */
 		if (!all_files) {
-			if (strchr(d_entry->d_name, '~') ||
-			    strchr(d_entry->d_name, '#') ||
-			    rstr(d_entry->d_name, ".bak")) {
+			if (strchr(d_name, '~') ||
+			    strchr(d_name, '#') ||
+			    rstr(d_name, ".bak")) {
 				if (verbose > 0) {
 					fprintf(stderr,
 						"Ignoring file %s\n",
-						d_entry->d_name);
+						d_name);
 				}
 				continue;
 			}
@@ -1271,15 +1290,14 @@ extern	BOOL		nodesc;
 			 * exclude certain HFS type files/directories for the
 			 * time being
 			 */
-			if (hfs_exclude(d_entry->d_name))
+			if (hfs_exclude(d_name))
 				continue;
 		}
 #endif	/* APPLE_HYB */
 
-		if (strlen(path) + strlen(d_entry->d_name) + 2 >
-							sizeof (whole_path)) {
+		if (strlen(path) + strlen(d_name) + 2 > sizeof (whole_path)) {
 			errmsgno(EX_BAD, "Path name %s/%s too long.\n",
-					path, d_entry->d_name);
+					path, d_name);
 			comerrno(EX_BAD, "Overflow of stat buffer\n");
 		};
 
@@ -1291,12 +1309,15 @@ extern	BOOL		nodesc;
 		if (whole_path[strlen(whole_path) - 1] != '/')
 			strcat(whole_path, "/");
 #endif
-		strcat(whole_path, d_entry->d_name);
+		strcat(whole_path, d_name);
 
 		/*
 		 * Should we exclude this file ?
+		 * Do no check "." and ".."
 		 */
-		if (matches(d_entry->d_name) || matches(whole_path)) {
+		if (!(d_name[0] == '.' && (d_name[1] == '\0' ||
+		    (d_name[1] == '.' && d_name[2] == '\0'))) &&
+		    (matches(d_name) || matches(whole_path))) {
 			if (verbose > 1) {
 				fprintf(stderr,
 					"Excluded by match: %s\n", whole_path);
@@ -1304,7 +1325,7 @@ extern	BOOL		nodesc;
 			continue;
 		}
 		if (generate_tables &&
-		    strcmp(d_entry->d_name, trans_tbl) == 0) {
+		    strcmp(d_name, trans_tbl) == 0) {
 			/*
 			 * Ignore this entry.  We are going to be generating
 			 * new versions of these files, and we need to ignore
@@ -1319,11 +1340,11 @@ extern	BOOL		nodesc;
 		 * If we already have a '.' or a '..' entry, then don't insert
 		 * new ones.
 		 */
-		if (strcmp(d_entry->d_name, ".") == 0 &&
+		if (strcmp(d_name, ".") == 0 &&
 		    this_dir->dir_flags & DIR_HAS_DOT) {
 			continue;
 		}
-		if (strcmp(d_entry->d_name, "..") == 0 &&
+		if (strcmp(d_name, "..") == 0 &&
 		    this_dir->dir_flags & DIR_HAS_DOTDOT) {
 			continue;
 		}
@@ -1335,9 +1356,9 @@ extern	BOOL		nodesc;
 		 * This actually adds the entry to the directory in question.
 		 */
 #ifdef APPLE_HYB
-		insert_file_entry(this_dir, whole_path, d_entry->d_name, NULL, 0);
+		insert_file_entry(this_dir, whole_path, d_name, NULL, 0);
 #else
-		insert_file_entry(this_dir, whole_path, d_entry->d_name, NULL);
+		insert_file_entry(this_dir, whole_path, d_name, NULL);
 #endif	/* APPLE_HYB */
 	}
 	closedir(current_dir);

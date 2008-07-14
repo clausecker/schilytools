@@ -27,11 +27,11 @@
 /*
  * This file contains modifications Copyright 2006-2008 J. Schilling
  *
- * @(#)delta.c	1.8 08/06/14 J. Schilling
+ * @(#)delta.c	1.9 08/06/20 J. Schilling
  */
 #if defined(sun) || defined(__GNUC__)
 
-#ident "@(#)delta.c 1.8 08/06/14 J. Schilling"
+#ident "@(#)delta.c 1.9 08/06/20 J. Schilling"
 #endif
 /*
  * @(#)delta.c 1.40 06/12/12
@@ -63,7 +63,7 @@ static int	number_of_lines;
 static off_t	size_of_file;
 static off_t	Szqfile;
 #ifdef	PROTOTYPES
-static char	BDiffpgm[]  =   NOGETTEXT(INS_BASE "/ccs/bin/bdiff");
+static char	BDiffpgm[]  =   NOGETTEXT(INS_BASE "/ccs/bin/" "bdiff");
 #else
 /*
  * XXX If you are using a K&R compiler and like to install to a path
@@ -72,6 +72,9 @@ static char	BDiffpgm[]  =   NOGETTEXT(INS_BASE "/ccs/bin/bdiff");
 static char	BDiffpgm[]  =   NOGETTEXT("/usr/ccs/bin/bdiff");
 #endif
 static char	BDiffpgm2[]  =   NOGETTEXT("bdiff");
+#if	defined(PROTOTYPES) && defined(INS_BASE)
+static char	Diffpgmp[]  =   NOGETTEXT(INS_BASE "/ccs/bin/" "diff");
+#endif
 static char	Diffpgm[]   =   NOGETTEXT("/usr/bin/diff");
 static char	Diffpgm2[]   =   NOGETTEXT("/bin/diff");
 static char	*ilist, *elist, *glist, Cmrs[300], *Nsid;
@@ -905,6 +908,9 @@ int difflim;
 			close(i);
 		sprintf(num, NOGETTEXT("%d"), difflim);
  		if (HADD) {
+#if	defined(PROTOTYPES) && defined(INS_BASE)
+ 		   execl(Diffpgmp,Diffpgmp,oldf,newf, (char *)0);
+#endif
  		   execl(Diffpgm,Diffpgm,oldf,newf, (char *)0);
  		   execl(Diffpgm2,Diffpgm2,oldf,newf, (char *)0);
  		} else {

@@ -33,11 +33,11 @@
 /*
  * This file contains modifications Copyright 2008 J. Schilling
  *
- * @(#)args.c	1.6 08/03/28 2008 J. Schilling
+ * @(#)args.c	1.8 08/07/14 2008 J. Schilling
  */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)args.c	1.6 08/03/28 2008 J. Schilling";
+	"@(#)args.c	1.8 08/07/14 2008 J. Schilling";
 #endif
 
 /*
@@ -45,6 +45,7 @@ static	char sccsid[] =
  */
 
 #include	"defs.h"
+#include	"sh_policy.h"
 
 	int		options		__PR((int argc, unsigned char **argv));
 	void		setargs		__PR((unsigned char *argi[]));
@@ -64,7 +65,7 @@ static struct dolnod *globdolh;
 static unsigned char **globdolv;
 static int globdolc;
 
-unsigned char	flagadr[16];
+unsigned char	flagadr[17];
 
 unsigned char	flagchar[] =
 {
@@ -83,6 +84,7 @@ unsigned char	flagchar[] =
 	'a',
 	'm',
 	'p',
+	'P',
 	 0
 };
 
@@ -103,6 +105,7 @@ long	flagval[]  =
 	exportflg,
 	monitorflg,
 	privflg,
+	pfshflg,
 	  0
 };
 
@@ -165,6 +168,10 @@ options(argc, argv)
 					flags |= flagval[flagc-flagchar];
 					if (flags & errflg)
 						eflag = errflg;
+#ifdef	EXECATTR_FILENAME
+					if (flags & pfshflg)
+						secpolicy_init();
+#endif
 				}
 			}
 			else if (wc == 'c' && argc > 2 && comdiv == 0)

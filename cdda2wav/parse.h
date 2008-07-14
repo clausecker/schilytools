@@ -1,13 +1,8 @@
-int mVERSION = 10;
-int MVERSION = 6;
-
-/* @(#)version.c	1.13 08/07/14 Copyright 1985-2008 J. Schilling */
-#ifndef lint
-static	char sccsid[] =
-	"@(#)version.c	1.13 08/07/14 Copyright 1985-2008 J. Schilling";
-#endif
+/* @(#)parse.h	1.1 08/06/24 Copyright 2008 J. Schilling */
 /*
- *	Copyright (c) 1985-2008 J. Schilling
+ *	Interactive command parser for cdda2wav
+ *
+ *	Copyright (c) 2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -20,3 +15,14 @@ static	char sccsid[] =
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
+
+#ifndef	_PARSE_H
+#define	_PARSE_H
+
+#ifndef _SCHILY_MCONFIG_H
+#include <schily/mconfig.h>
+#endif
+
+EXPORT	int	parse		__PR((long *lp));
+
+#endif	/* _PARSE_H */

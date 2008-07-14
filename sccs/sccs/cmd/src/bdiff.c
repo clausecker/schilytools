@@ -30,11 +30,11 @@
 /*
  * This file contains modifications Copyright 2006-2008 J. Schilling
  *
- * @(#)bdiff.c	1.6 08/06/14 J. Schilling
+ * @(#)bdiff.c	1.7 08/06/20 J. Schilling
  */
 #if defined(sun) || defined(__GNUC__)
 
-#ident "@(#)bdiff.c 1.6 08/06/14 J. Schilling"
+#ident "@(#)bdiff.c 1.7 08/06/20 J. Schilling"
 #endif
 
 #pragma ident	"@(#)bdiff.c	1.15	05/06/08 SMI"
@@ -88,6 +88,9 @@ static char Error[128];
 
 static int seglim;	/* limit of size of file segment to be generated */
 
+#if	defined(PROTOTYPES) && defined(INS_BASE)
+static char diffp[]  =  INS_BASE "/ccs/bin/" "diff";
+#endif
 static char diff[]  =  "/usr/bin/diff";
 static char tempskel[] = "/tmp/bdXXXXXX"; /* used to generate temp file names */
 static char tempfile[32];
@@ -311,6 +314,9 @@ main(argc, argv)
 			(void) close(pfd[1]);
 
 			/* Execute 'diff' on the segment files. */
+#if	defined(PROTOTYPES) && defined(INS_BASE)
+			(void) execlp(diffp, diffp, otmp, ntmp, (char *)0);
+#endif
 			(void) execlp(diff, diff, otmp, ntmp, (char *)0);
 
 			/*

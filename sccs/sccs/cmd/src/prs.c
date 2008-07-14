@@ -27,11 +27,11 @@
 /*
  * This file contains modifications Copyright 2006-2008 J. Schilling
  *
- * @(#)prs.c	1.9 08/06/14 J. Schilling
+ * @(#)prs.c	1.10 08/06/20 J. Schilling
  */
 #if defined(sun) || defined(__GNUC__)
 
-#ident "@(#)prs.c 1.9 08/06/14 J. Schilling"
+#ident "@(#)prs.c 1.10 08/06/20 J. Schilling"
 #endif
 /*
  * @(#)prs.c 1.33 06/12/12
@@ -81,6 +81,9 @@ struct stat Statbuf;
 char Null[1];
 char SccsError[MAXERRORLEN];
 
+#if	defined(PROTOTYPES) && defined(INS_BASE)
+static char	Getpgmp[]   =   NOGETTEXT(INS_BASE "/ccs/bin/" "get");
+#endif
 static char	Getpgm[]   =   NOGETTEXT("get");
 static char defline[] = NOGETTEXT(":Dt:\t:DL:\nMRs:\n:MR:COMMENTS:\n:C:");
 static char	Sid[32];
@@ -1270,6 +1273,9 @@ struct packet *pkt;
 		perform 'get' and redirect output
 		to standard output
 		*/
+#if	defined(PROTOTYPES) && defined(INS_BASE)
+		execlp(Getpgmp,Getpgm,NOGETTEXT("-s"),NOGETTEXT("-p"),rarg,filearg, (char *)0);
+#endif
 		execlp(Getpgm,Getpgm,NOGETTEXT("-s"),NOGETTEXT("-p"),rarg,filearg, (char *)0);
 		sprintf(SccsError,gettext("cannot execute '%s'"),
 			Getpgm);

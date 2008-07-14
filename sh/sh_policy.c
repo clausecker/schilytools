@@ -32,11 +32,11 @@
 /*
  * This file contains modifications Copyright 2008 J. Schilling
  *
- * @(#)sh_policy.c	1.4 08/03/28 2008 J. Schilling
+ * @(#)sh_policy.c	1.6 08/07/14 2008 J. Schilling
  */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)sh_policy.c	1.4 08/03/28 2008 J. Schilling";
+	"@(#)sh_policy.c	1.6 08/07/14 2008 J. Schilling";
 #endif
 
 #ifdef	SCHILY_BUILD
@@ -79,6 +79,9 @@ secpolicy_init(void)
 	uid_t		ruid;
 	struct passwd	*passwd_ent;
 
+	if (username != NULL)
+		return;
+
 	ruid = getuid();
 
 	if ((passwd_ent = getpwuid(ruid)) == NULL) {
@@ -106,11 +109,11 @@ secpolicy_set_argv(char **arg_v)
 		return (pfarg_v);
 	}
 	for (i = 0; arg_v[i] != 0; i++) {
-		arglen += strlen(arg_v[i]);
+		arglen++;
 	}
-	arglen += strlen(PFEXEC);
+	arglen++;	/* for PFEXEC */
 	arglen++;	/* for null termination */
-	if ((pfarg_v = (char **)calloc(1, arglen)) == NULL) {
+	if ((pfarg_v = (char **)calloc(arglen, sizeof (char *))) == NULL) {
 		return (pfarg_v);
 	}
 	pfarg_v[0] = (char *)PFEXEC;

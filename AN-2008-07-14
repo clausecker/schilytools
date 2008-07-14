@@ -1,0 +1,96 @@
+New features with AN-2008-07-14:
+
+-	"make install" now installes the libscg include files into $(INS_BASE)/include/scg/
+
+-	config.guess now supports the "free" Apple Darwin variants
+
+-	Fixed array index overrun in L1 coder in libedc. Thanks to Heiko Eißfeldt.
+	The problem was reported by the coverity test. Note that the L1 coder
+	is not used by cdrtools.
+
+-	Cdrtools version -> "2.01.01a43"
+
+-	New option -no-fork tells cdda2wav to run in unbuffered mode.
+
+-	New option -interactive for cdda2wav
+
+	The first test implemenation supports the following interactive commands:
+
+	stop	stop reading
+
+		If you like to empty the internal buffers,
+		send "stop" read everything you get from the output pipe
+		repeat this until no further data is available.
+
+	cont	continue reading
+
+	read trasks <trackno>	Start reading from new trackno
+
+	read sectors <secno>	Start reading from new sector number
+
+	exit
+	quit	exit cdda2wav
+
+
+	This new option is a result from a collaboration with the GNOME
+	developers to make "sound-juicer" legal. Sound-juicer suffers from
+	license problems from libcdio which is usually loaded as a 
+	"gstreamer" plugin.
+
+	The option -interactive together with the related new libgstcdda2wavsrc
+	gives better quality of the extracted audio-data and does not cause license
+	violations.
+
+-	Added a workaround for some Linux filesystems that do not deliver "." and ".." 
+	first with readdir() in mkisofs
+
+-	Fixed mkisofs -x pattern not to exclude "." and ".." also
+
+-	Always "." and ".." first to the dir content in mkisofs.
+
+
+-	SCCS now properly calls _all_ sccs sub-program with the install path in order
+	to avoid calling other SCCS instances installed in the same machine. These
+	other SCCS instances may be buggy.
+
+-	bsh now also supports a "pfbsh" mode (profile mode).
+
+-	The builtin "set" command in bsh now supports to toggle the profile mode.
+	This may be done via
+
+	set -P and set +P
+
+	or via
+
+	set -o profile and set +o profile
+
+-	bsh version bumped to 6.10
+
+-	Try to avoid a core dump with smake with percent default rules like:
+
+	foo%: 
+		cmd
+
+-	New links "pfsh" (for the profile Bourne Shell) and "bosh" (for Bo urne Shell).
+	The latter is needed for platforms where "sh" is the Korn Shell.
+
+-	The Bourne Shell builtin "set" command now supports to toggle the profile mode.
+	This may be done via
+
+	set -P and set +P
+
+-	Fixed a potential buffer underrun in the Bourne Shell in 
+	"profile mode" on Solaris.
+
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.isdn.cs.tu-berlin.de, js@cs.tu-berlin.de
+	schilling@fokus.fhg.de
+
+Please mail bugs and suggestions to me.

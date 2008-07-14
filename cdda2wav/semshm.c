@@ -1,7 +1,7 @@
-/* @(#)semshm.c 1.20 06/09/26 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2004-2006 J. Schilling */
+/* @(#)semshm.c 1.22 08/06/21 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2004-2008 J. Schilling */
 #ifndef lint
 static char	sccsid[] =
-"@(#)semshm.c	1.20 06/09/26 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2004-2006 J. Schilling";
+"@(#)semshm.c	1.22 08/06/21 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2004-2008 J. Schilling";
 #endif
 
 #define	IPCTST
@@ -149,6 +149,8 @@ semrequest(semid, semnum)
 	fprintf(stderr, "pid %d, ReQuest id:num %d:%d\n",
 			getpid(), semid, semnum);
 #endif
+	if (!global.have_forked)
+		return (0);
 	sops[0].sem_op  = -1;
 	sops[0].sem_num = (short) semnum;
 	sops[0].sem_flg = 0;
@@ -177,6 +179,8 @@ semrelease(semid, semnum, amount)
 #ifdef IPCTST
 	fprintf(stderr, "%d RL %d:%d\n", getpid(), semid, semnum);
 #endif
+	if (!global.have_forked)
+		return (0);
 	sops[0].sem_op  = amount;
 	sops[0].sem_num = (short) semnum;
 	sops[0].sem_flg = 0;
@@ -230,6 +234,8 @@ semrequest(dummy, semnum)
 	int	dummy;
 	int	semnum;
 {
+	if (!global.have_forked)
+		return (0);
 	if (semnum == FREE_SEM /* 0 */)  {
 		int	retval;
 
@@ -266,6 +272,8 @@ semrelease(dummy, semnum, amount)
 	int	semnum;
 	int	amount;
 {
+	if (!global.have_forked)
+		return (0);
 	if (semnum == FREE_SEM /* 0 */)  {
 		if (*parent_waits == 1) {
 			int	retval;

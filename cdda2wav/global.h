@@ -1,4 +1,4 @@
-/* @(#)global.h	1.17 07/09/10 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2006 J. Schilling */
+/* @(#)global.h	1.20 08/06/24 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2008 J. Schilling */
 /*
  * Global Variables
  */
@@ -42,6 +42,8 @@ typedef struct global {
 	int			no_file;
 	int			no_infofile;
 	int			no_cddbfile;
+	int			no_fork;
+	int			interactive;
 	int			quiet;
 	int			verbose;
 	int			scsi_silent;
