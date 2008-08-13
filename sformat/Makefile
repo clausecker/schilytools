@@ -1,4 +1,4 @@
-#ident @(#)Makefile	1.14 07/12/02 Copyr 1988 J. Schilling
+#ident @(#)Makefile	1.15 08/08/01 Copyr 1988 J. Schilling
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -10,7 +10,8 @@ VPATH=		.:dat:$(ARCHDIR)
 
 INSDIR=		bin
 TARGET=		sformat
-/*CPPOPTS +=	-DFMT -ISun*/
+CPPOPTS +=	-I../libscg
+CPPOPTS +=	-I.		# Für dat/*.c
 CPPOPTS +=	-DFMT
 CPPOPTS +=	-DSCHILY_PRINT
 

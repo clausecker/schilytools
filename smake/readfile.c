@@ -1,7 +1,7 @@
-/* @(#)readfile.c	1.54 06/10/14 Copyright 1985 J. Schilling */
+/* @(#)readfile.c	1.55 08/08/13 Copyright 1985 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)readfile.c	1.54 06/10/14 Copyright 1985 J. Schilling";
+	"@(#)readfile.c	1.55 08/08/13 Copyright 1985 J. Schilling";
 #endif
 /*
  *	Make program
@@ -295,6 +295,21 @@ doinclude(name, must_exist)
 	default_tgt = st;
 
 	o = objlook(name, TRUE);
+
+	/*
+	 * In order to work around a gmake bug, we need to write Makefiles that
+	 * make an included file to depend on a previously included file in
+	 * order to make gmake believe that a rule exists to make the included
+	 * file. This is otherwise nonsense but it is in conflict with our
+	 * strategy to reset o->o_date after the file has been included in
+	 * order to force to re-evaluate the complete set of rules after
+	 * everything has been read. In this special case, it looks as if the
+	 * file could not be made as it depends on a "nonexistent" target.
+	 * A solution is to fetch the time again before we decide how to go on.
+	 */
+	if (o->o_date == 0) {
+		o->o_date = gftime(name);	/* Check if file is present */
+	}
 
 	if (Debug > 1)
 		error("doinclude(%s, %d)= date: %s level: %d\n",

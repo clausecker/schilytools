@@ -1,4 +1,4 @@
-#ident @(#)tartest.mk	1.6 07/02/17 
+#ident %W% %E% %Q%
 ###########################################################################
 # Sample makefile for general application programs
 ###########################################################################
@@ -9,7 +9,7 @@ include		$(SRCROOT)/$(RULESDIR)/rules.top
 
 INSDIR=		bin
 TARGET=		tartest
-#CPPOPTS +=	-Ispecincl
+CPPOPTS +=	-I../star
 CPPOPTS +=	-DUSE_LARGEFILES
 CPPOPTS +=	-DSCHILY_PRINT
 

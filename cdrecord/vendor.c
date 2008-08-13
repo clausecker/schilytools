@@ -1,7 +1,7 @@
-/* %Z%%M%	%I% %E% Copyright 2007-2008 J. Schilling */
+/* @(#)vendor.c	1.1 08/06/13 Copyright 2007-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"%Z%%M%	%I% %E% Copyright 2007-2008 J. Schilling";
+	"@(#)vendor.c	1.1 08/06/13 Copyright 2007-2008 J. Schilling";
 #endif
 /*
  *	Vendor specific SCSI command functions for cdrecord

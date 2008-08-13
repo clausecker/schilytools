@@ -1,0 +1,142 @@
+mNew features with AN-2008-07-20:
+
+-	New directory autoconf/ contains the complete Schily autoconf system.
+	It is based on GNU autoconf-2.13, the latest GNU autoconf that worked
+	correctly even on older systems.
+
+-	Sources and makefilesystem restructured to allow all needed files to be
+	retrieved from the SCCS repository and to call "make" later. To achieve
+	this, all symlinks have been removed from the tarball.
+
+-	The Schily Makefile System now includes rules to recreate the file
+	"configure" by calling "autoconf". This is needed in order to allow the 
+	complete source tree to be extracted from the SCCS repository.
+
+-	New autoconf test AC_CHECK_DLIB() checks for lib members while using
+	specified include files. This is a workaround for the autoconf hostile
+	gettext() and iconv() implementations on Linux.
+
+-	The gettext()/iconv() tests have been rewritten to use AC_CHECK_DLIB()
+
+-	The autoconf test AC_FUNC_VFORK from Paul Eggert was not written in
+	clean C and thus failed on a ANSI-C compiler, asuming that vfork()
+	is not available in the ANSI case.
+
+-	README.compile fixed to refer to READMEs/README.gmake instead of 
+	README.gmake
+
+-	Symlink support in RULES/MKLINKS added for ia64-hp-ux-cc.rul and
+	ia64-hp-ux-gcc.rul, thanks to a hint from Steven M. Schweda
+-	Added a workaround for a GNU make design bug that causes the rules
+	to create file "foo" to be evaluated _past_ the "include foo"
+	statement in a Makefile has been evaluated. Note that you still need 
+	GNU make 3.81. GNU make 3.80 and before will still fail to compile 
+	cdrtools because of other unfixed GNU make bugs.
+
+	Note that the basic GNU make design bug has been reported to the 
+	GNU make maintainers and accepted as bug by the GNU make maintainers
+	in 1998 already. It is still unfixed in GNU make although smake and
+	SunPro make verify that there is no problem to do it right.
+
+-	Added a workaround for the GNU make workaround into smake.
+	The GNU make workaround requires to create an otherwise useless 
+	dependency from one include file to another previously included file
+	to make GNU make believe that a rule to make the file exists at all.
+	As smake resets the state of all included targets after including them,
+	in order to force the re-evaluation of the complete rule set after
+	all  makefiles have been read, smake believed that the second file
+	did not exist because it depends on a "non-existent" file and called
+	the .INCLUDE_FILED: rule.
+
+	Smake now checks the file for existence before deciding whether to call
+	the .INCLUDE_FILED: rule.
+
+-	psmake/ scripts now auto-create the symlinks or copies to the original
+	source files.
+
+-	psmake/MAKE-sh now aborts before compilation if "configure" does
+	not create xconfig.h (e.g. because the installed compiler is defective).
+
+-	aspi-win32.h and spti-wnt.h now in SCCS
+
+-	fixed a bug in star that caused star to print the list output
+	on stderr if the archive was read from stdin.
+
+-	New link "jsh" (job control shell) to "sh"
+
+-	Fixed a bug in the Bourne shell child handling introduced in
+	February 2008 when trying to fix a hang from ^Z on FreeBSD.
+	The Bourne Shell now no longer leaves zombies around.
+
+-	the file bsh/pfexec.c now always includes an exported function pfinit()
+
+-	New cdda2wav option -no-fork tells cdda2wav to run in unbuffered mode.
+
+-	New cdda2wav option -interactive 
+
+	The first test implemenation supports the following interactive commands:
+
+	stop	stop reading
+
+		If you like to empty the internal buffers,
+		send "stop" read everything you get from the output pipe
+		repeat this until no further data is available.
+
+	cont	continue reading
+
+	read trasks <trackno>	Start reading from new trackno
+
+	read sectors <secno>	Start reading from new sector number
+
+	exit
+	quit	exit cdda2wav
+
+
+	This new option is a result from a collaboration with the GNOME
+	developers to make "sound-juicer" legal. Sound-juicer suffers from
+	license problems from libcdio which is usually loaded as a 
+	"gstreamer" plugin.
+
+	The option -interactive together with the related new libgstcdda2wavsrc
+	gives better quality of the extracted audio-data and does not cause license
+	violations.
+
+-	Cdda2wav child_pid variable moved into gloval var structure.
+
+-	The new -interactive option has now been stabilized for a first integration that
+	allows to replace libcdio for sound-juicer to come to an implementation without
+	license violations.
+
+-	Reduced the minimal cdrecord write speed of a ultraspeed CD-RW 
+	capable drive from 16x to 10x.
+
+-	Try to avoid mkisofs inconsistencies with USE_LARGEFILES with 
+	multi-extent files
+
+-	Corrected the mkisofs iso directory record size computation in
+	stream-file mode
+
+-	Mkisofs no longer tries to write 8 TB of data in case that 
+	-stream-media-size was too small.
+
+-	Mkisofs now correctly limits filenames with non-ISO-8859-1 characters
+	to 127 chars max.
+
+-	Mkisofs now correctly sets the permissions for "invented" unreal
+	directories in UDF instread of using mode 000.
+
+-	cdrtools version bumped to 2.01.01a46
+
+-	smake version bumped to 1.2a43
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.isdn.cs.tu-berlin.de, js@cs.tu-berlin.de
+	schilling@fokus.fhg.de
+
+Please mail bugs and suggestions to me.

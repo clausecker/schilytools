@@ -1,11 +1,57 @@
 #!/bin/sh
-#ident "@(#)MAKE-sh	1.2 07/02/13 "
+#ident "@(#)MAKE-sh	1.3 08/08/13 "
 ###############################################################################
 #
 # The shell variables CFLAGS & LDFLAGS may be used to pass additional flags
 # to the compile and link process.
 #
 ###############################################################################
+
+#
+# Check whether the configure script is present. If we are compiling from a
+# clean SCCS tree, this file is missing because configure is a compilation
+# result created by autoconf.
+#
+srcroot=..
+if [ -d ${srcroot}/autoconf ]; then
+	:
+else
+		srcroot=../..
+fi
+if [ ! -r ${srcroot}/autoconf/configure ]; then
+	(cd ${srcroot}/autoconf; sh ./autoconf)
+fi
+if [ ! -d ${srcroot}/RULES/. ]; then
+	(cd ${srcroot}; sh ./MKLINKS)
+fi
+if [ ! -r ${srcroot}/RULES/ldummy.lnk ]; then
+	(cd ${srcroot}/RULES/.; sh ./MKLINKS)
+fi
+
+#
+# Check whether the source files are present. If we are compiling from a
+# clean SCCS tree, these files are missing because they are links to the
+# original source at the original location.
+#
+echo "Checking for source files..."
+if [ ! -r make.c ]; then
+	echo "Source files are not present..."
+
+	#
+	# Check if the current system allows to create symlinks
+	#
+	lnfiles=lnfiles
+	rm -f xxzzy.123 xxzzy.345
+	echo test > xxzzy.123
+	ln -s xxzzy.123 xxzzy.345
+	test $? = 0 || lnfiles=cpfiles
+	test -r xxzzy.345 || lnfiles=cpfiles
+	rm -f xxzzy.123 xxzzy.345
+
+	echo "Creating links to source files..."
+	sh rmlinks
+	${lnfiles}
+fi
 
 #
 # Check if the current system allows to create symlinks
@@ -74,6 +120,16 @@ else
 	else
 		eval CC=$CC CONFIG_NOFAIL=TRUE sh ./configure
 	fi
+fi
+
+#
+# Check whether "configure" worked or whether there is a compiler problem
+#
+if [ ! -r xconfig.h ]; then
+	echo
+	echo "Configure did not create 'xconfig.h'. Check for Compiler problems."
+	echo "Cannot continue..."
+	exit 1
 fi
 
 set -x

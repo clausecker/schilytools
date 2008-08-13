@@ -1,7 +1,7 @@
-/* @(#)make.c	1.145 08/04/19 Copyright 1985, 87, 88, 91, 1995-2008 J. Schilling */
+/* @(#)make.c	1.146 08/08/13 Copyright 1985, 87, 88, 91, 1995-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)make.c	1.145 08/04/19 Copyright 1985, 87, 88, 91, 1995-2008 J. Schilling";
+	"@(#)make.c	1.146 08/08/13 Copyright 1985, 87, 88, 91, 1995-2008 J. Schilling";
 #endif
 /*
  *	Make program
@@ -43,7 +43,7 @@ static	char sccsid[] =
 #include <schily/libport.h>
 #include <schily/utime.h>
 
-char	make_version[] = "1.2a42";
+char	make_version[] = "1.2a43";
 
 #ifdef	NO_DEFAULTS_PATH
 #undef	DEFAULTS_PATH

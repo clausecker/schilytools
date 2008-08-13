@@ -1,1 +1,0 @@
-../cdrecord/scsi_cdr.c

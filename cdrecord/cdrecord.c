@@ -1,7 +1,7 @@
-/* @(#)cdrecord.c	1.363 08/01/16 Copyright 1995-2008 J. Schilling */
+/* @(#)cdrecord.c	1.364 08/08/06 Copyright 1995-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)cdrecord.c	1.363 08/01/16 Copyright 1995-2008 J. Schilling";
+	"@(#)cdrecord.c	1.364 08/08/06 Copyright 1995-2008 J. Schilling";
 #endif
 /*
  *	Record data on a CD/CVD-Recorder
@@ -1233,7 +1233,7 @@ main(ac, av)
 				"Probably trying to use ultra high speed+ medium on improper writer.\n");
 			}
 		} else if ((dp->cdr_dstat->ds_flags & DSF_ULTRASP_ERA) != 0 &&
-		    (speed < 16 || (dp->cdr_cdrw_support & CDR_CDRW_ULTRA) == 0)) {
+		    (speed < 10 || (dp->cdr_cdrw_support & CDR_CDRW_ULTRA) == 0)) {
 			if ((dp->cdr_cdrw_support & CDR_CDRW_ULTRA) == 0) {
 				comerrno(EX_BAD,
 				/* CSTYLED */
@@ -4254,7 +4254,7 @@ load_media(scgp, dp, doexit)
 	scgp->silent--;
 	err = geterrno();
 	if (code < 0 && (err == EPERM || err == EACCES)) {
-		linuxcheck();	/* For version 1.363 of cdrecord.c */
+		linuxcheck();	/* For version 1.364 of cdrecord.c */
 		scg_openerr("");
 	}
 
@@ -5086,7 +5086,7 @@ set_wrmode(dp, wmode, tflags)
 }
 
 /*
- * I am sorry that even for version 1.363 of cdrecord.c, I am forced to do
+ * I am sorry that even for version 1.364 of cdrecord.c, I am forced to do
  * things like this, but defective versions of cdrecord cause a lot of
  * work load to me.
  *
@@ -5103,7 +5103,7 @@ set_wrmode(dp, wmode, tflags)
 #endif
 
 LOCAL void
-linuxcheck()				/* For version 1.363 of cdrecord.c */
+linuxcheck()				/* For version 1.364 of cdrecord.c */
 {
 #if	defined(linux) || defined(__linux) || defined(__linux__)
 #ifdef	HAVE_UNAME

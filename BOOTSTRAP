@@ -1,0 +1,78 @@
+# @(#)BOOTSTRAP	1.2 03/05/06 Copyright 1999 J. Schilling
+
+To bootstrap smake:
+
+If you are of good luck and have a working make program on your system,
+you may simply try to call 'make' in the top level directory (the
+directory where this file is located). In this case, a bootstrap 'smake'
+binary is created in the psmake/ directory. To be able to do this, a 
+shell script called 'MAKE-all' which is located inside the psmake directory
+is executed. This shell script calls configure in the psmake directory
+and then compiles 'smake' in the psmake directory.
+
+If psmake/smake has been created, the top level make executes psmake/smake
+which is able to deal with the Schily SING makefile system that is used to
+compile the final 'smake'. The first action will be again to (automatically)
+call configure from the makefiles. Sorry for this inconvenience but I did not
+find any safe way that would work with only one run of configure.
+For more information on the makefile system please read the file 'COMPILE'.
+
+If it doesn't work to simply call 'make' or if your system does not provide
+a working make program, follow the instructions below.
+
+Please first read the NOTE section between the star lines below step 3):
+
+1)	chdir to 'psmake'
+/*--------------------------------------------------------------------------*/
+
+2)	call ./configure'
+
+	If you are using gcc, call:
+		CC=gcc ./configure
+	or
+		env CC=gcc ./configure
+
+	On HP-UX 10.x or newer call:
+
+		CFLAGS=-Ae ./configure
+
+	to use the the compiler that comes with HP-UX
+/*--------------------------------------------------------------------------*/
+
+3)	call 'make'
+
+	If you are using gcc, call 'make CC=gcc'
+
+	On HP-UX 10.x or newer call:
+
+		make CDEFS=-Ae
+
+	to use the the compiler that comes with HP-UX
+
+*****************************************************************************
+
+	NOTE:	Steps 2 & 3 are automated in a shell script called MAKE-all
+		that can be found inside the 'psmake' directory.
+
+		The MAKE-all script will allow you to compile the first 'smake'
+		stage without having a make utility on your system.
+
+		To call the MAKE-all shell script simply type ./MAKE-all or
+		sh ./MAKE-all if your system does not support the #!/bin/sh
+		shell notation.
+
+*****************************************************************************
+
+/*--------------------------------------------------------------------------*/
+
+4)	cd ..
+
+/*--------------------------------------------------------------------------*/
+5)	call 'psmake/smake'
+
+	On HP-UX 10.x or newer call:
+
+		psmake/smake CCOM=cc
+
+	to use the the compiler that comes with HP-UX
+/*--------------------------------------------------------------------------*/

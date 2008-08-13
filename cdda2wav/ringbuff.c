@@ -1,7 +1,7 @@
-/* %Z%%M%	%I% %E% Copyright 1998,1999,2000 Heiko Eissfeldt, Copyright 2004-2008 J. Schilling */
+/* @(#)ringbuff.c	1.16 08/06/21 Copyright 1998,1999,2000 Heiko Eissfeldt, Copyright 2004-2008 J. Schilling */
 #ifndef lint
 static char	sccsid[] =
-"%Z%%M%	%I% %E% Copyright 1998,1999,2000 Heiko Eissfeldt, Copyright 2004-2008 J. Schilling";
+"@(#)ringbuff.c	1.16 08/06/21 Copyright 1998,1999,2000 Heiko Eissfeldt, Copyright 2004-2008 J. Schilling";
 #endif
 /*
  * Ringbuffer handling
@@ -167,8 +167,6 @@ drop_buffer()
 void
 drop_all_buffers()
 {
-	while (occupied_buffers() > 0)
-		drop_buffer();
 	(*total_segments_written) = (*total_segments_read);
 	semrelease(sem_id, FREE_SEM, total_buffers);
 }

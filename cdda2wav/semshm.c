@@ -1,7 +1,7 @@
-/* @(#)semshm.c 1.22 08/06/21 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2004-2008 J. Schilling */
+/* @(#)semshm.c 1.23 08/08/03 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2004-2008 J. Schilling */
 #ifndef lint
 static char	sccsid[] =
-"@(#)semshm.c	1.22 08/06/21 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2004-2008 J. Schilling";
+"@(#)semshm.c	1.23 08/08/03 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2004-2008 J. Schilling";
 #endif
 
 #define	IPCTST
@@ -192,6 +192,15 @@ semrelease(semid, semnum, amount)
 	return (ret_val);
 }
 
+void
+semdestroy()
+{
+	/*
+	 * How do we stop the other process from waiting?
+	 */
+	return (0);
+}
+
 int
 flush_buffers()
 {
@@ -305,6 +314,19 @@ semrelease(dummy, semnum, amount)
 	}
 	return (0);
 }
+
+void
+semdestroy()
+{
+	if (global.child_pid == 0) {	/* Child */
+		close(pipefdp2c[1]);
+		close(pipefdc2p[0]);
+	} else if (global.child_pid != -1) {
+		close(pipefdp2c[0]);
+		close(pipefdc2p[1]);
+	}
+}
+
 
 int
 flush_buffers()

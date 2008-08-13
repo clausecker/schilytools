@@ -32,11 +32,11 @@
 /*
  * This file contains modifications Copyright 2008 J. Schilling
  *
- * @(#)jobs.c	1.11 08/03/28 2008 J. Schilling
+ * @(#)jobs.c	1.12 08/07/16 2008 J. Schilling
  */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)jobs.c	1.11 08/03/28 2008 J. Schilling";
+	"@(#)jobs.c	1.12 08/07/16 2008 J. Schilling";
 #endif
 
 /*
@@ -480,6 +480,8 @@ waitjob(jp)
 	} while (ret != pid);
 
 	done = statjob(jp, stat, 1, 1);
+	if (!WIFSTOPPED(stat))		/* Avoid hang on FreeBSD */
+		waitpid(pid, 0, wflags);
 	if (done && exitval && (flags & errflg))
 		exitsh(exitval);
 	flags |= eflag;

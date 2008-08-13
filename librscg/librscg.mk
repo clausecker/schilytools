@@ -1,4 +1,4 @@
-#ident @(#)librscg.mk	1.3 07/02/03 
+#ident @(#)librscg.mk	1.5 08/08/03 
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -9,7 +9,7 @@ include		$(SRCROOT)/$(RULESDIR)/rules.top
 #VPATH=		.:stdio:$(ARCHDIR)
 INSDIR=		lib
 TARGETLIB=	rscg
-#CPPOPTS +=	-Ispecincl
+CPPOPTS +=	-I../libscg
 CPPOPTS +=	-DUSE_PG
 CPPOPTS +=	-DUSE_RCMD_RSH
 CPPOPTS +=	-DSCHILY_PRINT

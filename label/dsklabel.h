@@ -1,1 +1,0 @@
-../sformat/dsklabel.h

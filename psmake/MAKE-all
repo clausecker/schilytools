@@ -1,4 +1,5 @@
 #!/bin/sh
+# @(#)MAKE-all	1.2 08/08/13 Copyright 1998-2008 J. Schilling
 
 #
 # Check if there already is a working 'smake' in the current directory

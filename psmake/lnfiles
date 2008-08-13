@@ -1,20 +1,40 @@
 #!/bin/sh
-# @(#)lnfiles	1.9 07/12/02 Copyright 1999 J. Schilling
+# @(#)lnfiles	1.10 08/08/13 Copyright 1999 J. Schilling
 
 cp='ln -s'
+smake=smake
 lib=libschily
-#lib=lib
 incsrc=..
-#incsrc=../..
+if [ -r ${incsrc}/${smake}/make.c ]; then
+	:
+else
+	if [ -r ${incsrc}/build/make.c ]; then
+		smake=build
+	else
+		incsrc=../..
+		if [ -r ${incsrc}/build/make.c ]; then
+			smake=build
+		fi
+	fi
+fi
+if [ -r ${incsrc}/${lib}/error.c ]; then
+	:
+else
+	lib=lib
+fi
 
-$cp ${incsrc}/smake/archconf.c			archconf.c
-$cp ${incsrc}/smake/make.c			make.c
-$cp ${incsrc}/smake/make.h			make.h
-$cp ${incsrc}/smake/memory.c			memory.c
-$cp ${incsrc}/smake/parse.c			parse.c
-$cp ${incsrc}/smake/readfile.c			readfile.c
-$cp ${incsrc}/smake/rules.c			rules.c
-$cp ${incsrc}/smake/update.c			update.c
+if [ ! -d include/schily ]; then
+	mkdir include/schily
+fi
+
+$cp ${incsrc}/${smake}/archconf.c	archconf.c
+$cp ${incsrc}/${smake}/make.c		make.c
+$cp ${incsrc}/${smake}/make.h		make.h
+$cp ${incsrc}/${smake}/memory.c		memory.c
+$cp ${incsrc}/${smake}/parse.c		parse.c
+$cp ${incsrc}/${smake}/readfile.c	readfile.c
+$cp ${incsrc}/${smake}/rules.c		rules.c
+$cp ${incsrc}/${smake}/update.c		update.c
 $cp ${incsrc}/../../include/schily/archdefs.h	include/schily/archdefs.h
 $cp ${incsrc}/../../include/schily/ccomdefs.h	include/schily/ccomdefs.h
 $cp ${incsrc}/../../include/schily/dirent.h		include/schily/dirent.h
@@ -44,11 +64,11 @@ $cp ${incsrc}/../../include/schily/schily.h		include/schily/schily.h
 $cp ${incsrc}/../../include/schily/errno.h		include/schily/errno.h
 $cp ${incsrc}/../../include/schily/align.h		include/schily/align.h
 $cp ${incsrc}/../../include/schily/avoffset.h	include/schily/avoffset.h
-$cp ${incsrc}/conf/config.guess	config.guess
-$cp ${incsrc}/conf/config.sub	config.sub
-$cp ${incsrc}/conf/configure	configure
-$cp ${incsrc}/conf/rules.cnf.in	rules.cnf.in
-$cp ${incsrc}/conf/xconfig.h.in	xconfig.h.in
+$cp ${incsrc}/autoconf/config.guess	config.guess
+$cp ${incsrc}/autoconf/config.sub	config.sub
+$cp ${incsrc}/autoconf/configure	configure
+$cp ${incsrc}/autoconf/rules.cnf.in	rules.cnf.in
+$cp ${incsrc}/autoconf/xconfig.h.in	xconfig.h.in
 $cp ${incsrc}/conf/install-sh	install-sh
 $cp ${incsrc}/${lib}/stdio/schilyio.h	schilyio.h
 $cp ${incsrc}/${lib}/astoi.c		astoi.c

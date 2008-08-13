@@ -1,4 +1,4 @@
-#ident @(#)shlrscg.mk	1.2 07/02/03 
+#ident @(#)shlrscg.mk	1.4 08/08/03 
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -10,7 +10,7 @@ SUBARCHDIR=	/pic
 #VPATH=		.:stdio:$(ARCHDIR)
 INSDIR=		lib
 TARGETLIB=	rscg
-#CPPOPTS +=	-Ispecincl
+CPPOPTS +=	-I../libscg
 CPPOPTS +=	-DUSE_PG
 CPPOPTS +=	-DUSE_RCMD_RSH
 CPPOPTS +=	-DSCHILY_PRINT

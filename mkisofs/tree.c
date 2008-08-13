@@ -1,7 +1,7 @@
-/* @(#)tree.c	1.110 08/07/09 joerg */
+/* @(#)tree.c	1.111 08/08/13 joerg */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)tree.c	1.110 08/07/09 joerg";
+	"@(#)tree.c	1.111 08/08/13 joerg";
 #endif
 /*
  * File tree.c - scan directory  tree and build memory structures for iso9660
@@ -2509,6 +2509,8 @@ find_or_create_directory(parent, path, de, flag)
 	if (path == NULL) {
 		error("Warning: missing whole name for: '%s'\n", de->name);
 		path = de->name;
+		if (path == NULL)
+			comerrno(EX_BAD, "Panic no node name.\n");
 	}
 	pnt = strrchr(path, PATH_SEPARATOR);
 	if (pnt == NULL) {
@@ -2730,9 +2732,15 @@ find_or_create_directory(parent, path, de, flag)
 	 * It doesn't exist for real, so we cannot add any
 	 * XA or Rock Ridge attributes.
 	 */
-	if (orig_de == NULL) {
+	if (orig_de == NULL || (parent == NULL && path[0] == '\0')) {
 		init_fstatbuf();
-		if (use_XA || use_RockRidge) {
+		if ((use_XA || use_RockRidge) &&
+		    !(parent == NULL && path[0] == '\0')) {
+			/*
+			 * We cannot set up RR attrubutes for the real
+			 * ISO-9660 root directory. This is why we
+			 * check for parent == NULL && path[0] == '\0'.
+			 */
 			fstatbuf.st_mode = new_dir_mode | S_IFDIR;
 			fstatbuf.st_nlink = 2;
 			generate_xa_rr_attributes("",
@@ -2740,6 +2748,12 @@ find_or_create_directory(parent, path, de, flag)
 				&fstatbuf,
 				&fstatbuf, deep_flag);
 		}
+#ifdef UDF
+		/* set some info used for udf */
+		de->mode = fstatbuf.st_mode;
+		de->uid =  fstatbuf.st_uid;
+		de->gid =  fstatbuf.st_gid;
+#endif
 		iso9660_date(de->isorec.date, fstatbuf.st_mtime);
 	}
 	if (child)

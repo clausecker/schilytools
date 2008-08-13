@@ -1,4 +1,4 @@
-/* @(#)mkisofs.h	1.131 08/06/13 joerg */
+/* @(#)mkisofs.h	1.132 08/08/06 joerg */
 /*
  * Header file mkisofs.h - assorted structure definitions and typecasts.
  *
@@ -95,9 +95,7 @@ struct directory_entry {
 	struct iso_directory_record isorec;
 	unsigned int	starting_block;
 	off_t		size;
-#ifdef	USE_LARGEFILES
 	int		mxpart;		/* Extent number	  */
-#endif
 	unsigned short	priority;
 	unsigned char	jreclen;	/* Joliet record len */
 	char		*name;

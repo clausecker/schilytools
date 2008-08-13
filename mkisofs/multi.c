@@ -1,7 +1,7 @@
-/* @(#)multi.c	1.86 08/06/13 joerg */
+/* @(#)multi.c	1.87 08/08/13 joerg */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)multi.c	1.86 08/06/13 joerg";
+	"@(#)multi.c	1.87 08/08/13 joerg";
 #endif
 /*
  * File multi.c - scan existing iso9660 image and merge into
@@ -770,6 +770,10 @@ read_merging_directory(mrootp, nentp)
 			 */
 			while (i2 < len) {
 				idr2 = (struct iso_directory_record *) &dirbuff[i2];
+				if (idr2->length[0] == 0) {
+					i2 = ISO_ROUND_UP(i2);
+					continue;
+				}
 
 				tsize += get_733(idr2->size);
 				if ((idr2->flags[0] & ISO_MULTIEXTENT) == 0)

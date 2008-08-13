@@ -1,4 +1,4 @@
-#ident @(#)isodebug.mk	1.5 07/02/05 
+#ident @(#)isodebug.mk	1.6 08/08/01 
 ###########################################################################
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 2
@@ -24,6 +24,7 @@ CPPOPTS +=	-DUSE_LIBSCHILY
 CPPOPTS +=	-DUSE_LARGEFILES
 CPPOPTS +=	-DUSE_SCG
 CPPOPTS +=	-I..
+CPPOPTS +=	-I../../libscg
 CPPOPTS +=	-I../../cdrecord
 CPPOPTS +=	-DSCHILY_PRINT
 

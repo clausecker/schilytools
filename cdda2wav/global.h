@@ -1,4 +1,4 @@
-/* @(#)global.h	1.20 08/06/24 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2008 J. Schilling */
+/* @(#)global.h	1.21 08/08/03 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2008 J. Schilling */
 /*
  * Global Variables
  */
@@ -35,6 +35,7 @@ typedef struct global {
 	char			fname_base[200];
 
 	int			have_forked;
+	pid_t			child_pid;
 	int			parent_died;
 	int			audio;
 	struct soundfile	*audio_out;

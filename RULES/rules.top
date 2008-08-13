@@ -1,4 +1,4 @@
-#ident "@(#)rules.top	1.16 06/05/14 "
+#ident "@(#)rules.top	1.18 08/08/06 "
 ###########################################################################
 # Written 1996 by J. Schilling
 ###########################################################################
@@ -10,7 +10,7 @@
 # Copyright (c) J. Schilling
 ###########################################################################
 # The contents of this file are subject to the terms of the
-# Common Development and Distribution License, Version 1.0 only.
+# Common Development and Distribution License, Version 1.0 only
 # (the "License").  You may not use this file except in compliance
 # with the License.
 #
@@ -20,10 +20,37 @@
 # file and include the License file CDDL.Schily.txt from this distribution.
 ###########################################################################
 #
+# Make sure this becomes the default target
+#
+###########################################################################
+all:
+
+###########################################################################
+#
+# First make sure that all symlinks in $(SRCROOT)/$(RULESDIR)/ are present
+#
+###########################################################################
+$(SRCROOT)/$(RULESDIR)/ldummy.lnk:
+	@echo " ==> MAKING SYMLINKS in $(SRCROOT)/$(RULESDIR)/" && \
+			cd $(SRCROOT)/$(RULESDIR) && sh ./MKLINKS
+
+include 	$(SRCROOT)/$(RULESDIR)/ldummy.lnk
+
+###########################################################################
+#
 # Include global language independent macros
 #
 ###########################################################################
 include		$(SRCROOT)/$(RULESDIR)/rules1.top
+
+###########################################################################
+#
+# Workaround for GNU make design bug (include does not trigger rule evaluation)
+# A correctly working "make" did create the symlinks already while
+# including "ldummy.lnk" above.
+#
+###########################################################################
+$(SRCROOT)/$(RULESDIR)/$(XARCH).rul: $(SRCROOT)/$(RULESDIR)/ldummy.lnk
 
 ###########################################################################
 #

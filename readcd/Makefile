@@ -1,4 +1,4 @@
-#ident @(#)readcd.mk	1.10 07/04/06 
+#ident @(#)readcd.mk	1.12 08/08/03 
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -8,6 +8,7 @@ include		$(SRCROOT)/$(RULESDIR)/rules.top
 INSDIR=		bin
 TARGET=		readcd
 CPPOPTS +=	-I../cdrecord
+CPPOPTS +=	-I../libscg
 CPPOPTS +=	-I../libedc
 CPPOPTS +=	-DCLONE_WRITE
 CPPOPTS +=	-DUSE_LARGEFILES
@@ -24,6 +25,10 @@ HFILES=
 #LIBS=		-lschily $(LIB_SOCKET)
 LIBS=		-lrscg -lscg $(LIB_VOLMGT) -ledc_ecc_dec -ledc_ecc -ldeflt -lschily $(SCSILIB) $(LIB_SOCKET)
 XMK_FILE=	Mreadcd.man
+
+cd_misc.c scsi_scan.c scsi_cdr.c:
+	@echo "	==> MAKING SYMLINKS in ." && sh ./MKLINKS
+all: cd_misc.c scsi_scan.c scsi_cdr.c
 
 ###########################################################################
 include		$(SRCROOT)/$(RULESDIR)/rules.cmd

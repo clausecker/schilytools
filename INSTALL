@@ -15,7 +15,7 @@ Short overview for those who don't read manuals:
 
 	You **need** either my "smake" program, the SunPRO make 
 	from /usr/bin/make (SunOS 4.x) or /usr/ccs/bin/make (SunOS 5.x)
-	or GNU make to compile this program. Read README.gmake for 
+	or GNU make to compile this program. Read READMEs/README.gmake for 
 	more information on gmake and a list of the most annoying bugs in gmake.
 
 	All other make programs are either not smart enough or have bugs.
@@ -245,7 +245,7 @@ Hints for compilation:
 
 	SunPro make will work as is. GNU make need some special preparation.
 
-	Read README.gmake for more information on gmake.
+	Read READMEs/README.gmake for more information on gmake.
 
 	To use GNU make create a file called 'Gmake' in your search path
 	that contains:

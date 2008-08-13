@@ -1,3 +1,4 @@
+/* @(#)spti-wnt.h	1.2 08/08/03 2004-2008 J. Schilling */
 /*
  * distilled information from various header files from Microsoft's
  * DDK for Windows NT 4.0

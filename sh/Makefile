@@ -1,4 +1,4 @@
-#ident "@(#)Makefile	1.8 08/07/13 "
+#ident "@(#)Makefile	1.11 08/07/31 "
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -8,7 +8,8 @@ include		$(SRCROOT)/$(RULESDIR)/rules.top
 INSDIR=		bin
 TARGET=		sh			# Shell
 SYMLINKS=	pfsh			# Profile Bourne Shell
-SYMLINKS +=	bosh			# Bo rne Shell
+SYMLINKS +=	bosh			# Bo urne Shell
+SYMLINKS +=	jsh			# Job control Bourne Shell
 #CPPOPTS +=	-DBSH			# Tell the code that we compile for bsh
 #CPPOPTS +=	-DUSE_LARGEFILES	# Allow Large Files (> 2 GB)
 #CPPOPTS +=	-DINTERACTIVE		# Include command line history editor
@@ -51,6 +52,10 @@ HFILES=		brkincr.h ctype.h defs.h dup.h hash.h mac.h mode.h name.h \
 LIBS=		$(LIB_GEN) $(LIB_SECDB) -lshelledit -lxtermcap -lgetopt -lschily
 #LIBS=		-lgen -lsecdb 
 XMK_FILE=	Makefile.man
+
+signames.c:
+	@echo "	==> MAKING SYMLINKS in ." && sh ./MKLINKS
+all: signames.c
 
 ###########################################################################
 include		$(SRCROOT)/$(RULESDIR)/rules.cmd

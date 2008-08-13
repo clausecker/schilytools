@@ -1,4 +1,4 @@
-/* @(#)semshm.h	1.5 06/05/13 Copyright 1998,1999 Heiko Eissfeldt */
+/* @(#)semshm.h	1.6 08/08/03 Copyright 1998,1999 Heiko Eissfeldt */
 
 /*
  * The contents of this file are subject to the terms of the
@@ -46,6 +46,7 @@ extern	void	init_child	__PR((void));
 extern	void	free_sem	__PR((void));
 extern	int	semrequest	__PR((int semid, int semnum));
 extern	int	semrelease	__PR((int semid, int semnum, int amount));
+extern	void	semdestroy	__PR((void));
 extern	int	flush_buffers	__PR((void));
 extern	void	* request_shm_sem __PR((unsigned amount_of_sh_mem, unsigned char **pointer));
 

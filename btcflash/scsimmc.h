@@ -1,1 +1,0 @@
-../cdrecord/scsimmc.h

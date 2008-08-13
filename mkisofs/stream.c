@@ -1,7 +1,7 @@
-/* @(#)stream.c	1.11 08/06/13 Copyright 2002-2008 J. Schilling */
+/* @(#)stream.c	1.12 08/08/07 Copyright 2002-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)stream.c	1.11 08/06/13 Copyright 2002-2008 J. Schilling";
+	"@(#)stream.c	1.12 08/08/07 Copyright 2002-2008 J. Schilling";
 #endif
 /*
  *	ISO-9660 stream (pipe) file module for mkisofs
@@ -27,6 +27,7 @@ static	char sccsid[] =
 #include <schily/mconfig.h>
 #include "mkisofs.h"
 #include "iso9660.h"
+#include <schily/schily.h>
 
 LOCAL int	size_str_file	__PR((UInt32_t starting_extent));
 LOCAL int	size_str_dir	__PR((UInt32_t starting_extent));
@@ -73,6 +74,12 @@ extern	int	dopad;
 	}
 	if (dopad)
 		n += 150;		/* Room for final padding */
+
+	if (n >= avail_extent) {
+		comerrno(EX_BAD,
+			"-stream-media-size %d but must be at least %d\n",
+			avail_extent, n+2);
+	}
 	avail_extent -= n;
 
 	last_extent += avail_extent + stream_pad;
@@ -183,6 +190,7 @@ write_str_dir(outfile)
 	FILE	*outfile;
 {
 	int	to_write;
+	int	reclen;
 	char	*buf;
 
 	buf = e_malloc(SECTOR_SIZE); memset(buf, 0, SECTOR_SIZE);
@@ -202,7 +210,11 @@ write_str_dir(outfile)
 	s_dir.name[0] = 1;	/* ".." */
 	xfwrite(&s_dir, offsetof(struct iso_directory_record, name[0]) + 1, 1, outfile, 0, FALSE);
 	memset(&s_dir, 0, sizeof (struct iso_directory_record));
-	s_dir.length[0] = 34 + strlen(stream_filename);
+	reclen = offsetof(struct iso_directory_record, name[0]) +
+                                strlen(stream_filename); 
+	if (reclen & 1)
+		reclen++;
+	s_dir.length[0] = reclen;
 	s_dir.ext_attr_length[0] = 0;
 	set_733((char *) s_dir.extent, stream_extent);
 	set_733((char *) s_dir.size, stream_size);

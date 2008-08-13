@@ -1,7 +1,7 @@
-/* %Z%%M%	%I% %E% Copyright 1985, 88, 91, 1995-2008 J. Schilling */
+/* @(#)update.c	1.107 08/08/11 Copyright 1985, 88, 91, 1995-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"%Z%%M%	%I% %E% Copyright 1985, 88, 91, 1995-2008 J. Schilling";
+	"@(#)update.c	1.107 08/08/11 Copyright 1985, 88, 91, 1995-2008 J. Schilling";
 #endif
 /*
  *	Make program
@@ -1925,6 +1925,12 @@ again:
 	}
 
 found:
+	/*
+	 * If we do not create missing nodes here, Pattern Matching Rules like:
+	 * %.1:
+	 *	command
+	 * will cause smake to dump core.
+	 */
 	obj = objlook(name, TRUE);
 	obj->o_node = (obj_t *)prule;
 	obj->o_flags |= F_PATRULE;

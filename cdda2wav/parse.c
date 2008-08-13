@@ -1,7 +1,7 @@
-/* %Z%%M%	%I% %E% Copyright 2001-2008 J. Schilling */
+/* @(#)parse.c	1.2 08/08/11 Copyright 2001-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"%Z%%M%	%I% %E% Copyright 2001-2008 J. Schilling";
+	"@(#)parse.c	1.2 08/08/11 Copyright 2001-2008 J. Schilling";
 #endif
 /*
  *	Interactive command parser for cdda2wav
@@ -145,7 +145,9 @@ again:
 
 		case C_STOP:
 			/* Flush buffers */
+#ifdef	_is_working_
 			drop_all_buffers();
+#endif
 			wok();
 			goto again;
 		case C_CONT:

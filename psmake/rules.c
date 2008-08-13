@@ -1,1 +1,0 @@
-../smake/rules.c

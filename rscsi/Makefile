@@ -1,4 +1,4 @@
-#ident @(#)Makefile	1.6 08/04/06 
+#ident @(#)Makefile	1.7 08/08/01 
 ###########################################################################
 #include		$(MAKE_M_ARCH).def
 SRCROOT=	..
@@ -11,6 +11,8 @@ TARGET=		rscsi
 INSMODE=	4711
 INSUSR=		root
 #CPPOPTS +=	-DUSE_REMOTE
+CPPOPTS +=	-I../libscg
+
 CFILES=		rscsi.c
 #HFILES=
 LIBS=		-lscg $(LIB_VOLMGT) -ldeflt -lschily $(SCSILIB) $(LIB_SOCKET)

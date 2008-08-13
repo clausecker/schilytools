@@ -1,4 +1,4 @@
-#ident "@(#)Makefile	1.4 08/02/26 "
+#ident "@(#)Makefile	1.8 08/08/01 "
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -49,6 +49,11 @@ HFILES=		bsh.h map.h node.h \
 LIBS=		-lxtermcap -lschily $(LIB_CRYPT)
 #XMK_FILE=	Makefile.man
 XMK_FILE=	
+
+inputc.c map.c bsh.h:
+	@echo "	==> MAKING SYMLINKS in ." && sh ./MKLINKS
+all: inputc.c map.c
+$(SRCROOT)/$(RULESDIR)/rules.lib: bsh.h
 
 ###########################################################################
 include		$(SRCROOT)/$(RULESDIR)/rules.lib

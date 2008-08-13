@@ -1,0 +1,43 @@
+#!/bin/sh
+###########################################################################
+#ident "@(#)MKLINKS	1.3 08/08/01 "
+###########################################################################
+# Written 2008 by J. Schilling
+###########################################################################
+# Copyright (c) 2008 J. Schilling
+###########################################################################
+# The contents of this file are subject to the terms of the
+# Common Development and Distribution License, Version 1.0 only
+# (the "License").  You may not use this file except in compliance
+# with the License.
+#
+# See the file CDDL.Schily.txt in this distribution for details.
+#
+# When distributing Covered Code, include this CDDL HEADER in each
+# file and include the License file CDDL.Schily.txt from this distribution.
+###########################################################################
+symlink="ln -s"
+rm -f xxzzy.123 xxzzy.345
+echo test > xxzzy.123
+$symlink xxzzy.123 xxzzy.345
+test $? = 0 || symlink=cp
+test -r xxzzy.345 || symlink=cp
+rm -f xxzzy.123 xxzzy.345
+###########################################################################
+
+$symlink ../bsh/node.c			.
+$symlink ../libschily/comerr.c		.
+$symlink ../bsh/expand.c		.
+$symlink ../libschily/error.c		.
+$symlink ../libschily/stdio/fgetline.c	.
+$symlink ../bsh/inputc.c		.
+$symlink ../bsh/map.c			.
+$symlink ../bsh/strsubs.c		.
+$symlink ../bsh/ttymodes.c		.
+
+$symlink ../bsh/bsh.h			.
+$symlink ../bsh/bshconf.h		.
+$symlink ../bsh/map.h			.
+$symlink ../bsh/node.h			.
+$symlink ../bsh/str.h			.
+$symlink ../bsh/strsubs.h		.

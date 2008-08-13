@@ -1,14 +1,23 @@
-#ident @(#)Makefile	1.15 08/06/24 
+#ident @(#)Makefile	1.16 08/07/31 
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
 LCONFIG=	local.cnf
+LCONFIG_DEP=	install-sh
+
+###########################################################################
+all: install-sh scsi_scan.c scsi_cdr.c
+
+install-sh scsi_scan.c scsi_cdr.c:
+	@echo "	==> MAKING SYMLINKS in ." && sh ./MKLINKS
+###########################################################################
+
 include		$(SRCROOT)/$(RULESDIR)/rules.top
 ###########################################################################
 
 INSDIR=		bin
 TARGET=		cdda2wav
-CPPOPTS +=	-DFIFO -I../libscg -I../cdrecord $(CDDA2WAVDEFS)
+CPPOPTS +=	-DFIFO -I../libscg -I../libparanoia -I../cdrecord $(CDDA2WAVDEFS)
 CPPOPTS +=	-DSCHILY_PRINT
 
 CFILES=		cdda2wav.c interface.c semshm.c resample.c \

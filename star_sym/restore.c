@@ -1,1 +1,0 @@
-../star/restore.c

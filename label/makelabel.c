@@ -1,1 +1,0 @@
-../sformat/makelabel.c

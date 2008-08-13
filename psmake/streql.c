@@ -1,1 +1,0 @@
-../libschily/streql.c

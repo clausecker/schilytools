@@ -1,7 +1,7 @@
-/* @(#)pfexec.c	1.1 08/07/14 Copyright 2008 J. Schilling */
+/* @(#)pfexec.c	1.2 08/08/06 Copyright 2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)pfexec.c	1.1 08/07/14 Copyright 2008 J. Schilling";
+	"@(#)pfexec.c	1.2 08/08/06 Copyright 2008 J. Schilling";
 #endif
 /*
  *	Profile support for /usr/bin/pfexec
@@ -150,5 +150,12 @@ pfexec(path, name, in, out, err, av, env)
 	}
 }
 
+#else	/* EXECATTR_FILENAME */
 
+EXPORT	void	pfinit		__PR((void));
+
+EXPORT void
+pfinit()
+{
+}
 #endif	/* EXECATTR_FILENAME */

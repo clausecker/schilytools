@@ -1,4 +1,4 @@
-#ident "@(#)libscg_p.mk	1.4 08/01/11 "
+#ident "@(#)libscg_p.mk	1.5 08/08/01 "
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -11,7 +11,7 @@ SUBINSDIR=	/profiled
 #VPATH=		.:stdio:$(ARCHDIR)
 INSDIR=		lib
 TARGETLIB=	scg
-#CPPOPTS +=	-Ispecincl
+CPPOPTS +=	-I.
 CPPOPTS +=	-DUSE_PG
 CPPOPTS +=	-DSCHILY_PRINT
 COPTS +=	$(COPTGPROF)

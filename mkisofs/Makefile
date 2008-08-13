@@ -1,4 +1,4 @@
-#ident @(#)Makefile	1.33 08/04/06 
+#ident @(#)Makefile	1.35 08/08/01 
 ###########################################################################
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 2
@@ -32,7 +32,8 @@ CPPOPTS +=	-DAPPLE_HYB
 CPPOPTS +=	-DUDF
 CPPOPTS +=	-DDVD_VIDEO
 CPPOPTS +=	-DSORTING
-CPPOPTS +=	-I../libhfs_iso/
+CPPOPTS +=	-I../libscg
+CPPOPTS +=	-I../libhfs_iso
 CPPOPTS	+=	-DUSE_SCG \
 		'-DAPPID_DEFAULT="MKISOFS ISO 9660/HFS FILESYSTEM BUILDER & CDRECORD CD-R/DVD CREATOR (C) 1993 E.YOUNGDALE (C) 1997 J.PEARSON/J.SCHILLING"' \
 		-I../cdrecord
@@ -61,6 +62,10 @@ LIBS=		-lhfs -lfile -lsiconv -lrscg -lscg $(LIB_VOLMGT) -ldeflt \
 		$(LIB_ICONV) $(LIB_INTL)
 
 XMK_FILE=	Makefile.man hybridman.mk Makefile.doc
+
+scsi_cdr.c:
+	@echo "	==> MAKING SYMLINKS in ." && sh ./MKLINKS
+all: scsi_cdr.c
 
 ###########################################################################
 include		$(SRCROOT)/$(RULESDIR)/rules.cmd

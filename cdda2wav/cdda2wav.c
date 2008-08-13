@@ -1,7 +1,7 @@
-/* %Z%%M%	%I% %E% Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2008 J. Schilling */
+/* @(#)cdda2wav.c	1.89 08/08/11 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2008 J. Schilling */
 #ifndef lint
 static char	sccsid[] =
-"%Z%%M%	%I% %E% Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2008 J. Schilling";
+"@(#)cdda2wav.c	1.89 08/08/11 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2008 J. Schilling";
 
 #endif
 #undef	DEBUG_BUFFER_ADDRESSES
@@ -190,9 +190,6 @@ global_t	global;
  * static variables
  */
 static unsigned long	nSamplesDone = 0;
-
-static	int		child_pid = -2;
-
 static unsigned long	*nSamplesToDo;
 static unsigned int	current_track;
 static int		bulk = 0;
@@ -490,7 +487,7 @@ CloseAll()
 	/*
 	 * terminate child process first
 	 */
-	amiparent = child_pid > 0;
+	amiparent = global.child_pid > 0;
 
 	if (global.iloop > 0) {
 		/* set to zero */
@@ -508,7 +505,7 @@ CloseAll()
 #endif
 #endif
 
-	if (amiparent || child_pid < 0) {
+	if (amiparent || global.child_pid < 0) {
 		/* switch to original mode and close device */
 		EnableCdda(get_scsi_p(), 0, 0);
 	}
@@ -555,6 +552,7 @@ CloseAll()
 #ifdef DEBUG_CLEANUP
 		fprintf(stderr, "Parent wait for child death, \n");
 #endif
+		semdestroy();
 
 		/* wait for child to terminate */
 		if (0 > wait(&chld_return_status)) {
@@ -649,8 +647,8 @@ FatalError(err, szMessage, va_alist)
 
 	va_end(marker);
 
-	if (child_pid >= 0) {
-		if (child_pid == 0) {
+	if (global.child_pid >= 0) {
+		if (global.child_pid == 0) {
 			pid_t	ppid;
 			/*
 			 * Kill the parent too if we are not orphaned.
@@ -659,7 +657,7 @@ FatalError(err, szMessage, va_alist)
 			if (ppid > 1)
 				kill(ppid, SIGINT);
 		} else {
-			kill(child_pid, SIGINT);
+			kill(global.child_pid, SIGINT);
 		}
 	}
 	exit(1);
@@ -892,6 +890,7 @@ init_globals()
 	strncpy(global.fname_base, FILENAME,
 		sizeof (global.fname_base)); /* auxiliary cdrom device */
 	global.have_forked = 0;		/* state variable for clean up */
+	global.child_pid = -2;		/* state variable for clean up */
 	global.parent_died = 0;		/* state variable for clean up */
 	global.audio    = -1;		/* audio file desc */
 	global.cooked_fd  = -1;		/* cdrom file desc */
@@ -1211,11 +1210,11 @@ exit_wrapper(status)
 {
 #if defined DEBUG_CLEANUP
 	fprintf(stderr, "Exit(%d) for %s\n",
-			status, child_pid == 0 ? "Child" : "Parent");
+			status, global.child_pid == 0 ? "Child" : "Parent");
 	fflush(stderr);
 #endif
 
-	if (child_pid != 0) {
+	if (global.child_pid != 0) {
 		SCSI *scgp = get_scsi_p();
 		if (scgp->running) {
 			scgp->cb_fun = on_exitscsi;
@@ -1239,9 +1238,9 @@ set_nonforked(status)
 	global.parent_died = 1;
 #if defined DEBUG_CLEANUP
 	fprintf(stderr, "SIGPIPE received from %s\n.",
-			child_pid == 0 ? "Child" : "Parent");
+			global.child_pid == 0 ? "Child" : "Parent");
 #endif
-	if (child_pid == 0) {
+	if (global.child_pid == 0) {
 		pid_t	ppid;
 		/*
 		 * Kill the parent too if we are not orphaned.
@@ -1250,7 +1249,7 @@ set_nonforked(status)
 		if (ppid > 1)
 			kill(ppid, SIGINT);
 	} else {
-		kill(child_pid, SIGINT);
+		kill(global.child_pid, SIGINT);
 	}
 	exit(SIGPIPE_ERROR);
 }
@@ -3462,13 +3461,13 @@ Rate   Divider      Rate   Divider      Rate   Divider      Rate   Divider\n\
 
 	/* forking */
 	if (!global.no_fork)
-		child_pid = fork();
+		global.child_pid = fork();
 
-	if (child_pid > 0 && global.gui > 0 && global.verbose > 0)
-		fprintf(stderr, "child pid is %d\n", child_pid);
+	if (global.child_pid > 0 && global.gui > 0 && global.verbose > 0)
+		fprintf(stderr, "child pid is %d\n", global.child_pid);
 
 	/* ********************** fork ************************************* */
-	if (child_pid == 0) {
+	if (global.child_pid == 0) {
 		/* child WRITER section */
 
 #ifdef	HAVE_AREAS
@@ -3532,7 +3531,7 @@ Rate   Divider      Rate   Divider      Rate   Divider      Rate   Divider\n\
 #endif
 		exit_wrapper(NO_ERROR);
 		/* NOTREACHED */
-	} else if (child_pid > 0) {
+	} else if (global.child_pid > 0) {
 		/* parent READER section */
 
 		global.have_forked = 1;
@@ -3555,7 +3554,7 @@ Rate   Divider      Rate   Divider      Rate   Divider      Rate   Divider\n\
 		exit_wrapper(NO_ERROR);
 		/* NOTREACHED */
 	} else {
-		if (child_pid != -2)
+		if (global.child_pid != -2)
 			errmsg("Cannot fork.\n");
 	}
 

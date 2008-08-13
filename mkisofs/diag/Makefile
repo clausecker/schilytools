@@ -1,4 +1,4 @@
-#ident "@(#)Makefile	1.6 01/04/03 "
+#ident "@(#)Makefile	1.7 08/07/31 "
 ###########################################################################
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 2
@@ -20,6 +20,10 @@ include		$(SRCROOT)/$(RULESDIR)/rules.top
 
 MK_FILES=	dump.mk isodump.mk isoinfo.mk isovfy.mk isodebug.mk
 #XMK_FILE=	Makefile.man
+
+scsi.c scsi_cdr.c:
+	@echo "	==> MAKING SYMLINKS in ." && sh ./MKLINKS
+all: scsi.c scsi_cdr.c
 
 ###########################################################################
 include		$(SRCROOT)/$(RULESDIR)/rules.mks

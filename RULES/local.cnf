@@ -1,4 +1,4 @@
-#ident @(#)local.cnf	1.7 07/06/05 
+#ident @(#)local.cnf	1.9 08/08/01 
 ###########################################################################
 # Written 1998 by J. Schilling
 ###########################################################################
@@ -19,13 +19,17 @@
 # file and include the License file CDDL.Schily.txt from this distribution.
 ###########################################################################
 
+configure: autoconf.m4 acgeneral.m4 acspecific.m4 acoldnames.m4 aclocal.m4 \
+						local.cnf.in lconfig.h.in
+	@echo "	==> AUTOCONFIGURING LOCAL \"$@\""; sh ./autoconf
+
 #config: $(ARCHDIR)/local.cnf
 
 $(ARCHDIR)/Inull:
 	$(MKDIR) -p $(ARCHDIR)
 	@echo > $@
 
-$(ARCHDIR)/local.cnf $(ARCHDIR)/lconfig.h: $(ARCHDIR)/Inull \
+$(ARCHDIR)/local.cnf $(ARCHDIR)/lconfig.h: $(LCONFIG_DEP) $(ARCHDIR)/Inull \
 						configure local.cnf.in lconfig.h.in
 	$(RUL_LCONF)
 

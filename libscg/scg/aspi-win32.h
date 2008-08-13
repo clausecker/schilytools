@@ -1,3 +1,5 @@
+/* @(#)aspi-win32.h	1.2 08/08/03 1999-2008 J. Schilling */
+
 #ifndef __ASPI_WIN32_H_
 #define __ASPI_WIN32_H_
 

@@ -1,7 +1,7 @@
-/* @(#)udf.c	1.30 07/07/30 Copyright 2001-2007 J. Schilling */
+/* @(#)udf.c	1.31 08/08/13 Copyright 2001-2007 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)udf.c	1.30 07/07/30 Copyright 2001-2007 J. Schilling";
+	"@(#)udf.c	1.31 08/08/13 Copyright 2001-2007 J. Schilling";
 #endif
 /*
  * udf.c - UDF support for mkisofs
@@ -842,7 +842,7 @@ set_file_ident_desc(buf, rba, name, is_directory, file_entry_rba, unique_id)
 	set16(&fid->length_of_impl_use, 0);
 	if (name) {
 		length_of_file_ident =
-			set_ostaunicode((Uchar *)fid->file_ident, 512, name);
+			set_ostaunicode((Uchar *)fid->file_ident, 256, name);
 	} else {
 		length_of_file_ident = 0;
 	}
