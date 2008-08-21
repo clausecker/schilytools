@@ -25,11 +25,11 @@
 /*
  * This file contains modifications Copyright 2006-2008 J. Schilling
  *
- * @(#)sccs.c	1.15 08/06/14 J. Schilling
+ * @(#)sccs.c	1.16 08/08/20 J. Schilling
  */
 #if defined(sun) || defined(__GNUC__)
 
-#ident "@(#)sccs.c 1.15 08/06/14 J. Schilling"
+#ident "@(#)sccs.c 1.16 08/08/20 J. Schilling"
 #endif
 /*
  * @(#)sccs.c 1.85 06/12/12
@@ -58,6 +58,11 @@ extern char *getenv();
 #endif
 # include	<schily/varargs.h>
 # include	<schily/wait.h>
+#define	error		__js_error__	/* SCCS error differs from schily.h */
+#define	comgetline	__no_comgetl__
+# include	<schily/schily.h>
+#undef	error
+#undef	comgetline
 # include	<pwd.h>
 
 #ifdef	NEED_O_BINARY
@@ -250,6 +255,7 @@ struct list_files
 int main __PR((int argc, char **argv));
 static char *getNsid __PR((char *file, char *user));
 static int command __PR((char **argv, bool forkflag, char *arg0));
+static void get_sccscomment __PR((void));
 static void get_list_files __PR((struct list_files *listfilesp, char *filename, bool no_sdot));
 static struct sccsprog *lookup __PR((char *name));
 static int callprog __PR((char *progpath, int flags, char **argv, bool forkflag));
@@ -258,6 +264,7 @@ static bool isdir __PR((char *name));
 static bool isfile __PR((char *name));
 static bool safepath __PR((register char *p));
 static int clean __PR((int mode, char **argv));
+static void nothingedited __PR((bool nobranch, const char *usernm));
 static bool isbranch __PR((char *sid));
 static void unedit __PR((char *fn));
 static char *tail __PR((register char *fn));
@@ -273,7 +280,9 @@ static char *gstrcpy __PR((char *to, const char *from, unsigned int xlength));
 static void gstrbotch __PR((const char *str1, const char *str2));
 static void diffs __PR((char *file));
 static char *makegfile __PR((char *name));
-
+#ifdef	USE_RECURSIVE
+static int dorecurse __PR((char **argv, char **np, char *dir, struct sccsprog *cmd));
+#endif
 
 /* values for sccsoper */
 # define PROG		0	/* call a program */
@@ -290,6 +299,8 @@ static char *makegfile __PR((char *name));
 /* bits for sccsflags */
 # define NO_SDOT	0001	/* no s. on front of args */
 # define REALUSER	0002	/* protected (e.g., admin) */
+# define RF_OK		0004	/* -R allowed with this command */
+# define PDOT	 	0010	/* process based on on p. files */
 
 /* modes for the "clean", "info", "check" ops */
 # define CLEANC		0	/* clean command */
@@ -311,13 +322,13 @@ static struct sccsprog SccsProg[] =
 	"admin",	PROG,	REALUSER,		PROGPATH(admin),
 	"cdc",		PROG,	0,			PROGPATH(rmdel),
 	"comb",		PROG,	0,			PROGPATH(comb),
-	"delta",	PROG,	0,			PROGPATH(delta),
-	"get",		PROG,	0,			PROGPATH(get),
+	"delta",	PROG,	RF_OK|PDOT,		PROGPATH(delta),
+	"get",		PROG,	RF_OK,			PROGPATH(get),
 	"help",		PROG,	NO_SDOT,		PROGPATH(help),
-	"prs",		PROG,	0,			PROGPATH(prs),
-	"prt",		PROG,	0,			PROGPATH(prt),
+	"prs",		PROG,	RF_OK,			PROGPATH(prs),
+	"prt",		PROG,	RF_OK,			PROGPATH(prt),
 	"rmdel",	PROG,	REALUSER,		PROGPATH(rmdel),
- 	"sact",		PROG,	0,			PROGPATH(sact),
+ 	"sact",		PROG,	RF_OK,			PROGPATH(sact),
 	"val",		PROG,	0,			PROGPATH(val),
 	"what",		PROG,	NO_SDOT,		PROGPATH(what),
 #ifndef V6	
@@ -325,22 +336,22 @@ static struct sccsprog SccsProg[] =
 #else
 	"sccsdiff",	SHELL,	REALUSER,		PROGPATH(sccsdiff),
 #endif /* V6 */
-	"edit",		CMACRO,	NO_SDOT,		"get -e",
-	"delget",	CMACRO,	NO_SDOT,
+	"edit",		CMACRO,	RF_OK|NO_SDOT,		"get -e",
+	"delget",	CMACRO,	RF_OK|NO_SDOT|PDOT,
 	   "delta:mysrpd/get:ixbeskcl -t",
-	"deledit",	CMACRO,	NO_SDOT,
+	"deledit",	CMACRO,	RF_OK|NO_SDOT|PDOT,
 	   "delta:mysrpd/get:ixbskcl -e -t -d",
 	"fix",		FIX,	NO_SDOT,		NULL,
-	"clean",	CLEAN,	REALUSER|NO_SDOT,	(char *) CLEANC,
-	"info",		CLEAN,	REALUSER|NO_SDOT,	(char *) INFOC,
-	"check",	CLEAN,	REALUSER|NO_SDOT,	(char *) CHECKC,
-	"tell",		CLEAN,	REALUSER|NO_SDOT,	(char *) TELLC,
-	"unedit",	UNEDIT,	NO_SDOT,		NULL,
-	"unget",	PROG,	0,			PROGPATH(unget),
-	"diffs",	DIFFS,	NO_SDOT|REALUSER,	NULL,
+	"clean",	CLEAN,	RF_OK|REALUSER|NO_SDOT,	(char *) CLEANC,
+	"info",		CLEAN,	RF_OK|REALUSER|NO_SDOT,	(char *) INFOC,
+	"check",	CLEAN,	RF_OK|REALUSER|NO_SDOT,	(char *) CHECKC,
+	"tell",		CLEAN,	RF_OK|REALUSER|NO_SDOT,	(char *) TELLC,
+	"unedit",	UNEDIT,	RF_OK|NO_SDOT|PDOT,	NULL,
+	"unget",	PROG,	RF_OK|PDOT,		PROGPATH(unget),
+	"diffs",	DIFFS,	RF_OK|NO_SDOT|PDOT|REALUSER,	NULL,
 	"-diff",	PROG,	NO_SDOT|REALUSER,	"diff",
-	"print",	CMACRO,	NO_SDOT,			"prs -e/get -p -m -s",
-	"branch",	CMACRO,	NO_SDOT,
+	"print",	CMACRO,	RF_OK|NO_SDOT,		"prs -e/get -p -m -s",
+	"branch",	CMACRO,	RF_OK|NO_SDOT,
 	   "get:ixrc -e -b/delta: -s -n -ybranch-place-holder/get:pl -e -t -g",
 	"enter",	ENTER,	NO_SDOT,		NULL,
 	"create",	CMACRO,	NO_SDOT,
@@ -359,7 +370,7 @@ struct p_file
 	char	*p_aux;		/* extra info at end */
 };
 
-static char	*SccsPath = SCCSPATH;	/* pathname of SCCS files */
+static char	*SccsPath = SCCSPATH;	/* pathname of SCCS files ("SCCS") */
 # ifdef SCCSDIR
 static char	*SccsDir = SCCSDIR;	/* directory to begin search from */
 # else
@@ -406,6 +417,14 @@ extern	int Fcnt;
 static int create_macro  = 0;	/* 1 if "sccs create ..."  command is running. */
 static int del_macro     = 0;	/* 1 if "sccs deledit ..." or "sccs delget ..." commands are running. */
 
+static int Rflag	 = 0;	/* -R recursive operation selected */
+static char *Cwd;		/* -C parameter for delta/get	   */
+static int Cwdlen;		/* Allocation length for Cwd	   */
+
+static bool Tgotedit;
+static bool Tnobranch;
+static char *Tusernm;
+
 #define	FBUFSIZ	BUFSIZ
 #define	PFILELG	120
 
@@ -423,6 +442,7 @@ main(argc, argv)
 # ifndef SCCSDIR
 	register struct passwd *pw;
 	char buf[FBUFSIZ], cwdpath[FBUFSIZ];
+# endif
 
 	/*
 	 * Set locale for all categories.
@@ -442,8 +462,13 @@ main(argc, argv)
  	
  	textdomain(NOGETTEXT("SUNW_SPRO_SCCS"));
 
+#ifdef	SCHILY_BUILD
+	save_args(argc, argv);
+#endif
+
 	Fflags = FTLEXIT | FTLMSG | FTLCLN;
 
+# ifndef SCCSDIR
 	/* Pull "SccsDir" out of the environment variable         */
 	/*                                                        */
 	/* PROJECTDIR                                             */
@@ -545,7 +570,7 @@ main(argc, argv)
 			   }
 			   i = current_optind;
 			}
-		        c = getopt(argc, argv, "-rp:d:TV(version)");
+			c = getopt(argc, argv, "-rp:d:RTV(version)");
 			if (c == EOF) {
 			   break;
 			}
@@ -573,6 +598,12 @@ main(argc, argv)
 				break;
 # endif
 
+#ifdef	USE_RECURSIVE
+			  case 'R':		/* recursion */
+				Rflag++;
+				break;
+#endif
+
 			  case 'V':		/* version */
 				printf("sccs %s-SCCS version %s (%s-%s-%s)\n",
 					PROVIDER,
@@ -582,7 +613,11 @@ main(argc, argv)
 
 			  default:
 				usrerr("%s %s", gettext("unknown option"), argv[i]);
+#ifdef	USE_RECURSIVE
+				fprintf(stderr, gettext("Usage: sccs [ -R ][ -r ][ -drootprefix ][ -p subdir ]\n\t subcommand [ option ...] [ filename ...]\n"));
+#else
 				fprintf(stderr, gettext("Usage: sccs [ -r ][ -drootprefix ][ -p subdir ]\n\t subcommand [ option ...] [ filename ...]\n"));
+#endif
 				exit(EX_USAGE);
 			}
 	}
@@ -590,10 +625,16 @@ main(argc, argv)
 	if (SccsPath[0] == '\0')
 	   SccsPath = ".";
 	}
+	if (SccsDir == NULL)	/* Paranoia */
+		SccsDir = "";
 
 	if (*argv == NULL)
 	{
+#ifdef	USE_RECURSIVE
+		fprintf(stderr, gettext("Usage: sccs [ -R ][ -r ][ -drootprefix ][ -p subdir ]\n\t subcommand [ option ...] [ filename ...]\n"));
+#else
 		fprintf(stderr, gettext("Usage: sccs [ -r ][ -drootprefix ][ -p subdir ]\n\t subcommand [ option ...] [ filename ...]\n"));
+#endif
 		exit(EX_USAGE);
 		/*NOTREACHED*/
 	}
@@ -730,11 +771,14 @@ command(argv, forkflag, arg0)
 			while (*++p != '\0' && *p != '/' && *p != ' ') ;
 		}
 	}
-	/* added three elements for: */
+	/* added six elements for:   */
 	/* - command;		     */
 	/* - additional DIFFS param; */
+	/* - -ycoment;		     */
+	/* - -Cworkdir; 	     */
+	/* - -R spare dir element;   */
 	/* - last element (NULL).    */
-	for (nav_size += 3, ap = argv; *ap != NULL; ap++) {
+	for (nav_size += 6, ap = argv; *ap != NULL; ap++) {
 		nav_size++;
 	}
 	if ((nav = malloc(nav_size * (sizeof(char *)))) == NULL) {
@@ -783,6 +827,12 @@ command(argv, forkflag, arg0)
 		usrerr("%s \"%s\"", gettext("Unknown command"), *ap);
 		return (EX_USAGE);
 	}
+#ifdef	USE_RECURSIVE
+	if (Rflag > 0 && !bitset(RF_OK, cmd->sccsflags)) {
+		usrerr("%s \"%s\"", gettext("Recursion not supported for"), *ap);
+		return (EX_USAGE);
+	}
+#endif
 	if (maincmd == NULL)
 	   maincmd = cmd;
 	no_sdot = bitset(NO_SDOT, cmd->sccsflags);
@@ -1126,6 +1176,43 @@ command(argv, forkflag, arg0)
 		nav = new_nav;
 		ap  = &new_nav[1]; 
 	}
+#ifdef	USE_RECURSIVE
+	if (Rflag > 0) {
+		np[0] = NULL;
+		if (!hady &&
+		    (!strcmp(cmd->sccsname, "delta") ||
+		    !strcmp(cmd->sccsname, "deledit") ||
+		    !strcmp(cmd->sccsname, "delget"))) {
+			if (Comments == NULL)
+				get_sccscomment();
+			*np++ = Comments;
+			hady = 1;
+		}
+		np[1] = NULL;
+
+		listfilesp = head_files.next;
+		if (listfilesp == NULL)
+			rval |= dorecurse(ap, np, ".", cmd);
+		else while (listfilesp != NULL) {
+			if (cmd->sccsoper == CLEAN && listfilesp->next) {
+				usrerr(gettext("too many args"));
+				return (EX_USAGE);
+			}
+			rval |= dorecurse(ap, np, listfilesp->filename, cmd);
+			listfilesp = listfilesp->next;
+		}
+		if (cmd->sccsoper == CLEAN && (int)cmd->sccspath == INFOC &&
+		    !Tgotedit) {
+			nothingedited(Tnobranch, Tusernm);
+		}
+		return (rval);
+	}
+	if (Cwd && Cwd[2] && cmd->sccsoper == PROG &&
+	    (!strcmp(cmd->sccsname, "get") ||
+	    !strcmp(cmd->sccsname, "delta"))) {
+		*np++ = Cwd;
+	}
+#endif
 	nfiles = 0;
 	listfilesp = head_files.next;
 	while (listfilesp != 0) {
@@ -1246,7 +1333,6 @@ command(argv, forkflag, arg0)
 
 		/* step through & execute each part of the macro */
 		ap_for_get = NULL;
-		Comments   = NULL;
 		if (!strcmp(cmd->sccsname, "create")) {
 			create_macro = 1;
 		} else {
@@ -1291,7 +1377,7 @@ command(argv, forkflag, arg0)
 			while (*p != '\0' && *p != '/')
 				p++;
 			if (*p == '\0') {
-				if (nfiles == 1) {
+				if (nfiles == 1 && !Rflag) {
 					forkflag = FALSE;
 				}
 				p--;  	/* In case command() returns */
@@ -1319,20 +1405,9 @@ command(argv, forkflag, arg0)
 					if (!hady) {
 						if (!strcmp(cmd->sccsname, "deledit") ||
 						    !strcmp(cmd->sccsname, "delget")) {
-							char * ccp;
-
-							if (isatty(0) == 1)
-								printf(gettext("comments? "));
-							ccp = get_Sccs_Comments();
-							if ((Comments = malloc(strlen(ccp) + 3)) == NULL) {
-								perror(gettext("Sccs: no mem"));
-						 	     	exit(EX_OSERR);
-							}
-							strcpy(Comments, "-y"); 
-							strcat(Comments, ccp);
+							if (Comments == NULL)
+								get_sccscomment();
 							ap1[xsize - 3] = Comments;
-							if (ccp != NULL)
-								free(ccp);
 						}
 					}
 					next_file = ap  + cnt  - nfiles;
@@ -1368,8 +1443,9 @@ command(argv, forkflag, arg0)
 		if (ap_for_get != NULL) {
 			free(ap_for_get);
 		}
-		if (Comments != NULL) {
+		if (Comments != NULL && !Rflag) {
 			free(Comments);
+			Comments = NULL;
 		}
 		break;
 		}
@@ -1634,6 +1710,25 @@ command(argv, forkflag, arg0)
 	free(nav);
 	fflush(stdout);
 	return (rval);
+}
+
+static void
+get_sccscomment()
+{
+	if (Comments == NULL) {
+		char * ccp;
+
+		if (isatty(0) == 1)
+			printf(gettext("comments? "));
+		ccp = get_Sccs_Comments();
+		if ((Comments = malloc(strlen(ccp) + 3)) == NULL) {
+			perror(gettext("Sccs: no mem"));
+			exit(EX_OSERR);
+		}
+		strcpy(Comments, "-y");
+		strcat(Comments, ccp);
+		free(ccp);
+	}
 }
 
 static void
@@ -2076,7 +2171,9 @@ clean(mode, argv)
 	struct dirent *dir;
 	char buf[MAXPATHLEN];
 	char namefile[MAXPATHLEN];
+	char basebuf[MAXPATHLEN];
 	char *bufend;
+	char *baseend;
 	register DIR *dir_fd;
 	register char *basefile;
 	bool gotedit;
@@ -2110,6 +2207,8 @@ clean(mode, argv)
 			  case 'u':
 				if ((*ap)[2] != '\0')
 					usernm = &(*ap)[2];
+				else if (Rflag && (ap[1] == NULL || ap[2] == NULL))
+					usernm = logname();
 				else if (ap[1] != NULL && ap[1][0] != '-')
 					usernm = *++ap;
 				else
@@ -2137,12 +2236,23 @@ clean(mode, argv)
 	if (buf[0] != '\0')
 		gstrcat(buf, "/", sizeof(buf));
 	if (subdir != NULL)
-	{
 		gstrcat(buf, subdir, sizeof(buf));
-		gstrcat(buf, "/", sizeof(buf));
+	bufend = &buf[strlen(buf)-1];
+	while (bufend > buf && *bufend == '/')
+		*bufend-- = '\0';
+	if ((bufend = strstr(buf, SccsPath)) == NULL ||
+	    bufend[strlen(SccsPath)] != '\0') {
+		if (subdir != NULL)
+			gstrcat(buf, "/", sizeof(buf));
+		gstrcat(buf, SccsPath, sizeof(buf));
 	}
-	gstrcat(buf, SccsPath, sizeof(buf));
 	bufend = &buf[strlen(buf)];
+	basebuf[0] = '\0';
+	baseend = basebuf;
+	if (Rflag) {
+		gstrncat(basebuf, buf, bufend - buf - strlen(SccsPath), sizeof(basebuf));
+		baseend = &basebuf[strlen(basebuf)];
+	}
 
 	dir_fd = opendir(buf);
 	if (dir_fd == NULL)
@@ -2172,9 +2282,10 @@ clean(mode, argv)
 		}
 		
 		/* got an s. file -- see if the p. file exists */
-		gstrcpy(bufend, NOGETTEXT("/p."), sizeof(buf));
+		gstrcpy(bufend, NOGETTEXT("/p."), sizeof(buf) - (bufend - buf));
 		basefile = bufend + 3;
-		gstrcpy(basefile, &dir->d_name[2], sizeof(buf));
+		gstrcpy(basefile, &dir->d_name[2], sizeof(buf) - (basefile - buf));
+		gstrcpy(baseend, &dir->d_name[2], sizeof(basebuf) - (baseend - basebuf));
 
 		/*
 		**  open and scan the p-file.
@@ -2199,11 +2310,11 @@ clean(mode, argv)
 				gotpfent = TRUE;
 				if (mode == TELLC)
 				{
-					printf("%s\n", basefile);
+					printf("%s\n", Rflag ? basebuf : basefile);
 					break;
 				}
 				if (checkpfent(pf)) {
-					printf(gettext("%12s: being edited: "), basefile);
+					printf(gettext("%12s: being edited: "), Rflag ? basebuf : basefile);
 					putpfent(pf, stdout);
 				} else {
 					fatal(gettext("bad p-file format (co17)"));
@@ -2214,18 +2325,15 @@ clean(mode, argv)
 		
 		/* the s. file exists and no p. file exists -- unlink the g-file */
 		if (mode == CLEANC && !gotpfent) {
-		   char	unlinkbuf[FBUFSIZ];
-		   
-		   gstrcpy(unlinkbuf, &dir->d_name[2], sizeof(unlinkbuf));
-		   if (exists(unlinkbuf) != 0) {
+		   if (exists(basebuf) != 0) {
 		      if (((Statbuf.st_mode & (S_IWUSR|S_IWGRP|S_IWOTH)) == 0)||
 		          (edited != 0)) {
-			 unlink(unlinkbuf);
+			 unlink(basebuf);
 		      } else {
 		  	 ex_status = 1;
 			 fprintf(stderr, 
 			   gettext("ERROR [%s]: the file `%s' is writable\n"),
-			   namefile, basefile);
+			   namefile, Rflag ? basebuf : basefile);
 		      }
 		   }
 		}
@@ -2233,30 +2341,40 @@ clean(mode, argv)
 
 	/* cleanup & report results */
 	closedir(dir_fd);
-	if (!gotedit && mode == INFOC)
-	{
-		printf(gettext("Nothing being edited"));
-		if (nobranch)
-/*
-TRANSLATION_NOTE
-The following message is a possible continuation of the text
-"Nothing being edited" ...
-*/
-			printf(gettext(" (on trunk)"));
-		if (usernm == NULL)
-			printf("\n");
-		else
-/*
-TRANSLATION_NOTE
-The following message is a possible continuation of the text
-"Nothing being edited" ...
-*/
-			printf(gettext(" by %s\n"), usernm);
-	}
+	if (!Rflag && !gotedit && mode == INFOC)
+		nothingedited(nobranch, usernm);
+	Tgotedit  |= gotedit;
+	Tnobranch |= nobranch;
+	Tusernm    = usernm;
+
 	if (mode == CHECKC)
 		return (gotedit);
 	else
 		return (ex_status);
+}
+
+static void
+nothingedited(nobranch, usernm)
+	bool		nobranch;
+	const char	*usernm;
+{
+	printf(gettext("Nothing being edited"));
+	if (nobranch)
+/*
+TRANSLATION_NOTE
+The following message is a possible continuation of the text
+"Nothing being edited" ...
+*/
+		printf(gettext(" (on trunk)"));
+	if (usernm == NULL)
+		printf("\n");
+	else
+/*
+TRANSLATION_NOTE
+The following message is a possible continuation of the text
+"Nothing being edited" ...
+*/
+		printf(gettext(" by %s\n"), usernm);
 }
 
 /*
@@ -2316,6 +2434,7 @@ unedit(fn)
 {
 	register FILE *pfp;
 	char *gfile, *pfn;
+	char *Gfile = NULL;
 #ifdef	PROTOTYPES
 	char   template[] = NOGETTEXT("/tmp/sccsXXXXX");
 #else
@@ -2343,6 +2462,15 @@ unedit(fn)
 		return;
 	}
 	gfile = auxf(pfn, 'g');
+	if (Cwd && Cwd[2]) {
+		Gfile = malloc(strlen(&Cwd[2] + strlen(gfile) + 1));
+		if (Gfile == NULL) {
+			perror(gettext("Sccs: no mem"));
+			exit(EX_OSERR);
+		}
+		cat(Gfile, &Cwd[2], gfile, (char *)0);
+		gfile = Gfile;
+	}
 	q = strrchr(pfn, '/');
 	if (q == NULL)
 		q = &pfn[-1];
@@ -2355,6 +2483,10 @@ unedit(fn)
 	{
 		printf(gettext("%12s: not being edited\n"),
 		       gfile);
+		if (pfn == fn)
+			free(pfn);
+		if (Gfile)
+			free(Gfile);
 		return;
 	}
 
@@ -2393,6 +2525,10 @@ unedit(fn)
 				fclose(tfp);
 				fclose(pfp);
 				unlink(tfn);
+				if (pfn == fn)
+					free(pfn);
+				if (Gfile)
+					free(Gfile);
 				return;
 			}
 		}
@@ -2430,6 +2566,10 @@ unedit(fn)
 				fclose(tfp);
 				fclose(pfp);
 				unlink(tfn);
+				if (pfn == fn)
+					free(pfn);
+				if (Gfile)
+					free(Gfile);
 				return;
 			}
 	}
@@ -2445,6 +2585,10 @@ unedit(fn)
 		if (freopen(pfn, "wb", pfp) == NULL)
 		{
 			usrerr(gettext("cannot create \"%s\""), pfn);
+			if (pfn == fn)
+				free(pfn);
+			if (Gfile)
+				free(Gfile);
 			return;
 		}
 		while (fgets(buf, sizeof buf, tfp) != NULL) {
@@ -2477,13 +2621,15 @@ unedit(fn)
 		if (unlink(gfile) >= 0)
 			printf(gettext("%12s: removed\n"), gfile);
 		Fcnt = 0;
-		return;
 	}
 	else
 	{
 		printf(gettext("%12s: not being edited by you\n"), gfile);
-		return;
 	}
+	if (pfn == fn)
+		free(pfn);
+	if (Gfile)
+		free(Gfile);
 }
 
 /*
@@ -2778,7 +2924,7 @@ char *file;
 	*p = 'p';
 	
 	Fcnt  = 0;
-	printf("\n------- %s -------\n", tail(gfile));
+	printf("\n------- %s -------\n", Rflag ? gfile : tail(gfile));
 	fflush(stdout);
 	if (isfile(pfile)) {
 		getcmd = NOGETTEXT("get:Grcixt -s -k");
@@ -2887,3 +3033,256 @@ void
 clean_up()
 {
 }
+
+
+#ifdef	USE_RECURSIVE
+
+#include <schily/walk.h>
+#include <schily/find.h>
+#include <schily/getcwd.h>
+
+/*
+ * Structure used to transfer date from dorecurse() into walkfun().
+ */
+struct wargs {
+	int	rval;		/* Return value for dorecurse()	*/
+	int	sccslen;	/* strlen(SccsPath)		*/
+	short	sccsflags;	/* sccsflags for current cmd	*/
+	char	**argv;		/* Current arg vector		*/
+	char	**np;		/* Where to insert path name	*/
+};
+
+LOCAL int walkfunc	__PR((char *_nm, struct stat *_fs, int _type, struct WALK *_state));
+
+LOCAL int
+walkfunc(nm, fs, type, state)
+	char		*nm;
+	struct stat	*fs;
+	int		type;
+	struct WALK	*state;
+{
+	if (type == WALK_NS) {
+		errmsg("Cannot stat '%s'.\n", nm);
+		state->err = 1;
+		return (0);
+	} else if (type == WALK_SLN && (state->walkflags & WALK_PHYS) == 0) {
+		errmsg("Cannot follow symlink '%s'.\n", nm);
+		state->err = 1;
+		return (0);
+	} else if (type == WALK_DNR) {
+		if (state->flags & WALK_WF_NOCHDIR)
+			errmsg("Cannot chdir to '%s'.\n", nm);
+		else
+			errmsg("Cannot read '%s'.\n", nm);
+		state->err = 1;
+		return (0);
+	}
+
+	if (state->tree == NULL ||
+	    find_expr(nm, nm + state->base, fs, state, state->tree)) {
+		struct wargs	*wp = state->auxp;
+		int		cwdlen;
+		/*
+		 * The chdir code is only needed as long as we do not have
+		 * a portable treewalk() that does not require itself
+		 * an internal chdir() to work correctly.
+		 */
+#ifdef	HAVE_FCHDIR
+		int f = open(".", O_RDONLY);
+
+		if (f < 0) {
+			errmsg("Cannot get working directory.\n");
+			state->flags |= WALK_WF_QUIT;
+			return (0);
+		}
+#else
+		char	cwd[MAXPATHLEN+1];
+
+		if (getcwd(cwd, MAXPATHLEN) == NULL) {
+			errmsg("Cannot get working directory.\n");
+			state->flags |= WALK_WF_QUIT;
+			return (0);
+		}
+#endif
+
+		if (bitset(PDOT, wp->sccsflags)) {
+			nm[state->base] = 's';
+			cwdlen = state->base - wp->sccslen - 1;
+		} else {
+			cwdlen = state->base;
+		}
+
+		if ((cwdlen + 3) < Cwdlen) {
+			Cwdlen = cwdlen + 64;
+			Cwd = realloc(Cwd, Cwdlen);
+			if (Cwd == NULL) {
+				perror(gettext("Sccs: no mem"));
+				exit(EX_OSERR);
+			}
+		}
+		strlcpy(&Cwd[2], nm, cwdlen+1);
+
+		if (walkhome(state) < 0) {
+			state->flags |= WALK_WF_QUIT;
+			return (0);
+		}
+
+		*wp->np = nm;
+		wp->rval |= command(wp->argv, TRUE, "");
+
+#ifdef	HAVE_FCHDIR
+		if (fchdir(f) < 0) {
+			errmsg("Cannot chdir back.\n");
+			state->flags |= WALK_WF_QUIT;
+			return (0);
+		}
+		close(f);
+#else
+		if (chdir(cwd) < 0) {
+			errmsg("Cannot chdir back.\n");
+			state->flags |= WALK_WF_QUIT;
+			return (0);
+		}
+#endif
+	}
+	return (0);
+}
+
+LOCAL int
+dorecurse(argv, np, dir, cmd)
+	char		**argv;
+	char		**np;
+	char		*dir;
+	struct sccsprog *cmd;
+{
+	int		ac;
+	char		*av[10];
+	char		*path = NULL;
+	char		*ppath = NULL;
+	char		*oSccsDir = SccsDir;
+	finda_t 	fa;
+	findn_t 	*find_node;
+	struct WALK	walkstate;
+	struct wargs	wa;
+	struct stat	sb;
+
+	if (Cwd == NULL) {
+		Cwdlen = 64;
+		Cwd = malloc(Cwdlen);
+		if (Cwd == NULL) {
+			perror(gettext("Sccs: no mem"));
+			exit(EX_OSERR);
+		}
+		strcpy(Cwd, "-C");
+	}
+	Cwd[2] = '\0';
+
+	if (SccsDir && SccsDir[0]) {
+		path = malloc(strlen(SccsDir) + strlen(dir) + 2);
+		if (path == NULL) {
+			perror(gettext("Sccs: no mem"));
+			exit(EX_OSERR);
+		}
+		cat(path, SccsDir, "/", dir, (char *)0);
+		SccsDir = "";
+	}
+
+	if (stat(dir, &sb) < 0 || !S_ISDIR(sb.st_mode)) {
+		char	*p = strrchr(dir, '/');
+		int	cwdlen;
+
+		cwdlen = p - dir;
+		if (p == NULL) {
+			strcpy(&Cwd[2], "./");
+			cwdlen = 1;
+		} else if (p == dir) {
+			strcpy(&Cwd[2], "/");
+		} else {
+			if ((cwdlen + 3) < Cwdlen) {
+				Cwdlen = cwdlen + 10;
+				Cwd = realloc(Cwd, Cwdlen);
+				if (Cwd == NULL) {
+					perror(gettext("Sccs: no mem"));
+					exit(EX_OSERR);
+				}
+			}
+			strlcpy(&Cwd[2], dir, cwdlen + 2);
+		}
+
+		*np = path ? path : dir;
+		Rflag = -1;
+		ac = command(argv, TRUE, "");
+		Rflag = 1;
+		SccsDir = oSccsDir;
+		return (ac);
+	}
+
+	ac = 0;
+	if (bitset(PDOT, cmd->sccsflags)) {
+		int	l = strlen(SccsPath) + 6; /* "* /" SccsPath "/p.*" */
+
+		ppath = malloc(l);
+		if (ppath == NULL) {
+			perror(gettext("Sccs: no mem"));
+			exit(EX_OSERR);
+		}
+		cat(ppath, "*/", SccsPath, "/p.*", (char *)NULL);
+		av[ac++] = "-type";
+		av[ac++] = "f";
+		av[ac++] = "-path";
+		av[ac++] = ppath;
+	} else {
+		av[ac++] = "-type";
+		av[ac++] = "d";
+		av[ac++] = "-name";
+		av[ac++] = SccsPath;
+	}
+	av[ac]	 = NULL;
+
+	find_argsinit(&fa);
+	fa.walkflags = WALK_CHDIR | WALK_PHYS | WALK_NOEXIT;
+	fa.Argc = ac;
+	fa.Argv = (char **)av;
+
+	find_node = find_parse(&fa);
+	if (fa.primtype == FIND_ERRARG || fa.primtype != FIND_ENDARGS) {
+		wa.rval = 1;
+		goto out;
+	}
+
+	walkinitstate(&walkstate);
+	find_timeinit(time(0));
+	walkstate.walkflags = fa.walkflags;
+	walkstate.tree	    = find_node;
+	wa.rval 	    = 0;
+	wa.sccslen	    = strlen(SccsPath);
+	wa.sccsflags	    = cmd->sccsflags;
+	wa.argv 	    = argv;
+	wa.np		    = np;
+	walkstate.auxp	    = &wa;
+	if (fa.patlen > 0) {
+		walkstate.patstate = malloc(sizeof (int) * fa.patlen);
+		if (walkstate.patstate == NULL) {
+			perror(gettext("Sccs: no mem"));
+			exit(EX_OSERR);
+		}
+	}
+
+	Rflag = -1;
+	treewalk(path ? path : dir, walkfunc, &walkstate);
+	Rflag = 1;
+
+	if (walkstate.patstate == NULL)
+		free(walkstate.patstate);
+out:
+	find_free(find_node, &fa);
+	if (path)
+		free(path);
+	if (ppath)
+		free(ppath);
+
+	SccsDir = oSccsDir;
+	return (wa.rval);
+}
+
+#endif	/* USE_RECURSIVE */

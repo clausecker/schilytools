@@ -1,4 +1,4 @@
-#ident %W% %E% %Q%
+#ident @(#)tartest.mk	1.7 08/08/15 
 ###########################################################################
 # Sample makefile for general application programs
 ###########################################################################
@@ -22,11 +22,3 @@ XMK_FILE=	tartestman.mk
 include		$(SRCROOT)/$(RULESDIR)/rules.cmd
 ###########################################################################
 
-IFDEF=	-UEVALVERS
-XRELFILES=	Makefile tartestman.mk tartest.1
-
-###########################################################################
-include		$(SRCROOT)/$(RULESDIR)/rules.rel
-###########################################################################
-
-MAKE_LICENSE=MKCDDL

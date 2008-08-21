@@ -1,5 +1,5 @@
 #!/bin/sh
-#ident "@(#)MAKE-sh	1.3 08/08/13 "
+#ident "%W% %E% %Q%"
 ###############################################################################
 #
 # The shell variables CFLAGS & LDFLAGS may be used to pass additional flags
@@ -40,12 +40,12 @@ if [ ! -r make.c ]; then
 	#
 	# Check if the current system allows to create symlinks
 	#
-	lnfiles=lnfiles
+	lnfiles="sh lnfiles"
 	rm -f xxzzy.123 xxzzy.345
 	echo test > xxzzy.123
 	ln -s xxzzy.123 xxzzy.345
-	test $? = 0 || lnfiles=cpfiles
-	test -r xxzzy.345 || lnfiles=cpfiles
+	test $? = 0 || lnfiles="sh cpfiles"
+	test -r xxzzy.345 || lnfiles="sh cpfiles"
 	rm -f xxzzy.123 xxzzy.345
 
 	echo "Creating links to source files..."

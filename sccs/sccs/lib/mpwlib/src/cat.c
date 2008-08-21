@@ -25,13 +25,13 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2007 J. Schilling
+ * This file contains modifications Copyright 2006-2008 J. Schilling
  *
- * @(#)cat.c	1.4 07/01/20 J. Schilling
+ * @(#)cat.c	1.5 08/08/20 J. Schilling
  */
 #if defined(sun) || defined(__GNUC__)
 
-#ident "@(#)cat.c 1.4 07/01/20 J. Schilling"
+#ident "@(#)cat.c 1.5 08/08/20 J. Schilling"
 #endif
 /*
  * @(#)cat.c 1.4 06/12/12
@@ -45,7 +45,7 @@
 /*
 	Concatenate strings.
  
-	cat(destination,source1,source2,...,sourcen,0);
+	cat(destination,source1,source2,...,sourcen, (char *)0);
 */
 
 /*VARARGS*/

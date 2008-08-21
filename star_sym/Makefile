@@ -1,4 +1,4 @@
-#ident %W% %E% %Q%
+#ident @(#)star_sym.mk	1.8 08/08/15 
 ###########################################################################
 # Sample makefile for general application programs
 ###########################################################################
@@ -28,12 +28,3 @@ all: restore.c dumpdate.c
 include		$(SRCROOT)/$(RULESDIR)/rules.cmd
 ###########################################################################
 
-IFDEF=	-UEVALVERS
-#XRELFILES=	Makefile tartestman.mk tartest.1
-XRELFILES=	Makefile MKLINKS star_sym.mk
-
-###########################################################################
-include		$(SRCROOT)/$(RULESDIR)/rules.rel
-###########################################################################
-
-MAKE_LICENSE=MKCDDL

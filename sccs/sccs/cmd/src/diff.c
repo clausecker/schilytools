@@ -39,11 +39,11 @@
 /*
  * This file contains modifications Copyright 2006-2008 J. Schilling
  *
- * @(#)diff.c	1.11 08/06/14 J. Schilling
+ * @(#)diff.c	1.12 08/08/20 J. Schilling
  */
 #if defined(sun) || defined(__GNUC__)
 
-#ident "@(#)diff.c 1.11 08/06/14 J. Schilling"
+#ident "@(#)diff.c 1.12 08/08/20 J. Schilling"
 #endif
 
 #pragma ident	"@(#)diff.c	1.55	05/07/22 SMI"
@@ -181,8 +181,19 @@
 #include <string.h>
 #include <sysexits.h>
 
+#ifndef	PROVIDER
 #define	PROVIDER	"Sun"
+#endif
+#ifndef	VERSION
 #define	VERSION		"1.x"
+#endif
+#ifndef	HOST_OS
+#define	HOST_OS		"SunOS"
+#endif
+
+#ifdef	USE_VERSION_H
+#include <version.h>
+#endif
 
 #ifdef	__sparc
 #define	HOST_CPU	"sparc"
@@ -198,7 +209,9 @@
 #ifndef	HOST_VENDOR
 #define	HOST_VENDOR	"unknown"
 #endif
-#define	HOST_OS		"SunOS"
+#ifndef	HOST_OS
+#define	HOST_OS		"unknown"
+#endif
 
 #define	PROTOTYPES
 #define	__PR(a)	a

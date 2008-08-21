@@ -27,11 +27,11 @@
 /*
  * This file contains modifications Copyright 2006-2008 J. Schilling
  *
- * @(#)rmchg.c	1.9 08/06/14 J. Schilling
+ * @(#)rmchg.c	1.10 08/08/20 J. Schilling
  */
 #if defined(sun) || defined(__GNUC__)
 
-#ident "@(#)rmchg.c 1.9 08/06/14 J. Schilling"
+#ident "@(#)rmchg.c 1.10 08/08/20 J. Schilling"
 #endif
 /*
  * @(#)rmchg.c 1.19 06/12/12
@@ -681,7 +681,7 @@ struct packet *pkt;
 					{
 						printf(gettext("%s is not editable now\n"),
 						       holdptr[j]);
-						 cat(outhold,outhold,holdptr[j],",",0);
+						 cat(outhold,outhold,holdptr[j],",", (char *)0);
 						 break;
 						}
 					else
@@ -695,7 +695,7 @@ struct packet *pkt;
 				}
 			 else
 				{
-				 cat(outhold,outhold,holdptr[j],",",0);
+				 cat(outhold,outhold,holdptr[j],",", (char *)0);
 				}
 			j++;
 			}
@@ -791,7 +791,7 @@ msg(app,name,cmrs,stats,sids,fred)
 	{
 		if(getcwd(path,sizeof(path)) == NULL)
                  	fatal(gettext("getcwd() failed (ge=20)"));
-		cat(pname,path,"/",name,0);
+		cat(pname,path,"/",name, (char *)0);
 	}
 	else
 	{
@@ -834,7 +834,7 @@ testfred(cmr,fredfile)
 		char *cmrh[2],*dcmrh[2];
 		cmrh[1] = (char *) NULL;
 		dcmrh[1] = (char *) NULL;
-		cat(dcmr,NOGETTEXT("D"),cmr,0);
+		cat(dcmr,NOGETTEXT("D"),cmr, (char *)0);
 		cmrh[0]=cmr;
 		dcmrh[0]=dcmr;
 		return(sweep(SEQVERIFY,fredfile,NULL,'\n',WHITE,80,cmrh,NULL,NULL,

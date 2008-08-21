@@ -1,4 +1,4 @@
-#ident %W% %E% %Q%
+#ident @(#)label.mk	1.4 08/08/15 
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -18,7 +18,8 @@ CPPOPTS +=	-DSCHILY_PRINT
 CFILES=		label.c makelabel.c io.c \
 		check_part.c
 
-HFILES=		fmt.h scsireg.h
+HFILES=		fmt.h
+HFILES_TAG=	scsireg.h
 
 LIBS=		-lschily
 
@@ -29,3 +30,6 @@ all: makelabel.c io.c check_part.c
 ###########################################################################
 include		$(SRCROOT)/$(RULESDIR)/rules.cmd
 ###########################################################################
+count: $(CFILES) $(HFILES)
+	count $r1
+

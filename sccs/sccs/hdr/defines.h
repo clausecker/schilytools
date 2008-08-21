@@ -25,13 +25,13 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2007 J. Schilling
+ * This file contains modifications Copyright 2006-2008 J. Schilling
  *
- * @(#)defines.h	1.11 08/02/26 J. Schilling
+ * @(#)defines.h	1.12 08/08/20 J. Schilling
  */
 #if defined(sun) || defined(__GNUC__)
 
-#ident "@(#)defines.h 1.11 08/02/26 J. Schilling"
+#ident "@(#)defines.h 1.12 08/08/20 J. Schilling"
 #endif
 /*
  * @(#)defines.h 1.21 06/12/12
@@ -423,7 +423,7 @@ extern	void	enter	__PR((struct packet *pkt, int ch, int n, struct sid *sidp));
 **	USXALLOC) are taken from macros.h 1.1
 */
 
-# define copy(srce,dest)	cat(dest,srce,0)
+# define copy(srce,dest)	cat(dest, srce, (char *)0)
 # define xfopen(file,mode)	fdfopen(xopen(file,mode),mode)
 # define xfcreat(file,mode)	fdfopen(xcreat(file,mode), O_WRONLY|O_BINARY)
 # define remove(file)		xunlink(file)

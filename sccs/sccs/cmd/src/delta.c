@@ -27,11 +27,11 @@
 /*
  * This file contains modifications Copyright 2006-2008 J. Schilling
  *
- * @(#)delta.c	1.9 08/06/20 J. Schilling
+ * @(#)delta.c	1.10 08/08/20 J. Schilling
  */
 #if defined(sun) || defined(__GNUC__)
 
-#ident "@(#)delta.c 1.9 08/06/20 J. Schilling"
+#ident "@(#)delta.c 1.10 08/08/20 J. Schilling"
 #endif
 /*
  * @(#)delta.c 1.40 06/12/12
@@ -80,6 +80,7 @@ static char	Diffpgm2[]   =   NOGETTEXT("/bin/diff");
 static char	*ilist, *elist, *glist, Cmrs[300], *Nsid;
 static char	Pfilename[FILESIZE];
 static char	*uuname;
+static char	*Cwd = "";
 
 static	time_t	gfile_mtime;
 static	time_t	cutoff = (time_t)0x7FFFFFFFL;
@@ -170,7 +171,7 @@ register char *argv[];
 			}
 			no_arg = 0;
 			i = current_optind;
-		        c = getopt(argc, argv, "-r:dpsnm:g:y:fhqzV(version)");
+		        c = getopt(argc, argv, "-r:dpsnm:g:y:fhqzC:V(version)");
 
 				/* this takes care of options given after
 				** file names.
@@ -238,6 +239,9 @@ register char *argv[];
                                 }
                                 break;
 			case 'z':
+				break;
+			case 'C':
+				Cwd = p;
 				break;
 
 			case 'V':		/* version */
@@ -328,7 +332,7 @@ char *file;
 		fatal(gettext("cannot create lock file (cm4)"));
 	gpkt.p_reopen = 1;
 	gpkt.p_stdout = stdout;
-	copy(auxf(gpkt.p_file,'g'),gfilename);
+	cat(gfilename,Cwd,auxf(gpkt.p_file,'g'), (char *)0);
 	Gin = xfopen(gfilename, O_RDONLY|O_BINARY);
 	pp = rdpfile(&gpkt,&sid);
 

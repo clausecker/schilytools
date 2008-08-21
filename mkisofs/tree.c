@@ -1,7 +1,7 @@
-/* @(#)tree.c	1.111 08/08/13 joerg */
+/* @(#)tree.c	1.112 08/08/14 joerg */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)tree.c	1.111 08/08/13 joerg";
+	"@(#)tree.c	1.112 08/08/14 joerg";
 #endif
 /*
  * File tree.c - scan directory  tree and build memory structures for iso9660
@@ -2734,6 +2734,8 @@ find_or_create_directory(parent, path, de, flag)
 	 */
 	if (orig_de == NULL || (parent == NULL && path[0] == '\0')) {
 		init_fstatbuf();
+		fstatbuf.st_mode = new_dir_mode | S_IFDIR;
+		fstatbuf.st_nlink = 2;
 		if ((use_XA || use_RockRidge) &&
 		    !(parent == NULL && path[0] == '\0')) {
 			/*
@@ -2741,8 +2743,6 @@ find_or_create_directory(parent, path, de, flag)
 			 * ISO-9660 root directory. This is why we
 			 * check for parent == NULL && path[0] == '\0'.
 			 */
-			fstatbuf.st_mode = new_dir_mode | S_IFDIR;
-			fstatbuf.st_nlink = 2;
 			generate_xa_rr_attributes("",
 				(char *) pnt, de,
 				&fstatbuf,

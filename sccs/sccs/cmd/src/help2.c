@@ -25,13 +25,13 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2007 J. Schilling
+ * This file contains modifications Copyright 2006-2008 J. Schilling
  *
- * @(#)help2.c	1.3 07/01/10 J. Schilling
+ * @(#)help2.c	1.4 08/08/20 J. Schilling
  */
 #if defined(sun) || defined(__GNUC__)
 
-#ident "@(#)help2.c 1.3 07/01/10 J. Schilling"
+#ident "@(#)help2.c 1.4 08/08/20 J. Schilling"
 #endif
 /*
  * @(#)help2.c 1.10 06/12/12
@@ -231,7 +231,7 @@ char *p;		/* "p" is user specified error code. */
 		           NOGETTEXT("/"),key);
 		else
 			cat(hfile,hfile,NOGETTEXT("/"),locale,
-			   NOGETTEXT("/"),key,0);
+			   NOGETTEXT("/"),key, (char *)0);
 		strcpy(key,q);
 		if (!exists(hfile)) {
 			strcpy(key,p);

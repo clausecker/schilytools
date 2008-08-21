@@ -1,4 +1,4 @@
-mNew features with AN-2008-07-20:
+New features with AN-2008-08-14:
 
 -	New directory autoconf/ contains the complete Schily autoconf system.
 	It is based on GNU autoconf-2.13, the latest GNU autoconf that worked

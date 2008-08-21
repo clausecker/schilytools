@@ -27,11 +27,11 @@
 /*
  * This file contains modifications Copyright 2006-2008 J. Schilling
  *
- * @(#)get.c	1.13 08/06/14 J. Schilling
+ * @(#)get.c	1.14 08/08/20 J. Schilling
  */
 #if defined(sun) || defined(__GNUC__)
 
-#ident "@(#)get.c 1.13 08/06/14 J. Schilling"
+#ident "@(#)get.c 1.14 08/08/20 J. Schilling"
 #endif
 /*
  * @(#)get.c 1.59 06/12/12
@@ -94,6 +94,7 @@ static char	gfile[PATH_MAX];
 static char	*Type;
 static struct utsname un;
 static char *uuname;
+static char	*Cwd = "";
 
 /* Beginning of modifications made for CMF system. */
 #define CMRLIMIT 128
@@ -169,7 +170,7 @@ register char *argv[];
 			}
 			no_arg = 0;
 			i = current_optind;
-		        c = getopt(argc, argv, "-r:c:ebi:x:kl:Lpsmngta:G:w:zqdV(version)");
+		        c = getopt(argc, argv, "-r:c:ebi:x:kl:Lpsmngta:G:w:zqdC:V(version)");
 				/* this takes care of options given after
 				** file names.
 				*/
@@ -286,6 +287,9 @@ register char *argv[];
                                    nsedelim = (char *) 0;
                                 }
                                 break;
+			case'C':
+				Cwd = p;
+				break;
 
 			case 'V':		/* version */
 				printf("get %s-SCCS version %s (%s-%s-%s)\n",
@@ -385,8 +389,8 @@ char *file;
 	gpkt.p_cutoff = cutoff;
 	gpkt.p_lfile = lfile;
 	if (Gfile[0] == 0 || !first) {
-		copy(auxf(gpkt.p_file,'g'),gfile);
-		copy(auxf(gpkt.p_file,'A'),Gfile);
+		cat(gfile,Cwd,auxf(gpkt.p_file,'g'), (char *)0);
+		cat(Gfile,Cwd,auxf(gpkt.p_file,'A'), (char *)0);
 	}
 	strcpy(buf1, dname(Gfile));
 	strcat(buf1, template);

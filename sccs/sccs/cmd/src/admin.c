@@ -27,11 +27,11 @@
 /*
  * This file contains modifications Copyright 2006-2008 J. Schilling
  *
- * @(#)admin.c	1.12 08/06/20 J. Schilling
+ * @(#)admin.c	1.13 08/08/20 J. Schilling
  */
 #if defined(sun) || defined(__GNUC__)
 
-#ident "@(#)admin.c 1.12 08/06/20 J. Schilling"
+#ident "@(#)admin.c 1.13 08/08/20 J. Schilling"
 #endif
 /*
  * @(#)admin.c 1.39 06/12/12
@@ -958,7 +958,7 @@ char	*afile;
 						locks = NOGETTEXT("a");
 					else if (lval && flag_p[k])
 						locks =
-						cat(nline,lval," ",flag_p[k],0);
+						cat(nline,lval," ",flag_p[k], (char *)0);
 					else if (lval)
 						locks = lval;
 					else locks = flag_p[k];

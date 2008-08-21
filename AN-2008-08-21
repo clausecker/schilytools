@@ -1,0 +1,45 @@
+New features with AN-2008-08-21:
+
+-	Mkisofs now correctly sets the permissions for "invented" unreal
+	directories in UDF instread of using mode 000. The last version
+	intruced a bug during the code clean phase.
+
+-	SCCS fixed a problem with 64 bit compatibility.
+
+-	The Program sccs(1) now implements a -R option.
+
+	Most subcommands now support the -R option (before the subcommand).
+
+	sccs -R tell		Lists all currently edited files
+	sccs -R get		Get's everytrhing from SCCS/s. files
+	sccs -R diffs		shows the diffs for all edited files
+	sccs -R diffs ` sccs -R tell -U ` shows the diffs for all files edited by you
+	sccs -R delget		performs a "delta" and a "get" on all files
+				currently edited
+	sccs -R unedit		removed _all_ edited files be careful!
+
+	There are more sub-commands that support -R
+
+	For sub-commands that (currently) do not support recursion, the
+	following message is printed:
+
+	sccs -R admin
+	sccs: Recursion not supported for "admin"
+
+	*** Please test and report!
+
+-	SCCS get and SCCS delta implement a (hidden) option -Cdir to
+	support recursive operation with sccs(1).
+
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.isdn.cs.tu-berlin.de, js@cs.tu-berlin.de
+	schilling@fokus.fhg.de
+
+Please mail bugs and suggestions to me.

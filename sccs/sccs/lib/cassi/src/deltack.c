@@ -25,13 +25,13 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2007 J. Schilling
+ * This file contains modifications Copyright 2006-2008 J. Schilling
  *
- * @(#)deltack.c	1.4 07/01/09 J. Schilling
+ * @(#)deltack.c	1.5 08/08/20 J. Schilling
  */
 #if defined(sun) || defined(__GNUC__)
 
-#ident "@(#)deltack.c 1.4 07/01/09 J. Schilling"
+#ident "@(#)deltack.c 1.5 08/08/20 J. Schilling"
 #endif
 /*
  * @(#)deltack.c 1.8 06/12/12
@@ -195,10 +195,10 @@ char *cmrs,*statp,*type,*fred;
 		else
 			strcpy(type,NOGETTEXT("sw"));
 			/* rebuild cmr comma seperated list*/
-		cat(nold,cmrlist[0],0);
+		cat(nold, cmrlist[0], (char *)0);
 		for(i=1;i<numcmrs;i++)
 		{
-			cat(nold,",",cmrlist[i],0);
+			cat(nold, ",", cmrlist[i], (char *)0);
 		}
 		strcpy(cmrs,nold);
 		return(1);
@@ -324,10 +324,10 @@ char *cmrs,*statp,*type,*fred;
 		/*set status*/
 		strcpy(statp,"sd");
 	/*reformat the cmrlist into a comma separated cmr list*/
-	cat(nold,cmrlist[0],0);
+	cat(nold, cmrlist[0], (char *)0);
 	for(i=1;i<numcmrs;i++)
 		{
-		 cat(nold,nold,",",cmrlist[i],0);
+		 cat(nold, nold, ",", cmrlist[i], (char *)0);
 		}
 	 strcpy(cmrs,nold);
 	return(1);
@@ -360,7 +360,7 @@ msg(syst,name,cmrs,stats,types,sids,fred)
 		{
 		 if(getcwd(path,sizeof(path)) == NULL)
 			(void) fatal(gettext("getcwd() failed (ge=20)"));
-		 cat(pname,path,"/",name,0);
+		 cat(pname, path, "/", name, (char *)0);
 		}
 	else
 		{
