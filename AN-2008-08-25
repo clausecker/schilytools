@@ -1,0 +1,45 @@
+New features with AN-2008-08-25:
+
+-	DEFAULTS*/Defaults.dragonfly added.
+	Thanks to a hint from Thomas Klausner
+
+-	isoinfo now extracts files reading 10 setctors at a time
+	to speed up extraction.
+
+-	The "sccslog" program now accepts directories as parameters.
+	If a directors is encountered, it is scanned for s.* files 
+	and these files are processed.
+
+-	The "sccslog" program added two new options -C and -p to
+	support recursive operation when called via "sccs -R log".
+
+-	The "sccs" program now supports a new subcommand "log" as a
+	wrapper around the "sccslog" program. With "sccs log", the
+	-R option for recursive operation is supported to allow to
+	auto-create "Changelog" files for whole projects.
+
+-	The "sccs" program now supports to supress scanning partial 
+	trees in -R mode by creating a file ".sccsignore" in a
+	directory.
+
+-	"sccs diffs" now always calls the standard UNIX diff program 
+	that is included in the SCCS binaries under /opt/schily/ccs/bin/diff
+
+-	The "sccs" program now supports a new subcommand "ldiffs" that 
+	calls the local diff program that comes with the OS and that is
+	found via the PATH environment variable.
+
+-	star -c -dump -acl -find . 
+	now works correctly as it now uses short names for retrieving ACLs.
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.isdn.cs.tu-berlin.de, js@cs.tu-berlin.de
+	schilling@fokus.fhg.de
+
+Please mail bugs and suggestions to me.

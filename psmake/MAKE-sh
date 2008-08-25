@@ -1,5 +1,5 @@
 #!/bin/sh
-#ident "%W% %E% %Q%"
+#ident "@(#)MAKE-sh	1.4 08/08/21 "
 ###############################################################################
 #
 # The shell variables CFLAGS & LDFLAGS may be used to pass additional flags

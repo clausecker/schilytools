@@ -25,11 +25,11 @@
 /*
  * This file contains modifications Copyright 2006-2008 J. Schilling
  *
- * @(#)sccs.c	1.16 08/08/20 J. Schilling
+ * @(#)sccs.c	1.18 08/08/25 J. Schilling
  */
 #if defined(sun) || defined(__GNUC__)
 
-#ident "@(#)sccs.c 1.16 08/08/20 J. Schilling"
+#ident "@(#)sccs.c 1.18 08/08/25 J. Schilling"
 #endif
 /*
  * @(#)sccs.c 1.85 06/12/12
@@ -301,6 +301,7 @@ static int dorecurse __PR((char **argv, char **np, char *dir, struct sccsprog *c
 # define REALUSER	0002	/* protected (e.g., admin) */
 # define RF_OK		0004	/* -R allowed with this command */
 # define PDOT	 	0010	/* process based on on p. files */
+# define COLLECT	0020	/* collect file names and call only once */
 
 /* modes for the "clean", "info", "check" ops */
 # define CLEANC		0	/* clean command */
@@ -325,6 +326,7 @@ static struct sccsprog SccsProg[] =
 	"delta",	PROG,	RF_OK|PDOT,		PROGPATH(delta),
 	"get",		PROG,	RF_OK,			PROGPATH(get),
 	"help",		PROG,	NO_SDOT,		PROGPATH(help),
+	"log",		PROG,	RF_OK|COLLECT,		PROGPATH(sccslog),
 	"prs",		PROG,	RF_OK,			PROGPATH(prs),
 	"prt",		PROG,	RF_OK,			PROGPATH(prt),
 	"rmdel",	PROG,	REALUSER,		PROGPATH(rmdel),
@@ -349,7 +351,9 @@ static struct sccsprog SccsProg[] =
 	"unedit",	UNEDIT,	RF_OK|NO_SDOT|PDOT,	NULL,
 	"unget",	PROG,	RF_OK|PDOT,		PROGPATH(unget),
 	"diffs",	DIFFS,	RF_OK|NO_SDOT|PDOT|REALUSER,	NULL,
-	"-diff",	PROG,	NO_SDOT|REALUSER,	"diff",
+	"ldiffs",	DIFFS,	RF_OK|NO_SDOT|PDOT|REALUSER,	NULL,
+	"-diff",	PROG,	NO_SDOT|REALUSER,	PROGPATH(diff),
+	"-ldiff",	PROG,	NO_SDOT|REALUSER,	"diff",
 	"print",	CMACRO,	RF_OK|NO_SDOT,		"prs -e/get -p -m -s",
 	"branch",	CMACRO,	RF_OK|NO_SDOT,
 	   "get:ixrc -e -b/delta: -s -n -ybranch-place-holder/get:pl -e -t -g",
@@ -1207,7 +1211,11 @@ command(argv, forkflag, arg0)
 		}
 		return (rval);
 	}
-	if (Cwd && Cwd[2] && cmd->sccsoper == PROG &&
+	if (Rflag && bitset(COLLECT, cmd->sccsflags) &&
+	    !strcmp(cmd->sccsname, "log")) {
+		*np++ = "-p";
+		*np++ = SccsPath;
+	} else if (Cwd && Cwd[2] && cmd->sccsoper == PROG &&
 	    (!strcmp(cmd->sccsname, "get") ||
 	    !strcmp(cmd->sccsname, "delta"))) {
 		*np++ = Cwd;
@@ -2957,7 +2965,11 @@ char *file;
 			|| ( isfile(pfile) && !isfile(gfile) )
 		)
 		{
-			if( command(&diffs_ap[1], TRUE, NOGETTEXT("-diff:elsfnhbwtCIDUu")) > 1 )
+			char	*diffcmd = NOGETTEXT("-diff:elsfnhbwtCIDUu");
+
+			if (!strcmp(maincmd->sccsname, "ldiffs"))
+				diffcmd = NOGETTEXT("-ldiff:elsfnhbwtCIDUu");
+			if( command(&diffs_ap[1], TRUE, diffcmd) > 1 )
 			{
 				Fcnt = 1;
 			}
@@ -3041,6 +3053,9 @@ clean_up()
 #include <schily/find.h>
 #include <schily/getcwd.h>
 
+#undef	roundup
+#define	roundup(x, y)	((((x)+((y)-1))/(y))*(y))
+
 /*
  * Structure used to transfer date from dorecurse() into walkfun().
  */
@@ -3049,7 +3064,8 @@ struct wargs {
 	int	sccslen;	/* strlen(SccsPath)		*/
 	short	sccsflags;	/* sccsflags for current cmd	*/
 	char	**argv;		/* Current arg vector		*/
-	char	**np;		/* Where to insert path name	*/
+	int	argind;		/* Where to insert path name	*/
+	int	argsize;	/* Size	of allocated argv	*/
 };
 
 LOCAL int walkfunc	__PR((char *_nm, struct stat *_fs, int _type, struct WALK *_state));
@@ -3080,6 +3096,24 @@ walkfunc(nm, fs, type, state)
 
 	if (state->tree == NULL ||
 	    find_expr(nm, nm + state->base, fs, state, state->tree)) {
+		if (S_ISDIR(fs->st_mode)) {
+			if (strcmp(nm + state->base, SccsPath) != 0) {
+				char	nb[MAXPATHLEN];
+
+				nb[0] = '\0';
+				if ((strlen(nm+state->base) + 11) < sizeof (nb))
+					cat(nb, nm + state->base, "/",
+						".sccsignore", (char *)0);
+				if (nb[0] && access(nb, F_OK) >= 0)
+					state->flags |= WALK_WF_PRUNE;
+				return (0);
+			}
+		}
+	} else {
+		return (0);
+	}
+
+	{
 		struct wargs	*wp = state->auxp;
 		int		cwdlen;
 		/*
@@ -3088,32 +3122,52 @@ walkfunc(nm, fs, type, state)
 		 * an internal chdir() to work correctly.
 		 */
 #ifdef	HAVE_FCHDIR
-		int f = open(".", O_RDONLY);
+		int f;
 
-		if (f < 0) {
-			errmsg("Cannot get working directory.\n");
-			state->flags |= WALK_WF_QUIT;
-			return (0);
+		if (!bitset(COLLECT, wp->sccsflags)) {
+			f = open(".", O_RDONLY);
+			if (f < 0) {
+				errmsg("Cannot get working directory.\n");
+				state->flags |= WALK_WF_QUIT;
+				return (0);
+			}
 		}
 #else
 		char	cwd[MAXPATHLEN+1];
 
-		if (getcwd(cwd, MAXPATHLEN) == NULL) {
+		if (!bitset(COLLECT, wp->sccsflags) &&
+		    getcwd(cwd, MAXPATHLEN) == NULL) {
 			errmsg("Cannot get working directory.\n");
 			state->flags |= WALK_WF_QUIT;
 			return (0);
 		}
 #endif
 
-		if (bitset(PDOT, wp->sccsflags)) {
+		if (bitset(PDOT, wp->sccsflags)) {	/* SCCS/p.* */
 			nm[state->base] = 's';
 			cwdlen = state->base - wp->sccslen - 1;
-		} else {
+		} else {				/* /SCCS/ */
 			cwdlen = state->base;
+			state->flags |= WALK_WF_PRUNE;	/* Don't go into SCCS */
+		}
+		if (bitset(COLLECT, wp->sccsflags)) {
+			if ((wp->argind+2) > wp->argsize) {
+				wp->argsize += 2;
+				wp->argsize = roundup(wp->argsize, 64);
+				wp->argv = realloc(wp->argv,
+						wp->argsize * sizeof (char *));
+				if (wp->argv == NULL) {
+					perror(gettext("Sccs: no mem"));
+					exit(EX_OSERR);
+				}				
+			}
+			wp->argv[wp->argind++] = strdup(nm);
+			wp->argv[wp->argind] = NULL;
+			return (0);
 		}
 
 		if ((cwdlen + 3) < Cwdlen) {
-			Cwdlen = cwdlen + 64;
+			Cwdlen = roundup(cwdlen, 64);
 			Cwd = realloc(Cwd, Cwdlen);
 			if (Cwd == NULL) {
 				perror(gettext("Sccs: no mem"));
@@ -3127,7 +3181,7 @@ walkfunc(nm, fs, type, state)
 			return (0);
 		}
 
-		*wp->np = nm;
+		wp->argv[wp->argind] = nm;
 		wp->rval |= command(wp->argv, TRUE, "");
 
 #ifdef	HAVE_FCHDIR
@@ -3234,8 +3288,6 @@ dorecurse(argv, np, dir, cmd)
 	} else {
 		av[ac++] = "-type";
 		av[ac++] = "d";
-		av[ac++] = "-name";
-		av[ac++] = SccsPath;
 	}
 	av[ac]	 = NULL;
 
@@ -3258,8 +3310,23 @@ dorecurse(argv, np, dir, cmd)
 	wa.sccslen	    = strlen(SccsPath);
 	wa.sccsflags	    = cmd->sccsflags;
 	wa.argv 	    = argv;
-	wa.np		    = np;
+	wa.argind	    = np - argv;
+	wa.argsize	    = 0;
 	walkstate.auxp	    = &wa;
+	if (bitset(COLLECT, cmd->sccsflags)) {
+		int	i;
+
+		wa.argind++;
+		wa.argsize = roundup(wa.argind, 64);
+		wa.argv	   = malloc(wa.argsize * sizeof (char *));
+		if (wa.argv == NULL) {
+			perror(gettext("Sccs: no mem"));
+			exit(EX_OSERR);
+		}
+		wa.argind--;
+		for (i = 0; i <= wa.argind; i++)
+			wa.argv[i] = argv[i];
+	}
 	if (fa.patlen > 0) {
 		walkstate.patstate = malloc(sizeof (int) * fa.patlen);
 		if (walkstate.patstate == NULL) {
@@ -3272,9 +3339,18 @@ dorecurse(argv, np, dir, cmd)
 	treewalk(path ? path : dir, walkfunc, &walkstate);
 	Rflag = 1;
 
+	if (bitset(COLLECT, cmd->sccsflags)) {
+		Cwd[2] = '\0';
+		Rflag = -1;
+		wa.rval |= command(wa.argv, TRUE, "");
+		Rflag = 1;
+	}
+
 	if (walkstate.patstate == NULL)
 		free(walkstate.patstate);
 out:
+	if (wa.argv != argv)
+		free(wa.argv);
 	find_free(find_node, &fa);
 	if (path)
 		free(path);

@@ -1,4 +1,4 @@
-/* %Z%%M%	%I% %E% Copyright 2007-2008 J. Schilling */
+/* @(#)version.h	1.5 08/08/21 Copyright 2007-2008 J. Schilling */
 
 /*
  * The version for sccs programs

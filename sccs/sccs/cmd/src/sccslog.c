@@ -1,7 +1,7 @@
-/* @(#)sccslog.c	1.19 08/06/14 Copyright 1997-2008 J. Schilling */
+/* @(#)sccslog.c	1.22 08/08/24 Copyright 1997-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)sccslog.c	1.19 08/06/14 Copyright 1997-2008 J. Schilling";
+	"@(#)sccslog.c	1.22 08/08/24 Copyright 1997-2008 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1997-2008 J. Schilling
@@ -26,6 +26,9 @@ static	char sccsid[] =
 #include <schily/string.h>
 #include <schily/time.h>
 #include <schily/utypes.h>
+#include <schily/stat.h>
+#include <schily/dirent.h>
+#include <schily/maxpath.h>
 #include <schily/schily.h>
 #include <version.h>
 
@@ -49,11 +52,15 @@ struct	xx	*list;
 int		listmax;
 int		listsize;
 
+char		*Cwd;
+char		*SccsPath = "";
+
 LOCAL	int	xxcmp		__PR((const void *vp1, const void *vp2));
 LOCAL	char *	mapuser		__PR((char *name));
 LOCAL	void	usage		__PR((int exitcode));
 EXPORT	int	main		__PR((int ac, char *av[]));
-LOCAL	void	doit		__PR((char *name));
+LOCAL	void	dodir		__PR((char *name));
+LOCAL	void	dofile		__PR((char *name));
 LOCAL	int	fgetline	__PR((FILE *, char *, int));
 
 LOCAL int
@@ -164,6 +171,8 @@ usage(exitcode)
 	fprintf(stderr, "Usage: sccslog [options] file1..filen\n");
 	fprintf(stderr, "	-help	Print this help.\n");
 	fprintf(stderr, "	-version Print version number.\n");
+	fprintf(stderr, "	-Cdir	Base dir for printed filenames.\n");
+	fprintf(stderr, "	-p subdir	Define SCCS subdir.\n");
 	exit(exitcode);
 }
 
@@ -174,7 +183,7 @@ main(ac, av)
 {
 	int	cac;
 	char	* const *cav;
-	char	*opts = "help,V,version";
+	char	*opts = "help,V,version,C*,p*";
 	BOOL	help = FALSE;
 	BOOL	pversion = FALSE;
 	int	i;
@@ -186,7 +195,7 @@ main(ac, av)
 	cav = ++av;
 
 	if (getallargs(&cac, &cav, opts,
-			&help, &pversion, &pversion) < 0) {
+			&help, &pversion, &pversion, &Cwd, &SccsPath) < 0) {
 		errmsgno(EX_BAD, "Bad flag: %s.\n", cav[0]);
 		usage(EX_BAD);
 	}
@@ -204,7 +213,12 @@ main(ac, av)
 	cav = av;
 
 	while (getfiles(&cac, &cav, opts) > 0) {
-		doit(cav[0]);
+		struct stat	sb;
+
+		if (stat(cav[0], &sb) >= 0 && S_ISDIR(sb.st_mode))
+			dodir(cav[0]);
+		else
+			dofile(cav[0]);
 		cac--;
 		cav++;
 	}
@@ -242,19 +256,87 @@ main(ac, av)
 }
 
 LOCAL void
-doit(name)
+dodir(name)
+	char	*name;
+{
+	DIR		*dp = opendir(name);
+	struct dirent	*d;
+	char		*np;
+	char		fname[MAXPATHNAME+1];
+	char		*base;
+	int		len;
+
+	if (dp == NULL) {
+		errmsg("Cannot open directory '%s'\n", name);
+	}
+	strlcpy(fname, name, sizeof (fname));
+	base = &fname[strlen(fname)-1];
+	if (*base != '/')
+		*++base = '/';
+	base++;
+	len = sizeof (fname) - strlen(fname);
+	while ((d = readdir(dp)) != NULL) {
+		np = d->d_name;
+
+		if (np[0] != 's' || np[1] != '.' || np[2] == '\0')
+			continue;
+
+		strlcpy(base, np, len);
+		dofile(fname);
+	}
+	closedir(dp);
+}
+
+LOCAL void
+dofile(name)
 	char	*name;
 {
 	FILE	*f;
 	char	buf[8192];
 	int	len;
 	struct tm tm;
+	char	*bname;
+	char	*pname;
 
 	f = fopen(name, "rb");
 	if (f == NULL) {
 		errmsg("Cannot open '%s'.\n", name);
 		return;
 	}
+
+	bname = pname = name;
+	if ((pname = strrchr(pname, '/')) == 0)
+		pname = name;
+	else
+		bname = ++pname;
+	if (pname[0] == 's' && pname[1] == '.')
+		pname += 2;
+	if (*SccsPath && (pname != &name[2])) {
+		char	*p = malloc(strlen(name) + 2);
+		
+		if (p) {
+			char	*sp;
+			int	len;
+
+			sp = strstr(name, SccsPath);
+			if (sp == NULL)
+				len = bname - name;
+			else
+				len = sp - name;
+			sprintf(p, "%.*s%s", len, name, pname);
+		}
+		pname = p;
+	} else if (Cwd) {
+		char	*p = malloc(strlen(Cwd) + strlen(pname) + 1);
+
+		if (p)
+			sprintf(p, "%s%s", Cwd, pname);
+		pname = p;
+	} else {
+		pname = strdup(pname);
+	}
+	if (pname == NULL)
+		comerr("No memory.\n");
 
 	while ((len = fgetline(f, buf, sizeof (buf))) >= 0) {
 		if (len == 0)
@@ -329,15 +411,7 @@ doit(name)
 			list[listsize].vers = strdup(vers);
 			list[listsize].comment = NULL;
 			list[listsize].flags = 0;
-			p = name;
-			if ((p = strrchr(p, '/')) == 0)
-				p = name;
-			else
-				p++;
-			if (p[0] == 's' && p[1] == '.')
-				p += 2;
-
-			list[listsize].file = strdup(p);
+			list[listsize].file = pname;
 		}
 		if (buf[1] == 'c') {
 			if (list[listsize].comment == NULL) {

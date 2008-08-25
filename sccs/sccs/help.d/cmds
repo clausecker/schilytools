@@ -187,7 +187,7 @@ Keyword       Data Item            Section           Type           Type
  :PN:   Pathname                     N/A           pathname          S
 
 -sccs
-	  sccs [-r] [-d<rootprefix>] [-p<subdir>]
+	  sccs [-R] [-r] [-d<rootprefix>] [-p<subdir>]
 		subcommand [option ...] [filename ...]
 
 	(do 'help sccs_subcmds' for description of sccs subcommands)
@@ -199,6 +199,7 @@ Keyword       Data Item            Section           Type           Type
 	sccs delta	make a delta to an SCCS file
 	sccs get	retrieve a version of an SCCS file
 	sccs help	ask for help regarding SCCS error or warning messages
+	scca log	create a changelog using SCCS delta comments
 	sccs prs	display selected portions of an SCCS history
 	sccs prt	display delta table information from an SCCS file
 	sccs rmdel	remove a delta from an SCCS file
@@ -217,6 +218,7 @@ Keyword       Data Item            Section           Type           Type
 	sccs unedit	remove an edited file without merging into s-file
 	sccs unget	undo a previous get of an SCCS file
 	sccs diffs	compare edited file with a version of an SCCS file
+	sccs ldiffs	compare edited file using local diff program from OS
 	sccs print	print the history and copmlete content of an SCCS file
 	sccs branch	create a branch on an SCCS file
 	sccs enter	create a new SCCS file from file content

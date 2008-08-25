@@ -1,7 +1,7 @@
-/* @(#)acl_unix.c	1.37 08/04/06 Copyright 2001-2008 J. Schilling */
+/* @(#)acl_unix.c	1.38 08/08/25 Copyright 2001-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)acl_unix.c	1.37 08/04/06 Copyright 2001-2008 J. Schilling";
+	"@(#)acl_unix.c	1.38 08/08/25 Copyright 2001-2008 J. Schilling";
 #endif
 /*
  *	ACL get and set routines for unix like operating systems.
@@ -151,7 +151,7 @@ get_acls(info)
 	if (is_symlink(info))
 		return (TRUE);
 
-	if (!acl_to_info(info->f_name, ACL_TYPE_ACCESS, acl_access_text))
+	if (!acl_to_info(info->f_sname, ACL_TYPE_ACCESS, acl_access_text))
 		return (FALSE);
 	if (*acl_access_text != '\0') {
 		info->f_xflags |= XF_ACL_ACCESS;
@@ -159,7 +159,7 @@ get_acls(info)
 	}
 	if (!is_dir(info))
 		return (TRUE);
-	if (!acl_to_info(info->f_name, ACL_TYPE_DEFAULT, acl_default_text))
+	if (!acl_to_info(info->f_sname, ACL_TYPE_DEFAULT, acl_default_text))
 		return (FALSE);
 	if (*acl_default_text != '\0') {
 		info->f_xflags |= XF_ACL_DEFAULT;
@@ -492,7 +492,7 @@ get_acls(info)
 #ifdef	HAVE_ST_ACLCNT
 	aclcount = info->f_aclcnt;
 #else
-	if ((aclcount = acl(info->f_name, GETACLCNT, 0, NULL)) < 0) {
+	if ((aclcount = acl(info->f_sname, GETACLCNT, 0, NULL)) < 0) {
 #ifdef	ENOSYS
 		if (geterrno() == ENOSYS)
 			return (TRUE);
@@ -528,7 +528,7 @@ get_acls(info)
 		}
 		return (FALSE);
 	}
-	if (acl(info->f_name, GETACL, aclcount, aclp) < 0) {
+	if (acl(info->f_sname, GETACL, aclcount, aclp) < 0) {
 		if (!errhidden(E_GETACL, info->f_name)) {
 			if (!errwarnonly(E_GETACL, info->f_name))
 				xstats.s_getaclerrs++;

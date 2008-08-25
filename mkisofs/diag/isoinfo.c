@@ -1,7 +1,7 @@
-/* @(#)isoinfo.c	1.62 08/06/13 joerg */
+/* @(#)isoinfo.c	1.63 08/08/25 joerg */
 #ifndef	lint
 static	char sccsid[] =
-	"@(#)isoinfo.c	1.62 08/06/13 joerg";
+	"@(#)isoinfo.c	1.63 08/08/25 joerg";
 #endif
 /*
  * File isodump.c - dump iso9660 directory information.
@@ -665,7 +665,7 @@ extract_file(idr)
 	struct iso_directory_record *idr;
 {
 	int		extent, len, tlen;
-	unsigned char	buff[2048];
+	unsigned char	buff[20480];
 
 #if	defined(__CYGWIN32__) || defined(__CYGWIN__) || defined(__EMX__) || defined(__DJGPP__)
 	setmode(fileno(stdout), O_BINARY);
@@ -675,16 +675,15 @@ extract_file(idr)
 	len = isonum_733((unsigned char *)idr->size);
 
 	while (len > 0) {
-#ifdef	USE_SCG
-		readsecs(extent - sector_offset, buff, ISO_BLOCKS(sizeof (buff)));
 		tlen = (len > sizeof (buff) ? sizeof (buff) : len);
+#ifdef	USE_SCG
+		readsecs(extent - sector_offset, buff, ISO_BLOCKS(tlen));
 #else
 		lseek(fileno(infile), ((off_t)(extent - sector_offset)) << 11, SEEK_SET);
-		tlen = (len > sizeof (buff) ? sizeof (buff) : len);
 		read(fileno(infile), buff, tlen);
 #endif
 		len -= tlen;
-		extent++;
+		extent += ISO_BLOCKS(tlen);
 		write(STDOUT_FILENO, buff, tlen);
 	}
 }
