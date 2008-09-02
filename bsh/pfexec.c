@@ -1,7 +1,7 @@
-/* @(#)pfexec.c	1.2 08/08/06 Copyright 2008 J. Schilling */
+/* @(#)pfexec.c	1.3 08/08/30 Copyright 2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)pfexec.c	1.2 08/08/06 Copyright 2008 J. Schilling";
+	"@(#)pfexec.c	1.3 08/08/30 Copyright 2008 J. Schilling";
 #endif
 /*
  *	Profile support for /usr/bin/pfexec
@@ -42,8 +42,12 @@ EXPORT	int	pfexec		__PR((char **path, char *name, FILE *in, FILE *out, FILE *err
 EXPORT void
 pfinit()
 {
-	if (uname == NULL)
-		uname = getuname(getuid());
+	if (uname != NULL) {
+		free(uname);
+		uname = NULL;
+	}
+
+	uname = getuname(getuid());
 	if (uname && uname[0] >= '0' && uname[0] <= '9') {
 		berror("Cannot get passwd entry.\n");
 		free(uname);

@@ -1,8 +1,8 @@
-/* @(#)xconfig.h.in	1.144 08/05/18 Copyright 1998-2007 J. Schilling */
+/* @(#)xconfig.h.in	1.146 08/08/30 Copyright 1998-2008 J. Schilling */
 /*
  *	Dynamic autoconf C-include code.
  *
- *	Copyright (c) 1998-2007 J. Schilling
+ *	Copyright (c) 1998-2008 J. Schilling
  */
 
 /*
@@ -442,7 +442,11 @@
 /*
  * Misc OS programs
  */
-#undef	SHELL_IS_BASH		/* /bin/sh is bash */
+#undef	SHELL_IS_BASH		/* sh is bash */
+#undef	BIN_SHELL_IS_BASH	/* /bin/sh is bash */
+#undef	SHELL_CE_IS_BROKEN	/* sh -ce is broken */
+#undef	BIN_SHELL_CE_IS_BROKEN	/* /bin/sh -ce is broken */
+#undef	BIN_SHELL_BOSH		/* /bin/bosh is a working Bourne Shell */
 
 /*
  * OS madness

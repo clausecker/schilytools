@@ -1,0 +1,53 @@
+New features with AN-2008-09-02:
+
+-	Next attempt wo work around the non-autoconf friendly implementation
+	of GNU gettext and GNU libiconv.
+
+-	A new autoconf test allows to check whether the installed system shell
+	(/bin/sh) properly aborts with failed commands in "sh -ce 'cmd'".
+
+	If failed simple commands in "sh -ce 'cmd'" do not abort complex
+	commands, "make" will not stop on errors in the build process. 
+	Note that this is a definite POSIX incompatibility.
+
+	The most well known defective shell with respect to this problem is "bash"
+	but /bin/sh on HP-UX-10.x (a Korn Shell modification) does not work 
+	correctly either. If your system (Linux, HP-HX, ...) suffers from this 
+	problem, I recommend to fetch the Schily Source consolidation from 
+		ftp://ftp.berlios.de/pub/schily/
+	Use a version that has been published past September 1st 2008, compile
+	and install the contained Bourne Shell as "/bin/bosh". Then call 
+	"./.clean" and compile again. The resulting "smake" will then 
+	automatically call "/bin/bosh" instead of "/bin/sh" in order to 
+	execute commands.
+
+-	smake now automatically uses /bin/bosh if it is a working shell and
+	the OS System Shell is buggy. Note that /bin/bosh needs to be installed
+	before "configure" is run.
+	
+-	& before some functions in libfind and star removed
+
+-	Mkisofs now correctly sets the permissions for "invented" unreal
+	directories in UDF instread of using mode 000. The last version
+	intruced a bug during the code cleanup phase.
+
+-	Mkisofs now correctly mixes multi-extent-File directory entries from
+	old sessions made by mkisofs. This is only related to multi-session
+	with files >= 4 GB.
+
+-	isoinfo now extracts files using 10 sectors at a time to speed up 
+	operation
+
+-	The bsh builtin "type" now uses an output that is easier to parse
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.isdn.cs.tu-berlin.de, js@cs.tu-berlin.de
+	schilling@fokus.fhg.de
+
+Please mail bugs and suggestions to me.

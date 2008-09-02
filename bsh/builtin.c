@@ -1,7 +1,7 @@
-/* @(#)builtin.c	1.61 08/07/13 Copyright 1988-2008 J. Schilling */
+/* @(#)builtin.c	1.62 08/08/30 Copyright 1988-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)builtin.c	1.61 08/07/13 Copyright 1988-2008 J. Schilling";
+	"@(#)builtin.c	1.62 08/08/30 Copyright 1988-2008 J. Schilling";
 #endif
 /*
  *	Builtin commands
@@ -1071,8 +1071,8 @@ bumask(vp, std, flag)
 	if (getargs(&ac, &av, "S", &symbolic) < 0) {
 		/*
 		 * Let the last argument fail in getperm()
-		 * if it is not OK. POSIX requires "uname -r" to fail,
-		 * this test catches e.g. "uname a=rwx".
+		 * if it is not OK. POSIX requires "umask -r" to fail,
+		 * this test catches e.g. "umask a=rwx".
 		 */
 		if (ac == 1 && vp->av_ac >= 2 && av[0][0] != '-')
 			goto ok;
@@ -1608,19 +1608,19 @@ btype(vp, std, flag)
 	for (i = 1; i < ac && !ctlc; i++) {
 		fprintf(output, "%s ", av[i]);
 		if ((val = ab_value(LOCAL_AB, av[i], TRUE)) != NULL) {
-			fprintf(output, "is a local alias to '%s'.\n", val);
+			fprintf(output, "is a local alias to '%s'\n", val);
 		} else if ((val = ab_value(GLOBAL_AB, av[i], TRUE)) != NULL) {
-			fprintf(output, "is a global alias to '%s'.\n", val);
+			fprintf(output, "is a global alias to '%s'\n", val);
 		} else if (blook(av[i], bitab, n_builtin) != (btab *) NULL) {
-			fprintf(output, "is a shell builtin.\n");
+			fprintf(output, "is a shell builtin\n");
 		} else if ((val = map_func(av[i])) != NULL) {
-			fprintf(output, "is a function '%s'.\n", val);
+			fprintf(output, "is a function '%s'\n", val);
 		} else if ((val = findinpath(av[i], X_OK, TRUE)) != NULL) {
-			fprintf(output, "is %s.\n", val);
+			fprintf(output, "is %s\n", val);
 			free(val);
 			val = NULL;
 		} else {
-			fprintf(output, "not found.\n");
+			fprintf(output, "not found\n");
 		}
 	}
 }

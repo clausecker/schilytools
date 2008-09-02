@@ -1,4 +1,4 @@
-dnl @(#)configure.in	1.150 08/08/10 Copyright 1998-2007 J. Schilling
+dnl @(#)configure.in	1.153 08/08/30 Copyright 1998-2008 J. Schilling
 dnl Process this file with autoconf to produce a configure script.
 AC_REVISION($Revision$)dnl
 
@@ -8,6 +8,10 @@ AC_CANONICAL_HOST
 
 dnl Checks for programs.
 AC_SHELL_BASH
+AC_BIN_SHELL_BASH
+AC_SHELL_CE_BROKEN
+AC_BIN_SHELL_CE_BROKEN
+AC_BIN_SHELL_BOSH
 dnl CC=${CC-cc}
 dnl AC_PROG_CC
 AC_OBJEXT
@@ -350,16 +354,16 @@ LIBS="$LIBS $lib_crypt"
 AC_CHECK_FUNCS(crypt)
 LIBS="$ac_save_LIBS"
 
-AC_CHECK_DLIB([#include <libintl.h>], c, gettext, lib_intl="",
-  [AC_CHECK_DLIB([#include <libintl.h>], intl, gettext, lib_intl="-lintl")])
+AC_CHECK_ILIB([#include <libintl.h>], c, gettext, lib_intl="",
+  [AC_CHECK_ILIB([#include <libintl.h>], intl, gettext, lib_intl="-lintl")])
 
 ac_save_LIBS="$LIBS"
 LIBS="$LIBS $lib_intl"
 AC_CHECK_DFUNC([#include <libintl.h>], gettext)
 LIBS="$ac_save_LIBS"
 
-AC_CHECK_DLIB([#include <iconv.h>], c, iconv_open, lib_iconv="",
-    [AC_CHECK_DLIB([#include <iconv.h>], iconv, iconv_open, lib_iconv="-liconv")])
+AC_CHECK_ILIB([#include <iconv.h>], c, iconv_open, lib_iconv="",
+    [AC_CHECK_ILIB([#include <iconv.h>], iconv, iconv_open, lib_iconv="-liconv")])
 
 ac_save_LIBS="$LIBS"
 LIBS="$LIBS $lib_iconv"

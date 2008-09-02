@@ -1,7 +1,7 @@
-/* @(#)walk.c	1.33 08/06/13 Copyright 2004-2008 J. Schilling */
+/* @(#)walk.c	1.34 08/09/01 Copyright 2004-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)walk.c	1.33 08/06/13 Copyright 2004-2008 J. Schilling";
+	"@(#)walk.c	1.34 08/09/01 Copyright 2004-2008 J. Schilling";
 #endif
 /*
  *	Walk a directory tree
@@ -22,17 +22,7 @@ static	char sccsid[] =
  *
  *	Similar changes need to be introduced in fetchdir().
  */
-/*
- * The contents of this file are subject to the terms of the
- * Common Development and Distribution License, Version 1.0 only
- * (the "License").  You may not use this file except in compliance
- * with the License.
- *
- * See the file CDDL.Schily.txt in this distribution for details.
- *
- * When distributing Covered Code, include this CDDL HEADER in each
- * file and include the License file CDDL.Schily.txt from this distribution.
- */
+/*@@C@@*/
 
 #include <schily/mconfig.h>
 #include <stdio.h>
@@ -126,7 +116,7 @@ treewalk(nm, fn, state)
 	struct WALK	*state; /* Walk state				*/
 {
 	struct twvars	vars;
-	statfun		statf = &stat;
+	statfun		statf = stat;
 	int		nlen;
 
 	if ((state->walkflags & WALK_CHDIR) == 0) {
@@ -167,10 +157,10 @@ treewalk(nm, fn, state)
 	state->level = 0;
 
 	if (state->walkflags & WALK_PHYS)
-		statf = &lstat;
+		statf = lstat;
 
 	if (state->walkflags & (WALK_ARGFOLLOW|WALK_ALLFOLLOW))
-		statf = &stat;
+		statf = stat;
 
 	nlen = walk(nm, statf, fn, state, (struct pdirs *)0);
 	walkhome(state);
@@ -285,7 +275,7 @@ type_known:
 
 		ret = 0;
 		if ((state->walkflags & (WALK_PHYS|WALK_ALLFOLLOW)) == WALK_PHYS)
-			sf = &lstat;
+			sf = lstat;
 
 		/*
 		 * Search parent dir structure for possible loops.

@@ -1,7 +1,7 @@
-/* @(#)star.c	1.316 08/04/13 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2008 J. Schilling */
+/* @(#)star.c	1.317 08/09/01 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)star.c	1.316 08/04/13 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2008 J. Schilling";
+	"@(#)star.c	1.317 08/09/01 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2008 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1985, 88-90, 92-96, 98, 99, 2000-2008 J. Schilling
@@ -1346,7 +1346,7 @@ BOOL	Ointeractive	 = FALSE;
 	files = getfilecount(ac, av, opts);
 	if (getallargs(&ac, &av, opts,
 				&dir_flags,
-				&getfind, NULL,
+				getfind, NULL,
 				&help, &xhelp, &prvers, &debug, &xdebug, &xdebug,
 				&bsdchdir, &paxls,
 				&dumplevel, &dumpdates, &wtardumps,
@@ -1401,13 +1401,13 @@ BOOL	Ointeractive	 = FALSE;
 				&nolinkerr,
 				&follow, &follow,
 #ifdef	USE_FIND
-				&getpaxL, &walkflags,
-				&getpaxH, &walkflags,
-				&getpaxP, &walkflags,
+				getpaxL, &walkflags,
+				getpaxH, &walkflags,
+				getpaxP, &walkflags,
 #else
-				&getpaxL, NULL,
-				&getpaxH, NULL,
-				&getpaxP, NULL,
+				getpaxL, NULL,
+				getpaxH, NULL,
+				getpaxP, NULL,
 #endif
 				&nodesc,
 				&dodesc,

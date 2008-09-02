@@ -1,7 +1,7 @@
-/* @(#)make.c	1.146 08/08/13 Copyright 1985, 87, 88, 91, 1995-2008 J. Schilling */
+/* @(#)make.c	1.148 08/09/01 Copyright 1985, 87, 88, 91, 1995-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)make.c	1.146 08/08/13 Copyright 1985, 87, 88, 91, 1995-2008 J. Schilling";
+	"@(#)make.c	1.148 08/09/01 Copyright 1985, 87, 88, 91, 1995-2008 J. Schilling";
 #endif
 /*
  *	Make program
@@ -61,6 +61,7 @@ LOCAL	void	read_makefiles	__PR((void));
 EXPORT	void	setup_dotvars	__PR((void));
 LOCAL	void	setup_vars	__PR((void));
 LOCAL	void	setup_xvars	__PR((void));
+LOCAL	void	setup_SHELL	__PR((void));
 LOCAL	void	setup_MAKE	__PR((char *name));
 EXPORT	char	*searchtype	__PR((int mode));
 LOCAL	void	printdirs	__PR((void));
@@ -93,6 +94,7 @@ EXPORT	char	*curwdir	__PR((void));
 LOCAL	char	*getdefaultsfile	__PR((void));
 LOCAL	char	*searchfileinpath	__PR((char *name));
 LOCAL	char	*searchonefile	__PR((char *name, char *nbuf, char *np, char *ep));
+LOCAL	int	put_env		__PR((char *new));
 #ifndef	HAVE_PUTENV
 EXPORT	int	putenv		__PR((const char *new));
 #endif
@@ -177,10 +179,10 @@ date_t	newtime;		/* Special time newer than all		    */
  * it to sh -c 'cmd' on 00/11/19. In hope that newer versions of QNX have
  * no problems with sh -ce, we changed it back on May 9th 2004.
  *
- * The solution to implement POSIX compatibility without making smake 
+ * The solution to implement POSIX compatibility without making smake
  * unusable is to also set "MAKE_SHELL_FLAG=-ce" in the makefile together
  * with .POSIX:
- * We should also try to send a bug report against the POSIX standard. 
+ * We should also try to send a bug report against the POSIX standard.
  */
 #define	POSIX_SHELL_CEFLAG	"-c"	/* Does not work correctly	*/
 #define	SHELL_CEFLAG		"-ce"	/* Needed for correct behavior	*/
@@ -556,6 +558,61 @@ setup_xvars()
 }
 
 /*
+ * Set up the special macro $(SHELL).
+ *
+ * On Operating Systems that use "bash" for /bin/sh, we have a real problem.
+ * Bash does not stop on failed commands and as bash prevents nested jobs
+ * from receiving signals.
+ * If /bin/sh is a shell that does not work correctly and if a working 
+ * Bourne Shell is available as /bin/bosh, we prefer /bin/bosh over /bin/sh.
+ *
+ * On DJGPP, there is no /bin/sh. We need to find the path for "sh.exe".
+ */
+LOCAL void
+setup_SHELL()
+{
+	char	*shell = NULL;
+#ifdef	__DJGPP__
+	char	*shellname;
+#endif
+
+#if (defined(BIN_SHELL_CE_IS_BROKEN) || defined(SHELL_CE_IS_BROKEN)) && \
+	defined(BIN_SHELL_BOSH)
+	shell = "/bin/bosh";			/* Broken shell, bosh present */
+#else	/* !SHELL_CE_IS_BROKEN */
+#ifdef	__DJGPP__
+	/*
+	 * exec '/bin/sh' does not work under DJGPP.
+	 * Strings like 'c:\djgpp\bin\sh.exe' or '/dev/c/djgpp/bin/sh.exe'
+	 * must be used instead.
+	 *
+	 * Notes: c:/djgpp/share/config.site defines 'SHELL' with the required string.
+	 *
+	 * Using system("sh -ce 'cmd'") and spawn("command.com /c sh -ce 'cmd'")
+	 * cause GPF's (not enough memmory?)
+	 *
+	 * Temporary solution: Use DJGPP_SH envp. var. (must be set manually)
+	 */
+	shellname = get_var("SHELL");		/* On DJGPP too? */
+	if (shellname != NULL && *shellname == '\0')
+		shellname = NULL;
+	if (shellname == NULL)
+		shellname = getenv("DJGPP_SH");	/* Backward compat */
+	if (shellname == NULL)
+		shellname = searchfileinpath("bin/sh.exe"); /* alloc() */
+	if (shellname == NULL)
+		shellname = searchfileinpath("sh.exe");	/* alloc() */
+	if (shellname != NULL)
+		shell = shellname;
+#else	/* !__DJGPP__ */
+	shell = "/bin/sh";			/* Standard UNIX/POSIX case */
+#endif	/* !__DJGPP__ */
+#endif	/* !SHELL_CE_IS_BROKEN */
+	if (shell != NULL)
+		define_var("SHELL", shell);	/* Needed for POSIX */
+}
+
+/*
  * Set up the special macro $(MAKE).
  * If we were called with an absolute PATH or without any '/', use argv[0],
  * else compute the absolute PATH by prepending working dir to argv[0].
@@ -682,7 +739,7 @@ read_cmdline()
 	Mflags |= F_READONLY;
 	for (i = 0; i < Cmdlinecount; i++) {
 		readstring(CmdLDefs[i], CmdLMac);
-		putenv(CmdLDefs[i]);
+		put_env(CmdLDefs[i]);
 	}
 	Mflags &= ~F_READONLY;
 	Mfileindex = MFsave;
@@ -735,7 +792,7 @@ doexport(oname)
 				strcat(name, " ");
 				l = l->l_next;
 			}
-			putenv(name);
+			put_env(name);
 		}
 	}
 }
@@ -888,6 +945,7 @@ main(ac, av)
 	if (!Rflag)
 		read_defs();	/* read "defaults.smk"			*/
 	setup_MAKE(av[0]);	/* Set up $(MAKE)			*/
+	setup_SHELL();		/* Set up $(SHELL)			*/
 	setup_vars();		/* Set up some known special macros	*/
 	setup_arch();		/* Set up arch specific macros		*/
 	read_environ();		/* Sets F_READONLY if -e flag is present*/
@@ -1377,7 +1435,7 @@ setmakeenv(envbase, envp)
 		 * No command line macros and no inherited command line
 		 * macros from MAKEFLAGS, so just call putenv() and return.
 		 */
-		putenv(envbase);
+		put_env(envbase);
 		return;
 	}
 
@@ -1429,14 +1487,15 @@ setmakeenv(envbase, envp)
 		*envp = '\0';	/* Needed for stripmacros */
 	}			/* But overshoots by one  */
 	*--envp = '\0';
-	putenv(envbase);
+	put_env(envbase);
 	define_var(Make_Macs, macbase);		/* MAKE_MACS= ... */
 	doexport(Make_Macs);
 }
 
 #define	iswhite(c)	((c) == ' ' || (c) == '\t')
 
-#if	defined(__linux__) || defined(__linux) || defined(SHELL_IS_BASH)
+#if	defined(__linux__) || defined(__linux) || \
+	defined(SHELL_IS_BASH) || defined(BIN_SHELL_IS_BASH)
 /*
  * Needed to handle the Linux bash signal bug.
  */
@@ -1526,39 +1585,14 @@ docmd(cmd, obj)
 	if (pid < 0)
 		comerr("Can't spawn %s.\n", shell);
 #else
-	{
-	/*
-	 * exec '/bin/sh' does not work under DJGPP.
-	 * Strings like 'c:\djgpp\bin\sh.exe' or '/dev/c/djgpp/bin/sh.exe'
-	 * must be used instead.
-	 *
-	 * Notes: c:/djgpp/share/config.site defines 'SHELL' with the required string.
-	 *
-	 * Using system("sh -ce 'cmd'") and spawn("command.com /c sh -ce 'cmd'")
-	 * cause GPF's (not enough memmory?)
-	 *
-	 * Temporary solution: Use DJGPP_SH envp. var. (must be set manually)
-	 */
-		static char	*shellname = NULL;
+	if (shello == NULL)
+		comerr("Can't find sh.exe.\n");		/* DJGPP setup problem */
 
-		if (shello != NULL)			/* On DJGPP too? */
-			shellname = shell;
-		if (shellname == NULL)
-			shellname = getenv("DJGPP_SH");	/* Backward compat */
-		if (shellname == NULL)
-			shellname = searchfileinpath("bin/sh.exe"); /* alloc() */
-		if (shellname == NULL)
-			shellname = searchfileinpath("sh.exe");	/* alloc() */
-		if (shellname == NULL)
-			comerr("Can't find sh.exe.\n");
-
-		Exit = spawnl(P_WAIT, shellname, filename(shellname),
-							shellflag,
+	Exit = spawnl(P_WAIT, shell, filename(shell), shellflag,
 							cmd, (char *)NULL);
-		if (Exit) {
-			/* TODO: DOS error code to UNIX error code */
-			Exit = 0xFF<<8;
-		}
+	if (Exit) {
+		/* TODO: DOS error code to UNIX error code */
+		Exit = 0xFF<<8;
 	}
 #endif
 #else
@@ -1576,9 +1610,13 @@ docmd(cmd, obj)
 
 	if (pid == 0) {		/* Child process: do the work. */
 		/*
+		 * Standard UNIX/POSIX case.
 		 * We used to call /bin/sh -ce 'cmd' but we get problems on QNX
 		 * and UNIX-98 requests that the command shall be called as in
-		 * system() which means /bin/sh -c 'cmd'.
+		 * system() which means /bin/sh -c 'cmd'. As /bin/sh -c 'cmd'
+		 * does not work correctly for complex commands, we now support
+		 * MAKE_SHELL_IFLAG/MAKE_SHELL_FLAG which by default behaves
+		 * like UNIX with /bin/sh -ce 'cmd'.
 		 */
 		execl(shell, filename(shell), shellflag,
 							cmd, (char *)NULL);
@@ -1586,7 +1624,8 @@ docmd(cmd, obj)
 	}
 #endif	/* __EMX__ || __DJGPP__ */
 
-#if	defined(__linux__) || defined(__linux) || defined(SHELL_IS_BASH)
+#if	defined(__linux__) || defined(__linux) || \
+	defined(SHELL_IS_BASH) || defined(BIN_SHELL_IS_BASH)
 	/*
 	 * Needed to handle the Linux bash signal bug.
 	 */
@@ -2068,7 +2107,8 @@ handler(signo)
 
 out:
 
-#if	defined(__linux__) || defined(__linux) || defined(SHELL_IS_BASH)
+#if	defined(__linux__) || defined(__linux) || \
+	defined(SHELL_IS_BASH) || defined(BIN_SHELL_IS_BASH)
 #if	defined(HAVE_SIGNAL) && defined(HAVE_KILL) && \
 			defined(SIG_IGN) && defined(SIGKILL)
 	/*
@@ -2229,6 +2269,16 @@ searchonefile(name, nbuf, np, ep)
 		return (np);
 	}
 	return (NULL);
+}
+
+LOCAL int
+put_env(new)
+	char	*new;
+{
+	if (strncmp(new, "SHELL=", 6) == 0)
+		return (0);		/* Never export SHELL */
+
+	return (putenv(new));
 }
 
 #ifdef __DJGPP__

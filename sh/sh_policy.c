@@ -32,11 +32,11 @@
 /*
  * This file contains modifications Copyright 2008 J. Schilling
  *
- * @(#)sh_policy.c	1.6 08/07/14 2008 J. Schilling
+ * @(#)sh_policy.c	1.8 08/08/30 2008 J. Schilling
  */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)sh_policy.c	1.6 08/07/14 2008 J. Schilling";
+	"@(#)sh_policy.c	1.8 08/08/30 2008 J. Schilling";
 #endif
 
 #ifdef	SCHILY_BUILD
@@ -63,7 +63,7 @@ static	char sccsid[] =
 
 #ifdef	EXECATTR_FILENAME
 
-static const char *username;
+static char *username;
 
 	void	secpolicy_init		__PR((void));
 static char **	secpolicy_set_argv	__PR((char **arg_v));
@@ -79,8 +79,10 @@ secpolicy_init(void)
 	uid_t		ruid;
 	struct passwd	*passwd_ent;
 
-	if (username != NULL)
-		return;
+	if (username != NULL) {
+		free(username);
+		username = NULL;
+	}
 
 	ruid = getuid();
 
@@ -102,25 +104,25 @@ static char **
 secpolicy_set_argv(char **arg_v)
 {
 	register int	i, j;
-	register int	arglen = 0;
+	register int	pfarg_c = 0;
 	char		**pfarg_v = (char **)NULL;
 
 	if (*arg_v == NULL) {
 		return (pfarg_v);
 	}
 	for (i = 0; arg_v[i] != 0; i++) {
-		arglen++;
+		pfarg_c++;
 	}
-	arglen++;	/* for PFEXEC */
-	arglen++;	/* for null termination */
-	if ((pfarg_v = (char **)calloc(arglen, sizeof (char *))) == NULL) {
+	pfarg_c++;	/* for PFEXEC */
+	pfarg_c++;	/* for null termination */
+	if ((pfarg_v = calloc(pfarg_c, sizeof (char *))) == NULL) {
 		return (pfarg_v);
 	}
 	pfarg_v[0] = (char *)PFEXEC;
 	for (i = 0, j = 1; arg_v[i] != 0; i++, j++) {
 		pfarg_v[j] = arg_v[i];
 	}
-	pfarg_v[j] = 0;
+	pfarg_v[j] = NULL;
 
 	return (pfarg_v);
 }

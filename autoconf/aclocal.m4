@@ -1,4 +1,4 @@
-dnl @(#)aclocal.m4	1.63 08/08/10 Copyright 1998-2008 J. Schilling
+dnl @(#)aclocal.m4	1.65 08/08/30 Copyright 1998-2008 J. Schilling
 
 dnl Set VARIABLE to VALUE in C-string form, verbatim, or 1.
 dnl AC_DEFINE_STRING(VARIABLE [, VALUE])
@@ -41,9 +41,25 @@ fi
 ])
 
 dnl Checks if /bin/sh is bash
+dnl Defines BIN_SHELL_IS_BASH on success.
+AC_DEFUN([AC_BIN_SHELL_BASH],
+[AC_CACHE_CHECK([if /bin/sh is bash], ac_cv_bin_shell_is_bash,
+                [
+ac_err=`< /dev/null /bin/sh -version 2> /dev/null | grep bash`
+if test -n "$ac_err"; then
+	ac_cv_bin_shell_is_bash=yes
+else
+	ac_cv_bin_shell_is_bash=no
+fi
+])
+if test $ac_cv_bin_shell_is_bash = yes; then
+  AC_DEFINE(BIN_SHELL_IS_BASH)
+fi])
+
+dnl Checks if sh is bash
 dnl Defines SHELL_IS_BASH on success.
 AC_DEFUN([AC_SHELL_BASH],
-[AC_CACHE_CHECK([if /bin/sh is bash], ac_cv_shell_is_bash,
+[AC_CACHE_CHECK([if sh is bash], ac_cv_shell_is_bash,
                 [
 ac_err=`< /dev/null sh -version 2> /dev/null | grep bash`
 if test -n "$ac_err"; then
@@ -54,6 +70,59 @@ fi
 ])
 if test $ac_cv_shell_is_bash = yes; then
   AC_DEFINE(SHELL_IS_BASH)
+fi])
+
+dnl Checks if /bin/sh -ce is broken
+dnl Defines BIN_SHELL_CE_IS_BROKEN on success.
+AC_DEFUN([AC_BIN_SHELL_CE_BROKEN],
+[AC_CACHE_CHECK([whether /bin/sh -ce is broken], ac_cv_bin_shell_ce_is_broken,
+                [
+ac_err=`/bin/sh -ce 'for i in 1 2 3; do  ( echo $i; if test -d . ; then (false; echo 4);  fi ) ; done' | grep 2`
+if test -n "$ac_err"; then
+	ac_cv_bin_shell_ce_is_broken=yes
+else
+	ac_cv_bin_shell_ce_is_broken=no
+fi
+])
+if test $ac_cv_bin_shell_ce_is_broken = yes; then
+  AC_DEFINE(BIN_SHELL_CE_IS_BROKEN)
+fi])
+
+dnl Checks if /bin/bosh is a working shell
+dnl Defines BIN_SHELL_BOSH on success.
+AC_DEFUN([AC_BIN_SHELL_BOSH],
+[AC_CACHE_CHECK([whether /bin/bosh is a working shell], ac_cv_bin_shell_bosh,
+                [
+ac_err=`< /dev/null /bin/bosh -c 'echo abc' 2> /dev/null | grep abc`
+if test "$ac_err" != "abc"; then
+	ac_cv_bin_shell_bosh=no
+else
+	ac_err=`/bin/bosh -ce 'for i in 1 2 3; do  ( echo $i; if test -d . ; then (false; echo 4);  fi ) ; done' | grep 2`
+	if test -z "$ac_err"; then
+		ac_cv_bin_shell_bosh=yes
+	else
+		ac_cv_bin_shell_bosh=no
+	fi
+fi
+])
+if test $ac_cv_bin_shell_bosh = yes; then
+  AC_DEFINE(BIN_SHELL_BOSH)
+fi])
+
+dnl Checks if sh -ce is broken
+dnl Defines SHELL_CE_IS_BROKEN on success.
+AC_DEFUN([AC_SHELL_CE_BROKEN],
+[AC_CACHE_CHECK([whether sh -ce is broken], ac_cv_shell_ce_is_broken,
+                [
+ac_err=`sh -ce 'for i in 1 2 3; do  ( echo $i; if test -d . ; then (false; echo 4);  fi ) ; done' | grep 2`
+if test -n "$ac_err"; then
+	ac_cv_shell_ce_is_broken=yes
+else
+	ac_cv_shell_ce_is_broken=no
+fi
+])
+if test $ac_cv_shell_ce_is_broken = yes; then
+  AC_DEFINE(SHELL_CE_IS_BROKEN)
 fi])
 
 dnl XXX this used to be:
@@ -99,6 +168,7 @@ if test $ac_cv_have_$2 = yes; then
   AC_DEFINE_UNQUOTED($ac_tr_dfunc)
 fi])
 
+dnl Checks whether symbol is defined or a function in a lib
 dnl AC_CHECK_DLIB(INCLUDES, LIBRARY, FUNCTION [, ACTION-IF-FOUND [, ACTION-IF-NOT-FOUND
 dnl              [, OTHER-LIBRARIES]]])
 AC_DEFUN(AC_CHECK_DLIB,
@@ -116,6 +186,47 @@ AC_TRY_LINK([$1],
 #ifndef $3
 	char *p = (char *) $3;
 #endif],
+	    eval "ac_cv_lib_$ac_lib_var=yes",
+	    eval "ac_cv_lib_$ac_lib_var=no")
+LIBS="$ac_save_LIBS"
+])dnl
+if eval "test \"`echo '$ac_cv_lib_'$ac_lib_var`\" = yes"; then
+  AC_MSG_RESULT(yes)
+  ifelse([$4], ,
+[changequote(, )dnl
+  ac_tr_lib=HAVE_LIB`echo $2 | sed -e 's/[^a-zA-Z0-9_]/_/g' \
+    -e 'y/abcdefghijklmnopqrstuvwxyz/ABCDEFGHIJKLMNOPQRSTUVWXYZ/'`
+changequote([, ])dnl
+  AC_DEFINE_UNQUOTED($ac_tr_lib)
+  LIBS="-l$2 $LIBS"
+], [$4])
+else
+  AC_MSG_RESULT(no)
+ifelse([$5], , , [$5
+])dnl
+fi
+])
+
+dnl Checks whether symbol is in a lib
+dnl this does not work for void func()
+dnl AC_CHECK_ILIB(INCLUDES, LIBRARY, FUNCTION [, ACTION-IF-FOUND [, ACTION-IF-NOT-FOUND
+dnl              [, OTHER-LIBRARIES]]])
+AC_DEFUN(AC_CHECK_ILIB,
+[AC_MSG_CHECKING([for $3 in -l$2])
+dnl Use a cache variable name containing both the library and function name,
+dnl because the test really is for library $2 defining function $3, not
+dnl just for library $2.  Separate tests with the same $2 and different $3s
+dnl may have different results.
+ac_lib_var=`echo $2['_']$3 | sed 'y%./+-%__p_%'`
+AC_CACHE_VAL(ac_cv_lib_$ac_lib_var,
+[ac_save_LIBS="$LIBS"
+LIBS="-l$2 $6 $LIBS"
+AC_TRY_LINK([$1],
+[
+	char *p = (char *) $3;
+
+	return ((int)p);
+],
 	    eval "ac_cv_lib_$ac_lib_var=yes",
 	    eval "ac_cv_lib_$ac_lib_var=no")
 LIBS="$ac_save_LIBS"

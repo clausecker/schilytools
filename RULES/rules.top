@@ -1,4 +1,4 @@
-#ident "@(#)rules.top	1.18 08/08/06 "
+#ident "@(#)rules.top	1.19 08/08/27 "
 ###########################################################################
 # Written 1996 by J. Schilling
 ###########################################################################
@@ -29,12 +29,18 @@ all:
 #
 # First make sure that all symlinks in $(SRCROOT)/$(RULESDIR)/ are present
 #
+# $(DUMMY_LNK) is needed to work around a Sun make bug that has been
+# fixed with Solaris 11 but that is present for all old Solaris versions.
+#
 ###########################################################################
-$(SRCROOT)/$(RULESDIR)/ldummy.lnk:
+_DUMMY_LNK=	$(SRCROOT)/$(RULESDIR)/ldummy.lnk
+DUMMY_LNK=	$(_DUMMY_LNK:./%=%)
+
+$(DUMMY_LNK):
 	@echo " ==> MAKING SYMLINKS in $(SRCROOT)/$(RULESDIR)/" && \
 			cd $(SRCROOT)/$(RULESDIR) && sh ./MKLINKS
 
-include 	$(SRCROOT)/$(RULESDIR)/ldummy.lnk
+include 	$(DUMMY_LNK)
 
 ###########################################################################
 #
