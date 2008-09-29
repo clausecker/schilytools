@@ -1,10 +1,10 @@
-/* @(#)defaults.c	1.10 06/10/31 Copyright 1998-2006 J. Schilling */
+/* @(#)defaults.c	1.11 08/09/26 Copyright 1998-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)defaults.c	1.10 06/10/31 Copyright 1998-2006 J. Schilling";
+	"@(#)defaults.c	1.11 08/09/26 Copyright 1998-2008 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1998-2006 J. Schilling
+ *	Copyright (c) 1998-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -159,7 +159,7 @@ star_darchive(arname, dfltname)
 		    "'%s' entry in %s is empty!\n", arname, dfltname);
 		return (FALSE);
 	} else {
-		tarfiles[0] = __savestr(p);
+		tarfiles[0] = ___savestr(p);
 	}
 	if ((p = strtok(NULL, " \t")) == NULL) {
 		errmsgno(EX_BAD,

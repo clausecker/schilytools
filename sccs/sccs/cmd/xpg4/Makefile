@@ -1,4 +1,4 @@
-#ident "@(#)Makefile	1.2 08/07/31 "
+#ident "@(#)Makefile	1.3 08/09/10 "
 ###########################################################################
 # Sample makefile for sub-makes in one directory
 ###########################################################################
@@ -13,7 +13,7 @@ XMK_FILE=	Makefile.man
 
 sccs.c:
 	@echo "	==> MAKING SYMLINKS in ." && sh ./MKLINKS
-all: sccs.c
+$(ALLTARGETS): sccs.c
 
 ###########################################################################
 include		$(SRCROOT)/$(RULESDIR)/rules.mks

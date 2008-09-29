@@ -1,0 +1,73 @@
+New features with AN-2008-09-29:
+
+-	The sccs(1) man page is now based on the Solaris sccs(1)
+	man page instead of the old BSD man page.
+
+-	The sccs(1) man page is now includes documentation for the -R option.
+
+-	The sccs-admin(1) man page now mentions extensions on the historic
+	sccs behavior.
+
+-	The sccslog(1) man page now includes a description of the 
+	recently introduced options.
+
+-	sccslog no longer partially prints time stamps with a one hour offset
+	to the real time. Note that there is a design bug in SCCS as it uses
+	local time instead of GMT in the SCCS history files.
+
+-	Several Makefiles have been modified to support not only "make all"
+	but also "make install" without calling "make all" before.
+
+-	cdrtools version is now 2.01.01a50
+
+-	Plenty of new comments taken from cdparanoia-III-10.2
+	This doubles the size of the code!
+	Thanks to Monty (xiphmont@mit.edu)
+
+-	i_paranoia_overlap_r() does not longer increment beginA/beginB after the 
+	match was found searching backwards. Taken from cdparanoia-III-10.2
+
+-	paranoia_free() now also frees p->cache and p->fragments taken from cdparanoia-III-10.2
+
+-	Some numerical values used in paranoia.c have been replaced by
+	FLAG_* definitions.
+
+
+-	First step of changes intended to allow to remove Mac OS 9 "hfs" support
+	from mkisofs. Mac OS X supports UDF extensions and "hfs" does not support
+	large files. For this reason, "hfs" support is an anachronism.
+
+-	changed __malloc() -> ___malloc() for the ongoing ATARI Port
+-	changed __realloc() -> ___realloc() for the ongoing ATARI Port
+-	changed __savestr() -> ___savestr() for the ongoing ATARI Port
+
+
+-	The cdrecord DVD multi-border code from May 2007 has been made OpenSource.
+	Multi-Border is the DVD multi-session equivalent. It allows to write
+	up to 1024 sessions on a single DVD.
+
+	The code currently covers the most important case of writing to DVD-R/DVD-RW
+	media.
+
+	You need to specify -multi for every session.
+
+-	The cdrecord man page now mentions -multi with respect to DVD multi-border.
+
+-	mkisofs -UDF now does not longer replace controlchars in case that -J has not
+	been specified at the same time. This is a workaround for the fact that
+	mkisofs still shares the file name management code between UDF and Joliet.
+
+
+
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.isdn.cs.tu-berlin.de, js@cs.tu-berlin.de
+	schilling@fokus.fhg.de
+
+Please mail bugs and suggestions to me.

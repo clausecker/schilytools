@@ -1,7 +1,7 @@
-/* @(#)make.c	1.148 08/09/01 Copyright 1985, 87, 88, 91, 1995-2008 J. Schilling */
+/* @(#)make.c	1.149 08/09/26 Copyright 1985, 87, 88, 91, 1995-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)make.c	1.148 08/09/01 Copyright 1985, 87, 88, 91, 1995-2008 J. Schilling";
+	"@(#)make.c	1.149 08/09/26 Copyright 1985, 87, 88, 91, 1995-2008 J. Schilling";
 #endif
 /*
  *	Make program
@@ -31,7 +31,6 @@ static	char sccsid[] =
 #include <schily/time.h>
 #include <schily/wait.h>
 #include <signal.h>
-#include "make.h"
 
 #include <schily/dirent.h>
 #include <schily/maxpath.h>
@@ -42,6 +41,8 @@ static	char sccsid[] =
 #endif
 #include <schily/libport.h>
 #include <schily/utime.h>
+
+#include "make.h"
 
 char	make_version[] = "1.2a43";
 
@@ -1850,7 +1851,7 @@ again:
 	else if (snprintf(objname, objlen, "%s%s%s", ObjDir,
 				slash, filename(name)) >= objlen) {
 		objlen = strlen(filename(name)) + ObjDirlen + slashlen + 1;
-		objname = np = __realloc(np, objlen, "touch path");
+		objname = np = ___realloc(np, objlen, "touch path");
 		goto again;
 	}
 #ifdef	__is_this_ok__

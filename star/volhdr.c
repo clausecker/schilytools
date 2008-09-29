@@ -1,12 +1,12 @@
-/* @(#)volhdr.c	1.31 07/11/08 Copyright 1994, 2003-2007 J. Schilling */
+/* @(#)volhdr.c	1.32 08/09/26 Copyright 1994, 2003-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)volhdr.c	1.31 07/11/08 Copyright 1994, 2003-2007 J. Schilling";
+	"@(#)volhdr.c	1.32 08/09/26 Copyright 1994, 2003-2008 J. Schilling";
 #endif
 /*
  *	Volume header related routines.
  *
- *	Copyright (c) 1994, 2003-2007 J. Schilling
+ *	Copyright (c) 1994, 2003-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -259,17 +259,17 @@ extern	BOOL	use_fifo;
 #endif
 	{
 		if (gp->label)
-			gip->label = __savestr(gp->label);
+			gip->label = ___savestr(gp->label);
 		if (gp->filesys)
-			gip->filesys = __savestr(gp->filesys);
+			gip->filesys = ___savestr(gp->filesys);
 		if (gp->cwd)
-			gip->cwd = __savestr(gp->cwd);
+			gip->cwd = ___savestr(gp->cwd);
 		if (gp->hostname)
-			gip->hostname = __savestr(gp->hostname);
+			gip->hostname = ___savestr(gp->hostname);
 		if (gp->release)
-			gip->release = __savestr(gp->release);
+			gip->release = ___savestr(gp->release);
 		if (gp->device)
-			gip->device = __savestr(gp->device);
+			gip->device = ___savestr(gp->device);
 	}
 	if (gp->volno > 1)		/* Allow to start with vol # != 1 */
 		stats->volno = gp->volno;
@@ -572,7 +572,7 @@ put_gvolhdr(name)
 	if (gip->dumplevel >= 0) {
 		nbuf[0] = '\0';
 		gethostname(nbuf, sizeof (nbuf));
-		gip->hostname = __savestr(nbuf);
+		gip->hostname = ___savestr(nbuf);
 	}
 
 	if (gip->label)
@@ -727,7 +727,7 @@ get_label(info, keyword, klen, arg, len)
 	int	len;
 {
 	grip->gflags |= GF_LABEL;
-	grip->label = __savestr(arg);
+	grip->label = ___savestr(arg);
 }
 
 /* ARGSUSED */
@@ -740,7 +740,7 @@ get_hostname(info, keyword, klen, arg, len)
 	int	len;
 {
 	grip->gflags |= GF_HOSTNAME;
-	grip->hostname = __savestr(arg);
+	grip->hostname = ___savestr(arg);
 }
 
 /* ARGSUSED */
@@ -753,7 +753,7 @@ get_filesys(info, keyword, klen, arg, len)
 	int	len;
 {
 	grip->gflags |= GF_FILESYS;
-	grip->filesys = __savestr(arg);
+	grip->filesys = ___savestr(arg);
 }
 
 /* ARGSUSED */
@@ -766,7 +766,7 @@ get_cwd(info, keyword, klen, arg, len)
 	int	len;
 {
 	grip->gflags |= GF_CWD;
-	grip->cwd    = __savestr(arg);
+	grip->cwd    = ___savestr(arg);
 }
 
 /* ARGSUSED */
@@ -779,7 +779,7 @@ get_device(info, keyword, klen, arg, len)
 	int	len;
 {
 	grip->gflags |= GF_DEVICE;
-	grip->device = __savestr(arg);
+	grip->device = ___savestr(arg);
 }
 
 /* ARGSUSED */

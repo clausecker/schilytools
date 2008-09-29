@@ -1,7 +1,7 @@
-/* @(#)drv_dvdplus.c	1.47 08/01/02 Copyright 2003-2008 J. Schilling */
+/* @(#)drv_dvdplus.c	1.48 08/09/04 Copyright 2003-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)drv_dvdplus.c	1.47 08/01/02 Copyright 2003-2008 J. Schilling";
+	"@(#)drv_dvdplus.c	1.48 08/09/04 Copyright 2003-2008 J. Schilling";
 #endif
 /*
  *	Copyright (c) 2003-2008 J. Schilling
@@ -577,6 +577,12 @@ extern	char	*buf;
 
 /*	if (lverbose > 2)*/
 /*		print_logpages(scgp);*/
+
+	if (dsp->ds_type == DST_UNKNOWN) {
+		profile = get_curprofile(scgp);
+		if (profile >= 0)
+			dsp->ds_type = profile;
+	}
 
 	if ((dp->cdr_dstat->ds_cdrflags & RF_PRATIP) != 0) {
 		if (((dsp->ds_cdrflags & (RF_WRITE|RF_BLANK)) == 0) ||

@@ -1,4 +1,4 @@
-/* @(#)mkisofs.h	1.132 08/08/06 joerg */
+/* @(#)mkisofs.h	1.133 08/09/11 joerg */
 /*
  * Header file mkisofs.h - assorted structure definitions and typecasts.
  *
@@ -442,16 +442,8 @@ extern int	scan_directory_tree __PR((struct directory * this_dir,
 				char *path,
 				struct directory_entry * self));
 
-#ifdef APPLE_HYB
 extern int	insert_file_entry __PR((struct directory *, char *,
 				char *, struct stat *, int));
-
-#else
-extern int	insert_file_entry __PR((struct directory *, char *,
-				struct stat *,
-				char *));
-
-#endif	/* APPLE_HYB */
 
 extern	struct directory_entry *
 		dup_directory_entry	__PR((struct directory_entry *s_entry));

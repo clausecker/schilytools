@@ -1,4 +1,4 @@
-#ident @(#)Makefile	1.6 08/08/01 
+#ident @(#)Makefile	1.7 08/09/10 
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -24,7 +24,7 @@ XMK_FILE=	Makefile.man
 
 scsi_scan.c io.c scsi_cdr.c:
 	@echo "	==> MAKING SYMLINKS in ." && sh ./MKLINKS
-all: scsi_scan.c io.c scsi_cdr.c
+$(ALLTARGETS): scsi_scan.c io.c scsi_cdr.c
 
 ###########################################################################
 include		$(SRCROOT)/$(RULESDIR)/rules.cmd

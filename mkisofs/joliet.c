@@ -1,7 +1,7 @@
-/* @(#)joliet.c	1.54 07/10/20 joerg */
+/* @(#)joliet.c	1.55 08/09/26 joerg */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)joliet.c	1.54 07/10/20 joerg";
+	"@(#)joliet.c	1.55 08/09/26 joerg";
 #endif
 /*
  * File joliet.c - handle Win95/WinNT long file/unicode extensions for iso9660.
@@ -296,6 +296,14 @@ convert_to_unicode(buffer, size, source, inls)
 #endif
 			unichar = sic_c2uni(inls, uc);	/* Get the UNICODE */
 
+			/*
+			 * This code is currently also used for UDF formatting.
+			 * Do not enforce silly Microsoft limitations in case
+			 * that we only create UDF extensions.
+			 */
+			if (!use_Joliet)
+				goto all_chars;
+
 			if (unichar <= 0x1f || unichar == 0x7f)
 				unichar = '\0';	/* control char */
 
@@ -315,6 +323,8 @@ convert_to_unicode(buffer, size, source, inls)
 				 */
 				unichar = '_';
 			}
+		all_chars:
+			;
 		} else {
 			unichar = 0;
 		}

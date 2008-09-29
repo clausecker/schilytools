@@ -1,4 +1,4 @@
-/* @(#)schily.h	1.69 08/02/16 Copyright 1985-2007 J. Schilling */
+/* @(#)schily.h	1.70 08/09/26 Copyright 1985-2008 J. Schilling */
 /*
  *	Definitions for libschily
  *
@@ -18,7 +18,7 @@
  *	include ctype.h past schily/schily.h as OpenBSD does not follow POSIX
  *	and defines EOF in ctype.h
  *
- *	Copyright (c) 1985-2007 J. Schilling
+ *	Copyright (c) 1985-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -399,9 +399,9 @@ extern	char	*js_fjsavestr	__PR((FILE *f, const char *s, sigjmps_t *jmp));
 #endif	/* EOF */
 #endif	/* _SCHILY_JMPDEFS_H */
 
-#define	__malloc	js_malloc
-#define	__realloc	js_realloc
-#define	__savestr	js_savestr
+#define	___malloc	js_malloc
+#define	___realloc	js_realloc
+#define	___savestr	js_savestr
 #define	__jmalloc	js_jmalloc
 #define	__jrealloc	js_jrealloc
 #define	__jsavestr	js_jsavestr

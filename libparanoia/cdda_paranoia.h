@@ -1,8 +1,8 @@
-/* @(#)cdda_paranoia.h	1.24 07/07/28 J. Schilling from cdparanoia-III-alpha9.8 */
+/* @(#)cdda_paranoia.h	1.25 08/09/18 J. Schilling from cdparanoia-III-alpha9.8 */
 /*
  * CopyPolicy: GNU Lesser General Public License v2.1 applies
- * Copyright (C) 1997-2001 by Monty (xiphmont@mit.edu)
- * Copyright (C) 2002-2006 by J. Schilling
+ * Copyright (C) 1997-2001,2008 by Monty (xiphmont@mit.edu)
+ * Copyright (C) 2002-2008 by J. Schilling
  */
 
 #ifndef	_CDROM_PARANOIA_H
@@ -38,6 +38,7 @@
 #define	PARANOIA_CB_FIXUP_DROPPED	10	/* Fixed dropped bytes */
 #define	PARANOIA_CB_FIXUP_DUPED		11	/* Fixed duplicate bytes */
 #define	PARANOIA_CB_READERR		12	/* Hard read error */
+#define	PARANOIA_CB_CACHEERR		13	/* Cache seek positional error */
 
 /*
  * Cdparanoia modes to be set with paranoia_modeset()

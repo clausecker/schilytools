@@ -1,4 +1,4 @@
-/* @(#)make.h	1.82 08/04/19 Copyright 1985, 87, 91, 1995-2008 J. Schilling */
+/* @(#)make.h	1.83 08/09/26 Copyright 1985, 87, 91, 1995-2008 J. Schilling */
 /*
  *	Definitions for make.
  *	Copyright (c) 1985, 87, 91, 1995-2008 by J. Schilling
@@ -222,7 +222,8 @@ extern	BOOL	xmake		__PR((char * name, BOOL  must_exist));
 /*
  * memory.c
  */
-extern	void	*__realloc	__PR((void *ptr, size_t size, char *msg));
+#undef	___realloc
+extern	void	*___realloc	__PR((void *ptr, size_t size, char *msg));
 #ifdef	DEBUG
 extern	void	prmem		__PR((void));
 #endif

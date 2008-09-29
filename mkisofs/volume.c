@@ -1,7 +1,7 @@
-/* @(#)volume.c	1.21 07/07/26 joerg, Copyright 1997, 1998, 1999, 2000 James Pearson */
+/* @(#)volume.c	1.22 08/09/11 joerg, Copyright 1997, 1998, 1999, 2000 James Pearson */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)volume.c	1.21 07/07/26 joerg, Copyright 1997, 1998, 1999, 2000 James Pearson";
+	"@(#)volume.c	1.22 08/09/11 joerg, Copyright 1997, 1998, 1999, 2000 James Pearson";
 #endif
 /*
  *      Copyright (c) 1997, 1998, 1999, 2000 James Pearson
@@ -35,7 +35,7 @@ static	char sccsid[] =
  *	flag for finding the real directory location JCP 8/1/97
  */
 
-#ifdef APPLE_HYB
+#ifdef APPLE_HFS_HYB
 
 #include <schily/mconfig.h>
 #include "mkisofs.h"
@@ -730,4 +730,4 @@ set_dir_info(vol, de)
 	}
 }
 
-#endif	/* APPLE_HYB */
+#endif	/* APPLE_HFS_HYB */

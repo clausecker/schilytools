@@ -1,4 +1,4 @@
-# %Z%%M%	%I% %E% Copyright 2005-2006 J. Schilling
+# @(#)libschily-mapvers	1.11 08/06/14 Copyright 2005-2006 J. Schilling
 
 SCHILY_1.3 {
 global:
@@ -15,6 +15,7 @@ global:
 	fspushcha;
 	fspushstr;
 	fssetfile;
+
 } SCHILY_1.2;
 
 SCHILY_1.2 {

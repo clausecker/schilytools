@@ -450,7 +450,21 @@ T}
 A line with a string in the form \fB%\&sccs.include.\fIfilename\fB\&%\fR is replaced by
 the content of the file
 .IR filename .
-The file is searched for 
+The file is searched for in the path list found in the environment variable
+.BR SCCS_INCLUDEPATH .
+.LP
+The keywords
+.BR %\&d\&% ", " %\&e\&% ", " %\&g\&%
+and
+.B %\&h\&%
+are only expanded if either the 
+.B `x'
+flag has been set by the 
+.BR admin (1)
+command or if the expansion for a specific keyword has been enabled
+via the
+.B `y'
+flag.
 
 .SS ID String
 

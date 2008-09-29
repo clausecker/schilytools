@@ -1,7 +1,7 @@
-/* @(#)xattr.c	1.10 08/03/16 Copyright 2003-2008 J. Schilling */
+/* @(#)xattr.c	1.11 08/09/26 Copyright 2003-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)xattr.c	1.10 08/03/16 Copyright 2003-2008 J. Schilling";
+	"@(#)xattr.c	1.11 08/09/26 Copyright 2003-2008 J. Schilling";
 #endif
 /*
  *	Handle Extended File Attributes on Linux
@@ -100,7 +100,7 @@ get_xattr(info)
 	} else if (list_len == 0) {
 		return (FALSE);
 	}
-	alist = __malloc(list_len+2, "extended attribute");
+	alist = ___malloc(list_len+2, "extended attribute");
 	list_len = llistxattr(info->f_name, alist, list_len);
 	if (list_len < 0) {
 		if (!errhidden(E_GETXATTR, info->f_name)) {
@@ -129,7 +129,7 @@ get_xattr(info)
 		goto fail;  /* not really a failure, but... */
 
 	size = (count+1) * sizeof (star_xattr_t);
-	static_xattr = __malloc(size, "extended attribute");
+	static_xattr = ___malloc(size, "extended attribute");
 	fillbytes(static_xattr, size, '\0');
 
 	for (lp = alist, i = 0; lp - alist < list_len;
@@ -141,7 +141,7 @@ get_xattr(info)
 		    strncmp(lp, "xfsroot.", 8) == 0)
 			continue;
 
-		static_xattr[i].name = __malloc(strlen(lp)+1,
+		static_xattr[i].name = ___malloc(strlen(lp)+1,
 						"extended attribute");
 		static_xattr[i].value = NULL;
 		strcpy(static_xattr[i].name, lp);
@@ -159,7 +159,7 @@ get_xattr(info)
 			goto fail2;
 		}
 		static_xattr[i].value_len = len;
-		static_xattr[i].value = __malloc(len, "extended attribute");
+		static_xattr[i].value = ___malloc(len, "extended attribute");
 		len = lgetxattr(info->f_name, lp, static_xattr[i].value, len);
 		if (len < 0) {
 			if (!errhidden(E_GETXATTR, info->f_name)) {

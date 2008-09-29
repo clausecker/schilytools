@@ -1,12 +1,12 @@
-/* @(#)match.c	1.10 06/11/01 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2006 J. Schilling */
+/* @(#)match.c	1.11 08/09/26 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)match.c	1.10 06/11/01 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2006 J. Schilling";
+	"@(#)match.c	1.11 08/09/26 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2008 J. Schilling";
 #endif
 /*
  *	Pattern matching routines for star
  *
- *	Copyright (c) 1985, 88-90, 92-96, 98, 99, 2000-2006 J. Schilling
+ *	Copyright (c) 1985, 88-90, 92-96, 98, 99, 2000-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -228,7 +228,7 @@ addpattern(pattern)
 	if (plen > maxplen)
 		maxplen = plen;
 
-	aux[npat] = __malloc(plen*sizeof (int), "compiled pattern");
+	aux[npat] = ___malloc(plen*sizeof (int), "compiled pattern");
 	if ((alt[npat] = patcompile((const Uchar *)pattern,
 							plen, aux[npat])) == 0)
 		comerrno(EX_BAD, "Bad pattern: '%s'.\n", pattern);
@@ -269,7 +269,7 @@ addarg(pattern)
 	} else {
 		if (plen > maxplen)
 			maxplen = plen;
-		aux[npat] = __malloc(plen*sizeof (int), "compiled pattern");
+		aux[npat] = ___malloc(plen*sizeof (int), "compiled pattern");
 		if ((alt[npat] = patcompile((const Uchar *)pattern,
 						plen, aux[npat])) == 0) {
 			comerrno(EX_BAD, "Bad pattern: '%s'.\n", pattern);
@@ -307,7 +307,7 @@ closepattern()
 		havepat = TRUE;
 
 	if (maxplen > 0) {
-		state = __malloc((maxplen+1)*sizeof (int), "pattern state");
+		state = ___malloc((maxplen+1)*sizeof (int), "pattern state");
 	}
 }
 

@@ -1,7 +1,7 @@
-/* @(#)desktop.c	1.7 06/09/13 joerg, Copyright 1997, 1998, 1999, 2000 James Pearson */
+/* @(#)desktop.c	1.8 08/09/11 joerg, Copyright 1997, 1998, 1999, 2000 James Pearson */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)desktop.c	1.7 06/09/13 joerg, Copyright 1997, 1998, 1999, 2000 James Pearson";
+	"@(#)desktop.c	1.8 08/09/11 joerg, Copyright 1997, 1998, 1999, 2000 James Pearson";
 #endif
 /*
  *      Copyright (c) 1997, 1998, 1999, 2000 James Pearson
@@ -43,7 +43,7 @@ static	char sccsid[] =
  *	Adapted from mkhfs routines for mkhybrid
  */
 
-#ifdef APPLE_HYB
+#ifdef APPLE_HFS_HYB
 
 #include <schily/mconfig.h>
 #include "mkisofs.h"
@@ -171,4 +171,4 @@ make_desktop(vol, end)
 	return (0);
 }
 
-#endif	/* APPLE_HYB */
+#endif	/* APPLE_HFS_HYB */

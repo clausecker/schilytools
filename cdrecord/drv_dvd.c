@@ -1,7 +1,7 @@
-/* @(#)drv_dvd.c	1.152 08/02/16 Copyright 1998-2008 J. Schilling */
+/* @(#)drv_dvd.c	1.154 08/09/26 Copyright 1998-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)drv_dvd.c	1.152 08/02/16 Copyright 1998-2008 J. Schilling";
+	"@(#)drv_dvd.c	1.154 08/09/26 Copyright 1998-2008 J. Schilling";
 #endif
 /*
  *	DVD-R device implementation for
@@ -461,6 +461,7 @@ extern	char	*buf;
 	struct rzone_info rz;
 	struct rzone_info *rp;
 	struct dvd_structure_00 *sp;
+	int	profile;
 	int	len;
 	BOOL	did_dummy = FALSE;
 
@@ -469,6 +470,12 @@ extern	char	*buf;
 
 	if (lverbose > 2)
 		print_logpages(scgp);
+
+	if (dsp->ds_type == DST_UNKNOWN) {
+		profile = get_curprofile(scgp);
+		if (profile >= 0)
+			dsp->ds_type = profile;
+	}
 
 	if ((dp->cdr_dstat->ds_cdrflags & RF_PRATIP) != 0) {
 		if (((dsp->ds_cdrflags & (RF_WRITE|RF_BLANK)) == 0) ||
@@ -810,6 +817,9 @@ next_wr_addr_dvd(scgp, trackp, ap)
 		 * XXX filesize support.
 		 */
 		fillbytes((caddr_t)&rz, sizeof (rz), '\0');
+		if (track_base(trackp)->tracktype & TOCF_MULTI)
+			get_trackinfo(scgp, (caddr_t)&rz, TI_TYPE_TRACK, trackp->trackno, sizeof (rz));
+		else
 			read_rzone_info(scgp, (caddr_t)&rz, sizeof (struct rzone_info));
 		dvd_next_addr = a_to_4_byte(rz.next_recordable_addr);
 		if (lverbose > 1)
@@ -1052,6 +1062,29 @@ open_session_dvd(scgp, dp, trackp)
 		rp = get_justlink_ricoh(scgp, moder);
 	}
 
+	/*
+	 * 05 32 40 c5  08 10 00 00
+	 *	 FUFE + PACKET
+	 *	    MULTI + NO FP + TM_DATA
+	 *		DB_ROM_MODE1
+	 *		   LINKSIZE == 16
+	 * mp->session_format SES_DA_ROM
+	 */
+	mp->multi_session = (track_base(trackp)->tracktype & TOCF_MULTI) ?
+			MS_MULTI : MS_NONE;
+
+	/*
+	 * If we are writing in multi-border mode, we need to write in packet
+	 * mode even if we have been told to write on SAO mode.
+	 */
+	if (track_base(trackp)->tracktype & TOCF_MULTI) {
+		mp->write_type = WT_PACKET;
+		mp->track_mode = TM_DATA;
+		mp->track_mode |= TM_INCREMENTAL;
+		mp->fp = 0;
+		i_to_4_byte(mp->packet_size, 0);
+		mp->link_size = 16;
+	}
 
 #ifdef	DEBUG
 	if (lverbose > 1)
@@ -1063,6 +1096,59 @@ open_session_dvd(scgp, dp, trackp)
 	return (0);
 }
 
+LOCAL int
+waitformat(scgp, secs)
+	SCSI	*scgp;
+	int	secs;
+{
+#ifdef	DVD_DEBUG
+	Uchar   sensebuf[CCS_SENSE_LEN];
+#endif
+	int	i;
+	int	key;
+#define	W_SLEEP	2
+
+	scgp->silent++;
+	for (i = 0; i < secs/W_SLEEP; i++) {
+		if (test_unit_ready(scgp) >= 0) {
+			scgp->silent--;
+			return (0);
+		}
+		key = scg_sense_key(scgp);
+		if (key != SC_UNIT_ATTENTION && key != SC_NOT_READY)
+			break;
+#ifdef	DVD_DEBUG
+		request_sense_b(scgp, (caddr_t)sensebuf, sizeof (sensebuf));
+#ifdef	XXX
+		scg_prbytes("Sense:", sensebuf, sizeof (sensebuf));
+		scgp->scmd->u_scb.cmd_scb[0] = 2;
+		movebytes(sensebuf, scgp->scmd->u_sense.cmd_sense, sizeof (sensebuf));
+		scgp->scmd->sense_count = sizeof (sensebuf);
+		scg_printerr(scgp);
+#endif
+/*
+ * status: 0x2 (CHECK CONDITION)
+ * Sense Bytes: F0 00 00 00 24 1C 10 0C 00 00 00 00 04 04 00 80 03 F6
+ * Sense Key: 0x0 No Additional Sense, Segment 0
+ * Sense Code: 0x04 Qual 0x04 (logical unit not ready, format in progress) Fru 0x0
+ * Sense flags: Blk 2366480 (valid)
+ * cmd finished after 0.000s timeout 100s
+ * Das Fehlt:
+ * operation 1% done
+ */
+
+		if (sensebuf[15] & 0x80) {
+			error("operation %d%% done\n",
+				(100*(sensebuf[16] << 8 |
+					sensebuf[17]))/(unsigned)65536);
+		}
+#endif	/* DVD_DEBUG */
+		sleep(W_SLEEP);
+	}
+	scgp->silent--;
+	return (-1);
+#undef	W_SLEEP
+}
 
 LOCAL int
 fixate_dvd(scgp, dp, trackp)
@@ -1072,6 +1158,7 @@ fixate_dvd(scgp, dp, trackp)
 {
 	int	oldtimeout = scgp->deftimeout;
 	int	ret = 0;
+	int	trackno;
 
 	/*
 	 * This is only valid for DAO recording.
@@ -1087,6 +1174,10 @@ fixate_dvd(scgp, dp, trackp)
 		scgp->deftimeout = oldtimeout;
 		return (-1);
 	}
+	waitformat(scgp, 100);
+	trackno = trackp->trackno;
+	if (trackno <= 0)
+		trackno = 1;
 
 	scgp->deftimeout = oldtimeout;
 
@@ -1097,6 +1188,8 @@ fixate_dvd(scgp, dp, trackp)
 		 */
 		return (ret);
 	}
+	if (track_base(trackp)->tracktype & TOCF_MULTI)
+		scsi_close_tr_session(scgp, CL_TYPE_SESSION, trackno, TRUE);
 
 	return (ret);
 }

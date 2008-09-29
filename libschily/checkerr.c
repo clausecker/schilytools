@@ -1,7 +1,7 @@
-/* @(#)checkerr.c	1.18 07/09/22 Copyright 2003-2007 J. Schilling */
+/* @(#)checkerr.c	1.19 08/09/26 Copyright 2003-2007 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)checkerr.c	1.18 07/09/22 Copyright 2003-2007 J. Schilling";
+	"@(#)checkerr.c	1.19 08/09/26 Copyright 2003-2007 J. Schilling";
 #endif
 /*
  *	Generic error control for programs that do file i/o.
@@ -83,7 +83,7 @@ errconfig(name)
 		fclose(f);
 	}
 	if (maxplen > omaxplen) {
-		ec_state = __realloc(ec_state, (maxplen+1)*sizeof (int),
+		ec_state = ___realloc(ec_state, (maxplen+1)*sizeof (int),
 							"pattern state");
 	}
 	return (1);
@@ -132,13 +132,13 @@ parse_errctl(line)
 		;
 		/* LINTED */
 	}
-	ep = __malloc(sizeof (ec_t), "errcheck node");
+	ep = ___malloc(sizeof (ec_t), "errcheck node");
 	ep->ec_flags = errflags(line, TRUE);
 	ep->ec_plen = plen = strlen(pattern);
 	if (ep->ec_plen > maxplen)
 		maxplen = ep->ec_plen;
-	ep->ec_pat = (const Uchar *)__savestr(pattern);
-	ep->ec_aux = __malloc(plen*sizeof (int), "compiled pattern");
+	ep->ec_pat = (const Uchar *)___savestr(pattern);
+	ep->ec_aux = ___malloc(plen*sizeof (int), "compiled pattern");
 	if ((ep->ec_alt = patcompile((const Uchar *)pattern,
 						plen, ep->ec_aux)) == 0)
 		comerrno(EX_BAD, "Bad errctl pattern: '%s'.\n", pattern);

@@ -27,11 +27,11 @@
 /*
  * This file contains modifications Copyright 2006-2008 J. Schilling
  *
- * @(#)admin.c	1.13 08/08/20 J. Schilling
+ * @(#)admin.c	1.15 08/09/04 J. Schilling
  */
 #if defined(sun) || defined(__GNUC__)
 
-#ident "@(#)admin.c 1.13 08/08/20 J. Schilling"
+#ident "@(#)admin.c 1.15 08/09/04 J. Schilling"
 #endif
 /*
  * @(#)admin.c 1.39 06/12/12
@@ -314,6 +314,7 @@ char *argv[];
 				case DEFTFLAG:
 				case JOINTFLAG:
 				case SCANFLAG:
+				case EXTENSFLAG:
 				case EXPANDFLAG:
 				case CMFFLAG:	/* option installed by CMF */
 					if (*p) {
@@ -438,6 +439,9 @@ char *argv[];
 				case SCANFLAG:	/* the number of lines that are scanned to expand of SCCS KeyWords. */
 					if ((i = patoi(p)) == -1)
 						fatal(gettext("line not numeric (ad33)"));
+					break;
+				case EXTENSFLAG:	/* exable SCCS extensions */
+					p = "SCHILY";	/* we use SCHILY type ext */
 					break;
 				case EXPANDFLAG:	/* expand the SCCS KeyWords */
 					/* replace all commas with blanks in SCCS file */

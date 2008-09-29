@@ -1,10 +1,10 @@
-/* @(#)chdir.c	1.3 06/10/31 Copyright 1997-2006 J. Schilling */
+/* @(#)chdir.c	1.4 08/09/26 Copyright 1997-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)chdir.c	1.3 06/10/31 Copyright 1997-2006 J. Schilling";
+	"@(#)chdir.c	1.4 08/09/26 Copyright 1997-2008 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1997-2006 J. Schilling
+ *	Copyright (c) 1997-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -47,7 +47,7 @@ dogetwdir()
 
 	if (getcwd(dir, PATH_MAX) == NULL)
 		comerr("Cannot get working directory\n");
-	ndir = __malloc(strlen(dir)+1, "working dir");
+	ndir = ___malloc(strlen(dir)+1, "working dir");
 	strcpy(ndir, dir);
 	return (ndir);
 }

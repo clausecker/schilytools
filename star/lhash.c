@@ -1,10 +1,10 @@
-/* @(#)lhash.c	1.16 07/05/25 Copyright 1988, 1993-2007 J. Schilling */
+/* @(#)lhash.c	1.17 08/09/26 Copyright 1988, 1993-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)lhash.c	1.16 07/05/25 Copyright 1988, 1993-2007 J. Schilling";
+	"@(#)lhash.c	1.17 08/09/26 Copyright 1988, 1993-2008 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1988, 1993-2007 J. Schilling
+ *	Copyright (c) 1988, 1993-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -88,7 +88,7 @@ hash_build(fp)
 		register	int	i;
 		register	size_t	size = hash_size(HASH_DFLT_SIZE);
 
-		h_tab = __malloc(size * sizeof (struct h_elem *), "list option");
+		h_tab = ___malloc(size * sizeof (struct h_elem *), "list option");
 		for (i = 0; i < size; i++) h_tab[i] = 0;
 	}
 	_hash_build(fp, h_tab);
@@ -103,7 +103,7 @@ hash_xbuild(fp)
 		register	int	i;
 		register	size_t	size = hash_size(HASH_DFLT_SIZE);
 
-		h_xtab = __malloc(size * sizeof (struct h_elem *), "exclude option");
+		h_xtab = ___malloc(size * sizeof (struct h_elem *), "exclude option");
 		for (i = 0; i < size; i++) h_xtab[i] = 0;
 	}
 	_hash_build(fp, h_xtab);
@@ -130,7 +130,7 @@ _hash_build(fp, htab)
 							buf, len, PATH_MAX);
 			continue;
 		}
-		hp = __malloc((size_t)len + 1 + sizeof (struct h_elem *), "list option");
+		hp = ___malloc((size_t)len + 1 + sizeof (struct h_elem *), "list option");
 		strcpy(hp->h_data, buf);
 		hv = hashval((unsigned char *)buf, size);
 		hp->h_next = htab[hv];

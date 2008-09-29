@@ -1,7 +1,7 @@
-/* @(#)star.c	1.317 08/09/01 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2008 J. Schilling */
+/* @(#)star.c	1.318 08/09/26 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)star.c	1.317 08/09/01 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2008 J. Schilling";
+	"@(#)star.c	1.318 08/09/26 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2008 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1985, 88-90, 92-96, 98, 99, 2000-2008 J. Schilling
@@ -630,7 +630,7 @@ star_create(ac, av)
 #ifdef	USE_FIND
 	if (dofind) {
 		if (find_patlen > 0) {
-			walkstate.patstate = __malloc(sizeof (int) * find_patlen,
+			walkstate.patstate = ___malloc(sizeof (int) * find_patlen,
 						"space for pattern state");
 		}
 
@@ -1585,7 +1585,7 @@ star_mkvers()
 	js_snprintf(buf, sizeof (buf),
 		"%s %s (%s-%s-%s)", "star", strvers, HOST_CPU, HOST_VENDOR, HOST_OS);
 
-	vers = __savestr(buf);
+	vers = ___savestr(buf);
 }
 
 LOCAL void
@@ -2637,7 +2637,7 @@ const	char	*p;
 		return;
 
 	nac = ac + strlen(av[1]);
-	nav = __malloc(nac-- * sizeof (char *),	/* keep space for NULL ptr */
+	nav = ___malloc(nac-- * sizeof (char *), /* keep space for NULL ptr */
 				"compat argv");
 	oa = av;				/* remember old arg pointer */
 	na = nav;				/* set up new arg pointer */
@@ -2661,7 +2661,7 @@ const	char	*p;
 			susage(EX_BAD);
 		}
 		nopt[1] = c;
-		*na++ = __savestr(nopt);
+		*na++ = ___savestr(nopt);
 
 		if (c == 'f' || c == 'b' || (ptype == P_SUNTAR && c == 'k') || c == 'X') {
 			if ((av + ac) <= oa) {

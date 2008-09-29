@@ -1,7 +1,7 @@
-/* @(#)buffer.c	1.147 08/07/16 Copyright 1985, 1995, 2001-2008 J. Schilling */
+/* @(#)buffer.c	1.148 08/09/26 Copyright 1985, 1995, 2001-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)buffer.c	1.147 08/07/16 Copyright 1985, 1995, 2001-2008 J. Schilling";
+	"@(#)buffer.c	1.148 08/09/26 Copyright 1985, 1995, 2001-2008 J. Schilling";
 #endif
 /*
  *	Buffer handling routines
@@ -798,7 +798,7 @@ initbuf(nblocks)
 #undef	roundup
 #define	roundup(x, y)	((((x)+((y)-1))/(y))*(y))
 
-		bigptr = bigbuf = __malloc((size_t) bufsize+10+pagesize,
+		bigptr = bigbuf = ___malloc((size_t) bufsize+10+pagesize,
 								"buffer");
 		bigptr = bigbuf = (char *)roundup((Intptr_t)bigptr, pagesize);
 		fillbytes(bigbuf, bufsize, '\0');

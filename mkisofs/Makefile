@@ -1,4 +1,4 @@
-#ident @(#)Makefile	1.35 08/08/01 
+#ident @(#)Makefile	1.37 08/09/12 
 ###########################################################################
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 2
@@ -28,6 +28,7 @@ CPPOPTS +=	-DUSE_LARGEFILES
 # Comment out if you do not like to ignore deep directories
 # when Rock Ridge is not in use
 CPPOPTS +=	-DABORT_DEEP_ISO_ONLY
+CPPOPTS +=	-DAPPLE_HFS_HYB
 CPPOPTS +=	-DAPPLE_HYB
 CPPOPTS +=	-DUDF
 CPPOPTS +=	-DDVD_VIDEO
@@ -65,7 +66,7 @@ XMK_FILE=	Makefile.man hybridman.mk Makefile.doc
 
 scsi_cdr.c:
 	@echo "	==> MAKING SYMLINKS in ." && sh ./MKLINKS
-all: scsi_cdr.c
+$(ALLTARGETS): scsi_cdr.c
 
 ###########################################################################
 include		$(SRCROOT)/$(RULESDIR)/rules.cmd

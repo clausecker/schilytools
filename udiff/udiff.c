@@ -1,7 +1,7 @@
-/* @(#)udiff.c	1.19 08/04/22 Copyright 1985-2008 J. Schilling */
+/* @(#)udiff.c	1.20 08/09/26 Copyright 1985-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)udiff.c	1.19 08/04/22 Copyright 1985-2008 J. Schilling";
+	"@(#)udiff.c	1.20 08/09/26 Copyright 1985-2008 J. Schilling";
 #endif
 /*
  *	line by line diff for two files
@@ -134,7 +134,7 @@ main(ac, av)
 	}
 	if (prversion) {
 		printf("Udiff release %s (%s-%s-%s) Copyright (C) 1985-2008 Jörg Schilling\n",
-				"1.19",
+				"1.20",
 				HOST_CPU, HOST_VENDOR, HOST_OS);
 		exit(0);
 	}
@@ -239,7 +239,7 @@ readfile(f, fname, hlinep)
 			break;
 		}
 		if (lc % 1024 == 0)
-			*hlinep = __realloc(*hlinep,
+			*hlinep = ___realloc(*hlinep,
 					(lc + 1024) * sizeof (line),
 					"new line");
 		addline(rb, loff, lc++, *hlinep);

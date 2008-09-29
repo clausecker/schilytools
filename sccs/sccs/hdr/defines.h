@@ -27,11 +27,11 @@
 /*
  * This file contains modifications Copyright 2006-2008 J. Schilling
  *
- * @(#)defines.h	1.12 08/08/20 J. Schilling
+ * @(#)defines.h	1.13 08/09/04 J. Schilling
  */
 #if defined(sun) || defined(__GNUC__)
 
-#ident "@(#)defines.h 1.12 08/08/20 J. Schilling"
+#ident "@(#)defines.h 1.13 08/09/04 J. Schilling"
 #endif
 /*
  * @(#)defines.h 1.21 06/12/12
@@ -154,6 +154,7 @@ char	saveid[50];		/* sync with lib/comobj/src/logname.c */
 # define LOCKFLAG	'l'	/* ^Af l ll relase list locked for get -e   */
 # define ENCODEFLAG	'e'	/* ^Af e The content is UUencoded	    */
 # define SCANFLAG	's'	/* ^Af s # of lines to be scanned f. keyw.  */
+# define EXTENSFLAG	'x'	/* ^Af x enables sccs e'x'tensions	    */
 # define EXPANDFLAG	'y'	/* ^Af y list of sccs keywords to be exp.   */
 
 # define BUSERTXT	't'	/* ^At sccs file specific comment start	    */

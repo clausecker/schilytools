@@ -1,13 +1,13 @@
-/* @(#)append.c	1.24 06/11/04 Copyright 1992, 2001-2006 J. Schilling */
+/* @(#)append.c	1.25 08/09/26 Copyright 1992, 2001-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)append.c	1.24 06/11/04 Copyright 1992, 2001-2006 J. Schilling";
+	"@(#)append.c	1.25 08/09/26 Copyright 1992, 2001-2008 J. Schilling";
 #endif
 /*
  *	Routines used to append files to an existing
  *	tape archive
  *
- *	Copyright (c) 1992, 2001-2006 J. Schilling
+ *	Copyright (c) 1992, 2001-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -104,7 +104,7 @@ hash_new(size)
 	register	int	i;
 
 	h_size = size;
-	h_tab = (struct h_elem **)__malloc(size * sizeof (struct h_elem *), "new hash");
+	h_tab = (struct h_elem **)___malloc(size * sizeof (struct h_elem *), "new hash");
 	for (i = 0; i < size; i++) h_tab[i] = 0;
 
 	cachesize += size * sizeof (struct h_elem *);
@@ -185,7 +185,7 @@ hash_add(info)
 	}
 
 	len = info->f_namelen;
-	hp = __malloc((size_t)len + sizeof (struct h_elem), "add hash");
+	hp = ___malloc((size_t)len + sizeof (struct h_elem), "add hash");
 	cachesize += len + sizeof (struct h_elem);
 	strcpy(hp->h_data, info->f_name);
 	hp->h_time = info->f_mtime;

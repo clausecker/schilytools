@@ -1,4 +1,4 @@
-#ident "@(#)Makefile	1.8 08/08/01 "
+#ident "@(#)Makefile	1.9 08/09/10 "
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -52,7 +52,7 @@ XMK_FILE=
 
 inputc.c map.c bsh.h:
 	@echo "	==> MAKING SYMLINKS in ." && sh ./MKLINKS
-all: inputc.c map.c
+$(ALLTARGETS): inputc.c map.c
 $(SRCROOT)/$(RULESDIR)/rules.lib: bsh.h
 
 ###########################################################################

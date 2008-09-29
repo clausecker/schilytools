@@ -1,7 +1,7 @@
-/* @(#)mem.c	1.7 06/11/05 Copyright 1998-2006 J. Schilling */
+/* @(#)mem.c	1.8 08/09/26 Copyright 1998-2006 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)mem.c	1.7 06/11/05 Copyright 1998-2006 J. Schilling";
+	"@(#)mem.c	1.8 08/09/26 Copyright 1998-2006 J. Schilling";
 #endif
 /*
  *	Memory handling with error checking
@@ -29,12 +29,12 @@ static	char sccsid[] =
 #include <schily/schily.h>
 #include <schily/nlsdefs.h>
 
-EXPORT	void	*__malloc	__PR((size_t size, char *msg));
-EXPORT	void	*__realloc	__PR((void *ptr, size_t size, char *msg));
-EXPORT	char	*__savestr	__PR((const char *s));
+EXPORT	void	*___malloc	__PR((size_t size, char *msg));
+EXPORT	void	*___realloc	__PR((void *ptr, size_t size, char *msg));
+EXPORT	char	*___savestr	__PR((const char *s));
 
 EXPORT void *
-__malloc(size, msg)
+___malloc(size, msg)
 	size_t	size;
 	char	*msg;
 {
@@ -49,7 +49,7 @@ __malloc(size, msg)
 }
 
 EXPORT void *
-__realloc(ptr, size, msg)
+___realloc(ptr, size, msg)
 	void	*ptr;
 	size_t	size;
 	char	*msg;
@@ -68,10 +68,10 @@ __realloc(ptr, size, msg)
 }
 
 EXPORT char *
-__savestr(s)
+___savestr(s)
 	const char	*s;
 {
-	char	*ret = __malloc(strlen(s)+1, "saved string");
+	char	*ret = ___malloc(strlen(s)+1, "saved string");
 
 	strcpy(ret, s);
 	return (ret);

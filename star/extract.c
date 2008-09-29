@@ -1,7 +1,7 @@
-/* @(#)extract.c	1.131 08/04/06 Copyright 1985-2008 J. Schilling */
+/* @(#)extract.c	1.132 08/09/26 Copyright 1985-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)extract.c	1.131 08/04/06 Copyright 1985-2008 J. Schilling";
+	"@(#)extract.c	1.132 08/09/26 Copyright 1985-2008 J. Schilling";
 #endif
 /*
  *	extract files from archive
@@ -1154,9 +1154,9 @@ add_copy(info, do_symlink)
 	FINFO	*info;
 	BOOL	do_symlink;
 {
-	MCQ	*mcqp	   = __malloc(sizeof (MCQ), "make_copy()");
-	char	*f_namep   = __savestr(info->f_name);
-	char	*f_lnamep  = __savestr(info->f_lname);
+	MCQ	*mcqp	   = ___malloc(sizeof (MCQ), "make_copy()");
+	char	*f_namep   = ___savestr(info->f_name);
+	char	*f_lnamep  = ___savestr(info->f_lname);
 
 	mcqp->next	   = NULL;
 	mcqp->do_symlink   = do_symlink;
@@ -1277,7 +1277,7 @@ _make_dcopy(info, do_symlink, retp, eflags)
 		name = &dp[1];
 		nlen = strlen(name);
 
-		ninfo.f_name = __malloc(strlen(info->f_name) +
+		ninfo.f_name = ___malloc(strlen(info->f_name) +
 					1 + nlen + 1, "make_copy()");
 
 		strcpy(ninfo.f_name, info->f_name);
@@ -1285,7 +1285,7 @@ _make_dcopy(info, do_symlink, retp, eflags)
 			strcat(ninfo.f_name, "/");
 		strcat(ninfo.f_name, name);
 
-		ninfo.f_lname = __malloc(3 +
+		ninfo.f_lname = ___malloc(3 +
 					strlen(info->f_lname) +	1 +
 					nlen + 1, "make_copy()");
 

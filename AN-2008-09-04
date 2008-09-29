@@ -1,0 +1,27 @@
+New features with AN-2008-09-04:
+
+-	cdrecord now correctly writes DVD+R/DL media with all drives.
+	Before, there have been problems at the layer break with some
+	drives.
+
+-	sccs get ... now only expands the new four digit-year keywords
+	%d% %e% %g% %h% if the 'x' flag has been set with sccs admin or
+	if the related keyword has been exlicitely enabled via the 'y'
+	flag.
+
+	This has been done because the probabiltiy thar lower case characters
+	from printf() format stirngs incorrectly match sccs keywords is too high.
+
+
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.isdn.cs.tu-berlin.de, js@cs.tu-berlin.de
+	schilling@fokus.fhg.de
+
+Please mail bugs and suggestions to me.

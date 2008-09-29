@@ -1,4 +1,4 @@
-#ident "@(#)Makefile	1.11 08/07/31 "
+#ident "@(#)Makefile	1.12 08/09/10 "
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -55,7 +55,7 @@ XMK_FILE=	Makefile.man
 
 signames.c:
 	@echo "	==> MAKING SYMLINKS in ." && sh ./MKLINKS
-all: signames.c
+$(ALLTARGETS): signames.c
 
 ###########################################################################
 include		$(SRCROOT)/$(RULESDIR)/rules.cmd

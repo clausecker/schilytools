@@ -1,13 +1,13 @@
-/* @(#)memory.c	1.13 06/10/12 Copyright 1985-2006 J. Schilling */
+/* @(#)memory.c	1.15 08/09/26 Copyright 1985-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)memory.c	1.13 06/10/12 Copyright 1985-2006 J. Schilling";
+	"@(#)memory.c	1.15 08/09/26 Copyright 1985-2008 J. Schilling";
 #endif
 /*
  *	Make program
  *	Memory allocation routines
  *
- *	Copyright (c) 1985-2006 by J. Schilling
+ *	Copyright (c) 1985-2008 by J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -51,7 +51,7 @@ int	countfastfree;
 #endif
 
 EXPORT void *
-__realloc(ptr, size, msg)
+___realloc(ptr, size, msg)
 	void	*ptr;
 	size_t	size;
 	char	*msg;

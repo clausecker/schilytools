@@ -1,7 +1,7 @@
-/* @(#)xheader.c	1.76 08/04/06 Copyright 2001-2008 J. Schilling */
+/* @(#)xheader.c	1.77 08/09/26 Copyright 2001-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)xheader.c	1.76 08/04/06 Copyright 2001-2008 J. Schilling";
+	"@(#)xheader.c	1.77 08/09/26 Copyright 2001-2008 J. Schilling";
 #endif
 /*
  *	Handling routines to read/write, parse/create
@@ -239,7 +239,7 @@ LOCAL xtab_t xtab[] = {
 LOCAL void
 _xbinit()
 {
-	xbuf = __malloc(1, "growable xheader");
+	xbuf = ___malloc(1, "growable xheader");
 	xblen = 1;
 	xbidx = 0;
 }
@@ -249,12 +249,12 @@ xbinit()
 {
 	_xbinit();
 
-	ginfo.f_name = __malloc(PATH_MAX+1, "global info name");
-	ginfo.f_lname = __malloc(PATH_MAX+1, "global info lname");
+	ginfo.f_name = ___malloc(PATH_MAX+1, "global info name");
+	ginfo.f_lname = ___malloc(PATH_MAX+1, "global info lname");
 	ginfo.f_name[0] = '\0';
 	ginfo.f_lname[0] = '\0';
-	ginfo.f_uname = __malloc(MAX_UNAME+1, "global user name");
-	ginfo.f_gname = __malloc(MAX_UNAME+1, "global group name");
+	ginfo.f_uname = ___malloc(MAX_UNAME+1, "global user name");
+	ginfo.f_gname = ___malloc(MAX_UNAME+1, "global group name");
 	ginfo.f_uname[0] = '\0';
 	ginfo.f_gname[0] = '\0';
 	ggname = ginfo.f_gname;
@@ -281,7 +281,7 @@ xbgrow(newsize)
 		/* LINTED */
 		;
 	newsize = i + xblen;
-	newbuf = __realloc(xbuf, newsize, "growable xheader");
+	newbuf = ___realloc(xbuf, newsize, "growable xheader");
 	xbuf = newbuf;
 	xblen = newsize;
 }
@@ -1220,7 +1220,7 @@ print_unknown(keyword)
 			"Unknown extended header keyword '%s' ignored at %lld.\n",
 				keyword, tblocks());
 
-		up = __malloc(sizeof (*up) + strlen(keyword), "unknown list");
+		up = ___malloc(sizeof (*up) + strlen(keyword), "unknown list");
 		strcpy(up->u_name, keyword);
 		up->u_next = unkn;
 		unkn = up;
@@ -2202,10 +2202,10 @@ get_attr(info, keyword, klen, arg, len)
 	if (static_xattr) {
 		for (x = static_xattr; x->name; x++)
 			num++;
-		x = __realloc(static_xattr,
+		x = ___realloc(static_xattr,
 			(num+2) * sizeof (star_xattr_t), "extended attribute");
 	} else {
-		x = __malloc(
+		x = ___malloc(
 			(num+2) * sizeof (star_xattr_t), "extended attribute");
 	}
 	static_xattr = x;
@@ -2217,8 +2217,8 @@ get_attr(info, keyword, klen, arg, len)
 	if (strncmp(keyword, "SCHILY.xattr.", 13) == 0)
 		keyword += 13;
 
-	x->name = __malloc(strlen(keyword)+1, "extended attribute");
-	x->value = __malloc(len+1, "extended attribute");
+	x->name = ___malloc(strlen(keyword)+1, "extended attribute");
+	x->value = ___malloc(len+1, "extended attribute");
 	strcpy(x->name, keyword);
 	x->value_len = len;
 	movebytes(arg, x->value, len);
@@ -2312,7 +2312,7 @@ get_iarray(info, keyword, klen, arg, len)
 		p = strchr(p, ' ');
 		dirents++;
 	}
-	ino = __malloc(dirents * sizeof (ino_t), "inos");
+	ino = ___malloc(dirents * sizeof (ino_t), "inos");
 
 	for (p = arg, i = 0; i < dirents; i++) {
 		if (*p == ' ')
@@ -2370,7 +2370,7 @@ get_release(info, keyword, klen, arg, len)
 	 */
 	from_utf8l((Uchar *)arg, (Uchar *)arg, &len);
 	grip->gflags |= GF_RELEASE;
-	grip->release = __savestr(arg);
+	grip->release = ___savestr(arg);
 }
 
 /* ARGSUSED */

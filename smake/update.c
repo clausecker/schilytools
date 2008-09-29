@@ -1,7 +1,7 @@
-/* @(#)update.c	1.107 08/08/11 Copyright 1985, 88, 91, 1995-2008 J. Schilling */
+/* @(#)update.c	1.108 08/09/26 Copyright 1985, 88, 91, 1995-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)update.c	1.107 08/08/11 Copyright 1985, 88, 91, 1995-2008 J. Schilling";
+	"@(#)update.c	1.108 08/09/26 Copyright 1985, 88, 91, 1995-2008 J. Schilling";
 #endif
 /*
  *	Make program
@@ -378,7 +378,7 @@ suffix_rule(obj, rtypep)
 					 */
 					rlen = strlen(suffix) +
 						l2->l_obj->o_namelen + 16;
-					rule = rp = __realloc(rp, rlen,
+					rule = rp = ___realloc(rp, rlen,
 							"suffix rule name");
 					goto again;
 				}
@@ -568,7 +568,7 @@ build_path(level, name, namelen, path, psize)
 
 	if (namelen >= psize) {
 		psize = namelen + 1;
-		path = __realloc(NULL, psize, "build path name");
+		path = ___realloc(NULL, psize, "build path name");
 	}
 	n = snprintf(path, psize, "%s%s%s", dirname, slash, name);
 	if (n >= psize)
@@ -814,7 +814,7 @@ dynmac(cmd, obj, source, suffix, depends, domod)
 	case '*':
 		if (obj->o_namelen >= blen) {
 			blen = obj->o_namelen + 1;
-			base = bp = __realloc(bp, blen, "base name");
+			base = bp = ___realloc(bp, blen, "base name");
 		}
 #ifdef	used_to_be_in_former_versions
 		copy_base(filename(obj->o_name), base, blen, suffix);
@@ -1031,7 +1031,7 @@ extr_dirnames(names)
 		}
 		if (len > blen) {
 			blen = len + 32;	/* Add some reserve */
-			base = bp = __realloc(bp, blen, "dir base");
+			base = bp = ___realloc(bp, blen, "dir base");
 		}
 		copy_dir(p, base, blen);
 		p = base;
@@ -1109,7 +1109,7 @@ exp_var(end, cmd, obj, source, suffix, depends)
 		}
 		if (rname >= nep) {
 			nlen += TYPICAL_NAMEMAX*2;
-			name = __realloc(np, nlen, "macro name");
+			name = ___realloc(np, nlen, "macro name");
 			if (np == NULL) {
 				/*
 				 * Copy old content
@@ -1154,7 +1154,7 @@ exp_var(end, cmd, obj, source, suffix, depends)
 			}
 			if (rname >= pep) {
 				plen += TYPICAL_NAMEMAX*2;
-				pat = __realloc(pp, plen, "macro pattern");
+				pat = ___realloc(pp, plen, "macro pattern");
 				if (pp == NULL) {
 					/*
 					 * Copy old content
@@ -1201,7 +1201,7 @@ exp_var(end, cmd, obj, source, suffix, depends)
 		if (*s2) {
 			if (strlcpy(name, s2, nlen) >= nlen) {
 				nlen = strlen(s2) +1;
-				name = np = __realloc(np, nlen, "macro name");
+				name = np = ___realloc(np, nlen, "macro name");
 				if (strlcpy(name, s2, nlen) >= nlen)
 					etoolong("copy macro content", s2);
 			}
@@ -1590,7 +1590,7 @@ exp_name(name, obj, source, suffix, depends, pat)
 							suffix, depends);
 						if ((sub_ptr - p) >=
 						    sizeof (epat)) {
-							epa = ep = __realloc(ep,
+							epa = ep = ___realloc(ep,
 								sub_ptr - p + 1,
 								"pattern content");
 						}
@@ -1645,7 +1645,7 @@ exp_name(name, obj, source, suffix, depends, pat)
 		char	*p = subst(pat, obj, source, suffix, depends);
 
 		if ((sub_ptr - p) >= sizeof (epat)) {
-			epa = ep = __realloc(ep, sub_ptr - p + 1,
+			epa = ep = ___realloc(ep, sub_ptr - p + 1,
 						"pattern content");
 		}
 		strcpy(epa, p);
@@ -1865,7 +1865,7 @@ again:
 	len = p - xname + 1;
 	if (len > plen) {
 		plen = len;
-		pat = pp = __realloc(pp, plen, "pattern content");
+		pat = pp = ___realloc(pp, plen, "pattern content");
 	}
 	strlcpy(pat, xname, len);
 /*error("pat: '%s' len %d strlen %d\n", pat, len, strlen(pat));*/
@@ -1874,7 +1874,7 @@ again:
 	 */
 	if ((len = prule->p_src_pfxlen + len + prule->p_src_suflen) > slen) {
 		slen = len;
-		sourcename = sp = __realloc(sp, slen, "pattern source name");
+		sourcename = sp = ___realloc(sp, slen, "pattern source name");
 	}
 	if ((len = snprintf(sourcename, slen, "%s%s%s",
 			prule->p_src_prefix, pat,
@@ -2012,7 +2012,7 @@ one_suff_src(name, suffix, pcmd, dlev)
 
 	if ((len = strlen(name)) >= slen) {
 		slen = len + 16;		/* Add space for '\0' and suf */
-		sourcename = sp = __realloc(sp, slen,
+		sourcename = sp = ___realloc(sp, slen,
 					"suffix source name");
 	}
 	copy_base(name, sourcename, slen, suffix);
@@ -2040,7 +2040,7 @@ one_suff_src(name, suffix, pcmd, dlev)
 			 * Expand rule name space.
 			 */
 			rlen = strlen(suffix) + suf->l_obj->o_namelen + 16;
-			rulename = rp = __realloc(rp, rlen, "suffix rule name");
+			rulename = rp = ___realloc(rp, rlen, "suffix rule name");
 			goto again;
 
 		}
@@ -2057,7 +2057,7 @@ one_suff_src(name, suffix, pcmd, dlev)
 
 		if (suf->l_obj->o_namelen >= endlen) {
 			slen = sourcelen + suf->l_obj->o_namelen + 1;
-			sourcename = __realloc(sp, slen,
+			sourcename = ___realloc(sp, slen,
 						"suffix source name");
 			if (sp == NULL) {
 				/*
@@ -2137,7 +2137,7 @@ ssuff_src(name, rule, rtypep, suffixp, pcmd, dlev)
 
 	if ((len = strlen(name)) >= slen) {
 		slen = len + 16;		/* Add space for '\0' and suf */
-		sourcename = sp = __realloc(sp, slen,
+		sourcename = sp = ___realloc(sp, slen,
 					"simple suffix source name");
 	}
 	copy_base(name, sourcename, slen, (char *)NULL);
@@ -2158,7 +2158,7 @@ ssuff_src(name, rule, rtypep, suffixp, pcmd, dlev)
 	do {
 		if (suf->l_obj->o_namelen >= endlen) {
 			slen = sourcelen + suf->l_obj->o_namelen + 1;
-			sourcename = __realloc(sp, slen,
+			sourcename = ___realloc(sp, slen,
 						"simple suffix source name");
 			if (sp == NULL) {
 				/*

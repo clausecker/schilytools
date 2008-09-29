@@ -1,7 +1,7 @@
-/* @(#)cdrecord.c	1.364 08/08/06 Copyright 1995-2008 J. Schilling */
+/* @(#)cdrecord.c	1.365 08/09/04 Copyright 1995-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)cdrecord.c	1.364 08/08/06 Copyright 1995-2008 J. Schilling";
+	"@(#)cdrecord.c	1.365 08/09/04 Copyright 1995-2008 J. Schilling";
 #endif
 /*
  *	Record data on a CD/CVD-Recorder
@@ -1125,6 +1125,22 @@ main(ac, av)
 				errmsg("Could set back effective uid.\n");
 		}
 #endif
+		/*
+		 * Hack to support DVD+R/DL
+		 */
+		if (dp->cdr_dstat->ds_type == DST_DVD_PLUS_R_DL) {
+			long	nbs = bufsize / (32*1024) * (32*1024);
+
+			if (nbs == 0) {
+				for (nbs = 32*1024; nbs > 2048; nbs /= 2)
+					if (nbs <= bufsize)
+						break;
+			}
+			if (nbs != bufsize) {
+				bufsize = nbs;
+				set_trsizes(dp, tracks, track);
+			}
+		}
 		/*
 		 * fork() here to start the extra process needed for
 		 * improved buffering.
@@ -4254,7 +4270,7 @@ load_media(scgp, dp, doexit)
 	scgp->silent--;
 	err = geterrno();
 	if (code < 0 && (err == EPERM || err == EACCES)) {
-		linuxcheck();	/* For version 1.364 of cdrecord.c */
+		linuxcheck();	/* For version 1.365 of cdrecord.c */
 		scg_openerr("");
 	}
 
@@ -5086,7 +5102,7 @@ set_wrmode(dp, wmode, tflags)
 }
 
 /*
- * I am sorry that even for version 1.364 of cdrecord.c, I am forced to do
+ * I am sorry that even for version 1.365 of cdrecord.c, I am forced to do
  * things like this, but defective versions of cdrecord cause a lot of
  * work load to me.
  *
@@ -5103,7 +5119,7 @@ set_wrmode(dp, wmode, tflags)
 #endif
 
 LOCAL void
-linuxcheck()				/* For version 1.364 of cdrecord.c */
+linuxcheck()				/* For version 1.365 of cdrecord.c */
 {
 #if	defined(linux) || defined(__linux) || defined(__linux__)
 #ifdef	HAVE_UNAME

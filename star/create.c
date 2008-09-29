@@ -1,7 +1,7 @@
-/* @(#)create.c	1.125 08/04/06 Copyright 1985, 1995, 2001-2008 J. Schilling */
+/* @(#)create.c	1.126 08/09/26 Copyright 1985, 1995, 2001-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)create.c	1.125 08/04/06 Copyright 1985, 1995, 2001-2008 J. Schilling";
+	"@(#)create.c	1.126 08/09/26 Copyright 1985, 1995, 2001-2008 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1985, 1995, 2001-2008 J. Schilling
@@ -731,7 +731,7 @@ createlist()
 	/*
 	 * We need at least PATH_MAX+1 and add 512 to get better messages below
 	 */
-	name = __malloc(nsize, "name buffer");
+	name = ___malloc(nsize, "name buffer");
 
 	for (nlen = 1; nlen > 0; ) {
 		if ((nlen = readnull ? ngetline(listf, name, nsize) :

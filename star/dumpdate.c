@@ -1,10 +1,10 @@
-/* @(#)dumpdate.c	1.18 07/10/28 Copyright 2003-2007 J. Schilling */
+/* @(#)dumpdate.c	1.19 08/09/26 Copyright 2003-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)dumpdate.c	1.18 07/10/28 Copyright 2003-2007 J. Schilling";
+	"@(#)dumpdate.c	1.19 08/09/26 Copyright 2003-2008 J. Schilling";
 #endif
 /*
- *	Copyright (c) 2003-2007 J. Schilling
+ *	Copyright (c) 2003-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -423,9 +423,9 @@ newdumpdates(name, level, dflags, date)
 {
 	dumpd_t	*dp;
 
-	dp	  = __malloc(sizeof (*dp), "tardumps entry");
+	dp	  = ___malloc(sizeof (*dp), "tardumps entry");
 	dp->next  = NULL;
-	dp->name  = __savestr(name);
+	dp->name  = ___savestr(name);
 	dp->level = level;
 	dp->flags = dflags;
 	dp->date  = *date;

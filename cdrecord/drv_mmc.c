@@ -1,7 +1,7 @@
-/* @(#)drv_mmc.c	1.190 08/06/14 Copyright 1997-2008 J. Schilling */
+/* @(#)drv_mmc.c	1.191 08/09/04 Copyright 1997-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)drv_mmc.c	1.190 08/06/14 Copyright 1997-2008 J. Schilling";
+	"@(#)drv_mmc.c	1.191 08/09/04 Copyright 1997-2008 J. Schilling";
 #endif
 /*
  *	CDR device implementation for
@@ -1362,8 +1362,15 @@ extern	char	*buf;
 	msf_t	msf;
 	BOOL	did_atip = FALSE;
 	BOOL	did_dummy = FALSE;
+	int	profile;
 
 	msf.msf_min = msf.msf_sec = msf.msf_frame = 0;
+
+	if (dsp->ds_type == DST_UNKNOWN) {
+		profile = get_curprofile(scgp);
+		if (profile >= 0)
+			dsp->ds_type = profile;
+	}
 
 	/*
 	 * It seems that there are drives that do not support to

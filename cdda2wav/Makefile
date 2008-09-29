@@ -1,4 +1,4 @@
-#ident @(#)Makefile	1.16 08/07/31 
+#ident @(#)Makefile	1.18 08/09/10 
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -6,7 +6,8 @@ LCONFIG=	local.cnf
 LCONFIG_DEP=	install-sh
 
 ###########################################################################
-all: install-sh scsi_scan.c scsi_cdr.c
+all:
+all clean depend config install: install-sh scsi_scan.c scsi_cdr.c
 
 install-sh scsi_scan.c scsi_cdr.c:
 	@echo "	==> MAKING SYMLINKS in ." && sh ./MKLINKS

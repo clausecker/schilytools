@@ -1,7 +1,7 @@
-/* @(#)restore.c	1.59 08/04/06 Copyright 2003-2008 J. Schilling */
+/* @(#)restore.c	1.60 08/09/26 Copyright 2003-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)restore.c	1.59 08/04/06 Copyright 2003-2008 J. Schilling";
+	"@(#)restore.c	1.60 08/09/26 Copyright 2003-2008 J. Schilling";
 #endif
 /*
  *	Data base management for incremental restores
@@ -406,8 +406,8 @@ add_node(cwd, name, oino, nino, flags)
 	register imap_t	*imp;
 	register int	hv;
 
-	imp = __malloc(sizeof (imap_t), "new imap");
-	imp->i_name = __savestr(name);
+	imp = ___malloc(sizeof (imap_t), "new imap");
+	imp->i_name = ___savestr(name);
 	imp->i_hash = hashval((Uchar *)imp->i_name);
 	imp->i_oino = oino;
 	imp->i_nino = nino;
@@ -729,7 +729,7 @@ sym_dirprepare(info, idir)
 	if (slashp)
 		*slashp = '/';
 
-	if ((dname = __malloc(info->f_dirents * sizeof (char *), "sym_dirprepare name")) == NULL) {
+	if ((dname = ___malloc(info->f_dirents * sizeof (char *), "sym_dirprepare name")) == NULL) {
 		return (idir);
 	}
 	/*
@@ -752,10 +752,10 @@ sym_dirprepare(info, idir)
 #endif
 
 	dp2 = fetchdir(info->f_name, &ents2, 0, &ino2);
-	if ((oino2 = __malloc(ents2 * sizeof (ino_t), "sym_dirprepare oino2")) == NULL) {
+	if ((oino2 = ___malloc(ents2 * sizeof (ino_t), "sym_dirprepare oino2")) == NULL) {
 		return (idir);
 	}
-	if ((dname2 = __malloc(ents2 * sizeof (char *), "sym_dirprepare name2")) == NULL) {
+	if ((dname2 = ___malloc(ents2 * sizeof (char *), "sym_dirprepare name2")) == NULL) {
 		return (idir);
 	}
 	/*
@@ -1236,9 +1236,9 @@ sym_initmaps()
 	if (himaps == NULL) {
 		register int	hv;
 
-		himaps = __malloc(HASH_ENTS * sizeof (imap_t *), "imap hash");
-		hoimaps = __malloc(HASH_ENTS * sizeof (imap_t *), "oimap hash");
-		hnimaps = __malloc(HASH_ENTS * sizeof (imap_t *), "nimap hash");
+		himaps  = ___malloc(HASH_ENTS * sizeof (imap_t *), "imap hash");
+		hoimaps = ___malloc(HASH_ENTS * sizeof (imap_t *), "oimap hash");
+		hnimaps = ___malloc(HASH_ENTS * sizeof (imap_t *), "nimap hash");
 		for (hv = 0; hv < HASH_ENTS; hv++) {
 			himaps[hv] = 0;
 			hoimaps[hv] = 0;
@@ -1303,7 +1303,7 @@ static	char	td[] = "star-tmpdir/.";
 			"All restores need to be done with the same star version.\n");
 		}
 	}
-	overs = __savestr(buf);			/* Restore SCHILY.release */
+	overs = ___savestr(buf);		/* Restore SCHILY.release */
 
 	readheader(f);
 
@@ -1811,16 +1811,16 @@ readheader(f)
 	(void) xgetline(f, buf, sizeof (buf), sym_symtable);
 	odtype = dt_type(buf);			/* Old Dump type */
 
-	ogp = __malloc(sizeof (*ogp), "ogp");
+	ogp = ___malloc(sizeof (*ogp), "ogp");
 	fillbytes(ogp, sizeof (*ogp), '\0');
 	(void) xgetline(f, buf, sizeof (buf), sym_symtable);
-	ogp->release = __savestr(buf);		/* Last dump SCHILY.release */
+	ogp->release = ___savestr(buf);		/* Last dump SCHILY.release */
 	(void) xgetline(f, buf, sizeof (buf), sym_symtable);
 	ogp->archtype = hdr_type(buf);		/* Last dump SCHILY.archtype */
 	(void) xgetline(f, buf, sizeof (buf), sym_symtable);
-	ogp->hostname = __savestr(buf);		/* " SCHILY.volhdr.hostname */
+	ogp->hostname = ___savestr(buf);		/* " SCHILY.volhdr.hostname */
 	(void) xgetline(f, buf, sizeof (buf), sym_symtable);
-	ogp->filesys = __savestr(buf);		/* " SCHILY.volhdr.filesys */
+	ogp->filesys = ___savestr(buf);		/* " SCHILY.volhdr.filesys */
 	(void) xgetline(f, buf, sizeof (buf), sym_symtable);
 	ogp->dumptype = dt_type(buf);		/* " SCHILY.volhdr.dumptype */
 	(void) xgetline(f, buf, sizeof (buf), sym_symtable);
@@ -2153,8 +2153,8 @@ dirdiskonly(info, odep, odp)
 	if (cmpdir(ents1, ents2, ep1, ep2, NULL, NULL, &alen, &dlen) > 0)
 		diffs = TRUE;
 
-	oa = __malloc(alen * sizeof (char *), "dir diff array");
-	od = __malloc(dlen * sizeof (char *), "dir diff array");
+	oa = ___malloc(alen * sizeof (char *), "dir diff array");
+	od = ___malloc(dlen * sizeof (char *), "dir diff array");
 	cmpdir(ents1, ents2, ep1, ep2, oa, od, &alen, &dlen);
 
 #ifdef	DEBUG

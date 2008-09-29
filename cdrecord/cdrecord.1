@@ -1,4 +1,4 @@
-.\" @(#)cdrecord.1	1.118 07/11/11 Copyright 1996-2007 J. Schilling
+.\" @(#)cdrecord.1	1.119 08/09/26 Copyright 1996-2007 J. Schilling
 .\"
 .\" The contents of this file are subject to the terms of the
 .\" Common Development and Distribution License, Version 1.0 only
@@ -460,11 +460,14 @@ option and the
 section for more information).
 .TP
 .B \-multi
-Allow multi session CDs to be made. This flag needs to be present
-on all sessions of a multi session disk,
-except you want to create a session that will be 
-the last session on the media.
-The fixation will be done in a way that allows the CD/DVD-Recorder to
+Allow multi session CDs or multi border DVDs to be made. 
+This flag needs to be present
+on all sessions of a multi session or multi border disk,
+except you want to create a session on a CD that will be 
+the last session on the CD media.
+.sp
+For CD media,
+the fixation will be done in a way that allows the CD/DVD-Recorder to
 append additional sessions later. This is done by generation a TOC
 with a link to the next program area. The so generated media is not
 100% compatible to manufactured CDs (except for CDplus). 
@@ -480,13 +483,23 @@ drives have no hardware support for
 You have to specify the 
 .B \-data 
 option in order to create multi session disks on these drives.
-As long as cdrecord does not have a coder for converting data sectors
-to audio sectors, you need to force 
+If you like to record a multisession disk in SAO mode,
+you need to force 
 .B CD-ROM
 sectors by including the
 .B \-data
-option if you like to record a multisession disk in SAO mode.
+option.
 Not all drives allow multisession CDs in SAO mode.
+.sp
+For DVD media,
+.B \-multi
+switches the write mode to 
+.BR "incremental packet recording" .
+There is currently no way to prevent the ability to append further
+sessions and there is currently only support for DVD-R/DVD-RW media.
+To reuse a DVD-RW that has previously been written in
+.B "incremental packet recording"
+mode for different write modes, you need to blank the entire media before.
 .TP
 .B \-media\-info
 .TP

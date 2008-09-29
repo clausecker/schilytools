@@ -1,7 +1,7 @@
-/* @(#)gnutar.c	1.23 08/06/13 Copyright 1989, 2003-2008 J. Schilling */
+/* @(#)gnutar.c	1.24 08/09/26 Copyright 1989, 2003-2008 J. Schilling */
 #ifndef lint
 static	char _g_sccsid[] =
-	"@(#)gnutar.c	1.23 08/06/13 Copyright 1989, 2003-2008 J. Schilling";
+	"@(#)gnutar.c	1.24 08/09/26 Copyright 1989, 2003-2008 J. Schilling";
 #endif
 /*
  *	GNU TAR specific routines for star main program.
@@ -390,7 +390,7 @@ signed	char	archive	 = -1;		/* On IRIX, we have unsigned chars by default */
 		int	len = strlen(rsh_command) + 4;	/* + "RSH=" */
 		char	*p;
 
-		p = __malloc(len, "putenv");
+		p = ___malloc(len, "putenv");
 		strcatl(p, "RSH=", rsh_command, (char *)NULL);
 #ifdef	HAVE_PUTENV
 		putenv(p);

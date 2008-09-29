@@ -1,7 +1,7 @@
-/* @(#)mkisofs.c	1.238 08/06/13 joerg */
+/* @(#)mkisofs.c	1.240 08/09/26 joerg */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)mkisofs.c	1.238 08/06/13 joerg";
+	"@(#)mkisofs.c	1.240 08/09/26 joerg";
 #endif
 /*
  * Program mkisofs.c - generate iso9660 filesystem  based upon directory
@@ -2632,7 +2632,7 @@ extern		int	walkfunc	__PR((char *nm, struct stat *fs, int type, struct WALK *sta
 
 		walkinitstate(&walkstate);
 		if (find_patlen > 0) {
-			walkstate.patstate = __malloc(sizeof (int) * find_patlen,
+			walkstate.patstate = ___malloc(sizeof (int) * find_patlen,
 						"space for pattern state");
 		}
 
@@ -3349,14 +3349,8 @@ get_graft(arg, graft_point, glen, nodename, nlen, short_namep, do_insert)
 			}
 			if (!do_insert)
 				return (graft_dir);
-#ifdef APPLE_HYB
 			if (!insert_file_entry(graft_dir, node,
-							short_name, NULL, 0))
-#else
-			if (!insert_file_entry(graft_dir, node,
-							short_name, NULL))
-#endif	/* APPLE_HYB */
-			{
+							short_name, NULL, 0)) {
 				/*
 				 * Should we ignore this?
 				 */

@@ -1,13 +1,13 @@
-/* @(#)p_block.c	1.25 07/09/02 J. Schilling from cdparanoia-III-alpha9.8 */
+/* @(#)p_block.c	1.26 08/09/18 J. Schilling from cdparanoia-III-alpha9.8 */
 #ifndef lint
 static	char sccsid[] =
-"@(#)p_block.c	1.25 07/09/02 J. Schilling from cdparanoia-III-alpha9.8";
+"@(#)p_block.c	1.26 08/09/18 J. Schilling from cdparanoia-III-alpha9.8";
 
 #endif
 /*
  * CopyPolicy: GNU Lesser General Public License v2.1 applies
- * Copyright (C) 1997-2001 by Monty (xiphmont@mit.edu)
- * Copyright (C) 2002-2006 by J. Schilling
+ * Copyright (C) 1997-2001,2008 by Monty (xiphmont@mit.edu)
+ * Copyright (C) 2002-2008 by J. Schilling
  */
 #include <schily/mconfig.h>
 #include <schily/stdlib.h>
@@ -505,6 +505,17 @@ c_removef(v, cut)
 
 /*
  * Initialization
+ */
+
+/*
+ *  Get the beginning and ending sector bounds given cursor position.
+ *
+ * There are a couple of subtle differences between this and the
+ * cdda_firsttrack_sector and cdda_lasttrack_sector. If the cursor is
+ * at a sector later than cdda_firsttrack_sector, that sector will be
+ * used. As for the difference between cdda_lasttrack_sector, if the CD
+ * is mixed and there is a data track after the cursor but before the
+ * last audio track, the end of the audio sector before that is used.
  */
 EXPORT void
 i_paranoia_firstlast(p)

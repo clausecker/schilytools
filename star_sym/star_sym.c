@@ -1,7 +1,7 @@
-/* @(#)star_sym.c	1.7 08/06/13 Copyright 2005-2008 J. Schilling */
+/* @(#)star_sym.c	1.8 08/09/26 Copyright 2005-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)star_sym.c	1.7 08/06/13 Copyright 2005-2008 J. Schilling";
+	"@(#)star_sym.c	1.8 08/09/26 Copyright 2005-2008 J. Schilling";
 #endif
 /*
  *	Read in the star inode data base and write a human
@@ -156,7 +156,7 @@ star_mkvers()
 	js_snprintf(buf, sizeof (buf),
 		"%s %s (%s-%s-%s)", "star", strvers, HOST_CPU, HOST_VENDOR, HOST_OS);
 
-	vers = __savestr(buf);
+	vers = ___savestr(buf);
 }
 
 EXPORT int

@@ -1,7 +1,7 @@
-/* @(#)tree.c	1.112 08/08/14 joerg */
+/* @(#)tree.c	1.113 08/09/11 joerg */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)tree.c	1.112 08/08/14 joerg";
+	"@(#)tree.c	1.113 08/09/11 joerg";
 #endif
 /*
  * File tree.c - scan directory  tree and build memory structures for iso9660
@@ -76,17 +76,10 @@ LOCAL	struct directory_entry *
 					    char *whole_path,
 					    char *short_name,
 					    struct stat *statp));
-#ifdef APPLE_HYB
 EXPORT	int	insert_file_entry	__PR((struct directory *this_dir,
 						char *whole_path,
 						char *short_name,
 						struct stat *statp, int have_rsrc));
-#else
-EXPORT	int	insert_file_entry	__PR((struct directory *this_dir,
-						char *whole_path,
-						char *short_name,
-						struct stat *statp));
-#endif
 EXPORT	struct directory_entry *
 		dup_directory_entry	__PR((struct directory_entry *s_entry));
 EXPORT	void	generate_iso9660_directories __PR((struct directory *node,
@@ -1355,11 +1348,7 @@ extern	BOOL		nodesc;
 		/*
 		 * This actually adds the entry to the directory in question.
 		 */
-#ifdef APPLE_HYB
 		insert_file_entry(this_dir, whole_path, d_name, NULL, 0);
-#else
-		insert_file_entry(this_dir, whole_path, d_name, NULL);
-#endif	/* APPLE_HYB */
 	}
 	closedir(current_dir);
 
@@ -1444,7 +1433,6 @@ dup_relocated_dir(this_dir, s_entry, whole_path, short_name, statp)
  * and the thing it points to is a dir), then we will scan those
  * trees before we return.
  */
-#ifdef APPLE_HYB
 EXPORT int
 insert_file_entry(this_dir, whole_path, short_name, statp, have_rsrc)
 	struct directory	*this_dir;
@@ -1452,14 +1440,6 @@ insert_file_entry(this_dir, whole_path, short_name, statp, have_rsrc)
 	char			*short_name;
 	struct stat		*statp;
 	int			have_rsrc;
-#else
-EXPORT int
-insert_file_entry(this_dir, whole_path, short_name, statp)
-	struct directory	*this_dir;
-	char			*whole_path;
-	char			*short_name;
-	struct stat		*statp;
-#endif	/* APPLE_HYB */
 {
 	struct stat	statbuf,
 			lstatbuf;

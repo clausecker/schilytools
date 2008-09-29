@@ -1,7 +1,7 @@
-/* @(#)write.c	1.117 07/12/16 joerg */
+/* @(#)write.c	1.118 08/09/11 joerg */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)write.c	1.117 07/12/16 joerg";
+	"@(#)write.c	1.118 08/09/11 joerg";
 #endif
 /*
  * Program write.c - dump memory  structures to  file for iso9660 filesystem.
@@ -74,6 +74,10 @@ struct output_fragment *out_list;
 
 EXPORT	struct iso_primary_descriptor	vol_desc;
 LOCAL	int				vol_desc_sum;
+
+#ifndef	APPLE_HFS_HYB
+	char	*hfs_error = "no error";
+#endif
 
 LOCAL	int	xawrite		__PR((void *buffer, int size, int count,
 					FILE *file, int submode, BOOL islast));
@@ -2625,7 +2629,11 @@ hfs_file_gen(start_extent)
 		hce->error[0] = '\0';
 
 		/* attempt to create the Mac volume */
+#ifdef APPLE_HFS_HYB
 		Csize = make_mac_volume(root, start_extent);
+#else
+		Csize = -1;
+#endif
 
 		/* if we have a problem ... */
 		if (Csize < 0) {

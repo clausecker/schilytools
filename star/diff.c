@@ -1,7 +1,7 @@
-/* @(#)diff.c	1.82 08/04/06 Copyright 1993-2008 J. Schilling */
+/* @(#)diff.c	1.83 08/09/26 Copyright 1993-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)diff.c	1.82 08/04/06 Copyright 1993-2008 J. Schilling";
+	"@(#)diff.c	1.83 08/09/26 Copyright 1993-2008 J. Schilling";
 #endif
 /*
  *	List differences between a (tape) archive and
@@ -628,8 +628,8 @@ dirdiffs(f, info)
 	if (cmpdir(ents1, ents2, ep1, ep2, NULL, NULL, &alen, &dlen) > 0)
 		diffs = TRUE;
 
-	oa = __malloc(alen * sizeof (char *), "dir diff array");
-	od = __malloc(dlen * sizeof (char *), "dir diff array");
+	oa = ___malloc(alen * sizeof (char *), "dir diff array");
+	od = ___malloc(dlen * sizeof (char *), "dir diff array");
 	cmpdir(ents1, ents2, ep1, ep2, oa, od, &alen, &dlen);
 
 	if (debug || verbose > 1) {
@@ -696,7 +696,7 @@ cmp_file(info)
 		/*
 		 * If we have no diffbuf, we cannot diff - abort.
 		 */
-		diffbuf = __malloc((size_t)bigsize, "diff buffer");
+		diffbuf = ___malloc((size_t)bigsize, "diff buffer");
 #ifdef	__notneeded
 		if (diffbuf == (char *)0) {
 			void_file(info);

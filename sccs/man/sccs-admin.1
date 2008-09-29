@@ -1,4 +1,5 @@
 '\" te
+.\" @(#)sccs-admin.1	1.5 08/09/10 portions Copyright 2008 J. Schilling */
 .\" CDDL HEADER START
 .\"
 .\" The contents of this file are subject to the terms of the
@@ -128,6 +129,12 @@ Supplies a  \fIvalue\fR to which the \fB\fR keyword is to expand when a read-onl
 \fB\fBs\fR\fInumber\fR\fR
 Specifies how many lines of code are scanned for the SCCS keyword.
 .sp
+This flag is a
+.B \s-1SUN\s+1
+extension that does not exist in historic
+.B sccs
+implementations.
+.sp
 .ne 3
 .TP
 \fB\fBt\fR\fItype\fR\fR
@@ -141,10 +148,34 @@ in which case the list of \fBMR\fRs may be empty.
 .sp
 .ne 3
 .TP
+\fB\fBx\fR
+Enable 
+.B sccs
+extensions that are not implemented in classical 
+.B sccs
+variants. If the
+.B `x'
+flag is enabled, the keywords
+.BR %\&d\&% ", " %\&e\&% ", " %\&g\&% 
+and
+.B %\&h\&%
+are expanded even though not explicitely enabled by the
+.B `y'
+flag.
+.sp
+This flag is a
+.B \s-1SCHILY\s+1
+extension that does not exist in historic
+.ne 3
+.TP
 \fB\fBy\fR[\fIvalue\fR\fB,\fR[\fIvalue\fR]]\fR
 Specifies the SCCS keywords to be expanded. If no \fIvalue\fR is specified, no keywords will be expanded.
 The value `\fB*\fP'
 controls the expansion of the \fB%\&sccs.include.\fIfilename\fB\&%\fR keyword.
+.sp
+This flag is a
+.B \s-1SUN\s+1
+extension that does not exist in historic
 .RE
 .sp
 .ne 3

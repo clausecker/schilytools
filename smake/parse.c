@@ -1,7 +1,7 @@
-/* @(#)parse.c	1.90 08/06/13 Copyright 1985-2008 J. Schilling */
+/* @(#)parse.c	1.91 08/09/26 Copyright 1985-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)parse.c	1.90 08/06/13 Copyright 1985-2008 J. Schilling";
+	"@(#)parse.c	1.91 08/09/26 Copyright 1985-2008 J. Schilling";
 #endif
 /*
  *	Make program
@@ -356,7 +356,7 @@ static	int	serial = 0;
 
 	if (obj->o_namelen + 16 >= namelen) {
 		namelen = obj->o_namelen + 16;
-		name = np = __realloc(np, namelen, "dcolon target");
+		name = np = ___realloc(np, namelen, "dcolon target");
 	}
 	snprintf(name, namelen, "::%d@%s", ++serial, obj->o_name);
 	o = objlook(name, TRUE);

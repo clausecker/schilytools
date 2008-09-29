@@ -1,7 +1,7 @@
-/* @(#)sccslog.c	1.22 08/08/24 Copyright 1997-2008 J. Schilling */
+/* @(#)sccslog.c	1.23 08/09/18 Copyright 1997-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)sccslog.c	1.22 08/08/24 Copyright 1997-2008 J. Schilling";
+	"@(#)sccslog.c	1.23 08/09/18 Copyright 1997-2008 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1997-2008 J. Schilling
@@ -367,7 +367,7 @@ dofile(name)
 
 			if (tm.tm_year >= 0 && tm.tm_year < 69)
 				tm.tm_year += 100;
-			tm.tm_isdst = 0;
+			tm.tm_isdst = -1;		/* let mktime() do it */
 			tm.tm_mon -= 1;
 			seterrno(0);
 			if (tm.tm_year >= 138 &&	/* 2038 */

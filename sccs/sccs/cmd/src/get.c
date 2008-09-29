@@ -27,11 +27,11 @@
 /*
  * This file contains modifications Copyright 2006-2008 J. Schilling
  *
- * @(#)get.c	1.14 08/08/20 J. Schilling
+ * @(#)get.c	1.15 08/09/04 J. Schilling
  */
 #if defined(sun) || defined(__GNUC__)
 
-#ident "@(#)get.c 1.14 08/08/20 J. Schilling"
+#ident "@(#)get.c 1.15 08/09/04 J. Schilling"
 #endif
 /*
  * @(#)get.c 1.59 06/12/12
@@ -287,7 +287,7 @@ register char *argv[];
                                    nsedelim = (char *) 0;
                                 }
                                 break;
-			case'C':
+			case 'C':
 				Cwd = p;
 				break;
 
@@ -896,6 +896,7 @@ char line[];
 	static char str[32];
 	register char *lp, *tp;
 	int recursive = 0;
+	int expand_XIDs;
 	char *expand_ID;
 		
 	cnt_ID_lines++;
@@ -915,6 +916,7 @@ char line[];
 			return(line);
 		}
 	}
+	expand_XIDs = Sflags[EXTENSFLAG - 'a'] != NULL || list_expand_IDs != NULL;
 	tp = tline;
 	for (lp=line; *lp != 0; lp++) {
 		if ((!Did_id) && (Sflags['i'-'a']) &&
@@ -959,12 +961,16 @@ char line[];
 				tp = trans(tp,Curdate);
 				break;
 			case 'd':
+				if (!expand_XIDs)
+					goto noexpand;
 				tp = trans(tp,Curdatel);
 				break;
 			case 'H':
 				tp = trans(tp,Gdate);
 				break;
 			case 'h':
+				if (!expand_XIDs)
+					goto noexpand;
 				tp = trans(tp,Gdatel);
 				break;
 			case 'T':
@@ -974,12 +980,16 @@ char line[];
 				tp = trans(tp,Chgdate);
 				break;
 			case 'e':
+				if (!expand_XIDs)
+					goto noexpand;
 				tp = trans(tp,Chgdatel);
 				break;
 			case 'G':
 				tp = trans(tp,Gchgdate);
 				break;
 			case 'g':
+				if (!expand_XIDs)
+					goto noexpand;
 				tp = trans(tp,Gchgdatel);
 				break;
 			case 'U':
@@ -1049,6 +1059,7 @@ char line[];
 				tp = trans(tp,Sid);
 				tp = trans(tp,Zkeywd);
 				break;
+			noexpand:
 			default:
 				str[0] = '%';
 				str[1] = *lp;

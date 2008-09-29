@@ -1,7 +1,7 @@
-/* @(#)walk.c	1.34 08/09/01 Copyright 2004-2008 J. Schilling */
+/* @(#)walk.c	1.35 08/09/26 Copyright 2004-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)walk.c	1.34 08/09/01 Copyright 2004-2008 J. Schilling";
+	"@(#)walk.c	1.35 08/09/26 Copyright 2004-2008 J. Schilling";
 #endif
 /*
  *	Walk a directory tree
@@ -22,7 +22,17 @@ static	char sccsid[] =
  *
  *	Similar changes need to be introduced in fetchdir().
  */
-/*@@C@@*/
+/*
+ * The contents of this file are subject to the terms of the
+ * Common Development and Distribution License, Version 1.0 only
+ * (the "License").  You may not use this file except in compliance
+ * with the License.
+ *
+ * See the file CDDL.Schily.txt in this distribution for details.
+ *
+ * When distributing Covered Code, include this CDDL HEADER in each
+ * file and include the License file CDDL.Schily.txt from this distribution.
+ */
 
 #include <schily/mconfig.h>
 #include <stdio.h>
@@ -139,7 +149,7 @@ treewalk(nm, fn, state)
 	if (nm == NULL || nm[0] == '\0')
 		nm = ".";
 
-	vars.Curdir = __malloc(DIR_INCR, "path buffer");
+	vars.Curdir = ___malloc(DIR_INCR, "path buffer");
 	vars.Curdir[0] = 0;
 	vars.Curdlen = DIR_INCR;
 	/*
@@ -416,7 +426,7 @@ incr_dspace(varp, amt)
 		amt = 0;
 	while (incr < amt)
 		incr += DIR_INCR;
-	varp->Curdir = __realloc(varp->Curdir, varp->Curdlen + incr,
+	varp->Curdir = ___realloc(varp->Curdir, varp->Curdlen + incr,
 								"path buffer");
 	varp->Curdlen += incr;
 	return (incr);
@@ -444,7 +454,7 @@ EXPORT void *
 walkopen(state)
 	struct WALK	*state;
 {
-	struct twvars	*varp = __malloc(sizeof (struct twvars), "walk vars");
+	struct twvars	*varp = ___malloc(sizeof (struct twvars), "walk vars");
 
 	if (varp == NULL)
 		return (NULL);

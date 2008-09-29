@@ -1,13 +1,13 @@
-/* @(#)overlap.c	1.13 06/09/13 J. Schilling from cdparanoia-III-alpha9.8 */
+/* @(#)overlap.c	1.14 08/09/18 J. Schilling from cdparanoia-III-alpha9.8 */
 #ifndef lint
 static	char sccsid[] =
-"@(#)overlap.c	1.13 06/09/13 J. Schilling from cdparanoia-III-alpha9.8";
+"@(#)overlap.c	1.14 08/09/18 J. Schilling from cdparanoia-III-alpha9.8";
 
 #endif
 /*
  * CopyPolicy: GNU Lesser General Public License v2.1 applies
- * Copyright (C) 1997-2001 by Monty (xiphmont@mit.edu)
- * Copyright (C) 2002-2006 by J. Schilling
+ * Copyright (C) 1997-2001,2008 by Monty (xiphmont@mit.edu)
+ * Copyright (C) 2002-2008 by J. Schilling
  *
  * Statistic code and cache management for overlap settings
  *
@@ -120,6 +120,17 @@ rootfree:
 
 /*
  * Statistical and heuristic[al? :-] management
+ *
+ * offset_adjust_settings (internal)
+ *
+ * This function is called by offset_add_value() every time 10 samples have
+ * been accumulated.  This function updates the internal statistics for
+ * paranoia (dynoverlap, dyndrift) that compensate for jitter and drift.
+ *
+ * (dynoverlap) influences how far stage 1 and stage 2 search for matching
+ * runs.  In low-jitter conditions, it will be very small (or even 0),
+ * narrowing our search.  In high-jitter conditions, it will be much larger,
+ * widening our search at the cost of speed.
  */
 EXPORT void
 offset_adjust_settings(p, callback)
@@ -213,6 +224,31 @@ offset_adjust_settings(p, callback)
 	}
 }
 
+/*
+ * offset_add_value (internal)
+ *
+ * This function adds the given jitter detected (value) to the statistics
+ * for the given stage (o).  It is called whenever jitter has been identified
+ * by stage 1 or 2.  After every 10 samples, we update the overall jitter-
+ * compensation settings (e.g. dynoverlap).  This allows us to narrow our
+ * search for matching runs (in both stages) in low-jitter conditions
+ * and also widen our search appropriately when there is jitter.
+ *
+ *
+ * "???BUG???:
+ * Note that there is a bug in the way that this is called by try_sort_sync().
+ * Silence looks like zero jitter, and dynoverlap may be incorrectly reduced
+ * when there's lots of silence but also jitter."
+ *
+ * Strictly speaking, this is only sort-of true.  The silence will
+ * incorrectly somewhat reduce dynoverlap.  However, it will increase
+ * again once past the silence (even if reduced to zero, it will be
+ * increased by the block read loop if we're not getting matches).
+ * In reality, silence usually passes rapidly.  Anyway, long streaks
+ * of silence benefit performance-wise from having dynoverlap decrease
+ * momentarily. There is no correctness bug. --Monty
+ *
+ */
 EXPORT void
 offset_add_value(p, o, value, callback)
 	cdrom_paranoia	*p;
@@ -222,15 +258,27 @@ offset_add_value(p, o, value, callback)
 {
 	if (o->offpoints != -1) {
 
+		/*
+		 * Track the average magnitude of jitter (in either direction)
+		 */
 		o->offdiff += abs(value);
 		o->offpoints++;
 		o->newpoints++;
+		/*
+		 * Track the net value of the jitter (to track drift)
+		 */
 		o->offaccum += value;
+		/*
+		 * Track the largest jitter we've encountered in each direction
+		 */
 		if (value < o->offmin)
 			o->offmin = value;
 		if (value > o->offmax)
 			o->offmax = value;
 
+		/*
+		 * After 10 samples, update dynoverlap, etc.
+		 */
 		if (o->newpoints >= 10)
 			offset_adjust_settings(p, callback);
 	}

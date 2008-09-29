@@ -1,12 +1,12 @@
-/* @(#)pmalloc.c	1.4 06/09/13 Copyright 2004 J. Schilling */
+/* @(#)pmalloc.c	1.5 08/09/18 Copyright 2004-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)pmalloc.c	1.4 06/09/13 Copyright 2004 J. Schilling";
+	"@(#)pmalloc.c	1.5 08/09/18 Copyright 2004-2008 J. Schilling";
 #endif
 /*
  *	Paranoia malloc() functions
  *
- *	Copyright (c) 2004 J. Schilling
+ *	Copyright (c) 2004-2008 J. Schilling
  */
 /*
  * This library is free software; you can redistribute it and/or modify
@@ -43,7 +43,8 @@ EXPORT void
 _pfree(ptr)
 	void	*ptr;
 {
-	free(ptr);
+	if (ptr)
+		free(ptr);
 }
 
 EXPORT void *
@@ -83,6 +84,9 @@ _prealloc(ptr, size)
 	size_t	size;
 {
 	void	*p;
+
+	if (ptr == 0)
+		return (_pmalloc(size));
 
 	p = realloc(ptr, size + radd);
 	if (p == NULL)

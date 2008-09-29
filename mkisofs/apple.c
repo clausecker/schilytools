@@ -1,7 +1,7 @@
-/* @(#)apple.c	1.32 08/06/13 joerg, Copyright 1997, 1998, 1999, 2000 James Pearson */
+/* @(#)apple.c	1.33 08/09/12 joerg, Copyright 1997, 1998, 1999, 2000 James Pearson */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)apple.c	1.32 08/06/13 joerg, Copyright 1997, 1998, 1999, 2000 James Pearson";
+	"@(#)apple.c	1.33 08/09/12 joerg, Copyright 1997, 1998, 1999, 2000 James Pearson";
 #endif
 /*
  *      Copyright (c) 1997, 1998, 1999, 2000 James Pearson
@@ -2991,3 +2991,90 @@ perr(a)
 	else
 		comerr("<no error message given>\n");
 }
+
+#ifndef APPLE_HFS_HYB
+
+/*
+ * Convert 2 bytes in big-endian format into local host format
+ */
+EXPORT short
+d_getw(p)
+	Uchar	*p;
+{
+	return ((short)((p[0] << 8) | p[1]));
+}
+
+/*
+ * Convert 4 bytes in big-endian format into local host format
+ */
+EXPORT long
+d_getl(p)
+	Uchar	*p;
+{
+	return ((long)((p[0] << 24) | (p[1] << 16) | (p[2] <<  8) | p[3]));
+}
+
+/*
+ *	Apple v1 strores dates beginnign with 1st Jan 1904
+ *	Apple v2 strores dates beginnign with 1st Jan 2000
+ */
+#define V2TDIFF 946684800L	/* 30 years (1970 .. 2000)	*/
+#define V1TDIFF	2082844800L	/* 66 years (1904 .. 1970)	*/
+#define	TZNONE	0x0F0F0F0F	/* no valid time		*/
+
+LOCAL unsigned long tzdiff = TZNONE;
+
+/*
+ * Calculate the timezone difference between local time and UTC
+ */
+LOCAL void
+inittzdiff()
+{
+	time_t		now;
+	struct tm	tm;
+	struct tm	*lmp;
+	struct tm	*gmp;
+
+	time(&now);
+	lmp = localtime(&now);
+	gmp = gmtime(&now);
+
+	tzdiff = 0;
+	if (lmp && gmp) {
+		tm = *gmp;
+		tm.tm_isdst = lmp->tm_isdst;
+
+		tzdiff = now - mktime(&tm);
+	}
+}
+
+/*
+ * Convert Macintosh time to UNIX time
+ */
+EXPORT unsigned long
+d_toutime(secs)
+	unsigned long	secs;
+{
+	time_t utime = secs;
+
+	if (tzdiff == TZNONE)
+		inittzdiff();
+
+	return (utime - V1TDIFF - tzdiff);
+}
+
+/*
+ * Convert Apple Double v2 time to UNIX time
+ */
+EXPORT unsigned long
+d_dtoutime(secs)
+	long		secs;
+{
+	time_t utime = secs;
+
+	if (tzdiff == TZNONE)
+		inittzdiff();
+
+	return (utime + V2TDIFF - tzdiff);
+}
+#endif	/* !APPLE_HFS_HYB */
