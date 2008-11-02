@@ -1,4 +1,4 @@
-#ident @(#)Makefile	1.10 08/09/10 
+#ident @(#)Makefile	1.12 08/10/26 
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -11,17 +11,17 @@ CPPOPTS +=	-DUSE_LARGEFILES
 CPPOPTS +=	-DSCHILY_PRINT
 CPPOPTS +=	-DNO_DOIT
 CPPOPTS +=	-I../libscg
+CPPOPTS +=	-I../libcdrdeflt
 CPPOPTS +=	-I../cdrecord
 
 CFILES=		skel.c \
 		io.c cd_misc.c scsi_cdr.c \
 		scsi_scan.c \
-		modes.c misc.c \
-		defaults.c
+		misc.c
 
-HFILES=		cdrecord.h defaults.h iodefs.h scsi_scan.h scsimmc.h
+HFILES=		cdrecord.h iodefs.h scsi_scan.h scsimmc.h
 
-LIBS=		-lrscg -lscg $(LIB_VOLMGT) -ldeflt -lschily $(SCSILIB) $(LIB_SOCKET)
+LIBS=		-lscgcmd -lrscg -lscg $(LIB_VOLMGT) -lcdrdeflt -ldeflt -lschily $(SCSILIB) $(LIB_SOCKET)
 
 skel.c: iodefs.h
 iodefs.h scsi_scan.c io.c scsi_cdr.c:

@@ -1,7 +1,7 @@
-/* @(#)resample.c	1.24 07/07/28 Copyright 1998,1999,2000 Heiko Eissfeldt, Copyright 2004-2006 J. Schilling */
+/* @(#)resample.c	1.25 08/10/28 Copyright 1998,1999,2000 Heiko Eissfeldt, Copyright 2004-2006 J. Schilling */
 #ifndef lint
 static char	sccsid[] =
-"@(#)resample.c	1.24 07/07/28 Copyright 1998,1999,2000 Heiko Eissfeldt, Copyright 2004-2006 J. Schilling";
+"@(#)resample.c	1.25 08/10/28 Copyright 1998,1999,2000 Heiko Eissfeldt, Copyright 2004-2006 J. Schilling";
 #endif
 /*
  * resampling module
@@ -1157,6 +1157,14 @@ none__missing:
 			while (todo != 0) {
 				int retval_;
 
+#ifdef	MD5_SIGNATURES
+				if (global.md5count) {
+					global.md5size += todo;
+					MD5Update(global.context, p2, todo);
+					if (global.md5blocksize > 0)
+						global.md5count -= todo;
+				}
+#endif
 				retval_ = global.audio_out->WriteSound(global.audio, p2, todo);
 				if (retval_ < 0)
 					break;

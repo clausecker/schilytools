@@ -1,12 +1,12 @@
-/* @(#)wav.c	1.7 06/09/13 Copyright 1998,1999 Heiko Eissfeldt, Copyright 2006 J. Schilling */
+/* @(#)wav.c	1.8 08/10/28 Copyright 1998,1999 Heiko Eissfeldt, Copyright 2006-2008 J. Schilling */
 #ifndef lint
 static char	sccsid[] =
-"@(#)wav.c	1.7 06/09/13 Copyright 1998,1999 Heiko Eissfeldt, Copyright 2006 J. Schilling";
+"@(#)wav.c	1.8 08/10/28 Copyright 1998,1999 Heiko Eissfeldt, Copyright 2006-2008 J. Schilling";
 
 #endif
 /*
  * Copyright (C) by Heiko Eissfeldt
- * Copyright (c) 2006 J. Schilling
+ * Copyright (c) 2006-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -24,8 +24,10 @@ static char	sccsid[] =
 #include <stdio.h>
 #include <schily/standard.h>
 #include <schily/unistd.h>
+#include "mytype.h"
 #include "byteorder.h"
 #include "sndfile.h"
+#include "global.h"
 
 /*
  * ---------------------------------------------------------------------
@@ -134,6 +136,8 @@ _InitSound(audio, channels, rate, nBitsPerSample, expected_bytes)
 	waveHdr.chkData.ckid	= cpu_to_le32(FOURCC_DATA);
 	waveHdr.chkRiff.dwSize	= cpu_to_le32(temp);
 	waveHdr.chkData.dwSize	= cpu_to_le32(expected_bytes);
+
+	global.md5offset = sizeof (waveHdr);
 
 	return (write(audio, &waveHdr, sizeof (waveHdr)));
 }

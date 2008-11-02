@@ -1,4 +1,4 @@
-# @(#)README	1.25 02/12/25 Copyright 1996-2002 J. Schilling
+# @(#)README	1.26 08/10/12 Copyright 1996-2002 J. Schilling
 
 This is Version 2.0 of cdrecord
 
@@ -446,7 +446,7 @@ ftp://ftp.berlios.de/pub/schily/kernel/sd
 
 Current information on cdrecord may be found on:
 
-	http://www.fokus.fhg.de/research/cc/glone/employees/joerg.schilling/private/cdrecord.html
+	http://cdrecord.berlios.de/private/cdrecord.html
 
 
 	Joerg Schilling
@@ -457,4 +457,4 @@ If you have questions mail to:
 
 	HOME: 		joerg@schily.isdn.cs.tu-berlin.de
 	UNIVERSITY:	js@cs.tu-berlin.de
-	WORK:		schilling@fokus.fhg.de
+	WORK:		joerg.schilling@fokus.fraunhofer.de

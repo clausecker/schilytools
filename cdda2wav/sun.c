@@ -1,12 +1,12 @@
-/* @(#)sun.c	1.8 06/09/13 Copyright 1998,1999 Heiko Eissfeldt, Copyright 2006 J. Schilling */
+/* @(#)sun.c	1.9 08/10/28 Copyright 1998,1999 Heiko Eissfeldt, Copyright 2006-2008 J. Schilling */
 #ifndef lint
 static char	sccsid[] =
-"@(#)sun.c	1.8 06/09/13 Copyright 1998,1999 Heiko Eissfeldt, Copyright 2006 J. Schilling";
+"@(#)sun.c	1.9 08/10/28 Copyright 1998,1999 Heiko Eissfeldt, Copyright 2006-2008 J. Schilling";
 
 #endif
 /*
  * Copyright (C) by Heiko Eissfeldt
- * Copyright (c) 2006 J. Schilling
+ * Copyright (c) 2006-2008 J. Schilling
  *
  *  definitions for sun pcm output
  */
@@ -29,6 +29,7 @@ static char	sccsid[] =
 #include "mytype.h"
 #include "byteorder.h"
 #include "sndfile.h"
+#include "global.h"
 
 typedef struct SUNHDR {
 	unsigned int	magic;		/* dns. a la .snd */
@@ -67,6 +68,8 @@ InitSound(audio, channels, rate, nBitsPerSample, expected_bytes)
 	sunHdr.format		= cpu_to_be32(format);
 	sunHdr.sample_rate	= cpu_to_be32(rate);
 	sunHdr.channelcount	= cpu_to_be32(channels);
+
+	global.md5offset = sizeof (sunHdr);
 
 	return (write(audio, &sunHdr, sizeof (sunHdr)));
 }

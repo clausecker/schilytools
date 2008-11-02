@@ -1,7 +1,7 @@
-/* @(#)readcd.c	1.98 08/06/05 Copyright 1987, 1995-2008 J. Schilling */
+/* @(#)readcd.c	1.99 08/10/26 Copyright 1987, 1995-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)readcd.c	1.98 08/06/05 Copyright 1987, 1995-2008 J. Schilling";
+	"@(#)readcd.c	1.99 08/10/26 Copyright 1987, 1995-2008 J. Schilling";
 #endif
 /*
  *	Skeleton for the use of the scg genearal SCSI - driver
@@ -47,7 +47,7 @@ static	char sccsid[] =
 #include "scsimmc.h"
 #define	qpto96	__nothing__
 #include "cdrecord.h"
-#include "defaults.h"
+#include "cdrdeflt.h"
 #undef	qpto96
 #include "movesect.h"
 

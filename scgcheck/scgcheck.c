@@ -1,7 +1,7 @@
-/* @(#)scgcheck.c	1.13 08/06/13 Copyright 1998-2008 J. Schilling */
+/* @(#)scgcheck.c	1.14 08/10/11 Copyright 1998-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)scgcheck.c	1.13 08/06/13 Copyright 1998-2008 J. Schilling";
+	"@(#)scgcheck.c	1.14 08/10/11 Copyright 1998-2008 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1998-2008 J. Schilling
@@ -49,7 +49,7 @@ LOCAL	SCSI	*doopen		__PR((char *dev));
 LOCAL	void	checkversion	__PR((SCSI *scgp));
 LOCAL	void	getbuf		__PR((SCSI *scgp));
 LOCAL	void	scg_openerr	__PR((char *errstr));
-LOCAL	int	find_drive	__PR((SCSI *scgp, char *dev, int flags));
+LOCAL	int	find_drive	__PR((SCSI *scgp, char *devname, int flags));
 EXPORT	void	flushit		__PR((void));
 EXPORT	int	countopen	__PR((void));
 EXPORT	int	chkprint	__PR((const char *, ...)) __printflike__(1, 2);
@@ -495,9 +495,9 @@ scg_openerr(errstr)
 }
 
 LOCAL int
-find_drive(scgp, dev, flags)
+find_drive(scgp, devname, flags)
 	SCSI	*scgp;
-	char	*dev;
+	char	*devname;
 	int	flags;
 {
 	int	ntarget;
@@ -530,13 +530,15 @@ find_drive(scgp, dev, flags)
 /*
 		select_target(scgp, stdout);
 		comerrno(EX_BAD, "Select a target from the list above and use 'cdrecord dev=%s%sb,t,l'.\n",
-			dev?dev:"", dev?(dev[strlen(dev)-1] == ':'?"":":"):"");
+			devname?devname:"",
+			devname?(devname[strlen(devname)-1] == ':'?"":":"):"");
 */
 		find_target(scgp, type, 1);		
 	}
 	if ((flags & F_MSINFO) == 0)
 		error("Using dev=%s%s%d,%d,%d.\n",
-			dev?dev:"", dev?(dev[strlen(dev)-1] == ':'?"":":"):"",
+			devname?devname:"",
+			devname?(devname[strlen(devname)-1] == ':'?"":":"):"",
 			scg_scsibus(scgp), scg_target(scgp), scg_lun(scgp));
 
 	return (ntarget);
@@ -602,8 +604,8 @@ chkprint(fmt, va_alist)
 }
 
 EXPORT int
-chkgetline(buf, len)
-	char	*buf;
+chkgetline(lbuf, len)
+	char	*lbuf;
 	int	len;
 {
 	flushit();
@@ -611,8 +613,8 @@ chkgetline(buf, len)
 		printf("\n");
 		flush();
 		if (len > 0)
-			buf[0] = '\0';
+			lbuf[0] = '\0';
 		return (0);
 	}
-	return (getline(buf, len));
+	return (getline(lbuf, len));
 }

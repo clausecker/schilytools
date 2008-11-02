@@ -1,7 +1,7 @@
-/* @(#)raw.c	1.7 06/09/13 Copyright 1998,1999 Heiko Eissfeldt, Copyright 2006 J. Schilling */
+/* @(#)raw.c	1.8 08/10/28 Copyright 1998,1999 Heiko Eissfeldt, Copyright 2006-2008 J. Schilling */
 #ifndef lint
 static char	sccsid[] =
-"@(#)raw.c	1.7 06/09/13 Copyright 1998,1999 Heiko Eissfeldt, Copyright 2006 J. Schilling";
+"@(#)raw.c	1.8 08/10/28 Copyright 1998,1999 Heiko Eissfeldt, Copyright 2006-2008 J. Schilling";
 
 #endif
 /*
@@ -20,9 +20,12 @@ static char	sccsid[] =
  */
 
 #include "config.h"
+#include <stdio.h>
 #include <schily/standard.h>
 #include <schily/unistd.h>
+#include "mytype.h"
 #include "sndfile.h"
+#include "global.h"
 
 LOCAL int		InitSound	__PR((int audio, long channels,
 						Ulong rate,
@@ -41,6 +44,7 @@ InitSound(audio, channels, rate, nBitsPerSample, expected_bytes)
 	long	nBitsPerSample;
 	Ulong	expected_bytes;
 {
+	global.md5offset = 0;
 	return (0);
 }
 

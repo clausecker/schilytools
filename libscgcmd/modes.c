@@ -1,12 +1,12 @@
-/* @(#)modes.c	1.26 06/09/13 Copyright 1988, 1997-2001, 2004 J. Schilling */
+/* @(#)modes.c	1.27 08/10/26 Copyright 1988, 1997-2001, 2004-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)modes.c	1.26 06/09/13 Copyright 1988, 1997-2001, 2004 J. Schilling";
+	"@(#)modes.c	1.27 08/10/26 Copyright 1988, 1997-2001, 2004-2008 J. Schilling";
 #endif
 /*
  *	SCSI mode page handling
  *
- *	Copyright (c) 1988, 1997-2001, 2004 J. Schilling
+ *	Copyright (c) 1988, 1997-2001, 2004-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -28,7 +28,7 @@ static	char sccsid[] =
 #include <scg/scsireg.h>
 #include <scg/scsitransp.h>
 
-#include "cdrecord.h"
+#include "libscgcmd.h"
 
 EXPORT int	scsi_compliant;
 

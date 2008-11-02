@@ -1,7 +1,7 @@
-/* @(#)scsi-bsd.c	1.44 07/03/25 Copyright 1997 J. Schilling */
+/* @(#)scsi-bsd.c	1.45 08/10/04 Copyright 1997 J. Schilling */
 #ifndef lint
 static	char __sccsid[] =
-	"@(#)scsi-bsd.c	1.44 07/03/25 Copyright 1997 J. Schilling";
+	"@(#)scsi-bsd.c	1.45 08/10/04 Copyright 1997 J. Schilling";
 #endif
 /*
  *	Interface for the NetBSD/FreeBSD/OpenBSD generic SCSI implementation.
@@ -52,7 +52,7 @@ static	char __sccsid[] =
  *	Choose your name instead of "schily" and make clear that the version
  *	string is related to a modified source.
  */
-LOCAL	char	_scg_trans_version[] = "scsi-bsd.c-1.44";	/* The version for this transport*/
+LOCAL	char	_scg_trans_version[] = "scsi-bsd.c-1.45";	/* The version for this transport*/
 
 #define	MAX_SCG		16	/* Max # of SCSI controllers */
 #define	MAX_TGT		16
@@ -572,7 +572,7 @@ scgo_send(scgp)
  *	Choose your name instead of "schily" and make clear that the version
  *	string is related to a modified source.
  */
-LOCAL	char	_scg_trans_version[] = "scsi-bsd.c-1.44";	/* The version for this transport*/
+LOCAL	char	_scg_trans_version[] = "scsi-bsd.c-1.45";	/* The version for this transport*/
 
 #define	CAM_MAXDEVS	128
 struct scg_local {
@@ -685,6 +685,9 @@ scgo_open(scgp, device)
 	 * system.
 	 */
 	ccb.ccb_h.func_code = XPT_DEV_MATCH;
+	ccb.ccb_h.path_id = CAM_XPT_PATH_ID;
+	ccb.ccb_h.target_id = CAM_TARGET_WILDCARD;
+	ccb.ccb_h.target_lun = CAM_LUN_WILDCARD;
 
 	/*
 	 * Setup the result buffer.

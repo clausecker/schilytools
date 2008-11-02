@@ -1,6 +1,6 @@
-dnl @(#)configure.in	1.153 08/08/30 Copyright 1998-2008 J. Schilling
+dnl @(#)configure.in	1.157 08/10/11 Copyright 1998-2008 J. Schilling
 dnl Process this file with autoconf to produce a configure script.
-AC_REVISION($Revision$)dnl
+AC_REVISION(1.157)dnl
 
 AC_INIT(xconfig.h.in)
 AC_CONFIG_HEADER(xconfig.h)
@@ -12,6 +12,7 @@ AC_BIN_SHELL_BASH
 AC_SHELL_CE_BROKEN
 AC_BIN_SHELL_CE_BROKEN
 AC_BIN_SHELL_BOSH
+AC_OPT_SCHILY_BIN_SHELL_BOSH
 dnl CC=${CC-cc}
 dnl AC_PROG_CC
 AC_OBJEXT
@@ -288,6 +289,24 @@ AC_CHECK_FUNCS(getppriv setppriv priv_set)
 AC_CHECK_FUNCS(setlocale localeconv nl_langinfo)
 AC_CHECK_FUNCS(clone_area create_area delete_area)
 
+dnl The official POSIX rule is not to define "new" interfaces that
+dnl are in conflict with older interfaces of the same name.
+dnl Our interfaces fexec*() have been defined and published in 1982.
+dnl The new POSIX interfaces define a different interface and the
+dnl new POSIX interfaces even use names that are not compatible with
+dnl POSIX rules. The new POSIX interfaces in question should be called
+dnl fdexec*() to follow the rules of other similar POSIX functions.
+dnl
+echo Checking for POSIX violations by the POSIX.1-2008 standard:
+AC_CHECK_FUNCS(fexecl fexecle fexecv fexecve)
+AC_CHECK_FUNCS(fspawnv fspawnl fspawnv_nowait)
+
+dnl A similar problem exists with the new POSIX.1-2008 interfaces 
+dnl getline() and fgetline(). These interfaces are also incompatible
+dnl with our interfaces defined in 1982.
+AC_CHECK_FUNCS(getline fgetline)
+echo End of tests for POSIX violations by the POSIX.1-2008 standard.
+
 dnl Check whether a symbol is either defined in an include file or
 dnl otherwise usable (e.g. as function)
 AC_CHECK_DFUNC([#include <dirent.h>], dirfd)
@@ -295,6 +314,7 @@ AC_CHECK_DFUNC([#include <dirent.h>], dirfd)
 dnl Checks for typedefs, structures, and compiler characteristics.
 dnl that need results from the AC_CHECK_FUNCS() calls.
 AC_USER_MALLOC
+dnl AC_USER_XCVT test macro does not yet work
 AC_VAR_TIMEZONE
 
 dnl Checks for OS characteristics.

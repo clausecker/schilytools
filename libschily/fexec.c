@@ -1,8 +1,8 @@
-/* @(#)fexec.c	1.32 07/07/01 Copyright 1985, 1995-2007 J. Schilling */
+/* @(#)fexec.c	1.34 08/10/09 Copyright 1985, 1995-2008 J. Schilling */
 /*
  *	Execute a program with stdio redirection
  *
- *	Copyright (c) 1985, 1995-2007 J. Schilling
+ *	Copyright (c) 1985, 1995-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -19,13 +19,6 @@
 #include <schily/mconfig.h>
 #include <stdio.h>
 #include <schily/standard.h>
-#define	fexecl	__nothing_1_	/* prototype in schily/schily.h is wrong */
-#define	fexecle	__nothing_2_	/* prototype in schily/schily.h is wrong */
-#include <schily/schily.h>
-#undef	fexecl
-#undef	fexecle
-	int fexecl	__PR((const char *, FILE *, FILE *, FILE *, ...));
-	int fexecle	__PR((const char *, FILE *, FILE *, FILE *, ...));
 #include <schily/unistd.h>
 #include <schily/stdlib.h>
 #include <schily/string.h>
@@ -34,6 +27,7 @@
 #include <schily/fcntl.h>
 #include <schily/dirent.h>
 #include <schily/maxpath.h>
+#include <schily/schily.h>
 
 /*
  * Check whether fexec may be implemented...
@@ -61,48 +55,53 @@ LOCAL const char *getpath __PR((char * const *));
 
 #ifdef	PROTOTYPES
 EXPORT int
-fexecl(const char *name, FILE *in, FILE *out, FILE *err, ...)
+fexecl(const char *name, FILE *in, FILE *out, FILE *err, const char *arg0, ...)
 #else
 EXPORT int
-fexecl(name, in, out, err, va_alist)
-	char	*name;
-	FILE	*in;
-	FILE	*out;
-	FILE	*err;
+fexecl(name, in, out, err, arg0, va_alist)
+	char		*name;
+	FILE		*in;
+	FILE		*out;
+	FILE		*err;
+	const char	*arg0;
 	va_dcl
 #endif
 {
 	va_list	args;
 	int	ac = 0;
-	char	*xav[MAX_F_ARGS];
+	char	*xav[MAX_F_ARGS+2];
 	char	**av;
-	char	**pav;
+const	char	**pav;
 	char	*p;
 	int	ret;
 
 #ifdef	PROTOTYPES
-	va_start(args, err);
+	va_start(args, arg0);
 #else
 	va_start(args);
 #endif
-	while (va_arg(args, char *) != NULL)
-		ac++;
+	if (arg0) {
+		while (va_arg(args, char *) != NULL)
+			ac++;
+	}
 	va_end(args);
 
-	if (ac < MAX_F_ARGS) {
-		pav = av = xav;
+	if (ac <= MAX_F_ARGS) {
+		av = xav;
 	} else {
-		pav = av = (char **)malloc((ac+1)*sizeof (char *));
+		av = (char **)malloc((ac+2)*sizeof (char *));
 		if (av == 0)
 			return (-1);
 	}
+	pav = (const char **)av;
 
 #ifdef	PROTOTYPES
-	va_start(args, err);
+	va_start(args, arg0);
 #else
 	va_start(args);
 #endif
-	do {
+	*pav++ = arg0;
+	if (arg0) do {
 		p = va_arg(args, char *);
 		*pav++ = p;
 	} while (p != NULL);
@@ -116,50 +115,55 @@ fexecl(name, in, out, err, va_alist)
 
 #ifdef	PROTOTYPES
 EXPORT int
-fexecle(const char *name, FILE *in, FILE *out, FILE *err, ...)
+fexecle(const char *name, FILE *in, FILE *out, FILE *err, const char *arg0, ...)
 #else
 EXPORT int
-fexecle(name, in, out, err, va_alist)
-	char	*name;
-	FILE	*in;
-	FILE	*out;
-	FILE	*err;
+fexecle(name, in, out, err, arg0, va_alist)
+	char		*name;
+	FILE		*in;
+	FILE		*out;
+	FILE		*err;
+	const char	*arg0;
 	va_dcl
 #endif
 {
 	va_list	args;
 	int	ac = 0;
-	char	*xav[MAX_F_ARGS];
+	char	*xav[MAX_F_ARGS+2];
 	char	**av;
-	char	**pav;
+const	char	**pav;
 	char	*p;
 	char	**env;
 	int	ret;
 
 #ifdef	PROTOTYPES
-	va_start(args, err);
+	va_start(args, arg0);
 #else
 	va_start(args);
 #endif
-	while (va_arg(args, char *) != NULL)
-		ac++;
+	if (arg0) {
+		while (va_arg(args, char *) != NULL)
+			ac++;
+	}
 	env = va_arg(args, char **);
 	va_end(args);
 
-	if (ac < MAX_F_ARGS) {
-		pav = av = xav;
+	if (ac <= MAX_F_ARGS) {
+		av = xav;
 	} else {
-		pav = av = (char **)malloc((ac+1)*sizeof (char *));
+		av = (char **)malloc((ac+2)*sizeof (char *));
 		if (av == 0)
 			return (-1);
 	}
+	pav = (const char **)av;
 
 #ifdef	PROTOTYPES
-	va_start(args, err);
+	va_start(args, arg0);
 #else
 	va_start(args);
 #endif
-	do {
+	*pav++ = arg0;
+	if (arg0) do {
 		p = va_arg(args, char *);
 		*pav++ = p;
 	} while (p != NULL);

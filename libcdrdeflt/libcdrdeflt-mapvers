@@ -1,0 +1,9 @@
+# @(#)libcdrdeflt-mapvers	1.1 08/10/25 Copyright 2008 J. Schilling
+
+SCHILY_1.0 {
+
+global:
+	cdr_defaults;
+local:
+	*;
+};

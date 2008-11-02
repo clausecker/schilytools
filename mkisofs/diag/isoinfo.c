@@ -1,7 +1,7 @@
-/* @(#)isoinfo.c	1.63 08/08/25 joerg */
+/* @(#)isoinfo.c	1.64 08/10/26 joerg */
 #ifndef	lint
 static	char sccsid[] =
-	"@(#)isoinfo.c	1.63 08/08/25 joerg";
+	"@(#)isoinfo.c	1.64 08/10/26 joerg";
 #endif
 /*
  * File isodump.c - dump iso9660 directory information.
@@ -54,7 +54,7 @@ static	char sccsid[] =
 
 #include "../iso9660.h"
 #include "../scsi.h"
-#include "../../cdrecord/defaults.h"
+#include "cdrdeflt.h"
 #include "../../cdrecord/version.h"
 
 #include <schily/siconv.h>

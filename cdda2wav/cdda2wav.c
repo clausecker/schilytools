@@ -1,7 +1,7 @@
-/* @(#)cdda2wav.c	1.89 08/08/11 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2008 J. Schilling */
+/* @(#)cdda2wav.c	1.92 08/10/28 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2008 J. Schilling */
 #ifndef lint
 static char	sccsid[] =
-"@(#)cdda2wav.c	1.89 08/08/11 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2008 J. Schilling";
+"@(#)cdda2wav.c	1.92 08/10/28 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2008 J. Schilling";
 
 #endif
 #undef	DEBUG_BUFFER_ADDRESSES
@@ -119,7 +119,7 @@ static char	sccsid[] =
 #include "cdda_paranoia.h"
 #endif
 #include "parse.h"
-#include "defaults.h"
+#include "cdrdeflt.h"
 #include "version.h"
 
 #ifdef	VMS
@@ -133,10 +133,17 @@ EXPORT	int	main			__PR((int argc, char **argv));
 static	void	RestrictPlaybackRate	__PR((long newrate));
 static	void	output_indices		__PR((FILE *fp, index_list *p,
 						unsigned trackstart));
+static	FILE	*info_file_open		__PR((char *fname_baseval,
+						unsigned int track,
+						BOOL doappend,
+						BOOL numbered));
 static	int	write_info_file		__PR((char *fname_baseval,
 						unsigned int track,
 						unsigned long SamplesDone,
 						int numbered));
+static	int	write_md5_info		__PR((char *fname_baseval,
+						unsigned int track,
+						BOOL numbered));
 static	void	CloseAudio		__PR((int channels_val,
 						unsigned long nSamples,
 						struct soundfile *audio_out));
@@ -168,7 +175,7 @@ deemphasize,T,info-only,J,silent-scsi,Q,\
 cddbp-server*,cddbp-port*,\
 scanbus,device*,dev*,D*,ts&,auxdevice*,A*,interface*,I*,output-format*,O*,\
 output-endianess*,E*,cdrom-endianess*,C*,speed#,S#,\
-playback-realtime#L,p#L,md5#,M#,set-overlap#,P#,sound-device*,K*,\
+playback-realtime#L,p#L,md5,M,set-overlap#,P#,sound-device*,K*,\
 cddb#,L#,channels*,c*,bits-per-sample#,b#,rate#,r#,gui,g,\
 divider*,a*,track*,t*,index#,i#,duration*,d*,offset#L,o#L,start-sector#L,\
 sectors-per-request#,n#,verbose-level&,v&,buffers-in-ring#,l#,\
@@ -308,6 +315,31 @@ output_indices(fp, p, trackstart)
 	fputs("\n", fp);
 }
 
+static FILE *
+info_file_open(fname_baseval, track, doappend, numbered)
+	char		*fname_baseval;
+	unsigned int	track;
+	BOOL		doappend;
+	BOOL		numbered;
+{
+	char	fname[200];
+
+	/*
+	 * write info file
+	 */
+	if (strcmp(fname_baseval, "-") == 0)
+		return ((FILE *)0);
+
+	strncpy(fname, fname_baseval, sizeof (fname) -1);
+	fname[sizeof (fname) -1] = 0;
+	if (numbered)
+		sprintf(cut_extension(fname), "_%02u.inf", track);
+	else
+		strcpy(cut_extension(fname), ".inf");
+
+	return (fopen(fname, doappend ? "a" : "w"));
+}
+
 /*
  * write information before the start of the sampling process
  *
@@ -333,23 +365,9 @@ write_info_file(fname_baseval, track, SamplesDone, numbered)
 	if (strcmp(fname_baseval, "-") == 0)
 		return (0);
 
-	strncpy(fname, fname_baseval, sizeof (fname) -1);
-	fname[sizeof (fname) -1] = 0;
-	if (numbered)
-		sprintf(cut_extension(fname), "_%02u.inf", track);
-	else
-		strcpy(cut_extension(fname), ".inf");
-
-	info_fp = fopen(fname, "w");
+	info_fp = info_file_open(fname_baseval, track, FALSE, numbered);
 	if (!info_fp)
 		return (-1);
-
-#if 0
-#ifdef MD5_SIGNATURES
-	if (global.md5blocksize)
-		MD5Final(global.MD5_result, &global.context);
-#endif
-#endif
 
 	utc_time = time(NULL);
 	tmptr = localtime(&utc_time);
@@ -421,39 +439,62 @@ Albumtitle=\t'%s'\n",
 	fprintf(info_fp, "# index list\n");
 	output_indices(info_fp, global.trackindexlist[track],
 		Get_AudioStartSector(track));
-#if 0
-	/*
-	 * MD5 checksums in info files are currently broken.
-	 * for on-the-fly-recording the generation of info files has been
-	 * shifted before the recording starts, so there is no checksum at
-	 * that point.
-	 */
-#ifdef MD5_SIGNATURES
-	fprintf(info_fp,
-		"#(blocksize) checksum\nMD-5=\t\t(%d) %02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x\n",
-		global.md5blocksize,
-		global.MD5_result[0],
-		global.MD5_result[1],
-		global.MD5_result[2],
-		global.MD5_result[3],
-		global.MD5_result[4],
-		global.MD5_result[5],
-		global.MD5_result[6],
-		global.MD5_result[7],
-		global.MD5_result[8],
-		global.MD5_result[9],
-		global.MD5_result[10],
-		global.MD5_result[11],
-		global.MD5_result[12],
-		global.MD5_result[13],
-		global.MD5_result[14],
-		global.MD5_result[15]);
-#endif
-#endif
+
 	fclose(info_fp);
 	return (0);
 }
 #endif
+
+static int
+write_md5_info(fname_baseval, track, numbered)
+	char		*fname_baseval;
+	unsigned int	track;
+	BOOL		numbered;
+{
+#ifdef MD5_SIGNATURES
+	FILE	*info_fp;
+
+	/*
+	 * write info file
+	 */
+	if (strcmp(fname_baseval, "-") == 0)
+		return (0);
+
+	info_fp = info_file_open(fname_baseval, track, TRUE, numbered);
+	if (!info_fp)
+		return (-1);
+
+	if (global.md5blocksize)
+		MD5Final(global.MD5_result, global.context);
+
+	fprintf(info_fp,
+		"# md5 sum\nMD5-offset=\t%d\n", global.md5offset);
+	if (global.md5blocksize) {
+		fprintf(info_fp,
+			"MD5-size=\t%d\n", global.md5size);
+		fprintf(info_fp,
+			"MD5-sum=\t%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x\n",
+			global.MD5_result[0],
+			global.MD5_result[1],
+			global.MD5_result[2],
+			global.MD5_result[3],
+			global.MD5_result[4],
+			global.MD5_result[5],
+			global.MD5_result[6],
+			global.MD5_result[7],
+			global.MD5_result[8],
+			global.MD5_result[9],
+			global.MD5_result[10],
+			global.MD5_result[11],
+			global.MD5_result[12],
+			global.MD5_result[13],
+			global.MD5_result[14],
+			global.MD5_result[15]);
+	}
+	fclose(info_fp);
+#endif
+	return (0);
+}
 
 static void
 CloseAudio(channels_val, nSamples, audio_out)
@@ -706,8 +747,9 @@ OpenAudio(fname, rate, nBitsPerSample, channels_val, expected_bytes, audio_out)
 					nBitsPerSample, expected_bytes);
 
 #ifdef MD5_SIGNATURES
+	global.md5size = 0;
 	if (global.md5blocksize)
-		MD5Init(&global.context);
+		MD5Init(global.context);
 	global.md5count = global.md5blocksize;
 #endif
 }
@@ -840,7 +882,7 @@ OPTIONS:\n\
   (-g) -gui			generate special output suitable for gui frontends.\n\
   (-Q) -silent-scsi		do not print status of erreneous scsi-commands.\n\
        -scanbus			scan the SCSI bus and exit\n\
-  (-M) md5=count		calculate MD-5 checksum for blocks of 'count' bytes.\n\
+  (-M) -md5			calculate MD-5 checksum for audio data.\n\
   (-q) -quiet			quiet operation, no screen output.\n\
   (-p) playback-realtime=perc	play (echo) audio pitched at perc percent (50%-200%).\n\
   (-V) -verbose-scsi		each option increases verbosity for SCSI commands.\n\
@@ -967,6 +1009,12 @@ init_globals()
 	global.paranoia_parms.overlap = -1;
 	global.paranoia_parms.mindynoverlap = -1;
 	global.paranoia_parms.maxdynoverlap = -1;
+#endif
+	global.md5offset = 0;
+	global.md5blocksize = 0;
+#ifdef	MD5_SIGNATURES
+	global.md5count = 0;
+	global.md5size = 0;
 #endif
 }
 
@@ -1799,14 +1847,6 @@ do_write(p)
 						(unsigned long) left_in_track);
 		}
 
-#ifdef MD5_SIGNATURES
-		if (global.md5count) {
-			MD5Update(&global.context,
-				((unsigned char *)p->data) +current_offset,
-				min(global.md5count, how_much));
-			global.md5count -= min(global.md5count, how_much);
-		}
-#endif
 		if (SaveBuffer(p->data + current_offset/4,
 						how_much,
 						&nSamplesDone)) {
@@ -1852,6 +1892,8 @@ do_write(p)
 					(unsigned int) *nSamplesToDo,
 					global.audio_out);
 			}
+			write_md5_info(global.fname_base, current_track,
+						bulk && global.multiname == 0);
 
 			if (global.verbose) {
 #ifdef	USE_PARANOIA
@@ -2433,6 +2475,7 @@ static char		*user_sound_device = "";
 	BOOL	mono = FALSE;
 	BOOL	domax = FALSE;
 	BOOL	dump_rates = FALSE;
+	BOOL	md5blocksize = FALSE;
 	int	userverbose = -1;
 	long	paraopts = 0;
 	int	outfd = -1;
@@ -2475,7 +2518,7 @@ static char		*user_sound_device = "";
 			&global.userspeed, &global.userspeed,
 
 			&global.playback_rate, &global.playback_rate,
-			&global.md5blocksize, &global.md5blocksize,
+			&md5blocksize, &md5blocksize,
 			&global.useroverlap, &global.useroverlap,
 			&user_sound_device, &user_sound_device,
 
@@ -2695,11 +2738,10 @@ Rate   Divider      Rate   Divider      Rate   Divider      Rate   Divider\n\
 	if (global.no_infofile) {
 		global.no_cddbfile = 1;
 	}
+	if (md5blocksize)
+		global.md5blocksize = -1;
 	if (global.md5blocksize) {
-#ifdef	MD5_SIGNATURES
-		errmsgno(EX_BAD,
-			"MD5 signatures are currently broken! Sorry\n");
-#else
+#ifndef	MD5_SIGNATURES
 		errmsgno(EX_BAD,
 			"The option MD5 signatures is not configured!\n");
 #endif
@@ -2929,6 +2971,13 @@ Rate   Divider      Rate   Divider      Rate   Divider      Rate   Divider\n\
 	while (global.shmsize < sizeof (struct paranoia_statistics))
 		global.shmsize += global.pagesize;
 #endif
+#ifdef	MD5_SIGNATURES
+	{ int	i = 0;
+		while (i < sizeof (MD5_CTX))
+			i += global.pagesize;
+		global.shmsize += i;
+	}
+#endif
 	global.shmsize += 10*global.pagesize;	/* XXX Der Speicherfehler ist nicht in libparanoia sondern in cdda2wav :-( */
 	global.shmsize += HEADER_SIZE + ENTRY_SIZE_PAGE_AL * global.buffers;
 
@@ -2963,6 +3012,17 @@ Rate   Divider      Rate   Divider      Rate   Divider      Rate   Divider\n\
 			he_fill_buffer += global.pagesize;
 			global.shmsize -= global.pagesize;
 		}
+	}
+#endif
+#ifdef	MD5_SIGNATURES
+	{
+		int	i = 0;
+
+		global.context = (MD5_CTX*)he_fill_buffer;
+		while (i < sizeof (MD5_CTX))
+			i += global.pagesize;
+		he_fill_buffer += i;
+		global.shmsize -= i;
 	}
 #endif
 
@@ -3464,7 +3524,7 @@ Rate   Divider      Rate   Divider      Rate   Divider      Rate   Divider\n\
 		global.child_pid = fork();
 
 	if (global.child_pid > 0 && global.gui > 0 && global.verbose > 0)
-		fprintf(stderr, "child pid is %d\n", global.child_pid);
+		fprintf(stderr, "child pid is %lld\n", (Llong)global.child_pid);
 
 	/* ********************** fork ************************************* */
 	if (global.child_pid == 0) {

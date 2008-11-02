@@ -1,25 +1,12 @@
-/* @(#)isodebug.c	1.20 08/06/13 Copyright 1996-2008 J. Schilling */
+/* @(#)isodebug.c	1.21 08/10/26 Copyright 1996-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)isodebug.c	1.20 08/06/13 Copyright 1996-2008 J. Schilling";
+	"@(#)isodebug.c	1.21 08/10/26 Copyright 1996-2008 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1996-2008 J. Schilling
  */
-/*
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2
- * as published by the Free Software Foundation.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along with
- * this program; see the file COPYING.  If not, write to the Free Software
- * Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
- */
+/*@@C@@*/
 
 #include <schily/mconfig.h>
 #include <stdio.h>
@@ -34,7 +21,7 @@ static	char sccsid[] =
 #include <schily/schily.h>
 
 #include "../scsi.h"
-#include "../../cdrecord/defaults.h"
+#include "cdrdeflt.h"
 #include "../../cdrecord/version.h"
 
 #define	_delta(from, to)	((to) - (from) + 1)

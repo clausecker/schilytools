@@ -1,7 +1,7 @@
-/* @(#)drv_dvdplus.c	1.48 08/09/04 Copyright 2003-2008 J. Schilling */
+/* @(#)drv_dvdplus.c	1.50 08/10/11 Copyright 2003-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)drv_dvdplus.c	1.48 08/09/04 Copyright 2003-2008 J. Schilling";
+	"@(#)drv_dvdplus.c	1.50 08/10/11 Copyright 2003-2008 J. Schilling";
 #endif
 /*
  *	Copyright (c) 2003-2008 J. Schilling
@@ -509,7 +509,8 @@ attach_dvdplus(scgp, dp)
 	 * Raise the default timeout.
 	 * The first write takes a long time as it writes the lead in.
 	 */
-	scgp->deftimeout = 100;		/* 1:40				*/
+	if (scgp->deftimeout < 100)
+		scg_settimeout(scgp, 100);	/* 1:40			*/
 
 
 	return (0);
@@ -1295,13 +1296,11 @@ fixate_dvdplusrw(scgp, dp, trackp)
 #define	MAX_TRIES	15
 
 	/*
-	 * This is only valid for DAO recording.
-	 * XXX Check this if the DVR-S101 supports more.
-	 * XXX flush cache currently makes sure that
-	 * XXX at least ~ 800 MBytes written to the track.
-	 * XXX flush cache triggers writing the lead out.
+	 * XXX Is this timeout needed for DVD+RW too?
+	 * XXX It was introduced for DVD-R that writes at least 800 MB
 	 */
-	scgp->deftimeout = 1000;
+	if (scgp->deftimeout < 1000)
+		scg_settimeout(scgp, 1000);
 
 /*scgp->verbose++;*/
 	scgp->silent++;
@@ -1314,7 +1313,7 @@ fixate_dvdplusrw(scgp, dp, trackp)
 				}
 				printf("Trouble flushing the cache\n");
 				scgp->silent--;
-				scgp->deftimeout = oldtimeout;
+				scg_settimeout(scgp, oldtimeout);
 				return (-1);
 			}
 			sleep(1);
@@ -1345,7 +1344,7 @@ fixate_dvdplusrw(scgp, dp, trackp)
 	waitformat(scgp, 300);
 /*scgp->verbose--;*/
 
-	scgp->deftimeout = oldtimeout;
+	scg_settimeout(scgp, oldtimeout);
 	return (ret);
 #undef	MAX_TRIES
 }
@@ -1366,13 +1365,11 @@ fixate_dvdplusr(scgp, dp, trackp)
 #define	MAX_TRIES	15
 
 	/*
-	 * This is only valid for DAO recording.
-	 * XXX Check this if the DVR-S101 supports more.
-	 * XXX flush cache currently makes sure that
-	 * XXX at least ~ 800 MBytes written to the track.
-	 * XXX flush cache triggers writing the lead out.
+	 * XXX Is this timeout needed for DVD+R too?
+	 * XXX It was introduced for DVD-R that writes at least 800 MB
 	 */
-	scgp->deftimeout = 1000;
+	if (scgp->deftimeout < 1000)
+		scg_settimeout(scgp, 1000);
 
 /*scgp->verbose++;*/
 	scgp->silent++;
@@ -1385,7 +1382,7 @@ fixate_dvdplusr(scgp, dp, trackp)
 				}
 				printf("Trouble flushing the cache\n");
 				scgp->silent--;
-				scgp->deftimeout = oldtimeout;
+				scg_settimeout(scgp, oldtimeout);
 				return (-1);
 			}
 			sleep(1);
@@ -1449,7 +1446,7 @@ fixate_dvdplusr(scgp, dp, trackp)
 	waitformat(scgp, 600);
 /*scgp->verbose--;*/
 
-	scgp->deftimeout = oldtimeout;
+	scg_settimeout(scgp, oldtimeout);
 	return (ret);
 #undef	MAX_TRIES
 }
@@ -1509,7 +1506,7 @@ blank_dvdplus(scgp, dp, addr, blanktype)
 	if (!dvdplus_ricohbased(scgp)) {
 		errmsgno(EX_BAD, "Cannot blank DVD+RW media with non Ricoh based drive.\n");
 		if (profile == 0x1A || profile == 0x2A) {
-			int	ret = blank_simul(scgp, dp, addr, blanktype);
+			ret = blank_simul(scgp, dp, addr, blanktype);
 			waitformat(scgp, 600);
 			scsi_flush_cache(scgp, TRUE);
 			waitformat(scgp, 600);

@@ -23,6 +23,16 @@
  * Copyright 2004 Sun Microsystems, Inc.  All rights reserved.
  * Use is subject to license terms.
  */
+/*
+ * This file contains modifications Copyright 2006-2008 J. Schilling
+ *
+ * @(#)getopt.c	1.5 08/10/11 J. Schilling
+ */
+#if defined(sun) || defined(__GNUC__)
+
+#ident "@(#)getopt.c 1.5 08/10/11 J. Schilling"
+#endif
+
 #pragma ident	"@(#)getopt.c	1.23	05/06/08 SMI"
 
 /*	Copyright (c) 1988 AT&T	*/
@@ -51,6 +61,10 @@
 #include <schily/unistd.h>
 #include <schily/string.h>
 #include <stdio.h>
+#ifndef	HAVE_SNPRINTF
+#include <schily/schily.h>
+#define	snprintf	js_snprintf
+#endif
 
 extern int optind, opterr, optopt;
 extern char *optarg;

@@ -1,4 +1,4 @@
-/* @(#)cdrecord.h	1.195 08/01/02 Copyright 1995-2008 J. Schilling */
+/* @(#)cdrecord.h	1.196 08/10/08 Copyright 1995-2008 J. Schilling */
 /*
  *	Definitions for cdrecord
  *
@@ -94,11 +94,11 @@
  * It only has 256kB of buffer RAM.
  *
  * WARNING:	Philips CDD 521 dies if CDR_BUF_SIZE is to big.
- *		If you like to support the CDD 521 keep the buffer
- *		at 63kB.
+ *		If you like to support the CDD 521 keep the old buffer
+ *		size at 63kB.
  */
-/*#define	CDR_BUF_SIZE	(126*1024)*/
-#define	CDR_BUF_SIZE		(63*1024)
+#define	CDR_BUF_SIZE		(126*1024)
+#define	CDR_OLD_BUF_SIZE	(63*1024)
 #define	CDR_MAX_BUF_SIZE	(256*1024)
 
 /*
@@ -1047,6 +1047,7 @@ extern	int	get_mediatype		__PR((SCSI *scgp));
 extern	int	get_singlespeed		__PR((int mt));
 extern	float	get_secsps		__PR((int mt));
 extern	char	*get_mclassname		__PR((int mt));
+extern	int	get_blf			__PR((int mt));
 #ifdef	_SCG_SCSITRANSP_H
 extern	int	print_features		__PR((SCSI *scgp));
 extern	int	check_writemodes_mmc	__PR((SCSI *scgp, cdr_t *dp));

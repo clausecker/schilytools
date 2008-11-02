@@ -1,12 +1,12 @@
-/* @(#)scsierrs.c	2.30 06/09/13 Copyright 1987-1996 J. Schilling */
+/* @(#)scsierrs.c	2.31 08/10/11 Copyright 1987-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)scsierrs.c	2.30 06/09/13 Copyright 1987-1996 J. Schilling";
+	"@(#)scsierrs.c	2.31 08/10/11 Copyright 1987-2008 J. Schilling";
 #endif
 /*
  *	Error printing for scsitransp.c
  *
- *	Copyright (c) 1987-1996 J. Schilling
+ *	Copyright (c) 1987-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -55,6 +55,7 @@ EXPORT	int		scg__errmsg	__PR((SCSI *scgp, char *obuf, int maxcnt,
 						struct scsi_sense *,
 						struct scsi_status *,
 						int));
+#ifdef	KEY_FROM_OLD_SENSE
 /*
  * Map old non extended sense to sense key.
  */
@@ -67,6 +68,7 @@ static Uchar sd_adaptec_keys[] = {
 	6, 6, 6, 5,  4,11,11,11			/* 0x28-0x2f */
 };
 #define	MAX_ADAPTEC_KEYS (sizeof (sd_adaptec_keys))
+#endif
 
 /*
  * Deviations to CCS found on old pre CCS devices
@@ -667,6 +669,7 @@ static char *sd_sense_keys[] = {
 	"Reserved"			/* 0x0f */
 };
 
+#ifdef	MAP_SCSI_CMDS
 static char *sd_cmds[] = {
 	"\000test unit ready",		/* 0x00 */
 	"\001rezero",			/* 0x01 */
@@ -687,6 +690,7 @@ static char *sd_cmds[] = {
 	"\067read defect data",		/* 0x37 */
 	NULL
 };
+#endif
 
 EXPORT
 const char *

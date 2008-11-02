@@ -1,7 +1,7 @@
-/* @(#)sccslog.c	1.23 08/09/18 Copyright 1997-2008 J. Schilling */
+/* @(#)sccslog.c	1.24 08/10/08 Copyright 1997-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)sccslog.c	1.23 08/09/18 Copyright 1997-2008 J. Schilling";
+	"@(#)sccslog.c	1.24 08/10/08 Copyright 1997-2008 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1997-2008 J. Schilling
@@ -33,6 +33,7 @@ static	char sccsid[] =
 #include <version.h>
 
 #define	streql(s1, s2)	(strcmp((s1), (s2)) == 0)
+#undef	fgetline			/* May be #defined by schily.h */
 #define	fgetline	log_fgetline
 
 struct xx {

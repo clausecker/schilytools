@@ -1,6 +1,6 @@
 #!/bin/sh
 ###########################################################################
-#ident "@(#)MKLINKS	1.2 08/08/01 "
+#ident "@(#)MKLINKS	1.4 08/10/26 "
 ###########################################################################
 # Written 2008 by J. Schilling
 ###########################################################################
@@ -27,9 +27,7 @@ rm -f xxzzy.123 xxzzy.345
 
 $symlink ../readcd/iodefs.h		.
 $symlink ../cdrecord/cd_misc.c		.
-$symlink ../cdrecord/defaults.c		.
 $symlink ../readcd/io.c			.
 $symlink ../cdrecord/misc.c		.
-$symlink ../cdrecord/modes.c		.
 $symlink ../cdrecord/scsi_cdr.c		.
 $symlink ../cdrecord/scsi_scan.c	.

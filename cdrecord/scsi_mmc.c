@@ -1,7 +1,7 @@
-/* @(#)scsi_mmc.c	1.43 07/10/05 Copyright 2002-2007 J. Schilling */
+/* @(#)scsi_mmc.c	1.45 08/10/11 Copyright 2002-2007 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)scsi_mmc.c	1.43 07/10/05 Copyright 2002-2007 J. Schilling";
+	"@(#)scsi_mmc.c	1.45 08/10/11 Copyright 2002-2007 J. Schilling";
 #endif
 /*
  *	SCSI command functions for cdrecord
@@ -197,6 +197,7 @@ EXPORT	int	get_mediatype		__PR((SCSI *scgp));
 EXPORT	int	get_singlespeed		__PR((int mt));
 EXPORT	float	get_secsps		__PR((int mt));
 EXPORT	char	*get_mclassname		__PR((int mt));
+EXPORT	int	get_blf			__PR((int mt));
 
 LOCAL	int	scsi_get_performance	__PR((SCSI *scgp, caddr_t bp, int cnd, int ndesc, int type, int datatype));
 EXPORT	int	scsi_get_perf_maxspeed	__PR((SCSI *scgp, Ulong *readp, Ulong *writep, Ulong *endp));
@@ -654,6 +655,29 @@ get_mclassname(mt)
 	case MT_NONE:
 	default:
 		return ("NONE");
+	}
+}
+
+/*
+ * Guessed blocking factor based on media type
+ */
+EXPORT int
+get_blf(mt)
+	int	mt;
+{
+	switch (mt) {
+
+	case MT_DVD:
+		return (16);
+
+	case MT_BD:
+		return (32);
+
+	case MT_HDDVD:
+		return (32);	/* XXX ??? */
+
+	default:
+		return (1);
 	}
 }
 

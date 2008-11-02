@@ -1,7 +1,7 @@
-/* @(#)make.c	1.149 08/09/26 Copyright 1985, 87, 88, 91, 1995-2008 J. Schilling */
+/* @(#)make.c	1.150 08/10/11 Copyright 1985, 87, 88, 91, 1995-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)make.c	1.149 08/09/26 Copyright 1985, 87, 88, 91, 1995-2008 J. Schilling";
+	"@(#)make.c	1.150 08/10/11 Copyright 1985, 87, 88, 91, 1995-2008 J. Schilling";
 #endif
 /*
  *	Make program
@@ -577,9 +577,20 @@ setup_SHELL()
 	char	*shellname;
 #endif
 
+#ifdef	BIN_SHELL_BOSH
+#define	BOSH_PATH	"/bin/bosh"
+#else
+#ifdef	OPT_SCHILY_BIN_SHELL_BOSH
+#define	BOSH_PATH	"/opt/schily/bin/bosh"
+#endif
+#endif
+#ifdef	NO_BOSH
+#undef	BOSH_PATH
+#endif
+
 #if (defined(BIN_SHELL_CE_IS_BROKEN) || defined(SHELL_CE_IS_BROKEN)) && \
-	defined(BIN_SHELL_BOSH)
-	shell = "/bin/bosh";			/* Broken shell, bosh present */
+	defined(BOSH_PATH)
+	shell = BOSH_PATH;			/* Broken sh but bosh present */
 #else	/* !SHELL_CE_IS_BROKEN */
 #ifdef	__DJGPP__
 	/*

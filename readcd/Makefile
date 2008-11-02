@@ -1,4 +1,4 @@
-#ident @(#)readcd.mk	1.13 08/09/10 
+#ident @(#)readcd.mk	1.15 08/10/26 
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -10,6 +10,7 @@ TARGET=		readcd
 CPPOPTS +=	-I../cdrecord
 CPPOPTS +=	-I../libscg
 CPPOPTS +=	-I../libedc
+CPPOPTS +=	-I../libcdrdeflt
 CPPOPTS +=	-DCLONE_WRITE
 CPPOPTS +=	-DUSE_LARGEFILES
 CPPOPTS +=	-DSCHILY_PRINT
@@ -17,13 +18,12 @@ CPPOPTS +=	-DSCHILY_PRINT
 CFILES=		readcd.c cd_misc.c io.c \
 		scsi_scan.c \
 		movesect.c \
-		defaults.c \
 		scsi_cdr.c \
 		scsi_mmc.c \
-		modes.c misc.c
+		misc.c
 HFILES=		
 #LIBS=		-lschily $(LIB_SOCKET)
-LIBS=		-lrscg -lscg $(LIB_VOLMGT) -ledc_ecc_dec -ledc_ecc -ldeflt -lschily $(SCSILIB) $(LIB_SOCKET)
+LIBS=		-lscgcmd -lrscg -lscg $(LIB_VOLMGT) -ledc_ecc_dec -ledc_ecc -lcdrdeflt -ldeflt -lschily $(SCSILIB) $(LIB_SOCKET)
 XMK_FILE=	Mreadcd.man
 
 cd_misc.c scsi_scan.c scsi_cdr.c:

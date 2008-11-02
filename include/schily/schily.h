@@ -1,4 +1,4 @@
-/* @(#)schily.h	1.70 08/09/26 Copyright 1985-2008 J. Schilling */
+/* @(#)schily.h	1.72 08/10/09 Copyright 1985-2008 J. Schilling */
 /*
  *	Definitions for libschily
  *
@@ -97,6 +97,56 @@ extern "C" {
 
 #ifdef	EOF	/* stdio.h has been included */
 
+/*
+ * The official POSIX rule is not to define "new" interfaces that
+ * are in conflict with older interfaces of the same name.
+ * Our interfaces fexec*() have been defined and published in 1982.
+ * The new POSIX interfaces define a different interface and the
+ * new POSIX interfaces even use names that are not compatible with
+ * POSIX rules. The new POSIX interfaces in question should be called
+ * fdexec*() to follow the rules of other similar POSIX functions.
+ * Simiar problems exist with getline()/fgetline().
+ */
+#if	defined(HAVE_FEXECL) || defined(HAVE_FEXECLE) || \
+	defined(HAVE_FEXECV) || defined(HAVE_FEXECVE)
+#define	RENAME_FEXEC
+#endif
+#if	defined(HAVE_FSPAWNV) || defined(HAVE_FSPAWNL) || \
+	defined(HAVE_FSPAWNV_NOWAIT)
+#define	RENAME_FSPAWN
+#endif
+#if	defined(HAVE_GETLINE) || defined(HAVE_FGETLINE)
+#define	RENAME_GETLINE
+#endif
+
+#ifdef	__needed__
+#define	RENAME_FEXEC
+#define	RENAME_FSPAWN
+#define	RENAME_GETLINE
+#endif
+
+#if	defined(RENAME_FEXEC) || defined(RENAME_FSPAWN)
+#ifndef	_SCHILY_UNISTD_H
+#include <schily/unistd.h>	/* Need to include before fexec*() protoypes */
+#endif
+#endif
+
+#ifdef	RENAME_FEXEC
+#define	fexecl		js_fexecl
+#define	fexecle		js_fexecle
+#define	fexecv		js_fexecv
+#define	fexecve		js_fexecve
+#endif
+#ifdef	RENAME_FSPAWN
+#define	fspawnv		js_fspawnv
+#define	fspawnv_nowait	js_fspawnv_nowait
+#define	fspawnl		js_fspawnl
+#endif
+#ifdef	RENAME_GETLINE
+#define	getline		js_getline
+#define	fgetline	js_fgetline
+#endif
+
 extern	int	_cvmod __PR((const char *, int *, int *));
 extern	FILE	*_fcons __PR((FILE *, int, int));
 extern	FILE	*fdup __PR((FILE *));
@@ -116,8 +166,7 @@ extern	int	fexecv __PR((const char *, FILE *, FILE *, FILE *, int,
 extern	int	fexecve __PR((const char *, FILE *, FILE *, FILE *,
 					char * const *, char * const *));
 extern	int	fspawnv __PR((FILE *, FILE *, FILE *, int, char * const *));
-extern	int	fspawnl __PR((FILE *, FILE *, FILE *,
-					const char *, const char *, ...));
+extern	int	fspawnl __PR((FILE *, FILE *, FILE *, const char *, ...));
 extern	int	fspawnv_nowait __PR((FILE *, FILE *, FILE *,
 					const char *, int, char *const*));
 extern	int	fgetline __PR((FILE *, char *, int));
@@ -158,8 +207,7 @@ extern	int	peekc __PR((FILE *));
  * We cannot define this or we may get into problems with DOS based systems.
  */
 extern	int	spawnv __PR((FILE *, FILE *, FILE *, int, char * const *));
-extern	int	spawnl __PR((FILE *, FILE *, FILE *,
-					const char *, const char *, ...));
+extern	int	spawnl __PR((FILE *, FILE *, FILE *, const char *, ...));
 extern	int	spawnv_nowait __PR((FILE *, FILE *, FILE *,
 					const char *, int, char *const*));
 #endif	/* __never_def__ */

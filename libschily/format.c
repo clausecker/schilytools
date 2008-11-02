@@ -1,4 +1,4 @@
-/* @(#)format.c	1.43 08/06/13 Copyright 1985-2008 J. Schilling */
+/* @(#)format.c	1.44 08/10/08 Copyright 1985-2008 J. Schilling */
 /*
  *	format
  *	common code for printf fprintf & sprintf
@@ -45,6 +45,17 @@ extern	char	*gcvt __PR((double, int, char *));
 
 #ifdef	NO_LONGLONG
 #undef	USE_LONGLONG
+#endif
+
+#ifdef	NO_USER_XCVT
+	/*
+	 * We cannot define our own gcvt() so we need to use a
+	 * local name instead.
+	 */
+#ifndef	HAVE_GCVT
+#	define	gcvt	js_gcvt
+EXPORT	char *gcvt	__PR((double value, int ndigit, char *buf));
+#endif
 #endif
 
 /*

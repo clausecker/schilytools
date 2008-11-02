@@ -1,4 +1,4 @@
-/* @(#)mkisofs.h	1.133 08/09/11 joerg */
+/* @(#)mkisofs.h	1.134 08/10/11 joerg */
 /*
  * Header file mkisofs.h - assorted structure definitions and typecasts.
  *
@@ -631,7 +631,7 @@ extern void	clean_magic __PR((void));
 /*
  * The callback function for treewalk() from walk.c
  */
-#ifdef	_WALK_H
+#ifdef	_SCHILY_WALK_H
 EXPORT	int	walkfunc	__PR((char *nm, struct stat *fs, int type,
 					struct WALK *state));
 #endif

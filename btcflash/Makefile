@@ -1,4 +1,4 @@
-#ident @(#)Makefile	1.7 08/09/10 
+#ident @(#)Makefile	1.9 08/10/26 
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -10,16 +10,17 @@ TARGET=		btcflash
 CPPOPTS +=	-DUSE_LARGEFILES
 CPPOPTS +=	-DSCHILY_PRINT
 CPPOPTS +=	-I../cdrecord
+CPPOPTS +=	-I../libcdrdeflt
 CPPOPTS +=	-I../libscg
 
 CFILES=		skel.c \
 		io.c cd_misc.c scsi_cdr.c \
 		scsi_scan.c \
-		modes.c misc.c \
-		defaults.c
+		misc.c
+
 
 HFILES=		
-LIBS=		-lrscg -lscg $(LIB_VOLMGT) -ldeflt -lschily $(SCSILIB) $(LIB_SOCKET)
+LIBS=		-lscgcmd -lrscg -lscg $(LIB_VOLMGT) -lcdrdeflt -ldeflt -lschily $(SCSILIB) $(LIB_SOCKET)
 XMK_FILE=	Makefile.man
 
 scsi_scan.c io.c scsi_cdr.c:

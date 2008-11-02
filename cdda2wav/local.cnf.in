@@ -1,4 +1,4 @@
-# @(#)local.cnf.in       1.7 07/04/24 Copyright 1998-2002 Heiko Eissfeldt
+# @(#)local.cnf.in       1.8 08/10/21 Copyright 1998-2002 Heiko Eissfeldt
 #
 # Makefile for cdda2wav, a sampling utility.
 #
@@ -112,7 +112,7 @@ WANT_INFOFILES=-DINFOFILES
 ############## enable/disable MD5 signatures in info files ##################
 # Comment out if you don't want this.
 WANT_MD5=-DMD5_SIGNATURES
-MD5OBJECTS=md5c.o
+MD5OBJECTS=md5.o
 
 # CDINDEX server support
 # Comment out if you don't want a disk description file for the cdindex server

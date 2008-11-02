@@ -1,4 +1,4 @@
-/* @(#)global.h	1.21 08/08/03 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2008 J. Schilling */
+/* @(#)global.h	1.22 08/10/28 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2008 J. Schilling */
 /*
  * Global Variables
  */
@@ -116,10 +116,12 @@ typedef struct global {
 	} paranoia_parms;
 #endif
 
-	unsigned		md5blocksize;
+	int			md5offset;
+	int			md5blocksize;
 #ifdef	MD5_SIGNATURES
 	int			md5count;
-	MD5_CTX			context;
+	int			md5size;
+	MD5_CTX			*context;
 	unsigned char		MD5_result[16];
 #endif
 

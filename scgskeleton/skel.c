@@ -1,7 +1,7 @@
-/* @(#)skel.c	1.12 08/06/13 Copyright 1987, 1995-2008 J. Schilling */
+/* @(#)skel.c	1.14 08/10/26 Copyright 1987, 1995-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)skel.c	1.12 08/06/13 Copyright 1987, 1995-2008 J. Schilling";
+	"@(#)skel.c	1.14 08/10/26 Copyright 1987, 1995-2008 J. Schilling";
 #endif
 /*
  *	Skeleton for the use of the scg genearal SCSI - driver
@@ -46,7 +46,7 @@ static	char sccsid[] =
 
 #include "scsi_scan.h"
 #include "cdrecord.h"
-#include "defaults.h"
+#include "cdrdeflt.h"
 #include "iodefs.h"
 
 char	skel_version[] = "1.2";
@@ -232,7 +232,7 @@ main(ac, av)
 			exit(0);
 		}
 		if ((scgp = scg_open(dev, errstr, sizeof (errstr), debug, lverbose)) == (SCSI *)0) {
-			int	err = geterrno();
+			err = geterrno();
 
 			errmsgno(err, "%s%sCannot open SCSI driver.\n", errstr, errstr[0]?". ":"");
 			errmsgno(EX_BAD, "For possible targets try 'scgskeleton -scanbus'. Make sure you are root.\n");

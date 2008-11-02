@@ -1,4 +1,4 @@
-#ident @(#)Makefile	1.10 08/09/10 
+#ident @(#)Makefile	1.11 08/10/26 
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -12,11 +12,11 @@ CPPOPTS +=	-I../cdrecord
 CPPOPTS +=	-DSCHILY_PRINT
 
 CFILES=		scgcheck.c sense.c dmaresid.c \
-		scsi_scan.c scsi_cdr.c cd_misc.c modes.c
+		scsi_scan.c scsi_cdr.c cd_misc.c
 
 HFILES=		scgcheck.h version.h
 #LIBS=		-lschily $(LIB_SOCKET)
-LIBS=		-lrscg -lscg $(LIB_VOLMGT) -lschily $(SCSILIB) $(LIB_SOCKET)
+LIBS=		-lscgcmd -lrscg -lscg $(LIB_VOLMGT) -lschily $(SCSILIB) $(LIB_SOCKET)
 XMK_FILE=	Makefile.man
 
 scsi_scan.c scsi_cdr.c:

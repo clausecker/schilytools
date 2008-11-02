@@ -1,7 +1,7 @@
-/* @(#)parse.c	1.2 08/08/11 Copyright 2001-2008 J. Schilling */
+/* %Z%%M%	%I% %E% Copyright 2001-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)parse.c	1.2 08/08/11 Copyright 2001-2008 J. Schilling";
+	"%Z%%M%	%I% %E% Copyright 2001-2008 J. Schilling";
 #endif
 /*
  *	Interactive command parser for cdda2wav
@@ -42,7 +42,7 @@ static	char sccsid[] =
 
 #include "toc.h"
 
-#define	E_OK		200
+#define	E_ISOK		200	/* E_OK is used with euid access() */
 #define	E_BAD		400
 #define	E_NOTFOUND	404
 
@@ -78,7 +78,7 @@ typedef struct err {
 } err_t;
 
 LOCAL err_t	errs[] = {
-	{ E_OK,		"OK" },
+	{ E_ISOK,	"OK" },
 	{ E_BAD,	"Bad Request" },
 	{ E_NOTFOUND,	"Not Found" },
 	{ -1,		NULL },

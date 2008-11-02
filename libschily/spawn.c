@@ -1,8 +1,8 @@
-/* @(#)spawn.c	1.19 06/09/26 Copyright 1985, 1989, 1995-2003 J. Schilling */
+/* @(#)spawn.c	1.21 08/10/09 Copyright 1985, 1989, 1995-2008 J. Schilling */
 /*
  *	Spawn another process/ wait for child process
  *
- *	Copyright (c) 1985, 1989, 1995-2003 J. Schilling
+ *	Copyright (c) 1985, 1989, 1995-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -19,20 +19,14 @@
 #include <schily/mconfig.h>
 #include <stdio.h>
 #include <schily/standard.h>
-#define	fspawnl	__nothing__	/* prototype in schily/schily.h is wrong */
-#define	spawnl	__nothing__	/* prototype in schily/schily.h is wrong */
-#include <schily/schily.h>
-#undef	fspawnl
-#undef	spawnl
 #include <schily/unistd.h>
 #include <schily/stdlib.h>
 #include <schily/varargs.h>
 #include <schily/wait.h>
 #include <schily/errno.h>
+#include <schily/schily.h>
 
 #define	MAX_F_ARGS	16
-
-EXPORT	int	fspawnl	__PR((FILE *, FILE *, FILE *, ...));
 
 EXPORT int
 fspawnv(in, out, err, argc, argv)
@@ -53,47 +47,52 @@ fspawnv(in, out, err, argc, argv)
 /* VARARGS3 */
 #ifdef	PROTOTYPES
 EXPORT int
-fspawnl(FILE *in, FILE *out, FILE *err, ...)
+fspawnl(FILE *in, FILE *out, FILE *err, const char *arg0, ...)
 #else
 EXPORT int
-fspawnl(in, out, err, va_alist)
-	FILE	*in;
-	FILE	*out;
-	FILE	*err;
+fspawnl(in, out, err, arg0, va_alist)
+	FILE		*in;
+	FILE		*out;
+	FILE		*err;
+	const char	*arg0;
 	va_dcl
 #endif
 {
 	va_list	args;
 	int	ac = 0;
-	char	*xav[MAX_F_ARGS];
+	char	*xav[MAX_F_ARGS+2];
 	char	**av;
-	char	**pav;
+const	char	**pav;
 	char	*p;
 	int	ret;
 
 #ifdef	PROTOTYPES
-	va_start(args, err);
+	va_start(args, arg0);
 #else
 	va_start(args);
 #endif
-	while (va_arg(args, char *) != NULL)
-		ac++;
+	if (arg0) {
+		while (va_arg(args, char *) != NULL)
+			ac++;
+	}
 	va_end(args);
 
-	if (ac < MAX_F_ARGS) {
-		pav = av = xav;
+	if (ac <= MAX_F_ARGS) {
+		av = xav;
 	} else {
-		pav = av = (char **)malloc((ac+1)*sizeof (char *));
+		av = (char **)malloc((ac+2)*sizeof (char *));
 		if (av == 0)
 			return (-1);
 	}
+	pav = (const char **)av;
 
 #ifdef	PROTOTYPES
-	va_start(args, err);
+	va_start(args, arg0);
 #else
 	va_start(args);
 #endif
-	do {
+	*pav++ = arg0;
+	if (arg0) do {
 		p = va_arg(args, char *);
 		*pav++ = p;
 	} while (p != NULL);

@@ -1,4 +1,4 @@
-#ident "@(#)rules.prg	1.15 06/07/07 "
+#ident "@(#)rules.prg	1.17 08/10/11 "
 ###########################################################################
 # Written 1996 by J. Schilling
 ###########################################################################
@@ -33,7 +33,14 @@ o=		$(OBJEXT)
 
 CLEAN_FILES=	core err
 
-SHELL=		/bin/sh
+#
+# Setting $(SHELL) inside a makefile is a really bad idea.
+# Since we allow "smake" to default SHELL to /bin/bosh in
+# case that /bin/sh is broken but /bin/bosh exists, this
+# must not be defined anymore.
+#
+#SHELL=		/bin/sh
+
 LN=		/bin/ln
 SYMLINK=	/bin/ln -s
 RM=		/bin/rm
@@ -80,7 +87,7 @@ INSGRP=		$(__DEFINSGRP:$(_UNIQ)%=%)
 LD=		@echo "	==> LINKING   \"$@\""; ld
 LOCALIZE=	@echo "	==> LOCALIZING \"$@\""; $(RM_F) $@; cp
 INSTALL=	@echo "	==> INSTALLING \"$@\""; sh $(SRCROOT)/conf/install-sh -c -m $(INSMODEINS) -o $(INSUSR) -g $(INSGRP)
-CHMOD=		@echo "	==> SEETING PERMISSIONS ON \"$@\""; chmod
+CHMOD=		@echo "	==> SETTING PERMISSIONS ON \"$@\""; chmod
 CHOWN=		@echo "	==> SETTING OWNER ON \"$@\""; chown
 CHGRP=		@echo "	==> SETTING GROUP ON \"$@\""; chgrp
 AR=		@echo "	==> ARCHIVING  \"$@\""; ar

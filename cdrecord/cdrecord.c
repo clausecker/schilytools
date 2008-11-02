@@ -1,7 +1,7 @@
-/* @(#)cdrecord.c	1.365 08/09/04 Copyright 1995-2008 J. Schilling */
+/* @(#)cdrecord.c	1.368 08/10/26 Copyright 1995-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)cdrecord.c	1.365 08/09/04 Copyright 1995-2008 J. Schilling";
+	"@(#)cdrecord.c	1.368 08/10/26 Copyright 1995-2008 J. Schilling";
 #endif
 /*
  *	Record data on a CD/CVD-Recorder
@@ -54,7 +54,7 @@ static	char sccsid[] =
 
 #include "auheader.h"
 #include "cdrecord.h"
-#include "defaults.h"
+#include "cdrdeflt.h"
 #include "movesect.h"
 
 
@@ -688,6 +688,13 @@ main(ac, av)
 		dp->cdr_dstat		= dsp;
 	}
 
+	/*
+	 * Reduce buffer size for older non-MMC drives.
+	 * The Philips CDD-521 is known not to work with a DMA size > 63 kB.
+	 */
+	if (!is_mmc(scgp, NULL, NULL) && bufsize > CDR_OLD_BUF_SIZE)
+		bufsize = CDR_OLD_BUF_SIZE;
+		
 	if ((flags & (F_MSINFO|F_TOC|F_LOAD|F_DLCK|F_EJECT)) == 0 ||
 	    tracks > 0 ||
 	    cuefilename != NULL) {
@@ -1126,17 +1133,26 @@ main(ac, av)
 		}
 #endif
 		/*
-		 * Hack to support DVD+R/DL
+		 * Hack to support DVD+R/DL and the firmware problems
+		 * for BD-R found in the Lite-ON BD B LH-2B1S/AL09
 		 */
-		if (dp->cdr_dstat->ds_type == DST_DVD_PLUS_R_DL) {
-			long	nbs = bufsize / (32*1024) * (32*1024);
+		if (get_mediatype(scgp) >= MT_DVD) {
+			int	bls = get_blf(get_mediatype(scgp));
+			long	nbs;
 
+			bls *= 2048;			/* Count in bytes */
+			nbs = bufsize / bls * bls;
 			if (nbs == 0) {
-				for (nbs = 32*1024; nbs > 2048; nbs /= 2)
+				for (nbs = bls; nbs > 2048; nbs /= 2)
 					if (nbs <= bufsize)
 						break;
 			}
 			if (nbs != bufsize) {
+				if (lverbose) {
+					printf(
+					"Reducing transfer size from %ld to %ld bytes.\n",
+									bufsize, nbs);
+				}
 				bufsize = nbs;
 				set_trsizes(dp, tracks, track);
 			}
@@ -4270,7 +4286,7 @@ load_media(scgp, dp, doexit)
 	scgp->silent--;
 	err = geterrno();
 	if (code < 0 && (err == EPERM || err == EACCES)) {
-		linuxcheck();	/* For version 1.365 of cdrecord.c */
+		linuxcheck();	/* For version 1.368 of cdrecord.c */
 		scg_openerr("");
 	}
 
@@ -5102,7 +5118,7 @@ set_wrmode(dp, wmode, tflags)
 }
 
 /*
- * I am sorry that even for version 1.365 of cdrecord.c, I am forced to do
+ * I am sorry that even for version 1.368 of cdrecord.c, I am forced to do
  * things like this, but defective versions of cdrecord cause a lot of
  * work load to me.
  *
@@ -5119,7 +5135,7 @@ set_wrmode(dp, wmode, tflags)
 #endif
 
 LOCAL void
-linuxcheck()				/* For version 1.365 of cdrecord.c */
+linuxcheck()				/* For version 1.368 of cdrecord.c */
 {
 #if	defined(linux) || defined(__linux) || defined(__linux__)
 #ifdef	HAVE_UNAME

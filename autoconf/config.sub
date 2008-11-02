@@ -1,5 +1,5 @@
 #! /bin/sh
-# @(#)config.sub	1.4 08/07/31 Copyright 1999-2008 J. Schilling
+# @(#)config.sub	1.5 08/10/11 Copyright 1999-2008 J. Schilling
 #
 # Configuration validation subroutine script, version 1.1.
 #   Copyright (C) 1991, 92-97, 1998 Free Software Foundation, Inc.
@@ -187,7 +187,7 @@ case $basic_machine in
 	      | mips64el-* | mips64orion-* | mips64orionel-*  \
 	      | mipstx39-* | mipstx39el-* \
 	      | f301-* \
-	      | x86-* | x86_64-*)
+	      | x86-* | x86_64-* | amd64-*)
 		;;
 	# Recognize the various machine names and aliases which stand
 	# for a CPU type and a company and sometimes even an OS.

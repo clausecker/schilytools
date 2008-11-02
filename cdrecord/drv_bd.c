@@ -1,10 +1,10 @@
-/* @(#)drv_bd.c	1.9 08/02/26 Copyright 2008 J. Schilling */
+/* @(#)drv_bd.c	1.11 08/10/11 Copyright 2007-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)drv_bd.c	1.9 08/02/26 Copyright 2008 J. Schilling";
+	"@(#)drv_bd.c	1.11 08/10/11 Copyright 2007-2008 J. Schilling";
 #endif
 /*
- *	Copyright (c) 2008 J. Schilling
+ *	Copyright (c) 2007-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -45,7 +45,7 @@ static	char sccsid[] =
  *			2		print disk info & write parameters
  *			3		print log pages & dvd structure
  *
- *	Copyright (c) 2008 J. Schilling
+ *	Copyright (c) 2007-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -465,8 +465,8 @@ attach_bd(scgp, dp)
 	 * Raise the default timeout.
 	 * The first write takes a long time as it writes the lead in.
 	 */
-	scgp->deftimeout = 100;		/* 1:40				*/
-
+	if (scgp->deftimeout < 100)
+		scg_settimeout(scgp, 100);	/* 1:40			*/
 
 	return (0);
 }
@@ -1226,13 +1226,11 @@ fixate_bdre(scgp, dp, trackp)
 #define	MAX_TRIES	15
 
 	/*
-	 * This is only valid for DAO recording.
-	 * XXX Check this if the DVR-S101 supports more.
-	 * XXX flush cache currently makes sure that
-	 * XXX at least ~ 800 MBytes written to the track.
-	 * XXX flush cache triggers writing the lead out.
+	 * XXX Is this timeout needed for BD-RE too?
+	 * XXX It was introduced for DVD-R that writes at least 800 MB
 	 */
-	scgp->deftimeout = 1000;
+	if (scgp->deftimeout < 1000)
+		scg_settimeout(scgp, 1000);
 
 /*scgp->verbose++;*/
 	scgp->silent++;
@@ -1245,7 +1243,7 @@ fixate_bdre(scgp, dp, trackp)
 				}
 				printf("Trouble flushing the cache\n");
 				scgp->silent--;
-				scgp->deftimeout = oldtimeout;
+				scg_settimeout(scgp, oldtimeout);
 				return (-1);
 			}
 			sleep(1);
@@ -1276,7 +1274,7 @@ fixate_bdre(scgp, dp, trackp)
 	waitformat(scgp, 300);
 /*scgp->verbose--;*/
 
-	scgp->deftimeout = oldtimeout;
+	scg_settimeout(scgp, oldtimeout);
 	return (ret);
 #undef	MAX_TRIES
 }
@@ -1297,13 +1295,11 @@ fixate_bdr(scgp, dp, trackp)
 #define	MAX_TRIES	15
 
 	/*
-	 * This is only valid for DAO recording.
-	 * XXX Check this if the DVR-S101 supports more.
-	 * XXX flush cache currently makes sure that
-	 * XXX at least ~ 800 MBytes written to the track.
-	 * XXX flush cache triggers writing the lead out.
+	 * XXX Is this timeout needed for BD-R too?
+	 * XXX It was introduced for DVD-R that writes at least 800 MB
 	 */
-	scgp->deftimeout = 1000;
+	if (scgp->deftimeout < 1000)
+		scg_settimeout(scgp, 1000);
 
 /*scgp->verbose++;*/
 	scgp->silent++;
@@ -1316,7 +1312,7 @@ fixate_bdr(scgp, dp, trackp)
 				}
 				printf("Trouble flushing the cache\n");
 				scgp->silent--;
-				scgp->deftimeout = oldtimeout;
+				scg_settimeout(scgp, oldtimeout);
 				return (-1);
 			}
 			sleep(1);
@@ -1380,7 +1376,7 @@ fixate_bdr(scgp, dp, trackp)
 	waitformat(scgp, 600);
 /*scgp->verbose--;*/
 
-	scgp->deftimeout = oldtimeout;
+	scg_settimeout(scgp, oldtimeout);
 	return (ret);
 #undef	MAX_TRIES
 }
@@ -1395,8 +1391,6 @@ blank_bd(scgp, dp, addr, blanktype)
 	long	addr;
 	int	blanktype;
 {
-/*XXX*/extern char *blank_types[];
-
 	BOOL	cdrr	 = FALSE;	/* Read CD-R	*/
 	BOOL	cdwr	 = FALSE;	/* Write CD-R	*/
 	BOOL	cdrrw	 = FALSE;	/* Read CD-RW	*/
@@ -1811,10 +1805,10 @@ LOCAL void
 print_bd00(dp)
 	Uchar	*dp;
 {
-	int	len = a_to_2_byte(dp)+2;
 	Uchar	*bd = &((Uchar *)dp)[4];
-
 #ifdef	BD_DEBUG
+	int	len = a_to_2_byte(dp)+2;
+
 	error("len %d\n", len);
 	scg_prbytes("BD structure[0]: ", bd, 255);
 	scg_prascii("BD structure[0]: ", bd, 255);
@@ -1840,10 +1834,10 @@ LOCAL void
 print_bd09(dp)
 	Uchar	*dp;
 {
-	int	len = a_to_2_byte(dp)+2;
 	Uchar	*bd = &((Uchar *)dp)[4];
-
 #ifdef	BD_DEBUG
+	int	len = a_to_2_byte(dp)+2;
+
 	error("len %d\n", len);
 	scg_prbytes("BD structure[09]: ", bd, len);
 	scg_prascii("BD structure[09]: ", bd, len);
@@ -1863,10 +1857,10 @@ LOCAL void
 print_bd0A(dp)
 	Uchar	*dp;
 {
+#ifdef	BD_DEBUG
 	int	len = a_to_2_byte(dp)+2;
 	Uchar	*bd = &((Uchar *)dp)[4];
 
-#ifdef	BD_DEBUG
 	error("len %d\n", len);
 	scg_prbytes("BD structure[0A]: ", bd, len);
 	scg_prascii("BD structure[0A]: ", bd, len);

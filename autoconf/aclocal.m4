@@ -1,4 +1,4 @@
-dnl @(#)aclocal.m4	1.65 08/08/30 Copyright 1998-2008 J. Schilling
+dnl @(#)aclocal.m4	1.67 08/10/11 Copyright 1998-2008 J. Schilling
 
 dnl Set VARIABLE to VALUE in C-string form, verbatim, or 1.
 dnl AC_DEFINE_STRING(VARIABLE [, VALUE])
@@ -107,6 +107,27 @@ fi
 ])
 if test $ac_cv_bin_shell_bosh = yes; then
   AC_DEFINE(BIN_SHELL_BOSH)
+fi])
+
+dnl Checks if /opt/schily/bin/bosh is a working shell
+dnl Defines OPT_SCHILY_BIN_SHELL_BOSH on success.
+AC_DEFUN([AC_OPT_SCHILY_BIN_SHELL_BOSH],
+[AC_CACHE_CHECK([whether /opt/schily/bin/bosh is a working shell], ac_cv_opt_schily_bin_shell_bosh,
+                [
+ac_err=`< /dev/null /opt/schily/bin/bosh -c 'echo abc' 2> /dev/null | grep abc`
+if test "$ac_err" != "abc"; then
+	ac_cv_opt_schily_bin_shell_bosh=no
+else
+	ac_err=`/opt/schily/bin/bosh -ce 'for i in 1 2 3; do  ( echo $i; if test -d . ; then (false; echo 4);  fi ) ; done' | grep 2`
+	if test -z "$ac_err"; then
+		ac_cv_opt_schily_bin_shell_bosh=yes
+	else
+		ac_cv_opt_schily_bin_shell_bosh=no
+	fi
+fi
+])
+if test $ac_cv_opt_schily_bin_shell_bosh = yes; then
+  AC_DEFINE(OPT_SCHILY_BIN_SHELL_BOSH)
 fi])
 
 dnl Checks if sh -ce is broken
@@ -1989,6 +2010,54 @@ main()
                 [ac_cv_no_user_malloc=yes])])
 if test $ac_cv_no_user_malloc = yes; then
   AC_DEFINE(NO_USER_MALLOC)
+fi])
+
+dnl Checks if ecvt()/fcvt()/gcvt() may be replaced by local implementations
+dnl There are known problems on ATARI MINT and older Linux version and statical linking
+dnl Defines NO_USER_XCVT on failure.
+AC_DEFUN([AC_USER_XCVT],
+[AC_CACHE_CHECK([if we may not define our own ecvt()/fcvt()/gcvt()], ac_cv_no_user_xcvt,
+                [AC_TRY_LINK([
+#include <stdio.h>
+
+char *
+ecvt(value, ndig, decpt, sign)
+	double	value;
+	int	ndig;
+	int	*decpt;
+	int	*sign;
+{
+	return ("ecvt-test");
+}
+
+char *
+fcvt(value, ndig, decpt, sign)
+	double	value;
+	int	ndig;
+	int	*decpt;
+	int	*sign;
+{
+	return ("fcvt-test");
+}
+
+char *
+gcvt(value, ndig, bp)
+	double	value;
+	int	ndig;
+	char	*bp;
+{
+	return ("gcvt-test");
+}
+], 
+		[
+	char	buf[64];
+
+	printf("E: %e F: %f G: %g local gcvt: %s\n", 1.234, 1.234, 1.234, gcvt(1.234, 4, buf));
+],
+                [ac_cv_no_user_xcvt=no],
+                [ac_cv_no_user_xcvt=yes])])
+if test $ac_cv_no_user_xcvt = yes; then
+  AC_DEFINE(NO_USER_XCVT)
 fi])
 
 dnl Checks if BSD-4.2 compliant getpgrp() exists

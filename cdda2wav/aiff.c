@@ -1,12 +1,12 @@
-/* @(#)aiff.c	1.8 06/09/13 Copyright 1998,1999 Heiko Eissfeldt, Copyright 2006 J. Schilling */
+/* @(#)aiff.c	1.9 08/10/28 Copyright 1998,1999 Heiko Eissfeldt, Copyright 2006-2008 J. Schilling */
 #ifndef lint
 static char	sccsid[] =
-"@(#)aiff.c	1.8 06/09/13 Copyright 1998,1999 Heiko Eissfeldt, Copyright 2006 J. Schilling";
+"@(#)aiff.c	1.9 08/10/28 Copyright 1998,1999 Heiko Eissfeldt, Copyright 2006-2008 J. Schilling";
 
 #endif
 /*
  * Copyright (C) by Heiko Eissfeldt
- * Copyright (c) 2006 J. Schilling
+ * Copyright (c) 2006-2008 J. Schilling
  *
  * definitions for aiff pcm output
  */
@@ -31,6 +31,7 @@ static char	sccsid[] =
 #include "mytype.h"
 #include "byteorder.h"
 #include "sndfile.h"
+#include "global.h"
 
 typedef UINT4 FOURCC;    /* a four character code */
 typedef struct CHUNKHDR {
@@ -160,6 +161,8 @@ InitSound(audio, channels, rate, nBitsPerSample, expected_bytes)
 	AiffHdr.dwSize[1] = tmp >> 16;
 	AiffHdr.dwSize[2] = tmp >> 8;
 	AiffHdr.dwSize[3] = tmp >> 0;
+
+	global.md5offset = sizeof (AiffHdr);
 
 	return (write(audio, &AiffHdr, sizeof (AiffHdr)));
 }

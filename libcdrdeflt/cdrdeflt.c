@@ -1,7 +1,7 @@
-/* @(#)defaults.c	1.22 08/02/17 Copyright 1998-2008 J. Schilling */
+/* @(#)cdrdeflt.c	1.23 08/10/25 Copyright 1998-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)defaults.c	1.22 08/02/17 Copyright 1998-2008 J. Schilling";
+	"@(#)cdrdeflt.c	1.23 08/10/25 Copyright 1998-2008 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1998-2008 J. Schilling
@@ -27,8 +27,7 @@ static	char sccsid[] =
 #include <schily/deflts.h>
 #include <schily/utypes.h>
 #include <schily/schily.h>
-#include "cdrecord.h"	/* only for getnum() */
-#include "defaults.h"
+#include "cdrdeflt.h"
 
 LOCAL	int	open_cdrdefaults __PR((void));
 EXPORT	void	cdr_defaults	__PR((char **devp, int *speedp, long *fsp, long *bufsizep, char **drvoptp));

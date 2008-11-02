@@ -1,12 +1,12 @@
-/* @(#)strdup.c	1.2 06/09/13 Copyright 2003 J. Schilling */
+/* @(#)strdup.c	1.3 08/10/05 Copyright 2003-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)strdup.c	1.2 06/09/13 Copyright 2003 J. Schilling";
+	"@(#)strdup.c	1.3 08/10/05 Copyright 2003-2008 J. Schilling";
 #endif
 /*
  *	strdup() to be used if missing on libc
  *
- *	Copyright (c) 2003 J. Schilling
+ *	Copyright (c) 2003-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -24,6 +24,7 @@ static	char sccsid[] =
 #include <schily/standard.h>
 #include <schily/stdlib.h>
 #include <schily/string.h>
+#include <schily/unistd.h>
 #include <schily/schily.h>
 #include <schily/libport.h>
 

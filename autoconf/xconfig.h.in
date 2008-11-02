@@ -1,4 +1,4 @@
-/* @(#)xconfig.h.in	1.146 08/08/30 Copyright 1998-2008 J. Schilling */
+/* @(#)xconfig.h.in	1.149 08/10/11 Copyright 1998-2008 J. Schilling */
 /*
  *	Dynamic autoconf C-include code.
  *
@@ -433,6 +433,21 @@
 #undef HAVE_DIRFD		/* dirfd() is present in libc */
 
 /*
+ * Functions that we defined in 1982 but where POSIX.1-2008 defined
+ * a POSIX violating incompatible definition.
+ */
+#undef HAVE_FEXECL		/* fexecl() */
+#undef HAVE_FEXECLE		/* fexecle() */
+#undef HAVE_FEXECV		/* fexecv() */
+#undef HAVE_FEXECVE		/* fexecve() */
+#undef HAVE_FSPAWNV		/* fspawnv() */
+#undef HAVE_FSPAWNL		/* fspawnl() */
+#undef HAVE_FSPAWNV_NOWAIT	/* fspawnv_nowait() */
+#undef HAVE_GETLINE		/* getline() */
+#undef HAVE_FGETLINE		/* fgetline() */
+
+
+/*
  * Misc OS stuff
  */
 #undef HAVE_DEV_TTY		/* /dev/tty present */
@@ -447,6 +462,7 @@
 #undef	SHELL_CE_IS_BROKEN	/* sh -ce is broken */
 #undef	BIN_SHELL_CE_IS_BROKEN	/* /bin/sh -ce is broken */
 #undef	BIN_SHELL_BOSH		/* /bin/bosh is a working Bourne Shell */
+#undef	OPT_SCHILY_BIN_SHELL_BOSH /* /opt/schily/bin/bosh is a working Bourne Shell */
 
 /*
  * OS madness
@@ -746,6 +762,7 @@
  * Misc CC / LD related stuff
  */
 #undef NO_USER_MALLOC		/* If we cannot define our own malloc()	*/
+#undef NO_USER_XCVT		/* If we cannot define our own ecvt()/fcvt()/gcvt() */
 #undef HAVE_DYN_ARRAYS		/* If the compiler allows dynamic sized arrays */
 
 /*

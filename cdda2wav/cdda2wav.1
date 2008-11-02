@@ -1,5 +1,5 @@
 '\" t
-.\" @(#)cdda2wav.1	1.26 08/06/21 Copyright 1998,1999,2000 Heiko Eissfeldt, Copyright 2004-2008 J. Schilling
+.\" @(#)cdda2wav.1	1.27 08/10/28 Copyright 1998,1999,2000 Heiko Eissfeldt, Copyright 2004-2008 J. Schilling
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
 .if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
 .if t .ds u \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'u
@@ -78,8 +78,7 @@ files
 .IR input-endianess ]
 .RB [ \-E
 .IR output-endianess ]
-.RB [ \-M
-.IR count ]
+.RB [ \-M ]
 .RB [ \-S
 .IR speed ]
 .RB [ \-paranoia ]
@@ -456,11 +455,11 @@ does not write an info file and a cddb file.
 .B \-gui
 formats the output to be better parsable by gui frontends.
 .TP
-.BI \-M " count
+.B \-M 
 .TP
-.BI \-md5 " count
-enables calculation of MD-5 checksum for 'count' bytes from a beginning of a
-track.
+.B \-md5
+enables calculation of MD-5 checksum for all audio bytes from the beginning 
+of a track. The audio header is skipped when calculating the MD-5 checksum.
 .TP
 .BI \-S " speed
 .TP

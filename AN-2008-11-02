@@ -1,0 +1,109 @@
+New features with AN-2008-11-02:
+
+
+-	Extended the file COPYING to mention that the GPL used by the "mkisofs project"
+	requires to publish the full source for all parts of mkisofs in case that you
+	publish mkisofs binaries.
+
+-	RUlES/rules.prg no longer includes a line with SHELL=/bin/sh.
+	This is needed to allow to implement a workaround for various bash
+	bugs that afffect makefiles in case that /bin/sh is linked to bash.
+
+	If your platform installs bash in /bin/sh (Linux, ....) or in case
+	thaat your platform offers a broken variant of the Korn Shell in /bin/sh
+	(like HP-UX), fetch the "Schily source consolidation" from 
+	ftp://ftp.berlios.de/pub/schily/, compile everything and install the
+	original Bourne Shell, that comes with this packet, into /bin/bosh.
+	If you then call ./.clean and re-compilee everything, you get a "smake"
+	that calls /bin/bosh instead of the broken system shell.
+
+-	Added an autoconf test for POSIX violations found in POSIX.1-2008.
+
+	The official POSIX rule is not to define "new" interfaces that
+	are in conflict with older interfaces of the same name.
+	Our interfaces fexec*() have been defined and published in 1982.
+	The new POSIX interfaces define a different interface and the
+	new POSIX interfaces even use names that are not compatible with
+	POSIX rules. The new POSIX interfaces in question should be called
+	fdexec*() to follow the rules of other similar POSIX functions.
+	Simiar problems exist with getline()/fgetline().
+
+	We try to automatically rename our functions in case that the functions
+	could be found in the local libc.
+
+
+-	Included a patch for the CAM interface from the FreeBSD people.
+	The patch sets up the CAM data structrures in a way that allows
+	SCSI bus and target scanning.
+
+-	Try to rename ecvt()/fcgt()/gcvt() in case that one of these functions
+	does not work and the libc implementation does not allow to overwrite the
+	function.
+
+-	cdrtools bumped to 2.01.01a53
+
+-	Make dure that the DVD and BluRay drivers do not lower the default timeout.
+	cdrecord timeout=# now always allows to raise the default timeout to a larger
+	value.
+
+-	Added a workaround to prevent the Lite-ON BD B LH-2B1S/AL09
+	from hanging up when trying to write a BluRay Medium.
+
+-	Cdrecord now by default tries to set up a DMA Size of 126 kB.
+	If non-MMC drives are found, we fall back to the old value of 63 kB
+
+-	The MD5 implemenation for cdda2wav (although currently unused) has been
+	changed from the RSA variant (that requires advertizing for RSA)
+	to a "public domain" implementation from Colin Plumb used
+	in OpenBSD.
+
+-	The new MD5 implementation for cdda2wav has been made portable.
+
+-	A typo in smake was corrected that was a result of copy/paste.
+	The typo did prevent compilation on ATARI MINT.
+
+-	The stringstack used in smake to expand teext tokens now always
+	reserves one extra byte for the null character at the end.
+
+-	config.sub now supports NetBSD on AMD64
+
+-	Smake now also checks for /opt/schily/bin/bosh as a possible replacement
+	for broken shells like "bash" and the Korn Shell found on HP-UX.
+
+-	The email addresses in many file have been updated.
+
+-	The license has been changed from a license (similar to a BSDl 4 clause)
+	to a new BSDL 2 clause license with permission from all involved authors.
+
+-	Libcdrdeflt is a new library that has been introduced as mans programs like
+	to parse the content of /etc/default/cdrecord
+
+-	Cdrecord man page now includes many small modifications that mention 
+	BluRay media.
+
+-	Libcdrdeflt is a new library that has been introduced as mans programs
+	like to parse the content of /etc/default/cdrecord
+
+-	Libscgcmd is a new SCSI command library made from very (20 year) old code.
+
+-	cdrecord, readcd, cdda2wav, mkisofs, btcflash, scgcheck, scgskeleton
+	Converted to use libcdrdeflt
+
+-	cdrecord, readcd, cdda2wav, mkisofs, btcflash, scgcheck, scgskeleton
+	Converted to use libscgcmd
+
+-	The -M/-md5 option in cdda2wav now finally works.
+	Cdda2wav now computes MD5-sums for the audio data and writes the result
+	into the *.inf files.
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.isdn.cs.tu-berlin.de, js@cs.tu-berlin.de
+	joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

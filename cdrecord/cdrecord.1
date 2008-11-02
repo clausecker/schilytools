@@ -1,4 +1,4 @@
-.\" @(#)cdrecord.1	1.119 08/09/26 Copyright 1996-2007 J. Schilling
+.\" @(#)cdrecord.1	1.123 08/10/23 Copyright 1996-2007 J. Schilling
 .\"
 .\" The contents of this file are subject to the terms of the
 .\" Common Development and Distribution License, Version 1.0 only
@@ -41,13 +41,14 @@ cdrecord \- record audio or data Compact Disks or Digital Versatile Disks from a
 .SH DESCRIPTION
 .B Cdrecord
 is used to record data or audio Compact Discs on an Orange Book
-CD-Recorder or to write DVD media on a DVD-Recorder.
+CD-Recorder, to write DVD media on a DVD-Recorder or to write
+BluRay media on a BluRay-Recorder.
 .PP
 The
 .I device
 refers to
 .IR scsibus / target / lun
-of the CD/DVD-Recorder. Communication on 
+of the CD/DVD/BluRay-Recorder. Communication on 
 .I SunOS
 is done with the SCSI general driver
 .B scg.
@@ -58,7 +59,7 @@ Possible syntax is:
 or
 .B dev=
 .IR target , lun .
-In the latter case, the CD/DVD-Recorder has to be connected to the default 
+In the latter case, the CD/DVD/BluRay-Recorder has to be connected to the default 
 SCSI bus of the machine.
 .IR Scsibus ,
 .I target 
@@ -104,7 +105,7 @@ connected to SCSI bus # 1,target 0 lun 0.
 .B Cdrecord
 is completely based on 
 .B SCSI
-commands but this is no problem as all CD/DVD writers
+commands but this is no problem as all CD/DVD/BluRay writers
 ever made use
 .B SCSI
 commands for the communication. Even
@@ -217,7 +218,7 @@ This is used e.g. to display the progress of the writing process.
 .B \-V
 Increment the verbose level in respect of SCSI command transport by one.
 This helps to debug problems
-during the writing process, that occur in the CD/DVD-Recorder. 
+during the writing process, that occur in the CD/DVD/BluRay-Recorder. 
 If you get incomprehensible error messages you should use this flag
 to get more detailed output.
 .B \-VV
@@ -266,9 +267,9 @@ Tell cdrecord to set the
 flag in certain commands
 (load/eject/blank/close_track/close_session).
 This can be useful
-on broken systems with ATAPI harddisk and CD/DVD writer on the same bus or
+on broken systems with ATAPI hard-disk and CD/DVD/BluRay writer on the same bus or
 with SCSI systems that don't use disconnect/reconnect.
-These systems will freeze while blanking or fixating a CD/DVD or while a DVD
+These systems will freeze while blanking or fixating a CD/DVD/BluRay or while a DVD
 writer is filling up a session to the minimum amount (approx. 800 MB).
 Setting the
 .B \-immed
@@ -276,7 +277,7 @@ flag will request the command to return immediately
 while the operation proceeds in background, making
 the bus usable for the other devices and avoiding the system freeze.
 This is an experimental feature which may work or not, depending on the model
-of the CD/DVD writer.
+of the CD/DVD/BluRay writer.
 A correct solution would be to set up a correct cabling but there seem to be 
 notebooks around that have been set up the wrong way by the manufacturer.
 As it is impossible to fix this problem in notebooks, the
@@ -286,8 +287,8 @@ option has been added.
 A second experimental feature of the
 .B \-immed
 flag is to tell cdrecord to try to wait short times while writing to the
-media. This is expected to free the IDE bus if the CD/DVD writer and the
-data source are connected to the same IDE cable. In this case, the CD/DVD
+media. This is expected to free the IDE bus if the CD/DVD/BluRay writer and the
+data source are connected to the same IDE cable. In this case, the CD/DVD/BluRay
 writer would otherwise usually block the IDE bus for nearly all the time
 making it impossible to fetch data from the source drive. See also
 .B minbuf=
@@ -304,7 +305,7 @@ The #
 .B minbuf=
 option allows to define the minimum drive buffer fill ratio for the
 experimental ATAPI wait mode that is intended to free the IDE bus
-to allow hard disk and CD/DVD writer to be on the same IDE cable.
+to allow hard disk and CD/DVD/BluRay writer to be on the same IDE cable.
 As the wait mode currently only works when the verbose option
 .B \-v
 has been specified, 
@@ -319,7 +320,7 @@ Valid values for
 are between 25 and 95 for 25%.\|.\|.95% minimum drive buffer fill ratio.
 .TP
 .B \-dummy
-The CD/DVD-Recorder will go through all steps of the recording process,
+The CD/DVD/BluRay-Recorder will go through all steps of the recording process,
 but the laser is turned off during this procedure.
 It is recommended to run several tests before actually writing to a 
 Compact Disk or Digital Versatile Disk,
@@ -467,7 +468,7 @@ except you want to create a session on a CD that will be
 the last session on the CD media.
 .sp
 For CD media,
-the fixation will be done in a way that allows the CD/DVD-Recorder to
+the fixation will be done in a way that allows the CD/DVD/BluRay-Recorder to
 append additional sessions later. This is done by generation a TOC
 with a link to the next program area. The so generated media is not
 100% compatible to manufactured CDs (except for CDplus). 
@@ -524,8 +525,8 @@ With this option,
 will work with CD-R drives and with CD-ROM drives.
 .TP
 .B \-atip
-Retrieve and print out the ATIP (absolute Time in Pre-groove) info of a CD/DVD
-recordable or CD/DVD re-writable media.
+Retrieve and print out the ATIP (absolute Time in Pre-groove) info of a CD/DVD/BluRay
+recordable or CD/DVD/BluRay re-writable media.
 With this option, 
 .B cdrecord
 will try to retrieve the ATIP info. If the actual drive does not support
@@ -581,9 +582,13 @@ work on these devices.
 .TP
 .BR speed= #
 Set the speed factor of the writing process to #.
-# is an integer, representing a multiple of the audio speed.
-This is about 150\ KB/s for CD-ROM, about 172\ KB/s for CD-Audio and about 1385\ kB/s
-for DVD media.
+# is an integer, representing a multiple of what has been defined as single speed
+for the medium.
+.sp
+For CD media, single speed is the audio playback speed.
+This is about 150\ KB/s for CD-ROM and about 172\ KB/s for CD-Audio.
+Single speed is about 1385\ kB/s for DVD media and about 4496\ kB/s for BluRay media.
+.sp
 If no 
 .I speed
 option is present,
@@ -655,16 +660,16 @@ flag is used but it finally depends on the drive's firmware
 whether the blanking operation will succeed or not.
 .TP
 .B \-format
-Format a CD-RW/DVD-RW/DVD+RW disc.
-Formatting is currently only implemented for DVD+RW media.
-A 'maiden' DVD+RW media needs to
+Format a CD-RW/DVD-RW/DVD+RW/BD-RE disc.
+Formatting is currently only implemented for DVD+RW and for BD-RE media.
+A 'maiden' DVD+RW or BD-RE media needs to
 be formatted before you may write to it.
 However, as
 .B cdrecord
 autodetects the need for formatting in this case and auto formats the medium
 before it starts writing, the
 .B \-format
-option is only needed if you like to forcibly reformat a DVD+RW medium.
+option is only needed if you like to forcibly reformat a DVD+RW BD-RE medium.
 .TP
 .BR fs= #
 Set the FIFO (ring buffer) size to #.
@@ -711,7 +716,7 @@ will abort prior to do any modifications on the disk if
 dies before it starts writing.
 The recommended FIFO size is between 4 and 128\ MBytes.
 As a rule of thumb, the FIFO size should be at least equal to the size
-of the internal buffer of the CD/DVD-Recorder and no more than half of
+of the internal buffer of the CD/DVD/BluRay-Recorder and no more than half of
 the physical amount of RAM available in the machine.
 If the FIFO size is big enough, the FIFO statistics will print a FIFO
 empty count of zero and the FIFO min fill is not below 20%.
@@ -765,7 +770,7 @@ with the
 option.
 .TP
 .BI dev= target
-Sets the SCSI target for the CD/DVD-Recorder, see notes above.
+Sets the SCSI target for the CD/DVD/BluRay-Recorder, see notes above.
 A typical device specification is
 .BI dev= 6,0
 \&.
@@ -860,6 +865,26 @@ The following driver names are supported:
 .B help
 To get a list of possible drivers together with a short description.
 .TP
+.B mmc_bd
+The generic SCSI-3/mmc BluRay driver is auto-selected whenever
+.B cdrecord
+finds a MMC compliant drive that does support to write BluRay media or a
+multi system that contains a BluRay disk as the current medium.
+This driver tries to close the tray, checks the medium found in the tray and then 
+branches to the driver that matches the current medium.
+.TP
+.B mmc_bdr
+The generic SCSI-3/mmc BluRay driver is auto-selected whenever
+.B cdrecord
+finds a MMC compliant drive that does support to write BluRay BD-R media or a
+multi system that contains a BluRay BD-R disk as the current medium.
+.TP
+.B mmc_bdre
+The generic SCSI-3/mmc BluRay driver is auto-selected whenever
+.B cdrecord
+finds a MMC compliant drive that does support to write BluRay BD-RE media or a
+multi system that contains a BluRay BD-RE disk as the current medium.
+.TP
 .B mmc_cd
 The generic SCSI-3/mmc CD-ROM driver is auto-selected whenever
 .B cdrecord
@@ -868,7 +893,7 @@ all, or that only identifies to support media or write modes not implemented in
 .BR cdrecord .
 .TP
 .B mmc_cd_dvd
-The generic SCSI-3/mmc CD/DVD driver is auto-selected whenever
+The generic SCSI-3/mmc CD/DVD/BluRay driver is auto-selected whenever
 .B cdrecord
 finds a MMC-2 or MMC-3 compliant drive that seems to support more than 
 one medium type and the tray is open or no medium could be found to select the
@@ -1032,6 +1057,10 @@ The driver for Yamaha CDR-100 / CDR-102 is auto-selected when
 .B cdrecord
 finds one of the old pre MMC CD writers from Yamaha.
 There is no support for the Session At Once write mode yet.
+.TP
+.B bd_simul
+The simulation BluRay driver allows to run timing and speed tests
+with parameters that match the behavior of BluRay writers.
 .TP
 .B cdr_simul
 The simulation CD-R driver allows to run timing and speed tests
@@ -1300,7 +1329,7 @@ Do an inquiry for the drive, print the inquiry info and exit.
 .B \-scanbus
 Scan all SCSI devices on all SCSI busses and print the inquiry
 strings. This option may be used to find SCSI address of the 
-CD/DVD-Recorder on a system.
+CD/DVD/BluRay-Recorder on a system.
 The numbers printed out as labels are computed by: 
 .B "bus * 100 + target
 .TP
@@ -1859,7 +1888,7 @@ option for possible arguments.
 
 .SH EXAMPLES
 .PP
-For all examples below, it will be assumed that the CD/DVD-Recorder is
+For all examples below, it will be assumed that the CD/DVD/BluRay-Recorder is
 connected to the primary SCSI bus of the machine. The SCSI target id is
 set to 2.
 .PP
@@ -2300,7 +2329,7 @@ More information on the SCSI command set of a HP CD-Recorder can be found at:
 	http://www.hp.com/isgsupport/cdr/index.html
 .PP
 If you have more information or SCSI command manuals for currently 
-unsupported CD/DVD-Recorders please contact the author.
+unsupported CD/DVD/BluRay-Recorders please contact the author.
 .PP
 The Philips CDD 521 CD-Recorder (even in the upgraded version)
 has several firmware bugs. Some of them will
@@ -2340,7 +2369,7 @@ cannot tell you if device transfers no sense data at all.
 It fetches to few data in auto request sense (CCS/SCSI-2/SCSI-3 needs >= 18).
 .PP
 The FIFO percent output is computed just after a block of data has been written
-to the CD/DVD-Recorder. For this reason, there will never be 100% FIFO fill ratio
+to the CD/DVD/BluRay-Recorder. For this reason, there will never be 100% FIFO fill ratio
 while the FIFO is in streaming mode.
 
 .SH DIAGNOSTICS
@@ -2500,7 +2529,7 @@ Germany
 .PP
 Additional information can be found on:
 .br
-http://www.fokus.fhg.de/usr/schilling/cdrecord.html
+http://cdrecord.berlios.de/private/cdrecord.html
 .PP
 If you have support questions, send them to:
 .PP
@@ -2518,7 +2547,7 @@ cdrecord-developers@berlios.de
 .br
 or
 .B
-schilling@fokus.fhg.de
+joerg.schilling@fokus.fraunhofer.de
 .PP
 To subscribe, use:
 .PP

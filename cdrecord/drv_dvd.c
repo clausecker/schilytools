@@ -1,7 +1,7 @@
-/* @(#)drv_dvd.c	1.154 08/09/26 Copyright 1998-2008 J. Schilling */
+/* @(#)drv_dvd.c	1.155 08/10/01 Copyright 1998-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)drv_dvd.c	1.154 08/09/26 Copyright 1998-2008 J. Schilling";
+	"@(#)drv_dvd.c	1.155 08/10/01 Copyright 1998-2008 J. Schilling";
 #endif
 /*
  *	DVD-R device implementation for
@@ -404,7 +404,8 @@ attach_dvd(scgp, dp)
 	 * Raise the default timeout.
 	 * The first write takes a long time as it writes the lead in.
 	 */
-	scgp->deftimeout = 100;		/* 1:40				*/
+	if (scgp->deftimeout < 100)
+		scg_settimeout(scgp, 100);	/* 1:40			*/
 
 	return (0);
 }
@@ -1167,11 +1168,12 @@ fixate_dvd(scgp, dp, trackp)
 	 * XXX at least ~ 800 MBytes written to the track.
 	 * XXX flush cache triggers writing the lead out.
 	 */
-	scgp->deftimeout = 1000;
+	if (scgp->deftimeout < 1000)
+		scg_settimeout(scgp, 1000);
 
 	if (scsi_flush_cache(scgp, FALSE) < 0) {
 		printf("Trouble flushing the cache\n");
-		scgp->deftimeout = oldtimeout;
+		scg_settimeout(scgp, oldtimeout);
 		return (-1);
 	}
 	waitformat(scgp, 100);
@@ -1179,7 +1181,7 @@ fixate_dvd(scgp, dp, trackp)
 	if (trackno <= 0)
 		trackno = 1;
 
-	scgp->deftimeout = oldtimeout;
+	scg_settimeout(scgp, oldtimeout);
 
 	if (dp->cdr_dstat->ds_type == DST_DVD_RAM) {
 		/*

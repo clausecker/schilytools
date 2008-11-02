@@ -1,4 +1,4 @@
-/* @(#)defaults.h	1.3 08/02/17 Copyright 1998-2008 J. Schilling */
+/* @(#)cdrdeflt.h	1.4 08/10/25 Copyright 1998-2008 J. Schilling */
 /*
  *	The cdrecord defaults (/etc/default/cdrecord) interface
  *
@@ -16,11 +16,11 @@
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#ifndef	_DEFAULTS_H
-#define	_DEFAULTS_H
+#ifndef	_CDRDEFLT_H
+#define	_CDRDEFLT_H
 /*
  * defaults.c
  */
 extern	void	cdr_defaults	__PR((char **devp, int *speedp, long *fsp, long *bufsizep, char **drvoptp));
 
-#endif	/* _DEFAULTS_H */
+#endif	/* _CDRDEFLT_H */

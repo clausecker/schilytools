@@ -1,4 +1,4 @@
-/* @(#)fconv.c	1.36 06/10/29 Copyright 1985, 1995-2003 J. Schilling */
+/* @(#)fconv.c	1.37 08/10/08 Copyright 1985, 1995-2003 J. Schilling */
 /*
  *	Convert floating point numbers to strings for format.c
  *	Should rather use the MT-safe routines [efg]convert()
@@ -102,6 +102,23 @@ extern	char	*fcvt __PR((double, int, int *, int *));
 #endif
 
 #if !defined(HAVE_ECVT) || !defined(HAVE_FCVT) || !defined(HAVE_GCVT)
+
+#ifdef	NO_USER_XCVT
+	/*
+	 * We cannot define our own ecvt()/fcvt()/gcvt() so we need to use
+	 * local names instead.
+	 */
+#ifndef	HAVE_ECVT
+#	define	ecvt	js_ecvt
+#endif
+#ifndef	HAVE_FCVT
+#	define	fcvt	js_fcvt
+#endif
+#ifndef	HAVE_GCVT
+#	define	gcvt	js_gcvt
+#endif
+#endif
+
 #include "cvt.c"
 #endif
 

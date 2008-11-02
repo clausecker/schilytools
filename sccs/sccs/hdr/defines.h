@@ -27,11 +27,11 @@
 /*
  * This file contains modifications Copyright 2006-2008 J. Schilling
  *
- * @(#)defines.h	1.13 08/09/04 J. Schilling
+ * @(#)defines.h	1.14 08/10/08 J. Schilling
  */
 #if defined(sun) || defined(__GNUC__)
 
-#ident "@(#)defines.h 1.13 08/09/04 J. Schilling"
+#ident "@(#)defines.h 1.14 08/10/08 J. Schilling"
 #endif
 /*
  * @(#)defines.h 1.21 06/12/12
@@ -87,14 +87,16 @@ extern char *optarg;
 #define	MAXPATHLEN	PATH_MAX
 #endif
 
-#if	defined(NEED_SCHILY) || defined(NEED_SCHILY_PRINT)
+/*
+ * Always include schily/schily.h to allow POSIX bug workarounds to be
+ * implemented in schily/schily.h.
+ */
 #ifdef	NEED_SCHILY_PRINT
 #define	SCHILY_PRINT
 #endif
-# define error	__js_error__		/* SCCS error differs from schily.h */
-# include	<schily/schily.h>
-# undef	error
-#endif
+#define error	__js_error__		/* SCCS error differs from schily.h */
+#include	<schily/schily.h>
+#undef	error				/* SCCS only uses the SCCS error() */
 
 /*
  * SCCS was written in 1972. It supports 2 digit year strings from 1969..2068.

@@ -1,7 +1,7 @@
-/* @(#)archconf.c	1.19 07/09/09 Copyright 1996-2007 J. Schilling */
+/* @(#)archconf.c	1.20 08/10/08 Copyright 1996-2007 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)archconf.c	1.19 07/09/09 Copyright 1996-2007 J. Schilling";
+	"@(#)archconf.c	1.20 08/10/08 Copyright 1996-2007 J. Schilling";
 #endif
 /*
  *	Make program
@@ -226,7 +226,7 @@ do_sysinfo()
 	}
 #endif
 
-#ifdef  SI_HW_PROVIDER
+#ifdef  SI_HW_SERIAL
 	if (sysinfo(SI_HW_SERIAL, nbuf, sizeof (nbuf)) >= 0) {
 /*		archcvt(nbuf);*/
 		define_var("MAKE_HWSERIAL", nbuf);

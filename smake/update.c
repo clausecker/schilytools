@@ -1,7 +1,7 @@
-/* @(#)update.c	1.108 08/09/26 Copyright 1985, 88, 91, 1995-2008 J. Schilling */
+/* @(#)update.c	1.110 08/10/28 Copyright 1985, 88, 91, 1995-2008 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)update.c	1.108 08/09/26 Copyright 1985, 88, 91, 1995-2008 J. Schilling";
+	"@(#)update.c	1.110 08/10/28 Copyright 1985, 88, 91, 1995-2008 J. Schilling";
 #endif
 /*
  *	Make program
@@ -27,6 +27,7 @@ static	char sccsid[] =
 #include <schily/standard.h>
 #include <schily/stdlib.h>		/* for free() */
 #include <schily/string.h>
+#include <schily/unistd.h>
 #include <schily/schily.h>
 #include <schily/libport.h>
 #include "make.h"
@@ -602,6 +603,11 @@ LOCAL void
 grant_gbuf(size)
 	int	size;
 {
+	/*
+	 * In order to simplify code we add the space needed for the null byte.
+	 */
+	size++;
+
 	while (sub_ptr + size >= gbufend)
 		sub_ptr = growgbuf(sub_ptr);
 }
