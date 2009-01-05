@@ -1,4 +1,4 @@
-#ident "@(#)rules.tpk	1.6 08/01/18 "
+#ident "@(#)rules.tpk	1.7 08/12/27 "
 ###########################################################################
 # Written 2005 by J. Schilling
 ###########################################################################
@@ -50,9 +50,9 @@ tarpkg0:
 	rm -rf tarpkg
 
 tarpkg1:
-	mkdir -p tarpkg tarpkg/$(INS_BASE)/bin tarpkg/$(INS_BASE)/sbin tarpkg/$(INS_BASE)/etc \
-		tarpkg/$(INS_BASE)/lib tarpkg/$(INS_BASE)/share/man
-	ln -s share/man tarpkg/$(INS_BASE)/man
+	mkdir -p tarpkg tarpkg/$(INSBASE)/bin tarpkg/$(INSBASE)/sbin tarpkg/$(INSBASE)/etc \
+		tarpkg/$(INSBASE)/lib tarpkg/$(INSBASE)/share/man
+	ln -s share/man tarpkg/$(INSBASE)/man
 	if [ ."$(PRE_INST_CMDS)" != . ]; then cd tarpkg && eval "$(PRE_INST_CMDS)" ; fi
 	$(MAKE) $(MAKE_FILE) $(MAKEMACS) DESTDIR=`pwd`/tarpkg install
 	if [ ."$(POST_INST_CMDS)" != . ]; then cd tarpkg && eval "$(POST_INST_CMDS)" ; fi

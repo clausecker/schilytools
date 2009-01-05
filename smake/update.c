@@ -1,7 +1,8 @@
-/* @(#)update.c	1.110 08/10/28 Copyright 1985, 88, 91, 1995-2008 J. Schilling */
+/* @(#)update.c	1.111 08/12/22 Copyright 1985, 88, 91, 1995-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)update.c	1.110 08/10/28 Copyright 1985, 88, 91, 1995-2008 J. Schilling";
+static	const char sccsid[] =
+	"@(#)update.c	1.111 08/12/22 Copyright 1985, 88, 91, 1995-2008 J. Schilling";
 #endif
 /*
  *	Make program

@@ -1,10 +1,11 @@
-/* @(#)alloc.c	1.40 08/03/27 Copyright 1985,1988,1991,1995-2008 J. Schilling */
+/* @(#)alloc.c	1.42 09/01/03 Copyright 1985,1988,1991,1995-2009 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)alloc.c	1.40 08/03/27 Copyright 1985,1988,1991,1995-2008 J. Schilling";
+static	const char sccsid[] =
+	"@(#)alloc.c	1.42 09/01/03 Copyright 1985,1988,1991,1995-2009 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1985,1988,1991,1995-2008 J. Schilling
+ *	Copyright (c) 1985,1988,1991,1995-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -621,6 +622,7 @@ nomemraising(val)
 LOCAL	BOOL	ctlc = FALSE;
 #else
 #include "bsh.h"
+#define	REDEFINE_CTYPE		/* Allow to use our local ctype.h */
 #include "ctype.h"
 EXPORT	void	balloc		__PR((Argvec* vp, FILE ** std, int flag));
 #endif	/* BSH */

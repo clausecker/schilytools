@@ -25,13 +25,13 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2007 J. Schilling
+ * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)unget.c	1.6 07/12/11 J. Schilling
+ * @(#)unget.c	1.7 09/01/04 J. Schilling
  */
 #if defined(sun) || defined(__GNUC__)
 
-#ident "@(#)unget.c 1.6 07/12/11 J. Schilling"
+#ident "@(#)unget.c 1.7 09/01/04 J. Schilling"
 #endif
 /*
  * @(#)unget.c 1.24 06/12/12
@@ -107,14 +107,14 @@ char *argv[];
 	 * Set directory to search for general l10n SCCS messages.
 	 */
 #ifdef	PROTOTYPES
-	bindtextdomain(NOGETTEXT("SUNW_SPRO_SCCS"),
+	(void) bindtextdomain(NOGETTEXT("SUNW_SPRO_SCCS"),
 	   NOGETTEXT(INS_BASE "/ccs/lib/locale/"));
 #else
-	bindtextdomain(NOGETTEXT("SUNW_SPRO_SCCS"),
+	(void) bindtextdomain(NOGETTEXT("SUNW_SPRO_SCCS"),
 	   NOGETTEXT("/usr/ccs/lib/locale/"));
 #endif
 	
-	textdomain(NOGETTEXT("SUNW_SPRO_SCCS"));
+	(void) textdomain(NOGETTEXT("SUNW_SPRO_SCCS"));
 
 	Fflags = FTLEXIT | FTLMSG | FTLCLN;
 

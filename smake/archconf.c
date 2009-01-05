@@ -1,13 +1,14 @@
-/* @(#)archconf.c	1.20 08/10/08 Copyright 1996-2007 J. Schilling */
+/* @(#)archconf.c	1.21 08/12/22 Copyright 1996-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)archconf.c	1.20 08/10/08 Copyright 1996-2007 J. Schilling";
+static	const char sccsid[] =
+	"@(#)archconf.c	1.21 08/12/22 Copyright 1996-2008 J. Schilling";
 #endif
 /*
  *	Make program
  *	Architecture autoconfiguration support
  *
- *	Copyright (c) 1996-2007 by J. Schilling
+ *	Copyright (c) 1996-2008 by J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

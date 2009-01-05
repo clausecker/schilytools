@@ -1,7 +1,8 @@
-/* @(#)cond.c	1.20 08/03/27 Copyright 1985-2008 J. Schilling */
+/* @(#)cond.c	1.23 09/01/04 Copyright 1985-2009 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)cond.c	1.20 08/03/27 Copyright 1985-2008 J. Schilling";
+static	const char sccsid[] =
+	"@(#)cond.c	1.23 09/01/04 Copyright 1985-2009 J. Schilling";
 #endif
 /*
  *	Bsh conditional code handling
@@ -12,7 +13,7 @@ static	char sccsid[] =
  *		switch .. case .. end
  *		read
  *
- *	Copyright (c) 1985-2008 J. Schilling
+ *	Copyright (c) 1985-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -37,6 +38,7 @@ static	char sccsid[] =
 #include <schily/stdlib.h>
 #include <schily/unistd.h>
 #include <schily/utypes.h>
+#define	REDEFINE_CTYPE		/* Allow to use our local ctype.h */
 #include "ctype.h"
 #include <schily/patmatch.h>
 

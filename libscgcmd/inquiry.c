@@ -1,7 +1,8 @@
-/* @(#)inquiry.c	1.156 08/10/26 Copyright 1995-2008 J. Schilling */
+/* @(#)inquiry.c	1.157 08/12/22 Copyright 1995-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)inquiry.c	1.156 08/10/26 Copyright 1995-2008 J. Schilling";
+static	const char sccsid[] =
+	"@(#)inquiry.c	1.157 08/12/22 Copyright 1995-2008 J. Schilling";
 #endif
 /*
  *	SCSI command functions for inquiry

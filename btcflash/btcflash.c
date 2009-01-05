@@ -1,7 +1,7 @@
-/* @(#)btcflash.c	1.13 08/06/13 2004-2008 J. Schilling */
+/* @(#)btcflash.c	1.14 08/12/22 2004-2008 J. Schilling */
 #ifndef lint
-static	char _sccsid[] =
-	"@(#)btcflash.c	1.13 08/06/13 2004-2008 J. Schilling";
+static	const char _sccsid[] =
+	"@(#)btcflash.c	1.14 08/12/22 2004-2008 J. Schilling";
 #endif
 /*--------------------------------------------------------------------------*/
 /*
@@ -213,7 +213,7 @@ btcmain(scgp, fwfile)
 	unsigned short	checksum;
 	unsigned int	offset;
 
-	printf("BTC DVD+/-RW firmware flash utility release %s %s\n", "1.13", "08/06/13");
+	printf("BTC DVD+/-RW firmware flash utility release %s %s\n", "1.14", "08/12/22");
 	printf("USE AT YOUR OWN RISK!\n\n");
 
 	if (!(fwbuf = loadfirmware(fwfile)))

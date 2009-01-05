@@ -1,7 +1,8 @@
-/* @(#)p_block.c	1.26 08/09/18 J. Schilling from cdparanoia-III-alpha9.8 */
+/* @(#)p_block.c	1.27 08/12/22 J. Schilling from cdparanoia-III-alpha9.8 */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-"@(#)p_block.c	1.26 08/09/18 J. Schilling from cdparanoia-III-alpha9.8";
+static	const char sccsid[] =
+"@(#)p_block.c	1.27 08/12/22 J. Schilling from cdparanoia-III-alpha9.8";
 
 #endif
 /*

@@ -1,13 +1,14 @@
-/* @(#)drv_sony.c	1.81 08/06/13 Copyright 1997-2008 J. Schilling */
+/* @(#)drv_sony.c	1.84 09/01/04 Copyright 1997-2009 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)drv_sony.c	1.81 08/06/13 Copyright 1997-2008 J. Schilling";
+static	const char sccsid[] =
+	"@(#)drv_sony.c	1.84 09/01/04 Copyright 1997-2009 J. Schilling";
 #endif
 /*
  *	CDR device implementation for
  *	Sony
  *
- *	Copyright (c) 1997-2008 J. Schilling
+ *	Copyright (c) 1997-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -202,10 +203,14 @@ LOCAL	int	write_continue_sony	__PR((SCSI *scgp, caddr_t bp, long sectaddr, long 
 LOCAL	int	discontinue_sony	__PR((SCSI *scgp));
 LOCAL	int	write_track_sony	__PR((SCSI *scgp, long track, int sectype));
 LOCAL	int	close_track_sony	__PR((SCSI *scgp, cdr_t *dp, track_t *trackp));
+#ifdef	__needed__
 LOCAL	int	flush_sony		__PR((SCSI *scgp, int track));
+#endif
 LOCAL	int	finalize_sony		__PR((SCSI *scgp, cdr_t *dp, track_t *trackp));
 LOCAL	int	recover_sony		__PR((SCSI *scgp, cdr_t *dp, int track));
+#ifdef	__needed__
 LOCAL	int	set_wr_parameter_sony	__PR((SCSI *scgp, caddr_t bp, int size));
+#endif
 LOCAL	int	next_wr_addr_sony	__PR((SCSI *scgp, track_t *trackp, long *ap));
 LOCAL	int	reserve_track_sony	__PR((SCSI *scgp, unsigned long len));
 LOCAL	int	init_sony		__PR((SCSI *scgp, cdr_t *dp));
@@ -450,6 +455,7 @@ finalize_sony(scgp, dp, trackp)
 	return (0);
 }
 
+#ifdef	__needed__
 LOCAL int
 flush_sony(scgp, track)
 	SCSI	*scgp;
@@ -475,6 +481,7 @@ flush_sony(scgp, track)
 		return (-1);
 	return (0);
 }
+#endif
 
 LOCAL int
 recover_sony(scgp, dp, track)
@@ -499,6 +506,7 @@ recover_sony(scgp, dp, track)
 	return (0);
 }
 
+#ifdef	__needed__
 LOCAL int
 set_wr_parameter_sony(scgp, bp, size)
 	SCSI	*scgp;
@@ -523,6 +531,7 @@ set_wr_parameter_sony(scgp, bp, size)
 		return (-1);
 	return (0);
 }
+#endif
 
 LOCAL int
 next_wr_addr_sony(scgp, trackp, ap)

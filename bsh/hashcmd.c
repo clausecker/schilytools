@@ -1,7 +1,8 @@
-/* @(#)hashcmd.c	1.24 08/03/27 Copyright 1986-2008 J. Schilling */
+/* @(#)hashcmd.c	1.25 08/12/20 Copyright 1986-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)hashcmd.c	1.24 08/03/27 Copyright 1986-2008 J. Schilling";
+static	const char sccsid[] =
+	"@(#)hashcmd.c	1.25 08/12/20 Copyright 1986-2008 J. Schilling";
 #endif
 /*
  *	bsh - Commands dealing with #<letter> commands

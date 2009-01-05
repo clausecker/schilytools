@@ -1,7 +1,8 @@
-/* @(#)drv_dvd.c	1.155 08/10/01 Copyright 1998-2008 J. Schilling */
+/* @(#)drv_dvd.c	1.158 08/12/24 Copyright 1998-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)drv_dvd.c	1.155 08/10/01 Copyright 1998-2008 J. Schilling";
+static	const char sccsid[] =
+	"@(#)drv_dvd.c	1.158 08/12/24 Copyright 1998-2008 J. Schilling";
 #endif
 /*
  *	DVD-R device implementation for
@@ -92,6 +93,7 @@ LOCAL	int	open_track_dvd		__PR((SCSI *scgp, cdr_t *dp, track_t *trackp));
 LOCAL	long	rzone_size		__PR((track_t *trackp));
 LOCAL	int	close_track_dvd		__PR((SCSI *scgp, cdr_t *dp, track_t *trackp));
 LOCAL	int	open_session_dvd	__PR((SCSI *scgp, cdr_t *dp, track_t *trackp));
+LOCAL	int	waitformat		__PR((SCSI *scgp, int secs));
 LOCAL	int	fixate_dvd		__PR((SCSI *scgp, cdr_t *dp, track_t *trackp));
 LOCAL	int	blank_dvd		__PR((SCSI *scgp, cdr_t *dp, long addr, int blanktype));
 LOCAL	int	stats_dvd		__PR((SCSI *scgp, cdr_t *dp));
@@ -605,12 +607,24 @@ again:
 	    (a_to_u_3_byte(sp->phys_end) != 0) &&
 			(dsp->ds_maxblocks !=
 			(long)(a_to_u_3_byte(sp->phys_end) - a_to_u_3_byte(sp->phys_start) + 1))) {
+
 		printf("WARNING: Phys disk size %ld differs from rzone size %ld! Prerecorded disk?\n",
 			(long)(a_to_u_3_byte(sp->phys_end) - a_to_u_3_byte(sp->phys_start) + 1),
 			(long)dsp->ds_maxblocks);
 		printf("WARNING: Phys start: %ld Phys end %ld\n",
 			(long)a_to_u_3_byte(sp->phys_start),
 			(long)a_to_u_3_byte(sp->phys_end));
+
+		/*
+		 * Workaround for some drive media combinations.
+		 * At least the drive	'HL-DT-ST' 'DVD-RAM GH22NP20' '1.02'
+		 * does not report maxblocks correctly with 'MCC 03RG20  ' media.
+		 * Use the information from ADIP instead.
+		 */
+		if (dsp->ds_maxblocks == 0) {
+			printf("WARNING: Drive returns zero media size. Using media size from ADIP.\n");
+			dsp->ds_maxblocks = a_to_u_3_byte(sp->phys_end) - a_to_u_3_byte(sp->phys_start) + 1;
+		}
 	}
 
 	return (drive_getdisktype(scgp, dp));

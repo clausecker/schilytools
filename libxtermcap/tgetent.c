@@ -1,7 +1,8 @@
-/* @(#)tgetent.c	1.28 08/06/13 Copyright 1986-2008 J. Schilling */
+/* @(#)tgetent.c	1.29 08/12/22 Copyright 1986-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)tgetent.c	1.28 08/06/13 Copyright 1986-2008 J. Schilling";
+static	const char sccsid[] =
+	"@(#)tgetent.c	1.29 08/12/22 Copyright 1986-2008 J. Schilling";
 #endif
 /*
  *	Access routines for TERMCAP database.

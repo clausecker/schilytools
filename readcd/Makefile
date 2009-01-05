@@ -1,4 +1,4 @@
-#ident @(#)readcd.mk	1.15 08/10/26 
+#ident @(#)readcd.mk	1.16 08/12/26 
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -7,6 +7,8 @@ include		$(SRCROOT)/$(RULESDIR)/rules.top
 
 INSDIR=		bin
 TARGET=		readcd
+INSMODE=	4711
+INSUSR=		root
 CPPOPTS +=	-I../cdrecord
 CPPOPTS +=	-I../libscg
 CPPOPTS +=	-I../libedc

@@ -1,4 +1,4 @@
-#ident "@(#)rules.pkg	1.4 08/04/27 "
+#ident "@(#)rules.pkg	1.5 08/12/27 "
 ###########################################################################
 # Written 2005 by J. Schilling
 ###########################################################################
@@ -47,9 +47,9 @@ pkg: $(PROTODIR) pkg1 package
 
 pkg1:
 	rm -rf $(PROTODIR)
-	mkdir -p $(PROTODIR) $(PROTODIR)/$(INS_BASE)/bin $(PROTODIR)/$(INS_BASE)/sbin $(PROTODIR)/$(INS_BASE)/etc \
-		$(PROTODIR)/$(INS_BASE)/lib $(PROTODIR)/$(INS_BASE)/share/man
-	ln -s share/man $(PROTODIR)/$(INS_BASE)/man
+	mkdir -p $(PROTODIR) $(PROTODIR)/$(INSBASE)/bin $(PROTODIR)/$(INSBASE)/sbin $(PROTODIR)/$(INSBASE)/etc \
+		$(PROTODIR)/$(INSBASE)/lib $(PROTODIR)/$(INSBASE)/share/man
+	ln -s share/man $(PROTODIR)/$(INSBASE)/man
 	if [ ."$(PRE_INST_CMDS)" != . ]; then cd $(PROTODIR) && eval "$(PRE_INST_CMDS)" ; fi
 	$(MAKE) $(MAKE_FILE) DESTDIR=`pwd`/$(PROTODIR) install
 	if [ ."$(POST_INST_CMDS)" != . ]; then cd $(PROTODIR) && eval "$(POST_INST_CMDS)" ; fi

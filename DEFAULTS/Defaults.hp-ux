@@ -1,4 +1,4 @@
-#ident "@(#)Defaults.hp-ux	1.2 07/05/08 "
+#ident "@(#)Defaults.hp-ux	1.4 08/12/26 "
 ###########################################################################
 #
 # global definitions for HP/UX Systems
@@ -39,10 +39,11 @@ RUNPATH=	-R$(INS_BASE)/lib -R/opt/schily/lib -R$(OLIBSDIR)
 ###########################################################################
 INS_BASE=	/opt/schily
 INS_KBASE=	/
+INS_RBASE=	/
 #
 DEFUMASK=	002
 #
 DEFINSMODEF=	444
 DEFINSMODEX=	755
-DEFINSUSR=	bin
+DEFINSUSR=	root
 DEFINSGRP=	bin

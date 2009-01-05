@@ -32,21 +32,19 @@
 #pragma ident	"@(#)string.c	1.12	05/09/13 SMI"
 
 /*
- * This file contains modifications Copyright 2008 J. Schilling
- *
- * @(#)string.c	1.5 08/03/28 2008 J. Schilling
- */
-#ifndef lint
-static	char sccsid[] =
-	"@(#)string.c	1.5 08/03/28 2008 J. Schilling";
-#endif
-
-/*
  * UNIX shell
  */
-
 #include	"defs.h"
 
+/*
+ * This file contains modifications Copyright 2008 J. Schilling
+ *
+ * @(#)string.c	1.6 08/12/22 2008 J. Schilling
+ */
+#ifndef lint
+static	const char sccsid[] =
+	"@(#)string.c	1.6 08/12/22 2008 J. Schilling";
+#endif
 
 /* ========	general purpose string handling ======== */
 

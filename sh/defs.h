@@ -35,7 +35,7 @@
 /*
  * This file contains modifications Copyright 2008 J. Schilling
  *
- * @(#)defs.h	1.13 08/04/06 2008 J. Schilling
+ * @(#)defs.h	1.14 08/12/25 2008 J. Schilling
  */
 
 #ifdef	__cplusplus
@@ -170,6 +170,9 @@ extern "C" {
 #define	index	__no_index__
 #include	<schily/string.h>
 #undef	index
+#define	eaccess	__no_eaccess__
+#include	<schily/libport.h>
+#undef	eaccess
 
 /* locale support */
 #include	"ctype.h"

@@ -1,12 +1,13 @@
-/* @(#)tags.c	1.26 06/09/13 Copyright 1986-2004 J. Schilling */
+/* @(#)tags.c	1.28 08/12/22 Copyright 1986-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)tags.c	1.26 06/09/13 Copyright 1986-2004 J. Schilling";
+static	const char sccsid[] =
+	"@(#)tags.c	1.28 08/12/22 Copyright 1986-2008 J. Schilling";
 #endif
 /*
  *	Routines that handle references to the tags database.
  *
- *	Copyright (c) 1986-2004 J. Schilling
+ *	Copyright (c) 1986-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

@@ -1,7 +1,8 @@
-/* @(#)tree.c	1.113 08/09/11 joerg */
+/* @(#)tree.c	1.115 08/12/22 joerg */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)tree.c	1.113 08/09/11 joerg";
+static	const char sccsid[] =
+	"@(#)tree.c	1.115 08/12/22 joerg";
 #endif
 /*
  * File tree.c - scan directory  tree and build memory structures for iso9660
@@ -684,8 +685,12 @@ got_valid_name:
 
 	status = sort_directory(&this_dir->contents, (reloc_dir == this_dir));
 	if (status > 0) {
-		comerrno(EX_BAD, "Unable to sort directory %s\n",
+		errmsgno(EX_BAD, "Unable to sort directory %s\n",
 			this_dir->whole_name);
+		errmsgno(EX_BAD, 
+		"If there was more than one directory type argument to mkisofs\n");
+		comerrno(EX_BAD,
+		"use -graft-points to create different target directory names.\n");
 	}
 	/*
 	 * If we are filling out a TRANS.TBL, generate the entries that will

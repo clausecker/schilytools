@@ -1,12 +1,13 @@
-/* @(#)mem.c	1.8 08/09/26 Copyright 1998-2006 J. Schilling */
+/* @(#)mem.c	1.9 08/12/21 Copyright 1998-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)mem.c	1.8 08/09/26 Copyright 1998-2006 J. Schilling";
+static	const char sccsid[] =
+	"@(#)mem.c	1.9 08/12/21 Copyright 1998-2008 J. Schilling";
 #endif
 /*
  *	Memory handling with error checking
  *
- *	Copyright (c) 1998-2006 J. Schilling
+ *	Copyright (c) 1998-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

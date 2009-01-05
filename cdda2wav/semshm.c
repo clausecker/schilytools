@@ -1,7 +1,8 @@
-/* @(#)semshm.c 1.23 08/08/03 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2004-2008 J. Schilling */
+/* @(#)semshm.c 1.24 08/12/22 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2004-2008 J. Schilling */
+#include "config.h"
 #ifndef lint
-static char	sccsid[] =
-"@(#)semshm.c	1.23 08/08/03 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2004-2008 J. Schilling";
+static	const char sccsid[] =
+"@(#)semshm.c	1.24 08/12/22 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2004-2008 J. Schilling";
 #endif
 
 #define	IPCTST

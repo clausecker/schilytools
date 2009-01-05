@@ -1,7 +1,8 @@
-/* @(#)wm_session.c	1.5 06/09/13 Copyright 1995, 1997 J. Schilling */
+/* @(#)wm_session.c	1.6 08/12/22 Copyright 1995, 1997 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)wm_session.c	1.5 06/09/13 Copyright 1995, 1997 J. Schilling";
+static	const char sccsid[] =
+	"@(#)wm_session.c	1.6 08/12/22 Copyright 1995, 1997 J. Schilling";
 #endif
 /*
  *	CDR write method abtraction layer

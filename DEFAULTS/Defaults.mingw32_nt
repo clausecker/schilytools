@@ -1,4 +1,4 @@
-#ident "@(#)Defaults.mingw32_nt	1.2 07/05/08 "
+#ident "@(#)Defaults.mingw32_nt	1.4 08/12/26 "
 ###########################################################################
 #
 # global definitions for Win32/Mingw32 systems
@@ -41,10 +41,11 @@ RUNPATH=
 ###########################################################################
 INS_BASE=	/opt/schily
 INS_KBASE=	/
+INS_RBASE=	/
 #
 DEFUMASK=	002
 #
 DEFINSMODEF=	444
 DEFINSMODEX=	755
-DEFINSUSR=	bin
+DEFINSUSR=	root
 DEFINSGRP=	bin

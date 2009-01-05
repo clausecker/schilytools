@@ -1,12 +1,13 @@
-/* @(#)buffer.c	1.26 04/03/13 Copyright 1984-2004 J. Schilling */
+/* @(#)buffer.c	1.29 09/01/04 Copyright 1984-2009 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)buffer.c	1.26 04/03/13 Copyright 1984-2004 J. Schilling";
+static	const char sccsid[] =
+	"@(#)buffer.c	1.29 09/01/04 Copyright 1984-2009 J. Schilling";
 #endif
 /*
  *	Virtual storage (buffer) management.
  *
- *	Copyright (c) 1984-2004 J. Schilling
+ *	Copyright (c) 1984-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -48,9 +49,13 @@ LOCAL	headr_t	*lru;		/* The least recently used header in memory  */
 				/* from mru to lru			    */
 
 extern	Uchar	swapname[TMPNSIZE];
+#ifdef	__needed__
 LOCAL	FILE	*readfile;
+#endif
 LOCAL	FILE	*swapfile;
+#ifdef	__needed__
 LOCAL	off_t	readfoff;
+#endif
 LOCAL	off_t	swapfoff;
 LOCAL	off_t	swapfend;
 LOCAL	int	nbheads;
@@ -72,7 +77,9 @@ EXPORT	headr_t	*deletebuffer	__PR((ewin_t *wp, headr_t *linkp));
 EXPORT	void	splitbuffer	__PR((ewin_t *wp, headr_t *linkp, int pos));
 EXPORT	void	compressbuffer	__PR((ewin_t *wp, headr_t *linkp));
 LOCAL	int	bufswapin	__PR((ewin_t *wp, headr_t *linkp));
+#ifdef	__needed__
 LOCAL	int	bufreadin	__PR((ewin_t *wp, headr_t *linkp));
+#endif
 EXPORT	void	readybuffer	__PR((ewin_t *wp, headr_t *linkp));
 LOCAL	void	buf_mruhead	__PR((headr_t *linkp));
 LOCAL	void	buf_remruhead	__PR((headr_t *linkp));
@@ -285,8 +292,11 @@ bufswapin(wp, linkp)
 	return (0);
 }
 
+#ifdef	__needed__
 /*
  * Read a buffer from the original file.
+ * Used in case that the original file was not read into the swapfile when
+ * starting to edit a new file.
  */
 LOCAL int
 bufreadin(wp, linkp)
@@ -308,6 +318,7 @@ bufreadin(wp, linkp)
 	linkp->flags |= INMEMORY;
 	return (0);
 }
+#endif
 
 /*
  * Make a header ready to use

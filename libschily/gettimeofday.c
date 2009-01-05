@@ -1,12 +1,13 @@
-/* @(#)gettimeofday.c	1.1 08/06/14 Copyright 2007 J. Schilling */
+/* @(#)gettimeofday.c	1.2 08/12/21 Copyright 2007-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)gettimeofday.c	1.1 08/06/14 Copyright 2007 J. Schilling";
+static	const char sccsid[] =
+	"@(#)gettimeofday.c	1.2 08/12/21 Copyright 2007-2008 J. Schilling";
 #endif
 /*
  *	Emulate gettimeofday where it does not exist
  *
- *	Copyright (c) 2007 J. Schilling
+ *	Copyright (c) 2007-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

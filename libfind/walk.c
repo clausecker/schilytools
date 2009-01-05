@@ -1,7 +1,8 @@
-/* @(#)walk.c	1.35 08/09/26 Copyright 2004-2008 J. Schilling */
+/* @(#)walk.c	1.36 08/12/22 Copyright 2004-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)walk.c	1.35 08/09/26 Copyright 2004-2008 J. Schilling";
+static	const char sccsid[] =
+	"@(#)walk.c	1.36 08/12/22 Copyright 2004-2008 J. Schilling";
 #endif
 /*
  *	Walk a directory tree

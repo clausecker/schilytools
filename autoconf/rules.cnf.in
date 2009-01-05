@@ -1,10 +1,11 @@
-# @(#)rules.cnf.in	1.17 08/02/20 Copyright 1998-2007 J. Schilling
+# @(#)rules.cnf.in	1.18 08/12/20 Copyright 1998-2008 J. Schilling
 
 EXEEXT= @EXEEXT@
 XEXEEXT= @XEXEEXT@
 OBJEXT= @OBJEXT@
 
 LARGEFILE_CC_OPT= @largefile_cc_opt@
+CC64_OPT= @cc64_opt@
 
 MAY_LINUX_SRC_INCLUDE= @may_linux_src_include@
 

@@ -1,7 +1,8 @@
-/* @(#)base64.c	1.7 06/09/13 Copyright 1998,1999 Heiko Eissfeldt */
+/* @(#)base64.c	1.8 08/12/22 Copyright 1998,1999 Heiko Eissfeldt */
+#include "config.h"
 #ifndef lint
-static char	sccsid[] =
-"@(#)base64.c	1.7 06/09/13 Copyright 1998,1999 Heiko Eissfeldt";
+static	const char sccsid[] =
+"@(#)base64.c	1.8 08/12/22 Copyright 1998,1999 Heiko Eissfeldt";
 
 #endif
 /*

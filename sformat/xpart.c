@@ -1,12 +1,13 @@
-/* @(#)xpart.c	1.23 07/02/22 Copyright 1991-2004 J. Schilling */
+/* @(#)xpart.c	1.24 08/12/22 Copyright 1991-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)xpart.c	1.23 07/02/22 Copyright 1991-2004 J. Schilling";
+static	const char sccsid[] =
+	"@(#)xpart.c	1.24 08/12/22 Copyright 1991-2008 J. Schilling";
 #endif
 /*
  *	Routines to handle external partition info (database)
  *
- *	Copyright (c) 1991-2004 J. Schilling
+ *	Copyright (c) 1991-2008 J. Schilling
  *
  *	XXX #ifdef HAVE_DKIO ist vorerst nur ein Hack
  */

@@ -1,7 +1,8 @@
-/* @(#)hash.c	1.23 06/10/04 joerg */
+/* @(#)hash.c	1.25 08/12/22 joerg */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)hash.c	1.23 06/10/04 joerg";
+static	const char sccsid[] =
+	"@(#)hash.c	1.25 08/12/22 joerg";
 
 #endif
 /*
@@ -10,7 +11,7 @@ static	char sccsid[] =
  * Written by Eric Youngdale (1993).
  *
  * Copyright 1993 Yggdrasil Computing, Incorporated
- * Copyright (c) 1999,2000-2006 J. Schilling
+ * Copyright (c) 1999,2000-2008 J. Schilling
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

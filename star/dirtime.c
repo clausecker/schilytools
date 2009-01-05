@@ -1,10 +1,11 @@
-/* @(#)dirtime.c	1.24 06/10/31 Copyright 1988-2006 J. Schilling */
+/* @(#)dirtime.c	1.25 08/12/22 Copyright 1988-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)dirtime.c	1.24 06/10/31 Copyright 1988-2006 J. Schilling";
+static	const char sccsid[] =
+	"@(#)dirtime.c	1.25 08/12/22 Copyright 1988-2008 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1988-2006 J. Schilling
+ *	Copyright (c) 1988-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

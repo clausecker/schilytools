@@ -29,14 +29,16 @@
 
 #pragma ident	"@(#)expand.c	1.15	05/09/13 SMI"
 
+#include "defs.h"
+
 /*
  * This file contains modifications Copyright 2008 J. Schilling
  *
- * @(#)expand.c	1.4 08/03/28 2008 J. Schilling
+ * @(#)expand.c	1.5 08/12/22 2008 J. Schilling
  */
 #ifndef lint
-static	char sccsid[] =
-	"@(#)expand.c	1.4 08/03/28 2008 J. Schilling";
+static	const char sccsid[] =
+	"@(#)expand.c	1.5 08/12/22 2008 J. Schilling";
 #endif
 
 /*
@@ -44,7 +46,6 @@ static	char sccsid[] =
  *
  */
 
-#include	"defs.h"
 #include	<sys/types.h>
 #include	<sys/stat.h>
 #include	<dirent.h>

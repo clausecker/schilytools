@@ -30,21 +30,21 @@
 
 #ident	"@(#)setbrk.c	1.10	05/06/08 SMI"	/* SVr4.0 1.8.1.1	*/
 
+#include "defs.h"
+
 /*
  * This file contains modifications Copyright 2008 J. Schilling
  *
- * @(#)setbrk.c	1.3 08/03/28 2008 J. Schilling
+ * @(#)setbrk.c	1.4 08/12/22 2008 J. Schilling
  */
 #ifndef lint
-static	char sccsid[] =
-	"@(#)setbrk.c	1.3 08/03/28 2008 J. Schilling";
+static	const char sccsid[] =
+	"@(#)setbrk.c	1.4 08/12/22 2008 J. Schilling";
 #endif
 
 /*
  *	UNIX shell
  */
-
-#include	"defs.h"
 
 #ifdef	NO_USER_MALLOC
 #undef	HAVE_SBRK

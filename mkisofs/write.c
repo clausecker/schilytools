@@ -1,7 +1,8 @@
-/* @(#)write.c	1.118 08/09/11 joerg */
+/* @(#)write.c	1.120 08/12/22 joerg */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)write.c	1.118 08/09/11 joerg";
+static	const char sccsid[] =
+	"@(#)write.c	1.120 08/12/22 joerg";
 #endif
 /*
  * Program write.c - dump memory  structures to  file for iso9660 filesystem.
@@ -9,7 +10,7 @@ static	char sccsid[] =
  * Written by Eric Youngdale (1993).
  *
  * Copyright 1993 Yggdrasil Computing, Incorporated
- * Copyright (c) 1999-2007 J. Schilling
+ * Copyright (c) 1999-2008 J. Schilling
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

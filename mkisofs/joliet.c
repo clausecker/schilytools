@@ -1,14 +1,15 @@
-/* @(#)joliet.c	1.55 08/09/26 joerg */
+/* @(#)joliet.c	1.57 08/12/22 joerg */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)joliet.c	1.55 08/09/26 joerg";
+static	const char sccsid[] =
+	"@(#)joliet.c	1.57 08/12/22 joerg";
 #endif
 /*
  * File joliet.c - handle Win95/WinNT long file/unicode extensions for iso9660.
  *
  * Copyright 1997 Eric Youngdale.
  * APPLE_HYB James Pearson j.pearson@ge.ucl.ac.uk 22/2/2000
- * Copyright (c) 1999-2007 J. Schilling
+ * Copyright (c) 1999-2008 J. Schilling
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

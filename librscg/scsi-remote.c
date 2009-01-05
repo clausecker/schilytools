@@ -1,8 +1,8 @@
 #define	USE_REMOTE
-/* @(#)scsi-remote.c	1.25 08/06/13 Copyright 1990,2000-2008 J. Schilling */
+/* @(#)scsi-remote.c	1.26 08/11/26 Copyright 1990,2000-2008 J. Schilling */
 #ifndef lint
 static	char __sccsid[] =
-	"@(#)scsi-remote.c	1.25 08/06/13 Copyright 1990,2000-2008 J. Schilling";
+	"@(#)scsi-remote.c	1.26 08/11/26 Copyright 1990,2000-2008 J. Schilling";
 #endif
 /*
  *	Remote SCSI user level command transport routines
@@ -95,14 +95,17 @@ static	char __sccsid[] =
 
 #define	CMD_SIZE	80
 
-#define	MAX_SCG		16	/* Max # of SCSI controllers */
+/*
+ * On Linux we have a max bus number of 1000 + 13
+ */
+#define	MAX_SCG		1024	/* Max # of SCSI controllers */
 #define	MAX_TGT		16
 #define	MAX_LUN		8
 
 /*extern	BOOL	debug;*/
 LOCAL	BOOL	debug = 1;
 
-LOCAL	char	_scg_trans_version[] = "remote-1.25";	/* The version for remote SCSI	*/
+LOCAL	char	_scg_trans_version[] = "remote-1.26";	/* The version for remote SCSI	*/
 LOCAL	char	_scg_auth_schily[]	= "schily";	/* The author for this module	*/
 
 LOCAL	int	scgo_rsend		__PR((SCSI *scgp));

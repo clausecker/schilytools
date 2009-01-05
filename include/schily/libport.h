@@ -1,6 +1,6 @@
-/* @(#)libport.h	1.14 07/01/16 Copyright 1995-2007 J. Schilling */
+/* @(#)libport.h	1.17 08/12/24 Copyright 1995-2008 J. Schilling */
 /*
- *	Copyright (c) 1995-2007 J. Schilling
+ *	Copyright (c) 1995-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -21,39 +21,12 @@
 #ifndef	_SCHILY_MCONFIG_H
 #include <schily/mconfig.h>
 #endif
-#ifndef _SCHILY_STANDARD_H
-#include <schily/standard.h>
+#ifndef _SCHILY_TYPES_H
+#include <schily/types.h>
 #endif
 
-/*
- * Try to get HOST_NAME_MAX for gethostname()
- */
 #ifndef _SCHILY_UNISTD_H
 #include <schily/unistd.h>
-#endif
-
-#ifndef HOST_NAME_MAX
-#if	defined(HAVE_NETDB_H) && !defined(HOST_NOT_FOUND) && \
-				!defined(_INCL_NETDB_H)
-#include <netdb.h>
-#define	_INCL_NETDB_H
-#endif
-#ifdef	MAXHOSTNAMELEN
-#define	HOST_NAME_MAX	MAXHOSTNAMELEN
-#endif
-#endif
-
-#ifndef HOST_NAME_MAX
-#ifndef	_SCHILY_PARAM_H
-#include <schily/param.h>	/* Include various defs needed with some OS */
-#endif				/* Linux MAXHOSTNAMELEN */
-#ifdef	MAXHOSTNAMELEN
-#define	HOST_NAME_MAX	MAXHOSTNAMELEN
-#endif
-#endif
-
-#ifndef HOST_NAME_MAX
-#define	HOST_NAME_MAX	255
 #endif
 
 #ifdef	__cplusplus
@@ -75,12 +48,6 @@ extern "C" {
 #ifndef	HAVE_GETHOSTID
 extern	long		gethostid	__PR((void));
 #endif
-#ifndef	HAVE_GETHOSTNAME
-extern	int		gethostname	__PR((char *name, int namelen));
-#endif
-#ifndef	HAVE_GETDOMAINNAME
-extern	int		getdomainname	__PR((char *name, int namelen));
-#endif
 #ifndef	HAVE_GETPAGESIZE
 EXPORT	int		getpagesize	__PR((void));
 #endif
@@ -100,6 +67,10 @@ extern	size_t		strlcpy		__PR((char *s1, const char *s2, size_t len));
 
 #ifndef	HAVE_RENAME
 extern	int		rename		__PR((const char *old, const char *new));
+#endif
+
+#ifndef	HAVE_EACCESS
+extern	int		eaccess		__PR((char *name, int mode));
 #endif
 
 #ifdef	__cplusplus

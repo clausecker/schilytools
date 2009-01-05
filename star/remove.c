@@ -1,12 +1,13 @@
-/* @(#)remove.c	1.52 07/05/28 Copyright 1985, 1991-2006 J. Schilling */
+/* @(#)remove.c	1.53 08/12/22 Copyright 1985, 1991-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)remove.c	1.52 07/05/28 Copyright 1985, 1991-2006 J. Schilling";
+static	const char sccsid[] =
+	"@(#)remove.c	1.53 08/12/22 Copyright 1985, 1991-2008 J. Schilling";
 #endif
 /*
  *	remove files an file trees
  *
- *	Copyright (c) 1985, 1992-2006 J. Schilling
+ *	Copyright (c) 1985, 1992-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

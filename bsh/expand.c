@@ -1,7 +1,8 @@
-/* @(#)expand.c	1.40 08/03/27 Copyright 1985-2008 J. Schilling */
+/* @(#)expand.c	1.41 08/12/20 Copyright 1985-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)expand.c	1.40 08/03/27 Copyright 1985-2008 J. Schilling";
+static	const char sccsid[] =
+	"@(#)expand.c	1.41 08/12/20 Copyright 1985-2008 J. Schilling";
 #endif
 /*
  *	Expand a pattern (do shell name globbing)

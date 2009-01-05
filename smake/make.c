@@ -1,7 +1,8 @@
-/* @(#)make.c	1.150 08/10/11 Copyright 1985, 87, 88, 91, 1995-2008 J. Schilling */
+/* @(#)make.c	1.151 08/12/22 Copyright 1985, 87, 88, 91, 1995-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)make.c	1.150 08/10/11 Copyright 1985, 87, 88, 91, 1995-2008 J. Schilling";
+static	const char sccsid[] =
+	"@(#)make.c	1.151 08/12/22 Copyright 1985, 87, 88, 91, 1995-2008 J. Schilling";
 #endif
 /*
  *	Make program

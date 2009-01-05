@@ -1,7 +1,8 @@
-/* @(#)props.c	1.52 07/10/25 Copyright 1994-2006 J. Schilling */
+/* @(#)props.c	1.53 08/12/22 Copyright 1994-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)props.c	1.52 07/10/25 Copyright 1994-2006 J. Schilling";
+static	const char sccsid[] =
+	"@(#)props.c	1.53 08/12/22 Copyright 1994-2008 J. Schilling";
 #endif
 /*
  *	Set up properties for different archive types
@@ -16,7 +17,7 @@ static	char sccsid[] =
  *	pr_flags/pr_nflags or the fields pr_xftypetab[]/pr_typeflagtab[]
  *	take care of possible problems due to this fact.
  *
- *	Copyright (c) 1994-2006 J. Schilling
+ *	Copyright (c) 1994-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

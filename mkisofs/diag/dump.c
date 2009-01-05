@@ -1,7 +1,8 @@
-/* @(#)dump.c	1.32 08/10/26 joerg */
+/* @(#)dump.c	1.33 08/12/22 joerg */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)dump.c	1.32 08/10/26 joerg";
+static	const char sccsid[] =
+	"@(#)dump.c	1.33 08/12/22 joerg";
 #endif
 /*
  * File dump.c - dump a file/device both in hex and in ASCII.

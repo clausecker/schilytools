@@ -29,14 +29,16 @@
 
 #pragma ident	"@(#)jobs.c	1.28	07/05/14 SMI"
 
+#include "defs.h"
+
 /*
  * This file contains modifications Copyright 2008 J. Schilling
  *
- * @(#)jobs.c	1.12 08/07/16 2008 J. Schilling
+ * @(#)jobs.c	1.13 08/12/22 2008 J. Schilling
  */
 #ifndef lint
-static	char sccsid[] =
-	"@(#)jobs.c	1.12 08/07/16 2008 J. Schilling";
+static	const char sccsid[] =
+	"@(#)jobs.c	1.13 08/12/22 2008 J. Schilling";
 #endif
 
 /*
@@ -44,7 +46,6 @@ static	char sccsid[] =
  */
 
 #ifdef	SCHILY_BUILD
-#include	"defs.h"
 #include	<schily/termios.h>
 #include	<schily/types.h>
 #include	<schily/wait.h>
@@ -58,7 +59,6 @@ static	char sccsid[] =
 #include	<sys/param.h>
 #include	<fcntl.h>
 #include	<errno.h>
-#include	"defs.h"
 #endif
 
 #ifndef	WCONTINUED

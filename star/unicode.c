@@ -1,7 +1,8 @@
-/* @(#)unicode.c	1.8 06/10/31 Copyright 2001-2006 J. Schilling */
+/* @(#)unicode.c	1.9 08/12/22 Copyright 2001-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)unicode.c	1.8 06/10/31 Copyright 2001-2006 J. Schilling";
+static	const char sccsid[] =
+	"@(#)unicode.c	1.9 08/12/22 Copyright 2001-2008 J. Schilling";
 #endif
 /*
  *	Routines to convert from/to UNICODE
@@ -10,7 +11,7 @@ static	char sccsid[] =
  *	handles ISO-8859-1 coding. There should be a better solution
  *	in the future.
  *
- *	Copyright (c) 2001-2006 J. Schilling
+ *	Copyright (c) 2001-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

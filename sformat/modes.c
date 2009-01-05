@@ -1,12 +1,13 @@
-/* @(#)modes.c	1.40 07/05/24 Copyright 1988-2004 J. Schilling */
+/* @(#)modes.c	1.41 08/12/22 Copyright 1988-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)modes.c	1.40 07/05/24 Copyright 1988-2004 J. Schilling";
+static	const char sccsid[] =
+	"@(#)modes.c	1.41 08/12/22 Copyright 1988-2008 J. Schilling";
 #endif
 /*
  *	Handle SCSI mode pages
  *
- *	Copyright (c) 1988-2004 J. Schilling
+ *	Copyright (c) 1988-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

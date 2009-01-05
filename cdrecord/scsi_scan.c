@@ -1,14 +1,15 @@
-/* @(#)scsi_scan.c	1.30 07/07/12 Copyright 1997-2007 J. Schilling */
+/* @(#)scsi_scan.c	1.32 08/12/29 Copyright 1997-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)scsi_scan.c	1.30 07/07/12 Copyright 1997-2007 J. Schilling";
+static	const char sccsid[] =
+	"@(#)scsi_scan.c	1.32 08/12/29 Copyright 1997-2008 J. Schilling";
 #endif
 /*
  *	Scan SCSI Bus.
  *	Stolen from sformat. Need a more general form to
  *	re-use it in sformat too.
  *
- *	Copyright (c) 1997-2007 J. Schilling
+ *	Copyright (c) 1997-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -42,7 +43,9 @@ LOCAL	void	print_product		__PR((FILE *f, struct scsi_inquiry *ip));
 EXPORT	int	select_target		__PR((SCSI *scgp, FILE *f));
 EXPORT	int	find_target		__PR((SCSI *scgp, int type, int idx));
 LOCAL	int	_select_target		__PR((SCSI *scgp, FILE *f, int type, int idx));
+#ifdef	__ready__
 LOCAL	int	select_unit		__PR((SCSI *scgp, FILE *f));
+#endif
 
 LOCAL void
 print_product(f, ip)
@@ -197,6 +200,7 @@ _select_target(scgp, f, type, idx)
 	return (amt);
 }
 
+#ifdef	__ready__
 LOCAL int
 select_unit(scgp, f)
 	SCSI	*scgp;
@@ -268,3 +272,4 @@ select_unit(scgp, f)
 	scg_settarget(scgp, scg_scsibus(scgp), scg_target(scgp), clun);
 	return (1);
 }
+#endif

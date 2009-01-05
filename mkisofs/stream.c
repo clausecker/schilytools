@@ -1,7 +1,8 @@
-/* @(#)stream.c	1.12 08/08/07 Copyright 2002-2008 J. Schilling */
+/* @(#)stream.c	1.13 08/12/22 Copyright 2002-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)stream.c	1.12 08/08/07 Copyright 2002-2008 J. Schilling";
+static	const char sccsid[] =
+	"@(#)stream.c	1.13 08/12/22 Copyright 2002-2008 J. Schilling";
 #endif
 /*
  *	ISO-9660 stream (pipe) file module for mkisofs

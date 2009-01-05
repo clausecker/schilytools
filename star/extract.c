@@ -1,7 +1,8 @@
-/* @(#)extract.c	1.132 08/09/26 Copyright 1985-2008 J. Schilling */
+/* @(#)extract.c	1.133 08/12/22 Copyright 1985-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)extract.c	1.132 08/09/26 Copyright 1985-2008 J. Schilling";
+static	const char sccsid[] =
+	"@(#)extract.c	1.133 08/12/22 Copyright 1985-2008 J. Schilling";
 #endif
 /*
  *	extract files from archive

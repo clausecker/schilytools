@@ -1,7 +1,8 @@
-/* @(#)hfs.c	1.11 06/09/26 joerg */
+/* @(#)hfs.c	1.12 08/12/22 joerg */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)hfs.c	1.11 06/09/26 joerg";
+static	const char sccsid[] =
+	"@(#)hfs.c	1.12 08/12/22 joerg";
 #endif
 /*
  * hfsutils - tools for reading and writing Macintosh HFS volumes

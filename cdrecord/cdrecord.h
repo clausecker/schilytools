@@ -1,4 +1,4 @@
-/* @(#)cdrecord.h	1.196 08/10/08 Copyright 1995-2008 J. Schilling */
+/* @(#)cdrecord.h	1.197 08/12/24 Copyright 1995-2008 J. Schilling */
 /*
  *	Definitions for cdrecord
  *
@@ -97,7 +97,8 @@
  *		If you like to support the CDD 521 keep the old buffer
  *		size at 63kB.
  */
-#define	CDR_BUF_SIZE		(126*1024)
+/*#define	CDR_BUF_SIZE		(126*1024)*/
+#define	CDR_BUF_SIZE		(63*1024)
 #define	CDR_OLD_BUF_SIZE	(63*1024)
 #define	CDR_MAX_BUF_SIZE	(256*1024)
 

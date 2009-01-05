@@ -1,7 +1,8 @@
-/* @(#)multi.c	1.88 08/08/28 joerg */
+/* @(#)multi.c	1.89 08/12/22 joerg */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)multi.c	1.88 08/08/28 joerg";
+static	const char sccsid[] =
+	"@(#)multi.c	1.89 08/12/22 joerg";
 #endif
 /*
  * File multi.c - scan existing iso9660 image and merge into

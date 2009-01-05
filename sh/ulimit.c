@@ -30,14 +30,16 @@
 
 #pragma ident	"@(#)ulimit.c	1.14	06/06/16 SMI"
 
+#include "defs.h"
+
 /*
  * This file contains modifications Copyright 2008 J. Schilling
  *
- * @(#)ulimit.c	1.5 08/03/28 2008 J. Schilling
+ * @(#)ulimit.c	1.6 08/12/22 2008 J. Schilling
  */
 #ifndef lint
-static	char sccsid[] =
-	"@(#)ulimit.c	1.5 08/03/28 2008 J. Schilling";
+static	const char sccsid[] =
+	"@(#)ulimit.c	1.6 08/12/22 2008 J. Schilling";
 #endif
 
 /*
@@ -45,12 +47,10 @@ static	char sccsid[] =
  */
 
 #ifdef	SCHILY_BUILD
-#include "defs.h"
 #include <schily/time.h>
 #include <sys/resource.h>
 #define	rlim_t	Intmax_t		/* XXX may go away with <schily/resource.h> */
 #else
-#include "defs.h"
 #include <sys/resource.h>
 #include <stdlib.h>
 #endif

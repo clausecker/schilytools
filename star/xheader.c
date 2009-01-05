@@ -1,7 +1,8 @@
-/* @(#)xheader.c	1.77 08/09/26 Copyright 2001-2008 J. Schilling */
+/* @(#)xheader.c	1.78 08/12/22 Copyright 2001-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)xheader.c	1.77 08/09/26 Copyright 2001-2008 J. Schilling";
+static	const char sccsid[] =
+	"@(#)xheader.c	1.78 08/12/22 Copyright 2001-2008 J. Schilling";
 #endif
 /*
  *	Handling routines to read/write, parse/create

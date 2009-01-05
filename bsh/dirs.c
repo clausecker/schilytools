@@ -1,7 +1,8 @@
-/* @(#)dirs.c	1.24 08/03/27 Copyright 1984-2008 J. Schilling */
+/* @(#)dirs.c	1.25 08/12/20 Copyright 1984-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)dirs.c	1.24 08/03/27 Copyright 1984-2008 J. Schilling";
+static	const char sccsid[] =
+	"@(#)dirs.c	1.25 08/12/20 Copyright 1984-2008 J. Schilling";
 #endif
 /*
  *	Directory routines

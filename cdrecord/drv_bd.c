@@ -1,7 +1,8 @@
-/* @(#)drv_bd.c	1.11 08/10/11 Copyright 2007-2008 J. Schilling */
+/* @(#)drv_bd.c	1.13 08/12/22 Copyright 2007-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)drv_bd.c	1.11 08/10/11 Copyright 2007-2008 J. Schilling";
+static	const char sccsid[] =
+	"@(#)drv_bd.c	1.13 08/12/22 Copyright 2007-2008 J. Schilling";
 #endif
 /*
  *	Copyright (c) 2007-2008 J. Schilling
@@ -174,6 +175,53 @@ cdr_t	cdr_bd = {
 };
 
 /*
+ * SCSI-3/mmc-3 conformant BD-ROM writer
+ */
+cdr_t	cdr_bdrom = {
+	0, 0, 0,
+	0,
+	CDR2_NOCD|CDR2_BD,
+	CDR_CDRW_ALL,
+	WM_SAO,
+	1000, 1000,
+	"mmc_bdrom",
+	"generic SCSI-3/mmc-3 BD-ROM driver",
+	0,
+	(dstat_t *)0,
+	identify_bd,
+	attach_bd,
+	init_bd,
+	getdisktype_bd,
+	prdiskstatus_bd,
+	scsi_load,
+	scsi_unload,
+	read_buff_cap,
+	cmd_dummy,					/* recovery_needed */
+	(int(*)__PR((SCSI *, cdr_t *, int)))cmd_dummy,	/* recover	*/
+	speed_select_bd,
+	select_secsize,
+	next_wr_addr_bdr,
+	(int(*)__PR((SCSI *, Ulong)))cmd_ill,		/* reserve_track */
+	scsi_cdr_write,
+	(int(*)__PR((track_t *, void *, BOOL)))cmd_dummy,	/* gen_cue */
+	no_sendcue,
+	(int(*)__PR((SCSI *, cdr_t *, track_t *)))cmd_ill,	/* leadin */
+	(int(*)__PR((SCSI *scgp, cdr_t *, track_t *)))cmd_ill,	/* open track */
+	(int(*)__PR((SCSI *scgp, cdr_t *, track_t *)))cmd_ill,	/* close track */
+	(int(*)__PR((SCSI *scgp, cdr_t *, track_t *)))cmd_ill,	/* open session */
+	cmd_dummy,					/* close session */
+	cmd_dummy,					/* abort	*/
+	read_session_offset,
+	fixate_bdr,
+	stats_bd,
+	blank_bd,
+	format_dummy,
+	(int(*)__PR((SCSI *, caddr_t, int, int)))NULL,	/* no OPC	*/
+	cmd_dummy,					/* opt1		*/
+	cmd_dummy,					/* opt2		*/
+};
+
+/*
  * SCSI-3/mmc-3 conformant BD-R writer
  */
 cdr_t	cdr_bdr = {
@@ -308,6 +356,8 @@ identify_bd(scgp, dp, ip)
 		dp = &cdr_bdre;
 	} else if ((profile == 0x0041) || (profile == 0x0042)) {
 		dp = &cdr_bdr;
+	} else if (profile == 0x0040) {
+		dp = &cdr_bdrom;
 	} else {
 		errmsgno(EX_BAD, "Found unsupported 0x%X profile.\n", profile);
 		return ((cdr_t *)0);

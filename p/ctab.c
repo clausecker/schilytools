@@ -1,12 +1,13 @@
-/* @(#)ctab.c	1.12 06/09/13 Copyright 1987-2004 J. Schilling */
+/* @(#)ctab.c	1.13 08/12/23 Copyright 1987-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)ctab.c	1.12 06/09/13 Copyright 1987-2004 J. Schilling";
+static	const char sccsid[] =
+	"@(#)ctab.c	1.13 08/12/23 Copyright 1987-2008 J. Schilling";
 #endif
 /*
  *	Character expansion table
  *
- *	Copyright (c) 1987-2004 J. Schilling
+ *	Copyright (c) 1987-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

@@ -31,11 +31,14 @@
 /*
  * This file contains modifications Copyright 2008 J. Schilling
  *
- * @(#)defs.c	1.3 08/03/28 2008 J. Schilling
+ * @(#)defs.c	1.4 08/12/22 2008 J. Schilling
  */
+#ifdef	SCHILY_BUILD
+#include <schily/mconfig.h>
+#endif
 #ifndef lint
-static	char sccsid[] =
-	"@(#)defs.c	1.3 08/03/28 2008 J. Schilling";
+static	const char sccsid[] =
+	"@(#)defs.c	1.4 08/12/22 2008 J. Schilling";
 #endif
 
 /*

@@ -1,4 +1,4 @@
-/* @(#)prototyp.h	1.12 06/09/13 Copyright 1995 J. Schilling */
+/* @(#)prototyp.h	1.13 08/12/20 Copyright 1995 J. Schilling */
 /*
  *	Definitions for dealing with ANSI / KR C-Compilers
  *
@@ -86,6 +86,18 @@
 #	define	__PR(a)	a
 #else
 #	define	__PR(a)	()
+#endif
+
+#if !defined(PROTOTYPES) && !defined(NO_CONST_DEFINE)
+#	ifndef	const
+#		define	const
+#	endif
+#	ifndef	signed
+#		define	signed
+#	endif
+#	ifndef	volatile
+#		define	volatile
+#	endif
 #endif
 
 #endif	/* _SCHILY_PROTOTYP_H */

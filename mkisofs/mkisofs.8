@@ -1,7 +1,7 @@
 '\" t
 .\" To print, first run through tbl
 .\" -*- nroff -*-
-.\" @(#)mkisofs.8	1.125 08/10/12 joerg
+.\" @(#)mkisofs.8	1.126 08/11/13 joerg
 .\"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
 .if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
@@ -1465,6 +1465,47 @@ from CD would also restore files that were deleted
 intentionally. Accessing several older versions of a file requires
 support by the operating system to choose which sessions are to be
 mounted.
+.br
+.ne 8
+.TP
+.BI \-s " sector type
+.TP
+.BI \-sectype " sector type
+Set the 
+.I sector type 
+to be used for the output file with the iso9660 filesystem.
+The 
+.I sector type
+may be one of:
+.RS
+.TP
+.B data
+This is the default. It results in standard CD-ROM data sectors with 
+2048 bytes per sector.
+.TP
+.B xa1
+This sets the sector type to CD-ROM XA mode 1 with 2056 bytes per sector.
+This sector type is the official sector type for multi-session CDs, it
+should be used together with the 
+.B \-XA
+option of mkisofs.
+It is required to write Kodak Photo CDs and Kodak Picture CDs.
+Use the
+.B \-xa1 
+option from 
+.B cdrecord
+to tell 
+.B cdrecord
+to write CD-ROM XA mode 1 sectors.
+Do not use for DVD or BluRay media.
+.br
+.ne 6
+.TP
+.B raw
+This sets the sector type to raw audio sectors with 2352 bytes per sector.
+This is reserved for future enhancements.
+Do not use for DVD or BluRay media.
+.RE
 .TP
 .BI \-sort " sort file
 Sort file locations on the media. Sorting is controlled by a file that
@@ -1752,6 +1793,21 @@ and
 option description should both be updated, they are wrong.
 Both now work identical and use filename globbing. A file is excluded if either
 the last component matches or the whole path matches.
+.TP
+.B \-XA
+Generate XA iso-directory attributes with original owner and mode information.
+This option is required to create conforming multi session CDs as used by the
+Kodak Photo CD and the Kodak Picture CD.
+A conforming XA CD uses CD-ROM XA mode 1 sectors, see the
+.BI \-sector " xa2
+option for more information.
+.TP
+.B \-xa
+Generate XA iso-directory attributes with rationalized owner and mode information.
+User ID and group ID are set to 0.
+See
+.B \-XA
+for more information.
 .TP
 .B \-z
 Generate special RRIP records for transparently compressed files.

@@ -1,10 +1,11 @@
-/* @(#)label.c	1.29 07/05/24 Copyright 1988-2004 J. Schilling */
+/* @(#)label.c	1.30 08/12/23 Copyright 1988-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)label.c	1.29 07/05/24 Copyright 1988-2004 J. Schilling";
+static	const char sccsid[] =
+	"@(#)label.c	1.30 08/12/23 Copyright 1988-2008 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1988-2004 J. Schilling
+ *	Copyright (c) 1988-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -101,8 +102,8 @@ main(ac, av)
 	if (help)
 		usage(0);
 	if (prversion) {
-		printf("Label release %s (%s-%s-%s) Copyright (C) 1988-2004 Jörg Schilling\n",
-				"1.29",
+		printf("Label release %s (%s-%s-%s) Copyright (C) 1988-2008 Jörg Schilling\n",
+				"1.30",
 				HOST_CPU, HOST_VENDOR, HOST_OS);
 		exit(0);
 	}

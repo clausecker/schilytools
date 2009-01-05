@@ -1,7 +1,8 @@
-/* @(#)acltext.c	1.12 06/10/31 2005-2006 J. Schilling from SMI */
+/* @(#)acltext.c	1.13 08/12/22 2005-2008 J. Schilling from SMI */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)acltext.c	1.12 06/10/31 2005-2006 J. Schilling from SMI";
+static	const char sccsid[] =
+	"@(#)acltext.c	1.13 08/12/22 2005-2008 J. Schilling from SMI";
 #endif
 /*
  * Copyright 2005 Sun Microsystems, Inc.  All rights reserved.

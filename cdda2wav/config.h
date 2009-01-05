@@ -1,4 +1,4 @@
-/* @(#)config.h	1.11 06/09/13 Copyright 1998-2003 Heiko Eissfeldt */
+/* @(#)config.h	1.12 08/12/22 Copyright 1998-2003 Heiko Eissfeldt */
 /*
  *	a central configuration file
  */
@@ -14,6 +14,8 @@
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
+#ifndef	_CONFIG_H
+#define	_CONFIG_H
 #include <schily/mconfig.h>
 
 #if	__STDC__-0 != 0 || (defined PROTOTYPES && defined STDC_HEADERS)
@@ -47,3 +49,5 @@
 #if	!defined	HAVE_MEMMOVE
 #define	memmove(dst, src, size)	movebytes((src), (dst), (size))
 #endif
+
+#endif	/* _CONFIG_H */

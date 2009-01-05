@@ -1,7 +1,8 @@
-/* @(#)sic_nls.c	1.7 08/06/11 Copyright 2007-2008 J. Schilling */
+/* @(#)sic_nls.c	1.8 08/12/22 Copyright 2007-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)sic_nls.c	1.7 08/06/11 Copyright 2007-2008 J. Schilling";
+static	const char sccsid[] =
+	"@(#)sic_nls.c	1.8 08/12/22 Copyright 2007-2008 J. Schilling";
 #endif
 /*
  * This code reads translation files in the format used by

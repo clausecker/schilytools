@@ -1,7 +1,8 @@
-/* @(#)scsierrs.c	2.31 08/10/11 Copyright 1987-2008 J. Schilling */
+/* @(#)scsierrs.c	2.32 08/12/22 Copyright 1987-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)scsierrs.c	2.31 08/10/11 Copyright 1987-2008 J. Schilling";
+static	const char sccsid[] =
+	"@(#)scsierrs.c	2.32 08/12/22 Copyright 1987-2008 J. Schilling";
 #endif
 /*
  *	Error printing for scsitransp.c

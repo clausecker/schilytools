@@ -1,4 +1,4 @@
-/* @(#)mkisofs.h	1.134 08/10/11 joerg */
+/* @(#)mkisofs.h	1.135 08/11/13 joerg */
 /*
  * Header file mkisofs.h - assorted structure definitions and typecasts.
  *
@@ -460,6 +460,7 @@ extern void init_boot_catalog __PR((const char *path));
 extern void insert_boot_cat __PR((void));
 extern void get_boot_entry	__PR((void));
 extern int  new_boot_entry	__PR((void));
+extern void ex_boot_enoent	__PR((char *msg, char *pname));
 
 /* boot.c */
 extern int sparc_boot_label __PR((char *label));
@@ -811,6 +812,16 @@ extern char	*e_strdup	__PR((const char *));
 #else
 #define	PATH_MAX	1024
 #endif
+#endif
+
+/*
+ * Cygwin seems to have PATH_MAX == 260 which is less than the usable
+ * path length. We raise PATH_MAX to at least 1024 for now for all platforms
+ * unless someone reports problems with mkisofs memory size.
+ */
+#if	PATH_MAX < 1024
+#undef	PATH_MAX
+#define	PATH_MAX	1024
 #endif
 
 /*

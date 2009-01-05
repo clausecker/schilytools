@@ -1,7 +1,8 @@
-/* @(#)fnmatch.c	8.6 06/09/13 2006 J. Schilling from 8.2 (Berkeley) */
+/* @(#)fnmatch.c	8.7 08/12/21 2006 J. Schilling from 8.2 (Berkeley) */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)fnmatch.c	8.6 06/09/13 2005 J. Schilling from 8.2 (Berkeley)";
+static	const char sccsid[] =
+	"@(#)fnmatch.c	8.7 08/12/21 2005 J. Schilling from 8.2 (Berkeley)";
 #endif
 /*
  * Copyright (c) 1989, 1993, 1994
@@ -36,7 +37,7 @@ static	char sccsid[] =
  */
 
 #if defined(LIBC_SCCS) && !defined(lint)
-static char sccsid[] = "@(#)fnmatch.c	8.6 (Berkeley) 09/13/06";
+static const char sccsid[] = "@(#)fnmatch.c	8.7 (Berkeley) 12/21/08";
 #endif /* LIBC_SCCS and not lint */
 
 /*

@@ -1,13 +1,14 @@
-/* @(#)gettnum.c	1.7 07/02/04 Copyright 1984-2002, 2004-2007 J. Schilling */
+/* @(#)gettnum.c	1.8 08/12/21 Copyright 1984-2002, 2004-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)gettnum.c	1.7 07/02/04 Copyright 1984-2002, 2004-2007 J. Schilling";
+static	const char sccsid[] =
+	"@(#)gettnum.c	1.8 08/12/21 Copyright 1984-2002, 2004-2008 J. Schilling";
 #endif
 /*
  *	Generic time conversion routines rewritten from
  *	'dd' like number conversion in 'sdd'.
  *
- *	Copyright (c) 1984-2002, 2004-2007 J. Schilling
+ *	Copyright (c) 1984-2002, 2004-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

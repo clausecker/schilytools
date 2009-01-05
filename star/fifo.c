@@ -1,7 +1,8 @@
-/* @(#)fifo.c	1.67 07/10/20 Copyright 1989, 1994-2007 J. Schilling */
+/* @(#)fifo.c	1.68 08/12/22 Copyright 1989, 1994-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)fifo.c	1.67 07/10/20 Copyright 1989, 1994-2007 J. Schilling";
+static	const char sccsid[] =
+	"@(#)fifo.c	1.68 08/12/22 Copyright 1989, 1994-2008 J. Schilling";
 #endif
 /*
  *	A "fifo" that uses shared memory between two processes
@@ -17,7 +18,7 @@ static	char sccsid[] =
  *		n	fifo_chitape() wake up put side to start wrt Tape chng
  *		N	fifo_chotape()	wake up get side if mp->oblocked == TRUE
  *
- *	Copyright (c) 1989, 1994-2007 J. Schilling
+ *	Copyright (c) 1989, 1994-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

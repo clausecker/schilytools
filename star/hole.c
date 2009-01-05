@@ -1,13 +1,14 @@
 /*#define	DEBUG*/
-/* @(#)hole.c	1.53 07/04/06 Copyright 1993-2007 J. Schilling */
+/* @(#)hole.c	1.54 08/12/22 Copyright 1993-2007 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)hole.c	1.53 07/04/06 Copyright 1993-2007 J. Schilling";
+static	const char sccsid[] =
+	"@(#)hole.c	1.54 08/12/22 Copyright 1993-2008 J. Schilling";
 #endif
 /*
  *	Handle files with holes (sparse files)
  *
- *	Copyright (c) 1993-2007 J. Schilling
+ *	Copyright (c) 1993-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

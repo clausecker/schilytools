@@ -1,7 +1,8 @@
-/* @(#)test.c	1.24 08/03/27 Copyright 1986,1995-2008 J. Schilling */
+/* @(#)test.c	1.25 08/12/20 Copyright 1986,1995-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)test.c	1.24 08/03/27 Copyright 1986,1995-2008 J. Schilling";
+static	const char sccsid[] =
+	"@(#)test.c	1.25 08/12/20 Copyright 1986,1995-2008 J. Schilling";
 #endif
 /*
  *	Test routine (the test builtin command)

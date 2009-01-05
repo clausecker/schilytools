@@ -1,4 +1,4 @@
-/* @(#)spawn.c	1.21 08/10/09 Copyright 1985, 1989, 1995-2008 J. Schilling */
+/* @(#)spawn.c	1.22 09/01/05 Copyright 1985, 1989, 1995-2008 J. Schilling */
 /*
  *	Spawn another process/ wait for child process
  *
@@ -60,7 +60,7 @@ fspawnl(in, out, err, arg0, va_alist)
 {
 	va_list	args;
 	int	ac = 0;
-	char	*xav[MAX_F_ARGS+2];
+	char	*xav[MAX_F_ARGS+1];
 	char	**av;
 const	char	**pav;
 	char	*p;
@@ -72,6 +72,7 @@ const	char	**pav;
 	va_start(args);
 #endif
 	if (arg0) {
+		ac++;
 		while (va_arg(args, char *) != NULL)
 			ac++;
 	}
@@ -80,7 +81,7 @@ const	char	**pav;
 	if (ac <= MAX_F_ARGS) {
 		av = xav;
 	} else {
-		av = (char **)malloc((ac+2)*sizeof (char *));
+		av = (char **)malloc((ac+1)*sizeof (char *));
 		if (av == 0)
 			return (-1);
 	}

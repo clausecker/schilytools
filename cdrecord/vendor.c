@@ -1,7 +1,8 @@
-/* @(#)vendor.c	1.1 08/06/13 Copyright 2007-2008 J. Schilling */
+/* @(#)vendor.c	1.2 08/12/22 Copyright 2007-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)vendor.c	1.1 08/06/13 Copyright 2007-2008 J. Schilling";
+static	const char sccsid[] =
+	"@(#)vendor.c	1.2 08/12/22 Copyright 2007-2008 J. Schilling";
 #endif
 /*
  *	Vendor specific SCSI command functions for cdrecord

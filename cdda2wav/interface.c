@@ -1,7 +1,8 @@
-/* @(#)interface.c	1.60 08/06/24 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2006-2008 J. Schilling */
+/* @(#)interface.c	1.62 08/12/22 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2006-2008 J. Schilling */
+#include "config.h"
 #ifndef lint
-static char	sccsid[] =
-"@(#)interface.c	1.60 08/06/24 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2006-2008 J. Schilling";
+static	const char sccsid[] =
+"@(#)interface.c	1.62 08/12/22 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2006-2008 J. Schilling";
 
 #endif
 /*
@@ -172,14 +173,14 @@ Dummy()
 {
 }
 
-static SCSI	*scgp;
+static SCSI	*_scgp;
 
 SCSI	*get_scsi_p	__PR((void));
 
 SCSI *
 get_scsi_p()
 {
-	return (scgp);
+	return (_scgp);
 }
 
 #if !defined(SIM_CD)
@@ -209,10 +210,11 @@ LOCAL	int	OpenCdRom	__PR((char *pdev_name));
 LOCAL	void	scg_openerr	__PR((char *errstr));
 LOCAL	int	find_drive	__PR((SCSI *scgp, char *dev));
 
-static void	SetupSCSI	__PR((void));
+static void	SetupSCSI	__PR((SCSI *scgp));
 
 static void
-SetupSCSI()
+SetupSCSI(scgp)
+	SCSI	*scgp;
 {
 	unsigned char	*p;
 	int		err;
@@ -641,6 +643,7 @@ OpenCdRom(pdev_name)
 #endif
 
 	if (interface == GENERIC_SCSI) {
+		SCSI	*scgp;
 		char	errstr[80];
 
 		priv_on();
@@ -662,12 +665,13 @@ OpenCdRom(pdev_name)
 		/*
 		 * device name, debug, verboseopen
 		 */
-		scgp = scg_open(pdev_name, errstr, sizeof (errstr), 0, 0);
+		_scgp = scg_open(pdev_name, errstr, sizeof (errstr), 0, 0);
 
-		if (scgp == NULL) {
+		if (_scgp == NULL) {
 			scg_openerr(errstr);
 			/* NOTREACHED */
 		}
+		scgp = _scgp;
 		scg_settimeout(scgp, 300);
 		scg_settimeout(scgp, 60);
 		scgp->silent = global.scsi_silent;
@@ -745,12 +749,12 @@ OpenCdRom(pdev_name)
 		}
 #endif
 		/*
-		 * The structure looks like a desaster :-(
+		 * The program structure looks like a desaster :-(
 		 * We do this more than once as it is impossible to understand
 		 * where the right place would be to do this....
 		 */
-		if (scgp != NULL) {
-			scgp->verbose = global.scsi_verbose;
+		if (_scgp != NULL) {
+			_scgp->verbose = global.scsi_verbose;
 		}
 	}
 	return (retval);
@@ -1141,8 +1145,9 @@ SetupInterface()
 	 */
 	if (interface == GENERIC_SCSI) {
 		unsigned	sector_size;
+		SCSI		*scgp = _scgp;
 
-		SetupSCSI();
+		SetupSCSI(scgp);
 		sector_size = get_orig_sectorsize(scgp, &orgmode4, &orgmode10,
 								&orgmode11);
 		if (!SCSI_emulated_ATAPI_on(scgp)) {
@@ -1163,12 +1168,12 @@ SetupInterface()
 	 */
 	} else {
 #if defined(HAVE_IOCTL_INTERFACE)
-		scgp = malloc(sizeof (* scgp));
-		if (scgp == NULL) {
+		_scgp = malloc(sizeof (* _scgp));
+		if (_scgp == NULL) {
 			FatalError(geterrno(),
 				"No memory for SCSI structure.\n");
 		}
-		scgp->silent = 0;
+		_scgp->silent = 0;
 		SetupCookedIoctl(global.dev_name);
 #else
 		FatalError(EX_BAD,
@@ -1181,8 +1186,8 @@ SetupInterface()
 	 * We do this more than once as it is impossible to understand where
 	 * the right place would be to do this....
 	 */
-	if (scgp != NULL) {
-		scgp->verbose = global.scsi_verbose;
+	if (_scgp != NULL) {
+		_scgp->verbose = global.scsi_verbose;
 	}
 }
 

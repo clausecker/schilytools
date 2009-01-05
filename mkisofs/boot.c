@@ -1,13 +1,14 @@
-/* @(#)boot.c	1.20 07/02/17 Copyright 1999-2007 J. Schilling */
+/* @(#)boot.c	1.21 08/12/22 Copyright 1999-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)boot.c	1.20 07/02/17 Copyright 1999-2007 J. Schilling";
+static	const char sccsid[] =
+	"@(#)boot.c	1.21 08/12/22 Copyright 1999-2008 J. Schilling";
 #endif
 /*
  *	Support for generic boot (sector 0..16)
  *	and to boot Sun sparc and Sun x86 systems.
  *
- *	Copyright (c) 1999-2007 J. Schilling
+ *	Copyright (c) 1999-2008 J. Schilling
  */
 /*
  * This program is free software; you can redistribute it and/or modify

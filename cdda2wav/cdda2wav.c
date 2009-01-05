@@ -1,7 +1,8 @@
-/* @(#)cdda2wav.c	1.92 08/10/28 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2008 J. Schilling */
+/* @(#)cdda2wav.c	1.96 09/01/04 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling */
+#include "config.h"
 #ifndef lint
-static char	sccsid[] =
-"@(#)cdda2wav.c	1.92 08/10/28 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2008 J. Schilling";
+static	const char sccsid[] =
+"@(#)cdda2wav.c	1.96 09/01/04 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling";
 
 #endif
 #undef	DEBUG_BUFFER_ADDRESSES
@@ -86,6 +87,7 @@ static char	sccsid[] =
 #include <sys/resource.h>
 #endif
 #include <schily/varargs.h>
+#include <schily/maxpath.h>
 
 #include <scg/scsitransp.h>
 
@@ -130,7 +132,9 @@ static char	sccsid[] =
 #endif
 
 EXPORT	int	main			__PR((int argc, char **argv));
+#ifdef	ECHO_TO_SOUNDCARD
 static	void	RestrictPlaybackRate	__PR((long newrate));
+#endif
 static	void	output_indices		__PR((FILE *fp, index_list *p,
 						unsigned trackstart));
 static	FILE	*info_file_open		__PR((char *fname_baseval,
@@ -209,6 +213,7 @@ get_current_track()
 	return (current_track);
 }
 
+#ifdef	ECHO_TO_SOUNDCARD
 static void
 RestrictPlaybackRate(newrate)
 	long	newrate;
@@ -226,7 +231,7 @@ RestrictPlaybackRate(newrate)
 	if (global.playback_rate < 100)
 		global.nsectors = (global.nsectors*global.playback_rate)/100;
 }
-
+#endif
 
 long
 SamplesNeeded(amount, undersampling_val)
@@ -322,7 +327,7 @@ info_file_open(fname_baseval, track, doappend, numbered)
 	BOOL		doappend;
 	BOOL		numbered;
 {
-	char	fname[200];
+	char	fname[PATH_MAX+1];
 
 	/*
 	 * write info file
@@ -354,7 +359,6 @@ write_info_file(fname_baseval, track, SamplesDone, numbered)
 	int		numbered;
 {
 	FILE	*info_fp;
-	char	fname[200];
 	char	datetime[30];
 	time_t	utc_time;
 	struct tm *tmptr;
@@ -1245,7 +1249,10 @@ int
 on_exitscsi(status)
 	void *status;
 {
-	exit((int)status);
+	/*
+	 * The double cast is only needed for GCC in LP64 mode.
+	 */
+	exit((int)(Intptr_t)status);
 	return (0);
 }
 
@@ -1264,11 +1271,15 @@ exit_wrapper(status)
 
 	if (global.child_pid != 0) {
 		SCSI *scgp = get_scsi_p();
+
+		/*
+		 * The double cast is only needed for GCC in LP64 mode.
+		 */
 		if (scgp->running) {
 			scgp->cb_fun = on_exitscsi;
-			scgp->cb_arg = (void *)status;
+			scgp->cb_arg = (void *)(Intptr_t)status;
 		} else {
-			on_exitscsi((void *)status);
+			on_exitscsi((void *)(Intptr_t)status);
 		}
 	} else {
 		exit(status);
@@ -2564,7 +2575,7 @@ static char		*user_sound_device = "";
 		/*
 		 * Make the version string similar for all cdrtools programs.
 		 */
-		printf("cdda2wav %s (%s-%s-%s) Copyright (C) 1993-2004 Heiko Eißfeldt (C) 2004-2008 Jörg Schilling\n",
+		printf("cdda2wav %s (%s-%s-%s) Copyright (C) 1993-2004 Heiko Eißfeldt (C) 2004-2009 Jörg Schilling\n",
 					VERSION,
 					HOST_CPU, HOST_VENDOR, HOST_OS);
 #endif

@@ -1,10 +1,11 @@
-/* @(#)gethostid.c	1.17 06/09/26 Copyright 1995-2003 J. Schilling */
+/* @(#)gethostid.c	1.18 08/12/21 Copyright 1995-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)gethostid.c	1.17 06/09/26 Copyright 1995-2003 J. Schilling";
+static	const char sccsid[] =
+	"@(#)gethostid.c	1.18 08/12/21 Copyright 1995-2008 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1995-2003 J. Schilling
+ *	Copyright (c) 1995-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

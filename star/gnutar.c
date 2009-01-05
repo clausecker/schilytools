@@ -1,7 +1,8 @@
-/* @(#)gnutar.c	1.24 08/09/26 Copyright 1989, 2003-2008 J. Schilling */
+/* @(#)gnutar.c	1.26 08/12/22 Copyright 1989, 2003-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char _g_sccsid[] =
-	"@(#)gnutar.c	1.24 08/09/26 Copyright 1989, 2003-2008 J. Schilling";
+static	const char _g_sccsid[] =
+	"@(#)gnutar.c	1.26 08/12/22 Copyright 1989, 2003-2008 J. Schilling";
 #endif
 /*
  *	GNU TAR specific routines for star main program.
@@ -20,7 +21,7 @@ static	char _g_sccsid[] =
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-static char *gnu_copt = "crtuxdAWkUSOGgmpsfMLFbiBVojzZCTXPhlKNvRw01234567";
+static char *gnu_copt = "HcrtuxdAWkUSOGgmpsfMLFbiBVojzZCTXPhlKNvRw01234567";
 
 #ifdef	STAR_MAIN
 /*
@@ -111,6 +112,9 @@ LOCAL	void	gnutar_setopts	__PR((char *o));
  *   -B, --read-full-records        reblock as we read (for 4.2BSD pipes)
  *
  * Archive format selection:
+ *
+ *   -H, --format=FORMAT                create archive of the given format
+ *
  *   -V, --label=NAME                   create archive with volume name NAME
  *               PATTERN                at list/extract time, a globbing PATTERN
  *   -o, --old-archive, --portability   write a V7 format archive
@@ -160,7 +164,7 @@ LOCAL	void	gnutar_setopts	__PR((char *o));
  * GNU TAR related options
  */
 /* BEGIN CSTYLED */
-char	_opts[] = "C*,help,xhelp,version,debug,xdebug#,xd#,time,no-statistics,do-statistics,fifostats,numeric,no-fifo,no-fsync,bs&,fs&,/,..,secure-links,acl,xfflags,copy,diff,H&,z,bz,create,c,append,r,list,t,update,u,extract,get,x,compare,d,catenate,concatenate,A,delete,verify,W,remove-files,keep-old-files,k,unlink-first,U,recursive-unlink,sparse,S,to-stdout,O,incremental,G,listed-incremental*,g*,ignore-failed-read,owner*,group*,mode*,atime-preserve,modification-time,m,same-owner,no-same-owner,numeric-owner,same-permissions,preserve-permissions,p,no-same-permissions,same-order,preserve,preserve-order,s,force-local,file&,f&,rsh-command*,multi-volume,M,tape-length&,L&,new-volume-script*,info-script*,F*,volno-file*,blocking-factor&,b&,record-size&,ignore-zeros,i,read-full-records,B,label*,V*,old-archive,portability,o,posix,bzip2,j,gzip,ungzip,compress,uncompress,Z,use-compress-program*,files-from*,T*,null,exclude&,exclude-from&,X&,anchored,no-anchored,ignore-case,no-ignore-case,wildcards,no-wildcards,wildcards-match-slash,no-wildcards-match-slash,absolute-names,P,dereference,h,no-recursion,one-file-system,l,starting-file*,K*,newer*,after-date*,N*,newer-mtime*,backup*,suffix*,v+,verbose+,checkpoint,totals,block-number,R,interactive,confirmation,w,?";
+char	_opts[] = "C*,help,xhelp,version,debug,xdebug#,xd#,time,no-statistics,do-statistics,fifostats,numeric,no-fifo,no-fsync,bs&,fs&,/,..,secure-links,acl,xfflags,copy,diff,H&,format&,z,bz,create,c,append,r,list,t,update,u,extract,get,x,compare,d,catenate,concatenate,A,delete,verify,W,remove-files,keep-old-files,k,unlink-first,U,recursive-unlink,sparse,S,to-stdout,O,incremental,G,listed-incremental*,g*,ignore-failed-read,owner*,group*,mode*,atime-preserve,modification-time,m,same-owner,no-same-owner,numeric-owner,same-permissions,preserve-permissions,p,no-same-permissions,same-order,preserve,preserve-order,s,force-local,file&,f&,rsh-command*,multi-volume,M,tape-length&,L&,new-volume-script*,info-script*,F*,volno-file*,blocking-factor&,b&,record-size&,ignore-zeros,i,read-full-records,B,label*,V*,old-archive,portability,o,posix,bzip2,j,gzip,ungzip,compress,uncompress,Z,use-compress-program*,files-from*,T*,null,exclude&,exclude-from&,X&,anchored,no-anchored,ignore-case,no-ignore-case,wildcards,no-wildcards,wildcards-match-slash,no-wildcards-match-slash,absolute-names,P,dereference,h,no-recursion,one-file-system,l,starting-file*,K*,newer*,after-date*,N*,newer-mtime*,backup*,suffix*,v+,verbose+,checkpoint,totals,block-number,R,interactive,confirmation,w,?";
 /* END CSTYLED */
 char	*opts = _opts;
 
@@ -240,7 +244,7 @@ signed	char	archive	 = -1;		/* On IRIX, we have unsigned chars by default */
 				&abs_path, &allow_dotdot, &secure_links,
 				&doacl, &dofflags,
 				&copyflag, &diff_flag,
-				gethdr, &chdrtype,
+				gethdr, &chdrtype, gethdr, &chdrtype,
 				&zflag, &bzflag,
 
 				&cflag, &cflag,
@@ -603,6 +607,7 @@ Device blocking:\n\
 
 	error("\n\
 Archive format selection:\n\
+  -H, --format=FORMAT                create archive of the given format\n\
   -V, --label=NAME                   create archive with volume name NAME\n\
               PATTERN                at list/extract time, a globbing PATTERN\n\
   -o, --old-archive, --portability   write a V7 format archive\n\

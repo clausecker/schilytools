@@ -1,7 +1,8 @@
-/* @(#)cdr_drv.c	1.44 08/02/26 Copyright 1997-2008 J. Schilling */
+/* @(#)cdr_drv.c	1.46 08/12/22 Copyright 1997-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)cdr_drv.c	1.44 08/02/26 Copyright 1997-2008 J. Schilling";
+static	const char sccsid[] =
+	"@(#)cdr_drv.c	1.46 08/12/22 Copyright 1997-2008 J. Schilling";
 #endif
 /*
  *	CDR device abstraction layer
@@ -44,6 +45,7 @@ extern	cdr_t	cdr_dvdplus;
 extern	cdr_t	cdr_dvdplusr;
 extern	cdr_t	cdr_dvdplusrw;
 extern	cdr_t	cdr_bd;
+extern	cdr_t	cdr_bdrom;
 extern	cdr_t	cdr_bdr;
 extern	cdr_t	cdr_bdre;
 extern	cdr_t	cdr_cd_dvd;
@@ -86,6 +88,7 @@ EXPORT	cdr_t	*get_cdrcmds		__PR((SCSI *scgp));
 cdr_t	*drivers[] = {
 	&cdr_cd_dvd,
 	&cdr_bd,
+	&cdr_bdrom,
 	&cdr_bdr,
 	&cdr_bdre,
 	&cdr_dvdplus,

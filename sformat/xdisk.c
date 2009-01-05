@@ -1,12 +1,13 @@
-/* @(#)xdisk.c	1.30 06/09/13 Copyright 1991-2004 J. Schilling */
+/* @(#)xdisk.c	1.31 08/12/22 Copyright 1991-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)xdisk.c	1.30 06/09/13 Copyright 1991-2004 J. Schilling";
+static	const char sccsid[] =
+	"@(#)xdisk.c	1.31 08/12/22 Copyright 1991-2008 J. Schilling";
 #endif
 /*
  *	Routines to handle external disk definitions
  *
- *	Copyright (c) 1991-2004 J. Schilling
+ *	Copyright (c) 1991-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

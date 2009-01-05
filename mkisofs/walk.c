@@ -1,7 +1,8 @@
-/* @(#)walk.c	1.8 08/06/13 Copyright 2005-2008 J. Schilling */
+/* @(#)walk.c	1.9 08/12/22 Copyright 2005-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)walk.c	1.8 08/06/13 Copyright 2005-2008 J. Schilling";
+static	const char sccsid[] =
+	"@(#)walk.c	1.9 08/12/22 Copyright 2005-2008 J. Schilling";
 #endif
 /*
  *	This file contains the callback code for treewalk() as used

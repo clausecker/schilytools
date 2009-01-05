@@ -1,12 +1,13 @@
-/* @(#)acb4000.c	1.23 06/09/13 Copyright 1989-2004 J. Schilling */
+/* @(#)acb4000.c	1.24 08/12/22 Copyright 1989-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)acb4000.c	1.23 06/09/13 Copyright 1989-2004 J. Schilling";
+static	const char sccsid[] =
+	"@(#)acb4000.c	1.24 08/12/22 Copyright 1989-2008 J. Schilling";
 #endif
 /*
  *	Routines for ADAPTEC 40xx & 5000 series.
  *
- *	Copyright (c) 1989-2004 J. Schilling
+ *	Copyright (c) 1989-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

@@ -1,7 +1,8 @@
-/* @(#)idcache.c	1.25 08/04/06 Copyright 1993, 1995-2008 J. Schilling */
+/* @(#)idcache.c	1.26 08/12/22 Copyright 1993, 1995-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)idcache.c	1.25 08/04/06 Copyright 1993, 1995-2008 J. Schilling";
+static	const char sccsid[] =
+	"@(#)idcache.c	1.26 08/12/22 Copyright 1993, 1995-2008 J. Schilling";
 #endif
 /*
  *	UID/GID caching functions

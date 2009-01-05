@@ -1,12 +1,13 @@
-/* @(#)execcmds.c	1.41 06/09/13 Copyright 1984-1986, 1995-2004 J. Schilling */
+/* @(#)execcmds.c	1.42 08/12/22 Copyright 1984-1986, 1995-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)execcmds.c	1.41 06/09/13 Copyright 1984-1986, 1995-2004 J. Schilling";
+static	const char sccsid[] =
+	"@(#)execcmds.c	1.42 08/12/22 Copyright 1984-1986, 1995-2008 J. Schilling";
 #endif
 /*
  *	Commands that deal with execution of shell commands from ved
  *
- *	Copyright (c) 1984-1986, 1995-2004 J. Schilling
+ *	Copyright (c) 1984-1986, 1995-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

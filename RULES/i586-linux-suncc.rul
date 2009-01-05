@@ -1,4 +1,4 @@
-#ident "@(#)i586-linux-suncc.rul	1.1 07/06/16 "
+#ident "@(#)i586-linux-suncc.rul	1.3 08/11/15 "
 ###########################################################################
 # Written 2007 by J. Schilling
 ###########################################################################
@@ -40,7 +40,13 @@ LIB_MATH=	-lm
 LIB_KVM=	
 
 #LDOPTS=		$(LIBS_PATH) $(LDPATH) $(RUNPATH:-R%=-Wl,-R%)
-LDOPTS=		$(LIBS_PATH) $(LDPATH)
+#
+# Uncomment the next line in case you are on an old Linux version that
+# does not support the -R linker flag.
+#
+#LDOPTS=		$(LIBS_PATH) $(LDPATH)
+
+LDOPTDYN=	-dy -G -Wl,-shared -Wl,-soname,$(TARGET)
 
 LORDER=		echo
 TSORT=		cat

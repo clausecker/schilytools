@@ -1,12 +1,13 @@
-/* @(#)drv_7501.c	1.24 07/08/07 Copyright 2003-2006 J. Schilling */
+/* @(#)drv_7501.c	1.25 08/12/22 Copyright 2003-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)drv_7501.c	1.24 07/08/07 Copyright 2003-2006 J. Schilling";
+static	const char sccsid[] =
+	"@(#)drv_7501.c	1.25 08/12/22 Copyright 2003-2008 J. Schilling";
 #endif
 /*
  *	Device driver for the Masushita CW-7501
  *
- *	Copyright (c) 2003-2006 J. Schilling
+ *	Copyright (c) 2003-2008 J. Schilling
  *
  * Mode Pages:
  *	0x01	error recovery		Seite 100

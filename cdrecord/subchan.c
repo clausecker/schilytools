@@ -1,12 +1,13 @@
-/* @(#)subchan.c	1.22 06/12/10 Copyright 2000-2006 J. Schilling */
+/* @(#)subchan.c	1.24 08/12/29 Copyright 2000-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)subchan.c	1.22 06/12/10 Copyright 2000-2006 J. Schilling";
+static	const char sccsid[] =
+	"@(#)subchan.c	1.24 08/12/29 Copyright 2000-2008 J. Schilling";
 #endif
 /*
  *	Subchannel processing
  *
- *	Copyright (c) 2000-2006 J. Schilling
+ *	Copyright (c) 2000-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -47,7 +48,9 @@ EXPORT	void	qpto96		__PR((Uchar *sub, Uchar *subq, int dop));
 EXPORT	void	addrw		__PR((Uchar *sub, Uchar	*subrwptr));
 EXPORT	void	qwto16		__PR((Uchar *subq, Uchar *subptr));
 EXPORT	void	subrecodesecs	__PR((track_t *trackp, Uchar *bp, int address, int nsecs));
+#ifdef	DO_SUBINTERLEAVE
 LOCAL	void	subinterleave	__PR((Uchar *sub));
+#endif
 
 /*#define	TEST_CRC*/
 #ifdef	TEST_CRC
@@ -252,8 +255,10 @@ write_leadin(scgp, dp, trackp, leadinstart)
 				if (textoff >= textlen)
 					textoff = 0;
 			}
+#ifdef	DO_SUBINTERLEAVE
 /*			if (is_raw96p(&trackp[0]))*/
 /*				subinterleave(subp);*/
+#endif
 		}
 		if ((startsec+secspt-1) == i || i == -151) {
 			if ((i-startsec+1) < secspt) {
@@ -357,8 +362,10 @@ write_leadout(scgp, dp, trackp)
 			qpto16(subp, sub, p);
 		} else {
 			qpto96(subp, sub, p);
+#ifdef	DO_SUBINTERLEAVE
 /*			if (is_raw96p(&trackp[0]))*/
 /*				subinterleave(subp);*/
+#endif
 		}
 		if ((startsec+secspt-1) == i || i == (endsec-1)) {
 			if ((i-startsec+1) < secspt) {
@@ -545,8 +552,10 @@ static	Uchar	lastindex = 255;
 			qpto16(sup, sub, curindex == 0);
 		} else {
 			qpto96(sup, sub, curindex == 0);
+#ifdef	DO_SUBINTERLEAVE
 /*			if (is_raw96p(trackp))*/
 /*				subinterleave(sup);*/
+#endif
 		}
 		lastindex = curindex;
 		secno++;
@@ -1001,6 +1010,7 @@ index 3 < - > 23
 delay index mod 8
 #endif
 
+#ifdef	DO_SUBINTERLEAVE
 /*
  * Sub 96 Bytes Interleave
  */
@@ -1034,3 +1044,4 @@ subinterleave(sub)
 		p += 24;
 	}
 }
+#endif	/* DO_SUBINTERLEAVE */

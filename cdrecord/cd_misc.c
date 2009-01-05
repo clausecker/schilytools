@@ -1,12 +1,13 @@
-/* @(#)cd_misc.c	1.14 06/10/05 Copyright 1997-2006 J. Schilling */
+/* @(#)cd_misc.c	1.15 08/12/22 Copyright 1997-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)cd_misc.c	1.14 06/10/05 Copyright 1997-2006 J. Schilling";
+static	const char sccsid[] =
+	"@(#)cd_misc.c	1.15 08/12/22 Copyright 1997-2008 J. Schilling";
 #endif
 /*
  *	Misc CD support routines
  *
- *	Copyright (c) 1997-2006 J. Schilling
+ *	Copyright (c) 1997-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

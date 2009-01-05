@@ -1,12 +1,13 @@
-/* @(#)repair.c	1.18 06/09/13 Copyright 1988-2004 J. Schilling */
+/* @(#)repair.c	1.19 08/12/22 Copyright 1988-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)repair.c	1.18 06/09/13 Copyright 1988-2004 J. Schilling";
+static	const char sccsid[] =
+	"@(#)repair.c	1.19 08/12/22 Copyright 1988-2008 J. Schilling";
 #endif
 /*
  *	Repair SCSI disks
  *
- *	Copyright (c) 1988-2004 J. Schilling
+ *	Copyright (c) 1988-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

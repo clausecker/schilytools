@@ -39,11 +39,11 @@
 /*
  * This file contains modifications Copyright 2006-2008 J. Schilling
  *
- * @(#)diff.c	1.12 08/08/20 J. Schilling
+ * @(#)diff.c	1.13 09/01/04 J. Schilling
  */
 #if defined(sun) || defined(__GNUC__)
 
-#ident "@(#)diff.c 1.12 08/08/20 J. Schilling"
+#ident "@(#)diff.c 1.13 09/01/04 J. Schilling"
 #endif
 
 #pragma ident	"@(#)diff.c	1.55	05/07/22 SMI"
@@ -1515,10 +1515,10 @@ diffdir(argv)
 }
 
 static void
-setfile(fpp, epp, file)
+setfile(fpp, epp, filen)
 	char	**fpp;
 	char	**epp;
-	char	*file;
+	char	*filen;
 {
 	char *cp;
 
@@ -1528,7 +1528,7 @@ setfile(fpp, epp, file)
 		(void) fprintf(stderr, gettext("out of memory\n"));
 		exit(1);
 	}
-	(void) strcpy(*fpp, file);
+	(void) strcpy(*fpp, filen);
 	for (cp = *fpp; *cp; cp++)
 		continue;
 	*cp++ = '/';
@@ -1537,14 +1537,14 @@ setfile(fpp, epp, file)
 }
 
 static void
-scanpr(dp, test, title, file1, efile1, file2, efile2)
+scanpr(dp, test, titlen, file1n, efile1n, file2n, efile2n)
 	struct dir	*dp;
 	int		test;
-	char		*title;
-	char		*file1;
-	char		*efile1;
-	char		*file2;
-	char		*efile2;
+	char		*titlen;
+	char		*file1n;
+	char		*efile1n;
+	char		*file2n;
+	char		*efile2n;
 {
 	int titled = 0;
 
@@ -1556,9 +1556,9 @@ scanpr(dp, test, title, file1, efile1, file2, efile2)
 				header = 1;
 			else
 				(void) printf("\n");
-			(void) printf(title,
-			    efile1 - file1 - 1, file1,
-			    efile2 - file2 - 1, file2);
+			(void) printf(titlen,
+			    efile1n - file1n - 1, file1n,
+			    efile2n - file2n - 1, file2n);
 			(void) printf(":\n");
 			titled = 1;
 		}
@@ -1571,10 +1571,10 @@ only(dp, which)
 	struct dir	*dp;
 	int		which;
 {
-	char *file = which == 1 ? file1 : file2;
-	char *efile = which == 1 ? efile1 : efile2;
+	char *filen = which == 1 ? file1 : file2;
+	char *efilen = which == 1 ? efile1 : efile2;
 
-	(void) printf(gettext("Only in %.*s: %s\n"), efile - file - 1, file,
+	(void) printf(gettext("Only in %.*s: %s\n"), efilen - filen - 1, filen,
 	    dp->d_entry);
 }
 
@@ -1641,26 +1641,26 @@ compare(dp)
 	int i, j;
 	int f1 = -1, f2 = -1;
 	mode_t fmt1, fmt2;
-	struct stat stb1, stb2;
+	struct stat statb1, statb2;
 	char buf1[BUFSIZ], buf2[BUFSIZ];
 	int result;
 
 	(void) strcpy(efile1, dp->d_entry);
 	(void) strcpy(efile2, dp->d_entry);
 
-	if (stat(file1, &stb1) == -1) {
+	if (stat(file1, &statb1) == -1) {
 		(void) fprintf(stderr, "diff: ");
 		perror(file1);
 		return (2);
 	}
-	if (stat(file2, &stb2) == -1) {
+	if (stat(file2, &statb2) == -1) {
 		(void) fprintf(stderr, "diff: ");
 		perror(file2);
 		return (2);
 	}
 
-	fmt1 = stb1.st_mode & S_IFMT;
-	fmt2 = stb2.st_mode & S_IFMT;
+	fmt1 = statb1.st_mode & S_IFMT;
+	fmt2 = statb2.st_mode & S_IFMT;
 
 	if (fmt1 == S_IFREG) {
 		f1 = open(file1, O_RDONLY);
@@ -1696,7 +1696,7 @@ compare(dp)
 
 			case S_IFCHR:
 			case S_IFBLK:
-				if (stb1.st_rdev == stb2.st_rdev)
+				if (statb1.st_rdev == statb2.st_rdev)
 					goto same;
 				(void) printf(gettext(
 				    "Special files %s and %s differ\n"),
@@ -1727,7 +1727,7 @@ compare(dp)
 				break;
 
 			case S_IFIFO:
-				if (stb1.st_ino == stb2.st_ino)
+				if (statb1.st_ino == statb2.st_ino)
 					goto same;
 				(void) printf(gettext(
 				    "Named pipes %s and %s differ\n"),
@@ -1761,7 +1761,7 @@ gettext("File %s is %s while file %s is %s\n"),
 		(void) close(f1); (void) close(f2);
 		return (1);
 	}
-	if (stb1.st_size != stb2.st_size)
+	if (statb1.st_size != statb2.st_size)
 		goto notsame;
 	for (;;) {
 		i = read(f1, buf1, BUFSIZ);

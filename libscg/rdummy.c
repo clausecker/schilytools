@@ -1,7 +1,8 @@
-/* @(#)rdummy.c	1.2 06/09/13 Copyright 2000 J. Schilling */
+/* @(#)rdummy.c	1.3 08/12/22 Copyright 2000 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char _sccsid[] =
-	"@(#)rdummy.c	1.2 06/09/13 Copyright 2000 J. Schilling";
+static	const char _sccsid[] =
+	"@(#)rdummy.c	1.3 08/12/22 Copyright 2000 J. Schilling";
 #endif
 /*
  *	scg Library 

@@ -1,10 +1,11 @@
-/* @(#)bcrypt.c	1.15 06/09/13 Copyright 1988-2004 J. Schilling */
+/* @(#)bcrypt.c	1.16 08/12/22 Copyright 1988-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)bcrypt.c	1.15 06/09/13 Copyright 1988-2004 J. Schilling";
+static	const char sccsid[] =
+	"@(#)bcrypt.c	1.16 08/12/22 Copyright 1988-2008 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1988-2004 J. Schilling
+ *	Copyright (c) 1988-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

@@ -1,12 +1,13 @@
-/* @(#)fileio.c	1.11 06/09/13 Copyright 1984-2004 J. Schilling */
+/* @(#)fileio.c	1.12 08/12/22 Copyright 1984-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)fileio.c	1.11 06/09/13 Copyright 1984-2004 J. Schilling";
+static	const char sccsid[] =
+	"@(#)fileio.c	1.12 08/12/22 Copyright 1984-2008 J. Schilling";
 #endif
 /*
  *	Low level routines for Input/Output from/to files.
  *
- *	Copyright (c) 1984-2004 J. Schilling
+ *	Copyright (c) 1984-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

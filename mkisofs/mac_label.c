@@ -1,11 +1,12 @@
-/* @(#)mac_label.c	1.13 07/07/26 joerg, Copyright 1997, 1998, 1999, 2000 James Pearson */
+/* @(#)mac_label.c	1.16 08/12/22 joerg, Copyright 1997, 1998, 1999, 2000 James Pearson */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)mac_label.c	1.13 07/07/26 joerg, Copyright 1997, 1998, 1999, 2000 James Pearson";
+static	const char sccsid[] =
+	"@(#)mac_label.c	1.16 08/12/22 joerg, Copyright 1997, 1998, 1999, 2000 James Pearson";
 #endif
 /*
  *      Copyright (c) 1997, 1998, 1999, 2000 James Pearson
- *	Copyright (c) 2004-2007 J. Schilling
+ *	Copyright (c) 2004-2008 J. Schilling
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -108,10 +109,9 @@ gen_prepboot_label(ml)
 	for (; i < use_prep_boot + use_chrp_boot; i++) {
 		de = search_tree_file(root, prep_boot_image[i - use_chrp_boot]);
 		if (!de) {
-			fprintf(stderr,
-				"Uh oh, I cant find the boot image \"%s\"!\n",
+			ex_boot_enoent("image",
 				prep_boot_image[i - use_chrp_boot]);
-			exit(1);
+			/* NOTREACHED */
 		}
 		/* get size and block in 512-byte blocks */
 		block = get_733(de->isorec.extent) * 2048 / 512;

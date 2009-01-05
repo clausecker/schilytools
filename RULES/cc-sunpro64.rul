@@ -1,4 +1,4 @@
-#ident "@(#)cc-sunpro64.rul	1.9 07/06/14 "
+#ident "@(#)cc-sunpro64.rul	1.10 08/12/20 "
 ###########################################################################
 # Written 1996-2006 by J. Schilling
 ###########################################################################
@@ -25,13 +25,17 @@ C++FLAGS=	$(C++OPTS) $(C++WARNOPTS) $(C++OPTOPT) $(SUNPROC++OPTOPT) $(C++OPTX)
 
 LINTFLAGS=	-Nlevel=4 
 
+_SUNPROCOPT64=	$(_UNIQ)$(CC64_OPT)
+__SUNPROCOPT64=	$(_SUNPROCOPT64:$(_UNIQ)=-xarch=generic64)
+SUNPROCOPT64=	$(__SUNPROCOPT64:$(_UNIQ)%=%)
+
 CPPOPTS=	-I$(ARCHDIR) -I$(OINCSDIR) $(INCDIRS:%=-I%) $(INCDIRSX:%=-I%) $(OSDEFS)
-COPTS=		-Xa -xarch=generic64
+COPTS=		-Xa $(SUNPROCOPT64)
 CWOPTS=		-v
 COPTOPT=	-O
 COPTDYN=	-Kpic
 COPTGPROF=	-xpg
-C++OPTS=	-xarch=generic64
+C++OPTS=	$(SUNPROCOPT64)
 C++WOPTS=	
 C++OPTOPT=	-O
 C++OPTDYN=	-Kpic
@@ -54,15 +58,15 @@ LNDYNLIB=	@$(RM) $(RM_FORCE) $(PTARGET_BASE).so; $(SYMLINK) $(TARGET) $(PTARGET_
 FLOAT_OPTIONS=	
 
 CC_COM=		cc
-CC=		@echo "	==> COMPILING \"$@\""; $(CC_COM) -xarch=generic64
-CC++ =		@echo "	==> COMPILING \"$@\""; CC -xarch=generic64
-LDCC=		@echo "	==> LINKING \"$@\""; $(CC_COM) -xarch=generic64
-LDCC++ =	@echo "	==> LINKING \"$@\""; CC -xarch=generic64
-DYNLD=		@echo "	==> LINKING dynamic library \"$@\""; $(CC_COM) -xarch=generic64
-DYNLDC++ =	@echo "	==> LINKING dynamic library \"$@\""; CC -xarch=generic64
+CC=		@echo "	==> COMPILING \"$@\""; $(CC_COM) $(SUNPROCOPT64)
+CC++ =		@echo "	==> COMPILING \"$@\""; CC $(SUNPROCOPT64)
+LDCC=		@echo "	==> LINKING \"$@\""; $(CC_COM) $(SUNPROCOPT64)
+LDCC++ =	@echo "	==> LINKING \"$@\""; CC $(SUNPROCOPT64)
+DYNLD=		@echo "	==> LINKING dynamic library \"$@\""; $(CC_COM) $(SUNPROCOPT64)
+DYNLDC++ =	@echo "	==> LINKING dynamic library \"$@\""; CC $(SUNPROCOPT64)
 
 RMDEP=		:
-MKDEP=		@echo "	==> MAKING DEPENDENCIES \"$@\""; $(RMDEP); $(CC_COM) -xM -xarch=generic64
+MKDEP=		@echo "	==> MAKING DEPENDENCIES \"$@\""; $(RMDEP); $(CC_COM) -xM $(SUNPROCOPT64)
 MKDEP_OUT=
-MKC++DEP=	@echo "	==> MAKING DEPENDENCIES \"$@\""; $(RMDEP); CC -xM -xarch=generic64
+MKC++DEP=	@echo "	==> MAKING DEPENDENCIES \"$@\""; $(RMDEP); CC -xM $(SUNPROCOPT64)
 MKC++DEP_OUT=

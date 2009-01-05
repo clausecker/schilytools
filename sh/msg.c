@@ -30,22 +30,22 @@
 
 #pragma ident	"@(#)msg.c	1.15	06/06/20 SMI"
 
+#include "defs.h"
+
 /*
  * This file contains modifications Copyright 2008 J. Schilling
  *
- * @(#)msg.c	1.3 08/03/28 2008 J. Schilling
+ * @(#)msg.c	1.4 08/12/22 2008 J. Schilling
  */
 #ifndef lint
-static	char sccsid[] =
-	"@(#)msg.c	1.3 08/03/28 2008 J. Schilling";
+static	const char sccsid[] =
+	"@(#)msg.c	1.4 08/12/22 2008 J. Schilling";
 #endif
 
 /*
  *	UNIX shell
  */
 
-
-#include	"defs.h"
 #include	"sym.h"
 
 /*

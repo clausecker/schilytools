@@ -1,7 +1,8 @@
-/* @(#)sccslog.c	1.24 08/10/08 Copyright 1997-2008 J. Schilling */
+/* @(#)sccslog.c	1.26 08/12/22 Copyright 1997-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)sccslog.c	1.24 08/10/08 Copyright 1997-2008 J. Schilling";
+static	const char sccsid[] =
+	"@(#)sccslog.c	1.26 08/12/22 Copyright 1997-2008 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1997-2008 J. Schilling
@@ -317,7 +318,6 @@ dofile(name)
 		
 		if (p) {
 			char	*sp;
-			int	len;
 
 			sp = strstr(name, SccsPath);
 			if (sp == NULL)

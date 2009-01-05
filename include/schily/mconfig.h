@@ -1,4 +1,4 @@
-/* @(#)mconfig.h	1.62 07/12/01 Copyright 1995-2007 J. Schilling */
+/* @(#)mconfig.h	1.63 08/11/25 Copyright 1995-2007 J. Schilling */
 /*
  *	definitions for machine configuration
  *
@@ -37,6 +37,9 @@
  */
 #ifdef	NO_LARGEFILES
 #undef	USE_LARGEFILES
+#endif
+#ifdef	NO_ACL
+#undef	USE_ACL
 #endif
 
 /*

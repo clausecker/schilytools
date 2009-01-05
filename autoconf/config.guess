@@ -1,5 +1,5 @@
 #! /bin/sh
-# @(#)config.guess	1.10 08/08/01 Copyright 1999-2008 J. Schilling
+# @(#)config.guess	1.11 08/11/05 Copyright 1999-2008 J. Schilling
 #
 # Attempt to guess a canonical system name.
 #   Copyright (C) 1992, 93, 94, 95, 96, 97, 1998 Free Software Foundation, Inc.
@@ -104,6 +104,15 @@ EOF
 	exit 0 ;;
     21064:Windows_NT:50:3)
 	echo alpha-dec-winnt3.5
+	exit 0 ;;
+    *:FreeMiNT:*:*)
+	echo m68k-atari-freemint
+	exit 0 ;;
+    *:MiNT:*:*)
+	echo m68k-atari-mint
+	exit 0 ;;
+    *:TOS:*:*)
+	echo m68k-atari-tos
 	exit 0 ;;
     Amiga*:UNIX_System_V:4.0:*)
 	echo m68k-cbm-sysv4

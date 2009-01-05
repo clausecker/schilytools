@@ -1,7 +1,8 @@
-/* @(#)softmagic.c	1.10 08/10/19 joerg */
+/* @(#)softmagic.c	1.11 08/12/22 joerg */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)softmagic.c	1.10 08/10/19 joerg";
+static	const char sccsid[] =
+	"@(#)softmagic.c	1.11 08/12/22 joerg";
 #endif
 /*
 **	find file types by using a modified "magic" file
@@ -52,7 +53,7 @@ static	char sccsid[] =
 #include "file.h"
 
 #ifndef	lint
-static char *moduleid = 
+static const char moduleid[] = 
 	"@(#)$Id: softmagic.c,v 1.34 1997/01/15 19:28:35 christos Exp $";
 #endif	/* lint */
 

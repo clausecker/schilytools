@@ -1,12 +1,13 @@
-/* @(#)movedot.c	1.19 06/07/27 Copyright 1984-2004 J. Schilling */
+/* @(#)movedot.c	1.22 09/01/04 Copyright 1984-2009 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)movedot.c	1.19 06/07/27 Copyright 1984-2004 J. Schilling";
+static	const char sccsid[] =
+	"@(#)movedot.c	1.22 09/01/04 Copyright 1984-2009 J. Schilling";
 #endif
 /*
  *	Functions that are used to move the dot around.
  *
- *	Copyright (c) 1984-2004 J. Schilling
+ *	Copyright (c) 1984-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -32,7 +33,9 @@ static	char sccsid[] =
 LOCAL	Uchar	whitespace[] = "^![ \t]!$";
 EXPORT	Uchar	notwhitespace[] = "[^ \t]";		/* Used by cmds.c/screen.c */
 
+#ifdef	__needed__
 LOCAL	Uchar	inword[] = "[0-9_A-Za-z]";
+#endif
 EXPORT	Uchar	notinword[] = "[^0-9_A-Za-z]!$";	/* Used by tags.c */
 
 LOCAL	Uchar	newline[] = "\n";

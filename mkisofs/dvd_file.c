@@ -1,7 +1,8 @@
-/* @(#)dvd_file.c	1.8 08/06/13 joerg */
+/* @(#)dvd_file.c	1.9 08/12/22 joerg */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)dvd_file.c	1.8 08/06/13 joerg";
+static	const char sccsid[] =
+	"@(#)dvd_file.c	1.9 08/12/22 joerg";
 #endif
 /*
  * DVD_VIDEO code

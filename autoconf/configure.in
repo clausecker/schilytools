@@ -1,6 +1,6 @@
-dnl @(#)configure.in	1.157 08/10/11 Copyright 1998-2008 J. Schilling
+dnl @(#)configure.in	1.159 08/12/20 Copyright 1998-2008 J. Schilling
 dnl Process this file with autoconf to produce a configure script.
-AC_REVISION(1.157)dnl
+AC_REVISION(1.159)dnl
 
 AC_INIT(xconfig.h.in)
 AC_CONFIG_HEADER(xconfig.h)
@@ -18,6 +18,7 @@ dnl AC_PROG_CC
 AC_OBJEXT
 AC_EXEEXT
 AC_PROG_CPP
+AC_CC64_OPT
 dnl AC_PROG_INSTALL
 AC_PROG_RANLIB
 AC_PROG_MAKE_SET
@@ -220,6 +221,7 @@ AC_FUNC_DTOA_R
 jsAC_FUNC_MMAP
 AC_MMAP_SIZEP
 AC_FUNC_SMMAP
+AC_FUNC_SHMGET
 AC_FUNC_ALLOCA
 AC_FUNC_QUOTAIOCTL
 AC_FUNC_FCNTL_LOCKF
@@ -558,6 +560,7 @@ fi	# Linux only tests
 AC_SUBST(may_linux_src_include)
 
 AC_SUBST(largefile_cc_opt)
+AC_SUBST(cc64_opt)
 
 AC_SUBST(lib_crypt)
 AC_SUBST(lib_resolv)

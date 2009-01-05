@@ -1,12 +1,13 @@
-/* @(#)p.c	1.45 07/05/08 Copyright 1985-2007 J. Schilling */
+/* @(#)p.c	1.46 08/12/23 Copyright 1985-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)p.c	1.45 07/05/08 Copyright 1985-2007 J. Schilling";
+static	const char sccsid[] =
+	"@(#)p.c	1.46 08/12/23 Copyright 1985-2008 J. Schilling";
 #endif
 /*
  *	Print some files on screen
  *
- *	Copyright (c) 1985-2007 J. Schilling
+ *	Copyright (c) 1985-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -182,7 +183,15 @@ tstp(sig)
 	signal(SIGTTOU, SIG_DFL);
 
 	signal(SIGTSTP, SIG_DFL);
+#ifdef	OLD
+#ifdef	HAVE_SIGRELSE
+	sigrelse(SIGTSTP);
+#else
+	(void) sigsetmask(0);
+#endif
+#else	/* NEW */
 	unblock_sig(SIGTSTP);
+#endif
 	kill(getpid(), SIGTSTP);
 
 	/* Hier stoppt 'p' */
@@ -256,7 +265,7 @@ main(ac, av)
 	if (help) usage(0);
 	if (prvers) {
 		printf("p %s (%s-%s-%s)\n\n", "2.1", HOST_CPU, HOST_VENDOR, HOST_OS);
-		printf("Copyright (C) 1985, 87-92, 95-99, 2000-2007 Jörg Schilling\n");
+		printf("Copyright (C) 1985, 87-92, 95-99, 2000-2008 Jörg Schilling\n");
 		printf("This is free software; see the source for copying conditions.  There is NO\n");
 		printf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
 		exit(0);

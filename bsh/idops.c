@@ -1,7 +1,8 @@
-/* @(#)idops.c	1.35 08/03/27 Copyright 1985-2008 J. Schilling */
+/* @(#)idops.c	1.36 08/12/20 Copyright 1985-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)idops.c	1.35 08/03/27 Copyright 1985-2008 J. Schilling";
+static	const char sccsid[] =
+	"@(#)idops.c	1.36 08/12/20 Copyright 1985-2008 J. Schilling";
 #endif
 /*
  *	uid und gid Routinen

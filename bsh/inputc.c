@@ -1,7 +1,8 @@
-/* @(#)inputc.c	1.49 08/04/17 Copyright 1982, 1984-2008 J. Schilling */
+/* @(#)inputc.c	1.51 08/12/20 Copyright 1982, 1984-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)inputc.c	1.49 08/04/17 Copyright 1982, 1984-2008 J. Schilling";
+static	const char sccsid[] =
+	"@(#)inputc.c	1.51 08/12/20 Copyright 1982, 1984-2008 J. Schilling";
 #endif
 /*
  *	inputc.c
@@ -1287,8 +1288,16 @@ undo_del(lp, cp, lenp)
 }
 
 /*
+ * The characters ' ' ... '&' are handled by the shell parser,
+ * the characters '!' ... '$' are pattern matcher meta characters.
+ * The complete pattern matcher meta characters are "!#%*?\\{}[]^$", but
+ * the '%' has been checked before in the shell parser charracter set.
+ */
+LOCAL char xchars[] = " \t<>%|;()&!#*?\\{}[]^$"; /* Chars that need quoting */
+
+/*
  * Expand a string and return a malloc()ed copy.
- * Any space and tab character is prepended with a '\\'.
+ * Any character that needs quoting is prepended with a '\\'.
  */
 LOCAL char *
 xpstr(cp)
@@ -1300,12 +1309,12 @@ xpstr(cp)
 
 	while (*p) {
 		len++;
-		if (*p++ == ' '|| *p == '\t')
+		if (strchr(xchars, *p++))
 			len++;
 	}
 	ret = malloc(len+1);
 	for (p = ret; *cp; ) {
-		if (*cp == ' '|| *cp == '\t')
+		if (strchr(xchars, *cp))
 			*p++ = '\\';
 		*p++ = *cp++;
 	}
@@ -1314,16 +1323,21 @@ xpstr(cp)
 }
 
 /*
+ * The characters ' ' ... '&' are handled by the shell parser as word separators
+ */
+LOCAL char wschars[] = " \t<>%|;()&"; /* Chars that are word separators */
+
+/*
  * Expand filenames (implement file name completion).
  * This is the basic function that either expands or lists filenames.
  * It gets called by exp_files() and by show_files().
  */
 LOCAL char *
 xp_files(lp, cp, show, multip)
-	register char	*lp;
-	register char	*cp;
-		BOOL	show;
-		int	*multip;
+	register char	*lp;	/* Begin of current line		*/
+	register char	*cp;	/* Current cursor position		*/
+		BOOL	show;	/* Show list of multi-results		*/
+		int	*multip; /* Found mult results in non show mode */
 {
 	Tnode	*np;
 	Tnode	*l1;
@@ -1335,12 +1349,13 @@ xp_files(lp, cp, show, multip)
 	int	dir = 0;
 	char	*p1;
 	char	*p2;
-	int	multi = 0;
+	int	multi = 0;	/* No mutiple results found yet	*/
 
 	/*
-	 * Check if it makes sense to expand (complete) the filename.
+	 * Check whether to expand (complete) the filename.
+	 * This depends on the character that is currently under the cursor.
 	 */
-	if (*cp != ' ' && *cp != '\0') {
+	if (*cp != '\0' && !strchr(wschars, *cp)) {
 /*		beep();*/
 		return (0);
 	}
@@ -1348,22 +1363,32 @@ xp_files(lp, cp, show, multip)
 		(void) fprintf(stderr, "\r\n");
 		(void) fflush(stderr);
 	}
+	/*
+	 * Set "wp" to current cursor position and then step back into the text
+	 */
 	wp = cp;
-	if (*wp == ' ' || *wp == '\0')
+	if (*wp == '\0' || strchr(wschars, *wp))
 		wp--;
 
 
+	/*
+	 * Step back to the beginning of the current word.
+	 * Do not stop on quoted delimiters.
+	 */
 again:
-	while (wp > lp && !strchr(" \t<>|", *wp))
+	while (wp > lp && !strchr(wschars, *wp))
 		wp--;
-	if (wp > lp && (*wp == ' ' || *wp == '\t') &&
+	if (wp > lp && strchr(wschars, *wp) &&
 	    wp[-1] == '\\') {
 		wp--;
 		goto again;
 	}
 
 
-	if (strchr(" \t<>|", *wp))
+	/*
+	 * Advance again into current word.
+	 */
+	if (strchr(wschars, *wp))
 		wp++;
 
 
@@ -1403,6 +1428,9 @@ again:
 			writes(" ");
 		}
 	}
+	/*
+	 * For multiple results, find longest common match.
+	 */
 	if (multi) {
 		wp2 = xpstr(p2);
 		for (p1 = wp, p2 = wp2; *p1; ) {
@@ -1459,6 +1487,7 @@ again:
 
 /*
  * Expand filenames (implement file name completion).
+ * Insert expansion result into current line if applicable.
  */
 LOCAL char *
 exp_files(lpp, cp, lenp, maxlenp, multip)

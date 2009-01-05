@@ -1,7 +1,8 @@
-/* @(#)udiff.c	1.20 08/09/26 Copyright 1985-2008 J. Schilling */
+/* @(#)udiff.c	1.21 08/12/22 Copyright 1985-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)udiff.c	1.20 08/09/26 Copyright 1985-2008 J. Schilling";
+static	const char sccsid[] =
+	"@(#)udiff.c	1.21 08/12/22 Copyright 1985-2008 J. Schilling";
 #endif
 /*
  *	line by line diff for two files
@@ -134,7 +135,7 @@ main(ac, av)
 	}
 	if (prversion) {
 		printf("Udiff release %s (%s-%s-%s) Copyright (C) 1985-2008 Jörg Schilling\n",
-				"1.20",
+				"1.21",
 				HOST_CPU, HOST_VENDOR, HOST_OS);
 		exit(0);
 	}

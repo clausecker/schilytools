@@ -1,10 +1,10 @@
-/* @(#)version.h	1.5 08/08/21 Copyright 2007-2008 J. Schilling */
+/* @(#)version.h	1.6 09/01/04 Copyright 2007-2008 J. Schilling */
 
 /*
  * The version for sccs programs
  */
 #ifndef	VERSION
-#define	VERSION	"1.00.03"
+#define	VERSION	"1.00.04"
 #endif
 
 #ifdef	SCHILY_BUILD

@@ -1,12 +1,13 @@
-/* @(#)getperm.c	1.2 07/12/27 Copyright 2004-2007 J. Schilling */
+/* @(#)getperm.c	1.3 08/12/21 Copyright 2004-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)getperm.c	1.2 07/12/27 Copyright 2004-2007 J. Schilling";
+static	const char sccsid[] =
+	"@(#)getperm.c	1.3 08/12/21 Copyright 2004-2008 J. Schilling";
 #endif
 /*
  *	Parser for chmod(1)/find(1)-perm, ....
  *
- *	Copyright (c) 2004-2007 J. Schilling
+ *	Copyright (c) 2004-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

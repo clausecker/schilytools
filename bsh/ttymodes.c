@@ -1,7 +1,8 @@
-/* @(#)ttymodes.c	1.29 08/02/02 Copyright 1986,1995-2008 J. Schilling */
+/* @(#)ttymodes.c	1.30 08/12/20 Copyright 1986,1995-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)ttymodes.c	1.29 08/02/02 Copyright 1986,1995-2008 J. Schilling";
+static	const char sccsid[] =
+	"@(#)ttymodes.c	1.30 08/12/20 Copyright 1986,1995-2008 J. Schilling";
 #endif
 /*
  *	ttymodes.c

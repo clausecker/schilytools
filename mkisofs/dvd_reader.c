@@ -1,7 +1,8 @@
-/* @(#)dvd_reader.c	1.7 07/08/20 joerg */
+/* @(#)dvd_reader.c	1.8 08/12/22 joerg */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)dvd_reader.c	1.7 07/08/20 joerg";
+static	const char sccsid[] =
+	"@(#)dvd_reader.c	1.8 08/12/22 joerg";
 #endif
 /*
  * Copyright (C) 2001, 2002 Billy Biggs <vektor@dumbterm.net>,

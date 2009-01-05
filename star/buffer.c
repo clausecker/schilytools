@@ -1,7 +1,8 @@
-/* @(#)buffer.c	1.148 08/09/26 Copyright 1985, 1995, 2001-2008 J. Schilling */
+/* @(#)buffer.c	1.150 08/12/22 Copyright 1985, 1995, 2001-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)buffer.c	1.148 08/09/26 Copyright 1985, 1995, 2001-2008 J. Schilling";
+static	const char sccsid[] =
+	"@(#)buffer.c	1.150 08/12/22 Copyright 1985, 1995, 2001-2008 J. Schilling";
 #endif
 /*
  *	Buffer handling routines
@@ -328,12 +329,14 @@ opentape()
 			}
 		}
 	}
+	if (isatty(fdown(tarf)))
+		comerrno(EX_BAD, "Archive cannot be a tty.\n");
 	if (!isremote && (!nullout || (uflag || rflag)) &&
 	    tarf != (FILE *)NULL) {
 		file_raise(tarf, FALSE);
 		checkarch(tarf);
 	}
-	vpr = tarf == stdout ? stderr : stdout;
+	vpr = tarf == stdout ? stderr : stdout;	/* f=stdout redirect listing */
 	if (samefile(tarf, vpr)) {		/* Catch -f /dev/stdout case */
 		if (tarf != stdin)		/* Don't redirect for -tv <  */
 			vpr = stderr;

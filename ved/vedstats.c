@@ -1,12 +1,13 @@
-/* @(#)vedstats.c	1.4 06/09/13 Copyright 2000 J. Schilling */
+/* @(#)vedstats.c	1.6 08/12/22 Copyright 2000-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)vedstats.c	1.4 06/09/13 Copyright 2000 J. Schilling";
+static	const char sccsid[] =
+	"@(#)vedstats.c	1.6 08/12/22 Copyright 2000-2008 J. Schilling";
 #endif
 /*
  *	Statistics module for VED (Visual EDitor)
  *
- *	Copyright (c) 2000 J. Schilling
+ *	Copyright (c) 2000-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

@@ -25,13 +25,13 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2007 J. Schilling
+ * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)help.c	1.3 07/01/10 J. Schilling
+ * @(#)help.c	1.4 09/01/04 J. Schilling
  */
 #if defined(sun) || defined(__GNUC__)
 
-#ident "@(#)help.c 1.3 07/01/10 J. Schilling"
+#ident "@(#)help.c 1.4 09/01/04 J. Schilling"
 #endif
 /*
  * @(#)help.c 1.6 06/12/12
@@ -67,14 +67,14 @@ char *argv[];
 	 * help text above.
 	 */
 #ifdef	PROTOTYPES
-	bindtextdomain(NOGETTEXT("SUNW_SPRO_SCCS"),
+	(void) bindtextdomain(NOGETTEXT("SUNW_SPRO_SCCS"),
 	   NOGETTEXT(INS_BASE "/ccs/lib/locale/"));
 #else
-	bindtextdomain(NOGETTEXT("SUNW_SPRO_SCCS"),
+	(void) bindtextdomain(NOGETTEXT("SUNW_SPRO_SCCS"),
 	   NOGETTEXT("/usr/ccs/lib/locale/"));
 #endif
 	
-	textdomain(NOGETTEXT("SUNW_SPRO_SCCS"));
+	(void) textdomain(NOGETTEXT("SUNW_SPRO_SCCS"));
 
 	execv((char *) Ohelpcmd, (char **) argv);
 	fprintf(stderr, gettext("help: Could not exec: %s.  Errno=%d\n"), Ohelpcmd, errno);

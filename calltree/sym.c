@@ -1,13 +1,14 @@
-/* @(#)sym.c	1.19 06/09/13 Copyright 1985, 1999 J. Schilling */
+/* @(#)sym.c	1.20 08/12/23 Copyright 1985, 1999-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)sym.c	1.19 06/09/13 Copyright 1985, 1999 J. Schilling";
+static	const char sccsid[] =
+	"@(#)sym.c	1.20 08/12/23 Copyright 1985, 1999-2008 J. Schilling";
 #endif
 /*
  *	A program to produce a static calltree for C-functions
  *	symbol handling
  *
- *	Copyright (c) 1985, 1999 J. Schilling
+ *	Copyright (c) 1985, 1999-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

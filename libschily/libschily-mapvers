@@ -1,11 +1,15 @@
-# @(#)libschily-mapvers	1.11 08/06/14 Copyright 2005-2006 J. Schilling
+# @(#)libschily-mapvers	1.13 08/12/07 Copyright 2005-2006 J. Schilling
 
 SCHILY_1.3 {
 global:
+	eaccess;
+
 	errabort;	# Non stable
 	errconfig;	# Non stable
 	errhidden;	# Non stable
 	errwarnonly;	# Non stable
+
+	findinpath;
 
 	getperm;
 

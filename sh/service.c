@@ -29,21 +29,22 @@
 
 #pragma ident	"@(#)service.c	1.27	08/01/29 SMI"
 
+#include "defs.h"
+
 /*
  * This file contains modifications Copyright 2008 J. Schilling
  *
- * @(#)service.c	1.7 08/03/28 2008 J. Schilling
+ * @(#)service.c	1.8 08/12/22 2008 J. Schilling
  */
 #ifndef lint
-static	char sccsid[] =
-	"@(#)service.c	1.7 08/03/28 2008 J. Schilling";
+static	const char sccsid[] =
+	"@(#)service.c	1.8 08/12/22 2008 J. Schilling";
 #endif
 
 /*
  * UNIX shell
  */
 
-#include	"defs.h"
 #include	<errno.h>
 #include	<fcntl.h>
 #include	"sh_policy.h"

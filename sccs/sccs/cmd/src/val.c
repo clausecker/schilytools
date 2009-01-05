@@ -25,13 +25,13 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2007 J. Schilling
+ * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)val.c	1.6 07/12/11 J. Schilling
+ * @(#)val.c	1.7 09/01/04 J. Schilling
  */
 #if defined(sun) || defined(__GNUC__)
 
-#ident "@(#)val.c 1.6 07/12/11 J. Schilling"
+#ident "@(#)val.c 1.7 09/01/04 J. Schilling"
 #endif
 /*
  * @(#)val.c 1.22 06/12/12
@@ -130,14 +130,14 @@ char	*argv[];
 	 * Set directory to search for general l10n SCCS messages.
 	 */
 #ifdef	PROTOTYPES
-	bindtextdomain(NOGETTEXT("SUNW_SPRO_SCCS"),
+	(void) bindtextdomain(NOGETTEXT("SUNW_SPRO_SCCS"),
 	   NOGETTEXT(INS_BASE "/ccs/lib/locale/"));
 #else
-	bindtextdomain(NOGETTEXT("SUNW_SPRO_SCCS"),
+	(void) bindtextdomain(NOGETTEXT("SUNW_SPRO_SCCS"),
 	   NOGETTEXT("/usr/ccs/lib/locale/"));
 #endif
 	
-	textdomain(NOGETTEXT("SUNW_SPRO_SCCS"));
+	(void) textdomain(NOGETTEXT("SUNW_SPRO_SCCS"));
 
 	/*
 	Set flags for 'fatal' to issue message, call clean-up

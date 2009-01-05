@@ -1,12 +1,13 @@
-/* @(#)clone.c	1.8 06/09/13 Copyright 2001-2004 J. Schilling */
+/* @(#)clone.c	1.9 08/12/22 Copyright 2001-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)clone.c	1.8 06/09/13 Copyright 2001-2004 J. Schilling";
+static	const char sccsid[] =
+	"@(#)clone.c	1.9 08/12/22 Copyright 2001-2008 J. Schilling";
 #endif
 /*
  *	Clone Subchannel processing
  *
- *	Copyright (c) 2001-2004 J. Schilling
+ *	Copyright (c) 2001-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

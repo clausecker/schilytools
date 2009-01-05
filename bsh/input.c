@@ -1,7 +1,8 @@
-/* @(#)input.c	1.27 08/03/27 Copyright 1985-2008 J. Schilling */
+/* @(#)input.c	1.28 08/12/20 Copyright 1985-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)input.c	1.27 08/03/27 Copyright 1985-2008 J. Schilling";
+static	const char sccsid[] =
+	"@(#)input.c	1.28 08/12/20 Copyright 1985-2008 J. Schilling";
 #endif
 /*
  *	bsh command interpreter - Input handling & Alias/Macro Expansion

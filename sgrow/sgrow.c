@@ -1,7 +1,8 @@
-/* @(#)sgrow.c	1.10 08/06/13 Copyr 1985-2008 J. Schilling */
+/* @(#)sgrow.c	1.11 08/12/23 Copyr 1985-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)sgrow.c	1.10 08/06/13 Copyr 1985-2008 J. Schilling";
+static	const char sccsid[] =
+	"@(#)sgrow.c	1.11 08/12/23 Copyr 1985-2008 J. Schilling";
 #endif
 /*
  *	Check stack growung response on a machine
@@ -54,7 +55,7 @@ main(ac, av)
 
 	if (prversion) {
 		printf("Sgrow release %s (%s-%s-%s) Copyright (C) 1985-2008 Jörg Schilling\n",
-				"1.10",
+				"1.11",
 				HOST_CPU, HOST_VENDOR, HOST_OS);
 		exit(0);
 	}

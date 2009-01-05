@@ -1,4 +1,4 @@
-/* @(#)schily.h	1.72 08/10/09 Copyright 1985-2008 J. Schilling */
+/* @(#)schily.h	1.76 08/12/20 Copyright 1985-2008 J. Schilling */
 /*
  *	Definitions for libschily
  *
@@ -289,6 +289,7 @@ extern	int	_comerr		__PR((FILE *, int, int, const char *, va_list));
 extern	int	error __PR((const char *, ...)) __printflike__(1, 2);
 extern	char	*fillbytes __PR((void *, int, char));
 extern	char	*findbytes __PR((const void *, int, char));
+extern	char	*findinpath __PR((char *__name, int __mode, BOOL __plain_file));
 extern	int	findline __PR((const char *, char, const char *,
 							int, char **, int));
 extern	int	getline __PR((char *, int));
@@ -465,6 +466,13 @@ extern	char	*js_fjsavestr	__PR((FILE *f, const char *s, sigjmps_t *jmp));
 #	ifndef	_SCHILY_JOS_IO_H
 #	include <schily/jos_io.h>
 #	endif
+#endif
+
+#if !defined(_SCHILY_LIBPORT_H)  && !defined(NO_LIBPORT_H)
+#include <schily/libport.h>
+#endif
+#if !defined(_SCHILY_HOSTNAME_H) && defined(USE_HOSTNAME_H)
+#include <schily/hostname.h>
 #endif
 
 #endif	/* _SCHILY_SCHILY_H */

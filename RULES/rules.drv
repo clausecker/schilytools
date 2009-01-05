@@ -1,4 +1,4 @@
-#ident @(#)rules.drv	1.7 07/05/06 
+#ident @(#)rules.drv	1.8 08/12/27 
 ###########################################################################
 # Written 1996 by J. Schilling
 ###########################################################################
@@ -30,7 +30,7 @@ all:		$(PTARGET)
 $(PTARGET):	$(OFILES) $(SRCLIBS)
 		$(LD) -r -o $@ $(POFILES) $(SRCLIBS) $(LIBS)
 
-INS_BASE=	$(INS_KBASE)
+INSBASE=	$(INS_KBASE:%/=%)
 CPPOPTS +=	$(KDEFINES)
 ###########################################################################
 include		$(SRCROOT)/$(RULESDIR)/sub.htm

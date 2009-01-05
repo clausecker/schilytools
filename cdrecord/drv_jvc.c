@@ -1,13 +1,14 @@
-/** @(#)drv_jvc.c	1.90 07/08/07 Copyright 1997-2007 J. Schilling */
+/** @(#)drv_jvc.c	1.91 08/12/22 Copyright 1997-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)drv_jvc.c	1.90 07/08/07 Copyright 1997-2007 J. Schilling";
+static	const char sccsid[] =
+	"@(#)drv_jvc.c	1.91 08/12/22 Copyright 1997-2008 J. Schilling";
 #endif
 /*
  *	CDR device implementation for
  *	JVC/TEAC
  *
- *	Copyright (c) 1997-2007 J. Schilling
+ *	Copyright (c) 1997-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

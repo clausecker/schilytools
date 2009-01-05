@@ -1,7 +1,8 @@
-/* @(#)toc.c	1.76 08/06/14 Copyright 1998-2003 Heiko Eissfeldt, Copyright 2004-2008 J. Schilling */
+/* @(#)toc.c	1.79 08/12/29 Copyright 1998-2003 Heiko Eissfeldt, Copyright 2004-2008 J. Schilling */
+#include "config.h"
 #ifndef lint
-static char	sccsid[] =
-"@(#)toc.c	1.76 08/06/14 Copyright 1998-2003 Heiko Eissfeldt, Copyright 2004-2008 J. Schilling";
+static	const char sccsid[] =
+"@(#)toc.c	1.79 08/12/29 Copyright 1998-2003 Heiko Eissfeldt, Copyright 2004-2008 J. Schilling";
 #endif
 /*
  * CDDA2WAV (C) Heiko Eissfeldt heiko@hexco.de
@@ -34,7 +35,7 @@ static char	sccsid[] =
 #include <schily/fcntl.h>
 #include <schily/varargs.h>
 #include <schily/schily.h>
-#include <schily/libport.h>
+#include <schily/hostname.h>
 #include <schily/ioctl.h>
 
 #define	CD_TEXT
@@ -209,7 +210,9 @@ AnalyzeQchannel(frame)
 }
 
 unsigned	cdtracks = 0;
+#ifdef		__needed__
 static int	have_hiddenAudioTrack = 0;
+#endif
 
 int
 no_disguised_audiotracks()
@@ -1240,7 +1243,7 @@ request_titles()
 	struct hostent	*he;
 	struct servent	*se;
 	struct passwd	*pw = getpwuid(getuid());
-	char		hostname[HOST_NAME_MAX];
+	char		hostname[MAXHOSTNAMELEN+1];
 	char		inbuff[SOCKBUFF];
 	char		outbuff[SOCKBUFF];
 	int		i;

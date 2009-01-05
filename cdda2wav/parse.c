@@ -1,7 +1,8 @@
-/* %Z%%M%	%I% %E% Copyright 2001-2008 J. Schilling */
+/* @(#)parse.c	1.5 08/12/29 Copyright 2001-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"%Z%%M%	%I% %E% Copyright 2001-2008 J. Schilling";
+static	const char sccsid[] =
+	"@(#)parse.c	1.5 08/12/29 Copyright 2001-2008 J. Schilling";
 #endif
 /*
  *	Interactive command parser for cdda2wav
@@ -91,21 +92,31 @@ EXPORT	int	parse		__PR((long *lp));
 LOCAL	keyw_t	*lookup		__PR((char *word, keyw_t table[]));
 
 LOCAL	FILE	*pfopen		__PR((char *name));
+#ifdef	__needed__
 LOCAL	char	*pfname		__PR((void));
+#endif
 LOCAL	char	*nextline	__PR((FILE *f));
+#ifdef	__needed__
 LOCAL	void	ungetline	__PR((void));
+#endif
 LOCAL	char	*skipwhite	__PR((const char *s));
 LOCAL	char	*peekword	__PR((void));
 LOCAL	char	*lineend	__PR((void));
 LOCAL	char	*markword	__PR((char *delim));
+#ifdef	__needed__
 LOCAL	char	getworddelim	__PR((void));
+#endif
 LOCAL	char	*getnextitem	__PR((char *delim));
+#ifdef	__needed__
 LOCAL	char	*neednextitem	__PR((char *delim));
+#endif
 LOCAL	char	*nextword	__PR((void));
+#ifdef	__needed__
 LOCAL	char	*needword	__PR((void));
 LOCAL	char	*curword	__PR((void));
 LOCAL	char	*nextitem	__PR((void));
 LOCAL	char	*needitem	__PR((void));
+#endif
 LOCAL	void	checkextra	__PR((void));
 LOCAL	void	pabort		__PR((int errnum, const char *fmt, ...));
 LOCAL	void	wok		__PR((void));
@@ -219,7 +230,9 @@ LOCAL	int	linelen;
 LOCAL	int	lineno;
 
 LOCAL	char	worddelim[] = "=:,/";
+#ifdef	__needed__
 LOCAL	char	nulldelim[] = "";
+#endif
 
 #ifdef	DEBUG
 LOCAL void
@@ -249,11 +262,13 @@ pfopen(name)
 	return (f);
 }
 
+#ifdef	__needed__
 LOCAL char *
 pfname()
 {
 	return (fname);
 }
+#endif
 
 LOCAL char *
 nextline(f)
@@ -282,6 +297,7 @@ nextline(f)
 	return (linep);
 }
 
+#ifdef	__needed__
 LOCAL void
 ungetline()
 {
@@ -291,6 +307,7 @@ ungetline()
 	wordendp = linep;
 	wordendc = *linep;
 }
+#endif
 
 LOCAL char *
 skipwhite(s)
@@ -354,11 +371,13 @@ linelen--;
 	return (linep);
 }
 
+#ifdef	__needed__
 LOCAL char
 getworddelim()
 {
 	return (wordendc);
 }
+#endif
 
 LOCAL char *
 getnextitem(delim)
@@ -370,6 +389,7 @@ getnextitem(delim)
 	return (markword(delim));
 }
 
+#ifdef	__needed__
 LOCAL char *
 neednextitem(delim)
 	char	*delim;
@@ -384,6 +404,7 @@ neednextitem(delim)
 
 	return (nlinep);
 }
+#endif
 
 LOCAL char *
 nextword()
@@ -391,6 +412,7 @@ nextword()
 	return (getnextitem(worddelim));
 }
 
+#ifdef	__needed__
 LOCAL char *
 needword()
 {
@@ -414,6 +436,7 @@ needitem()
 {
 	return (neednextitem(nulldelim));
 }
+#endif
 
 LOCAL void
 checkextra()

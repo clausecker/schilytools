@@ -1,7 +1,8 @@
-/* @(#)readfile.c	1.55 08/08/13 Copyright 1985 J. Schilling */
+/* @(#)readfile.c	1.56 08/12/22 Copyright 1985 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)readfile.c	1.55 08/08/13 Copyright 1985 J. Schilling";
+static	const char sccsid[] =
+	"@(#)readfile.c	1.56 08/12/22 Copyright 1985 J. Schilling";
 #endif
 /*
  *	Make program

@@ -1,10 +1,11 @@
-/* @(#)isonum.c	1.6 06/10/08 Copyright 2006 J. Schilling */
+/* @(#)isonum.c	1.7 08/12/22 Copyright 2006-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)isonum.c	1.6 06/10/08 Copyright 2006 J. Schilling";
+static	const char sccsid[] =
+	"@(#)isonum.c	1.7 08/12/22 Copyright 2006-2008 J. Schilling";
 #endif
 /*
- *	Copyright (c) 2006 J. Schilling
+ *	Copyright (c) 2006-2008 J. Schilling
  */
 /*
  * This program is free software; you can redistribute it and/or modify

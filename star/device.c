@@ -1,12 +1,13 @@
-/* @(#)device.c	1.13 06/10/31 Copyright 1996-2006 J. Schilling */
+/* @(#)device.c	1.14 08/12/22 Copyright 1996-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)device.c	1.13 06/10/31 Copyright 1996-2006 J. Schilling";
+static	const char sccsid[] =
+	"@(#)device.c	1.14 08/12/22 Copyright 1996-2008 J. Schilling";
 #endif
 /*
  *	Handle local and remote device major/minor mappings
  *
- *	Copyright (c) 1996-2006 J. Schilling
+ *	Copyright (c) 1996-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

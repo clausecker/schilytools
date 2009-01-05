@@ -1,12 +1,13 @@
-/* @(#)filecmds.c	1.52 07/03/08 Copyright 1984-1986, 1989-2004 J. Schilling */
+/* @(#)filecmds.c	1.53 08/12/22 Copyright 1984-1986, 1989-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)filecmds.c	1.52 07/03/08 Copyright 1984-1986, 1989-2004 J. Schilling";
+static	const char sccsid[] =
+	"@(#)filecmds.c	1.53 08/12/22 Copyright 1984-1986, 1989-2008 J. Schilling";
 #endif
 /*
  *	Commands that deal with filenames and read/write of files
  *
- *	Copyright (c) 1984-1986, 1989-2004 J. Schilling
+ *	Copyright (c) 1984-1986, 1989-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

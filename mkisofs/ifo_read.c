@@ -1,7 +1,8 @@
-/* @(#)ifo_read.c	1.11 08/06/13 joerg */
+/* @(#)ifo_read.c	1.12 08/12/22 joerg */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)ifo_read.c	1.11 08/06/13 joerg";
+static	const char sccsid[] =
+	"@(#)ifo_read.c	1.12 08/12/22 joerg";
 #endif
 /*
  * Copyright (C) 2002 Olaf Beck <olaf_sc@yahoo.com>

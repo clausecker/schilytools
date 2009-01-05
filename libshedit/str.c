@@ -1,7 +1,8 @@
-/* @(#)str.c	1.3 08/02/03 Copyright 2006-2008 J. Schilling */
+/* @(#)str.c	1.4 08/12/22 Copyright 2006-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)str.c	1.3 08/02/03 Copyright 2006-2008 J. Schilling";
+static	const char sccsid[] =
+	"@(#)str.c	1.4 08/12/22 Copyright 2006-2008 J. Schilling";
 #endif
 /*
  *	Some selected strings from bsh needed by the command line editor.

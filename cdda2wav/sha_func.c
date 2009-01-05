@@ -1,7 +1,8 @@
-/* @(#)sha_func.c	1.5 06/09/13 Copyright 1998,1999 Heiko Eissfeldt */
+/* @(#)sha_func.c	1.6 08/12/22 Copyright 1998,1999 Heiko Eissfeldt */
+#include "config.h"
 #ifndef lint
-static char	sccsid[] =
-"@(#)sha_func.c	1.5 06/09/13 Copyright 1998,1999 Heiko Eissfeldt";
+static	const char sccsid[] =
+"@(#)sha_func.c	1.6 08/12/22 Copyright 1998,1999 Heiko Eissfeldt";
 
 #endif
 /* NIST Secure Hash Algorithm */

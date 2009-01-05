@@ -1,4 +1,4 @@
-#ident @(#)Makefile	1.9 08/04/06 
+#ident @(#)Makefile	1.10 08/12/20 
 ###########################################################################
 # Sample makefile for installing non-localized auxiliary files
 ###########################################################################
@@ -14,7 +14,9 @@ XMK_FILE=	\
 		ccomdefs.mk checkerr.mk \
 		deflts.mk device.mk dirent.mk errno.mk fcntl.mk \
 		fetchdir.mk find.mk fnmatch.mk fstream.mk \
-		getargs.mk getcwd.mk iconv.mk idcache.mk intcvt.mk ioctl.mk \
+		getargs.mk getcwd.mk \
+		hostname.mk \
+		iconv.mk idcache.mk intcvt.mk ioctl.mk \
 		jmpdefs.mk \
 		libport.mk librmt.mk maxpath.mk mconfig.mk \
 		mman.mk mtio.mk nlsdefs.mk param.mk patmatch.mk prototyp.mk \

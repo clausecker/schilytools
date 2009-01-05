@@ -1,7 +1,8 @@
-/* @(#)edc_ecc_dec.c	1.5 07/07/28 Copyright 1998-2001 Heiko Eissfeldt */
+/* @(#)edc_ecc_dec.c	1.7 09/01/04 Copyright 1998-2001 Heiko Eissfeldt */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)edc_ecc_dec.c	1.5 07/07/28 Copyright 1998-2001 Heiko Eissfeldt";
+static	const char sccsid[] =
+	"@(#)edc_ecc_dec.c	1.7 09/01/04 Copyright 1998-2001 Heiko Eissfeldt";
 #endif
 
 /*
@@ -1907,6 +1908,7 @@ calc_LSUB_P_syndrome(inout, syndrome)
 		    syndrome[2] | syndrome[3] ) != 0;
 }
 
+#ifdef	__needed__
 #define	SYND(a)		syndrome[a]
 static int
 correct_QSUB __PR((unsigned char inout[LSUB_RAW + LSUB_P + LSUB_Q],
@@ -1991,7 +1993,9 @@ correct_QSUB(inout, syndrome, erasures, Qerasures)
 	return roots_found ? 0 : 1;
 }
 #undef	SYND
+#endif	/* __needed__ */
 
+#ifdef	__needed__
 #define	SYND(a)		syndrome[a]
 static int
 correct_PSUB __PR((unsigned char inout[LSUB_RAW + LSUB_P + LSUB_Q],
@@ -2078,6 +2082,7 @@ fprintf(stderr, "k=%d, l(errors)=%d, e0=%d, e1=%d, B0=%d, B1=%d\n", k, l, err_lo
 	return roots_found ? 0 : 1;
 }
 #undef	SYND
+#endif	/* __needed__ */
 
 
 #ifdef	DECODE_SUB_IN_ENCODER	/* XXX we need to fix this in edc_ecc.c */

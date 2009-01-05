@@ -1,4 +1,4 @@
-/* @(#)xconfig.h.in	1.149 08/10/11 Copyright 1998-2008 J. Schilling */
+/* @(#)xconfig.h.in	1.150 08/11/08 Copyright 1998-2008 J. Schilling */
 /*
  *	Dynamic autoconf C-include code.
  *
@@ -305,6 +305,7 @@
 #undef HAVE_GETCWD		/* POSIX getcwd() is present in libc */
 #undef HAVE_SMMAP		/* may map anonymous memory to get shared mem */
 #undef HAVE_SHMAT		/* shmat() is present in libc */
+#undef HAVE_SHMGET		/* shmget() is present in libc and working */
 #undef HAVE_SEMGET		/* semget() is present in libc */
 #undef HAVE_LSTAT		/* lstat() is present in libc */
 #undef HAVE_READLINK		/* readlink() is present in libc */
@@ -514,8 +515,11 @@
  * We need to test for the include files too because Apollo Domain/OS has a
  * libc that includes the functions but the includes files are not visible
  * from the BSD compile environment.
+ *
+ * ATARI MiNT has a non-working shmget(), so we test for it separately.
  */
-#if	defined(HAVE_SHMAT) && defined(HAVE_SYS_SHM_H) && defined(HAVE_SYS_IPC_H)
+#if	defined(HAVE_SHMAT) && defined(HAVE_SHMGET) && \
+	defined(HAVE_SYS_SHM_H) && defined(HAVE_SYS_IPC_H)
 #	define	HAVE_USGSHM	/* USG shared memory is present */
 #endif
 #if	defined(HAVE_SEMGET) && defined(HAVE_SYS_SHM_H) && defined(HAVE_SYS_IPC_H)

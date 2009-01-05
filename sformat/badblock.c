@@ -1,12 +1,13 @@
-/* @(#)badblock.c	1.18 07/02/22 Copyright 1988-2004 J. Schilling */
+/* @(#)badblock.c	1.19 08/12/22 Copyright 1988-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)badblock.c	1.18 07/02/22 Copyright 1988-2004 J. Schilling";
+static	const char sccsid[] =
+	"@(#)badblock.c	1.19 08/12/22 Copyright 1988-2008 J. Schilling";
 #endif
 /*
  *	Handle defects (SCSI level)
  *
- *	Copyright (c) 1988-2004 J. Schilling
+ *	Copyright (c) 1988-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

@@ -1,7 +1,8 @@
-/* @(#)isoinfo.c	1.64 08/10/26 joerg */
+/* @(#)isoinfo.c	1.66 08/12/22 joerg */
+#include <schily/mconfig.h>
 #ifndef	lint
-static	char sccsid[] =
-	"@(#)isoinfo.c	1.64 08/10/26 joerg";
+static	const char sccsid[] =
+	"@(#)isoinfo.c	1.66 08/12/22 joerg";
 #endif
 /*
  * File isodump.c - dump iso9660 directory information.
@@ -1331,6 +1332,9 @@ printf_bootinfo(f, bootcat_offset)
 	FILE	*f;
 	int	bootcat_offset;
 {
+	int					s = 0;
+	int					i;
+	Uchar					*p;
 	struct eltorito_validation_entry	*evp;
 	struct eltorito_defaultboot_entry	*ebe;
 
@@ -1344,10 +1348,20 @@ printf_bootinfo(f, bootcat_offset)
 	evp = (struct eltorito_validation_entry *)buffer;
 	ebe = (struct eltorito_defaultboot_entry *)&buffer[32];
 
+
+	p = (Uchar *)evp;
+	for (i = 0; i < 32; i += 2) {
+		s += p[i] & 0xFF;
+		s += (p[i+1] & 0xFF) * 256;
+	}
+	s = s % 65536;
+
 	printf("Eltorito validation header:\n");
 	printf("    Hid %d\n", (Uchar)evp->headerid[0]);
 	printf("    Arch %d (%s)\n", (Uchar)evp->arch[0], arch_name((Uchar)evp->arch[0]));
 	printf("    ID '%.23s'\n", evp->id);
+	printf("    Cksum %2.2X %2.2X %s\n", (Uchar)evp->cksum[0], (Uchar)evp->cksum[1],
+					s == 0 ? "OK":"BAD");
 	printf("    Key %X %X\n", (Uchar)evp->key1[0], (Uchar)evp->key2[0]);
 
 	printf("    Eltorito defaultboot header:\n");

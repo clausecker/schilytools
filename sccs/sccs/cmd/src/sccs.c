@@ -23,21 +23,21 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2008 J. Schilling
+ * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)sccs.c	1.18 08/08/25 J. Schilling
+ * @(#)sccs.c	1.22 09/01/04 J. Schilling
  */
 #if defined(sun) || defined(__GNUC__)
 
-#ident "@(#)sccs.c 1.18 08/08/25 J. Schilling"
+#ident "@(#)sccs.c 1.22 09/01/04 J. Schilling"
 #endif
 /*
  * @(#)sccs.c 1.85 06/12/12
  */
-#ifndef lint
-static char sccsid[] = "@(#)sccs.c 1.2 2/27/90";
-#endif
 # include	<defines.h>
+#ifndef lint
+static const char sccsid[] = "@(#)sccs.c 1.2 2/27/90";
+#endif
 # include	<version.h>
 # include	<i18n.h>
 # include	<schily/dirent.h>
@@ -387,7 +387,9 @@ static bool	RealUser;		/* if set, running as real user */
 static bool	Debug;			/* turn on tracing */
 # endif
 # ifndef V6
+#ifndef	PROTOTYPES
 extern char	*getenv();
+#endif
 # endif /* V6 */
 
 #ifdef XPG4
@@ -457,14 +459,14 @@ main(argc, argv)
  	 * Set directory to search for general l10n SCCS messages.
  	 */
 #ifdef	PROTOTYPES
-	bindtextdomain(NOGETTEXT("SUNW_SPRO_SCCS"),
+	(void) bindtextdomain(NOGETTEXT("SUNW_SPRO_SCCS"),
 	   NOGETTEXT(INS_BASE "/ccs/lib/locale/"));
 #else
- 	bindtextdomain(NOGETTEXT("SUNW_SPRO_SCCS"),
+ 	(void) bindtextdomain(NOGETTEXT("SUNW_SPRO_SCCS"),
  	   NOGETTEXT("/usr/ccs/lib/locale/"));
 #endif
  	
- 	textdomain(NOGETTEXT("SUNW_SPRO_SCCS"));
+ 	(void) textdomain(NOGETTEXT("SUNW_SPRO_SCCS"));
 
 #ifdef	SCHILY_BUILD
 	save_args(argc, argv);
@@ -1547,12 +1549,12 @@ command(argv, forkflag, arg0)
 		err = 0;
 		for (argv = np = &ap[1]; *argv != NULL; argv++)
 		{
-			char *p = makefile(*argv,SccsDir);
-			if (p == NULL) {
+			char *cp = makefile(*argv, SccsDir);
+			if (cp == NULL) {
 				err = 1;
 				continue;
 			}
-			do_file(p, unedit, 1);
+			do_file(cp, unedit, 1);
 			if (!Fcnt)
 				*np++ = *argv;
 			else
@@ -1570,7 +1572,7 @@ command(argv, forkflag, arg0)
 
 	  case DIFFS:		/* diff between s-file & edit file */
 	  	{
-	  		int	nargs, err;
+	  		int	nargs;
 			char 	**args, **cur_arg;
 	  	
 			/* find the end of the flag arguments */
@@ -3122,7 +3124,7 @@ walkfunc(nm, fs, type, state)
 		 * an internal chdir() to work correctly.
 		 */
 #ifdef	HAVE_FCHDIR
-		int f;
+		int f = -1;
 
 		if (!bitset(COLLECT, wp->sccsflags)) {
 			f = open(".", O_RDONLY);

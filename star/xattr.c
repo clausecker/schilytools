@@ -1,7 +1,8 @@
-/* @(#)xattr.c	1.11 08/09/26 Copyright 2003-2008 J. Schilling */
+/* @(#)xattr.c	1.12 08/12/22 Copyright 2003-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)xattr.c	1.11 08/09/26 Copyright 2003-2008 J. Schilling";
+static	const char sccsid[] =
+	"@(#)xattr.c	1.12 08/12/22 Copyright 2003-2008 J. Schilling";
 #endif
 /*
  *	Handle Extended File Attributes on Linux

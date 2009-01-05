@@ -1,7 +1,8 @@
-/* @(#)proc.c	1.2 08/03/28 Copyright 1995-2008 J. Schilling */
+/* @(#)proc.c	1.3 08/12/20 Copyright 1995-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)proc.c	1.2 08/03/28 Copyright 1995-2008 J. Schilling";
+static	const char sccsid[] =
+	"@(#)proc.c	1.3 08/12/20 Copyright 1995-2008 J. Schilling";
 #endif
 /*
  *	Job control process lists

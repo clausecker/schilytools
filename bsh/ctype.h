@@ -1,6 +1,6 @@
-/* @(#)ctype.h	1.4 01/01/02 Copyright 1986 J. Schilling */
+/* @(#)ctype.h	1.6 09/01/04 Copyright 1986-2009 J. Schilling */
 /*
- *	Copyright (c) 1986 J. Schilling
+ *	Copyright (c) 1986-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -38,8 +38,29 @@ extern unsigned char	_ctype_a[];
 
 /*
  * Argument to the following macros must be an int,
- * that is -1 on EOF and positive on all characters
+ * that is -1 on EOF and non-negative on all other characters.
  */
+
+#ifdef	REDEFINE_CTYPE
+#undef	isalpha
+#undef	isupper
+#undef	islower
+#undef	isdigit
+#undef	isoctal
+#undef	isxdigit
+#undef	isalnum
+#undef	iswhite
+#undef	isspace
+#undef	ispunct
+#undef	isprint
+#undef	iscntrl
+#undef	isascii
+#undef	_toupper
+#undef	_tolower
+#undef	toascii
+#undef	tolower
+#undef	toupper
+#endif	/* REDEFINE_CTYPE */
 
 #define	isalpha(c)	((_ctype_a + 1)[c] & (_UPC|_LOWC))
 #define	isupper(c)	((_ctype_a + 1)[c] & _UPC)

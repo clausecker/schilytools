@@ -1,4 +1,4 @@
-dnl @(#)aclocal.m4	1.67 08/10/11 Copyright 1998-2008 J. Schilling
+dnl @(#)aclocal.m4	1.69 08/12/20 Copyright 1998-2008 J. Schilling
 
 dnl Set VARIABLE to VALUE in C-string form, verbatim, or 1.
 dnl AC_DEFINE_STRING(VARIABLE [, VALUE])
@@ -144,6 +144,30 @@ fi
 ])
 if test $ac_cv_shell_ce_is_broken = yes; then
   AC_DEFINE(SHELL_CE_IS_BROKEN)
+fi])
+
+dnl Checks if cc supports -m64
+dnl Defines cc64_opt on success.
+AC_DEFUN([AC_CC64_OPT],
+[AC_CACHE_CHECK([if suncc/cc supports -m64], ac_cv_cc64_opt,
+                [
+cc64=cc
+cc64_opt=''
+ac_cv_cc64_opt=no
+if test "$GCC" != yes; then
+	if test "$CC" = suncc; then
+		cc64=suncc
+	fi
+	ac_err=`< /dev/null eval $cc64 -m64 2>&1 | grep illegal`
+	if test -n "$ac_err"; then
+		ac_cv_cc64_opt=no
+	else
+		ac_cv_cc64_opt=yes
+	fi
+fi
+])
+if test $ac_cv_cc64_opt = yes; then
+  cc64_opt='-m64'
 fi])
 
 dnl XXX this used to be:
@@ -1830,6 +1854,33 @@ main()
                 [ac_cv_func_smmap=no])])
 if test $ac_cv_func_smmap = yes; then
   AC_DEFINE(HAVE_SMMAP)
+fi])
+
+dnl Checks if shmget() works to get shared memory
+dnl Defines HAVE_SHMGET on success.
+AC_DEFUN([AC_FUNC_SHMGET],
+[AC_CACHE_CHECK([if shmget works to get shared memory], ac_cv_func_shmget,
+                [AC_TRY_RUN([
+#include <sys/types.h>
+#include <sys/ipc.h>
+#include <sys/shm.h>
+int
+main()
+{
+	int	id;
+
+	id = shmget(IPC_PRIVATE, 0x1, IPC_CREAT|0600);
+	if (id == -1)
+		exit(1);
+	shmctl(id, IPC_RMID, 0);
+        exit(0);
+}
+], 
+                [ac_cv_func_shmget=yes],
+                [ac_cv_func_shmget=no],
+                [ac_cv_func_shmget=no])])
+if test $ac_cv_func_shmget = yes; then
+  AC_DEFINE(HAVE_SHMGET)
 fi])
 
 dnl Checks if sys_siglist[] exists

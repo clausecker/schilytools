@@ -31,17 +31,18 @@
 
 #pragma ident	"@(#)hash.c	1.9	05/09/13 SMI"
 
+#include "defs.h"
+
 /*
  * This file contains modifications Copyright 2008 J. Schilling
  *
- * @(#)hash.c	1.5 08/03/28 2008 J. Schilling
+ * @(#)hash.c	1.6 08/12/22 2008 J. Schilling
  */
 #ifndef lint
-static	char sccsid[] =
-	"@(#)hash.c	1.5 08/03/28 2008 J. Schilling";
+static	const char sccsid[] =
+	"@(#)hash.c	1.6 08/12/22 2008 J. Schilling";
 #endif
 
-#include	"defs.h"
 #include	"hash.h"
 
 #define STRCMP(A, B)	(cf(A, B) != 0)

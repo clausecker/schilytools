@@ -1,4 +1,4 @@
-#ident "@(#)libedc_dec.mk	1.1 06/05/15 "
+#ident "@(#)libedc_dec.mk	1.2 08/12/22 "
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -15,8 +15,8 @@ TARGETLIB=	edc_ecc_dec
 # be reported to the GCC people. As a workaround, you may remove the next
 # lines to fall back to the standard optimisation level.
 #
-_XARCH_OPT=	$(OARCH:%cc64=-xarch=generic64) 
-XARCH_OPT=	$(_XARCH_OPT:%cc=-xarch=generic) 
+_XARCH_OPT=	$(OARCH:%cc64=$(SUNPROCOPT64))
+XARCH_OPT=	$(_XARCH_OPT:%cc=-xarch=generic)
 
 SUNPROCOPTOPT=	-fast $(XARCH_OPT)
 GCCOPTOPT=	-O3  -fexpensive-optimizations

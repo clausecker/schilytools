@@ -1,7 +1,8 @@
-/* @(#)cue.c	1.34 08/06/14 Copyright 2001-2008 J. Schilling */
+/* @(#)cue.c	1.36 08/12/29 Copyright 2001-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)cue.c	1.34 08/06/14 Copyright 2001-2008 J. Schilling";
+static	const char sccsid[] =
+	"@(#)cue.c	1.36 08/12/29 Copyright 2001-2008 J. Schilling";
 #endif
 /*
  *	Cue sheet parser
@@ -243,7 +244,9 @@ LOCAL	void	wdebug		__PR((void));
 LOCAL	FILE	*cueopen	__PR((char *name));
 LOCAL	char	*cuename	__PR((void));
 LOCAL	char	*nextline	__PR((FILE *f));
+#ifdef	__needed__
 LOCAL	void	ungetline	__PR((void));
+#endif
 LOCAL	char	*skipwhite	__PR((const char *s));
 LOCAL	char	*peekword	__PR((void));
 LOCAL	char	*lineend	__PR((void));
@@ -251,9 +254,13 @@ LOCAL	char	*markword	__PR((char *delim));
 LOCAL	char	getworddelim	__PR((void));
 LOCAL	char	*getnextitem	__PR((char *delim));
 LOCAL	char	*neednextitem	__PR((char *delim));
+#ifdef	__needed__
 LOCAL	char	*nextword	__PR((void));
+#endif
 LOCAL	char	*needword	__PR((void));
+#ifdef	__needed__
 LOCAL	char	*curword	__PR((void));
+#endif
 LOCAL	char	*nextitem	__PR((void));
 LOCAL	char	*needitem	__PR((void));
 LOCAL	void	checkextra	__PR((void));
@@ -1155,6 +1162,7 @@ nextline(f)
 	return (linep);
 }
 
+#ifdef	__needed__
 LOCAL void
 ungetline()
 {
@@ -1164,6 +1172,7 @@ ungetline()
 	wordendp = linep;
 	wordendc = *linep;
 }
+#endif
 
 LOCAL char *
 skipwhite(s)
@@ -1258,11 +1267,13 @@ neednextitem(delim)
 	return (nlinep);
 }
 
+#ifdef	__needed__
 LOCAL char *
 nextword()
 {
 	return (getnextitem(worddelim));
 }
+#endif
 
 LOCAL char *
 needword()
@@ -1270,11 +1281,13 @@ needword()
 	return (neednextitem(worddelim));
 }
 
+#ifdef	__needed__
 LOCAL char *
 curword()
 {
 	return (linep);
 }
+#endif
 
 LOCAL char *
 nextitem()

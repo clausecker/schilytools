@@ -1,13 +1,14 @@
-/* @(#)storage.c	1.48 07/03/08 Copyright 1984-2007 J. Schilling */
+/* @(#)storage.c	1.49 08/12/22 Copyright 1984-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)storage.c	1.48 07/03/08 Copyright 1984-2007 J. Schilling";
+static	const char sccsid[] =
+	"@(#)storage.c	1.49 08/12/22 Copyright 1984-2008 J. Schilling";
 #endif
 /*
  *	Storage management based on the paged virtual memory
  *	provided by buffer.c
  *
- *	Copyright (c) 1984-2007 J. Schilling
+ *	Copyright (c) 1984-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

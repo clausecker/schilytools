@@ -29,21 +29,22 @@
 
 #pragma ident	"@(#)hashserv.c	1.14	06/06/16 SMI"
 
+#include "defs.h"
+
 /*
  * This file contains modifications Copyright 2008 J. Schilling
  *
- * @(#)hashserv.c	1.5 08/03/28 2008 J. Schilling
+ * @(#)hashserv.c	1.6 08/12/22 2008 J. Schilling
  */
 #ifndef lint
-static	char sccsid[] =
-	"@(#)hashserv.c	1.5 08/03/28 2008 J. Schilling";
+static	const char sccsid[] =
+	"@(#)hashserv.c	1.6 08/12/22 2008 J. Schilling";
 #endif
 
 /*
  *	UNIX shell
  */
 
-#include	"defs.h"
 #include	"hash.h"
 #include	<sys/types.h>
 #include	<sys/stat.h>

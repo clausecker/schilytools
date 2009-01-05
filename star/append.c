@@ -1,7 +1,8 @@
-/* @(#)append.c	1.25 08/09/26 Copyright 1992, 2001-2008 J. Schilling */
+/* @(#)append.c	1.26 08/12/22 Copyright 1992, 2001-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)append.c	1.25 08/09/26 Copyright 1992, 2001-2008 J. Schilling";
+static	const char sccsid[] =
+	"@(#)append.c	1.26 08/12/22 Copyright 1992, 2001-2008 J. Schilling";
 #endif
 /*
  *	Routines used to append files to an existing

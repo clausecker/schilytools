@@ -1,12 +1,13 @@
-/* @(#)pax.c	1.24 07/10/20 Copyright 1989, 2003-2007 J. Schilling */
+/* @(#)pax.c	1.26 08/12/22 Copyright 1989, 2003-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char _p_sccsid[] =
-	"@(#)pax.c	1.24 07/10/20 Copyright 1989, 2003-2007 J. Schilling";
+static	const char _p_sccsid[] =
+	"@(#)pax.c	1.26 08/12/22 Copyright 1989, 2003-2008 J. Schilling";
 #endif
 /*
  *	PAX specific routines for star main program.
  *
- *	Copyright (c) 1989, 2003-2007 J. Schilling
+ *	Copyright (c) 1989, 2003-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

@@ -1,7 +1,8 @@
-/* @(#)find_list.c	1.22 08/06/13 Copyright 1985, 1995, 2000-2008 J. Schilling*/
+/* @(#)find_list.c	1.23 08/12/22 Copyright 1985, 1995, 2000-2008 J. Schilling*/
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)find_list.c	1.22 08/06/13 Copyright 1985, 1995, 2000-2008 J. Schilling";
+static	const char sccsid[] =
+	"@(#)find_list.c	1.23 08/12/22 Copyright 1985, 1995, 2000-2008 J. Schilling";
 #endif
 /*
  *	List a file

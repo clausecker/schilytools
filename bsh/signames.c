@@ -1,13 +1,14 @@
-/* @(#)signames.c	1.4 06/09/13 Copyright 1998-2003 J. Schilling */
+/* @(#)signames.c	1.5 08/12/20 Copyright 1998-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)signames.c	1.4 06/09/13 Copyright 1998-2003 J. Schilling";
+static	const char sccsid[] =
+	"@(#)signames.c	1.5 08/12/20 Copyright 1998-2008 J. Schilling";
 #endif
 /*
  *	Handle signal names for systems that don't have
  *	strsignal()/str2sig()/sig2str()
  *
- *	Copyright (c) 1998-2003 J. Schilling
+ *	Copyright (c) 1998-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

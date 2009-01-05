@@ -1,7 +1,8 @@
-/* @(#)getav0.c	1.20 08/06/14 Copyright 1985, 1995-2008 J. Schilling */
+/* @(#)getav0.c	1.21 08/12/21 Copyright 1985, 1995-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)getav0.c	1.20 08/06/14 Copyright 1985, 1995-2008 J. Schilling";
+static	const char sccsid[] =
+	"@(#)getav0.c	1.21 08/12/21 Copyright 1985, 1995-2008 J. Schilling";
 #endif
 /*
  *	Get arg vector by scanning the stack

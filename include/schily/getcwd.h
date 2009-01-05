@@ -1,8 +1,8 @@
-/* @(#)getcwd.h	1.4 06/09/13 Copyright 1998 J. Schilling */
+/* @(#)getcwd.h	1.5 08/12/08 Copyright 1998-2008 J. Schilling */
 /*
  *	Definitions for getcwd()
  *
- *	Copyright (c) 1998 J. Schilling
+ *	Copyright (c) 1998-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -21,6 +21,9 @@
 
 #ifndef _SCHILY_MCONFIG_H
 #include <schily/mconfig.h>
+#endif
+#ifndef _SCHILY_UNISTD_H
+#include <schily/unistd.h>
 #endif
 
 #ifdef JOS

@@ -1,7 +1,8 @@
-/* @(#)diff.c	1.83 08/09/26 Copyright 1993-2008 J. Schilling */
+/* @(#)diff.c	1.84 08/12/22 Copyright 1993-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)diff.c	1.83 08/09/26 Copyright 1993-2008 J. Schilling";
+static	const char sccsid[] =
+	"@(#)diff.c	1.84 08/12/22 Copyright 1993-2008 J. Schilling";
 #endif
 /*
  *	List differences between a (tape) archive and

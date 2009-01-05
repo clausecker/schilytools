@@ -1,7 +1,8 @@
-/* @(#)match.c	1.11 08/09/26 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2008 J. Schilling */
+/* @(#)match.c	1.12 08/12/22 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)match.c	1.11 08/09/26 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2008 J. Schilling";
+static	const char sccsid[] =
+	"@(#)match.c	1.12 08/12/22 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2008 J. Schilling";
 #endif
 /*
  *	Pattern matching routines for star

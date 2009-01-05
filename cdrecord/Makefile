@@ -1,4 +1,4 @@
-#ident @(#)Makefile	1.48 08/10/26 Copyr 1995-2008 J. Schilling
+#ident @(#)Makefile	1.49 08/12/26 Copyr 1995-2008 J. Schilling
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -7,6 +7,8 @@ include		$(SRCROOT)/$(RULESDIR)/rules.top
 
 INSDIR=		bin
 TARGET=		cdrecord
+INSMODE=	4711
+INSUSR=		root
 CPPOPTS +=	-I../libscg
 CPPOPTS +=	-I../libedc
 CPPOPTS +=	-I../libcdrdeflt

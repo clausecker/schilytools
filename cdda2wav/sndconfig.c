@@ -1,7 +1,8 @@
-/* @(#)sndconfig.c	1.27 07/06/22 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2007 J. Schilling */
+/* @(#)sndconfig.c	1.30 09/01/04 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling */
+#include "config.h"
 #ifndef lint
-static char	sccsid[] =
-"@(#)sndconfig.c	1.27 07/06/22 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2007 J. Schilling";
+static	const char sccsid[] =
+"@(#)sndconfig.c	1.30 09/01/04 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling";
 #endif
 
 /*
@@ -553,11 +554,11 @@ init_soundcard(rate, bits)
 int
 open_snd_device()
 {
+#if	defined ECHO_TO_SOUNDCARD && !defined __CYGWIN32__ && !defined __EMX__
 #if	defined(F_GETFL) && defined(F_SETFL) && defined(O_NONBLOCK)
 	int	fl;
 #endif
 
-#if	defined ECHO_TO_SOUNDCARD && !defined __CYGWIN32__ && !defined __EMX__
 	global.soundcard_fd = open(snd_device,
 #ifdef	linux
 		/*
@@ -575,7 +576,8 @@ open_snd_device()
 #endif
 
 	return (global.soundcard_fd < 0);
-#else
+
+#else	/* defined ECHO_TO_SOUNDCARD && !defined __CYGWIN32__ && !defined __EMX__ */
 	return (0);
 #endif
 }

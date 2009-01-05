@@ -1,7 +1,8 @@
-/* @(#)fflags.c	1.21 08/03/16 Copyright 2001-2008 J. Schilling */
+/* @(#)fflags.c	1.22 08/12/22 Copyright 2001-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)fflags.c	1.21 08/03/16 Copyright 2001-2008 J. Schilling";
+static	const char sccsid[] =
+	"@(#)fflags.c	1.22 08/12/22 Copyright 2001-2008 J. Schilling";
 #endif
 /*
  *	Routines to handle extended file flags

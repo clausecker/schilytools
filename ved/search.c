@@ -1,12 +1,13 @@
-/* @(#)search.c	1.27 06/09/13 Copyright 1984-2004 J. Schilling */
+/* @(#)search.c	1.29 08/12/22 Copyright 1984-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)search.c	1.27 06/09/13 Copyright 1984-2004 J. Schilling";
+static	const char sccsid[] =
+	"@(#)search.c	1.29 08/12/22 Copyright 1984-2008 J. Schilling";
 #endif
 /*
  *	Search functions for VED
  *
- *	Copyright (c) 1984-2004 J. Schilling
+ *	Copyright (c) 1984-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

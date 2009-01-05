@@ -1,7 +1,8 @@
-/* @(#)volhdr.c	1.32 08/09/26 Copyright 1994, 2003-2008 J. Schilling */
+/* @(#)volhdr.c	1.33 08/12/22 Copyright 1994, 2003-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)volhdr.c	1.32 08/09/26 Copyright 1994, 2003-2008 J. Schilling";
+static	const char sccsid[] =
+	"@(#)volhdr.c	1.33 08/12/22 Copyright 1994, 2003-2008 J. Schilling";
 #endif
 /*
  *	Volume header related routines.

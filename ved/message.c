@@ -1,13 +1,14 @@
-/* @(#)message.c	1.25 06/09/13 Copyright 1984-2004 J. Schilling */
+/* @(#)message.c	1.27 08/12/22 Copyright 1984-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)message.c	1.25 06/09/13 Copyright 1984-2004 J. Schilling";
+static	const char sccsid[] =
+	"@(#)message.c	1.27 08/12/22 Copyright 1984-2008 J. Schilling";
 #endif
 /*
  *	Management routines for the system (status) line of the editor
  *	displayed at the top of the screen.
  *
- *	Copyright (c) 1984-2004 J. Schilling
+ *	Copyright (c) 1984-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

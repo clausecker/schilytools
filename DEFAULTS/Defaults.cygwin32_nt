@@ -1,4 +1,4 @@
-#ident "@(#)Defaults.cygwin32_nt	1.4 07/05/08 "
+#ident "@(#)Defaults.cygwin32_nt	1.5 08/12/26 "
 ###########################################################################
 #
 # global definitions for Cygnus GCC for WINNT Systems
@@ -41,6 +41,7 @@ RUNPATH=
 ###########################################################################
 INS_BASE=	/opt/schily
 INS_KBASE=	/
+INS_RBASE=	/
 #
 DEFUMASK=	002
 #

@@ -29,21 +29,22 @@
 
 #pragma ident	"@(#)io.c	1.21	08/01/29 SMI"
 
+#include "defs.h"
+
 /*
  * This file contains modifications Copyright 2008 J. Schilling
  *
- * @(#)io.c	1.6 08/03/28 2008 J. Schilling
+ * @(#)io.c	1.7 08/12/22 2008 J. Schilling
  */
 #ifndef lint
-static	char sccsid[] =
-	"@(#)io.c	1.6 08/03/28 2008 J. Schilling";
+static	const char sccsid[] =
+	"@(#)io.c	1.7 08/12/22 2008 J. Schilling";
 #endif
 
 /*
  * UNIX shell
  */
 #ifdef	SCHILY_BUILD
-#include	"defs.h"
 #include	"dup.h"
 #include	<schily/fcntl.h>
 #include	<schily/types.h>
@@ -51,7 +52,6 @@ static	char sccsid[] =
 #include	<schily/errno.h>
 #undef	feof
 #else
-#include	"defs.h"
 #include	"dup.h"
 #include	<stdio.h>
 #include	<fcntl.h>

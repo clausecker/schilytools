@@ -1,10 +1,11 @@
-/* @(#)movesect.c	1.4 06/09/13 Copyright 2001, 2004 J. Schilling */
+/* @(#)movesect.c	1.5 08/12/22 Copyright 2001, 2004-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)movesect.c	1.4 06/09/13 Copyright 2001, 2004 J. Schilling";
+static	const char sccsid[] =
+	"@(#)movesect.c	1.5 08/12/22 Copyright 2001, 2004-2008 J. Schilling";
 #endif
 /*
- *	Copyright (c) 2001, 2004 J. Schilling
+ *	Copyright (c) 2001, 2004-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

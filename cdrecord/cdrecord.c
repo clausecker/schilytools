@@ -1,7 +1,8 @@
-/* @(#)cdrecord.c	1.368 08/10/26 Copyright 1995-2008 J. Schilling */
+/* @(#)cdrecord.c	1.373 08/12/26 Copyright 1995-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)cdrecord.c	1.368 08/10/26 Copyright 1995-2008 J. Schilling";
+static	const char sccsid[] =
+	"@(#)cdrecord.c	1.373 08/12/26 Copyright 1995-2008 J. Schilling";
 #endif
 /*
  *	Record data on a CD/CVD-Recorder
@@ -256,8 +257,8 @@ LOCAL	void	set_wrmode	__PR((cdr_t *dp, UInt32_t wmode, int tflags));
 LOCAL	void	linuxcheck	__PR((void));
 
 struct exargs {
-	SCSI		*scgp;
-	cdr_t		*dp;
+	SCSI		*scgp;		/* The open SCSI * pointer	    */
+	cdr_t		*dp;		/* The pointer to the device driver */
 	int		old_secsize;
 	UInt32_t	flags;
 	int		exflags;
@@ -544,8 +545,8 @@ main(ac, av)
 		char	*auth;
 
 		/*
-		 * Warning: If you modify this section of code, you must  
-		 * change the name of the program. 
+		 * Warning: If you modify this section of code, you must
+		 * change the name of the program.
 		 */
 		vers = scg_version(0, SCG_VERSION);
 		auth = scg_version(0, SCG_AUTHOR);
@@ -694,7 +695,7 @@ main(ac, av)
 	 */
 	if (!is_mmc(scgp, NULL, NULL) && bufsize > CDR_OLD_BUF_SIZE)
 		bufsize = CDR_OLD_BUF_SIZE;
-		
+
 	if ((flags & (F_MSINFO|F_TOC|F_LOAD|F_DLCK|F_EJECT)) == 0 ||
 	    tracks > 0 ||
 	    cuefilename != NULL) {
@@ -1164,7 +1165,7 @@ main(ac, av)
 		if (!init_faio(track, bufsize))
 			fs = 0L;
 		else
-			on_comerr(excdr, &exargs);
+			on_comerr(excdr, &exargs); /* Will be called first */
 
 #if defined(USE_POSIX_PRIORITY_SCHEDULING) && defined(HAVE_SETREUID)
 		/*
@@ -1992,6 +1993,9 @@ intfifo(sig)
 	comexit(sig);
 }
 
+/*
+ * Restore SCSI drive status.
+ */
 /* ARGSUSED */
 LOCAL void
 exscsi(excode, arg)
@@ -2004,6 +2008,9 @@ exscsi(excode, arg)
 	 * Try to restore the old sector size.
 	 */
 	if (exp != NULL && exp->exflags == 0) {
+		if (exp->scgp == NULL) {	/* Closed before */
+			return;
+		}
 		if (exp->scgp->running) {
 			return;
 		}
@@ -2021,6 +2028,10 @@ exscsi(excode, arg)
 	}
 }
 
+/*
+ * excdr() is installed last with on_comerr() and thus will be called first.
+ * We call exscsi() from here to control the order of calls.
+ */
 LOCAL void
 excdr(excode, arg)
 	int	excode;
@@ -2028,13 +2039,24 @@ excdr(excode, arg)
 {
 	struct exargs	*exp = (struct exargs *)arg;
 
-	exscsi(excode, arg);
+	exscsi(excode, arg);	/* Restore/reset drive status */
 
 	cdrstats(exp->dp);
 	if ((exp->dp->cdr_dstat->ds_cdrflags & RF_DID_CDRSTAT) == 0) {
 		exp->dp->cdr_dstat->ds_cdrflags |= RF_DID_CDRSTAT;
-		(*exp->dp->cdr_stats)(exp->scgp, exp->dp);
+		if (exp->scgp && exp->scgp->running == 0)
+			(*exp->dp->cdr_stats)(exp->scgp, exp->dp);
 	}
+
+	/*
+	 * We no longer need SCSI, close it.
+	 */
+#ifdef	SCG_CLOSE_DEBUG
+	error("scg_close(%p)\n", exp->scgp);
+#endif
+	if (exp->scgp)
+		scg_close(exp->scgp);
+	exp->scgp = NULL;
 
 #ifdef	FIFO
 	kill_faio();
@@ -4286,7 +4308,7 @@ load_media(scgp, dp, doexit)
 	scgp->silent--;
 	err = geterrno();
 	if (code < 0 && (err == EPERM || err == EACCES)) {
-		linuxcheck();	/* For version 1.368 of cdrecord.c */
+		linuxcheck();	/* For version 1.373 of cdrecord.c */
 		scg_openerr("");
 	}
 
@@ -4404,7 +4426,7 @@ _read_buffer(scgp, size)
 	}
 	return (0);
 }
-	
+
 LOCAL int
 get_dmaspeed(scgp, dp)
 	SCSI	*scgp;
@@ -4414,6 +4436,7 @@ get_dmaspeed(scgp, dp)
 	long	t;
 	int	bs;
 	int	tsize;
+	int	maxdma;
 
 	fillbytes((caddr_t)buf, 4, '\0');
 	tsize = 0;
@@ -4431,6 +4454,49 @@ get_dmaspeed(scgp, dp)
 		bs = tsize;
 	if (bs > 0xFFFE)		/* ReadBuffer may hang w. >64k & USB */
 		bs = 0xFFFE;		/* Make it an even size < 64k	    */
+
+	scgp->silent++;
+	fillbytes((caddr_t)buf, bs, '\0');
+	if (read_buffer(scgp, buf, bs, 0) < 0) {
+		scgp->silent--;
+		return (-1);
+	}
+	for (i = bs-1; i >= 0; i--) {
+		if (buf[i] != '\0') {
+			break;
+		}
+	}
+	i++;
+	maxdma = i;
+	fillbytes((caddr_t)buf, bs, 0xFF);
+	if (read_buffer(scgp, buf, bs, 0) < 0) {
+		scgp->silent--;
+		return (-1);
+	}
+	scgp->silent--;
+	for (i = bs-1; i >= 0; i--) {
+		if ((buf[i] & 0xFF) != 0xFF) {
+			break;
+		}
+	}
+	i++;
+	if (i > maxdma)
+		maxdma = i;
+	if (maxdma < bs && (scg_getresid(scgp) != (bs - maxdma))) {
+		errmsgno(EX_BAD, "Warning: OS does not return correct DMA residual count.\n");
+		errmsgno(EX_BAD, "Warning: expected DMA residual count %d but got %d.\n",
+			(bs - maxdma), scg_getresid(scgp));
+	}
+	/*
+	 * Some drives (e.g. 'HL-DT-ST' 'DVD-RAM GSA-H55N') are unreliable.
+	 * They return less data than advertized as buffersize (tsize).
+	 */
+	if (maxdma < bs) {
+		errmsgno(EX_BAD, "Warning: drive return unreliable data from 'read buffer'.\n");
+		return (-1);
+	}
+	if (maxdma < bs)
+		bs = maxdma;
 
 	scgp->silent++;
 	if (_read_buffer(scgp, bs) < 0) {
@@ -5118,7 +5184,7 @@ set_wrmode(dp, wmode, tflags)
 }
 
 /*
- * I am sorry that even for version 1.368 of cdrecord.c, I am forced to do
+ * I am sorry that even for version 1.373 of cdrecord.c, I am forced to do
  * things like this, but defective versions of cdrecord cause a lot of
  * work load to me.
  *
@@ -5135,7 +5201,7 @@ set_wrmode(dp, wmode, tflags)
 #endif
 
 LOCAL void
-linuxcheck()				/* For version 1.368 of cdrecord.c */
+linuxcheck()				/* For version 1.373 of cdrecord.c */
 {
 #if	defined(linux) || defined(__linux) || defined(__linux__)
 #ifdef	HAVE_UNAME

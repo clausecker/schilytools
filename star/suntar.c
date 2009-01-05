@@ -1,7 +1,8 @@
-/* @(#)suntar.c	1.31 08/03/19 Copyright 1989, 2003-2008 J. Schilling */
+/* @(#)suntar.c	1.32 08/12/22 Copyright 1989, 2003-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char _s_sccsid[] =
-	"@(#)suntar.c	1.31 08/03/19 Copyright 1989, 2003-2008 J. Schilling";
+static	const char _s_sccsid[] =
+	"@(#)suntar.c	1.32 08/12/22 Copyright 1989, 2003-2008 J. Schilling";
 #endif
 /*
  *	Solaris TAR specific routines for star main program.

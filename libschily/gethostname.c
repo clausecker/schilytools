@@ -1,10 +1,11 @@
-/* @(#)gethostname.c	1.16 06/09/13 Copyright 1995 J. Schilling */
+/* @(#)gethostname.c	1.17 08/12/21 Copyright 1995-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)gethostname.c	1.16 06/09/13 Copyright 1995 J. Schilling";
+static	const char sccsid[] =
+	"@(#)gethostname.c	1.17 08/12/21 Copyright 1995-2008 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1995 J. Schilling
+ *	Copyright (c) 1995-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -24,7 +25,7 @@ static	char sccsid[] =
 #ifdef	HAVE_SYS_SYSTEMINFO_H
 #include <sys/systeminfo.h>
 #endif
-#include <schily/libport.h>
+#include <schily/hostname.h>
 
 #ifndef	HAVE_GETHOSTNAME
 EXPORT	int	gethostname	__PR((char *name, int namelen));
@@ -58,6 +59,22 @@ gethostname(name, namelen)
 		return (-1);
 
 	strncpy(name, uts.nodename, namelen);
+	return (0);
+}
+#else
+#include <schily/errno.h>
+
+EXPORT int
+gethostname(name, namelen)
+	char	*name;
+	int	namelen;
+{
+	if (namelen < 0) {
+		seterrno(EINVAL);
+		return (-1);
+	}
+	if (namelen > 0)
+		name[0] = '\0';
 	return (0);
 }
 #endif

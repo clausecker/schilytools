@@ -1,7 +1,8 @@
-/* @(#)overlap.c	1.14 08/09/18 J. Schilling from cdparanoia-III-alpha9.8 */
+/* @(#)overlap.c	1.15 08/12/22 J. Schilling from cdparanoia-III-alpha9.8 */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-"@(#)overlap.c	1.14 08/09/18 J. Schilling from cdparanoia-III-alpha9.8";
+static	const char sccsid[] =
+"@(#)overlap.c	1.15 08/12/22 J. Schilling from cdparanoia-III-alpha9.8";
 
 #endif
 /*

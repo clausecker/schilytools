@@ -1,7 +1,8 @@
-/* @(#)restore.c	1.60 08/09/26 Copyright 2003-2008 J. Schilling */
+/* @(#)restore.c	1.61 08/12/22 Copyright 2003-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)restore.c	1.60 08/09/26 Copyright 2003-2008 J. Schilling";
+static	const char sccsid[] =
+	"@(#)restore.c	1.61 08/12/22 Copyright 2003-2008 J. Schilling";
 #endif
 /*
  *	Data base management for incremental restores

@@ -1,7 +1,8 @@
-/* @(#)aifc.c	1.10 08/10/28 Copyright 1998,1999 Heiko Eissfeldt, Copyright 2006-2008 J. Schilling */
+/* @(#)aifc.c	1.11 08/12/22 Copyright 1998,1999 Heiko Eissfeldt, Copyright 2006-2008 J. Schilling */
+#include "config.h"
 #ifndef lint
-static char	sccsid[] =
-"@(#)aifc.c	1.10 08/10/28 Copyright 1998,1999 Heiko Eissfeldt, Copyright 2006-2008 J. Schilling";
+static	const char sccsid[] =
+"@(#)aifc.c	1.11 08/12/22 Copyright 1998,1999 Heiko Eissfeldt, Copyright 2006-2008 J. Schilling";
 
 #endif
 /*

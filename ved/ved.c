@@ -1,23 +1,27 @@
-/* @(#)ved.c	1.68 07/03/08 Copyright 1984, 85, 86, 88, 89, 97, 2000-2007 J. Schilling */
+/* @(#)ved.c	1.70 09/01/04 Copyright 1984, 85, 86, 88, 89, 97, 2000-2009 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)ved.c	1.68 07/03/08 Copyright 1984, 85, 86, 88, 89, 97, 2000-2007 J. Schilling";
+static	const char sccsid[] =
+	"@(#)ved.c	1.70 09/01/04 Copyright 1984, 85, 86, 88, 89, 97, 2000-2009 J. Schilling";
 #endif
 /*
  *	VED Visual EDitor
  *
- *	Copyright (c) 1984, 85, 86, 88, 89, 97, 2000-2007 J. Schilling
+ *	Copyright (c) 1984, 85, 86, 88, 89, 97, 2000-2009 J. Schilling
  */
 /*
- * The contents of this file are subject to the terms of the
- * Common Development and Distribution License, Version 1.0 only
- * (the "License").  You may not use this file except in compliance
- * with the License.
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2
+ * as published by the Free Software Foundation.
  *
- * See the file CDDL.Schily.txt in this distribution for details.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- * When distributing Covered Code, include this CDDL HEADER in each
- * file and include the License file CDDL.Schily.txt from this distribution.
+ * You should have received a copy of the GNU General Public License along with
+ * this program; see the file COPYING.  If not, write to the Free Software
+ * Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
 /*
@@ -41,7 +45,7 @@ static	char sccsid[] =
 #include <signal.h>
 #include <schily/sigblk.h>
 
-EXPORT	char	ved_version[] = "1.7a06";
+EXPORT	char	ved_version[] = "1.7a07";
 EXPORT	int	mflag;		/* if > 0 : take characters from macro	    */
 EXPORT	int	ReadOnly;	/* if > 0 : do not allow to write back mods */
 
@@ -156,7 +160,7 @@ main(ac, av)
 		usage(0);
 	if (prvers) {
 		printf("ved %s (%s-%s-%s)\n\n", ved_version, HOST_CPU, HOST_VENDOR, HOST_OS);
-		printf("Copyright (C) 1984, 85, 86, 88, 89, 97, 2000-2007 Jörg Schilling\n");
+		printf("Copyright (C) 1984, 85, 86, 88, 89, 97, 2000-2009 Jörg Schilling\n");
 		printf("This is free software; see the source for copying conditions.  There is NO\n");
 		printf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
 		exit(0);

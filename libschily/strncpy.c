@@ -1,12 +1,13 @@
-/* @(#)strncpy.c	1.2 06/09/13 Copyright 2006 J. Schilling */
+/* @(#)strncpy.c	1.3 08/12/21 Copyright 2006-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)strncpy.c	1.2 06/09/13 Copyright 2006 J. Schilling";
+static	const char sccsid[] =
+	"@(#)strncpy.c	1.3 08/12/21 Copyright 2006-2008 J. Schilling";
 #endif
 /*
- *	strncpy() to be used if missing on libc
+ *	strncpy() to be used if missing in libc
  *
- *	Copyright (c) 2006 J. Schilling
+ *	Copyright (c) 2006-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

@@ -1,12 +1,13 @@
-/* @(#)rscsi.c	1.32 06/11/26 Copyright 1994,2000-2006 J. Schilling*/
+/* @(#)rscsi.c	1.33 08/12/22 Copyright 1994,2000-2008 J. Schilling*/
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)rscsi.c	1.32 06/11/26 Copyright 1994,2000-2006 J. Schilling";
+static	const char sccsid[] =
+	"@(#)rscsi.c	1.33 08/12/22 Copyright 1994,2000-2008 J. Schilling";
 #endif
 /*
  *	Remote SCSI server
  *
- *	Copyright (c) 1994,2000-2006 J. Schilling
+ *	Copyright (c) 1994,2000-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

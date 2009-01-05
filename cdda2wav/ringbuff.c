@@ -1,7 +1,8 @@
-/* @(#)ringbuff.c	1.16 08/06/21 Copyright 1998,1999,2000 Heiko Eissfeldt, Copyright 2004-2008 J. Schilling */
+/* @(#)ringbuff.c	1.17 08/12/22 Copyright 1998,1999,2000 Heiko Eissfeldt, Copyright 2004-2008 J. Schilling */
+#include "config.h"
 #ifndef lint
-static char	sccsid[] =
-"@(#)ringbuff.c	1.16 08/06/21 Copyright 1998,1999,2000 Heiko Eissfeldt, Copyright 2004-2008 J. Schilling";
+static	const char sccsid[] =
+"@(#)ringbuff.c	1.17 08/12/22 Copyright 1998,1999,2000 Heiko Eissfeldt, Copyright 2004-2008 J. Schilling";
 #endif
 /*
  * Ringbuffer handling

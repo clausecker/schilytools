@@ -1,7 +1,8 @@
-/* @(#)crc16.c	1.7 06/09/13 Copyright 1998-2004 J. Schilling */
+/* @(#)crc16.c	1.8 08/12/22 Copyright 1998-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)crc16.c	1.7 06/09/13 Copyright 1998-2004 J. Schilling";
+static	const char sccsid[] =
+	"@(#)crc16.c	1.8 08/12/22 Copyright 1998-2008 J. Schilling";
 #endif
 /*
  *	Q-subchannel CRC subroutines
@@ -10,7 +11,7 @@ static	char sccsid[] =
  *	If computed over 12 bytes, the result must be zero.
  *	On the disk the CRC bits are inverted.
  *
- *	Copyright (c) 1998-2003 J. Schilling
+ *	Copyright (c) 1998-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

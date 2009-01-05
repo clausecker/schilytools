@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# @(#)install-sh	1.7 05/05/03 1999 J. Schilling
+# @(#)install-sh	1.9 08/12/26 1999-2008 J. Schilling
 #
 # install - install a program, script, or datafile
 # This comes from X11R5 (mit/util/scripts/install.sh).
@@ -8,7 +8,7 @@
 # non root user by J. Schilling
 #
 # Copyright 1991 by the Massachusetts Institute of Technology
-# Copyright 1999 by J. Schilling
+# Copyright 1999-2008 by J. Schilling
 #
 # Permission to use, copy, modify, distribute, and sell this software and its
 # documentation for any purpose is hereby granted without fee, provided that
@@ -77,7 +77,7 @@ ${chownprog} root ${dsttmp} 2> /dev/null && ${chmodcmd} ${dsttmp} 2> /dev/null &
 # Win95 has no user 'root' and chown succeeds always.
 # Unfortunately, there is also no user 'bin' and chown complains about
 # user 'bin' being non-existant.
-# Check if the fie is now really owned by 'root' to avoid the Win95 probems
+# Check if the file is now really owned by 'root' to avoid the Win95 probems
 #
 if [ $rootflag = TRUE ]; then
 	ls -l ${dsttmp} 2> /dev/null | grep root > /dev/null || rootflag=FALSE
@@ -96,6 +96,22 @@ while [ x"$1" != x ]; do
 	    continue;;
 
 	-m) chmodcmd="$chmodprog $2"
+	    Asuidflag=FALSE
+	    Ssuidflag=FALSE
+	    if [ $rootflag = FALSE ] ; then
+		echo "$2" | grep '[1-7][0-7][0-7][0-7]$' > /dev/null && Asuidflag=TRUE
+		echo "$2" | grep '[st]' > /dev/null && Ssuidflag=TRUE
+	    fi
+	    if [ $Asuidflag = TRUE ]; then
+		nmode=`echo "$2" | sed 's/\(.*\)\([0-7][0-7][0-7]\)/\2/'`
+		chmodcmd="$chmodprog $nmode"
+		echo "install: -m option with suid/sticky available only to root -- ignored"
+	    fi
+	    if [ $Ssuidflag = TRUE ]; then
+		nmode=`echo "$2" | sed 's/\(.*\)/\1,a-st/'`
+		chmodcmd="$chmodprog $nmode"
+		echo "install: -m option with suid/sticky available only to root -- ignored"
+	    fi
 	    shift
 	    shift
 	    continue;;

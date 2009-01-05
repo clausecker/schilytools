@@ -1,7 +1,8 @@
-/* @(#)wait3.c	1.10 06/09/13 Copyright 1995 J. Schilling */
+/* @(#)wait3.c	1.11 08/12/20 Copyright 1995-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)wait3.c	1.10 06/09/13 Copyright 1995 J. Schilling";
+static	const char sccsid[] =
+	"@(#)wait3.c	1.11 08/12/20 Copyright 1995-2008 J. Schilling";
 #endif
 /*
  * Compatibility function for BSD wait3().

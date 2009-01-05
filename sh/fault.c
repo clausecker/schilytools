@@ -30,21 +30,22 @@
 
 #pragma ident	"@(#)fault.c	1.29	06/06/16 SMI"
 
+#include "defs.h"
+
 /*
  * This file contains modifications Copyright 2008 J. Schilling
  *
- * @(#)fault.c	1.5 08/03/28 2008 J. Schilling
+ * @(#)fault.c	1.6 08/12/22 2008 J. Schilling
  */
 #ifndef lint
-static	char sccsid[] =
-	"@(#)fault.c	1.5 08/03/28 2008 J. Schilling";
+static	const char sccsid[] =
+	"@(#)fault.c	1.6 08/12/22 2008 J. Schilling";
 #endif
 
 /*
  * UNIX shell
  */
 #ifdef	SCHILY_BUILD
-#include	"defs.h"
 #ifdef	HAVE_SYS_PROCSET_H
 #include	<sys/procset.h>
 #endif
@@ -71,7 +72,6 @@ static	char sccsid[] =
 #include	<schily/errno.h>
 #include	<schily/string.h>
 #else
-#include	"defs.h"
 #include	<sys/procset.h>
 #include	<siginfo.h>
 #include	<ucontext.h>

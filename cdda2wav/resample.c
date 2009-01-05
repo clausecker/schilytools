@@ -1,7 +1,8 @@
-/* @(#)resample.c	1.25 08/10/28 Copyright 1998,1999,2000 Heiko Eissfeldt, Copyright 2004-2006 J. Schilling */
+/* @(#)resample.c	1.27 08/12/22 Copyright 1998,1999,2000 Heiko Eissfeldt, Copyright 2004-2008 J. Schilling */
+#include "config.h"
 #ifndef lint
-static char	sccsid[] =
-"@(#)resample.c	1.25 08/10/28 Copyright 1998,1999,2000 Heiko Eissfeldt, Copyright 2004-2006 J. Schilling";
+static	const char sccsid[] =
+"@(#)resample.c	1.27 08/12/22 Copyright 1998,1999,2000 Heiko Eissfeldt, Copyright 2004-2008 J. Schilling";
 #endif
 /*
  * resampling module

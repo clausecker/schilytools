@@ -1,7 +1,8 @@
-/* @(#)limit.c	1.30 08/03/27 Copyright 1987-2008 J. Schilling */
+/* @(#)limit.c	1.31 08/12/20 Copyright 1987-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)limit.c	1.30 08/03/27 Copyright 1987-2008 J. Schilling";
+static	const char sccsid[] =
+	"@(#)limit.c	1.31 08/12/20 Copyright 1987-2008 J. Schilling";
 #endif
 /*
  *	Resource usage routines

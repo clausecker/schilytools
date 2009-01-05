@@ -1,12 +1,13 @@
-/* @(#)checkmount.c	1.18 07/02/22 Copyright 1991-2004 J. Schilling */
+/* @(#)checkmount.c	1.19 08/12/22 Copyright 1991-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)checkmount.c	1.18 07/02/22 Copyright 1991-2004 J. Schilling";
+static	const char sccsid[] =
+	"@(#)checkmount.c	1.19 08/12/22 Copyright 1991-2008 J. Schilling";
 #endif
 /*
  *	Check if disk or part of disk is mounted
  *
- *	Copyright (c) 1991-2004 J. Schilling
+ *	Copyright (c) 1991-2008 J. Schilling
  *
  *	XXX #ifdef HAVE_DKIO ist vorerst nur ein Hack
  */

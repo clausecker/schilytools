@@ -1,12 +1,13 @@
-/* @(#)filesubs.c	1.61 06/09/26 Copyright 1984-2004 J. Schilling */
+/* @(#)filesubs.c	1.62 08/12/22 Copyright 1984-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)filesubs.c	1.61 06/09/26 Copyright 1984-2004 J. Schilling";
+static	const char sccsid[] =
+	"@(#)filesubs.c	1.62 08/12/22 Copyright 1984-2008 J. Schilling";
 #endif
 /*
  *	Commands that deal with non i/o file subroutines
  *
- *	Copyright (c) 1984-2004 J. Schilling
+ *	Copyright (c) 1984-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

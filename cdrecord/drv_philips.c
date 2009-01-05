@@ -1,7 +1,8 @@
-/* @(#)drv_philips.c	1.77 08/06/13 Copyright 1997-2008 J. Schilling */
+/* @(#)drv_philips.c	1.78 08/12/22 Copyright 1997-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)drv_philips.c	1.77 08/06/13 Copyright 1997-2008 J. Schilling";
+static	const char sccsid[] =
+	"@(#)drv_philips.c	1.78 08/12/22 Copyright 1997-2008 J. Schilling";
 #endif
 /*
  *	CDR device implementation for

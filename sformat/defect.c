@@ -1,12 +1,13 @@
-/* @(#)defect.c	1.36 07/02/22 Copyright 1988-2004 J. Schilling */
+/* @(#)defect.c	1.37 08/12/22 Copyright 1988-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)defect.c	1.36 07/02/22 Copyright 1988-2004 J. Schilling";
+static	const char sccsid[] =
+	"@(#)defect.c	1.37 08/12/22 Copyright 1988-2008 J. Schilling";
 #endif
 /*
  *	Handle defect lists (user level copy)
  *
- *	Copyright (c) 1988-2004 J. Schilling
+ *	Copyright (c) 1988-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

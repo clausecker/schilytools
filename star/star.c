@@ -1,7 +1,8 @@
-/* @(#)star.c	1.318 08/09/26 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2008 J. Schilling */
+/* @(#)star.c	1.320 08/12/22 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)star.c	1.318 08/09/26 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2008 J. Schilling";
+static	const char sccsid[] =
+	"@(#)star.c	1.320 08/12/22 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2008 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1985, 88-90, 92-96, 98, 99, 2000-2008 J. Schilling
@@ -1255,7 +1256,7 @@ LOCAL void
 husage(ret)
 	int	ret;
 {
-	error("Header types:\n");
+	error("Header types (default marked with '*'):\n");
 	hdr_usage();
 	exit(ret);
 	/* NOTREACHED */

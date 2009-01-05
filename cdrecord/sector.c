@@ -1,12 +1,13 @@
-/* @(#)sector.c	1.14 06/09/13 Copyright 2001-2004 J. Schilling */
+/* @(#)sector.c	1.15 08/12/22 Copyright 2001-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)sector.c	1.14 06/09/13 Copyright 2001-2004 J. Schilling";
+static	const char sccsid[] =
+	"@(#)sector.c	1.15 08/12/22 Copyright 2001-2008 J. Schilling";
 #endif
 /*
  *	Functions needed to use libedc_ecc from cdrecord
  *
- *	Copyright (c) 2001-2004 J. Schilling
+ *	Copyright (c) 2001-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

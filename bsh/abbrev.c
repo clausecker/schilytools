@@ -1,7 +1,8 @@
-/* @(#)abbrev.c	1.29 08/04/25 Copyright 1985-2008 J. Schilling */
+/* @(#)abbrev.c	1.30 08/12/20 Copyright 1985-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)abbrev.c	1.29 08/04/25 Copyright 1985-2008 J. Schilling";
+static	const char sccsid[] =
+	"@(#)abbrev.c	1.30 08/12/20 Copyright 1985-2008 J. Schilling";
 #endif
 /*
  *	Abbreviation symbol handling

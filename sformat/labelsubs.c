@@ -1,12 +1,13 @@
-/* @(#)labelsubs.c	1.23 07/02/22 Copyright 1988-2004 J. Schilling */
+/* @(#)labelsubs.c	1.24 08/12/22 Copyright 1988-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)labelsubs.c	1.23 07/02/22 Copyright 1988-2004 J. Schilling";
+static	const char sccsid[] =
+	"@(#)labelsubs.c	1.24 08/12/22 Copyright 1988-2008 J. Schilling";
 #endif
 /*
  *	Subroutines that deal with the primary disk label
  *
- *	Copyright (c) 1988-2004 J. Schilling
+ *	Copyright (c) 1988-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

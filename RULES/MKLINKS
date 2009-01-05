@@ -1,6 +1,6 @@
 #!/bin/sh
 ###########################################################################
-#ident "@(#)MKLINKS	1.73 08/08/13 "
+#ident "@(#)MKLINKS	1.74 08/11/08 "
 ###########################################################################
 # Written 1996 by J. Schilling
 ###########################################################################
@@ -211,6 +211,13 @@ $symlink	i386-ms-dos-gcc.rul	i486-ms-dos-gcc.rul
 $symlink	i386-ms-dos-gcc.rul	i586-ms-dos-gcc.rul
 $symlink	i386-ms-dos-gcc.rul	i686-ms-dos-gcc.rul
 $symlink	i386-ms-dos-gcc.rul	i786-ms-dos-gcc.rul
+$symlink	atarist-freemint-gcc.rul	atariclone-freemint-gcc.rul
+$symlink	atarist-freemint-gcc.rul	atariste-freemint-gcc.rul
+$symlink	atarist-freemint-gcc.rul	ataritt-freemint-gcc.rul
+$symlink	atarist-freemint-gcc.rul	falcon-freemint-gcc.rul
+$symlink	atarist-freemint-gcc.rul	milan-freemint-gcc.rul
+$symlink	atarist-freemint-gcc.rul	hades-freemint-gcc.rul
+$symlink	atarist-freemint-gcc.rul	aranym-freemint-gcc.rul
 #
 $symlink	mk-smake.id		mk-build.id
 $symlink	r-smake.dep		r-build.dep

@@ -1,12 +1,13 @@
-/* @(#)diskparam.c	1.11 07/02/04 Copyright 1988-2004 J. Schilling */
+/* @(#)diskparam.c	1.12 08/12/22 Copyright 1988-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)diskparam.c	1.11 07/02/04 Copyright 1988-2004 J. Schilling";
+static	const char sccsid[] =
+	"@(#)diskparam.c	1.12 08/12/22 Copyright 1988-2008 J. Schilling";
 #endif
 /*
  *	Query Disk parameters
  *
- *	Copyright (c) 1988-2004 J. Schilling
+ *	Copyright (c) 1988-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

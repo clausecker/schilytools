@@ -1,7 +1,8 @@
-/* @(#)mountcd.c	1.10 08/04/10 Copyright 2005-2008 J. Schilling */
+/* @(#)mountcd.c	1.11 08/12/23 Copyright 2005-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)mountcd.c	1.10 08/04/10 Copyright 2005-2008 J. Schilling";
+static	const char sccsid[] =
+	"@(#)mountcd.c	1.11 08/12/23 Copyright 2005-2008 J. Schilling";
 #endif
 /*
  *	Mount the "right" CD medium from a list of devices,
@@ -80,7 +81,7 @@ main(ac, av)
 		usage(0);
 	if (pversion) {
 		printf("Mountcd release %s (%s-%s-%s) Copyright (C) 2005-2008 Jörg Schilling\n",
-				"1.10", HOST_CPU, HOST_VENDOR, HOST_OS);
+				"1.11", HOST_CPU, HOST_VENDOR, HOST_OS);
 		exit(0);
 	}
 	if (debug) {

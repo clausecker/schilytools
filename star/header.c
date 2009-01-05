@@ -1,7 +1,8 @@
-/* @(#)header.c	1.136 08/06/13 Copyright 1985, 1994-2008 J. Schilling */
+/* @(#)header.c	1.138 08/12/22 Copyright 1985, 1994-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)header.c	1.136 08/06/13 Copyright 1985, 1994-2008 J. Schilling";
+static	const char sccsid[] =
+	"@(#)header.c	1.138 08/12/22 Copyright 1985, 1994-2008 J. Schilling";
 #endif
 /*
  *	Handling routines to read/write, parse/create
@@ -84,16 +85,16 @@ LOCAL	htab_t	htab[] = {
  * Compression names
  */
 LOCAL	char	*cnames[] = {
-	"unknown",
-	"pack",
-	"gzip",
-	"lzw",
-	"freeze",
-	"lzh",
-	"pkzip",
-	"bzip2",
-	"lzo",
-	"7z",
+	"unknown",		/* 0 C_NONE	*/
+	"pack",			/* 1 C_PACL	*/
+	"gzip",			/* 2 C_GZIP	*/
+	"lzw",			/* 3 C_LZW	*/
+	"freeze",		/* 4 C_FREEZE	*/
+	"lzh",			/* 5 C_LZH	*/
+	"pkzip",		/* 6 C_PKZIP	*/
+	"bzip2",		/* 7 C_BZIP2	*/
+	"lzo",			/* 8 C_LZO	*/
+	"7z",			/* 9 C_7Z	*/
 };
 
 extern	FILE	*tty;
@@ -478,7 +479,9 @@ hdr_usage()
 	for (; htp->h_name; htp++) {
 		if (htp->h_flags & HF_RO)
 			continue;
-		error("\t%s\t%s\n", htp->h_name, htp->h_text);
+		error("%s\t%s\t%s\n", 
+			hdrtype == htp->h_type ? "*":"",
+			htp->h_name, htp->h_text);
 	}
 }
 

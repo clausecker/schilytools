@@ -1,7 +1,8 @@
-/* @(#)find.c	1.51 08/06/13 Copyright 2004-2008 J. Schilling */
+/* @(#)find.c	1.52 08/12/23 Copyright 2004-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)find.c	1.51 08/06/13 Copyright 2004-2008 J. Schilling";
+static	const char sccsid[] =
+	"@(#)find.c	1.52 08/12/23 Copyright 2004-2008 J. Schilling";
 #endif
 /*
  *	Another find implementation...

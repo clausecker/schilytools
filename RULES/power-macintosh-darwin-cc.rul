@@ -1,4 +1,4 @@
-#ident "@(#)power-macintosh-darwin-cc.rul	1.13 07/05/09 "
+#ident "@(#)power-macintosh-darwin-cc.rul	1.14 08/12/27 "
 ###########################################################################
 # Written 1996 by J. Schilling
 ###########################################################################
@@ -38,7 +38,7 @@ LIB_KVM=
 
 #LDOPTS=		$(LIBS_PATH) $(LDPATH) $(RUNPATH:-R%=-Wl,-R%)
 LDOPTS=		$(LIBS_PATH) $(LDPATH) -framework IOKit -framework CoreFoundation
-LDOPTDYN=	-install_name $(INS_BASE)/lib/$(TARGET)
+LDOPTDYN=	-install_name $(INSBASE)/lib/$(TARGET)
 LDLIBDYN=	-lgcc
 LNDYNLIB=	@
 

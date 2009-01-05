@@ -1,12 +1,13 @@
-/* @(#)autopart.c	1.22 07/02/22 Copyright 1995-2004 J. Schilling */
+/* @(#)autopart.c	1.23 08/12/22 Copyright 1995-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)autopart.c	1.22 07/02/22 Copyright 1995-2004 J. Schilling";
+static	const char sccsid[] =
+	"@(#)autopart.c	1.23 08/12/22 Copyright 1995-2008 J. Schilling";
 #endif
 /*
  *	Automatic genation of partition tables
  *
- *	Copyright (c) 1995-2004 J. Schilling
+ *	Copyright (c) 1995-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

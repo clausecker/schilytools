@@ -1,7 +1,8 @@
-/* @(#)inode.c	1.8 07/07/15 Copyright 2006-2007 J. Schilling */
+/* @(#)inode.c	1.10 08/12/22 Copyright 2006-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)inode.c	1.8 07/07/15 Copyright 2006-2007 J. Schilling";
+static	const char sccsid[] =
+	"@(#)inode.c	1.10 08/12/22 Copyright 2006-2008 J. Schilling";
 #endif
 /*
  *	Inode and link count handling for ISO-9660/RR
@@ -13,7 +14,7 @@ static	char sccsid[] =
  *	of asigning the related number to the "extent" field in the ISO
  *	directory record.
  *
- *	Copyright (c) 2006-2007 J. Schilling
+ *	Copyright (c) 2006-2008 J. Schilling
  */
 /*
  * This program is free software; you can redistribute it and/or modify

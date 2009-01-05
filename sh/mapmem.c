@@ -34,11 +34,12 @@
 /*
  * This file contains modifications Copyright 2008 J. Schilling
  *
- * @(#)mapmem.c	1.4 08/03/28 2008 J. Schilling
+ * @(#)mapmem.c	1.5 08/12/22 2008 J. Schilling
  */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)mapmem.c	1.4 08/03/28 2008 J. Schilling";
+static	const char sccsid[] =
+	"@(#)mapmem.c	1.5 08/12/22 2008 J. Schilling";
 #endif
 
 

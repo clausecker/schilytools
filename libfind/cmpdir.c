@@ -1,7 +1,8 @@
-/* @(#)cmpdir.c	1.24 08/09/26 Copyright 2002-2008 J. Schilling */
+/* @(#)cmpdir.c	1.25 08/12/22 Copyright 2002-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)cmpdir.c	1.24 08/09/26 Copyright 2002-2008 J. Schilling";
+static	const char sccsid[] =
+	"@(#)cmpdir.c	1.25 08/12/22 Copyright 2002-2008 J. Schilling";
 #endif
 /*
  *	Blocked directory sort/compare.

@@ -1,12 +1,13 @@
-/* @(#)ttycmds.c	1.20 06/09/13 Copyright 1984-2004 J. Schilling */
+/* @(#)ttycmds.c	1.24 09/01/04 Copyright 1984-2009 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)ttycmds.c	1.20 06/09/13 Copyright 1984-2004 J. Schilling";
+static	const char sccsid[] =
+	"@(#)ttycmds.c	1.24 09/01/04 Copyright 1984-2009 J. Schilling";
 #endif
 /*
  *	Lower layer support routines for terminal.c
  *
- *	Copyright (c) 1984-2004 J. Schilling
+ *	Copyright (c) 1984-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -233,7 +234,9 @@ LOCAL	void	ins_c_M		__PR((char *str));
 LOCAL	void	ins_str		__PR((char *str));
 LOCAL	void	ins_l_S		__PR((int n));
 LOCAL	void	ins_l_M		__PR((int n));
+#ifdef	__needed__
 LOCAL	void	alt_S_Svideo	__PR((char *str));
+#endif
 LOCAL	void	alt_S_video	__PR((char *str));
 LOCAL	void	alt_B_video	__PR((char *str));
 LOCAL	void	alt_U_video	__PR((char *str));
@@ -631,8 +634,10 @@ ins_l_M(n)
 	tputs(tgoto(AL_PARM, 0, n), n, sputchar);
 }
 
+#ifdef	__needed__
 /*
  * alternate video - using non parameter mode
+ * XXX is this function possible with termcap?
  */
 LOCAL void
 alt_S_Svideo(str)
@@ -643,6 +648,7 @@ alt_S_Svideo(str)
 		(*sputchar)(*str++);
 	}
 }
+#endif
 
 /*
  * alternate video - using Standout Mode

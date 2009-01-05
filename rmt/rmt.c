@@ -1,7 +1,8 @@
-/* @(#)rmt.c	1.34 08/03/23 Copyright 1994,2000-2008 J. Schilling */
+/* @(#)rmt.c	1.35 08/12/23 Copyright 1994,2000-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)rmt.c	1.34 08/03/23 Copyright 1994,2000-2008 J. Schilling";
+static	const char sccsid[] =
+	"@(#)rmt.c	1.35 08/12/23 Copyright 1994,2000-2008 J. Schilling";
 #endif
 /*
  *	Remote tape server

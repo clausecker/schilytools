@@ -1,7 +1,8 @@
-/* @(#)pfexec.c	1.3 08/08/30 Copyright 2008 J. Schilling */
+/* @(#)pfexec.c	1.6 08/12/20 Copyright 2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)pfexec.c	1.3 08/08/30 Copyright 2008 J. Schilling";
+static	const char sccsid[] =
+	"@(#)pfexec.c	1.6 08/12/20 Copyright 2008 J. Schilling";
 #endif
 /*
  *	Profile support for /usr/bin/pfexec
@@ -35,6 +36,8 @@ static	char sccsid[] =
 LOCAL	char	*uname;
 
 EXPORT	void	pfinit		__PR((void));
+LOCAL	int	pfrpath		__PR((char *pname, char *rpath));
+LOCAL	char **	pfnewargv	__PR((char *av[], char *rpath));
 EXPORT	int	pfexec		__PR((char **path, char *name, FILE *in, FILE *out, FILE *err, char **av, char **env));
 
 #define	NOATTRS	0	/* command in profile but w'out attributes */
@@ -120,7 +123,7 @@ pfexec(path, name, in, out, err, av, env)
 	if (uname == NULL)
 		return (NOATTRS);		/* Need to call exec() later */
 
-	if ((pname = findinpath(name, X_OK, TRUE)) == NULL)
+	if ((pname = _findinpath(name, X_OK, TRUE)) == NULL)
 		return (ENOENT);
 
 	ret = pfrpath(pname, rpath);

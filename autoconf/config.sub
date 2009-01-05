@@ -1,5 +1,5 @@
 #! /bin/sh
-# @(#)config.sub	1.5 08/10/11 Copyright 1999-2008 J. Schilling
+# @(#)config.sub	1.6 08/11/05 Copyright 1999-2008 J. Schilling
 #
 # Configuration validation subroutine script, version 1.1.
 #   Copyright (C) 1991, 92-97, 1998 Free Software Foundation, Inc.
@@ -794,6 +794,16 @@ case $os in
 	-xenix)
 		os=-xenix
 		;;
+	-freemint)
+		os=-freemint
+		;;
+	-mint)
+		os=-mint
+		;;
+	-tos)
+		os=-tos
+		;;
+
 	-none)
 		;;
 	*)

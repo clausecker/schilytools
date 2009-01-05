@@ -1,7 +1,8 @@
-/* @(#)exec.c	1.53 08/07/12 Copyright 1985-2008 J. Schilling */
+/* @(#)exec.c	1.54 08/12/20 Copyright 1985-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)exec.c	1.53 08/07/12 Copyright 1985-2008 J. Schilling";
+static	const char sccsid[] =
+	"@(#)exec.c	1.54 08/12/20 Copyright 1985-2008 J. Schilling";
 #endif
 /*
  *	bsh command interpreter - Execution of parsed Tree

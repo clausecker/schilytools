@@ -1,7 +1,8 @@
-/* @(#)parse.c	1.91 08/09/26 Copyright 1985-2008 J. Schilling */
+/* @(#)parse.c	1.92 08/12/22 Copyright 1985-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)parse.c	1.91 08/09/26 Copyright 1985-2008 J. Schilling";
+static	const char sccsid[] =
+	"@(#)parse.c	1.92 08/12/22 Copyright 1985-2008 J. Schilling";
 #endif
 /*
  *	Make program

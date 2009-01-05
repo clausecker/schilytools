@@ -1,7 +1,8 @@
-/* @(#)findinfo.c	1.9 08/06/13 Copyright 2005-2008 J. Schilling */
+/* @(#)findinfo.c	1.10 08/12/22 Copyright 2005-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)findinfo.c	1.9 08/06/13 Copyright 2005-2008 J. Schilling";
+static	const char sccsid[] =
+	"@(#)findinfo.c	1.10 08/12/22 Copyright 2005-2008 J. Schilling";
 #endif
 /*
  *	Convert FINFO -> struct stat for find_expr()

@@ -30,21 +30,21 @@
 
 #pragma ident	"@(#)func.c	1.11	05/09/13 SMI"
 
+#include "defs.h"
+
 /*
  * This file contains modifications Copyright 2008 J. Schilling
  *
- * @(#)func.c	1.4 08/03/28 2008 J. Schilling
+ * @(#)func.c	1.5 08/12/22 2008 J. Schilling
  */
 #ifndef lint
-static	char sccsid[] =
-	"@(#)func.c	1.4 08/03/28 2008 J. Schilling";
+static	const char sccsid[] =
+	"@(#)func.c	1.5 08/12/22 2008 J. Schilling";
 #endif
 
 /*
  * UNIX shell
  */
-
-#include	"defs.h"
 
 	void	freefunc	__PR((struct namnod  *n));
 static void	freetree	__PR((struct trenod *));

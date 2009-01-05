@@ -1,12 +1,13 @@
-/* @(#)scgtimes.c	1.2 06/09/13 Copyright 1995,2000 J. Schilling */
+/* @(#)scgtimes.c	1.3 08/12/22 Copyright 1995-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)scgtimes.c	1.2 06/09/13 Copyright 1995,2000 J. Schilling";
+static	const char sccsid[] =
+	"@(#)scgtimes.c	1.3 08/12/22 Copyright 1995-2008 J. Schilling";
 #endif
 /*
  *	SCSI user level command timing
  *
- *	Copyright (c) 1995,2000 J. Schilling
+ *	Copyright (c) 1995-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

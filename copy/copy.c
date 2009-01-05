@@ -1,12 +1,13 @@
-/* @(#)copy.c	1.40 08/04/21 Copyright 1984, 86-90, 95-97, 99, 2000-2008 J. Schilling */
+/* @(#)copy.c	1.43 09/01/04 Copyright 1984, 86-90, 95-97, 99, 2000-2009 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)copy.c	1.40 08/04/21 Copyright 1984, 86-90, 95-97, 99, 2000-2008 J. Schilling";
+static	const char sccsid[] =
+	"@(#)copy.c	1.43 09/01/04 Copyright 1984, 86-90, 95-97, 99, 2000-2009 J. Schilling";
 #endif
 /*
  *	copy files ...
  *
- *	Copyright (c) 1984, 86-90, 95-97, 99, 2000-2008 J. Schilling
+ *	Copyright (c) 1984, 86-90, 95-97, 99, 2000-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -270,8 +271,8 @@ main(ac, av)
 		usage(0);
 	if (prversion) {
 		/* CSTYLED */
-		printf("Copy release %s (%s-%s-%s) Copyright (C) 1984, 86-90, 95-97, 99, 2000-2008 Jörg Schilling\n",
-				"1.40",
+		printf("Copy release %s (%s-%s-%s) Copyright (C) 1984, 86-90, 95-97, 99, 2000-2009 Jörg Schilling\n",
+				"1.43",
 				HOST_CPU, HOST_VENDOR, HOST_OS);
 		exit(0);
 	}
@@ -613,7 +614,7 @@ docopy:
 	}
 	if (cnt != 0)
 		err = geterrno();
-done:
+
 	close(fin);
 	close(fout);
 	if (cnt != 0)
@@ -955,6 +956,7 @@ sparse_copy(fin, fout, from, to, fsize)
 			errmsgno(err, "A seek error occurred on '%s'.\n", to);
 			goto fail;
 		}
+		cnt = 0;
 		while ((newpos < hole) && (cnt = read(fin, bp, size)) > 0) {
 			newpos += cnt;
 			if (write(fout, bp, cnt) != cnt) {

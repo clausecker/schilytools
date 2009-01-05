@@ -1,10 +1,11 @@
-/* @(#)getpagesize.c	1.2 06/09/13 Copyright 2001 J. Schilling */
+/* @(#)getpagesize.c	1.3 08/12/21 Copyright 2001-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)getpagesize.c	1.2 06/09/13 Copyright 2001 J. Schilling";
+static	const char sccsid[] =
+	"@(#)getpagesize.c	1.3 08/12/21 Copyright 2001-2008 J. Schilling";
 #endif
 /*
- *	Copyright (c) 2001 J. Schilling
+ *	Copyright (c) 2001-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

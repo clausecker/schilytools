@@ -29,14 +29,16 @@
 
 #pragma ident	"@(#)xec.c	1.25	06/06/16 SMI"
 
+#include "defs.h"
+
 /*
- * This file contains modifications Copyright 2008 J. Schilling
+ * This file contains modifications Copyright 2008-2009 J. Schilling
  *
- * @(#)xec.c	1.6 08/03/28 2008 J. Schilling
+ * @(#)xec.c	1.10 09/01/04 2008-2009 J. Schilling
  */
 #ifndef lint
-static	char sccsid[] =
-	"@(#)xec.c	1.6 08/03/28 2008 J. Schilling";
+static	const char sccsid[] =
+	"@(#)xec.c	1.10 09/01/04 2008-2009 J. Schilling";
 #endif
 
 /*
@@ -45,8 +47,6 @@ static	char sccsid[] =
  *
  */
 
-
-#include	"defs.h"
 #include	<errno.h>
 #include	"sym.h"
 #include	"hash.h"
@@ -126,8 +126,8 @@ int *pf1, *pf2;
 
 		case TCOM:
 			{
-				unsigned char	*a1, *name;
-				int	argn, internal;
+				unsigned char	*a1;
+				int	argn;
 				struct argnod	*schain = gchain;
 				struct ionod	*io = t->treio;
 				short 	cmdhash;
@@ -185,19 +185,19 @@ int *pf1, *pf2;
 					else if (comtype == FUNCTION)
 					{
 						struct dolnod *olddolh;
-						struct namnod *n, *opt;
-						short index;
+						struct namnod *n;
+						short idx;
 						unsigned char **olddolv = dolv;
 						int olddolc = dolc;
 						n = findnam(com[0]);
 					/* save current positional parameters */
 						olddolh = (struct dolnod *)savargs(funcnt);
 						funcnt++;
-						index = initio(io, 1);
+						idx = initio(io, 1);
 						setargs(com);
 						execute((struct trenod *)(n->namenv), xflags, errorflg, pf1, pf2);
 						execbrk = 0;
-						restore(index);
+						restore(idx);
 						(void) restorargs(olddolh, funcnt);
 						dolv = olddolv;
 						dolc = olddolc;

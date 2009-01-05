@@ -1,12 +1,13 @@
-/* @(#)movearch.c	1.31 06/10/31 Copyright 1993, 1995, 2001-2006 J. Schilling */
+/* @(#)movearch.c	1.32 08/12/22 Copyright 1993, 1995, 2001-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)movearch.c	1.31 06/10/31 Copyright 1993, 1995, 2001-2006 J. Schilling";
+static	const char sccsid[] =
+	"@(#)movearch.c	1.32 08/12/22 Copyright 1993, 1995, 2001-2008 J. Schilling";
 #endif
 /*
  *	Handle non-file type data that needs to be moved from/to the archive.
  *
- *	Copyright (c) 1993, 1995, 2001-2006 J. Schilling
+ *	Copyright (c) 1993, 1995, 2001-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

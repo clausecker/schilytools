@@ -1,7 +1,8 @@
-/* @(#)pmalloc.c	1.5 08/09/18 Copyright 2004-2008 J. Schilling */
+/* @(#)pmalloc.c	1.6 08/12/22 Copyright 2004-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)pmalloc.c	1.5 08/09/18 Copyright 2004-2008 J. Schilling";
+static	const char sccsid[] =
+	"@(#)pmalloc.c	1.6 08/12/22 Copyright 2004-2008 J. Schilling";
 #endif
 /*
  *	Paranoia malloc() functions

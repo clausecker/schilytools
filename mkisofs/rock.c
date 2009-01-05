@@ -1,7 +1,8 @@
-/* @(#)rock.c	1.54 07/06/24 joerg */
+/* @(#)rock.c	1.56 08/12/22 joerg */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)rock.c	1.54 07/06/24 joerg";
+static	const char sccsid[] =
+	"@(#)rock.c	1.56 08/12/22 joerg";
 #endif
 /*
  * File rock.c - generate RRIP  records for iso9660 filesystems.
@@ -9,7 +10,7 @@ static	char sccsid[] =
  * Written by Eric Youngdale (1993).
  *
  * Copyright 1993 Yggdrasil Computing, Incorporated
- * Copyright (c) 1999,2000-2007 J. Schilling
+ * Copyright (c) 1999,2000-2008 J. Schilling
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

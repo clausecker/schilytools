@@ -27,11 +27,11 @@
 /*
  * This file contains modifications Copyright 2006-2007 J. Schilling
  *
- * @(#)cmrcheck.c	1.3 07/01/01 J. Schilling
+ * @(#)cmrcheck.c	1.4 09/01/04 J. Schilling
  */
 #if defined(sun) || defined(__GNUC__)
 
-#ident "@(#)cmrcheck.c 1.3 07/01/01 J. Schilling"
+#ident "@(#)cmrcheck.c 1.4 09/01/04 J. Schilling"
 #endif
 /*
  * @(#)cmrcheck.c 1.5 06/12/12
@@ -69,15 +69,15 @@ char	*cmr,
 {
 	char		lcmr[CMRLIMIT],	/* Local copy of CMR list. */
 				*p[2], /* Field to match in .FRED file. */
-				*format;
+				*formatp;
 
        /*
 	* A safe estimate is that the longest localized string should 
 	* not be more than 3 times as long as the "C" locale string.
 	*/
-	format = (char *) malloc(3 * sizeof("%s is not a valid CMR.\n") + 1);
+	formatp = (char *) malloc(3 * sizeof("%s is not a valid CMR.\n") + 1);
 
-	format = gettext("%s is not a valid CMR.\n");
+	formatp = gettext("%s is not a valid CMR.\n");
 
 	TR("Cmrcheck: cmr=(%s) appl=(%s)\n", cmr, appl, NULL);
 	p[1] = EMPTY;
@@ -87,7 +87,7 @@ char	*cmr,
 		if (strlen (p[0]) != MAXLENCMR || sweep (SEQVERIFY, gf (appl), EMPTY,
 		  '\n', WHITE, 40, p, EMPTY, (char**) NULL, (int (*) __PR((char *, int, char **))) NULL,
 		  (int (*) __PR((char **, char **, int))) NULL) != FOUND) {
-			fprintf (stdout, format, p[0]);
+			fprintf (stdout, formatp, p[0]);
 			TR("Cmrcheck: return=1\n", NULL, NULL, NULL);
 			return (1);
 			}
@@ -100,7 +100,7 @@ char	*cmr,
 	  WHITE, 40, p, EMPTY, (char**) NULL, (int (*) __PR((char *, int, char **))) NULL,
 		(int (*) __PR((char **, char **, int))) NULL)
 	  != FOUND) {
-		fprintf (stdout, format, p[0]);
+		fprintf (stdout, formatp, p[0]);
 		TR("Cmrcheck: return=1\n", NULL, NULL, NULL);
 		return (1);
 		}

@@ -1,13 +1,14 @@
-/* @(#)take.c	1.22 04/03/12 Copyright 1984-2004 J. Schilling */
+/* @(#)take.c	1.23 08/12/22 Copyright 1984-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)take.c	1.22 04/03/12 Copyright 1984-2004 J. Schilling";
+static	const char sccsid[] =
+	"@(#)take.c	1.23 08/12/22 Copyright 1984-2008 J. Schilling";
 #endif
 /*
  *	Routines that implement a set of take buffers
  *	and take care of backing up unused buffers into a file
  *
- *	Copyright (c) 1984-2004 J. Schilling
+ *	Copyright (c) 1984-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

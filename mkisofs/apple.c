@@ -1,7 +1,8 @@
-/* @(#)apple.c	1.33 08/09/12 joerg, Copyright 1997, 1998, 1999, 2000 James Pearson */
+/* @(#)apple.c	1.34 08/12/22 joerg, Copyright 1997, 1998, 1999, 2000 James Pearson */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)apple.c	1.33 08/09/12 joerg, Copyright 1997, 1998, 1999, 2000 James Pearson";
+static	const char sccsid[] =
+	"@(#)apple.c	1.34 08/12/22 joerg, Copyright 1997, 1998, 1999, 2000 James Pearson";
 #endif
 /*
  *      Copyright (c) 1997, 1998, 1999, 2000 James Pearson

@@ -1,7 +1,8 @@
-/* @(#)fstream.c	1.24 08/01/02 Copyright 1985-2008 J. Schilling */
+/* @(#)fstream.c	1.25 08/12/21 Copyright 1985-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)fstream.c	1.24 08/01/02 Copyright 1985-2008 J. Schilling";
+static	const char sccsid[] =
+	"@(#)fstream.c	1.25 08/12/21 Copyright 1985-2008 J. Schilling";
 #endif
 /*
  *	Stream filter module

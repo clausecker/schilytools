@@ -1,13 +1,14 @@
-/* @(#)cpiohdr.c	1.23 07/10/26 Copyright 1994-2007 J. Schilling */
+/* @(#)cpiohdr.c	1.25 08/12/22 Copyright 1994-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)cpiohdr.c	1.23 07/10/26 Copyright 1994-2007 J. Schilling";
+static	const char sccsid[] =
+	"@(#)cpiohdr.c	1.25 08/12/22 Copyright 1994-2008 J. Schilling";
 #endif
 /*
  *	Handling routines to read/write, parse/create
  *	cpio archive headers
  *
- *	Copyright (c) 1994-2007 J. Schilling
+ *	Copyright (c) 1994-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

@@ -1,7 +1,8 @@
-/* @(#)eltorito.c	1.43 07/08/20 joerg */
+/* @(#)eltorito.c	1.46 08/12/22 joerg */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)eltorito.c	1.43 07/08/20 joerg";
+static	const char sccsid[] =
+	"@(#)eltorito.c	1.46 08/12/22 joerg";
 
 #endif
 /*
@@ -11,7 +12,7 @@ static	char sccsid[] =
  *  Written by Michael Fulbright <msf@redhat.com> (1996).
  *
  * Copyright 1996 RedHat Software, Incorporated
- * Copyright (c) 1999-2007 J. Schilling
+ * Copyright (c) 1999-2008 J. Schilling
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -48,6 +49,7 @@ LOCAL	void	fill_boot_desc		__PR((struct eltorito_defaultboot_entry *boot_desc_en
 						struct eltorito_boot_entry_info *boot_entry));
 EXPORT	void	get_boot_entry		__PR((void));
 EXPORT	int	new_boot_entry		__PR((void));
+EXPORT	void	ex_boot_enoent		__PR((char *msg, char *pname));
 LOCAL	int	tvd_write		__PR((FILE * outfile));
 
 
@@ -148,9 +150,8 @@ insert_boot_cat()
 		/* find the dirname directory entry */
 		de = search_tree_file(root, p1);
 		if (!de) {
-			comerrno(EX_BAD,
-			"Uh oh, I cant find the boot catalog directory '%s'!\n",
-								p1);
+			ex_boot_enoent("catalog directory", p1);
+			/* NOTREACHED */
 		}
 		this_dir = 0;
 
@@ -166,9 +167,8 @@ insert_boot_cat()
 				this_dir = dir;
 
 		if (this_dir == 0) {
-			comerrno(EX_BAD,
-			"Uh oh, I cant find the boot catalog directory '%s'!\n",
-								p3);
+			ex_boot_enoent("catalog directory", p3);
+			/* NOTREACHED */
 		}
 	} else {
 		/* boot.cat is in the root directory */
@@ -274,8 +274,8 @@ get_torito_desc(boot_desc)
 	 */
 	de2 = search_tree_file(root, boot_catalog);
 	if (!de2 || !(de2->de_flags & MEMORY_FILE)) {
-		comerrno(EX_BAD, "Uh oh, I cant find the boot catalog '%s'!\n",
-							boot_catalog);
+		ex_boot_enoent("catalog", boot_catalog);
+		/* NOTREACHED */
 	}
 	set_731(boot_desc->bootcat_ptr,
 		(unsigned int) get_733(de2->isorec.extent));
@@ -348,8 +348,8 @@ fill_boot_desc(boot_desc_entry, boot_entry)
 	/* now adjust boot catalog lets find boot image first */
 	de = search_tree_file(root, boot_entry->boot_image);
 	if (!de) {
-		comerrno(EX_BAD, "Uh oh, I cant find the boot image '%s' !\n",
-							boot_entry->boot_image);
+		ex_boot_enoent("image", boot_entry->boot_image);
+		/* NOTREACHED */
 	}
 	/* now make the initial/default entry for boot catalog */
 	memset(boot_desc_entry, 0, sizeof (*boot_desc_entry));
@@ -584,6 +584,18 @@ new_boot_entry()
 {
 	current_boot_entry = NULL;
 	return (1);
+}
+
+/*
+ * Exit with a boot no entry message.
+ */
+EXPORT void
+ex_boot_enoent(msg, pname)
+	char	*msg;
+	char	*pname;
+{
+	comerrno(EX_BAD, "Uh oh, I cant find the boot %s '%s' inside the target tree.\n", msg, pname);
+	/* NOTREACHED */
 }
 
 /*

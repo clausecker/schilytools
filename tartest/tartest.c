@@ -1,10 +1,11 @@
-/* @(#)tartest.c	1.12 06/10/31 Copyright 2002-2006 J. Schilling */
+/* @(#)tartest.c	1.14 08/12/23 Copyright 2002-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)tartest.c	1.12 06/10/31 Copyright 2002-2006 J. Schilling";
+static	const char sccsid[] =
+	"@(#)tartest.c	1.14 08/12/23 Copyright 2002-2008 J. Schilling";
 #endif
 /*
- *	Copyright (c) 2002-2006 J. Schilling
+ *	Copyright (c) 2002-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -57,6 +58,7 @@ usage(ret)
 	error("Usage:\t%s [options] < file\n", get_progname());
 	error("Options:\n");
 	error("\t-help\t\tprint this help\n");
+	error("\t-version\tPrint version number.\n");
 	error("\t-v\t\tprint all filenames during verification\n");
 	error("\n%s checks stdin fore compliance with the POSIX.1-1990 TAR standard\n", get_progname());
 	exit(ret);
@@ -71,22 +73,26 @@ main(ac, av)
 	int		cac = ac;
 	char	*const *cav = av;
 	BOOL		help = FALSE;
+	BOOL		prversion = FALSE;
 
 	save_args(ac, av);
 	cac--;
 	cav++;
-	if (getallargs(&cac, &cav, "help,h,v", &help, &help, &verbose) < 0) {
+	if (getallargs(&cac, &cav, "help,h,version,v", &help, &help,
+						&prversion, &verbose) < 0) {
 		errmsgno(EX_BAD, "Bad Option: '%s'.\n", cav[0]);
 		usage(EX_BAD);
 	}
 	if (help)
 		usage(0);
 
-	printf("tartest %s (%s-%s-%s)\n\n", "1.12",
+	printf("tartest %s (%s-%s-%s)\n\n", "1.14",
 					HOST_CPU, HOST_VENDOR, HOST_OS);
 	printf("Copyright (C) 2002 Jörg Schilling\n");
 	printf("This is free software; see the source for copying conditions.  There is NO\n");
 	printf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
+	if (prversion)
+		exit(0);
 
 	printf("\nTesting for POSIX.1-1990 TAR compliance...\n");
 

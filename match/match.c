@@ -1,12 +1,13 @@
-/* @(#)match.c	1.35 07/12/02 Copyright 1985-2007 J. Schilling */
+/* @(#)match.c	1.36 08/12/23 Copyright 1985-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)match.c	1.35 07/12/02 Copyright 1985-2007 J. Schilling";
+static	const char sccsid[] =
+	"@(#)match.c	1.36 08/12/23 Copyright 1985-2008 J. Schilling";
 #endif
 /*
  *	search file(s) for a pattern
  *
- *	Copyright (c) 1985-2007 J. Schilling
+ *	Copyright (c) 1985-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -146,8 +147,8 @@ main(ac, av)
 	if (help)
 		usage(0);
 	if (prversion) {
-		printf("Match release %s (%s-%s-%s) Copyright (C) 1985-2007 Jörg Schilling\n",
-				"1.35",
+		printf("Match release %s (%s-%s-%s) Copyright (C) 1985-2008 Jörg Schilling\n",
+				"1.36",
 				HOST_CPU, HOST_VENDOR, HOST_OS);
 		exit(0);
 	}

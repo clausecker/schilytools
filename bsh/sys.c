@@ -1,7 +1,8 @@
-/* @(#)sys.c	1.53 08/07/14 Copyright 1986-2008 J. Schilling */
+/* @(#)sys.c	1.57 08/12/20 Copyright 1986-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)sys.c	1.53 08/07/14 Copyright 1986-2008 J. Schilling";
+static	const char sccsid[] =
+	"@(#)sys.c	1.57 08/12/20 Copyright 1986-2008 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1986-2008 J. Schilling
@@ -107,17 +108,14 @@ EXPORT	int	ewait		__PR((pid_t child, int flag));
 EXPORT	int	fexec		__PR((char **path, char *name, FILE *in, FILE *out, FILE *err, char **av, char **env));
 LOCAL	void	fdmove		__PR((int fd1, int fd2));
 LOCAL	BOOL	is_binary	__PR((char *name));
-EXPORT	char	*findinpath	__PR((char *name, int mode, BOOL plain_file));
-#ifndef	HAVE_EACCESS
-LOCAL	int	eaccess		__PR((char *name, int mode));
-#endif
+EXPORT	char	*_findinpath	__PR((char *name, int mode, BOOL plain_file));
 
 EXPORT void
 start(vp, std)
 	Argvec	*vp;
 	FILE	*std[];
 {
-	register int	i;
+	register int	i = 0;
 		char	*path = NULL;
 
 	/*
@@ -769,8 +767,12 @@ is_binary(name)
 
 #include <schily/stat.h>
 
+/*
+ * Uour local version of findinpath() that is using getcurenv()
+ * instead of getenv().
+ */
 EXPORT char *
-findinpath(name, mode, plain_file)
+_findinpath(name, mode, plain_file)
 	char	*name;
 	int	mode;
 	BOOL	plain_file;
@@ -823,21 +825,3 @@ findinpath(name, mode, plain_file)
 	seterrno(exerr);
 	return (NULL);
 }
-
-#ifndef	HAVE_EACCESS
-LOCAL int
-eaccess(name, mode)
-	char	*name;
-	int	mode;
-{
-#ifdef	HAVE_EUIDACCESS
-	return (euidaccess(name, mode));
-#else
-#ifdef	HAVE_ACCESS_E_OK
-	return (access(name, E_OK|mode));
-#else
-	return (access(name, mode));
-#endif
-#endif
-}
-#endif

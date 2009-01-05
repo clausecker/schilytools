@@ -1,7 +1,8 @@
-/* @(#)setuid.c	1.16 06/11/11 Copyright 1998,1999,2004 Heiko Eissfeldt, Copyright 2004-2006 J. Schilling */
+/* @(#)setuid.c	1.17 08/12/22 Copyright 1998,1999,2004 Heiko Eissfeldt, Copyright 2004-2006 J. Schilling */
+#include "config.h"
 #ifndef lint
-static char	sccsid[] =
-"@(#)setuid.c	1.16 06/11/11 Copyright 1998,1999,2004 Heiko Eissfeldt, Copyright 2004-2006 J. Schilling";
+static	const char sccsid[] =
+"@(#)setuid.c	1.17 08/12/22 Copyright 1998,1999,2004 Heiko Eissfeldt, Copyright 2004-2006 J. Schilling";
 
 #endif
 /*

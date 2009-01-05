@@ -1,4 +1,4 @@
-#ident "@(#)Defaults.domainos	1.2 07/05/08 "
+#ident "@(#)Defaults.domainos	1.4 08/12/26 "
 ###########################################################################
 #
 # global definitions for Apollo Domain/OS Systems
@@ -39,12 +39,14 @@ RUNPATH=	-R$(INS_BASE)/lib -R/opt/schily/lib -R$(OLIBSDIR)
 ###########################################################################
 #INS_BASE=	/opt/schily
 #INS_KBASE=	/
+#INS_RBASE=	/
 INS_BASE=	/tmp/schily
 INS_KBASE=	/tmp/schily/root
+INS_RBASE=	/tmp/schily/root
 #
 DEFUMASK=	002
 #
 DEFINSMODEF=	444
 DEFINSMODEX=	755
-DEFINSUSR=	bin
+DEFINSUSR=	root
 DEFINSGRP=	bin

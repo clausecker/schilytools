@@ -1,4 +1,4 @@
-#ident "@(#)rules.csw	1.2 08/04/29 "
+#ident "@(#)rules.csw	1.3 08/12/27 "
 ###########################################################################
 # Written 2005 by J. Schilling
 ###########################################################################
@@ -37,8 +37,8 @@ all: $(SRCROOT)/packages/$(OARCH)
 		pkgmk -o -r `pwd`/$(SRCROOT)/$(PROTODIR) -d $(SRCROOT)/packages/$(OARCH) -a $(P_ARCH) \
 						-v $(VERSION),$(DATE) -f $(PROTOTYPE)_r;	\
 	else					\
-		pkgmk -o -b `pwd`/$(SRCROOT)/$(PROTODIR)/$(INS_BASE) -d $(SRCROOT)/packages/$(OARCH) -a $(P_ARCH) \
-						-v $(VERSION),$(DATE) -f $(PROTOTYPE) BASEDIR=$(INS_BASE);	\
+		pkgmk -o -b `pwd`/$(SRCROOT)/$(PROTODIR)/$(INSBASE) -d $(SRCROOT)/packages/$(OARCH) -a $(P_ARCH) \
+						-v $(VERSION),$(DATE) -f $(PROTOTYPE) BASEDIR=$(INSBASE);	\
 	fi
 	pkgtrans -s $(SRCROOT)/packages/$(OARCH) $(NAME)-$(VERSION),$(DATE)-$(OS_NAME)$(OSREL)-$(P_ARCH)$(VENDOR).pkg $(PKG)
 	gzip -9f $(SRCROOT)/packages/$(OARCH)/$(NAME)-$(VERSION),$(DATE)-$(OS_NAME)$(OSREL)-$(P_ARCH)$(VENDOR).pkg

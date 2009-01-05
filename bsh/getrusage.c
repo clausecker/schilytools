@@ -1,12 +1,14 @@
-/* @(#)getrusage.c	1.24 06/09/26 Copyright 1987-2005 J. Schilling */
+/* @(#)getrusage.c	1.25 08/12/20 Copyright 1987-2008 J. Schilling */
+#undef	USE_LARGEFILES	/* XXX Temporärer Hack für Solaris */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)getrusage.c	1.24 06/09/26 Copyright 1987-2005 J. Schilling";
+static	const char sccsid[] =
+	"@(#)getrusage.c	1.25 08/12/20 Copyright 1987-2008 J. Schilling";
 #endif
 /*
  *	getrusage() emulation for SVr4
  *
- *	Copyright (c) 1987-2005 J. Schilling
+ *	Copyright (c) 1987-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

@@ -1,7 +1,8 @@
-/* @(#)call.c	1.16 08/03/27 Copyright 1985-2008 J. Schilling */
+/* @(#)call.c	1.17 08/12/20 Copyright 1985-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)call.c	1.16 08/03/27 Copyright 1985-2008 J. Schilling";
+static	const char sccsid[] =
+	"@(#)call.c	1.17 08/12/20 Copyright 1985-2008 J. Schilling";
 #endif
 /*
  *	Call bsh defined functions and signal handlers

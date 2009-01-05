@@ -1,7 +1,8 @@
-/* @(#)isodump.c	1.36 08/10/26 joerg */
+/* @(#)isodump.c	1.37 08/12/22 joerg */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)isodump.c	1.36 08/10/26 joerg";
+static	const char sccsid[] =
+	"@(#)isodump.c	1.37 08/12/22 joerg";
 #endif
 /*
  * File isodump.c - dump iso9660 directory information.

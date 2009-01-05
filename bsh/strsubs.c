@@ -1,12 +1,13 @@
-/* @(#)strsubs.c	1.21 07/12/25 Copyright 1985-2007 J. Schilling */
+/* @(#)strsubs.c	1.22 08/12/20 Copyright 1985-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)strsubs.c	1.21 07/12/25 Copyright 1985-2007 J. Schilling";
+static	const char sccsid[] =
+	"@(#)strsubs.c	1.22 08/12/20 Copyright 1985-2008 J. Schilling";
 #endif
 /*
  *	Useful string functions
  *
- *	Copyright (c) 1985-2007 J. Schilling
+ *	Copyright (c) 1985-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

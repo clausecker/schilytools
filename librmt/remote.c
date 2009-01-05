@@ -1,10 +1,11 @@
 /*#define	USE_REMOTE*/
 /*#define	USE_RCMD_RSH*/
 /*#define	NO_LIBSCHILY*/
-/* @(#)remote.c	1.65 08/03/23 Copyright 1990-2008 J. Schilling */
+/* @(#)remote.c	1.66 08/12/22 Copyright 1990-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)remote.c	1.65 08/03/23 Copyright 1990-2008 J. Schilling";
+static	const char sccsid[] =
+	"@(#)remote.c	1.66 08/12/22 Copyright 1990-2008 J. Schilling";
 #endif
 /*
  *	Remote tape client interface code

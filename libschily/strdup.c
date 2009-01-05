@@ -1,10 +1,11 @@
-/* @(#)strdup.c	1.3 08/10/05 Copyright 2003-2008 J. Schilling */
+/* @(#)strdup.c	1.4 08/12/21 Copyright 2003-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)strdup.c	1.3 08/10/05 Copyright 2003-2008 J. Schilling";
+static	const char sccsid[] =
+	"@(#)strdup.c	1.4 08/12/21 Copyright 2003-2008 J. Schilling";
 #endif
 /*
- *	strdup() to be used if missing on libc
+ *	strdup() to be used if missing in libc
  *
  *	Copyright (c) 2003-2008 J. Schilling
  */

@@ -1,12 +1,13 @@
-/* @(#)diskfmt.c	1.20 07/02/22 Copyright 1988-2004 J. Schilling */
+/* @(#)diskfmt.c	1.22 08/12/22 Copyright 1988-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)diskfmt.c	1.20 07/02/22 Copyright 1988-2004 J. Schilling";
+static	const char sccsid[] =
+	"@(#)diskfmt.c	1.22 08/12/22 Copyright 1988-2008 J. Schilling";
 #endif
 /*
  *	Format SCSI disks
  *
- *	Copyright (c) 1988-2004 J. Schilling
+ *	Copyright (c) 1988-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -31,7 +32,7 @@ static	char sccsid[] =
 #include <schily/time.h>
 #include <schily/string.h>
 #include <schily/schily.h>
-#include <schily/libport.h>
+#include <schily/hostname.h>
 
 #include "dsklabel.h"
 

@@ -1,7 +1,8 @@
-/* @(#)builtin.c	1.62 08/08/30 Copyright 1988-2008 J. Schilling */
+/* @(#)builtin.c	1.65 08/12/20 Copyright 1988-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)builtin.c	1.62 08/08/30 Copyright 1988-2008 J. Schilling";
+static	const char sccsid[] =
+	"@(#)builtin.c	1.65 08/12/20 Copyright 1988-2008 J. Schilling";
 #endif
 /*
  *	Builtin commands
@@ -1086,7 +1087,7 @@ bumask(vp, std, flag)
 		if (symbolic)
 			pmask(std, TRUE);
 		else
-			fprintf(std[1], "0%o\n", getcmask());
+			fprintf(std[1], "0%llo\n", (ULlong)getcmask());
 		return;
 	}
 	if (ac != 1) {
@@ -1412,7 +1413,7 @@ bsource(vp, std, flag)
 				fclose(f);
 		}
 	} else {
-		pname = name = findinpath(vp->av_av[1], R_OK, TRUE);
+		pname = name = _findinpath(vp->av_av[1], R_OK, TRUE);
 		if (name) {
 			dofile(name, GLOBAL_AB, flag, std, FALSE);
 			ex_status = do_status;
@@ -1615,7 +1616,7 @@ btype(vp, std, flag)
 			fprintf(output, "is a shell builtin\n");
 		} else if ((val = map_func(av[i])) != NULL) {
 			fprintf(output, "is a function '%s'\n", val);
-		} else if ((val = findinpath(av[i], X_OK, TRUE)) != NULL) {
+		} else if ((val = _findinpath(av[i], X_OK, TRUE)) != NULL) {
 			fprintf(output, "is %s\n", val);
 			free(val);
 			val = NULL;

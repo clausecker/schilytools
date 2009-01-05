@@ -1,12 +1,13 @@
-/* @(#)scsiopen.c	1.97 06/09/26 Copyright 1995,2000 J. Schilling */
+/* @(#)scsiopen.c	1.98 08/12/22 Copyright 1995-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)scsiopen.c	1.97 06/09/26 Copyright 1995,2000 J. Schilling";
+static	const char sccsid[] =
+	"@(#)scsiopen.c	1.98 08/12/22 Copyright 1995-2008 J. Schilling";
 #endif
 /*
  *	SCSI command functions for cdrecord
  *
- *	Copyright (c) 1995,2000 J. Schilling
+ *	Copyright (c) 1995-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

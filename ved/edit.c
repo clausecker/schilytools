@@ -1,12 +1,13 @@
-/* @(#)edit.c	1.21 06/09/13 Copyright 1984-2004 J. Schilling */
+/* @(#)edit.c	1.22 08/12/22 Copyright 1984-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)edit.c	1.21 06/09/13 Copyright 1984-2004 J. Schilling";
+static	const char sccsid[] =
+	"@(#)edit.c	1.22 08/12/22 Copyright 1984-2008 J. Schilling";
 #endif
 /*
  *	Main editing loop of VED (Visual EDitor)
  *
- *	Copyright (c) 1984-2004 J. Schilling
+ *	Copyright (c) 1984-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

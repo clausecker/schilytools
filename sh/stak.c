@@ -28,21 +28,21 @@
 
 #pragma ident	"@(#)stak.c	1.12	08/01/29 SMI"
 
+#include "defs.h"
+
 /*
  * This file contains modifications Copyright 2008 J. Schilling
  *
- * @(#)stak.c	1.7 08/03/28 2008 J. Schilling
+ * @(#)stak.c	1.8 08/12/22 2008 J. Schilling
  */
 #ifndef lint
-static	char sccsid[] =
-	"@(#)stak.c	1.7 08/03/28 2008 J. Schilling";
+static	const char sccsid[] =
+	"@(#)stak.c	1.8 08/12/22 2008 J. Schilling";
 #endif
 
 /*
  * UNIX shell
  */
-
-#include	"defs.h"
 
 	unsigned char *getstak		__PR((Intptr_t asize));
 	unsigned char *locstak		__PR((void));

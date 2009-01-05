@@ -1,13 +1,14 @@
-/* @(#)longnames.c	1.48 06/10/31 Copyright 1993, 1995, 2001-2006 J. Schilling */
+/* @(#)longnames.c	1.49 08/12/22 Copyright 1993, 1995, 2001-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)longnames.c	1.48 06/10/31 Copyright 1993, 1995, 2001-2006 J. Schilling";
+static	const char sccsid[] =
+	"@(#)longnames.c	1.49 08/12/22 Copyright 1993, 1995, 2001-2008 J. Schilling";
 #endif
 /*
  *	Handle filenames that cannot fit into a single
  *	string of 100 charecters
  *
- *	Copyright (c) 1993, 1995, 2001-2006 J. Schilling
+ *	Copyright (c) 1993, 1995, 2001-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

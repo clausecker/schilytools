@@ -1,7 +1,7 @@
-/* @(#)cd_extra.c	1.14 07/09/10 Copyright 2000-2001 Heiko Eissfeldt, Copyright 2004-2006 J. Schilling */
+/* @(#)cd_extra.c	1.15 08/12/22 Copyright 2000-2001 Heiko Eissfeldt, Copyright 2004-2008 J. Schilling */
 #ifndef lint
-static char	_sccsid[] =
-"@(#)cd_extra.c	1.14 07/09/10 Copyright 2000-2001 Heiko Eissfeldt, Copyright 2004-2006 J. Schilling";
+static	const char _sccsid[] =
+"@(#)cd_extra.c	1.15 08/12/22 Copyright 2000-2001 Heiko Eissfeldt, Copyright 2004-2008 J. Schilling";
 #endif
 
 /*

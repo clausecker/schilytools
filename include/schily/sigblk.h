@@ -1,8 +1,8 @@
-/* @(#)sigblk.h	1.11 06/09/13 Copyright 1985, 1995-2003 J. Schilling */
+/* @(#)sigblk.h	1.12 08/12/24 Copyright 1985, 1995-2008 J. Schilling */
 /*
  *	software signal block definition
  *
- *	Copyright (c) 1985, 1995-2003 J. Schilling
+ *	Copyright (c) 1985, 1995-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -21,9 +21,6 @@
 
 #ifndef _SCHILY_MCONFIG_H
 #include <schily/mconfig.h>
-#endif
-#ifndef _SCHILY_STANDARD_H
-#include <schily/standard.h>
 #endif
 
 #ifdef	__cplusplus

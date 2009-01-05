@@ -1,7 +1,8 @@
-/* @(#)mkisofs.c	1.240 08/09/26 joerg */
+/* @(#)mkisofs.c	1.241 08/12/22 joerg */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)mkisofs.c	1.240 08/09/26 joerg";
+static	const char sccsid[] =
+	"@(#)mkisofs.c	1.241 08/12/22 joerg";
 #endif
 /*
  * Program mkisofs.c - generate iso9660 filesystem  based upon directory

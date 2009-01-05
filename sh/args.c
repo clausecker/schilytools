@@ -30,21 +30,22 @@
 
 #pragma ident	"@(#)args.c	1.11	05/09/13 SMI"
 
+#include "defs.h"
+
 /*
  * This file contains modifications Copyright 2008 J. Schilling
  *
- * @(#)args.c	1.8 08/07/14 2008 J. Schilling
+ * @(#)args.c	1.9 08/12/22 2008 J. Schilling
  */
 #ifndef lint
-static	char sccsid[] =
-	"@(#)args.c	1.8 08/07/14 2008 J. Schilling";
+static	const char sccsid[] =
+	"@(#)args.c	1.9 08/12/22 2008 J. Schilling";
 #endif
 
 /*
  *	UNIX shell
  */
 
-#include	"defs.h"
 #include	"sh_policy.h"
 
 	int		options		__PR((int argc, unsigned char **argv));

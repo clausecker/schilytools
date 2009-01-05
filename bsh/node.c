@@ -1,7 +1,8 @@
-/* @(#)node.c	1.22 08/03/27 Copyright 1985-2008 J. Schilling */
+/* @(#)node.c	1.23 08/12/20 Copyright 1985-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)node.c	1.22 08/03/27 Copyright 1985-2008 J. Schilling";
+static	const char sccsid[] =
+	"@(#)node.c	1.23 08/12/20 Copyright 1985-2008 J. Schilling";
 #endif
 /*
  *	Node handling routines

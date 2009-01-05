@@ -1,4 +1,4 @@
-#ident @(#)Makefile	1.21 08/10/26 
+#ident @(#)Makefile	1.22 08/12/26 
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -18,6 +18,8 @@ include		$(SRCROOT)/$(RULESDIR)/rules.top
 
 INSDIR=		bin
 TARGET=		cdda2wav
+INSMODE=	4711
+INSUSR=		root
 CPPOPTS +=	-I../libcdrdeflt
 CPPOPTS +=	-DFIFO -I../libscg -I../libparanoia -I../cdrecord $(CDDA2WAVDEFS)
 CPPOPTS +=	-DSCHILY_PRINT

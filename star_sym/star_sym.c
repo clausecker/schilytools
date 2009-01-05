@@ -1,7 +1,8 @@
-/* @(#)star_sym.c	1.8 08/09/26 Copyright 2005-2008 J. Schilling */
+/* @(#)star_sym.c	1.10 08/12/23 Copyright 2005-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)star_sym.c	1.8 08/09/26 Copyright 2005-2008 J. Schilling";
+static	const char sccsid[] =
+	"@(#)star_sym.c	1.10 08/12/23 Copyright 2005-2008 J. Schilling";
 #endif
 /*
  *	Read in the star inode data base and write a human
@@ -48,6 +49,7 @@ GINFO	_grinfo;			/* Global read information	*/
 GINFO	*grip = &_grinfo;		/* Global read info pointer	*/
 
 LOCAL	void	star_mkvers	__PR((void));
+LOCAL	void	usage		__PR((int ret));
 EXPORT	int	main		__PR((int ac, char *av[]));
 LOCAL	void	make_symtab	__PR((int ac, char *av[]));
 
@@ -144,7 +146,7 @@ same_special(info)
 	return (FALSE);
 }
 
-LOCAL char	strvers[] = "1.5a85";
+LOCAL char	strvers[] = "1.5";
 LOCAL void
 star_mkvers()
 {
@@ -159,17 +161,55 @@ star_mkvers()
 	vers = ___savestr(buf);
 }
 
+LOCAL void
+usage(ret)
+	int	ret;
+{
+	error("Usage:\t%s [options] < file\n", get_progname());
+	error("Options:\n");
+	error("\t-help\t\tprint this help\n");
+	error("\t-version\tPrint version number.\n");
+	error("\n%s extracts star incremental restore database\n", get_progname());
+	exit(ret);
+	/* NOTREACHED */
+}
+
 EXPORT int
 main(ac, av)
 	int	ac;
 	char	*av[];
 {
-extern	BOOL	is_star;
+extern	BOOL		is_star;
+	int		cac = ac;
+	char	*const *cav = av;
+	char		*opt = "help,h,version";
+	BOOL		help = FALSE;
+	BOOL		prvers = FALSE;
 
 	is_star = FALSE;
 	save_args(ac, av);
 	star_mkvers();
 
+	cac--;
+	cav++;
+	if (getallargs(&cac, &cav, opt, &help, &help, &prvers) < 0) {
+		errmsgno(EX_BAD, "Bad Option: '%s'.\n", cav[0]);
+		usage(EX_BAD);
+	}
+	if (help)
+		usage(0);
+	if (prvers) {
+		printf("%s: %s\n\n", get_progname(), vers);
+		printf("Copyright (C) 2005-2008 Jörg Schilling\n");
+		printf("This is free software; see the source for copying conditions.  There is NO\n");
+		printf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
+		exit(0);
+	}
+
+	/*
+	 * As long as all options cause star_sym to exit, we may continue
+	 * with this lazy arg handling.
+	 */
 	if (ac > 2) {
 		/*
 		 * Reconstruct star-symtable

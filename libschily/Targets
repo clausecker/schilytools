@@ -1,4 +1,4 @@
-# @(#)Targets	1.11 08/06/14 Copyright 1995 J. Schilling
+# @(#)Targets	1.13 08/12/07 Copyright 1995 J. Schilling
 
 CFILES_STDIO=	cvmod.c dat.c fcons.c fdown.c fdup.c \
 		ffileread.c ffilewrite.c \
@@ -18,8 +18,9 @@ CFILES_STDIO=	cvmod.c dat.c fcons.c fdown.c fdup.c \
 
 CFILES_REST=	astoi.c astoll.c astoull.c breakline.c \
 		checkerr.c comerr.c fcomerr.c cmpbytes.c cmpnullbytes.c \
-		error.c \
+		eaccess.c error.c \
 		fconv.c fexec.c fillbytes.c \
+		findinpath.c \
 		findbytes.c findline.c fnmatch.c format.c \
 		fstream.c \
 		getargs.c getav0.c geterrno.c getfp.c \

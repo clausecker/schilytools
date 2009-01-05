@@ -1,4 +1,4 @@
-/* @(#)bsh.h	1.50 08/07/12 Copyright 1985-2008 J. Schilling */
+/* @(#)bsh.h	1.51 08/12/07 Copyright 1985-2008 J. Schilling */
 /*
  *	Bsh general definitions
  *
@@ -207,7 +207,7 @@ extern	void	block_sigs	__PR((void));
 extern	void	unblock_sigs	__PR((void));
 extern	int	ewait		__PR((pid_t child, int flag));
 extern	int	fexec		__PR((char **path, char *name, FILE *in, FILE *out, FILE *err, char **av, char **env));
-extern	char	*findinpath	__PR((char *name, int mode, BOOL plain_file));
+extern	char	*_findinpath	__PR((char *name, int mode, BOOL plain_file));
 
 /*
  * builtin.c

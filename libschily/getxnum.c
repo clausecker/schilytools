@@ -1,13 +1,14 @@
-/* @(#)getxnum.c	1.4 07/02/04 Copyright 1984-2007 J. Schilling */
+/* @(#)getxnum.c	1.5 08/12/21 Copyright 1984-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)getxnum.c	1.4 07/02/04 Copyright 1984-2007 J. Schilling";
+static	const char sccsid[] =
+	"@(#)getxnum.c	1.5 08/12/21 Copyright 1984-2008 J. Schilling";
 #endif
 /*
  *	Generic number conversion routines.
  *	Originally taken from sdd.c to implement 'dd' like number options.
  *
- *	Copyright (c) 1984-2007 J. Schilling
+ *	Copyright (c) 1984-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

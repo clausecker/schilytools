@@ -1,4 +1,4 @@
-#ident "@(#)i586-linux-gcc.rul	1.11 07/05/09 "
+#ident "@(#)i586-linux-gcc.rul	1.13 08/11/15 "
 ###########################################################################
 # Written 1996 by J. Schilling
 ###########################################################################
@@ -39,7 +39,11 @@ LIB_MATH=	-lm
 LIB_KVM=	
 
 #LDOPTS=		$(LIBS_PATH) $(LDPATH) $(RUNPATH:-R%=-Wl,-R%)
-LDOPTS=		$(LIBS_PATH) $(LDPATH)
+#
+# Uncomment the next line in case you are on an old Linux version that
+# does not support the -R linker flag.
+#
+#LDOPTS=		$(LIBS_PATH) $(LDPATH)
 
 LORDER=		echo
 TSORT=		cat

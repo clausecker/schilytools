@@ -1,12 +1,13 @@
-/* @(#)cdtext.c	1.11 06/09/13 Copyright 1999-2004 J. Schilling */
+/* @(#)cdtext.c	1.13 08/12/29 Copyright 1999-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)cdtext.c	1.11 06/09/13 Copyright 1999-2004 J. Schilling";
+static	const char sccsid[] =
+	"@(#)cdtext.c	1.13 08/12/29 Copyright 1999-2008 J. Schilling";
 #endif
 /*
  *	Generic CD-Text support functions
  *
- *	Copyright (c) 1999-2004 J. Schilling
+ *	Copyright (c) 1999-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -114,7 +115,9 @@ LOCAL	void	fillup_pack	__PR((txtarg_t *ap));
 LOCAL	void	fillpacks	__PR((txtarg_t *ap, char *from, int len, int track_no, int pack_type));
 EXPORT	int	write_cdtext	__PR((SCSI *scgp, cdr_t *dp, long startsec));
 LOCAL	void	eight2six	__PR((Uchar *in, Uchar *out));
+#ifdef	__needed__
 LOCAL	void	six2eight	__PR((Uchar *in, Uchar *out));
+#endif
 
 
 EXPORT BOOL
@@ -540,6 +543,7 @@ eight2six(in, out)
 	out[3]  = c & 0x3F;
 }
 
+#ifdef	__needed__
 /*
  * 4 input bytes (6 bit based) are converted into 3 output bytes (8 bit based).
  */
@@ -564,3 +568,4 @@ six2eight(in, out)
 	c = in[3] & 0x3F;
 	out[2] |= c;
 }
+#endif

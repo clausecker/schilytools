@@ -29,21 +29,21 @@
 
 #pragma ident	"@(#)blok.c	1.22	06/05/17 SMI"
 
+#include "defs.h"
+
 /*
  * This file contains modifications Copyright 2008 J. Schilling
  *
- * @(#)blok.c	1.7 08/03/28 2008 J. Schilling
+ * @(#)blok.c	1.8 08/12/22 2008 J. Schilling
  */
 #ifndef lint
-static	char sccsid[] =
-	"@(#)blok.c	1.7 08/03/28 2008 J. Schilling";
+static	const char sccsid[] =
+	"@(#)blok.c	1.8 08/12/22 2008 J. Schilling";
 #endif
 
 /*
  *	UNIX shell
  */
-
-#include	"defs.h"
 
 /*
  *	storage allocator

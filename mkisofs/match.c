@@ -1,7 +1,8 @@
-/* @(#)match.c	1.27 08/06/13 joerg */
+/* @(#)match.c	1.28 08/12/22 joerg */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)match.c	1.27 08/06/13 joerg";
+static	const char sccsid[] =
+	"@(#)match.c	1.28 08/12/22 joerg";
 #endif
 /*
  * 27-Mar-96: Jan-Piet Mens <jpm@mens.de>

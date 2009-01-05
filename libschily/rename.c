@@ -1,12 +1,13 @@
-/* @(#)rename.c	1.8 06/09/26 Copyright 1998-2003 J. Schilling */
+/* @(#)rename.c	1.9 08/12/21 Copyright 1998-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)rename.c	1.8 06/09/26 Copyright 1998-2003 J. Schilling";
+static	const char sccsid[] =
+	"@(#)rename.c	1.9 08/12/21 Copyright 1998-2008 J. Schilling";
 #endif
 /*
  *	rename() for old systems that don't have it.
  *
- *	Copyright (c) 1998-2003 J. Schilling
+ *	Copyright (c) 1998-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

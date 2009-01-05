@@ -1,7 +1,8 @@
-/* @(#)terminal.c	1.38 08/06/13 Copyright 1984-2008 J. Schilling */
+/* @(#)terminal.c	1.39 08/12/22 Copyright 1984-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)terminal.c	1.38 08/06/13 Copyright 1984-2008 J. Schilling";
+static	const char sccsid[] =
+	"@(#)terminal.c	1.39 08/12/22 Copyright 1984-2008 J. Schilling";
 #endif
 /*
  *	Upper layer support routines for TERMCAP

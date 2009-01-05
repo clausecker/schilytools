@@ -1,4 +1,4 @@
-#ident "@(#)Defaults.bsd-os3	1.2 07/05/08 "
+#ident "@(#)Defaults.bsd-os3	1.4 08/12/26 "
 ###########################################################################
 #
 # global definitions for BSD/OS Systems
@@ -39,10 +39,11 @@ DEFINCDIRS=	$(SRCROOT)/include
 ###########################################################################
 INS_BASE=	/opt/schily
 INS_KBASE=	/
+INS_RBASE=	/
 #
 DEFUMASK=	002
 #
 DEFINSMODEF=	444
 DEFINSMODEX=	755
-DEFINSUSR=	bin
+DEFINSUSR=	root
 DEFINSGRP=	bin

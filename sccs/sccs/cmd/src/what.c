@@ -25,13 +25,13 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2007 J. Schilling
+ * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)what.c	1.4 07/12/11 J. Schilling
+ * @(#)what.c	1.6 09/01/04 J. Schilling
  */
 #if defined(sun) || defined(__GNUC__)
 
-#ident "@(#)what.c 1.4 07/12/11 J. Schilling"
+#ident "@(#)what.c 1.6 09/01/04 J. Schilling"
 #endif
 /*
  * @(#)what.c 1.11 06/12/12
@@ -78,14 +78,14 @@ register char **argv;
 	 * Set directory to search for general l10n SCCS messages.
 	 */
 #ifdef	PROTOTYPES
-	bindtextdomain(NOGETTEXT("SUNW_SPRO_SCCS"),
+	(void) bindtextdomain(NOGETTEXT("SUNW_SPRO_SCCS"),
 	   NOGETTEXT(INS_BASE "/ccs/lib/locale/"));
 #else
-	bindtextdomain(NOGETTEXT("SUNW_SPRO_SCCS"),
+	(void) bindtextdomain(NOGETTEXT("SUNW_SPRO_SCCS"),
 	   NOGETTEXT("/usr/ccs/lib/locale/"));
 #endif
 	
-	textdomain(NOGETTEXT("SUNW_SPRO_SCCS"));
+	(void) textdomain(NOGETTEXT("SUNW_SPRO_SCCS"));
 
 	if (argc < 2)
 		dowhat(stdin);
@@ -177,7 +177,7 @@ trypat(iop,pat)
 register FILE *iop;
 register char *pat;
 {
-	register int c;
+	register int c = EOF;
 
 	for (; *pat; pat++)
 		if ((c = getc(iop)) != *pat)

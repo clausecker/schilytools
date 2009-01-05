@@ -1,7 +1,8 @@
-/* @(#)oldhistory.c	1.15 08/03/27 Copyright 1985-2008 J. Schilling */
+/* @(#)oldhistory.c	1.16 08/12/20 Copyright 1985-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)oldhistory.c	1.15 08/03/27 Copyright 1985-2008 J. Schilling";
+static	const char sccsid[] =
+	"@(#)oldhistory.c	1.16 08/12/20 Copyright 1985-2008 J. Schilling";
 #endif
 /*
  *	old bsh history section

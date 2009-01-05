@@ -1,7 +1,8 @@
-/* @(#)skel.c	1.14 08/10/26 Copyright 1987, 1995-2008 J. Schilling */
+/* @(#)skel.c	1.15 08/12/22 Copyright 1987, 1995-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)skel.c	1.14 08/10/26 Copyright 1987, 1995-2008 J. Schilling";
+static	const char sccsid[] =
+	"@(#)skel.c	1.15 08/12/22 Copyright 1987, 1995-2008 J. Schilling";
 #endif
 /*
  *	Skeleton for the use of the scg genearal SCSI - driver

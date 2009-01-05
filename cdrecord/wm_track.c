@@ -1,13 +1,14 @@
-/* @(#)wm_track.c	1.5 06/09/13 Copyright 1995, 1997, 2004 J. Schilling */
+/* @(#)wm_track.c	1.6 08/12/22 Copyright 1995, 1997, 2004-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)wm_track.c	1.5 06/09/13 Copyright 1995, 1997, 2004 J. Schilling";
+static	const char sccsid[] =
+	"@(#)wm_track.c	1.6 08/12/22 Copyright 1995, 1997, 2004-2008 J. Schilling";
 #endif
 /*
  *	CDR write method abtraction layer
  *	track at once writing intercace routines
  *
- *	Copyright (c) 1995, 1997, 2004 J. Schilling
+ *	Copyright (c) 1995, 1997, 2004-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

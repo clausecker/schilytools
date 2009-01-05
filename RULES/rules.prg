@@ -1,4 +1,4 @@
-#ident "@(#)rules.prg	1.17 08/10/11 "
+#ident "@(#)rules.prg	1.18 08/12/26 "
 ###########################################################################
 # Written 1996 by J. Schilling
 ###########################################################################
@@ -60,7 +60,7 @@ RM_F=		$(RM) $(RM_FORCE)
 
 INSMODEF_DEF=	444
 INSMODEX_DEF=	755
-INSUSR_DEF=	bin
+INSUSR_DEF=	root
 INSGRP_DEF=	bin
 
 _DEFUMASK=	$(_UNIQ)$(DEFUMASK)

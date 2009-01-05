@@ -29,21 +29,22 @@
 
 #pragma ident	"@(#)name.c	1.25	06/06/16 SMI"
 
+#include "defs.h"
+
 /*
  * This file contains modifications Copyright 2008 J. Schilling
  *
- * @(#)name.c	1.8 08/03/28 2008 J. Schilling
+ * @(#)name.c	1.9 08/12/22 2008 J. Schilling
  */
 #ifndef lint
-static	char sccsid[] =
-	"@(#)name.c	1.8 08/03/28 2008 J. Schilling";
+static	const char sccsid[] =
+	"@(#)name.c	1.9 08/12/22 2008 J. Schilling";
 #endif
 
 /*
  * UNIX shell
  */
 
-#include	"defs.h"
 #ifdef	HAVE_STROPTS_H
 #include	<stropts.h>
 #endif

@@ -1,10 +1,11 @@
-/* @(#)drv_dvdplus.c	1.50 08/10/11 Copyright 2003-2008 J. Schilling */
+/* @(#)drv_dvdplus.c	1.53 09/01/04 Copyright 2003-2009 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)drv_dvdplus.c	1.50 08/10/11 Copyright 2003-2008 J. Schilling";
+static	const char sccsid[] =
+	"@(#)drv_dvdplus.c	1.53 09/01/04 Copyright 2003-2009 J. Schilling";
 #endif
 /*
- *	Copyright (c) 2003-2008 J. Schilling
+ *	Copyright (c) 2003-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -127,7 +128,9 @@ LOCAL	int	set_p_layerbreak	__PR((SCSI *scgp, long tsize, Int32_t lbreak));
 #define	DC_ERASE	4
 LOCAL	int	ricoh_dvdsetting	__PR((SCSI *scgp, int erase_size, int flags, int immed));
 
+#ifdef	__needed__
 LOCAL	int	dummy_plextor		__PR((SCSI *scgp, int modecode));
+#endif
 
 /*
  * SCSI-3/mmc-3 conformant DVD+R or DVD+RW writer
@@ -1921,6 +1924,7 @@ ricoh_dvdsetting(scgp, erase_size, flags, immed)
 	return (scg_cmd(scgp));
 }
 
+#ifdef	__needed__
 /*
  * 0x21 Emulation write is OFF
  * 0x20 Emulation write is ON
@@ -1949,3 +1953,4 @@ dummy_plextor(scgp, modecode)
 		return (-1);
 	return (0);
 }
+#endif

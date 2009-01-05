@@ -1,7 +1,8 @@
-/* @(#)parse.c	1.29 08/03/27 Copyright 1985-2008 J. Schilling */
+/* @(#)parse.c	1.30 08/12/20 Copyright 1985-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)parse.c	1.29 08/03/27 Copyright 1985-2008 J. Schilling";
+static	const char sccsid[] =
+	"@(#)parse.c	1.30 08/12/20 Copyright 1985-2008 J. Schilling";
 #endif
 /*
  *	bsh command interpreter - Command Line Parser

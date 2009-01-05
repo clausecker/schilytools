@@ -1,7 +1,8 @@
-/* @(#)gap.c	1.16 08/09/18 J. Schilling from cdparanoia-III-alpha9.8 */
+/* @(#)gap.c	1.17 08/12/22 J. Schilling from cdparanoia-III-alpha9.8 */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-"@(#)gap.c	1.16 08/09/18 J. Schilling from cdparanoia-III-alpha9.8";
+static	const char sccsid[] =
+"@(#)gap.c	1.17 08/12/22 J. Schilling from cdparanoia-III-alpha9.8";
 
 #endif
 /*

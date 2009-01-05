@@ -1,7 +1,8 @@
-/* @(#)modes.c	1.27 08/10/26 Copyright 1988, 1997-2001, 2004-2008 J. Schilling */
+/* @(#)modes.c	1.28 08/12/22 Copyright 1988, 1997-2001, 2004-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)modes.c	1.27 08/10/26 Copyright 1988, 1997-2001, 2004-2008 J. Schilling";
+static	const char sccsid[] =
+	"@(#)modes.c	1.28 08/12/22 Copyright 1988, 1997-2001, 2004-2008 J. Schilling";
 #endif
 /*
  *	SCSI mode page handling

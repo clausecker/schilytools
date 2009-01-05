@@ -1,12 +1,13 @@
-/* @(#)hdump.c	1.19 06/09/13 Copyright 1986-2004 J. Schilling */
+/* @(#)hdump.c	1.20 08/12/23 Copyright 1986-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)hdump.c	1.19 06/09/13 Copyright 1986-2004 J. Schilling";
+static	const char sccsid[] =
+	"@(#)hdump.c	1.20 08/12/23 Copyright 1986-2008 J. Schilling";
 #endif
 /*
  *	hex dump for files
  *
- *	Copyright (c) 1986-2004 J. Schilling
+ *	Copyright (c) 1986-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -123,8 +124,8 @@ main(ac, av)
 	if (help)
 		usage(0);
 	if (prversion) {
-		printf("Hdump release %s (%s-%s-%s) Copyright (C) 1986-2004 Jörg Schilling\n",
-				"1.19",
+		printf("Hdump release %s (%s-%s-%s) Copyright (C) 1986-2008 Jörg Schilling\n",
+				"1.20",
 				HOST_CPU, HOST_VENDOR, HOST_OS);
 		exit(0);
 	}

@@ -1,12 +1,13 @@
-/* @(#)ttymodes.c	1.22 06/09/13 Copyright 1984-2004 J. Schilling */
+/* @(#)ttymodes.c	1.23 08/12/22 Copyright 1984-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)ttymodes.c	1.22 06/09/13 Copyright 1984-2004 J. Schilling";
+static	const char sccsid[] =
+	"@(#)ttymodes.c	1.23 08/12/22 Copyright 1984-2008 J. Schilling";
 #endif
 /*
  *	Terminal driver tty mode handling
  *
- *	Copyright (c) 1984-2004 J. Schilling
+ *	Copyright (c) 1984-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

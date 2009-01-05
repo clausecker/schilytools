@@ -1,7 +1,8 @@
-/* @(#)translit.c	1.12 08/04/26 Copyright 1985-2008 J. Schilling */
+/* @(#)translit.c	1.13 08/12/22 Copyright 1985-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)translit.c	1.12 08/04/26 Copyright 1985-2008 J. Schilling";
+static	const char sccsid[] =
+	"@(#)translit.c	1.13 08/12/22 Copyright 1985-2008 J. Schilling";
 #endif
 
 /*
@@ -102,7 +103,7 @@ main(ac, av)
 	if (prversion) {
 		printf(
 "Translit release %s (%s-%s-%s) Copyright (C) 1985-2008 Jörg Schilling\n",
-				"1.12",
+				"1.13",
 				HOST_CPU, HOST_VENDOR, HOST_OS);
 		exit(0);
 	}

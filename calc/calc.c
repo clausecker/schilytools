@@ -1,12 +1,13 @@
-/* @(#)calc.c	1.16 06/09/13 Copyright 1985-2004 J. Schilling */
+/* @(#)calc.c	1.17 08/12/22 Copyright 1985-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)calc.c	1.16 06/09/13 Copyright 1985-2004 J. Schilling";
+static	const char sccsid[] =
+	"@(#)calc.c	1.17 08/12/22 Copyright 1985-2008 J. Schilling";
 #endif
 /*
  *	Simples Taschenrechnerprogramm
  *
- *	Copyright (c) 1985-2004 J. Schilling
+ *	Copyright (c) 1985-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -85,8 +86,8 @@ main(ac, av)
 	if (help)
 		usage(0);
 	if (prversion) {
-		printf("Calc release %s (%s-%s-%s) Copyright (C) 1985, 89-91, 1996, 2000-2004 Jörg Schilling\n",
-				"1.16",
+		printf("Calc release %s (%s-%s-%s) Copyright (C) 1985, 89-91, 1996, 2000-2008 Jörg Schilling\n",
+				"1.17",
 				HOST_CPU, HOST_VENDOR, HOST_OS);
 		exit(0);
 	}

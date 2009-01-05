@@ -1,12 +1,13 @@
-/* @(#)ioctl.c	1.33 07/06/26 Copyright 1998,1999,2000 Heiko Eissfeldt, Copyright 2006-2007 J. Schilling */
+/* @(#)ioctl.c	1.35 08/12/22 Copyright 1998,1999,2000 Heiko Eissfeldt, Copyright 2006-2008 J. Schilling */
+#include "config.h"
 #ifndef lint
-static char	sccsid[] =
-"@(#)ioctl.c	1.33 07/06/26 Copyright 1998,1999,2000 Heiko Eissfeldt, Copyright 2006-2006 J. Schilling";
+static	const char sccsid[] =
+"@(#)ioctl.c	1.35 08/12/22 Copyright 1998,1999,2000 Heiko Eissfeldt, Copyright 2006-2008 J. Schilling";
 
 #endif
 /*
  * Copyright (C) 1999 Heiko Eissfeldt heiko@colossus.escape.de
- * Copyright (c) 2006-2007 J. Schilling
+ * Copyright (c) 2006-2008 J. Schilling
  *
  * Ioctl interface module for cdrom drive access
  *

@@ -1,11 +1,12 @@
-/* @(#)volume.c	1.22 08/09/11 joerg, Copyright 1997, 1998, 1999, 2000 James Pearson */
+/* @(#)volume.c	1.23 08/12/22 joerg, Copyright 1997, 1998, 1999, 2000 James Pearson */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)volume.c	1.22 08/09/11 joerg, Copyright 1997, 1998, 1999, 2000 James Pearson";
+static	const char sccsid[] =
+	"@(#)volume.c	1.23 08/12/22 joerg, Copyright 1997, 1998, 1999, 2000 James Pearson";
 #endif
 /*
  *      Copyright (c) 1997, 1998, 1999, 2000 James Pearson
- *	Copyright (c) 2004-2007 J. Schilling
+ *	Copyright (c) 2004-2008 J. Schilling
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

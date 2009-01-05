@@ -1,7 +1,8 @@
-/* @(#)list.c	1.71 08/06/13 Copyright 1985, 1995, 2000-2008 J. Schilling */
+/* @(#)list.c	1.72 08/12/22 Copyright 1985, 1995, 2000-2008 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)list.c	1.71 08/06/13 Copyright 1985, 1995, 2000-2008 J. Schilling";
+static	const char sccsid[] =
+	"@(#)list.c	1.72 08/12/22 Copyright 1985, 1995, 2000-2008 J. Schilling";
 #endif
 /*
  *	List the content of an archive
