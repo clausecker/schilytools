@@ -1,14 +1,14 @@
-/* @(#)parse.c	1.92 08/12/22 Copyright 1985-2008 J. Schilling */
+/* @(#)parse.c	1.94 09/01/09 Copyright 1985-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)parse.c	1.92 08/12/22 Copyright 1985-2008 J. Schilling";
+	"@(#)parse.c	1.94 09/01/09 Copyright 1985-2009 J. Schilling";
 #endif
 /*
  *	Make program
  *	Parsing routines
  *
- *	Copyright (c) 1985-2008 by J. Schilling
+ *	Copyright (c) 1985-2009 by J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -97,7 +97,7 @@ EXPORT void
 parsefile()
 {
 	int	i, objcnt;
-	int	type;
+	int	type = 0;	/* init to make GCC quiet */
 	obj_t	*ovec[MAXOBJS];
 	list_t	*deplist;
 	cmd_t	*cmdlist;

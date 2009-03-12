@@ -1,8 +1,8 @@
-/* @(#)memory.c	1.16 08/12/22 Copyright 1985-2008 J. Schilling */
+/* @(#)memory.c	1.17 09/02/07 Copyright 1985-2008 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)memory.c	1.16 08/12/22 Copyright 1985-2008 J. Schilling";
+	"@(#)memory.c	1.17 09/02/07 Copyright 1985-2008 J. Schilling";
 #endif
 /*
  *	Make program
@@ -33,7 +33,7 @@ EXPORT	char	*gbuf;
 EXPORT	char	*gbufend;
 EXPORT	int	gbufsize;
 
-EXPORT	void	*__realloc	__PR((void *ptr, size_t size, char *msg));
+EXPORT	void	*___realloc	__PR((void *ptr, size_t size, char *msg));
 LOCAL	char	*checkalloc	__PR((unsigned int size));
 #ifdef	DEBUG
 EXPORT	void	prmem		__PR((void));

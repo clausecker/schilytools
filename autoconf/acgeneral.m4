@@ -1,4 +1,4 @@
-dnl @(#)acgeneral.m4	1.5 08/08/01 Copyright 1998-2008 J. Schilling
+dnl @(#)acgeneral.m4	1.7 09/02/10 Copyright 1998-2008 J. Schilling
 dnl
 dnl Parameterized macros.
 dnl Requires GNU m4.
@@ -1995,6 +1995,12 @@ changequote([, ])dnl
 AC_MSG_CHECKING(size of $1)
 AC_CACHE_VAL(AC_CV_NAME,
 [AC_TRY_RUN([#include <stdio.h>
+#if	HAVE_STDDEF_H || STDC_HEADERS
+#include <stddef.h>	/* For ptrdiff_t, wchar_t, size_t */
+#endif
+#ifdef	HAVE_SYS_TYPES_H
+#include <sys/types.h>
+#endif
 main()
 {
   FILE *f=fopen("conftestval", "w");
@@ -2021,8 +2027,10 @@ AC_CACHE_VAL(ac_cv_type_$1,
 changequote(<<,>>)dnl
 <<(^|[^a-zA-Z_0-9])$1[^a-zA-Z_0-9]>>dnl
 changequote([,]), [#include <sys/types.h>
-#if STDC_HEADERS
+#if	HAVE_STDLIB_H || STDC_HEADERS
 #include <stdlib.h>
+#endif
+#if	HAVE_STDDEF_H || STDC_HEADERS
 #include <stddef.h>
 #endif], ac_cv_type_$1=yes, ac_cv_type_$1=no)])dnl
 AC_MSG_RESULT($ac_cv_type_$1)

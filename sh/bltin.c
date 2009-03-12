@@ -32,13 +32,13 @@
 #include "defs.h"
 
 /*
- * This file contains modifications Copyright 2008 J. Schilling
+ * This file contains modifications Copyright 2008-2009 J. Schilling
  *
- * @(#)bltin.c	1.8 08/12/22 2008 J. Schilling
+ * @(#)bltin.c	1.9 09/01/10 2008-2009 J. Schilling
  */
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)bltin.c	1.8 08/12/22 2008 J. Schilling";
+	"@(#)bltin.c	1.9 09/01/10 2008-2009 J. Schilling";
 #endif
 
 /*
@@ -63,7 +63,7 @@ int argc;
 unsigned char **argv;
 struct trenod *t;
 {
-	short index = initio(t->treio, (type != SYSEXEC));
+	short fdindex = initio(t->treio, (type != SYSEXEC));
 	unsigned char *a1 = argv[1];
 
 	switch (type)		
@@ -204,7 +204,7 @@ struct trenod *t;
 			     *a1 == '/' ||
 			     cf(a1, (unsigned char *)".") == 0 ||
 			     cf(a1, (unsigned char *)"..") == 0 ||
-			     (*a1 == '.' && (*(a1+1) == '/' || *(a1+1) == '.' && *(a1+2) == '/')))
+			     (*a1 == '.' && (*(a1+1) == '/' || (*(a1+1) == '.' && *(a1+2) == '/'))))
 				cdpath = (unsigned char *)nullstr;
 
 			do
@@ -500,6 +500,6 @@ struct trenod *t;
 
 
 	flushb();
-	restore(index);
+	restore(fdindex);
 	chktrap();
 }

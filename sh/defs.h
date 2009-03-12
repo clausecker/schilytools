@@ -33,9 +33,9 @@
 #pragma ident	"@(#)defs.h	1.28	08/01/29 SMI"
 
 /*
- * This file contains modifications Copyright 2008 J. Schilling
+ * This file contains modifications Copyright 2008-2009 J. Schilling
  *
- * @(#)defs.h	1.14 08/12/25 2008 J. Schilling
+ * @(#)defs.h	1.18 09/02/17 2008-2009 J. Schilling
  */
 
 #ifdef	__cplusplus
@@ -184,6 +184,10 @@ extern "C" {
 #include 	"mac.h"
 #include	"mode.h"
 #include	"name.h"
+
+#ifndef	HAVE_SYS_ACCT_H
+#undef	ACCT
+#endif
 
 #else	/* SCHILY_BUILD */
 
@@ -432,7 +436,7 @@ extern	void	freejobs	__PR((void));
 extern	void	startjobs	__PR((void));
 extern	int	endjobs		__PR((int check_if));
 extern	void	deallocjob	__PR((void));
-extern	void	allocjob	__PR((char *cmd, unsigned char *cwd, int monitor));
+extern	void	allocjob	__PR((char *_cmd, unsigned char *cwd, int monitor));
 extern	void	clearjobs	__PR((void));
 extern	void	makejob		__PR((int monitor, int fg));
 extern	void	postjob		__PR((pid_t pid, int fg));
@@ -474,7 +478,7 @@ extern	int	readvar		__PR((unsigned char **names));
 extern	void	assnum		__PR((unsigned char **p, long i));
 extern	unsigned char *	make	__PR((unsigned char *v));
 extern	struct namnod *	lookup	__PR((unsigned char *nam));
-extern	void	namscan		__PR((void (*fn)()));
+extern	void	namscan		__PR((void (*fn)(struct namnod *n)));
 extern	void	printnam	__PR((struct namnod *n));
 extern	void	printro		__PR((struct namnod *n));
 extern	void	printexp	__PR((struct namnod *n));
@@ -798,13 +802,13 @@ extern unsigned			brkincr;
 extern BOOL				trapnote;
 
 /* name tree and words */
-#ifdef	__hpux
+#ifdef	HAVE_ENVIRON_DEF
 /*
- * Warning: HP-UX has a "extern char **environ;" in unistd.h
- * We cannot use our own definitions here.
+ * Warning: HP-UX and Linux have "extern char **environ;" in unistd.h
+ * We should not use our own definitions here.
  */
 #else
-extern unsigned char				**environ;
+extern char					**environ;
 #endif
 extern unsigned char				numbuf[];
 extern const char				export[];
@@ -1001,6 +1005,9 @@ unsigned char *readw	__PR((wchar_t));
 #	define	getpgid(a)	getpgrp()
 #endif
 
+#if	!defined(HAVE_GETSID) && !defined(HAVE_BSD_GETPGRP)
+#	define	getsid	getpgid
+#endif
 
 
 #if !defined(HAVE_MEMSET) && !defined(memset)

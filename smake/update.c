@@ -1,8 +1,8 @@
-/* @(#)update.c	1.111 08/12/22 Copyright 1985, 88, 91, 1995-2008 J. Schilling */
+/* @(#)update.c	1.112 09/03/01 Copyright 1985, 88, 91, 1995-2008 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)update.c	1.111 08/12/22 Copyright 1985, 88, 91, 1995-2008 J. Schilling";
+	"@(#)update.c	1.112 09/03/01 Copyright 1985, 88, 91, 1995-2008 J. Schilling";
 #endif
 /*
  *	Make program
@@ -624,6 +624,7 @@ sub_put(chunk, size)
 	grant_gbuf(size);
 	movebytes(chunk, sub_ptr, size);
 	sub_ptr += size;
+	*sub_ptr = '\0';	/* Null terminate the gbuf string */
 }
 
 /*
@@ -635,6 +636,7 @@ sub_c_put(c)
 {
 	grant_gbuf(1);
 	*sub_ptr++ = c & 0xFF;
+	*sub_ptr   = '\0';	/* Null terminate the gbuf string */
 }
 
 /*

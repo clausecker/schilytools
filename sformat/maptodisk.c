@@ -1,13 +1,13 @@
-/* @(#)maptodisk.c	1.28 08/12/22 Copyright 1991-2008 J. Schilling */
+/* @(#)maptodisk.c	1.30 09/01/14 Copyright 1991-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)maptodisk.c	1.28 08/12/22 Copyright 1991-2008 J. Schilling";
+	"@(#)maptodisk.c	1.30 09/01/14 Copyright 1991-2009 J. Schilling";
 #endif
 /*
  *	Routines to map SCSI targets to logical disk names
  *
- *	Copyright (c) 1991-2008 J. Schilling
+ *	Copyright (c) 1991-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -66,26 +66,36 @@ LOCAL	scdev	diskmap[8][8];
 LOCAL	char	*disknames[NDISKNAMES];
 LOCAL	char	*diskdevnames[NDISKNAMES];
 LOCAL	scgdrv	scgmap[MAX_SCG];
+#ifdef	HAVE_DKIO
 LOCAL	int	scgmap_known = FALSE;
+#endif
 LOCAL	BOOL	diskmap_init = FALSE;
 LOCAL	BOOL	scgmap_init = FALSE;
 
 LOCAL	void	init_diskmap	__PR((void));
 LOCAL	void	diskmap_null	__PR((void));
 LOCAL	void	scgmap_null	__PR((void));
+#ifdef	HAVE_DKIO
 LOCAL	BOOL	have_diskname	__PR((char *));
+#endif
+#ifdef	HAVE_DKIO
 #ifdef	SVR4
 LOCAL	BOOL	is_svr4_disk	__PR((char *));
 #else
 LOCAL	BOOL	is_4x_disk	__PR((char *));
 #endif
+#endif
+#ifdef	HAVE_DKIO
 #ifdef	SVR4
 LOCAL	void	make_svr4_dname	__PR((char *, char *));
 #else
 LOCAL	void	make_dname	__PR((char *, char *));
 #endif
+#endif
+#ifdef	HAVE_DKIO
 LOCAL	BOOL	make_disknames	__PR((char *, char *, char *));
 LOCAL	int	opendisk	__PR((char *));
+#endif
 LOCAL	void	map_alldisks	__PR((void));
 #ifdef	HAVE_DKIO
 LOCAL	BOOL	map_disk	__PR((int, int, char *, char *));
@@ -227,6 +237,7 @@ scgmap_null()
 	}
 }
 
+#ifdef	HAVE_DKIO
 LOCAL BOOL
 have_diskname(name)
 	char	*name;
@@ -239,12 +250,14 @@ have_diskname(name)
 	}
 	return (FALSE);
 }
+#endif
 
 #define	check_if(s, c)	if (*s++ != c) return (FALSE);
 #define	skip_digits(s)	while (isdigit(*s)) s++;
 
 #ifdef	SVR4
 
+#ifdef	HAVE_DKIO
 LOCAL BOOL
 is_svr4_disk(s)
 	char	*s;
@@ -301,9 +314,11 @@ make_disknames(name, dname, cdname)
 	}
 	return (TRUE);
 }
+#endif
 
 #else	/* !SVR4 */
 
+#ifdef	HAVE_DKIO
 LOCAL BOOL
 is_4x_disk(s)
 	char	*s;
@@ -337,7 +352,9 @@ make_dname(to, from)
 		*to = '\0';
 	}
 }
+#endif
 
+#ifdef	HAVE_DKIO
 LOCAL BOOL
 make_disknames(name, dname, cdname)
 	char	*name;
@@ -355,6 +372,7 @@ make_disknames(name, dname, cdname)
 	return (TRUE);
 }
 #endif
+#endif
 
 #ifdef	SVR4
 #define	is_disk(n)	is_svr4_disk(n)
@@ -362,6 +380,7 @@ make_disknames(name, dname, cdname)
 #define	is_disk(n)	is_4x_disk(n)
 #endif
 
+#ifdef	HAVE_DKIO
 LOCAL int
 opendisk(dname)
 	char	*dname;
@@ -397,6 +416,7 @@ opendisk(dname)
 	}
 	return (f);
 }
+#endif
 
 LOCAL void
 map_alldisks()

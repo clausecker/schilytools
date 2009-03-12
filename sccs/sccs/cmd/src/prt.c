@@ -27,11 +27,11 @@
 /*
  * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)prt.c	1.7 09/01/04 J. Schilling
+ * @(#)prt.c	1.8 09/02/05 J. Schilling
  */
 #if defined(sun) || defined(__GNUC__)
 
-#ident "@(#)prt.c 1.7 09/01/04 J. Schilling"
+#ident "@(#)prt.c 1.8 09/02/05 J. Schilling"
 #endif
 /*
  * @(#)prt.c 1.22 06/12/12
@@ -63,7 +63,7 @@
 # include	<version.h>
 # include	<had.h>
 # include	<i18n.h>
-# include	<sysexits.h>
+# include	<schily/sysexits.h>
 
 # define NOEOF	0
 # define BLANK(p)	while (!(*p == ' ' || *p == '\t')) p++;

@@ -1,13 +1,13 @@
-/* @(#)readcd.c	1.100 08/12/22 Copyright 1987, 1995-2008 J. Schilling */
+/* @(#)readcd.c	1.101 09/01/20 Copyright 1987, 1995-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)readcd.c	1.100 08/12/22 Copyright 1987, 1995-2008 J. Schilling";
+	"@(#)readcd.c	1.101 09/01/20 Copyright 1987, 1995-2009 J. Schilling";
 #endif
 /*
  *	Skeleton for the use of the scg genearal SCSI - driver
  *
- *	Copyright (c) 1987, 1995-2008 J. Schilling
+ *	Copyright (c) 1987, 1995-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -147,6 +147,7 @@ struct exargs {
 	int	old_secsize;
 	int	flags;
 	int	exflags;
+	int	excode;
 	char	oerr[3];
 } exargs;
 
@@ -373,7 +374,7 @@ main(ac, av)
 	if (help)
 		usage(0);
 	if (pversion) {
-		printf("readcd %s (%s-%s-%s) Copyright (C) 1987, 1995-2008 Jörg Schilling\n",
+		printf("readcd %s (%s-%s-%s) Copyright (C) 1987, 1995-2009 Jörg Schilling\n",
 								cdr_version,
 								HOST_CPU, HOST_VENDOR, HOST_OS);
 		exit(0);
@@ -587,6 +588,8 @@ main(ac, av)
 	exargs.scgp	   = scgp;
 	exargs.old_secsize = -1;
 /*	exargs.flags	   = flags;*/
+	exargs.exflags	   = 0;
+	exargs.excode	   = 0;
 	exargs.oerr[2]	   = 0;
 
 	/*
@@ -613,8 +616,8 @@ main(ac, av)
 	} else {
 		doit(scgp);
 	}
-	comexit(0);
-	return (0);
+	comexit(exargs.excode);
+	return (exargs.excode);
 }
 
 LOCAL void
@@ -2135,6 +2138,7 @@ read_generic(scgp, parmp, rfunc, rp, dfunc)
 #endif
 	} else if ((f = fileopen(filename, notrunc?"wcub":"wctub")) == NULL)
 		comerr("Cannot open '%s'.\n", filename);
+	file_raise(f, FALSE);
 
 	error("end:  %8ld\n", end);
 	if (gettimeofday(&starttime, (struct timezone *)0) < 0)
@@ -2199,8 +2203,10 @@ read_generic(scgp, parmp, rfunc, rp, dfunc)
 			}
 			errmsgno(err, "Cannot read source disk\n");
 
-			if (read_retry(scgp, Sbuf, addr, cnt, rfunc, rp) < 0)
+			if (read_retry(scgp, Sbuf, addr, cnt, rfunc, rp) < 0) {
+				exargs.excode = -2;
 				goto out;
+			}
 		} else {
 			scgp->silent--;
 			if (scg_getresid(scgp)) {
@@ -2220,6 +2226,7 @@ read_generic(scgp, parmp, rfunc, rp, dfunc)
 			err = geterrno();
 			error("\n");
 			errmsgno(err, "Cannot write '%s'\n", filename);
+			exargs.excode = err;
 			break;
 		}
 	}

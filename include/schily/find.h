@@ -1,8 +1,8 @@
-/* @(#)find.h	1.19 08/04/06 Copyright 2005-2008 J. Schilling */
+/* @(#)find.h	1.20 09/01/13 Copyright 2005-2009 J. Schilling */
 /*
  *	Definitions for libfind users.
  *
- *	Copyright (c) 2004-2008 J. Schilling
+ *	Copyright (c) 2004-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -23,9 +23,8 @@
 #include <schily/mconfig.h>
 #endif
 
-#ifndef _INCL_STDIO_H
-#include <stdio.h>
-#define	_INCL_STDIO_H
+#ifndef _SCHILY_STDIO_H
+#include <schily/stdio.h>
 #endif
 
 #ifndef _SCHILY_STANDARD_H

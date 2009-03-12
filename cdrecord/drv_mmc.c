@@ -1,15 +1,15 @@
-/* @(#)drv_mmc.c	1.192 08/12/22 Copyright 1997-2008 J. Schilling */
+/* @(#)drv_mmc.c	1.193 09/01/10 Copyright 1997-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)drv_mmc.c	1.192 08/12/22 Copyright 1997-2008 J. Schilling";
+	"@(#)drv_mmc.c	1.193 09/01/10 Copyright 1997-2009 J. Schilling";
 #endif
 /*
  *	CDR device implementation for
  *	SCSI-3/mmc conforming drives
  *	e.g. Yamaha CDR-400, Ricoh MP6200
  *
- *	Copyright (c) 1997-2008 J. Schilling
+ *	Copyright (c) 1997-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -3037,11 +3037,11 @@ check_varirec_plextor(scgp)
 	SCSI	*scgp;
 {
 	int	modecode = 2;
-	Uchar	getmode[8];
+	Uchar	pgetmode[8];
 
-	fillbytes(getmode, sizeof (getmode), '\0');
+	fillbytes(pgetmode, sizeof (pgetmode), '\0');
 	scgp->silent++;
-	if (drivemode_plextor(scgp, (caddr_t)getmode, sizeof (getmode), modecode, NULL) < 0) {
+	if (drivemode_plextor(scgp, (caddr_t)pgetmode, sizeof (pgetmode), modecode, NULL) < 0) {
 		scgp->silent--;
 		return (-1);
 	}
@@ -3055,11 +3055,11 @@ check_gigarec_plextor(scgp)
 	SCSI	*scgp;
 {
 	int	modecode = 4;
-	Uchar	getmode[8];
+	Uchar	pgetmode[8];
 
-	fillbytes(getmode, sizeof (getmode), '\0');
+	fillbytes(pgetmode, sizeof (pgetmode), '\0');
 	scgp->silent++;
-	if (drivemode_plextor(scgp, (caddr_t)getmode, sizeof (getmode), modecode, NULL) < 0) {
+	if (drivemode_plextor(scgp, (caddr_t)pgetmode, sizeof (pgetmode), modecode, NULL) < 0) {
 		scgp->silent--;
 		return (-1);
 	}
@@ -3075,23 +3075,23 @@ varirec_plextor(scgp, on, val)
 	int	val;
 {
 	int	modecode = 2;
-	Uchar	setmode[8];
-	Uchar	getmode[8];
+	Uchar	psetmode[8];
+	Uchar	pgetmode[8];
 
-	fillbytes(getmode, sizeof (getmode), '\0');
+	fillbytes(pgetmode, sizeof (pgetmode), '\0');
 	scgp->silent++;
-	if (drivemode_plextor(scgp, (caddr_t)getmode, sizeof (getmode), modecode, NULL) < 0) {
+	if (drivemode_plextor(scgp, (caddr_t)pgetmode, sizeof (pgetmode), modecode, NULL) < 0) {
 		scgp->silent--;
 		return (-1);
 	}
 	scgp->silent--;
 
 	if (lverbose > 1)
-		scg_prbytes("Modes", getmode, sizeof (getmode));
+		scg_prbytes("Modes", pgetmode, sizeof (pgetmode));
 
 
-	fillbytes(setmode, sizeof (setmode), '\0');
-	setmode[0] = on?1:0;
+	fillbytes(psetmode, sizeof (psetmode), '\0');
+	psetmode[0] = on?1:0;
 	if (on) {
 		/*
 		 * Before -2 .. +2
@@ -3103,22 +3103,22 @@ varirec_plextor(scgp, on, val)
 		printf("Varirec offset is %d.\n", val);
 
 		if (val > 0) {
-			setmode[1] = val & 0x7F;
+			psetmode[1] = val & 0x7F;
 		} else {
-			setmode[1] = (-val) & 0x7F;
-			setmode[1] |= 0x80;
+			psetmode[1] = (-val) & 0x7F;
+			psetmode[1] |= 0x80;
 		}
 	}
 
-	if (drivemode_plextor(scgp, NULL, 0, modecode, setmode) < 0)
+	if (drivemode_plextor(scgp, NULL, 0, modecode, psetmode) < 0)
 		return (-1);
 
-	fillbytes(getmode, sizeof (getmode), '\0');
-	if (drivemode_plextor(scgp, (caddr_t)getmode, sizeof (getmode), modecode, NULL) < 0)
+	fillbytes(pgetmode, sizeof (pgetmode), '\0');
+	if (drivemode_plextor(scgp, (caddr_t)pgetmode, sizeof (pgetmode), modecode, NULL) < 0)
 		return (-1);
 
 	if (lverbose > 1)
-		scg_prbytes("Modes", getmode, sizeof (getmode));
+		scg_prbytes("Modes", pgetmode, sizeof (pgetmode));
 
 	return (0);
 }
@@ -3129,47 +3129,47 @@ gigarec_plextor(scgp, val)
 	int	val;
 {
 	int	modecode = 4;
-	Uchar	setmode[8];
-	Uchar	getmode[8];
+	Uchar	psetmode[8];
+	Uchar	pgetmode[8];
 
-	fillbytes(getmode, sizeof (getmode), '\0');
+	fillbytes(pgetmode, sizeof (pgetmode), '\0');
 	scgp->silent++;
-	if (drivemode_plextor(scgp, (caddr_t)getmode, sizeof (getmode), modecode, NULL) < 0) {
+	if (drivemode_plextor(scgp, (caddr_t)pgetmode, sizeof (pgetmode), modecode, NULL) < 0) {
 		scgp->silent--;
 		return (-1);
 	}
 	scgp->silent--;
 
 	if (lverbose > 1)
-		scg_prbytes("Modes", getmode, sizeof (getmode));
+		scg_prbytes("Modes", pgetmode, sizeof (pgetmode));
 
 
-	fillbytes(setmode, sizeof (setmode), '\0');
-	setmode[1] = val;
+	fillbytes(psetmode, sizeof (psetmode), '\0');
+	psetmode[1] = val;
 
-	if (drivemode_plextor(scgp, NULL, 0, modecode, setmode) < 0)
+	if (drivemode_plextor(scgp, NULL, 0, modecode, psetmode) < 0)
 		return (-1);
 
-	fillbytes(getmode, sizeof (getmode), '\0');
-	if (drivemode_plextor(scgp, (caddr_t)getmode, sizeof (getmode), modecode, NULL) < 0)
+	fillbytes(pgetmode, sizeof (pgetmode), '\0');
+	if (drivemode_plextor(scgp, (caddr_t)pgetmode, sizeof (pgetmode), modecode, NULL) < 0)
 		return (-1);
 
 	if (lverbose > 1)
-		scg_prbytes("Modes", getmode, sizeof (getmode));
+		scg_prbytes("Modes", pgetmode, sizeof (pgetmode));
 
 	{
 		struct gr *gp = gr;
 
 		for (; gp->name != NULL; gp++) {
-			if (getmode[3] == gp->val)
+			if (pgetmode[3] == gp->val)
 				break;
 		}
 		if (gp->name == NULL)
-			printf("Unknown GigaRec value 0x%X.\n", getmode[3]);
+			printf("Unknown GigaRec value 0x%X.\n", pgetmode[3]);
 		else
 			printf("GigaRec %sis %s.\n", gp->val?"value ":"", gp->name);
 	}
-	return (getmode[3]);
+	return (pgetmode[3]);
 }
 
 LOCAL Int32_t
@@ -3196,17 +3196,17 @@ check_ss_hide_plextor(scgp)
 	SCSI	*scgp;
 {
 	int	modecode = 1;
-	Uchar	getmode[8];
+	Uchar	pgetmode[8];
 
-	fillbytes(getmode, sizeof (getmode), '\0');
+	fillbytes(pgetmode, sizeof (pgetmode), '\0');
 	scgp->silent++;
-	if (drivemode_plextor(scgp, (caddr_t)getmode, sizeof (getmode), modecode, NULL) < 0) {
+	if (drivemode_plextor(scgp, (caddr_t)pgetmode, sizeof (pgetmode), modecode, NULL) < 0) {
 		scgp->silent--;
 		return (-1);
 	}
 	scgp->silent--;
 
-	return (getmode[2] & 0x03);
+	return (pgetmode[2] & 0x03);
 }
 
 LOCAL int
@@ -3214,17 +3214,17 @@ check_speed_rd_plextor(scgp)
 	SCSI	*scgp;
 {
 	int	modecode = 0xBB;
-	Uchar	getmode[8];
+	Uchar	pgetmode[8];
 
-	fillbytes(getmode, sizeof (getmode), '\0');
+	fillbytes(pgetmode, sizeof (pgetmode), '\0');
 	scgp->silent++;
-	if (drivemode_plextor(scgp, (caddr_t)getmode, sizeof (getmode), modecode, NULL) < 0) {
+	if (drivemode_plextor(scgp, (caddr_t)pgetmode, sizeof (pgetmode), modecode, NULL) < 0) {
 		scgp->silent--;
 		return (-1);
 	}
 	scgp->silent--;
 
-	return (getmode[2] & 0x01);
+	return (pgetmode[2] & 0x01);
 }
 
 LOCAL int
@@ -3232,17 +3232,17 @@ check_powerrec_plextor(scgp)
 	SCSI	*scgp;
 {
 	int	modecode = 0;
-	Uchar	getmode[8];
+	Uchar	pgetmode[8];
 
-	fillbytes(getmode, sizeof (getmode), '\0');
+	fillbytes(pgetmode, sizeof (pgetmode), '\0');
 	scgp->silent++;
-	if (drivemode2_plextor(scgp, (caddr_t)getmode, sizeof (getmode), modecode, NULL) < 0) {
+	if (drivemode2_plextor(scgp, (caddr_t)pgetmode, sizeof (pgetmode), modecode, NULL) < 0) {
 		scgp->silent--;
 		return (-1);
 	}
 	scgp->silent--;
 
-	if (getmode[2] & 1)
+	if (pgetmode[2] & 1)
 		return (1);
 
 	return (0);
@@ -3255,44 +3255,44 @@ ss_hide_plextor(scgp, do_ss, do_hide)
 	BOOL	do_hide;
 {
 	int	modecode = 1;
-	Uchar	setmode[8];
-	Uchar	getmode[8];
+	Uchar	psetmode[8];
+	Uchar	pgetmode[8];
 	BOOL	is_ss;
 	BOOL	is_hide;
 
-	fillbytes(getmode, sizeof (getmode), '\0');
+	fillbytes(pgetmode, sizeof (pgetmode), '\0');
 	scgp->silent++;
-	if (drivemode_plextor(scgp, (caddr_t)getmode, sizeof (getmode), modecode, NULL) < 0) {
+	if (drivemode_plextor(scgp, (caddr_t)pgetmode, sizeof (pgetmode), modecode, NULL) < 0) {
 		scgp->silent--;
 		return (-1);
 	}
 	scgp->silent--;
 
 	if (lverbose > 1)
-		scg_prbytes("Modes", getmode, sizeof (getmode));
+		scg_prbytes("Modes", pgetmode, sizeof (pgetmode));
 
 
-	is_ss = (getmode[2] & MB1_SS) != 0;
-	is_hide = (getmode[2] & MB1_HIDE_CDR) != 0;
+	is_ss = (pgetmode[2] & MB1_SS) != 0;
+	is_hide = (pgetmode[2] & MB1_HIDE_CDR) != 0;
 
 	if (lverbose > 0) {
 		printf("Single session is %s.\n", is_ss ? "ON":"OFF");
 		printf("Hide CDR is %s.\n", is_hide ? "ON":"OFF");
 	}
 
-	fillbytes(setmode, sizeof (setmode), '\0');
-	setmode[0] = getmode[2];		/* Copy over old values */
+	fillbytes(psetmode, sizeof (psetmode), '\0');
+	psetmode[0] = pgetmode[2];		/* Copy over old values */
 	if (do_ss >= 0) {
 		if (do_ss)
-			setmode[0] |= MB1_SS;
+			psetmode[0] |= MB1_SS;
 		else
-			setmode[0] &= ~MB1_SS;
+			psetmode[0] &= ~MB1_SS;
 	}
 	if (do_hide >= 0) {
 		if (do_hide)
-			setmode[0] |= MB1_HIDE_CDR;
+			psetmode[0] |= MB1_HIDE_CDR;
 		else
-			setmode[0] &= ~MB1_HIDE_CDR;
+			psetmode[0] &= ~MB1_HIDE_CDR;
 	}
 
 	if (do_ss >= 0 && do_ss != is_ss)
@@ -3300,15 +3300,15 @@ ss_hide_plextor(scgp, do_ss, do_hide)
 	if (do_hide >= 0 && do_hide != is_hide)
 		printf("Turning hide CDR %s.\n", do_hide?"on":"off");
 
-	if (drivemode_plextor(scgp, NULL, 0, modecode, setmode) < 0)
+	if (drivemode_plextor(scgp, NULL, 0, modecode, psetmode) < 0)
 		return (-1);
 
-	fillbytes(getmode, sizeof (getmode), '\0');
-	if (drivemode_plextor(scgp, (caddr_t)getmode, sizeof (getmode), modecode, NULL) < 0)
+	fillbytes(pgetmode, sizeof (pgetmode), '\0');
+	if (drivemode_plextor(scgp, (caddr_t)pgetmode, sizeof (pgetmode), modecode, NULL) < 0)
 		return (-1);
 
 	if (lverbose > 1)
-		scg_prbytes("Modes", getmode, sizeof (getmode));
+		scg_prbytes("Modes", pgetmode, sizeof (pgetmode));
 
 	return (0);
 }
@@ -3319,48 +3319,48 @@ speed_rd_plextor(scgp, do_speedrd)
 	BOOL	do_speedrd;
 {
 	int	modecode = 0xBB;
-	Uchar	setmode[8];
-	Uchar	getmode[8];
+	Uchar	psetmode[8];
+	Uchar	pgetmode[8];
 	BOOL	is_speedrd;
 
-	fillbytes(getmode, sizeof (getmode), '\0');
+	fillbytes(pgetmode, sizeof (pgetmode), '\0');
 	scgp->silent++;
-	if (drivemode_plextor(scgp, (caddr_t)getmode, sizeof (getmode), modecode, NULL) < 0) {
+	if (drivemode_plextor(scgp, (caddr_t)pgetmode, sizeof (pgetmode), modecode, NULL) < 0) {
 		scgp->silent--;
 		return (-1);
 	}
 	scgp->silent--;
 
 	if (lverbose > 1)
-		scg_prbytes("Modes", getmode, sizeof (getmode));
+		scg_prbytes("Modes", pgetmode, sizeof (pgetmode));
 
 
-	is_speedrd = (getmode[2] & MBbb_SPEAD_READ) != 0;
+	is_speedrd = (pgetmode[2] & MBbb_SPEAD_READ) != 0;
 
 	if (lverbose > 0)
 		printf("Speed-Read is %s.\n", is_speedrd ? "ON":"OFF");
 
-	fillbytes(setmode, sizeof (setmode), '\0');
-	setmode[0] = getmode[2];		/* Copy over old values */
+	fillbytes(psetmode, sizeof (psetmode), '\0');
+	psetmode[0] = pgetmode[2];		/* Copy over old values */
 	if (do_speedrd >= 0) {
 		if (do_speedrd)
-			setmode[0] |= MBbb_SPEAD_READ;
+			psetmode[0] |= MBbb_SPEAD_READ;
 		else
-			setmode[0] &= ~MBbb_SPEAD_READ;
+			psetmode[0] &= ~MBbb_SPEAD_READ;
 	}
 
 	if (do_speedrd >= 0 && do_speedrd != is_speedrd)
 		printf("Turning Speed-Read %s.\n", do_speedrd?"on":"off");
 
-	if (drivemode_plextor(scgp, NULL, 0, modecode, setmode) < 0)
+	if (drivemode_plextor(scgp, NULL, 0, modecode, psetmode) < 0)
 		return (-1);
 
-	fillbytes(getmode, sizeof (getmode), '\0');
-	if (drivemode_plextor(scgp, (caddr_t)getmode, sizeof (getmode), modecode, NULL) < 0)
+	fillbytes(pgetmode, sizeof (pgetmode), '\0');
+	if (drivemode_plextor(scgp, (caddr_t)pgetmode, sizeof (pgetmode), modecode, NULL) < 0)
 		return (-1);
 
 	if (lverbose > 1)
-		scg_prbytes("Modes", getmode, sizeof (getmode));
+		scg_prbytes("Modes", pgetmode, sizeof (pgetmode));
 
 	/*
 	 * Set current read speed to new max value.
@@ -3377,53 +3377,53 @@ powerrec_plextor(scgp, do_powerrec)
 	BOOL	do_powerrec;
 {
 	int	modecode = 0;
-	Uchar	setmode[8];
-	Uchar	getmode[8];
+	Uchar	psetmode[8];
+	Uchar	pgetmode[8];
 	BOOL	is_powerrec;
 	int	speed;
 
-	fillbytes(getmode, sizeof (getmode), '\0');
+	fillbytes(pgetmode, sizeof (pgetmode), '\0');
 	scgp->silent++;
-	if (drivemode2_plextor(scgp, (caddr_t)getmode, sizeof (getmode), modecode, NULL) < 0) {
+	if (drivemode2_plextor(scgp, (caddr_t)pgetmode, sizeof (pgetmode), modecode, NULL) < 0) {
 		scgp->silent--;
 		return (-1);
 	}
 	scgp->silent--;
 
 	if (lverbose > 1)
-		scg_prbytes("Modes", getmode, sizeof (getmode));
+		scg_prbytes("Modes", pgetmode, sizeof (pgetmode));
 
 
-	is_powerrec = (getmode[2] & 1) != 0;
+	is_powerrec = (pgetmode[2] & 1) != 0;
 
-	speed = a_to_u_2_byte(&getmode[4]);
+	speed = a_to_u_2_byte(&pgetmode[4]);
 
 	if (lverbose > 0) {
 		printf("Power-Rec is %s.\n", is_powerrec ? "ON":"OFF");
 		printf("Power-Rec write speed:     %dx (recommended)\n", speed / 176);
 	}
 
-	fillbytes(setmode, sizeof (setmode), '\0');
-	setmode[0] = getmode[2];		/* Copy over old values */
+	fillbytes(psetmode, sizeof (psetmode), '\0');
+	psetmode[0] = pgetmode[2];		/* Copy over old values */
 	if (do_powerrec >= 0) {
 		if (do_powerrec)
-			setmode[0] |= 1;
+			psetmode[0] |= 1;
 		else
-			setmode[0] &= ~1;
+			psetmode[0] &= ~1;
 	}
 
 	if (do_powerrec >= 0 && do_powerrec != is_powerrec)
 		printf("Turning Power-Rec %s.\n", do_powerrec?"on":"off");
 
-	if (drivemode2_plextor(scgp, NULL, 0, modecode, setmode) < 0)
+	if (drivemode2_plextor(scgp, NULL, 0, modecode, psetmode) < 0)
 		return (-1);
 
-	fillbytes(getmode, sizeof (getmode), '\0');
-	if (drivemode2_plextor(scgp, (caddr_t)getmode, sizeof (getmode), modecode, NULL) < 0)
+	fillbytes(pgetmode, sizeof (pgetmode), '\0');
+	if (drivemode2_plextor(scgp, (caddr_t)pgetmode, sizeof (pgetmode), modecode, NULL) < 0)
 		return (-1);
 
 	if (lverbose > 1)
-		scg_prbytes("Modes", getmode, sizeof (getmode));
+		scg_prbytes("Modes", pgetmode, sizeof (pgetmode));
 
 	return (0);
 }

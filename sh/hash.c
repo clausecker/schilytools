@@ -34,13 +34,13 @@
 #include "defs.h"
 
 /*
- * This file contains modifications Copyright 2008 J. Schilling
+ * This file contains modifications Copyright 2008-2009 J. Schilling
  *
- * @(#)hash.c	1.6 08/12/22 2008 J. Schilling
+ * @(#)hash.c	1.7 09/01/14 2008-2009 J. Schilling
  */
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)hash.c	1.6 08/12/22 2008 J. Schilling";
+	"@(#)hash.c	1.7 09/01/14 2008-2009 J. Schilling";
 #endif
 
 #include	"hash.h"
@@ -131,7 +131,7 @@ hfind(str)
 	struct node 	*p;
 	struct node 	**q;
 	unsigned int 	i;
-	int 			res;		
+	int 		res = 0;	/* Make GCC happy */
 
 	i = hash(str);
 

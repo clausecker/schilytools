@@ -37,13 +37,13 @@
  * contributors.
  */
 /*
- * This file contains modifications Copyright 2006-2007 J. Schilling
+ * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)diff.h	1.5 07/01/24 J. Schilling
+ * @(#)diff.h	1.7 09/02/05 J. Schilling
  */
 #if defined(sun) || defined(__GNUC__)
 
-#ident "@(#)diff.h 1.5 07/01/24 J. Schilling"
+#ident "@(#)diff.h 1.7 09/02/05 J. Schilling"
 #endif
 
 #ifndef	_DIFF_H
@@ -139,6 +139,7 @@ int lflag = 0;
 int sflag = 0;
 int hflag = 0;
 int uflag = 0;
+int Nflag = 0;
 
 /*
  * Variables for D_IFDEF option.
@@ -163,8 +164,6 @@ FILE *input[2];		/* two input files */
 int  len[2];
 struct line *sfile[2];  /* shortened by pruning common prefix and suffix */
 int  slen[2];
-
-struct stat stb1;
 
 /*
  * Input file names.

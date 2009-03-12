@@ -1,8 +1,8 @@
-/* @(#)translit.c	1.13 08/12/22 Copyright 1985-2008 J. Schilling */
+/* @(#)translit.c	1.14 09/01/07 Copyright 1985-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)translit.c	1.13 08/12/22 Copyright 1985-2008 J. Schilling";
+	"@(#)translit.c	1.14 09/01/07 Copyright 1985-2009 J. Schilling";
 #endif
 
 /*
@@ -10,7 +10,7 @@ static	const char sccsid[] =
  *
  *	translit fromset toset file1...filen
  *
- *	Copyright 1985-2008 J. Schilling
+ *	Copyright 1985-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -103,7 +103,7 @@ main(ac, av)
 	if (prversion) {
 		printf(
 "Translit release %s (%s-%s-%s) Copyright (C) 1985-2008 Jörg Schilling\n",
-				"1.13",
+				"1.14",
 				HOST_CPU, HOST_VENDOR, HOST_OS);
 		exit(0);
 	}
@@ -345,7 +345,7 @@ unesc(cpp)
 	switch (c = **cpp) {
 
 	case 'a':
-		return ('\a');
+		return ('\a');	/* HP cc complains but inserts correct value */
 	case 'b':
 		return ('\b');
 	case 'f':

@@ -1,12 +1,12 @@
-/* @(#)apple.c	1.34 08/12/22 joerg, Copyright 1997, 1998, 1999, 2000 James Pearson */
+/* @(#)apple.c	1.36 09/01/14 joerg, Copyright 1997, 1998, 1999, 2000 James Pearson */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)apple.c	1.34 08/12/22 joerg, Copyright 1997, 1998, 1999, 2000 James Pearson";
+	"@(#)apple.c	1.36 09/01/14 joerg, Copyright 1997, 1998, 1999, 2000 James Pearson";
 #endif
 /*
  *      Copyright (c) 1997, 1998, 1999, 2000 James Pearson
- *	Copyright (c) 2000-2008 J. Schilling
+ *	Copyright (c) 2000-2009 J. Schilling
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -1957,7 +1957,6 @@ get_xhfs_info(hname, dname, s_entry, ret)
 	attrinfo	ainfo;
 	struct attrlist attrs;
 	int		i;
-	int		size;
 	char	tmphname[2048];	/* XXX is this sufficient with -find? */
 
 	strlcpy(tmphname, hname, sizeof (tmphname));
@@ -2636,12 +2635,12 @@ print_hfs_info(s_entry)
 	fprintf(stderr, "\tTYPE:	'%s'\n", s_entry->hfs_ent->u.file.type);
 	fprintf(stderr, "\tFlags:	 %d\n", s_entry->hfs_ent->fdflags);
 	fprintf(stderr, "\tISO-Size: %ld\n", (long)get_733(s_entry->isorec.size));
-	fprintf(stderr, "\tSize:     %llu\n", s_entry->size);
+	fprintf(stderr, "\tSize:     %llu\n", (Llong)s_entry->size);
 	fprintf(stderr, "\tExtent:	 %ld\n", (long)get_733(s_entry->isorec.extent));
 	if (s_entry->assoc) {
 		fprintf(stderr, "\tResource Name: %s\n", s_entry->assoc->whole_name);
 		fprintf(stderr, "\t\tISO-Size:	%ld\n", (long)get_733(s_entry->assoc->isorec.size));
-		fprintf(stderr, "\t\tSize:     %llu\n", s_entry->assoc->size);
+		fprintf(stderr, "\t\tSize:     %llu\n", (Llong)s_entry->assoc->size);
 		fprintf(stderr, "\t\tExtent:	%ld\n", (long)get_733(s_entry->assoc->isorec.extent));
 	}
 }

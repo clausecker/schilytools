@@ -1,5 +1,5 @@
 #! /bin/sh
-# @(#)autoconf	1.6 08/08/03 Copyright 1999-2008 J. Schilling
+# @(#)autoconf	1.7 09/02/02 Copyright 1999-2008 J. Schilling
 #
 # autoconf -- create `configure' using m4 macros
 # Copyright (C) 1992, 1993, 1994, 1996 Free Software Foundation, Inc.
@@ -44,6 +44,7 @@ $M4 < /dev/null 2> /dev/null || M4=/opt/sfw/bin/gm4
 $M4 < /dev/null 2> /dev/null || M4=/usr/sfw/bin/gm4
 $M4 < /dev/null 2> /dev/null || M4=/opt/csw/bin/gm4
 $M4 < /dev/null 2> /dev/null || M4=gm4
+$M4 < /dev/null 2> /dev/null || M4=m4
 
 : ${AWK=/usr/bin/gawk}
 $AWK '{print 1}' < /dev/null 2> /dev/null || AWK=/opt/sfw/bin/gawk

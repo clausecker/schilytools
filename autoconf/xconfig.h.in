@@ -1,8 +1,8 @@
-/* @(#)xconfig.h.in	1.150 08/11/08 Copyright 1998-2008 J. Schilling */
+/* @(#)xconfig.h.in	1.158 09/02/26 Copyright 1998-2009 J. Schilling */
 /*
  *	Dynamic autoconf C-include code.
  *
- *	Copyright (c) 1998-2008 J. Schilling
+ *	Copyright (c) 1998-2009 J. Schilling
  */
 
 /*
@@ -13,7 +13,7 @@
 #undef HAVE_STDARG_H	/* to use stdarg.h, else use varargs.h NOTE: SaberC on a Sun has prototypes but no stdarg.h */
 #undef HAVE_VARARGS_H	/* to use use varargs.h NOTE: The free HP-UX C-compiler has stdarg.h but no PROTOTYPES */
 #undef HAVE_STDLIB_H	/* to use general utility defines (malloc(), size_t ...) and general C library prototypes */
-#undef HAVE_STDDEF_H	/* to use offsetof(), ptrdiff_t, wchar>t, size_t */
+#undef HAVE_STDDEF_H	/* to use offsetof(), ptrdiff_t, wchar_t, size_t */
 #undef HAVE_STRING_H	/* to get NULL and ANSI C string function prototypes */
 #undef HAVE_STRINGS_H	/* to get BSD string function prototypes */
 #undef STDC_HEADERS	/* if ANSI compliant stdlib.h, stdarg.h, string.h, float.h are present */
@@ -91,6 +91,7 @@
 #undef HAVE_SYS_STYPES_H	/* if we may include sys/stypes.h (JOS) */
 #undef HAVE_SYS_FILEDESC_H	/* if we may include sys/filedesc.h (JOS) */
 #undef HAVE_SYS_STAT_H		/* if we may include sys/stat.h (the standard) */
+#undef HAVE_SYS_ACCT_H		/* if we may include sys/acct.h */
 #undef HAVE_TYPES_H		/* if we may include types.h (rare cases e.g. ATARI TOS) */
 #undef HAVE_STAT_H		/* if we may include stat.h (rare cases e.g. ATARI TOS) */
 #undef HAVE_POLL_H		/* if we may include poll.h to use poll() */
@@ -112,6 +113,7 @@
 #undef HAVE___FILBUF		/* if we have __filbuf() for USG derived STDIO */
 #undef HAVE_USG_STDIO		/* if we have USG derived STDIO */
 #undef HAVE_ERRNO_DEF		/* if we have errno definition in <errno.h> */
+#undef HAVE_ENVIRON_DEF		/* if we have environ definition in <unistd.h> */
 #undef HAVE_SYS_SIGLIST_DEF	/* if we have sys_siglist definition in <signal.h> */
 #undef HAVE_VFORK_H		/* if we should include vfork.h for vfork() definitions */
 #undef HAVE_ARPA_INET_H		/* if we have arpa/inet.h (missing on BeOS) */
@@ -122,11 +124,14 @@
 #undef HAVE_ASM_TYPES_H		/* if we may include asm/types.h */
 #undef HAVE_SYS_BSDTTY_H	/* if we have sys/bsdtty.h on HP-UX for TIOCGPGRP */
 #undef HAVE_OS_H		/* if we have the BeOS kernel definitions in OS.h */
+#undef HAVE_OS2_H		/* if we have the OS/2 definitions in os2.h */
+#undef HAVE_OS2ME_H		/* if we have the OS/2 definitions in os2me.h */
 #undef HAVE_EXT2FS_EXT2_FS_H	/* if we have the Linux moving target ext2fs/ext2_fs.h */
 #undef HAVE_ATTR_XATTR_H	/* if we have the Linux Extended File Attr definitions in attr/xattr.h */
 #undef HAVE_CRT_EXTERNS_H	/* if we have the Mac OS X env definitions in crt_externs.h */
 #undef HAVE_FNMATCH_H		/* if we may include fnmatch.h */
 #undef HAVE_DIRECT_H		/* if we may include direct.h  (MSVC for getcwd()/chdir()/mkdir()/rmdir()) */
+#undef HAVE_SYSEXITS_H		/* if we may include sysexits.h */
 
 #undef HAVE_LIBINTL_H		/* if we may include libintl.h */
 #undef HAVE_LOCALE_H		/* if we may include locale.h */
@@ -367,6 +372,7 @@
 #undef HAVE_SIGPROCMASK		/* sigprocmask() is present in libc (POSIX) */
 #undef HAVE_SIGSETMASK		/* sigsetmask() is present in libc (BSD) */
 #undef HAVE_SIGSET		/* sigset() is present in libc (POSIX) */
+#undef HAVE_SIGALTSTACK		/* sigaltstack() is present in libc (POSIX) */
 #undef HAVE_SYS_SIGLIST		/* char *sys_siglist[] is present in libc */
 #undef HAVE_SLEEP		/* sleep() is present in libc */
 #undef HAVE_USLEEP		/* usleep() is present in libc */
@@ -614,6 +620,10 @@
 #undef SIZEOF_FLOAT
 #undef SIZEOF_DOUBLE
 
+#undef SIZEOF_SIZE_T
+#undef SIZEOF_SSIZE_T
+#undef SIZEOF_PTRDIFF_T
+
 #undef SIZEOF_TIME_T
 
 #undef HAVE_LONGLONG		/* Compiler defines long long type */
@@ -625,6 +635,7 @@
 #undef gid_t			/* To be used if gid_t is not present  */
 #undef size_t			/* To be used if size_t is not present */
 #undef ssize_t			/* To be used if ssize_t is not present */
+#undef ptrdiff_t		/* To be used if ptrdiff_t is not present */
 #undef pid_t			/* To be used if pid_t is not present  */
 #undef off_t			/* To be used if off_t is not present  */
 #undef mode_t			/* To be used if mode_t is not present */

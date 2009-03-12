@@ -1,13 +1,13 @@
-/* @(#)calltree.c	1.42 08/12/23 Copyright 1985, 1999-2008 J. Schilling */
+/* @(#)calltree.c	1.43 09/01/10 Copyright 1985, 1999-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)calltree.c	1.42 08/12/23 Copyright 1985, 1999-2008 J. Schilling";
+	"@(#)calltree.c	1.43 09/01/10 Copyright 1985, 1999-2009 J. Schilling";
 #endif
 /*
  *	A program to produce a static calltree for C-functions
  *
- *	Copyright (c) 1985, 1999-2008 J. Schilling
+ *	Copyright (c) 1985, 1999-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -678,7 +678,7 @@ findfunc(fp, name, fname)
 	char	*fname;
 {
 	register int	tktype;
-		int	ftype;
+		int	ftype = 0;		/* init to make GCC quiet */
 
 	while ((tktype = clex(fp)) != T_EOF) {
 recheck:

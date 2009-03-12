@@ -1,14 +1,14 @@
-/* @(#)archconf.c	1.21 08/12/22 Copyright 1996-2008 J. Schilling */
+/* @(#)archconf.c	1.22 09/01/06 Copyright 1996-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)archconf.c	1.21 08/12/22 Copyright 1996-2008 J. Schilling";
+	"@(#)archconf.c	1.22 09/01/06 Copyright 1996-2009 J. Schilling";
 #endif
 /*
  *	Make program
  *	Architecture autoconfiguration support
  *
- *	Copyright (c) 1996-2008 by J. Schilling
+ *	Copyright (c) 1996-2009 by J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -272,13 +272,18 @@ do_sysinfo()
 #include <mach-o/arch.h>
 #endif
 
+/*
+ * See #ifdef statement below in unblank()w
+ */
 LOCAL BOOL
 do_sysctl()
 {
+#if	defined(HW_MODEL) || defined(HW_MACHINE_ARCH)
 	obj_t	*o;
 	char	nbuf[NAMEMAX];
 	size_t	len;
 	int	mib[2];
+#endif
 
 #if	defined(HW_MODEL)
 	o = objlook("MAKE_MODEL", FALSE);
@@ -291,7 +296,7 @@ do_sysctl()
 			define_var("MAKE_MODEL", nbuf);
 		}
 	}
-#endif
+#endif	/* defined(HW_MODEL) */
 
 #if	defined(HW_MACHINE_ARCH)
 	o = objlook("MAKE_ARCH", FALSE);
@@ -328,9 +333,9 @@ do_sysctl()
 			if (name != NULL)
 				define_var("MAKE_ARCH", name);
 		}
-#endif
+#endif	/* IS_MACOS_X */
 	}
-#endif
+#endif	/* defined(HW_MACHINE_ARCH) */
 	return (TRUE);
 }
 #else
@@ -511,7 +516,8 @@ archcvt(p)
 	}
 }
 
-#if defined(HAVE_SYS_SYSTEMINFO_H) || defined(HAVE_SYS_SYSCTL_H)
+#if defined(HAVE_SYS_SYSTEMINFO_H) || \
+	(defined(HAVE_SYS_SYSCTL_H) && defined(HW_MODEL))	/* See do_sysctl() */
 LOCAL void
 unblank(p)
 	register char	*p;

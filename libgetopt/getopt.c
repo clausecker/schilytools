@@ -24,13 +24,13 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2008 J. Schilling
+ * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)getopt.c	1.5 08/10/11 J. Schilling
+ * @(#)getopt.c	1.6 09/01/09 J. Schilling
  */
 #if defined(sun) || defined(__GNUC__)
 
-#ident "@(#)getopt.c 1.5 08/10/11 J. Schilling"
+#ident "@(#)getopt.c 1.6 09/01/09 J. Schilling"
 #endif
 
 #pragma ident	"@(#)getopt.c	1.23	05/06/08 SMI"
@@ -213,7 +213,7 @@ getopt(argc, argv, optstring)
 	char	c;
 	char	*cp;
 	int	longopt;
-	char	*longoptarg;
+	char	*longoptarg = NULL;
 
 	/*
 	 * Has the end of the options been encountered?  The following

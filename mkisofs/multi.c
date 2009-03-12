@@ -1,15 +1,15 @@
-/* @(#)multi.c	1.89 08/12/22 joerg */
+/* @(#)multi.c	1.91 09/01/19 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)multi.c	1.89 08/12/22 joerg";
+	"@(#)multi.c	1.91 09/01/19 joerg";
 #endif
 /*
  * File multi.c - scan existing iso9660 image and merge into
  * iso9660 filesystem.  Used for multisession support.
  *
  * Written by Eric Youngdale (1996).
- * Copyright (c) 1999-2008 J. Schilling
+ * Copyright (c) 1999-2009 J. Schilling
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -268,7 +268,8 @@ parse_rrflags(pnt, len, cont_flag)
 	cont_extent = cont_offset = cont_size = 0;
 
 	ncount = 0;
-	flag1 = flag2 = 0;
+	flag1 = -1;
+	flag2 = 0;
 	while (len >= 4) {
 		if (pnt[3] != 1 && pnt[3] != 2) {
 			errmsgno(EX_BAD,
@@ -310,15 +311,18 @@ parse_rrflags(pnt, len, cont_flag)
 			cont_offset = get_733(pnt+12);
 			cont_size = get_733(pnt+20);
 		}
+		if (strncmp((char *)pnt, "ST", 2) == 0) {		/* Terminate SUSP */
+			break;
+		}
 
 		len -= pnt[2];
 		pnt += pnt[2];
-		if (len <= 3 && cont_extent) {
-			unsigned char   sector[SECTOR_SIZE];
+	}
+	if (cont_extent) {
+		unsigned char   sector[SECTOR_SIZE];
 
-			readsecs(cont_extent, sector, 1);
-			flag2 |= parse_rrflags(&sector[cont_offset], cont_size, 1);
-		}
+		readsecs(cont_extent, sector, 1);
+		flag2 |= parse_rrflags(&sector[cont_offset], cont_size, 1);
 	}
 	return (flag2);
 }
@@ -383,18 +387,19 @@ parse_rr(pnt, len, dpnt)
 			cont_extent = get_733(pnt + 4);
 			cont_offset = get_733(pnt + 12);
 			cont_size = get_733(pnt + 20);
+		} else if (strncmp((char *) pnt, "ST", 2) == 0) {
+			break;
 		}
 
 		len -= pnt[2];
 		pnt += pnt[2];
-		if (len <= 3 && cont_extent) {
-			unsigned char   sector[SECTOR_SIZE];
+	}
+	if (cont_extent) {
+		unsigned char   sector[SECTOR_SIZE];
 
-			readsecs(cont_extent, sector, 1);
-			if (parse_rr(&sector[cont_offset],
-							cont_size, dpnt) == -1)
-				return (-1);
-		}
+		readsecs(cont_extent, sector, 1);
+		if (parse_rr(&sector[cont_offset], cont_size, dpnt) == -1)
+			return (-1);
 	}
 
 	/* Fall back to the iso name if no RR name found */
@@ -488,27 +493,30 @@ check_rr_dates(dpnt, current, statbuf, lstatbuf)
 			cont_offset = get_733(pnt + 12);
 			cont_size = get_733(pnt + 20);
 		}
+		if (strncmp((char *)pnt, "ST", 2) == 0) {		/* Terminate SUSP */
+			break;
+		}
 
 		len -= pnt[2];
 		pnt += pnt[2];
-		if (len <= 3 && cont_extent) {
-			unsigned char   sector[SECTOR_SIZE];
+	}
+	if (cont_extent) {
+		unsigned char   sector[SECTOR_SIZE];
 
-			readsecs(cont_extent, sector, 1);
-			/*
-			 * Continue to scan the extension record.
-			 * Note that this has not been tested yet, but it is
-			 * definitely more correct that calling parse_rr()
-			 * as done in Eric's old code.
-			 */
-			pnt = &sector[cont_offset];
-			len = cont_size;
-			/*
-			 * Clear the "pending extension record" state as
-			 * we did already read it now.
-			 */
-			cont_extent = cont_offset = cont_size = 0;
-		}
+		readsecs(cont_extent, sector, 1);
+		/*
+		 * Continue to scan the extension record.
+		 * Note that this has not been tested yet, but it is
+		 * definitely more correct that calling parse_rr()
+		 * as done in Eric's old code.
+		 */
+		pnt = &sector[cont_offset];
+		len = cont_size;
+		/*
+		 * Clear the "pending extension record" state as
+		 * we did already read it now.
+		 */
+		cont_extent = cont_offset = cont_size = 0;
 	}
 
 	/*

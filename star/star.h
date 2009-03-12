@@ -1,6 +1,6 @@
-/* @(#)star.h	1.117 08/03/14 Copyright 1985, 1995-2008 J. Schilling */
+/* @(#)star.h	1.118 09/01/06 Copyright 1985, 1995-2009 J. Schilling */
 /*
- *	Copyright (c) 1985, 1995-2008 J. Schilling
+ *	Copyright (c) 1985, 1995-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -19,11 +19,7 @@
 
 #include <schily/utypes.h>
 #include <schily/time.h>
-
-#ifndef	_INCL_SYS_TYPES_H
-#include <sys/types.h>
-#define	_INCL_SYS_TYPES_H
-#endif
+#include <schily/types.h>
 
 /*
  * Be careful not to overflow off_t when computing tarblocks()

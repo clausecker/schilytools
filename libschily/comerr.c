@@ -1,4 +1,4 @@
-/* @(#)comerr.c	1.32 07/02/26 Copyright 1985-1989, 1995-2007 J. Schilling */
+/* @(#)comerr.c	1.33 09/02/05 Copyright 1985-1989, 1995-2007 J. Schilling */
 /*
  *	Routines for printing command errors
  *
@@ -157,7 +157,7 @@ errmsgno(err, msg, va_alist)
 	return (ret);
 }
 
-#ifdef	__BEOS__
+#if defined(__BEOS__) || defined(__HAIKU__)
 	/*
 	 * On BeOS errno is a big negative number (0x80000000 + small number).
 	 * We assume that small negative numbers are safe to be used as special

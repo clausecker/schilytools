@@ -1,5 +1,5 @@
 #if 0
-/* @(#)lconfig.h.in	1.6 06/02/15 Copyright 1998-2003 Heiko Eissfeldt */
+/* @(#)lconfig.h.in	1.7 09/02/26 Copyright 1998-2003 Heiko Eissfeldt */
 #endif
 #undef HAVE_SYS_CDIO_H		/* if we should use sys/cdio.h */
 
@@ -25,10 +25,6 @@
 
 #undef HAVE_MMSYSTEM_H		/* if we should use mmsystem.h */
 
-#undef HAVE_OS2_H		/* if we should use os2.h */
-
-#undef HAVE_OS2ME_H		/* if we should use os2me.h */
-
 #if	defined HAVE_SOUNDCARD_H || defined HAVE_SYS_SOUNDCARD_H  || defined HAVE_LINUX_SOUNDCARD_H || defined HAVE_MACHINE_SOUNDCARD_H
 #define HAVE_OSS	1
 #endif
@@ -40,5 +36,3 @@
 #if	defined HAVE_OS2_H && defined HAVE_OS2ME_H
 #define HAVE_OS2SOUND	1
 #endif
-
-#undef HAVE_STRTOUL

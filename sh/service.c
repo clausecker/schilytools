@@ -32,13 +32,13 @@
 #include "defs.h"
 
 /*
- * This file contains modifications Copyright 2008 J. Schilling
+ * This file contains modifications Copyright 2008-2009 J. Schilling
  *
- * @(#)service.c	1.8 08/12/22 2008 J. Schilling
+ * @(#)service.c	1.11 09/02/03 2008-2009 J. Schilling
  */
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)service.c	1.8 08/12/22 2008 J. Schilling";
+	"@(#)service.c	1.11 09/02/03 2008-2009 J. Schilling";
 #endif
 
 /*
@@ -166,9 +166,10 @@ getpath(s)
 
 	if (any('/', s))
 	{
-		if (flags & rshflg)
+		if (flags & rshflg) {
 			failed(s, restricted);
-		else
+			/* NOTREACHED */
+		} else
 			return ((unsigned char *)nullstr);
 	} else if ((path = pathnod.namval) == 0)
 		return ((unsigned char *)defpath);
@@ -185,6 +186,7 @@ getpath(s)
 		} else
 			return (cpystak(path));
 	}
+	return (NULL);		/* Not reached, but keeps GCC happy */
 }
 
 int
@@ -231,7 +233,7 @@ catpath(path, name)
 		if (argp >= brkend)
 			growstak(argp);
 	}
-	while (*argp++ = *scanp++);
+	while ((*argp++ = *scanp++) != '\0');
 	return (path);
 }
 
@@ -281,7 +283,7 @@ execa(at, pos)
 			execs(path, t);
 			path = getpath(*t);
 		}
-		while (path = execs(path, t))
+		while ((path = execs(path, t)) != NULL)
 			;
 		failed(*t, xecmsg);
 	}
@@ -294,7 +296,9 @@ execs(ap, t)
 {
 	int		pfstatus = NOATTRS;
 	unsigned char	*p, *prefix;
+#ifdef	EXECATTR_FILENAME
 	unsigned char	*savptr;
+#endif
 
 	prefix = catpath(ap, t[0]);
 	trim(p = curstak());
@@ -397,9 +401,9 @@ trim(at)
 	wchar_t	wc;
 
 	nosubst = 0;
-	if (current = at) {
+	if ((current = at) != NULL) {
 		last = at;
-		while (c = *current) {
+		while ((c = *current) != 0) {
 			if ((len = mbtowc(&wc, (char *)current,
 					MB_LEN_MAX)) <= 0) {
 				*last++ = c;
@@ -417,7 +421,7 @@ trim(at)
 			/* remove \ and quoted nulls */
 			nosubst = 1;
 			current++;
-			if (c = *current) {
+			if ((c = *current) != 0) {
 				if ((len = mbtowc(&wc, (char *)current,
 						MB_LEN_MAX)) <= 0) {
 					*last++ = c;
@@ -446,10 +450,10 @@ unsigned char	*at;
 	int	len;
 	wchar_t	wc;
 
-	if (current = at)
+	if ((current = at) != NULL)
 	{
 		last = at;
-		while (c = *current) {
+		while ((c = *current) != 0) {
 			if ((len = mbtowc(&wc, (char *)current,
 					MB_LEN_MAX)) <= 0) {
 				*last++ = c;
@@ -577,7 +581,7 @@ struct comnod	*ac;
 	int		count = 0;
 	struct comnod	*c;
 
-	if (c = ac)
+	if ((c = ac) != NULL)
 	{
 		argp = c->comarg;
 		while (argp)
@@ -598,15 +602,15 @@ unsigned char	*s;
 	int		count = 0;
 	for (;;)
 	{
-		int length;
+		int clength;
 		sigchk();
 		argp = locstak() + BYTESPERWORD;
-		while (c = *s) {
+		while ((c = *s) != 0) {
 			wchar_t wc;
-			if ((length = mbtowc(&wc, (char *)s,
+			if ((clength = mbtowc(&wc, (char *)s,
 					MB_LEN_MAX)) <= 0) {
 				wc = (unsigned char)*s;
-				length = 1;
+				clength = 1;
 			}
 
 			if (c == '\\') { /* skip over quoted characters */
@@ -615,15 +619,15 @@ unsigned char	*s;
 				*argp++ = c;
 				s++;
 				/* get rest of multibyte character */
-				if ((length = mbtowc(&wc, (char *)s,
+				if ((clength = mbtowc(&wc, (char *)s,
 						MB_LEN_MAX)) <= 0) {
 					wc = (unsigned char)*s;
-					length = 1;
+					clength = 1;
 				}
 				if (argp >= brkend)
 					growstak(argp);
 				*argp++ = *s++;
-				while (--length > 0) {
+				while (--clength > 0) {
 					if (argp >= brkend)
 						growstak(argp);
 					*argp++ = *s++;
@@ -633,7 +637,7 @@ unsigned char	*s;
 
 			if (anys(s, ifsnod.namval)) {
 				/* skip to next character position */
-				s += length;
+				s += clength;
 				break;
 			}
 
@@ -641,7 +645,7 @@ unsigned char	*s;
 				growstak(argp);
 			*argp++ = c;
 			s++;
-			while (--length > 0) {
+			while (--clength > 0) {
 				if (argp >= brkend)
 					growstak(argp);
 				*argp++ = *s++;
@@ -681,13 +685,17 @@ unsigned char	*s;
 #include	<sys/acct.h>
 #include 	<sys/times.h>
 
+#ifdef	AHZV1		/* Newer FreeBSD versions */
+struct acctv1 sabuf;
+#else
 struct acct sabuf;
+#endif
 struct tms buffer;
 static clock_t before;
 static int shaccton;	/* 0 implies do not write record on exit */
 			/* 1 implies write acct record on exit */
 	void suspacct	__PR((void));
-	void preacct	__PR((unsigned char *cmdadr));
+	void preacct	__PR((unsigned char *cmdadrp));
 	void doacct	__PR((void));
 static comp_t compress	__PR((clock_t));
 
@@ -702,15 +710,15 @@ suspacct()
 }
 
 void
-preacct(cmdadr)
-	unsigned char	*cmdadr;
+preacct(cmdadrp)
+	unsigned char	*cmdadrp;
 {
 	if (acctnod.namval && *acctnod.namval) {
 		sabuf.ac_btime = time((time_t *)0);
 		before = times(&buffer);
 		sabuf.ac_uid = getuid();
 		sabuf.ac_gid = getgid();
-		movstrn(simple(cmdadr), (unsigned char *)sabuf.ac_comm, sizeof (sabuf.ac_comm));
+		movstrn(simple(cmdadrp), (unsigned char *)sabuf.ac_comm, sizeof (sabuf.ac_comm));
 		shaccton = 1;
 	}
 }

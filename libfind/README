@@ -47,7 +47,7 @@ main(ac, av)
 	std[0] = stdin;
 	std[1] = stdout;
 	std[2] = stderr;
-	return (find_main(ac, av, std, NULL));
+	return (find_main(ac, av, NULL, std, NULL));
 }
 /*--------------------------------------------------------------------------*/
 
@@ -74,7 +74,7 @@ bfind(vp, std, flag)
 	quit.quitfun = quitfun;	/* The function to evaluate "ctlc" */
 	quit.qfarg = &ctlc;	/* The ^C catched counter	   */
 
-	ex_status = find_main(vp->v_ac, vp->v_av, std, &quit);
+	ex_status = find_main(vp->v_ac, vp->v_av, evarray, std, &quit);
 }
 /*--------------------------------------------------------------------------*/
 
@@ -120,7 +120,7 @@ xfind(int ac, char **av, int i, int o, int e, int (*quitfun)(void *))
 	std[0] = fdopen(i, "r+");
 	std[1] = fdopen(o, "w");
 	std[2] = fdopen(e, "w+");
-	ret = find_main(ac, av, std, &quit);
+	ret = find_main(ac, av, NULL, std, &quit);
 	fclose(std[0]);
 	fclose(std[1]);
 	fclose(std[2]);

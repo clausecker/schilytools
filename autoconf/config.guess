@@ -1,5 +1,5 @@
 #! /bin/sh
-# @(#)config.guess	1.11 08/11/05 Copyright 1999-2008 J. Schilling
+# @(#)config.guess	1.12 09/02/04 Copyright 1999-2008 J. Schilling
 #
 # Attempt to guess a canonical system name.
 #   Copyright (C) 1992, 93, 94, 95, 96, 97, 1998 Free Software Foundation, Inc.
@@ -834,6 +834,12 @@ EOF
     BePC:BeOS:*:*)	# BeOS running on Intel PC compatible.
 	echo i586-pc-beos
 	exit 0 ;;
+    BeMac:Haiku:*:*)
+	echo powerpc-apple-haiku
+	exit ;;
+    BePC:Haiku:*:*)
+	echo i586-pc-haiku
+	exit ;;
     "Power Macintosh":Rhapsody:*)
 	echo powerpc-apple-rhapsody${UNAME_RELEASE}
 	exit 0 ;;

@@ -27,11 +27,11 @@
 /*
  * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)val.c	1.7 09/01/04 J. Schilling
+ * @(#)val.c	1.8 09/02/05 J. Schilling
  */
 #if defined(sun) || defined(__GNUC__)
 
-#ident "@(#)val.c 1.7 09/01/04 J. Schilling"
+#ident "@(#)val.c 1.8 09/02/05 J. Schilling"
 #endif
 /*
  * @(#)val.c 1.22 06/12/12
@@ -51,7 +51,7 @@
 # include	<had.h>
 # include	<i18n.h>
 # include	<ccstypes.h>
-# include	<sysexits.h>
+# include	<schily/sysexits.h>
 
 # define	FILARG_ERR	0200	/* no file name given */
 # define	UNKDUP_ERR	0100	/* unknown or duplicate keyletter */

@@ -27,11 +27,11 @@
 /*
  * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)unget.c	1.7 09/01/04 J. Schilling
+ * @(#)unget.c	1.8 09/02/05 J. Schilling
  */
 #if defined(sun) || defined(__GNUC__)
 
-#ident "@(#)unget.c 1.7 09/01/04 J. Schilling"
+#ident "@(#)unget.c 1.8 09/02/05 J. Schilling"
 #endif
 /*
  * @(#)unget.c 1.24 06/12/12
@@ -47,7 +47,7 @@
 # include       <schily/wait.h>
 # include       <ctype.h>
 # include       <ccstypes.h>
-# include	<sysexits.h>
+# include	<schily/sysexits.h>
 
 #ifdef	HAVE_SETRESUID
 /*

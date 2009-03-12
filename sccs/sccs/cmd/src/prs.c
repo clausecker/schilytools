@@ -27,11 +27,11 @@
 /*
  * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)prs.c	1.11 09/01/04 J. Schilling
+ * @(#)prs.c	1.12 09/02/05 J. Schilling
  */
 #if defined(sun) || defined(__GNUC__)
 
-#ident "@(#)prs.c 1.11 09/01/04 J. Schilling"
+#ident "@(#)prs.c 1.12 09/02/05 J. Schilling"
 #endif
 /*
  * @(#)prs.c 1.33 06/12/12
@@ -71,7 +71,7 @@
 # include	<had.h>
 # include	<i18n.h>
 # include	<schily/wait.h>
-# include	<sysexits.h>
+# include	<schily/sysexits.h>
 
 #ifdef	NEED_O_BINARY
 #include <io.h>			/* for setmode() prototype */

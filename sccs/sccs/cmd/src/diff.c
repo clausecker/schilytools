@@ -37,13 +37,13 @@
  * contributors.
  */
 /*
- * This file contains modifications Copyright 2006-2008 J. Schilling
+ * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)diff.c	1.13 09/01/04 J. Schilling
+ * @(#)diff.c	1.17 09/02/05 J. Schilling
  */
 #if defined(sun) || defined(__GNUC__)
 
-#ident "@(#)diff.c 1.13 09/01/04 J. Schilling"
+#ident "@(#)diff.c 1.17 09/02/05 J. Schilling"
 #endif
 
 #pragma ident	"@(#)diff.c	1.55	05/07/22 SMI"
@@ -157,7 +157,7 @@
 #include <schily/string.h>
 #include <schily/time.h>
 #include <version.h>
-#include <sysexits.h>
+#include <schily/sysexits.h>
 
 #else	/* non-portable SunOS definitions BEGIN */
 
@@ -1283,6 +1283,13 @@ dump_context_vec()
 	if (cvp > context_vec_ptr)
 		return;
 
+	/*
+	 * Make GCC quiet, we don't need to initialize "b" and "d" as from here
+	 * there is a grant for cvp <= context_vec_ptr and thus the two loop
+	 * are always entered at least once.
+	 */
+	b = d = 0;
+
 	lowa = max(1, cvp->a - context);
 	upb  = min(len[0], context_vec_ptr->b + context);
 	lowc = max(1, cvp->c - context);
@@ -1462,7 +1469,7 @@ diffdir(argv)
 		if (cmp < 0) {
 			if (lflag)
 				d1->d_flags |= ONLY;
-			else if (opt == 0 || opt == 2)
+			else if (opt == D_NORMAL || opt == D_CONTEXT)
 				only(d1, 1);
 			d1++;
 			if (dirstatus == 0)
@@ -1476,7 +1483,7 @@ diffdir(argv)
 		} else {
 			if (lflag)
 				d2->d_flags |= ONLY;
-			else if (opt == 0 || opt == 2)
+			else if (opt == D_NORMAL || opt == D_CONTEXT)
 				only(d2, 2);
 			d2++;
 			if (dirstatus == 0)

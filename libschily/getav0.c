@@ -1,13 +1,13 @@
-/* @(#)getav0.c	1.21 08/12/21 Copyright 1985, 1995-2008 J. Schilling */
+/* @(#)getav0.c	1.22 09/01/06 Copyright 1985, 1995-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)getav0.c	1.21 08/12/21 Copyright 1985, 1995-2008 J. Schilling";
+	"@(#)getav0.c	1.22 09/01/06 Copyright 1985, 1995-2009 J. Schilling";
 #endif
 /*
  *	Get arg vector by scanning the stack
  *
- *	Copyright (c) 1985, 1995-2008 J. Schilling
+ *	Copyright (c) 1985, 1995-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -68,7 +68,7 @@ getmainfp()
 		return (NULL);
 
 	while (fp->fr_savfp) {
-		if (fp->fr_savpc == NULL)
+		if (fp->fr_savpc == 0)
 			break;
 
 		if (!is_even(fp->fr_savfp)) {
@@ -92,7 +92,7 @@ getmainfp()
 		return (NULL);
 
 	while (fp->fr_savfp) {
-		if (fp->fr_savpc == NULL)
+		if (fp->fr_savpc == 0)
 			break;
 
 		if (!is_even(fp->fr_savfp)) {

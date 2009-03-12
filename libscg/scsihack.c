@@ -1,7 +1,7 @@
-/* @(#)scsihack.c	1.49 07/05/24 Copyright 1997,2000,2001 J. Schilling */
+/* @(#)scsihack.c	1.52 09/02/04 Copyright 1997,2000,2001 J. Schilling */
 #ifndef lint
 static	char _sccsid[] =
-	"@(#)scsihack.c	1.49 07/05/24 Copyright 1997,2000,2001 J. Schilling";
+	"@(#)scsihack.c	1.52 09/02/04 Copyright 1997,2000,2001 J. Schilling";
 #endif
 /*
  *	Interface for other generic SCSI implementations.
@@ -223,7 +223,7 @@ EXPORT scg_ops_t scg_std_ops = {
 
 #endif  /* OS/2 */
 
-#ifdef	__BEOS__
+#if defined(__BEOS__) || defined(__HAIKU__)
 #define	SCSI_IMPL		/* Yep, BeOS does that funky scsi stuff */
 #include "scsi-beos.c"
 #endif
@@ -251,6 +251,16 @@ EXPORT scg_ops_t scg_std_ops = {
 #ifdef	__DJGPP__		/* We have a SCSI implementation for MS-DOS/DJGPP */
 #define	SCSI_IMPL
 #include "scsi-dos.c"
+#endif
+
+#ifdef	__MINT__		/* We have a SCSI implementation for ATARI/FreeMINT */
+#define	SCSI_IMPL
+#include "scsi-atari.c"
+#endif
+
+#ifdef	__SYLLABLE__		/* We have a SCSI implementation for Syllable */
+#define	SCSI_IMPL
+#include "scsi-syllable.c"
 #endif
 
 #ifdef	__NEW_ARCHITECTURE
@@ -342,7 +352,7 @@ EXPORT scg_ops_t scg_dummy_ops = {
  *	Choose your name instead of "schily" and make clear that the version
  *	string is related to a modified source.
  */
-LOCAL	char	_scg_trans_dversion[] = "scsihack.c-1.49";	/* The version for this transport*/
+LOCAL	char	_scg_trans_dversion[] = "scsihack.c-1.52";	/* The version for this transport*/
 
 /*
  * Return version information for the low level SCSI transport code.

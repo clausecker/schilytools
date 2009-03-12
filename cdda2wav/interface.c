@@ -1,13 +1,13 @@
-/* @(#)interface.c	1.62 08/12/22 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2006-2008 J. Schilling */
+/* @(#)interface.c	1.65 09/01/24 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2006-2009 J. Schilling */
 #include "config.h"
 #ifndef lint
 static	const char sccsid[] =
-"@(#)interface.c	1.62 08/12/22 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2006-2008 J. Schilling";
+"@(#)interface.c	1.65 09/01/24 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2006-2009 J. Schilling";
 
 #endif
 /*
  * Copyright (C) 1994-1997 Heiko Eissfeldt heiko@colossus.escape.de
- * Copyright (c) 2006-2008 J. Schilling
+ * Copyright (c) 2006-2009 J. Schilling
  *
  * Interface module for cdrom drive access
  *
@@ -676,6 +676,8 @@ OpenCdRom(pdev_name)
 		scg_settimeout(scgp, 60);
 		scgp->silent = global.scsi_silent;
 		scgp->verbose = global.scsi_verbose;
+		scgp->debug = global.scsi_debug;
+		scgp->kdebug = global.scsi_kdebug;
 
 		global.bufsize = scg_bufsize(scgp, global.bufsize);
 		if (global.nsectors >
@@ -1121,13 +1123,13 @@ SetupInterface()
 	/*
 	 * request one sector for table of contents
 	 */
-	bufferTOC = malloc(CD_FRAMESIZE_RAW + 96);	/* assumes sufficient aligned addresses */
+	bufTOCsize = CD_FRAMESIZE_RAW + 96;	/* Sufficient space for 222 TOC entries */
+	bufferTOC = malloc(bufTOCsize);		/* assumes sufficient aligned addresses */
 	/*
 	 * SubQchannel buffer
 	 */
-	SubQbuffer = malloc(48); /* assumes sufficient aligned addresses */
-	cmd = malloc(18);	 /* aassumes sufficient aligned addresses */
-	if (!bufferTOC || !SubQbuffer || !cmd) {
+	SubQbuffer = malloc(48);		/* assumes sufficient aligned addresses */
+	if (!bufferTOC || !SubQbuffer) {
 		errmsg("Too low on memory. Giving up.\n");
 		exit(NOMEM_ERROR);
 	}

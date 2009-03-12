@@ -25,11 +25,11 @@
 /*
  * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)sccs.c	1.22 09/01/04 J. Schilling
+ * @(#)sccs.c	1.27 09/02/05 J. Schilling
  */
 #if defined(sun) || defined(__GNUC__)
 
-#ident "@(#)sccs.c 1.22 09/01/04 J. Schilling"
+#ident "@(#)sccs.c 1.27 09/02/05 J. Schilling"
 #endif
 /*
  * @(#)sccs.c 1.85 06/12/12
@@ -51,7 +51,7 @@ static const char sccsid[] = "@(#)sccs.c 1.2 2/27/90";
 #define EX_SOFTWARE 70
 #define EX_OSERR 71
 #else
-# include	<sysexits.h>
+# include	<schily/sysexits.h>
 extern struct passwd *getpwnam();
 extern char *getlogin();
 extern char *getenv();
@@ -425,7 +425,9 @@ static int del_macro     = 0;	/* 1 if "sccs deledit ..." or "sccs delget ..." co
 
 static int Rflag	 = 0;	/* -R recursive operation selected */
 static char *Cwd;		/* -C parameter for delta/get	   */
+#ifdef	USE_RECURSIVE
 static int Cwdlen;		/* Allocation length for Cwd	   */
+#endif
 
 static bool Tgotedit;
 static bool Tnobranch;
@@ -880,7 +882,7 @@ command(argv, forkflag, arg0)
 		p = *argv;
 		if (*p == '-') {
 		   if (p[1] == '\0') {
-		      struct stat Statbuf;
+		      struct stat _Statbuf;
 		      char *ibuf, *str;
 		      DIR  *dirf;
 		      struct dirent *dir;
@@ -907,7 +909,7 @@ command(argv, forkflag, arg0)
 				usrerr(gettext("bad file name \"%s\""), ibuf);
 				exit(1);
 			 }
-			 if (exists(ibuf)&&(Statbuf.st_mode&S_IFMT)==S_IFDIR) {	
+			 if (_exists(ibuf)&&(_Statbuf.st_mode&S_IFMT)==S_IFDIR) {	
 			    Ffile = ibuf;
 			    if((dirf = opendir(ibuf)) == NULL)
 			       break;
@@ -1207,7 +1209,7 @@ command(argv, forkflag, arg0)
 			rval |= dorecurse(ap, np, listfilesp->filename, cmd);
 			listfilesp = listfilesp->next;
 		}
-		if (cmd->sccsoper == CLEAN && (int)cmd->sccspath == INFOC &&
+		if (cmd->sccsoper == CLEAN && cmd->sccspath == (char *)INFOC &&
 		    !Tgotedit) {
 			nothingedited(Tnobranch, Tusernm);
 		}
@@ -1537,7 +1539,7 @@ command(argv, forkflag, arg0)
 		break;
 
 	  case CLEAN:
-		rval = clean((int) cmd->sccspath, ap);
+		rval = clean((int) (Intptr_t)cmd->sccspath, ap);
 		break;
 
 	  case UNEDIT:
@@ -1969,7 +1971,7 @@ makefile(name, in_SccsDir)
 	register char *q;
 	int Spath = FALSE;
 	char *Sp, *np;
-	struct stat Statbuf;
+	struct stat _Statbuf;
 	
 	np = p = strrchr(name, '/');
 	if (p == NULL) {
@@ -2048,7 +2050,7 @@ makefile(name, in_SccsDir)
 	        gstrcpy(q, SccsPath, sizeof(buf));
 	        gstrcat(buf, "/s.", sizeof(buf));
 	        gstrcat(buf, p, sizeof(buf));
-	        if (!exists(buf)) { 
+	        if (!_exists(buf)) { 
 	             gstrcpy(q, p, sizeof(buf));
 	        }
 	      }
@@ -2195,7 +2197,7 @@ clean(mode, argv)
 	register char **ap;
 	char *usernm = NULL;
 	char *subdir = NULL;
-	struct stat Statbuf;
+	struct stat _Statbuf;
 	int ex_status;
 
 	/*
@@ -2335,8 +2337,8 @@ clean(mode, argv)
 		
 		/* the s. file exists and no p. file exists -- unlink the g-file */
 		if (mode == CLEANC && !gotpfent) {
-		   if (exists(basebuf) != 0) {
-		      if (((Statbuf.st_mode & (S_IWUSR|S_IWGRP|S_IWOTH)) == 0)||
+		   if (_exists(basebuf) != 0) {
+		      if (((_Statbuf.st_mode & (S_IWUSR|S_IWGRP|S_IWOTH)) == 0)||
 		          (edited != 0)) {
 			 unlink(basebuf);
 		      } else {
@@ -2559,8 +2561,6 @@ unedit(fn)
 	 * the file in question (assuming it exists).
 	 */
 	if (delete) {
-		extern int errno;
-
 		errno = 0;
 		if (access(gfile, 0) < 0 && errno != ENOENT)
 			goto bad;
@@ -3213,7 +3213,7 @@ dorecurse(argv, np, dir, cmd)
 {
 	int		ac;
 	char		*av[10];
-	char		*path = NULL;
+	char		*dpath = NULL;
 	char		*ppath = NULL;
 	char		*oSccsDir = SccsDir;
 	finda_t 	fa;
@@ -3234,12 +3234,12 @@ dorecurse(argv, np, dir, cmd)
 	Cwd[2] = '\0';
 
 	if (SccsDir && SccsDir[0]) {
-		path = malloc(strlen(SccsDir) + strlen(dir) + 2);
-		if (path == NULL) {
+		dpath = malloc(strlen(SccsDir) + strlen(dir) + 2);
+		if (dpath == NULL) {
 			perror(gettext("Sccs: no mem"));
 			exit(EX_OSERR);
 		}
-		cat(path, SccsDir, "/", dir, (char *)0);
+		cat(dpath, SccsDir, "/", dir, (char *)0);
 		SccsDir = "";
 	}
 
@@ -3265,7 +3265,7 @@ dorecurse(argv, np, dir, cmd)
 			strlcpy(&Cwd[2], dir, cwdlen + 2);
 		}
 
-		*np = path ? path : dir;
+		*np = dpath ? dpath : dir;
 		Rflag = -1;
 		ac = command(argv, TRUE, "");
 		Rflag = 1;
@@ -3338,7 +3338,7 @@ dorecurse(argv, np, dir, cmd)
 	}
 
 	Rflag = -1;
-	treewalk(path ? path : dir, walkfunc, &walkstate);
+	treewalk(dpath ? dpath : dir, walkfunc, &walkstate);
 	Rflag = 1;
 
 	if (bitset(COLLECT, cmd->sccsflags)) {
@@ -3354,8 +3354,8 @@ out:
 	if (wa.argv != argv)
 		free(wa.argv);
 	find_free(find_node, &fa);
-	if (path)
-		free(path);
+	if (dpath)
+		free(dpath);
 	if (ppath)
 		free(ppath);
 

@@ -27,11 +27,11 @@
 /*
  * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)what.c	1.6 09/01/04 J. Schilling
+ * @(#)what.c	1.7 09/02/05 J. Schilling
  */
 #if defined(sun) || defined(__GNUC__)
 
-#ident "@(#)what.c 1.6 09/01/04 J. Schilling"
+#ident "@(#)what.c 1.7 09/02/05 J. Schilling"
 #endif
 /*
  * @(#)what.c 1.11 06/12/12
@@ -42,7 +42,7 @@
 # include	<defines.h>
 # include	<version.h>
 # include	<i18n.h>
-# include	<sysexits.h>
+# include	<schily/sysexits.h>
 
 #define MINUS '-'
 #define MINUS_S "-s"

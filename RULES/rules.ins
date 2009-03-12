@@ -1,4 +1,4 @@
-#ident @(#)rules.ins	1.19 08/12/27 
+#ident @(#)rules.ins	1.20 09/01/29 
 ###########################################################################
 # Written 1996 by J. Schilling
 ###########################################################################
@@ -24,7 +24,7 @@ $(SRCROOT)/bins/$(OARCH):
 			$(MKDIR) -p $@
 
 $(DEST_DIR)$(INSBASE)/$(INSDIR)$(SUBINSDIR)$(SUBINS)/$(TARGET)$(_EXEEXT):	$(PTARGET)
-			$(INSTALL) $(PTARGET) $@
+			$(INSTALL) $(INSFLAGS) $(PTARGET) $@
 
 $(SRCROOT)/bins/$(OARCH)/$(TARGET)$(_EXEEXT):	$(PTARGET)
 			$(INSTALL) $(PTARGET) $@

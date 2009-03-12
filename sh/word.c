@@ -33,13 +33,13 @@
 #include "defs.h"
 
 /*
- * This file contains modifications Copyright 2008 J. Schilling
+ * This file contains modifications Copyright 2008-2009 J. Schilling
  *
- * @(#)word.c	1.8 08/12/22 2008 J. Schilling
+ * @(#)word.c	1.11 09/02/05 2008-2009 J. Schilling
  */
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)word.c	1.8 08/12/22 2008 J. Schilling";
+	"@(#)word.c	1.11 09/02/05 2008-2009 J. Schilling";
 #endif
 
 /*
@@ -47,8 +47,8 @@ static	const char sccsid[] =
  */
 
 #include	"sym.h"
-#include	<errno.h>
-#include	<fcntl.h>
+#include	<schily/errno.h>
+#include	<schily/fcntl.h>
 
 	int		word	__PR((void));
 	unsigned int	skipwc	__PR((void));
@@ -109,7 +109,7 @@ word()
 				/* Pick up rest of multibyte character */
 					if (c == NL)
 						chkpr();
-					while (c = *pc++) {
+					while ((c = *pc++) != 0) {
 						if (argp >= brkend)
 							growstak(argp);
 						*argp++ = (unsigned char)c;
@@ -285,20 +285,20 @@ unsigned char *readw(d)
 wchar_t	d;
 {
 	static unsigned char c[MULTI_BYTE_MAX + 1];
-	int length;
-	wchar_t l;
+	int clength;
+
 	if (isascii(d)) {
 		c[0] = d;
 		c[1] = '\0';
 		return (c);
 	}
 
-	length = wctomb((char *)c, d);
-	if (length <= 0) {
+	clength = wctomb((char *)c, d);
+	if (clength <= 0) {
 		c[0] = (unsigned char)d;
-		length = 1;
+		clength = 1;
 	}
-	c[length] = '\0';
+	c[clength] = '\0';
 	return (c);
 }
 

@@ -1,8 +1,8 @@
-/* @(#)sys.c	1.57 08/12/20 Copyright 1986-2008 J. Schilling */
+/* @(#)sys.c	1.60 09/02/08 Copyright 1986-2008 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)sys.c	1.57 08/12/20 Copyright 1986-2008 J. Schilling";
+	"@(#)sys.c	1.60 09/02/08 Copyright 1986-2008 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1986-2008 J. Schilling
@@ -500,7 +500,7 @@ printf("ewait: back from child (WSTOPPED).\n");
 			prusage.ru_stime.tv_sec  = (tms2.tms_cstime - tms1.tms_cstime) / HZ;
 			prusage.ru_stime.tv_usec = ((tms2.tms_cstime - tms1.tms_cstime) % HZ) * (1000000/HZ);
 
-#ifdef	__BEOS__	/* Dirty Hack for BeOS, HZ is 1000x to small or tms_cutime is too big */
+#if defined(__BEOS__) || defined(__HAIKU__)	/* Dirty Hack for BeOS, HZ is 1000x to small or tms_cutime is too big */
 			prusage.ru_utime.tv_sec  = (tms2.tms_cutime - tms1.tms_cutime) / HZ / 1000;
 			prusage.ru_utime.tv_usec = ((tms2.tms_cutime - tms1.tms_cutime) % (HZ*1000)) * (1000000/HZ/1000);
 			prusage.ru_stime.tv_sec  = (tms2.tms_cstime - tms1.tms_cstime) / HZ/1000;
@@ -509,7 +509,7 @@ printf("ewait: back from child (WSTOPPED).\n");
 		}
 #endif
 #	endif	/* ! defined(HAVE_WAIT3) || defined(HAVE_SYS_PROCFS_H) */
-#ifdef	__BEOS__	/* Dirty Hack for BeOS, we should better use the W* macros */
+#if defined(__BEOS__) || defined(__HAIKU__)	/* Dirty Hack for BeOS, we should better use the W* macros */
 		{	int i = status.exit;
 			status.exit = status.type;
 			status.type = i;
@@ -560,6 +560,7 @@ printf("ewait: returning %x (%d)\n", status.type, status.type);
 #define	sys_exec(n, in, out, err, av, ev) (execve(n, av, ev), geterrno())
 #define	enofile(t)			((t) == ENOENT || \
 					(t)  == ENOTDIR || \
+					(t)  == EISDIR || \
 					(t)  == EIO)
 
 EXPORT int
@@ -578,6 +579,7 @@ fexec(path, name, in, out, err, av, env)
 	register char	*p2;
 	register int	t = 0;
 	register int	exerr;
+	char	*av0 = av[0];
 	int	din;
 	int	dout;
 	int	derr;
@@ -632,6 +634,7 @@ fexec(path, name, in, out, err, av, env)
 		Vtmp = tmp;
 #endif
 		exerr = sys_exec(tmp, din, dout, derr, av, env);
+		av[0] = av0;	/* BeOS destroys things ... */
 	} else {
 		if ((pathlist = getcurenv(pathname)) == NULL)
 			pathlist = defpath;
@@ -651,7 +654,7 @@ fexec(path, name, in, out, err, av, env)
 			Vtmp = tmp;
 #endif
 			t = sys_exec(tmp, din, dout, derr, av, env);
-			av[0] = name;	/* BeOS destroys things ... */
+			av[0] = av0;	/* BeOS destroys things ... */
 
 			if (exerr == 0 && !enofile(t))
 				exerr = t;

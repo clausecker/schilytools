@@ -1,4 +1,4 @@
-/* @(#)config.h	1.12 08/12/22 Copyright 1998-2003 Heiko Eissfeldt */
+/* @(#)config.h	1.13 09/02/07 Copyright 1998-2003 Heiko Eissfeldt */
 /*
  *	a central configuration file
  */
@@ -33,10 +33,22 @@
 
 #include "lconfig.h"
 
-/* temporary until a autoconf check is present */
+/*
+ * First the old static check.
+ */
 #ifdef	__BEOS__
 #define	HAVE_AREAS	1
 #endif
+
+#if	defined(HAVE_OS_H) && \
+	defined(HAVE_CLONE_AREA) && defined(HAVE_CREATE_AREA) && \
+	defined(HAVE_DELETE_AREA)
+#	define	HAVE_BEOS_AREAS	/* BeOS/Zeta/Haiku */
+#	ifndef	HAVE_AREAS
+#		define	HAVE_AREAS	1
+#	endif
+#endif
+
 
 #if defined HAVE_FORK && (defined(HAVE_SMMAP) || defined(HAVE_USGSHM) || \
 			defined(HAVE_DOSALLOCSHAREDMEM) || defined(HAVE_AREAS))

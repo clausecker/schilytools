@@ -22,13 +22,13 @@
 /*	Copyright (c) 1988 AT&T	*/
 /*	  All Rights Reserved  	*/
 /*
- * This file contains modifications Copyright 2006-2007 J. Schilling
+ * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)macros.h	1.4 07/02/08 J. Schilling
+ * @(#)macros.h	1.5 09/01/15 J. Schilling
  */
 #if defined(sun) || defined(__GNUC__)
 
-#ident "@(#)macros.h 1.4 07/02/08 J. Schilling"
+#ident "@(#)macros.h 1.5 09/01/15 J. Schilling"
 #endif
 
 #ifndef	_MACROS_H
@@ -74,10 +74,14 @@ extern "C" {
  *	not be included elsewhere.
  *	Exists(file) returns 0 if the file does not exist;
  *	the flags word if it does (the flags word is always non-zero).
+ *
+ *	_exists(file) is a locale variant that expects a non-global
+ *	variable _Statbuf to be defined.
  */
 
 extern struct stat Statbuf;
 #define	exists(file)		(stat(file, &Statbuf) < 0 ? 0 : Statbuf.st_mode)
+#define	_exists(file)		(stat(file, &_Statbuf) < 0 ? 0 : _Statbuf.st_mode)
 
 /*
  *	SAVE() and RSTR() use local data in nested blocks.

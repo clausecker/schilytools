@@ -27,11 +27,11 @@
 /*
  * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)delta.c	1.11 09/01/04 J. Schilling
+ * @(#)delta.c	1.13 09/02/05 J. Schilling
  */
 #if defined(sun) || defined(__GNUC__)
 
-#ident "@(#)delta.c 1.11 09/01/04 J. Schilling"
+#ident "@(#)delta.c 1.13 09/02/05 J. Schilling"
 #endif
 /*
  * @(#)delta.c 1.40 06/12/12
@@ -47,7 +47,7 @@
 # include	<sys/utsname.h>
 # include	<schily/wait.h>
 # include	<ccstypes.h>
-# include	<sysexits.h>
+# include	<schily/sysexits.h>
 
 struct stat Statbuf;
 char Null[1];
@@ -496,6 +496,7 @@ char *file;
 		else
 			Diffin = dodiff(gfilename, dfilename, difflim);
 
+		type = 0;				/* Make GCC quiet */
 		while ((n = getdiff(&type,&linenum)) != 0) {
 			if (type == INS) {
 				inserted += n;

@@ -1,4 +1,4 @@
-#ident @(#)Makefile	1.12 08/10/26 
+#ident @(#)Makefile	1.13 09/01/14 
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -24,7 +24,7 @@ HFILES=		cdrecord.h iodefs.h scsi_scan.h scsimmc.h
 LIBS=		-lscgcmd -lrscg -lscg $(LIB_VOLMGT) -lcdrdeflt -ldeflt -lschily $(SCSILIB) $(LIB_SOCKET)
 
 skel.c: iodefs.h
-iodefs.h scsi_scan.c io.c scsi_cdr.c:
+iodefs.h scsi_scan.c io.c scsi_cdr.c misc.c:
 	@echo "	==> MAKING SYMLINKS in ." && sh ./MKLINKS
 $(ALLTARGETS): iodefs.h scsi_scan.c io.c scsi_cdr.c
 

@@ -31,13 +31,13 @@
 #include "defs.h"
 
 /*
- * This file contains modifications Copyright 2008 J. Schilling
+ * This file contains modifications Copyright 2008-2009 J. Schilling
  *
- * @(#)macro.c	1.6 08/12/22 2008 J. Schilling
+ * @(#)macro.c	1.7 09/01/10 2008-2009 J. Schilling
  */
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)macro.c	1.6 08/12/22 2008 J. Schilling";
+	"@(#)macro.c	1.7 09/01/10 2008-2009 J. Schilling";
 #endif
 
 /*
@@ -231,7 +231,7 @@ retry:
 			unsigned char		idb[2];
 			unsigned char		*id = idb;
 
-			if (bra = (c == BRACE))
+			if ((bra = (c == BRACE)))
 				c = readwc();
 			if (letter(c))
 			{
@@ -333,18 +333,18 @@ retry:
 								growstak(staktop);
 							pushstak('\0');
 						} else {
-							while (c = *v) {
+							while ((c = *v) != '\0') {
 								wchar_t 	wc;
-								int 	length;
-								if ((length = mbtowc(&wc, (char *)v, MB_LEN_MAX)) <= 0)
-									length = 1;
+								int 	clength;
+								if ((clength = mbtowc(&wc, (char *)v, MB_LEN_MAX)) <= 0)
+									clength = 1;
 
 								if(quote || (c == '\\' && trimflag)) {
 									if (staktop >= brkend)
 										growstak(staktop);
 									pushstak('\\');
 								}
-								while(length-- > 0) {
+								while (clength-- > 0) {
 									if (staktop >= brkend)
 										growstak(staktop);
 									pushstak(*v++);
@@ -390,7 +390,7 @@ retry:
 					 * do assignment 
 					 */
 						usestak();
-						while(c = *argp) {
+						while ((c = *argp) != '\0') {
 							wchar_t 	wc;
 							int 		len;
 
@@ -553,7 +553,7 @@ comsubst(trimflag)
 	tdystak(savptr);
 	(void) memcpystak(stakbot, savptr, strlngth);
 	oldstaktop = staktop = stakbot + strlngth;
-	while (d = readwc()) {
+	while ((d = readwc()) != '\0') {
 		if(quote || (d == '\\' && trimflag)) {
 			unsigned char *rest;
 			/* quote output from command subst. if within double 
@@ -562,7 +562,7 @@ comsubst(trimflag)
 			if (staktop >= brkend)
 				growstak(staktop);
 			pushstak('\\');
-			while(d = *rest++) {
+			while ((d = *rest++) != '\0') {
 			/* Pick up all of multibyte character */
 				if (staktop >= brkend)
 					growstak(staktop);
@@ -580,19 +580,19 @@ comsubst(trimflag)
 	}
 	{
 		extern pid_t parent;
-		int stat;
+		int exstat;
 		int rc;
 		int	ret = 0;
 
-		while ((ret = waitpid(parent,&stat,0)) != parent) {
+		while ((ret = waitpid(parent, &exstat, 0)) != parent) {
 			/* break out if waitpid(2) has failed */
 			if (ret == -1)
 				break;
 		}
-		if (WIFEXITED(stat))
-			rc = WEXITSTATUS(stat);
+		if (WIFEXITED(exstat))
+			rc = WEXITSTATUS(exstat);
 		else
-			rc = (WTERMSIG(stat) | SIGFLG);
+			rc = (WTERMSIG(exstat) | SIGFLG);
 		if (rc && (flags & errflg))
 			exitsh(rc);
 		exitval = rc;
@@ -628,8 +628,8 @@ subst(in, ot)
 	/*
 	 * DQUOTE used to stop it from quoting
 	 */
-	while (c = (getch(DQUOTE, 0))) /* read characters from here document 
-				       and interpret them */
+	while ((c = (getch(DQUOTE, 0))) != '\0') /* read characters from here document
+						       and interpret them */
 	{
 		if(c == '\\') {
 			c = readwc(); /* check if character in here document is 

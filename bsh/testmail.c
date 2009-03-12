@@ -1,11 +1,11 @@
-/* @(#)testmail.c	1.15 08/12/20 Copyright 1986-2008 J. Schilling */
+/* @(#)testmail.c	1.16 09/01/06 Copyright 1986-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)testmail.c	1.15 08/12/20 Copyright 1986-2008 J. Schilling";
+	"@(#)testmail.c	1.16 09/01/06 Copyright 1986-2009 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1986-2008 J. Schilling
+ *	Copyright (c) 1986-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -23,6 +23,7 @@ static	const char sccsid[] =
 #include <stdio.h>
 #include <schily/standard.h>
 #include <schily/stat.h>
+#include <schily/time.h>
 #include "bsh.h"
 #include "str.h"
 #include "strsubs.h"

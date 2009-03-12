@@ -32,13 +32,13 @@
 #include "defs.h"
 
 /*
- * This file contains modifications Copyright 2008 J. Schilling
+ * This file contains modifications Copyright 2008-2009 J. Schilling
  *
- * @(#)io.c	1.7 08/12/22 2008 J. Schilling
+ * @(#)io.c	1.9 09/01/10 2008-2009 J. Schilling
  */
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)io.c	1.7 08/12/22 2008 J. Schilling";
+	"@(#)io.c	1.9 09/01/10 2008-2009 J. Schilling";
 #endif
 
 /*
@@ -175,10 +175,13 @@ chkopen(idf, mode)
 {
 	int	rc;
 
-	if ((rc = open((char *)idf, mode, 0666)) < 0)
+	if ((rc = open((char *)idf, mode, 0666)) < 0) {
 		failed(idf, badopen);
-	else
+		/* NOTREACHED */
+	} else
 		return (rc);
+
+	return (-1);		/* Not reached, but keeps GCC happy */
 }
 
 /*
@@ -222,10 +225,13 @@ create(s)
 {
 	int	rc;
 
-	if ((rc = creat((char *)s, 0666)) < 0)
+	if ((rc = creat((char *)s, 0666)) < 0) {
 		failed(s, badcreate);
-	else
+		/* NOTREACHED */
+	} else
 		return (rc);
+
+	return (-1);		/* Not reached, but keeps GCC happy */
 }
 
 
@@ -257,9 +263,11 @@ tmpfil(tb)
 	if (fd != -1) {
 		pushtemp(fd, tb);
 		return (fd);
-	}
-	else
+	} else {
 		failed(tmpout, badcreate);
+		/* NOTREACHED */
+	}
+	return (-1);		/* Not reached, but keeps GCC happy */
 }
 
 /*
@@ -284,7 +292,7 @@ copy(ioparg)
 	unsigned char	*pc;
 
 
-	if (iop = ioparg)
+	if ((iop = ioparg) != NULL)
 	{
 		struct tempblk tb;
 		copy(iop->iolst);

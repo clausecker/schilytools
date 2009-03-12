@@ -1,8 +1,8 @@
-/* @(#)inode.c	1.10 08/12/22 Copyright 2006-2008 J. Schilling */
+/* @(#)inode.c	1.11 09/01/19 Copyright 2006-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)inode.c	1.10 08/12/22 Copyright 2006-2008 J. Schilling";
+	"@(#)inode.c	1.11 09/01/19 Copyright 2006-2009 J. Schilling";
 #endif
 /*
  *	Inode and link count handling for ISO-9660/RR
@@ -14,7 +14,7 @@ static	const char sccsid[] =
  *	of asigning the related number to the "extent" field in the ISO
  *	directory record.
  *
- *	Copyright (c) 2006-2008 J. Schilling
+ *	Copyright (c) 2006-2009 J. Schilling
  */
 /*
  * This program is free software; you can redistribute it and/or modify
@@ -159,7 +159,7 @@ assign_inodes(dpnt)
 				 */
 				if (s_hash->starting_block <= last_extent)
 					comerrno(EX_BAD,
-					"Implementation botch: Hashed file '%s' has illegal inode %X.\n",
+					"Implementation botch: Hashed file '%s' has illegal inode %u.\n",
 					s_entry->whole_name ?
 					s_entry->whole_name : s_entry->name,
 					s_hash->starting_block);

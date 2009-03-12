@@ -1,8 +1,8 @@
-/* @(#)maxpath.h	1.8 07/02/22 Copyright 1985, 1995, 1998, 2001-2007 J. Schilling */
+/* @(#)maxpath.h	1.11 09/02/17 Copyright 1985, 1995, 1998, 2001-2009 J. Schilling */
 /*
  *	Definitions for dealing with statically limitations on pathnames
  *
- *	Copyright (c) 1985, 1995, 1998, 2001-2007 J. Schilling
+ *	Copyright (c) 1985, 1995, 1998, 2001-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -75,13 +75,23 @@
 #	define	FOUND_MAXFILENAME
 #endif
 
+#ifdef	__never__
+/*
+ * DIRSIZ(dp) is a parameterized macro, we cannot use it here.
+ */
 #if !defined(FOUND_MAXFILENAME) && defined(DIRSIZ)
 #	define	MAXFILENAME	DIRSIZ		/* From sys/dir.h   */
 #	define	FOUND_MAXFILENAME
 #endif
+#endif	/* __never__ */
+
+#if !defined(FOUND_MAXFILENAME) && defined(NAME_MAX)
+#	define	MAXFILENAME	NAME_MAX	/* From limits.h    */
+#	define	FOUND_MAXFILENAME
+#endif
 
 #if !defined(FOUND_MAXFILENAME) && defined(FOUND_DIRSIZE)
-#	define	MAXFILENAME	DIRSIZE		/* From dirdefs.h    */
+#	define	MAXFILENAME	DIRSIZE		/* From schily/dirent.h    */
 #	define	FOUND_MAXFILENAME
 #endif
 
@@ -93,5 +103,11 @@
 #	define	FOUND_MAXFILENAME
 #endif
 
+#ifndef	NAME_MAX
+#define	NAME_MAX	MAXFILENAME
+#endif
+#ifndef	MAXNAMLEN
+#define	MAXNAMLEN	MAXFILENAME
+#endif
 
 #endif	/* _SCHILY_MAXPATH_H */

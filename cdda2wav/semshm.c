@@ -1,8 +1,8 @@
-/* @(#)semshm.c 1.24 08/12/22 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2004-2008 J. Schilling */
+/* @(#)semshm.c 1.25 09/02/07 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2004-2008 J. Schilling */
 #include "config.h"
 #ifndef lint
 static	const char sccsid[] =
-"@(#)semshm.c	1.24 08/12/22 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2004-2008 J. Schilling";
+"@(#)semshm.c	1.25 09/02/07 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2004-2008 J. Schilling";
 #endif
 
 #define	IPCTST
@@ -89,7 +89,11 @@ static	const char sccsid[] =
 #include <scg/scsitransp.h>
 
 #ifdef	USE_BEOS_AREAS
+#ifdef	HAVE_OS_H
+#include	<OS.h>
+#else
 #include	<be/kernel/OS.h>
+#endif
 #endif
 
 #include "mytype.h"

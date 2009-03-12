@@ -1,6 +1,6 @@
-#ident "@(#)cc-sunpro64.rul	1.10 08/12/20 "
+#ident "@(#)cc-sunpro64.rul	1.11 09/01/06 "
 ###########################################################################
-# Written 1996-2006 by J. Schilling
+# Written 1996-2009 by J. Schilling
 ###########################################################################
 #
 # Platform dependent MACROS for SunPro (Studio) cc
@@ -25,7 +25,7 @@ C++FLAGS=	$(C++OPTS) $(C++WARNOPTS) $(C++OPTOPT) $(SUNPROC++OPTOPT) $(C++OPTX)
 
 LINTFLAGS=	-Nlevel=4 
 
-_SUNPROCOPT64=	$(_UNIQ)$(CC64_OPT)
+_SUNPROCOPT64=	$(_UNIQ)$(SUN_CC64_OPT)
 __SUNPROCOPT64=	$(_SUNPROCOPT64:$(_UNIQ)=-xarch=generic64)
 SUNPROCOPT64=	$(__SUNPROCOPT64:$(_UNIQ)%=%)
 

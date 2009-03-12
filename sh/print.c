@@ -30,16 +30,16 @@
 #pragma ident	"@(#)print.c	1.18	06/06/16 SMI"
 
 /*
- * This file contains modifications Copyright 2008 J. Schilling
+ * This file contains modifications Copyright 2008-2009 J. Schilling
  *
- * @(#)print.c	1.6 08/12/22 2008 J. Schilling
+ * @(#)print.c	1.8 09/01/10 2008-2009 J. Schilling
  */
 #ifdef	SCHILY_BUILD
 #include <schily/mconfig.h>
 #endif
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)print.c	1.6 08/12/22 2008 J. Schilling";
+	"@(#)print.c	1.8 09/01/10 2008-2009 J. Schilling";
 #endif
 
 /*
@@ -66,7 +66,7 @@ unsigned char numbuf[21];
 
 static unsigned char buffer[BUFLEN];
 static unsigned char *bufp = buffer;
-static int index = 0;
+static int bindex = 0;
 static int buffd = 1;
 
 	void	prp	__PR((void));
@@ -224,6 +224,8 @@ stoi(icp)
 	} else {
 		return (r);
 	}
+
+	return (-1);		/* Not reached, but keeps GCC happy */
 }
 
 int
@@ -262,10 +264,10 @@ ulltos(n)
 void
 flushb()
 {
-	if (index) {
-		bufp[index] = '\0';
+	if (bindex) {
+		bufp[bindex] = '\0';
 		write(buffd, bufp, length(bufp) - 1);
-		index = 0;
+		bindex = 0;
 	}
 }
 
@@ -279,11 +281,11 @@ prc_buff(c)
 #endif
 {
 	if (c) {
-		if (buffd != -1 && index + 1 >= BUFLEN) {
+		if (buffd != -1 && bindex + 1 >= BUFLEN) {
 			flushb();
 		}
 
-		bufp[index++] = c;
+		bufp[bindex++] = c;
 	} else {
 		flushb();
 		write(buffd, &c, 1);
@@ -296,15 +298,15 @@ prs_buff(s)
 {
 	int len = length(s) - 1;
 
-	if (buffd != -1 && index + len >= BUFLEN) {
+	if (buffd != -1 && bindex + len >= BUFLEN) {
 		flushb();
 	}
 
 	if (buffd != -1 && len >= BUFLEN) {
 		write(buffd, s, len);
 	} else {
-		movstr(s, &bufp[index]);
-		index += len;
+		movstr(s, &bufp[bindex]);
+		bindex += len;
 	}
 }
 
@@ -415,13 +417,13 @@ setb(fd)
 	int ofd;
 
 	if ((ofd = buffd) == -1) {
-		if (bufp+index+1 >= brkend) {
-			growstak(bufp+index+1);
+		if (bufp+bindex+1 >= brkend) {
+			growstak(bufp+bindex+1);
 		}
-		if (bufp[index-1]) {
-			bufp[index++] = 0;
+		if (bufp[bindex-1]) {
+			bufp[bindex++] = 0;
 		}
-		endstak(bufp+index);
+		endstak(bufp+bindex);
 	} else {
 		flushb();
 	}
@@ -430,6 +432,6 @@ setb(fd)
 	} else {
 		bufp = buffer;
 	}
-	index = 0;
+	bindex = 0;
 	return (ofd);
 }

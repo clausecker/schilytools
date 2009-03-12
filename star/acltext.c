@@ -1,8 +1,8 @@
-/* @(#)acltext.c	1.13 08/12/22 2005-2008 J. Schilling from SMI */
+/* @(#)acltext.c	1.14 09/01/06 2005-2009 J. Schilling from SMI */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)acltext.c	1.13 08/12/22 2005-2008 J. Schilling from SMI";
+	"@(#)acltext.c	1.14 09/01/06 2005-2009 J. Schilling from SMI";
 #endif
 /*
  * Copyright 2005 Sun Microsystems, Inc.  All rights reserved.
@@ -26,8 +26,8 @@ static	const char sccsid[] =
 #include <stdlib.h>
 #include <ctype.h>
 #include <schily/errno.h>
-#include <sys/param.h>
-#include <sys/types.h>
+#include <schily/param.h>
+#include <schily/types.h>
 #include <sys/acl.h>
 #include <schily/schily.h>
 

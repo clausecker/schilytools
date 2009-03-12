@@ -34,11 +34,11 @@
 /*
  * This file contains modifications Copyright 2008-2009 J. Schilling
  *
- * @(#)xec.c	1.10 09/01/04 2008-2009 J. Schilling
+ * @(#)xec.c	1.11 09/01/10 2008-2009 J. Schilling
  */
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)xec.c	1.10 09/01/04 2008-2009 J. Schilling";
+	"@(#)xec.c	1.11 09/01/10 2008-2009 J. Schilling";
 #endif
 
 /*
@@ -82,9 +82,9 @@ int *pf1, *pf2;
 
 	if ((t = argt) && execbrk == 0) {
 		int treeflgs;
-		unsigned char **com;
+		unsigned char **com = NULL;
 		int type;
-		short pos;
+		short pos = 0;
 
 		treeflgs = t->tretyp;
 		type = treeflgs & COMMSK;
@@ -130,8 +130,8 @@ int *pf1, *pf2;
 				int	argn;
 				struct argnod	*schain = gchain;
 				struct ionod	*io = t->treio;
-				short 	cmdhash;
-				short	comtype;
+				short 	cmdhash = 0;
+				short	comtype = 0;
 
 				exitval = 0;
 
@@ -232,12 +232,12 @@ int *pf1, *pf2;
 					  && (flags&(monitorflg|jcflg|jcoff))
 					  == (monitorflg|jcflg));
 					if (monitor) {
-						int savefd;
+						int save_fd;
 						unsigned char *savebot;
-						savefd = setb(-1);
+						save_fd = setb(-1);
 						savebot = stakbot;
 						prcmd(t);
-						(void)setb(savefd);
+						(void)setb(save_fd);
 						allocjob((char *)savebot, cwdget(), monitor);
 					} else
 						allocjob("", (unsigned char *)"", 0);
@@ -342,7 +342,7 @@ int *pf1, *pf2;
 
 			if (type == TFORK)
 				execute(forkptr(t)->forktre, xflags | XEC_EXECED, errorflg, no_pipe, no_pipe);
-			else if (com[0] != ENDARGS)
+			else if (com != NULL && com[0] != ENDARGS)
 			{
 				eflag = 0;
 				setlist(comptr(t)->comset, N_EXPORT);

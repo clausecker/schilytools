@@ -1,8 +1,8 @@
-/* @(#)spawn.c	1.22 09/01/05 Copyright 1985, 1989, 1995-2008 J. Schilling */
+/* @(#)spawn.c	1.23 09/01/13 Copyright 1985, 1989, 1995-2009 J. Schilling */
 /*
  *	Spawn another process/ wait for child process
  *
- *	Copyright (c) 1985, 1989, 1995-2008 J. Schilling
+ *	Copyright (c) 1985, 1989, 1995-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

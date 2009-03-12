@@ -1,8 +1,8 @@
-/* @(#)rock.c	1.56 08/12/22 joerg */
+/* @(#)rock.c	1.58 09/02/22 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)rock.c	1.56 08/12/22 joerg";
+	"@(#)rock.c	1.58 09/02/22 joerg";
 #endif
 /*
  * File rock.c - generate RRIP  records for iso9660 filesystems.
@@ -507,6 +507,7 @@ generate_xa_rr_attributes(whole_name, name,
 		int		nchar;
 		Uchar		*cpnt;
 		Uchar		*cpnt1;
+		BOOL		last_sl = FALSE; /* Don't suppress last '/' */
 
 #ifdef	HAVE_READLINK
 		nchar = readlink(deep_opt&DID_CHDIR?name:whole_name,
@@ -556,7 +557,7 @@ generate_xa_rr_attributes(whole_name, name,
 			Rock[ipnt++] = SU_VERSION;
 			Rock[ipnt++] = 0;	/* Flags */
 			lenval = 5;
-			while (*cpnt) {
+			while (*cpnt || last_sl) {
 				cpnt1 = (Uchar *)
 						strchr((char *)cpnt, '/');
 				if (cpnt1) {
@@ -619,7 +620,10 @@ generate_xa_rr_attributes(whole_name, name,
 						}
 						break;
 					}
-					Rock[ipnt++] = SL_ROOT;
+					if (cpnt == &symlink_buff[0])
+						Rock[ipnt++] = SL_ROOT;
+					else
+						Rock[ipnt++] = 0;
 					Rock[ipnt++] = 0; /* length is zero */
 					lenval += 2;
 				} else {
@@ -694,6 +698,11 @@ generate_xa_rr_attributes(whole_name, name,
 					}
 				}
 				if (cpnt1) {
+					*cpnt1 = '/';
+					if (cpnt1 > symlink_buff && !last_sl &&
+					    cpnt1[1] == '\0') {
+						last_sl = TRUE;
+					}
 					cpnt = cpnt1 + 1;
 				} else
 					break;

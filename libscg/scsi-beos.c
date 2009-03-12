@@ -1,7 +1,7 @@
-/* @(#)scsi-beos.c	1.24 06/11/26 Copyright 1998 J. Schilling */
+/* @(#)scsi-beos.c	1.27 09/02/07 Copyright 1998 J. Schilling */
 #ifndef lint
 static	char __sccsid[] =
-	"@(#)scsi-beos.c	1.24 06/11/26 Copyright 1998 J. Schilling";
+	"@(#)scsi-beos.c	1.27 09/02/07 Copyright 1998 J. Schilling";
 #endif
 /*
  *	Interface for the BeOS user-land raw SCSI implementation.
@@ -47,7 +47,7 @@ static	char __sccsid[] =
  *	Choose your name instead of "schily" and make clear that the version
  *	string is related to a modified source.
  */
-LOCAL	char	_scg_trans_version[] = "scsi-beos.c-1.24";	/* The version for this transport*/
+LOCAL	char	_scg_trans_version[] = "scsi-beos.c-1.27";	/* The version for this transport*/
 
 /*
  * There are also defines for:
@@ -56,7 +56,14 @@ LOCAL	char	_scg_trans_version[] = "scsi-beos.c-1.24";	/* The version for this tr
  *
  * in BeOS 5
  */
-#ifndef	B_BEOS_VERSION_5
+#ifdef	B_BEOS_VERSION_5
+#define	NEW_BEOS
+#endif
+#ifdef	__HAIKU__
+#define	NEW_BEOS
+#endif
+
+#ifndef	NEW_BEOS
 /*
  * New BeOS seems to include <be/kernel/OS.h> from device/scsi.h
  */
@@ -138,7 +145,11 @@ typedef uint32					perform_code;
 #include <device/scsi.h>
 
 #undef bool
+#ifdef	__HAIKU__	/* Probaby already since BeOS 5 */
+#include <CAM.h>
+#else
 #include <drivers/CAM.h>
+#endif
 
 struct _fdmap_ {
 	struct _fdmap_ *next;
@@ -283,7 +294,11 @@ scgo_havebus(scgp, busno)
 	if (busno < 8)
 		js_snprintf(buf, sizeof (buf), "/dev/bus/scsi/%d", busno);
 	else
+#ifdef	__HAIKU__
+		js_snprintf(buf, sizeof (buf), "/dev/disk/atapi/%d", busno-8);
+#else
 		js_snprintf(buf, sizeof (buf), "/dev/disk/ide/atapi/%d", busno-8);
+#endif
 	if (stat(buf, &sb))
 		return (FALSE);
 	return (TRUE);
@@ -311,8 +326,13 @@ scgo_fileno(scgp, busno, tgt, tlun)
 	} else {
 		char *tgtstr = (tgt == 0) ? "master" : (tgt == 1) ? "slave" : "dummy";
 		js_snprintf(buf, sizeof (buf),
+#ifdef	__HAIKU__
+					"/dev/disk/atapi/%d/%s/raw",
+					busno-8, tgtstr);
+#else
 					"/dev/disk/ide/atapi/%d/%s/%d/raw",
 					busno-8, tgtstr, tlun);
+#endif
 	}
 	fd = open(buf, 0);
 

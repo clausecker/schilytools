@@ -1,8 +1,8 @@
-/* @(#)isodump.c	1.37 08/12/22 joerg */
+/* @(#)isodump.c	1.40 09/01/17 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)isodump.c	1.37 08/12/22 joerg";
+	"@(#)isodump.c	1.40 09/01/17 joerg";
 #endif
 /*
  * File isodump.c - dump iso9660 directory information.
@@ -11,7 +11,7 @@ static	const char sccsid[] =
  * Written by Eric Youngdale (1993).
  *
  * Copyright 1993 Yggdrasil Computing, Incorporated
- * Copyright (c) 1999-2008 J. Schilling
+ * Copyright (c) 1999-2009 J. Schilling
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2
@@ -286,7 +286,8 @@ parse_rr(pnt, len, cont_flag)
 	cont_offset = cont_size = 0;
 
 	ncount = 0;
-	flag1 = flag2 = 0;
+	flag1 = -1;
+	flag2 = 0;
 	while (len >= 4) {
 		if (ncount)
 			printf(",");
@@ -331,6 +332,10 @@ parse_rr(pnt, len, cont_flag)
 			cont_size = isonum_733(pnt+20);
 			printf("=[%x,%x,%d]", (int)cont_extent, cont_offset,
 								cont_size);
+		}
+
+		if (strncmp((char *)pnt, "ST", 2) == 0) {		/* Terminate SUSP */
+			break;
 		}
 
 		if (strncmp((char *)pnt, "PL", 2) == 0 || strncmp((char *)pnt, "CL", 2) == 0) {
@@ -389,21 +394,21 @@ parse_rr(pnt, len, cont_flag)
 
 		len -= pnt[2];
 		pnt += pnt[2];
-		if (len <= 3 && cont_extent) {
-			unsigned char sector[2048];
+	}
+	if (cont_extent) {
+		unsigned char sector[2048];
 
 #ifdef	USE_SCG
-			readsecs(cont_extent * blocksize / 2048, sector, ISO_BLOCKS(sizeof (sector)));
+		readsecs(cont_extent * blocksize / 2048, sector, ISO_BLOCKS(sizeof (sector)));
 #else
-			lseek(fileno(infile), cont_extent * blocksize, SEEK_SET);
-			read(fileno(infile), sector, sizeof (sector));
+		lseek(fileno(infile), cont_extent * blocksize, SEEK_SET);
+		read(fileno(infile), sector, sizeof (sector));
 #endif
-			flag2 |= parse_rr(&sector[cont_offset], cont_size, 1);
-		}
+		flag2 |= parse_rr(&sector[cont_offset], cont_size, 1);
 	}
 	if (ncount)
 		printf("]");
-	if (!cont_flag && flag1 != flag2) {
+	if (!cont_flag && flag1 != -1 && flag1 != flag2) {
 		printf("Flag %x != %x", flag1, flag2);
 		goof++;
 	}
@@ -533,7 +538,7 @@ main(argc, argv)
 	BOOL	help = FALSE;
 	BOOL	prvers = FALSE;
 	char	*filename = NULL;
-	char	*devname = NULL;
+	char	*sdevname = NULL;
 	char	c;
 	int	i;
 	struct iso_primary_descriptor	ipd;
@@ -544,21 +549,21 @@ main(argc, argv)
 	cac = argc - 1;
 	cav = argv + 1;
 	if (getallargs(&cac, &cav, opts, &help, &help, &prvers,
-			&filename, &devname) < 0) {
+			&filename, &sdevname) < 0) {
 		errmsgno(EX_BAD, "Bad Option: '%s'\n", cav[0]);
 		usage(EX_BAD);
 	}
 	if (help)
 		usage(0);
 	if (prvers) {
-		printf("isodump %s (%s-%s-%s) Copyright (C) 1993-1999 Eric Youngdale (C) 1999-2008 Jörg Schilling\n",
+		printf("isodump %s (%s-%s-%s) Copyright (C) 1993-1999 Eric Youngdale (C) 1999-2009 Jörg Schilling\n",
 					VERSION,
 					HOST_CPU, HOST_VENDOR, HOST_OS);
 		exit(0);
 	}
 	cac = argc - 1;
 	cav = argv + 1;
-	if (filename == NULL && devname == NULL) {
+	if (filename == NULL && sdevname == NULL) {
 		if (getfiles(&cac, &cav, opts) != 0) {
 			filename = cav[0];
 			cac--, cav++;
@@ -568,15 +573,15 @@ main(argc, argv)
 		errmsgno(EX_BAD, "Bad Argument: '%s'\n", cav[0]);
 		usage(EX_BAD);
 	}
-	if (filename != NULL && devname != NULL) {
+	if (filename != NULL && sdevname != NULL) {
 		errmsgno(EX_BAD, "Only one of -i or dev= allowed\n");
 		usage(EX_BAD);
 	}
 #ifdef	USE_SCG
-	if (filename == NULL && devname == NULL)
-		cdr_defaults(&devname, NULL, NULL, NULL, NULL);
+	if (filename == NULL && sdevname == NULL)
+		cdr_defaults(&sdevname, NULL, NULL, NULL, NULL);
 #endif
-	if (filename == NULL && devname == NULL) {
+	if (filename == NULL && sdevname == NULL) {
 		fprintf(stderr, "ISO-9660 image not specified\n");
 		usage(EX_BAD);
 	}
@@ -584,7 +589,7 @@ main(argc, argv)
 	if (filename != NULL)
 		infile = fopen(filename, "rb");
 	else
-		filename = devname;
+		filename = sdevname;
 
 	if (infile != NULL) {
 		/* EMPTY */;

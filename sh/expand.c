@@ -32,13 +32,13 @@
 #include "defs.h"
 
 /*
- * This file contains modifications Copyright 2008 J. Schilling
+ * This file contains modifications Copyright 2008-2009 J. Schilling
  *
- * @(#)expand.c	1.5 08/12/22 2008 J. Schilling
+ * @(#)expand.c	1.6 09/01/10 2008-2009 J. Schilling
  */
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)expand.c	1.5 08/12/22 2008 J. Schilling";
+	"@(#)expand.c	1.6 09/01/10 2008-2009 J. Schilling";
 #endif
 
 /*
@@ -234,7 +234,7 @@ addg(as1, as2, as3, as4)
 	s2 = locstak() + BYTESPERWORD;
 	s1 = as1;
 	if (as4) {
-		while (c = *s1++) {
+		while ((c = *s1++) != '\0') {
 			if (s2 >= brkend)
 				growstak(s2);
 			*s2++ = c;
@@ -278,7 +278,7 @@ addg(as1, as2, as3, as4)
 		s2 += len;
 		s1 += len;
 	}
-	if (s1 = as3) {
+	if ((s1 = as3) != NULL) {
 		if (s2 >= brkend)
 			growstak(s2);
 		*s2++ = '/';
@@ -287,7 +287,7 @@ addg(as1, as2, as3, as4)
 			if (s2 >= brkend)
 				growstak(s2);
 		}
-		while (*s2++ = *++s1);
+		while ((*s2++ = *++s1) != '\0');
 	}
 	makearg((struct argnod *)endstak(s2));
 }

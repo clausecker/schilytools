@@ -1,8 +1,8 @@
-/* @(#)types.h	1.2 07/01/16 Copyright 2006-2007 J. Schilling */
+/* @(#)types.h	1.4 09/01/14 Copyright 2006-2009 J. Schilling */
 /*
  *	Abstraction from sys/types.h
  *
- *	Copyright (c) 2006-2007 J. Schilling
+ *	Copyright (c) 2006-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -27,6 +27,13 @@
 #ifndef	_INCL_SYS_TYPES_H
 #include <sys/types.h>
 #define	_INCL_SYS_TYPES_H
+#endif
+#endif
+
+#ifdef	HAVE_STDDEF_H
+#ifndef	_INCL_STDDEF_H
+#include <stddef.h>		/* For offsetof(), ptrdiff_t, wchar_t, size_t */
+#define	_INCL_STDDEF_H
 #endif
 #endif
 

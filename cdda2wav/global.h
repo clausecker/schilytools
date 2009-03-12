@@ -1,4 +1,4 @@
-/* @(#)global.h	1.22 08/10/28 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2008 J. Schilling */
+/* @(#)global.h	1.24 09/01/24 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling */
 /*
  * Global Variables
  */
@@ -49,6 +49,8 @@ typedef struct global {
 	int			verbose;
 	int			scsi_silent;
 	int			scsi_verbose;
+	int			scsi_debug;
+	int			scsi_kdebug;
 	int			scanbus;
 	int			multiname;
 	int			sh_bits;
@@ -63,6 +65,7 @@ typedef struct global {
 	unsigned		overlap;
 	int			useroverlap;
 	FILE			*out_fp;
+	char			*buf;	 /* The SCSI buffer */
 	long			bufsize; /* The size of the SCSI buffer */
 	unsigned		nsectors;
 	unsigned		buffers;

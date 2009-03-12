@@ -1,4 +1,4 @@
-/* @(#)interface.h	1.21 08/06/24 Copyright 1998-2001 Heiko Eissfeldt, Copyright 2005-2008 J. Schilling */
+/* @(#)interface.h	1.22 09/01/24 Copyright 1998-2001 Heiko Eissfeldt, Copyright 2005-2008 J. Schilling */
 
 /*
  * Copyright (C) by Heiko Eissfeldt
@@ -130,6 +130,7 @@ extern	SCSI	*get_scsi_p	__PR((void));
 #endif
 
 extern	unsigned char	*bufferTOC;
+extern	int		bufTOCsize;
 extern	subq_chnl	*SubQbuffer;
 
 

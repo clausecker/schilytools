@@ -27,11 +27,11 @@
 /*
  * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)rmchg.c	1.11 09/01/04 J. Schilling
+ * @(#)rmchg.c	1.13 09/02/05 J. Schilling
  */
 #if defined(sun) || defined(__GNUC__)
 
-#ident "@(#)rmchg.c 1.11 09/01/04 J. Schilling"
+#ident "@(#)rmchg.c 1.13 09/02/05 J. Schilling"
 #endif
 /*
  * @(#)rmchg.c 1.19 06/12/12
@@ -45,7 +45,7 @@
 # include	<filehand.h>
 # include	<i18n.h>
 # include	<sys/utsname.h>
-# include	<sysexits.h>
+# include	<schily/sysexits.h>
 
 /*
 	Program to remove a specified delta from an SCCS file,
@@ -799,7 +799,7 @@ msg(app,name,cmrs,stats,sids,fred)
 	}
 	strcpy(holdfred,fred);
 	ptr=(char *)strchr(holdfred,'.');
-	*ptr=(char)NULL;
+	*ptr = '\0';
 	 strcat(holdfred,NOGETTEXT("source"));
 	 strcpy(dir,holdfred);
 	 strcat(holdfred,NOGETTEXT("/termLOG"));

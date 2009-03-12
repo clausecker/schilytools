@@ -27,11 +27,11 @@
 /*
  * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)admin.c	1.16 09/01/04 J. Schilling
+ * @(#)admin.c	1.18 09/02/08 J. Schilling
  */
 #if defined(sun) || defined(__GNUC__)
 
-#ident "@(#)admin.c 1.16 09/01/04 J. Schilling"
+#ident "@(#)admin.c 1.18 09/02/08 J. Schilling"
 #endif
 /*
  * @(#)admin.c 1.39 06/12/12
@@ -48,7 +48,8 @@
 # include	<setjmp.h>
 # include	<sys/utsname.h>
 # include	<schily/wait.h>
-# include	<sysexits.h>
+# include	<schily/sysexits.h>
+# include	<schily/maxpath.h>
 
 #ifdef	NEED_O_BINARY
 #include <io.h>			/* for setmode() prototype */

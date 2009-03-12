@@ -1,8 +1,8 @@
-/* @(#)rules.c	1.15 08/12/22 Copyright 1987 J. Schilling */
+/* @(#)rules.c	1.16 09/02/06 Copyright 1987 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)rules.c	1.15 08/12/22 Copyright 1987 J. Schilling";
+	"@(#)rules.c	1.16 09/02/06 Copyright 1987 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1987 J. Schilling
@@ -33,7 +33,8 @@ char implicit_rules[] =
 
 
 #if	defined(unix) || defined(IS_UNIX) || defined(IS_GCC_WIN32) || \
-	defined(__EMX__) || defined(__BEOS__) || defined(__DJGPP__)
+	defined(__EMX__) || defined(__BEOS__) || defined(__HAIKU__) || \
+	defined(__DJGPP__)
 #	define _OS_
 
 "\

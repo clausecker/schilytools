@@ -33,13 +33,13 @@
 #include "defs.h"
 
 /*
- * This file contains modifications Copyright 2008 J. Schilling
+ * This file contains modifications Copyright 2008-2009 J. Schilling
  *
- * @(#)args.c	1.9 08/12/22 2008 J. Schilling
+ * @(#)args.c	1.10 09/01/10 2008-2009 J. Schilling
  */
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)args.c	1.9 08/12/22 2008 J. Schilling";
+	"@(#)args.c	1.10 09/01/10 2008-2009 J. Schilling";
 #endif
 
 /*
@@ -55,8 +55,8 @@ static void		freedolh	__PR((void));
 static struct dolnod *	copyargs	__PR((unsigned char *[], int));
 static	struct dolnod *	clean_args	__PR((struct dolnod *blk));
 	void		clearup		__PR((void));
-	struct dolnod *	savargs		__PR((int funcnt));
-	void 		restorargs	__PR((struct dolnod *olddolh, int funcnt));
+	struct dolnod *	savargs		__PR((int funcntp));
+	void 		restorargs	__PR((struct dolnod *olddolh, int funcntp));
 	struct dolnod *	useargs		__PR((void));
 
 static struct dolnod *dolh;
@@ -260,7 +260,7 @@ freedolh()
 	unsigned char **argp;
 	struct dolnod *argblk;
 
-	if (argblk = dolh)
+	if ((argblk = dolh) != NULL)
 	{
 		if ((--argblk->doluse) == 0)
 		{
@@ -281,7 +281,7 @@ freeargs(blk)
 	struct dolnod *argblk;
 	int cnt;
 
-	if (argblk = blk)
+	if ((argblk = blk) != NULL)
 	{
 		argr = argblk->dolnxt;
 		cnt  = --argblk->doluse;
@@ -336,7 +336,7 @@ clean_args(blk)
 	struct dolnod *argr = 0;
 	struct dolnod *argblk;
 
-	if (argblk = blk)
+	if ((argblk = blk) != NULL)
 	{
 		argr = argblk->dolnxt;
 
@@ -368,7 +368,7 @@ clearup()
 	globdolv = 0;
 	globdolc = 0;
 	globdolh = 0;
-	while (argfor = clean_args(argfor))
+	while ((argfor = clean_args(argfor)) != NULL)
 		;
 	/*
 	 * clean up io files
@@ -401,10 +401,10 @@ clearup()
  */
 
 struct dolnod *
-savargs(funcnt)
-int funcnt;
+savargs(funcntp)
+int funcntp;
 {
-	if (!funcnt) {
+	if (!funcntp) {
 		globdolh = dolh;
 		globdolv = dolv;
 		globdolc = dolc;
@@ -419,9 +419,9 @@ int funcnt;
  */
 
 void
-restorargs(olddolh, funcnt)
+restorargs(olddolh, funcntp)
 struct dolnod *olddolh;
-int funcnt;
+int funcntp;
 {
 	if(argfor != olddolh)
 		while ((argfor = clean_args(argfor)) != olddolh && argfor);
@@ -432,7 +432,7 @@ int funcnt;
 	if(dolh)
 		dolh -> doluse++; /* increment use count so arguments aren't freed */
 	argfor = freeargs(dolh);
-	if(funcnt == 1) { 
+	if(funcntp == 1) { 
 		globdolh = 0;
 		globdolv = 0;
 		globdolc = 0;

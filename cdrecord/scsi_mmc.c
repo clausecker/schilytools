@@ -1,14 +1,14 @@
-/* @(#)scsi_mmc.c	1.46 08/12/22 Copyright 2002-2008 J. Schilling */
+/* @(#)scsi_mmc.c	1.47 09/01/14 Copyright 2002-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)scsi_mmc.c	1.46 08/12/22 Copyright 2002-2008 J. Schilling";
+	"@(#)scsi_mmc.c	1.47 09/01/14 Copyright 2002-2009 J. Schilling";
 #endif
 /*
  *	SCSI command functions for cdrecord
  *	covering MMC-3 level and above
  *
- *	Copyright (c) 2002-2008 J. Schilling
+ *	Copyright (c) 2002-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -216,6 +216,7 @@ EXPORT	int	read_format_capacities	__PR((SCSI *scgp, caddr_t bp, int cnt));
 
 EXPORT	void	przone			__PR((struct rzone_info *rp));
 EXPORT	int	get_diskinfo		__PR((SCSI *scgp, struct disk_info *dip, int cnt));
+EXPORT	char	*get_ses_type		__PR((int ses_type));
 EXPORT	void	print_diskinfo		__PR((struct disk_info *dip, BOOL is_cd));
 EXPORT	int	prdiskstatus		__PR((SCSI *scgp, cdr_t *dp, BOOL is_cd));
 EXPORT	int	sessstatus		__PR((SCSI *scgp, BOOL is_cd, long *offp, long *nwap));
@@ -1334,6 +1335,25 @@ get_diskinfo(scgp, dip, cnt)
 
 LOCAL	char	res[] = "reserved";
 
+EXPORT char *
+get_ses_type(ses_type)
+	int	ses_type;
+{
+static	char	ret[16];
+
+	switch (ses_type) {
+
+	case SES_DA_ROM:	return ("CD-DA or CD-ROM");
+	case SES_CDI:		return ("CDI");
+	case SES_XA:		return ("CD-ROM XA");
+	case SES_UNDEF:		return ("undefined");
+	default:
+				js_snprintf(ret, sizeof (ret), "%s: 0x%2.2X",
+							res, ses_type);
+				return (ret);
+	}
+}
+
 EXPORT void
 print_diskinfo(dip, is_cd)
 	struct disk_info	*dip;
@@ -1359,13 +1379,8 @@ static	char *fd_name[] = { "none", "incomplete", "in progress", "completed", };
 		dip->last_track_ls + dip->last_track_ls_msb * 256);
 	IS("unrestricted", dip->uru);
 	printf("Disk type: ");
-	if (is_cd) switch (dip->disk_type) {
-
-	case SES_DA_ROM:	printf("CD-DA or CD-ROM");	break;
-	case SES_CDI:		printf("CDI");			break;
-	case SES_XA:		printf("CD-ROM XA");		break;
-	case SES_UNDEF:		printf("undefined");		break;
-	default:		printf("reserved");		break;
+	if (is_cd) {
+		printf("%s", get_ses_type(dip->disk_type));
 	} else {
 		printf("DVD, HD-DVD or BD");
 	}

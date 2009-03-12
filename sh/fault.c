@@ -33,13 +33,13 @@
 #include "defs.h"
 
 /*
- * This file contains modifications Copyright 2008 J. Schilling
+ * This file contains modifications Copyright 2008-2009 J. Schilling
  *
- * @(#)fault.c	1.6 08/12/22 2008 J. Schilling
+ * @(#)fault.c	1.9 09/02/13 2008-2009 J. Schilling
  */
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)fault.c	1.6 08/12/22 2008 J. Schilling";
+	"@(#)fault.c	1.9 09/02/13 2008-2009 J. Schilling";
 #endif
 
 /*
@@ -64,6 +64,9 @@ static	const char sccsid[] =
 #ifndef	SA_SIGINFO
 #define	SA_SIGINFO	0
 #endif
+#ifndef	SA_ONSTACK
+#define	SA_ONSTACK	0
+#endif
 #ifdef	HAVE_UCONTEXT_H
 #include	<ucontext.h>
 #else
@@ -79,7 +82,7 @@ static	const char sccsid[] =
 #include	<string.h>
 #endif
 
-static	void (*psig0_func)() = SIG_ERR;	/* previous signal handler for signal 0 */
+static	void (*psig0_func) __PR((int)) = SIG_ERR;	/* previous signal handler for signal 0 */
 static	char sigsegv_stack[SIGSTKSZ];
 
 static int 	ignoring	__PR((int i));
@@ -93,7 +96,7 @@ static void	fault		__PR((int sig));
 	void	systrap		__PR((int argc, char **argv));
 	void	sh_sleep	__PR((unsigned int ticks));
 static void	sigsegv		__PR((int sig, siginfo_t *sip, ucontext_t *uap));
-static void	set_sigval	__PR((int sig, void (*fun)()));
+static void	set_sigval	__PR((int sig, void (*fun)(int)));
 	void	init_sigval	__PR((void));
 
 static BOOL sleeping = 0;
@@ -141,7 +144,7 @@ static BOOL trapflg[MAXTRAP] =
 };
 
 static void (*(
-sigval[MAXTRAP]))() =
+sigval[MAXTRAP])) __PR((int)) =
 {
 	0,
 	done, 	/* hangup */
@@ -231,7 +234,7 @@ done(sig)
 	unsigned char	*t;
 	int	savxit;
 
-	if (t = trapcom[0])
+	if ((t = trapcom[0]) != NULL)
 	{
 		trapcom[0] = 0;
 		/* Save exit value so trap handler will not change its val */
@@ -346,7 +349,7 @@ stdsigs()
 	int rtmax = -2;
 #endif
 
-#ifdef	HAVE_STACK_T
+#if defined(HAVE_STACK_T) && HAVE_SIGALTSTACK
 	ss.ss_size = SIGSTKSZ;
 	ss.ss_sp = sigsegv_stack;
 	ss.ss_flags = 0;
@@ -409,7 +412,7 @@ chktrap()
 		if (trapflg[i] & TRAPSET)
 		{
 			trapflg[i] &= ~TRAPSET;
-			if (t = trapcom[i])
+			if ((t = trapcom[i]) != NULL)
 			{
 				int	savxit = exitval;
 				execexp(t, (Intptr_t)0);
@@ -446,7 +449,7 @@ systrap(argc, argv)
 		 * set the action for the list of signals
 		 *
 		 */
-		char *cmd = *argv, *a1 = *(argv+1);
+		char *cmdp = *argv, *a1 = *(argv+1);
 		BOOL noa1;
 		noa1 = (str2sig(a1, &sig) == 0);
 		if (noa1 == 0)
@@ -455,7 +458,7 @@ systrap(argc, argv)
 			if (str2sig(*argv, &sig) < 0 ||
 			    sig >= MAXTRAP || sig < MINTRAP ||
 			    sig == SIGSEGV) {
-				failure((unsigned char *)cmd, badtrap);
+				failure((unsigned char *)cmdp, badtrap);
 			} else if (noa1) {
 				/*
 				 * no action specifed so reset the siganl
@@ -579,7 +582,7 @@ sigsegv(sig, sip, uap)
 static void
 set_sigval(sig, fun)
 	int	sig;
-	void	(*fun)();
+	void	(*fun) __PR((int));
 {
 	if (sig < MAXTRAP)
 		sigval[sig] = fun;
@@ -622,7 +625,7 @@ init_sigval()
 	set_sigval(SIGBUS, done);
 #endif
 #ifdef	SIGSEGV
-	set_sigval(SIGSEGV, sigsegv);
+	set_sigval(SIGSEGV, (void (*) __PR((int)))sigsegv);
 #endif
 #ifdef	SIGSYS
 	set_sigval(SIGSYS, done);

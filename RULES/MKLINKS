@@ -1,10 +1,10 @@
 #!/bin/sh
 ###########################################################################
-#ident "@(#)MKLINKS	1.74 08/11/08 "
+#ident "@(#)MKLINKS	1.76 09/02/10 "
 ###########################################################################
 # Written 1996 by J. Schilling
 ###########################################################################
-# Copyright (c) 1996-2008 J. Schilling
+# Copyright (c) 1996-2009 J. Schilling
 ###########################################################################
 # The contents of this file are subject to the terms of the
 # Common Development and Distribution License, Version 1.0 only
@@ -140,6 +140,12 @@ $symlink	i586-linux-cc.rul	x86_64-linux-cc.rul
 $symlink	i586-linux-gcc.rul	x86_64-linux-gcc.rul
 $symlink	i586-linux-cc.rul	armv5teb-linux-cc.rul
 $symlink	i586-linux-gcc.rul	armv5teb-linux-gcc.rul
+$symlink	i586-linux-cc.rul	sh3-linux-cc.rul
+$symlink	i586-linux-gcc.rul	sh3-linux-gcc.rul
+$symlink	i586-linux-cc.rul	sh4-linux-cc.rul
+$symlink	i586-linux-gcc.rul	sh4-linux-gcc.rul
+$symlink	i586-linux-cc.rul	sh4a-linux-cc.rul
+$symlink	i586-linux-gcc.rul	sh4a-linux-gcc.rul
 $symlink	i586-linux-suncc.rul	i686-linux-suncc.rul
 $symlink	i586-linux-suncc.rul	i486-linux-suncc.rul
 $symlink	i586-linux-suncc.rul	i386-linux-suncc.rul
@@ -218,6 +224,9 @@ $symlink	atarist-freemint-gcc.rul	falcon-freemint-gcc.rul
 $symlink	atarist-freemint-gcc.rul	milan-freemint-gcc.rul
 $symlink	atarist-freemint-gcc.rul	hades-freemint-gcc.rul
 $symlink	atarist-freemint-gcc.rul	aranym-freemint-gcc.rul
+$symlink	bepc-beos-gcc.rul	bemac-beos-gcc.rul
+$symlink	bepc-haiku-cc.rul	bemac-haiku-cc.rul
+$symlink	bepc-haiku-gcc.rul	bemac-haiku-gcc.rul
 #
 $symlink	mk-smake.id		mk-build.id
 $symlink	r-smake.dep		r-build.dep

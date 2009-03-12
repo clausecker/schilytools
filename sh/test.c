@@ -32,13 +32,13 @@
 #include "defs.h"
 
 /*
- * This file contains modifications Copyright 2008 J. Schilling
+ * This file contains modifications Copyright 2008-2009 J. Schilling
  *
- * @(#)test.c	1.7 08/12/22 2008 J. Schilling
+ * @(#)test.c	1.9 09/01/10 2008-2009 J. Schilling
  */
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)test.c	1.7 08/12/22 2008 J. Schilling";
+	"@(#)test.c	1.9 09/01/10 2008-2008 J. Schilling";
 #endif
 
 
@@ -55,7 +55,15 @@ static	const char sccsid[] =
 #include <sys/stat.h>
 #endif
 
-extern	int lstat();
+#ifndef	HAVE_LSTAT
+#define	lstat	stat
+#endif
+#ifndef	HAVE_DECL_STAT
+extern int stat	__PR((const char *, struct stat *));
+#endif
+#ifndef	HAVE_DECL_LSTAT
+extern int lstat __PR((const char *, struct stat *));
+#endif
 
 	int	test		__PR((int argn, unsigned char *com[]));
 static	unsigned char *nxtarg	__PR((int mt));
@@ -182,7 +190,7 @@ e3()
 			return(filtyp(nxtarg(0), S_IFCHR));
 		if (eq(a, "-b"))
 			return(filtyp(nxtarg(0), S_IFBLK));
-		if (eq(a, "-f"))
+		if (eq(a, "-f")) {
 			if (ucb_builtins) {
 				struct stat statb;
 			
@@ -191,6 +199,7 @@ e3()
 			}
 			else
 				return(filtyp(nxtarg(0), S_IFREG));
+		}
 		if (eq(a, "-u"))
 			return(ftype(nxtarg(0), S_ISUID));
 		if (eq(a, "-g"))
@@ -255,6 +264,8 @@ e3()
 
 	bfailed((unsigned char *)btest, badop, p2);
 /* NOTREACHED */
+
+	return (0);		/* Not reached, but keeps GCC happy */
 }
 
 static int
@@ -277,9 +288,9 @@ filtyp(f, field)
 	int		field;
 {
 	struct stat statb;
-	int (*statf)() = (field == S_IFLNK) ? lstat : stat;
+	int (*statf) __PR((const char *_nm, struct stat *_fs)) = (field == S_IFLNK) ? lstat : stat;
 
-	if ((*statf)(f, &statb) < 0)
+	if ((*statf)((char *)f, &statb) < 0)
 		return(0);
 	if ((statb.st_mode & S_IFMT) == field)
 		return(1);

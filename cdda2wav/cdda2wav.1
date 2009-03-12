@@ -1,5 +1,5 @@
 '\" t
-.\" @(#)cdda2wav.1	1.27 08/10/28 Copyright 1998,1999,2000 Heiko Eissfeldt, Copyright 2004-2008 J. Schilling
+.\" @(#)cdda2wav.1	1.29 09/01/20 Copyright 1998,1999,2000 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
 .if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
 .if t .ds u \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'u
@@ -163,6 +163,22 @@ option.
 uses
 .I auxdevice
 as CDROM drive for ioctl usage.
+.TP
+.BI debug= #
+.TP
+.BI debug-scsi= #
+Set the debug level for the
+.B libscg
+SCSI OS abstraction layer.
+.TP
+.BI kdebug= #
+.TP
+.BI kdebug-scsi= #
+.TP
+.BI kd= #
+Set the kernel debug level for the kernel driver called by the
+.B libscg
+SCSI OS abstraction layer. This option is not supported on all platforms.
 .TP
 .BI \-I " interface
 .TP
@@ -396,14 +412,17 @@ changes pitch of audio data copied to sound device.
 .BI \-v " itemlist
 .TP
 .BI \-verbose\-level " itemlist
-prints verbose information about the CD.
+Retrieves and prints verbose information about the CD.
 .B Level
 is a list of comma seperated suboptions. Each suboption controls the type of information to be reported.
+
 .TS H
 center box;
 r | l.
 Suboption	Description
 _
+!	invert the meaning of the following string
+not	invert the meaning of the following string
 disable	no information is given, warnings appear however
 all	all information is given
 toc	show table of contents

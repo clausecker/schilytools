@@ -33,13 +33,13 @@
 #include "defs.h"
 
 /*
- * This file contains modifications Copyright 2008 J. Schilling
+ * This file contains modifications Copyright 2008-2009 J. Schilling
  *
- * @(#)ulimit.c	1.6 08/12/22 2008 J. Schilling
+ * @(#)ulimit.c	1.7 09/01/10 2008-2009 J. Schilling
  */
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)ulimit.c	1.6 08/12/22 2008 J. Schilling";
+	"@(#)ulimit.c	1.7 09/01/10 2008-2009 J. Schilling";
 #endif
 
 /*
@@ -63,30 +63,30 @@ static struct rlimtab {
 	rlim_t	divisor;
 } rlimtab[] = {
 #ifdef	RLIMIT_CPU
-	RLIMIT_CPU,	"time",		"seconds",	1,
+{	RLIMIT_CPU,	"time",		"seconds",	1,	},
 #endif
 #ifdef	RLIMIT_FSIZE
-	RLIMIT_FSIZE,	"file",		"blocks",	512,
+{	RLIMIT_FSIZE,	"file",		"blocks",	512,	},
 #endif
 #ifdef	RLIMIT_DATA
-	RLIMIT_DATA,	"data",		"kbytes",	1024,
+{	RLIMIT_DATA,	"data",		"kbytes",	1024,	},
 #endif
 #ifdef	RLIMIT_STACK
-	RLIMIT_STACK,	"stack",	"kbytes",	1024,
+{	RLIMIT_STACK,	"stack",	"kbytes",	1024,	},
 #endif
 #ifdef	RLIMIT_CORE
-	RLIMIT_CORE,	"coredump",	"blocks",	512,
+{	RLIMIT_CORE,	"coredump",	"blocks",	512,	},
 #endif
 #ifdef	RLIMIT_RSS
-	RLIMIT_RSS,	"memoryuse",	"kbytes",	1024,
+{	RLIMIT_RSS,	"memoryuse",	"kbytes",	1024,	},
 #endif
 #ifdef	RLIMIT_NOFILE
-	RLIMIT_NOFILE,	"nofiles",	"descriptors",	1,
+{	RLIMIT_NOFILE,	"nofiles",	"descriptors",	1,	},
 #endif
 #ifdef	RLIMIT_VMEM
-	RLIMIT_VMEM,	"memory",	"kbytes",	1024,
+{	RLIMIT_VMEM,	"memory",	"kbytes",	1024,	},
 #endif
-	0,		NULL,		NULL,		0,
+{	0,		NULL,		NULL,		0,	},
 };
 
 	void	sysulimit	__PR((int argc, char **argv));

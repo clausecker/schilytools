@@ -1,8 +1,8 @@
 #define	USE_REMOTE
-/* @(#)scsi-remote.c	1.26 08/11/26 Copyright 1990,2000-2008 J. Schilling */
+/* @(#)scsi-remote.c	1.28 09/01/13 Copyright 1990,2000-2009 J. Schilling */
 #ifndef lint
 static	char __sccsid[] =
-	"@(#)scsi-remote.c	1.26 08/11/26 Copyright 1990,2000-2008 J. Schilling";
+	"@(#)scsi-remote.c	1.28 09/01/13 Copyright 1990,2000-2009 J. Schilling";
 #endif
 /*
  *	Remote SCSI user level command transport routines
@@ -13,7 +13,7 @@ static	char __sccsid[] =
  *	Choose your name instead of "schily" and make clear that the version
  *	string is related to a modified source.
  *
- *	Copyright (c) 1990,2000-2008 J. Schilling
+ *	Copyright (c) 1990,2000-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -105,7 +105,7 @@ static	char __sccsid[] =
 /*extern	BOOL	debug;*/
 LOCAL	BOOL	debug = 1;
 
-LOCAL	char	_scg_trans_version[] = "remote-1.26";	/* The version for remote SCSI	*/
+LOCAL	char	_scg_trans_version[] = "remote-1.28";	/* The version for remote SCSI	*/
 LOCAL	char	_scg_auth_schily[]	= "schily";	/* The author for this module	*/
 
 LOCAL	int	scgo_rsend		__PR((SCSI *scgp));
@@ -280,7 +280,7 @@ scgo_ropen(scgp, device)
 		int	tlun	= scg_lun(scgp);
 	register int	f;
 	register int	nopen = 0;
-	char		devname[128];
+	char		sdevname[128];
 	char		*p;
 
 	if (scgp->overbose)
@@ -321,12 +321,12 @@ scgo_ropen(scgp, device)
 	/*
 	 * Save non user@host:device
 	 */
-	js_snprintf(devname, sizeof (devname), "%s", device);
+	js_snprintf(sdevname, sizeof (sdevname), "%s", device);
 
-	if ((p = strchr(devname, ':')) != NULL)
+	if ((p = strchr(sdevname, ':')) != NULL)
 		*p++ = '\0';
 
-	f = rscsigetconn(scgp, devname);
+	f = rscsigetconn(scgp, sdevname);
 	if (f < 0) {
 		if (scgp->errstr)
 			js_snprintf(scgp->errstr, SCSI_ERRSTR_SIZE,

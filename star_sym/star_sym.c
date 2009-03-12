@@ -1,8 +1,8 @@
-/* @(#)star_sym.c	1.10 08/12/23 Copyright 2005-2008 J. Schilling */
+/* @(#)star_sym.c	1.11 09/02/08 Copyright 2005-2008 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)star_sym.c	1.10 08/12/23 Copyright 2005-2008 J. Schilling";
+	"@(#)star_sym.c	1.11 09/02/08 Copyright 2005-2008 J. Schilling";
 #endif
 /*
  *	Read in the star inode data base and write a human
@@ -33,6 +33,7 @@ static	const char sccsid[] =
 #include <schily/jmpdefs.h>	/* To include __jmalloc() */
 #include <schily/fcntl.h>
 #include <schily/schily.h>
+#include <schily/maxpath.h>
 #include "starsubs.h"
 
 struct star_stats	xstats;		/* for printing statistics	*/
@@ -295,18 +296,31 @@ walkfunc(nm, fs, type, state)
 		return (0);
 
 	{
+#ifndef	HAVE_FCHDIR
+		char		cwd[MAXPATHNAME+1];
+#else
 		int		f;
+#endif
 		struct stat	sb;
 		char		name[4096];
 
 		sprintf(name, "%s/%s", (char *)state->auxp, &nm[1]);
 		sb.st_ino = 0;
 
+#ifndef	HAVE_FCHDIR
+		cwd[0] = '\0';
+		getcwd(cwd, sizeof (cwd));
+#else
 		f = open(".", 0);
+#endif
 		walkhome(state);
 		lstat(name, &sb);
+#ifndef	HAVE_FCHDIR
+		chdir(cwd);
+#else
 		fchdir(f);
 		close(f);
+#endif
 		padd_node(nm, sb.st_ino, fs->st_ino, (type ==  WALK_D) ?  I_DIR:0);
 	}
 	return (0);

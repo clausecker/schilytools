@@ -1,8 +1,8 @@
-/* @(#)fifo.c	1.54 08/12/22 Copyright 1989,1997-2008 J. Schilling */
+/* @(#)fifo.c	1.55 09/02/07 Copyright 1989,1997-2008 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)fifo.c	1.54 08/12/22 Copyright 1989,1997-2008 J. Schilling";
+	"@(#)fifo.c	1.55 09/02/07 Copyright 1989,1997-2008 J. Schilling";
 #endif
 /*
  *	A "fifo" that uses shared memory between two processes
@@ -34,7 +34,7 @@ static	const char sccsid[] =
 	defined(HAVE_CLONE_AREA) && defined(HAVE_CREATE_AREA) && \
 	defined(HAVE_DELETE_AREA)
 #include <OS.h>
-#	define	HAVE_BEOS_AREAS	/* BeOS/Zeta */
+#	define	HAVE_BEOS_AREAS	/* BeOS/Zeta/Haiku */
 #endif
 #if	!defined(HAVE_SMMAP) && !defined(HAVE_USGSHM) && \
 	!defined(HAVE_DOSALLOCSHAREDMEM) && !defined(HAVE_BEOS_AREAS)

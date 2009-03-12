@@ -37,13 +37,13 @@
 #include	"defs.h"
 
 /*
- * This file contains modifications Copyright 2008 J. Schilling
+ * This file contains modifications Copyright 2008-2009 J. Schilling
  *
- * @(#)string.c	1.6 08/12/22 2008 J. Schilling
+ * @(#)string.c	1.7 09/01/10 2008-2009 J. Schilling
  */
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)string.c	1.6 08/12/22 2008 J. Schilling";
+	"@(#)string.c	1.7 09/01/10 2008-2009 J. Schilling";
 #endif
 
 /* ========	general purpose string handling ======== */
@@ -61,7 +61,7 @@ movstr(a, b)
 	unsigned char	*a;
 	unsigned char	*b;
 {
-	while (*b++ = *a++);
+	while ((*b++ = *a++) != '\0');
 	return(--b);
 }
 
@@ -72,7 +72,7 @@ any(c, s)
 {
 	unsigned int d;
 
-	while (d = *s++)
+	while ((d = *s++) != 0)
 	{
 		if (d == c)
 			return(TRUE);
@@ -116,7 +116,7 @@ unsigned char	*as;
 {
 	unsigned char	*s;
 
-	if (s = as)
+	if ((s = as) != 0)
 		while (*s++);
 	return(s - as);
 }

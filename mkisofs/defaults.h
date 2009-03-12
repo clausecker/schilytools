@@ -1,4 +1,4 @@
-/* @(#)defaults.h	1.20 06/11/11 joerg */
+/* @(#)defaults.h	1.22 09/02/17 joerg */
 /*
  * Header file defaults.h - assorted default values for character strings in
  * the volume descriptor.
@@ -101,6 +101,10 @@
 #define	SYSTEM_ID_DEFAULT	"BeOS"
 #endif
 
+#ifdef __HAIKU__
+#define	SYSTEM_ID_DEFAULT	"Haiku"
+#endif
+
 #ifdef __OS2
 #define	SYSTEM_ID_DEFAULT	"OS/2"
 #endif
@@ -123,6 +127,18 @@
 
 #ifdef	__DJGPP__
 #define	SYSTEM_ID_DEFAULT	"DOS"
+#endif
+
+#ifdef	__MINT__
+#define	SYSTEM_ID_DEFAULT	"ATARI-MiNT"
+#endif
+
+#ifdef	__SYLLABLE__
+#define	SYSTEM_ID_DEFAULT	"Syllable"
+#endif
+
+#ifdef	AMIGA
+#define	SYSTEM_ID_DEFAULT	"AMIGA"
 #endif
 
 #ifndef SYSTEM_ID_DEFAULT

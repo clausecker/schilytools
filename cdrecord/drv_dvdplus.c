@@ -1,8 +1,8 @@
-/* @(#)drv_dvdplus.c	1.53 09/01/04 Copyright 2003-2009 J. Schilling */
+/* @(#)drv_dvdplus.c	1.54 09/01/14 Copyright 2003-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)drv_dvdplus.c	1.53 09/01/04 Copyright 2003-2009 J. Schilling";
+	"@(#)drv_dvdplus.c	1.54 09/01/14 Copyright 2003-2009 J. Schilling";
 #endif
 /*
  *	Copyright (c) 2003-2009 J. Schilling
@@ -690,8 +690,11 @@ dip->disk_type);
 	profile = get_curprofile(scgp);
 	if (profile == 0x001A) {
 		dsp->ds_flags |= DSF_DVD_PLUS_RW;	/* This is a DVD+RW */
-		if (dip->disk_status == DS_EMPTY &&	/* Unformatted	    */
-		    dip->disk_type == SES_UNDEF) {	/* Not a CD	    */
+		if (dip->disk_status == DS_EMPTY) {	/* Unformatted	    */
+			if (dip->disk_type != SES_UNDEF) {	/* Not a CD */
+				printf("WARNING: Drive returns illegal Disk type %s.\n",
+							get_ses_type(dip->disk_type));
+			}
 			dsp->ds_flags |= DSF_NEED_FORMAT;
 			if ((dp->cdr_dstat->ds_cdrflags & RF_PRATIP) != 0)
 				print_format_capacities(scgp);

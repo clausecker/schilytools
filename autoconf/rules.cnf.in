@@ -1,11 +1,14 @@
-# @(#)rules.cnf.in	1.18 08/12/20 Copyright 1998-2008 J. Schilling
+# @(#)rules.cnf.in	1.20 09/01/07 Copyright 1998-2009 J. Schilling
 
 EXEEXT= @EXEEXT@
 XEXEEXT= @XEXEEXT@
 OBJEXT= @OBJEXT@
 
 LARGEFILE_CC_OPT= @largefile_cc_opt@
-CC64_OPT= @cc64_opt@
+SUN_CC64_OPT= @sun_cc64_opt@	# Used on e.g. Solaris and Linux
+HP_CC_ANSI_OPT= @hp_cc_ansi_opt@	# Used on HP-UX
+HP_CC_OPT_OPT= @hp_cc_opt_opt@	# Used on HP-UX
+HP_CC_GPROF_OPT= @hp_cc_gprof_opt@	# Used on HP-UX
 
 MAY_LINUX_SRC_INCLUDE= @may_linux_src_include@
 

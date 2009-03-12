@@ -1,0 +1,212 @@
+New features with AN-2009-01-99:
+
+-	schily/schily.h now by default includes stdio.h in case that
+	the platform defines the POSIX.1-2008 finctions getline() or fgetline()
+	that are in conflict with the POSIX standard rules.
+
+	stdio.h is included in order to alow to auto-rename the original
+	functions to js_getline() and ls_fgetline() which have been defined ~ 1982.
+
+-	New autoconf test to distinguish between the free of charge 
+	"Bundled" cc on HP-UX and the commercial cc. Only the commercial cc 
+	supports ANSI C and the Bundled cc complains when the ANSI Options
+	are used:
+
+	(Bundled) cc: warning 480: The -A option is available only with the C/ANSI C product; ignored.
+	(Bundled) cc: warning 480: The -O option is available only with the C/ANSI C product; ignored.
+
+	These warnings are no longer present.
+
+-	schily/stkframe.h now uses Intptr_t for the fr_savp member to make it
+	work correctly on 64bit systems without OS supplied stkframe.h.
+
+-	New autoconf test on whether unistd.h defines extern char ** environ.
+
+-	New file schily/stdio.h to simplify layering.
+
+-	SCCS get.c and sccs.c no longer define "extern int errno" in order to
+	avoid conflicts with multi threaded definitions.
+
+-	Minor typo fix in the mkisofs man page
+
+-	Avoid some GCC warnings
+
+-	libschily/format.c now supports the %z (size_t) and %t (ptrdiff_t) 
+	printf format size modifiers.
+
+-	Some small typos in cdrecord's error messages have been fixed.
+
+-	Cdrecord added a w orkaround for 'TSSTcorp' 'CDDVDW SE-S224Q ' 'TS01'
+	firmware bug. The drives does not return SES_UNDEF for unformatted 
+	DVD+RW media.
+
+-	Support again cdrecord -v -sao -multi *.wav
+	This stopped working with 2.01.01a29 when introducing DVD multi-border
+	support.
+
+-	Added some dependencies for alling MKLINKS in various directories.
+	This is needed because GNU make ignores some dependencies and
+	evaluates dependencies in the wrong order.
+
+-	New SCSI low level transport for ATARI FreeMiNT has been added.
+	This makes the ATARI support complete.
+	Thanks to Yvan Doyeux
+
+-	Do not install by overwriting /etc/default/cdrecord in case an earlier file
+	exists.
+
+	Please give feedback on what you like to see in future.
+	
+	Do you like to see a sample file installed?
+
+-	README.cdplus has been renewed 
+
+-	Prevent a core dump from hitting ^C while cdda2wav tries to call
+	scg_open() to open the SCSI devices.
+
+-	A buggy address compuation in cdda2wav that caused problems with 64 bit
+	binaries has been fixed.
+
+-	Cdda2wav now correctly deals with longer CD-Text information.
+	Thanks to Yvan Doyeux for creating a related test CD...
+
+-	struct tocdesc in cdda2wav has been restructured to prevent struct tail 
+	padding on MC-680x0 systems.
+	Thanks to Yvan Doyeux for reporting this for the ATARI port.
+
+-	The drive 'HP ' 'CD-Writer+ 9600 ' '1.0a' does not like to read SCSI FULL TOC
+	with a too long transfer lenght. First retrieve the available data count.
+
+-	New options -debug -debug-scsi -kdebug -kdebug-scsi -kd to set SCSI low level
+	debugging in libscg
+
+-	The option -v not also supports "!" and "not" to invert the list
+	of "verbose" options (e.g. -v!indices for everything but indices).
+
+-	Some casts have been added to increase the 64 bit compilation support in mkisofs
+
+-	mkisofs and the tools isodump, isovfy and isoinfo now completely
+	support the SUSP termination signature "ST".
+
+-	Do no longer flag the absence of a "RR" signature as an error in
+	isodump, isovfy and isoinfo as newer Rock Ridge standard versions removed RR.
+
+-	Try to exit(excode) in readcd instead of exit(0)  in case that siginificant
+	problems occured.
+
+-	Prevent readcd from dumping core via raisecond("file_write_err")->abort()
+	in case that the target filesystem fills up.
+
+-	cdrtools version has been bumped to 2.01.01a58
+
+-	The Bourne Shell has been modified to work under FreeBSD-7.1
+
+-	the portable smake directord "psmake" now created links to schily/stdio.h 
+	which is needed on some platforms.
+
+-	New include file include/schily/sysexits.h helps to make things portable to 
+	platforms without sysexits.h
+
+-	Added platform support for "Haiku" being a BeOS/Zeta clone.
+
+	The following problems remain wit Haiku and need to be fixed in Haiku:
+
+	-	GNU tar does not unpack our source archive correctly on 
+		Haiku. The related GNU tar bug is present since 1993 and
+		never has been completely fixed.
+
+		WORKAROUND:
+		Use "star" to unpack it.
+
+	-	Calling setbuf(fp, NULL) on Haiku causes the application
+		to die from a null function pointer reference inside libc
+
+		WORKAROUND:
+		Upgrade to Haiku r29155 (February 8th 2009) or newer.
+
+	-	Calling setbuf(stdout, buf) will cause a libc induced
+		buffer overflow in "buf" as libc tries to out more data
+		than BUFSIZ into buf.
+
+		WORKAROUND:
+		The currently known to be affected program is "p".
+		Edit p.c and change the size of "buffer" from BUFSIZE to 8192.
+		Recompile p
+
+	-	Calling tcsetpgrp() causes a process to hang infinitely.
+		This causes "bsh" to fail on Haiku while "bsh" works
+		on Zeta.
+
+		WORKAROUND:
+		Edit bsh/Makefile and comment out the followinf line 
+
+		CPPOPTS +=      -DJOBCONTROL            # Include Job Control management
+
+	WARNING: As setbuf() is called by many programs in this source
+	tree, other programs are expected to suffer from the setbuf() bugs too.
+
+
+-	Support for Syllable was added. Syllable is a fork from AtheOS.
+
+-	star_sym no honors the autoconf result HAVE_FCHDIR
+
+-	SCCS admin.c now includes schily/maxpat.h to verify that MAXPATHNAME
+	is defined.
+
+-	SCCS diffh.c now works around an incompatible prototype for getl() on ATARI MiNT.
+
+-	bsh + libshedit now work around a nonstandard toint() #definition on ATARI MiNT.
+
+-	autoconf now acts more reliable and more orthogonal with  AC_CHECK_TYPE() vs. 
+	AC_CHECK_SIZEOF() and carefully includes include files separately based on
+	fine grained tests.
+
+-	Added makefile support for non-atomake enabled make programs line GNU make
+	for  sh3-linux-cc sh4-linux-cc sh4a-linux-cc
+
+-	Make bsh deal with the missing definition for SYS_NMLN on ATARI MiNT
+
+-	Let bsh use the system getrusage() on Solaris 
+
+-	Some more portability enhancements to allow ecerything to compile on 
+	ATARI MiNT
+
+-	The man page for isoinfo nor includes the -debug option.
+
+-	Some better warnings with cdrecord in case that the environment variables
+	'CDR_FORCERAWSPEED=' or 'CDR_FORCSPEED=' have been specified.
+
+-	Fixed a bug in cdda2wav that has been introdcued with supporting
+	MD-5 sums. Cdda2wav no longer writes partial *.inf files when
+	-no-infofile was speficied.
+
+-	Automated support for System ID in mkisofs for:
+
+	Haiku, Syllable, AMIGA-OS, ATARI-MiNT
+
+-	Trying to make the Bourne Shell compile on ATARI MiNT.
+
+-	New autoconf test for os2.h
+
+-	Fixed some Rock Ridge bugs that have been identified when investigating
+	in the OpenSolaris bug 6807009
+	http://defect.opensolaris.org/bz/show_bug.cgi?id=5385
+
+-	Man page description for -abstract -biblio -copyright is now better
+	to understand
+
+-	Trying to make the "string stack" in smake more safe against 
+	small problems by always null terminating the string buffer.
+
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.isdn.cs.tu-berlin.de, js@cs.tu-berlin.de
+	joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

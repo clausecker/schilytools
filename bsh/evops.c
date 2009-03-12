@@ -1,13 +1,13 @@
-/* @(#)evops.c	1.28 08/12/20 Copyright 1984-2008 J. Schilling */
+/* @(#)evops.c	1.30 09/02/10 Copyright 1984-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)evops.c	1.28 08/12/20 Copyright 1984-2008 J. Schilling";
+	"@(#)evops.c	1.30 09/02/10 Copyright 1984-2009 J. Schilling";
 #endif
 /*
  *	bsh environment section
  *
- *	Copyright (c) 1984-2008 J. Schilling
+ *	Copyright (c) 1984-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -322,7 +322,11 @@ inituser()
 EXPORT void
 inithostname()
 {
-#ifdef	HAVE_SYS_SYSTEMINFO_H
+#if defined(HAVE_SYS_SYSTEMINFO_H) && defined(SI_HOSTNAME)
+
+#ifndef	SYS_NMLN		/* SYS_NMLN is in limits.h, missing on MiNT */
+#define	SYS_NMLN	257
+#endif
 	char	host[SYS_NMLN];
 	int	ret;
 

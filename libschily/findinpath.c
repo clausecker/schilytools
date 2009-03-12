@@ -1,8 +1,8 @@
-/* @(#)findinpath.c	1.2 08/12/20 Copyright 2004-2008 J. Schilling */
+/* @(#)findinpath.c	1.3 09/02/07 Copyright 2004-2008 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)findinpath.c	1.2 08/12/20 Copyright 2004-2008 J. Schilling";
+	"@(#)findinpath.c	1.3 09/02/07 Copyright 2004-2008 J. Schilling";
 #endif
 /*
  * Search a file name in the PATH and return the path name in allocated space.
@@ -39,6 +39,7 @@ EXPORT	char	*findinpath	__PR((char *name, int mode, BOOL plain_file));
 #else
 #define	enofile(t)			((t) == ENOENT || \
 					(t)  == ENOTDIR || \
+					(t)  == EISDIR || \
 					(t)  == EIO)
 #endif
 

@@ -1,8 +1,8 @@
-/* @(#)cdda2wav.c	1.96 09/01/04 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling */
+/* @(#)cdda2wav.c	1.104 09/02/17 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling */
 #include "config.h"
 #ifndef lint
 static	const char sccsid[] =
-"@(#)cdda2wav.c	1.96 09/01/04 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling";
+"@(#)cdda2wav.c	1.104 09/02/17 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling";
 
 #endif
 #undef	DEBUG_BUFFER_ADDRESSES
@@ -92,7 +92,11 @@ static	const char sccsid[] =
 #include <scg/scsitransp.h>
 
 #ifdef	HAVE_AREAS
+#ifdef	HAVE_OS_H
+#include <OS.h>
+#else
 #include <be/kernel/OS.h>
+#endif
 #endif
 
 #include "mytype.h"
@@ -177,7 +181,8 @@ no-write,N,dump-rates,R,bulk,B,alltracks,verbose-scsi+,V+,\
 find-extremes,F,find-mono,G,no-infofile,H,\
 deemphasize,T,info-only,J,silent-scsi,Q,\
 cddbp-server*,cddbp-port*,\
-scanbus,device*,dev*,D*,ts&,auxdevice*,A*,interface*,I*,output-format*,O*,\
+scanbus,device*,dev*,D*,debug#,debug-scsi#,kdebug#,kd#,kdebug-scsi#,ts&,\
+auxdevice*,A*,interface*,I*,output-format*,O*,\
 output-endianess*,E*,cdrom-endianess*,C*,speed#,S#,\
 playback-realtime#L,p#L,md5,M,set-overlap#,P#,sound-device*,K*,\
 cddb#,L#,channels*,c*,bits-per-sample#,b#,rate#,r#,gui,g,\
@@ -447,7 +452,6 @@ Albumtitle=\t'%s'\n",
 	fclose(info_fp);
 	return (0);
 }
-#endif
 
 static int
 write_md5_info(fname_baseval, track, numbered)
@@ -499,6 +503,7 @@ write_md5_info(fname_baseval, track, numbered)
 #endif
 	return (0);
 }
+#endif	/* INFOFILES */
 
 static void
 CloseAudio(channels_val, nSamples, audio_out)
@@ -951,6 +956,8 @@ init_globals()
 				SHOW_TITLES;	/* verbose level */
 	global.scsi_silent = 0;
 	global.scsi_verbose = 0;	/* SCSI verbose level */
+	global.scsi_debug = 0;		/* SCSI debug level */
+	global.scsi_kdebug = 0;		/* SCSI kernel debug level */
 	global.scanbus = 0;
 	global.multiname = 0;		/* multiple file names given */
 	global.sh_bits  =  0;		/* sh_bits: sample bit shift */
@@ -1275,7 +1282,7 @@ exit_wrapper(status)
 		/*
 		 * The double cast is only needed for GCC in LP64 mode.
 		 */
-		if (scgp->running) {
+		if (scgp != NULL && scgp->running) {
 			scgp->cb_fun = on_exitscsi;
 			scgp->cb_arg = (void *)(Intptr_t)status;
 		} else {
@@ -1649,8 +1656,7 @@ do_read(p, total_unsuccessful_retries)
 				 */
 				scgp->silent++;
 				do {
-					int retval2 = ReadCdRomSub(scgp,
-							bufferSub,
+					ReadCdRomSub(scgp, bufferSub,
 							lSector+singles, 1);
 					*eorecording = RealEnd(scgp,
 							bufferSub);
@@ -1903,9 +1909,13 @@ do_write(p)
 					(unsigned int) *nSamplesToDo,
 					global.audio_out);
 			}
-			write_md5_info(global.fname_base, current_track,
+#ifdef INFOFILES
+			if (global.no_infofile == 0) {
+				write_md5_info(global.fname_base,
+						current_track,
 						bulk && global.multiname == 0);
-
+			}
+#endif
 			if (global.verbose) {
 #ifdef	USE_PARANOIA
 				double	f;
@@ -2276,6 +2286,7 @@ handle_verbose_opts(optstr, flagp)
 	char	*ep;
 	char	*np;
 	int	optlen;
+	BOOL	not = FALSE;
 
 	*flagp = 0;
 	while (*optstr) {
@@ -2286,7 +2297,15 @@ handle_verbose_opts(optstr, flagp)
 			optlen = strlen(optstr);
 			np = optstr + optlen;
 		}
-		if (strncmp(optstr, "toc", optlen) == 0) {
+		if (optstr[0] == '!') {
+			optstr++;
+			optlen--;
+			not = TRUE;
+		}
+		if (strncmp(optstr, "not", optlen) == 0 ||
+				strncmp(optstr, "!", optlen) == 0) {
+			not = TRUE;
+		} else if (strncmp(optstr, "toc", optlen) == 0) {
 			*flagp |= SHOW_TOC;
 		} else if (strncmp(optstr, "summary", optlen) == 0) {
 			*flagp |= SHOW_SUMMARY;
@@ -2324,6 +2343,8 @@ handle_verbose_opts(optstr, flagp)
 		}
 		optstr = np;
 	}
+	if (not)
+		*flagp = (~ *flagp) & SHOW_MAX;
 	return (1);
 }
 
@@ -2519,6 +2540,8 @@ static char		*user_sound_device = "";
 			&global.cddbp_server, &global.cddbp_port,
 			&global.scanbus,
 			&global.dev_name, &global.dev_name, &global.dev_name,
+			&global.scsi_debug, &global.scsi_debug, 
+			&global.scsi_kdebug, &global.scsi_kdebug, &global.scsi_kdebug,
 			getnum, &global.bufsize,
 			&global.aux_name, &global.aux_name,
 			&int_name, &int_name,
@@ -3016,24 +3039,29 @@ Rate   Divider      Rate   Divider      Rate   Divider      Rate   Divider\n\
 #ifdef	USE_PARANOIA
 	{
 		int	i = 0;
+		char	*ptr = (char *)he_fill_buffer;
 
 		para_stat = (struct paranoia_statistics *)he_fill_buffer;
 		while (i < sizeof (struct paranoia_statistics)) {
-			i += global.pagesize;
-			he_fill_buffer += global.pagesize;
-			global.shmsize -= global.pagesize;
+			i		+= global.pagesize;
+			ptr		+= global.pagesize;
+			global.shmsize	-= global.pagesize;
 		}
+		he_fill_buffer = (myringbuff **)ptr;
 	}
 #endif
 #ifdef	MD5_SIGNATURES
 	{
 		int	i = 0;
+		char	*ptr = (char *)he_fill_buffer;
 
 		global.context = (MD5_CTX*)he_fill_buffer;
 		while (i < sizeof (MD5_CTX))
 			i += global.pagesize;
-		he_fill_buffer += i;
-		global.shmsize -= i;
+		ptr		+= i;
+		global.shmsize	-= i;
+
+		he_fill_buffer = (myringbuff **)ptr;
 	}
 #endif
 
@@ -3091,6 +3119,11 @@ Rate   Divider      Rate   Divider      Rate   Divider      Rate   Divider\n\
 	if (ReadTocText != NULL && FirstAudioTrack() != -1) {
 		ReadTocText(get_scsi_p());
 		handle_cdtext();
+		/*
+		 * Starting from here, we cannot issue any SCSI command that
+		 * overwrites the buffer used to read on the CD-Text data until
+		 * FixupTOC() has been called.
+		 */
 	}
 	if (global.verbose == SHOW_JUSTAUDIOTRACKS) {
 		unsigned int z;
@@ -3121,6 +3154,10 @@ Rate   Divider      Rate   Divider      Rate   Divider      Rate   Divider\n\
 		fputs(" support\n", outfp);
 	}
 
+	/*
+	 * Also handles the CD-Text or CD-Extra information that has been read
+	 * avove with ReadTocText().
+	 */
 	FixupTOC(cdtracks + 1);
 
 #if	0

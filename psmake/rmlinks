@@ -1,5 +1,5 @@
 #!/bin/sh
-# @(#)rmlinks	1.7 07/01/22 Copyright 1999 J. Schilling
+# @(#)rmlinks	1.8 09/02/04 Copyright 1999 J. Schilling
 
 rm -f archconf.c
 rm -f make.c
@@ -15,6 +15,7 @@ rm -f include/schily/dirent.h
 rm -f include/schily/fcntl.h
 rm -f include/schily/getargs.h
 rm -f include/schily/getcwd.h
+rm -f include/schily/hostname.h
 rm -f include/schily/libport.h
 rm -f include/schily/maxpath.h
 rm -f include/schily/mconfig.h
@@ -24,7 +25,9 @@ rm -f include/schily/prototyp.h
 rm -f include/schily/sigblk.h
 rm -f include/schily/standard.h
 rm -f include/schily/stat.h
+rm -f include/schily/stdio.h
 rm -f include/schily/stdlib.h
+rm -f include/schily/stkframe.h
 rm -f include/schily/string.h
 rm -f include/schily/time.h
 rm -f include/schily/unistd.h

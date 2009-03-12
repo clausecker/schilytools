@@ -1,8 +1,8 @@
-/* @(#)isoinfo.c	1.66 08/12/22 joerg */
+/* @(#)isoinfo.c	1.70 09/02/20 joerg */
 #include <schily/mconfig.h>
 #ifndef	lint
 static	const char sccsid[] =
-	"@(#)isoinfo.c	1.66 08/12/22 joerg";
+	"@(#)isoinfo.c	1.70 09/02/20 joerg";
 #endif
 /*
  * File isodump.c - dump iso9660 directory information.
@@ -11,7 +11,7 @@ static	const char sccsid[] =
  * Written by Eric Youngdale (1993).
  *
  * Copyright 1993 Yggdrasil Computing, Incorporated
- * Copyright (c) 1999-2008 J. Schilling
+ * Copyright (c) 1999-2009 J. Schilling
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2
@@ -392,7 +392,8 @@ parse_rr(pnt, len, cont_flag)
 	cont_extent = cont_offset = cont_size = 0;
 
 	ncount = 0;
-	flag1 = flag2 = 0;
+	flag1 = -1;
+	flag2 = 0;
 	while (len >= 4) {
 		if (pnt[3] != 1 && pnt[3] != 2) {
 			printf("**BAD RRVERSION (%d)\n", pnt[3]);
@@ -423,7 +424,7 @@ parse_rr(pnt, len, cont_flag)
 			fstat_buf.st_uid = isonum_733(pnt+20);
 			fstat_buf.st_gid = isonum_733(pnt+28);
 			fstat_buf.st_ino = 0;
-			if ((pnt[2] & 0xFF)>= 44)
+			if ((pnt[2] & 0xFF) >= 44)
 				fstat_buf.st_ino = (UInt32_t)isonum_733(pnt+36);
 		}
 
@@ -441,6 +442,10 @@ parse_rr(pnt, len, cont_flag)
 			cont_extent = isonum_733(pnt+4);
 			cont_offset = isonum_733(pnt+12);
 			cont_size = isonum_733(pnt+20);
+		}
+
+		if (strncmp((char *)pnt, "ST", 2) == 0) {		/* Terminate SUSP */
+			break;
 		}
 
 		if (strncmp((char *)pnt, "PL", 2) == 0 || strncmp((char *)pnt, "CL", 2) == 0) {
@@ -466,7 +471,7 @@ parse_rr(pnt, len, cont_flag)
 					strcat(symlinkname, "..");
 					break;
 				case 8:
-					strcat(symlinkname, "/");
+					symlinkname[0] = '\0';
 					break;
 				case 16:
 					strcat(symlinkname, "/mnt");
@@ -484,11 +489,15 @@ parse_rr(pnt, len, cont_flag)
 				if ((pnts[0] & 0xfe) && pnts[1] != 0) {
 					printf("Incorrect length in symlink component");
 				}
-				if (xname[0] == 0) strcpy(xname, "-> ");
+				if (pnts[0] == 8)
+					xname[0] = '\0';
+				if (xname[0] == 0)
+					strcpy(xname, "-> ");
 				strcat(xname, symlinkname);
 				symlinkname[0] = 0;
 				xlen = strlen(xname);
-				if ((pnts[0] & 1) == 0 && xname[xlen-1] != '/') strcat(xname, "/");
+				if ((pnts[0] & 1) == 0)
+					strcat(xname, "/");
 
 				slen -= (pnts[1] + 2);
 				pnts += (pnts[1] + 2);
@@ -498,23 +507,24 @@ parse_rr(pnt, len, cont_flag)
 
 		len -= pnt[2];
 		pnt += pnt[2];
-		if (len <= 3 && cont_extent) {
-			unsigned char	sector[2048];
+	}
+	if (cont_extent) {
+		unsigned char	sector[2048];
 
 #ifdef	USE_SCG
-			readsecs(cont_extent - sector_offset, sector, ISO_BLOCKS(sizeof (sector)));
+		readsecs(cont_extent - sector_offset, sector, ISO_BLOCKS(sizeof (sector)));
 #else
-			lseek(fileno(infile), ((off_t)(cont_extent - sector_offset)) << 11, SEEK_SET);
-			read(fileno(infile), sector, sizeof (sector));
+		lseek(fileno(infile), ((off_t)(cont_extent - sector_offset)) << 11, SEEK_SET);
+		read(fileno(infile), sector, sizeof (sector));
 #endif
-			flag2 |= parse_rr(&sector[cont_offset], cont_size, 1);
-		}
+		flag2 |= parse_rr(&sector[cont_offset], cont_size, 1);
 	}
 	/*
 	 * for symbolic links, strip out the last '/'
 	 */
 	if (xname[0] != 0 && xname[strlen(xname)-1] == '/') {
-		xname[strlen(xname)-1] = '\0';
+		if (strlen(xname) > 4)
+			xname[strlen(xname)-1] = '\0';
 	}
 	return (flag2);
 }
@@ -878,7 +888,7 @@ main(argc, argv)
 	char	* const *cav;
 	int	c;
 	char	* filename = NULL;
-	char	* devname = NULL;
+	char	* sdevname = NULL;
 	/*
 	 * Use toc_offset != 0 (-T #) if we have a complete multi-session
 	 * disc that we want/need to play with.
@@ -907,7 +917,7 @@ main(argc, argv)
 	if (getallargs(&cac, &cav, opts,
 				&help, &help, &prvers, &debug,
 				&do_pvd, &do_pathtab,
-				&filename, &devname,
+				&filename, &sdevname,
 				&use_joliet, &use_rock,
 				&do_listing,
 				&xtract,
@@ -920,7 +930,7 @@ main(argc, argv)
 	if (help)
 		usage(0);
 	if (prvers) {
-		printf("isoinfo %s (%s-%s-%s) Copyright (C) 1993-1999 Eric Youngdale (C) 1999-2008 Jörg Schilling\n",
+		printf("isoinfo %s (%s-%s-%s) Copyright (C) 1993-1999 Eric Youngdale (C) 1999-2009 Jörg Schilling\n",
 					VERSION,
 					HOST_CPU, HOST_VENDOR, HOST_OS);
 		exit(0);
@@ -955,15 +965,15 @@ main(argc, argv)
 		unls = NULL;
 	}
 
-	if (filename != NULL && devname != NULL) {
+	if (filename != NULL && sdevname != NULL) {
 		errmsgno(EX_BAD, "Only one of -i or dev= allowed\n");
 		usage(EX_BAD);
 	}
 #ifdef	USE_SCG
-	if (filename == NULL && devname == NULL)
-		cdr_defaults(&devname, NULL, NULL, NULL, NULL);
+	if (filename == NULL && sdevname == NULL)
+		cdr_defaults(&sdevname, NULL, NULL, NULL, NULL);
 #endif
-	if (filename == NULL && devname == NULL) {
+	if (filename == NULL && sdevname == NULL) {
 		fprintf(stderr, "ISO-9660 image not specified\n");
 		usage(EX_BAD);
 	}
@@ -971,7 +981,7 @@ main(argc, argv)
 	if (filename != NULL)
 		infile = fopen(filename, "rb");
 	else
-		filename = devname;
+		filename = sdevname;
 
 	if (infile != NULL) {
 		/* EMPTY */;

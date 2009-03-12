@@ -1,8 +1,8 @@
-/* @(#)inputc.c	1.51 08/12/20 Copyright 1982, 1984-2008 J. Schilling */
+/* @(#)inputc.c	1.52 09/02/08 Copyright 1982, 1984-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)inputc.c	1.51 08/12/20 Copyright 1982, 1984-2008 J. Schilling";
+	"@(#)inputc.c	1.52 09/02/08 Copyright 1982, 1984-2009 J. Schilling";
 #endif
 /*
  *	inputc.c
@@ -20,8 +20,8 @@ static	const char sccsid[] =
  *	in 1982 and 1983. This prototype only contained the editor and called
  *	shell commands via system().
  *
- *	Copyright (c) 1982, 1984-2008 J. Schilling
- *	This version first coded August 1984 and rewritten 01/22/85
+ *	Copyright (c) 1982, 1984-2009 J. Schilling
+ *	This version was first coded August 1984 and rewritten 01/22/85
  *
  *	Exported functions:
  *		getinfile()	Return the current input FILE *
@@ -63,6 +63,7 @@ static	const char sccsid[] =
 #include <schily/fcntl.h>
 #include <schily/patmatch.h>
 #include "ctype.h"
+#undef	toint		/* Atari MiNT has this nonstandard definition */
 #include "map.h"
 
 /*#define	XDEBUG*/

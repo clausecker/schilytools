@@ -27,11 +27,11 @@
 /*
  * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)get.c	1.16 09/01/04 J. Schilling
+ * @(#)get.c	1.18 09/02/05 J. Schilling
  */
 #if defined(sun) || defined(__GNUC__)
 
-#ident "@(#)get.c 1.16 09/01/04 J. Schilling"
+#ident "@(#)get.c 1.18 09/02/05 J. Schilling"
 #endif
 /*
  * @(#)get.c 1.59 06/12/12
@@ -47,7 +47,7 @@
 #include	<sys/utsname.h>
 #include	<ccstypes.h>
 #include	<limits.h>
-#include	<sysexits.h>
+#include	<schily/sysexits.h>
 
 #define	DATELEN	12
 
@@ -1120,7 +1120,6 @@ readcopy(name, tp)
 	register char *name;
 	register char *tp;
 {
-	extern int errno;
 	register FILE *fp = NULL;
 	register int ch;
 	char path[MAXPATHLEN];

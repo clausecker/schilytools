@@ -1,4 +1,4 @@
-dnl @(#)aclocal.m4	1.69 08/12/20 Copyright 1998-2008 J. Schilling
+dnl @(#)aclocal.m4	1.73 09/02/10 Copyright 1998-2009 J. Schilling
 
 dnl Set VARIABLE to VALUE in C-string form, verbatim, or 1.
 dnl AC_DEFINE_STRING(VARIABLE [, VALUE])
@@ -26,8 +26,10 @@ AC_CACHE_VAL(ac_cv_have_type_$2,
 changequote(<<,>>)dnl
 <<(^|[^a-zA-Z_0-9])$2[^a-zA-Z_0-9]>>dnl
 changequote([,]), [#include <sys/types.h>
-#if STDC_HEADERS
+#if	HAVE_STDLIB_H || STDC_HEADERS
 #include <stdlib.h>
+#endif
+#if	HAVE_STDDEF_H || STDC_HEADERS
 #include <stddef.h>
 #endif
 $1], ac_cv_have_type_$2=yes, ac_cv_have_type_$2=no)])dnl
@@ -146,28 +148,100 @@ if test $ac_cv_shell_ce_is_broken = yes; then
   AC_DEFINE(SHELL_CE_IS_BROKEN)
 fi])
 
-dnl Checks if cc supports -m64
-dnl Defines cc64_opt on success.
-AC_DEFUN([AC_CC64_OPT],
-[AC_CACHE_CHECK([if suncc/cc supports -m64], ac_cv_cc64_opt,
+dnl Checks if Sun cc supports -m64
+dnl Defines sun_cc64_opt on success.
+AC_DEFUN([AC_SUN_CC64_OPT],
+[AC_CACHE_CHECK([if suncc/cc supports -m64], ac_cv_sun_cc64_opt,
                 [
-cc64=cc
-cc64_opt=''
-ac_cv_cc64_opt=no
+sun_cc64=cc
+sun_cc64_opt=''
+ac_cv_sun_cc64_opt=no
 if test "$GCC" != yes; then
 	if test "$CC" = suncc; then
-		cc64=suncc
+		sun_cc64=suncc
 	fi
-	ac_err=`< /dev/null eval $cc64 -m64 2>&1 | grep illegal`
+	ac_err=`< /dev/null eval $sun_cc64 -m64 -c 2>&1 | grep illegal`
 	if test -n "$ac_err"; then
-		ac_cv_cc64_opt=no
+		ac_cv_sun_cc64_opt=no
 	else
-		ac_cv_cc64_opt=yes
+		ac_cv_sun_cc64_opt=yes
 	fi
 fi
 ])
-if test $ac_cv_cc64_opt = yes; then
-  cc64_opt='-m64'
+if test $ac_cv_sun_cc64_opt = yes; then
+  sun_cc64_opt='-m64'
+fi])
+
+dnl Checks if HP cc supports -Ae
+dnl Defines hp_cc_ansi_opt on success.
+AC_DEFUN([AC_HP_CC_ANSI_OPT],
+[AC_CACHE_CHECK([if HP cc supports -Ae], ac_cv_hp_cc_ansi_opt,
+                [
+hp_cc=cc
+hp_cc_ansi_opt=''
+ac_cv_hp_cc_ansi_opt=no
+if test "$GCC" != yes; then
+	os_name=`(uname -s) 2> /dev/null`
+	if test ."$os_name" = .HP-UX ; then
+		ac_err=`< /dev/null eval $hp_cc -Ae -c 2>&1 | grep 'Bundled.*option is available only'`
+		if test -n "$ac_err"; then
+			ac_cv_hp_cc_ansi_opt=no
+		else
+			ac_cv_hp_cc_ansi_opt=yes
+		fi
+	fi
+fi
+])
+if test $ac_cv_hp_cc_ansi_opt = yes; then
+  hp_cc_ansi_opt='-Ae'
+fi])
+
+dnl Checks if HP cc supports -O
+dnl Defines hp_cc_opt_opt on success.
+AC_DEFUN([AC_HP_CC_OPT_OPT],
+[AC_CACHE_CHECK([if HP cc supports -O], ac_cv_hp_cc_opt_opt,
+                [
+hp_cc=cc
+hp_cc_opt_opt=''
+ac_cv_hp_cc_opt_opt=no
+if test "$GCC" != yes; then
+	os_name=`(uname -s) 2> /dev/null`
+	if test ."$os_name" = .HP-UX ; then
+		ac_err=`< /dev/null eval $hp_cc -O -c 2>&1 | grep 'Bundled.*option is available only'`
+		if test -n "$ac_err"; then
+			ac_cv_hp_cc_opt_opt=no
+		else
+			ac_cv_hp_cc_opt_opt=yes
+		fi
+	fi
+fi
+])
+if test $ac_cv_hp_cc_opt_opt = yes; then
+  hp_cc_opt_opt='-O'
+fi])
+
+dnl Checks if HP cc supports -G
+dnl Defines hp_cc_gprof_opt on success.
+AC_DEFUN([AC_HP_CC_GPROF_OPT],
+[AC_CACHE_CHECK([if HP cc supports -G], ac_cv_hp_cc_gprof_opt,
+                [
+hp_cc=cc
+hp_cc_gprof_opt=''
+ac_cv_hp_cc_gprof_opt=no
+if test "$GCC" != yes; then
+	os_name=`(uname -s) 2> /dev/null`
+	if test ."$os_name" = .HP-UX ; then
+		ac_err=`< /dev/null eval $hp_cc -O -c 2>&1 | grep 'Bundled.*option is available only'`
+		if test -n "$ac_err"; then
+			ac_cv_hp_cc_gprof_opt=no
+		else
+			ac_cv_hp_cc_gprof_opt=yes
+		fi
+	fi
+fi
+])
+if test $ac_cv_hp_cc_gprof_opt = yes; then
+  hp_cc_gprof_opt='-G'
 fi])
 
 dnl XXX this used to be:
@@ -835,6 +909,18 @@ if test $ac_cv_header_errno_def = yes; then
   AC_DEFINE(HAVE_ERRNO_DEF)
 fi])
 
+dnl Checks for environ definition in <unistd.h>
+dnl Defines HAVE_ENVIRON_DEF on success.
+AC_DEFUN([AC_HEADER_ENVIRON_DEF],
+[AC_CACHE_CHECK([for environ definition in unistd.h], ac_cv_header_environ_def,
+                [AC_TRY_COMPILE([#include <unistd.h>],
+[environ = 0;],
+                [ac_cv_header_environ_def=yes],
+                [ac_cv_header_environ_def=no])])
+if test $ac_cv_header_environ_def = yes; then
+  AC_DEFINE(HAVE_ENVIRON_DEF)
+fi])
+
 dnl Checks for sys_siglist definition in <signal.h>
 dnl Defines HAVE_SYS_SIGLIST_DEF on success.
 AC_DEFUN([AC_HEADER_SYS_SIGLIST_DEF],
@@ -1039,8 +1125,10 @@ AC_CACHE_VAL(ac_cv_type_socklen_t,
 changequote(<<,>>)dnl
 <<(^|[^a-zA-Z_0-9])socklen_t[^a-zA-Z_0-9]>>dnl
 changequote([,]), [#include <sys/types.h>
-#if STDC_HEADERS
+#if	HAVE_STDLIB_H || STDC_HEADERS
 #include <stdlib.h>
+#endif
+#if	HAVE_STDDEF_H || STDC_HEADERS
 #include <stddef.h>
 #endif
 #include <sys/socket.h>], ac_cv_type_socklen_t=yes, ac_cv_type_socklen_t=no)])dnl
@@ -1410,8 +1498,8 @@ if test $ac_cv_func_uname = yes; then
   AC_DEFINE(HAVE_UNAME)
 fi])
 
-dnl Checks if function mlockall() is available
-dnl beware HP-UX 10.x it contains a bad mlockall() in libc
+dnl Checks if function mlock() is available
+dnl beware HP-UX 10.x it contains a bad mlock() in libc
 dnl Defines HAVE_MLOCK on success.
 AC_DEFUN([AC_FUNC_MLOCK],
 [AC_REQUIRE([AC_HEADER_ERRNO_DEF])dnl
@@ -1434,7 +1522,8 @@ main()
 	exit(0);
 }],
                 [ac_cv_func_mlock=yes],
-                [ac_cv_func_mlock=no])])
+                [ac_cv_func_mlock=no])
+rm -f core core.* *.core])
 if test $ac_cv_func_mlock = yes; then
   AC_DEFINE(HAVE_MLOCK)
 fi])
@@ -1466,7 +1555,8 @@ main()
 }
 ],
                 [ac_cv_func_mlockall=yes],
-                [ac_cv_func_mlockall=no])])
+                [ac_cv_func_mlockall=no])
+rm -f core core.* *.core])
 if test $ac_cv_func_mlockall = yes; then
   AC_DEFINE(HAVE_MLOCKALL)
 fi])

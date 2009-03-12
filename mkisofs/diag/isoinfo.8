@@ -1,5 +1,5 @@
 .\"
-.\" @(#)isoinfo.8	1.8 07/06/29 joerg
+.\" @(#)isoinfo.8	1.9 09/02/13 joerg
 .\"
 .\" -*- nroff -*-
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -14,7 +14,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH ISOINFO 8 "07/06/29" "Version 2.0"
+.TH ISOINFO 8 "09/02/13" "Version 2.0"
 .SH NAME
 devdump, isoinfo, isovfy, isodump \- Utility programs for dumping and verifying iso9660
 images.
@@ -184,6 +184,11 @@ The options
 and 
 .BI dev= target
 are mutual exclusive.
+.TP
+.B \-debug
+Print additional debug information. This enables e.g. printing
+of all directory entries if a file has more than one directory entry 
+and printing of more information from the primary volume descriptor.
 .TP
 .B \-l
 generate output as if a 'ls -lR' command had been run on the iso9660 image.

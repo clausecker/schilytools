@@ -1,4 +1,4 @@
-dnl @(#)acspecific.m4	1.7 08/08/10 Copyright 1998-2008 J. Schilling
+dnl @(#)acspecific.m4	1.8 09/02/10 Copyright 1998-2008 J. Schilling
 dnl
 dnl Macros that test for specific features.
 dnl This file is part of Autoconf.
@@ -718,6 +718,10 @@ exit (0); }
 fi])
 if test $ac_cv_header_stdc = yes; then
   AC_DEFINE(STDC_HEADERS)
+  AC_DEFINE(HAVE_STDARG_H)
+  AC_DEFINE(HAVE_STDLIB_H)
+  AC_DEFINE(HAVE_STRING_H)
+  AC_DEFINE(HAVE_FLOAT_H)
 fi
 ])
 

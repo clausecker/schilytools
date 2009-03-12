@@ -1,8 +1,8 @@
-/* @(#)fexec.c	1.35 09/01/05 Copyright 1985, 1995-2008 J. Schilling */
+/* @(#)fexec.c	1.39 09/02/10 Copyright 1985, 1995-2009 J. Schilling */
 /*
  *	Execute a program with stdio redirection
  *
- *	Copyright (c) 1985, 1995-2008 J. Schilling
+ *	Copyright (c) 1985, 1995-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -36,6 +36,18 @@
 
 
 #define	MAX_F_ARGS	16
+
+#ifdef	JOS
+#define	enofile(t)			((t) == EMISSDIR || \
+					(t)  == ENOFILE || \
+					(t)  == EISADIR || \
+					(t)  == EIOERR)
+#else
+#define	enofile(t)			((t) == ENOENT || \
+					(t)  == ENOTDIR || \
+					(t)  == EISDIR || \
+					(t)  == EIO)
+#endif
 
 #if	defined(IS_MACOS_X) && defined(HAVE_CRT_EXTERNS_H)
 /*
@@ -197,6 +209,9 @@ fexecve(name, in, out, err, av, env)
 	char	nbuf[MAXPATHNAME+1];
 	char	*np;
 	const char *path;
+#if defined(__BEOS__) || defined(__HAIKU__)
+	char	*av0 = av[0];
+#endif
 	int	ret;
 	int	fin;
 	int	fout;
@@ -204,7 +219,7 @@ fexecve(name, in, out, err, av, env)
 #ifndef	JOS
 	int	o[3];		/* Old fd's for stdin/stdout/stderr */
 	int	f[3];		/* Old close on exec flags for above  */
-	int	errsav;
+	int	errsav = 0;
 
 	o[0] = o[1] = o[2] = -1;
 	f[0] = f[1] = f[2] = 0;
@@ -311,11 +326,16 @@ fexecve(name, in, out, err, av, env)
 		if ((geterrno() == ENOENT) && strlen(name) <= (sizeof (nbuf) - 6)) {
 			strcatl(nbuf, "/bin/", name, (char *)NULL);
 			ret = execve(nbuf, av, env);
+#if defined(__BEOS__) || defined(__HAIKU__)
+			((char **)av)[0] = av0;	/* BeOS destroys things ... */
+#endif
 		}
 	} else {
 		int	nlen = strlen(name);
 
 		for (;;) {
+			int	xerr;
+
 			np = nbuf;
 			while (*path != PATH_ENV_DELIM && *path != '\0' &&
 				np < &nbuf[MAXPATHNAME-nlen-2]) {
@@ -328,12 +348,20 @@ fexecve(name, in, out, err, av, env)
 			else
 				strcatl(nbuf, nbuf, "/", name, (char *)NULL);
 			ret = execve(nbuf, av, env);
-			if (geterrno() != ENOENT || *path == '\0')
+#if defined(__BEOS__) || defined(__HAIKU__)
+			((char **)av)[0] = av0;	/* BeOS destroys things ... */
+#endif
+			xerr = geterrno();
+			if (errsav == 0 && !enofile(xerr))
+				errsav = xerr;
+			if ((!enofile(xerr) && !(xerr == EACCES)) || *path == '\0')
 				break;
 			path++;
 		}
 	}
-	errsav = geterrno();
+	if (errsav == 0)
+		errsav = geterrno();
+
 			/* reestablish old files */
 	if (ferr != STDERR_FILENO) {
 		fdmove(STDERR_FILENO, ferr);

@@ -1,7 +1,7 @@
-/* @(#)scsi-bsd.c	1.45 08/10/04 Copyright 1997 J. Schilling */
+/* @(#)scsi-bsd.c	1.46 09/01/21 Copyright 1997 J. Schilling */
 #ifndef lint
 static	char __sccsid[] =
-	"@(#)scsi-bsd.c	1.45 08/10/04 Copyright 1997 J. Schilling";
+	"@(#)scsi-bsd.c	1.46 09/01/21 Copyright 1997 J. Schilling";
 #endif
 /*
  *	Interface for the NetBSD/FreeBSD/OpenBSD generic SCSI implementation.
@@ -52,7 +52,7 @@ static	char __sccsid[] =
  *	Choose your name instead of "schily" and make clear that the version
  *	string is related to a modified source.
  */
-LOCAL	char	_scg_trans_version[] = "scsi-bsd.c-1.45";	/* The version for this transport*/
+LOCAL	char	_scg_trans_version[] = "scsi-bsd.c-1.46";	/* The version for this transport*/
 
 #define	MAX_SCG		16	/* Max # of SCSI controllers */
 #define	MAX_TGT		16
@@ -572,7 +572,7 @@ scgo_send(scgp)
  *	Choose your name instead of "schily" and make clear that the version
  *	string is related to a modified source.
  */
-LOCAL	char	_scg_trans_version[] = "scsi-bsd.c-1.45";	/* The version for this transport*/
+LOCAL	char	_scg_trans_version[] = "scsi-bsd.c-1.46";	/* The version for this transport*/
 
 #define	CAM_MAXDEVS	128
 struct scg_local {
@@ -637,6 +637,7 @@ scgo_open(scgp, device)
 	struct periph_match_pattern	*match_pat;
 	int				fd;
 
+	seterrno(0);
 	if ((device != NULL && *device != '\0') || (busno == -2 && tgt == -2)) {
 		errno = EINVAL;
 		if (scgp->errstr)
@@ -970,7 +971,7 @@ scgo_send(scgp)
 	union ccb		ccb_space;
 	union ccb		*ccb = &ccb_space;
 	int			rv, result;
-	u_int32_t		ccb_flags;
+	u_int32_t		flags;
 
 	if (scgp->fd < 0) {
 #if 0
@@ -995,13 +996,13 @@ scgo_send(scgp)
 	 * Set the data direction flags.
 	 */
 	if (sp->size != 0) {
-		ccb_flags = (sp->flags & SCG_RECV_DATA) ?   CAM_DIR_IN :
+		flags = (sp->flags & SCG_RECV_DATA) ?   CAM_DIR_IN :
 							    CAM_DIR_OUT;
 	} else {
-		ccb_flags = CAM_DIR_NONE;
+		flags = CAM_DIR_NONE;
 	}
 
-	ccb_flags |= CAM_DEV_QFRZDIS;
+	flags |= CAM_DEV_QFRZDIS;
 
 	/*
 	 * If you don't want to bother with sending tagged commands under CAM,
@@ -1009,13 +1010,13 @@ scgo_send(scgp)
 	 * tagged commands to those devices that support it, we'll need to set
 	 * the tag action valid field like this in scgo_send():
 	 *
-	 *	ccb_flags |= CAM_DEV_QFRZDIS | CAM_TAG_ACTION_VALID;
+	 *	flags |= CAM_DEV_QFRZDIS | CAM_TAG_ACTION_VALID;
 	 */
 
 	cam_fill_csio(&ccb->csio,
 			/* retries */	1,
 			/* cbfncp */	NULL,
-			/* flags */	ccb_flags,
+			/* flags */	flags,
 			/* tag_action */ MSG_SIMPLE_Q_TAG,
 			/* data_ptr */	(u_int8_t *)sp->addr,
 			/* dxfer_len */	sp->size,

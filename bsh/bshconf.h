@@ -1,6 +1,6 @@
-/* @(#)bshconf.h	1.14 08/07/12 Copyright 1991-2008 J. Schilling */
+/* @(#)bshconf.h	1.16 09/02/17 Copyright 1991-2009 J. Schilling */
 /*
- *	Copyright (c) 1991-2008 J. Schilling
+ *	Copyright (c) 1991-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -42,9 +42,16 @@ typedef	int	sigret;
 
 #if	!defined(HAVE_GETPGID) && defined(HAVE_BSD_GETPGRP)
 #	define	getpgid	getpgrp
+#	define	getsid	getpgrp
+#endif
+#if	!defined(HAVE_GETSID) && defined(HAVE_BSD_GETPGRP)
+#	define	getsid	getpgrp
 #endif
 #if	!defined(HAVE_SETPGID) && defined(HAVE_BSD_SETPGRP)
 #	define	setpgid	setpgrp
+#endif
+#if	!defined(HAVE_SETSID) && defined(HAVE_BSD_GETPGRP)
+#	define	setsid	setpgrp(getpid())
 #endif
 
 #if	!defined(HAVE_GETPGID) && !defined(HAVE_BSD_GETPGRP)
@@ -85,6 +92,9 @@ typedef	int	sigret;
 #	define	getpgid(a)	getpgrp()
 #endif
 
+#if	!defined(HAVE_GETSID) && !defined(HAVE_BSD_GETPGRP)
+#	define	getsid	getpgid
+#endif
 
 #ifdef	HAVE_SIGSET
 /*

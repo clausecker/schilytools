@@ -31,13 +31,13 @@
 #include "defs.h"
 
 /*
- * This file contains modifications Copyright 2008 J. Schilling
+ * This file contains modifications Copyright 2008-2009 J. Schilling
  *
- * @(#)stak.c	1.8 08/12/22 2008 J. Schilling
+ * @(#)stak.c	1.9 09/01/10 2008-2009 J. Schilling
  */
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)stak.c	1.8 08/12/22 2008 J. Schilling";
+	"@(#)stak.c	1.9 09/01/10 2008-2009 J. Schilling";
 #endif
 
 /*
@@ -165,7 +165,7 @@ movstrstak(a, b)
 		if (b >= brkend)
 			growstak(b);
 	}
-	while (*b++ = *a++);
+	while ((*b++ = *a++) != '\0');
 	return(--b);
 }
 

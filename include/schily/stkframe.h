@@ -1,4 +1,4 @@
-/* @(#)stkframe.h	1.11 06/09/13 Copyright 1995 J. Schilling */
+/* @(#)stkframe.h	1.12 09/01/06 Copyright 1995-2009 J. Schilling */
 /*
  * Common definitions for routines that parse the stack frame.
  *
@@ -62,6 +62,10 @@
 extern "C" {
 #endif
 
+#ifndef	_SCHILY_UTYPES_H
+#include <schily/utypes.h>
+#endif
+
 /*
  * XXX: I hope this will be useful on other machines (no guarantee)
  * XXX: It is taken from a sun Motorola system, but should also be useful
@@ -72,7 +76,7 @@ extern "C" {
 
 struct frame {
 	struct frame	*fr_savfp;	/* saved frame pointer */
-	int		fr_savpc;	/* saved program counter */
+	Intptr_t	fr_savpc;	/* saved program counter */
 	int		fr_arg[1];	/* array of arguments */
 };
 

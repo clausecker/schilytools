@@ -32,13 +32,13 @@
 #include "defs.h"
 
 /*
- * This file contains modifications Copyright 2008 J. Schilling
+ * This file contains modifications Copyright 2008-2009 J. Schilling
  *
- * @(#)jobs.c	1.13 08/12/22 2008 J. Schilling
+ * @(#)jobs.c	1.14 09/01/10 2008-2009 J. Schilling
  */
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)jobs.c	1.13 08/12/22 2008 J. Schilling";
+	"@(#)jobs.c	1.14 09/01/10 2008-2009 J. Schilling";
 #endif
 
 /*
@@ -133,10 +133,10 @@ static struct job 	*jobcur, /* active jobs listed in currency order */
 			*joblst; /* active jobs listed in job ID order	 */
 
 static struct job *pgid2job	__PR((pid_t pgid));
-static struct job *str2job	__PR((char *cmd, char *job, int mustbejob));
+static struct job *str2job	__PR((char *cmdp, char *job, int mustbejob));
 static void	freejob		__PR((struct job *jp));
 	void	collect_fg_job	__PR((void));
-static int	statjob		__PR((struct job *jp, int stat, int fg, int rc));
+static int	statjob		__PR((struct job *jp, int exstat, int fg, int rc));
 static void	collectjobs	__PR((int wnohang));
 	void	freejobs	__PR((void));
 static void	waitjob		__PR((struct job *jp));
@@ -146,14 +146,14 @@ static void	printjob	__PR((struct job *jp, int propts));
 	void	startjobs	__PR((void));
 	int	endjobs		__PR((int check_if));
 	void	deallocjob	__PR((void));
-	void	allocjob	__PR((char *cmd, unsigned char *cwd, int monitor));
+	void	allocjob	__PR((char *cmdp, unsigned char *cwdp, int monitor));
 	void	clearjobs	__PR((void));
 	void	makejob		__PR((int monitor, int fg));
 	void	postjob		__PR((pid_t pid, int fg));
 	void	sysjobs		__PR((int argc, char *argv[]));
 	void	sysfgbg		__PR((int argc, char *argv[]));
 	void	syswait		__PR((int argc, char *argv[]));
-static void	sigv		__PR((char *cmd, int sig, char *args));
+static void	sigv		__PR((char *cmdp, int sig, char *args));
 	void	sysstop		__PR((int argc, char *argv[]));
 	void	syskill		__PR((int argc, char *argv[]));
 	void	syssusp		__PR((int argc, char *argv[]));
@@ -198,8 +198,8 @@ pgid2job(pgid)
 }
 
 static struct job *
-str2job(cmd, job, mustbejob)
-	char	*cmd;
+str2job(cmdp, job, mustbejob)
+	char	*cmdp;
 	char	*job;
 	int	mustbejob;
 {
@@ -227,7 +227,7 @@ str2job(cmd, job, mustbejob)
 			for (p = njp->j_cmd, j = strlen(p); j >= i; p++, j--) {
 				if (strncmp(job, p, i) == 0) {
 					if (jp != 0)
-						failed((unsigned char *)cmd,
+						failed((unsigned char *)cmdp,
 						    ambiguous);
 					jp = njp;
 					break;
@@ -242,14 +242,14 @@ str2job(cmd, job, mustbejob)
 				continue;
 			if (strncmp(job, njp->j_cmd, i) == 0) {
 				if (jp != 0)
-					failed((unsigned char *)cmd, ambiguous);
+					failed((unsigned char *)cmdp, ambiguous);
 				jp = njp;
 			}
 		}
 	}
 
 	if (mustbejob && (jp == 0 || jp->j_jid == 0))
-		failed((unsigned char *)cmd, nosuchjob);
+		failed((unsigned char *)cmdp, nosuchjob);
 
 	return (jp);
 }
@@ -285,7 +285,7 @@ collect_fg_job()
 {
 	struct job *jp;
 	pid_t pid;
-	int stat;
+	int exstat;
 
 	for (jp = joblst; jp; jp = jp->j_nxtp)
 		if (jp->j_flag & J_FOREGND)
@@ -302,7 +302,7 @@ collect_fg_job()
 
 	while (1) {
 		errno = 0;
-		pid = waitpid(jp->j_pid, &stat, 0);
+		pid = waitpid(jp->j_pid, &exstat, 0);
 		if (pid == jp->j_pid || (pid == -1 && errno == ECHILD))
 			break;
 	}
@@ -313,16 +313,16 @@ collect_fg_job()
  */
 
 static int
-statjob(jp, stat, fg, rc)
+statjob(jp, exstat, fg, rc)
 	struct job	*jp;
-	int		stat;
+	int		exstat;
 	int		fg;
 	int		rc;
 {
 	pid_t tgid;
-	int done = 0;
+	int jdone = 0;
 
-	if (WIFCONTINUED(stat)) {
+	if (WIFCONTINUED(exstat)) {
 		if (jp->j_flag & J_STOPPED) {
 			jp->j_flag &= ~(J_STOPPED|J_SIGNALED|J_SAVETTY);
 			jp->j_flag |= J_RUNNING;
@@ -331,14 +331,14 @@ statjob(jp, stat, fg, rc)
 				jobnote++;
 			}
 		}
-	} else if (WIFSTOPPED(stat)) {
-		jp->j_xval = WSTOPSIG(stat);
+	} else if (WIFSTOPPED(exstat)) {
+		jp->j_xval = WSTOPSIG(exstat);
 		jp->j_flag &= ~J_RUNNING;
 		jp->j_flag |= (J_SIGNALED|J_STOPPED);
 		jp->j_pgid = getpgid(jp->j_pid);
 		jp->j_tgid = jp->j_pgid;
 		if (fg) {
-			if (tgid = settgid(mypgid, jp->j_pgid))
+			if ((tgid = settgid(mypgid, jp->j_pgid)) != 0)
 				jp->j_tgid = tgid;
 			else {
 				jp->j_flag |= J_SAVETTY;
@@ -353,19 +353,19 @@ statjob(jp, stat, fg, rc)
 	} else {
 		jp->j_flag &= ~J_RUNNING;
 		jp->j_flag |= J_DONE;
-		done++;
+		jdone++;
 		jobdone++;
-		if (WIFSIGNALED(stat)) {
-			jp->j_xval = WTERMSIG(stat);
+		if (WIFSIGNALED(exstat)) {
+			jp->j_xval = WTERMSIG(exstat);
 			jp->j_flag |= J_SIGNALED;
-			if (WCOREDUMP(stat))
+			if (WCOREDUMP(exstat))
 				jp->j_flag |= J_DUMPED;
 			if (!fg || jp->j_xval != SIGINT) {
 				jp->j_flag |= J_NOTIFY;
 				jobnote++;
 			}
 		} else { /* WIFEXITED */
-			jp->j_xval = WEXITSTATUS(stat);
+			jp->j_xval = WEXITSTATUS(exstat);
 			jp->j_flag &= ~J_SIGNALED;
 			if (!fg && jp->j_jid) {
 				jp->j_flag |= J_NOTIFY;
@@ -384,9 +384,9 @@ statjob(jp, stat, fg, rc)
 			exitval |= SIGFLG;
 		exitset();
 	}
-	if (done && !(jp->j_flag & J_NOTIFY))
+	if (jdone && !(jp->j_flag & J_NOTIFY))
 		freejob(jp);
-	return (done);
+	return (jdone);
 }
 
 /*
@@ -407,7 +407,7 @@ int wnohang;
 {
 	pid_t pid;
 	struct job *jp;
-	int stat, n;
+	int exstat, n;
 	int wflags;
 
 	if ((flags & (monitorflg|jcflg|jcoff)) == (monitorflg|jcflg))
@@ -416,10 +416,10 @@ int wnohang;
 		wflags = 0;
 
 	for (n = jobcnt - jobdone; n > 0; n--) {
-		if ((pid = waitpid(-1, &stat, wnohang|wflags)) <= 0)
+		if ((pid = waitpid(-1, &exstat, wnohang|wflags)) <= 0)
 			break;
-		if (jp = pgid2job(pid))
-			(void) statjob(jp, stat, 0, 0);
+		if ((jp = pgid2job(pid)) != NULL)
+			(void) statjob(jp, exstat, 0, 0);
 	}
 
 }
@@ -432,7 +432,7 @@ freejobs()
 	collectjobs(WNOHANG);
 
 	if (jobnote) {
-		int savefd = setb(2);
+		int save_fd = setb(2);
 		for (jp = joblst; jp; jp = jp->j_nxtp) {
 			if (jp->j_flag & J_NOTIFY) {
 				if (jp->j_jid)
@@ -443,7 +443,7 @@ freejobs()
 					printjob(jp, PR_STAT|PR_PGID);
 			}
 		}
-		(void) setb(savefd);
+		(void) setb(save_fd);
 	}
 
 	if (jobdone) {
@@ -458,8 +458,8 @@ static void
 waitjob(jp)
 	struct job	*jp;
 {
-	int stat;
-	int done;
+	int exstat;
+	int jdone;
 	pid_t pid = jp->j_pid;
 	int wflags;
 	int ret = 0;
@@ -471,18 +471,18 @@ waitjob(jp)
 		wflags = 0;
 	do {
 		errno = 0;
-		ret = waitpid(pid, &stat, wflags|WNOWAIT);
+		ret = waitpid(pid, &exstat, wflags|WNOWAIT);
 		err = errno;
 		if (ret == -1 && err == ECHILD) {
-			stat = 0;
+			exstat = 0;
 			break;
 		}
 	} while (ret != pid);
 
-	done = statjob(jp, stat, 1, 1);
-	if (!WIFSTOPPED(stat))		/* Avoid hang on FreeBSD */
+	jdone = statjob(jp, exstat, 1, 1);
+	if (!WIFSTOPPED(exstat))		/* Avoid hang on FreeBSD */
 		waitpid(pid, 0, wflags);
-	if (done && exitval && (flags & errflg))
+	if (jdone && exitval && (flags & errflg))
 		exitsh(exitval);
 	flags |= eflag;
 }
@@ -731,28 +731,28 @@ deallocjob()
 }
 
 void
-allocjob(cmd, cwd, monitor)
-	char		*cmd;
-	unsigned char	*cwd;
+allocjob(cmdp, cwdp, monitor)
+	char		*cmdp;
+	unsigned char	*cwdp;
 	int		monitor;
 {
 	struct job *jp, **jpp;
 	int jid, cmdlen, cwdlen;
 
-	cmdlen = strlen(cmd) + 1;
-	if (cmd[cmdlen-2] == '&') {
-		cmd[cmdlen-3] = 0;
+	cmdlen = strlen(cmdp) + 1;
+	if (cmdp[cmdlen-2] == '&') {
+		cmdp[cmdlen-3] = 0;
 		cmdlen -= 2;
 	}
-	cwdlen = strlen((char *)cwd) + 1;
+	cwdlen = strlen((char *)cwdp) + 1;
 	jp = (struct job *) alloc(sizeof (struct job) + cmdlen + cwdlen);
 	if (jp == 0)
 		error(nostack);
 	jobcnt++;
 	jp->j_cmd = ((char *)jp) + sizeof (struct job);
-	strcpy(jp->j_cmd, cmd);
+	strcpy(jp->j_cmd, cmdp);
 	jp->j_pwd = jp->j_cmd + cmdlen;
-	strcpy(jp->j_pwd, (char *)cwd);
+	strcpy(jp->j_pwd, (char *)cwdp);
 
 	jpp = &joblst;
 
@@ -861,10 +861,10 @@ sysjobs(argc, argv)
 int argc;
 char *argv[];
 {
-	char *cmd = *argv;
+	char *cmdp = *argv;
 	struct job *jp;
 	int propts, c;
-	extern int opterr, i;
+	extern int opterr;
 	int savoptind = optind;
 	int loptind = -1;
 	int savopterr = opterr;
@@ -876,7 +876,7 @@ char *argv[];
 	propts = 0;
 
 	if ((flags & jcflg) == 0)
-		failed((unsigned char *)cmd, nojc);
+		failed((unsigned char *)cmdp, nojc);
 
 	while ((c = getopt(argc, argv, "lpx")) != -1) {
 		if (propts) {
@@ -915,7 +915,7 @@ err:
 		for (savebp = bp = locstak(); loptind < argc; loptind++) {
 			cp = argv[loptind];
 			if (*cp == '%') {
-				jp = str2job(cmd, cp, 1);
+				jp = str2job(cmdp, cp, 1);
 				itos(jp->j_pid);
 				cp = (char *)numbuf;
 			}
@@ -944,7 +944,7 @@ err:
 				printjob(jp, propts);
 		}
 	} else do
-		printjob(str2job(cmd, argv[loptind++], 1), propts);
+		printjob(str2job(cmdp, argv[loptind++], 1), propts);
 	while (loptind < argc);
 
 }
@@ -957,19 +957,19 @@ sysfgbg(argc, argv)
 	int	argc;
 	char	*argv[];
 {
-	char *cmd = *argv;
+	char *cmdp = *argv;
 	int fg;
 
 	if ((flags & jcflg) == 0)
-		failed((unsigned char *)cmd, nojc);
+		failed((unsigned char *)cmdp, nojc);
 
-	fg = eq("fg", cmd);
+	fg = eq("fg", cmdp);
 
 	if (*++argv == 0) {
 		struct job *jp;
 		for (jp = jobcur; ; jp = jp->j_curp) {
 			if (jp == 0)
-				failed((unsigned char *)cmd, nocurjob);
+				failed((unsigned char *)cmdp, nocurjob);
 			if (jp->j_jid)
 				break;
 		}
@@ -977,7 +977,7 @@ sysfgbg(argc, argv)
 	}
 
 	else do
-		restartjob(str2job(cmd, *argv, 1), fg);
+		restartjob(str2job(cmdp, *argv, 1), fg);
 	while (*++argv);
 
 }
@@ -991,9 +991,9 @@ syswait(argc, argv)
 int argc;
 char *argv[];
 {
-	char *cmd = *argv;
+	char *cmdp = *argv;
 	struct job *jp;
-	int stat;
+	int exstat;
 	int wflags;
 
 	if ((flags & (monitorflg|jcflg|jcoff)) == (monitorflg|jcflg))
@@ -1004,19 +1004,19 @@ char *argv[];
 	if (argc == 1)
 		collectjobs(0);
 	else while (--argc) {
-		if ((jp = str2job(cmd, *++argv, 0)) == 0)
+		if ((jp = str2job(cmdp, *++argv, 0)) == 0)
 			continue;
 		if (!(jp->j_flag & J_RUNNING))
 			continue;
-		if (waitpid(jp->j_pid, &stat, wflags) <= 0)
+		if (waitpid(jp->j_pid, &exstat, wflags) <= 0)
 			break;
-		(void) statjob(jp, stat, 0, 1);
+		(void) statjob(jp, exstat, 0, 1);
 	}
 }
 
 static void
-sigv(cmd, sig, args)
-	char	*cmd;
+sigv(cmdp, sig, args)
+	char	*cmdp;
 	int	sig;
 	char	*args;
 {
@@ -1026,7 +1026,7 @@ sigv(cmd, sig, args)
 
 	if (*args == '%') {
 		struct job *jp;
-		jp = str2job(cmd, args, 1);
+		jp = str2job(cmdp, args, 1);
 		id = jp->j_pgid;
 		pgrp++;
 	} else {
@@ -1037,7 +1037,7 @@ sigv(cmd, sig, args)
 		id = 0;
 		do {
 			if (*args < '0' || *args > '9') {
-				failure((unsigned char *)cmd, badid);
+				failure((unsigned char *)cmdp, badid);
 				return;
 			}
 			id = (id * 10) + (*args - '0');
@@ -1049,8 +1049,8 @@ sigv(cmd, sig, args)
 	}
 
 	if (sig == SIGSTOP) {
-		if (id == mysid || id == mypid && mypgid == mysid) {
-			failure((unsigned char *)cmd, loginsh);
+		if (id == mysid || (id == mypid && mypgid == mysid)) {
+			failure((unsigned char *)cmdp, loginsh);
 			return;
 		}
 		if (id == mypgid && mypgid != svpgid) {
@@ -1067,18 +1067,18 @@ sigv(cmd, sig, args)
 
 		switch (errno) {
 			case EPERM:
-				failure((unsigned char *)cmd, eacces);
+				failure((unsigned char *)cmdp, eacces);
 				break;
 
 			case EINVAL:
-				failure((unsigned char *)cmd, badsig);
+				failure((unsigned char *)cmdp, badsig);
 				break;
 
 			default:
 				if (pgrp)
-					failure((unsigned char *)cmd, nosuchpgid);
+					failure((unsigned char *)cmdp, nosuchpgid);
 				else
-					failure((unsigned char *)cmd, nosuchpid);
+					failure((unsigned char *)cmdp, nosuchpid);
 				break;
 		}
 
@@ -1097,13 +1097,13 @@ sysstop(argc, argv)
 	int	argc;
 	char	*argv[];
 {
-	char *cmd = *argv;
+	char *cmdp = *argv;
 	if (argc <= 1) {
 		gfailure((unsigned char *)usage, stopuse);
 		return;
 	}
 	while (*++argv)
-		sigv(cmd, SIGSTOP, *argv);
+		sigv(cmdp, SIGSTOP, *argv);
 }
 
 void
@@ -1111,7 +1111,7 @@ syskill(argc, argv)
 	int	argc;
 	char	*argv[];
 {
-	char *cmd = *argv;
+	char *cmdp = *argv;
 	int sig = SIGTERM;
 
 	if (argc == 1) {
@@ -1149,14 +1149,14 @@ syskill(argc, argv)
 		}
 
 		if (str2sig(&argv[1][1], &sig)) {
-			failure((unsigned char *)cmd, badsig);
+			failure((unsigned char *)cmdp, badsig);
 			return;
 		}
 		argv++;
 	}
 
 	while (*++argv)
-		sigv(cmd, sig, *argv);
+		sigv(cmdp, sig, *argv);
 
 }
 

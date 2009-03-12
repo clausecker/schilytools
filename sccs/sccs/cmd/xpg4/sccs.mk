@@ -1,4 +1,4 @@
-#ident @(#)sccs.mk	1.4 08/01/02 
+#ident @(#)sccs.mk	1.5 09/01/10 
 ###########################################################################
 SRCROOT=	../../../..
 RULESDIR=	RULES
@@ -14,6 +14,7 @@ CPPOPTS +=	-DXPG4
 CPPOPTS +=	-DUSE_LARGEFILES
 CPPOPTS +=	-I../../../sgs/inc/common
 CPPOPTS +=	-I../../hdr
+CPPOPTS +=	-DUSE_RECURSIVE
 CPPOPTS +=	-DUSE_NLS
 CPPOPTS +=	-DINS_BASE=\"${INS_BASE}\"
 
@@ -22,6 +23,7 @@ CFILES=		sccs.c
 #HFILES=		make.h
 
 LIBS=		-lcomobj -lcassi -lmpw -lgetopt -lschily $(LIB_INTL)
+LIBS=		-lcomobj -lcassi -lmpw -lgetopt -lfind -lschily $(LIB_ACL_TEST) $(LIB_INTL)
 
 #XMK_FILE=	Makefile.def Makefile.man
 

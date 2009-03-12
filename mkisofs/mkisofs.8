@@ -1,7 +1,7 @@
 '\" t
 .\" To print, first run through tbl
 .\" -*- nroff -*-
-.\" @(#)mkisofs.8	1.126 08/11/13 joerg
+.\" @(#)mkisofs.8	1.128 09/02/24 joerg
 .\"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
 .if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
@@ -182,12 +182,16 @@ can be replaced with
 .SH OPTIONS
 .TP
 .BI \-abstract " FILE
-Specifies the abstract file name.
+Specifies the abstract file name in the primary volume descriptor.
 There is space on the disc for 37 characters of information.
 This parameter can also be set in the file
 .B \&.m\&kisofsrc
 with ABST=filename.
 If specified in both places, the command line version is used.
+.sp
+It is up to the user of 
+.B mkisofs
+to include a file with the apropriate name in the created filesystem tree.
 .TP
 .BI \-A " application_id
 Specifies a text string that will be written into the volume header.
@@ -224,12 +228,16 @@ This violates the ISO9660 standard, but it happens to work on many systems.
 Use with caution.
 .TP
 .BI \-biblio " FILE
-Specifies the bibliographic file name.
+Specifies the bibliographic file name in the primary volume descriptor.
 There is space on the disc for 37 characters of information.
 This parameter can also be set in the file
 .B \&.m\&kisofsrc
 with BIBLO=filename.
 If specified in both places, the command line version is used.
+.sp
+It is up to the user of 
+.B mkisofs
+to include a file with the apropriate name in the created filesystem tree.
 .TP
 .B \-cache\-inodes
 Cache inode and device numbers to find hard links to files.
@@ -699,12 +707,16 @@ see description of
 option.
 .TP
 .BI \-copyright " FILE
-Specifies the Copyright file name.
+Specifies the Copyright file name in the primary volume descriptor.
 There is space on the disc for 37 characters of information.
 This parameter can also be set in the file
 .B \&.m\&kisofsrc
 with COPY=filename.
 If specified in both places, the command line version is used.
+.sp
+It is up to the user of 
+.B mkisofs
+to include a file with the apropriate name in the created filesystem tree.
 .TP
 .B \-d
 Omit trailing period from files that do not have a period.
@@ -2983,7 +2995,7 @@ To create a vanilla ISO-9660 filesystem image in the file
 .IR cd.iso ,
 where the directory
 .I cd_dir
-will become the root directory if the CD, call:
+will become the root directory of the CD ISO image, call:
 .PP
 % mkisofs \-o cd.iso cd_dir
 .PP

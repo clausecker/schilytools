@@ -32,13 +32,13 @@
 #include "defs.h"
 
 /*
- * This file contains modifications Copyright 2008 J. Schilling
+ * This file contains modifications Copyright 2008-2009 J. Schilling
  *
- * @(#)hashserv.c	1.6 08/12/22 2008 J. Schilling
+ * @(#)hashserv.c	1.7 09/01/10 2008-2009 J. Schilling
  */
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)hashserv.c	1.6 08/12/22 2008 J. Schilling";
+	"@(#)hashserv.c	1.7 09/01/10 2008-2009 J. Schilling";
 #endif
 
 /*
@@ -87,7 +87,6 @@ pathlook(com, flg, arg)
 	int		i;
 	int		pathset = 0;
 	int		oldpath = 0;
-	struct namnod	*n;
 
 
 
@@ -133,7 +132,7 @@ pathlook(com, flg, arg)
 		h->cost = 0;
 	}
 
-	if (i = syslook(name, commands, no_commands))
+	if ((i = syslook(name, commands, no_commands)) != 0)
 	{
 		hentry.data = (BUILTIN | i);
 		count = 1;
@@ -301,7 +300,7 @@ func_unhash(name)
 	h = hfind(name);
 
 	if (h && (h->data & FUNCTION)) {
-		if(i = syslook(name, commands, no_commands))
+		if ((i = syslook(name, commands, no_commands)) != 0)
 			h->data = (BUILTIN|i);
 		else
 			h->data = NOTFOUND;

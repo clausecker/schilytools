@@ -1,4 +1,4 @@
-#ident @(#)readcd.mk	1.16 08/12/26 
+#ident @(#)readcd.mk	1.17 09/01/14 
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -28,7 +28,7 @@ HFILES=
 LIBS=		-lscgcmd -lrscg -lscg $(LIB_VOLMGT) -ledc_ecc_dec -ledc_ecc -lcdrdeflt -ldeflt -lschily $(SCSILIB) $(LIB_SOCKET)
 XMK_FILE=	Mreadcd.man
 
-cd_misc.c scsi_scan.c scsi_cdr.c:
+cd_misc.c scsi_scan.c scsi_cdr.c misc.c:
 	@echo "	==> MAKING SYMLINKS in ." && sh ./MKLINKS
 $(ALLTARGETS): cd_misc.c scsi_scan.c scsi_cdr.c
 

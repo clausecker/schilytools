@@ -1,6 +1,18 @@
+#ident @(#)Targetdirs	1.1 06/09/14 
 ###########################################################################
-#
-# This file is intentionally left empty. The targets are now defined by the
-# "Slottable Source" feature of the makefile system
-#
+DIRS=		conf inc \
+		lib libdeflt libparanoia \
+		librmt libscg libscg/librscg libxtermcap \
+		libedc/crc libedc libhfs_iso libfile libfind libunls \
+		build bsh ved \
+		btcflash \
+		calc calltree cdrecord cdrecord/readcd cdda2wav \
+		change compare copy count cut \
+		hdump lndir \
+		match mkisofs mkisofs/diag mountcd mt p paste pxupgrade \
+		rmt rscsi scgcheck scgskeleton sdd sfind sformat label sgrow \
+		star \
+		tartest translit udiff
+
+#		star scpio spax suntar gnutar
 ###########################################################################

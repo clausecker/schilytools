@@ -1,8 +1,8 @@
-/* @(#)toc.c	1.79 08/12/29 Copyright 1998-2003 Heiko Eissfeldt, Copyright 2004-2008 J. Schilling */
+/* @(#)toc.c	1.80 09/01/24 Copyright 1998-2003 Heiko Eissfeldt, Copyright 2004-2008 J. Schilling */
 #include "config.h"
 #ifndef lint
 static	const char sccsid[] =
-"@(#)toc.c	1.79 08/12/29 Copyright 1998-2003 Heiko Eissfeldt, Copyright 2004-2008 J. Schilling";
+"@(#)toc.c	1.80 09/01/24 Copyright 1998-2003 Heiko Eissfeldt, Copyright 2004-2008 J. Schilling";
 #endif
 /*
  * CDDA2WAV (C) Heiko Eissfeldt heiko@hexco.de
@@ -300,7 +300,7 @@ int
 handle_cdtext()
 {
 #ifdef CD_TEXT
-	if (bufferTOC[0] == 0 && bufferTOC[1] == 0) {
+	if (global.buf[0] == 0 && global.buf[1] == 0) {
 		have_CD_text = 0;
 		return (have_CD_text);
 	}
@@ -311,11 +311,12 @@ handle_cdtext()
 	{
 		int i;
 		int count_fails = 0;
-		int len = (bufferTOC[0] << 8) | bufferTOC[1];
+		int len = ((global.buf[0] & 0xFF) << 8) | (global.buf[1] & 0xFF);
 
-		len = min(len, 2048);
+		len += 2;
+		len = min(len, global.bufsize);
 		for (i = 0; i < len-4; i += 18) {
-			if (bufferTOC[4+i] < 0x80 || bufferTOC[4+i] > 0x8f) {
+			if ((global.buf[4+i] & 0xFF) < 0x80 || (global.buf[4+i] & 0xFF)> 0x8f) {
 				count_fails++;
 			}
 		}
@@ -1912,7 +1913,7 @@ dump_cdtext_info()
 	 * So we have at most 36720 bytes to cope with.
 	 */
 	short int	datalength;
-	unsigned char	*p = bufferTOC;
+	unsigned char	*p = (unsigned char *)global.buf;
 	unsigned char	lastline[255*12];
 	int		lastitem = -1;
 	int		itemcount = 0;
@@ -1920,9 +1921,10 @@ dump_cdtext_info()
 	int		outlinecount = 0;
 
 	lastline[0] = '\0';
-	datalength = ((p[0] << 8) + p[1]) - 2;
-	datalength = min(datalength, 2048-4);
+	datalength = ((p[0] << 8) + p[1]) + 2;
+	datalength = min(datalength, global.bufsize);
 	p += 4;
+	datalength -= 4;
 	for (; datalength > 0;
 			datalength -= sizeof (cdtextpackdata),
 			p += sizeof (cdtextpackdata)) {

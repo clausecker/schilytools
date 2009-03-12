@@ -1,11 +1,11 @@
-/* @(#)edit.c	1.5 08/12/22 Copyright 2006-2008 J. Schilling */
+/* @(#)edit.c	1.8 09/02/06 Copyright 2006-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)edit.c	1.5 08/12/22 Copyright 2006-2008 J. Schilling";
+	"@(#)edit.c	1.8 09/02/06 Copyright 2006-2009 J. Schilling";
 #endif
 /*
- *	Copyright (c) 2006-2008 J. Schilling
+ *	Copyright (c) 2006-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -71,7 +71,6 @@ int	ttyflg = 1;
 int	prflg = 1;
 int	prompt;
 char	*prompts[2] = { "prompt1 > ", "prompt2 > " };
-int	delim;
 char	*inithome = ".";
 
 
@@ -195,7 +194,7 @@ berror(s, va_alist)
 }
 
 
-#ifdef	__BEOS__
+#if defined(__BEOS__) || defined(__HAIKU__)
 #define	silent_error(e)		((e) < 0 && (e) >= -1024)
 #else
 #define	silent_error(e)		((e) < 0)

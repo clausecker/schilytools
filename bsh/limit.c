@@ -1,8 +1,8 @@
-/* @(#)limit.c	1.31 08/12/20 Copyright 1987-2008 J. Schilling */
+/* @(#)limit.c	1.32 09/02/05 Copyright 1987-2008 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)limit.c	1.31 08/12/20 Copyright 1987-2008 J. Schilling";
+	"@(#)limit.c	1.32 09/02/05 Copyright 1987-2008 J. Schilling";
 #endif
 /*
  *	Resource usage routines
@@ -481,7 +481,7 @@ prtm(std, prusage, stt)
 
 	prtime(std, sec, usec|1);	/* print usec always */
 
-#ifdef	__BEOS__			/* XXX dirty hack */
+#if defined(__BEOS__) || defined(__HAIKU__)	/* XXX dirty hack */
 	fprintf(std[1],
 		"r %ld.%03ldu %ld.%03lds %ld%%\n",
 		(long)prusage->ru_utime.tv_sec,
@@ -525,6 +525,8 @@ rusagesub(pru1, pru2)
 		pru2->ru_stime.tv_sec -= 1;
 		pru2->ru_stime.tv_usec += 1000000;
 	}
+#if defined(__BEOS__) || defined(__HAIKU__)	/* XXX dirty hack */
+#else
 	pru2->ru_maxrss		-= pru1->ru_maxrss;
 	pru2->ru_ixrss		-= pru1->ru_ixrss;
 	pru2->ru_idrss		-= pru1->ru_idrss;
@@ -533,4 +535,5 @@ rusagesub(pru1, pru2)
 	pru2->ru_oublock	-= pru1->ru_oublock;
 	pru2->ru_majflt		-= pru1->ru_majflt;
 	pru2->ru_nswap		-= pru1->ru_nswap;
+#endif
 }

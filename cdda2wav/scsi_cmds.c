@@ -1,8 +1,8 @@
-/* @(#)scsi_cmds.c	1.39 08/12/22 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2004-2006 J. Schilling */
+/* @(#)scsi_cmds.c	1.43 09/01/24 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling */
 #include "config.h"
 #ifndef lint
 static	const char sccsid[] =
-"@(#)scsi_cmds.c	1.39 08/12/22 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2004-2006 J. Schilling";
+"@(#)scsi_cmds.c	1.43 09/01/24 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling";
 #endif
 /*
  * file for all SCSI commands
@@ -54,9 +54,9 @@ static	const char sccsid[] =
 #include "scsi_cmds.h"
 #include "exitcodes.h"
 
-unsigned char	*bufferTOC;
-subq_chnl	*SubQbuffer;
-unsigned char	*cmd;
+unsigned char	*bufferTOC;	/* Global TOC data buffer	*/
+int		bufTOCsize;	/* Size of global TOC buffer	*/
+subq_chnl	*SubQbuffer;	/* Global Sub-channel buffer	*/
 
 static unsigned	ReadFullTOCSony	__PR((SCSI *scgp));
 static unsigned	ReadFullTOCMMC	__PR((SCSI *scgp));
@@ -296,11 +296,11 @@ ReadTocTextSCSIMMC(scgp)
 	 * READTOC, MSF, format, res, res, res, Start track/session, len msb,
 	 * len lsb, control
 	 */
-		unsigned char	*p = bufferTOC;
+		unsigned char	*p = (unsigned char *)global.buf;
 	register struct	scg_cmd	*scmd = scgp->scmd;
 
 	fillbytes((caddr_t)scmd, sizeof (*scmd), '\0');
-	scmd->addr = (caddr_t)bufferTOC;
+	scmd->addr = (caddr_t)global.buf;
 	scmd->size = 4;
 	scmd->flags = SCG_RECV_DATA|SCG_DISRE_ENA;
 	scmd->cdb_len = SC_G1_CDBLEN;
@@ -331,10 +331,13 @@ ReadTocTextSCSIMMC(scgp)
 	datalength  = (p[0] << 8) | (p[1]);
 	if (datalength <= 2)
 		return;
+	datalength += 2;
+	if ((datalength) > global.bufsize)
+		datalength = global.bufsize;
 
 	fillbytes((caddr_t)scmd, sizeof (*scmd), '\0');
-	scmd->addr = (caddr_t)bufferTOC;
-	scmd->size = 2+datalength;
+	scmd->addr = (caddr_t)global.buf;
+	scmd->size = datalength;
 	scmd->flags = SCG_RECV_DATA|SCG_DISRE_ENA;
 	scmd->cdb_len = SC_G1_CDBLEN;
 	scmd->sense_len = CCS_SENSE_LEN;
@@ -342,12 +345,12 @@ ReadTocTextSCSIMMC(scgp)
 	scmd->cdb.g1_cdb.lun = scg_lun(scgp);
 	scmd->cdb.g1_cdb.addr[0] = 5;		/* format field */
 	scmd->cdb.g1_cdb.res6 = 0;	/* track/session is reserved */
-	g1_cdblen(&scmd->cdb.g1_cdb, 2+datalength);
+	g1_cdblen(&scmd->cdb.g1_cdb, datalength);
 
 	scgp->silent++;
 	if (scgp->verbose) {
 		fprintf(stderr,
-		"\nRead TOC CD Text data (length %d)...", (int)(2+datalength));
+		"\nRead TOC CD Text data (length %d)...", (int)datalength);
 	}
 	scgp->cmdname = "read toc data (text)";
 
@@ -373,11 +376,11 @@ ReadTocTextSCSIMMC(scgp)
 		errmsg("Cannot open '%s'.\n", "japan.cdtext");
 		return;
 	}
-	fillbytes(bufferTOC, CD_FRAMESIZE, '\0');
-	read_ = fread(bufferTOC, 1, CD_FRAMESIZE, fp);
-	fprintf(stderr, "read %d bytes. sizeof(bufferTOC)=%u\n",
-			read_, CD_FRAMESIZE);
-	datalength  = (bufferTOC[0] << 8) | (bufferTOC[1]);
+	fillbytes(global.buf, global.bufsize, '\0');
+	read_ = fread(global.buf, 1, global.bufsize, fp);
+	fprintf(stderr, "read %d bytes. sizeof(buffer)=%u\n",
+			read_, global.bufsize);
+	datalength  = ((global.buf[0] & 0xFF) << 8) | (global.buf[1] & 0xFF) + 2;
 	fclose(fp);
 	}
 #endif
@@ -461,13 +464,36 @@ dvd_lba(ad)
 	return (ad->zero*1053696 + ad->mins*60*75 + ad->secs*75 + ad->frame);
 }
 
-struct tocdesc {
+struct tocdesc_old {
 	unsigned char	session;
 	unsigned char	adrctl;
 	unsigned char	tno;
 	unsigned char	point;
 	struct msf_address	adr1;
 	struct zmsf_address	padr2;
+};
+
+struct tocdesc {
+	unsigned char	session;
+	unsigned char	adrctl;
+	unsigned char	tno;
+	unsigned char	point;
+
+	unsigned char	mins;
+	unsigned char	secs;
+	unsigned char	frame;
+	unsigned char	zero;
+	unsigned char	pmins;
+	unsigned char	psecs;
+	unsigned char	pframe;
+};
+
+struct outer_old {
+	unsigned char	len_msb;
+	unsigned char	len_lsb;
+	unsigned char	first_track;
+	unsigned char	last_track;
+	struct tocdesc_old	ent[1];
 };
 
 struct outer {
@@ -477,6 +503,15 @@ struct outer {
 	unsigned char	last_track;
 	struct tocdesc	ent[1];
 };
+
+/*
+ * Do address computation and return the address of "struct tocdesc" for
+ * track #i.
+ *
+ * As struct tocdesc is 11 bytes long, this structure is tail padded to
+ * 12 bytes by MC-680x0 compilers, so we cannot give this task to the compiler.
+ */
+#define	toc_addr(op, i)	((struct tocdesc *)(((char *)&((op)->ent[0])) + (i)*11))
 
 static unsigned long	first_session_leadout = 0;
 
@@ -496,6 +531,7 @@ collect_tracks(po, entries, bcd_flag)
 	unsigned	leadout_start_orig;
 	unsigned	leadout_start;
 	unsigned	max_leadout = 0;
+	struct tocdesc	*ep;
 
 #ifdef	DEBUG_FULLTOC
 	for (i = 0; i < entries; i++) {
@@ -526,57 +562,59 @@ collect_tracks(po, entries, bcd_flag)
 	leadout_start = 0;
 
 	for (i = 0; i < entries; i++) {
+		ep = toc_addr(po, i);	/* Get struct tocdesc * for Track #i */
+
 #ifdef	WARN_FULLTOC
-		if (po->ent[i].tno != 0) {
+		if (ep->tno != 0) {
 			fprintf(stderr, "entry %d, tno is not 0: %d!\n",
-				i, po->ent[i].tno);
+				i, ep->tno);
 		}
 #endif
 		if (bcd_flag) {
-			po->ent[i].session	= from_bcd(po->ent[i].session);
-			po->ent[i].adr1.mins	= from_bcd(po->ent[i].adr1.mins);
-			po->ent[i].adr1.secs	= from_bcd(po->ent[i].adr1.secs);
-			po->ent[i].adr1.frame	= from_bcd(po->ent[i].adr1.frame);
-			po->ent[i].padr2.mins	= from_bcd(po->ent[i].padr2.mins);
-			po->ent[i].padr2.secs	= from_bcd(po->ent[i].padr2.secs);
-			po->ent[i].padr2.frame	= from_bcd(po->ent[i].padr2.frame);
+			ep->session	= from_bcd(ep->session);
+			ep->mins	= from_bcd(ep->mins);
+			ep->secs	= from_bcd(ep->secs);
+			ep->frame	= from_bcd(ep->frame);
+			ep->pmins	= from_bcd(ep->pmins);
+			ep->psecs	= from_bcd(ep->psecs);
+			ep->pframe	= from_bcd(ep->pframe);
 		}
-		switch (po->ent[i].point) {
+		switch (ep->point) {
 		case	0xa0:
 
 			/*
 			 * check if session is monotonous increasing
 			 */
-			if (session+1 == po->ent[i].session) {
-				session = po->ent[i].session;
+			if (session+1 == ep->session) {
+				session = ep->session;
 			}
 #ifdef	WARN_FULLTOC
 			else {
 				fprintf(stderr,
 				"entry %d, session anomaly %d != %d!\n",
-					i, session+1, po->ent[i].session);
+					i, session+1, ep->session);
 			}
 			/*
 			 * check the adrctl field
 			 */
-			if (0x10 != (po->ent[i].adrctl & 0x10)) {
+			if (0x10 != (ep->adrctl & 0x10)) {
 				fprintf(stderr,
 				"entry %d, incorrect adrctl field %x!\n",
-					i, po->ent[i].adrctl);
+					i, ep->adrctl);
 			}
 #endif
 			/*
 			 * first track number
 			 */
-			if (bufferTOC[2] < po->ent[i].padr2.mins &&
-			    bufferTOC[3] < po->ent[i].padr2.mins) {
-				bufferTOC[2] = po->ent[i].padr2.mins;
+			if (bufferTOC[2] < ep->pmins &&
+			    bufferTOC[3] < ep->pmins) {
+				bufferTOC[2] = ep->pmins;
 			}
 #ifdef	WARN_FULLTOC
 			else
 				fprintf(stderr,
 "entry %d, session %d: start tracknumber anomaly: %d <= %d,%d(last)!\n",
-					i, session, po->ent[i].padr2.mins,
+					i, session, ep->pmins,
 					bufferTOC[2], bufferTOC[3]);
 #endif
 			break;
@@ -586,33 +624,33 @@ collect_tracks(po, entries, bcd_flag)
 			/*
 			 * check if session is constant
 			 */
-			if (session != po->ent[i].session) {
+			if (session != ep->session) {
 				fprintf(stderr,
 				"entry %d, session anomaly %d != %d!\n",
-					i, session, po->ent[i].session);
+					i, session, ep->session);
 			}
 
 			/*
 			 * check the adrctl field
 			 */
-			if (0x10 != (po->ent[i].adrctl & 0x10)) {
+			if (0x10 != (ep->adrctl & 0x10)) {
 				fprintf(stderr,
 				"entry %d, incorrect adrctl field %x!\n",
-					i, po->ent[i].adrctl);
+					i, ep->adrctl);
 			}
 #endif
 			/*
 			 * last track number
 			 */
-			if (bufferTOC[2] <= po->ent[i].padr2.mins &&
-			    bufferTOC[3] < po->ent[i].padr2.mins) {
-				bufferTOC[3] = po->ent[i].padr2.mins;
+			if (bufferTOC[2] <= ep->pmins &&
+			    bufferTOC[3] < ep->pmins) {
+				bufferTOC[3] = ep->pmins;
 			}
 #ifdef	WARN_FULLTOC
 			else
 				fprintf(stderr,
 "entry %d, session %d: end tracknumber anomaly: %d <= %d,%d(last)!\n",
-					i, session, po->ent[i].padr2.mins,
+					i, session, ep->pmins,
 					bufferTOC[2], bufferTOC[3]);
 #endif
 			break;
@@ -622,19 +660,19 @@ collect_tracks(po, entries, bcd_flag)
 			/*
 			 * check if session is constant
 			 */
-			if (session != po->ent[i].session) {
+			if (session != ep->session) {
 				fprintf(stderr,
 				"entry %d, session anomaly %d != %d!\n",
-					i, session, po->ent[i].session);
+					i, session, ep->session);
 			}
 
 			/*
 			 * check the adrctl field
 			 */
-			if (0x10 != (po->ent[i].adrctl & 0x10)) {
+			if (0x10 != (ep->adrctl & 0x10)) {
 				fprintf(stderr,
 				"entry %d, incorrect adrctl field %x!\n",
-				i, po->ent[i].adrctl);
+				i, ep->adrctl);
 			}
 #endif
 			/*
@@ -642,7 +680,7 @@ collect_tracks(po, entries, bcd_flag)
 			 */
 			{
 			unsigned	leadout_start_tmp =
-						dvd_lba(&po->ent[i].padr2);
+						dvd_lba((struct zmsf_address *)&ep->zero);
 
 			if (first_session_leadout == 0) {
 				first_session_leadout = leadout_start_tmp
@@ -666,44 +704,44 @@ collect_tracks(po, entries, bcd_flag)
 			/*
 			 * check if session is constant
 			 */
-			if (session != po->ent[i].session) {
+			if (session != ep->session) {
 				fprintf(stderr,
 				"entry %d, session anomaly %d != %d!\n",
-					i, session, po->ent[i].session);
+					i, session, ep->session);
 			}
 
 			/*
 			 * check the adrctl field
 			 */
-			if (0x50 != (po->ent[i].adrctl & 0x50)) {
+			if (0x50 != (ep->adrctl & 0x50)) {
 				fprintf(stderr,
 				"entry %d, incorrect adrctl field %x!\n",
-					i, po->ent[i].adrctl);
+					i, ep->adrctl);
 			}
 
 			/*
 			 * check the next program area
 			 */
-			if (lba(&po->ent[i].adr1) < 6750 + leadout_start) {
+			if (lba((struct msf_address *)&ep->mins) < 6750 + leadout_start) {
 				fprintf(stderr,
 "entry %d, next program area %u < leadout_start + 6750 = %u!\n",
-					i, lba(&po->ent[i].adr1),
+					i, lba((struct msf_address *)&ep->mins),
 					6750 + leadout_start);
 			}
 
 			/*
 			 * check the maximum leadout_start
 			 */
-			if (max_leadout != 0 && dvd_lba(&po->ent[i].padr2) !=
+			if (max_leadout != 0 && dvd_lba((struct zmsf_address *)&ep->zero) !=
 								max_leadout) {
 				fprintf(stderr,
 "entry %d, max leadout_start %u != last max_leadout_start %u!\n",
-					i, dvd_lba(&po->ent[i].padr2),
+					i, dvd_lba((struct zmsf_address *)&ep->zero),
 					max_leadout);
 			}
 #endif
 			if (max_leadout == 0)
-				max_leadout = dvd_lba(&po->ent[i].padr2);
+				max_leadout = dvd_lba((struct zmsf_address *)&ep->zero);
 
 			break;
 		case	0xb1:
@@ -720,11 +758,11 @@ collect_tracks(po, entries, bcd_flag)
 			/*
 			 * check if session is constant
 			 */
-			if (session != po->ent[i].session) {
+			if (session != ep->session) {
 #ifdef	WARN_FULLTOC
 				fprintf(stderr,
 				"entry %d, session anomaly %d != %d!\n",
-					i, session, po->ent[i].session);
+					i, session, ep->session);
 #endif
 				continue;
 			}
@@ -733,21 +771,21 @@ collect_tracks(po, entries, bcd_flag)
 			 * check tno
 			 */
 			if (bcd_flag)
-				po->ent[i].point = from_bcd(po->ent[i].point);
+				ep->point = from_bcd(ep->point);
 
-			if (po->ent[i].point < bufferTOC[2] ||
-			    po->ent[i].point > bufferTOC[3]) {
+			if (ep->point < bufferTOC[2] ||
+			    ep->point > bufferTOC[3]) {
 #ifdef	WARN_FULLTOC
 				fprintf(stderr,
 				"entry %d, track number anomaly %d - %d - %d!\n",
-					i, bufferTOC[2], po->ent[i].point,
+					i, bufferTOC[2], ep->point,
 					bufferTOC[3]);
 #endif
 			} else {
 				/*
 				 * check start position
 				 */
-				unsigned trackstart = dvd_lba(&po->ent[i].padr2);
+				unsigned trackstart = dvd_lba((struct zmsf_address *)&ep->zero);
 
 				/*
 				 * correct illegal leadouts
@@ -760,14 +798,13 @@ collect_tracks(po, entries, bcd_flag)
 #ifdef	WARN_FULLTOC
 					fprintf(stderr,
 "entry %d, track %d start position anomaly %d - %d - %d!\n",
-						i, po->ent[i].point,
+						i, ep->point,
 						last_start,
 						trackstart, leadout_start);
 #endif
 				} else {
 					last_start = trackstart;
-					memcpy(&po->ent[tracks], &po->ent[i],
-						sizeof (struct tocdesc));
+					memcpy(toc_addr(po, tracks), ep, 11);
 					tracks++;
 				}
 			}
@@ -777,17 +814,18 @@ collect_tracks(po, entries, bcd_flag)
 	/*
 	 * patch leadout track
 	 */
-	po->ent[tracks].session = session;
-	po->ent[tracks].adrctl = 0x10;
-	po->ent[tracks].tno = 0;
-	po->ent[tracks].point = 0xAA;
-	po->ent[tracks].adr1.mins = 0;
-	po->ent[tracks].adr1.secs = 0;
-	po->ent[tracks].adr1.frame = 0;
-	po->ent[tracks].padr2.zero = leadout_start_orig / (1053696);
-	po->ent[tracks].padr2.mins = (leadout_start_orig / (60*75)) % 100;
-	po->ent[tracks].padr2.secs = (leadout_start_orig / 75) % 60;
-	po->ent[tracks].padr2.frame = leadout_start_orig % 75;
+	ep = toc_addr(po, tracks);	/* Get struct tocdesc * for lead-out */
+	ep->session = session;
+	ep->adrctl = 0x10;
+	ep->tno = 0;
+	ep->point = 0xAA;
+	ep->mins = 0;
+	ep->secs = 0;
+	ep->frame = 0;
+	ep->zero = leadout_start_orig / (1053696);
+	ep->pmins = (leadout_start_orig / (60*75)) % 100;
+	ep->psecs = (leadout_start_orig / 75) % 60;
+	ep->pframe = leadout_start_orig % 75;
 	tracks++;
 
 	/*
@@ -927,11 +965,11 @@ ReadFullTOCMMC(scgp)
 	 * len lsb, control
 	 */
 	register struct	scg_cmd	*scmd = scgp->scmd;
-	unsigned tracks = 99;
+	int	len;
 
 	fillbytes((caddr_t)scmd, sizeof (*scmd), '\0');
 	scmd->addr = (caddr_t)bufferTOC;
-	scmd->size = 4 + (tracks + 8) * 11;
+	scmd->size = 0;
 	scmd->flags = SCG_RECV_DATA|SCG_DISRE_ENA;
 	scmd->cdb_len = SC_G1_CDBLEN;
 	scmd->sense_len = CCS_SENSE_LEN;
@@ -939,7 +977,7 @@ ReadFullTOCMMC(scgp)
 	scmd->cdb.g1_cdb.lun = scg_lun(scgp);
 	scmd->cdb.g1_cdb.addr[0] = 2;		/* format */
 	scmd->cdb.g1_cdb.res6 = 1;		/* session */
-	g1_cdblen(&scmd->cdb.g1_cdb, 4 + (tracks + 8) * 11);
+	g1_cdblen(&scmd->cdb.g1_cdb, 0);
 
 	scgp->silent++;
 	if (scgp->verbose)
@@ -947,6 +985,8 @@ ReadFullTOCMMC(scgp)
 
 	scgp->cmdname = "read full toc mmc";
 
+	scmd->size = 4;
+	g1_cdblen(&scmd->cdb.g1_cdb, 4);
 	if (scg_cmd(scgp) < 0) {
 		if (global.quiet != 1) {
 			errmsgno(EX_BAD,
@@ -959,6 +999,14 @@ ReadFullTOCMMC(scgp)
 		return (0);
 #endif
 	}
+	len = (unsigned)((bufferTOC[0] << 8) | bufferTOC[1]) + 2;
+	scmd->size = len;
+	g1_cdblen(&scmd->cdb.g1_cdb, len);
+	if (scg_cmd(scgp) < 0) {
+		scgp->silent--;
+		return (0);
+	}
+
 	scgp->silent--;
 
 	return ((unsigned)((bufferTOC[0] << 8) | bufferTOC[1]));
@@ -2157,4 +2205,5 @@ init_scsibuf(scgp, amt)
 		errmsg("Could not get SCSI transfer buffer!\n");
 		exit(SETUPSCSI_ERROR);
 	}
+	global.buf = scsibuffer;
 }

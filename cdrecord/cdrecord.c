@@ -1,13 +1,13 @@
-/* @(#)cdrecord.c	1.373 08/12/26 Copyright 1995-2008 J. Schilling */
+/* @(#)cdrecord.c	1.378 09/02/17 Copyright 1995-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)cdrecord.c	1.373 08/12/26 Copyright 1995-2008 J. Schilling";
+	"@(#)cdrecord.c	1.378 09/02/17 Copyright 1995-2009 J. Schilling";
 #endif
 /*
  *	Record data on a CD/CVD-Recorder
  *
- *	Copyright (c) 1995-2008 J. Schilling
+ *	Copyright (c) 1995-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -372,7 +372,7 @@ main(ac, av)
 #	define	CLONE_TITLE	""
 #endif
 	if ((flags & F_MSINFO) == 0 || lverbose || flags & F_VERSION) {
-		printf("Cdrecord%s%s%s %s (%s-%s-%s) Copyright (C) 1995-2008 Jörg Schilling\n",
+		printf("Cdrecord%s%s%s %s (%s-%s-%s) Copyright (C) 1995-2009 Jörg Schilling\n",
 								PRODVD_TITLE,
 								PROBD_TITLE,
 								CLONE_TITLE,
@@ -764,6 +764,8 @@ main(ac, av)
 	scgp->silent--;
 
 	dma_speed = get_dmaspeed(scgp, dp);
+	if (dma_speed <= 0)
+		errmsgno(EX_BAD, "Warning: The DMA speed test has been skipped.\n");
 	if ((debug || lverbose) && dma_speed > 0) {
 		/*
 		 * We do not yet know what medium type is in...
@@ -919,7 +921,7 @@ main(ac, av)
 	if (exargs.old_secsize < 0)
 		exargs.old_secsize = scgp->cap->c_bsize;
 	if (exargs.old_secsize != scgp->cap->c_bsize)
-		errmsgno(EX_BAD, "Warning: blockdesc secsize %d differs from cap secsize %d\n",
+		errmsgno(EX_BAD, "Warning: blockdesc secsize %d differs from cap secsize %d.\n",
 				exargs.old_secsize, scgp->cap->c_bsize);
 
 	if (lverbose)
@@ -1058,7 +1060,7 @@ main(ac, av)
 
 		wait_unit_ready(scgp, 120);
 		if (gettimeofday(&starttime, (struct timezone *)0) < 0)
-			errmsg("Cannot get start time\n");
+			errmsg("Cannot get start time.\n");
 
 		if ((*dp->cdr_format)(scgp, dp, 0) < 0) {
 			errmsgno(EX_BAD, "Cannot format medium.\n");
@@ -1066,7 +1068,7 @@ main(ac, av)
 		}
 
 		if (gettimeofday(&fixtime, (struct timezone *)0) < 0)
-			errmsg("Cannot get format time\n");
+			errmsg("Cannot get format time.\n");
 		if (lverbose)
 			prtimediff("Formatting time: ", &starttime, &fixtime);
 
@@ -1187,8 +1189,11 @@ main(ac, av)
 	if ((flags & F_WRITE) != 0 && raw_speed >= 0) {
 		int	max_raw = (flags & F_FORCE) != 0 ? raw_speed:raw_speed/2;
 
-		if (getenv("CDR_FORCERAWSPEED"))
+		if (getenv("CDR_FORCERAWSPEED")) {
+			errmsgno(EX_BAD, 
+			"WARNING: 'CDR_FORCERAWSPEED=' is set, buffer underruns may occur.\n");
 			max_raw = raw_speed;
+		}
 
 		for (i = 1; i <= MAX_TRACK; i++) {
 			/*
@@ -1216,8 +1221,15 @@ main(ac, av)
 		int	max_dma = (flags & F_FORCE) != 0 ? dma_speed:(dma_speed+1)*4/5;
 		char	*p = NULL;
 
-		if ((p = getenv("CDR_FORCESPEED")) != NULL)
+		if ((p = getenv("CDR_FORCESPEED")) != NULL) {
+			if ((dp->cdr_dstat->ds_cdrflags & RF_BURNFREE) == 0) {
+				errmsgno(EX_BAD, 
+				"WARNING: 'CDR_FORCSPEED=' is set.\n");
+				errmsgno(EX_BAD, 
+				"WARNING: Use 'driveropts=burnfree' to avoid buffer underuns.\n");
+			}
 			max_dma = dma_speed;
+		}
 
 		if (speed > max_dma) {
 			errmsgno(EX_BAD,
@@ -1343,7 +1355,7 @@ main(ac, av)
 	stoptime.tv_sec = 0;
 	fixtime.tv_sec = 0;
 	if (gettimeofday(&starttime, (struct timezone *)0) < 0)
-		errmsg("Cannot get start time\n");
+		errmsg("Cannot get start time.\n");
 
 	/*
 	 * Blank the media if we were requested to do so
@@ -1362,7 +1374,7 @@ main(ac, av)
 		scgp->silent--;
 		wait_unit_ready(scgp, 120);
 		if (gettimeofday(&starttime, (struct timezone *)0) < 0)
-			errmsg("Cannot get start time\n");
+			errmsg("Cannot get start time.\n");
 
 		if ((*dp->cdr_blank)(scgp, dp, 0L, blanktype) < 0) {
 			errmsgno(EX_BAD, "Cannot blank disk, aborting.\n");
@@ -1373,7 +1385,7 @@ main(ac, av)
 			comexit(EX_BAD);
 		}
 		if (gettimeofday(&fixtime, (struct timezone *)0) < 0)
-			errmsg("Cannot get blank time\n");
+			errmsg("Cannot get blank time.\n");
 		if (lverbose)
 			prtimediff("Blanking time: ", &starttime, &fixtime);
 
@@ -1403,7 +1415,7 @@ main(ac, av)
 		 * writing time counted together.
 		 */
 		if (gettimeofday(&starttime, (struct timezone *)0) < 0)
-			errmsg("Cannot get start time\n");
+			errmsg("Cannot get start time.\n");
 	}
 	if (tracks == 0 && (flags & F_FIX) == 0)
 		comerrno(EX_BAD, "No tracks found.\n");
@@ -1471,12 +1483,12 @@ main(ac, av)
 	if (lverbose && (dp->cdr_dstat->ds_cdrflags & RF_LEADIN) != 0) {
 
 		if (gettimeofday(&fixtime, (struct timezone *)0) < 0)
-			errmsg("Cannot get lead-in write time\n");
+			errmsg("Cannot get lead-in write time.\n");
 		prtimediff("Lead-in write time: ", &starttime, &fixtime);
 	}
 
 	if (gettimeofday(&wstarttime, (struct timezone *)0) < 0)
-		errmsg("Cannot get start time\n");
+		errmsg("Cannot get start time.\n");
 	for (i = 1; i <= tracks; i++) {
 		startsec = 0L;
 
@@ -1492,7 +1504,8 @@ main(ac, av)
 		 * Definitely get next writable address it in case of multi session.
 		 */
 		if ((flags & (F_SAO|F_RAW)) == 0 ||
-		    (flags & F_MULTI) != 0) {
+		    ((dp->cdr_dstat->ds_flags & DSF_DVD) &&
+		    (flags & F_MULTI) != 0)) {
 			if ((*dp->cdr_next_wr_address)(scgp, &track[i], &startsec) < 0) {
 				errmsgno(EX_BAD, "Cannot get next writable address.\n");
 				errs++;
@@ -1548,7 +1561,7 @@ main(ac, av)
 	}
 fix_it:
 	if (gettimeofday(&stoptime, (struct timezone *)0) < 0)
-		errmsg("Cannot get stop time\n");
+		errmsg("Cannot get stop time.\n");
 	cdrstats(dp);
 
 	if (flags & F_RAW) {
@@ -1573,7 +1586,7 @@ fix_it:
 			}
 		}
 		if (gettimeofday(&fixtime, (struct timezone *)0) < 0)
-			errmsg("Cannot get fix time\n");
+			errmsg("Cannot get fix time.\n");
 		if (lverbose)
 			prtimediff("Fixating time: ", &stoptime, &fixtime);
 	}
@@ -2332,7 +2345,7 @@ int oper = -1;
 		count = get_buf(f, trackp, startsec, &bp, bytes_to_read);
 
 		if (count < 0)
-			comerr("read error on input file\n");
+			comerr("Read error on input file.\n");
 		if (count == 0)
 			break;
 		bytes_read += count;
@@ -3359,7 +3372,7 @@ raise_fdlim()
 	rlim.rlim_cur = MAX_TRACK + 10;
 	if (rlim.rlim_cur > rlim.rlim_max)
 		errmsgno(EX_BAD,
-			"Warning: low file descriptor limit (%lld)\n",
+			"Warning: low file descriptor limit (%lld).\n",
 						(Llong)rlim.rlim_max);
 	setrlimit(RLIMIT_NOFILE, &rlim);
 
@@ -3375,7 +3388,7 @@ raise_memlock()
 	rlim.rlim_cur = rlim.rlim_max = RLIM_INFINITY;
 
 	if (setrlimit(RLIMIT_MEMLOCK, &rlim) < 0)
-		errmsg("Warning: Cannot raise RLIMIT_MEMLOCK limits.");
+		errmsg("Warning: Cannot raise RLIMIT_MEMLOCK limits.\n");
 #endif	/* RLIMIT_MEMLOCK */
 }
 
@@ -3983,7 +3996,7 @@ gargs(ac, av, tracksp, trackp, devp, timeoutp, dpp, speedp, flagsp, blankp)
 		}
 		if (tracks == 0 && (wm == 0)) {
 			errmsgno(EX_BAD, "No write mode specified.\n");
-			errmsgno(EX_BAD, "Asuming %s mode.\n",
+			errmsgno(EX_BAD, "Assuming %s mode.\n",
 					(*flagsp & F_MULTI)?"-tao":"-sao");
 			if ((*flagsp & F_MULTI) == 0)
 				errmsgno(EX_BAD, "If your drive does not accept -sao, try -tao.\n");
@@ -4002,7 +4015,7 @@ gargs(ac, av, tracksp, trackp, devp, timeoutp, dpp, speedp, flagsp, blankp)
 		tracks++;
 
 		if (tracks > MAX_TRACK)
-			comerrno(EX_BAD, "Track limit (%d) exceeded\n",
+			comerrno(EX_BAD, "Track limit (%d) exceeded.\n",
 								MAX_TRACK);
 		/*
 		 * Make 'tracks' immediately usable in track structure.
@@ -4093,7 +4106,7 @@ gargs(ac, av, tracksp, trackp, devp, timeoutp, dpp, speedp, flagsp, blankp)
 	if (dminbuf >= 0) {
 		if (dminbuf < 25 || dminbuf > 95)
 			comerrno(EX_BAD,
-			"Bad minbuf=%d option (must be between 25 and 95)\n",
+			"Bad minbuf=%d option (must be between 25 and 95).\n",
 				dminbuf);
 	}
 
@@ -4148,7 +4161,7 @@ gargs(ac, av, tracksp, trackp, devp, timeoutp, dpp, speedp, flagsp, blankp)
 	    F_FIX|F_VERSION|
 	    F_CHECKDRIVE|F_PRCAP|F_INQUIRY|F_SCANBUS|F_RESET|F_ABORT)) {
 		if (tracks != 0) {
-			errmsgno(EX_BAD, "No tracks allowed with this option\n");
+			errmsgno(EX_BAD, "No tracks allowed with this option.\n");
 			susage(EX_BAD);
 		}
 		return;
@@ -4174,7 +4187,7 @@ gargs(ac, av, tracksp, trackp, devp, timeoutp, dpp, speedp, flagsp, blankp)
 		if (pad)
 			trackp[0].flags |= TI_PAD;
 		if (tracks > 0) {
-			errmsgno(EX_BAD, "No tracks allowed with the cuefile= option\n");
+			errmsgno(EX_BAD, "No tracks allowed with the cuefile= option.\n");
 			susage(EX_BAD);
 		}
 		cuefilename = cuefile;
@@ -4308,7 +4321,7 @@ load_media(scgp, dp, doexit)
 	scgp->silent--;
 	err = geterrno();
 	if (code < 0 && (err == EPERM || err == EACCES)) {
-		linuxcheck();	/* For version 1.373 of cdrecord.c */
+		linuxcheck();	/* For version 1.378 of cdrecord.c */
 		scg_openerr("");
 	}
 
@@ -4483,7 +4496,7 @@ get_dmaspeed(scgp, dp)
 	if (i > maxdma)
 		maxdma = i;
 	if (maxdma < bs && (scg_getresid(scgp) != (bs - maxdma))) {
-		errmsgno(EX_BAD, "Warning: OS does not return correct DMA residual count.\n");
+		errmsgno(EX_BAD, "Warning: OS does not return a correct DMA residual count.\n");
 		errmsgno(EX_BAD, "Warning: expected DMA residual count %d but got %d.\n",
 			(bs - maxdma), scg_getresid(scgp));
 	}
@@ -4492,7 +4505,7 @@ get_dmaspeed(scgp, dp)
 	 * They return less data than advertized as buffersize (tsize).
 	 */
 	if (maxdma < bs) {
-		errmsgno(EX_BAD, "Warning: drive return unreliable data from 'read buffer'.\n");
+		errmsgno(EX_BAD, "Warning: drive returns unreliable data from 'read buffer'.\n");
 		return (-1);
 	}
 	if (maxdma < bs)
@@ -4513,7 +4526,7 @@ get_dmaspeed(scgp, dp)
 			return (-1);
 	}
 	if (gettimeofday(&fixtime, (struct timezone *)0) < 0) {
-		errmsg("Cannot get DMA stop time\n");
+		errmsg("Cannot get DMA stop time.\n");
 		return (-1);
 	}
 	timevaldiff(&starttime, &fixtime);
@@ -4603,7 +4616,7 @@ print_msinfo(scgp, dp)
 	long	fa = 0;
 
 	if ((*dp->cdr_session_offset)(scgp, &off) < 0) {
-		errmsgno(EX_BAD, "Cannot read session offset\n");
+		errmsgno(EX_BAD, "Cannot read session offset.\n");
 		return;
 	}
 	if (lverbose)
@@ -4615,7 +4628,7 @@ print_msinfo(scgp, dp)
 	 * session.
 	 */
 	if (dp->cdr_next_wr_address(scgp, (track_t *)0, &fa) < 0) {
-		errmsgno(EX_BAD, "Cannot read first writable address\n");
+		errmsgno(EX_BAD, "Cannot read first writable address.\n");
 		return;
 	}
 	printf("%ld,%ld\n", off, fa);
@@ -4639,12 +4652,12 @@ print_toc(scgp, dp)
 	scgp->silent++;
 	if (read_capacity(scgp) < 0) {
 		scgp->silent--;
-		errmsgno(EX_BAD, "Cannot read capacity\n");
+		errmsgno(EX_BAD, "Cannot read capacity.\n");
 		return;
 	}
 	scgp->silent--;
 	if (read_tochdr(scgp, dp, &first, &last) < 0) {
-		errmsgno(EX_BAD, "Cannot read TOC/PMA\n");
+		errmsgno(EX_BAD, "Cannot read TOC/PMA.\n");
 		return;
 	}
 	printf("first: %d last %d\n", first, last);
@@ -4719,7 +4732,7 @@ raisepri(pri)
 	strcpy(info.pc_clname, "RT");
 	classes = priocntl(P_PID, pid, PC_GETCID, (void *)&info);
 	if (classes == -1)
-		comerr("Cannot get priority class id priocntl(PC_GETCID)\n");
+		comerr("Cannot get priority class id priocntl(PC_GETCID).\n");
 
 	movebytes(info.pc_clinfo, &rtinfo, sizeof (rtinfo_t));
 
@@ -4731,7 +4744,7 @@ raisepri(pri)
 	movebytes(&rtparam, param.pc_clparms, sizeof (rtparms_t));
 	ret = priocntl(P_PID, pid, PC_SETPARMS, (void *)&param);
 	if (ret == -1) {
-		errmsg("WARNING: Cannot set priority class parameters priocntl(PC_SETPARMS)\n");
+		errmsg("WARNING: Cannot set priority class parameters priocntl(PC_SETPARMS).\n");
 		errmsgno(EX_BAD, "WARNING: This causes a high risk for buffer underruns.\n");
 	}
 }
@@ -4774,7 +4787,7 @@ rt_raisepri(pri)
 	fillbytes(&scp, sizeof (scp), '\0');
 	scp.sched_priority = sched_get_priority_max(SCHED_RR) - pri;
 	if (sched_setscheduler(0, SCHED_RR, &scp) < 0) {
-		errmsg("WARNING: Cannot set RR-scheduler\n");
+		errmsg("WARNING: Cannot set RR-scheduler.\n");
 		return (-1);
 	}
 	return (0);
@@ -5184,7 +5197,7 @@ set_wrmode(dp, wmode, tflags)
 }
 
 /*
- * I am sorry that even for version 1.373 of cdrecord.c, I am forced to do
+ * I am sorry that even for version 1.378 of cdrecord.c, I am forced to do
  * things like this, but defective versions of cdrecord cause a lot of
  * work load to me.
  *
@@ -5201,7 +5214,7 @@ set_wrmode(dp, wmode, tflags)
 #endif
 
 LOCAL void
-linuxcheck()				/* For version 1.373 of cdrecord.c */
+linuxcheck()				/* For version 1.378 of cdrecord.c */
 {
 #if	defined(linux) || defined(__linux) || defined(__linux__)
 #ifdef	HAVE_UNAME

@@ -33,13 +33,13 @@
 #include "defs.h"
 
 /*
- * This file contains modifications Copyright 2008 J. Schilling
+ * This file contains modifications Copyright 2008-2009 J. Schilling
  *
- * @(#)pwd.c	1.6 08/12/22 2008 J. Schilling
+ * @(#)pwd.c	1.7 09/01/10 2008-209 J. Schilling
  */
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)pwd.c	1.6 08/12/22 2008 J. Schilling";
+	"@(#)pwd.c	1.7 09/01/10 2008-2009 J. Schilling";
 #endif
 
 /* 
@@ -49,6 +49,7 @@ static	const char sccsid[] =
 #include	<schily/errno.h>
 #include	<schily/types.h>
 #include	<schily/stat.h>
+#include	<schily/getcwd.h>
 #else
 #include	"mac.h"
 #include	<errno.h>
@@ -75,7 +76,6 @@ extern const char	longpwd[];
 #else
 extern char	longpwd[];
 #endif
-extern char *getcwd();
 
 unsigned char cwdname[PATH_MAX+1];
 

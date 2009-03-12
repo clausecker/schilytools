@@ -1,5 +1,5 @@
 #! /bin/sh
-# @(#)config.sub	1.6 08/11/05 Copyright 1999-2008 J. Schilling
+# @(#)config.sub	1.7 09/02/04 Copyright 1999-2008 J. Schilling
 #
 # Configuration validation subroutine script, version 1.1.
 #   Copyright (C) 1991, 92-97, 1998 Free Software Foundation, Inc.
@@ -729,7 +729,7 @@ case $os in
 	      | -udi* | -eabi* | -lites* | -ieee* | -go32* | -aux* \
 	      | -cygwin* | -pe* | -psos* | -moss* | -proelf* | -rtems* \
 	      | -mingw32* | -linux-gnu* | -uxpv* | -beos* | -os2* \
-	      | -interix* | -uwin* | -mks* | -rhapsody* | -macos* )
+	      | -interix* | -uwin* | -mks* | -rhapsody* | -macos* | -haiku* )
 	# Remember, each alternative MUST END IN *, to match a version number.
 		;;
 	-linux*)
@@ -858,6 +858,9 @@ case $basic_machine in
 		;;
 	*-be)
 		os=-beos
+		;;
+	*-haiku)
+		os=-haiku
 		;;
 	*-ibm)
 		os=-aix

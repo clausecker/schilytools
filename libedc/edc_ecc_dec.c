@@ -1,8 +1,8 @@
-/* @(#)edc_ecc_dec.c	1.7 09/01/04 Copyright 1998-2001 Heiko Eissfeldt */
+/* @(#)edc_ecc_dec.c	1.8 09/01/30 Copyright 1998-2001 Heiko Eissfeldt */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)edc_ecc_dec.c	1.7 09/01/04 Copyright 1998-2001 Heiko Eissfeldt";
+	"@(#)edc_ecc_dec.c	1.8 09/01/30 Copyright 1998-2001 Heiko Eissfeldt";
 #endif
 
 /*
@@ -350,7 +350,9 @@ if (DEBUG>3) fprintf(stderr, "%d. root=%d\t", roots_found, i - SKIPPED); \
 #define	THOROUGH	1
 
 #if	THOROUGH
+#ifndef	MAXLOOPS
 #define	MAXLOOPS	15
+#endif
 #else
 #define	MAXLOOPS	1
 #endif

@@ -1,13 +1,13 @@
-/* @(#)sgrow.c	1.11 08/12/23 Copyr 1985-2008 J. Schilling */
+/* @(#)sgrow.c	1.14 09/01/14 Copyr 1985-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)sgrow.c	1.11 08/12/23 Copyr 1985-2008 J. Schilling";
+	"@(#)sgrow.c	1.14 09/01/14 Copyr 1985-2009 J. Schilling";
 #endif
 /*
- *	Check stack growung response on a machine
+ *	Check stack growing response on a machine
  *
- *	Copyright (c) 1985-2008 J. Schilling
+ *	Copyright (c) 1985-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -25,12 +25,14 @@ static	const char sccsid[] =
 #include <stdio.h>
 #include <schily/standard.h>
 #include <schily/stdlib.h>
+#include <schily/utypes.h>
 #include <schily/schily.h>
 
 char *options = "help,version";
 
 EXPORT	int	main	__PR((int ac, char ** av));
-LOCAL	int	grow	__PR((int i));
+LOCAL	Intptr_t _ret	__PR((Intptr_t i));
+LOCAL	Intptr_t grow	__PR((int i));
 LOCAL	void	usage	__PR((int ret));
 
 EXPORT int
@@ -54,8 +56,8 @@ main(ac, av)
 		usage(0);
 
 	if (prversion) {
-		printf("Sgrow release %s (%s-%s-%s) Copyright (C) 1985-2008 Jörg Schilling\n",
-				"1.11",
+		printf("Sgrow release %s (%s-%s-%s) Copyright (C) 1985-2009 Jörg Schilling\n",
+				"1.14",
 				HOST_CPU, HOST_VENDOR, HOST_OS);
 		exit(0);
 	}
@@ -76,7 +78,18 @@ main(ac, av)
 	return (0);
 }
 
-LOCAL int
+/*
+ * Hide the fact that we like to return the address of a local variable
+ * from the function grow().
+ */
+LOCAL Intptr_t
+_ret(i)
+	Intptr_t	i;
+{
+	return (i);
+}
+
+LOCAL Intptr_t
 grow(i)
 	register int	i;
 {
@@ -90,7 +103,7 @@ grow(i)
 	if (--i <= 0)
 		return (-1);
 	grow(i);
-	return ((int)s);
+	return (_ret((Intptr_t)s));
 }
 
 LOCAL void

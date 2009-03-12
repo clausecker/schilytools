@@ -1,8 +1,8 @@
-/* @(#)bsh.c	1.56 09/01/04 Copyright 1985,1988,1991,1995-2009 J. Schilling */
+/* @(#)bsh.c	1.57 09/02/05 Copyright 1985,1988,1991,1995-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)bsh.c	1.56 09/01/04 Copyright 1985,1988,1991,1995-2009 J. Schilling";
+	"@(#)bsh.c	1.57 09/02/05 Copyright 1985,1988,1991,1995-2009 J. Schilling";
 #endif
 /*
  *	bsh command interpreter - main Program
@@ -666,7 +666,7 @@ berror(s, va_alist)
  * Return system error message string for arg 'err'.
  */
 
-#ifdef	__BEOS__
+#if defined(__BEOS__) || defined(__HAIKU__)
 #define	silent_error(e)		((e) < 0 && (e) >= -1024)
 #else
 #define	silent_error(e)		((e) < 0)

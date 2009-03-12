@@ -29,13 +29,13 @@
 /*	  All Rights Reserved  	*/
 
 /*
- * This file contains modifications Copyright 2006-2007 J. Schilling
+ * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)diffh.c	1.5 07/01/25 J. Schilling
+ * @(#)diffh.c	1.6 09/02/08 J. Schilling
  */
 #if defined(sun) || defined(__GNUC__)
 
-#ident "@(#)diffh.c 1.5 07/01/25 J. Schilling"
+#ident "@(#)diffh.c 1.6 09/02/08 J. Schilling"
 #endif
 
 #pragma ident	"@(#)diffh.c	1.20	05/07/22 SMI"
@@ -77,7 +77,7 @@ int debug = 0;
 FILE *file[2];
 static int diffFound = 0;
 
-static char *getl __PR((int f, off_t n));
+static char *getln __PR((int f, off_t n));
 static void clrl __PR((int f, off_t n));
 static void movstr __PR((char *s, char *t));
 	int main __PR((int argc, char **argv));
@@ -93,7 +93,7 @@ static int hardsynch __PR((void));
 
 	/* return pointer to line n of file f */
 static char *
-getl(f, n)
+getln(f, n)
 	int	f;
 	off_t	n;
 {
@@ -179,8 +179,8 @@ main(argc, argv)
 	file[0] = dopen(argv[1], argv[2]);
 	file[1] = dopen(argv[2], argv[1]);
 	for (;;) {
-		s0 = getl(0, ++n0);
-		s1 = getl(1, ++n1);
+		s0 = getln(0, ++n0);
+		s1 = getln(1, ++n1);
 		if (s0 == NULL || s1 == NULL)
 			break;
 		if (cmp(s0, s1) != 0) {
@@ -215,25 +215,25 @@ easysynch()
 	char *s0, *s1;
 
 	for (i = j = 1; i < RANGE && j < RANGE; i++, j++) {
-		s0 = getl(0, n0+i);
+		s0 = getln(0, n0+i);
 		if (s0 == NULL)
 			return (output(INF, INF));
 		for (k = C-1; k < j; k++) {
 			for (m = 0; m < C; m++)
-				if (cmp(getl(0, n0+i-m),
-					getl(1, n1+k-m)) != 0)
+				if (cmp(getln(0, n0+i-m),
+					getln(1, n1+k-m)) != 0)
 					goto cont1;
 			return (output(i-C, k-C));
 cont1:
 			;
 		}
-		s1 = getl(1, n1+j);
+		s1 = getln(1, n1+j);
 		if (s1 == NULL)
 			return (output(INF, INF));
 		for (k = C-1; k <= i; k++) {
 			for (m = 0; m < C; m++)
-				if (cmp(getl(0, n0+k-m),
-					getl(1, n1+j-m)) != 0)
+				if (cmp(getln(0, n0+k-m),
+					getln(1, n1+j-m)) != 0)
 					goto cont2;
 			return (output(k-C, j-C));
 cont2:
@@ -258,7 +258,7 @@ output(a, b)
 	else
 		change(n0, a, n1, b, "c");
 	for (i = 0; i <= a; i++) {
-		s = getl(0, n0+i);
+		s = getln(0, n0+i);
 		if (s == NULL)
 			break;
 		(void) printf("< %s", s);
@@ -268,7 +268,7 @@ output(a, b)
 	if (a >= 0 && b >= 0)
 		(void) printf("---\n");
 	for (i = 0; i <= b; i++) {
-		s = getl(1, n1+i);
+		s = getln(1, n1+i);
 		if (s == NULL)
 			break;
 		(void) printf("> %s", s);

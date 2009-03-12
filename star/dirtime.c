@@ -1,11 +1,11 @@
-/* @(#)dirtime.c	1.25 08/12/22 Copyright 1988-2008 J. Schilling */
+/* @(#)dirtime.c	1.26 09/01/06 Copyright 1988-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)dirtime.c	1.25 08/12/22 Copyright 1988-2008 J. Schilling";
+	"@(#)dirtime.c	1.26 09/01/06 Copyright 1988-2009 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1988-2008 J. Schilling
+ *	Copyright (c) 1988-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -39,9 +39,10 @@ static	const char sccsid[] =
  * NOTE: I am not shure if degenerate filenames will fool this algorithm.
  */
 #include <schily/mconfig.h>
-#include "star.h"	/* includes <sys/types.h> needed for mode_t */
+#include <schily/types.h>	/* includes <sys/types.h> needed for mode_t */
 #include <schily/standard.h>
 #include <schily/schily.h>
+#include "star.h"
 #include "xutimes.h"
 #include "checkerr.h"
 #include "dirtime.h"

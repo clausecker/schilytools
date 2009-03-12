@@ -1,4 +1,4 @@
-/* @(#)scsi_cmds.h	1.16 06/10/29 Copyright 1998,1999 Heiko Eissfeldt, Copyright 2004-2006 J. Schilling */
+/* @(#)scsi_cmds.h	1.17 09/01/23 Copyright 1998,1999 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling */
 /*
  * header file for scsi_cmds.c
  */
@@ -16,8 +16,6 @@
 
 #ifndef	_SCSI_CMDS_H
 #define	_SCSI_CMDS_H
-
-extern	unsigned char	*cmd;
 
 extern	int		accepts_fua_bit;
 extern	unsigned char	density;

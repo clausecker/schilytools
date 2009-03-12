@@ -1,4 +1,4 @@
-#ident @(#)Makefile.dfl	1.2 08/12/27 
+#ident @(#)Makefile.dfl	1.3 09/01/29 
 ###########################################################################
 # Sample makefile for installing non-localized auxiliary files
 ###########################################################################
@@ -9,6 +9,7 @@ include		$(SRCROOT)/$(RULESDIR)/rules.top
 
 INSDIR=		etc/default
 INSBASE=	$(INS_RBASE:%/=%)
+INSFLAGS=	-noclobber
 TARGET=		cdrecord
 #XMK_FILE=	Makefile.man
 

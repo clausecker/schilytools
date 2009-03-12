@@ -1,8 +1,8 @@
-/* @(#)starsubs.h	1.108 08/04/06 Copyright 1996-2008 J. Schilling */
+/* @(#)starsubs.h	1.109 09/01/06 Copyright 1996-2009 J. Schilling */
 /*
  *	Prototypes for star subroutines
  *
- *	Copyright (c) 1996-2008 J. Schilling
+ *	Copyright (c) 1996-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -22,9 +22,8 @@
 #include <schily/utypes.h>
 #endif
 
-#ifndef	_INCL_SYS_TYPES_H
-#include <sys/types.h>
-#define	_INCL_SYS_TYPES_H
+#ifndef	_SCHILY_TYPES_H
+#include <schily/types.h>
 #endif
 
 /*

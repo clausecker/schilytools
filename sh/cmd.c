@@ -32,13 +32,13 @@
 #include "defs.h"
 
 /*
- * This file contains modifications Copyright 2008 J. Schilling
+ * This file contains modifications Copyright 2008-2009 J. Schilling
  *
- * @(#)cmd.c	1.10 08/12/22 2008 J. Schilling
+ * @(#)cmd.c	1.11 09/01/10 2008-2009 J. Schilling
  */
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)cmd.c	1.10 08/12/22 2008 J. Schilling";
+	"@(#)cmd.c	1.11 09/01/10 2008-2009 J. Schilling";
 #endif
 
 /*
@@ -148,7 +148,7 @@ cmd(sym, flg)
 			synbad();
 
 	case ';':
-		if (e = cmd(sym, flg | MTFLG))
+		if ((e = cmd(sym, flg | MTFLG)) != NULL)
 			i = makelist(TLST, i, e);
 		else if (i == 0)
 			synbad();
@@ -502,7 +502,7 @@ item(flag)
 	}
 	reserv++;
 	word();
-	if (io = inout(io))
+	if ((io = inout(io)) != NULL)
 	{
 		r = makefork(0,r);
 		r->treio = io;

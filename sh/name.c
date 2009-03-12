@@ -32,13 +32,13 @@
 #include "defs.h"
 
 /*
- * This file contains modifications Copyright 2008 J. Schilling
+ * This file contains modifications Copyright 2008-2009 J. Schilling
  *
- * @(#)name.c	1.9 08/12/22 2008 J. Schilling
+ * @(#)name.c	1.11 09/01/10 2008-2009 J. Schilling
  */
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)name.c	1.9 08/12/22 2008 J. Schilling";
+	"@(#)name.c	1.11 09/01/10 2008-2009 J. Schilling";
 #endif
 
 /*
@@ -64,7 +64,7 @@ static int	patheq		__PR((unsigned char *component, char *dir));
 unsigned char *	make		__PR((unsigned char *v));
 struct namnod *	lookup		__PR((unsigned char *nam));
 static	BOOL	chkid		__PR((unsigned char *nam));
-	void	namscan		__PR((void (*fn)()));
+	void	namscan		__PR((void (*fn)(struct namnod *n)));
 static void	namwalk		__PR((struct namnod *));
 	void	printnam	__PR((struct namnod *n));
 	void	printro		__PR((struct namnod *n));
@@ -398,7 +398,7 @@ readvar(names)
 			break;
 		rest = readw(d);
 		pc = c;
-		while(*pc++ = *rest++);
+		while ((*pc++ = *rest++) != '\0');
 		if(!anys(c, ifsnod.namval))
 			break;
 	}
@@ -428,7 +428,7 @@ readvar(names)
 						break;
 					rest = readw(d);
 					pc = c;
-					while(*pc++ = *rest++);
+					while ((*pc++ = *rest++) != '\0');
 					if(!anys(c, ifsnod.namval))
 						break;
 				}
@@ -438,7 +438,7 @@ readvar(names)
 			if(d == '\\') {
 				d = readwc();
 				rest = readw(d);
-				while(d = *rest++) {
+				while ((d = *rest++) != '\0') {
 					if (staktop >= brkend)
 						growstak(staktop);
 					pushstak(d);
@@ -448,7 +448,7 @@ readvar(names)
 			else
 			{
 				pc = c;
-				while(d = *pc++) {
+				while ((d = *pc++) != '\0') {
 					if (staktop >= brkend)
 						growstak(staktop); 
 					pushstak(d);
@@ -464,7 +464,7 @@ readvar(names)
 			{
 				rest = readw(d);
 				pc = c;
-				while(*pc++ = *rest++);
+				while ((*pc++ = *rest++) != '\0');
 			}
 		}
 	}
@@ -574,11 +574,11 @@ unsigned char	*nam;
 	return(TRUE);
 }
 
-static void (*namfn)();
+static void (*namfn) __PR((struct namnod *n));
 
 void
 namscan(fn)
-	void	(*fn)();
+	void	(*fn) __PR((struct namnod *n));
 {
 	namfn = fn;
 	namwalk(namep);
@@ -611,7 +611,7 @@ printnam(n)
 		prf((struct trenod *)n->namenv);
 		prs_buff((unsigned char *)"\n}\n");
 	}
-	else if (s = n->namval)
+	else if ((s = n->namval) != NULL)
 	{
 		prs_buff(n->namid);
 		prc_buff('=');
@@ -651,7 +651,7 @@ printexp(n)
 void
 setup_env()
 {
-	unsigned char **e = environ;
+	unsigned char **e = (unsigned char **)environ;
 
 	while (*e)
 		setname(*e++, N_ENVNAM);
@@ -743,7 +743,7 @@ unset_name(name)
 	struct namnod	*n;
 	unsigned char 	call_dolocale = 0;
 
-	if (n = findnam(name))
+	if ((n = findnam(name)) != NULL)
 	{
 		if (n->namflg & N_RDONLY)
 			failed(name, wtfailed);
@@ -883,7 +883,7 @@ dolocale(nm)
 	 * Switch fake env for real and call setlocale().
 	 */
 	real_env = (char **)environ;
-	environ = (unsigned char **)fake_env;
+	environ = (char **)fake_env;
 
 	if (setlocale(LC_ALL, "") == NULL)
 		prs(_gettext(badlocale));
@@ -891,7 +891,7 @@ dolocale(nm)
 	/*
 	 * Switch back and tear down the fake env.
 	 */
-	environ = (unsigned char **)real_env;
+	environ = (char **)real_env;
 	for (i = 0; i < fe; i++) {
 		free(fake_env[i]);
 		fake_env[i] = (char *)0;

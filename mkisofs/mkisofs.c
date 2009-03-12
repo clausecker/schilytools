@@ -1,8 +1,8 @@
-/* @(#)mkisofs.c	1.241 08/12/22 joerg */
+/* @(#)mkisofs.c	1.242 09/01/17 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)mkisofs.c	1.241 08/12/22 joerg";
+	"@(#)mkisofs.c	1.242 09/01/17 joerg";
 #endif
 /*
  * Program mkisofs.c - generate iso9660 filesystem  based upon directory
@@ -1338,7 +1338,7 @@ printopts(f, fmt, arg, twod)
 		len += fprintf(f, "%s%.*s%s%.*s",
 				*fmt == '+' ? "" :
 					(optlen > 1 && twod) ? "--" : "-",
-				p - fmt, fmt,
+				(int)(p - fmt), fmt,
 				arg != NULL ? " " : "",
 				arglen, arg != NULL ? arg : "");
 		fmt = p;
@@ -1718,22 +1718,22 @@ args_ok:
 	if (abstract) {
 		if (strlen(abstract) > 37) {
 			comerrno(EX_BAD,
-			"Abstract filename string too long (cur. %d max. 37 chars).\n",
-			strlen(abstract));
+			"Abstract filename string too long (cur. %lld max. 37 chars).\n",
+			(Llong)strlen(abstract));
 		}
 	}
 	if (appid) {
 		if (strlen(appid) > 128) {
 			comerrno(EX_BAD,
-			"Application-id string too long (cur. %d max. 128 chars).\n",
-			strlen(appid));
+			"Application-id string too long (cur. %lld max. 128 chars).\n",
+			(Llong)strlen(appid));
 		}
 	}
 	if (biblio) {
 		if (strlen(biblio) > 37) {
 			comerrno(EX_BAD,
-			"Bibliographic filename string too long (cur. %d max. 37 chars).\n",
-			strlen(biblio));
+			"Bibliographic filename string too long (cur. %lld max. 37 chars).\n",
+			(Llong)strlen(biblio));
 		}
 	}
 	if (!cache_inodes) {
@@ -1764,8 +1764,8 @@ args_ok:
 	if (copyright) {
 		if (strlen(copyright) > 37) {
 			comerrno(EX_BAD,
-			"Copyright filename string too long (cur. %d max. 37 chars).\n",
-			strlen(copyright));
+			"Copyright filename string too long (cur. %lld max. 37 chars).\n",
+			(Llong)strlen(copyright));
 		}
 	}
 	if (genboot_image)
@@ -1910,15 +1910,15 @@ args_ok:
 	}
 	if (preparer) {
 		if (strlen(preparer) > 128) {
-			comerrno(EX_BAD, "Preparer string too long (cur. %d max. 128 chars).\n",
-			strlen(preparer));
+			comerrno(EX_BAD, "Preparer string too long (cur. %lld max. 128 chars).\n",
+			(Llong)strlen(preparer));
 		}
 	}
 	if (publisher) {
 		if (strlen(publisher) > 128) {
 			comerrno(EX_BAD,
-				"Publisher string too long (cur. %d max. 128 chars).\n",
-				strlen(publisher));
+				"Publisher string too long (cur. %lld max. 128 chars).\n",
+				(Llong)strlen(publisher));
 		}
 	}
 	if (rationalize_rr) {
@@ -2009,15 +2009,15 @@ args_ok:
 	if (volume_id) {
 		if (strlen(volume_id) > 32) {
 			comerrno(EX_BAD,
-				"Volume ID string too long (cur. %d max. 32 chars).\n",
-				strlen(volume_id));
+				"Volume ID string too long (cur. %lld max. 32 chars).\n",
+				(Llong)strlen(volume_id));
 		}
 	}
 	if (volset_id) {
 		if (strlen(volset_id) > 128) {
 			comerrno(EX_BAD,
-			"Volume set ID string too long (cur. %d max. 128 chars).\n",
-			strlen(volset_id));
+			"Volume set ID string too long (cur. %lld max. 128 chars).\n",
+			(Llong)strlen(volset_id));
 		}
 	}
 	if (volume_set_size) {

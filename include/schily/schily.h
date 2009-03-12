@@ -1,4 +1,4 @@
-/* @(#)schily.h	1.76 08/12/20 Copyright 1985-2008 J. Schilling */
+/* @(#)schily.h	1.78 09/01/13 Copyright 1985-2009 J. Schilling */
 /*
  *	Definitions for libschily
  *
@@ -18,7 +18,7 @@
  *	include ctype.h past schily/schily.h as OpenBSD does not follow POSIX
  *	and defines EOF in ctype.h
  *
- *	Copyright (c) 1985-2008 J. Schilling
+ *	Copyright (c) 1985-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -95,8 +95,6 @@ extern "C" {
 #	define	_openfd		_openfd64
 #endif
 
-#ifdef	EOF	/* stdio.h has been included */
-
 /*
  * The official POSIX rule is not to define "new" interfaces that
  * are in conflict with older interfaces of the same name.
@@ -131,6 +129,13 @@ extern "C" {
 #endif
 #endif
 
+#if	defined(RENAME_GETLINE)
+#ifndef _SCHILY_STDIO_H
+#include <schily/stdio.h>	/* Need to include before *getline() protoypes */
+#endif
+
+#endif
+
 #ifdef	RENAME_FEXEC
 #define	fexecl		js_fexecl
 #define	fexecle		js_fexecle
@@ -146,6 +151,8 @@ extern "C" {
 #define	getline		js_getline
 #define	fgetline	js_fgetline
 #endif
+
+#ifdef	EOF	/* stdio.h has been included */
 
 extern	int	_cvmod __PR((const char *, int *, int *));
 extern	FILE	*_fcons __PR((FILE *, int, int));

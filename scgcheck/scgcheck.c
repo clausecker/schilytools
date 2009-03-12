@@ -1,11 +1,11 @@
-/* @(#)scgcheck.c	1.15 08/12/22 Copyright 1998-2008 J. Schilling */
+/* @(#)scgcheck.c	1.17 09/01/14 Copyright 1998-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)scgcheck.c	1.15 08/12/22 Copyright 1998-2008 J. Schilling";
+	"@(#)scgcheck.c	1.17 09/01/14 Copyright 1998-2009 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1998-2008 J. Schilling
+ *	Copyright (c) 1998-2009 J. Schilling
  *
  * Warning: This program has been written to verify the correctness
  * of the upper layer interface from the library "libscg". If you 
@@ -50,7 +50,7 @@ LOCAL	SCSI	*doopen		__PR((char *dev));
 LOCAL	void	checkversion	__PR((SCSI *scgp));
 LOCAL	void	getbuf		__PR((SCSI *scgp));
 LOCAL	void	scg_openerr	__PR((char *errstr));
-LOCAL	int	find_drive	__PR((SCSI *scgp, char *devname, int flags));
+LOCAL	int	find_drive	__PR((SCSI *scgp, char *sdevname, int flags));
 EXPORT	void	flushit		__PR((void));
 EXPORT	int	countopen	__PR((void));
 EXPORT	int	chkprint	__PR((const char *, ...)) __printflike__(1, 2);
@@ -138,7 +138,7 @@ main(ac, av)
 	if (help)
 		usage(0);
 	if (pversion) {
-		printf("scgcheck %s (%s-%s-%s) Copyright (C) 1998-2008 Jörg Schilling\n",
+		printf("scgcheck %s (%s-%s-%s) Copyright (C) 1998-2009 Jörg Schilling\n",
 								scgc_version,
 								HOST_CPU, HOST_VENDOR, HOST_OS);
 		exit(0);
@@ -387,13 +387,13 @@ reset
 }
 
 LOCAL SCSI *
-doopen(devname)
-	char	*devname;
+doopen(sdevname)
+	char	*sdevname;
 {
 	SCSI	*scgp;
 	char	errstr[128];
 
-	if ((scgp = scg_open(devname, errstr, sizeof (errstr), debug, lverbose)) == (SCSI *)0) {
+	if ((scgp = scg_open(sdevname, errstr, sizeof (errstr), debug, lverbose)) == (SCSI *)0) {
 		errmsg("%s%sCannot open SCSI driver.\n", errstr, errstr[0]?". ":"");
 		fprintf(logfile, "%s. %s%sCannot open SCSI driver.\n",
 			errmsgstr(geterrno()), errstr, errstr[0]?". ":"");
@@ -496,9 +496,9 @@ scg_openerr(errstr)
 }
 
 LOCAL int
-find_drive(scgp, devname, flags)
+find_drive(scgp, sdevname, flags)
 	SCSI	*scgp;
-	char	*devname;
+	char	*sdevname;
 	int	flags;
 {
 	int	ntarget;
@@ -531,15 +531,15 @@ find_drive(scgp, devname, flags)
 /*
 		select_target(scgp, stdout);
 		comerrno(EX_BAD, "Select a target from the list above and use 'cdrecord dev=%s%sb,t,l'.\n",
-			devname?devname:"",
-			devname?(devname[strlen(devname)-1] == ':'?"":":"):"");
+			sdevname?sdevname:"",
+			sdevname?(sdevname[strlen(sdevname)-1] == ':'?"":":"):"");
 */
 		find_target(scgp, type, 1);		
 	}
 	if ((flags & F_MSINFO) == 0)
 		error("Using dev=%s%s%d,%d,%d.\n",
-			devname?devname:"",
-			devname?(devname[strlen(devname)-1] == ':'?"":":"):"",
+			sdevname?sdevname:"",
+			sdevname?(sdevname[strlen(sdevname)-1] == ':'?"":":"):"",
 			scg_scsibus(scgp), scg_target(scgp), scg_lun(scgp));
 
 	return (ntarget);

@@ -32,13 +32,13 @@
 #include "defs.h"
 
 /*
- * This file contains modifications Copyright 2008 J. Schilling
+ * This file contains modifications Copyright 2008-2009 J. Schilling
  *
- * @(#)main.c	1.9 08/12/22 2008 J. Schilling
+ * @(#)main.c	1.11 09/01/10 2008-2009 J. Schilling
  */
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)main.c	1.9 08/12/22 2008 J. Schilling";
+	"@(#)main.c	1.11 09/01/10 2008-2009 J. Schilling";
 #endif
 
 /*
@@ -191,7 +191,7 @@ main(c, v, e)
 	 *  the simple file part of the value.
 	 *  is rsh
 	 */
-	if (n = findnam((unsigned char *)"SHELL")) {
+	if ((n = findnam((unsigned char *)"SHELL")) != NULL) {
 		if (eq("rsh", simple(n->namval)))
 			rsflag = 0;
 	}
@@ -505,8 +505,12 @@ settmp()
 {
 	int len;
 	serial = 0;
-	if ((len = snprintf((char *)tmpout, TMPOUTSZ, "/tmp/sh%u", mypid)) >=
-	    TMPOUTSZ) {
+	/*
+	 * Should better use %ju and cast ti maxint_t,
+	 * but then we need to call js_snprintf() for portability.
+	 */
+	if ((len = snprintf((char *)tmpout, TMPOUTSZ, "/tmp/sh%lu",
+	    (unsigned long)mypid)) >= TMPOUTSZ) {
 		/*
 		 * TMPOUTSZ should be big enough, but if it isn't,
 		 * we'll at least try to create tmp files with
@@ -608,7 +612,7 @@ setmail(mailpath)
 	long	*ptr;
 
 	free(mod_time);
-	if (mailp = mailpath) {
+	if ((mailp = mailpath) != NULL) {
 		while (*s) {
 			if (*s == COLON)
 				cnt += 1;

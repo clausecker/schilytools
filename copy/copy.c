@@ -1,8 +1,8 @@
-/* @(#)copy.c	1.43 09/01/04 Copyright 1984, 86-90, 95-97, 99, 2000-2009 J. Schilling */
+/* @(#)copy.c	1.44 09/01/06 Copyright 1984, 86-90, 95-97, 99, 2000-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)copy.c	1.43 09/01/04 Copyright 1984, 86-90, 95-97, 99, 2000-2009 J. Schilling";
+	"@(#)copy.c	1.44 09/01/06 Copyright 1984, 86-90, 95-97, 99, 2000-2009 J. Schilling";
 #endif
 /*
  *	copy files ...
@@ -126,7 +126,7 @@ LOCAL	BOOL	samefile	__PR((STATBUF * sp1, STATBUF * sp2));
 LOCAL	void	set_access	__PR((STATBUF * fromstat, char *to, BOOL to_exists));
 LOCAL	void	etoolong	__PR((char *name));
 LOCAL	BOOL	yes		__PR((char *form, ...));
-LOCAL	BOOL	getbase		__PR((char *path, char *basename, size_t bsize));
+LOCAL	BOOL	getbase		__PR((char *path, char *basenamep, size_t bsize));
 LOCAL	void	mygetline	__PR((char *pstr, char *str, int len));
 LOCAL	int	xutimes		__PR((char *name, STATBUF * sp));
 LOCAL	BOOL	doremove	__PR((char *name));
@@ -272,7 +272,7 @@ main(ac, av)
 	if (prversion) {
 		/* CSTYLED */
 		printf("Copy release %s (%s-%s-%s) Copyright (C) 1984, 86-90, 95-97, 99, 2000-2009 Jörg Schilling\n",
-				"1.43",
+				"1.44",
 				HOST_CPU, HOST_VENDOR, HOST_OS);
 		exit(0);
 	}
@@ -761,9 +761,9 @@ yes(form, va_alist)
 }
 
 LOCAL BOOL
-getbase(path, basename, bsize)
+getbase(path, basenamep, bsize)
 		char *path;
-	register char *basename;
+	register char *basenamep;
 		size_t	bsize;
 {
 	register char *p;
@@ -783,7 +783,7 @@ getbase(path, basename, bsize)
 		}
 	}
 
-	if (strlcpy(basename, p, bsize) >= bsize)
+	if (strlcpy(basenamep, p, bsize) >= bsize)
 		return (FALSE);
 	return (TRUE);
 }

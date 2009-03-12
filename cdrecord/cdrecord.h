@@ -1,8 +1,8 @@
-/* @(#)cdrecord.h	1.197 08/12/24 Copyright 1995-2008 J. Schilling */
+/* @(#)cdrecord.h	1.198 09/01/14 Copyright 1995-2009 J. Schilling */
 /*
  *	Definitions for cdrecord
  *
- *	Copyright (c) 1995-2008 J. Schilling
+ *	Copyright (c) 1995-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -1065,6 +1065,7 @@ extern	void	przone			__PR((struct rzone_info *rp));
 #ifdef	_SCG_SCSITRANSP_H
 #ifdef	_SCSIMMC_H
 extern	int	get_diskinfo		__PR((SCSI *scgp, struct disk_info *dip, int cnt));
+extern	char	*get_ses_type		__PR((int ses_type));
 extern	void	print_diskinfo		__PR((struct disk_info *dip, BOOL is_cd));
 #endif
 extern	int	prdiskstatus		__PR((SCSI *scgp, cdr_t *dp, BOOL is_cd));

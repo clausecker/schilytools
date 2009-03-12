@@ -1,4 +1,4 @@
-.\" @(#)readcd.1	1.30 08/10/12 Copyright 1996-2006 J. Schilling
+.\" @(#)readcd.1	1.31 09/02/03 Copyright 1996-2006 J. Schilling
 .\"
 .\" The contents of this file are subject to the terms of the
 .\" Common Development and Distribution License, Version 1.0 only
@@ -24,7 +24,7 @@
 .if n .ds s sz
 .TH READCD 1 "Version 2.0" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
-readcd \- read or write data Compact Discs
+readcd \- read or write data Compact Discs or related madia
 .SH SYNOPSIS
 .B readcd
 [
@@ -248,7 +248,15 @@ to use
 .BR stdout " resp. " stdin .
 .TP
 .B \-w
-Switch to write mode. If this option is not present,
+Switch to write mode.
+Writing is only possible to DVD-RAM media. For other media, use
+.B cdrecord
+instead.
+Note that 
+.B cdrecord
+also supports to write DVD-RAM media.
+.sp
+If this option is not present,
 .B readcd
 reads from the specified device.
 .TP

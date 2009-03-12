@@ -1,4 +1,4 @@
-dnl @(#)configure.in	1.9 07/04/24	Copyright 1998-2003 Heiko Eiﬂfeldt
+dnl @(#)configure.in	1.10 09/02/26	Copyright 1998-2003 Heiko Eiﬂfeldt
 dnl Process this file with autoconf to produce a configure script.
 AC_INIT(cdda2wav.c)
 AC_CONFIG_HEADER(lconfig.h)
@@ -29,7 +29,6 @@ dnl check header files
 AC_CHECK_HEADERS(sys/cdio.h sys/cdrio.h sundev/srreg.h sys/audioio.h sun/audioio.h)
 AC_CHECK_HEADERS(soundcard.h sys/soundcard.h linux/soundcard.h machine/soundcard.h)
 AC_CHECK_HEADERS(sys/asoundlib.h windows.h mmsystem.h)
-AC_CHECK_HEADERS(os2.h os2me.h)
 
 case "${ac_cv_header_sys_cdio_h}""${ac_cv_header_sundev_srreg_h}" in
    *yes*)
@@ -84,5 +83,5 @@ esac
 AC_SUBST(HAVE_OS2SOUND)
 
 dnl Checks for library functions.
-AC_CHECK_FUNCS(strtoul)
+
 AC_OUTPUT(local.cnf)

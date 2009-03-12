@@ -1,8 +1,8 @@
-/* @(#)wchar.h	1.4 07/04/25 Copyright 2007 J. Schilling */
+/* @(#)wchar.h	1.5 09/01/13 Copyright 2007-2009 J. Schilling */
 /*
  *	Abstraction from wchar.h
  *
- *	Copyright (c) 2007 J. Schilling
+ *	Copyright (c) 2007-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -40,9 +40,8 @@
 #include <stddef.h>
 #endif
 
-#ifndef	_INCL_STDIO_H
-#include <stdio.h>
-#define	_INCL_STDIO_H
+#ifndef _SCHILY_STDIO_H
+#include <schily/stdio.h>
 #endif
 
 #ifndef	_SCHILY_VARARGS_H

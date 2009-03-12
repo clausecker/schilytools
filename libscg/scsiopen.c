@@ -1,13 +1,13 @@
-/* @(#)scsiopen.c	1.98 08/12/22 Copyright 1995-2008 J. Schilling */
+/* @(#)scsiopen.c	1.100 09/01/13 Copyright 1995-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)scsiopen.c	1.98 08/12/22 Copyright 1995-2008 J. Schilling";
+	"@(#)scsiopen.c	1.100 09/01/13 Copyright 1995-2009 J. Schilling";
 #endif
 /*
  *	SCSI command functions for cdrecord
  *
- *	Copyright (c) 1995-2008 J. Schilling
+ *	Copyright (c) 1995-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -104,7 +104,7 @@ scg_open(scsidev, errs, slen, debug, be_verbose)
 	int	debug;
 	int	be_verbose;
 {
-	char	devname[256];
+	char	sdevname[256];
 	char	*devp = NULL;
 	char	*sdev = NULL;
 	int	x1;
@@ -125,7 +125,7 @@ scg_open(scsidev, errs, slen, debug, be_verbose)
 	scgp->debug = debug;
 	scgp->overbose = be_verbose;
 
-	devname[0] = '\0';
+	sdevname[0] = '\0';
 	if (scsidev != NULL && scsidev[0] != '\0') {
 		sdev = scsidev;
 		if ((strncmp(scsidev, "HELP", 4) == 0) ||
@@ -142,8 +142,8 @@ scg_open(scsidev, errs, slen, debug, be_verbose)
 			 * We must send the complete device spec to the remote
 			 * site to allow parsing on both sites.
 			 */
-			strncpy(devname, scsidev, sizeof (devname)-1);
-			devname[sizeof (devname)-1] = '\0';
+			strncpy(sdevname, scsidev, sizeof (sdevname)-1);
+			sdevname[sizeof (sdevname)-1] = '\0';
 			if (sdev[6] == '(' || sdev[6] == ':')
 				sdev = strchr(sdev, ':');
 			else
@@ -155,7 +155,7 @@ scg_open(scsidev, errs, slen, debug, be_verbose)
 				 * Give it a chance with a standard parsing.
 				 */
 				sdev = scsidev;
-				devname[0] = '\0';
+				sdevname[0] = '\0';
 			} else {
 				/*
 				 * Now try to go past user@host spec.
@@ -176,10 +176,10 @@ scg_open(scsidev, errs, slen, debug, be_verbose)
 				/* We may come here too with 'USCSI'	    */
 				n = -1;
 				lun  = -2;	/* Lun must be known	    */
-				if (devname[0] == '\0') {
-					strncpy(devname, scsidev,
-							sizeof (devname)-1);
-					devname[sizeof (devname)-1] = '\0';
+				if (sdevname[0] == '\0') {
+					strncpy(sdevname, scsidev,
+							sizeof (sdevname)-1);
+					sdevname[sizeof (sdevname)-1] = '\0';
 				}
 			} else {
 				/* Basic notation form: 'bus,tgt,lun'	    */
@@ -188,15 +188,15 @@ scg_open(scsidev, errs, slen, debug, be_verbose)
 		} else {
 			/* Notation form: 'devname:bus,tgt,lun'/'devname:@' */
 			/* We may come here too with 'USCSI:'		    */
-			if (devname[0] == '\0') {
+			if (sdevname[0] == '\0') {
 				/*
 				 * Copy over the part before the ':'
 				 */
 				x1 = devp - scsidev;
-				if (x1 >= (int)sizeof (devname))
-					x1 = sizeof (devname)-1;
-				strncpy(devname, scsidev, x1);
-				devname[x1] = '\0';
+				if (x1 >= (int)sizeof (sdevname))
+					x1 = sizeof (sdevname)-1;
+				strncpy(sdevname, scsidev, x1);
+				sdevname[x1] = '\0';
 			}
 			devp++;
 			/* Check for a notation in the form 'devname:@'	    */
@@ -227,9 +227,9 @@ scg_open(scsidev, errs, slen, debug, be_verbose)
 				devp = NULL;
 			} else if (strchr(sdev, ',') == NULL) {
 				/* We may come here with 'ATAPI:/dev/hdc'   */
-				strncpy(devname, scsidev,
-						sizeof (devname)-1);
-				devname[sizeof (devname)-1] = '\0';
+				strncpy(sdevname, scsidev,
+						sizeof (sdevname)-1);
+				sdevname[sizeof (sdevname)-1] = '\0';
 				n = -1;
 				lun  = -2;	/* Lun must be known	    */
 				/*
@@ -263,17 +263,17 @@ nulldevice:
 	}
 	if (be_verbose && scsidev != NULL) {
 		js_fprintf(stderr, "scsidev: '%s'\n", scsidev);
-		if (devname[0] != '\0')
-			js_fprintf(stderr, "devname: '%s'\n", devname);
+		if (sdevname[0] != '\0')
+			js_fprintf(stderr, "devname: '%s'\n", sdevname);
 		js_fprintf(stderr, "scsibus: %d target: %d lun: %d\n",
 					scg_scsibus(scgp), scg_target(scgp), scg_lun(scgp));
 	}
 	if (debug > 0) {
 		js_fprintf(stderr, "scg__open(%s) %d,%d,%d\n",
-			devname,
+			sdevname,
 			scg_scsibus(scgp), scg_target(scgp), scg_lun(scgp));
 	}
-	if (scg__open(scgp, devname) <= 0) {
+	if (scg__open(scgp, sdevname) <= 0) {
 		if (errs && scgp->errstr)
 			js_snprintf(errs, slen, "%s", scgp->errstr);
 		scg_sfree(scgp);

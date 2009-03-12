@@ -27,11 +27,11 @@
 /*
  * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)comb.c	1.5 09/01/04 J. Schilling
+ * @(#)comb.c	1.6 09/02/05 J. Schilling
  */
 #if defined(sun) || defined(__GNUC__)
 
-#ident "@(#)comb.c 1.5 09/01/04 J. Schilling"
+#ident "@(#)comb.c 1.6 09/02/05 J. Schilling"
 #endif
 /*
  * @(#)comb.c 1.15 06/12/12
@@ -43,7 +43,7 @@
 # include	<version.h>
 # include	<had.h>
 # include       <i18n.h>
-# include	<sysexits.h>
+# include	<schily/sysexits.h>
 
 struct stat Statbuf;
 char SccsError[MAXERRORLEN];
