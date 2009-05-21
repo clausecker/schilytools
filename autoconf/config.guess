@@ -1,5 +1,5 @@
 #! /bin/sh
-# @(#)config.guess	1.12 09/02/04 Copyright 1999-2008 J. Schilling
+# @(#)config.guess	1.13 09/04/19 Copyright 1999-2009 J. Schilling
 #
 # Attempt to guess a canonical system name.
 #   Copyright (C) 1992, 93, 94, 95, 96, 97, 1998 Free Software Foundation, Inc.

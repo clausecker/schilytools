@@ -1,11 +1,11 @@
-/* @(#)star.c	1.320 08/12/22 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2008 J. Schilling */
+/* @(#)star.c	1.321 09/04/10 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)star.c	1.320 08/12/22 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2008 J. Schilling";
+	"@(#)star.c	1.321 09/04/10 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2009 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1985, 88-90, 92-96, 98, 99, 2000-2008 J. Schilling
+ *	Copyright (c) 1985, 88-90, 92-96, 98, 99, 2000-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -1148,7 +1148,7 @@ xusage(ret)
 	error("\t-xattr\t\thandle extended file attributes\n");
 	error("\t-xattr-linux\t\thandle extended file attributes (Linux variant)\n");
 	error("\t-xfflags\thandle extended file flags\n");
-	error("\t-prinodes\tif archive containes inode number, print them in list mode\n");
+	error("\t-prinodes\tif archive contains inode number, print them in list mode\n");
 	error("\tbs=#\t\tset (output) block size to #\n");
 #ifdef	FIFO
 	error("\tfs=#\t\tset fifo size to #\n");
@@ -1620,7 +1620,7 @@ star_helpvers(name, help, xhelp, prvers)
 		opt_xattr();
 #endif
 		printf("\n\n");
-		printf("Copyright (C) 1985, 88-90, 92-96, 98, 99, 2000-2008 Jörg Schilling\n");
+		printf("Copyright (C) 1985, 88-90, 92-96, 98, 99, 2000-2009 Jörg Schilling\n");
 		printf("This is free software; see the source for copying conditions.  There is NO\n");
 		printf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
 		exit(0);

@@ -1,13 +1,13 @@
-/* @(#)input.c	1.28 08/12/20 Copyright 1985-2008 J. Schilling */
+/* @(#)input.c	1.29 09/05/14 Copyright 1985-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)input.c	1.28 08/12/20 Copyright 1985-2008 J. Schilling";
+	"@(#)input.c	1.29 09/05/14 Copyright 1985-2009 J. Schilling";
 #endif
 /*
  *	bsh command interpreter - Input handling & Alias/Macro Expansion
  *
- *	Copyright (c) 1985-2008 J. Schilling
+ *	Copyright (c) 1985-2009 J. Schilling
  *
  *	Exported functions:
  *		setinput(f)	replaces the current input file
@@ -31,7 +31,7 @@ static	const char sccsid[] =
  *		make_line()	from inputc.c
  *		makestr()	from strsubs.c
  *		mkfstream()	from libschily::fstream.c
- *		myhome()	from bsh.c (if ~ expansion is enabled)
+ *		mypwhome()	from bsh.c (if ~ expansion is enabled)
  *		fspushcha()	from libschily::fstream.c
  *		fspushstr()	from libschily::fstream.c
  *		fssetfile()	from libschily::fstream.c
@@ -364,7 +364,7 @@ input_expand(os, is)
 				}
 			} else {
 				fspushcha(is, c);
-				if (!(val = myhome()))
+				if (!(val = mypwhome()))
 					val = makestr(nullstr);
 			}
 			fspushstr(os, val);

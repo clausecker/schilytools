@@ -1,4 +1,4 @@
-#ident "@(#)Defaults.linux	1.5 08/12/26 "
+#ident "@(#)Defaults.linux	1.6 09/03/22 "
 ###########################################################################
 #
 # global definitions for Linux Systems
@@ -42,6 +42,13 @@ LINUX_SRC_INCLUDE=      $(__LINUX_SRC_INCLUDE:$(_UNIQ)no%=%)
 DEFINCDIRS=	$(SRCROOT)/include
 LDPATH=		-L/opt/schily/lib
 RUNPATH=	-R$(INS_BASE)/lib -R/opt/schily/lib -R$(OLIBSDIR)
+
+###########################################################################
+#
+# Unhide POSIX extensions from /usr/include/
+#
+###########################################################################
+OSDEFS +=	-D_GNU_SOURCE
 
 ###########################################################################
 #

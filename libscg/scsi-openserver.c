@@ -1,7 +1,7 @@
-/* @(#)scsi-openserver.c	1.32 06/11/26 Copyright 1998 J. Schilling, Santa Cruz Operation */
+/* @(#)scsi-openserver.c	1.34 09/04/19 Copyright 1998-2009 J. Schilling, Copyright 1998,2000 Santa Cruz Operation */
 #ifndef lint
 static	char __sccsid[] =
-	"@(#)scsi-openserver.c	1.32 06/11/26 Copyright 1998 J. Schilling, Santa Cruz Operation";
+	"@(#)scsi-openserver.c	1.34 09/04/19 Copyright 1998-2009 J. Schilling, Copyright 1998,2000 Santa Cruz Operation";
 #endif
 /*
  *	Interface for the SCO SCSI implementation.
@@ -12,7 +12,8 @@ static	char __sccsid[] =
  *	Choose your name instead of "schily" and make clear that the version
  *	string is related to a modified source.
  *
- *	Copyright (c) 1998 J. Schilling, Santa Cruz Operation
+ *	Copyright (c) 1998-2009 J. Schilling
+ *	Copyright (c) 1998,2000 Santa Cruz Operation
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -45,7 +46,7 @@ static	char __sccsid[] =
  *	Choose your name instead of "schily" and make clear that the version
  *	string is related to a modified source.
  */
-LOCAL	char	_scg_trans_version[] = "scsi-openserver.c-1.32";	/* The version for this transport*/
+LOCAL	char	_scg_trans_version[] = "scsi-openserver.c-1.34";	/* The version for this transport*/
 
 #define	MAX_SCG		16		/* Max # of cdrom devices */
 #define	MAX_TGT		16		/* Not really needed	  */
@@ -126,7 +127,7 @@ LOCAL	long	max_dma		= MAX_DMA; /* use MAX_DMA DMA buffer by default */
  * By default we will use the SCSIUSERCMD2 ioctl(), in order to execute
  * the SCSIUSERCMD ioctl() instead set the environment variable
  * LIBSCG_SCSIUSERCMD to any value. Using the olderSCSIUSERCMD ioctl() will
- * if the SCSI commands returns a CHECK CONDITION status, run a seperate
+ * if the SCSI commands returns a CHECK CONDITION status, run a separate
  * REQUEST_SENSE command immediately. But we need to remember that in a
  * multi-tasking environment, there might be other code which has accessed
  * the device in between these two steps and therefore the sense code

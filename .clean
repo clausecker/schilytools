@@ -1,6 +1,6 @@
 #!/bin/sh
 rm -rf */OBJ */*/OBJ libs/* incs/*
-rm -f core */core */*/core
+rm -f core */core */*/core */*/*/core */*/*/*/core */*/*/*/*/core
 rm -f .EDT* */.EDT* */*/.EDT*
 rm -f .vedt* */.vedt* */*/.vedt* */*/*/.vedt* */*/*/*/.vedt*
 rm -f *.bak */*.bak */*/*.bak */*/*/*.bak */*/*/*/*.bak
@@ -9,7 +9,6 @@ rm -f */TAGS */*/TAGS
 
 rm -rf sccs/sccs/*/*/OBJ
 rm -rf sccs/sccs/*/*/src/OBJ
-rm -f core */core */*/core */*/*/core */*/*/*/core */*/*/*/*/core
 
 rm -rf proto/* packages/*
 

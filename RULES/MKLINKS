@@ -1,6 +1,6 @@
 #!/bin/sh
 ###########################################################################
-#ident "@(#)MKLINKS	1.76 09/02/10 "
+#ident "@(#)MKLINKS	1.77 09/05/21 "
 ###########################################################################
 # Written 1996 by J. Schilling
 ###########################################################################
@@ -169,6 +169,10 @@ $symlink	i486-cygwin32_nt-cl.rul	i386-cygwin32_nt-cl.rul
 $symlink	i486-cygwin32_nt-cl.rul	i586-cygwin32_nt-cl.rul
 $symlink	i486-cygwin32_nt-cl.rul	i686-cygwin32_nt-cl.rul
 $symlink	i486-cygwin32_nt-cl.rul	i786-cygwin32_nt-cl.rul
+$symlink	i486-cygwin32_nt-cl.rul	i686-cygwin32_wow64-cl.rul
+$symlink	i486-cygwin32_nt-cl.rul	i786-cygwin32_wow64-cl.rul
+$symlink	i686-cygwin32_wow64-cl64.rul	i686-cygwin32_nt-cl64.rul
+$symlink	i686-cygwin32_wow64-cl64.rul	i786-cygwin32_nt-cl64.rul
 $symlink	i486-cygwin32_nt-gcc.rul	i386-cygwin32_nt-gcc.rul
 $symlink	i486-cygwin32_nt-gcc.rul	i586-cygwin32_nt-gcc.rul
 $symlink	i486-cygwin32_nt-gcc.rul	i686-cygwin32_nt-gcc.rul

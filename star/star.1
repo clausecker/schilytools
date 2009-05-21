@@ -1,4 +1,4 @@
-. \" @(#)star.1	1.159 08/03/19 Copyr 1982-2008 J. Schilling
+. \" @(#)star.1	1.160 09/04/10 Copyr 1982-2009 J. Schilling
 . \"  Manual Seite fuer star
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -13,7 +13,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH STAR 1 "08/03/19" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH STAR 1 "09/04/10" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 star \- unique standard tape archiver
 .SH SYNOPSIS
@@ -1783,7 +1783,7 @@ thus may result in incomplete incremental dumps,
 use with extreme care.
 .TP
 .B \-e
-Exit immediately with exit status -3 (253) if any unexpected error occurs.
+Exit immediately with exit status \-3 (253) if any unexpected error occurs.
 The
 .B \-e
 option works as if the last error control option was
@@ -4402,20 +4402,20 @@ If you like to archive all directories only that are part of the directory
 tree under ".", use:
 .IP
 .B
-example# star -c f=\fIarchive-name\fP -find . -type d
+example# star \-c f=\fIarchive-name\fP \-find . \-type d
 .PP
 If you like to archive all files as owner root and group root and
 make all files world readable in the archive, use:
 .IP
 .B
-example# star -c f=\fIarchive-name\fP -find . -chown root -chgrp root -chmod o+r
+example# star \-c f=\fIarchive-name\fP \-find . \-chown root \-chgrp root \-chmod o+r
 .PP
 If you like to list all files in an archive in a way like
 .BR sfind (1),
 instead of the way used by star, use:
 .IP
 .B
-example# star -t f=\fIarchive-name\fP -find . -ls -false
+example# star \-t f=\fIarchive-name\fP \-find . \-ls \-false
 
 .SH ENVIRONMENT
 .TP

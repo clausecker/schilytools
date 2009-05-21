@@ -1,0 +1,159 @@
+New features with AN-2009-03-99:
+
+-	Add -D_GNU_SOURCE to the standard include flags in DEFAULTS*/Defaults.linux
+	in order to unhide needed extensions.
+
+-	Better error messages in cdrecord when the media size is unknown
+
+-	Try to work around a firmware bug in cdrecord for the drive:
+	'HL-DT-ST' 'DVD-RAM GH22NP20' '1.02'
+	that is in effect with DVD+R media.
+
+-	cdda2wav now supports new parameters for the -output-endianess option.
+	"host" or "machine" represent the actual byte order of the host CPU in the current OS.
+
+-	Try to correct all pointers into the growable string buffer in smake
+	in case that the growable buffer was relocated due to a realloc().
+	This shoulc fix some strange bugs reported by Frank Kanschur.
+
+-	cdrecord no longer hangs if the cdtext file is empty.
+
+-	star/cpio.mk star/gnutar.mk star/pax.mk star/star.mk star/suntar.mk corrected
+
+-	the SVr4 package definitions in pkgdefs/CSW/* now automatically include
+	the right verion number
+
+-	Trying to add support for compilation on WIN64 using cl and gcc
+
+-	Adding support for NT-6.0 (Win Vista) and NT-6.1 (Win 7)
+
+-	Several typo corrections
+
+-	Several man pages corrected some problems from hypen -> minus 
+
+-	Fixed a man cdda2wav page bug that did hide some text from the visible result.
+	Thanks to Michael Prokop
+
+-	Better error messages in mkisofs case that a specific charset translation
+	is not available.
+
+-	Better support for large files (using ftello()/fseeko()) in scgskeleton
+	and btcflash
+
+-	New include file include/schily/wctype.h
+
+-	More correct wchar support in the Bourne Shell and in diff(1)
+
+-	New autoconf test on whether iconv() needs a const char ** parameter
+
+-	Star testscripts are now installed into the correct destination directory
+	instead of $(SRCROOT)/prototype
+
+-	SYSv Package Protoype definition files updated for CSW package definitions
+
+-	Some small corrections in the Bourne Shell to allow again to use a static compile
+	environment on SunOS-5.11
+
+-	Several printf format strings with %.*s now have casts to int when the parameter
+	is a pointer difference. This is needed for 64 bit support.
+
+-	New file Schily.Copyright contains a list of Copyright holders
+
+-	The file COPYING now not only lists the files from cdrtools but
+	all files from the schily source consolidation.
+
+-	Fixed a copy/paste error from libsiconv. Libsiconv now correctly 
+	initlizes duplicated data structures to prevent core dumps.
+	Thanks to Jörg Sonnenberger for reporting.
+
+-	Fixed a bug in star introduced with the new check for:
+	"Archive cannot be a tty." that could cause star to dump
+	core when in copy mode.
+
+-	Trying to work around nasty Linux distributions that try to fool autoconf
+	function tests and thus may result in incorrect results for the functions
+	fexecl fexecle fexecv fexecve fspawnv fspawnl fspawnv_nowait getline fgetline
+
+-	cdda2wav now gives better readable text with cdda2wav -help
+
+-	star now better checks the parameter for the -s substitute option.
+	This is needed in order to catch typos in arg lists.
+
+-	star check for same filedescriptor on archive and stdout had a typo
+	that caused undfined behavior and sometimes star -tv output did go to
+	stderr.
+
+-	New include files include/schily/dlfcn.h and include/schily/shcall.h
+
+-	New autoconf tests for dlopen() and similar functions
+
+-	Code in libschily/fexec.c cleaned up for better readability
+
+-	Fixed a typo in include/schily/fnmatch.h that prevented compilation on BeOS
+
+-	Fixed a typo in include/schily/libport.h that prevented compilation on BeOS
+
+-	BeOS has a /boot/develop/headers/be/support/ByteOrder.h that also defines
+	_BYTEORDER_H and thus interferes with our cdda2wav/byteorder.h
+
+-	bsh/sys.c now uses more readable code for fcntl(STDERR_FILENO, F_GETFD, 0);
+	and similar
+
+-	libschily/fexec.c now uses more readable code for fcntl(STDERR_FILENO, F_GETFD, 0);
+	and similar
+
+-	libschily/checkerr.c now correctly handles the "WARN" directive.
+
+-	star/checkerr.c now correctly handles the "WARN" directive.
+
+-	star -C missing-dir now correctly sets the exitcode from star
+
+-	star -C missing-dir may now be handled by a new errctl= tag "CHRDIR"
+
+-	star -X is now working correctly, thanks to a Johannes Geiss <jgeiss@arcor.de>
+	who detected a copy/paste error made while -X was copied from list=
+
+-	smake now includes a -C dir option
+
+-	New makefile "Mocsw" allows to create packages for "opencsw"
+
+-	RULES/rules.csw enhanced to allow to overwrite EMAIL= and HOTLINE= from
+	the make command line.
+
+-	New autoconf test for getprogname()/setprogname()
+
+-	Support for using Microsoft "cl" to compile 64 bit binaries from Cygwin now
+	has been finished
+
+-	bsh: alias command now supports -l option for local aliases
+
+-	bsh: read corsor maps for line editor from $HOME/.bshmap instead of ~/.bshmap
+
+-	bsh: some builtin now have previously missing -help support
+
+-	bsh: builtin commands now support --help besides -help
+
+-	bsh: the alias support code now checks the time stamps for ~/.globals
+	and .locals in order to prevent overwriting more recent aliases.
+
+-	bsh: alias command now supports -r/-reload to reload the aliases
+	in case that another shell did update the files.
+
+-	bsh version bumped to 6.11
+
+-	Cdrecord now calls read_format_capacities() in silent mode in order to
+	check whether the current drive supports this SCSI command.
+
+-	Cdrtools version bumped to 2.01.01a60
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.isdn.cs.tu-berlin.de, js@cs.tu-berlin.de
+	joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

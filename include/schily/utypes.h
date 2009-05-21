@@ -1,8 +1,8 @@
-/* @(#)utypes.h	1.26 07/01/16 Copyright 1997-2007 J. Schilling */
+/* @(#)utypes.h	1.27 09/04/10 Copyright 1997-2009 J. Schilling */
 /*
  *	Definitions for some user defined types
  *
- *	Copyright (c) 1997-2008 J. Schilling
+ *	Copyright (c) 1997-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -119,7 +119,7 @@ typedef	unsigned char	Uchar;
 
 /*
  * This is a definition for a compiler dependant 64 bit type.
- * It currently is silently a long if the compiler does not
+ * There is currently a silently fallback to a long if the compiler does not
  * support it. Check if this is the right way.
  *
  * Be very careful here as MSVC does not implement long long but rather __int64
@@ -127,7 +127,10 @@ typedef	unsigned char	Uchar;
  * check for a MSVC __int128 type.
  */
 #ifndef	NO_LONGLONG
-#	if	defined(HAVE_LONGLONG)
+#	if	!defined(USE_LONGLONG) && defined(HAVE_LONGLONG)
+#		define	USE_LONGLONG
+#	endif
+#	if	!defined(USE_LONGLONG) && defined(HAVE___INT64)
 #		define	USE_LONGLONG
 #	endif
 #endif
@@ -154,7 +157,7 @@ typedef	unsigned long long	ULlong;
 
 #	endif	/* HAVE___INT64 / HAVE_LONG_LONG */
 
-#else
+#else	/* !USE_LONGLONG */
 
 typedef	long			Llong;
 typedef	unsigned long		Ullong;	/* We should avoid this */
@@ -163,7 +166,8 @@ typedef	unsigned long		ULlong;
 #define	SIZEOF_LLONG		SIZEOF_LONG
 #define	SIZEOF_ULLONG		SIZEOF_UNSIGNED_LONG
 
-#endif
+#endif	/* USE_LONGLONG */
+
 #ifndef	LLONG_MIN
 #define	LLONG_MIN	TYPE_MINVAL(Llong)
 #endif
@@ -273,7 +277,11 @@ error  Sizeof char is not equal 1
 #if SIZEOF_CHAR_P == SIZEOF_LONG_INT
 	typedef		long		Intptr_t;
 #else
+#if SIZEOF_CHAR_P == SIZEOF_LLONG
+	typedef		Llong		Intptr_t;
+#else
 	error		No intptr_t found
+#endif
 #endif
 #endif
 
@@ -317,7 +325,11 @@ typedef	unsigned char		UInt8_t;
 #if SIZEOF_CHAR_P == SIZEOF_UNSIGNED_LONG_INT
 	typedef		unsigned long	UIntptr_t;
 #else
+#if SIZEOF_CHAR_P == SIZEOF_ULLONG
+	typedef		ULlong		UIntptr_t;
+#else
 	error		No uintptr_t found
+#endif
 #endif
 #endif
 

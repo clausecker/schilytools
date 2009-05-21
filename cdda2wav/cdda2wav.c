@@ -1,8 +1,8 @@
-/* @(#)cdda2wav.c	1.104 09/02/17 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling */
+/* @(#)cdda2wav.c	1.109 09/04/22 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling */
 #include "config.h"
 #ifndef lint
 static	const char sccsid[] =
-"@(#)cdda2wav.c	1.104 09/02/17 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling";
+"@(#)cdda2wav.c	1.109 09/04/22 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling";
 
 #endif
 #undef	DEBUG_BUFFER_ADDRESSES
@@ -25,10 +25,8 @@ static	const char sccsid[] =
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 /*
- * parts    (C) Peter Widow
- * parts    (C) Thomas Niederreiter
- * parts    (C) RSA Data Security, Inc.
- * parts    (C) J. Schilling
+ * Copright 1993-2004	(C) Heiko Eissfeldt
+ * Copright 2004-2009	(C) J. Schilling
  *
  * last changes:
  *   18.12.93 - first version,	OK
@@ -88,6 +86,7 @@ static	const char sccsid[] =
 #endif
 #include <schily/varargs.h>
 #include <schily/maxpath.h>
+#include <schily/btorder.h>
 
 #include <scg/scsitransp.h>
 
@@ -896,7 +895,7 @@ OPTIONS:\n\
   (-p) playback-realtime=perc	play (echo) audio pitched at perc percent (50%-200%).\n\
   (-V) -verbose-scsi		each option increases verbosity for SCSI commands.\n\
   (-h) -help			show this help screen.\n\
-  (-B) -alltracks, -bulk	record each track into a seperate file.\n\
+  (-B) -alltracks, -bulk	record each track into a separate file.\n\
        -paranoia		use the lib paranoia for reading.\n\
        -paraopts=opts		set options for lib paranoia (see -paraopts=help).\n\
        -cddbp-server=servername	set the cddbp server to use for title lookups.\n\
@@ -921,10 +920,10 @@ defaults	%s, %d bit, %d.%02d Hz, track 1, no offset, one track,\n",
 		 (4410000 / UNDERSAMPLING) % 100);
 
 	fprintf(stderr, "\
-          type %s '%s', don't wait for signal, not quiet,\n",
+          type: %s '%s', don't wait for signal, not quiet,\n",
 		AUDIOTYPE, FILENAME);
 	fprintf(stderr, "\
-          use %s, device %s, aux %s\n",
+          use: '%s', device: '%s', aux: '%s'\n",
 		DEF_INTERFACE, CD_DEVICE, AUX_DEVICE);
 	/* END CSTYLED */
 	exit(SYNTAX_ERROR);
@@ -2540,7 +2539,7 @@ static char		*user_sound_device = "";
 			&global.cddbp_server, &global.cddbp_port,
 			&global.scanbus,
 			&global.dev_name, &global.dev_name, &global.dev_name,
-			&global.scsi_debug, &global.scsi_debug, 
+			&global.scsi_debug, &global.scsi_debug,
 			&global.scsi_kdebug, &global.scsi_kdebug, &global.scsi_kdebug,
 			getnum, &global.bufsize,
 			&global.aux_name, &global.aux_name,
@@ -2703,6 +2702,13 @@ Rate   Divider      Rate   Divider      Rate   Divider      Rate   Divider\n\
 			global.outputendianess = LITTLE;
 		} else if (strcasecmp(oendianess, "big") == 0) {
 			global.outputendianess = BIG;
+		} else if (strcasecmp(oendianess, "machine") == 0 ||
+			    strcasecmp(oendianess, "host") == 0) {
+#ifdef	WORDS_BIGENDIAN
+			global.outputendianess = BIG;
+#else
+			global.outputendianess = LITTLE;
+#endif
 		} else {
 			usage2("Wrong parameter '%s' for option -E", oendianess);
 		}

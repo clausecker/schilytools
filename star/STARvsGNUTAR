@@ -311,7 +311,7 @@ new-volume-script=script	call 'scipt' at end of each volume		--new-volume-script
 -xattr		handle extended file attributes					--missing--
 -xattr-linux	handle extended file attributes (Linux variant)			--missing--
 -xfflags	handle extended file flags					--missing--
--prinodes	if archive containes inode number, print them in list mode	--missing--
+-prinodes	if archive contains inode number, print them in list mode	--missing--
 bs=#		set (output) block size to #					-b		de-facto missing
 fs=#		set fifo size to #						--missing--
 tsize=#		set tape volume size to # 512 byte blocks			-L		x 1024 bytes

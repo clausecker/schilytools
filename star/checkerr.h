@@ -1,8 +1,8 @@
-/* @(#)checkerr.h	1.8 05/09/03 Copyright 2003 J. Schilling */
+/* @(#)checkerr.h	1.9 09/05/05 Copyright 2003-2009 J. Schilling */
 /*
  *	Error control for star.
  *
- *	Copyright (c) 2003 J. Schilling
+ *	Copyright (c) 2003-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -32,6 +32,7 @@
 #define	E_SPECIALFILE	0x0400		/* Improper file type for archive  */
 #define	E_READLINK	0x0800		/* Could not read symbolic link	   */
 #define	E_GETXATTR	0x1000		/* Could not get xattr		   */
+#define	E_CHDIR		0x2000		/* Could not chdir()		   */
 
 #define	E_SETTIME	0x10000		/* Could not set file times	   */
 #define	E_SETMODE	0x20000		/* Could not set access modes	   */
@@ -50,6 +51,6 @@
 #define	E_ALL		(~(UInt32_t)(E_DIFF|E_ABORT))
 
 extern	int	errconfig	__PR((char *name));
-extern	BOOL	errhidden	__PR((int etype, char *fname));
-extern	BOOL	errwarnonly	__PR((int etype, char *fname));
-extern	BOOL	errabort	__PR((int etype, char *fname, BOOL doexit));
+extern	BOOL	errhidden	__PR((int etype, const char *fname));
+extern	BOOL	errwarnonly	__PR((int etype, const char *fname));
+extern	BOOL	errabort	__PR((int etype, const char *fname, BOOL doexit));

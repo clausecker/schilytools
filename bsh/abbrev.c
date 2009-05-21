@@ -1,13 +1,13 @@
-/* @(#)abbrev.c	1.30 08/12/20 Copyright 1985-2008 J. Schilling */
+/* @(#)abbrev.c	1.32 09/05/17 Copyright 1985-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)abbrev.c	1.30 08/12/20 Copyright 1985-2008 J. Schilling";
+	"@(#)abbrev.c	1.32 09/05/17 Copyright 1985-2009 J. Schilling";
 #endif
 /*
  *	Abbreviation symbol handling
  *
- *	Copyright (c) 1985-2008 J. Schilling
+ *	Copyright (c) 1985-2009 J. Schilling
  *
  *	.global & .local alias abbreviations are handled here
  *
@@ -21,6 +21,7 @@ static	const char sccsid[] =
  *		ab_list(tab, pat, f, histflag)	Print matched entries to file
  *		ab_push(tab, name, val, beg)	Push n/v pair to abbrev table
  *		ab_sname(tab, fname)		Set filename for _ab_output
+ *		ab_gname(tab)			Get filename from tab
  *		ab_value(tab, name, beg)	Perform n/v translation for tab
  *
  *	Imported functions:
@@ -57,6 +58,8 @@ static	const char sccsid[] =
 #include "strsubs.h"
 #include <schily/string.h>
 #include <schily/stdlib.h>
+#include <schily/time.h>
+#include <schily/stat.h>
 #include <schily/patmatch.h>
 
 /*
@@ -88,9 +91,10 @@ typedef struct abtab {
 	char	*at_fname;		/* name of file for _ab_output() */
 	char	*at_blk;		/* start of monolitic malloc()	 */
 	char	*at_blkend;		/* end of monolitic malloc()	 */
+	time_t	at_mtime;		/* our time stamp for at_fname	 */
 } abtab_t;
 
-LOCAL	abtab_t	ab_tabs[ABTABS]	= { {0, 0, 0, 0}};
+LOCAL	abtab_t	ab_tabs[ABTABS]	= { {0, 0, 0, 0, 0}};
 
 LOCAL	abtab_t	*_ab_down	__PR((abidx_t tab));
 LOCAL	abent_t	*_ab_lookup	__PR((abtab_t *ap, char *name, BOOL new));
@@ -105,8 +109,10 @@ LOCAL	char	*ab_beginword	__PR((char *p, abtab_t *ap));
 LOCAL	char	*ab_endword	__PR((char *p, abtab_t *ap));
 LOCAL	char	*ab_endline	__PR((char *p, abtab_t *ap));
 LOCAL	BOOL	ab_inblock	__PR((abidx_t tab, char *p));
+LOCAL	time_t	ab_filemtime	__PR((char *fname));
 EXPORT	void	ab_read		__PR((abidx_t tab, char *fname));
 EXPORT	void	ab_sname	__PR((abidx_t tab, char *fname));
+EXPORT	char	*ab_gname	__PR((abidx_t tab));
 EXPORT	void	ab_use		__PR((abidx_t tab, char *fname));
 EXPORT	void	ab_close	__PR((abidx_t tab));
 EXPORT	void	ab_insert	__PR((abidx_t tab, char *name, char *val, BOOL beg));
@@ -194,23 +200,35 @@ _ab_newnode()
 	return (new);
 }
 
-
+/*
+ * Output the current list of entries to ap->at_fname
+ */
 LOCAL void
 _ab_output(ap)
 	register abtab_t *ap;
 {
 	register FILE *f;
+		time_t	mtime;
 
 #ifdef DEBUG
 	berror("updating: %s", ap->at_fname);
 #endif
 	if (ap->at_fname == NULL)
 		return;
+	mtime = ab_filemtime(ap->at_fname);
+	/*
+	 * If ap->at_mtime == 0, the file did not exist for us.
+	 */
+	if (mtime > ap->at_mtime) {
+		berror("'%s' was updated by abother shell, cannot write back.", ap->at_fname);
+		return;
+	}
 	if ((f = fileopen(ap->at_fname, for_wct)) == (FILE *)0) {
 		raisecond(sn_badfile, (long)ap->at_fname);
 	} else {
 		_ab_dump(ap->at_ent, f, FALSE, FALSE, FALSE);
 		fclose(f);
+		ap->at_mtime = ab_filemtime(ap->at_fname);
 	}
 }
 
@@ -390,6 +408,20 @@ ab_inblock(tab, p)
 	return ((p >= ap->at_blk) && (p <= ap->at_blkend));
 }
 
+LOCAL time_t
+ab_filemtime(fname)
+	char	*fname;
+{
+	struct stat	sb;
+
+	if (stat(fname, &sb) < 0)
+		return ((time_t)0);
+
+	if (sb.st_mtime == (time_t)0)
+		sb.st_mtime++;
+	return (sb.st_mtime);
+}
+
 /*
  * Read file 'fname' and build a new abbreviation/alias replacement table
  */
@@ -417,6 +449,11 @@ ab_read(tab, fname)
 		return;
 	}
 	fsize = filesize(f);
+	ap->at_mtime = ab_filemtime(fname);
+#ifdef DEBUG
+	berror("ab_read(%d, %s)-> %d %.24s", tab, fname,
+			ap->at_mtime, ctime(&ap->at_mtime));
+#endif
 	if ((ap->at_blk = malloc((size_t) fsize)) == NULL) {
 		raisecond(sn_no_mem, (long)"ab_read");
 		fclose(f);
@@ -471,6 +508,18 @@ ab_sname(tab, fname)
 }
 
 /*
+ * Get filename from tab
+ */
+EXPORT char *
+ab_gname(tab)
+	abidx_t	tab;
+{
+	abtab_t *ap = _ab_down(tab);
+
+	return (ap->at_fname);
+}
+
+/*
  * Use new abbrev file
  */
 EXPORT void
@@ -493,6 +542,7 @@ ab_close(tab)
 
 	_ab_close(ap->at_ent, tab);
 	ap->at_fname = NULL;
+	ap->at_mtime = (time_t)0;
 	ap->at_ent = AB_NULL;
 	if (ap->at_blk != NULL) {
 		free(ap->at_blk);

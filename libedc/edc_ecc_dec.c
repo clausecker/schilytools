@@ -1,8 +1,8 @@
-/* @(#)edc_ecc_dec.c	1.8 09/01/30 Copyright 1998-2001 Heiko Eissfeldt */
+/* @(#)edc_ecc_dec.c	1.10 09/04/19 Copyright 1998-2001 Heiko Eissfeldt, Copyright 2006-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)edc_ecc_dec.c	1.8 09/01/30 Copyright 1998-2001 Heiko Eissfeldt";
+	"@(#)edc_ecc_dec.c	1.10 09/04/19 Copyright 1998-2001 Heiko Eissfeldt, Copyright 2006-2009 J. Schilling";
 #endif
 
 /*
@@ -952,7 +952,7 @@ unify_erasures(have_erasures, inout, gdp)
 }
 
 /*
- * Initialize our seperated p and q erasure arrays.
+ * Initialize our separated p and q erasure arrays.
  *
  * Input parameters:
  *  have_erasures:	the number of erasures 
@@ -992,7 +992,7 @@ init_erasures(have_erasures, erasures, gdp)
 
 		/*
 		 * We can only use erasures at offset 12 and above.
-		 *  Further we need the number/positions of erasures seperated
+		 *  Further we need the number/positions of erasures separated
 		 *  for LSB and MSB. So count them.
 		 */
 
@@ -2129,7 +2129,7 @@ do_decode_sub(inout, have_erasures, erasures, results)
 	if (have_erasures != 0) {
 		unsigned char i;
 		/*
-		 * seperate erasures for Q and P level.
+		 * separate erasures for Q and P level.
 		 */
 		for (i = 0; i < (LSUB_QRAW + LSUB_Q)* PACKETS_PER_SUBCHANNELFRAME; i++) {
 			if (erasures[i] != 0) {

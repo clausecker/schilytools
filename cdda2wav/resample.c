@@ -1,8 +1,8 @@
-/* @(#)resample.c	1.27 08/12/22 Copyright 1998,1999,2000 Heiko Eissfeldt, Copyright 2004-2008 J. Schilling */
+/* @(#)resample.c	1.29 09/04/19 Copyright 1998,1999,2000 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling */
 #include "config.h"
 #ifndef lint
 static	const char sccsid[] =
-"@(#)resample.c	1.27 08/12/22 Copyright 1998,1999,2000 Heiko Eissfeldt, Copyright 2004-2008 J. Schilling";
+"@(#)resample.c	1.29 09/04/19 Copyright 1998,1999,2000 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling";
 #endif
 /*
  * resampling module
@@ -781,7 +781,7 @@ SaveBuffer(p, SamplesToDo, TotSamplesDone)
 	/*
 	 * in case of different endianness between host and output format,
 	 * or channel swaps, or deemphasizing
-	 * copy in a seperate buffer and modify the local copy
+	 * copy in a separate buffer and modify the local copy
 	 */
 	if (((((!global.need_hostorder &&
 	    global.need_big_endian == (*in_lendian)) ||

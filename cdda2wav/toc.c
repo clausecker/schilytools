@@ -1,12 +1,12 @@
-/* @(#)toc.c	1.80 09/01/24 Copyright 1998-2003 Heiko Eissfeldt, Copyright 2004-2008 J. Schilling */
+/* @(#)toc.c	1.81 09/04/10 Copyright 1998-2003 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling */
 #include "config.h"
 #ifndef lint
 static	const char sccsid[] =
-"@(#)toc.c	1.80 09/01/24 Copyright 1998-2003 Heiko Eissfeldt, Copyright 2004-2008 J. Schilling";
+"@(#)toc.c	1.81 09/04/10 Copyright 1998-2003 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling";
 #endif
 /*
  * CDDA2WAV (C) Heiko Eissfeldt heiko@hexco.de
- * Copyright (c) 2004-2008 J. Schilling
+ * Copyright (c) 2004-2009 J. Schilling
  *
  * The CDDB routines are compatible to cddbd (C) Ti Kan and Steve Scherf
  */
@@ -113,7 +113,7 @@ static void InitIterator __PR((struct iterator *iter, unsigned long p_track));
 
 
 /*
- * Conversion function: from logical block adresses  to minute,second,frame
+ * Conversion function: from logical block addresses  to minute,second,frame
  */
 int
 lba_2_msf(lba, m, s, f)
@@ -3057,7 +3057,7 @@ ReadSubChannel(sec)
 		}
 
 		/*
-		 * check the adress mode field
+		 * check the address mode field
 		 */
 		if ((sub_ch->control_adr & 0x0f) == 0) {
 			/*
@@ -3088,7 +3088,7 @@ ReadSubChannel(sec)
 		}
 
 		/*
-		 * check adress mode field for position information
+		 * check address mode field for position information
 		 */
 		if ((sub_ch->control_adr & 0x0f) == 0x01) {
 			return (sub_ch);

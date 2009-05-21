@@ -35,11 +35,11 @@
 /*
  * This file contains modifications Copyright 2008-2009 J. Schilling
  *
- * @(#)fault.c	1.9 09/02/13 2008-2009 J. Schilling
+ * @(#)fault.c	1.10 09/04/15 2008-2009 J. Schilling
  */
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)fault.c	1.9 09/02/13 2008-2009 J. Schilling";
+	"@(#)fault.c	1.10 09/04/15 2008-2009 J. Schilling";
 #endif
 
 /*
@@ -349,7 +349,7 @@ stdsigs()
 	int rtmax = -2;
 #endif
 
-#if defined(HAVE_STACK_T) && HAVE_SIGALTSTACK
+#if defined(HAVE_STACK_T) && defined(HAVE_SIGALTSTACK)
 	ss.ss_size = SIGSTKSZ;
 	ss.ss_sp = sigsegv_stack;
 	ss.ss_flags = 0;

@@ -1,14 +1,14 @@
-/* @(#)memory.c	1.17 09/02/07 Copyright 1985-2008 J. Schilling */
+/* @(#)memory.c	1.19 09/04/10 Copyright 1985-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)memory.c	1.17 09/02/07 Copyright 1985-2008 J. Schilling";
+	"@(#)memory.c	1.19 09/04/10 Copyright 1985-2009 J. Schilling";
 #endif
 /*
  *	Make program
  *	Memory allocation routines
  *
- *	Copyright (c) 1985-2008 by J. Schilling
+ *	Copyright (c) 1985-2009 by J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -67,6 +67,12 @@ ___realloc(ptr, size, msg)
 		comerr("Cannot realloc memory for %s.\n", msg);
 		/* NOTREACHED */
 	}
+#ifdef	DEBUG
+	if (heapanfang == 0)
+		heapanfang = ret;
+	if (heapende < (ret + size))
+		heapende = ret + size;
+#endif
 	return (ret);
 }
 
@@ -241,6 +247,18 @@ initgbuf(size)
 }
 
 /*
+ * INCR_GSIZE must be a multiple of INIT_GSIZE and INCR_GSIZE/INIT_GSIZE
+ * must be a value that is a power of two.
+ */
+#define	INIT_GSIZE	512	/* Initial size of the gbuf		*/
+#define	INCR_GSIZE	8192	/* Size to grow gbuf in incrementals	*/
+
+#ifdef	GROWTEST
+#define	INIT_GSIZE	4	/* Initial size of the gbuf		*/
+#define	INCR_GSIZE	4	/* Size to grow gbuf in incrementals	*/
+#endif
+
+/*
  * Grow growable general purpose buffer.
  */
 EXPORT char *
@@ -251,11 +269,12 @@ growgbuf(p)
 	register int	newsize = gbufsize;
 
 	if (gbufsize == 0)
-		return (initgbuf(512));
-	if (newsize < 8192)
+		return (initgbuf(INIT_GSIZE));
+	if (newsize < INCR_GSIZE)
 		newsize *= 2;
 	else
-		newsize += 8192;
+		newsize += INCR_GSIZE;
+
 	new = checkalloc((unsigned)newsize);
 	movebytes(gbuf, new, gbufsize);
 	free(gbuf);

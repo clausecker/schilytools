@@ -39,11 +39,11 @@
 /*
  * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)diff.c	1.17 09/02/05 J. Schilling
+ * @(#)diff.c	1.20 09/04/15 J. Schilling
  */
 #if defined(sun) || defined(__GNUC__)
 
-#ident "@(#)diff.c 1.17 09/02/05 J. Schilling"
+#ident "@(#)diff.c 1.20 09/04/15 J. Schilling"
 #endif
 
 #pragma ident	"@(#)diff.c	1.55	05/07/22 SMI"
@@ -140,6 +140,7 @@
 #include <schily/mconfig.h>
 #include <stdio.h>
 #include <schily/wchar.h>
+#include <schily/wctype.h>
 #include <ctype.h>
 #include <schily/stdlib.h>
 #include <limits.h>
@@ -225,7 +226,9 @@
 
 
 #ifdef	HAVE_LARGEFILES
+#undef	fseek
 #define	fseek		fseeko
+#undef	ftell
 #define	ftell		fetllo
 #endif
 
@@ -1581,7 +1584,7 @@ only(dp, which)
 	char *filen = which == 1 ? file1 : file2;
 	char *efilen = which == 1 ? efile1 : efile2;
 
-	(void) printf(gettext("Only in %.*s: %s\n"), efilen - filen - 1, filen,
+	(void) printf(gettext("Only in %.*s: %s\n"), (int)(efilen - filen - 1), filen,
 	    dp->d_entry);
 }
 

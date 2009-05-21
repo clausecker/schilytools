@@ -1,4 +1,8 @@
-# @(#)vc7-setup	1.4 07/01/26 Copyright 2006 J. Schilling
+# @(#)vc7-setup	1.5 09/05/16 Copyright 2006 J. Schilling
+
+#
+# Keep in sync with vc7-cygwin-setup as we cannot rely on hard links
+#
 
 #
 # Disable warnings for nonportable variable assignements.

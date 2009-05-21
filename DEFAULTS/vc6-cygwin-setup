@@ -1,4 +1,8 @@
-# @(#)vc6-cygwin-setup	1.3 07/01/26 Copyright 2006 J. Schilling
+# @(#)vc6-cygwin-setup	1.4 09/05/16 Copyright 2006 J. Schilling
+
+#
+# Keep in sync with vc6-setup as we cannot rely on hard links
+#
 
 #
 # Disable warnings for nonportable variable assignements.

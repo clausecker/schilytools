@@ -1,8 +1,8 @@
-/* @(#)hfs.c	1.12 08/12/22 joerg */
+/* @(#)hfs.c	1.13 09/05/21 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)hfs.c	1.12 08/12/22 joerg";
+	"@(#)hfs.c	1.13 09/05/21 joerg";
 #endif
 /*
  * hfsutils - tools for reading and writing Macintosh HFS volumes
@@ -912,7 +912,7 @@ int hfs_format(path, pnum, vname)
 
       /* write boot blocks */
 
-      memset(&b, 0, sizeof(b));
+      memset(b, 0, sizeof(b));
       b_writelb(&vol, 0, &b);
       b_writelb(&vol, 1, &b);
 

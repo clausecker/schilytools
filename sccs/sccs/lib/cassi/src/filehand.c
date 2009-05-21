@@ -25,13 +25,13 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2007 J. Schilling
+ * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)filehand.c	1.4 07/01/09 J. Schilling
+ * @(#)filehand.c	1.5 09/04/10 J. Schilling
  */
 #if defined(sun) || defined(__GNUC__)
 
-#ident "@(#)filehand.c 1.4 07/01/09 J. Schilling"
+#ident "@(#)filehand.c 1.5 09/04/10 J. Schilling"
 #endif
 /*
  * @(#)filehand.c 1.4 06/12/12
@@ -258,7 +258,7 @@ char	*args[], *fmatch[], recsep;
 
 static int
 argchop (s, fldsep, sargs)		/* Seperate s into its fields. */
-char	*s,				/* The string to seperate. */
+char	*s,				/* The string to separate. */
 	fldsep,				/* Seperates the fields. */
 	**sargs;			/* Pointers to the fields. */
 {
@@ -298,13 +298,13 @@ sweep (opcode, file1, file2, recsep, fldsep, maxlen, fmatch, usrbuf, usrmatch,
 int		opcode;							/* The operation to perform. */
 char	*file1,							/* The search/source file. */
 		*file2,							/* The scratch file.  (Required.) */
-		recsep,							/* Record seperator. */
-		fldsep;							/* Field seperator. */
+		recsep,							/* Record separator. */
+		fldsep;							/* Field separator. */
 int		maxlen;							/* Maximum length of record. */
 char	*fmatch[],						/* Fields to match. */
 		*usrbuf,						/* User's copy of matching record. */
 		*usrmatch[];					/* Pointers to arguments. */
-int		(*chop) __PR((char *, int, char **)),		/* Routine to seperate the fields. */
+int		(*chop) __PR((char *, int, char **)),		/* Routine to separate the fields. */
 		(*comparef) __PR((char **, char **, int));	/* Routine to compare records. */
 {
 	char	**arg = NULL,					/* Pointers to the fields. */

@@ -1,7 +1,7 @@
-/* @(#)btcflash.c	1.14 08/12/22 2004-2008 J. Schilling */
+/* @(#)btcflash.c	1.15 09/04/08 2004-2009 J. Schilling */
 #ifndef lint
 static	const char _sccsid[] =
-	"@(#)btcflash.c	1.14 08/12/22 2004-2008 J. Schilling";
+	"@(#)btcflash.c	1.15 09/04/08 2004-2009 J. Schilling";
 #endif
 /*--------------------------------------------------------------------------*/
 /*
@@ -27,7 +27,7 @@ static	const char _sccsid[] =
  */
 
 #ifdef	DO_INCLUDE
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/stdlib.h>
 #include <schily/string.h>
 #include <schily/unistd.h>
@@ -213,7 +213,7 @@ btcmain(scgp, fwfile)
 	unsigned short	checksum;
 	unsigned int	offset;
 
-	printf("BTC DVD+/-RW firmware flash utility release %s %s\n", "1.14", "08/12/22");
+	printf("BTC DVD+/-RW firmware flash utility release %s %s\n", "1.15", "09/04/08");
 	printf("USE AT YOUR OWN RISK!\n\n");
 
 	if (!(fwbuf = loadfirmware(fwfile)))

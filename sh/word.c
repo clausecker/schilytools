@@ -35,11 +35,11 @@
 /*
  * This file contains modifications Copyright 2008-2009 J. Schilling
  *
- * @(#)word.c	1.11 09/02/05 2008-2009 J. Schilling
+ * @(#)word.c	1.12 09/04/15 2008-2009 J. Schilling
  */
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)word.c	1.11 09/02/05 2008-2009 J. Schilling";
+	"@(#)word.c	1.12 09/04/15 2008-2009 J. Schilling";
 #endif
 
 /*
@@ -47,8 +47,13 @@ static	const char sccsid[] =
  */
 
 #include	"sym.h"
+#ifdef	SCHILY_BUILD
 #include	<schily/errno.h>
 #include	<schily/fcntl.h>
+#else
+#include	<errno.h>
+#include	<fcntl.h>
+#endif
 
 	int		word	__PR((void));
 	unsigned int	skipwc	__PR((void));

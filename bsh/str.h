@@ -1,6 +1,6 @@
-/* @(#)str.h	1.13 05/05/08 Copyright 1986-2005 J. Schilling */
+/* @(#)str.h	1.14 09/05/17 Copyright 1986-2009 J. Schilling */
 /*
- *	Copyright (c) 1986-2005 J. Schilling
+ *	Copyright (c) 1986-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -139,7 +139,10 @@ extern	char	argument[];
 extern	char	helpname[];
 extern	char	usage[];
 extern	char	ubsh[];
+extern	char	ualias[];
+extern	char	uunalias[];
 extern	char	uexpr[];
+extern	char	ufg[];
 extern	char	ubrack[];
 extern	char	ucd[];
 extern	char	uconcat[];
@@ -169,6 +172,7 @@ extern	char	ushift[];
 extern	char	usignal[];
 extern	char	usource[];
 extern	char	udot[];
+extern	char	ureturn[];
 extern	char	ustop[];
 #ifdef	DO_SUID
 extern	char	usuid[];

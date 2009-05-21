@@ -1,5 +1,5 @@
 '\" t
-. \" @(#)spax.1	1.7 07/02/17 Copyr 2004 J. Schilling
+. \" @(#)spax.1	1.8 09/04/10 Copyr 2004-2009 J. Schilling
 . \" Copyright (C) 2001-2004 by the Institute of Electrical and Electronics Engineers, Inc and The Open Group.
 . \" Manual page for spax
 . \"
@@ -30,7 +30,7 @@
 .ce
 .B \\$1
 ..
-.TH SPAX 1L "07/02/17" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH SPAX 1L "09/04/10" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 pax \- portable archive interchange
 .SH SYNOPSIS
@@ -709,7 +709,7 @@ final keyword= value pair in a
 .BI "\-o " option-argument\fR;
 all characters in the remainder of the option-argument shall
 be considered part of the format string. When multiple
--o listopt= format options are specified, the format
+\-o listopt= format options are specified, the format
 strings shall be considered a single, concatenated
 string, evaluated in command line order.
 .TP
@@ -1124,7 +1124,7 @@ writes the single character
 corresponding to the 
 .I "<entry\ type>"
 field of the 
-.B ls -l
+.B ls \-l
 command.
 .TP
 .B 9.
@@ -1310,7 +1310,7 @@ is not specified, the standard output shall
 be the archive formatted according to one of the specifications in
 the EXTENDED DESCRIPTION section, or some other
 implementation-defined format (see 
-.BI -x " format" ).
+.BI \-x " format" ).
 .PP
 In 
 .B list 
@@ -1577,7 +1577,7 @@ utility.
 However, if this archive is read by a
 .B pax 
 utility conforming to
-the ISO POSIX-2:1993 standard, the header block fields are used to
+the ISO POSIX\-2:1993 standard, the header block fields are used to
 create a regular file that contains the extended header records as
 data. Therefore, header block field values should be selected to
 provide reasonable file access to this regular file.
@@ -1625,7 +1625,7 @@ constructed as follows:
      "%d %s=%s\en", <length>, <keyword>, <value>
 .PP
 The extended header records shall be encoded according to the
-ISO/IEC 10646-1:2000 standard (UTF-8). The 
+ISO/IEC 10646\-1:2000 standard (UTF-8). The 
 .I <length> 
 field,
 <blank>, equals sign, and <newline> shown shall be limited to the
@@ -2898,7 +2898,7 @@ overrides the default output description in Standard Output and
 instead writes:
 .PP
 .B
-     -rw-rw--- Jan 12 15:53 1492 /usr/foo/bar
+     \-rw\-rw\-\-\- Jan 12 15:53 1492 /usr/foo/bar
 .PP
 Using the options:
 .PP
@@ -3245,7 +3245,7 @@ existing files). As stated, it prevents any overwriting, even if
 the target file is older than the source. This version adds more
 granularity of options to solve this problem by introducing the 
 .BI "\-o invalid=" option
--specifically the UTF-8 action. (Note that an
+\-specifically the UTF-8 action. (Note that an
 existing file that is named with a UTF-8 encoding is still subject
 to overwriting in this case. The 
 .B \-k 

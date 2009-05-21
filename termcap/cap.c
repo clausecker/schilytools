@@ -1,13 +1,13 @@
-/* @(#)cap.c	1.21 08/12/22 Copyright 2000-2008 J. Schilling */
+/* @(#)cap.c	1.23 09/04/15 Copyright 2000-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)cap.c	1.21 08/12/22 Copyright 2000-2008 J. Schilling";
+	"@(#)cap.c	1.23 09/04/15 Copyright 2000-2009 J. Schilling";
 #endif
 /*
  *	termcap		a TERMCAP compiler
  *
- *	Copyright (c) 2000-2008 J. Schilling
+ *	Copyright (c) 2000-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -257,8 +257,8 @@ int	strippedlen;
 	if (help)
 		usage(0);
 	if (prvers) {
-		printf("termcap %s (%s-%s-%s)\n\n", "1.21", HOST_CPU, HOST_VENDOR, HOST_OS);
-		printf("Copyright (C) 2000-2008 Jörg Schilling\n");
+		printf("termcap %s (%s-%s-%s)\n\n", "1.23", HOST_CPU, HOST_VENDOR, HOST_OS);
+		printf("Copyright (C) 2000-2009 Jörg Schilling\n");
 		printf("This is free software; see the source for copying conditions.  There is NO\n");
 		printf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
 		exit(0);
@@ -469,9 +469,11 @@ checkbad(tname, unknown, disabled)
 		if (p[2] != ':' && p[2] != '@' && p[2] != '#' && p[2] != '=') {
 			p2 = tskip(p);
 			if (p[0] == ' ' || p[0] == '\t') {
-				printf("# BAD(%s). Skipping blank entry: '%.*s'\n", tname, p2 - p - 1, p);
+				printf("# BAD(%s). Skipping blank entry: '%.*s'\n",
+							tname, (int)(p2 - p - 1), p);
 				if (!out_tty)
-				error("BAD(%s). Skipping blank entry: '%.*s'\n", tname, p2 - p - 1, p);
+				error("BAD(%s). Skipping blank entry: '%.*s'\n",
+							tname, (int)(p2 - p - 1), p);
 				p = tskip(p);
 				continue;
 			}
@@ -482,9 +484,11 @@ checkbad(tname, unknown, disabled)
 					p = tskip(p);
 					continue;
 				}
-				printf("# NOTICE(%s). Disabled entry: '%.*s'\n", tname, p2 - p - 1, p);
+				printf("# NOTICE(%s). Disabled entry: '%.*s'\n",
+							tname, (int)(p2 - p - 1), p);
 				if (!out_tty)
-				error("NOTICE(%s). Disabled entry: '%.*s'\n", tname, p2 - p - 1, p);
+				error("NOTICE(%s). Disabled entry: '%.*s'\n",
+							tname, (int)(p2 - p - 1), p);
 				if (1) {
 					strncpy(dp, p, p2 - p);
 					dp += p2 - p;
@@ -504,10 +508,10 @@ checkbad(tname, unknown, disabled)
 			while (xp > tbuf && *xp != ':')
 				--xp;
 			printf("# BAD(%s). Illegal entry (3rd char '%c' for ':%c%c%c'): '%.*s'\n",
-					tname, p[2], p[0], p[1], p[2], p2 - xp - 1, xp);
+					tname, p[2], p[0], p[1], p[2], (int)(p2 - xp - 1), xp);
 			if (!out_tty)
 			error("BAD(%s). Illegal entry (3rd char '%c' for '%c%c%c'): '%.*s'\n",
-					tname, p[2], p[0], p[1], p[2], p2 - p - 1, p);
+					tname, p[2], p[0], p[1], p[2], (int)(p2 - p - 1), p);
 			p = tskip(p);
 			continue;
 		}
@@ -527,9 +531,11 @@ checkbad(tname, unknown, disabled)
 		}
 		if (i == ncaps) {
 			p2 = tskip(p);
-			printf("# NOTICE(%s). Unknown entry ('%s'): '%.*s'\n", tname, ent, p2 - p - 1, p);
+			printf("# NOTICE(%s). Unknown entry ('%s'): '%.*s'\n",
+						tname, ent, (int)(p2 - p - 1), p);
 			if (!out_tty)
-			error("NOTICE(%s). Unknown entry ('%s'): '%.*s'\n", tname, ent, p2 - p - 1, p);
+			error("NOTICE(%s). Unknown entry ('%s'): '%.*s'\n",
+						tname, ent, (int)(p2 - p - 1), p);
 			if (1) {
 				strncpy(up, p, p2 - p);
 				up += p2 - p;
@@ -658,7 +664,7 @@ BOOL	didobsolete = FALSE;
 				p2 = tskip(pe);
 				error("%s: Illegal entry '%s' '%.*s' (should not be a string)\n",
 						tname, caplist[i].tc_name,
-						p2 - pe - 1, pe);
+						(int)(p2 - pe - 1), pe);
 				continue;
 			}
 		}
@@ -671,7 +677,7 @@ BOOL	didobsolete = FALSE;
 				p2 = tskip(pe);
 				error("%s: Illegal entry '%s' '%.*s' (should not be a number)\n",
 						tname, caplist[i].tc_name,
-						p2 - pe - 1, pe);
+						(int)(p2 - pe - 1), pe);
 				continue;
 			}
 		}
@@ -685,12 +691,14 @@ BOOL	didobsolete = FALSE;
 				p2 = tskip(pe);
 				error("%s: Illegal entry '%s' '%.*s' (should not be a bool)\n",
 						tname, caplist[i].tc_name,
-						p2 - pe - 1, pe);
+						(int)(p2 - pe - 1), pe);
 				continue;
 			}
 		}
 		p2 = tskip(pe);
-		error("%s: Illegal entry '%s' '%.*s'\n", tname, caplist[i].tc_name, p2 - pe - 1, pe);
+		error("%s: Illegal entry '%s' '%.*s'\n",
+						tname, caplist[i].tc_name,
+						(int)(p2 - pe - 1), pe);
 		continue;
 
 printit:

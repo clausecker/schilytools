@@ -1,4 +1,4 @@
-/* @(#)stdio.h	1.1 09/01/05 Copyright 2009 J. Schilling */
+/* @(#)stdio.h	1.2 09/04/08 Copyright 2009 J. Schilling */
 /*
  *	Abstraction from stdio.h
  *
@@ -26,6 +26,32 @@
 #ifndef _INCL_STDIO_H
 #include <stdio.h>
 #define	_INCL_STDIO_H
+#endif
+
+#ifdef	HAVE_LARGEFILES
+/*
+ * If HAVE_LARGEFILES is defined, it is guaranteed that fseeko()/ftello()
+ * both are available.
+ */
+#define	fseek	fseeko
+#define	ftell	ftello
+#else	/* !HAVE_LARGEFILES */
+
+/*
+ * If HAVE_LARGEFILES is not defined, we depend on specific tests for
+ * fseeko()/ftello() which must have been done before the tests for
+ * Large File support have been done.
+ * Note that this only works if the tests used below are really done before
+ * the Large File autoconf test is run. This is because autoconf does no
+ * clean testing but instead cumulatively modifes the envivonment used for
+ * testing.
+ */
+#ifdef	HAVE_FSEEKO
+#	define	fseek	fseeko
+#endif
+#ifdef	HAVE_FTELLO
+#	define	ftell	ftello
+#endif
 #endif
 
 #endif	/* _SCHILY_STDIO_H */

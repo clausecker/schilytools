@@ -1,6 +1,6 @@
-dnl @(#)configure.in	1.169 09/02/26 Copyright 1998-2009 J. Schilling
+dnl @(#)configure.in	1.174 09/05/12 Copyright 1998-2009 J. Schilling
 dnl Process this file with autoconf to produce a configure script.
-AC_REVISION(1.169)dnl
+AC_REVISION(1.174)dnl
 
 AC_INIT(xconfig.h.in)
 AC_CONFIG_HEADER(xconfig.h)
@@ -88,6 +88,7 @@ AC_CHECK_HEADERS(exec_attr.h secdb.h)
 AC_CHECK_HEADERS(direct.h)
 AC_CHECK_HEADERS(pthread.h thread.h)
 AC_CHECK_HEADERS(libgen.h)
+AC_CHECK_HEADERS(dlfcn.h link.h dl.h)
 
 dnl from aclocal.m4 (uses AC_TRY_COMPILE)
 AC_HEADER_MAKEDEV
@@ -213,6 +214,9 @@ AC_STRUCT_UTSNAME_SYSNAME_HOST
 AC_STRUCT_UTSNAME_RELEASE_HOST
 AC_STRUCT_UTSNAME_VERSION_HOST
 
+dnl Check whether iconv() uses const char ** arguments
+AC_ICONV_CONST
+
 dnl Check whether we are able to get the address of a function
 dnl or whether the symbol is declared and usable as rhs
 AC_CHECK_DECLARE([
@@ -267,6 +271,7 @@ AC_CHECK_FUNCS(getspnam getspwnam)
 AC_CHECK_FUNCS(sync fsync fork wait wait4 waitid waitpid getrusage getrlimit setrlimit ulimit)
 AC_CHECK_FUNCS(execl execle execlp execv execve execvp)
 AC_CHECK_FUNCS(getexecname)
+AC_CHECK_FUNCS(getprogname setprogname)
 AC_CHECK_FUNCS(gethostid gethostname getdomainname getpagesize getdtablesize)
 AC_CHECK_FUNCS(gettimeofday settimeofday time stime gethrtime)
 AC_CHECK_FUNCS(ftime tzset mktime gmtime localtime timegm timelocal)
@@ -315,14 +320,17 @@ dnl new POSIX interfaces even use names that are not compatible with
 dnl POSIX rules. The new POSIX interfaces in question should be called
 dnl fdexec*() to follow the rules of other similar POSIX functions.
 dnl
+dnl We use AC_RCHECK_FUNCS() because some Linux distros define a
+dnl fexecve() that returns ENOSYS an AC_CHECK_FUNCS() would return FALSE
+dnl
 echo Checking for POSIX violations by the POSIX.1-2008 standard:
-AC_CHECK_FUNCS(fexecl fexecle fexecv fexecve)
-AC_CHECK_FUNCS(fspawnv fspawnl fspawnv_nowait)
+AC_RCHECK_FUNCS(fexecl fexecle fexecv fexecve)
+AC_RCHECK_FUNCS(fspawnv fspawnl fspawnv_nowait)
 
 dnl A similar problem exists with the new POSIX.1-2008 interfaces 
 dnl getline() and fgetline(). These interfaces are also incompatible
 dnl with our interfaces defined in 1982.
-AC_CHECK_FUNCS(getline fgetline)
+AC_RCHECK_FUNCS(getline fgetline)
 echo End of tests for POSIX violations by the POSIX.1-2008 standard.
 
 dnl Check whether a symbol is either defined in an include file or
@@ -347,6 +355,15 @@ dnl that fseeko()/ftello() are present in small file mode on
 dnl Limnux while there is no prototype for these functions.
 AC_SMALL_FSEEKO
 AC_SMALL_FTELLO
+
+AC_CHECK_LIB(c, dlopen, lib_dl="",
+  [AC_CHECK_LIB(dl, dlopen, lib_dl="-ldl")])
+ac_save_LIBS="$LIBS"
+LIBS="$LIBS $lib_dl"
+AC_CHECK_FUNCS(dlopen dlclose dlsym dlerror)
+AC_CHECK_FUNCS(shl_load shl_unload shl_gethandle)
+AC_CHECK_FUNCS(LoadLibrary FreeLibrary GetProcAddress)
+LIBS="$ac_save_LIBS"
 
 dnl ??? AC_CHECK_LIB(socket, socket, lib_socket="-lsocket")
 dnl
@@ -594,5 +611,6 @@ AC_SUBST(lib_secdb)
 AC_SUBST(lib_gen)
 AC_SUBST(lib_pthread)
 AC_SUBST(lib_rt)
+AC_SUBST(lib_dl)
 
 AC_OUTPUT(rules.cnf)

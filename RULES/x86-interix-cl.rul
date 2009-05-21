@@ -1,4 +1,4 @@
-#ident "@(#)x86-interix-cl.rul	1.4 07/05/03 "
+#ident "@(#)x86-interix-cl.rul	1.5 09/05/21 "
 ###########################################################################
 # Written 2006 by J. Schilling
 ###########################################################################
@@ -29,6 +29,14 @@ include $(SRCROOT)/$(RULESDIR)/cc-msc.rul
 #		Consider using strerror_s instead.
 #
 OSDEFS +=	-D_CRT_SECURE_NO_DEPRECATE
+
+#
+#		Supress useless cl warnings like:
+#		warning C4996: 'fdopen' wurde als veraltet deklariert
+#		The POSIX name for this item is deprecated. Instead, use
+#		the ISO C++ conformant name: _fdopen.
+#
+OSDEFS +=	-D_CRT_NONSTDC_NO_DEPRECATE
 
 KDEFINES=
 

@@ -1,11 +1,11 @@
-/* @(#)lhash.c	1.18 08/12/22 Copyright 1988, 1993-2008 J. Schilling */
+/* @(#)lhash.c	1.19 09/05/10 Copyright 1988, 1993-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)lhash.c	1.18 08/12/22 Copyright 1988, 1993-2008 J. Schilling";
+	"@(#)lhash.c	1.19 09/05/10 Copyright 1988, 1993-2009 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1988, 1993-2008 J. Schilling
+ *	Copyright (c) 1988, 1993-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -176,7 +176,7 @@ hash_xlookup(str)
 	/*
 	 * If no exclude list exists, no files are excluded.
 	 */
-	if (h_tab == NULL)
+	if (h_xtab == NULL)
 		return (FALSE);
 
 	hv = hashval((unsigned char *)str, h_size);

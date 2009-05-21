@@ -1,11 +1,11 @@
-/* @(#)str.c	1.19 08/12/20 Copyright 1986-2008 J. Schilling */
+/* @(#)str.c	1.21 09/05/17 Copyright 1986-2009n J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)str.c	1.19 08/12/20 Copyright 1986-2008 J. Schilling";
+	"@(#)str.c	1.21 09/05/17 Copyright 1986-2009 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1986-2008 J. Schilling
+ *	Copyright (c) 1986-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -178,7 +178,15 @@ Options:\n\
 	-F	(extra fast) same as -2hgl.\n\
 	-o	Don't close nostd files on exec.";
 
+char	ualias[]	= "[name[=value]...]\n\
+Options:\n\
+	-l	Use local aliases.\n\
+	-reload	Reload aliases from file.";
+char	uunalias[]	= "[name...]\n\
+Options:\n\
+	-l	Use local aliases.";
 char	uexpr[]		= "name = expr";
+char	ufg[]		= "[job ...]";
 char	ubrack[]	= "expr ]";
 char	ucd[]		= "[directory]";
 char	uconcat[]	= "name val1 ... valn";
@@ -215,6 +223,7 @@ char	ushift[]	= "[count]";
 char	usignal[]	= "['cmdlist'] [sig#1 .. sig#n]";
 char	usource[]	= "[-h] bshfile";
 char	udot[]		= "shellfile";
+char	ureturn[]	= "[retval]";
 char	ustop[]		= "pid1 ... pidn";
 #ifdef	DO_SUID
 char	usuid[]		= "\

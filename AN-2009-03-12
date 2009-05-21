@@ -1,4 +1,4 @@
-New features with AN-2009-01-99:
+New features with AN-2009-03-12:
 
 -	schily/schily.h now by default includes stdio.h in case that
 	the platform defines the POSIX.1-2008 finctions getline() or fgetline()

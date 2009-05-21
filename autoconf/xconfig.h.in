@@ -1,4 +1,4 @@
-/* @(#)xconfig.h.in	1.158 09/02/26 Copyright 1998-2009 J. Schilling */
+/* @(#)xconfig.h.in	1.162 09/05/12 Copyright 1998-2009 J. Schilling */
 /*
  *	Dynamic autoconf C-include code.
  *
@@ -148,6 +148,10 @@
 #undef HAVE_THREAD_H		/* if we may include thread.h */
 
 #undef HAVE_LIBGEN_H		/* if we may include libgen.h */
+
+#undef HAVE_DLFCN_H		/* if we may include dlfcn.h */
+#undef HAVE_LINK_H		/* if we may include linh.h */
+#undef HAVE_DL_H		/* if we may include dl.h */
 
 /*
  * Convert to SCHILY name
@@ -384,6 +388,8 @@
 #undef HAVE_EXECVE		/* execve() is present in libc */
 #undef HAVE_EXECVP		/* execvp() is present in libc */
 #undef HAVE_GETEXECNAME		/* getexecname() is present in libc */
+#undef HAVE_GETPROGNAME		/* getprogname() is present in libc */
+#undef HAVE_SETPROGNAME		/* setprogname() is present in libc */
 #undef HAVE_ALLOCA		/* alloca() is present (else use malloc())*/
 #undef HAVE_VALLOC		/* valloc() is present in libc (else use malloc())*/
 #undef vfork
@@ -418,6 +424,17 @@
 #undef HAVE_CREATE_AREA		/* create_area() is present in libc */
 #undef HAVE_DELETE_AREA		/* delete_area() is present in libc */
 
+#undef HAVE_DLOPEN		/* dlopen() is present in libc */
+#undef HAVE_DLCLOSE		/* dlclose() is present in libc */
+#undef HAVE_DLSYM		/* dlsym() is present in libc */
+#undef HAVE_DLERROR		/* dlerror() is present in libc */
+#undef HAVE_SHL_LOAD		/* shl_load() is present in libc */
+#undef HAVE_SHL_UNLOAD		/* shl_unload() is present in libc */
+#undef HAVE_SHL_GETHANDLE	/* shl_gethandle() is present in libc */
+#undef HAVE_LOADLOBRARY		/* LoadLibrary() as present in libc */
+#undef HAVE_FREELIBRARY		/* FreeLibrary() is present in libc */
+#undef HAVE_GETPROCADDRESS	/* GetProcAddress() is present in libc */
+
 #undef HAVE_YIELD		/* yield() is present in libc */
 #undef HAVE_THR_YIELD		/* thr_yield() is present in libc */
 
@@ -442,16 +459,18 @@
 /*
  * Functions that we defined in 1982 but where POSIX.1-2008 defined
  * a POSIX violating incompatible definition.
+ * We use AC_RCHECK_FUNCS(), so we get HAVE_RAW_* results as some
+ * Linux distros have fexecve() that returns ENOSYS.
  */
-#undef HAVE_FEXECL		/* fexecl() */
-#undef HAVE_FEXECLE		/* fexecle() */
-#undef HAVE_FEXECV		/* fexecv() */
-#undef HAVE_FEXECVE		/* fexecve() */
-#undef HAVE_FSPAWNV		/* fspawnv() */
-#undef HAVE_FSPAWNL		/* fspawnl() */
-#undef HAVE_FSPAWNV_NOWAIT	/* fspawnv_nowait() */
-#undef HAVE_GETLINE		/* getline() */
-#undef HAVE_FGETLINE		/* fgetline() */
+#undef HAVE_RAW_FEXECL		/* fexecl() */
+#undef HAVE_RAW_FEXECLE		/* fexecle() */
+#undef HAVE_RAW_FEXECV		/* fexecv() */
+#undef HAVE_RAW_FEXECVE		/* fexecve() */
+#undef HAVE_RAW_FSPAWNV		/* fspawnv() */
+#undef HAVE_RAW_FSPAWNL		/* fspawnl() */
+#undef HAVE_RAW_FSPAWNV_NOWAIT	/* fspawnv_nowait() */
+#undef HAVE_RAW_GETLINE		/* getline() */
+#undef HAVE_RAW_FGETLINE	/* fgetline() */
 
 
 /*
@@ -683,6 +702,11 @@
  * Define as the return type of signal handlers (int or void).
  */
 #undef RETSIGTYPE
+
+/*
+ * Defined in case that we have iconv(iconv_t, const char **, site_t *, ...)
+ */
+#undef HAVE_ICONV_CONST
 
 /*
  * Defines needed to get large file support.

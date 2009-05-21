@@ -1,13 +1,13 @@
-/* @(#)subst.c	1.11 08/12/22 Copyright 1986,2003-2008 J. Schilling */
+/* @(#)subst.c	1.12 09/04/27 Copyright 1986,2003-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)subst.c	1.11 08/12/22 Copyright 1986,2003-2008 J. Schilling";
+	"@(#)subst.c	1.12 09/04/27 Copyright 1986,2003-2009 J. Schilling";
 #endif
 /*
  *	Substitution commands
  *
- *	Copyright (c) 1986,2003-2008 J. Schilling
+ *	Copyright (c) 1986,2003-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -101,6 +101,9 @@ parsesubst(cmd, arg)
 		else
 			break;
 	}
+	if (to >= endp || c != dc)
+		comerrno(EX_BAD, "Missing '%c' delimiter after 'from' substitute string.\n", dc);
+
 	fromlen = to-from;
 	*to++ = '\0';
 	cp = to;
@@ -111,6 +114,9 @@ parsesubst(cmd, arg)
 		else
 			break;
 	}
+	if (to >= endp || c != dc)
+		comerrno(EX_BAD, "Missing '%c' delimiter after 'to' substitute string.\n", dc);
+
 	tolen = cp-to;
 	*cp = '\0';
 	if (++cp < endp)

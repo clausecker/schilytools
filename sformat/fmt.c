@@ -1,13 +1,13 @@
-/* @(#)fmt.c	1.90 08/12/22 Copyright 1986-1991, 93-97, 2000-2008 J. Schilling */
+/* @(#)fmt.c	1.91 09/04/10 Copyright 1986-1991, 93-97, 2000-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)fmt.c	1.90 08/12/22 Copyright 1986-1991, 93-97, 2000-2008 J. Schilling";
+	"@(#)fmt.c	1.91 09/04/10 Copyright 1986-1991, 93-97, 2000-2009 J. Schilling";
 #endif
 /*
  *	Format & check/repair SCSI disks
  *
- *	Copyright (c) 1986-1991, 93-97, 2000-2008 J. Schilling
+ *	Copyright (c) 1986-1991, 93-97, 2000-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -154,7 +154,7 @@ usage(ret)
 	error("\t-help,-h\tprint this help\n");
 	error("\t-xhelp\t\tprint extended help\n");
 	error("\t-version\tPrint version number.\n");
-	error("\t-nomap\t\tDo not map SCSI adress to logical disk name\n");
+	error("\t-nomap\t\tDo not map SCSI address to logical disk name\n");
 	error("\t-nowait\t\tDo not wait after formatting disk\n");
 	error("\t-force\t\tForce to continue at certain errors\n");
 	error("\t-ask\t\tAsk again at certain critical sections\n");
@@ -337,7 +337,7 @@ main(ac, av)
 		xusage(0);
 	if (prvers) {
 		printf("sformat %s (%s-%s-%s)\n\n", fmt_version, HOST_CPU, HOST_VENDOR, HOST_OS);
-		printf("Copyright (C) 1986-1991, 93-97, 2000-2008 Jörg Schilling\n");
+		printf("Copyright (C) 1986-1991, 93-97, 2000-2009 Jörg Schilling\n");
 		printf("This is free software; see the source for copying conditions.  There is NO\n");
 		printf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
 		exit(0);

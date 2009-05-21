@@ -1,8 +1,8 @@
-/* @(#)drv_dvdplus.c	1.54 09/01/14 Copyright 2003-2009 J. Schilling */
+/* @(#)drv_dvdplus.c	1.55 09/04/11 Copyright 2003-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)drv_dvdplus.c	1.54 09/01/14 Copyright 2003-2009 J. Schilling";
+	"@(#)drv_dvdplus.c	1.55 09/04/11 Copyright 2003-2009 J. Schilling";
 #endif
 /*
  *	Copyright (c) 2003-2009 J. Schilling
@@ -749,18 +749,25 @@ error("MAXBLO %d from free_blocks\n", (int)a_to_u_4_byte(rp->free_blocks));
 error("NWAv %d Next rec addr %d\n", rp->nwa_v, (int)a_to_u_4_byte(rp->next_recordable_addr));
 #endif
 
-if (dip->disk_status == DS_EMPTY)
-	return (drive_getdisktype(scgp, dp));
+	/*
+	 * XXX this was: if (dip->disk_status == DS_EMPTY)
+	 */
+	if (dip->disk_status == DS_COMPLETE)
+		return (drive_getdisktype(scgp, dp));
 
 	/*
 	 * This information is based on the physical pre recorded information.
 	 * First try to find the len supported by the actual drive.
 	 */
 	fillbytes((caddr_t)mode, sizeof (mode), '\0');
+	scgp->silent++;
 	if (read_dvd_structure(scgp, (caddr_t)mode, 2, 0, 0, 0, 0) < 0) {
-		errmsgno(EX_BAD, "Cannot read DVD structure.\n");
-		return (-1);
+		scgp->silent--;
+		if (lverbose > 2)
+			errmsgno(EX_BAD, "Cannot read DVD structure 00.\n");
+		return (drive_getdisktype(scgp, dp));
 	}
+	scgp->silent--;
 	len = a_to_u_2_byte(mode);
 	len += 2;			/* Data len is not included */
 
@@ -777,7 +784,9 @@ if (dip->disk_status == DS_EMPTY)
 	}
 	fillbytes((caddr_t)mode, sizeof (mode), '\0');
 	sp = (struct dvd_structure_00 *)mode;
-	read_dvd_structure(scgp, (caddr_t)sp, len, 0, 0, 0, 0);
+	if (read_dvd_structure(scgp, (caddr_t)sp, len, 0, 0, 0, 0) < 0)
+		return (drive_getdisktype(scgp, dp));
+
 /*	if (lverbose > 1)*/
 /*		print_dvd00(sp);*/
 	/*
@@ -785,21 +794,32 @@ if (dip->disk_status == DS_EMPTY)
 	 * Bei Panasonic ist Phys End == Phys Start.
 	 */
 	if ((profile != 0x001A) &&
+	    (dp->cdr_cmdflags & F_MSINFO) == 0 &&
 	    (a_to_u_3_byte(sp->phys_end) != 0) &&
 			(dsp->ds_maxblocks !=
 			(long)(a_to_u_3_byte(sp->phys_end) - a_to_u_3_byte(sp->phys_start) + 1))) {
+#ifdef	__nonono__
 		printf("WARNING: Phys disk size %ld differs from rzone size %ld! Prerecorded disk?\n",
 			(long)(a_to_u_3_byte(sp->phys_end) - a_to_u_3_byte(sp->phys_start) + 1),
 			(long)dsp->ds_maxblocks);
 		printf("WARNING: Phys start: %ld Phys end %ld\n",
 			(long)a_to_u_3_byte(sp->phys_start),
 			(long)a_to_u_3_byte(sp->phys_end));
-	}
-#ifdef	DVDPLUS_DEBUG
-error("MAXBLOx %d\n", dsp->ds_maxblocks);
 #endif
-	if ((long)dsp->ds_maxblocks == 0) {
-		dsp->ds_maxblocks = a_to_u_3_byte(sp->phys_end) - a_to_u_3_byte(sp->phys_start) + 1;
+		/*
+		 * Workaround for some drive media combinations.
+		 * At least the drive	'HL-DT-ST' 'DVD-RAM GH22NP20' '1.02'
+		 * does not report maxblocks correctly with 'CMC MAG' 'M01'
+		 * DVD+R media.
+		 * Use the information from ADIP instead.
+		 */
+#ifdef	DVDPLUS_DEBUG
+error("MAXBLOx1 %d\n", dsp->ds_maxblocks);
+#endif
+		if ((long)dsp->ds_maxblocks == 0) {
+			printf("WARNING: Drive returns zero media size. Using media size from ADIP.\n");
+			dsp->ds_maxblocks = a_to_u_3_byte(sp->phys_end) - a_to_u_3_byte(sp->phys_start) + 1;
+		}
 	}
 #ifdef	DVDPLUS_DEBUG
 error("MAXBLOx %d\n", dsp->ds_maxblocks);

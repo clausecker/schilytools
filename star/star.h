@@ -1,4 +1,4 @@
-/* @(#)star.h	1.118 09/01/06 Copyright 1985, 1995-2009 J. Schilling */
+/* @(#)star.h	1.119 09/05/06 Copyright 1985, 1995-2009 J. Schilling */
 /*
  *	Copyright (c) 1985, 1995-2009 J. Schilling
  */
@@ -803,6 +803,7 @@ struct star_stats {
 #ifdef USE_XATTR
 	int	s_getxattr;	/* get xattr for file failed		  */
 #endif
+	int	s_chdir;	/* chdir() failed			  */
 	/*
 	 * Extract only....
 	 */

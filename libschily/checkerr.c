@@ -1,8 +1,8 @@
-/* @(#)checkerr.c	1.20 08/12/21 Copyright 2003-2008 J. Schilling */
+/* @(#)checkerr.c	1.23 09/05/07 Copyright 2003-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)checkerr.c	1.20 08/12/21 Copyright 2003-2008 J. Schilling";
+	"@(#)checkerr.c	1.23 09/05/07 Copyright 2003-2009 J. Schilling";
 #endif
 /*
  *	Generic error control for programs that do file i/o.
@@ -14,7 +14,7 @@ static	const char sccsid[] =
  *	an official stable and "library-compliant" interface, be careful
  *	and watch for changes.
  *
- *	Copyright (c) 2003-2008 J. Schilling
+ *	Copyright (c) 2003-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -56,10 +56,10 @@ EXPORT	int	errconfig	__PR((char *name));
 LOCAL	char	*_endword	__PR((char *p));
 LOCAL	void	parse_errctl	__PR((char *line));
 LOCAL	UInt32_t errflags	__PR((char *eflag, BOOL doexit));
-LOCAL	ec_t	*_errptr	__PR((int etype, char *fname));
-EXPORT	BOOL	errhidden	__PR((int etype, char *fname));
-EXPORT	BOOL	errwarnonly	__PR((int etype, char *fname));
-EXPORT	BOOL	errabort	__PR((int etype, char *fname, BOOL doexit));
+LOCAL	ec_t	*_errptr	__PR((int etype, const char *fname));
+EXPORT	BOOL	errhidden	__PR((int etype, const char *fname));
+EXPORT	BOOL	errwarnonly	__PR((int etype, const char *fname));
+EXPORT	BOOL	errabort	__PR((int etype, const char *fname, BOOL doexit));
 
 /*
  * Read and parse error configuration file
@@ -166,6 +166,7 @@ LOCAL struct eflags {
 	{ "SPECIALFILE",	E_SPECIALFILE },
 	{ "READLINK",		E_READLINK },
 	{ "GETXATTR",		E_GETXATTR },
+	{ "CHDIR",		E_CHDIR },
 
 	{ "SETTIME",		E_SETTIME },
 	{ "SETMODE",		E_SETMODE },
@@ -227,8 +228,8 @@ errflags(eflag, doexit)
 
 LOCAL ec_t *
 _errptr(etype, fname)
-	int	etype;
-	char	*fname;
+		int	etype;
+	const	char	*fname;
 {
 	ec_t		*ep = ec_root;
 	char		*ret;
@@ -262,13 +263,13 @@ _errptr(etype, fname)
  */
 EXPORT BOOL
 errhidden(etype, fname)
-	int	etype;
-	char	*fname;
+		int	etype;
+	const	char	*fname;
 {
 	ec_t		*ep;
 
 	if ((ep = _errptr(etype, fname)) != NULL) {
-		if ((ep->ec_flags & E_ABORT) != 0)
+		if ((ep->ec_flags & (E_ABORT|E_WARN)) != 0)
 			return (FALSE);
 		return (TRUE);
 	}
@@ -280,8 +281,8 @@ errhidden(etype, fname)
  */
 EXPORT BOOL
 errwarnonly(etype, fname)
-	int	etype;
-	char	*fname;
+		int	etype;
+	const	char	*fname;
 {
 	ec_t		*ep;
 
@@ -298,9 +299,9 @@ errwarnonly(etype, fname)
  */
 EXPORT BOOL
 errabort(etype, fname, doexit)
-	int	etype;
-	char	*fname;
-	BOOL	doexit;
+		int	etype;
+	const	char	*fname;
+		BOOL	doexit;
 {
 	ec_t	*ep;
 

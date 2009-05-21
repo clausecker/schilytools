@@ -1,13 +1,13 @@
-/* @(#)buffer.c	1.150 08/12/22 Copyright 1985, 1995, 2001-2008 J. Schilling */
+/* @(#)buffer.c	1.153 09/05/06 Copyright 1985, 1995, 2001-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)buffer.c	1.150 08/12/22 Copyright 1985, 1995, 2001-2008 J. Schilling";
+	"@(#)buffer.c	1.153 09/05/06 Copyright 1985, 1995, 2001-2009 J. Schilling";
 #endif
 /*
  *	Buffer handling routines
  *
- *	Copyright (c) 1985, 1995, 2001-2008 J. Schilling
+ *	Copyright (c) 1985, 1995, 2001-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -329,7 +329,7 @@ opentape()
 			}
 		}
 	}
-	if (isatty(fdown(tarf)))
+	if (tarf != (FILE *)NULL && isatty(fdown(tarf)))
 		comerrno(EX_BAD, "Archive cannot be a tty.\n");
 	if (!isremote && (!nullout || (uflag || rflag)) &&
 	    tarf != (FILE *)NULL) {
@@ -1680,6 +1680,7 @@ checkerrs()
 	    xstats.s_toobig	||
 	    xstats.s_isspecial	||
 	    xstats.s_sizeerrs	||
+	    xstats.s_chdir	||
 
 	    xstats.s_settime	||
 	    xstats.s_security	||
@@ -1699,10 +1700,11 @@ checkerrs()
 			return (TRUE);
 
 		errmsgno(EX_BAD, "The following problems occurred during archive processing:\n");
-		errmsgno(EX_BAD, "Cannot: stat %d, open %d, read/write %d. Size changed %d.\n",
+		errmsgno(EX_BAD, "Cannot: stat %d, open %d, read/write %d, chdir %d. Size changed %d.\n",
 				xstats.s_staterrs,
 				xstats.s_openerrs,
 				xstats.s_rwerrs,
+				xstats.s_chdir,
 				xstats.s_sizeerrs);
 		errmsgno(EX_BAD, "Missing links %d, Name too long %d, File too big %d, Not dumped %d.\n",
 				xstats.s_misslinks,

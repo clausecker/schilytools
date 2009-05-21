@@ -1,15 +1,15 @@
-/* @(#)joliet.c	1.57 08/12/22 joerg */
+/* @(#)joliet.c	1.59 09/04/19 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)joliet.c	1.57 08/12/22 joerg";
+	"@(#)joliet.c	1.59 09/04/19 joerg";
 #endif
 /*
  * File joliet.c - handle Win95/WinNT long file/unicode extensions for iso9660.
  *
  * Copyright 1997 Eric Youngdale.
  * APPLE_HYB James Pearson j.pearson@ge.ucl.ac.uk 22/2/2000
- * Copyright (c) 1999-2008 J. Schilling
+ * Copyright (c) 1999-2009 J. Schilling
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -171,11 +171,17 @@ conv_charset(to, tosizep, from, fromsizep, inls, onls)
 		return;
 	}
 #ifdef	USE_ICONV
+#ifdef	HAVE_ICONV_CONST
+#define	__IC_CONST	const
+#else
+#define	__IC_CONST
+#endif
 	if (use_iconv(inls)) {
 		char	*obuf = (char *)ob;
 		size_t	osize = 2;		/* UCS-2 character size */
 
-		if (iconv(inls->sic_cd2uni, (const char **)&from, fromsizep,
+		if (iconv(inls->sic_cd2uni, (__IC_CONST char **)&from,
+					fromsizep,
 					&obuf, &osize) == -1) {
 			int	err = geterrno();
 
@@ -206,7 +212,7 @@ conv_charset(to, tosizep, from, fromsizep, inls, onls)
 		char	*ibuf = (char *)ob;
 		size_t	isize = 2;		/* UCS-2 character size */
 
-		if (iconv(onls->sic_uni2cd, (const char **)&ibuf, &isize,
+		if (iconv(onls->sic_uni2cd, (__IC_CONST char **)&ibuf, &isize,
 					(char **)&to, tosizep) == -1) {
 			int	err = geterrno();
 
@@ -276,7 +282,7 @@ convert_to_unicode(buffer, size, source, inls)
 #ifdef	USE_ICONV
 			if (use_iconv(inls)) {
 				Uchar		ob[2];
-				const char	*inbuf = (char *)&tmpbuf[j];
+				__IC_CONST char	*inbuf = (char *)&tmpbuf[j];
 				size_t	isize = 3;
 				char	*obuf = (char *)ob;
 				size_t	osize = 2;
@@ -368,7 +374,7 @@ joliet_strlen(string, maxlen, inls)
 
 		while (string[j] != '\0') {
 			Uchar		ob[2];
-			const char	*inbuf = (char *)&string[j];
+			__IC_CONST char	*inbuf = (char *)&string[j];
 			size_t	isize = 3;
 			char	*obuf = (char *)ob;
 			size_t	osize = 2;

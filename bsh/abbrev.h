@@ -1,6 +1,6 @@
-/* @(#)abbrev.h	1.10 07/12/25 Copyright 1985-2007 J. Schilling */
+/* @(#)abbrev.h	1.11 09/05/17 Copyright 1985-2009 J. Schilling */
 /*
- *	Copyright (c) 1985-2007 J. Schilling
+ *	Copyright (c) 1985-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -24,6 +24,7 @@ typedef int abidx_t;
 
 extern	void	ab_read		__PR((abidx_t tab, char *fname));
 extern	void	ab_sname	__PR((abidx_t tab, char *fname));
+extern	char	*ab_gname	__PR((abidx_t tab));
 extern	void	ab_use		__PR((abidx_t tab, char *fname));
 extern	void	ab_close	__PR((abidx_t tab));
 extern	void	ab_insert	__PR((abidx_t tab, char *name, char *val, BOOL beg));

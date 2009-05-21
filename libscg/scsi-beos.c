@@ -1,7 +1,7 @@
-/* @(#)scsi-beos.c	1.27 09/02/07 Copyright 1998 J. Schilling */
+/* @(#)scsi-beos.c	1.28 09/04/19 Copyright 1998-2009 J. Schilling */
 #ifndef lint
 static	char __sccsid[] =
-	"@(#)scsi-beos.c	1.27 09/02/07 Copyright 1998 J. Schilling";
+	"@(#)scsi-beos.c	1.28 09/04/19 Copyright 1998-2009 J. Schilling";
 #endif
 /*
  *	Interface for the BeOS user-land raw SCSI implementation.
@@ -17,7 +17,7 @@ static	char __sccsid[] =
  *	Choose your name instead of "schily" and make clear that the version
  *	string is related to a modified source.
  *
- *	Copyright (c) 1998 J. Schilling
+ *	Copyright (c) 1998-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -47,7 +47,7 @@ static	char __sccsid[] =
  *	Choose your name instead of "schily" and make clear that the version
  *	string is related to a modified source.
  */
-LOCAL	char	_scg_trans_version[] = "scsi-beos.c-1.27";	/* The version for this transport*/
+LOCAL	char	_scg_trans_version[] = "scsi-beos.c-1.28";	/* The version for this transport*/
 
 /*
  * There are also defines for:

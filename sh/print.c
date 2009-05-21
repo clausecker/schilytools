@@ -32,14 +32,14 @@
 /*
  * This file contains modifications Copyright 2008-2009 J. Schilling
  *
- * @(#)print.c	1.8 09/01/10 2008-2009 J. Schilling
+ * @(#)print.c	1.9 09/04/12 2008-2009 J. Schilling
  */
 #ifdef	SCHILY_BUILD
 #include <schily/mconfig.h>
 #endif
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)print.c	1.8 09/01/10 2008-2009 J. Schilling";
+	"@(#)print.c	1.9 09/04/12 2008-2009 J. Schilling";
 #endif
 
 /*
@@ -53,6 +53,8 @@ static	const char sccsid[] =
 #undef	feof
 #include	"defs.h"
 #include	<schily/param.h>
+#include	<schily/wchar.h>
+#include	<schily/wctype.h>
 #else
 #include	"defs.h"
 #include	<sys/param.h>

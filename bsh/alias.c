@@ -1,11 +1,11 @@
-/* @(#)alias.c	1.11 08/12/20 Copyright 1986-2008 J. Schilling */
+/* @(#)alias.c	1.13 09/05/17 Copyright 1986-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)alias.c	1.11 08/12/20 Copyright 1986-2008 J. Schilling";
+	"@(#)alias.c	1.13 09/05/17 Copyright 1986-2009 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1986-2008 J. Schilling
+ *	Copyright (c) 1986-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -24,6 +24,7 @@ static	const char sccsid[] =
 #include "bsh.h"
 #include "btab.h"
 #include "abbrev.h"
+#include "str.h"
 
 extern	abidx_t	deftab;
 
@@ -37,10 +38,40 @@ balias(vp, std, flag)
 	FILE	*std[];
 	int	flag;
 {
-	if (vp->av_ac == 1)
-		ab_dump(deftab, std[1], 0);
-	else if (vp->av_ac == 2)
-		ab_list(deftab, vp->av_av[1], std[1], 0);
+		int	ac;
+		char	* const *av;
+		char	*opt	= "l,r,reload";
+		BOOL	dolocal	= FALSE;
+		BOOL	doreload = FALSE;
+
+	ac = vp->av_ac - 1;		/* set values */
+	av = &vp->av_av[1];
+
+	if (getargs(&ac, &av, opt, &dolocal, &doreload, &doreload) < 0) {
+		fprintf(std[2], ebadopt, vp->av_av[0], av[0]);
+		fprintf(std[2], nl);
+		busage(vp, std);
+		ex_status = 1;
+		return;
+	}
+	if ((ac > 1) || ((ac > 0 && doreload))) {
+		wrong_args(vp, std);
+		return;
+	}
+	if (doreload) {
+		abidx_t curtab = dolocal?LOCAL_AB:GLOBAL_AB;
+		char	*fname;
+
+		fname = ab_gname(curtab);
+		if (fname)
+			ab_use(curtab, fname);
+		return;
+	}
+	if (ac == 0) {
+		ab_dump(dolocal?LOCAL_AB:GLOBAL_AB, std[1], 0);
+		return;
+	}
+	ab_list(dolocal?LOCAL_AB:GLOBAL_AB, av[0], std[1], 0);
 }
 
 /* ARGSUSED */
@@ -50,8 +81,24 @@ bunalias(vp, std, flag)
 	FILE	*std[];
 	int	flag;
 {
-	if (vp->av_ac < 2)
+		int	ac;
+		char	* const *av;
+		char	*opt	= "l";
+		BOOL	dolocal	= FALSE;
+
+	ac = vp->av_ac - 1;		/* set values */
+	av = &vp->av_av[1];
+
+	if (getargs(&ac, &av, opt, &dolocal) < 0) {
+		fprintf(std[2], ebadopt, vp->av_av[0], av[0]);
+		fprintf(std[2], nl);
+		busage(vp, std);
+		ex_status = 1;
+		return;
+	}
+	if (ac < 1) {
 		wrong_args(vp, std);
-	else
-		ab_delete(deftab, vp->av_av[1]);
+		return;
+	}
+	ab_delete(dolocal?LOCAL_AB:GLOBAL_AB, av[0]);
 }

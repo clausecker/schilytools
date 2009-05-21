@@ -1,14 +1,14 @@
-/* @(#)star_unix.c	1.93 08/12/22 Copyright 1985, 1995, 2001-2008 J. Schilling */
+/* @(#)star_unix.c	1.94 09/04/28 Copyright 1985, 1995, 2001-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)star_unix.c	1.93 08/12/22 Copyright 1985, 1995, 2001-2008 J. Schilling";
+	"@(#)star_unix.c	1.94 09/04/28 Copyright 1985, 1995, 2001-2009 J. Schilling";
 #endif
 /*
  *	Stat / mode / owner routines for unix like
  *	operating systems
  *
- *	Copyright (c) 1985, 1995, 2001-2008 J. Schilling
+ *	Copyright (c) 1985, 1995, 2001-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -549,6 +549,7 @@ samefile(fp1, fp2)
 		return (FALSE);
 
 	if (fstat(fdown(fp1), &stbuf1) < 0)
+		return (FALSE);
 
 	if (fstat(fdown(fp2), &stbuf2) < 0)
 		return (FALSE);

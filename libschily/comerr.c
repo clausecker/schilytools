@@ -1,8 +1,8 @@
-/* @(#)comerr.c	1.33 09/02/05 Copyright 1985-1989, 1995-2007 J. Schilling */
+/* @(#)comerr.c	1.34 09/04/19 Copyright 1985-1989, 1995-2009 J. Schilling */
 /*
  *	Routines for printing command errors
  *
- *	Copyright (c) 1985-1989, 1995-2007 J. Schilling
+ *	Copyright (c) 1985-1989, 1995-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

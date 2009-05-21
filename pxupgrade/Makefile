@@ -1,4 +1,4 @@
-#ident @(#)Makefile	1.4 07/02/04 Copyr 1995 J. Schilling
+#ident @(#)Makefile	1.5 08/08/01 Copyr 1995 J. Schilling
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -10,6 +10,7 @@ TARGET=		pxupgrade
 #CPPOPTS +=	-DFIFO -DDRV_DVD -DUSE_PG -DAUINFO
 #CPPOPTS +=	-DASPI
 CPPOPTS +=	-DSCHILY_PRINT
+CPPOPTS +=	-I../libscg
 
 CFILES=		pxupgrade.c pcmd.c
 HFILES=		scsicmds.h

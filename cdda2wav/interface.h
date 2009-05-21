@@ -1,4 +1,4 @@
-/* @(#)interface.h	1.22 09/01/24 Copyright 1998-2001 Heiko Eissfeldt, Copyright 2005-2008 J. Schilling */
+/* @(#)interface.h	1.23 09/04/19 Copyright 1998-2001 Heiko Eissfeldt, Copyright 2005-2009 J. Schilling */
 
 /*
  * Copyright (C) by Heiko Eissfeldt

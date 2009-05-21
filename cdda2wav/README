@@ -337,7 +337,7 @@ errors. Here the default is to switch off overlap reading.
 
 If you cannot get good samples from your drives you might consider an
 alternative program. Monty's cdparanoia program goes to great lengths
-in order to seperate the good bits from the bad ones.
+in order to separate the good bits from the bad ones.
 
 2. The index scanner has caused timeouts on my toshiba 3401 due to fast
    random accesses.

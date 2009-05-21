@@ -1,4 +1,4 @@
-#ident @(#)diff.mk	1.6 08/01/02 
+#ident @(#)diff.mk	1.7 09/04/12 
 ###########################################################################
 SRCROOT=	../../../..
 RULESDIR=	RULES
@@ -14,6 +14,7 @@ CPPOPTS +=	-DUSE_LARGEFILES
 CPPOPTS +=	-I../../../sgs/inc/common
 CPPOPTS +=	-I../../hdr
 CPPOPTS +=	-DUSE_NLS
+CPPOPTS +=	-DUSE_WCHAR
 CPPOPTS +=	-DTEXT_DOMAIN=\"SUNW_OST_OSCMD\"
 CPPOPTS +=	-D_TS_ERRNO
 CPPOPTS +=	-DINS_BASE=\"${INS_BASE}\"

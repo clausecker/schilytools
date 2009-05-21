@@ -1,5 +1,5 @@
 #if 0
-/* @(#)lconfig.h.in	1.7 09/02/26 Copyright 1998-2003 Heiko Eissfeldt */
+/* @(#)lconfig.h.in	1.8 09/04/19 Copyright 1998-2003 Heiko Eissfeldt, Copyright 2006-2009 J. Schilling */
 #endif
 #undef HAVE_SYS_CDIO_H		/* if we should use sys/cdio.h */
 

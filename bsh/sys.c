@@ -1,11 +1,11 @@
-/* @(#)sys.c	1.60 09/02/08 Copyright 1986-2008 J. Schilling */
+/* @(#)sys.c	1.62 09/05/17 Copyright 1986-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)sys.c	1.60 09/02/08 Copyright 1986-2008 J. Schilling";
+	"@(#)sys.c	1.62 09/05/17 Copyright 1986-2009 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1986-2008 J. Schilling
+ *	Copyright (c) 1986-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -563,6 +563,17 @@ printf("ewait: returning %x (%d)\n", status.type, status.type);
 					(t)  == EISDIR || \
 					(t)  == EIO)
 
+#ifdef	F_GETFD
+#define	fd_getfd(fd)		fcntl((fd), F_GETFD, 0)
+#else
+#define	fd_getfd(fd)
+#endif
+#ifdef	F_SETFD
+#define	fd_setfd(fd, val)	fcntl((fd), F_SETFD, (val));
+#else
+#define	fd_setfd(fd, val)
+#endif
+
 EXPORT int
 fexec(path, name, in, out, err, av, env)
 		char	**path;
@@ -596,33 +607,21 @@ fexec(path, name, in, out, err, av, env)
 	derr = fdown(err);
 
 	if (din != STDIN_FILENO) {
-#ifdef	F_GETFD
-		f[0] = fcntl(STDIN_FILENO, F_GETFD, 0);
-#endif
+		f[0] = fd_getfd(STDIN_FILENO);
 		o[0] = dup(STDIN_FILENO);
-#ifdef	F_SETFD
-		fcntl(o[0], F_SETFD, 1);
-#endif
+		fd_setfd(o[0], 1);
 		fdmove(din, STDIN_FILENO);
 	}
 	if (dout != STDOUT_FILENO) {
-#ifdef	F_GETFD
-		f[1] = fcntl(STDOUT_FILENO, F_GETFD, 0);
-#endif
+		f[1] = fd_getfd(STDOUT_FILENO);
 		o[1] = dup(STDOUT_FILENO);
-#ifdef	F_SETFD
-		fcntl(o[1], F_SETFD, 1);
-#endif
+		fd_setfd(o[1], 1);
 		fdmove(dout, STDOUT_FILENO);
 	}
 	if (derr != STDERR_FILENO) {
-#ifdef	F_GETFD
-		f[2] = fcntl(STDERR_FILENO, F_GETFD, 0);
-#endif
+		f[2] = fd_getfd(STDERR_FILENO);
 		o[2] = dup(STDERR_FILENO);
-#ifdef	F_SETFD
-		fcntl(o[2], F_SETFD, 1);
-#endif
+		fd_setfd(o[2], 1);
 		fdmove(derr, STDERR_FILENO);
 	}
 
@@ -636,6 +635,7 @@ fexec(path, name, in, out, err, av, env)
 		exerr = sys_exec(tmp, din, dout, derr, av, env);
 		av[0] = av0;	/* BeOS destroys things ... */
 	} else {
+					/* "PATH" */
 		if ((pathlist = getcurenv(pathname)) == NULL)
 			pathlist = defpath;
 		p2 = pathlist = makestr(pathlist);
@@ -663,31 +663,28 @@ fexec(path, name, in, out, err, av, env)
 			free(tmp);
 		}
 		free(pathlist);
+#ifdef	VFORK
+		Vlist = 0;
+#endif
 	}
 
 	if (derr != STDERR_FILENO) {
 		fdmove(STDERR_FILENO, derr);
 		fdmove(o[2], STDERR_FILENO);
-#ifdef	F_SETFD
 		if (f[2] == 0)
-			fcntl(STDERR_FILENO, F_SETFD, 0);
-#endif
+			fd_setfd(STDERR_FILENO, 0);
 	}
 	if (dout != STDOUT_FILENO) {
 		fdmove(STDOUT_FILENO, dout);
 		fdmove(o[1], STDOUT_FILENO);
-#ifdef	F_SETFD
 		if (f[1] == 0)
-			fcntl(STDOUT_FILENO, F_SETFD, 0);
-#endif
+			fd_setfd(STDOUT_FILENO, 0);
 	}
 	if (din != STDIN_FILENO) {
 		fdmove(STDIN_FILENO, din);
 		fdmove(o[0], STDIN_FILENO);
-#ifdef	F_SETFD
 		if (f[0] == 0)
-			fcntl(STDIN_FILENO, F_SETFD, 0);
-#endif
+			fd_setfd(STDIN_FILENO, 0);
 	}
 	if (exerr == 0)
 		exerr = t;

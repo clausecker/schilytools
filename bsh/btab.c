@@ -1,11 +1,11 @@
-/* @(#)btab.c	1.15 08/12/20 Copyright 1986-2008 J. Schilling */
+/* @(#)btab.c	1.16 09/05/17 Copyright 1986-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)btab.c	1.15 08/12/20 Copyright 1986-2008 J. Schilling";
+	"@(#)btab.c	1.16 09/05/17 Copyright 1986-2009 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1986-2008 J. Schilling
+ *	Copyright (c) 1986-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -26,15 +26,17 @@ static	const char sccsid[] =
 #include "btab.h"
 
 						/* Musz sortiert sein !!! */
+
+	/*	name		argc	func to call	help text */
 btab bitab[] = {
-	{	"$",		1,	bfg,		NULL	},
+	{	"$",		1,	bfg,		ufg	},
 	{	".",		0,	bsource,	udot	},
 	{	":",		0,	bdummy,		NULL	},
 	{	"@",		0,	bexpr,		uexpr	},
 	{	"[",		0,	btest,		ubrack	},
-	{	"alias",	0,	balias,		NULL	},
+	{	"alias",	0,	balias,		ualias	},
 	{	"alloc",	0,	balloc,		NULL	},
-	{	"bg",		0,	bfg,		NULL	},
+	{	"bg",		0,	bfg,		ufg	},
 	{	"break",	1,	bnallo,		NULL	},
 	{	"case",		0,	bdummy,		NULL	},
 	{	"cd",		0,	bcd,		ucd	},
@@ -54,7 +56,7 @@ btab bitab[] = {
 	{	"exec",		0,	bexec,		uexec	},
 	{	"exit",		0,	bexit,		uexit	},
 	{	"false",	0,	bfalse,		NULL	},
-	{	"fg",		0,	bfg,		NULL	},
+	{	"fg",		0,	bfg,		ufg	},
 	{	"fi",		0,	bnallo,		NULL	},
 #ifdef	DO_FIND
 	{	"find",		0,	bfind,		(char *)-1 },
@@ -79,7 +81,7 @@ btab bitab[] = {
 	{	"remap",	1,	bremap,		nullstr	},
 	{	"repeat",	0,	brepeat,	urepeat	},
 	{	"resume",	2,	bresume,	uresume	},
-	{	"return",	0,	breturn,	NULL	},
+	{	"return",	0,	breturn,	ureturn	},
 #ifdef	INTERACTIVE
 	{	"savehistory",	1,	bsavehist,	nullstr	},
 #endif
@@ -102,7 +104,7 @@ btab bitab[] = {
 	{	"true",		0,	btrue,		NULL	},
 	{	"type",		0,	btype,		utype	},
 	{	"umask",	0,	bumask,		uumask	},
-	{	"unalias",	0,	bunalias,	NULL	},
+	{	"unalias",	0,	bunalias,	uunalias},
 	{	"unmap",	2,	bunmap,		uunmap	},
 	{	"unset",	2,	bunset,		uunset	},
 	{	"unsetenv",	2,	bunsetenv,	uunsetenv},

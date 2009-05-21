@@ -1,5 +1,5 @@
 '\" t
-.\" @(#)cdda2wav.1	1.29 09/01/20 Copyright 1998,1999,2000 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling
+.\" @(#)cdda2wav.1	1.32 09/04/11 Copyright 1998,1999,2000 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
 .if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
 .if t .ds u \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'u
@@ -354,7 +354,10 @@ sets endianess of the input samples to 'little', 'big' or 'guess' to override de
 .BI \-E " endianess
 .TP
 .BI \-output\-endianess " endianess
-sets endianess of the output samples to 'little' or 'big' to override defaults.
+sets endianess of the output samples to 'little', 'big' or 'machine' to 
+override the default which is 'network byte order' (big endian).
+The value 'machine' or 'host' is evaluated as the actual byte order of
+the host CPU in the current OS.
 .TP
 .BI \-d " duration
 .TP
@@ -369,7 +372,7 @@ sets the time for whole track.
 .B \-bulk
 .TP
 .B \-alltracks
-copies each track into a seperate file.
+copies each track into a separate file.
 .TP
 .B \-w
 .TP
@@ -414,7 +417,7 @@ changes pitch of audio data copied to sound device.
 .BI \-verbose\-level " itemlist
 Retrieves and prints verbose information about the CD.
 .B Level
-is a list of comma seperated suboptions. Each suboption controls the type of information to be reported.
+is a list of comma separated suboptions. Each suboption controls the type of information to be reported.
 
 .TS H
 center box;
@@ -837,9 +840,9 @@ Differences can occur by the usage of the
 option (see below). Notice that recording time will be shortened, unless
 enough disk space exists. Recording can be aborted at anytime by
 pressing the break character (signal SIGQUIT).
-.IP "Record all tracks of a complete audio CD in seperate files"
+.IP "Record all tracks of a complete audio CD in separate files"
 .B \-B
-copies each track into a seperate file. A base name can be given. File names
+copies each track into a separate file. A base name can be given. File names
 have an appended track number and an extension corresponding to the audio
 format. To record all audio tracks of a CD, use a sufficient high duration
 (i.e. \-d99999).
@@ -969,8 +972,8 @@ Endianess can be set explicitly to "little" or "big" or to the automatic
 endianess detection based on voting with "guess".
 .IP "Set endianess of output samples"
 .B \-E " endianess"
-(endianess can be "little" or "big") will override the default settings 
-of the output format.
+(endianess can be "little", "big" or "machine") will override the
+default settings of the output format.
 .IP "Verbose option"
 .B \-v " itemlist"
 prints more information. A list allows selection of different
@@ -997,7 +1000,7 @@ retrieves and displays international standard recording codes
 .B "sectors"
 displays track start positions in absolute sector notation
 .sp
-To combine several requests just list the suboptions seperated with commas.
+To combine several requests just list the suboptions separated with commas.
 .IP "The table of contents"
 The display will show the table of contents with number of tracks and
 total time (displayed in
@@ -1118,7 +1121,7 @@ Cdda2wav can generate a lot of files for various purposes.
 Audio files:
 .sp
 There are audio files containing samples with default extensions
-.wav, .au, .aifc, .aiff, and .cdr according to the selected sound format.
+\&.wav, .au, .aifc, .aiff, and .cdr according to the selected sound format.
 These files are not generated when option
 .RB ( \-N )
 is given. Multiple files may

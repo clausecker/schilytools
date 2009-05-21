@@ -35,7 +35,7 @@
 /*
  * This file contains modifications Copyright 2008-2009 J. Schilling
  *
- * @(#)defs.h	1.18 09/02/17 2008-2009 J. Schilling
+ * @(#)defs.h	1.21 09/04/15 2008-2009 J. Schilling
  */
 
 #ifdef	__cplusplus
@@ -167,6 +167,7 @@ extern "C" {
 #include	<signal.h>
 #include	<schily/types.h>
 #include	<schily/utypes.h>
+#include	<schily/time.h>
 #define	index	__no_index__
 #include	<schily/string.h>
 #undef	index
@@ -179,6 +180,7 @@ extern "C" {
 #include	<ctype.h>
 #include	<schily/nlsdefs.h>
 #include	<schily/wchar.h>	/* includes stdio.h */
+#include	<schily/wctype.h>	/* needed before we use wchar_t */
 #undef	feof				/* to make mode.h compile with K&R */
 
 #include 	"mac.h"
@@ -221,6 +223,10 @@ extern "C" {
 #define	EXPORT
 #define	LOCAL	static
 
+/*
+ * This is a static configuration for SunOS-5.11.
+ * For other platforms, use the dynamic SCHILY_BUILD environment.
+ */
 #define	HAVE_LIBGEN_H
 #define	HAVE_GMATCH
 #define	HAVE_UCONTEXT_H
@@ -233,10 +239,13 @@ extern "C" {
 #define	HAVE_MEMCPY
 #define	HAVE_MEMMOVE
 #define	HAVE_SBRK
+#define	HAVE_GETPGID
+#define	HAVE_GETSID
 
 #define	HAVE_ISASTREAM
 #define	HAVE_SIGINFO_H
 #define	HAVE_SIGINFO_T
+#define	HAVE_SIGALTSTACK
 #define	HAVE_STACK_T
 #define	HAVE_STROPTS_H
 #define	HAVE_STRTOLL

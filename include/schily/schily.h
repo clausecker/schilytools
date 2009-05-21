@@ -1,4 +1,4 @@
-/* @(#)schily.h	1.78 09/01/13 Copyright 1985-2009 J. Schilling */
+/* @(#)schily.h	1.79 09/04/21 Copyright 1985-2009 J. Schilling */
 /*
  *	Definitions for libschily
  *
@@ -105,15 +105,15 @@ extern "C" {
  * fdexec*() to follow the rules of other similar POSIX functions.
  * Simiar problems exist with getline()/fgetline().
  */
-#if	defined(HAVE_FEXECL) || defined(HAVE_FEXECLE) || \
-	defined(HAVE_FEXECV) || defined(HAVE_FEXECVE)
+#if	defined(HAVE_RAW_FEXECL) || defined(HAVE_RAW_FEXECLE) || \
+	defined(HAVE_RAW_FEXECV) || defined(HAVE_RAW_FEXECVE)
 #define	RENAME_FEXEC
 #endif
-#if	defined(HAVE_FSPAWNV) || defined(HAVE_FSPAWNL) || \
-	defined(HAVE_FSPAWNV_NOWAIT)
+#if	defined(HAVE_RAW_FSPAWNV) || defined(HAVE_RAW_FSPAWNL) || \
+	defined(HAVE_RAW_FSPAWNV_NOWAIT)
 #define	RENAME_FSPAWN
 #endif
-#if	defined(HAVE_GETLINE) || defined(HAVE_FGETLINE)
+#if	defined(HAVE_RAW_GETLINE) || defined(HAVE_RAW_FGETLINE)
 #define	RENAME_GETLINE
 #endif
 

@@ -1,9 +1,13 @@
-/* @(#)byteorder.h	1.5 06/05/13 Copyright 1998,1999 Heiko Eissfeldt */
+/* @(#)byteorder.h	1.8 09/05/05 Copyright 1998,1999 Heiko Eissfeldt, Copyright 2006-2009 J. Schilling */
 
-#ifndef _BYTEORDER_H
+#if	!defined(_BYTEORDER_H) || !defined(MYBYTE_ORDER)
+#undef	_BYTEORDER_H
 #define	_BYTEORDER_H
-
+#undef	MYBYTE_ORDER
 #define	MYBYTE_ORDER 1
+
+#include <schily/btorder.h>
+
 
 /*
  * supply the byte order macros

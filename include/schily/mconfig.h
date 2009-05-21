@@ -1,8 +1,8 @@
-/* @(#)mconfig.h	1.63 08/11/25 Copyright 1995-2007 J. Schilling */
+/* @(#)mconfig.h	1.64 09/04/10 Copyright 1995-2009 J. Schilling */
 /*
  *	definitions for machine configuration
  *
- *	Copyright (c) 1995-2007 J. Schilling
+ *	Copyright (c) 1995-2009w J. Schilling
  *
  *	This file must be included before any other file.
  *	If this file is not included before stdio.h you will not be
@@ -43,7 +43,7 @@
 #endif
 
 /*
- * Inside <schily/archdefs.h> Processor, we get architecture specific defines
+ * Inside <schily/archdefs.h> we get architecture specific Processor defines
  * fetched from compiler predefinitions only.
  */
 #include <schily/archdefs.h>
@@ -314,6 +314,17 @@ extern "C" {
 #endif
 
 /*
+ * We use HAVE_LONGLONG as generalized test on whether "long long", "__in64" or
+ * something similar exist.
+ *
+ * In case that HAVE_LONGLONG is defined here, this is an indication that
+ * "long long" works. We define HAVE_LONG_LONG to keep this knowledge.
+ */
+#ifdef	HAVE_LONGLONG
+#	define	HAVE_LONG_LONG
+#endif
+
+/*
  * Microsoft C defines _MSC_VER
  * use __int64 instead of long long and use 0i64 for a signed long long const
  * and 0ui64 for an unsigned long long const.
@@ -324,9 +335,9 @@ extern "C" {
  *	use long long
  * #endif
  *
- * Be very careful here as MSVC does not implement long long but rather __int64
- * and once someone makes 'long long' 128 bits on a 64 bit machine, we need to
- * check for a MSVC __int128 type.
+ * Be very careful here as older MSVC versions do not implement long long but
+ * rather __int64 and once someone makes 'long long' 128 bits on a 64 bit machine,
+ * we may need to check for a MSVC __int128 type.
  */
 #ifndef	HAVE_LONGLONG
 #	if	defined(HAVE___INT64)
@@ -335,12 +346,15 @@ extern "C" {
 #endif
 
 /*
- * gcc 2.x generally implements the long long type.
+ * gcc 2.x generally implements the "long long" type.
  */
 #ifdef	__GNUC__
 #	if	__GNUC__ > 1
 #		ifndef	HAVE_LONGLONG
 #			define	HAVE_LONGLONG
+#		endif
+#		ifndef	HAVE_LONG_LONG
+#			define	HAVE_LONG_LONG
 #		endif
 #	endif
 #endif

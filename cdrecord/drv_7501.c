@@ -1,13 +1,13 @@
-/* @(#)drv_7501.c	1.25 08/12/22 Copyright 2003-2008 J. Schilling */
+/* @(#)drv_7501.c	1.26 09/05/21 Copyright 2003-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)drv_7501.c	1.25 08/12/22 Copyright 2003-2008 J. Schilling";
+	"@(#)drv_7501.c	1.26 09/05/21 Copyright 2003-2009 J. Schilling";
 #endif
 /*
  *	Device driver for the Masushita CW-7501
  *
- *	Copyright (c) 2003-2008 J. Schilling
+ *	Copyright (c) 2003-2009 J. Schilling
  *
  * Mode Pages:
  *	0x01	error recovery		Seite 100
@@ -496,7 +496,7 @@ cw7501_next_wr_addr(scgp, trackp, ap)
 	if (scgp->verbose)
 		scg_prbytes("track info:", buf,
 				12-scg_getresid(scgp));
-	next_addr = a_to_4_byte(&nwa->nwa_nwa);
+	next_addr = a_to_4_byte(nwa->nwa_nwa);
 	/*
 	 * XXX Für TAO definitiv notwendig.
 	 * XXX ABhängig von Auto-Pregap?
@@ -704,7 +704,7 @@ cw7501_open_session(scgp, dp, trackp)
 	md.pagex.page24.p_code = 0x24;
 	md.pagex.page24.p_len =  0x0A;
 	md.pagex.page24.disktype = toc2sess[track_base(trackp)->tracktype & TOC_MASK];
-	i_to_4_byte(&md.pagex.page24.disk_id, 0x12345);
+	i_to_4_byte(md.pagex.page24.disk_id, 0x12345);
 
 	return (mode_select(scgp, (Uchar *)&md, count, 0, scgp->inq->data_format >= 2));
 }

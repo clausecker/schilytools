@@ -1,4 +1,4 @@
-/* @(#)fnmatch.h	8.6 06/10/10 2006 J. Schilling from 8.1 (Berkeley) */
+/* @(#)fnmatch.h	8.7 09/05/05 Copyright 2006-2009 J. Schilling from 8.1 (Berkeley) */
 
 #ifndef	_SCHILY_FNMATCH_H
 #define	_SCHILY_FNMATCH_H
@@ -6,7 +6,7 @@
 #ifndef _SCHILY_MCONFIG_H
 #include <schily/mconfig.h>
 #endif
-#ifdef	HAVE_FNMATCH
+#ifdef	HAVE_FNMATCH_H
 #include <fnmatch.h>
 #else
 /*
@@ -37,7 +37,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- *	@(#)fnmatch.h	8.6 (Berkeley) 10/10/06
+ *	@(#)fnmatch.h	8.7 (Berkeley) 05/05/09
  */
 
 #define	FNM_NOMATCH	1	/* Match failed. */

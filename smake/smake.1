@@ -1,4 +1,4 @@
-. \" @(#)smake.1	1.18 08/07/09 Copyright 1985-2008 J. Schilling
+. \" @(#)smake.1	1.20 09/05/08 Copyright 1985-2009 J. Schilling
 . \"  Manual page for smake
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -13,7 +13,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH SMAKE 1 "08/07/09" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH SMAKE 1 "09/05/08" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 smake \- maintain, update, and regenerate programs
 .SH SYNOPSIS
@@ -84,6 +84,11 @@ features that allow to implement portable, layered, object oriented makefiles.
 
 .SH OPTIONS
 .TP
+.BI \-C " dir
+Change the working directory to
+.I dir
+before starting work.
+.TP
 .B \-e
 Environment variables override macro definition in Makefile(s).
 .TP
@@ -105,7 +110,7 @@ by default aborts on this condition, but it seems that traditional UNIX
 make programs ignore this condition for unknown reason.
 .TP
 .B \-n
-Don't make - only say what to do. 
+Don't make \- only say what to do. 
 This prints the commands that would be executed on standard output.
 Lines with a plus sign ('+') will be executed in any case.
 Even those lines that have an at sign ('@') will be printed to standard output.
@@ -786,15 +791,15 @@ stream are prefixed by a TAB character instead of three dots (...).
 I POSIX mode,
 .B smake
 also calls commands via
-.B "/bin/sh -c 'cmd'
+.B "/bin/sh \-c 'cmd'
 instead of
-.BR "/bin/sh -ce 'cmd'" .
+.BR "/bin/sh \-ce 'cmd'" .
 This causes 
 .B smake
 not to stop at failing sub commands in complex commands. If the 
 .B \&.POSIX:
 special target is used, it is highly recommended to also specify
-.B "MAKE_SHELL_FLAG=-ce
+.B "MAKE_SHELL_FLAG=\-ce
 to make sure that the make process still stops at failed commands.
 .RE
 .TP
@@ -952,7 +957,7 @@ is escaped by a back slash.
 A typical
 content may look this way:
 .br 
-.BR "CC=gcc COPTX=-DTEST\e -DDEBUG" .
+.BR "CC=gcc COPTX=\-DTEST\e \-DDEBUG" .
 .sp
 If both command line flags and command line macros are used, the
 flag part is made as if there were only flags and the macro part
@@ -962,7 +967,7 @@ two hyphens and a space.
 A typical
 content may look this way:
 .br 
-.BR "\-id -\|- CC=gcc COPTX=-DTEST\e -DDEBUG" .
+.BR "\-id -\|- CC=gcc COPTX=\-DTEST\e \-DDEBUG" .
 .sp
 As the 
 .B MAKEFLAGS
@@ -1096,7 +1101,7 @@ as part of the
 features of
 .BR smake .
 It contains operating system specific defines for the compiler
-(e.g. -D__SVR4).
+(e.g. \-D__SVR4).
 .
 .TP
 .B MAKE_OSREL

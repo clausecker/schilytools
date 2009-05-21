@@ -1,14 +1,14 @@
-/* @(#)update.c	1.112 09/03/01 Copyright 1985, 88, 91, 1995-2008 J. Schilling */
+/* @(#)update.c	1.115 09/04/16 Copyright 1985, 88, 91, 1995-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)update.c	1.112 09/03/01 Copyright 1985, 88, 91, 1995-2008 J. Schilling";
+	"@(#)update.c	1.115 09/04/16 Copyright 1985, 88, 91, 1995-2009 J. Schilling";
 #endif
 /*
  *	Make program
  *	Macro handling / Dependency Update
  *
- *	Copyright (c) 1985, 88, 91, 1995-2008 by J. Schilling
+ *	Copyright (c) 1985, 88, 91, 1995-2009 by J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -91,7 +91,7 @@ LOCAL	obj_t	*one_suff_src	__PR((char *name, char *suffix, cmd_t **pcmd, int dlev
 LOCAL	obj_t	*ssuff_src	__PR((char *name, obj_t * rule, int *rtypep, char ** suffixp, cmd_t ** pcmd, int dlev));
 LOCAL	obj_t	*findsrc	__PR((obj_t *obj, obj_t * rule, int *rtypep, char ** suffixp, cmd_t ** pcmd, int dlev));
 LOCAL	date_t	default_cmd	__PR((obj_t * obj, char *depname, date_t  deptime, int deplevel, BOOL  must_exist, int dlev));
-LOCAL	date_t	make		__PR((obj_t * obj, BOOL lust_exist, int dlev));
+LOCAL	date_t	make		__PR((obj_t * obj, BOOL must_exist, int dlev));
 EXPORT	BOOL	domake		__PR((char *name));
 EXPORT	BOOL	omake		__PR((obj_t * obj, BOOL  must_exist));
 EXPORT	BOOL	xmake		__PR((char *name, BOOL  must_exist));
@@ -148,7 +148,7 @@ copy_dir(name, dir, dsize)
 		char	*ns = name;
 
 	if (XDebug > 0)
-		error("copy_dir(name:'%s', dir:'%s', dsize: %d) fn: '%s' \n",
+		error("copy_dir(name:'%s', dir:'%s', dsize: %zd) fn: '%s' \n",
 				name, dir, dsize, p);
 	*dir = '\0';
 	if (p == name) {
@@ -600,6 +600,16 @@ etoolong(topic, name)
  */
 static char *sub_ptr = (char *)NULL;
 
+/*
+ * Check whether a pointer is inside the growable buffer (gbuf)
+ *
+ *	ison_gbuf(p)	depends on the global variables "gbuf" and "gbufend"
+ *	wason_gbuf(p)	depens on local copies in "sb" and "sbe" that hold
+ *			old values.
+ */
+#define	ison_gbuf(p)	((p) >= gbuf && (p) < gbufend)
+#define	wason_gbuf(p)	((p) >= sb && (p) < sbe)
+
 LOCAL void
 grant_gbuf(size)
 	int	size;
@@ -621,7 +631,13 @@ sub_put(chunk, size)
 	char	*chunk;
 	int	size;
 {
+	char	*sb = gbuf;
+	char	*sbe = gbufend;
+
 	grant_gbuf(size);
+	if (sb != gbuf && wason_gbuf(chunk)) {
+		chunk = gbuf + (chunk - sb);
+	}
 	movebytes(chunk, sub_ptr, size);
 	sub_ptr += size;
 	*sub_ptr = '\0';	/* Null terminate the gbuf string */
@@ -1277,6 +1293,7 @@ patsub(name, f1, f2, t1, t2)
 	int	l;
 	char	*p;
 	char	*sb = gbuf;
+	char	*sbe = gbufend;
 
 /*	printf("name: '%s' f1: '%s' f2: '%s' t1: '%s' t2: '%s'\n", name, f1, f2, t1, t2);*/
 
@@ -1299,12 +1316,13 @@ patsub(name, f1, f2, t1, t2)
 
 	l = p - name;
 	if (t1 != NULL) {		/* This is a suffix rule */
-		grant_gbuf(l);		/* Grow gbuf before sub_put() */
+		sub_put(name, l);	/* 'name' maybe on gbuf... */
 		if (sb != gbuf) {
-			name = gbuf + (name - sb);
+			if (wason_gbuf(name))
+				name = gbuf + (name - sb);
 			sb = gbuf;
+			sbe = gbufend;
 		}
-		sub_put(name, l);	/* 'name' is on gbuf... */
 		p = t1;
 	} else {			/* This is a pattern rule */
 		p = t2;
@@ -1312,14 +1330,17 @@ patsub(name, f1, f2, t1, t2)
 	while (*p) {
 		if (*p == '%') {
 			p++;
-			grant_gbuf(l);	/* Grow gbuf before sub_put() */
-			if (sb != gbuf) {
-				name = gbuf + (name - sb);
-				sb = gbuf;
-			}
 			sub_put(name, l); /* 'name' is on gbuf... */
 		} else {
-			sub_c_put(*p++);
+			sub_put(p++, 1);
+		}
+		if (sb != gbuf) {
+			if (wason_gbuf(name))
+				name = gbuf + (name - sb);
+			if (wason_gbuf(p))
+				p = gbuf + (p - sb);
+			sb = gbuf;
+			sbe = gbufend;
 		}
 	}
 	return (TRUE);
@@ -1382,6 +1403,7 @@ patmsub(name, f1, f2, t1, t2)
 	char	*osp = name;
 	char	*sp = sub_ptr;
 	char	*sb = gbuf;
+	char	*sbe = gbufend;
 	char	*b;
 	char	c;
 
@@ -1398,12 +1420,7 @@ patmsub(name, f1, f2, t1, t2)
 
 /*error("name '%s'\n", name);*/
 		if (!patsub(name, f1, f2, t1, t2)) {
-			char	*n = name;
-
-			grant_gbuf(strlen(name));	/* Grow gbuf before */
-			if (sb != gbuf)
-				n = gbuf + (n - sb);
-			sub_s_put(n);			/* 'n' is on gbuf... */
+			sub_s_put(name);	/* 'name' maybe on gbuf... */
 		}
 		if (sb != gbuf) {
 			sp = gbuf + (sp - sb);
@@ -1412,12 +1429,22 @@ patmsub(name, f1, f2, t1, t2)
 			if (b != NULL)
 				b = gbuf + (b - sb);
 			sb = gbuf;
+			sbe = gbufend;
 		}
 
 		if (b) {
 			sub_c_put(c);
-			while (*b != '\0' && white(*b))
-				sub_c_put(*b++);
+			while (*b != '\0' && white(*b)) {
+				sub_put(b++, 1);
+				if (sb != gbuf) {
+					sp = gbuf + (sp - sb);
+					osp = gbuf + (osp - sb);
+					if (wason_gbuf(b))
+						b = gbuf + (b - sb);
+					sb = gbuf;
+					sbe = gbufend;
+				}
+			}
 		}
 		name = b;
 	} while (b);
@@ -1857,10 +1884,10 @@ patr_src(name, prule, rtypep, suffixp, pcmd, dlev)
 		goto found;
 	}
 	if ((prule->p_list->l_obj->o_flags & F_PERCENT) == 0)
-		errmsgno(EX_BAD, 
+		errmsgno(EX_BAD,
 		"WARNING: Non-percent pattern dependencies not yet supported.\n");
 	if (prule->p_list->l_next)
-		errmsgno(EX_BAD, 
+		errmsgno(EX_BAD,
 		"WARNING: More than one pattern dependency not yet supported.\n");
 
 again:
@@ -2014,7 +2041,7 @@ one_suff_src(name, suffix, pcmd, dlev)
 		char	_rulename[TYPICAL_NAMEMAX];
 		char	*rulename = _rulename;
 		char	*rp = NULL;
-		size_t	rlen = sizeof(_rulename);
+		size_t	rlen = sizeof (_rulename);
 		size_t	endlen;
 		size_t	sourcelen;
 		size_t	len;

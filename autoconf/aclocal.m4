@@ -1,4 +1,4 @@
-dnl @(#)aclocal.m4	1.73 09/02/10 Copyright 1998-2009 J. Schilling
+dnl @(#)aclocal.m4	1.74 09/04/13 Copyright 1998-2009 J. Schilling
 
 dnl Set VARIABLE to VALUE in C-string form, verbatim, or 1.
 dnl AC_DEFINE_STRING(VARIABLE [, VALUE])
@@ -41,6 +41,20 @@ if test $ac_cv_have_type_$2 = yes; then
   AC_DEFINE_UNQUOTED($ac_tr_type)
 fi
 ])
+
+AC_DEFUN(AC_ICONV_CONST,
+[AC_CACHE_CHECK(whether iconv() uses const char **, ac_cv_iconv_const,
+[cat > conftest.c <<EOF
+#include <iconv.h>
+EOF
+if AC_TRY_COMMAND(${CC-cc} -E conftest.c) | grep 'size_t.*iconv.*iconv_t.*const' >/dev/null 2>&1; then
+  ac_cv_iconv_const=yes
+else
+  ac_cv_iconv_const=no
+fi])
+if test $ac_cv_iconv_const = yes; then
+  AC_DEFINE(HAVE_ICONV_CONST)
+fi])
 
 dnl Checks if /bin/sh is bash
 dnl Defines BIN_SHELL_IS_BASH on success.

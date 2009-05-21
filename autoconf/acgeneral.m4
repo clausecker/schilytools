@@ -1,4 +1,4 @@
-dnl @(#)acgeneral.m4	1.7 09/02/10 Copyright 1998-2008 J. Schilling
+dnl @(#)acgeneral.m4	1.9 09/04/21 Copyright 1998-2009 J. Schilling
 dnl
 dnl Parameterized macros.
 dnl Requires GNU m4.
@@ -1978,6 +1978,51 @@ dnl AC_REPLACE_FUNCS(FUNCTION...)
 AC_DEFUN(AC_REPLACE_FUNCS,
 [AC_CHECK_FUNCS([$1], , [LIBOBJS="$LIBOBJS ${ac_func}.${ac_objext}"])
 AC_SUBST(LIBOBJS)dnl
+])
+
+
+dnl ### Raw Checking for the pure existence of library functions
+
+
+dnl AC_RCHECK_FUNC(FUNCTION, [ACTION-IF-FOUND [, ACTION-IF-NOT-FOUND]])
+AC_DEFUN(AC_RCHECK_FUNC,
+[AC_MSG_CHECKING([for raw availability of $1])
+AC_CACHE_VAL(ac_cv_rfunc_$1,
+[AC_TRY_LINK(
+dnl Don't include <ctype.h> because on OSF/1 3.0 it includes <sys/types.h>
+dnl which includes <sys/select.h> which contains a prototype for
+dnl select.  Similarly for bzero.
+[/* Override any gcc2 internal prototype to avoid an error.  */
+]ifelse(AC_LANG, CPLUSPLUS, [#ifdef __cplusplus
+extern "C"
+#endif
+])dnl
+[/* We use char because int might match the return type of a gcc2
+    builtin and then its argument prototype would still apply.  */
+char $1();
+], [
+$1();
+], eval "ac_cv_rfunc_$1=yes", eval "ac_cv_rfunc_$1=no")])
+if eval "test \"`echo '$ac_cv_rfunc_'$1`\" = yes"; then
+  AC_MSG_RESULT(yes)
+  ifelse([$2], , :, [$2])
+else
+  AC_MSG_RESULT(no)
+ifelse([$3], , , [$3
+])dnl
+fi
+])
+
+dnl AC_RCHECK_FUNCS(FUNCTION... [, ACTION-IF-FOUND [, ACTION-IF-NOT-FOUND]])
+AC_DEFUN(AC_RCHECK_FUNCS,
+[for ac_func in $1
+do
+AC_RCHECK_FUNC($ac_func,
+[changequote(, )dnl
+  ac_tr_func=HAVE_RAW_`echo $ac_func | tr 'abcdefghijklmnopqrstuvwxyz' 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'`
+changequote([, ])dnl
+  AC_DEFINE_UNQUOTED($ac_tr_func) $2], $3)dnl
+done
 ])
 
 

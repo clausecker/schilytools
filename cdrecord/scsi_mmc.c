@@ -1,8 +1,8 @@
-/* @(#)scsi_mmc.c	1.47 09/01/14 Copyright 2002-2009 J. Schilling */
+/* @(#)scsi_mmc.c	1.48 09/05/18 Copyright 2002-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)scsi_mmc.c	1.47 09/01/14 Copyright 2002-2009 J. Schilling";
+	"@(#)scsi_mmc.c	1.48 09/05/18 Copyright 2002-2009 J. Schilling";
 #endif
 /*
  *	SCSI command functions for cdrecord
@@ -1179,8 +1179,10 @@ print_format_capacities(scgp)
 
 	fillbytes(b, sizeof (b), '\0');
 	scgp->silent++;
-	read_format_capacities(scgp, (char *)b, sizeof (b));
+	i = read_format_capacities(scgp, (char *)b, sizeof (b));
 	scgp->silent--;
+	if (i < 0)
+		return;
 
 	i = b[3] + 4;
 	fillbytes(b, sizeof (b), '\0');
@@ -1221,8 +1223,12 @@ get_format_capacities(scgp, bp, cnt)
 	fillbytes(bp, cnt, '\0');
 	if (cnt < len)
 		return (-1);
-	if (read_format_capacities(scgp, bp, len) < 0)
+	scgp->silent++;
+	if (read_format_capacities(scgp, bp, len) < 0) {
+		scgp->silent--;
 		return (-1);
+	}
+	scgp->silent--;
 
 	if (scg_getresid(scgp) > 0)
 		return (-1);

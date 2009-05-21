@@ -1,13 +1,13 @@
-/* @(#)findinpath.c	1.3 09/02/07 Copyright 2004-2008 J. Schilling */
+/* @(#)findinpath.c	1.4 09/04/19 Copyright 2004-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)findinpath.c	1.3 09/02/07 Copyright 2004-2008 J. Schilling";
+	"@(#)findinpath.c	1.4 09/04/19 Copyright 2004-2009 J. Schilling";
 #endif
 /*
  * Search a file name in the PATH and return the path name in allocated space.
  *
- * Copyright 2004-2008 J. Schilling
+ * Copyright 2004-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

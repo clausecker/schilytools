@@ -1,5 +1,5 @@
 '\" t
-. \" @(#)star.4	1.16 08/03/14 Copyr 2003-2008 J. Schilling
+. \" @(#)star.4	1.17 09/04/10 Copyr 2003-2008 J. Schilling
 . \" star archive formats
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -14,7 +14,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH STAR 4L "08/03/14" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH STAR 4L "09/04/10" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 star \- tape archive file format
 .SH DESCRIPTION
@@ -1346,7 +1346,7 @@ incremental dump with a level > 0.
 It represents the level of the related dump.
 The related dump is the last dump with a level that is lower
 that the level of this dump.
-If a dump with the level of the current dump -1 exists, then
+If a dump with the level of the current dump \-1 exists, then
 this is the related dump level. Otherwise, the dump level is
 decremented until a valid dump level could be found in the
 dump database.

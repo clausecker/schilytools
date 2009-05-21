@@ -1,8 +1,8 @@
-/* @(#)sic_nls.c	1.8 08/12/22 Copyright 2007-2008 J. Schilling */
+/* @(#)sic_nls.c	1.10 09/04/19 Copyright 2007-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)sic_nls.c	1.8 08/12/22 Copyright 2007-2008 J. Schilling";
+	"@(#)sic_nls.c	1.10 09/04/19 Copyright 2007-2009 J. Schilling";
 #endif
 /*
  * This code reads translation files in the format used by
@@ -12,7 +12,7 @@ static	const char sccsid[] =
  * from single byte character sets to unicode.
  * We use this code on systems that do not provide the iconv() function.
  *
- * Copyright 2007-2008 J. Schilling
+ * Copyright 2007-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -456,10 +456,10 @@ dup_iconv_sic(sip)
 		return ((siconvt_t *)NULL);
 	}
 	sp->sic_name = nm;	/* Allow to compare name pointers */
-	sip->sic_uni2cs = NULL;
-	sip->sic_cs2uni = NULL;
-	sip->sic_cd2uni = from;
-	sip->sic_uni2cd = to;
+	sp->sic_uni2cs = NULL;
+	sp->sic_cs2uni = NULL;
+	sp->sic_cd2uni = from;
+	sp->sic_uni2cd = to;
 	sp->sic_alt    = NULL;
 	sp->sic_next   = NULL;
 	sip->sic_alt = sp;

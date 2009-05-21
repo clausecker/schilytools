@@ -25,13 +25,13 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2008 J. Schilling
+ * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)deltack.c	1.5 08/08/20 J. Schilling
+ * @(#)deltack.c	1.6 09/04/10 J. Schilling
  */
 #if defined(sun) || defined(__GNUC__)
 
-#ident "@(#)deltack.c 1.5 08/08/20 J. Schilling"
+#ident "@(#)deltack.c 1.6 09/04/10 J. Schilling"
 #endif
 /*
  * @(#)deltack.c 1.8 06/12/12
@@ -194,7 +194,7 @@ char *cmrs,*statp,*type,*fred;
 			strcpy(type,Sflags[TYPEFLAG - 'a']);
 		else
 			strcpy(type,NOGETTEXT("sw"));
-			/* rebuild cmr comma seperated list*/
+			/* rebuild cmr comma separated list*/
 		cat(nold, cmrlist[0], (char *)0);
 		for(i=1;i<numcmrs;i++)
 		{

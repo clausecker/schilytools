@@ -1,6 +1,6 @@
-/* @(#)libport.h	1.17 08/12/24 Copyright 1995-2008 J. Schilling */
+/* @(#)libport.h	1.18 09/05/05 Copyright 1995-2009 J. Schilling */
 /*
- *	Copyright (c) 1995-2008 J. Schilling
+ *	Copyright (c) 1995-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -49,7 +49,7 @@ extern "C" {
 extern	long		gethostid	__PR((void));
 #endif
 #ifndef	HAVE_GETPAGESIZE
-EXPORT	int		getpagesize	__PR((void));
+extern	int		getpagesize	__PR((void));
 #endif
 #ifndef	HAVE_USLEEP
 extern	int		usleep		__PR((int usec));

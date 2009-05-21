@@ -1,8 +1,8 @@
-/* @(#)movebytes.c	1.16 07/06/24 Copyright 1985, 1989, 1995-2007 J. Schilling */
+/* @(#)movebytes.c	1.17 09/04/10 Copyright 1985, 1989, 1995-2009 J. Schilling */
 /*
  *	move data
  *
- *	Copyright (c) 1985, 1989, 1995-2007 J. Schilling
+ *	Copyright (c) 1985, 1989, 1995-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -43,7 +43,7 @@ movebytes(fromv, tov, cnt)
 
 	if (from >= to) {
 		/*
-		 * source is on higher adresses than destination:
+		 * source is on higher addresses than destination:
 		 *	move bytes forwards
 		 */
 		if (n >= (int)(8 * sizeof (long))) {
@@ -83,7 +83,7 @@ movebytes(fromv, tov, cnt)
 		char *ep;
 
 		/*
-		 * source is on lower adresses than destination:
+		 * source is on lower addresses than destination:
 		 *	move bytes backwards
 		 */
 		to += n;

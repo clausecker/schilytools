@@ -1,13 +1,13 @@
-/* @(#)make.c	1.151 08/12/22 Copyright 1985, 87, 88, 91, 1995-2008 J. Schilling */
+/* @(#)make.c	1.153 09/05/08 Copyright 1985, 87, 88, 91, 1995-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)make.c	1.151 08/12/22 Copyright 1985, 87, 88, 91, 1995-2008 J. Schilling";
+	"@(#)make.c	1.153 09/05/08 Copyright 1985, 87, 88, 91, 1995-2009 J. Schilling";
 #endif
 /*
  *	Make program
  *
- *	Copyright (c) 1985, 87, 88, 91, 1995-2008 by J. Schilling
+ *	Copyright (c) 1985, 87, 88, 91, 1995-2009 by J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -265,6 +265,7 @@ usage(exitcode)
 	error("	-help	Print this help.\n");
 	error("	-version Print version number.\n");
 	error("	-posix	Force POSIX behaviour.\n");
+	error("	-C dir	Change directory to 'dir' before starting work.\n");
 	error("	mf=makefilename | -f makefilename\n");
 	error("More than -f makefile option may be specified.\n");
 	exit(exitcode);
@@ -856,7 +857,8 @@ main(ac, av)
 		int	i;
 		int	cac = ac;
 		char	* const *cav = av;
-	static	char	options[] = "help,version,posix,e,i,k,n,N,p,q,r,s,S,t,w,W,d+,D+,xM,xd+,probj,mf&,f&,&";
+		char	*newdir = NULL;
+	static	char	options[] = "help,version,posix,e,i,k,n,N,p,q,r,s,S,t,w,W,d+,D+,xM,xd+,probj,C*,mf&,f&,&";
 
 	save_args(ac, av);
 
@@ -884,7 +886,7 @@ main(ac, av)
 			&Eflag, &Iflag, &Kflag, &Nflag, &NSflag, &Print,
 			&Qflag, &Rflag, &Sflag, &Stopflag, &Tflag,
 			&NoWarn, &DoWarn,
-			&Debug, &Dmake, &Prdep, &XDebug, &Probj,
+			&Debug, &Dmake, &Prdep, &XDebug, &Probj, &newdir,
 			addmakefile, NULL,
 			addmakefile, NULL,
 			addcommandline, NULL) < 0) {
@@ -894,10 +896,14 @@ main(ac, av)
 	if (help)
 		usage(0);
 	if (pversion) {
-		printf("Smake release %s (%s-%s-%s) Copyright (C) 1985, 87, 88, 91, 1995-2008 Jörg Schilling\n",
+		printf("Smake release %s (%s-%s-%s) Copyright (C) 1985, 87, 88, 91, 1995-2009 Jörg Schilling\n",
 				make_version,
 				HOST_CPU, HOST_VENDOR, HOST_OS);
 		exit(0);
+	}
+	if (newdir) {
+		if (chdir(newdir) < 0)
+			comerr("Cannot change diretory to '%s'\n", newdir);
 	}
 	/*
 	 * XXX Is this the right place to set the options and cmd line macros

@@ -1,8 +1,8 @@
-/* @(#)inputc.c	1.52 09/02/08 Copyright 1982, 1984-2009 J. Schilling */
+/* @(#)inputc.c	1.53 09/04/16 Copyright 1982, 1984-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)inputc.c	1.52 09/02/08 Copyright 1982, 1984-2009 J. Schilling";
+	"@(#)inputc.c	1.53 09/04/16 Copyright 1982, 1984-2009 J. Schilling";
 #endif
 /*
  *	inputc.c

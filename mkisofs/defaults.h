@@ -1,9 +1,9 @@
-/* @(#)defaults.h	1.22 09/02/17 joerg */
+/* @(#)defaults.h	1.23 09/04/07 joerg */
 /*
  * Header file defaults.h - assorted default values for character strings in
  * the volume descriptor.
  *
- * Copyright (c) 1999-2004 J. Schilling
+ * Copyright (c) 1999-2009 J. Schilling
  */
 
 #define	PREPARER_DEFAULT 	NULL

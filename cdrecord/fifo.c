@@ -1,8 +1,8 @@
-/* @(#)fifo.c	1.55 09/02/07 Copyright 1989,1997-2008 J. Schilling */
+/* @(#)fifo.c	1.56 09/04/19 Copyright 1989,1997-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)fifo.c	1.55 09/02/07 Copyright 1989,1997-2008 J. Schilling";
+	"@(#)fifo.c	1.56 09/04/19 Copyright 1989,1997-2009 J. Schilling";
 #endif
 /*
  *	A "fifo" that uses shared memory between two processes
@@ -11,7 +11,7 @@ static	const char sccsid[] =
  *	and a proposal from Finn Arne Gangstad <finnag@guardian.no>
  *	who had the idea to use a ring buffer to handle average size chunks.
  *
- *	Copyright (c) 1989,1997-2008 J. Schilling
+ *	Copyright (c) 1989,1997-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

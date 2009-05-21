@@ -1,4 +1,4 @@
-#ident %W% %E% %Q%
+#ident @(#)Mcsw	1.3 09/04/04 
 ###########################################################################
 deftgt:
 SRCROOT=	.
@@ -29,8 +29,7 @@ MAKE_FILE=	-f Mcsw
 PRE_INST_CMDS=	mkdir -p etc/default
 POST_INST_CMDS=	mkdir -p usr/bin; \
 		(cd usr/bin; ln -s ../../$(INS_BASE)/bin/* . ; rm -f cut paste label tar mt); \
-		mkdir -p usr/ccs/bin; \
-		mv ./$(INS_BASE)/etc/default/* etc/default
+		mkdir -p usr/ccs/bin;
 POST_STRIP_CMDS=	chmod -f u=rwx,g=x,o=x,u+s \
 		./$(INS_BASE)/bin/readcd ./$(INS_BASE)/bin/cdda2wav \
 		./$(INS_BASE)/bin/smt ./$(INS_BASE)/bin/sdd \

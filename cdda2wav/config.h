@@ -1,4 +1,4 @@
-/* @(#)config.h	1.13 09/02/07 Copyright 1998-2003 Heiko Eissfeldt */
+/* @(#)config.h	1.14 09/04/19 Copyright 1998-2003 Heiko Eissfeldt, Copyright 2006-2009 J. Schilling */
 /*
  *	a central configuration file
  */

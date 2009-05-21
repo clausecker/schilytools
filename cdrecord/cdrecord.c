@@ -1,8 +1,8 @@
-/* @(#)cdrecord.c	1.378 09/02/17 Copyright 1995-2009 J. Schilling */
+/* @(#)cdrecord.c	1.380 09/03/24 Copyright 1995-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)cdrecord.c	1.378 09/02/17 Copyright 1995-2009 J. Schilling";
+	"@(#)cdrecord.c	1.380 09/03/24 Copyright 1995-2009 J. Schilling";
 #endif
 /*
  *	Record data on a CD/CVD-Recorder
@@ -153,12 +153,12 @@ char	*wm2name[] = {
 		"RAW/RAW96R",
 };
 
-int		debug;		/* print debug messages */
-LOCAL	int	kdebug;		/* print kernel debug messages */
-LOCAL	int	scsi_verbose;	/* SCSI verbose flag */
-LOCAL	int	silent;		/* SCSI silent flag */
-int		lverbose;	/* local verbose flag */
-int		xdebug;		/* extended debug flag */
+	int	debug;		/* print debug messages		debug=#,-d  */
+LOCAL	int	kdebug;		/* print kernel debug messages	kdebug#,kd# */
+LOCAL	int	scsi_verbose;	/* SCSI verbose flag		-Verbose,-V */
+LOCAL	int	silent;		/* SCSI silent flag		-silent,-s  */
+	int	lverbose;	/* local verbose flag		-verbose,-v */
+	int	xdebug;		/* extended debug flag		-x,xd=#	    */
 
 char	*buf;			/* The transfer buffer */
 long	bufsize = -1;		/* The size of the transfer buffer */
@@ -1190,7 +1190,7 @@ main(ac, av)
 		int	max_raw = (flags & F_FORCE) != 0 ? raw_speed:raw_speed/2;
 
 		if (getenv("CDR_FORCERAWSPEED")) {
-			errmsgno(EX_BAD, 
+			errmsgno(EX_BAD,
 			"WARNING: 'CDR_FORCERAWSPEED=' is set, buffer underruns may occur.\n");
 			max_raw = raw_speed;
 		}
@@ -1223,9 +1223,9 @@ main(ac, av)
 
 		if ((p = getenv("CDR_FORCESPEED")) != NULL) {
 			if ((dp->cdr_dstat->ds_cdrflags & RF_BURNFREE) == 0) {
-				errmsgno(EX_BAD, 
+				errmsgno(EX_BAD,
 				"WARNING: 'CDR_FORCSPEED=' is set.\n");
-				errmsgno(EX_BAD, 
+				errmsgno(EX_BAD,
 				"WARNING: Use 'driveropts=burnfree' to avoid buffer underuns.\n");
 			}
 			max_dma = dma_speed;
@@ -3303,13 +3303,15 @@ checkdsize(scgp, dp, tsize, flags)
 		/*
 		 * dsp->ds_maxblocks == 0 (disk capacity is unknown).
 		 */
+		errmsgno(EX_BAD, "Disk capacity is unknown.\n");
+
 		if (endsec >= (405000-300)) {			/*<90 min disk*/
 			errmsgno(EX_BAD,
-				"Data will not fit on any disk.\n");
+				"Data will not fit on any CD.\n");
 			goto toolarge;
 		} else if (endsec >= (333000-150)) {		/* 74 min disk*/
 			errmsgno(EX_BAD,
-			"WARNING: Data may not fit on standard 74min disk.\n");
+			"WARNING: Data may not fit on standard 74min CD.\n");
 		}
 	}
 	if (dsp->ds_maxblocks <= 0 || endsec <= dsp->ds_maxblocks)
@@ -3339,6 +3341,14 @@ toolarge:
 		if (dsp->ds_flags & DSF_NOCD) {			/* A DVD/BD */
 			if (endsec <= dsp->ds_maxblocks)
 				return (TRUE);
+			if (dsp->ds_maxblocks <= 0) {
+				errmsgno(EX_BAD, "DVD/BD capacity is unknown.\n");
+				if ((flags & (F_IGNSIZE|F_FORCE)) != 0) {
+					errmsgno(EX_BAD,
+						"Notice: -ignsize active.\n");
+					return (TRUE);
+				}
+			}
 			errmsgno(EX_BAD, "Cannot write more than remaining DVD/BD capacity.\n");
 			return (FALSE);
 		}
@@ -4321,7 +4331,7 @@ load_media(scgp, dp, doexit)
 	scgp->silent--;
 	err = geterrno();
 	if (code < 0 && (err == EPERM || err == EACCES)) {
-		linuxcheck();	/* For version 1.378 of cdrecord.c */
+		linuxcheck();	/* For version 1.380 of cdrecord.c */
 		scg_openerr("");
 	}
 
@@ -5197,7 +5207,7 @@ set_wrmode(dp, wmode, tflags)
 }
 
 /*
- * I am sorry that even for version 1.378 of cdrecord.c, I am forced to do
+ * I am sorry that even for version 1.380 of cdrecord.c, I am forced to do
  * things like this, but defective versions of cdrecord cause a lot of
  * work load to me.
  *
@@ -5214,7 +5224,7 @@ set_wrmode(dp, wmode, tflags)
 #endif
 
 LOCAL void
-linuxcheck()				/* For version 1.378 of cdrecord.c */
+linuxcheck()				/* For version 1.380 of cdrecord.c */
 {
 #if	defined(linux) || defined(__linux) || defined(__linux__)
 #ifdef	HAVE_UNAME

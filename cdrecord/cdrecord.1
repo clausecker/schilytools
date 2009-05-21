@@ -1,4 +1,4 @@
-.\" @(#)cdrecord.1	1.123 08/10/23 Copyright 1996-2007 J. Schilling
+.\" @(#)cdrecord.1	1.124 09/04/11 Copyright 1996-2009 J. Schilling
 .\"
 .\" The contents of this file are subject to the terms of the
 .\" Common Development and Distribution License, Version 1.0 only
@@ -6,7 +6,7 @@
 .\" with the License.
 .\"
 .\" See the file CDDL.Schily.txt in this distribution for details.
-."
+.\"
 .\" When distributing Covered Code, include this CDDL HEADER in each
 .\" file and include the License file CDDL.Schily.txt from this distribution.
 .\"
@@ -229,10 +229,10 @@ or
 .B \-VV
 slows down the process and may be the reason for a buffer underrun.
 .TP
-.BI debug= "#, " -d
+.BI debug= "#, " \-d
 Set the misc debug value to # (with debug=#) or increment
-the misc debug level by one (with -d). If you specify
-.I -dd,
+the misc debug level by one (with \-d). If you specify
+.I \-dd,
 this equals to 
 .BI debug= 2.
 This may help to find problems while opening a driver for libscg
@@ -361,7 +361,7 @@ This currently only works with MMC drives that support
 mode.
 Note that cdrecord needs to know the size of each track in advance for this mode
 (see the
-.B "mkisofs \-print-size"
+.B "mkisofs \-print\-size"
 option and the 
 .I EXAMPLES
 section for more information).
@@ -381,7 +381,7 @@ Using this option defaults to
 .BR \-raw96r .
 Note that cdrecord needs to know the size of each track in advance for this mode
 (see the
-.B "mkisofs \-print-size"
+.B "mkisofs \-print\-size"
 option and the 
 .I EXAMPLES
 section for more information).
@@ -406,7 +406,7 @@ Writing data disks in raw mode needs significantly more CPU time than other
 write modes. If your CPU is too slow, this may result in buffer underruns.
 Note that cdrecord needs to know the size of each track in advance for this mode
 (see the
-.B "mkisofs \-print-size"
+.B "mkisofs \-print\-size"
 option and the 
 .I EXAMPLES
 section for more information).
@@ -427,7 +427,7 @@ Writing data disks in raw mode needs significantly more CPU time than other
 write modes. If your CPU is too slow, this may result in buffer underruns.
 Note that cdrecord needs to know the size of each track in advance for this mode
 (see the
-.B "mkisofs \-print-size"
+.B "mkisofs \-print\-size"
 option and the 
 .I EXAMPLES
 section for more information).
@@ -1129,7 +1129,7 @@ Turn on the
 writing mode. The mandatory parameter
 .I value
 is the laser power offset and currently may be selected from
--2, -1, 0, 1, 2.
+\-2, \-1, 0, 1, 2.
 In addition, you need to set the write speed to 4 in order to allow
 .B "VariRec"
 to work.
@@ -1875,7 +1875,7 @@ the TEAC programming interface, even in Track at Once mode,
 needs to know the size of each track before starting to write the disk.
 Cdrecord now checks this and aborts before starting to write.
 If this happens you will need to run
-.B "mkisofs -print-size
+.B "mkisofs \-print\-size
 before and use the output (with `s' appended) as an argument to the 
 .BR tsize =
 option of 
@@ -1915,7 +1915,7 @@ idea called
 .BR lofi .
 The command for the lofi variant is:
 .PP
-	mount \-r \-F hsfs ` lofiadm -a /tmp/cdimage.raw ` /mnt
+	mount \-r \-F hsfs ` lofiadm \-a /tmp/cdimage.raw ` /mnt
 .PP
 Note that lofiadm needs absolute path names.
 .PP
@@ -1933,7 +1933,7 @@ If the overall speed of the system is sufficient and the structure of
 the filesystem is not too complex, cdrecord will run without creating an
 image of the ISO 9660 filesystem. Simply run the pipeline:
 .PP
-    mkisofs \-R /master/tree | cdrecord \-v fs=6m speed=2 dev=2,0 -
+    mkisofs \-R /master/tree | cdrecord \-v fs=6m speed=2 dev=2,0 \-
 .PP
 The recommended minimum FIFO size for running this pipeline is 4 MBytes.
 As the default FIFO size is 4 MB, the 
@@ -1952,7 +1952,7 @@ by
 .sp
 on Solaris and by
 .sp
-    nice --18 mkisofs \-R /master/tree
+    nice \-\-18 mkisofs \-R /master/tree
 .sp
 on systems that don't have
 .B "UNIX International
@@ -1960,7 +1960,7 @@ compliant real-time scheduling.
 .PP
 Cdrecord runs at priority 59 on Solaris, you should run mkisofs
 at no more than priority 58. On other systems, you should run mkisofs
-at no less than nice --18.
+at no less than nice \-\-18.
 .PP
 Creating a CD-ROM without file system image on disk has been tested
 on a Sparcstation-2 with a Yamaha CDR-400. It did work up to quad speed
@@ -1973,7 +1973,7 @@ in a file named
 .IR track02.cdaudio ,
 etc:
 .PP
-    cdrecord \-v speed=1 dev=2,0 -audio track*.cdaudio
+    cdrecord \-v speed=1 dev=2,0 \-audio track*.cdaudio
 .PP
 To check if it will be ok to use double speed for the example above. 
 Use the dummy write option:
@@ -1996,7 +1996,7 @@ first run
 .PP
 and then run
 .PP
-    mkisofs \-R /master/tree | cdrecord speed=2 dev=2,0 tsize=XXXs -
+    mkisofs \-R /master/tree | cdrecord speed=2 dev=2,0 tsize=XXXs \-
 .PP
 where 
 .I XXX
@@ -2004,7 +2004,7 @@ is replaced by the output of the previous run of mkisofs.
 .PP
 To copy an audio CD in the most accurate way, first run
 .PP
-    cdda2wav dev=2,0 \-vall cddb=0 -B \-Owav
+    cdda2wav dev=2,0 \-vall cddb=0 \-B \-Owav
 .PP
 and then run
 .PP
@@ -2017,11 +2017,11 @@ will try to get the information from freedb.org instead.
 .PP
 To copy an audio CD from a pipe (without intermediate files), first run
 .PP
-    cdda2wav dev=1,0 \-vall cddb=0 \-info-only
+    cdda2wav dev=1,0 \-vall cddb=0 \-info\-only
 .PP
 and then run
 .PP
-    cdda2wav dev=1,0 \-no-infofile \-B \-Oraw \- | \\
+    cdda2wav dev=1,0 \-no\-infofile \-B \-Oraw \- | \\
 .br
     cdrecord dev=2,0 \-v \-dao \-audio \-useinfo \-text *.inf
 .PP
@@ -2056,7 +2056,7 @@ To copy a CD in clone mode, first read the master CD using:
 or (in case the CD contains many sectors that are unreadable by intention)
 by calling:
 .PP
-    readcd dev=1,0 -clone -nocorr f=somefile
+    readcd dev=1,0 \-clone \-nocorr f=somefile
 .PP
 will create the files
 .I somefile
@@ -2064,7 +2064,7 @@ and
 .IR somefile.toc .
 Then write the CD using:
 .PP
-    cdrecord dev=1,0 -raw96r -clone -v somefile
+    cdrecord dev=1,0 \-raw96r \-clone \-v somefile
 
 
 .SH ENVIRONMENT
@@ -2178,13 +2178,13 @@ that should be used for this drive and drive specific options. The values for
 .I speed
 and
 .I fifosize
-may be set to -1 to tell cdrecord to use the global defaults.
+may be set to \-1 to tell cdrecord to use the global defaults.
 The value for driveropts may be set to "" if no driveropts are used.
 A typical line may look this way:
 .sp
 teac1= 0,5,0	4	8m	""
 .sp
-yamaha= 1,6,0	-1	-1	burnfree
+yamaha= 1,6,0	\-1	\-1	burnfree
 .sp
 This tells
 .B cdrecord
@@ -2269,7 +2269,7 @@ as lightly loaded as possible while writing a CD.
 If you want to make sure that buffer underruns are not
 caused by your source disk, you may use the command
 .PP
-.B "    cdrecord -dummy dev=2,0 padsize=600m /dev/null
+.B "    cdrecord \-dummy dev=2,0 padsize=600m /dev/null
 .PP
 to create a disk that is entirely made of dummy data.
 .B Cdrecord
@@ -2446,7 +2446,7 @@ status: 0x2 (CHECK CONDITION)
 Sense Bytes: F0 00 05 80 00 00 27 0A 00 00 00 00 B5 00 00 00 00 00
 Sense Key: 0x5 Illegal Request, Segment 0
 Sense Code: 0xB5 Qual 0x00 (dummy data blocks added) Fru 0x0
-Sense flags: Blk -2147483609 (valid)
+Sense flags: Blk \-2147483609 (valid)
 cmd finished after 0.002s timeout 40s
 .fi
 .RE

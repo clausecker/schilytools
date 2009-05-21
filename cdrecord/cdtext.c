@@ -1,13 +1,13 @@
-/* @(#)cdtext.c	1.13 08/12/29 Copyright 1999-2008 J. Schilling */
+/* @(#)cdtext.c	1.14 09/03/27 Copyright 1999-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)cdtext.c	1.13 08/12/29 Copyright 1999-2008 J. Schilling";
+	"@(#)cdtext.c	1.14 09/03/27 Copyright 1999-2009 J. Schilling";
 #endif
 /*
  *	Generic CD-Text support functions
  *
- *	Copyright (c) 1999-2008 J. Schilling
+ *	Copyright (c) 1999-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -139,6 +139,11 @@ checktextfile(fname)
 		return (FALSE);
 	}
 	fs = filesize(f);
+	if (fs == (off_t)0) {
+		errmsgno(EX_BAD, "Empty CD-Text file.\n");
+		fclose(f);
+		return (FALSE);
+	}
 	j = fs % sizeof (struct textpack);
 	if (j == 4) {
 		n = fileread(f, hbuf, 4);
@@ -147,6 +152,7 @@ checktextfile(fname)
 				errmsg("Cannot read '%s'.\n", fname);
 			else
 				errmsgno(EX_BAD, "File '%s' is too small for CD-Text.\n", fname);
+			fclose(f);
 			return (FALSE);
 		}
 		len = hbuf[0] * 256 + hbuf[1];
@@ -155,11 +161,13 @@ checktextfile(fname)
 		if (n != len) {
 			errmsgno(EX_BAD, "Inconsistent CD-Text file '%s' length should be %d but is %lld\n",
 				fname, len+4, (Llong)fs);
+			fclose(f);
 			return (FALSE);
 		}
 	} else if (j != 0) {
 		errmsgno(EX_BAD, "Inconsistent CD-Text file '%s' not a multiple of pack length\n",
 			fname);
+		fclose(f);
 		return (FALSE);
 	} else {
 		len = fs;
@@ -168,6 +176,7 @@ checktextfile(fname)
 	bp = malloc(len);
 	if (bp == NULL) {
 		errmsg("Cannot malloc CD-Text read buffer.\n");
+		fclose(f);
 		return (FALSE);
 	}
 	n = fileread(f, bp, len);
@@ -177,6 +186,7 @@ checktextfile(fname)
 		if (tp->pack_type < 0x80 || tp->pack_type > 0x8F) {
 			errmsgno(EX_BAD, "Illegal pack type 0x%02X pack #%ld in CD-Text file '%s'.\n",
 				tp->pack_type, (long)(n/sizeof (struct textpack)), fname);
+			fclose(f);
 			return (FALSE);
 		}
 		crc = (tp->crc[0] & 0xFF) << 8 | (tp->crc[1] & 0xFF);
@@ -193,13 +203,17 @@ checktextfile(fname)
 				(long)(n/sizeof (struct textpack)),
 				n+j, (long)(n+j+sizeof (struct textpack)),
 				fname);
+			fclose(f);
 			return (FALSE);
 			}
 		}
 	}
 	setuptextdata(bp, len);
 	free(bp);
+	fclose(f);
 
+	if (textlen == 0 || textsub == NULL)
+		return (FALSE);
 	return (TRUE);
 }
 
@@ -218,6 +232,10 @@ setuptextdata(bp, len)
 			(long)(len/sizeof (struct textpack)),
 			(long)(len/sizeof (struct textpack)) % 4);
 	}
+	if (len == 0) {
+		errmsgno(EX_BAD, "No CD-Text data found.\n");
+		return;
+	}
 	i = (len/sizeof (struct textpack)) % 4;
 	if (i == 0) {
 		n = len;
@@ -230,6 +248,7 @@ setuptextdata(bp, len)
 	p = malloc(n);
 	if (p == NULL) {
 		errmsg("Cannot malloc CD-Text write buffer.\n");
+		return;
 	}
 	for (i = 0, j = 0; j < n; ) {
 		eight2six(&bp[i%len], &p[j]);
@@ -467,6 +486,9 @@ write_cdtext(scgp, dp, startsec)
 	int	idx;
 	int	secs;
 	int	nbytes;
+
+	if (textlen <= 0)
+		return (-1);
 
 /*maxdma = 4320;*/
 	if (maxdma >= (2*textlen)) {

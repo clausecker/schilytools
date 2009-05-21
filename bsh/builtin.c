@@ -1,13 +1,13 @@
-/* @(#)builtin.c	1.65 08/12/20 Copyright 1988-2008 J. Schilling */
+/* @(#)builtin.c	1.66 09/05/17 Copyright 1988-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)builtin.c	1.65 08/12/20 Copyright 1988-2008 J. Schilling";
+	"@(#)builtin.c	1.66 09/05/17 Copyright 1988-2009 J. Schilling";
 #endif
 /*
  *	Builtin commands
  *
- *	Copyright (c) 1985-2008 J. Schilling
+ *	Copyright (c) 1985-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -202,7 +202,10 @@ helpwanted(vp, std)
 	Argvec	*vp;
 	FILE	*std[];
 {
-	if (vp->av_ac > 1 && streql(vp->av_av[1], helpname)) {
+	if (vp->av_ac > 1 &&
+	    (streql(vp->av_av[1], helpname) ||
+	    (vp->av_av[1][0] == '-' && vp->av_av[1][1] == '-' &&
+	    streql(&vp->av_av[1][1], helpname)))) {
 		return (busage(vp, std));
 	}
 	return (FALSE);
@@ -222,7 +225,7 @@ busage(vp, std)
 	if ((bp = blook(name, bitab, n_builtin)) != NULL && bp->b_help) {
 		if (bp->b_help == (char *)-1)
 			return (FALSE);
-		fprintf(std[2], "%s%s %s\n", usage, name, bp->b_help);
+		fprintf(std[2], "%s%s [options] %s\n", usage, name, bp->b_help);
 		return (TRUE);
 	}
 	return (FALSE);

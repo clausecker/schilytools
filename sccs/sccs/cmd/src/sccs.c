@@ -25,11 +25,11 @@
 /*
  * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)sccs.c	1.27 09/02/05 J. Schilling
+ * @(#)sccs.c	1.28 09/04/10 J. Schilling
  */
 #if defined(sun) || defined(__GNUC__)
 
-#ident "@(#)sccs.c 1.27 09/02/05 J. Schilling"
+#ident "@(#)sccs.c 1.28 09/04/10 J. Schilling"
 #endif
 /*
  * @(#)sccs.c 1.85 06/12/12
@@ -722,7 +722,7 @@ getNsid(file, user)
 **		forkflag -- if set, fork before executing the command.
 **		editflag -- if set, only include flags listed in the
 **			sccsklets field of the command descriptor.
-**		arg0 -- a space-seperated list of arguments to insert
+**		arg0 -- a space-separated list of arguments to insert
 **			before argv.
 **
 **	Returns:

@@ -1,4 +1,4 @@
-#ident @(#)pax.mk	1.18 08/04/06 
+#ident @(#)pax.mk	1.19 09/03/26 
 ###########################################################################
 #include		$(MAKE_M_ARCH).def
 SRCROOT=	..
@@ -25,7 +25,7 @@ CFILES=		pax.c header.c cpiohdr.c xheader.c xattr.c \
 		list.c extract.c create.c append.c diff.c restore.c \
 		remove.c star_unix.c acl_unix.c acltext.c fflags.c \
 		buffer.c dirtime.c lhash.c \
-		hole.c longnames.c names.c \
+		hole.c longnames.c \
 		movearch.c table.c props.c \
 		unicode.c \
 		subst.c volhdr.c \

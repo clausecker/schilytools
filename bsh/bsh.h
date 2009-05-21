@@ -1,8 +1,8 @@
-/* @(#)bsh.h	1.51 08/12/07 Copyright 1985-2008 J. Schilling */
+/* @(#)bsh.h	1.52 09/05/14 Copyright 1985-2009 J. Schilling */
 /*
  *	Bsh general definitions
  *
- *	Copyright (c) 1985-2008 J. Schilling
+ *	Copyright (c) 1985-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -157,6 +157,7 @@ extern	char	*errstr		__PR((int err));
 extern	void	close_other_files	__PR((FILE **std));
 extern	char	*getuname	__PR((int uid));
 extern	char	*getpwdir	__PR((char *name));
+extern	char	*mypwhome		__PR((void));
 extern	char	*myhome		__PR((void));
 extern	void	exitbsh		__PR((int excode));
 

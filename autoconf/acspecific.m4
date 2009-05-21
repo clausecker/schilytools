@@ -1,4 +1,4 @@
-dnl @(#)acspecific.m4	1.8 09/02/10 Copyright 1998-2008 J. Schilling
+dnl @(#)acspecific.m4	1.9 09/04/19 Copyright 1998-2009 J. Schilling
 dnl
 dnl Macros that test for specific features.
 dnl This file is part of Autoconf.

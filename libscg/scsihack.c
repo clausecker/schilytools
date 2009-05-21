@@ -1,7 +1,7 @@
-/* @(#)scsihack.c	1.52 09/02/04 Copyright 1997,2000,2001 J. Schilling */
+/* @(#)scsihack.c	1.53 09/04/19 Copyright 1997,2000-2009 J. Schilling */
 #ifndef lint
 static	char _sccsid[] =
-	"@(#)scsihack.c	1.52 09/02/04 Copyright 1997,2000,2001 J. Schilling";
+	"@(#)scsihack.c	1.53 09/04/19 Copyright 1997,2000-2009 J. Schilling";
 #endif
 /*
  *	Interface for other generic SCSI implementations.
@@ -24,7 +24,7 @@ static	char _sccsid[] =
  *	If your version has been integrated into the main steam release,
  *	the return value will be set to "schily".
  *
- *	Copyright (c) 1997,2000,2001 J. Schilling
+ *	Copyright (c) 1997,2000-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -352,7 +352,7 @@ EXPORT scg_ops_t scg_dummy_ops = {
  *	Choose your name instead of "schily" and make clear that the version
  *	string is related to a modified source.
  */
-LOCAL	char	_scg_trans_dversion[] = "scsihack.c-1.52";	/* The version for this transport*/
+LOCAL	char	_scg_trans_dversion[] = "scsihack.c-1.53";	/* The version for this transport*/
 
 /*
  * Return version information for the low level SCSI transport code.

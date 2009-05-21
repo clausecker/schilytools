@@ -1,8 +1,8 @@
-/* @(#)mkisofs.c	1.242 09/01/17 joerg */
+/* @(#)mkisofs.c	1.244 09/04/13 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)mkisofs.c	1.242 09/01/17 joerg";
+	"@(#)mkisofs.c	1.244 09/04/13 joerg";
 #endif
 /*
  * Program mkisofs.c - generate iso9660 filesystem  based upon directory
@@ -11,7 +11,7 @@ static	const char sccsid[] =
  * Written by Eric Youngdale (1993).
  *
  * Copyright 1993 Yggdrasil Computing, Incorporated
- * Copyright (c) 1999,2000-2008 J. Schilling
+ * Copyright (c) 1999,2000-2009 J. Schilling
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -1658,7 +1658,7 @@ args_ok:
 	if (help)
 		usage(0);
 	if (pversion) {
-		printf("mkisofs %s (%s-%s-%s) Copyright (C) 1993-1997 Eric Youngdale (C) 1997-2008 Jörg Schilling\n",
+		printf("mkisofs %s (%s-%s-%s) Copyright (C) 1993-1997 Eric Youngdale (C) 1997-2009 Jörg Schilling\n",
 			version_string,
 			HOST_CPU, HOST_VENDOR, HOST_OS);
 #ifdef	OPTION_SILO_BOOT
@@ -2296,24 +2296,25 @@ setcharset:
 #endif
 	if (icharset == NULL) {
 #if	(defined(__CYGWIN32__) || defined(__CYGWIN__) || defined(__DJGPP__)) && !defined(IS_CYGWIN_1)
-		in_nls = sic_open("cp437");
+		icharset = "cp437";
 #else
-		in_nls = sic_open("default");
+		icharset = "default";
 #endif
-	} else {
-		in_nls = sic_open(icharset);
 	}
+	in_nls = sic_open(icharset);
+
 	/*
 	 * set the output charset to the same as the input or the given output
 	 * charset
 	 */
 	if (ocharset == NULL) {
-		out_nls = sic_open(in_nls ? in_nls->sic_name : NULL);
-	} else {
-		out_nls = sic_open(ocharset);
+		ocharset = in_nls ? in_nls->sic_name : NULL;
 	}
+	out_nls = sic_open(ocharset);
+
 	if (in_nls == NULL || out_nls == NULL) { /* Unknown charset specified */
-		fprintf(stderr, "Unknown charset\nKnown charsets are:\n");
+		fprintf(stderr, "Unknown charset '%s'.\nKnown charsets are:\n",
+		in_nls == NULL ? icharset : (ocharset ? ocharset : "NULL"));
 		list_locales();
 		exit(EX_BAD);
 	}
@@ -2333,22 +2334,23 @@ setcharset:
 
 #ifdef APPLE_HYB
 	if (hfs_icharset == NULL || strcmp(hfs_icharset, "mac-roman") == 0) {
-		hfs_inls = sic_open("cp10000");
-	} else {
-		hfs_inls = sic_open(hfs_icharset);
+		hfs_icharset = "cp10000";
 	}
+	hfs_inls = sic_open(hfs_icharset);
+
 	if (hfs_ocharset == NULL) {
-		hfs_onls = sic_open(hfs_inls ? hfs_inls->sic_name : NULL);
-	} else {
-		if (strcmp(hfs_ocharset, "mac-roman") == 0)
-			hfs_onls = sic_open("cp10000");
-		else
-			hfs_onls = sic_open(hfs_ocharset);
+		hfs_ocharset = hfs_inls ? hfs_inls->sic_name : NULL;
 	}
+	if (hfs_ocharset == NULL || strcmp(hfs_ocharset, "mac-roman") == 0) {
+		hfs_ocharset = "cp10000";
+	}
+	hfs_onls = sic_open(hfs_ocharset);
+
 	if (use_mac_name)
 		apple_hyb = 1;
 	if (apple_hyb && (hfs_inls == NULL || hfs_onls == NULL)) {
-		fprintf(stderr, "Unknown HFS charset\nKnown charsets are:\n");
+		fprintf(stderr, "Unknown HFS charset '%s'.\nKnown charsets are:\n",
+		hfs_inls == NULL ? hfs_icharset : (hfs_ocharset ? hfs_ocharset : "NULL"));
 		list_locales();
 		exit(EX_BAD);
 	}
@@ -3069,7 +3071,7 @@ list_locales()
 
 	n = sic_list(stdout);
 	if (n <= 0) {
-		errmsgno(EX_BAD, "'%s/lib/siconv/' %s.\n",
+		errmsgno(EX_BAD, "Installation problem: '%s/lib/siconv/' %s.\n",
 			INS_BASE, n < 0 ? "missing":"incomplete");
 		if (n == 0) {
 			errmsgno(EX_BAD,

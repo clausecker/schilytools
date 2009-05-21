@@ -1,8 +1,8 @@
-/* @(#)write.c	1.120 08/12/22 joerg */
+/* @(#)write.c	1.121 09/05/21 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)write.c	1.120 08/12/22 joerg";
+	"@(#)write.c	1.121 09/05/21 joerg";
 #endif
 /*
  * Program write.c - dump memory  structures to  file for iso9660 filesystem.
@@ -10,7 +10,7 @@ static	const char sccsid[] =
  * Written by Eric Youngdale (1993).
  *
  * Copyright 1993 Yggdrasil Computing, Incorporated
- * Copyright (c) 1999-2008 J. Schilling
+ * Copyright (c) 1999-2009 J. Schilling
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -273,7 +273,7 @@ xawrite(buffer, size, count, file, submode, islast)
 			subhdr[0].sub_mode = subhdr[1].sub_mode
 						|= (XA_SUBH_EOR|XA_SUBH_EOF);
 		}
-		n = fwrite(&subhdr, sizeof (subhdr), 1, file);
+		n = fwrite(subhdr, sizeof (subhdr), 1, file);
 		if (n <= 0)
 			return (n);
 

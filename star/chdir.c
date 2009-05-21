@@ -1,11 +1,11 @@
-/* @(#)chdir.c	1.5 08/12/22 Copyright 1997-2008 J. Schilling */
+/* @(#)chdir.c	1.6 09/05/07 Copyright 1997-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)chdir.c	1.5 08/12/22 Copyright 1997-2008 J. Schilling";
+	"@(#)chdir.c	1.6 09/05/07 Copyright 1997-2009 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1997-2008 J. Schilling
+ *	Copyright (c) 1997-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -28,6 +28,7 @@ static	const char sccsid[] =
 #include <schily/schily.h>
 #include "star.h"
 #include "starsubs.h"
+#include "checkerr.h"
 
 #include <schily/dirent.h>
 #include <schily/maxpath.h>
@@ -67,7 +68,12 @@ dochdir(dir, doexit)
 		if (debug) /* temporary */
 			error("%d\n", ex);
 
-		errmsg("Cannot change directory to '%s'.\n", dir);
+		if (!errhidden(E_CHDIR, dir)) {
+			if (!errwarnonly(E_CHDIR, dir))
+				xstats.s_chdir++;
+			errmsg("Cannot change directory to '%s'.\n", dir);
+			(void) errabort(E_CHDIR, dir, TRUE);
+		}
 		if (doexit)
 			exit(ex);
 		return (FALSE);

@@ -1,14 +1,14 @@
-/* @(#)drv_philips.c	1.78 08/12/22 Copyright 1997-2008 J. Schilling */
+/* @(#)drv_philips.c	1.79 09/04/10 Copyright 1997-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)drv_philips.c	1.78 08/12/22 Copyright 1997-2008 J. Schilling";
+	"@(#)drv_philips.c	1.79 09/04/10 Copyright 1997-2009 J. Schilling";
 #endif
 /*
  *	CDR device implementation for
  *	Philips/Yamaha/Ricoh/Plasmon
  *
- *	Copyright (c) 1997-2008 J. Schilling
+ *	Copyright (c) 1997-2008ß J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -1237,7 +1237,7 @@ static const char *sd_cdd_521_error_str[] = {
 	"\204\000tray out",				/* 0x84 */
 	"\205\000track at one not in PMA",		/* 0x85 */
 	"\240\000stopped on non data block",		/* 0xa0 */
-	"\241\000invalid start adress",			/* 0xa1 */
+	"\241\000invalid start address",		/* 0xa1 */
 	"\242\000attampt to cross track-boundary",	/* 0xa2 */
 	"\243\000illegal medium",			/* 0xa3 */
 	"\244\000disk write protected",			/* 0xa4 */

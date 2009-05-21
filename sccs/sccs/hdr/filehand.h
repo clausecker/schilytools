@@ -25,6 +25,15 @@
  * Use is subject to license terms.
  */
 /*
+ * This file contains modifications Copyright 2009 J. Schilling
+ *
+ * @(#)filehand.h	1.2 09/04/10 J. Schilling
+ */
+#if defined(sun) || defined(__GNUC__)
+
+#ident "@(#)filehand.h 1.2 09/04/10 J. Schilling"
+#endif
+/*
  * @(#)filehand.h 1.3 06/12/12
  */
 
@@ -72,9 +81,9 @@
 
 						/* fldsep codes. */
 
-/* WHITE is a code used to specify that spaces and tabs seperate
+/* WHITE is a code used to specify that spaces and tabs separate
  * fields in records.  It takes the value of NULL, because NULL
- * cannot be used to seperate fields. */
+ * cannot be used to separate fields. */
 
 # define WHITE 0
 

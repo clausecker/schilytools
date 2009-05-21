@@ -1,0 +1,10 @@
+#ident "@(#)Mocsw	1.1 09/05/14 "
+###########################################################################
+deftgt:
+SRCROOT=	.
+DIRNAME=	SRCROOT
+RULESDIR=	RULES
+include		$(SRCROOT)/$(RULESDIR)/rules.top
+###########################################################################
+deftgt $(ALLTARGETS):
+	$(MAKE) -f Mcsw EMAIL=joerg@opencsw.org HOTLINE=http://www.opencsw.org/bugtrack/ $@

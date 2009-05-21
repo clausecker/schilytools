@@ -25,13 +25,13 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2008 J. Schilling
+ * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)defines.h	1.14 08/10/08 J. Schilling
+ * @(#)defines.h	1.15 09/04/08 J. Schilling
  */
 #if defined(sun) || defined(__GNUC__)
 
-#ident "@(#)defines.h 1.14 08/10/08 J. Schilling"
+#ident "@(#)defines.h 1.15 09/04/08 J. Schilling"
 #endif
 /*
  * @(#)defines.h 1.21 06/12/12
@@ -46,7 +46,7 @@
 # include	<schily/stat.h>
 # include	<schily/errno.h>
 # include	<schily/fcntl.h>
-# include	<stdio.h>
+# include	<schily/stdio.h>
 # include	<schily/stdlib.h>
 # include	<schily/unistd.h>
 # include	<schily/string.h>

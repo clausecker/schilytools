@@ -1,8 +1,8 @@
-/* @(#)low.c	1.7 08/12/22 joerg */
+/* @(#)low.c	1.8 09/05/21 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)low.c	1.7 08/12/22 joerg";
+	"@(#)low.c	1.8 09/05/21 joerg";
 #endif
 /*
  * hfsutils - tools for reading and writing Macintosh HFS volumes
@@ -381,7 +381,7 @@ int l_writemdb(vol)
   hfsfile *cat = &vol->cat.f;
   int i;
 
-  memset(&b, 0, sizeof(b));
+  memset(b, 0, sizeof(b));
 
   mdb->drXTFlSize = ext->cat.u.fil.filPyLen;
   mdb->drXTClpSiz = ext->clump;
@@ -455,7 +455,7 @@ int l_writemdb(vol)
     {
 #ifdef APPLE_HYB
       /* "write" alternative MDB to memory copy */
-      memcpy(vol->hce->hfs_alt_mdb, &b, sizeof(b));
+      memcpy(vol->hce->hfs_alt_mdb, b, sizeof(b));
 #else
       if (b_writelb(vol, vol->vlen - 2, &b) < 0)
 	return -1;

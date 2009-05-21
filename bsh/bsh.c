@@ -1,13 +1,13 @@
-/* @(#)bsh.c	1.57 09/02/05 Copyright 1985,1988,1991,1995-2009 J. Schilling */
+/* @(#)bsh.c	1.58 09/05/14 Copyright 1984,1985,1988,1989,1991,1994-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)bsh.c	1.57 09/02/05 Copyright 1985,1988,1991,1995-2009 J. Schilling";
+	"@(#)bsh.c	1.58 09/05/14 Copyright 1984,1985,1988,1989,1991,1994-2009 J. Schilling";
 #endif
 /*
  *	bsh command interpreter - main Program
  *
- *	Copyright (c) 1985,1988,1991,1995-2009 J. Schilling
+ *	Copyright (c) 1984,1985,1988,1989,1991,1994-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -135,6 +135,7 @@ EXPORT	void	close_other_files	__PR((FILE ** std));
 LOCAL	char	*getgfile	__PR((void));
 EXPORT	char	*getuname	__PR((int uid));
 EXPORT	char	*getpwdir	__PR((char *name));
+EXPORT	char	*mypwhome	__PR((void));
 EXPORT	char	*myhome		__PR((void));
 LOCAL	void	gargs		__PR((int ac, char *const* av, char *opts, int *no_i2flg, int *no_gaflg, int *no_laflg));
 EXPORT	void	exitbsh		__PR((int excode));
@@ -780,12 +781,28 @@ getpwdir(name)
 }
 
 EXPORT char *
+mypwhome()
+{
+	static char *my_pwhome = 0;
+
+	if (!my_pwhome)
+		my_pwhome = getpwdir(user);
+	if (!my_pwhome) {
+		my_pwhome = getcurenv(homename);
+		if (my_pwhome)
+			my_pwhome = makestr(my_pwhome);
+	}
+	if (!my_pwhome)
+		return (NULL);
+	return (makestr(my_pwhome));
+}
+
+EXPORT char *
 myhome()
 {
-	static char *my_home = 0;
+	char *my_home;
 
-	if (!my_home)
-		my_home = getpwdir(user);
+	my_home = getcurenv(homename);
 	if (!my_home)
 		return (NULL);
 	return (makestr(my_home));
@@ -845,7 +862,7 @@ gargs(ac, av, opts, no_i2flg, no_gaflg, no_laflg)
 		extern	int	mVERSION;
 
 		printf("bsh %d.%02d (%s-%s-%s)\n\n", MVERSION, mVERSION, HOST_CPU, HOST_VENDOR, HOST_OS);
-		printf("Copyright (C) 1984, 1985, 1989, 1991, 1994-2009 Jörg Schilling\n");
+		printf("Copyright (C) 1984, 1985, 1988-1989, 1991, 1994-2009 Jörg Schilling\n");
 		printf("This is free software; see the source for copying conditions.  There is NO\n");
 		printf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
 		exit(0);

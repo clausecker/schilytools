@@ -169,6 +169,19 @@ Using a different installation directory:
 
 		env INS_BASE=/usr/local make -e install
 
+	Note that INS_BASE=/usr/local needs to be specified for every operation
+	that compiles or links programs as the path is stored inside the
+	binaries.
+
+
+Installing to a prototype directory to implement package creation staging:
+
+	If you like to create a prototype directory tree that is used as an
+	intermediate store for package creation, use the DESTDIR macro:
+
+		smake INS_BASE=/usr/local DESTDIR=/tmp install
+
+	This will create a usr/local tree below /tmp (i.e. /tmp/usr/local).
 
 Using a different C-compiler:
 

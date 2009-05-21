@@ -3,7 +3,11 @@ i depend
 i copyright
 d none bin ? ? ?
 f none bin/bsh 0755 root bin
+s none bin/pfbsh=bsh
 f none bin/sh 0755 root bin
+s none bin/pfsh=sh
+s none bin/bosh=sh
+s none bin/jsh=sh
 f none bin/btcflash 0755 root bin
 f none bin/calc 0755 root bin
 f none bin/calltree 0755 root bin
