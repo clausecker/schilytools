@@ -1,4 +1,4 @@
-dnl @(#)aclocal.m4	1.74 09/04/13 Copyright 1998-2009 J. Schilling
+dnl @(#)aclocal.m4	1.75 09/05/31 Copyright 1998-2009 J. Schilling
 
 dnl Set VARIABLE to VALUE in C-string form, verbatim, or 1.
 dnl AC_DEFINE_STRING(VARIABLE [, VALUE])
@@ -1078,6 +1078,63 @@ main()
   fprintf(f, "%d\n", sizeof(time_t));
   exit(0);
 }], AC_CV_NAME=`cat conftestval`, AC_CV_NAME=SIZEOF_LONG_INT, ifelse([$1], , , AC_CV_NAME=$1))])dnl
+AC_MSG_RESULT($AC_CV_NAME)
+AC_DEFINE_UNQUOTED(AC_TYPE_NAME, $AC_CV_NAME)
+undefine([AC_TYPE_NAME])dnl
+undefine([AC_CV_NAME])dnl
+])
+
+dnl AC_CHECK_SIZE_WCHAR([CROSS-SIZE])
+AC_DEFUN(AC_CHECK_SIZE_WCHAR,
+[changequote(<<, >>)dnl
+dnl The name to #define.
+define(<<AC_TYPE_NAME>>, translit(sizeof_wchar, [a-z *], [A-Z_P]))dnl
+dnl The cache variable name.
+define(<<AC_CV_NAME>>, translit(ac_cv_sizeof_wchar, [ *], [_p]))dnl
+changequote([, ])dnl
+AC_MSG_CHECKING(size of wchar)
+AC_CACHE_VAL(AC_CV_NAME,
+[AC_TRY_RUN([#include <stdio.h>
+main()
+{
+  FILE *f=fopen("conftestval", "w");
+  if (!f) exit(1);
+  fprintf(f, "%d\n", sizeof(L'a'));
+  exit(0);
+}], AC_CV_NAME=`cat conftestval`, AC_CV_NAME=0, ifelse([$1], , , AC_CV_NAME=$1))])dnl
+AC_MSG_RESULT($AC_CV_NAME)
+AC_DEFINE_UNQUOTED(AC_TYPE_NAME, $AC_CV_NAME)
+undefine([AC_TYPE_NAME])dnl
+undefine([AC_CV_NAME])dnl
+])
+
+dnl AC_CHECK_SIZE_WCHAR([CROSS-SIZE])
+AC_DEFUN(AC_CHECK_SIZE_WCHAR_T,
+[changequote(<<, >>)dnl
+dnl The name to #define.
+define(<<AC_TYPE_NAME>>, translit(sizeof_wchar_t, [a-z *], [A-Z_P]))dnl
+dnl The cache variable name.
+define(<<AC_CV_NAME>>, translit(ac_cv_sizeof_wchar_t, [ *], [_p]))dnl
+changequote([, ])dnl
+AC_MSG_CHECKING(size of wchar_t)
+AC_CACHE_VAL(AC_CV_NAME,
+[AC_TRY_RUN([#include <stdio.h>
+#ifdef	HAVE_SYS_TYPES_H
+#include <sys/types.h>
+#endif
+#ifdef	HAVE_STDLIB_H
+#include <stdlib.h>
+#endif
+#ifdef	HAVE_WCHAR_H
+#include <wchar.h>
+#endif
+main()
+{
+  FILE *f=fopen("conftestval", "w");
+  if (!f) exit(1);
+  fprintf(f, "%d\n", sizeof(wchar_t));
+  exit(0);
+}], AC_CV_NAME=`cat conftestval`, AC_CV_NAME=SIZEOF_CHAR, ifelse([$1], , , AC_CV_NAME=$1))])dnl
 AC_MSG_RESULT($AC_CV_NAME)
 AC_DEFINE_UNQUOTED(AC_TYPE_NAME, $AC_CV_NAME)
 undefine([AC_TYPE_NAME])dnl

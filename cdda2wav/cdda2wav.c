@@ -1,8 +1,8 @@
-/* @(#)cdda2wav.c	1.109 09/04/22 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling */
+/* @(#)cdda2wav.c	1.110 09/05/22 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling */
 #include "config.h"
 #ifndef lint
 static	const char sccsid[] =
-"@(#)cdda2wav.c	1.109 09/04/22 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling";
+"@(#)cdda2wav.c	1.110 09/05/22 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling";
 
 #endif
 #undef	DEBUG_BUFFER_ADDRESSES
@@ -900,6 +900,7 @@ OPTIONS:\n\
        -paraopts=opts		set options for lib paranoia (see -paraopts=help).\n\
        -cddbp-server=servername	set the cddbp server to use for title lookups.\n\
        -cddbp-port=portnumber	set the cddbp port to use for title lookups.\n\
+       -interactive		select interactive mode (used by gstreamer plugin).\n\
        -version			print version information.\n\
 \n\
 Please note: some short options will be phased out soon (disappear)!\n\

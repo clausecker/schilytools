@@ -1,11 +1,11 @@
-/* @(#)patmatch.h	1.12 06/10/10 Copyright 1985 J. Schilling */
+/* @(#)patmatch.h	1.13 09/05/30 Copyright 1985,1993-2009 J. Schilling */
 
 #ifndef	_SCHILY_PATMATCH_H
 #define	_SCHILY_PATMATCH_H
 /*
  *	Definitions for the pattern matching functions.
  *
- *	Copyright (c) 1985,1995 J. Schilling
+ *	Copyright (c) 1985,1993-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -74,7 +74,7 @@ extern "C" {
 		case LCLASS: case RCLASS: case START: case END:
 
 
-#define	MAXPAT	128	/* Maximum length of pattern */
+#define	MAXPAT	128	/* Max length of pattern for opatmatch()/opatlmatch() */
 
 extern	int	    patcompile	__PR((const unsigned char * __pat, int __patlen, int * __aux));
 
@@ -94,5 +94,25 @@ extern	unsigned char *patlmatch __PR((const unsigned char * __pat, const int * _
 #ifdef	__cplusplus
 }
 #endif
+
+#ifdef	_SCHILY_WCHAR_H
+
+#ifdef	__cplusplus
+extern "C" {
+#endif
+
+extern	int	patwcompile	__PR((const wchar_t * __pat, int __patlen, int * __aux));
+extern	wchar_t	*patwmatch	__PR((const wchar_t * __pat, const int * __aux,
+						const  wchar_t * __str, int __soff, int __slen,
+						int __alt, int __state[]));
+extern	wchar_t	*patwlmatch	__PR((const wchar_t * __pat, const int * __aux,
+						const  wchar_t * __str, int __soff, int __slen,
+						int __alt, int __state[]));
+
+
+#ifdef	__cplusplus
+}
+#endif
+#endif	/* _SCHILY_WCHAR_H */
 
 #endif	/* _SCHILY_PATMATCH_H */

@@ -1,4 +1,4 @@
-#ident "@(#)Defaults.linux	1.6 09/03/22 "
+#ident "@(#)Defaults.linux	1.7 09/06/04 "
 ###########################################################################
 #
 # global definitions for Linux Systems
@@ -48,7 +48,8 @@ LINUX_SRC_INCLUDE=      $(__LINUX_SRC_INCLUDE:$(_UNIQ)no%=%)
 
 DEFINCDIRS=	$(SRCROOT)/include
 LDPATH=		-L/opt/schily/lib
-RUNPATH=	-R$(INS_BASE)/lib -R/opt/schily/lib -R$(OLIBSDIR)
+#RUNPATH=	-R$(INS_BASE)/lib -R/opt/schily/lib -R$(OLIBSDIR)
+RUNPATH=	-R$(INS_BASE)/lib -R/opt/schily/lib
 
 ###########################################################################
 #

@@ -1,4 +1,4 @@
-#ident @(#)Makefile	1.14 09/05/01 
+#ident @(#)Makefile	1.16 09/05/24 
 ###########################################################################
 # Sample makefile for installing non-localized auxiliary files
 ###########################################################################
@@ -18,8 +18,8 @@ XMK_FILE=	\
 		hostname.mk \
 		iconv.mk idcache.mk intcvt.mk ioctl.mk \
 		jmpdefs.mk \
-		jos_defs.mk jos_io.mk jos_maxp.mk \
-		libport.mk librmt.mk maxpath.mk mconfig.mk \
+		libport.mk librmt.mk limits.mk locale.mk \
+		maxpath.mk mconfig.mk \
 		mman.mk mtio.mk nlsdefs.mk param.mk patmatch.mk prototyp.mk \
 		rmtio.mk schily.mk schilyp.mk \
 		shcall.mk \

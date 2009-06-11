@@ -1,8 +1,8 @@
-/* @(#)align.h	1.6 07/12/01 Copyright 1995-2007 J. Schilling */
+/* @(#)align.h	1.7 09/06/06 Copyright 1995-2009 J. Schilling */
 /*
  *	Platform dependent definitions for aligning data.
  *
- *	Copyright (c) 1995-2007 J. Schilling
+ *	Copyright (c) 1995-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -44,6 +44,10 @@
  */
 #ifndef _SCHILY_ALIGN_H
 #define	_SCHILY_ALIGN_H
+
+#ifndef _SCHILY_MCONFIG_H
+#include <schily/mconfig.h>
+#endif
 
 #ifndef	_SCHILY_UTYPES_H
 #include <schily/utypes.h>

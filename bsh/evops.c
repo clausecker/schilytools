@@ -1,8 +1,8 @@
-/* @(#)evops.c	1.30 09/02/10 Copyright 1984-2009 J. Schilling */
+/* @(#)evops.c	1.31 09/05/24 Copyright 1984-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)evops.c	1.30 09/02/10 Copyright 1984-2009 J. Schilling";
+	"@(#)evops.c	1.31 09/05/24 Copyright 1984-2009 J. Schilling";
 #endif
 /*
  *	bsh environment section
@@ -22,7 +22,7 @@ static	const char sccsid[] =
  */
 
 #include <schily/mconfig.h>
-#include <stdio.h>
+#include <schily/stdio.h>
 #ifdef	HAVE_SYS_PARAM_H
 #include <sys/param.h>	/* Include various defs needed with some OS */
 #endif
@@ -41,6 +41,7 @@ static	const char sccsid[] =
 #ifdef	HAVE_SYS_UTSNAME_H
 #	include	<sys/utsname.h>
 #endif
+#include <schily/locale.h>
 
 
 #define	EVAINC	5
@@ -69,6 +70,10 @@ LOCAL	void	set_noslash	__PR((char *s));
 EXPORT	BOOL	ev_set_locked	__PR((char *val));
 LOCAL	BOOL	ev_is_locked	__PR((char *s));
 LOCAL	void	ev_check	__PR((char *what));
+#ifdef	USE_LOCALE
+LOCAL	BOOL	ev_neql		__PR((char *name, char *ev));
+#endif
+LOCAL	void	ev_locale	__PR((char *name));
 
 /*
  * Get the value for a enrivonment variable name.
@@ -105,6 +110,8 @@ getval(name, ev)
 					return (++ev);
 			return (NULL);
 		}
+		if (*name == '\0')		/* *name == *ev == '\0' */
+			return (NULL);
 		name++;
 		ev++;
 	}
@@ -197,6 +204,7 @@ ev_ins(val)
 		if (streqln(val, evarray[i], p-val)) {
 			free(evarray[i]);
 			evarray[i] = val;
+			ev_locale(val);
 			return;
 		}
 	}
@@ -205,6 +213,7 @@ ev_ins(val)
 	evarray[evaent++] = val;
 	evarray[evaent] = NULL;
 	ev_check("ev_ins()");
+	ev_locale(val);
 }
 
 /*
@@ -244,6 +253,7 @@ ev_delete(name)
 			--evaent;
 
 			ev_check("ev_idelete()");
+			ev_locale(name);
 
 			return;
 		}
@@ -447,4 +457,67 @@ ev_check(what)
 	}
 	if (i != evaent)
 		error("WARNING: %s i %d evaent %d\n", what, i, evaent);
+}
+
+#ifdef	USE_LOCALE
+LOCAL BOOL
+ev_neql(name, ev)
+	register char *name;
+	register char *ev;
+{
+	for (;;) {
+		if (*name != *ev) {
+			if (*ev == '=' && *name == '\0')
+					return (TRUE);
+			return (FALSE);
+		}
+		if (*name == '\0')		/* *name == *ev == '\0' */
+			return (TRUE);
+		name++;
+		ev++;
+	}
+}
+#endif
+
+LOCAL void
+ev_locale(name)
+	char	*name;
+{
+#ifdef	USE_LOCALE
+
+		char	**esav;
+	extern	char	**environ;
+
+	if (name[0] != 'L')
+		return;
+
+	if (!(ev_neql("LC_ALL", name) ||
+	    ev_neql("LC_CTYPE", name) ||
+	    ev_neql("LC_COLLATE", name) ||
+	    ev_neql("LC_NUMERIC", name) ||
+	    ev_neql("LC_MESSAGES", name) ||
+	    ev_neql("LC_MONETARY", name) ||
+	    ev_neql("LC_TIME", name) ||
+	    ev_neql("LANG", name)))
+		return;
+
+	/*
+	 * Do not call setlocale() before inituser() was called which is an
+	 * indication that our local environment was initialized.
+	 */
+	if (user == NULL)
+		return;
+
+	/*
+	 * Let getenv() simulate the behaviour of getcurenv().
+	 * This allows us to use the libc setlocale() for bsh.
+	 */
+	esav = environ;
+	environ = evarray;
+
+	if (setlocale(LC_ALL, "") == NULL)
+		error("Bad locale '%s.'\n", name);
+
+	environ = esav;
+#endif
 }

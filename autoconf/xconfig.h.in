@@ -1,4 +1,4 @@
-/* @(#)xconfig.h.in	1.162 09/05/12 Copyright 1998-2009 J. Schilling */
+/* @(#)xconfig.h.in	1.166 09/06/07 Copyright 1998-2009 J. Schilling */
 /*
  *	Dynamic autoconf C-include code.
  *
@@ -211,6 +211,7 @@
 #undef HAVE_RENAMEAT		/* renameat() is present in libc */
 #undef HAVE_UNLINKAT		/* unlinkat() is present in libc */
 #undef HAVE___ACCESSAT		/* __accessat() is present in libc */
+#undef HAVE_ACCESSAT		/* accessat() is present in libc */
 #undef HAVE_REALPATH		/* realpath() is present in libc */
 #undef HAVE_RESOLVEPATH		/* resolvepath() is present in libc */
 /*
@@ -355,15 +356,23 @@
 #undef HAVE_SETENV		/* setenv() is present in libc (use instead of putenv()) */
 #undef HAVE_UNAME		/* uname() is present in libc */
 #undef HAVE_SNPRINTF		/* snprintf() is present in libc */
-#undef HAVE_STRCASECMP		/* strcasecmp() is present in libc */
-#undef HAVE_STRNCPY		/* strncpy() is present in libc */
+#undef HAVE_STRCAT		/* strcat() is present in libc */
+#undef HAVE_STRNCAT		/* strncat() is present in libc */
+#undef HAVE_STRCMP		/* strcmp() is present in libc */
+#undef HAVE_STRNCMP		/* strncmp() is present in libc */
+#undef HAVE_STRCPY		/* strcpy() is present in libc */
 #undef HAVE_STRLCPY		/* strlcpy() is present in libc */
+#undef HAVE_STRNCPY		/* strncpy() is present in libc */
+#undef HAVE_STRDUP		/* strdup() is present in libc */
+#undef HAVE_STRLEN		/* strlen() is present in libc */
+#undef HAVE_STRCHR		/* strchr() is present in libc */
+#undef HAVE_STRRCHR		/* strrchr() is present in libc */
+#undef HAVE_STRCASECMP		/* strcasecmp() is present in libc */
 #undef HAVE_STRTOL		/* strtol() is present in libc */
 #undef HAVE_STRTOLL		/* strtoll() is present in libc */
 #undef HAVE_STRTOUL		/* strtoul() is present in libc */
 #undef HAVE_STRTOULL		/* strtoull() is present in libc */
 #undef HAVE_STRTOD		/* strtold() is present in libc */
-#undef HAVE_STRDUP		/* strdup() is present in libc */
 #undef HAVE_STRSIGNAL		/* strsignal() is present in libc */
 #undef HAVE_STR2SIG		/* str2sig() is present in libc */
 #undef HAVE_SIG2STR		/* sig2str() is present in libc */
@@ -393,6 +402,17 @@
 #undef HAVE_ALLOCA		/* alloca() is present (else use malloc())*/
 #undef HAVE_VALLOC		/* valloc() is present in libc (else use malloc())*/
 #undef vfork
+#undef HAVE_WCSCAT		/* wcscat() is present in libc */
+#undef HAVE_WCSNCAT		/* wcsncat() is present in libc */
+#undef HAVE_WCSCMP		/* wcscmp() is present in libc */
+#undef HAVE_WCSNCMP		/* wcsncmp() is present in libc */
+#undef HAVE_WCSCPY		/* wcscpy() is present in libc */
+#undef HAVE_WCSLCPY		/* wcsncpy() is present in libc */
+#undef HAVE_WCSNCPY		/* wcsncpy() is present in libc */
+#undef HAVE_WCSDUP		/* wcsdup() is present in libc */
+#undef HAVE_WCSLEN		/* wcslen() is present in libc */
+#undef HAVE_WCSCHR		/* wcschr() is present in libc */
+#undef HAVE_WCSRCHR		/* wcsrchr() is present in libc */
 
 #undef HAVE_CHFLAGS		/* chflags() is present in libc */
 #undef HAVE_FCHFLAGS		/* fchflags() is present in libc */
@@ -644,6 +664,8 @@
 #undef SIZEOF_PTRDIFF_T
 
 #undef SIZEOF_TIME_T
+#undef SIZEOF_WCHAR		/* sizeof (L'a')	*/
+#undef SIZEOF_WCHAR_T		/* sizeof (wchar_t)	*/
 
 #undef HAVE_LONGLONG		/* Compiler defines long long type */
 #undef HAVE___INT64		/* Compiler defines __int64 type */

@@ -1,4 +1,25 @@
-# @(#)libschily-mapvers	1.13 08/12/07 Copyright 2005-2006 J. Schilling
+# @(#)libschily-mapvers	1.15 09/06/06 Copyright 2005-2006 J. Schilling
+
+SCHILY_1.4 {
+global:
+	patwcompile;
+	patwmatch;
+	patwlmatch;
+
+#	wcscat;
+	wcscatl;
+#	wcschr;
+#	wcscmp;
+#	wcscpy;
+	wcsdup;
+	wcseql;
+	wcslcpy;
+#	wcslen;
+#	wcsncat;
+#	wcsncmp;
+#	wcsncpy;
+#	wcsrchr;
+} SCHILY_1.3;
 
 SCHILY_1.3 {
 global:
@@ -173,8 +194,17 @@ global:
 	seterrno;
 	setfp;
 	starthandlecond;
+#	strcat;
 	strcatl;
+#	strchr;
+#	strcmp;
+#	strcpy;
+#	strdup;
 	streql;
+#	strlen;
+#	strncat;
+#	strncmp;
+#	strrchr;
 	swabbytes;
 	unhandlecond;
 	wait_chld;

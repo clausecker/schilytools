@@ -1,0 +1,59 @@
+New features with AN-2009-06-10:
+
+-	The -interactive option for cdda2wav is now mentioned in the -help output 
+	and the man page.
+
+-	Call unit_ready() in cdda2wav before retrieving the TOC data in order to work
+	around a Solaris scsa2usb (SCSA to USB Driver) bug.
+
+-	isoinfo now prints "???" as month name in case there is an illegal month value
+	in the ISO-9660 image instead of omitting the month field. This makes the output
+	parsable. Thanks to a hint from Michael Prokop
+
+-	New include file include/schily/limits.h
+
+-	New include file include/schily/locale.h
+
+-	new files in libschily: matchw.c matchwl.c implement wchar_t versions of the
+	pattern matcher
+
+-	The history line editor for the shell "bsh" now supports multi byte character
+	based locales.
+
+-	The Bourne Shell uses the history line editor from bsh and for this reason now
+	also supports multi byte based localed in the line editor.
+
+-	The Bourne Shell now resets the mbtowc() shift state when needed by calling
+	mbtowc(NULL, NULL, 0). This is needed in special on Mac OS X.
+
+-	The Bourne Shell now allows to change the history length by changing the value of
+	the environment variable HISTORY= during the lifetime of the Bourne Shell.
+
+
+-	New defaults dir DEFAULTS_CSW holds defaults that limit optimization to Sparc V1.
+
+-	Added support for wide characters:
+
+	-	New autoconf tests for wcs*() functions.
+
+	-	New wcs*() functions in libschily for wide character portability
+
+-	Removed -R../libs/<arch-dir> from the RUN_PATH to keep autpomoutd quiet
+
+-	Added support for 64 Bit compilation on Mac OS X, call make CCOM=cc64 or
+	make CCOM=gcc64 as usual for other OS platforms.
+
+-	Trying to deal with the strange type confusions with Mac IOKit and 64 Bit support
+
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.isdn.cs.tu-berlin.de, js@cs.tu-berlin.de
+	joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

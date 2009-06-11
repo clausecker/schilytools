@@ -1,8 +1,8 @@
-/* @(#)inputc.c	1.53 09/04/16 Copyright 1982, 1984-2009 J. Schilling */
+/* @(#)inputc.c	1.55 09/06/10 Copyright 1982, 1984-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)inputc.c	1.53 09/04/16 Copyright 1982, 1984-2009 J. Schilling";
+	"@(#)inputc.c	1.55 09/06/10 Copyright 1982, 1984-2009 J. Schilling";
 #endif
 /*
  *	inputc.c
@@ -30,6 +30,7 @@ static	const char sccsid[] =
  *		init_input()	Init editor data structures
  *		getnextc()	Noninterruptable getc() -> export to map.c
  *		nextc()		Read mapped input from map.c (Input to inputc.c)
+ *		_nextwc()	Read mapped wide char input from map.c (Input to inputc.c)
  *		space()		Output n spaces
  *		append_line()	Append a line into history (for hashcmd.c #lh)
  *		match_hist()	Return matched history line for csh: !line
@@ -53,18 +54,24 @@ static	const char sccsid[] =
  */
 
 #include <schily/mconfig.h>
-#include <stdio.h>
-#include "bsh.h"
-#include "node.h"
-#include "str.h"
-#include "strsubs.h"
+#include <schily/stdio.h>
 #include <schily/string.h>
 #include <schily/stdlib.h>
 #include <schily/fcntl.h>
-#include <schily/patmatch.h>
-#include "ctype.h"
-#undef	toint		/* Atari MiNT has this nonstandard definition */
+#include <schily/limits.h>	/* for  MB_LEN_MAX	*/
+#include <schily/wchar.h>	/* wchar_t		*/
+#include <schily/wctype.h>	/* For iswprint()	*/
+#include <schily/patmatch.h>	/* Past wchar.h to enable patchwmatch() */
+#include "bsh.h"
 #include "map.h"
+#include "node.h"
+#include "str.h"
+#include "strsubs.h"
+#ifndef	USE_WCHAR	/* Use the system wctype.h if using wchars */
+#define	REDEFINE_CTYPE
+#include "ctype.h"
+#endif	/* USE_WCHAR */
+#undef	toint		/* Atari MiNT has this nonstandard definition */
 
 /*#define	XDEBUG*/
 #ifdef	XDEBUG		/* eXpand Debug */
@@ -77,36 +84,60 @@ static	const char sccsid[] =
 #else
 #endif
 
+#ifdef	USE_WCHAR
+#ifndef	MB_LEN_MAX
+#define	MB_LEN_MAX	10
+#endif
+#else	/* !USE_WCHAR */
+#ifndef	MB_LEN_MAX
+#define	MB_LEN_MAX	1
+#endif
+#undef	towupper
+#define	towupper	toupper
+#define	wcsrchr		strchr
+#define	wcscmp		strcmp
+#define	wcscpy		strcpy
+#define	wcslen		strlen
+#define	wcsncpy		strncpy
+#define	patwcompile	patcompile
+#define	patwmatch	patmatch
+#endif	/* !USE_WCHAR */
+
 #ifdef INTERACTIVE
 
+/*
+ * The output buffer for the line editor.
+ * It uses multi byte characters.
+ */
 #define	BUFSIZE	133
 
 typedef struct {
 	int b_index;
-	char b_buf[BUFSIZE];
+	char b_buf[BUFSIZE+MB_LEN_MAX];
 } BUF;
 
 #define	LINEQUANT	64
-#define	BEGINLINE	1
-#define	SHOW		2
-#define	EXPAND		3
-#define	CTRLD		4
-#define	ENDLINE		5
-#define	FORWARD		6
-#define	BEEP		7
-#define	BACKSPACE	8
-#define	TAB		9
-#define	DOWNWARD	14
-#define	UPWARD		16
-#define	RETYPE		18
-#define	CTRLU		21
-#define	CTRLW		23
-#define	ESC		27
-#define	QUOTECH		30
-#define	UNDO		31
+#define	BEGINLINE	1	/* ^A Move Cursor leftmost */
+#define	SHOW		2	/* ^B Show possible file name completion(s) */
+#define	EXPAND		3	/* ^C Do file name completion		    */
+#define	CTRLD		4	/* ^D Logical EOF			    */
+#define	ENDLINE		5	/* ^E Move Cursor rightmost		    */
+#define	FORWARD		6	/* ^F Move Corsor one position to the right */
+#define	BEEP		7	/* ^G Audible Bell			    */
+#define	BACKSPACE	8	/* ^H Mode Cursor one position to the left  */
+#define	TAB		9	/* ^I TAB is an alias for EXPAND (^C)	    */
+				/* ^J New Line				    */
+#define	DOWNWARD	14	/* ^N Scroll down to next line in history   */
+#define	UPWARD		16	/* ^P Scroll up to previous line in history */
+#define	RETYPE		18	/* ^R Redisplay current edit line	    */
+#define	CTRLU		21	/* ^U Clear current edit line		    */
+#define	CTRLW		23	/* ^W Backwards erase one word		    */
+#define	ESC		27	/* ^[ Lead in character for Escape sequence */
+#define	QUOTECH		30	/* ^^ Quote next character		    */
+#define	UNDO		31	/* ^_ Undo last remove operation	    */
 #define	BLANK		' '
 #define	BACKSLASH	'\\'
-#define	DELETE		127
+#define	DELETE		127	/* ^? Backwards erase one character	    */
 
 #define	BYTEMASK	0xFF
 #define	SEARCH		0x100
@@ -118,7 +149,7 @@ typedef struct {
 typedef struct histptr {
 	struct histptr	*h_prev,
 			*h_next;
-	char		*h_line;
+	wchar_t		*h_line;
 	unsigned	h_len;
 	unsigned	h_pos;
 	unsigned char	h_flags;
@@ -133,48 +164,52 @@ LOCAL	void	changehistory	__PR((int n));
 EXPORT	void	init_input	__PR((void));
 EXPORT	int	getnextc	__PR((void));
 EXPORT	int	nextc		__PR((void));
+EXPORT	int	_nextwc		__PR((void));
 LOCAL	void	writec		__PR((int c));
 LOCAL	void	writes		__PR((char *p));
+LOCAL	void	writews		__PR((wchar_t *p));
 LOCAL	void	prettyp		__PR((int c, BUF * b));
 LOCAL	void	bflush		__PR((void));
 LOCAL	void	pch		__PR((int c, BUF * bp));
 LOCAL	void	putch		__PR((int c));
 LOCAL	void	beep		__PR((void));
 LOCAL	int	chlen		__PR((int c));
-LOCAL	int	linelen		__PR((char *s));
-LOCAL	int	linediff	__PR((char *a, char *e));
+LOCAL	int	linelen		__PR((wchar_t *s));
+LOCAL	int	linediff	__PR((wchar_t *a, wchar_t *e));
 LOCAL	void	backspace	__PR((int n));
 EXPORT	void	space		__PR((int n));
-LOCAL	void	delete		__PR((char *p));
-LOCAL	char	*clearword	__PR((char *lp, char *cp, unsigned int	*lenp));
-LOCAL	void	clearline	__PR((char *lp, char *cp));
-LOCAL	void	ins_char	__PR((char *cp, int c));
-LOCAL	char	*ins_word	__PR((char *cp, char *s));
-LOCAL	void	del_char	__PR((char *cp));
+LOCAL	void	delete		__PR((wchar_t *p));
+LOCAL	wchar_t	*clearword	__PR((wchar_t *lp, wchar_t *cp, unsigned int	*lenp));
+LOCAL	void	clearline	__PR((wchar_t *lp, wchar_t *cp));
+LOCAL	void	ins_char	__PR((wchar_t *cp, int c));
+LOCAL	wchar_t	*ins_word	__PR((wchar_t *cp, wchar_t *s));
+LOCAL	void	del_char	__PR((wchar_t *cp));
 LOCAL	void	free_line	__PR((HISTPTR p));
 LOCAL	HISTPTR	mktmp		__PR((void));
 LOCAL	HISTPTR	hold_line	__PR((HISTPTR p));
 LOCAL	void	unhold_line	__PR((HISTPTR p, HISTPTR op));
 LOCAL	HISTPTR	remove_line	__PR((HISTPTR p));
 EXPORT	void	append_line	__PR((char *linep, unsigned int len, unsigned int pos));
-LOCAL	void	append_hline	__PR((char *linep, unsigned int len));
+EXPORT	void	append_wline	__PR((wchar_t *linep, unsigned int len, unsigned int pos));
+LOCAL	void	append_hline	__PR((wchar_t *linep, unsigned int len));
 LOCAL	void	move_to_end	__PR((HISTPTR p));
 LOCAL	void	stripout	__PR((void));
 LOCAL	HISTPTR match_input	__PR((HISTPTR cur_line, HISTPTR tmp_line, BOOL up));
 EXPORT	char	*match_hist	__PR((char *pattern));
-LOCAL	HISTPTR match		__PR((HISTPTR cur_line, char *pattern, BOOL up));
+LOCAL	HISTPTR match		__PR((HISTPTR cur_line, wchar_t *pattern, BOOL up));
 LOCAL	int	edit_line	__PR((HISTPTR cur_line));
-LOCAL	void	redisp		__PR((char *lp, char *cp));
-LOCAL	char	*insert		__PR((char *cp, char *s, unsigned int *lenp));
-LOCAL	char	*undo_del	__PR((char *lp, char *cp, unsigned int *lenp));
-LOCAL	char	*xpstr		__PR((char *cp));
-LOCAL	char	*xp_files	__PR((char *lp, char *cp, BOOL show, int *multip));
-LOCAL	char	*exp_files	__PR((char **lpp, char *cp, unsigned int *lenp, unsigned int *maxlenp, int *multip));
-LOCAL	void	show_files	__PR((char *lp, char *cp));
+LOCAL	void	redisp		__PR((wchar_t *lp, wchar_t *cp));
+LOCAL	wchar_t	*insert		__PR((wchar_t *cp, wchar_t *s, unsigned int *lenp));
+LOCAL	wchar_t	*undo_del	__PR((wchar_t *lp, wchar_t *cp, unsigned int *lenp));
+LOCAL	char	*strwchr	__PR((char *s, wchar_t c));
+LOCAL	wchar_t	*xpwcs		__PR((wchar_t *cp));
+LOCAL	wchar_t	*xp_files	__PR((wchar_t *lp, wchar_t *cp, BOOL show, int *multip));
+LOCAL	wchar_t	*exp_files	__PR((wchar_t **lpp, wchar_t *cp, unsigned int *lenp, unsigned int *maxlenp, int *multip));
+LOCAL	void	show_files	__PR((wchar_t *lp, wchar_t *cp));
 LOCAL	int	get_request	__PR((void));
-LOCAL	char	*esc_process	__PR((int xc, char *lp, char *cp, unsigned int *lenp));
-LOCAL	char	*sget_line	__PR((void));
-LOCAL	char	*iget_line	__PR((void));
+LOCAL	wchar_t	*esc_process	__PR((int xc, wchar_t *lp, wchar_t *cp, unsigned int *lenp));
+LOCAL	wchar_t	*sget_line	__PR((void));
+LOCAL	wchar_t	*iget_line	__PR((void));
 EXPORT	char	*make_line	__PR((int (*f)(FILE *), FILE * arg));
 LOCAL	char	*fread_line	__PR((FILE * f));
 EXPORT	char	*get_line	__PR((int n, FILE * f));
@@ -186,7 +221,7 @@ LOCAL	void	term_init	__PR((void));
 LOCAL	void	tty_init	__PR((void));
 LOCAL	void	tty_term	__PR((void));
 #ifdef	DO_DEBUG
-LOCAL	void	cdbg		__PR((char *fmt, ...));
+LOCAL	void	cdbg		__PR((char *fmt, ...))	__printflike__(1, 2);
 #endif
 
 extern	pid_t	mypgrp;
@@ -206,6 +241,7 @@ LOCAL	HISTPTR	rub_line	= (HISTPTR) NULL;
 LOCAL	HISTPTR	del_line	= (HISTPTR) NULL;
 LOCAL	char	*hfilename	= NULL;
 LOCAL	char	*line_pointer	= NULL;
+LOCAL	wchar_t	*wline_pointer	= NULL;
 LOCAL	char	*iprompt	= NULL;
 LOCAL	int	histlen		= 0;
 LOCAL	int	no_lines	= 0;
@@ -214,6 +250,127 @@ LOCAL	char	mapesc		= '\0';
 #ifdef	notneeded
 LOCAL	int	eof;
 #endif
+
+
+/* Begin wide string support routines -------> */
+EXPORT	wchar_t	*makewstr	__PR((wchar_t *s));
+EXPORT wchar_t *
+makewstr(s)
+	register	wchar_t *s;
+{
+			wchar_t	*tmp;
+	register	wchar_t	*s1;
+
+	if ((tmp = malloc((size_t) ((wcslen(s)+1)) * sizeof (wchar_t))) == NULL) {
+		raisecond("makewstr", (long)NULL);
+		return (0);
+	}
+	for (s1 = tmp; (*s1++ = *s++) != '\0'; );
+	return (tmp);
+}
+
+LOCAL wchar_t *towcs	__PR((wchar_t *wbuf, size_t bsize, char *s, ssize_t len));
+LOCAL wchar_t *
+towcs(wbuf, bsize, s, len)
+	wchar_t	*wbuf;
+	size_t	bsize;
+	char	*s;
+	ssize_t	len;
+{
+	int	i;
+	int	mlen;
+	int	chars;
+	char	*sp;
+	wchar_t	*wp;
+	wchar_t	c;
+
+	if (len < 0)
+		len = strlen(s);
+
+	mbtowc(NULL, NULL, 0);
+	for (sp = s, i = len, chars = 0; i > 0 && *sp != '\0'; ) {
+		mlen = mbtowc(&c, sp, i);
+		if (mlen <= 0) {
+			mbtowc(NULL, NULL, 0);
+			mlen = 1;
+		}
+		i -= mlen;
+		sp += mlen;
+		chars++;
+	}
+	i -= 1;
+	chars++;
+
+	if (wbuf == NULL || chars > bsize) {
+		wbuf = malloc(chars * sizeof (wchar_t));
+		if (wbuf == NULL)
+			return (wbuf);
+	}
+
+	mbtowc(NULL, NULL, 0);
+	for (wp = wbuf, sp = s, i = len; i > 0 && *sp != '\0'; wp++) {
+		mlen = mbtowc(&c, sp, i);
+		if (mlen <= 0) {
+			mbtowc(NULL, NULL, 0);
+			mlen = 1;
+			c = *sp & 0xFF;
+		}
+		*wp = c;
+		sp += mlen;
+		i -= mlen;
+	}
+	*wp = 0;
+	return (wbuf);
+}
+
+LOCAL char *tombs	__PR((char *cbuf, size_t bsize, wchar_t *ws, ssize_t wlen));
+LOCAL char *
+tombs(cbuf, bsize, ws, wlen)
+	char	*cbuf;
+	size_t	bsize;
+	wchar_t	*ws;
+	ssize_t	wlen;
+{
+	int	len;
+	wchar_t	*wcp;
+	char	*cp;
+	char	cstr[MB_LEN_MAX];
+
+	if (wlen < 0)
+		wlen = wcslen(ws);
+
+	for (len = 0, wcp = ws; *wcp; wcp++) {
+		int	mlen;
+
+		mlen = wctomb(cstr, *wcp);
+		if (mlen <= 0)
+			mlen = 1;
+		len += mlen;
+	}
+	len++;
+
+	if (cbuf == NULL || len > bsize) {
+		cbuf = malloc(len);
+		if (cbuf == NULL)
+			return (cbuf);
+	}
+
+	for (wcp = ws, cp = cbuf; *wcp; wcp++) {
+		int	mlen;
+
+		mlen = wctomb(cp, *wcp);
+		if (mlen <= 0) {
+			mlen = 1;
+			*cp = *wcp & 0xFF;
+			if (*cp == '\0')
+				*cp = '?';
+		}
+		cp += mlen;
+	}
+	*cp = '\0';
+	return (cbuf);
+}
+/* -------> End wide string support routines */
 
 
 /*
@@ -238,10 +395,11 @@ get_histlen()
 
 /*
  * Read new value and change the length of the current history to this value.
+ * chghistory() gets called when the environment is changed for HISTORY=
  */
 EXPORT void
 chghistory(cp)
-	char	*cp;
+	char	*cp;	/* A string with the new value of the history length */
 {
 	int	n;
 
@@ -349,13 +507,45 @@ nextc()
 	return (c);
 }
 
+/*
+ * Get next wide character
+ * Caution: The Bourne Shell has nextwc() in word.c
+ */
+EXPORT int
+_nextwc()
+{
+	register int	cur_max = MB_CUR_MAX;
+	register int	i;
+	int		mlen;
+	wchar_t		c = -1;
+	char		cstr[MB_LEN_MAX];
+	char		*cp;
+	int		ic;
+
+	mbtowc(NULL, NULL, 0);
+	for (i = 1, cp = cstr; i <= cur_max; i++) {
+		ic = nextc();
+		if (ic == EOF)
+			break;
+		*cp++ = (char)ic;
+		mlen = mbtowc(&c, cstr, i);
+		if (mlen >= 0)
+			break;
+		mbtowc(NULL, NULL, 0);
+	}
+#ifdef	_NEXTWC_DEBUG
+	error("C %d %x\n", c, c);
+#endif
+	return ((int)c);
+}
+
 
 /*
- * Write a single character to our tty
+ * Write a single (wide) character to our tty
  */
 LOCAL void
 writec(c)
-	char	c;
+	int	c;
 {
 	prettyp(c, &buf);
 }
@@ -363,6 +553,7 @@ writec(c)
 
 /*
  * Write a string
+ * Needed for internal string output like "<EOF>"
  */
 LOCAL void
 writes(p)
@@ -375,20 +566,41 @@ writes(p)
 	bflush();
 }
 
+/*
+ * Write a wide character string
+ */
+LOCAL void
+writews(p)
+	register wchar_t	*p;
+{
+	register BUF	*rb = &buf;
+
+	while (*p)
+		prettyp(*p++, rb);
+	bflush();
+}
+
 
 /*
- * Write a single character in expanded (readable) form.
+ * Write a single (wide) character in expanded (readable) form.
  * Non printable characters are frefixed by '~' if they
  * are beyond 0x7F and prefixed by '^' if they are a
  * control character.
  */
 LOCAL void
 prettyp(c, b)
-	register char c;
+	register int	c;
 	register BUF	*b;
 {
-	if (isprint((unsigned char)c) /*|| c == '\n'*/) {
+	if (iswprint(c) /*|| c == '\n'*/) {
 		pch(c, b);
+		return;
+	}
+	if (c > 0xFF) {
+		char	s[16];
+
+		js_snprintf(s, sizeof (s), "'%10.10X", c);
+		writes(s);
 		return;
 	}
 	if (c & 0x80) {
@@ -416,25 +628,43 @@ bflush()
 
 
 /*
- * Put a character into out line buffering module.
+ * Put a (wide) character into out line buffering module.
  */
 LOCAL void
 pch(c, bp)
-	char		c;
+		int	c;
 	register BUF	*bp;
 {
+		char	cstr[MB_LEN_MAX];
+		int	len;
+
 	if (bp->b_index >= BUFSIZE)
 		bflush();
-	bp->b_buf[bp->b_index++] = c;
+
+	len = wctomb(cstr, (wchar_t)c);
+	if (len <= 0) {
+		if ((c & 0xFF) == '\0')
+			c = '?';
+
+		bp->b_buf[bp->b_index++] = (char)c;
+	} else {
+		char	*cp = cstr;
+
+		while (--len >= 0) {
+			bp->b_buf[bp->b_index++] = *cp++;
+		}
+		if (bp->b_index >= BUFSIZE)	/* If >= BUFSIZE	*/
+			bflush();		/* flush immediately    */
+	}
 }
 
 
 /*
- * Simple putchar() replacement that uses our line buffering.
+ * Simple (wide) putchar() replacement that uses our line buffering.
  */
 LOCAL void
 putch(c)
-	char	c;
+	int	c;
 {
 	pch(c, &buf);
 }
@@ -456,26 +686,28 @@ beep()
 
 
 /*
- * Compute the visible length of a character.
+ * Compute the visible length of a (wide) character.
  */
 LOCAL int
 chlen(c)
-	register char	c;
+	register int	c;
 {
-	if (isprint((unsigned char)c) /*|| c == '\n'*/)
+	if (iswprint(c) /*|| c == '\n'*/)
 		return (1);
+	if (c > 0xFF)
+		return (11);
 	if (c & 0x80)
-		return (2 + !isprint(c&0177));
+		return (2 + !iswprint(c&0177));
 	return (2);
 }
 
 
 /*
- * Compute the visible length of a string.
+ * Compute the visible length of a wide string.
  */
 LOCAL int
 linelen(s)
-	register char	*s;
+	register wchar_t	*s;
 {
 	register int	len = 0;
 	while (*s)
@@ -489,10 +721,11 @@ linelen(s)
  */
 LOCAL int
 linediff(a, e)
-	register char	*a;
-	register char	*e;
+	register wchar_t	*a;
+	register wchar_t	*e;
 {
 	register int	diff = 0;
+
 	while (*a && a < e)
 		diff += chlen(*a++);
 	return (diff);
@@ -534,7 +767,7 @@ space(n)
  */
 LOCAL void
 delete(p)
-	register char	*p;
+	register wchar_t	*p;
 {
 	register int	len = 0;
 
@@ -547,16 +780,16 @@ delete(p)
 /*
  * loescht ein Wort rueckwaerts wie im Terminaltreiber mit ^W
  */
-LOCAL char *
+LOCAL wchar_t *
 clearword(lp, cp, lenp)
-	register char	*lp;
-	register char	*cp;
-	unsigned	*lenp;
+	register wchar_t	*lp;
+	register wchar_t	*cp;
+	unsigned		*lenp;
 {
-	register int	dl	= 0;		/* Displayed len of word */
-	register int	wl;			/* Length of word in chars */
-	register char	*p;
-		char	*sp	= cp;
+	register int		dl	= 0;	/* Displayed len of word */
+	register int		wl;		/* Length of word in chars */
+	register wchar_t	*p;
+		wchar_t		*sp	= cp;
 
 	if (cp == lp) {				/* At begin of line */
 		beep();
@@ -577,7 +810,7 @@ clearword(lp, cp, lenp)
 		if ((*p = *(p+wl)) == '\0')
 			break;
 	}
-	writes(cp);				/* Write new end of line */
+	writews(cp);				/* Write new end of line */
 	space(dl);				/* Overwrite deleted space */
 	backspace(linelen(cp) + dl);		/* Readjust cursor position */
 
@@ -591,8 +824,8 @@ clearword(lp, cp, lenp)
  */
 LOCAL void
 clearline(lp, cp)
-	char	*lp,
-		*cp;
+	wchar_t	*lp;
+	wchar_t	*cp;
 {
 	backspace(linediff(lp, cp));
 	delete(lp);
@@ -603,12 +836,12 @@ clearline(lp, cp)
  */
 LOCAL void
 ins_char(cp, c)
-	register char	*cp;
-	char		c;
+	register wchar_t	*cp;
+		int		c;
 {
-	register char	*ep = cp;
+	register wchar_t	*ep = cp;
 
-	writes(cp);
+	writews(cp);
 	backspace(linelen(cp));
 	while (*ep++);
 	ep--;
@@ -622,16 +855,16 @@ ins_char(cp, c)
 /*
  * Fuegt String s bei cp ein.
  */
-LOCAL char *
+LOCAL wchar_t *
 ins_word(cp, s)
-	register char	*cp;
-	register char	*s;
+	register wchar_t	*cp;
+	register wchar_t	*s;
 {
-	register char	*ep = cp;
-	register int	len;
+	register wchar_t	*ep = cp;
+	register int		len;
 
-	len = strlen(s);
-	writes(cp);
+	len = wcslen(s);
+	writews(cp);
 	backspace(linelen(cp));
 	while (*ep++);
 	ep--;
@@ -649,15 +882,15 @@ ins_word(cp, s)
  */
 LOCAL void
 del_char(cp)
-	register char	*cp;
+	register wchar_t	*cp;
 {
-	register char	*p;
-	register int dl = 0;
+	register wchar_t	*p;
+	register int		dl = 0;
 
 	backspace(dl = chlen(*cp));
 	for (p = cp; *p; p++)
 		*p = *(p+1);
-	writes(cp);
+	writews(cp);
 	space(dl);
 	backspace(linelen(cp) + dl);
 }
@@ -670,14 +903,17 @@ new_line(lp, old, new)
 	unsigned	new;
 {
 	register char	*np;
-					/* realloc !!! */
-	np = malloc(new, (char *)NULL);
+
+		/* realloc !!! */
+	np = malloc(new * sizeof (*lp));
+	if (np == NULL)
+		return (np);
 	movebytes(lp, np, (int)old);		/* make_line hat kein NULL Byte ! */
 	free(lp);
 	return (np);
 }
 #else
-#define	new_line(lp, old, new)	realloc(lp, new)
+#define	new_line(lp, old, new)	realloc(lp, new * sizeof (*lp))
 #endif
 
 /*
@@ -702,7 +938,7 @@ mktmp()
 
 	tmp = (HISTPTR)malloc(sizeof (_HISTPTR));
 	tmp->h_prev = tmp->h_next = NULL;
-	tmp->h_line = malloc(LINEQUANT);
+	tmp->h_line = malloc(LINEQUANT * sizeof (*tmp->h_line));
 	tmp->h_len = LINEQUANT;
 	tmp->h_pos = 0;
 	tmp->h_flags = F_TMP;		/* Mark it temporary */
@@ -722,11 +958,11 @@ hold_line(p)
 	tmp = (HISTPTR)malloc(sizeof (_HISTPTR));
 	tmp->h_prev = p->h_prev;
 	tmp->h_next = p->h_next;
-	tmp->h_line = malloc(p->h_len);
+	tmp->h_line = malloc(p->h_len * sizeof (*tmp->h_line));
 	tmp->h_len = p->h_len;
 	tmp->h_pos = p->h_pos;
 	tmp->h_flags = F_TMP;		/* Mark it temporary */
-	movebytes(p->h_line, tmp->h_line, p->h_len);
+	movebytes(p->h_line, tmp->h_line, p->h_len * sizeof (*tmp->h_line));
 	return (tmp);
 }
 
@@ -739,7 +975,7 @@ unhold_line(p, op)
 		return;
 
 	if (op) {
-		int len = strlen(op->h_line);
+		int len = wcslen(op->h_line);
 
 		if (p->h_pos > len)
 			op->h_pos = len;
@@ -808,7 +1044,7 @@ remove_line(p)
 
 
 /*
- * Append a line to the end of the history list.
+ * Append a multibyte line to the end of the history list.
  */
 EXPORT void
 append_line(linep, len, pos)
@@ -816,8 +1052,31 @@ append_line(linep, len, pos)
 	unsigned	len;
 	unsigned	pos;
 {
-	register HISTPTR p;
-	register char		*lp;
+	wchar_t		wline[512];
+	wchar_t		*wp;
+
+	wp = towcs(wline, sizeof (wline), linep, len);
+	if (wp == NULL)
+		return;
+
+	len = 1 + wcslen(wp);
+	append_wline(wp, len, pos);
+
+	if (wp != wline)
+		free(wp);
+}
+
+/*
+ * Append a wide character line to the end of the history list.
+ */
+EXPORT void
+append_wline(linep, len, pos)
+	wchar_t		*linep;
+	unsigned	len;
+	unsigned	pos;
+{
+	register HISTPTR	p;
+	register wchar_t	*lp;
 
 #ifdef DEBUG
 	printf("appending line, histlen = %d.\r\n", histlen);
@@ -827,8 +1086,8 @@ append_line(linep, len, pos)
 	if (no_lines == histlen)
 		remove_line(first_line);
 	p = (HISTPTR)malloc(sizeof (_HISTPTR));
-	lp = malloc(len);
-	strcpy(lp, linep);
+	lp = malloc(len * sizeof (*lp));
+	wcscpy(lp, linep);
 	p->h_prev = last_line;
 	p->h_line = lp;
 	p->h_len  = len;
@@ -854,15 +1113,18 @@ append_line(linep, len, pos)
  */
 LOCAL void
 append_hline(linep, len)
-	char	*linep;
+	wchar_t	*linep;
 	unsigned len;
 {
-	register HISTPTR p = last_line;
-	register char	*lp;
+	register HISTPTR	p = last_line;
+	register wchar_t	*lp;
+		wchar_t		anl[2];
 
 	len += p->h_len;
-	lp = malloc(len);
-	strcatl(lp, p->h_line, "\205", linep, (char *)NULL);
+	lp = malloc(len * sizeof (*lp));
+	anl[0] = '\205';
+	anl[1] = '\0';
+	wcscatl(lp, p->h_line, anl, linep, (wchar_t *)NULL);
 	free(p->h_line);
 	p->h_line = lp;
 	p->h_len  = len;
@@ -917,8 +1179,8 @@ move_to_end(p)
 LOCAL void
 stripout()
 {
-	register HISTPTR p;
-	register char	*linep;
+	register HISTPTR	p;
+	register wchar_t	*linep;
 
 	if (!last_line)
 		return;
@@ -930,7 +1192,7 @@ stripout()
 #ifdef DEBUG
 		printf("stripout: '%s'.\r\n", p->h_line);
 #endif
-		if (strlen(p->h_line) == 0 || streql(linep, p->h_line)) {
+		if (wcslen(p->h_line) == 0 || wcseql(linep, p->h_line)) {
 			p = remove_line(p);
 			if (p == (HISTPTR)NULL)
 				break;
@@ -951,7 +1213,7 @@ match_input(cur_line, tmp_line, up)
 	static	HISTPTR	match_line = (HISTPTR) NULL;
 		HISTPTR	hp;
 		char		*oldprompt;
-		char		*pattern;
+		wchar_t		*pattern;
 
 	if (!match_line)
 		match_line = mktmp();
@@ -976,22 +1238,44 @@ match_input(cur_line, tmp_line, up)
 
 /*
  * Implement the !pattern search that is a simple csh feature.
+ * match_hist() is called by the parser when !<pattern> is seen.
  */
 EXPORT char *
 match_hist(pattern)
 		char		*pattern;
 {
 	register HISTPTR	hp;
+		wchar_t		wpattern[32];
+		wchar_t		*wp;
 
-	if (streql(pattern, "!"))
-		pattern = "*";
+	wpattern[0] = '\0';
+	if (streql(pattern, "!")) {
+		wpattern[0] = '*';
+		wpattern[1] = '\0';
+		wp = wpattern;
+	} else {
+		wp = towcs(wpattern, sizeof (wpattern), pattern, -1);
+		if (wp == NULL)
+			return (NULL);
+	}
 	remove_line(last_line);
-	if ((hp = match(last_line, pattern, TRUE)) == (HISTPTR) NULL)
+	if ((hp = match(last_line, wp, TRUE)) == (HISTPTR) NULL) {
+		if (wp != wpattern)
+			free(wp);
 		return (NULL);
+	}
+	if (wp != wpattern)
+		free(wp);
 	move_to_end(hp);
-	(void) fprintf(stderr, "%s\r\n", hp->h_line);
+
+	if (line_pointer)
+		free(line_pointer);
+	line_pointer = tombs(NULL, 0, hp->h_line, -1);
+
+	if (line_pointer)
+		(void) fprintf(stderr, "%s\r\n", line_pointer);
 	(void) fflush(stderr);
-	return (hp->h_line);
+	return (line_pointer);
 }
 
 
@@ -1001,7 +1285,7 @@ match_hist(pattern)
 LOCAL HISTPTR
 match(cur_line, pattern, up)
 		HISTPTR	cur_line;
-	register char		*pattern;
+	register wchar_t	*pattern;
 	register BOOL		up;
 {
 	register int		patlen;
@@ -1009,23 +1293,24 @@ match(cur_line, pattern, up)
 	register int		*aux;
 	register int		*state;
 	register HISTPTR	hp = (HISTPTR) NULL;
-	register char		*lp;
+	register wchar_t	*lp;
 
 	if (pattern) {
-		patlen = strlen(pattern);
+		patlen = wcslen(pattern);
 		aux = (int *)malloc((size_t)patlen * sizeof (int));
 		state = (int *)malloc((size_t)(patlen+1) * sizeof (int));
-		if ((alt = patcompile((unsigned char *)pattern, patlen, aux)) != 0)
+		if ((alt = patwcompile(pattern, patlen, aux)) != 0) {
 			for (hp = cur_line; hp; ) {
 				lp = hp->h_line;
-				if (patmatch((unsigned char *)pattern, aux,
-						(unsigned char *)lp, 0, strlen(lp), alt, state))
+				if (patwmatch(pattern, aux,
+						lp, 0, wcslen(lp), alt, state))
 					break;
-			if (up)
-				hp = hp->h_prev;
-			else
-				hp = hp->h_next;
+				if (up)
+					hp = hp->h_prev;
+				else
+					hp = hp->h_next;
 			}
+		}
 		free((char *) aux);
 		free((char *) state);
 	}
@@ -1047,9 +1332,9 @@ LOCAL int
 edit_line(cur_line)
 	HISTPTR cur_line;
 {
-	register int	c;
-	register char	*lp, *cp;
-	char		*lpp;
+	register int		c;
+	register wchar_t	*lp, *cp;
+		wchar_t		*lpp;
 	unsigned	llen, maxlen;
 	int		diff;
 	int		multi = 0;
@@ -1063,8 +1348,8 @@ edit_line(cur_line)
 #endif
 	maxlen = cur_line->h_len;
 	cp = lp = cur_line->h_line;
-	llen = strlen(lp) + 1;
-	writes(lp);
+	llen = wcslen(lp) + 1;
+	writews(lp);
 	cp = &lp[cur_line->h_pos];
 	backspace(linelen(cp));
 	ins_mode = !*cp;
@@ -1073,7 +1358,7 @@ edit_line(cur_line)
 #endif
 	for (;;) {
 		*cp ? set_insert_modes(infile) : set_append_modes(infile);
-		c = nextc();
+		c = _nextwc();
 		switch (c) {
 
 		case '\r':		/* eigentlich nicht noetig */
@@ -1136,7 +1421,7 @@ edit_line(cur_line)
 			/* FALLTHROUGH */
 		case CTRLD:
 			multi = 0;
-			if ((cp == lp && !strlen(lp) &&
+			if ((cp == lp && !wcslen(lp) &&
 				!ev_eql(ignoreeofname, on)) || c == EOF) {
 				delim = EOF;
 				clearline(lp, cp);
@@ -1214,12 +1499,13 @@ edit_line(cur_line)
 			break;
 		case QUOTECH:
 			set_insert_modes(infile);
-			c = nextc();
-			if ((toupper(c) < 0140) && c >= '@')
+			c = _nextwc();
+
+			if ((towupper(c) < 0140) && c >= '@')
 				c &= 037;
 		default:
 			multi = 0;
-			if (i_should_echo || !isprint(c))
+			if (i_should_echo || !iswprint(c))
 				writec(c);
 			bflush();
 			if (llen == maxlen) {
@@ -1241,12 +1527,12 @@ edit_line(cur_line)
  */
 LOCAL void
 redisp(lp, cp)
-	char	*lp;
-	char	*cp;
+	wchar_t	*lp;
+	wchar_t	*cp;
 {
 	(void) fprintf(stderr, "\r\n%s", iprompt);
 	(void) fflush(stderr);
-	writes(lp);
+	writews(lp);
 	backspace(linelen(cp));
 }
 
@@ -1254,14 +1540,14 @@ redisp(lp, cp)
 /*
  * Insert a string a current cursor position.
  */
-LOCAL char *
+LOCAL wchar_t *
 insert(cp, s, lenp)
-	register char	*cp;
-	register char	*s;
-	unsigned	*lenp;
+	register wchar_t	*cp;
+	register wchar_t	*s;
+	unsigned		*lenp;
 {
-	*lenp += strlen(s);
-	writes(s);
+	*lenp += wcslen(s);
+	writews(s);
 	cp = ins_word(cp, s);
 	return (cp);
 }
@@ -1270,11 +1556,11 @@ insert(cp, s, lenp)
 /*
  * Undo last delete(s).
  */
-LOCAL char *
+LOCAL wchar_t *
 undo_del(lp, cp, lenp)
-	register char	*lp;
-	register char	*cp;
-	unsigned	*lenp;
+	register wchar_t	*lp;
+	register wchar_t	*cp;
+	unsigned		*lenp;
 {
 #ifdef	NEW
 	register int	fdellen;
@@ -1289,6 +1575,21 @@ undo_del(lp, cp, lenp)
 }
 
 /*
+ * Check whether a wide char code can be found in a narrow char string.
+ */
+LOCAL char *
+strwchr(s, c)
+	char	*s;
+	wchar_t	c;
+{
+	while (*s) {
+		if ((*s++ & 0xFF) == c)
+			return (--s);
+	}
+	return (NULL);
+}
+
+/*
  * The characters ' ' ... '&' are handled by the shell parser,
  * the characters '!' ... '$' are pattern matcher meta characters.
  * The complete pattern matcher meta characters are "!#%*?\\{}[]^$", but
@@ -1297,25 +1598,27 @@ undo_del(lp, cp, lenp)
 LOCAL char xchars[] = " \t<>%|;()&!#*?\\{}[]^$"; /* Chars that need quoting */
 
 /*
- * Expand a string and return a malloc()ed copy.
+ * Expand a wide char string and return a malloc()ed copy.
  * Any character that needs quoting is prepended with a '\\'.
  */
-LOCAL char *
-xpstr(cp)
-	char	*cp;
+LOCAL wchar_t *
+xpwcs(cp)
+	wchar_t	*cp;
 {
-	char	*ret;
-	char	*p = cp;
+	wchar_t	*ret;
+	wchar_t	*p = cp;
 	int	len = 0;
 
 	while (*p) {
 		len++;
-		if (strchr(xchars, *p++))
+		if (strwchr(xchars, *p++))
 			len++;
 	}
-	ret = malloc(len+1);
+	ret = malloc((len+1) * sizeof (wchar_t));
+	if (ret == NULL)
+		return (ret);
 	for (p = ret; *cp; ) {
-		if (strchr(xchars, *cp))
+		if (strwchr(xchars, *cp))
 			*p++ = '\\';
 		*p++ = *cp++;
 	}
@@ -1333,30 +1636,31 @@ LOCAL char wschars[] = " \t<>%|;()&"; /* Chars that are word separators */
  * This is the basic function that either expands or lists filenames.
  * It gets called by exp_files() and by show_files().
  */
-LOCAL char *
+LOCAL wchar_t *
 xp_files(lp, cp, show, multip)
-	register char	*lp;	/* Begin of current line		*/
-	register char	*cp;	/* Current cursor position		*/
+	register wchar_t	*lp;	/* Begin of current line		*/
+	register wchar_t	*cp;	/* Current cursor position		*/
 		BOOL	show;	/* Show list of multi-results		*/
 		int	*multip; /* Found mult results in non show mode */
 {
 	Tnode	*np;
 	Tnode	*l1;
-	char	*wp;
-	char	*wp2 = NULL;
-	char	*tp;
+	wchar_t	*wp;
+	wchar_t	*wp2 = NULL;
+	wchar_t	*tp;
 	int	len;
 	int	xlen;
 	int	dir = 0;
-	char	*p1;
-	char	*p2;
+	wchar_t	*p1;
+	wchar_t	*p2 = NULL;
+	char	*ns;
 	int	multi = 0;	/* No mutiple results found yet	*/
 
 	/*
 	 * Check whether to expand (complete) the filename.
 	 * This depends on the character that is currently under the cursor.
 	 */
-	if (*cp != '\0' && !strchr(wschars, *cp)) {
+	if (*cp != '\0' && !strwchr(wschars, *cp)) {
 /*		beep();*/
 		return (0);
 	}
@@ -1368,7 +1672,7 @@ xp_files(lp, cp, show, multip)
 	 * Set "wp" to current cursor position and then step back into the text
 	 */
 	wp = cp;
-	if (*wp == '\0' || strchr(wschars, *wp))
+	if (*wp == '\0' || strwchr(wschars, *wp))
 		wp--;
 
 
@@ -1377,9 +1681,9 @@ xp_files(lp, cp, show, multip)
 	 * Do not stop on quoted delimiters.
 	 */
 again:
-	while (wp > lp && !strchr(wschars, *wp))
+	while (wp > lp && !strwchr(wschars, *wp))
 		wp--;
-	if (wp > lp && strchr(wschars, *wp) &&
+	if (wp > lp && strwchr(wschars, *wp) &&
 	    wp[-1] == '\\') {
 		wp--;
 		goto again;
@@ -1389,51 +1693,77 @@ again:
 	/*
 	 * Advance again into current word.
 	 */
-	if (strchr(wschars, *wp))
+	if (strwchr(wschars, *wp))
 		wp++;
 
 
 	len = cp - wp;
-	tp = malloc(len+2);
-	strncpy(tp, wp, len);
+	tp = malloc((len+2) * sizeof (wchar_t));
+	if (tp == NULL)
+		return (0);
+	wcsncpy(tp, wp, len);
 	tp[len] = '*';
 	tp[len+1] = '\0';
-	np = expand(tp);
+	ns = tombs(NULL, 0, tp, -1);
+	free(tp);
+	if (ns == NULL)
+		return (0);
+	np = expand(ns);
+	free(ns);
 	if (np == NULL) {
-		free(tp);
 /*		beep();*/
 		return (0);
 	}
+
 	/*
 	 * More than one result?
 	 */
 	if (np->tn_right.tn_node)
 		multi++;
-
-	wp = np->tn_left.tn_str;		/* First in list	 */
-	wp = xpstr(wp);			/* Insert '\\' if needed */
-	p2 = strrchr(wp, '/');
-	xlen = 0;
-	if (p2)
-		xlen = p2 - wp + 1;
+					/* wp = first from list	 */
+	wp = towcs((wchar_t *)NULL, 0, np->tn_left.tn_str, -1);
+	if (wp == NULL)
+		goto out;
 	p2 = wp;
+	wp = xpwcs(wp);			/* Insert '\\' if needed */
+	free(p2);
+	p2 = NULL;
+	if (wp == NULL)
+		goto out;
+	p2 = wcsrchr(wp, '/');		/* Find last slash		    */
+	xlen = 0;			/* If no slash start from str begin */
+	if (p2)				/* If we found a slash		    */
+		xlen = p2 - wp + 1;	/* start right to slash		    */
+	p2 = NULL;
 	for (l1 = np; l1 != (Tnode *) NULL; l1 = l1->tn_right.tn_node) {
-		if (l1->tn_right.tn_node == NULL)
+		if (l1->tn_right.tn_node == NULL) {
 			/*
 			 * Last in list for max. differences to
 			 * compare with first one.
 			 */
-			p2 = l1->tn_left.tn_str;
+			p2 = towcs((wchar_t *)NULL, 0, l1->tn_left.tn_str, -1);
+		}
 		if (show) {
-			writes(&l1->tn_left.tn_str[xlen]);
-			writes(" ");
+			wchar_t	*p;
+			p = towcs((wchar_t *)NULL, 0, l1->tn_left.tn_str, -1);
+			if (p) {
+				writews(&p[xlen]);
+				writes(" ");
+				free(p);
+			}
 		}
 	}
 	/*
 	 * For multiple results, find longest common match.
 	 */
 	if (multi) {
-		wp2 = xpstr(p2);
+		if (p2 == NULL)	/* towcs() in for() loop returned NULL */
+			goto out;
+		wp2 = xpwcs(p2);
+		free(p2);
+		p2 = NULL;
+		if (wp2 == NULL)
+			goto out;
 		for (p1 = wp, p2 = wp2; *p1; ) {
 			if (*p1++ != *p2++) {
 				p1--;
@@ -1445,15 +1775,18 @@ again:
 			p1 = NULL;
 		}
 	} else {
-		xlen = strlen(wp);
+		xlen = wcslen(wp);
 		p1 = NULL;
+		if (p2)
+			free(p2);
 	}
+	p2 = NULL;
 
 	if (!show) {
 		if (p1 == NULL)
 			dir = is_dir(np->tn_left.tn_str);
 		if ((xlen - len) > 0 || dir) {
-			p2 = malloc(xlen-len+2);
+			p2 = malloc((xlen-len+2) * sizeof (wchar_t));
 		} else {
 			/*
 			 * Nothing to add.
@@ -1465,7 +1798,7 @@ again:
 		}
 	}
 	if (!show && p2) {
-		strncpy(p2, &wp[len], xlen-len);
+		wcsncpy(p2, &wp[len], xlen-len);
 		if (p1) {
 			if ((xlen - len) == 0)
 				beep();
@@ -1477,9 +1810,10 @@ again:
 	} else {
 		p2 = NULL;
 	}
+out:
 	freetree(np);
-	free(tp);
-	free(wp);
+	if (wp)
+		free(wp);
 	if (wp2)
 		free(wp2);
 	return (p2);
@@ -1490,20 +1824,20 @@ again:
  * Expand filenames (implement file name completion).
  * Insert expansion result into current line if applicable.
  */
-LOCAL char *
+LOCAL wchar_t *
 exp_files(lpp, cp, lenp, maxlenp, multip)
-	register char	**lpp;
-	register char	*cp;
-	unsigned	*lenp;
-	unsigned	*maxlenp;
-		int	*multip;
+	register wchar_t	**lpp;
+	register wchar_t	*cp;
+	unsigned		*lenp;
+	unsigned		*maxlenp;
+		int		*multip;
 {
-	char	*p;
+	wchar_t	*p;
 	int	diff;
 
 	p = xp_files(*lpp, cp, FALSE, multip);
 	if (p) {
-		diff = strlen(p);
+		diff = wcslen(p);
 		if (*lenp + diff >= *maxlenp) {
 			diff = ((diff + LINEQUANT)/LINEQUANT) * LINEQUANT;
 			*maxlenp += diff;
@@ -1525,10 +1859,14 @@ exp_files(lpp, cp, lenp, maxlenp, multip)
  */
 LOCAL void
 show_files(lp, cp)
-	register char	*lp;
-	register char	*cp;
+	register wchar_t	*lp;
+	register wchar_t	*cp;
 {
-	xp_files(lp, cp, TRUE, NULL);
+		wchar_t		*p;
+
+	p = xp_files(lp, cp, TRUE, NULL);
+	if (p)
+		free(p);
 	redisp(lp, cp);
 }
 
@@ -1542,7 +1880,7 @@ get_request()
 	register int c;
 
 		set_insert_modes(infile);
-	c = nextc();
+	c = _nextwc();
 	if (c == UPWARD || c == DOWNWARD)
 		return (c | SEARCH);
 	if (c == '\n' || c == '\r')
@@ -1554,14 +1892,14 @@ get_request()
 /*
  * Implementation of functions that follow an ESC in an ESC sequence.
  */
-LOCAL char *
+LOCAL wchar_t *
 esc_process(xc, lp, cp, lenp)
-	register int	xc;
-	register char	*lp;
-	register char	*cp;
-		unsigned *lenp;
+	register int		xc;
+	register wchar_t		*lp;
+	register wchar_t	*cp;
+		unsigned	*lenp;
 {
-	register char	*pp;
+	register wchar_t	*pp;
 	register int	dl = 0;
 
 	switch (xc) {
@@ -1613,8 +1951,8 @@ esc_process(xc, lp, cp, lenp)
 			dl = linediff(cp, pp);
 			backspace(dl);
 		}
-		strcpy(cp, pp);
-		writes(cp);
+		wcscpy(cp, pp);
+		writews(cp);
 		space(dl);
 		backspace(linelen(cp) + dl);
 		(*lenp) -= (pp - cp);
@@ -1630,10 +1968,10 @@ esc_process(xc, lp, cp, lenp)
  * Interactive line editor function.
  * Allows only a limited subset if the editing functions.
  */
-LOCAL char *
+LOCAL wchar_t *
 sget_line()
 {
-		char		*lp;
+		wchar_t		*lp;
 		BOOL		edit = TRUE;
 		int		cmd;
 	register HISTPTR	tmp_line;
@@ -1668,11 +2006,11 @@ sget_line()
  * Interactive line editor function.
  * Allows all editing functions.
  */
-LOCAL char *
+LOCAL wchar_t *
 iget_line()
 {
-	register char		*lp;
-		char		*np;
+	register wchar_t	*lp;
+		wchar_t		*np;
 		BOOL		edit = TRUE;
 	register int		cmd = '\0';
 	register HISTPTR	cur_line;
@@ -1747,13 +2085,13 @@ iget_line()
 		}
 	}
 	lp = cur_line->h_line;
-	np = makestr(lp);
+	np = makewstr(lp);
 	if (cur_line == tmp_line || cur_line == etmp_line) {
 #ifdef DEBUG
 		printf("tmp_line to append....\r\n");
 #endif
 		if (*lp)
-			append_line(lp, cur_line->h_len, cur_line->h_pos);
+			append_wline(lp, cur_line->h_len, cur_line->h_pos);
 	} else {
 #ifdef DEBUG
 		printf("previous line to move....\r\n");
@@ -1794,7 +2132,7 @@ make_line(f, arg)
 #ifdef DEBUG
 	printf("        make_line\r\n");
 #endif
-	lp = p = malloc(maxl = LINEQUANT);
+	lp = p = malloc((maxl = LINEQUANT) * sizeof (*lp));
 	llen = 0;
 	for (;;) {
 		if ((c = (*f)(arg)) == EOF || c == '\n' || c == '\205') {
@@ -1836,12 +2174,16 @@ fread_line(f)
  */
 EXPORT char *
 get_line(n, f)
-	int	n;
-	FILE	*f;
+	int	n;		/* Prompt index */
+	FILE	*f;		/* FILE * to read from */
 {
 	if (line_pointer) {
 		free(line_pointer);
 		line_pointer = NULL;
+	}
+	if (wline_pointer) {
+		free(wline_pointer);
+		wline_pointer = NULL;
 	}
 	if (ttyflg && mp_init) {
 		map_init();
@@ -1857,15 +2199,23 @@ get_line(n, f)
 		printf("        get_line: fread_line(%p).\r\n", f);
 #endif
 		line_pointer = fread_line(f);
+		if (line_pointer == NULL)
+			return (nullstr);
+		return (line_pointer);
 	} else {
 		infile = f;
 		tty_init();
 		if (n)
-			line_pointer = sget_line();
+			wline_pointer = sget_line();	/* Editor w/o history */
 		else
-			line_pointer = iget_line();
+			wline_pointer = iget_line();	/* Editor w. history */
 		tty_term();
 	}
+
+	if (wline_pointer == NULL)
+		return (nullstr);
+
+	line_pointer = tombs(NULL, 0, wline_pointer, -1);
 	return (line_pointer?line_pointer:nullstr);
 }
 
@@ -1886,11 +2236,22 @@ put_history(f, intrflg)
 			break;
 		if (f == stdout) {
 			writes("{ ");
-			writes(p->h_line);
+			writews(p->h_line);
 			writes(" }");
 			putch('\n');
 		} else {
-			fprintf(f, "%s\n", p->h_line);
+			char	line[512];
+			char	*lp;
+
+			lp = tombs(line, sizeof (line), p->h_line, -1);
+			if (lp == NULL)
+				continue;
+			/*
+			 * XXX could be fprintf(f, "%ws\n", p->h_line);
+			 */
+			fprintf(f, "%s\n", lp);
+			if (lp != line)
+				free(lp);
 		}
 	}
 	if (f == stdout)

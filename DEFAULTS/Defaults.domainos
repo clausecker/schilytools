@@ -1,4 +1,4 @@
-#ident "@(#)Defaults.domainos	1.4 08/12/26 "
+#ident "@(#)Defaults.domainos	1.5 09/06/04 "
 ###########################################################################
 #
 # global definitions for Apollo Domain/OS Systems
@@ -30,7 +30,8 @@ CWARNOPTS=	-W0,-info,0
 
 DEFINCDIRS=	$(SRCROOT)/include
 LDPATH=		-L/opt/schily/lib
-RUNPATH=	-R$(INS_BASE)/lib -R/opt/schily/lib -R$(OLIBSDIR)
+#RUNPATH=	-R$(INS_BASE)/lib -R/opt/schily/lib -R$(OLIBSDIR)
+RUNPATH=	-R$(INS_BASE)/lib -R/opt/schily/lib
 
 ###########################################################################
 #

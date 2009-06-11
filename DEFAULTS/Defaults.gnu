@@ -1,4 +1,4 @@
-#ident "@(#)Defaults.gnu	1.4 08/12/26 "
+#ident "@(#)Defaults.gnu	1.5 09/06/04 "
 ###########################################################################
 #
 # global definitions for GNU (hurd) Systems
@@ -30,7 +30,8 @@ CWARNOPTS=
 
 DEFINCDIRS=	$(SRCROOT)/include /usr/src/linux/include
 LDPATH=		-L/opt/schily/lib
-RUNPATH=	-R$(INS_BASE)/lib -R/opt/schily/lib -R$(OLIBSDIR)
+#RUNPATH=	-R$(INS_BASE)/lib -R/opt/schily/lib -R$(OLIBSDIR)
+RUNPATH=	-R$(INS_BASE)/lib -R/opt/schily/lib
 
 ###########################################################################
 #

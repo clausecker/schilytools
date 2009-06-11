@@ -1,4 +1,4 @@
-# @(#)Targets	1.13 08/12/07 Copyright 1995 J. Schilling
+# @(#)Targets	1.16 09/06/06 Copyright 1995 J. Schilling
 
 CFILES_STDIO=	cvmod.c dat.c fcons.c fdown.c fdup.c \
 		ffileread.c ffilewrite.c \
@@ -31,16 +31,21 @@ CFILES_REST=	astoi.c astoll.c astoull.c breakline.c \
 		gettimeofday.c \
 		handlecond.c \
 		jsprintf.c jssnprintf.c jssprintf.c \
-		match.c matchl.c movebytes.c \
+		match.c matchl.c matchw.c matchwl.c movebytes.c \
 		mem.c jmem.c fjmem.c \
 		raisecond.c rename.c \
 		saveargs.c serrmsg.c seterrno.c setfp.c \
 		sleep.c \
 		snprintf.c \
 		spawn.c \
-		strcatl.c strdup.c streql.c strlcpy.c strncpy.c \
+		strcat.c strcatl.c strchr.c strcmp.c strcpy.c \
+		strdup.c streql.c strlen.c strlcpy.c strncat.c strncmp.c \
+		strncpy.c strrchr.c \
 		swabbytes.c \
-		usleep.c
+		usleep.c \
+		wcscat.c wcscatl.c wcschr.c wcscmp.c wcscpy.c \
+		wcsdup.c wcseql.c wcslen.c wcslcpy.c wcsncat.c wcsncmp.c \
+		wcsncpy.c wcsrchr.c
 
 #
 # These interfaces have been moved to libschilypr in order to make

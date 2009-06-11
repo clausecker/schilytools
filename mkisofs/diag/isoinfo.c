@@ -1,8 +1,8 @@
-/* @(#)isoinfo.c	1.70 09/02/20 joerg */
+/* @(#)isoinfo.c	1.71 09/05/30 joerg */
 #include <schily/mconfig.h>
 #ifndef	lint
 static	const char sccsid[] =
-	"@(#)isoinfo.c	1.70 09/02/20 joerg";
+	"@(#)isoinfo.c	1.71 09/05/30 joerg";
 #endif
 /*
  * File isodump.c - dump iso9660 directory information.
@@ -656,6 +656,11 @@ dump_stat(idr, extent)
 	if (date_buf[1] >= 1 && date_buf[1] <= 12) {
 		memcpy(outline+off+1, months[date_buf[1]-1], 3);
 		off += 4;
+	} else {
+		/*
+		 * Some broken ISO-9660 formatters write illegal month numbers.
+		 */
+		off += 1 + js_sprintf(outline+off+1, "???");
 	}
 
 	off += js_sprintf(outline+off, " %2d", date_buf[2]);

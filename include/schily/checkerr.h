@@ -1,4 +1,4 @@
-/* @(#)checkerr.h	1.10 09/05/05 Copyright 2003-2009 J. Schilling */
+/* @(#)checkerr.h	1.11 09/06/06 Copyright 2003-2009 J. Schilling */
 /*
  *	Generic error control for programs that do file i/o.
  *	The error control is usually used by archiving programs.
@@ -26,6 +26,9 @@
 #ifndef _SCHILY_CHECKERR_H
 #define	_SCHILY_CHECKERR_H
 
+#ifndef _SCHILY_MCONFIG_H
+#include <schily/mconfig.h>
+#endif
 #ifndef _SCHILY_STANDARD_H
 #include <schily/standard.h>
 #endif

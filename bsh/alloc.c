@@ -1,8 +1,8 @@
-/* @(#)alloc.c	1.42 09/01/03 Copyright 1985,1988,1991,1995-2009 J. Schilling */
+/* @(#)alloc.c	1.44 09/06/02 Copyright 1985,1988,1991,1995-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)alloc.c	1.42 09/01/03 Copyright 1985,1988,1991,1995-2009 J. Schilling";
+	"@(#)alloc.c	1.44 09/06/02 Copyright 1985,1988,1991,1995-2009 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1985,1988,1991,1995-2009 J. Schilling
@@ -19,6 +19,9 @@ static	const char sccsid[] =
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
+#ifdef	D_MALLOC
+#undef	FAST_MALLOC
+#endif
 #ifdef	BSH
 #	define	ADEBUG		/* Mit debug Funktionen aprintfree()... */
 #	define	XADEBUG		/* Mit Heap Damage Ckeck */
@@ -44,7 +47,7 @@ static	const char sccsid[] =
 #include <schily/stdlib.h>
 
 #if defined(ADEBUG) || defined(BSH)
-#	include <stdio.h>
+#	include <schily/stdio.h>
 #endif
 
 
@@ -409,6 +412,7 @@ frext(size)
 	(void) free((char *)&new->store);
 	return (TRUE);
 }
+
 
 /*---------------------------------------------------------------------------
 |

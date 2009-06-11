@@ -1,5 +1,5 @@
 '\" t
-.\" @(#)cdda2wav.1	1.32 09/04/11 Copyright 1998,1999,2000 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling
+.\" @(#)cdda2wav.1	1.33 09/05/22 Copyright 1998,1999,2000 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
 .if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
 .if t .ds u \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'u
@@ -189,6 +189,50 @@ for CDROM access:
 .B generic_scsi
 or (on Linux, and FreeBSD systems)
 .BR cooked_ioctl .
+.br
+.ne 20
+.TP
+.B \-interactive
+Go into interactive mode that reads commands from
+.B stdin 
+and writes the textual replies to
+.BR stderr .
+This mode has been introduced mainly to allow cdrecord to be called by gstreamer plugins.
+.sp
+.ne 20
+If 
+.B cdda2wav
+was called with the option
+.BR \-interactive ,
+it reads the TOC from the medium and then waits for command input as if it
+has been issued a
+.B stop
+command. If the next command is a 
+.B cont
+command, then
+.B cdda2wav
+extratcs the whole audio part of the medium.
+If the next command is a 
+.B read 
+command, then
+.B cdda2wav
+starts extracting from the position that was indicated by the 
+.B read
+command parameter.
+.TS H
+center box;
+c | l | l
+c | l | l.
+Command	Parameters	Description
+_
+cont		continue processing at current position
+exit		exit processing
+help		print command help and wait for input
+quit		exit processing
+read	sectors \fIsector number\fP	read sectors starting from \fIsector number\fP
+read	tracks \fItrack number\fP	read sectors starting from \fItrack number\fP
+stop		stop processing and wait for new input
+.TE
 .TP
 .BI out\-fd= descriptor
 Redirect informational output to the file descriptor named by

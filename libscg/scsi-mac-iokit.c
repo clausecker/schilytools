@@ -1,7 +1,7 @@
-/* @(#)scsi-mac-iokit.c	1.13 07/04/25 Copyright 1997,2001-2007 J. Schilling */
+/* @(#)scsi-mac-iokit.c	1.14 09/06/10 Copyright 1997,2001-2009 J. Schilling */
 #ifndef lint
 static	char __sccsid[] =
-	"@(#)scsi-mac-iokit.c	1.13 07/04/25 Copyright 1997,2001-2007 J. Schilling";
+	"@(#)scsi-mac-iokit.c	1.14 09/06/10 Copyright 1997,2001-2009 J. Schilling";
 #endif
 /*
  *	Interface to the Darwin IOKit SCSI drivers
@@ -19,7 +19,7 @@ static	char __sccsid[] =
  *	Choose your name instead of "schily" and make clear that the version
  *	string is related to a modified source.
  *
- *	Copyright (c) 1997,2001-2007 J. Schilling
+ *	Copyright (c) 1997,2001-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -48,7 +48,7 @@ static	char __sccsid[] =
  *	Choose your name instead of "schily" and make clear that the version
  *	string is related to a modified source.
  */
-LOCAL	char	_scg_trans_version[] = "scsi-mac-iokit.c-1.13";	/* The version for this transport */
+LOCAL	char	_scg_trans_version[] = "scsi-mac-iokit.c-1.14";	/* The version for this transport */
 
 #define	MAX_SCG		16	/* Max # of SCSI controllers */
 #define	MAX_TGT		16
@@ -454,7 +454,11 @@ scgo_send(scgp)
 	struct scg_cmd		*sp = scgp->scmd;
 	SCSITaskDeviceInterface	**sc = NULL;
 	SCSITaskInterface	**cmd = NULL;
+#if	defined(__LP64__)			/* Ugly differences for LP64 */
+	IOAddressRange		iov;
+#else
 	IOVirtualRange		iov;
+#endif
 	SCSI_Sense_Data		senseData;
 	SCSITaskStatus		status;
 	UInt64			bytesTransferred;
@@ -479,7 +483,11 @@ scgo_send(scgp)
 	}
 
 
+#if	defined(__LP64__)			/* Ugly differences for LP64 */
+	iov.address = (mach_vm_address_t) sp->addr;
+#else
 	iov.address = (IOVirtualAddress) sp->addr;
+#endif
 	iov.length = sp->size;
 
 	ioReturnValue = (*cmd)->SetCommandDescriptorBlock(cmd,

@@ -1,4 +1,4 @@
-#ident @(#)Makefile	1.23 08/07/14 
+#ident @(#)Makefile	1.24 09/06/08 
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -18,10 +18,14 @@ CPPOPTS +=	-DVFORK			# Use vfork() if possible
 CPPOPTS +=	-DOLD_PWORD		# Use old "word" tokenizer
 CPPOPTS +=	-DFAST_MALLOC		# malloc() without freechecking
 					# and without bound checks
+#CPPOPTS +=	-DD_MALLOC		# add support for dbg_malloc()
 #CPPOPTS +=	-DNO_USER_MALLOC	# Do not use our own malloc()
 CPPOPTS +=	-DTESTMAIL		# Do mail file checking
 CPPOPTS +=	-DSCHILY_PRINT		# Use js_*() versions of *print*() funcs
 CPPOPTS +=	-DDO_FIND		# Include find(1) builtin
+#CPPOPTS +=	-DNO_LOCALE		# Don't use setlocale()
+#CPPOPTS +=	-DNO_WCHAR		# Don't use wide chars
+
 
 
 #

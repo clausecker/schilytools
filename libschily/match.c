@@ -1,10 +1,10 @@
-/* @(#)match.c	1.22 06/09/13 Copyright 1985, 1995-2003 J. Schilling */
+/* @(#)match.c	1.23 09/05/30 Copyright 1985, 1995-2009 J. Schilling */
 #include <schily/standard.h>
 #include <schily/patmatch.h>
 /*
  *	Pattern matching functions
  *
- *	Copyright (c) 1985, 1995-2003 J. Schilling
+ *	Copyright (c) 1985, 1995-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -36,13 +36,31 @@
  *	Start of line '^' and end of line '$' have been added.
  */
 
+#undef	CHAR
+
 #ifdef	__LINE_MATCH
+#ifdef	__WIDE_CHAR
+#define	patmatch	patwlmatch
+#else
 #define	opatmatch	opatlmatch
 #define	patmatch	patlmatch
 #endif
+#endif
+
+#ifdef	__WIDE_CHAR
+#ifndef	__LINE_MATCH
+#define	patcompile	patwcompile
+#define	patmatch	patwmatch
+#endif
+#define	CHAR		wchar_t
+#endif
+
+#ifndef	CHAR
+typedef	unsigned char	Uchar;
+#define	CHAR		Uchar
+#endif
 
 #define	ENDSTATE	(-1)
-typedef	unsigned char	Uchar;
 
 /*---------------------------------------------------------------------------
 |
@@ -77,7 +95,7 @@ typedef	unsigned char	Uchar;
  *	match a character in class
  */
 #define	in_class(found, pat, c)	{			\
-	register const Uchar	*lpat	= pat;		\
+	register const CHAR	*lpat	= pat;		\
 	register int		lc	= c;		\
 	int	lo_bound;				\
 	int	hi_bound;				\
@@ -113,11 +131,12 @@ typedef	unsigned char	Uchar;
  *	Trys to match a string beginning at offset
  *	against the compiled pattern.
  */
-EXPORT Uchar
+#ifndef	__WIDE_CHAR
+EXPORT CHAR
 *opatmatch(pat, aux, str, soff, slen, alt)
-	const Uchar	*pat;
+	const CHAR	*pat;
 	const int	*aux;
-	const Uchar	*str;
+	const CHAR	*str;
 	int		soff;
 	int		slen;
 	int		alt;
@@ -126,6 +145,7 @@ EXPORT Uchar
 
 	return (patmatch(pat, aux, str, soff, slen, alt, state));
 }
+#endif
 
 /*
  *	patmatch - the external interpreter interface.
@@ -133,11 +153,11 @@ EXPORT Uchar
  *	Trys to match a string beginning at offset
  *	against the compiled pattern.
  */
-EXPORT Uchar *
+EXPORT CHAR *
 patmatch(pat, aux, str, soff, slen, alt, state)
-	const Uchar	*pat;
+	const CHAR	*pat;
 	const int	*aux;
-	const Uchar	*str;
+	const CHAR	*str;
 	int		soff;
 	int		slen;
 	int		alt;
@@ -149,7 +169,7 @@ patmatch(pat, aux, str, soff, slen, alt, state)
 	register int	p;
 	register int	q, s, k;
 	int		c;
-	const Uchar	*lastp = (Uchar *)NULL;
+	const CHAR	*lastp = (CHAR *)NULL;
 
 #ifdef	__LINE_MATCH
 for (; soff <= slen; soff++) {
@@ -210,7 +230,7 @@ for (; soff <= slen; soff++) {
 			}
 		}
 		if (c == 0)
-			return ((Uchar *)lastp);
+			return ((CHAR *)lastp);
 
 		/*
 		 * now try to match next character
@@ -254,17 +274,17 @@ for (; soff <= slen; soff++) {
 #ifdef	__LINE_MATCH
 
 			if (lastp || (soff == slen - 1))
-				return ((Uchar *)lastp);
+				return ((CHAR *)lastp);
 			else
 				break;
 #else
-			return ((Uchar *)lastp);
+			return ((CHAR *)lastp);
 #endif
 		}
 	}
 #ifdef	__LINE_MATCH
 }
-return ((Uchar *)lastp);
+return ((CHAR *)lastp);
 #endif
 }
 
@@ -277,11 +297,11 @@ return ((Uchar *)lastp);
 +---------------------------------------------------------------------------*/
 
 typedef	struct args {
-	const Uchar	*pattern;
+	const CHAR	*pattern;
 	int		*aux;
 	int		patp;
 	int		length;
-	Uchar		Ch;
+	CHAR		Ch;
 } arg_t;
 
 LOCAL	void	nextitem __PR((arg_t *));
@@ -365,7 +385,7 @@ expr(ap, altp)
 	int	exits = ENDSTATE;
 	int	a;
 	int	*aux = ap->aux;
-	Uchar	Ch;
+	CHAR	Ch;
 
 	for (;;) {
 		a = prim(ap);
@@ -429,7 +449,7 @@ join(aux, a, b)
  */
 EXPORT int
 patcompile(pat, len, aux)
-	const Uchar	*pat;
+	const CHAR	*pat;
 	int		len;
 	int		*aux;
 {

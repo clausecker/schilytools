@@ -1,4 +1,4 @@
-#ident "@(#)Defaults.interix	1.5 08/12/26 "
+#ident "@(#)Defaults.interix	1.6 09/06/04 "
 ###########################################################################
 #
 # global definitions for Interix Systems (WIN-NT with SFU) using CC=gcc
@@ -40,7 +40,8 @@ DEFLINKMODE=	static
 
 DEFINCDIRS=	$(SRCROOT)/include
 LDPATH=		-L/opt/schily/lib
-RUNPATH=	--rpath $(INS_BASE)/lib --rpath /opt/schily/lib --rpath $(OLIBSDIR)
+#RUNPATH=	--rpath $(INS_BASE)/lib --rpath /opt/schily/lib --rpath $(OLIBSDIR)
+RUNPATH=	--rpath $(INS_BASE)/lib --rpath /opt/schily/lib
 
 ###########################################################################
 #

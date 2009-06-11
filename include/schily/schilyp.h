@@ -1,8 +1,8 @@
-/* @(#)schilyp.h	1.1 07/02/13 Copyright 2007 J. Schilling */
+/* @(#)schilyp.h	1.2 09/06/06 Copyright 2007-2009 J. Schilling */
 /*
  *	Include definitions for libschily and define *printf() -> js_*printf()
  *
- *	Copyright (c) 2007 J. Schilling
+ *	Copyright (c) 2007-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -18,6 +18,10 @@
 
 #ifndef _SCHILY_SCHILYP_H
 #define	_SCHILY_SCHILYP_H
+
+#ifndef _SCHILY_MCONFIG_H
+#include <schily/mconfig.h>
+#endif
 
 #ifndef _SCHILY_SCHILY_H
 #include <schily/schily.h>

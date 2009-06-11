@@ -1,4 +1,4 @@
-#ident "@(#)Makefile	1.10 09/01/14 "
+#ident "@(#)Makefile	1.11 09/06/08 "
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -23,6 +23,8 @@ CPPOPTS +=	-DTESTMAIL		# Do mail file checking
 CPPOPTS	+=	-DBOURNE
 CPPOPTS	+=	-DLIB
 CPPOPTS	+=	-Iinclude
+#CPPOPTS +=	-DNO_LOCALE		# Don't use setlocale()
+#CPPOPTS +=	-DNO_WCHAR		# Don't use wide chars
 
 #COPTX += -g -xO0
 #LDOPTX += -g

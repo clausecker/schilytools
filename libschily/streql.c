@@ -1,8 +1,8 @@
-/* @(#)streql.c	1.8 06/09/13 Copyright 1985, 1995-2003 J. Schilling */
+/* @(#)streql.c	1.10 09/06/07 Copyright 1985, 1995-2009 J. Schilling */
 /*
  *	Check if two strings are equal
  *
- *	Copyright (c) 1985, 1995-2003 J. Schilling
+ *	Copyright (c) 1985, 1995-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -29,6 +29,9 @@ streql(a, b)
 
 	if (s1 == NULL || s2 ==  NULL)
 		return (FALSE);
+
+	if (s1 == s2)
+		return (TRUE);
 
 	while (*s1 == *s2++)
 		if (*s1++ == '\0')

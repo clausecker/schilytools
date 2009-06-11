@@ -1,4 +1,4 @@
-/* @(#)wchar.h	1.6 09/04/12 Copyright 2007-2009 J. Schilling */
+/* @(#)wchar.h	1.9 09/06/07 Copyright 2007-2009 J. Schilling */
 /*
  *	Abstraction from wchar.h
  *
@@ -50,11 +50,29 @@
 #define	_INCL_WCHAR_H
 #endif
 
+#ifndef	USE_WCHAR
+#define	USE_WCHAR
+#endif
+
 #else	/* HAVE_WCHAR_H */
 
 #undef	USE_WCHAR
 #endif	/* !HAVE_WCHAR_H */
 
+#ifndef	HAVE_WCTYPE_H
+#undef	USE_WCHAR
+#undef	USE_WCTYPE
+#endif
+
+#ifdef	NO_WCTYPE
+#undef	USE_WCHAR
+#undef	USE_WCTYPE
+#endif
+
+#ifdef	NO_WCHAR
+#undef	USE_WCHAR
+#undef	USE_WCTYPE
+#endif
 
 #ifndef	USE_WCHAR
 
@@ -77,6 +95,9 @@
 #define	WCHAR_MAX	TYPE_MAXVAL(wchar_t)
 #undef	WCHAR_MIN
 #define	WCHAR_MIN	TYPE_MINVAL(wchar_t)
+
+#undef	SIZEOF_WCHAR_T
+#define	SIZEOF_WCHAR_T	SIZEOF_CHAR	
 
 #undef	MB_CUR_MAX
 #define	MB_CUR_MAX	1

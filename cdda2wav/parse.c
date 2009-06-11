@@ -1,13 +1,13 @@
-/* @(#)parse.c	1.5 08/12/29 Copyright 2001-2008 J. Schilling */
+/* @(#)parse.c	1.6 09/05/22 Copyright 2001-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)parse.c	1.5 08/12/29 Copyright 2001-2008 J. Schilling";
+	"@(#)parse.c	1.6 09/05/22 Copyright 2001-2009 J. Schilling";
 #endif
 /*
  *	Interactive command parser for cdda2wav
  *
- *	Copyright (c) 2001-2008 J. Schilling
+ *	Copyright (c) 2001-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -52,6 +52,7 @@ static	const char sccsid[] =
 #define	C_CONT		2
 #define	C_READ		3
 #define	C_EXIT		4
+#define	C_HELP		5
 
 typedef struct cmd {
 	int	cmd;
@@ -70,6 +71,7 @@ LOCAL keyw_t	keywords[] = {
 	{ "read",	C_READ },
 	{ "exit",	C_EXIT },
 	{ "quit",	C_EXIT },
+	{ "help",	C_HELP },
 	{ NULL,		0 },
 };
 
@@ -120,6 +122,7 @@ LOCAL	char	*needitem	__PR((void));
 LOCAL	void	checkextra	__PR((void));
 LOCAL	void	pabort		__PR((int errnum, const char *fmt, ...));
 LOCAL	void	wok		__PR((void));
+LOCAL	void	pusage		__PR((void));
 
 
 EXPORT int
@@ -188,6 +191,10 @@ again:
 		case C_EXIT:
 			wok();
 			return (-1);
+		case C_HELP:
+			pusage();
+			wok();
+			goto again;
 		default:
 			pabort(E_NOTFOUND, "Unknown command '%s'", p);
 			return (0);
@@ -483,4 +490,19 @@ LOCAL void
 wok()
 {
 	error("200 OK\n");
+}
+
+LOCAL void
+pusage()
+{
+	error("Usage:\n");
+	error("	command	parameters		descriptionn\n");
+	error("	============================================\n");
+	error("	stop				stop processing and wait for new input.\n");
+	error("	cont				continue processing.\n");
+	error("	read sectors <sector number>	read sectors starting from sector number.\n");
+	error("	read tracks <track number>	read sectors starting from track number.\n");
+	error("	exit				exit processing.\n");
+	error("	quit				exit processing.\n");
+	error("	help				print this help and wait for new input.\n");
 }

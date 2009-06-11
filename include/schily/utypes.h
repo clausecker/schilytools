@@ -1,4 +1,4 @@
-/* @(#)utypes.h	1.27 09/04/10 Copyright 1997-2009 J. Schilling */
+/* @(#)utypes.h	1.28 09/05/24 Copyright 1997-2009 J. Schilling */
 /*
  *	Definitions for some user defined types
  *
@@ -33,11 +33,8 @@
 /*
  * Include limits.h for CHAR_BIT
  */
-#ifdef	HAVE_LIMITS_H
-#ifndef	_INCL_LIMITS_H
-#include <limits.h>
-#define	_INCL_LIMITS_H
-#endif
+#ifndef	_SCHILY_LIMITS_H
+#include <schily/limits.h>
 #endif
 
 /*

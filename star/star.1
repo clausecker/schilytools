@@ -1,4 +1,4 @@
-. \" @(#)star.1	1.160 09/04/10 Copyr 1982-2009 J. Schilling
+. \" @(#)star.1	1.161 09/06/02 Copyr 1982-2009 J. Schilling
 . \"  Manual Seite fuer star
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -13,7 +13,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH STAR 1 "09/04/10" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH STAR 1 "09/06/02" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 star \- unique standard tape archiver
 .SH SYNOPSIS
@@ -2519,6 +2519,9 @@ This option is used to switch
 into
 .I "true incremental dump"
 mode.
+The 
+.B dumplevel
+may be in the range between 0..99.
 .sp
 In 
 .I "true incremental dump"

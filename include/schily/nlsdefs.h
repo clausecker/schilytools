@@ -1,6 +1,6 @@
-/* @(#)nlsdefs.h	1.2 06/12/28 Copyright 2004 J. Schilling */
+/* @(#)nlsdefs.h	1.3 09/05/23 Copyright 2004-2009 J. Schilling */
 /*
- *	Copyright (c) 2004 J. Schilling
+ *	Copyright (c) 2004-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -14,8 +14,8 @@
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#ifndef	_NLSDEFS_H
-#define	_NLSDEFS_H
+#ifndef	_SCHILY_NLSDEFS_H
+#define	_SCHILY_NLSDEFS_H
 
 #ifndef _SCHILY_MCONFIG_H
 #include <schily/mconfig.h>
@@ -30,12 +30,10 @@
 #undef	USE_NLS
 #endif
 
-#ifdef	HAVE_LOCALE_H
-#ifndef	_INCL_LOCALE_H
-#include <locale.h>		/* LC_* definitions */
-#define	_INCL_LOCALE_H
+#ifndef	_SCHILY_LOCALE_H
+#include <schily/locale.h>	/* LC_* definitions */
 #endif
-#else
+#ifndef	_INCL_LOCALE_H
 #undef	USE_NLS
 #endif
 
@@ -73,4 +71,4 @@
 #define	bind_textdomain_codeset(d, c)	((char *)0)
 #endif
 
-#endif	/* _NLSDEFS_H */
+#endif	/* _SCHILY_NLSDEFS_H */

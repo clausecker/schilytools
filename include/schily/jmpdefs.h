@@ -1,8 +1,8 @@
-/* @(#)jmpdefs.h	1.7 07/02/20 Copyright 1999 J. Schilling */
+/* @(#)jmpdefs.h	1.8 09/06/06 Copyright 1998-2009 J. Schilling */
 /*
  *	Definitions that help to handle a jmp_buf
  *
- *	Copyright (c) 1998 J. Schilling
+ *	Copyright (c) 1998-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -18,6 +18,10 @@
 
 #ifndef	_SCHILY_JMPDEFS_H
 #define	_SCHILY_JMPDEFS_H
+
+#ifndef _SCHILY_MCONFIG_H
+#include <schily/mconfig.h>
+#endif
 
 #ifndef	_INCL_SETJMP_H
 #define	_INCL_SETJMP_H

@@ -1,13 +1,13 @@
-/* @(#)bsh.c	1.58 09/05/14 Copyright 1984,1985,1988,1989,1991,1994-2009 J. Schilling */
+/* @(#)bsh.c	1.59 09/05/24 Copyright 1984,1985,1988,1989,1991,1994-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)bsh.c	1.58 09/05/14 Copyright 1984,1985,1988,1989,1991,1994-2009 J. Schilling";
+	"@(#)bsh.c	1.59 09/05/24 Copyright 1982,1984,1985,1988,1989,1991,1994-2009 J. Schilling";
 #endif
 /*
  *	bsh command interpreter - main Program
  *
- *	Copyright (c) 1984,1985,1988,1989,1991,1994-2009 J. Schilling
+ *	Copyright (c) 1982,1984,1985,1988,1989,1991,1994-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -22,7 +22,7 @@ static	const char sccsid[] =
  */
 
 #include <schily/mconfig.h>
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <ctype.h>
 #include <signal.h>
 #include <setjmp.h>
@@ -38,6 +38,7 @@ static	const char sccsid[] =
 #include <schily/unistd.h>
 #include <schily/string.h>
 #include <schily/fcntl.h>
+#include <schily/locale.h>
 
 #ifdef	SIGUSR1
 #	define	PROTSIG	SIGUSR1
@@ -342,6 +343,7 @@ error  No function to set uid available
 #endif
 #endif	/* WRONG */
 	ev_init(ev);
+	setlocale(LC_ALL, "");
 	ev_insert(concat(ignoreeofname, eql, off, (char *)NULL));
 	inituser();
 	inithostname();
@@ -862,7 +864,7 @@ gargs(ac, av, opts, no_i2flg, no_gaflg, no_laflg)
 		extern	int	mVERSION;
 
 		printf("bsh %d.%02d (%s-%s-%s)\n\n", MVERSION, mVERSION, HOST_CPU, HOST_VENDOR, HOST_OS);
-		printf("Copyright (C) 1984, 1985, 1988-1989, 1991, 1994-2009 Jörg Schilling\n");
+		printf("Copyright (C) 1982, 1984, 1985, 1988-1989, 1991, 1994-2009 Jörg Schilling\n");
 		printf("This is free software; see the source for copying conditions.  There is NO\n");
 		printf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
 		exit(0);

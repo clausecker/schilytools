@@ -1,4 +1,4 @@
-/* @(#)dirent.h	1.27 09/02/17 Copyright 1987, 1998, 2000-2009 J. Schilling */
+/* @(#)dirent.h	1.28 09/05/24 Copyright 1987, 1998, 2000-2009 J. Schilling */
 /*
  *	Copyright (c) 1987, 1998, 2000-2009 J. Schilling
  */
@@ -56,11 +56,8 @@ extern "C" {
 #	ifndef	_SCHILY_STAT_H
 #		include <schily/stat.h>
 #	endif
-#	ifdef	HAVE_LIMITS_H
-#		ifndef	_INCL_LIMITS_H
-#		include	<limits.h>
-#		define	_INCL_LIMITS_H
-#		endif
+#	ifndef	_SCHILY_LIMITS_H
+#		include	<schily/limits.h>
 #	endif
 #	ifndef	_SCHILY_PARAM_H
 #		include <schily/param.h>

@@ -1,6 +1,6 @@
-dnl @(#)configure.in	1.174 09/05/12 Copyright 1998-2009 J. Schilling
+dnl @(#)configure.in	1.178 09/06/07 Copyright 1998-2009 J. Schilling
 dnl Process this file with autoconf to produce a configure script.
-AC_REVISION(1.174)dnl
+AC_REVISION(1.178)dnl
 
 AC_INIT(xconfig.h.in)
 AC_CONFIG_HEADER(xconfig.h)
@@ -173,6 +173,8 @@ AC_CHECK_SIZEOF(ptrdiff_t)
 
 dnl This call must be past AC_CHECK_SIZEOF(long int)
 AC_CHECK_SIZE_TIME_T
+AC_CHECK_SIZE_WCHAR
+AC_CHECK_SIZE_WCHAR_T
 
 dnl # AC_TYPE_SIZE_T_		# Defines HAVE_SIZE_T / NO_SIZE_T
 AC_TYPE_CHAR
@@ -293,6 +295,8 @@ dnl This is a library function for the Solaris extended attr interface
 AC_CHECK_FUNCS(attropen)
 dnl This appeared on Solaris 11 Build 63
 AC_CHECK_FUNCS(__accessat)
+dnl This appeared not yet in POSIX
+AC_CHECK_FUNCS(accessat)
 dnl This are POSIX extensions not found on Solaris 10
 AC_CHECK_FUNCS(mkdirat faccessat fchmodat linkat mkfifoat mknodat readlinkat symlinkat)
 AC_CHECK_FUNCS(popen pclose _popen _pclose)
@@ -301,7 +305,9 @@ AC_CHECK_FUNCS(kill killpg)
 AC_CHECK_FUNCS(signal sigrelse sigprocmask sigsetmask sigset sigaltstack)
 AC_CHECK_FUNCS(sleep usleep yield)
 AC_CHECK_FUNCS(tcgetattr tcsetattr tcgetpgrp tcsetpgrp)
-AC_CHECK_FUNCS(putenv setenv snprintf strcasecmp strncpy strlcpy strdup)
+AC_CHECK_FUNCS(putenv setenv snprintf strcasecmp)
+AC_CHECK_FUNCS(strcat strncat strcmp strncmp strcpy strlcpy strncpy strdup strlen strchr strrchr)
+AC_CHECK_FUNCS(wcscat wcsncat wcscmp wcsncmp wcscpy wcslcpy wcsncpy wcsdup wcslen wcschr wcsrchr)
 AC_CHECK_FUNCS(valloc)
 AC_CHECK_FUNCS(madvise)
 AC_CHECK_FUNCS(mktemp mkstemp)

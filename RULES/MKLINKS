@@ -1,6 +1,6 @@
 #!/bin/sh
 ###########################################################################
-#ident "@(#)MKLINKS	1.77 09/05/21 "
+#ident "@(#)MKLINKS	1.78 09/06/09 "
 ###########################################################################
 # Written 1996 by J. Schilling
 ###########################################################################
@@ -181,6 +181,8 @@ $symlink	power-macintosh-rhapsody-cc.rul	power-macintosh-mac-os10-cc.rul
 $symlink	power-macintosh-rhapsody-gcc.rul	power-macintosh-mac-os10-gcc.rul
 $symlink	power-macintosh-darwin-cc.rul	i386-darwin-cc.rul
 $symlink	power-macintosh-darwin-gcc.rul	i386-darwin-gcc.rul
+$symlink	power-macintosh-darwin-cc64.rul	i386-darwin-cc64.rul
+$symlink	power-macintosh-darwin-gcc64.rul	i386-darwin-gcc64.rul
 $symlink	sun4-sunos4-cc.rul	sun4c-sunos4-cc.rul
 $symlink	sun4-sunos4-gcc.rul	sun4c-sunos4-gcc.rul
 $symlink	sun4-sunos5-cc.rul	sun4c-sunos5-cc.rul

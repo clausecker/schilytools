@@ -34,11 +34,11 @@
 /*
  * This file contains modifications Copyright 2008-2009 J. Schilling
  *
- * @(#)expand.c	1.6 09/01/10 2008-2009 J. Schilling
+ * @(#)expand.c	1.7 09/06/11 2008-2009 J. Schilling
  */
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)expand.c	1.6 09/01/10 2008-2009 J. Schilling";
+	"@(#)expand.c	1.7 09/06/11 2008-2009 J. Schilling";
 #endif
 
 /*
@@ -94,9 +94,11 @@ expand(as, rcnt)
 
 		slash = 0;
 		open = 0;
+		mbtowc(NULL, NULL, 0);
 		do
 		{
 			if ((len = mbtowc(&wc, (char *)cs, MB_LEN_MAX)) <= 0) {
+				mbtowc(NULL, NULL, 0);
 				len = 1;
 				wc = (unsigned char)*cs;
 			}
@@ -251,8 +253,10 @@ addg(as1, as2, as3, as4)
 	}
 /* add matched entries, plus extra \\ to escape \\'s */
 	s1 = as2;
+	mbtowc(NULL, NULL, 0);
 	for (;;) {
 		if ((len = mbtowc(&wc, (char *)s1, MB_LEN_MAX)) <= 0) {
+			mbtowc(NULL, NULL, 0);
 			len = 1;
 			wc = (unsigned char)*s1;
 		}

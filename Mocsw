@@ -1,4 +1,4 @@
-#ident "@(#)Mocsw	1.1 09/05/14 "
+#ident "@(#)Mocsw	1.2 09/05/31 "
 ###########################################################################
 deftgt:
 SRCROOT=	.
@@ -7,4 +7,4 @@ RULESDIR=	RULES
 include		$(SRCROOT)/$(RULESDIR)/rules.top
 ###########################################################################
 deftgt $(ALLTARGETS):
-	$(MAKE) -f Mcsw EMAIL=joerg@opencsw.org HOTLINE=http://www.opencsw.org/bugtrack/ $@
+	$(MAKE) -f Mcsw DEFAULTSDIR=DEFAULTS_CSW EMAIL=joerg@opencsw.org HOTLINE=http://www.opencsw.org/bugtrack/ $@

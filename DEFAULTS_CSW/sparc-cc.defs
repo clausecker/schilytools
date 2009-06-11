@@ -1,0 +1,6 @@
+XARCH_GEN__=	-xarch=v8
+
+_XARCH_GEN=	$(_UNIQ)$(CCOM)
+__XARCH_GEN=	$(_XARCH_GEN:$(_UNIQ)cc64=-xarch=generic64)
+XARCH_GEN=	$(__XARCH_GEN:$(_UNIQ)%=-xarch=v8)
+#XARCH_GEN=	$(___XARCH_GEN:$(_UNIQ)%=%)

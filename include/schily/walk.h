@@ -1,4 +1,4 @@
-/* @(#)walk.h	1.25 09/01/13 Copyright 2004-2009 J. Schilling */
+/* @(#)walk.h	1.26 09/06/06 Copyright 2004-2009 J. Schilling */
 /*
  *	Definitions for directory tree walking
  *
@@ -18,6 +18,10 @@
 
 #ifndef	_SCHILY_WALK_H
 #define	_SCHILY_WALK_H
+
+#ifndef _SCHILY_MCONFIG_H
+#include <schily/mconfig.h>
+#endif
 
 #ifndef _SCHILY_STAT_H
 #include <schily/stat.h>

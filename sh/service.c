@@ -34,11 +34,11 @@
 /*
  * This file contains modifications Copyright 2008-2009 J. Schilling
  *
- * @(#)service.c	1.11 09/02/03 2008-2009 J. Schilling
+ * @(#)service.c	1.12 09/06/11 2008-2009 J. Schilling
  */
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)service.c	1.11 09/02/03 2008-2009 J. Schilling";
+	"@(#)service.c	1.12 09/06/11 2008-2009 J. Schilling";
 #endif
 
 /*
@@ -403,9 +403,11 @@ trim(at)
 	nosubst = 0;
 	if ((current = at) != NULL) {
 		last = at;
+		mbtowc(NULL, NULL, 0);
 		while ((c = *current) != 0) {
 			if ((len = mbtowc(&wc, (char *)current,
 					MB_LEN_MAX)) <= 0) {
+				mbtowc(NULL, NULL, 0);
 				*last++ = c;
 				current++;
 				continue;
@@ -424,6 +426,7 @@ trim(at)
 			if ((c = *current) != 0) {
 				if ((len = mbtowc(&wc, (char *)current,
 						MB_LEN_MAX)) <= 0) {
+					mbtowc(NULL, NULL, 0);
 					*last++ = c;
 					current++;
 					continue;
@@ -453,9 +456,11 @@ unsigned char	*at;
 	if ((current = at) != NULL)
 	{
 		last = at;
+		mbtowc(NULL, NULL, 0);
 		while ((c = *current) != 0) {
 			if ((len = mbtowc(&wc, (char *)current,
 					MB_LEN_MAX)) <= 0) {
+				mbtowc(NULL, NULL, 0);
 				*last++ = c;
 				current++;
 				continue;
@@ -483,6 +488,7 @@ unsigned char	*at;
 			*last++ = '\\';
 			if ((len = mbtowc(&wc, (char *)current,
 					MB_LEN_MAX)) <= 0) {
+				mbtowc(NULL, NULL, 0);
 				*last++ = c;
 				current++;
 				continue;
@@ -600,6 +606,8 @@ unsigned char	*s;
 	unsigned char	*argp;
 	int		c;
 	int		count = 0;
+
+	mbtowc(NULL, NULL, 0);
 	for (;;)
 	{
 		int clength;
@@ -609,6 +617,7 @@ unsigned char	*s;
 			wchar_t wc;
 			if ((clength = mbtowc(&wc, (char *)s,
 					MB_LEN_MAX)) <= 0) {
+				mbtowc(NULL, NULL, 0);
 				wc = (unsigned char)*s;
 				clength = 1;
 			}
@@ -621,6 +630,7 @@ unsigned char	*s;
 				/* get rest of multibyte character */
 				if ((clength = mbtowc(&wc, (char *)s,
 						MB_LEN_MAX)) <= 0) {
+					mbtowc(NULL, NULL, 0);
 					wc = (unsigned char)*s;
 					clength = 1;
 				}

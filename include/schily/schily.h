@@ -1,4 +1,4 @@
-/* @(#)schily.h	1.79 09/04/21 Copyright 1985-2009 J. Schilling */
+/* @(#)schily.h	1.81 09/06/07 Copyright 1985-2009 J. Schilling */
 /*
  *	Definitions for libschily
  *
@@ -34,6 +34,10 @@
 
 #ifndef _SCHILY_SCHILY_H
 #define	_SCHILY_SCHILY_H
+
+#ifndef _SCHILY_MCONFIG_H
+#include <schily/mconfig.h>
+#endif
 
 #ifndef _SCHILY_STANDARD_H
 #include <schily/standard.h>
@@ -354,6 +358,10 @@ extern	int	snprintf __PR((char *, size_t, const char *, ...)) __printflike__(3, 
 /*extern	int	sprintf __PR((char *, const char *, ...)); ist woanders falsch deklariert !!!*/
 extern	char	*strcatl __PR((char *, ...));
 extern	int	streql __PR((const char *, const char *));
+#ifdef	_SCHILY_WCHAR_H
+extern	wchar_t	*wcscatl __PR((wchar_t *, ...));
+extern	int	wcseql __PR((const wchar_t *, const wchar_t *));
+#endif
 #ifdef	va_arg
 extern	int	format __PR((void (*)(char, long), long, const char *, va_list));
 #else

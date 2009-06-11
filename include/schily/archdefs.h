@@ -1,9 +1,9 @@
-/* @(#)archdefs.h	1.6 07/07/01 Copyright 2006-2007 J. Schilling */
+/* @(#)archdefs.h	1.7 09/06/06 Copyright 2006-2009 J. Schilling */
 /*
  *	Processor, instruction set and OS architecture specific defines.
  *	The information is fetched from compiler predefinitions only.
  *
- *	Copyright (c) 2006-2007 J. Schilling
+ *	Copyright (c) 2006-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -19,6 +19,11 @@
 
 #ifndef _SCHILY_ARCHDEFS_H
 #define	_SCHILY_ARCHDEFS_H
+
+/*
+ * The code in this file only depends on compiler predefined macros.
+ * For this reason, it does not need to include schily/mconfig.h
+ */
 
 #if	defined(sun) || defined(__sun) || defined(__sun__)
 #ifndef	__sun

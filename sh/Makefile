@@ -1,4 +1,4 @@
-#ident "@(#)Makefile	1.12 08/09/10 "
+#ident "@(#)Makefile	1.13 09/06/08 "
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -25,7 +25,8 @@ SYMLINKS +=	jsh			# Job control Bourne Shell
 CPPOPTS +=	-DBOURNE_SHELL		# Tell the code that we compile for sh
 CPPOPTS +=	-DUSE_LARGEFILES	# Allow Large Files (> 2 GB)
 CPPOPTS +=	-DUSE_NLS
-CPPOPTS +=	-DUSE_WCHAR
+#CPPOPTS +=	-DNO_LOCALE		# Don't use setlocale()
+#CPPOPTS +=	-DNO_WCHAR		# Don't use wide chars
 
 CPPOPTS +=	-D_iBCS2 				# SCO echo compat
 CPPOPTS +=	-DTEXT_DOMAIN='"SUNW_OST_OSCMD"'	# gettext()

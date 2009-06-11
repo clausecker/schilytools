@@ -34,11 +34,11 @@
 /*
  * This file contains modifications Copyright 2008-2009 J. Schilling
  *
- * @(#)name.c	1.11 09/01/10 2008-2009 J. Schilling
+ * @(#)name.c	1.12 09/06/03 2008-2009 J. Schilling
  */
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)name.c	1.11 09/01/10 2008-2009 J. Schilling";
+	"@(#)name.c	1.12 09/06/03 2008-2009 J. Schilling";
 #endif
 
 /*
@@ -826,6 +826,15 @@ dolocale(nm)
 	struct namnod *n;
 	int lv, fe;
 	int i;
+
+#ifdef INTERACTIVE
+	if ((*nm == 'H') && eq(nm, "HISTORY")) {
+			char	*hv = getcurenv(nm);
+		extern	void    chghistory __PR((char *cp));
+
+		chghistory(hv ? hv:"0");
+	}
+#endif
 
 	/*
 	 * Take advantage of fact that names of these vars all start 

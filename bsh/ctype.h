@@ -1,4 +1,4 @@
-/* @(#)ctype.h	1.6 09/01/04 Copyright 1986-2009 J. Schilling */
+/* @(#)ctype.h	1.7 09/05/24 Copyright 1986-2009 J. Schilling */
 /*
  *	Copyright (c) 1986-2009 J. Schilling
  */
@@ -14,8 +14,8 @@
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#ifndef	_CTYPE_H
-#define	_CTYPE_H
+#ifndef	_CTYPE_A_H	/* Do not confuse this with the system ctype.h,   */
+#define	_CTYPE_A_H	/* so we use _CTYPE_A_H as we also use _ctype_a[] */
 
 #define	_UPC	01	/* Upper case */
 #define	_LOWC	02	/* Lower case */
@@ -83,4 +83,4 @@ extern unsigned char	_ctype_a[];
 
 /*#endif*/
 
-#endif	/* _CTYPE_H */
+#endif	/* _CTYPE_A_H */

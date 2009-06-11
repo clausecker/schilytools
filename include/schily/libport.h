@@ -1,4 +1,4 @@
-/* @(#)libport.h	1.18 09/05/05 Copyright 1995-2009 J. Schilling */
+/* @(#)libport.h	1.19 09/06/07 Copyright 1995-2009 J. Schilling */
 /*
  *	Copyright (c) 1995-2009 J. Schilling
  */
@@ -33,6 +33,15 @@
 extern "C" {
 #endif
 
+#if	defined(_INCL_SYS_TYPES_H) || defined(size_t)
+#	ifndef	FOUND_SIZE_T
+#	define	FOUND_SIZE_T
+#	endif
+#endif
+#if	defined(_MSC_VER) && !defined(_SIZE_T_DEFINED)
+#	undef	FOUND_SIZE_T
+#endif
+
 #ifdef	OPENSERVER
 /*
  * Don't use the usleep() from libc on SCO's OPENSERVER.
@@ -55,15 +64,79 @@ extern	int		getpagesize	__PR((void));
 extern	int		usleep		__PR((int usec));
 #endif
 
+#ifndef	HAVE_STRCAT
+extern	char		*strcat		__PR((char *s1, const char *s2));
+#endif
+#ifndef	HAVE_STRCHR
+extern	char		*strchr		__PR((const char *s1, int c));
+#endif
+#ifndef	HAVE_STRCMP
+extern	int		strcmp		__PR((const char *s1, const char *s2));
+#endif
+#ifndef	HAVE_STRCPY
+extern	char		*strcpy		__PR((char *s1, const char *s2));
+#endif
 #if	!defined(HAVE_STRDUP) || defined(__SVR4)
 extern	char		*strdup		__PR((const char *s));
 #endif
-#ifndef	HAVE_STRNCPY
-extern	char		*strncpy	__PR((char *s1, const char *s2, size_t len));
+#ifdef	FOUND_SIZE_T
+#ifndef	HAVE_STRLEN
+extern	size_t		strlen		__PR((const char *s));
 #endif
 #ifndef	HAVE_STRLCPY
 extern	size_t		strlcpy		__PR((char *s1, const char *s2, size_t len));
 #endif
+#ifndef	HAVE_STRNCAT
+extern	char		*strncat	__PR((char *s1, const char *s2, size_t len));
+#endif
+#ifndef	HAVE_STRNCMP
+extern	int		strncmp		__PR((const char *s1, const char *s2, size_t len));
+#endif
+#ifndef	HAVE_STRNCPY
+extern	char		*strncpy	__PR((char *s1, const char *s2, size_t len));
+#endif
+#endif	/* FOUND_SIZE_T */
+#ifndef	HAVE_STRRCHR
+extern	char		*strrchr	__PR((const char *s1, int c));
+#endif
+
+#ifdef	_SCHILY_WCHAR_H
+#ifndef	HAVE_WCSCAT
+extern	wchar_t		*wcscat		__PR((wchar_t *s1, const wchar_t *s2));
+#endif
+#ifndef	HAVE_WCSCHR
+extern	wchar_t		*wcschr		__PR((const wchar_t *s1, wchar_t c));
+#endif
+#ifndef	HAVE_WCSCMP
+extern	int		wcscmp		__PR((const wchar_t *s1, const wchar_t *s2));
+#endif
+#ifndef	HAVE_WCSCPY
+extern	wchar_t		*wcscpy		__PR((wchar_t *s1, const wchar_t *s2));
+#endif
+#ifndef	HAVE_WCSDUP
+extern	wchar_t		*wcsdup		__PR((const wchar_t *s));
+#endif
+#ifdef	FOUND_SIZE_T
+#ifndef	HAVE_WCSLEN
+extern	size_t		wcslen		__PR((const wchar_t *s));
+#endif
+#ifndef	HAVE_WCSLCPY
+extern	size_t		wcslcpy		__PR((wchar_t *s1, const wchar_t *s2, size_t len));
+#endif
+#ifndef	HAVE_WCSNCAT
+extern	wchar_t		*wcsncat	__PR((wchar_t *s1, const wchar_t *s2, size_t len));
+#endif
+#ifndef	HAVE_WCSNCMP
+extern	int		wcsncmp		__PR((const wchar_t *s1, const wchar_t *s2, size_t len));
+#endif
+#ifndef	HAVE_WCSNCPY
+extern	wchar_t		*wcsncpy	__PR((wchar_t *s1, const wchar_t *s2, size_t len));
+#endif
+#endif	/* FOUND_SIZE_T */
+#ifndef	HAVE_WCSRCHR
+extern	wchar_t		*wcsrchr	__PR((const wchar_t *s1, wchar_t c));
+#endif
+#endif	/* _SCHILY_WCHAR_H */
 
 #ifndef	HAVE_RENAME
 extern	int		rename		__PR((const char *old, const char *new));

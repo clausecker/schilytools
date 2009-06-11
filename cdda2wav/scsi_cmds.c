@@ -1,8 +1,8 @@
-/* @(#)scsi_cmds.c	1.43 09/01/24 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling */
+/* @(#)scsi_cmds.c	1.45 09/05/22 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling */
 #include "config.h"
 #ifndef lint
 static	const char sccsid[] =
-"@(#)scsi_cmds.c	1.43 09/01/24 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling";
+"@(#)scsi_cmds.c	1.45 09/05/22 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling";
 #endif
 /*
  * file for all SCSI commands
@@ -299,6 +299,10 @@ ReadTocTextSCSIMMC(scgp)
 		unsigned char	*p = (unsigned char *)global.buf;
 	register struct	scg_cmd	*scmd = scgp->scmd;
 
+	scgp->silent++;
+	unit_ready(scgp);
+	scgp->silent--;
+
 	fillbytes((caddr_t)scmd, sizeof (*scmd), '\0');
 	scmd->addr = (caddr_t)global.buf;
 	scmd->size = 4;
@@ -335,6 +339,10 @@ ReadTocTextSCSIMMC(scgp)
 	if ((datalength) > global.bufsize)
 		datalength = global.bufsize;
 
+	scgp->silent++;
+	unit_ready(scgp);
+	scgp->silent--;
+
 	fillbytes((caddr_t)scmd, sizeof (*scmd), '\0');
 	scmd->addr = (caddr_t)global.buf;
 	scmd->size = datalength;
@@ -355,12 +363,13 @@ ReadTocTextSCSIMMC(scgp)
 	scgp->cmdname = "read toc data (text)";
 
 	if (scg_cmd(scgp) < 0) {
-		scgp->silent--;
 		if (global.quiet != 1) {
 			errmsgno(EX_BAD,
 			"Read TOC CD Text data failed (probably not supported).\n");
 		}
 		p[0] = p[1] = '\0';
+		unit_ready(scgp);
+		scgp->silent--;
 		return;
 	}
 	scgp->silent--;
@@ -400,6 +409,10 @@ ReadFullTOCSony(scgp)
 	register struct	scg_cmd	*scmd = scgp->scmd;
 		unsigned	tracks = 99;
 
+	scgp->silent++;
+	unit_ready(scgp);
+	scgp->silent--;
+
 	fillbytes((caddr_t)scmd, sizeof (*scmd), '\0');
 	scmd->addr = (caddr_t)bufferTOC;
 	scmd->size = 4 + (3 + tracks + 6) * 11;
@@ -419,11 +432,12 @@ ReadFullTOCSony(scgp)
 	scgp->cmdname = "read full toc sony";
 
 	if (scg_cmd(scgp) < 0) {
-		scgp->silent--;
 		if (global.quiet != 1) {
 			errmsgno(EX_BAD,
 			"Read Full TOC Sony failed (probably not supported).\n");
 		}
+		unit_ready(scgp);
+		scgp->silent--;
 		return (0);
 	}
 	scgp->silent--;
@@ -967,6 +981,10 @@ ReadFullTOCMMC(scgp)
 	register struct	scg_cmd	*scmd = scgp->scmd;
 	int	len;
 
+	scgp->silent++;
+	unit_ready(scgp);
+	scgp->silent--;
+
 	fillbytes((caddr_t)scmd, sizeof (*scmd), '\0');
 	scmd->addr = (caddr_t)bufferTOC;
 	scmd->size = 0;
@@ -1002,7 +1020,9 @@ ReadFullTOCMMC(scgp)
 	len = (unsigned)((bufferTOC[0] << 8) | bufferTOC[1]) + 2;
 	scmd->size = len;
 	g1_cdblen(&scmd->cdb.g1_cdb, len);
+
 	if (scg_cmd(scgp) < 0) {
+		unit_ready(scgp);
 		scgp->silent--;
 		return (0);
 	}
@@ -1083,6 +1103,10 @@ ReadTocSCSI(scgp)
 	 */
 	register struct	scg_cmd	*scmd = scgp->scmd;
 
+	scgp->silent++;
+	unit_ready(scgp);
+	scgp->silent--;
+
 	fillbytes((caddr_t)scmd, sizeof (*scmd), '\0');
 	scmd->addr = (caddr_t)bufferTOC;
 	scmd->size = 4;
@@ -1104,6 +1128,10 @@ ReadTocSCSI(scgp)
 	scgp->cmdname = "read toc size";
 	if (scg_cmd(scgp) < 0)
 		FatalError(EX_BAD, "Read TOC size failed.\n");
+
+	scgp->silent++;
+	unit_ready(scgp);
+	scgp->silent--;
 
 	tracks = ((bufferTOC [3]) - bufferTOC [2] + 2);
 	if (tracks > MAXTRK)
@@ -1137,6 +1165,10 @@ ReadTocSCSI(scgp)
 		 * MSF format did not succeeded
 		 */
 		memset(bufferTOCMSF, 0, sizeof (bufferTOCMSF));
+
+		scgp->silent++;
+		unit_ready(scgp);
+		scgp->silent--;
 	} else {
 		int	i;
 
@@ -1163,6 +1195,10 @@ ReadTocSCSI(scgp)
 	/*
 	 * LBA format for cd burners like Philips CD-522
 	 */
+	scgp->silent++;
+	unit_ready(scgp);
+	scgp->silent--;
+
 	fillbytes((caddr_t)scmd, sizeof (*scmd), '\0');
 	scmd->addr = (caddr_t)bufferTOC;
 	scmd->size = 4 + tracks * 8;
@@ -1185,6 +1221,10 @@ ReadTocSCSI(scgp)
 	if (scg_cmd(scgp) < 0) {
 		FatalError(EX_BAD, "Read TOC tracks (lba) failed.\n");
 	}
+	scgp->silent++;
+	unit_ready(scgp);
+	scgp->silent--;
+
 	{
 	int	i;
 
@@ -1356,8 +1396,12 @@ ReadCdda12(scgp, p, lSector, SectorBurstVal)
 
 	scgp->cmdname = "Read12";
 
-	if (scg_cmd(scgp))
+	if (scg_cmd(scgp) < 0) {
+		scgp->silent++;
+		unit_ready(scgp);
+		scgp->silent--;
 		return (0);
+	}
 
 	/*
 	 * has all or something been read?
@@ -1441,8 +1485,12 @@ ReadCddaMMC12(scgp, p, lSector, SectorBurstVal)
 
 	scgp->cmdname = "ReadCD MMC 12";
 
-	if (scg_cmd(scgp))
+	if (scg_cmd(scgp) < 0) {
+		scgp->silent++;
+		unit_ready(scgp);
+		scgp->silent--;
 		return (0);
+	}
 
 	/*
 	 * has all or something been read?
@@ -1648,8 +1696,12 @@ ReadCddaSubSony(scgp, p, lSector, SectorBurstVal)
 
 	scgp->cmdname = "Read12SubChannelsSony";
 
-	if (scg_cmd(scgp))
+	if (scg_cmd(scgp) < 0) {
+		scgp->silent++;
+		unit_ready(scgp);
+		scgp->silent--;
 		return (-1);
+	}
 
 	/*
 	 * has all or something been read?
@@ -1687,8 +1739,12 @@ ReadCddaSub96Sony(scgp, p, lSector, SectorBurstVal)
 
 	scgp->cmdname = "Read12SubChannelsSony";
 
-	if (scg_cmd(scgp))
+	if (scg_cmd(scgp) < 0) {
+		scgp->silent++;
+		unit_ready(scgp);
+		scgp->silent--;
 		return (-1);
+	}
 
 	/*
 	 * has all or something been read?
@@ -1744,8 +1800,12 @@ ReadCddaSubMMC12(scgp, p, lSector, SectorBurstVal)
 
 	scgp->cmdname = "ReadCD Sub MMC 12";
 
-	if (scg_cmd(scgp))
+	if (scg_cmd(scgp) < 0) {
+		scgp->silent++;
+		unit_ready(scgp);
+		scgp->silent--;
 		return (-1);
+	}
 
 	/*
 	 * has all or something been read?

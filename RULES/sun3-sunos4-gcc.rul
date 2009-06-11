@@ -1,4 +1,4 @@
-#ident "@(#)sun3-sunos4-gcc.rul	1.10 07/05/09 "
+#ident "@(#)sun3-sunos4-gcc.rul	1.11 09/06/06 "
 ###########################################################################
 # Written 1996 by J. Schilling
 ###########################################################################
@@ -21,6 +21,7 @@
 include $(SRCROOT)/$(RULESDIR)/rules.prg
 ###########################################################################
 include $(SRCROOT)/$(RULESDIR)/cc-gcc.rul
+CWOPTS=		-Wall -Wshadow -Wmissing-prototypes -Wstrict-prototypes
 
 OSDEFS +=
 

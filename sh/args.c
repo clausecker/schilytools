@@ -35,11 +35,11 @@
 /*
  * This file contains modifications Copyright 2008-2009 J. Schilling
  *
- * @(#)args.c	1.10 09/01/10 2008-2009 J. Schilling
+ * @(#)args.c	1.11 09/06/11 2008-2009 J. Schilling
  */
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)args.c	1.10 09/01/10 2008-2009 J. Schilling";
+	"@(#)args.c	1.11 09/06/11 2008-2009 J. Schilling";
 #endif
 
 /*
@@ -148,9 +148,11 @@ options(argc, argv)
 		 * Step along 'flagchar[]' looking for matches.
 		 * 'sicrp' are not legal with 'set' command.
 		 */
+		mbtowc(NULL, NULL, 0);
 		cp++;
 		while (*cp) {
 			if ((len = mbtowc(&wc, (char *)cp, MB_LEN_MAX)) <= 0) {
+				mbtowc(NULL, NULL, 0);
 				len = 1;
 				wc = (unsigned char)*cp;
 				failed(argv[1],badopt);
@@ -190,11 +192,13 @@ options(argc, argv)
 	}
 	else if (argc > 1 && *argp[1] == '+')	/* unset flags x, k, t, n, v, e, u */
 	{
+		mbtowc(NULL, NULL, 0);
 		cp = argp[1];
 		cp++;
 		while (*cp)
 		{
 			if ((len = mbtowc(&wc, (char *)cp, MB_LEN_MAX)) <= 0) {
+				mbtowc(NULL, NULL, 0);
 				cp++;
 				continue;
 			}
