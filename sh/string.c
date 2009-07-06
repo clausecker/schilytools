@@ -39,11 +39,11 @@
 /*
  * This file contains modifications Copyright 2008-2009 J. Schilling
  *
- * @(#)string.c	1.8 09/06/11 2008-2009 J. Schilling
+ * @(#)string.c	1.9 09/06/14 2008-2009 J. Schilling
  */
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)string.c	1.8 09/06/11 2008-2009 J. Schilling";
+	"@(#)string.c	1.9 09/06/14 2008-2009 J. Schilling";
 #endif
 
 /* ========	general purpose string handling ======== */
@@ -87,15 +87,15 @@ unsigned char *c, *s;
 	wchar_t d;
 	int n;
 
-	mbtowc(NULL, NULL, 0);
+	(void) mbtowc(NULL, NULL, 0);
 	if((n = mbtowc(&f, (char *)c, MULTI_BYTE_MAX)) <= 0) {
-		mbtowc(NULL, NULL, 0);
+		(void) mbtowc(NULL, NULL, 0);
 		return(FALSE);
 	}
 	d = f;
 	while(1) {
 		if((n = mbtowc(&e, (char *)s, MULTI_BYTE_MAX)) <= 0) {
-			mbtowc(NULL, NULL, 0);
+			(void) mbtowc(NULL, NULL, 0);
 			return(FALSE);
 		}
 		if (e == 0)

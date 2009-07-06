@@ -1,14 +1,14 @@
-/* @(#)wm_packet.c	1.28 08/12/22 Copyright 1995, 1997, 2001-2008 J. Schilling */
+/* @(#)wm_packet.c	1.29 09/07/05 Copyright 1995, 1997, 2001-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)wm_packet.c	1.28 08/12/22 Copyright 1995, 1997, 2001-2008 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)wm_packet.c	1.29 09/07/05 Copyright 1995, 1997, 2001-2009 J. Schilling";
 #endif
 /*
  *	CDR write method abtraction layer
  *	packet writing intercace routines
  *
- *	Copyright (c) 1995, 1997, 2001-2008 J. Schilling
+ *	Copyright (c) 1995, 1997, 2001-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

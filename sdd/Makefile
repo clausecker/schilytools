@@ -1,4 +1,4 @@
-#ident @(#)Makefile	1.12 07/02/04 
+#ident @(#)Makefile	1.13 09/06/23 
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -14,7 +14,7 @@ CPPOPTS +=	-DSCHILY_PRINT
 CFILES=		sdd.c
 HFILES=		
 #LIBS=		-lunos
-LIBS=		-lrmt -lschily $(LIB_SOCKET)
+LIBS=		-lmdigest -lrmt -lschily $(LIB_SOCKET)
 XMK_FILE=	Makefile.man
 
 ###########################################################################

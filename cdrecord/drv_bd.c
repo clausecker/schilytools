@@ -1,11 +1,11 @@
-/* @(#)drv_bd.c	1.13 08/12/22 Copyright 2007-2008 J. Schilling */
+/* @(#)drv_bd.c	1.14 09/07/05 Copyright 2007-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)drv_bd.c	1.13 08/12/22 Copyright 2007-2008 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)drv_bd.c	1.14 09/07/05 Copyright 2007-2009 J. Schilling";
 #endif
 /*
- *	Copyright (c) 2007-2008 J. Schilling
+ *	Copyright (c) 2007-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

@@ -1,8 +1,8 @@
-/* @(#)interface.c	1.65 09/01/24 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2006-2009 J. Schilling */
+/* @(#)interface.c	1.66 09/07/05 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2006-2009 J. Schilling */
 #include "config.h"
 #ifndef lint
-static	const char sccsid[] =
-"@(#)interface.c	1.65 09/01/24 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2006-2009 J. Schilling";
+static	UConst char sccsid[] =
+"@(#)interface.c	1.66 09/07/05 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2006-2009 J. Schilling";
 
 #endif
 /*

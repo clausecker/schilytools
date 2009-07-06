@@ -1,4 +1,4 @@
-. \" %Z%%M%	%I% %E% Copyright 2008 J. Schilling
+. \" @(#)termcap.1	1.4 09/07/05 Copyright 2008 J. Schilling
 . \"  Manual page for termcap
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -13,7 +13,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH TERMCAP 1L "%E%" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH TERMCAP 1L "09/07/05" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 termcap \- a termcap compiler
 .SH SYNOPSIS
@@ -27,6 +27,33 @@ termcap
 reads termcap entries and outputs them in standard order and
 with standard escape sequences. This allows to convert termcap
 files into a comparable format.
+.PP
+The termcap database is an ASCII representation of the data
+so people may believe that there is no need for a compiler.
+Syntax checks and unification however are a property of compilers.
+The
+.B termcap
+progam checks for correct data types, outputs all entries in a unique
+order and recodes all strings with the same escape notation.
+This is needed in to compare two entries and it makes life easier.
+.PP
+When
+.B termcap
+compiles entries, it checks the entries for noncompliances. If any problems
+were found, it inserts comments in the form:
+.sp
+.BI "# NOTICE(" name ")" " some reason
+.sp
+or
+.sp
+.BI "# BAD(" name ")" " some reason
+.sp
+before the related termcap entry.
+These comments should be carefully checked.
+Frequent problems are illegally escaped colons \e: instead of \e072 that in 
+most cases have been created by defective
+.B terminfo
+software.
 
 .SH OPTIONS
 .TP
@@ -49,6 +76,14 @@ before escape sequences like
 .B \-dumplist
 Dump the complete internal list of terminal capabilities.
 .TP
+.BI if= filename
+Read the file 
+.I filename
+with many termcap entries and produce compiled output in standard order
+on 
+.BR stdout .
+This option is used in order to recompile a whole set of termcap entries.
+.TP
 .B \-inorder
 Output all capabilities in the standard order. First the boolean
 capabilities, then the numeric capabilities and at last the string
@@ -56,12 +91,30 @@ capabilities. Without
 .BR \-inorder ,
 the obsolete capabilities are printed last.
 .TP
-.BI if= filename
-Read the file 
-.I filename
-with many termcap entries and produce compiled output in standard order
-on 
-.BR stdout .
+.B \-gnugoto
+Allow the GNU tgoto() format extexsions %C and %m.
+.TP
+.B \-tc
+Follow
+.B tc=
+entries and generate cumulative output.
+Amongst others, this allows to retrieve the cumulative size of the related
+termcap entry.
+.B Termcap
+normally does not interpret
+.B tc=
+entries in order to allow the entries to be reused the same way they are
+in the termcap file.
+.TP
+.B \-v
+Increment verbose level.
+By default, 
+.B termcap
+only prints a recoded termcap entry. With increasing verbose level, more 
+information on the termcap entry is printed.
+With a higher verbose level,
+.B termcap
+prints the size of the termcap entry.
 
 .SH ENVIRONMENT
 .TP

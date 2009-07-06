@@ -1,8 +1,8 @@
-/* @(#)readfile.c	1.56 08/12/22 Copyright 1985 J. Schilling */
+/* @(#)readfile.c	1.57 09/06/30 Copyright 1985-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)readfile.c	1.56 08/12/22 Copyright 1985 J. Schilling";
+	"@(#)readfile.c	1.57 09/06/30 Copyright 1985-2009 J. Schilling";
 #endif
 /*
  *	Make program
@@ -22,8 +22,8 @@ static	const char sccsid[] =
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#include <schily/mconfig.h>
-#include <stdio.h>
+#include <schily/stdio.h>
+#include <schily/types.h>
 #include <schily/standard.h>
 #include <schily/stdlib.h>
 #include <schily/string.h>

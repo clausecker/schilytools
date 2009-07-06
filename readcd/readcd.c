@@ -1,8 +1,8 @@
-/* @(#)readcd.c	1.101 09/01/20 Copyright 1987, 1995-2009 J. Schilling */
+/* @(#)readcd.c	1.103 09/07/05 Copyright 1987, 1995-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)readcd.c	1.101 09/01/20 Copyright 1987, 1995-2009 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)readcd.c	1.103 09/07/05 Copyright 1987, 1995-2009 J. Schilling";
 #endif
 /*
  *	Skeleton for the use of the scg genearal SCSI - driver
@@ -1080,7 +1080,8 @@ read_ftoc(scgp, parmp, do_sectype)
 
 
 	strcpy(filename, "toc.dat");
-	if (strcmp(parmp->name, "/dev/null") != 0) {
+	if (parmp != NULL &&
+	    strcmp(parmp->name, "/dev/null") != 0) {
 
 		len = strlen(parmp->name);
 		if (len > (sizeof (filename)-5)) {

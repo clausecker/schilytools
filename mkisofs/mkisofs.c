@@ -1,8 +1,8 @@
-/* @(#)mkisofs.c	1.244 09/04/13 joerg */
+/* @(#)mkisofs.c	1.245 09/07/05 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)mkisofs.c	1.244 09/04/13 joerg";
+	"@(#)mkisofs.c	1.245 09/07/05 joerg";
 #endif
 /*
  * Program mkisofs.c - generate iso9660 filesystem  based upon directory
@@ -132,7 +132,7 @@ int	gui = 0;
 int	all_files = 1;		/* New default is to include all files */
 BOOL	Hflag = FALSE;		/* Follow links on cmdline (-H)	*/
 BOOL	follow_links = FALSE;	/* Follow all links (-L)	*/
-#ifdef	IS_CYGWIN
+#if	defined(IS_CYGWIN) || defined(__MINGW32__)
 /*
  * Do not cache inodes on Cygwin by default
  * See below in main(), cache for 64bit ino_t
@@ -1629,7 +1629,7 @@ main(argc, argv)
 		flags[il].ga_format = NULL;
 	}
 
-#ifdef	IS_CYGWIN
+#if	defined(IS_CYGWIN) || defined(__MINGW32__)
 	/*
 	 * If we have 64 bit inode numbers, Cygwin should be able to work
 	 * correctly on NTFS.
@@ -2295,7 +2295,7 @@ setcharset:
 		icharset = NULL;
 #endif
 	if (icharset == NULL) {
-#if	(defined(__CYGWIN32__) || defined(__CYGWIN__) || defined(__DJGPP__)) && !defined(IS_CYGWIN_1)
+#if	(defined(__CYGWIN32__) || defined(__CYGWIN__) || defined(__DJGPP__) || defined(__MINGW32__)) && !defined(IS_CYGWIN_1)
 		icharset = "cp437";
 #else
 		icharset = "default";

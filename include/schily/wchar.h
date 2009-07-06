@@ -1,4 +1,4 @@
-/* @(#)wchar.h	1.9 09/06/07 Copyright 2007-2009 J. Schilling */
+/* @(#)wchar.h	1.12 09/06/14 Copyright 2007-2009 J. Schilling */
 /*
  *	Abstraction from wchar.h
  *
@@ -59,7 +59,7 @@
 #undef	USE_WCHAR
 #endif	/* !HAVE_WCHAR_H */
 
-#ifndef	HAVE_WCTYPE_H
+#if	!defined(HAVE_WCTYPE_H) && !defined(HAVE_ISWPRINT)
 #undef	USE_WCHAR
 #undef	USE_WCTYPE
 #endif
@@ -97,15 +97,26 @@
 #define	WCHAR_MIN	TYPE_MINVAL(wchar_t)
 
 #undef	SIZEOF_WCHAR_T
-#define	SIZEOF_WCHAR_T	SIZEOF_CHAR	
+#define	SIZEOF_WCHAR_T	SIZEOF_CHAR
 
 #undef	MB_CUR_MAX
 #define	MB_CUR_MAX	1
 #undef	MB_LEN_MAX
 #define	MB_LEN_MAX	1
 
+/*
+ * The mbtowc() for the non-multibyte case could be as simple as
+ *
+ * #define	mbtowc(wp, cp, len)	(*(wp) = *(cp), 1)
+ *
+ * but Mac OS X forces us to do many mbtowc(NULL, NULL, 0) calls in order
+ * to reset the internal state. On other platforms that do not support
+ * wide chars, NULL may be defined as (void *)0, so we need to check
+ * for "wp" != NULL and to cast "wp" and "cp" to their expected types.
+ */
 #undef	mbtowc
-#define	mbtowc(wp, cp, len)	(*(wp) = *(cp), 1)
+#define	mbtowc(wp, cp, len)	((void)((wp) ? \
+				*(wchar_t *)(wp) = *(char *)(cp) : 1), 1)
 #undef	wctomb
 #define	wctomb(cp, wc)		(*(cp) = wc, 1)
 

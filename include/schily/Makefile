@@ -1,4 +1,4 @@
-#ident @(#)Makefile	1.16 09/05/24 
+#ident @(#)Makefile	1.19 09/06/30 
 ###########################################################################
 # Sample makefile for installing non-localized auxiliary files
 ###########################################################################
@@ -20,10 +20,11 @@ XMK_FILE=	\
 		jmpdefs.mk \
 		libport.mk librmt.mk limits.mk locale.mk \
 		maxpath.mk mconfig.mk \
+		md4.mk md5.mk \
 		mman.mk mtio.mk nlsdefs.mk param.mk patmatch.mk prototyp.mk \
 		rmtio.mk schily.mk schilyp.mk \
 		shcall.mk \
-		siconv.mk sigblk.mk signal.mk standard.mk stat.mk \
+		siconv.mk sigblk.mk signal.mk sigset.mk standard.mk stat.mk \
 		stdio.mk \
 		stdlib.mk stkframe.mk string.mk \
 		sysexits.mk \

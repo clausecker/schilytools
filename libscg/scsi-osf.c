@@ -1,7 +1,7 @@
-/* @(#)scsi-osf.c	1.27 06/11/26 Copyright 1998 J. Schilling */
+/* @(#)scsi-osf.c	1.28 09/06/30 Copyright 1998-2009 J. Schilling */
 #ifndef lint
 static	char __sccsid[] =
-	"@(#)scsi-osf.c	1.27 06/11/26 Copyright 1998 J. Schilling";
+	"@(#)scsi-osf.c	1.28 09/06/30 Copyright 1998-2009 J. Schilling";
 #endif
 /*
  *	Interface for Digital UNIX (OSF/1 generic SCSI implementation (/dev/cam).
@@ -16,7 +16,7 @@ static	char __sccsid[] =
  *	Choose your name instead of "schily" and make clear that the version
  *	string is related to a modified source.
  *
- *	Copyright (c) 1998 J. Schilling
+ *	Copyright (c) 1998-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -38,7 +38,7 @@ static	char __sccsid[] =
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#include <sys/types.h>
+#include <schily/types.h>
 #include <io/common/iotypes.h>
 #include <io/cam/cam.h>
 #include <io/cam/uagt.h>
@@ -50,7 +50,7 @@ static	char __sccsid[] =
  *	Choose your name instead of "schily" and make clear that the version
  *	string is related to a modified source.
  */
-LOCAL	char	_scg_trans_version[] = "scsi-osf.c-1.27";	/* The version for this transport*/
+LOCAL	char	_scg_trans_version[] = "scsi-osf.c-1.28";	/* The version for this transport*/
 
 #define	MAX_SCG		16	/* Max # of SCSI controllers */
 #define	MAX_TGT		16

@@ -1,8 +1,8 @@
-/* @(#)semshm.c 1.26 09/04/19 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling */
+/* @(#)semshm.c 1.28 09/07/05 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling */
 #include "config.h"
 #ifndef lint
-static	const char sccsid[] =
-"@(#)semshm.c	1.26 09/04/19 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling";
+static	UConst char sccsid[] =
+"@(#)semshm.c	1.28 09/07/05 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling";
 #endif
 
 #define	IPCTST
@@ -60,7 +60,7 @@ static	const char sccsid[] =
 #	define	USE_BEOS_AREAS
 #endif
 
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/stdlib.h>
 #include <schily/unistd.h>
 #include <schily/fcntl.h>
@@ -69,13 +69,13 @@ static	const char sccsid[] =
 #include <schily/schily.h>
 
 #if defined(HAVE_SEMGET) && defined(USE_SEMAPHORES)
-#include <sys/types.h>
+#include <schily/types.h>
 #include <sys/ipc.h>
 #include <sys/sem.h>
 #endif
 
 #if defined(HAVE_SHMAT) && (HAVE_SHMAT == 1)
-#include <sys/types.h>
+#include <schily/types.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>
 #endif

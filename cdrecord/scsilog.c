@@ -1,13 +1,13 @@
-/* @(#)scsilog.c	1.22 08/12/22 Copyright 1998-2008 J. Schilling */
+/* @(#)scsilog.c	1.23 09/07/05 Copyright 1998-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)scsilog.c	1.22 08/12/22 Copyright 1998-2008 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)scsilog.c	1.23 09/07/05 Copyright 1998-2009 J. Schilling";
 #endif
 /*
  *	SCSI log page handling
  *
- *	Copyright (c) 1998-2008 J. Schilling
+ *	Copyright (c) 1998-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

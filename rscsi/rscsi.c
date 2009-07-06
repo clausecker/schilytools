@@ -1,13 +1,13 @@
-/* @(#)rscsi.c	1.33 08/12/22 Copyright 1994,2000-2008 J. Schilling*/
+/* @(#)rscsi.c	1.34 09/07/05 Copyright 1994,2000-2009 J. Schilling*/
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)rscsi.c	1.33 08/12/22 Copyright 1994,2000-2008 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)rscsi.c	1.34 09/07/05 Copyright 1994,2000-2009 J. Schilling";
 #endif
 /*
  *	Remote SCSI server
  *
- *	Copyright (c) 1994,2000-2008 J. Schilling
+ *	Copyright (c) 1994,2000-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -23,9 +23,7 @@ static	const char sccsid[] =
 
 /*#define	FORCE_DEBUG*/
 
-#include <schily/mconfig.h>
-
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/stdlib.h>
 #include <schily/unistd.h>	/* includes <sys/types.h> */
 #include <schily/utypes.h>
@@ -40,7 +38,9 @@ static	const char sccsid[] =
 #include <sys/param.h>	/* BSD-4.2 & Linux need this for MAXHOSTNAMELEN */
 #endif
 #include <schily/errno.h>
+#ifdef	HAVE_PWD_H
 #include <pwd.h>
+#endif
 
 #include <schily/standard.h>
 #include <schily/deflts.h>
@@ -50,7 +50,9 @@ static	const char sccsid[] =
 #include <scg/scgcmd.h>
 #include <scg/scsitransp.h>
 
+#ifdef	HAVE_NETINET_IN_H
 #include <netinet/in.h>
+#endif
 #ifdef	HAVE_ARPA_INET_H
 #include <arpa/inet.h>		/* BeOS does not have <arpa/inet.h> */
 #endif				/* but inet_ntaoa() is in <netdb.h> */

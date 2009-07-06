@@ -1,4 +1,4 @@
-/* @(#)dlfcn.h	1.1 09/05/01 Copyright 2009 J. Schilling */
+/* @(#)dlfcn.h	1.2 09/06/14 Copyright 2009 J. Schilling */
 /*
  *	Abstraction from dlfcn.h
  *
@@ -59,7 +59,7 @@
 #ifndef	RTLD_NEXT
 #define	RTLD_NEXT		(void *)-1
 #define	RTLD_DEFAULT		(void *)-2
-#define RTLD_SELF               (void *)-3
+#define	RTLD_SELF		(void *)-3
 #endif
 #endif
 
@@ -67,7 +67,7 @@
  * dlsym() speudo handle for SunOS-4.0
  */
 #if	defined(HAVE_DLSYM) && !defined(RTLD_SELF)
-#define RTLD_SELF               (void *)0
+#define	RTLD_SELF		(void *)0
 #endif
 
 #ifdef	__cplusplus

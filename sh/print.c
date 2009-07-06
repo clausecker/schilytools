@@ -32,14 +32,14 @@
 /*
  * This file contains modifications Copyright 2008-2009 J. Schilling
  *
- * @(#)print.c	1.10 09/06/11 2008-2009 J. Schilling
+ * @(#)print.c	1.11 09/06/14 2008-2009 J. Schilling
  */
 #ifdef	SCHILY_BUILD
 #include <schily/mconfig.h>
 #endif
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)print.c	1.10 09/06/11 2008-2009 J. Schilling";
+	"@(#)print.c	1.11 09/06/14 2008-2009 J. Schilling";
 #endif
 
 /*
@@ -339,9 +339,9 @@ prs_cntl(s)
 	unsigned char *ptr = bufp;
 	wchar_t c;
 
-	mbtowc(NULL, NULL, 0);
+	(void) mbtowc(NULL, NULL, 0);
 	if ((n = mbtowc(&wc, (const char *)s, MB_LEN_MAX)) <= 0) {
-		mbtowc(NULL, NULL, 0);
+		(void) mbtowc(NULL, NULL, 0);
 		n = 0;
 	}
 	if (wc == 0)
@@ -387,7 +387,7 @@ prs_cntl(s)
 		}
 		olds = s;
 		if ((n = mbtowc(&wc, (const char *)s, MB_LEN_MAX)) <= 0) {
-			mbtowc(NULL, NULL, 0);
+			(void) mbtowc(NULL, NULL, 0);
 			n = 0;
 		}
 		if (wc == 0)

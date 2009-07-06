@@ -1,6 +1,6 @@
-/* @(#)fileread.c	1.15 07/04/03 Copyright 1986, 1995-2007 J. Schilling */
+/* @(#)fileread.c	1.16 09/06/30 Copyright 1986, 1995-2009 J. Schilling */
 /*
- *	Copyright (c) 1986, 1995-2007 J. Schilling
+ *	Copyright (c) 1986, 1995-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -20,13 +20,13 @@ static	char	_readerr[]	= "file_read_err";
 
 #ifdef	HAVE_USG_STDIO
 
-EXPORT int
+EXPORT ssize_t
 fileread(f, buf, len)
 	register FILE	*f;
 	void	*buf;
-	int	len;
+	size_t	len;
 {
-	int	cnt;
+	ssize_t	cnt;
 	register int	n;
 
 	down2(f, _IOREAD, _IORW);
@@ -66,13 +66,13 @@ fileread(f, buf, len)
 
 #else
 
-EXPORT int
+EXPORT ssize_t
 fileread(f, buf, len)
 	register FILE	*f;
 	void	*buf;
-	int	len;
+	size_t	len;
 {
-	int	cnt;
+	ssize_t	cnt;
 
 	down2(f, _IOREAD, _IORW);
 

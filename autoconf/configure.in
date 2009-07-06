@@ -1,6 +1,6 @@
-dnl @(#)configure.in	1.178 09/06/07 Copyright 1998-2009 J. Schilling
+dnl @(#)configure.in	1.182 09/07/02 Copyright 1998-2009 J. Schilling
 dnl Process this file with autoconf to produce a configure script.
-AC_REVISION(1.178)dnl
+AC_REVISION(1.182)dnl
 
 AC_INIT(xconfig.h.in)
 AC_CONFIG_HEADER(xconfig.h)
@@ -113,6 +113,7 @@ AC_TYPE_SIGNAL
 AC_TYPE_GETGROUPS
 AC_TYPE_LONGLONG
 AC_TYPE___INT64
+AC_TYPE_LONGDOUBLE
 AC_TYPE_PROTOTYPES
 dnl AC_USER_MALLOC must be past AC_CHECK_FUNCS(strdup)
 AC_DYN_ARRAYS
@@ -166,6 +167,7 @@ AC_CHECK_SIZEOF(unsigned __int64)
 AC_CHECK_SIZEOF(unsigned char *)
 AC_CHECK_SIZEOF(float)
 AC_CHECK_SIZEOF(double)
+AC_CHECK_SIZEOF(long double)
 
 AC_CHECK_SIZEOF(size_t)
 AC_CHECK_SIZEOF(ssize_t)
@@ -308,6 +310,7 @@ AC_CHECK_FUNCS(tcgetattr tcsetattr tcgetpgrp tcsetpgrp)
 AC_CHECK_FUNCS(putenv setenv snprintf strcasecmp)
 AC_CHECK_FUNCS(strcat strncat strcmp strncmp strcpy strlcpy strncpy strdup strlen strchr strrchr)
 AC_CHECK_FUNCS(wcscat wcsncat wcscmp wcsncmp wcscpy wcslcpy wcsncpy wcsdup wcslen wcschr wcsrchr)
+AC_CHECK_FUNCS(wcwidth wcswidth wctype iswctype)
 AC_CHECK_FUNCS(valloc)
 AC_CHECK_FUNCS(madvise)
 AC_CHECK_FUNCS(mktemp mkstemp)
@@ -316,6 +319,7 @@ AC_CHECK_FUNCS(fnmatch)
 AC_CHECK_FUNCS(truncate ftruncate)
 AC_CHECK_FUNCS(getppriv setppriv priv_set)
 AC_CHECK_FUNCS(setlocale localeconv nl_langinfo)
+AC_CHECK_FUNCS(setbuf setvbuf)
 AC_CHECK_FUNCS(clone_area create_area delete_area)
 
 dnl The official POSIX rule is not to define "new" interfaces that
@@ -342,6 +346,16 @@ echo End of tests for POSIX violations by the POSIX.1-2008 standard.
 dnl Check whether a symbol is either defined in an include file or
 dnl otherwise usable (e.g. as function)
 AC_CHECK_DFUNC([#include <dirent.h>], dirfd)
+
+AC_CHECK_DFUNC([
+#ifdef	HAVE_WCHAR_H
+#include <wchar.h>
+#endif
+#ifdef	HAVE_WCTYPE_H
+#include <wctype.h>
+#endif
+], iswprint)
+
 
 dnl Checks for typedefs, structures, and compiler characteristics.
 dnl that need results from the AC_CHECK_FUNCS() calls.

@@ -1,8 +1,8 @@
-/* @(#)drv_dvd.c	1.158 08/12/24 Copyright 1998-2008 J. Schilling */
+/* @(#)drv_dvd.c	1.159 09/07/05 Copyright 1998-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)drv_dvd.c	1.158 08/12/24 Copyright 1998-2008 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)drv_dvd.c	1.159 09/07/05 Copyright 1998-2009 J. Schilling";
 #endif
 /*
  *	DVD-R device implementation for
@@ -32,7 +32,7 @@ static	const char sccsid[] =
  *			2		print disk info & write parameters
  *			3		print log pages & dvd structure
  *
- *	Copyright (c) 1998-2008 J. Schilling
+ *	Copyright (c) 1998-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

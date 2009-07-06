@@ -1,8 +1,8 @@
-/* @(#)nixread.c	1.13 06/09/26 Copyright 1986, 1996-2003 J. Schilling */
+/* @(#)nixread.c	1.14 09/06/30 Copyright 1986, 1996-2009 J. Schilling */
 /*
  *	Non interruptable extended read
  *
- *	Copyright (c) 1986, 1996-2003 J. Schilling
+ *	Copyright (c) 1986, 1996-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -18,17 +18,21 @@
 
 #include "schilyio.h"
 
-EXPORT int
+EXPORT ssize_t
 _nixread(f, buf, count)
 	int	f;
 	void	*buf;
-	int	count;
+	size_t	count;
 {
-	register char *p = (char *)buf;
-	register int ret;
-	register int total = 0;
+	register char	*p = (char *)buf;
+	register ssize_t ret;
+	register int	total = 0;
 		int	oerrno = geterrno();
 
+	if ((ret = (ssize_t)count) < 0) {
+		seterrno(EINVAL);
+		return ((ssize_t)-1);
+	}
 	while (count > 0) {
 		while ((ret = read(f, p, count)) < 0) {
 			if (geterrno() == EINTR) {

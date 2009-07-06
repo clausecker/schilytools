@@ -1,4 +1,4 @@
-/* @(#)ccomdefs.h	1.5 09/06/06 Copyright 2000-2009 J. Schilling */
+/* @(#)ccomdefs.h	1.6 09/06/15 Copyright 2000-2009 J. Schilling */
 /*
  *	Various compiler dependant macros.
  *
@@ -59,6 +59,16 @@ extern "C" {
 		__attribute__((__format__(__scanf__, fmtarg, firstvararg)))
 
 #endif /* GNUC */
+
+#if __GNUC__ > 3 || __GNUC__ == 3 && __GNUC_MINOR__ > 1
+
+#define	UConst	__attribute__ ((__used__)) const
+
+#else	/* GNUC 3.2 */
+
+#define	UConst	const
+
+#endif /* GNUC 3.2 */
 
 #ifdef	__cplusplus
 }

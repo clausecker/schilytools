@@ -1,13 +1,13 @@
-/* @(#)drv_simul.c	1.58 08/12/22 Copyright 1998-2008 J. Schilling */
+/* @(#)drv_simul.c	1.59 09/07/05 Copyright 1998-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)drv_simul.c	1.58 08/12/22 Copyright 1998-2008 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)drv_simul.c	1.59 09/07/05 Copyright 1998-2009 J. Schilling";
 #endif
 /*
  *	Simulation device driver
  *
- *	Copyright (c) 1998-2008 J. Schilling
+ *	Copyright (c) 1998-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

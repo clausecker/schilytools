@@ -1,5 +1,5 @@
 #!/bin/sh
-# @(#)cpfiles	1.11 09/02/04 Copyright 1999 J. Schilling
+# %Z%%M%	%I% %E% Copyright 1999 J. Schilling
 
 cp='cp -p'
 smake=smake
@@ -43,6 +43,7 @@ $cp ${incsrc}/include/schily/getargs.h	include/schily/getargs.h
 $cp ${incsrc}/include/schily/getcwd.h	include/schily/getcwd.h
 $cp ${incsrc}/include/schily/hostname.h	include/schily/hostname.h
 $cp ${incsrc}/include/schily/libport.h	include/schily/libport.h
+$cp ${incsrc}/include/schily/limits.h	include/schily/limits.h
 $cp ${incsrc}/include/schily/maxpath.h	include/schily/maxpath.h
 $cp ${incsrc}/include/schily/mconfig.h	include/schily/mconfig.h
 $cp ${incsrc}/include/schily/xconfig.h	include/schily/xconfig.h
@@ -105,3 +106,4 @@ $cp ${incsrc}/${lib}/stdio/fileseek.c	fileseek.c
 $cp ${incsrc}/${lib}/stdio/filewrite.c	filewrite.c
 $cp ${incsrc}/${lib}/stdio/flag.c		flag.c
 $cp ${incsrc}/${lib}/stdio/niread.c	niread.c
+$cp ${incsrc}/${lib}/stdio/niwrite.c	niwrite.c

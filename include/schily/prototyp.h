@@ -1,8 +1,8 @@
-/* @(#)prototyp.h	1.13 08/12/20 Copyright 1995 J. Schilling */
+/* @(#)prototyp.h	1.14 09/06/23 Copyright 1995-2009 J. Schilling */
 /*
  *	Definitions for dealing with ANSI / KR C-Compilers
  *
- *	Copyright (c) 1995 J. Schilling
+ *	Copyright (c) 1995-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -26,6 +26,8 @@
 
 #ifndef	_SCHILY_PROTOTYP_H
 #define	_SCHILY_PROTOTYP_H
+
+#include <schily/ccomdefs.h>
 
 #ifndef	PROTOTYPES
 	/*

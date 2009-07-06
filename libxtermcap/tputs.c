@@ -1,11 +1,11 @@
-/* @(#)tputs.c	1.7 08/12/22 Copyright 1986 J. Schilling */
+/* @(#)tputs.c	1.8 09/07/05 Copyright 1986-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)tputs.c	1.7 08/12/22 Copyright 1986 J. Schilling";
+	"@(#)tputs.c	1.8 09/07/05 Copyright 1986-2009 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1986 J. Schilling
+ *	Copyright (c) 1986-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -59,12 +59,12 @@ tmspch[] = {
  * Output the string pointed to by 'sp', insert padding if desired.
  * 'affcnt' is the number used to multiply with the delay.
  * 'outc' is a pointer to a function to really output the char.
- */ 
+ */
 EXPORT int
 tputs(sp, affcnt, outc)
-		 char	*sp;
-		 int	affcnt;
-		 int	(*outc) __PR((int c));
+		char	*sp;
+		int	affcnt;
+		int	(*outc) __PR((int c));
 {
 	register Uchar	*cp = (Uchar *)sp;
 	register int	cdelay;		/* Delay value in # of chars */
@@ -119,7 +119,7 @@ tputs(sp, affcnt, outc)
 	 * XXX 'usleep()' is not usable because there might be characters
 	 * XXX in the terminal's output queue.
 	 */
-	cdelay = tmspch[ospeed];/* Get delay value for actual speed	*/
+	cdelay = tmspch[ospeed]; /* Get delay value for actual speed	*/
 	delay += cdelay / 2;	/* Round up to the next half character	*/
 	delay /= cdelay;	/* Compute # of characters for delay	*/
 

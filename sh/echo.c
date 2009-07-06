@@ -36,11 +36,11 @@
 /*
  * This file contains modifications Copyright 2008-2009 J. Schilling
  *
- * @(#)echo.c	1.5 09/06/11 2008-2009 J. Schilling
+ * @(#)echo.c	1.6 09/06/14 2008-2009 J. Schilling
  */
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)echo.c	1.5 09/06/11 2008-2009 J. Schilling";
+	"@(#)echo.c	1.6 09/06/14 2008-2009 J. Schilling";
 #endif
 
 /*
@@ -119,11 +119,11 @@ unsigned char **argv;
 
 		for (i = 1; i <= argc; i++) {
 			sigchk();
-			mbtowc(NULL, NULL, 0);
+			(void) mbtowc(NULL, NULL, 0);
 			for (cp = argv[i]; *cp; cp++) {
 				if ((len = mbtowc(&wc, (char *)cp,
 						MB_LEN_MAX)) <= 0) {
-					mbtowc(NULL, NULL, 0);
+					(void) mbtowc(NULL, NULL, 0);
 					prc_buff(*cp);
 					continue;
 				}

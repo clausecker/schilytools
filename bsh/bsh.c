@@ -1,8 +1,8 @@
-/* @(#)bsh.c	1.59 09/05/24 Copyright 1984,1985,1988,1989,1991,1994-2009 J. Schilling */
+/* @(#)bsh.c	1.60 09/06/29 Copyright 1984,1985,1988,1989,1991,1994-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)bsh.c	1.59 09/05/24 Copyright 1982,1984,1985,1988,1989,1991,1994-2009 J. Schilling";
+	"@(#)bsh.c	1.60 09/06/29 Copyright 1982,1984,1985,1988,1989,1991,1994-2009 J. Schilling";
 #endif
 /*
  *	bsh command interpreter - main Program
@@ -343,7 +343,8 @@ error  No function to set uid available
 #endif
 #endif	/* WRONG */
 	ev_init(ev);
-	setlocale(LC_ALL, "");
+	if (setlocale(LC_ALL, "") == NULL)
+		error("Bad locale in inital environment.\n");
 	ev_insert(concat(ignoreeofname, eql, off, (char *)NULL));
 	inituser();
 	inithostname();

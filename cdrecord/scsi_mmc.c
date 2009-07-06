@@ -1,8 +1,8 @@
-/* @(#)scsi_mmc.c	1.48 09/05/18 Copyright 2002-2009 J. Schilling */
+/* @(#)scsi_mmc.c	1.49 09/07/05 Copyright 2002-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)scsi_mmc.c	1.48 09/05/18 Copyright 2002-2009 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)scsi_mmc.c	1.49 09/07/05 Copyright 2002-2009 J. Schilling";
 #endif
 /*
  *	SCSI command functions for cdrecord

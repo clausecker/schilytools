@@ -1,4 +1,4 @@
-. \" @(#)sdd.1	1.5 01/07/20 Copyr 1982-1995 J. Schilling
+. \" @(#)sdd.1	1.6 09/06/22 Copyr 1982-1995 J. Schilling
 . \"  Manual page for sdd
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -13,7 +13,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH SDD 1E "01/07/20" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH SDD 1E "09/06/22" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 sdd \- disk dump and restore to and from tape or file; copy and/or reblock
 .SH SYNOPSIS
@@ -272,6 +272,14 @@ variant of
 Prints a short summary of the 
 .B sdd
 options and exists.
+.TP
+.B \-md5
+Compute the md5 sum for the data.
+If the option
+.B \-onull
+was used,
+.B sdd
+computes the md5 sum on the input data, otherwise the output data is used.
 .TP
 .B \-version
 Prints the 

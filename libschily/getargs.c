@@ -1,12 +1,12 @@
-/* @(#)getargs.c	2.57 08/12/21 Copyright 1985, 1988, 1994-2008 J. Schilling */
+/* @(#)getargs.c	2.59 09/06/28 Copyright 1985, 1988, 1994-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)getargs.c	2.57 08/12/21 Copyright 1985, 1988, 1994-2008 J. Schilling";
+	"@(#)getargs.c	2.59 09/06/28 Copyright 1985, 1988, 1994-2009 J. Schilling";
 #endif
 #define	NEW
 /*
- *	Copyright (c) 1985, 1988, 1994-2008 J. Schilling
+ *	Copyright (c) 1985, 1988, 1994-2009 J. Schilling
  *
  *	1.3.88	 Start implementation of release 2
  */
@@ -66,12 +66,17 @@ static	const char sccsid[] =
 #include <schily/schily.h>
 #include <ctype.h>
 
+/*
+ * Various return values
+ */
+#define	RETMAX		  2	/* Max. value for getargerror()	*/
 #define	FLAGDELIM	  2	/* "--" stopped flag processing	*/
 #define	NOTAFLAG	  1	/* Not a flag type argument	*/
 #define	NOARGS		  0	/* No more args			*/
 #define	BADFLAG		(-1)	/* Not a valid flag argument	*/
 #define	BADFMT		(-2)	/* Error in format string	*/
 #define	NOTAFILE	(-3)	/* Seems to be a flag type arg	*/
+#define	RETMIN		(-3)	/* Min. value for getargerror()	*/
 
 LOCAL char	*retnames[] =  {
 	"NOTAFILE",
@@ -81,7 +86,7 @@ LOCAL char	*retnames[] =  {
 	"NOTAFLAG",
 	"FLAGDELIM",
 };
-#define	RNAME(a)	(retnames[(a)+3])
+#define	RNAME(a)	(retnames[(a)-RETMIN])
 
 #define	SCANONLY	0	/* Do not try to set argument values	*/
 #define	SETARGS		1	/* Set argument values from cmdline	*/
@@ -1205,7 +1210,7 @@ checkeql(str)
 
 	for (c = (unsigned char)*str;
 			isalnum(c) || c == '_' || c == '-' || c == '+';
-								c = *str++)
+								c = *++str)
 		/* LINTED */
 		;
 	return (c == '=');
@@ -1215,7 +1220,7 @@ EXPORT char *
 getargerror(err)
 	int	err;
 {
-	if (err < -3 || err > 2)
+	if (err < RETMIN || err > RETMAX)
 		return ("Illegal arg error");
 	return (RNAME(err));
 }

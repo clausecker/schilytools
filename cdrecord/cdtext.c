@@ -1,8 +1,8 @@
-/* @(#)cdtext.c	1.14 09/03/27 Copyright 1999-2009 J. Schilling */
+/* @(#)cdtext.c	1.15 09/07/05 Copyright 1999-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)cdtext.c	1.14 09/03/27 Copyright 1999-2009 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)cdtext.c	1.15 09/07/05 Copyright 1999-2009 J. Schilling";
 #endif
 /*
  *	Generic CD-Text support functions

@@ -1,11 +1,11 @@
-/* @(#)tgoto.c	1.8 08/12/22 Copyright 1986 J. Schilling */
+/* @(#)tgoto.c	1.9 09/07/05 Copyright 1986-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)tgoto.c	1.8 08/12/22 Copyright 1986 J. Schilling";
+	"@(#)tgoto.c	1.9 09/07/05 Copyright 1986-2009 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1986 J. Schilling
+ *	Copyright (c) 1986-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -41,7 +41,7 @@ EXPORT	char	*UP;	/* Cursor up 1 line			*/
 EXPORT	char	*BC;	/* Back Cursor movement (Cursor left)	*/
 #endif
 
-#define OBUF_SIZE 80
+#define	OBUF_SIZE	80
 
 /*
  * Perform string preparation/conversion for cursor addressing.
@@ -53,13 +53,13 @@ tgoto(cm, col, line)
 	int	col;
 	int	line;
 {
-	static	 char	outbuf[OBUF_SIZE];	/* Where the output goes to */
-		 char	xbuf[10];		/* for %. corrections	    */
+	static	char	outbuf[OBUF_SIZE];	/* Where the output goes to */
+		char	xbuf[10];		/* for %. corrections	    */
 	register char	*op = outbuf;
 	register char	*p = cm;
 	register int	c;
 	register int	val = line;
-		 int	usecol = 0;
+		int	usecol = 0;
 
 	if (p == 0) {
 badfmt:
@@ -104,7 +104,7 @@ badfmt:
 
 		case '2':		/* output as printf("%02d"...	*/
 					/* This is from BSD (use val)	*/
-		twodigits:	
+		twodigits:
 			*op++ = '0' + val / 10;
 		onedigit:
 			*op++ = '0' + val % 10;
@@ -141,7 +141,7 @@ badfmt:
 				 * exclude tab from the execptions.
 				 */
 				while (val == 0 || val == '\004' ||
-				       /* val == '\t' || */ val == '\n') {
+					/* val == '\t' || */ val == '\n') {
 
 					strcat(xbuf,
 						usecol ? (BC?BC:"\b") : UP);

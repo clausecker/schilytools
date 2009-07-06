@@ -35,11 +35,11 @@
 /*
  * This file contains modifications Copyright 2008-2009 J. Schilling
  *
- * @(#)word.c	1.13 09/06/11 2008-2009 J. Schilling
+ * @(#)word.c	1.14 09/06/14 2008-2009 J. Schilling
  */
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)word.c	1.13 09/06/11 2008-2009 J. Schilling";
+	"@(#)word.c	1.14 09/06/14 2008-2009 J. Schilling";
 #endif
 
 /*
@@ -359,7 +359,7 @@ retry:
 			return (c);
 		}
 
-		mbtowc(NULL, NULL, 0);
+		(void) mbtowc(NULL, NULL, 0);
 		for (i = 1; i <= mbmax; i++) {
 			int	rest;
 			if ((rest = f->fend - f->fnxt) < i) {
@@ -378,7 +378,7 @@ retry:
 			mlen = mbtowc(&c, (char *)f->fnxt, i);
 			if (mlen > 0)
 				break;
-			mbtowc(NULL, NULL, 0);
+			(void) mbtowc(NULL, NULL, 0);
 		}
 
 		if (i > mbmax) {

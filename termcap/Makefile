@@ -1,4 +1,4 @@
-#ident @(#)Makefile	1.2 08/01/09 Copyright 2000 J. Schilling
+#ident @(#)Makefile	1.3 09/07/02 Copyright 2000 J. Schilling
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES

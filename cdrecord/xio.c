@@ -1,13 +1,13 @@
-/* @(#)xio.c	1.18 08/12/22 Copyright 2003-2008 J. Schilling */
+/* @(#)xio.c	1.19 09/07/05 Copyright 2003-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)xio.c	1.18 08/12/22 Copyright 2003-2008 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)xio.c	1.19 09/07/05 Copyright 2003-2009 J. Schilling";
 #endif
 /*
  *	EXtended I/O functions for cdrecord
  *
- *	Copyright (c) 2003-2008 J. Schilling
+ *	Copyright (c) 2003-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

@@ -1,8 +1,8 @@
-/* @(#)siconv.h	1.2 07/06/25 Copyright 2007 J. Schilling */
+/* @(#)siconv.h	1.3 09/06/14 Copyright 2007-2009 J. Schilling */
 /*
  *	Definitions fur users of libsiconv
  *
- *	Copyright (c) 2007 J. Schilling
+ *	Copyright (c) 2007-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -38,7 +38,7 @@ typedef struct siconv_table	siconvt_t;
 struct siconv_table {
 	char		*sic_name;		/* SICONV charset name	*/
 	UInt16_t	*sic_cs2uni;		/* Charset -> Unicode	*/
-	UInt8_t	 	**sic_uni2cs;		/* Unicode -> Charset	*/
+	UInt8_t		**sic_uni2cs;		/* Unicode -> Charset	*/
 	iconv_t		sic_cd2uni;		/* iconv Charset -> Unicode */
 	iconv_t		sic_uni2cd;		/* iconv Unicode -> Charset */
 	siconvt_t	*sic_alt;		/* alternate iconv tab	*/

@@ -1,13 +1,13 @@
-/* @(#)diskid.c	1.41 08/12/22 Copyright 1998-2008 J. Schilling */
+/* @(#)diskid.c	1.42 09/07/05 Copyright 1998-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)diskid.c	1.41 08/12/22 Copyright 1998-2008 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)diskid.c	1.42 09/07/05 Copyright 1998-2009 J. Schilling";
 #endif
 /*
  *	Disk Idientification Method
  *
- *	Copyright (c) 1998-2008 J. Schilling
+ *	Copyright (c) 1998-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

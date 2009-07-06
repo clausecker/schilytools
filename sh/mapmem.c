@@ -34,12 +34,12 @@
 /*
  * This file contains modifications Copyright 2008 J. Schilling
  *
- * @(#)mapmem.c	1.5 08/12/22 2008 J. Schilling
+ * @(#)mapmem.c	1.6 09/06/13 2008 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)mapmem.c	1.5 08/12/22 2008 J. Schilling";
+	"@(#)mapmem.c	1.6 09/06/13 2008 J. Schilling";
 #endif
 
 
@@ -59,7 +59,7 @@ static	const char sccsid[] =
  * New memory chunks are allocated on a first-fit basis.
  * Freed blocks are joined in larger blocks. Free pages are unmapped.
  */
-#include <schily/mconfig.h>
+#include <schily/types.h>
 
 #if	defined(linux) && defined(BOURNE_SHELL)
 #define	USE_MAPMALLOC
@@ -70,7 +70,6 @@ static	const char sccsid[] =
 
 #ifdef	USE_MAPMALLOC
 #include <schily/stdlib.h>
-#include <schily/types.h>
 #include <schily/mman.h>
 #include <schily/fcntl.h>
 #include <schily/errno.h>

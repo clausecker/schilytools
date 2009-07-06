@@ -1,13 +1,13 @@
-/* @(#)sun.c	1.10 08/12/22 Copyright 1998,1999 Heiko Eissfeldt, Copyright 2006-2008 J. Schilling */
+/* @(#)sun.c	1.11 09/07/05 Copyright 1998,1999 Heiko Eissfeldt, Copyright 2006-2009 J. Schilling */
 #include "config.h"
 #ifndef lint
-static	const char sccsid[] =
-"@(#)sun.c	1.10 08/12/22 Copyright 1998,1999 Heiko Eissfeldt, Copyright 2006-2008 J. Schilling";
+static	UConst char sccsid[] =
+"@(#)sun.c	1.11 09/07/05 Copyright 1998,1999 Heiko Eissfeldt, Copyright 2006-2009 J. Schilling";
 
 #endif
 /*
  * Copyright (C) by Heiko Eissfeldt
- * Copyright (c) 2006-2008 J. Schilling
+ * Copyright (c) 2006-2009 J. Schilling
  *
  *  definitions for sun pcm output
  */

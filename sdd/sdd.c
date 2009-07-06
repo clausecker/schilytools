@@ -1,8 +1,8 @@
-/* @(#)sdd.c	1.58 08/12/23 Copyright 1984-2008 J. Schilling */
+/* @(#)sdd.c	1.59 09/06/22 Copyright 1984-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)sdd.c	1.58 08/12/23 Copyright 1984-2008 J. Schilling";
+	"@(#)sdd.c	1.59 09/06/22 Copyright 1984-2009 J. Schilling";
 #endif
 /*
  *	sdd	Disk and Tape copy
@@ -16,7 +16,7 @@ static	const char sccsid[] =
  *	than large files, we use long long for several important
  *	variables that should not overflow.
  *
- *	Copyright (c) 1984-2008 J. Schilling
+ *	Copyright (c) 1984-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -58,6 +58,7 @@ static	const char sccsid[] =
 #include <schily/schily.h>
 #include <schily/librmt.h>
 #include <schily/errno.h>
+#include <schily/md5.h>
 
 #ifdef	SIGRELSE
 #	define	signal	sigset	/* reliable signal */
@@ -101,6 +102,10 @@ LOCAL	off_t	riseek		__PR((off_t pos));
 LOCAL	off_t	roseek		__PR((off_t pos));
 LOCAL	off_t	ifsize		__PR((void));
 
+LOCAL	void	mdinit		__PR((void));
+LOCAL	void	mdupdate	__PR((void *a, size_t s));
+LOCAL	void	mdfinal		__PR((void));
+
 #define	min(a, b)	(a < b ? a : b)
 
 #define	SDD_BSIZE	512L
@@ -116,6 +121,7 @@ LOCAL	off_t	ifsize		__PR((void));
 #define	IBM		000400
 #define	NULLIN		010000
 #define	NULLOUT		020000
+#define	MD5SUM		040000
 
 LOCAL	char	*infile;
 LOCAL	char	*outfile;
@@ -513,6 +519,9 @@ main(ac, av)
 	ovpos = oseek + ovseek;
 	(void) riseek(ivpos);
 	(void) roseek(ovpos);
+
+	if (flags & MD5SUM)
+		mdinit();
 
 	getstarttime();
 
@@ -916,6 +925,9 @@ readbuf(buf, len)
 				(void) putc('\n', stderr);
 			errmsgno(EX_BAD, "END OF FILE\n");
 		}
+
+	if ((flags & (NULLOUT|MD5SUM)) == (NULLOUT|MD5SUM))
+		mdupdate(buf, cnt);
 	return (cnt);
 }
 
@@ -965,6 +977,8 @@ writebuf(buf, len)
 		(void) putc('.', stderr);
 		(void) fflush(stderr);
 	}
+	if ((flags & (NULLOUT|MD5SUM)) == MD5SUM)
+		mdupdate(buf, cnt);
 	return (cnt);
 }
 
@@ -1364,6 +1378,8 @@ prstats()
 				sec, usec/1000, kbs);
 	}
 #endif
+	if (flags & MD5SUM)
+		mdfinal();
 }
 
 LOCAL	char	opts[]	= "\
@@ -1371,6 +1387,7 @@ if*,of*,ibs&,obs&,bs&,cbs&,count&,ivsize&,ovsize&,iseek&,oseek&,seek&,\
 iskip&,oskip&,skip&,ivseek&,ovseek&,\
 notrunc,pg,noerror,noerrwrite,noseek,try#,\
 fill,swab,block,unblock,lcase,ucase,ascii,ebcdic,ibm,\
+md5,\
 inull,onull,help,version,debug,time,t";
 
 LOCAL void
@@ -1391,6 +1408,7 @@ getopts(ac, av)
 	BOOL	ascflg	= FALSE;
 	BOOL	ebcflg	= FALSE;
 	BOOL	ibmflg	= FALSE;
+	BOOL	md5flg	= FALSE;
 	BOOL	nullin	= FALSE;
 	BOOL	nullout	= FALSE;
 	int	trys	= -1;
@@ -1425,6 +1443,7 @@ getopts(ac, av)
 				&blkflg, &ublkflg,
 				&lcflg, &ucflg,
 				&ascflg, &ebcflg, &ibmflg,
+				&md5flg,
 				&nullin,
 				&nullout,
 #endif
@@ -1436,9 +1455,9 @@ getopts(ac, av)
 	if (help)
 		usage(0);
 	if (prvers) {
-		printf("sdd %s (%s-%s-%s)\n\n", "1.58",
+		printf("sdd %s (%s-%s-%s)\n\n", "1.59",
 					HOST_CPU, HOST_VENDOR, HOST_OS);
-		printf("Copyright (C) 1984-2008 Jörg Schilling\n");
+		printf("Copyright (C) 1984-2009 Jörg Schilling\n");
 		printf("This is free software; see the source for copying ");
 		printf("conditions.  There is NO\n");
 		printf("warranty; not even for MERCHANTABILITY or ");
@@ -1541,6 +1560,8 @@ getopts(ac, av)
 		flags |= EBCDIC;
 	if (ibmflg)
 		flags |= IBM;
+	if (md5flg)
+		flags |= MD5SUM;
 	if (nullin && nullout) {
 		errmsgno(EX_BAD, "Can't inull and onull.\n");
 		usage(EX_BAD);
@@ -1589,6 +1610,7 @@ Options:\n\
 	-debug		  Print debugging messages\n\
 	-fill		  Fill each record with zeros up to obs\n\
 	-swab,-block,-unblock,-lcase,-ucase,-ascii,-ebcdic,-ibm\n\
+	-md5		  Compute the md5 sum for the data\n\
 ");
 	error("\t-help\t\t  print this online help\n");
 	error("\t-version\t  print version number\n");
@@ -1702,4 +1724,51 @@ ifsize()
 	}
 #endif
 	return (filesize(fin));
+}
+
+
+MD5_CTX	MD5_context;
+
+LOCAL void
+mdinit()
+{
+	MD5Init(&MD5_context);
+}
+
+LOCAL void
+mdupdate(a, s)
+	void	*a;
+	size_t	s;
+{
+	MD5Update(&MD5_context, a, s);
+}
+
+LOCAL void
+mdfinal()
+{
+	MD5_CTX	ctx;
+	UInt8_t result[MD5_DIGEST_LENGTH];
+
+	ctx = MD5_context;
+
+	MD5Final(result, &ctx);
+
+	errmsgno(EX_BAD,
+	"md5 %02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x\n",
+			result[0],
+			result[1],
+			result[2],
+			result[3],
+			result[4],
+			result[5],
+			result[6],
+			result[7],
+			result[8],
+			result[9],
+			result[10],
+			result[11],
+			result[12],
+			result[13],
+			result[14],
+			result[15]);
 }

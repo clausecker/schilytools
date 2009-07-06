@@ -1,8 +1,8 @@
-/* @(#)isoinfo.c	1.71 09/05/30 joerg */
+/* @(#)isoinfo.c	1.73 09/07/05 joerg */
 #include <schily/mconfig.h>
 #ifndef	lint
 static	const char sccsid[] =
-	"@(#)isoinfo.c	1.71 09/05/30 joerg";
+	"@(#)isoinfo.c	1.73 09/07/05 joerg";
 #endif
 /*
  * File isodump.c - dump iso9660 directory information.
@@ -39,16 +39,15 @@ static	const char sccsid[] =
  *	isoinfo -f -i imagefile
  */
 
-#include <schily/mconfig.h>
 #include <schily/stdlib.h>
 #include <schily/unistd.h>
 #include <schily/string.h>
 
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/utypes.h>
 #include <schily/standard.h>
 #include <signal.h>
-#include <sys/stat.h>
+#include <schily/stat.h>
 #include <schily/stat.h>
 #include <schily/fcntl.h>
 #include <schily/schily.h>
@@ -60,7 +59,7 @@ static	const char sccsid[] =
 
 #include <schily/siconv.h>
 
-#if	defined(__CYGWIN32__) || defined(__EMX__) || defined(__DJGPP__)
+#if	defined(__CYGWIN32__) || defined(__EMX__) || defined(__DJGPP__) || defined(__MINGW32__)
 #include <io.h>					/* for setmode() prototype */
 #endif
 
@@ -683,7 +682,7 @@ extract_file(idr)
 	int		extent, len, tlen;
 	unsigned char	buff[20480];
 
-#if	defined(__CYGWIN32__) || defined(__CYGWIN__) || defined(__EMX__) || defined(__DJGPP__)
+#if	defined(__CYGWIN32__) || defined(__CYGWIN__) || defined(__EMX__) || defined(__DJGPP__) || defined(__MINGW32__)
 	setmode(fileno(stdout), O_BINARY);
 #endif
 
@@ -948,7 +947,7 @@ main(argc, argv)
 	}
 
 	if (charset == NULL) {
-#if	(defined(__CYGWIN32__) || defined(__CYGWIN__) || defined(__DJGPP__)) && !defined(IS_CYGWIN_1)
+#if	(defined(__CYGWIN32__) || defined(__CYGWIN__) || defined(__DJGPP__) || defined(__MINGW32__)) && !defined(IS_CYGWIN_1)
 		unls = sic_open("cp437");
 #else
 		unls = sic_open("default");

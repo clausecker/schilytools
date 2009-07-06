@@ -1,13 +1,13 @@
-/* @(#)cdr_drv.c	1.46 08/12/22 Copyright 1997-2008 J. Schilling */
+/* @(#)cdr_drv.c	1.47 09/07/05 Copyright 1997-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)cdr_drv.c	1.46 08/12/22 Copyright 1997-2008 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)cdr_drv.c	1.47 09/07/05 Copyright 1997-2009 J. Schilling";
 #endif
 /*
  *	CDR device abstraction layer
  *
- *	Copyright (c) 1997-2008 J. Schilling
+ *	Copyright (c) 1997-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

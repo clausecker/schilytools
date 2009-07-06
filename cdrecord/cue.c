@@ -1,13 +1,13 @@
-/* @(#)cue.c	1.36 08/12/29 Copyright 2001-2008 J. Schilling */
+/* @(#)cue.c	1.37 09/07/05 Copyright 2001-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)cue.c	1.36 08/12/29 Copyright 2001-2008 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)cue.c	1.37 09/07/05 Copyright 2001-2009 J. Schilling";
 #endif
 /*
  *	Cue sheet parser
  *
- *	Copyright (c) 2001-2008 J. Schilling
+ *	Copyright (c) 2001-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

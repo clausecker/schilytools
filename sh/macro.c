@@ -33,11 +33,11 @@
 /*
  * This file contains modifications Copyright 2008-2009 J. Schilling
  *
- * @(#)macro.c	1.8 09/06/11 2008-2009 J. Schilling
+ * @(#)macro.c	1.9 09/06/14 2008-2009 J. Schilling
  */
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)macro.c	1.8 09/06/11 2008-2009 J. Schilling";
+	"@(#)macro.c	1.9 09/06/14 2008-2009 J. Schilling";
 #endif
 
 /*
@@ -323,7 +323,7 @@ retry:
 
 				if (c != '+')
 				{
-					mbtowc(NULL, NULL, 0);
+					(void) mbtowc(NULL, NULL, 0);
 					for (;;)
 					{
 						if (*v == 0 && quote) {
@@ -338,7 +338,7 @@ retry:
 								wchar_t 	wc;
 								int 	clength;
 								if ((clength = mbtowc(&wc, (char *)v, MB_LEN_MAX)) <= 0) {
-									mbtowc(NULL, NULL, 0);
+									(void) mbtowc(NULL, NULL, 0);
 									clength = 1;
 								}
 								if(quote || (c == '\\' && trimflag)) {
@@ -392,13 +392,13 @@ retry:
 					 * do assignment 
 					 */
 						usestak();
-						mbtowc(NULL, NULL, 0);
+						(void) mbtowc(NULL, NULL, 0);
 						while ((c = *argp) != '\0') {
 							wchar_t 	wc;
 							int 		len;
 
 							if ((len = mbtowc(&wc, (char *)argp, MB_LEN_MAX)) <= 0) {
-								mbtowc(NULL, NULL, 0);
+								(void) mbtowc(NULL, NULL, 0);
 								len = 1;
 							}
 							if(c == '\\' && trimflag) {
@@ -408,7 +408,7 @@ retry:
 									continue;
 								}
 								if ((len = mbtowc(&wc, (char *)argp, MB_LEN_MAX)) <= 0) {
-									mbtowc(NULL, NULL, 0);
+									(void) mbtowc(NULL, NULL, 0);
 									len = 1;
 								}
 							}

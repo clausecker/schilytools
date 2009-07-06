@@ -1,8 +1,8 @@
-/* @(#)scsi_cmds.c	1.45 09/05/22 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling */
+/* @(#)scsi_cmds.c	1.46 09/07/05 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling */
 #include "config.h"
 #ifndef lint
-static	const char sccsid[] =
-"@(#)scsi_cmds.c	1.45 09/05/22 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling";
+static	UConst char sccsid[] =
+"@(#)scsi_cmds.c	1.46 09/07/05 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling";
 #endif
 /*
  * file for all SCSI commands

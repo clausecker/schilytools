@@ -1,8 +1,8 @@
-/* @(#)cdrecord.c	1.380 09/03/24 Copyright 1995-2009 J. Schilling */
+/* @(#)cdrecord.c	1.383 09/07/05 Copyright 1995-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)cdrecord.c	1.380 09/03/24 Copyright 1995-2009 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)cdrecord.c	1.383 09/07/05 Copyright 1995-2009 J. Schilling";
 #endif
 /*
  *	Record data on a CD/CVD-Recorder
@@ -22,7 +22,7 @@ static	const char sccsid[] =
  */
 
 #include <schily/mconfig.h>
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/standard.h>
 #include <schily/stdlib.h>
 #include <schily/fcntl.h>
@@ -39,7 +39,7 @@ static	const char sccsid[] =
 #include <schily/string.h>
 #include <schily/utypes.h>
 #include <schily/intcvt.h>
-#include <signal.h>
+#include <schily/signal.h>
 #include <schily/schily.h>
 #include <schily/getargs.h>
 #ifdef	HAVE_PRIV_H
@@ -1701,9 +1701,15 @@ gracewait(dp, didgracep)
 	printf("Last chance to quit, starting %s write in %d seconds.",
 		(dp->cdr_cmdflags & F_DUMMY)?"dummy":"real", gracetime);
 	flush();
+#ifdef	SIGINT
 	signal(SIGINT, intr);
+#endif
+#ifdef	SIGHUP
 	signal(SIGHUP, intr);
+#endif
+#ifdef	SIGTERM
 	signal(SIGTERM, intr);
+#endif
 	/*
 	 * Note to people who like to change this: I am geting patch requests
 	 * for an option to reduce the grace_time two times a year. I am not
@@ -1716,9 +1722,11 @@ gracewait(dp, didgracep)
 		sleep(1);
 		if (didintr) {
 			printf("\n");
+#ifdef	SIGINT
 			excdr(SIGINT, &exargs);
 			signal(SIGINT, SIG_DFL);
 			kill(getpid(), SIGINT);
+#endif
 			/*
 			 * In case kill() did not work ;-)
 			 */
@@ -1732,12 +1740,24 @@ gracewait(dp, didgracep)
 grace_done:
 	printf(" Operation starts.");
 	flush();
+#ifdef	SIGINT
 	signal(SIGINT, SIG_DFL);
+#endif
+#ifdef	SIGHUP
 	signal(SIGHUP, SIG_DFL);
+#endif
+#ifdef	SIGTERM
 	signal(SIGTERM, SIG_DFL);
+#endif
+#ifdef	SIGINT
 	signal(SIGINT, intfifo);
+#endif
+#ifdef	SIGHUP
 	signal(SIGHUP, intfifo);
+#endif
+#ifdef	SIGTERM
 	signal(SIGTERM, intfifo);
+#endif
 	printf("\n");
 
 	if (didgracep)
@@ -1964,8 +1984,9 @@ intr(sig)
 {
 	sig = 0;	/* Fake usage for gcc */
 
+#ifdef SIGINT
 	signal(SIGINT, intr);
-
+#endif
 	didintr++;
 }
 
@@ -1973,7 +1994,9 @@ LOCAL void
 catchsig(sig)
 	int	sig;
 {
+#ifdef	HAVE_SIGNAL
 	signal(sig, catchsig);
+#endif
 }
 
 LOCAL int
@@ -4331,7 +4354,7 @@ load_media(scgp, dp, doexit)
 	scgp->silent--;
 	err = geterrno();
 	if (code < 0 && (err == EPERM || err == EACCES)) {
-		linuxcheck();	/* For version 1.380 of cdrecord.c */
+		linuxcheck();	/* For version 1.383 of cdrecord.c */
 		scg_openerr("");
 	}
 
@@ -4805,7 +4828,7 @@ rt_raisepri(pri)
 
 #else	/* _POSIX_PRIORITY_SCHEDULING */
 
-#ifdef	__CYGWIN32__
+#if defined(__CYGWIN32__) || defined(__MINGW32__)
 /*
  * Win32 specific priority settings.
  */
@@ -4862,7 +4885,7 @@ rt_raisepri(pri)
 	return (-1);
 }
 
-#endif	/* __CYGWIN32__ */
+#endif	/* __CYGWIN32__ || __MINGW32__ */
 
 #endif	/* _POSIX_PRIORITY_SCHEDULING */
 
@@ -5207,7 +5230,7 @@ set_wrmode(dp, wmode, tflags)
 }
 
 /*
- * I am sorry that even for version 1.380 of cdrecord.c, I am forced to do
+ * I am sorry that even for version 1.383 of cdrecord.c, I am forced to do
  * things like this, but defective versions of cdrecord cause a lot of
  * work load to me.
  *
@@ -5224,7 +5247,7 @@ set_wrmode(dp, wmode, tflags)
 #endif
 
 LOCAL void
-linuxcheck()				/* For version 1.380 of cdrecord.c */
+linuxcheck()				/* For version 1.383 of cdrecord.c */
 {
 #if	defined(linux) || defined(__linux) || defined(__linux__)
 #ifdef	HAVE_UNAME

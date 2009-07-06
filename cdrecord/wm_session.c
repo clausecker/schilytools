@@ -1,14 +1,14 @@
-/* @(#)wm_session.c	1.6 08/12/22 Copyright 1995, 1997 J. Schilling */
+/* @(#)wm_session.c	1.7 09/07/05 Copyright 1995, 1997, 2001-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)wm_session.c	1.6 08/12/22 Copyright 1995, 1997 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)wm_session.c	1.7 09/07/05 Copyright 1995, 1997, 2001-2009 J. Schilling";
 #endif
 /*
  *	CDR write method abtraction layer
  *	session at once / disk at once writing intercace routines
  *
- *	Copyright (c) 1995, 1997 J. Schilling
+ *	Copyright (c) 1995, 1997, 2001-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

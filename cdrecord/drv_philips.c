@@ -1,14 +1,14 @@
-/* @(#)drv_philips.c	1.79 09/04/10 Copyright 1997-2009 J. Schilling */
+/* @(#)drv_philips.c	1.80 09/07/05 Copyright 1997-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)drv_philips.c	1.79 09/04/10 Copyright 1997-2009 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)drv_philips.c	1.80 09/07/05 Copyright 1997-2009 J. Schilling";
 #endif
 /*
  *	CDR device implementation for
  *	Philips/Yamaha/Ricoh/Plasmon
  *
- *	Copyright (c) 1997-2008ß J. Schilling
+ *	Copyright (c) 1997-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

@@ -1,11 +1,18 @@
-/* @(#)cap.c	1.23 09/04/15 Copyright 2000-2009 J. Schilling */
+/* @(#)cap.c	1.33 09/07/05 Copyright 2000-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)cap.c	1.23 09/04/15 Copyright 2000-2009 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)cap.c	1.33 09/07/05 Copyright 2000-2009 J. Schilling";
 #endif
 /*
  *	termcap		a TERMCAP compiler
+ *
+ *	The termcap database is an ASCII representation of the data
+ *	so people may believe that there is no need for a compiler.
+ *	Syntax checks and unification however are a property of compilers.
+ *	We check for correct data types, output all entries in a unique
+ *	order and recode all strings with the same escape notation.
+ *	This is needed in to compare two entries and it makes life easier.
  *
  *	Copyright (c) 2000-2009 J. Schilling
  */
@@ -43,15 +50,23 @@ typedef struct {
 	int	tc_flags;
 } clist;
 
+/*
+ * Definitions for tc_flags
+ */
 #define	C_BOOL		0x01	/* This is a boolean entry */
 #define	C_INT		0x02	/* This is a numeric entry */
 #define	C_STRING	0x04	/* This is a string entry */
 #define	C_TC		0x08	/* This is a tc= string entry */
 #define	C_PAD		0x10	/* This rentry requires padding */
 #define	C_PADN		0x20	/* Padding based on affect count */
-#define	C_OLD		0x40	/* This is an old termcap only entry */
-#define	C_CURIOUS	0x80	/* This is a curious termcap entry */
+#define	C_PARM		0x40	/* Padding based on affect count */
+#define	C_OLD		0x100	/* This is an old termcap only entry */
+#define	C_CURIOUS	0x200	/* This is a curious termcap entry */
 
+/*
+ * The list of capabilities for the termcap command.
+ * This contains the Termcap Name, the Terminfo Name and a Comment.
+ */
 clist caplist[] = {
 #include "caplist.c"
 };
@@ -59,6 +74,16 @@ clist caplist[] = {
 int	ncaps = sizeof (caplist) / sizeof (caplist[0]);
 
 LOCAL	BOOL	dooctal = FALSE;
+LOCAL	BOOL	docaret = FALSE;
+LOCAL	BOOL	gnugoto = FALSE;
+
+#ifdef	HAVE_SETVBUF
+LOCAL	char	obuf[4096];
+#else
+#ifdef	HAVE_SETVBUF
+LOCAL	char	obuf[BUFSIZ];
+#endif
+#endif
 
 LOCAL	void	init_clist	__PR((void));
 LOCAL	char *	tskip		__PR((char *ep));
@@ -69,19 +94,26 @@ EXPORT	int	main		__PR((int ac, char **av));
 LOCAL	void	checkentries	__PR((char *tname, int *slenp));
 LOCAL	void	checkbad	__PR((char *tname, char *unknown, char *disabled));
 LOCAL	void	outcap		__PR((char *tname, char *unknown, char *disabled, BOOL obsolete_last));
+LOCAL	char *	checkgoto	__PR((char *tname, char *ent, char *cm, int col, int line));
+LOCAL	char *	checkquote	__PR((char *tname, char *s));
 LOCAL	char *	quote		__PR((char *s));
 LOCAL	char *	requote		__PR((char *s));
 LOCAL	void	compile_ent	__PR((char *tname));
 LOCAL	void	read_names	__PR((char *fname));
 
-
+/*
+ * Initialize the tc_flags struct member in "caplist".
+ */
 LOCAL void
 init_clist()
 {
 	int	i;
 	int	flags = 0;
+	int	flags2;
 
 	for (i = 0; i < ncaps; i++) {
+		flags2 = 0;
+
 		/*
 		 * Process meta entries.
 		 */
@@ -114,16 +146,35 @@ init_clist()
 			flags &= ~C_OLD;
 		}
 		if (streql(caplist[i].tc_var, "OBSOLETE")) {
-
+			/*
+			 * OBSOLETE is used together with BOOL, INT or STRING
+			 */
 			flags |= C_OLD;
 		}
 		if (streql(caplist[i].tc_var, "CURIOUS")) {
-
+			/*
+			 * CURIOUS is a special tag for the tc= entry.
+			 */
 			flags &= ~C_OLD;
 			flags |= C_CURIOUS;
 		}
+		if (caplist[i].tc_comment[0] != '\0') {
+			char	*p = caplist[i].tc_comment;
 
-		caplist[i].tc_flags = flags;
+			p += strlen(p) - 1;
+
+			if (*p == ')' && strchr("NP*", p[-1]) != NULL) {
+				while (strchr("NP*", *--p) != NULL) {
+					if (*p == 'N')
+						flags2 |= C_PARM;
+					if (*p == 'P')
+						flags2 |= C_PAD;
+					if (*p == '*')
+						flags2 |= C_PADN;
+				}
+			}
+		}
+		caplist[i].tc_flags = flags | flags2;
 	}
 }
 
@@ -131,6 +182,8 @@ init_clist()
 /*
  * Skip past next ':'.
  * If the are two consecutive ':', the returned pointer may point to ':'.
+ *
+ * A copy from the local function libxtermcap:tgetent.c:tskip()
  */
 LOCAL char *
 tskip(ep)
@@ -143,6 +196,9 @@ tskip(ep)
 	return (ep);
 }
 
+/*
+ * A copy from the local function libxtermcap:tgetent.c:tfind()
+ */
 LOCAL char *
 tfind(ep, ent)
 	register	char	*ep;
@@ -168,10 +224,16 @@ tfind(ep, ent)
 	return ((char *) NULL);
 }
 
+/*
+ * Dump the all entries from "caplist".
+ * Skip all special entries.
+ */
 LOCAL void
 dumplist()
 {
 	int	i;
+	int	j;
+	char	parms[8];
 
 	for (i = 0; i < ncaps; i++) {
 		int l;
@@ -185,8 +247,19 @@ dumplist()
 		    caplist[i].tc_name[1] == '.')
 			continue;
 
+		parms[0] = '\0';
+		j = 0;
+		if (caplist[i].tc_flags & C_PARM)
+			parms[j++] = 'N';
+		if (caplist[i].tc_flags & C_PAD)
+			parms[j++] = 'P';
+		if (caplist[i].tc_flags & C_PADN)
+			parms[j++] = '*';
+		parms[j] = '\0';
+
+
 		l = strlen(caplist[i].tc_var);
-		printf("{\"%s\",	\"%s\",%s\"%s\"},%s	/*%c%c %s */\n",
+		printf("{\"%s\",	\"%s\",%s\"%s\"},%s	/*%c%c%-3s %s */\n",
 			caplist[i].tc_name,
 			caplist[i].tc_iname,
 			strlen(caplist[i].tc_iname) >= 5 ? "\t":"\t\t",
@@ -198,6 +271,7 @@ dumplist()
 			(caplist[i].tc_flags & C_INT) ? 'I':
 			(caplist[i].tc_flags & C_STRING) ? 'S': '?',
 			(caplist[i].tc_flags & C_OLD) ? 'O': ' ',
+			parms,
 			caplist[i].tc_comment);
 	}
 }
@@ -213,7 +287,10 @@ usage(ex)
 	error("-dumplist	dump internal capability list\n");
 	error("-inorder	print caps in order, else print outdated caps last\n");
 	error("-dooctal	prefer '\\003' before '^C' when creating escaped strings\n");
+	error("-docaret	prefer '^M' before '\\r' when creating escaped strings\n");
 	error("if=name		input file for termcap compiling\n");
+	error("-gnugoto	allow GNU tgoto() format extensions '%%C' and '%%m'.\n");
+	error("-tc		follow tc= entries and generate cumulative output\n");
 	error("-v		increase verbosity level\n");
 	exit(ex);
 }
@@ -230,34 +307,44 @@ main(ac, av)
 	char	disabled[TBUF];	/* Buffer fuer :..xx: Entries */
 	char	*tname = getenv("TERM");
 	char	*tcap = getenv("TERMCAP");
-	int	slen;
-int	fullen;
-int	strippedlen;
+	int	slen = 0;
+	int	fullen;
+	int	strippedlen;
 	BOOL	help = FALSE;
 	BOOL	prvers = FALSE;
 	BOOL	dodump = FALSE;
 	BOOL	inorder = FALSE;
 	int	verbose = 0;
+	BOOL	do_tc = FALSE;
 	char	*infile = NULL;
 
 	save_args(ac, av);
 
+#ifdef	HAVE_SETVBUF
+	setvbuf(stdout, obuf, _IOFBF, sizeof (obuf));
+#else
+#ifdef	HAVE_SETVBUF
+	setbuf(stdout, obuf);
+#endif
+#endif
 	init_clist();
 
 	cac = ac;
 	cav = av;
 	cac--, cav++;
-	if (getallargs(&cac, &cav, "help,version,dumplist,inorder,v+,if*,dooctal",
+	if (getallargs(&cac, &cav, "help,version,dumplist,inorder,v+,tc,if*,dooctal,docaret,gnugoto",
 				&help, &prvers,
 				&dodump, &inorder, &verbose,
-				&infile, &dooctal) < 0) {
+				&do_tc,
+				&infile, &dooctal, &docaret,
+				&gnugoto) < 0) {
 		errmsgno(EX_BAD, "Bad option '%s'\n", cav[0]);
 		usage(EX_BAD);
 	}
 	if (help)
 		usage(0);
 	if (prvers) {
-		printf("termcap %s (%s-%s-%s)\n\n", "1.23", HOST_CPU, HOST_VENDOR, HOST_OS);
+		printf("termcap %s (%s-%s-%s)\n\n", "1.33", HOST_CPU, HOST_VENDOR, HOST_OS);
 		printf("Copyright (C) 2000-2009 Jörg Schilling\n");
 		printf("This is free software; see the source for copying conditions.  There is NO\n");
 		printf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
@@ -269,29 +356,6 @@ int	strippedlen;
 		exit(0);
 	}
 
-/*#define	__test__*/
-#ifdef	__test__
-	{ int i;
-	for (i = 0; i < ncaps; i++) {
-		/*
-		 * Skip meta entries.
-		 */
-		if (caplist[i].tc_name[0] == '-' &&
-		    caplist[i].tc_name[1] == '-')
-			continue;
-		if (caplist[i].tc_name[0] == '.' &&
-		    caplist[i].tc_name[1] == '.')
-			continue;
-		printf("%s,	\"%s\"	\"%s\"\n",
-			caplist[i].tc_var,
-			caplist[i].tc_iname,
-			caplist[i].tc_name
-/*			caplist[i].tc_comment,*/
-		);
-	}
-	exit(0);
-	}
-#endif
 
 	if (tcap && *tcap != '/')
 		*tcap = '\0';
@@ -310,7 +374,7 @@ int	strippedlen;
 	/*
 	 * Check existence & unstripped Termcap len
 	 */
-	tcsetflags(TCF_NO_TC|TCF_NO_SIZE|TCF_NO_STRIP);
+	tcsetflags((do_tc?0:TCF_NO_TC)|TCF_NO_SIZE|TCF_NO_STRIP);
 	if (tgetent(NULL, tname) != 1)
 		comerr("no term '%s' found\n", tname);
 	tbuf = tcgetbuf();
@@ -319,14 +383,15 @@ int	strippedlen;
 	/*
 	 * Get Stripped len
 	 */
-	tcsetflags(TCF_NO_TC|TCF_NO_SIZE);
+	tcsetflags((do_tc?0:TCF_NO_TC)|TCF_NO_SIZE);
 	tgetent(NULL, tname);
 	tbuf = tcgetbuf();
 	strippedlen = strlen(tbuf);
 
-	checkentries(tname, &slen);
+	if (verbose > 0)
+		checkentries(tname, &slen);
 
-	if (verbose) {
+	if (verbose > 1) {
 		printf("tbuf: '%s'\n", tbuf);
 		printf("full tbuf len: %d stripped tbuf len: %d\n", fullen, strippedlen);
 		printf("string length: %d\n", slen);
@@ -338,6 +403,9 @@ int	strippedlen;
 	return (0);
 }
 
+/*
+ * Check entries for correct type and print them
+ */
 LOCAL void
 checkentries(tname, slenp)
 	char	*tname;
@@ -384,7 +452,7 @@ checkentries(tname, slenp)
 
 		if (*pe == '@') {
 			printf("'%s' -> %s", caplist[i].tc_name,
-				 ((caplist[i].tc_flags & C_STRING) != 0)? "null @" :
+				((caplist[i].tc_flags & C_STRING) != 0)? "null @" :
 				(((caplist[i].tc_flags & C_INT) != 0)? "-1 @" :
 				(((caplist[i].tc_flags & C_BOOL) != 0)? "FALSE @" :
 				"unknown-@")));
@@ -415,7 +483,7 @@ checkentries(tname, slenp)
 			printf("		%s", caplist[i].tc_comment);
 
 			if ((caplist[i].tc_flags & C_STRING) == 0)
-				printf(" TYPE missmatch");
+				printf(" -> WARNING: TYPE missmatch");
 			printf("\n");
 			if (i == ncaps -1)
 				i--;
@@ -426,7 +494,7 @@ checkentries(tname, slenp)
 			printf("'%s' -> %d", caplist[i].tc_name, b);
 			printf("		%s", caplist[i].tc_comment);
 			if ((caplist[i].tc_flags & C_INT) == 0)
-				printf(" TYPE missmatch");
+				printf(" -> WARNING: TYPE missmatch");
 			printf("\n");
 			continue;
 		}
@@ -435,7 +503,7 @@ checkentries(tname, slenp)
 		printf("'%s' -> %s", caplist[i].tc_name, b?"TRUE":"FALSE");
 		printf("		%s", caplist[i].tc_comment);
 		if ((caplist[i].tc_flags & C_BOOL) == 0)
-			printf(" TYPE missmatch");
+			printf(" -> WARNING: TYPE missmatch");
 		printf("\n");
 		continue;
 
@@ -444,6 +512,9 @@ checkentries(tname, slenp)
 		*slenp = sbp - stbuf;
 }
 
+/*
+ * Check for bad termcap entries
+ */
 LOCAL void
 checkbad(tname, unknown, disabled)
 	char	*tname;
@@ -466,6 +537,7 @@ checkbad(tname, unknown, disabled)
 	while (*p) {
 		while (*p == ':')
 			p = tskip(p);
+		checkquote(tname, p);
 		if (p[2] != ':' && p[2] != '@' && p[2] != '#' && p[2] != '=') {
 			p2 = tskip(p);
 			if (p[0] == ' ' || p[0] == '\t') {
@@ -546,6 +618,15 @@ checkbad(tname, unknown, disabled)
 				up += strlen(up);
 				*up++ = ':';
 			}
+		} else if ((caplist[i].tc_flags & (C_STRING|C_PARM)) == (C_STRING|C_PARM)) {
+
+			if (p[2] == '=') {
+				char	buf[TBUF];
+				char	*bp = buf;
+				char	*val = tdecode(&p[3], &bp);
+
+				checkgoto(tname, ent, val, 0, 0);
+			}
 		}
 		p = tskip(p);
 	}
@@ -566,7 +647,7 @@ outcap(tname, unknown, disabled, obsolete_last)
 	char	*tname;
 	char	*unknown;
 	char	*disabled;
-	BOOL	obsolete_last;
+	BOOL	obsolete_last;	/* obsolete_last == !inorder */
 {
 	char	stbuf[TBUF];	/* String buffer zum zaehlen */
 	char	line[TBUF];	/* Fuer Einzelausgabe */
@@ -606,6 +687,8 @@ BOOL	didobsolete = FALSE;
 
 		/*
 		 * If j < 0, sort order is order from caplist array
+		 * and thus obsolete entries appear past non obsolete entries.
+		 *
 		 * If j > 0, sort order is BOOL -> INT -> STRING
 		 */
 		if (j > 0 && (caplist[i].tc_flags & (C_BOOL|C_INT|C_STRING)) != itotype[j])
@@ -734,6 +817,302 @@ printit:
 		printf("%s", p);
 	}
 	printf("\n");
+	flush();
+}
+
+
+#define	OBUF_SIZE	80
+
+/*
+ * Perform string preparation/conversion for cursor addressing.
+ * The string cm contains a format string.
+ *
+ * A copy from the local function libxtermcap:tgoto.c:tgoto()
+ */
+LOCAL char *
+checkgoto(tname, ent, cm, col, line)
+	char	*tname;
+	char	*ent;
+	char	*cm;
+	int	col;
+	int	line;
+{
+	static	char	outbuf[OBUF_SIZE];	/* Where the output goes to */
+		char	xbuf[10];		/* for %. corrections	    */
+	register char	*op = outbuf;
+	register char	*p = cm;
+	register int	c;
+	register int	val = line;
+		int	usecol = 0;
+		BOOL	out_tty = isatty(STDOUT_FILENO);
+		BOOL	hadbad = FALSE;
+
+	if (p == 0) {
+badfmt:
+		/*
+		 * Be compatible to 'vi' in case of bad format.
+		 */
+		return ("OOPS");
+	}
+	xbuf[0] = 0;
+	while ((c = *p++) != '\0') {
+		if ((op + 5) >= &outbuf[OBUF_SIZE])
+			goto overflow;
+
+		if (c != '%') {
+			*op++ = c;
+			continue;
+		}
+		switch (c = *p++) {
+
+		case '%':		/* %% -> %			*/
+					/* This is from BSD		*/
+			*op++ = c;
+			continue;
+
+		case 'd':		/* output as printf("%d"...	*/
+					/* This is from BSD (use val)	*/
+			if (val < 10)
+				goto onedigit;
+			if (val < 100)
+				goto twodigits;
+			/*FALLTHROUGH*/
+
+		case '3':		/* output as printf("%03d"...	*/
+					/* This is from BSD (use val)	*/
+			if (val >= 1000) {
+				*op++ = '0' + (val / 1000);
+				val %= 1000;
+			}
+			*op++ = '0' + (val / 100);
+			val %= 100;
+			/*FALLTHROUGH*/
+
+		case '2':		/* output as printf("%02d"...	*/
+					/* This is from BSD (use val)	*/
+		twodigits:
+			*op++ = '0' + val / 10;
+		onedigit:
+			*op++ = '0' + val % 10;
+		nextparam:
+			usecol ^= 1;
+		setval:
+			val = usecol ? col : line;
+			continue;
+
+		case 'C': 		/* For c-100: print quotient of	*/
+					/* value by 96, if nonzero,	*/
+					/* then do like %+.		*/
+					/* This is from GNU (use val)	*/
+			if (!gnugoto)
+				goto badchar;
+			if (val >= 96) {
+				*op++ = val / 96;
+				val %= 96;
+			}
+			/*FALLTHROUGH*/
+
+		case '+':		/* %+x like %c but add x before	*/
+					/* This is from BSD (use val)	*/
+			val += *p++;
+			/*FALLTHROUGH*/
+
+		case '.':		/* output as printf("%c" but...	*/
+					/* This is from BSD (use val)	*/
+			if (usecol || UP)  {
+				/*
+				 * We assume that backspace works and we don't
+				 * need to test for BC too.
+				 *
+				 * If you did not call stty tabs while termcap
+				 * is used you will get other problems, so we
+				 * exclude tab from the execptions.
+				 */
+				while (val == 0 || val == '\004' ||
+					/* val == '\t' || */ val == '\n') {
+
+					strcat(xbuf,
+						usecol ? (BC?BC:"\b") : UP);
+					val++;
+				}
+			}
+			*op++ = val;
+			goto nextparam;
+
+		case '>':		/* %>xy if val > x add y	*/
+					/* This is from BSD (chng state)*/
+
+			if (val > *p++)
+				val += *p++;
+			else
+				p++;
+			continue;
+
+		case 'B':		/* convert to BCD char coding	*/
+					/* This is from BSD (chng state)*/
+
+			val += 6 * (val / 10);
+			continue;
+
+		case 'D':		/* weird Delta Data conversion	*/
+					/* This is from BSD (chng state)*/
+
+			val -= 2 * (val % 16);
+			continue;
+
+		case 'i':		/* increment row/col by one	*/
+					/* This is from BSD (chng state)*/
+			col++;
+			line++;
+			val++;
+			continue;
+
+		case 'm':		/* xor both parameters by 0177	*/
+					/* This is from GNU (chng state)*/
+			if (!gnugoto)
+				goto badchar;
+			col ^= 0177;
+			line ^= 0177;
+			goto setval;
+
+		case 'n':		/* xor both parameters by 0140	*/
+					/* This is from BSD (chng state)*/
+			col ^= 0140;
+			line ^= 0140;
+			goto setval;
+
+		case 'r':		/* reverse row/col		*/
+					/* This is from BSD (chng state)*/
+			usecol = 1;
+			goto setval;
+
+		default:
+		badchar:
+			printf("# BAD(%s) Bad format '%%%c' in '%s=%s'\n", tname, c, ent, quote(cm));
+			if (!out_tty)
+			error("BAD(%s) Bad format '%%%c' in '%s=%s'\n", tname, c, ent, quote(cm));
+			hadbad = TRUE;
+/*			goto badfmt;*/
+		}
+	}
+	/*
+	 * append to output if there is space...
+	 */
+	if ((op + strlen(xbuf)) >= &outbuf[OBUF_SIZE]) {
+overflow:
+		printf("# BAD(%s) Buffer overflow in '%s=%s'\n", tname, ent, quote(cm));
+		if (!out_tty)
+		error("BAD(%s) Buffer overflow in '%s=%s'\n", tname, ent, quote(cm));
+		return ("OVERFLOW");
+	}
+	if (hadbad)
+		goto badfmt;
+
+	for (p = xbuf; *p; )
+		*op++ = *p++;
+	*op = '\0';
+	return (outbuf);
+}
+
+LOCAL	char	_quotetab[]	= "E^^\\\\n\nr\rt\tb\bf\f";
+
+#define	isoctal(c)	((c) >= '0' && (c) <= '7')
+
+LOCAL char *
+checkquote(tname, s)
+	char	*tname;
+	char	*s;
+{
+static			char	out[TBUF];
+			char	nm[16];
+			int	i;
+	register	Uchar	c;
+	register	Uchar	*ep = (Uchar *)s;
+	register	Uchar	*bp;
+	register	Uchar	*tp;
+			char	*p;
+			BOOL	out_tty = isatty(STDOUT_FILENO);
+
+	out[0] = '\0';
+	if (s[0] == ' ' || s[0] == '\t')
+		return (out);
+
+	ep = (Uchar *)strchr(s, '=');
+	if (ep == NULL)
+		return (out);
+	i = ep - (Uchar *)s;
+	ep++;
+	p = tskip(s);
+	if (ep > (Uchar *)p)
+		return (out);
+
+	strlcpy(nm, s, sizeof (nm));
+	if (i < sizeof (nm))
+		nm[i] = '\0';
+
+	bp = (Uchar *)out;
+
+	for (; (c = *ep++) && c != ':'; *bp++ = c) {
+		if (c == '^') {
+			c = *ep++ & 0x1F;
+		} else if (c == '\\') {
+			c = *ep++;
+			if (isoctal(c)) {
+				for (c -= '0', i = 3; --i > 0 && isoctal(*ep); ) {
+					c <<= 3;
+					c |= *ep++ - '0';
+				}
+				if (c == 0) {
+					char	*p2 = tskip(s);
+					int	len;
+					int	pos = (char *)ep - s;
+
+					len = p2 - s - (*p2?1:0);
+					pos -= 4-i;
+					printf("# NOTICE(%s). NULL char in entry ('%s') at abs position %d in '%.*s'\n",
+							tname, nm, pos, len, s);
+					if (!out_tty)
+					error("NOTICE(%s). NULL char in entry ('%s') at abs position %d in '%.*s'\n",
+							tname, nm, pos, len, s);
+				}
+#ifdef	__checkoctal__
+				if (i > 0) {
+					char	*p2 = tskip(s);
+					int	len;
+					int	pos = (char *)ep - s;
+
+					len = p2 - s - (*p2?1:0);
+					printf("# NOTICE(%s) Nonoctal char '%c' in entry ('%s') at position %d (abs %d) in '%.*s'\n",
+							tname, *ep, nm, 4-i, pos, len, s);
+					if (!out_tty)
+					error("NOTICE(%s) Nonoctal char '%c' in entry ('%s') at position %d (abs %d) in '%.*s'\n",
+							tname, *ep, nm, 4-i, pos, len, s);
+				}
+#endif
+			} else {
+				for (tp = (Uchar *)_quotetab; *tp; tp++) {
+					if (*tp++ == c) {
+						c = *tp;
+						break;
+					}
+				}
+				if (*tp == '\0') {
+					char	*p2 = tskip(s);
+					int	len;
+					int	pos = (char *)&ep[-1] - s;
+
+					len = p2 - s - (*p2?1:0);
+					printf("# NOTICE(%s) Badly quoted char '\\%c' in ('%s') at abs position %d in '%.*s'\n",
+							tname, c, nm, pos, len, s);
+					if (!out_tty)
+					error("NOTICE(%s) Badly quoted char '\\%c' in ('%s') at abs position %d in '%.*s'\n",
+							tname, c, nm, pos, len, s);
+				}
+			}
+		}
+	}
+	*bp++ = '\0';
+	return (out);
 }
 
 LOCAL char *
@@ -750,27 +1129,27 @@ static	char	out[TBUF];
 		if (c == 033) {		/* ESC -> \E */
 			*p2++ = '\\';
 			*p2++ = 'E';
-		} else if (c == '\r') {	/* CR -> \r */
-			*p2++ = '\\';
-			*p2++ = 'r';
-		} else if (c == '\n') {	/* NL -> \n */
-			*p2++ = '\\';
-			*p2++ = 'n';
-		} else if (c == '\t') {	/* TAB -> \t */
-			*p2++ = '\\';
-			*p2++ = 't';
-		} else if (c == '\b') {	/* BS -> \b */
-			*p2++ = '\\';
-			*p2++ = 'b';
-		} else if (c == '\v') {	/* VT -> \v */
-			*p2++ = '\\';
-			*p2++ = 'v';
 		} else if (c == '\\') {	/* \ -> \\ */
 			*p2++ = '\\';
 			*p2++ = '\\';
 		} else if (c == '^') {	/* ^ -> \^ */
+				*p2++ = '\\';
+				*p2++ = '^';
+		} else if (!docaret && c == '\r') {	/* CR -> \r */
 			*p2++ = '\\';
-			*p2++ = '^';
+			*p2++ = 'r';
+		} else if (!docaret && c == '\n') {	/* NL -> \n */
+			*p2++ = '\\';
+			*p2++ = 'n';
+		} else if (!docaret && c == '\t') {	/* TAB -> \t */
+			*p2++ = '\\';
+			*p2++ = 't';
+		} else if (!docaret && c == '\b') {	/* BS -> \b */
+			*p2++ = '\\';
+			*p2++ = 'b';
+		} else if (!docaret && c == '\f') {	/* FF -> \f */
+			*p2++ = '\\';
+			*p2++ = 'f';
 		} else if (!dooctal &&
 			    c <= 0x1F) {	/* Control C -> ^C */
 			*p2++ = '^';

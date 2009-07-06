@@ -1,7 +1,7 @@
-/* @(#)scsi-beos.c	1.28 09/04/19 Copyright 1998-2009 J. Schilling */
+/* @(#)scsi-beos.c	1.29 09/06/30 Copyright 1998-2009 J. Schilling */
 #ifndef lint
 static	char __sccsid[] =
-	"@(#)scsi-beos.c	1.28 09/04/19 Copyright 1998-2009 J. Schilling";
+	"@(#)scsi-beos.c	1.29 09/06/30 Copyright 1998-2009 J. Schilling";
 #endif
 /*
  *	Interface for the BeOS user-land raw SCSI implementation.
@@ -47,7 +47,7 @@ static	char __sccsid[] =
  *	Choose your name instead of "schily" and make clear that the version
  *	string is related to a modified source.
  */
-LOCAL	char	_scg_trans_version[] = "scsi-beos.c-1.28";	/* The version for this transport*/
+LOCAL	char	_scg_trans_version[] = "scsi-beos.c-1.29";	/* The version for this transport*/
 
 /*
  * There are also defines for:
@@ -78,7 +78,7 @@ typedef unsigned short			ushort;
 #endif	/* _SYS_TYPES_H */
 
 #include <BeBuild.h>
-#include <sys/types.h>
+#include <schily/types.h>
 #include <Errors.h>
 
 
@@ -132,11 +132,11 @@ typedef uint32					perform_code;
 #endif	/* ! B_BEOS_VERSION_5 */
 
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <unistd.h>
-#include <sys/stat.h>
+#include <schily/stdlib.h>
+#include <schily/stdio.h>
+#include <schily/string.h>
+#include <schily/unistd.h>
+#include <schily/stat.h>
 #include <scg/scgio.h>
 
 /* this is really really dumb (tm) */

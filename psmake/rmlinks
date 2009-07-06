@@ -1,5 +1,5 @@
 #!/bin/sh
-# @(#)rmlinks	1.8 09/02/04 Copyright 1999 J. Schilling
+# %Z%%M%	%I% %E% Copyright 1999 J. Schilling
 
 rm -f archconf.c
 rm -f make.c
@@ -17,6 +17,7 @@ rm -f include/schily/getargs.h
 rm -f include/schily/getcwd.h
 rm -f include/schily/hostname.h
 rm -f include/schily/libport.h
+rm -f include/schily/limits.h
 rm -f include/schily/maxpath.h
 rm -f include/schily/mconfig.h
 rm -f include/schily/xconfig.h
@@ -79,3 +80,4 @@ rm -f fileseek.c
 rm -f filewrite.c
 rm -f flag.c
 rm -f niread.c
+rm -f niwrite.c

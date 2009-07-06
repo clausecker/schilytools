@@ -1,8 +1,8 @@
-/* @(#)isodebug.c	1.24 09/01/10 Copyright 1996-2009 J. Schilling */
+/* @(#)isodebug.c	1.25 09/06/30 Copyright 1996-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)isodebug.c	1.24 09/01/10 Copyright 1996-2009 J. Schilling";
+	"@(#)isodebug.c	1.25 09/06/30 Copyright 1996-2009 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1996-2009 J. Schilling
@@ -22,9 +22,8 @@ static	const char sccsid[] =
  * Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#include <schily/mconfig.h>
-#include <stdio.h>
-#include <sys/types.h>
+#include <schily/stdio.h>
+#include <schily/types.h>
 #include <schily/stat.h>
 #include <schily/stdlib.h>
 #include <schily/unistd.h>

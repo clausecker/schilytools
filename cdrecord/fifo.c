@@ -1,8 +1,8 @@
-/* @(#)fifo.c	1.56 09/04/19 Copyright 1989,1997-2009 J. Schilling */
+/* @(#)fifo.c	1.57 09/07/05 Copyright 1989,1997-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)fifo.c	1.56 09/04/19 Copyright 1989,1997-2009 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)fifo.c	1.57 09/07/05 Copyright 1989,1997-2009 J. Schilling";
 #endif
 /*
  *	A "fifo" that uses shared memory between two processes

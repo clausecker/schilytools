@@ -1,8 +1,8 @@
-/* @(#)sndconfig.c	1.30 09/01/04 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling */
+/* @(#)sndconfig.c	1.32 09/07/05 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling */
 #include "config.h"
 #ifndef lint
-static	const char sccsid[] =
-"@(#)sndconfig.c	1.30 09/01/04 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling";
+static	UConst char sccsid[] =
+"@(#)sndconfig.c	1.32 09/07/05 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling";
 #endif
 
 /*
@@ -61,7 +61,7 @@ static	const char sccsid[] =
 #include "sndconfig.h"
 
 #ifdef	ECHO_TO_SOUNDCARD
-#   if defined(__CYGWIN32__)
+#   if defined(__CYGWIN32__) || defined(__MINGW32__)
 #	include <windows.h>
 #	include "mmsystem.h"
 #   endif
@@ -98,7 +98,7 @@ set_snd_device(devicename)
 	return (0);
 }
 
-#   if	defined __CYGWIN32__
+#   if	defined(__CYGWIN32__) || defined(__MINGW32__)
 static HWAVEOUT	DeviceID;
 #	define	WAVEHDRS	3
 static WAVEHDR	wavehdr[WAVEHDRS];
@@ -310,7 +310,7 @@ init_soundcard(rate, bits)
 #   endif
 		}
 #  else /* SUN audio */
-#   if defined(__CYGWIN32__)
+#   if defined(__CYGWIN32__) || defined(__MINGW32__)
 		/*
 		 * Windows sound info
 		 */
@@ -554,7 +554,7 @@ init_soundcard(rate, bits)
 int
 open_snd_device()
 {
-#if	defined ECHO_TO_SOUNDCARD && !defined __CYGWIN32__ && !defined __EMX__
+#if	defined ECHO_TO_SOUNDCARD && !defined __CYGWIN32__ && !defined __MINGW32__ && !defined __EMX__
 #if	defined(F_GETFL) && defined(F_SETFL) && defined(O_NONBLOCK)
 	int	fl;
 #endif
@@ -577,7 +577,7 @@ open_snd_device()
 
 	return (global.soundcard_fd < 0);
 
-#else	/* defined ECHO_TO_SOUNDCARD && !defined __CYGWIN32__ && !defined __EMX__ */
+#else	/* defined ECHO_TO_SOUNDCARD && !defined __CYGWIN32__ && !defined __MINGW32__ && !defined __EMX__ */
 	return (0);
 #endif
 }
@@ -589,7 +589,7 @@ close_snd_device()
 	return (0);
 #else
 
-# if	defined __CYGWIN32__
+# if	defined(__CYGWIN32__) || defined(__MINGW32__)
 	waveOutReset(0);
 	return (waveOutClose(DeviceID));
 # else /* !Cygwin32 */
@@ -623,7 +623,7 @@ write_snd_device(buffer, todo)
 {
 	int	result = 0;
 #ifdef	ECHO_TO_SOUNDCARD
-#if	defined __CYGWIN32__
+#if	defined(__CYGWIN32__) || defined(__MINGW32__)
 	MMRESULT	mmres;
 
 	wavehdr[lastwav].dwBufferLength = todo;

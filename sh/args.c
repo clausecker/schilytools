@@ -35,11 +35,11 @@
 /*
  * This file contains modifications Copyright 2008-2009 J. Schilling
  *
- * @(#)args.c	1.11 09/06/11 2008-2009 J. Schilling
+ * @(#)args.c	1.13 09/06/14 2008-2009 J. Schilling
  */
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)args.c	1.11 09/06/11 2008-2009 J. Schilling";
+	"@(#)args.c	1.13 09/06/14 2008-2009 J. Schilling";
 #endif
 
 /*
@@ -148,11 +148,11 @@ options(argc, argv)
 		 * Step along 'flagchar[]' looking for matches.
 		 * 'sicrp' are not legal with 'set' command.
 		 */
-		mbtowc(NULL, NULL, 0);
+		(void) mbtowc(NULL, NULL, 0);
 		cp++;
 		while (*cp) {
 			if ((len = mbtowc(&wc, (char *)cp, MB_LEN_MAX)) <= 0) {
-				mbtowc(NULL, NULL, 0);
+				(void) mbtowc(NULL, NULL, 0);
 				len = 1;
 				wc = (unsigned char)*cp;
 				failed(argv[1],badopt);
@@ -168,6 +168,7 @@ options(argc, argv)
 					failed(argv[1], badopt);
 				else
 				{
+							/* LINTED */
 					flags |= flagval[flagc-flagchar];
 					if (flags & errflg)
 						eflag = errflg;
@@ -192,13 +193,13 @@ options(argc, argv)
 	}
 	else if (argc > 1 && *argp[1] == '+')	/* unset flags x, k, t, n, v, e, u */
 	{
-		mbtowc(NULL, NULL, 0);
+		(void) mbtowc(NULL, NULL, 0);
 		cp = argp[1];
 		cp++;
 		while (*cp)
 		{
 			if ((len = mbtowc(&wc, (char *)cp, MB_LEN_MAX)) <= 0) {
-				mbtowc(NULL, NULL, 0);
+				(void) mbtowc(NULL, NULL, 0);
 				cp++;
 				continue;
 			}
@@ -210,6 +211,7 @@ options(argc, argv)
 			 * step through flags
 			 */
 			if (!any(wc, (unsigned char *)"sicrp") && wc == *flagc) {
+							/* LINTED */
 				flags &= ~(flagval[flagc-flagchar]);
 				if (wc == 'e')
 					eflag = 0;
@@ -228,6 +230,7 @@ options(argc, argv)
 		flagc = flagchar;
 		while (*flagc)
 		{
+						/* LINTED */
 			if (flags & flagval[flagc-flagchar])
 				*flagp++ = *flagc;
 			flagc++;
@@ -373,11 +376,13 @@ clearup()
 	globdolc = 0;
 	globdolh = 0;
 	while ((argfor = clean_args(argfor)) != NULL)
+		/* LINTED */
 		;
 	/*
 	 * clean up io files
 	 */
 	while (pop())
+		/* LINTED */
 		;
 
 	/*
@@ -394,6 +399,7 @@ clearup()
 	 * clean up tmp files
 	*/
 	while (poptemp())
+		/* LINTED */
 		;
 }
 
@@ -428,7 +434,9 @@ struct dolnod *olddolh;
 int funcntp;
 {
 	if(argfor != olddolh)
-		while ((argfor = clean_args(argfor)) != olddolh && argfor);
+		while ((argfor = clean_args(argfor)) != olddolh && argfor)
+			/* LINTED */
+			;
 	if(!argfor)
 		return;
 	freedolh();

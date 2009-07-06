@@ -1,8 +1,8 @@
-/* @(#)drv_7501.c	1.26 09/05/21 Copyright 2003-2009 J. Schilling */
+/* @(#)drv_7501.c	1.27 09/07/05 Copyright 2003-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)drv_7501.c	1.26 09/05/21 Copyright 2003-2009 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)drv_7501.c	1.27 09/07/05 Copyright 2003-2009 J. Schilling";
 #endif
 /*
  *	Device driver for the Masushita CW-7501

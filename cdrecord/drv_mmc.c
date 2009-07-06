@@ -1,8 +1,8 @@
-/* @(#)drv_mmc.c	1.193 09/01/10 Copyright 1997-2009 J. Schilling */
+/* @(#)drv_mmc.c	1.194 09/07/05 Copyright 1997-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)drv_mmc.c	1.193 09/01/10 Copyright 1997-2009 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)drv_mmc.c	1.194 09/07/05 Copyright 1997-2009 J. Schilling";
 #endif
 /*
  *	CDR device implementation for

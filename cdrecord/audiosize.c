@@ -1,11 +1,11 @@
-/* @(#)audiosize.c	1.22 08/12/22 Copyright 1998-2008 J. Schilling */
+/* @(#)audiosize.c	1.23 09/07/05 Copyright 1998-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)audiosize.c	1.22 08/12/22 Copyright 1998-2008 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)audiosize.c	1.23 09/07/05 Copyright 1998-2009 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1998-2008 J. Schilling
+ *	Copyright (c) 1998-2009 J. Schilling
  *
  *	First .vaw implementation made by Dave Platt <dplatt@iq.nc.com>
  *	Current .wav implementation with additional help from Heiko Eiﬂfeld.

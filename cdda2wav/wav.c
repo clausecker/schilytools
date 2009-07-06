@@ -1,13 +1,13 @@
-/* @(#)wav.c	1.9 08/12/22 Copyright 1998,1999 Heiko Eissfeldt, Copyright 2006-2008 J. Schilling */
+/* @(#)wav.c	1.10 09/07/05 Copyright 1998,1999 Heiko Eissfeldt, Copyright 2006-2009 J. Schilling */
 #include "config.h"
 #ifndef lint
-static	const char sccsid[] =
-"@(#)wav.c	1.9 08/12/22 Copyright 1998,1999 Heiko Eissfeldt, Copyright 2006-2008 J. Schilling";
+static	UConst char sccsid[] =
+"@(#)wav.c	1.10 09/07/05 Copyright 1998,1999 Heiko Eissfeldt, Copyright 2006-2009 J. Schilling";
 
 #endif
 /*
  * Copyright (C) by Heiko Eissfeldt
- * Copyright (c) 2006-2008 J. Schilling
+ * Copyright (c) 2006-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

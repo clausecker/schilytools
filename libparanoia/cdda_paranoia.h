@@ -1,4 +1,4 @@
-/* @(#)cdda_paranoia.h	1.25 08/09/18 J. Schilling from cdparanoia-III-alpha9.8 */
+/* @(#)cdda_paranoia.h	1.26 09/07/01 J. Schilling from cdparanoia-III-alpha9.8 */
 /*
  * CopyPolicy: GNU Lesser General Public License v2.1 applies
  * Copyright (C) 1997-2001,2008 by Monty (xiphmont@mit.edu)
@@ -84,6 +84,9 @@ extern void	paranoia_free		__PR((cdrom_paranoia * p));
 extern void	paranoia_overlapset	__PR((cdrom_paranoia * p, long overlap));
 
 #ifndef	HAVE_MEMMOVE
+#ifndef _SCHILY_SCHILY_H
+#include <schily/schily.h>
+#endif
 #define	memmove(dst, src, size)		movebytes((src), (dst), (size))
 #endif
 

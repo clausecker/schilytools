@@ -1,4 +1,4 @@
-/* @(#)xconfig.h.in	1.166 09/06/07 Copyright 1998-2009 J. Schilling */
+/* @(#)xconfig.h.in	1.170 09/07/02 Copyright 1998-2009 J. Schilling */
 /*
  *	Dynamic autoconf C-include code.
  *
@@ -413,6 +413,11 @@
 #undef HAVE_WCSLEN		/* wcslen() is present in libc */
 #undef HAVE_WCSCHR		/* wcschr() is present in libc */
 #undef HAVE_WCSRCHR		/* wcsrchr() is present in libc */
+#undef HAVE_WCWIDTH		/* wcwidth() is present in libc */
+#undef HAVE_WCSWIDTH		/* wcswidth() is present in libc */
+#undef HAVE_WCTYPE		/* wctype() is present in libc */
+#undef HAVE_ISWCTYPE		/* iswctype() is present in libc */
+
 
 #undef HAVE_CHFLAGS		/* chflags() is present in libc */
 #undef HAVE_FCHFLAGS		/* fchflags() is present in libc */
@@ -423,6 +428,9 @@
 #undef HAVE_SETLOCALE		/* setlocale() is present in libc */
 #undef HAVE_LOCALECONV		/* localeconv() is present in libc */
 #undef HAVE_NL_LANGINFO		/* nl_langinfo() is present in libc */
+
+#undef HAVE_SETBUF		/* setbuf() is present in libc */
+#undef HAVE_SETVBUF		/* setvbuf() is present in libc */
 
 #undef HAVE_FNMATCH		/* fnmatch() is present in libc */
 
@@ -475,6 +483,7 @@
 #undef HAVE_NANOSLEEP		/* nanosleep() is present in librt */
 
 #undef HAVE_DIRFD		/* dirfd() is present in libc */
+#undef HAVE_ISWPRINT		/* iswprint() is present in libc */
 
 /*
  * Functions that we defined in 1982 but where POSIX.1-2008 defined
@@ -658,6 +667,7 @@
 #undef SIZEOF_UNSIGNED_CHAR_P
 #undef SIZEOF_FLOAT
 #undef SIZEOF_DOUBLE
+#undef SIZEOF_LONG_DOUBLE
 
 #undef SIZEOF_SIZE_T
 #undef SIZEOF_SSIZE_T
@@ -669,6 +679,7 @@
 
 #undef HAVE_LONGLONG		/* Compiler defines long long type */
 #undef HAVE___INT64		/* Compiler defines __int64 type */
+#undef HAVE_LONGDOUBLE		/* Compiler defines long double type */
 #undef CHAR_IS_UNSIGNED		/* Compiler defines char to be unsigned */
 
 #undef const			/* Define to empty if const doesn't work */

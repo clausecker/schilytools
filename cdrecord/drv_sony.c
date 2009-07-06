@@ -1,8 +1,8 @@
-/* @(#)drv_sony.c	1.84 09/01/04 Copyright 1997-2009 J. Schilling */
+/* @(#)drv_sony.c	1.85 09/07/05 Copyright 1997-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)drv_sony.c	1.84 09/01/04 Copyright 1997-2009 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)drv_sony.c	1.85 09/07/05 Copyright 1997-2009 J. Schilling";
 #endif
 /*
  *	CDR device implementation for

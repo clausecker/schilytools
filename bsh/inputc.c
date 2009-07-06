@@ -1,8 +1,8 @@
-/* @(#)inputc.c	1.55 09/06/10 Copyright 1982, 1984-2009 J. Schilling */
+/* @(#)inputc.c	1.57 09/06/29 Copyright 1982, 1984-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)inputc.c	1.55 09/06/10 Copyright 1982, 1984-2009 J. Schilling";
+	"@(#)inputc.c	1.57 09/06/29 Copyright 1982, 1984-2009 J. Schilling";
 #endif
 /*
  *	inputc.c
@@ -287,11 +287,11 @@ towcs(wbuf, bsize, s, len)
 	if (len < 0)
 		len = strlen(s);
 
-	mbtowc(NULL, NULL, 0);
+	(void) mbtowc(NULL, NULL, 0);
 	for (sp = s, i = len, chars = 0; i > 0 && *sp != '\0'; ) {
 		mlen = mbtowc(&c, sp, i);
 		if (mlen <= 0) {
-			mbtowc(NULL, NULL, 0);
+			(void) mbtowc(NULL, NULL, 0);
 			mlen = 1;
 		}
 		i -= mlen;
@@ -307,11 +307,11 @@ towcs(wbuf, bsize, s, len)
 			return (wbuf);
 	}
 
-	mbtowc(NULL, NULL, 0);
+	(void) mbtowc(NULL, NULL, 0);
 	for (wp = wbuf, sp = s, i = len; i > 0 && *sp != '\0'; wp++) {
 		mlen = mbtowc(&c, sp, i);
 		if (mlen <= 0) {
-			mbtowc(NULL, NULL, 0);
+			(void) mbtowc(NULL, NULL, 0);
 			mlen = 1;
 			c = *sp & 0xFF;
 		}
@@ -522,7 +522,7 @@ _nextwc()
 	char		*cp;
 	int		ic;
 
-	mbtowc(NULL, NULL, 0);
+	(void) mbtowc(NULL, NULL, 0);
 	for (i = 1, cp = cstr; i <= cur_max; i++) {
 		ic = nextc();
 		if (ic == EOF)
@@ -531,7 +531,7 @@ _nextwc()
 		mlen = mbtowc(&c, cstr, i);
 		if (mlen >= 0)
 			break;
-		mbtowc(NULL, NULL, 0);
+		(void) mbtowc(NULL, NULL, 0);
 	}
 #ifdef	_NEXTWC_DEBUG
 	error("C %d %x\n", c, c);
@@ -692,8 +692,13 @@ LOCAL int
 chlen(c)
 	register int	c;
 {
-	if (iswprint(c) /*|| c == '\n'*/)
+	if (iswprint(c) /*|| c == '\n'*/) {
+#ifdef	HAVE_WCWIDTH
+		return  (wcwidth(c));
+#else
 		return (1);
+#endif
+	}
 	if (c > 0xFF)
 		return (11);
 	if (c & 0x80)

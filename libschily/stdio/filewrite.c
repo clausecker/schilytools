@@ -1,6 +1,6 @@
-/* @(#)filewrite.c	1.15 07/04/03 Copyright 1986, 1995-2007 J. Schilling */
+/* @(#)filewrite.c	1.17 09/06/30 Copyright 1986, 1995-2009 J. Schilling */
 /*
- *	Copyright (c) 1986, 1995-2007 J. Schilling
+ *	Copyright (c) 1986, 1995-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -20,20 +20,20 @@ static	char	_writeerr[]	= "file_write_err";
 
 #ifdef	HAVE_USG_STDIO
 
-EXPORT int
+EXPORT ssize_t
 filewrite(f, vbuf, len)
 	register FILE	*f;
 	void	*vbuf;
-	int	len;
+	size_t	len;
 {
 	register int	n;
-	int	cnt;
-	char		*buf = vbuf;
+	ssize_t	cnt;
+	char	*buf = vbuf;
 
 	down2(f, _IOWRT, _IORW);
 
 	if (f->_flag & _IONBF) {
-		cnt = write(fileno(f), buf, len);
+		cnt = _niwrite(fileno(f), buf, len);
 		if (cnt < 0) {
 			f->_flag |= _IOERR;
 			if (!(my_flag(f) & _JS_IONORAISE))
@@ -67,19 +67,19 @@ filewrite(f, vbuf, len)
 
 #else
 
-EXPORT int
+EXPORT ssize_t
 filewrite(f, vbuf, len)
 	register FILE	*f;
 	void	*vbuf;
-	int	len;
+	size_t	len;
 {
-	int	cnt;
-	char		*buf = vbuf;
+	ssize_t	cnt;
+	char	*buf = vbuf;
 
 	down2(f, _IOWRT, _IORW);
 
 	if (my_flag(f) & _JS_IOUNBUF)
-		return (write(fileno(f), buf, len));
+		return (_niwrite(fileno(f), buf, len));
 	cnt = fwrite(buf, 1, len, f);
 
 	if (!ferror(f))

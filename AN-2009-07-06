@@ -1,0 +1,70 @@
+New features with AN-2009-06-99:
+
+-	schily/ccomdefs.h now include a new definition UConst for
+	"used const" in GCC-3.2 or newer.
+
+-	schily/wchar.h now includes a better mbtowc(wp, cp, len)
+	surrogate that is able to deal with the calls to mbtowc(NULL, NULL, 0)
+	that are needed with Mac OS X.
+
+-	schily/wctype.h now deals with the fact that HP-UX implements iswprint()
+	but no wctype.h
+
+-	New autoconf test for iswprint()
+
+-	New autoconf test for wcwidth()
+
+-	The calls to mbtowc(NULL, NULL, 0) now work again on systems that do not
+	support Multi-Byte characters.
+
+-	The command line editor from bsh (also used by the Burne Shell) now calls
+	wcwidth() and thus is able to correctly deal with japanese characters that
+	are wider than one column.
+
+-	bsh now reports is the initial environment contains an unsupported LOCALE
+
+-	"readcd" no longer dumps core if the C2Scan function is selected from the
+	interactive interface.
+
+-	New option -md5 for sdd
+
+-	Fixed a typo bug in the mkisofs man page that caused the two synopsis lines
+	to appear as one line when using GNU troff.
+
+-	libschily/stdio/*.c fixed to use size_t as length parameter for
+	read*()/write*() operations.
+
+-	libxtermcap now correctly checks for octal numbers is \ooo escapes
+	instead of permitting decimal numbers.
+
+-	termcap(1) now includes better checks for the typical defects in today's
+	termcap database files. Termcap database files that have been built from
+	terminfo databases often contain illegal \: escapes instead of \072 and
+	usually have various illegal formats in parameterized strings.
+
+	-	A new function checkquote() checks for the varous illegal quoting
+		strings.
+
+	-	A new function checkgoto() checks for correct parameter formats
+		in strings for parameterized functions.
+
+	-	The interncal data base now includes a new flag that indicates
+		whether an entry is intended to hold a parametrized string.
+
+	-	New options: -gnugoto, -docaret, -tc
+
+-	Several modifiactions to make compiling on MINGW better
+
+-	Cdrtools version bumped to 2.01.01a61
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.isdn.cs.tu-berlin.de, js@cs.tu-berlin.de
+	joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

@@ -1,4 +1,4 @@
-/* @(#)wctype.h	1.5 09/06/07 Copyright 2009 J. Schilling */
+/* @(#)wctype.h	1.7 09/06/29 Copyright 2009 J. Schilling */
 /*
  *	Abstraction from wctype.h
  *
@@ -29,22 +29,28 @@
 
 #ifdef	HAVE_WCTYPE_H
 /*
- * Include wytype.h if wchars have been enabled in schily/wchar.h
+ * Include wctype.h if wchars have been enabled in schily/wchar.h
  */
 #ifdef	USE_WCHAR
 #ifndef	_INCL_WCTYPE_H
 #include <wctype.h>
 #define	_INCL_WCTYPE_H
 #endif
-
 #ifndef	USE_WCTYPE
 #define	USE_WCTYPE
 #endif
 #endif	/* USE_WCHAR */
-#else	/* HAVE_WCTYPE_H */
+#endif	/* HAVE_WCTYPE_H */
 
+#if	defined(HAVE_ISWPRINT) && defined(USE_WCHAR)
+#ifndef	USE_WCTYPE
 #undef	USE_WCTYPE
-#endif	/* !HAVE_WCTYPE_H */
+#endif
+#endif
+
+#if	!defined(HAVE_WCTYPE_H) && !defined(HAVE_ISWPRINT)
+#undef	USE_WCTYPE
+#endif
 
 #ifdef	NO_WCTYPE
 #undef	USE_WCTYPE

@@ -1,8 +1,8 @@
-/* @(#)nixwrite.c	1.6 06/09/26 Copyright 1986, 2001-2003 J. Schilling */
+/* @(#)nixwrite.c	1.7 09/06/30 Copyright 1986, 2001-2009 J. Schilling */
 /*
  *	Non interruptable extended write
  *
- *	Copyright (c) 1986, 2001-2003 J. Schilling
+ *	Copyright (c) 1986, 2001-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -18,17 +18,21 @@
 
 #include "schilyio.h"
 
-EXPORT int
+EXPORT ssize_t
 _nixwrite(f, buf, count)
 	int	f;
 	void	*buf;
-	int	count;
+	size_t	count;
 {
-	register char *p = (char *)buf;
-	register int ret;
-	register int total = 0;
+	register char	*p = (char *)buf;
+	register ssize_t ret;
+	register int	total = 0;
 		int	oerrno = geterrno();
 
+	if ((ret = (ssize_t)count) < 0) {
+		seterrno(EINVAL);
+		return ((ssize_t)-1);
+	}
 	while (count > 0) {
 		while ((ret = write(f, p, count)) < 0) {
 			if (geterrno() == EINTR) {

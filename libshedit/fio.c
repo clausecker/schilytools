@@ -1,14 +1,14 @@
-/* @(#)fio.c	1.4 08/12/22 Copyright 2006-2008 J. Schilling */
+/* @(#)fio.c	1.5 09/06/30 Copyright 2006-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)fio.c	1.4 08/12/22 Copyright 2006-2008 J. Schilling";
+	"@(#)fio.c	1.5 09/06/30 Copyright 2006-2009 J. Schilling";
 #endif
 /*
  *	Replacement for some libschily/stdio/ *.c to allow
  *	FILE * -> int *
  *
- *	Copyright (c) 2006-2008 J. Schilling
+ *	Copyright (c) 2006-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -60,11 +60,11 @@ putc(c, f)
 	return (ch);
 }
 
-int
+ssize_t
 filewrite(f, buf, n)
 	FILE	*f;
 	void	*buf;
-	int	n;
+	size_t	n;
 {
 	return (write(*f, buf, n));
 }

@@ -1,6 +1,6 @@
-/* @(#)jsprintf.c	1.16 06/09/13 Copyright 1985, 1995-2003 J. Schilling */
+/* @(#)jsprintf.c	1.17 09/06/30 Copyright 1985, 1995-2009 J. Schilling */
 /*
- *	Copyright (c) 1985, 1995-2003 J. Schilling
+ *	Copyright (c) 1985, 1995-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -15,7 +15,8 @@
  */
 
 #include <schily/mconfig.h>
-#include <stdio.h>
+#include <schily/stdio.h>
+#include <schily/types.h>
 #include <schily/varargs.h>
 #include <schily/standard.h>
 #include <schily/schily.h>

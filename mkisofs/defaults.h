@@ -1,4 +1,4 @@
-/* @(#)defaults.h	1.23 09/04/07 joerg */
+/* @(#)defaults.h	1.24 09/07/05 joerg */
 /*
  * Header file defaults.h - assorted default values for character strings in
  * the volume descriptor.
@@ -58,6 +58,10 @@
 #if	defined(_WIN) || defined(__CYGWIN32__) || defined(__CYGWIN__)
 #define	SYSTEM_ID_DEFAULT	"Win32"
 #endif /* _WIN */
+
+#if	!defined(SYSTEM_ID_DEFAULT) && defined(__MINGW32__)
+#define	SYSTEM_ID_DEFAULT	"Win32/MinGW"
+#endif /* __MINGW32__ */
 
 #ifdef __EMX__
 #define	SYSTEM_ID_DEFAULT	"OS/2"

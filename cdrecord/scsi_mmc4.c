@@ -1,14 +1,14 @@
-/* @(#)scsi_mmc4.c	1.4 08/12/22 Copyright 2002-2008 J. Schilling */
+/* @(#)scsi_mmc4.c	1.5 09/07/05 Copyright 2002-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)scsi_mmc4.c	1.4 08/12/22 Copyright 2002-2008 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)scsi_mmc4.c	1.5 09/07/05 Copyright 2002-2000 J. Schilling";
 #endif
 /*
  *	SCSI command functions for cdrecord
  *	covering MMC-4 level and above
  *
- *	Copyright (c) 2002-2008 J. Schilling
+ *	Copyright (c) 2002-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

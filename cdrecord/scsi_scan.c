@@ -1,15 +1,15 @@
-/* @(#)scsi_scan.c	1.32 08/12/29 Copyright 1997-2008 J. Schilling */
+/* @(#)scsi_scan.c	1.33 09/07/05 Copyright 1997-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)scsi_scan.c	1.32 08/12/29 Copyright 1997-2008 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)scsi_scan.c	1.33 09/07/05 Copyright 1997-2009 J. Schilling";
 #endif
 /*
  *	Scan SCSI Bus.
  *	Stolen from sformat. Need a more general form to
  *	re-use it in sformat too.
  *
- *	Copyright (c) 1997-2008 J. Schilling
+ *	Copyright (c) 1997-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

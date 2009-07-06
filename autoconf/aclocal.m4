@@ -1,4 +1,4 @@
-dnl @(#)aclocal.m4	1.75 09/05/31 Copyright 1998-2009 J. Schilling
+dnl @(#)aclocal.m4	1.76 09/06/29 Copyright 1998-2009 J. Schilling
 
 dnl Set VARIABLE to VALUE in C-string form, verbatim, or 1.
 dnl AC_DEFINE_STRING(VARIABLE [, VALUE])
@@ -1271,6 +1271,17 @@ AC_DEFUN([AC_TYPE___INT64],
                 [ac_cv_type___int64=no])])
 if test $ac_cv_type___int64 = yes; then
   AC_DEFINE(HAVE___INT64)
+fi])
+
+dnl Checks for type long double
+dnl Defines HAVE_LONGDOUBLE on success.
+AC_DEFUN([AC_TYPE_LONGDOUBLE],
+[AC_CACHE_CHECK([for type long double], ac_cv_type_longdouble,
+                [AC_TRY_COMPILE([], [long double ld;],
+                [ac_cv_type_longdouble=yes],
+                [ac_cv_type_longdouble=no])])
+if test $ac_cv_type_longdouble = yes; then
+  AC_DEFINE(HAVE_LONGDOUBLE)
 fi])
 
 dnl Checks if C-compiler orders bitfields htol

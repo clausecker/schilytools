@@ -1,4 +1,4 @@
-/* @(#)schily.h	1.81 09/06/07 Copyright 1985-2009 J. Schilling */
+/* @(#)schily.h	1.84 09/06/30 Copyright 1985-2009 J. Schilling */
 /*
  *	Definitions for libschily
  *
@@ -187,14 +187,16 @@ extern	void	file_raise __PR((FILE *, int));
 extern	int	fileclose __PR((FILE *));
 extern	FILE	*fileluopen __PR((int, const char *));
 extern	FILE	*fileopen __PR((const char *, const char *));
-#ifdef	_INCL_SYS_TYPES_H
+#ifdef	_SCHILY_TYPES_H
 extern	FILE	*filemopen __PR((const char *, const char *, mode_t));
 #endif
 #ifdef	FOUND_OFF_T
 extern	off_t	filepos __PR((FILE *));
 #endif
-extern	int	fileread __PR((FILE *, void *, int));
-extern	int	ffileread __PR((FILE *, void *, int));
+#ifdef	FOUND_SIZE_T
+extern	ssize_t	fileread __PR((FILE *, void *, size_t));
+extern	ssize_t	ffileread __PR((FILE *, void *, size_t));
+#endif
 extern	FILE	*filereopen __PR((const char *, const char *, FILE *));
 #ifdef	FOUND_OFF_T
 extern	int	fileseek __PR((FILE *, off_t));
@@ -203,8 +205,10 @@ extern	off_t	filesize __PR((FILE *));
 #ifdef	S_IFMT
 extern	int	filestat __PR((FILE *, struct stat *));
 #endif
-extern	int	filewrite __PR((FILE *, void *, int));
-extern	int	ffilewrite __PR((FILE *, void *, int));
+#ifdef	FOUND_SIZE_T
+extern	ssize_t	filewrite __PR((FILE *, void *, size_t));
+extern	ssize_t	ffilewrite __PR((FILE *, void *, size_t));
+#endif
 extern	int	flush __PR((void));
 extern	int	fpipe __PR((FILE **));
 /*extern	int	fprintf __PR((FILE *, const char *, ...)) __printflike__(2, 3);*/
@@ -244,7 +248,7 @@ extern	int	gettnum	__PR((char *arg, time_t *valp));
 #endif
 
 #ifdef	EOF			/* stdio.h has been included */
-#ifdef	_INCL_SYS_TYPES_H
+#ifdef	_SCHILY_TYPES_H
 /*
  * getperm() flags:
  */
@@ -254,14 +258,16 @@ extern	int	gettnum	__PR((char *arg, time_t *valp));
 #define	GP_FPERM	4	/* TRUE if we implement find -perm	  */
 
 extern	int	getperm	__PR((FILE *f, char *perm, char *opname, \
-				mode_t *modep, int smode, int flag)); 
+				mode_t *modep, int smode, int flag));
 #endif
 #endif
 
-extern	int	_niread __PR((int, void *, int));
-extern	int	_niwrite __PR((int, void *, int));
-extern	int	_nixread __PR((int, void *, int));
-extern	int	_nixwrite __PR((int, void *, int));
+#ifdef	FOUND_SIZE_T
+extern	ssize_t	_niread __PR((int, void *, size_t));
+extern	ssize_t	_niwrite __PR((int, void *, size_t));
+extern	ssize_t	_nixread __PR((int, void *, size_t));
+extern	ssize_t	_nixwrite __PR((int, void *, size_t));
+#endif
 extern	int	_openfd __PR((const char *, int));
 extern	int	on_comerr __PR((void (*fun)(int, void *), void *arg));
 /*PRINTFLIKE1*/
@@ -483,7 +489,7 @@ extern	char	*js_fjsavestr	__PR((FILE *f, const char *s, sigjmps_t *jmp));
 #	endif
 #endif
 
-#if !defined(_SCHILY_LIBPORT_H)  && !defined(NO_LIBPORT_H)
+#if !defined(_SCHILY_LIBPORT_H) && !defined(NO_LIBPORT_H)
 #include <schily/libport.h>
 #endif
 #if !defined(_SCHILY_HOSTNAME_H) && defined(USE_HOSTNAME_H)

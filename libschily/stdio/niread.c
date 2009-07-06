@@ -1,8 +1,8 @@
-/* @(#)niread.c	1.13 06/09/26 Copyright 1986, 1996-2003 J. Schilling */
+/* @(#)niread.c	1.14 09/06/30 Copyright 1986, 1996-2009 J. Schilling */
 /*
  *	Non interruptable read
  *
- *	Copyright (c) 1986, 1996-2003 J. Schilling
+ *	Copyright (c) 1986, 1996-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -18,15 +18,19 @@
 
 #include "schilyio.h"
 
-EXPORT int
+EXPORT ssize_t
 _niread(f, buf, count)
 	int	f;
 	void	*buf;
-	int	count;
+	size_t	count;
 {
-	int	ret;
+	ssize_t	ret;
 	int	oerrno = geterrno();
 
+	if ((ret = (ssize_t)count) < 0) {
+		seterrno(EINVAL);
+		return ((ssize_t)-1);
+	}
 	while ((ret = read(f, buf, count)) < 0 && geterrno() == EINTR) {
 		/*
 		 * Set back old 'errno' so we don't change the errno visible

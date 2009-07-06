@@ -1,7 +1,7 @@
-/* @(#)scsi-qnx.c	1.4 06/11/26 Copyright 1998-2003 J. Schilling */
+/* @(#)scsi-qnx.c	1.5 09/06/30 Copyright 1998-2009 J. Schilling */
 #ifndef lint
 static	char __sccsid[] =
-	"@(#)scsi-qnx.c	1.4 06/11/26 Copyright 1998-2003 J. Schilling";
+	"@(#)scsi-qnx.c	1.5 09/06/30 Copyright 1998-2009 J. Schilling";
 #endif
 /*
  *	Interface for QNX (Neutrino generic SCSI implementation).
@@ -14,7 +14,7 @@ static	char __sccsid[] =
  *	Choose your name instead of "schily" and make clear that the version
  *	string is related to a modified source.
  *
- *	Copyright (c) 1998-2003 J. Schilling
+ *	Copyright (c) 1998-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -36,8 +36,8 @@ static	char __sccsid[] =
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#include <sys/mman.h>
-#include <sys/types.h>
+#include <schily/mman.h>
+#include <schily/types.h>
 #include <sys/dcmd_cam.h>
 #include <sys/cam_device.h>
 
@@ -48,7 +48,7 @@ static	char __sccsid[] =
  *	Choose your name instead of "schily" and make clear that the version
  *	string is related to a modified source.
  */
-LOCAL	char	_scg_trans_version[] = "scsi-qnx.c-1.4";	/* The version for this transport*/
+LOCAL	char	_scg_trans_version[] = "scsi-qnx.c-1.5";	/* The version for this transport*/
 
 #define	MAX_SCG		16	/* Max # of SCSI controllers */
 #define	MAX_TGT		16

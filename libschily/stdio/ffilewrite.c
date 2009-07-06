@@ -1,6 +1,6 @@
-/* @(#)ffilewrite.c	1.6 04/08/08 Copyright 1986 J. Schilling */
+/* @(#)ffilewrite.c	1.8 09/06/30 Copyright 1986-2009 J. Schilling */
 /*
- *	Copyright (c) 1986 J. Schilling
+ *	Copyright (c) 1986-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -16,13 +16,25 @@
 
 #include "schilyio.h"
 
-EXPORT int
+EXPORT ssize_t
 ffilewrite(f, buf, len)
 	register FILE	*f;
 	void	*buf;
-	int	len;
+	size_t	len;
 {
-	down2(f, _IORWT, _IORW);
+	register int		fd;
+	register ssize_t	ret;
+		int		oerrno = geterrno();
 
-	return (write(fileno(f), (char *)buf, len));
+	down2(f, _IORWT, _IORW);
+	fd = fileno(f);
+
+	while ((ret = write(fd, buf, len)) < 0 && geterrno() == EINTR) {
+		/*
+		 * Set back old 'errno' so we don't change the errno visible
+		 * to the outside if we did not fail.
+		 */
+		seterrno(oerrno);
+	}
+	return (ret);
 }

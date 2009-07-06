@@ -1,13 +1,13 @@
-/* @(#)tgetent.c	1.29 08/12/22 Copyright 1986-2008 J. Schilling */
+/* @(#)tgetent.c	1.31 09/07/05 Copyright 1986-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)tgetent.c	1.29 08/12/22 Copyright 1986-2008 J. Schilling";
+	"@(#)tgetent.c	1.31 09/07/05 Copyright 1986-2009 J. Schilling";
 #endif
 /*
  *	Access routines for TERMCAP database.
  *
- *	Copyright (c) 1986-2008 J. Schilling
+ *	Copyright (c) 1986-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -77,25 +77,25 @@ LOCAL	BOOL	tbufmalloc = FALSE;
 LOCAL	int	tflags = 0;
 LOCAL	int	loopcount = 0;
 
-EXPORT	int	tgetent		__PR((char* bp, char* name));
+EXPORT	int	tgetent		__PR((char *bp, char *name));
 EXPORT	int	tcsetflags	__PR((int flags));
-EXPORT	char*	tcgetbuf	__PR((void));
+EXPORT	char	*tcgetbuf	__PR((void));
 LOCAL	int	tchktc		__PR((void));
-LOCAL	BOOL	tmatch		__PR((char* name));
-LOCAL	char*	tskip		__PR((char* ep));
-LOCAL	char*	tfind		__PR((char* ep, char* ent));
-EXPORT	int	tgetnum		__PR((char* ent));
-EXPORT	BOOL	tgetflag	__PR((char* ent));
-EXPORT	char*	tgetstr		__PR((char* ent, char** array));
-EXPORT	char*	tdecode		__PR((char* ep, char** array));
+LOCAL	BOOL	tmatch		__PR((char *name));
+LOCAL	char	*tskip		__PR((char *ep));
+LOCAL	char	*tfind		__PR((char *ep, char *ent));
+EXPORT	int	tgetnum		__PR((char *ent));
+EXPORT	BOOL	tgetflag	__PR((char *ent));
+EXPORT	char	*tgetstr	__PR((char *ent, char **array));
+EXPORT	char	*tdecode	__PR((char *ep, char **array));
 #if	defined(TIOCGSIZE) || defined(TIOCGWINSZ)
 LOCAL	void	tgetsize	__PR((void));
-LOCAL	void	tdeldup		__PR((char* ent));
-LOCAL	char*	tinsint		__PR((char* ep, int i));
+LOCAL	void	tdeldup		__PR((char *ent));
+LOCAL	char	*tinsint	__PR((char *ep, int i));
 #endif
 LOCAL	void	tstrip		__PR((void));
-LOCAL	char *	tmalloc		__PR((int size));
-LOCAL	char *	trealloc	__PR((char *p, int size));
+LOCAL	char	*tmalloc	__PR((int size));
+LOCAL	char	*trealloc	__PR((char *p, int size));
 
 EXPORT int
 tgetent(bp, name)
@@ -147,12 +147,12 @@ tgetent(bp, name)
 		 */
 setpath:
 		if ((ep = getenv(_Etermpath)) != NULL) {
-			strncpy(termpath, ep, sizeof(termpath));
+			strncpy(termpath, ep, sizeof (termpath));
 		} else {
 			termpath[0] = '\0';
 			if ((ep = getenv("HOME")) != NULL) {
 				strncpy(termpath, ep,
-					sizeof(termpath)-2-sizeof(_termpath));
+					sizeof (termpath)-2-sizeof (_termpath));
 				strcat(termpath, "/");
 			}
 			strcat(termpath, _termpath);
@@ -183,7 +183,7 @@ setpath:
 							tbuf = NULL;
 							write(STDERR_FILENO,
 							_etoolong,
-							sizeof(_etoolong) - 1);
+							sizeof (_etoolong) - 1);
 						}
 					}
 					if (tbuf)
@@ -202,9 +202,9 @@ setpath:
 		/*
 		 * If TERMCAP starts with a '/' use it as TERMPATH.
 		 */
-		strncpy(termpath, ep, sizeof(termpath));
+		strncpy(termpath, ep, sizeof (termpath));
 	}
-	termpath[sizeof(termpath)-1] = '\0';
+	termpath[sizeof (termpath)-1] = '\0';
 	tp = termpath;
 
 nextfile:
@@ -242,7 +242,7 @@ nextfile:
 	ep = bp;
 	for (;;) {
 		if (--count <= 0) {
-			if ((count = read(tfd, rdbuf, sizeof(rdbuf))) <= 0) {
+			if ((count = read(tfd, rdbuf, sizeof (rdbuf))) <= 0) {
 				close(tfd);
 				goto nextfile;
 			}
@@ -267,7 +267,7 @@ nextfile:
 					goto out;
 				}
 			}
-			write(STDERR_FILENO, _etoolong, sizeof(_etoolong) - 1);
+			write(STDERR_FILENO, _etoolong, sizeof (_etoolong) - 1);
 		} else {
 			*ep++ = c;
 			continue;
@@ -354,32 +354,32 @@ tchktc()
 	ep = tbuf + strlen(tbuf) - 2;
 	while (*--ep != ':') {
 		if (ep < tbuf) {
-			write(STDERR_FILENO, _ebad, sizeof(_ebad) - 1);
+			write(STDERR_FILENO, _ebad, sizeof (_ebad) - 1);
 			return (0);
 		}
 	}
 	ep++;
-	if (ep[0] != 't' ||  ep[1] != 'c' || (tflags & TCF_NO_TC) != 0)
+	if (ep[0] != 't' || ep[1] != 'c' || (tflags & TCF_NO_TC) != 0)
 		goto out;
 
 	ep = tfind(tbuf, _tc);
 	if (ep == NULL || *ep != '=') {
-		write(STDERR_FILENO, _ebad, sizeof(_ebad) - 1);
+		write(STDERR_FILENO, _ebad, sizeof (_ebad) - 1);
 		return (0);
 	}
 	ep -= 2;				/* Correct for propper append*/
-	strncpy(tcbuf, &ep[2], sizeof(tcbuf));
+	strncpy(tcbuf, &ep[2], sizeof (tcbuf));
 	name = tcbuf;
-	name[sizeof(tcbuf)-1] = '\0';
+	name[sizeof (tcbuf)-1] = '\0';
 
 	do {
 		name++;
-		for (np = name; *np ; np++)
+		for (np = name; *np; np++)
 			if (*np == ':')
 				break;
 		*np = '\0';
 		if (++loopcount > MAXLOOP) {
-			write(STDERR_FILENO, _eloop, sizeof(_eloop) - 1);
+			write(STDERR_FILENO, _eloop, sizeof (_eloop) - 1);
 			return (0);
 		}
 		tbufmalloc = FALSE;		/* Do not free buffer now! */
@@ -414,7 +414,7 @@ tchktc()
 				}
 			} else {
 				write(STDERR_FILENO, _etoolong,
-							sizeof(_etoolong) - 1);
+							sizeof (_etoolong) - 1);
 				ret = tbufsize - 1 - (ep - otbuf);
 				if (ret < 0)
 					ret = 0;
@@ -454,8 +454,8 @@ tmatch(name)
 	ep = tbuf;
 	if (*ep == '#')					/* Kommentar */
 		return (FALSE);
-	for (;;ep++) {
-		for (np = name; *np ; ep++,np++)	/* Solange name	*/
+	for (; ; ep++) {
+		for (np = name; *np; ep++, np++)	/* Solange name	*/
 			if (*ep != *np)			/* gleich ist	*/
 				break;
 		if (*np == '\0') {			/* Name am Ende */
@@ -540,11 +540,11 @@ tgetnum(ent)
 	base = 10;
 	if (*++ep == '0')
 		base = 8;
-	for (val = 0;isdigit(*ep);) {
+	for (val = 0; isdigit(*ep); ) {
 		val *= base;
 		val += (*ep++ - '0');
 	}
-	return val;
+	return (val);
 }
 
 /*
@@ -607,6 +607,7 @@ tgetstr(ent, array)
 	}
 }
 
+#define	isoctal(c)	((c) >= '0' && (c) <= '7')
 /*
  * Decode a string and replace the escape sequences by what
  * they mean (e.g. \E by ESC).
@@ -628,17 +629,17 @@ tdecode(pp, array)
 
 	bp = (Uchar *)array[0];
 
-	for (; (c = *ep++) && c != ':' ; *bp++ = c) {
+	for (; (c = *ep++) && c != ':'; *bp++ = c) {
 		if (c == '^') {
 			c = *ep++ & 0x1f;
 		} else if (c == '\\') {
 			c = *ep++;
-			if (isdigit(c)) {
-				for (c-='0',i=3;--i > 0 && isdigit(*ep);) {
+			if (isoctal(c)) {
+				for (c -= '0', i = 3; --i > 0 && isoctal(*ep); ) {
 					c <<= 3;
 					c |= *ep++ - '0';
 				}
-			} else for (tp = (Uchar *)_quotetab; *tp ; tp++) {
+			} else for (tp = (Uchar *)_quotetab; *tp; tp++) {
 				if (*tp++ == c) {
 					c = *tp;
 					break;
@@ -678,12 +679,12 @@ tgetsize()
 		return;
 
 #ifdef	TIOCGWINSZ
-	if (ioctl (STDOUT_FILENO, TIOCGWINSZ, (char *)&ws) >= 0) {
+	if (ioctl(STDOUT_FILENO, TIOCGWINSZ, (char *)&ws) >= 0) {
 		lines = ws.ws_row;
 		cols = ws.ws_col;
 	}
 #else
-	if (ioctl (STDOUT_FILENO, TIOCGSIZE, (char *)&ts) >= 0) {
+	if (ioctl(STDOUT_FILENO, TIOCGSIZE, (char *)&ts) >= 0) {
 		lines = ts.ts_lines;
 		cols = ts.ts_cols;
 	}
@@ -706,7 +707,7 @@ tgetsize()
 	 * Backwards copy to create a gap for the string we like to add.
 	 */
 	lp = &tbuf[len-1-TSIZE_SPACE];	/* The curent end of the buffer */
-	for (cp = &lp[TSIZE_SPACE]; lp >= ep ;cp--,lp--)
+	for (cp = &lp[TSIZE_SPACE]; lp >= ep; cp--, lp--)
 		*cp = *lp;
 
 	*ep++ = 'l';
@@ -799,7 +800,7 @@ tstrip()
 				p = bp;
 				while (*p == ':')
 					p++;
-				strcpy (bp, p);
+				strcpy(bp, p);
 			}
 		}
 	}
@@ -826,7 +827,7 @@ tmalloc(size)
 
 	if ((ret = malloc(size)) != NULL)
 		return (ret);
-	write(STDERR_FILENO, _enomem, sizeof(_enomem) - 1);
+	write(STDERR_FILENO, _enomem, sizeof (_enomem) - 1);
 	return ((char *)NULL);
 }
 
@@ -839,6 +840,6 @@ trealloc(p, size)
 
 	if ((ret = realloc(p, size)) != NULL)
 		return (ret);
-	write(STDERR_FILENO, _enomem, sizeof(_enomem) - 1);
+	write(STDERR_FILENO, _enomem, sizeof (_enomem) - 1);
 	return ((char *)NULL);
 }

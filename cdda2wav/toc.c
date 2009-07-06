@@ -1,8 +1,8 @@
-/* @(#)toc.c	1.81 09/04/10 Copyright 1998-2003 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling */
+/* @(#)toc.c	1.82 09/07/05 Copyright 1998-2003 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling */
 #include "config.h"
 #ifndef lint
-static	const char sccsid[] =
-"@(#)toc.c	1.81 09/04/10 Copyright 1998-2003 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling";
+static	UConst char sccsid[] =
+"@(#)toc.c	1.82 09/07/05 Copyright 1998-2003 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling";
 #endif
 /*
  * CDDA2WAV (C) Heiko Eissfeldt heiko@hexco.de

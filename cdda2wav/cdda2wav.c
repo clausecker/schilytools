@@ -1,8 +1,8 @@
-/* @(#)cdda2wav.c	1.110 09/05/22 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling */
+/* @(#)cdda2wav.c	1.112 09/07/05 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling */
 #include "config.h"
 #ifndef lint
-static	const char sccsid[] =
-"@(#)cdda2wav.c	1.110 09/05/22 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling";
+static	UConst char sccsid[] =
+"@(#)cdda2wav.c	1.112 09/07/05 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling";
 
 #endif
 #undef	DEBUG_BUFFER_ADDRESSES
@@ -81,7 +81,7 @@ static	const char sccsid[] =
 #include <schily/errno.h>
 #include <schily/stat.h>
 #include <schily/wait.h>
-#if defined(HAVE_SETPRIORITY) && (HAVE_SETPRIORITY == 1)
+#if defined(HAVE_SETPRIORITY) && defined(HAVE_SYS_RESOURCE_H)
 #include <sys/resource.h>
 #endif
 #include <schily/varargs.h>
@@ -696,6 +696,7 @@ FatalError(err, szMessage, va_alist)
 
 	va_end(marker);
 
+#ifdef	HAVE_KILL
 	if (global.child_pid >= 0) {
 		if (global.child_pid == 0) {
 			pid_t	ppid;
@@ -709,6 +710,7 @@ FatalError(err, szMessage, va_alist)
 			kill(global.child_pid, SIGINT);
 		}
 	}
+#endif
 	exit(1);
 }
 
@@ -1190,7 +1192,7 @@ switch_to_realtime_priority()
 	}
 }
 #else
-#if defined(__CYGWIN32__)
+#if defined(__CYGWIN32__) || defined(__MINGW32__)
 
 /*
  * NOTE: Base.h from Cygwin-B20 has a second typedef for BOOL.
@@ -1306,6 +1308,7 @@ set_nonforked(status)
 	fprintf(stderr, "SIGPIPE received from %s\n.",
 			global.child_pid == 0 ? "Child" : "Parent");
 #endif
+#ifdef	HAVE_KILL
 	if (global.child_pid == 0) {
 		pid_t	ppid;
 		/*
@@ -1317,6 +1320,7 @@ set_nonforked(status)
 	} else {
 		kill(global.child_pid, SIGINT);
 	}
+#endif
 	exit(SIGPIPE_ERROR);
 }
 
@@ -1867,6 +1871,7 @@ do_write(p)
 		if (SaveBuffer(p->data + current_offset/4,
 						how_much,
 						&nSamplesDone)) {
+#ifdef	HAVE_KILL
 			if (global.have_forked == 1) {
 				pid_t	ppid;
 				/*
@@ -1876,6 +1881,7 @@ do_write(p)
 				if (ppid > 1)
 					kill(ppid, SIGINT);
 			}
+#endif
 			exit(WRITE_ERROR);
 		}
 
@@ -2969,12 +2975,21 @@ Rate   Divider      Rate   Divider      Rate   Divider      Rate   Divider\n\
 
 #define	SETSIGHAND(PROC, SIG, SIGNAME) if (signal(SIG, PROC) == SIG_ERR) \
 	{ errmsg("Cannot set signal %s handler.\n", SIGNAME); exit(SETSIG_ERROR); }
+#ifdef	SIGINT
 	SETSIGHAND(exit_wrapper, SIGINT, "SIGINT")
+#endif
+#ifdef	SIGQUIT
 	SETSIGHAND(exit_wrapper, SIGQUIT, "SIGQUIT")
+#endif
+#ifdef	SIGTERM
 	SETSIGHAND(exit_wrapper, SIGTERM, "SIGTERM")
+#endif
+#ifdef	SIGHUP
 	SETSIGHAND(exit_wrapper, SIGHUP, "SIGHUP")
-
+#endif
+#ifdef	SIGPIPE
 	SETSIGHAND(set_nonforked, SIGPIPE, "SIGPIPE")
+#endif
 
 	/* setup interface and open cdrom device */
 	/*

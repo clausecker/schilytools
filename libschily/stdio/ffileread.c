@@ -1,6 +1,6 @@
-/* @(#)ffileread.c	1.11 06/09/26 Copyright 1986, 1996-2003 J. Schilling */
+/* @(#)ffileread.c	1.13 09/06/30 Copyright 1986, 1996-2009 J. Schilling */
 /*
- *	Copyright (c) 1986, 1996-2003 J. Schilling
+ *	Copyright (c) 1986, 1996-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -16,20 +16,25 @@
 
 #include "schilyio.h"
 
-EXPORT int
+EXPORT ssize_t
 ffileread(f, buf, len)
 	register FILE	*f;
 	void	*buf;
-	int	len;
+	size_t	len;
 {
-	register int	fd;
-	register int	ret;
+	register int		fd;
+	register ssize_t	ret;
+		int		oerrno = geterrno();
 
 	down2(f, _IOREAD, _IORW);
 	fd = fileno(f);
 
-	while ((ret = read(fd, buf, len)) < 0 && geterrno() == EINTR)
-		/* LINTED */
-		;
+	while ((ret = read(fd, buf, len)) < 0 && geterrno() == EINTR) {
+		/*
+		 * Set back old 'errno' so we don't change the errno visible
+		 * to the outside if we did not fail.
+		 */
+		seterrno(oerrno);
+	}
 	return (ret);
 }

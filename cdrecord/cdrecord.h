@@ -1,4 +1,4 @@
-/* @(#)cdrecord.h	1.198 09/01/14 Copyright 1995-2009 J. Schilling */
+/* @(#)cdrecord.h	1.199 09/06/30 Copyright 1995-2009 J. Schilling */
 /*
  *	Definitions for cdrecord
  *
@@ -19,9 +19,8 @@
 /*
  * Make sure it is there. We need it for off_t.
  */
-#ifndef	_INCL_SYS_TYPES_H
-#include <sys/types.h>
-#define	_INCL_SYS_TYPES_H
+#ifndef	_SCHILY_TYPES_H
+#include <schily/types.h>
 #endif
 
 #ifndef	_SCHILY_UTYPES_H

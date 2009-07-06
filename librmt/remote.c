@@ -1,16 +1,16 @@
 /*#define	USE_REMOTE*/
 /*#define	USE_RCMD_RSH*/
 /*#define	NO_LIBSCHILY*/
-/* @(#)remote.c	1.66 08/12/22 Copyright 1990-2008 J. Schilling */
+/* @(#)remote.c	1.68 09/07/05 Copyright 1990-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)remote.c	1.66 08/12/22 Copyright 1990-2008 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)remote.c	1.68 09/07/05 Copyright 1990-2009 J. Schilling";
 #endif
 /*
  *	Remote tape client interface code
  *
- *	Copyright (c) 1990-2008 J. Schilling
+ *	Copyright (c) 1990-2009 J. Schilling
  *
  *	TOTO:
  *		Signal handler for SIGPIPE
@@ -79,7 +79,7 @@ static	const char sccsid[] =
  * On Cygwin, there are no privilleged ports.
  * On UNIX, rcmd() uses privilleged port that only work for root.
  */
-#ifdef	IS_CYGWIN
+#if	defined(IS_CYGWIN) || defined(__MINGW32__)
 #define	privport_ok()	(1)
 #else
 #ifdef	HAVE_GETPPRIV

@@ -1,7 +1,7 @@
-/* @(#)scsihack.c	1.53 09/04/19 Copyright 1997,2000-2009 J. Schilling */
+/* @(#)scsihack.c	1.54 09/07/05 Copyright 1997,2000-2009 J. Schilling */
 #ifndef lint
 static	char _sccsid[] =
-	"@(#)scsihack.c	1.53 09/04/19 Copyright 1997,2000-2009 J. Schilling";
+	"@(#)scsihack.c	1.54 09/07/05 Copyright 1997,2000-2009 J. Schilling";
 #endif
 /*
  *	Interface for other generic SCSI implementations.
@@ -228,7 +228,7 @@ EXPORT scg_ops_t scg_std_ops = {
 #include "scsi-beos.c"
 #endif
 
-#ifdef	__CYGWIN32__
+#if defined(__CYGWIN32__) || defined(__MINGW32__)
 #define	SCSI_IMPL		/* Yep, we support WNT and W9? */
 #include "scsi-wnt.c"
 #endif
@@ -352,7 +352,7 @@ EXPORT scg_ops_t scg_dummy_ops = {
  *	Choose your name instead of "schily" and make clear that the version
  *	string is related to a modified source.
  */
-LOCAL	char	_scg_trans_dversion[] = "scsihack.c-1.53";	/* The version for this transport*/
+LOCAL	char	_scg_trans_dversion[] = "scsihack.c-1.54";	/* The version for this transport*/
 
 /*
  * Return version information for the low level SCSI transport code.

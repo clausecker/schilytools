@@ -1,8 +1,8 @@
-/* @(#)evops.c	1.31 09/05/24 Copyright 1984-2009 J. Schilling */
+/* @(#)evops.c	1.32 09/06/29 Copyright 1984-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)evops.c	1.31 09/05/24 Copyright 1984-2009 J. Schilling";
+	"@(#)evops.c	1.32 09/06/29 Copyright 1984-2009 J. Schilling";
 #endif
 /*
  *	bsh environment section
@@ -516,7 +516,7 @@ ev_locale(name)
 	environ = evarray;
 
 	if (setlocale(LC_ALL, "") == NULL)
-		error("Bad locale '%s.'\n", name);
+		error("Bad locale '%s'.\n", name);
 
 	environ = esav;
 #endif

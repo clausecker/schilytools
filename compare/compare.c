@@ -1,8 +1,8 @@
-/* @(#)compare.c	1.19 08/12/23 Copyright 1985, 88, 96-99, 2000-2008 J. Schilling */
+/* @(#)compare.c	1.20 09/06/30 Copyright 1985, 88, 96-99, 2000-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)compare.c	1.19 08/12/23 Copyright 1985, 88, 96-99, 2000-2008 J. Schilling";
+	"@(#)compare.c	1.20 09/06/30 Copyright 1985, 88, 96-99, 2000-2009 J. Schilling";
 #endif
 /*
  *	compare two file for identical contents
@@ -15,7 +15,7 @@ static	const char sccsid[] =
  *		5	cannot open one of the files
  *		6	I/O error on one of the files
  *
- *	Copyright (c) 1985, 88, 96-99, 2000-2008 J. Schilling
+ *	Copyright (c) 1985, 88, 96-99, 2000-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -29,10 +29,9 @@ static	const char sccsid[] =
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#include <schily/mconfig.h>
-#include <stdio.h>
-#include <sys/types.h>
-#include <sys/stat.h>
+#include <schily/stdio.h>
+#include <schily/types.h>
+#include <schily/stat.h>
 #include <schily/fcntl.h>	/* O_BINARY */
 #include <schily/stdlib.h>
 #include <schily/unistd.h>
@@ -124,8 +123,8 @@ main(ac, av)
 	if (help)
 		usage(0);
 	if (prversion) {
-		printf("Compare release %s (%s-%s-%s) Copyright (C) 1985, 88, 96-99, 2000-2008 Jörg Schilling\n",
-				"1.19",
+		printf("Compare release %s (%s-%s-%s) Copyright (C) 1985, 88, 96-99, 2000-2009 Jörg Schilling\n",
+				"1.20",
 				HOST_CPU, HOST_VENDOR, HOST_OS);
 		exit(0);
 	}

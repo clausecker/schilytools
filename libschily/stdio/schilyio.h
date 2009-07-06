@@ -1,6 +1,6 @@
-/* @(#)schilyio.h	2.26 07/04/03 Copyright 1986, 1995-2007 J. Schilling */
+/* @(#)schilyio.h	2.27 09/06/30 Copyright 1986, 1995-2009 J. Schilling */
 /*
- *	Copyright (c) 1986, 1995-2007 J. Schilling
+ *	Copyright (c) 1986, 1995-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -18,8 +18,9 @@
 #define	_STDIO_SCHILYIO_H
 
 #include <schily/mconfig.h>
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/standard.h>
+#include <schily/types.h>
 #include <schily/unistd.h>
 #include <schily/fcntl.h>
 #include <schily/schily.h>

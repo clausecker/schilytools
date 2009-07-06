@@ -1,13 +1,13 @@
-/* @(#)subchan.c	1.24 08/12/29 Copyright 2000-2008 J. Schilling */
+/* @(#)subchan.c	1.25 09/07/05 Copyright 2000-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)subchan.c	1.24 08/12/29 Copyright 2000-2008 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)subchan.c	1.25 09/07/05 Copyright 2000-2009 J. Schilling";
 #endif
 /*
  *	Subchannel processing
  *
- *	Copyright (c) 2000-2008 J. Schilling
+ *	Copyright (c) 2000-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
