@@ -1,10 +1,11 @@
-#ident %W% %E% %Q%
+#ident @(#)Makefile	1.5 08/09/10 
 ###########################################################################
 SRCROOT=	.
 DIRNAME=	SRCROOT
 RULESDIR=	RULES
 ###########################################################################
-all: RULES autoconf libedc libschily readcd smake
+all:
+all clean depend config install: RULES autoconf libedc libschily readcd smake
 
 RULES autoconf libedc libschily readcd smake:
 	@echo "	==> MAKING SYMLINKS in ." && sh ./MKLINKS

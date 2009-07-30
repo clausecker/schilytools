@@ -1,13 +1,13 @@
-/* @(#)xdelay.c	1.15 08/12/22 Copyright 1991-2008 J. Schilling */
+/* @(#)xdelay.c	1.16 09/07/11 Copyright 1991-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)xdelay.c	1.15 08/12/22 Copyright 1991-2008 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)xdelay.c	1.16 09/07/11 Copyright 1991-2009 J. Schilling";
 #endif
 /*
  *	Delay for disks that cannot disconnect
  *
- *	Copyright (c) 1991-2008 J. Schilling
+ *	Copyright (c) 1991-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -23,15 +23,12 @@ static	const char sccsid[] =
 
 #ifdef	sun
 
-#include <schily/mconfig.h>
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/unistd.h>
 #include <kvm.h>
 #include <schily/fcntl.h>
 #include <nlist.h>
-#ifdef	HAVE_SYS_PARAM_H
-#include <sys/param.h>	/* Include various defs needed with some OS */
-#endif
+#include <schily/param.h>	/* Include various defs needed with some OS */
 #include <schily/standard.h>
 #include <schily/schily.h>
 #include <schily/libport.h>

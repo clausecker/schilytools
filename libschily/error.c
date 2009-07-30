@@ -1,4 +1,4 @@
-/* @(#)error.c	1.14 06/09/13 Copyright 1985, 1989, 1995-2003 J. Schilling */
+/* @(#)error.c	1.15 09/07/10 Copyright 1985, 1989, 1995-2003 J. Schilling */
 /*
  *	fprintf() on standard error stdio stream
  *
@@ -17,7 +17,7 @@
  */
 
 #include <schily/mconfig.h>
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/standard.h>
 #include <schily/varargs.h>
 #include <schily/schily.h>

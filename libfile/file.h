@@ -1,4 +1,4 @@
-/* @(#)file.h	1.11 08/10/19 joerg */
+/* @(#)file.h	1.12 09/07/13 joerg */
 /*
  * file.h - definitions for file(1) program
  * @(#)$Id: file.h,v 1.25 1997/01/15 19:28:35 christos Exp $
@@ -85,7 +85,7 @@ struct magic {
 	char desc[MAXDESC];	/* description */
 };
 
-#include <stdio.h>	/* Include that here, to make sure __P gets defined */
+#include <schily/stdio.h>
 
 extern int   init_magic		__PR((char *));
 extern int   ascmagic		__PR((unsigned char *, int));

@@ -1,8 +1,8 @@
-/* @(#)tputs.c	1.8 09/07/05 Copyright 1986-2009 J. Schilling */
+/* @(#)tputs.c	1.9 09/07/11 Copyright 1986-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)tputs.c	1.8 09/07/05 Copyright 1986-2009 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)tputs.c	1.9 09/07/11 Copyright 1986-2009 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1986-2009 J. Schilling
@@ -19,10 +19,9 @@ static	const char sccsid[] =
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#include <schily/mconfig.h>
 #include <schily/standard.h>
 #include <schily/termcap.h>
-#include <ctype.h>
+#include <schily/ctype.h>
 #include <schily/utypes.h>
 
 EXPORT	int	tputs	__PR((char *sp, int affcnt, int (*outc)(int c)));

@@ -1,8 +1,8 @@
-/* @(#)xio.c	1.19 09/07/05 Copyright 2003-2009 J. Schilling */
+/* @(#)xio.c	1.20 09/07/18 Copyright 2003-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)xio.c	1.19 09/07/05 Copyright 2003-2009 J. Schilling";
+	"@(#)xio.c	1.20 09/07/18 Copyright 2003-2009 J. Schilling";
 #endif
 /*
  *	EXtended I/O functions for cdrecord
@@ -27,10 +27,7 @@ static	UConst char sccsid[] =
 #include <schily/string.h>
 #include <schily/standard.h>
 #include <schily/fcntl.h>
-
-#ifdef	NEED_O_BINARY
-#include <io.h>					/* for setmode() prototype */
-#endif
+#include <schily/io.h>				/* for setmode() prototype */
 
 #ifdef	VMS
 #include <vms_init.h>
@@ -103,11 +100,9 @@ xopen(name, oflag, mode, xflags)
 	if (name == NULL) {
 		xp = &x_stdin;
 		xp->x_refcnt++;
-#ifdef	NEED_O_BINARY
 		if ((oflag & O_BINARY) != 0) {
 			setmode(STDIN_FILENO, O_BINARY);
 		}
-#endif
 		return (xp);
 	}
 	for (; pp; pp = pp->x_next) {

@@ -1,13 +1,13 @@
-/* @(#)exec.c	1.54 08/12/20 Copyright 1985-2008 J. Schilling */
+/* @(#)exec.c	1.57 09/07/28 Copyright 1985-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)exec.c	1.54 08/12/20 Copyright 1985-2008 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)exec.c	1.57 09/07/28 Copyright 1985-2009 J. Schilling";
 #endif
 /*
  *	bsh command interpreter - Execution of parsed Tree
  *
- *	Copyright (c) 1985-2008 J. Schilling
+ *	Copyright (c) 1985-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -21,9 +21,8 @@ static	const char sccsid[] =
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#include <schily/mconfig.h>
-#include <stdio.h>
-#include <signal.h>
+#include <schily/stdio.h>
+#include <schily/signal.h>
 #include "bsh.h"
 #include "node.h"
 #include "str.h"
@@ -33,10 +32,7 @@ static	const char sccsid[] =
 #include <schily/stdlib.h>
 #include <schily/time.h>
 #include "resource.h"	/* Die lokale Version vom bsh Port */
-
-#ifdef	HAVE_VFORK_H
-#include <vfork.h>
-#endif
+#include <schily/vfork.h>
 
 /*#define	EXDEBUG*/
 #ifdef	EXDEBUG
@@ -157,7 +153,7 @@ doprot(cmd)
 	if (cmd != (Tnode *)NULL) {
 		lseek(fdown(protfile), (off_t)0, SEEK_END);
 		printtree(protfile, cmd);
-		fprintf(protfile, nl);
+		fprintf(protfile, "%s", nl);
 		fflush(protfile);
 	}
 }
@@ -323,7 +319,7 @@ ecmd(cmd, flag, std, toclose)
 		/*
 		 * Null command, should never happen.....
 		 */
-		berror(enullcmd);
+		berror("%s", enullcmd);
 		return (-1);
 	}
 
@@ -831,14 +827,14 @@ newio(list, old, new, flag)
 				break;
 		if (mp->type == 0) {
 			ret = 0;
-			berror(eiounimpl);
+			berror("%s", eiounimpl);
 			continue;
 		}
 		ep = expand_string(list);
 #ifdef	DEBUG
 		fprintf(stderr, "expanded: ", ep->tn_left.tn_str);
 		printtree(stderr, ep);
-		fprintf(stderr, nl);
+		fprintf(stderr, "%s", nl);
 		fflush(stderr);
 #endif
 		if (ep->tn_right.tn_node != (Tnode *) NULL) {

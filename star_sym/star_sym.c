@@ -1,14 +1,14 @@
-/* @(#)star_sym.c	1.11 09/02/08 Copyright 2005-2008 J. Schilling */
+/* @(#)star_sym.c	1.12 09/07/11 Copyright 2005-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)star_sym.c	1.11 09/02/08 Copyright 2005-2008 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)star_sym.c	1.12 09/07/11 Copyright 2005-2009 J. Schilling";
 #endif
 /*
  *	Read in the star inode data base and write a human
  *	readable version.
  *
- *	Copyright (c) 2005-2008 J. Schilling
+ *	Copyright (c) 2005-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -22,8 +22,7 @@ static	const char sccsid[] =
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#include <schily/mconfig.h>
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/stdlib.h>
 #include <schily/unistd.h>
 #include <schily/standard.h>
@@ -201,7 +200,7 @@ extern	BOOL		is_star;
 		usage(0);
 	if (prvers) {
 		printf("%s: %s\n\n", get_progname(), vers);
-		printf("Copyright (C) 2005-2008 Jörg Schilling\n");
+		printf("Copyright (C) 2005-2009 Jörg Schilling\n");
 		printf("This is free software; see the source for copying conditions.  There is NO\n");
 		printf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
 		exit(0);

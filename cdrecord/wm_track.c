@@ -1,8 +1,8 @@
-/* @(#)wm_track.c	1.7 09/07/05 Copyright 1995, 1997, 2004-2009 J. Schilling */
+/* @(#)wm_track.c	1.8 09/07/10 Copyright 1995, 1997, 2004-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)wm_track.c	1.7 09/07/05 Copyright 1995, 1997, 2004-2009 J. Schilling";
+	"@(#)wm_track.c	1.8 09/07/10 Copyright 1995, 1997, 2004-2009 J. Schilling";
 #endif
 /*
  *	CDR write method abtraction layer
@@ -23,7 +23,7 @@ static	UConst char sccsid[] =
  */
 
 #include <schily/mconfig.h>
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/stdlib.h>
 #include <schily/unistd.h>
 #include <schily/standard.h>

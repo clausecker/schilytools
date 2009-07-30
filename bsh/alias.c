@@ -1,8 +1,8 @@
-/* @(#)alias.c	1.13 09/05/17 Copyright 1986-2009 J. Schilling */
+/* @(#)alias.c	1.15 09/07/28 Copyright 1986-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)alias.c	1.13 09/05/17 Copyright 1986-2009 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)alias.c	1.15 09/07/28 Copyright 1986-2009 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1986-2009 J. Schilling
@@ -19,8 +19,7 @@ static	const char sccsid[] =
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#include <schily/mconfig.h>
-#include <stdio.h>
+#include <schily/stdio.h>
 #include "bsh.h"
 #include "btab.h"
 #include "abbrev.h"
@@ -49,7 +48,7 @@ balias(vp, std, flag)
 
 	if (getargs(&ac, &av, opt, &dolocal, &doreload, &doreload) < 0) {
 		fprintf(std[2], ebadopt, vp->av_av[0], av[0]);
-		fprintf(std[2], nl);
+		fprintf(std[2], "%s", nl);
 		busage(vp, std);
 		ex_status = 1;
 		return;
@@ -91,7 +90,7 @@ bunalias(vp, std, flag)
 
 	if (getargs(&ac, &av, opt, &dolocal) < 0) {
 		fprintf(std[2], ebadopt, vp->av_av[0], av[0]);
-		fprintf(std[2], nl);
+		fprintf(std[2], "%s", nl);
 		busage(vp, std);
 		ex_status = 1;
 		return;

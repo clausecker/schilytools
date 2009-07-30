@@ -1,8 +1,8 @@
-/* @(#)lhash.c	1.19 09/05/10 Copyright 1988, 1993-2009 J. Schilling */
+/* @(#)lhash.c	1.20 09/07/11 Copyright 1988, 1993-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)lhash.c	1.19 09/05/10 Copyright 1988, 1993-2009 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)lhash.c	1.20 09/07/11 Copyright 1988, 1993-2009 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1988, 1993-2009 J. Schilling
@@ -42,8 +42,7 @@ static	const char sccsid[] =
  * Scheitert malloc(), gibt es eine Fehlermeldung und exit().
  */
 
-#include <schily/mconfig.h>
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/stdlib.h>
 #include <schily/unistd.h>
 #include <schily/standard.h>

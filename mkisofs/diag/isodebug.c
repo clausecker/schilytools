@@ -1,8 +1,8 @@
-/* @(#)isodebug.c	1.25 09/06/30 Copyright 1996-2009 J. Schilling */
+/* @(#)isodebug.c	1.26 09/07/09 Copyright 1996-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)isodebug.c	1.25 09/06/30 Copyright 1996-2009 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)isodebug.c	1.26 09/07/09 Copyright 1996-2009 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1996-2009 J. Schilling

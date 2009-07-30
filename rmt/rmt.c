@@ -1,8 +1,8 @@
-/* @(#)rmt.c	1.35 08/12/23 Copyright 1994,2000-2008 J. Schilling */
+/* @(#)rmt.c	1.36 09/07/11 Copyright 1994,2000-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)rmt.c	1.35 08/12/23 Copyright 1994,2000-2008 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)rmt.c	1.36 09/07/11 Copyright 1994,2000-2009 J. Schilling";
 #endif
 /*
  *	Remote tape server
@@ -22,7 +22,7 @@ static	const char sccsid[] =
  *	seems that the current interface supports all what we need over the
  *	wire.
  *
- *	Copyright (c) 1994,2000-2008 J. Schilling
+ *	Copyright (c) 1994,2000-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -38,8 +38,7 @@ static	const char sccsid[] =
 
 /*#define	FORCE_DEBUG*/
 
-#include <schily/mconfig.h>
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/stdlib.h>
 #include <schily/unistd.h>	/* includes sys/types.h */
 #include <schily/fcntl.h>
@@ -48,15 +47,13 @@ static	const char sccsid[] =
 #ifdef	 HAVE_SYS_SOCKET_H
 #include <sys/socket.h>
 #endif
-#ifdef	 HAVE_SYS_PARAM_H
-#include <sys/param.h>	/* BSD-4.2 & Linux need this for MAXHOSTNAMELEN */
-#endif
+#include <schily/param.h>	/* BSD-4.2 & Linux need this for MAXHOSTNAMELEN */
 #include <schily/ioctl.h>
 #ifdef	HAVE_SYS_MTIO_H
 #include <sys/mtio.h>
 #endif
 #include <schily/errno.h>
-#include <pwd.h>
+#include <schily/pwd.h>
 
 #include <schily/utypes.h>
 #include <schily/standard.h>

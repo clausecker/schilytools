@@ -1,13 +1,13 @@
-/* @(#)count.c	1.22 08/12/23 Copyright 1986-2008 J. Schilling */
+/* @(#)count.c	1.24 09/07/11 Copyright 1986-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)count.c	1.22 08/12/23 Copyright 1986-2008 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)count.c	1.24 09/07/11 Copyright 1986-2009 J. Schilling";
 #endif
 /*
  *	count words, lines, and/or chars in files
  *
- *	Copyright (c) 1986-2008 J. Schilling
+ *	Copyright (c) 1986-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -21,8 +21,7 @@ static	const char sccsid[] =
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#include <schily/mconfig.h>
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/stdlib.h>
 #include <schily/unistd.h>	/* Include sys/types.h to make off_t available */
 #include <schily/utypes.h>
@@ -104,8 +103,8 @@ main(ac, av)
 	if (help)
 		usage(0);
 	if (prversion) {
-		printf("Count release %s (%s-%s-%s) Copyright (C) 1986-2008 Jörg Schilling\n",
-				"1.22",
+		printf("Count release %s (%s-%s-%s) Copyright (C) 1986-2009 Jörg Schilling\n",
+				"1.24",
 				HOST_CPU, HOST_VENDOR, HOST_OS);
 		exit(0);
 	}

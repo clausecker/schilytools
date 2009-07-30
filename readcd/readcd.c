@@ -1,8 +1,8 @@
-/* @(#)readcd.c	1.103 09/07/05 Copyright 1987, 1995-2009 J. Schilling */
+/* @(#)readcd.c	1.105 09/07/18 Copyright 1987, 1995-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)readcd.c	1.103 09/07/05 Copyright 1987, 1995-2009 J. Schilling";
+	"@(#)readcd.c	1.105 09/07/18 Copyright 1987, 1995-2009 J. Schilling";
 #endif
 /*
  *	Skeleton for the use of the scg genearal SCSI - driver
@@ -22,7 +22,7 @@ static	UConst char sccsid[] =
  */
 
 #include <schily/mconfig.h>
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/standard.h>
 #include <schily/unistd.h>
 #include <schily/stdlib.h>
@@ -30,15 +30,12 @@ static	UConst char sccsid[] =
 #include <schily/fcntl.h>
 #include <schily/time.h>
 #include <schily/errno.h>
-#include <signal.h>
+#include <schily/signal.h>
 #include <schily/schily.h>
 #ifdef	HAVE_PRIV_H
 #include <priv.h>
 #endif
-
-#ifdef	NEED_O_BINARY
-#include <io.h>					/* for setmode() prototype */
-#endif
+#include <schily/io.h>				/* for setmode() prototype */
 
 #include <scg/scgcmd.h>
 #include <scg/scsireg.h>
@@ -2134,9 +2131,7 @@ read_generic(scgp, parmp, rfunc, rp, dfunc)
 	filename[sizeof (filename)-1] = '\0';
 	if (streql(filename, "-")) {
 		f = stdout;
-#ifdef	NEED_O_BINARY
 		setmode(STDOUT_FILENO, O_BINARY);
-#endif
 	} else if ((f = fileopen(filename, notrunc?"wcub":"wctub")) == NULL)
 		comerr("Cannot open '%s'.\n", filename);
 	file_raise(f, FALSE);
@@ -2310,9 +2305,7 @@ write_disk(scgp, parmp)
 	filename[sizeof (filename)-1] = '\0';
 	if (streql(filename, "-")) {
 		f = stdin;
-#ifdef	NEED_O_BINARY
 		setmode(STDIN_FILENO, O_BINARY);
-#endif
 	} else if ((f = fileopen(filename, "rub")) == NULL)
 		comerr("Cannot open '%s'.\n", filename);
 

@@ -1,4 +1,4 @@
-/* @(#)hostname.h	1.17 08/12/24 Copyright 1995-2008 J. Schilling */
+/* @(#)hostname.h	1.18 09/07/28 Copyright 1995-2008 J. Schilling */
 /*
  *	This file has been separated from libport.h in order to avoid
  *	to include netdb.h in case gethostname() is not needed.
@@ -29,10 +29,13 @@
 #endif
 
 /*
- * Try to get HOST_NAME_MAX for gethostname()
+ * Try to get HOST_NAME_MAX for gethostname() from unistd.h or limits.h
  */
 #ifndef _SCHILY_UNISTD_H
 #include <schily/unistd.h>
+#endif
+#ifndef _SCHILY_LIMITS_H
+#include <schily/limits.h>
 #endif
 
 #ifndef HOST_NAME_MAX

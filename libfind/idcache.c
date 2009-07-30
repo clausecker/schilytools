@@ -1,13 +1,13 @@
-/* @(#)idcache.c	1.26 08/12/22 Copyright 1993, 1995-2008 J. Schilling */
+/* @(#)idcache.c	1.28 09/07/11 Copyright 1993, 1995-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)idcache.c	1.26 08/12/22 Copyright 1993, 1995-2008 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)idcache.c	1.28 09/07/11 Copyright 1993, 1995-2009 J. Schilling";
 #endif
 /*
  *	UID/GID caching functions
  *
- *	Copyright (c) 1993, 1995-2008 J. Schilling
+ *	Copyright (c) 1993, 1995-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -21,12 +21,11 @@ static	const char sccsid[] =
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#include <schily/mconfig.h>
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/standard.h>
 #include <schily/utypes.h>
-#include <pwd.h>
-#include <grp.h>
+#include <schily/pwd.h>
+#include <schily/grp.h>
 #include <schily/string.h>
 #include <schily/schily.h>
 
@@ -259,9 +258,7 @@ ic_gidname(name, namelen, gidp)
 	}
 }
 
-#ifdef	HAVE_SYS_PARAM_H
-#include <sys/param.h>
-#endif
+#include <schily/param.h>
 
 #ifndef	UID_NOBODY
 #define	UID_NOBODY	65534		/* The old SunOS-4.x and *BSD value */

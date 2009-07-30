@@ -1,7 +1,7 @@
-/* @(#)scsi-atari.c	1.2 09/01/27 Copyright 1997,2000,2009 J. Schilling */
+/* @(#)scsi-atari.c	1.3 09/07/13 Copyright 1997,2000,2009 J. Schilling */
 #ifndef lint
 static	char __sccsid[] =
-	"@(#)scsi-atari.c	1.2 09/01/27 Copyright 1997,2000,2009 J. Schilling";
+	"@(#)scsi-atari.c	1.3 09/07/13 Copyright 1997,2000,2009 J. Schilling";
 #endif
 /*
  *	Interface for Atari generic SCSI implementation.
@@ -50,11 +50,11 @@ static	char __sccsid[] =
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#include <stdio.h>
-#include <string.h>
+#include <schily/stdio.h>
+#include <schily/string.h>
 #include <osbind.h>
-#include <signal.h>
-#include <stdlib.h>
+#include <schily/signal.h>
+#include <schily/stdlib.h>
 
 #define	cdecl
 
@@ -92,7 +92,7 @@ static	char __sccsid[] =
 #define	PENDINGERROR	-12L
 #define	PARITYERROR	-13L
 
-LOCAL	char	_scg_trans_version[] = "scsi-atari.c-1.2";	/* The version for this transport */
+LOCAL	char	_scg_trans_version[] = "scsi-atari.c-1.3";	/* The version for this transport */
 LOCAL	char	_scg_auth[] = "Yvan Doyeux";
 
 

@@ -1,13 +1,13 @@
-/* @(#)device.c	1.14 08/12/22 Copyright 1996-2008 J. Schilling */
+/* @(#)device.c	1.15 09/07/11 Copyright 1996-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)device.c	1.14 08/12/22 Copyright 1996-2008 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)device.c	1.15 09/07/11 Copyright 1996-2009 J. Schilling";
 #endif
 /*
  *	Handle local and remote device major/minor mappings
  *
- *	Copyright (c) 1996-2008 J. Schilling
+ *	Copyright (c) 1996-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -21,7 +21,6 @@ static	const char sccsid[] =
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#include <schily/mconfig.h>
 #include <schily/standard.h>
 #include <schily/schily.h>
 #define	__XDEV__	/* Needed to activate XDEV_T definitions */

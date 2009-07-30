@@ -1,14 +1,14 @@
-/* @(#)signames.c	1.5 08/12/20 Copyright 1998-2008 J. Schilling */
+/* @(#)signames.c	1.6 09/07/11 Copyright 1998-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)signames.c	1.5 08/12/20 Copyright 1998-2008 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)signames.c	1.6 09/07/11 Copyright 1998-2009 J. Schilling";
 #endif
 /*
  *	Handle signal names for systems that don't have
  *	strsignal()/str2sig()/sig2str()
  *
- *	Copyright (c) 1998-2008 J. Schilling
+ *	Copyright (c) 1998-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -22,11 +22,10 @@ static	const char sccsid[] =
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#include <schily/mconfig.h>
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/string.h>
 #include <schily/standard.h>
-#include <signal.h>
+#include <schily/signal.h>
 
 #if	!(defined(HAVE_STRSIGNAL) && defined(HAVE_STR2SIG) && defined(HAVE_SIG2STR))
 

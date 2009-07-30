@@ -30,28 +30,29 @@
 /*
  * This file contains modifications Copyright 2006-2008 J. Schilling
  *
- * @(#)bdiff.c	1.7 08/06/20 J. Schilling
+ * @(#)bdiff.c	1.9 09/07/18 J. Schilling
  */
 #if defined(sun) || defined(__GNUC__)
 
-#ident "@(#)bdiff.c 1.7 08/06/20 J. Schilling"
+#ident "@(#)bdiff.c 1.9 09/07/18 J. Schilling"
 #endif
 
 #pragma ident	"@(#)bdiff.c	1.15	05/06/08 SMI"
 
 #include <schily/mconfig.h>
 #include <fatal.h>
-#include <signal.h>
+#include <schily/signal.h>
 #include <schily/types.h>
 #include <schily/unistd.h>
 #include <schily/fcntl.h>
-#include <stdio.h>
-#include <ctype.h>
+#include <schily/stdio.h>
+#include <schily/ctype.h>
 #include <schily/string.h>
 #include <schily/stdlib.h>
 #include <schily/wait.h>
 #include <schily/utypes.h>	/* For Llong */
 #include <schily/schily.h>
+#include <schily/io.h>		/* for setmode() prototype */
 #undef	printf
 #define	printf	js_printf
 #undef	fprintf
@@ -59,10 +60,6 @@
 
 #undef	offset_t
 #define	offset_t	Llong
-
-#ifdef	NEED_O_BINARY
-#include <io.h>			/* for setmode() prototype */
-#endif
 
 #define	ONSIG	16
 
@@ -299,10 +296,8 @@ main(argc, argv)
 		/* Create pipes and fork.  */
 		if ((pipe(pfd)) == -1)
 			fatal("Can not create pipe");
-#ifdef	NEED_O_BINARY
 		setmode(pfd[0], O_BINARY);
 		setmode(pfd[1], O_BINARY);
-#endif
 		if ((i = fork()) < (pid_t)0) {
 			(void) close(pfd[0]);
 			(void) close(pfd[1]);
@@ -503,9 +498,7 @@ maket(file)
 		    "Can not open/create temp file ('%s')", file);
 		fatal(Error);
 	}
-#ifdef	NEED_O_BINARY
 	setmode(fileno(iop), O_BINARY);
-#endif
 	return (iop);
 }
 

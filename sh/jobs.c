@@ -34,11 +34,11 @@
 /*
  * This file contains modifications Copyright 2008-2009 J. Schilling
  *
- * @(#)jobs.c	1.14 09/01/10 2008-2009 J. Schilling
+ * @(#)jobs.c	1.16 09/07/25 2008-2009 J. Schilling
  */
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)jobs.c	1.14 09/01/10 2008-2009 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)jobs.c	1.16 09/07/25 2008-2009 J. Schilling";
 #endif
 
 /*
@@ -590,7 +590,7 @@ printjob(jp, propts)
 			prc_buff(SPACE);
 		sp = 28;
 		if (jp->j_flag & J_SIGNALED) {
-			char	*sigstr;
+			const char	*sigstr;
 
 			if ((sigstr = strsignal(jp->j_xval)) != NULL) {
 				sp -= strlen(sigstr);

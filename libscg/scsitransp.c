@@ -1,7 +1,7 @@
-/* @(#)scsitransp.c	1.96 07/07/07 Copyright 1988,1995,2000-2004 J. Schilling */
+/* @(#)scsitransp.c	1.97 09/07/13 Copyright 1988,1995,2000-2004 J. Schilling */
 /*#ifndef lint*/
 static	char sccsid[] =
-	"@(#)scsitransp.c	1.96 07/07/07 Copyright 1988,1995,2000-2004 J. Schilling";
+	"@(#)scsitransp.c	1.97 09/07/13 Copyright 1988,1995,2000-2004 J. Schilling";
 /*#endif*/
 /*
  *	SCSI user level command transport routines (generic part).
@@ -35,7 +35,7 @@ static	char sccsid[] =
  */
 
 #include <schily/mconfig.h>
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/standard.h>
 #include <schily/stdlib.h>
 #include <schily/unistd.h>

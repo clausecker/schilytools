@@ -1,8 +1,8 @@
-/* @(#)sdd.c	1.59 09/06/22 Copyright 1984-2009 J. Schilling */
+/* @(#)sdd.c	1.60 09/07/11 Copyright 1984-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)sdd.c	1.59 09/06/22 Copyright 1984-2009 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)sdd.c	1.60 09/07/11 Copyright 1984-2009 J. Schilling";
 #endif
 /*
  *	sdd	Disk and Tape copy
@@ -46,10 +46,10 @@ static	const char sccsid[] =
 #undef	USE_REMOTE				/* There is no rcmd() */
 #endif
 
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/stdlib.h>
 #include <schily/unistd.h>
-#include <signal.h>
+#include <schily/signal.h>
 #include <schily/utypes.h>
 #include <schily/time.h>
 #include <schily/standard.h>
@@ -1455,7 +1455,7 @@ getopts(ac, av)
 	if (help)
 		usage(0);
 	if (prvers) {
-		printf("sdd %s (%s-%s-%s)\n\n", "1.59",
+		printf("sdd %s (%s-%s-%s)\n\n", "1.60",
 					HOST_CPU, HOST_VENDOR, HOST_OS);
 		printf("Copyright (C) 1984-2009 Jörg Schilling\n");
 		printf("This is free software; see the source for copying ");

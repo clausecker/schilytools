@@ -1,8 +1,8 @@
-/* @(#)multi.c	1.91 09/01/19 joerg */
+/* @(#)multi.c	1.93 09/07/10 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)multi.c	1.91 09/01/19 joerg";
+static	UConst char sccsid[] =
+	"@(#)multi.c	1.93 09/07/10 joerg";
 #endif
 /*
  * File multi.c - scan existing iso9660 image and merge into
@@ -26,13 +26,12 @@ static	const char sccsid[] =
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#include <schily/mconfig.h>
 #include "mkisofs.h"
 #include <schily/time.h>
 #include <schily/errno.h>
 #include <schily/utypes.h>
 #include <schily/schily.h>
-#include <ctype.h>			/* Needed for printasc()	*/
+#include <schily/ctype.h>		/* Needed for printasc()	*/
 
 #ifdef VMS
 

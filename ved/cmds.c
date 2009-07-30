@@ -1,14 +1,14 @@
-/* @(#)cmds.c	1.43 08/12/22 Copyright 1984-2008 J. Schilling */
+/* @(#)cmds.c	1.45 09/07/13 Copyright 1984-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)cmds.c	1.43 08/12/22 Copyright 1984-2008 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)cmds.c	1.45 09/07/13 Copyright 1984-2009 J. Schilling";
 #endif
 /*
  *	Commands that deal with various things that do not apply to other
  *	systematic categories.
  *
- *	Copyright (c) 1984-2008 J. Schilling
+ *	Copyright (c) 1984-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -24,7 +24,7 @@ static	const char sccsid[] =
 
 #include "ved.h"
 #include "terminal.h"
-#include <signal.h>
+#include <schily/signal.h>
 
 LOCAL	BOOL	rawinput;
 

@@ -1,4 +1,4 @@
-/* @(#)snprintf.c	1.12 07/07/01 Copyright 1985, 1996-2004 J. Schilling */
+/* @(#)snprintf.c	1.13 09/07/10 Copyright 1985, 1996-2004 J. Schilling */
 /*
  *	Copyright (c) 1985, 1996-2004 J. Schilling
  */
@@ -17,7 +17,7 @@
 #define	snprintf __nothing__	/* prototype may be wrong (e.g. IRIX) */
 #include <schily/mconfig.h>
 #include <schily/unistd.h>	/* include <sys/types.h> try to get size_t */
-#include <stdio.h>		/* Try again for size_t	*/
+#include <schily/stdio.h>	/* Try again for size_t	*/
 #include <schily/stdlib.h>	/* Try again for size_t	*/
 #include <schily/varargs.h>
 #include <schily/standard.h>

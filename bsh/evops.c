@@ -1,8 +1,8 @@
-/* @(#)evops.c	1.32 09/06/29 Copyright 1984-2009 J. Schilling */
+/* @(#)evops.c	1.35 09/07/28 Copyright 1984-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)evops.c	1.32 09/06/29 Copyright 1984-2009 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)evops.c	1.35 09/07/28 Copyright 1984-2009 J. Schilling";
 #endif
 /*
  *	bsh environment section
@@ -21,26 +21,17 @@ static	const char sccsid[] =
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#include <schily/mconfig.h>
 #include <schily/stdio.h>
-#ifdef	HAVE_SYS_PARAM_H
-#include <sys/param.h>	/* Include various defs needed with some OS */
-#endif
+#include <schily/param.h>	/* Include various defs needed with some OS */
 #include "bsh.h"
 #include "str.h"
 #include "strsubs.h"
 #include <schily/unistd.h>
 #include <schily/stdlib.h>
 #include <schily/string.h>
-#ifdef	HAVE_LIMITS_H
-#	include <limits.h>
-#endif
-#ifdef	HAVE_SYS_SYSTEMINFO_H
-#	include <sys/systeminfo.h>
-#endif
-#ifdef	HAVE_SYS_UTSNAME_H
-#	include	<sys/utsname.h>
-#endif
+#include <schily/limits.h>
+#include <schily/systeminfo.h>
+#include <schily/utsname.h>
 #include <schily/locale.h>
 
 
@@ -274,7 +265,7 @@ ev_inc()
 		evarray = (char **)realloc(evarray,
 					(evasize+EVAINC)*sizeof (char *));
 	if (evarray == (char **)NULL)
-		berror(sn_no_mem);
+		berror("%s", sn_no_mem);
 	evarray[evasize] = NULL;
 	evasize += EVAINC;
 }

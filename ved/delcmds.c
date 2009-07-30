@@ -1,13 +1,13 @@
-/* @(#)delcmds.c	1.26 08/12/22 Copyright 1984-2008 J. Schilling */
+/* @(#)delcmds.c	1.27 09/07/09 Copyright 1984-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)delcmds.c	1.26 08/12/22 Copyright 1984-2008 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)delcmds.c	1.27 09/07/09 Copyright 1984-2009 J. Schilling";
 #endif
 /*
  *	Commands that deal with deletions
  *
- *	Copyright (c) 1984-2008 J. Schilling
+ *	Copyright (c) 1984-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

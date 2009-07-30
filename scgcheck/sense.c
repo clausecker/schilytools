@@ -1,11 +1,11 @@
-/* @(#)sense.c	1.8 08/12/22 Copyright 2001-2008 J. Schilling */
+/* @(#)sense.c	1.9 09/07/11 Copyright 2001-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)sense.c	1.8 08/12/22 Copyright 2001-2008 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)sense.c	1.9 09/07/11 Copyright 2001-2009 J. Schilling";
 #endif
 /*
- *	Copyright (c) 2001-2008 J. Schilling
+ *	Copyright (c) 2001-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -19,8 +19,7 @@ static	const char sccsid[] =
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#include <schily/mconfig.h>
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/stdlib.h>
 #include <schily/unistd.h>
 #include <schily/string.h>

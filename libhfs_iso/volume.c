@@ -1,8 +1,8 @@
-/* @(#)volume.c	1.8 09/05/21 joerg */
+/* @(#)volume.c	1.9 09/07/11 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)volume.c	1.8 09/05/21 joerg";
+static	UConst char sccsid[] =
+	"@(#)volume.c	1.9 09/07/11 joerg";
 #endif
 /*
  * hfsutils - tools for reading and writing Macintosh HFS volumes
@@ -23,7 +23,6 @@ static	const char sccsid[] =
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#include <schily/mconfig.h>
 #include <schily/stdlib.h>
 #include <schily/string.h>
 #include <schily/errno.h>

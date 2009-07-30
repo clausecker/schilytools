@@ -1,13 +1,13 @@
-/* @(#)walk.c	1.36 08/12/22 Copyright 2004-2008 J. Schilling */
+/* @(#)walk.c	1.38 09/07/11 Copyright 2004-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)walk.c	1.36 08/12/22 Copyright 2004-2008 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)walk.c	1.38 09/07/11 Copyright 2004-2009 J. Schilling";
 #endif
 /*
  *	Walk a directory tree
  *
- *	Copyright (c) 2004-2008 J. Schilling
+ *	Copyright (c) 2004-2009 J. Schilling
  *
  *	In order to make treewalk() thread safe, we need to make it to not use
  *	chdir(2)/fchdir(2) which is process global.
@@ -35,8 +35,7 @@ static	const char sccsid[] =
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#include <schily/mconfig.h>
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/unistd.h>
 #include <schily/stdlib.h>
 #ifdef	HAVE_FCHDIR

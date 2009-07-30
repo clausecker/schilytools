@@ -1,13 +1,13 @@
-/* @(#)tmpfiles.c	1.13 08/12/22 Copyright 1984-2008 J. Schilling */
+/* @(#)tmpfiles.c	1.14 09/07/09 Copyright 1984-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)tmpfiles.c	1.13 08/12/22 Copyright 1984-2008 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)tmpfiles.c	1.14 09/07/09 Copyright 1984-2009 J. Schilling";
 #endif
 /*
  *	Filename manipulation for various tmp files of ved.
  *
- *	Copyright (c) 1984-2008 J. Schilling
+ *	Copyright (c) 1984-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

@@ -1,8 +1,8 @@
-/* @(#)ringbuff.c	1.18 09/07/05 Copyright 1998,1999,2000 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling */
+/* @(#)ringbuff.c	1.19 09/07/10 Copyright 1998,1999,2000 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling */
 #include "config.h"
 #ifndef lint
 static	UConst char sccsid[] =
-"@(#)ringbuff.c	1.18 09/07/05 Copyright 1998,1999,2000 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling";
+"@(#)ringbuff.c	1.19 09/07/10 Copyright 1998,1999,2000 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling";
 #endif
 /*
  * Ringbuffer handling
@@ -22,7 +22,7 @@ static	UConst char sccsid[] =
 #include "config.h"
 
 #include <schily/stdlib.h>
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/standard.h>
 #include <schily/unistd.h>
 #include <schily/schily.h>

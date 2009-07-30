@@ -1,8 +1,8 @@
-/* @(#)scsilog.c	1.23 09/07/05 Copyright 1998-2009 J. Schilling */
+/* @(#)scsilog.c	1.24 09/07/10 Copyright 1998-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)scsilog.c	1.23 09/07/05 Copyright 1998-2009 J. Schilling";
+	"@(#)scsilog.c	1.24 09/07/10 Copyright 1998-2009 J. Schilling";
 #endif
 /*
  *	SCSI log page handling
@@ -23,7 +23,7 @@ static	UConst char sccsid[] =
 
 #include <schily/mconfig.h>
 
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/standard.h>
 #include <schily/utypes.h>
 #include <schily/btorder.h>

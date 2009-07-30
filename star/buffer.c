@@ -1,8 +1,8 @@
-/* @(#)buffer.c	1.153 09/05/06 Copyright 1985, 1995, 2001-2009 J. Schilling */
+/* @(#)buffer.c	1.155 09/07/13 Copyright 1985, 1995, 2001-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)buffer.c	1.153 09/05/06 Copyright 1985, 1995, 2001-2009 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)buffer.c	1.155 09/07/13 Copyright 1985, 1995, 2001-2009 J. Schilling";
 #endif
 /*
  *	Buffer handling routines
@@ -37,7 +37,7 @@ static	const char sccsid[] =
 #undef	USE_REMOTE				/* There is no rcmd() */
 #endif
 
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/stdlib.h>
 #include <schily/unistd.h>
 #include <schily/libport.h>	/* getpagesize() */
@@ -56,9 +56,7 @@ static	const char sccsid[] =
 #include <schily/librmt.h>
 #include "starsubs.h"
 
-#ifdef	NEED_O_BINARY
-#include <io.h>					/* for setmode() prototype */
-#endif
+#include <schily/io.h>		/* for setmode() prototype */
 
 long	bigcnt	= 0;
 int	bigsize	= 0;		/* Tape block size */
@@ -258,9 +256,7 @@ opentape()
 			multblk = TRUE;
 		}
 		setbuf(tarf, (char *)NULL);
-#ifdef	NEED_O_BINARY
 		setmode(fileno(tarf), O_BINARY);
-#endif
 	} else if (isremote) {
 #ifdef	USE_REMOTE
 		/*
@@ -1816,7 +1812,7 @@ die(err)
 /*
  * Quick hack to implement a -z flag. May be changed soon.
  */
-#include <signal.h>
+#include <schily/signal.h>
 #if	defined(SIGDEFER) || defined(SVR4)
 #define	signal	sigset
 #endif
@@ -1925,9 +1921,7 @@ compressopen()
 		tarf = pp[0];
 		fclose(pp[1]);
 	}
-#ifdef	NEED_O_BINARY
 	setmode(fileno(tarf), O_BINARY);
-#endif
 #endif /* !__DJGPP__ */
 #else  /* !HAVE_FORK */
 	comerrno(EX_BAD, "Inline compression not available.\n");

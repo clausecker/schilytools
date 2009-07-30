@@ -1,8 +1,8 @@
-/* @(#)scsiopen.c	1.100 09/01/13 Copyright 1995-2009 J. Schilling */
+/* @(#)scsiopen.c	1.101 09/07/11 Copyright 1995-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)scsiopen.c	1.100 09/01/13 Copyright 1995-2009 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)scsiopen.c	1.101 09/07/11 Copyright 1995-2009 J. Schilling";
 #endif
 /*
  *	SCSI command functions for cdrecord
@@ -41,9 +41,8 @@ static	const char sccsid[] =
  *		values to scg_scsibus() scg_target() and scg_lun()
  *		is scg_settarget().
  */
-#include <schily/mconfig.h>
 
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/standard.h>
 #include <schily/stdlib.h>
 #include <schily/unistd.h>

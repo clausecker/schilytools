@@ -27,11 +27,11 @@
 /*
  * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)get.c	1.19 09/04/10 J. Schilling
+ * @(#)get.c	1.20 09/07/18 J. Schilling
  */
 #if defined(sun) || defined(__GNUC__)
 
-#ident "@(#)get.c 1.19 09/04/10 J. Schilling"
+#ident "@(#)get.c 1.20 09/07/18 J. Schilling"
 #endif
 /*
  * @(#)get.c 1.59 06/12/12
@@ -44,9 +44,9 @@
 #include	<version.h>
 #include	<had.h>
 #include	<i18n.h>
-#include	<sys/utsname.h>
+#include	<schily/utsname.h>
 #include	<ccstypes.h>
-#include	<limits.h>
+#include	<schily/limits.h>
 #include	<schily/sysexits.h>
 
 #define	DATELEN	12

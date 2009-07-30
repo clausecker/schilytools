@@ -1,14 +1,14 @@
-/* @(#)gettnum.c	1.8 08/12/21 Copyright 1984-2002, 2004-2008 J. Schilling */
+/* @(#)gettnum.c	1.9 09/07/08 Copyright 1984-2002, 2004-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)gettnum.c	1.8 08/12/21 Copyright 1984-2002, 2004-2008 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)gettnum.c	1.9 09/07/08 Copyright 1984-2002, 2004-2009 J. Schilling";
 #endif
 /*
  *	Generic time conversion routines rewritten from
  *	'dd' like number conversion in 'sdd'.
  *
- *	Copyright (c) 1984-2002, 2004-2008 J. Schilling
+ *	Copyright (c) 1984-2002, 2004-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -22,7 +22,6 @@ static	const char sccsid[] =
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#include <schily/mconfig.h>
 #include <schily/standard.h>
 #include <schily/utypes.h>
 #include <schily/time.h>

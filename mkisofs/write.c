@@ -1,8 +1,8 @@
-/* @(#)write.c	1.121 09/05/21 joerg */
+/* @(#)write.c	1.123 09/07/10 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)write.c	1.121 09/05/21 joerg";
+static	UConst char sccsid[] =
+	"@(#)write.c	1.123 09/07/10 joerg";
 #endif
 /*
  * Program write.c - dump memory  structures to  file for iso9660 filesystem.
@@ -29,7 +29,6 @@ static	const char sccsid[] =
 
 /* APPLE_HYB James Pearson j.pearson@ge.ucl.ac.uk 23/2/2000 */
 
-#include <schily/mconfig.h>
 #include "mkisofs.h"
 #include <schily/time.h>
 #include <schily/fcntl.h>
@@ -45,7 +44,7 @@ static	const char sccsid[] =
 #include "ifo_read.h"
 #endif
 #ifdef APPLE_HYB
-#include <ctype.h>
+#include <schily/ctype.h>
 #endif
 
 #ifdef	VMS

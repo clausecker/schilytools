@@ -1,8 +1,8 @@
-/* @(#)star_unix.c	1.94 09/04/28 Copyright 1985, 1995, 2001-2009 J. Schilling */
+/* @(#)star_unix.c	1.95 09/07/11 Copyright 1985, 1995, 2001-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)star_unix.c	1.94 09/04/28 Copyright 1985, 1995, 2001-2009 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)star_unix.c	1.95 09/07/11 Copyright 1985, 1995, 2001-2009 J. Schilling";
 #endif
 /*
  *	Stat / mode / owner routines for unix like
@@ -26,7 +26,7 @@ static	const char sccsid[] =
 #ifndef	HAVE_UTIMES
 #define	utimes	__nothing__	/* BeOS has no utimes() but wrong prototype */
 #endif
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/errno.h>
 #include "star.h"
 #include "props.h"

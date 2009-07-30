@@ -1,11 +1,11 @@
-/* @(#)tartest.c	1.14 08/12/23 Copyright 2002-2008 J. Schilling */
+/* @(#)tartest.c	1.16 09/07/13 Copyright 2002-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)tartest.c	1.14 08/12/23 Copyright 2002-2008 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)tartest.c	1.16 09/07/13 Copyright 2002-2009 J. Schilling";
 #endif
 /*
- *	Copyright (c) 2002-2008 J. Schilling
+ *	Copyright (c) 2002-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -19,8 +19,7 @@ static	const char sccsid[] =
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#include <schily/mconfig.h>
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/stdlib.h>
 
 #include "star.h"
@@ -29,10 +28,8 @@ static	const char sccsid[] =
 #include <schily/getargs.h>
 #include <schily/schily.h>
 
-#ifdef	NEED_O_BINARY
-#include <io.h>					/* for setmode() prototype */
 #include <schily/fcntl.h>			/* O_BINARY */
-#endif
+#include <schily/io.h>				/* for setmode() prototype */
 
 LOCAL	void	usage		__PR((int ret));
 EXPORT	int	main		__PR((int ac, char *av[]));
@@ -86,7 +83,7 @@ main(ac, av)
 	if (help)
 		usage(0);
 
-	printf("tartest %s (%s-%s-%s)\n\n", "1.14",
+	printf("tartest %s (%s-%s-%s)\n\n", "1.16",
 					HOST_CPU, HOST_VENDOR, HOST_OS);
 	printf("Copyright (C) 2002 Jörg Schilling\n");
 	printf("This is free software; see the source for copying conditions.  There is NO\n");
@@ -96,9 +93,7 @@ main(ac, av)
 
 	printf("\nTesting for POSIX.1-1990 TAR compliance...\n");
 
-#ifdef	NEED_O_BINARY
 	setmode(fileno(stdin), O_BINARY);
-#endif
 
 	if (!doit(stdin)) {
 		printf(">>> Archive is not POSIX.1-1990 TAR standard compliant.\n");

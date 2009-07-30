@@ -1,8 +1,8 @@
-/* @(#)isodump.c	1.40 09/01/17 joerg */
+/* @(#)isodump.c	1.41 09/07/09 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)isodump.c	1.40 09/01/17 joerg";
+static	UConst char sccsid[] =
+	"@(#)isodump.c	1.41 09/07/09 joerg";
 #endif
 /*
  * File isodump.c - dump iso9660 directory information.
@@ -27,16 +27,15 @@ static	const char sccsid[] =
  * Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#include <schily/mconfig.h>
 #include <schily/stdlib.h>
 #include <schily/unistd.h>
 #include <schily/string.h>
 #include <schily/utypes.h>
 
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/standard.h>
 #include <schily/termios.h>
-#include <signal.h>
+#include <schily/signal.h>
 #include <schily/schily.h>
 
 #include "../scsi.h"

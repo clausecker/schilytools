@@ -1,8 +1,8 @@
-/* @(#)strncmp.c	1.2 09/06/07 Copyright 2006-2009 J. Schilling */
+/* @(#)strncmp.c	1.3 09/07/08 Copyright 2006-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)strncmp.c	1.2 09/06/07 Copyright 2006-2009 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)strncmp.c	1.3 09/07/08 Copyright 2006-2009 J. Schilling";
 #endif
 /*
  *	strncmp() to be used if missing in libc

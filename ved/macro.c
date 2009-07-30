@@ -1,13 +1,13 @@
-/* @(#)macro.c	1.40 08/12/22 Copyright 1984-2008 J. Schilling */
+/* @(#)macro.c	1.42 09/07/13 Copyright 1984-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)macro.c	1.40 08/12/22 Copyright 1984-2008 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)macro.c	1.42 09/07/13 Copyright 1984-2009 J. Schilling";
 #endif
 /*
  *	The macro package for VED
  *
- *	Copyright (c) 1984-2008 J. Schilling
+ *	Copyright (c) 1984-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -47,9 +47,7 @@ static	const char sccsid[] =
 #include "ved.h"
 #include <schily/string.h>
 #include <schily/errno.h>
-#ifndef	JOS
-#	include <pwd.h>
-#endif
+#include <schily/pwd.h>
 
 #define	M_NAMELEN	256
 #define	M_STRINGLEN	8192

@@ -1,11 +1,11 @@
-/* @(#)getpagesize.c	1.3 08/12/21 Copyright 2001-2008 J. Schilling */
+/* @(#)getpagesize.c	1.5 09/07/10 Copyright 2001-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)getpagesize.c	1.3 08/12/21 Copyright 2001-2008 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)getpagesize.c	1.5 09/07/10 Copyright 2001-2009 J. Schilling";
 #endif
 /*
- *	Copyright (c) 2001-2008 J. Schilling
+ *	Copyright (c) 2001-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -19,14 +19,10 @@ static	const char sccsid[] =
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#include <schily/mconfig.h>
-
 #ifndef	HAVE_GETPAGESIZE
 #include <schily/unistd.h>
 #include <schily/standard.h>
-#ifdef	HAVE_SYS_PARAM_H
-#include <sys/param.h>
-#endif
+#include <schily/param.h>
 #include <schily/libport.h>
 
 #ifdef	HAVE_OS_H

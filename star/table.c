@@ -1,14 +1,14 @@
-/* @(#)table.c	1.25 08/12/22 Copyright 1994-96 2000-2008 J. Schilling */
+/* @(#)table.c	1.26 09/07/11 Copyright 1994-96 2000-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)table.c	1.25 08/12/22 Copyright 1994-96 2000-2008 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)table.c	1.26 09/07/11 Copyright 1994-96 2000-2009 J. Schilling";
 #endif
 /*
  *	Conversion tables for efficient conversion
  *	of different file type representations
  *
- *	Copyright (c) 1994-96 2000-2008 J. Schilling
+ *	Copyright (c) 1994-96 2000-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

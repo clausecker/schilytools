@@ -1,13 +1,13 @@
-/* @(#)test.c	1.25 08/12/20 Copyright 1986,1995-2008 J. Schilling */
+/* @(#)test.c	1.27 09/07/14 Copyright 1986,1995-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)test.c	1.25 08/12/20 Copyright 1986,1995-2008 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)test.c	1.27 09/07/14 Copyright 1986,1995-2009 J. Schilling";
 #endif
 /*
  *	Test routine (the test builtin command)
  *
- *	Copyright (c) 1986,1995-2008 J. Schilling
+ *	Copyright (c) 1986,1995-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -21,10 +21,9 @@ static	const char sccsid[] =
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#include <schily/mconfig.h>
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/unistd.h>
-#include <setjmp.h>
+#include <schily/setjmp.h>
 #include <schily/jmpdefs.h>
 #include <schily/varargs.h>
 #include <schily/stat.h>

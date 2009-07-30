@@ -1,8 +1,8 @@
-/* @(#)tgetent.c	1.31 09/07/05 Copyright 1986-2009 J. Schilling */
+/* @(#)tgetent.c	1.33 09/07/12 Copyright 1986-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)tgetent.c	1.31 09/07/05 Copyright 1986-2009 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)tgetent.c	1.33 09/07/12 Copyright 1986-2009 J. Schilling";
 #endif
 /*
  *	Access routines for TERMCAP database.
@@ -24,9 +24,8 @@ static	const char sccsid[] =
 /*
  * XXX Non POSIX imports from libschily: geterrno()
  */
-#include <schily/mconfig.h>
 #ifdef	BSH
-#	include <stdio.h>
+#	include <schily/stdio.h>
 #	include "bsh.h"
 #endif
 
@@ -35,11 +34,11 @@ static	const char sccsid[] =
 #include <schily/unistd.h>
 #include <schily/fcntl.h>
 #include <schily/string.h>
-#include <signal.h>
+#include <schily/signal.h>
 #include <schily/errno.h>
 #include <schily/schily.h>
 #include <schily/termios.h>
-#include "ctype.h"
+#include <schily/ctype.h>
 #include <schily/utypes.h>
 #include <schily/termcap.h>
 
@@ -64,7 +63,11 @@ LOCAL	char	_Etermcap[]	= "TERMCAP";
 LOCAL	char	_Etermpath[]	= "TERMPATH";
 LOCAL	char	_termpath[]	= ".termcap /etc/termcap";
 LOCAL	char	_tc[]		= "tc";
-LOCAL	char	_quotetab[]	= "E^^\\\\::n\nr\rt\tb\bf\fv\v";
+				/*
+				 * Additional terminfo quotes
+				 * "e^[" "::" ",," "s " "l\n"
+				 */
+LOCAL	char	_quotetab[]	= "E^^\\\\e::,,s l\nn\nr\rt\tb\bf\fv\v";
 
 LOCAL	char	_etoolong[]	= "Termcap entry too long\n";
 LOCAL	char	_ebad[]		= "Bad termcap entry\n";
@@ -639,6 +642,11 @@ tdecode(pp, array)
 					c <<= 3;
 					c |= *ep++ - '0';
 				}
+				/*
+				 * Terminfo maps NULL chars to 0200
+				 */
+				if (c == '\0')
+					c = '\200';
 			} else for (tp = (Uchar *)_quotetab; *tp; tp++) {
 				if (*tp++ == c) {
 					c = *tp;

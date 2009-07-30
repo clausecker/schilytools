@@ -27,11 +27,11 @@
 /*
  * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)unget.c	1.8 09/02/05 J. Schilling
+ * @(#)unget.c	1.9 09/07/18 J. Schilling
  */
 #if defined(sun) || defined(__GNUC__)
 
-#ident "@(#)unget.c 1.8 09/02/05 J. Schilling"
+#ident "@(#)unget.c 1.9 09/07/18 J. Schilling"
 #endif
 /*
  * @(#)unget.c 1.24 06/12/12
@@ -43,9 +43,9 @@
 # include	<version.h>
 # include	<had.h>
 # include       <i18n.h>
-# include       <sys/utsname.h>
+# include       <schily/utsname.h>
 # include       <schily/wait.h>
-# include       <ctype.h>
+# include       <schily/ctype.h>
 # include       <ccstypes.h>
 # include	<schily/sysexits.h>
 

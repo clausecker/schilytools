@@ -1,8 +1,8 @@
-/* @(#)scsi_cmds.c	1.46 09/07/05 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling */
+/* @(#)scsi_cmds.c	1.47 09/07/10 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling */
 #include "config.h"
 #ifndef lint
 static	UConst char sccsid[] =
-"@(#)scsi_cmds.c	1.46 09/07/05 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling";
+"@(#)scsi_cmds.c	1.47 09/07/10 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling";
 #endif
 /*
  * file for all SCSI commands
@@ -25,7 +25,7 @@ static	UConst char sccsid[] =
 #define	TESTSUBQFALLBACK	0
 
 #include "config.h"
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/standard.h>
 #include <schily/stdlib.h>
 #include <schily/string.h>

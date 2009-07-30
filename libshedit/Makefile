@@ -1,4 +1,4 @@
-#ident "@(#)Makefile	1.11 09/06/08 "
+#ident "@(#)Makefile	1.12 09/07/06 "
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -46,7 +46,7 @@ CFILES=		edit.c inputc.c expand.c node.c map.c strsubs.c str.c ttymodes.c \
 
 HFILES=		bsh.h map.h node.h \
 		str.h \
-		strsubs.h bshconf.h schilyio.h
+		strsubs.h bshconf.h schilyio.h include/stdio.h
 #LIBS=		-lunos
 LIBS=		-lxtermcap -lschily $(LIB_CRYPT)
 #XMK_FILE=	Makefile.man

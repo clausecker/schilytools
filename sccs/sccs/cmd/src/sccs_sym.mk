@@ -1,9 +1,10 @@
-#ident @(#)sccs_sym.mk	1.2 08/01/06 
+#ident @(#)sccs_sym.mk	1.3 09/07/28 
 ###########################################################################
 SRCROOT=	../../../..
 RULESDIR=	RULES
 include		$(SRCROOT)/$(RULESDIR)/rules.top
 ###########################################################################
+_EXEEXT=	$(EXEEXT)
 
 INSDIR=		bin
 TARGET=		sccs

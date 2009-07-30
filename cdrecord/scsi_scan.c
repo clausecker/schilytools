@@ -1,8 +1,8 @@
-/* @(#)scsi_scan.c	1.33 09/07/05 Copyright 1997-2009 J. Schilling */
+/* @(#)scsi_scan.c	1.34 09/07/10 Copyright 1997-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)scsi_scan.c	1.33 09/07/05 Copyright 1997-2009 J. Schilling";
+	"@(#)scsi_scan.c	1.34 09/07/10 Copyright 1997-2009 J. Schilling";
 #endif
 /*
  *	Scan SCSI Bus.
@@ -24,7 +24,7 @@ static	UConst char sccsid[] =
  */
 
 #include <schily/mconfig.h>
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/stdlib.h>
 #include <schily/standard.h>
 #include <schily/btorder.h>

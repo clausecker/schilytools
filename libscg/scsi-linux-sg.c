@@ -1,7 +1,7 @@
-/* @(#)scsi-linux-sg.c	1.92 07/04/23 Copyright 1997 J. Schilling */
+/* @(#)scsi-linux-sg.c	1.93 09/07/29 Copyright 1997 J. Schilling */
 #ifndef lint
 static	char __sccsid[] =
-	"@(#)scsi-linux-sg.c	1.92 07/04/23 Copyright 1997 J. Schilling";
+	"@(#)scsi-linux-sg.c	1.93 09/07/29 Copyright 1997 J. Schilling";
 #endif
 /*
  *	Interface for Linux generic SCSI implementation (sg).
@@ -127,7 +127,7 @@ static	char __sccsid[] =
  *	Choose your name instead of "schily" and make clear that the version
  *	string is related to a modified source.
  */
-LOCAL	char	_scg_trans_version[] = "scsi-linux-sg.c-1.92";	/* The version for this transport*/
+LOCAL	char	_scg_trans_version[] = "scsi-linux-sg.c-1.93";	/* The version for this transport*/
 
 #ifndef	SCSI_IOCTL_GET_BUS_NUMBER
 #define	SCSI_IOCTL_GET_BUS_NUMBER 0x5386
@@ -169,12 +169,12 @@ LOCAL	char	_scg_trans_version[] = "scsi-linux-sg.c-1.92";	/* The version for thi
  * XXX Should add extra space in buscookies and scgfiles for a "PP bus"
  * XXX and for two or more "ATAPI busses".
  */
-#define	MAX_SCG		256	/* Max # of SCSI controllers */
-#define	MAX_ATA		13	/* Max # of ATA devices */
+#define	MAX_SCG		(512-MAX_ATA)	/* Max # of SCSI controllers */
+#define	MAX_ATA		13		/* Max # of ATA devices */
 #define	MAX_TGT		16
 #define	MAX_LUN		8
 
-#if	MAX_SCG >= 1000
+#if	(MAX_SCG+MAX_ATA) >= 1000
 error too many SCSI busses
 #endif
 

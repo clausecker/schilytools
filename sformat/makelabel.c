@@ -1,13 +1,13 @@
-/* @(#)makelabel.c	1.53 08/12/22 Copyright 1988-2008 J. Schilling */
+/* @(#)makelabel.c	1.55 09/07/14 Copyright 1988-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)makelabel.c	1.53 08/12/22 Copyright 1988-2008 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)makelabel.c	1.55 09/07/14 Copyright 1988-2009 J. Schilling";
 #endif
 /*
  *	Routines to create / modify a label
  *
- *	Copyright (c) 1988-2008 J. Schilling
+ *	Copyright (c) 1988-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -21,13 +21,10 @@ static	const char sccsid[] =
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#include <schily/mconfig.h>
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/standard.h>
 #include <schily/ioctl.h>
-#ifdef	SVR4
-#include <termios.h>
-#endif
+#include <schily/termios.h>	/* For TIOCSTI (simulate terminal input) */
 #include <schily/fcntl.h>
 #include <sys/file.h>
 #include "dsklabel.h"

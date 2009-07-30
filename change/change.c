@@ -1,13 +1,13 @@
-/* @(#)change.c	1.37 08/12/23 Copyright 1985, 87-90, 95-99, 2000-2008 J. Schilling */
+/* @(#)change.c	1.39 09/07/11 Copyright 1985, 87-90, 95-99, 2000-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)change.c	1.37 08/12/23 Copyright 1985, 87-90, 95-99, 2000-2008 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)change.c	1.39 09/07/11 Copyright 1985, 87-90, 95-99, 2000-2009 J. Schilling";
 #endif
 /*
  *	find pattern and substitute in files
  *
- *	Copyright (c) 1985, 87-90, 95-99, 2000-2008 J. Schilling
+ *	Copyright (c) 1985, 87-90, 95-99, 2000-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -21,8 +21,7 @@ static	const char sccsid[] =
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#include <schily/mconfig.h>
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/varargs.h>
 #include <schily/stdlib.h>
 #include <schily/unistd.h>
@@ -32,7 +31,7 @@ static	const char sccsid[] =
 #	define	STATBUF		struct stat
 #	define	file_ino(sp)	((sp)->st_ino)
 #	define	file_dev(sp)	((sp)->st_dev)
-#include <signal.h>
+#include <schily/signal.h>
 #include <schily/standard.h>
 #include <schily/patmatch.h>
 #include <schily/utypes.h>
@@ -146,8 +145,8 @@ main(ac, av)
 	}
 	if (help) usage(0);
 	if (prversion) {
-		printf("Change release %s (%s-%s-%s) Copyright (C) 1985, 87-90, 95-99, 2000-2008 Jörg Schilling\n",
-				"1.37",
+		printf("Change release %s (%s-%s-%s) Copyright (C) 1985, 87-90, 95-99, 2000-2009 Jörg Schilling\n",
+				"1.39",
 				HOST_CPU, HOST_VENDOR, HOST_OS);
 		exit(0);
 	}

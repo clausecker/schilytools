@@ -1,13 +1,13 @@
-/* @(#)proc.c	1.3 08/12/20 Copyright 1995-2008 J. Schilling */
+/* @(#)proc.c	1.4 09/07/11 Copyright 1995-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)proc.c	1.3 08/12/20 Copyright 1995-2008 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)proc.c	1.4 09/07/11 Copyright 1995-2009 J. Schilling";
 #endif
 /*
  *	Job control process lists
  *
- *	Copyright (c) 1995-2008 J. Schilling
+ *	Copyright (c) 1995-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -21,8 +21,7 @@ static	const char sccsid[] =
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#include <schily/mconfig.h>
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/standard.h>
 #include <schily/time.h>
 #include <schily/stdlib.h>

@@ -1,11 +1,11 @@
-/* @(#)binding.c	1.12 08/12/22 Copyright 1984,1997,2000-2008 J. Schilling */
+/* @(#)binding.c	1.13 09/07/09 Copyright 1984,1997,2000-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)binding.c	1.12 08/12/22 Copyright 1984,1997,2000-2008 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)binding.c	1.13 09/07/09 Copyright 1984,1997,2000-2009 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1984,1997,2000-2008 J. Schilling
+ *	Copyright (c) 1984,1997,2000-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

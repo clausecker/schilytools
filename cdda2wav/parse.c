@@ -1,8 +1,8 @@
-/* @(#)parse.c	1.7 09/07/05 Copyright 2001-2009 J. Schilling */
+/* @(#)parse.c	1.8 09/07/10 Copyright 2001-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)parse.c	1.7 09/07/05 Copyright 2001-2009 J. Schilling";
+	"@(#)parse.c	1.8 09/07/10 Copyright 2001-2009 J. Schilling";
 #endif
 /*
  *	Interactive command parser for cdda2wav
@@ -32,9 +32,9 @@ static	UConst char sccsid[] =
  */
 
 #include <schily/mconfig.h>
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/standard.h>
-#include <ctype.h>
+#include <schily/ctype.h>
 #include <schily/jmpdefs.h>
 #include <schily/string.h>
 #include <schily/utypes.h>

@@ -1,11 +1,11 @@
-/* @(#)label.c	1.30 08/12/23 Copyright 1988-2008 J. Schilling */
+/* @(#)label.c	1.33 09/07/18 Copyright 1988-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)label.c	1.30 08/12/23 Copyright 1988-2008 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)label.c	1.33 09/07/18 Copyright 1988-2009 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1988-2008 J. Schilling
+ *	Copyright (c) 1988-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -19,17 +19,13 @@ static	const char sccsid[] =
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#include <schily/mconfig.h>
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/stdlib.h>
 #include <schily/standard.h>
-#ifdef	HAVE_SYS_PARAM_H
-#include <sys/param.h>	/* Include various defs needed with some OS */
-#endif
+#include <schily/param.h>	/* Include various defs needed with some OS */
 #include <schily/ioctl.h>
-#include "dsklabel.h"
 #include <schily/schily.h>
-
+#include "dsklabel.h"
 #include "fmt.h"
 
 struct disk	cur_disk;
@@ -102,8 +98,8 @@ main(ac, av)
 	if (help)
 		usage(0);
 	if (prversion) {
-		printf("Label release %s (%s-%s-%s) Copyright (C) 1988-2008 Jörg Schilling\n",
-				"1.30",
+		printf("Label release %s (%s-%s-%s) Copyright (C) 1988-2009 Jörg Schilling\n",
+				"1.33",
 				HOST_CPU, HOST_VENDOR, HOST_OS);
 		exit(0);
 	}

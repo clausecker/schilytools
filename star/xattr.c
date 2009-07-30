@@ -1,13 +1,13 @@
-/* @(#)xattr.c	1.12 08/12/22 Copyright 2003-2008 J. Schilling */
+/* @(#)xattr.c	1.13 09/07/11 Copyright 2003-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)xattr.c	1.12 08/12/22 Copyright 2003-2008 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)xattr.c	1.13 09/07/11 Copyright 2003-2009 J. Schilling";
 #endif
 /*
  *	Handle Extended File Attributes on Linux
  *
- *	Copyright (c) 2003-2008 J. Schilling
+ *	Copyright (c) 2003-2009 J. Schilling
  *	Thanks to Anreas Grünbacher <agruen@suse.de> for the
  *	first implemenation.
  */
@@ -23,10 +23,9 @@ static	const char sccsid[] =
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#include <schily/mconfig.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <schily/stdio.h>
+#include <schily/stdlib.h>
+#include <schily/string.h>
 #if defined(HAVE_ATTR_XATTR_H)
 #include <attr/xattr.h>
 #endif

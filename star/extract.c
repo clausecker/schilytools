@@ -1,13 +1,13 @@
-/* @(#)extract.c	1.133 08/12/22 Copyright 1985-2008 J. Schilling */
+/* @(#)extract.c	1.134 09/07/11 Copyright 1985-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)extract.c	1.133 08/12/22 Copyright 1985-2008 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)extract.c	1.134 09/07/11 Copyright 1985-2009 J. Schilling";
 #endif
 /*
  *	extract files from archive
  *
- *	Copyright (c) 1985-2008 J. Schilling
+ *	Copyright (c) 1985-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -21,8 +21,7 @@ static	const char sccsid[] =
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#include <schily/mconfig.h>
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/standard.h>
 #include "star.h"
 #include "props.h"

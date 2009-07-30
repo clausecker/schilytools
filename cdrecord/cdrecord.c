@@ -1,8 +1,8 @@
-/* @(#)cdrecord.c	1.383 09/07/05 Copyright 1995-2009 J. Schilling */
+/* @(#)cdrecord.c	1.385 09/07/18 Copyright 1995-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)cdrecord.c	1.383 09/07/05 Copyright 1995-2009 J. Schilling";
+	"@(#)cdrecord.c	1.385 09/07/18 Copyright 1995-2009 J. Schilling";
 #endif
 /*
  *	Record data on a CD/CVD-Recorder
@@ -33,9 +33,7 @@ static	UConst char sccsid[] =
 #endif
 #include <schily/stat.h>
 #include <schily/unistd.h>
-#ifdef	HAVE_SYS_MMAN_H
-#include <sys/mman.h>
-#endif
+#include <schily/mman.h>
 #include <schily/string.h>
 #include <schily/utypes.h>
 #include <schily/intcvt.h>
@@ -4354,7 +4352,7 @@ load_media(scgp, dp, doexit)
 	scgp->silent--;
 	err = geterrno();
 	if (code < 0 && (err == EPERM || err == EACCES)) {
-		linuxcheck();	/* For version 1.383 of cdrecord.c */
+		linuxcheck();	/* For version 1.385 of cdrecord.c */
 		scg_openerr("");
 	}
 
@@ -5230,7 +5228,7 @@ set_wrmode(dp, wmode, tflags)
 }
 
 /*
- * I am sorry that even for version 1.383 of cdrecord.c, I am forced to do
+ * I am sorry that even for version 1.385 of cdrecord.c, I am forced to do
  * things like this, but defective versions of cdrecord cause a lot of
  * work load to me.
  *
@@ -5242,12 +5240,12 @@ set_wrmode(dp, wmode, tflags)
  */
 #if	defined(linux) || defined(__linux) || defined(__linux__)
 #ifdef	HAVE_UNAME
-#include <sys/utsname.h>
+#include <schily/utsname.h>
 #endif
 #endif
 
 LOCAL void
-linuxcheck()				/* For version 1.383 of cdrecord.c */
+linuxcheck()				/* For version 1.385 of cdrecord.c */
 {
 #if	defined(linux) || defined(__linux) || defined(__linux__)
 #ifdef	HAVE_UNAME

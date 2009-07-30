@@ -1,8 +1,8 @@
-/* @(#)isoinfo.c	1.73 09/07/05 joerg */
+/* @(#)isoinfo.c	1.76 09/07/18 joerg */
 #include <schily/mconfig.h>
 #ifndef	lint
-static	const char sccsid[] =
-	"@(#)isoinfo.c	1.73 09/07/05 joerg";
+static	UConst char sccsid[] =
+	"@(#)isoinfo.c	1.76 09/07/18 joerg";
 #endif
 /*
  * File isodump.c - dump iso9660 directory information.
@@ -46,7 +46,7 @@ static	const char sccsid[] =
 #include <schily/stdio.h>
 #include <schily/utypes.h>
 #include <schily/standard.h>
-#include <signal.h>
+#include <schily/signal.h>
 #include <schily/stat.h>
 #include <schily/stat.h>
 #include <schily/fcntl.h>
@@ -58,10 +58,7 @@ static	const char sccsid[] =
 #include "../../cdrecord/version.h"
 
 #include <schily/siconv.h>
-
-#if	defined(__CYGWIN32__) || defined(__EMX__) || defined(__DJGPP__) || defined(__MINGW32__)
-#include <io.h>					/* for setmode() prototype */
-#endif
+#include <schily/io.h>				/* for setmode() prototype */
 
 /*
  * Make sure we have a definition for this.  If not, take a very conservative
@@ -73,9 +70,8 @@ static	const char sccsid[] =
  * XXX Eric's wrong comment:
  * XXX From what I can tell SunOS is the only one with this trouble.
  */
-#ifdef	HAVE_LIMITS_H
-#include <limits.h>
-#endif
+#include <schily/limits.h>
+
 #ifndef	NAME_MAX
 #ifdef	FILENAME_MAX
 #define	NAME_MAX	FILENAME_MAX
@@ -682,9 +678,7 @@ extract_file(idr)
 	int		extent, len, tlen;
 	unsigned char	buff[20480];
 
-#if	defined(__CYGWIN32__) || defined(__CYGWIN__) || defined(__EMX__) || defined(__DJGPP__) || defined(__MINGW32__)
 	setmode(fileno(stdout), O_BINARY);
-#endif
 
 	extent = isonum_733((unsigned char *)idr->extent);
 	len = isonum_733((unsigned char *)idr->size);

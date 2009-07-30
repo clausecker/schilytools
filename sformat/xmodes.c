@@ -1,13 +1,13 @@
-/* @(#)xmodes.c	1.24 08/12/22 Copyright 1991-2008 J. Schilling */
+/* @(#)xmodes.c	1.25 09/07/11 Copyright 1991-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)xmodes.c	1.24 08/12/22 Copyright 1991-2008 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)xmodes.c	1.25 09/07/11 Copyright 1991-2009 J. Schilling";
 #endif
 /*
  *	Routines to handle external mode data (database)
  *
- *	Copyright (c) 1991-2008 J. Schilling
+ *	Copyright (c) 1991-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -21,8 +21,7 @@ static	const char sccsid[] =
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#include <schily/mconfig.h>
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/standard.h>
 #include <schily/schily.h>
 #include <schily/utypes.h>

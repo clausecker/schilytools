@@ -1,8 +1,8 @@
-/* @(#)dump.c	1.35 09/01/10 joerg */
+/* @(#)dump.c	1.36 09/07/09 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)dump.c	1.35 09/01/10 joerg";
+static	UConst char sccsid[] =
+	"@(#)dump.c	1.36 09/07/09 joerg";
 #endif
 /*
  * File dump.c - dump a file/device both in hex and in ASCII.
@@ -26,16 +26,15 @@ static	const char sccsid[] =
  * Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#include <schily/mconfig.h>
 #include <schily/stdlib.h>
 #include <schily/unistd.h>
 #include <schily/string.h>
 #include <schily/utypes.h>
 
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/standard.h>
 #include <schily/termios.h>
-#include <signal.h>
+#include <schily/signal.h>
 #include <schily/schily.h>
 
 #include "../scsi.h"

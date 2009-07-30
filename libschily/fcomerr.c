@@ -1,4 +1,4 @@
-/* @(#)fcomerr.c	1.1 07/02/26 Copyright 1985-1989, 1995-2007 J. Schilling */
+/* @(#)fcomerr.c	1.2 09/07/10 Copyright 1985-1989, 1995-2007 J. Schilling */
 /*
  *	Routines for printing command errors on a specified FILE *
  *
@@ -18,7 +18,7 @@
 
 #include <schily/mconfig.h>
 #include <schily/unistd.h>	/* include <sys/types.h> try to get size_t */
-#include <stdio.h>		/* Try again for size_t	*/
+#include <schily/stdio.h>	/* Try again for size_t	*/
 #include <schily/stdlib.h>	/* Try again for size_t	*/
 #include <schily/standard.h>
 #include <schily/varargs.h>

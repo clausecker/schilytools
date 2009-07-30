@@ -1,8 +1,8 @@
-/* @(#)calltree.c	1.43 09/01/10 Copyright 1985, 1999-2009 J. Schilling */
+/* @(#)calltree.c	1.44 09/07/11 Copyright 1985, 1999-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)calltree.c	1.43 09/01/10 Copyright 1985, 1999-2009 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)calltree.c	1.44 09/07/11 Copyright 1985, 1999-2009 J. Schilling";
 #endif
 /*
  *	A program to produce a static calltree for C-functions
@@ -21,8 +21,7 @@ static	const char sccsid[] =
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#include <schily/mconfig.h>
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/standard.h>
 #include <schily/stdlib.h>
 #include <schily/unistd.h>
@@ -172,7 +171,7 @@ main(ac, av)
 	if (help)
 		usage(0);
 	if (version) {
-		printf("Calltree release %s (%s-%s-%s) Copyright (C) 1985, 88-90, 95-99, 2000-2008 Jörg Schilling\n",
+		printf("Calltree release %s (%s-%s-%s) Copyright (C) 1985, 88-90, 95-99, 2000-2009 Jörg Schilling\n",
 				ct_version,
 				HOST_CPU, HOST_VENDOR, HOST_OS);
 		exit(0);

@@ -1,8 +1,8 @@
-/* @(#)cond.c	1.23 09/01/04 Copyright 1985-2009 J. Schilling */
+/* @(#)cond.c	1.24 09/07/11 Copyright 1985-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)cond.c	1.23 09/01/04 Copyright 1985-2009 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)cond.c	1.24 09/07/11 Copyright 1985-2009 J. Schilling";
 #endif
 /*
  *	Bsh conditional code handling
@@ -27,8 +27,7 @@ static	const char sccsid[] =
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#include <schily/mconfig.h>
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/varargs.h>
 #include "bsh.h"
 #include "node.h"

@@ -1,8 +1,8 @@
-/* @(#)copy.c	1.44 09/01/06 Copyright 1984, 86-90, 95-97, 99, 2000-2009 J. Schilling */
+/* @(#)copy.c	1.47 09/07/28 Copyright 1984, 86-90, 95-97, 99, 2000-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)copy.c	1.44 09/01/06 Copyright 1984, 86-90, 95-97, 99, 2000-2009 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)copy.c	1.47 09/07/28 Copyright 1984, 86-90, 95-97, 99, 2000-2009 J. Schilling";
 #endif
 /*
  *	copy files ...
@@ -39,8 +39,7 @@ static	const char sccsid[] =
  *	until a null name is read.
  */
 
-#include <schily/mconfig.h>
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/stdlib.h>
 #include <schily/unistd.h>
 #include <schily/standard.h>
@@ -272,7 +271,7 @@ main(ac, av)
 	if (prversion) {
 		/* CSTYLED */
 		printf("Copy release %s (%s-%s-%s) Copyright (C) 1984, 86-90, 95-97, 99, 2000-2009 Jörg Schilling\n",
-				"1.44",
+				"1.47",
 				HOST_CPU, HOST_VENDOR, HOST_OS);
 		exit(0);
 	}
@@ -795,7 +794,7 @@ mygetline(pstr, str, len)
 	int	len;
 {
 	for (;;) {
-		printf(pstr);
+		printf("%s", pstr);
 		flush();
 		getline(str, len);
 #ifdef	tos
@@ -812,14 +811,7 @@ mygetline(pstr, str, len)
 }
 
 #include <schily/time.h>
-#ifdef	HAVE_UTIME_H
-#include <utime.h>
-#else
-struct utimbuf {
-	time_t	actime;
-	time_t	modtime;
-};
-#endif
+#include <schily/utime.h>
 
 LOCAL int
 xutimes(name, sp)

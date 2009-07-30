@@ -1,8 +1,8 @@
-/* @(#)checkerr.c	1.23 09/05/07 Copyright 2003-2009 J. Schilling */
+/* @(#)checkerr.c	1.24 09/07/08 Copyright 2003-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)checkerr.c	1.23 09/05/07 Copyright 2003-2009 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)checkerr.c	1.24 09/07/08 Copyright 2003-2009 J. Schilling";
 #endif
 /*
  *	Generic error control for programs that do file i/o.
@@ -28,8 +28,7 @@ static	const char sccsid[] =
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#include <schily/mconfig.h>
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/standard.h>
 #include <schily/patmatch.h>
 #include <schily/string.h>

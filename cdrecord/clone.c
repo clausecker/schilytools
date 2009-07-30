@@ -1,8 +1,8 @@
-/* @(#)clone.c	1.10 09/07/05 Copyright 2001-2009 J. Schilling */
+/* @(#)clone.c	1.11 09/07/10 Copyright 2001-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)clone.c	1.10 09/07/05 Copyright 2001-2009 J. Schilling";
+	"@(#)clone.c	1.11 09/07/10 Copyright 2001-2009 J. Schilling";
 #endif
 /*
  *	Clone Subchannel processing
@@ -22,7 +22,7 @@ static	UConst char sccsid[] =
  */
 
 #include <schily/mconfig.h>
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/fcntl.h>
 #include <schily/string.h>
 #include <schily/unistd.h>

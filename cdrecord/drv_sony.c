@@ -1,8 +1,8 @@
-/* @(#)drv_sony.c	1.85 09/07/05 Copyright 1997-2009 J. Schilling */
+/* @(#)drv_sony.c	1.86 09/07/10 Copyright 1997-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)drv_sony.c	1.85 09/07/05 Copyright 1997-2009 J. Schilling";
+	"@(#)drv_sony.c	1.86 09/07/10 Copyright 1997-2009 J. Schilling";
 #endif
 /*
  *	CDR device implementation for
@@ -26,7 +26,7 @@ static	UConst char sccsid[] =
 
 #include <schily/mconfig.h>
 
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/stdlib.h>
 #include <schily/unistd.h>	/* Include sys/types.h to make off_t available */
 #include <schily/standard.h>

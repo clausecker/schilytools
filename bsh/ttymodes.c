@@ -1,15 +1,15 @@
-/* @(#)ttymodes.c	1.30 08/12/20 Copyright 1986,1995-2008 J. Schilling */
+/* @(#)ttymodes.c	1.31 09/07/11 Copyright 1986,1995-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)ttymodes.c	1.30 08/12/20 Copyright 1986,1995-2008 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)ttymodes.c	1.31 09/07/11 Copyright 1986,1995-2009 J. Schilling";
 #endif
 /*
  *	ttymodes.c
  *
  *	Terminal handling for bsh
  *
- *	Copyright (c) 1986,1995-2008 J. Schilling
+ *	Copyright (c) 1986,1995-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -23,8 +23,7 @@ static	const char sccsid[] =
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#include <schily/mconfig.h>
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/unistd.h>
 #include <schily/termios.h>
 

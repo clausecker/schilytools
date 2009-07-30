@@ -1,8 +1,8 @@
-/* @(#)subchan.c	1.25 09/07/05 Copyright 2000-2009 J. Schilling */
+/* @(#)subchan.c	1.26 09/07/10 Copyright 2000-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)subchan.c	1.25 09/07/05 Copyright 2000-2009 J. Schilling";
+	"@(#)subchan.c	1.26 09/07/10 Copyright 2000-2009 J. Schilling";
 #endif
 /*
  *	Subchannel processing
@@ -22,7 +22,7 @@ static	UConst char sccsid[] =
  */
 
 #include <schily/mconfig.h>
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/unistd.h>
 #include <schily/standard.h>
 #include <schily/utypes.h>

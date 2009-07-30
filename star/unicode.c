@@ -1,8 +1,8 @@
-/* @(#)unicode.c	1.9 08/12/22 Copyright 2001-2008 J. Schilling */
+/* @(#)unicode.c	1.10 09/07/11 Copyright 2001-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)unicode.c	1.9 08/12/22 Copyright 2001-2008 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)unicode.c	1.10 09/07/11 Copyright 2001-2009 J. Schilling";
 #endif
 /*
  *	Routines to convert from/to UNICODE
@@ -11,7 +11,7 @@ static	const char sccsid[] =
  *	handles ISO-8859-1 coding. There should be a better solution
  *	in the future.
  *
- *	Copyright (c) 2001-2008 J. Schilling
+ *	Copyright (c) 2001-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -25,8 +25,7 @@ static	const char sccsid[] =
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#include <schily/mconfig.h>
-#include <stdio.h>
+#include <schily/stdio.h>
 #include "star.h"
 #include <schily/standard.h>
 #include <schily/schily.h>

@@ -1,8 +1,8 @@
-/* @(#)rscsi.c	1.34 09/07/05 Copyright 1994,2000-2009 J. Schilling*/
+/* @(#)rscsi.c	1.35 09/07/13 Copyright 1994,2000-2009 J. Schilling*/
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)rscsi.c	1.34 09/07/05 Copyright 1994,2000-2009 J. Schilling";
+	"@(#)rscsi.c	1.35 09/07/13 Copyright 1994,2000-2009 J. Schilling";
 #endif
 /*
  *	Remote SCSI server
@@ -34,13 +34,9 @@ static	UConst char sccsid[] =
 #define	USE_REMOTE
 #include <sys/socket.h>
 #endif
-#ifdef	 HAVE_SYS_PARAM_H
-#include <sys/param.h>	/* BSD-4.2 & Linux need this for MAXHOSTNAMELEN */
-#endif
+#include <schily/param.h>	/* BSD-4.2 & Linux need this for MAXHOSTNAMELEN */
 #include <schily/errno.h>
-#ifdef	HAVE_PWD_H
-#include <pwd.h>
-#endif
+#include <schily/pwd.h>
 
 #include <schily/standard.h>
 #include <schily/deflts.h>
@@ -50,15 +46,10 @@ static	UConst char sccsid[] =
 #include <scg/scgcmd.h>
 #include <scg/scsitransp.h>
 
-#ifdef	HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#endif
-#ifdef	HAVE_ARPA_INET_H
-#include <arpa/inet.h>		/* BeOS does not have <arpa/inet.h> */
-#endif				/* but inet_ntaoa() is in <netdb.h> */
-#ifdef	HAVE_NETDB_H
-#include <netdb.h>
-#endif
+#include <schily/in.h>
+#include <schily/inet.h>	/* BeOS does not have <arpa/inet.h> */
+				/* but inet_ntaoa() is in <netdb.h> */
+#include <schily/netdb.h>
 
 EXPORT	int	main		__PR((int argc, char **argv));
 #ifdef	USE_REMOTE

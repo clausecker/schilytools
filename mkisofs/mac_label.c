@@ -1,12 +1,12 @@
-/* @(#)mac_label.c	1.16 08/12/22 joerg, Copyright 1997, 1998, 1999, 2000 James Pearson */
+/* @(#)mac_label.c	1.17 09/07/09 joerg, Copyright 1997, 1998, 1999, 2000 James Pearson, Copyright 2004-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)mac_label.c	1.16 08/12/22 joerg, Copyright 1997, 1998, 1999, 2000 James Pearson";
+static	UConst char sccsid[] =
+	"@(#)mac_label.c	1.17 09/07/09 joerg, Copyright 1997, 1998, 1999, 2000 James Pearson, Copyright 2004-2009 J. Schilling";
 #endif
 /*
  *      Copyright (c) 1997, 1998, 1999, 2000 James Pearson
- *	Copyright (c) 2004-2008 J. Schilling
+ *	Copyright (c) 2004-2009 J. Schilling
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -46,7 +46,6 @@ static	const char sccsid[] =
 
 /* PREP_BOOT Troy Benjegerdes 2/4/99 */
 
-#include <schily/mconfig.h>
 #include "mkisofs.h"
 #include "mac_label.h"
 #include "apple.h"

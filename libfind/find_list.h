@@ -1,6 +1,6 @@
-/* @(#)find_list.h	1.7 07/04/04 Copyright 2004-2007 J. Schilling */
+/* @(#)find_list.h	1.8 09/07/10 Copyright 2004-2008 J. Schilling */
 /*
- *	Copyright (c) 2004-2007 J. Schilling
+ *	Copyright (c) 2004-2008 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -14,18 +14,16 @@
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#ifndef	_LIST_H
-#define	_LIST_H
+#ifndef	_FIND_LIST_H
+#define	_FIND_LIST_H
 
 #ifndef _SCHILY_MCONFIG_H
 #include <schily/mconfig.h>
 #endif
-
-#ifndef _INCL_STDIO_H
-#include <stdio.h>
-#define	_INCL_STDIO_H
+#ifndef _SCHILY_STDIO_H
+#include <schily/stdio.h>
 #endif
 
 extern	void	find_list		__PR((FILE *std[3], struct stat *fs, char *name, char *sname, struct WALK *state));
 
-#endif	/* _LIST_H */
+#endif	/* _FIND_LIST_H */

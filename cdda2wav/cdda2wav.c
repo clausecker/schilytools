@@ -1,8 +1,8 @@
-/* @(#)cdda2wav.c	1.112 09/07/05 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling */
+/* @(#)cdda2wav.c	1.114 09/07/18 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling */
 #include "config.h"
 #ifndef lint
 static	UConst char sccsid[] =
-"@(#)cdda2wav.c	1.112 09/07/05 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling";
+"@(#)cdda2wav.c	1.114 09/07/18 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling";
 
 #endif
 #undef	DEBUG_BUFFER_ADDRESSES
@@ -65,18 +65,16 @@ static	UConst char sccsid[] =
 #include "config.h"
 
 #include <schily/unistd.h>
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/standard.h>
 #include <schily/stdlib.h>
 #include <schily/string.h>
 #include <schily/schily.h>
-#include <signal.h>
+#include <schily/signal.h>
 #include <math.h>
 #include <schily/fcntl.h>
 #include <schily/time.h>
-#if defined(HAVE_LIMITS_H) && (HAVE_LIMITS_H == 1)
-#include <limits.h>
-#endif
+#include <schily/limits.h>
 #include <schily/ioctl.h>
 #include <schily/errno.h>
 #include <schily/stat.h>
@@ -87,6 +85,7 @@ static	UConst char sccsid[] =
 #include <schily/varargs.h>
 #include <schily/maxpath.h>
 #include <schily/btorder.h>
+#include <schily/io.h>		/* for setmode() prototype */
 
 #include <scg/scsitransp.h>
 
@@ -191,10 +190,6 @@ stereo,s,mono,m,wait,w,echo,e,quiet,q,max,x,out-fd#,audio-fd#,no-fork,interactiv
 ";
 /* END CSTYLED */
 
-
-#ifdef	NEED_O_BINARY
-#include <io.h>		/* for setmode() prototype */
-#endif
 
 /*
  * global variables
@@ -1032,7 +1027,7 @@ init_globals()
 }
 
 #if !defined(HAVE_STRCASECMP) || (HAVE_STRCASECMP != 1)
-#include <ctype.h>
+#include <schily/ctype.h>
 static int strcasecmp __PR((const char *s1, const char *s2));
 static int
 strcasecmp(s1, s2)
@@ -2958,9 +2953,7 @@ Rate   Divider      Rate   Divider      Rate   Divider      Rate   Divider\n\
 			} else {
 				global.audio = dup(fileno(stdout));
 			}
-#ifdef	NEED_O_BINARY
 			setmode(global.audio, O_BINARY);
-#endif
 			strncpy(global.fname_base, "standard_output",
 						sizeof (global.fname_base));
 			global.fname_base[sizeof (global.fname_base)-1] = 0;

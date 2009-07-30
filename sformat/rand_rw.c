@@ -1,11 +1,11 @@
-/* @(#)rand_rw.c	1.24 08/12/22 Copyright 1993-2008 J. Schilling */
+/* @(#)rand_rw.c	1.25 09/07/11 Copyright 1993-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)rand_rw.c	1.24 08/12/22 Copyright 1993-2008 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)rand_rw.c	1.25 09/07/11 Copyright 1993-2009 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1993-2008 J. Schilling
+ *	Copyright (c) 1993-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -19,15 +19,12 @@ static	const char sccsid[] =
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#include <schily/mconfig.h>
-#ifdef	HAVE_SYS_PARAM_H
-#include <sys/param.h>	/* Include various defs needed with some OS */
-#endif
-#include <stdio.h>
+#include <schily/param.h>	/* Include various defs needed with some OS */
+#include <schily/stdio.h>
 #include <schily/standard.h>
 #include <schily/stdlib.h>
 #include <schily/time.h>
-#include <signal.h>
+#include <schily/signal.h>
 #include <schily/schily.h>
 #include <scg/scgcmd.h>
 #include <scg/scsireg.h>

@@ -1,4 +1,4 @@
-/* @(#)unistd.h	1.20 09/01/06 Copyright 1996-2009 J. Schilling */
+/* @(#)unistd.h	1.21 09/07/27 Copyright 1996-2009 J. Schilling */
 /*
  *	Definitions for unix system interface
  *
@@ -43,7 +43,11 @@
 #endif
 #endif
 
-#endif	/* HAVE_UNISTD_H */
+#else	/* !HAVE_UNISTD_H */
+#ifndef	_SCHILY_STDLIB_H
+#include <schily/stdlib.h>	/* MSVC: no unistd.h environ is in stdlib.h */
+#endif
+#endif	/* !HAVE_UNISTD_H */
 
 /*
  * MSVC has getcwd()/chdir()/mkdir()/rmdir() in direct.h

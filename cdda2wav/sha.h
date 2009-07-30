@@ -1,4 +1,4 @@
-/* @(#)sha.h	1.6 06/09/13 Copyright 1998,1999 Heiko Eissfeldt */
+/* @(#)sha.h	1.7 09/07/10 Copyright 1998,1999 Heiko Eissfeldt */
 #ifndef	SHA_H
 #define	SHA_H
 
@@ -32,7 +32,7 @@ extern	void	sha_final	__PR((unsigned char [20], SHA_INFO *));
 
 #include <schily/mconfig.h>
 #include <schily/stdlib.h>
-#include <stdio.h>
+#include <schily/stdio.h>
 
 extern	void	sha_stream	__PR((unsigned char [20], SHA_INFO *, FILE *));
 extern	void	sha_print	__PR((unsigned char [20]));

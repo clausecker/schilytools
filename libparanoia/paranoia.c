@@ -1,14 +1,14 @@
-/* @(#)paranoia.c	1.40 08/12/22 J. Schilling from cdparanoia-III-alpha9.8 */
+/* @(#)paranoia.c	1.42 09/07/11 J. Schilling from cdparanoia-III-alpha9.8 */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-"@(#)paranoia.c	1.40 08/12/22 J. Schilling from cdparanoia-III-alpha9.8";
+static	UConst char sccsid[] =
+"@(#)paranoia.c	1.42 09/07/11 J. Schilling from cdparanoia-III-alpha9.8";
 
 #endif
 /*
  * CopyPolicy: GNU Lesser General Public License v2.1 applies
  * Copyright (C) 1997-2001,2008 by Monty (xiphmont@mit.edu)
- * Copyright (C) 2002-2008 by J. Schilling
+ * Copyright (C) 2002-2009 by J. Schilling
  *
  * Toplevel file for the paranoia abstraction over the cdda lib
  *
@@ -75,13 +75,12 @@ static	const char sccsid[] =
  * See i_silence_match() for the gory details.
  */
 
-#include <schily/mconfig.h>
 #include <schily/alloca.h>
 #include <schily/stdlib.h>
 #include <schily/unistd.h>
 #include <schily/standard.h>
 #include <schily/utypes.h>
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/string.h>
 #include "p_block.h"
 #include "cdda_paranoia.h"

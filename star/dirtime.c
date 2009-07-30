@@ -1,8 +1,8 @@
-/* @(#)dirtime.c	1.26 09/01/06 Copyright 1988-2009 J. Schilling */
+/* @(#)dirtime.c	1.27 09/07/11 Copyright 1988-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)dirtime.c	1.26 09/01/06 Copyright 1988-2009 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)dirtime.c	1.27 09/07/11 Copyright 1988-2009 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1988-2009 J. Schilling
@@ -38,7 +38,6 @@ static	const char sccsid[] =
  *
  * NOTE: I am not shure if degenerate filenames will fool this algorithm.
  */
-#include <schily/mconfig.h>
 #include <schily/types.h>	/* includes <sys/types.h> needed for mode_t */
 #include <schily/standard.h>
 #include <schily/schily.h>

@@ -1,4 +1,4 @@
-. \" @(#)termcap.1	1.4 09/07/05 Copyright 2008 J. Schilling
+. \" @(#)termcap.1	1.5 09/07/12 Copyright 2008 J. Schilling
 . \"  Manual page for termcap
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -13,7 +13,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH TERMCAP 1L "09/07/05" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH TERMCAP 1L "09/07/12" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 termcap \- a termcap compiler
 .SH SYNOPSIS
@@ -93,6 +93,22 @@ the obsolete capabilities are printed last.
 .TP
 .B \-gnugoto
 Allow the GNU tgoto() format extexsions %C and %m.
+.TP
+.B \-nowarn
+Do not warn about incorrect entries that could be fixed by asuming that the
+problem is a result from not correctly converting escape sequences in terminfo 
+syntax to termcap syntax. For this purpose, currently null characters
+.RB ( \e0 )
+are converted to 
+.BR \e200 .
+In addition, the escape sequences
+.BR \ee ,
+.BR \e: ,
+.BR \e, ,
+.B \es
+and
+.B \el
+are mapped to ESCAPE, ':', ',', ' ' and LINEFEED.
 .TP
 .B \-tc
 Follow

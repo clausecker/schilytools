@@ -1,8 +1,8 @@
-/* @(#)archconf.c	1.22 09/01/06 Copyright 1996-2009 J. Schilling */
+/* @(#)archconf.c	1.24 09/07/10 Copyright 1996-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)archconf.c	1.22 09/01/06 Copyright 1996-2009 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)archconf.c	1.24 09/07/10 Copyright 1996-2009 J. Schilling";
 #endif
 /*
  *	Make program
@@ -22,8 +22,7 @@ static	const char sccsid[] =
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#include <schily/mconfig.h>
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/standard.h>
 #include <schily/unistd.h>
 #include <schily/string.h>
@@ -273,7 +272,7 @@ do_sysinfo()
 #endif
 
 /*
- * See #ifdef statement below in unblank()w
+ * See #ifdef statement below in unblank()
  */
 LOCAL BOOL
 do_sysctl()
@@ -495,7 +494,7 @@ do_archheuristics()
  * '\\' in '-' wandeln.
  * ' ' in '-' wandeln.
  */
-#include <ctype.h>
+#include <schily/ctype.h>
 
 LOCAL void
 archcvt(p)

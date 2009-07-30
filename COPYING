@@ -64,6 +64,8 @@ libgetopt/
 	Library containing getopt() from OpenSolaris (CDDL)
 libhfs_iso/
 	HFS support lib (GPL)
+libmdigest/
+	Message digest lib (public domain)
 libparanoia/
 	CD paranoia CD-DAE support lib (LGPL)
 librmt/

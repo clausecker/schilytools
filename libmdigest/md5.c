@@ -1,8 +1,8 @@
-/* @(#)md5.c	1.5 09/06/21 2008 J. Schilling */
+/* @(#)md5.c	1.6 09/07/11 2008 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)md5.c	1.5 09/06/21 2008 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)md5.c	1.6 09/07/11 2008 J. Schilling";
 #endif
 /*
  * MD5 hash code taken from OpenBSD

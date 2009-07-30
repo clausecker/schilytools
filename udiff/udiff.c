@@ -1,13 +1,13 @@
-/* @(#)udiff.c	1.21 08/12/22 Copyright 1985-2008 J. Schilling */
+/* @(#)udiff.c	1.22 09/07/11 Copyright 1985-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)udiff.c	1.21 08/12/22 Copyright 1985-2008 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)udiff.c	1.22 09/07/11 Copyright 1985-2009 J. Schilling";
 #endif
 /*
  *	line by line diff for two files
  *
- *	Copyright (c) 1985-2008 J. Schilling
+ *	Copyright (c) 1985-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -44,8 +44,8 @@ static	const char sccsid[] =
  *	In 32 bit mode, there is no need to check for an integer overflow
  *	as the process will run "out of memory" before.
  */
-#include <schily/mconfig.h>
-#include <stdio.h>
+
+#include <schily/stdio.h>
 #include <schily/stdlib.h>
 #include <schily/unistd.h>	/* Include sys/types.h to make off_t available */
 #include <schily/standard.h>
@@ -134,8 +134,8 @@ main(ac, av)
 		usage(EX_BAD);
 	}
 	if (prversion) {
-		printf("Udiff release %s (%s-%s-%s) Copyright (C) 1985-2008 Jörg Schilling\n",
-				"1.21",
+		printf("Udiff release %s (%s-%s-%s) Copyright (C) 1985-2009 Jörg Schilling\n",
+				"1.22",
 				HOST_CPU, HOST_VENDOR, HOST_OS);
 		exit(0);
 	}

@@ -1,14 +1,14 @@
-/* @(#)isort.c	1.18 08/12/22 J. Schilling from cdparanoia-III-alpha9.8 */
+/* @(#)isort.c	1.19 09/07/11 J. Schilling from cdparanoia-III-alpha9.8 */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-"@(#)isort.c	1.18 08/12/22 J. Schilling from cdparanoia-III-alpha9.8";
+static	UConst char sccsid[] =
+"@(#)isort.c	1.19 09/07/11 J. Schilling from cdparanoia-III-alpha9.8";
 
 #endif
 /*
  * CopyPolicy: GNU Lesser General Public License v2.1 applies
  * Copyright (C) 1997-2001,2008 by Monty (xiphmont@mit.edu)
- * Copyright (C) 2002-2008 by J. Schilling
+ * Copyright (C) 2002-2009 by J. Schilling
  *
  * sorted vector abstraction for paranoia
  *
@@ -30,7 +30,6 @@ static	const char sccsid[] =
  * multiple occurrences of a given value.
  */
 
-#include <schily/mconfig.h>
 #include <schily/stdlib.h>
 #include <schily/standard.h>
 #include <schily/utypes.h>

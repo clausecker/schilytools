@@ -1,8 +1,8 @@
-/* @(#)props.c	1.53 08/12/22 Copyright 1994-2008 J. Schilling */
+/* @(#)props.c	1.54 09/07/11 Copyright 1994-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)props.c	1.53 08/12/22 Copyright 1994-2008 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)props.c	1.54 09/07/11 Copyright 1994-2009 J. Schilling";
 #endif
 /*
  *	Set up properties for different archive types
@@ -17,7 +17,7 @@ static	const char sccsid[] =
  *	pr_flags/pr_nflags or the fields pr_xftypetab[]/pr_typeflagtab[]
  *	take care of possible problems due to this fact.
  *
- *	Copyright (c) 1994-2008 J. Schilling
+ *	Copyright (c) 1994-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -31,8 +31,7 @@ static	const char sccsid[] =
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#include <schily/mconfig.h>
-#include <stdio.h>
+#include <schily/stdio.h>
 #include "star.h"
 #include "props.h"
 #include "table.h"

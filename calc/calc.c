@@ -1,13 +1,13 @@
-/* @(#)calc.c	1.17 08/12/22 Copyright 1985-2008 J. Schilling */
+/* @(#)calc.c	1.18 09/07/11 Copyright 1985-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)calc.c	1.17 08/12/22 Copyright 1985-2008 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)calc.c	1.18 09/07/11 Copyright 1985-2009 J. Schilling";
 #endif
 /*
  *	Simples Taschenrechnerprogramm
  *
- *	Copyright (c) 1985-2008 J. Schilling
+ *	Copyright (c) 1985-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -21,8 +21,7 @@ static	const char sccsid[] =
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#include <schily/mconfig.h>
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/stdlib.h>
 #include <schily/utypes.h>
 #include <schily/standard.h>
@@ -86,8 +85,8 @@ main(ac, av)
 	if (help)
 		usage(0);
 	if (prversion) {
-		printf("Calc release %s (%s-%s-%s) Copyright (C) 1985, 89-91, 1996, 2000-2008 Jörg Schilling\n",
-				"1.17",
+		printf("Calc release %s (%s-%s-%s) Copyright (C) 1985, 89-91, 1996, 2000-2009 Jörg Schilling\n",
+				"1.18",
 				HOST_CPU, HOST_VENDOR, HOST_OS);
 		exit(0);
 	}

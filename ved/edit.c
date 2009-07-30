@@ -1,13 +1,13 @@
-/* @(#)edit.c	1.22 08/12/22 Copyright 1984-2008 J. Schilling */
+/* @(#)edit.c	1.24 09/07/13 Copyright 1984-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)edit.c	1.22 08/12/22 Copyright 1984-2008 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)edit.c	1.24 09/07/13 Copyright 1984-2009 J. Schilling";
 #endif
 /*
  *	Main editing loop of VED (Visual EDitor)
  *
- *	Copyright (c) 1984-2008 J. Schilling
+ *	Copyright (c) 1984-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -22,8 +22,8 @@ static	const char sccsid[] =
  */
 
 #include "ved.h"
-#include <signal.h>
-#include <setjmp.h>
+#include <schily/signal.h>
+#include <schily/setjmp.h>
 #include <schily/jmpdefs.h>
 
 extern	void	(*chartab[NCTAB][0200])	__PR((ewin_t *));

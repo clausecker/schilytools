@@ -1,8 +1,8 @@
-/* @(#)repair.c	1.20 09/06/30 Copyright 1988-2009 J. Schilling */
+/* @(#)repair.c	1.21 09/07/11 Copyright 1988-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)repair.c	1.20 09/06/30 Copyright 1988-2009 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)repair.c	1.21 09/07/11 Copyright 1988-2009 J. Schilling";
 #endif
 /*
  *	Repair SCSI disks
@@ -21,7 +21,6 @@ static	const char sccsid[] =
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#include <schily/mconfig.h>
 #include <schily/stdio.h>
 #include <schily/unistd.h>
 #include <schily/standard.h>

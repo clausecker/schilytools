@@ -1,8 +1,8 @@
-/* @(#)findinpath.c	1.4 09/04/19 Copyright 2004-2009 J. Schilling */
+/* @(#)findinpath.c	1.5 09/07/08 Copyright 2004-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)findinpath.c	1.4 09/04/19 Copyright 2004-2009 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)findinpath.c	1.5 09/07/08 Copyright 2004-2009 J. Schilling";
 #endif
 /*
  * Search a file name in the PATH and return the path name in allocated space.
@@ -21,7 +21,6 @@ static	const char sccsid[] =
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#include <schily/mconfig.h>
 #include <schily/stdlib.h>
 #include <schily/stat.h>
 #include <schily/errno.h>

@@ -27,11 +27,11 @@
 /*
  * This file contains modifications Copyright 2006-2007 J. Schilling
  *
- * @(#)xpipe.c	1.3 07/01/11 J. Schilling
+ * @(#)xpipe.c	1.4 09/07/18 J. Schilling
  */
 #if defined(sun) || defined(__GNUC__)
 
-#ident "@(#)xpipe.c 1.3 07/01/11 J. Schilling"
+#ident "@(#)xpipe.c 1.4 09/07/18 J. Schilling"
 #endif
 /*
  * @(#)xpipe.c 1.4 06/12/12
@@ -42,11 +42,6 @@
 
 #include <defines.h>
 #include <i18n.h>
-
-#ifdef	NEED_O_BINARY
-#include <io.h>			/* for setmode() prototype */
-#endif
-
 
 /*
 	Interface to pipe(II) which handles all error conditions.
@@ -68,9 +63,7 @@ int *t;
 	strcpy(p, (const char *) NOGETTEXT("pipe"));
 	if (pipe(t) == 0)
 		return(0);
-#ifdef	NEED_O_BINARY
 	setmode(t[0], O_BINARY);
 	setmode(t[1], O_BINARY);
-#endif
 	return(xmsg(p,p));
 }

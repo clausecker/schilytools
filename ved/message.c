@@ -1,14 +1,14 @@
-/* @(#)message.c	1.27 08/12/22 Copyright 1984-2008 J. Schilling */
+/* @(#)message.c	1.29 09/07/28 Copyright 1984-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)message.c	1.27 08/12/22 Copyright 1984-2008 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)message.c	1.29 09/07/28 Copyright 1984-2009 J. Schilling";
 #endif
 /*
  *	Management routines for the system (status) line of the editor
  *	displayed at the top of the screen.
  *
- *	Copyright (c) 1984-2008 J. Schilling
+ *	Copyright (c) 1984-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -469,7 +469,7 @@ write_errno(wp, msg, va_alist)
 	va_end(args);
 
 	if (len <= nameerrsize) {
-		writeerr(wp, buf);
+		writeerr(wp, "%s", buf);
 		return;
 	}
 
@@ -480,7 +480,7 @@ write_errno(wp, msg, va_alist)
 #endif
 	snprintf(buf, sizeof (buf), "(%d) %r: %s", err, msg, args, errstr);
 	va_end(args);
-	writeerr(wp, buf);
+	writeerr(wp, "%s", buf);
 }
 
 
@@ -501,7 +501,7 @@ defaultinfo(wp, str)
 		DefInfostr[0] = '\0';
 	else
 		snprintf(C DefInfostr, sizeof (DefInfostr), "%s", str);
-	writemsg(wp, C DefInfostr);
+	writemsg(wp, "%s", C DefInfostr);
 
 }
 
@@ -524,7 +524,7 @@ defaulterr(wp, str)
 		writeerr(wp, "");
 	} else {
 		snprintf(C DefErrorstr, sizeof (DefErrorstr), "%s", str);
-		writeerr(wp, C DefErrorstr);
+		writeerr(wp, "%s", C DefErrorstr);
 	}
 }
 

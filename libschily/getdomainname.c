@@ -1,11 +1,11 @@
-/* @(#)getdomainname.c	1.19 08/12/21 Copyright 1995-2008 J. Schilling */
+/* @(#)getdomainname.c	1.21 09/07/10 Copyright 1995-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)getdomainname.c	1.19 08/12/21 Copyright 1995-2008 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)getdomainname.c	1.21 09/07/10 Copyright 1995-2009 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1995-2008 J. Schilling
+ *	Copyright (c) 1995-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -19,7 +19,6 @@ static	const char sccsid[] =
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#include <schily/mconfig.h>
 #include <schily/standard.h>
 #include <schily/stdlib.h>
 #ifdef	HAVE_SYS_SYSTEMINFO_H
@@ -52,7 +51,7 @@ getdomainname(name, namelen)
 #if	!defined(HAVE_GETDOMAINNAME) && !defined(FUNC_GETDOMAINNAME)
 #define	FUNC_GETDOMAINNAME
 
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/string.h>
 #include <schily/schily.h>
 

@@ -35,7 +35,7 @@
 /*
  * This file contains modifications Copyright 2008-2009 J. Schilling
  *
- * @(#)defs.h	1.21 09/04/15 2008-2009 J. Schilling
+ * @(#)defs.h	1.22 09/07/11 2008-2009 J. Schilling
  */
 
 #ifdef	__cplusplus
@@ -160,11 +160,9 @@ extern "C" {
 #undef realloc
 #undef calloc
 #undef free
-#ifdef	HAVE_LIMITS_H
-#include	<limits.h>
-#endif
+#include	<schily/limits.h>
 #include	<schily/maxpath.h>
-#include	<signal.h>
+#include	<schily/signal.h>
 #include	<schily/types.h>
 #include	<schily/utypes.h>
 #include	<schily/time.h>
@@ -177,7 +175,7 @@ extern "C" {
 
 /* locale support */
 #include	"ctype.h"
-#include	<ctype.h>
+#include	<schily/ctype.h>
 #include	<schily/nlsdefs.h>
 #include	<schily/wchar.h>	/* includes stdio.h */
 #include	<schily/wctype.h>	/* needed before we use wchar_t */

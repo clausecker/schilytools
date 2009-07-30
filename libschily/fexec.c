@@ -1,4 +1,4 @@
-/* @(#)fexec.c	1.40 09/05/03 Copyright 1985, 1995-2009 J. Schilling */
+/* @(#)fexec.c	1.41 09/07/10 Copyright 1985, 1995-2009 J. Schilling */
 /*
  *	Execute a program with stdio redirection
  *
@@ -17,7 +17,7 @@
  */
 
 #include <schily/mconfig.h>
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/standard.h>
 #include <schily/unistd.h>
 #include <schily/stdlib.h>

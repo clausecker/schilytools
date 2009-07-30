@@ -1,4 +1,4 @@
-/* @(#)termios.h	1.31 07/05/24 Copyright 1984-2007 J. Schilling */
+/* @(#)termios.h	1.32 09/07/21 Copyright 1984-2007 J. Schilling */
 /*
  *	Terminal driver tty mode handling
  *
@@ -26,6 +26,9 @@
 
 #ifndef	_SCHILY_TYPES_H
 #include <schily/types.h>
+#endif
+#ifndef	_SCHILY_UNISTD_H
+#include <schily/unistd.h>	/* Haiku needs this for _POSIX_VDISABLE */
 #endif
 
 #ifdef	JOS

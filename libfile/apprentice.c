@@ -1,8 +1,8 @@
-/* @(#)apprentice.c	1.12 08/12/22 joerg */
+/* @(#)apprentice.c	1.13 09/07/11 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)apprentice.c	1.12 08/12/22 joerg";
+static	UConst char sccsid[] =
+	"@(#)apprentice.c	1.13 09/07/11 joerg";
 #endif
 /*
 **	find file types by using a modified "magic" file
@@ -44,16 +44,15 @@ static	const char sccsid[] =
  * SUCH DAMAGE.
  */
 
-#include <schily/mconfig.h>
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/stdlib.h>
 #include <schily/string.h>
-#include <ctype.h>
+#include <schily/ctype.h>
 #include "file.h"
 #include <schily/schily.h>
 
 #ifndef	lint
-static const char moduleid[] = 
+static UConst char moduleid[] = 
 	"@(#)$Id: apprentice.c,v 1.25 1997/01/15 17:23:24 christos Exp $";
 #endif	/* lint */
 

@@ -1,4 +1,4 @@
-/* @(#)format.c	1.47 09/02/10 Copyright 1985-2009 J. Schilling */
+/* @(#)format.c	1.48 09/07/28 Copyright 1985-2009 J. Schilling */
 /*
  *	format
  *	common code for printf fprintf & sprintf
@@ -462,7 +462,7 @@ error sizeof(ptrdiff_t) is unknown
 			if (fa.signific == 0)
 				fa.signific = 1;
 			dval = va_arg(args, double);
-			gcvt(dval, fa.signific, buf);
+			(void) gcvt(dval, fa.signific, buf);
 			count += prbuf(buf, &fa);
 			continue;
 #else

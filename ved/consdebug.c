@@ -1,13 +1,13 @@
-/* @(#)consdebug.c	1.20 08/12/22 Copyright 1986-2008 J. Schilling */
+/* @(#)consdebug.c	1.22 09/07/13 Copyright 1986-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)consdebug.c	1.20 08/12/22 Copyright 1986-2008 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)consdebug.c	1.22 09/07/13 Copyright 1986-2009 J. Schilling";
 #endif
 /*
  *	Print debugging messages to the console or to "VED_DBGTERM" environment
  *
- *	Copyright (c) 1986-2008 J. Schilling
+ *	Copyright (c) 1986-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -21,8 +21,7 @@ static	const char sccsid[] =
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#include <schily/mconfig.h>
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/standard.h>
 #include <schily/stdlib.h>
 #include <schily/unistd.h>

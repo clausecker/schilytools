@@ -1,13 +1,13 @@
-/* @(#)check_part.c	1.31 08/12/22 Copyright 1993-2008 J. Schilling */
+/* @(#)check_part.c	1.33 09/07/13 Copyright 1993-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)check_part.c	1.31 08/12/22 Copyright 1993-2008 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)check_part.c	1.33 09/07/13 Copyright 1993-2009 J. Schilling";
 #endif
 /*
  *	Check Partition validity
  *
- *	Copyright (c) 1993-2008 J. Schilling
+ *	Copyright (c) 1993-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -21,11 +21,8 @@ static	const char sccsid[] =
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#include <schily/mconfig.h>
-#include <stdio.h>
-#ifdef	HAVE_SYS_PARAM_H
-#include <sys/param.h>	/* Include various defs needed with some OS */
-#endif
+#include <schily/stdio.h>
+#include <schily/param.h>	/* Include various defs needed with some OS */
 #include <schily/standard.h>
 #include <schily/schily.h>
 #include <schily/ioctl.h>

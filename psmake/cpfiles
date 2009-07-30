@@ -1,5 +1,5 @@
 #!/bin/sh
-# %Z%%M%	%I% %E% Copyright 1999 J. Schilling
+# @(#)cpfiles	1.13 09/07/19 Copyright 1999 J. Schilling
 
 cp='cp -p'
 smake=smake
@@ -37,6 +37,7 @@ $cp ${incsrc}/${smake}/rules.c		rules.c
 $cp ${incsrc}/${smake}/update.c		update.c
 $cp ${incsrc}/include/schily/archdefs.h	include/schily/archdefs.h
 $cp ${incsrc}/include/schily/ccomdefs.h	include/schily/ccomdefs.h
+$cp ${incsrc}/include/schily/ctype.h	include/schily/ctype.h
 $cp ${incsrc}/include/schily/dirent.h	include/schily/dirent.h
 $cp ${incsrc}/include/schily/fcntl.h	include/schily/fcntl.h
 $cp ${incsrc}/include/schily/getargs.h	include/schily/getargs.h
@@ -50,6 +51,7 @@ $cp ${incsrc}/include/schily/xconfig.h	include/schily/xconfig.h
 $cp ${incsrc}/include/schily/xmconfig.h	include/schily/xmconfig.h
 $cp ${incsrc}/include/schily/prototyp.h	include/schily/prototyp.h
 $cp ${incsrc}/include/schily/sigblk.h	include/schily/sigblk.h
+$cp ${incsrc}/include/schily/signal.h	include/schily/signal.h
 $cp ${incsrc}/include/schily/standard.h	include/schily/standard.h
 $cp ${incsrc}/include/schily/stat.h		include/schily/stat.h
 $cp ${incsrc}/include/schily/stdio.h	include/schily/stdio.h

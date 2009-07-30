@@ -1,13 +1,13 @@
-/* @(#)read.c	1.157 08/12/22 Copyright 1995-2008 J. Schilling */
+/* @(#)read.c	1.158 09/07/10 Copyright 1995-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)read.c	1.157 08/12/22 Copyright 1995-2008 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)read.c	1.158 09/07/10 Copyright 1995-2009 J. Schilling";
 #endif
 /*
  *	SCSI command functions for the read call
  *
- *	Copyright (c) 1995-2008 J. Schilling
+ *	Copyright (c) 1995-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -21,9 +21,7 @@ static	const char sccsid[] =
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#include <schily/mconfig.h>
-
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/standard.h>
 
 #include <schily/utypes.h>

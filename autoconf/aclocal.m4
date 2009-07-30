@@ -1,4 +1,4 @@
-dnl @(#)aclocal.m4	1.76 09/06/29 Copyright 1998-2009 J. Schilling
+dnl @(#)aclocal.m4	1.79 09/07/27 Copyright 1998-2009 J. Schilling
 
 dnl Set VARIABLE to VALUE in C-string form, verbatim, or 1.
 dnl AC_DEFINE_STRING(VARIABLE [, VALUE])
@@ -926,8 +926,16 @@ fi])
 dnl Checks for environ definition in <unistd.h>
 dnl Defines HAVE_ENVIRON_DEF on success.
 AC_DEFUN([AC_HEADER_ENVIRON_DEF],
-[AC_CACHE_CHECK([for environ definition in unistd.h], ac_cv_header_environ_def,
-                [AC_TRY_COMPILE([#include <unistd.h>],
+[AC_CACHE_CHECK([for environ definition in unistd.h/stdlib.h], ac_cv_header_environ_def,
+                [AC_TRY_COMPILE([
+#ifdef	HAVE_UNISTD_H
+#include <unistd.h>
+#else
+#ifdef	HAVE_STDLIB_H
+#include <stdlib.h>	/* MSC no unistd.h but envorin in stdlib.h */
+#endif
+#endif
+],
 [environ = 0;],
                 [ac_cv_header_environ_def=yes],
                 [ac_cv_header_environ_def=no])])
@@ -2214,6 +2222,11 @@ malloc(s)
 {
 	extern	char *sbrk();
 
+	/*
+	 * Don't ask me why, but with Cygwin on 64 Bit Vista this hangs
+	 * infinitely and is undebuggable unless we call write() here...
+	 */
+	write(2, "", 0);
 	mcalled++;
 	_exit(0);
 	return (sbrk(s));

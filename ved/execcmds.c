@@ -1,13 +1,13 @@
-/* @(#)execcmds.c	1.42 08/12/22 Copyright 1984-1986, 1995-2008 J. Schilling */
+/* @(#)execcmds.c	1.44 09/07/13 Copyright 1984-1986, 1995-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)execcmds.c	1.42 08/12/22 Copyright 1984-1986, 1995-2008 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)execcmds.c	1.44 09/07/13 Copyright 1984-1986, 1995-2009 J. Schilling";
 #endif
 /*
  *	Commands that deal with execution of shell commands from ved
  *
- *	Copyright (c) 1984-1986, 1995-2008 J. Schilling
+ *	Copyright (c) 1984-1986, 1995-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -22,7 +22,7 @@ static	const char sccsid[] =
  */
 
 #include "ved.h"
-#include <signal.h>
+#include <schily/signal.h>
 #include <schily/wait.h>
 
 #define	XBUFSIZE	1024

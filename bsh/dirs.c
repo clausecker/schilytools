@@ -1,13 +1,13 @@
-/* @(#)dirs.c	1.25 08/12/20 Copyright 1984-2008 J. Schilling */
+/* @(#)dirs.c	1.26 09/07/11 Copyright 1984-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)dirs.c	1.25 08/12/20 Copyright 1984-2008 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)dirs.c	1.26 09/07/11 Copyright 1984-2009 J. Schilling";
 #endif
 /*
  *	Directory routines
  *
- *	Copyright (c) 1984-2008 J. Schilling
+ *	Copyright (c) 1984-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -21,8 +21,7 @@ static	const char sccsid[] =
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#include <schily/mconfig.h>
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/maxpath.h>
 #include "bsh.h"
 #include "str.h"

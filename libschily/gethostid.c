@@ -1,11 +1,11 @@
-/* @(#)gethostid.c	1.18 08/12/21 Copyright 1995-2008 J. Schilling */
+/* @(#)gethostid.c	1.19 09/07/08 Copyright 1995-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)gethostid.c	1.18 08/12/21 Copyright 1995-2008 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)gethostid.c	1.19 09/07/08 Copyright 1995-2009 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1995-2008 J. Schilling
+ *	Copyright (c) 1995-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -19,7 +19,6 @@ static	const char sccsid[] =
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#include <schily/mconfig.h>
 #include <schily/standard.h>
 #include <schily/stdlib.h>
 #include <schily/utypes.h>

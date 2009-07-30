@@ -1,4 +1,4 @@
-#ident "@(#)power-macintosh-darwin-cc64.rul	1.1 09/06/09 "
+#ident "@(#)power-macintosh-darwin-cc64.rul	1.3 09/07/29 "
 ###########################################################################
 # Written 1996 by J. Schilling
 ###########################################################################
@@ -27,6 +27,7 @@ OSDEFS +=
 KDEFINES=	-DKERNEL -D_KERNEL
 
 COPTDYN=	-fPIC
+C++OPTDYN=	-fPIC
 
 LIB_PREFIX=	lib
 LIB_SUFFIX=	.a
@@ -43,6 +44,7 @@ LDLIBDYN=	-lgcc
 LNDYNLIB=	@
 
 DYNLD=		@echo "	==> LINKING dynamic library \"$@\""; libtool -dynamic
+DYNLDC++ =	@echo "	==> LINKING dynamic library \"$@\""; libtool -dynamic
 RANLIB=		@echo "	==> RANDOMIZING ARCHIVE \"$@\""; ranlib
 
 #

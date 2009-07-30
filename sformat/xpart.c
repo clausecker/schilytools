@@ -1,13 +1,13 @@
-/* @(#)xpart.c	1.24 08/12/22 Copyright 1991-2008 J. Schilling */
+/* @(#)xpart.c	1.25 09/07/11 Copyright 1991-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)xpart.c	1.24 08/12/22 Copyright 1991-2008 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)xpart.c	1.25 09/07/11 Copyright 1991-2009 J. Schilling";
 #endif
 /*
  *	Routines to handle external partition info (database)
  *
- *	Copyright (c) 1991-2008 J. Schilling
+ *	Copyright (c) 1991-2009 J. Schilling
  *
  *	XXX #ifdef HAVE_DKIO ist vorerst nur ein Hack
  */
@@ -23,8 +23,7 @@ static	const char sccsid[] =
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#include <schily/mconfig.h>
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/stdlib.h>
 #include <schily/standard.h>
 #include <schily/utypes.h>

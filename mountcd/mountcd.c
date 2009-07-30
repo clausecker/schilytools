@@ -1,14 +1,14 @@
-/* @(#)mountcd.c	1.11 08/12/23 Copyright 2005-2008 J. Schilling */
+/* @(#)mountcd.c	1.12 09/07/11 Copyright 2005-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)mountcd.c	1.11 08/12/23 Copyright 2005-2008 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)mountcd.c	1.12 09/07/11 Copyright 2005-2009 J. Schilling";
 #endif
 /*
  *	Mount the "right" CD medium from a list of devices,
  *	use ISO-9660 volume ID to identify the correct device.
  *
- *	Copyright (c) 2005-2008 J. Schilling
+ *	Copyright (c) 2005-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -22,8 +22,7 @@ static	const char sccsid[] =
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#include <schily/mconfig.h>
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/standard.h>
 #include <schily/unistd.h>
 #include <schily/stdlib.h>
@@ -80,8 +79,8 @@ main(ac, av)
 	if (help)
 		usage(0);
 	if (pversion) {
-		printf("Mountcd release %s (%s-%s-%s) Copyright (C) 2005-2008 Jörg Schilling\n",
-				"1.11", HOST_CPU, HOST_VENDOR, HOST_OS);
+		printf("Mountcd release %s (%s-%s-%s) Copyright (C) 2005-2009 Jörg Schilling\n",
+				"1.12", HOST_CPU, HOST_VENDOR, HOST_OS);
 		exit(0);
 	}
 	if (debug) {

@@ -1,11 +1,10 @@
-/* @(#)gdata.c	1.4 08/12/22 Copyright 2001 J. Schilling */
+/* @(#)gdata.c	1.5 09/07/11 Copyright 2001-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)gdata.c	1.4 08/12/22 Copyright 2001 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)gdata.c	1.5 09/07/11 Copyright 2001-2009 J. Schilling";
 #endif
 
-#include <schily/mconfig.h>
 #include "internal.h"
 
 char *hfs_error = "no error";	/* static error string */

@@ -1,4 +1,4 @@
-#ident @(#)Makefile   1.9 07/02/04 Copyr 1990 J. Schilling
+#ident @(#)Makefile   1.10 09/07/11 Copyr 1990 J. Schilling
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES

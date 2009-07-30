@@ -1,8 +1,8 @@
-/* @(#)maptodisk.c	1.30 09/01/14 Copyright 1991-2009 J. Schilling */
+/* @(#)maptodisk.c	1.32 09/07/14 Copyright 1991-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)maptodisk.c	1.30 09/01/14 Copyright 1991-2009 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)maptodisk.c	1.32 09/07/14 Copyright 1991-2009 J. Schilling";
 #endif
 /*
  *	Routines to map SCSI targets to logical disk names
@@ -28,8 +28,7 @@ static	const char sccsid[] =
  *	XXX #ifdef HAVE_DKIO ist vorerst nur ein Hack
  *
  */
-#include <schily/mconfig.h>
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/unistd.h>
 #include <schily/standard.h>
 #include <schily/string.h>
@@ -38,11 +37,11 @@ static	const char sccsid[] =
 #include <schily/stat.h>
 #include <schily/ioctl.h>
 #include "dsklabel.h"
-#include <dirent.h>
+#include <schily/dirent.h>
 #include <schily/utypes.h>
 #include <schily/schily.h>
 #include <schily/libport.h>
-#include <ctype.h>
+#include <schily/ctype.h>
 #ifndef	SVR4
 #ifdef	sun
 #include <sun3/cpu.h>	/* Temporär für alte Maschinen */

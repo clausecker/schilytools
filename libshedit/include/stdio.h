@@ -1,9 +1,9 @@
-/* @(#)stdio.h	1.3 08/02/02 Copyright 2006-2008 J. Schilling */
+/* @(#)stdio.h	1.5 09/07/06 Copyright 2006-2009 J. Schilling */
 /*
  *	Defines to make FILE * -> int *, used to allow
  *	the Bourne shell to use functions that expect stdio.
  *
- *	Copyright (c) 2006-2008 J. Schilling
+ *	Copyright (c) 2006-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -20,7 +20,12 @@
 #ifndef	_STDIO_H
 #define	_STDIO_H
 
+#undef	FILE
 #define	FILE	int
+#ifdef	linux
+#undef	__FILE
+#define	__FILE	int	/* Needed for Linux */
+#endif
 #define	EOF	(-1)
 
 #define	fflush(a)	(0)

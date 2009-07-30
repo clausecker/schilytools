@@ -1,13 +1,13 @@
-/* @(#)quitcmds.c	1.62 08/12/22 Copyright 1984-1989, 1994-2008 J. Schilling */
+/* @(#)quitcmds.c	1.64 09/07/13 Copyright 1984-1989, 1994-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)quitcmds.c	1.62 08/12/22 Copyright 1984-1989, 1994-2008 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)quitcmds.c	1.64 09/07/13 Copyright 1984-1989, 1994-2009 J. Schilling";
 #endif
 /*
  *	Commands that deal with exiting the editor in a clean state
  *
- *	Copyright (c) 1984-1989, 1994-2008 J. Schilling
+ *	Copyright (c) 1984-1989, 1994-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -25,7 +25,7 @@ static	const char sccsid[] =
 #include <schily/unistd.h>
 #include <schily/fcntl.h>
 #include <schily/dirent.h>
-#include <signal.h>
+#include <schily/signal.h>
 #include <schily/errno.h>
 
 EXPORT	BOOL	bakbuf		__PR((ewin_t *wp, BOOL force));

@@ -1,4 +1,4 @@
-#ident @(#)rules.inc	1.8 07/05/06 
+#ident @(#)rules.inc	1.9 09/07/26 
 ###########################################################################
 # Written 1999 by J. Schilling
 ###########################################################################
@@ -18,7 +18,7 @@
 # When distributing Covered Code, include this CDDL HEADER in each
 # file and include the License file CDDL.Schily.txt from this distribution.
 ###########################################################################
-_EXEEXT=	$(EXEEXT)
+#_EXEEXT=	$(EXEEXT)	# Do not install as xxx.h.exe
 _XEXEEXT=	$(XEXEEXT)
 ###########################################################################
 include		$(SRCROOT)/$(RULESDIR)/rules.obj

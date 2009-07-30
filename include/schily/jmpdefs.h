@@ -1,4 +1,4 @@
-/* @(#)jmpdefs.h	1.8 09/06/06 Copyright 1998-2009 J. Schilling */
+/* @(#)jmpdefs.h	1.9 09/07/13 Copyright 1998-2009 J. Schilling */
 /*
  *	Definitions that help to handle a jmp_buf
  *
@@ -23,9 +23,8 @@
 #include <schily/mconfig.h>
 #endif
 
-#ifndef	_INCL_SETJMP_H
-#define	_INCL_SETJMP_H
-#include <setjmp.h>
+#ifndef	_SCHILY_SETJMP_H
+#include <schily/setjmp.h>
 #endif
 
 #ifdef	__cplusplus

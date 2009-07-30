@@ -1,8 +1,8 @@
-/* @(#)fifo.c	1.68 08/12/22 Copyright 1989, 1994-2008 J. Schilling */
+/* @(#)fifo.c	1.70 09/07/25 Copyright 1989, 1994-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)fifo.c	1.68 08/12/22 Copyright 1989, 1994-2008 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)fifo.c	1.70 09/07/25 Copyright 1989, 1994-2009 J. Schilling";
 #endif
 /*
  *	A "fifo" that uses shared memory between two processes
@@ -18,7 +18,7 @@ static	const char sccsid[] =
  *		n	fifo_chitape() wake up put side to start wrt Tape chng
  *		N	fifo_chotape()	wake up get side if mp->oblocked == TRUE
  *
- *	Copyright (c) 1989, 1994-2008 J. Schilling
+ *	Copyright (c) 1989, 1994-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -34,8 +34,7 @@ static	const char sccsid[] =
 
 /*#define	DEBUG*/
 
-#include <schily/mconfig.h>
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/stdlib.h>
 #include <schily/unistd.h>	/* includes <sys/types.h> */
 #include <schily/libport.h>	/* getpagesize() */
@@ -1138,8 +1137,8 @@ beosshm_child()
 			B_ANY_ADDRESS, B_READ_AREA|B_WRITE_AREA,
 			fifo_aid);
 	if (buf != fifo_addr) {
-		errmsgno(EX_BAD, "Panic FIFO addr.\n");
-		return (FALSE);
+		comerrno(EX_BAD, "Panic FIFO addr.\n");
+		/* NOTREACHED */
 	}
 }
 #endif

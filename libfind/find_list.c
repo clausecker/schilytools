@@ -1,13 +1,13 @@
-/* @(#)find_list.c	1.23 08/12/22 Copyright 1985, 1995, 2000-2008 J. Schilling*/
+/* @(#)find_list.c	1.25 09/07/11 Copyright 1985, 1995, 2000-2009 J. Schilling*/
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)find_list.c	1.23 08/12/22 Copyright 1985, 1995, 2000-2008 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)find_list.c	1.25 09/07/11 Copyright 1985, 1995, 2000-2009 J. Schilling";
 #endif
 /*
  *	List a file
  *
- *	Copyright (c) 1985, 1995, 2000-2008 J. Schilling
+ *	Copyright (c) 1985, 1995, 2000-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -21,8 +21,7 @@ static	const char sccsid[] =
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#include <schily/mconfig.h>
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/unistd.h>
 #include <schily/utypes.h>
 #include <schily/dirent.h>
@@ -32,14 +31,7 @@ static	const char sccsid[] =
 #include <schily/schily.h>
 #include <schily/device.h>
 #include <schily/nlsdefs.h>
-
-#ifdef	HAVE_SYS_PARAM_H
-#include <sys/param.h>
-#endif
-#ifndef	DEV_BSIZE
-#define	DEV_BSIZE	512
-#endif
-
+#include <schily/param.h>
 #include <schily/walk.h>
 #include <schily/find.h>
 #include <schily/idcache.h>

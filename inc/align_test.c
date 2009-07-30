@@ -1,12 +1,13 @@
-/* @(#)align_test.c	1.22 06/09/25 Copyright 1995 J. Schilling */
+/* @(#)align_test.c	1.24 09/07/13 Copyright 1995-2009 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef	lint
-static	char sccsid[] =
-	"@(#)align_test.c	1.22 06/09/25 Copyright 1995 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)align_test.c	1.24 09/07/13 Copyright 1995-2009 J. Schilling";
 #endif
 /*
  *	Generate machine dependant align.h
  *
- *	Copyright (c) 1995 J. Schilling
+ *	Copyright (c) 1995-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -20,8 +21,7 @@ static	char sccsid[] =
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#include <schily/mconfig.h>
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/standard.h>
 #undef	NO_LONGLONG	/* Make sure that Llong wil be long long */
 #include <schily/utypes.h>
@@ -78,8 +78,8 @@ char	*buf_aligned;
 
 #ifdef	CHECK_ALIGN
 
-#include <signal.h>
-#include <setjmp.h>
+#include <schily/signal.h>
+#include <schily/setjmp.h>
 LOCAL	jmp_buf	jb;
 
 LOCAL	int	check_align	__PR((int (*)(char *, int),
@@ -567,6 +567,7 @@ speed_ptr(p, n)
 }
 
 #include <schily/time.h>
+#include <schily/times.h>
 LOCAL int
 speed_check(p, sfunc, n)
 	char	*p;

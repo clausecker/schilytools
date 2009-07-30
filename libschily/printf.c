@@ -1,4 +1,4 @@
-/* @(#)printf.c	1.16 06/09/13 Copyright 1985, 1989, 1995-2003 J. Schilling */
+/* @(#)printf.c	1.17 09/07/10 Copyright 1985, 1989, 1995-2003 J. Schilling */
 /*
  *	Copyright (c) 1985, 1989, 1995-2003 J. Schilling
  */
@@ -27,7 +27,7 @@
 #	define	fprintf		__nothing2__
 #endif
 
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/varargs.h>
 #include <schily/standard.h>
 #include <schily/schily.h>

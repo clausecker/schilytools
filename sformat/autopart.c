@@ -1,13 +1,13 @@
-/* @(#)autopart.c	1.23 08/12/22 Copyright 1995-2008 J. Schilling */
+/* @(#)autopart.c	1.25 09/07/13 Copyright 1995-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)autopart.c	1.23 08/12/22 Copyright 1995-2008 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)autopart.c	1.25 09/07/13 Copyright 1995-2009 J. Schilling";
 #endif
 /*
  *	Automatic genation of partition tables
  *
- *	Copyright (c) 1995-2008 J. Schilling
+ *	Copyright (c) 1995-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -21,12 +21,9 @@ static	const char sccsid[] =
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#include <schily/mconfig.h>
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/utypes.h>
-#ifdef	HAVE_SYS_PARAM_H
-#include <sys/param.h>	/* Include various defs needed with some OS */
-#endif
+#include <schily/param.h>	/* Include various defs needed with some OS */
 #include <schily/standard.h>
 #include <schily/string.h>
 #include <schily/schily.h>

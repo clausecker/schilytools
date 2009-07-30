@@ -1,8 +1,8 @@
-/* @(#)wcsncpy.c	1.4 09/06/05 Copyright 2006-2009 J. Schilling */
+/* @(#)wcsncpy.c	1.5 09/07/08 Copyright 2006-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)wcsncpy.c	1.4 09/06/05 Copyright 2006-2009 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)wcsncpy.c	1.5 09/07/08 Copyright 2006-2009 J. Schilling";
 #endif
 /*
  *	wcsncpy() to be used if missing in libc

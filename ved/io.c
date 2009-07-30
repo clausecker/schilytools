@@ -1,13 +1,13 @@
-/* @(#)io.c	1.34 08/12/22 Copyright 1984-2008 J. Schilling */
+/* @(#)io.c	1.36 09/07/13 Copyright 1984-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)io.c	1.34 08/12/22 Copyright 1984-2008 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)io.c	1.36 09/07/13 Copyright 1984-2009 J. Schilling";
 #endif
 /*
  *	Low level routines for Input from keyboard and output to screen.
  *
- *	Copyright (c) 1984-2008 J. Schilling
+ *	Copyright (c) 1984-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -52,7 +52,7 @@ static	const char sccsid[] =
 
 #include "ved.h"
 #include "terminal.h"
-#include <setjmp.h>
+#include <schily/setjmp.h>
 #include <schily/jmpdefs.h>
 #include <schily/errno.h>
 

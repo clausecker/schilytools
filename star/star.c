@@ -1,8 +1,8 @@
-/* @(#)star.c	1.321 09/04/10 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2009 J. Schilling */
+/* @(#)star.c	1.323 09/07/11 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)star.c	1.321 09/04/10 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2009 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)star.c	1.323 09/07/11 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2009 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1985, 88-90, 92-96, 98, 99, 2000-2009 J. Schilling
@@ -21,11 +21,10 @@ static	const char sccsid[] =
 
 #define	STAR_MAIN
 
-#include <schily/mconfig.h>
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/stdlib.h>
 #include <schily/unistd.h>
-#include <signal.h>
+#include <schily/signal.h>
 #include <schily/string.h>
 #include "star.h"
 #include "props.h"

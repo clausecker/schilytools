@@ -1,8 +1,8 @@
-/* @(#)ved.c	1.70 09/01/04 Copyright 1984, 85, 86, 88, 89, 97, 2000-2009 J. Schilling */
+/* @(#)ved.c	1.72 09/07/13 Copyright 1984, 85, 86, 88, 89, 97, 2000-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)ved.c	1.70 09/01/04 Copyright 1984, 85, 86, 88, 89, 97, 2000-2009 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)ved.c	1.72 09/07/13 Copyright 1984, 85, 86, 88, 89, 97, 2000-2009 J. Schilling";
 #endif
 /*
  *	VED Visual EDitor
@@ -39,7 +39,7 @@ static	const char sccsid[] =
 #include "movedot.h"
 #include "terminal.h"
 #include <schily/errno.h>
-#include <signal.h>
+#include <schily/signal.h>
 #include <schily/sigblk.h>
 
 EXPORT	char	ved_version[] = "1.7a07";

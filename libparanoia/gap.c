@@ -1,20 +1,19 @@
-/* @(#)gap.c	1.17 08/12/22 J. Schilling from cdparanoia-III-alpha9.8 */
+/* @(#)gap.c	1.18 09/07/11 J. Schilling from cdparanoia-III-alpha9.8 */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-"@(#)gap.c	1.17 08/12/22 J. Schilling from cdparanoia-III-alpha9.8";
+static	UConst char sccsid[] =
+"@(#)gap.c	1.18 09/07/11 J. Schilling from cdparanoia-III-alpha9.8";
 
 #endif
 /*
  * CopyPolicy: GNU Lesser General Public License v2.1 applies
  * Copyright (C) 1997-2001,2008 by Monty (xiphmont@mit.edu)
- * Copyright (C) 2002-2008 by J. Schilling
+ * Copyright (C) 2002-2009 by J. Schilling
  *
  * Gap analysis support code for paranoia
  *
  */
 
-#include <schily/mconfig.h>
 #include <schily/standard.h>
 #include <schily/utypes.h>
 #include <schily/string.h>

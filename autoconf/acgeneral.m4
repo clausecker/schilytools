@@ -1,4 +1,4 @@
-dnl @(#)acgeneral.m4	1.9 09/04/21 Copyright 1998-2009 J. Schilling
+dnl %Z%%M%	%I% %E% Copyright 1998-2009 J. Schilling
 dnl
 dnl Parameterized macros.
 dnl Requires GNU m4.
@@ -1236,7 +1236,7 @@ ac_ext=c
 # CFLAGS is not in ac_cpp because -g, -O, etc. are not valid cpp options.
 ac_cpp='$CPP $CPPFLAGS'
 ac_compile='${CC-cc} -c $CFLAGS $CPPFLAGS conftest.$ac_ext 1>&AC_FD_CC'
-ac_link='${CC-cc} -o conftest${ac_exeext} $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS 1>&AC_FD_CC'
+ac_link='${CC-cc} -o conftest${ac_exeext} $CFLAGS $CPPFLAGS conftest.$ac_ext $LDFLAGS $LIBS 1>&AC_FD_CC'
 cross_compiling=$ac_cv_prog_cc_cross
 ])
 
@@ -1247,7 +1247,7 @@ ac_ext=C
 # CXXFLAGS is not in ac_cpp because -g, -O, etc. are not valid cpp options.
 ac_cpp='$CXXCPP $CPPFLAGS'
 ac_compile='${CXX-g++} -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext 1>&AC_FD_CC'
-ac_link='${CXX-g++} -o conftest${ac_exeext} $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS 1>&AC_FD_CC'
+ac_link='${CXX-g++} -o conftest${ac_exeext} $CXXFLAGS $CPPFLAGS conftest.$ac_ext $LDFLAGS $LIBS 1>&AC_FD_CC'
 cross_compiling=$ac_cv_prog_cxx_cross
 ])
 
@@ -1256,7 +1256,7 @@ AC_DEFUN(AC_LANG_FORTRAN77,
 [define([AC_LANG], [FORTRAN77])dnl
 ac_ext=f
 ac_compile='${F77-f77} -c $FFLAGS conftest.$ac_ext 1>&AC_FD_CC'
-ac_link='${F77-f77} -o conftest${ac_exeext} $FFLAGS $LDFLAGS conftest.$ac_ext $LIBS 1>&AC_FD_CC'
+ac_link='${F77-f77} -o conftest${ac_exeext} $FFLAGS conftest.$ac_ext $LDFLAGS $LIBS 1>&AC_FD_CC'
 cross_compiling=$ac_cv_prog_f77_cross
 ])
 

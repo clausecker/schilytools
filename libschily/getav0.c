@@ -1,8 +1,8 @@
-/* @(#)getav0.c	1.22 09/01/06 Copyright 1985, 1995-2009 J. Schilling */
+/* @(#)getav0.c	1.23 09/07/08 Copyright 1985, 1995-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)getav0.c	1.22 09/01/06 Copyright 1985, 1995-2009 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)getav0.c	1.23 09/07/08 Copyright 1985, 1995-2009 J. Schilling";
 #endif
 /*
  *	Get arg vector by scanning the stack
@@ -21,7 +21,6 @@ static	const char sccsid[] =
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#include <schily/mconfig.h>
 #include <schily/sigblk.h>
 #include <schily/avoffset.h>
 #include <schily/standard.h>

@@ -1,8 +1,8 @@
-/* @(#)abbrev.c	1.32 09/05/17 Copyright 1985-2009 J. Schilling */
+/* @(#)abbrev.c	1.34 09/07/28 Copyright 1985-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)abbrev.c	1.32 09/05/17 Copyright 1985-2009 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)abbrev.c	1.34 09/07/28 Copyright 1985-2009 J. Schilling";
 #endif
 /*
  *	Abbreviation symbol handling
@@ -50,8 +50,7 @@ static	const char sccsid[] =
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#include <schily/mconfig.h>
-#include <stdio.h>
+#include <schily/stdio.h>
 #include "bsh.h"
 #include "abbrev.h"
 #include "str.h"
@@ -695,7 +694,7 @@ ab_list(tab, pattern, f, histflg)
 					f, histflg, pattern, aux, alt, state);
 			fflush(f);
 		} else {
-			berror(ebadpattern);
+			berror("%s", ebadpattern);
 		}
 		free((char *)aux);
 		free((char *)state);

@@ -1,15 +1,15 @@
-/* @(#)restore.c	1.61 08/12/22 Copyright 2003-2008 J. Schilling */
+/* @(#)restore.c	1.62 09/07/11 Copyright 2003-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)restore.c	1.61 08/12/22 Copyright 2003-2008 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)restore.c	1.62 09/07/11 Copyright 2003-2009 J. Schilling";
 #endif
 /*
  *	Data base management for incremental restores
  *	needed to detect and execute rename() and unlink()
  *	operations between two incremental dumps.
  *
- *	Copyright (c) 2003-2008 J. Schilling
+ *	Copyright (c) 2003-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -42,8 +42,7 @@ static	const char sccsid[] =
  *		different inode number and we need to change the node.
  */
 
-#include <schily/mconfig.h>
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/stdlib.h>
 #include <schily/unistd.h>
 #include <schily/standard.h>

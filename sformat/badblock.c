@@ -1,13 +1,13 @@
-/* @(#)badblock.c	1.19 08/12/22 Copyright 1988-2008 J. Schilling */
+/* @(#)badblock.c	1.20 09/07/11 Copyright 1988-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)badblock.c	1.19 08/12/22 Copyright 1988-2008 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)badblock.c	1.20 09/07/11 Copyright 1988-2009 J. Schilling";
 #endif
 /*
  *	Handle defects (SCSI level)
  *
- *	Copyright (c) 1988-2008 J. Schilling
+ *	Copyright (c) 1988-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -21,7 +21,7 @@ static	const char sccsid[] =
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/stdlib.h>
 #include <schily/standard.h>
 #include <schily/schily.h>

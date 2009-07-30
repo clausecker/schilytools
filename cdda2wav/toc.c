@@ -1,8 +1,8 @@
-/* @(#)toc.c	1.82 09/07/05 Copyright 1998-2003 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling */
+/* @(#)toc.c	1.83 09/07/10 Copyright 1998-2003 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling */
 #include "config.h"
 #ifndef lint
 static	UConst char sccsid[] =
-"@(#)toc.c	1.82 09/07/05 Copyright 1998-2003 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling";
+"@(#)toc.c	1.83 09/07/10 Copyright 1998-2003 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling";
 #endif
 /*
  * CDDA2WAV (C) Heiko Eissfeldt heiko@hexco.de
@@ -23,14 +23,14 @@ static	UConst char sccsid[] =
  */
 
 #include "config.h"
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/standard.h>
 #include <schily/stdlib.h>
 #include <schily/string.h>
 #include <schily/utypes.h>
 #include <schily/intcvt.h>
 #include <schily/unistd.h>		/* sleep */
-#include <ctype.h>
+#include <schily/ctype.h>
 #include <schily/errno.h>
 #include <schily/fcntl.h>
 #include <schily/varargs.h>
@@ -902,7 +902,7 @@ static struct iterator	i;
 }
 
 #if	defined	USE_REMOTE
-#include <pwd.h>
+#include <schily/pwd.h>
 
 LOCAL int	readn	__PR((register int fd, register char *ptr,
 						register int nbytes));

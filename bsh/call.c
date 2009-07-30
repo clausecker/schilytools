@@ -1,13 +1,13 @@
-/* @(#)call.c	1.17 08/12/20 Copyright 1985-2008 J. Schilling */
+/* @(#)call.c	1.18 09/07/11 Copyright 1985-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)call.c	1.17 08/12/20 Copyright 1985-2008 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)call.c	1.18 09/07/11 Copyright 1985-2009 J. Schilling";
 #endif
 /*
  *	Call bsh defined functions and signal handlers
  *
- *	Copyright (c) 1985-2008 J. Schilling
+ *	Copyright (c) 1985-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -21,9 +21,8 @@ static	const char sccsid[] =
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#include <schily/mconfig.h>
-#include <stdio.h>
-#include <signal.h>
+#include <schily/stdio.h>
+#include <schily/signal.h>
 #include "bsh.h"
 #include "node.h"
 #include "btab.h"

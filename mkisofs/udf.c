@@ -1,15 +1,15 @@
-/* @(#)udf.c	1.33 08/12/22 Copyright 2001-2007 J. Schilling */
+/* @(#)udf.c	1.34 09/07/09 Copyright 2001-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)udf.c	1.33 08/12/22 Copyright 2001-2007 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)udf.c	1.34 09/07/09 Copyright 2001-2009 J. Schilling";
 #endif
 /*
  * udf.c - UDF support for mkisofs
  *
  * Written by Ben Rudiak-Gould (2001).
  *
- * Copyright 2001-2008 J. Schilling.
+ * Copyright 2001-2009 J. Schilling.
  */
 /*
  * This program is free software; you can redistribute it and/or modify
@@ -73,7 +73,6 @@ static	const char sccsid[] =
 
 #ifdef UDF
 
-#include <schily/mconfig.h>
 #include "mkisofs.h"
 #include <schily/time.h>
 #include <schily/schily.h>

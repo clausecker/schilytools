@@ -1,8 +1,8 @@
-/* @(#)diskid.c	1.42 09/07/05 Copyright 1998-2009 J. Schilling */
+/* @(#)diskid.c	1.43 09/07/10 Copyright 1998-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)diskid.c	1.42 09/07/05 Copyright 1998-2009 J. Schilling";
+	"@(#)diskid.c	1.43 09/07/10 Copyright 1998-2009 J. Schilling";
 #endif
 /*
  *	Disk Idientification Method
@@ -23,7 +23,7 @@ static	UConst char sccsid[] =
 
 #include <schily/mconfig.h>
 
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/standard.h>
 #include <schily/utypes.h>
 #include <schily/schily.h>

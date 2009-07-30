@@ -1,4 +1,4 @@
-/* @(#)xconfig.h.in	1.170 09/07/02 Copyright 1998-2009 J. Schilling */
+/* @(#)xconfig.h.in	1.171 09/07/10 Copyright 1998-2009 J. Schilling */
 /*
  *	Dynamic autoconf C-include code.
  *
@@ -137,6 +137,7 @@
 #undef HAVE_LOCALE_H		/* if we may include locale.h */
 #undef HAVE_LANGINFO_H		/* if we may include langinfo.h */
 #undef HAVE_NL_TYPES_H		/* if we may include nl_types.h */
+#undef HAVE_CTYPE_H		/* if we may include ctype.h */
 #undef HAVE_WCTYPE_H		/* if we may include wctype.h */
 #undef HAVE_WCHAR_H		/* if we may include wchar.h */
 #undef HAVE_ICONV_H		/* if we may include iconv.h */

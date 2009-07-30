@@ -1,4 +1,4 @@
-/* @(#)param.h	1.4 07/05/29 Copyright 2006-2007 J. Schilling */
+/* @(#)param.h	1.5 09/07/14 Copyright 2006-2007 J. Schilling */
 /*
  *	Abstraction from sys/param.h
  *
@@ -29,6 +29,12 @@
 #ifndef	_SCHILY_TYPES_H
 #include <schily/types.h>
 #endif
+#ifndef	_SCHILY_LIMITS_H
+#include <schily/limits.h>	/* For _SC_CLK_TCK */
+#endif
+#ifndef	_SCHILY_UNISTD_H
+#include <schily/unistd.h>	/* For _SC_CLK_TCK */
+#endif
 
 #ifdef	HAVE_SYS_PARAM_H
 #ifndef	_INCL_SYS_PARAM_H
@@ -50,6 +56,14 @@
  */
 #ifndef	NODEV
 #define	NODEV	((dev_t)-1L)
+#endif
+
+#ifndef	HZ
+#if	defined(_SC_CLK_TCK)
+#define	HZ	((clock_t)sysconf(_SC_CLK_TCK))
+#else
+#define	HZ	100
+#endif
 #endif
 
 #endif	/* _SCHILY_PARAM_H */

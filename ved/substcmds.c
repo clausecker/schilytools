@@ -1,13 +1,13 @@
-/* @(#)substcmds.c	1.22 08/12/22 Copyright 1986-2008 J. Schilling */
+/* @(#)substcmds.c	1.23 09/07/09 Copyright 1986-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)substcmds.c	1.22 08/12/22 Copyright 1986-2008 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)substcmds.c	1.23 09/07/09 Copyright 1986-2009 J. Schilling";
 #endif
 /*
  *	Substitution commands called from ECS : command line
  *
- *	Copyright (c) 1986-2008 J. Schilling
+ *	Copyright (c) 1986-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

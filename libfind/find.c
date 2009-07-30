@@ -1,14 +1,14 @@
 /*#define	PLUS_DEBUG*/
-/* @(#)find.c	1.77 08/12/23 Copyright 2004-2008 J. Schilling */
+/* @(#)find.c	1.80 09/07/18 Copyright 2004-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)find.c	1.77 08/12/23 Copyright 2004-2008 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)find.c	1.80 09/07/18 Copyright 2004-2009 J. Schilling";
 #endif
 /*
  *	Another find implementation...
  *
- *	Copyright (c) 2004-2008 J. Schilling
+ *	Copyright (c) 2004-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -26,8 +26,7 @@ static	const char sccsid[] =
 #define	FIND_MAIN
 #endif
 
-#include <schily/mconfig.h>
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/unistd.h>
 #include <schily/stdlib.h>
 #include <schily/fcntl.h>
@@ -36,22 +35,15 @@ static	const char sccsid[] =
 #include <schily/wait.h>
 #include <schily/string.h>
 #include <schily/utypes.h>	/* incl. limits.h (_POSIX_ARG_MAX/ARG_MAX) */
-#ifdef	HAVE_SYS_PARAM_H
-#include <sys/param.h>		/* #defines NCARGS on old systems */
-#endif
-#ifndef	DEV_BSIZE
-#define	DEV_BSIZE	512
-#endif
+#include <schily/param.h>	/* #defines NCARGS on old systems */
 #include <schily/btorder.h>
 #include <schily/patmatch.h>
-#if	defined(HAVE_FNMATCH_H) & defined(HAVE_FNMATCH)
-#include <fnmatch.h>
-#endif
+#include <schily/fnmatch.h>
 #include <schily/standard.h>
 #include <schily/jmpdefs.h>
 #include <schily/schily.h>
-#include <pwd.h>
-#include <grp.h>
+#include <schily/pwd.h>
+#include <schily/grp.h>
 
 #include <schily/nlsdefs.h>
 
@@ -709,7 +701,10 @@ parseprim(fap)
 	case NAME:
 	case PATH:
 	case LNAME:
-#if	defined(HAVE_FNMATCH_H) & defined(HAVE_FNMATCH)
+#ifndef	HAVE_FNMATCH
+#define	HAVE_FNMATCH				/* We have fnmatch() in libschily */
+#endif
+#if	defined(HAVE_FNMATCH)
 		n->this = nextarg(fap, n);
 		nexttoken(fap);
 		fap->jmp = ojmp;		/* Restore old jump target */
@@ -1367,7 +1362,7 @@ find_expr(f, ff, fs, state, t)
 	case NAME:
 		p = ff;
 	nmatch:
-#if	defined(HAVE_FNMATCH_H) & defined(HAVE_FNMATCH)
+#if	defined(HAVE_FNMATCH)
 		return (!fnmatch(t->this, p, 0));
 #else
 		goto pattern;		/* Use patmatch() as "fallback" */

@@ -1,13 +1,13 @@
-/* @(#)fstream.c	1.25 08/12/21 Copyright 1985-2008 J. Schilling */
+/* @(#)fstream.c	1.26 09/07/08 Copyright 1985-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)fstream.c	1.25 08/12/21 Copyright 1985-2008 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)fstream.c	1.26 09/07/08 Copyright 1985-2009 J. Schilling";
 #endif
 /*
  *	Stream filter module
  *
- *	Copyright (c) 1985-2008 J. Schilling
+ *	Copyright (c) 1985-2009 J. Schilling
  *
  *	Exported functions:
  *		mkfstream(f, fun, rfun, efun)	Construct new fstream
@@ -30,8 +30,7 @@ static	const char sccsid[] =
  */
 
 #define	WSTRINGS
-#include <schily/mconfig.h>
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/standard.h>
 #include <schily/schily.h>
 #include <schily/string.h>

@@ -1,8 +1,8 @@
-/* @(#)compare.c	1.20 09/06/30 Copyright 1985, 88, 96-99, 2000-2009 J. Schilling */
+/* @(#)compare.c	1.22 09/07/18 Copyright 1985, 88, 96-99, 2000-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)compare.c	1.20 09/06/30 Copyright 1985, 88, 96-99, 2000-2009 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)compare.c	1.22 09/07/18 Copyright 1985, 88, 96-99, 2000-2009 J. Schilling";
 #endif
 /*
  *	compare two file for identical contents
@@ -38,10 +38,7 @@ static	const char sccsid[] =
 #include <schily/utypes.h>
 #include <schily/standard.h>
 #include <schily/schily.h>
-
-#ifdef	NEED_O_BINARY
-#include <io.h>					/* for setmode() prototype */
-#endif
+#include <schily/io.h>		/* for setmode() prototype */
 
 char	*n1;
 char	*n2;
@@ -124,7 +121,7 @@ main(ac, av)
 		usage(0);
 	if (prversion) {
 		printf("Compare release %s (%s-%s-%s) Copyright (C) 1985, 88, 96-99, 2000-2009 Jörg Schilling\n",
-				"1.20",
+				"1.22",
 				HOST_CPU, HOST_VENDOR, HOST_OS);
 		exit(0);
 	}
@@ -144,9 +141,7 @@ main(ac, av)
 	if (getfiles(&cac, &cav, options) <= 0) {
 		n2 = "stdin";
 		f2 = stdin;
-#ifdef	NEED_O_BINARY
 		setmode(STDIN_FILENO, O_BINARY);
-#endif
 	} else {
 		n2 = cav[0];
 		f2 = ofile(cav[0]);

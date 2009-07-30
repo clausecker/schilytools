@@ -1,9 +1,9 @@
-/* @(#)getrusage.c	1.26 09/02/10 Copyright 1987-2009 J. Schilling */
+/* @(#)getrusage.c	1.27 09/07/11 Copyright 1987-2009 J. Schilling */
 #undef	USE_LARGEFILES	/* XXX Temporärer Hack für Solaris */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)getrusage.c	1.26 09/02/10 Copyright 1987-2009 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)getrusage.c	1.27 09/07/11 Copyright 1987-2009 J. Schilling";
 #endif
 /*
  *	getrusage() emulation for SVr4
@@ -27,8 +27,7 @@ static	const char sccsid[] =
  */
 #undef	USE_LARGEFILES	/* XXX Temporärer Hack für Solaris */
 
-#include <schily/mconfig.h>
-#include <stdio.h>
+#include <schily/stdio.h>
 #include "bsh.h"
 #include <schily/unistd.h>
 #include <schily/fcntl.h>

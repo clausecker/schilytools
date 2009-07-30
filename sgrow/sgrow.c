@@ -1,8 +1,8 @@
-/* @(#)sgrow.c	1.14 09/01/14 Copyr 1985-2009 J. Schilling */
+/* @(#)sgrow.c	1.15 09/07/11 Copyr 1985-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)sgrow.c	1.14 09/01/14 Copyr 1985-2009 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)sgrow.c	1.15 09/07/11 Copyr 1985-2009 J. Schilling";
 #endif
 /*
  *	Check stack growing response on a machine
@@ -21,8 +21,7 @@ static	const char sccsid[] =
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#include <schily/mconfig.h>
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/standard.h>
 #include <schily/stdlib.h>
 #include <schily/utypes.h>
@@ -57,7 +56,7 @@ main(ac, av)
 
 	if (prversion) {
 		printf("Sgrow release %s (%s-%s-%s) Copyright (C) 1985-2009 Jörg Schilling\n",
-				"1.14",
+				"1.15",
 				HOST_CPU, HOST_VENDOR, HOST_OS);
 		exit(0);
 	}

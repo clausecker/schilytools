@@ -1,11 +1,11 @@
-/* @(#)isonum.c	1.7 08/12/22 Copyright 2006-2008 J. Schilling */
+/* @(#)isonum.c	1.8 09/07/09 Copyright 2006-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)isonum.c	1.7 08/12/22 Copyright 2006-2008 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)isonum.c	1.8 09/07/09 Copyright 2006-2009 J. Schilling";
 #endif
 /*
- *	Copyright (c) 2006-2008 J. Schilling
+ *	Copyright (c) 2006-2009 J. Schilling
  */
 /*
  * This program is free software; you can redistribute it and/or modify
@@ -22,7 +22,6 @@ static	const char sccsid[] =
  * Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#include <schily/mconfig.h>
 #include "mkisofs.h"
 
 

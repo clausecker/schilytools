@@ -1,7 +1,8 @@
-/* @(#)avoffset.c	1.29 08/06/13 Copyright 1987, 1995-2008 J. Schilling */
+/* @(#)avoffset.c	1.30 09/07/10 Copyright 1987, 1995-2009 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)avoffset.c	1.29 08/06/13 Copyright 1987, 1995-2008 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)avoffset.c	1.30 09/07/10 Copyright 1987, 1995-2009 J. Schilling";
 #endif
 /*
  * This program is a tool to generate the file "avoffset.h".
@@ -12,7 +13,7 @@ static	char sccsid[] =
  *	FP_INDIR	- number of stack frames above main()
  *			  before encountering a NULL pointer.
  *
- *	Copyright (c) 1987, 1995-2008 J. Schilling
+ *	Copyright (c) 1987, 1995-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -26,12 +27,11 @@ static	char sccsid[] =
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#include <schily/mconfig.h>
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/standard.h>
 #include <schily/schily.h>
 #include <schily/stdlib.h>
-#include <signal.h>
+#include <schily/signal.h>
 
 #ifdef	HAVE_SCANSTACK
 #	include <schily/stkframe.h>

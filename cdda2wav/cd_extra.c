@@ -1,7 +1,7 @@
-/* @(#)cd_extra.c	1.15 08/12/22 Copyright 2000-2001 Heiko Eissfeldt, Copyright 2004-2008 J. Schilling */
+/* @(#)cd_extra.c	1.16 09/07/10 Copyright 2000-2001 Heiko Eissfeldt, Copyright 2004-2008 J. Schilling */
 #ifndef lint
 static	const char _sccsid[] =
-"@(#)cd_extra.c	1.15 08/12/22 Copyright 2000-2001 Heiko Eissfeldt, Copyright 2004-2008 J. Schilling";
+"@(#)cd_extra.c	1.16 09/07/10 Copyright 2000-2001 Heiko Eissfeldt, Copyright 2004-2008 J. Schilling";
 #endif
 
 /*
@@ -21,7 +21,7 @@ static	const char _sccsid[] =
 
 /**************** CD-Extra special treatment *********************************/
 
-#include <ctype.h>
+#include <schily/ctype.h>
 
 static unsigned long Read_CD_Extra_File __PR((unsigned char *Extra_buf,
 						unsigned long sector));

@@ -1,11 +1,11 @@
-/* @(#)io.c	1.26 08/12/22 Copyright 1988-2008 J. Schilling */
+/* @(#)io.c	1.28 09/07/28 Copyright 1988-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)io.c	1.26 08/12/22 Copyright 1988-2008 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)io.c	1.28 09/07/28 Copyright 1988-2009 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1988-2008 J. Schilling
+ *	Copyright (c) 1988-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -19,15 +19,14 @@ static	const char sccsid[] =
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#include <schily/mconfig.h>
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/standard.h>
 #include <schily/varargs.h>
 #include <schily/stdlib.h>
 #include <schily/string.h>
 #include <schily/utypes.h>
 #include <schily/schily.h>
-#include <ctype.h>
+#include <schily/ctype.h>
 
 #include "fmt.h"
 
@@ -348,7 +347,7 @@ prbytes(s, cp, n)
 	register unsigned char	*cp;
 	register int		n;
 {
-	printf(s);
+	printf("%s", s);
 	while (--n >= 0)
 		printf(" %02X", *cp++);
 	printf("\n");

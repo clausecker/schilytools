@@ -1,8 +1,8 @@
-/* @(#)p.c	1.47 09/06/30 Copyright 1985-2009 J. Schilling */
+/* @(#)p.c	1.48 09/07/11 Copyright 1985-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)p.c	1.47 09/06/30 Copyright 1985-2009 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)p.c	1.48 09/07/11 Copyright 1985-2009 J. Schilling";
 #endif
 /*
  *	Print some files on screen
@@ -21,8 +21,7 @@ static	const char sccsid[] =
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#include <schily/mconfig.h>
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/standard.h>
 #include <schily/stdlib.h>
 #include <schily/unistd.h>

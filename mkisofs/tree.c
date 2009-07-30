@@ -1,8 +1,8 @@
-/* @(#)tree.c	1.115 08/12/22 joerg */
+/* @(#)tree.c	1.117 09/07/13 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)tree.c	1.115 08/12/22 joerg";
+static	UConst char sccsid[] =
+	"@(#)tree.c	1.117 09/07/13 joerg";
 #endif
 /*
  * File tree.c - scan directory  tree and build memory structures for iso9660
@@ -11,7 +11,7 @@ static	const char sccsid[] =
  * Written by Eric Youngdale (1993).
  *
  * Copyright 1993 Yggdrasil Computing, Incorporated
- * Copyright (c) 1999,2000-2008 J. Schilling
+ * Copyright (c) 1999,2000-2009 J. Schilling
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,10 +31,8 @@ static	const char sccsid[] =
 
 /* APPLE_HYB James Pearson j.pearson@ge.ucl.ac.uk 23/2/2000 */
 
-#include <schily/mconfig.h>
 #include "mkisofs.h"
 #include "match.h"
-#include "exclude.h"
 #include <schily/time.h>
 #include <schily/errno.h>
 #include <schily/fcntl.h>

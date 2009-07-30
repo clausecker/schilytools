@@ -1,8 +1,8 @@
-/* @(#)eltorito.c	1.46 08/12/22 joerg */
+/* @(#)eltorito.c	1.47 09/07/09 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)eltorito.c	1.46 08/12/22 joerg";
+static	UConst char sccsid[] =
+	"@(#)eltorito.c	1.47 09/07/09 joerg";
 
 #endif
 /*
@@ -12,7 +12,7 @@ static	const char sccsid[] =
  *  Written by Michael Fulbright <msf@redhat.com> (1996).
  *
  * Copyright 1996 RedHat Software, Incorporated
- * Copyright (c) 1999-2008 J. Schilling
+ * Copyright (c) 1999-2009 J. Schilling
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,7 +29,6 @@ static	const char sccsid[] =
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#include <schily/mconfig.h>
 #include "mkisofs.h"
 #include <schily/fcntl.h>
 #include <schily/utypes.h>

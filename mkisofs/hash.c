@@ -1,8 +1,8 @@
-/* @(#)hash.c	1.25 08/12/22 joerg */
+/* @(#)hash.c	1.26 09/07/09 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)hash.c	1.25 08/12/22 joerg";
+static	UConst char sccsid[] =
+	"@(#)hash.c	1.26 09/07/09 joerg";
 
 #endif
 /*
@@ -11,7 +11,7 @@ static	const char sccsid[] =
  * Written by Eric Youngdale (1993).
  *
  * Copyright 1993 Yggdrasil Computing, Incorporated
- * Copyright (c) 1999,2000-2008 J. Schilling
+ * Copyright (c) 1999,2000-2009 J. Schilling
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -47,7 +47,6 @@ static	const char sccsid[] =
  * allow to disable the mkisofs inode cache.
  */
 
-#include <schily/mconfig.h>
 #include "mkisofs.h"
 #include <schily/schily.h>
 

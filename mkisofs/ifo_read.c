@@ -1,12 +1,12 @@
-/* @(#)ifo_read.c	1.12 08/12/22 joerg */
+/* @(#)ifo_read.c	1.13 09/07/09 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)ifo_read.c	1.12 08/12/22 joerg";
+static	UConst char sccsid[] =
+	"@(#)ifo_read.c	1.13 09/07/09 joerg";
 #endif
 /*
  * Copyright (C) 2002 Olaf Beck <olaf_sc@yahoo.com>
- * Copyright (C) 2002-2008 Jörg Schilling <schilling@fokus.gmd.de>
+ * Copyright (C) 2002-2009 Jörg Schilling <schilling@fokus.gmd.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,7 +35,6 @@ static	const char sccsid[] =
  */
 #ifdef DVD_VIDEO
 
-#include <schily/mconfig.h>
 #include "mkisofs.h"
 #include <schily/fcntl.h>
 #include <schily/utypes.h>

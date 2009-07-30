@@ -1,11 +1,11 @@
-/* @(#)ctype.c	1.5 08/12/20 Copyright 1986-2008 J. Schilling */
+/* @(#)ctype.c	1.6 09/07/11 Copyright 1986-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)ctype.c	1.5 08/12/20 Copyright 1986-2008 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)ctype.c	1.6 09/07/11 Copyright 1986-2009 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1986-2008 J. Schilling
+ *	Copyright (c) 1986-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

@@ -1,8 +1,8 @@
-/* @(#)setuid.c	1.18 09/07/05 Copyright 1998,1999,2004 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling */
+/* @(#)setuid.c	1.19 09/07/10 Copyright 1998,1999,2004 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling */
 #include "config.h"
 #ifndef lint
 static	UConst char sccsid[] =
-"@(#)setuid.c	1.18 09/07/05 Copyright 1998,1999,2004 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling";
+"@(#)setuid.c	1.19 09/07/10 Copyright 1998,1999,2004 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling";
 
 #endif
 /*
@@ -39,7 +39,7 @@ static	UConst char sccsid[] =
 
 #include "config.h"
 #include <schily/unistd.h>
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/stdlib.h>
 #include <schily/schily.h>
 

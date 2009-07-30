@@ -26,11 +26,11 @@
 /*
  * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)getopt.c	1.6 09/01/09 J. Schilling
+ * @(#)getopt.c	1.7 09/07/13 J. Schilling
  */
 #if defined(sun) || defined(__GNUC__)
 
-#ident "@(#)getopt.c 1.6 09/01/09 J. Schilling"
+#ident "@(#)getopt.c 1.7 09/07/13 J. Schilling"
 #endif
 
 #pragma ident	"@(#)getopt.c	1.23	05/06/08 SMI"
@@ -60,7 +60,7 @@
 
 #include <schily/unistd.h>
 #include <schily/string.h>
-#include <stdio.h>
+#include <schily/stdio.h>
 #ifndef	HAVE_SNPRINTF
 #include <schily/schily.h>
 #define	snprintf	js_snprintf

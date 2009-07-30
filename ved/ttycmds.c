@@ -1,8 +1,8 @@
-/* @(#)ttycmds.c	1.24 09/01/04 Copyright 1984-2009 J. Schilling */
+/* @(#)ttycmds.c	1.25 09/07/09 Copyright 1984-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)ttycmds.c	1.24 09/01/04 Copyright 1984-2009 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)ttycmds.c	1.25 09/07/09 Copyright 1984-2009 J. Schilling";
 #endif
 /*
  *	Lower layer support routines for terminal.c

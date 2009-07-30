@@ -1,7 +1,8 @@
-/* @(#)repair.c	1.2 06/09/13 Copyright 2001-2006 J. Schilling */
+/* @(#)repair.c	1.3 09/07/13 Copyright 2001-2006 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)repair.c	1.2 06/09/13 Copyright 2001-2006 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)repair.c	1.3 09/07/13 Copyright 2001-2006 J. Schilling";
 #endif
 /*
  * Code to check libedc_ecc_dec
@@ -18,8 +19,7 @@ static	char sccsid[] =
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#include <schily/mconfig.h>
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/fcntl.h>
 #include <schily/unistd.h>
 

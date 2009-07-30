@@ -1,11 +1,11 @@
 /*#define	USE_REMOTE*/
 /*#define	USE_RCMD_RSH*/
 /*#define	NO_LIBSCHILY*/
-/* @(#)remote.c	1.68 09/07/05 Copyright 1990-2009 J. Schilling */
+/* @(#)remote.c	1.70 09/07/28 Copyright 1990-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)remote.c	1.68 09/07/05 Copyright 1990-2009 J. Schilling";
+	"@(#)remote.c	1.70 09/07/28 Copyright 1990-2009 J. Schilling";
 #endif
 /*
  *	Remote tape client interface code
@@ -28,8 +28,6 @@ static	UConst char sccsid[] =
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#include <schily/mconfig.h>
-
 /*#undef	USE_REMOTE*/
 /*#undef	USE_RCMD_RSH*/
 
@@ -47,29 +45,23 @@ static	UConst char sccsid[] =
 #undef	USE_REMOTE				/* There is no rcmd() */
 #endif
 
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/stdlib.h>
 #include <schily/unistd.h>
 #include <schily/fcntl.h>
 #include <schily/ioctl.h>
-#ifdef	HAVE_SYS_SOCKET_H
-#include <sys/socket.h>
-#endif
+#include <schily/socket.h>
 #include <schily/errno.h>
-#include <signal.h>
-#ifdef	HAVE_NETDB_H
-#include <netdb.h>
-#endif
-#ifdef	HAVE_PWD_H
-#include <pwd.h>
-#endif
+#include <schily/signal.h>
+#include <schily/netdb.h>
+#include <schily/pwd.h>
 #include <schily/standard.h>
 #include <schily/string.h>
 #include <schily/utypes.h>
 #include <schily/mtio.h>
 #include <schily/librmt.h>
 #include <schily/schily.h>
-#include <ctype.h>
+#include <schily/ctype.h>
 
 #if	defined(SIGDEFER) || defined(SVR4)
 #define	signal	sigset
@@ -474,7 +466,7 @@ rmtoflags(fmode, cmode)
 
 	default:	p = "Cannot Happen";
 	}
-	amt = js_snprintf(cmode, maxcnt, p); if (amt < 0) return;
+	amt = js_snprintf(cmode, maxcnt, "%s", p); if (amt < 0) return;
 	p = cmode;
 	p += amt;
 	maxcnt -= amt;

@@ -1,4 +1,4 @@
-#ident "@(#)rules.hlp	1.14 07/06/27 "
+#ident "@(#)rules.hlp	1.15 09/07/10 "
 ###########################################################################
 # Written 1996 by J. Schilling
 ###########################################################################
@@ -53,7 +53,7 @@
 	@echo "	tarpkg		create an installable tar packet -> tarpkg1 + parpkg2"
 	@echo "	tarpkg1		helps to create an installable tar packet - install stage"
 	@echo "	tarpkg2		installable tar packet - tar -c stage"
-	@echo "	depend		remake the dependency files"
+	@echo "	depend		remove dependency file to prepare a remake"
 	@echo "	config		remake the dynamic configuration files"
 	@echo "	tags		make vi/ved compatible tag file"
 	@echo "	TAGS		make emacs compatible tag file"

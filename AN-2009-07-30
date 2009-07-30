@@ -1,0 +1,88 @@
+New features with AN-2009-07-30:
+
+-	New include files include/schily/ctype.h, include/schily/pwd.h
+	and include/schily/grp.h 
+
+-	smake and many other programs are now using schily/stdio.h 
+	for orthogonality.
+
+-	New library libmdigest with various Message digest functions.
+
+-	libxtermcap now supports more escape sequences from terminfo
+	in order to become more tolerant against termcap files that
+	have been incorrectly converted from terminfo.
+
+-	termcap(1) now tries to convert illegal terminfo based escape
+	sewuences into supported termcap escape sequences.
+
+-	termcap(1) now implements a new option -nowarn that tells
+	termcap not to warn about fixed escape sequences that have
+	been based on terminfo escapes that are not officially supported
+	by termcap.
+
+-	bsh/sys.c fixed a bug by changing from HZ to CLK_TCK to make
+	process times correct for BeOS/Haiku 
+
+-	Correctly abort the FIFO in cdrecord and star on BeOS and Haiku
+	in case that the clone ara cannot be made shared.
+
+-	The Makefile for the Bourne Shell now includes libintl if needed
+	to allow compilation on Cygwin
+
+-	The symlink "sccs" in the main "bin" directory (that points to:
+	../ccs/bin/sccs) now correctly ends with .exe if make install
+	is done on a DOS based system.
+
+-	Haiku default install dir is now /boot/opt/schily
+
+-	New rules RULES/os-cygwin_nt-6.0-wow64.id and 
+	RULES/os-cygwin_nt-6.1-wow64.id support Cygwin on 64bit
+	installations of Win Vista and "Win 7".
+
+-	New rules for compiling 64 Bit binaries on cygwin_nt-wow64
+	NOTE: You need to have a 64 bit aware gcc on Cygwin to use this!
+
+-	TEMPLATES/temp-gcc.rul and TEMPLATES/temp-xcc.rul
+	now correctly include cc-gcc.rul and cc-dumb.rul and thus
+	make the automake feature working again for completely
+	unknown platforms.
+
+-	Fixed RULES/rules.inc to make sure we install xx.h instead of
+	xx.h.exe
+
+-	libschily now is thread aware and uses the thread specific errno
+	value on Solaris, Linux and FreeBSD.
+
+-	Workaround an infinite hang in an autoconf test on 64 Bit Vista
+	with Cygwin
+
+-	Include limits.h in schily/hostname.h for Linux
+
+-	Several "%s" formats have been introduced in order to make gcc-4
+	happy even though the original strings have been pointer to constant
+	and well known strings
+
+-	Change the option order in the autoconf test for calling the linker
+	in order to avoid problems with the microsoft linker.
+
+-	Raised the SCSI Bus-number limit from 256 to 500 for Linux as a workaround
+	for a resource leak bug in the linux kernel. The workaround lets the problem
+	happen much later but cannot completely avoid it. If you are hit by the Linux
+	kernel resource leak bug, you need to reboot.
+
+-	Fixed a potential malloc problem in mkisofs
+
+-	Bumped cdrtools to 2.01.01a62
+
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.isdn.cs.tu-berlin.de, js@cs.tu-berlin.de
+	joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

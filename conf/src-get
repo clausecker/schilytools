@@ -1,13 +1,13 @@
 #!/bin/sh
-# @(#)src-get  1.18 05/07/07 Copyright 2005 J. Schilling
+# @(#)src-get  1.20 09/07/09 Copyright 2005-2009 J. Schilling
 ###########################################################################
-# Written 2005 by J. Schilling
+# Written 2005-2009 by J. Schilling
 ###########################################################################
 # A source package controlling system which should behave similar to
 # the Debian apt-get command.
 ###########################################################################
 # The contents of this file are subject to the terms of the
-# Common Development and Distribution License, Version 1.0 only.
+# Common Development and Distribution License, Version 1.0 only
 # (the "License").  You may not use this file except in compliance
 # with the License.
 #
@@ -59,6 +59,7 @@ usage() {
 	echo "	list	list installable packages"
 	echo "	shell	start a SHELL with a clean environment"
 	echo "	compile	do a full compilation from SRCROOT with a clean environment"
+	echo "	version	print the 'srg-get' version"
 }
 
 if [ $# -lt 1 ]; then
@@ -68,8 +69,15 @@ fi
 cmd=$1
 shift
 
-echo "cmd:  $cmd"
-echo "args: $@"
+case "$cmd" in
+	*version*)
+		;;
+
+	*)
+		echo "cmd:  $cmd"
+		echo "args: $@"
+		;;
+esac
 
 excode=255
 trap 'rm -rf /tmp/.d.$$; if [ -f ./$do_wget_file ]; then rm -f ./$do_wget_file; fi; exit 1' 1 2 15
@@ -336,7 +344,12 @@ do_install() {
 
 NO_SRCROOT=no-SRCROOT-directory-found
 if get_srcroot; then
-	echo SRCROOT: $SRCROOT
+	case "$cmd" in
+
+		*version*)	;;
+
+		*)		echo SRCROOT: $SRCROOT;;
+	esac
 else
 	SRCROOT="$NO_SRCROOT"
 fi
@@ -349,9 +362,11 @@ case $cmd in
 				exit 1
 			fi
 			if [ ! -z "`ls`" ]; then
-				echo "Current directory not empty."		1>&2
-				echo "Will not install makefile system."	1>&2
-				exit 1
+				if [ "`ls`" != src-get ]; then
+					echo "Current directory not empty."		1>&2
+					echo "Will not install makefile system."	1>&2
+					exit 1
+				fi
 			fi
 			do_wget ftp://ftp.berlios.de/pub/makefiles/testing/makefiles.tar${ZIP_SUFFIX}
 			${UNZIP} < makefiles.tar${ZIP_SUFFIX} | tar xf -
@@ -429,9 +444,15 @@ case $cmd in
 			exit 1
 			;;
 
-	-help|*)	echo "@(#)src-get  1.18 05/07/07 Copyright 2005 J. Schilling"
+	version|-version|--version)
+			echo "src-get  1.20 09/07/09 Copyright 2005-2009 J. Schilling"
+			exit 0
+			;;
+
+	-help|*)	echo "@(#)src-get  1.20 09/07/09 Copyright 2005-2009 J. Schilling"
 			usage
 			exit 0
 			;;
+
 esac
 

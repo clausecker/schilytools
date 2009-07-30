@@ -1,13 +1,13 @@
-/* @(#)match.c	1.36 08/12/23 Copyright 1985-2008 J. Schilling */
+/* @(#)match.c	1.37 09/07/11 Copyright 1985-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)match.c	1.36 08/12/23 Copyright 1985-2008 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)match.c	1.37 09/07/11 Copyright 1985-2009 J. Schilling";
 #endif
 /*
  *	search file(s) for a pattern
  *
- *	Copyright (c) 1985-2008 J. Schilling
+ *	Copyright (c) 1985-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -21,8 +21,7 @@ static	const char sccsid[] =
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#include <schily/mconfig.h>
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/stdlib.h>
 #include <schily/unistd.h>	/* Include sys/types.h to make off_t available */
 #include <schily/string.h>
@@ -30,7 +29,7 @@ static	const char sccsid[] =
 #include <schily/patmatch.h>
 #include <schily/standard.h>
 #include <schily/schily.h>
-#include <ctype.h>
+#include <schily/ctype.h>
 #include <schily/libport.h>
 
 #define	UC	(unsigned char *)
@@ -147,8 +146,8 @@ main(ac, av)
 	if (help)
 		usage(0);
 	if (prversion) {
-		printf("Match release %s (%s-%s-%s) Copyright (C) 1985-2008 Jörg Schilling\n",
-				"1.36",
+		printf("Match release %s (%s-%s-%s) Copyright (C) 1985-2009 Jörg Schilling\n",
+				"1.37",
 				HOST_CPU, HOST_VENDOR, HOST_OS);
 		exit(0);
 	}

@@ -25,24 +25,24 @@
 /*
  * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)sccs.c	1.28 09/04/10 J. Schilling
+ * @(#)sccs.c	1.31 09/07/25 J. Schilling
  */
 #if defined(sun) || defined(__GNUC__)
 
-#ident "@(#)sccs.c 1.28 09/04/10 J. Schilling"
+#ident "@(#)sccs.c 1.31 09/07/25 J. Schilling"
 #endif
 /*
  * @(#)sccs.c 1.85 06/12/12
  */
 # include	<defines.h>
 #ifndef lint
-static const char sccsid[] = "@(#)sccs.c 1.2 2/27/90";
+static UConst char sccsid[] = "@(#)sccs.c 1.2 2/27/90";
 #endif
 # include	<version.h>
 # include	<i18n.h>
 # include	<schily/dirent.h>
 # include	<schily/errno.h>
-# include	<signal.h>
+# include	<schily/signal.h>
 #ifdef __STDC__
 #define EX_OK 0
 #define EX_USAGE 64
@@ -63,11 +63,7 @@ extern char *getenv();
 # include	<schily/schily.h>
 #undef	error
 #undef	comgetline
-# include	<pwd.h>
-
-#ifdef	NEED_O_BINARY
-#include <io.h>			/* for setmode() prototype */
-#endif
+# include	<schily/pwd.h>
 
 static  char **diffs_np, **diffs_ap;
 
@@ -1827,7 +1823,7 @@ callprog(progpath, flags, argv, forkflag)
 	auto int st;
 	register int sigcode;
 	register int coredumped;
-	register char *sigmsg;
+	register const char *sigmsg;
 #ifndef	HAVE_STRSIGNAL
 #ifdef	HAVE_SYS_SIGLIST
 	auto char sigmsgbuf[10+1];	/* "Signal 127" + terminating '\0' */
@@ -2515,9 +2511,7 @@ unedit(fn)
 		usrerr(gettext("cannot create \"%s\""), tfn);
 		exit(EX_OSERR);
 	}
-#ifdef	NEED_O_BINARY
 	setmode(fileno(tfp), O_BINARY);
-#endif
 
 	/* figure out who I am */
 	myname = logname();

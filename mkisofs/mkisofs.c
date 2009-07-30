@@ -1,8 +1,8 @@
-/* @(#)mkisofs.c	1.245 09/07/05 joerg */
+/* @(#)mkisofs.c	1.249 09/07/28 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)mkisofs.c	1.245 09/07/05 joerg";
+static	UConst char sccsid[] =
+	"@(#)mkisofs.c	1.249 09/07/28 joerg";
 #endif
 /*
  * Program mkisofs.c - generate iso9660 filesystem  based upon directory
@@ -32,7 +32,6 @@ static	const char sccsid[] =
 /* MAC UDF images by HELIOS Software GmbH support@helios.de */
 /* HFS+ by HELIOS Software GmbH support@helios.de */
 
-#include <schily/mconfig.h>
 #ifdef	USE_FIND
 #include <schily/walk.h>
 #include <schily/find.h>
@@ -41,9 +40,8 @@ static	const char sccsid[] =
 #include <schily/errno.h>
 #include <schily/time.h>
 #include <schily/fcntl.h>
-#include <ctype.h>
+#include <schily/ctype.h>
 #include "match.h"
-#include "exclude.h"
 #include <schily/schily.h>
 #include <schily/nlsdefs.h>
 #include <schily/checkerr.h>
@@ -51,10 +49,7 @@ static	const char sccsid[] =
 #include "udf.h"
 #endif
 
-#ifdef	NEED_O_BINARY
-#include <io.h>					/* for setmode() prototype */
-#endif
-
+#include <schily/io.h>				/* for setmode() prototype */
 #include <schily/getargs.h>
 
 #ifdef VMS
@@ -2789,10 +2784,7 @@ path_done:
 		}
 	} else {
 		discimage = stdout;
-
-#ifdef	NEED_O_BINARY
 		setmode(fileno(stdout), O_BINARY);
-#endif
 	}
 
 	/* Now assign addresses on the disc for the path table. */
@@ -3371,7 +3363,9 @@ e_malloc(size)
 {
 	void		*pt = 0;
 
-	if ((size > 0) && ((pt = malloc(size)) == NULL)) {
+	if (size == 0)
+		size = 1;
+	if ((pt = malloc(size)) == NULL) {
 		comerr("Not enough memory\n");
 	}
 	/*

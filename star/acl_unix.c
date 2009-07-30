@@ -1,13 +1,13 @@
-/* @(#)acl_unix.c	1.39 08/12/22 Copyright 2001-2008 J. Schilling */
+/* @(#)acl_unix.c	1.40 09/07/11 Copyright 2001-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)acl_unix.c	1.39 08/12/22 Copyright 2001-2008 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)acl_unix.c	1.40 09/07/11 Copyright 2001-2009 J. Schilling";
 #endif
 /*
  *	ACL get and set routines for unix like operating systems.
  *
- *	Copyright (c) 2001-2008 J. Schilling
+ *	Copyright (c) 2001-2009 J. Schilling
  *
  *	This implementation currently supports POSIX.1e and Solaris ACLs.
  *	Thanks to Andreas Gruenbacher <ag@bestbits.at> for the first POSIX ACL
@@ -53,7 +53,7 @@ static	const char sccsid[] =
 #	endif
 #endif
 
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/errno.h>
 #include "star.h"
 #include "props.h"

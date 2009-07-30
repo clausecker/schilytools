@@ -1,8 +1,8 @@
-/* @(#)movedot.c	1.22 09/01/04 Copyright 1984-2009 J. Schilling */
+/* @(#)movedot.c	1.23 09/07/09 Copyright 1984-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)movedot.c	1.22 09/01/04 Copyright 1984-2009 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)movedot.c	1.23 09/07/09 Copyright 1984-2009 J. Schilling";
 #endif
 /*
  *	Functions that are used to move the dot around.

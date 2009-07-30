@@ -27,11 +27,11 @@
 /*
  * This file contains modifications Copyright 2006-2007 J. Schilling
  *
- * @(#)xcreat.c	1.3 07/01/11 J. Schilling
+ * @(#)xcreat.c	1.4 09/07/18 J. Schilling
  */
 #if defined(sun) || defined(__GNUC__)
 
-#ident "@(#)xcreat.c 1.3 07/01/11 J. Schilling"
+#ident "@(#)xcreat.c 1.4 09/07/18 J. Schilling"
 #endif
 /*
  * @(#)xcreat.c 1.8 06/12/12
@@ -42,9 +42,6 @@
 # include	<defines.h>
 # include       <i18n.h>
 # include	<ccstypes.h>
-#ifdef	NEED_O_BINARY
-#include <io.h>			/* for setmode() prototype */
-#endif
 /*
 	"Sensible" creat: write permission in directory is required in
 	all cases, and created file is guaranteed to have specified mode
@@ -95,9 +92,7 @@ mode_t mode;
 	 */
 	while (creat_attempts < SCCS_CREAT_ATTEMPTS) {
 		if ((fd = creat(name, mode)) >= 0) {
-#ifdef	NEED_O_BINARY
 			setmode(fd, O_BINARY);
-#endif
 			return(fd);
 		/* if it fails due to NFS bug, remove it and retry */
 		} else {

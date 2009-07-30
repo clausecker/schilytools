@@ -1,4 +1,4 @@
-/* @(#)raisecond.c	1.21 07/02/07 Copyright 1985, 1989, 1995-2004 J. Schilling */
+/* @(#)raisecond.c	1.22 09/07/10 Copyright 1985, 1989, 1995-2004 J. Schilling */
 /*
  *	raise a condition (software signal)
  */
@@ -22,7 +22,7 @@
  *	Copyright (c) 1985, 1989, 1995-2004 J. Schilling
  */
 #include <schily/mconfig.h>
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/standard.h>
 #include <schily/sigblk.h>
 #include <schily/unistd.h>

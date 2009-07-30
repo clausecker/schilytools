@@ -1,8 +1,8 @@
-/* @(#)drv_simul.c	1.59 09/07/05 Copyright 1998-2009 J. Schilling */
+/* @(#)drv_simul.c	1.60 09/07/10 Copyright 1998-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)drv_simul.c	1.59 09/07/05 Copyright 1998-2009 J. Schilling";
+	"@(#)drv_simul.c	1.60 09/07/10 Copyright 1998-2009 J. Schilling";
 #endif
 /*
  *	Simulation device driver
@@ -26,7 +26,7 @@ static	UConst char sccsid[] =
 #endif
 #include <schily/mconfig.h>
 
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/standard.h>
 #include <schily/stdlib.h>
 #include <schily/unistd.h>

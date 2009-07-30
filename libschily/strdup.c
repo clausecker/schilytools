@@ -1,13 +1,13 @@
-/* @(#)strdup.c	1.4 08/12/21 Copyright 2003-2008 J. Schilling */
+/* @(#)strdup.c	1.5 09/07/08 Copyright 2003-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)strdup.c	1.4 08/12/21 Copyright 2003-2008 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)strdup.c	1.5 09/07/08 Copyright 2003-2009 J. Schilling";
 #endif
 /*
  *	strdup() to be used if missing in libc
  *
- *	Copyright (c) 2003-2008 J. Schilling
+ *	Copyright (c) 2003-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -21,7 +21,6 @@ static	const char sccsid[] =
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#include <schily/mconfig.h>
 #include <schily/standard.h>
 #include <schily/stdlib.h>
 #include <schily/string.h>

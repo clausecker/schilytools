@@ -1,8 +1,8 @@
-/* @(#)sic_nls.c	1.10 09/04/19 Copyright 2007-2009 J. Schilling */
+/* @(#)sic_nls.c	1.11 09/07/10 Copyright 2007-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)sic_nls.c	1.10 09/04/19 Copyright 2007-2009 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)sic_nls.c	1.11 09/07/10 Copyright 2007-2009 J. Schilling";
 #endif
 /*
  * This code reads translation files in the format used by
@@ -26,8 +26,7 @@ static	const char sccsid[] =
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#include <schily/mconfig.h>
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/stdlib.h>
 #include <schily/string.h>
 #include <schily/libport.h>	/* For strdup() */

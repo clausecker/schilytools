@@ -1,8 +1,8 @@
-/* @(#)cap.c	1.33 09/07/05 Copyright 2000-2009 J. Schilling */
+/* @(#)cap.c	1.35 09/07/13 Copyright 2000-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)cap.c	1.33 09/07/05 Copyright 2000-2009 J. Schilling";
+	"@(#)cap.c	1.35 09/07/13 Copyright 2000-2009 J. Schilling";
 #endif
 /*
  *	termcap		a TERMCAP compiler
@@ -28,8 +28,7 @@ static	UConst char sccsid[] =
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#include <schily/mconfig.h>
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/stdlib.h>
 #include <schily/unistd.h>
 #include <schily/standard.h>
@@ -73,6 +72,7 @@ clist caplist[] = {
 
 int	ncaps = sizeof (caplist) / sizeof (caplist[0]);
 
+LOCAL	BOOL	nowarn = FALSE;
 LOCAL	BOOL	dooctal = FALSE;
 LOCAL	BOOL	docaret = FALSE;
 LOCAL	BOOL	gnugoto = FALSE;
@@ -290,6 +290,7 @@ usage(ex)
 	error("-docaret	prefer '^M' before '\\r' when creating escaped strings\n");
 	error("if=name		input file for termcap compiling\n");
 	error("-gnugoto	allow GNU tgoto() format extensions '%%C' and '%%m'.\n");
+	error("-nowarn		do not warn about problems that could be fixed\n");
 	error("-tc		follow tc= entries and generate cumulative output\n");
 	error("-v		increase verbosity level\n");
 	exit(ex);
@@ -332,11 +333,12 @@ main(ac, av)
 	cac = ac;
 	cav = av;
 	cac--, cav++;
-	if (getallargs(&cac, &cav, "help,version,dumplist,inorder,v+,tc,if*,dooctal,docaret,gnugoto",
+	if (getallargs(&cac, &cav, "help,version,dumplist,inorder,v+,tc,if*,nowarn,dooctal,docaret,gnugoto",
 				&help, &prvers,
 				&dodump, &inorder, &verbose,
 				&do_tc,
-				&infile, &dooctal, &docaret,
+				&infile,
+				&nowarn, &dooctal, &docaret,
 				&gnugoto) < 0) {
 		errmsgno(EX_BAD, "Bad option '%s'\n", cav[0]);
 		usage(EX_BAD);
@@ -344,7 +346,7 @@ main(ac, av)
 	if (help)
 		usage(0);
 	if (prvers) {
-		printf("termcap %s (%s-%s-%s)\n\n", "1.33", HOST_CPU, HOST_VENDOR, HOST_OS);
+		printf("termcap %s (%s-%s-%s)\n\n", "1.35", HOST_CPU, HOST_VENDOR, HOST_OS);
 		printf("Copyright (C) 2000-2009 Jörg Schilling\n");
 		printf("This is free software; see the source for copying conditions.  There is NO\n");
 		printf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
@@ -537,6 +539,14 @@ checkbad(tname, unknown, disabled)
 	while (*p) {
 		while (*p == ':')
 			p = tskip(p);
+		/*
+		 * Avoid to warn about bad termcap entries as long as we
+		 * implement support for the terminfo escape '\:'.
+		 */
+		if (p > (tbuf+1) && p[-1] == ':' && p[-2] == '\\') {
+			p = tskip(p);
+			continue;
+		}
 		checkquote(tname, p);
 		if (p[2] != ':' && p[2] != '@' && p[2] != '#' && p[2] != '=') {
 			p2 = tskip(p);
@@ -1069,11 +1079,13 @@ static			char	out[TBUF];
 
 					len = p2 - s - (*p2?1:0);
 					pos -= 4-i;
-					printf("# NOTICE(%s). NULL char in entry ('%s') at abs position %d in '%.*s'\n",
+					if (!nowarn) {
+					printf("# NOTICE(%s). NULL char (fixed) in entry ('%s') at abs position %d in '%.*s'\n",
 							tname, nm, pos, len, s);
 					if (!out_tty)
-					error("NOTICE(%s). NULL char in entry ('%s') at abs position %d in '%.*s'\n",
+					error("NOTICE(%s). NULL char (fixed) in entry ('%s') at abs position %d in '%.*s'\n",
 							tname, nm, pos, len, s);
+					}
 				}
 #ifdef	__checkoctal__
 				if (i > 0) {
@@ -1096,17 +1108,27 @@ static			char	out[TBUF];
 						break;
 					}
 				}
+				/*
+				 * Terminfo quotes not in termcap:
+				 * \e	->	'^['
+				 * \:	->	':'
+				 * \,	->	','
+				 * \s	->	' '
+				 * \l	->	'\n'
+				 */
 				if (*tp == '\0') {
 					char	*p2 = tskip(s);
 					int	len;
 					int	pos = (char *)&ep[-1] - s;
 
 					len = p2 - s - (*p2?1:0);
-					printf("# NOTICE(%s) Badly quoted char '\\%c' in ('%s') at abs position %d in '%.*s'\n",
-							tname, c, nm, pos, len, s);
+					if (!nowarn && strchr("e:,sl", c)) {
+					printf("# NOTICE(%s) Badly quoted char '\\%c' %sin ('%s') at abs position %d in '%.*s'\n",
+							tname, c, strchr("e:,sl", c)?"(fixed) ":"", nm, pos, len, s);
 					if (!out_tty)
-					error("NOTICE(%s) Badly quoted char '\\%c' in ('%s') at abs position %d in '%.*s'\n",
-							tname, c, nm, pos, len, s);
+					error("NOTICE(%s) Badly quoted char '\\%c' %sin ('%s') at abs position %d in '%.*s'\n",
+							tname, c, strchr("e:,sl", c)?"(fixed) ":"", nm, pos, len, s);
+					}
 				}
 			}
 		}

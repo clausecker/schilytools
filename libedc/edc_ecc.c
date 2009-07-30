@@ -1,8 +1,8 @@
-/* @(#)edc_ecc.c	1.27 09/01/04 Copyright 1998-2009 Heiko Eissfeldt, Joerg Schilling */
+/* @(#)edc_ecc.c	1.28 09/07/11 Copyright 1998-2009 Heiko Eissfeldt, Joerg Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)edc_ecc.c	1.27 09/01/04 Copyright 1998-2009 Heiko Eissfeldt, Joerg Schilling";
+static	UConst char sccsid[] =
+	"@(#)edc_ecc.c	1.28 09/07/11 Copyright 1998-2009 Heiko Eissfeldt, Joerg Schilling";
 #endif
 
 /*
@@ -26,8 +26,7 @@ static	const char sccsid[] =
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#include <schily/mconfig.h>
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/align.h>
 #include <schily/utypes.h>
 #include <schily/stdlib.h>

@@ -1,8 +1,8 @@
-/* @(#)acltext.c	1.14 09/01/06 2005-2009 J. Schilling from SMI */
+/* @(#)acltext.c	1.15 09/07/11 2005-2009 J. Schilling from SMI */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)acltext.c	1.14 09/01/06 2005-2009 J. Schilling from SMI";
+static	UConst char sccsid[] =
+	"@(#)acltext.c	1.15 09/07/11 2005-2009 J. Schilling from SMI";
 #endif
 /*
  * Copyright 2005 Sun Microsystems, Inc.  All rights reserved.
@@ -19,12 +19,12 @@ static	const char sccsid[] =
 #pragma ident	"@(#)acltext.c	1.11	02/10/02 SMI"
 /*LINTLIBRARY*/
 
-#include <grp.h>
-#include <pwd.h>
-#include <string.h>
+#include <schily/grp.h>
+#include <schily/pwd.h>
+#include <schily/string.h>
 #include <limits.h>
-#include <stdlib.h>
-#include <ctype.h>
+#include <schily/stdlib.h>
+#include <schily/ctype.h>
 #include <schily/errno.h>
 #include <schily/param.h>
 #include <schily/types.h>

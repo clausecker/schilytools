@@ -1,8 +1,8 @@
-/* @(#)cue.c	1.37 09/07/05 Copyright 2001-2009 J. Schilling */
+/* @(#)cue.c	1.38 09/07/10 Copyright 2001-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)cue.c	1.37 09/07/05 Copyright 2001-2009 J. Schilling";
+	"@(#)cue.c	1.38 09/07/10 Copyright 2001-2009 J. Schilling";
 #endif
 /*
  *	Cue sheet parser
@@ -22,7 +22,7 @@ static	UConst char sccsid[] =
  */
 
 #include <schily/mconfig.h>
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/stdlib.h>
 #include <schily/unistd.h>
 #include <schily/standard.h>
@@ -32,7 +32,7 @@ static	UConst char sccsid[] =
 #include <schily/schily.h>
 #include <schily/string.h>
 #include <schily/utypes.h>
-#include <ctype.h>
+#include <schily/ctype.h>
 #include <schily/errno.h>
 
 #include "xio.h"

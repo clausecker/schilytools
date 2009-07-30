@@ -1,13 +1,13 @@
-/* @(#)parse.c	1.30 08/12/20 Copyright 1985-2008 J. Schilling */
+/* @(#)parse.c	1.32 09/07/28 Copyright 1985-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)parse.c	1.30 08/12/20 Copyright 1985-2008 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)parse.c	1.32 09/07/28 Copyright 1985-2009 J. Schilling";
 #endif
 /*
  *	bsh command interpreter - Command Line Parser
  *
- *	Copyright (c) 1985-2008 J. Schilling
+ *	Copyright (c) 1985-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -21,8 +21,7 @@ static	const char sccsid[] =
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#include <schily/mconfig.h>
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/varargs.h>
 #include "bsh.h"
 #include "str.h"
@@ -297,7 +296,7 @@ pcond()
 			nextch();
 			rp = pcond();
 			if (lp == (Tnode *) NULL || rp == (Tnode *) NULL)
-				syntax(emisscondcmd);
+				syntax("%s", emisscondcmd);
 			lp = allocnode(type, lp, rp);
 		}
 	}
@@ -331,9 +330,9 @@ pfilter()
 			}
 			rp = pfilter();
 			if (lp == (Tnode *) NULL|| rp == (Tnode *) NULL)
-				syntax(emisspipecmd);
+				syntax("%s", emisspipecmd);
 			if (iocheck(type == ERRPIPE ? 2 : 1, lp) || iocheck(0, rp))
-				syntax(epiperedefio);
+				syntax("%s", epiperedefio);
 			lp = allocnode(type, lp, rp);
 		}
 	}
@@ -468,7 +467,7 @@ pstring(terms, quotec)
 	while (delim == '\\' || !argend(terms, quotec)) {
 		if (t >= &buf[MAXARG-1]) {
 			if (!flg) {
-				syntax(eargtoolong);
+				syntax("%s", eargtoolong);
 				flg++;
 			}
 			quote();
@@ -528,7 +527,7 @@ xpstring(terms, quotec)
 /*		error("  quotec: %x delim: %c", quotec, delim);*/
 		if (t >= &buf[MAXARG-1]) {
 			if (!flg) {
-				syntax(eargtoolong);
+				syntax("%s", eargtoolong);
 				flg++;
 			}
 		} else {
@@ -584,7 +583,7 @@ pstring(terms, quotec)
 /*		error("  quotec: %x delim: %c", quotec, delim);*/
 		if (t >= &buf[MAXARG-1]) {
 			if (!flg) {
-				syntax(eargtoolong);
+				syntax("%s", eargtoolong);
 				flg++;
 			}
 		} else {
@@ -596,7 +595,7 @@ pstring(terms, quotec)
 				}
 				if (t >= &buf[MAXARG-1]) {
 					if (!flg) {
-						syntax(eargtoolong);
+						syntax("%s", eargtoolong);
 						flg++;
 					}
 				} else {
@@ -652,7 +651,7 @@ opstring(terms, quotec)
 	while (delim == '\\' || !argend(terms, quotec)) {
 		if (t >= &buf[MAXARG-1]) {
 			if (!flg) {
-				syntax(eargtoolong);
+				syntax("%s", eargtoolong);
 				flg++;
 			}
 		} else {
@@ -739,7 +738,7 @@ piolist(list)
 
 	while ((ip = pio()) != NULL) {
 		if (iocheck(iotype(ip->tn_type), list))
-			syntax(eioredef);
+			syntax("%s", eioredef);
 
 		if (lp)
 			lp->tn_right.tn_node = ip;
@@ -799,9 +798,9 @@ pio()
 		ip = pword();
 		if (ip == (Tnode *) NULL) {
 			if (mode == DOCIN) {	/* << */
-				syntax(emissiodelim);
+				syntax("%s", emissiodelim);
 			} else {
-				syntax(emissnameinio);
+				syntax("%s", emissnameinio);
 			}
 		} else {
 			ip->tn_type |= mode;

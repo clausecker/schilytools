@@ -1,8 +1,8 @@
-/* @(#)aifc.c	1.12 09/07/05 Copyright 1998,1999 Heiko Eissfeldt, Copyright 2006-2009 J. Schilling */
+/* @(#)aifc.c	1.13 09/07/10 Copyright 1998,1999 Heiko Eissfeldt, Copyright 2006-2009 J. Schilling */
 #include "config.h"
 #ifndef lint
 static	UConst char sccsid[] =
-"@(#)aifc.c	1.12 09/07/05 Copyright 1998,1999 Heiko Eissfeldt, Copyright 2006-2009 J. Schilling";
+"@(#)aifc.c	1.13 09/07/10 Copyright 1998,1999 Heiko Eissfeldt, Copyright 2006-2009 J. Schilling";
 
 #endif
 /*
@@ -24,7 +24,7 @@ static	UConst char sccsid[] =
  */
 
 #include "config.h"
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/standard.h>
 #include <schily/unistd.h>
 #include <schily/string.h>

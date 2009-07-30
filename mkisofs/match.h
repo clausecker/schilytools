@@ -1,16 +1,16 @@
-/* @(#)match.h	1.14 07/07/26 joerg */
+/* @(#)match.h	1.15 09/07/10 joerg */
 /*
  * 27th March 1996. Added by Jan-Piet Mens for matching regular expressions
  *                  in paths.
  *
  * Conversions to make the code more portable May 2000 .. March 2004
- * Copyright (c) 2000-2007 J. Schilling
+ * Copyright (c) 2000-2009 J. Schilling
  */
 
 #include <schily/fnmatch.h>
 
 #ifdef	SORTING
-#include <limits.h>
+#include <schily/limits.h>
 #define	NOT_SORTED INT_MIN
 
 #ifdef	MAX				/* May be defined in param.h */

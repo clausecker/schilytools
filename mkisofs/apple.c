@@ -1,8 +1,8 @@
-/* @(#)apple.c	1.36 09/01/14 joerg, Copyright 1997, 1998, 1999, 2000 James Pearson */
+/* @(#)apple.c	1.38 09/07/10 joerg, Copyright 1997, 1998, 1999, 2000 James Pearson, Copyright 2000-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)apple.c	1.36 09/01/14 joerg, Copyright 1997, 1998, 1999, 2000 James Pearson";
+static	UConst char sccsid[] =
+	"@(#)apple.c	1.38 09/07/10 joerg, Copyright 1997, 1998, 1999, 2000 James Pearson, Copyright 2000-2009 J. Schilling";
 #endif
 /*
  *      Copyright (c) 1997, 1998, 1999, 2000 James Pearson
@@ -41,12 +41,11 @@ static	const char sccsid[] =
 
 #ifdef APPLE_HYB
 
-#include <schily/mconfig.h>
 #include "mkisofs.h"
 #include <schily/errno.h>
 #include <schily/fcntl.h>
 #include <schily/utypes.h>
-#include <ctype.h>
+#include <schily/ctype.h>
 #ifdef	HAVE_NETINET_IN_H
 #include <netinet/in.h>
 #endif

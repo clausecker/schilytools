@@ -1,8 +1,8 @@
-/* @(#)softmagic.c	1.11 08/12/22 joerg */
+/* @(#)softmagic.c	1.12 09/07/11 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)softmagic.c	1.11 08/12/22 joerg";
+static	UConst char sccsid[] =
+	"@(#)softmagic.c	1.12 09/07/11 joerg";
 #endif
 /*
 **	find file types by using a modified "magic" file
@@ -44,8 +44,7 @@ static	const char sccsid[] =
  * SUCH DAMAGE.
  */
 
-#include <schily/mconfig.h>
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/string.h>
 #include <schily/stdlib.h>
 #include <schily/schily.h>
@@ -53,7 +52,7 @@ static	const char sccsid[] =
 #include "file.h"
 
 #ifndef	lint
-static const char moduleid[] = 
+static UConst char moduleid[] = 
 	"@(#)$Id: softmagic.c,v 1.34 1997/01/15 19:28:35 christos Exp $";
 #endif	/* lint */
 

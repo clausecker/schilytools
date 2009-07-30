@@ -1,8 +1,8 @@
-/* @(#)builtin.c	1.66 09/05/17 Copyright 1988-2009 J. Schilling */
+/* @(#)builtin.c	1.69 09/07/28 Copyright 1988-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)builtin.c	1.66 09/05/17 Copyright 1988-2009 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)builtin.c	1.69 09/07/28 Copyright 1988-2009 J. Schilling";
 #endif
 /*
  *	Builtin commands
@@ -21,9 +21,8 @@ static	const char sccsid[] =
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#include <schily/mconfig.h>
-#include <stdio.h>
-#include <signal.h>
+#include <schily/stdio.h>
+#include <schily/signal.h>
 #include <schily/utypes.h>
 #include "resource.h"			/* Die lokale Version vom bsh Port */
 #include "bsh.h"
@@ -33,7 +32,7 @@ static	const char sccsid[] =
 #include "btab.h"
 #include "map.h"
 #include "node.h"
-#include <setjmp.h>
+#include <schily/setjmp.h>
 #include <schily/unistd.h>
 #include <schily/stdlib.h>
 #include <schily/fcntl.h>
@@ -787,9 +786,9 @@ bkill(vp, std, flag)
 			if (sig2str(i, sname) == 0)
 				fprintf(std[1], "%s ", sname);
 			if (i % 8 == 0)
-				fprintf(std[1], nl);
+				fprintf(std[1], "%s", nl);
 		}
-		fprintf(std[1], nl);
+		fprintf(std[1], "%s", nl);
 		return;
 	}
 	if (ac < 1) {
@@ -1081,7 +1080,7 @@ bumask(vp, std, flag)
 		if (ac == 1 && vp->av_ac >= 2 && av[0][0] != '-')
 			goto ok;
 		fprintf(std[2], ebadopt, vp->av_av[0], av[0]);
-		fprintf(std[2], nl);
+		fprintf(std[2], "%s", nl);
 		busage(vp, std);
 		ex_status = 1;
 		return;
@@ -1286,7 +1285,7 @@ becho(vp, std, flag)
 			fprintf(output, "%s", av[i]);
 		}
 		if (!nnl && ac > 1)
-			fprintf(output, nl);
+			fprintf(output, "%s", nl);
 	}
 }
 
@@ -1426,7 +1425,7 @@ bsource(vp, std, flag)
 	}
 	if (ex_status != 0) {
 		fprintf(std[2], ecantread, name, errstr(ex_status));
-		fprintf(std[2], nl);
+		fprintf(std[2], "%s", nl);
 	}
 	if (pname)
 		free(pname);
@@ -1456,7 +1455,7 @@ brepeat(vp, std, flag)
 	if (getargs(&ac, &av, opt, &dtime, &dtime,
 						&count, &count, &count) < 0) {
 		fprintf(std[2], ebadopt, vp->av_av[0], av[0]);
-		fprintf(std[2], nl);
+		fprintf(std[2], "%s", nl);
 		busage(vp, std);
 		ex_status = 1;
 		return;
@@ -1545,7 +1544,7 @@ my_exec(name, first_ac, vp, std)
 
 	if (getargs(&ac, (char * const **)&av, "av0*", &av0) < 0) {
 		fprintf(std[2], ebadopt, vp->av_av[0], av[0]);
-		fprintf(std[2], nl);
+		fprintf(std[2], "%s", nl);
 		busage(vp, std);
 		ex_status = 1;
 		return;
@@ -1588,7 +1587,7 @@ berrstr(vp, std, flag)
 
 	if (!toint(std, vp->av_av[1], &err))
 		return;
-	fprintf(std[1], errstr(err));
+	fprintf(std[1], "%s", errstr(err));
 }
 
 /* ARGSUSED */

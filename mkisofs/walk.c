@@ -1,14 +1,14 @@
-/* @(#)walk.c	1.9 08/12/22 Copyright 2005-2008 J. Schilling */
+/* @(#)walk.c	1.10 09/07/09 Copyright 2005-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)walk.c	1.9 08/12/22 Copyright 2005-2008 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)walk.c	1.10 09/07/09 Copyright 2005-2009 J. Schilling";
 #endif
 /*
  *	This file contains the callback code for treewalk() as used
  *	with mkisofs -find.
  *
- *	Copyright (c) 2005-2008 J. Schilling
+ *	Copyright (c) 2005-2009 J. Schilling
  */
 /*
  * This program is free software; you can redistribute it and/or modify
@@ -25,7 +25,6 @@ static	const char sccsid[] =
  * Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#include <schily/mconfig.h>
 #include <schily/stat.h>
 #include <schily/walk.h>
 #include <schily/find.h>

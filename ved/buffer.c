@@ -1,8 +1,8 @@
-/* @(#)buffer.c	1.29 09/01/04 Copyright 1984-2009 J. Schilling */
+/* @(#)buffer.c	1.30 09/07/09 Copyright 1984-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)buffer.c	1.29 09/01/04 Copyright 1984-2009 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)buffer.c	1.30 09/07/09 Copyright 1984-2009 J. Schilling";
 #endif
 /*
  *	Virtual storage (buffer) management.

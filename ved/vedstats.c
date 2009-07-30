@@ -1,13 +1,13 @@
-/* @(#)vedstats.c	1.6 08/12/22 Copyright 2000-2008 J. Schilling */
+/* @(#)vedstats.c	1.8 09/07/13 Copyright 2000-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)vedstats.c	1.6 08/12/22 Copyright 2000-2008 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)vedstats.c	1.8 09/07/13 Copyright 2000-2009 J. Schilling";
 #endif
 /*
  *	Statistics module for VED (Visual EDitor)
  *
- *	Copyright (c) 2000-2008 J. Schilling
+ *	Copyright (c) 2000-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -22,8 +22,8 @@ static	const char sccsid[] =
  */
 
 #include "ved.h"
-#include <signal.h>
-#include <setjmp.h>
+#include <schily/signal.h>
+#include <schily/setjmp.h>
 #include <schily/jmpdefs.h>
 
 EXPORT	long	charstyped;
@@ -34,16 +34,14 @@ EXPORT	void	vedstatistics	__PR((void));
 
 #ifdef	VED_STATS
 
-#ifdef	HAVE_LIMITS_H
-#include <limits.h>
-#endif
+#include <schily/limits.h>
 #include <schily/time.h>
 /*
  * Make sure to include schily/time.h before, because of a Next Step bug.
  */
-#ifdef	HAVE_SYS_TIMES_H
-#include <sys/times.h>
-#endif
+/*#ifdef	HAVE_SYS_TIMES_H*/
+#include <schily/times.h>
+/*#endif*/
 
 #ifndef	CLK_TCK
 #define	CLK_TCK	60

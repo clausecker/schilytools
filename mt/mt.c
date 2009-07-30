@@ -1,13 +1,13 @@
-/* @(#)mt.c	1.25 08/12/23 Copyright 2000-2008 J. Schilling */
+/* @(#)mt.c	1.26 09/07/11 Copyright 2000-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)mt.c	1.25 08/12/23 Copyright 2000-2008 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)mt.c	1.26 09/07/11 Copyright 2000-2009 J. Schilling";
 #endif
 /*
  *	Magnetic tape manipulation program
  *
- *	Copyright (c) 2000-2008 J. Schilling
+ *	Copyright (c) 2000-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -37,7 +37,7 @@ static	const char sccsid[] =
 #undef	USE_REMOTE				/* There is no rcmd() */
 #endif
 
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/stdlib.h>
 #include <schily/unistd.h>
 #include <schily/string.h>
@@ -196,8 +196,8 @@ main(ac, av)
 	}
 	if (help) usage(0);
 	if (prvers) {
-		printf("mt %s (%s-%s-%s)\n\n", "1.25", HOST_CPU, HOST_VENDOR, HOST_OS);
-		printf("Copyright (C) 2000-2008 Jörg Schilling\n");
+		printf("mt %s (%s-%s-%s)\n\n", "1.26", HOST_CPU, HOST_VENDOR, HOST_OS);
+		printf("Copyright (C) 2000-2009 Jörg Schilling\n");
 		printf("This is free software; see the source for copying conditions.  There is NO\n");
 		printf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
 		exit(0);

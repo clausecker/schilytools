@@ -1,8 +1,8 @@
-/* @(#)diskfmt.c	1.23 09/06/30 Copyright 1988-2009 J. Schilling */
+/* @(#)diskfmt.c	1.24 09/07/11 Copyright 1988-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)diskfmt.c	1.23 09/06/30 Copyright 1988-2009 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)diskfmt.c	1.24 09/07/11 Copyright 1988-2009 J. Schilling";
 #endif
 /*
  *	Format SCSI disks
@@ -21,7 +21,6 @@ static	const char sccsid[] =
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#include <schily/mconfig.h>
 #include <schily/stdio.h>
 #include <schily/standard.h>
 #include <schily/signal.h>

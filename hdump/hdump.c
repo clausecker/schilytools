@@ -1,13 +1,13 @@
-/* @(#)hdump.c	1.20 08/12/23 Copyright 1986-2008 J. Schilling */
+/* @(#)hdump.c	1.23 09/07/18 Copyright 1986-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)hdump.c	1.20 08/12/23 Copyright 1986-2008 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)hdump.c	1.23 09/07/18 Copyright 1986-2009 J. Schilling";
 #endif
 /*
  *	hex dump for files
  *
- *	Copyright (c) 1986-2008 J. Schilling
+ *	Copyright (c) 1986-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -21,18 +21,14 @@ static	const char sccsid[] =
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#include <schily/mconfig.h>
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/standard.h>
 #include <schily/stdlib.h>
 #include <schily/unistd.h>	/* Include sys/types.h to make off_t available */
 #include <schily/fcntl.h>	/* O_BINARY */
 #include <schily/utypes.h>
 #include <schily/schily.h>
-
-#ifdef	NEED_O_BINARY
-#include <io.h>					/* for setmode() prototype */
-#endif
+#include <schily/io.h>		/* for setmode() prototype */
 
 #define	octdig(x)	(x >= '0' && x <= '7')
 #ifndef	TRUE
@@ -124,8 +120,8 @@ main(ac, av)
 	if (help)
 		usage(0);
 	if (prversion) {
-		printf("Hdump release %s (%s-%s-%s) Copyright (C) 1986-2008 Jörg Schilling\n",
-				"1.20",
+		printf("Hdump release %s (%s-%s-%s) Copyright (C) 1986-2009 Jörg Schilling\n",
+				"1.23",
 				HOST_CPU, HOST_VENDOR, HOST_OS);
 		exit(0);
 	}
@@ -137,17 +133,13 @@ main(ac, av)
 	if (getfiles(&cac, &cav, options) <= 0) {
 		infile = stdin;
 		inname = "stdin";
-#ifdef	NEED_O_BINARY
 		setmode(STDIN_FILENO, O_BINARY);
-#endif
 	} else {
 		inname = cav[0];
 		if (inname[0] == '-' && inname[1] == '\0') {
 			infile = stdin;
 			inname = "stdin";
-#ifdef	NEED_O_BINARY
 			setmode(STDIN_FILENO, O_BINARY);
-#endif
 		} else {
 			infile = fileopen(cav[0], "rb");
 		}

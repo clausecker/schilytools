@@ -1,8 +1,8 @@
-/* @(#)boot.c	1.22 09/05/21 Copyright 1999-2009 J. Schilling */
+/* @(#)boot.c	1.23 09/07/09 Copyright 1999-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)boot.c	1.22 09/05/21 Copyright 1999-2009 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)boot.c	1.23 09/07/09 Copyright 1999-2009 J. Schilling";
 #endif
 /*
  *	Support for generic boot (sector 0..16)
@@ -25,7 +25,6 @@ static	const char sccsid[] =
  * Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#include <schily/mconfig.h>
 #include "mkisofs.h"
 #include <schily/fcntl.h>
 #include <schily/utypes.h>

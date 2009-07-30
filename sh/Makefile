@@ -1,4 +1,4 @@
-#ident "@(#)Makefile	1.13 09/06/08 "
+#ident "@(#)Makefile	1.14 09/07/25 "
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -6,7 +6,8 @@ include		$(SRCROOT)/$(RULESDIR)/rules.top
 ###########################################################################
 
 INSDIR=		bin
-TARGET=		sh			# Shell
+					# Shell
+TARGET=		sh
 SYMLINKS=	pfsh			# Profile Bourne Shell
 SYMLINKS +=	bosh			# Bo urne Shell
 SYMLINKS +=	jsh			# Job control Bourne Shell
@@ -50,7 +51,8 @@ HFILES=		brkincr.h ctype.h defs.h dup.h hash.h mac.h mode.h name.h \
 # -lgen		fuer gmatch()
 # -lsecdb	fuer getexecuser() free_execattr()
 #
-LIBS=		$(LIB_GEN) $(LIB_SECDB) -lshelledit -lxtermcap -lgetopt -lschily
+LIBS=		$(LIB_GEN) $(LIB_SECDB) -lshelledit -lxtermcap -lgetopt -lschily \
+		$(LIB_INTL)
 #LIBS=		-lgen -lsecdb 
 XMK_FILE=	Makefile.man
 

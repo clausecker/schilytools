@@ -1,8 +1,8 @@
-/* @(#)bsh.c	1.60 09/06/29 Copyright 1984,1985,1988,1989,1991,1994-2009 J. Schilling */
+/* @(#)bsh.c	1.62 09/07/14 Copyright 1984,1985,1988,1989,1991,1994-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)bsh.c	1.60 09/06/29 Copyright 1982,1984,1985,1988,1989,1991,1994-2009 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)bsh.c	1.62 09/07/14 Copyright 1982,1984,1985,1988,1989,1991,1994-2009 J. Schilling";
 #endif
 /*
  *	bsh command interpreter - main Program
@@ -21,13 +21,12 @@ static	const char sccsid[] =
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#include <schily/mconfig.h>
 #include <schily/stdio.h>
-#include <ctype.h>
-#include <signal.h>
-#include <setjmp.h>
+#include <schily/ctype.h>
+#include <schily/signal.h>
+#include <schily/setjmp.h>
 #include <schily/sigblk.h>
-#include <pwd.h>
+#include <schily/pwd.h>
 #include "bsh.h"
 #include "node.h"
 #include "abbrev.h"

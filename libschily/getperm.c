@@ -1,13 +1,13 @@
-/* @(#)getperm.c	1.3 08/12/21 Copyright 2004-2008 J. Schilling */
+/* @(#)getperm.c	1.4 09/07/08 Copyright 2004-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)getperm.c	1.3 08/12/21 Copyright 2004-2008 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)getperm.c	1.4 09/07/08 Copyright 2004-2009 J. Schilling";
 #endif
 /*
  *	Parser for chmod(1)/find(1)-perm, ....
  *
- *	Copyright (c) 2004-2008 J. Schilling
+ *	Copyright (c) 2004-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -21,8 +21,7 @@ static	const char sccsid[] =
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#include <schily/mconfig.h>
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/stat.h>
 #include <schily/utypes.h>
 #include <schily/standard.h>

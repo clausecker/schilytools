@@ -1,8 +1,8 @@
-/* @(#)skel.c	1.19 09/04/08 Copyright 1987, 1995-2009 J. Schilling */
+/* @(#)skel.c	1.21 09/07/18 Copyright 1987, 1995-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)skel.c	1.19 09/04/08 Copyright 1987, 1995-2009 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)skel.c	1.21 09/07/18 Copyright 1987, 1995-2009 J. Schilling";
 #endif
 /*
  *	Skeleton for the use of the scg genearal SCSI - driver
@@ -21,7 +21,6 @@ static	const char sccsid[] =
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#include <schily/mconfig.h>
 #include <schily/stdio.h>
 #include <schily/standard.h>
 #include <schily/unistd.h>
@@ -30,15 +29,12 @@ static	const char sccsid[] =
 #include <schily/fcntl.h>
 #include <schily/time.h>
 #include <schily/errno.h>
-#include <signal.h>
+#include <schily/signal.h>
 #include <schily/schily.h>
 #ifdef	HAVE_PRIV_H
 #include <priv.h>
 #endif
-
-#if	defined(__CYGWIN32__) || defined(__EMX__) || defined(__DJGPP__)
-#include <io.h>					/* for setmode() prototype */
-#endif
+#include <schily/io.h>				/* for setmode() prototype */
 
 #include <scg/scgcmd.h>
 #include <scg/scsireg.h>

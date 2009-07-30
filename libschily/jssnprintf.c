@@ -1,4 +1,4 @@
-/* @(#)jssnprintf.c	1.11 06/09/13 Copyright 1985, 1995-2004 J. Schilling */
+/* @(#)jssnprintf.c	1.12 09/07/10 Copyright 1985, 1995-2004 J. Schilling */
 /*
  *	Copyright (c) 1985, 1995-2004 J. Schilling
  */
@@ -16,8 +16,8 @@
 
 #include <schily/mconfig.h>
 #include <schily/unistd.h>	/* include <sys/types.h> try to get size_t */
-#include <stdio.h>		/* Try again for size_t	*/
-#include <schily/stdlib.h>		/* Try again for size_t	*/
+#include <schily/stdio.h>	/* Try again for size_t	*/
+#include <schily/stdlib.h>	/* Try again for size_t	*/
 #include <schily/varargs.h>
 #include <schily/standard.h>
 #include <schily/schily.h>

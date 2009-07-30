@@ -1,8 +1,8 @@
-/* @(#)joliet.c	1.59 09/04/19 joerg */
+/* @(#)joliet.c	1.60 09/07/09 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)joliet.c	1.59 09/04/19 joerg";
+static	UConst char sccsid[] =
+	"@(#)joliet.c	1.60 09/07/09 joerg";
 #endif
 /*
  * File joliet.c - handle Win95/WinNT long file/unicode extensions for iso9660.
@@ -83,7 +83,6 @@ static	const char sccsid[] =
  *	(00)(3f) '?'
  *	(00)(5c) '\'
  */
-#include <schily/mconfig.h>
 #include "mkisofs.h"
 #include <schily/time.h>
 #include <schily/utypes.h>

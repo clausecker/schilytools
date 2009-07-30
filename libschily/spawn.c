@@ -1,4 +1,4 @@
-/* @(#)spawn.c	1.23 09/01/13 Copyright 1985, 1989, 1995-2009 J. Schilling */
+/* @(#)spawn.c	1.24 09/07/10 Copyright 1985, 1989, 1995-2009 J. Schilling */
 /*
  *	Spawn another process/ wait for child process
  *
@@ -17,7 +17,7 @@
  */
 
 #include <schily/mconfig.h>
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/standard.h>
 #include <schily/unistd.h>
 #include <schily/stdlib.h>

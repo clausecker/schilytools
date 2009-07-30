@@ -1,13 +1,13 @@
-/* @(#)modes.c	1.41 08/12/22 Copyright 1988-2008 J. Schilling */
+/* @(#)modes.c	1.42 09/07/11 Copyright 1988-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)modes.c	1.41 08/12/22 Copyright 1988-2008 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)modes.c	1.42 09/07/11 Copyright 1988-2009 J. Schilling";
 #endif
 /*
  *	Handle SCSI mode pages
  *
- *	Copyright (c) 1988-2008 J. Schilling
+ *	Copyright (c) 1988-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -21,8 +21,7 @@ static	const char sccsid[] =
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#include <schily/mconfig.h>
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/utypes.h>
 #include <schily/time.h>
 #include <schily/ioctl.h>

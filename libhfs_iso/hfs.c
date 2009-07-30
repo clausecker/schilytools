@@ -1,8 +1,8 @@
-/* @(#)hfs.c	1.13 09/05/21 joerg */
+/* @(#)hfs.c	1.14 09/07/11 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)hfs.c	1.13 09/05/21 joerg";
+static	UConst char sccsid[] =
+	"@(#)hfs.c	1.14 09/07/11 joerg";
 #endif
 /*
  * hfsutils - tools for reading and writing Macintosh HFS volumes
@@ -25,13 +25,12 @@ static	const char sccsid[] =
 
 /* APPLE_HYB James Pearson j.pearson@ps.ucl.ac.uk 16/7/97 */
 
-#include <schily/mconfig.h>
 #include <schily/stdlib.h>
 #include <schily/unistd.h>
 #include <schily/fcntl.h>
 #include <schily/errno.h>
 #include <schily/string.h>
-#include <ctype.h>
+#include <schily/ctype.h>
 #include <schily/stat.h>
 
 #include "internal.h"

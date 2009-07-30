@@ -1,4 +1,4 @@
-/* @(#)mkisofs.h	1.136 09/04/07 joerg */
+/* @(#)mkisofs.h	1.138 09/07/10 joerg */
 /*
  * Header file mkisofs.h - assorted structure definitions and typecasts.
  *
@@ -25,7 +25,7 @@
 /* APPLE_HYB James Pearson j.pearson@ge.ucl.ac.uk 23/2/2000 */
 
 #include <schily/mconfig.h>	/* Must be before stdio.h for LARGEFILE support */
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/stat.h>
 #include <schily/stdlib.h>
 #include <schily/unistd.h>	/* Needed for for LARGEFILE support */
@@ -795,9 +795,8 @@ extern char	*e_strdup	__PR((const char *));
  * XXX Eric's wrong comment:
  * XXX From what I can tell SunOS is the only one with this trouble.
  */
-#ifdef	HAVE_LIMITS_H
-#include <limits.h>
-#endif
+#include <schily/limits.h>
+
 #ifndef NAME_MAX
 #ifdef FILENAME_MAX
 #define	NAME_MAX	FILENAME_MAX

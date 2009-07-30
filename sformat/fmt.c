@@ -1,8 +1,8 @@
-/* @(#)fmt.c	1.91 09/04/10 Copyright 1986-1991, 93-97, 2000-2009 J. Schilling */
+/* @(#)fmt.c	1.92 09/07/11 Copyright 1986-1991, 93-97, 2000-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)fmt.c	1.91 09/04/10 Copyright 1986-1991, 93-97, 2000-2009 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)fmt.c	1.92 09/07/11 Copyright 1986-1991, 93-97, 2000-2009 J. Schilling";
 #endif
 /*
  *	Format & check/repair SCSI disks
@@ -21,10 +21,9 @@ static	const char sccsid[] =
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#include <schily/mconfig.h>
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/standard.h>
-#include <signal.h>
+#include <schily/signal.h>
 #include <schily/stdlib.h>
 #include <schily/unistd.h>
 #include <schily/string.h>

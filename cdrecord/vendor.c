@@ -1,8 +1,8 @@
-/* @(#)vendor.c	1.3 09/07/05 Copyright 2007-2009 J. Schilling */
+/* @(#)vendor.c	1.4 09/07/10 Copyright 2007-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)vendor.c	1.3 09/07/05 Copyright 2007-2009 J. Schilling";
+	"@(#)vendor.c	1.4 09/07/10 Copyright 2007-2009 J. Schilling";
 #endif
 /*
  *	Vendor specific SCSI command functions for cdrecord
@@ -23,7 +23,7 @@ static	UConst char sccsid[] =
 
 #include <schily/mconfig.h>
 
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/standard.h>
 #include <schily/stdlib.h>
 #include <schily/unistd.h>

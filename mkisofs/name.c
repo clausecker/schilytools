@@ -1,8 +1,8 @@
-/* @(#)name.c	1.35 08/12/22 joerg */
+/* @(#)name.c	1.37 09/07/10 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)name.c	1.35 08/12/22 joerg";
+static	UConst char sccsid[] =
+	"@(#)name.c	1.37 09/07/10 joerg";
 
 #endif
 /*
@@ -14,7 +14,7 @@ static	const char sccsid[] =
  * Almost totally rewritten by J. Schilling (2000).
  *
  * Copyright 1993 Yggdrasil Computing, Incorporated
- * Copyright (c) 1999,2000-2008 J. Schilling
+ * Copyright (c) 1999,2000-2009 J. Schilling
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,11 +31,10 @@ static	const char sccsid[] =
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#include <schily/mconfig.h>
 #include "mkisofs.h"
 #include <schily/standard.h>
 #include <schily/schily.h>
-#include <ctype.h>
+#include <schily/ctype.h>
 
 void	iso9660_check		__PR((struct iso_directory_record *idr,	struct directory_entry *ndr));
 int	iso9660_file_length	__PR((const char *name,

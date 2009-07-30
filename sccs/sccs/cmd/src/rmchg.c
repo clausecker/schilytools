@@ -27,11 +27,11 @@
 /*
  * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)rmchg.c	1.13 09/02/05 J. Schilling
+ * @(#)rmchg.c	1.14 09/07/18 J. Schilling
  */
 #if defined(sun) || defined(__GNUC__)
 
-#ident "@(#)rmchg.c 1.13 09/02/05 J. Schilling"
+#ident "@(#)rmchg.c 1.14 09/07/18 J. Schilling"
 #endif
 /*
  * @(#)rmchg.c 1.19 06/12/12
@@ -44,7 +44,7 @@
 # include	<had.h>
 # include	<filehand.h>
 # include	<i18n.h>
-# include	<sys/utsname.h>
+# include	<schily/utsname.h>
 # include	<schily/sysexits.h>
 
 /*

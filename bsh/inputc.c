@@ -1,8 +1,8 @@
-/* @(#)inputc.c	1.57 09/06/29 Copyright 1982, 1984-2009 J. Schilling */
+/* @(#)inputc.c	1.59 09/07/28 Copyright 1982, 1984-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)inputc.c	1.57 09/06/29 Copyright 1982, 1984-2009 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)inputc.c	1.59 09/07/28 Copyright 1982, 1984-2009 J. Schilling";
 #endif
 /*
  *	inputc.c
@@ -53,7 +53,6 @@ static	const char sccsid[] =
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#include <schily/mconfig.h>
 #include <schily/stdio.h>
 #include <schily/string.h>
 #include <schily/stdlib.h>
@@ -1235,7 +1234,7 @@ match_input(cur_line, tmp_line, up)
 	if ((hp = match(cur_line, pattern, up)) == (HISTPTR) NULL)
 		hp = tmp_line;
 	iprompt = oldprompt;
-	(void) fprintf(stderr, iprompt);
+	(void) fprintf(stderr, "%s", iprompt);
 	(void) fflush(stderr);
 	return (hp);
 }
@@ -1321,9 +1320,9 @@ match(cur_line, pattern, up)
 	}
 	if (!hp) {
 		if (!alt)
-			berror(ebadpattern);
+			berror("%s", ebadpattern);
 		else
-			berror(enotfound);
+			berror("%s", enotfound);
 		return ((HISTPTR) NULL);
 	}
 	return (hp);
@@ -2196,7 +2195,7 @@ get_line(n, f)
 	}
 	if (prflg) {
 		iprompt = prompts[n?1:0];
-		(void) fprintf(stderr, iprompt);
+		(void) fprintf(stderr, "%s", iprompt);
 		(void) fflush(stderr);
 	}
 	if (!ttyflg) {

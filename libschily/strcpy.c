@@ -1,8 +1,8 @@
-/* @(#)strcpy.c	1.1 09/06/06 Copyright 2006-2009 J. Schilling */
+/* @(#)strcpy.c	1.2 09/07/08 Copyright 2006-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)strcpy.c	1.1 09/06/06 Copyright 2006-2009 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)strcpy.c	1.2 09/07/08 Copyright 2006-2009 J. Schilling";
 #endif
 /*
  *	strcpy() to be used if missing in libc

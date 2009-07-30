@@ -1,14 +1,14 @@
-/* @(#)header.c	1.138 08/12/22 Copyright 1985, 1994-2008 J. Schilling */
+/* @(#)header.c	1.139 09/07/11 Copyright 1985, 1994-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)header.c	1.138 08/12/22 Copyright 1985, 1994-2008 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)header.c	1.139 09/07/11 Copyright 1985, 1994-2009 J. Schilling";
 #endif
 /*
  *	Handling routines to read/write, parse/create
  *	archive headers
  *
- *	Copyright (c) 1985, 1994-2008 J. Schilling
+ *	Copyright (c) 1985, 1994-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -22,8 +22,7 @@ static	const char sccsid[] =
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#include <schily/mconfig.h>
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/stdlib.h>
 #include "star.h"
 #include "props.h"

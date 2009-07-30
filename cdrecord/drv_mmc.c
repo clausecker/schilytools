@@ -1,8 +1,8 @@
-/* @(#)drv_mmc.c	1.194 09/07/05 Copyright 1997-2009 J. Schilling */
+/* @(#)drv_mmc.c	1.195 09/07/10 Copyright 1997-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)drv_mmc.c	1.194 09/07/05 Copyright 1997-2009 J. Schilling";
+	"@(#)drv_mmc.c	1.195 09/07/10 Copyright 1997-2009 J. Schilling";
 #endif
 /*
  *	CDR device implementation for
@@ -27,7 +27,7 @@ static	UConst char sccsid[] =
 #define	PRINT_ATIP
 #include <schily/mconfig.h>
 
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/standard.h>
 #include <schily/fcntl.h>
 #include <schily/errno.h>

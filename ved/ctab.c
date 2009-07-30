@@ -1,14 +1,14 @@
-/* @(#)ctab.c	1.13 08/12/22 Copyright 1986-2008 J. Schilling */
+/* @(#)ctab.c	1.14 09/07/09 Copyright 1986-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)ctab.c	1.13 08/12/22 Copyright 1986-2008 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)ctab.c	1.14 09/07/09 Copyright 1986-2009 J. Schilling";
 #endif
 /*
  *	Character string and stringlength tables for screen
  *	output functions.
  *
- *	Copyright (c) 1986-2008 J. Schilling
+ *	Copyright (c) 1986-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

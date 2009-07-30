@@ -1,0 +1,29 @@
+#ident @(#)Targets	1.4 09/07/14 
+
+X_MK_LIST=	\
+		align.mk alloca.mk archdefs.mk avoffset.mk btorder.mk \
+		ccomdefs.mk checkerr.mk ctype.mk \
+		deflts.mk device.mk dirent.mk dlfcn.mk errno.mk fcntl.mk \
+		fetchdir.mk find.mk fnmatch.mk fstream.mk \
+		getargs.mk getcwd.mk grp.mk \
+		hostname.mk \
+		iconv.mk idcache.mk in.mk inet.mk io.mk ioctl.mk intcvt.mk \
+		jmpdefs.mk \
+		libport.mk librmt.mk limits.mk locale.mk \
+		maxpath.mk mconfig.mk \
+		md4.mk md5.mk \
+		mman.mk mtio.mk \
+		netdb.mk nlsdefs.mk \
+		param.mk patmatch.mk prototyp.mk pwd.mk \
+		rmtio.mk schily.mk schilyp.mk \
+		setjmp.mk shcall.mk \
+		siconv.mk shadow.mk \
+		sigblk.mk signal.mk sigset.mk socket.mk standard.mk stat.mk \
+		stdio.mk \
+		stdlib.mk stkframe.mk string.mk \
+		sysexits.mk systeminfo.mk \
+		termcap.mk termios.mk time.mk times.mk \
+		types.mk unistd.mk utime.mk utsname.mk utypes.mk \
+		varargs.mk vfork.mk \
+		walk.mk wchar.mk wctype.mk wait.mk \
+		xconfig.mk xmconfig.mk

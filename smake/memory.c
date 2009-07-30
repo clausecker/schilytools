@@ -1,8 +1,8 @@
-/* @(#)memory.c	1.19 09/04/10 Copyright 1985-2009 J. Schilling */
+/* @(#)memory.c	1.20 09/07/08 Copyright 1985-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)memory.c	1.19 09/04/10 Copyright 1985-2009 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)memory.c	1.20 09/07/08 Copyright 1985-2009 J. Schilling";
 #endif
 /*
  *	Make program

@@ -1,13 +1,13 @@
-/* @(#)hashcmd.c	1.25 08/12/20 Copyright 1986-2008 J. Schilling */
+/* @(#)hashcmd.c	1.27 09/07/28 Copyright 1986-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)hashcmd.c	1.25 08/12/20 Copyright 1986-2008 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)hashcmd.c	1.27 09/07/28 Copyright 1986-2009 J. Schilling";
 #endif
 /*
  *	bsh - Commands dealing with #<letter> commands
  *
- *	Copyright (c) 1986-2008 J. Schilling
+ *	Copyright (c) 1986-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -21,8 +21,7 @@ static	const char sccsid[] =
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#include <schily/mconfig.h>
-#include <stdio.h>
+#include <schily/stdio.h>
 #include "bsh.h"
 #include "node.h"
 #include "str.h"
@@ -118,7 +117,7 @@ hashcmd(std)
 				}
 			default:
 			err:
-				berror(ebadmodifier);
+				berror("%s", ebadmodifier);
 				abbusage(std, cmd);
 				eatline();
 				return;
@@ -230,7 +229,7 @@ hashcmd(std)
 		break;
 	case '!':
 		if (ttyflg) {
-			berror(eshonly);
+			berror("%s", eshonly);
 			abbusage(std, cmd);
 			break;
 		}
@@ -243,7 +242,7 @@ hashcmd(std)
 	case ' ':
 		break;	/* Kommentar */
 	default:
-		berror(enocmd);
+		berror("%s", enocmd);
 		abballusage(std);
 		break;
 	}
@@ -318,6 +317,6 @@ nameok(n)
 	char	*n;
 {
 	if (n == NULL)
-		berror(emissabbrev);
+		berror("%s", emissabbrev);
 	return (n);
 }

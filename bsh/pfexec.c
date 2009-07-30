@@ -1,13 +1,13 @@
-/* @(#)pfexec.c	1.6 08/12/20 Copyright 2008 J. Schilling */
+/* @(#)pfexec.c	1.7 09/07/11 Copyright 2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)pfexec.c	1.6 08/12/20 Copyright 2008 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)pfexec.c	1.7 09/07/11 Copyright 2009 J. Schilling";
 #endif
 /*
  *	Profile support for /usr/bin/pfexec
  *
- *	Copyright (c) 2008 J. Schilling
+ *	Copyright (c) 2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -21,8 +21,7 @@ static	const char sccsid[] =
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#include <schily/mconfig.h>
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/dirent.h>
 #include <schily/maxpath.h>
 #include "bsh.h"

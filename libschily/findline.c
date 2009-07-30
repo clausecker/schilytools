@@ -1,4 +1,4 @@
-/* @(#)findline.c	1.17 06/09/13 Copyright 1985, 1995-2003 J. Schilling */
+/* @(#)findline.c	1.18 09/07/10 Copyright 1985, 1995-2003 J. Schilling */
 /*
  *	findline
  *	get a line from a file with matching string in a given field
@@ -28,7 +28,7 @@
 #define	USE_LARGEFILES	/* We must make this module large file aware */
 
 #include <schily/mconfig.h>
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/standard.h>
 #include <schily/stdlib.h>
 #include <schily/unistd.h>	/* Include sys/types.h to make off_t available */

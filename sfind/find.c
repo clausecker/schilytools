@@ -1,8 +1,8 @@
-/* @(#)find.c	1.54 09/01/13 Copyright 2004-2009 J. Schilling */
+/* @(#)find.c	1.55 09/07/11 Copyright 2004-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)find.c	1.54 09/01/13 Copyright 2004-2009 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)find.c	1.55 09/07/11 Copyright 2004-2009 J. Schilling";
 #endif
 /*
  *	Another find implementation...
@@ -22,8 +22,7 @@ static	const char sccsid[] =
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#include <schily/mconfig.h>
-#include <stdio.h>		/* walk.h and find.h need stdio.h */
+#include <schily/stdio.h>		/* walk.h and find.h need stdio.h */
 #include <schily/unistd.h>
 #include <schily/standard.h>
 #include <schily/schily.h>

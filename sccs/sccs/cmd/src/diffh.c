@@ -31,20 +31,20 @@
 /*
  * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)diffh.c	1.6 09/02/08 J. Schilling
+ * @(#)diffh.c	1.7 09/07/18 J. Schilling
  */
 #if defined(sun) || defined(__GNUC__)
 
-#ident "@(#)diffh.c 1.6 09/02/08 J. Schilling"
+#ident "@(#)diffh.c 1.7 09/07/18 J. Schilling"
 #endif
 
 #pragma ident	"@(#)diffh.c	1.20	05/07/22 SMI"
 
 #include <schily/mconfig.h>
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/stdlib.h>
 #include <schily/unistd.h>
-#include <ctype.h>
+#include <schily/ctype.h>
 #include <schily/nlsdefs.h>
 #include <schily/types.h>
 #include <schily/stat.h>

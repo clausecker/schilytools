@@ -1,7 +1,7 @@
-/* @(#)scsihack.c	1.54 09/07/05 Copyright 1997,2000-2009 J. Schilling */
+/* @(#)scsihack.c	1.55 09/07/13 Copyright 1997,2000-2009 J. Schilling */
 #ifndef lint
 static	char _sccsid[] =
-	"@(#)scsihack.c	1.54 09/07/05 Copyright 1997,2000-2009 J. Schilling";
+	"@(#)scsihack.c	1.55 09/07/13 Copyright 1997,2000-2009 J. Schilling";
 #endif
 /*
  *	Interface for other generic SCSI implementations.
@@ -48,10 +48,8 @@ static	char _sccsid[] =
 
 #include <schily/mconfig.h>
 
-#ifdef	HAVE_SYS_PARAM_H
-#include <sys/param.h>	/* Include various defs needed with some OS */
-#endif
-#include <stdio.h>
+#include <schily/param.h>	/* Include various defs needed with some OS */
+#include <schily/stdio.h>
 #include <schily/standard.h>
 #include <schily/stdlib.h>
 #include <schily/unistd.h>
@@ -140,8 +138,7 @@ EXPORT scg_ops_t scg_std_ops = {
 #endif	/* *BSD */
 
 #if	defined(__bsdi__)	/* We have a SCSI implementation for BSD/OS 3.x (and later?) */
-# include <sys/param.h>
-# if (_BSDI_VERSION >= 199701)
+# if (_BSDI_VERSION >= 199701)	/* From sys/param.h included via schily/param.h */
 #  define	SCSI_IMPL
 
 #  include "scsi-bsd-os.c"
@@ -352,7 +349,7 @@ EXPORT scg_ops_t scg_dummy_ops = {
  *	Choose your name instead of "schily" and make clear that the version
  *	string is related to a modified source.
  */
-LOCAL	char	_scg_trans_dversion[] = "scsihack.c-1.54";	/* The version for this transport*/
+LOCAL	char	_scg_trans_dversion[] = "scsihack.c-1.55";	/* The version for this transport*/
 
 /*
  * Return version information for the low level SCSI transport code.

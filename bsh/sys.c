@@ -1,8 +1,8 @@
-/* @(#)sys.c	1.62 09/05/17 Copyright 1986-2009 J. Schilling */
+/* @(#)sys.c	1.66 09/07/28 Copyright 1986-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)sys.c	1.62 09/05/17 Copyright 1986-2009 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)sys.c	1.66 09/07/28 Copyright 1986-2009 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1986-2009 J. Schilling
@@ -19,9 +19,8 @@ static	const char sccsid[] =
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#include <schily/mconfig.h>
-#include <stdio.h>
-#include <signal.h>
+#include <schily/stdio.h>
+#include <schily/signal.h>
 #include <schily/string.h>			/* Die system strings für strsignal()*/
 #include <schily/unistd.h>
 #include <schily/stdlib.h>
@@ -49,22 +48,8 @@ Error fexec canno be implemented
 #	endif
 #endif
 #if	defined(HAVE_SYS_TIMES_H) && defined(HAVE_TIMES)
-/*
- * Make sure to include schily/time.h before, because of a Next Step bug.
- */
-#ifdef	HAVE_SYS_TIMES_H	/* Not present with MSVC */
-#include <sys/times.h>
-#endif
-#ifdef	HAVE_SYS_PARAM_H
-#include <sys/param.h>
-#ifndef	HZ
-#ifdef	_SC_CLK_TCK
-#define	HZ	((clock_t)sysconf(_SC_CLK_TCK))
-#else
-#define	HZ	100
-#endif	/* _SC_CLK_TCK */
-#endif	/* HZ */
-#endif	/* HAVE_SYS_PARAM_H */
+#include <schily/times.h>
+#include <schily/param.h>
 #endif	/* defined(HAVE_SYS_TIMES_H) && defined(HAVE_TIMES) */
 
 #include "resource.h"			/* Die lokale Version vom bsh Port */
@@ -442,7 +427,7 @@ ewait(child, flag)
 #endif
 	int	stype = 0;
 
-	char *mesg;
+	const char *mesg;
 
 	fillbytes(&prusage, sizeof (struct rusage), 0);
 
@@ -491,21 +476,21 @@ printf("ewait: back from child (WSTOPPED).\n");
 		if (times(&tms2) != -1) {
 /*#define	TIMES_DEBUG*/
 #ifdef	TIMES_DEBUG
-			printf("HZ: %d\n", HZ);
+			printf("CLK_TCK: %d\n", CLK_TCK);
 			printf("tms_utime %ld\n", (long) (tms2.tms_cutime - tms1.tms_cutime));
 			printf("tms_stime %ld\n", (long) (tms2.tms_cstime - tms1.tms_cstime));
 #endif
-			prusage.ru_utime.tv_sec  = (tms2.tms_cutime - tms1.tms_cutime) / HZ;
-			prusage.ru_utime.tv_usec = ((tms2.tms_cutime - tms1.tms_cutime) % HZ) * (1000000/HZ);
-			prusage.ru_stime.tv_sec  = (tms2.tms_cstime - tms1.tms_cstime) / HZ;
-			prusage.ru_stime.tv_usec = ((tms2.tms_cstime - tms1.tms_cstime) % HZ) * (1000000/HZ);
-
-#if defined(__BEOS__) || defined(__HAIKU__)	/* Dirty Hack for BeOS, HZ is 1000x to small or tms_cutime is too big */
-			prusage.ru_utime.tv_sec  = (tms2.tms_cutime - tms1.tms_cutime) / HZ / 1000;
-			prusage.ru_utime.tv_usec = ((tms2.tms_cutime - tms1.tms_cutime) % (HZ*1000)) * (1000000/HZ/1000);
-			prusage.ru_stime.tv_sec  = (tms2.tms_cstime - tms1.tms_cstime) / HZ/1000;
-			prusage.ru_stime.tv_usec = ((tms2.tms_cstime - tms1.tms_cstime) % (HZ*1000)) * (1000000/HZ/1000);
-#endif
+			/*
+			 * Hack for Haiku, where the times may sometime be negative
+			 */
+			if (tms2.tms_cutime < tms1.tms_cutime)
+				tms2.tms_cutime = tms1.tms_cutime;
+			if (tms2.tms_cstime < tms1.tms_cstime)
+				tms2.tms_cstime = tms1.tms_cstime;
+			prusage.ru_utime.tv_sec  = (tms2.tms_cutime - tms1.tms_cutime) / CLK_TCK;
+			prusage.ru_utime.tv_usec = ((tms2.tms_cutime - tms1.tms_cutime) % CLK_TCK) * (1000000/CLK_TCK);
+			prusage.ru_stime.tv_sec  = (tms2.tms_cstime - tms1.tms_cstime) / CLK_TCK;
+			prusage.ru_stime.tv_usec = ((tms2.tms_cstime - tms1.tms_cstime) % CLK_TCK) * (1000000/CLK_TCK);
 		}
 #endif
 #	endif	/* ! defined(HAVE_WAIT3) || defined(HAVE_SYS_PROCFS_H) */
@@ -528,7 +513,7 @@ printf("       return     = %x\n", status.type);
 
 		if (died <= 0) {
 			status.type = geterrno();
-			berror(enochildren);
+			berror("%s", enochildren);
 			break;
 		} else {
 #ifdef	JOBCONTROL

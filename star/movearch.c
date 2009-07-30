@@ -1,8 +1,8 @@
-/* @(#)movearch.c	1.33 09/01/06 Copyright 1993, 1995, 2001-2009 J. Schilling */
+/* @(#)movearch.c	1.34 09/07/11 Copyright 1993, 1995, 2001-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)movearch.c	1.33 09/01/06 Copyright 1993, 1995, 2001-2009 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)movearch.c	1.34 09/07/11 Copyright 1993, 1995, 2001-2009 J. Schilling";
 #endif
 /*
  *	Handle non-file type data that needs to be moved from/to the archive.
@@ -21,7 +21,6 @@ static	const char sccsid[] =
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#include <schily/mconfig.h>
 #include <schily/standard.h>
 #include <schily/string.h>
 #include <schily/schily.h>

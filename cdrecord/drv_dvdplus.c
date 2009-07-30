@@ -1,8 +1,8 @@
-/* @(#)drv_dvdplus.c	1.56 09/07/05 Copyright 2003-2009 J. Schilling */
+/* @(#)drv_dvdplus.c	1.57 09/07/10 Copyright 2003-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)drv_dvdplus.c	1.56 09/07/05 Copyright 2003-2009 J. Schilling";
+	"@(#)drv_dvdplus.c	1.57 09/07/10 Copyright 2003-2009 J. Schilling";
 #endif
 /*
  *	Copyright (c) 2003-2009 J. Schilling
@@ -66,7 +66,7 @@ static	UConst char sccsid[] =
 #endif
 #include <schily/mconfig.h>
 
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/stdlib.h>
 #include <schily/unistd.h>	/* Include sys/types.h to make off_t available */
 #include <schily/standard.h>

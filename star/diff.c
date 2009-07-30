@@ -1,14 +1,14 @@
-/* @(#)diff.c	1.84 08/12/22 Copyright 1993-2008 J. Schilling */
+/* @(#)diff.c	1.86 09/07/28 Copyright 1993-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)diff.c	1.84 08/12/22 Copyright 1993-2008 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)diff.c	1.86 09/07/28 Copyright 1993-2009 J. Schilling";
 #endif
 /*
  *	List differences between a (tape) archive and
  *	the filesystem
  *
- *	Copyright (c) 1993-2008 J. Schilling
+ *	Copyright (c) 1993-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -22,8 +22,7 @@ static	const char sccsid[] =
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#include <schily/mconfig.h>
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/stdlib.h>
 #include <schily/unistd.h>
 #include <schily/standard.h>
@@ -806,5 +805,5 @@ prdopt(f, name, printed)
 {
 	if (printed)
 		fprintf(f, ",");
-	fprintf(f, name);
+	fprintf(f, "%s", name);
 }

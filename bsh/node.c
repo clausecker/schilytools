@@ -1,13 +1,13 @@
-/* @(#)node.c	1.23 08/12/20 Copyright 1985-2008 J. Schilling */
+/* @(#)node.c	1.25 09/07/28 Copyright 1985-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)node.c	1.23 08/12/20 Copyright 1985-2008 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)node.c	1.25 09/07/28 Copyright 1985-2009 J. Schilling";
 #endif
 /*
  *	Node handling routines
  *
- *	Copyright (c) 1985-2008 J. Schilling
+ *	Copyright (c) 1985-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -21,8 +21,7 @@ static	const char sccsid[] =
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#include <schily/mconfig.h>
-#include <stdio.h>
+#include <schily/stdio.h>
 #include "bsh.h"
 #include "str.h"
 #include "node.h"
@@ -51,7 +50,7 @@ allocnode(type, lp, rp)
 		np->tn_left.tn_node = lp;
 		np->tn_right.tn_node = rp;
 	} else {
-		berror(sn_no_mem);
+		berror("%s", sn_no_mem);
 #ifdef	needed
 		if (0) {	/* XXX ist das ueberhaupt ein Tnode* ??*/
 			if (xntype(type) == STRING || xntype(type) == LSTRING)

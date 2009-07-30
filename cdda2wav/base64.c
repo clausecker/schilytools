@@ -1,8 +1,8 @@
-/* @(#)base64.c	1.9 09/07/05 Copyright 1998,1999 Heiko Eissfeldt, Copyright 2006-2009 J. Schilling */
+/* @(#)base64.c	1.10 09/07/10 Copyright 1998,1999 Heiko Eissfeldt, Copyright 2006-2009 J. Schilling */
 #include "config.h"
 #ifndef lint
 static	UConst char sccsid[] =
-"@(#)base64.c	1.9 09/07/05 Copyright 1998,1999 Heiko Eissfeldt, Copyright 2006-2009 J. Schilling";
+"@(#)base64.c	1.10 09/07/10 Copyright 1998,1999 Heiko Eissfeldt, Copyright 2006-2009 J. Schilling";
 
 #endif
 /*
@@ -57,7 +57,7 @@ static	UConst char sccsid[] =
  */
 
 #include "config.h"
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/stdlib.h>
 
 #include "base64.h"

@@ -1,13 +1,13 @@
-/* @(#)screen.c	1.39 08/12/22 Copyright 1984-2008 J. Schilling */
+/* @(#)screen.c	1.40 09/07/09 Copyright 1984-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)screen.c	1.39 08/12/22 Copyright 1984-2008 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)screen.c	1.40 09/07/09 Copyright 1984-2009 J. Schilling";
 #endif
 /*
  *	Screen update functions for VED
  *
- *	Copyright (c) 1984-2008 J. Schilling
+ *	Copyright (c) 1984-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

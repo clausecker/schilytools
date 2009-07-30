@@ -33,11 +33,11 @@
 /*
  * This file contains modifications Copyright 2008-2009 J. Schilling
  *
- * @(#)macro.c	1.9 09/06/14 2008-2009 J. Schilling
+ * @(#)macro.c	1.10 09/07/11 2008-2009 J. Schilling
  */
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)macro.c	1.9 09/06/14 2008-2009 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)macro.c	1.10 09/07/11 2008-2009 J. Schilling";
 #endif
 
 /*

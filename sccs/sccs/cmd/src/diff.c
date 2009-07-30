@@ -39,11 +39,11 @@
 /*
  * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)diff.c	1.20 09/04/15 J. Schilling
+ * @(#)diff.c	1.22 09/07/28 J. Schilling
  */
 #if defined(sun) || defined(__GNUC__)
 
-#ident "@(#)diff.c 1.20 09/04/15 J. Schilling"
+#ident "@(#)diff.c 1.22 09/07/28 J. Schilling"
 #endif
 
 #pragma ident	"@(#)diff.c	1.55	05/07/22 SMI"
@@ -138,17 +138,17 @@
 #ifdef	SCHILY_BUILD
 
 #include <schily/mconfig.h>
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/wchar.h>
 #include <schily/wctype.h>
-#include <ctype.h>
+#include <schily/ctype.h>
 #include <schily/stdlib.h>
-#include <limits.h>
+#include <schily/limits.h>
 #include <schily/types.h>
 #include <schily/stat.h>
 #include <schily/wait.h>
 #include <schily/unistd.h>
-#include <signal.h>
+#include <schily/signal.h>
 #include <schily/fcntl.h>
 #include <schily/dirent.h>
 #include <schily/maxpath.h>
@@ -2268,7 +2268,7 @@ error(s)
 	const char *s;
 {
 	(void) fprintf(stderr, "diff: ");
-	(void) fprintf(stderr, s);
+	(void) fprintf(stderr, "%s", s);
 	(void) fprintf(stderr, "\n");
 	done();
 }

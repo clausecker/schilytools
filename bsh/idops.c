@@ -1,13 +1,13 @@
-/* @(#)idops.c	1.36 08/12/20 Copyright 1985-2008 J. Schilling */
+/* @(#)idops.c	1.38 09/07/14 Copyright 1985-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)idops.c	1.36 08/12/20 Copyright 1985-2008 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)idops.c	1.38 09/07/14 Copyright 1985-2009 J. Schilling";
 #endif
 /*
  *	uid und gid Routinen
  *
- *	Copyright (c) 1985-2008 J. Schilling
+ *	Copyright (c) 1985-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -23,12 +23,10 @@ static	const char sccsid[] =
 
 #include <schily/mconfig.h>
 #ifndef	__CYGWIN32__
-#include <stdio.h>
-#include <signal.h>
-#include <pwd.h>
-#ifdef	HAVE_SHADOW_H
-#include <shadow.h>
-#endif
+#include <schily/stdio.h>
+#include <schily/signal.h>
+#include <schily/pwd.h>
+#include <schily/shadow.h>
 #	define	SUNAME	"root"
 #include "bsh.h"
 #include "str.h"

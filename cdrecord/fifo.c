@@ -1,8 +1,8 @@
-/* @(#)fifo.c	1.57 09/07/05 Copyright 1989,1997-2009 J. Schilling */
+/* @(#)fifo.c	1.59 09/07/25 Copyright 1989,1997-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)fifo.c	1.57 09/07/05 Copyright 1989,1997-2009 J. Schilling";
+	"@(#)fifo.c	1.59 09/07/25 Copyright 1989,1997-2009 J. Schilling";
 #endif
 /*
  *	A "fifo" that uses shared memory between two processes
@@ -68,7 +68,7 @@ static	UConst char sccsid[] =
 #	define	USE_BEOS_AREAS
 #endif
 
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/stdlib.h>
 #include <schily/unistd.h>	/* includes <sys/types.h> */
 #include <schily/utypes.h>
@@ -79,7 +79,7 @@ static	UConst char sccsid[] =
 #include <schily/wait.h>
 #include <schily/standard.h>
 #include <schily/errno.h>
-#include <signal.h>
+#include <schily/signal.h>
 #include <schily/libport.h>
 #include <schily/schily.h>
 
@@ -385,8 +385,8 @@ beosshm_child()
 			B_ANY_ADDRESS, B_READ_AREA|B_WRITE_AREA,
 			faio_aid);
 	if (bufbase != faio_addr) {
-		errmsgno(EX_BAD, "Panic FIFO addr.\n");
-		return (FALSE);
+		comerrno(EX_BAD, "Panic FIFO addr.\n");
+		/* NOTREACHED */
 	}
 }
 #endif

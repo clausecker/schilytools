@@ -1,13 +1,13 @@
-/* @(#)pmalloc.c	1.6 08/12/22 Copyright 2004-2008 J. Schilling */
+/* @(#)pmalloc.c	1.7 09/07/11 Copyright 2004-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)pmalloc.c	1.6 08/12/22 Copyright 2004-2008 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)pmalloc.c	1.7 09/07/11 Copyright 2004-2009 J. Schilling";
 #endif
 /*
  *	Paranoia malloc() functions
  *
- *	Copyright (c) 2004-2008 J. Schilling
+ *	Copyright (c) 2004-2009 J. Schilling
  */
 /*
  * This library is free software; you can redistribute it and/or modify
@@ -24,7 +24,6 @@ static	const char sccsid[] =
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
-#include <schily/mconfig.h>
 #include <schily/stdlib.h>
 #include <schily/standard.h>
 #include <schily/schily.h>

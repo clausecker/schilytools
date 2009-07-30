@@ -1,8 +1,8 @@
-/* @(#)inode.c	1.11 09/01/19 Copyright 2006-2009 J. Schilling */
+/* @(#)inode.c	1.12 09/07/09 Copyright 2006-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)inode.c	1.11 09/01/19 Copyright 2006-2009 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)inode.c	1.12 09/07/09 Copyright 2006-2009 J. Schilling";
 #endif
 /*
  *	Inode and link count handling for ISO-9660/RR
@@ -31,7 +31,6 @@ static	const char sccsid[] =
  * Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#include <schily/mconfig.h>
 #include "mkisofs.h"
 #include <schily/schily.h>
 

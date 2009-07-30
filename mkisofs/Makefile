@@ -1,4 +1,4 @@
-#ident @(#)Makefile	1.40 08/10/26 
+#ident @(#)Makefile	1.41 09/07/13 
 ###########################################################################
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 2
@@ -50,7 +50,7 @@ CFILES=		mkisofs.c tree.c write.c hash.c rock.c inode.c udf.c multi.c \
 		apple.c volume.c desktop.c mac_label.c stream.c \
 		ifo_read.c dvd_file.c dvd_reader.c \
 		walk.c
-HFILES=		apple.h bootinfo.h defaults.h diskmbr.h exclude.h \
+HFILES=		apple.h bootinfo.h defaults.h diskmbr.h \
 		iso9660.h mac_label.h mactypes.h match.h \
 		mkisofs.h sunlabel.h udf.h udf_fs.h vms.h \
 		ifo_read.h dvd_file.h dvd_reader.h bswap.h ifo_types.h

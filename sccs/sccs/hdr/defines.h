@@ -27,11 +27,11 @@
 /*
  * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)defines.h	1.15 09/04/08 J. Schilling
+ * @(#)defines.h	1.16 09/07/18 J. Schilling
  */
 #if defined(sun) || defined(__GNUC__)
 
-#ident "@(#)defines.h 1.15 09/04/08 J. Schilling"
+#ident "@(#)defines.h 1.16 09/07/18 J. Schilling"
 #endif
 /*
  * @(#)defines.h 1.21 06/12/12
@@ -52,6 +52,7 @@
 # include	<schily/string.h>
 # include	<schily/standard.h>	/* define signed */
 # include	<schily/nlsdefs.h>
+# include	<schily/io.h>		/* for setmode() prototype */
 # include	<macros.h>
 # undef		abs
 # include	<fatal.h>

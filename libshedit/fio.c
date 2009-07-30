@@ -1,8 +1,8 @@
-/* @(#)fio.c	1.5 09/06/30 Copyright 2006-2009 J. Schilling */
+/* @(#)fio.c	1.6 09/07/11 Copyright 2006-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)fio.c	1.5 09/06/30 Copyright 2006-2009 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)fio.c	1.6 09/07/11 Copyright 2006-2009 J. Schilling";
 #endif
 /*
  *	Replacement for some libschily/stdio/ *.c to allow

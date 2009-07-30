@@ -1,13 +1,13 @@
-/* @(#)terminal.c	1.39 08/12/22 Copyright 1984-2008 J. Schilling */
+/* @(#)terminal.c	1.41 09/07/13 Copyright 1984-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)terminal.c	1.39 08/12/22 Copyright 1984-2008 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)terminal.c	1.41 09/07/13 Copyright 1984-2009 J. Schilling";
 #endif
 /*
  *	Upper layer support routines for TERMCAP
  *
- *	Copyright (c) 1984-2008 J. Schilling
+ *	Copyright (c) 1984-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -46,7 +46,7 @@ static	const char sccsid[] =
 #include "terminal.h" /* XXX */
 #include <schily/fcntl.h>
 #include <schily/termios.h>
-#include <signal.h>
+#include <schily/signal.h>
 
 /*
  * The following variables are used to tell our users

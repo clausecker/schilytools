@@ -1,11 +1,11 @@
-/* @(#)create.c	1.127 08/12/22 Copyright 1985, 1995, 2001-2008 J. Schilling */
+/* @(#)create.c	1.129 09/07/26 Copyright 1985, 1995, 2001-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)create.c	1.127 08/12/22 Copyright 1985, 1995, 2001-2008 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)create.c	1.129 09/07/26 Copyright 1985, 1995, 2001-2009 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1985, 1995, 2001-2008 J. Schilling
+ *	Copyright (c) 1985, 1995, 2001-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -19,8 +19,7 @@ static	const char sccsid[] =
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#include <schily/mconfig.h>
-#include <stdio.h>
+#include <schily/stdio.h>
 #include "star.h"
 #include "props.h"
 #include "table.h"
@@ -1423,7 +1422,9 @@ put_dir(sname, dname, namlen, info, ptb, last)
 	register FINFO	*ninfo	= &nfinfo;
 		DIR	*d = NULL;
 	struct	dirent	*dir;
+#ifdef	HAVE_SEEKDIR
 		long	offset	= 0L;
+#endif
 		char	fname[PATH_MAX+1];	/* XXX */
 	register char	*name;
 	register char	*xdname;

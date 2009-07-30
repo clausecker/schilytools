@@ -1,11 +1,11 @@
-/* @(#)scsi.c	1.32 08/12/22 Copyright 1997-2008 J. Schilling */
+/* @(#)scsi.c	1.33 09/07/09 Copyright 1997-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)scsi.c	1.32 08/12/22 Copyright 1997-2008 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)scsi.c	1.33 09/07/09 Copyright 1997-2009 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1997-2008 J. Schilling
+ *	Copyright (c) 1997-2009 J. Schilling
  */
 /*
  * This program is free software; you can redistribute it and/or modify
@@ -23,9 +23,8 @@ static	const char sccsid[] =
  */
 
 #ifdef	USE_SCG
-#include <schily/mconfig.h>
 
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/standard.h>
 #include <schily/stdlib.h>
 #include <schily/unistd.h>

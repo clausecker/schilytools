@@ -1,8 +1,8 @@
-/* @(#)getargs.c	2.59 09/06/28 Copyright 1985, 1988, 1994-2009 J. Schilling */
+/* @(#)getargs.c	2.61 09/07/10 Copyright 1985, 1988, 1994-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)getargs.c	2.59 09/06/28 Copyright 1985, 1988, 1994-2009 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)getargs.c	2.61 09/07/10 Copyright 1985, 1988, 1994-2009 J. Schilling";
 #endif
 #define	NEW
 /*
@@ -64,7 +64,7 @@ static	const char sccsid[] =
 #include <schily/varargs.h>
 #include <schily/string.h>
 #include <schily/schily.h>
-#include <ctype.h>
+#include <schily/ctype.h>
 
 /*
  * Various return values

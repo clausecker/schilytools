@@ -1,8 +1,8 @@
-/* @(#)limit.c	1.33 09/05/17 Copyright 1987-2009 J. Schilling */
+/* @(#)limit.c	1.34 09/07/11 Copyright 1987-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)limit.c	1.33 09/05/17 Copyright 1987-2009 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)limit.c	1.34 09/07/11 Copyright 1987-2009 J. Schilling";
 #endif
 /*
  *	Resource usage routines
@@ -27,8 +27,7 @@ static	const char sccsid[] =
  * XXX daher ist getrusage() jetzt in getrusage.c
  */
 
-#include <schily/mconfig.h>
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/utypes.h>
 #include "bsh.h"
 #include "str.h"

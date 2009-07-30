@@ -1,13 +1,13 @@
-/* @(#)gettimeofday.c	1.2 08/12/21 Copyright 2007-2008 J. Schilling */
+/* @(#)gettimeofday.c	1.3 09/07/08 Copyright 2007-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)gettimeofday.c	1.2 08/12/21 Copyright 2007-2008 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)gettimeofday.c	1.3 09/07/08 Copyright 2007-2009 J. Schilling";
 #endif
 /*
  *	Emulate gettimeofday where it does not exist
  *
- *	Copyright (c) 2007-2008 J. Schilling
+ *	Copyright (c) 2007-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -20,8 +20,6 @@ static	const char sccsid[] =
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
-
-#include <schily/mconfig.h>
 
 #if	!defined(HAVE_GETTIMEOFDAY) && defined(_MSC_VER)
 #include <windows.h>

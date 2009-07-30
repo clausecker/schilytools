@@ -1,6 +1,6 @@
-dnl @(#)configure.in	1.182 09/07/02 Copyright 1998-2009 J. Schilling
+dnl @(#)configure.in	1.183 09/07/10 Copyright 1998-2009 J. Schilling
 dnl Process this file with autoconf to produce a configure script.
-AC_REVISION(1.182)dnl
+AC_REVISION(1.183)dnl
 
 AC_INIT(xconfig.h.in)
 AC_CONFIG_HEADER(xconfig.h)
@@ -82,7 +82,7 @@ dnl Check for Mas OS X ac, av, env delarations
 AC_CHECK_HEADERS(crt_externs.h)
 AC_CHECK_HEADERS(fnmatch.h)
 AC_CHECK_HEADERS(libintl.h locale.h langinfo.h nl_types.h)
-AC_CHECK_HEADERS(wctype.h wchar.h iconv.h)
+AC_CHECK_HEADERS(ctype.h wctype.h wchar.h iconv.h)
 AC_CHECK_HEADERS(priv.h)
 AC_CHECK_HEADERS(exec_attr.h secdb.h)
 AC_CHECK_HEADERS(direct.h)

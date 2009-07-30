@@ -1,14 +1,13 @@
-/* @(#)edcspeed.c	1.3 08/12/22 Copyright 2002-2006 J. Schilling */
+/* @(#)edcspeed.c	1.4 09/07/11 Copyright 2002-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)edcspeed.c	1.3 08/12/22 Copyright 2002-2006 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)edcspeed.c	1.4 09/07/11 Copyright 2002-2009 J. Schilling";
 #endif
 /*
- *	Copyright (c) 2002-2006 J. Schilling
+ *	Copyright (c) 2002-2009 J. Schilling
  */
-#include <schily/mconfig.h>
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/standard.h>
 #include <schily/stdlib.h>
 #include <schily/time.h>

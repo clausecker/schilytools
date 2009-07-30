@@ -1,8 +1,8 @@
-/* @(#)misc.c	1.7 09/07/05 Copyright 1998, 2001-2009 J. Schilling */
+/* @(#)misc.c	1.8 09/07/10 Copyright 1998, 2001-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)misc.c	1.7 09/07/05 Copyright 1998, 2001-2009 J. Schilling";
+	"@(#)misc.c	1.8 09/07/10 Copyright 1998, 2001-2009 J. Schilling";
 #endif
 /*
  *	Misc support functions
@@ -23,7 +23,7 @@ static	UConst char sccsid[] =
 
 #include <schily/mconfig.h>
 #include <schily/time.h>
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/standard.h>
 #include <schily/schily.h>
 

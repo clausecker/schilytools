@@ -1,12 +1,12 @@
-/* @(#)desktop.c	1.9 08/12/22 joerg, Copyright 1997, 1998, 1999, 2000 James Pearson */
+/* @(#)desktop.c	1.10 09/07/09 joerg, Copyright 1997, 1998, 1999, 2000 James Pearson, Copyright 2000-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)desktop.c	1.9 08/12/22 joerg, Copyright 1997, 1998, 1999, 2000 James Pearson";
+static	UConst char sccsid[] =
+	"@(#)desktop.c	1.10 09/07/09 joerg, Copyright 1997, 1998, 1999, 2000 James Pearson, Copyright 2000-2009 J. Schilling";
 #endif
 /*
  *      Copyright (c) 1997, 1998, 1999, 2000 James Pearson
- *	Copyright (c) 2000-2008 J. Schilling
+ *	Copyright (c) 2000-2009 J. Schilling
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -47,7 +47,6 @@ static	const char sccsid[] =
 
 #ifdef APPLE_HFS_HYB
 
-#include <schily/mconfig.h>
 #include "mkisofs.h"
 
 #define	DB	"Desktop DB"

@@ -1,8 +1,8 @@
-/* @(#)make.c	1.153 09/05/08 Copyright 1985, 87, 88, 91, 1995-2009 J. Schilling */
+/* @(#)make.c	1.155 09/07/10 Copyright 1985, 87, 88, 91, 1995-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)make.c	1.153 09/05/08 Copyright 1985, 87, 88, 91, 1995-2009 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)make.c	1.155 09/07/10 Copyright 1985, 87, 88, 91, 1995-2009 J. Schilling";
 #endif
 /*
  *	Make program
@@ -21,8 +21,7 @@ static	const char sccsid[] =
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#include <schily/mconfig.h>
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/standard.h>
 #include <schily/getargs.h>
 #include <schily/errno.h>
@@ -31,7 +30,7 @@ static	const char sccsid[] =
 #include <schily/unistd.h>
 #include <schily/time.h>
 #include <schily/wait.h>
-#include <signal.h>
+#include <schily/signal.h>
 
 #include <schily/dirent.h>
 #include <schily/maxpath.h>

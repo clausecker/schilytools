@@ -1,6 +1,6 @@
-/* @(#)find_misc.h	1.6 07/04/04 Copyright 2004-2007 J. Schilling */
+/* @(#)find_misc.h	1.7 09/07/10 Copyright 2004-2009 J. Schilling */
 /*
- *	Copyright (c) 2004-2007 J. Schilling
+ *	Copyright (c) 2004-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -14,8 +14,8 @@
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#ifndef	_MISC_H
-#define	_MISC_H
+#ifndef	_FIND_MISC_H
+#define	_FIND_MISC_H
 
 #ifndef _SCHILY_MCONFIG_H
 #include <schily/mconfig.h>
@@ -23,10 +23,8 @@
 #ifndef _SCHILY_UNIXSTD_H
 #include <schily/unistd.h>
 #endif
-
-#ifndef _INCL_STDIO_H
-#include <stdio.h>
-#define	_INCL_STDIO_H
+#ifndef _SCHILY_STDIO_H
+#include <schily/stdio.h>
 #endif
 
 #if	defined(UNIXWARE) && defined(HAVE_ACL)
@@ -53,4 +51,4 @@
 extern	BOOL	has_acl		__PR((FILE *f, char *name, char *sname, struct stat *sp));
 extern	BOOL	has_xattr	__PR((FILE *f, char *sname));
 
-#endif	/* _MISC_H */
+#endif	/* _FIND_MISC_H */

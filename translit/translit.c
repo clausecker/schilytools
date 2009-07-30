@@ -1,8 +1,8 @@
-/* @(#)translit.c	1.14 09/01/07 Copyright 1985-2009 J. Schilling */
+/* @(#)translit.c	1.16 09/07/26 Copyright 1985-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)translit.c	1.14 09/01/07 Copyright 1985-2009 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)translit.c	1.16 09/07/26 Copyright 1985-2009 J. Schilling";
 #endif
 
 /*
@@ -24,8 +24,7 @@ static	const char sccsid[] =
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#include <schily/mconfig.h>
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/standard.h>
 #include <schily/stdlib.h>
 #include <schily/unistd.h>	/* Include sys/types.h */
@@ -102,8 +101,8 @@ main(ac, av)
 		usage(0);
 	if (prversion) {
 		printf(
-"Translit release %s (%s-%s-%s) Copyright (C) 1985-2008 Jörg Schilling\n",
-				"1.14",
+"Translit release %s (%s-%s-%s) Copyright (C) 1985-2009 Jörg Schilling\n",
+				"1.16",
 				HOST_CPU, HOST_VENDOR, HOST_OS);
 		exit(0);
 	}
@@ -232,6 +231,7 @@ buildtabs(fromset, toset, sqset)
 
 #define	put(c, p, l, tn)	((((l)-- <= 0) && etoolarge(tn)), \
 							*(p)++ = (c) & 255)
+#define	vput(c, p, l, tn)	(void)put(c, p, l, tn)
 
 LOCAL int
 buildset(inp, buf, bsize, tname, notflg)
@@ -261,7 +261,7 @@ register int	to;
 		case '[':			/* Start of character class */
 
 			if (inp[1] == '\0') {		/* End of string */
-				put(*inp, setp, setsize, tname);
+				vput(*inp, setp, setsize, tname);
 				break;
 			}
 
@@ -270,9 +270,9 @@ register int	to;
 				if (*inp == ']' || *inp == '\0')
 					break;
 				else if (*inp == '\\' && inp[1] != '\0')
-					put(unesc(&inp), setp, setsize, tname);
+					vput(unesc(&inp), setp, setsize, tname);
 				else
-					put(*inp, setp, setsize, tname);
+					vput(*inp, setp, setsize, tname);
 
 				if (inp[1] == '-' &&
 				    inp[2] != '\0' &&
@@ -287,12 +287,12 @@ register int	to;
 					to &= 255;
 					if (i > to) {
 						for (i--; i >= to; i--) {
-							put(i, setp, setsize,
+							vput(i, setp, setsize,
 									tname);
 						}
 					} else {
 						for (i++; i <= to; i++) {
-							put(i, setp, setsize,
+							vput(i, setp, setsize,
 									tname);
 						}
 					}
@@ -304,13 +304,13 @@ register int	to;
 
 		case '\\':
 			if (inp[1] != '\0') {
-				put(unesc(&inp), setp, setsize, tname);
+				vput(unesc(&inp), setp, setsize, tname);
 				break;
 			}
 			/* FALLTHROUGH */
 
 		default:
-			put(*inp, setp, setsize, tname);
+			vput(*inp, setp, setsize, tname);
 			break;
 		}
 	}
@@ -321,13 +321,13 @@ register int	to;
 		for (n = 0, i = 0; i < 256; i++) {
 			if (!inset(i, set, setsize)) {
 				n++;
-				put(i, buf, bsize, tname);
+				vput(i, buf, bsize, tname);
 			}
 		}
 		setsize = n;
 	} else {
 		for (i = 0; i < setsize; i++)
-			put(set[i], buf, bsize, tname);
+			vput(set[i], buf, bsize, tname);
 	}
 	return (setsize);
 }

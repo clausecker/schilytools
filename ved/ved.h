@@ -1,8 +1,8 @@
-/* @(#)ved.h	1.38 07/03/08 Copyright 1984, 85, 86, 88, 89, 97, 2000-2004 J. Schilling */
+/* @(#)ved.h	1.39 09/07/13 Copyright 1984, 85, 86, 88, 89, 97, 2000-2009 J. Schilling */
 /*
  *	Main include file for VED
  *
- *	Copyright (c) 1984, 85, 86, 88, 89, 97, 2000-2004 J. Schilling
+ *	Copyright (c) 1984, 85, 86, 88, 89, 97, 2000-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -17,7 +17,7 @@
  */
 
 #include <schily/mconfig.h>
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/stdlib.h>
 #include <schily/unistd.h>
 #include <schily/string.h>

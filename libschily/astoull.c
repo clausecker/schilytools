@@ -1,4 +1,4 @@
-/* %Z%%M%	%I% %E% Copyright 1985, 2000-2006 J. Schilling */
+/* @(#)astoull.c	1.2 09/07/26 Copyright 1985, 2000-2006 J. Schilling */
 /*
  *	astoll() converts a string to long long
  *
@@ -77,7 +77,7 @@ astoullb(s, l, base)
 	register char c;
 
 	if (base > BASE_MAX || base == 1 || base < 0) {
-		errno = EINVAL;
+		seterrno(EINVAL);
 		return ((char *)s);
 	}
 
@@ -88,7 +88,7 @@ astoullb(s, l, base)
 		s++;
 	} else if (*s == '-') {
 #ifndef	DO_SIGNED
-		errno = EINVAL;
+		seterrno(EINVAL);
 		return ((char *)s);
 #else
 		s++;
@@ -159,6 +159,6 @@ overflow:
 			break;
 	}
 	*l = TYPE_MAXVAL(Ullong);
-	errno = ERANGE;
+	seterrno(ERANGE);
 	return ((char *)s);
 }

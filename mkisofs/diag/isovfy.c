@@ -1,8 +1,8 @@
-/* @(#)isovfy.c	1.39 09/01/17 joerg */
+/* @(#)isovfy.c	1.40 09/07/09 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)isovfy.c	1.39 09/01/17 joerg";
+static	UConst char sccsid[] =
+	"@(#)isovfy.c	1.40 09/07/09 joerg";
 #endif
 /*
  * File isovfy.c - verify consistency of iso9660 filesystem.
@@ -33,9 +33,9 @@ static	const char sccsid[] =
 #include <schily/string.h>
 #include <schily/utypes.h>
 
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/standard.h>
-#include <signal.h>
+#include <schily/signal.h>
 #include <schily/schily.h>
 
 #include "../scsi.h"

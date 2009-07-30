@@ -1,8 +1,8 @@
-/* @(#)match.c	1.28 08/12/22 joerg */
+/* @(#)match.c	1.29 09/07/09 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)match.c	1.28 08/12/22 joerg";
+static	UConst char sccsid[] =
+	"@(#)match.c	1.29 09/07/09 joerg";
 #endif
 /*
  * 27-Mar-96: Jan-Piet Mens <jpm@mens.de>
@@ -12,11 +12,10 @@ static	const char sccsid[] =
  * Re-written 13-Apr-2000 James Pearson
  * now uses a generic set of routines
  * Conversions to make the code more portable May 2000 .. March 2004
- * Copyright (c) 2000-2008 J. Schilling
+ * Copyright (c) 2000-2009 J. Schilling
  */
 
-#include <schily/mconfig.h>
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/stdlib.h>
 #include <schily/unistd.h>
 #include <schily/string.h>

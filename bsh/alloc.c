@@ -1,8 +1,8 @@
-/* @(#)alloc.c	1.44 09/06/02 Copyright 1985,1988,1991,1995-2009 J. Schilling */
+/* @(#)alloc.c	1.45 09/07/11 Copyright 1985,1988,1991,1995-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
-static	const char sccsid[] =
-	"@(#)alloc.c	1.44 09/06/02 Copyright 1985,1988,1991,1995-2009 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)alloc.c	1.45 09/07/11 Copyright 1985,1988,1991,1995-2009 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1985,1988,1991,1995-2009 J. Schilling
@@ -838,7 +838,7 @@ EXPORT	void	*get_heapbeg	__PR((void));
 EXPORT	void	*get_heapend	__PR((void));
 
 #ifdef	BSH
-#include <stdio.h>
+#include <schily/stdio.h>
 #include "bsh.h"
 
 EXPORT	void	balloc		__PR((Argvec* vp, FILE ** std, int flag));

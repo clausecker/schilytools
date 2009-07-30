@@ -1,4 +1,4 @@
-/* @(#)serrmsg.c	1.4 06/09/13 Copyright 1985, 2000-2003 J. Schilling */
+/* @(#)serrmsg.c	1.5 09/07/10 Copyright 1985, 2000-2003 J. Schilling */
 /*
  *	Routines for printing command errors
  *
@@ -18,7 +18,7 @@
 
 #include <schily/mconfig.h>
 #include <schily/unistd.h>	/* include <sys/types.h> try to get size_t */
-#include <stdio.h>		/* Try again for size_t	*/
+#include <schily/stdio.h>	/* Try again for size_t	*/
 #include <schily/stdlib.h>	/* Try again for size_t	*/
 #include <schily/standard.h>
 #include <schily/stdlib.h>
