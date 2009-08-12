@@ -1,4 +1,4 @@
-dnl %Z%%M%	%I% %E% Copyright 1998-2009 J. Schilling
+dnl @(#)acgeneral.m4	1.10 09/07/30 Copyright 1998-2009 J. Schilling
 dnl
 dnl Parameterized macros.
 dnl Requires GNU m4.

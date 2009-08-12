@@ -65,7 +65,7 @@ libgetopt/
 libhfs_iso/
 	HFS support lib (GPL)
 libmdigest/
-	Message digest lib (public domain)
+	Message digest lib (partially public domain, partially BSD 2 clause)
 libparanoia/
 	CD paranoia CD-DAE support lib (LGPL)
 librmt/
@@ -105,6 +105,8 @@ mkisofs/
 	A ISO-9660/Rock-Ridge/Joliet/HFS/UDF filesystem formatter (GPL)
 	Note: uses libscg
 	See special GPL compatibility note below
+mdigest/
+	Message digest hash program (CDDL)
 mountcd/
 	mount root CD image for SchilliX life CD (CDDL)
 mt/

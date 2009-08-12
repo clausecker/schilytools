@@ -1,8 +1,8 @@
-/* @(#)rscsi.c	1.35 09/07/13 Copyright 1994,2000-2009 J. Schilling*/
+/* @(#)rscsi.c	1.36 09/08/04 Copyright 1994,2000-2009 J. Schilling*/
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)rscsi.c	1.35 09/07/13 Copyright 1994,2000-2009 J. Schilling";
+	"@(#)rscsi.c	1.36 09/08/04 Copyright 1994,2000-2009 J. Schilling";
 #endif
 /*
  *	Remote SCSI server
@@ -32,7 +32,7 @@ static	UConst char sccsid[] =
 #include <schily/string.h>
 #ifdef	HAVE_SYS_SOCKET_H
 #define	USE_REMOTE
-#include <sys/socket.h>
+#include <schily/socket.h>
 #endif
 #include <schily/param.h>	/* BSD-4.2 & Linux need this for MAXHOSTNAMELEN */
 #include <schily/errno.h>

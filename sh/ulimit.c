@@ -35,11 +35,11 @@
 /*
  * This file contains modifications Copyright 2008-2009 J. Schilling
  *
- * @(#)ulimit.c	1.8 09/07/11 2008-2009 J. Schilling
+ * @(#)ulimit.c	1.9 09/08/04 2008-2009 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)ulimit.c	1.8 09/07/11 2008-2009 J. Schilling";
+	"@(#)ulimit.c	1.9 09/08/04 2008-2009 J. Schilling";
 #endif
 
 /*
@@ -48,7 +48,7 @@ static	UConst char sccsid[] =
 
 #ifdef	SCHILY_BUILD
 #include <schily/time.h>
-#include <sys/resource.h>
+#include <schily/resource.h>
 #define	rlim_t	Intmax_t		/* XXX may go away with <schily/resource.h> */
 #else
 #include <sys/resource.h>

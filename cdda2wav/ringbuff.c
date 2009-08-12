@@ -1,8 +1,8 @@
-/* @(#)ringbuff.c	1.19 09/07/10 Copyright 1998,1999,2000 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling */
+/* @(#)ringbuff.c	1.21 09/08/08 Copyright 1998,1999,2000 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling */
 #include "config.h"
 #ifndef lint
 static	UConst char sccsid[] =
-"@(#)ringbuff.c	1.19 09/07/10 Copyright 1998,1999,2000 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling";
+"@(#)ringbuff.c	1.21 09/08/08 Copyright 1998,1999,2000 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling";
 #endif
 /*
  * Ringbuffer handling
@@ -28,8 +28,8 @@ static	UConst char sccsid[] =
 #include <schily/schily.h>
 
 #if defined(HAVE_SEMGET) && defined(USE_SEMAPHORES)
-#include <sys/ipc.h>
-#include <sys/sem.h>
+#include <schily/ipc.h>
+#include <schily/sem.h>
 #endif
 
 #include <scg/scsitransp.h>
@@ -43,7 +43,7 @@ static	UConst char sccsid[] =
 
 #undef WARN_INTERRUPT
 #undef _DEBUG
-#include <assert.h>
+#include <schily/assert.h>
 
 static void occupy_buffer	__PR((void));
 

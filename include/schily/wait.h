@@ -1,4 +1,4 @@
-/* @(#)wait.h	1.13 07/01/16 Copyright 1995-2007 J. Schilling */
+/* @(#)wait.h	1.15 09/08/02 Copyright 1995-2007 J. Schilling */
 /*
  *	Definitions to deal with various kinds of wait flavour
  *
@@ -54,6 +54,19 @@
 #	endif
 #	endif
 #endif
+#ifdef	JOS
+#	ifndef	_INCL_SYS_EXIT_H
+#	include <sys/exit.h>
+#	define	_INCL_SYS_EXIT_H
+#	endif
+#endif 
+#if defined(__EMX__) || defined(__DJGPP__)
+#	ifndef	_INCL_PROCESS_H
+#	include <process.h>
+#	define	_INCL_PROCESS_H
+#	endif
+#endif 
+
 
 #ifdef	__cplusplus
 extern "C" {

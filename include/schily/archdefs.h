@@ -1,4 +1,4 @@
-/* @(#)archdefs.h	1.7 09/06/06 Copyright 2006-2009 J. Schilling */
+/* @(#)archdefs.h	1.8 09/08/09 Copyright 2006-2009 J. Schilling */
 /*
  *	Processor, instruction set and OS architecture specific defines.
  *	The information is fetched from compiler predefinitions only.
@@ -117,7 +117,7 @@
  */
 #if	defined(__sun) && !defined(__SVR4)
 
-#if	defined(__mc6800)
+#if	defined(__mc68000)
 #ifdef	__GNUC__
 #define	__SUNOS4_MC68000_GCC32
 #define	__JS_ARCH_DEFINED
@@ -126,7 +126,7 @@
 #define	__SUNOS4_MC68000_CC32
 #define	__JS_ARCH_DEFINED
 #endif
-#endif	/* __mc6800	*/
+#endif	/* __mc68000	*/
 
 #if	defined(__sparc)
 #ifdef	__GNUC__

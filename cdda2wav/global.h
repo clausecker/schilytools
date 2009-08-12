@@ -1,4 +1,4 @@
-/* @(#)global.h	1.24 09/01/24 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling */
+/* @(#)global.h	1.25 09/08/12 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling */
 /*
  * Global Variables
  */
@@ -15,7 +15,7 @@
  */
 
 #ifdef  MD5_SIGNATURES
-#include "md5.h"
+#include <schily/md5.h>
 #endif
 #ifdef	USE_PARANOIA
 #include "cdda_paranoia.h"

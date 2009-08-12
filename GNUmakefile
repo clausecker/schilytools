@@ -10,4 +10,4 @@
 all clean clobber distclean install ibins depend rmdep config TAGS tags rmtarget relink:
 	@echo "NOTICE: Using bootstrap 'Makefile' to make '$@'"
 	cd psmake && sh ./MAKE-all
-	./psmake/smake -r $@
+	LC_CTYPE=C LC_MESSAGES=C LC_ALL=C ./psmake/smake -r $@

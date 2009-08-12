@@ -1,8 +1,8 @@
-/* @(#)check_part.c	1.33 09/07/13 Copyright 1993-2009 J. Schilling */
+/* @(#)check_part.c	1.34 09/08/08 Copyright 1993-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)check_part.c	1.33 09/07/13 Copyright 1993-2009 J. Schilling";
+	"@(#)check_part.c	1.34 09/08/08 Copyright 1993-2009 J. Schilling";
 #endif
 /*
  *	Check Partition validity
@@ -29,13 +29,7 @@ static	UConst char sccsid[] =
 #include <schily/fcntl.h>
 #include <sys/file.h>
 #include "dsklabel.h"
-#ifdef	HAVE_VALUES_H
-#include <values.h>
-#else
-#	ifdef	HAVE_FLOAT_H
-#	include <float.h>
-#	endif
-#endif
+#include <schily/float.h>
 
 #include "fmt.h"
 
@@ -340,15 +334,7 @@ graph(lp, low, high)
 	printf("\n");
 	blkpc = (high - low) / LINELEN;
 	if (blkpc < 0.1) {
-#ifdef	HAVE_VALUES_H
-		blkpc = MAXFLOAT;
-#else
-#ifdef	HAVE_FLOAT_H
 		blkpc = FLT_MAX;
-#else
-		blkpc = ERROR_NO_FLOAT;
-#endif
-#endif
 	}
 
 	for (i = 0; i < 8; i++) {

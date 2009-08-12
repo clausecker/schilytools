@@ -1,0 +1,49 @@
+New features with AN-2009-08-12:
+
+-	cdrtools bumped to 2.01.01a63
+
+-	sha1 was added to libmdigest
+-	sha2 was added to libmdigest
+-	rmd160 was added to libmdigest
+-	md4 was added to libmdigest
+
+-	Cdda2wav is now using the sha1 implementation from libmdigest
+
+-	include/schily/wait.h now includes process.h on DOS systems
+
+-	include/schily/resource.h new
+
+-	Try to avoid an endloss loop in cdda2wav while parsing ISO-9660 directories
+	from rotten CD+ sessions.
+
+-	Now all sources use schily/systeminfo.h instead of sys/systeminfo.h
+
+-	Now all sources use schily/assert.h instead of assert.h
+
+-	Now all sources use schily/priv.h instead of priv.h
+
+-	Now all sources use schily/procfs.h instead of profcs.h
+
+-	Now all sources use schily/syslog.h instead of syslog.h
+
+-	Now all sources use schily/float.h instead of float.h
+
+-	Now all sources use schily/ipc.h instead of sys/ipc.h
+
+-	Now all sources use schily/sem.h instead of sys/sem.h
+
+-	Now all sources use schily/shm.h instead of sys/shm.h
+
+-	New program "mdigest" implements various message digest hashes
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.isdn.cs.tu-berlin.de, js@cs.tu-berlin.de
+	joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

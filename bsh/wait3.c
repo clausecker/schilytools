@@ -1,8 +1,8 @@
-/* @(#)wait3.c	1.12 09/07/11 Copyright 1995-2009 J. Schilling */
+/* @(#)wait3.c	1.13 09/08/04 Copyright 1995-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)wait3.c	1.12 09/07/11 Copyright 1995-2009 J. Schilling";
+	"@(#)wait3.c	1.13 09/08/04 Copyright 1995-2009 J. Schilling";
 #endif
 /*
  * Compatibility function for BSD wait3().
@@ -96,7 +96,7 @@ static	UConst char sccsid[] =
 #include <sys/procfs.h>
 #include <string.h>
 #include <unistd.h>
-#include "resource.h"	/* local version of BSD /usr/include/sys/resource.h */
+#include <schily/resource.h>
 
 #undef	wait3
 

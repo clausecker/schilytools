@@ -1,8 +1,8 @@
-/* @(#)limit.c	1.34 09/07/11 Copyright 1987-2009 J. Schilling */
+/* @(#)limit.c	1.35 09/08/04 Copyright 1987-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)limit.c	1.34 09/07/11 Copyright 1987-2009 J. Schilling";
+	"@(#)limit.c	1.35 09/08/04 Copyright 1987-2009 J. Schilling";
 #endif
 /*
  *	Resource usage routines
@@ -35,7 +35,7 @@ static	UConst char sccsid[] =
 #include <schily/unistd.h>
 #include <schily/fcntl.h>
 #include <schily/time.h>
-#include "resource.h"	/* Die lokale Version vom bsh Port */
+#include <schily/resource.h>
 
 
 #	ifndef	HAVE_GETRLIMIT

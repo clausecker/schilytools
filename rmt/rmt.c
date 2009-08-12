@@ -1,8 +1,8 @@
-/* @(#)rmt.c	1.36 09/07/11 Copyright 1994,2000-2009 J. Schilling */
+/* @(#)rmt.c	1.37 09/08/04 Copyright 1994,2000-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)rmt.c	1.36 09/07/11 Copyright 1994,2000-2009 J. Schilling";
+	"@(#)rmt.c	1.37 09/08/04 Copyright 1994,2000-2009 J. Schilling";
 #endif
 /*
  *	Remote tape server
@@ -44,14 +44,10 @@ static	UConst char sccsid[] =
 #include <schily/fcntl.h>
 #include <schily/stat.h>
 #include <schily/string.h>
-#ifdef	 HAVE_SYS_SOCKET_H
-#include <sys/socket.h>
-#endif
+#include <schily/socket.h>
 #include <schily/param.h>	/* BSD-4.2 & Linux need this for MAXHOSTNAMELEN */
 #include <schily/ioctl.h>
-#ifdef	HAVE_SYS_MTIO_H
-#include <sys/mtio.h>
-#endif
+#include <schily/mtio.h>
 #include <schily/errno.h>
 #include <schily/pwd.h>
 
@@ -60,14 +56,10 @@ static	UConst char sccsid[] =
 #include <schily/deflts.h>
 #include <schily/patmatch.h>
 #include <schily/schily.h>
-
-#include <netinet/in.h>
-#ifdef	HAVE_ARPA_INET_H
-#include <arpa/inet.h>		/* BeOS does not have <arpa/inet.h> */
-#endif				/* but inet_ntaoa() is in <netdb.h> */
-#ifdef	 HAVE_NETDB_H
-#include <netdb.h>
-#endif
+#include <schily/in.h>
+#include <schily/inet.h>	/* BeOS does not have <arpa/inet.h> */
+				/* but inet_ntaoa() is in <netdb.h> */
+#include <schily/netdb.h>
 
 #if (!defined(HAVE_NETDB_H) || !defined(HAVE_SYS_SOCKET_H))
 #undef	USE_REMOTE

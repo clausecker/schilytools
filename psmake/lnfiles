@@ -1,5 +1,5 @@
 #!/bin/sh
-# @(#)lnfiles	1.13 09/07/19 Copyright 1999 J. Schilling
+# @(#)lnfiles	1.14 09/08/12 Copyright 1999 J. Schilling
 
 cp='ln -s'
 smake=smake
@@ -58,9 +58,11 @@ $cp ${incsrc}/../../include/schily/stdio.h		include/schily/stdio.h
 $cp ${incsrc}/../../include/schily/stdlib.h		include/schily/stdlib.h
 $cp ${incsrc}/../../include/schily/stkframe.h		include/schily/stkframe.h
 $cp ${incsrc}/../../include/schily/string.h		include/schily/string.h
+$cp ${incsrc}/../../include/schily/systeminfo.h		include/schily/systeminfo.h
 $cp ${incsrc}/../../include/schily/time.h		include/schily/time.h
 $cp ${incsrc}/../../include/schily/unistd.h		include/schily/unistd.h
 $cp ${incsrc}/../../include/schily/utime.h		include/schily/utime.h
+$cp ${incsrc}/../../include/schily/utsname.h		include/schily/utsname.h
 $cp ${incsrc}/../../include/schily/utypes.h		include/schily/utypes.h
 $cp ${incsrc}/../../include/schily/types.h		include/schily/types.h
 $cp ${incsrc}/../../include/schily/param.h		include/schily/param.h

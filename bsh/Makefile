@@ -1,4 +1,4 @@
-#ident @(#)Makefile	1.24 09/06/08 
+#ident @(#)Makefile	1.25 09/08/04 
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -47,7 +47,7 @@ CFILES=		bsh.c node.c parse.c hashcmd.c alias.c abbtab.c \
 # match.c nur wenn evt. a='test'cc"bbb" implementiert wird
 #		alloc.c match.c wait3.c
 
-HFILES=		abbrev.h bsh.h map.h node.h abbtab.h btab.h limit.h resource.h \
+HFILES=		abbrev.h bsh.h map.h node.h abbtab.h btab.h limit.h \
 		str.h \
 		strsubs.h ctype.h bshconf.h
 #LIBS=		-lunos

@@ -1,8 +1,8 @@
-/* @(#)make.c	1.155 09/07/10 Copyright 1985, 87, 88, 91, 1995-2009 J. Schilling */
+/* @(#)make.c	1.157 09/08/02 Copyright 1985, 87, 88, 91, 1995-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)make.c	1.155 09/07/10 Copyright 1985, 87, 88, 91, 1995-2009 J. Schilling";
+	"@(#)make.c	1.157 09/08/02 Copyright 1985, 87, 88, 91, 1995-2009 J. Schilling";
 #endif
 /*
  *	Make program
@@ -36,15 +36,12 @@ static	UConst char sccsid[] =
 #include <schily/maxpath.h>
 #include <schily/getcwd.h>
 #include <schily/schily.h>
-#if defined(__EMX__) || defined(__DJGPP__)
-#include <process.h>
-#endif
 #include <schily/libport.h>
 #include <schily/utime.h>
 
 #include "make.h"
 
-char	make_version[] = "1.2a43";
+char	make_version[] = "1.2a44";
 
 #ifdef	NO_DEFAULTS_PATH
 #undef	DEFAULTS_PATH
@@ -1969,7 +1966,7 @@ gftime(file)
 		 */
 		t = stbuf.st_mtime;
 		while (t == NOTIME || t == BADTIME ||
-				t == RECURSETIME || t == PHONYTIME) {
+		    t == RECURSETIME || t == MAKETIME || t == PHONYTIME) {
 			t++;
 		}
 		stbuf.st_mtime = t;

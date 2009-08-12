@@ -1,27 +1,30 @@
-#ident @(#)Targets	1.4 09/07/14 
+#ident @(#)Targets	1.11 09/08/09 
 
 X_MK_LIST=	\
-		align.mk alloca.mk archdefs.mk avoffset.mk btorder.mk \
+		align.mk alloca.mk archdefs.mk assert.mk avoffset.mk \
+		btorder.mk \
 		ccomdefs.mk checkerr.mk ctype.mk \
 		deflts.mk device.mk dirent.mk dlfcn.mk errno.mk fcntl.mk \
-		fetchdir.mk find.mk fnmatch.mk fstream.mk \
+		fetchdir.mk find.mk float.mk fnmatch.mk fstream.mk \
 		getargs.mk getcwd.mk grp.mk \
 		hostname.mk \
-		iconv.mk idcache.mk in.mk inet.mk io.mk ioctl.mk intcvt.mk \
+		iconv.mk idcache.mk in.mk inet.mk io.mk ioctl.mk ipc.mk \
+		intcvt.mk \
 		jmpdefs.mk \
 		libport.mk librmt.mk limits.mk locale.mk \
 		maxpath.mk mconfig.mk \
 		md4.mk md5.mk \
 		mman.mk mtio.mk \
 		netdb.mk nlsdefs.mk \
-		param.mk patmatch.mk prototyp.mk pwd.mk \
-		rmtio.mk schily.mk schilyp.mk \
-		setjmp.mk shcall.mk \
+		param.mk patmatch.mk priv.mk procfs.mk prototyp.mk pwd.mk \
+		resource.mk rmd160.mk rmtio.mk \
+		schily.mk schilyp.mk select.mk sem.mk shm.mk \
+		setjmp.mk sha1.mk sha2.mk shcall.mk \
 		siconv.mk shadow.mk \
 		sigblk.mk signal.mk sigset.mk socket.mk standard.mk stat.mk \
 		stdio.mk \
 		stdlib.mk stkframe.mk string.mk \
-		sysexits.mk systeminfo.mk \
+		sysexits.mk syslog.mk systeminfo.mk \
 		termcap.mk termios.mk time.mk times.mk \
 		types.mk unistd.mk utime.mk utsname.mk utypes.mk \
 		varargs.mk vfork.mk \

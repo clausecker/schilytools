@@ -1,4 +1,4 @@
-/* @(#)md5.h	1.9 09/06/23 2008-2009 J. Schilling */
+/* @(#)md5.h	1.10 09/08/08 2008-2009 J. Schilling */
 /*
  * MD5 hash code taken from OpenBSD
  *
@@ -19,8 +19,8 @@
  * with every copy.
  */
 
-#ifndef	_SCHILY_MD5_H_
-#define	_SCHILY_MD5_H_
+#ifndef	_SCHILY_MD5_H
+#define	_SCHILY_MD5_H
 
 #ifndef _SCHILY_MCONFIG_H
 #include <schily/mconfig.h>
@@ -55,4 +55,4 @@ extern char	*MD5Data	__PR((const UInt8_t *, size_t, char *));
 }
 #endif
 
-#endif /* _SCHILY_MD5_H_ */
+#endif /* _SCHILY_MD5_H */

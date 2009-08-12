@@ -1,8 +1,8 @@
-/* @(#)archconf.c	1.24 09/07/10 Copyright 1996-2009 J. Schilling */
+/* @(#)archconf.c	1.25 09/08/04 Copyright 1996-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)archconf.c	1.24 09/07/10 Copyright 1996-2009 J. Schilling";
+	"@(#)archconf.c	1.25 09/08/04 Copyright 1996-2009 J. Schilling";
 #endif
 /*
  *	Make program
@@ -70,7 +70,7 @@ setup_arch()
 }
 
 #ifdef	HAVE_UNAME		/* NeXT Step has sys/utsname but not uname() */
-#include <sys/utsname.h>
+#include <schily/utsname.h>
 
 /*
  * This is the interface to the syscall uname(2).
@@ -138,7 +138,7 @@ do_uname()
 #endif
 
 #ifdef	HAVE_SYS_SYSTEMINFO_H
-#include <sys/systeminfo.h>
+#include <schily/systeminfo.h>
 
 /*
  * sysinfo(2) is the preferred way to request architecture information.

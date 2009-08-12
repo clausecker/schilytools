@@ -1,8 +1,8 @@
-/* @(#)gethostid.c	1.19 09/07/08 Copyright 1995-2009 J. Schilling */
+/* @(#)gethostid.c	1.20 09/08/04 Copyright 1995-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)gethostid.c	1.19 09/07/08 Copyright 1995-2009 J. Schilling";
+	"@(#)gethostid.c	1.20 09/08/04 Copyright 1995-2009 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1995-2009 J. Schilling
@@ -22,9 +22,7 @@ static	UConst char sccsid[] =
 #include <schily/standard.h>
 #include <schily/stdlib.h>
 #include <schily/utypes.h>
-#ifdef	HAVE_SYS_SYSTEMINFO_H
-#include <sys/systeminfo.h>
-#endif
+#include <schily/systeminfo.h>
 #include <schily/libport.h>
 
 #ifndef	HAVE_GETHOSTID

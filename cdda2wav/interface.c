@@ -1,8 +1,8 @@
-/* @(#)interface.c	1.67 09/07/10 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2006-2009 J. Schilling */
+/* @(#)interface.c	1.69 09/08/07 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2006-2009 J. Schilling */
 #include "config.h"
 #ifndef lint
 static	UConst char sccsid[] =
-"@(#)interface.c	1.67 09/07/10 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2006-2009 J. Schilling";
+"@(#)interface.c	1.69 09/08/07 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2006-2009 J. Schilling";
 
 #endif
 /*
@@ -53,10 +53,9 @@ static	UConst char sccsid[] =
 #include <schily/errno.h>
 #include <schily/signal.h>
 #include <schily/fcntl.h>
-#include <assert.h>
+#include <schily/assert.h>
 #include <schily/schily.h>
 #include <schily/device.h>
-
 #include <schily/ioctl.h>
 #include <schily/stat.h>
 
@@ -1193,9 +1192,7 @@ SetupInterface()
 	}
 }
 
-#ifdef	HAVE_PRIV_H
-#include <priv.h>
-#endif
+#include <schily/priv.h>
 
 EXPORT void
 priv_init()

@@ -1,8 +1,8 @@
-/* @(#)fifo.c	1.70 09/07/25 Copyright 1989, 1994-2009 J. Schilling */
+/* @(#)fifo.c	1.71 09/08/08 Copyright 1989, 1994-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)fifo.c	1.70 09/07/25 Copyright 1989, 1994-2009 J. Schilling";
+	"@(#)fifo.c	1.71 09/08/08 Copyright 1989, 1994-2009 J. Schilling";
 #endif
 /*
  *	A "fifo" that uses shared memory between two processes
@@ -1026,8 +1026,8 @@ mkshare(size)
 #endif
 
 #ifdef	USE_USGSHM
-#include <sys/ipc.h>
-#include <sys/shm.h>
+#include <schily/ipc.h>
+#include <schily/shm.h>
 LOCAL char *
 mkshm(size)
 	int	size;

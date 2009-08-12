@@ -69,8 +69,12 @@
 ----------------------------------------------------------------------------
 * libmdigest
   Copyright 2008-2009 J. Schilling
-  Written 1993 by Colin Plumb
-  License: Public Domain
+  Written 1993 by Colin Plumb (md4, md5)
+  Written 2001 by Markus Friedl (rmd160)
+  Written by Steve Reid (sha1)
+  Written 2000-2001 by Aaron D. Gifford (sha2)
+  License: Public Domain (md4, md5, sha1)
+  License: BSD 2 clause from OpenBSD (rmd160, sha2)
 
 ----------------------------------------------------------------------------
 * librmt
@@ -122,6 +126,11 @@
 ----------------------------------------------------------------------------
 * match
   Copyright 1985-2008 J. Schilling
+  License: CDDL
+
+----------------------------------------------------------------------------
+* mdigest
+  Copyright 2009 J. Schilling
   License: CDDL
 
 ----------------------------------------------------------------------------

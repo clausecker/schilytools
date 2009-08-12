@@ -1,8 +1,8 @@
-/* @(#)builtin.c	1.69 09/07/28 Copyright 1988-2009 J. Schilling */
+/* @(#)builtin.c	1.71 09/08/04 Copyright 1988-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)builtin.c	1.69 09/07/28 Copyright 1988-2009 J. Schilling";
+	"@(#)builtin.c	1.71 09/08/04 Copyright 1988-2009 J. Schilling";
 #endif
 /*
  *	Builtin commands
@@ -24,7 +24,7 @@ static	UConst char sccsid[] =
 #include <schily/stdio.h>
 #include <schily/signal.h>
 #include <schily/utypes.h>
-#include "resource.h"			/* Die lokale Version vom bsh Port */
+#include <schily/resource.h>
 #include "bsh.h"
 #include "str.h"
 #include "abbrev.h"
@@ -38,11 +38,8 @@ static	UConst char sccsid[] =
 #include <schily/fcntl.h>
 #include <schily/utypes.h>
 #include <schily/getargs.h>
-
-#	include <schily/time.h>
-#	include <schily/btorder.h>
-
-
+#include <schily/time.h>
+#include <schily/btorder.h>
 
 extern int	firstsh;
 extern int 	delim;
@@ -1108,7 +1105,6 @@ ok:
 	else
 		(void) setcmask(~newmask);
 }
-
 
 /* ARGSUSED */
 EXPORT void

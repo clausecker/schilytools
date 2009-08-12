@@ -1,6 +1,6 @@
-dnl @(#)configure.in	1.183 09/07/10 Copyright 1998-2009 J. Schilling
+dnl @(#)configure.in	1.187 09/08/09 Copyright 1998-2009 J. Schilling
 dnl Process this file with autoconf to produce a configure script.
-AC_REVISION(1.183)dnl
+AC_REVISION(1.187)dnl
 
 AC_INIT(xconfig.h.in)
 AC_CONFIG_HEADER(xconfig.h)
@@ -38,6 +38,7 @@ dnl check whether select() needs sys/select.h
 AC_HEADER_SYS_SELECT
 dnl check whether select() needs sys/socket.h (BeOS)
 AC_HEADER_SELECT2
+AC_CHECK_HEADERS(assert.h)
 AC_CHECK_HEADERS(stdio.h varargs.h stdarg.h stdlib.h stddef.h string.h strings.h unistd.h fcntl.h sys/file.h)
 AC_CHECK_HEADERS(getopt.h)
 AC_CHECK_HEADERS(limits.h)
@@ -54,7 +55,7 @@ AC_CHECK_HEADERS(mntent.h sys/mntent.h sys/mnttab.h sys/mount.h)
 AC_CHECK_HEADERS(wait.h sys/resource.h procfs.h sys/procfs.h)
 AC_CHECK_HEADERS(sys/utsname.h sys/priocntl.h sys/rtpriocntl.h sys/procset.h)
 AC_CHECK_HEADERS(sys/mtio.h sys/tape.h sys/mman.h linux/pg.h camlib.h)
-AC_CHECK_HEADERS(sys/shm.h sys/ipc.h)
+AC_CHECK_HEADERS(sys/shm.h sys/sem.h sys/ipc.h)
 AC_CHECK_HEADERS(sys/dkio.h sys/dklabel.h sun/dkio.h sun/dklabel.h)
 AC_CHECK_HEADERS(sys/types.h sys/stat.h types.h stat.h)
 AC_CHECK_HEADERS(sys/stypes.h sys/filedesc.h)
@@ -74,6 +75,8 @@ AC_CHECK_HEADERS(OS.h)
 dnl needed for newer OS/2 versions of EMX
 AC_CHECK_HEADERS(os2.h)
 AC_CHECK_HEADERS(os2me.h)
+dnl Check for MS-Win's junkyard
+AC_CHECK_HEADERS(windows.h)
 dnl Check for moving Linux targets caused by missing concepts
 AC_CHECK_HEADERS(ext2fs/ext2_fs.h)
 dnl Check for Linux Extended File Attributes definitions
@@ -117,6 +120,7 @@ AC_TYPE_LONGDOUBLE
 AC_TYPE_PROTOTYPES
 dnl AC_USER_MALLOC must be past AC_CHECK_FUNCS(strdup)
 AC_DYN_ARRAYS
+AC_PRAGMA_WEAK
 
 AC_TYPE_UID_T
 AC_TYPE_SIZE_T

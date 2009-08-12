@@ -1,8 +1,8 @@
-/* @(#)semshm.c 1.28 09/07/05 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling */
+/* @(#)semshm.c 1.29 09/08/08 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling */
 #include "config.h"
 #ifndef lint
 static	UConst char sccsid[] =
-"@(#)semshm.c	1.28 09/07/05 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling";
+"@(#)semshm.c	1.29 09/08/08 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling";
 #endif
 
 #define	IPCTST
@@ -70,14 +70,14 @@ static	UConst char sccsid[] =
 
 #if defined(HAVE_SEMGET) && defined(USE_SEMAPHORES)
 #include <schily/types.h>
-#include <sys/ipc.h>
-#include <sys/sem.h>
+#include <schily/ipc.h>
+#include <schily/sem.h>
 #endif
 
 #if defined(HAVE_SHMAT) && (HAVE_SHMAT == 1)
 #include <schily/types.h>
-#include <sys/ipc.h>
-#include <sys/shm.h>
+#include <schily/ipc.h>
+#include <schily/shm.h>
 #endif
 
 #ifdef  USE_MMAP

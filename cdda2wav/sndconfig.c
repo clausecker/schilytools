@@ -1,8 +1,8 @@
-/* @(#)sndconfig.c	1.33 09/07/10 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling */
+/* @(#)sndconfig.c	1.34 09/08/04 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling */
 #include "config.h"
 #ifndef lint
 static	UConst char sccsid[] =
-"@(#)sndconfig.c	1.33 09/07/10 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling";
+"@(#)sndconfig.c	1.34 09/08/04 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling";
 #endif
 
 /*
@@ -27,10 +27,7 @@ static	UConst char sccsid[] =
 #include <schily/fcntl.h>
 #include <schily/unistd.h>
 #include <schily/ioctl.h>
-
-#if	!defined __CYGWIN32__
-# include <schily/time.h>
-#endif
+#include <schily/select.h>
 #include <schily/schily.h>
 
 

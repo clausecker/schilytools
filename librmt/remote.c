@@ -1,11 +1,11 @@
 /*#define	USE_REMOTE*/
 /*#define	USE_RCMD_RSH*/
 /*#define	NO_LIBSCHILY*/
-/* @(#)remote.c	1.70 09/07/28 Copyright 1990-2009 J. Schilling */
+/* @(#)remote.c	1.71 09/08/07 Copyright 1990-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)remote.c	1.70 09/07/28 Copyright 1990-2009 J. Schilling";
+	"@(#)remote.c	1.71 09/08/07 Copyright 1990-2009 J. Schilling";
 #endif
 /*
  *	Remote tape client interface code
@@ -1565,7 +1565,7 @@ _rcmdrsh(ahost, inport, locuser, remuser, cmd, rsh)
 }
 
 #ifdef	HAVE_GETPPRIV
-#include <priv.h>
+#include <schily/priv.h>
 
 LOCAL BOOL
 ppriv_ok()

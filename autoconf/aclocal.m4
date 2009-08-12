@@ -1,4 +1,4 @@
-dnl @(#)aclocal.m4	1.79 09/07/27 Copyright 1998-2009 J. Schilling
+dnl @(#)aclocal.m4	1.80 09/08/09 Copyright 1998-2009 J. Schilling
 
 dnl Set VARIABLE to VALUE in C-string form, verbatim, or 1.
 dnl AC_DEFINE_STRING(VARIABLE [, VALUE])
@@ -932,7 +932,7 @@ AC_DEFUN([AC_HEADER_ENVIRON_DEF],
 #include <unistd.h>
 #else
 #ifdef	HAVE_STDLIB_H
-#include <stdlib.h>	/* MSC no unistd.h but envorin in stdlib.h */
+#include <stdlib.h>	/* MSC no unistd.h but environ in stdlib.h */
 #endif
 #endif
 ],
@@ -2779,6 +2779,19 @@ AC_DEFUN([AC_DYN_ARRAYS],
                                 [ac_cv_dyn_arrays=no])])
 if test $ac_cv_dyn_arrays = yes; then
   AC_DEFINE(HAVE_DYN_ARRAYS)
+fi])
+
+dnl Checks if the compiler allows #pragma weak
+dnl Defines HAVE_PRAGMA_WEAK on success.
+AC_DEFUN([AC_PRAGMA_WEAK],
+[AC_CACHE_CHECK([if compiler allows pragma weak], ac_cv_pragma_weak,
+                [AC_TRY_LINK([#pragma weak test2 = test1
+int test1() {return 0;}],
+[return test2();],
+                [ac_cv_pragma_weak=yes],
+                [ac_cv_pragma_weak=no])])
+if test $ac_cv_pragma_weak = yes; then
+  AC_DEFINE(HAVE_PRAGMA_WEAK)
 fi])
 
 dnl Checks if Linux include file linux/ext2_fs.h is broken

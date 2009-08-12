@@ -1,5 +1,5 @@
 #if 0
-/* @(#)lconfig.h.in	1.8 09/04/19 Copyright 1998-2003 Heiko Eissfeldt, Copyright 2006-2009 J. Schilling */
+/* @(#)lconfig.h.in	1.9 09/08/08 Copyright 1998-2003 Heiko Eissfeldt, Copyright 2006-2009 J. Schilling */
 #endif
 #undef HAVE_SYS_CDIO_H		/* if we should use sys/cdio.h */
 
@@ -20,8 +20,6 @@
 #undef HAVE_MACHINE_SOUNDCARD_H	/* if we should use machine/soundcard.h */
 
 #undef HAVE_SYS_ASOUNDLIB_H	/* if we should use sys/asoundlib.h */
-
-#undef HAVE_WINDOWS_H		/* if we should use windows.h */
 
 #undef HAVE_MMSYSTEM_H		/* if we should use mmsystem.h */
 

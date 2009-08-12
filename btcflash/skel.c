@@ -1,8 +1,8 @@
-/* @(#)skel.c	1.21 09/07/18 Copyright 1987, 1995-2009 J. Schilling */
+/* @(#)skel.c	1.22 09/08/07 Copyright 1987, 1995-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)skel.c	1.21 09/07/18 Copyright 1987, 1995-2009 J. Schilling";
+	"@(#)skel.c	1.22 09/08/07 Copyright 1987, 1995-2009 J. Schilling";
 #endif
 /*
  *	Skeleton for the use of the scg genearal SCSI - driver
@@ -31,9 +31,7 @@ static	UConst char sccsid[] =
 #include <schily/errno.h>
 #include <schily/signal.h>
 #include <schily/schily.h>
-#ifdef	HAVE_PRIV_H
-#include <priv.h>
-#endif
+#include <schily/priv.h>
 #include <schily/io.h>				/* for setmode() prototype */
 
 #include <scg/scgcmd.h>

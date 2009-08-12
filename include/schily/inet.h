@@ -1,4 +1,4 @@
-/* @(#)inet.h	1.1 09/07/13 Copyright 2009 J. Schilling */
+/* @(#)inet.h	1.2 09/08/04 Copyright 2009 J. Schilling */
 /*
  *	Inet abstraction
  *
@@ -28,6 +28,19 @@
 #include <arpa/inet.h>
 #define	_INCL_ARPA_INET_H
 #endif
+#else	/* !HAVE_ARPA_INET_H */
+
+/*
+ * BeOS does not have <arpa/inet.h>
+ * but inet_ntaoa() is in <netdb.h>
+ */
+#ifdef	HAVE_NETDB_H
+#ifndef	_INCL_NETDB_H
+#include <netdb.h>
+#define	_INCL_NETDB_H
 #endif
+#endif	/* HAVE_NETDB_H */
+
+#endif	/* !HAVE_ARPA_INET_H */
 
 #endif	/* _SCHILY_INET_H */

@@ -1,11 +1,11 @@
-#ident "@(#)Makefile	1.2 09/06/21 "
+#ident "@(#)Makefile	1.3 09/08/01 "
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
 include		$(SRCROOT)/$(RULESDIR)/rules.top
 ###########################################################################
 
-MK_FILES= mdigest.mk mdigest_p.mk $(NO_SHL)mshldigest.mk
+MK_FILES= mdigest.mk mdigest_p.mk $(NO_SHL)shlmdigest.mk
 
 ###########################################################################
 include		$(SRCROOT)/$(RULESDIR)/rules.mks

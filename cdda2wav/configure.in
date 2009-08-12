@@ -1,4 +1,4 @@
-dnl @(#)configure.in	1.10 09/02/26	Copyright 1998-2003 Heiko Eiﬂfeldt
+dnl @(#)configure.in	1.11 09/08/08	Copyright 1998-2003 Heiko Eiﬂfeldt
 dnl Process this file with autoconf to produce a configure script.
 AC_INIT(cdda2wav.c)
 AC_CONFIG_HEADER(lconfig.h)
@@ -28,6 +28,8 @@ AC_SUBST(EXTRALIBS)
 dnl check header files
 AC_CHECK_HEADERS(sys/cdio.h sys/cdrio.h sundev/srreg.h sys/audioio.h sun/audioio.h)
 AC_CHECK_HEADERS(soundcard.h sys/soundcard.h linux/soundcard.h machine/soundcard.h)
+dnl We no longer include HAVE_WINDOWS_H in lconfig.h but we need the test
+dnl result together with the test for mmsystem.h
 AC_CHECK_HEADERS(sys/asoundlib.h windows.h mmsystem.h)
 
 case "${ac_cv_header_sys_cdio_h}""${ac_cv_header_sundev_srreg_h}" in

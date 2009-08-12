@@ -80,7 +80,7 @@ in this Software without prior written authorization from The Open Group.
 #else	/* XORG_VERSION */
 
 #include <schily/mconfig.h>
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/stdlib.h>
 #include <schily/unistd.h>
 #include <schily/string.h>

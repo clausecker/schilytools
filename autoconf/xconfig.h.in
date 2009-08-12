@@ -1,4 +1,4 @@
-/* @(#)xconfig.h.in	1.171 09/07/10 Copyright 1998-2009 J. Schilling */
+/* @(#)xconfig.h.in	1.175 09/08/09 Copyright 1998-2009 J. Schilling */
 /*
  *	Dynamic autoconf C-include code.
  *
@@ -9,6 +9,7 @@
  * Header Files
  */
 #undef PROTOTYPES	/* if Compiler supports ANSI C prototypes */
+#undef HAVE_ASSERT_H	/* to use stdio.h */
 #undef HAVE_STDIO_H	/* to use stdio.h */
 #undef HAVE_STDARG_H	/* to use stdarg.h, else use varargs.h NOTE: SaberC on a Sun has prototypes but no stdarg.h */
 #undef HAVE_VARARGS_H	/* to use use varargs.h NOTE: The free HP-UX C-compiler has stdarg.h but no PROTOTYPES */
@@ -80,7 +81,8 @@
 #undef HAVE_SYS_TAPE_H		/* to use mtio definitions from AIX sys/tape.h */
 #undef HAVE_SYS_MMAN_H		/* to use definitions for mmap()/madvise()... from sys/mman.h */
 #undef HAVE_SYS_SHM_H		/* to use definitions for shmget() ... from sys/shm.h */
-#undef HAVE_SYS_IPC_H		/* to use definitions for shmget() ... from sys/ipc.h */
+#undef HAVE_SYS_SEM_H		/* to use definitions for semget() ... from sys/sem.h */
+#undef HAVE_SYS_IPC_H		/* to use definitions for ftok() ... from sys/ipc.h */
 #undef MAJOR_IN_MKDEV		/* if we should include sys/mkdev.h to get major()/minor()/makedev() */
 #undef MAJOR_IN_SYSMACROS	/* if we should include sys/sysmacros.h to get major()/minor()/makedev() */
 #undef HAVE_SYS_DKIO_H		/* if we may include sys/dkio.h for disk ioctls */
@@ -126,6 +128,7 @@
 #undef HAVE_OS_H		/* if we have the BeOS kernel definitions in OS.h */
 #undef HAVE_OS2_H		/* if we have the OS/2 definitions in os2.h */
 #undef HAVE_OS2ME_H		/* if we have the OS/2 definitions in os2me.h */
+#undef HAVE_WINDOWS_H		/* if we have the MS-Win definitions in windows.h */
 #undef HAVE_EXT2FS_EXT2_FS_H	/* if we have the Linux moving target ext2fs/ext2_fs.h */
 #undef HAVE_ATTR_XATTR_H	/* if we have the Linux Extended File Attr definitions in attr/xattr.h */
 #undef HAVE_CRT_EXTERNS_H	/* if we have the Mac OS X env definitions in crt_externs.h */
@@ -837,6 +840,7 @@
 #undef NO_USER_MALLOC		/* If we cannot define our own malloc()	*/
 #undef NO_USER_XCVT		/* If we cannot define our own ecvt()/fcvt()/gcvt() */
 #undef HAVE_DYN_ARRAYS		/* If the compiler allows dynamic sized arrays */
+#undef HAVE_PRAGMA_WEAK		/* If the compiler allows #pragma weak */
 
 /*
  * Strings that help to maintain OS/platform id's in C-programs

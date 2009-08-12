@@ -1,8 +1,8 @@
-/* @(#)cdda2wav.c	1.114 09/07/18 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling */
+/* @(#)cdda2wav.c	1.115 09/08/04 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling */
 #include "config.h"
 #ifndef lint
 static	UConst char sccsid[] =
-"@(#)cdda2wav.c	1.114 09/07/18 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling";
+"@(#)cdda2wav.c	1.115 09/08/04 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling";
 
 #endif
 #undef	DEBUG_BUFFER_ADDRESSES
@@ -79,9 +79,7 @@ static	UConst char sccsid[] =
 #include <schily/errno.h>
 #include <schily/stat.h>
 #include <schily/wait.h>
-#if defined(HAVE_SETPRIORITY) && defined(HAVE_SYS_RESOURCE_H)
-#include <sys/resource.h>
-#endif
+#include <schily/resource.h>
 #include <schily/varargs.h>
 #include <schily/maxpath.h>
 #include <schily/btorder.h>

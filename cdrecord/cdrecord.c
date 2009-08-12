@@ -1,8 +1,8 @@
-/* @(#)cdrecord.c	1.385 09/07/18 Copyright 1995-2009 J. Schilling */
+/* @(#)cdrecord.c	1.388 09/08/07 Copyright 1995-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)cdrecord.c	1.385 09/07/18 Copyright 1995-2009 J. Schilling";
+	"@(#)cdrecord.c	1.388 09/08/07 Copyright 1995-2009 J. Schilling";
 #endif
 /*
  *	Record data on a CD/CVD-Recorder
@@ -28,9 +28,7 @@ static	UConst char sccsid[] =
 #include <schily/fcntl.h>
 #include <schily/errno.h>
 #include <schily/time.h>
-#ifdef	HAVE_SYS_RESOURCE_H
-#include <sys/resource.h>	/* for rlimit */
-#endif
+#include <schily/resource.h>	/* for rlimit */
 #include <schily/stat.h>
 #include <schily/unistd.h>
 #include <schily/mman.h>
@@ -40,9 +38,7 @@ static	UConst char sccsid[] =
 #include <schily/signal.h>
 #include <schily/schily.h>
 #include <schily/getargs.h>
-#ifdef	HAVE_PRIV_H
-#include <priv.h>
-#endif
+#include <schily/priv.h>
 
 #include "xio.h"
 
@@ -4352,7 +4348,7 @@ load_media(scgp, dp, doexit)
 	scgp->silent--;
 	err = geterrno();
 	if (code < 0 && (err == EPERM || err == EACCES)) {
-		linuxcheck();	/* For version 1.385 of cdrecord.c */
+		linuxcheck();	/* For version 1.388 of cdrecord.c */
 		scg_openerr("");
 	}
 
@@ -4935,12 +4931,7 @@ raisepri(pri)
 #endif
 #endif
 
-#if	defined(HAVE_SELECT) && defined(NEED_SYS_SELECT_H)
-#include <sys/select.h>
-#endif
-#if	defined(HAVE_SELECT) && defined(NEED_SYS_SOCKET_H)
-#include <sys/socket.h>
-#endif
+#include <schily/select.h>
 
 LOCAL void
 wait_input()
@@ -5228,7 +5219,7 @@ set_wrmode(dp, wmode, tflags)
 }
 
 /*
- * I am sorry that even for version 1.385 of cdrecord.c, I am forced to do
+ * I am sorry that even for version 1.388 of cdrecord.c, I am forced to do
  * things like this, but defective versions of cdrecord cause a lot of
  * work load to me.
  *
@@ -5245,7 +5236,7 @@ set_wrmode(dp, wmode, tflags)
 #endif
 
 LOCAL void
-linuxcheck()				/* For version 1.385 of cdrecord.c */
+linuxcheck()				/* For version 1.388 of cdrecord.c */
 {
 #if	defined(linux) || defined(__linux) || defined(__linux__)
 #ifdef	HAVE_UNAME

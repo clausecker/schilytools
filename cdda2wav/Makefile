@@ -1,4 +1,4 @@
-#ident @(#)Makefile	1.23 09/01/14 
+#ident @(#)Makefile	1.25 09/08/04 
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -26,19 +26,19 @@ CPPOPTS +=	-DSCHILY_PRINT
 
 CFILES=		cdda2wav.c interface.c semshm.c resample.c \
 		scsi_scan.c \
-		toc.c wav.c sun.c raw.c md5.c setuid.c ringbuff.c \
+		toc.c wav.c sun.c raw.c setuid.c ringbuff.c \
 		sndconfig.c scsi_cmds.c aiff.c aifc.c \
-		scsi_cdr.c cd_misc.c ioctl.c sha_func.c base64.c \
+		scsi_cdr.c cd_misc.c ioctl.c base64.c \
 		parse.c
 HFILES=		cdda2wav.h interface.h semshm.h global.h resample.h \
 		scsi_scan.h \
-		mytype.h toc.h wav.h sun.h raw.h md5.h setuid.h ringbuff.h \
+		mytype.h toc.h wav.h sun.h raw.h setuid.h ringbuff.h \
 		config.h saveargs.h sndfile.h aiff.h aifc.h \
 		sndconfig.h scsi_cmds.h lowlevel.h byteorder.h mycdrom.h \
-		base64.h sha.h mmsystem.h cd_text.c cd_extra.c \
+		base64.h mmsystem.h cd_text.c cd_extra.c \
 		parse.h version.h
 
-LIBS=		-lscgcmd -lrscg -lscg $(LIB_VOLMGT) -lparanoia -lcdrdeflt -ldeflt -lschily $(SCSILIB) $(EXTRALIB) $(LIB_SOCKET)
+LIBS=		-lscgcmd -lrscg -lscg $(LIB_VOLMGT) -lparanoia -lcdrdeflt -ldeflt -lmdigest -lschily $(SCSILIB) $(EXTRALIB) $(LIB_SOCKET)
 XMK_FILE=	Makefile.man Makefile.rd cdda2ogg.mk1
 # cdda2ogg.mk1 fehlt noch für make rel
 

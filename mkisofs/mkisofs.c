@@ -1,8 +1,8 @@
-/* @(#)mkisofs.c	1.249 09/07/28 joerg */
+/* @(#)mkisofs.c	1.250 09/08/04 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)mkisofs.c	1.249 09/07/28 joerg";
+	"@(#)mkisofs.c	1.250 09/08/04 joerg";
 #endif
 /*
  * Program mkisofs.c - generate iso9660 filesystem  based upon directory
@@ -57,9 +57,7 @@ static	UConst char sccsid[] =
 #endif
 
 #ifdef	no_more_needed
-#ifdef __NetBSD__
-#include <sys/resource.h>
-#endif
+#include <schily/resource.h>
 #endif	/* no_more_needed */
 
 #include "../cdrecord/version.h"

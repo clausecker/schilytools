@@ -1,8 +1,8 @@
-/* @(#)sys.c	1.66 09/07/28 Copyright 1986-2009 J. Schilling */
+/* @(#)sys.c	1.67 09/08/04 Copyright 1986-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)sys.c	1.66 09/07/28 Copyright 1986-2009 J. Schilling";
+	"@(#)sys.c	1.67 09/08/04 Copyright 1986-2009 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1986-2009 J. Schilling
@@ -52,7 +52,7 @@ Error fexec canno be implemented
 #include <schily/param.h>
 #endif	/* defined(HAVE_SYS_TIMES_H) && defined(HAVE_TIMES) */
 
-#include "resource.h"			/* Die lokale Version vom bsh Port */
+#include <schily/resource.h>
 
 /*#define	DEBUG*/
 

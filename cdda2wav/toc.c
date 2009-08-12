@@ -1,8 +1,8 @@
-/* @(#)toc.c	1.83 09/07/10 Copyright 1998-2003 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling */
+/* @(#)toc.c	1.85 09/08/04 Copyright 1998-2003 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling */
 #include "config.h"
 #ifndef lint
 static	UConst char sccsid[] =
-"@(#)toc.c	1.83 09/07/10 Copyright 1998-2003 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling";
+"@(#)toc.c	1.85 09/08/04 Copyright 1998-2003 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling";
 #endif
 /*
  * CDDA2WAV (C) Heiko Eissfeldt heiko@hexco.de
@@ -37,6 +37,7 @@ static	UConst char sccsid[] =
 #include <schily/schily.h>
 #include <schily/hostname.h>
 #include <schily/ioctl.h>
+#include <schily/sha1.h>
 
 #define	CD_TEXT
 #define	CD_EXTRA
@@ -52,7 +53,6 @@ static	UConst char sccsid[] =
 #include "interface.h"
 #include "cdda2wav.h"
 #include "global.h"
-#include "sha.h"
 #include "base64.h"
 #include "toc.h"
 #include "exitcodes.h"
@@ -72,14 +72,10 @@ int Get_SCMS __PR((unsigned long p_track));
 #ifdef	__EMX__
 #define	gethostid	nogethostid
 #endif
-#include <sys/socket.h>
+#include <schily/socket.h>
 #undef gethostid
-#include <netinet/in.h>
-#if	defined(HAVE_NETDB_H) && !defined(HOST_NOT_FOUND) && \
-				!defined(_INCL_NETDB_H)
-#include <netdb.h>
-#define	_INCL_NETDB_H
-#endif
+#include <schily/in.h>
+#include <schily/netdb.h>
 #endif
 
 int have_CD_text;
@@ -246,6 +242,8 @@ ReadToc()
 	int	retval = (*doReadToc)(get_scsi_p());
 
 #if	defined SIM_ILLLEADOUT
+extern	TOC	g_toc[MAXTRK+1]; /* hidden track + 100 regular tracks */
+
 	g_toc[cdtracks+1] = 20*75;
 #endif
 	return (retval);
@@ -649,13 +647,13 @@ calc_cddb_id()
 void
 TestGenerateId()
 {
-	SHA_INFO	sha;
+	SHA1_CTX	sha;
 	unsigned char	digest[20], *base64;
 	unsigned long	size;
 
-	sha_init(&sha);
-	sha_update(&sha, (unsigned char *)"0123456789", 10);
-	sha_final(digest, &sha);
+	SHA1Init(&sha);
+	SHA1Update(&sha, (unsigned char *)"0123456789", 10);
+	SHA1Final(digest, &sha);
 
 	base64 = rfc822_binary((char *)digest, 20, &size);
 	if (strncmp((char *) base64, "h6zsF82dzSCnFsws9nQXtxyKcBY-", size)) {
@@ -673,13 +671,15 @@ TestGenerateId()
 void
 calc_cdindex_id()
 {
-	SHA_INFO 	sha;
+	SHA1_CTX 	sha;
 	unsigned char	digest[20], *base64;
 	unsigned long	size;
 	unsigned	i;
 	char		temp[9];
 
 #ifdef	TESTCDINDEX
+extern	TOC	g_toc[MAXTRK+1]; /* hidden track + 100 regular tracks */
+
 	TestGenerateId();
 	g_toc[1].bTrack = 1;
 	cdtracks = 15;
@@ -702,25 +702,25 @@ calc_cdindex_id()
 	g_toc[i++].dwStartSector = 289479U;
 	g_toc[i++].dwStartSector = 325732U;
 #endif
-	sha_init(&sha);
+	SHA1Init(&sha);
 	sprintf(temp, "%02X", Get_Tracknumber(1));
-	sha_update(&sha, (unsigned char *)temp, 2);
+	SHA1Update(&sha, (unsigned char *)temp, 2);
 	sprintf(temp, "%02X", Get_Tracknumber(cdtracks));
-	sha_update(&sha, (unsigned char *)temp, 2);
+	SHA1Update(&sha, (unsigned char *)temp, 2);
 
 	/* the position of the leadout comes first. */
 	sprintf(temp, "%08lX", 150 + Get_StartSector(CDROM_LEADOUT));
-	sha_update(&sha, (unsigned char *)temp, 8);
+	SHA1Update(&sha, (unsigned char *)temp, 8);
 
 	/* now 99 tracks follow with their positions. */
 	for (i = 1; i <= cdtracks; i++) {
 		sprintf(temp, "%08lX", 150+Get_StartSector(i));
-		sha_update(&sha, (unsigned char *)temp, 8);
+		SHA1Update(&sha, (unsigned char *)temp, 8);
 	}
 	for (i++; i <= 100; i++) {
-		sha_update(&sha, (unsigned char *)"00000000", 8);
+		SHA1Update(&sha, (unsigned char *)"00000000", 8);
 	}
-	sha_final(digest, &sha);
+	SHA1Final(digest, &sha);
 
 	base64 = rfc822_binary((char *)digest, 20, &size);
 	global.cdindex_id = base64;

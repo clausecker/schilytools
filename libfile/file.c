@@ -1,8 +1,8 @@
-/* @(#)file.c	1.9 09/07/11 joerg */
+/* @(#)file.c	1.10 09/08/04 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)file.c	1.9 09/07/11 joerg";
+	"@(#)file.c	1.10 09/08/04 joerg";
 #endif
 /*
 **	find file types by using a modified "magic" file
@@ -85,7 +85,7 @@ static UConst char moduleid[] =
 #endif
 
 #if 0
-#include <netinet/in.h>		/* for byte swapping */
+#include <schily/in.h>		/* for byte swapping */
 #endif
 
 #include "patchlevel.h"

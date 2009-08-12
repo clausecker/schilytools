@@ -1,7 +1,7 @@
-/* @(#)cd_extra.c	1.16 09/07/10 Copyright 2000-2001 Heiko Eissfeldt, Copyright 2004-2008 J. Schilling */
+/* @(#)cd_extra.c	1.17 09/08/03 Copyright 2000-2001 Heiko Eissfeldt, Copyright 2004-2008 J. Schilling */
 #ifndef lint
 static	const char _sccsid[] =
-"@(#)cd_extra.c	1.16 09/07/10 Copyright 2000-2001 Heiko Eissfeldt, Copyright 2004-2008 J. Schilling";
+"@(#)cd_extra.c	1.17 09/08/03 Copyright 2000-2001 Heiko Eissfeldt, Copyright 2004-2008 J. Schilling";
 #endif
 
 /*
@@ -84,10 +84,14 @@ Read_CD_Extra_File(Extra_buf, sector)
 			int namelength;
 
 			namelength = p[32];
+			if (namelength < 1)	/* Not a valid filename	*/
+				return (0);
 			if (namelength == 10 &&
 			    !memcmp(p+33, "INFO.CDP;1", 10)) break;
 
 			p += p[0];
+			if (p[0] == 0)		/* Avoid endless loop	*/
+				return (0);	/* with bad dir content	*/
 		}
 		if (p+33 >= Extra_buf + CD_FRAMESIZE_RAW)
 			return (0);

@@ -1,4 +1,4 @@
-/* @(#)md4.h	1.2 09/06/21 2009 J. Schilling */
+/* @(#)md4.h	1.3 09/08/08 2009 J. Schilling */
 /*
  * MD4 hash code taken from OpenBSD
  *
@@ -19,8 +19,8 @@
  * with every copy.
  */
 
-#ifndef	_SCHILY_MD4_H_
-#define	_SCHILY_MD4_H_
+#ifndef	_SCHILY_MD4_H
+#define	_SCHILY_MD4_H
 
 #ifndef _SCHILY_MCONFIG_H
 #include <schily/mconfig.h>
@@ -55,4 +55,4 @@ extern char	*MD4Data	__PR((const UInt8_t *, size_t, char *));
 }
 #endif
 
-#endif /* _SCHILY_MD4_H_ */
+#endif /* _SCHILY_MD4_H */

@@ -1,8 +1,8 @@
-/* @(#)idops.c	1.38 09/07/14 Copyright 1985-2009 J. Schilling */
+/* @(#)idops.c	1.39 09/08/07 Copyright 1985-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)idops.c	1.38 09/07/14 Copyright 1985-2009 J. Schilling";
+	"@(#)idops.c	1.39 09/08/07 Copyright 1985-2009 J. Schilling";
 #endif
 /*
  *	uid und gid Routinen
@@ -33,9 +33,7 @@ static	UConst char sccsid[] =
 #include "abbrev.h"
 #include "strsubs.h"
 #include <schily/string.h>
-#ifdef	HAVE_SYSLOG_H
-#include <syslog.h>
-#endif
+#include <schily/syslog.h>
 #include <schily/unistd.h>
 #include <schily/stdlib.h>
 

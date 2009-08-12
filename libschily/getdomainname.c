@@ -1,8 +1,8 @@
-/* @(#)getdomainname.c	1.21 09/07/10 Copyright 1995-2009 J. Schilling */
+/* @(#)getdomainname.c	1.22 09/08/04 Copyright 1995-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)getdomainname.c	1.21 09/07/10 Copyright 1995-2009 J. Schilling";
+	"@(#)getdomainname.c	1.22 09/08/04 Copyright 1995-2009 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1995-2009 J. Schilling
@@ -21,9 +21,7 @@ static	UConst char sccsid[] =
 
 #include <schily/standard.h>
 #include <schily/stdlib.h>
-#ifdef	HAVE_SYS_SYSTEMINFO_H
-#include <sys/systeminfo.h>
-#endif
+#include <schily/systeminfo.h>
 #include <schily/hostname.h>
 
 #ifndef	HAVE_GETDOMAINNAME

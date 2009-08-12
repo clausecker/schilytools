@@ -1,8 +1,8 @@
-/* @(#)ioctl.c	1.37 09/07/10 Copyright 1998,1999,2000 Heiko Eissfeldt, Copyright 2006-2009 J. Schilling */
+/* @(#)ioctl.c	1.38 09/08/07 Copyright 1998,1999,2000 Heiko Eissfeldt, Copyright 2006-2009 J. Schilling */
 #include "config.h"
 #ifndef lint
 static	UConst char sccsid[] =
-"@(#)ioctl.c	1.37 09/07/10 Copyright 1998,1999,2000 Heiko Eissfeldt, Copyright 2006-2009 J. Schilling";
+"@(#)ioctl.c	1.38 09/08/07 Copyright 1998,1999,2000 Heiko Eissfeldt, Copyright 2006-2009 J. Schilling";
 
 #endif
 /*
@@ -35,8 +35,7 @@ static	UConst char sccsid[] =
 #include <schily/errno.h>
 #include <schily/signal.h>
 #include <schily/fcntl.h>
-#include <assert.h>
-
+#include <schily/assert.h>
 #include <schily/ioctl.h>
 #include <schily/stat.h>
 #include <schily/schily.h>

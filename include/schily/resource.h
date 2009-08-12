@@ -1,8 +1,10 @@
-/* @(#)resource.h	1.6 08/03/28 Copyright 1995-2008 J. Schilling */
+/* @(#)resource.h	1.7 09/08/03 Copyright 1995-2009 J. Schilling */
 /*
+ *	Abstraction from resource limits
+ *
  *	Missing parts for wait3() taken from SunOS
  *
- *	Copyright (c) 1995-2008 J. Schilling
+ *	Copyright (c) 1995-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -16,8 +18,8 @@
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#ifndef	_RESOURCE_H
-#define	_RESOURCE_H
+#ifndef	_SCHILY_RESOURCE_H
+#define	_SCHILY_RESOURCE_H
 
 #ifndef _SCHILY_MCONFIG_H
 #include <schily/mconfig.h>
@@ -96,4 +98,4 @@ struct rlimit {
 
 #endif	/* RLIMIT_CPU */
 
-#endif /* _RESOURCE_H */
+#endif /* _SCHILY_RESOURCE_H */

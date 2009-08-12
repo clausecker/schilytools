@@ -1,4 +1,4 @@
-/* @(#)make.h	1.83 08/09/26 Copyright 1985, 87, 91, 1995-2008 J. Schilling */
+/* @(#)make.h	1.84 09/08/02 Copyright 1985, 87, 91, 1995-2008 J. Schilling */
 /*
  *	Definitions for make.
  *	Copyright (c) 1985, 87, 91, 1995-2008 by J. Schilling
@@ -35,7 +35,8 @@ typedef unsigned long	date_t;
 #define	NOTIME		((date_t)0)	/* Obj not (yet) found   */
 #define	BADTIME		((date_t)-1)	/* Obj could not be made */
 #define	RECURSETIME	((date_t)-2)	/* Obj depends on itself */
-#define	PHONYTIME	((date_t)-3)	/* Obj is Phony		 */
+#define	MAKETIME	((date_t)-3)	/* Obj is currently made */
+#define	PHONYTIME	((date_t)-4)	/* Obj is Phony		 */
 
 /*
  * We may need to check whether PHONYTIME is a "valid" time...
