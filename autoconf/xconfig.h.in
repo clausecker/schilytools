@@ -1,4 +1,4 @@
-/* @(#)xconfig.h.in	1.175 09/08/09 Copyright 1998-2009 J. Schilling */
+/* @(#)xconfig.h.in	1.179 09/08/25 Copyright 1998-2009 J. Schilling */
 /*
  *	Dynamic autoconf C-include code.
  *
@@ -111,6 +111,7 @@
 #undef HAVE_FP_H		/* if we may include fp.h for FINITE()/IS_INF()/IS_NAN() */
 #undef HAVE_VALUES_H		/* if we may include values.h for MAXFLOAT */
 #undef HAVE_FLOAT_H		/* if we may include float.h for FLT_MAX */
+#undef HAVE_MATH_H		/* if we may include math.h for e.g. isinf()/isnan() */
 #undef HAVE__FILBUF		/* if we have _filbuf() for USG derived STDIO */
 #undef HAVE___FILBUF		/* if we have __filbuf() for USG derived STDIO */
 #undef HAVE_USG_STDIO		/* if we have USG derived STDIO */
@@ -146,6 +147,7 @@
 #undef HAVE_ICONV_H		/* if we may include iconv.h */
 
 #undef HAVE_PRIV_H		/* if we may include priv.h */
+#undef HAVE_SYS_PRIV_H		/* if we may include sys/priv.h */
 #undef HAVE_EXEC_ATTR_H		/* if we may include exec_attr.h */
 #undef HAVE_SECDB_H		/* if we may include secdb.h */
 #undef HAVE_PTHREAD_H		/* if we may include pthread.h */
@@ -229,6 +231,8 @@
 #undef HAVE_MKNODKAT		/* mknodat() is present in libc */
 #undef HAVE_READLINKAT		/* readlinkat() is present in libc */
 #undef HAVE_SYMLINKAT		/* symlinkat() is present in libc */
+#undef HAVE_FUTIMENS		/* futimens() is present in libc */
+#undef HAVE_UTIMENSAT		/* utimensat() is present in libc */
 #undef HAVE_POPEN		/* popen() is present in libc */
 #undef HAVE_PCLOSE		/* pclose() is present in libc */
 #undef HAVE__POPEN		/* _popen() is present in libc */
@@ -343,6 +347,8 @@
 #undef HAVE_ISNAN		/* isnan() is present in libc */
 #undef HAVE_C99_ISINF		/* isinf() is present in math.h/libc */
 #undef HAVE_C99_ISNAN		/* isnan() is present in math.h/libc */
+#undef HAVE_FINITE		/* finite() is present in libc/ieeefp.h (SVr4) */
+#undef HAVE_ISNAND		/* isnand() is present in libc/ieeefp.h (SVr4) */
 #undef HAVE_RAND		/* rand() is present in libc */
 #undef HAVE_DRAND48		/* drand48() is present in libc */
 #undef HAVE_ICONV		/* iconv() is present in libiconv */
@@ -444,6 +450,8 @@
 #undef HAVE_GETPPRIV		/* getppriv() is present in libc */
 #undef HAVE_SETPPRIV		/* setppriv() is present in libc */
 #undef HAVE_PRIV_SET		/* priv_set() is present in libc */
+#undef HAVE_GETROLES		/* getroles() is present in libc (AIX) */
+#undef HAVE_PRIVBIT_SET		/* privbit_set() is present in libc (AIX) */
 
 #undef HAVE_GETAUTHATTR		/* getauthattr() is present in -lsecdb */
 #undef HAVE_GETUSERATTR		/* getuserattr() is present in -lsecdb */
@@ -841,6 +849,8 @@
 #undef NO_USER_XCVT		/* If we cannot define our own ecvt()/fcvt()/gcvt() */
 #undef HAVE_DYN_ARRAYS		/* If the compiler allows dynamic sized arrays */
 #undef HAVE_PRAGMA_WEAK		/* If the compiler allows #pragma weak */
+#undef HAVE_STRINGIZE		/* If the cpp supports ANSI C stringize */
+#undef inline
 
 /*
  * Strings that help to maintain OS/platform id's in C-programs

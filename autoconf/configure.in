@@ -1,6 +1,6 @@
-dnl @(#)configure.in	1.187 09/08/09 Copyright 1998-2009 J. Schilling
+dnl @(#)configure.in	1.191 09/08/25 Copyright 1998-2009 J. Schilling
 dnl Process this file with autoconf to produce a configure script.
-AC_REVISION(1.187)dnl
+AC_REVISION(1.191)dnl
 
 AC_INIT(xconfig.h.in)
 AC_CONFIG_HEADER(xconfig.h)
@@ -63,7 +63,7 @@ AC_CHECK_HEADERS(sys/acct.h)
 AC_CHECK_HEADERS(poll.h sys/poll.h sys/select.h)
 AC_CHECK_HEADERS(netdb.h sys/socket.h netinet/in.h stropts.h)
 AC_CHECK_HEADERS(ieeefp.h fp.h)
-AC_CHECK_HEADERS(values.h float.h)
+AC_CHECK_HEADERS(values.h float.h math.h)
 AC_CHECK_HEADERS(arpa/inet.h)
 AC_CHECK_HEADERS(bsd/dev/scsireg.h)
 dnl Check for HP-UX sys/bsdtty.h (needed for TIOCGPGRP)
@@ -86,7 +86,7 @@ AC_CHECK_HEADERS(crt_externs.h)
 AC_CHECK_HEADERS(fnmatch.h)
 AC_CHECK_HEADERS(libintl.h locale.h langinfo.h nl_types.h)
 AC_CHECK_HEADERS(ctype.h wctype.h wchar.h iconv.h)
-AC_CHECK_HEADERS(priv.h)
+AC_CHECK_HEADERS(priv.h sys/priv.h)
 AC_CHECK_HEADERS(exec_attr.h secdb.h)
 AC_CHECK_HEADERS(direct.h)
 AC_CHECK_HEADERS(pthread.h thread.h)
@@ -112,6 +112,8 @@ dnl Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
 AC_C_BIGENDIAN
 AC_C_BITFIELDS
+AC_C_STRINGIZE
+AC_C_INLINE
 AC_TYPE_SIGNAL
 AC_TYPE_GETGROUPS
 AC_TYPE_LONGLONG
@@ -286,6 +288,7 @@ AC_CHECK_FUNCS(ftime tzset mktime gmtime localtime timegm timelocal)
 AC_CHECK_FUNCS(ctime cftime ascftime strftime)
 AC_CHECK_FUNCS(poll select isastream)
 AC_CHECK_FUNCS(chown fchown lchown chmod fchmod lchmod times utime utimes futimes lutimes)
+AC_CHECK_FUNCS(futimens utimensat)
 dnl AC_CHECK_FUNCS(ecvt fcvt gcvt)
 AC_CHECK_FUNCS(ecvt_r fcvt_r gcvt_r)
 AC_CHECK_FUNCS(econvert fconvert gconvert)
@@ -322,6 +325,7 @@ AC_CHECK_FUNCS(chflags fchflags fflagstostr strtofflags)
 AC_CHECK_FUNCS(fnmatch)
 AC_CHECK_FUNCS(truncate ftruncate)
 AC_CHECK_FUNCS(getppriv setppriv priv_set)
+AC_CHECK_FUNCS(getroles privbit_set)
 AC_CHECK_FUNCS(setlocale localeconv nl_langinfo)
 AC_CHECK_FUNCS(setbuf setvbuf)
 AC_CHECK_FUNCS(clone_area create_area delete_area)
@@ -360,6 +364,8 @@ AC_CHECK_DFUNC([
 #endif
 ], iswprint)
 
+AC_CHECK_DFUNC([#include <ieeefp.h>], finite)
+AC_CHECK_DFUNC([#include <ieeefp.h>], isnand)
 
 dnl Checks for typedefs, structures, and compiler characteristics.
 dnl that need results from the AC_CHECK_FUNCS() calls.

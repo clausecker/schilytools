@@ -1,4 +1,4 @@
-#ident "@(#)mk-.id	1.12 07/05/03 "
+#ident "@(#)mk-.id	1.15 09/08/29 "
 ###########################################################################
 # Written 1996 by J. Schilling
 ###########################################################################
@@ -32,10 +32,16 @@ MAKEPROG=	make		# Sun make
 # XM_ARCH = arch	~ arch -k # Machine (sun3/sun4)
 #
 ###########################################################################
+#
+# Due to a bug in /usr/xpg*/bin/tr on Solaris, we cannot directly translit
+# many different chars to '-' using e.g. tr ', /\\()"' ',------'
+# This is why we first tranliterate everything to '/ and later to '-'
+#
+###########################################################################
 
-XP_ARCH:sh=	(mach || uname -p || true)2>/dev/null      | tr '[A-Z]' '[a-z]' | tr ', /\\()"' ',------'
-XK_ARCH:sh=	uname -m                                   | tr '[A-Z]' '[a-z]' | tr ', /\\()"' ',------'
-XM_ARCH:sh=	(arch || /usr/ucb/arch || true)2>/dev/null | tr '[A-Z]' '[a-z]' | tr ', /\\()"' ',------'
+XP_ARCH:sh=	(mach || uname -p || true)2>/dev/null      | sed 'y%ABCDEFGHIJKLMNOPQRSTUVWXYZ, /\\()"%abcdefghijklmnopqrstuvwxyz,------%'
+XK_ARCH:sh=	uname -m                                   | sed 'y%ABCDEFGHIJKLMNOPQRSTUVWXYZ, /\\()"%abcdefghijklmnopqrstuvwxyz,------%'
+XM_ARCH:sh=	(arch || /usr/ucb/arch || true)2>/dev/null | sed 'y%ABCDEFGHIJKLMNOPQRSTUVWXYZ, /\\()"%abcdefghijklmnopqrstuvwxyz,------%'
 
 P_ARCH=		$(XP_ARCH)
 K_ARCH=		$(XK_ARCH)
@@ -51,6 +57,6 @@ _M_ARCH=	$(_UNIQ)$(XM_ARCH)
 __M_ARCH=	$(_M_ARCH:$(_UNIQ)=$(K_ARCH))
 M_ARCH=		$(__M_ARCH:$(_UNIQ)%=%)
 
-OSNAME:sh=	uname -s | tr '[A-Z]' '[a-z]' | tr ', /\\()"' ',------'
-OSREL:sh=	uname -r | tr '[A-Z]' '[a-z]' | tr ', /\\()"' ',------'
-OSVERSION:sh=	uname -v | tr '[A-Z]' '[a-z]' | tr ', /\\()"' ',------'
+OSNAME:sh=	uname -s | sed 'y%ABCDEFGHIJKLMNOPQRSTUVWXYZ, /\\()"%abcdefghijklmnopqrstuvwxyz,------%'
+OSREL:sh=	uname -r | sed 'y%ABCDEFGHIJKLMNOPQRSTUVWXYZ, /\\()"%abcdefghijklmnopqrstuvwxyz,------%'
+OSVERSION:sh=	uname -v | sed 'y%ABCDEFGHIJKLMNOPQRSTUVWXYZ, /\\()"%abcdefghijklmnopqrstuvwxyz,------%'

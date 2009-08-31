@@ -1,4 +1,4 @@
-#ident @(#)Targets	1.11 09/08/09 
+#ident @(#)Targets	1.12 09/08/26 
 
 X_MK_LIST=	\
 		align.mk alloca.mk archdefs.mk assert.mk avoffset.mk \
@@ -12,7 +12,7 @@ X_MK_LIST=	\
 		intcvt.mk \
 		jmpdefs.mk \
 		libport.mk librmt.mk limits.mk locale.mk \
-		maxpath.mk mconfig.mk \
+		math.mk maxpath.mk mconfig.mk \
 		md4.mk md5.mk \
 		mman.mk mtio.mk \
 		netdb.mk nlsdefs.mk \

@@ -1,8 +1,8 @@
-/* @(#)resample.c	1.32 09/08/07 Copyright 1998,1999,2000 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling */
+/* @(#)resample.c	1.33 09/08/27 Copyright 1998,1999,2000 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling */
 #include "config.h"
 #ifndef lint
 static	UConst char sccsid[] =
-"@(#)resample.c	1.32 09/08/07 Copyright 1998,1999,2000 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling";
+"@(#)resample.c	1.33 09/08/27 Copyright 1998,1999,2000 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling";
 #endif
 /*
  * resampling module
@@ -41,7 +41,7 @@ static	UConst char sccsid[] =
 #include <schily/string.h>
 #include <schily/limits.h>
 #include <schily/assert.h>
-#include <math.h>
+#include <schily/math.h>
 #include <schily/schily.h>
 
 #include <scg/scsitransp.h>

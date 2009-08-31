@@ -1,8 +1,8 @@
-/* @(#)archconf.c	1.25 09/08/04 Copyright 1996-2009 J. Schilling */
+/* @(#)archconf.c	1.26 09/08/28 Copyright 1996-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)archconf.c	1.25 09/08/04 Copyright 1996-2009 J. Schilling";
+	"@(#)archconf.c	1.26 09/08/28 Copyright 1996-2009 J. Schilling";
 #endif
 /*
  *	Make program
@@ -444,7 +444,7 @@ do_archheuristics()
 {
 	list_t	*l;
 	char	*name;
- 
+
 	/*
 	 * Try to define global processor architecture
 	 */

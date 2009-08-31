@@ -1,4 +1,4 @@
-/* @(#)strtod.c	1.3 06/09/26 joerg */
+/* @(#)strtod.c	1.4 09/08/27 joerg */
 
 /*	$NetBSD: strtod.c,v 1.23 1996/10/13 00:07:55 christos Exp $	*/
 
@@ -146,7 +146,7 @@ static char *rcsid = "$NetBSD: strtod.c,v 1.23 1996/10/13 00:07:55 christos Exp 
 #define ULong	UInt32_t
 
 #ifdef DEBUG
-#include "stdio.h"
+#include <schily/stdio.h>
 #define Bug(x) {fprintf(stderr, "%s\n", x); exit(1);}
 #endif
 
@@ -174,7 +174,7 @@ extern void *MALLOC(size_t);
 #define MALLOC malloc
 #endif
 
-#include "ctype.h"
+#include <schily/ctype.h>
 #include <schily/errno.h>
 
 #ifdef Bad_float_h
@@ -216,12 +216,13 @@ extern void *MALLOC(size_t);
 #ifndef LONG_MAX
 #define LONG_MAX 2147483647
 #endif
-#else
-#include "float.h"
-#endif
-#ifndef __MATH_H__
-#include "math.h"
-#endif
+
+#else	/* Bad_float_h */
+#include <schily/float.h>
+#endif	/* Bad_float_h */
+/*#ifndef __MATH_H__*/
+#include <schily/math.h>
+/*#endif*/
 
 #ifdef __cplusplus
 extern "C" {

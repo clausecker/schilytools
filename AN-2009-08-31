@@ -1,0 +1,47 @@
+New features with AN-2009-08-31:
+
+-	The schily makefilesystem now by default sets all locale related envronment
+	variables to "C" in order to avoid problems.
+
+-	Make the makefile emulation mode for "non-automake aware" make programs
+	like SunPro Make and GNU make more immune against oddities in the tr(1)
+	program that are seen with a locale that differs from LC_ALL=C
+	Another step to prevent some tr(1) oddities was to replace the call to
+	tr(1) by a call to sed(1).
+
+-	Calling the script "./.clean" now also removes the auto-created links.
+
+-	Avoid many symlinks to .h files.
+
+-	Added GMAKE_NOWARN=true to allow to disable the gmake warning
+
+-	make smake a bit more robust in order to grant that 
+	SHELL= is always defined inside smake
+
+-	Bump smake to 1.2a45
+
+-	Enhanced include/schily/priv.h to distinct Solaris and AIX process privileges
+
+-	New include file include/schily/math.h
+
+-	Try to workaound a problem with GCC on newer AIX versions. It seems that
+	gcc on AIX is not C99 compliant and does not support isnan().
+
+	Note that the current solution may compile and run on newer AIX versions
+	but does not seem to be the optimal solution as it cannot check whether
+	a float is a number or not.
+
+	It is unfortunate, that we do not have an AIX login that would allow
+	us to implement better AIX support.
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.isdn.cs.tu-berlin.de, js@cs.tu-berlin.de
+	joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

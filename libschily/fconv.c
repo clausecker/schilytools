@@ -1,9 +1,9 @@
-/* @(#)fconv.c	1.37 08/10/08 Copyright 1985, 1995-2003 J. Schilling */
+/* @(#)fconv.c	1.39 09/08/27 Copyright 1985, 1995-2009 J. Schilling */
 /*
  *	Convert floating point numbers to strings for format.c
  *	Should rather use the MT-safe routines [efg]convert()
  *
- *	Copyright (c) 1985, 1995-2003 J. Schilling
+ *	Copyright (c) 1985, 1995-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -24,6 +24,7 @@
 #include <schily/standard.h>
 #include <schily/string.h>
 #include <schily/schily.h>
+#include <schily/math.h>	/* The default place for isinf()/isnan() */
 
 #if	!defined(HAVE_STDLIB_H) || defined(HAVE_DTOA)
 extern	char	*ecvt __PR((double, int, int *, int *));
@@ -34,13 +35,15 @@ extern	char	*fcvt __PR((double, int, int *, int *));
 /*
  * *BSD alike libc
  */
+#define	FOUND_ISNAN
+#define	FOUND_ISINF
 #define	FOUND_ISXX
 #endif
 
-#include <math.h>
-
 #if	defined(HAVE_C99_ISNAN) && defined(HAVE_C99_ISINF)
+#ifndef	FOUND_ISXX
 #define	FOUND_ISXX
+#endif
 #define	FOUND_C99_ISXX
 #endif
 
@@ -59,14 +62,18 @@ extern	char	*fcvt __PR((double, int, int *, int *));
  * Let's hope that we will not get problems with the new order.
  */
 #include <fp.h>
-#ifndef	isnan
+#if	!defined(isnan) && defined(IS_NAN)
 #define	isnan	IS_NAN
+#define	FOUND_ISNAN
 #endif
-#ifndef	isinf
+#if	!defined(isinf) && defined(FINITE)
 #define	isinf	!FINITE
 /*#define	isinf	IS_INF*/
+#define	FOUND_ISINF
 #endif
+#if	defined(FOUND_ISNAN) && defined(FOUND_ISINF)
 #define	FOUND_ISXX
+#endif
 #endif
 
 #if	defined(HAVE_IEEEFP_H) && !defined(FOUND_ISXX)
@@ -74,30 +81,40 @@ extern	char	*fcvt __PR((double, int, int *, int *));
  * SVR4
  */
 #include <ieeefp.h>
+#ifdef	HAVE_ISNAND
 #ifndef	isnan
 #define	isnan	isnand
+#define	FOUND_ISNAN
 #endif
+#endif
+#ifdef	HAVE_FINITE
 #ifndef	isinf
 #define	isinf	!finite
+#define	FOUND_ISINF
 #endif
+#endif
+#if	defined(FOUND_ISNAN) && defined(FOUND_ISINF)
 #define	FOUND_ISXX
+#endif
 #endif
 
 /*
  * WAS:
  * #if	defined(__hpux) || defined(VMS) || defined(_SCO_DS) || defined(__QNX__)
  */
+#ifdef	__nneded__
 #if	defined(__hpux) || defined(__QNX__) || defined(__DJGPP__)
 #ifndef	FOUND_C99_ISXX
 #undef	isnan
 #undef	isinf
 #endif
 #endif
+#endif	/* __needed__ */
 
-#if	!defined(isnan) && !defined(HAVE_ISNAN) && !defined(HAVE_C99_ISNAN)
+#if	!defined(isnan) && !defined(FOUND_ISNAN) && !defined(HAVE_C99_ISNAN)
 #define	isnan(val)	(0)
 #endif
-#if	!defined(isinf) && !defined(HAVE_ISINF) && !defined(HAVE_C99_ISINF)
+#if	!defined(isinf) && !defined(FOUND_ISINF) && !defined(HAVE_C99_ISINF)
 #define	isinf(val)	(0)
 #endif
 

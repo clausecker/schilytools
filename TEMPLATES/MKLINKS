@@ -1,6 +1,6 @@
 #!/bin/sh
 ###########################################################################
-#ident "@(#)MKLINKS	1.1 08/07/31 "
+#ident "@(#)MKLINKS	1.1 09/08/16 "
 ###########################################################################
 # Written 2008 by J. Schilling
 ###########################################################################
@@ -16,24 +16,16 @@
 # When distributing Covered Code, include this CDDL HEADER in each
 # file and include the License file CDDL.Schily.txt from this distribution.
 ###########################################################################
-if [ ! -d RULES/. ]; then
-	ln -s makefiles/RULES		.
-fi
-if [ ! -d DEFAULTS_DIST/. ]; then
-	ln -s makefiles/DEFAULTS	DEFAULTS_DIST
-fi
-if [ ! -d autoconf/. ]; then
-	ln -s conf			autoconf
-fi
-if [ ! -d libedc/. ]; then
-	ln -s libedc_ecc		libedc
-fi
-if [ ! -d libschily/. ]; then
-	ln -s lib			libschily
-fi
-if [ ! -d readcd/. ]; then
-	ln -s cdrecord			readcd
-fi
-if [ ! -d smake/. ]; then
-	ln -s build			smake
-fi
+symlink="ln -s"
+rm -f xxzzy.123 xxzzy.345
+echo test > xxzzy.123
+$symlink xxzzy.123 xxzzy.345
+test $? = 0 || symlink=cp
+test -r xxzzy.345 || symlink=cp
+rm -f xxzzy.123 xxzzy.345
+###########################################################################
+
+$symlink Makefile.cmd	cmd.mk
+$symlink Makefile.inc	inc.mk
+$symlink Makefile.lib	lib.mk
+$symlink Makefile.shl	shl.mk

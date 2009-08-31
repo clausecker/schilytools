@@ -1,4 +1,4 @@
-#ident "@(#)mk-smake.id	1.6 07/05/03 "
+#ident "@(#)mk-smake.id	1.7 09/08/12 "
 ###########################################################################
 # Written 1996 by J. Schilling
 ###########################################################################
@@ -18,6 +18,13 @@
 # When distributing Covered Code, include this CDDL HEADER in each
 # file and include the License file CDDL.Schily.txt from this distribution.
 ###########################################################################
+
+_SETENV=	$(_UNIQ)$(SETENV)
+__SETENV=	$(_SETENV:$(_UNIQ)=rules.env)
+___SETENV=	$(__SETENV:$(_UNIQ)none=rules.nul)
+SET_ENV=	$(___SETENV:$(_UNIQ)%=%)
+
+include		$(SRCROOT)/$(RULESDIR)/$(SET_ENV)
 
 MAKEPROG=	$(MAKE_NAME)
 

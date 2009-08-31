@@ -1,4 +1,4 @@
-#ident @(#)Makefile	1.10 09/01/14 
+#ident @(#)Makefile	1.11 09/08/15 
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -12,6 +12,7 @@ CPPOPTS +=	-DSCHILY_PRINT
 CPPOPTS +=	-I../cdrecord
 CPPOPTS +=	-I../libcdrdeflt
 CPPOPTS +=	-I../libscg
+CPPOPTS +=	-I../readcd
 
 CFILES=		skel.c \
 		io.c cd_misc.c scsi_cdr.c \

@@ -1,4 +1,4 @@
-#ident @(#)rules1.dir	1.14 08/04/19 
+#ident @(#)rules1.dir	1.15 09/08/14 
 ###########################################################################
 # Written 1996 by J. Schilling
 ###########################################################################
@@ -24,7 +24,8 @@
 $(ALLTARGETS):
 	@list="$(DIRS)";							\
 	if [ -d TARGETS -a -f TARGETS/__slot ]; then				\
-		list=`echo TARGETS/[0-9][0-9]* | sed -e 's;TARGETS/[0-9][0-9];;g' | sed -e 's;!@!;/;g'`;\
+		list=`echo TARGETS/[0123456789][0123456789]* |			\
+			sed -e 's;TARGETS/[0123456789][0123456789];;g' | sed -e 's;!@!;/;g'`;\
 	fi;									\
 	for DIR in $${list} ;							\
 	do									\
@@ -39,11 +40,11 @@ $(ALLTARGETS):
 	done
 
 tinfo:
-	@[ -d TARGETS -a -f TARGETS/__slot ] && list=`echo TARGETS/[0-9][0-9]*`;\
+	@[ -d TARGETS -a -f TARGETS/__slot ] && list=`echo TARGETS/[0123456789][0123456789]*`;\
 	for i in $${list};							\
 	do									\
 		(read line < $$i;						\
-		name=`echo $$i | sed -e 's;TARGETS/[0-9][0-9];;' | sed -e 's;!@!;/;g'`;		\
+		name=`echo $$i | sed -e 's;TARGETS/[0123456789][0123456789];;' | sed -e 's;!@!;/;g'`; \
 		echo "$$name	- $${line}";					\
 		);								\
 	done

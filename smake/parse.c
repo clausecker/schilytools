@@ -1,8 +1,8 @@
-/* @(#)parse.c	1.95 09/07/08 Copyright 1985-2009 J. Schilling */
+/* @(#)parse.c	1.96 09/08/28 Copyright 1985-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)parse.c	1.95 09/07/08 Copyright 1985-2009 J. Schilling";
+	"@(#)parse.c	1.96 09/08/28 Copyright 1985-2009 J. Schilling";
 #endif
 /*
  *	Make program
@@ -498,7 +498,7 @@ print_patrules(f)
 		fprintf(f, "%s%%%s:%s",
 		p->p_tgt_prefix, p->p_tgt_suffix,
 		(p->p_flags & PF_TERM) ? ":":"");
-		
+
 		for (l = p->p_list; l; l = l->l_next) {
 			fprintf(f, " %s", l->l_obj->o_name);
 		}

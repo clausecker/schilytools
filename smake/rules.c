@@ -1,8 +1,8 @@
-/* @(#)rules.c	1.18 09/07/08 Copyright 1987-2009 J. Schilling */
+/* @(#)rules.c	1.19 09/08/28 Copyright 1987-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)rules.c	1.18 09/07/08 Copyright 1987-2009 J. Schilling";
+	"@(#)rules.c	1.19 09/08/28 Copyright 1987-2009 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1987-2009 J. Schilling
@@ -98,4 +98,3 @@ RFLAGS=	-ms\n\
 #ifndef _OS_
 "";
 #endif
-

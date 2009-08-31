@@ -1,8 +1,8 @@
-/* @(#)cdda2wav.c	1.115 09/08/04 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling */
+/* @(#)cdda2wav.c	1.116 09/08/27 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling */
 #include "config.h"
 #ifndef lint
 static	UConst char sccsid[] =
-"@(#)cdda2wav.c	1.115 09/08/04 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling";
+"@(#)cdda2wav.c	1.116 09/08/27 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling";
 
 #endif
 #undef	DEBUG_BUFFER_ADDRESSES
@@ -71,7 +71,7 @@ static	UConst char sccsid[] =
 #include <schily/string.h>
 #include <schily/schily.h>
 #include <schily/signal.h>
-#include <math.h>
+#include <schily/math.h>
 #include <schily/fcntl.h>
 #include <schily/time.h>
 #include <schily/limits.h>

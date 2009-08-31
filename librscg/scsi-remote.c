@@ -1,8 +1,8 @@
 #define	USE_REMOTE
-/* @(#)scsi-remote.c	1.32 09/08/07 Copyright 1990,2000-2009 J. Schilling */
+/* @(#)scsi-remote.c	1.33 09/08/24 Copyright 1990,2000-2009 J. Schilling */
 #ifndef lint
 static	char __sccsid[] =
-	"@(#)scsi-remote.c	1.32 09/08/07 Copyright 1990,2000-2009 J. Schilling";
+	"@(#)scsi-remote.c	1.33 09/08/24 Copyright 1990,2000-2009 J. Schilling";
 #endif
 /*
  *	Remote SCSI user level command transport routines
@@ -65,6 +65,7 @@ static	char __sccsid[] =
 #include <schily/unistd.h>
 #include <schily/string.h>
 #include <schily/schily.h>
+#include <schily/priv.h>
 
 #include <scg/scgcmd.h>
 #include <scg/scsitransp.h>
@@ -80,7 +81,7 @@ static	char __sccsid[] =
 #if	defined(IS_CYGWIN) || defined(__MINGW32__)
 #define	privport_ok()	(1)
 #else
-#ifdef	HAVE_GETPPRIV
+#ifdef	HAVE_SOLARIS_PPRIV
 #define	privport_ok()	ppriv_ok()
 #else
 #define	privport_ok()	(geteuid() == 0)
@@ -99,7 +100,7 @@ static	char __sccsid[] =
 /*extern	BOOL	debug;*/
 LOCAL	BOOL	debug = 1;
 
-LOCAL	char	_scg_trans_version[] = "remote-1.32";	/* The version for remote SCSI	*/
+LOCAL	char	_scg_trans_version[] = "remote-1.33";	/* The version for remote SCSI	*/
 LOCAL	char	_scg_auth_schily[]	= "schily";	/* The author for this module	*/
 
 LOCAL	int	scgo_rsend		__PR((SCSI *scgp));
@@ -153,7 +154,7 @@ LOCAL	int	_rcmdrsh		__PR((char **ahost, int inport,
 						const char *remuser,
 						const char *cmd,
 						const char *rsh));
-#ifdef	HAVE_GETPPRIV
+#ifdef	HAVE_SOLARIS_PPRIV
 LOCAL	BOOL	ppriv_ok		__PR((void));
 #endif
 #endif
@@ -1189,8 +1190,7 @@ _rcmdrsh(ahost, inport, locuser, remuser, cmd, rsh)
 	return (-1);	/* keep gcc happy */
 }
 
-#ifdef	HAVE_GETPPRIV
-#include <schily/priv.h>
+#ifdef	HAVE_SOLARIS_PPRIV
 
 LOCAL BOOL
 ppriv_ok()
@@ -1213,7 +1213,7 @@ ppriv_ok()
 
 	return (net_privaddr);
 }
-#endif	/* HAVE_GETPPRIV */
+#endif	/* HAVE_SOLARIS_PPRIV */
 
 #endif	/* USE_RCMD_RSH */
 

@@ -1,8 +1,8 @@
-/* @(#)make.c	1.157 09/08/02 Copyright 1985, 87, 88, 91, 1995-2009 J. Schilling */
+/* @(#)make.c	1.159 09/08/18 Copyright 1985, 87, 88, 91, 1995-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)make.c	1.157 09/08/02 Copyright 1985, 87, 88, 91, 1995-2009 J. Schilling";
+	"@(#)make.c	1.159 09/08/18 Copyright 1985, 87, 88, 91, 1995-2009 J. Schilling";
 #endif
 /*
  *	Make program
@@ -41,7 +41,7 @@ static	UConst char sccsid[] =
 
 #include "make.h"
 
-char	make_version[] = "1.2a44";
+char	make_version[] = "1.2a45";
 
 #ifdef	NO_DEFAULTS_PATH
 #undef	DEFAULTS_PATH
@@ -614,12 +614,12 @@ setup_SHELL()
 		shellname = searchfileinpath("sh.exe");	/* alloc() */
 	if (shellname != NULL)
 		shell = shellname;
-#else	/* !__DJGPP__ */
-	shell = "/bin/sh";			/* Standard UNIX/POSIX case */
 #endif	/* !__DJGPP__ */
 #endif	/* !SHELL_CE_IS_BROKEN */
-	if (shell != NULL)
-		define_var("SHELL", shell);	/* Needed for POSIX */
+
+	if (shell == NULL)
+		shell = "/bin/sh";		/* Standard UNIX/POSIX case */
+	define_var("SHELL", shell);		/* Needed for POSIX */
 }
 
 /*

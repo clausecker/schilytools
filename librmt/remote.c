@@ -1,11 +1,11 @@
 /*#define	USE_REMOTE*/
 /*#define	USE_RCMD_RSH*/
 /*#define	NO_LIBSCHILY*/
-/* @(#)remote.c	1.71 09/08/07 Copyright 1990-2009 J. Schilling */
+/* @(#)remote.c	1.72 09/08/24 Copyright 1990-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)remote.c	1.71 09/08/07 Copyright 1990-2009 J. Schilling";
+	"@(#)remote.c	1.72 09/08/24 Copyright 1990-2009 J. Schilling";
 #endif
 /*
  *	Remote tape client interface code
@@ -62,6 +62,7 @@ static	UConst char sccsid[] =
 #include <schily/librmt.h>
 #include <schily/schily.h>
 #include <schily/ctype.h>
+#include <schily/priv.h>
 
 #if	defined(SIGDEFER) || defined(SVR4)
 #define	signal	sigset
@@ -74,7 +75,7 @@ static	UConst char sccsid[] =
 #if	defined(IS_CYGWIN) || defined(__MINGW32__)
 #define	privport_ok()	(1)
 #else
-#ifdef	HAVE_GETPPRIV
+#ifdef	HAVE_SOLARIS_PPRIV
 #define	privport_ok()	ppriv_ok()
 #else
 #define	privport_ok()	(geteuid() == 0)
@@ -234,7 +235,7 @@ LOCAL	int	_rcmdrsh		__PR((char **ahost, int inport,
 						const char *remuser,
 						const char *cmd,
 						const char *rsh));
-#ifdef	HAVE_GETPPRIV
+#ifdef	HAVE_SOLARIS_PPRIV
 LOCAL	BOOL	ppriv_ok		__PR((void));
 #endif
 #endif
@@ -1564,8 +1565,7 @@ _rcmdrsh(ahost, inport, locuser, remuser, cmd, rsh)
 	return (-1);	/* keep gcc happy */
 }
 
-#ifdef	HAVE_GETPPRIV
-#include <schily/priv.h>
+#ifdef	HAVE_SOLARIS_PPRIV
 
 LOCAL BOOL
 ppriv_ok()
@@ -1588,7 +1588,7 @@ ppriv_ok()
 
 	return (net_privaddr);
 }
-#endif	/* HAVE_GETPPRIV */
+#endif	/* HAVE_SOLARIS_PPRIV */
 
 #endif	/* USE_RCMD_RSH */
 #endif	/* USE_REMOTE */

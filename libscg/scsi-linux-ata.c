@@ -1,7 +1,7 @@
-/* @(#)scsi-linux-ata.c	1.13 06/11/26 Copyright 2002 J. Schilling */
+/* @(#)scsi-linux-ata.c	1.14 09/08/17 Copyright 2002 J. Schilling */
 #ifndef lint
 static	char ata_sccsid[] =
-	"@(#)scsi-linux-ata.c	1.13 06/11/26 Copyright 2002 J. Schilling";
+	"@(#)scsi-linux-ata.c	1.14 09/08/17 Copyright 2002 J. Schilling";
 #endif
 /*
  *	Interface for Linux generic SCSI implementation (sg).
@@ -52,7 +52,7 @@ static	char ata_sccsid[] =
 
 #ifdef	USE_ATAPI
 
-LOCAL	char	_scg_atrans_version[] = "scsi-linux-ata.c-1.13";	/* The version for ATAPI transport*/
+LOCAL	char	_scg_atrans_version[] = "scsi-linux-ata.c-1.14";	/* The version for ATAPI transport*/
 
 LOCAL	char *	scgo_aversion	__PR((SCSI *scgp, int what));
 LOCAL	int	scgo_ahelp	__PR((SCSI *scgp, FILE *f));
@@ -809,11 +809,11 @@ sg_amapdev(scgp, f, device, atapibus, target, lun)
 			l = 0;
 #endif	/* nonono */
 			/* other solution, with ioctl */
-			int	Chan,
-				Ino,
-				Bus,
-				Target,
-				Lun;
+			int	Chan	= -1,
+				Ino	= -1,
+				Bus	= -1,
+				Target	= -1,
+				Lun	= -1;
 
 			subsystem = HOST_SCSI;
 			sg_amapdev_scsi(scgp, f, &Bus, &Target, &Lun, &Chan, &Ino);

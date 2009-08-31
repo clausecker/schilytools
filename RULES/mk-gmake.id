@@ -1,4 +1,4 @@
-#ident "@(#)mk-gmake.id	1.16 07/05/03 "
+#ident "@(#)mk-gmake.id	1.21 09/08/29 "
 ###########################################################################
 # Written 1996 by J. Schilling
 ###########################################################################
@@ -19,6 +19,13 @@
 # file and include the License file CDDL.Schily.txt from this distribution.
 ###########################################################################
 
+_SETENV=	$(_UNIQ)$(SETENV)
+__SETENV=	$(_SETENV:$(_UNIQ)=rules.env)
+___SETENV=	$(__SETENV:$(_UNIQ)none=rules.nul)
+SET_ENV=	$(___SETENV:$(_UNIQ)%=%)
+
+include		$(SRCROOT)/$(RULESDIR)/$(SET_ENV)
+
 MAKEPROG=	gmake
 
 ###########################################################################
@@ -32,17 +39,25 @@ MAKEPROG=	gmake
 # XM_ARCH = arch	~ arch -k # Machine (sun3/sun4)
 #
 ###########################################################################
+#
+# Due to a bug in /usr/xpg*/bin/tr on Solaris, we cannot directly translit
+# many different chars to '-' using e.g. tr ', /\\()"' ',------'
+# This is why we first tranliterate everything to '/ and later to '-'
+#
+###########################################################################
 
 ifndef		ARCH_DONE
 
+ifndef		GMAKE_NOWARN
 __gmake_warn:=	$(shell cat $(SRCROOT)/$(RULESDIR)/gmake.wrn 1>&2; sleep 2)
+endif
 
 _MACHCMD=	(mach || uname -p || true)	2> /dev/null
 _ARCHCMD=	(arch || /usr/ucb/arch || true)	2> /dev/null
 
-XP_ARCH:=	$(shell $(_MACHCMD) | tr '[A-Z]' '[a-z]' | tr ', /\\()"' ',//////' | tr ',/' ',\-')
-XK_ARCH:=	$(shell uname -m    | tr '[A-Z]' '[a-z]' | tr ', /\\()"' ',//////' | tr ',/' ',\-')
-XM_ARCH:=	$(shell $(_ARCHCMD) | tr '[A-Z]' '[a-z]' | tr ', /\\()"' ',//////' | tr ',/' ',\-')
+XP_ARCH:=	$(shell $(_MACHCMD) | sed 'y%ABCDEFGHIJKLMNOPQRSTUVWXYZ, /\\()"%abcdefghijklmnopqrstuvwxyz,------%')
+XK_ARCH:=	$(shell uname -m    | sed 'y%ABCDEFGHIJKLMNOPQRSTUVWXYZ, /\\()"%abcdefghijklmnopqrstuvwxyz,------%')
+XM_ARCH:=	$(shell $(_ARCHCMD) | sed 'y%ABCDEFGHIJKLMNOPQRSTUVWXYZ, /\\()"%abcdefghijklmnopqrstuvwxyz,------%')
 
 P_ARCH=		$(XP_ARCH)
 K_ARCH=		$(XK_ARCH)
@@ -58,9 +73,9 @@ _M_ARCH=	$(_UNIQ)$(XM_ARCH)
 __M_ARCH=	$(_M_ARCH:$(_UNIQ)=$(K_ARCH))
 M_ARCH=		$(__M_ARCH:$(_UNIQ)%=%)
 
-OSNAME:=	$(shell uname -s | tr '[A-Z]' '[a-z]' | tr ', /\\()"' ',//////' | tr ',/' ',-')
-OSREL:=		$(shell uname -r | tr '[A-Z]' '[a-z]' | tr ', /\\()"' ',//////' | tr ',/' ',-')
-OSVERSION:=	$(shell uname -v | tr '[A-Z]' '[a-z]' | tr ', /\\()"' ',//////' | tr ',/' ',-')
+OSNAME:=	$(shell uname -s | sed 'y%ABCDEFGHIJKLMNOPQRSTUVWXYZ, /\\()"%abcdefghijklmnopqrstuvwxyz,------%')
+OSREL:=		$(shell uname -r | sed 'y%ABCDEFGHIJKLMNOPQRSTUVWXYZ, /\\()"%abcdefghijklmnopqrstuvwxyz,------%')
+OSVERSION:=	$(shell uname -v | sed 'y%ABCDEFGHIJKLMNOPQRSTUVWXYZ, /\\()"%abcdefghijklmnopqrstuvwxyz,------%')
 
 ARCH_DONE=	TRUE
 
