@@ -1,7 +1,7 @@
-/* @(#)scsi-linux-ata.c	1.14 09/08/17 Copyright 2002 J. Schilling */
+/* @(#)scsi-linux-ata.c	1.15 09/09/07 Copyright 2002-2009 J. Schilling */
 #ifndef lint
 static	char ata_sccsid[] =
-	"@(#)scsi-linux-ata.c	1.14 09/08/17 Copyright 2002 J. Schilling";
+	"@(#)scsi-linux-ata.c	1.15 09/09/07 Copyright 2002-2009 J. Schilling";
 #endif
 /*
  *	Interface for Linux generic SCSI implementation (sg).
@@ -52,7 +52,7 @@ static	char ata_sccsid[] =
 
 #ifdef	USE_ATAPI
 
-LOCAL	char	_scg_atrans_version[] = "scsi-linux-ata.c-1.14";	/* The version for ATAPI transport*/
+LOCAL	char	_scg_atrans_version[] = "scsi-linux-ata.c-1.15";	/* The version for ATAPI transport*/
 
 LOCAL	char *	scgo_aversion	__PR((SCSI *scgp, int what));
 LOCAL	int	scgo_ahelp	__PR((SCSI *scgp, FILE *f));

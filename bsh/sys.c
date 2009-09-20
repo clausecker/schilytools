@@ -1,8 +1,8 @@
-/* @(#)sys.c	1.67 09/08/04 Copyright 1986-2009 J. Schilling */
+/* @(#)sys.c	1.68 09/09/14 Copyright 1986-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)sys.c	1.67 09/08/04 Copyright 1986-2009 J. Schilling";
+	"@(#)sys.c	1.68 09/09/14 Copyright 1986-2009 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1986-2009 J. Schilling
@@ -736,7 +736,7 @@ is_binary(name)
 {
 	int	f = open(name, 0);
 	struct	exec x;
-	char	c;
+	unsigned char	c;
 
 	fillbytes(&x, sizeof (x), '\0');
 

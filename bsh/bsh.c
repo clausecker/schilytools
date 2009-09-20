@@ -1,8 +1,8 @@
-/* @(#)bsh.c	1.62 09/07/14 Copyright 1984,1985,1988,1989,1991,1994-2009 J. Schilling */
+/* @(#)bsh.c	1.63 09/09/15 Copyright 1984,1985,1988,1989,1991,1994-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)bsh.c	1.62 09/07/14 Copyright 1982,1984,1985,1988,1989,1991,1994-2009 J. Schilling";
+	"@(#)bsh.c	1.63 09/09/15 Copyright 1982,1984,1985,1988,1989,1991,1994-2009 J. Schilling";
 #endif
 /*
  *	bsh command interpreter - main Program
@@ -177,7 +177,6 @@ LOCAL BOOL
 clearferr()
 {
 	register int	i;
-	register FILE	*fp;
 
 	/*
 	 * Wenn ein Pseudotty geschloszen wird (quit bei shelltool)
@@ -191,9 +190,9 @@ clearferr()
 		}
 	}
 
-	for (fp = stdin, i = 0; i < _MAXFILES; i++) {
-		if (ferror(&fp[i])) {
-			clearerr(&fp[i]);
+	for (i = 0; i < 3; i++) {
+		if (ferror(gstd[i])) {
+			clearerr(gstd[i]);
 			return (TRUE);
 		}
 	}

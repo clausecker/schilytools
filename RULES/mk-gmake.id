@@ -1,4 +1,4 @@
-#ident "@(#)mk-gmake.id	1.21 09/08/29 "
+#ident "@(#)mk-gmake.id	1.22 09/09/09 "
 ###########################################################################
 # Written 1996 by J. Schilling
 ###########################################################################
@@ -44,6 +44,8 @@ MAKEPROG=	gmake
 # many different chars to '-' using e.g. tr ', /\\()"' ',------'
 # This is why we first tranliterate everything to '/ and later to '-'
 #
+# Due to a bug in *BSDs sed, we cannot use sed 'y%ABC\\%abc-%'
+#
 ###########################################################################
 
 ifndef		ARCH_DONE
@@ -55,9 +57,9 @@ endif
 _MACHCMD=	(mach || uname -p || true)	2> /dev/null
 _ARCHCMD=	(arch || /usr/ucb/arch || true)	2> /dev/null
 
-XP_ARCH:=	$(shell $(_MACHCMD) | sed 'y%ABCDEFGHIJKLMNOPQRSTUVWXYZ, /\\()"%abcdefghijklmnopqrstuvwxyz,------%')
-XK_ARCH:=	$(shell uname -m    | sed 'y%ABCDEFGHIJKLMNOPQRSTUVWXYZ, /\\()"%abcdefghijklmnopqrstuvwxyz,------%')
-XM_ARCH:=	$(shell $(_ARCHCMD) | sed 'y%ABCDEFGHIJKLMNOPQRSTUVWXYZ, /\\()"%abcdefghijklmnopqrstuvwxyz,------%')
+XP_ARCH:=	$(shell $(_MACHCMD) | tr 'ABCDEFGHIJKLMNOPQRSTUVWXYZ, /\\()"' 'abcdefghijklmnopqrstuvwxyz,//////' | tr ',/' ',\-')
+XK_ARCH:=	$(shell uname -m    | tr 'ABCDEFGHIJKLMNOPQRSTUVWXYZ, /\\()"' 'abcdefghijklmnopqrstuvwxyz,//////' | tr ',/' ',\-')
+XM_ARCH:=	$(shell $(_ARCHCMD) | tr 'ABCDEFGHIJKLMNOPQRSTUVWXYZ, /\\()"' 'abcdefghijklmnopqrstuvwxyz,//////' | tr ',/' ',\-')
 
 P_ARCH=		$(XP_ARCH)
 K_ARCH=		$(XK_ARCH)
@@ -73,9 +75,9 @@ _M_ARCH=	$(_UNIQ)$(XM_ARCH)
 __M_ARCH=	$(_M_ARCH:$(_UNIQ)=$(K_ARCH))
 M_ARCH=		$(__M_ARCH:$(_UNIQ)%=%)
 
-OSNAME:=	$(shell uname -s | sed 'y%ABCDEFGHIJKLMNOPQRSTUVWXYZ, /\\()"%abcdefghijklmnopqrstuvwxyz,------%')
-OSREL:=		$(shell uname -r | sed 'y%ABCDEFGHIJKLMNOPQRSTUVWXYZ, /\\()"%abcdefghijklmnopqrstuvwxyz,------%')
-OSVERSION:=	$(shell uname -v | sed 'y%ABCDEFGHIJKLMNOPQRSTUVWXYZ, /\\()"%abcdefghijklmnopqrstuvwxyz,------%')
+OSNAME:=	$(shell uname -s | tr 'ABCDEFGHIJKLMNOPQRSTUVWXYZ, /\\()"' 'abcdefghijklmnopqrstuvwxyz,//////' | tr ',/' ',\-')
+OSREL:=		$(shell uname -r | tr 'ABCDEFGHIJKLMNOPQRSTUVWXYZ, /\\()"' 'abcdefghijklmnopqrstuvwxyz,//////' | tr ',/' ',\-')
+OSVERSION:=	$(shell uname -v | tr 'ABCDEFGHIJKLMNOPQRSTUVWXYZ, /\\()"' 'abcdefghijklmnopqrstuvwxyz,//////' | tr ',/' ',\-')
 
 ARCH_DONE=	TRUE
 

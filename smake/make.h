@@ -1,4 +1,4 @@
-/* @(#)make.h	1.84 09/08/02 Copyright 1985, 87, 91, 1995-2008 J. Schilling */
+/* @(#)make.h	1.85 09/09/09 Copyright 1985, 87, 91, 1995-2008 J. Schilling */
 /*
  *	Definitions for make.
  *	Copyright (c) 1985, 87, 91, 1995-2008 by J. Schilling
@@ -31,6 +31,9 @@ typedef unsigned long	date_t;
  * XXX It may be a good idea to make "newtime" > RECURSETIME as
  * XXX the date of unknown targets is set to RECURSETIME before
  * XXX it is made.
+ *
+ * If we add new entries here, we need to also add a related entry
+ * to the function prtime().
  */
 #define	NOTIME		((date_t)0)	/* Obj not (yet) found   */
 #define	BADTIME		((date_t)-1)	/* Obj could not be made */

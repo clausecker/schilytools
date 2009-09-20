@@ -1,8 +1,8 @@
-/* @(#)readcd.c	1.106 09/08/07 Copyright 1987, 1995-2009 J. Schilling */
+/* @(#)readcd.c	1.107 09/09/16 Copyright 1987, 1995-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)readcd.c	1.106 09/08/07 Copyright 1987, 1995-2009 J. Schilling";
+	"@(#)readcd.c	1.107 09/09/16 Copyright 1987, 1995-2009 J. Schilling";
 #endif
 /*
  *	Skeleton for the use of the scg genearal SCSI - driver
@@ -110,6 +110,7 @@ typedef struct {
 	one_interval_func_t	one_interval_func;
 } cx_scan_procedure_t;
 
+LOCAL	BOOL	mmc_isplextor		__PR((SCSI* scgp));
 LOCAL	int	plextor_init_cx_scan	__PR((SCSI* scgp));
 LOCAL	int	plextor_init_pi8_scan	__PR((SCSI* scgp));
 LOCAL	int	plextor_init_pif_scan	__PR((SCSI* scgp));
@@ -2482,11 +2483,25 @@ read_dvd_sectors(scgp, p, addr, cnt)
 	return (csize * clusters + rest);
 }
 
+LOCAL BOOL
+mmc_isplextor(scgp)
+	SCSI	*scgp;
+{
+	if (scgp->inq != NULL &&
+			strncmp(scgp->inq->vendor_info, "PLEXTOR", 7) == 0) {
+		return (TRUE);
+	}
+	return (FALSE);
+}
+
 LOCAL int
 plextor_init_cx_scan(scgp)
 	SCSI	*scgp;
 {
 	register struct	scg_cmd	*scmd = scgp->scmd;
+
+	if (!mmc_isplextor(scgp))
+		return (-1);
 
 	fillbytes((caddr_t)scmd, sizeof (*scmd), '\0');
 
@@ -2510,6 +2525,9 @@ plextor_init_pi8_scan(scgp)
 {
 	register struct	scg_cmd	*scmd = scgp->scmd;
 
+	if (!mmc_isplextor(scgp))
+		return (-1);
+
 	fillbytes((caddr_t)scmd, sizeof (*scmd), '\0');
 
 	scmd->size = 0;
@@ -2532,6 +2550,9 @@ plextor_init_pif_scan(scgp)
 	SCSI	*scgp;
 {
 	register struct	scg_cmd	*scmd = scgp->scmd;
+
+	if (!mmc_isplextor(scgp))
+		return (-1);
 
 	fillbytes((caddr_t)scmd, sizeof (*scmd), '\0');
 

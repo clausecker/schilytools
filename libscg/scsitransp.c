@@ -1,7 +1,7 @@
-/* @(#)scsitransp.c	1.97 09/07/13 Copyright 1988,1995,2000-2004 J. Schilling */
+/* @(#)scsitransp.c	1.98 09/09/07 Copyright 1988,1995,2000-2009 J. Schilling */
 /*#ifndef lint*/
 static	char sccsid[] =
-	"@(#)scsitransp.c	1.97 09/07/13 Copyright 1988,1995,2000-2004 J. Schilling";
+	"@(#)scsitransp.c	1.98 09/09/07 Copyright 1988,1995,2000-2009 J. Schilling";
 /*#endif*/
 /*
  *	SCSI user level command transport routines (generic part).
@@ -12,7 +12,7 @@ static	char sccsid[] =
  *	Choose your name instead of "schily" and make clear that the version
  *	string is related to a modified source.
  *
- *	Copyright (c) 1988,1995,2000-2004 J. Schilling
+ *	Copyright (c) 1988,1995,2000-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

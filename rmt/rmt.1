@@ -1,4 +1,4 @@
-. \" @(#)rmt.1	1.12 08/10/12 Copyr 1994-2008 J. Schilling
+. \" @(#)rmt.1	1.14 09/09/20 Copyr 1994-2009 J. Schilling
 . \"  Manual Seite fuer rmt
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -221,6 +221,22 @@ is encountered.
 The return value from the
 .BR write (2)
 operation is returned as reply.
+.br
+.ne 7
+.TP
+.BI L whence \en offset \en
+Perform an
+.BR lseek (2)
+operation on the open device or file using the specified parameters.
+The return value from the
+.BR lseek (2)
+operation is returned as reply.
+.sp
+On large file aware operating systems,
+.B rmt
+will correctly handle large
+.BR lseek (2)
+requests.
 .RS
 .PP
 The following whence values are supported:
@@ -247,22 +263,6 @@ Mapped to
 .B SEEK_HOLE
 If avalable on the remote system.
 .RE
-.br
-.ne 7
-.TP
-.BI L whence \en offset \en
-Perform an
-.BR lseek (2)
-operation on the open device or file using the specified parameters.
-The return value from the
-.BR lseek (2)
-operation is returned as reply.
-.sp
-On large file aware operating systems,
-.B rmt
-will correctly handle large
-.BR lseek (2)
-requests.
 .br
 .ne 7
 .TP
@@ -396,7 +396,7 @@ When the operation is successful the return value is the
 .I count
 parameter.
 Only Opcodes 0..7 are unique across different architectures.
-But as in many cases 
+In many cases 
 .B Linux
 does not even follow this rule.
 If we know that we have been called by a 

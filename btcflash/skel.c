@@ -1,8 +1,8 @@
-/* @(#)skel.c	1.22 09/08/07 Copyright 1987, 1995-2009 J. Schilling */
+/* @(#)skel.c	1.23 09/09/16 Copyright 1987, 1995-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)skel.c	1.22 09/08/07 Copyright 1987, 1995-2009 J. Schilling";
+	"@(#)skel.c	1.23 09/09/16 Copyright 1987, 1995-2009 J. Schilling";
 #endif
 /*
  *	Skeleton for the use of the scg genearal SCSI - driver
@@ -225,8 +225,8 @@ main(ac, av)
 			err = geterrno();
 
 			errmsgno(err, "%s%sCannot open SCSI driver.\n", errstr, errstr[0]?". ":"");
-			errmsgno(EX_BAD, "For possible targets try 'scgskeleton -scanbus'. Make sure you are root.\n");
-			errmsgno(EX_BAD, "For possible transport specifiers try 'scgskeleton dev=help'.\n");
+			errmsgno(EX_BAD, "For possible targets try 'btcflash -scanbus'. Make sure you are root.\n");
+			errmsgno(EX_BAD, "For possible transport specifiers try 'btcflash dev=help'.\n");
 			exit(err);
 		}
 	} else {

@@ -1,8 +1,8 @@
-/* @(#)parse.c	1.96 09/08/28 Copyright 1985-2009 J. Schilling */
+/* @(#)parse.c	1.97 09/09/14 Copyright 1985-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)parse.c	1.96 09/08/28 Copyright 1985-2009 J. Schilling";
+	"@(#)parse.c	1.97 09/09/14 Copyright 1985-2009 J. Schilling";
 #endif
 /*
  *	Make program
@@ -1064,7 +1064,7 @@ getcmd()
 			getch();	/* Skip white space. */
 
 		for (p = gbuf; lastc != EOF; getch()) {
-			if (lastc == '\n' && p[-1] != '\\')
+			if (lastc == '\n' && p > gbuf && p[-1] != '\\')
 				break;
 			if (p >= gbufend)
 				p = growgbuf(p);

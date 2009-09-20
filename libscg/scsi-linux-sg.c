@@ -1,7 +1,7 @@
-/* @(#)scsi-linux-sg.c	1.93 09/07/29 Copyright 1997 J. Schilling */
+/* @(#)scsi-linux-sg.c	1.94 09/09/07 Copyright 1997-2009 J. Schilling */
 #ifndef lint
 static	char __sccsid[] =
-	"@(#)scsi-linux-sg.c	1.93 09/07/29 Copyright 1997 J. Schilling";
+	"@(#)scsi-linux-sg.c	1.94 09/09/07 Copyright 1997-2009 J. Schilling";
 #endif
 /*
  *	Interface for Linux generic SCSI implementation (sg).
@@ -127,7 +127,7 @@ static	char __sccsid[] =
  *	Choose your name instead of "schily" and make clear that the version
  *	string is related to a modified source.
  */
-LOCAL	char	_scg_trans_version[] = "scsi-linux-sg.c-1.93";	/* The version for this transport*/
+LOCAL	char	_scg_trans_version[] = "scsi-linux-sg.c-1.94";	/* The version for this transport*/
 
 #ifndef	SCSI_IOCTL_GET_BUS_NUMBER
 #define	SCSI_IOCTL_GET_BUS_NUMBER 0x5386

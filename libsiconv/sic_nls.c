@@ -1,8 +1,8 @@
-/* @(#)sic_nls.c	1.11 09/07/10 Copyright 2007-2009 J. Schilling */
+/* @(#)sic_nls.c	1.12 09/09/19 Copyright 2007-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)sic_nls.c	1.11 09/07/10 Copyright 2007-2009 J. Schilling";
+	"@(#)sic_nls.c	1.12 09/09/19 Copyright 2007-2009 J. Schilling";
 #endif
 /*
  * This code reads translation files in the format used by
@@ -439,12 +439,15 @@ dup_iconv_sic(sip)
 	siconvt_t	*sp;
 	iconv_t		to;
 	iconv_t		from;
-	char		*nm = sip->sic_name;
+	char		*nm;
 
 	if ((sp = (siconvt_t *)malloc(sizeof (siconvt_t)))
 							== NULL) {
 		return ((siconvt_t *)NULL);
 	}
+	nm = sip->sic_name;
+	if (strncmp("iconv:", nm, 6) == 0)
+		nm = &nm[6];
 	if ((from = iconv_open("UCS-2BE", nm)) == (iconv_t)-1) {
 		free(sp);
 		return ((siconvt_t *)NULL);
@@ -454,7 +457,7 @@ dup_iconv_sic(sip)
 		iconv_close(from);
 		return ((siconvt_t *)NULL);
 	}
-	sp->sic_name = nm;	/* Allow to compare name pointers */
+	sp->sic_name = sip->sic_name;	/* Allow to compare name pointers */
 	sp->sic_uni2cs = NULL;
 	sp->sic_cs2uni = NULL;
 	sp->sic_cd2uni = from;

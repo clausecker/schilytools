@@ -1,0 +1,64 @@
+New features with AN-2009-09-20:
+
+-	*BSD comes with a broken sed(1), so we need to go back to tr(1) based
+	code for GNU make in the Schily Makefilesystem.
+
+-	Added support for amd64-netbsd-cc.rul to the Schily Makefilesystem
+
+-	Added support for DragonFly BSD to config.guess and config.sub
+
+-	The cdrecord man page now mentions that the -clone mode is a bad idea to copy
+	audio CDs.
+
+-	The readcd man page now mentions that the -clone mode is a bad idea to copy
+	audio CDs.
+
+-	The low level SCSI transport code from libscg for Mac OS X has been reworked.
+
+	The code now supports cdrecord -scanbus
+
+	The code now supports cdrecord's autotarget mode
+
+	The code now supports to communicate with BluRay drives
+
+	The code now prints a longer help text that instructs what to do in order
+	to work against the "diskarbitrationd" program on Mac OS that tries to 
+	steal us our hardware. 
+
+	If someone is able and willing to help, please send mail!
+
+	I like to be able to tell "diskarbitrationd" to give up specific drives
+	and to set up shared access.
+
+-	Added a hack to liscg to allow cdrecord -scanbus to work on NetBSD
+
+-	Added a hack to liscg to allow cdrecord -scanbus to work on OpenBSD
+
+-	cdrtools bumped to 2.01.01a65
+
+-	readcd now only send the Plextor specific SCSI commands for the -cxscan
+	option in case that the drive identifies as Plextor.
+
+-	smake now avoids to dereference gbuf[-1] to avoid on a mmap() based malloc
+	as on OpenBSD.
+
+-	Change FILE * handling for stdin/stdout/stderr in bsh to deal with the 
+	DragonFly BSD FILE * implementation.
+
+-	Fixed a problem in libsiconv in case that the the locale is specified as
+	"iconv:name".
+
+-	Added the Bourne Shell man page from Sun. It has been made OpenSource
+	by Sun.
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.isdn.cs.tu-berlin.de, js@cs.tu-berlin.de
+	joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

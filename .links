@@ -156,6 +156,8 @@
 ./RULES/alpha-linux-gcc.rul
 ./RULES/alpha-netbsd-cc.rul
 ./RULES/alpha-netbsd-gcc.rul
+./RULES/amd64-netbsd-cc.rul
+./RULES/amd64-netbsd-gcc.rul
 ./RULES/amiga-netbsd-cc.rul
 ./RULES/amiga-netbsd-gcc.rul
 ./RULES/aranym-freemint-gcc.rul

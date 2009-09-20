@@ -1,8 +1,8 @@
-/* @(#)write.c	1.123 09/07/10 joerg */
+/* @(#)write.c	1.124 09/09/12 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)write.c	1.123 09/07/10 joerg";
+	"@(#)write.c	1.124 09/09/12 joerg";
 #endif
 /*
  * Program write.c - dump memory  structures to  file for iso9660 filesystem.
@@ -2600,7 +2600,7 @@ hfs_file_gen(start_extent)
 	/* set the HFS parameter string to upper case */
 	if (hfs_parms) {
 		for (p = hfs_parms; *p; p++)
-			*p = toupper(*p);
+			*p = toupper((*p & 0xFF));
 	}
 
 	/* set the initial factor to increase Catalog file size */

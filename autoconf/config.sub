@@ -1,5 +1,5 @@
 #! /bin/sh
-# @(#)config.sub	1.8 09/04/19 Copyright 1999-2009 J. Schilling
+# @(#)config.sub	1.9 09/09/15 Copyright 1999-2009 J. Schilling
 #
 # Configuration validation subroutine script, version 1.1.
 #   Copyright (C) 1991, 92-97, 1998 Free Software Foundation, Inc.
@@ -723,7 +723,7 @@ case $os in
 	      | -aos* \
 	      | -nindy* | -vxsim* | -vxworks* | -ebmon* | -hms* | -mvs* \
 	      | -clix* | -riscos* | -uniplus* | -iris* | -rtu* | -xenix* \
-	      | -hiux* | -386bsd* | -netbsd* | -openbsd* | -freebsd* | -riscix* \
+	      | -hiux* | -386bsd* | -netbsd* | -openbsd* | -freebsd* | -dragonfly* | -riscix* \
 	      | -lynxos* | -bosx* | -nextstep* | -cxux* | -aout* | -elf* \
 	      | -ptx* | -coff* | -ecoff* | -winnt* | -domain* | -vsta* \
 	      | -udi* | -eabi* | -lites* | -ieee* | -go32* | -aux* \

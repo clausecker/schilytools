@@ -1,4 +1,4 @@
-.\" @(#)cdrecord.1	1.124 09/04/11 Copyright 1996-2009 J. Schilling
+.\" @(#)cdrecord.1	1.126 09/09/16 Copyright 1996-2009 J. Schilling
 .\"
 .\" The contents of this file are subject to the terms of the
 .\" Common Development and Distribution License, Version 1.0 only
@@ -24,7 +24,7 @@
 .if n .ds s sz
 .if t .ds m \\(*m
 .if n .ds m micro
-.TH CDRECORD 1 "Version 2.0" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH CDRECORD 1 "Version 3.0" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 cdrecord \- record audio or data Compact Disks or Digital Versatile Disks from a master
 .SH SYNOPSIS
@@ -44,8 +44,27 @@ is used to record data or audio Compact Discs on an Orange Book
 CD-Recorder, to write DVD media on a DVD-Recorder or to write
 BluRay media on a BluRay-Recorder.
 .PP
+.SS "Device naming"
+Most users do not need to care about device naming at all, as 
+.B cdrecord
+implements 
+.B auto target
+support and automagically finds the drive in case that exactly
+one CD-ROM type drive is available in the system.
+In case that more than one CD-ROM type drive exists on the system,
+a list of possible device name parameters may be retrieved with
+.B "cdrecord \-scanbus
+or
+.BR "cdrecord dev=help" ,
+then the
+.B dev=
+parameter may be set based on the device listing.
+.PP
 The
 .I device
+(see
+.B dev=
+option)
 refers to
 .IR scsibus / target / lun
 of the CD/DVD/BluRay-Recorder. Communication on 
@@ -165,6 +184,8 @@ If a file /etc/default/cdrecord exists, the parameter to the
 .B dev=
 option may also be a drive name label in said file (see FILES section).
 
+.ne 6
+.SS "Constraints for running cdrecord"
 .PP
 On 
 .B SVr4 
@@ -185,6 +206,9 @@ either needs to be run as root, needs to be installed suid root or
 must be called via
 .B RBACs
 pfexec mechanism.
+
+.ne 6
+.SS "File to track mapping"
 .PP
 In 
 .I Track At Once 
@@ -333,7 +357,7 @@ to handle images created by
 .IR "readcd \-clone" .
 The
 .B \-clone
-may only be used in conjunction with with the
+write mode may only be used in conjunction with with the
 .B \-raw96r
 or with the
 .B \-raw16
@@ -348,6 +372,14 @@ The option
 should only be used with drives that do not support to write in
 .B \-raw96r
 mode.
+.sp
+Note that copying in
+.B clone
+mode disables certain levels of error correction and thus always results 
+in a quality degradation. 
+Avoid copying audio CDs in
+.B clone
+mode for this reason.
 .TP
 .B \-dao
 .TP

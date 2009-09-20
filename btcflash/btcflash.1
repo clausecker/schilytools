@@ -1,4 +1,4 @@
-.\" @(#)btcflash.1	1.3 08/10/12 Copyr 2006 J. Schilling
+.\" @(#)btcflash.1	1.5 09/09/16 Copyr 2006 J. Schilling
 .\" Manual page for btcflash
 .\"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -13,7 +13,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH BTCFLASH 1L "08/10/12" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH BTCFLASH 1L "2009/09/16" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 btcflash \- Firmware flash utility for BTC DRW1008 DVD+/-RW recorder
 .SH SYNOPSIS
@@ -33,8 +33,20 @@ is used to read update the Firmware for a BTC DRW1008 DVD+/-RW recorder.
 Be very careful when writing firmware as this program does not check
 for the correctness of the target device.
 .PP
+.SS "Device naming"
+For a list of possible device name parameters call
+.B "btcflash \-scanbus
+or
+.B "btcflash dev=help
+and then use the right
+.B dev=
+parameter based on the device listing.
+.PP
 The
 .I device
+(see
+.B dev=
+option)
 refers to
 .IR scsibus / target / lun
 of the drive. Communication on 

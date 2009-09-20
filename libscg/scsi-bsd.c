@@ -1,7 +1,7 @@
-/* @(#)scsi-bsd.c	1.47 09/04/19 Copyright 1997-2009 J. Schilling */
+/* @(#)scsi-bsd.c	1.50 09/09/14 Copyright 1997-2009 J. Schilling */
 #ifndef lint
 static	char __sccsid[] =
-	"@(#)scsi-bsd.c	1.47 09/04/19 Copyright 1997-2009 J. Schilling";
+	"@(#)scsi-bsd.c	1.50 09/09/14 Copyright 1997-2009 J. Schilling";
 #endif
 /*
  *	Interface for the NetBSD/FreeBSD/OpenBSD generic SCSI implementation.
@@ -44,6 +44,11 @@ static	char __sccsid[] =
 
 #undef	sense
 #include <sys/scsiio.h>
+#if defined(__NetBSD__)
+#ifdef	USE_GETRAWPARTITION
+#include <util.h>
+#endif
+#endif
 
 /*
  *	Warning: you may change this source, but if you do that
@@ -52,9 +57,9 @@ static	char __sccsid[] =
  *	Choose your name instead of "schily" and make clear that the version
  *	string is related to a modified source.
  */
-LOCAL	char	_scg_trans_version[] = "scsi-bsd.c-1.47";	/* The version for this transport*/
+LOCAL	char	_scg_trans_version[] = "scsi-bsd.c-1.50";	/* The version for this transport*/
 
-#define	MAX_SCG		16	/* Max # of SCSI controllers */
+#define	MAX_SCG		32	/* Max # of SCSI controllers */
 #define	MAX_TGT		16
 #define	MAX_LUN		8
 
@@ -90,6 +95,9 @@ struct scg_local {
 #define	SADDR_LUN(a)	(a).lun
 #endif	/* __NetBSD__ && TYPE_ATAPI */
 
+#if defined(__NetBSD__) || defined(__OpenBSD__)
+LOCAL	int	getslice	__PR((int n));
+#endif
 LOCAL	BOOL	scg_setup	__PR((SCSI *scgp, int f, int busno, int tgt, int tlun));
 
 /*
@@ -143,7 +151,14 @@ scgo_open(scgp, device)
 	register int	t;
 	register int	l;
 	register int	nopen = 0;
-	char		devname[64];
+	char		dev_name[64];
+#if defined(__NetBSD__) || defined(__OpenBSD__)
+#ifdef	USE_GETRAWPARTITION
+		int	myslicename = getrawpartition();
+#else
+		int	myslicename = 0;
+#endif
+#endif
 
 	if (busno >= MAX_SCG || tgt >= MAX_TGT || tlun >= MAX_LUN) {
 		errno = EINVAL;
@@ -170,11 +185,93 @@ scgo_open(scgp, device)
 	if ((device != NULL && *device != '\0') || (busno == -2 && tgt == -2))
 		goto openbydev;
 
+
+#if defined(__NetBSD__) || defined(__OpenBSD__)
+	/*
+	 * I know of no method in NetBSD/OpenBSD to probe the scsibus and get
+	 * the mapping busnumber,target,lun --> devicename.
+	 *
+	 * For now, implement a true brute force hack to find cdroms to allow
+	 * cdrecord to work, but libscg is a generic SCSI transport lib.
+	 *
+	 * Note that this method only finds cd0-cd9. For a more correct
+	 * implementation we would at least need to also scan the disk and tape
+	 * devices.
+	 *
+	 * This still does not include scanners and other SCSI devices.
+	 * Help is needed!
+	 */
+	if (busno >= 0 && tgt >= 0 && tlun >= 0) {
+		struct scsi_addr mysaddr;
+
+		for (l = 0; l < 10; l++) {
+		nextslice1:
+			sprintf(dev_name, "/dev/rcd%d%c", l, 'a' + myslicename);
+			f = open(dev_name, O_RDWR);
+			if (f >= 0) {
+				if (ioctl(f, SCIOCIDENTIFY, &mysaddr) < 0) {
+#ifndef	USE_GETRAWPARTITION
+					if (errno == ENOTTY && myslicename < 16) {
+						close(f);
+						myslicename = getslice(l);
+						goto nextslice1;
+					}
+#endif
+					close(f);
+					errno = EINVAL;
+					return (0);
+				}
+				if (busno == SADDR_BUS(mysaddr) &&
+				    tgt == SADDR_TARGET(mysaddr) &&
+				    tlun == SADDR_LUN(mysaddr)) {
+					scglocal(scgp)->scgfiles[busno][tgt][tlun] = f;
+					return (1);
+				}
+			} else {
+#if	defined(__OpenBSD__) && defined(ENOMEDIUM)
+				if (errno == ENOMEDIUM && myslicename < 16) {
+					myslicename = getslice(l);
+					goto nextslice1;
+				}
+#endif
+			}
+		}
+	} else for (l = 0; l < 10; l++) {
+		struct scsi_addr mysaddr;
+
+	nextslice2:
+		sprintf(dev_name, "/dev/rcd%d%c", l, 'a' + myslicename);
+		f = open(dev_name, O_RDWR);
+		if (f >= 0) {
+			if (ioctl(f, SCIOCIDENTIFY, &mysaddr) < 0) {
+#ifndef	USE_GETRAWPARTITION
+				if (errno == ENOTTY && myslicename < 16) {
+					close(f);
+					myslicename = getslice(l);
+					goto nextslice2;
+				}
+#endif
+				close(f);
+				errno = EINVAL;
+				return (0);
+			}
+			if (scg_setup(scgp, f, busno, tgt, tlun))
+				nopen++;
+		} else {
+#if	defined(__OpenBSD__) && defined(ENOMEDIUM)
+			if (errno == ENOMEDIUM && myslicename < 16) {
+				myslicename = getslice(l);
+				goto nextslice2;
+			}
+#endif
+		}
+	}
+#else /* ! __NetBSD__ || __OpenBSD__ */
 	if (busno >= 0 && tgt >= 0 && tlun >= 0) {
 
-		js_snprintf(devname, sizeof (devname),
+		js_snprintf(dev_name, sizeof (dev_name),
 				"/dev/su%d-%d-%d", busno, tgt, tlun);
-		f = open(devname, O_RDWR);
+		f = open(dev_name, O_RDWR);
 		if (f < 0) {
 			goto openbydev;
 		}
@@ -184,10 +281,10 @@ scgo_open(scgp, device)
 	} else for (b = 0; b < MAX_SCG; b++) {
 		for (t = 0; t < MAX_TGT; t++) {
 			for (l = 0; l < MAX_LUN; l++) {
-				js_snprintf(devname, sizeof (devname),
+				js_snprintf(dev_name, sizeof (dev_name),
 							"/dev/su%d-%d-%d", b, t, l);
-				f = open(devname, O_RDWR);
-/*				error("open (%s) = %d\n", devname, f);*/
+				f = open(dev_name, O_RDWR);
+/*				error("open (%s) = %d\n", dev_name, f);*/
 
 				if (f < 0) {
 					if (errno != ENOENT &&
@@ -196,7 +293,7 @@ scgo_open(scgp, device)
 						if (scgp->errstr)
 							js_snprintf(scgp->errstr, SCSI_ERRSTR_SIZE,
 								"Cannot open '%s'",
-								devname);
+								dev_name);
 						return (0);
 					}
 				} else {
@@ -206,6 +303,7 @@ scgo_open(scgp, device)
 			}
 		}
 	}
+#endif /* ! __NetBSD__ || __OpebBSD__ */
 	/*
 	 * Could not open /dev/su-* or got dev=devname:b,l,l / dev=devname:@,l
 	 * We do the apropriate tests and try our best.
@@ -245,6 +343,35 @@ openbydev:
 	}
 	return (nopen);
 }
+
+#if defined(__NetBSD__) || defined(__OpenBSD__)
+/*
+ * Avoid to call getrawpartition() because this would force us to
+ * link against libutil.
+ */
+LOCAL int
+getslice(n)
+	int	n;
+{
+	struct scsi_addr saddr;
+	char		dev_name[64];
+	int		slice;
+	int		f;
+
+	for (slice = 0; slice < 16; slice++) {
+		sprintf(dev_name, "/dev/rcd%d%c", n, 'a' + slice);
+		f = open(dev_name, O_RDWR);
+		if (f >= 0) {
+			if (ioctl(f, SCIOCIDENTIFY, &saddr) >= 0) {
+				close(f);
+				break;
+			}
+			close(f);
+		}
+	}
+	return (slice);
+}
+#endif
 
 LOCAL int
 scgo_close(scgp)
@@ -307,8 +434,10 @@ scg_setup(scgp, f, busno, tgt, tlun)
 		return (FALSE);
 	}
 
-	if (scglocal(scgp)->scgfiles[Bus][Target][Lun] == (short)-1)
+	if (scglocal(scgp)->scgfiles[Bus][Target][Lun] == (short)-1) {
 		scglocal(scgp)->scgfiles[Bus][Target][Lun] = (short)f;
+		return (TRUE);
+	}
 
 	if (onetarget) {
 		if (Bus == busno && Target == tgt && Lun == tlun) {
@@ -572,7 +701,7 @@ scgo_send(scgp)
  *	Choose your name instead of "schily" and make clear that the version
  *	string is related to a modified source.
  */
-LOCAL	char	_scg_trans_version[] = "scsi-bsd.c-1.47";	/* The version for this transport*/
+LOCAL	char	_scg_trans_version[] = "scsi-bsd.c-1.50";	/* The version for this transport*/
 
 #define	CAM_MAXDEVS	128
 struct scg_local {

@@ -1,4 +1,4 @@
-.\" @(#)scgcheck.1	1.13 09/04/11 Copyright 2000-2009 J. Schilling
+.\" @(#)scgcheck.1	1.14 09/09/16 Copyright 2000-2009 J. Schilling
 .\"
 .\" The contents of this file are subject to the terms of the
 .\" Common Development and Distribution License, Version 1.0 only
@@ -22,7 +22,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH SCGCHECK 1 "Version 2.0" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH SCGCHECK 1 "Version 3.0" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 scgcheck \- check and validate the ABI of libscg
 .SH SYNOPSIS
@@ -36,8 +36,22 @@ scgcheck \- check and validate the ABI of libscg
 is used to check and verify the Application Binary Interface of libscg.
 
 .PP
+.SS "Device naming"
+Most users do not need to care about device naming at all, as 
+in
+.B \-auto
+mode,
+.B scgcheck
+implements 
+.B auto target
+support and automagically finds a test drive in case that exactly
+one CD-ROM type drive is available in the system.
+.PP
 The
 .I device
+(see
+.B dev=
+option)
 refers to
 .IR scsibus / target / lun
 of the drive. Communication on 
@@ -95,7 +109,7 @@ connected to SCSI bus # 1,target 0 lun 0.
 
 .PP
 To make 
-.B readcd
+.B scgcheck
 portable to all \s-2UNIX\s0 platforms, the syntax
 .B dev=
 .IR devicename : scsibus , target , lun
@@ -274,7 +288,7 @@ A typical error message for a SCSI command looks like:
 .sp
 .RS
 .nf
-readcd: I/O error. test unit ready: scsi sendcmd: no error
+scgcheck: I/O error. test unit ready: scsi sendcmd: no error
 CDB:  00 20 00 00 00 00
 status: 0x2 (CHECK CONDITION)
 Sense Bytes: 70 00 05 00 00 00 00 0A 00 00 00 00 25 00 00 00 00 00

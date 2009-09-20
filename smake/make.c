@@ -1,8 +1,8 @@
-/* @(#)make.c	1.159 09/08/18 Copyright 1985, 87, 88, 91, 1995-2009 J. Schilling */
+/* @(#)make.c	1.160 09/09/09 Copyright 1985, 87, 88, 91, 1995-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)make.c	1.159 09/08/18 Copyright 1985, 87, 88, 91, 1995-2009 J. Schilling";
+	"@(#)make.c	1.160 09/09/09 Copyright 1985, 87, 88, 91, 1995-2009 J. Schilling";
 #endif
 /*
  *	Make program
@@ -2064,6 +2064,8 @@ prtime(date)
 		return ("File could not be made");
 	if (date == RECURSETIME)
 		return ("Recursive dependencies");
+	if (date == MAKETIME)
+		return ("File is currently being made");
 	if (date == PHONYTIME)
 		return ("File is phony");
 	if (date == newtime)
