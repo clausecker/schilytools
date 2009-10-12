@@ -1,5 +1,5 @@
 .\"
-.\" @(#)isoinfo.8	1.9 09/02/13 joerg
+.\" @(#)isoinfo.8	1.10 09/10/11 joerg
 .\"
 .\" -*- nroff -*-
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -14,7 +14,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH ISOINFO 8 "09/02/13" "Version 2.0"
+.TH ISOINFO 8 "09/10/11" "Version 3.0"
 .SH NAME
 devdump, isoinfo, isovfy, isodump \- Utility programs for dumping and verifying iso9660
 images.
@@ -189,6 +189,10 @@ are mutual exclusive.
 Print additional debug information. This enables e.g. printing
 of all directory entries if a file has more than one directory entry 
 and printing of more information from the primary volume descriptor.
+.sp
+In debug mode, Rock Ridge information is parsed with
+.B \-R
+even if it is not standard compliant.
 .TP
 .B \-l
 generate output as if a 'ls -lR' command had been run on the iso9660 image.

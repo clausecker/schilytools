@@ -1,8 +1,8 @@
-/* @(#)tree.c	1.117 09/07/13 joerg */
+/* @(#)tree.c	1.119 09/10/11 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)tree.c	1.117 09/07/13 joerg";
+	"@(#)tree.c	1.119 09/10/11 joerg";
 #endif
 /*
  * File tree.c - scan directory  tree and build memory structures for iso9660
@@ -32,6 +32,7 @@ static	UConst char sccsid[] =
 /* APPLE_HYB James Pearson j.pearson@ge.ucl.ac.uk 23/2/2000 */
 
 #include "mkisofs.h"
+#include "rock.h"
 #include "match.h"
 #include <schily/time.h>
 #include <schily/errno.h>
@@ -1010,8 +1011,8 @@ find_rr_attribute(pnt, len, attr_type)
 	while (len >= 4) {
 		if (pnt[3] != 1 && pnt[3] != 2) {
 			errmsgno(EX_BAD,
-				"**BAD RRVERSION (%d) for %c%c\n",
-				pnt[3], pnt[0], pnt[1]);
+				"**BAD RRVERSION (%d) in '%c%c' field (%2.2X %2.2X).\n",
+				pnt[3], pnt[0], pnt[1], pnt[0], pnt[1]);
 		}
 		if (strncmp((char *) pnt, attr_type, 2) == 0)
 			return ((char *) pnt);

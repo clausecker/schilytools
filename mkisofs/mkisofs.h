@@ -1,4 +1,4 @@
-/* @(#)mkisofs.h	1.138 09/07/10 joerg */
+/* @(#)mkisofs.h	1.139 09/10/08 joerg */
 /*
  * Header file mkisofs.h - assorted structure definitions and typecasts.
  *
@@ -699,34 +699,6 @@ extern char	*e_strdup	__PR((const char *));
 
 #define	USE_MAC_NAME(E)	(use_mac_name && ((E)->hfs_ent != NULL) && (E)->hfs_type)
 #endif	/* APPLE_HYB */
-
-/*
- * Rock Ridge defines
- */
-#define	NEED_RE		1	/* Need Relocated Direcotry	*/
-#define	NEED_PL		2	/* Need Parent link		*/
-#define	NEED_CL		4	/* Need Child link		*/
-#define	NEED_CE		8	/* Need Continuation Area	*/
-#define	NEED_SP		16	/* Need SUSP record		*/
-#define	DID_CHDIR	1024	/* Did chdir() to file dir	*/
-
-#define	RR_FLAG_PX	1	/* POSIX attributes		*/
-#define	RR_FLAG_PN	2	/* POSIX device number		*/
-#define	RR_FLAG_SL	4	/* Symlink			*/
-#define	RR_FLAG_NM	8	/* Alternate Name		*/
-#define	RR_FLAG_CL	16	/* Child link			*/
-#define	RR_FLAG_PL	32	/* Parent link			*/
-#define	RR_FLAG_RE	64	/* Relocated Direcotry		*/
-#define	RR_FLAG_TF	128	/* Time stamp			*/
-
-#define	RR_FLAG_SP	1024	/* SUSP record			*/
-#define	RR_FLAG_AA	2048	/* Apple Signature record	*/
-#define	RR_FLAG_XA	4096	/* XA signature record		*/
-
-#define	RR_FLAG_CE	8192	/* SUSP Continuation aerea	*/
-#define	RR_FLAG_ER	16384	/* Extension record for RR signature */
-#define	RR_FLAG_RR	32768	/* RR Signature in every file	*/
-#define	RR_FLAG_ZF	65535	/* Linux compression extension	*/
 
 /*
  * Inode and device values for special purposes.

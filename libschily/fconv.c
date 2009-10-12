@@ -1,4 +1,4 @@
-/* @(#)fconv.c	1.39 09/08/27 Copyright 1985, 1995-2009 J. Schilling */
+/* @(#)fconv.c	1.41 09/10/10 Copyright 1985, 1995-2009 J. Schilling */
 /*
  *	Convert floating point numbers to strings for format.c
  *	Should rather use the MT-safe routines [efg]convert()
@@ -44,6 +44,8 @@ extern	char	*fcvt __PR((double, int, int *, int *));
 #ifndef	FOUND_ISXX
 #define	FOUND_ISXX
 #endif
+#define	FOUND_C99_ISNAN
+#define	FOUND_C99_ISINF
 #define	FOUND_C99_ISXX
 #endif
 
@@ -76,7 +78,7 @@ extern	char	*fcvt __PR((double, int, int *, int *));
 #endif
 #endif
 
-#if	defined(HAVE_IEEEFP_H) && !defined(FOUND_ISXX)
+#if	defined(HAVE_IEEEFP_H) && !defined(FOUND_ISXX) && !defined(FOUND_C99_ISXX)
 /*
  * SVR4
  */
@@ -111,12 +113,55 @@ extern	char	*fcvt __PR((double, int, int *, int *));
 #endif
 #endif	/* __needed__ */
 
-#if	!defined(isnan) && !defined(FOUND_ISNAN) && !defined(HAVE_C99_ISNAN)
+/*
+ * As we no longer check for defined(isnan)/defined(isinf), the next block
+ * should also handle the problems with DJGPP, HP-UX, QNX and VMS.
+ */
+#if	!defined(FOUND_ISNAN) && !defined(HAVE_C99_ISNAN)
+#undef	isnan
 #define	isnan(val)	(0)
+#define	NO_ISNAN
 #endif
-#if	!defined(isinf) && !defined(FOUND_ISINF) && !defined(HAVE_C99_ISINF)
+#if	!defined(FOUND_ISINF) && !defined(HAVE_C99_ISINF)
+#undef	isinf
 #define	isinf(val)	(0)
+#define	NO_ISINF
 #endif
+
+#if	defined(NO_ISNAN) || defined(NO_ISINF)
+#include <schily/float.h>	/* For values.h */
+#if	(_IEEE - 0) > 0		/* We know that there is IEEE FP */
+/*
+ * Note that older HP-UX versions have different #defines for MAXINT in
+ * values.h and sys/param.h
+ */
+#include <schily/utypes.h>
+#include <schily/btorder.h>
+
+#ifdef	WORDS_BIGENDIAN
+#define fpw_high(x)	((UInt32_t *)&x)[0]
+#define fpw_low(x)	((UInt32_t *)&x)[1]
+#else
+#define fpw_high(x)	((UInt32_t *)&x)[1]
+#define fpw_low(x)	((UInt32_t *)&x)[0]
+#endif
+#define	FP_EXP		0x7FF00000
+#define	fp_exp(x)	(fpw_high(x) & FP_EXP)
+#define	fp_exc(x)	(fp_exp(x) == FP_EXP)
+
+#ifdef	NO_ISNAN
+#undef	isnan
+#define	isnan(val)	(fp_exc(val) && \
+			(fpw_low(val) != 0 || (fpw_high(val) & 0xFFFFF) != 0))
+#endif
+#ifdef	NO_ISINF
+#undef	isinf
+#define	isinf(val)	(fp_exc(val) && \
+			fpw_low(val) == 0 && (fpw_high(val) & 0xFFFFF) == 0)
+#endif
+#endif	/* We know that there is IEEE FP */
+#endif	/* defined(NO_ISNAN) || defined(NO_ISINF) */
+
 
 #if !defined(HAVE_ECVT) || !defined(HAVE_FCVT) || !defined(HAVE_GCVT)
 

@@ -1,8 +1,8 @@
-/* @(#)inode.c	1.12 09/07/09 Copyright 2006-2009 J. Schilling */
+/* @(#)inode.c	1.13 09/10/11 Copyright 2006-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)inode.c	1.12 09/07/09 Copyright 2006-2009 J. Schilling";
+	"@(#)inode.c	1.13 09/10/11 Copyright 2006-2009 J. Schilling";
 #endif
 /*
  *	Inode and link count handling for ISO-9660/RR
@@ -16,20 +16,7 @@ static	UConst char sccsid[] =
  *
  *	Copyright (c) 2006-2009 J. Schilling
  */
-/*
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2
- * as published by the Free Software Foundation.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along with
- * this program; see the file COPYING.  If not, write to the Free Software
- * Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
- */
+/*@@C@@*/
 
 #include "mkisofs.h"
 #include <schily/schily.h>
@@ -327,8 +314,8 @@ update_inode(s_entry, value)
 	while (len >= 4) {
 		if (pnt[3] != 1 && pnt[3] != 2) {
 			errmsgno(EX_BAD,
-				"**BAD RRVERSION (%d) for %c%c\n",
-				pnt[3], pnt[0], pnt[1]);
+				"**BAD RRVERSION (%d) in '%c%c' field (%2.2X %2.2X).\n",
+				pnt[3], pnt[0], pnt[1], pnt[0], pnt[1]);
 		}
 		if (pnt[0] == 'P' && pnt[1] == 'X') {
 			if ((pnt[2] & 0xFF) < 44)	/* Paranoia */
@@ -358,8 +345,8 @@ update_nlink(s_entry, value)
 	while (len >= 4) {
 		if (pnt[3] != 1 && pnt[3] != 2) {
 			errmsgno(EX_BAD,
-				"**BAD RRVERSION (%d) for %c%c\n",
-				pnt[3], pnt[0], pnt[1]);
+				"**BAD RRVERSION (%d) in '%c%c' field (%2.2X %2.2X).\n",
+				pnt[3], pnt[0], pnt[1], pnt[0], pnt[1]);
 		}
 		if (pnt[0] == 'P' && pnt[1] == 'X') {
 			set_733((char *) pnt + 12, value);

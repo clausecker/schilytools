@@ -1,8 +1,8 @@
-/* @(#)drv_dvdplus.c	1.57 09/07/10 Copyright 2003-2009 J. Schilling */
+/* @(#)drv_dvdplus.c	1.58 09/10/09 Copyright 2003-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)drv_dvdplus.c	1.57 09/07/10 Copyright 2003-2009 J. Schilling";
+	"@(#)drv_dvdplus.c	1.58 09/10/09 Copyright 2003-2009 J. Schilling";
 #endif
 /*
  *	Copyright (c) 2003-2009 J. Schilling
@@ -832,7 +832,10 @@ error("MAXBLO %d from phys end - phys start\n", (int)(a_to_u_3_byte(sp->phys_end
 #ifdef	DVDPLUS_DEBUG
 error("end_lba; %lu\n", end_lba);
 #endif
-	if (end_lba > dsp->ds_maxblocks)
+	/*
+	 * XXX Note that end_lba is unsigned and dsp->ds_maxblocks is signed.
+	 */
+	if ((Int32_t)end_lba > dsp->ds_maxblocks)
 		dsp->ds_maxblocks = end_lba;
 
 	return (drive_getdisktype(scgp, dp));

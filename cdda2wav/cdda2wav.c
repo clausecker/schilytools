@@ -1,8 +1,8 @@
-/* @(#)cdda2wav.c	1.116 09/08/27 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling */
+/* @(#)cdda2wav.c	1.117 09/09/27 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling */
 #include "config.h"
 #ifndef lint
 static	UConst char sccsid[] =
-"@(#)cdda2wav.c	1.116 09/08/27 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling";
+"@(#)cdda2wav.c	1.117 09/09/27 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling";
 
 #endif
 #undef	DEBUG_BUFFER_ADDRESSES
@@ -2718,6 +2718,13 @@ Rate   Divider      Rate   Divider      Rate   Divider      Rate   Divider\n\
 			littleendian = 1;
 		} else if (strcasecmp(cendianess, "big") == 0) {
 			littleendian = 0;
+		} else if (strcasecmp(cendianess, "machine") == 0 ||
+			    strcasecmp(cendianess, "host") == 0) {
+#ifdef	WORDS_BIGENDIAN
+			littleendian = 0;
+#else
+			littleendian = 1;
+#endif
 		} else if (strcasecmp(cendianess, "guess") == 0) {
 			littleendian = -2;
 		} else {
@@ -2789,6 +2796,8 @@ Rate   Divider      Rate   Divider      Rate   Divider      Rate   Divider\n\
 	if (user_sound_device) {
 #ifndef	ECHO_TO_SOUNDCARD
 		errmsgno(EX_BAD, "There is no sound support configured!\n");
+#else
+		global.echo = TRUE;
 #endif
 	}
 	if (global.paranoia_selected) {

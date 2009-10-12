@@ -25,11 +25,11 @@
 /*
  * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)sccs.c	1.31 09/07/25 J. Schilling
+ * @(#)sccs.c	1.32 09/10/09 J. Schilling
  */
 #if defined(sun) || defined(__GNUC__)
 
-#ident "@(#)sccs.c 1.31 09/07/25 J. Schilling"
+#ident "@(#)sccs.c 1.32 09/10/09 J. Schilling"
 #endif
 /*
  * @(#)sccs.c 1.85 06/12/12
@@ -187,7 +187,7 @@ char    Null[1];
 # else
 # define PROGPATH(name) "/usr/ccs/bin/name"	/* place to find binaries */
 # endif
-# endif V6
+# endif /* V6 */
 # else
 # ifdef XPG4
 # ifdef __STDC__

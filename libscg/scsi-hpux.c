@@ -1,7 +1,7 @@
-/* @(#)scsi-hpux.c	1.33 06/11/26 Copyright 1997 J. Schilling */
+/* @(#)scsi-hpux.c	1.34 09/10/09 Copyright 1997 J. Schilling */
 #ifndef lint
 static	char __sccsid[] =
-	"@(#)scsi-hpux.c	1.33 06/11/26 Copyright 1997 J. Schilling";
+	"@(#)scsi-hpux.c	1.34 09/10/09 Copyright 1997 J. Schilling";
 #endif
 /*
  *	Interface for the HP-UX generic SCSI implementation.
@@ -44,7 +44,7 @@ static	char __sccsid[] =
  *	Choose your name instead of "schily" and make clear that the version
  *	string is related to a modified source.
  */
-LOCAL	char	_scg_trans_version[] = "scsi-hpux.c-1.33";	/* The version for this transport*/
+LOCAL	char	_scg_trans_version[] = "scsi-hpux.c-1.34";	/* The version for this transport*/
 
 #define	MAX_SCG		16	/* Max # of SCSI controllers */
 #define	MAX_TGT		16
@@ -355,7 +355,8 @@ scgo_send(scgp)
 		return (ret);
 	}
 if (scgp->debug > 0)
-error("cdb_status: %X, size: %d xfer: %d\n", sctl_io.cdb_status, sctl_io.data_length, sctl_io.data_xfer);
+error("cdb_status: %X, size: %d xfer: %d senselen: %d sensexfer: %d\n",
+sctl_io.cdb_status, sctl_io.data_length, sctl_io.data_xfer, sp->sense_len, sctl_io.sense_xfer);
 
 	if (sctl_io.cdb_status == 0 || sctl_io.cdb_status == 0x02)
 		sp->resid = sp->size - sctl_io.data_xfer;
@@ -363,13 +364,17 @@ error("cdb_status: %X, size: %d xfer: %d\n", sctl_io.cdb_status, sctl_io.data_le
 	if (sctl_io.cdb_status & SCTL_SELECT_TIMEOUT ||
 			sctl_io.cdb_status & SCTL_INVALID_REQUEST) {
 		sp->error = SCG_FATAL;
+#ifdef	SCTL_POWERFAIL
+	} else if (sctl_io.cdb_status & SCTL_POWERFAIL) {	/* Cannot select ATA */
+		sp->error = SCG_FATAL;
+#endif
 	} else if (sctl_io.cdb_status & SCTL_INCOMPLETE) {
 		sp->error = SCG_TIMEOUT;
 	} else if (sctl_io.cdb_status > 0xFF) {
 		errmsgno(EX_BAD, "SCSI problems: cdb_status: %X\n", sctl_io.cdb_status);
 
 	} else if ((sctl_io.cdb_status & 0xFF) != 0) {
-		sp->error = SCG_RETRYABLE;
+/*		sp->error = SCG_RETRYABLE;*/
 		sp->ux_errno = EIO;
 
 		sp->u_scb.cmd_scb[0] = sctl_io.cdb_status & 0xFF;

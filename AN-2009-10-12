@@ -1,0 +1,58 @@
+New features with AN-2009-10-99:
+
+-	Added support for 64 bit compilation on HP-HX using "cc".
+	Use make CCOM=cc64 as usual to switch to 64 bit compilation.
+
+-	Make libscg deal with the new error code from HP-UX that
+	is returned for a non-existing ATAPI slave.
+
+-	Some minor changes in libscg to make scgcheck report less problems
+	with HP-UX
+
+-	libschily/fconv.c reworked to deal with non-C99 compliant systems and to deal
+	with the constraints found in HP-UX-11.11. There is now a local implementation
+	for isinf()/isnan() that works for IEEE floating point implementations.
+
+-	Avoid an error on HP-UX "address of register requested" that preventd
+	to compile the SCCS program subsystem.
+
+-	New file mkisofs/rock.h 
+
+-	isodump now prints more information about Rock Ridge attributes to
+	help debugging non-compliant Rock Ridge ISO images.
+
+-	mkisofs and isoinfo now correctly identify ISO images made with the Mac OS X
+	program "hdiutil" by e.g. calling:
+
+	hdiutil makehybrid -iso -hfs -verbose -o xxx.iso some_dir
+
+	As filesystems that violate the Rock Ridge standard.
+
+	Check e.g. by "isoinfo -i xxx.iso -d"
+
+	Interpreting Rock Ridge on such images can be enforced by calling:
+
+	"isoinfo -i xxx.iso -lR -debug" 
+
+-	The cdrecord man page has been restructured.
+
+-	The cdda2wav man page has been restructured.
+
+-	A lot of restructuring and rewriting in the mkisofs man page.
+
+-	Fixed a bug in the workaround code for a firmware bug for DVD+R
+	media in HL-DT-ST drives.
+
+-	Bumped cdrtools to 2.01.01a66
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.isdn.cs.tu-berlin.de, js@cs.tu-berlin.de
+	joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

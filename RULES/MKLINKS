@@ -1,6 +1,6 @@
 #!/bin/sh
 ###########################################################################
-#ident "@(#)MKLINKS	1.81 09/09/09 "
+#ident "@(#)MKLINKS	1.82 09/10/10 "
 ###########################################################################
 # Written 1996 by J. Schilling
 ###########################################################################
@@ -49,6 +49,22 @@ $symlink	9000-725-hp-ux-cc.rul	9000-820-hp-ux-cc.rul
 $symlink	9000-725-hp-ux-cc.rul	9000-831-hp-ux-cc.rul
 $symlink	9000-725-hp-ux-cc.rul	9000-899-hp-ux-cc.rul
 $symlink	9000-725-hp-ux-cc.rul	ia64-hp-ux-cc.rul
+$symlink	9000-725-hp-ux-cc64.rul	9000-710-hp-ux-cc64.rul
+$symlink	9000-725-hp-ux-cc64.rul	9000-712-hp-ux-cc64.rul
+$symlink	9000-725-hp-ux-cc64.rul	9000-715-hp-ux-cc64.rul
+$symlink	9000-725-hp-ux-cc64.rul	9000-735-hp-ux-cc64.rul
+$symlink	9000-725-hp-ux-cc64.rul	9000-743-hp-ux-cc64.rul
+$symlink	9000-725-hp-ux-cc64.rul	9000-755-hp-ux-cc64.rul
+$symlink	9000-725-hp-ux-cc64.rul	9000-777-hp-ux-cc64.rul
+$symlink	9000-725-hp-ux-cc64.rul	9000-778-hp-ux-cc64.rul
+$symlink	9000-725-hp-ux-cc64.rul	9000-780-hp-ux-cc64.rul
+$symlink	9000-725-hp-ux-cc64.rul	9000-782-hp-ux-cc64.rul
+$symlink	9000-725-hp-ux-cc64.rul	9000-785-hp-ux-cc64.rul
+$symlink	9000-725-hp-ux-cc64.rul	9000-800-hp-ux-cc64.rul
+$symlink	9000-725-hp-ux-cc64.rul	9000-820-hp-ux-cc64.rul
+$symlink	9000-725-hp-ux-cc64.rul	9000-831-hp-ux-cc64.rul
+$symlink	9000-725-hp-ux-cc64.rul	9000-899-hp-ux-cc64.rul
+$symlink	9000-725-hp-ux-cc64.rul	ia64-hp-ux-cc64.rul
 $symlink	9000-725-hp-ux-gcc.rul	9000-710-hp-ux-gcc.rul
 $symlink	9000-725-hp-ux-gcc.rul	9000-712-hp-ux-gcc.rul
 $symlink	9000-725-hp-ux-gcc.rul	9000-715-hp-ux-gcc.rul

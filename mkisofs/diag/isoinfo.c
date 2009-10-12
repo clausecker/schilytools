@@ -1,8 +1,8 @@
-/* @(#)isoinfo.c	1.76 09/07/18 joerg */
+/* @(#)isoinfo.c	1.78 09/10/11 joerg */
 #include <schily/mconfig.h>
 #ifndef	lint
 static	UConst char sccsid[] =
-	"@(#)isoinfo.c	1.76 09/07/18 joerg";
+	"@(#)isoinfo.c	1.78 09/10/11 joerg";
 #endif
 /*
  * File isodump.c - dump iso9660 directory information.
@@ -53,6 +53,7 @@ static	UConst char sccsid[] =
 #include <schily/schily.h>
 
 #include "../iso9660.h"
+#include "../rock.h"
 #include "../scsi.h"
 #include "cdrdeflt.h"
 #include "../../cdrecord/version.h"
@@ -134,7 +135,9 @@ int	do_pathtab = 0;
 int	do_pvd = 0;
 BOOL	debug = FALSE;
 char	*xtract = 0;
+char	er_id[256];
 int	su_version = 0;
+int	rr_version = 0;
 int	aa_version = 0;
 int	ucs_level = 0;
 
@@ -391,29 +394,35 @@ parse_rr(pnt, len, cont_flag)
 	flag2 = 0;
 	while (len >= 4) {
 		if (pnt[3] != 1 && pnt[3] != 2) {
-			printf("**BAD RRVERSION (%d)\n", pnt[3]);
+			printf("**BAD RRVERSION (%d) in '%2.2s' field %2.2X %2.2X.\n", pnt[3], pnt, pnt[0], pnt[1]);
 			return (0);		/* JS ??? Is this right ??? */
 		}
+
 		ncount++;
 		if (pnt[0] == 'R' && pnt[1] == 'R') flag1 = pnt[4] & 0xff;
-		if (strncmp((char *)pnt, "PX", 2) == 0) flag2 |= 1;	/* POSIX attributes */
-		if (strncmp((char *)pnt, "PN", 2) == 0) flag2 |= 2;	/* POSIX device number */
-		if (strncmp((char *)pnt, "SL", 2) == 0) flag2 |= 4;	/* Symlink */
-		if (strncmp((char *)pnt, "NM", 2) == 0) flag2 |= 8;	/* Alternate Name */
-		if (strncmp((char *)pnt, "CL", 2) == 0) flag2 |= 16;	/* Child link */
-		if (strncmp((char *)pnt, "PL", 2) == 0) flag2 |= 32;	/* Parent link */
-		if (strncmp((char *)pnt, "RE", 2) == 0) flag2 |= 64;	/* Relocated Direcotry */
-		if (strncmp((char *)pnt, "TF", 2) == 0) flag2 |= 128;	/* Time stamp */
+		if (strncmp((char *)pnt, "PX", 2) == 0) flag2 |= RR_FLAG_PX;	/* POSIX attributes */
+		if (strncmp((char *)pnt, "PN", 2) == 0) flag2 |= RR_FLAG_PN;	/* POSIX device number */
+		if (strncmp((char *)pnt, "SL", 2) == 0) flag2 |= RR_FLAG_SL;	/* Symlink */
+		if (strncmp((char *)pnt, "NM", 2) == 0) flag2 |= RR_FLAG_NM;	/* Alternate Name */
+		if (strncmp((char *)pnt, "CL", 2) == 0) flag2 |= RR_FLAG_CL;	/* Child link */
+		if (strncmp((char *)pnt, "PL", 2) == 0) flag2 |= RR_FLAG_PL;	/* Parent link */
+		if (strncmp((char *)pnt, "RE", 2) == 0) flag2 |= RR_FLAG_RE;	/* Relocated Direcotry */
+		if (strncmp((char *)pnt, "TF", 2) == 0) flag2 |= RR_FLAG_TF;	/* Time stamp */
 		if (strncmp((char *)pnt, "SP", 2) == 0) {
-			flag2 |= 1024;					/* SUSP record */
+			flag2 |= RR_FLAG_SP;					/* SUSP record */
 			su_version = pnt[3] & 0xff;
 		}
 		if (strncmp((char *)pnt, "AA", 2) == 0) {
-			flag2 |= 2048;					/* Apple Signature record */
+			flag2 |= RR_FLAG_AA;					/* Apple Signature record */
 			aa_version = pnt[3] & 0xff;
 		}
+		if (strncmp((char *)pnt, "ER", 2) == 0) {
+			flag2 |= RR_FLAG_ER;					/* ER record */
+			rr_version = pnt[7] & 0xff;				/* Ext Version */
+			strlcpy(er_id, (char *)&pnt[8], (pnt[4] & 0xFF) + 1);
+		}
 
-		if (strncmp((char *)pnt, "PX", 2) == 0) {		/* POSIX attributes */
+		if (strncmp((char *)pnt, "PX", 2) == 0) {			/* POSIX attributes */
 			fstat_buf.st_mode = isonum_733(pnt+4);
 			fstat_buf.st_nlink = isonum_733(pnt+12);
 			fstat_buf.st_uid = isonum_733(pnt+20);
@@ -1002,6 +1011,20 @@ main(argc, argv)
 	read(fileno(infile), &ipd, sizeof (ipd));
 #endif
 	idr = (struct iso_directory_record *)ipd.root_directory_record;
+
+	extent = isonum_733((unsigned char *)idr->extent);
+#ifdef	USE_SCG
+	readsecs(extent - sector_offset, buffer, ISO_BLOCKS(sizeof (buffer)));
+#else
+	lseek(fileno(infile), ((off_t)(extent - sector_offset)) <<11, SEEK_SET);
+	read(fileno(infile), buffer, sizeof (buffer));
+#endif
+	if ((c = dump_rr((struct iso_directory_record *) buffer)) != 0) {
+		if ((c & (RR_FLAG_SP | RR_FLAG_ER)) == 0 || su_version < 1 || rr_version < 1) {
+			if (!debug)
+				use_rock = FALSE;
+		}
+	}
 	if (do_pvd) {
 		/*
 		 * High sierra:
@@ -1174,22 +1197,26 @@ main(argc, argv)
 		} else {
 			printf("NO Joliet present\n");
 		}
-		extent = isonum_733((unsigned char *)idr->extent);
 
-#ifdef	USE_SCG
-		readsecs(extent - sector_offset, buffer, ISO_BLOCKS(sizeof (buffer)));
-#else
-		lseek(fileno(infile),
-			((off_t)(extent - sector_offset)) <<11, SEEK_SET);
-		read(fileno(infile), buffer, sizeof (buffer));
-#endif
-		idr = (struct iso_directory_record *) buffer;
-		if ((c = dump_rr(idr)) != 0) {
+		if (c != 0) {
 /*			printf("RR %X %d\n", c, c);*/
-			if (c & 1024) {
+			if (c & RR_FLAG_SP) {
 				printf(
-				"\nRock Ridge signatures version %d found\n",
+				"\nSUSP signatures version %d found\n",
 				su_version);
+				if (c & RR_FLAG_ER) {
+					if (rr_version < 1) {
+						printf(
+						"No valid Rock Ridge signature found\n");
+					} else {
+						printf(
+						"Rock Ridge signatures version %d found\n",
+						rr_version);
+						printf(
+						"Rock Ridge id '%s'\n",
+						er_id);
+					}
+				}
 			} else {
 				printf(
 				"\nBad Rock Ridge signatures found (SU record missing)\n");
@@ -1199,12 +1226,12 @@ main(argc, argv)
 			 * We need to check the first plain file instead of
 			 * the '.' entry in the root directory.
 			 */
-			if (c & 2048) {
+			if (c & RR_FLAG_AA) {
 				printf("\nApple signatures version %d found\n",
 								aa_version);
 			}
 		} else {
-			printf("\nNO Rock Ridge present\n");
+			printf("\nNo SUSP/Rock Ridge present\n");
 		}
 		if (found_eltorito)
 			printf_bootinfo(infile, bootcat_offset);

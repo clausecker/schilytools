@@ -1,8 +1,8 @@
-/* @(#)rock.c	1.60 09/07/09 joerg */
+/* @(#)rock.c	1.61 09/10/08 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)rock.c	1.60 09/07/09 joerg";
+	"@(#)rock.c	1.61 09/10/08 joerg";
 #endif
 /*
  * File rock.c - generate RRIP  records for iso9660 filesystems.
@@ -28,6 +28,7 @@ static	UConst char sccsid[] =
  */
 
 #include "mkisofs.h"
+#include "rock.h"
 #include <schily/device.h>
 #include <schily/schily.h>
 

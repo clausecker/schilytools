@@ -1,8 +1,8 @@
-/* @(#)isovfy.c	1.40 09/07/09 joerg */
+/* %Z%%M%	%I% %E% joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)isovfy.c	1.40 09/07/09 joerg";
+	"%Z%%M%	%I% %E% joerg";
 #endif
 /*
  * File isovfy.c - verify consistency of iso9660 filesystem.
@@ -38,6 +38,8 @@ static	UConst char sccsid[] =
 #include <schily/signal.h>
 #include <schily/schily.h>
 
+#include "../iso9660.h"
+#include "../rock.h"
 #include "../scsi.h"
 #include "cdrdeflt.h"
 #include "../../cdrecord/version.h"
@@ -72,66 +74,15 @@ int blocksize;
 
 #define	PAGE	sizeof (buffer)
 
-#define	ISODCL(from, to)	(to - from + 1)
-
-struct iso_primary_descriptor {
-	unsigned char type			[ISODCL(1,   1)]; /* 711 */
-	unsigned char id			[ISODCL(2,   6)];
-	unsigned char version			[ISODCL(7,   7)]; /* 711 */
-	unsigned char unused1			[ISODCL(8,   8)];
-	unsigned char system_id			[ISODCL(9,   40)]; /* aunsigned chars */
-	unsigned char volume_id			[ISODCL(41,  72)]; /* dunsigned chars */
-	unsigned char unused2			[ISODCL(73,  80)];
-	unsigned char volume_space_size		[ISODCL(81,  88)]; /* 733 */
-	unsigned char unused3			[ISODCL(89,  120)];
-	unsigned char volume_set_size		[ISODCL(121, 124)]; /* 723 */
-	unsigned char volume_sequence_number	[ISODCL(125, 128)]; /* 723 */
-	unsigned char logical_block_size	[ISODCL(129, 132)]; /* 723 */
-	unsigned char path_table_size		[ISODCL(133, 140)]; /* 733 */
-	unsigned char type_l_path_table		[ISODCL(141, 144)]; /* 731 */
-	unsigned char opt_type_l_path_table	[ISODCL(145, 148)]; /* 731 */
-	unsigned char type_m_path_table		[ISODCL(149, 152)]; /* 732 */
-	unsigned char opt_type_m_path_table	[ISODCL(153, 156)]; /* 732 */
-	unsigned char root_directory_record	[ISODCL(157, 190)]; /* 9.1 */
-	unsigned char volume_set_id		[ISODCL(191, 318)]; /* dunsigned chars */
-	unsigned char publisher_id		[ISODCL(319, 446)]; /* achars */
-	unsigned char preparer_id		[ISODCL(447, 574)]; /* achars */
-	unsigned char application_id		[ISODCL(575, 702)]; /* achars */
-	unsigned char copyright_file_id		[ISODCL(703, 739)]; /* 7.5 dchars */
-	unsigned char abstract_file_id		[ISODCL(740, 776)]; /* 7.5 dchars */
-	unsigned char bibliographic_file_id	[ISODCL(777, 813)]; /* 7.5 dchars */
-	unsigned char creation_date		[ISODCL(814, 830)]; /* 8.4.26.1 */
-	unsigned char modification_date		[ISODCL(831, 847)]; /* 8.4.26.1 */
-	unsigned char expiration_date		[ISODCL(848, 864)]; /* 8.4.26.1 */
-	unsigned char effective_date		[ISODCL(865, 881)]; /* 8.4.26.1 */
-	unsigned char file_structure_version	[ISODCL(882, 882)]; /* 711 */
-	unsigned char unused4			[ISODCL(883, 883)];
-	unsigned char application_data		[ISODCL(884, 1395)];
-	unsigned char unused5			[ISODCL(1396, 2048)];
-};
-
-struct iso_directory_record {
-	unsigned char length			[ISODCL(1, 1)]; /* 711 */
-	unsigned char ext_attr_length		[ISODCL(2, 2)]; /* 711 */
-	unsigned char extent			[ISODCL(3, 10)]; /* 733 */
-	unsigned char size			[ISODCL(11, 18)]; /* 733 */
-	unsigned char date			[ISODCL(19, 25)]; /* 7 by 711 */
-	unsigned char flags			[ISODCL(26, 26)];
-	unsigned char file_unit_size		[ISODCL(27, 27)]; /* 711 */
-	unsigned char interleave		[ISODCL(28, 28)]; /* 711 */
-	unsigned char volume_sequence_number	[ISODCL(29, 32)]; /* 723 */
-	unsigned char name_len			[ISODCL(33, 33)]; /* 711 */
-	unsigned char name			[38];
-};
-
 LOCAL int	isonum_721	__PR((char * p));
 LOCAL int	isonum_723	__PR((char * p));
 LOCAL int	isonum_711	__PR((char * p));
 LOCAL int	isonum_731	__PR((char * p));
 LOCAL int	isonum_722	__PR((char * p));
 LOCAL int	isonum_732	__PR((char * p));
-LOCAL int	isonum_733	__PR((unsigned char * p));
+LOCAL int	isonum_733	__PR((char * p));
 LOCAL int	parse_rr	__PR((unsigned char * pnt, int len, int cont_flag));
+LOCAL void	find_rr		__PR((struct iso_directory_record * idr, Uchar **pntp, int *lenp));
 LOCAL int	dump_rr		__PR((struct iso_directory_record * idr));
 LOCAL void	check_tree	__PR((off_t file_addr, int file_size, off_t parent_addr));
 LOCAL void	check_path_tables __PR((int typel_extent, int typem_extent, int path_table_size));
@@ -195,9 +146,9 @@ isonum_732(p)
 
 LOCAL int
 isonum_733(p)
-	unsigned char	*p;
+	char	*p;
 {
-	return (isonum_731((char *)p));
+	return (isonum_731(p));
 }
 
 char	lbuffer[1024];
@@ -258,19 +209,19 @@ parse_rr(pnt, len, cont_flag)
 		}
 		ncount++;
 		if (pnt[0] == 'R' && pnt[1] == 'R') flag1 = pnt[4] & 0xff;
-		if (strncmp((char *)pnt, "PX", 2) == 0) flag2 |= 1;
-		if (strncmp((char *)pnt, "PN", 2) == 0) flag2 |= 2;
-		if (strncmp((char *)pnt, "SL", 2) == 0) flag2 |= 4;
-		if (strncmp((char *)pnt, "NM", 2) == 0) flag2 |= 8;
-		if (strncmp((char *)pnt, "CL", 2) == 0) flag2 |= 16;
-		if (strncmp((char *)pnt, "PL", 2) == 0) flag2 |= 32;
-		if (strncmp((char *)pnt, "RE", 2) == 0) flag2 |= 64;
-		if (strncmp((char *)pnt, "TF", 2) == 0) flag2 |= 128;
+		if (strncmp((char *)pnt, "PX", 2) == 0) flag2 |= RR_FLAG_PX;
+		if (strncmp((char *)pnt, "PN", 2) == 0) flag2 |= RR_FLAG_PN;
+		if (strncmp((char *)pnt, "SL", 2) == 0) flag2 |= RR_FLAG_SL;
+		if (strncmp((char *)pnt, "NM", 2) == 0) flag2 |= RR_FLAG_NM;
+		if (strncmp((char *)pnt, "CL", 2) == 0) flag2 |= RR_FLAG_CL;
+		if (strncmp((char *)pnt, "PL", 2) == 0) flag2 |= RR_FLAG_PL;
+		if (strncmp((char *)pnt, "RE", 2) == 0) flag2 |= RR_FLAG_RE;
+		if (strncmp((char *)pnt, "TF", 2) == 0) flag2 |= RR_FLAG_TF;
 
 		if (strncmp((char *)pnt, "CE", 2) == 0) {
-			cont_extent = (off_t)isonum_733(pnt+4);
-			cont_offset = isonum_733(pnt+12);
-			cont_size = isonum_733(pnt+20);
+			cont_extent = (off_t)isonum_733((char *)pnt+4);
+			cont_offset = isonum_733((char *)pnt+12);
+			cont_size = isonum_733((char *)pnt+20);
 			sprintf(lbuffer+iline, "=[%x,%x,%d]",
 					(int)cont_extent, cont_offset, cont_size);
 			iline += strlen(lbuffer + iline);
@@ -281,7 +232,7 @@ parse_rr(pnt, len, cont_flag)
 		}
 
 		if (strncmp((char *)pnt, "PL", 2) == 0 || strncmp((char *)pnt, "CL", 2) == 0) {
-			extent = isonum_733(pnt+4);
+			extent = isonum_733((char *)pnt+4);
 			sprintf(lbuffer+iline, "=%x", extent);
 			iline += strlen(lbuffer + iline);
 			if (extent == 0)
@@ -353,7 +304,7 @@ parse_rr(pnt, len, cont_flag)
 		sprintf(lbuffer+iline, "]");
 		iline += strlen(lbuffer + iline);
 	}
-	if (!cont_flag && flag1 != -1 && flag1 != flag2) {
+	if (!cont_flag && flag1 != -1 && flag1 != (flag2 & 0xFF)) {
 		sprintf(lbuffer+iline, "Flag %x != %x", flag1, flag2);
 		rr_goof++;
 		iline += strlen(lbuffer + iline);
@@ -361,27 +312,50 @@ parse_rr(pnt, len, cont_flag)
 	return (flag2);
 }
 
+LOCAL void
+find_rr(idr, pntp, lenp)
+	struct iso_directory_record *idr;
+	Uchar	**pntp;
+	int	*lenp;
+{
+	struct iso_xa_dir_record *xadp;
+	int len;
+	unsigned char * pnt;
+
+	len = idr->length[0] & 0xff;
+	len -= offsetof(struct iso_directory_record, name[0]);
+	len -= idr->name_len[0];
+
+	pnt = (unsigned char *) idr;
+	pnt += offsetof(struct iso_directory_record, name[0]);
+	pnt += idr->name_len[0];
+	if ((idr->name_len[0] & 1) == 0) {
+		pnt++;
+		len--;
+	}
+	if (len >= 14) {
+		xadp = (struct iso_xa_dir_record *)pnt;
+
+		if (xadp->signature[0] == 'X' && xadp->signature[1] == 'A' &&
+		    xadp->reserved[0] == '\0') {
+			len -= 14;
+			pnt += 14;
+		}
+	}
+	*pntp = pnt;
+	*lenp = len;
+}
+
 LOCAL int
 dump_rr(idr)
 	struct iso_directory_record *idr;
 {
 	int len;
-	char * pnt;
-
-	len = idr->length[0] & 0xff;
-	len -= offsetof(struct iso_directory_record, name[0]);
-	len -= idr->name_len[0];
-	pnt = (char *) idr;
-	pnt += offsetof(struct iso_directory_record, name[0]);
-	pnt += idr->name_len[0];
-
-	if ((idr->name_len[0] & 1) == 0) {
-		pnt++;
-		len--;
-	}
+	unsigned char * pnt;
 
 	rr_goof = 0;
-	parse_rr((unsigned char *)pnt, len, 0);
+	find_rr(idr, &pnt, &len);
+	parse_rr(pnt, len, 0);
 	return (rr_goof);
 }
 

@@ -1,4 +1,4 @@
-. \" @(#)rscsi.1	1.2 08/10/12 Copyr 2000-2008 J. Schilling
+. \" %Z%%M%	%I% %E% Copyr 2000-2008 J. Schilling
 . \"  Manual Seite fuer rscsi
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -13,7 +13,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH RSCSI 1 "Release 1.2" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH RSCSI 1 "Release %I%" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 rscsi \- remote generic SCSI transport protocol server
 .SH SYNOPSIS
@@ -22,15 +22,17 @@ rscsi \- remote generic SCSI transport protocol server
 .SH DESCRIPTION
 .IX  "rscsi command"  ""  "\fLrscsi\fP \(em remote generic SCSI transport protocol server"
 .IX  "remote generic SCSI transport protocol server"  ""  "remote generic SCSI transport protocol server \(em \fLrscsi\fP"
-This is the description of the
+The
 .B rscsi
+command is a
 remote generic SCSI transport server program.
 .B rscsi
-is a program used by programs like
+is a program that is run locally on the machine with SCSI devices,
+it is used by remote programs like
 .B cdrecord
 and
 .B sformat
-that like to access remote SCSI drives
+that like to access SCSI devices
 through an interprocess communication connection.
 .B rscsi
 is normally started up with an
@@ -53,8 +55,16 @@ performs the commands and then responds with a status indication.
 .LP
 The 
 .B rscsi 
-program is prepared to be installed as a user shell in the passwd
+program is prepared to be installed as a 
+.B user shell
+in the passwd
 file to create remote SCSI specific logins and security checking.
+.LP
+All requests are send to the
+.B rscsi
+program in 
+.SM ASCII
+and thus are byte order and machine independent.
 .LP
 All responses are send back in
 .SM ASCII
@@ -108,9 +118,7 @@ A variant of the
 .B open 
 command includes the 
 .B "symbolic_mode"
-string which is a 
-.B GNU
-extension.
+string.
 If both,
 .I mode
 and 
@@ -512,9 +520,9 @@ For example:
 .sp
 .BR DEBUG= /tmp/rscsi.debug
 .br
-.BR USER= tape
+.BR USER= rscsi
 .br
-.BR ACCESS= "tape	myhost.mydomain.org	/dev/rscsi/*"
+.BR ACCESS= "rscsi	myhost.mydomain.org	1	2	3	0"
 .sp
 All keywords must be on the beginning of a line.
 .RS
@@ -525,7 +533,7 @@ If you like to get debug information, set this to a file name where
 should put debug information.
 .TP
 .B USER
-The name of a user (local to the magnetic tape server) that may use
+The name of a user (local to the RSCSI server) that may use
 the services of the
 .B rscsi
 server.
@@ -538,7 +546,7 @@ grants access to all users.
 .TP
 .B ACCESS
 This keyword is followed by three parameters separated by a TAB.
-The name of a user (local to the magnetic tape server host) that may use
+The name of a user (local to the RSCSI server host) that may use
 the services of the
 .B rscsi
 server followed by the name of a host from where operation is granted 
@@ -589,21 +597,18 @@ but is not connected to an internet socket.
 .RE
 .RE
 .SH "SEE ALSO"
-.BR star (1),
-.BR ufsdump (1),
-.BR ufsrestore (1),
+.BR cdrecord (1),
+.BR sformat (1),
 .BR intro (2),
 .BR open (2),
 .BR close (2),
 .BR read (2),
 .BR write (2),
 .BR ioctl (2),
-.BR lseek (2),
 .BR getpeername(3)
 .BR rcmd (3),
 .BR rexec (3),
-.BR strerror (3),
-.BR mtio (7)
+.BR strerror (3)
 
 .SH DIAGNOSTICS
 All responses are send to the network connection.

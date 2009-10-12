@@ -1,8 +1,8 @@
-/* @(#)mkisofs.c	1.250 09/08/04 joerg */
+/* @(#)mkisofs.c	1.252 09/10/11 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)mkisofs.c	1.250 09/08/04 joerg";
+	"@(#)mkisofs.c	1.252 09/10/11 joerg";
 #endif
 /*
  * Program mkisofs.c - generate iso9660 filesystem  based upon directory
@@ -37,6 +37,7 @@ static	UConst char sccsid[] =
 #include <schily/find.h>
 #endif
 #include "mkisofs.h"
+#include "rock.h"
 #include <schily/errno.h>
 #include <schily/time.h>
 #include <schily/fcntl.h>
@@ -2585,15 +2586,30 @@ setcharset:
 		if (c & RR_FLAG_AA)
 			fprintf(stderr, "AA signatures found\n");
 		if (c & ~(RR_FLAG_XA|RR_FLAG_AA)) {
+			extern	int	su_version;
+			extern	int	rr_version;
+			extern	char	er_id[];
+
 			if (c & RR_FLAG_SP) {
-				fprintf(stderr, "Rock Ridge signatures found\n");
+				fprintf(stderr, "SUSP signatures version %d found\n", su_version);
+				if (c & RR_FLAG_ER){
+					if (rr_version < 1) {
+						printf("No valid Rock Ridge signature found\n");
+						if (!force_rr)
+							no_rr++;
+					} else {
+						printf("Rock Ridge signatures version %d found\n",
+						rr_version);
+						printf("Rock Ridge id '%s'\n", er_id);
+					}
+				}
 			} else {
 				fprintf(stderr, "Bad Rock Ridge signatures found (SU record missing)\n");
 				if (!force_rr)
 					no_rr++;
 			}
 		} else {
-			fprintf(stderr, "NO Rock Ridge present\n");
+			fprintf(stderr, "No SUSP/Rock Ridge present\n");
 			if ((c & (RR_FLAG_XA|RR_FLAG_AA)) == 0) {
 				if (!force_rr)
 					no_rr++;

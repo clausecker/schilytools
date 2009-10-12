@@ -1,4 +1,4 @@
-.\" @(#)readcd.1	1.35 09/09/16 Copyright 1996-2009 J. Schilling
+.\" @(#)readcd.1	1.36 09/10/11 Copyright 1996-2009 J. Schilling
 .\"
 .\" The contents of this file are subject to the terms of the
 .\" Common Development and Distribution License, Version 1.0 only
@@ -588,14 +588,15 @@ CD-Recorder or the source disk.
 .PP
 When using 
 .B readcd
-with the broken 
+with the 
 .B "Linux SCSI generic driver."
 You should note that 
 .B readcd
-uses a hack, that tries to emulate the functionality of the scg driver.
+uses a layer, that tries to emulate the functionality of the scg driver
+on top of the drives of the local operating system.
 Unfortunately, the sg driver on 
 .B Linux
-has several severe bugs:
+has several flaws:
 .TP
 \(bu
 It cannot see if a SCSI command could not be sent at all.

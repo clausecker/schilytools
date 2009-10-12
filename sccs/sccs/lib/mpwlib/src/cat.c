@@ -27,11 +27,11 @@
 /*
  * This file contains modifications Copyright 2006-2008 J. Schilling
  *
- * @(#)cat.c	1.5 08/08/20 J. Schilling
+ * @(#)cat.c	1.6 09/10/09 J. Schilling
  */
 #if defined(sun) || defined(__GNUC__)
 
-#ident "@(#)cat.c 1.5 08/08/20 J. Schilling"
+#ident "@(#)cat.c 1.6 09/10/09 J. Schilling"
 #endif
 /*
  * @(#)cat.c 1.4 06/12/12
@@ -51,11 +51,11 @@
 /*VARARGS*/
 #ifdef	PROTOTYPES
 char *
-cat(register char *dest, ...)
+cat(char *dest, ...)
 #else
 char *
 cat(dest, va_alist)
-	register char	*dest;
+	char	*dest;
 	va_dcl
 #endif
 {

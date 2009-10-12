@@ -1,8 +1,8 @@
-/* @(#)multi.c	1.93 09/07/10 joerg */
+/* @(#)multi.c	1.94 09/10/11 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)multi.c	1.93 09/07/10 joerg";
+	"@(#)multi.c	1.94 09/10/11 joerg";
 #endif
 /*
  * File multi.c - scan existing iso9660 image and merge into
@@ -27,6 +27,7 @@ static	UConst char sccsid[] =
  */
 
 #include "mkisofs.h"
+#include "rock.h"
 #include <schily/time.h>
 #include <schily/errno.h>
 #include <schily/utypes.h>
@@ -85,6 +86,10 @@ LOCAL	int	merge_old_directory_into_tree __PR((struct directory_entry *,
 LOCAL	void	check_rr_relocation __PR((struct directory_entry * de));
 
 FILE	*in_image = NULL;
+int	su_version = -1;
+int	rr_version = -1;
+int	aa_version = -1;
+char	er_id[256];
 
 #ifndef	USE_SCG
 /*
@@ -272,8 +277,8 @@ parse_rrflags(pnt, len, cont_flag)
 	while (len >= 4) {
 		if (pnt[3] != 1 && pnt[3] != 2) {
 			errmsgno(EX_BAD,
-				"**BAD RRVERSION (%d) for %c%c\n",
-				pnt[3], pnt[0], pnt[1]);
+				"**BAD RRVERSION (%d) in '%c%c' field (%2.2X %2.2X).\n",
+				pnt[3], pnt[0], pnt[1], pnt[0], pnt[1]);
 			return (0);	/* JS ??? Is this right ??? */
 		}
 		ncount++;
@@ -281,28 +286,36 @@ parse_rrflags(pnt, len, cont_flag)
 			flag1 = pnt[4] & 0xff;
 
 		if (strncmp((char *) pnt, "PX", 2) == 0)	/* POSIX attributes */
-			flag2 |= 1;
+			flag2 |= RR_FLAG_PX;
 		if (strncmp((char *) pnt, "PN", 2) == 0)	/* POSIX device number */
-			flag2 |= 2;
+			flag2 |= RR_FLAG_PN;
 		if (strncmp((char *) pnt, "SL", 2) == 0)	/* Symlink */
-			flag2 |= 4;
+			flag2 |= RR_FLAG_SL;
 		if (strncmp((char *) pnt, "NM", 2) == 0)	/* Alternate Name */
-			flag2 |= 8;
+			flag2 |= RR_FLAG_NM;
 		if (strncmp((char *) pnt, "CL", 2) == 0)	/* Child link */
-			flag2 |= 16;
+			flag2 |= RR_FLAG_CL;
 		if (strncmp((char *) pnt, "PL", 2) == 0)	/* Parent link */
-			flag2 |= 32;
+			flag2 |= RR_FLAG_PL;
 		if (strncmp((char *) pnt, "RE", 2) == 0)	/* Relocated Direcotry */
-			flag2 |= 64;
+			flag2 |= RR_FLAG_RE;
 		if (strncmp((char *) pnt, "TF", 2) == 0)	/* Time stamp */
-			flag2 |= 128;
+			flag2 |= RR_FLAG_TF;
 		if (strncmp((char *) pnt, "SP", 2) == 0) {	/* SUSP record */
-			flag2 |= 1024;
-/*			su_version = pnt[3] & 0xff;*/
+			flag2 |= RR_FLAG_SP;
+			if (su_version < 0)
+				su_version = pnt[3] & 0xff;
 		}
 		if (strncmp((char *) pnt, "AA", 2) == 0) {	/* Apple Signature record */
-			flag2 |= 2048;
-/*			aa_version = pnt[3] & 0xff;*/
+			flag2 |= RR_FLAG_AA;
+			if (aa_version < 0)
+				aa_version = pnt[3] & 0xff;
+		}
+		if (strncmp((char *)pnt, "ER", 2) == 0) {
+			flag2 |= RR_FLAG_ER;				/* ER record */
+			if (rr_version < 0)
+				rr_version = pnt[7] & 0xff;		/* Ext Version */
+			strlcpy(er_id, (char *)&pnt[8], (pnt[4] & 0xFF) + 1);
 		}
 
 		if (strncmp((char *)pnt, "CE", 2) == 0) {	/* Continuation Area */
@@ -335,7 +348,7 @@ rr_flags(idr)
 	int		ret = 0;
 
 	if (find_rr(idr, &pnt, &len))
-		ret |= 4096;
+		ret |= RR_FLAG_XA;
 	ret |= parse_rrflags(pnt, len, 0);
 	return (ret);
 }
@@ -361,8 +374,8 @@ parse_rr(pnt, len, dpnt)
 	while (len >= 4) {
 		if (pnt[3] != 1 && pnt[3] != 2) {
 			errmsgno(EX_BAD,
-				"**BAD RRVERSION (%d) for %c%c\n",
-				pnt[3], pnt[0], pnt[1]);
+				"**BAD RRVERSION (%d) in '%c%c' field (%2.2X %2.2X).\n",
+				pnt[3], pnt[0], pnt[1], pnt[0], pnt[1]);
 			return (-1);
 		}
 		if (strncmp((char *) pnt, "NM", 2) == 0) {
@@ -453,8 +466,8 @@ check_rr_dates(dpnt, current, statbuf, lstatbuf)
 	while (len >= 4) {
 		if (pnt[3] != 1 && pnt[3] != 2) {
 			errmsgno(EX_BAD,
-				"**BAD RRVERSION (%d) for %c%c\n",
-				pnt[3], pnt[0], pnt[1]);
+				"**BAD RRVERSION (%d) in '%c%c' field (%2.2X %2.2X).\n",
+				pnt[3], pnt[0], pnt[1], pnt[0], pnt[1]);
 			return (-1);
 		}
 
@@ -1933,7 +1946,9 @@ check_rr_relocation(de)
 	pnt = parse_xa(pnt, &len, /* dpnt */ 0);
 	while (len >= 4) {
 		if (pnt[3] != 1 && pnt[3] != 2) {
-			errmsgno(EX_BAD, "**BAD RRVERSION (%d) for %c%c\n", pnt[3], pnt[0], pnt[1]);
+			errmsgno(EX_BAD,
+				"**BAD RRVERSION (%d) in '%c%c' field (%2.2X %2.2X).\n",
+				pnt[3], pnt[0], pnt[1], pnt[0], pnt[1]);
 		}
 		if (strncmp((char *) pnt, "CL", 2) == 0) {
 			struct dir_extent_link *dlink = e_malloc(sizeof (*dlink));
