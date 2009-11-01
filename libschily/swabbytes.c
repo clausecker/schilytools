@@ -1,8 +1,8 @@
-/* @(#)swabbytes.c	1.7 06/09/13 Copyright 1988, 1995-2003 J. Schilling */
+/* @(#)swabbytes.c	1.8 09/10/17 Copyright 1988, 1995-2009 J. Schilling */
 /*
  *	swab bytes in memory
  *
- *	Copyright (c) 1988, 1995-2003 J. Schilling
+ *	Copyright (c) 1988, 1995-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -17,6 +17,7 @@
  */
 
 #include <schily/standard.h>
+#include <schily/types.h>
 #include <schily/schily.h>
 
 #define	DO8(a)	a; a; a; a; a; a; a; a;
@@ -24,7 +25,7 @@
 EXPORT void
 swabbytes(vp, cnt)
 		void	*vp;
-	register int	cnt;
+	register ssize_t cnt;
 {
 	register char	*bp = (char *)vp;
 	register char	c;

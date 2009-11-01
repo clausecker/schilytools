@@ -1,5 +1,5 @@
 #!/bin/sh
-# @(#)oarch.sh  1.13 07/05/03 Copyright 2005-2007 J. Schilling
+# @(#)oarch.sh  1.15 09/10/31 Copyright 2005-2009 J. Schilling
 ###########################################################################
 # Written 2005 by J. Schilling
 ###########################################################################
@@ -36,6 +36,16 @@ xflag=FALSE
 cflag=FALSE
 oflag=FALSE
 pflag=FALSE
+if [ .$1 = .-help ]; then
+	echo "Usage: oarch.sh [options]"
+	echo "Options:"
+	echo "	-debug	Print debugging information"
+	echo "	-c	Print C_ARCH instrad of OARCH"
+	echo "	-o	Print O_ARCH instrad of OARCH"
+	echo "	-p	Print PARCH instrad of OARCH"
+	echo "	-x	Print XARCH instrad of OARCH"
+	exit
+fi
 if [ .$1 = .-debug ]; then
 	dbgflag=TRUE
 fi
@@ -59,9 +69,9 @@ fi
 MACHCMD="( (mach || uname -p || true)		2> /dev/null)"
 ARCHCMD="( (arch || /usr/ucb/arch || true)	2> /dev/null)"
 
-XP_ARCH=`eval ${MACHCMD} | tr '[A-Z]' '[a-z]' | tr ', /\\()"' ',//////' | tr ',/' ',\-'`
-XK_ARCH=`uname -m        | tr '[A-Z]' '[a-z]' | tr ', /\\()"' ',//////' | tr ',/' ',\-'`
-XM_ARCH=`eval ${ARCHCMD} | tr '[A-Z]' '[a-z]' | tr ', /\\()"' ',//////' | tr ',/' ',\-'`
+XP_ARCH=`eval ${MACHCMD} | tr '[A-Z]' '[a-z]' | tr 'ABCDEFGHIJKLMNOPQRSTUVWXYZ, /\\()"' 'abcdefghijklmnopqrstuvwxyz,//////' | tr ',/' ',\-'`
+XK_ARCH=`uname -m        | tr '[A-Z]' '[a-z]' | tr 'ABCDEFGHIJKLMNOPQRSTUVWXYZ, /\\()"' 'abcdefghijklmnopqrstuvwxyz,//////' | tr ',/' ',\-'`
+XM_ARCH=`eval ${ARCHCMD} | tr '[A-Z]' '[a-z]' | tr 'ABCDEFGHIJKLMNOPQRSTUVWXYZ, /\\()"' 'abcdefghijklmnopqrstuvwxyz,//////' | tr ',/' ',\-'`
 
 #echo XP_ARCH $XP_ARCH
 #echo XK_ARCH $XK_ARCH
@@ -82,8 +92,10 @@ if [ ."${XM_ARCH}" = . ]; then
 	M_ARCH="${K_ARCH}"
 fi
 
-OSNAME=`uname -s | tr '[A-Z]' '[a-z]' | tr ', /\\()"' ',//////' | tr ',/' ',\-'`
-OSREL=`uname -r | tr '[A-Z]' '[a-z]' | tr ', /\\()"' ',//////' | tr ',/' ',\-'`
+OSNAME=`uname -s | tr 'ABCDEFGHIJKLMNOPQRSTUVWXYZ, /\\()"' 'abcdefghijklmnopqrstuvwxyz,//////' | tr ',/' ',\-'`
+OSHOST=`uname -n | tr 'ABCDEFGHIJKLMNOPQRSTUVWXYZ, /\\()"' 'abcdefghijklmnopqrstuvwxyz,//////' | tr ',/' ',\-'`
+OSREL=`uname -r | tr 'ABCDEFGHIJKLMNOPQRSTUVWXYZ, /\\()"' 'abcdefghijklmnopqrstuvwxyz,//////' | tr ',/' ',\-'`
+OSVERS=`uname -v | tr 'ABCDEFGHIJKLMNOPQRSTUVWXYZ, /\\()"' 'abcdefghijklmnopqrstuvwxyz,//////' | tr ',/' ',\-'`
 
 O_ARCH="$OSNAME"
 
@@ -198,11 +210,14 @@ XARCH="${KARCH}-${O_ARCH}-${C_ARCH}"
 
 if [ $dbgflag = TRUE ]; then
 #echo xx"$P_ARCH"
+	echo C_ARCH "	$C_ARCH"
 	echo P_ARCH "	$P_ARCH"
 	echo K_ARCH "	$K_ARCH"
 	echo M_ARCH "	$M_ARCH"
 	echo OSNAME "	$OSNAME"
+	echo OSHOST "	$OSHOST"
 	echo OSREL  "	$OSREL"
+	echo OSVERS "	$OSVERS"
 	echo OARCH  "	$OARCH"
 	echo XARCH  "	$XARCH"
 	exit

@@ -27,18 +27,19 @@
 /*
  * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)help2.c	1.5 09/01/04 J. Schilling
+ * @(#)help2.c	1.6 09/11/01 J. Schilling
  */
-#if defined(sun) || defined(__GNUC__)
-
-#ident "@(#)help2.c 1.5 09/01/04 J. Schilling"
+#if defined(sun)
+#ident "@(#)help2.c 1.6 09/11/01 J. Schilling"
 #endif
 /*
  * @(#)help2.c 1.10 06/12/12
  */
 
+#if defined(sun)
 #ident	"@(#)help2.c"
 #ident	"@(#)sccs:cmd/help2.c"
+#endif
 #include	<defines.h>
 #include	<i18n.h>
 #include	<ccstypes.h>

@@ -26,19 +26,21 @@
 /*	Copyright (c) 1984, 1986, 1987, 1988, 1989 AT&T	*/
 /*	  All Rights Reserved	*/
 
+#if defined(sun)
 #pragma ident	"@(#)defs.c	1.13	05/09/13 SMI"
+#endif
 
 /*
  * This file contains modifications Copyright 2008-2009 J. Schilling
  *
- * @(#)defs.c	1.5 09/07/11 2008-2009 J. Schilling
+ * @(#)defs.c	1.6 09/11/01 2008-2009 J. Schilling
  */
 #ifdef	SCHILY_BUILD
 #include <schily/mconfig.h>
 #endif
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)defs.c	1.5 09/07/11 2008-2009 J. Schilling";
+	"@(#)defs.c	1.6 09/11/01 2008-2009 J. Schilling";
 #endif
 
 /*

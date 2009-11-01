@@ -28,18 +28,20 @@
 /*	  All Rights Reserved  	*/
 
 
+#if defined(sun)
 #pragma ident	"@(#)pwd.c	1.12	06/06/16 SMI"
+#endif
 
 #include "defs.h"
 
 /*
  * This file contains modifications Copyright 2008-2009 J. Schilling
  *
- * @(#)pwd.c	1.8 09/07/11 2008-2009 J. Schilling
+ * @(#)pwd.c	1.9 09/11/01 2008-2009 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)pwd.c	1.8 09/07/11 2008-2009 J. Schilling";
+	"@(#)pwd.c	1.9 09/11/01 2008-2009 J. Schilling";
 #endif
 
 /* 

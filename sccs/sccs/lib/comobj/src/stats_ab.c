@@ -25,11 +25,21 @@
  * Use is subject to license terms.
  */
 /*
+ * This file contains modifications Copyright 2009 J. Schilling
+ *
+ * @(#)stats_ab.c	1.2 09/11/01 J. Schilling
+ */
+#if defined(sun)
+#ident "@(#)stats_ab.c 1.2 09/11/01 J. Schilling"
+#endif
+/*
  * @(#)stats_ab.c 1.4 06/12/12
  */
 
+#if defined(sun)
 #ident	"@(#)stats_ab.c"
 #ident	"@(#)sccs:lib/comobj/stats_ab.c"
+#endif
 # include	<defines.h>
 
 void

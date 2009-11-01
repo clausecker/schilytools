@@ -1,11 +1,11 @@
 /*#define	USE_REMOTE*/
 /*#define	USE_RCMD_RSH*/
 /*#define	NO_LIBSCHILY*/
-/* @(#)remote.c	1.72 09/08/24 Copyright 1990-2009 J. Schilling */
+/* @(#)remote.c	1.73 09/10/18 Copyright 1990-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)remote.c	1.72 09/08/24 Copyright 1990-2009 J. Schilling";
+	"@(#)remote.c	1.73 09/10/18 Copyright 1990-2009 J. Schilling";
 #endif
 /*
  *	Remote tape client interface code
@@ -610,6 +610,9 @@ rmtclose(fd)
 	return (rmtcmd(fd, "close", "C\n"));
 }
 
+/*
+ * Check all our callers once we make "count" size_t
+ */
 EXPORT int
 rmtread(fd, buf, count)
 	int	fd;
@@ -648,6 +651,9 @@ rmtread(fd, buf, count)
 	return (amt);
 }
 
+/*
+ * Check all our callers once we make "count" size_t
+ */
 EXPORT int
 rmtwrite(fd, buf, count)
 	int	fd;

@@ -25,15 +25,14 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2008 J. Schilling
+ * This file contains modifications Copyright 2008-2009 J. Schilling
  *
- * @(#)date_bal.c	1.2 08/01/05 J. Schilling
+ * @(#)date_bal.c	1.3 09/11/01 J. Schilling
  *
  * From Sun: @(#)sccs:lib/comobj/date_ba.c @(#)date_ba.c 1.5 06/12/12
  */
-#if defined(sun) || defined(__GNUC__)
-
-#ident "@(#)date_bal.c 1.2 08/01/05 J. Schilling"
+#if defined(sun)
+#ident "@(#)date_bal.c 1.3 09/11/01 J. Schilling"
 #endif
 # include	<defines.h>
 

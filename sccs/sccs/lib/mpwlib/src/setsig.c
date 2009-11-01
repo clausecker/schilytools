@@ -25,20 +25,21 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2007 J. Schilling
+ * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)setsig.c	1.4 08/12/24 J. Schilling
+ * @(#)setsig.c	1.5 09/11/01 J. Schilling
  */
-#if defined(sun) || defined(__GNUC__)
-
-#ident "@(#)setsig.c 1.4 08/12/24 J. Schilling"
+#if defined(sun)
+#ident "@(#)setsig.c 1.5 09/11/01 J. Schilling"
 #endif
 /*
  * @(#)setsig.c 1.8 06/12/12
  */
 
+#if defined(sun)
 #ident	"@(#)setsig.c"
 #ident	"@(#)sccs:lib/mpwlib/setsig.c"
+#endif
 # include       <defines.h>
 # include       <i18n.h>
 # include	<signal.h>

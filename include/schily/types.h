@@ -1,4 +1,4 @@
-/* @(#)types.h	1.4 09/01/14 Copyright 2006-2009 J. Schilling */
+/* @(#)types.h	1.5 09/10/22 Copyright 2006-2009 J. Schilling */
 /*
  *	Abstraction from sys/types.h
  *
@@ -27,6 +27,13 @@
 #ifndef	_INCL_SYS_TYPES_H
 #include <sys/types.h>
 #define	_INCL_SYS_TYPES_H
+#endif
+#else
+#ifdef	HAVE_TYPES_H
+#ifndef	_INCL_TYPES_H
+#include <types.h>
+#define	_INCL_TYPES_H
+#endif
 #endif
 #endif
 

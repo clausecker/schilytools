@@ -1,4 +1,4 @@
-/* @(#)make.h	1.85 09/09/09 Copyright 1985, 87, 91, 1995-2008 J. Schilling */
+/* @(#)make.h	1.86 09/10/22 Copyright 1985, 87, 91, 1995-2008 J. Schilling */
 /*
  *	Definitions for make.
  *	Copyright (c) 1985, 87, 91, 1995-2008 by J. Schilling
@@ -251,8 +251,8 @@ extern	int	Debug;		/* Print reson for rebuild		*/
 extern	int	XDebug;		/* Print extended debug info		*/
 extern	int	Dmake;		/* Display makefile			*/
 extern	BOOL	Prdep;		/* Print include dependendy		*/
-extern	BOOL	NoWarn;		/* Don't print warning Messages.	*/
-extern	BOOL	DoWarn;		/* Print extra warnings			*/
+extern	BOOL	No_Warn;	/* Don't print warning Messages.	*/
+extern	BOOL	Do_Warn;	/* Print extra warnings			*/
 extern	char   **MakeFileNames;	/* List of pathnames of the Makefiles.	*/
 extern	int	Mfileindex;	/* Current index in MakeFileNames.	*/
 

@@ -1,8 +1,8 @@
-/* @(#)memory.c	1.20 09/07/08 Copyright 1985-2009 J. Schilling */
+/* @(#)memory.c	1.21 09/10/16 Copyright 1985-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)memory.c	1.20 09/07/08 Copyright 1985-2009 J. Schilling";
+	"@(#)memory.c	1.21 09/10/16 Copyright 1985-2009 J. Schilling";
 #endif
 /*
  *	Make program
@@ -24,6 +24,7 @@ static	UConst char sccsid[] =
 
 #include <schily/mconfig.h>
 #include <schily/standard.h>
+#include <schily/types.h>
 #include <schily/stdlib.h>
 #include <schily/string.h>
 #include <schily/schily.h>

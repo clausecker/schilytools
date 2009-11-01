@@ -1,4 +1,4 @@
-/* @(#)bsh.h	1.53 09/06/02 Copyright 1985-2009 J. Schilling */
+/* @(#)bsh.h	1.54 09/10/17 Copyright 1985-2009 J. Schilling */
 /*
  *	Bsh general definitions
  *
@@ -376,7 +376,11 @@ extern	void	*Jfree		__PR((void *t, void *chain));
 #endif
 #ifdef	D_MALLOC
 extern	void	*dbg_malloc		__PR((size_t size, char *file, int line));
+extern	void	*dbg_calloc		__PR((size_t nelem, size_t elsize, char *file, int line));
+extern	void	*dbg_realloc		__PR((void *t, size_t size, char *file, int line));
 #define	malloc(s)			dbg_malloc(s, __FILE__, __LINE__)
+#define	calloc(n, s)			dbg_calloc(n, s, __FILE__, __LINE__)
+#define	realloc(t, s)			dbg_realloc(t, s, __FILE__, __LINE__)
 #endif
 extern	int	psize		__PR((char *t));
 extern	void	freechecking	__PR((BOOL val));

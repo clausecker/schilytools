@@ -1,4 +1,4 @@
-/* @(#)schily.h	1.84 09/06/30 Copyright 1985-2009 J. Schilling */
+/* @(#)schily.h	1.86 09/10/22 Copyright 1985-2009 J. Schilling */
 /*
  *	Definitions for libschily
  *
@@ -50,12 +50,12 @@
 extern "C" {
 #endif
 
-#if	defined(_INCL_SYS_TYPES_H) || defined(off_t)
+#if	defined(_INCL_SYS_TYPES_H) || defined(_INCL_TYPES_) || defined(off_t)
 #	ifndef	FOUND_OFF_T
 #	define	FOUND_OFF_T
 #	endif
 #endif
-#if	defined(_INCL_SYS_TYPES_H) || defined(size_t)
+#if	defined(_INCL_SYS_TYPES_H) || defined(_INCL_TYPES_) || defined(size_t)
 #	ifndef	FOUND_SIZE_T
 #	define	FOUND_SIZE_T
 #	endif
@@ -304,8 +304,10 @@ extern	int	_comerr		__PR((FILE *, int, int, const char *, va_list));
 
 /*PRINTFLIKE1*/
 extern	int	error __PR((const char *, ...)) __printflike__(1, 2);
-extern	char	*fillbytes __PR((void *, int, char));
-extern	char	*findbytes __PR((const void *, int, char));
+#ifdef	FOUND_SIZE_T
+extern	char	*fillbytes __PR((void *, ssize_t, char));
+extern	char	*findbytes __PR((const void *, ssize_t, char));
+#endif
 extern	char	*findinpath __PR((char *__name, int __mode, BOOL __plain_file));
 extern	int	findline __PR((const char *, char, const char *,
 							int, char **, int));
@@ -335,7 +337,9 @@ extern	unsigned char	*patlmatch __PR((const unsigned char *, const int *,
 					const unsigned char *, int, int, int, int[]));
 
 /*extern	int	printf __PR((const char *, ...)) __printflike__(1, 2);*/
-extern	char	*movebytes __PR((const void *, void *, int));
+#ifdef	FOUND_SIZE_T
+extern	char	*movebytes __PR((const void *, void *, ssize_t));
+#endif
 
 extern	void	save_args __PR((int, char **));
 extern	int	saved_ac __PR((void));
@@ -390,14 +394,18 @@ extern	int	js_snprintf	__PR((char *, size_t, const char *, ...)) __printflike__(
 extern	int	js_sprintf	__PR((char *, const char *, ...)) __printflike__(2, 3);
 #endif	/* EOF */
 
-extern	void	swabbytes	__PR((void *, int));
+#ifdef	FOUND_SIZE_T
+extern	void	swabbytes	__PR((void *, ssize_t));
+#endif
 extern	char	**getmainfp	__PR((void));
 extern	char	**getavp	__PR((void));
 extern	char	*getav0		__PR((void));
 extern	void	**getfp		__PR((void));
 extern	int	flush_reg_windows __PR((int));
-extern	int	cmpbytes	__PR((const void *, const void *, int));
-extern	int	cmpnullbytes	__PR((const void *, int));
+#ifdef	FOUND_SIZE_T
+extern	ssize_t	cmpbytes	__PR((const void *, const void *, ssize_t));
+extern	ssize_t	cmpnullbytes	__PR((const void *, ssize_t));
+#endif
 
 #ifdef	nonono
 #if	defined(HAVE_LARGEFILES)

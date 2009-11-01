@@ -27,18 +27,19 @@
 /*
  * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)filehand.c	1.5 09/04/10 J. Schilling
+ * @(#)filehand.c	1.6 09/11/01 J. Schilling
  */
-#if defined(sun) || defined(__GNUC__)
-
-#ident "@(#)filehand.c 1.5 09/04/10 J. Schilling"
+#if defined(sun)
+#ident "@(#)filehand.c 1.6 09/11/01 J. Schilling"
 #endif
 /*
  * @(#)filehand.c 1.4 06/12/12
  */
 
+#if defined(sun)
 #ident	"@(#)filehand.c"
 #ident	"@(#)sccs:lib/cassi/filehand.c"
+#endif
 
 /* EMACS_MODES: c !fill tabstop=4 */
 

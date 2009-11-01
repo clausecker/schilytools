@@ -27,11 +27,10 @@
 /*
  * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)prs.c	1.13 09/07/18 J. Schilling
+ * @(#)prs.c	1.14 09/11/01 J. Schilling
  */
-#if defined(sun) || defined(__GNUC__)
-
-#ident "@(#)prs.c 1.13 09/07/18 J. Schilling"
+#if defined(sun)
+#ident "@(#)prs.c 1.14 09/11/01 J. Schilling"
 #endif
 /*
  * @(#)prs.c 1.33 06/12/12
@@ -42,9 +41,10 @@
  * Use is subject to license terms.
  */
 
-
+#if defined(sun)
 #ident	"@(#)prs.c"
 #ident	"@(#)sccs:cmd/prs.c"
+#endif
 /*************************************************************************/
 /*									 */
 /*	prs [-d<dataspec>] [-r<sid>] [-l] [-e] [-a] file ...		 */

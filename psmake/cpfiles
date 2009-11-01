@@ -1,5 +1,5 @@
 #!/bin/sh
-# @(#)cpfiles	1.14 09/08/12 Copyright 1999 J. Schilling
+# @(#)cpfiles	1.15 09/10/25 Copyright 1999 J. Schilling
 
 cp='cp -p'
 smake=smake
@@ -75,8 +75,18 @@ $cp ${incsrc}/include/schily/avoffset.h	include/schily/avoffset.h
 $cp ${incsrc}/autoconf/config.guess	config.guess
 $cp ${incsrc}/autoconf/config.sub	config.sub
 $cp ${incsrc}/autoconf/configure	configure
-$cp ${incsrc}/autoconf/rules.cnf.in	rules.cnf.in
-$cp ${incsrc}/autoconf/xconfig.h.in	xconfig.h.in
+if [ -r ${incsrc}/autoconf/rules.cnf.in ]; then
+	$cp ${incsrc}/autoconf/rules.cnf.in	rules.cnf.in
+fi
+if [ -r ${incsrc}/autoconf/xconfig.h.in ]; then
+	$cp ${incsrc}/autoconf/xconfig.h.in	xconfig.h.in
+fi
+if [ -r ${incsrc}/autoconf/rules.cnf_in ]; then
+	$cp ${incsrc}/autoconf/rules.cnf_in	rules.cnf_in
+fi
+if [ -r ${incsrc}/autoconf/xconfig.h_in ]; then
+	$cp ${incsrc}/autoconf/xconfig.h_in	xconfig.h_in
+fi
 $cp ${incsrc}/conf/install-sh		install-sh
 $cp ${incsrc}/${lib}/stdio/schilyio.h	schilyio.h
 $cp ${incsrc}/${lib}/astoi.c		astoi.c

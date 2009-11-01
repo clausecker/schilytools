@@ -27,18 +27,19 @@
 /*
  * This file contains modifications Copyright 2006-2007 J. Schilling
  *
- * @(#)vc.c	1.4 07/01/20 J. Schilling
+ * @(#)vc.c	1.5 09/11/01 J. Schilling
  */
-#if defined(sun) || defined(__GNUC__)
-
-#ident "@(#)vc.c 1.4 07/01/20 J. Schilling"
+#if defined(sun)
+#ident "@(#)vc.c 1.5 09/11/01 J. Schilling"
 #endif
 /*
  * @(#)vc.c 1.6 06/12/12
  */
 
+#if defined(sun)
 #ident	"@(#)vc.c"
 #ident	"@(#)sccs:cmd/vc.c"
+#endif
 # include	<defines.h>
 
 

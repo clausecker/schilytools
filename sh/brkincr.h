@@ -23,7 +23,13 @@
 /*	  All Rights Reserved  	*/
 
 
+#if defined(sun)
 #ident	"@(#)brkincr.h	1.7	05/06/08 SMI"	/* SVr4.0 1.5	*/
+#endif
+/*
+ * This file contains modifications Copyright 2009 J. Schilling
+ * @(#)brkincr.h	1.2 09/11/01 2009 J. Schilling
+ */
 /*	3.0 SID #	1.1	*/
 #define BRKINCR 01000
 #define BRKMAX 04000

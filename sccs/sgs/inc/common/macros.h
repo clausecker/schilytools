@@ -24,17 +24,18 @@
 /*
  * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)macros.h	1.5 09/01/15 J. Schilling
+ * @(#)macros.h	1.6 09/10/31 J. Schilling
  */
-#if defined(sun) || defined(__GNUC__)
-
-#ident "@(#)macros.h 1.5 09/01/15 J. Schilling"
+#if defined(sun)
+#ident "@(#)macros.h 1.6 09/10/31 J. Schilling"
 #endif
 
 #ifndef	_MACROS_H
 #define	_MACROS_H
 
+#if defined(sun)
 #pragma ident	"@(#)macros.h	1.10	05/06/08 SMI"	/* SVr4.0 1.3.1.7 */
+#endif
 
 #include <schily/types.h>
 #include <schily/stat.h>

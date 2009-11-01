@@ -27,18 +27,19 @@
 /*
  * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)rmchg.c	1.14 09/07/18 J. Schilling
+ * @(#)rmchg.c	1.15 09/11/01 J. Schilling
  */
-#if defined(sun) || defined(__GNUC__)
-
-#ident "@(#)rmchg.c 1.14 09/07/18 J. Schilling"
+#if defined(sun)
+#ident "@(#)rmchg.c 1.15 09/11/01 J. Schilling"
 #endif
 /*
  * @(#)rmchg.c 1.19 06/12/12
  */
 
+#if defined(sun)
 #ident	"@(#)rmchg.c"
 #ident	"@(#)sccs:cmd/rmchg.c"
+#endif
 # include	<defines.h>
 # include	<version.h>
 # include	<had.h>

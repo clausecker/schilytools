@@ -1,11 +1,38 @@
 #!/bin/sh
-#ident "@(#)MAKE-sh	1.5 09/07/06 "
+#ident "@(#)MAKE-sh	1.9 09/10/30 "
 ###############################################################################
 #
 # The shell variables CFLAGS & LDFLAGS may be used to pass additional flags
 # to the compile and link process.
 #
 ###############################################################################
+
+forceconfig="no"
+
+while [ x"$1" != x ]; do
+    case $1 in
+	-help)
+	    echo "Usage:	$0 [options]"
+	    echo "Options:"
+	    echo "	-force-config	Force a new 'configure' run"
+	    echo ""
+	    echo "Environment variables:"
+	    echo "CC=		The C-compiler to use"
+	    echo "CC_OPT=		The Options for the C-compiler (e.g. -O)"
+	    echo "CFLAGS=		Additional C-compiler flags"
+	    echo "LDFLAGS=	Additional Linker flags"
+	    exit
+	    continue;;
+
+	-force-config) forceconfig="yes"
+	    shift
+	    continue;;
+
+	*)  echo "$0: Illegal parameter '$1'."
+	    exit 1
+	    continue;;
+    esac
+done
 
 #
 # Check whether the configure script is present. If we are compiling from a
@@ -75,6 +102,8 @@ ENV_CC=${CC-none}
 CC=${CC-cc}
 CF=
 LF=
+INCLUDE="-Iinclude -I."
+DEFINES="-DSCHILY_BUILD -DNO_FLOATINGPOINT -DNO_SCANSTACK -DNO_USG_STDIO"
 o=o
 
 if [ $ENV_CC = none ]; then
@@ -97,21 +126,49 @@ fi
 #
 # Set dynamic linking and auto .exe suffix for OS/2
 #
-if [ $SYSTEM = OS/2 ]; then
+if [ "$SYSTEM" = OS/2 ]; then
 	LF="-Zexe -Zcrtdll"
 fi
 #
 # Set stack size to 256k on QNX
 #
-if [ $SYSTEM = QNX -a $CC != gcc ]; then 
+if [ "$SYSTEM" = QNX -a $CC != gcc ]; then 
 	LF="-N 256k"
 fi 
+#
+# VMS does not like -Iinclude, catch "OpenVMS" case also
+#
+case "$SYSTEM" in
+
+*VMS*)
+	#
+	# Default to cc on VMS
+	#
+	if [ $ENV_CC = none ]; then
+		CC=cc
+	fi
+	INCLUDE="-I./include -I."
+	DEFINES="$DEFINES -D_USE_STD_STAT -DNO_OPENFD_SRC"
+	if [ ! -r config.cache ]; then
+		: > config.cache
+	fi
+	if [ ! -r xconfig.h ]; then
+		: > xconfig.h
+	fi
+	;;
+esac
 
 echo "SYSTEM:		$SYSTEM"
 echo "CC:		$CC"
 echo "OPT:		$OPT"
 echo "CFLAGS:		$CF"
+echo "INCLUDE:	$INCLUDE"
+echo
 
+if [ "$forceconfig" = "yes" ]; then
+	echo "Removing old configure run results..."
+	rm -f config.cache xconfig.h
+fi
 if [ -r config.cache ]; then
 	echo "Using old configure run results..."
 else
@@ -134,40 +191,40 @@ fi
 
 set -x
 
-$CC $OPT $CF $CFLAGS -c -Iinclude -I. -DSCHILY_BUILD -DSCHILY_PRINT -DNO_FLOATINGPOINT -DNO_SCANSTACK -DNO_USG_STDIO   make.c
-$CC $OPT $CF $CFLAGS -c -Iinclude -I. -DSCHILY_BUILD -DSCHILY_PRINT -DNO_FLOATINGPOINT -DNO_SCANSTACK -DNO_USG_STDIO   readfile.c
-$CC $OPT $CF $CFLAGS -c -Iinclude -I. -DSCHILY_BUILD -DSCHILY_PRINT -DNO_FLOATINGPOINT -DNO_SCANSTACK -DNO_USG_STDIO   parse.c
-$CC $OPT $CF $CFLAGS -c -Iinclude -I. -DSCHILY_BUILD -DSCHILY_PRINT -DNO_FLOATINGPOINT -DNO_SCANSTACK -DNO_USG_STDIO   update.c
-$CC $OPT $CF $CFLAGS -c -Iinclude -I. -DSCHILY_BUILD -DSCHILY_PRINT -DNO_FLOATINGPOINT -DNO_SCANSTACK -DNO_USG_STDIO   rules.c
-$CC $OPT $CF $CFLAGS -c -Iinclude -I. -DSCHILY_BUILD -DSCHILY_PRINT -DNO_FLOATINGPOINT -DNO_SCANSTACK -DNO_USG_STDIO   archconf.c
-$CC $OPT $CF $CFLAGS -c -Iinclude -I. -DSCHILY_BUILD -DSCHILY_PRINT -DNO_FLOATINGPOINT -DNO_SCANSTACK -DNO_USG_STDIO   memory.c
-$CC $OPT $CF $CFLAGS -c -Iinclude -I. -DSCHILY_BUILD -DNO_FLOATINGPOINT -DNO_SCANSTACK -DNO_USG_STDIO   astoi.c
-$CC $OPT $CF $CFLAGS -c -Iinclude -I. -DSCHILY_BUILD -DNO_FLOATINGPOINT -DNO_SCANSTACK -DNO_USG_STDIO   astoll.c
-$CC $OPT $CF $CFLAGS -c -Iinclude -I. -DSCHILY_BUILD -DNO_FLOATINGPOINT -DNO_SCANSTACK -DNO_USG_STDIO   comerr.c
-$CC $OPT $CF $CFLAGS -c -Iinclude -I. -DSCHILY_BUILD -DNO_FLOATINGPOINT -DNO_SCANSTACK -DNO_USG_STDIO   error.c
-$CC $OPT $CF $CFLAGS -c -Iinclude -I. -DSCHILY_BUILD -DNO_FLOATINGPOINT -DNO_SCANSTACK -DNO_USG_STDIO   format.c
-$CC $OPT $CF $CFLAGS -c -Iinclude -I. -DSCHILY_BUILD -DNO_FLOATINGPOINT -DNO_SCANSTACK -DNO_USG_STDIO   jsprintf.c
-$CC $OPT $CF $CFLAGS -c -Iinclude -I. -DSCHILY_BUILD -DNO_FLOATINGPOINT -DNO_SCANSTACK -DNO_USG_STDIO   jssnprintf.c
-$CC $OPT $CF $CFLAGS -c -Iinclude -I. -DSCHILY_BUILD -DNO_FLOATINGPOINT -DNO_SCANSTACK -DNO_USG_STDIO   saveargs.c
-$CC $OPT $CF $CFLAGS -c -Iinclude -I. -DSCHILY_BUILD -DNO_FLOATINGPOINT -DNO_SCANSTACK -DNO_USG_STDIO   seterrno.c
-$CC $OPT $CF $CFLAGS -c -Iinclude -I. -DSCHILY_BUILD -DNO_FLOATINGPOINT -DNO_SCANSTACK -DNO_USG_STDIO   strcatl.c
-$CC $OPT $CF $CFLAGS -c -Iinclude -I. -DSCHILY_BUILD -DNO_FLOATINGPOINT -DNO_SCANSTACK -DNO_USG_STDIO   strlcpy.c
-$CC $OPT $CF $CFLAGS -c -Iinclude -I. -DSCHILY_BUILD -DNO_FLOATINGPOINT -DNO_SCANSTACK -DNO_USG_STDIO   strncpy.c
-$CC $OPT $CF $CFLAGS -c -Iinclude -I. -DSCHILY_BUILD -DNO_FLOATINGPOINT -DNO_SCANSTACK -DNO_USG_STDIO   streql.c
-$CC $OPT $CF $CFLAGS -c -Iinclude -I. -DSCHILY_BUILD -DNO_FLOATINGPOINT -DNO_SCANSTACK -DNO_USG_STDIO   getargs.c
-$CC $OPT $CF $CFLAGS -c -Iinclude -I. -DSCHILY_BUILD -DNO_FLOATINGPOINT -DNO_SCANSTACK -DNO_USG_STDIO   geterrno.c
-$CC $OPT $CF $CFLAGS -c -Iinclude -I. -DSCHILY_BUILD -DNO_FLOATINGPOINT -DNO_SCANSTACK -DNO_USG_STDIO   movebytes.c
-$CC $OPT $CF $CFLAGS -c -Iinclude -I. -DSCHILY_BUILD -DNO_FLOATINGPOINT -DNO_SCANSTACK -DNO_USG_STDIO   fillbytes.c
-$CC $OPT $CF $CFLAGS -c -Iinclude -I. -DSCHILY_BUILD -DNO_FLOATINGPOINT -DNO_SCANSTACK -DNO_USG_STDIO   raisecond.c
-$CC $OPT $CF $CFLAGS -c -Iinclude -I. -DSCHILY_BUILD -DNO_FLOATINGPOINT -DNO_SCANSTACK -DNO_USG_STDIO   rename.c
-$CC $OPT $CF $CFLAGS -c -Iinclude -I. -DSCHILY_BUILD -DNO_FLOATINGPOINT -DNO_SCANSTACK -DNO_USG_STDIO   fileopen.c
-$CC $OPT $CF $CFLAGS -c -Iinclude -I. -DSCHILY_BUILD -DNO_FLOATINGPOINT -DNO_SCANSTACK -DNO_USG_STDIO   fcons.c
-$CC $OPT $CF $CFLAGS -c -Iinclude -I. -DSCHILY_BUILD -DNO_FLOATINGPOINT -DNO_SCANSTACK -DNO_USG_STDIO   cvmod.c
-$CC $OPT $CF $CFLAGS -c -Iinclude -I. -DSCHILY_BUILD -DNO_FLOATINGPOINT -DNO_SCANSTACK -DNO_USG_STDIO   flag.c
-$CC $OPT $CF $CFLAGS -c -Iinclude -I. -DSCHILY_BUILD -DNO_FLOATINGPOINT -DNO_SCANSTACK -DNO_USG_STDIO   dat.c
-$CC $OPT $CF $CFLAGS -c -Iinclude -I. -DSCHILY_BUILD -DNO_FLOATINGPOINT -DNO_SCANSTACK -DNO_USG_STDIO   filewrite.c
-$CC $OPT $CF $CFLAGS -c -Iinclude -I. -DSCHILY_BUILD -DNO_FLOATINGPOINT -DNO_SCANSTACK -DNO_USG_STDIO   fileread.c
-$CC $OPT $CF $CFLAGS -c -Iinclude -I. -DSCHILY_BUILD -DNO_FLOATINGPOINT -DNO_SCANSTACK -DNO_USG_STDIO   fileseek.c
-$CC $OPT $CF $CFLAGS -c -Iinclude -I. -DSCHILY_BUILD -DNO_FLOATINGPOINT -DNO_SCANSTACK -DNO_USG_STDIO   niread.c
-$CC $OPT $CF $CFLAGS -c -Iinclude -I. -DSCHILY_BUILD -DNO_FLOATINGPOINT -DNO_SCANSTACK -DNO_USG_STDIO   niwrite.c
+$CC $OPT $CF $CFLAGS -c $INCLUDE $DEFINES -DSCHILY_PRINT   make.c
+$CC $OPT $CF $CFLAGS -c $INCLUDE $DEFINES -DSCHILY_PRINT   readfile.c
+$CC $OPT $CF $CFLAGS -c $INCLUDE $DEFINES -DSCHILY_PRINT   parse.c
+$CC $OPT $CF $CFLAGS -c $INCLUDE $DEFINES -DSCHILY_PRINT   update.c
+$CC $OPT $CF $CFLAGS -c $INCLUDE $DEFINES -DSCHILY_PRINT   rules.c
+$CC $OPT $CF $CFLAGS -c $INCLUDE $DEFINES -DSCHILY_PRINT   archconf.c
+$CC $OPT $CF $CFLAGS -c $INCLUDE $DEFINES -DSCHILY_PRINT   memory.c
+$CC $OPT $CF $CFLAGS -c $INCLUDE $DEFINES   astoi.c
+$CC $OPT $CF $CFLAGS -c $INCLUDE $DEFINES   astoll.c
+$CC $OPT $CF $CFLAGS -c $INCLUDE $DEFINES   comerr.c
+$CC $OPT $CF $CFLAGS -c $INCLUDE $DEFINES   error.c
+$CC $OPT $CF $CFLAGS -c $INCLUDE $DEFINES   format.c
+$CC $OPT $CF $CFLAGS -c $INCLUDE $DEFINES   jsprintf.c
+$CC $OPT $CF $CFLAGS -c $INCLUDE $DEFINES   jssnprintf.c
+$CC $OPT $CF $CFLAGS -c $INCLUDE $DEFINES   saveargs.c
+$CC $OPT $CF $CFLAGS -c $INCLUDE $DEFINES   seterrno.c
+$CC $OPT $CF $CFLAGS -c $INCLUDE $DEFINES   strcatl.c
+$CC $OPT $CF $CFLAGS -c $INCLUDE $DEFINES   strlcpy.c
+$CC $OPT $CF $CFLAGS -c $INCLUDE $DEFINES   strncpy.c
+$CC $OPT $CF $CFLAGS -c $INCLUDE $DEFINES   streql.c
+$CC $OPT $CF $CFLAGS -c $INCLUDE $DEFINES   getargs.c
+$CC $OPT $CF $CFLAGS -c $INCLUDE $DEFINES   geterrno.c
+$CC $OPT $CF $CFLAGS -c $INCLUDE $DEFINES   movebytes.c
+$CC $OPT $CF $CFLAGS -c $INCLUDE $DEFINES   fillbytes.c
+$CC $OPT $CF $CFLAGS -c $INCLUDE $DEFINES   raisecond.c
+$CC $OPT $CF $CFLAGS -c $INCLUDE $DEFINES   rename.c
+$CC $OPT $CF $CFLAGS -c $INCLUDE $DEFINES   fileopen.c
+$CC $OPT $CF $CFLAGS -c $INCLUDE $DEFINES   fcons.c
+$CC $OPT $CF $CFLAGS -c $INCLUDE $DEFINES   cvmod.c
+$CC $OPT $CF $CFLAGS -c $INCLUDE $DEFINES   flag.c
+$CC $OPT $CF $CFLAGS -c $INCLUDE $DEFINES   dat.c
+$CC $OPT $CF $CFLAGS -c $INCLUDE $DEFINES   filewrite.c
+$CC $OPT $CF $CFLAGS -c $INCLUDE $DEFINES   fileread.c
+$CC $OPT $CF $CFLAGS -c $INCLUDE $DEFINES   fileseek.c
+$CC $OPT $CF $CFLAGS -c $INCLUDE $DEFINES   niread.c
+$CC $OPT $CF $CFLAGS -c $INCLUDE $DEFINES   niwrite.c
 $CC $LF $LDFLAGS -o smake make.$o readfile.$o parse.$o update.$o rules.$o archconf.$o memory.$o  astoi.$o astoll.$o comerr.$o error.$o format.$o jsprintf.$o jssnprintf.$o saveargs.$o seterrno.$o strcatl.$o strlcpy.$o strncpy.$o streql.$o getargs.$o geterrno.$o movebytes.$o fillbytes.$o raisecond.$o rename.$o fileopen.$o fcons.$o cvmod.$o flag.$o dat.$o filewrite.$o fileread.$o fileseek.$o niread.$o niwrite.$o

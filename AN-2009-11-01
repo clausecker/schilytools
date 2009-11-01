@@ -1,0 +1,87 @@
+New features with AN-2009-10-99:
+
+-	include/schily/types.h now includes <types.h> in case that it exists
+	and <sys/typres.h> is missing
+
+-	New static (non-autoconf based) defines for VMS in 
+	include/schily/xmconfig.h:
+
+	#     define  HAVE_SYS_TYPES_H
+	#     define  HAVE_STRUCT_TIMEVAL
+	#     define  HAVE_RENAME
+	#     define  HAVE_PUTENV
+	#     define  HAVE_STRNCPY
+
+	.... and more ;-)
+
+-	Trying to add support for OpenVMS to RULES/*
+
+
+-	Prevent a compiler warning when compiling 64 bit binaries on HP-UX
+	using make CCOM=cc64
+
+-	libschily/*bytes.c now support 64 bit compilation and use a "ssize_t"
+	typed count parameter instead of "int".
+
+-	include/schily/dbgmalloc.h new to support libdbgmalloc
+
+-	New library libdbgmalloc allows easy debugging of memory problems.
+
+-	bsh/alloc.c now includes the debugging code needed for libdbgmalloc.
+
+-	bsh/alloc.c now has better comments
+
+-	bsh/alloc.c now aligns to max type (which is 16 on must 64 bit platforms)
+
+-	The sdd comand now is able to write in bigger chunks than 2 GB when
+	compiled as 64 bit program.
+
+-	New man page for the rscsi program.
+
+-	The rscsi daemon now returns version information for the basic libscg
+	while no SCSI device is open.
+
+-	cdda2wav now correctly deals with the case when no sound device
+	was specified. Thanks to Robert Grimm <rob@news.robgri.de>
+	for reporting.
+
+-	The VMS C-compiler does not distinct between upercase and lowercase 
+	symbols. Changed some symbols in "smake" to make all symbols unique
+	for the case insensitive case.
+
+-	GNV (GNU is not VMS) comes with bash-1.14 and this bash version does
+	not play nicely with ./smake -version && exit
+	Changed psmake/MAKE-all to use an "if" statement instead.
+
+-	The GNV CC wrappe to the VMS C-compiler does not like -Iinclude.
+	Changed psmake/MAKE-sh to -I./include
+
+-	New option -force-config for psmake/MAKE-sh
+
+-	psmake/MAKE-sh no longer by default tries to call "./configure" on VMS
+
+-	psmake/MAKE-sh by default uses CC=cc on VMS as there is no real gcc
+	but a wrapper for the DEC cc.
+
+-	psmake/cpfiles lnfiles and rmlinks now also check for *_in in hope to 
+	support the VMS filesystem that does not support more than one "." in 
+	a filename.
+
+-	smake now understands that VMS hast utsname.arch for uname -p
+
+-	The bourne shell was modified in hope to avoid all warnings for
+	#ident and #pragma ident that did appear on HP-UX
+
+-	Cdrtools bumped to 2.01.01a67
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.isdn.cs.tu-berlin.de, js@cs.tu-berlin.de
+	joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

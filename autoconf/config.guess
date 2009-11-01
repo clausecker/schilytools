@@ -1,5 +1,5 @@
 #! /bin/sh
-# @(#)config.guess	1.14 09/09/15 Copyright 1999-2009 J. Schilling
+# @(#)config.guess	1.15 09/10/31 Copyright 1999-2009 J. Schilling
 #
 # Attempt to guess a canonical system name.
 #   Copyright (C) 1992, 93, 94, 95, 96, 97, 1998 Free Software Foundation, Inc.
@@ -860,6 +860,10 @@ EOF
 	exit 0 ;;
     *:OS/2:*:*)
         echo "i386-pc-os2_emx"
+	exit 0;;
+    *:OpenVMS:*:*)
+	UNAME_PROCESSOR=`uname -p | tr [A-Z] [a-z]`
+	echo "${UNAME_PROCESSOR}-hp-openvms"
 	exit 0;;
 esac
 

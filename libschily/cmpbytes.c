@@ -1,8 +1,8 @@
-/* @(#)cmpbytes.c	1.20 09/07/08 Copyright 1988, 1995-2009 J. Schilling */
+/* @(#)cmpbytes.c	1.21 09/10/17 Copyright 1988, 1995-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)cmpbytes.c	1.20 09/07/08 Copyright 1988, 1995-2009 J. Schilling";
+	"@(#)cmpbytes.c	1.21 09/10/17 Copyright 1988, 1995-2009 J. Schilling";
 #endif  /* lint */
 /*
  *	compare data
@@ -24,6 +24,7 @@ static	UConst char sccsid[] =
 
 #include <schily/standard.h>
 #include <schily/align.h>
+#include <schily/types.h>
 #include <schily/schily.h>
 
 #define	DO8(a)	a; a; a; a; a; a; a; a;
@@ -32,16 +33,16 @@ static	UConst char sccsid[] =
  * Return the index of the first differing character
  * This interface is not compatible to memcmp()
  */
-EXPORT int
+EXPORT ssize_t
 cmpbytes(fromp, top, cnt)
 	const void	*fromp;
 	const void	*top;
-	int		cnt;
+	ssize_t		cnt;
 {
 	register const char	*from	= (char *)fromp;
 	register const char	*to	= (char *)top;
-	register int		n;
-	register int		i;
+	register ssize_t	n;
+	register ssize_t	i;
 
 	/*
 	 * If we change cnt to be unsigned, check for == instead of <=
@@ -59,11 +60,11 @@ cmpbytes(fromp, top, cnt)
 	}
 	n++;
 
-	if (n >= (int)(8 * sizeof (long))) {
+	if (n >= (ssize_t)(8 * sizeof (long))) {
 		if (l2aligned(from, to)) {
 			register const long *froml = (const long *)from;
 			register const long *tol   = (const long *)to;
-			register int rem = n % (8 * sizeof (long));
+			register ssize_t rem = n % (8 * sizeof (long));
 
 			n /= (8 * sizeof (long));
 			do {
@@ -113,5 +114,5 @@ ldiff:
 			goto cdiff;
 	} while (--n > 0);
 cdiff:
-	return (--from - (char *)fromp);
+	return ((ssize_t)(--from - (char *)fromp));
 }

@@ -25,20 +25,21 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2008 J. Schilling
+ * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)permiss.c	1.6 08/06/14 J. Schilling
+ * @(#)permiss.c	1.7 09/11/01 J. Schilling
  */
-#if defined(sun) || defined(__GNUC__)
-
-#ident "@(#)permiss.c 1.6 08/06/14 J. Schilling"
+#if defined(sun)
+#ident "@(#)permiss.c 1.7 09/11/01 J. Schilling"
 #endif
 /*
  * @(#)permiss.c 1.9 06/12/12
  */
 
+#if defined(sun)
 #ident	"@(#)permiss.c"
 #ident	"@(#)sccs:lib/comobj/permiss.c"
+#endif
 # define	NEED_SCHILY_PRINT	/* We need defines for js_snprintf() */
 # include	<defines.h>
 # include       <i18n.h>

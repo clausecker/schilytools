@@ -1,4 +1,4 @@
-#ident "@(#)cc-hp64.rul	1.8 09/10/10 "
+#ident "@(#)cc-hp64.rul	1.9 09/10/12 "
 ###########################################################################
 # Written 1996-2006 by J. Schilling
 ###########################################################################
@@ -32,8 +32,8 @@ HP_CC_ANSI_OPT=	-Ae	# May be overwritten later from $(OINCSDIR)/rules.cnf
 HP_CC_OPT_OPT=	-O	# May be overwritten later from $(OINCSDIR)/rules.cnf
 HP_CC_GPROF_OPT= -G	# May be overwritten later from $(OINCSDIR)/rules.cnf
 
-#COPTS=		$(HP_CC_ANSI_OPT) +DD64
-COPTS=		$(HP_CC_ANSI_OPT) +DAportable +DD64
+COPTS=		$(HP_CC_ANSI_OPT) +DD64
+#COPTS=		$(HP_CC_ANSI_OPT) +DAportable +DD64
 CWOPTS=		
 COPTOPT=	$(HP_CC_OPT_OPT)
 COPTDYN=	+z

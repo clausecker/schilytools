@@ -25,20 +25,21 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2007 J. Schilling
+ * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)ccstypes.h	1.3 07/01/09 J. Schilling
+ * @(#)ccstypes.h	1.5 09/11/01 J. Schilling
  */
-#if defined(sun) || defined(__GNUC__)
-
-#ident "@(#)ccstypes.h 1.3 07/01/09 J. Schilling"
+#if defined(sun)
+#ident "@(#)ccstypes.h 1.5 09/11/01 J. Schilling"
 #endif
 /*
  * @(#)ccstypes.h 1.2 06/12/12
  */
 
+#if defined(sun)
 #ident	"@(#)ccstypes.h"
 #ident	"@(#)sgs-inc:common/ccstypes.h"
+#endif
 
 #include <schily/types.h>
 

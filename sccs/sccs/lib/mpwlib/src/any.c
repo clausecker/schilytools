@@ -25,20 +25,21 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2007 J. Schilling
+ * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)any.c	1.3 07/01/11 J. Schilling
+ * @(#)any.c	1.4 09/11/01 J. Schilling
  */
-#if defined(sun) || defined(__GNUC__)
-
-#ident "@(#)any.c 1.3 07/01/11 J. Schilling"
+#if defined(sun)
+#ident "@(#)any.c 1.4 09/11/01 J. Schilling"
 #endif
 /*
  * @(#)any.c 1.4 06/12/12
  */
 
+#if defined(sun)
 #ident	"@(#)any.c"
 #ident	"@(#)sccs:lib/mpwlib/any.c"
+#endif
 /*
 	If any character of `s' is `c', return 1
 	else return 0.

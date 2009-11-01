@@ -39,17 +39,18 @@
 /*
  * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)diff.h	1.7 09/02/05 J. Schilling
+ * @(#)diff.h	1.8 09/11/01 J. Schilling
  */
-#if defined(sun) || defined(__GNUC__)
-
-#ident "@(#)diff.h 1.7 09/02/05 J. Schilling"
+#if defined(sun)
+#ident "@(#)diff.h 1.8 09/11/01 J. Schilling"
 #endif
 
 #ifndef	_DIFF_H
 #define	_DIFF_H
 
+#if defined(sun)
 #pragma ident	"@(#)diff.h	1.12	05/06/08 SMI"
+#endif
 
 
 #ifdef	__cplusplus

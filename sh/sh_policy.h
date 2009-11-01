@@ -27,12 +27,14 @@
 #ifndef	_SH_POLICY_H
 #define	_SH_POLICY_H
 
+#if defined(sun)
 #pragma ident	"@(#)sh_policy.h	1.2	05/06/08 SMI"
+#endif
 
 /*
- * This file contains modifications Copyright 2008 J. Schilling
+ * This file contains modifications Copyright 2008-2009 J. Schilling
  *
- * @(#)sh_policy.h	1.4 08/03/28 2008 J. Schilling
+ * @(#)sh_policy.h	1.5 09/11/01 2008-2009 J. Schilling
  */
 
 #ifdef	__cplusplus

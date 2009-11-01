@@ -25,11 +25,21 @@
  * Use is subject to license terms.
  */
 /*
+ * This file contains modifications Copyright 2009 J. Schilling
+ *
+ * @(#)had.h	1.2 09/10/31 J. Schilling
+ */
+#if defined(sun)
+#ident "@(#)had.h 1.2 09/10/31 J. Schilling"
+#endif
+/*
  * @(#)had.h 1.4 06/12/12
  */
 
+#if defined(sun)
 #ident	"@(#)had.h"
 #ident	"@(#)sccs:hdr/had.h"
+#endif
 /*
  */
 #define	HAD_SIZE	27

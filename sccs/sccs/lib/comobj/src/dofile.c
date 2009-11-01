@@ -25,20 +25,21 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2007 J. Schilling
+ * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)dofile.c	1.5 07/02/17 J. Schilling
+ * @(#)dofile.c	1.6 09/11/01 J. Schilling
  */
-#if defined(sun) || defined(__GNUC__)
-
-#ident "@(#)dofile.c 1.5 07/02/17 J. Schilling"
+#if defined(sun)
+#ident "@(#)dofile.c 1.6 09/11/01 J. Schilling"
 #endif
 /*
  * @(#)dofile.c 1.12 06/12/12
  */
 
+#if defined(sun)
 #ident	"@(#)dofile.c"
 #ident	"@(#)sccs:lib/comobj/dofile.c"
+#endif
 # include	<defines.h>
 # include	<schily/dirent.h>
 

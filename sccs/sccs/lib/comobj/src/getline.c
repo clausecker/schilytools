@@ -25,20 +25,21 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2007 J. Schilling
+ * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)getline.c	1.3 07/01/11 J. Schilling
+ * @(#)getline.c	1.4 09/11/01 J. Schilling
  */
-#if defined(sun) || defined(__GNUC__)
-
-#ident "@(#)getline.c 1.3 07/01/11 J. Schilling"
+#if defined(sun)
+#ident "@(#)getline.c 1.4 09/11/01 J. Schilling"
 #endif
 /*
  * @(#)getline.c 1.10 06/12/12
  */
 
+#if defined(sun)
 #ident	"@(#)getline.c"
 #ident	"@(#)sccs:lib/comobj/getline.c"
+#endif
 #include	<defines.h>
 
 /*

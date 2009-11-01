@@ -1,8 +1,8 @@
-/* @(#)findbytes.c	1.5 07/06/24 Copyright 2000-2007 J. Schilling */
+/* @(#)findbytes.c	1.6 09/10/17 Copyright 2000-2009 J. Schilling */
 /*
  *	Find a byte with specific value in memory.
  *
- *	Copyright (c) 2000-2007 J. Schilling
+ *	Copyright (c) 2000-2009 J. Schilling
  *
  *	Based on a strlen() idea from Torbjorn Granlund (tege@sics.se) and
  *	Dan Sahlin (dan@sics.se) and the memchr() suggestion
@@ -26,6 +26,7 @@
 #include <schily/align.h>
 #include <schily/standard.h>
 #include <schily/string.h>
+#include <schily/types.h>
 #include <schily/schily.h>
 
 /*
@@ -33,12 +34,12 @@
  */
 #ifdef	PROTOTYPES
 EXPORT char *
-findbytes(const void *vp, int cnt, char val)
+findbytes(const void *vp, ssize_t cnt, char val)
 #else
 EXPORT char *
 findbytes(vp, cnt, val)
 		const	void	*vp;
-	register	int	cnt;
+	register	ssize_t	cnt;
 			char	val;
 #endif
 {

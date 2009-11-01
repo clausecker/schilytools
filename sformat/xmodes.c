@@ -1,8 +1,8 @@
-/* @(#)xmodes.c	1.25 09/07/11 Copyright 1991-2009 J. Schilling */
+/* @(#)xmodes.c	1.26 09/10/16 Copyright 1991-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)xmodes.c	1.25 09/07/11 Copyright 1991-2009 J. Schilling";
+	"@(#)xmodes.c	1.26 09/10/16 Copyright 1991-2009 J. Schilling";
 #endif
 /*
  *	Routines to handle external mode data (database)
@@ -23,8 +23,8 @@ static	UConst char sccsid[] =
 
 #include <schily/stdio.h>
 #include <schily/standard.h>
-#include <schily/schily.h>
 #include <schily/utypes.h>
+#include <schily/schily.h>
 #include "fmt.h"
 
 #include <schily/intcvt.h>

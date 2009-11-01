@@ -27,12 +27,14 @@
 /*	Copyright (c) 1984, 1986, 1987, 1988, 1989 AT&T	*/
 /*	  All Rights Reserved  	*/
 
+#if defined(sun)
 #pragma ident	"@(#)stak.h	1.8	05/06/08 SMI"
+#endif
 
 /*
- * This file contains modifications Copyright 2008 J. Schilling
+ * This file contains modifications Copyright 2008-2009 J. Schilling
  *
- * @(#)stak.h	1.4 08/03/28 2008 J. Schilling
+ * @(#)stak.h	1.5 09/11/01 2008-2009 J. Schilling
  */
 
 /*

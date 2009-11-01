@@ -25,11 +25,21 @@
  * Use is subject to license terms.
  */
 /*
+ * This file contains modifications Copyright 2009 J. Schilling
+ *
+ * @(#)eqsid.c	1.2 09/11/01 J. Schilling
+ */
+#if defined(sun)
+#ident "@(#)eqsid.c 1.2 09/11/01 J. Schilling"
+#endif
+/*
  * @(#)eqsid.c 1.3 06/12/12
  */
 
+#if defined(sun)
 #ident	"@(#)eqsid.c"
 #ident	"@(#)sccs:lib/comobj/eqsid.c"
+#endif
 # include	<defines.h>
 
 int

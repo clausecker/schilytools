@@ -1,8 +1,8 @@
-/* @(#)badblock.c	1.20 09/07/11 Copyright 1988-2009 J. Schilling */
+/* @(#)badblock.c	1.21 09/10/16 Copyright 1988-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)badblock.c	1.20 09/07/11 Copyright 1988-2009 J. Schilling";
+	"@(#)badblock.c	1.21 09/10/16 Copyright 1988-2009 J. Schilling";
 #endif
 /*
  *	Handle defects (SCSI level)
@@ -22,6 +22,7 @@ static	UConst char sccsid[] =
  */
 
 #include <schily/stdio.h>
+#include <schily/types.h>
 #include <schily/stdlib.h>
 #include <schily/standard.h>
 #include <schily/schily.h>

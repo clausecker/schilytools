@@ -1,8 +1,8 @@
-/* @(#)align_test.c	1.24 09/07/13 Copyright 1995-2009 J. Schilling */
+/* @(#)align_test.c	1.25 09/10/20 Copyright 1995-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef	lint
 static	UConst char sccsid[] =
-	"@(#)align_test.c	1.24 09/07/13 Copyright 1995-2009 J. Schilling";
+	"@(#)align_test.c	1.25 09/10/20 Copyright 1995-2009 J. Schilling";
 #endif
 /*
  *	Generate machine dependant align.h
@@ -72,6 +72,7 @@ char	*buf_aligned;
 #define	ALIGN_longlong	sizeof (Llong)
 #define	ALIGN_float	sizeof (float)
 #define	ALIGN_double	sizeof (double)
+#define	ALIGN_ldouble	sizeof (long double)
 #define	ALIGN_ptr	sizeof (char *)
 
 #endif
@@ -90,6 +91,9 @@ LOCAL	int	check_long	__PR((char *, int));
 LOCAL	int	check_longlong	__PR((char *, int));
 LOCAL	int	check_float	__PR((char *, int));
 LOCAL	int	check_double	__PR((char *, int));
+#ifdef	HAVE_LONGDOUBLE
+LOCAL	int	check_ldouble	__PR((char *, int));
+#endif
 LOCAL	int	check_ptr	__PR((char *, int));
 
 LOCAL	int	speed_check	__PR((char *,
@@ -100,6 +104,9 @@ LOCAL	void	speed_long	__PR((char *, int));
 LOCAL	void	speed_longlong	__PR((char *, int));
 LOCAL	void	speed_float	__PR((char *, int));
 LOCAL	void	speed_double	__PR((char *, int));
+#ifdef	HAVE_LONGDOUBLE
+LOCAL	void	speed_ldouble	__PR((char *, int));
+#endif
 LOCAL	void	speed_ptr	__PR((char *, int));
 
 #define	ALIGN_short	check_align(check_short, speed_short, sizeof (short))
@@ -108,6 +115,7 @@ LOCAL	void	speed_ptr	__PR((char *, int));
 #define	ALIGN_longlong	check_align(check_longlong, speed_longlong, sizeof (Llong))
 #define	ALIGN_float	check_align(check_float, speed_float, sizeof (float))
 #define	ALIGN_double	check_align(check_double, speed_double, sizeof (double))
+#define	ALIGN_ldouble	check_align(check_ldouble, speed_ldouble, sizeof (long double))
 #define	ALIGN_ptr	check_align(check_ptr, speed_ptr, sizeof (char *))
 
 #endif
@@ -122,6 +130,9 @@ LOCAL	int	off_long	__PR((void));
 LOCAL	int	off_longlong	__PR((void));
 LOCAL	int	off_float	__PR((void));
 LOCAL	int	off_double	__PR((void));
+#ifdef	HAVE_LONGDOUBLE
+LOCAL	int	off_ldouble	__PR((void));
+#endif
 LOCAL	int	off_ptr		__PR((void));
 
 #define	ALIGN_short	off_short()
@@ -130,6 +141,7 @@ LOCAL	int	off_ptr		__PR((void));
 #define	ALIGN_longlong	off_longlong()
 #define	ALIGN_float	off_float()
 #define	ALIGN_double	off_double()
+#define	ALIGN_ldouble	off_ldouble()
 #define	ALIGN_ptr	off_ptr()
 
 #endif
@@ -170,7 +182,9 @@ LOCAL	char	lo[] = "long";
 LOCAL	char	ll[] = "long long";
 LOCAL	char	fl[] = "float";
 LOCAL	char	db[] = "double";
+LOCAL	char	ld[] = "long double";
 LOCAL	char	pt[] = "pointer";
+LOCAL	char	mt[] = "max type";
 
 #define	xalign(x, a, m)		(((char *)(x)) + ((a) - (((UIntptr_t)(x))&(m))))
 
@@ -182,6 +196,8 @@ main(ac, av)
 	char	*p;
 	int	i;
 	int	s;
+	int	amax = 0;
+	int	smax = 0;
 
 #ifdef	CHECK_ALIGN
 #ifdef	SIGBUS
@@ -208,6 +224,10 @@ main(ac, av)
 	s = sizeof (short);
 	i  = ALIGN_short;
 	i = min_align(i);
+	if (i > amax)
+		amax = i;
+	if (s > smax)
+		smax = s;
 	printf("\n");
 	printf("#define	ALIGN_SHORT	%d\t/* %s(%s *)\t*/\n", i, al, sh);
 	printf("#define	ALIGN_SMASK	%d\t/* %s(%s *)\t*/\n", i-1, ms, sh);
@@ -216,6 +236,10 @@ main(ac, av)
 	s = sizeof (int);
 	i  = ALIGN_int;
 	i = min_align(i);
+	if (i > amax)
+		amax = i;
+	if (s > smax)
+		smax = s;
 	printf("\n");
 	printf("#define	ALIGN_INT	%d\t/* %s(%s *)\t\t*/\n", i, al, in);
 	printf("#define	ALIGN_IMASK	%d\t/* %s(%s *)\t\t*/\n", i-1, ms, in);
@@ -224,6 +248,10 @@ main(ac, av)
 	s = sizeof (long);
 	i  = ALIGN_long;
 	i = min_align(i);
+	if (i > amax)
+		amax = i;
+	if (s > smax)
+		smax = s;
 	printf("\n");
 	printf("#define	ALIGN_LONG	%d\t/* %s(%s *)\t\t*/\n", i, al, lo);
 	printf("#define	ALIGN_LMASK	%d\t/* %s(%s *)\t\t*/\n", i-1, ms, lo);
@@ -233,6 +261,10 @@ main(ac, av)
 	s = sizeof (Llong);
 	i  = ALIGN_longlong;
 	i = min_align(i);
+	if (i > amax)
+		amax = i;
+	if (s > smax)
+		smax = s;
 #endif
 	printf("\n");
 	printf("#define	ALIGN_LLONG	%d\t/* %s(%s *)\t*/\n", i, al, ll);
@@ -242,6 +274,10 @@ main(ac, av)
 	s = sizeof (float);
 	i  = ALIGN_float;
 	i = min_align(i);
+	if (i > amax)
+		amax = i;
+	if (s > smax)
+		smax = s;
 	printf("\n");
 	printf("#define	ALIGN_FLOAT	%d\t/* %s(%s *)\t*/\n", i, al, fl);
 	printf("#define	ALIGN_FMASK	%d\t/* %s(%s *)\t*/\n", i-1, ms, fl);
@@ -250,18 +286,45 @@ main(ac, av)
 	s = sizeof (double);
 	i  = ALIGN_double;
 	i = min_align(i);
+	if (i > amax)
+		amax = i;
+	if (s > smax)
+		smax = s;
 	printf("\n");
 	printf("#define	ALIGN_DOUBLE	%d\t/* %s(%s *)\t*/\n", i, al, db);
 	printf("#define	ALIGN_DMASK	%d\t/* %s(%s *)\t*/\n", i-1, ms, db);
 	printf("#define	SIZE_DOUBLE	%d\t/* %s(%s)\t\t\t*/\n", s, so, db);
 
+#ifdef	HAVE_LONGDOUBLE
+	s = sizeof (long double);
+	i  = ALIGN_ldouble;
+	i = min_align(i);
+	if (i > amax)
+		amax = i;
+	if (s > smax)
+		smax = s;
+#endif
+	printf("\n");
+	printf("#define	ALIGN_LDOUBLE	%d\t/* %s(%s *)\t*/\n", i, al, ld);
+	printf("#define	ALIGN_LDMASK	%d\t/* %s(%s *)\t*/\n", i-1, ms, ld);
+	printf("#define	SIZE_LDOUBLE	%d\t/* %s(%s)\t\t\t*/\n", s, so, ld);
+
 	s = sizeof (char *);
 	i  = ALIGN_ptr;
 	i = min_align(i);
+	if (i > amax)
+		amax = i;
+	if (s > smax)
+		smax = s;
 	printf("\n");
 	printf("#define	ALIGN_PTR	%d\t/* %s(%s *)\t*/\n", i, al, pt);
 	printf("#define	ALIGN_PMASK	%d\t/* %s(%s *)\t*/\n", i-1, ms, pt);
 	printf("#define	SIZE_PTR	%d\t/* %s(%s)\t\t\t*/\n", s, so, pt);
+
+	printf("\n");
+	printf("#define	ALIGN_TMAX	%d\t/* %s(%s *)\t*/\n", amax, al, mt);
+	printf("#define	ALIGN_TMMASK	%d\t/* %s(%s *)\t*/\n", amax-1, ms, mt);
+	printf("#define	SIZE_TMAX	%d\t/* %s(%s)\t\t\t*/\n", smax, so, mt);
 
 	printmacs();
 	return (0);
@@ -298,8 +361,14 @@ printf("\n");
 printf("#define	daligned(a)		xaligned(a, ALIGN_DMASK)\n");
 printf("#define	d2aligned(a, b)		x2aligned(a, b, ALIGN_DMASK)\n");
 printf("\n");
+printf("#define	ldaligned(a)		xaligned(a, ALIGN_LDMASK)\n");
+printf("#define	ld2aligned(a, b)	x2aligned(a, b, ALIGN_LDMASK)\n");
+printf("\n");
 printf("#define	paligned(a)		xaligned(a, ALIGN_PMASK)\n");
 printf("#define	p2aligned(a, b)		x2aligned(a, b, ALIGN_PMASK)\n");
+printf("\n");
+printf("#define	maligned(a)		xaligned(a, ALIGN_TMMASK)\n");
+printf("#define	m2aligned(a, b)		x2aligned(a, b, ALIGN_TMMASK)\n");
 
 printf("\n\n");
 printf("/*\n * There used to be a cast to an int but we get a warning from GCC.\n");
@@ -314,7 +383,9 @@ printf("#define	lalign(x)		xalign((x), ALIGN_LONG, ALIGN_LMASK)\n");
 printf("#define	llalign(x)		xalign((x), ALIGN_LLONG, ALIGN_LLMASK)\n");
 printf("#define	falign(x)		xalign((x), ALIGN_FLOAT, ALIGN_FMASK)\n");
 printf("#define	dalign(x)		xalign((x), ALIGN_DOUBLE, ALIGN_DMASK)\n");
+printf("#define	ldalign(x)		xalign((x), ALIGN_LDOUBLE, ALIGN_LDMASK)\n");
 printf("#define	palign(x)		xalign((x), ALIGN_PTR, ALIGN_PMASK)\n");
+printf("#define	malign(x)		xalign((x), ALIGN_TMAX, ALIGN_TMMASK)\n");
 }
 
 #ifdef	CHECK_ALIGN
@@ -447,6 +518,20 @@ check_double(p, i)
 	return (0);
 }
 
+#ifdef	HAVE_LONGDOUBLE
+LOCAL int
+check_ldouble(p, i)
+	char	*p;
+	int	i;
+{
+	long double	*dp;
+
+	dp = (long double *)&p[i];
+	*dp = 1.0;
+	return (0);
+}
+#endif
+
 LOCAL int
 check_ptr(p, i)
 	char	*p;
@@ -551,6 +636,22 @@ speed_double(p, n)
 	for (i = 1000000; --i >= 0; )
 		*dp = i;
 }
+
+#ifdef	HAVE_LONGDOUBLE
+LOCAL void
+speed_ldouble(p, n)
+	char	*p;
+	int	n;
+{
+	long double	*dp;
+	int	i;
+
+	dp = (long double *)&p[n];
+
+	for (i = 1000000; --i >= 0; )
+		*dp = i;
+}
+#endif
 
 LOCAL void
 speed_ptr(p, n)
@@ -671,6 +772,20 @@ off_double()
 
 	return (sm_off(struct sd *, d));
 }
+
+#ifdef	HAVE_LONGDOUBLE
+LOCAL int
+off_ldouble()
+{
+	struct sd {
+		char		c;
+		long double	ld;
+	} sd;
+	sd.c = 0;		/* fool C-compiler */
+
+	return (sm_off(struct sd *, ld));
+}
+#endif
 
 LOCAL int
 off_ptr()

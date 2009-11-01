@@ -1,8 +1,8 @@
-/* @(#)cdda2wav.c	1.117 09/09/27 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling */
+/* @(#)cdda2wav.c	1.118 09/10/21 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling */
 #include "config.h"
 #ifndef lint
 static	UConst char sccsid[] =
-"@(#)cdda2wav.c	1.117 09/09/27 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling";
+"@(#)cdda2wav.c	1.118 09/10/21 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling";
 
 #endif
 #undef	DEBUG_BUFFER_ADDRESSES
@@ -2793,7 +2793,7 @@ Rate   Divider      Rate   Divider      Rate   Divider      Rate   Divider\n\
 			"The option MD5 signatures is not configured!\n");
 #endif
 	}
-	if (user_sound_device) {
+	if (user_sound_device[0] != '\0') {
 #ifndef	ECHO_TO_SOUNDCARD
 		errmsgno(EX_BAD, "There is no sound support configured!\n");
 #else

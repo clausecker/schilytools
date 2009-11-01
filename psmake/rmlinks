@@ -1,5 +1,5 @@
 #!/bin/sh
-# @(#)rmlinks	1.11 09/08/12 Copyright 1999 J. Schilling
+# @(#)rmlinks	1.12 09/10/27 Copyright 1999 J. Schilling
 
 rm -f archconf.c
 rm -f make.c
@@ -50,8 +50,18 @@ rm -f schilyio.h
 rm -f config.guess
 rm -f config.sub
 rm -f configure
-rm -f rules.cnf.in
-rm -f xconfig.h.in
+if [ -r rules.cnf.in ]; then
+	rm -f rules.cnf.in
+fi
+if [ -r rules.cnf_in ]; then
+	rm -f rules.cnf_in
+fi
+if [ -r xconfig.h.in ]; then
+	rm -f xconfig.h.in
+fi
+if [ -r xconfig.h_in ]; then
+	rm -f xconfig.h_in
+fi
 rm -f install-sh
 rm -f astoi.c
 rm -f astoll.c

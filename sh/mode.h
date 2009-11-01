@@ -25,15 +25,17 @@
 /* Copyright (c) 1984, 1986, 1987, 1988, 1989 AT&T */
 /* All Rights Reserved */
 
+#if defined(sun)
 #pragma ident	"@(#)mode.h	1.13	06/05/17 SMI"
+#endif
 
 #ifndef _MODE_H
 #define	_MODE_H
 
 /*
- * This file contains modifications Copyright 2008 J. Schilling
+ * This file contains modifications Copyright 2008-2009 J. Schilling
  *
- * @(#)mode.h	1.5 08/05/15 2008 J. Schilling
+ * @(#)mode.h	1.6 09/11/01 2008-2009 J. Schilling
  */
 
 /*

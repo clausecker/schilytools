@@ -1,8 +1,8 @@
-/* @(#)low.c	1.9 09/07/11 joerg */
+/* @(#)low.c	1.10 09/10/17 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)low.c	1.9 09/07/11 joerg";
+	"@(#)low.c	1.10 09/10/17 joerg";
 #endif
 /*
  * hfsutils - tools for reading and writing Macintosh HFS volumes
@@ -474,6 +474,7 @@ int l_readvbm(vol)
 {
   int vbmst = vol->mdb.drVBMSt;
   int vbmsz = (vol->mdb.drNmAlBlks + 4095) / (unsigned)4096;
+  int s2 = (vol->vlen / vol->lpa + 4095) / 4096;
   block *bp;
 
   if ((int)(vol->mdb.drAlBlSt - vbmst) < vbmsz)
@@ -482,6 +483,8 @@ int l_readvbm(vol)
       return -1;
     }
 
+  if (s2 > vbmsz)
+	vbmsz = s2;
   bp = ALLOC(block, vbmsz);
   if (bp == 0)
     {

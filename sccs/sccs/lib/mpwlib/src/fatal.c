@@ -25,20 +25,21 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2007 J. Schilling
+ * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)fatal.c	1.3 07/01/11 J. Schilling
+ * @(#)fatal.c	1.4 09/11/01 J. Schilling
  */
-#if defined(sun) || defined(__GNUC__)
-
-#ident "@(#)fatal.c 1.3 07/01/11 J. Schilling"
+#if defined(sun)
+#ident "@(#)fatal.c 1.4 09/11/01 J. Schilling"
 #endif
 /*
  * @(#)fatal.c 1.8 06/12/12
  */
 
+#if defined(sun)
 #ident	"@(#)fatal.c"
 #ident	"@(#)sccs:lib/mpwlib/fatal.c"
+#endif
 # include	<defines.h>
 # include	<fatal.h>
 # include	<had.h>

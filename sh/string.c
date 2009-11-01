@@ -28,8 +28,9 @@
 /*	Copyright (c) 1984, 1986, 1987, 1988, 1989 AT&T	*/
 /*	  All Rights Reserved  	*/
 
-
+#if defined(sun)
 #pragma ident	"@(#)string.c	1.12	05/09/13 SMI"
+#endif
 
 /*
  * UNIX shell
@@ -39,11 +40,11 @@
 /*
  * This file contains modifications Copyright 2008-2009 J. Schilling
  *
- * @(#)string.c	1.10 09/07/11 2008-2009 J. Schilling
+ * @(#)string.c	1.11 09/11/01 2008-2009 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)string.c	1.10 09/07/11 2008-2009 J. Schilling";
+	"@(#)string.c	1.11 09/11/01 2008-2009 J. Schilling";
 #endif
 
 /* ========	general purpose string handling ======== */

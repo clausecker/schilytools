@@ -1,11 +1,14 @@
 #!/bin/sh
-# @(#)MAKE-all	1.2 08/08/13 Copyright 1998-2008 J. Schilling
+# @(#)MAKE-all	1.4 09/11/01 Copyright 1998-2008 J. Schilling
 
 #
 # Check if there already is a working 'smake' in the current directory
 #
 echo "Checking for working bootstrap make..."
-./smake -version && exit
+./smake -version
+if [ $? = 0 ]; then
+	exit
+fi
 echo "Creating bootstrap make..."
 
 sh ./.clean

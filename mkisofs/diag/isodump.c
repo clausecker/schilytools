@@ -1,8 +1,8 @@
-/* %Z%%M%	%I% %E% joerg */
+/* @(#)isodump.c	1.44 09/10/12 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"%Z%%M%	%I% %E% joerg";
+	"@(#)isodump.c	1.44 09/10/12 joerg";
 #endif
 /*
  * File isodump.c - dump iso9660 directory information.

@@ -1,8 +1,8 @@
-/* @(#)mconfig.h	1.64 09/04/10 Copyright 1995-2009 J. Schilling */
+/* @(#)mconfig.h	1.66 09/10/17 Copyright 1995-2009 J. Schilling */
 /*
  *	definitions for machine configuration
  *
- *	Copyright (c) 1995-2009w J. Schilling
+ *	Copyright (c) 1995-2009 J. Schilling
  *
  *	This file must be included before any other file.
  *	If this file is not included before stdio.h you will not be
@@ -513,6 +513,15 @@ extern "C" {
 #	define	PATH_ENV_DELIM_STR	":"
 #	define	far
 #	define	near
+#endif
+
+#ifdef	DBG_MALLOC
+/*
+ * We need to include this here already in order to make sure that
+ * every program that is based on mconfig.h will include schily/dbgmalloc.h
+ * in case that we specify -DDBD_MALLOC
+ */
+#include <schily/dbgmalloc.h>
 #endif
 
 #ifdef __cplusplus

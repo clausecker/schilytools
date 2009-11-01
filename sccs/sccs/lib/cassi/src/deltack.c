@@ -27,18 +27,19 @@
 /*
  * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)deltack.c	1.6 09/04/10 J. Schilling
+ * @(#)deltack.c	1.7 09/11/01 J. Schilling
  */
-#if defined(sun) || defined(__GNUC__)
-
-#ident "@(#)deltack.c 1.6 09/04/10 J. Schilling"
+#if defined(sun)
+#ident "@(#)deltack.c 1.7 09/11/01 J. Schilling"
 #endif
 /*
  * @(#)deltack.c 1.8 06/12/12
  */
 
+#if defined(sun)
 #ident	"@(#)deltack.c"
 #ident	"@(#)sccs:lib/cassi/deltack.c"
+#endif
 #include <defines.h>
 #include <had.h>
 #include <filehand.h>

@@ -1,8 +1,8 @@
-/* @(#)movearch.c	1.34 09/07/11 Copyright 1993, 1995, 2001-2009 J. Schilling */
+/* @(#)movearch.c	1.35 09/10/16 Copyright 1993, 1995, 2001-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)movearch.c	1.34 09/07/11 Copyright 1993, 1995, 2001-2009 J. Schilling";
+	"@(#)movearch.c	1.35 09/10/16 Copyright 1993, 1995, 2001-2009 J. Schilling";
 #endif
 /*
  *	Handle non-file type data that needs to be moved from/to the archive.
@@ -22,6 +22,7 @@ static	UConst char sccsid[] =
  */
 
 #include <schily/standard.h>
+#include <schily/types.h>
 #include <schily/string.h>
 #include <schily/schily.h>
 #include "star.h"

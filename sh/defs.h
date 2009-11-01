@@ -30,12 +30,14 @@
 #ifndef	_DEFS_H
 #define	_DEFS_H
 
+#if defined(sun)
 #pragma ident	"@(#)defs.h	1.28	08/01/29 SMI"
+#endif
 
 /*
  * This file contains modifications Copyright 2008-2009 J. Schilling
  *
- * @(#)defs.h	1.22 09/07/11 2008-2009 J. Schilling
+ * @(#)defs.h	1.23 09/11/01 2008-2009 J. Schilling
  */
 
 #ifdef	__cplusplus

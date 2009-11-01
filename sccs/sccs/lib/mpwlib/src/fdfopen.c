@@ -25,20 +25,21 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2007 J. Schilling
+ * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)fdfopen.c	1.3 07/01/11 J. Schilling
+ * @(#)fdfopen.c	1.4 09/11/01 J. Schilling
  */
-#if defined(sun) || defined(__GNUC__)
-
-#ident "@(#)fdfopen.c 1.3 07/01/11 J. Schilling"
+#if defined(sun)
+#ident "@(#)fdfopen.c 1.4 09/11/01 J. Schilling"
 #endif
 /*
  * @(#)fdfopen.c 1.5 06/12/12
  */
 
+#if defined(sun)
 #ident	"@(#)fdfopen.c"
 #ident	"@(#)sccs:lib/mpwlib/fdfopen.c"
+#endif
 /*
 	Interfaces with /lib/libS.a
 	First arg is file descriptor, second is read/write mode (0/1).

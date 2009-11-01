@@ -25,20 +25,21 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2007 J. Schilling
+ * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)rdmod.c	1.3 07/01/11 J. Schilling
+ * @(#)rdmod.c	1.4 09/11/01 J. Schilling
  */
-#if defined(sun) || defined(__GNUC__)
-
-#ident "@(#)rdmod.c 1.3 07/01/11 J. Schilling"
+#if defined(sun)
+#ident "@(#)rdmod.c 1.4 09/11/01 J. Schilling"
 #endif
 /*
  * @(#)rdmod.c 1.11 06/12/12
  */
 
+#if defined(sun)
 #ident	"@(#)rdmod.c"
 #ident	"@(#)sccs:lib/comobj/rdmod.c"
+#endif
 # include	<defines.h>
 
 static int	chkix	__PR((struct queue *new, struct queue *head));

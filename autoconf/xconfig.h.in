@@ -1,4 +1,4 @@
-/* @(#)xconfig.h.in	1.179 09/08/25 Copyright 1998-2009 J. Schilling */
+/* @(#)xconfig.h.in	1.181 09/10/31 Copyright 1998-2009 J. Schilling */
 /*
  *	Dynamic autoconf C-include code.
  *
@@ -410,7 +410,12 @@
 #undef HAVE_GETPROGNAME		/* getprogname() is present in libc */
 #undef HAVE_SETPROGNAME		/* setprogname() is present in libc */
 #undef HAVE_ALLOCA		/* alloca() is present (else use malloc())*/
+#undef HAVE_MALLOC		/* malloc() is present in libc */
+#undef HAVE_CALLOC		/* calloc() is present in libc */
+#undef HAVE_REALLOC		/* realloc() is present in libc */
 #undef HAVE_VALLOC		/* valloc() is present in libc (else use malloc())*/
+#undef HAVE_MEMALIGN		/* memalign() is present in libc */
+#undef HAVE_POSIX_MEMALIGN	/* posix_memalign() is present in libc */
 #undef vfork
 #undef HAVE_WCSCAT		/* wcscat() is present in libc */
 #undef HAVE_WCSNCAT		/* wcsncat() is present in libc */
@@ -641,6 +646,7 @@
 #undef HAVE_ST_FLAGS		/* if struct stat contains st_flags */
 #undef STAT_MACROS_BROKEN	/* if the macros S_ISDIR, S_ISREG .. don't work */
 
+#undef HAVE_UTSNAME_ARCH	/* if struct utsname contains processor as arch */
 #undef HAVE_UTSNAME_PROCESSOR	/* if struct utsname contains processor */
 #undef HAVE_UTSNAME_SYSNAME_HOST /* if struct utsname contains sysname_host */
 #undef HAVE_UTSNAME_RELEASE_HOST /* if struct utsname contains release_host */

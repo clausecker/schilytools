@@ -1,8 +1,8 @@
-/* @(#)parse.c	1.97 09/09/14 Copyright 1985-2009 J. Schilling */
+/* @(#)parse.c	1.98 09/10/22 Copyright 1985-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)parse.c	1.97 09/09/14 Copyright 1985-2009 J. Schilling";
+	"@(#)parse.c	1.98 09/10/22 Copyright 1985-2009 J. Schilling";
 #endif
 /*
  *	Make program
@@ -101,7 +101,7 @@ parsefile()
 	list_t	*deplist;
 	cmd_t	*cmdlist;
 
-	if (DoWarn)
+	if (Do_Warn)
 		error("Parsing file '%s'\n", mfname);
 
 	if (Dmake > 0)
@@ -298,7 +298,7 @@ define_obj(obj, n, objcnt, type, dep, cmd)
 	    (type != ADDMAC) &&
 	    !streql(obj->o_name, ".SUFFIXES")) {
 
-		if (DoWarn)
+		if (Do_Warn)
 			warn("'%s' RE-defined", obj->o_name);
 		if (obj->o_fileindex == MF_IDX_ENVIRON) {
 			obj->o_fileindex = Mfileindex;
@@ -400,7 +400,7 @@ listappend(obj, dep)
 			return;
 		}
 
-		if (DoWarn)
+		if (Do_Warn)
 			warn("'%s' ADD-defined", obj->o_name);
 		/*
 		 * if not already head of list, try to append ...
@@ -1230,7 +1230,7 @@ cvtvpath(l)
 		*tail = (list_t *) NULL;
 		freelist(lsave);
 	}
-	if (DoWarn)
+	if (Do_Warn)
 		error("VPATH but no .SEARCHLIST\n");
 	return (list);
 }
@@ -1277,7 +1277,7 @@ warn(msg, va_alist)
 #else
 	va_start(args);
 #endif
-	if (!NoWarn)
+	if (!No_Warn)
 		errmsgno(EX_BAD,
 			"WARNING: %r in line %d col %d of '%s'\n", msg, args,
 				lineno, col, mfname);

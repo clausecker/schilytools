@@ -30,14 +30,15 @@
 /*
  * This file contains modifications Copyright 2006-2008 J. Schilling
  *
- * @(#)bdiff.c	1.9 09/07/18 J. Schilling
+ * @(#)bdiff.c	1.10 09/11/01 J. Schilling
  */
-#if defined(sun) || defined(__GNUC__)
-
-#ident "@(#)bdiff.c 1.9 09/07/18 J. Schilling"
+#if defined(sun)
+#ident "@(#)bdiff.c 1.10 09/11/01 J. Schilling"
 #endif
 
+#if defined(sun)
 #pragma ident	"@(#)bdiff.c	1.15	05/06/08 SMI"
+#endif
 
 #include <schily/mconfig.h>
 #include <fatal.h>

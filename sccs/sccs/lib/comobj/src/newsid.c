@@ -25,20 +25,21 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2007 J. Schilling
+ * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)newsid.c	1.3 07/01/11 J. Schilling
+ * @(#)newsid.c	1.4 09/11/01 J. Schilling
  */
-#if defined(sun) || defined(__GNUC__)
-
-#ident "@(#)newsid.c 1.3 07/01/11 J. Schilling"
+#if defined(sun)
+#ident "@(#)newsid.c 1.4 09/11/01 J. Schilling"
 #endif
 /*
  * @(#)newsid.c 1.7 06/12/12
  */
 
+#if defined(sun)
 #ident	"@(#)sidtoser.c"
 #ident	"@(#)sccs:lib/comobj/sidtoser.c"
+#endif
 # include	<defines.h>
 
 static int	in_pfile	__PR((struct sid *sp, struct packet *pkt));

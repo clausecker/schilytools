@@ -1,8 +1,8 @@
-/* @(#)modeselect.c	1.17 09/07/11 Copyright 1995-2009 J. Schilling */
+/* @(#)modeselect.c	1.18 09/10/16 Copyright 1995-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)modeselect.c	1.17 09/07/11 Copyright 1995-2009 J. Schilling";
+	"@(#)modeselect.c	1.18 09/10/16 Copyright 1995-2009 J. Schilling";
 #endif
 /*
  *	Interactive interface for SCSI mode pages
@@ -22,6 +22,7 @@ static	UConst char sccsid[] =
  */
 
 #include <schily/stdio.h>
+#include <schily/types.h>
 #include <schily/standard.h>
 #include <schily/stdlib.h>
 #include <schily/schily.h>

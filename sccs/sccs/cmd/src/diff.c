@@ -39,14 +39,15 @@
 /*
  * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)diff.c	1.22 09/07/28 J. Schilling
+ * @(#)diff.c	1.23 09/11/01 J. Schilling
  */
-#if defined(sun) || defined(__GNUC__)
-
-#ident "@(#)diff.c 1.22 09/07/28 J. Schilling"
+#if defined(sun)
+#ident "@(#)diff.c 1.23 09/11/01 J. Schilling"
 #endif
 
+#if defined(sun)
 #pragma ident	"@(#)diff.c	1.55	05/07/22 SMI"
+#endif
 
 /*
  *	diff - differential file comparison

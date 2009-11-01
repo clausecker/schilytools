@@ -35,12 +35,14 @@
 #include <schily/mconfig.h>
 #endif
 
+#if defined(sun)
 #pragma ident	"@(#)hash.h	1.8	05/09/13 SMI"
+#endif
 
 /*
- * This file contains modifications Copyright 2008 J. Schilling
+ * This file contains modifications Copyright 2008-2009 J. Schilling
  *
- * @(#)hash.h	1.4 08/03/28 2008 J. Schilling
+ * @(#)hash.h	1.5 09/11/01 2008-2009 J. Schilling
  */
 
 /*

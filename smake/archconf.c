@@ -1,8 +1,8 @@
-/* @(#)archconf.c	1.26 09/08/28 Copyright 1996-2009 J. Schilling */
+/* @(#)archconf.c	1.27 09/10/31 Copyright 1996-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)archconf.c	1.26 09/08/28 Copyright 1996-2009 J. Schilling";
+	"@(#)archconf.c	1.27 09/10/31 Copyright 1996-2009 J. Schilling";
 #endif
 /*
  *	Make program
@@ -109,6 +109,11 @@ do_uname()
 #ifdef	HAVE_UTSNAME_PROCESSOR
 	archcvt(un.processor);
 	define_var("MAKE_ARCH", un.processor);		/* uname -p */
+#else
+#ifdef	HAVE_UTSNAME_ARCH				/* OpenVMS */
+	archcvt(un.arch);
+	define_var("MAKE_ARCH", un.arch);		/* uname -p */
+#endif
 #endif
 #ifdef	HAVE_UTSNAME_SYSNAME_HOST
 	archcvt(un.sysname_host);

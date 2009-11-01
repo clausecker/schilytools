@@ -27,18 +27,19 @@
 /*
  * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)defines.h	1.16 09/07/18 J. Schilling
+ * @(#)defines.h	1.17 09/10/31 J. Schilling
  */
-#if defined(sun) || defined(__GNUC__)
-
-#ident "@(#)defines.h 1.16 09/07/18 J. Schilling"
+#if defined(sun)
+#ident "@(#)defines.h 1.17 09/10/31 J. Schilling"
 #endif
 /*
  * @(#)defines.h 1.21 06/12/12
  */
 
+#if defined(sun)
 #ident	"@(#)defines.h"
 #ident	"@(#)sccs:hdr/defines.h"
+#endif
 # include	<schily/mconfig.h>
 # include	<schily/types.h>
 # include	<schily/utypes.h>

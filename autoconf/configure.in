@@ -1,8 +1,9 @@
-dnl @(#)configure.in	1.191 09/08/25 Copyright 1998-2009 J. Schilling
+dnl @(#)configure.in	1.194 09/10/31 Copyright 1998-2009 J. Schilling
 dnl Process this file with autoconf to produce a configure script.
-AC_REVISION(1.191)dnl
+AC_REVISION(1.194)dnl
 
-AC_INIT(xconfig.h.in)
+dnl AC_INIT(xconfig.h.in)
+AC_INIT(config.guess)
 AC_CONFIG_HEADER(xconfig.h)
 AC_CANONICAL_HOST
 
@@ -219,6 +220,7 @@ AC_STRUCT_ST_RDEV
 AC_STRUCT_ST_FLAGS
 AC_STRUCT_DIRENT_D_INO
 AC_STRUCT_DIR_DD_FD
+AC_STRUCT_UTSNAME_ARCH
 AC_STRUCT_UTSNAME_PROCESSOR
 AC_STRUCT_UTSNAME_SYSNAME_HOST
 AC_STRUCT_UTSNAME_RELEASE_HOST
@@ -318,7 +320,7 @@ AC_CHECK_FUNCS(putenv setenv snprintf strcasecmp)
 AC_CHECK_FUNCS(strcat strncat strcmp strncmp strcpy strlcpy strncpy strdup strlen strchr strrchr)
 AC_CHECK_FUNCS(wcscat wcsncat wcscmp wcsncmp wcscpy wcslcpy wcsncpy wcsdup wcslen wcschr wcsrchr)
 AC_CHECK_FUNCS(wcwidth wcswidth wctype iswctype)
-AC_CHECK_FUNCS(valloc)
+AC_CHECK_FUNCS(malloc calloc valloc realloc memalign posix_memalign)
 AC_CHECK_FUNCS(madvise)
 AC_CHECK_FUNCS(mktemp mkstemp)
 AC_CHECK_FUNCS(chflags fchflags fflagstostr strtofflags)

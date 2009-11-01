@@ -26,14 +26,15 @@
 /*
  * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)getopt.c	1.7 09/07/13 J. Schilling
+ * @(#)getopt.c	1.8 09/11/01 J. Schilling
  */
-#if defined(sun) || defined(__GNUC__)
-
-#ident "@(#)getopt.c 1.7 09/07/13 J. Schilling"
+#if defined(sun)
+#ident "@(#)getopt.c 1.8 09/11/01 J. Schilling"
 #endif
 
+#if defined(sun)
 #pragma ident	"@(#)getopt.c	1.23	05/06/08 SMI"
+#endif
 
 /*	Copyright (c) 1988 AT&T	*/
 /*	  All Rights Reserved  	*/

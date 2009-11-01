@@ -27,18 +27,19 @@
 /*
  * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)unget.c	1.9 09/07/18 J. Schilling
+ * @(#)unget.c	1.10 09/11/01 J. Schilling
  */
-#if defined(sun) || defined(__GNUC__)
-
-#ident "@(#)unget.c 1.9 09/07/18 J. Schilling"
+#if defined(sun)
+#ident "@(#)unget.c 1.10 09/11/01 J. Schilling"
 #endif
 /*
  * @(#)unget.c 1.24 06/12/12
  */
 
+#if defined(sun)
 #ident	"@(#)unget.c"
 #ident	"@(#)sccs:cmd/unget.c"
+#endif
 # include	<defines.h>
 # include	<version.h>
 # include	<had.h>

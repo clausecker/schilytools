@@ -1,8 +1,8 @@
-/* %Z%%M%	%I% %E% joerg */
+/* @(#)isovfy.c	1.41 09/10/12 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"%Z%%M%	%I% %E% joerg";
+	"@(#)isovfy.c	1.41 09/10/12 joerg";
 #endif
 /*
  * File isovfy.c - verify consistency of iso9660 filesystem.

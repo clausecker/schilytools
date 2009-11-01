@@ -1,8 +1,8 @@
-/* @(#)rscsi.c	1.36 09/08/04 Copyright 1994,2000-2009 J. Schilling*/
+/* @(#)rscsi.c	1.37 09/10/19 Copyright 1994,2000-2009 J. Schilling*/
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)rscsi.c	1.36 09/08/04 Copyright 1994,2000-2009 J. Schilling";
+	"@(#)rscsi.c	1.37 09/10/19 Copyright 1994,2000-2009 J. Schilling";
 #endif
 /*
  *	Remote SCSI server
@@ -471,11 +471,17 @@ scsiversion()
 
 	readarg(what, sizeof(what));
 	DEBUG1("rscsid: V %s\n", what);
-	if (scsi_ptr == NULL) {
-		rscsirespond(-1, EBADF);
+
+	/*
+	 * If there was no 'O'pen command yet, scsi_ptr is NULL
+	 * and our libscg returns values for the library instead
+	 * of returning values for the low level transport.
+	 */
+	str = scg_version(scsi_ptr, atoi(what));
+	if (str == NULL) {
+		rscsirespond(-1, EINVAL);
 		return;
 	}
-	str = scg_version(scsi_ptr, atoi(what));
 	ret = strlen(str);
 	ret++;	/* Include null char */
 	rscsirespond(ret, geterrno());

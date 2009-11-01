@@ -1,8 +1,8 @@
-/* @(#)make.c	1.160 09/09/09 Copyright 1985, 87, 88, 91, 1995-2009 J. Schilling */
+/* @(#)make.c	1.163 09/10/22 Copyright 1985, 87, 88, 91, 1995-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)make.c	1.160 09/09/09 Copyright 1985, 87, 88, 91, 1995-2009 J. Schilling";
+	"@(#)make.c	1.163 09/10/22 Copyright 1985, 87, 88, 91, 1995-2009 J. Schilling";
 #endif
 /*
  *	Make program
@@ -115,13 +115,13 @@ int	Mlevel		= 0;		/* MAKE_LEVEL from environment	*/
 int	Debug		= 0;		/* -d Print reason for rebuild	*/
 int	XDebug		= 0;		/* -xd Print extended debug info*/
 BOOL	Prdep		= FALSE;	/* -xM Print include dependency	*/
-BOOL	Probj		= FALSE;	/* -probj   Print object tree	*/
+BOOL	Pr_obj		= FALSE;	/* -probj   Print object tree	*/
 BOOL	Print		= FALSE;	/* -p Print macro/target definitions*/
 int	Dmake		= 0;		/* -D Display makefile		*/
 BOOL	help		= FALSE;	/* -help    Show Usage		*/
 BOOL	pversion	= FALSE;	/* -version Show version string	*/
-BOOL	NoWarn		= FALSE;	/* -w No warnings		*/
-BOOL	DoWarn		= FALSE;	/* -W Print extra warnings	*/
+BOOL	No_Warn		= FALSE;	/* -w No warnings		*/
+BOOL	Do_Warn		= FALSE;	/* -W Print extra warnings	*/
 char	Makeflags[]	= "MAKEFLAGS";
 char	Make_Flags[]	= "MAKE_FLAGS";
 char	Make_Macs[]	= "MAKE_MACS";
@@ -137,7 +137,7 @@ char	Defaults[]	= "/usr/bert/lib/defaults.smk";
 #define	MAKEFILECOUNT	32		/* Max number of Makefiles	*/
 char	SMakefile[]	= "SMakefile";	/* smake's default Makefile	*/
 char	Makefile[]	= "Makefile";	/* Primary default Makefile	*/
-char	makefile[]	= "makefile";	/* Secondary default Makefile	*/
+char	_makefile[]	= "makefile";	/* Secondary default Makefile	*/
 char   **MakeFileNames;			/* To hold all Makefilenames	*/
 int	Mfileindex;			/* Current Makefile index	*/
 int	Mfilesize;			/* Size of Makefile array	*/
@@ -378,9 +378,9 @@ read_makefiles()
 		} else if (gftime(Makefile) != 0) {	/* "Makefile" */
 			Mfilecount++;
 			MakeFileNames[2] = Makefile;
-		} else if (gftime(makefile) != 0) {	/* "makefile" */
+		} else if (gftime(_makefile) != 0) {	/* "makefile" */
 			Mfilecount++;
-			MakeFileNames[2] = makefile;
+			MakeFileNames[2] = _makefile;
 		}
 	}
 	while (Mfileindex < Mfilecount) {
@@ -881,8 +881,8 @@ main(ac, av)
 	if (getallargs(&cac, &cav, options, &help, &pversion, &posixmode,
 			&Eflag, &Iflag, &Kflag, &Nflag, &NSflag, &Print,
 			&Qflag, &Rflag, &Sflag, &Stopflag, &Tflag,
-			&NoWarn, &DoWarn,
-			&Debug, &Dmake, &Prdep, &XDebug, &Probj, &newdir,
+			&No_Warn, &Do_Warn,
+			&Debug, &Dmake, &Prdep, &XDebug, &Pr_obj, &newdir,
 			addmakefile, NULL,
 			addmakefile, NULL,
 			addcommandline, NULL) < 0) {
@@ -989,7 +989,7 @@ main(ac, av)
 	if (!Rflag)
 		check_old_makefiles();
 
-	if (Probj)		/* -probj Flag				*/
+	if (Pr_obj)		/* -probj Flag				*/
 		printtree();
 	if (Print) {		/* -p Flag				*/
 		prtree();
@@ -1192,11 +1192,11 @@ getmakeflags()
 			break;
 
 		case 'W':		/* Extra Warnings */
-			DoWarn = TRUE;
+			Do_Warn = TRUE;
 			break;
 
 		case 'w':		/* No Warnings */
-			NoWarn = TRUE;
+			No_Warn = TRUE;
 			break;
 
 		case 'Z':		/* Print includes */
@@ -1380,9 +1380,9 @@ static	char	makeenv[MAKEENV_SIZE_STATIC];
 		*p++ = 'S';
 	if (Tflag)		/* Touch */
 		*p++ = 't';
-	if (DoWarn)		/* Extra Warnings */
+	if (Do_Warn)		/* Extra Warnings */
 		*p++ = 'W';
-	if (NoWarn)		/* No Warnings */
+	if (No_Warn)		/* No Warnings */
 		*p++ = 'w';
 	if (Prdep)		/* Print includes */
 		*p++ = 'Z';

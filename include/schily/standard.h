@@ -1,4 +1,4 @@
-/* @(#)standard.h	1.36 07/02/03 Copyright 1985-2007 J. Schilling */
+/* @(#)standard.h	1.37 09/10/22 Copyright 1985-2007 J. Schilling */
 /*
  *	standard definitions
  *
@@ -95,12 +95,12 @@ typedef int BOOL;
 #	endif
 #endif
 
-#if	defined(_INCL_SYS_TYPES_H) || defined(off_t)
+#if	defined(_INCL_SYS_TYPES_H) || defined(_INCL_TYPES_) || defined(off_t)
 #	ifndef	FOUND_OFF_T
 #	define	FOUND_OFF_T
 #	endif
 #endif
-#if	defined(_INCL_SYS_TYPES_H) || defined(size_t)
+#if	defined(_INCL_SYS_TYPES_H) || defined(_INCL_TYPES_) || defined(size_t)
 #	ifndef	FOUND_SIZE_T
 #	define	FOUND_SIZE_T
 #	endif

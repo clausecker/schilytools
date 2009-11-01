@@ -1,8 +1,8 @@
-/* @(#)fillbytes.c	1.16 07/06/24 Copyright 1987, 1995-2007 J. Schilling */
+/* @(#)fillbytes.c	1.17 09/10/17 Copyright 1987, 1995-2009 J. Schilling */
 /*
  *	fill memory with data
  *
- *	Copyright (c) 1987, 1995-2007 J. Schilling
+ *	Copyright (c) 1987, 1995-2009 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -18,6 +18,7 @@
 
 #include <schily/standard.h>
 #include <schily/align.h>
+#include <schily/types.h>
 #include <schily/schily.h>
 
 #define	DO8(a)	a; a; a; a; a; a; a; a;
@@ -29,17 +30,17 @@
  */
 #ifdef	PROTOTYPES
 EXPORT char *
-fillbytes(void *tov, int cnt, char val)
+fillbytes(void *tov, ssize_t cnt, char val)
 #else
 EXPORT char *
 fillbytes(tov, cnt, val)
 	void	*tov;
-	int	cnt;
+	ssize_t	cnt;
 	char	val;
 #endif
 {
 	register char	*to = (char *)tov;
-	register int	n;
+	register ssize_t n;
 	register long	lval;
 
 	/*
@@ -58,8 +59,8 @@ fillbytes(tov, cnt, val)
 	}
 	n++;
 
-	if (n >= (int)(8 * sizeof (long))) {
-		register int rem = n % (8 * sizeof (long));
+	if (n >= (ssize_t)(8 * sizeof (long))) {
+		register ssize_t rem = n % (8 * sizeof (long));
 
 		lval |= (lval<<8);
 		lval |= (lval<<16);

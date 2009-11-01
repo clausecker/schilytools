@@ -1,4 +1,4 @@
-/* @(#)libport.h	1.19 09/06/07 Copyright 1995-2009 J. Schilling */
+/* @(#)libport.h	1.20 09/10/22 Copyright 1995-2009 J. Schilling */
 /*
  *	Copyright (c) 1995-2009 J. Schilling
  */
@@ -33,7 +33,7 @@
 extern "C" {
 #endif
 
-#if	defined(_INCL_SYS_TYPES_H) || defined(size_t)
+#if	defined(_INCL_SYS_TYPES_H) || defined(_INCL_TYPES_) || defined(size_t)
 #	ifndef	FOUND_SIZE_T
 #	define	FOUND_SIZE_T
 #	endif

@@ -27,18 +27,19 @@
 /*
  * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)get.c	1.20 09/07/18 J. Schilling
+ * @(#)get.c	1.21 09/11/01 J. Schilling
  */
-#if defined(sun) || defined(__GNUC__)
-
-#ident "@(#)get.c 1.20 09/07/18 J. Schilling"
+#if defined(sun)
+#ident "@(#)get.c 1.21 09/11/01 J. Schilling"
 #endif
 /*
  * @(#)get.c 1.59 06/12/12
  */
 
+#if defined(sun)
 #ident	"@(#)get.c"
 #ident	"@(#)sccs:cmd/get.c"
+#endif
 
 #include	<defines.h>
 #include	<version.h>

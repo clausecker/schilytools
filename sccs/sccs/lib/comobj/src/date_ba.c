@@ -25,11 +25,21 @@
  * Use is subject to license terms.
  */
 /*
+ * This file contains modifications Copyright 2009 J. Schilling
+ *
+ * @(#)date_ba.c	1.2 09/11/01 J. Schilling
+ */
+#if defined(sun)
+#ident "@(#)date_ba.c 1.2 09/11/01 J. Schilling"
+#endif
+/*
  * @(#)date_ba.c 1.5 06/12/12
  */
 
+#if defined(sun)
 #ident	"@(#)date_ba.c"
 #ident	"@(#)sccs:lib/comobj/date_ba.c"
+#endif
 # include	<defines.h>
 
 # define DO2(p,n,c)	*p++ = ((char) ((n)/10) + '0'); *p++ = ( (char) ((n)%10) + '0'); *p++ = c;

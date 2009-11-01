@@ -25,20 +25,21 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2007 J. Schilling
+ * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)newstats.c	1.3 07/01/11 J. Schilling
+ * @(#)newstats.c	1.4 09/11/01 J. Schilling
  */
-#if defined(sun) || defined(__GNUC__)
-
-#ident "@(#)newstats.c 1.3 07/01/11 J. Schilling"
+#if defined(sun)
+#ident "@(#)newstats.c 1.4 09/11/01 J. Schilling"
 #endif
 /*
  * @(#)newstats.c 1.3 06/12/12
  */
 
+#if defined(sun)
 #ident	"@(#)newstats.c"
 #ident	"@(#)sccs:lib/comobj/newstats.c"
+#endif
 # include	<defines.h>
 
 void

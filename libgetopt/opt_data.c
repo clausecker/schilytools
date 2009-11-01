@@ -24,7 +24,9 @@
  * Use is subject to license terms.
  */
 
+#if defined(sun)
 #pragma ident	"@(#)opt_data.c	1.11	05/06/08 SMI"
+#endif
 
 /*	Copyright (c) 1988 AT&T	*/
 /*	  All Rights Reserved  	*/

@@ -19,6 +19,7 @@
 ./label/check_part.c
 ./label/io.c
 ./label/makelabel.c
+./libdbgmalloc/alloc.c
 ./libshedit/bsh.h
 ./libshedit/bshconf.h
 ./libshedit/comerr.c
@@ -172,6 +173,7 @@
 ./RULES/alpha-linux-gcc.rul
 ./RULES/alpha-netbsd-cc.rul
 ./RULES/alpha-netbsd-gcc.rul
+./RULES/alphaserver_ds20_500_mhz-openvms-cc.rul
 ./RULES/amd64-netbsd-cc.rul
 ./RULES/amd64-netbsd-gcc.rul
 ./RULES/amiga-netbsd-cc.rul

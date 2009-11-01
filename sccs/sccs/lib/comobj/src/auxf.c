@@ -25,11 +25,21 @@
  * Use is subject to license terms.
  */
 /*
+ * This file contains modifications Copyright 2009 J. Schilling
+ *
+ * @(#)auxf.c	1.2 09/11/01 J. Schilling
+ */
+#if defined(sun)
+#ident "@(#)auxf.c 1.2 09/11/01 J. Schilling"
+#endif
+/*
  * @(#)auxf.c 1.5 06/12/12
  */
 
+#if defined(sun)
 #ident	"@(#)auxf.c"
 #ident	"@(#)sccs:lib/comobj/auxf.c"
+#endif
 # include	<defines.h>
 
 

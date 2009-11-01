@@ -1,8 +1,8 @@
-/* @(#)alloc.c	1.45 09/07/11 Copyright 1985,1988,1991,1995-2009 J. Schilling */
+/* %Z%%M%	%I% %E% Copyright 1985,1988,1991,1995-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)alloc.c	1.45 09/07/11 Copyright 1985,1988,1991,1995-2009 J. Schilling";
+	"%Z%%M%	%I% %E% Copyright 1985,1988,1991,1995-2009 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1985,1988,1991,1995-2009 J. Schilling
@@ -19,8 +19,14 @@ static	UConst char sccsid[] =
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
+#ifdef	NO_FAST_MALLOC
+#undef	FAST_MALLOC
+#endif
 #ifdef	D_MALLOC
 #undef	FAST_MALLOC
+#	define	ADEBUG		/* Mit debug Funktionen aprintfree()... */
+#	define	XADEBUG		/* Mit Heap Damage Ckeck */
+#	define	DXADEBUG
 #endif
 #ifdef	BSH
 #	define	ADEBUG		/* Mit debug Funktionen aprintfree()... */
@@ -48,8 +54,15 @@ static	UConst char sccsid[] =
 
 #if defined(ADEBUG) || defined(BSH)
 #	include <schily/stdio.h>
+#	include <schily/ctype.h>
 #endif
 
+#ifdef	DXADEBUG
+#	define	XADEBUG
+#endif
+#ifdef	XADEBUG
+#	include <schily/signal.h>
+#endif
 
 #include <schily/standard.h>
 #include <schily/unistd.h>
@@ -72,7 +85,7 @@ static	UConst char sccsid[] =
 /*#define	MEMRAISE*/
 /*#define	ALLOWSMALLINC*/
 
-#ifdef	FAST_MALLOC
+#ifdef	FAST_MALLOC	/* Fast malloc() disables debugging */
 #undef	XADEBUG
 #undef	DXADEBUG
 #undef	CHECKFREE
@@ -102,6 +115,50 @@ static	UConst char sccsid[] =
  *			in der Hoffnung, zu verhindern, dasz sich kleine
  *			Stuecke am Anfang des Heaps haeufen. nur last.sfree
  *			wird benutzt.
+ *
+ *	Mit Debugging:
+ *	Niedrige Adressen
+ *	-----------------------------------------------------------------------
+ *	| struct space *snext
+ *	-----------------------------------------------------------------------
+ *	| struct space *sfree
+ *	-----------------------------------------------------------------------
+ *	| ...				Wenn XADEBUG, dann Debug Infos
+ *	-----------------------------------------------------------------------
+ *	| struct space *store		Erste gueltige Nutzadresse v. malloc()
+ *	-----------------------------------------------------------------------
+ *	| ...				Weiterer Platz
+ *	-----------------------------------------------------------------------
+ *	| 				Letze gueltige Nutzadresse				
+ *	-----------------------------------------------------------------------
+ *	| 0x55				Wenn XADEBUG & size%malign -> Endmarker
+ *	-----------------------------------------------------------------------
+ *	| ...				Wenn 0x55, evt. Alignement (leer)
+ *	-----------------------------------------------------------------------
+ *	| ...				evt. Padding bis zum naechsten Block
+ *	-----------------------------------------------------------------------
+ *	| 0x12345678			Wenn XADEBUG, Debug Magic
+ *	-----------------------------------------------------------------------
+ *	| size				Wenn XADEBUG, malloc() size Parameter 
+ *	-----------------------------------------------------------------------
+ *	Hohe Adressen
+ *
+ *	Ohne Debugging:
+ *	Niedrige Adressen
+ *	-----------------------------------------------------------------------
+ *	| struct space *snext
+ *	-----------------------------------------------------------------------
+ *	| struct space *sfree
+ *	-----------------------------------------------------------------------
+ *	| struct space *store		Erste gueltige Nutzadresse v. malloc()
+ *	-----------------------------------------------------------------------
+ *	| ...				Weiterer Platz
+ *	-----------------------------------------------------------------------
+ *	| 				Letze gueltige Nutzadresse				
+ *	-----------------------------------------------------------------------
+ *	| ...				evt. Padding bis zum naechsten Block
+ *	-----------------------------------------------------------------------
+ *	Hohe Adressen
  *
  *	Allegmeine Hinweise:
  *
@@ -135,10 +192,14 @@ static	UConst char sccsid[] =
 /* XXX mit #define store get realloc nicht (siehe unten) */
 
 typedef struct space {
-	struct space *snext;
-	struct space *sfree;
+	struct space *snext;	/* Next storage chunk			*/
+	struct space *sfree;	/* Next free storage chunk		*/
+#ifdef	XADEBUG
+	char	*file;		/* File name for calling function	*/
+	int	line;		/* Line number for calling function	*/
+#endif
 #ifndef	store
-	struct space *store;
+	struct space *store;	/* This is where the storage space is	*/
 #endif
 } SPACE;
 
@@ -193,6 +254,11 @@ LOCAL	SPACE	*_extcor	__PR((size_t size));
 LOCAL	SPACE	*init		__PR((void));
 EXPORT	void	free		__PR((void *t));
 LOCAL	BOOL	frext		__PR((size_t size));
+#ifdef	XADEBUG
+EXPORT	void	*dbg_malloc	__PR((size_t size, char *file, int line));
+EXPORT	void	*dbg_calloc	__PR((size_t nelem, size_t elsize, char *file, int line));
+EXPORT	void	*dbg_realloc	__PR((void *t, size_t size, char *file, int line));
+#endif
 EXPORT	void	*malloc		__PR((size_t size));
 EXPORT	void	*calloc		__PR((size_t nelem, size_t elsize));
 EXPORT	void	cfree		__PR((void *t));
@@ -206,6 +272,11 @@ EXPORT	void	nomemraising	__PR((BOOL val));
 EXPORT	void	aprintfree	__PR((FILE * f));
 LOCAL	int	afpchar		__PR((FILE * f, int c));
 LOCAL	void	aprints		__PR((FILE * f, SPACE *s, char *str));
+#ifdef	XADEBUG
+LOCAL	BOOL	aisdamaged	__PR((SPACE * this));
+LOCAL	void	adbgdamaged	__PR((SPACE * this));
+LOCAL	void	aprdamaged	__PR((FILE * f, SPACE *this));
+#endif
 EXPORT	BOOL	acheckdamage	__PR((void));
 LOCAL	void	aprintx		__PR((FILE * f, SPACE *s, long l));
 EXPORT	void	aprintlist	__PR((FILE * f, long l));
@@ -220,7 +291,7 @@ EXPORT int
 brk(endds)
 	void	*endds;
 {
-	void		*curend = sbrk(0);
+	void		*curend = sbrk((Intptr_t)0);
 	Intptr_t	incr;
 
 	incr = ((char *)endds) - ((char *)curend);
@@ -260,7 +331,7 @@ _extcor(size)
 #ifdef ALLOWSMALLINC
 		meminc = FIRSTINC;
 		newend = (SPACE *)((char *)oldend + meminc);
-		if (brk((char *)newend) == (char *)-1)
+		if (brk((char *)newend) == -1)
 			return ((SPACE *)NULL);
 		else
 			heapend = newend;
@@ -286,15 +357,25 @@ init()
 	size_t	inc	= 0;
 	size_t	pgsize	= 0;
 
+	if (heapbeg != (SPACE *)NULL)
+		return (high);
+
 #ifdef	_SC_PAGESIZE
 	pgsize = sysconf(_SC_PAGESIZE);
 #else
 	pgsize = getpagesize();
 #endif
-	heapbeg = heapend = (SPACE *)sbrk(0);
+	heapbeg = heapend = (SPACE *)sbrk((Intptr_t)0);
+	if (!maligned(heapbeg)) {	/* Should never happen		*/
+		heapbeg = heapend = (SPACE *)malign(heapbeg);
+		if (brk((char *)heapbeg) == -1)
+			return ((SPACE *)NULL);
+	}
 	if (pgsize > 0) {
-		inc = pgsize - ((unsigned long)heapbeg) % pgsize;
-		meminc = 1;	/* damit _extcor() nicht aufrundet */
+		inc = pgsize - ((UIntptr_t)heapbeg) % pgsize;
+		if (inc < sizeof (SPACE))
+			inc += pgsize;
+		meminc = 1;		/* damit _extcor() nicht aufrundet */
 	}
 	if ((high = avail.sfree = last.sfree = _extcor(inc)) != (SPACE *)NULL)
 		high->snext = high->sfree = heapend;
@@ -326,6 +407,9 @@ free(t)
 	register	SPACE	*prev;
 	register	SPACE	*next;
 
+#ifdef	XADEBUG
+	(void) acheckdamage();
+#endif
 	if (t == NULL)
 		return;
 	if (this < heapbeg || this >= heapend) {
@@ -346,6 +430,18 @@ free(t)
 			raisecond(notinheap, 0L);
 		}
 	}
+#ifdef	XADEBUG
+	if (aisdamaged(this)) {
+		void	(*osigquit) __PR((int));
+
+		adbgdamaged(this);
+
+		osigquit = signal(SIGQUIT, SIG_DFL);
+		sleep(1);
+		signal(SIGQUIT, osigquit);
+		raisecond("heap damaged", 0L);
+	}
+#endif
 
 	/*
 	 *	Suchen der freien Stuecke vor und nach 'this'
@@ -409,10 +505,75 @@ frext(size)
 	for (prev = &last; prev->sfree != new; prev = prev->sfree);
 	prev->sfree = heapend;
 	last.sfree = prev;
+#ifdef	XADEBUG
+	prev = (struct space *)((char *)new->snext-2*sizeof (struct space *));
+	prev->snext = (struct space *)0x12345678;
+	prev->sfree = (struct space *)chunksize(new);
+#endif
 	(void) free((char *)&new->store);
 	return (TRUE);
 }
 
+#ifdef	XADEBUG
+EXPORT void *
+dbg_malloc(size, file, line)
+	register	size_t	size;
+			char	*file;
+			int	line;
+{
+	void		*ret = malloc(size);
+	register	SPACE	*this;
+
+	if (ret == 0)
+		return (ret);
+
+	this = chunkaddr(ret); /* zeigt auf Blockstart*/
+	this->file = file;
+	this->line = line;
+
+	return (ret);
+}
+
+EXPORT void *
+dbg_calloc(nelem, elsize, file, line)
+			size_t	nelem;
+	register	size_t	elsize;
+			char	*file;
+			int	line;
+{
+	void		*ret = calloc(nelem, elsize);
+	register	SPACE	*this;
+
+	if (ret == 0)
+		return (ret);
+
+	this = chunkaddr(ret); /* zeigt auf Blockstart*/
+	this->file = file;
+	this->line = line;
+
+	return (ret);
+}
+
+EXPORT void *
+dbg_realloc(t, size, file, line)
+			void	*t;
+	register	size_t	size;
+			char	*file;
+			int	line;
+{
+	void		*ret = realloc(t, size);
+	register	SPACE	*this;
+
+	if (ret == 0)
+		return (ret);
+
+	this = chunkaddr(ret); /* zeigt auf Blockstart*/
+	this->file = file;
+	this->line = line;
+
+	return (ret);
+}
+#endif
 
 /*---------------------------------------------------------------------------
 |
@@ -433,6 +594,9 @@ malloc(size)
 	register	SPACE	*new;
 	register	size_t	pass;
 	register 	size_t	left;
+#ifdef	XADEBUG
+			size_t	xsize = size;
+#endif
 
 	if (heapbeg == (SPACE *)NULL) {
 		if (init() == (SPACE *)NULL) {
@@ -443,6 +607,9 @@ malloc(size)
 			return (NULL);
 		}
 	}
+#ifdef	XADEBUG
+	(void) acheckdamage();
+#endif
 
 	/*
 	 * Die minimale Speichermenge ist struct space aber mindestens
@@ -450,8 +617,22 @@ malloc(size)
 	 * struct space der vor space->store liegt.
 	 */
 	size = max(size, sizeof (new->store)) + (int)&((SPACE *)0)->store;
+#ifdef	XADEBUG
+#ifdef	ALWAYS_55
+	/*
+	 * Ein Byte fuer 0x55, damit immer ein Endmarker moeglich ist.
+	 */
+	size += 1;
+#endif
+	/*
+	 * Am Ende dieses Stueckes werden 2 Pointer reserviert.
+	 * Der erste Pointer wird mit einem magischen Pointer initialisiert,
+	 * der zweite mit der wirklich gewuenschten Speichergroesze.
+	 */
+	size += 2*sizeof (struct space *);
+#endif
 
-	size = (size_t)palign(size); /* runden auf naechsten Pointer */
+	size = (size_t)malign(size); /* runden auf naechsten "Max Size Type" */
 
 	for (pass = 0, prev = last.sfree; ; pass++) {
 		if (prev < heapend)
@@ -477,6 +658,18 @@ malloc(size)
 				 */
 				prev->sfree = this->sfree;
 				last.sfree = prev;
+#ifdef	XADEBUG
+				new = (struct space *)((char *)this->snext-
+						2*sizeof (struct space *));
+				new->snext = (struct space *)0x12345678;
+				new->sfree = (struct space *)xsize;
+				if (chunksize(this) >
+					(xsize + (size_t)&((SPACE *)0)->store
+					+ 2*sizeof (struct space *)))
+					((char *)&this->store)[xsize] = 0x55;
+				this->file = "<unknown-file>";
+				this->line = 0;
+#endif
 				return ((char *) &this->store);
 			}
 		prev = &avail;
@@ -550,6 +743,9 @@ realloc(t, size)
 	register char	*n;
 		size_t	osize;
 
+#ifdef	XADEBUG
+	(void) acheckdamage();
+#endif
 	if (t == NULL)
 		return (malloc(size));
 
@@ -678,12 +874,100 @@ aprints(f, s, str)
 			(Llong)chunksize(s), str);
 }
 
+#ifdef	XADEBUG
+LOCAL BOOL
+aisdamaged(this)
+	register SPACE	*this;
+{
+	register SPACE	*next;
+
+	next = (struct space *)((char *)this->snext-2*sizeof (struct space *));
+
+	if (next < heapbeg || next > heapend)
+		return (TRUE);
+
+	return ((next->snext != (struct space *)0x12345678) ||
+			(chunksize(this) >
+			((size_t)next->sfree + (size_t)&((SPACE *)0)->store
+			+ 2*sizeof (struct space *)) &&
+			((char *)&this->store)[(long)next->sfree] != 0x55));
+}
+
+LOCAL void
+adbgdamaged(this)
+	register SPACE	*this;
+{
+	register SPACE	*next;
+
+#ifdef	XADEBUG
+	(void) acheckdamage();
+#endif
+	next = (struct space *)((char *)this->snext-2*sizeof (struct space *));
+	error("this:  %p ", this);
+	error("store: %p ", &this->store);
+	error("snext: %p ", next->snext);
+	error("chunksz: %lld ", (Llong)chunksize(this));
+	error("size: %ld %lX ", (long)next->sfree, (long)next->sfree);
+#ifdef	PR_LASTBYTE
+	error("lastbyte: %CX\n", ((char *)&this->store)[(long)next->sfree]);
+#else
+	error("caller: file '%s' line %d ", this->file, this->line);
+	error("\n");
+#endif
+}
+
+LOCAL void
+aprdamaged(f, this)
+	FILE	*f;
+	SPACE	*this;
+{
+	if (aisdamaged(this))
+		afpchar(f, '*');
+	else
+		afpchar(f, ' ');
+}
+
+EXPORT BOOL
+acheckdamage()
+{
+	register SPACE	*s;
+	register SPACE	*fr;
+		int	ret = FALSE;
+	FILE	*f = stderr;
+
+/*fprintf(stderr, ".");*/
+
+	for (s = heapbeg, fr = avail.sfree; !ctlc && s < heapend;
+							s = s->snext) {
+		while (!ctlc && s < fr) {
+			if (aisdamaged(s)) {
+				ret = TRUE;
+				aprints(f, s, "BUSY");
+#ifdef	XADEBUG
+				error(" caller: file %s line %d ",
+							s->file, s->line);
+				aprdamaged(f, s);
+#endif
+				aprintx(f, s, 1);
+				fprintf(f, "\n");
+return (TRUE);
+			}
+			s = s->snext;
+		}
+		if (fr >= heapend)
+			break;
+		fr = fr->sfree;
+	}
+	return (ret);
+}
+#else
 
 EXPORT BOOL
 acheckdamage()
 {
 	return (FALSE);
 }
+#endif	/* XADEBUG */
 
 LOCAL void
 aprintx(f, s, l)
@@ -737,12 +1021,18 @@ aprintlist(f, l)
 							s = s->snext) {
 		while (!ctlc && s < fr) {
 			aprints(f, s, "BUSY");
+#ifdef	XADEBUG
+			aprdamaged(f, s);
+#endif
 			if (l)
 				aprintx(f, s, l);
 			fprintf(f, "\n");
 			s = s->snext;
 		}
 		aprints(f, s, "FREE");
+#ifdef	XADEBUG
+		afpchar(f, ' ');
+#endif
 		if (l > 0)
 			aprintx(f, s, l);
 		fprintf(f, "\n");
@@ -758,7 +1048,7 @@ aprintchunk(f, l)
 	register SPACE	*s;
 	register char	*p;
 
-	s = (SPACE *)palign(l);	/* runden auf naechsten Pointer */
+	s = (SPACE *)malign(l);	/* runden auf naechsten "Max Size Type" */
 
 	if (s < heapbeg || s >= heapend)
 		return;
@@ -797,6 +1087,9 @@ balloc(vp, std, flag)
 		wrong_args(vp, std);
 	} else {
 #ifdef	ADEBUG
+#ifdef	XADEBUG
+		(void) acheckdamage();
+#endif
 		if (vp->av_ac == 2) {
 			if (*astol(vp->av_av[1], &l) == '\0') {
 				aprintchunk(std[1], l);

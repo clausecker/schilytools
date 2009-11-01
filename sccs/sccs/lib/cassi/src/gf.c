@@ -25,20 +25,21 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2007 J. Schilling
+ * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)gf.c	1.3 07/01/01 J. Schilling
+ * @(#)gf.c	1.4 09/11/01 J. Schilling
  */
-#if defined(sun) || defined(__GNUC__)
-
-#ident "@(#)gf.c 1.3 07/01/01 J. Schilling"
+#if defined(sun)
+#ident "@(#)gf.c 1.4 09/11/01 J. Schilling"
 #endif
 /*
  * @(#)gf.c 1.5 06/12/12
  */
 
+#if defined(sun)
 #ident	"@(#)gf.c"
 #ident	"@(#)sccs:lib/cassi/gf.c"
+#endif
 
 /* EMACS_MODES: c !fill tabstop=4 */
 

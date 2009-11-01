@@ -27,18 +27,19 @@
 /*
  * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)delta.c	1.14 09/07/18 J. Schilling
+ * @(#)delta.c	1.15 09/11/01 J. Schilling
  */
-#if defined(sun) || defined(__GNUC__)
-
-#ident "@(#)delta.c 1.14 09/07/18 J. Schilling"
+#if defined(sun)
+#ident "@(#)delta.c 1.15 09/11/01 J. Schilling"
 #endif
 /*
  * @(#)delta.c 1.40 06/12/12
  */
 
+#if defined(sun)
 #ident	"@(#)delta.c"
 #ident	"@(#)sccs:cmd/delta.c"
+#endif
 
 # include	<defines.h>
 # include	<version.h>

@@ -25,11 +25,10 @@
 /*
  * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)sccs.c	1.32 09/10/09 J. Schilling
+ * @(#)sccs.c	1.33 09/11/01 J. Schilling
  */
-#if defined(sun) || defined(__GNUC__)
-
-#ident "@(#)sccs.c 1.32 09/10/09 J. Schilling"
+#if defined(sun)
+#ident "@(#)sccs.c 1.33 09/11/01 J. Schilling"
 #endif
 /*
  * @(#)sccs.c 1.85 06/12/12

@@ -1,9 +1,9 @@
-/* @(#)xmconfig.h	1.34 06/10/21 Copyright 1995-2006 J. Schilling */
+/* @(#)xmconfig.h	1.41 09/10/31 Copyright 1995-2009 J. Schilling */
 /*
  *	This file either includes the manual generated
  *	static definitions for a machine configuration.
  *
- *	Copyright (c) 1995-2006 J. Schilling
+ *	Copyright (c) 1995-2009 J. Schilling
  *
  *	Use only cpp instructions.
  *
@@ -40,6 +40,8 @@ extern "C" {
 #	define	__NOT_SVR4__	/* Not a real SVR4 implementation */
 
 #	define	HAVE_UNISTD_H
+#	define	HAVE_SYS_TYPES_H
+#	define	HAVE_CTYPE_H
 /*  #	define	HAVE_SYS_TIME_H	*/
 #	define	HAVE_FCNTL_H
 #	define	HAVE_USLEEP
@@ -103,7 +105,7 @@ extern "C" {
 #	define	HAVE_WAIT_H
 /*#	define	HAVE_SYS_WAIT_H	*/
 /*#	define	HAVE_SYS_SYSTEMINFO_H	*/
-/*#	define	HAVE_SYS_UTSNAME_H  */
+#	define	HAVE_SYS_UTSNAME_H  
 /*#	define	HAVE_SYS_PRIOCNTL_H */
 /*#	define	HAVE_SYS_RTPRIOCNTL_H	*/
 /*#	define	HAVE_SYS_MTIO_H	*/
@@ -154,6 +156,18 @@ extern "C" {
 /*#	define	HAVE_GETAV0 */
 /*#	define	HAVE_SCANSTACK	*/
 
+#	define	HAVE_STRUCT_TIMEVAL
+#	define	HAVE_UTSNAME_ARCH	/* uname -p */
+
+#	define HAVE_MALLOC
+#	define HAVE_CALLOC
+#	define HAVE_REALLOC
+
+#	define	HAVE_UNAME
+#	define	HAVE_RENAME
+#	define	HAVE_PUTENV
+#	define	HAVE_STRNCPY
+
 /* 2005-11-22 SMS.  Enabled some above.  Added some below. */
 #	define	HAVE_ECVT
 #	define	HAVE_FCVT
@@ -167,9 +181,11 @@ extern "C" {
 #	define	NICE_DECR -8
 
 /* 2005-03-14 SMS.  Need VMS-specific open() parameters. */
+#ifndef	NO_OPENFD_SRC
 #	define _OPENFD_SRC	/* Use VMS-specific _openfd() function.*/
 #	define _openfd openfd_vms	/* This one. */
 #	define O_BINARY 0x0004	/* DOS-like value.  Implies "ctx=bin". */
+#endif
 
 #	define HAVE_C_BIGENDIAN
 #	define HAVE_C_BITFIELDS

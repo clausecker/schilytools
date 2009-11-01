@@ -1,8 +1,8 @@
-/* @(#)readfile.c	1.58 09/07/08 Copyright 1985-2009 J. Schilling */
+/* @(#)readfile.c	1.59 09/10/22 Copyright 1985-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)readfile.c	1.58 09/07/08 Copyright 1985-2009 J. Schilling";
+	"@(#)readfile.c	1.59 09/10/22 Copyright 1985-2009 J. Schilling";
 #endif
 /*
  *	Make program
@@ -225,7 +225,7 @@ readfile(name, must_exist)
 	/*
 	 * Diese Meldung ist noch falsch (Rekursion/Makefiles)
 	 */
-	if (DoWarn)
+	if (Do_Warn)
 		error("Reading file '%s' in line %d of '%s'\n", name,
 			olineno, mfname);
 

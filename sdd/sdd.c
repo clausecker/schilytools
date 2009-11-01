@@ -1,8 +1,8 @@
-/* @(#)sdd.c	1.60 09/07/11 Copyright 1984-2009 J. Schilling */
+/* @(#)sdd.c	1.61 09/10/18 Copyright 1984-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)sdd.c	1.60 09/07/11 Copyright 1984-2009 J. Schilling";
+	"@(#)sdd.c	1.61 09/10/18 Copyright 1984-2009 J. Schilling";
 #endif
 /*
  *	sdd	Disk and Tape copy
@@ -83,7 +83,7 @@ LOCAL	long	writebuf	__PR((char *buf, long len));
 LOCAL	long	readblocks	__PR((char *buf, long len));
 LOCAL	long	writeblocks	__PR((char *buf, long len));
 LOCAL	void	fill		__PR((char *bp, long start, long end));
-LOCAL	void	swabb		__PR((char *bp, int cnt));
+LOCAL	void	swabb		__PR((char *bp, long cnt));
 LOCAL	void	lcase		__PR((char *bp, long cnt));
 LOCAL	void	ucase		__PR((char *bp, long cnt));
 LOCAL	long	block		__PR((char *bp, long cnt));
@@ -94,10 +94,10 @@ LOCAL	void	getstarttime	__PR((void));
 LOCAL	void	prstats		__PR((void));
 LOCAL	void	getopts		__PR((int ac, char **av));
 LOCAL	void	usage		__PR((int ex));
-LOCAL	int	openremote	__PR((char *filename, int iosize));
+LOCAL	int	openremote	__PR((char *filename, long iosize));
 LOCAL	int	ropenfile	__PR((int rfd, char *name, int mode));
-LOCAL	int	rread		__PR((void *buf, int cnt));
-LOCAL	int	rwrite		__PR((void *buf, int cnt));
+LOCAL	ssize_t	rread		__PR((void *buf, size_t cnt));
+LOCAL	ssize_t	rwrite		__PR((void *buf, size_t cnt));
 LOCAL	off_t	riseek		__PR((off_t pos));
 LOCAL	off_t	roseek		__PR((off_t pos));
 LOCAL	off_t	ifsize		__PR((void));
@@ -599,7 +599,7 @@ memalloc(size)
 {
 	char	*ret;
 	unsigned int pagesize = 512;
-	unsigned long l;
+	UIntptr_t l;
 
 #ifdef	HAVE_GETPAGESIZE
 	pagesize = getpagesize();
@@ -608,10 +608,10 @@ memalloc(size)
 	pagesize = sysconf(_SC_PAGESIZE);
 #endif
 #endif
-	if ((ret = malloc((unsigned int)size+pagesize)) == NULL)
+	if ((ret = malloc((size_t)(size+pagesize))) == NULL)
 		comerr("No memory.\n");
 
-	l = (unsigned long)ret;
+	l = (UIntptr_t)ret;
 	l = roundup(l, pagesize);
 	ret = (char *)l;
 
@@ -772,7 +772,7 @@ writevol(buf, len)
 	char	*buf;
 	long	len;
 {
-	int cnt;
+	long cnt;
 
 	if (ovsize != 0) {
 		if (ovpos >= ovsize)
@@ -898,7 +898,7 @@ readbuf(buf, len)
 	}
 	if (noerror && noseek)
 		fill(buf, 0L, len);
-	cnt = rread(buf, (int)len);
+	cnt = rread(buf, len);
 	if (debug) {
 		if (cnt < 0)
 			err = geterrno();
@@ -955,7 +955,8 @@ writebuf(buf, len)
 			errmsgno((int) err, "Error seeking '%s'.\n", outfile);
 		}
 		cnt = len;
-	} else if ((cnt = rwrite(buf, (int)len)) <= 0) {
+	} else if ((cnt = rwrite(buf, len)) <= 0) {
+error("cnt %ld\n", cnt);
 		if (cnt == 0)		/* EOF */
 			err = ENDOFFILE;
 		else if (cnt < 0)
@@ -1013,7 +1014,7 @@ readblocks(buf, len)
 					(void) fflush(stderr);
 				}
 				(void) riseek((off_t)(ifsize() - SDD_BSIZE));
-				(void) rread(buf, (int) aktlen);
+				(void) rread(buf, aktlen);
 
 			} else if (trys > 0 && (trys == 2 || ! (trys & 7))) {
 				if (debug) {
@@ -1021,7 +1022,7 @@ readblocks(buf, len)
 					(void) fflush(stderr);
 				}
 				(void) riseek((off_t)0);
-				(void) rread(buf, (int) aktlen);
+				(void) rread(buf, aktlen);
 			}
 			if (debug) {
 				(void) putc(',', stderr);
@@ -1029,7 +1030,7 @@ readblocks(buf, len)
 			}
 			fill(buf, 0L, aktlen);
 			(void) riseek(pos);
-			cnt = rread(buf, (int) aktlen);
+			cnt = rread(buf, aktlen);
 			if (cnt < 0) {
 				err = geterrno();
 #ifdef	ECONNRESET
@@ -1099,7 +1100,7 @@ writeblocks(buf, len)
 				}
 				(void) roseek((off_t)(ifsize() - SDD_BSIZE));
 /* XXX we would need to read the output file here - open with "r" ??? */
-/*				(void) rread(rdbuf, (int) aktlen);*/
+/*				(void) rread(rdbuf, aktlen);*/
 
 			} else if (trys > 0 && (trys == 2 || ! (trys & 7))) {
 				if (debug) {
@@ -1108,14 +1109,14 @@ writeblocks(buf, len)
 				}
 				(void) roseek((off_t)0);
 /* XXX we would need to read the output file here - open with "r" ??? */
-/*				(void) rread(rdbuf, (int) aktlen);*/
+/*				(void) rread(rdbuf, aktlen);*/
 			}
 			if (debug) {
 				(void) putc(';', stderr);
 				(void) fflush(stderr);
 			}
 			(void) roseek(pos);
-			cnt = rwrite(buf, (int) aktlen);
+			cnt = rwrite(buf, aktlen);
 			if (cnt < 0) {
 				err = geterrno();
 #ifdef	ECONNRESET
@@ -1172,7 +1173,7 @@ fill(bp, start, end)
 LOCAL void
 swabb(bp, cnt)
 	register char	*bp;
-	register int	cnt;
+	register long	cnt;
 {
 	register char	c;
 
@@ -1455,7 +1456,7 @@ getopts(ac, av)
 	if (help)
 		usage(0);
 	if (prvers) {
-		printf("sdd %s (%s-%s-%s)\n\n", "1.60",
+		printf("sdd %s (%s-%s-%s)\n\n", "1.61",
 					HOST_CPU, HOST_VENDOR, HOST_OS);
 		printf("Copyright (C) 1984-2009 Jörg Schilling\n");
 		printf("This is free software; see the source for copying ");
@@ -1620,7 +1621,7 @@ Options:\n\
 LOCAL int
 openremote(filename, iosize)
 	char	*filename;
-	int	iosize;
+	long	iosize;
 {
 	int	remfd	= -1;
 	char	*remfn;
@@ -1634,7 +1635,13 @@ openremote(filename, iosize)
 			errmsgno(EX_BAD, "Remote: %s Host: %s file: %s\n",
 							filename, host, remfn);
 
-		if ((remfd = rmtgetconn(host, iosize, 0)) < 0)
+		remfd = iosize;
+		if (remfd != iosize){
+			comerrno(EX_BAD,
+				"Buffer size %ld too large for remote operation.\n",
+				iosize);
+		}
+		if ((remfd = rmtgetconn(host, (int)iosize, 0)) < 0)
 			comerrno(EX_BAD, "Cannot get connection to '%s'.\n",
 				/* errno not valid !! */		host);
 	}
@@ -1663,26 +1670,46 @@ ropenfile(rfd, name, mode)
 #endif
 }
 
-LOCAL int
+LOCAL ssize_t
 rread(buf, cnt)
 	void	*buf;
-	int	cnt;
+	size_t	cnt;
 {
 #ifdef	USE_REMOTE
-	if (rmtifd >= 0)
+	if (rmtifd >= 0) {
+		int	icnt = cnt;
+
+		/*
+		 * This check is needed as long as librmt uses int in rmtread()
+		 */
+		if (icnt != cnt) {
+			seterrno(EINVAL);
+			return (-1);
+		}
 		return (rmtread(rmtifd, buf, cnt));
+	}
 #endif
 	return (_niread(ifd, buf, cnt));
 }
 
-LOCAL int
+LOCAL ssize_t
 rwrite(buf, cnt)
 	void	*buf;
-	int	cnt;
+	size_t	cnt;
 {
 #ifdef	USE_REMOTE
-	if (rmtofd >= 0)
+	if (rmtofd >= 0) {
+		int	icnt = cnt;
+
+		/*
+		 * This check is needed as long as librmt uses int in rmtwrite()
+		 */
+		if (icnt != cnt) {
+			seterrno(EINVAL);
+			return (-1);
+		}
 		return (rmtwrite(rmtofd, buf, cnt));
+	}
 #endif
 	return (_niwrite(ofd, buf, cnt));
 }

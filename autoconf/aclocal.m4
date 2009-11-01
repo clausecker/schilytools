@@ -1,4 +1,4 @@
-dnl @(#)aclocal.m4	1.80 09/08/09 Copyright 1998-2009 J. Schilling
+dnl @(#)aclocal.m4	1.83 09/10/31 Copyright 1998-2009 J. Schilling
 
 dnl Set VARIABLE to VALUE in C-string form, verbatim, or 1.
 dnl AC_DEFINE_STRING(VARIABLE [, VALUE])
@@ -61,7 +61,7 @@ dnl Defines BIN_SHELL_IS_BASH on success.
 AC_DEFUN([AC_BIN_SHELL_BASH],
 [AC_CACHE_CHECK([if /bin/sh is bash], ac_cv_bin_shell_is_bash,
                 [
-ac_err=`< /dev/null /bin/sh -version 2> /dev/null | grep bash`
+ac_err=`< /dev/null /bin/sh --version 2> /dev/null | egrep 'GNU sh|bash'`
 if test -n "$ac_err"; then
 	ac_cv_bin_shell_is_bash=yes
 else
@@ -77,7 +77,7 @@ dnl Defines SHELL_IS_BASH on success.
 AC_DEFUN([AC_SHELL_BASH],
 [AC_CACHE_CHECK([if sh is bash], ac_cv_shell_is_bash,
                 [
-ac_err=`< /dev/null sh -version 2> /dev/null | grep bash`
+ac_err=`< /dev/null sh --version 2> /dev/null | egrep 'GNU sh|bash'`
 if test -n "$ac_err"; then
 	ac_cv_shell_is_bash=yes
 else
@@ -484,6 +484,18 @@ AC_DEFUN([AC_STRUCT_ST_ACLCNT],
                                 [ac_cv_struct_st_aclcnt=no])])
 if test $ac_cv_struct_st_aclcnt = yes; then
   AC_DEFINE(HAVE_ST_ACLCNT)
+fi])
+
+dnl Checks if structure 'utsname' have field 'arch'.
+dnl Defines HAVE_UTSNAME_ARCH on success.
+AC_DEFUN([AC_STRUCT_UTSNAME_ARCH],
+[AC_CACHE_CHECK([if struct utsname contains arch], ac_cv_struct_utsname_arch,
+                [AC_TRY_COMPILE([#include <sys/utsname.h>],
+                                [struct  utsname u; u.arch[0] = 0;],
+                                [ac_cv_struct_utsname_arch=yes],
+                                [ac_cv_struct_utsname_arch=no])])
+if test $ac_cv_struct_utsname_arch = yes; then
+  AC_DEFINE(HAVE_UTSNAME_ARCH)
 fi])
 
 dnl Checks if structure 'utsname' have field 'processor'.

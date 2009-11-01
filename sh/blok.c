@@ -27,18 +27,20 @@
 /*	Copyright (c) 1984, 1986, 1987, 1988, 1989 AT&T	*/
 /*	  All Rights Reserved  	*/
 
+#if defined(sun)
 #pragma ident	"@(#)blok.c	1.22	06/05/17 SMI"
+#endif
 
 #include "defs.h"
 
 /*
  * This file contains modifications Copyright 2008-2009 J. Schilling
  *
- * @(#)blok.c	1.10 09/07/11 2008-2009 J. Schilling
+ * @(#)blok.c	1.11 09/11/01 2008-2009 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)blok.c	1.10 09/07/11 2008-2009 J. Schilling";
+	"@(#)blok.c	1.11 09/11/01 2008-2009 J. Schilling";
 #endif
 
 /*

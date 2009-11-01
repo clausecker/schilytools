@@ -27,19 +27,21 @@
  *
  */
 
+#if defined(sun)
 #pragma ident	"@(#)sh_policy.c	1.3	05/06/08 SMI"
+#endif
 
 /*
  * This file contains modifications Copyright 2008-2009 J. Schilling
  *
- * @(#)sh_policy.c	1.10 09/07/11 2008-2009 J. Schilling
+ * @(#)sh_policy.c	1.11 09/11/01 2008-2009 J. Schilling
  */
 #ifdef	SCHILY_BUILD
 #include <schily/mconfig.h>
 #endif
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)sh_policy.c	1.10 09/07/11 2008-2009 J. Schilling";
+	"@(#)sh_policy.c	1.11 09/11/01 2008-2009 J. Schilling";
 #endif
 
 #ifdef	SCHILY_BUILD

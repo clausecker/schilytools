@@ -25,20 +25,21 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2007 J. Schilling
+ * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)repl.c	1.3 07/01/11 J. Schilling
+ * @(#)repl.c	1.4 09/11/01 J. Schilling
  */
-#if defined(sun) || defined(__GNUC__)
-
-#ident "@(#)repl.c 1.3 07/01/11 J. Schilling"
+#if defined(sun)
+#ident "@(#)repl.c 1.4 09/11/01 J. Schilling"
 #endif
 /*
  * @(#)repl.c 1.4 06/12/12
  */
 
+#if defined(sun)
 #ident	"@(#)repl.c"
 #ident	"@(#)sccs:lib/mpwlib/repl.c"
+#endif
 /*
 	Replace each occurrence of `old' with `new' in `str'.
 	Return `str'.

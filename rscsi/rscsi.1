@@ -1,4 +1,4 @@
-. \" %Z%%M%	%I% %E% Copyr 2000-2008 J. Schilling
+. \" @(#)rscsi.1	1.4 09/10/19 Copyr 2000-2008 J. Schilling
 . \"  Manual Seite fuer rscsi
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -13,7 +13,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH RSCSI 1 "Release %I%" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH RSCSI 1 "Release 3.0" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 rscsi \- remote generic SCSI transport protocol server
 .SH SYNOPSIS
@@ -29,24 +29,30 @@ remote generic SCSI transport server program.
 .B rscsi
 is a program that is run locally on the machine with SCSI devices,
 it is used by remote programs like
-.B cdrecord
+.BR cdrecord (1),
+.BR cdda2wav (1),
+.BR readcd (1),
 and
-.B sformat
+.BR sformat (1)
 that like to access SCSI devices
-through an interprocess communication connection.
+through an interprocess communication connection
+via
+.BR libscg .
 .B rscsi
 is normally started up with an
 .BR rexec (3)
 or
 .BR rcmd (3)
-call.
+call but it may also be connected via an internal pipe to an
+.BR ssh (1)
+session that was set up by the remote user.
 .LP
 The
 .B rscsi
 program accepts 
-.BR open ,
-.BR close ,
-.B sendcmd
+.BR scg_open ,
+.BR scg_close ,
+.B scg_cmd
 and
 similar requests that are all related to the interface of 
 .BR libscg .
@@ -70,7 +76,7 @@ All responses are send back in
 .SM ASCII
 and in one of the following two forms.
 .LP
-Successful commands have responses of
+All successful commands (except for the "S" command that sends SCSI commands) have responses of
 .IP
 .BI A number\en
 .LP
@@ -79,10 +85,11 @@ where
 is the
 .SM ASCII
 representation of a decimal number that usually is the return
-code of the corresponding system call.
-Unsuccessful commands are responded to with
+code of the corresponding system call or function.
+.sp
+All unsuccessful commands are responded to with
 .IP
-.BI E error-number \en error-message \en
+.BI E error-number \en error-message \en xerror-len\fB\en\fIxerror-txt
 .LP
 where
 .I error-number
@@ -92,83 +99,111 @@ numbers described in
 and
 .I error-message
 is the corresponding error string as retrieved by
-.BR strerror (3).
+.BR strerror (3),
+.I xerror-len
+is the length of the additional error text 
+.I xerror-txt
+and may be 0. In case
+.I xerror-len
+is 0, no
+.I xerror-txt
+is send.
+Note that a failed SCSI command that returned SCSI sense data counts as
+a successful command and does not use the default error format.
 .LP
-.ne 5
-The protocol implements the
+.ne 15
+The 
+.B rscsi 
+protocol implements the
 following commands:
 .RS
-.TP 15
-.BI O device \en mode \en
-.TP
-.BI O device \en "mode symbolic_mode" \en
-Open the specified
-.I device
-or file using the indicated
-.IR mode .
-.I device
-is a full path name, and
-.I mode
-is an
-.SM ASCII
-representation of a decimal
-number suitable for being passed as second parameter to
-.BR open (2).
-A variant of the 
-.B open 
-command includes the 
-.B "symbolic_mode"
-string.
-If both,
-.I mode
-and 
-.I symbolic_mode
-are present, they are separated by a space character;
-.I symbolic_mode
-appears on the same line as the numeric mode.
-It is send using the same notation as used in a C source (e.g.
-.BR O_RDWR|O_CREAT ).
-If the
-.I symbolic_mode
-is send to the server, the numeric
-.B mode
-is ignored.
-The symbolic notation allows to send the expected open mode over
-the wire, using a system independent method.
-This is needed because different operating systems usually define all
-bits in a different way. An exception are the lowest two bits.
-The lowest two bits allow to code 
-.IR O_RDONLY , O_WRONLY " and " O_RDWR .
-To prevent unexpected behavior, 
+.br
+.ne 7
+.TP 12
+.BI V what \en
+Return the 
+.B version 
+for several instances of the software in the
 .B rscsi
-masks the numeric open mode with
-.B 0x03 
-before using it as argument to the 
-.BR open (2)
-call.
-If you need more bits in the second parameter ot
-.BR open (2),
-you need to use the symbolic mode.
+server.
+The parameter
+.B what
+may have the following values:
+.RS
+.TP
+.B 0
+Return
+.B SCG_VERSION
+from
+.B libscg
+on the
+.B rscsi
+server.
+This returns the version string for the low level SCSI transport adaptation layer.
+.TP
+.B 1
+Return
+.B SCG_AUTHOR
+from
+.B libscg
+on the
+.B rscsi
+server.
+This returns the author name for the low level SCSI transport adaptation layer.
+.TP
+.B 2
+Return
+.B SCG_SCCS_ID
+from
+.B libscg
+on the
+.B rscsi
+server.
+This returns the SCCS version string for the low level SCSI transport adaptation layer.
+.TP
+.B 20
+Return
+.B SCG_KVERSION
+from
+.B libscg
+on the
+.B rscsi
+server.
+This returns the version of kernel instance of the driver that is underneath the
+low level SCSI transport adaptation layer.
 .sp
-If no file
-.I /etc/default/rscsi
-exists, only filenames starting with /dev/ are accepted for security reasons.
+This call may not be supported for all operating systems.
+.PP
+.sp
+This command corresponds to the
+.BR scg_version (3)
+function from
+.BR libscg .
+.RE
+.br
+.ne 7
+.TP
+.BI O device \en
+Open the specified SCSI
+.IR device .
+.sp
+See the description of the
+.B dev=
+option in
+.BR cdrecord (1)
+for more information on possible values of the 
+.I device
+parameter.
 .sp
 If a device is already open, it is
 closed before a new open is performed.
 .sp
-A
-.B RMT protocol VERSION 1 
-client should issue a
-.br
-.BI I -1 \en 0\en
-.br
-command just after opening a file or device. This is needed to
-tell the server that the client is aware of the official order
-of the 
-.I mt_op
-codes in the range 0..7 and that is maps deviating values to the official
-ones.
+This command corresponds to the
+.BR scg_open (3)
+function from
+.BR libscg .
+.sp
+The return value in case of success is 0.
 .br
 .ne 7
 .TP
@@ -176,337 +211,302 @@ ones.
 Close the currently open device or file.  The argument
 .I device
 is ignored.
-.br
-.ne 7
-.TP
-.BI R count \en
-Read
-.I count
-bytes of data from the open device or file.
-.B rscsi
-performs the requested
-.BR read (2)
-operation and responds with
-.BI A count-read\en
-if the read operation was
-successful; otherwise an error in 
-standard format is returned.  If the read operation
-was successful, the data read is sent directly after
-the response described above.
-.br
-.ne 7
-.TP
-.BI W count \en
-Write data to the open device or file.
-After reading the command specification,
-.B rscsi
-reads
-.I count
-bytes from the network connection and aborts if a premature
-.SM EOF
-is encountered.
-The return value from the
-.BR write (2)
-operation is returned as reply.
-.br
-.ne 7
-.TP
-.BI L whence \en offset \en
-Perform an
-.BR lseek (2)
-operation on the open device or file using the specified parameters.
-The return value from the
-.BR lseek (2)
-operation is returned as reply.
 .sp
-On large file aware operating systems,
-.B rscsi
-will correctly handle large
-.BR lseek (2)
-requests.
-.br
-.ne 7
-.TP
-.B S
-The old non-portable status call.
-This call should not be used anymore, it has been replaced by the
-new
-.B RMT protocol version 1
-extended status call below.
-If the currently open device is a magnetic tape, return the magnetic tape status,
-as obtained with a
-.SB MTIOCGET
-.B ioctl
-call.
-If the open device is not a magnetic tape, an error is returned.
-If the 
-.SB MTIOCGET
-operation was successful,
-an \*(lqack\*(rq is sent with the size of the
-status buffer, then the status buffer is sent.
-As the status buffer is sent in binary, this
-command it considered outdated. Please use the extended status command instead.
-This command is not terminated by a new-line.
-.br
-.ne 7
-.TP
-.BI s sub-command
-The new portable status call.
-This command is part of the
-.BR "RMT protocol version 1" .
-If the currently open device is a magnetic tape, return a single specified
-member of the magnetic tape status structure, as obtained with a
-.SB MTIOCGET
-.B ioctl
-call.
-If the open device is not a magnetic tape, an error is returned.
-If the 
-.SB MTIOCGET
-operation was successful, the numerical value of the structure member
-is returned in decimal.
-The following sub commands are supported:
-.RS
-.br
-.ne 3
-.TP
-T
-return the content of the structure member
-.B mt_type
-which contains the type of the magnetic tape device.
-.br
-.ne 3
-.TP
-D
-return the content of the structure member
-.B mt_dsreg
-which contains the \*(lqdrive status register\*(rq.
-.br
-.ne 3
-.TP
-E
-return the content of the structure member
-.B mt_erreg
-which contains the \*(lqerror register\*(rq.
+This command corresponds to the
+.BR scg_close (3)
+function from
+.BR libscg .
 .sp
-This structure member must be retrieved first
-because it is cleared after each
-.SB MTIOCGET
-.B ioctl
-call.
+The return value is the return value from the
+.BR scg_close (3)
+function.
+.br
+.ne 7
+.TP
+.BI D size \en
+Set up the maximum DMA size for the currently open SCSI device.
+The
+.I size
+parameter is the desired DMA size in bytes.
+.sp
+This command corresponds to the
+.BR scg_bufsize (3)
+function from
+.BR libscg .
+.sp
+The returned value is the actual DMA size that could be set up.
+This value may be lower than the 
+.I size
+parameter.
+.br
+.ne 7
+.TP
+.BI M size \en
+Allocate a buffer suitable for SCSI DMA transfers.
+.sp
+This command corresponds to the
+.BR scg_getbuf (3)
+function from
+.BR libscg .
+.sp
+The returned value is the actual DMA size that could be set up.
+This value may be lower than the 
+.I size
+parameter.
+.br
+.ne 7
+.TP
+.B F\en
+Free a previously allocated buffer.
+.sp
+This command corresponds to the
+.BR scg_freebuf (3)
+function from
+.BR libscg .
+.sp
+The return value in case of success is 0.
+.br
+.ne 7
+.TP
+.B N\en
+Retrieve the maximum permitted value for the SCSI bus number.
+.sp
+This command corresponds to the
+.BR scg_numbus (3)
+function from
+.BR libscg .
+.sp
+The return value is the return value from the
+.BR scg_numbus (3)
+function.
+.br
+.ne 7
+.TP
+.BI B busno \en chan \en
+Checks whether there is a SCSI bus with a busnumber that is equal to
+.IR busno .
 The 
-.B librscsi
-will always retrieve the member
-.B mt_erreg
-first when it is told to retrieve a complete status structure.
-.br
-.ne 3
-.TP
-R
-return the content of the structure member
-.B mt_resid
-which contains the residual count of the last I/O.
-.br
-.ne 3
-.TP
-F
-return the content of the structure member
-.B mt_fileno
-which contains the block number of the current tape position.
-.br
-.ne 3
-.TP
-B
-return the content of the structure member
-.B mt_blkno
-which contains the block number of the current tape position.
-.br
-.ne 3
-.TP
-f
-return the content of the structure member
-.B mt_flags
-which contains MTF_ flags from the driver.
-.br
-.ne 3
-.TP
-b
-return the content of the structure member
-.B mt_bf
-which contains the optimum blocking factor.
-.LP
-This command is not terminated with a new-line.
-.RE
-.br
-.ne 7
-.TP
-.BI I operation \en count \en
-Perform a
-.SB MTIOCOP
-.BR ioctl (2)
-command using the specified parameters.
-The parameters are interpreted as the
-.SM ASCII
-representations of the decimal values to place in the
-.I mt_op
-and
-.I mt_count
-fields of the structure used in the
-.B ioctl
-call.  
-When the operation is successful the return value is the
-.I count
-parameter.
-Only Opcodes 0..7 are unique across different architectures.
-But as in many cases 
-.B Linux
-does not even follow this rule.
-If we know that we have been called by a 
-.B RMT protocol VERSION 1 
-client, we may safely assume that the client is not using
-.B Linux
-mapping over the wire but the standard mapping described below:
-.RS
-.TP
--1
-Retrieve the version number of the
-.B rscsi
-server and tell the server that the client is aware of the official
-order of the 
-.SB MTIOCOP
-.BR ioctl (2)
-opcodes in the range 0..7.
-Local
-.I mt_op
-codes must be remapped to the official values before sending them
-over the wire.
+.I chan
+parameter is currently ignored.
 .sp
-The answer of the current version of
-.B rscsi
-is 1.
-Old
-.B rscsi
-implementations send an error code back when this
-command is used.
-Future
-.B rscsi
-implementations with further enhancements will send an answer
-with a value > 1.
-.TP
-0
-Issue a
-.B MTWEOF
-command (write 
-.I count
-end-of-file records).
-.TP
-1
-Issue a
-.B MTFSF
-command (forward space over
-.I count
-file marks).
-.TP
-2
-Issue a
-.B MTBSF
-command (backward space over
-.I count
-file marks).
-.TP
-3
-Issue a
-.B MTFSR
-command (forward space
-.I count
-inter-record gaps).
-.TP
-4
-Issue a
-.B MTBSR
-command (backward space 
-.I count
-inter-record gaps).
-.TP
-5
-Issue a
-.B MTREW
-command (rewind).
-.TP
-6
-Issue a
-.B MTOFFL
-command (rewind and put the drive off-line).
-.TP
-7
-Issue a
-.B MTNOP
-command (no operation, set status only).
-.RE
+This command corresponds to the
+.BR scg_havebus (3)
+function from
+.BR libscg .
+.sp
+The return value is the return value from the
+.BR scg_havebus (3)
+function.
 .br
 .ne 7
 .TP
-.BI i operation \en count \en
-Perform a
-.SB MTIOCOP
-.BR ioctl (2)
-command using the specified parameters.
-This command is a
-.B RMT protocol VERSION 1 
-extension and implements support for commands beyond MTWEOF..MTNOP (0..7).
-The parameters are interpreted as the
-.SM ASCII
-representations of the decimal values described below.
-They are converted into the local values
-.I mt_op
-and
-.I mt_count
-fields of the structure used in the
-.B ioctl
-call according to the actual values found in <sys/mtio.h>.
-When the operation is successful the return value is the
-.I count
-parameter.
+.BI T busno \en chan \en target\fB\en\fIlun\fB\en
+Set the SCSI target address to
+.IR busno ", " target ", " lun .
+The parameter
+.I chan
+is currently ignored.
+.sp
+This command corresponds to the
+.BR scg_settarget (3)
+function from
+.BR libscg .
+.sp
+The return value is the return value from the
+.BR scg_havebus (3)
+function.
+.br
+.ne 7
+.TP
+.B I\en
+Retrieve the SCSI initiator ID for the current SCSI bus.
+.sp
+This command corresponds to the
+.BR scg_initiator_id (3)
+function from
+.BR libscg .
+.sp
+The return value is the return value from the
+.BR scg_initiator_id (3)
+function.
+.br
+.ne 7
+.TP
+.B A\en
+Check whether the current target is or may be an ATAPI device.
+.sp
+This command corresponds to the
+.BR scg_isatapi (3)
+function from
+.BR libscg .
+.sp
+The return value is the return value from the
+.BR scg_isatapi (3)
+function.
+.br
+.ne 7
+.TP
+.BI R what \en
+Perform a SCSI reset. The parameter
+.I what
+may have the following values:
 .RS
 .TP
 0
-Issue a
-.B MTCACHE
-command (switch cache on).
+Test whether a SCSI reset is supported as with the
+.B SCG_RESET_NOP
+parameter.
 .TP
 1
-Issue a
-.B MTNOCACHE
-command (switch cache off).
+Perform a SCSI target reset as with the
+.B SCG_RESET_TGT
+parameter.
 .TP
 2
-Issue a
-.B MTRETEN
-command (retension the tape).
-.TP
-3
-Issue a
-.B MTERASE
-command (erase the entire tape).
-.TP
-4
-Issue a
-.B MTEOM
-command (position to end of media).
-.TP
-5
-Issue a
-.B MTNBSF
-command (backward space
-.I count
-files to BOF).
+Perform a SCSI bus reset as with the
+.B SCG_RESET_BUS
+parameter.
+.PP
+.sp
+This command corresponds to the
+.BR scg_reset (3)
+function from
+.BR libscg .
+.sp
+The return value is the return value from the
+.BR scg_reset (3)
+function.
 .RE
 .br
 .ne 7
 .TP
-.BI v \en
-Return the version of the 
-.B rscsi
-server. This is currently the decimal number 1.
+.BI S count \en flags \en\fIcdb_len\fB\en\fIsense_len\fB\en\fItimeout\fB\en
+Send a SCSI command to the currently selected target.
+This command takes the following parameters:
+.RS
+.TP
+.B count
+The DMA count for this command. If the command is a command that transfers
+data to the target, the related data is send directly after the SCSI command descriptor block.
+that is described above.
+.TP
+.B flags
+The flags that apply to this SCSI command:
+.RS
+.TP
+.B 1
+Tell the kernel that the SCSI command will transfer data from the target to the host.
+This corresponds to the flag value
+.BR SCG_RECV_DATA .
+.TP
+.B 2
+Tell the kernel to send the SCSI command with disconnect/reconnect enabled.
+This corresponds to the flag value
+.BR SCG_DISRE_ENA .
+This flag is not supported on all platforms.
+.TP
+.B 4
+Make the kernel silent on SCSI errors.
+This corresponds to the flag value
+.BR SCG_SILENT .
+This flag is not supported on all platforms.
+.TP
+.B 8
+Tell the kernel to retry the SCSI command in case of a retryable SCSI transport error.
+This corresponds to the flag value
+.BR SCG_CMD_RETRY .
+This flag is not supported on all platforms.
+.TP
+.B 16
+Tell the kernel to send the SCSI command with parity disabled.
+This corresponds to the flag value
+.BR SCG_NOPARITY .
+This flag is not supported on all platforms.
+.RE
+.TP
+.B cdb_len
+The SCSI command descriptor length for this command.
+The SCSI command descriptor has to be send with the correct length directly after the new line past the 
+.B timeout
+value. 
+.TP
+.B sense_len
+The amount of sense data that is expected in return of a failed SCSI command that
+produces SCSI sense data.
+.TP
+.B timeout
+The timeout for the SCSI command in seconds.
+Fractions of a second may be specified by sending a floating point number.
+.PP
+The reply for a SCSI command that could be send to the target is:
+.sp
+.BI A count \en error \en\fIerrno\fB\en\fIscb\fB\en\fIsense_count\fB\en
+.TP
+.B count
+The DMA count of any data returned from the target.
+If this count is nonzero, the data is send back directly after the reply block mentioned above.
+.TP
+.B error
+A SCSI error classification from one of the following values:
+.RS
+.sp
+.ne 3
+.TP
+.B 0
+No error occurred.
+This value corresponds to the value
+.B SCG_NO_ERROR .
+.sp
+.ne 3
+.TP
+.B 1
+A retryable error occurred while trying to transport the SCSI command to the target.
+This value corresponds to the value
+.B SCG_RETRYABLE .
+.sp
+.ne 3
+.TP
+.B 2
+A fatal error occurred while trying to transport the SCSI command to the target.
+This value corresponds to the value
+.B SCG_FATAL .
+.sp
+.ne 3
+.TP
+.B 3
+A SCSI timeout occurred.
+This value corresponds to the value
+.B SCG_TIMEOUT .
+.RE
+.sp
+.ne 3
+.TP
+.B errno
+Any possible 
+.B "UNIX errno
+value for the SCSI command.
+.sp
+.ne 3
+.TP
+.B scb
+The SCSI status byte
+.sp
+.ne 3
+.TP
+.B sense_count
+The sense count returned for the SCSI command.
+The SCSI sense data is send back directly after any possible
+SCSI DMA data received from the target.
+.sp
+This command corresponds to the
+.BR scg_cmd (3)
+function from
+.BR libscg .
+.sp
+The return value is the return value from the
+.BR scg_cmd (3)
+function.
+.RE
 .RE
 .LP
 Any other command causes
@@ -522,7 +522,7 @@ For example:
 .br
 .BR USER= rscsi
 .br
-.BR ACCESS= "rscsi	myhost.mydomain.org	1	2	3	0"
+.BR ACCESS= "rscsi	myhost.mydomain.org	1	-1	3	0"
 .sp
 All keywords must be on the beginning of a line.
 .RS
@@ -545,24 +545,44 @@ A line
 grants access to all users.
 .TP
 .B ACCESS
-This keyword is followed by three parameters separated by a TAB.
-The name of a user (local to the RSCSI server host) that may use
+This keyword is followed by six parameters separated by a TAB.
+The
+.B name 
+of a user (local to the RSCSI server host) that may use
 the services of the
 .B rscsi
-server followed by the name of a host from where operation is granted 
-and a file specifier pattern for a file or file sub tree that may be accessed
-if this 
+server followed by the 
+.B "name of a host
+from where operation is granted 
+followed by a 
+.B "SCSI device
+specification that is made of
+.B bus-number
+.BR channel " (ignored for now)
+.B target-id
+and
+.B lun
+that specify a SCSI device that may be accessed if this 
 .B ACCESS
 line matches.
+If one or more entries of the
+.B bus-number
+.B channel
+.B target-id
+.B lun
+specification is set to -1, this matches any possible value
+for the related part of the SCSI device specification.
 More than one
-.BI ACCESS= "name host path"
+.BI ACCESS= "name host SCSI-device"
 line is possible.
 .sp
 If standard input of 
 .B rscsi
 is not a socket from a remote host, 
 .B rscsi
-will compare the host entry from 
+will compare the 
+.B "host entry 
+from 
 .B /etc/default/rscsi
 with the following strings:
 .RS
@@ -578,7 +598,7 @@ If you like to allow remote connections that use the
 .B ssh
 protocol, you need to use the word
 .B PIPE
-instead of thr real hostname in the matching
+instead of the real hostname in the matching
 .B ACCESS=
 line.
 .TP
@@ -598,7 +618,10 @@ but is not connected to an internet socket.
 .RE
 .SH "SEE ALSO"
 .BR cdrecord (1),
+.BR cdda2wav (1),
+.BR readcd (1),
 .BR sformat (1),
+.BR ssh (1),
 .BR intro (2),
 .BR open (2),
 .BR close (2),
@@ -615,20 +638,6 @@ All responses are send to the network connection.
 They use the form described above.
 .SH NOTES
 .LP
-To use 
-.B rscsi
-as a remote file access protocol you need to use the symbolic open
-modes as e.g. the
-.I O_CREAT
-flag is not unique between different architectures.
-.LP
-In order to allow this implementation to be used
-as a remote file access protocol,
-it accepts file names up to 4096 bytes with the open command.
-Other
-.B rscsi
-implementations allow no more than 64 bytes.
-.LP
 The possibility to create a debug file by calling
 .BI rscsi " file
 has been disabled for security reasons.
@@ -639,34 +648,6 @@ edit
 and insert a 
 .B DEBUG
 entry.
-.LP
-This implementation of
-.B rscsi
-adds some security features to the server that make it behave
-slightly different from older implementations.
-Read the above documentation about the file 
-/etc/default/rscsi
-to make sure your local installation is configured for your needs.
-.LP
-To grant the same permissions as with old
-.B rscsi
-servers, create a file /etc/default/rscsi and add the following lines
-to this file:
-.LP
-.BR USER= *
-.br
-.BR ACCESS= "* * *"
-.LP
-Note that the three fields in the
-.B ACCESS=
-line need to be separated by a TAB character.
-.LP
-Be very careful when designing patterns to match path names that may
-be accepted for 
-.IR open .
-If a pattern would allow to include
-.I /../
-a possible intruder could vitually access any path on your system.
 .SH BUGS
 .LP
 None known.

@@ -27,18 +27,19 @@
 /*
  * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)what.c	1.7 09/02/05 J. Schilling
+ * @(#)what.c	1.8 09/11/01 J. Schilling
  */
-#if defined(sun) || defined(__GNUC__)
-
-#ident "@(#)what.c 1.7 09/02/05 J. Schilling"
+#if defined(sun)
+#ident "@(#)what.c 1.8 09/11/01 J. Schilling"
 #endif
 /*
  * @(#)what.c 1.11 06/12/12
  */
 
+#if defined(sun)
 #ident	"@(#)what.c"
 #ident	"@(#)sccs:cmd/what.c"
+#endif
 # include	<defines.h>
 # include	<version.h>
 # include	<i18n.h>

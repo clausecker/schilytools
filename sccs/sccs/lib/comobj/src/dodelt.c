@@ -25,20 +25,21 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2007 J. Schilling
+ * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)dodelt.c	1.3 07/01/11 J. Schilling
+ * @(#)dodelt.c	1.4 09/11/01 J. Schilling
  */
-#if defined(sun) || defined(__GNUC__)
-
-#ident "@(#)dodelt.c 1.3 07/01/11 J. Schilling"
+#if defined(sun)
+#ident "@(#)dodelt.c 1.4 09/11/01 J. Schilling"
 #endif
 /*
  * @(#)dodelt.c 1.8 06/12/12
  */
 
+#if defined(sun)
 #ident	"@(#)dodelt.c"
 #ident	"@(#)sccs:lib/comobj/dodelt.c"
+#endif
 #include	<defines.h>
 
 # define ONEYEAR 31536000L

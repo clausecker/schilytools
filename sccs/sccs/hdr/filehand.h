@@ -27,18 +27,19 @@
 /*
  * This file contains modifications Copyright 2009 J. Schilling
  *
- * @(#)filehand.h	1.2 09/04/10 J. Schilling
+ * @(#)filehand.h	1.3 09/10/31 J. Schilling
  */
-#if defined(sun) || defined(__GNUC__)
-
-#ident "@(#)filehand.h 1.2 09/04/10 J. Schilling"
+#if defined(sun)
+#ident "@(#)filehand.h 1.3 09/10/31 J. Schilling"
 #endif
 /*
  * @(#)filehand.h 1.3 06/12/12
  */
 
+#if defined(sun)
 #ident	"@(#)filehand.h"
 #ident	"@(#)sccs:hdr/filehand.h"
+#endif
 
 /* EMACS_MODES: c !fill tabstop=4 */
 

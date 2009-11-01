@@ -1,8 +1,8 @@
-/* @(#)update.c	1.116 09/07/08 Copyright 1985, 88, 91, 1995-2009 J. Schilling */
+/* @(#)update.c	1.117 09/10/22 Copyright 1985, 88, 91, 1995-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)update.c	1.116 09/07/08 Copyright 1985, 88, 91, 1995-2009 J. Schilling";
+	"@(#)update.c	1.117 09/10/22 Copyright 1985, 88, 91, 1995-2009 J. Schilling";
 #endif
 /*
  *	Make program
@@ -2395,7 +2395,7 @@ default_cmd(obj, depname, deptime, deplevel, must_exist, dlev)
 		 */
 		if (basetype(obj->o_type) == COLON)
 			return (NOTIME);
-		if (!NoWarn)
+		if (!No_Warn)
 			errmsgno(EX_BAD,
 				"Can't find any source for '%s'.\n",
 							obj->o_name);
