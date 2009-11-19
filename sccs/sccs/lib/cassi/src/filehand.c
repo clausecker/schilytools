@@ -27,18 +27,18 @@
 /*
  * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)filehand.c	1.6 09/11/01 J. Schilling
+ * @(#)filehand.c	1.7 09/11/08 J. Schilling
  */
 #if defined(sun)
-#ident "@(#)filehand.c 1.6 09/11/01 J. Schilling"
+#pragma ident "@(#)filehand.c 1.7 09/11/08 J. Schilling"
 #endif
 /*
  * @(#)filehand.c 1.4 06/12/12
  */
 
 #if defined(sun)
-#ident	"@(#)filehand.c"
-#ident	"@(#)sccs:lib/cassi/filehand.c"
+#pragma ident	"@(#)filehand.c"
+#pragma ident	"@(#)sccs:lib/cassi/filehand.c"
 #endif
 
 /* EMACS_MODES: c !fill tabstop=4 */

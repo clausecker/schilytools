@@ -29,7 +29,7 @@
  */
 
 #if defined(sun)
-#ident	"@(#)setbrk.c	1.10	05/06/08 SMI"	/* SVr4.0 1.8.1.1	*/
+#pragma ident	"@(#)setbrk.c	1.10	05/06/08 SMI"	/* SVr4.0 1.8.1.1	*/
 #endif
 
 #include "defs.h"
@@ -37,11 +37,11 @@
 /*
  * This file contains modifications Copyright 2008-2009 J. Schilling
  *
- * @(#)setbrk.c	1.6 09/11/01 2008-2009 J. Schilling
+ * @(#)setbrk.c	1.7 09/11/08 2008-2009 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)setbrk.c	1.6 09/11/01 2008-2009 J. Schilling";
+	"@(#)setbrk.c	1.7 09/11/08 2008-2009 J. Schilling";
 #endif
 
 /*

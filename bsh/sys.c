@@ -1,8 +1,8 @@
-/* @(#)sys.c	1.68 09/09/14 Copyright 1986-2009 J. Schilling */
+/* @(#)sys.c	1.69 09/11/15 Copyright 1986-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)sys.c	1.68 09/09/14 Copyright 1986-2009 J. Schilling";
+	"@(#)sys.c	1.69 09/11/15 Copyright 1986-2009 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1986-2009 J. Schilling
@@ -27,6 +27,8 @@ static	UConst char sccsid[] =
 #include <schily/wait.h>
 #include <schily/fcntl.h>
 #include <schily/time.h>
+#define	VMS_VFORK_OK
+#include <schily/vfork.h>
 
 /*
  * Check whether fexec may be implemented...
@@ -579,11 +581,13 @@ fexec(path, name, in, out, err, av, env)
 	int	din;
 	int	dout;
 	int	derr;
+#ifndef	set_child_standard_fds
 	int	o[3];		/* Old fd's for stdinin/stdout/stderr */
 	int	f[3];		/* Old close on exec flags for above  */
 
 	o[0] = o[1] = o[2] = -1;
 	f[0] = f[1] = f[2] = 0;
+#endif
 
 	exerr = 0;
 	fflush(out); fflush(err);
@@ -591,6 +595,9 @@ fexec(path, name, in, out, err, av, env)
 	dout = fdown(out);
 	derr = fdown(err);
 
+#ifdef	set_child_standard_fds
+	set_child_standard_fds(din, dout, derr);
+#else
 	if (din != STDIN_FILENO) {
 		f[0] = fd_getfd(STDIN_FILENO);
 		o[0] = dup(STDIN_FILENO);
@@ -609,6 +616,7 @@ fexec(path, name, in, out, err, av, env)
 		fd_setfd(o[2], 1);
 		fdmove(derr, STDERR_FILENO);
 	}
+#endif
 
 	/* if has slash try exec and set error code */
 
@@ -653,6 +661,7 @@ fexec(path, name, in, out, err, av, env)
 #endif
 	}
 
+#ifndef	set_child_standard_fds
 	if (derr != STDERR_FILENO) {
 		fdmove(STDERR_FILENO, derr);
 		fdmove(o[2], STDERR_FILENO);
@@ -674,6 +683,7 @@ fexec(path, name, in, out, err, av, env)
 	if (exerr == 0)
 		exerr = t;
 	seterrno(exerr);
+#endif
 
 #ifdef	VFORK
 	Vtmp = 0;
@@ -686,6 +696,7 @@ fexec(path, name, in, out, err, av, env)
 	return (exerr);
 }
 
+#ifndef	set_child_standard_fds
 
 LOCAL void
 fdmove(fd1, fd2)
@@ -703,6 +714,7 @@ fdmove(fd1, fd2)
 	close(fd1);
 }
 
+#endif
 
 #if	defined(HAVE_ELF)
 #	include <elf.h>

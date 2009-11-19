@@ -1,4 +1,4 @@
-. \" @(#)smake.1	1.20 09/05/08 Copyright 1985-2009 J. Schilling
+. \" @(#)smake.1	1.22 09/11/19 Copyright 1985-2009 J. Schilling
 . \"  Manual page for smake
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -13,7 +13,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH SMAKE 1 "09/05/08" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH SMAKE 1 "09/11/19" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 smake \- maintain, update, and regenerate programs
 .SH SYNOPSIS
@@ -30,7 +30,7 @@ smake \- maintain, update, and regenerate programs
 .B Smake
 executes command sequences based on relations of modification dates of files.
 The command sequences are taken from a set of rules found in a 
-.I makefile  
+.B makefile  
 or in the set of implicit rules.
 The argument 
 .I target 
@@ -41,11 +41,11 @@ If no
 option is present, 
 .B smake
 looks for 
-.I SMakefile
+.B SMakefile
 then for
-.I Makefile
+.B Makefile
 and then for
-.I makefile 
+.B makefile 
 in the named order.
 .PP
 If no 
@@ -78,7 +78,7 @@ environment.
 Unlike other make programs,
 .B smake
 includes a set of 
-.I automake
+.B automake
 features that allow to implement portable, layered, object oriented makefiles.
 .PP
 
@@ -245,7 +245,7 @@ for more information.
 .BI \-f " makefilename, " mf= "makefilename, " mf= " makefilename
 Specifies the Makefile.
 .TP
-.BI macro=value
+.I macro=value
 Set a macro. A macro definition on command line overrides any other
 macro definition.
 .PP
@@ -259,6 +259,18 @@ it is not possible to first make one target, then set a command line macro and
 then make the next target with different macro values,
 .B POSIX 
 does not specify the behaviour in this case anyway.
+
+.SH OPERANDS
+The following operands are supported:
+.TP
+.I target
+any number of target names. The targets are build in the order of occurence.
+.TP
+.I macro=value
+A macro definition. Macro definitions from the command line overwrite regular macro
+definitions in makefiles or taken from the environment.
+.PP
+All macro definitions are evaluated before any target it build.
 
 .\".SH "Arbeitsweise
 .SH BASICS \" Grundlagen
@@ -333,7 +345,9 @@ is called an
 .BR "explicit rule" . 
 If the target and its prerequisites are named in an abstract way, the rule
 is called an 
-.BR "implicit rule" . 
+.B "implicit rule" 
+or an
+.BR "inference rule" .
 .PP
 If 
 .B smake 
@@ -344,7 +358,8 @@ looks for an implicit rule. It checks the following methods of
 specifying an implicit rule until a suitable rule is found.
 Each method is described in section
 .B "Makefile Format
-below XXX Implicit Rules ???.
+below or in the section
+.BR "Implicit Rules" .
 .
 .TP
 \(bu
@@ -429,12 +444,45 @@ sum of all dependency lists and the set of commands is the
 set of commands from the last specification.
 A back slash ('\e') at the end of a line indicates that this line
 is to be continued on the next line.
-XXX An escaped newline is replaced by a single space character
-XXX and the white space at the beginning of the next line is removed. XXX
+An escaped newline is replaced by a single space character
+and the white space at the beginning of the next line is removed.
 A comment starts with a hash mark ('#') and ends if an un-escaped
 new line is found.
 
 .SS "Command Execution
+.PP
+Command lines associated with rules are sequentially executed line by line.
+Command lines may have prefixes that are interpreted by 
+.B smake
+before the rest of the command line is passed to the shell.
+All characters from the list below that immediately follow the TAB character
+are interpreted by
+.BR smake .
+The first character that is not from the list below is the first character
+passed to the shell.
+The following
+prefixes are implemented:
+.TP
+.B \-
+If the character '-' is amongst the prefix characters, the exit code
+from the command line is ignored.
+.TP
+.B +
+If the character '+' is amongst the prefix characters, the command line
+is executed even if one of the options
+.BR \-n ", " \-q " or " \-t
+was specified.
+.TP
+.B @
+If the character '@' is amongst the prefix characters, the command line
+is not printed before it is executed.
+.TP
+.B ?
+Reserved for future use (currently ignored).
+.TP
+.B !
+Reserved for future use (currently ignored).
+
 
 .SS "Target rules
 .PP
@@ -444,14 +492,13 @@ A target rule looks this way:
 .RS
 .HP
 .IR target " .\|.\|."
-.\".RB [ : \||\| :: ]
-.B :
+.RB [ : \||\| :: ]
 .RI [ dependency "] .\|.\|."
 .RB [ ;
 .IR command "] .\|.\|."
 .nf
 .RI "[<tab> " command ]
-\|.\|.\|.
+\&\|.\|.\|.
 .fi
 .RE
 .PP
@@ -460,13 +507,14 @@ It starts with a
 .I target name 
 or a white space separated list of 
 .IR "target names" ,
-in both cases followed by a target separator
-(':').
+in both cases followed by colon as a target separator
+(':') or by a double colon ('::').
 The colon may be followed by a 
 .I dependency name 
 or a white space 
 separated list of 
 .IR "dependency names" .
+The double colon allows to specify alternate dependency lists.
 The dependency list may be followed by a semicolon (';') and a
 Bourne shell
 .IR command .
@@ -481,18 +529,75 @@ start with a TAB character.
 .SS "Make directives
 .PP
 .TP
+.BI export " macro .\|.\|.
+The list of macros that follows the
 .B export
-XXX lkfglsdfg
+directive is exported in the list of environment variables.
+If an environment variable with the same name already exists,
+it's value is replaced by the current value of the related make macro.
+An empty list of macro names is not considered an error.
+If the 
+.B PATH
+macro is in the list of parameters, the path search of the current
+.B smake
+process is also affected.
+If the 
+.B SHELL
+macro is in the list of parameters, it is ignored and the
+previous 
+.B SHELL
+environment is kept.
 .TP
+.BI include " filename .\|.\|.
+Reading and parsing makefiles is temporarily continued with the list of 
+the file name parameters to the
 .B include
-XXX lkfglsdfg
+directive.
+If one or more file names from the parameter list contains make macro expressions, 
+the macro expressions are evaluated before the file names are used.
+A single make macro may contain a list of include file names.
+If 
+.B smake
+knows rules to 
+.B make
+the files to include,
+.B smake
+will evaluate the related rules before doing the include.
+Include directives may be nested as long as there are unsued file descriptors.
+An empty list of filenames is not considered an error.
+If one or more files from the parameter list do not exist, 
+.B smake
+aborts.
 .TP
+.BI \-include " filename .\|.\|.
+The
 .B \-include
-XXX lkfglsdfg
+directive is implemented similar to the
+.B include
+directive, except that a nonexistent file is not considered to be an error.
 .TP
-.B readonly
-XXX sdfsdfsda
-
+.BI readonly " macro .\|.\|.
+Mark the list of macros in the parameter list as
+.BR readonly .
+This prevents further modification of the content of the related macros.
+An empty list of macro names is not considered an error.
+.TP
+.BI unexport " macro .\|.\|.
+The list of macros that follows the
+.B unexport
+directive is removed from the list of environment variables.
+An empty list of macro names is not considered an error.
+If the 
+.B PATH
+macro is in the list of parameters, the path search of the current
+.B smake
+process is also affected.
+If the 
+.B SHELL
+macro is in the list of parameters, it is ignored and the
+previous 
+.B SHELL
+environment is kept.
 
 .SH "SEARCHING RULES FOR FILES"
 .PP
@@ -1035,6 +1140,44 @@ features of
 .BR smake .
 It contains the host name of the current machine
 (e.g. duffy, sherwood, ghost).
+.TP
+.B MAKE_HOST_OS
+This macro is set up by 
+.B smake
+as part of the 
+.B automake
+features of
+.BR smake .
+It contains the host OS name from
+.B uname \-Hs
+of the current machine in case that there
+is a layered OS like Cygwin (e.g. windows).
+.
+.TP
+.B MAKE_HOST_OSREL
+This macro is set up by 
+.B smake
+as part of the 
+.B automake
+features of
+.BR smake .
+It contains the host OS release from
+.B uname \-Hr
+of the current machine in case that there
+is a layered OS like Cygwin (e.g. 5.1).
+.
+.TP
+.B MAKE_HOST_OSVERSION
+This macro is set up by 
+.B smake
+as part of the 
+.B automake
+features of
+.BR smake .
+It contains the host OS version from
+.B uname \-Hv
+of the current machine in case that there
+is a layered OS like Cygwin (e.g. sp2).
 .
 .TP
 .B MAKE_MACH
@@ -1289,7 +1432,7 @@ may expand to:
 .PP
 cc \-o foo OBJ/main.o parser/OBJ/lex.o parser/OBJ/parse.o
 
-.SH "IMPLICIT RULES"
+.SH "Implicit Rules"
 .SS "Pattern Matching Rules"
 .PP
 Pattern matching rules have first been found in Sun's SunPRO make.
@@ -1560,7 +1703,11 @@ have recently been implemented. There may be bugs in the code.
 .B SCCS
 retrieval is not yet implemented.
 .PP
-Built in library handling is not implemented.
+A '+' character does not cancel the
+.B \-t
+option, the commands are not executed.
+.PP
+Built in library handling is not yet implemented.
 .PP
 There are currently no other known bugs, but as 
 .B smake

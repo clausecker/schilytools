@@ -1,8 +1,8 @@
-/* @(#)hfs.c	1.14 09/07/11 joerg */
+/* @(#)hfs.c	1.15 09/11/07 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)hfs.c	1.14 09/07/11 joerg";
+	"@(#)hfs.c	1.15 09/11/07 joerg";
 #endif
 /*
  * hfsutils - tools for reading and writing Macintosh HFS volumes
@@ -405,7 +405,7 @@ void hfs_umountall()
 {
   while (hfs_mounts)
 #ifdef APPLE_HYB
-    continue;
+    hfs_umount(hfs_mounts, 0L, 0L);
 #else
     hfs_umount(hfs_mounts);
 #endif /* APPLE_HYB */

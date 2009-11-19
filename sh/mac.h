@@ -24,13 +24,13 @@
 
 
 #if defined(sun)
-#ident	"@(#)mac.h	1.8	05/06/08 SMI"	/* SVr4.0 1.8	*/
+#pragma ident	"@(#)mac.h	1.8	05/06/08 SMI"	/* SVr4.0 1.8	*/
 #endif
 
 /*
  * This file contains modifications Copyright 2008-2009 J. Schilling
  *
- * @(#)mac.h	1.4 09/11/01 2008-2009 J. Schilling
+ * @(#)mac.h	1.5 09/11/08 2008-2009 J. Schilling
  */
 
 /*

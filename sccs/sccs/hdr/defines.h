@@ -27,18 +27,18 @@
 /*
  * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)defines.h	1.17 09/10/31 J. Schilling
+ * @(#)defines.h	1.18 09/11/08 J. Schilling
  */
 #if defined(sun)
-#ident "@(#)defines.h 1.17 09/10/31 J. Schilling"
+#pragma ident "@(#)defines.h 1.18 09/11/08 J. Schilling"
 #endif
 /*
  * @(#)defines.h 1.21 06/12/12
  */
 
 #if defined(sun)
-#ident	"@(#)defines.h"
-#ident	"@(#)sccs:hdr/defines.h"
+#pragma ident	"@(#)defines.h"
+#pragma ident	"@(#)sccs:hdr/defines.h"
 #endif
 # include	<schily/mconfig.h>
 # include	<schily/types.h>

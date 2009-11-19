@@ -1,4 +1,4 @@
-dnl @(#)acspecific.m4	1.9 09/04/19 Copyright 1998-2009 J. Schilling
+dnl @(#)acspecific.m4	1.12 09/11/06 Copyright 1998-2009 J. Schilling
 dnl
 dnl Macros that test for specific features.
 dnl This file is part of Autoconf.
@@ -771,9 +771,11 @@ AC_CHECK_HEADERS_DIRENT(dirent.h sys/ndir.h sys/dir.h ndir.h,
   [ac_header_dirent=$ac_hdr; break])
 # Two versions of opendir et al. are in -ldir and -lx on SCO Xenix.
 if test $ac_header_dirent = dirent.h; then
-AC_CHECK_LIB(dir, opendir, LIBS="$LIBS -ldir")
+AC_CHECK_LIB(c, opendir, :,
+  [AC_CHECK_LIB(dir, opendir, LIBS="$LIBS -ldir")])
 else
-AC_CHECK_LIB(x, opendir, LIBS="$LIBS -lx")
+AC_CHECK_LIB(c, opendir, :,
+  [AC_CHECK_LIB(x, opendir, LIBS="$LIBS -lx")])
 fi
 ])
 
@@ -1270,12 +1272,21 @@ AC_CACHE_CHECK(for working vfork, ac_cv_func_vfork_works,
 #ifdef HAVE_VFORK_H
 #include <vfork.h>
 #endif
+#ifdef HAVE_STDLIB_H
+#include <stdlib.h>
+#endif
+#if defined(HAVE_WAIT_H)
+#include <wait.h>
+#else
+#include <sys/wait.h>
+#endif
 /* On some sparc systems, changes by the child to local and incoming
    argument registers are propagated back to the parent.
    The compiler is told about this with #include <vfork.h>,
    but some compilers (e.g. gcc -O) don't grok <vfork.h>.
    Test for this by using a static variable whose address
    is put into a register that is clobbered by the vfork.  */
+#ifndef	VMS
 static int
 #ifdef __cplusplus
 sparc_address_test (int arg)
@@ -1298,11 +1309,17 @@ sparc_address_test (arg) int arg;
   }
   return (0);
 }
+#endif
+int exc = 0;
+
+int
 main() {
   pid_t parent = getpid ();
   pid_t child;
 
+#ifndef	VMS
   sparc_address_test(0);
+#endif
 
   child = vfork ();
 
@@ -1324,14 +1341,28 @@ main() {
        use the same hardware register for all 8 local variables.  */
     if (p != p1 || p != p2 || p != p3 || p != p4
 	|| p != p5 || p != p6 || p != p7)
-      _exit(1);
+      exc = 1;
 
     /* On some systems (e.g. IRIX 3.3),
        vfork doesn't separate parent from child file descriptors.
        If the child closes a descriptor before it execs or exits,
        this munges the parent's descriptor as well.
        Test for this by closing stdout in the child.  */
-    _exit(close(fileno(stdout)) != 0);
+    if (exc == 0)
+	exc = close(fileno(stdout)) != 0;
+    /*
+     * VMS hangs if we do not call execl()
+     */
+#ifdef HAVE_EXECL
+    /*
+     * On VMS, things hang unless the child calls exec()
+     */
+    if (exc == 0)
+	execl("/bin/true", "true", (char *)0);
+    else
+	execl("/bin/false", "false", (char *)0);
+#endif
+    _exit(exc);
   } else {
     int status;
     struct stat st;
@@ -1357,6 +1388,8 @@ ac_cv_func_vfork_works=yes, ac_cv_func_vfork_works=no, AC_CHECK_FUNC(vfork)
 ac_cv_func_vfork_works=$ac_cv_func_vfork)])
 if test $ac_cv_func_vfork_works = no; then
   AC_DEFINE(vfork, fork)
+else
+  AC_DEFINE(HAVE_VFORK)
 fi
 ])
 

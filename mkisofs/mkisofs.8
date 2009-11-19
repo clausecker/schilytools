@@ -1,7 +1,7 @@
 '\" t
 .\" To print, first run through tbl
 .\" -*- nroff -*-
-.\" @(#)mkisofs.8	1.131 09/10/11 joerg
+.\" @(#)mkisofs.8	1.132 09/11/15 joerg
 .\"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
 .if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
@@ -15,7 +15,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH MKISOFS 8 "2009/10/11" "Version 3.0"
+.TH MKISOFS 8 "2009/11/15" "Version 3.0"
 .SH NAME
 mkisofs \- create an hybrid ISO-9660/JOLIET/HFS/UDF filesystem-image with optional Rock Ridge attributes.
 .SH SYNOPSIS
@@ -3411,3 +3411,18 @@ http://lists.berlios.de/mailman/listinfo/cdrecord-developers
 or
 .B
 http://lists.berlios.de/mailman/listinfo/cdrecord-support 
+.br
+.ne 7
+.SH "INTERFACE STABILITY
+The interfaces provided by 
+.B mkisofs
+are designed for long term stability.
+As
+.B mkisofs
+depends on interfaces provided by the underlying operating system,
+the stability of the interfaces offered by
+.B mkisofs
+depends on the interface stability of the OS interfaces. 
+Modified interfaces in the OS may enforce modified interfaces
+in 
+.BR mkisofs .

@@ -27,18 +27,18 @@
 /*
  * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)sname.c	1.4 09/11/01 J. Schilling
+ * @(#)sname.c	1.5 09/11/08 J. Schilling
  */
 #if defined(sun)
-#ident "@(#)sname.c 1.4 09/11/01 J. Schilling"
+#pragma ident "@(#)sname.c 1.5 09/11/08 J. Schilling"
 #endif
 /*
  * @(#)sname.c 1.3 06/12/12
  */
 
 #if defined(sun)
-#ident	"@(#)sname.c"
-#ident	"@(#)sccs:lib/mpwlib/sname.c"
+#pragma ident	"@(#)sname.c"
+#pragma ident	"@(#)sccs:lib/mpwlib/sname.c"
 #endif
 /*
 	Returns pointer to "simple" name of path name; that is,

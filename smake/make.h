@@ -1,7 +1,7 @@
-/* @(#)make.h	1.86 09/10/22 Copyright 1985, 87, 91, 1995-2008 J. Schilling */
+/* @(#)make.h	1.88 09/11/18 Copyright 1985, 87, 91, 1995-2009 J. Schilling */
 /*
  *	Definitions for make.
- *	Copyright (c) 1985, 87, 91, 1995-2008 by J. Schilling
+ *	Copyright (c) 1985, 87, 91, 1995-2009 by J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -160,6 +160,7 @@ extern	void	usage		__PR((int exitcode));
 extern	void	setup_dotvars	__PR((void));
 extern	char	*searchtype	__PR((int mode));
 extern	void	doexport	__PR((char *));
+extern	void	dounexport	__PR((char *));
 extern	int	docmd		__PR((char * cmd, obj_t * obj));
 extern	BOOL	move_tgt	__PR((obj_t * from));
 extern	BOOL	touch_file	__PR((char * name));

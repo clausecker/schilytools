@@ -27,18 +27,18 @@
 /*
  * This file contains modifications Copyright 2009 J. Schilling
  *
- * @(#)xmsg.c	1.2 09/11/01 J. Schilling
+ * @(#)xmsg.c	1.3 09/11/08 J. Schilling
  */
 #if defined(sun)
-#ident "@(#)xmsg.c 1.2 09/11/01 J. Schilling"
+#pragma ident "@(#)xmsg.c 1.3 09/11/08 J. Schilling"
 #endif
 /*
  * @(#)xmsg.c 1.6 06/12/12
  */
 
 #if defined(sun)
-#ident	"@(#)xmsg.c"
-#ident	"@(#)sccs:lib/mpwlib/xmsg.c"
+#pragma ident	"@(#)xmsg.c"
+#pragma ident	"@(#)sccs:lib/mpwlib/xmsg.c"
 #endif
 # include	<defines.h>
 

@@ -1,8 +1,8 @@
-/* @(#)align_test.c	1.25 09/10/20 Copyright 1995-2009 J. Schilling */
+/* @(#)align_test.c	1.26 09/11/07 Copyright 1995-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef	lint
 static	UConst char sccsid[] =
-	"@(#)align_test.c	1.25 09/10/20 Copyright 1995-2009 J. Schilling";
+	"@(#)align_test.c	1.26 09/11/07 Copyright 1995-2009 J. Schilling";
 #endif
 /*
  *	Generate machine dependant align.h
@@ -122,7 +122,7 @@ LOCAL	void	speed_ptr	__PR((char *, int));
 
 #ifdef	OFF_ALIGN
 
-#define	sm_off(s, m)	((int)&((s)0)->m)
+#define	sm_off(s, m)	((size_t)&((s)0)->m)
 
 LOCAL	int	off_short	__PR((void));
 LOCAL	int	off_int		__PR((void));
@@ -205,7 +205,7 @@ main(ac, av)
 #endif
 #endif
 
-	i = ((int)buf) % 1024;
+	i = ((size_t)buf) % 1024;
 	i = 1024 - i;
 	p = &buf[i];
 	buf_aligned = p;

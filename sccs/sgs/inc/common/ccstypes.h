@@ -27,18 +27,18 @@
 /*
  * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)ccstypes.h	1.5 09/11/01 J. Schilling
+ * @(#)ccstypes.h	1.6 09/11/08 J. Schilling
  */
 #if defined(sun)
-#ident "@(#)ccstypes.h 1.5 09/11/01 J. Schilling"
+#pragma ident "@(#)ccstypes.h 1.6 09/11/08 J. Schilling"
 #endif
 /*
  * @(#)ccstypes.h 1.2 06/12/12
  */
 
 #if defined(sun)
-#ident	"@(#)ccstypes.h"
-#ident	"@(#)sgs-inc:common/ccstypes.h"
+#pragma ident	"@(#)ccstypes.h"
+#pragma ident	"@(#)sgs-inc:common/ccstypes.h"
 #endif
 
 #include <schily/types.h>

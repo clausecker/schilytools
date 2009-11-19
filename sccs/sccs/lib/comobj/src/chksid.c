@@ -27,18 +27,18 @@
 /*
  * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)chksid.c	1.4 09/11/01 J. Schilling
+ * @(#)chksid.c	1.5 09/11/08 J. Schilling
  */
 #if defined(sun)
-#ident "@(#)chksid.c 1.4 09/11/01 J. Schilling"
+#pragma ident "@(#)chksid.c 1.5 09/11/08 J. Schilling"
 #endif
 /*
  * @(#)chksid.c 1.4 06/12/12
  */
 
 #if defined(sun)
-#ident	"@(#)chksid.c"
-#ident	"@(#)sccs:lib/comobj/chksid.c"
+#pragma ident	"@(#)chksid.c"
+#pragma ident	"@(#)sccs:lib/comobj/chksid.c"
 #endif
 # include	<defines.h>
 #include        <locale.h>

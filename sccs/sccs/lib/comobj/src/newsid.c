@@ -27,18 +27,18 @@
 /*
  * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)newsid.c	1.4 09/11/01 J. Schilling
+ * @(#)newsid.c	1.5 09/11/08 J. Schilling
  */
 #if defined(sun)
-#ident "@(#)newsid.c 1.4 09/11/01 J. Schilling"
+#pragma ident "@(#)newsid.c 1.5 09/11/08 J. Schilling"
 #endif
 /*
  * @(#)newsid.c 1.7 06/12/12
  */
 
 #if defined(sun)
-#ident	"@(#)sidtoser.c"
-#ident	"@(#)sccs:lib/comobj/sidtoser.c"
+#pragma ident	"@(#)sidtoser.c"
+#pragma ident	"@(#)sccs:lib/comobj/sidtoser.c"
 #endif
 # include	<defines.h>
 

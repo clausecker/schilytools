@@ -27,21 +27,24 @@
 /*
  * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)dohist.c	1.5 09/11/01 J. Schilling
+ * @(#)dohist.c	1.7 09/11/15 J. Schilling
  */
 #if defined(sun)
-#ident "@(#)dohist.c 1.5 09/11/01 J. Schilling"
+#pragma ident "@(#)dohist.c 1.7 09/11/15 J. Schilling"
 #endif
 /*
  * @(#)dohist.c 1.7 06/12/12
  */
 
 #if defined(sun)
-#ident	"@(#)dohist.c"
-#ident	"@(#)sccs:lib/comobj/dohist.c"
+#pragma ident	"@(#)dohist.c"
+#pragma ident	"@(#)sccs:lib/comobj/dohist.c"
 #endif
 # include	<defines.h>
+#	define	VMS_VFORK_OK
+# include	<schily/vfork.h>
 # include	<schily/wait.h>
+# include	<schily/fcntl.h>
 # include	<had.h>
 # include       <i18n.h>
 
@@ -220,14 +223,22 @@ char *pgm;
 		Varg[2] = p;
 	else
 		Varg[2] = Null;
-	if ((i = fork()) < 0) {
+	if ((i = vfork()) < 0) {
+#ifdef	HAVE_VFORK
+		Fflags |= FTLVFORK;
+#endif
 		fatal(gettext("cannot fork; try again (co20)"));
 	}
 	else if (i == 0) {
-		for (i = 4; i < 15; i++)
+		for (i = 4; i < 15; i++) {
+#ifdef	F_SETFD
+			fcntl(i, F_SETFD, 1);
+#else
 			(void) close(i);
+#endif
+		}
 		execvp(pgm,Varg);
-		exit(1);
+		_exit(1);
 	}
 	else {
 		wait(&st);

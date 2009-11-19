@@ -27,18 +27,18 @@
 /*
  * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)abspath.c	1.4 09/11/01 J. Schilling
+ * @(#)abspath.c	1.5 09/11/08 J. Schilling
  */
 #if defined(sun)
-#ident "@(#)abspath.c 1.4 09/11/01 J. Schilling"
+#pragma ident "@(#)abspath.c 1.5 09/11/08 J. Schilling"
 #endif
 /*
  * @(#)abspath.c 1.4 06/12/12
  */
 
 #if defined(sun)
-#ident	"@(#)abspath.c"
-#ident	"@(#)sccs:lib/mpwlib/abspath.c"
+#pragma ident	"@(#)abspath.c"
+#pragma ident	"@(#)sccs:lib/mpwlib/abspath.c"
 #endif
 
 #include <defines.h>

@@ -1,8 +1,8 @@
-/* @(#)idcache.c	1.28 09/07/11 Copyright 1993, 1995-2009 J. Schilling */
+/* @(#)idcache.c	1.29 09/11/16 Copyright 1993, 1995-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)idcache.c	1.28 09/07/11 Copyright 1993, 1995-2009 J. Schilling";
+	"@(#)idcache.c	1.29 09/11/16 Copyright 1993, 1995-2009 J. Schilling";
 #endif
 /*
  *	UID/GID caching functions
@@ -299,7 +299,7 @@ ic_uid_nobody()
 	return (_uid_nobody);
 }
 
-EXPORT uid_t
+EXPORT gid_t
 ic_gid_nobody()
 {
 	if (!name_init)

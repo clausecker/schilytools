@@ -27,18 +27,18 @@
 /*
  * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)what.c	1.8 09/11/01 J. Schilling
+ * @(#)what.c	1.9 09/11/08 J. Schilling
  */
 #if defined(sun)
-#ident "@(#)what.c 1.8 09/11/01 J. Schilling"
+#pragma ident "@(#)what.c 1.9 09/11/08 J. Schilling"
 #endif
 /*
  * @(#)what.c 1.11 06/12/12
  */
 
 #if defined(sun)
-#ident	"@(#)what.c"
-#ident	"@(#)sccs:cmd/what.c"
+#pragma ident	"@(#)what.c"
+#pragma ident	"@(#)sccs:cmd/what.c"
 #endif
 # include	<defines.h>
 # include	<version.h>

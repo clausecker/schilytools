@@ -39,10 +39,10 @@
 /*
  * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)diff.c	1.23 09/11/01 J. Schilling
+ * @(#)diff.c	1.25 09/11/15 J. Schilling
  */
 #if defined(sun)
-#ident "@(#)diff.c 1.23 09/11/01 J. Schilling"
+#pragma ident "@(#)diff.c 1.25 09/11/15 J. Schilling"
 #endif
 
 #if defined(sun)
@@ -160,6 +160,8 @@
 #include <schily/time.h>
 #include <version.h>
 #include <schily/sysexits.h>
+#define	VMS_VFORK_OK
+#include <schily/vfork.h>
 
 #else	/* non-portable SunOS definitions BEGIN */
 
@@ -264,6 +266,7 @@ int *J;			/* will be overlaid on class */
 off_t *ixold;		/* will be overlaid on klist */
 off_t *ixnew;		/* will be overlaid on file[1] */
 
+static int	didvfork;
 static int	mbcurmax;
 
 static void	*talloc __PR((size_t n));
@@ -1846,22 +1849,34 @@ calldiff(wantpr)
 	if (wantpr) {
 		(void) sprintf(etitle, "%s %s", file1, file2);
 		(void) pipe(pv);
-		pid = fork();
+		pid = vfork();
 		if (pid == (pid_t)-1)
 			error(gettext(NO_PROCS_ERR));
 
 		if (pid == 0) {
+#ifdef	set_child_standard_fds
+			set_child_standard_fds(pv[0],
+						STDOUT_FILENO,
+						STDERR_FILENO);
+#ifdef	F_SETFD
+			fcntl(pv[1], F_SETFD, 1);
+#endif
+#else
 			(void) close(0);
 			(void) dup(pv[0]);
 			(void) close(pv[0]);
 			(void) close(pv[1]);
+#endif
 			(void) execv(pr+5, prargs);
 			(void) execv(pr, prargs);
 			perror(pr);
+#ifdef	HAVE_VFORK
+			didvfork = 1;
+#endif
 			done();
 		}
 	}
-	pid = fork();
+	pid = vfork();
 	if (pid == (pid_t)-1)
 		error(gettext(NO_PROCS_ERR));
 
@@ -1875,6 +1890,9 @@ calldiff(wantpr)
 		(void) execv(diff+5, diffargv);
 		(void) execv(diff, diffargv);
 		perror(diff);
+#ifdef	HAVE_VFORK
+		didvfork = 1;
+#endif
 		done();
 	}
 	if (wantpr)	{
@@ -2253,6 +2271,8 @@ done()
 {
 	if (whichtemp) (void) unlink(tempfile[0]);
 	if (whichtemp == 2) (void) unlink(tempfile[1]);
+	if (didvfork)
+		_exit(status);
 	exit(status);
 }
 

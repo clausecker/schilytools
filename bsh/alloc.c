@@ -43,6 +43,7 @@ static	UConst char sccsid[] =
 #endif
 #ifndef	NO_USER_MALLOC
 #define	malloc	__orig_malloc__
+#define	memalign __orig_memalign__
 #define	calloc	__orig_calloc__
 #define	realloc	__orig_realloc__
 #define	free	__orig_free__
@@ -68,9 +69,11 @@ static	UConst char sccsid[] =
 #include <schily/unistd.h>
 #include <schily/utypes.h>
 #include <schily/align.h>
+#include <schily/errno.h>
 
 #ifndef	NO_USER_MALLOC
 #undef	malloc
+#undef	memalign
 #undef	calloc
 #undef	realloc
 #undef	free
@@ -215,6 +218,7 @@ typedef struct space {
 #define	MAXINC		8192
 
 
+LOCAL	SPACE	*rheapbeg	= (SPACE *)NULL;
 LOCAL	SPACE	*heapbeg	= (SPACE *)NULL;
 LOCAL	SPACE	*heapend	= (SPACE *)NULL;
 LOCAL	SPACE	*high		= (SPACE *)NULL;
@@ -259,7 +263,9 @@ EXPORT	void	*dbg_malloc	__PR((size_t size, char *file, int line));
 EXPORT	void	*dbg_calloc	__PR((size_t nelem, size_t elsize, char *file, int line));
 EXPORT	void	*dbg_realloc	__PR((void *t, size_t size, char *file, int line));
 #endif
+LOCAL	void	*__memalign	__PR((size_t align, size_t size));
 EXPORT	void	*malloc		__PR((size_t size));
+EXPORT	void	*memalign	__PR((size_t align, size_t size));
 EXPORT	void	*calloc		__PR((size_t nelem, size_t elsize));
 EXPORT	void	cfree		__PR((void *t));
 EXPORT	void	*realloc	__PR((void *t, size_t size));
@@ -273,6 +279,7 @@ EXPORT	void	aprintfree	__PR((FILE * f));
 LOCAL	int	afpchar		__PR((FILE * f, int c));
 LOCAL	void	aprints		__PR((FILE * f, SPACE *s, char *str));
 #ifdef	XADEBUG
+LOCAL	void	adbgmark	__PR((SPACE * this, size_t xsize));
 LOCAL	BOOL	aisdamaged	__PR((SPACE * this));
 LOCAL	void	adbgdamaged	__PR((SPACE * this));
 LOCAL	void	aprdamaged	__PR((FILE * f, SPACE *this));
@@ -351,6 +358,8 @@ _extcor(size)
 |	Initialisierung der Freispeicherverwaltung
 |
 +---------------------------------------------------------------------------*/
+#define	haligned(a)		xaligned(a, (2*sizeof (SPACE *)) - 1)
+#define	halign(x)		xalign((x), 2*sizeof (SPACE *), (2*sizeof (SPACE *)) - 1)
 LOCAL SPACE *
 init()
 {
@@ -365,9 +374,13 @@ init()
 #else
 	pgsize = getpagesize();
 #endif
-	heapbeg = heapend = (SPACE *)sbrk((Intptr_t)0);
-	if (!maligned(heapbeg)) {	/* Should never happen		*/
-		heapbeg = heapend = (SPACE *)malign(heapbeg);
+	rheapbeg = heapbeg = heapend = (SPACE *)sbrk((Intptr_t)0);
+	/*
+	 * The heap needs to be aligned to 2*sizeof (SPACE *) to allow
+	 * __memalign() to work correctly.
+	 */
+	if (!haligned(heapbeg)) {
+		heapbeg = heapend = (SPACE *)halign(heapbeg);
 		if (brk((char *)heapbeg) == -1)
 			return ((SPACE *)NULL);
 	}
@@ -585,8 +598,10 @@ dbg_realloc(t, size, file, line)
 |	Wenn kein Speicher verfuegbar ist dann wird der Heap erweitert.
 |
 +---------------------------------------------------------------------------*/
-EXPORT void *
-malloc(size)
+#include <schily/string.h>	/* XXX DEBUG */
+LOCAL void *
+__memalign(align, size)
+			size_t	align;
 	register	size_t	size;
 {
 	register	SPACE	*prev;
@@ -597,6 +612,16 @@ malloc(size)
 #ifdef	XADEBUG
 			size_t	xsize = size;
 #endif
+	if (align > 0) {
+		if (align <= 2*sizeof (SPACE *))
+			align = 0;
+		if (align <= ALIGN_TMAX)
+			align = 0;
+		if (!haligned(align)) {
+			seterrno(EINVAL);
+			return (NULL);			
+		}
+	}
 
 	if (heapbeg == (SPACE *)NULL) {
 		if (init() == (SPACE *)NULL) {
@@ -616,7 +641,7 @@ malloc(size)
 	 * die von auszen gewuenschte Speichermenge + der Anteil in
 	 * struct space der vor space->store liegt.
 	 */
-	size = max(size, sizeof (new->store)) + (int)&((SPACE *)0)->store;
+	size = max(size, sizeof (new->store)) + (size_t)&((SPACE *)0)->store;
 #ifdef	XADEBUG
 #ifdef	ALWAYS_55
 	/*
@@ -633,6 +658,7 @@ malloc(size)
 #endif
 
 	size = (size_t)malign(size); /* runden auf naechsten "Max Size Type" */
+/*size = (size_t)xalign(size, 8, 7);*/
 
 	for (pass = 0, prev = last.sfree; ; pass++) {
 		if (prev < heapend)
@@ -642,6 +668,85 @@ malloc(size)
 				left = chunksize(this);
 				if (left < size)
 					continue;
+				if (align > 0) {
+					size_t	amod = ((Intptr_t)&this->store) % align;
+					size_t	shift = 0;
+					BOOL	b = TRUE;
+					char	buf[512];
+
+					if (amod)
+						shift = align - amod;
+					if (left < (size + shift))
+						b = FALSE;
+/*
+					sprintf(buf, "align %zd store mod %zd left %zd size %zd shift %zd%s OK %d XXX %d\n",
+						align, amod, left, size, shift, shift?"*":"", b, (int)&((SPACE *)0)->store);
+					write(2, buf, strlen(buf));
+*/
+					if (b == FALSE)
+						continue;
+/*					if (shift > 0 && shift < 2*sizeof(void *))*/
+/*						write(2, "KLEIN\n", 7);*/
+#define	RRR
+#ifdef	RRR
+					if (shift > 0) {
+/*register SPACE *x;*/
+						new = (SPACE *)((char *)this + shift);
+
+/*
+for (x = heapbeg; this > x->snext; x = x->snext)
+	;
+sprintf(buf, "this %p x %p x->snext %p prev %p prev->snext %p prev->sfree %p\n", this, x, x->snext, prev, prev->snext, prev->sfree);
+write(2, buf, strlen(buf)); 
+*/
+						new = (SPACE *)((char *)this + shift);
+						new->snext = this->snext;
+						new->sfree = this->sfree;
+						if (shift >= 2*sizeof (struct space *)) {
+							this->snext = new;
+							this->sfree = new;
+
+							prev->sfree = this;
+							prev = this;
+						} else {
+							register SPACE *x;
+#ifdef	XADEBUG
+								 SPACE *n;
+								size_t xs;
+								char	*file;
+								int	line;
+
+							n = (struct space *)((char *)this-2*sizeof (struct space *));
+							xs = (size_t)n->sfree;
+#endif
+
+/*							for (x = heapbeg; this > x->snext; x = x->snext)*/
+/*								;*/
+/*sprintf(buf, "Athis %p x %p x->snext %p prev %p prev->snext %p prev->sfree %p\n", this, x, x->snext, prev, prev->snext, prev->sfree);*/
+/*write(2, buf, strlen(buf));*/
+							for (x = prev; this > x->snext; x = x->snext)
+								;
+sprintf(buf, "Bthis %p x %p x->snext %p prev %p prev->snext %p prev->sfree %p\n", this, x, x->snext, prev, prev->snext, prev->sfree);
+write(2, buf, strlen(buf));
+if (x->snext != this)
+write(2, "sss\n", 5);
+							x->snext = new;
+							x->sfree = new->sfree;
+							prev->sfree = new;
+#ifdef	XADEBUG
+							file = x->file;
+							line = x->line;
+							adbgmark(x, xs);
+							x->file = file;
+/*							x->line = line;*/
+							x->line = -1;
+#endif
+						}
+						left -= shift;
+						this = new;
+					}
+#endif
+				}
 				left -= size;
 
 				if (left >= sizeof (SPACE)) {
@@ -659,16 +764,7 @@ malloc(size)
 				prev->sfree = this->sfree;
 				last.sfree = prev;
 #ifdef	XADEBUG
-				new = (struct space *)((char *)this->snext-
-						2*sizeof (struct space *));
-				new->snext = (struct space *)0x12345678;
-				new->sfree = (struct space *)xsize;
-				if (chunksize(this) >
-					(xsize + (size_t)&((SPACE *)0)->store
-					+ 2*sizeof (struct space *)))
-					((char *)&this->store)[xsize] = 0x55;
-				this->file = "<unknown-file>";
-				this->line = 0;
+				adbgmark(this, xsize);
 #endif
 				return ((char *) &this->store);
 			}
@@ -683,6 +779,24 @@ malloc(size)
 			}
 		}
 	}
+}
+
+EXPORT void *
+malloc(size)
+	register	size_t	size;
+{
+/*	return (__memalign((size_t)0, size));*/
+	return (__memalign((size_t)16, size));
+/*	return (__memalign((size_t)4096, size));*/
+/*	return (__memalign((size_t)ALIGN_TMAX, size));*/
+}
+
+EXPORT void *
+memalign(align, size)
+			size_t	align;
+	register	size_t	size;
+{
+	return (__memalign(align, size));
 }
 
 EXPORT	void *
@@ -875,6 +989,24 @@ aprints(f, s, str)
 }
 
 #ifdef	XADEBUG
+LOCAL void
+adbgmark(this, xsize)
+	register	SPACE	*this;
+			size_t	xsize;
+{
+	register	SPACE	*new;
+
+	new = (struct space *)((char *)this->snext-2*sizeof (struct space *));
+	new->snext = (struct space *)0x12345678;
+	new->sfree = (struct space *)xsize;
+	if (chunksize(this) >
+		(xsize + (size_t)&((SPACE *)0)->store
+		+ 2*sizeof (struct space *)))
+		((char *)&this->store)[xsize] = 0x55;
+	this->file = "<unknown-file>";
+	this->line = 0;
+}
+
 LOCAL BOOL
 aisdamaged(this)
 	register SPACE	*this;
@@ -1016,10 +1148,12 @@ aprintlist(f, l)
 {
 	register SPACE	*s;
 	register SPACE	*fr;
+BOOL x = FALSE;
 
 	for (s = heapbeg, fr = avail.sfree; !ctlc && s < heapend;
 							s = s->snext) {
 		while (!ctlc && s < fr) {
+x = TRUE;
 			aprints(f, s, "BUSY");
 #ifdef	XADEBUG
 			aprdamaged(f, s);
@@ -1029,6 +1163,8 @@ aprintlist(f, l)
 			fprintf(f, "\n");
 			s = s->snext;
 		}
+if (!x)
+error("XXXXX\n");
 		aprints(f, s, "FREE");
 #ifdef	XADEBUG
 		afpchar(f, ' ');

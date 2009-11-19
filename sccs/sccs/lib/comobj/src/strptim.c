@@ -27,18 +27,18 @@
 /*
  * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)strptim.c	1.4 09/11/01 J. Schilling
+ * @(#)strptim.c	1.5 09/11/08 J. Schilling
  */
 #if defined(sun)
-#ident "@(#)strptim.c 1.4 09/11/01 J. Schilling"
+#pragma ident "@(#)strptim.c 1.5 09/11/08 J. Schilling"
 #endif
 /*
  * @(#)strptim.c 1.7 06/12/12
  */
 
 #if defined(sun)
-#ident	"@(#)strptime.c"
-#ident	"@(#)sccs:lib/comobj/strptime.c"
+#pragma ident	"@(#)strptime.c"
+#pragma ident	"@(#)sccs:lib/comobj/strptime.c"
 #endif
 #include <defines.h>
 

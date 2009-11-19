@@ -27,18 +27,18 @@
 /*
  * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)permiss.c	1.7 09/11/01 J. Schilling
+ * @(#)permiss.c	1.8 09/11/08 J. Schilling
  */
 #if defined(sun)
-#ident "@(#)permiss.c 1.7 09/11/01 J. Schilling"
+#pragma ident "@(#)permiss.c 1.8 09/11/08 J. Schilling"
 #endif
 /*
  * @(#)permiss.c 1.9 06/12/12
  */
 
 #if defined(sun)
-#ident	"@(#)permiss.c"
-#ident	"@(#)sccs:lib/comobj/permiss.c"
+#pragma ident	"@(#)permiss.c"
+#pragma ident	"@(#)sccs:lib/comobj/permiss.c"
 #endif
 # define	NEED_SCHILY_PRINT	/* We need defines for js_snprintf() */
 # include	<defines.h>

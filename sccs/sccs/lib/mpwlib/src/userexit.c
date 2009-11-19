@@ -27,18 +27,18 @@
 /*
  * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)userexit.c	1.4 09/11/01 J. Schilling
+ * @(#)userexit.c	1.5 09/11/08 J. Schilling
  */
 #if defined(sun)
-#ident "@(#)userexit.c 1.4 09/11/01 J. Schilling"
+#pragma ident "@(#)userexit.c 1.5 09/11/08 J. Schilling"
 #endif
 /*
  * @(#)userexit.c 1.4 06/12/12
  */
 
 #if defined(sun)
-#ident	"@(#)userexit.c"
-#ident	"@(#)sccs:lib/mpwlib/userexit.c"
+#pragma ident	"@(#)userexit.c"
+#pragma ident	"@(#)sccs:lib/mpwlib/userexit.c"
 #endif
 
 #include <defines.h>

@@ -27,18 +27,18 @@
 /*
  * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)xopen.c	1.4 09/11/01 J. Schilling
+ * @(#)xopen.c	1.5 09/11/08 J. Schilling
  */
 #if defined(sun)
-#ident "@(#)xopen.c 1.4 09/11/01 J. Schilling"
+#pragma ident "@(#)xopen.c 1.5 09/11/08 J. Schilling"
 #endif
 /*
  * @(#)xopen.c 1.8 06/12/12
  */
 
 #if defined(sun)
-#ident	"@(#)xopen.c"
-#ident	"@(#)sccs:lib/mpwlib/xopen.c"
+#pragma ident	"@(#)xopen.c"
+#pragma ident	"@(#)sccs:lib/mpwlib/xopen.c"
 #endif
 /*
 	Interface to open(II) which differentiates among the various

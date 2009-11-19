@@ -1,4 +1,4 @@
-dnl @(#)aclocal.m4	1.83 09/10/31 Copyright 1998-2009 J. Schilling
+dnl @(#)aclocal.m4	1.85 09/11/06 Copyright 1998-2009 J. Schilling
 
 dnl Set VARIABLE to VALUE in C-string form, verbatim, or 1.
 dnl AC_DEFINE_STRING(VARIABLE [, VALUE])
@@ -732,6 +732,33 @@ if test $ac_cv_struct_union_wait = yes; then
   AC_DEFINE(HAVE_UNION_WAIT)
 fi])
 
+dnl Checks if union wait is used by default
+dnl Defines USE_UNION_WAIT to int on failure.
+AC_DEFUN([AC_USE_STRUCT_UNION_WAIT],
+[AC_REQUIRE([AC_HEADER_STDC])dnl
+AC_MSG_CHECKING(if union wait is used by default)
+AC_CACHE_VAL(ac_cv_use_union_wait,
+[AC_EGREP_CPP(dnl
+changequote(<<,>>)dnl
+<<xxzzy.*x_|xxzzy.*union>>dnl
+changequote([,]), [#include <sys/types.h>
+#if	defined(HAVE_WAIT_H)
+#	include <wait.h>
+#else
+#include <sys/wait.h>
+#endif
+xxzzy WTERMSIG(status)
+xxzzy WCOREDUMP(status)
+xxzzy WEXITSTATUS(status)
+xxzzy WSTOPSIG(status)
+xxzzy WIFSTOPPED(status)
+xxzzy WIFSIGNALED(status)
+xxzzy WIFEXITED(status)], ac_cv_use_union_wait=yes, ac_cv_use_union_wait=no)])dnl
+AC_MSG_RESULT($ac_cv_use_union_wait)
+if test $ac_cv_use_union_wait = yes; then
+  AC_DEFINE(USE_UNION_WAIT)
+fi])
+
 dnl Checks if 'struct rusage' is declared in sys/resource.h.
 dnl Defines HAVE_STRUCT_RUSAGE on success.
 AC_DEFUN([AC_STRUCT_RUSAGE],
@@ -997,6 +1024,23 @@ intptr_t ip; uintptr_t uip;],
                 [ac_cv_header_inttypes=no])])
 if test $ac_cv_header_inttypes = yes; then
   AC_DEFINE(HAVE_INTTYPES_H)
+fi])
+
+dnl Checks for SUSv3 compliant <stdint.h>
+dnl Defines HAVE_STDINT_H and HAVE_TYPE_INTMAX_T/HAVE_TYPE_UINTMAX_T on success.
+AC_DEFUN([AC_HEADER_STDINT],
+[AC_CACHE_CHECK([for SUSv3 compliant stdint.h], ac_cv_header_stdint,
+                [AC_TRY_COMPILE([#include <stdint.h>],
+[int8_t c; uint8_t uc; int16_t s; uint16_t us; int32_t i; uint32_t ui;
+int64_t ll; uint64_t ull;
+intptr_t ip; uintptr_t uip;
+intmax_t im; uintmax_t uim;],
+                [ac_cv_header_stdint=yes],
+                [ac_cv_header_stdint=no])])
+if test $ac_cv_header_stdint = yes; then
+  AC_DEFINE(HAVE_STDINT_H)
+  AC_DEFINE(HAVE_TYPE_INTMAX_T)
+  AC_DEFINE(HAVE_TYPE_UINTMAX_T)
 fi])
 
 dnl Checks for struct timeval in time.h or sys/time.h

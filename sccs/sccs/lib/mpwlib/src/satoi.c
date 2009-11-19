@@ -27,18 +27,18 @@
 /*
  * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)satoi.c	1.4 09/11/01 J. Schilling
+ * @(#)satoi.c	1.5 09/11/08 J. Schilling
  */
 #if defined(sun)
-#ident "@(#)satoi.c 1.4 09/11/01 J. Schilling"
+#pragma ident "@(#)satoi.c 1.5 09/11/08 J. Schilling"
 #endif
 /*
  * @(#)satoi.c 1.4 06/12/12
  */
 
 #if defined(sun)
-#ident	"@(#)satoi.c"
-#ident	"@(#)sccs:lib/mpwlib/satoi.c"
+#pragma ident	"@(#)satoi.c"
+#pragma ident	"@(#)sccs:lib/mpwlib/satoi.c"
 #endif
 # include	<defines.h>
 # include	<macros.h>

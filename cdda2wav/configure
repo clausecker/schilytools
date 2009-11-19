@@ -585,7 +585,7 @@ if eval "test \"`echo '$''{'ac_cv_lib_$ac_lib_var'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   ac_save_LIBS="$LIBS"
-LIBS="-lposix4  $LIBS"
+LIBS=`echo "-lposix4  $LIBS" | sed -e 's/-lc //'`
 cat > conftest.$ac_ext <<EOF
 #line 591 "configure"
 #include "confdefs.h"
@@ -634,7 +634,7 @@ if eval "test \"`echo '$''{'ac_cv_lib_$ac_lib_var'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   ac_save_LIBS="$LIBS"
-LIBS="-lossaudio  $LIBS"
+LIBS=`echo "-lossaudio  $LIBS" | sed -e 's/-lc //'`
 cat > conftest.$ac_ext <<EOF
 #line 640 "configure"
 #include "confdefs.h"

@@ -1,4 +1,4 @@
-. \" @(#)rscsi.1	1.4 09/10/19 Copyr 2000-2008 J. Schilling
+. \" @(#)rscsi.1	1.5 09/11/15 Copyr 2000-2008 J. Schilling
 . \"  Manual Seite fuer rscsi
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -675,3 +675,18 @@ js@cs.tu-berlin.de
 or
 .B
 joerg@schily.isdn.cs.tu-berlin.de
+.br
+.ne 7
+.SH "INTERFACE STABILITY
+The interfaces provided by 
+.B rscsi
+are designed for long term stability.
+As
+.B rscsi
+depends on interfaces provided by the underlying operating system,
+the stability of the interfaces offered by
+.B rscsi
+depends on the interface stability of the OS interfaces. 
+Modified interfaces in the OS may enforce modified interfaces
+in 
+.BR rscsi .

@@ -27,18 +27,18 @@
 /*
  * This file contains modifications Copyright 2009 J. Schilling
  *
- * @(#)doie.c	1.2 09/11/01 J. Schilling
+ * @(#)doie.c	1.3 09/11/08 J. Schilling
  */
 #if defined(sun)
-#ident "@(#)doie.c 1.2 09/11/01 J. Schilling"
+#pragma ident "@(#)doie.c 1.3 09/11/08 J. Schilling"
 #endif
 /*
  * @(#)doie.c 1.7 06/12/12
  */
 
 #if defined(sun)
-#ident	"@(#)doie.c"
-#ident	"@(#)sccs:lib/comobj/doie.c"
+#pragma ident	"@(#)doie.c"
+#pragma ident	"@(#)sccs:lib/comobj/doie.c"
 #endif
 # include	<defines.h>
 # include       <locale.h>

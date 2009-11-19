@@ -27,18 +27,18 @@
 /*
  * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)putline.c	1.4 09/11/01 J. Schilling
+ * @(#)putline.c	1.5 09/11/08 J. Schilling
  */
 #if defined(sun)
-#ident "@(#)putline.c 1.4 09/11/01 J. Schilling"
+#pragma ident "@(#)putline.c 1.5 09/11/08 J. Schilling"
 #endif
 /*
  * @(#)putline.c 1.13 06/12/12
  */
 
 #if defined(sun)
-#ident	"@(#)putline.c"
-#ident	"@(#)sccs:lib/comobj/putline.c"
+#pragma ident	"@(#)putline.c"
+#pragma ident	"@(#)sccs:lib/comobj/putline.c"
 #endif
 # include	<defines.h>
 # include       <i18n.h>

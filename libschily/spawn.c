@@ -1,4 +1,4 @@
-/* @(#)spawn.c	1.24 09/07/10 Copyright 1985, 1989, 1995-2009 J. Schilling */
+/* @(#)spawn.c	1.26 09/11/15 Copyright 1985, 1989, 1995-2009 J. Schilling */
 /*
  *	Spawn another process/ wait for child process
  *
@@ -25,6 +25,8 @@
 #include <schily/wait.h>
 #include <schily/errno.h>
 #include <schily/schily.h>
+#define	VMS_VFORK_OK
+#include <schily/vfork.h>
 
 #define	MAX_F_ARGS	16
 
@@ -115,10 +117,10 @@ fspawnv_nowait(in, out, err, name, argc, argv)
 	char		* const argv[];
 {
 	int	pid = -1;	/* Initialization needed to make GCC happy */
-	int	i;
+	volatile int	i;
 
 	for (i = 1; i < 64; i *= 2) {
-		if ((pid = fork()) >= 0)
+		if ((pid = vfork()) >= 0)
 			break;
 		sleep(i);
 	}
@@ -129,7 +131,7 @@ fspawnv_nowait(in, out, err, name, argc, argv)
 				 * so we have to cast argv tp (char **)
 				 */
 	fexecv(name, in, out, err, argc, (char **)argv);
-	exit(geterrno());
+	_exit(geterrno());
 	/* NOTREACHED */
 #ifndef	lint
 	return (0);		/* keep gnu compiler happy */

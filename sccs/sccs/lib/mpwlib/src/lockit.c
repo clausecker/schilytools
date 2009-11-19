@@ -27,18 +27,18 @@
 /*
  * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)lockit.c	1.6 09/11/01 J. Schilling
+ * @(#)lockit.c	1.7 09/11/08 J. Schilling
  */
 #if defined(sun)
-#ident "@(#)lockit.c 1.6 09/11/01 J. Schilling"
+#pragma ident "@(#)lockit.c 1.7 09/11/08 J. Schilling"
 #endif
 /*
  * @(#)lockit.c 1.20 06/12/12
  */
 
 #if defined(sun)
-#ident	"@(#)lockit.c"
-#ident	"@(#)sccs:lib/mpwlib/lockit.c"
+#pragma ident	"@(#)lockit.c"
+#pragma ident	"@(#)sccs:lib/mpwlib/lockit.c"
 #endif
 
 /*

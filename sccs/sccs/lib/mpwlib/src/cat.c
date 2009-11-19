@@ -27,18 +27,18 @@
 /*
  * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)cat.c	1.7 09/11/01 J. Schilling
+ * @(#)cat.c	1.8 09/11/08 J. Schilling
  */
 #if defined(sun)
-#ident "@(#)cat.c 1.7 09/11/01 J. Schilling"
+#pragma ident "@(#)cat.c 1.8 09/11/08 J. Schilling"
 #endif
 /*
  * @(#)cat.c 1.4 06/12/12
  */
 
 #if defined(sun)
-#ident	"@(#)cat.c"
-#ident	"@(#)sccs:lib/mpwlib/cat.c"
+#pragma ident	"@(#)cat.c"
+#pragma ident	"@(#)sccs:lib/mpwlib/cat.c"
 #endif
 #include	<defines.h>
 #include	<schily/varargs.h>

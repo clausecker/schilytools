@@ -1,4 +1,4 @@
-.\" @(#)cdrecord.1	1.128 09/10/13 Copyright 1996-2009 J. Schilling
+.\" @(#)cdrecord.1	1.129 09/11/15 Copyright 1996-2009 J. Schilling
 .\"
 .\" The contents of this file are subject to the terms of the
 .\" Common Development and Distribution License, Version 1.0 only
@@ -2605,3 +2605,18 @@ The mail address of the list is:
 .sp
 	cdwrite@other.debian.org
 .fi
+.br
+.ne 7
+.SH "INTERFACE STABILITY
+The interfaces provided by 
+.B cdrecord
+are designed for long term stability.
+As
+.B cdrecord
+depends on interfaces provided by the underlying operating system,
+the stability of the interfaces offered by
+.B cdrecord
+depends on the interface stability of the OS interfaces. 
+Modified interfaces in the OS may enforce modified interfaces
+in 
+.BR cdrecord .

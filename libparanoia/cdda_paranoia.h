@@ -1,4 +1,4 @@
-/* @(#)cdda_paranoia.h	1.26 09/07/01 J. Schilling from cdparanoia-III-alpha9.8 */
+/* @(#)cdda_paranoia.h	1.27 09/11/07 J. Schilling from cdparanoia-III-alpha9.8 */
 /*
  * CopyPolicy: GNU Lesser General Public License v2.1 applies
  * Copyright (C) 1997-2001,2008 by Monty (xiphmont@mit.edu)
@@ -13,10 +13,6 @@
 #endif
 #ifndef _SCHILY_UTYPES_H
 #include <schily/utypes.h>
-#endif
-
-#ifndef	__GNUC__
-#define	inline
 #endif
 
 #define	CD_FRAMESIZE_RAW		2352

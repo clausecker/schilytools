@@ -27,18 +27,18 @@
 /*
  * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)repl.c	1.4 09/11/01 J. Schilling
+ * @(#)repl.c	1.5 09/11/08 J. Schilling
  */
 #if defined(sun)
-#ident "@(#)repl.c 1.4 09/11/01 J. Schilling"
+#pragma ident "@(#)repl.c 1.5 09/11/08 J. Schilling"
 #endif
 /*
  * @(#)repl.c 1.4 06/12/12
  */
 
 #if defined(sun)
-#ident	"@(#)repl.c"
-#ident	"@(#)sccs:lib/mpwlib/repl.c"
+#pragma ident	"@(#)repl.c"
+#pragma ident	"@(#)sccs:lib/mpwlib/repl.c"
 #endif
 /*
 	Replace each occurrence of `old' with `new' in `str'.

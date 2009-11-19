@@ -27,18 +27,18 @@
 /*
  * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)xcreat.c	1.5 09/11/01 J. Schilling
+ * @(#)xcreat.c	1.6 09/11/08 J. Schilling
  */
 #if defined(sun)
-#ident "@(#)xcreat.c 1.5 09/11/01 J. Schilling"
+#pragma ident "@(#)xcreat.c 1.6 09/11/08 J. Schilling"
 #endif
 /*
  * @(#)xcreat.c 1.8 06/12/12
  */
 
 #if defined(sun)
-#ident	"@(#)xcreat.c"
-#ident	"@(#)sccs:lib/mpwlib/xcreat.c"
+#pragma ident	"@(#)xcreat.c"
+#pragma ident	"@(#)sccs:lib/mpwlib/xcreat.c"
 #endif
 # include	<defines.h>
 # include       <i18n.h>

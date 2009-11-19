@@ -1,9 +1,9 @@
 /*#define	DEBUG*/
-/* @(#)hole.c	1.55 09/07/11 Copyright 1993-2009 J. Schilling */
+/* @(#)hole.c	1.56 09/11/07 Copyright 1993-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)hole.c	1.55 09/07/11 Copyright 1993-2009 J. Schilling";
+	"@(#)hole.c	1.56 09/11/07 Copyright 1993-2009 J. Schilling";
 #endif
 /*
  *	Handle files with holes (sparse files)
@@ -1165,8 +1165,8 @@ put_sp_list(info, sparse, nsparse)
 	EDEBUG(("2nsparse: %d rsize: %lld added: %d\n", nsparse, (Llong)info->f_rsize,
 				(((nsparse-sparse_in_hdr)+SPARSE_EXT_HDR-1)/
 				SPARSE_EXT_HDR)*TBLOCK));
-	EDEBUG(("addr sp: %d\n", (int)((TCB *)0)->xstar_in_dbuf.t_sp));
-	EDEBUG(("addr rs: %d\n", (int)((TCB *)0)->xstar_in_dbuf.t_realsize));
+	EDEBUG(("addr sp: %zd\n", (size_t)&((TCB *)0)->xstar_in_dbuf.t_sp));
+	EDEBUG(("addr rs: %zd\n", (size_t)&((TCB *)0)->xstar_in_dbuf.t_realsize));
 	EDEBUG(("flags: 0x%lX\n", info->f_flags));
 
 	info->f_rxftype = info->f_xftype = XT_SPARSE;

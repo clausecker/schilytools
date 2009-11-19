@@ -31,10 +31,10 @@
 /*
  * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)diffh.c	1.8 09/11/01 J. Schilling
+ * @(#)diffh.c	1.9 09/11/08 J. Schilling
  */
 #if defined(sun) 
-#ident "@(#)diffh.c 1.8 09/11/01 J. Schilling"
+#pragma ident "@(#)diffh.c 1.9 09/11/08 J. Schilling"
 #endif
 
 #if defined(sun)

@@ -27,18 +27,18 @@
 /*
  * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)admin.c	1.21 09/11/01 J. Schilling
+ * @(#)admin.c	1.24 09/11/15 J. Schilling
  */
 #if defined(sun)
-#ident "@(#)admin.c 1.21 09/11/01 J. Schilling"
+#pragma ident "@(#)admin.c 1.24 09/11/15 J. Schilling"
 #endif
 /*
  * @(#)admin.c 1.39 06/12/12
  */
 
 #if defined(sun)
-#ident	"@(#)admin.c"
-#ident	"@(#)sccs:cmd/admin.c"
+#pragma ident	"@(#)admin.c"
+#pragma ident	"@(#)sccs:cmd/admin.c"
 #endif
 
 # include	<defines.h>
@@ -51,6 +51,8 @@
 # include	<schily/wait.h>
 # include	<schily/sysexits.h>
 # include	<schily/maxpath.h>
+# define	VMS_VFORK_OK
+# include	<schily/vfork.h>
 
 /*
 	Program to create new SCCS files and change parameters
@@ -644,7 +646,7 @@ char	*afile;
 		   fork here so 'admin' can execute 'val' to
 		   check for a corrupted file.
 		*/
-		if ((i = fork()) < 0)
+		if ((i = vfork()) < 0)
 			fatal(gettext("cannot fork, try again"));
 		if (i == 0) {		/* child */
 			/*
@@ -656,6 +658,9 @@ char	*afile;
 			execlp(Valpgm, Valpgm, "-s", afile, (char *)0);
 			sprintf(SccsError, gettext("cannot execute '%s'"),
 				Valpgm);
+#ifdef	HAVE_VFORK
+			Fflags |= FTLVFORK;
+#endif
 			fatal(SccsError);
 		}
 		else {

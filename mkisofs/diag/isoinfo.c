@@ -1,8 +1,8 @@
-/* @(#)isoinfo.c	1.78 09/10/11 joerg */
+/* @(#)isoinfo.c	1.79 09/11/19 joerg */
 #include <schily/mconfig.h>
 #ifndef	lint
 static	UConst char sccsid[] =
-	"@(#)isoinfo.c	1.78 09/10/11 joerg";
+	"@(#)isoinfo.c	1.79 09/11/19 joerg";
 #endif
 /*
  * File isodump.c - dump iso9660 directory information.
@@ -51,6 +51,9 @@ static	UConst char sccsid[] =
 #include <schily/stat.h>
 #include <schily/fcntl.h>
 #include <schily/schily.h>
+#include <schily/nlsdefs.h>
+#include <schily/ctype.h>
+#include <schily/errno.h>
 
 #include "../iso9660.h"
 #include "../rock.h"
@@ -143,8 +146,8 @@ int	ucs_level = 0;
 
 struct stat	fstat_buf;
 int		found_rr;
-char		name_buf[256];
-char		xname[2048];
+char		name_buf[256*3];
+char		xname[8192];
 unsigned char	date_buf[9];
 /*
  * Use sector_offset != 0 (-N #) if we have an image file
@@ -315,7 +318,7 @@ dump_pathtab(block, size)
 	int		j;
 	int		len;
 	int		jlen;
-	char		namebuf[255];
+	char		namebuf[256*3];
 	unsigned char	uc;
 
 
@@ -342,18 +345,55 @@ dump_pathtab(block, size)
 		case 1:
 			jlen = len/2;
 			namebuf[0] = '\0';
+#ifdef	USE_ICONV
+#ifdef	HAVE_ICONV_CONST
+#define	__IC_CONST	const
+#else
+#define	__IC_CONST
+#endif
+			if (use_iconv(unls)) {
+				int	u;
+				char	*to = namebuf;
+
+				for (j = 0, u = 0; j < jlen; j++) {
+					char	*ibuf = (char *)&buf[offset + 8 + j*2];
+					size_t	isize = 2;		/* UCS-2 character size */
+					size_t	osize = 4;
+
+					if (iconv(unls->sic_uni2cd, (__IC_CONST char **)&ibuf, &isize,
+							(char **)&to, &osize) == -1) {
+						int	err = geterrno();
+
+						if ((err == EINVAL || err == EILSEQ) &&
+						    osize == 4) {
+							*to = '_';
+							u += 1;
+							to++;
+						} 
+					} else {
+						u += 4 - osize;
+						to = &namebuf[u];
+					}
+				}
+				j = u;
+			} else
+#endif
 			for (j = 0; j < jlen; j++) {
 				UInt16_t	unichar;
 
 				unichar = (buf[offset + 8 + j*2] & 0xFF) * 256 +
 					  (buf[offset + 8 + j*2+1] & 0xFF);
 
-				uc = sic_uni2c(unls, unichar);	/* Get the backconverted char */
+				if (unls)
+					uc = sic_uni2c(unls, unichar);	/* Get the backconverted char */
+				else
+					uc = unichar > 255 ? '_' : unichar;
 
 				namebuf[j] = uc ? uc : '_';
 			}
-			printf("%4d: %4d %x %.*s\n",
-				idx, pindex, extent, jlen, namebuf);
+			namebuf[j] = '\0';
+			printf("%4d: %4d %x %s\n",
+				idx, pindex, extent, namebuf);
 			break;
 		case 0:
 			printf("%4d: %4d %x %.*s\n",
@@ -762,6 +802,34 @@ parse_dir(rootname, extent, len)
 					int	j;
 
 					name_buf[0] = '\0';
+#ifdef	USE_ICONV
+					if (use_iconv(unls)) {
+						int	u;
+						char	*to = name_buf;
+
+						for (j = 0, u = 0; j < (int)idr->name_len[0] / 2; j++) {
+							char	*ibuf = (char *)&idr->name[j*2];
+							size_t	isize = 2;		/* UCS-2 character size */
+							size_t	osize = 4;
+
+							if (iconv(unls->sic_uni2cd, (__IC_CONST char **)&ibuf, &isize,
+									(char **)&to, &osize) == -1) {
+								int	err = geterrno();
+
+								if ((err == EINVAL || err == EILSEQ) &&
+								    osize == 4) {
+									*to = '_';
+									u += 1;
+									to++;
+								} 
+							} else {
+								u += 4 - osize;
+								to = &name_buf[u];
+							}
+						}
+						j = u;
+					} else
+#endif
 					for (j = 0; j < (int)idr->name_len[0] / 2; j++) {
 						UInt16_t	unichar;
 
@@ -771,11 +839,16 @@ parse_dir(rootname, extent, len)
 						/*
 						 * Get the backconverted char
 						 */
-						uc = sic_uni2c(unls, unichar);
+						if (unls)
+							uc = sic_uni2c(unls, unichar);
+						else
+							uc = unichar > 255 ? '_' : unichar;
+							
 
 						name_buf[j] = uc ? uc : '_';
 					}
-					name_buf[idr->name_len[0]/2] = '\0';
+					name_buf[j] = '\0';
+/*					name_buf[idr->name_len[0]/2] = '\0';*/
 					}
 					break;
 				case 0:
@@ -919,6 +992,15 @@ main(argc, argv)
 
 	save_args(argc, argv);
 
+#if	defined(USE_NLS)
+	/*
+	 * As long as we do not support gettext(), we only set up LC_CTYPE
+	 * for the automated set up of -input-charset. When upgrading to
+	 * gettext() we need to replace this by setlocale(LC_ALL, "").
+	 */
+	setlocale(LC_CTYPE, "");
+#endif
+
 	cac = argc - 1;
 	cav = argv + 1;
 	if (getallargs(&cac, &cav, opts,
@@ -949,6 +1031,64 @@ main(argc, argv)
 		usage(EX_BAD);
 	}
 
+#if	defined(USE_NLS) && defined(HAVE_NL_LANGINFO) && defined(CODESET)
+	/*
+	 * If the locale has not been set up, nl_langinfo() returns the
+	 * name of the default codeset. This should be either "646",
+	 * "ISO-646", "ASCII", or something similar. Unfortunately, the
+	 * POSIX standard does not include a list of valid locale names,
+	 * so ne need to find all values in use.
+	 *
+	 * Observed:
+	 * Solaris 	"646"
+	 * Linux	"ANSI_X3.4-1968"	strange value from Linux...
+	 */
+	if (charset == NULL) {
+		char	*codeset = nl_langinfo(CODESET);
+		Uchar	*p;
+
+		if (codeset != NULL)
+			codeset = strdup(codeset);
+		if (codeset == NULL)			/* Should not happen */
+			goto setcharset;
+		if (*codeset == '\0')			/* Invalid locale    */
+			goto setcharset;
+
+		for (p = (Uchar *)codeset; *p != '\0'; p++) {
+			if (islower(*p))
+				*p = toupper(*p);
+		}
+		p = (Uchar *)strstr(codeset, "ISO");
+		if (p != NULL) {
+			if (*p == '_' || *p == '-')
+				p++;
+			codeset = (char *)p;
+		}
+		if (strcmp("646", codeset) != 0 &&
+		    strcmp("ASCII", codeset) != 0 &&
+		    strcmp("US-ASCII", codeset) != 0 &&
+		    strcmp("US_ASCII", codeset) != 0 &&
+		    strcmp("USASCII", codeset) != 0 &&
+		    strcmp("ANSI_X3.4-1968", codeset) != 0)
+			charset = nl_langinfo(CODESET);
+
+		if (codeset != NULL)
+			free(codeset);
+
+#define	verbose	1
+		if (verbose > 0 && charset != NULL) {
+			error("Setting input-charset to '%s' from locale.\n",
+				charset);
+		}
+	}
+setcharset:
+	/*
+	 * Allow to switch off locale with -input-charset "".
+	 */
+	if (charset != NULL && *charset == '\0')
+		charset = NULL;
+#endif
+
 	if (charset == NULL) {
 #if	(defined(__CYGWIN32__) || defined(__CYGWIN__) || defined(__DJGPP__) || defined(__MINGW32__)) && !defined(IS_CYGWIN_1)
 		unls = sic_open("cp437");
@@ -966,10 +1106,6 @@ main(argc, argv)
 		list_locales();
 		exit(EX_BAD);
 		exit(1);
-	}
-	if (use_iconv(unls)) {
-		fprintf(stderr, "Iconv not yet supported\n");
-		unls = NULL;
 	}
 
 	if (filename != NULL && sdevname != NULL) {

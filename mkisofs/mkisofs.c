@@ -1,8 +1,8 @@
-/* @(#)mkisofs.c	1.252 09/10/11 joerg */
+/* @(#)mkisofs.c	1.254 09/11/13 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)mkisofs.c	1.252 09/10/11 joerg";
+	"@(#)mkisofs.c	1.254 09/11/13 joerg";
 #endif
 /*
  * Program mkisofs.c - generate iso9660 filesystem  based upon directory
@@ -2594,13 +2594,16 @@ setcharset:
 				fprintf(stderr, "SUSP signatures version %d found\n", su_version);
 				if (c & RR_FLAG_ER){
 					if (rr_version < 1) {
-						printf("No valid Rock Ridge signature found\n");
+						fprintf(stderr,
+							"No valid Rock Ridge signature found\n");
 						if (!force_rr)
 							no_rr++;
 					} else {
-						printf("Rock Ridge signatures version %d found\n",
+						fprintf(stderr,
+							"Rock Ridge signatures version %d found\n",
 						rr_version);
-						printf("Rock Ridge id '%s'\n", er_id);
+						fprintf(stderr,
+							"Rock Ridge id '%s'\n", er_id);
 					}
 				}
 			} else {

@@ -27,18 +27,18 @@
 /*
  * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)comb.c	1.7 09/11/01 J. Schilling
+ * @(#)comb.c	1.8 09/11/08 J. Schilling
  */
 #if defined(sun)
-#ident "@(#)comb.c 1.7 09/11/01 J. Schilling"
+#pragma ident "@(#)comb.c 1.8 09/11/08 J. Schilling"
 #endif
 /*
  * @(#)comb.c 1.15 06/12/12
  */
 
 #if defined(sun)
-#ident	"@(#)comb.c"
-#ident	"@(#)sccs:cmd/comb.c"
+#pragma ident	"@(#)comb.c"
+#pragma ident	"@(#)sccs:cmd/comb.c"
 #endif
 # include	<defines.h>
 # include	<version.h>

@@ -1,4 +1,4 @@
-#ident @(#)isoinfo.mk	1.13 08/10/26 
+#ident @(#)isoinfo.mk	1.14 09/11/19 
 ###########################################################################
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 2
@@ -28,6 +28,7 @@ CPPOPTS +=	-I../../libscg
 CPPOPTS +=	-I../../libscgcmd
 CPPOPTS +=	-I../../libcdrdeflt
 CPPOPTS +=	-DSCHILY_PRINT
+CPPOPTS +=	-DUSE_NLS
 CPPOPTS +=	-DUSE_ICONV
 CPPOPTS +=	-DINS_BASE=\"${INS_BASE}\"
 

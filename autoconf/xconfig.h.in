@@ -1,4 +1,4 @@
-/* @(#)xconfig.h.in	1.181 09/10/31 Copyright 1998-2009 J. Schilling */
+/* @(#)xconfig.h.in	1.185 09/11/17 Copyright 1998-2009 J. Schilling */
 /*
  *	Dynamic autoconf C-include code.
  *
@@ -27,6 +27,7 @@
 #undef HAVE_FCNTL_H	/* to access, O_XXX constants for open(), otherwise use sys/file.h */
 #undef HAVE_SYS_FILE_H	/* to use O_XXX constants for open() and flock() defs */
 #undef HAVE_INTTYPES_H	/* to use UNIX-98 inttypes.h */
+#undef HAVE_STDINT_H	/* to use SUSv3 stdint.h */
 #undef HAVE_DIRENT_H	/* to use POSIX dirent.h */
 #undef HAVE_SYS_DIR_H	/* to use BSD sys/dir.h */
 #undef HAVE_NDIR_H	/* to use ndir.h */
@@ -118,6 +119,7 @@
 #undef HAVE_ERRNO_DEF		/* if we have errno definition in <errno.h> */
 #undef HAVE_ENVIRON_DEF		/* if we have environ definition in <unistd.h> */
 #undef HAVE_SYS_SIGLIST_DEF	/* if we have sys_siglist definition in <signal.h> */
+#undef HAVE_SYS_FORK_H		/* if we should include sys/fork.h for forkx() definitions */
 #undef HAVE_VFORK_H		/* if we should include vfork.h for vfork() definitions */
 #undef HAVE_ARPA_INET_H		/* if we have arpa/inet.h (missing on BeOS) */
 				/* BeOS has inet_ntoa() in <netdb.h> */
@@ -362,8 +364,10 @@
 #undef HAVE_DOSSETPRIORITY	/* DosSetPriority() is present in libc */
 #undef HAVE_DOSALLOCSHAREDMEM	/* DosAllocSharedMem() is present in libc */
 #undef HAVE_SEEKDIR		/* seekdir() is present in libc */
+#undef HAVE_GETENV		/* getenv() is present in libc */
 #undef HAVE_PUTENV		/* putenv() is present in libc (preferred function) */
 #undef HAVE_SETENV		/* setenv() is present in libc (use instead of putenv()) */
+#undef HAVE_UNSETENV		/* unsetenv() is present in libc */
 #undef HAVE_UNAME		/* uname() is present in libc */
 #undef HAVE_SNPRINTF		/* snprintf() is present in libc */
 #undef HAVE_STRCAT		/* strcat() is present in libc */
@@ -400,6 +404,11 @@
 #undef HAVE_SLEEP		/* sleep() is present in libc */
 #undef HAVE_USLEEP		/* usleep() is present in libc */
 #undef HAVE_FORK		/* fork() is present in libc */
+#undef HAVE_FORKX		/* forkx() is present in libc */
+#undef HAVE_FORKALL		/* forkall() is present in libc */
+#undef HAVE_FORKALLX		/* forkallx() is present in libc */
+#undef HAVE_VFORK		/* working vfork() is present in libc */
+#undef HAVE_VFORKX		/* working vforkx() is present in libc */
 #undef HAVE_EXECL		/* execl() is present in libc */
 #undef HAVE_EXECLE		/* execle() is present in libc */
 #undef HAVE_EXECLP		/* execlp() is present in libc */
@@ -625,6 +634,7 @@
 #undef HAVE_SI_UTIME		/* if struct siginfo contains si_utime */
 #undef HAVE_UNION_SEMUN		/* have an illegal definition for union semun in sys/sem.h */
 #undef HAVE_UNION_WAIT		/* have union wait in wait.h */
+#undef USE_UNION_WAIT		/* union wait in wait.h is used by default */
 #undef HAVE_DIRENT_D_INO	/* have d_ino in struct dirent */
 #undef HAVE_DIR_DD_FD		/* have dd_fd in DIR * */
 /*
@@ -719,6 +729,9 @@
 #undef nlink_t			/* To be used if nlink_t is not present */
 #undef blksize_t		/* To be used if blksize_t is not present */
 #undef blkcnt_t			/* To be used if blkcnt_t is not present */
+
+#undef	HAVE_TYPE_INTMAX_T	/* if <stdint.h> defines intmax_t */
+#undef	HAVE_TYPE_UINTMAX_T	/* if <stdint.h> defines uintmax_t */
 
 #undef	HAVE_TYPE_GREG_T	/* if <sys/frame.h> defines greg_t */
 

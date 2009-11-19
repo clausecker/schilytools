@@ -27,10 +27,10 @@
 /*
  * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)prt.c	1.9 09/11/01 J. Schilling
+ * @(#)prt.c	1.10 09/11/08 J. Schilling
  */
 #if defined(sun)
-#ident "@(#)prt.c 1.9 09/11/01 J. Schilling"
+#pragma ident "@(#)prt.c 1.10 09/11/08 J. Schilling"
 #endif
 /*
  * @(#)prt.c 1.22 06/12/12
@@ -43,7 +43,7 @@
  */
 
 #if defined(sun)
-#ident	"@(#)ucbprt:prt.c"
+#pragma ident	"@(#)ucbprt:prt.c"
 #endif
 
 /*

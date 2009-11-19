@@ -1,8 +1,8 @@
-/* @(#)ringbuff.c	1.21 09/08/08 Copyright 1998,1999,2000 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling */
+/* @(#)ringbuff.c	1.22 09/11/03 Copyright 1998,1999,2000 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling */
 #include "config.h"
 #ifndef lint
 static	UConst char sccsid[] =
-"@(#)ringbuff.c	1.21 09/08/08 Copyright 1998,1999,2000 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling";
+"@(#)ringbuff.c	1.22 09/11/03 Copyright 1998,1999,2000 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling";
 #endif
 /*
  * Ringbuffer handling
@@ -142,7 +142,7 @@ define_buffer()
 void
 drop_buffer()
 {
-	assert(free_buffers() < total_buffers);
+	assert(free_buffers() <= total_buffers);
 	assert(occupied_buffers() > 0);
 
 #ifdef _DEBUG

@@ -27,18 +27,18 @@
 /*
  * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)dodelt.c	1.4 09/11/01 J. Schilling
+ * @(#)dodelt.c	1.5 09/11/08 J. Schilling
  */
 #if defined(sun)
-#ident "@(#)dodelt.c 1.4 09/11/01 J. Schilling"
+#pragma ident "@(#)dodelt.c 1.5 09/11/08 J. Schilling"
 #endif
 /*
  * @(#)dodelt.c 1.8 06/12/12
  */
 
 #if defined(sun)
-#ident	"@(#)dodelt.c"
-#ident	"@(#)sccs:lib/comobj/dodelt.c"
+#pragma ident	"@(#)dodelt.c"
+#pragma ident	"@(#)sccs:lib/comobj/dodelt.c"
 #endif
 #include	<defines.h>
 

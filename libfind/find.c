@@ -1,9 +1,9 @@
 /*#define	PLUS_DEBUG*/
-/* @(#)find.c	1.80 09/07/18 Copyright 2004-2009 J. Schilling */
+/* @(#)find.c	1.84 09/11/15 Copyright 2004-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)find.c	1.80 09/07/18 Copyright 2004-2009 J. Schilling";
+	"@(#)find.c	1.84 09/11/15 Copyright 2004-2009 J. Schilling";
 #endif
 /*
  *	Another find implementation...
@@ -44,6 +44,8 @@ static	UConst char sccsid[] =
 #include <schily/schily.h>
 #include <schily/pwd.h>
 #include <schily/grp.h>
+#define	VMS_VFORK_OK
+#include <schily/vfork.h>
 
 #include <schily/nlsdefs.h>
 
@@ -271,10 +273,6 @@ extern	time_t	find_sixmonth;		/* 6 months before limit (ls)	*/
 extern	time_t	find_now;		/* now limit (ls)		*/
 
 LOCAL	findn_t	Printnode = { 0, 0, 0, PRINT };
-
-#ifndef	__GNUC__
-#define	inline
-#endif
 
 EXPORT	void	find_argsinit	__PR((finda_t *fap));
 EXPORT	void	find_timeinit	__PR((time_t now));
@@ -1702,8 +1700,12 @@ doexec(f, ac, av, state)
 	pid_t	pid;
 	int	retval;
 
-	if ((pid = fork()) < 0) {
+	if ((pid = vfork()) < 0) {
+#ifdef	HAVE_VFORK
+		ferrmsg(state->std[2], gettext("Cannot vfork child.\n"));
+#else
 		ferrmsg(state->std[2], gettext("Cannot fork child.\n"));
+#endif
 		return (FALSE);
 	}
 	if (pid) {
@@ -1714,6 +1716,7 @@ doexec(f, ac, av, state)
 	} else {
 		register int	i;
 		register char	**pp = av;
+			int	err;
 
 		/*
 		 * This is the forked process and for this reason, we may
@@ -1746,6 +1749,7 @@ doexec(f, ac, av, state)
 
 		fexecve(av[0], state->std[0], state->std[1], state->std[2],
 							av, state->env);
+		err = geterrno();
 #ifdef	PLUS_DEBUG
 		error("argsize %d\n",
 			(plusp->endp - (char *)&plusp->nextargp[0]) -
@@ -1753,10 +1757,11 @@ doexec(f, ac, av, state)
 #endif
 		/*
 		 * This is the forked process and for this reason, we may
-		 * call fcomerr() here without problems.
+		 * call _exit() here without problems.
 		 */
-		fcomerr(state->std[2],
+		ferrmsgno(state->std[2], err,
 			gettext("Cannot execute '%s'.\n"), av[0]);
+		_exit(err);
 		/* NOTREACHED */
 		return (-1);
 	}
@@ -1817,7 +1822,11 @@ argsize(xtype)
 #ifdef	_SC_ARG_MAX
 		ret = sysconf(_SC_ARG_MAX);
 		if (ret < 0)
+#ifdef	_POSIX_ARG_MAX
 			ret = _POSIX_ARG_MAX;
+#else
+			ret = ARG_MAX;
+#endif
 #else	/* VV NO _SC_ARG_MAX VV */
 #ifdef	ARG_MAX
 		ret = ARG_MAX;

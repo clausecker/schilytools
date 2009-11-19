@@ -1,0 +1,85 @@
+New features with AN-2009-11-19:
+
+-	VMS rules now define library names to XX.olb instead of libXX.a
+
+-	New define "NO_STATIC_CONF" allows to switch of the default static
+	config on VMS
+
+-	schily/utypes.h enhanced to allow to define maxint_t which is 
+	missing on VMS
+
+-	Better autoconf test for union wait vs. int for platforms that
+	define union wait but use int as wait() parameter.
+
+-	schily/vfork.h now includes unistd.h as the related definitions 
+	are there on Solaris
+
+-	Fixed a configure bug with opendir() inherited from GNU autoconf
+
+-	Enhanced the vfork() autoconf test to avoid a hang on VMS
+
+-	changed a include path in libscg/scsi-mac-iokit.c to allow
+	compilation on "Snow Leopard"
+
+-	libschily/spawn.c now uses vfork()
+
+-	smake now uses vfork() to make it work on VMS
+
+-	smake now also supports the "unexport" directive.
+
+-	smake man page enhanced.
+
+-	Some #define inline definitions removed as "inline" is already
+	handled by schily/mconfig.h
+
+-	Some code changes to avoid warnings "Cast truncates pointer into 32 bit integer."
+	from HP-UX-11.11 compiler
+
+-	libfind is now using vfork() instead of fork() in order to make
+	it work on VMS
+
+-	libsiconv no longer tests TAB_SIZE on VMS as the VMS C-compiler does not
+	support complex computations in #if statements
+
+-	libfind: VMS has sysconf(_SC_ARG_MAX) and ARG_MAX but no _POSIX_ARG_MAX
+
+-	SCCS was converted from #ident "bla" to 
+	#if defined(sun)
+	#pragma ident "bla"
+	#endif
+	to prevent warnings on HP-UX-11.11 with the HP C-compiler
+
+-	The Bourne Shelll was converted from #ident "bla" to 
+	#if defined(sun)
+	#pragma ident "bla"
+	#endif
+	to prevent warnings on HP-UX-11.11 with the HP C-compiler
+
+-	SCCS was converted to use vfork() in order to make it work on VMS 
+
+-	Fixed a bug in mkisofs (writing to stdout instead of stderr) recently 
+	introduced with better RR recognition support.
+
+-	"isoinfo" now supports iconv() based locales for Joliet.
+
+
+-	Fixed a typo in libfind/idcache.c
+
+-	Added a workaround to cdrecord for a firmware oddity with DVD+RW on
+	'_NEC    ' 'DVD_RW ND-3500AG' with media written from other drives.
+
+-	Added a forgotten modification in cdda2wav/ringbuff.c that caused an abort 
+	due to a wrong assert() condition.
+
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.isdn.cs.tu-berlin.de, js@cs.tu-berlin.de
+	joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

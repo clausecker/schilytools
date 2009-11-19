@@ -27,18 +27,18 @@
 /*
  * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)get.c	1.21 09/11/01 J. Schilling
+ * @(#)get.c	1.22 09/11/08 J. Schilling
  */
 #if defined(sun)
-#ident "@(#)get.c 1.21 09/11/01 J. Schilling"
+#pragma ident "@(#)get.c 1.22 09/11/08 J. Schilling"
 #endif
 /*
  * @(#)get.c 1.59 06/12/12
  */
 
 #if defined(sun)
-#ident	"@(#)get.c"
-#ident	"@(#)sccs:cmd/get.c"
+#pragma ident	"@(#)get.c"
+#pragma ident	"@(#)sccs:cmd/get.c"
 #endif
 
 #include	<defines.h>

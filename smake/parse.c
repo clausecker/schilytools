@@ -1,8 +1,8 @@
-/* @(#)parse.c	1.98 09/10/22 Copyright 1985-2009 J. Schilling */
+/* @(#)parse.c	1.99 09/11/18 Copyright 1985-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)parse.c	1.98 09/10/22 Copyright 1985-2009 J. Schilling";
+	"@(#)parse.c	1.99 09/11/18 Copyright 1985-2009 J. Schilling";
 #endif
 /*
  *	Make program
@@ -160,6 +160,13 @@ printf("\n");
 			if (streql(ovec[0]->o_name, "export")) {
 				for (i = 1; i < objcnt; i++) {
 					doexport(ovec[i]->o_name);
+				}
+				/* XXX freeobj ??? */
+				continue;
+			}
+			if (streql(ovec[0]->o_name, "unexport")) {
+				for (i = 1; i < objcnt; i++) {
+					dounexport(ovec[i]->o_name);
 				}
 				/* XXX freeobj ??? */
 				continue;

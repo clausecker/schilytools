@@ -30,10 +30,10 @@
 /*
  * This file contains modifications Copyright 2006-2008 J. Schilling
  *
- * @(#)bdiff.c	1.10 09/11/01 J. Schilling
+ * @(#)bdiff.c	1.12 09/11/15 J. Schilling
  */
 #if defined(sun)
-#ident "@(#)bdiff.c 1.10 09/11/01 J. Schilling"
+#pragma ident "@(#)bdiff.c 1.12 09/11/15 J. Schilling"
 #endif
 
 #if defined(sun)
@@ -53,6 +53,8 @@
 #include <schily/wait.h>
 #include <schily/utypes.h>	/* For Llong */
 #include <schily/schily.h>
+#define	VMS_VFORK_OK
+#include <schily/vfork.h>
 #include <schily/io.h>		/* for setmode() prototype */
 #undef	printf
 #define	printf	js_printf
@@ -299,15 +301,24 @@ main(argc, argv)
 			fatal("Can not create pipe");
 		setmode(pfd[0], O_BINARY);
 		setmode(pfd[1], O_BINARY);
-		if ((i = fork()) < (pid_t)0) {
+		if ((i = vfork()) < (pid_t)0) {
 			(void) close(pfd[0]);
 			(void) close(pfd[1]);
 			fatal("Can not fork, try again");
 		} else if (i == (pid_t)0) {	/* child process */
+#ifdef	set_child_standard_fds
+			set_child_standard_fds(STDIN_FILENO,
+						pfd[1],
+						STDERR_FILENO);
+#ifdef	F_SETFD
+			fcntl(pfd[0], F_SETFD, 1);
+#endif
+#else
 			(void) close(pfd[0]);
 			(void) close(1);
 			(void) dup(pfd[1]);
 			(void) close(pfd[1]);
+#endif
 
 			/* Execute 'diff' on the segment files. */
 #if	defined(PROTOTYPES) && defined(INS_BASE)
@@ -327,6 +338,9 @@ main(argc, argv)
 			(void) snprintf(Error, sizeof (Error),
 			    "Can not execute '%s'", diff);
 			fatal_num = 2;
+#ifdef	HAVE_VFORK
+			fflags |= FTLVFORK;
+#endif
 			fatal(Error);
 		} else {			/* parent process */
 			(void) close(pfd[1]);
@@ -520,12 +534,21 @@ fatal(msg)
  *	If the FTLCLN bit is on, clean_up is called.
  */
 {
-	if (fflags & FTLMSG)
+	if (fflags & FTLMSG) {
+		if (fflags & FTLVFORK) {
+			write(STDERR_FILENO, prognam, strlen(prognam));
+			write(STDERR_FILENO, ": ", 2);
+			write(STDERR_FILENO, msg, strlen(msg));
+		}
 		(void) fprintf(stderr, "%s: %s\n", prognam, msg);
+	}
 	if (fflags & FTLCLN)
 		clean_up();
-	if (fflags & FTLEXIT)
+	if (fflags & FTLEXIT) {
+		if (fflags & FTLVFORK)
+			_exit(fatal_num);
 		exit(fatal_num);
+	}
 }
 
 static void

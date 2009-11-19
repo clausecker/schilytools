@@ -1,8 +1,8 @@
-/* @(#)makelabel.c	1.55 09/07/14 Copyright 1988-2009 J. Schilling */
+/* @(#)makelabel.c	1.56 09/11/07 Copyright 1988-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)makelabel.c	1.55 09/07/14 Copyright 1988-2009 J. Schilling";
+	"@(#)makelabel.c	1.56 09/11/07 Copyright 1988-2009 J. Schilling";
 #endif
 /*
  *	Routines to create / modify a label
@@ -842,7 +842,7 @@ label_null(lp)
 	lp->dkl_ppart	= -1;	/* used to by physical partition */
 }
 
-#define	loff(a)		((int)&((struct dk_label *)0)->a)
+#define	loff(a)		((size_t)&((struct dk_label *)0)->a)
 
 EXPORT int
 label_cmp(lp1, lp2)

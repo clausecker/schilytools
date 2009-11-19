@@ -1,8 +1,8 @@
-/* @(#)sic_nls.c	1.12 09/09/19 Copyright 2007-2009 J. Schilling */
+/* @(#)sic_nls.c	1.13 09/11/08 Copyright 2007-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)sic_nls.c	1.12 09/09/19 Copyright 2007-2009 J. Schilling";
+	"@(#)sic_nls.c	1.13 09/11/08 Copyright 2007-2009 J. Schilling";
 #endif
 /*
  * This code reads translation files in the format used by
@@ -55,6 +55,9 @@ static	UConst char sccsid[] =
 #if	__GNUC__ < 3 && __GNUC_MINOR__ < 95
 #undef	__CAN_TAB_SIZE__
 #endif
+#endif
+#if defined(VMS) && !defined(__GNUC__)
+#undef	__CAN_TAB_SIZE__
 #endif
 
 #ifdef	__CAN_TAB_SIZE__

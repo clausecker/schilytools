@@ -27,18 +27,18 @@
 /*
  * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)cmrcheck.c	1.6 09/11/01 J. Schilling
+ * @(#)cmrcheck.c	1.7 09/11/08 J. Schilling
  */
 #if defined(sun)
-#ident "@(#)cmrcheck.c 1.6 09/11/01 J. Schilling"
+#pragma ident "@(#)cmrcheck.c 1.7 09/11/08 J. Schilling"
 #endif
 /*
  * @(#)cmrcheck.c 1.5 06/12/12
  */
 
 #if defined(sun)
-#ident	"@(#)cmrcheck.c"
-#ident	"@(#)sccs:lib/cassi/cmrcheck.c"
+#pragma ident	"@(#)cmrcheck.c"
+#pragma ident	"@(#)sccs:lib/cassi/cmrcheck.c"
 #endif
 
 /* EMACS_MODES: c tabstop=4 !fill */

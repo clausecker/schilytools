@@ -1,5 +1,5 @@
 '\" t
-.\" @(#)cdda2wav.1	1.36 09/10/13 Copyright 1998,1999,2000 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling
+.\" @(#)cdda2wav.1	1.37 09/11/15 Copyright 1998,1999,2000 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
 .if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
 .if t .ds u \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'u
@@ -1367,3 +1367,18 @@ Libparanoia contributed by Monty (Christopher Montgomery) xiphmont@mit.edu.
 Heiko Eissfeldt heiko@colossus.escape.de
 .SH DATE
 16 Sep 2009
+.br
+.ne 7
+.SH "INTERFACE STABILITY
+The interfaces provided by 
+.B cdda2wav
+are designed for long term stability.
+As
+.B cdda2wav
+depends on interfaces provided by the underlying operating system,
+the stability of the interfaces offered by
+.B cdda2wav
+depends on the interface stability of the OS interfaces. 
+Modified interfaces in the OS may enforce modified interfaces
+in 
+.BR cdda2wav .

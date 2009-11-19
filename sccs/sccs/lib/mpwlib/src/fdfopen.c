@@ -27,18 +27,18 @@
 /*
  * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)fdfopen.c	1.4 09/11/01 J. Schilling
+ * @(#)fdfopen.c	1.5 09/11/08 J. Schilling
  */
 #if defined(sun)
-#ident "@(#)fdfopen.c 1.4 09/11/01 J. Schilling"
+#pragma ident "@(#)fdfopen.c 1.5 09/11/08 J. Schilling"
 #endif
 /*
  * @(#)fdfopen.c 1.5 06/12/12
  */
 
 #if defined(sun)
-#ident	"@(#)fdfopen.c"
-#ident	"@(#)sccs:lib/mpwlib/fdfopen.c"
+#pragma ident	"@(#)fdfopen.c"
+#pragma ident	"@(#)sccs:lib/mpwlib/fdfopen.c"
 #endif
 /*
 	Interfaces with /lib/libS.a

@@ -27,12 +27,12 @@
 /*
  * This file contains modifications Copyright 2008-2009 J. Schilling
  *
- * @(#)date_bal.c	1.3 09/11/01 J. Schilling
+ * @(#)date_bal.c	1.4 09/11/08 J. Schilling
  *
  * From Sun: @(#)sccs:lib/comobj/date_ba.c @(#)date_ba.c 1.5 06/12/12
  */
 #if defined(sun)
-#ident "@(#)date_bal.c 1.3 09/11/01 J. Schilling"
+#pragma ident "@(#)date_bal.c 1.4 09/11/08 J. Schilling"
 #endif
 # include	<defines.h>
 

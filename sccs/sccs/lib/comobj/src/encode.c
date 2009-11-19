@@ -27,18 +27,18 @@
 /*
  * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)encode.c	1.4 09/11/01 J. Schilling
+ * @(#)encode.c	1.5 09/11/08 J. Schilling
  */
 #if defined(sun)
-#ident "@(#)encode.c 1.4 09/11/01 J. Schilling"
+#pragma ident "@(#)encode.c 1.5 09/11/08 J. Schilling"
 #endif
 /*
  * @(#)encode.c 1.4 06/12/12
  */
 
 #if defined(sun)
-#ident	"@(#)encode.c"
-#ident	"@(#)sccs:lib/comobj/encode.c"
+#pragma ident	"@(#)encode.c"
+#pragma ident	"@(#)sccs:lib/comobj/encode.c"
 #endif
 # include       <defines.h>
 

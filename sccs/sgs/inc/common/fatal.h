@@ -27,17 +27,17 @@
 /*
  * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)fatal.h	1.5 09/11/01 J. Schilling
+ * @(#)fatal.h	1.7 09/11/08 J. Schilling
  */
 #if defined(sun)
-#ident "@(#)fatal.h 1.5 09/11/01 J. Schilling"
+#pragma ident "@(#)fatal.h 1.7 09/11/08 J. Schilling"
 #endif
 /*
  * @(#)fatal.h 1.3 06/12/12
  */
 
 #if defined(sun)
-#ident	"@(#)fatal.h	1.4	89/10/19"	/* SVr4.0 1.4.1.1	*/
+#pragma ident	"@(#)fatal.h	1.4	89/10/19"	/* SVr4.0 1.4.1.1	*/
 #endif
 
 #include <schily/standard.h>
@@ -53,6 +53,7 @@ extern  char    *nsedelim;
 # define FTLMSG		0100000
 # define FTLCLN		 040000
 # define FTLFUNC	 020000
+# define FTLVFORK	 010000
 # define FTLACT		    077
 # define FTLJMP		     02
 # define FTLEXIT	     01

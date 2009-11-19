@@ -1,8 +1,8 @@
-/* @(#)exec.c	1.58 09/08/04 Copyright 1985-2009 J. Schilling */
+/* @(#)exec.c	1.59 09/11/15 Copyright 1985-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)exec.c	1.58 09/08/04 Copyright 1985-2009 J. Schilling";
+	"@(#)exec.c	1.59 09/11/15 Copyright 1985-2009 J. Schilling";
 #endif
 /*
  *	bsh command interpreter - Execution of parsed Tree
@@ -32,6 +32,7 @@ static	UConst char sccsid[] =
 #include <schily/stdlib.h>
 #include <schily/time.h>
 #include <schily/resource.h>
+#define	VMS_VFORK_OK
 #include <schily/vfork.h>
 
 /*#define	EXDEBUG*/

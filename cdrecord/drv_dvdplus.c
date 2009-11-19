@@ -1,8 +1,8 @@
-/* @(#)drv_dvdplus.c	1.58 09/10/09 Copyright 2003-2009 J. Schilling */
+/* @(#)drv_dvdplus.c	1.59 09/11/19 Copyright 2003-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)drv_dvdplus.c	1.58 09/10/09 Copyright 2003-2009 J. Schilling";
+	"@(#)drv_dvdplus.c	1.59 09/11/19 Copyright 2003-2009 J. Schilling";
 #endif
 /*
  *	Copyright (c) 2003-2009 J. Schilling
@@ -751,8 +751,10 @@ error("NWAv %d Next rec addr %d\n", rp->nwa_v, (int)a_to_u_4_byte(rp->next_recor
 
 	/*
 	 * XXX this was: if (dip->disk_status == DS_EMPTY)
+	 * The '_NEC    ' 'DVD_RW ND-3500AG' may return written DVD+RW with
+	 * status DS_COMPLETE although they may be overwritten.
 	 */
-	if (dip->disk_status == DS_COMPLETE)
+	if (dip->disk_status == DS_COMPLETE && profile != 0x001A)
 		return (drive_getdisktype(scgp, dp));
 
 	/*
@@ -830,7 +832,7 @@ error("MAXBLO %d from phys end - phys start\n", (int)(a_to_u_3_byte(sp->phys_end
 	end_lba = 0L;
 	scsi_get_perf_maxspeed(scgp, (Ulong *)NULL, (Ulong *)NULL, &end_lba);
 #ifdef	DVDPLUS_DEBUG
-error("end_lba; %lu\n", end_lba);
+error("end_lba: %lu\n", end_lba);
 #endif
 	/*
 	 * XXX Note that end_lba is unsigned and dsp->ds_maxblocks is signed.

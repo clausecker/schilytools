@@ -25,10 +25,10 @@
 /*
  * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)sccs.c	1.33 09/11/01 J. Schilling
+ * @(#)sccs.c	1.35 09/11/15 J. Schilling
  */
 #if defined(sun)
-#ident "@(#)sccs.c 1.33 09/11/01 J. Schilling"
+#pragma ident "@(#)sccs.c 1.35 09/11/15 J. Schilling"
 #endif
 /*
  * @(#)sccs.c 1.85 06/12/12
@@ -51,6 +51,8 @@ static UConst char sccsid[] = "@(#)sccs.c 1.2 2/27/90";
 #define EX_OSERR 71
 #else
 # include	<schily/sysexits.h>
+# define	VMS_VFORK_OK
+# include	<schily/vfork.h>
 extern struct passwd *getpwnam();
 extern char *getlogin();
 extern char *getenv();
@@ -69,6 +71,7 @@ static  char **diffs_np, **diffs_ap;
 int	Domrs;
 char	*Comments,*Mrs;
 char    Null[1];
+int	didvfork;
 
 /*
 **  SCCS.C -- human-oriented front end to the SCCS system.
@@ -1900,10 +1903,15 @@ callprog(progpath, flags, argv, forkflag)
 			}
 			return (st);
 		}
+#ifdef	HAVE_VFORK
+		didvfork = 1;
+#endif
 	}
 	else if (OutFile >= 0)
 	{
 		syserr(gettext("callprog: setting stdout w/o forking"));
+		if (didvfork)
+			_exit(EX_SOFTWARE);
 		exit(EX_SOFTWARE);
 	}
 
@@ -1914,9 +1922,15 @@ callprog(progpath, flags, argv, forkflag)
 	/* change standard input & output if needed */
 	if (OutFile >= 0)
 	{
+#ifdef	set_child_standard_fds
+		set_child_standard_fds(STDIN_FILENO,
+				OutFile,
+				STDERR_FILENO);
+#else
 		close(1);
 		dup(OutFile);
 		close(OutFile);
+#endif
 	}
 	
 	/* call real SCCS program */
@@ -1926,6 +1940,8 @@ callprog(progpath, flags, argv, forkflag)
 	execv(progpath, argv);
 #endif /* V6 */
 	syserr(gettext("cannot execute %s"), progpath);
+	if (didvfork)
+		_exit(EX_UNAVAILABLE);
 	exit(EX_UNAVAILABLE);
 	/*NOTREACHED*/
 }
@@ -2831,11 +2847,16 @@ syserr(f, va_alist)
 	fprintf(stderr, "\n");
 	va_end(ap);
 
-	if (errno == 0)
+	if (errno == 0) {
+		if (didvfork)
+			_exit(EX_SOFTWARE);
 		exit(EX_SOFTWARE);
+	}
 	else
 	{
 		perror(NULL);
+		if (didvfork)
+			_exit(EX_OSERR);
 		exit(EX_OSERR);
 	}
 }

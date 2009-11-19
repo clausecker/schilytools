@@ -1,4 +1,4 @@
-/* @(#)device.h	1.18 07/01/16 Copyright 1995-2007 J. Schilling */
+/* @(#)device.h	1.19 09/11/16 Copyright 1995-2007 J. Schilling */
 /*
  *	Generic header for users of major(), minor() and makedev()
  *
@@ -82,6 +82,15 @@
 #		define _FOUND_MAJOR_
 #	endif
 #endif
+
+#ifndef	_FOUND_MAJOR_
+#	ifdef VMS
+#		define major(dev)		(((((long)dev) >> 8) & 0xFF))
+#		define minor(dev)		((((long)dev) & 0xFF))
+#		define makedev(majo, mino)	(((majo) << 8) | (mino))
+#		define _FOUND_MAJOR_
+#	endif /* VMS */
+#endif /* _FOUND_MAJOR_ */
 
 #ifdef	__cplusplus
 extern "C" {

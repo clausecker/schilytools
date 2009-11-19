@@ -39,10 +39,10 @@
 /*
  * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)diff.h	1.8 09/11/01 J. Schilling
+ * @(#)diff.h	1.9 09/11/08 J. Schilling
  */
 #if defined(sun)
-#ident "@(#)diff.h 1.8 09/11/01 J. Schilling"
+#pragma ident "@(#)diff.h 1.9 09/11/08 J. Schilling"
 #endif
 
 #ifndef	_DIFF_H

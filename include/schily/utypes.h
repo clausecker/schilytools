@@ -1,4 +1,4 @@
-/* @(#)utypes.h	1.28 09/05/24 Copyright 1997-2009 J. Schilling */
+/* @(#)utypes.h	1.29 09/11/05 Copyright 1997-2009 J. Schilling */
 /*
  *	Definitions for some user defined types
  *
@@ -200,27 +200,59 @@ typedef unsigned char	Ucbit;
  * Linux even defines incompatible types in <sys/types.h>.
  */
 
-#ifdef	HAVE_INTTYPES_H
+#if defined(HAVE_INTTYPES_H) || defined(HAVE_STDINT_H)
+#if defined(HAVE_INTTYPES_H)
 #	ifndef	_INCL_INTTYPES_H
 #	include <inttypes.h>
 #	define	_INCL_INTTYPES_H
 #	endif
+#else
+#if defined(HAVE_STDINT_H)
+#	ifndef	_INCL_STDINT_H
+#	include <stdint.h>
+#	define	_INCL_STDINT_H
+#	endif
+#endif
+#endif
+/*
+ * On VMS on VAX, these types are present but non-scalar.
+ * Thus we may not be able to use them
+ */
+#ifdef	HAVE_LONGLONG
 #	define	HAVE_INT64_T
 #	define	HAVE_UINT64_T
+#endif
 
 #define	Int8_t			int8_t
 #define	Int16_t			int16_t
 #define	Int32_t			int32_t
+#ifdef	HAVE_LONGLONG
 #define	Int64_t			int64_t
+#endif
 #define	Intmax_t		intmax_t
 #define	UInt8_t			uint8_t
 #define	UInt16_t		uint16_t
 #define	UInt32_t		uint32_t
+#ifdef	HAVE_LONGLONG
 #define	UInt64_t		uint64_t
+#endif
 #define	UIntmax_t		uintmax_t
 
 #define	Intptr_t		intptr_t
 #define	UIntptr_t		uintptr_t
+
+/*
+ * If we only have a UNIX-98 inttypes.h but no SUSv3
+ *
+ * Beware not to use int64_t / uint64_t as VMS on a VAX defines
+ * them as non-scalar (structure) based types.
+ */
+#ifndef	HAVE_TYPE_INTMAX_T
+#define	intmax_t	Llong
+#endif
+#ifndef	HAVE_TYPE_UINTMAX_T
+#define	uintmax_t	ULlong
+#endif
 
 #else	/* !HAVE_INTTYPES_H */
 

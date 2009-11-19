@@ -27,18 +27,18 @@
 /*
  * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)logname.c	1.4 09/11/01 J. Schilling
+ * @(#)logname.c	1.5 09/11/08 J. Schilling
  */
 #if defined(sun)
-#ident "@(#)logname.c 1.4 09/11/01 J. Schilling"
+#pragma ident "@(#)logname.c 1.5 09/11/08 J. Schilling"
 #endif
 /*
  * @(#)logname.c 1.7 06/12/12
  */
 
 #if defined(sun)
-#ident	"@(#)logname.c"
-#ident	"@(#)sccs:lib/comobj/logname.c"
+#pragma ident	"@(#)logname.c"
+#pragma ident	"@(#)sccs:lib/comobj/logname.c"
 #endif
 # include	<defines.h>
 # include	<pwd.h>

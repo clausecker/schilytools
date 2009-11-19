@@ -27,18 +27,18 @@
 /*
  * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)val.c	1.9 09/11/01 J. Schilling
+ * @(#)val.c	1.10 09/11/08 J. Schilling
  */
 #if defined(sun)
-#ident "@(#)val.c 1.9 09/11/01 J. Schilling"
+#pragma ident "@(#)val.c 1.10 09/11/08 J. Schilling"
 #endif
 /*
  * @(#)val.c 1.22 06/12/12
  */
 
 #if defined(sun)
-#ident	"@(#)val.c"
-#ident	"@(#)sccs:cmd/val.c"
+#pragma ident	"@(#)val.c"
+#pragma ident	"@(#)sccs:cmd/val.c"
 #endif
 /************************************************************************/
 /*									*/

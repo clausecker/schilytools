@@ -27,18 +27,18 @@
 /*
  * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)sinit.c	1.5 09/11/01 J. Schilling
+ * @(#)sinit.c	1.6 09/11/08 J. Schilling
  */
 #if defined(sun)
-#ident "@(#)sinit.c 1.5 09/11/01 J. Schilling"
+#pragma ident "@(#)sinit.c 1.6 09/11/08 J. Schilling"
 #endif
 /*
  * @(#)sinit.c 1.7 06/12/12
  */
 
 #if defined(sun)
-#ident	"@(#)sinit.c"
-#ident	"@(#)sccs:lib/comobj/sinit.c"
+#pragma ident	"@(#)sinit.c"
+#pragma ident	"@(#)sccs:lib/comobj/sinit.c"
 #endif
 # include	<defines.h>
 /*

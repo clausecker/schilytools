@@ -1,4 +1,4 @@
-/* @(#)fexec.c	1.41 09/07/10 Copyright 1985, 1995-2009 J. Schilling */
+/* @(#)fexec.c	1.42 09/11/15 Copyright 1985, 1995-2009 J. Schilling */
 /*
  *	Execute a program with stdio redirection
  *
@@ -28,6 +28,8 @@
 #include <schily/dirent.h>
 #include <schily/maxpath.h>
 #include <schily/schily.h>
+#define	VMS_VFORK_OK
+#include <schily/vfork.h>
 
 /*
  * Check whether fexec may be implemented...
@@ -60,8 +62,10 @@
 extern	char **environ;
 #endif
 
+#ifndef	set_child_standard_fds
 LOCAL void	 fdcopy __PR((int, int));
 LOCAL void	 fdmove __PR((int, int));
+#endif
 LOCAL const char *chkname __PR((const char *, const char *));
 LOCAL const char *getpath __PR((char * const *));
 
@@ -289,6 +293,9 @@ fexecve(name, in, out, err, av, env)
 
 #else	/* JOS */
 
+#ifdef	set_child_standard_fds
+	set_child_standard_fds(fin, fout, ferr);
+#else
 	if (fin != STDIN_FILENO) {
 		f[0] = fd_getfd(STDIN_FILENO);
 		o[0] = dup(STDIN_FILENO);
@@ -307,6 +314,7 @@ fexecve(name, in, out, err, av, env)
 		fd_setfd(o[2], 1);
 		fdmove(ferr, STDERR_FILENO);
 	}
+#endif
 
 	/*
 	 * If name contains a pathdelimiter ('/' on unix)
@@ -361,6 +369,7 @@ fexecve(name, in, out, err, av, env)
 	if (errsav == 0)
 		errsav = geterrno();
 
+#ifndef	set_child_standard_fds
 			/* reestablish old files */
 	if (ferr != STDERR_FILENO) {
 		fdmove(STDERR_FILENO, ferr);
@@ -380,6 +389,7 @@ fexecve(name, in, out, err, av, env)
 		if (f[0] == 0)
 			fd_setfd(STDIN_FILENO, 0);
 	}
+#endif
 	seterrno(errsav);
 	return (ret);
 
@@ -387,6 +397,7 @@ fexecve(name, in, out, err, av, env)
 }
 
 #ifndef	JOS
+#ifndef	set_child_standard_fds
 
 LOCAL void
 fdcopy(fd1, fd2)
@@ -412,6 +423,7 @@ fdmove(fd1, fd2)
 	close(fd1);
 }
 
+#endif
 #endif
 
 /*----------------------------------------------------------------------------

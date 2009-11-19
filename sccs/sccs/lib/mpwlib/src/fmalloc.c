@@ -27,18 +27,18 @@
 /*
  * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)fmalloc.c	1.4 09/11/01 J. Schilling
+ * @(#)fmalloc.c	1.5 09/11/08 J. Schilling
  */
 #if defined(sun)
-#ident "@(#)fmalloc.c 1.4 09/11/01 J. Schilling"
+#pragma ident "@(#)fmalloc.c 1.5 09/11/08 J. Schilling"
 #endif
 /*
  * @(#)fmalloc.c 1.5 06/12/12
  */
 
 #if defined(sun)
-#ident	"@(#)fmalloc.c"
-#ident	"@(#)sccs:lib/mpwlib/fmalloc.c"
+#pragma ident	"@(#)fmalloc.c"
+#pragma ident	"@(#)sccs:lib/mpwlib/fmalloc.c"
 #endif
 
 /*

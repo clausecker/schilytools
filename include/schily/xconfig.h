@@ -1,4 +1,4 @@
-/* @(#)xconfig.h	1.7 09/08/09 Copyright 1995-2009 J. Schilling */
+/* @(#)xconfig.h	1.8 09/11/05 Copyright 1995-2009 J. Schilling */
 /*
  *	This file either includes the dynamic or manual autoconf stuff.
  *
@@ -34,6 +34,10 @@
  */
 #ifdef	VMS
 #	define	USE_STATIC_CONF
+#endif
+
+#ifdef	NO_STATIC_CONF
+#undef	USE_STATIC_CONF
 #endif
 
 #ifdef	USE_STATIC_CONF

@@ -27,18 +27,18 @@
 /*
  * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)setup.c	1.4 09/11/01 J. Schilling
+ * @(#)setup.c	1.5 09/11/08 J. Schilling
  */
 #if defined(sun)
-#ident "@(#)setup.c 1.4 09/11/01 J. Schilling"
+#pragma ident "@(#)setup.c 1.5 09/11/08 J. Schilling"
 #endif
 /*
  * @(#)setup.c 1.5 06/12/12
  */
 
 #if defined(sun)
-#ident	"@(#)setup.c"
-#ident	"@(#)sccs:lib/comobj/setup.c"
+#pragma ident	"@(#)setup.c"
+#pragma ident	"@(#)sccs:lib/comobj/setup.c"
 #endif
 # include	<defines.h>
 

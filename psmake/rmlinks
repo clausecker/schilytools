@@ -1,5 +1,5 @@
 #!/bin/sh
-# @(#)rmlinks	1.12 09/10/27 Copyright 1999 J. Schilling
+# @(#)rmlinks	1.13 09/11/14 Copyright 1999 J. Schilling
 
 rm -f archconf.c
 rm -f make.c
@@ -41,6 +41,7 @@ rm -f include/schily/utypes.h
 rm -f include/schily/types.h
 rm -f include/schily/param.h
 rm -f include/schily/varargs.h
+rm -f include/schily/vfork.h
 rm -f include/schily/wait.h
 rm -f include/schily/schily.h
 rm -f include/schily/errno.h

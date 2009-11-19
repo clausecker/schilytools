@@ -1,8 +1,8 @@
-/* @(#)make.c	1.163 09/10/22 Copyright 1985, 87, 88, 91, 1995-2009 J. Schilling */
+/* @(#)make.c	1.169 09/11/19 Copyright 1985, 87, 88, 91, 1995-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)make.c	1.163 09/10/22 Copyright 1985, 87, 88, 91, 1995-2009 J. Schilling";
+	"@(#)make.c	1.169 09/11/19 Copyright 1985, 87, 88, 91, 1995-2009 J. Schilling";
 #endif
 /*
  *	Make program
@@ -38,10 +38,12 @@ static	UConst char sccsid[] =
 #include <schily/schily.h>
 #include <schily/libport.h>
 #include <schily/utime.h>
+#define	VMS_VFORK_OK
+#include <schily/vfork.h>
 
 #include "make.h"
 
-char	make_version[] = "1.2a45";
+char	make_version[] = "1.2a47";
 
 #ifdef	NO_DEFAULTS_PATH
 #undef	DEFAULTS_PATH
@@ -66,6 +68,7 @@ LOCAL	void	printdirs	__PR((void));
 LOCAL	int	addcommandline	__PR((char *  name));
 LOCAL	void	read_cmdline	__PR((void));
 EXPORT	void	doexport	__PR((char *));
+EXPORT	void	dounexport	__PR((char *));
 LOCAL	void	read_environ	__PR((void));
 EXPORT	int	main		__PR((int ac, char ** av));
 LOCAL	void	check_old_makefiles __PR((void));
@@ -93,11 +96,15 @@ LOCAL	char	*getdefaultsfile	__PR((void));
 LOCAL	char	*searchfileinpath	__PR((char *name));
 LOCAL	char	*searchonefile	__PR((char *name, char *nbuf, char *np, char *ep));
 LOCAL	int	put_env		__PR((char *new));
+LOCAL	int	unset_env	__PR((char *name));
 #ifndef	HAVE_PUTENV
 EXPORT	int	putenv		__PR((const char *new));
 #endif
 #if defined(__DJGPP__)
 LOCAL	char 	*strbs2s	__PR((char *s));
+#endif
+#ifndef	HAVE_UNSETENV
+EXPORT	int	unsetenv	__PR((const char *name));
 #endif
 
 BOOL	posixmode	= FALSE;	/* We found a .POSIX target	*/
@@ -562,7 +569,7 @@ setup_xvars()
  * On Operating Systems that use "bash" for /bin/sh, we have a real problem.
  * Bash does not stop on failed commands and as bash prevents nested jobs
  * from receiving signals.
- * If /bin/sh is a shell that does not work correctly and if a working 
+ * If /bin/sh is a shell that does not work correctly and if a working
  * Bourne Shell is available as /bin/bosh, we prefer /bin/bosh over /bin/sh.
  *
  * On DJGPP, there is no /bin/sh. We need to find the path for "sh.exe".
@@ -806,6 +813,18 @@ doexport(oname)
 		}
 	}
 }
+
+/*
+ * Unexport a macro from the environment.
+ * This is mainly done by the "unexport" directive inside a makefile.
+ */
+EXPORT void
+dounexport(oname)
+	char	*oname;
+{
+	unset_env(oname);
+}
+
 
 /*
  * Read in and parse all environment vars to make them make macros.
@@ -1591,7 +1610,8 @@ docmd(cmd, obj)
 	}
 
 #if	!defined(USE_SYSTEM) &&			/* XXX else system() ??? */ \
-	((defined(HAVE_FORK) && defined HAVE_EXECL) || defined(JOS))
+	(((defined(HAVE_FORK) || defined(HAVE_VFORK)) && \
+		defined HAVE_EXECL) || defined(JOS))
 
 #if defined(__EMX__) || defined(__DJGPP__)
 #ifdef	__EMX__
@@ -1615,13 +1635,17 @@ docmd(cmd, obj)
 	 *  Do several tries to fork child to allow working on loaded systems.
 	 */
 	for (retries = 0; retries < 10; retries++) {
-		pid = fork();
+		pid = vfork();
 		if (pid >= 0)
 			break;
 		sleep(1L);		/* Wait for resources to become free.*/
 	}
 	if (pid < 0)
+#ifdef	vfork
 		comerr("Can't fork.\n");
+#else
+		comerr("Can't vfork.\n");
+#endif
 
 	if (pid == 0) {		/* Child process: do the work. */
 		/*
@@ -2298,6 +2322,17 @@ put_env(new)
 	return (putenv(new));
 }
 
+LOCAL int
+unset_env(name)
+	char	*name;
+{
+	if (strcmp(name, "SHELL") == 0)
+		return (0);		/* Never unexport SHELL */
+
+	unsetenv(name);			/* OpenBSD deviates and returns void */
+	return (0);
+}
+
 #ifdef __DJGPP__
 LOCAL char *
 strbs2s(s)
@@ -2321,7 +2356,6 @@ strbs2s(s)
 EXPORT	int	putenv		__PR((const char *new));
 LOCAL	int	ev_find		__PR((const char *s));
 
-extern	char 	**environ;	/* The environment array		*/
 LOCAL	BOOL	ealloc = FALSE;	/* TRUE if environ is already allocated */
 
 /*
@@ -2394,3 +2428,38 @@ ev_find(s)
 	return (-(++i));
 }
 #endif	/* HAVE_PUTENV */
+
+#ifndef	HAVE_UNSETENV
+
+EXPORT	int	unsetenv		__PR((const char *name));
+
+/*
+ * Our local unsetenv implementation for systems that don't have it.
+ */
+EXPORT int
+unsetenv(name)
+	const char	*name;
+{
+	register int		i = 0;
+	register const char	*ep;
+	register const char	*s2;
+
+	if (name == NULL || name[0] == '\0')
+		return (0);
+
+	for (i = 0; environ[i] != NULL; i++) {
+		/*
+		 * Find string in environment entry.
+		 */
+		for (ep = environ[i], s2 = name; *ep++ == *s2++; )
+			;
+		if (*--ep == '=' && *--s2 == '\0')
+			goto found;
+	}
+	return (0);
+found:
+	for (; environ[i] != NULL; i++)
+		environ[i] = environ[i+1];
+	return (0);
+}
+#endif	/* HAVE_UNSETENV */

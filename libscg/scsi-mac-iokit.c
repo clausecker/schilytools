@@ -1,7 +1,7 @@
-/* @(#)scsi-mac-iokit.c	1.15 09/09/03 Copyright 1997,2001-2009 J. Schilling */
+/* @(#)scsi-mac-iokit.c	1.16 09/11/03 Copyright 1997,2001-2009 J. Schilling */
 #ifndef lint
 static	char __sccsid[] =
-	"@(#)scsi-mac-iokit.c	1.15 09/09/03 Copyright 1997,2001-2009 J. Schilling";
+	"@(#)scsi-mac-iokit.c	1.16 09/11/03 Copyright 1997,2001-2009 J. Schilling";
 #endif
 /*
  *	Interface to the Darwin IOKit SCSI drivers
@@ -48,7 +48,7 @@ static	char __sccsid[] =
  *	Choose your name instead of "schily" and make clear that the version
  *	string is related to a modified source.
  */
-LOCAL	char	_scg_trans_version[] = "scsi-mac-iokit.c-1.15";	/* The version for this transport */
+LOCAL	char	_scg_trans_version[] = "scsi-mac-iokit.c-1.16";	/* The version for this transport */
 
 #define	MAX_SCG		16	/* Max # of SCSI controllers */
 #define	MAX_TGT		16
@@ -59,7 +59,14 @@ LOCAL	char	_scg_trans_version[] = "scsi-mac-iokit.c-1.15";	/* The version for th
 #include <Carbon/Carbon.h>
 #include <IOKit/IOKitLib.h>
 #include <IOKit/IOCFPlugIn.h>
-#include <IOKit/scsi-commands/SCSITaskLib.h>
+/*
+ * IOKit/scsi-commands/ (being a symlink at least between Panther and Leopard)
+ * did disappear on "Snow Leopard" but we do not know whether IOKit/scsi/
+ * exist before. I do not like to create an autoconf test for the file,
+ * please report if you have problems on older Mac OS X releases.
+ */
+/*#include <IOKit/scsi-commands/SCSITaskLib.h>*/
+#include <IOKit/scsi/SCSITaskLib.h>
 #include <mach/mach_error.h>
 
 struct scg_if {

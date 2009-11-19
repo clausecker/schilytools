@@ -1,6 +1,6 @@
-dnl @(#)configure.in	1.194 09/10/31 Copyright 1998-2009 J. Schilling
+dnl @(#)configure.in	1.199 09/11/17 Copyright 1998-2009 J. Schilling
 dnl Process this file with autoconf to produce a configure script.
-AC_REVISION(1.194)dnl
+AC_REVISION(1.199)dnl
 
 dnl AC_INIT(xconfig.h.in)
 AC_INIT(config.guess)
@@ -31,7 +31,12 @@ dnl Checks for header files.
 AC_HEADER_STDC
 AC_CHECK_HEADERS(stdarg.h stdlib.h string.h float.h)	dnl AC_HEADER_STDC in particular
 AC_HEADER_INTTYPES
+AC_HEADER_STDINT
+ac_xsave_LIBS="$LIBS"
+LIBS=""
 AC_HEADER_DIRENT
+lib_dir="$LIBS"
+LIBS="$ac_xsave_LIBS"
 AC_HEADER_STAT
 AC_HEADER_TIME
 AC_HEADER_SYS_WAIT
@@ -53,7 +58,7 @@ AC_CHECK_HEADERS(sys/time.h sys/times.h utime.h sys/utime.h sys/ioctl.h sys/fili
 AC_CHECK_HEADERS(sys/syscall.h)
 AC_CHECK_HEADERS(mach/machine.h)
 AC_CHECK_HEADERS(mntent.h sys/mntent.h sys/mnttab.h sys/mount.h)
-AC_CHECK_HEADERS(wait.h sys/resource.h procfs.h sys/procfs.h)
+AC_CHECK_HEADERS(sys/fork.h vfork.h wait.h sys/wait.h sys/resource.h procfs.h sys/procfs.h)
 AC_CHECK_HEADERS(sys/utsname.h sys/priocntl.h sys/rtpriocntl.h sys/procset.h)
 AC_CHECK_HEADERS(sys/mtio.h sys/tape.h sys/mman.h linux/pg.h camlib.h)
 AC_CHECK_HEADERS(sys/shm.h sys/sem.h sys/ipc.h)
@@ -207,6 +212,7 @@ AC_STRUCT_SI_UTIME
 AC_STRUCT_SOCKADDR_STORAGE
 AC_STRUCT_UNION_SEMUN
 AC_STRUCT_UNION_WAIT
+AC_USE_STRUCT_UNION_WAIT
 AC_STRUCT_ST_SPARE1
 AC_STRUCT_ST_ATIMENSEC
 AC_STRUCT_ST_NSEC
@@ -257,6 +263,7 @@ AC_FUNC_ALLOCA
 AC_FUNC_QUOTAIOCTL
 AC_FUNC_FCNTL_LOCKF
 AC_FUNC_UNAME
+AC_CHECK_FUNCS(execl)
 AC_FUNC_VFORK
 AC_FUNC_SYS_SIGLIST
 AC_FUNC_BSD_GETPGRP
@@ -280,7 +287,7 @@ AC_CHECK_FUNCS(getpgid setpgid getsid setsid)
 AC_CHECK_FUNCS(getpgrp setpgrp)
 dnl			getspwnam() on HP-UX is in libsec.a
 AC_CHECK_FUNCS(getspnam getspwnam)
-AC_CHECK_FUNCS(sync fsync fork wait wait4 waitid waitpid getrusage getrlimit setrlimit ulimit)
+AC_CHECK_FUNCS(sync fsync fork forkx vforkx forkall forkallx wait wait4 waitid waitpid getrusage getrlimit setrlimit ulimit)
 AC_CHECK_FUNCS(execl execle execlp execv execve execvp)
 AC_CHECK_FUNCS(getexecname)
 AC_CHECK_FUNCS(getprogname setprogname)
@@ -316,7 +323,8 @@ AC_CHECK_FUNCS(kill killpg)
 AC_CHECK_FUNCS(signal sigrelse sigprocmask sigsetmask sigset sigaltstack)
 AC_CHECK_FUNCS(sleep usleep yield)
 AC_CHECK_FUNCS(tcgetattr tcsetattr tcgetpgrp tcsetpgrp)
-AC_CHECK_FUNCS(putenv setenv snprintf strcasecmp)
+AC_CHECK_FUNCS(getenv putenv setenv unsetenv)
+AC_CHECK_FUNCS(snprintf strcasecmp)
 AC_CHECK_FUNCS(strcat strncat strcmp strncmp strcpy strlcpy strncpy strdup strlen strchr strrchr)
 AC_CHECK_FUNCS(wcscat wcsncat wcscmp wcsncmp wcscpy wcslcpy wcsncpy wcsdup wcslen wcschr wcsrchr)
 AC_CHECK_FUNCS(wcwidth wcswidth wctype iswctype)
@@ -644,5 +652,6 @@ AC_SUBST(lib_gen)
 AC_SUBST(lib_pthread)
 AC_SUBST(lib_rt)
 AC_SUBST(lib_dl)
+AC_SUBST(lib_dir)
 
 AC_OUTPUT(rules.cnf)

@@ -27,18 +27,18 @@
 /*
  * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)flushto.c	1.4 09/11/01 J. Schilling
+ * @(#)flushto.c	1.5 09/11/08 J. Schilling
  */
 #if defined(sun)
-#ident "@(#)flushto.c 1.4 09/11/01 J. Schilling"
+#pragma ident "@(#)flushto.c 1.5 09/11/08 J. Schilling"
 #endif
 /*
  * @(#)flushto.c 1.3 06/12/12
  */
 
 #if defined(sun)
-#ident	"@(#)flushto.c"
-#ident	"@(#)sccs:lib/comobj/flushto.c"
+#pragma ident	"@(#)flushto.c"
+#pragma ident	"@(#)sccs:lib/comobj/flushto.c"
 #endif
 # include	<defines.h>
 

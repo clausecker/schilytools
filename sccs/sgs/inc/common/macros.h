@@ -24,10 +24,10 @@
 /*
  * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)macros.h	1.6 09/10/31 J. Schilling
+ * @(#)macros.h	1.7 09/11/08 J. Schilling
  */
 #if defined(sun)
-#ident "@(#)macros.h 1.6 09/10/31 J. Schilling"
+#pragma ident "@(#)macros.h 1.7 09/11/08 J. Schilling"
 #endif
 
 #ifndef	_MACROS_H
@@ -95,7 +95,7 @@ extern struct stat Statbuf;
  *	Use: DEBUG(sum,d) which becomes fprintf(stderr,"sum = %d\n",sum)
  *
  *	Note:	Sccsid[] strings are still supported but not the prefered
- *		method of labeling files.  Use #ident.
+ *		method of labeling files.  Use #pragma ident.
  */
 #ifdef	__STDC__
 #define	DEBUG(var, type)	fprintf(stderr, #var "= %" #type "\n", var)

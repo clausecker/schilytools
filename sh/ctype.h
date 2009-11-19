@@ -24,11 +24,11 @@
 
 
 #if defined(sun)
-#ident	"@(#)ctype.h	1.8	05/06/08 SMI"	/* SVr4.0 1.10.1.1	*/
+#pragma ident	"@(#)ctype.h	1.8	05/06/08 SMI"	/* SVr4.0 1.10.1.1	*/
 #endif
 /*
  * This file contains modifications Copyright 2009 J. Schilling
- * @(#)ctype.h	1.2 09/11/01 2009 J. Schilling
+ * @(#)ctype.h	1.3 09/11/08 2009 J. Schilling
  */
 /*
  *	UNIX shell

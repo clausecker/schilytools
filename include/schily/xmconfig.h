@@ -1,4 +1,4 @@
-/* @(#)xmconfig.h	1.41 09/10/31 Copyright 1995-2009 J. Schilling */
+/* @(#)xmconfig.h	1.42 09/11/16 Copyright 1995-2009 J. Schilling */
 /*
  *	This file either includes the manual generated
  *	static definitions for a machine configuration.
@@ -105,7 +105,7 @@ extern "C" {
 #	define	HAVE_WAIT_H
 /*#	define	HAVE_SYS_WAIT_H	*/
 /*#	define	HAVE_SYS_SYSTEMINFO_H	*/
-#	define	HAVE_SYS_UTSNAME_H  
+#	define	HAVE_SYS_UTSNAME_H
 /*#	define	HAVE_SYS_PRIOCNTL_H */
 /*#	define	HAVE_SYS_RTPRIOCNTL_H	*/
 /*#	define	HAVE_SYS_MTIO_H	*/

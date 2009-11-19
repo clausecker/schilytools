@@ -27,10 +27,10 @@
 /*
  * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)prs.c	1.14 09/11/01 J. Schilling
+ * @(#)prs.c	1.17 09/11/15 J. Schilling
  */
 #if defined(sun)
-#ident "@(#)prs.c 1.14 09/11/01 J. Schilling"
+#pragma ident "@(#)prs.c 1.17 09/11/15 J. Schilling"
 #endif
 /*
  * @(#)prs.c 1.33 06/12/12
@@ -42,8 +42,8 @@
  */
 
 #if defined(sun)
-#ident	"@(#)prs.c"
-#ident	"@(#)sccs:cmd/prs.c"
+#pragma ident	"@(#)prs.c"
+#pragma ident	"@(#)sccs:cmd/prs.c"
 #endif
 /*************************************************************************/
 /*									 */
@@ -71,6 +71,8 @@
 # include	<had.h>
 # include	<i18n.h>
 # include	<schily/wait.h>
+# define	VMS_VFORK_OK
+# include	<schily/vfork.h>
 # include	<schily/sysexits.h>
 
 struct stat Statbuf;
@@ -1262,7 +1264,7 @@ struct packet *pkt;
 	fork here so 'getbody' can execute 'get' to
 	print out gotten body :GB:
 	*/
-	if ((i = fork()) < 0)
+	if ((i = vfork()) < 0)
 		fatal(gettext("cannot fork, try again"));
 	if (i == 0) {
 		/*
@@ -1275,6 +1277,9 @@ struct packet *pkt;
 		execlp(Getpgm,Getpgm,NOGETTEXT("-s"),NOGETTEXT("-p"),rarg,filearg, (char *)0);
 		sprintf(SccsError,gettext("cannot execute '%s'"),
 			Getpgm);
+#ifdef	HAVE_VFORK
+		Fflags |= FTLVFORK;
+#endif
 		fatal(SccsError);
 	}
 	else {

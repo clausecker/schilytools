@@ -27,18 +27,18 @@
 /*
  * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)cmpdate.c	1.4 09/11/01 J. Schilling
+ * @(#)cmpdate.c	1.5 09/11/08 J. Schilling
  */
 #if defined(sun)
-#ident "@(#)cmpdate.c 1.4 09/11/01 J. Schilling"
+#pragma ident "@(#)cmpdate.c 1.5 09/11/08 J. Schilling"
 #endif
 /*
  * @(#)cmpdate.c 1.2 06/12/12
  */
 
 #if defined(sun)
-#ident	"@(#)cmpdate.c"
-#ident	"@(#)sccs:lib/comobj/cmpdate.c"
+#pragma ident	"@(#)cmpdate.c"
+#pragma ident	"@(#)sccs:lib/comobj/cmpdate.c"
 #endif
 #include <defines.h>
 

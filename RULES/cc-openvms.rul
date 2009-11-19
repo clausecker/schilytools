@@ -1,4 +1,4 @@
-#ident "@(#)cc-openvms.rul	1.2 09/10/31 "
+#ident "@(#)cc-openvms.rul	1.3 09/11/05 "
 ###########################################################################
 # Written 1998-2009 by J. Schilling
 ###########################################################################
@@ -35,15 +35,15 @@ C++WOPTS=
 #C++OPTDYN=	-Kpic
 #C++OPTGPROF=	-xpg
 
-LIB_PREFIX=	lib
-LIB_SUFFIX=	.a
+LIB_PREFIX=	
+LIB_SUFFIX=	.olb
 SHL_SUFFIX=	.so.1.0
 
 LIBS_PATH=	-L$(OLIBSDIR) -L/usr/ccs/lib
 LIBS_PATH_STATIC= -L$(OLIBSDIR_STATIC) 
 
 LDFLAGS=	$(LDOPTS) $(LDOPTX)
-LDLIBS=		$(LIBS) $(LIBX) -lrt
+LDLIBS=		$(LIBS) $(LIBX)
 
 #LDOPTS=		$(LIBS_PATH) $(LDPATH) $(RUNPATH)
 LDOPTS=		$(LIBS_PATH) $(LDPATH)

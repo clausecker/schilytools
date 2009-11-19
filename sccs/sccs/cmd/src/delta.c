@@ -27,18 +27,18 @@
 /*
  * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)delta.c	1.15 09/11/01 J. Schilling
+ * @(#)delta.c	1.17 09/11/15 J. Schilling
  */
 #if defined(sun)
-#ident "@(#)delta.c 1.15 09/11/01 J. Schilling"
+#pragma ident "@(#)delta.c 1.17 09/11/15 J. Schilling"
 #endif
 /*
  * @(#)delta.c 1.40 06/12/12
  */
 
 #if defined(sun)
-#ident	"@(#)delta.c"
-#ident	"@(#)sccs:cmd/delta.c"
+#pragma ident	"@(#)delta.c"
+#pragma ident	"@(#)sccs:cmd/delta.c"
 #endif
 
 # include	<defines.h>
@@ -46,7 +46,10 @@
 # include	<had.h>
 # include	<i18n.h>
 # include	<schily/utsname.h>
+# include	<schily/fcntl.h>
 # include	<schily/wait.h>
+# define	VMS_VFORK_OK
+# include	<schily/vfork.h>
 # include	<ccstypes.h>
 # include	<schily/sysexits.h>
 
@@ -900,18 +903,29 @@ int difflim;
 	char num[10];
 
 	xpipe(pfd);
-	if ((i = fork()) < 0) {
+	if ((i = vfork()) < 0) {
 		close(pfd[0]);
 		close(pfd[1]);
 		fatal(gettext("cannot fork, try again (de11)"));
 	}
 	else if (i == 0) {
+#ifdef	set_child_standard_fds
+		set_child_standard_fds(STDIN_FILENO,
+					pfd[1],
+					STDERR_FILENO);
+#ifdef	F_SETFD
+		fcntl(pfd[0], F_SETFD, 1);
+		for (i = 5; i < getdtablesize(); i++)
+			fcntl(i, F_SETFD, 1);
+#endif
+#else
 		close(pfd[0]);
 		close(1);
 		dup(pfd[1]);
 		close(pfd[1]);
 		for (i = 5; i < getdtablesize(); i++)
 			close(i);
+#endif
 		sprintf(num, NOGETTEXT("%d"), difflim);
  		if (HADD) {
 #if	defined(PROTOTYPES) && defined(INS_BASE)

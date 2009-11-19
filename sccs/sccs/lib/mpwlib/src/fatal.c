@@ -27,18 +27,18 @@
 /*
  * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)fatal.c	1.4 09/11/01 J. Schilling
+ * @(#)fatal.c	1.6 09/11/08 J. Schilling
  */
 #if defined(sun)
-#ident "@(#)fatal.c 1.4 09/11/01 J. Schilling"
+#pragma ident "@(#)fatal.c 1.6 09/11/08 J. Schilling"
 #endif
 /*
  * @(#)fatal.c 1.8 06/12/12
  */
 
 #if defined(sun)
-#ident	"@(#)fatal.c"
-#ident	"@(#)sccs:lib/mpwlib/fatal.c"
+#pragma ident	"@(#)fatal.c"
+#pragma ident	"@(#)sccs:lib/mpwlib/fatal.c"
 #endif
 # include	<defines.h>
 # include	<fatal.h>
@@ -133,6 +133,8 @@ char *msg;
 		longjmp(Fjmp, 1);
 	/*FALLTHRU*/
 	case FTLEXIT:
+		if (Fflags & FTLVFORK)
+			_exit(userexit(1));
 		exit(userexit(1));
 	/*FALLTHRU*/
 	case FTLRET:

@@ -1,4 +1,4 @@
-dnl @(#)acgeneral.m4	1.10 09/07/30 Copyright 1998-2009 J. Schilling
+dnl @(#)acgeneral.m4	1.11 09/11/05 Copyright 1998-2009 J. Schilling
 dnl
 dnl Parameterized macros.
 dnl Requires GNU m4.
@@ -1592,7 +1592,7 @@ dnl may have different results.
 ac_lib_var=`echo $1['_']$2 | sed 'y%./+-%__p_%'`
 AC_CACHE_VAL(ac_cv_lib_$ac_lib_var,
 [ac_save_LIBS="$LIBS"
-LIBS="-l$1 $5 $LIBS"
+LIBS=`echo "-l$1 $5 $LIBS" | sed -e 's/-lc //'`
 AC_TRY_LINK(dnl
 ifelse(AC_LANG, [FORTRAN77], ,
 ifelse([$2], [main], , dnl Avoid conflicting decl of main.

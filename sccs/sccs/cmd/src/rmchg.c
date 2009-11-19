@@ -27,18 +27,18 @@
 /*
  * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)rmchg.c	1.15 09/11/01 J. Schilling
+ * @(#)rmchg.c	1.16 09/11/08 J. Schilling
  */
 #if defined(sun)
-#ident "@(#)rmchg.c 1.15 09/11/01 J. Schilling"
+#pragma ident "@(#)rmchg.c 1.16 09/11/08 J. Schilling"
 #endif
 /*
  * @(#)rmchg.c 1.19 06/12/12
  */
 
 #if defined(sun)
-#ident	"@(#)rmchg.c"
-#ident	"@(#)sccs:cmd/rmchg.c"
+#pragma ident	"@(#)rmchg.c"
+#pragma ident	"@(#)sccs:cmd/rmchg.c"
 #endif
 # include	<defines.h>
 # include	<version.h>

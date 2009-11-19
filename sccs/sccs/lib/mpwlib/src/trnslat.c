@@ -27,18 +27,18 @@
 /*
  * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)trnslat.c	1.5 09/11/01 J. Schilling
+ * @(#)trnslat.c	1.6 09/11/08 J. Schilling
  */
 #if defined(sun)
-#ident "@(#)trnslat.c 1.5 09/11/01 J. Schilling"
+#pragma ident "@(#)trnslat.c 1.6 09/11/08 J. Schilling"
 #endif
 /*
  * @(#)trnslat.c 1.3 06/12/12
  */
 
 #if defined(sun)
-#ident	"@(#)trnslat.c"
-#ident	"@(#)sccs:lib/mpwlib/trnslat.c"
+#pragma ident	"@(#)trnslat.c"
+#pragma ident	"@(#)sccs:lib/mpwlib/trnslat.c"
 #endif
 /*
 	Copy `str' to `result' replacing any character found
