@@ -1,8 +1,8 @@
-/* @(#)fifo.c	1.71 09/08/08 Copyright 1989, 1994-2009 J. Schilling */
+/* @(#)fifo.c	1.72 09/11/28 Copyright 1989, 1994-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)fifo.c	1.71 09/08/08 Copyright 1989, 1994-2009 J. Schilling";
+	"@(#)fifo.c	1.72 09/11/28 Copyright 1989, 1994-2009 J. Schilling";
 #endif
 /*
  *	A "fifo" that uses shared memory between two processes
@@ -898,10 +898,10 @@ do_in()
 	int	amt;
 	int	cnt;
 
+nextread:
 	do {
 		cnt = fifo_iwait(mp->ibs);
 		amt = readtape(mp->putptr, cnt);
-wake:
 		fifo_owake(amt);
 	} while (amt > 0);
 
@@ -924,8 +924,10 @@ wake:
 			}
 			if (skip > 0)
 				fifo_iwake(skip*TBLOCK);
-			if (amt > 0)
-				goto wake;
+			if (amt > 0) {
+				fifo_owake(amt);
+				goto nextread;
+			}
 		}
 	}
 	closetape();

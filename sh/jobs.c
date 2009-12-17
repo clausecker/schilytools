@@ -36,11 +36,11 @@
 /*
  * This file contains modifications Copyright 2008-2009 J. Schilling
  *
- * @(#)jobs.c	1.17 09/11/01 2008-2009 J. Schilling
+ * @(#)jobs.c	1.18 09/11/27 2008-2009 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)jobs.c	1.17 09/11/01 2008-2009 J. Schilling";
+	"@(#)jobs.c	1.18 09/11/27 2008-2009 J. Schilling";
 #endif
 
 /*
@@ -133,6 +133,11 @@ static struct job 	*jobcur, /* active jobs listed in currency order */
 			**nextjob,
 			*thisjob,
 			*joblst; /* active jobs listed in job ID order	 */
+
+/*
+ * IRIX has waitjob() in libc.
+ */
+#define	waitjob	sh_waitjob
 
 static struct job *pgid2job	__PR((pid_t pgid));
 static struct job *str2job	__PR((char *cmdp, char *job, int mustbejob));

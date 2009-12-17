@@ -1,8 +1,8 @@
-/* @(#)parse.c	1.99 09/11/18 Copyright 1985-2009 J. Schilling */
+/* @(#)parse.c	1.103 09/11/25 Copyright 1985-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)parse.c	1.99 09/11/18 Copyright 1985-2009 J. Schilling";
+	"@(#)parse.c	1.103 09/11/25 Copyright 1985-2009 J. Schilling";
 #endif
 /*
  *	Make program
@@ -64,6 +64,7 @@ LOCAL	cmd_t	*getcmd		__PR((void));
 LOCAL	int	exp_ovec	__PR((obj_t ** ovec, int objcnt));
 LOCAL	int	read_ovec	__PR((obj_t ** ovec, int *typep));
 EXPORT	list_t	*cvtvpath	__PR((list_t *l));
+EXPORT	BOOL	is_inlist	__PR((char *objname, char *name));
 EXPORT	BOOL	nowarn		__PR((char *name));
 LOCAL	void	warn		__PR((char *, ...)) __printflike__(1, 2);
 LOCAL	void	exerror		__PR((char *, ...)) __printflike__(1, 2);
@@ -72,10 +73,12 @@ EXPORT	obj_t	*objlook	__PR((char *name, BOOL create));
 EXPORT	list_t	*objlist	__PR((char *name));
 EXPORT	obj_t	*ssufflook	__PR((char *name, BOOL create));
 EXPORT	BOOL	check_ssufftab	__PR((void));
+LOCAL	void	clear_ssufftab	__PR((void));
+LOCAL	BOOL	is_suffix_rule	__PR((obj_t *obj));
 LOCAL	void	prvar		__PR((obj_t * p));
 LOCAL	void	ptree		__PR((obj_t * p, int n));
 EXPORT	void	printtree	__PR((void));
-EXPORT	void	probj		__PR((FILE *f, obj_t * o, int type));
+EXPORT	void	probj		__PR((FILE *f, obj_t * o, int type, int dosuff));
 EXPORT	void	prtree		__PR((void));
 LOCAL	char	*typestr	__PR((int type));
 LOCAL	void	printobj	__PR((FILE *f, obj_t ** ovec, int objcnt, int type, list_t * deplist, cmd_t * cmdlist));
@@ -280,7 +283,8 @@ define_obj(obj, n, objcnt, type, dep, cmd)
 	 * to make.
 	 */
 	if (n == 0 && !default_tgt && basetype(type) == COLON &&
-	    (obj->o_name[0] != '.' || obj->o_name[1] == SLASH))
+	    (obj->o_name[0] != '.' || obj->o_name[1] == SLASH ||
+	    (obj->o_name[1] == '.' && obj->o_name[2] == SLASH)))
 		default_tgt = obj;
 
 	if (type == DCOLON)
@@ -391,6 +395,8 @@ listappend(obj, dep)
 	register obj_t	*obj;
 	register list_t	*dep;
 {
+	if (streql(obj->o_name, ".SSUFFIX_RULES") && dep == NULL)
+		clear_ssufftab();
 	if (obj->o_list != (list_t *) NULL) {
 		register list_t *l = obj->o_list;
 
@@ -399,6 +405,7 @@ listappend(obj, dep)
 			 * Allow to clear special targets.
 			 */
 			if (streql(obj->o_name, ".SUFFIXES") ||
+			    streql(obj->o_name, ".SSUFFIX_RULES") ||
 			    streql(obj->o_name, ".DEFAULT") ||
 			    streql(obj->o_name, ".NO_WARN") ||
 			    streql(obj->o_name, ".SCCS_GET") ||
@@ -1244,16 +1251,24 @@ cvtvpath(l)
 
 
 EXPORT BOOL
-nowarn(name)
+is_inlist(objname, name)
+	char	*objname;
 	char	*name;
 {
 	list_t	*l;
 
-	for (l = objlist(".NO_WARN"); l != NULL; l = l->l_next) {
+	for (l = objlist(objname); l != NULL; l = l->l_next) {
 		if (streql(l->l_obj->o_name, name))
 			return (TRUE);
 	}
 	return (FALSE);
+}
+
+EXPORT BOOL
+nowarn(name)
+	char	*name;
+{
+	return (is_inlist(".NO_WARN", name));
 }
 
 /*
@@ -1429,6 +1444,55 @@ check_ssufftab()
 }
 
 /*
+ * Clear all entries in SuffTab.
+ */
+LOCAL void
+clear_ssufftab()
+{
+	int	i;
+
+	for (i = 0; i < MyObjTabSize; i++)
+		SuffTab[i] = NULL;
+	SSuffrules = FALSE;
+}
+
+/*
+ * Check whether obj->o_name is a Suffix Rule.
+ * Name must either be identical to one of the .SUFFIXES (Single Suffix Rule)
+ * or a concatenation of two .SUFFIXES.
+ */
+LOCAL BOOL
+is_suffix_rule(obj)
+	register obj_t	*obj;
+{
+	list_t	*l;
+	list_t	*l2;
+	char	*suffix;
+	char	*rp;
+	int	rlen;
+
+	if (Suffixes == NULL)
+		return (FALSE);
+
+	for (l = Suffixes; l; l = l->l_next) {
+		suffix = l->l_obj->o_name;
+		rlen = strlen(suffix);
+		if (strncmp(obj->o_name, suffix, rlen) == 0)	{ 
+			rp = &obj->o_name[rlen];
+
+			if (*rp == '\0')	/* Single Suffix Rule */
+				return (TRUE);
+
+			for (l2 = Suffixes; l2; l2 = l2->l_next) {
+				if (streql(rp, l2->l_obj->o_name))
+					return (TRUE);
+			}
+		}
+	}
+	return (FALSE);
+}
+
+/*
  * Used by ptree() to print one single object.
  */
 LOCAL void
@@ -1483,20 +1547,39 @@ printtree()
 /*
  * Currently only used by prtree() to implement the -p option.
  */
+#define	SUFF_ONLY	1	/* Print only Suffix Rules	*/
+#define	SUFF_SPECIAL	2	/* Print only special targets	*/
+#define	SUFF_NONE	0	/* Print only plain target rules */
+#define	SUFF_ANY	-1	/* Print without filtering	*/
 EXPORT void
-probj(f, o, type)
+probj(f, o, type, dosuff)
 	FILE	*f;
 	obj_t	*o;
 	int	type;
+	int	dosuff;
 {
 	for (; o; o = o->o_right) {
-		probj(f, o->o_left, type);
+		probj(f, o->o_left, type, dosuff);
 		if (type >= 0 && type != o->o_type)
 			continue;
 		if (type < 0 && (o->o_type == ':' || o->o_type == '='))
 			continue;
 		if (Debug <= 0 && o->o_type == 0)
 			continue;	/* Ommit target only strings */
+
+		if (dosuff >= 0) {
+			if (dosuff == SUFF_ONLY && !is_suffix_rule(o))
+				continue;
+			else if (dosuff == SUFF_NONE && (is_suffix_rule(o) ||
+			    !(o->o_name[0] != '.' || o->o_name[1] == SLASH ||
+			    (o->o_name[1] == '.' && o->o_name[2] == SLASH))))
+				continue;
+			else if (dosuff == SUFF_SPECIAL && (is_suffix_rule(o) ||
+			    (o->o_name[0] != '.' || o->o_name[1] == SLASH ||
+			    (o->o_name[1] == '.' && o->o_name[2] == SLASH))))
+				continue;
+
+		}
 
 		printobj(f, &o, 1, o->o_type, o->o_list, o->o_cmd);
 	}
@@ -1514,19 +1597,27 @@ prtree()
 	print_patrules(stdout);
 	printf("# Implicit Suffix Rules:\n");
 	for (i = 0; i < MyObjTabSize; i++) {
-		probj(stdout, ObjTab[i], ':');
+		probj(stdout, ObjTab[i], ':', SUFF_ONLY);
 	}
 	printf("# Simple Suffix Rules:\n");
 	for (i = 0; i < MyObjTabSize; i++) {
-		probj(stdout, SuffTab[i], ':');
+		probj(stdout, SuffTab[i], ':', SUFF_ANY);
+	}
+	printf("# Special Targets:\n");
+	for (i = 0; i < MyObjTabSize; i++) {
+		probj(stdout, ObjTab[i], ':',  SUFF_SPECIAL);
+	}
+	printf("# Target Rules:\n");
+	for (i = 0; i < MyObjTabSize; i++) {
+		probj(stdout, ObjTab[i], ':',  SUFF_NONE);
 	}
 	printf("# Macro definitions:\n");
 	for (i = 0; i < MyObjTabSize; i++) {
-		probj(stdout, ObjTab[i], '=');
+		probj(stdout, ObjTab[i], '=', SUFF_ANY);
 	}
 	printf("# Various other definitions:\n");
 	for (i = 0; i < MyObjTabSize; i++) {
-		probj(stdout, ObjTab[i], -1);
+		probj(stdout, ObjTab[i], -1, SUFF_ANY);
 	}
 }
 

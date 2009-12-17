@@ -1,7 +1,7 @@
-/* @(#)files.c	1.17 09/07/10 joerg */
+/* @(#)files.c	1.18 09/11/25 joerg */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)files.c	1.17 09/07/10 joerg";
+	"@(#)files.c	1.18 09/11/25 joerg";
 
 #endif
 /*
@@ -39,7 +39,7 @@ static	char sccsid[] =
 void	add_one_file	__PR((char *addpath, char *path));
 void	add_file_list	__PR((int argc, char **argv, int ind));
 void	add_file	__PR((char *filename));
-char *	look_up_addition __PR((char **newpath, char *path,
+char	*look_up_addition __PR((char **newpath, char *path,
 					struct dirent **de));
 void	nuke_duplicates	__PR((char *path, struct dirent **de));
 struct dirent  *readdir_add_files __PR((char **pathp, char *path, DIR *dir));

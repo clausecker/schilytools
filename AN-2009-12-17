@@ -1,0 +1,108 @@
+New features with AN-2009-11-99:
+
+-	Schily Makefile rules no longer contain Simple Suffix Rules.
+	All default rules are now based on Pattern Matching Rules.
+	This speeds up smake.
+
+-	POSIX.1-2008 is UNIX compliant again and allows to call
+	commands via "sh -ce command". Smake honors this if in POSIX 
+	mode. Note that this was already the default smake behavior in
+	Non-POSIX mode.
+
+-	Smake now treats "../name" as a valid default target name.
+
+-	The .IGNORE and .SILENT special targets now work in a POSIX compliant
+	way.
+
+-	A new special target ".SSUFFIX_RULES" allows to disable Simple Suffix
+	Rules.
+
+-	smake -p now gives more fine grained results and separates
+	Suffix rules from target rules and special targets.
+
+-	The Smake Man page was enhanced, it is now complete enough for a final release.
+
+-	The makefile system no longer defines Simple Suffix Rules for smake.
+
+-	Smake now searches "makefile", "Makefile", "SMakefile" if in -posix mode,
+	smake's default is "SMakefile", "Makefile", "makefile.
+
+-	If .PRECIOUS: was specified without dependency list, all targets are 
+	handled as "PRECIOUS". This was recently added by POSIX.
+
+-	The -posix option is now propageted by smake to sub makes via MAKEFLAGS=
+
+-	Smake added a new special macro "NUMBER_SIGN" that is initialized to '#'
+	to allow to use the comment sign in makefiles.
+
+-	The smake common code for Suffix macro substitution and
+	Pattern macro substitution has been fixed to correctly distibguish between
+	both methods and to no longer try to expand % in suffix macro substitutions.
+	This allows to use things like:
+
+		smake COPTX=-errwarn=%all
+
+	to work as expected.
+
+-	Support for Hurd on i686 was added to RULES/MKLINKS
+
+-	cdrtools man pages reworked.
+
+-	mkisofs Cstyle changes
+
+-	star/fifo.c rewritten to avoid a core dump from the optimizer program
+	of the SGI IRIX C-compiler.
+
+-	sh/jobs.c::waitjobs() renamed as SGI IRIX has a function with the same
+	name in libc.
+
+-	cdrecord man page reworked
+
+-	readcd man page reworked
+
+-	libscg/scsi-sgi.c modified to avoid GCC warnings
+
+-	libschily/getargs.c modified to avoid GCC warnings
+
+-	Added autoconf test to distinct Linux ACLs from IRIX ACLs
+
+-	let libfind deal with the differences between Linux ACLs and IRIX ACLs
+
+-	Support for 64 Bit compilation was added for IRIX.
+	Call smake CCOM=cc64 or smake CCOM=gcc64 as usual.
+
+-	C++ compilation support fior IRIX was added to the makefile system
+
+-	New autoconf test for extern timezone in time.h.
+	IRIX has a 4 byte extern time_t timezone that is in conflict with
+	extern long timezone when compiling in 64 Bit mode.
+
+-	libfind now links against the ACL libs when compiled to create a shared lib.
+
+-	Code was added to cdrecord to work around a bug in the firmware 
+	from drives developed by PIONEER in November 2009. This affects
+	drives labelled "Pioneer", "Plextor" and "TEAC".
+	Do no longer call cdr_buffer_cap() before the drive
+	buffer was not at least filled once to avoid that
+	the the drive throughs away all data.
+
+-	Removed some (int) casts for some ioctl()s in cdda2wav/sndconfig.c
+
+-	cdrtools bumped to 2.01.01a69
+
+-	smake bumped to 1.2-final
+
+-	star bumped to 1.5.1-final
+
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.isdn.cs.tu-berlin.de, js@cs.tu-berlin.de
+	joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

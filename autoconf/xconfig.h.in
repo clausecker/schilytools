@@ -1,4 +1,4 @@
-/* @(#)xconfig.h.in	1.185 09/11/17 Copyright 1998-2009 J. Schilling */
+/* @(#)xconfig.h.in	1.187 09/11/29 Copyright 1998-2009 J. Schilling */
 /*
  *	Dynamic autoconf C-include code.
  *
@@ -289,6 +289,7 @@
 #undef HAVE_GETTIMEOFDAY	/* gettimeofday() is present in libc */
 #undef HAVE_SETTIMEOFDAY	/* settimeofday() is present in libc */
 #undef HAVE_VAR_TIMEZONE	/* extern long timezone is present in libc */
+#undef HAVE_VAR_TIMEZONE_DEF	/* extern long timezone is present in time.h */
 #undef HAVE_TIME		/* time() is present in libc */
 #undef HAVE_GMTIME		/* gmtime() is present in libc */
 #undef HAVE_LOCALTIME		/* localtime() is present in libc */
@@ -802,6 +803,7 @@
  */
 #undef HAVE_ACL_GET_FILE	/* acl_get_file() function */
 #undef HAVE_ACL_SET_FILE	/* acl_set_file() function */
+#undef HAVE_ACL_GET_ENTRY	/* acl_get_entry() function */
 #undef HAVE_ACL_FROM_TEXT	/* acl_from_text() function */
 #undef HAVE_ACL_TO_TEXT		/* acl_to_text() function */
 #undef HAVE_ACL_FREE		/* acl_free() function */

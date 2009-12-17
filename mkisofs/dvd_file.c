@@ -1,8 +1,8 @@
-/* @(#)dvd_file.c	1.10 09/07/09 joerg */
+/* @(#)dvd_file.c	1.11 09/11/25 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)dvd_file.c	1.10 09/07/09 joerg";
+	"@(#)dvd_file.c	1.11 09/11/25 joerg";
 #endif
 /*
  * DVD_VIDEO code
@@ -36,11 +36,11 @@ LOCAL	void	bsort		__PR((int sector[], int title[], int size));
 LOCAL	void	uniq		__PR((int sector[], int title[],
 					int title_sets_array[],
 					int sector_sets_array[], int titles));
-LOCAL	void	DVDFreeFileSetArrays __PR((int * sector, int * title, int * title_sets_array,
-					int * sector_sets_array));
-EXPORT	void	DVDFreeFileSet	__PR((title_set_info_t * title_set_info));
-EXPORT	title_set_info_t * DVDGetFileSet __PR((char * dvd));
-EXPORT	int	DVDGetFilePad	__PR((title_set_info_t * title_set_info, char * name));
+LOCAL	void	DVDFreeFileSetArrays __PR((int *sector, int *title, int *title_sets_array,
+					int *sector_sets_array));
+EXPORT	void	DVDFreeFileSet	__PR((title_set_info_t *title_set_info));
+EXPORT	title_set_info_t *DVDGetFileSet __PR((char *dvd));
+EXPORT	int	DVDGetFilePad	__PR((title_set_info_t *title_set_info, char *name));
 
 
 LOCAL void
@@ -104,10 +104,10 @@ uniq(sector, title, title_sets_array, sector_sets_array, titles)
 
 LOCAL void
 DVDFreeFileSetArrays(sector, title, title_sets_array, sector_sets_array)
-	int	* sector;
-	int	* title;
-	int	* title_sets_array;
-	int	* sector_sets_array;
+	int	*sector;
+	int	*title;
+	int	*title_sets_array;
+	int	*sector_sets_array;
 {
 	free(sector);
 	free(title);
@@ -117,7 +117,7 @@ DVDFreeFileSetArrays(sector, title, title_sets_array, sector_sets_array)
 
 EXPORT void
 DVDFreeFileSet(title_set_info)
-	title_set_info_t * title_set_info;
+	title_set_info_t *title_set_info;
 {
 	free(title_set_info->title_set);
 	free(title_set_info);
@@ -125,7 +125,7 @@ DVDFreeFileSet(title_set_info)
 
 EXPORT title_set_info_t *
 DVDGetFileSet(dvd)
-	char * dvd;
+	char	*dvd;
 {
 	/*
 	 * TODO  Fix close of files if
@@ -142,17 +142,17 @@ DVDGetFileSet(dvd)
 	int		i;
 
 	/* DVD file structures */
-	dvd_reader_t *	_dvd = NULL;
+	dvd_reader_t	*_dvd = NULL;
 
-	ifo_handle_t *	vmg_ifo = NULL;
-	ifo_handle_t *	vts_ifo = NULL;
+	ifo_handle_t	*vmg_ifo = NULL;
+	ifo_handle_t	*vts_ifo = NULL;
 
-	dvd_file_t   *	vmg_vob_file = NULL;
-	dvd_file_t   *	vmg_ifo_file = NULL;
+	dvd_file_t	*vmg_vob_file = NULL;
+	dvd_file_t	*vmg_ifo_file = NULL;
 
-	dvd_file_t   *	vts_ifo_file = NULL;
-	dvd_file_t   *	vts_menu_file = NULL;
-	dvd_file_t   * 	vts_title_file = NULL;
+	dvd_file_t	*vts_ifo_file = NULL;
+	dvd_file_t	*vts_menu_file = NULL;
+	dvd_file_t	*vts_title_file = NULL;
 
 	/* The sizes it self of each file */
 	int		ifo;
@@ -161,17 +161,17 @@ DVDGetFileSet(dvd)
 	int		title_vob;
 
 	/* Arrays keeping the title - filset relationship */
-	int		* sector;
-	int		* title;
-	int		* title_sets_array;
-	int		* sector_sets_array;
+	int		*sector;
+	int		*title;
+	int		*title_sets_array;
+	int		*sector_sets_array;
 
 	/* DVD Video files */
 	struct stat	fileinfo;
 	char		temppoint[PATH_MAX + 1];
 
 	/* The Title Set Info struct*/
-	title_set_info_t * title_set_info;
+	title_set_info_t *title_set_info;
 
 	/* Temporary mount point - to be used later */
 	char		mountpoint[PATH_MAX + 1];
@@ -646,8 +646,8 @@ DVDGetFileSet(dvd)
 
 EXPORT int
 DVDGetFilePad(title_set_info, name)
-	title_set_info_t * title_set_info;
-	char *  name;
+	title_set_info_t *title_set_info;
+	char	*name;
 {
 	char	title_a[3];
 	char	vob_a[2];

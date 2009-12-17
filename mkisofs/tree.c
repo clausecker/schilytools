@@ -1,8 +1,8 @@
-/* @(#)tree.c	1.119 09/10/11 joerg */
+/* @(#)tree.c	1.121 09/11/25 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)tree.c	1.119 09/10/11 joerg";
+	"@(#)tree.c	1.121 09/11/25 joerg";
 #endif
 /*
  * File tree.c - scan directory  tree and build memory structures for iso9660
@@ -54,14 +54,14 @@ LOCAL	Uchar	symlink_buff[PATH_MAX+1];
 
 LOCAL	char	*filetype		__PR((int t));
 LOCAL	char	*rstr			__PR((char *s1, char *s2));
-LOCAL	void	stat_fix		__PR((struct stat * st));
+LOCAL	void	stat_fix		__PR((struct stat *st));
 EXPORT	int	stat_filter		__PR((char *path, struct stat *st));
 EXPORT	int	lstat_filter		__PR((char *path, struct stat *st));
 LOCAL	int	sort_n_finish		__PR((struct directory *this_dir));
 LOCAL	void	generate_reloc_directory __PR((void));
-EXPORT	void	attach_dot_entries	__PR((struct directory * dirnode,
-						struct stat * this_stat,
-						struct stat * parent_stat));
+EXPORT	void	attach_dot_entries	__PR((struct directory *dirnode,
+						struct stat *this_stat,
+						struct stat *parent_stat));
 EXPORT	char	*find_rr_attribute	__PR((unsigned char *pnt, int len,
 						char *attr_type));
 EXPORT	void	finish_cl_pl_entries	__PR((void));
@@ -93,8 +93,8 @@ EXPORT	struct directory *
 						char *path,
 						struct directory_entry *de,
 						int flag));
-LOCAL	void	delete_directory	__PR((struct directory * parent,
-						struct directory * child));
+LOCAL	void	delete_directory	__PR((struct directory *parent,
+						struct directory *child));
 EXPORT	int	sort_tree		__PR((struct directory *node));
 EXPORT	void	dump_tree		__PR((struct directory *node));
 EXPORT	struct directory_entry *
@@ -170,11 +170,11 @@ rstr(s1, s2)
 	l1 = strlen(s1);
 	l2 = strlen(s2);
 	if (l2 > l1)
-		return ((char *) NULL);
+		return ((char *)NULL);
 
 	if (strcmp(&s1[l1 - l2], s2) == 0)
 		return (&s1[l1 - l2]);
-	return ((char *) NULL);
+	return ((char *)NULL);
 }
 
 LOCAL void
@@ -599,7 +599,7 @@ got_valid_name:
 		table->dev = UNCACHED_DEVICE;
 		set_723(table->isorec.volume_sequence_number,
 						volume_sequence_number);
-		set_733((char *) table->isorec.size, tablesize);
+		set_733((char *)table->isorec.size, tablesize);
 		table->size = tablesize;
 		table->filedir = this_dir;
 		if (jhide_trans_tbl)
@@ -615,7 +615,7 @@ got_valid_name:
 		 * we need to add one byte for the null character at the
 		 * end of the string even though we don't use it.
 		 */
-		table->table = (char *) e_malloc(ISO_ROUND_UP(tablesize)+1);
+		table->table = (char *)e_malloc(ISO_ROUND_UP(tablesize)+1);
 		memset(table->table, 0, ISO_ROUND_UP(tablesize)+1);
 		iso9660_file_length(trans_tbl, table, 0);
 
@@ -686,7 +686,7 @@ got_valid_name:
 	if (status > 0) {
 		errmsgno(EX_BAD, "Unable to sort directory %s\n",
 			this_dir->whole_name);
-		errmsgno(EX_BAD, 
+		errmsgno(EX_BAD,
 		"If there was more than one directory type argument to mkisofs\n");
 		comerrno(EX_BAD,
 		"use -graft-points to create different target directory names.\n");
@@ -791,7 +791,7 @@ got_valid_name:
 			 */
 			while (len > 3) {
 				if (pnt[0] == 'C' && pnt[1] == 'E') {
-					nbytes = get_733((char *) pnt + 20);
+					nbytes = get_733((char *)pnt + 20);
 
 					if ((this_dir->ce_bytes & (SECTOR_SIZE - 1)) + nbytes >=
 						SECTOR_SIZE)
@@ -1014,9 +1014,9 @@ find_rr_attribute(pnt, len, attr_type)
 				"**BAD RRVERSION (%d) in '%c%c' field (%2.2X %2.2X).\n",
 				pnt[3], pnt[0], pnt[1], pnt[0], pnt[1]);
 		}
-		if (strncmp((char *) pnt, attr_type, 2) == 0)
-			return ((char *) pnt);
-		else if (strncmp((char *) pnt, "ST", 2) == 0)
+		if (strncmp((char *)pnt, attr_type, 2) == 0)
+			return ((char *)pnt);
+		else if (strncmp((char *)pnt, "ST", 2) == 0)
 			return (NULL);
 		len -= pnt[2];
 		pnt += pnt[2];
@@ -1412,7 +1412,7 @@ dup_relocated_dir(this_dir, s_entry, whole_path, short_name, statp)
 
 	statp->st_size = (off_t)0;
 	statp->st_mode &= 0777;
-	set_733((char *) s_entry->isorec.size, 0);
+	set_733((char *)s_entry->isorec.size, 0);
 	s_entry->size = 0;
 	s_entry->isorec.flags[0] = ISO_FILE;
 	s_entry->inode = UNCACHED_INODE;
@@ -1666,7 +1666,7 @@ insert_file_entry(this_dir, whole_path, short_name, statp, have_rsrc)
 		!S_ISDIR(lstatbuf.st_mode)) {
 		fprintf(stderr,
 		"Unknown file type (%s) %s - ignoring and continuing.\n",
-			filetype((int) lstatbuf.st_mode), whole_path);
+			filetype((int)lstatbuf.st_mode), whole_path);
 		return (0);
 	}
 	/*
@@ -2034,7 +2034,7 @@ insert_file_entry(this_dir, whole_path, short_name, statp, have_rsrc)
 			s_entry->size = statbuf.st_size;
 		}
 
-		set_733((char *) s_entry->isorec.size, statbuf.st_size);
+		set_733((char *)s_entry->isorec.size, statbuf.st_size);
 	} else {
 		s_entry->isorec.flags[0] |= ISO_DIRECTORY;
 	}
@@ -2146,7 +2146,7 @@ insert_file_entry(this_dir, whole_path, short_name, statp, have_rsrc)
 		case S_IFLNK:
 #ifdef	HAVE_READLINK
 			nchar = readlink(statp?short_name:whole_path,
-				(char *) symlink_buff,
+				(char *)symlink_buff,
 				sizeof (symlink_buff)-1);
 			if (nchar < 0) {
 				errmsg("Cannot read link '%s'.\n",
@@ -2587,7 +2587,7 @@ find_or_create_directory(parent, path, de, flag)
 			/*
 			 * Get the Mac directory name
 			 */
-			get_hfs_dir((char *) path, (char *) pnt, de);
+			get_hfs_dir((char *)path, (char *)pnt, de);
 		}
 #endif	/* APPLE_HYB */
 	}
@@ -2595,7 +2595,7 @@ find_or_create_directory(parent, path, de, flag)
 	 * If we don't have a directory for this one yet, then allocate it now,
 	 * and patch it into the tree in the appropriate place.
 	 */
-	dpnt = (struct directory *) e_malloc(sizeof (struct directory));
+	dpnt = (struct directory *)e_malloc(sizeof (struct directory));
 	memset(dpnt, 0, sizeof (struct directory));
 	dpnt->next = NULL;
 	dpnt->subdir = NULL;
@@ -2728,7 +2728,7 @@ find_or_create_directory(parent, path, de, flag)
 			 * check for parent == NULL && path[0] == '\0'.
 			 */
 			generate_xa_rr_attributes("",
-				(char *) pnt, de,
+				(char *)pnt, de,
 				&fstatbuf,
 				&fstatbuf, deep_flag);
 		}

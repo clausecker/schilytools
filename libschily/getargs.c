@@ -1,8 +1,8 @@
-/* @(#)getargs.c	2.61 09/07/10 Copyright 1985, 1988, 1994-2009 J. Schilling */
+/* @(#)getargs.c	2.62 09/11/28 Copyright 1985, 1988, 1994-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)getargs.c	2.61 09/07/10 Copyright 1985, 1988, 1994-2009 J. Schilling";
+	"@(#)getargs.c	2.62 09/11/28 Copyright 1985, 1988, 1994-2009 J. Schilling";
 #endif
 #define	NEW
 /*
@@ -493,7 +493,6 @@ doflag(pac, pav, argp, vfmt, flags, oargs)
 {
 	register const char	*fmt = (const char *)vfmt;
 	struct ga_flags		*flagp = vfmt;
-	char	argstr[2];
 	const char	*fmtp;
 	long	val;
 	Llong	llval;
@@ -797,8 +796,6 @@ again:
 				goto nextchance;
 
 			fmtp = fmt;
-			argstr[0] = fmt[1];
-			argstr[1] = '\0';
 			if (fmt[1] == 'l' || fmt[1] == 'L') {
 				if (fmt[2] == 'l' || fmt[2] == 'L') {
 					if (flags & SETARGS)
@@ -844,8 +841,6 @@ again:
 				goto nextchance;
 
 			fmtp = fmt;
-			argstr[0] = fmt[1];
-			argstr[1] = '\0';
 			llval = (Llong)val;
 			if (fmt[1] == 'l' || fmt[1] == 'L') {
 				if (fmt[2] == 'l' || fmt[2] == 'L') {
@@ -911,8 +906,6 @@ again:
 				continue;
 			}
 			fmtp = fmt;
-			argstr[0] = fmt[1];
-			argstr[1] = '\0';
 			val = (long)llval;
 			if (fmt[1] == 'l' || fmt[1] == 'L') {
 				if (fmt[2] == 'l' || fmt[2] == 'L') {

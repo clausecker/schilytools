@@ -90,6 +90,7 @@
 ./psmake/include/schily/utsname.h
 ./psmake/include/schily/utypes.h
 ./psmake/include/schily/varargs.h
+./psmake/include/schily/vfork.h
 ./psmake/include/schily/wait.h
 ./psmake/include/schily/xconfig.h
 ./psmake/include/schily/xmconfig.h
@@ -217,6 +218,8 @@
 ./RULES/i586-ms-dos-gcc.rul
 ./RULES/i586-unixware-cc.rul
 ./RULES/i586-unixware-gcc.rul
+./RULES/i686-at386-gnu-cc.rul
+./RULES/i686-at386-gnu-gcc.rul
 ./RULES/i686-cygwin32_nt-cc.rul
 ./RULES/i686-cygwin32_nt-cl.rul
 ./RULES/i686-cygwin32_nt-cl64.rul
@@ -259,6 +262,20 @@
 ./RULES/ip32-irix-gcc.rul
 ./RULES/ip35-irix-cc.rul
 ./RULES/ip35-irix-gcc.rul
+./RULES/ip17-irix-cc64.rul
+./RULES/ip17-irix-gcc64.rul
+./RULES/ip20-irix-cc64.rul
+./RULES/ip20-irix-gcc64.rul
+./RULES/ip27-irix-cc64.rul
+./RULES/ip27-irix-gcc64.rul
+./RULES/ip28-irix-cc64.rul
+./RULES/ip28-irix-gcc64.rul
+./RULES/ip30-irix-cc64.rul
+./RULES/ip30-irix-gcc64.rul
+./RULES/ip32-irix-cc64.rul
+./RULES/ip32-irix-gcc64.rul
+./RULES/ip35-irix-cc64.rul
+./RULES/ip35-irix-gcc64.rul
 ./RULES/ldummy.lnk
 ./RULES/m68k-linux-cc.rul
 ./RULES/m68k-linux-gcc.rul

@@ -1,8 +1,8 @@
-/* @(#)star.c	1.323 09/07/11 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2009 J. Schilling */
+/* @(#)star.c	1.324 09/12/09 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)star.c	1.323 09/07/11 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2009 J. Schilling";
+	"@(#)star.c	1.324 09/12/09 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2009 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1985, 88-90, 92-96, 98, 99, 2000-2009 J. Schilling
@@ -103,7 +103,7 @@ LOCAL	void	docompat	__PR((int *pac, char *const **pav));
 #define	QIC_525_TSIZE	1025000		/* 512500 kBytes */
 #define	TSIZE(s)	((s)*TBLOCK)
 
-char	strvers[] = "1.5";		/* The pure version string	*/
+char	strvers[] = "1.5.1";		/* The pure version string	*/
 char	*vers;				/* the full version string	*/
 
 struct star_stats	xstats;		/* for printing statistics	*/

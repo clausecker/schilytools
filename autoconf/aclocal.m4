@@ -1,4 +1,4 @@
-dnl @(#)aclocal.m4	1.85 09/11/06 Copyright 1998-2009 J. Schilling
+dnl @(#)aclocal.m4	1.86 09/11/29 Copyright 1998-2009 J. Schilling
 
 dnl Set VARIABLE to VALUE in C-string form, verbatim, or 1.
 dnl AC_DEFINE_STRING(VARIABLE [, VALUE])
@@ -992,6 +992,29 @@ AC_DEFUN([AC_HEADER_SYS_SIGLIST_DEF],
                 [ac_cv_header_sys_siglist_def=no])])
 if test $ac_cv_header_sys_siglist_def = yes; then
   AC_DEFINE(HAVE_SYS_SIGLIST_DEF)
+fi])
+
+dnl Checks for extern timezone in time.h or sys/time.h
+dnl Defines HAVE_VAR_TIMEZONE_DEF on success.
+AC_DEFUN([AC_VAR_TIMEZONE_DEF],
+[AC_REQUIRE([AC_HEADER_TIME])dnl
+AC_CACHE_CHECK([for extern timezone in time.h or sys/time.h], ac_cv_var_timezone_def,
+                [AC_TRY_COMPILE([
+#include <sys/types.h>
+#ifdef	TIME_WITH_SYS_TIME_H
+#	include <sys/time.h>
+#	include <time.h>
+#else
+#ifdef	HAVE_SYS_TIME_H
+#	include <sys/time.h>
+#else
+#	include <time.h>
+#endif
+#endif], [timezone = 1;],
+                [ac_cv_var_timezone_def=yes],
+                [ac_cv_var_timezone_def=no])])
+if test $ac_cv_var_timezone_def = yes; then
+  AC_DEFINE(HAVE_VAR_TIMEZONE_DEF)
 fi])
 
 dnl Checks if extern long timezone exists in libc

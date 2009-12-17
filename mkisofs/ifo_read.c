@@ -1,8 +1,8 @@
-/* @(#)ifo_read.c	1.13 09/07/09 joerg */
+/* @(#)ifo_read.c	1.14 09/11/25 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)ifo_read.c	1.13 09/07/09 joerg";
+	"@(#)ifo_read.c	1.14 09/11/25 joerg";
 #endif
 /*
  * Copyright (C) 2002 Olaf Beck <olaf_sc@yahoo.com>
@@ -43,22 +43,22 @@ static	UConst char sccsid[] =
 #include "ifo_read.h"
 #include "bswap.h"
 
-LOCAL	ifo_handle_t *	ifoReadVTSI	__PR((int file, ifo_handle_t * ifofile));
-LOCAL	ifo_handle_t *	ifoReadVGMI	__PR((int file, ifo_handle_t * ifofile));
-EXPORT	ifo_handle_t *	ifoOpen		__PR((dvd_reader_t *dvd, int title));
+LOCAL	ifo_handle_t	*ifoReadVTSI	__PR((int file, ifo_handle_t *ifofile));
+LOCAL	ifo_handle_t	*ifoReadVGMI	__PR((int file, ifo_handle_t *ifofile));
+EXPORT	ifo_handle_t	*ifoOpen		__PR((dvd_reader_t *dvd, int title));
 LOCAL	void		ifoFree_TT_SRPT	__PR((ifo_handle_t *ifofile));
-EXPORT	void		ifoClose	__PR((ifo_handle_t * ifofile));
+EXPORT	void		ifoClose	__PR((ifo_handle_t *ifofile));
 
 
 LOCAL ifo_handle_t *
 ifoReadVTSI(file, ifofile)
 	int file;
-	ifo_handle_t * ifofile;
+	ifo_handle_t	*ifofile;
 {
 	off_t offset;
 	UInt32_t sector;
 
-	vtsi_mat_t * vtsi_mat;
+	vtsi_mat_t	*vtsi_mat;
 
 	/* Make the VMG part NULL */
 	ifofile->vmgi_mat = NULL;
@@ -164,7 +164,7 @@ ifoReadVTSI(file, ifofile)
 LOCAL ifo_handle_t *
 ifoReadVGMI(file, ifofile)
 	int file;
-	ifo_handle_t * ifofile;
+	ifo_handle_t	*ifofile;
 {
 	off_t	offset;
 	Uint	counter;
@@ -433,7 +433,7 @@ ifoFree_TT_SRPT(ifofile)
 
 EXPORT void
 ifoClose(ifofile)
-	ifo_handle_t * ifofile;
+	ifo_handle_t	*ifofile;
 {
 
 	if (!ifofile)

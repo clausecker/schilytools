@@ -1,7 +1,7 @@
-/* @(#)scsi-sgi.c	1.37 06/11/26 Copyright 1997 J. Schilling */
+/* @(#)scsi-sgi.c	1.38 09/11/28 Copyright 1997 J. Schilling */
 #ifndef lint
 static	char __sccsid[] =
-	"@(#)scsi-sgi.c	1.37 06/11/26 Copyright 1997 J. Schilling";
+	"@(#)scsi-sgi.c	1.38 09/11/28 Copyright 1997 J. Schilling";
 #endif
 /*
  *	Interface for the SGI generic SCSI implementation.
@@ -49,11 +49,11 @@ static	char __sccsid[] =
  *	Choose your name instead of "schily" and make clear that the version
  *	string is related to a modified source.
  */
-LOCAL	char	_scg_trans_version[] = "scsi-sgi.c-1.37";	/* The version for this transport*/
+LOCAL	char	_scg_trans_version[] = "scsi-sgi.c-1.38";	/* The version for this transport*/
 
 #ifdef	USE_DSLIB
 
-struct dsreq * dsp = 0;
+struct dsreq	*dsp = 0;
 #define	MAX_SCG		1	/* Max # of SCSI controllers */
 
 #else
@@ -386,9 +386,9 @@ scg_sendreq(scgp, sp, dsp)
 			__scg_times(scgp);
 
 			if (sp->cdb.g0_cdb.cmd == SC_TEST_UNIT_READY &&
-			    scgp->cmdstop->tv_sec < to.tv_sec ||
+			    (scgp->cmdstop->tv_sec < to.tv_sec ||
 			    (scgp->cmdstop->tv_sec == to.tv_sec &&
-				scgp->cmdstop->tv_usec < to.tv_usec)) {
+				scgp->cmdstop->tv_usec < to.tv_usec))) {
 
 				RET(dsp) = DSRT_NOSEL;
 				return (-1);
@@ -422,8 +422,6 @@ scgo_send(scgp)
 {
 	struct scg_cmd	*sp = scgp->scmd;
 	int	ret;
-	int	i;
-	int	amt = sp->cdb_len;
 	int flags;
 #ifndef	USE_DSLIB
 	struct dsreq	ds;

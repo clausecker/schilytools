@@ -1,8 +1,8 @@
-/* @(#)hash.c	1.26 09/07/09 joerg */
+/* @(#)hash.c	1.27 09/11/25 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)hash.c	1.26 09/07/09 joerg";
+	"@(#)hash.c	1.27 09/11/25 joerg";
 
 #endif
 /*
@@ -133,7 +133,7 @@ add_hash(spnt)
 	if (verbose > 1)
 		fprintf(stderr, "%s ", spnt->name);
 #endif
-	s_hash = (struct file_hash *) e_malloc(sizeof (struct file_hash));
+	s_hash = (struct file_hash *)e_malloc(sizeof (struct file_hash));
 	s_hash->next = hash_table[hash_number];
 	s_hash->inode = spnt->inode;
 	s_hash->dev = spnt->dev;
@@ -220,7 +220,7 @@ add_directory_hash(dev, inode)
 
 	hash_number = HASH_FN((unsigned int) dev, (unsigned int) inode);
 
-	s_hash = (struct file_hash *) e_malloc(sizeof (struct file_hash));
+	s_hash = (struct file_hash *)e_malloc(sizeof (struct file_hash));
 	s_hash->next = directory_hash_table[hash_number];
 	s_hash->inode = inode;
 	s_hash->dev = dev;
@@ -302,7 +302,7 @@ add_file_hash(de)
 	Uchar			*p;
 	int			sum = 0;
 
-	new = (struct name_hash *) e_malloc(sizeof (struct name_hash));
+	new = (struct name_hash *)e_malloc(sizeof (struct name_hash));
 	new->de = de;
 	new->next = NULL;
 	for (p = (Uchar *)de->isorec.name; *p; p++) {

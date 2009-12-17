@@ -1,4 +1,4 @@
-/* @(#)make.h	1.88 09/11/18 Copyright 1985, 87, 91, 1995-2009 J. Schilling */
+/* @(#)make.h	1.90 09/11/25 Copyright 1985, 87, 91, 1995-2009 J. Schilling */
 /*
  *	Definitions for make.
  *	Copyright (c) 1985, 87, 91, 1995-2009 by J. Schilling
@@ -196,6 +196,7 @@ extern	void	parsefile	__PR((void));
 extern	char	*get_var	__PR((char *name));
 extern	void	define_var	__PR((char *name, char *val));
 extern	list_t	*cvtvpath	__PR((list_t *l));
+extern	BOOL	is_inlist	__PR((char *objname, char *name));
 extern	BOOL	nowarn		__PR((char *name));
 extern	obj_t	*objlook	__PR((char * name, BOOL  create));
 extern	list_t	*objlist	__PR((char * name));
@@ -203,7 +204,7 @@ extern	obj_t	*ssufflook	__PR((char * name, BOOL  create));
 extern	BOOL	check_ssufftab	__PR((void));
 extern	void	printtree	__PR((void));
 #ifdef	EOF
-extern	void	probj		__PR((FILE *f, obj_t * o, int type));
+extern	void	probj		__PR((FILE *f, obj_t * o, int type, int dosuff));
 #endif
 extern	void	prtree		__PR((void));
 
@@ -271,7 +272,7 @@ extern	BOOL	SSuffrules;	/* Found any simple suffix rules	    */
 extern	obj_t	*Init;		/* .INIT: command to execute at startup	    */
 extern	obj_t	*Done;		/* .DONE: command do execute on success	    */
 extern	obj_t	*Failed;	/* .FAILED: command to execute on failure   */
-extern	obj_t	*IncludeFailed;	/* .INCLUDEFAILED: cmd to execute if missing */
+extern	obj_t	*IncludeFailed;	/* .INCLUDE_FAILED: cmd to execute if missing */
 extern	obj_t	*Deflt;		/* .DEFAULT: command to execute if no rule  */
 extern	obj_t	*Precious;	/* .PRECIOUS: list of targets not to remove */
 extern	obj_t	*Phony;		/* .PHONY: list of false targets, no check  */

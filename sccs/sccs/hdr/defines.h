@@ -27,10 +27,10 @@
 /*
  * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)defines.h	1.18 09/11/08 J. Schilling
+ * @(#)defines.h	1.19 09/11/29 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)defines.h 1.18 09/11/08 J. Schilling"
+#pragma ident "@(#)defines.h 1.19 09/11/29 J. Schilling"
 #endif
 /*
  * @(#)defines.h 1.21 06/12/12
@@ -60,7 +60,9 @@
 # include	<schily/time.h>
 
 #ifdef	HAVE_VAR_TIMEZONE
+#ifndef	HAVE_VAR_TIMEZONE_DEF		/* IRIX has extern time_t timezone */
 extern long timezone;
+#endif
 #else
 #define	timezone	xtimezone
 long	timezone;

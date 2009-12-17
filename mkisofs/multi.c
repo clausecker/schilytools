@@ -1,8 +1,8 @@
-/* @(#)multi.c	1.94 09/10/11 joerg */
+/* @(#)multi.c	1.95 09/11/25 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)multi.c	1.94 09/10/11 joerg";
+	"@(#)multi.c	1.95 09/11/25 joerg";
 #endif
 /*
  * File multi.c - scan existing iso9660 image and merge into
@@ -74,7 +74,7 @@ LOCAL	int	check_rr_dates	__PR((struct directory_entry *dpnt,
 LOCAL	struct directory_entry **
 		read_merging_directory __PR((struct iso_directory_record *, int *));
 LOCAL	int	free_mdinfo	__PR((struct directory_entry **, int len));
-LOCAL	void	free_directory_entry __PR((struct directory_entry * dirp));
+LOCAL	void	free_directory_entry __PR((struct directory_entry *dirp));
 LOCAL	int	iso_dir_ents	__PR((struct directory_entry *de));
 LOCAL	void	copy_mult_extent __PR((struct directory_entry *se1,
 					struct directory_entry *se2));
@@ -83,7 +83,7 @@ LOCAL	void	merge_remaining_entries __PR((struct directory *,
 
 LOCAL	int	merge_old_directory_into_tree __PR((struct directory_entry *,
 							struct directory *));
-LOCAL	void	check_rr_relocation __PR((struct directory_entry * de));
+LOCAL	void	check_rr_relocation __PR((struct directory_entry *de));
 
 FILE	*in_image = NULL;
 int	su_version = -1;
@@ -119,7 +119,7 @@ readsecs(startsecno, buffer, sectorcount)
 {
 	int		f = fileno(in_image);
 
-	if (lseek(f, (off_t) startsecno * SECTOR_SIZE, SEEK_SET) == (off_t) - 1) {
+	if (lseek(f, (off_t)startsecno * SECTOR_SIZE, SEEK_SET) == (off_t)-1) {
 		comerr(" Seek error on old image\n");
 	}
 	if (read(f, buffer, (sectorcount * SECTOR_SIZE))
@@ -285,28 +285,28 @@ parse_rrflags(pnt, len, cont_flag)
 		if (pnt[0] == 'R' && pnt[1] == 'R')
 			flag1 = pnt[4] & 0xff;
 
-		if (strncmp((char *) pnt, "PX", 2) == 0)	/* POSIX attributes */
+		if (strncmp((char *)pnt, "PX", 2) == 0)		/* POSIX attributes */
 			flag2 |= RR_FLAG_PX;
-		if (strncmp((char *) pnt, "PN", 2) == 0)	/* POSIX device number */
+		if (strncmp((char *)pnt, "PN", 2) == 0)		/* POSIX device number */
 			flag2 |= RR_FLAG_PN;
-		if (strncmp((char *) pnt, "SL", 2) == 0)	/* Symlink */
+		if (strncmp((char *)pnt, "SL", 2) == 0)		/* Symlink */
 			flag2 |= RR_FLAG_SL;
-		if (strncmp((char *) pnt, "NM", 2) == 0)	/* Alternate Name */
+		if (strncmp((char *)pnt, "NM", 2) == 0)		/* Alternate Name */
 			flag2 |= RR_FLAG_NM;
-		if (strncmp((char *) pnt, "CL", 2) == 0)	/* Child link */
+		if (strncmp((char *)pnt, "CL", 2) == 0)		/* Child link */
 			flag2 |= RR_FLAG_CL;
-		if (strncmp((char *) pnt, "PL", 2) == 0)	/* Parent link */
+		if (strncmp((char *)pnt, "PL", 2) == 0)		/* Parent link */
 			flag2 |= RR_FLAG_PL;
-		if (strncmp((char *) pnt, "RE", 2) == 0)	/* Relocated Direcotry */
+		if (strncmp((char *)pnt, "RE", 2) == 0)		/* Relocated Direcotry */
 			flag2 |= RR_FLAG_RE;
-		if (strncmp((char *) pnt, "TF", 2) == 0)	/* Time stamp */
+		if (strncmp((char *)pnt, "TF", 2) == 0)		/* Time stamp */
 			flag2 |= RR_FLAG_TF;
-		if (strncmp((char *) pnt, "SP", 2) == 0) {	/* SUSP record */
+		if (strncmp((char *)pnt, "SP", 2) == 0) {	/* SUSP record */
 			flag2 |= RR_FLAG_SP;
 			if (su_version < 0)
 				su_version = pnt[3] & 0xff;
 		}
-		if (strncmp((char *) pnt, "AA", 2) == 0) {	/* Apple Signature record */
+		if (strncmp((char *)pnt, "AA", 2) == 0) {	/* Apple Signature record */
 			flag2 |= RR_FLAG_AA;
 			if (aa_version < 0)
 				aa_version = pnt[3] & 0xff;
@@ -378,8 +378,8 @@ parse_rr(pnt, len, dpnt)
 				pnt[3], pnt[0], pnt[1], pnt[0], pnt[1]);
 			return (-1);
 		}
-		if (strncmp((char *) pnt, "NM", 2) == 0) {
-			strncpy(name_buf, (char *) pnt + 5, pnt[2] - 5);
+		if (strncmp((char *)pnt, "NM", 2) == 0) {
+			strncpy(name_buf, (char *)pnt + 5, pnt[2] - 5);
 			name_buf[pnt[2] - 5] = 0;
 			if (dpnt->name) {
 				size_t nlen = strlen(dpnt->name);
@@ -395,11 +395,11 @@ parse_rr(pnt, len, dpnt)
 				dpnt->got_rr_name = 1;
 			}
 			/* continue searching for more NM records */
-		} else if (strncmp((char *) pnt, "CE", 2) == 0) {
+		} else if (strncmp((char *)pnt, "CE", 2) == 0) {
 			cont_extent = get_733(pnt + 4);
 			cont_offset = get_733(pnt + 12);
 			cont_size = get_733(pnt + 20);
-		} else if (strncmp((char *) pnt, "ST", 2) == 0) {
+		} else if (strncmp((char *)pnt, "ST", 2) == 0) {
 			break;
 		}
 
@@ -476,31 +476,31 @@ check_rr_dates(dpnt, current, statbuf, lstatbuf)
 		 * the same.  If it isn't, then we must always write the new
 		 * file.
 		 */
-		if (strncmp((char *) pnt, "PX", 2) == 0) {
+		if (strncmp((char *)pnt, "PX", 2) == 0) {
 			mode = get_733(pnt + 4);
 			if ((lstatbuf->st_mode & S_IFMT) != (mode & S_IFMT)) {
 				same_file_type = 0;
 				same_file = 0;
 			}
 		}
-		if (strncmp((char *) pnt, "TF", 2) == 0) {
+		if (strncmp((char *)pnt, "TF", 2) == 0) {
 			offset = 5;
 			if (pnt[4] & TF_CREATE) {
-				iso9660_date((char *) time_buf,
+				iso9660_date((char *)time_buf,
 							lstatbuf->st_ctime);
 				if (memcmp(time_buf, pnt + offset, 7) != 0)
 					same_file = 0;
 				offset += 7;
 			}
 			if (pnt[4] & TF_MODIFY) {
-				iso9660_date((char *) time_buf,
+				iso9660_date((char *)time_buf,
 							lstatbuf->st_mtime);
 				if (memcmp(time_buf, pnt + offset, 7) != 0)
 					same_file = 0;
 				offset += 7;
 			}
 		}
-		if (strncmp((char *) pnt, "CE", 2) == 0) {
+		if (strncmp((char *)pnt, "CE", 2) == 0) {
 			cont_extent = get_733(pnt + 4);
 			cont_offset = get_733(pnt + 12);
 			cont_size = get_733(pnt + 20);
@@ -578,7 +578,7 @@ read_merging_directory(mrootp, nentp)
 	 * First, allocate a buffer large enough to read in the entire
 	 * directory.
 	 */
-	dirbuff = (char *) e_malloc(nbytes);
+	dirbuff = (char *)e_malloc(nbytes);
 
 	readsecs(get_733(mrootp->extent), dirbuff, nbytes / SECTOR_SIZE);
 
@@ -592,7 +592,7 @@ read_merging_directory(mrootp, nentp)
 	nmult = 0;
 	mx = 0;
 	while (i < len) {
-		idr = (struct iso_directory_record *) & dirbuff[i];
+		idr = (struct iso_directory_record *)&dirbuff[i];
 		if (idr->length[0] == 0) {
 			i = ISO_ROUND_UP(i);
 			continue;
@@ -611,7 +611,7 @@ read_merging_directory(mrootp, nentp)
 	 * return. We need one entry per real directory entry and in addition
 	 * one multi-extent root entry per multi-extent file.
 	 */
-	rtn = (struct directory_entry **) e_malloc((nent+nmult) * sizeof (*rtn));
+	rtn = (struct directory_entry **)e_malloc((nent+nmult) * sizeof (*rtn));
 
 	/*
 	 * Finally, scan the directory one last time, and pick out the relevant
@@ -625,7 +625,7 @@ read_merging_directory(mrootp, nentp)
 	tt_size = 0;
 	mx = 0;
 	while (i < len) {
-		idr = (struct iso_directory_record *) & dirbuff[i];
+		idr = (struct iso_directory_record *)&dirbuff[i];
 		if ((i + (idr->length[0] & 0xFF)) > len) {
 			comerrno(EX_BAD, "Bad directory length for '%.*s'.\n",
 					idr->name_len[0] & 0xFF, idr->name);
@@ -634,7 +634,7 @@ read_merging_directory(mrootp, nentp)
 			i = ISO_ROUND_UP(i);
 			continue;
 		}
-		*pnt = (struct directory_entry *) e_malloc(sizeof (**rtn));
+		*pnt = (struct directory_entry *)e_malloc(sizeof (**rtn));
 		(*pnt)->next = NULL;
 #ifdef	DEBUG
 		error("IDR name: '%s' ist: %d soll: %d\n",
@@ -790,7 +790,7 @@ read_merging_directory(mrootp, nentp)
 			 * Sum up the total file size for the multi extent file
 			 */
 			while (i2 < len) {
-				idr2 = (struct iso_directory_record *) &dirbuff[i2];
+				idr2 = (struct iso_directory_record *)&dirbuff[i2];
 				if (idr2->length[0] == 0) {
 					i2 = ISO_ROUND_UP(i2);
 					continue;
@@ -916,7 +916,7 @@ read_merging_directory(mrootp, nentp)
 				 * Now actually compare the name, and make sure
 				 * that the character at the end is a ' '.
 				 */
-				if (strncmp((char *) cpnt + 2,
+				if (strncmp((char *)cpnt + 2,
 					(*pnt)->isorec.name, rlen) == 0 &&
 					cpnt[2 + rlen] == ' ' &&
 					(p = strchr((char *)&cpnt[2 + rlen], '\t'))) {
@@ -1230,7 +1230,7 @@ copy_mult_extent(se1, se2)
 
 		sex = se1->next;
 		se1->next = sex->next;
-		free(sex);	
+		free(sex);
 		len1--;
 	}
 }
@@ -1299,7 +1299,7 @@ merge_isofs(path)
 				sizeof (buffer) / SECTOR_SIZE) != sizeof (buffer)) {
 			comerr(" Read error on old image %s\n", path);
 		}
-		vdp = (struct iso_volume_descriptor *) buffer;
+		vdp = (struct iso_volume_descriptor *)buffer;
 
 		if ((strncmp(vdp->id, ISO_STANDARD_ID, sizeof (vdp->id)) == 0) &&
 		    (get_711(vdp->type) == ISO_VD_PRIMARY)) {
@@ -1314,7 +1314,7 @@ merge_isofs(path)
 	for (i = 0; i < 2048-3; i++) {
 		sum += p[i] & 0xFF;
 	}
-	pri = (struct iso_primary_descriptor *) vdp;
+	pri = (struct iso_primary_descriptor *)vdp;
 
 	/* Check the blocksize of the image to make sure it is compatible. */
 	if (get_723(pri->logical_block_size) != SECTOR_SIZE) {
@@ -1506,7 +1506,7 @@ merge_old_directory_into_tree(dpnt, parent)
 			*next_brother;
 	char		whole_path[PATH_MAX];
 
-	this_dir = (struct directory *) e_malloc(sizeof (struct directory));
+	this_dir = (struct directory *)e_malloc(sizeof (struct directory));
 	memset(this_dir, 0, sizeof (struct directory));
 	this_dir->next = NULL;
 	this_dir->subdir = NULL;
@@ -1950,7 +1950,7 @@ check_rr_relocation(de)
 				"**BAD RRVERSION (%d) in '%c%c' field (%2.2X %2.2X).\n",
 				pnt[3], pnt[0], pnt[1], pnt[0], pnt[1]);
 		}
-		if (strncmp((char *) pnt, "CL", 2) == 0) {
+		if (strncmp((char *)pnt, "CL", 2) == 0) {
 			struct dir_extent_link *dlink = e_malloc(sizeof (*dlink));
 
 			dlink->extent = get_733(pnt + 4);
@@ -1958,7 +1958,7 @@ check_rr_relocation(de)
 			dlink->next = cl_dirs;
 			cl_dirs = dlink;
 
-		} else if (strncmp((char *) pnt, "RE", 2) == 0) {
+		} else if (strncmp((char *)pnt, "RE", 2) == 0) {
 			struct dir_extent_link *dlink = e_malloc(sizeof (*dlink));
 
 			dlink->extent = de->starting_block;
@@ -1966,12 +1966,12 @@ check_rr_relocation(de)
 			dlink->next = re_dirs;
 			re_dirs = dlink;
 
-		} else if (strncmp((char *) pnt, "CE", 2) == 0) {
+		} else if (strncmp((char *)pnt, "CE", 2) == 0) {
 			cont_extent = get_733(pnt + 4);
 			cont_offset = get_733(pnt + 12);
 			cont_size = get_733(pnt + 20);
 
-		} else if (strncmp((char *) pnt, "ST", 2) == 0) {
+		} else if (strncmp((char *)pnt, "ST", 2) == 0) {
 			len = pnt[2];
 		}
 		len -= pnt[2];

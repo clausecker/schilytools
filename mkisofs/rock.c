@@ -1,8 +1,8 @@
-/* @(#)rock.c	1.61 09/10/08 joerg */
+/* @(#)rock.c	1.62 09/11/25 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)rock.c	1.61 09/10/08 joerg";
+	"@(#)rock.c	1.62 09/11/25 joerg";
 #endif
 /*
  * File rock.c - generate RRIP  records for iso9660 filesystems.
@@ -68,11 +68,11 @@ LOCAL	int	gen_xa_attr			__PR((mode_t attr));
 LOCAL	void	gen_xa				__PR((struct stat *lstatbuf));
 EXPORT	int	generate_xa_rr_attributes	__PR((char *whole_name,
 							char *name,
-							struct directory_entry * s_entry,
-							struct stat * statbuf,
-							struct stat * lstatbuf,
+							struct directory_entry *s_entry,
+							struct stat *statbuf,
+							struct stat *lstatbuf,
 							int deep_opt));
-	char *	generate_rr_extension_record	__PR((char *id,
+	char	*generate_rr_extension_record	__PR((char *id,
 							char *descriptor,
 							char *source,
 							int *size));
@@ -138,16 +138,16 @@ add_CE_entry(field, line)
 	}
 
 	if (recstart)
-		set_733((char *) Rock + recstart - 8, ipnt + 28 - recstart);
+		set_733((char *)Rock + recstart - 8, ipnt + 28 - recstart);
 	Rock[ipnt++] = 'C';
 	Rock[ipnt++] = 'E';
 	Rock[ipnt++] = CE_SIZE;
 	Rock[ipnt++] = SU_VERSION;
-	set_733((char *) Rock + ipnt, 0);
+	set_733((char *)Rock + ipnt, 0);
 	ipnt += 8;
-	set_733((char *) Rock + ipnt, 0);
+	set_733((char *)Rock + ipnt, 0);
 	ipnt += 8;
-	set_733((char *) Rock + ipnt, 0);
+	set_733((char *)Rock + ipnt, 0);
 	ipnt += 8;
 	recstart = ipnt;
 	currlen = 0;
@@ -197,17 +197,17 @@ gen_xa(lstatbuf)
 		/*
 		 * Group ID
 		 */
-		set_722((char *) Rock + ipnt, lstatbuf->st_gid);
+		set_722((char *)Rock + ipnt, lstatbuf->st_gid);
 		ipnt += 2;
 		/*
 		 * User ID
 		 */
-		set_722((char *) Rock + ipnt, lstatbuf->st_uid);
+		set_722((char *)Rock + ipnt, lstatbuf->st_uid);
 		ipnt += 2;
 		/*
 		 * Attributes
 		 */
-		set_722((char *) Rock + ipnt, gen_xa_attr(lstatbuf->st_mode));
+		set_722((char *)Rock + ipnt, gen_xa_attr(lstatbuf->st_mode));
 		ipnt += 2;
 
 		Rock[ipnt++] = 'X';	/* XA Signature */
@@ -225,9 +225,9 @@ gen_xa(lstatbuf)
 #ifdef PROTOTYPES
 EXPORT int
 generate_xa_rr_attributes(char *whole_name, char *name,
-			struct directory_entry * s_entry,
-			struct stat * statbuf,
-			struct stat * lstatbuf,
+			struct directory_entry *s_entry,
+			struct stat *statbuf,
+			struct stat *lstatbuf,
 			int deep_opt)
 #else
 EXPORT int
@@ -401,11 +401,11 @@ generate_xa_rr_attributes(whole_name, name,
 			 */
 #ifdef APPLE_HYB
 			if (USE_MAC_NAME(s_entry))
-				rstrncpy((char *) &Rock[ipnt], npnt, use,
+				rstrncpy((char *)&Rock[ipnt], npnt, use,
 							hfs_inls, out_nls);
 			else
 #endif	/* APPLE_HYB */
-				rstrncpy((char *) &Rock[ipnt], npnt, use,
+				rstrncpy((char *)&Rock[ipnt], npnt, use,
 							in_nls, out_nls);
 			npnt += use;
 			ipnt += use;
@@ -427,20 +427,20 @@ generate_xa_rr_attributes(whole_name, name,
 	}
 	Rock[ipnt++] = SU_VERSION;
 	flagval |= (1 << 0);
-	set_733((char *) Rock + ipnt, lstatbuf->st_mode);
+	set_733((char *)Rock + ipnt, lstatbuf->st_mode);
 	ipnt += 8;
-	set_733((char *) Rock + ipnt, lstatbuf->st_nlink);
+	set_733((char *)Rock + ipnt, lstatbuf->st_nlink);
 	ipnt += 8;
-	set_733((char *) Rock + ipnt, lstatbuf->st_uid);
+	set_733((char *)Rock + ipnt, lstatbuf->st_uid);
 	ipnt += 8;
-	set_733((char *) Rock + ipnt, lstatbuf->st_gid);
+	set_733((char *)Rock + ipnt, lstatbuf->st_gid);
 	ipnt += 8;
 	if (rrip112) {
 		/*
 		 * We will set up correct inode numbers later
 		 * after we did assign them.
 		 */
-		set_733((char *) Rock + ipnt, 0);
+		set_733((char *)Rock + ipnt, 0);
 		ipnt += 8;
 	}
 
@@ -462,9 +462,9 @@ generate_xa_rr_attributes(whole_name, name,
 		flagval |= (1 << 1);
 #if 1
 		/* This is the new and only code which uses <schily/device.h> */
-		set_733((char *) Rock + ipnt, major(lstatbuf->st_rdev));
+		set_733((char *)Rock + ipnt, major(lstatbuf->st_rdev));
 		ipnt += 8;
-		set_733((char *) Rock + ipnt, minor(lstatbuf->st_rdev));
+		set_733((char *)Rock + ipnt, minor(lstatbuf->st_rdev));
 		ipnt += 8;
 #else
 		/*
@@ -519,7 +519,7 @@ generate_xa_rr_attributes(whole_name, name,
 		nchar = -1;
 #endif	/* HAVE_READLINK */
 		symlink_buff[nchar < 0 ? 0 : nchar] = 0;
-		nchar = strlen((char *) symlink_buff);
+		nchar = strlen((char *)symlink_buff);
 		set_733(s_entry->isorec.size, 0);
 		cpnt = &symlink_buff[0];
 		flagval |= (1 << 2);
@@ -634,7 +634,7 @@ generate_xa_rr_attributes(whole_name, name,
 					 */
 					if (split_SL_component ?
 						MAYBE_ADD_CE_ENTRY(6) :
-						MAYBE_ADD_CE_ENTRY(6 + strlen((char *) cpnt))) {
+						MAYBE_ADD_CE_ENTRY(6 + strlen((char *)cpnt))) {
 						add_CE_entry("SL++", __LINE__);
 						if (cpnt1) {
 							*cpnt1 = '/';
@@ -647,7 +647,7 @@ generate_xa_rr_attributes(whole_name, name,
 						}
 						break;
 					}
-					j0 = strlen((char *) cpnt);
+					j0 = strlen((char *)cpnt);
 					while (j0) {
 						j1 = j0;
 						if (j1 > 0xf8)
@@ -668,7 +668,7 @@ generate_xa_rr_attributes(whole_name, name,
 							SL_CONTINUE : 0);
 						Rock[ipnt++] = j1;
 						strncpy((char *)Rock + ipnt,
-							(char *) cpnt, j1);
+							(char *)cpnt, j1);
 						ipnt += j1;
 						lenval += j1 + 2;
 						cpnt += j1;
@@ -731,14 +731,14 @@ generate_xa_rr_attributes(whole_name, name,
 	flagval |= (1 << 7);
 
 #if defined(__QNX__) && !defined(__QNXNTO__)	/* Not on Neutrino! never OK? */
-	iso9660_date((char *) &Rock[ipnt], lstatbuf->st_ftime);
+	iso9660_date((char *)&Rock[ipnt], lstatbuf->st_ftime);
 	ipnt += 7;
 #endif
-	iso9660_date((char *) &Rock[ipnt], lstatbuf->st_mtime);
+	iso9660_date((char *)&Rock[ipnt], lstatbuf->st_mtime);
 	ipnt += 7;
-	iso9660_date((char *) &Rock[ipnt], lstatbuf->st_atime);
+	iso9660_date((char *)&Rock[ipnt], lstatbuf->st_atime);
 	ipnt += 7;
-	iso9660_date((char *) &Rock[ipnt], lstatbuf->st_ctime);
+	iso9660_date((char *)&Rock[ipnt], lstatbuf->st_ctime);
 	ipnt += 7;
 
 	/* Add in the Rock Ridge RE (relocated dir) field */
@@ -759,7 +759,7 @@ generate_xa_rr_attributes(whole_name, name,
 		Rock[ipnt++] = 'L';
 		Rock[ipnt++] = PL_SIZE;
 		Rock[ipnt++] = SU_VERSION;
-		set_733((char *) Rock + ipnt, 0);
+		set_733((char *)Rock + ipnt, 0);
 		ipnt += 8;
 		flagval |= (1 << 5);
 	}
@@ -772,7 +772,7 @@ generate_xa_rr_attributes(whole_name, name,
 		Rock[ipnt++] = 'L';
 		Rock[ipnt++] = CL_SIZE;
 		Rock[ipnt++] = SU_VERSION;
-		set_733((char *) Rock + ipnt, 0);
+		set_733((char *)Rock + ipnt, 0);
 		ipnt += 8;
 		flagval |= (1 << 4);
 	}
@@ -843,7 +843,7 @@ generate_xa_rr_attributes(whole_name, name,
 			/* 2 bytes for algorithm-specific information */
 			Rock[ipnt++] = headersize;
 			Rock[ipnt++] = blocksize;
-			set_733((char *) Rock + ipnt, file_size); /* Real file size */
+			set_733((char *)Rock + ipnt, file_size); /* Real file size */
 			ipnt += 8;
 		}
 	}
@@ -864,7 +864,7 @@ generate_xa_rr_attributes(whole_name, name,
 
 	/* If there was a CE, fill in the size field */
 	if (recstart)
-		set_733((char *) Rock + recstart - 8, ipnt - recstart);
+		set_733((char *)Rock + recstart - 8, ipnt - recstart);
 
 xa_only:
 	s_entry->rr_attributes = (Uchar *) e_malloc(ipnt);
@@ -914,7 +914,7 @@ generate_rr_extension_record(id, descriptor, source, size)
 	if (lipnt > SECTOR_SIZE) {
 		comerrno(EX_BAD, "Extension record too long\n");
 	}
-	pnt = (char *) e_malloc(SECTOR_SIZE);
+	pnt = (char *)e_malloc(SECTOR_SIZE);
 	memset(pnt, 0, SECTOR_SIZE);
 	memcpy(pnt, Rock, lipnt);
 	*size = lipnt;

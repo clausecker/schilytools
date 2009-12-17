@@ -1,8 +1,8 @@
-/* @(#)make.c	1.169 09/11/19 Copyright 1985, 87, 88, 91, 1995-2009 J. Schilling */
+/* @(#)make.c	1.177 09/12/14 Copyright 1985, 87, 88, 91, 1995-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)make.c	1.169 09/11/19 Copyright 1985, 87, 88, 91, 1995-2009 J. Schilling";
+	"@(#)make.c	1.177 09/12/14 Copyright 1985, 87, 88, 91, 1995-2009 J. Schilling";
 #endif
 /*
  *	Make program
@@ -43,7 +43,7 @@ static	UConst char sccsid[] =
 
 #include "make.h"
 
-char	make_version[] = "1.2a47";
+char	make_version[] = "1.2";
 
 #ifdef	NO_DEFAULTS_PATH
 #undef	DEFAULTS_PATH
@@ -175,21 +175,25 @@ date_t	curtime;		/* Current time				    */
 date_t	newtime;		/* Special time newer than all		    */
 
 /*
- * POSIX requieres commands to be executed via 'sh -c command' which is
- * wrong as it causes make not to stop on errors if called with complex
- * commands (e.g. commands that contain loops or a ';').
+ * Older POSIX versions requiere commands to be executed via 'sh -c command'
+ * which is wrong as it causes make not to stop on errors if called with
+ * complex commands (e.g. commands that contain loops or a ';').
+ * Fortunately, POSIX.1-2008 changed this back to 'sh -ce command'.
  *
  * We used to call /bin/sh -ce 'cmd' in former times which was correct,
  * but we got (unfortunately undocumented) problems on QNX and we changed
  * it to sh -c 'cmd' on 00/11/19. In hope that newer versions of QNX have
  * no problems with sh -ce, we changed it back on May 9th 2004.
  *
- * The solution to implement POSIX compatibility without making smake
+ * The solution to implement old POSIX compatibility without making smake
  * unusable is to also set "MAKE_SHELL_FLAG=-ce" in the makefile together
  * with .POSIX:
- * We should also try to send a bug report against the POSIX standard.
  */
+#ifdef	OLD_POSIX
 #define	POSIX_SHELL_CEFLAG	"-c"	/* Does not work correctly	*/
+#else
+#define	POSIX_SHELL_CEFLAG	"-ce"	/* New correct behavior		*/
+#endif
 #define	SHELL_CEFLAG		"-ce"	/* Needed for correct behavior	*/
 #define	SHELL_CFLAG		"-c"	/* Used with make -i		*/
 
@@ -375,6 +379,22 @@ read_makefiles()
 
 	Mfileindex = MF_IDX_MAKEFILE;	/* Index 2 Default Makefile */
 	if (Mfilecount == MF_IDX_MAKEFILE) {
+		if (posixmode) {
+			/*
+			 * First look for "makefile"
+			 * then for "Makefile", then for "SMakefile".
+			 */
+			if (gftime(_makefile) != 0) {		/* "makefile" */
+				Mfilecount++;
+				MakeFileNames[2] = _makefile;
+			} else if (gftime(Makefile) != 0) {	/* "Makefile" */
+				Mfilecount++;
+				MakeFileNames[2] = Makefile;
+			} else if (gftime(SMakefile) != 0) {	/* "SMakefile" */
+				Mfilecount++;
+				MakeFileNames[2] = SMakefile;
+			}
+		} else
 		/*
 		 * First look for "SMakefile",
 		 * then for "Makefile", then for "makefile"
@@ -486,9 +506,16 @@ setup_dotvars()
 		SearchList = cvtvpath(obj->o_list);
 	}
 
-	if (objlook(".IGNORE", FALSE))
+	obj = objlook(".IGNORE", FALSE);
+	if (obj != NULL && obj->o_type != ':')	/* Must be a special target */
+		obj = NULL;
+	if (obj != NULL && obj->o_list == NULL)
 		Iflag = TRUE;
-	if (objlook(".SILENT", FALSE))
+
+	obj = objlook(".SILENT", FALSE);
+	if (obj != NULL && obj->o_type != ':')	/* Must be a special target */
+		obj = NULL;
+	if (obj != NULL && obj->o_list == NULL)
 		Sflag = TRUE;
 
 	Init = objlook(".INIT", FALSE);
@@ -530,6 +557,7 @@ setup_vars()
 	char	*p;
 
 	define_var("$", "$");			/* Really needed ? */
+	define_var("NUMBER_SIGN", "#");		/* Allow to use '#' */
 	define_var("MAKE_NAME", "smake");	/* Needed to identify syntax */
 	define_var("MAKE_VERSION", make_version); /* Version dependant files? */
 	if ((p = getenv(Make_Level)) != NULL) {
@@ -1186,6 +1214,10 @@ getmakeflags()
 			Nflag = TRUE;
 			break;
 
+		case 'P':		/* POSIX mode */
+			posixmode = TRUE;
+			break;
+
 		case 'p':		/* Print macros/targets */
 			Print = TRUE;
 			break;
@@ -1344,10 +1376,10 @@ setmakeflags()
 		/*
 		 * MAKEFLAGS=-	12 bytes incl '\0'
 		 * 3 x 8 bytes=	24 bytes
-		 * 12 flags	12 bytes
+		 * 15 flags	15 bytes
 		 * '-- '	 3 bytes
 		 * =====================
-		 *		51 bytes
+		 *		54 bytes
 		 */
 #define	MAKEENV_SIZE_STATIC	64
 static	char	makeenv[MAKEENV_SIZE_STATIC];
@@ -1387,6 +1419,8 @@ static	char	makeenv[MAKEENV_SIZE_STATIC];
 		*p++ = 'N';
 	if (Nflag)		/* Do not exec any commands */
 		*p++ = 'n';
+	if (posixmode)		/* POSIX mode */
+		*p++ = 'P';
 	if (Print)		/* Print macros/targets */
 		*p++ = 'p';
 	if (Qflag)		/* Question */
@@ -1584,6 +1618,10 @@ docmd(cmd, obj)
 	}
 	if (foundplus)
 		Silent = FALSE;
+	else if (!Silent && is_inlist(".SILENT", obj->o_name))
+		Silent = TRUE;
+	if (!NoError && is_inlist(".IGNORE", obj->o_name))
+		NoError = TRUE;
 
 	if (!Silent || NoExec || Debug > 0) {
 /*		error("...%s\n", cmd);*/
@@ -2126,6 +2164,8 @@ handler(signo)
 	 * Keine Bibliotheken
 	 * Kein -t, -q etc.
 	 */
+	if (Tflag || Print || Qflag || Nflag)
+		goto out;
 	if (isprecious(curtarget))
 		goto out;
 	if (isphony(curtarget))

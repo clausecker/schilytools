@@ -1,8 +1,8 @@
-/* @(#)mac_label.c	1.17 09/07/09 joerg, Copyright 1997, 1998, 1999, 2000 James Pearson, Copyright 2004-2009 J. Schilling */
+/* @(#)mac_label.c	1.18 09/11/25 joerg, Copyright 1997-2000 James Pearson, Copyright 2004-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)mac_label.c	1.17 09/07/09 joerg, Copyright 1997, 1998, 1999, 2000 James Pearson, Copyright 2004-2009 J. Schilling";
+	"@(#)mac_label.c	1.18 09/11/25 joerg, Copyright 1997-2000 James Pearson, Copyright 2004-2009 J. Schilling";
 #endif
 /*
  *      Copyright (c) 1997, 1998, 1999, 2000 James Pearson
@@ -161,7 +161,7 @@ gen_mac_label(mac_boot)
 	FILE		*fp;
 	MacLabel	*mac_label;
 	MacPart		*mac_part;
-	char		*buffer = (char *) hce->hfs_map;
+	char		*buffer = (char *)hce->hfs_map;
 	int		block_size;
 	int		have_hfs_boot = 0;
 	char		tmp[SECTOR_SIZE];
@@ -188,10 +188,10 @@ gen_mac_label(mac_boot)
 			return (-1);
 		}
 		/* check we have a bootable partition */
-		mac_part = (MacPart *) (tmp + HFS_BLOCKSZ);
+		mac_part = (MacPart *)(tmp + HFS_BLOCKSZ);
 
 		if (!(IS_MAC_PART(mac_part) &&
-		    strncmp((char *) mac_part->pmPartType, pmPartType_2, 12) == 0)) {
+		    strncmp((char *)mac_part->pmPartType, pmPartType_2, 12) == 0)) {
 			sprintf(hce->error, "%s is not a HFS boot file",
 								mac_boot->name);
 			return (-1);
@@ -212,7 +212,7 @@ gen_mac_label(mac_boot)
 		fclose(fp);
 
 		/* check boot block is valid */
-		if (d_getw((unsigned char *) hce->hfs_hdr) != HFS_BB_SIGWORD) {
+		if (d_getw((unsigned char *)hce->hfs_hdr) != HFS_BB_SIGWORD) {
 			sprintf(hce->error,
 				"%s does not contain a valid boot block",
 								mac_boot->name);
@@ -233,7 +233,7 @@ gen_mac_label(mac_boot)
 		mpm[mpc].size = ISO_BLOCKS(mac_boot->size);
 
 		mpm[mpc].ntype = PM2;
-		mpm[mpc].type = (char *) mac_part->pmPartType;
+		mpm[mpc].type = (char *)mac_part->pmPartType;
 		mpm[mpc].start = mac_boot->extent = last_extent;
 		mpm[mpc].name = 0;
 
@@ -265,61 +265,61 @@ gen_mac_label(mac_boot)
 	block_size = have_hfs_boot ? SECTOR_SIZE : HFS_BLOCKSZ;
 
 	/* create the CD label */
-	mac_label = (MacLabel *) buffer;
+	mac_label = (MacLabel *)buffer;
 	mac_label->sbSig[0] = 'E';
 	mac_label->sbSig[1] = 'R';
-	set_722((char *) mac_label->sbBlkSize, block_size);
-	set_732((char *) mac_label->sbBlkCount,
+	set_722((char *)mac_label->sbBlkSize, block_size);
+	set_732((char *)mac_label->sbBlkCount,
 				last_extent * (SECTOR_SIZE / block_size));
-	set_722((char *) mac_label->sbDevType, 1);
-	set_722((char *) mac_label->sbDevId, 1);
+	set_722((char *)mac_label->sbDevType, 1);
+	set_722((char *)mac_label->sbDevId, 1);
 
 	/* create the partition map entry */
-	mac_part = (MacPart *) (buffer + block_size);
+	mac_part = (MacPart *)(buffer + block_size);
 	mac_part->pmSig[0] = 'P';
 	mac_part->pmSig[1] = 'M';
-	set_732((char *) mac_part->pmMapBlkCnt, mpc + 1);
-	set_732((char *) mac_part->pmPyPartStart, 1);
-	set_732((char *) mac_part->pmPartBlkCnt, mpc + 1);
-	strncpy((char *) mac_part->pmPartName, "Apple",
+	set_732((char *)mac_part->pmMapBlkCnt, mpc + 1);
+	set_732((char *)mac_part->pmPyPartStart, 1);
+	set_732((char *)mac_part->pmPartBlkCnt, mpc + 1);
+	strncpy((char *)mac_part->pmPartName, "Apple",
 						sizeof (mac_part->pmPartName));
-	strncpy((char *) mac_part->pmPartType, "Apple_partition_map",
+	strncpy((char *)mac_part->pmPartType, "Apple_partition_map",
 						sizeof (mac_part->pmPartType));
-	set_732((char *) mac_part->pmLgDataStart, 0);
-	set_732((char *) mac_part->pmDataCnt, mpc + 1);
-	set_732((char *) mac_part->pmPartStatus, PM_STAT_DEFAULT);
+	set_732((char *)mac_part->pmLgDataStart, 0);
+	set_732((char *)mac_part->pmDataCnt, mpc + 1);
+	set_732((char *)mac_part->pmPartStatus, PM_STAT_DEFAULT);
 
 	/* create partition map entries for our partitions */
 	for (i = 0; i < mpc; i++) {
-		mac_part = (MacPart *) (buffer + (i + 2) * block_size);
+		mac_part = (MacPart *)(buffer + (i + 2) * block_size);
 		if (mpm[i].ntype == PM2) {
 			/* get driver label and patch it */
-			memcpy((char *) mac_label, tmp, HFS_BLOCKSZ);
-			set_732((char *) mac_label->sbBlkCount,
+			memcpy((char *)mac_label, tmp, HFS_BLOCKSZ);
+			set_732((char *)mac_label->sbBlkCount,
 				last_extent * (SECTOR_SIZE / block_size));
-			set_732((char *) mac_label->ddBlock,
+			set_732((char *)mac_label->ddBlock,
 				(mpm[i].start) * (SECTOR_SIZE / block_size));
-			memcpy((char *) mac_part, tmp + HFS_BLOCKSZ,
+			memcpy((char *)mac_part, tmp + HFS_BLOCKSZ,
 								HFS_BLOCKSZ);
-			set_732((char *) mac_part->pmMapBlkCnt, mpc + 1);
-			set_732((char *) mac_part->pmPyPartStart,
+			set_732((char *)mac_part->pmMapBlkCnt, mpc + 1);
+			set_732((char *)mac_part->pmPyPartStart,
 				(mpm[i].start) * (SECTOR_SIZE / block_size));
 		} else {
 			mac_part->pmSig[0] = 'P';
 			mac_part->pmSig[1] = 'M';
-			set_732((char *) mac_part->pmMapBlkCnt, mpc + 1);
-			set_732((char *) mac_part->pmPyPartStart,
+			set_732((char *)mac_part->pmMapBlkCnt, mpc + 1);
+			set_732((char *)mac_part->pmPyPartStart,
 				mpm[i].start * (SECTOR_SIZE / HFS_BLOCKSZ));
-			set_732((char *) mac_part->pmPartBlkCnt,
+			set_732((char *)mac_part->pmPartBlkCnt,
 				mpm[i].size * (SECTOR_SIZE / HFS_BLOCKSZ));
-			strncpy((char *) mac_part->pmPartName, mpm[i].name,
+			strncpy((char *)mac_part->pmPartName, mpm[i].name,
 				sizeof (mac_part->pmPartName));
-			strncpy((char *) mac_part->pmPartType, mpm[i].type,
+			strncpy((char *)mac_part->pmPartType, mpm[i].type,
 				sizeof (mac_part->pmPartType));
-			set_732((char *) mac_part->pmLgDataStart, 0);
-			set_732((char *) mac_part->pmDataCnt,
+			set_732((char *)mac_part->pmLgDataStart, 0);
+			set_732((char *)mac_part->pmDataCnt,
 				mpm[i].size * (SECTOR_SIZE / HFS_BLOCKSZ));
-			set_732((char *) mac_part->pmPartStatus,
+			set_732((char *)mac_part->pmPartStatus,
 				PM_STAT_DEFAULT);
 		}
 	}
@@ -329,50 +329,50 @@ gen_mac_label(mac_boot)
 		if (mpc < 3) {	/* don't have to interleave with 2048 table */
 			mac_part->pmSig[0] = 'P';
 			mac_part->pmSig[1] = 'M';
-			set_732((char *) mac_part->pmMapBlkCnt, mpc + 1);
-			set_732((char *) mac_part->pmPyPartStart, 1);
-			set_732((char *) mac_part->pmPartBlkCnt, mpc + 1);
-			strncpy((char *) mac_part->pmPartName, "Apple",
+			set_732((char *)mac_part->pmMapBlkCnt, mpc + 1);
+			set_732((char *)mac_part->pmPyPartStart, 1);
+			set_732((char *)mac_part->pmPartBlkCnt, mpc + 1);
+			strncpy((char *)mac_part->pmPartName, "Apple",
 					sizeof (mac_part->pmPartName));
-			strncpy((char *) mac_part->pmPartType,
+			strncpy((char *)mac_part->pmPartType,
 					"Apple_partition_map",
 					sizeof (mac_part->pmPartType));
-			set_732((char *) mac_part->pmLgDataStart, 0);
-			set_732((char *) mac_part->pmDataCnt, mpc + 1);
-			set_732((char *) mac_part->pmPartStatus,
+			set_732((char *)mac_part->pmLgDataStart, 0);
+			set_732((char *)mac_part->pmDataCnt, mpc + 1);
+			set_732((char *)mac_part->pmPartStatus,
 							PM_STAT_DEFAULT);
 			mac_part++;	/* +HFS_BLOCKSZ */
 		}
 		for (i = 0; i < mpc; i++, mac_part++) {
-			if (mac_part == (MacPart *) (buffer + SECTOR_SIZE))
+			if (mac_part == (MacPart *)(buffer + SECTOR_SIZE))
 				mac_part++;	/* jump over 2048 partition */
 						/* entry */
 			if (mpm[i].ntype == PM2) {
-				memcpy((char *) mac_part, tmp + HFS_BLOCKSZ * 2,
+				memcpy((char *)mac_part, tmp + HFS_BLOCKSZ * 2,
 							HFS_BLOCKSZ);
 				if (!IS_MAC_PART(mac_part)) {
 					mac_part--;
 					continue;
 				}
-				set_732((char *) mac_part->pmMapBlkCnt, mpc+1);
-				set_732((char *) mac_part->pmPyPartStart,
+				set_732((char *)mac_part->pmMapBlkCnt, mpc+1);
+				set_732((char *)mac_part->pmPyPartStart,
 				    mpm[i].start * (SECTOR_SIZE / HFS_BLOCKSZ));
 			} else {
 				mac_part->pmSig[0] = 'P';
 				mac_part->pmSig[1] = 'M';
-				set_732((char *) mac_part->pmMapBlkCnt, mpc+1);
-				set_732((char *) mac_part->pmPyPartStart,
+				set_732((char *)mac_part->pmMapBlkCnt, mpc+1);
+				set_732((char *)mac_part->pmPyPartStart,
 				    mpm[i].start * (SECTOR_SIZE / HFS_BLOCKSZ));
-				set_732((char *) mac_part->pmPartBlkCnt,
+				set_732((char *)mac_part->pmPartBlkCnt,
 				    mpm[i].size * (SECTOR_SIZE / HFS_BLOCKSZ));
-				strncpy((char *) mac_part->pmPartName,
+				strncpy((char *)mac_part->pmPartName,
 				    mpm[i].name, sizeof (mac_part->pmPartName));
-				strncpy((char *) mac_part->pmPartType,
+				strncpy((char *)mac_part->pmPartType,
 				    mpm[i].type, sizeof (mac_part->pmPartType));
-				set_732((char *) mac_part->pmLgDataStart, 0);
-				set_732((char *) mac_part->pmDataCnt,
+				set_732((char *)mac_part->pmLgDataStart, 0);
+				set_732((char *)mac_part->pmDataCnt,
 				    mpm[i].size * (SECTOR_SIZE / HFS_BLOCKSZ));
-				set_732((char *) mac_part->pmPartStatus,
+				set_732((char *)mac_part->pmPartStatus,
 							PM_STAT_DEFAULT);
 			}
 		}

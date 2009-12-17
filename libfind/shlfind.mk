@@ -1,4 +1,4 @@
-#ident @(#)shlfind.mk	1.2 07/02/04 
+#ident @(#)shlfind.mk	1.3 09/12/06 
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -21,7 +21,7 @@ CPPOPTS +=	-DUSE_NLS
 CPPOPTS +=	-DSCHILY_PRINT
 
 include		Targets
-LIBS=		-lschily -lc
+LIBS=		-lschily $(LIB_ACL_TEST) -lc
 
 ###########################################################################
 include		$(SRCROOT)/$(RULESDIR)/rules.shl

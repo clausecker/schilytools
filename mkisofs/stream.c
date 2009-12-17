@@ -1,8 +1,8 @@
-/* @(#)stream.c	1.14 09/07/09 Copyright 2002-2009 J. Schilling */
+/* @(#)stream.c	1.15 09/11/25 Copyright 2002-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)stream.c	1.14 09/07/09 Copyright 2002-2009 J. Schilling";
+	"@(#)stream.c	1.15 09/11/25 Copyright 2002-2009 J. Schilling";
 #endif
 /*
  *	ISO-9660 stream (pipe) file module for mkisofs
@@ -211,13 +211,13 @@ write_str_dir(outfile)
 	xfwrite(&s_dir, offsetof(struct iso_directory_record, name[0]) + 1, 1, outfile, 0, FALSE);
 	memset(&s_dir, 0, sizeof (struct iso_directory_record));
 	reclen = offsetof(struct iso_directory_record, name[0]) +
-                                strlen(stream_filename); 
+				strlen(stream_filename);
 	if (reclen & 1)
 		reclen++;
 	s_dir.length[0] = reclen;
 	s_dir.ext_attr_length[0] = 0;
-	set_733((char *) s_dir.extent, stream_extent);
-	set_733((char *) s_dir.size, stream_size);
+	set_733((char *)s_dir.extent, stream_extent);
+	set_733((char *)s_dir.size, stream_size);
 	iso9660_date(s_dir.date, begun);
 	s_dir.flags[0] = 0;
 	s_dir.file_unit_size[0] = 0;

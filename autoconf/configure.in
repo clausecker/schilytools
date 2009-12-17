@@ -1,6 +1,6 @@
-dnl @(#)configure.in	1.199 09/11/17 Copyright 1998-2009 J. Schilling
+dnl @(#)configure.in	1.201 09/11/29 Copyright 1998-2009 J. Schilling
 dnl Process this file with autoconf to produce a configure script.
-AC_REVISION(1.199)dnl
+AC_REVISION(1.201)dnl
 
 dnl AC_INIT(xconfig.h.in)
 AC_INIT(config.guess)
@@ -382,6 +382,7 @@ dnl that need results from the AC_CHECK_FUNCS() calls.
 AC_USER_MALLOC
 dnl AC_USER_XCVT test macro does not yet work
 AC_VAR_TIMEZONE
+AC_VAR_TIMEZONE_DEF
 
 dnl Checks for OS characteristics.
 AC_HARD_SYMLINKS
@@ -492,6 +493,7 @@ if test "$ac_cv_header_sys_acl_h" = yes; then
   LIBS="$LIBS $lib_acl"
   AC_CHECK_FUNCS(acl_get_file acl_set_file acl_from_text acl_to_text acl_free acl_delete_def_file)
   AC_CHECK_FUNCS(acl_extended_file)
+  AC_CHECK_FUNCS(acl_get_entry)
   LIBS="$ac_save_LIBS"
 
   AC_CHECKING(for Solaris Access Control List support)

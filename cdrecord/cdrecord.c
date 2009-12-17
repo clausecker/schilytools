@@ -1,8 +1,8 @@
-/* @(#)cdrecord.c	1.388 09/08/07 Copyright 1995-2009 J. Schilling */
+/* @(#)cdrecord.c	1.389 09/11/30 Copyright 1995-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)cdrecord.c	1.388 09/08/07 Copyright 1995-2009 J. Schilling";
+	"@(#)cdrecord.c	1.389 09/11/30 Copyright 1995-2009 J. Schilling";
 #endif
 /*
  *	Record data on a CD/CVD-Recorder
@@ -2429,7 +2429,15 @@ int oper = -1;
 			if (fper >= 0)
 				printf(" (fifo %3d%%)", fper);
 #ifdef	BCAP
-			if (bsize > 0) {			/* buffer size known */
+			/*
+			 * Work around a bug in the firmware from drives
+			 * developed by PIONEER in November 2009. This affects
+			 * drives labelled "Pioneer", "Plextor" and "TEAC".
+			 * Do no longer call cdr_buffer_cap() before the drive
+			 * buffer was not at least filled once to avoid that
+			 * the the drive throughs away all data.
+			 */
+			if (bsize > 0 && bytes > bsize) { /* buffer size known */
 				scgp->silent++;
 				per = (*dp->cdr_buffer_cap)(scgp, (long *)0, &bfree);
 				scgp->silent--;
@@ -2653,7 +2661,15 @@ int oper = -1;
 			savbytes = (bytes >> 20) << 20;
 
 #ifdef	BCAP
-			if (bsize > 0) {			/* buffer size known */
+			/*
+			 * Work around a bug in the firmware from drives
+			 * developed by PIONEER in November 2009. This affects
+			 * drives labelled "Pioneer", "Plextor" and "TEAC".
+			 * Do no longer call cdr_buffer_cap() before the drive
+			 * buffer was not at least filled once to avoid that
+			 * the the drive throughs away all data.
+			 */
+			if (bsize > 0 && bytes > bsize) { /* buffer size known */
 				scgp->silent++;
 				per = (*dp->cdr_buffer_cap)(scgp, (long *)0, &bfree);
 				scgp->silent--;
@@ -4348,7 +4364,7 @@ load_media(scgp, dp, doexit)
 	scgp->silent--;
 	err = geterrno();
 	if (code < 0 && (err == EPERM || err == EACCES)) {
-		linuxcheck();	/* For version 1.388 of cdrecord.c */
+		linuxcheck();	/* For version 1.389 of cdrecord.c */
 		scg_openerr("");
 	}
 
@@ -5219,7 +5235,7 @@ set_wrmode(dp, wmode, tflags)
 }
 
 /*
- * I am sorry that even for version 1.388 of cdrecord.c, I am forced to do
+ * I am sorry that even for version 1.389 of cdrecord.c, I am forced to do
  * things like this, but defective versions of cdrecord cause a lot of
  * work load to me.
  *
@@ -5236,7 +5252,7 @@ set_wrmode(dp, wmode, tflags)
 #endif
 
 LOCAL void
-linuxcheck()				/* For version 1.388 of cdrecord.c */
+linuxcheck()				/* For version 1.389 of cdrecord.c */
 {
 #if	defined(linux) || defined(__linux) || defined(__linux__)
 #ifdef	HAVE_UNAME

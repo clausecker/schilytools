@@ -1,8 +1,8 @@
-/* @(#)update.c	1.117 09/10/22 Copyright 1985, 88, 91, 1995-2009 J. Schilling */
+/* @(#)update.c	1.119 09/12/03 Copyright 1985, 88, 91, 1995-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)update.c	1.117 09/10/22 Copyright 1985, 88, 91, 1995-2009 J. Schilling";
+	"@(#)update.c	1.119 09/12/03 Copyright 1985, 88, 91, 1995-2009 J. Schilling";
 #endif
 /*
  *	Make program
@@ -231,7 +231,8 @@ copy_base(name, dir, dsize, suffix)
 }
 
 /*
- * Return TRUE if 'obj' is in the list of targets that should not be removed.
+ * Return TRUE if 'obj' is in the list of targets that should not be removed
+ * or of the list of dependencies for .PRECIOUS is empty.
  */
 EXPORT BOOL
 isprecious(obj)
@@ -241,6 +242,9 @@ isprecious(obj)
 
 	if (Precious == (obj_t *)NULL)
 		return (FALSE);
+
+	if (Precious->o_list == NULL)
+		return (TRUE);
 
 	for (l = Precious->o_list; l; l = l->l_next)
 		if (obj == l->l_obj)
@@ -1327,7 +1331,10 @@ patsub(name, f1, f2, t1, t2)
 		p = t2;
 	}
 	while (*p) {
-		if (*p == '%') {
+		/*
+		 * Expand '%' only in case of a patten macro expansion.
+		 */
+		if (*p == '%' && t2 != NULL) {
 			p++;
 			sub_put(name, l); /* 'name' is on gbuf... */
 		} else {
@@ -1459,10 +1466,10 @@ patmsub(name, f1, f2, t1, t2)
 /*
  * Parse a pattern and divide pattern into parts.
  *
- * Check if this is a suffix rule or a pattern rule.
+ * Check if this is a suffix replacement macro or a pattern repacement macro.
  *
- * If this is a suffix rule (suf1=suf2), tp2 will point to a NULL pointer,
- * if this is a pattern rule (pref1%suf1=pref1%suf2) tp1 will point to NULL.
+ * If this is a suffix macro (suf1=suf2), tp2 will point to a NULL pointer,
+ * if this is a pattern macro (pref1%suf1=pref1%suf2) tp1 will point to NULL.
  */
 LOCAL void
 parsepat(pat, fp1, fp2, tp1, tp2)
@@ -1490,10 +1497,10 @@ parsepat(pat, fp1, fp2, tp1, tp2)
 		f2 = pat;
 		f1 = Nullstr;
 	}
-	if (f1 == pat) {		/* This is a pattern rule */
+	if (f1 == pat) {		/* This is a pattern macro */
 		t2 = t1;
 		t1 = NULL;
-	} else {			/* This is a suffix rule */
+	} else {			/* This is a suffix macro */
 		t2 = NULL;
 	}
 	*fp1 = f1;

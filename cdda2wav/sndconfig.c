@@ -1,8 +1,8 @@
-/* @(#)sndconfig.c	1.34 09/08/04 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling */
+/* @(#)sndconfig.c	1.35 09/11/29 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling */
 #include "config.h"
 #ifndef lint
 static	UConst char sccsid[] =
-"@(#)sndconfig.c	1.34 09/08/04 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling";
+"@(#)sndconfig.c	1.35 09/11/29 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling";
 #endif
 
 /*
@@ -189,13 +189,13 @@ init_soundcard(rate, bits)
 			int	mask;
 
 			if (ioctl(global.soundcard_fd,
-			    (int)SNDCTL_DSP_GETBLKSIZE, &dummy) == -1) {
+			    SNDCTL_DSP_GETBLKSIZE, &dummy) == -1) {
 				errmsg("Cannot get blocksize for %s.\n",
 					snd_device);
 				global.echo = 0;
 			}
 			if (ioctl(global.soundcard_fd,
-			    (int)SNDCTL_DSP_SYNC, NULL) == -1) {
+			    SNDCTL_DSP_SYNC, NULL) == -1) {
 				errmsg("Cannot sync for %s.\n",
 					snd_device);
 				global.echo = 0;
@@ -215,7 +215,7 @@ init_soundcard(rate, bits)
 			 * requested format
 			 */
 			if (ioctl(global.soundcard_fd,
-			    (int)SNDCTL_DSP_GETFMTS, &mask) == -1) {
+			    SNDCTL_DSP_GETFMTS, &mask) == -1) {
 				errmsg("Fatal error in ioctl(SNDCTL_DSP_GETFMTS).\n");
 				return (-1);
 			}
@@ -229,7 +229,7 @@ init_soundcard(rate, bits)
 				}
 			}
 			if (ioctl(global.soundcard_fd,
-			    (int)SNDCTL_DSP_SETFMT, &myformat) == -1) {
+			    SNDCTL_DSP_SETFMT, &myformat) == -1) {
 				errmsg("Cannot set %d bits/sample for %s.\n",
 					bits, snd_device);
 			    global.echo = 0;
@@ -240,14 +240,14 @@ init_soundcard(rate, bits)
 			 */
 			if (stereo &&
 			    ioctl(global.soundcard_fd,
-			    (int)SNDCTL_DSP_STEREO, &stereo) == -1) {
+			    SNDCTL_DSP_STEREO, &stereo) == -1) {
 				errmsg("Cannot set stereo mode for %s.\n",
 					snd_device);
 				stereo = 0;
 			}
 			if (!stereo &&
 			    ioctl(global.soundcard_fd,
-			    (int)SNDCTL_DSP_STEREO, &stereo) == -1) {
+			    SNDCTL_DSP_STEREO, &stereo) == -1) {
 				errmsg("Cannot set mono mode for %s.\n",
 					snd_device);
 				global.echo = 0;
@@ -257,7 +257,7 @@ init_soundcard(rate, bits)
 			 * set the sample rate
 			 */
 			if (ioctl(global.soundcard_fd,
-			    (int)SNDCTL_DSP_SPEED, &garbled_rate) == -1) {
+			    SNDCTL_DSP_SPEED, &garbled_rate) == -1) {
 				errmsg("Cannot set rate %d.%2d Hz for %s.\n",
 					(int)rate, (int)(rate*100)%100,
 					snd_device);

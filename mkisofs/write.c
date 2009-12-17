@@ -1,8 +1,8 @@
-/* @(#)write.c	1.124 09/09/12 joerg */
+/* @(#)write.c	1.125 09/11/25 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)write.c	1.124 09/09/12 joerg";
+	"@(#)write.c	1.125 09/11/25 joerg";
 #endif
 /*
  * Program write.c - dump memory  structures to  file for iso9660 filesystem.
@@ -138,19 +138,19 @@ LOCAL 	int	interpad_write	__PR((FILE *outfile));
 LOCAL 	int	endpad_write	__PR((FILE *outfile));
 #ifdef APPLE_HYB
 LOCAL 	int	hfs_pad;
-LOCAL 	int	hfs_get_parms	__PR((char * key));
+LOCAL 	int	hfs_get_parms	__PR((char *key));
 LOCAL 	void	hfs_file_gen	__PR((UInt32_t start_extent));
 LOCAL 	void	gen_prepboot	__PR((void));
 EXPORT	Ulong	get_adj_size	__PR((int Csize));
 EXPORT	int	adj_size	__PR((int Csize, UInt32_t start_extent, int extra));
 EXPORT	void	adj_size_other	__PR((struct directory *dpnt));
-LOCAL 	int	hfs_hce_write	__PR((FILE * outfile));
+LOCAL 	int	hfs_hce_write	__PR((FILE *outfile));
 EXPORT	int	insert_padding_file __PR((int size));
 #endif	/* APPLE_HYB */
 
 #ifdef SORTING
-LOCAL 	int	compare_sort	__PR((const void * rr, const void * ll));
-LOCAL 	void	reassign_link_addresses	__PR((struct directory * dpnt));
+LOCAL 	int	compare_sort	__PR((const void *rr, const void *ll));
+LOCAL 	void	reassign_link_addresses	__PR((struct directory *dpnt));
 LOCAL 	int	sort_file_addresses __PR((void));
 #endif /* SORTING */
 
@@ -665,8 +665,8 @@ compare_dirs(rr, ll)
 	struct directory_entry **r,
 			**l;
 
-	r = (struct directory_entry **) rr;
-	l = (struct directory_entry **) ll;
+	r = (struct directory_entry **)rr;
+	l = (struct directory_entry **)ll;
 	rpnt = (*r)->isorec.name;
 	lpnt = (*l)->isorec.name;
 
@@ -876,8 +876,8 @@ root_gen()
 	root_record.length[0] = 1 +
 			offsetof(struct iso_directory_record, name[0]);
 	root_record.ext_attr_length[0] = 0;
-	set_733((char *) root_record.extent, root->extent);
-	set_733((char *) root_record.size, ISO_ROUND_UP(root->size));
+	set_733((char *)root_record.extent, root->extent);
+	set_733((char *)root_record.size, ISO_ROUND_UP(root->size));
 	iso9660_date(root_record.date, root_statbuf.st_mtime);
 	root_record.flags[0] = ISO_DIRECTORY;
 	root_record.file_unit_size[0] = 0;
@@ -901,8 +901,8 @@ compare_sort(rr, ll)
 	int			r_sort;
 	int			l_sort;
 
-	r = (struct deferred_write **) rr;
-	l = (struct deferred_write **) ll;
+	r = (struct deferred_write **)rr;
+	l = (struct deferred_write **)ll;
 	r_sort = (*r)->s_entry->sort;
 	l_sort = (*l)->s_entry->sort;
 
@@ -933,7 +933,7 @@ reassign_link_addresses(dpnt)
 			/* update the start extent */
 			s_hash = find_hash(s_entry->dev, s_entry->inode);
 			if (s_hash) {
-				set_733((char *) s_entry->isorec.extent, s_hash->starting_block);
+				set_733((char *)s_entry->isorec.extent, s_hash->starting_block);
 				s_entry->starting_block = s_hash->starting_block;
 			}
 		}
@@ -1005,7 +1005,7 @@ sort_file_addresses()
 	for (i = 0, dwpnt = dw_head; i < num; i++, dwpnt = dwpnt->next) {
 		s_entry = dwpnt->s_entry;
 		dwpnt->extent = s_entry->starting_block = start_extent;
-		set_733((char *) s_entry->isorec.extent, start_extent);
+		set_733((char *)s_entry->isorec.extent, start_extent);
 
 		start_extent += ISO_BLOCKS(s_entry->size);
 #ifdef DVD_VIDEO
@@ -1040,7 +1040,7 @@ assign_file_addresses(dpnt, isnest)
 	char		whole_path[PATH_MAX];
 #ifdef DVD_VIDEO
 	char		dvd_path[PATH_MAX];
-	title_set_info_t * title_set_info = NULL;
+	title_set_info_t *title_set_info = NULL;
 	char	*p;
 #endif
 	BOOL	ret = FALSE;
@@ -1095,9 +1095,9 @@ assign_file_addresses(dpnt, isnest)
 						s_entry->name);
 				}
 				s_entry->starting_block = s_hash->starting_block;
-				set_733((char *) s_entry->isorec.extent,
+				set_733((char *)s_entry->isorec.extent,
 						s_hash->starting_block);
-				set_733((char *) s_entry->isorec.size,
+				set_733((char *)s_entry->isorec.size,
 						s_hash->size);
 #ifdef USE_LARGEFILES
 				if (s_entry->de_flags & MULTI_EXTENT) {
@@ -1122,7 +1122,7 @@ assign_file_addresses(dpnt, isnest)
 					for (s_e = s_entry;
 					    s_e && s_e->mxroot == s_entry->mxroot;
 								s_e = s_e->next) {
-						set_733((char *) s_e->isorec.extent,
+						set_733((char *)s_e->isorec.extent,
 									ext);
 						ext += ISO_BLOCKS(s_e->size);
 					}
@@ -1166,13 +1166,13 @@ assign_file_addresses(dpnt, isnest)
 							s_entry->name);
 					}
 				}
-				set_733((char *) s_entry->isorec.extent,
+				set_733((char *)s_entry->isorec.extent,
 						finddir->extent);
 				s_entry->starting_block = finddir->extent;
 				s_entry->size = ISO_ROUND_UP(finddir->size);
 				total_dir_size += s_entry->size;
 				add_hash(s_entry);
-				set_733((char *) s_entry->isorec.size,
+				set_733((char *)s_entry->isorec.size,
 						ISO_ROUND_UP(finddir->size));
 				continue;
 			}
@@ -1181,7 +1181,7 @@ assign_file_addresses(dpnt, isnest)
 			 * from the tables.
 			 */
 			if (strcmp(s_entry->name, ".") == 0) {
-				set_733((char *) s_entry->isorec.extent,
+				set_733((char *)s_entry->isorec.extent,
 								dpnt->extent);
 
 				/*
@@ -1193,7 +1193,7 @@ assign_file_addresses(dpnt, isnest)
 
 				add_hash(s_entry);
 				s_entry->starting_block = dpnt->extent;
-				set_733((char *) s_entry->isorec.size,
+				set_733((char *)s_entry->isorec.size,
 						ISO_ROUND_UP(dpnt->size));
 				continue;
 			}
@@ -1201,7 +1201,7 @@ assign_file_addresses(dpnt, isnest)
 				if (dpnt == root) {
 					total_dir_size += root->size;
 				}
-				set_733((char *) s_entry->isorec.extent,
+				set_733((char *)s_entry->isorec.extent,
 							dpnt->parent->extent);
 
 				/*
@@ -1214,7 +1214,7 @@ assign_file_addresses(dpnt, isnest)
 
 				add_hash(s_entry);
 				s_entry->starting_block = dpnt->parent->extent;
-				set_733((char *) s_entry->isorec.size,
+				set_733((char *)s_entry->isorec.size,
 					ISO_ROUND_UP(dpnt->parent->size));
 				continue;
 			}
@@ -1286,7 +1286,7 @@ assign_file_addresses(dpnt, isnest)
 				dwpnt->next = NULL;
 				dwpnt->size = s_entry->size;
 				dwpnt->extent = last_extent;
-				set_733((char *) s_entry->isorec.extent,
+				set_733((char *)s_entry->isorec.extent,
 								last_extent);
 				s_entry->starting_block = last_extent;
 #ifdef USE_LARGEFILES
@@ -1319,13 +1319,13 @@ assign_file_addresses(dpnt, isnest)
 					 * the UDF code to fetch the starting
 					 * extent number.
 					 */
-					set_733((char *) s_entry->mxroot->isorec.extent, ext);
+					set_733((char *)s_entry->mxroot->isorec.extent, ext);
 					for (s_e = s_entry;
 					    s_e && s_e->mxroot == s_entry->mxroot;
 								s_e = s_e->next) {
 						if (s_e->mxpart == 0)
 							continue;
-						set_733((char *) s_e->isorec.extent,
+						set_733((char *)s_e->isorec.extent,
 									ext);
 						ext += ISO_BLOCKS(s_e->size);
 					}
@@ -1399,7 +1399,7 @@ assign_file_addresses(dpnt, isnest)
 			 * Thus we leave the size 0, and just assign the
 			 * extent number.
 			 */
-			set_733((char *) s_entry->isorec.extent, last_extent);
+			set_733((char *)s_entry->isorec.extent, last_extent);
 		}
 		if (dpnt->subdir) {
 			if (assign_file_addresses(dpnt->subdir, TRUE))
@@ -1485,7 +1485,7 @@ generate_one_directory(dpnt, outfile)
 	unsigned int	total_size;
 
 	total_size = ISO_ROUND_UP(dpnt->size);
-	directory_buffer = (char *) e_malloc(total_size);
+	directory_buffer = (char *)e_malloc(total_size);
 	memset(directory_buffer, 0, total_size);
 	dir_index = 0;
 
@@ -1493,7 +1493,7 @@ generate_one_directory(dpnt, outfile)
 	ce_buffer = NULL;
 
 	if (ce_size > 0) {
-		ce_buffer = (char *) e_malloc(ce_size);
+		ce_buffer = (char *)e_malloc(ce_size);
 		memset(ce_buffer, 0, ce_size);
 
 		ce_index = 0;
@@ -1569,15 +1569,15 @@ generate_one_directory(dpnt, outfile)
 #endif
 
 					if (pnt[0] == 'C' && pnt[1] == 'E') {
-						nbytes = get_733((char *) pnt + 20);
+						nbytes = get_733((char *)pnt + 20);
 
 						if ((ce_index & (SECTOR_SIZE - 1)) + nbytes >=
 							SECTOR_SIZE) {
 							ce_index = ISO_ROUND_UP(ce_index);
 						}
-						set_733((char *) pnt + 4,
+						set_733((char *)pnt + 4,
 							(ce_address + ce_index) >> 11);
-						set_733((char *) pnt + 12,
+						set_733((char *)pnt + 12,
 							(ce_address + ce_index) & (SECTOR_SIZE - 1));
 
 
@@ -1695,8 +1695,8 @@ generate_path_tables()
 
 	/* First allocate memory for the tables and initialize the memory */
 	tablesize = path_blocks << 11;
-	path_table_m = (char *) e_malloc(tablesize);
-	path_table_l = (char *) e_malloc(tablesize);
+	path_table_m = (char *)e_malloc(tablesize);
+	path_table_l = (char *)e_malloc(tablesize);
 	memset(path_table_l, 0, tablesize);
 	memset(path_table_m, 0, tablesize);
 
@@ -1705,8 +1705,8 @@ generate_path_tables()
 	 */
 
 	path_table_index = 0;
-	pathlist = (struct directory **) e_malloc(sizeof (struct directory *)
-		* next_path_index);
+	pathlist = (struct directory **)e_malloc(sizeof (struct directory *)
+		*next_path_index);
 	memset(pathlist, 0, sizeof (struct directory *) * next_path_index);
 	build_pathlist(root);
 
@@ -2010,7 +2010,7 @@ pvd_write(outfile)
 	memcpy_max(vol_desc.volume_id, volume_id, strlen(volume_id));
 
 	should_write = last_extent - session_start;
-	set_733((char *) vol_desc.volume_space_size, should_write);
+	set_733((char *)vol_desc.volume_space_size, should_write);
 	set_723(vol_desc.volume_set_size, volume_set_size);
 	set_723(vol_desc.volume_sequence_number, volume_sequence_number);
 	set_723(vol_desc.logical_block_size, SECTOR_SIZE);
@@ -2019,7 +2019,7 @@ pvd_write(outfile)
 	 * The path tables are used by DOS based machines to cache directory
 	 * locations
 	 */
-	set_733((char *) vol_desc.path_table_size, path_table_size);
+	set_733((char *)vol_desc.path_table_size, path_table_size);
 	set_731(vol_desc.type_l_path_table, path_table[0]);
 	set_731(vol_desc.opt_type_l_path_table, path_table[1]);
 	set_732(vol_desc.type_m_path_table, path_table[2]);
@@ -2457,9 +2457,9 @@ ext_size(starting_extent)
 
 	extension_record_extent = starting_extent;
 	s_entry = root->contents;
-	set_733((char *) s_entry->rr_attributes + s_entry->rr_attr_size - 24,
+	set_733((char *)s_entry->rr_attributes + s_entry->rr_attr_size - 24,
 		extension_record_extent);
-	set_733((char *) s_entry->rr_attributes + s_entry->rr_attr_size - 8,
+	set_733((char *)s_entry->rr_attributes + s_entry->rr_attr_size - 8,
 		extension_record_size);
 	last_extent++;
 	return (0);
@@ -2581,7 +2581,7 @@ hfs_file_gen(start_extent)
 	/* allocate memory for the libhfs/mkisofs extra info */
 	hce = (hce_mem *) e_malloc(sizeof (hce_mem));
 
-	hce->error = (char *) e_malloc(1024);
+	hce->error = (char *)e_malloc(1024);
 
 	/* mark as unallocated for use later */
 	hce->hfs_ce = hce->hfs_hdr = hce->hfs_map = 0;
@@ -2805,7 +2805,7 @@ adj_size(Csize, start_extent, extra)
 	for (dw = dw_head; dw; dw = dw->next) {
 		s_entry = dw->s_entry;
 		s_entry->starting_block = dw->extent = start_extent;
-		set_733((char *) s_entry->isorec.extent, start_extent);
+		set_733((char *)s_entry->isorec.extent, start_extent);
 		size = ROUND_UP(dw->size, Csize) / SECTOR_SIZE;
 		dw->pad = size - ISO_ROUND_UP(dw->size) / SECTOR_SIZE;
 
@@ -2853,7 +2853,7 @@ adj_size_other(dpnt)
 			 */
 			s_hash = find_hash(s_entry->dev, s_entry->inode);
 			if (s_hash) {
-				set_733((char *) s_entry->isorec.extent,
+				set_733((char *)s_entry->isorec.extent,
 						s_hash->starting_block);
 				/* not vital - but tidy */
 				s_entry->starting_block =

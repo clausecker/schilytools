@@ -1,4 +1,4 @@
-. \" @(#)smake.1	1.22 09/11/19 Copyright 1985-2009 J. Schilling
+. \" @(#)smake.1	1.37 09/12/09 Copyright 1985-2009 J. Schilling
 . \"  Manual page for smake
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -13,7 +13,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH SMAKE 1 "09/11/19" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH SMAKE 1 "09/12/09" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 smake \- maintain, update, and regenerate programs
 .SH SYNOPSIS
@@ -37,7 +37,7 @@ The argument
 is typically a program that is to be built from the known rules.
 .PP
 If no
-.I \-f
+.B \-f
 option is present, 
 .B smake
 looks for 
@@ -47,14 +47,20 @@ then for
 and then for
 .B makefile 
 in the named order.
+If in POSIX mode,
+.B smake
+looks for
+.BR makefile , " Makefile
+and then for 
+.BR SMakefile .
 .PP
 If no 
 .I target 
 is specified on the command line,
 .B smake
-uses the first target that could be found in
+uses the first regular target that could be found in
 .I makefilename 
-and that does not start with a dot ('.').
+and that does not start with a dot ('.') letter combination.
 .PP
 If a 
 .I target 
@@ -96,7 +102,7 @@ Environment variables override macro definition in Makefile(s).
 Ignore error codes returned by commands that are called from rules.
 This is equivalent to having the special target
 .B \&.IGNORE
-inside a makefile.
+without dependencies inside a makefile.
 .TP
 .B \-k
 Ignore errors by aborting work on the current target and continuing the
@@ -114,6 +120,11 @@ Don't make \- only say what to do.
 This prints the commands that would be executed on standard output.
 Lines with a plus sign ('+') will be executed in any case.
 Even those lines that have an at sign ('@') will be printed to standard output.
+If a command line contains the macro
+.B "$(MAKE)"
+or
+.B "${MAKE}"
+this command line is executed even if there is no plus sign ('+').
 This is the opposite to the
 .B \-s
 option.
@@ -142,8 +153,8 @@ if an error occurs while updating targets.
 Be silent. (Do not print command lines or touch messages
 on standard output before they are executed.)
 This is equivalent to having the special target
-.B \&.IGNORE
-inside a makefile.
+.B \&.SILENT
+without dependencies inside a makefile.
 .TP
 .B \-t
 Touch objects instead of executing the defined commands.
@@ -193,7 +204,7 @@ Print additional debugging messages.
 This includes the messages from the \-d flag and additional
 messages that allow to trace the execution of the various rules.
 If more 'd' characters are added (e.g.
-.BR \-dddd ) the verbose level for tracing is enhanced.
+.BR \-dddd ") the verbose level for tracing is enhanced."
 .TP
 .B \-xM
 Print the make file include dependency list.
@@ -233,8 +244,6 @@ to go into POSIX mode.
 This is equivalent to having the special target
 .B \&.POSIX
 inside a makefile.
-The \-posix option is not automatically propagated via
-.BR MAKEFLAGS .
 .RS
 .PP
 See the description of the special target
@@ -258,7 +267,7 @@ With
 it is not possible to first make one target, then set a command line macro and
 then make the next target with different macro values,
 .B POSIX 
-does not specify the behaviour in this case anyway.
+does not specify the behavior in this case anyway.
 
 .SH OPERANDS
 The following operands are supported:
@@ -394,7 +403,7 @@ The rule from the
 .B \&.DEFAULT
 target entry, if such an entry exists in a makefile.
 .PP
-A limited set of builtin rules is compiled into
+A limited set of built in rules is compiled into
 .BR smake .
 A more complete set is read from the file
 .B \&./defaults.smk
@@ -409,7 +418,13 @@ reads its rules from a file named
 .BR SMakefile , " Makefile
 or 
 .B makefile
-in the current directory. 
+in the current directory and checks for the files in the named order. 
+If in POSIX mode,
+.B smake
+looks for
+.BR makefile , " Makefile
+and then for
+.BR SMakefile .
 If a different makefile is specified with the
 .B \-f
 option, 
@@ -432,7 +447,7 @@ A
 contains rules, macro definitions, special make directives and comments.
 A rule may either be a target rule (explicit rule) or an implicit rule.
 .B Smake
-itself contains a number of built in implicit rules which are not used 
+itself contains or loads a number of built in implicit rules which are not used
 if the 
 .B \-r 
 option is used. The user specified 
@@ -452,6 +467,10 @@ new line is found.
 .SS "Command Execution
 .PP
 Command lines associated with rules are sequentially executed line by line.
+All commands are executed by the standard shell
+.RB ( /bin/sh ),
+they may use all constructs that
+are permitted for a POSIX shell as long as the local shell supports them.
 Command lines may have prefixes that are interpreted by 
 .B smake
 before the rest of the command line is passed to the shell.
@@ -464,7 +483,12 @@ The following
 prefixes are implemented:
 .TP
 .B \-
-If the character '-' is amongst the prefix characters, the exit code
+If the character '-' is amongst the prefix characters or of the 
+.B \-i
+option has been specified or the special target
+.B \&.IGNORE
+has been specified with no dependencies or with the current
+target in the list of dependencies, the exit code
 from the command line is ignored.
 .TP
 .B +
@@ -474,7 +498,12 @@ is executed even if one of the options
 was specified.
 .TP
 .B @
-If the character '@' is amongst the prefix characters, the command line
+If the character '@' is amongst the prefix characters or of the
+.B \-s
+option has been specified or the special target
+.B \&.SILENT
+has been specified with no dependencies or with the current
+target in the list of dependencies, the command line
 is not printed before it is executed.
 .TP
 .B ?
@@ -514,7 +543,8 @@ The colon may be followed by a
 or a white space 
 separated list of 
 .IR "dependency names" .
-The double colon allows to specify alternate dependency lists.
+The double colon allows to specify alternate dependency lists and
+commands for the same target.
 The dependency list may be followed by a semicolon (';') and a
 Bourne shell
 .IR command .
@@ -599,7 +629,46 @@ previous
 .B SHELL
 environment is kept.
 
-.SH "SEARCHING RULES FOR FILES"
+.SH "Automake Features
+.PP
+.B Smake
+implements
+.B automake
+features that help to write highly portable makefile systems. The
+.B automake
+features are implemented with a set of special purpose macros and by special
+rules that help to extend the functionality and automated adaptivity of
+.BR smake .
+.SS "Automake special purpose macros
+.PP
+The special purpose macros that have names that match
+.B "MAKE_*
+(see section
+.BR "Special Macros" )
+are part of the
+.B automake
+features of smake.
+The related special macros are set up by 
+.B smake
+to contain values that have been retrieved from the results of the
+.BR uname (2),
+.BR sysinfo (2)
+or
+.BR sysctl (2)
+system calls.
+The values for these macros may however be overwritten from a makefile
+or from a command line macro definition.
+.SS "Automake special targets
+.PP
+The special target
+.B \&.INCLUDE_FAILED
+allows to define a rule that is evaluated in case that an include
+files does not exist and could not be made from other rules.
+As the asociated command for this target is typically a shell script,
+the shell script can be written to create fall back rules in a platform
+independent way.
+
+.SH "Search Rules For Files"
 .PP
 In many cases, it is desirable to hold object files in a special
 directory which is different from the directory where the source
@@ -701,15 +770,146 @@ entry twice into the
 .BR \&.SEARCHLIST: .
 Please report problems with this solution.
 
-.SH "VARIABLE SUBSTITUTION"
-Any variable defined by a line in the form:
+.br
+.ne 10
+.SH Macros
+.SS "Macro Definitions"
+Macros are defined by a line in the form:
 .PP
-.BI varname= "	val"
+.BI macroname= "	value"
 .PP
-may referenced by either: 
-.BI $( varname )
+The value assigned to the macro contains all characters after the equal sign
+up to a comment character ('#') or an unescaped newline. Any blank characters that
+directly follow the equal sign are ignored.
+.PP
+An alternate macro definitions use the form:
+.PP
+.BI "macroname +=" "	value"
+.PP
+to append
+.B value
+to the current definition for
+.BR macroname .
+Note that there needs to be white space before the '+=' as
+.B smake
+allows macro names like
+.BR C++ .
+.PP
+A macro definition that uses the form:
+.PP
+.BI macroname:= "	value"
+.PP
+will evaluate the right side of the assignment when the line is read by the parser.
+Note that SunPro make uses 
+.B := 
+for a different incompatible purpose. A makefile that uses 
+.B :=
+is non-portable.
+.PP
+A macro definition that uses the form:
+.PP
+.BI macroname:sh= "	command"
+.PP
+will call
+.I command
+and define the macro value to be the output of
+.I command
+when the line is read by the parser.
+.SS "Macro References"
+.PP
+Macros may be referenced by either: 
+.BI $( macroname )
 or
-.BI ${ varname }.
+.BI ${ macroname }.
+The parentheses or braces are optional for a macro with a single character name.
+.PP
+Macro definitions and macro references can appear anywhere in the makefile. Macro
+references are expanded under the following circumstances:
+.TP
+\(bu
+Macros in target lines are evaluated when the target line is read by the parser.
+.TP
+\(bu
+Macros in command lines for rules are evaluated when the command is executed.
+.TP
+\(bu
+Macros in the string before ':', '::', '=' or '+=' (names for target or macro 
+definitions)
+are evaluated when the target line is read by the parser.
+.TP
+\(bu
+Macro references after the equal sign in a macro definition are not evaluated
+until the defined macro itself is used in a rule or a command or to the left of
+the equal sign from a macro definition.
+.SS "Macro Substitution"
+.PP
+Macro references may be used to substitute macro values.
+There are different methods for macro substitution.
+.SS "Suffix Replacement Macro References"
+.PP
+A macro reference in the following form:
+.PP
+.B
+	$(\fIname\fP:\fIsubst1\fP=\fIsubst2\fP)
+.PP
+is used to replace the suffix or word
+.B subst1
+in the value of the macro
+.B name
+by
+.BR subst2 .
+Words are separated by space or tab characters.
+
+.SS "Pattern Replacement Macro References"
+.PP
+A macro reference in the following form:
+.PP
+.B
+	$(\fIname\fP:\fIop\fP%\fIos\fP=\fInp\fP%\fIns\fP)
+.PP
+is used to replace prefixes and suffixes in words. In this case,
+.I op
+is the old prefix,
+.I os
+is the old suffix,
+.I np
+is the new prefix
+and
+.I ns
+is the new suffix.
+The strings
+.IR op ,
+.IR os ,
+.I np
+and
+.I ns
+may all be empty strings.
+The pattern % matches a string of zero or more characters.
+The matched pattern is carried forward to the replacement target.
+For example:
+.PP
+.B OBJECT=foo.o
+.br
+.B SCCS_HISTFILE=$(OBJECT:%.o=SCCS/s.%.c)
+.PP
+replaces 
+.B foo.o 
+by 
+.B SCCS/s.foo.c
+when the macro
+.B $(SCCS_HISTFILE)
+is referenced.
+.SS "Shell Replacement Macro References"
+.PP
+A macro reference in the following form:
+.PP
+.B
+	$(\fIname\fP:sh)
+.PP
+will interpret the content of the macro
+.I name
+as a shell command line, call the shell with the content of the macro
+and return the output of the called command.
 
 .SH "Special Targets"
 .\".TP
@@ -764,34 +964,52 @@ Reserved for future use.
 .\"mode.
 .TP
 .B \&.IGNORE:
-Ignore errors. If this special target is present, 
-.B smake 
-behaves as if it was called with the \-i flag.
-.sp
-.SM POSIX
-requires that 
+Ignore errors.
+When this special target is present and has no dependencies, 
+.B smake
+will ignore errors from commands.
+Specifying
 .B \&.IGNORE:
-only applies to some targets if they are in the list of dependencies
-of the 
-.B \&.IGNORE
-target.
-.B Smake 
-currently does not implement this
-.SM POSIX
-behaviour.
+without dependencies is equivalent to using the
+.B \-i
+option.
+If
+.B \&.IGNORE:
+has dependencies and the current target is in the list of dependencies
+of
+.B \&.IGNORE:
+the exit code for the related commands is ignored.
 .TP
-.B \&.INCLUDEFAILED:
+.B \&.INCLUDE_FAILED:
 This special target implements
 .B automake
 features for object oriented layered makefiles.
 If this target is present, 
 .B smake
 executes the commands for this target
-if a make file could not be included and there
-was no rule that could create the the missing make include file.
+in case that a make file could not be included and there
+was no other explicit or implicit rule that did create the the missing
+make include file.
 The
-.B \&.INCLUDEFAILED
+.B \&.INCLUDE_FAILED
 target may not have a dependency list.
+When the commands for the target
+.B \&.INCLUDE_FAILED
+are called, the dependency list of the special target is set up to
+the include file name.
+The commands for the target
+.B \&.INCLUDE_FAILED
+are called for both, the
+.B include
+and the
+.B \-include
+directive. If the commands for the
+.B \&.INCLUDE_FAILED
+target cannot create a file that is going to be included,
+.B smake
+will fail in case that the
+.B include
+directive was used.
 .TP
 .B \&.INIT:
 If this target is present, the target and its dependencies are built before
@@ -911,8 +1129,9 @@ to make sure that the make process still stops at failed commands.
 .B \&.PRECIOUS:
 This macro holds a list of targets that should not be removed while they 
 are built if
-.B sake
+.B smake
 receives a signal.
+If the list is empty, this applies to all targets.
 .TP
 .B \&.PHONY:
 This macro holds a list of targets that should not be checked against existing
@@ -962,7 +1181,21 @@ and the content of
 .BR \&.SEARCHLIST .
 .TP
 .B \&.SILENT:
-Reserved for future use.
+Run silently.
+When this special target is present and has no dependencies, 
+.B smake
+will not echo commands before executing them.
+Specifying
+.B \&.SILENT:
+without dependencies is equivalent to using the
+.B \-s
+option.
+If
+.B \&.SILENT:
+has dependencies and the current target is in the list of dependencies
+of
+.B \&.SILENT:
+the related commands are not echoed before they are executed.
 .TP
 .B \&.SPACE_IN_NAMES:
 If this target is present and has a dependency list, escaped
@@ -987,6 +1220,11 @@ for one target only:
 .br
 .RE
 .TP
+.B \&.SSUFFIX_RULES:
+If this special macro is present with no dependencies, all current
+.B Simple Suffix Rules
+are cleared.
+.TP
 .B \&.SUFFIXES:
 Dependencies of
 .B \&.SUFFIXES
@@ -996,6 +1234,9 @@ the suffix rules (see
 If
 .B \&.SUFFIXES
 does not have any dependencies, the list of known suffixes is cleared.
+If the list of
+.B \&.SUFFIXES
+was cleared, no implicit suffix rule search is done.
 .TP
 .B \&.SYM_LINK_TO:
 Reserved for future use.
@@ -1023,6 +1264,8 @@ may not be used to check for a specific
 program. Use
 .B $(MAKE_NAME)
 instead.
+If a command line contains this macro,
+this command line is executed even if there is no plus sign ('+').
 .
 .TP
 .B MAKEFLAGS
@@ -1311,6 +1554,12 @@ This macro contains the
 version number string.
 .
 .TP
+.B NUMBER_SIGN
+This macro is predefined to contain the number sign ('#') that is used as
+the make comment start character and for this reason cannot be appear
+in non comment parts of regular makefiles.
+.
+.TP
 .B SHELL
 .
 The 
@@ -1329,7 +1578,7 @@ other UNIX make programs. In
 this functionality is implemented using the
 .B \&.SEARCHLIST:
 special target, see chapter
-.B "SEARCHING RULES FOR FILES"
+.B "Search Rules For Files"
 for more information.
 
 .SH "Dynamic Macros"
@@ -1389,7 +1638,7 @@ expands to the path name of implicit source made in this step.
 It is expanded for implicit rules only.
 This macro is available with
 .B smake
-only. It is made available to make the behaviour more orthogonal.
+only. It is made available to make the behavior more orthogonal.
 .TP
 .B $1 $2 $3 ...
 expands to the path name of the nth file in the dependency list.
@@ -1433,34 +1682,107 @@ may expand to:
 cc \-o foo OBJ/main.o parser/OBJ/lex.o parser/OBJ/parse.o
 
 .SH "Implicit Rules"
+.PP
+If there is no explicit target rule for a specific target,
+.B smake
+tries to find a matching implicit rule.
+There are three different types of implicit rules. 
+.B "Pattern Matching Rules"
+are searched first. If no matching pattern matching rule could be found, the
+.B "Suffix Rules"
+are checked and if there was no matching
+suffix rule, the 
+.B "Simple Suffix Rules"
+are checked.
+.PP
+Commands defined for implicit rules of any type typically make use of the
+dynamic macros
+.BR $@ ,
+.BR $* " and
+.B $<
+as placeholders for target and dependency file names.
+
 .SS "Pattern Matching Rules"
 .PP
-Pattern matching rules have first been found in Sun's SunPRO make.
-They are now also inplemented in GNU make and
+Pattern matching rules have been introduced by SunPRO make on SunOS-3.x
+in 1986.
+They are now also implemented in
 .BR smake . 
+Pattern matching rules are searched in the same order as they appear in the
+makefile.
 .PP
 A pattern matching rule looks this way:
 .PP
 .ne 3
 .RS
-\f3tp%\f2ts\f1\|:  \f2dp\f3%\f2ds\f1
 .HP
-.I target_suffix
-.B :
-.IR dependency_1_suffix " .\|.\|."
+\f2tp\f3%\f2ts\f1\|:  \f2dp\f3%\f2ds\f1
 .nf
-<tab> dependency_command
+.RI "<tab> " command
 \&\|.\|.\|.
 .fi
 .RE
-XXXXX
-XXXXX falsch !!!
+.sp
+In this rule, 
+.I tp
+is the target prefix,
+.I ts 
+is the target suffix,
+.I dp
+is the dependency prefix
+and
+.I ds
+is the dependency suffix.
+Any of the parts may be a null string.
+The 
+.B %
+part of the strings is the base name that matches zero or more characters
+in the target name.
+Whenever
+.B smake
+encounters a match with a target pattern of a pattern matching rule, it
+uses the matching base name to construct dependency names. If the target
+is out of date relative to the dependency,
+.B smake
+uses the commands from the pattern matching rule to build or rebuild the 
+target.
+.sp
+A rule in the form:
+.PP
+.ne 3
+.RS
+.HP
+\f2tp\f3%\f2ts\f1\|:
+.nf
+.RI "<tab> " command
+\&\|.\|.\|.
+.fi
+.RE
+.sp
+is permitted.
 
 .SS "Suffix Rules"
 .PP
 Suffix rules are the POSIX way of spefifying implicit dependencies.
+Suffix rules are searched when no pattern matching rule applies.
+If the special target
+.B .SUFFIXES:
+was cleared or is empty,
+.B smake
+does not check suffix rules.
+If
+.B .SUFFIXES:
+defines a list of suffixes, the current target file name is checked against
+this list. If there is a match, the list of suffix rules is checked against
+the target suffix and a dependency suffix that is also in the
+.B .SUFFIXES:
+list. The search order is derived from the order of suffixes in the suffix
+list while matching dependency suffixes.
+A suffix does not need to begin with a
+.B '\&.'
+to be recognized.
 .PP
-A Suffix rule looks this way:
+A Double Suffix rule looks this way:
 .PP
 .ne 3
 .RS
@@ -1471,9 +1793,34 @@ A Suffix rule looks this way:
 \&\|.\|.\|.
 .fi
 .RE
-XXXXX falsch !!!
+.PP
+.B Ds
+is the dependency suffix and
+.B Ts
+is the target suffix.
+They are used when both target file name and dependency file name have a suffix.
+Double Suffix rules are searched before Single Suffix rules are checked.
+.PP
+A Single Suffix rule looks this way:
+.PP
+.ne 3
+.RS
+.HP
+.IB Ds :
+.nf
+<tab> dependency_command
+\&\|.\|.\|.
+.fi
+.RE
+.PP
+.B Ds
+is the dependency suffix.
+Single Suffix rules are used when the target file name does not have a suffix.
+
 .SS "Simple Suffix Rules"
 .PP
+Simple suffix rules have the lowest preference when looking for
+implicit rules.
 Simple suffix rules are specific to
 .BR smake.
 .PP
@@ -1498,7 +1845,7 @@ one or more dependency suffixes which are also written as "" if
 no dependency suffix exists.
 The first line is followed by exactly the same number of Bourne
 shell command lines (each starting with a TAB) as there were dependency
-suffix specification in the first line.
+suffix specifications in the right side of the first line.
 Each of the Bourne shell command lines correspond to one of the
 .I dependency suffixes
 in the same order.
@@ -1555,14 +1902,16 @@ can be found the second command line
 is executed. Which command is executed depends on which 
 source file exists.
 
-.SH "DEFAULT RULES"
+.SH "DEFAULT IMPLICIT RULES"
 .PP
-Changing the implicit rules allows to change the default behaviour
+Changing the implicit rules allows to change the default behavior
 of
 .BR smake .
+.SS "Default Simple Suffix Rules"
 .PP
 The current default implicit rules are using the simple suffix rule
-notation:
+notation are compiled into
+.BR smake :
 .PP
 .nf
 .BI FC= 		f77
@@ -1592,15 +1941,164 @@ notation:
 .B
 	$(ROFF) $(RFLAGS) $0 > $@
 .fi
-
-.SH "COMMAND EXECUTION"
 .PP
-All commands are executed by the standard shell
-.RB ( /bin/sh ).
-They may use all constructs that
-are permitted for a POSIX shell as long as the local shell supports them.
+If 
+.B smake
+reads a file
+.B defaults.smk
+with default implicit rules, the compiled in rules are disabled.
 
-.SH ENVIRONMENT
+.SH "ENVIRONMENT VARIABLES
+On startup,
+.B smake
+reads all environment variables (except the
+.B SHELL
+environment) into make macros.
+The following environment variables affect the behavior of 
+.BR smake .
+.TP 12
+.B LANG
+Sets up a default value for internationalization variables that are unset or NULL:
+.TP
+.B LC_ALL
+If set, this overrides any other internationalization variables.
+.TP
+.B LC_CTYPE
+Determine the the interpretation of byte sequences.
+.TP
+.B LC_MESSAGES
+Determine the diagnostic messages.
+.TP
+.B MAKE_LEVEL
+This variable is managed by
+.B smake
+to track nested
+.B smake
+calls.
+It is initialized with 1 and exported. Nested calls to
+.B smake
+increment the level.
+.TP
+.B MAKEFLAGS
+This variable is set up by 
+.B smake
+in order to forward command line options to nested calls to
+.BR smake .
+In order to do this,
+.B smake
+sets the content of the 
+.B MAKEFLAGS
+variable to contain a list of single character option letters.
+The option 
+.B \-f
+is not forwarded via the
+.B MAKEFLAGS
+environment.
+If command line macro definitions in the form
+.IR name=value
+have been specified, the list of option letters is followed
+by the string "\ --\ " and by a list of macro definitions.
+.sp
+If any of the
+.IR name=value
+command line macro definitions contains a space ('\ ') or a 
+backslash ('\e'), these characters are escaped by a single
+backslash.
+.sp
+As required by POSIX,
+.B smake
+accepts all possible variants of formatting the content of the
+.B MAKEFLAGS
+environment.
+.sp
+See section
+.B "Special Macros
+for more information on the
+.B MAKEFLAGS
+environment.
+.TP
+.B PATH
+The
+.B PATH
+environment variable is used by
+.B smake
+when calling commands. When 
+.B PATH
+is modified, this may cause that specific commands cannot be found
+or that a different implementation with different behavior is found 
+instead.
+.TP
+.B PROJECTDIR
+This enviroment variable controls the way SCCS history files are searched for.
+See
+.BR sccs (1)
+for more information.
+
+.SH "ASYNCHRONOUS EVENTS
+.PP
+If not already ignored by the shell, 
+.B smake
+catches
+.BR SIGHUP ,
+.BR SIGINT ,
+.B SIGQUIT 
+and
+.B SIGTERM
+and removes the current target unless the current target is a directory,
+the current target is a prerequisite of the special target
+.B .PRECIOUS
+or the special target
+.B .PHONY
+or one of the options: 
+.BR \-t ,
+.BR \-q ,
+.B \-p
+or
+.BR \-n 
+have been specified.
+.PP
+As 
+.BR bash (1)
+is known to handle signals in a non POSIX compliant way because bash
+sets up different process groups for non-interactive commands, 
+.B smake
+actively propagates the signals named above in case that the autoconfiguration
+identified /bin/sh to be bash based.
+
+.SH "EXIT STATUS
+.PP
+When the
+.B \-q 
+option is specified,
+.B smake
+exits with one of the following values:
+.TP
+.B 0
+Successful completion.
+.TP
+.B 1
+The target was not up-to-date.
+.TP
+.B -1 (255)
+A command line usage error or makefile parsing error occurred. 
+.TP
+.B >0
+An error occurred.
+.PP
+When the
+.B \-q 
+option is not specified,
+.B smake
+exits with one of the following values:
+.TP
+.B 0
+Successful completion.
+.TP
+.B -1 (255)
+A command line usage error or makefile parsing error occurred. 
+.TP
+.B >0
+An error occurred.
 
 .SH FILES
 .PP
@@ -1638,10 +2136,37 @@ If this file cannot be found too, then
 
 .SH "SEE ALSO
 .BR sh (1),
+.BR sccs (1),
+.BR sysctl (2),
+.BR sysinfo (2),
+.BR uname (2),
 .BR makefiles (4),
 .BR makerules (4)
 
 .SH NOTES
+.PP
+If a platform uses a shell that does not handle signals correctly and
+.B smake
+does not implement the work around that was mentioned above in the section
+.BR "ASYNCHRONOUS EVENTS" ,
+sub makes may continue to run even though the top level make was killed by
+a signal.
+.PP
+In order to be able to abort complex make structures after a failed
+command was encountered, the shell needs to behave correctly with the 
+.B \-e
+option.
+Bash version 3.x in general and the Korn Shell variant that comes with HP-UX 
+are known to handle the
+.B \-e
+option in a non-POSIX compliant way.
+If the autoconfiguration tests detect a non-compliant /bin/sh and there is 
+a working Bourne Shell available under /bin/bosh or /opt/schily/bin/bosh,
+.B smake
+will use this
+.B bosh
+as the default shell.  See the schily source consolidation at:
+ftp://ftp.berlios.de/pub/schily/.
 .PP
 The old 
 .B schily (SING)
@@ -1669,7 +2194,7 @@ more complicated shell scripts, you need to escape the end of line
 with a backslash to keep all commands on one virtual shell command line.
 .PP
 .B Smake
-will in the near future be as 
+tries to be as
 .B POSIX
 compliant as possible.
 .PP
@@ -1683,7 +2208,7 @@ are not covered by
 Note that adding something to a macro definition is supported by all
 known 
 .I make
-implementation since ~ 1980.
+implementations since ~ 1980.
 In addition,
 it is most unlikely
 that different 
@@ -1698,8 +2223,6 @@ implementation like
 
 .SH BUGS
 .PP
-Pattern matching rules, POSIX suffix rules and the .DEFAULT target
-have recently been implemented. There may be bugs in the code.
 .B SCCS
 retrieval is not yet implemented.
 .PP
@@ -1707,15 +2230,18 @@ A '+' character does not cancel the
 .B \-t
 option, the commands are not executed.
 .PP
+A command line that contains the macro
+.B "$(MAKE)"
+is always executed, even when in POSIX mode.
+This is conflict with the POSIX standard since POSIX.1-2008.
+.PP
 Built in library handling is not yet implemented.
 .PP
-There are currently no other known bugs, but as 
+There are currently no other known bugs.
+As 
 .B smake
-since 1994 has mainly been used with the 
-the SCHILY (Sing) makefile system, there may be bugs with
-other makefiles.
-.PP
-In any case, 
+since spring 1993 is used as the reference make program for
+the SCHILY (Sing) makefile system,
 .B smake
 is the best choice when compiling projects that are using
 the SCHILY (Sing) makefile system.
@@ -1731,10 +2257,4 @@ Germany
 Mail bugs and suggestions to:
 .PP
 .B
-joerg@schily.isdn.cs.tu-berlin.de
-or
-.B
-js@cs.tu-berlin.de
-or
-.B
-schilling@fokus.gmd.de
+joerg.schilling@fokus.fraunhofer.de

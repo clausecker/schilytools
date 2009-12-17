@@ -1,4 +1,4 @@
-.\" @(#)readcd.1	1.38 09/11/15 Copyright 1996-2009 J. Schilling
+.\" @(#)readcd.1	1.40 09/12/06 Copyright 1996-2009 J. Schilling
 .\"
 .\" The contents of this file are subject to the terms of the
 .\" Common Development and Distribution License, Version 1.0 only
@@ -38,7 +38,10 @@ readcd \- read or write data Compact Discs or related madia
 is used to read or write Compact Discs.
 .PP
 .SS "Device naming"
-Most users do not need to care about device naming at all, as 
+Most users do not need to care about device naming at all.
+If no
+.B dev=
+option was specified, 
 .B readcd
 implements 
 .B auto target
@@ -55,98 +58,15 @@ parameter may be set based on the device listing.
 .PP
 The
 .I device
-(see
+parameter to the
 .B dev=
-option)
-refers to
+option
+explained below refers to
 .IR scsibus / target / lun
-of the drive. Communication on 
-.I SunOS
-is done with the SCSI general driver
-.B scg.
-Other operating systems are using a library simulation of this driver.
-Possible syntax is:
+of the CD/DVD/BluRay-Recorder.
+If a file /etc/default/cdrecord exists, the parameter to the
 .B dev=
-.IR scsibus , target , lun
-or
-.B dev=
-.IR target , lun .
-In the latter case, the drive has to be connected to the default 
-SCSI bus of the machine.
-.IR Scsibus ,
-.I target 
-and 
-.I lun
-are integer numbers. 
-Some operating systems or SCSI transport implementations may require to
-specify a filename in addition.
-In this case the correct syntax for the device is:
-.B dev=
-.IR devicename : scsibus , target , lun
-or
-.B dev=
-.IR devicename : target , lun .
-If the name of the device node that has been specified on such a system
-refers to exactly one SCSI device, a shorthand in the form
-.B dev=
-.IR devicename : @
-or
-.B dev=
-.IR devicename : @ , lun
-may be used instead of
-.B dev=
-.IR devicename : scsibus , target , lun .
-
-.PP
-To access remote SCSI devices, you need to prepend the SCSI device name by
-a remote device indicator. The remote device indicator is either
-.BI REMOTE: user@host:
-or
-.BR
-.BI REMOTE: host:
-.br
-A valid remote SCSI device name may be:
-.BI REMOTE: user@host:
-to allow remote SCSI bus scanning or
-.BI REMOTE: user@host:1,0,0
-to access the SCSI device at 
-.I host
-connected to SCSI bus # 1,target 0 lun 0.
-
-.PP
-To access SCSI devices via alternate transport layers,
-you need to prepend the SCSI device name by a transport layer indicator.
-The transport layer indicator may be something like
-.B USCSI: 
-or
-.BR ATAPI: .
-To get a list of supported transport layers for your platform, use 
-.B dev=
-.IR HELP :
-
-.PP
-To make 
-.B readcd
-portable to all \s-2UNIX\s0 platforms, the syntax
-.B dev=
-.IR devicename : scsibus , target , lun
-is preferred as is hides OS specific knowledge about device names from the user.
-A specific OS must not necessarily support a way to specify a real device file name nor a
-way to specify 
-.IR scsibus , target , lun .
-
-.PP
-.I Scsibus 
-0 is the default SCSI bus on the machine. Watch the boot messages for more 
-information or look into 
-.B /var/adm/messages 
-for more information about the SCSI configuration of your machine.
-If you have problems to figure out what values for 
-.IR scsibus , target , lun
-should be used, try the 
-.B \-scanbus
-option of 
-.BR cdrecord .
+option may also be a drive name label in said file (see FILES section).
 
 .SH OPTIONS
 .PP
@@ -157,127 +77,36 @@ option have been specified,
 goes into interactive mode.
 Select a primary function and then follow the instructions.
 .PP
+.SS "Informative options"
+.TP
+.B \-help
+display version information for
+.B readcd
+on standard output.
 .TP
 .B \-version
 Print version information and exit.
 .TP
-.BI dev= target
-Sets the SCSI target for the drive, see notes above.
-A typical device specification is
-.BI dev= 6,0
-\&.
-If a filename must be provided together with the numerical target 
-specification, the filename is implementation specific.
-The correct filename in this case can be found in the system specific
-manuals of the target operating system.
-On a 
-.I FreeBSD
-system without 
-.I CAM
-support, you need to use the control device (e.g.
-.IR /dev/rcd0.ctl ).
-A correct device specification in this case may be
-.BI dev= /dev/rcd0.ctl:@
-\&.
-.sp
-On Linux, drives connected to a parallel port adapter are mapped
-to a virtual SCSI bus. Different adapters are mapped to different
-targets on this virtual SCSI bus.
-.sp
-If no 
-.I dev
-option is present, 
-.B cdrecord
-will try to get the device from the 
-.B CDR_DEVICE
-environment.
-.sp
-If the argument to the
-.B dev=
-option does not contain the characters ',', '/', '@' or ':',
-it is interpreted as an label name that may be found in the file
-/etc/default/cdrecord (see FILES section).
-.sp
-If no 
-.B dev=
-option is present, or if the
-.B dev=
-option only contains a transport specifyer but no address,
-.B readcd
-tries to scan the SCSI address space for CD-ROM drives.
-If exactly one is found, this is used by default.
-.TP
-.BI timeout= #
-Set the default SCSI command timeout value to 
-.IR # " seconds.
-The default SCSI command timeout is the minimum timeout used for sending
-SCSI commands.
-If a SCSI command fails due to a timeout, you may try to raise the
-default SCSI command timeout above the timeout value of the failed command.
-If the command runs correctly with a raised command timeout,
-please report the better timeout value and the corresponding command to 
-the author of the program.
-If no 
-.I timeout 
-option is present, a default timeout of 40 seconds is used.
-.TP
-.BI debug= "#, " \-d
-Set the misc debug value to # (with debug=#) or increment
-the misc debug level by one (with \-d). If you specify
-.I \-dd,
-this equals to 
-.BI debug= 2.
-This may help to find problems while opening a driver for libscg.
-as well as with sector sizes and sector types.
-Using
-.B \-debug
-slows down the process and may be the reason for a buffer underrun.
-.TP
-.BR kdebug= "#, " kd= #
-Tell the 
-.BR scg -driver
-to modify the kernel debug value while SCSI commands are running.
-.TP
-.BR \-silent ", " \-s
-Do not print out a status report for failed SCSI commands.
-.TP
 .B \-v
 Increment the level of general verbosity by one.
 This is used e.g. to display the progress of the process.
+.SS "Readcd functional options"
 .TP
-.B \-V
-Increment the verbose level with respect of SCSI command transport by one.
-This helps to debug problems
-during the process, that occur in the CD-Recorder. 
-If you get incomprehensible error messages you should use this flag
-to get more detailed output.
-.B \-VV
-will show data buffer content in addition.
-Using
-.B \-V
-or
-.B \-VV
-slows down the process.
-.TP
-.BI f= file
-Specify the filename where the output should be written or the input should
-be taken from. Using '\-' as filename will cause
-.B readcd
-to use 
-.BR stdout " resp. " stdin .
-.TP
-.B \-w
-Switch to write mode.
-Writing is only possible to DVD-RAM media. For other media, use
-.B cdrecord
-instead.
-Note that 
-.B cdrecord
-also supports to write DVD-RAM media.
+.B \-clone
+Do a clone read. Read the CD with all sub-channel data and a full TOC.
+The full TOC data will be put into a file with similar name as with the
+.B f=
+option but the suffix 
+.B .toc
+added.
 .sp
-If this option is not present,
-.B readcd
-reads from the specified device.
+Note that reading in
+.B clone
+mode results in having no error correction at sub-channel level. Even in the main data channel,
+there is less error correction than with other read modes. This results in a slightly quality
+degradation. Avoid copying audio CDs in 
+.B clone
+mode for this reason.
 .TP
 .B \-c2scan
 Scans the whole CD or the range specified by the 
@@ -322,6 +151,58 @@ This option is currently experimental and only applicable with
 CD media and currently only supports
 plain 2048 Byte CD-ROM sectors.
 .TP
+.BI f= file
+Specify the filename where the output should be written or the input should
+be taken from. Using '\-' as filename will cause
+.B readcd
+to use 
+.BR stdout " resp. " stdin .
+.TP
+.B \-factor
+Output the speed values for
+.BR meshpoints= #
+as factor based on 
+.I "single speed
+of the current medium.
+This only works if
+.B readcd
+is able to determine the current medium type.
+.TP
+.B \-fulltoc
+Retrieve a full TOC from the current disk and print it in hex.
+.TP
+.BR meshpoints= #
+Print read-speed at # locations.
+The purpose of this option is to create a list of read speed values suitable
+for e.g.
+.BR gnuplot .
+The speed values are calculated assuming that 1000 bytes are one kilobyte
+as documented in the SCSI standard.
+The output data created for this purpose is written to 
+.IR stdout .
+.TP
+.B \-nocorr
+Switch the drive into a mode where it ignores read errors in data sectors that
+are a result of uncorrectable ECC/EDC errors before reading.
+If
+.B readcd
+completes, the error recovery mode of the drive is switched back to the remembered 
+old mode.
+.TP
+.B \-noerror
+Do not abort if the high level error checking in
+.B readcd
+found an uncorrectable error in the data stream.
+.TP
+.B \-notrunc
+Do not truncate the output file when opening it.
+.TP
+.B \-overhead
+Meter the SCSI command overhead time.
+This is done by executing several commands 1000 times and printing the
+total time used. If you divide the displayed times by 1000, you get 
+the average overhead time for a single command.
+.TP
 .B \-pi8scan
 Scans the whole DVD or the range specified by the 
 .BI sectors= range
@@ -360,12 +241,13 @@ and
 .BR \-pifscan .
 The output is better suited for gnuplot.
 .TP
-.B \-scanbus
-Scan all SCSI devices on all SCSI busses and print the inquiry
-strings. This option may be used to find SCSI address of the 
-devices on a system.
-The numbers printed out as labels are computed by: 
-.B "bus * 100 + target
+.BI retries= #
+Set the retry count for high level retries in
+.B readcd
+to 
+.IR # .
+The default is to do 128 retries which may be too much if you like to read a CD
+with many unreadable sectors.
 .TP
 .BI sectors= range
 Specify a sector range that should be read.
@@ -389,6 +271,241 @@ The speed of non MMC drives is not changed.
 .sp
 Using a lower speed may increase the readability of a CD or DVD.
 .TP
+.B \-w
+Switch to write mode.
+Writing is only possible to DVD-RAM media. For other media, use
+.B cdrecord
+instead.
+Note that 
+.B cdrecord
+also supports to write DVD-RAM media.
+.sp
+If this option is not present,
+.B readcd
+reads from the specified device.
+.SS "SCSI options"
+.....SS "OS Interface options"
+.TP
+.BI dev= target
+Sets the SCSI target for the CD/DVD/BluRay-Recorder, see notes above.
+A typical target device specification is
+.BI dev= 1,6,0
+\&.
+If a filename must be provided together with the numerical target 
+specification, the filename is implementation specific.
+The correct filename in this case can be found in the system specific
+manuals of the target operating system.
+On a 
+.I FreeBSD
+system without 
+.I CAM
+support, you need to use the control device (e.g.
+.IR /dev/rcd0.ctl ).
+A correct device specification in this case may be
+.BI dev= /dev/rcd0.ctl:@
+\&.
+.sp
+.B \h'-2m'General SCSI addressing
+.br
+The
+.I target device
+to the 
+.B dev=
+option
+refers to
+.IR scsibus / target / lun
+of the CD/DVD/BluRay-Recorder. Communication on 
+.I SunOS
+is done with the SCSI general driver
+.B scg.
+Other operating systems are using a library simulation of this driver.
+Possible syntax is:
+.B dev=
+.IR scsibus , target , lun
+or
+.B dev=
+.IR target , lun .
+In the latter case, the CD/DVD/BluRay-Recorder has to be connected to the default 
+SCSI bus of the machine.
+.IR Scsibus ,
+.I target 
+and 
+.I lun
+are integer numbers. 
+Some operating systems or SCSI transport implementations may require to
+specify a filename in addition.
+In this case the correct syntax for the device is:
+.B dev=
+.IR devicename : scsibus , target , lun
+or
+.B dev=
+.IR devicename : target , lun .
+If the name of the device node that has been specified on such a system
+refers to exactly one SCSI device, a shorthand in the form
+.B dev=
+.IR devicename : @
+or
+.B dev=
+.IR devicename : @ , lun
+may be used instead of
+.B dev=
+.IR devicename : scsibus , target , lun .
+.sp
+.B \h'-2m'Remote SCSI addressing
+.br
+To access remote SCSI devices, you need to prepend the SCSI device name by
+a remote device indicator. The remote device indicator is either
+.BI REMOTE: user@host:
+or
+.BI REMOTE: host:
+A valid remote SCSI device name may be:
+.BI REMOTE: user@host:
+to allow remote SCSI bus scanning or
+.BI REMOTE: user@host:1,0,0
+to access the SCSI device at 
+.I host
+connected to SCSI bus # 1,target 0 lun 0.
+In order to allow remote access to a specific
+.IR host ,
+the program
+.BR rscsi (1)
+program needs to be present and configured on the
+.IR host .
+.sp
+.B \h'-2m'Alternate SCSI transports
+.br
+.B Cdrecord
+is completely based on 
+.B SCSI
+commands but this is no problem as all CD/DVD/BluRay writers
+ever made use
+.B SCSI
+commands for the communication. Even
+.B ATAPI
+drives are just
+.B SCSI
+drives that inherently use the 
+.I "ATA packet interface
+as
+.B SCSI
+command transport layer build into the IDE (ATA) transport.
+You may need to specify an alternate transport layer on the command  line
+if your OS does not implement a fully integrated kernel driver subsystem that
+allows to access any drive using
+.B SCSI
+commands via a single unique user interface.
+.sp
+To access SCSI devices via alternate transport layers,
+you need to prepend the SCSI device name by a transport layer indicator.
+The transport layer indicator may be something like
+.B USCSI: 
+or
+.BR ATAPI: .
+To get a list of supported transport layers for your platform, use 
+.B dev=
+.IR HELP :
+.sp
+.B \h'-2m'Portability Background
+.br
+To make 
+.B readcd
+portable to all \s-2UNIX\s0 platforms, the syntax
+.B dev=
+.IR devicename : scsibus , target , lun
+is preferred as it hides OS specific knowledge about device names from the user.
+A specific OS may not necessarily support a way to specify a real device file name nor a
+way to specify 
+.IR scsibus , target , lun .
+.sp
+.I Scsibus 
+0 is the default SCSI bus on the machine. Watch the boot messages for more 
+information or look into 
+.B /var/adm/messages 
+for more information about the SCSI configuration of your machine.
+If you have problems to figure out what values for 
+.IR scsibus , target , lun
+should be used, try the 
+.B \-scanbus
+option of 
+.B readcd
+described below.
+.sp
+.B \h'-2m'Using logical names for devices
+.br
+If no 
+.I dev
+option is present, 
+.B readcd
+will try to get the device from the 
+.B CDR_DEVICE
+environment.
+.sp
+If a file /etc/default/cdrecord exists, and
+if the argument to the
+.B dev=
+option
+or the
+.B CDR_DEVICE
+environment
+does not contain the characters ',', '/', '@' or ':',
+it is interpreted as a device label name that was defined in the file
+/etc/default/cdrecord (see FILES section).
+.sp
+.B \h'-2m'Autotarget Mode
+.br
+If no 
+.B dev=
+option 
+and no
+.B CDR_DEVICE
+environment
+is present, or if it
+only contains a transport specifyer but no address notation,
+.B readcd
+tries to scan the SCSI address space for CD-ROM drives.
+If exactly one is found, this is used by default.
+.TP
+.BI debug= "#, " \-d
+Set the misc debug value to # (with debug=#) or increment
+the misc debug level by one (with \-d). If you specify
+.I \-dd,
+this equals to 
+.BI debug= 2.
+This may help to find problems while opening a driver for libscg.
+as well as with sector sizes and sector types.
+Using
+.B \-debug
+slows down the process and may be the reason for a buffer underrun.
+.TP
+.BR kdebug= "#, " kd= #
+Tell the 
+.BR scg -driver
+to modify the kernel debug value while SCSI commands are running.
+.TP
+.B \-scanbus
+Scan all SCSI devices on all SCSI busses and print the inquiry
+strings. This option may be used to find SCSI address of the 
+devices on a system.
+The numbers printed out as labels are computed by: 
+.B "bus * 100 + target
+.TP
+.BR \-silent ", " \-s
+Do not print out a status report for failed SCSI commands.
+.TP
+.BI timeout= #
+Set the default SCSI command timeout value to 
+.IR # " seconds.
+The default SCSI command timeout is the minimum timeout used for sending
+SCSI commands.
+If a SCSI command fails due to a timeout, you may try to raise the
+default SCSI command timeout above the timeout value of the failed command.
+If the command runs correctly with a raised command timeout,
+please report the better timeout value and the corresponding command to 
+the author of the program.
+If no 
+.I timeout 
+option is present, a default timeout of 40 seconds is used.
+.TP
 .BR ts= #
 Set the maximum transfer size for a single SCSI command to #.
 The syntax for the 
@@ -408,74 +525,19 @@ with the
 .B ts=
 option.
 .TP
-.B \-notrunc
-Do not truncate the output file when opening it.
-.TP
-.B \-fulltoc
-Retrieve a full TOC from the current disk and print it in hex.
-.TP
-.B \-clone
-Do a clone read. Read the CD with all sub-channel data and a full TOC.
-The full TOC data will be put into a file with similar name as with the
-.B f=
-option but the suffix 
-.B .toc
-added.
-.sp
-Note that reading in
-.B clone
-mode results in having no error correction at sub-channel level. Even in the main data channel,
-there is less error correction that with other read modes. This results in a slightly quality
-degradation. Avoid copying audio CDs in 
-.B clone
-mode for this reason.
-.TP
-.B \-noerror
-Do not abort if the high level error checking in
-.B readcd
-found an uncorrectable error in the data stream.
-.TP
-.B \-nocorr
-Switch the drive into a mode where it ignores read errors in data sectors that
-are a result of uncorrectable ECC/EDC errors before reading.
-If
-.B readcd
-completes, the error recovery mode of the drive is switched back to the remembered 
-old mode.
-.TP
-.BI retries= #
-Set the retry count for high level retries in
-.B readcd
-to 
-.IR # .
-The default is to do 128 retries which may be too much if you like to read a CD
-with many unreadable sectors.
-.TP
-.B \-overhead
-Meter the SCSI command overhead time.
-This is done by executing several commands 1000 times and printing the
-total time used. If you divide the displayed times by 1000, you get 
-the average overhead time for a single command.
-.TP
-.BR meshpoints= #
-Print read-speed at # locations.
-The purpose of this option is to create a list of read speed values suitable
-for e.g.
-.BR gnuplot .
-The speed values are calculated assuming that 1000 bytes are one kilobyte
-as documented in the SCSI standard.
-The output data created for this purpose is written to 
-.IR stdout .
-.TP
-.B \-factor
-Output the speed values for
-.BR meshpoints= #
-as factor based on 
-.I "single speed
-of the current medium.
-This only works if
-.B readcd
-is able to determine the current medium type.
+.B \-V
+Increment the verbose level with respect of SCSI command transport by one.
+This helps to debug problems
+during the process, that occur in the CD-Recorder. 
+If you get incomprehensible error messages you should use this flag
+to get more detailed output.
+.B \-VV
+will show data buffer content in addition.
+Using
+.B \-V
+or
+.B \-VV
+slows down the process.
 .SH EXAMPLES
 .PP
 For all examples below, it will be assumed that the drive is

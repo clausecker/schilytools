@@ -1,8 +1,8 @@
-/* @(#)joliet.c	1.60 09/07/09 joerg */
+/* @(#)joliet.c	1.61 09/11/25 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)joliet.c	1.60 09/07/09 joerg";
+	"@(#)joliet.c	1.61 09/11/25 joerg";
 #endif
 /*
  * File joliet.c - handle Win95/WinNT long file/unicode extensions for iso9660.
@@ -430,7 +430,7 @@ get_joliet_vol_desc(jvol_desc)
 	sprintf(jvol_desc->escape_sequences, "%%/%c", ucs_codes[ucs_level]);
 
 	/* Until we have Unicode path tables, leave these unset. */
-	set_733((char *) jvol_desc->path_table_size, jpath_table_size);
+	set_733((char *)jvol_desc->path_table_size, jpath_table_size);
 	set_731(jvol_desc->type_l_path_table, jpath_table[0]);
 	set_731(jvol_desc->opt_type_l_path_table, jpath_table[1]);
 	set_732(jvol_desc->type_m_path_table, jpath_table[2]);
@@ -446,23 +446,23 @@ get_joliet_vol_desc(jvol_desc)
 	 * so we will just be really lazy and do a char -> short conversion.
 	 *  We probably will want to filter any characters >= 0x80.
 	 */
-	convert_to_unicode((Uchar *) jvol_desc->system_id,
+	convert_to_unicode((Uchar *)jvol_desc->system_id,
 			sizeof (jvol_desc->system_id), NULL, in_nls);
-	convert_to_unicode((Uchar *) jvol_desc->volume_id,
+	convert_to_unicode((Uchar *)jvol_desc->volume_id,
 			sizeof (jvol_desc->volume_id), NULL, in_nls);
-	convert_to_unicode((Uchar *) jvol_desc->volume_set_id,
+	convert_to_unicode((Uchar *)jvol_desc->volume_set_id,
 			sizeof (jvol_desc->volume_set_id), NULL, in_nls);
-	convert_to_unicode((Uchar *) jvol_desc->publisher_id,
+	convert_to_unicode((Uchar *)jvol_desc->publisher_id,
 			sizeof (jvol_desc->publisher_id), NULL, in_nls);
-	convert_to_unicode((Uchar *) jvol_desc->preparer_id,
+	convert_to_unicode((Uchar *)jvol_desc->preparer_id,
 			sizeof (jvol_desc->preparer_id), NULL, in_nls);
-	convert_to_unicode((Uchar *) jvol_desc->application_id,
+	convert_to_unicode((Uchar *)jvol_desc->application_id,
 			sizeof (jvol_desc->application_id), NULL, in_nls);
-	convert_to_unicode((Uchar *) jvol_desc->copyright_file_id,
+	convert_to_unicode((Uchar *)jvol_desc->copyright_file_id,
 			sizeof (jvol_desc->copyright_file_id), NULL, in_nls);
-	convert_to_unicode((Uchar *) jvol_desc->abstract_file_id,
+	convert_to_unicode((Uchar *)jvol_desc->abstract_file_id,
 			sizeof (jvol_desc->abstract_file_id), NULL, in_nls);
-	convert_to_unicode((Uchar *) jvol_desc->bibliographic_file_id,
+	convert_to_unicode((Uchar *)jvol_desc->bibliographic_file_id,
 			sizeof (jvol_desc->bibliographic_file_id), NULL, in_nls);
 }
 
@@ -622,14 +622,14 @@ generate_joliet_path_tables()
 
 	/* First allocate memory for the tables and initialize the memory */
 	tablesize = jpath_blocks << 11;
-	jpath_table_m = (char *) e_malloc(tablesize);
-	jpath_table_l = (char *) e_malloc(tablesize);
+	jpath_table_m = (char *)e_malloc(tablesize);
+	jpath_table_l = (char *)e_malloc(tablesize);
 	memset(jpath_table_l, 0, tablesize);
 	memset(jpath_table_m, 0, tablesize);
 
 	/* Now start filling in the path tables.  Start with root directory */
 	jpath_table_index = 0;
-	jpathlist = (struct directory **) e_malloc(sizeof (struct directory *)
+	jpathlist = (struct directory **)e_malloc(sizeof (struct directory *)
 		* next_jpath_index);
 	memset(jpathlist, 0, sizeof (struct directory *) * next_jpath_index);
 	build_jpathlist(root);
@@ -786,7 +786,7 @@ generate_one_joliet_directory(dpnt, outfile)
 	struct directory	*finddir;
 
 	total_size = ISO_ROUND_UP(dpnt->jsize);
-	directory_buffer = (char *) e_malloc(total_size);
+	directory_buffer = (char *)e_malloc(total_size);
 	memset(directory_buffer, 0, total_size);
 	dir_index = 0;
 
@@ -852,8 +852,8 @@ generate_one_joliet_directory(dpnt, outfile)
 		if ((jrec.flags[0] & ISO_DIRECTORY) != 0) {
 			if (strcmp(s_entry1->name, ".") == 0) {
 				jrec.name_len[0] = 1;
-				set_733((char *) jrec.extent, dpnt->jextent);
-				set_733((char *) jrec.size, ISO_ROUND_UP(dpnt->jsize));
+				set_733((char *)jrec.extent, dpnt->jextent);
+				set_733((char *)jrec.size, ISO_ROUND_UP(dpnt->jsize));
 			} else if (strcmp(s_entry1->name, "..") == 0) {
 				jrec.name_len[0] = 1;
 				if (dpnt->parent == reloc_dir) {
@@ -1069,8 +1069,8 @@ joliet_compare_dirs(rr, ll)
 			ltmp[2];
 	siconvt_t	*linls, *rinls;
 
-	r = (struct directory_entry **) rr;
-	l = (struct directory_entry **) ll;
+	r = (struct directory_entry **)rr;
+	l = (struct directory_entry **)ll;
 
 #ifdef APPLE_HYB
 	/*
@@ -1353,8 +1353,8 @@ jroot_gen()
 	jroot_record.length[0] =
 			1 + offsetof(struct iso_directory_record, name[0]);
 	jroot_record.ext_attr_length[0] = 0;
-	set_733((char *) jroot_record.extent, root->jextent);
-	set_733((char *) jroot_record.size, ISO_ROUND_UP(root->jsize));
+	set_733((char *)jroot_record.extent, root->jextent);
+	set_733((char *)jroot_record.size, ISO_ROUND_UP(root->jsize));
 	iso9660_date(jroot_record.date, root_statbuf.st_mtime);
 	jroot_record.flags[0] = ISO_DIRECTORY;
 	jroot_record.file_unit_size[0] = 0;

@@ -1,8 +1,8 @@
-/* @(#)inode.c	1.13 09/10/11 Copyright 2006-2009 J. Schilling */
+/* @(#)inode.c	1.14 09/11/25 Copyright 2006-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)inode.c	1.13 09/10/11 Copyright 2006-2009 J. Schilling";
+	"@(#)inode.c	1.14 09/11/25 Copyright 2006-2009 J. Schilling";
 #endif
 /*
  *	Inode and link count handling for ISO-9660/RR
@@ -120,7 +120,7 @@ assign_inodes(dpnt)
 					s_entry->starting_block = s_hash->starting_block;
 			}
 			if (s_entry->starting_block == 0 && s_entry->size != 0) {
-				unsigned int e = get_733((char *) s_entry->isorec.extent);
+				unsigned int e = get_733((char *)s_entry->isorec.extent);
 
 				if (e != 0) {
 					errmsgno(EX_BAD,
@@ -162,11 +162,11 @@ assign_inodes(dpnt)
 					s_entry->whole_name ?
 					s_entry->whole_name : s_entry->name,
 					s_hash->starting_block);
-				set_733((char *) s_entry->isorec.extent, s_hash->starting_block);
+				set_733((char *)s_entry->isorec.extent, s_hash->starting_block);
 				s_entry->starting_block = s_hash->starting_block;
 			} else {
 				s_entry->starting_block = null_inodes--;
-				set_733((char *) s_entry->isorec.extent, s_entry->starting_block);
+				set_733((char *)s_entry->isorec.extent, s_entry->starting_block);
 				add_hash(s_entry);
 			}
 			if (use_RockRidge)
@@ -333,7 +333,7 @@ update_inode(s_entry, value)
 		if (pnt[0] == 'P' && pnt[1] == 'X') {
 			if ((pnt[2] & 0xFF) < 44)	/* Paranoia */
 				return;
-			set_733((char *) pnt + 36, value);
+			set_733((char *)pnt + 36, value);
 			break;
 		}
 		len -= pnt[2];
@@ -362,7 +362,7 @@ update_nlink(s_entry, value)
 				pnt[3], pnt[0], pnt[1], pnt[0], pnt[1]);
 		}
 		if (pnt[0] == 'P' && pnt[1] == 'X') {
-			set_733((char *) pnt + 12, value);
+			set_733((char *)pnt + 12, value);
 			break;
 		}
 		len -= pnt[2];

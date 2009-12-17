@@ -1,8 +1,8 @@
-/* @(#)eltorito.c	1.47 09/07/09 joerg */
+/* @(#)eltorito.c	1.48 09/11/25 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)eltorito.c	1.47 09/07/09 joerg";
+	"@(#)eltorito.c	1.48 09/11/25 joerg";
 
 #endif
 /*
@@ -49,7 +49,7 @@ LOCAL	void	fill_boot_desc		__PR((struct eltorito_defaultboot_entry *boot_desc_en
 EXPORT	void	get_boot_entry		__PR((void));
 EXPORT	int	new_boot_entry		__PR((void));
 EXPORT	void	ex_boot_enoent		__PR((char *msg, char *pname));
-LOCAL	int	tvd_write		__PR((FILE * outfile));
+LOCAL	int	tvd_write		__PR((FILE *outfile));
 
 
 LOCAL	struct eltorito_validation_entry valid_desc;
@@ -66,7 +66,7 @@ init_boot_catalog(path)
 	const char	*path;
 {
 #ifdef	SORTING
-	struct eltorito_boot_entry_info * cbe;
+	struct eltorito_boot_entry_info	*cbe;
 
 	for (cbe = first_boot_entry;
 	    cbe != NULL;
@@ -75,7 +75,7 @@ init_boot_catalog(path)
 
 		if (cbe->boot_image == NULL)
 			comerrno(EX_BAD, "Missing boot image name, use -eltorito-boot option.\n");
-		p = (char *) e_malloc(strlen(cbe->boot_image) + strlen(path) + 2);
+		p = (char *)e_malloc(strlen(cbe->boot_image) + strlen(path) + 2);
 		strcpy(p, path);
 		if (p[strlen(p) - 1] != '/') {
 			strcat(p, "/");
@@ -85,7 +85,7 @@ init_boot_catalog(path)
 		free(p);
 	}
 #endif
-	bootcat_path = (char *) e_malloc(strlen(boot_catalog) + strlen(path) + 2);
+	bootcat_path = (char *)e_malloc(strlen(boot_catalog) + strlen(path) + 2);
 	strcpy(bootcat_path, path);
 	if (bootcat_path[strlen(bootcat_path) - 1] != '/') {
 		strcat(bootcat_path, "/");
@@ -132,7 +132,7 @@ insert_boot_cat()
 
 	init_fstatbuf();
 
-	buffer = (char *) e_malloc(SECTOR_SIZE);
+	buffer = (char *)e_malloc(SECTOR_SIZE);
 	memset(buffer, 0, SECTOR_SIZE);
 
 	/*
@@ -200,10 +200,10 @@ insert_boot_cat()
 	s_entry->priority = 32768;
 	iso9660_date(s_entry->isorec.date, fstatbuf.st_mtime);
 	s_entry->inode = TABLE_INODE;
-	s_entry->dev = (dev_t) UNCACHED_DEVICE;
+	s_entry->dev = (dev_t)UNCACHED_DEVICE;
 	set_723(s_entry->isorec.volume_sequence_number,
 						volume_sequence_number);
-	set_733((char *) s_entry->isorec.size, SECTOR_SIZE);
+	set_733((char *)s_entry->isorec.size, SECTOR_SIZE);
 	s_entry->size = SECTOR_SIZE;
 	s_entry->filedir = this_dir;
 	s_entry->name = e_strdup(p2);
@@ -295,8 +295,8 @@ get_torito_desc(boot_desc)
 		memcpy_max(valid_desc.id, publisher,
 						MIN(23, strlen(publisher)));
 
-	valid_desc.key1[0] = (char) 0x55;
-	valid_desc.key2[0] = (char) 0xAA;
+	valid_desc.key1[0] = (char)0x55;
+	valid_desc.key2[0] = (char)0xAA;
 
 	/* compute the checksum */
 	checksum = 0;
@@ -352,7 +352,7 @@ fill_boot_desc(boot_desc_entry, boot_entry)
 	}
 	/* now make the initial/default entry for boot catalog */
 	memset(boot_desc_entry, 0, sizeof (*boot_desc_entry));
-	boot_desc_entry->boot_id[0] = (char) boot_entry->not_bootable ?
+	boot_desc_entry->boot_id[0] = (char)boot_entry->not_bootable ?
 				EL_TORITO_NOT_BOOTABLE : EL_TORITO_BOOTABLE;
 
 	/* use default BIOS loadpnt */

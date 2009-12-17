@@ -1,8 +1,8 @@
-/* @(#)apple.c	1.39 09/08/04 joerg, Copyright 1997, 1998, 1999, 2000 James Pearson, Copyright 2000-2009 J. Schilling */
+/* @(#)apple.c	1.40 09/11/25 joerg, Copyright 1997, 1998, 1999, 2000 James Pearson, Copyright 2000-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)apple.c	1.39 09/08/04 joerg, Copyright 1997, 1998, 1999, 2000 James Pearson, Copyright 2000-2009 J. Schilling";
+	"@(#)apple.c	1.40 09/11/25 joerg, Copyright 1997, 1998, 1999, 2000 James Pearson, Copyright 2000-2009 J. Schilling";
 #endif
 /*
  *      Copyright (c) 1997, 1998, 1999, 2000 James Pearson
@@ -570,15 +570,15 @@ get_cap_dir(hname, dname, s_entry, ret)
 		info.fi_magic == FI_MAGIC &&
 		info.fi_bitmap & FI_BM_MACINTOSHFILENAME) {
 		/* use the finderinfo name if it exists */
-		cstrncpy((char *) (hfs_ent->name),
-				(char *) (info.fi_macfilename), HFS_MAX_FLEN);
+		cstrncpy((char *)(hfs_ent->name),
+				(char *)(info.fi_macfilename), HFS_MAX_FLEN);
 
 		set_Dinfo(info.finderinfo, hfs_ent);
 
 		return (ret);
 	} else {
 		/* otherwise give it it's Unix name */
-		hstrncpy((unsigned char *) (s_entry->hfs_ent->name),
+		hstrncpy((unsigned char *)(s_entry->hfs_ent->name),
 							dname, HFS_MAX_FLEN);
 		return (TYPE_NONE);
 	}
@@ -607,11 +607,11 @@ get_cap_info(hname, dname, s_entry, ret)
 
 		if (info.fi_bitmap & FI_BM_MACINTOSHFILENAME) {
 			/* use the finderinfo name if it exists */
-			cstrncpy((char *) (hfs_ent->name),
-				(char *) (info.fi_macfilename), HFS_MAX_FLEN);
+			cstrncpy((char *)(hfs_ent->name),
+				(char *)(info.fi_macfilename), HFS_MAX_FLEN);
 		} else {
 			/* use Unix name */
-			hstrncpy((unsigned char *) (hfs_ent->name), dname,
+			hstrncpy((unsigned char *)(hfs_ent->name), dname,
 								HFS_MAX_FLEN);
 		}
 
@@ -791,7 +791,7 @@ get_es_info(hname, dname, s_entry, ret)
 		s_entry1->hfs_off = ES_INFO_SIZE;
 	}
 
-	set_733((char *) s_entry1->isorec.size, s_entry1->size);
+	set_733((char *)s_entry1->isorec.size, s_entry1->size);
 
 	return (ret);
 }
@@ -909,8 +909,8 @@ get_mb_info(hname, dname, s_entry, ret)
 		hfs_ent = s_entry->hfs_ent;
 
 		/* type and creator from finder info */
-		t = (char *) (info->type);
-		c = (char *) (info->auth);
+		t = (char *)(info->type);
+		c = (char *)(info->auth);
 
 		set_ct(hfs_ent, c, t);
 
@@ -919,9 +919,9 @@ get_mb_info(hname, dname, s_entry, ret)
 
 		if (icon_pos) {
 			hfs_ent->fdlocation.v =
-				d_getw((unsigned char *) info->icon_vert);
+				d_getw((unsigned char *)info->icon_vert);
 			hfs_ent->fdlocation.h =
-				d_getw((unsigned char *) info->icon_horiz);
+				d_getw((unsigned char *)info->icon_horiz);
 		} else {
 			/*
 			 * clear HFS_FNDR_HASBEENINITED to have tidy desktop ??
@@ -939,8 +939,8 @@ get_mb_info(hname, dname, s_entry, ret)
 		hfs_ent->mddate = d_toutime(d_getl(info->mdate));
 
 		/* set name */
-		hstrncpy((unsigned char *) (hfs_ent->name),
-			(char *) (info->name), MIN(HFS_MAX_FLEN, info->nlen));
+		hstrncpy((unsigned char *)(hfs_ent->name),
+			(char *)(info->name), MIN(HFS_MAX_FLEN, info->nlen));
 
 		/* set correct fork sizes */
 		hfs_ent->u.file.dsize = d_getl(info->dflen);
@@ -949,7 +949,7 @@ get_mb_info(hname, dname, s_entry, ret)
 		/* update directory entries for data fork */
 		s_entry->size = hfs_ent->u.file.dsize;
 		s_entry->hfs_off = MB_SIZE;
-		set_733((char *) s_entry->isorec.size, s_entry->size);
+		set_733((char *)s_entry->isorec.size, s_entry->size);
 
 		/*
 		 * real rsrc file starts after data fork (must be a multiple of
@@ -957,7 +957,7 @@ get_mb_info(hname, dname, s_entry, ret)
 		 */
 		s_entry1->size = hfs_ent->u.file.rsize;
 		s_entry1->hfs_off = MB_SIZE + ROUND_UP(hfs_ent->u.file.dsize, MB_SIZE);
-		set_733((char *) s_entry1->isorec.size, s_entry1->size);
+		set_733((char *)s_entry1->isorec.size, s_entry1->size);
 	}
 
 	return (ret);
@@ -1006,7 +1006,7 @@ get_dbl_dir(hname, dname, s_entry, ret)
 					d_getl(hp->version) == A_VERSION2)))) {
 
 		/* read TOC of the AppleDouble file */
-		nentries = (int) d_getw(hp->nentries);
+		nentries = (int)d_getw(hp->nentries);
 		if (fread(hp->entries, A_ENTRY_SIZE, nentries, fp) < 1) {
 			fail = 1;
 			nentries = 0;
@@ -1048,7 +1048,7 @@ get_dbl_dir(hname, dname, s_entry, ret)
 				 * length, the rest is the actual string.
 				 * The following *should* be OK
 				 */
-				if (len == 32 && (int) name[0] < 32) {
+				if (len == 32 && (int)name[0] < 32) {
 					cstrncpy(hfs_ent->name, &name[1],
 						MIN(name[0], HFS_MAX_FLEN));
 				} else {
@@ -1056,7 +1056,7 @@ get_dbl_dir(hname, dname, s_entry, ret)
 							HFS_MAX_FLEN);
 				}
 			} else {
-				hstrncpy((unsigned char *) (hfs_ent->name),
+				hstrncpy((unsigned char *)(hfs_ent->name),
 							dname, HFS_MAX_FLEN);
 			}
 		}
@@ -1148,7 +1148,7 @@ get_dbl_info(hname, dname, s_entry, ret)
 				(ver == A_VERSION1 || ver == A_VERSION2)))) {
 
 		/* read TOC of the AppleDouble file */
-		nentries = (int) d_getw(hp->nentries);
+		nentries = (int)d_getw(hp->nentries);
 		if (fread(hp->entries, A_ENTRY_SIZE, nentries, fp) < 1) {
 			fail = 1;
 			nentries = 0;
@@ -1169,7 +1169,7 @@ get_dbl_info(hname, dname, s_entry, ret)
 				hfs_ent->u.file.rsize = s_entry1->size;
 				/* offset to start of real rsrc fork */
 				s_entry1->hfs_off = d_getl(ep->offset);
-				set_733((char *) s_entry1->isorec.size,
+				set_733((char *)s_entry1->isorec.size,
 								s_entry1->size);
 				break;
 			case ID_NAME:
@@ -1231,7 +1231,7 @@ get_dbl_info(hname, dname, s_entry, ret)
 				 * length, the rest is the actual string.
 				 * The following *should* be OK
 				 */
-				if (len == 32 && (int) name[0] < 32) {
+				if (len == 32 && (int)name[0] < 32) {
 					cstrncpy(hfs_ent->name, &name[1],
 						MIN(name[0], HFS_MAX_FLEN));
 				} else {
@@ -1239,7 +1239,7 @@ get_dbl_info(hname, dname, s_entry, ret)
 							HFS_MAX_FLEN);
 				}
 			} else {
-				hstrncpy((unsigned char *) (hfs_ent->name),
+				hstrncpy((unsigned char *)(hfs_ent->name),
 							dname, HFS_MAX_FLEN);
 			}
 		}
@@ -1304,7 +1304,7 @@ static	a_entry		*entries;
 			return (TYPE_NONE);
 
 		/* check we have TOC for the AppleSingle file */
-		nentries = (int) d_getw(hp->nentries);
+		nentries = (int)d_getw(hp->nentries);
 		if (p_num < (int)(A_HDR_SIZE + nentries * A_ENTRY_SIZE))
 			return (TYPE_NONE);
 
@@ -1322,7 +1322,7 @@ static	a_entry		*entries;
 
 		hfs_ent = s_entry->hfs_ent;
 
-		nentries = (int) d_getw(hp->nentries);
+		nentries = (int)d_getw(hp->nentries);
 		ver = d_getl(hp->version);
 
 		/* extract what is needed */
@@ -1330,7 +1330,7 @@ static	a_entry		*entries;
 			switch ((int)d_getl(ep->id)) {
 			case ID_FINDER:
 				/* get the finder info */
-				info = (FileInfo *) (p_buf + d_getl(ep->offset));
+				info = (FileInfo *)(p_buf + d_getl(ep->offset));
 				break;
 			case ID_DATA:
 				/* set the offset and correct data fork size */
@@ -1338,7 +1338,7 @@ static	a_entry		*entries;
 							d_getl(ep->length);
 				/* offset to start of real data fork */
 				s_entry->hfs_off = d_getl(ep->offset);
-				set_733((char *) s_entry->isorec.size,
+				set_733((char *)s_entry->isorec.size,
 								s_entry->size);
 				break;
 			case ID_RESOURCE:
@@ -1347,7 +1347,7 @@ static	a_entry		*entries;
 							d_getl(ep->length);
 				/* offset to start of real rsrc fork */
 				s_entry1->hfs_off = d_getl(ep->offset);
-				set_733((char *) s_entry1->isorec.size,
+				set_733((char *)s_entry1->isorec.size,
 								s_entry1->size);
 				break;
 			case ID_NAME:
@@ -1406,14 +1406,14 @@ static	a_entry		*entries;
 			 * format - first char is the length, the rest is the
 			 * actual string. The following *should* be OK
 			 */
-			if (len == 32 && (int) name[0] < 32) {
+			if (len == 32 && (int)name[0] < 32) {
 				cstrncpy(hfs_ent->name, &name[1], MIN(name[0],
 								HFS_MAX_FLEN));
 			} else {
 				cstrncpy(hfs_ent->name, name, HFS_MAX_FLEN);
 			}
 		} else {
-			hstrncpy((unsigned char *) (hfs_ent->name), dname,
+			hstrncpy((unsigned char *)(hfs_ent->name), dname,
 								HFS_MAX_FLEN);
 		}
 	}
@@ -1478,13 +1478,13 @@ get_hfs_fe_info(hfs_info, name)
 			 * get the bits we need
 			 * - ignore [cm]time for the moment
 			 */
-			cstrncpy(hfs_info->name, (char *) (info.name),
+			cstrncpy(hfs_info->name, (char *)(info.name),
 					info.nlen);
 
 			memcpy(hfs_info->finderinfo, info.finderinfo, INFOLEN);
 
-			s = (char *) (info.sname);
-			e = (char *) (info.ext);
+			s = (char *)(info.sname);
+			e = (char *)(info.ext);
 			k = keyname;
 
 			/*
@@ -1501,7 +1501,7 @@ get_hfs_fe_info(hfs_info, name)
 			}
 
 			/* extension - if it exists */
-			if (strncmp((const char *) (info.ext), "   ", 3)) {
+			if (strncmp((const char *)(info.ext), "   ", 3)) {
 				*k = '.';
 				k++;
 				for (i = 0; i < 3; i++, e++, k++) {
@@ -3015,8 +3015,8 @@ d_getl(p)
  *	Apple v1 strores dates beginnign with 1st Jan 1904
  *	Apple v2 strores dates beginnign with 1st Jan 2000
  */
-#define V2TDIFF 946684800L	/* 30 years (1970 .. 2000)	*/
-#define V1TDIFF	2082844800L	/* 66 years (1904 .. 1970)	*/
+#define	V2TDIFF 946684800L	/* 30 years (1970 .. 2000)	*/
+#define	V1TDIFF	2082844800L	/* 66 years (1904 .. 1970)	*/
 #define	TZNONE	0x0F0F0F0F	/* no valid time		*/
 
 LOCAL unsigned long tzdiff = TZNONE;

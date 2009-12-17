@@ -1,4 +1,4 @@
-/* @(#)rock.h	1.1 09/10/08 Copyright 2003-2009 J. Schilling */
+/* @(#)rock.h	1.2 09/11/25 Copyright 2003-2009 J. Schilling */
 /*
  * Header file for the Rock Ridge encoder and parser
  *
@@ -50,4 +50,3 @@
 #define	NEED_CE		8	/* Need Continuation Area	*/
 #define	NEED_SP		16	/* Need SUSP record		*/
 #define	DID_CHDIR	1024	/* Did chdir() to file dir	*/
-

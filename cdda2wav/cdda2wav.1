@@ -1,5 +1,5 @@
 '\" t
-.\" @(#)cdda2wav.1	1.37 09/11/15 Copyright 1998,1999,2000 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling
+.\" @(#)cdda2wav.1	1.39 09/11/19 Copyright 1998,1999,2000 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
 .if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
 .if t .ds u \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'u
@@ -102,7 +102,10 @@ to stderr by default. See
 option below.
 .PP
 .SS "Device naming"
-Most users do not need to care about device naming at all, as 
+Most users do not need to care about device naming at all.
+If no
+.B dev=
+option was specified, 
 .B cdda2wav
 implements 
 .B auto target
@@ -116,7 +119,343 @@ or from the target example from the output of
 then the
 .B dev=
 parameter may be set based on the device listing.
+.PP
+The
+.I device
+parameter to the
+.B dev=
+option
+explained below refers to
+.IR scsibus / target / lun
+of the CD/DVD/BluRay-Recorder.
+If a file /etc/default/cdrecord exists, the parameter to the
+.B dev=
+option may also be a drive name label in said file (see FILES section).
+
 .SH OPTIONS
+.SS "Informative options"
+.TP
+.B \-h
+.TP
+.B \-help
+display version information for cdda2wav on standard output.
+.TP
+.B \-version
+display version and Copyright information.
+.SS "Audio options"
+.TP
+.B \-B
+.TP
+.B \-bulk
+.TP
+.B \-alltracks
+copies each track into a separate file.
+.TP
+.BI \-b " bits
+.TP
+.BI \-bits\-per\-sample " bits
+sets 
+.I bits
+per sample per channel:
+.BR 8 ,
+.B 12
+or
+.BR 16 .
+.TP
+.BI \-c " channels
+.TP
+.BI \-channels " channels
+use:
+.RS
+.TP
+.B 1
+for mono recording
+.TP
+.B 2
+for stereo recording
+.TP
+.B s
+for stereo recording with both channels swapped
+.RE
+.br
+.ne 5
+.TP
+.B \-m
+.TP
+.B \-mono
+sets to mono recording.
+.TP
+.B \-s
+.TP
+.B \-stereo
+sets to stereo recording.
+.TP
+.BI \-r " rate
+.TP
+.BI  \-rate " rate
+sets 
+.I rate
+in samples per second.  Possible values are listed with the
+.B \-R
+option.
+.TP
+.B \-R
+.TP
+.B \-dump\-rates
+shows a list of all sample rates and their dividers.
+.TP
+.B \-x
+.TP
+.B \-max
+sets maximum (CD) quality.
+.TP
+.BI \-a " divider
+.TP
+.BI \-divider " divider
+sets rate to 44100Hz / 
+.IR divider . 
+Possible values are listed with the
+.B \-R
+option.
+.TP
+.BI \-P " sectors
+.TP
+.BI  \-set\-overlap " sectors
+sets the initial number of overlap
+.I sectors
+for jitter correction.
+.TP
+.BI \-t " track[+endtrack]
+.TP
+.BI \-track " track[+endtrack]
+selects the start track and optionally the end track.
+.TP
+.BI \-i " index
+.TP
+.BI \-index " index
+selects the start index.
+.TP
+.BI \-o " offset
+.TP
+.BI \-offset " offset
+starts
+.I offset
+sectors behind start track (one sector equivalents 1/75 seconds).
+.TP
+.BI \-start\-sector " sector
+set an absolute start sector. This option is mutually exclusive to
+.B \-track
+and
+.BR \-offset .
+.TP
+.B \-O " audiotype
+.TP
+.BI \-output\-format " audiotype
+can be 
+.I wav
+(for wav files) or
+.I aiff
+(for apple/sgi aiff files) or
+.I aifc
+(for apple/sgi aifc files) or
+.I au
+or
+.I sun
+(for sun .au PCM files) or
+.I cdr
+or
+.I raw
+(for headerless files to be used for cd writers).
+.TP
+.BI \-C " endianess
+.TP
+.BI \-cdrom\-endianess " endianess
+sets endianess of the input samples to 'little', 'big', 'machine' or 'guess' to override defaults.
+The value 'machine' or 'host' is evaluated as the actual byte order of
+the host CPU in the current OS.
+.TP
+.BI \-E " endianess
+.TP
+.BI \-output\-endianess " endianess
+sets endianess of the output samples to 'little', 'big' or 'machine' to 
+override the default which is 'network byte order' (big endian).
+The value 'machine' or 'host' is evaluated as the actual byte order of
+the host CPU in the current OS.
+.TP
+.BI \-d " duration
+.TP
+.BI \-duration " duration
+sets recording time in seconds or frames.
+Frames (sectors) are indicated by a 'f' suffix (like 75f for 75 sectors).
+.B 0
+sets the time for whole track.
+.TP
+.B \-w
+.TP
+.B \-wait
+waits for signal, then start recording.
+.TP
+.B \-F
+.TP
+.B \-find\-extremes
+finds extreme amplitudes in samples.
+.TP
+.B \-G
+.TP
+.B \-find\-mono
+finds if input samples are in mono.
+.TP
+.B \-T
+.TP
+.B \-deemphasize
+undo the effect of pre-emphasis in the input samples.
+.TP
+.BI \-p " percentage
+.TP
+.BI \-playback\-realtime " percentage
+changes pitch of audio data copied to sound device.
+.br
+.ne 5
+.TP
+.BI \-v " itemlist
+.TP
+.BI \-verbose\-level " itemlist
+Retrieves and prints verbose information about the CD.
+.B Level
+is a list of comma separated suboptions. Each suboption controls the type of information to be reported.
+
+.TS H
+center box;
+r | l.
+Suboption	Description
+_
+!	invert the meaning of the following string
+not	invert the meaning of the following string
+disable	no information is given, warnings appear however
+all	all information is given
+toc	show table of contents
+summary	show a summary of the recording parameters
+indices	determine and display index offsets
+catalog	retrieve and display the media catalog number MCN
+trackid	retrieve and display all Intern. Standard Recording Codes ISRC
+sectors	show the table of contents in start sector notation
+titles	show the table of contents with track titles (when available)
+.TE
+.TP
+.B \-N
+.TP
+.B \-no\-write
+does not write to a file, it just reads (e.g. for debugging purposes).
+If this option is used together with the
+.B \-e
+option, the CD is read and the audio content is played back to the sound device
+without creating output files with audio data.
+.TP
+.B \-J
+.TP
+.B \-info\-only
+does not write to a file, it just gives information about the disc.
+.TP
+.BI \-L " cddb mode
+.TP
+.BI \-cddb " cddb mode
+does a cddbp album- and track title lookup based on the cddb id.
+The parameter cddb mode defines how multiple entries shall be handled.
+.TS H
+center box;
+r | l.
+Parameter	Description
+_
+0	interactive mode. The user selects the entry to use.
+1	first fit mode. The first entry is taken unconditionally.
+.TE
+.TP
+.BI cddbp\-server= servername
+sets the server to be contacted for title lookups.
+.TP
+.BI cddbp\-port= portnumber
+sets the port number to be used for title lookups.
+.br
+.ne 5
+.TP
+.B \-H
+.TP
+.B \-no\-infofile
+does not write an info file and a cddb file.
+.TP
+.B \-g
+.TP
+.B \-gui
+formats the output to be better parsable by gui frontends.
+.TP
+.B \-M 
+.TP
+.B \-md5
+enables calculation of MD-5 checksum for all audio bytes from the beginning 
+of a track. The audio header is skipped when calculating the MD-5 checksum
+to allow to compare MD-5 sums even for files with different header type.
+.TP
+.BI \-S " speed
+.TP
+.BI \-speed " speed
+sets the cdrom device to one of the selectable speeds for reading.
+.TP
+.B \-q
+.TP
+.B \-quiet
+quiet operation, no screen output.
+.TP
+.B \-paranoia
+use the paranoia library as a filter on top of cdda2wav's routines for reading.
+In
+.B paranoia
+mode, the latency time 
+for the  
+.B \-interactive 
+mode is increased to typically 5..10 seconds. This is caused by the fact that the
+.B paranoia
+code reads anything at least twice and in between needs to take care of emptying the
+cache RAM of the CD-ROM drive.
+.sp
+.ne 10
+If the
+.B paranoia
+mode is used,
+.B cdda2wav
+displays some quality statistics for each extracted track.
+The following items appear in the list:
+.TS H
+center box;
+r | l.
+Value	Description
+_
+rderr	Number of hard read errors
+skip	Number of sectors skipped due to exhausted retries
+atom	Number of intra sector jitters (frame jitters) detected
+edge	Number of jitters between sectors detected
+drop	Number of dropped bytes fixed
+dup	Number of duplicate bytes fixed
+drift	Number of drifts detected
+overlap	Number of dynamic overlap size raises
+.TE
+.TP
+.BI \-paraopts= list
+.I List
+is a comma separated list of suboptions passed to the paranoia library.
+.TS H
+center box;
+r | l.
+Option	Description
+_
+help	lists all paranoia options.
+disable	disables paranoia mode. Libparanoia is still being used
+no-verify	switches verify off, and static overlap on
+retries=amount	set the number of maximum retries per sector
+overlap=amount	set the number of sectors used for statical paranoia overlap
+minoverlap=amt	set the min. number of sectors for dynamic paranoia overlap
+maxoverlap=amt	set the max. number of sectors for dynamic paranoia overlap
+.TE
+.SS "SCSI options"
 .TP
 .BI dev= device
 .TP
@@ -165,6 +504,11 @@ option only contains a transport specifyer but no address,
 .B cdda2wav 
 tries to scan the SCSI address space for CD-ROM drives.
 If exactly one is found, this is used by default.
+.sp
+For more information, see the description of the
+.B dev=
+option from
+.BR cdrecord (1).
 .TP
 .BI ts= #
 Set the maximum transfer size for a single SCSI command to #.
@@ -189,16 +533,6 @@ Some operating systems return wrong values for the maximum transfer size.
 If the transfer totally hangs or resets occur, it may be appropriate to reduce
 the transfer size to less than 64 kB or even less than 32 kB.
 .TP
-.BI \-A " auxdevice
-.TP
-.BI \-auxdevice " auxdevice
-uses
-.I auxdevice
-as CDROM drive to allow to send the CDROMMULTISESSION ioctl on Linux
-although the
-.B generic_scsi
-interface is in use.
-.TP
 .BI debug= #
 .TP
 .BI debug-scsi= #
@@ -214,6 +548,35 @@ SCSI OS abstraction layer.
 Set the kernel debug level for the kernel driver called by the
 .B libscg
 SCSI OS abstraction layer. This option is not supported on all platforms.
+.TP
+.B \-V
+.TP
+.B \-verbose\-scsi
+enable SCSI command logging to the console. This is mainly used for debugging.
+.TP
+.B \-Q
+.TP
+.B \-silent\-scsi
+suppress SCSI command error reports to the console. This is mainly used for guis.
+.TP
+.B \-scanbus
+Scan all SCSI devices on all SCSI busses and print the inquiry
+strings. This option may be used to find SCSI address of the 
+CD/DVD-Recorder on a system.
+The numbers printed out as labels are computed by: 
+.B "bus * 100 + target
+
+.SS "OS Interface options"
+.TP
+.BI \-A " auxdevice
+.TP
+.BI \-auxdevice " auxdevice
+uses
+.I auxdevice
+as CDROM drive to allow to send the CDROMMULTISESSION ioctl on Linux
+although the
+.B generic_scsi
+interface is in use.
 .TP
 .BI \-I " interface
 .TP
@@ -331,79 +694,16 @@ to fork will increase the latency time for the
 .B \-interactive
 mode.
 .TP
-.BI \-c " channels
+.B \-e
 .TP
-.BI \-channels " channels
-use:
-.RS
+.B \-echo
+copies audio data to sound device from the operating system e.g.
+.BR /dev/dsp .
 .TP
-.B 1
-for mono recording
-.TP
-.B 2
-for stereo recording
-.TP
-.B s
-for stereo recording with both channels swapped
-.RE
-.br
+.BI "sound\-device=" sounddevice
+set an alternate sound device to use for 
+.BR \-e .
 .ne 5
-.TP
-.B \-s
-.TP
-.B \-stereo
-sets to stereo recording.
-.TP
-.B \-m
-.TP
-.B \-mono
-sets to mono recording.
-.TP
-.B \-x
-.TP
-.B \-max
-sets maximum (CD) quality.
-.TP
-.BI \-b " bits
-.TP
-.BI \-bits\-per\-sample " bits
-sets 
-.I bits
-per sample per channel:
-.BR 8 ,
-.B 12
-or
-.BR 16 .
-.TP
-.BI \-r " rate
-.TP
-.BI  \-rate " rate
-sets 
-.I rate
-in samples per second.  Possible values are listed with the
-.B \-R
-option.
-.TP
-.BI \-a " divider
-.TP
-.BI \-divider " divider
-sets rate to 44100Hz / 
-.IR divider . 
-Possible values are listed with the
-.B \-R
-option.
-.TP
-.B \-R
-.TP
-.B \-dump\-rates
-shows a list of all sample rates and their dividers.
-.TP
-.BI \-P " sectors
-.TP
-.BI  \-set\-overlap " sectors
-sets the initial number of overlap
-.I sectors
-for jitter correction.
 .TP
 .BI \-n " sectors
 .TP
@@ -418,281 +718,7 @@ per request.
 uses a ring buffer with 
 .I buffers
 total.
-.TP
-.BI \-t " track[+endtrack]
-.TP
-.BI \-track " track[+endtrack]
-selects the start track and optionally the end track.
-.TP
-.BI \-i " index
-.TP
-.BI \-index " index
-selects the start index.
-.TP
-.BI \-o " offset
-.TP
-.BI \-offset " offset
-starts
-.I offset
-sectors behind start track (one sector equivalents 1/75 seconds).
-.TP
-.BI \-start\-sector " sector
-set an absolute start sector. This option is mutually exclusive to
-.B \-track
-and
-.BR \-offset .
-.TP
-.B \-O " audiotype
-.TP
-.BI \-output\-format " audiotype
-can be 
-.I wav
-(for wav files) or
-.I aiff
-(for apple/sgi aiff files) or
-.I aifc
-(for apple/sgi aifc files) or
-.I au
-or
-.I sun
-(for sun .au PCM files) or
-.I cdr
-or
-.I raw
-(for headerless files to be used for cd writers).
-.TP
-.BI \-C " endianess
-.TP
-.BI \-cdrom\-endianess " endianess
-sets endianess of the input samples to 'little', 'big', 'machine' or 'guess' to override defaults.
-The value 'machine' or 'host' is evaluated as the actual byte order of
-the host CPU in the current OS.
-.TP
-.BI \-E " endianess
-.TP
-.BI \-output\-endianess " endianess
-sets endianess of the output samples to 'little', 'big' or 'machine' to 
-override the default which is 'network byte order' (big endian).
-The value 'machine' or 'host' is evaluated as the actual byte order of
-the host CPU in the current OS.
-.TP
-.BI \-d " duration
-.TP
-.BI \-duration " duration
-sets recording time in seconds or frames.
-Frames (sectors) are indicated by a 'f' suffix (like 75f for 75 sectors).
-.B 0
-sets the time for whole track.
-.TP
-.B \-B
-.TP
-.B \-bulk
-.TP
-.B \-alltracks
-copies each track into a separate file.
-.TP
-.B \-w
-.TP
-.B \-wait
-waits for signal, then start recording.
-.TP
-.B \-F
-.TP
-.B \-find\-extremes
-finds extreme amplitudes in samples.
-.TP
-.B \-G
-.TP
-.B \-find\-mono
-finds if input samples are in mono.
-.TP
-.B \-T
-.TP
-.B \-deemphasize
-undo the effect of pre-emphasis in the input samples.
-.TP
-.B \-e
-.TP
-.B \-echo
-copies audio data to sound device from the operating system e.g.
-.BR /dev/dsp .
-.TP
-.BI "sound\-device=" sounddevice
-set an alternate sound device to use for 
-.BR \-e .
-.ne 5
-.TP
-.BI \-p " percentage
-.TP
-.BI \-playback\-realtime " percentage
-changes pitch of audio data copied to sound device.
-.br
-.ne 5
-.TP
-.BI \-v " itemlist
-.TP
-.BI \-verbose\-level " itemlist
-Retrieves and prints verbose information about the CD.
-.B Level
-is a list of comma separated suboptions. Each suboption controls the type of information to be reported.
 
-.TS H
-center box;
-r | l.
-Suboption	Description
-_
-!	invert the meaning of the following string
-not	invert the meaning of the following string
-disable	no information is given, warnings appear however
-all	all information is given
-toc	show table of contents
-summary	show a summary of the recording parameters
-indices	determine and display index offsets
-catalog	retrieve and display the media catalog number MCN
-trackid	retrieve and display all Intern. Standard Recording Codes ISRC
-sectors	show the table of contents in start sector notation
-titles	show the table of contents with track titles (when available)
-.TE
-.TP
-.B \-N
-.TP
-.B \-no\-write
-does not write to a file, it just reads (e.g. for debugging purposes).
-If this option is used together with the
-.B \-e
-option, the CD is read and the audio content is played back to the sound device
-without creating output files with audio data.
-.TP
-.B \-J
-.TP
-.B \-info\-only
-does not write to a file, it just gives information about the disc.
-.TP
-.BI \-L " cddb mode
-.TP
-.BI \-cddb " cddb mode
-does a cddbp album- and track title lookup based on the cddb id.
-The parameter cddb mode defines how multiple entries shall be handled.
-.TS H
-center box;
-r | l.
-Parameter	Description
-_
-0	interactive mode. The user selects the entry to use.
-1	first fit mode. The first entry is taken unconditionally.
-.TE
-.TP
-.BI cddbp\-server= servername
-sets the server to be contacted for title lookups.
-.TP
-.BI cddbp\-port= portnumber
-sets the port number to be used for title lookups.
-.br
-.ne 5
-.TP
-.B \-H
-.TP
-.B \-no\-infofile
-does not write an info file and a cddb file.
-.TP
-.B \-g
-.TP
-.B \-gui
-formats the output to be better parsable by gui frontends.
-.TP
-.B \-M 
-.TP
-.B \-md5
-enables calculation of MD-5 checksum for all audio bytes from the beginning 
-of a track. The audio header is skipped when calculating the MD-5 checksum
-to allow to compare MD-5 sums even for files with different header type.
-.TP
-.BI \-S " speed
-.TP
-.BI \-speed " speed
-sets the cdrom device to one of the selectable speeds for reading.
-.TP
-.B \-q
-.TP
-.B \-quiet
-quiet operation, no screen output.
-.TP
-.B \-V
-.TP
-.B \-verbose\-scsi
-enable SCSI command logging to the console. This is mainly used for debugging.
-.TP
-.B \-Q
-.TP
-.B \-silent\-scsi
-suppress SCSI command error reports to the console. This is mainly used for guis.
-.TP
-.B \-scanbus
-Scan all SCSI devices on all SCSI busses and print the inquiry
-strings. This option may be used to find SCSI address of the 
-CD/DVD-Recorder on a system.
-The numbers printed out as labels are computed by: 
-.B "bus * 100 + target
-.TP
-.B \-paranoia
-use the paranoia library as a filter on top of cdda2wav's routines for reading.
-In
-.B paranoia
-mode, the latency time 
-for the  
-.B \-interactive 
-mode is increased to typically 5..10 seconds. This is caused by the fact that the
-.B paranoia
-code reads anything at least twice and in between needs to take care of emptying the
-cache RAM of the CD-ROM drive.
-.sp
-.ne 10
-If the
-.B paranoia
-mode is used,
-.B cdda2wav
-displays some quality statistics for each extracted track.
-The following items appear in the list:
-.TS H
-center box;
-r | l.
-Value	Description
-_
-rderr	Number of hard read errors
-skip	Number of sectors skipped due to exhausted retries
-atom	Number of intra sector jitters (frame jitters) detected
-edge	Number of jitters between sectors detected
-drop	Number of dropped bytes fixed
-dup	Number of duplicate bytes fixed
-drift	Number of drifts detected
-overlap	Number of dynamic overlap size raises
-.TE
-.TP
-.BI \-paraopts= list
-.I List
-is a comma separated list of suboptions passed to the paranoia library.
-.TS H
-center box;
-r | l.
-Option	Description
-_
-help	lists all paranoia options.
-disable	disables paranoia mode. Libparanoia is still being used
-no-verify	switches verify off, and static overlap on
-retries=amount	set the number of maximum retries per sector
-overlap=amount	set the number of sectors used for statical paranoia overlap
-minoverlap=amt	set the min. number of sectors for dynamic paranoia overlap
-maxoverlap=amt	set the max. number of sectors for dynamic paranoia overlap
-.TE
-
-.TP
-.B \-h
-.TP
-.B \-help
-display version information for cdda2wav on standard output.
-.TP
-.B \-version
-display version and Copyright information.
 .SH "ENVIRONMENT VARIABLES"
 .PP
 Some defaults for

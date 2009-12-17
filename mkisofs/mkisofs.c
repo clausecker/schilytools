@@ -1,8 +1,8 @@
-/* @(#)mkisofs.c	1.254 09/11/13 joerg */
+/* @(#)mkisofs.c	1.255 09/11/25 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)mkisofs.c	1.254 09/11/13 joerg";
+	"@(#)mkisofs.c	1.255 09/11/25 joerg";
 #endif
 /*
  * Program mkisofs.c - generate iso9660 filesystem  based upon directory
@@ -1070,23 +1070,23 @@ LOCAL	void	susage		__PR((int excode));
 LOCAL	void	usage		__PR((int excode));
 EXPORT	int	iso9660_date	__PR((char *result, time_t crtime));
 LOCAL	void	hide_reloc_dir	__PR((void));
-LOCAL	char *	get_pnames	__PR((int argc, char * const *argv, int opt,
-					char *pname, int pnsize, FILE * fp));
+LOCAL	char	*get_pnames	__PR((int argc, char *const *argv, int opt,
+					char *pname, int pnsize, FILE *fp));
 EXPORT	int	main		__PR((int argc, char *argv[]));
 LOCAL	void	list_locales	__PR((void));
-EXPORT	char *	findgequal	__PR((char *s));
-LOCAL	char *	escstrcpy	__PR((char *to, size_t tolen, char *from));
-struct directory * get_graft	__PR((char *arg, char *graft_point, size_t glen,
+EXPORT	char	*findgequal	__PR((char *s));
+LOCAL	char	*escstrcpy	__PR((char *to, size_t tolen, char *from));
+struct directory *get_graft	__PR((char *arg, char *graft_point, size_t glen,
 						char *nodename, size_t nlen,
 						char **short_namep, BOOL do_insert));
-EXPORT	void *	e_malloc	__PR((size_t size));
-EXPORT	char *	e_strdup	__PR((const char *s));
+EXPORT	void	*e_malloc	__PR((size_t size));
+EXPORT	char	*e_strdup	__PR((const char *s));
 
 LOCAL void
 read_rcfile(appname)
 	char		*appname;
 {
-	FILE		*rcfile = (FILE *) NULL;
+	FILE		*rcfile = (FILE *)NULL;
 	struct rcopts	*rco;
 	char		*pnt,
 			*pnt1;
@@ -1277,7 +1277,7 @@ susage(excode)
 	exit(excode);
 }
 
-const char *	optend	__PR((const char *fmt));
+const char *optend	__PR((const char *fmt));
 const char *
 optend(fmt)
 	const char	*fmt;
@@ -1540,7 +1540,7 @@ get_pnames(argc, argv, opt, pname, pnsize, fp)
 #endif
 
 	if (fp == NULL)
-		return ((char *) 0);
+		return ((char *)0);
 
 	if (fgets(pname, pnsize, fp)) {
 		/* Discard newline */
@@ -1550,7 +1550,7 @@ get_pnames(argc, argv, opt, pname, pnsize, fp)
 		}
 		return (pname);
 	}
-	return ((char *) 0);
+	return ((char *)0);
 }
 
 EXPORT int
@@ -2592,7 +2592,7 @@ setcharset:
 
 			if (c & RR_FLAG_SP) {
 				fprintf(stderr, "SUSP signatures version %d found\n", su_version);
-				if (c & RR_FLAG_ER){
+				if (c & RR_FLAG_ER) {
 					if (rr_version < 1) {
 						fprintf(stderr,
 							"No valid Rock Ridge signature found\n");

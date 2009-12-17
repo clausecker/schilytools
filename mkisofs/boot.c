@@ -1,8 +1,8 @@
-/* @(#)boot.c	1.23 09/07/09 Copyright 1999-2009 J. Schilling */
+/* @(#)boot.c	1.24 09/11/25 Copyright 1999-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)boot.c	1.23 09/07/09 Copyright 1999-2009 J. Schilling";
+	"@(#)boot.c	1.24 09/11/25 Copyright 1999-2009 J. Schilling";
 #endif
 /*
  *	Support for generic boot (sector 0..16)
@@ -50,9 +50,9 @@ EXPORT	int	make_sunx86_label	__PR((void));
 LOCAL	void	dup_sun_label		__PR((int part));
 LOCAL	int	sunboot_write		__PR((FILE *outfile));
 LOCAL	int	sunlabel_size		__PR((UInt32_t starting_extent));
-LOCAL	int	sunlabel_write		__PR((FILE * outfile));
+LOCAL	int	sunlabel_write		__PR((FILE *outfile));
 LOCAL	int	genboot_size		__PR((UInt32_t starting_extent));
-LOCAL	int	genboot_write		__PR((FILE * outfile));
+LOCAL	int	genboot_write		__PR((FILE *outfile));
 
 /*
  * Set the virtual geometry in the disk label.

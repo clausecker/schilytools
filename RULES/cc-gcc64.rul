@@ -1,4 +1,4 @@
-#ident "@(#)cc-gcc64.rul	1.10 07/05/09 "
+#ident "@(#)cc-gcc64.rul	1.11 09/11/29 "
 ###########################################################################
 # Written 1996-2006 by J. Schilling
 ###########################################################################
@@ -19,12 +19,14 @@
 # file and include the License file CDDL.Schily.txt from this distribution.
 ###########################################################################
 
+GCC_OPT64=	-m64
+
 CPPFLAGS=	-DSCHILY_BUILD $(CPPOPTS) $(CPPOPTX)
 CFLAGS=		$(COPTS) $(CWARNOPTS) $(COPTOPT) $(GCCOPTOPT) $(COPTX)
 C++FLAGS=	$(C++OPTS) $(C++WARNOPTS) $(C++OPTOPT) $(G++OPTOPT) $(C++OPTX)
 
 CPPOPTS=	-I$(ARCHDIR) -I$(OINCSDIR) $(INCDIRS:%=-I%) $(INCDIRSX:%=-I%) $(OSDEFS)
-COPTS=		-m64
+COPTS=		$(GCC_OPT64)
 #		-Wtraditional now causes more pain than it helps 
 CWOPTS=		-Wall -Wtraditional
 CWOPTS=		-Wall -Wno-unknown-pragmas \
@@ -32,7 +34,7 @@ CWOPTS=		-Wall -Wno-unknown-pragmas \
 COPTOPT=	-O
 COPTDYN=	-fpic
 COPTGPROF=	-pg
-C++OPTS=	-m64
+C++OPTS=	$(GCC_OPT64)
 C++WOPTS=	$(CWOPTS)
 C++OPTOPT=	$(COPTOPT)
 C++OPTDYN=	-fpic
@@ -55,15 +57,15 @@ LNDYNLIB=	@$(RM) $(RM_FORCE) $(PTARGET_BASE).so; $(SYMLINK) $(TARGET) $(PTARGET_
 FLOAT_OPTIONS=	
 
 CC_COM=		gcc
-CC=		@echo "	==> COMPILING \"$@\""; gcc -m64
-CC++ =		@echo "	==> COMPILING \"$@\""; g++ -m64
-LDCC=		@echo "	==> LINKING \"$@\""; gcc -m64
-LDCC++ =	@echo "	==> LINKING \"$@\""; g++ -m64
-DYNLD=		@echo "	==> LINKING dynamic library \"$@\""; gcc -m64
-DYNLDC++ =	@echo "	==> LINKING dynamic library \"$@\""; g++ -m64
+CC=		@echo "	==> COMPILING \"$@\""; gcc $(GCC_OPT64)
+CC++ =		@echo "	==> COMPILING \"$@\""; g++ $(GCC_OPT64)
+LDCC=		@echo "	==> LINKING \"$@\""; gcc $(GCC_OPT64)
+LDCC++ =	@echo "	==> LINKING \"$@\""; g++ $(GCC_OPT64)
+DYNLD=		@echo "	==> LINKING dynamic library \"$@\""; gcc $(GCC_OPT64)
+DYNLDC++ =	@echo "	==> LINKING dynamic library \"$@\""; g++ $(GCC_OPT64)
 
 RMDEP=		:
-MKDEP=		@echo "	==> MAKING DEPENDENCIES \"$@\""; $(RMDEP); gcc -m64 -M
+MKDEP=		@echo "	==> MAKING DEPENDENCIES \"$@\""; $(RMDEP); gcc $(GCC_OPT64) -M
 MKDEP_OUT=
-MKC++DEP=	@echo "	==> MAKING DEPENDENCIES \"$@\""; $(RMDEP); g++ -m64 -M
+MKC++DEP=	@echo "	==> MAKING DEPENDENCIES \"$@\""; $(RMDEP); g++ $(GCC_OPT64) -M
 MKC++DEP_OUT=

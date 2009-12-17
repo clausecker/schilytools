@@ -1,4 +1,4 @@
-#ident "@(#)r-smake.dep	1.12 06/07/31 "
+#ident "@(#)r-smake.dep	1.13 09/11/23 "
 ###########################################################################
 # Written 1996 by J. Schilling
 ###########################################################################
@@ -53,9 +53,11 @@ $(ARCHDIR):
 # appropriate dependency file.
 #
 ###########################################################################
-.d:	.c
-	$(MKDEP) $(CPPFLAGS) $(MKDEP_OUT) $< \
-		| sed -e 's;^\(.*\)\.$o[ 	]*:;\1.$o \1.d:;' > $(ARCHDIR)/$@
+
+# Do not define Simple Suffix Rules anymore
+#.d:	.c
+#	$(MKDEP) $(CPPFLAGS) $(MKDEP_OUT) $< \
+#		| sed -e 's;^\(.*\)\.$o[ 	]*:;\1.$o \1.d:;' > $(ARCHDIR)/$@
 
 %.d: %.c
 	$(MKDEP) $(CPPFLAGS) $(MKDEP_OUT) $< \

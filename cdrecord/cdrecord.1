@@ -1,4 +1,4 @@
-.\" @(#)cdrecord.1	1.129 09/11/15 Copyright 1996-2009 J. Schilling
+.\" @(#)cdrecord.1	1.130 09/11/19 Copyright 1996-2009 J. Schilling
 .\"
 .\" The contents of this file are subject to the terms of the
 .\" Common Development and Distribution License, Version 1.0 only
@@ -45,7 +45,10 @@ CD-Recorder, to write DVD media on a DVD-Recorder or to write
 BluRay media on a BluRay-Recorder.
 .PP
 .SS "Device naming"
-Most users do not need to care about device naming at all, as 
+Most users do not need to care about device naming at all.
+If no
+.B dev=
+option was specified, 
 .B cdrecord
 implements 
 .B auto target
@@ -62,124 +65,12 @@ parameter may be set based on the device listing.
 .PP
 The
 .I device
-(see
+parameter to the
 .B dev=
-option)
-refers to
+option
+explained below refers to
 .IR scsibus / target / lun
-of the CD/DVD/BluRay-Recorder. Communication on 
-.I SunOS
-is done with the SCSI general driver
-.B scg.
-Other operating systems are using a library simulation of this driver.
-Possible syntax is:
-.B dev=
-.IR scsibus , target , lun
-or
-.B dev=
-.IR target , lun .
-In the latter case, the CD/DVD/BluRay-Recorder has to be connected to the default 
-SCSI bus of the machine.
-.IR Scsibus ,
-.I target 
-and 
-.I lun
-are integer numbers. 
-Some operating systems or SCSI transport implementations may require to
-specify a filename in addition.
-In this case the correct syntax for the device is:
-.B dev=
-.IR devicename : scsibus , target , lun
-or
-.B dev=
-.IR devicename : target , lun .
-If the name of the device node that has been specified on such a system
-refers to exactly one SCSI device, a shorthand in the form
-.B dev=
-.IR devicename : @
-or
-.B dev=
-.IR devicename : @ , lun
-may be used instead of
-.B dev=
-.IR devicename : scsibus , target , lun .
-
-.PP
-To access remote SCSI devices, you need to prepend the SCSI device name by
-a remote device indicator. The remote device indicator is either
-.BI REMOTE: user@host:
-or
-.BR
-.BI REMOTE: host:
-.br
-A valid remote SCSI device name may be:
-.BI REMOTE: user@host:
-to allow remote SCSI bus scanning or
-.BI REMOTE: user@host:1,0,0
-to access the SCSI device at 
-.I host
-connected to SCSI bus # 1,target 0 lun 0.
-
-.PP
-.B Cdrecord
-is completely based on 
-.B SCSI
-commands but this is no problem as all CD/DVD/BluRay writers
-ever made use
-.B SCSI
-commands for the communication. Even
-.B ATAPI
-drives are just
-.B SCSI
-drives that inherently use the 
-.I "ATA packet interface
-as
-.B SCSI
-command transport layer build into the IDE (ATA) transport.
-You may need to specify an alternate transport layer on the command  line
-if your OS does not implement a fully integrated kernel driver subsystem that
-allows to access any drive using
-.B SCSI
-commands via a single unique user interface.
-
-.PP
-To access SCSI devices via alternate transport layers,
-you need to prepend the SCSI device name by a transport layer indicator.
-The transport layer indicator may be something like
-.B USCSI: 
-or
-.BR ATAPI: .
-To get a list of supported transport layers for your platform, use 
-.B dev=
-.IR HELP :
-
-
-.PP
-To make 
-.B cdrecord
-portable to all \s-2UNIX\s0 platforms, the syntax
-.B dev=
-.IR devicename : scsibus , target , lun
-is preferred as it hides OS specific knowledge about device names from the user.
-A specific OS may not necessarily support a way to specify a real device file name nor a
-way to specify 
-.IR scsibus , target , lun .
-
-.PP
-.I Scsibus 
-0 is the default SCSI bus on the machine. Watch the boot messages for more 
-information or look into 
-.B /var/adm/messages 
-for more information about the SCSI configuration of your machine.
-If you have problems to figure out what values for 
-.IR scsibus , target , lun
-should be used, try the 
-.B \-scanbus
-option of 
-.B cdrecord
-described below.
-
-.PP
+of the CD/DVD/BluRay-Recorder.
 If a file /etc/default/cdrecord exists, the parameter to the
 .B dev=
 option may also be a drive name label in said file (see FILES section).
@@ -674,7 +565,7 @@ Unclose last session.
 .TP
 session
 Blank the last session.
-.RE
+.PP
 Not all drives support all blanking types. It may be necessary to use
 .B "blank=all
 if a drive reports a specified command as being invalid.
@@ -690,6 +581,7 @@ does its best if the
 .B \-force 
 flag is used but it finally depends on the drive's firmware 
 whether the blanking operation will succeed or not.
+.RE
 .TP
 .B \-format
 Format a CD-RW/DVD-RW/DVD+RW/BD-RE disc.
@@ -803,8 +695,8 @@ option.
 .TP
 .BI dev= target
 Sets the SCSI target for the CD/DVD/BluRay-Recorder, see notes above.
-A typical device specification is
-.BI dev= 6,0
+A typical target device specification is
+.BI dev= 1,6,0
 \&.
 If a filename must be provided together with the numerical target 
 specification, the filename is implementation specific.
@@ -820,10 +712,133 @@ A correct device specification in this case may be
 .BI dev= /dev/rcd0.ctl:@
 \&.
 .sp
-On Linux, drives connected to a parallel port adapter are mapped
-to a virtual SCSI bus. Different adapters are mapped to different
-targets on this virtual SCSI bus.
+.B \h'-2m'General SCSI addressing
+.br
+The
+.I target device
+to the 
+.B dev=
+option
+refers to
+.IR scsibus / target / lun
+of the CD/DVD/BluRay-Recorder. Communication on 
+.I SunOS
+is done with the SCSI general driver
+.B scg.
+Other operating systems are using a library simulation of this driver.
+Possible syntax is:
+.B dev=
+.IR scsibus , target , lun
+or
+.B dev=
+.IR target , lun .
+In the latter case, the CD/DVD/BluRay-Recorder has to be connected to the default 
+SCSI bus of the machine.
+.IR Scsibus ,
+.I target 
+and 
+.I lun
+are integer numbers. 
+Some operating systems or SCSI transport implementations may require to
+specify a filename in addition.
+In this case the correct syntax for the device is:
+.B dev=
+.IR devicename : scsibus , target , lun
+or
+.B dev=
+.IR devicename : target , lun .
+If the name of the device node that has been specified on such a system
+refers to exactly one SCSI device, a shorthand in the form
+.B dev=
+.IR devicename : @
+or
+.B dev=
+.IR devicename : @ , lun
+may be used instead of
+.B dev=
+.IR devicename : scsibus , target , lun .
 .sp
+.B \h'-2m'Remote SCSI addressing
+.br
+To access remote SCSI devices, you need to prepend the SCSI device name by
+a remote device indicator. The remote device indicator is either
+.BI REMOTE: user@host:
+or
+.BI REMOTE: host:
+A valid remote SCSI device name may be:
+.BI REMOTE: user@host:
+to allow remote SCSI bus scanning or
+.BI REMOTE: user@host:1,0,0
+to access the SCSI device at 
+.I host
+connected to SCSI bus # 1,target 0 lun 0.
+In order to allow remote access to a specific
+.IR host ,
+the program
+.BR rscsi (1)
+program needs to be present and configured on the
+.IR host .
+.sp
+.B \h'-2m'Alternate SCSI transports
+.br
+.B Cdrecord
+is completely based on 
+.B SCSI
+commands but this is no problem as all CD/DVD/BluRay writers
+ever made use
+.B SCSI
+commands for the communication. Even
+.B ATAPI
+drives are just
+.B SCSI
+drives that inherently use the 
+.I "ATA packet interface
+as
+.B SCSI
+command transport layer build into the IDE (ATA) transport.
+You may need to specify an alternate transport layer on the command  line
+if your OS does not implement a fully integrated kernel driver subsystem that
+allows to access any drive using
+.B SCSI
+commands via a single unique user interface.
+.sp
+To access SCSI devices via alternate transport layers,
+you need to prepend the SCSI device name by a transport layer indicator.
+The transport layer indicator may be something like
+.B USCSI: 
+or
+.BR ATAPI: .
+To get a list of supported transport layers for your platform, use 
+.B dev=
+.IR HELP :
+.sp
+.B \h'-2m'Portability Background
+.br
+To make 
+.B cdrecord
+portable to all \s-2UNIX\s0 platforms, the syntax
+.B dev=
+.IR devicename : scsibus , target , lun
+is preferred as it hides OS specific knowledge about device names from the user.
+A specific OS may not necessarily support a way to specify a real device file name nor a
+way to specify 
+.IR scsibus , target , lun .
+.sp
+.I Scsibus 
+0 is the default SCSI bus on the machine. Watch the boot messages for more 
+information or look into 
+.B /var/adm/messages 
+for more information about the SCSI configuration of your machine.
+If you have problems to figure out what values for 
+.IR scsibus , target , lun
+should be used, try the 
+.B \-scanbus
+option of 
+.B cdrecord
+described below.
+.sp
+.B \h'-2m'Using logical names for devices
+.br
 If no 
 .I dev
 option is present, 
@@ -832,17 +847,27 @@ will try to get the device from the
 .B CDR_DEVICE
 environment.
 .sp
-If the argument to the
+If a file /etc/default/cdrecord exists, and
+if the argument to the
 .B dev=
-option does not contain the characters ',', '/', '@' or ':',
-it is interpreted as an label name that may be found in the file
+option
+or the
+.B CDR_DEVICE
+environment
+does not contain the characters ',', '/', '@' or ':',
+it is interpreted as a device label name that was defined in the file
 /etc/default/cdrecord (see FILES section).
 .sp
+.B \h'-2m'Autotarget Mode
+.br
 If no 
 .B dev=
-option is present, or if the
-.B dev=
-option only contains a transport specifyer but no address,
+option 
+and no
+.B CDR_DEVICE
+environment
+is present, or if it
+only contains a transport specifyer but no address notation,
 .B cdrecord
 tries to scan the SCSI address space for CD-ROM drives.
 If exactly one is found, this is used by default.

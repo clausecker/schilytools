@@ -1,8 +1,8 @@
-/* @(#)dvd_reader.c	1.9 09/07/09 joerg */
+/* @(#)dvd_reader.c	1.10 09/11/25 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)dvd_reader.c	1.9 09/07/09 joerg";
+	"@(#)dvd_reader.c	1.10 09/11/25 joerg";
 #endif
 /*
  * Copyright (C) 2001, 2002 Billy Biggs <vektor@dumbterm.net>,
@@ -54,12 +54,12 @@ struct dvd_file_s {
 
 
 EXPORT	void		DVDCloseFile	__PR((dvd_file_t *dvd_file));
-LOCAL	dvd_file_t *	DVDOpenFilePath	__PR((dvd_reader_t *dvd, char *filename));
-LOCAL	dvd_file_t *	DVDOpenVOBPath	__PR((dvd_reader_t *dvd, int title, int menu));
-EXPORT	dvd_file_t *	DVDOpenFile	__PR((dvd_reader_t *dvd, int titlenum,
+LOCAL	dvd_file_t	*DVDOpenFilePath __PR((dvd_reader_t *dvd, char *filename));
+LOCAL	dvd_file_t	*DVDOpenVOBPath	__PR((dvd_reader_t *dvd, int title, int menu));
+EXPORT	dvd_file_t	*DVDOpenFile	__PR((dvd_reader_t *dvd, int titlenum,
 						dvd_read_domain_t domain));
-LOCAL	dvd_reader_t *	DVDOpenPath	__PR((const char *path_root));
-EXPORT	dvd_reader_t *	DVDOpen		__PR((const char *path));
+LOCAL	dvd_reader_t	*DVDOpenPath	__PR((const char *path_root));
+EXPORT	dvd_reader_t	*DVDOpen		__PR((const char *path));
 EXPORT	void		DVDClose	__PR((dvd_reader_t *dvd));
 EXPORT	ssize_t		DVDFileSize	__PR((dvd_file_t *dvd_file));
 
@@ -95,7 +95,7 @@ DVDOpenFilePath(dvd, filename)
 				"%s/%s", dvd->path_root, filename);
 
 
-	dvd_file = (dvd_file_t *) e_malloc(sizeof (dvd_file_t));
+	dvd_file = (dvd_file_t *)e_malloc(sizeof (dvd_file_t));
 	if (!dvd_file)
 		return (0);
 	dvd_file->dvd = dvd;
@@ -126,7 +126,7 @@ DVDOpenVOBPath(dvd, title, menu)
 	dvd_file_t	*dvd_file;
 	int		i;
 
-	dvd_file = (dvd_file_t *) e_malloc(sizeof (dvd_file_t));
+	dvd_file = (dvd_file_t *)e_malloc(sizeof (dvd_file_t));
 	if (!dvd_file)
 		return (0);
 	dvd_file->dvd = dvd;
@@ -224,7 +224,7 @@ DVDOpenPath(path_root)
 {
 	dvd_reader_t	*dvd;
 
-	dvd = (dvd_reader_t *) e_malloc(sizeof (dvd_reader_t));
+	dvd = (dvd_reader_t *)e_malloc(sizeof (dvd_reader_t));
 	if (!dvd)
 		return (0);
 	dvd->path_root = e_strdup(path_root);
