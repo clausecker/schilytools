@@ -1,8 +1,8 @@
-/* @(#)make.c	1.177 09/12/14 Copyright 1985, 87, 88, 91, 1995-2009 J. Schilling */
+/* @(#)make.c	1.178 09/12/19 Copyright 1985, 87, 88, 91, 1995-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)make.c	1.177 09/12/14 Copyright 1985, 87, 88, 91, 1995-2009 J. Schilling";
+	"@(#)make.c	1.178 09/12/19 Copyright 1985, 87, 88, 91, 1995-2009 J. Schilling";
 #endif
 /*
  *	Make program
@@ -106,6 +106,7 @@ LOCAL	char 	*strbs2s	__PR((char *s));
 #ifndef	HAVE_UNSETENV
 EXPORT	int	unsetenv	__PR((const char *name));
 #endif
+LOCAL	void	ovstrcpy	__PR((char *p2, char *p1));
 
 BOOL	posixmode	= FALSE;	/* We found a .POSIX target	*/
 BOOL	Eflag		= FALSE;	/* -e Environment overrides vars*/
@@ -1292,7 +1293,7 @@ read_makemacs()
 		} else {		/* Need to temporarily null terminate */
 			*p = '\0';
 			if (!read_mac(mf)) {
-				strcpy(mf, &p[1]);
+				ovstrcpy(mf, &p[1]);
 			} else {
 				*p = ' ';
 				mf = &p[1];
@@ -1474,7 +1475,7 @@ stripmacros(macbase, new)
 			if (p2 == NULL) {	/* This is the only, zap out */
 				*macbase = '\0';
 			} else {		/* Copy rest over current */
-				strcpy(macbase, &p2[1]);
+				ovstrcpy(macbase, &p2[1]);
 			}
 		} else if (p2) {		/* Continue with next extry */
 			macbase = &p2[1];
@@ -2503,3 +2504,16 @@ found:
 	return (0);
 }
 #endif	/* HAVE_UNSETENV */
+
+/*
+ * A strcpy() that works with overlapping buffers
+ */
+LOCAL void
+ovstrcpy(p2, p1)
+	register char	*p2;
+	register char	*p1;
+{
+	while ((*p2++ = *p1++) != '\0')
+		;
+}
+

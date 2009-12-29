@@ -1,8 +1,8 @@
-/* @(#)parse.c	1.103 09/11/25 Copyright 1985-2009 J. Schilling */
+/* @(#)parse.c	1.105 09/12/23 Copyright 1985-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)parse.c	1.103 09/11/25 Copyright 1985-2009 J. Schilling";
+	"@(#)parse.c	1.105 09/12/23 Copyright 1985-2009 J. Schilling";
 #endif
 /*
  *	Make program
@@ -133,8 +133,11 @@ parsefile()
 			getch();	/* Eat up new line character */
 			continue;	/* Continue with next line */
 		}
-		if ((objcnt = read_ovec(ovec, &type)) == 0)
-			continue;
+		type = 0;
+		if ((objcnt = read_ovec(ovec, &type)) == 0) {
+			if (type != COLON && type != DCOLON)
+				continue;
+		}
 
 		if (objcnt < 0) {
 			errmsgno(EX_BAD, "Objcount: %d Objects: ", -objcnt);
@@ -1078,7 +1081,7 @@ getcmd()
 			getch();	/* Skip white space. */
 
 		for (p = gbuf; lastc != EOF; getch()) {
-			if (lastc == '\n' && p > gbuf && p[-1] != '\\')
+			if (lastc == '\n' && (p == gbuf || p[-1] != '\\'))
 				break;
 			if (p >= gbufend)
 				p = growgbuf(p);
@@ -1156,7 +1159,7 @@ read_ovec(ovec, typep)
 		c = lastc;
 		while (white(lastc))
 			getch();
-/*printf("lastc: '%c'", lastc); if (o) printf("nameL %s\n", o->o_name);*/
+/*printf("lastc: '%c'", lastc); if (o) printf(" nameL %s\n", o->o_name);*/
 		if (o != (obj_t *) NULL) {
 			p = o->o_name;
 			if (p[0] == '+' && p[1] == '\0' && c == '=') {
@@ -1175,7 +1178,17 @@ read_ovec(ovec, typep)
 			}
 			if (lastc == EOF && objcnt == 0)
 				break;
-			exerror("Missing object name");
+			/*
+			 * Empty variable name or target.
+			 * The POSIX standard says that this is always illegal.
+			 * There are makefiles that include $(EMPTY): something
+			 * and we like to support them, so allow empty targets
+			 * with ':' and '::', but abort with '=', '+=' or ':='
+			 */
+			if (lastc != ':' || peekch() == '=')
+				exerror("Missing object name");
+			if (!nowarn(":"))
+				warn("Missing object name");
 		}
 		/*
 		 * end of definition:

@@ -1,8 +1,8 @@
-/* @(#)tags.c	1.30 09/07/13 Copyright 1986-2009 J. Schilling */
+/* @(#)tags.c	1.31 09/12/19 Copyright 1986-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)tags.c	1.30 09/07/13 Copyright 1986-2009 J. Schilling";
+	"@(#)tags.c	1.31 09/12/19 Copyright 1986-2009 J. Schilling";
 #endif
 /*
  *	Routines that handle references to the tags database.
@@ -46,6 +46,9 @@ LOCAL	int	taglevel;
 LOCAL	FILE	*tagfsearch	__PR((void));
 LOCAL	FILE	*tagfopen	__PR((void));
 EXPORT	int	gettag		__PR((Uchar** name));
+#ifndef	PATMATCH
+LOCAL	void	ovstrcpy	__PR((char *p2, char *p1));
+#endif
 EXPORT	epos_t	searchtag	__PR((ewin_t *wp, epos_t opos));
 LOCAL	void	ts_push		__PR((ewin_t *wp));
 LOCAL	void	ts_pop		__PR((void));
@@ -288,12 +291,26 @@ gettag(name)
 #else
 	for (cp = bp; *cp != '\0'; cp++) {
 		if (*cp == '\\')
-			strcpy(cp, cp+1); /* No overflow (gets shorter) */
+			ovstrcpy(cp, cp+1); /* No overflow (gets shorter) */
 	}
 #endif
 	tagstring = bp;
 	return (1);
 }
+
+#ifndef	PATMATCH
+/*
+ * A strcpy() that works with overlapping buffers
+ */
+LOCAL void
+ovstrcpy(p2, p1)
+	register char	*p2;
+	register char	*p1;
+{
+	while ((*p2++ = *p1++) != '\0')
+		;
+}
+#endif
 
 /*
  * Search a tag in the current bufer by using search/linenumber information

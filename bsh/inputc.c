@@ -1,8 +1,8 @@
-/* @(#)inputc.c	1.59 09/07/28 Copyright 1982, 1984-2009 J. Schilling */
+/* @(#)inputc.c	1.60 09/12/20 Copyright 1982, 1984-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)inputc.c	1.59 09/07/28 Copyright 1982, 1984-2009 J. Schilling";
+	"@(#)inputc.c	1.60 09/12/20 Copyright 1982, 1984-2009 J. Schilling";
 #endif
 /*
  *	inputc.c
@@ -1955,7 +1955,13 @@ esc_process(xc, lp, cp, lenp)
 			dl = linediff(cp, pp);
 			backspace(dl);
 		}
-		wcscpy(cp, pp);
+		/*
+		 * strcpy() doesn't handle overlapped buffers
+		 */
+		{ wchar_t *p2 = cp; wchar_t *p1 = pp;
+			while (*p2++ = *p1++)
+				;
+		}
 		writews(cp);
 		space(dl);
 		backspace(linelen(cp) + dl);

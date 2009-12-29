@@ -1,8 +1,8 @@
-/* @(#)datio.c	1.25 09/07/11 Copyright 1988-2009 J. Schilling */
+/* @(#)datio.c	1.26 09/12/19 Copyright 1988-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)datio.c	1.25 09/07/11 Copyright 1988-2009 J. Schilling";
+	"@(#)datio.c	1.26 09/12/19 Copyright 1988-2009 J. Schilling";
 #endif
 /*
  *	IO routines for database
@@ -60,6 +60,7 @@ EXPORT	BOOL	firstitem	__PR((void));
 EXPORT	int	getlineno	__PR((void));
 EXPORT	char	*curword	__PR((void));
 EXPORT	char	*peekword	__PR((void));
+LOCAL	void	ovstrcpy	__PR((char *p2, char *p1));
 LOCAL	char	*markword	__PR((char *));
 LOCAL	char	*getnextitem	__PR((char *));
 EXPORT	char	*nextword	__PR((void));
@@ -258,6 +259,18 @@ peekword()
 	return (&wordendp[1]);
 }
 
+/*
+ * A strcpy() that works with overlapping buffers
+ */
+LOCAL void
+ovstrcpy(p2, p1)
+	register char	*p2;
+	register char	*p1;
+{
+	while ((*p2++ = *p1++) != '\0')
+		;
+}
+
 LOCAL char *
 markword(delim)
 	char	*delim;
@@ -269,7 +282,7 @@ markword(delim)
 	for (s = (Uchar *)linep; (c = *s) != '\0'; s++) {
 		if (c == '"') {
 			quoted = !quoted;
-			strcpy((char *)s, (char *)&s[1]);
+			ovstrcpy((char *)s, (char *)&s[1]);
 			c = *s;
 		}
 		if (!quoted && isspace(c))

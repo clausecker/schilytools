@@ -1,8 +1,8 @@
-/* @(#)tgetent.c	1.33 09/07/12 Copyright 1986-2009 J. Schilling */
+/* @(#)tgetent.c	1.34 09/12/19 Copyright 1986-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)tgetent.c	1.33 09/07/12 Copyright 1986-2009 J. Schilling";
+	"@(#)tgetent.c	1.34 09/12/19 Copyright 1986-2009 J. Schilling";
 #endif
 /*
  *	Access routines for TERMCAP database.
@@ -99,6 +99,7 @@ LOCAL	char	*tinsint	__PR((char *ep, int i));
 LOCAL	void	tstrip		__PR((void));
 LOCAL	char	*tmalloc	__PR((int size));
 LOCAL	char	*trealloc	__PR((char *p, int size));
+LOCAL	void	ovstrcpy	__PR((char *p2, char *p1));
 
 EXPORT int
 tgetent(bp, name)
@@ -190,7 +191,7 @@ setpath:
 						}
 					}
 					if (tbuf)
-						strcpy(tbuf, ep);
+						ovstrcpy(tbuf, ep);
 					goto out;
 				}
 			}
@@ -753,7 +754,7 @@ tdeldup(ent)
 				if (*p++ == ':')
 					break;
 			ep -= 3;
-			strcpy(ep, --p);
+			ovstrcpy(ep, --p);
 		}
 	}
 }
@@ -808,7 +809,7 @@ tstrip()
 				p = bp;
 				while (*p == ':')
 					p++;
-				strcpy(bp, p);
+				ovstrcpy(bp, p);
 			}
 		}
 	}
@@ -821,7 +822,7 @@ tstrip()
 				while (*p)
 					if (*p++ == ':')
 						break;
-				strcpy(bp--, p);
+				ovstrcpy(bp--, p);
 			}
 		}
 	}
@@ -851,3 +852,16 @@ trealloc(p, size)
 	write(STDERR_FILENO, _enomem, sizeof (_enomem) - 1);
 	return ((char *)NULL);
 }
+
+/*
+ * A strcpy() that works with overlapping buffers
+ */
+LOCAL void
+ovstrcpy(p2, p1)
+	register char	*p2;
+	register char	*p1;
+{
+	while ((*p2++ = *p1++) != '\0')
+		;
+}
+

@@ -1,8 +1,8 @@
-/* @(#)cdrecord.c	1.389 09/11/30 Copyright 1995-2009 J. Schilling */
+/* @(#)cdrecord.c	1.390 09/12/20 Copyright 1995-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)cdrecord.c	1.389 09/11/30 Copyright 1995-2009 J. Schilling";
+	"@(#)cdrecord.c	1.390 09/12/20 Copyright 1995-2009 J. Schilling";
 #endif
 /*
  *	Record data on a CD/CVD-Recorder
@@ -223,6 +223,8 @@ LOCAL	int	getfilecount	__PR((int ac, char *const *av, const char *fmt));
 LOCAL	void	gargs		__PR((int, char **, int *, track_t *, char **,
 					int *, cdr_t **,
 					int *, UInt32_t *, int *));
+LOCAL	int	default_wr_mode	__PR((int tracks, track_t *trackp,
+					UInt32_t *flagsp, int *wmp, int flags));
 LOCAL	void	etracks		__PR((char *opt));
 LOCAL	void	set_trsizes	__PR((cdr_t *, int, track_t *));
 EXPORT	void	load_media	__PR((SCSI *scgp, cdr_t *, BOOL));
@@ -4037,24 +4039,8 @@ gargs(ac, av, tracksp, trackp, devp, timeoutp, dpp, speedp, flagsp, blankp)
 			 */
 			break;
 		}
-		if (tracks == 0 && (wm == 0)) {
-			errmsgno(EX_BAD, "No write mode specified.\n");
-			errmsgno(EX_BAD, "Assuming %s mode.\n",
-					(*flagsp & F_MULTI)?"-tao":"-sao");
-			if ((*flagsp & F_MULTI) == 0)
-				errmsgno(EX_BAD, "If your drive does not accept -sao, try -tao.\n");
-			errmsgno(EX_BAD, "Future versions of cdrecord may have different drive dependent defaults.\n");
-			if (*flagsp & F_MULTI) {
-				wm |= M_TAO;
-			} else {
-				*flagsp |= F_SAO;
-				trackp[0].flags &= ~TI_TAO;
-				trackp[0].flags |= TI_SAO;
-				flags &= ~TI_TAO;
-				flags |= TI_SAO;
-				wm |= M_SAO;
-			}
-		}
+		if (tracks == 0 && (wm == 0))
+			flags = default_wr_mode(tracks, trackp, flagsp, &wm, flags);
 		tracks++;
 
 		if (tracks > MAX_TRACK)
@@ -4222,6 +4208,9 @@ gargs(ac, av, tracksp, trackp, devp, timeoutp, dpp, speedp, flagsp, blankp)
 		trackp[MAX_TRACK+1].flags |= TI_TEXT;
 	}
 	if (cuefile) {
+		if (tracks == 0 && (wm == 0))
+			flags = default_wr_mode(tracks, trackp, flagsp, &wm, flags);
+
 		if ((*flagsp & F_SAO) == 0 &&
 		    (*flagsp & F_RAW) == 0) {
 			errmsgno(EX_BAD, "The cuefile= option only works with -sao/-raw.\n");
@@ -4240,6 +4229,35 @@ gargs(ac, av, tracksp, trackp, devp, timeoutp, dpp, speedp, flagsp, blankp)
 		errmsgno(EX_BAD, "No tracks specified. Need at least one.\n");
 		susage(EX_BAD);
 	}
+}
+
+LOCAL int
+default_wr_mode(tracks, trackp, flagsp, wmp, flags)
+	int	tracks;
+	track_t	*trackp;
+	UInt32_t *flagsp;
+	int	*wmp;
+	int	flags;
+{
+	if (tracks == 0 && (*wmp == 0)) {
+		errmsgno(EX_BAD, "No write mode specified.\n");
+		errmsgno(EX_BAD, "Assuming %s mode.\n",
+				(*flagsp & F_MULTI)?"-tao":"-sao");
+		if ((*flagsp & F_MULTI) == 0)
+			errmsgno(EX_BAD, "If your drive does not accept -sao, try -tao.\n");
+		errmsgno(EX_BAD, "Future versions of cdrecord may have different drive dependent defaults.\n");
+		if (*flagsp & F_MULTI) {
+			*wmp |= M_TAO;
+		} else {
+			*flagsp |= F_SAO;
+			trackp[0].flags &= ~TI_TAO;
+			trackp[0].flags |= TI_SAO;
+			flags &= ~TI_TAO;
+			flags |= TI_SAO;
+			*wmp |= M_SAO;
+		}
+	}
+	return (flags);
 }
 
 LOCAL void
@@ -4364,7 +4382,7 @@ load_media(scgp, dp, doexit)
 	scgp->silent--;
 	err = geterrno();
 	if (code < 0 && (err == EPERM || err == EACCES)) {
-		linuxcheck();	/* For version 1.389 of cdrecord.c */
+		linuxcheck();	/* For version 1.390 of cdrecord.c */
 		scg_openerr("");
 	}
 
@@ -5235,7 +5253,7 @@ set_wrmode(dp, wmode, tflags)
 }
 
 /*
- * I am sorry that even for version 1.389 of cdrecord.c, I am forced to do
+ * I am sorry that even for version 1.390 of cdrecord.c, I am forced to do
  * things like this, but defective versions of cdrecord cause a lot of
  * work load to me.
  *
@@ -5252,7 +5270,7 @@ set_wrmode(dp, wmode, tflags)
 #endif
 
 LOCAL void
-linuxcheck()				/* For version 1.389 of cdrecord.c */
+linuxcheck()				/* For version 1.390 of cdrecord.c */
 {
 #if	defined(linux) || defined(__linux) || defined(__linux__)
 #ifdef	HAVE_UNAME

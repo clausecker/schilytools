@@ -1,0 +1,63 @@
+New features with AN-2009-12-29:
+
+-	libxtermcap/tgetent.c:
+	smake/make.c:
+	lndir/lndir.c:
+	sformat/datio.c:
+	ved/tags.c:
+	bsh/inputc.c:
+	Do no longer shorten strings using strcpy()/wcscpy() as newer POSIX
+	versions claim that overlapping buffers cause undefined 
+	results and as the Solaris 64 bit libc starting with Build 125, 
+	implements strcpy() using SSE instructions and thus fails with
+	overlapping strings.
+
+-	conf/src-get now includes $SRCROOT/conf in PATH to allow to find
+	"src-get" for recursive calls.
+
+-	conf/mkdir.sh now includes a workaround for a problem with 
+	/us/xpg4/bin/sed on Solaris.
+
+-	Fixed a bug smake that has been introduced while trying to avoid
+	a core dump with some strange Makefiles.
+
+	smake now again tolerates:
+
+	target: deplist
+	<TAB>cmd1
+	<TAB>
+	target2: deplist2
+
+-	smake now supports an undocumented feature of UNIX make that allows
+	to specify:
+
+	$(EMPTY): deplist
+
+-	"sccs log" now avoids a core dump if called with the SCCS history from
+	BSD-4.4 on the CSRG CD CSRG_Archive_4 as this CD contains corrupt
+	SCCS history files. The core dump happened with calling: "sccs -R log"
+
+-	cdrecord man page enhanced
+
+-	cdda2wav man page enhanced
+
+-	Cdrecord now sets the default write mode to -sao if called:
+	cdrecord cuefile=xxx
+
+-	The default outout format for cdda2wav is now .wav for all platforms.
+	Before, the default for Solaris was .au.
+
+-	cdrtools bumped to 2.01.01a70
+
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.isdn.cs.tu-berlin.de, js@cs.tu-berlin.de
+	joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

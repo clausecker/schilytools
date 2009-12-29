@@ -1,8 +1,8 @@
-/* @(#)cue.c	1.38 09/07/10 Copyright 2001-2009 J. Schilling */
+/* @(#)cue.c	1.39 09/12/19 Copyright 2001-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)cue.c	1.38 09/07/10 Copyright 2001-2009 J. Schilling";
+	"@(#)cue.c	1.39 09/12/19 Copyright 2001-2009 J. Schilling";
 #endif
 /*
  *	Cue sheet parser
@@ -1213,7 +1213,6 @@ markword(delim)
 	for (s = (Uchar *)linep; (c = *s) != '\0'; s++) {
 		if (c == '"') {
 			quoted = !quoted;
-/*			strcpy((char *)s, (char *)&s[1]);*/
 			for (to = s, from = &s[1]; *from; ) {
 				c = *from++;
 				if (c == '\\' && quoted && (*from == '\\' || *from == '"'))

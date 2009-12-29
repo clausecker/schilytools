@@ -1,5 +1,5 @@
 #!/bin/sh
-# @(#)src-get  1.20 09/07/09 Copyright 2005-2009 J. Schilling
+# @(#)src-get  1.21 09/12/22 Copyright 2005-2009 J. Schilling
 ###########################################################################
 # Written 2005-2009 by J. Schilling
 ###########################################################################
@@ -134,9 +134,9 @@ cd_srcroot() {
 set_binspath() {
 	PWD=`pwd`
 	if [ "$SRCROOT" = . ];then
-		PATH="${PWD}/${BINS}:${PATH}"
+		PATH="${PWD}/${BINS}:${PWD}/conf:${PATH}"
 	else
-		PATH="${PWD}/${SRCROOT}/${BINS}:${PATH}"
+		PATH="${PWD}/${SRCROOT}/${BINS}:${PWD}/${SRCROOT}/conf:${PATH}"
 	fi
 	export PATH
 	unset PWD
@@ -276,7 +276,7 @@ do_dep() {
 		return
 	fi
 	echo "Fetching dependencies: $deps"
-	$0 install $deps
+	src-get install $deps
 }
 
 do_patch() {
@@ -330,6 +330,7 @@ do_install() {
 	do_dep "$DEP"
 
 	if [ ."$URL" = . ]; then
+		cd ..
 		return
 	fi
 	do_wget ${server_url}"$PKG"
@@ -445,11 +446,11 @@ case $cmd in
 			;;
 
 	version|-version|--version)
-			echo "src-get  1.20 09/07/09 Copyright 2005-2009 J. Schilling"
+			echo "src-get  1.21 09/12/22 Copyright 2005-2009 J. Schilling"
 			exit 0
 			;;
 
-	-help|*)	echo "@(#)src-get  1.20 09/07/09 Copyright 2005-2009 J. Schilling"
+	-help|*)	echo "@(#)src-get  1.21 09/12/22 Copyright 2005-2009 J. Schilling"
 			usage
 			exit 0
 			;;

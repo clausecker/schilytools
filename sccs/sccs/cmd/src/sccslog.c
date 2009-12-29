@@ -1,8 +1,8 @@
-/* @(#)sccslog.c	1.27 09/07/11 Copyright 1997-2009 J. Schilling */
+/* @(#)sccslog.c	1.28 09/12/22 Copyright 1997-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)sccslog.c	1.27 09/07/11 Copyright 1997-2009 J. Schilling";
+	"@(#)sccslog.c	1.28 09/12/22 Copyright 1997-2009 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1997-2009 J. Schilling
@@ -304,6 +304,12 @@ dofile(name)
 		errmsg("Cannot open '%s'.\n", name);
 		return;
 	}
+	if (list == NULL) {
+		listmax += 128;
+		list = malloc(listmax*sizeof (*list));
+		if (list == NULL)
+			comerr("No memory.\n");
+	}
 
 	bname = pname = name;
 	if ((pname = strrchr(pname, '/')) == 0)
@@ -432,6 +438,10 @@ dofile(name)
 			}
 		}
 		if (buf[1] == 'e') {
+			if (list[listsize].user == NULL) {
+				errmsgno(EX_BAD, "Corrupt file '%s'.\n", name);
+				continue;
+			}
 			/*
 			 * Check for very old SCCS history files that may have
 			 * no comment at all in special for Release 1.1.

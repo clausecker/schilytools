@@ -1,4 +1,4 @@
-. \" @(#)star.1	1.161 09/06/02 Copyr 1982-2009 J. Schilling
+. \" @(#)star.1	1.162 09/12/22 Copyr 1982-2009 J. Schilling
 . \"  Manual Seite fuer star
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -13,7 +13,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH STAR 1 "09/06/02" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH STAR 1 "09/12/22" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 star \- unique standard tape archiver
 .SH SYNOPSIS
@@ -1337,7 +1337,7 @@ See
 for more information.
 .TP
 .B \-D
-Do not descend directories.
+Do not descend directories when in create mode.
 Normally, 
 .B star 
 descends the whole tree if it encounters a directory in 
@@ -1695,6 +1695,9 @@ to descend directories found in a
 See also the 
 .B \-D
 option above.
+The
+.B \-dodesc
+option only works in create mode.
 .TP
 .B \-dump
 Allows to create archives with the same number of attributes as an archive that

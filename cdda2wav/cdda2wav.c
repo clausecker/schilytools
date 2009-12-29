@@ -1,8 +1,8 @@
-/* @(#)cdda2wav.c	1.118 09/10/21 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling */
+/* @(#)cdda2wav.c	1.119 09/12/28 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling */
 #include "config.h"
 #ifndef lint
 static	UConst char sccsid[] =
-"@(#)cdda2wav.c	1.118 09/10/21 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling";
+"@(#)cdda2wav.c	1.119 09/12/28 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling";
 
 #endif
 #undef	DEBUG_BUFFER_ADDRESSES
@@ -133,35 +133,36 @@ static	UConst char sccsid[] =
 
 EXPORT	int	main			__PR((int argc, char **argv));
 #ifdef	ECHO_TO_SOUNDCARD
-static	void	RestrictPlaybackRate	__PR((long newrate));
+LOCAL	void	RestrictPlaybackRate	__PR((long newrate));
 #endif
-static	void	output_indices		__PR((FILE *fp, index_list *p,
+LOCAL	void	output_indices		__PR((FILE *fp, index_list *p,
 						unsigned trackstart));
-static	FILE	*info_file_open		__PR((char *fname_baseval,
+LOCAL	FILE	*info_file_open		__PR((char *fname_baseval,
 						unsigned int track,
 						BOOL doappend,
 						BOOL numbered));
-static	int	write_info_file		__PR((char *fname_baseval,
+LOCAL	int	write_info_file		__PR((char *fname_baseval,
 						unsigned int track,
 						unsigned long SamplesDone,
 						int numbered));
-static	int	write_md5_info		__PR((char *fname_baseval,
+LOCAL	int	write_md5_info		__PR((char *fname_baseval,
 						unsigned int track,
 						BOOL numbered));
-static	void	CloseAudio		__PR((int channels_val,
+LOCAL	void	CloseAudio		__PR((int channels_val,
 						unsigned long nSamples,
 						struct soundfile *audio_out));
-static	void	CloseAll		__PR((void));
-static	void	OpenAudio		__PR((char *fname, double rate,
+LOCAL	void	CloseAll		__PR((void));
+LOCAL	void	OpenAudio		__PR((char *fname, double rate,
 						long nBitsPerSample,
 						long channels_val,
 						unsigned long expected_bytes,
 						struct soundfile *audio_out));
-static	void	set_offset		__PR((myringbuff *p, int offset));
-static	int	get_offset		__PR((myringbuff *p));
-static	void	usage			__PR((void));
-static	void	init_globals		__PR((void));
-static	int	is_fifo			__PR((char * filename));
+LOCAL	void	set_offset		__PR((myringbuff *p, int offset));
+LOCAL	int	get_offset		__PR((myringbuff *p));
+LOCAL	void	usage			__PR((void));
+LOCAL	void	prdefaults		__PR((FILE *f));
+LOCAL	void	init_globals		__PR((void));
+LOCAL	int	is_fifo			__PR((char * filename));
 
 
 /*
@@ -172,7 +173,7 @@ static	int	is_fifo			__PR((char * filename));
  * ambigious string parametrized option names last
  */
 /* BEGIN CSTYLED */
-static const char *opts = "paranoia,paraopts&,version,help,h,\
+LOCAL const char *opts = "paranoia,paraopts&,version,help,h,\
 no-write,N,dump-rates,R,bulk,B,alltracks,verbose-scsi+,V+,\
 find-extremes,F,find-mono,G,no-infofile,H,\
 deemphasize,T,info-only,J,silent-scsi,Q,\
@@ -190,17 +191,17 @@ stereo,s,mono,m,wait,w,echo,e,quiet,q,max,x,out-fd#,audio-fd#,no-fork,interactiv
 
 
 /*
- * global variables
+ * Global variables
  */
-global_t	global;
+EXPORT global_t	global;
 
 /*
- * static variables
+ * Local variables
  */
-static unsigned long	nSamplesDone = 0;
-static unsigned long	*nSamplesToDo;
-static unsigned int	current_track;
-static int		bulk = 0;
+LOCAL unsigned long	nSamplesDone = 0;
+LOCAL unsigned long	*nSamplesToDo;
+LOCAL unsigned int	current_track;
+LOCAL int		bulk = 0;
 
 unsigned int get_current_track __PR((void));
 
@@ -211,7 +212,7 @@ get_current_track()
 }
 
 #ifdef	ECHO_TO_SOUNDCARD
-static void
+LOCAL void
 RestrictPlaybackRate(newrate)
 	long	newrate;
 {
@@ -242,20 +243,20 @@ SamplesNeeded(amount, undersampling_val)
 	return (retval);
 }
 
-static int	argc2;
-static int	argc3;
-static char	**argv2;
+LOCAL int	argc2;
+LOCAL int	argc3;
+LOCAL char	**argv2;
 
-static void reset_name_iterator __PR((void));
-static void
+LOCAL void reset_name_iterator __PR((void));
+LOCAL void
 reset_name_iterator()
 {
 	argv2 -= argc3 - argc2;
 	argc2 = argc3;
 }
 
-static char *get_next_name __PR((void));
-static char
+LOCAL char *get_next_name __PR((void));
+LOCAL char
 *get_next_name()
 {
 	if (argc2 > 0) {
@@ -266,9 +267,9 @@ static char
 	}
 }
 
-static char *cut_extension __PR((char * fname));
+LOCAL char *cut_extension __PR((char * fname));
 
-static char
+LOCAL char
 *cut_extension(fname)
 	char	*fname;
 {
@@ -285,7 +286,7 @@ static char
 }
 
 #ifdef INFOFILES
-static void
+LOCAL void
 output_indices(fp, p, trackstart)
 	FILE		*fp;
 	index_list	*p;
@@ -317,7 +318,7 @@ output_indices(fp, p, trackstart)
 	fputs("\n", fp);
 }
 
-static FILE *
+LOCAL FILE *
 info_file_open(fname_baseval, track, doappend, numbered)
 	char		*fname_baseval;
 	unsigned int	track;
@@ -348,7 +349,7 @@ info_file_open(fname_baseval, track, doappend, numbered)
  *
  * uglyfied for Joerg Schillings ultra dumb line parser
  */
-static int
+LOCAL int
 write_info_file(fname_baseval, track, SamplesDone, numbered)
 	char		*fname_baseval;
 	unsigned int	track;
@@ -445,7 +446,7 @@ Albumtitle=\t'%s'\n",
 	return (0);
 }
 
-static int
+LOCAL int
 write_md5_info(fname_baseval, track, numbered)
 	char		*fname_baseval;
 	unsigned int	track;
@@ -497,7 +498,7 @@ write_md5_info(fname_baseval, track, numbered)
 }
 #endif	/* INFOFILES */
 
-static void
+LOCAL void
 CloseAudio(channels_val, nSamples, audio_out)
 	int channels_val;
 	unsigned long nSamples;
@@ -514,13 +515,13 @@ CloseAudio(channels_val, nSamples, audio_out)
 	global.audio = -1;
 }
 
-static	unsigned int	track = 1;
+LOCAL	unsigned int	track = 1;
 
 /*
  * On terminating:
  * define size-related entries in audio file header, update and close file
  */
-static void
+LOCAL void
 CloseAll()
 {
 	WAIT_T	chld_return_status;
@@ -636,10 +637,10 @@ CloseAll()
  * report a usage error and exit
  */
 #ifdef  PROTOTYPES
-static void
+LOCAL void
 usage2(const char *szMessage, ...)
 #else
-static void
+LOCAL void
 usage2(szMessage, va_alist)
 	const char *szMessage;
 	va_dcl
@@ -714,7 +715,7 @@ FatalError(err, szMessage, va_alist)
  * is known). So hitting the interrupt key leaves an intact
  * file.
  */
-static void
+LOCAL void
 OpenAudio(fname, rate, nBitsPerSample, channels_val, expected_bytes, audio_out)
 	char *fname;
 	double rate;
@@ -759,9 +760,9 @@ OpenAudio(fname, rate, nBitsPerSample, channels_val, expected_bytes, audio_out)
 
 #include "scsi_cmds.h"
 
-static int	RealEnd __PR((SCSI *scgp, UINT4 *buff));
+LOCAL int	RealEnd __PR((SCSI *scgp, UINT4 *buff));
 
-static int
+LOCAL int
 RealEnd(scgp, buff)
 	SCSI	*scgp;
 	UINT4	*buff;
@@ -801,7 +802,7 @@ RealEnd(scgp, buff)
 	return (0);
 }
 
-static void
+LOCAL void
 set_offset(p, offset)
 	myringbuff	*p;
 	int		offset;
@@ -813,7 +814,7 @@ set_offset(p, offset)
 }
 
 
-static int
+LOCAL int
 get_offset(p)
 	myringbuff	*p;
 {
@@ -824,7 +825,7 @@ get_offset(p)
 }
 
 
-static void
+LOCAL void
 usage()
 {
 	/* BEGIN CSTYLED */
@@ -908,31 +909,38 @@ parameters: (optional) one or more file names or - for standard output.\n\
 	fputs("Version ", stderr);
 	fputs(VERSION, stderr);
 	fputs(VERSION_OS, stderr);
+	prdefaults(stderr);
+	exit(SYNTAX_ERROR);
+}
+
+LOCAL void
+prdefaults(f)
+	FILE	*f;
+{
 	/* BEGIN CSTYLED */
-	fprintf(stderr, "\n\
-defaults	%s, %d bit, %d.%02d Hz, track 1, no offset, one track,\n",
+	fprintf(f, "\n\
+Defaults: %s, %d bit, %d.%02d Hz, track 1, no offset, one track,\n",
 		  CHANNELS-1?"stereo":"mono", BITS_P_S,
 		 44100 / UNDERSAMPLING,
 		 (4410000 / UNDERSAMPLING) % 100);
 
-	fprintf(stderr, "\
-          type: %s '%s', don't wait for signal, not quiet,\n",
+	fprintf(f, "\
+	  type: %s filename: '%s', don't wait for signal, not quiet,\n",
 		AUDIOTYPE, FILENAME);
-	fprintf(stderr, "\
-          use: '%s', device: '%s', aux: '%s'\n",
+	fprintf(f, "\
+	  use: '%s', device: '%s', aux: '%s'\n",
 		DEF_INTERFACE, CD_DEVICE, AUX_DEVICE);
 	/* END CSTYLED */
-	exit(SYNTAX_ERROR);
 }
 
-static void
+LOCAL void
 init_globals()
 {
 #ifdef	HISTORICAL_JUNK
 	global.dev_name = CD_DEVICE;	/* device name */
 #endif
 	global.aux_name = AUX_DEVICE;	/* auxiliary cdrom device */
-	global.out_fp = stderr;		
+	global.out_fp = stderr;
 	strncpy(global.fname_base, FILENAME,
 		sizeof (global.fname_base)); /* auxiliary cdrom device */
 	global.have_forked = 0;		/* state variable for clean up */
@@ -1026,8 +1034,8 @@ init_globals()
 
 #if !defined(HAVE_STRCASECMP) || (HAVE_STRCASECMP != 1)
 #include <schily/ctype.h>
-static int strcasecmp __PR((const char *s1, const char *s2));
-static int
+LOCAL int strcasecmp __PR((const char *s1, const char *s2));
+LOCAL int
 strcasecmp(s1, s2)
 	const char	*s1;
 	const char	*s2;
@@ -1049,7 +1057,7 @@ strcasecmp(s1, s2)
 }
 #endif
 
-static int
+LOCAL int
 is_fifo(filename)
 	char	*filename;
 {
@@ -1077,8 +1085,8 @@ is_fifo(filename)
 
 
 #if !defined(HAVE_STRTOUL) || (HAVE_STRTOUL != 1)
-static unsigned int strtoul __PR((const char *s1, char **s2, int base));
-static unsigned int
+LOCAL unsigned int strtoul __PR((const char *s1, char **s2, int base));
+LOCAL unsigned int
 strtoul(s1, s2, base)
 	const char	*s1;
 	char		**s2;
@@ -1101,20 +1109,20 @@ strtoul(s1, s2, base)
 }
 #endif
 
-static unsigned long SectorBurst;
+LOCAL unsigned long SectorBurst;
 #if (SENTINEL > CD_FRAMESIZE_RAW)
 error block size for overlap check has to be < sector size
 #endif
 
 
-static void
+LOCAL void
 switch_to_realtime_priority __PR((void));
 
 #ifdef  HAVE_SYS_PRIOCNTL_H
 
 #include <sys/priocntl.h>
 #include <sys/rtpriocntl.h>
-static void
+LOCAL void
 switch_to_realtime_priority()
 {
 	pcinfo_t	info;
@@ -1160,7 +1168,7 @@ prio_done:
 #ifdef	USE_POSIX_PRIORITY_SCHEDULING
 #include <sched.h>
 
-static void
+LOCAL void
 switch_to_realtime_priority()
 {
 #ifdef  _SC_PRIORITY_SCHEDULING
@@ -1209,7 +1217,7 @@ switch_to_realtime_priority()
 #undef format
 #undef interface
 
-static void
+LOCAL void
 switch_to_realtime_priority()
 {
 	/*
@@ -1236,7 +1244,7 @@ switch_to_realtime_priority()
 	}
 }
 #else
-static void
+LOCAL void
 switch_to_realtime_priority()
 {
 }
@@ -1259,9 +1267,9 @@ on_exitscsi(status)
 }
 
 /* wrapper for signal handler exit needed for Mac-OS-X */
-static void exit_wrapper __PR((int status));
+LOCAL void exit_wrapper __PR((int status));
 
-static void
+LOCAL void
 exit_wrapper(status)
 	int	status;
 {
@@ -1289,10 +1297,10 @@ exit_wrapper(status)
 }
 
 /* signal handler for process communication */
-static void set_nonforked __PR((int status));
+LOCAL void set_nonforked __PR((int status));
 
 /* ARGSUSED */
-static void
+LOCAL void
 set_nonforked(status)
 	int	status;
 {
@@ -1320,7 +1328,7 @@ set_nonforked(status)
 
 
 #ifdef	USE_PARANOIA
-static struct paranoia_statistics
+LOCAL struct paranoia_statistics
 {
 	long	c_sector;
 	long	v_sector;
@@ -1348,8 +1356,8 @@ static struct paranoia_statistics
 }	*para_stat;
 
 
-static void paranoia_reset __PR((void));
-static void
+LOCAL void paranoia_reset __PR((void));
+LOCAL void
 paranoia_reset()
 {
 	para_stat->c_sector = 0;
@@ -1377,9 +1385,9 @@ paranoia_reset()
 	para_stat->skips = 0;
 }
 
-static void paranoia_callback __PR((long inpos, int function));
+LOCAL void paranoia_callback __PR((long inpos, int function));
 
-static void
+LOCAL void
 paranoia_callback(inpos, function)
 	long	inpos;
 	int	function;
@@ -1507,21 +1515,21 @@ paranoia_callback(inpos, function)
 }
 #endif
 
-static long		lSector;			/* Current sector # */
-static long		lSector_p2;			/* Last sector to read */
-static double		rate = 44100.0 / UNDERSAMPLING;
-static int		bits = BITS_P_S;
-static char		fname[200];
-static const char	*audio_type;
-static long		BeginAtSample;
-static unsigned long	SamplesToWrite;
-static unsigned		minover;
-static unsigned		maxover;
+LOCAL long		lSector;			/* Current sector # */
+LOCAL long		lSector_p2;			/* Last sector to read */
+LOCAL double		rate = 44100.0 / UNDERSAMPLING;
+LOCAL int		bits = BITS_P_S;
+LOCAL char		fname[200];
+LOCAL const char	*audio_type;
+LOCAL long		BeginAtSample;
+LOCAL unsigned long	SamplesToWrite;
+LOCAL unsigned		minover;
+LOCAL unsigned		maxover;
 
-static unsigned long	calc_SectorBurst __PR((void));
-LOCAL	void		set_newstart	__PR((long newstart));
+LOCAL unsigned long	calc_SectorBurst __PR((void));
+LOCAL void		set_newstart	__PR((long newstart));
 
-static unsigned long
+LOCAL unsigned long
 calc_SectorBurst()
 {
 	unsigned long	SectorBurstVal;
@@ -1562,8 +1570,8 @@ set_newstart(newstart)
  */
 #define	PERCENTAGE_PER_TRACK
 
-static int do_read __PR((myringbuff *p, unsigned *total_unsuccessful_retries));
-static int
+LOCAL int do_read __PR((myringbuff *p, unsigned *total_unsuccessful_retries));
+LOCAL int
 do_read(p, total_unsuccessful_retries)
 	myringbuff	*p;
 	unsigned	*total_unsuccessful_retries;
@@ -1779,10 +1787,10 @@ do_read(p, total_unsuccessful_retries)
 	return (offset);
 }
 
-static void
+LOCAL void
 print_percentage __PR((unsigned *poper, int c_offset));
 
-static void
+LOCAL void
 print_percentage(poper, c_offset)
 	unsigned *poper;
 	int	c_offset;
@@ -1816,8 +1824,8 @@ print_percentage(poper, c_offset)
 	fflush(outfp);
 }
 
-static unsigned long do_write __PR((myringbuff *p));
-static unsigned long
+LOCAL unsigned long do_write __PR((myringbuff *p));
+LOCAL unsigned long
 do_write(p)
 	myringbuff	*p;
 {
@@ -2083,13 +2091,13 @@ do_write(p)
 	}
 
 #if defined HAVE_FORK_AND_SHAREDMEM
-static void forked_read __PR((void));
+LOCAL void forked_read __PR((void));
 
 /*
  * This function does all audio cdrom reads
  * until there is nothing more to do
  */
-static void
+LOCAL void
 forked_read()
 {
 	unsigned	total_unsuccessful_retries = 0;
@@ -2151,9 +2159,9 @@ forked_read()
 	}
 }
 
-static void forked_write __PR((void));
+LOCAL void forked_write __PR((void));
 
-static void
+LOCAL void
 forked_write()
 {
 
@@ -2190,9 +2198,9 @@ forked_write()
  * there is no fork/thread_create system call).
  * This means reads and writes have to wait for each other to complete.
  */
-static void nonforked_loop __PR((void));
+LOCAL void nonforked_loop __PR((void));
 
-static void
+LOCAL void
 nonforked_loop()
 {
 	unsigned	total_unsuccessful_retries = 0;
@@ -2234,9 +2242,9 @@ nonforked_loop()
 	}
 }
 
-void verbose_usage __PR((void));
+LOCAL void verbose_usage __PR((void));
 
-void
+LOCAL void
 verbose_usage()
 {
 	fputs("\
@@ -2254,9 +2262,9 @@ verbose_usage()
 }
 
 #ifdef	USE_PARANOIA
-void paranoia_usage __PR((void));
+LOCAL void paranoia_usage __PR((void));
 
-void
+LOCAL void
 paranoia_usage()
 {
 	/* BEGIN CSTYLED */
@@ -2274,10 +2282,10 @@ paranoia_usage()
 }
 #endif
 
-int
+LOCAL int
 handle_verbose_opts __PR((char *optstr, long *flagp));
 
-int
+LOCAL int
 handle_verbose_opts(optstr, flagp)
 	char	*optstr;
 	long	*flagp;
@@ -2348,10 +2356,10 @@ handle_verbose_opts(optstr, flagp)
 }
 
 
-int
+LOCAL int
 handle_paranoia_opts __PR((char *optstr, long *flagp));
 
-int
+LOCAL int
 handle_paranoia_opts(optstr, flagp)
 	char *optstr;
 	long *flagp;
@@ -2428,7 +2436,7 @@ handle_paranoia_opts(optstr, flagp)
 /*
  * and finally: the MAIN program
  */
-int
+EXPORT int
 main(argc, argv)
 	int	argc;
 	char	*argv[];
@@ -2600,6 +2608,7 @@ static char		*user_sound_device = "";
 		printf("cdda2wav %s (%s-%s-%s) Copyright (C) 1993-2004 Heiko Eißfeldt (C) 2004-2009 Jörg Schilling\n",
 					VERSION,
 					HOST_CPU, HOST_VENDOR, HOST_OS);
+		prdefaults(stdout);
 #endif
 		exit(NO_ERROR);
 	}

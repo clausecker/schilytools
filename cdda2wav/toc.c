@@ -1,8 +1,8 @@
-/* @(#)toc.c	1.85 09/08/04 Copyright 1998-2003 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling */
+/* @(#)toc.c	1.87 09/12/27 Copyright 1998-2003 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling */
 #include "config.h"
 #ifndef lint
 static	UConst char sccsid[] =
-"@(#)toc.c	1.85 09/08/04 Copyright 1998-2003 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling";
+"@(#)toc.c	1.87 09/12/27 Copyright 1998-2003 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling";
 #endif
 /*
  * CDDA2WAV (C) Heiko Eissfeldt heiko@hexco.de
@@ -85,27 +85,27 @@ int have_CDDB;
 
 struct iterator;
 
-static void UpdateTrackData	__PR((int p_num));
-static void UpdateIndexData	__PR((int p_num));
-static void UpdateTimeData	__PR((int p_min, int p_sec, int p_frm));
-static unsigned int is_multisession	__PR((void));
-static unsigned int get_end_of_last_audio_track	__PR((unsigned mult_off));
-static int cddb_sum		__PR((int n));
-static void dump_extra_info	__PR((unsigned from));
-static int GetIndexOfSector	__PR((unsigned sec, unsigned track));
-static int patch_cd_extra	__PR((unsigned track, unsigned long sector));
-static void patch_to_audio	__PR((unsigned long p_track));
-static int restrict_tracks_illleadout __PR((void));
+LOCAL void UpdateTrackData	__PR((int p_num));
+LOCAL void UpdateIndexData	__PR((int p_num));
+LOCAL void UpdateTimeData	__PR((int p_min, int p_sec, int p_frm));
+LOCAL unsigned int is_multisession	__PR((void));
+LOCAL unsigned int get_end_of_last_audio_track	__PR((unsigned mult_off));
+LOCAL int cddb_sum		__PR((int n));
+LOCAL void dump_extra_info	__PR((unsigned from));
+LOCAL int GetIndexOfSector	__PR((unsigned sec, unsigned track));
+LOCAL int patch_cd_extra	__PR((unsigned track, unsigned long sector));
+LOCAL void patch_to_audio	__PR((unsigned long p_track));
+LOCAL int restrict_tracks_illleadout __PR((void));
 
-static void Set_MCN		__PR((unsigned char *MCN_arg));
-static void Set_ISRC		__PR((int track,
+LOCAL void Set_MCN		__PR((unsigned char *MCN_arg));
+LOCAL void Set_ISRC		__PR((int track,
 					const unsigned char *ISRC_arg));
 
-static unsigned char	g_track = 0xff;	/* current track */
-static unsigned char	g_index = 0xff;	/* current index */
+LOCAL unsigned char	g_track = 0xff;	/* current track */
+LOCAL unsigned char	g_index = 0xff;	/* current index */
 
 
-static void InitIterator __PR((struct iterator *iter, unsigned long p_track));
+LOCAL void InitIterator __PR((struct iterator *iter, unsigned long p_track));
 
 
 /*
@@ -141,7 +141,7 @@ lba_2_msf(lba, m, s, f)
 /*
  * print the track currently read
  */
-static void
+LOCAL void
 UpdateTrackData(p_num)
 	int	p_num;
 {
@@ -155,7 +155,7 @@ UpdateTrackData(p_num)
 /*
  * print the index currently read
  */
-static void
+LOCAL void
 UpdateIndexData(p_num)
 	int	p_num;
 {
@@ -169,7 +169,7 @@ UpdateIndexData(p_num)
 /*
  * print the time of track currently read
  */
-static void
+LOCAL void
 UpdateTimeData(p_min, p_sec, p_frm)
 	int	p_min;
 	int	p_sec;
@@ -207,7 +207,7 @@ AnalyzeQchannel(frame)
 
 unsigned	cdtracks = 0;
 #ifdef		__needed__
-static int	have_hiddenAudioTrack = 0;
+LOCAL int	have_hiddenAudioTrack = 0;
 #endif
 
 int
@@ -249,9 +249,9 @@ extern	TOC	g_toc[MAXTRK+1]; /* hidden track + 100 regular tracks */
 	return (retval);
 }
 
-static	int	can_read_illleadout	__PR((void));
+LOCAL	int	can_read_illleadout	__PR((void));
 
-static int
+LOCAL int
 can_read_illleadout()
 {
 	SCSI	*scgp = get_scsi_p();
@@ -314,7 +314,8 @@ handle_cdtext()
 		len += 2;
 		len = min(len, global.bufsize);
 		for (i = 0; i < len-4; i += 18) {
-			if ((global.buf[4+i] & 0xFF) < 0x80 || (global.buf[4+i] & 0xFF)> 0x8f) {
+			if ((global.buf[4+i] & 0xFF) < 0x80 ||
+			    (global.buf[4+i] & 0xFF) > 0x8f) {
 				count_fails++;
 			}
 		}
@@ -334,20 +335,20 @@ handle_cdtext()
 
 
 #if defined CDROMMULTISESSION
-static	int	tmp_fd;
+LOCAL	int	tmp_fd;
 #endif
 
 #ifdef CD_EXTRA
 #include "cd_extra.c"
 #endif
 
-static	unsigned	session_start;
+LOCAL	unsigned	session_start;
 /*
  * A Cd-Extra is detected, if it is a multisession CD with
  * only audio tracks in the first session and a data track
  * in the last session.
  */
-static	unsigned
+LOCAL	unsigned
 is_multisession()
 {
 	unsigned	mult_off;
@@ -405,7 +406,7 @@ is_multisession()
  * the start of the leadout. If this is not supported, we subtract
  * a constant of SESSIONSECTORS sectors (found heuristically).
  */
-static unsigned
+LOCAL unsigned
 get_end_of_last_audio_track(mult_off)
 	unsigned	mult_off;
 {
@@ -422,14 +423,14 @@ get_end_of_last_audio_track(mult_off)
 	}
 }
 
-static void	dump_cdtext_info	__PR((void));
+LOCAL void	dump_cdtext_info	__PR((void));
 
 #if defined CDDB_SUPPORT
-static void	emit_cddb_form		__PR((char *fname_baseval));
+LOCAL void	emit_cddb_form		__PR((char *fname_baseval));
 #endif
 
 #if defined CDINDEX_SUPPORT
-static void	emit_cdindex_form	__PR((char *fname_baseval));
+LOCAL void	emit_cdindex_form	__PR((char *fname_baseval));
 #endif
 
 
@@ -612,7 +613,7 @@ FixupTOC(no_tracks)
 	return (offset);
 }
 
-static int
+LOCAL int
 cddb_sum(n)
 	int	n;
 {
@@ -730,11 +731,11 @@ extern	TOC	g_toc[MAXTRK+1]; /* hidden track + 100 regular tracks */
 #if defined CDDB_SUPPORT
 
 #ifdef	PROTOTYPES
-static void
+LOCAL void
 escape_and_split(FILE *channel, const char *args, ...)
 #else
 /*VARARGS3*/
-static void
+LOCAL void
 escape_and_split(channel, args, va_alist)
 	FILE		*channel;
 	const char	*args;
@@ -785,7 +786,7 @@ escape_and_split(channel, args, va_alist)
 	va_end(marker);
 }
 
-static void
+LOCAL void
 emit_cddb_form(fname_baseval)
 	char	*fname_baseval;
 {
@@ -1666,12 +1667,12 @@ errout:
 
 #if	defined CDINDEX_SUPPORT
 
-static int	IsSingleArtist	__PR((void));
+LOCAL int	IsSingleArtist	__PR((void));
 
 /*
  * check, if there are more than one track creators
  */
-static int
+LOCAL int
 IsSingleArtist()
 {
 static struct iterator	i;
@@ -1694,7 +1695,7 @@ static struct iterator	i;
 	return (1);
 }
 
-static const char *a2h[255-191] = {
+LOCAL const char *a2h[255-191] = {
 "&Agrave;",
 "&Aacute;",
 "&Acirc;",
@@ -1761,9 +1762,9 @@ static const char *a2h[255-191] = {
 "&yuml;",
 };
 
-static char	*ascii2html	__PR((unsigned char *inp));
+LOCAL char	*ascii2html	__PR((unsigned char *inp));
 
-static char *
+LOCAL char *
 ascii2html(inp)
 	unsigned char	*inp;
 {
@@ -1794,7 +1795,7 @@ static unsigned char	outline[300];
 }
 #undef copy_translation
 
-static void
+LOCAL void
 emit_cdindex_form(fname_baseval)
 	char	*fname_baseval;
 {
@@ -1899,7 +1900,7 @@ static struct iterator	i;
 }
 #endif
 
-static void
+LOCAL void
 dump_cdtext_info()
 {
 #ifdef CD_TEXT
@@ -2013,7 +2014,7 @@ dump_cdtext_info()
 #endif
 }
 
-static void
+LOCAL void
 dump_extra_info(from)
 	unsigned int	from;
 {
@@ -2058,9 +2059,9 @@ dump_extra_info(from)
 #endif
 }
 
-static char	*quote	__PR((unsigned char *string));
+LOCAL char	*quote	__PR((unsigned char *string));
 
-static char *
+LOCAL char *
 quote(string)
 	unsigned char	*string;
 {
@@ -2080,9 +2081,9 @@ static char		result[200];
 
 
 
-static void	DisplayToc_with_gui	__PR((unsigned long dw));
+LOCAL void	DisplayToc_with_gui	__PR((unsigned long dw));
 
-static void
+LOCAL void
 DisplayToc_with_gui(dw)
 	unsigned long	dw;
 {
@@ -2260,9 +2261,9 @@ static struct iterator	i;
 	} /* if */
 }
 
-static void DisplayToc_no_gui __PR((unsigned long dw));
+LOCAL void DisplayToc_no_gui __PR((unsigned long dw));
 
-static void
+LOCAL void
 DisplayToc_no_gui(dw)
 	unsigned long	dw;
 {
@@ -2604,9 +2605,9 @@ DisplayToc()
 	}
 }
 
-static void	Read_MCN_toshiba	__PR((subq_chnl **sub_ch));
+LOCAL void	Read_MCN_toshiba	__PR((subq_chnl **sub_ch));
 
-static void
+LOCAL void
 Read_MCN_toshiba(sub_ch)
 	subq_chnl	**sub_ch;
 {
@@ -2635,9 +2636,9 @@ Read_MCN_toshiba(sub_ch)
 	}
 }
 
-static void	Get_Set_MCN	__PR((void));
+LOCAL void	Get_Set_MCN	__PR((void));
 
-static void
+LOCAL void
 Get_Set_MCN()
 {
 	subq_chnl	*sub_ch;
@@ -2712,9 +2713,9 @@ Get_Set_MCN()
 }
 
 
-static void	Read_ISRC_toshiba __PR((subq_chnl **sub_ch, unsigned tr));
+LOCAL void	Read_ISRC_toshiba __PR((subq_chnl **sub_ch, unsigned tr));
 
-static void
+LOCAL void
 Read_ISRC_toshiba(sub_ch, tr)
 	subq_chnl	**sub_ch;
 	unsigned	tr;
@@ -2740,9 +2741,9 @@ Read_ISRC_toshiba(sub_ch, tr)
 }
 
 
-static void	Get_Set_ISRC	__PR((unsigned tr));
+LOCAL void	Get_Set_ISRC	__PR((unsigned tr));
 
-static void
+LOCAL void
 Get_Set_ISRC(tr)
 	unsigned	tr;
 {
@@ -3026,11 +3027,11 @@ Read_MCN_ISRC()
 	} /* if SHOW_ISRC */
 }
 
-static int playing = 0;
+LOCAL int playing = 0;
 
-static subq_chnl *ReadSubChannel __PR((unsigned sec));
+LOCAL subq_chnl *ReadSubChannel __PR((unsigned sec));
 
-static subq_chnl *
+LOCAL subq_chnl *
 ReadSubChannel(sec)
 	unsigned	sec;
 {
@@ -3118,8 +3119,8 @@ fallback:
 	return (sub_ch);
 }
 
-static int	ReadSubControl	__PR((unsigned sec));
-static int
+LOCAL int	ReadSubControl	__PR((unsigned sec));
+LOCAL int
 ReadSubControl(sec)
 	unsigned	sec;
 {
@@ -3130,8 +3131,8 @@ ReadSubControl(sec)
 	return (sub_ch->control_adr & 0xf0);
 }
 
-static int	HaveSCMS	__PR((unsigned StartSector));
-static int
+LOCAL int	HaveSCMS	__PR((unsigned StartSector));
+LOCAL int
 HaveSCMS(StartSector)
 	unsigned	StartSector;
 {
@@ -3157,7 +3158,7 @@ Check_Toc()
 	 */
 }
 
-static int
+LOCAL int
 GetIndexOfSector(sec, track)
 	unsigned	sec;
 	unsigned	track;
@@ -3268,10 +3269,10 @@ GetIndexOfSector(sec, track)
 	return (sub_ch ? sub_ch->index == 244 ? 1 : sub_ch->index : -1);
 }
 
-static int ScanBackwardFrom	__PR((unsigned sec, unsigned limit,
+LOCAL int ScanBackwardFrom	__PR((unsigned sec, unsigned limit,
 						int *where, unsigned track));
 
-static int
+LOCAL int
 ScanBackwardFrom(sec, limit, where, track)
 	unsigned	sec;
 	unsigned	limit;
@@ -3366,9 +3367,9 @@ ScanBackwardFrom(sec, limit, where, track)
 }
 
 #ifdef	USE_LINEAR_SEARCH
-static int	linear_search	__PR((int searchInd, unsigned int Start,
+LOCAL int	linear_search	__PR((int searchInd, unsigned int Start,
 					unsigned int End, unsigned track));
-static int
+LOCAL int
 linear_search(searchInd, Start, End, track)
 	int		searchInd;
 	unsigned	Start;
@@ -3398,9 +3399,9 @@ linear_search(searchInd, Start, End, track)
 
 #ifndef	USE_LINEAR_SEARCH
 #undef DEBUG_BINSEARCH
-static int binary_search	__PR((int searchInd, unsigned int Start,
+LOCAL int binary_search	__PR((int searchInd, unsigned int Start,
 					unsigned int End, unsigned track));
-static int
+LOCAL int
 binary_search(searchInd, Start, End, track)
 	int		searchInd;
 	unsigned	Start;
@@ -3465,10 +3466,10 @@ binary_search(searchInd, Start, End, track)
 #endif
 
 
-static void	register_index_position	__PR((int IndexOffset,
+LOCAL void	register_index_position	__PR((int IndexOffset,
 					index_list **last_index_entry));
 
-static void
+LOCAL void
 register_index_position(IndexOffset, last_index_entry)
 	int		IndexOffset;
 	index_list	**last_index_entry;
@@ -3496,7 +3497,7 @@ register_index_position(IndexOffset, last_index_entry)
 	}
 }
 
-static void	Set_SCMS	__PR((unsigned long p_track));
+LOCAL void	Set_SCMS	__PR((unsigned long p_track));
 
 #undef DEBUG_INDLIST
 /*
@@ -3745,9 +3746,9 @@ static struct iterator	i;
 	return (retval);
 }
 
-static	unsigned char	MCN[14];
+LOCAL	unsigned char	MCN[14];
 
-static void
+LOCAL void
 Set_MCN(MCN_arg)
 	unsigned char	*MCN_arg;
 {
@@ -3762,7 +3763,7 @@ Get_MCN()
 }
 
 
-static TOC	g_toc[MAXTRK+1]; /* hidden track + 100 regular tracks */
+LOCAL TOC	g_toc[MAXTRK+1]; /* hidden track + 100 regular tracks */
 
 /*#define IS_AUDIO(i) (!(g_toc[i].bFlags & 0x40))*/
 
@@ -3845,7 +3846,7 @@ patch_real_end(sector)
 	return (0);
 }
 
-static int
+LOCAL int
 patch_cd_extra(track, sector)
 	unsigned	track;
 	unsigned long	sector;
@@ -3855,7 +3856,7 @@ patch_cd_extra(track, sector)
 	return (0);
 }
 
-static int
+LOCAL int
 restrict_tracks_illleadout()
 {
 	struct TOC	*o = &g_toc[cdtracks+1];
@@ -3872,7 +3873,7 @@ restrict_tracks_illleadout()
 	return (0);
 }
 
-static void
+LOCAL void
 Set_ISRC(track, ISRC_arg)
 	int			track;
 	const unsigned char	*ISRC_arg;
@@ -3892,7 +3893,7 @@ Get_ISRC(p_track)
 	return (NULL);
 }
 
-static void
+LOCAL void
 patch_to_audio(p_track)
 	unsigned long	p_track;
 {
@@ -3945,7 +3946,7 @@ Get_Preemphasis(p_track)
 	return (-1);
 }
 
-static void
+LOCAL void
 Set_SCMS(p_track)
 	unsigned long	p_track;
 {
@@ -4010,9 +4011,9 @@ useHiddenTrack()
 
 
 
-static void	it_reset	__PR((struct iterator *this));
+LOCAL void	it_reset	__PR((struct iterator *this));
 
-static void
+LOCAL void
 it_reset(this)
 	struct iterator	*this;
 {
@@ -4020,10 +4021,10 @@ it_reset(this)
 }
 
 
-static int	it_hasNextTrack		__PR((struct iterator *this));
-static struct TOC *it_getNextTrack	__PR((struct iterator *this));
+LOCAL int	it_hasNextTrack		__PR((struct iterator *this));
+LOCAL struct TOC *it_getNextTrack	__PR((struct iterator *this));
 
-static int
+LOCAL int
 it_hasNextTrack(this)
 	struct iterator	*this;
 {
@@ -4032,7 +4033,7 @@ it_hasNextTrack(this)
 
 
 
-static struct TOC *
+LOCAL struct TOC *
 it_getNextTrack(this)
 	struct iterator	*this;
 {
@@ -4044,7 +4045,7 @@ it_getNextTrack(this)
 }
 
 
-static void
+LOCAL void
 InitIterator(iter, p_track)
 	struct iterator	*iter;
 	unsigned long	p_track;
@@ -4059,9 +4060,9 @@ InitIterator(iter, p_track)
 }
 
 #if	0
-static struct iterator *NewIterator __PR((void));
+LOCAL struct iterator *NewIterator __PR((void));
 
-static struct iterator *
+LOCAL struct iterator *
 NewIterator()
 {
 	struct iterator	*retval;

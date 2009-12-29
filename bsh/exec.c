@@ -1,8 +1,8 @@
-/* @(#)exec.c	1.59 09/11/15 Copyright 1985-2009 J. Schilling */
+/* @(#)exec.c	1.60 09/12/20 Copyright 1985-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)exec.c	1.59 09/11/15 Copyright 1985-2009 J. Schilling";
+	"@(#)exec.c	1.60 09/12/20 Copyright 1985-2009 J. Schilling";
 #endif
 /*
  *	bsh command interpreter - Execution of parsed Tree
@@ -713,14 +713,14 @@ trim(s)
 		if (quotec == '\0') {
 			if (c == '\'' || c == '"') {
 				quotec = c;
-				strcpy(s, &s[1]);
+				strcpy(s, &s[1]);	/* overlap won't work */
 				continue;
 			}
 			if (c == '\\')
 				strcpy(s, &s[1]);
 		} else if (c == quotec) {
 			quotec = '\0';
-			strcpy(s, &s[1]);
+			strcpy(s, &s[1]);		/* overlap won't work */
 			continue;
 		}
 		s++;
@@ -738,17 +738,17 @@ trim1(s)
 		if (c == '\'' || c == '"') {
 			if (quotec == '\0') {
 				quotec = c;
-				strcpy(s, &s[1]);
+				strcpy(s, &s[1]);	/* overlap won't work */
 			} else if (quotec && quotec == c) {
 				quotec = '\0';
-				strcpy(s, &s[1]);
+				strcpy(s, &s[1]);	/* overlap won't work */
 			} else {
 				s++;
 			}
 			continue;
 		}
 		if (quotec == '\0' && c == '\\')
-			strcpy(s, &s[1]);
+			strcpy(s, &s[1]);		/* overlap won't work */
 		s++;
 	}
 }

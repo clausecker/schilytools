@@ -98,6 +98,7 @@ static void quit __PR((int code, char * fmt, ...));
 static void quiterr __PR((int code, char *s));
 static void msg  __PR((char * fmt, ...));
 static void mperror __PR((char *s));
+static void ovstrcpy __PR((char *p2, char *p1));
 static int  equivalent __PR((char *lname, char *rname, char **p));
 static int dodir __PR((char *fn, struct stat *fs, struct stat *ts, int rel));
 	int main __PR((int ac, char *av[]));
@@ -179,6 +180,18 @@ mperror(s)
     perror (s);
 }
 
+/*
+ * A strcpy() that works with overlapping buffers
+ */
+static void
+ovstrcpy(p2, p1)
+	register char	*p2;
+	register char	*p1;
+{
+	while ((*p2++ = *p1++) != '\0')
+		;
+}
+
 
 static int 
 equivalent(lname, rname, p)
@@ -192,7 +205,7 @@ equivalent(lname, rname, p)
 	return 1;
     for (s = lname; *s && (s = strchr(s, '/')); s++) {
 	while (s[1] == '/') {
-	    strcpy(s+1, s+2);
+	    ovstrcpy(s+1, s+2);
 	    if (*p) (*p)--;
 	}
     }

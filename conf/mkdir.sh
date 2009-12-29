@@ -1,5 +1,5 @@
 #!/bin/sh
-# @(#)mkdir.sh	1.4 05/05/04 Copyright 1998 J. Schilling
+# %Z%%M%	%I% %E% Copyright 1998 J. Schilling
 ###########################################################################
 # Written 1998-2005 by J. Schilling
 ###########################################################################
@@ -13,7 +13,7 @@
 #
 ###########################################################################
 # The contents of this file are subject to the terms of the
-# Common Development and Distribution License, Version 1.0 only.
+# Common Development and Distribution License, Version 1.0 only
 # (the "License").  You may not use this file except in compliance
 # with the License.
 #
@@ -129,7 +129,7 @@ else
 			: > "$dirname"/TARGETS/55"$dirbase"
 		fi
 		if [ ! -r "$dirname"/Makefile ]; then
-			srcroot=`echo "$dirname" | sed -e 's,[^/]*,..,g'`
+			srcroot=`echo "$dirname" | sed -e 's,[^/][^/]*,..,g'`
 			srcroot=`echo "$SRCROOT/$srcroot" | sed -e 's,^\./,,'`
 
 			echo '#ident %'W'% %'E'% %'Q'%'								 > "$dirname"/Makefile

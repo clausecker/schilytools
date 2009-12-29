@@ -1,8 +1,8 @@
-/* @(#)parse.c	1.8 09/07/10 Copyright 2001-2009 J. Schilling */
+/* @(#)parse.c	1.9 09/12/19 Copyright 2001-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)parse.c	1.8 09/07/10 Copyright 2001-2009 J. Schilling";
+	"@(#)parse.c	1.9 09/12/19 Copyright 2001-2009 J. Schilling";
 #endif
 /*
  *	Interactive command parser for cdda2wav
@@ -355,7 +355,6 @@ markword(delim)
 	for (s = (Uchar *)linep; (c = *s) != '\0'; s++) {
 		if (c == '"') {
 			quoted = !quoted;
-/*			strcpy((char *)s, (char *)&s[1]);*/
 			for (to = s, from = &s[1]; *from; ) {
 				c = *from++;
 				if (c == '\\' && quoted && (*from == '\\' || *from == '"'))
