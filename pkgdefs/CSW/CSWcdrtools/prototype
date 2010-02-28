@@ -3,6 +3,8 @@ i depend
 i copyright
 d none bin ? ? ?
 f none bin/cdda2wav 04755 root bin
+f none bin/cdda2mp3 0755 root bin
+f none bin/cdda2ogg 0755 root bin
 f none bin/cdrecord 04755 root bin
 f none bin/mkisofs 0755 root bin
 s none bin/mkhybrid=mkisofs
@@ -20,6 +22,7 @@ d none share ? ? ?
 d none share/man ? ? ?
 d none share/man/man1 ? ? ?
 f none share/man/man1/cdda2wav.1 0444 root bin
+f none share/man/man1/cdda2mp3.1 0444 root bin
 f none share/man/man1/cdda2ogg.1 0444 root bin
 f none share/man/man1/cdrecord.1 0444 root bin
 f none share/man/man1/readcd.1 0444 root bin

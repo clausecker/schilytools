@@ -1,4 +1,4 @@
-/* @(#)sndfile.h	1.7 06/09/13 Copyright 1998,1999 Heiko Eissfeldt, Copyright 2006 J. Schilling */
+/* @(#)sndfile.h	1.9 10/01/12 Copyright 1998,1999 Heiko Eissfeldt, Copyright 2006-2010 J. Schilling */
 
 /*
  * generic soundfile structure
@@ -32,6 +32,7 @@ struct soundfile {
 	Ulong	(* InSizeToOutSize)	__PR((Ulong BytesToDo));
 
 	int	need_big_endian;
+	char	*auf_cuename;
 };
 
 #endif	/* _SNDFILE_H */

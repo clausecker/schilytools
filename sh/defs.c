@@ -33,14 +33,14 @@
 /*
  * This file contains modifications Copyright 2008-2009 J. Schilling
  *
- * @(#)defs.c	1.6 09/11/01 2008-2009 J. Schilling
+ * @(#)defs.c	1.7 09/12/31 2008-2009 J. Schilling
  */
 #ifdef	SCHILY_BUILD
 #include <schily/mconfig.h>
 #endif
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)defs.c	1.6 09/11/01 2008-2009 J. Schilling";
+	"@(#)defs.c	1.7 09/12/31 2008-2009 J. Schilling";
 #endif
 
 /*
@@ -53,6 +53,7 @@ static	UConst char sccsid[] =
 #include		"mode.h"
 #include		"name.h"
 #include		<schily/param.h>
+#include		"defs.h"
 #else
 #include 		<setjmp.h>
 #include		"mode.h"
@@ -95,8 +96,8 @@ unsigned char			*cmdadr;
 /* transput */
 int 			tmpout_offset;
 unsigned int 		serial;
-unsigned 		peekc;
-unsigned		peekn;
+int	 		peekc;
+int			peekn;
 unsigned char 			*comdiv;
 long			flags;
 int				rwait;	/* flags read waiting */

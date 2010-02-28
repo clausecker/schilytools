@@ -1,8 +1,8 @@
-/* @(#)cdda2wav.c	1.119 09/12/28 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling */
+/* @(#)cdda2wav.c	1.134 10/02/10 Copyright 1993-2004 Heiko Eissfeldt, Copyright 2004-2010 J. Schilling */
 #include "config.h"
 #ifndef lint
 static	UConst char sccsid[] =
-"@(#)cdda2wav.c	1.119 09/12/28 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling";
+"@(#)cdda2wav.c	1.134 10/02/10 Copyright 1993-2004 Heiko Eissfeldt, Copyright 2004-2010 J. Schilling";
 
 #endif
 #undef	DEBUG_BUFFER_ADDRESSES
@@ -26,7 +26,7 @@ static	UConst char sccsid[] =
  */
 /*
  * Copright 1993-2004	(C) Heiko Eissfeldt
- * Copright 2004-2009	(C) J. Schilling
+ * Copright 2004-2010	(C) J. Schilling
  *
  * last changes:
  *   18.12.93 - first version,	OK
@@ -141,6 +141,8 @@ LOCAL	FILE	*info_file_open		__PR((char *fname_baseval,
 						unsigned int track,
 						BOOL doappend,
 						BOOL numbered));
+LOCAL	FILE	*cue_file_open		__PR((char *fname_baseval));
+LOCAL	void	get_datetime		__PR((char *datetime, int size));
 LOCAL	int	write_info_file		__PR((char *fname_baseval,
 						unsigned int track,
 						unsigned long SamplesDone,
@@ -148,6 +150,10 @@ LOCAL	int	write_info_file		__PR((char *fname_baseval,
 LOCAL	int	write_md5_info		__PR((char *fname_baseval,
 						unsigned int track,
 						BOOL numbered));
+LOCAL	void	write_cue_global	__PR((FILE *cuef, char *fname_baseval));
+LOCAL	char	*index_str		__PR((long sector));
+LOCAL	void	write_cue_track		__PR((FILE *cuef, char *fname_baseval,
+						unsigned int track));
 LOCAL	void	CloseAudio		__PR((int channels_val,
 						unsigned long nSamples,
 						struct soundfile *audio_out));
@@ -163,6 +169,7 @@ LOCAL	void	usage			__PR((void));
 LOCAL	void	prdefaults		__PR((FILE *f));
 LOCAL	void	init_globals		__PR((void));
 LOCAL	int	is_fifo			__PR((char * filename));
+LOCAL	const char *get_audiotype	__PR((void));
 
 
 /*
@@ -175,7 +182,8 @@ LOCAL	int	is_fifo			__PR((char * filename));
 /* BEGIN CSTYLED */
 LOCAL const char *opts = "paranoia,paraopts&,version,help,h,\
 no-write,N,dump-rates,R,bulk,B,alltracks,verbose-scsi+,V+,\
-find-extremes,F,find-mono,G,no-infofile,H,\
+find-extremes,F,find-mono,G,no-infofile,H,no-textdefaults,\
+no-textfile,cuefile,no-hidden-track,\
 deemphasize,T,info-only,J,silent-scsi,Q,\
 cddbp-server*,cddbp-port*,\
 scanbus,device*,dev*,D*,debug#,debug-scsi#,kdebug#,kd#,kdebug-scsi#,ts&,\
@@ -343,6 +351,42 @@ info_file_open(fname_baseval, track, doappend, numbered)
 	return (fopen(fname, doappend ? "a" : "w"));
 }
 
+LOCAL FILE *
+cue_file_open(fname_baseval)
+	char		*fname_baseval;
+{
+	char	fname[PATH_MAX+1];
+
+	/*
+	 * write info file
+	 */
+	if (strcmp(fname_baseval, "-") == 0)
+		return ((FILE *)0);
+
+	strncpy(fname, fname_baseval, sizeof (fname) -1);
+	fname[sizeof (fname) -1] = 0;
+	strcpy(cut_extension(fname), ".cue");
+
+	return (fopen(fname, "w"));
+}
+
+LOCAL void
+get_datetime(datetime, size)
+	char	*datetime;
+	int	size;
+{
+	time_t	utc_time;
+	struct tm *tmptr;
+
+	utc_time = time(NULL);
+	tmptr = localtime(&utc_time);
+	if (tmptr) {
+		strftime(datetime, size, "%x %X", tmptr);
+	} else {
+		strlcpy(datetime, "unknown", size);
+	}
+}
+
 /*
  * write information before the start of the sampling process
  *
@@ -388,26 +432,75 @@ write_info_file(fname_baseval, track, SamplesDone, numbered)
 "CDDB_DISCID=\t0x%08lx\n\
 MCN=\t\t%s\n\
 ISRC=\t\t%15.15s\n\
-#\n\
-Albumperformer=\t'%s'\n\
-Performer=\t'%s'\n\
-Albumtitle=\t'%s'\n",
+#\n",
 		(unsigned long) global.cddb_id,
 		Get_MCN(),
-		Get_ISRC(track),
-		global.creator != NULL ?
-			global.creator : (const unsigned char *)"",
-		global.trackcreator[track] != NULL ?
-			global.trackcreator[track] :
-		(global.creator != NULL ?
-			global.creator : (const unsigned char *)""),
+		Get_ISRC(track));
+	/* END CSTYLED */
+
+	fprintf(info_fp, "Albumperformer=\t'%s'\n",
+		global.performer != NULL ?
+			global.performer : (const unsigned char *)"");
+	fprintf(info_fp, "Performer=\t'%s'\n",
+		global.trackperformer[track] != NULL ?
+			global.trackperformer[track] :
+		(global.no_textdefaults == 0 && global.performer != NULL ?
+			global.performer : (const unsigned char *)""));
+
+	fprintf(info_fp, "Albumsongwriter='%s'\n",
+		global.songwriter != NULL ?
+			global.songwriter : (const unsigned char *)"");
+	fprintf(info_fp, "Songwriter=\t'%s'\n",
+		global.tracksongwriter[track] != NULL ?
+			global.tracksongwriter[track] :
+		(global.no_textdefaults == 0 && global.songwriter != NULL ?
+			global.songwriter : (const unsigned char *)""));
+
+	fprintf(info_fp, "Albumcomposer=\t'%s'\n",
+		global.composer != NULL ?
+			global.composer : (const unsigned char *)"");
+	fprintf(info_fp, "Composer=\t'%s'\n",
+		global.trackcomposer[track] != NULL ?
+			global.trackcomposer[track] :
+		(global.no_textdefaults == 0 && global.composer != NULL ?
+			global.composer : (const unsigned char *)""));
+
+	fprintf(info_fp, "Albumarranger=\t'%s'\n",
+		global.arranger != NULL ?
+			global.arranger : (const unsigned char *)"");
+	fprintf(info_fp, "Arranger=\t'%s'\n",
+		global.trackarranger[track] != NULL ?
+			global.trackarranger[track] :
+		(global.no_textdefaults == 0 && global.arranger != NULL ?
+			global.arranger : (const unsigned char *)""));
+
+	fprintf(info_fp, "Albummessage=\t'%s'\n",
+		global.message != NULL ?
+			global.message : (const unsigned char *)"");
+	fprintf(info_fp, "Message=\t'%s'\n",
+		global.trackmessage[track] != NULL ?
+			global.trackmessage[track] :
+		(global.no_textdefaults == 0 && global.message != NULL ?
+			global.message : (const unsigned char *)""));
+
+	fprintf(info_fp, "Albumclosed_info='%s'\n",
+		global.closed_info != NULL ?
+			global.closed_info : (const unsigned char *)"");
+	fprintf(info_fp, "Closed_info=\t'%s'\n",
+		global.trackclosed_info[track] != NULL ?
+			global.trackclosed_info[track] :
+		(global.no_textdefaults == 0 && global.closed_info != NULL ?
+			global.closed_info : (const unsigned char *)""));
+
+	fprintf(info_fp, "Albumtitle=\t'%s'\n",
 		global.disctitle != NULL ?
 			global.disctitle : (const unsigned char *)"");
-	/* END CSTYLED */
 	fprintf(info_fp,  "Tracktitle=\t'%s'\n",
 		global.tracktitle[track] ?
 			global.tracktitle[track] : (const unsigned char *)"");
-	fprintf(info_fp, "Tracknumber=\t%u\n", track);
+
+	fprintf(info_fp, "Track=\t\t%u\n", track);
+	fprintf(info_fp, "Tracknumber=\t%u\n", Get_Tracknumber(track));
 	fprintf(info_fp, "Trackstart=\t%ld\n", Get_AudioStartSector(track));
 	fprintf(info_fp,
 	"# track length in sectors (1/75 seconds each), rest samples\nTracklength=\t%ld, %d\n",
@@ -426,7 +519,7 @@ Albumtitle=\t'%s'\n",
 				fputs("once (copyright protected)\n", info_fp);
 			break;
 			case 1:
-				fputs("no (SCMS first copy)\n", info_fp);
+				fputs("no (SCMS first copy, not made by copyright holder)\n", info_fp);
 			break;
 			case 2:
 				fputs("yes (not copyright protected)\n",
@@ -499,6 +592,190 @@ write_md5_info(fname_baseval, track, numbered)
 #endif	/* INFOFILES */
 
 LOCAL void
+write_cue_global(cuef, fname_baseval)
+	FILE	*cuef;
+	char	*fname_baseval;
+{
+	char	datetime[30];
+	char	fname[200];
+
+	if (cuef == NULL)
+		return;
+
+	get_datetime(datetime, sizeof (datetime));
+
+	fprintf(cuef, "REM created by cdda2wav %s%s %s\n",
+								VERSION,
+								VERSION_OS,
+								datetime);
+	fprintf(cuef, "REM CDRTOOLS\n");
+	fprintf(cuef, "REM\n");
+
+	if (Get_MCN()[0] != '\0')
+		fprintf(cuef, "CATALOG %s\n", Get_MCN());
+	if (global.did_textfile) {
+		char	*pp;
+
+		strncpy(fname, fname_baseval, sizeof (fname) -1);
+		fname[sizeof (fname) -1] = 0;
+		pp = strrchr(fname, '.');
+		if (pp == NULL)
+			pp = fname + strlen(fname);
+		strncpy(pp, ".cdtext", sizeof (fname) - 1 - (pp - fname));
+		fprintf(cuef, "CDTEXTFILE \"%s\"\n", fname);
+	}
+	if (global.performer)
+		fprintf(cuef, "PERFORMER \"%s\"\n", global.performer);
+	if (global.songwriter)
+		fprintf(cuef, "SONGWRITER \"%s\"\n", global.songwriter);
+	if (global.disctitle)
+		fprintf(cuef, "TITLE \"%s\"\n",  global.disctitle);
+
+	/*
+	 * If we allow to wite cue files with -B, we need to remove the FILE
+	 * entry here.
+	 */
+	snprintf(fname, sizeof (fname),
+		"%s.%s",
+		global.fname_base,
+		get_audiotype());
+	fprintf(cuef, "FILE \"%s\" %s\n",  fname, global.audio_out->auf_cuename);
+}
+
+LOCAL char *
+index_str(sector)
+	long	sector;
+{
+static	char	strbuf[10];
+	long	val;
+
+	val = sector / (60 * 75);
+	if (val > 99)
+		return ("err");
+	strbuf[0] = (val / 10) + '0';
+	strbuf[1] = (val % 10) + '0';
+	strbuf[2] = ':';
+
+	sector = sector % (60 * 75);
+	val = sector / 75;
+	strbuf[3] = (val / 10) + '0';
+	strbuf[4] = (val % 10) + '0';
+	strbuf[5] = ':';
+
+	val = sector % 75;
+	strbuf[6] = (val / 10) + '0';
+	strbuf[7] = (val % 10) + '0';
+	strbuf[8] = '\0';
+
+	return (strbuf);
+}
+
+LOCAL void
+write_cue_track(cuef, fname_baseval, track)
+	FILE	*cuef;
+	char	*fname_baseval;
+	unsigned int track;
+{
+	long		off_01;
+	int		i;
+	index_list	*ip;
+
+	if (cuef == NULL)
+		return;
+	if (track == 0)
+		return;
+
+	/*
+	 * If we allow to write cue files with -B, we need to add the FILE
+	 * entry here.
+	 */
+
+	fprintf(cuef, "  TRACK %2.2d AUDIO\n", Get_Tracknumber(track));
+	if (global.tracktitle[track])
+		fprintf(cuef, "    TITLE \"%s\"\n", global.tracktitle[track]);
+	if (global.trackperformer[track] ||
+	    (global.no_textdefaults == 0 && global.performer != NULL)) {
+		fprintf(cuef, "    PERFORMER \"%s\"\n",
+				global.trackperformer[track] != NULL ?
+				global.trackperformer[track] :
+				global.performer);
+	}
+	if (global.tracksongwriter[track] ||
+	    (global.no_textdefaults == 0 && global.songwriter != NULL)) {
+		fprintf(cuef, "    SONGWRITER \"%s\"\n",
+				global.tracksongwriter[track] != NULL ?
+				global.tracksongwriter[track] :
+				global.songwriter);
+	}
+	if (Get_ISRC(track)[0]) {
+		char	*p = (char *)Get_ISRC(track);
+		fprintf(cuef, "    ISRC ");
+		while (*p) {
+			if (*p == '-')
+				p++;
+			putc(*p++, cuef);
+		}
+		fprintf(cuef, "\n");
+	}
+	if ((Get_Preemphasis(track) && (global.deemphasize == 0)) ||
+	    Get_Copyright(track) != 0 ||
+	    Get_Channels(track)) {
+		fprintf(cuef, "    FLAGS");
+		switch (Get_Copyright(track)) {
+
+		case 1:	fprintf(cuef, " SCMS"); break;
+		case 2:	fprintf(cuef, " DCP"); break;
+		}
+		if (Get_Channels(track))
+			fprintf(cuef, " 4CH");
+		if (Get_Preemphasis(track) && (global.deemphasize == 0))
+			fprintf(cuef, " PRE");
+		fprintf(cuef, "\n");
+	}
+	for (ip = global.trackindexlist[track]; ip; ip = ip->next) {
+		if (ip->next == NULL)
+			break;
+	}
+	if (useHiddenTrack())
+		off_01 = 0L;
+	else
+		off_01 = Get_AudioStartSector(FirstAudioTrack());
+	if (global.trackindexlist[track] == NULL) {
+		if (track == 1) {
+			if (useHiddenTrack())
+				fprintf(cuef, "    INDEX 00 %s\n", "00:00:00");
+			else
+				fprintf(cuef, "    PREGAP %s\n", index_str(off_01));
+		}
+		fprintf(cuef, "    INDEX 01 %s\n",
+			index_str(Get_AudioStartSector(track) - off_01));
+	} else if (track == 1 &&
+	    global.trackindexlist[track] &&
+	    global.trackindexlist[track]->frameoffset != 0) {
+		if (useHiddenTrack())
+			fprintf(cuef, "    INDEX 00 %s\n", "00:00:00");
+		else
+			fprintf(cuef, "    PREGAP %s\n",  index_str(off_01));
+	} else if (track > 1) {
+		for (ip = global.trackindexlist[track-1]; ip; ip = ip->next) {
+			if (ip->next == NULL)
+				break;
+		}
+		if (ip && ip->frameoffset != -1)
+			fprintf(cuef, "    INDEX 00 %s\n",
+				index_str((long)ip->frameoffset - off_01));
+	}
+	for (i = 1, ip = global.trackindexlist[track]; ip; i++, ip = ip->next) {
+		if (ip->next == NULL)
+			break;
+		if (ip->frameoffset == -1)
+			continue;
+		fprintf(cuef, "    INDEX %2.2d %s\n", i,
+			index_str((long)ip->frameoffset - off_01));
+	}
+}
+
+LOCAL void
 CloseAudio(channels_val, nSamples, audio_out)
 	int channels_val;
 	unsigned long nSamples;
@@ -515,7 +792,7 @@ CloseAudio(channels_val, nSamples, audio_out)
 	global.audio = -1;
 }
 
-LOCAL	unsigned int	track = 1;
+LOCAL	unsigned int	track = (unsigned int)-1;
 
 /*
  * On terminating:
@@ -881,11 +1158,15 @@ OPTIONS:\n\
   (-J) -info-only		give disc information only.\n\
   (-L) cddb=cddbpmode		do cddbp title lookups.\n\
         resolve multiple entries according to cddbpmode: 0=interactive, 1=first entry\n\
+       -cuefile			create a CDRWIN CUE file instead of info files.\n\
   (-H) -no-infofile		no info file generation.\n\
+       -no-textdefaults		do not fill missing track CD-Text from album CD-Text.\n\
+       -no-textfile		no binary cdtext file generation.\n\
+       -no-hidden-track		do not scan for hidden audio track (before track #1).\n\
        -no-fork			do not fork for better buffering.\n\
   (-g) -gui			generate special output suitable for gui frontends.\n\
   (-Q) -silent-scsi		do not print status of erreneous scsi-commands.\n\
-       -scanbus			scan the SCSI bus and exit\n\
+       -scanbus			scan the SCSI bus and exit.\n\
   (-M) -md5			calculate MD-5 checksum for audio data.\n\
   (-q) -quiet			quiet operation, no screen output.\n\
   (-p) playback-realtime=perc	play (echo) audio pitched at perc percent (50%-200%).\n\
@@ -939,33 +1220,38 @@ init_globals()
 #ifdef	HISTORICAL_JUNK
 	global.dev_name = CD_DEVICE;	/* device name */
 #endif
-	global.aux_name = AUX_DEVICE;	/* auxiliary cdrom device */
-	global.out_fp = stderr;
+	global.aux_name = AUX_DEVICE;	/* auxiliary cdrom device name */
+	global.out_fp = stderr;		/* -out-fd FILE * for messages */
 	strncpy(global.fname_base, FILENAME,
-		sizeof (global.fname_base)); /* auxiliary cdrom device */
+		sizeof (global.fname_base)); /* current file name base */
 	global.have_forked = 0;		/* state variable for clean up */
 	global.child_pid = -2;		/* state variable for clean up */
 	global.parent_died = 0;		/* state variable for clean up */
-	global.audio    = -1;		/* audio file desc */
-	global.cooked_fd  = -1;		/* cdrom file desc */
-	global.no_file  =  0;		/* flag no_file */
-	global.no_infofile  =  0;	/* flag no_infofile */
-	global.no_cddbfile  =  0;	/* flag no_cddbfile */
-	global.no_fork	  =  0;		/* flag no-fork */
-	global.interactive = 0;		/* flag interactive */
-	global.quiet	  =  0;		/* flag quiet */
+	global.audio    = -1;		/* audio-out file desc */
+	global.cooked_fd  = -1;		/* cdrom-in file desc */
+	global.no_file  =  0;		/* -N option */
+	global.no_infofile  =  0;	/* -no-infofile option */
+	global.no_textfile  =  0;	/* -no-textfile option */
+	global.did_textfile  =  0;	/* flag: did create textfile */
+	global.no_textdefaults = 0;	/* -no-textdefaults option */
+	global.no_cddbfile  =  0;	/* flag: do not create cddbfile */
+	global.cuefile    =  0;		/* -cuefile option */
+	global.no_hidden_track = 0;	/* -no-hidden-track option */
+	global.no_fork	  =  0;		/* -no-fork option */
+	global.interactive = 0;		/* -interactive option */
+	global.quiet	  =  0;		/* -quiet option */
 	global.verbose  =  SHOW_TOC + SHOW_SUMMARY +
 				SHOW_STARTPOSITIONS +
-				SHOW_TITLES;	/* verbose level */
-	global.scsi_silent = 0;
+				SHOW_TITLES;	/* -v verbose level */
+	global.scsi_silent = 0;		/* SCSI silent flag */
 	global.scsi_verbose = 0;	/* SCSI verbose level */
 	global.scsi_debug = 0;		/* SCSI debug level */
 	global.scsi_kdebug = 0;		/* SCSI kernel debug level */
-	global.scanbus = 0;
+	global.scanbus = 0;		/* -scanbus option */
 	global.multiname = 0;		/* multiple file names given */
 	global.sh_bits  =  0;		/* sh_bits: sample bit shift */
 	global.Remainder =  0;		/* remainder */
-	global.iloop    =  0;		/* todo counter */
+	global.iloop    =  0;		/* todo counter (frames) */
 	global.SkippedSamples =  0;	/* skipped samples */
 	global.OutSampleSize  =  0;	/* output sample size */
 	global.channels = CHANNELS;	/* output sound channels */
@@ -1007,13 +1293,26 @@ init_globals()
 	global.cddbp_port = 0;		/* user supplied CDDBP port */
 	global.illleadout_cd = 0;	/* flag if illegal leadout is present */
 	global.reads_illleadout = 0;	/* flag if cdrom drive reads cds with illegal leadouts */
-	global.disctitle = NULL;
-	global.creator = NULL;
 	global.copyright_message = NULL;
+	global.disctitle = NULL;
+	global.performer = NULL;
+	global.songwriter = NULL;
+	global.composer = NULL;
+	global.arranger = NULL;
+	global.message = NULL;
+	global.closed_info = NULL;
 	memset(global.tracktitle, 0, sizeof (global.tracktitle));
+	memset(global.trackperformer, 0, sizeof (global.trackperformer));
+	memset(global.tracksongwriter, 0, sizeof (global.tracksongwriter));
+	memset(global.trackcomposer, 0, sizeof (global.trackcomposer));
+	memset(global.trackarranger, 0, sizeof (global.trackarranger));
+	memset(global.trackmessage, 0, sizeof (global.trackmessage));
+	memset(global.trackclosed_info, 0, sizeof (global.trackclosed_info));
 	memset(global.trackindexlist, 0, sizeof (global.trackindexlist));
 
 	global.just_the_toc = 0;
+	global.paranoia_selected = 0;
+	global.paranoia_flags = 0;
 #ifdef	USE_PARANOIA
 	global.paranoia_parms.disable_paranoia =
 	global.paranoia_parms.disable_extra_paranoia =
@@ -1528,6 +1827,12 @@ LOCAL unsigned		maxover;
 
 LOCAL unsigned long	calc_SectorBurst __PR((void));
 LOCAL void		set_newstart	__PR((long newstart));
+
+LOCAL const char *
+get_audiotype()
+{
+	return (audio_type);
+}
 
 LOCAL unsigned long
 calc_SectorBurst()
@@ -2048,16 +2353,17 @@ do_write(p)
 							'\0';
 					}
 
-					tmp_fname = cut_extension(global.fname_base);
-					tmp_fname[0] = '\0';
+					cut_extension(global.fname_base);
 
 					if (global.multiname == 0) {
-						sprintf(fname, "%s_%02u.%s",
+						snprintf(fname, sizeof (fname),
+							"%s_%02u.%s",
 							global.fname_base,
 							current_track+1,
 							audio_type);
 					} else {
-						sprintf(fname, "%s.%s",
+						snprintf(fname, sizeof (fname),
+							"%s.%s",
 							global.fname_base,
 							audio_type);
 					}
@@ -2179,6 +2485,8 @@ forked_write()
 #endif
 
 	for (; global.interactive || nSamplesDone < *nSamplesToDo; ) {
+		myringbuff	*oldest_buffer;
+
 		if (*eorecording == 1 &&
 		    (*total_segments_read) == (*total_segments_written))
 			break;
@@ -2186,7 +2494,10 @@ forked_write()
 		/*
 		 * get oldest buffers
 		 */
-		nSamplesDone = do_write(get_oldest_buffer());
+		oldest_buffer = get_oldest_buffer();
+		if (oldest_buffer == NULL)
+			break;
+		nSamplesDone = do_write(oldest_buffer);
 
 		drop_buffer();
 	}
@@ -2223,6 +2534,7 @@ nonforked_loop()
 
 	PRINT_OVERLAP_INIT
 	while (global.iloop) {
+		myringbuff	*oldest_buffer;
 
 		if (global.interactive && poll_in() > 0) {
 			int	r = parse(&lSector);
@@ -2234,7 +2546,10 @@ nonforked_loop()
 
 		do_read(get_next_buffer(), &total_unsuccessful_retries);
 
-		do_write(get_oldest_buffer());
+		oldest_buffer = get_oldest_buffer();
+		if (oldest_buffer == NULL)
+			break;
+		do_write(oldest_buffer);
 	}
 
 	if (total_unsuccessful_retries) {
@@ -2255,9 +2570,12 @@ verbose_usage()
 	summary		display a summary of track parameters.\n\
 	indices		retrieve/display index positions.\n\
 	catalog		retrieve/display media catalog number.\n\
+	mcn		retrieve/display media catalog number.\n\
 	trackid		retrieve/display international standard recording code.\n\
+	isrc		retrieve/display international standard recording code.\n\
 	sectors		display the start sectors of each track.\n\
 	titles		display any known track titles.\n\
+	audio-tracks	list the audio tracks and their start sectors.\n\
 ", stderr);
 }
 
@@ -2276,6 +2594,7 @@ paranoia_usage()
 	overlap=amount	set the number of sectors used for statical paranoia overlap.\n\
 	minoverlap=amt	set the min. number of sectors used for dynamic paranoia overlap.\n\
 	maxoverlap=amt	set the max. number of sectors used for dynamic paranoia overlap.\n\
+	proof		shortcut for minoverlap=sectors-per-request-1,retries=200.\n\
 ",
 		stderr);
 	/* END CSTYLED */
@@ -2320,12 +2639,22 @@ handle_verbose_opts(optstr, flagp)
 			*flagp |= SHOW_INDICES;
 		} else if (strncmp(optstr, "catalog", optlen) == 0) {
 			*flagp |= SHOW_MCN;
+		} else if (strncmp(optstr, "MCN", optlen) == 0) {
+			*flagp |= SHOW_MCN;
+		} else if (strncmp(optstr, "mcn", optlen) == 0) {
+			*flagp |= SHOW_MCN;
 		} else if (strncmp(optstr, "trackid", optlen) == 0) {
+			*flagp |= SHOW_ISRC;
+		} else if (strncmp(optstr, "ISRC", optlen) == 0) {
+			*flagp |= SHOW_ISRC;
+		} else if (strncmp(optstr, "isrc", optlen) == 0) {
 			*flagp |= SHOW_ISRC;
 		} else if (strncmp(optstr, "sectors", optlen) == 0) {
 			*flagp |= SHOW_STARTPOSITIONS;
 		} else if (strncmp(optstr, "titles", optlen) == 0) {
 			*flagp |= SHOW_TITLES;
+		} else if (strncmp(optstr, "audio-tracks", optlen) == 0) {
+			*flagp |= SHOW_JUSTAUDIOTRACKS;
 		} else if (strncmp(optstr, "all", optlen) == 0) {
 			*flagp |= SHOW_MAX;
 		} else if (strncmp(optstr, "disable", optlen) == 0) {
@@ -2418,6 +2747,10 @@ handle_paranoia_opts(optstr, flagp)
 		} else if (strncmp(optstr, "help", optlen) == 0) {
 			paranoia_usage();
 			exit(NO_ERROR);
+		} else if (strncmp(optstr, "proof", optlen) == 0) {
+			*flagp = 1;
+			global.paranoia_parms.mindynoverlap = -1;
+			global.paranoia_parms.retries = 200;
 		} else {
 			errmsgno(EX_BAD, "Unknown option '%s'.\n", optstr);
 			paranoia_usage();
@@ -2425,6 +2758,7 @@ handle_paranoia_opts(optstr, flagp)
 		}
 		optstr = np;
 	}
+	global.paranoia_selected = TRUE;
 	return (1);
 #else
 	errmsgno(EX_BAD, "lib paranoia support is not configured!\n");
@@ -2444,7 +2778,9 @@ main(argc, argv)
 	long		lSector_p1;
 	long		sector_offset = 0;
 	long		start_sector = -1;
-	unsigned long	endtrack = 1;
+	unsigned long	endtrack = (unsigned int)-1;
+	BOOL		alltracks = FALSE;
+	BOOL		maxtrack = FALSE;
 	double		rectime = DURATION;
 	int		cd_index = -1;
 	double		int_part;
@@ -2516,7 +2852,6 @@ static char		*user_sound_device = "";
 	BOOL	dump_rates = FALSE;
 	BOOL	md5blocksize = FALSE;
 	int	userverbose = -1;
-	long	paraopts = 0;
 	int	outfd = -1;
 	int	audiofd = -1;
 
@@ -2526,7 +2861,7 @@ static char		*user_sound_device = "";
 	cav++;
 	if (getargs(&cac, &cav, opts,
 			&global.paranoia_selected,
-			handle_paranoia_opts, &paraopts,
+			handle_paranoia_opts, &global.paranoia_flags,
 			&version,
 			&help, &help,
 
@@ -2539,6 +2874,10 @@ static char		*user_sound_device = "";
 			&global.findminmax, &global.findminmax,
 			&global.findmono, &global.findmono,
 			&global.no_infofile, &global.no_infofile,
+			&global.no_textdefaults,
+			&global.no_textfile,
+			&global.cuefile,
+			&global.no_hidden_track,
 
 			&global.deemphasize, &global.deemphasize,
 			&global.just_the_toc, &global.just_the_toc,
@@ -2605,7 +2944,7 @@ static char		*user_sound_device = "";
 		/*
 		 * Make the version string similar for all cdrtools programs.
 		 */
-		printf("cdda2wav %s (%s-%s-%s) Copyright (C) 1993-2004 Heiko Eißfeldt (C) 2004-2009 Jörg Schilling\n",
+		printf("cdda2wav %s (%s-%s-%s) Copyright (C) 1993-2004 Heiko Eißfeldt (C) 2004-2010 Jörg Schilling\n",
 					VERSION,
 					HOST_CPU, HOST_VENDOR, HOST_OS);
 		prdefaults(stdout);
@@ -2680,16 +3019,38 @@ Rate   Divider      Rate   Divider      Rate   Divider      Rate   Divider\n\
 		char * endptr;
 		char * endptr2;
 
-		if (start_sector != -1) {
+		if (streql(trackspec, "all")) {
+			alltracks = TRUE;
+		} else {
+			track = strtoul(trackspec, &endptr, 10);
+			if (trackspec == endptr)
+				comerrno(EX_BAD,
+					"Invalid track specification '%s'.\n",
+					trackspec);
+			if (streql(endptr, "+max")) {
+				if (track <= 1) {
+					alltracks = TRUE;
+					/*
+					 * Hack for write_cue_track() to
+					 * use correct INDEX offsets.
+					 */
+					if (track == 1)
+						global.no_hidden_track = TRUE;
+				}
+				maxtrack = TRUE;
+				endptr2 = endptr;
+			} else {
+				endtrack = strtoul(endptr, &endptr2, 10);
+			}
+			if (endptr2 == endptr) {	/* endtrack empty */
+				endtrack = track;
+			} else if (track == endtrack) {	/* manually -tn+n */
+				bulk = -1;
+			}
+		}
+		if (start_sector != -1 && !alltracks) {
 			errmsgno(EX_BAD, "-t and -start-sector are mutual exclusive.\n");
 			exit(SYNTAX_ERROR);
-		}
-		track = strtoul(trackspec, &endptr, 10);
-		endtrack = strtoul(endptr, &endptr2, 10);
-		if (endptr2 == endptr) {
-			endtrack = track;
-		} else if (track == endtrack) {
-			bulk = -1;
 		}
 	}
 	if (duration) {
@@ -2790,9 +3151,16 @@ Rate   Divider      Rate   Divider      Rate   Divider      Rate   Divider\n\
 	if (global.no_file) {
 		global.no_infofile = 1;
 		global.no_cddbfile = 1;
+		global.no_textfile = 1;
+		global.cuefile = 0;
 	}
 	if (global.no_infofile) {
 		global.no_cddbfile = 1;
+		global.no_textfile = 1;
+		global.cuefile = 0;
+	}
+	if (global.cuefile) {
+		global.no_infofile = 1;
 	}
 	if (md5blocksize)
 		global.md5blocksize = -1;
@@ -2978,6 +3346,9 @@ Rate   Divider      Rate   Divider      Rate   Divider      Rate   Divider\n\
 			 * we do have at least one argument
 			 */
 			global.multiname = 1;
+			strlcpy(global.fname_base,
+				argv[moreargs],
+				sizeof (global.fname_base));
 		}
 	}
 }	/* End of getargs() local vars */
@@ -3138,6 +3509,8 @@ Rate   Divider      Rate   Divider      Rate   Divider      Rate   Divider\n\
 		errmsgno(EX_BAD,
 			"No track in table of contents! Aborting...\n");
 		exit(MEDIA_ERROR);
+	} else if (maxtrack) {
+		endtrack = cdtracks;
 	}
 
 	calc_cddb_id();
@@ -3159,7 +3532,10 @@ Rate   Divider      Rate   Divider      Rate   Divider      Rate   Divider\n\
 	if (global.verbose == SHOW_JUSTAUDIOTRACKS) {
 		unsigned int z;
 
-		for (z = 0; z < cdtracks; z++) {
+		/*
+		 * XXX We did not check for hidden Track here
+		 */
+		for (z = 0; z <= cdtracks; z++) {
 			if (Get_Datatrack(z) == 0) {
 				printf("%02d\t%06ld\n",
 					Get_Tracknumber(z),
@@ -3190,6 +3566,15 @@ Rate   Divider      Rate   Divider      Rate   Divider      Rate   Divider\n\
 	 * avove with ReadTocText().
 	 */
 	FixupTOC(cdtracks + 1);
+
+	if (track == (unsigned int)-1) {
+		if (useHiddenTrack() && (bulk || alltracks))
+			endtrack = track = 0;
+		else
+			endtrack = track = 1;
+		if (bulk || alltracks)
+			endtrack = cdtracks;
+	}
 
 #if	0
 	if (!global.paranoia_selected) {
@@ -3232,7 +3617,8 @@ Rate   Divider      Rate   Divider      Rate   Divider      Rate   Divider\n\
 	 * check if start track is in range
 	 */
 	if (track < 1 || track > cdtracks) {
-		usage2("Incorrect start track setting: %d", track);
+		if (!(track == 0 && useHiddenTrack()))
+			usage2("Incorrect start track setting: %d", track);
 	}
 
 	/*
@@ -3257,18 +3643,27 @@ Rate   Divider      Rate   Divider      Rate   Divider      Rate   Divider\n\
 			    start_sector < lSector_p1) {
 				track = t;
 				sector_offset = start_sector - lSector;
+			} else if (t == 1 && useHiddenTrack() &&
+				start_sector >= 0 &&
+				start_sector < lSector) {
+				lSector = start_sector;
+				track = 0;
 			}
-			if (bulk)
+			if (bulk || alltracks)
 				endtrack = t;
 		}
 	}
 
 	do {
-		lSector = Get_AudioStartSector(track);
-		lSector_p1 = Get_EndSector(track) + 1;
-
+		if (track == 0) {
+			lSector = 0;
+			lSector_p1 = Get_AudioStartSector(1);
+		} else {
+			lSector = Get_AudioStartSector(track);
+			lSector_p1 = Get_EndSector(track) + 1;
+		}
 		if (lSector < 0) {
-			if (bulk == 0) {
+			if (bulk == 0 && !alltracks) {
 				FatalError(EX_BAD,
 					"Track %d not found.\n", track);
 			} else {
@@ -3279,18 +3674,18 @@ Rate   Divider      Rate   Divider      Rate   Divider      Rate   Divider\n\
 				track++;
 			}
 		}
-	} while (bulk != 0 && track <= cdtracks && lSector < 0);
+	} while ((bulk != 0 || alltracks) && track <= cdtracks && lSector < 0);
 
 	if ((global.illleadout_cd == 0 || global.reads_illleadout != 0) &&
 	    cd_index != -1) {
 		if (global.verbose && !global.quiet) {
 			global.verbose |= SHOW_INDICES;
 		}
-		sector_offset += ScanIndices(track, cd_index, bulk);
+		sector_offset += ScanIndices(track, cd_index, bulk || alltracks);
 	} else {
 		cd_index = 1;
 		if (global.deemphasize || (global.verbose & SHOW_INDICES)) {
-			ScanIndices(track, cd_index, bulk);
+			ScanIndices(track, cd_index, bulk || alltracks);
 		}
 	}
 
@@ -3311,7 +3706,7 @@ Rate   Divider      Rate   Divider      Rate   Divider      Rate   Divider\n\
 	}
 
 	lSector_p2 = Get_LastSectorOnCd(track);
-	if (bulk == 1 && track == endtrack && rectime == 0.0)
+	if ((bulk == 1 || alltracks) && track == endtrack && rectime == 0.0)
 		rectime = 99999.0;
 	if (rectime == 0.0) {
 		/*
@@ -3380,10 +3775,13 @@ Rate   Divider      Rate   Divider      Rate   Divider      Rate   Divider\n\
 		} else if (waitforsignal == 1) {
 			fprintf(stderr,
 			"W Option -w 'wait for signal' disables generation of info files!\n");
+		} else if (alltracks) {
+			fprintf(stderr,
+			"W Option -tall 'all tracks into one file' disables generation of info files!\n");
 		} else if (sector_offset != 0) {
 			fprintf(stderr,
 			"W Using an start offset (option -o) disables generation of info files!\n");
-		} else if (!bulk &&
+		} else if (!bulk && !alltracks &&
 			    !((lSector == Get_AudioStartSector(track)) &&
 			    ((long)(lSector + rectime*75.0 + 0.5) ==
 			    Get_EndSector(track) + 1))) {
@@ -3391,6 +3789,17 @@ Rate   Divider      Rate   Divider      Rate   Divider      Rate   Divider\n\
 			"W Duration is not set for complete tracks (option -d), this disables generation\n  of info files!\n");
 		} else {
 			global.no_infofile = 0;
+		}
+	}
+	if (global.cuefile) {
+		if (global.outputendianess != NONE) {
+			fprintf(stderr,
+			"W Option -E 'outout endianess' disables generation of cue file!\n");
+			global.cuefile = 0;
+		} else if (!alltracks) {
+			fprintf(stderr,
+			"W Not selecting all tracks disables generation of cue file!\n");
+			global.cuefile = 0;
 		}
 	}
 
@@ -3445,6 +3854,49 @@ Rate   Divider      Rate   Divider      Rate   Divider      Rate   Divider\n\
 			reset_name_iterator();
 		}
 #endif
+		if (global.cuefile) {
+			int i;
+			char *tmp_fname;
+			FILE	*cuef;
+
+			/*
+			 * build next filename
+			 */
+			tmp_fname = get_next_name();
+			if (tmp_fname != NULL)
+				strncpy(global.fname_base, tmp_fname,
+					sizeof (global.fname_base)-8);
+			global.fname_base[sizeof (global.fname_base)-1] = 0;
+			cut_extension(global.fname_base);
+
+			cuef = cue_file_open(global.fname_base);
+			write_cue_global(cuef, global.fname_base);
+
+			for (i = track; i < (int)track + tracks_included; i++) {
+				unsigned minsec, maxsec;
+
+				minsec = max(lSector, Get_AudioStartSector(i));
+				maxsec = min(lSector + rectime*75.0 + 0.5,
+							1+Get_EndSector(i));
+				if ((int)minsec == Get_AudioStartSector(i) &&
+				    (int)maxsec == 1+Get_EndSector(i)) {
+					write_cue_track(cuef, global.fname_base, i);
+				}
+
+				/*
+				 * build next filename
+				 */
+				tmp_fname = get_next_name();
+				if (tmp_fname != NULL)
+					strncpy(global.fname_base, tmp_fname,
+						sizeof (global.fname_base)-8);
+				global.fname_base[sizeof (global.fname_base)-1] = 0;
+				cut_extension(global.fname_base);
+			}
+			reset_name_iterator();
+			if (cuef)
+				fclose(cuef);
+		}
 	}
 
 	if (global.just_the_toc)
@@ -3480,16 +3932,7 @@ Rate   Divider      Rate   Divider      Rate   Divider      Rate   Divider\n\
 		}
 
 		/* strip audio_type extension */
-		{
-			char *cp = global.fname_base;
-
-			cp = strrchr(cp, '.');
-			if (cp == NULL) {
-				cp = global.fname_base +
-						strlen(global.fname_base);
-			}
-			*cp = '\0';
-		}
+		cut_extension(global.fname_base);
 		if (bulk && global.multiname == 0) {
 			sprintf(fname, "%s_%02u.%s",
 				global.fname_base, current_track, audio_type);
@@ -3554,6 +3997,13 @@ Rate   Divider      Rate   Divider      Rate   Divider      Rate   Divider\n\
 			if (overlap > global.nsectors - 1)
 				overlap = global.nsectors - 1;
 			paranoia_overlapset(global.cdp, overlap);
+		}
+		/*
+		 * Implement the shortcut "paraopts=proof"w
+		 */
+		if ((global.paranoia_flags & 1) &&
+		    global.paranoia_parms.mindynoverlap < 0) {
+			global.paranoia_parms.mindynoverlap = global.nsectors - 1;
 		}
 		/*
 		 * Default to a  minimum of dynamic overlapping == 0.5 sectors.

@@ -1,13 +1,13 @@
-/* @(#)aifc.c	1.13 09/07/10 Copyright 1998,1999 Heiko Eissfeldt, Copyright 2006-2009 J. Schilling */
+/* @(#)aifc.c	1.15 10/01/12 Copyright 1998,1999 Heiko Eissfeldt, Copyright 2006-2010 J. Schilling */
 #include "config.h"
 #ifndef lint
 static	UConst char sccsid[] =
-"@(#)aifc.c	1.13 09/07/10 Copyright 1998,1999 Heiko Eissfeldt, Copyright 2006-2009 J. Schilling";
+"@(#)aifc.c	1.15 10/01/12 Copyright 1998,1999 Heiko Eissfeldt, Copyright 2006-2010 J. Schilling";
 
 #endif
 /*
  * Copyright (C) by Heiko Eissfeldt
- * Copyright (c) 2006-2009 J. Schilling
+ * Copyright (c) 2006-2010 J. Schilling
  *
  * definitions for aifc pcm output
  */
@@ -252,5 +252,6 @@ struct soundfile aifcsound = {
 		Uchar *buf,
 		size_t BytesToDo))) write, /* get sound samples out */
 	InSizeToOutSize,	/* compressed? output file size */
-	1			/* needs big endian samples */
+	1,			/* needs big endian samples */
+	"AIFC"
 };

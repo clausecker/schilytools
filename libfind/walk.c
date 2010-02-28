@@ -1,13 +1,13 @@
-/* @(#)walk.c	1.38 09/07/11 Copyright 2004-2009 J. Schilling */
+/* @(#)walk.c	1.39 10/02/28 Copyright 2004-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)walk.c	1.38 09/07/11 Copyright 2004-2009 J. Schilling";
+	"@(#)walk.c	1.39 10/02/28 Copyright 2004-2010 J. Schilling";
 #endif
 /*
  *	Walk a directory tree
  *
- *	Copyright (c) 2004-2009 J. Schilling
+ *	Copyright (c) 2004-2010 J. Schilling
  *
  *	In order to make treewalk() thread safe, we need to make it to not use
  *	chdir(2)/fchdir(2) which is process global.
@@ -201,10 +201,10 @@ walk(nm, sf, fn, state, last)
 	state->base = otail;
 	state->flags = 0;
 	if (varp->Curdtail == 0 || varp->Curdir[varp->Curdtail-1] == '/') {
-		p = strcatl(&varp->Curdir[varp->Curdtail], nm, 0);
+		p = strcatl(&varp->Curdir[varp->Curdtail], nm, (char *)0);
 		varp->Curdtail = p - varp->Curdir;
 	} else {
-		p = strcatl(&varp->Curdir[varp->Curdtail], "/", nm, 0);
+		p = strcatl(&varp->Curdir[varp->Curdtail], "/", nm, (char *)0);
 		varp->Curdtail = p - varp->Curdir;
 		state->base++;
 	}

@@ -1,12 +1,12 @@
-/* @(#)apple.c	1.40 09/11/25 joerg, Copyright 1997, 1998, 1999, 2000 James Pearson, Copyright 2000-2009 J. Schilling */
+/* @(#)apple.c	1.42 10/02/28 joerg, Copyright 1997, 1998, 1999, 2000 James Pearson, Copyright 2000-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)apple.c	1.40 09/11/25 joerg, Copyright 1997, 1998, 1999, 2000 James Pearson, Copyright 2000-2009 J. Schilling";
+	"@(#)apple.c	1.42 10/02/28 joerg, Copyright 1997, 1998, 1999, 2000 James Pearson, Copyright 2000-2010 J. Schilling";
 #endif
 /*
  *      Copyright (c) 1997, 1998, 1999, 2000 James Pearson
- *	Copyright (c) 2000-2009 J. Schilling
+ *	Copyright (c) 2000-2010 J. Schilling
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -1034,6 +1034,7 @@ get_dbl_dir(hname, dname, s_entry, ret)
 		}
 
 		fclose(fp);
+		fp = NULL;
 
 		/* skip this if we had a problem */
 		if (!fail) {
@@ -1063,9 +1064,9 @@ get_dbl_dir(hname, dname, s_entry, ret)
 	} else {
 		/* failed to open/read finderinfo */
 		fail = 1;
-		if (fp)
-			fclose(fp);
 	}
+	if (fp)
+		fclose(fp);
 
 	if (fail) {
 		/* problem with the file - try mapping/magic */
@@ -1218,6 +1219,7 @@ get_dbl_info(hname, dname, s_entry, ret)
 		}
 
 		fclose(fp);
+		fp = NULL;
 
 		/* skip this if we had a problem */
 		if (!fail) {
@@ -1246,9 +1248,9 @@ get_dbl_info(hname, dname, s_entry, ret)
 	} else {
 		/* failed to open/read finderinfo */
 		fail = 1;
-		if (fp)
-			fclose(fp);
 	}
+	if (fp)
+		fclose(fp);
 
 	if (fail) {
 		/* problem with the file - try mapping/magic */
@@ -2296,11 +2298,12 @@ get_hfs_rname(wname, dname, rname)
 						close(p_fd);
 						return (TYPE_NONE);
 					}
-					/* get file pointer and close file */
+					/* get file pointer file */
 					p_fp = fdopen(p_fd, "rb");
-					close(p_fd);
-					if (p_fp == NULL)
+					if (p_fp == NULL) {
+						close(p_fd);
 						return (TYPE_NONE);
+					}
 				}
 			}
 			/*

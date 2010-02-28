@@ -1,4 +1,4 @@
-#ident @(#)Makefile	1.25 09/08/04 
+#ident @(#)Makefile	1.26 10/02/11 
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -39,7 +39,7 @@ HFILES=		cdda2wav.h interface.h semshm.h global.h resample.h \
 		parse.h version.h
 
 LIBS=		-lscgcmd -lrscg -lscg $(LIB_VOLMGT) -lparanoia -lcdrdeflt -ldeflt -lmdigest -lschily $(SCSILIB) $(EXTRALIB) $(LIB_SOCKET)
-XMK_FILE=	Makefile.man Makefile.rd cdda2ogg.mk1
+XMK_FILE=	Makefile.man Makefile.rd cdda2ogg.mk cdda2mp3.mk
 # cdda2ogg.mk1 fehlt noch für make rel
 
 xall:		all

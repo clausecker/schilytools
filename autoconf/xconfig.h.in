@@ -1,4 +1,4 @@
-/* @(#)xconfig.h.in	1.187 09/11/29 Copyright 1998-2009 J. Schilling */
+/* @(#)xconfig.h.in	1.189 10/02/28 Copyright 1998-2009 J. Schilling */
 /*
  *	Dynamic autoconf C-include code.
  *
@@ -9,6 +9,7 @@
  * Header Files
  */
 #undef PROTOTYPES	/* if Compiler supports ANSI C prototypes */
+#undef HAVE_INLINE	/* if Compiler supports "inline" keyword */
 #undef HAVE_ASSERT_H	/* to use stdio.h */
 #undef HAVE_STDIO_H	/* to use stdio.h */
 #undef HAVE_STDARG_H	/* to use stdarg.h, else use varargs.h NOTE: SaberC on a Sun has prototypes but no stdarg.h */
@@ -646,6 +647,7 @@
  */
 #undef HAVE_ST_SPARE1		/* if struct stat contains st_spare1 (usecs) */
 #undef HAVE_ST_ATIMENSEC	/* if struct stat contains st_atimensec (nanosecs) */
+#undef HAVE_ST_ATIME_N		/* if struct stat contains st_atime_n (nanosecs) */
 #undef HAVE_ST_NSEC		/* if struct stat contains st_atim.tv_nsec (nanosecs) */
 #undef HAVE_ST__TIM		/* if struct stat contains st_atim.st__tim.tv_nsec (nanosecs) */
 #undef HAVE_ST_ATIMESPEC	/* if struct stat contains st_atimespec.tv_nsec (nanosecs) */
@@ -654,6 +656,7 @@
 #undef HAVE_ST_FSTYPE		/* if struct stat contains st_fstype */
 #undef HAVE_ST_ACLCNT		/* if struct stat contains st_aclcnt */
 #undef HAVE_ST_RDEV		/* if struct stat contains st_rdev */
+#undef HAVE_ST_FLAG		/* if struct stat contains st_flag */
 #undef HAVE_ST_FLAGS		/* if struct stat contains st_flags */
 #undef STAT_MACROS_BROKEN	/* if the macros S_ISDIR, S_ISREG .. don't work */
 

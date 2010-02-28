@@ -25,10 +25,10 @@
 /*
  * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)sccs.c	1.35 09/11/15 J. Schilling
+ * @(#)sccs.c	1.37 09/12/30 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)sccs.c 1.35 09/11/15 J. Schilling"
+#pragma ident "@(#)sccs.c 1.37 09/12/30 J. Schilling"
 #endif
 /*
  * @(#)sccs.c 1.85 06/12/12
@@ -42,21 +42,22 @@ static UConst char sccsid[] = "@(#)sccs.c 1.2 2/27/90";
 # include	<schily/dirent.h>
 # include	<schily/errno.h>
 # include	<schily/signal.h>
-#ifdef __STDC__
+# include	<schily/sysexits.h>
+#ifndef EX_OK
 #define EX_OK 0
 #define EX_USAGE 64
 #define EX_NOINPUT 66
 #define EX_UNAVAILABLE 69
 #define EX_SOFTWARE 70
 #define EX_OSERR 71
-#else
-# include	<schily/sysexits.h>
-# define	VMS_VFORK_OK
-# include	<schily/vfork.h>
+#endif
+#ifndef __STDC__
 extern struct passwd *getpwnam();
 extern char *getlogin();
 extern char *getenv();
 #endif
+# define	VMS_VFORK_OK
+# include	<schily/vfork.h>
 # include	<schily/varargs.h>
 # include	<schily/wait.h>
 #define	error		__js_error__	/* SCCS error differs from schily.h */
@@ -178,13 +179,13 @@ int	didvfork;
 
 # ifdef DESTDIR
 # ifndef V6
-# ifdef __STDC__
+# if defined(__STDC__) || defined(PROTOTYPES)
 # define PROGPATH(name)	#name
 # else
 # define PROGPATH(name)	"name"
 # endif
 # else
-# ifdef __STDC__
+# if defined(__STDC__) || defined(PROTOTYPES)
 # define PROGPATH(name)	"/usr/ccs/bin/"	#name /* place to find binaries */
 # else
 # define PROGPATH(name) "/usr/ccs/bin/name"	/* place to find binaries */
@@ -192,13 +193,13 @@ int	didvfork;
 # endif /* V6 */
 # else
 # ifdef XPG4
-# ifdef __STDC__
+# if defined(__STDC__) || defined(PROTOTYPES)
 # define PROGPATH(name)	#name
 # else
 # define PROGPATH(name)	"name"
 # endif
 # else
-# ifdef __STDC__
+# if defined(__STDC__) || defined(PROTOTYPES)
 # define PROGPATH(name)	"/usr/ccs/bin/"	#name /* place to find binaries */
 # else
 # define PROGPATH(name) "/usr/ccs/bin/name"	/* place to find binaries */
@@ -209,7 +210,7 @@ int	didvfork;
 #if	defined(INS_BASE) && !defined(XPG4)
 #undef	PROGPATH
 
-# ifdef __STDC__
+# if defined(__STDC__) || defined(PROTOTYPES)
 #define PROGPATH(name)	INS_BASE "/ccs/bin/" #name /* place to find binaries */
 #else
 /*

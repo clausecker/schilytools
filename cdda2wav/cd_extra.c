@@ -1,7 +1,7 @@
-/* @(#)cd_extra.c	1.17 09/08/03 Copyright 2000-2001 Heiko Eissfeldt, Copyright 2004-2008 J. Schilling */
+/* @(#)cd_extra.c	1.18 10/01/09 Copyright 2000-2001 Heiko Eissfeldt, Copyright 2004-2010 J. Schilling */
 #ifndef lint
 static	const char _sccsid[] =
-"@(#)cd_extra.c	1.17 09/08/03 Copyright 2000-2001 Heiko Eissfeldt, Copyright 2004-2008 J. Schilling";
+"@(#)cd_extra.c	1.18 10/01/09 Copyright 2000-2001 Heiko Eissfeldt, Copyright 2004-2010 J. Schilling";
 #endif
 
 /*
@@ -332,12 +332,12 @@ Read_Subinfo(pos, length)
 			}
 			break;
 
-		case 0x08: /* creator */
-			if (global.creator == NULL) {
-				global.creator = malloc(len + 1);
-				if (global.creator != NULL) {
-					memcpy(global.creator, Subp + 2, len);
-					global.creator[len] = '\0';
+		case 0x08: /* creator -> CD-Text performer */
+			if (global.performer == NULL) {
+				global.performer = malloc(len + 1);
+				if (global.performer != NULL) {
+					memcpy(global.performer, Subp + 2, len);
+					global.performer[len] = '\0';
 				}
 			}
 			break;

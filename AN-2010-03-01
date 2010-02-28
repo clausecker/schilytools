@@ -1,0 +1,301 @@
+New features with AN-2010-03-01:
+
+-	Support for "pcc" on Solaris x86 was added as a first step.
+	The C-Compiler "pcc" http://pcc.ludd.ltu.se/ is based on the
+	Portable C-Comppiler from AT&T from the late 1970s. It is
+	under BSDl and thus offers compilation with a really free
+	build environment.
+
+	Note that due to a pcc bug, the autoconf results for
+	Large File support are incorrect. Unless you edit the file
+	incs/i386-sunos5-pcc/xconfig.h and manually correct the
+	file to contain this:
+
+#define _FILE_OFFSET_BITS 64    /* # of bits in off_t if settable          */ 
+
+	You will not get working large file support.
+
+	Support for more Operating system will follow after the issues
+	in the compiler have been resolved.
+
+-	conf/mkdep-aix.sh now calls "cc -M -qsyntaxonly" instead of
+	"cc -M -E" as the IBM C-preprocessor does not like
+	#pragma weak a = b
+	although the compiler supports it.
+
+-	Added support for DragonFly/x86_64
+
+-	New autoconf test for nanosecond time stamps on AIX.
+
+-	conf/mkdep-aix.sh was changed to avoid warnings for #pragma weak a = b
+	as the IBM C-compiler calls a non "#pragma weak" cpp when called with -E
+
+-	include/schily/stat.h now supports nonosecond timestamps in struct stat on AIX.
+
+-	cdrtools bumped to 2.01.01a77
+
+-	Fixed a bug in libfind/walk.c (calling strcatl() with last parameter 0
+	instead of (char *)0)
+
+-	sccs now is able to correctly code program paths based
+	in INS_BASE by depending on PROTOTYPES instead of _STDC__
+
+-	New autoconf tests for struct stat on AIX to support
+	e.g. nanosecond tile timestamps.
+
+-	include/schily/stat.h now supports struct stat.st_atime_n
+	for AIX nanosecond support.
+
+-	star/dumpdates.c works around a problem with LOCK_EX/LOCK_EX/LOCK_UN
+	defined although the flock() call no longer exists.
+
+-	The Bourne Shell now renamed "peekc" to "peekc_" because AIX
+	has a hidden peekc() in libc.
+
+-	The Bourne Shell tries to avoid to #define "index" as AIX
+	has a #define index in string.h
+
+-	Cdrecord now is able to use -isosize even in case that the image data
+	is read from stdin. This makes it easier to use "mkisofs | cdrecord".
+
+
+-	The CDRWIN cue sheet parser has been enhanced to give better error messages:
+
+	-	There are now hints on what is missing in the CUE file
+
+	-	The error message now also contains the column where the problem was detected
+
+-	A description for the *.inf file fomat was added to the cdrecord man page
+
+-	The *.inf file parser now supports a new tag "Track=" that
+	is intended to carry the absolute track number from the original disk.
+
+-	Cdrecord now supports to copy CDs with hidden track if there are *.inf files
+	created by cdda2wav. In order to copy a CD with hidden Track with optimal
+	quality, call:
+
+	cdda2wav -vall -B -paranoia paraports=proof cddb=0
+	cdrecord -v -sao -useinfo -text *.wav
+
+-	cdwrite@lists.debian.org removed from man page
+	please use the official mailing lists for cdrecord that exist since 10 years:
+	http://developer.berlios.de/mail/?group_id=5
+
+-	Hidden Track support is now complete:
+
+-	Added support for writing Hidden Audio Tracks before Track #1
+	in the Mtsushita CW-7501 device driver.
+
+-	Added support for writing Hidden Audio Tracks before Track #1
+	in the Sony CDU-924 / CDU-948 device driver.
+
+-	Added support for writing Hidden Audio Tracks in RAW mode.
+	Cdrecord-2.01.01a74 did put "track number 0" into the subchannel
+	data for track 1 index 0. Cdrecord now correctly writes Track #1
+	into the sub channel data.
+
+-	Added support for Track #1 having a different number than 1 into
+	the CUE file parser.
+
+-	The CUE file parser now prints much better error messages in case that
+	a keyword is seen out of the permitted order.
+
+-	The CUE file parser now supports hidden tracks.
+
+-	Added a workaround for a firmware bug in the drive:
+	'HL-DT-ST' 'BD-RE  BH10LS30 ' '1.00'
+	That causes the drive to return zero media size for BluRay media.
+
+-	cdrecord now aborts if the cuefile= option was specified with a non-CD
+	media in the drive.
+
+-	CDRWIN CUE files now may refer to several data files where each data file
+	contains less than the whole disk but more than a single track.
+
+-	The CUE parser now correctly sets the sector size information for the
+	lead-in area.
+
+-	The CUE parser now by default only accepts CDRWIN CUE compliant files
+	but may be switched into an enhanced mode by introducing a special comment
+	"REM CDRTOOLS"
+
+-	The CUE parser now supports a FILE command between INDEX 00 and INDEX 01.
+	This is needed in order to write CUE sheets from Exact Audio Copy.
+	Note that cdrecord needs to be switched into the enhanced CUE parser mode
+	by either specifying "REM CDRTOOLS" or by specifying:
+	REM COMMENT "ExactAudioCopy v0.99pb5"
+
+	Also note that cdrecord currently does not support more than one FILE
+	command per TRACK. For this reason, hidden audio tracks only work if
+	the hidden audio data is in the same file that also contains data for
+	track 1.
+
+-	New commands "ARRANGER", "COMPOSER" and "MESSAGE" for adding CD-Text information
+	in CUE files. Note that these commands are cdrecord specific extensions that
+	re unknown by CDRWIN and thus need "REM CDRTOOLS" to be enabled.
+
+-	The CUE file format is now documented in the cdrecord man page.
+
+-	Fixed a small type bug in cdrecord/fifo.c (introduced a few
+	versions before) that hits if the OS does not support the FIFO.
+
+-	New (previously missing) CD-Text tags have been added to auinfo.c (*.inf file parser):
+
+	Albumsongwriter=
+	Albumcomposer=
+	Albumarranger=
+	Albummessage=
+	Albumclosed_info=
+
+	Note that these tags do not appear in the CDDB database.
+
+-	Cdrecord no longer tries to close a session on a BD-RE media.
+	This is not supported in the recent MMC Standard and most drives
+	return a SCSI error when attempting to close such a session.
+
+-	New cdda2wav arg "all" to -t option.
+
+	cdda2wav -B	extracts all audio tacks into separate files
+	cdda2wav -tall	extracts all audio tacks into a single files
+
+-	cdda2wav now by default writes a file "xxx.cdtext" with raw binary
+	CD-Text data in case cdda2wav was told to retrieve CD-Text.
+
+-	A new option -no-textfile allows to disable the creation of the file "audio.cdtext"
+	This version of cdda2wav creates a file "audio.cdtext" or similar (depending on
+	the set up file name base) in case that there is CD-Text on the medium and that
+	the drives supports to read the CD-Text data with MMC SCSI commands.
+
+-	Fixed a bug in cdda2wav that caused cdda2wav to set up the file name base too late.
+	This resultes in the files "audio.cdindex" and "audio.cddb" alwas to have this name
+	while the *.inf files use the name base from the cdda2wav arguments. Now all
+	files created by cdda2wav honor the file name base.
+
+-	Cdda2wav by default fills empty track specific CD-Text data with the Disk global
+	value (if present). A new option -no-textdefaults allows to disable this fallback
+	and leaves the related fields empty if they are empty on the mester CD.
+
+-	Fixed a problem with cdda2wav -interactive (used by GNOME GSTREAMER CD-DAE plugin)
+	that could cause cdda2wav to dump core in case that there is a data
+	session past the last audio track.
+
+-	Cdda2wav now permits to use "max" for the endtrack number. This
+	allows to specify e.g. -t2+max for a list of tracks from track #2
+	to the last audio track on the disk.
+
+-	New option -cuefile allows to tell cdda2wav to create a CDRWIN CUE
+	file. This currently only works together with wither -tall, or with
+	-t0+max or -t1+max.
+
+	Note that due to a misconception in the CDRWIN CUE file definition,
+	it is impossible to create 100% correct CD-audio copy by 100%
+	following the CDRWIN CUE file definition and having separate audio
+	files for each track at the same time. For this reason, it is currently
+	impossible to create CDRWIN CUE files while using cdda2wav -B.
+
+-	Cdda2wav now only writes a binary *.cdtext file in case that this
+	file would contain more data than a header that tells that there
+	is no further content.
+
+-	Cdda2wav no longer removes the Index0 entry from a longer Index list
+	if Index0 is -1.
+
+-	Cdda2wav now automatically scans for hidden audio tracks. This is a
+	complex task as there are drives that do not allow to read the
+	hidden data before track 1.
+
+-	New option -no-hidden-track allows to prevent cdda2wav from scanning
+	for a hidden audio track.
+
+-	Cdda2wav now writes the new tag "Track=" into the *.inf files that
+	is intended to carry the absolute track number from the original disk.
+
+-	A shortcut for paraopts=sectors-per-track-1,retries=200 was introduced.
+	The name of the shortcut is "proof", so just use "paraopts=proof" for
+	selecting the most stringent paranoia mode.
+
+-	Cdda2wav now automatically selects paranoia mode in case that the
+	paraopts= option was used.
+
+-	Cdda2wav now again works in suid root mode on Solaris 11. It seems that
+	the development versions from Solaris 11 did change the behavior with
+	fine grained privileges in a way that was incompatible with the way
+	cdda2wav did try to handle both suid root and fine grained privileges.
+
+-	A forgotten debug message from implementing support for hidden tracks
+	has been removed.
+
+-	Fixed a small bug that made cdda2wav with hidden track support not fully
+	compatible to earlier versions. In case that only one track is to be extracted,
+	this is again always track #1 regsrdless whether the CD has a hidden track.
+
+-	Fixed a bug with CDRWIN CUE file support. Cdda2wav used the tag "WAV" instead
+	of "WAVE" for the data type specifier in the FILE tag.
+
+-	cdwrite@lists.debian.org removed from man page
+	please use the official mailing lists for cdrecord that exist since 10 years:
+	http://developer.berlios.de/mail/?group_id=5
+
+-	Hidden Track support is now complete:
+
+-	Fixed a bug in the cdda2wav track loop control that caused cdda2wav
+	not to write the *.inf file for the last track in case of an audio CD
+	with a hidden track.
+
+-	Introduced an alias "isrc" and "ISRC" for -vtrackid
+
+-	Introduced an alias "mcn" and "MCN" for -vcatalog
+
+-	cdda2wav now emits a "PREGAP" keyword in the CUE file for a CD without
+	hidden track if it starts with a sector number > 0.
+
+-	New cdda2wav option -vaudio-tracks
+
+-	Make cdda2wav -q silent again (even with CDs with hidden track) to
+	make it compatible again with scripts.
+
+-	cdda2ogg and cdda2ogg.1 added to standard install
+	The script cdda2ogg was enhanced to work seamlessly.
+
+-	cdda2mp3 and cdda2mp3.1 added to standard install
+	The script cdda2mp3 was enhanced to work seamlessly.
+
+-	the scripts cdda2ogg and cdda2mp3 now allow to forward options to
+	cdda2wav.
+
+	In order to enable "paranoia mode", call:
+
+	cdda2ogg -paranoia
+
+	In order to enable the most proof "paranoia mode", call:
+
+	cdda2ogg -paraopts=proof
+
+-	The cdda2ogg man page was completely reworked
+
+-	The SYSvr4 pkg definition now includes cdda2ogg and cdda2mp3
+
+-	Added a workaround for a broken ASPI that hangs with
+	odd transfer counts.
+
+
+-	Fixed a bug with file descriptor handling in mkisofs/apple.c
+
+-	The man page for mkisofs was enhanced in order to better mention
+	that mkisofs always writes ISO-9660 and that other file systems are
+	thus always added as a hybrid file system.
+
+
+
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.isdn.cs.tu-berlin.de, js@cs.tu-berlin.de
+	joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

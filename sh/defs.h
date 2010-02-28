@@ -37,7 +37,7 @@
 /*
  * This file contains modifications Copyright 2008-2009 J. Schilling
  *
- * @(#)defs.h	1.23 09/11/01 2008-2009 J. Schilling
+ * @(#)defs.h	1.25 09/12/31 2008-2009 J. Schilling
  */
 
 #ifdef	__cplusplus
@@ -168,7 +168,6 @@ extern "C" {
 #include	<schily/types.h>
 #include	<schily/utypes.h>
 #include	<schily/time.h>
-#define	index	__no_index__
 #include	<schily/string.h>
 #undef	index
 #define	eaccess	__no_eaccess__
@@ -206,7 +205,6 @@ extern "C" {
 #define	Intmax_t	intmax_t
 #define	UIntptr_t	uintptr_t
 #define	Intptr_t	intptr_t
-#define	index	__no_index__
 #include	<string.h>
 #undef	index
 
@@ -756,6 +754,7 @@ extern struct fileblk	*standin;
 #define		input		(standin->fdes)
 #define		eof			(standin->feof)
 
+#define	peekc	peekc_			/* AIX has a hidden peekc() in libc */
 extern int				peekc;
 extern int				peekn;
 extern unsigned char			*comdiv;

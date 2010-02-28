@@ -30,14 +30,16 @@
 /*
  * This file contains modifications Copyright 2008-2009 J. Schilling
  *
- * @(#)mac.h	1.5 09/11/08 2008-2009 J. Schilling
+ * @(#)mac.h	1.6 09/12/31 2008-2009 J. Schilling
  */
 
 /*
  *	UNIX shell
  */
 
+#undef	TRUE	/* may be defined from sys/types.h */
 #define TRUE	(-1)
+#undef	FALSE
 #define FALSE	0
 #define LOBYTE	0377
 #define QUOTE	0200

@@ -1,8 +1,8 @@
-/* @(#)fifo.c	1.61 09/11/07 Copyright 1989,1997-2009 J. Schilling */
+/* @(#)fifo.c	1.64 10/02/12 Copyright 1989,1997-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)fifo.c	1.61 09/11/07 Copyright 1989,1997-2009 J. Schilling";
+	"@(#)fifo.c	1.64 10/02/12 Copyright 1989,1997-2010 J. Schilling";
 #endif
 /*
  *	A "fifo" that uses shared memory between two processes
@@ -11,7 +11,7 @@ static	UConst char sccsid[] =
  *	and a proposal from Finn Arne Gangstad <finnag@guardian.no>
  *	who had the idea to use a ring buffer to handle average size chunks.
  *
- *	Copyright (c) 1989,1997-2009 J. Schilling
+ *	Copyright (c) 1989,1997-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -164,7 +164,7 @@ LOCAL	long	buflen;			/* The size of the FIFO buffer */
 extern	int	debug;
 extern	int	lverbose;
 
-EXPORT	void	init_fifo	__PR((long));
+EXPORT	long	init_fifo	__PR((long));
 #ifdef	USE_MMAP
 LOCAL	char	*mkshare	__PR((int size));
 #endif
@@ -196,14 +196,14 @@ EXPORT	void	fifo_stats	__PR((void));
 EXPORT	int	fifo_percent	__PR((BOOL addone));
 
 
-EXPORT void
+EXPORT long
 init_fifo(fs)
 	long	fs;
 {
 	int	pagesize;
 
 	if (fs == 0L)
-		return;
+		return (fs);
 
 #ifdef	_SC_PAGESIZE
 	pagesize = sysconf(_SC_PAGESIZE);
@@ -243,6 +243,7 @@ init_fifo(fs)
 	if (debug)
 		ef = fopen("/tmp/ef", "w");
 #endif
+	return (buflen-pagesize); /* We use one page for administrative data */
 }
 
 #ifdef	USE_MMAP
@@ -591,7 +592,9 @@ faio_reader(trackp)
 	if (debug)
 		printf("\nfaio_reader starting\n");
 
-	for (trackno = 1; trackno <= trackp->tracks; trackno++) {
+	for (trackno = 0; trackno <= trackp->tracks; trackno++) {
+		if (trackno == 0 && trackp[0].xfp == NULL)
+			continue;
 		if (debug)
 			printf("\nfaio_reader reading track %u\n", trackno);
 		faio_read_track(&trackp[trackno]);
@@ -842,7 +845,7 @@ fifo_percent(addone)
 
 #include "cdrecord.h"
 
-EXPORT	void	init_fifo	__PR((long));
+EXPORT	long	init_fifo	__PR((long));
 EXPORT	BOOL	init_faio	__PR((track_t *track, int));
 EXPORT	BOOL	await_faio	__PR((void));
 EXPORT	void	kill_faio	__PR((void));
@@ -853,11 +856,12 @@ EXPORT	void	fifo_stats	__PR((void));
 EXPORT	int	fifo_percent	__PR((BOOL addone));
 
 
-EXPORT void
+EXPORT long
 init_fifo(fs)
 	long	fs;
 {
 	errmsgno(EX_BAD, "Fifo not supported.\n");
+	return (0L);
 }
 
 EXPORT BOOL

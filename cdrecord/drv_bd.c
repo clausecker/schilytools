@@ -1,11 +1,11 @@
-/* @(#)drv_bd.c	1.15 09/07/10 Copyright 2007-2009 J. Schilling */
+/* @(#)drv_bd.c	1.17 10/02/28 Copyright 2007-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)drv_bd.c	1.15 09/07/10 Copyright 2007-2009 J. Schilling";
+	"@(#)drv_bd.c	1.17 10/02/28 Copyright 2007-2010 J. Schilling";
 #endif
 /*
- *	Copyright (c) 2007-2009 J. Schilling
+ *	Copyright (c) 2007-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -576,6 +576,7 @@ extern	char	*buf;
 	BOOL	did_dummy = FALSE;
 	BOOL	did_reload = FALSE;
 	int	profile;
+	Int32_t	maxblocks;
 	Ulong	end_lba;
 
 	if ((dp->cdr_dstat->ds_cdrflags & RF_PRATIP) != 0) {
@@ -732,9 +733,13 @@ error("MAXBLO %d from free_blocks\n", (int)a_to_u_4_byte(rp->free_blocks));
 #ifdef	BD_DEBUG
 error("NWAv %d Next rec addr %d\n", rp->nwa_v, (int)a_to_u_4_byte(rp->next_recordable_addr));
 #endif
+	maxblocks = dsp->ds_maxblocks;
 
-if (dip->disk_status == DS_EMPTY)
-	return (drive_getdisktype(scgp, dp));
+	/*
+	 * XXX this was: if (dip->disk_status == DS_EMPTY)
+	 */
+	if (dip->disk_status == DS_COMPLETE && profile != 0x0043)
+		return (drive_getdisktype(scgp, dp));
 
 	/*
 	 * This information is based on the physical pre recorded information.
@@ -743,7 +748,7 @@ if (dip->disk_status == DS_EMPTY)
 	fillbytes((caddr_t)mode, sizeof (mode), '\0');
 	if (read_dvd_structure(scgp, (caddr_t)mode, 2, 1, 0, 0, 0) < 0) {
 		errmsgno(EX_BAD, "Cannot read BD structure.\n");
-		return (-1);
+		return (drive_getdisktype(scgp, dp));
 	}
 	len = a_to_u_2_byte(mode);
 	len += 2;			/* Data len is not included */
@@ -791,14 +796,25 @@ error("phys start %d phys end %d\n", a_to_u_3_byte(sp->phys_start), a_to_u_3_byt
 error("MAXBLO %d from phys end - phys start\n", (int)(a_to_u_3_byte(sp->phys_end) - a_to_u_3_byte(sp->phys_start) + 1));
 #endif
 
+	/*
+	 * Workaround for some drive media combinations.
+	 * At least the drive	'HL-DT-ST' 'BD-RE  BH10LS30 ' '1.00'
+	 * does not report maxblocks correctly with any BD media.
+	 */
 	end_lba = 0L;
 	scsi_get_perf_maxspeed(scgp, (Ulong *)NULL, (Ulong *)NULL, &end_lba);
 #ifdef	BD_DEBUG
 error("end_lba; %lu\n", end_lba);
 #endif
-	if (end_lba > dsp->ds_maxblocks)
-		dsp->ds_maxblocks = end_lba;
+	if ((Int32_t)end_lba > dsp->ds_maxblocks) {
+		if (maxblocks == 0)
+			printf("WARNING: Drive returns zero media size, correcting.\n");
+		dsp->ds_maxblocks = end_lba + 1;
+	}
 
+#ifdef	BD_DEBUG
+error("FINAL MAXBLO %d\n", dsp->ds_maxblocks);
+#endif
 	return (drive_getdisktype(scgp, dp));
 }
 
@@ -1304,6 +1320,7 @@ fixate_bdre(scgp, dp, trackp)
 	scgp->silent--;
 	waitformat(scgp, 300);
 
+#ifdef	__needed__	/* BD-RE does not need (permit) a close session */
 	scgp->silent++;
 	for (i = 0; i <= MAX_TRIES; i++) {
 		if (scsi_close_tr_session(scgp, CL_TYPE_SESSION, 0, TRUE) < 0) {
@@ -1321,8 +1338,10 @@ fixate_bdre(scgp, dp, trackp)
 		}
 	}
 	scgp->silent--;
-	waitformat(scgp, 300);
 /*scgp->verbose--;*/
+#endif	/* __needed__ */
+
+	waitformat(scgp, 300);
 
 	scg_settimeout(scgp, oldtimeout);
 	return (ret);

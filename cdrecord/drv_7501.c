@@ -1,13 +1,13 @@
-/* @(#)drv_7501.c	1.28 09/07/10 Copyright 2003-2009 J. Schilling */
+/* @(#)drv_7501.c	1.29 10/02/03 Copyright 2003-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)drv_7501.c	1.28 09/07/10 Copyright 2003-2009 J. Schilling";
+	"@(#)drv_7501.c	1.29 10/02/03 Copyright 2003-2010 J. Schilling";
 #endif
 /*
  *	Device driver for the Masushita CW-7501
  *
- *	Copyright (c) 2003-2009 J. Schilling
+ *	Copyright (c) 2003-2010 J. Schilling
  *
  * Mode Pages:
  *	0x01	error recovery		Seite 100
@@ -596,13 +596,22 @@ cw7501_open_track(scgp, dp, trackp)
 					(int)trackp->trackno,
 					trackp->trackstart-trackp->pregapsize);
 			}
-			/*
-			 * XXX Do we need to check isecsize too?
-			 */
-			pad_track(scgp, dp, trackp,
-				trackp->trackstart-trackp->pregapsize,
-				(Llong)trackp->pregapsize*trackp->secsize,
+			if (trackp->track == 1 && is_hidden(trackp)) {
+				pad_track(scgp, dp, trackp,
+					trackp->trackstart-trackp->pregapsize,
+					(Llong)(trackp->pregapsize-trackp->trackstart)*trackp->secsize,
 					FALSE, 0);
+				if (write_track_data(scgp, dp, track_base(trackp)) < 0)
+					return (-1);
+			} else {
+				/*
+				 * XXX Do we need to check isecsize too?
+				 */
+				pad_track(scgp, dp, trackp,
+					trackp->trackstart-trackp->pregapsize,
+					(Llong)trackp->pregapsize*trackp->secsize,
+					FALSE, 0);
+			}
 		}
 		return (0);
 	}

@@ -1,8 +1,8 @@
-/* @(#)dumpdate.c	1.21 09/07/11 Copyright 2003-2009 J. Schilling */
+/* @(#)dumpdate.c	1.22 09/12/31 Copyright 2003-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)dumpdate.c	1.21 09/07/11 Copyright 2003-2009 J. Schilling";
+	"@(#)dumpdate.c	1.22 09/12/31 Copyright 2003-2009 J. Schilling";
 #endif
 /*
  *	Copyright (c) 2003-2009 J. Schilling
@@ -52,8 +52,14 @@ static	UConst char sccsid[] =
 #ifdef	HAVE_FCNTL_LOCKF
 LOCAL	struct flock	__fl;
 #define	flock(fd, flag)	(__fl.l_type = (flag), fcntl(fd, F_SETLKW, &__fl))
+/*
+ * #undef before as AIX has left over junk from a no longer existing flock()
+ */
+#undef	LOCK_EX
 #define	LOCK_EX	F_WRLCK
+#undef	LOCK_SH
 #define	LOCK_SH	F_RDLCK
+#undef	LOCK_UN
 #define	LOCK_UN	F_UNLCK
 #else
 #define	flock(fd, flag)	lockf(fd, flag, (off_t)0)

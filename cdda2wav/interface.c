@@ -1,8 +1,8 @@
-/* @(#)interface.c	1.70 09/12/27 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2006-2009 J. Schilling */
+/* @(#)interface.c	1.71 10/01/23 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2006-2009 J. Schilling */
 #include "config.h"
 #ifndef lint
 static	UConst char sccsid[] =
-"@(#)interface.c	1.70 09/12/27 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2006-2009 J. Schilling";
+"@(#)interface.c	1.71 10/01/23 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2006-2009 J. Schilling";
 
 #endif
 /*
@@ -645,9 +645,9 @@ OpenCdRom(pdev_name)
 		SCSI	*scgp;
 		char	errstr[80];
 
-		priv_on();
 		needroot(0);
 		needgroup(0);
+		priv_on();
 		/*
 		 * Call scg_remote() to force loading the remote SCSI transport
 		 * library code that is located in librscg instead of the dummy

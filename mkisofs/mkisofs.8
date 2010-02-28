@@ -1,7 +1,7 @@
 '\" t
 .\" To print, first run through tbl
 .\" -*- nroff -*-
-.\" @(#)mkisofs.8	1.132 09/11/15 joerg
+.\" @(#)mkisofs.8	1.134 10/01/29 joerg
 .\"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
 .if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
@@ -15,7 +15,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH MKISOFS 8 "2009/11/15" "Version 3.0"
+.TH MKISOFS 8 "2010/01/29" "Version 3.0"
 .SH NAME
 mkisofs \- create an hybrid ISO-9660/JOLIET/HFS/UDF filesystem-image with optional Rock Ridge attributes.
 .SH SYNOPSIS
@@ -1695,15 +1695,13 @@ Set Unicode conformance level in the Joliet SVD. The default level is 3.
 It may be set to 1..3 using this option.
 .TP
 .B \-UDF
-Include 
+Include a
 .B UDF
-support in the generated filesystem image.
-.B UDF
-support is currently in alpha status and for this reason, it is not possible
-to create UDF only images. 
-.B UDF
-data structures are currently coupled to the Joliet structures, so there are many
-pitfalls with the current implementation.
+hybrid in the generated filesystem image.
+As
+.B mkisofs
+always creates a ISO-9660 filesystem,
+it is not possible to create UDF only images. 
 Note that 
 .B UDF
 wastes the space from sector ~20 to sector 256 at the beginning of the disk
@@ -3355,22 +3353,11 @@ from ftp://ftp.mars.org/pub/hfs
 is available as part of the zisofs-tools package
 from ftp://ftp.kernel.org/pub/linux/utils/fs/zisofs/
 .SH "MAILING LISTS
-If you want to actively take part on the development of m\&kisofs,
-and/or mkhybrid,
-you may join the cdwriting mailing list by sending mail to:
-.nf
+If you want to actively take part on the development of mkisofs,
+you may join the developer mailing list via this URL:
 .sp
-	other-cdwrite-request@lists.debian.org
-.sp
-.fi
-and include the word
-.I subscribe
-in the body.
-The mail address of the list is:
-.nf
-.sp
-	cdwrite@lists.debian.org
-.fi
+.B
+http://lists.berlios.de/mailman/listinfo/cdrecord-developers 
 
 .SH MAINTAINER
 .nf
@@ -3389,10 +3376,6 @@ If you have support questions, send them to:
 .PP
 .B
 cdrecord-support@berlios.de
-.br
-or
-.B
-other-cdwrite@lists.debian.org
 .PP
 If you definitly found a bug, send a mail to:
 .PP

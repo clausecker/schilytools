@@ -1,13 +1,13 @@
-/* @(#)readcd.c	1.107 09/09/16 Copyright 1987, 1995-2009 J. Schilling */
+/* @(#)readcd.c	1.110 10/02/22 Copyright 1987, 1995-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)readcd.c	1.107 09/09/16 Copyright 1987, 1995-2009 J. Schilling";
+	"@(#)readcd.c	1.110 10/02/22 Copyright 1987, 1995-2010 J. Schilling";
 #endif
 /*
  *	Skeleton for the use of the scg genearal SCSI - driver
  *
- *	Copyright (c) 1987, 1995-2009 J. Schilling
+ *	Copyright (c) 1987, 1995-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -370,7 +370,7 @@ main(ac, av)
 	if (help)
 		usage(0);
 	if (pversion) {
-		printf("readcd %s (%s-%s-%s) Copyright (C) 1987, 1995-2009 Jörg Schilling\n",
+		printf("readcd %s (%s-%s-%s) Copyright (C) 1987, 1995-2010 Jörg Schilling\n",
 								cdr_version,
 								HOST_CPU, HOST_VENDOR, HOST_OS);
 		exit(0);
@@ -1097,6 +1097,14 @@ read_ftoc(scgp, parmp, do_sectype)
 	len = a_to_u_2_byte(tp->len) + sizeof (struct tocheader)-2;
 	error("TOC len: %d. First Session: %d Last Session: %d.\n", len, tp->first, tp->last);
 
+	/*
+	 * XXX there is a bug in some ASPI versions that
+	 * XXX cause a hang with odd transfer lengths.
+	 * XXX We should workaround the problem where it exists
+	 * XXX but the problem may exist elsewhere too.
+	 */
+	if (len & 1)
+		len++;
 	if (read_toc(scgp, xxb, 0, len, 0, FMT_FULLTOC) < 0) {
 		if (len & 1) {
 			/*

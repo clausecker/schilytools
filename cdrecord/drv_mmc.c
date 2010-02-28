@@ -1,15 +1,15 @@
-/* @(#)drv_mmc.c	1.195 09/07/10 Copyright 1997-2009 J. Schilling */
+/* @(#)drv_mmc.c	1.197 10/02/03 Copyright 1997-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)drv_mmc.c	1.195 09/07/10 Copyright 1997-2009 J. Schilling";
+	"@(#)drv_mmc.c	1.197 10/02/03 Copyright 1997-2010 J. Schilling";
 #endif
 /*
  *	CDR device implementation for
  *	SCSI-3/mmc conforming drives
  *	e.g. Yamaha CDR-400, Ricoh MP6200
  *
- *	Copyright (c) 1997-2009 J. Schilling
+ *	Copyright (c) 1997-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -1976,13 +1976,22 @@ open_track_mmc(scgp, dp, trackp)
 					(int)trackp->trackno,
 					trackp->trackstart-trackp->pregapsize);
 			}
-			/*
-			 * XXX Do we need to check isecsize too?
-			 */
-			pad_track(scgp, dp, trackp,
-				trackp->trackstart-trackp->pregapsize,
-				(Llong)trackp->pregapsize*trackp->secsize,
+			if (trackp->track == 1 && is_hidden(trackp)) {
+				pad_track(scgp, dp, trackp,
+					trackp->trackstart-trackp->pregapsize,
+					(Llong)(trackp->pregapsize-trackp->trackstart)*trackp->secsize,
 					FALSE, 0);
+				if (write_track_data(scgp, dp, track_base(trackp)) < 0)
+					return (-1);
+			} else {
+				/*
+				 * XXX Do we need to check isecsize too?
+				 */
+				pad_track(scgp, dp, trackp,
+					trackp->trackstart-trackp->pregapsize,
+					(Llong)trackp->pregapsize*trackp->secsize,
+					FALSE, 0);
+			}
 		}
 		return (0);
 	}

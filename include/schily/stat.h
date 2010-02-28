@@ -1,4 +1,4 @@
-/* @(#)stat.h	1.13 07/01/16 Copyright 1998-2007 J. Schilling */
+/* @(#)stat.h	1.14 09/12/31 Copyright 1998-2007 J. Schilling */
 /*
  *	Definitions for stat() file mode
  *
@@ -296,13 +296,12 @@
 #define	_FOUND_STAT_NSECS_
 #endif
 
-#if	defined(HAVE_ST_SPARE1) && !defined(_FOUND_STAT_NSECS_)
+#if	defined(HAVE_ST_ATIME_N)
 
-#define	stat_ansecs(s)		((s)->st_spare1 * 1000)
-#define	stat_mnsecs(s)		((s)->st_spare2 * 1000)
-#define	stat_cnsecs(s)		((s)->st_spare3 * 1000)
+#define	stat_ansecs(s)		((s)->st_atime_n)
+#define	stat_mnsecs(s)		((s)->st_mtime_n)
+#define	stat_cnsecs(s)		((s)->st_ctime_n)
 
-#define	_FOUND_STAT_USECS_
 #define	_FOUND_STAT_NSECS_
 #endif
 
@@ -330,6 +329,20 @@
 #define	stat_mnsecs(s)		((s)->st_mtimespec.tv_nsec)
 #define	stat_cnsecs(s)		((s)->st_ctimespec.tv_nsec)
 
+#define	_FOUND_STAT_NSECS_
+#endif
+
+/*
+ * st_spare1 is last as some implementations keep backwards
+ * compatibility although there is one of the nsec implementations.
+ */
+#if	defined(HAVE_ST_SPARE1) && !defined(_FOUND_STAT_NSECS_)
+
+#define	stat_ansecs(s)		((s)->st_spare1 * 1000)
+#define	stat_mnsecs(s)		((s)->st_spare2 * 1000)
+#define	stat_cnsecs(s)		((s)->st_spare3 * 1000)
+
+#define	_FOUND_STAT_USECS_
 #define	_FOUND_STAT_NSECS_
 #endif
 

@@ -1,4 +1,4 @@
-/* @(#)ccomdefs.h	1.7 09/11/16 Copyright 2000-2009 J. Schilling */
+/* @(#)ccomdefs.h	1.8 10/02/23 Copyright 2000-2009 J. Schilling */
 /*
  *	Various compiler dependant macros.
  *
@@ -70,6 +70,16 @@ extern "C" {
 #define	UConst	const
 
 #endif /* GNUC 3.2 */
+
+#ifdef	__PCC__
+/*
+ * Hack until pcc supports __attribute__ ((__used__))
+ */
+#ifdef	UConst
+#undef	UConst
+#define	UConst	const
+#endif
+#endif
 
 #ifdef	__cplusplus
 }

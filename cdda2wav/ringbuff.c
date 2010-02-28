@@ -1,8 +1,8 @@
-/* @(#)ringbuff.c	1.22 09/11/03 Copyright 1998,1999,2000 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling */
+/* @(#)ringbuff.c	1.23 10/01/07 Copyright 1998,1999,2000 Heiko Eissfeldt, Copyright 2004-2010 J. Schilling */
 #include "config.h"
 #ifndef lint
 static	UConst char sccsid[] =
-"@(#)ringbuff.c	1.22 09/11/03 Copyright 1998,1999,2000 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling";
+"@(#)ringbuff.c	1.23 10/01/07 Copyright 1998,1999,2000 Heiko Eissfeldt, Copyright 2004-2010 J. Schilling";
 #endif
 /*
  * Ringbuffer handling
@@ -142,7 +142,7 @@ define_buffer()
 void
 drop_buffer()
 {
-	assert(free_buffers() <= total_buffers);
+	assert(free_buffers() < total_buffers);
 	assert(occupied_buffers() > 0);
 
 #ifdef _DEBUG
@@ -246,11 +246,15 @@ get_oldest_buffer()
 	/*
 	 * wait for buffer to be defined
 	 */
+	seterrno(0);
 	if (semrequest(sem_id, DEF_SEM) != 0) {
+		if (geterrno() == 0)
+			return ((myringbuff *)NULL);
 		/*
 		 * semaphore operation failed.
 		 */
 		errmsg("Parent writer sem request failed.\n");
+		return ((myringbuff *)NULL);
 	}
 
 	retval = *last_buffer;

@@ -1,8 +1,8 @@
-/* @(#)scsi_cmds.c	1.48 09/10/16 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling */
+/* @(#)scsi_cmds.c	1.49 10/02/14 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling */
 #include "config.h"
 #ifndef lint
 static	UConst char sccsid[] =
-"@(#)scsi_cmds.c	1.48 09/10/16 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling";
+"@(#)scsi_cmds.c	1.49 10/02/14 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling";
 #endif
 /*
  * file for all SCSI commands
@@ -1019,6 +1019,14 @@ ReadFullTOCMMC(scgp)
 #endif
 	}
 	len = (unsigned)((bufferTOC[0] << 8) | bufferTOC[1]) + 2;
+	/*
+	 * XXX there is a bug in some ASPI versions that
+	 * XXX cause a hang with odd transfer lengths.
+	 * XXX We should workaround the problem where it exists
+	 * XXX but the problem may exist elsewhere too.
+	 */ 
+	if (len & 1)
+		len++;
 	scmd->size = len;
 	g1_cdblen(&scmd->cdb.g1_cdb, len);
 

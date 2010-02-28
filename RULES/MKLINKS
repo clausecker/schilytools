@@ -1,6 +1,6 @@
 #!/bin/sh
 ###########################################################################
-#ident "@(#)MKLINKS	1.85 09/12/11 "
+#ident "@(#)MKLINKS	1.86 10/02/22 "
 ###########################################################################
 # Written 1996 by J. Schilling
 ###########################################################################
@@ -122,6 +122,8 @@ $symlink	i386-freebsd-cc.rul	sparc64-freebsd-cc.rul
 $symlink	i386-freebsd-gcc.rul	sparc64-freebsd-gcc.rul
 $symlink	i386-freebsd-cc.rul	i386-dragonfly-cc.rul
 $symlink	i386-freebsd-gcc.rul	i386-dragonfly-gcc.rul
+$symlink	i386-freebsd-cc.rul	x86_64-dragonfly-cc.rul
+$symlink	i386-freebsd-gcc.rul	x86_64-dragonfly-gcc.rul
 $symlink	i386-netbsd-cc.rul	amd64-netbsd-cc.rul
 $symlink	i386-netbsd-gcc.rul	amd64-netbsd-gcc.rul
 $symlink	i386-netbsd-cc.rul	alpha-netbsd-cc.rul

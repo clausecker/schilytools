@@ -1,4 +1,4 @@
-dnl @(#)aclocal.m4	1.86 09/11/29 Copyright 1998-2009 J. Schilling
+dnl @(#)aclocal.m4	1.87 09/12/31 Copyright 1998-2009 J. Schilling
 
 dnl Set VARIABLE to VALUE in C-string form, verbatim, or 1.
 dnl AC_DEFINE_STRING(VARIABLE [, VALUE])
@@ -408,6 +408,19 @@ if test $ac_cv_struct_st_atimensec = yes; then
   AC_DEFINE(HAVE_ST_ATIMENSEC)
 fi])
 
+dnl Checks if structure 'stat' have field 'st_atime_n'.
+dnl Defines HAVE_ST_ATIME_N on success.
+AC_DEFUN([AC_STRUCT_ST_ATIME_N],
+[AC_CACHE_CHECK([if struct stat contains st_atime_n], ac_cv_struct_st_atime_n,
+                [AC_TRY_COMPILE([#include <sys/types.h>
+#include <sys/stat.h>],
+                                [struct  stat s; s.st_atime_n = 0;],
+                                [ac_cv_struct_st_atime_n=yes],
+                                [ac_cv_struct_st_atime_n=no])])
+if test $ac_cv_struct_st_atime_n = yes; then
+  AC_DEFINE(HAVE_ST_ATIME_N)
+fi])
+
 dnl Checks if structure 'stat' have field 'st_atim.tv_nsec'.
 dnl Defines HAVE_ST_NSEC on success.
 AC_DEFUN([AC_STRUCT_ST_NSEC],
@@ -445,6 +458,19 @@ AC_DEFUN([AC_STRUCT_ST_ATIMESPEC],
                                 [ac_cv_struct_st_atimespec=no])])
 if test $ac_cv_struct_st_atimespec = yes; then
   AC_DEFINE(HAVE_ST_ATIMESPEC)
+fi])
+
+dnl Checks if structure 'stat' have field 'st_flag'.
+dnl Defines HAVE_ST_FLAG on success.
+AC_DEFUN([AC_STRUCT_ST_FLAG],
+[AC_CACHE_CHECK([if struct stat contains st_flag], ac_cv_struct_st_flag,
+                [AC_TRY_COMPILE([#include <sys/types.h>
+#include <sys/stat.h>],
+                                [struct  stat s; s.st_flag = 0;],
+                                [ac_cv_struct_st_flag=yes],
+                                [ac_cv_struct_st_flag=no])])
+if test $ac_cv_struct_st_flag = yes; then
+  AC_DEFINE(HAVE_ST_FLAG)
 fi])
 
 dnl Checks if structure 'stat' have field 'st_flags'.

@@ -1,8 +1,8 @@
-/* @(#)cdrecord.h	1.199 09/06/30 Copyright 1995-2009 J. Schilling */
+/* @(#)cdrecord.h	1.201 10/01/31 Copyright 1995-2010 J. Schilling */
 /*
  *	Definitions for cdrecord
  *
- *	Copyright (c) 1995-2009 J. Schilling
+ *	Copyright (c) 1995-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -213,6 +213,8 @@ typedef struct track {
 #define	TI_SAO		0x400000 /* This track is written in SAO mode	*/
 #define	TI_USEINFO	0x800000 /* Use information from *.inf files	*/
 #define	TI_QUADRO	0x1000000 /* Four Channel Audio Data		*/
+#define	TI_STDIN	0x2000000 /* Track read is from stdin		*/
+#define	TI_HIDDEN	0x4000000 /* Track is hidden / has hidden Tr.	*/
 
 
 #define	is_audio(tp)	(((tp)->flags & TI_AUDIO) != 0)
@@ -237,6 +239,7 @@ typedef struct track {
 #define	is_clone(tp)	(((tp)->flags & TI_CLONE) != 0)
 #define	is_text(tp)	(((tp)->flags & TI_TEXT) != 0)
 #define	is_quadro(tp)	(((tp)->flags & TI_QUADRO) != 0)
+#define	is_hidden(tp)	(((tp)->flags & TI_HIDDEN) != 0)
 
 /*
  * Defines for toc type / track type
@@ -820,6 +823,7 @@ extern	int	fill_buf	__PR((int f, track_t *trackp, long secno, char *bp, int size
 extern	int	get_buf		__PR((int f, track_t *trackp, long secno, char **bpp, int size));
 #ifdef	_SCG_SCSITRANSP_H
 extern	int	write_secs	__PR((SCSI *scgp, cdr_t *dp, char *bp, long startsec, int bytespt, int secspt, BOOL islast));
+extern	int	write_track_data __PR((SCSI *scgp, cdr_t *, track_t *));
 extern	int	pad_track	__PR((SCSI *scgp, cdr_t *dp, track_t *trackp,
 					long startsec, Llong amt,
 					BOOL dolast, Llong *bytesp));
@@ -844,7 +848,7 @@ extern	BOOL	is_cdspeed	__PR((int speed));
 /*
  * fifo.c
  */
-extern	void	init_fifo	__PR((long));
+extern	long	init_fifo	__PR((long));
 extern	BOOL	init_faio	__PR((track_t *track, int));
 extern	BOOL	await_faio	__PR((void));
 extern	void	kill_faio	__PR((void));
@@ -1124,6 +1128,7 @@ extern struct ricoh_mode_page_30 * get_justlink_ricoh	__PR((SCSI *scgp, Uchar *m
  * isosize.c
  */
 extern	Llong	isosize		__PR((int f));
+extern	Llong	bisosize	__PR((char *bp, int len));
 
 /*
  * audiosize.c
@@ -1137,6 +1142,7 @@ extern	off_t	wavsize		__PR((int f));
  * auinfo.c
  */
 extern	BOOL	auinfosize	__PR((char *name, track_t *trackp));
+extern	BOOL	auinfhidden	__PR((char *name, int track, track_t *trackp));
 extern	void	auinfo		__PR((char *name, int track, track_t *trackp));
 #ifdef CDTEXT_H
 extern	textptr_t *gettextptr	__PR((int track, track_t *trackp));

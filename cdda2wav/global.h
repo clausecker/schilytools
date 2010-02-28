@@ -1,4 +1,4 @@
-/* @(#)global.h	1.25 09/08/12 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling */
+/* @(#)global.h	1.33 10/01/24 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2010 J. Schilling */
 /*
  * Global Variables
  */
@@ -31,44 +31,49 @@ typedef struct index_list {
 typedef struct global {
 
 	char			*dev_name;		/* device name */
-	char			*aux_name;		/* device name */
-	char			fname_base[200];
+	char			*aux_name;		/* auxiliary cdrom device name */
+	char			fname_base[200];	/* current file name base */
 
-	int			have_forked;
-	pid_t			child_pid;
-	int			parent_died;
-	int			audio;
-	struct soundfile	*audio_out;
-	int			cooked_fd;
-	int			no_file;
-	int			no_infofile;
-	int			no_cddbfile;
-	int			no_fork;
-	int			interactive;
-	int			quiet;
-	int			verbose;
-	int			scsi_silent;
-	int			scsi_verbose;
-	int			scsi_debug;
-	int			scsi_kdebug;
-	int			scanbus;
-	int			multiname;
-	int			sh_bits;
+	int			have_forked;		/* TRUE after we did fork */
+	pid_t			child_pid;		/* return value from fork() */
+	int			parent_died;		/* TRUE after we killed the parent */
+	int			audio;			/* audio-out file desc */
+	struct soundfile	*audio_out;		/* audio-out sound functions */
+	int			cooked_fd;		/* cdrom-in file desc */
+	int			no_file;		/* -N option */
+	int			no_infofile;		/* -no-infofile option */
+	int			no_textfile;		/* -no-textfile option */
+	int			did_textfile;		/* flag: did create textfile */
+	int			no_textdefaults;	/* -no-textdefaults option */
+	int			no_cddbfile;		/* flag: do not create cddbfile */
+	int			cuefile;		/* -cuefile option */
+	int			no_hidden_track;	/* -no-hidden-track option */
+	int			no_fork;		/* -no-fork option */
+	int			interactive;		/* -interactive option */
+	int			quiet;			/* -quiet option */
+	int			verbose;		/* -v verbose level */
+	int			scsi_silent;		/* SCSI silent flag */
+	int			scsi_verbose;		/* SCSI verbose level */
+	int			scsi_debug;		/* SCSI debug level */
+	int			scsi_kdebug;		/* SCSI kernel debug level */
+	int			scanbus;		/* -scanbus option */
+	int			multiname;		/* multiple file names given */
+	int			sh_bits;		/* sh_bits: sample bit shift */
 	int			Remainder;
 	int			SkippedSamples;
 	int			OutSampleSize;
 	int			need_big_endian;
 	int			need_hostorder;
-	int			channels;
-	unsigned long		iloop;
-	unsigned long		nSamplesDoneInTrack;
-	unsigned		overlap;
-	int			useroverlap;
-	FILE			*out_fp;
-	char			*buf;	 /* The SCSI buffer */
-	long			bufsize; /* The size of the SCSI buffer */
-	unsigned		nsectors;
-	unsigned		buffers;
+	int			channels;		/* output sound channels */
+	unsigned long		iloop;			/* todo counter (frames) */
+	unsigned long		nSamplesDoneInTrack;	/* written samples in current track */
+	unsigned		overlap;		/* dynamic cdda2wav overlap */
+	int			useroverlap;		/* -set-overlap # option */
+	FILE			*out_fp;		/* -out-fd FILE * for messages */
+	char			*buf;			/* The SCSI buffer */
+	long			bufsize;		/* The size of the SCSI buffer */
+	unsigned		nsectors;		/* -sectors-per-request option */
+	unsigned		buffers;		/* -buffers-in-ring option */
 	unsigned		shmsize;
 	long			pagesize;
 	int			in_lendian;
@@ -84,8 +89,8 @@ typedef struct global {
 	int			deemphasize;
 	int			gui;
 	long			playback_rate;
-	int			target; /* SCSI Id to be used */
-	int			lun;    /* SCSI Lun to be used */
+	int			target;			/* SCSI Id to be used */
+	int			lun;			/* SCSI Lun to be used */
 	UINT4			cddb_id;
 	int			cddbp;
 	char *			cddbp_server;
@@ -96,14 +101,28 @@ typedef struct global {
 	int			illleadout_cd;
 	int			reads_illleadout;
 	unsigned char		*cdindex_id;
-	unsigned char		*creator;
-	unsigned char		*copyright_message;
-	unsigned char		*disctitle;
-	unsigned char		*tracktitle[100];
-	unsigned char		*trackcreator[100];
+	unsigned char		*copyright_message;	/* CD Extra specific */
+
+	unsigned char		*disctitle;		/* 0x80 Album Ttitle */
+	unsigned char		*performer;		/* 0x81 Album Performer */
+	unsigned char		*songwriter;		/* 0x82 Album Songwriter */
+	unsigned char		*composer;		/* 0x83 Album Composer */
+	unsigned char		*arranger;		/* 0x84 Album Arranger */
+	unsigned char		*message;		/* 0x85 Album Message */
+	unsigned char		*closed_info;		/* 0x8d Album Closed Info */
+
+	unsigned char		*tracktitle[100];	/* 0x80 Track Title */
+	unsigned char		*trackperformer[100];	/* 0x81 Track Performer */
+	unsigned char		*tracksongwriter[100];	/* 0x82 Track Songwriter */
+	unsigned char		*trackcomposer[100];	/* 0x83 Track Composer */
+	unsigned char		*trackarranger[100];	/* 0x84 Track Arranger */
+	unsigned char		*trackmessage[100];	/* 0x85 Track Message */
+	unsigned char		*trackclosed_info[100];	/* 0x8d Track Closed Info */
+
 	index_list		*trackindexlist[100];
 
 	int			paranoia_selected;
+	long			paranoia_flags;
 #ifdef	USE_PARANOIA
 	cdrom_paranoia  	*cdp;
 

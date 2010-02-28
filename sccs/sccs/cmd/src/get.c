@@ -27,10 +27,10 @@
 /*
  * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)get.c	1.22 09/11/08 J. Schilling
+ * @(#)get.c	1.23 09/12/30 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)get.c 1.22 09/11/08 J. Schilling"
+#pragma ident "@(#)get.c 1.23 09/12/30 J. Schilling"
 #endif
 /*
  * @(#)get.c 1.59 06/12/12
@@ -52,7 +52,7 @@
 
 #define	DATELEN	12
 
-# ifdef __STDC__
+#if defined(__STDC__) || defined(PROTOTYPES)
 #define INCPATH		INS_BASE "/ccs/include"	/* place to find binaries */
 #else
 /*

@@ -26,9 +26,13 @@
 #if defined(sun)
 #pragma ident	"@(#)name.h	1.7	05/06/08 SMI"	/* SVr4.0 1.7.1.1	*/
 #endif
+
+#ifndef	_NAME_H
+#define	_NAME_H
+
 /*
  * This file contains modifications Copyright 2009 J. Schilling
- * @(#)name.h	1.3 09/11/08 2009 J. Schilling
+ * @(#)name.h	1.4 09/12/31 2009 J. Schilling
  */
 /*
  *	UNIX shell
@@ -53,3 +57,4 @@ struct namnod
 	int	namflg;
 };
 
+#endif /* _NAME_H */

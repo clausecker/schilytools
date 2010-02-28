@@ -1,4 +1,4 @@
-.\" @(#)cdrecord.1	1.132 09/12/27 Copyright 1996-2009 J. Schilling
+.\" @(#)cdrecord.1	1.140 10/02/16 Copyright 1996-2010 J. Schilling
 .\"
 .\" The contents of this file are subject to the terms of the
 .\" Common Development and Distribution License, Version 1.0 only
@@ -426,7 +426,9 @@ mode for this reason.
 Take all recording related information from a CDRWIN compliant
 .B "CUE sheet
 file.
-No track files are allowed when this option is present and one of the options
+No track files arguments to 
+.B cdrecord
+are allowed when this option is present and one of the following options:
 .BR \-dao ,
 .BR \-sao ,
 .BR \-raw ,
@@ -1303,7 +1305,11 @@ opens the SCSI driver at the same time.
 Use
 .B "*.inf
 files to overwrite audio options.
-If this option is used, the pregap size information is read from 
+If this option is used, the pregap size information, 
+the index information,
+the pre-emphasis information
+and the CD-Text information
+is read from 
 the
 .B "*.inf
 file that is associated with the file that contains the audio
@@ -1741,19 +1747,21 @@ is needed to prevent
 from reading the two run out blocks that are appended by each CD-recorder
 in track at once mode. These two run out blocks cannot be read and would
 cause a buffer underrun that would cause a defective copy.
-Do not use this option on files created by 
+.sp
+Note that if this option is used on files created by 
+.BR mkisofs ,
+the padding data that was added by
 .B mkisofs
-and in case
+is lost and replaced by padding that is added by cdrecord. 
+This may also change the amount of padding.
+.sp
+In case
 .B cdrecord
 reads the track data from 
-.IR stdin .
-In the first case, you would prevent 
-.B cdrecord 
-from writing the amount of padding that has been appended by
-.B mkisofs
-and in the latter case, it will not work because 
-.I stdin
-is not seekable.
+.IR stdin ,
+only the first track may be used with the
+.B \-isosize
+option.
 .sp
 If 
 .B \-isosize
@@ -2218,7 +2226,7 @@ login shell.
 
 .SH FILES
 .TP
-/etc/default/cdrecord
+.B /etc/default/cdrecord
 Default values can be set for the following options in /etc/default/cdrecord.
 For example:
 .SM CDR_FIFOSIZE=8m
@@ -2226,27 +2234,27 @@ or
 .SM CDR_SPEED=2
 .RS
 .TP
-CDR_DEVICE
+.B CDR_DEVICE
 This may either hold a device identifier that is suitable to the open
 call of the SCSI transport library or a label in the file /etc/default/cdrecord 
 that allows to identify a specific drive on the system.
 .TP
-CDR_SPEED
+.B CDR_SPEED
 Sets the default speed value for writing (see also 
 .B \-speed
 option).
 .TP
-CDR_FIFOSIZE
+.B CDR_FIFOSIZE
 Sets the default size of the FIFO (see also 
 .BR fs= #
 option).
 .TP
-CDR_MAXFIFOSIZE
+.B CDR_MAXFIFOSIZE
 Sets the maximum size of the FIFO (see also 
 .BR fs= #
 option).
 .TP
-Any other label
+.B Any other label
 is an identifier for a specific drive on the system.
 Such an identifier may not contain the characters ',', '/', '@' or ':'.
 .sp
@@ -2273,6 +2281,794 @@ is at scsibus 0, target 5, lun 0 and should be used with speed 4 and
 a FIFO size of 8 MB.
 A second drive may be found at scsibus 1, target 6, lun 0 and uses the
 default speed and the default FIFO size.
+.RE
+
+.TP
+.B "*.inf
+The
+.B "*.inf
+files are created by
+.B cdda2wav
+where
+.B "*
+is replaced by the actual audio file prefix.
+They are read and used by
+.B cdrecord
+in case cdrecord was called with the
+.B \-useinfo
+option.
+.sp
+There are three general types of parameters:
+.RS
+.TP
+.B numerical parameters
+A numerical parameter is a number and directly follows the tag label
+without any quoting.
+.TP
+.B unquoted string type parameters
+An unquoted parameter is make from one or more words that directly follow the tag label.
+How many words from the parameter list are used by cdrecord depends on the tag label.
+.TP
+.B quoted string type parameters
+A string type parameter is enclosed in single quotes. The string starts
+after the first single quote character that follows the tag label and
+ends before the last single quote on the same line.
+It needs no escape sequences in case that a single quote appears inside the string.
+Any text to the right of the rightmost single quote character is ignored.
+.PP
+The order of the tag labels in the file is not important.
+.RE
+.RS
+.PP
+The following tag labels may appear in a 
+.B *.inf
+file:
+.TP
+.B CDINDEX_DISCID=
+The cdindex disk ID is used by the
+.B musicbrainz
+CD database.
+.sp
+This tag label uses a quoted string type parameter.
+.sp
+This tag label is ignored by
+.BR cdrecord .
+.TP
+.B CDDB_DISCID=
+The cddb disk ID is used by the
+.B cddb
+and the
+.B freedb
+CD database.
+.sp
+This tag label uses a numerical parameter.
+.sp
+This tag label is ignored by
+.BR cdrecord .
+.TP
+.B MCN=
+The Media Catalog Number (MCN) is a 13 digit number that follows UPC/EAN-13 rules.
+.sp
+The data is used by cdrecord to create sub channel data.
+.TP
+.B ISRC=
+The International Standard Recording Code (ISRC) is a 12 byte string that
+is created from two uppercase characters for the country code, followed
+by three uppercase characters for the owner, followed by two digits for the
+year of recording followed by five digits for the recording serial number.
+.sp
+To increase the readability of the ISRC tag, there may be a minus sign
+between every two fields of the ISRC string.
+.sp
+The data is used by cdrecord to create sub channel data.
+.TP
+.B Albumtitle=
+The
+.B Album Title
+is the name of the disk in the CD-Text information.
+.sp
+This tag label uses a quoted string type parameter.
+.TP
+.B Tracktitle=
+The
+.B Track Title
+is the name of the current track in the CD-Text information.
+.sp
+This tag label uses a quoted string type parameter.
+.TP
+.B Albumperformer=
+The
+.B Album Performer
+is the global name of the of the performer of the disk in the CD-Text information.
+.sp
+This tag label uses a quoted string type parameter.
+.TP
+.B Performer=
+The
+.B Performer
+is the name of the of the performer of the current track in the CD-Text information.
+.sp
+This tag label uses a quoted string type parameter.
+.TP
+.B Albumsongwriter=
+The
+.B Album Songwriter
+is the global name of the of the songwriter of the disk in the CD-Text information.
+.sp
+This tag label uses a quoted string type parameter.
+.TP
+.B Songwriter=
+The
+.B Songwriter
+is the name of the of the songwriter of the current track in the CD-Text information.
+.sp
+This tag label uses a quoted string type parameter.
+.TP
+.B Albumcomposer=
+The
+.B Album Composer
+is the global name of the of the composer of the disk in the CD-Text information.
+.sp
+This tag label uses a quoted string type parameter.
+.TP
+.B Composer=
+The
+.B Composer
+is the name of the of the composer of the current track in the CD-Text information.
+.sp
+This tag label uses a quoted string type parameter.
+.TP
+.B Albumarranger=
+The
+.B Album Arranger
+is the global name of the of the arranger of the disk in the CD-Text information.
+.sp
+This tag label uses a quoted string type parameter.
+.TP
+.B Arranger=
+The
+.B Arranger
+is the name of the of the arranger of the current track in the CD-Text information.
+.sp
+This tag label uses a quoted string type parameter.
+.TP
+.B Albummessage=
+The
+.B Album Message
+is the global message text of the disk in the CD-Text information.
+.sp
+This tag label uses a quoted string type parameter.
+.TP
+.B Message=
+The
+.B Message
+is the message text of the current track in the CD-Text information.
+.sp
+This tag label uses a quoted string type parameter.
+.TP
+.B Albumclosed_info=
+The
+.B Album Closed_info
+is the global closed info text of the disk in the CD-Text information.
+.sp
+This tag label uses a quoted string type parameter.
+.TP
+.B Closed_info=
+The
+.B Closed_info
+is the closed info text of the current track in the CD-Text information.
+.sp
+This tag label uses a quoted string type parameter.
+.TP
+.B Track=
+The parameter contains the relative number of the current track on the original disk.
+The first track always has the track number 1, a hidden track uses track number 0.
+.sp
+This tag label uses a numerical parameter.
+.sp
+This tag label is ignored by 
+.B cdrecord
+except when checking the the
+.B Trackstart
+for track #1.
+.TP
+.B Tracknumber=
+The parameter contains the absolute number of the current track,
+taken from the TOC on the original disk.
+The first track on the original disk may have a number greater than 1,
+a hidden track always uses track number 0.
+.sp
+This tag label uses a numerical parameter.
+.sp
+This tag label is currently ignored by 
+.B cdrecord
+as cdrecord assigns track numbers when compiling the disk information.
+.TP
+.B Trackstart=
+The parameter contains the track start offset in sectors on the original disk.
+If the current track becomes the first track on the new disk and if the track 
+was the first track on the original disk.
+.B cdrecord
+uses this number to set up the offset for index 1 on the new disk.
+.sp
+This tag label uses a numerical parameter.
+.TP
+.B Tracklength=
+The parameter is used by
+.B cdrecord
+to set up the size of the track on the new disk.
+.sp
+This tag label uses an unquoted string type parameter
+in the form "sectors, samples".
+.sp
+This label is mandatory for
+.BR cdrecord .
+.TP
+.B Pre-emphasis=
+The pre-emphasis parameter controls whether the related pre-emphasis
+bit in the sub-channel data is set by cdrecord.
+Permitted values for this parameter are
+.B yes
+and
+.BR no .
+.sp
+This tag label uses an unquoted string type parameter.
+Valid values are
+.B yes
+and
+.BR no .
+.TP
+.B Channels=
+The parameter of this tag is the number of channels on the disk.
+All CD-audio disks use stereo recording and thus a 2 is the correct parameter.
+.sp
+This tag label uses a numerical parameter.
+.sp
+This label is currently ignored by
+.BR cdrecord .
+.TP
+.B Copy_permitted=
+The parameter for this tag label contains information about the copyright state
+of a track on the original disk.
+.sp
+This tag label uses an unquoted string type parameter.
+Valid values are:
+.RS
+.TP
+.B yes
+The
+.B digital copy permitted
+bit is set in the TOC and in the sub channel data.
+If this bit is set, the related track is not copyright
+protected and may be copied infinitely.
+.TP
+.B no
+The
+.B digital copy permitted
+bit is not set in the TOC.
+The
+.B digital copy permitted
+bit in the sub channel data alters with 9.375 Hz.
+This is called 
+.BR "Serial Copy Management System (SCMS)" .
+The sense of this track state is to flag that the creator
+of the CD does not have the copyright permission to create
+copies of the related track. The related track is copyright
+protected and the creator of the CD thus is
+just given the permission to create one single copy from 
+fair use rights and no further copies are permitted from this source.
+.TP
+.B once
+The
+.B digital copy permitted
+bit is not set in the TOC and in the sub channel data.
+The sense of this track state is to flag that the related
+track is copyright protected and thus may not be coped infinitely.
+One single copy from fair use rights is permitted.
+.PP
+Note that many CDs sold by the music industry have
+.B SCMS
+flagged for one or more tracks, signalling that the related
+content company does not own the copyright to make copies
+from this track.
+.RE
+.TP
+.B Endianess=
+The parameter for this tag is the byte order used in the 
+audio data file that was created for this track.
+.sp
+This tag label uses an unquoted string type parameter.
+Valid values are
+.B little
+and
+.BR big .
+.sp
+This label is ignored by
+.B cdrecord
+as the endianess is retrieved from the audio file format.
+.TP
+.B Index=
+The parameter list for this tag is a list of numbers that
+are sector numbers counting relatively to the logical beginning of the track 
+(which always is at index #1). As any track needs to have an entry
+for index #1, the first entry in the list is always 0.
+If more entries are present for this tag, there are more offset values
+that correspond to index values greater than 1.
+.sp
+This tag label uses an unquoted string type parameter
+that contains a list of space separated index offset numbers.
+.TP
+.B Index0=
+The parameter for this tag is a number that represents the number
+of sectors relatively to the beginning (index #1) of this track.
+This number identifies where index #0 of the
+next track begins. It the parameter is set to -1, the next track has
+no index #0, resulting in pregap size 0 for the next track.
+.sp
+Note that
+.B cdrecord
+strictly follows the CD standard that defines that the logical beginning of
+a track is at the location where index #1 starts in this track.
+If index #0 for track
+.B n
+contains audio data, the related audio data is a logical part of track
+.BR "n-1" .
+.sp
+This tag label uses a numerical parameter.
+.TP
+.B MD5-offset=
+The parameter for this tag is the byte offset where the raw audio
+data begins in the related audio file.
+.sp
+This tag label uses a numerical parameter.
+.sp
+This label is ignored by
+.BR cdrecord .
+.TP
+.B MD5-size=
+The parameter for this tag is the number of bytes of raw audio data
+in the related audio file.
+.sp
+This tag label uses a numerical parameter.
+.sp
+This label is ignored by
+.BR cdrecord .
+.TP
+.B MD5-sum=
+The parameter for this tag is the md5 sum for the raw audio data in
+the related audio file.
+.sp
+This tag label uses a numerical parameter.
+.sp
+This label is ignored by
+.BR cdrecord .
+.RE
+
+.TP
+.B *.cue
+The
+.B "*.cue
+files are CD structure description files introduced by
+.BR CDRWIN .
+They are read and used by
+.B cdrecord
+in case cdrecord was called with the
+.BI cuefile= name.cue
+option.
+.sp
+The following commands are supported in CUE files:
+.RS
+.TP
+.BI ARRANGER " arranger-string
+This command is used to specify the name of a arranger for a disk that
+includes CD-Text enhancements.
+.sp
+The parameter is the name of a arranger. If the string contains any spaces,
+it must be enclosed in quotation marks.
+.sp
+If the 
+.B ARRANGER
+command
+appears before any
+.B TRACK
+command, the string parameter will be encoded as the arranger of the entire disk.
+If the
+.B ARRANGER
+command appears after a
+.B TRACK
+command, the string parameter will be encoded the the arranger of the current track.
+.sp
+This command is only accepted if the
+.B cdrecord
+specific CUE extensions are permitted.
+.TP
+.BI CATALOG " media-catalog-number
+This command is used to specify the disc's
+.BR "Media Catalog Number" .
+The
+.I media-catalog-number
+is a 13 digit number that follows UPC/EAN-13 rules.
+.sp
+This command can appear only once in the CUE SHEET file.
+It must appear before any
+.B TRACK
+command.
+.TP
+.BI CDTEXTFILE " filename
+This command is used to specify the name of a file that contains binary
+encoded CD-Text information.
+.B CDRWIN
+only accepts headerless binary encoded CD-Text information, but
+.B cdrecord
+also accepts binary encoded CD-Text information with an MMC compliant header.
+The CD-Text information is ignored by
+.B cdrecord
+unless the
+.B \-text
+option is used.
+.sp
+If the filename contains spaces, it must be enclosed in quotation marks.
+.TP
+.BI COMPOSER " composer-string
+This command is used to specify the name of a composer for a disk that
+includes CD-Text enhancements.
+.sp
+The parameter is the name of a composer. If the string contains any spaces,
+it must be enclosed in quotation marks.
+.sp
+If the 
+.B COMPOSER
+command
+appears before any
+.B TRACK
+command, the string parameter will be encoded as the composer of the entire disk.
+If the
+.B COMPOSER
+command appears after a
+.B TRACK
+command, the string parameter will be encoded the the composer of the current track.
+.sp
+This command is only accepted if the
+.B cdrecord
+specific CUE extensions are permitted.
+.TP
+.BI FILE " filename filetype"
+This command is used to specify a data or audio file that contains data
+to be written to the medium.
+.sp
+If the filename contains spaces, it must be enclosed in quotation marks.
+.sp
+The following values are allowed for the file type parameter:
+.RS
+.TP 12
+.B BINARY
+Intel binary file (LSB first)
+.TP
+.B MOTOTOLA
+Motorola binary file (MSB first)
+.TP
+.B AIFF
+Audio AIFF file
+.TP
+.B WAVE
+Audio WAVE file
+.TP
+.B MP3
+Audio MP3 file
+.TP
+.B AU
+Audio AU file
+(only permitted if
+.B cdrecord
+CUE extensions are enabled)
+.TP
+.B OGG
+Audio OGG file
+(only permitted if
+.B cdrecord
+CUE extensions are enabled)
+.PP
+All audio files (WAVE, AIFF, MP3, AU and OGG) must be in 44100 Hz 16 bit
+stereo format.
+MP3 and OGG is currently unsupported.
+.PP
+If an audio file is not an exact multiple of a CDROM sector (2352 bytes), then
+is is padded with zeroes to fill up to the needed size.
+.PP
+All 
+.B FILE
+commands need to be before a related
+.B TRACK
+command and after the last
+.B INDEX
+command or
+.B POSTGAP
+command for the previous track.
+.PP
+If the 
+.B cdrecord
+specific CUE extensions are enabled, then a 
+.B FILE
+command may also appear between an
+.B INDEX 00
+and an
+.B INDEX 01
+command.
+This allows to let the create one file per track where the file
+starts at
+.B INDEX 01
+of the track and enda after
+.B INDEX 00
+of the following track.
+In this case, no
+.B FILE
+command is allowed before the related
+.B TRACK
+command.
+.RE
+.TP
+.BI FLAGS " flags
+This command is used to set special subcode flags within a track.
+.sp
+The following flags are supported:
+.RS
+.TP 12
+.B DCP
+Digital copy permitted
+.TP
+.B 4CH
+Four channel audio
+.TP
+.B PRE
+Pre-emphasis enabled (audio tracks only)
+.TP
+.B SCMS
+Serial copy management system (not supported by all recorders)
+.PP
+More than one flag type argument may appear after the FLAGS command (e.g
+FLAGS DCP PRE).
+.PP
+The
+.B FLAGS
+command must appear after a
+.B TRACK
+command but before any
+.B INDEX
+command.
+Only one
+.B FLAGS
+command is allower per
+.B TRACK command.
+.PP
+The fourth subcode flag that marks data tracks is set automatically for data tracks.
+.RE
+.TP
+.BI INDEX " number mm:ss:ff
+This command is used to specify indexes within a track.
+.sp
+The first parameter is the index number in the range 0-99.
+.sp
+The second parameter is a relative time in minutes,
+seconds and frames (there are 75 frames/second).
+.sp
+All index numbers must be between 0 and 99 inclusive.
+The first index for a track must be either 0 or 1 with all
+indexes being sequential to the first one.
+The first index for a file must start at 00:00.00.
+.RS
+.TP 10
+.B INDEX 00
+specifies the starting time of the
+.B pregap
+of the track.
+.TP
+.B INDEX 01
+specifies the starting time of the track.
+This is the index that is stored in the table of content for the disk
+as the track start.
+.TP
+.B INDEX > 1
+specifies a subindex within a track.
+.RE
+.TP
+.BI ISRC " recording code
+This command is used to specify the
+.B "International Standard Recording Code (ISRC)
+of a track. This is a code that should exist for all
+commercial audio tracks.
+.sp
+The ISRC code must be 12 characters in length.
+The first two characters
+are characters that are from the two character country code.
+The next three characters are alphanumeric and describe the
+studio code.
+The next two characters are the last two digits from the
+recording year.
+The last 5 characters are digits that form a serial number that
+is unique for the same studio and year.
+.sp
+If 
+.B cdrecord
+specific CUE extensions are permitted, the four fields of the ISRC
+may be separated by a minus sign.
+.sp
+If the
+.B ISRC
+command is used, it must appear after a
+.B TRACK
+command but before any
+.B INDEX
+command.
+.TP
+.BI MESSAGE " message-string
+This command is used to specify the test of a message for a disk that
+includes CD-Text enhancements.
+.sp
+The parameter is the test of a message. If the string contains any spaces,
+it must be enclosed in quotation marks.
+.sp
+If the 
+.B MESSAGE
+command
+appears before any
+.B TRACK
+command, the string parameter will be encoded as the message of the entire disk.
+If the
+.B MESSAGE
+command appears after a
+.B TRACK
+command, the string parameter will be encoded the the message of the current track.
+.sp
+This command is only accepted if the
+.B cdrecord
+specific CUE extensions are permitted.
+.TP
+.BI PERFORMER " performer-string
+This command is used to specify the name of a performer for a disk that
+includes CD-Text enhancements.
+.sp
+The parameter is the name of the performer. If the string contains any spaces,
+it must be enclosed in quotation marks.
+.sp
+If the 
+.B PERFORMER
+command
+appears before any
+.B TRACK
+command, the string parameter will be encoded as the performer of the entire disk.
+If the
+.B PERFORMER
+command appears after a
+.B TRACK
+command, the string parameter will be encoded the the performer of the current track.
+.TP
+.BI POSTGAP " mm:ss:ff
+This command is used to specify the length of a postgap at the end of a track.
+The postgap data is generated internally by
+.BR cdrecord .
+No data is consumed from the current data file.
+.sp
+The parameter specifies the postgap length in minutes, seconds and frames.
+.sp
+The 
+.B POSTGAP
+command must appear after all
+.B INDEX
+commands for the current track.
+Only one
+.B POSTGAP
+command is allowed per track.
+.TP
+.BI PREGAP " mm:ss:ff
+This command is used to specify the length of a pregap at the beginning
+of a track. 
+The pregap data is generated internally by
+.BR cdrecord .
+No data is consumed from the current data file.
+.sp
+The parameter specifies the postgap length in minutes, seconds and frames.
+.sp
+The 
+.B PREGAP
+command must appear after a
+.B TRACK
+command but before any
+.B INDEX
+command.
+Only one
+.B PREGAP
+command is allowed per track.
+.TP
+.BI REM " comment
+This command is used to put comments into a CUE file.
+.sp
+The text that appears in the line after a 
+.B REM
+command is usually ignored. There is an exception: The special
+comment
+.B "REM CDRTOOLS
+is used to enable
+.B cdrecord
+specific CUE extensions in the parser.
+.TP
+.BI SONGWRITER " songwriter-string
+This command is used to specify the name of a songwriter for a disk that
+includes CD-Text enhancements.
+.sp
+The parameter is the name of a songwriter. If the string contains any spaces,
+it must be enclosed in quotation marks.
+.sp
+If the 
+.B SONGWRITER
+command
+appears before any
+.B TRACK
+command, the string parameter will be encoded as the songwriter of the entire disk.
+If the
+.B SONGWRITER
+command appears after a
+.B TRACK
+command, the string parameter will be encoded the the songwriter of the current track.
+.TP
+.BI TITLE " title-string
+This command is used to specify a title for a disk that
+includes CD-Text enhancements.
+.sp
+The parameter is the title for a track or for the disk. If the string contains any spaces,
+it must be enclosed in quotation marks.
+.sp
+If the 
+.B TITLE
+command
+appears before any
+.B TRACK
+command, the string parameter will be encoded as the title of the entire disk.
+If the
+.B TITLE
+command appears after a
+.B TRACK
+command, the string parameter will be encoded the the title of the current track.
+.TP
+.BI TRACK " number datatype
+This command is used to start a new
+.BR TRACK .
+.sp
+The first parameter is a track number in the range 1-99.
+.sp
+The second parameter specifies the track data type.
+.sp
+The following datatypes are permitted:
+.RS
+.TP 12
+.B AUDIO
+Audio/Music (2352) 
+.TP
+.B CDG
+Karaoke CD+G (2448) 
+.TP
+.B MODE1/2048
+CDROM Mode1 Data (cooked) 
+.TP
+.B MODE1/2352
+CDROM Mode1 Data (raw) 
+.TP
+.B MODE2/2336
+CDROM-XA Mode2 Data 
+.TP
+.B MODE2/2352
+CDROM-XA Mode2 Data 
+.TP
+.B CDI/2336
+CDI Mode2 Data 
+.TP
+.B CDI/2352
+CDI Mode2 Data 
+.PP
+All track numbers must be between 1 and 99 inclusive.
+The first track number can be greater than one, but all track numbers
+after the first must be sequential.
+There must be at least one track per file.
+.RE
 .RE
 
 .SH SEE ALSO
@@ -2594,10 +3390,6 @@ you may join the developer mailing list via this URL:
 .sp
 .B
 http://lists.berlios.de/mailman/listinfo/cdrecord-developers 
-.PP
-The mail address of the list is:
-.B
-cdwrite@other.debian.org
 
 .SH AUTHOR
 .nf
@@ -2615,10 +3407,6 @@ If you have support questions, send them to:
 .PP
 .B
 cdrecord-support@berlios.de
-.br
-or
-.B
-cdwrite@other.debian.org
 .PP
 If you have definitely found a bug, send a mail to:
 .PP
@@ -2637,21 +3425,6 @@ http://lists.berlios.de/mailman/listinfo/cdrecord-developers
 or
 .B
 http://lists.berlios.de/mailman/listinfo/cdrecord-support 
-.PP
-The old cdwrite mailing list may be joined by sending mail to:
-.nf
-.sp
-	cdwrite-request@other.debian.org
-.sp
-.fi
-and including the word 
-.I subscribe
-in the body.
-The mail address of the list is:
-.nf
-.sp
-	cdwrite@other.debian.org
-.fi
 .br
 .ne 7
 .SH "INTERFACE STABILITY

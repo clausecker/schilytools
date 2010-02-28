@@ -1,13 +1,13 @@
-/* @(#)cue.c	1.39 09/12/19 Copyright 2001-2009 J. Schilling */
+/* @(#)cue.c	1.54 10/02/22 Copyright 2001-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)cue.c	1.39 09/12/19 Copyright 2001-2009 J. Schilling";
+	"@(#)cue.c	1.54 10/02/22 Copyright 2001-2010 J. Schilling";
 #endif
 /*
  *	Cue sheet parser
  *
- *	Copyright (c) 2001-2009 J. Schilling
+ *	Copyright (c) 2001-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -41,35 +41,61 @@ static	UConst char sccsid[] =
 #include "auheader.h"
 #include "schily/libport.h"
 
+/*#define	PARSE_DEBUG*/
+
 typedef struct state {
-	char	*filename;
-	void	*xfp;
-	Llong	trackoff;
-	Llong	filesize;
-	int	filetype;
-	int	tracktype;
-	int	sectype;
-	int	dbtype;
-	int	secsize;
-	int	dataoff;
-	int	state;
-	int	track;
-	int	index;
-	long	index0;
-	long	index1;		/* Current index 1 value	*/
-	long	secoff;		/* Old index 1 value		*/
-	long	pregapsize;
-	long	postgapsize;
-	int	flags;
+	char	*filename;	/* Name of file to open		*/
+	void	*xfp;		/* Open file			*/
+	Llong	trackoff;	/* Current offset in open file	*/
+	Llong	filesize;	/* Size of current open file	*/
+	int	filetype;	/* File type (e.g. K_WAVE)	*/
+	int	tracktype;	/* Track type (e.g. TOC_DA)	*/
+	int	sectype;	/* Sector type (e.g. SECT_AUDIO)*/
+	int	dbtype;		/* Data block type (e.g. DB_RAW)*/
+	int	secsize;	/* Sector size from TRACK type	*/
+	int	dataoff;	/* Data offset from Track type	*/
+	int	state;		/* Current state of the parser	*/
+	int	prevstate;	/* Previous state of the parser	*/
+	int	track;		/* Relative Track index		*/
+	int	trackno;	/* Absolute Track number on disk*/
+	int	index;		/* Last INDEX xx number parsed	*/
+	long	index0;		/* Current INDEX 00 if found	*/
+	long	index1;		/* Current INDEX 01 if found	*/
+	long	secoff;		/* Last INDEX 01 value in file	*/
+	long	pregapsize;	/* Pregap size from PREGAP	*/
+	long	postgapsize;	/* Postgap size from POSTGAP	*/
+	int	flags;		/* Track flags (e.g. TI_COPY)	*/
+	int	pflags;		/* Parser flags			*/
 } state_t;
 
-#define	STATE_NONE	0
-#define	STATE_POSTGAP	1
-#define	STATE_FILE	2
-#define	STATE_TRACK	3
-#define	STATE_FLAGS	4
-#define	STATE_INDEX0	5
-#define	STATE_INDEX1	6
+/*
+ * Values for "state" and "prevstate".
+ */
+#define	STATE_NONE	0	/* Initial state of parser	*/
+#define	STATE_POSTGAP	1	/* Past INDEX before FILE/TRACK	*/
+#define	STATE_FILE	2	/* FILE keyword found		*/
+#define	STATE_TRACK	3	/* TRACK keyword found		*/
+#define	STATE_FLAGS	4	/* FLAGS past TRACK before INDEX*/
+#define	STATE_INDEX0	5	/* INDEX 00 found		*/
+#define	STATE_INDEX1	6	/* INDEX 01 found		*/
+#define	STATE_MAX	6	/* # of entries in states[]	*/
+
+/*
+ * Flag bits used in "pflags".
+ */
+#define	PF_CDRTOOLS_EXT	0x01	/* Cdrtools extensions allowed	*/
+#define	PF_INDEX0_PREV	0x02	/* INDEX 00 belongs to prev FILE*/
+#define	PF_FILE_FOUND	0x04	/* FILE command found for TRACK	*/
+
+LOCAL char *states[] = {
+	"NONE",
+	"POSTGAP",
+	"FILE",
+	"TRACK",
+	"FLAGS",
+	"INDEX 00",
+	"INDEX 01"
+};
 
 typedef struct keyw {
 	char	*k_name;
@@ -102,34 +128,56 @@ typedef struct keyw {
  *		FLAGS | ISRC | PERFORMER | PREGAP | SONGWRITER | TITLE
  *		INDEX
  *		POSTGAP
+ *
+ *	Additional keyword rules:
+ *		CATALOG		once
+ *		CDTEXTFILE	once
+ *		FILE		before "other command"
+ *		FLAGS		one per TRACK, after TRACK before INDEX
+ *		INDEX		>= 0, <= 99, first 0 or 1, sequential,
+ *				first index of a FILE at 00:00:00
+ *		ISRC		after TRACK before INDEX
+ *		PERFORMER
+ *		POSTGAP		one per TRACK, after all INDEX for current TRACK
+ *		PREGAP		one per TRACK, after TRACK before INDEX
+ *		REM
+ *		SONGWRITER
+ *		TITLE
+ *		TRACK		>= 1, <= 99, sequential, >= 1 TRACK per FILE
  */
 
 #define	K_G		0x10000		/* Global			*/
 #define	K_T		0x20000		/* Track local			*/
 #define	K_A		(K_T | K_G)	/* Global & Track local		*/
 
-#define	K_MCN		(0 | K_G)	/* Media catalog number 	*/
-#define	K_TEXTFILE	(1 | K_G)	/* CD-Text binary file		*/
-#define	K_FILE		(2 | K_T)	/* Input data file		*/
-#define	K_FLAGS		(3 | K_T)	/* Flags for ctrl nibble	*/
-#define	K_INDEX		(4 | K_T)	/* Index marker for track	*/
-#define	K_ISRC		(5 | K_T)	/* ISRC string for track	*/
-#define	K_PERFORMER	(6 | K_A)	/* CD-Text Performer		*/
-#define	K_POSTGAP	(7 | K_T)	/* Post gap for track (autogen)	*/
-#define	K_PREGAP	(8 | K_T)	/* Pre gap for track (autogen)	*/
-#define	K_REM		(9 | K_A)	/* Remark (Comment)		*/
-#define	K_SONGWRITER	(10| K_A)	/* CD-Text Songwriter		*/
-#define	K_TITLE		(11| K_A)	/* CD-Text Title		*/
-#define	K_TRACK		(12| K_T)	/* Track marker			*/
+#define	K_ARRANGER	(0 | K_A)	/* CD-Text Arranger		*/
+#define	K_MCN		(1 | K_G)	/* Media catalog number		*/
+#define	K_TEXTFILE	(2 | K_G)	/* CD-Text binary file		*/
+#define	K_COMPOSER	(3 | K_A)	/* CD-Text Composer		*/
+#define	K_FILE		(4 | K_T)	/* Input data file		*/
+#define	K_FLAGS		(5 | K_T)	/* Flags for ctrl nibble	*/
+#define	K_INDEX		(6 | K_T)	/* Index marker for track	*/
+#define	K_ISRC		(7 | K_T)	/* ISRC string for track	*/
+#define	K_MESSAGE	(8 | K_A)	/* CD-Text Message		*/
+#define	K_PERFORMER	(9 | K_A)	/* CD-Text Performer		*/
+#define	K_POSTGAP	(10 | K_T)	/* Post gap for track (autogen)	*/
+#define	K_PREGAP	(11 | K_T)	/* Pre gap for track (autogen)	*/
+#define	K_REM		(12 | K_A)	/* Remark (Comment)		*/
+#define	K_SONGWRITER	(13| K_A)	/* CD-Text Songwriter		*/
+#define	K_TITLE		(14| K_A)	/* CD-Text Title		*/
+#define	K_TRACK		(15| K_T)	/* Track marker			*/
 
 
 LOCAL keyw_t	keywords[] = {
+	{ "ARRANGER",	K_ARRANGER },
 	{ "CATALOG",	K_MCN },
 	{ "CDTEXTFILE",	K_TEXTFILE },
+	{ "COMPOSER",	K_COMPOSER },
 	{ "FILE",	K_FILE },
 	{ "FLAGS",	K_FLAGS },
 	{ "INDEX",	K_INDEX },
 	{ "ISRC",	K_ISRC },
+	{ "MESSAGE",	K_MESSAGE },
 	{ "PERFORMER",	K_PERFORMER },
 	{ "POSTGAP",	K_POSTGAP },
 	{ "PREGAP",	K_PREGAP },
@@ -147,25 +195,27 @@ LOCAL keyw_t	keywords[] = {
  *		BINARY		- Intel binary file (least significant byte first)
  *		MOTOTOLA	- Motorola binary file (most significant byte first)
  *		AIFF		- Audio AIFF file
- *		AU		- Sun Audio file
  *		WAVE		- Audio WAVE file
  *		MP3		- Audio MP3 file
+ *		AU		- Sun Audio file
+ *		OGG		- Audio OGG file
  */
 #define	K_BINARY	100
 #define	K_MOTOROLA	101
 #define	K_AIFF		102
-#define	K_AU		103
-#define	K_WAVE		104
-#define	K_MP3		105
+#define	K_WAVE		103
+#define	K_MP3		104
+#define	K_FT_CDRWIN_MAX	104
+#define	K_AU		105
 #define	K_OGG		106
 
 LOCAL keyw_t	filetypes[] = {
 	{ "BINARY",	K_BINARY },
 	{ "MOTOROLA",	K_MOTOROLA },
 	{ "AIFF",	K_AIFF },
-	{ "AU",		K_AU },
 	{ "WAVE",	K_WAVE },
 	{ "MP3",	K_MP3 },
+	{ "AU",		K_AU },
 	{ "OGG",	K_OGG },
 	{ NULL,		0 },
 };
@@ -181,6 +231,7 @@ LOCAL keyw_t	filetypes[] = {
 #define	K_4CH		1001
 #define	K_PRE		1002
 #define	K_SCMS		1003
+#define	K_FL_CDRWIN_MAX	1003
 
 LOCAL keyw_t	flags[] = {
 	{ "DCP",	K_DCP },
@@ -206,6 +257,7 @@ LOCAL keyw_t	flags[] = {
 #define	K_MODE1		10002
 #define	K_MODE2		10003
 #define	K_CDI		10004
+#define	K_DT_CDRWIN_MAX	10004
 
 LOCAL keyw_t	dtypes[] = {
 	{ "AUDIO",	K_AUDIO },
@@ -222,15 +274,19 @@ EXPORT	int	main		__PR((int ac, char **av));
 #endif
 EXPORT	int	parsecue	__PR((char *cuefname, track_t trackp[]));
 EXPORT	void	fparsecue	__PR((FILE *f, track_t trackp[]));
+LOCAL	void	parse_arranger	__PR((track_t trackp[], state_t *sp));
 LOCAL	void	parse_mcn	__PR((track_t trackp[], state_t *sp));
 LOCAL	void	parse_textfile	__PR((track_t trackp[], state_t *sp));
+LOCAL	void	parse_composer	__PR((track_t trackp[], state_t *sp));
 LOCAL	void	parse_file	__PR((track_t trackp[], state_t *sp));
 LOCAL	void	parse_flags	__PR((track_t trackp[], state_t *sp));
 LOCAL	void	parse_index	__PR((track_t trackp[], state_t *sp));
 LOCAL	void	parse_isrc	__PR((track_t trackp[], state_t *sp));
+LOCAL	void	parse_message	__PR((track_t trackp[], state_t *sp));
 LOCAL	void	parse_performer	__PR((track_t trackp[], state_t *sp));
 LOCAL	void	parse_postgap	__PR((track_t trackp[], state_t *sp));
 LOCAL	void	parse_pregap	__PR((track_t trackp[], state_t *sp));
+LOCAL	void	parse_rem	__PR((track_t trackp[], state_t *sp));
 LOCAL	void	parse_songwriter __PR((track_t trackp[], state_t *sp));
 LOCAL	void	parse_title	__PR((track_t trackp[], state_t *sp));
 LOCAL	void	parse_track	__PR((track_t trackp[], state_t *sp));
@@ -238,6 +294,7 @@ LOCAL	void	parse_offset	__PR((long *lp));
 LOCAL	void	newtrack	__PR((track_t trackp[], state_t *sp));
 
 LOCAL	keyw_t	*lookup		__PR((char *word, keyw_t table[]));
+LOCAL	char	*state_name	__PR((int st));
 #ifdef	DEBUG
 LOCAL	void	wdebug		__PR((void));
 #endif
@@ -253,18 +310,21 @@ LOCAL	char	*lineend	__PR((void));
 LOCAL	char	*markword	__PR((char *delim));
 LOCAL	char	getworddelim	__PR((void));
 LOCAL	char	*getnextitem	__PR((char *delim));
-LOCAL	char	*neednextitem	__PR((char *delim));
+LOCAL	char	*neednextitem	__PR((char *delim, char *type));
 #ifdef	__needed__
 LOCAL	char	*nextword	__PR((void));
 #endif
-LOCAL	char	*needword	__PR((void));
-#ifdef	__needed__
+LOCAL	char	*needword	__PR((char *type));
 LOCAL	char	*curword	__PR((void));
-#endif
 LOCAL	char	*nextitem	__PR((void));
-LOCAL	char	*needitem	__PR((void));
+LOCAL	char	*needitem	__PR((char *type));
 LOCAL	void	checkextra	__PR((void));
+LOCAL	void	statewarn	__PR((state_t *sp, const char *fmt, ...));
+#ifdef	__needed__
+LOCAL	void	cuewarn		__PR((const char *fmt, ...));
+#endif
 LOCAL	void	cueabort	__PR((const char *fmt, ...));
+LOCAL	void	extabort	__PR((const char *fmt, ...));
 
 #ifdef	CUE_MAIN
 int	debug;
@@ -328,7 +388,9 @@ fparsecue(f, trackp)
 	state.secsize	= 0;
 	state.dataoff	= 0;
 	state.state	= STATE_NONE;
+	state.prevstate	= STATE_NONE;
 	state.track	= 0;
+	state.trackno	= 0;
 	state.index	= -1;
 	state.index0	= -1;
 	state.index1	= -1;
@@ -336,6 +398,7 @@ fparsecue(f, trackp)
 	state.pregapsize = -1;
 	state.postgapsize = -1;
 	state.flags	= 0;
+	state.pflags	= 0;
 
 	if (xdebug > 1)
 		printf("---> Entering CUE Parser...\n");
@@ -345,14 +408,16 @@ fparsecue(f, trackp)
 			 * EOF on CUE File
 			 * Do post processing here
 			 */
-			if (state.state < STATE_INDEX1 && state.state != STATE_POSTGAP)
+			if (state.state < STATE_INDEX1 && state.state != STATE_POSTGAP) {
+				statewarn(&state, "INDEX 01 missing");
 				cueabort("Incomplete CUE file");
+			}
 			if (state.xfp) {
 				xclose(state.xfp);
 				state.xfp = NULL;
 			}
 			if (xdebug > 1) {
-				printf("---> CUE Parser got EOF, found %d tracks.\n",
+				printf("---> CUE Parser got EOF, found %2.2d tracks.\n",
 								state.track);
 			}
 			return;
@@ -372,8 +437,12 @@ fparsecue(f, trackp)
 				isglobal = FALSE;
 		}
 		if ((kp->k_type & K_T) == 0) {
-			if (!isglobal)
+			if (!isglobal) {
+				statewarn(&state,
+					"%s keyword must be before first TRACK",
+					word);
 				cueabort("Badly placed CUE keyword '%s'", word);
+			}
 		}
 #ifdef	DEBUG
 		printf("%s-", isglobal ? "G" : "T");
@@ -382,16 +451,19 @@ fparsecue(f, trackp)
 
 		switch (kp->k_type) {
 
+		case K_ARRANGER:   parse_arranger(trackp, &state);	break;
 		case K_MCN:	   parse_mcn(trackp, &state);		break;
 		case K_TEXTFILE:   parse_textfile(trackp, &state);	break;
+		case K_COMPOSER:   parse_composer(trackp, &state);	break;
 		case K_FILE:	   parse_file(trackp, &state);		break;
 		case K_FLAGS:	   parse_flags(trackp, &state);		break;
 		case K_INDEX:	   parse_index(trackp, &state);		break;
 		case K_ISRC:	   parse_isrc(trackp, &state);		break;
+		case K_MESSAGE:	   parse_message(trackp, &state);	break;
 		case K_PERFORMER:  parse_performer(trackp, &state);	break;
 		case K_POSTGAP:	   parse_postgap(trackp, &state);	break;
 		case K_PREGAP:	   parse_pregap(trackp, &state);	break;
-		case K_REM:						break;
+		case K_REM:	   parse_rem(trackp, &state);		break;
 		case K_SONGWRITER: parse_songwriter(trackp, &state);	break;
 		case K_TITLE:	   parse_title(trackp, &state);		break;
 		case K_TRACK:	   parse_track(trackp, &state);		break;
@@ -400,6 +472,29 @@ fparsecue(f, trackp)
 			cueabort("Panic: unknown CUE command '%s'", word);
 		}
 	} while (1);
+}
+
+LOCAL void
+parse_arranger(trackp, sp)
+	track_t	trackp[];
+	state_t	*sp;
+{
+	char	*word;
+	textptr_t *txp;
+
+	if ((sp->pflags & PF_CDRTOOLS_EXT) == 0)
+		extabort("ARRANGER");
+
+	if (sp->track > 0 && sp->state > STATE_INDEX0) {
+		statewarn(sp, "ARRANGER keyword cannot be after INDEX keyword");
+		cueabort("Badly placed ARRANGER keyword");
+	}
+
+	word = needitem("arranger");
+	txp = gettextptr(sp->track, trackp);
+	txp->tc_arranger = strdup(word);
+
+	checkextra();
 }
 
 LOCAL void
@@ -413,7 +508,7 @@ parse_mcn(trackp, sp)
 	if (sp->track != 0)
 		cueabort("CATALOG keyword must be before first TRACK");
 
-	word = needitem();
+	word = needitem("MCN");
 	setmcn(word, &trackp[0]);
 	txp = gettextptr(0, trackp); /* MCN is isrc for trk 0 */
 	txp->tc_isrc = strdup(word);
@@ -431,7 +526,7 @@ parse_textfile(trackp, sp)
 	if (sp->track != 0)
 		cueabort("CDTEXTFILE keyword must be before first TRACK");
 
-	word = needitem();
+	word = needitem("cdtextfile");
 
 	if (trackp[MAX_TRACK+1].flags & TI_TEXT) {
 		if (!checktextfile(word)) {
@@ -444,6 +539,29 @@ parse_textfile(trackp, sp)
 		errmsgno(EX_BAD, "Ignoring CDTEXTFILE '%s'.\n", word);
 		errmsgno(EX_BAD, "If you like to write CD-Text, call cdrecord -text.\n");
 	}
+
+	checkextra();
+}
+
+LOCAL void
+parse_composer(trackp, sp)
+	track_t	trackp[];
+	state_t	*sp;
+{
+	char	*word;
+	textptr_t *txp;
+
+	if ((sp->pflags & PF_CDRTOOLS_EXT) == 0)
+		extabort("COMPOSER");
+
+	if (sp->track > 0 && sp->state > STATE_INDEX0) {
+		statewarn(sp, "COMPOSER keyword cannot be after INDEX keyword");
+		cueabort("Badly placed COMPOSER keyword");
+	}
+
+	word = needitem("composer");
+	txp = gettextptr(sp->track, trackp);
+	txp->tc_composer = strdup(word);
 
 	checkextra();
 }
@@ -464,11 +582,27 @@ parse_file(trackp, sp)
 #endif
 
 	if ((sp->state <= STATE_TRACK && sp->state > STATE_POSTGAP) ||
-	    (sp->state >= STATE_TRACK && sp->state < STATE_INDEX1))
+	    (sp->state >= STATE_TRACK && sp->state < STATE_INDEX1)) {
+		if (sp->state >= STATE_INDEX0 && sp->state < STATE_INDEX1) {
+			if ((sp->pflags & PF_CDRTOOLS_EXT) == 0)
+				extabort("FILE keyword after INDEX 00 and before INDEX 01");
+			sp->prevstate = sp->state;
+			goto file_ok;
+		}
+		if (sp->state <= STATE_TRACK && sp->state > STATE_POSTGAP)
+			statewarn(sp, "FILE keyword only allowed once before TRACK keyword");
+		if (sp->state >= STATE_TRACK && sp->state < STATE_INDEX1)
+			statewarn(sp, "FILE keyword not allowed after TRACK and before INDEX 01");
 		cueabort("Badly placed FILE keyword");
+	}
+file_ok:
+	if (sp->state < STATE_INDEX1 && sp->pflags & PF_FILE_FOUND)
+		cueabort("Only one FILE keyword allowed per TRACK");
+
+	sp->pflags |= PF_FILE_FOUND;
 	sp->state = STATE_FILE;
 
-	word = needitem();
+	word = needitem("filename");
 	if (sp->xfp) {
 		xclose(sp->xfp);
 		sp->xfp = NULL;
@@ -490,18 +624,28 @@ parse_file(trackp, sp)
 			sp->xfp = xopen(word, O_RDONLY|O_BINARY, 0, X_NOREWIND);
 		}
 	}
-	if (sp->xfp == NULL)
+	if (sp->xfp == NULL) {
+#ifdef	PARSE_DEBUG
+		errmsg("Cannot open FILE '%s'.\n", word);
+#else
 		comerr("Cannot open FILE '%s'.\n", word);
+#endif
+	}
 
 	sp->filename	 = strdup(word);
 	sp->trackoff	 = 0;
+	sp->secoff	 = 0;
 	sp->filesize	 = 0;
 	sp->flags	&= ~TI_SWAB;	/* Reset what we might set for FILE */
 
-	filetype = needitem();
+	filetype = needitem("filetype");
 	kp = lookup(filetype, filetypes);
 	if (kp == NULL)
 		cueabort("Unknown filetype '%s'", filetype);
+
+	if ((sp->pflags & PF_CDRTOOLS_EXT) == 0 &&
+	    kp->k_type > K_FT_CDRWIN_MAX)
+		extabort("Filetype '%s'", kp->k_name);
 
 	switch (kp->k_type) {
 
@@ -522,7 +666,11 @@ parse_file(trackp, sp)
 			sp->filesize = ausize(xfileno(sp->xfp));
 			break;
 	case K_WAVE:
+#ifdef	PARSE_DEBUG
+			sp->filesize = 1000000000;
+#else
 			sp->filesize = wavsize(xfileno(sp->xfp));
+#endif
 			sp->flags |= TI_SWAB;
 			break;
 	case K_MP3:
@@ -538,8 +686,8 @@ parse_file(trackp, sp)
 							sp->filename);
 	}
 	if (xdebug > 0)
-		printf("Track %d File '%s' Filesize %lld\n",
-			sp->track, sp->filename, sp->filesize);
+		printf("Track[%2.2d] %2.2d File '%s' Filesize %lld\n",
+			sp->track, sp->trackno, sp->filename, sp->filesize);
 
 	sp->filetype = kp->k_type;
 
@@ -562,12 +710,14 @@ parse_flags(trackp, sp)
 	char	*word;
 
 	if ((sp->state < STATE_TRACK) ||
-	    (sp->state >= STATE_INDEX0))
+	    (sp->state >= STATE_INDEX0)) {
+		statewarn(sp, "FLAGS keyword must be after TRACK and before INDEX keyword");
 		cueabort("Badly placed FLAGS keyword");
+	}
 	sp->state = STATE_FLAGS;
 
 	do {
-		word = needitem();
+		word = needitem("flag");
 		kp = lookup(word, flags);
 		if (kp == NULL)
 			cueabort("Unknown flag '%s'", word);
@@ -584,7 +734,7 @@ parse_flags(trackp, sp)
 	} while (peekword() < lineend());
 
 	if (xdebug > 0)
-		printf("Track %d flags 0x%08X\n", sp->track, sp->flags);
+		printf("Track[%2.2d] %2.2d flags 0x%08X\n", sp->track, sp->trackno, sp->flags);
 }
 
 LOCAL void
@@ -596,10 +746,20 @@ parse_index(trackp, sp)
 	long	l;
 	int	track = sp->track;
 
-	if (sp->state < STATE_TRACK)
+	if (sp->state < STATE_TRACK) {
+		if (sp->state == STATE_FILE &&
+		    sp->prevstate >= STATE_TRACK &&
+		    sp->prevstate <= STATE_INDEX1) {
+			if ((sp->pflags & PF_CDRTOOLS_EXT) == 0)
+				extabort("INDEX keyword after FILE keyword");
+			goto index_ok;
+		}
+		statewarn(sp, "INDEX keyword must be after TRACK keyword");
 		cueabort("Badly placed INDEX keyword");
+	}
+index_ok:
 
-	word = needitem();
+	word = needitem("index");
 	if (*astolb(word, &l, 10) != '\0')
 		cueabort("Not a number '%s'", word);
 	if (l < 0 || l > 99)
@@ -609,37 +769,54 @@ parse_index(trackp, sp)
 	    (((sp->index + 1) == l) || l == 1))
 		sp->index = l;
 	else
-		cueabort("Badly placed INDEX %ld number", l);
+		cueabort("Badly placed INDEX %2.2ld number", l);
+
+	if (sp->state == STATE_FILE) {
+		if (track == 1 || l > 1)
+			cueabort("INDEX %2.2d not allowed after FILE", l);
+		if (l == 1)
+			sp->pflags |= PF_INDEX0_PREV;
+	}
 
 	if (l > 0)
 		sp->state = STATE_INDEX1;
 	else
 		sp->state = STATE_INDEX0;
+	sp->prevstate = sp->state;
 
 	parse_offset(&l);
 
 	if (xdebug > 1)
-		printf("Track %d Index %d %ld\n", sp->track, sp->index, l);
+		printf("Track[%2.2d] %2.2d Index %2.2d %ld\n", sp->track, sp->trackno, sp->index, l);
 
-	if (sp->index == 0)
+	if (track == 1 ||
+	    !streql(sp->filename, trackp[track-1].filename)) {
+		/*
+		 * Check for offset 0 when a new file begins.
+		 */
+		if (sp->index == 0 && l > 0)
+			cueabort("Bad INDEX 00 offset in CUE file (must be 00:00:00 for new FILE)");
+		if (sp->index == 1 && sp->index0 < 0 && l > 0)
+			cueabort("Bad INDEX 01 offset in CUE file (must be 00:00:00 for new FILE)");
+	}
+
+	if (sp->index == 0) {
 		sp->index0 = l;
-	if (sp->index == 1) {
+	} else if (sp->index == 1) {
 		sp->index1 = l;
 		trackp[track].nindex = 1;
 		newtrack(trackp, sp);
 
 		if (xdebug > 1) {
-			printf("Track %d pregapsize %ld\n",
-				sp->track, trackp[track].pregapsize);
+			printf("Track[%2.2d] %2.2d pregapsize %ld\n",
+				sp->track, sp->trackno, trackp[track].pregapsize);
 		}
-	}
-	if (sp->index == 2) {
+	} else if (sp->index == 2) {
 		trackp[track].tindex = malloc(100*sizeof (long));
 		trackp[track].tindex[1] = 0;
 		trackp[track].tindex[2] = l - sp->index1;
 		trackp[track].nindex = 2;
-	}
-	if (sp->index > 2) {
+	} else if (sp->index > 2) {
 		trackp[track].tindex[sp->index] = l - sp->index1;
 		trackp[track].nindex = sp->index;
 	}
@@ -660,14 +837,43 @@ parse_isrc(trackp, sp)
 		cueabort("ISRC keyword must be past first TRACK");
 
 	if ((sp->state < STATE_TRACK) ||
-	    (sp->state >= STATE_INDEX0))
+	    (sp->state >= STATE_INDEX0)) {
+		statewarn(sp, "ISRC keyword must be after TRACK and before INDEX keyword");
 		cueabort("Badly placed ISRC keyword");
+	}
 	sp->state = STATE_FLAGS;
 
-	word = needitem();
+	word = needitem("ISRC");
+	if ((sp->pflags & PF_CDRTOOLS_EXT) == 0 &&
+	    strchr(word, '-')) {
+		extabort("'-' in ISRC arg");
+	}
 	setisrc(word, &trackp[track]);
 	txp = gettextptr(track, trackp);
 	txp->tc_isrc = strdup(word);
+
+	checkextra();
+}
+
+LOCAL void
+parse_message(trackp, sp)
+	track_t	trackp[];
+	state_t	*sp;
+{
+	char	*word;
+	textptr_t *txp;
+
+	if ((sp->pflags & PF_CDRTOOLS_EXT) == 0)
+		extabort("MESSAGE");
+
+	if (sp->track > 0 && sp->state > STATE_INDEX0) {
+		statewarn(sp, "MESSAGE keyword cannot be after INDEX keyword");
+		cueabort("Badly placed MESSAGE keyword");
+	}
+
+	word = needitem("message");
+	txp = gettextptr(sp->track, trackp);
+	txp->tc_message = strdup(word);
 
 	checkextra();
 }
@@ -680,10 +886,12 @@ parse_performer(trackp, sp)
 	char	*word;
 	textptr_t *txp;
 
-	if (sp->track > 0 && sp->state > STATE_INDEX0)
+	if (sp->track > 0 && sp->state > STATE_INDEX0) {
+		statewarn(sp, "PERFORMER keyword cannot be after INDEX keyword");
 		cueabort("Badly placed PERFORMER keyword");
+	}
 
-	word = needitem();
+	word = needitem("performer");
 	txp = gettextptr(sp->track, trackp);
 	txp->tc_performer = strdup(word);
 
@@ -697,8 +905,10 @@ parse_postgap(trackp, sp)
 {
 	long	l;
 
-	if (sp->state < STATE_INDEX1)
+	if (sp->state < STATE_INDEX1) {
+		statewarn(sp, "POSTGAP keyword must be after INDEX 01");
 		cueabort("Badly placed POSTGAP keyword");
+	}
 	sp->state = STATE_POSTGAP;
 
 	parse_offset(&l);
@@ -722,14 +932,47 @@ parse_pregap(trackp, sp)
 	long	l;
 
 	if ((sp->state < STATE_TRACK) ||
-	    (sp->state >= STATE_INDEX0))
+	    (sp->state >= STATE_INDEX0)) {
+		statewarn(sp, "PREGAP keyword must be after TRACK and before INDEX keyword");
 		cueabort("Badly placed PREGAP keyword");
+	}
 	sp->state = STATE_FLAGS;
 
 	parse_offset(&l);
 	sp->pregapsize = l;
 
 	checkextra();
+}
+
+LOCAL void
+parse_rem(trackp, sp)
+	track_t	trackp[];
+	state_t	*sp;
+{
+	char	*oword = curword();
+	char	*word;
+
+	word = nextitem();
+	if ((oword == word) || (*word == '\0'))
+		return;
+	if ((sp->pflags & PF_CDRTOOLS_EXT) == 0 &&
+	    streql(word, "CDRTOOLS")) {
+		sp->pflags |= PF_CDRTOOLS_EXT;
+		errmsgno(EX_BAD,
+		"Warning: Enabling cdrecord specific CUE extensions.\n");
+	}
+	if ((sp->pflags & PF_CDRTOOLS_EXT) == 0 &&
+	    streql(word, "COMMENT")) {
+		oword = word;
+		word = nextitem();
+		if ((oword == word) || (*word == '\0'))
+			return;
+		if (strncmp(word, "ExactAudioCopy ", 15) == 0) {
+			sp->pflags |= PF_CDRTOOLS_EXT;
+			errmsgno(EX_BAD,
+			"Warning: Found ExactAudioCopy, enabling CUE extensions.\n");
+		}
+	}
 }
 
 LOCAL void
@@ -740,10 +983,11 @@ parse_songwriter(trackp, sp)
 	char	*word;
 	textptr_t *txp;
 
-	if (sp->track > 0 && sp->state > STATE_INDEX0)
+	if (sp->track > 0 && sp->state > STATE_INDEX0) {
+		statewarn(sp, "SONGWRITER keyword cannot be after INDEX keyword");
 		cueabort("Badly placed SONGWRITER keyword");
-
-	word = needitem();
+	}
+	word = needitem("songwriter");
 	txp = gettextptr(sp->track, trackp);
 	txp->tc_songwriter = strdup(word);
 
@@ -758,10 +1002,11 @@ parse_title(trackp, sp)
 	char	*word;
 	textptr_t *txp;
 
-	if (sp->track > 0 && sp->state > STATE_INDEX0)
+	if (sp->track > 0 && sp->state > STATE_INDEX0) {
+		statewarn(sp, "TITLE keyword cannot be after INDEX keyword");
 		cueabort("Badly placed TITLE keyword");
-
-	word = needitem();
+	}
+	word = needitem("title");
 	txp = gettextptr(sp->track, trackp);
 	txp->tc_title = strdup(word);
 
@@ -779,33 +1024,40 @@ parse_track(trackp, sp)
 	long	secsize = -1;
 
 	if ((sp->state >= STATE_TRACK) &&
-	    (sp->state < STATE_INDEX1))
+	    (sp->state < STATE_INDEX1)) {
+		statewarn(sp, "TRACK keyword must be after INDEX 01");
 		cueabort("Badly placed TRACK keyword");
+	}
+	sp->pflags &= ~(PF_INDEX0_PREV|PF_FILE_FOUND);
+	if (sp->state == STATE_FILE)
+		sp->pflags |= PF_FILE_FOUND;
 	sp->state = STATE_TRACK;
+	sp->prevstate = STATE_TRACK;
+	sp->track++;
 	sp->index0 = -1;
 	sp->index = -1;
 	sp->pregapsize = -1;
 	sp->postgapsize = -1;
 
-	word = needitem();
+	word = needitem("track number");
 	if (*astolb(word, &l, 10) != '\0')
 		cueabort("Not a number '%s'", word);
 	if (l <= 0 || l > 99)
 		cueabort("Illegal TRACK number '%s'", word);
 
-	if ((sp->track < l) &&
-	    (((sp->track + 1) == l) || sp->track == 0))
-		sp->track = l;
+	if ((sp->trackno < l) &&
+	    (((sp->trackno + 1) == l) || sp->trackno == 0))
+		sp->trackno = l;
 	else
 		cueabort("Badly placed TRACK %ld number", l);
 
-	word = needword();
+	word = needword("data type");
 	kp = lookup(word, dtypes);
 	if (kp == NULL)
-		cueabort("Unknown filetype '%s'", word);
+		cueabort("Unknown data type '%s'", word);
 
 	if (getworddelim() == '/') {
-		word = needitem();
+		word = needitem("sector size");
 		if (*astol(++word, &secsize) != '\0')
 			cueabort("Not a number '%s'", word);
 	}
@@ -880,8 +1132,8 @@ parse_track(trackp, sp)
 	sp->secsize = secsize;
 
 	if (xdebug > 1) {
-		printf("Track %d Tracktype %s/%d\n",
-			sp->track, kp->k_name, sp->secsize);
+		printf("Track[%2.2d] %2.2d Tracktype %s/%d\n",
+			sp->track, sp->trackno, kp->k_name, sp->secsize);
 	}
 
 	checkextra();
@@ -897,7 +1149,7 @@ parse_offset(lp)
 	long	s = -1;
 	long	f = -1;
 
-	word = needitem();
+	word = needitem("time offset/length");
 
 	if (strchr(word, ':') == NULL) {
 		if (*astol(word, lp) != '\0')
@@ -935,7 +1187,7 @@ newtrack(trackp, sp)
 		Llong	tracksize;
 
 	if (xdebug > 1)
-		printf("-->Newtrack %d\n", track);
+		printf("-->Newtrack %2.2d Trackno %2.2d\n", track, sp->trackno);
 	if (track > 1 && streql(sp->filename, trackp[track-1].filename)) {
 		tracksize = (sp->index1 - sp->secoff) * trackp[track-1].isecsize;
 
@@ -1010,14 +1262,17 @@ newtrack(trackp, sp)
 		if (track == 1)
 			trackp[track].pregapsize = sp->index1 + 150;
 		else if (sp->index0 < 0)
-			trackp[track].pregapsize = -1;
+			trackp[track].pregapsize = 0;
+		else if (sp->pflags & PF_INDEX0_PREV)	/* INDEX0 in prev FILE */
+			trackp[track].pregapsize = trackp[track-1].tracksecs - sp->index0;
 		else
 			trackp[track].pregapsize = sp->index1 - sp->index0;
 	}
 
 	trackp[track].isecsize = sp->secsize;
 	trackp[track].secsize = sp->secsize;
-	trackp[track].flags = sp->flags | trackp[0].flags;
+	trackp[track].flags = sp->flags |
+		(trackp[0].flags & ~(TI_HIDDEN|TI_SWAB|TI_AUDIO|TI_COPY|TI_QUADRO|TI_PREEMP|TI_SCMS));
 	if (trackp[0].flags & TI_RAW) {
 		if (is_raw16(&trackp[track]))
 			trackp[track].secsize = RAW16_SEC_SIZE;
@@ -1043,7 +1298,7 @@ newtrack(trackp, sp)
 	trackp[track].secspt = 0;	/* transfer size is set up in set_trsizes() */
 /*	trackp[track].pktsize = pktsize; */
 	trackp[track].pktsize = 0;
-	trackp[track].trackno = sp->track;
+	trackp[track].trackno = sp->trackno;
 	trackp[track].sectype = sp->sectype;
 
 	trackp[track].dataoff = sp->dataoff;
@@ -1051,24 +1306,54 @@ newtrack(trackp, sp)
 	trackp[track].dbtype = sp->dbtype;
 
 	if (track == 1) {
-		trackp[0].tracktype &= ~TOC_MASK;
-		trackp[0].tracktype |= sp->tracktype;
+		track_t	*tp0 = &trackp[0];
+		track_t	*tp1 = &trackp[1];
+
+		tp0->tracktype &= ~TOC_MASK;
+		tp0->tracktype |= sp->tracktype;
+
+		/*
+		 * setleadinout() also sets: sectype dbtype dataoff
+		 */
+		tp0->sectype = tp1->sectype;
+		tp0->dbtype  = tp1->dbtype;
+		tp0->dataoff = tp1->dataoff;
+		tp0->isecsize = tp1->isecsize;
+		tp0->secsize = tp1->secsize;
+
+		if (sp->index0 == 0 && sp->index1 > 0) {
+
+			tp0->filename = tp1->filename;
+			tp0->xfp = xopen(sp->filename, O_RDONLY|O_BINARY, 0, X_NOREWIND);
+			tp0->trackstart = tp1->trackstart;
+			tp0->itracksize = sp->index1 * tp1->isecsize;
+			tp0->tracksize = sp->index1 * tp1->secsize;
+			tp0->tracksecs = sp->index1;
+			tp1->tracksecs -= sp->index1;
+			sp->secoff += sp->index1;
+			sp->trackoff += sp->index1 * tp1->isecsize;
+			tp1->flags &= ~TI_PREGAP;
+			tp0->flags |= tp1->flags &
+					(TI_SWAB|TI_AUDIO|TI_COPY|TI_QUADRO|TI_PREEMP|TI_SCMS);
+			tp0->flags |= TI_HIDDEN;
+			tp1->flags |= TI_HIDDEN;
+		}
 
 		if (xdebug > 1) {
-			printf("Track %d Tracktype %X\n",
-					0, trackp[0].tracktype);
+			printf("Track[%2.2d] %2.2d Tracktype %X\n",
+					0, 0, trackp[0].tracktype);
 		}
 	}
 	if (xdebug > 1) {
-		printf("Track %d Tracktype %X\n",
-				track, trackp[track].tracktype);
+		printf("Track[%2.2d] %2.2d Tracktype %X\n",
+				track, sp->trackno, trackp[track].tracktype);
 	}
 	trackp[track].nindex = 1;
 	trackp[track].tindex = 0;
 
 	if (xdebug > 1) {
-		printf("Track %d flags 0x%08X\n", 0, trackp[0].flags);
-		printf("Track %d flags 0x%08X\n", track, trackp[track].flags);
+		printf("Track[%2.2d] %2.2d flags 0x%08X\n", 0, 0, trackp[0].flags);
+		printf("Track[%2.2d] %2.2d flags 0x%08X\n", track, sp->trackno, trackp[track].flags);
 	}
 }
 
@@ -1086,6 +1371,15 @@ lookup(word, table)
 		kp++;
 	}
 	return (NULL);
+}
+
+LOCAL char *
+state_name(st)
+	int	st;
+{
+	if (st < STATE_NONE || st > STATE_MAX)
+		return ("UNKNOWN");
+	return (states[st]);
 }
 
 /*--------------------------------------------------------------------------*/
@@ -1252,16 +1546,21 @@ getnextitem(delim)
 }
 
 LOCAL char *
-neednextitem(delim)
+neednextitem(delim, type)
 	char	*delim;
+	char	*type;
 {
 	char	*olinep = linep;
 	char	*nlinep;
 
 	nlinep = getnextitem(delim);
 
-	if ((olinep == nlinep) || (*nlinep == '\0'))
-		cueabort("Missing text");
+	if ((olinep == nlinep) || (*nlinep == '\0')) {
+		if (type == NULL)
+			cueabort("Missing text");
+		else
+			cueabort("Missing '%s'", type);
+	}
 
 	return (nlinep);
 }
@@ -1275,18 +1574,17 @@ nextword()
 #endif
 
 LOCAL char *
-needword()
+needword(type)
+	char	*type;
 {
-	return (neednextitem(worddelim));
+	return (neednextitem(worddelim, type));
 }
 
-#ifdef	__needed__
 LOCAL char *
 curword()
 {
 	return (linep);
 }
-#endif
 
 LOCAL char *
 nextitem()
@@ -1295,9 +1593,10 @@ nextitem()
 }
 
 LOCAL char *
-needitem()
+needitem(type)
+	char	*type;
 {
-	return (neednextitem(nulldelim));
+	return (neednextitem(nulldelim, type));
 }
 
 LOCAL void
@@ -1306,6 +1605,55 @@ checkextra()
 	if (peekword() < lineend())
 		cueabort("Extra text '%s'", peekword());
 }
+
+/* VARARGS2 */
+#ifdef	PROTOTYPES
+LOCAL void
+statewarn(state_t *sp, const char *fmt, ...)
+#else
+LOCAL void
+statewarn(sp, fmt, va_alist)
+	state_t	*sp;
+	char	*fmt;
+	va_dcl
+#endif
+{
+	va_list	args;
+
+#ifdef	PROTOTYPES
+	va_start(args, fmt);
+#else
+	va_start(args);
+#endif
+	errmsgno(EX_BAD, "%r. Current state is '%s'.\n",
+		fmt, args, state_name(sp->state));
+	va_end(args);
+}
+
+#ifdef	__needed__
+/* VARARGS1 */
+#ifdef	PROTOTYPES
+LOCAL void
+cuewarn(const char *fmt, ...)
+#else
+LOCAL void
+cuewarn(fmt, va_alist)
+	char	*fmt;
+	va_dcl
+#endif
+{
+	va_list	args;
+
+#ifdef	PROTOTYPES
+	va_start(args, fmt);
+#else
+	va_start(args);
+#endif
+	errmsgno(EX_BAD, "%r on line %d col %d in '%s'.\n",
+		fmt, args, lineno, linep - linebuf, fname);
+	va_end(args);
+}
+#endif
 
 /* VARARGS1 */
 #ifdef	PROTOTYPES
@@ -1325,7 +1673,36 @@ cueabort(fmt, va_alist)
 #else
 	va_start(args);
 #endif
-	comerrno(EX_BAD, "%r on line %d in '%s'.\n",
-		fmt, args, lineno, fname);
+#ifdef	PARSE_DEBUG
+	errmsgno(EX_BAD, "%r on line %d col %d in '%s'.\n",
+#else
+	comerrno(EX_BAD, "%r on line %d col %d in '%s'.\n",
+#endif
+		fmt, args, lineno, linep - linebuf, fname);
 	va_end(args);
+}
+
+/* VARARGS1 */
+#ifdef	PROTOTYPES
+LOCAL void
+extabort(const char *fmt, ...)
+#else
+LOCAL void
+extabort(fmt, va_alist)
+	char	*fmt;
+	va_dcl
+#endif
+{
+	va_list	args;
+
+#ifdef	PROTOTYPES
+	va_start(args, fmt);
+#else
+	va_start(args);
+#endif
+	errmsgno(EX_BAD, "Unsupported by CDRWIN: %r on line %d col %d in '%s'.\n",
+		fmt, args, lineno, linep - linebuf, fname);
+	va_end(args);
+	errmsgno(EX_BAD, "Add 'REM CDRTOOLS' to enable cdrtools specific CUE extensions.\n");
+	comexit(EX_BAD);
 }

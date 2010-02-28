@@ -1,13 +1,13 @@
-/* @(#)sun.c	1.12 09/07/10 Copyright 1998,1999 Heiko Eissfeldt, Copyright 2006-2009 J. Schilling */
+/* @(#)sun.c	1.14 10/01/12 Copyright 1998,1999 Heiko Eissfeldt, Copyright 2006-2010 J. Schilling */
 #include "config.h"
 #ifndef lint
 static	UConst char sccsid[] =
-"@(#)sun.c	1.12 09/07/10 Copyright 1998,1999 Heiko Eissfeldt, Copyright 2006-2009 J. Schilling";
+"@(#)sun.c	1.14 10/01/12 Copyright 1998,1999 Heiko Eissfeldt, Copyright 2006-2010 J. Schilling";
 
 #endif
 /*
  * Copyright (C) by Heiko Eissfeldt
- * Copyright (c) 2006-2009 J. Schilling
+ * Copyright (c) 2006-2010 J. Schilling
  *
  *  definitions for sun pcm output
  */
@@ -113,5 +113,6 @@ struct soundfile sunsound =
 		Uchar *buf,
 		size_t BytesToDo))) write, /* get sound samples out */
 	InSizeToOutSize,	/* compressed? output file size */
-	1			/* needs big endian samples */
+	1,			/* needs big endian samples */
+	"AU"
 };

@@ -1,4 +1,4 @@
-dnl @(#)acspecific.m4	1.12 09/11/06 Copyright 1998-2009 J. Schilling
+dnl @(#)acspecific.m4	1.13 10/02/28 Copyright 1998-2009 J. Schilling
 dnl
 dnl Macros that test for specific features.
 dnl This file is part of Autoconf.
@@ -1933,9 +1933,14 @@ for ac_kw in inline __inline__ __inline; do
 done
 ])
 case "$ac_cv_c_inline" in
-  inline | yes) ;;
-  no) AC_DEFINE(inline, ) ;;
-  *)  AC_DEFINE_UNQUOTED(inline, $ac_cv_c_inline) ;;
+  inline | yes)
+	AC_DEFINE(HAVE_INLINE)
+	;;
+  no)	AC_DEFINE(inline, )
+	;;
+  *)	AC_DEFINE_UNQUOTED(inline, $ac_cv_c_inline)
+	AC_DEFINE(HAVE_INLINE)
+	;;
 esac
 ])
 

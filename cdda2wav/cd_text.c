@@ -1,4 +1,4 @@
-/* @(#)cd_text.c	1.8 07/09/10 Copyright 2000-2001 Heiko Eissfeldt */
+/* @(#)cd_text.c	1.10 10/01/09 Copyright 2000-2001 Heiko Eissfeldt, Copyright 2006-2010 J. Schilling */
 
 /*
  * This is an include file!
@@ -240,30 +240,30 @@ process_header(c, tracknr, dbcc, line)
 		fprintf(stderr, "Performer(s)");
 #endif
 		if (tracknr > 0 && tracknr < 100 &&
-		    global.trackcreator[tracknr] == NULL) {
+		    global.trackperformer[tracknr] == NULL) {
 			unsigned	len;
 
 			len = strlen((char *)line);
 
 			if (len > 0)
-				global.trackcreator[tracknr] = malloc(len + 1);
+				global.trackperformer[tracknr] = malloc(len + 1);
 
-			if (global.trackcreator[tracknr] != NULL) {
-				memcpy(global.trackcreator[tracknr], line,
+			if (global.trackperformer[tracknr] != NULL) {
+				memcpy(global.trackperformer[tracknr], line,
 									len);
-				global.trackcreator[tracknr][len] = '\0';
+				global.trackperformer[tracknr][len] = '\0';
 			}
 		} else if (tracknr == 0 &&
-			    global.creator == NULL) {
+			    global.performer == NULL) {
 			unsigned	len;
 
 			len = strlen((char *)line);
 
 			if (len > 0)
-				global.creator = malloc(len + 1);
-			if (global.creator != NULL) {
-				memcpy(global.creator, line, len);
-				global.creator[len] = '\0';
+				global.performer = malloc(len + 1);
+			if (global.performer != NULL) {
+				memcpy(global.performer, line, len);
+				global.performer[len] = '\0';
 			}
 		}
 		break;
@@ -272,24 +272,132 @@ process_header(c, tracknr, dbcc, line)
 #if	DETAILED
 		fprintf(stderr, "Songwriter(s)");
 #endif
+		if (tracknr > 0 && tracknr < 100 &&
+		    global.tracksongwriter[tracknr] == NULL) {
+			unsigned	len;
+
+			len = strlen((char *)line);
+
+			if (len > 0)
+				global.tracksongwriter[tracknr] = malloc(len + 1);
+
+			if (global.tracksongwriter[tracknr] != NULL) {
+				memcpy(global.tracksongwriter[tracknr], line,
+									len);
+				global.tracksongwriter[tracknr][len] = '\0';
+			}
+		} else if (tracknr == 0 &&
+			    global.songwriter == NULL) {
+			unsigned	len;
+
+			len = strlen((char *)line);
+
+			if (len > 0)
+				global.songwriter = malloc(len + 1);
+			if (global.songwriter != NULL) {
+				memcpy(global.songwriter, line, len);
+				global.songwriter[len] = '\0';
+			}
+		}
 		break;
 
 	case 0x83:	/* Name(s) of the composer(s) */
 #if	DETAILED
 		fprintf(stderr, "Composer(s)");
 #endif
+		if (tracknr > 0 && tracknr < 100 &&
+		    global.trackcomposer[tracknr] == NULL) {
+			unsigned	len;
+
+			len = strlen((char *)line);
+
+			if (len > 0)
+				global.trackcomposer[tracknr] = malloc(len + 1);
+
+			if (global.trackcomposer[tracknr] != NULL) {
+				memcpy(global.trackcomposer[tracknr], line,
+									len);
+				global.trackcomposer[tracknr][len] = '\0';
+			}
+		} else if (tracknr == 0 &&
+			    global.composer == NULL) {
+			unsigned	len;
+
+			len = strlen((char *)line);
+
+			if (len > 0)
+				global.composer = malloc(len + 1);
+			if (global.composer != NULL) {
+				memcpy(global.composer, line, len);
+				global.composer[len] = '\0';
+			}
+		}
 		break;
 
 	case 0x84:	/* Name(s) of the arranger(s) */
 #if	DETAILED
 		fprintf(stderr, "Arranger(s)");
 #endif
+		if (tracknr > 0 && tracknr < 100 &&
+		    global.trackarranger[tracknr] == NULL) {
+			unsigned	len;
+
+			len = strlen((char *)line);
+
+			if (len > 0)
+				global.trackarranger[tracknr] = malloc(len + 1);
+
+			if (global.trackarranger[tracknr] != NULL) {
+				memcpy(global.trackarranger[tracknr], line,
+									len);
+				global.trackarranger[tracknr][len] = '\0';
+			}
+		} else if (tracknr == 0 &&
+			    global.arranger == NULL) {
+			unsigned	len;
+
+			len = strlen((char *)line);
+
+			if (len > 0)
+				global.arranger = malloc(len + 1);
+			if (global.arranger != NULL) {
+				memcpy(global.arranger, line, len);
+				global.arranger[len] = '\0';
+			}
+		}
 		break;
 
 	case 0x85:	/* Message from content provider and/or artist */
 #if	DETAILED
 		fprintf(stderr, "Message");
 #endif
+		if (tracknr > 0 && tracknr < 100 &&
+		    global.trackmessage[tracknr] == NULL) {
+			unsigned	len;
+
+			len = strlen((char *)line);
+
+			if (len > 0)
+				global.trackmessage[tracknr] = malloc(len + 1);
+
+			if (global.trackmessage[tracknr] != NULL) {
+				memcpy(global.trackmessage[tracknr], line,
+									len);
+				global.trackmessage[tracknr][len] = '\0';
+			}
+		} else if (tracknr == 0 &&
+			    global.message == NULL) {
+			unsigned	len;
+
+			len = strlen((char *)line);
+
+			if (len > 0)
+				global.message = malloc(len + 1);
+			if (global.message != NULL) {
+				memcpy(global.message, line, len);
+				global.message[len] = '\0';
+			}
+		}
 		break;
 
 	case 0x86:	/* Disc Identification and information */
@@ -305,6 +413,39 @@ process_header(c, tracknr, dbcc, line)
 #if	DETAILED
 		fprintf(stderr, "Genre identification");
 #endif
+		break;
+
+	case 0x8d:	/* Closed information */
+#if	DETAILED
+		fprintf(stderr, "Closed information");
+#endif
+		if (tracknr > 0 && tracknr < 100 &&
+		    global.trackclosed_info[tracknr] == NULL) {
+			unsigned	len;
+
+			len = strlen((char *)line);
+
+			if (len > 0)
+				global.trackclosed_info[tracknr] = malloc(len + 1);
+
+			if (global.trackclosed_info[tracknr] != NULL) {
+				memcpy(global.trackclosed_info[tracknr], line,
+									len);
+				global.trackclosed_info[tracknr][len] = '\0';
+			}
+		} else if (tracknr == 0 &&
+			    global.closed_info == NULL) {
+			unsigned	len;
+
+			len = strlen((char *)line);
+
+			if (len > 0)
+				global.closed_info = malloc(len + 1);
+			if (global.closed_info != NULL) {
+				memcpy(global.closed_info, line, len);
+				global.closed_info[len] = '\0';
+			}
+		}
 		break;
 
 	case 0x8e:	/* UPC/EAN code or ISRC code */

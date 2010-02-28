@@ -363,6 +363,8 @@
 ./RULES/sun4v-sunos5-cc64.rul
 ./RULES/sun4v-sunos5-gcc.rul
 ./RULES/sun4v-sunos5-gcc64.rul
+./RULES/x86_64-dragonfly-cc.rul
+./RULES/x86_64-dragonfly-gcc.rul
 ./RULES/x86_64-linux-cc.rul
 ./RULES/x86_64-linux-gcc.rul
 ./RULES/x86_64-linux-suncc.rul

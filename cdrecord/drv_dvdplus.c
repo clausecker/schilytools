@@ -1,11 +1,11 @@
-/* @(#)drv_dvdplus.c	1.59 09/11/19 Copyright 2003-2009 J. Schilling */
+/* @(#)drv_dvdplus.c	1.60 10/02/16 Copyright 2003-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)drv_dvdplus.c	1.59 09/11/19 Copyright 2003-2009 J. Schilling";
+	"@(#)drv_dvdplus.c	1.60 10/02/16 Copyright 2003-2010 J. Schilling";
 #endif
 /*
- *	Copyright (c) 2003-2009 J. Schilling
+ *	Copyright (c) 2003-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -574,6 +574,7 @@ extern	char	*buf;
 	BOOL	did_dummy = FALSE;
 	BOOL	did_reload = FALSE;
 	int	profile;
+	Int32_t	maxblocks;
 	Ulong	end_lba;
 
 /*	if (lverbose > 0)*/
@@ -748,6 +749,7 @@ error("MAXBLO %d from free_blocks\n", (int)a_to_u_4_byte(rp->free_blocks));
 #ifdef	DVDPLUS_DEBUG
 error("NWAv %d Next rec addr %d\n", rp->nwa_v, (int)a_to_u_4_byte(rp->next_recordable_addr));
 #endif
+	maxblocks = dsp->ds_maxblocks;
 
 	/*
 	 * XXX this was: if (dip->disk_status == DS_EMPTY)
@@ -837,8 +839,11 @@ error("end_lba: %lu\n", end_lba);
 	/*
 	 * XXX Note that end_lba is unsigned and dsp->ds_maxblocks is signed.
 	 */
-	if ((Int32_t)end_lba > dsp->ds_maxblocks)
-		dsp->ds_maxblocks = end_lba;
+	if ((Int32_t)end_lba > dsp->ds_maxblocks) {
+		if (maxblocks == 0)
+			printf("WARNING: Drive returns zero media size, correcting.\n");
+		dsp->ds_maxblocks = end_lba + 1;
+	}
 
 	return (drive_getdisktype(scgp, dp));
 }

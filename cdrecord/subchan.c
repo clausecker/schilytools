@@ -1,13 +1,13 @@
-/* @(#)subchan.c	1.26 09/07/10 Copyright 2000-2009 J. Schilling */
+/* @(#)subchan.c	1.27 10/02/03 Copyright 2000-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)subchan.c	1.26 09/07/10 Copyright 2000-2009 J. Schilling";
+	"@(#)subchan.c	1.27 10/02/03 Copyright 2000-2010 J. Schilling";
 #endif
 /*
  *	Subchannel processing
  *
- *	Copyright (c) 2000-2009 J. Schilling
+ *	Copyright (c) 2000-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -429,6 +429,9 @@ fillsubch(trackp, sp, secno, nsecs)
 static	long	nextmcn = -1000000L;
 static	long	nextisrc = -1000000L;
 static	Uchar	lastindex = 255;
+
+	if (trackno == 0 && is_hidden(trackp))
+		trackno = trackp[1].trackno;
 
 	fillbytes(sub, 12, '\0');
 

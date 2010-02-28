@@ -1,13 +1,13 @@
-/* @(#)wav.c	1.11 09/07/10 Copyright 1998,1999 Heiko Eissfeldt, Copyright 2006-2009 J. Schilling */
+/* @(#)wav.c	1.14 10/01/31 Copyright 1998,1999 Heiko Eissfeldt, Copyright 2006-2010 J. Schilling */
 #include "config.h"
 #ifndef lint
 static	UConst char sccsid[] =
-"@(#)wav.c	1.11 09/07/10 Copyright 1998,1999 Heiko Eissfeldt, Copyright 2006-2009 J. Schilling";
+"@(#)wav.c	1.14 10/01/31 Copyright 1998,1999 Heiko Eissfeldt, Copyright 2006-2010 J. Schilling";
 
 #endif
 /*
  * Copyright (C) by Heiko Eissfeldt
- * Copyright (c) 2006-2009 J. Schilling
+ * Copyright (c) 2006-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -185,5 +185,6 @@ struct soundfile wavsound =
 		Uchar *buf,
 		size_t BytesToDo))) write, /* get sound samples out */
 	InSizeToOutSize,	/* compressed? output file size */
-	0			/* needs big endian samples */
+	0,			/* needs big endian samples */
+	"WAVE"
 };

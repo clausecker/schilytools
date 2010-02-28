@@ -1,4 +1,4 @@
-/* @(#)toc.h	1.10 06/05/13 Copyright 1998,1999 Heiko Eissfeldt, Copyright 2006 J. Schilling */
+/* @(#)toc.h	1.11 10/01/22 Copyright 1998,1999 Heiko Eissfeldt, Copyright 2006 J. Schilling */
 
 /*
  * The contents of this file are subject to the terms of the
@@ -54,6 +54,7 @@ extern	int		Get_Channels	__PR((unsigned long p_track));
 extern	int		Get_Copyright	__PR((unsigned long p_track));
 extern	int		Get_Datatrack	__PR((unsigned long p_track));
 extern	int		Get_Tracknumber	__PR((unsigned long p_track));
+extern	int		useHiddenTrack	__PR((void));
 extern	unsigned char *	Get_MCN		__PR((void));
 extern	unsigned char *	Get_ISRC	__PR((unsigned long p_track));
 

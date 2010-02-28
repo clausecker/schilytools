@@ -1,13 +1,13 @@
-/* @(#)cdrecord.c	1.390 09/12/20 Copyright 1995-2009 J. Schilling */
+/* @(#)cdrecord.c	1.397 10/02/22 Copyright 1995-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)cdrecord.c	1.390 09/12/20 Copyright 1995-2009 J. Schilling";
+	"@(#)cdrecord.c	1.397 10/02/22 Copyright 1995-2010 J. Schilling";
 #endif
 /*
  *	Record data on a CD/CVD-Recorder
  *
- *	Copyright (c) 1995-2009 J. Schilling
+ *	Copyright (c) 1995-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -21,6 +21,7 @@ static	UConst char sccsid[] =
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
+/*#define	TR_DEBUG*/
 #include <schily/mconfig.h>
 #include <schily/stdio.h>
 #include <schily/standard.h>
@@ -166,6 +167,9 @@ LOCAL	int	didintr;
 EXPORT	char	*driveropts;
 LOCAL	char	*cuefilename;
 LOCAL	uid_t	oeuid = (uid_t)-1;
+LOCAL	char	*isobuf;	/* Buffer for doing -isosize on stdin	  */
+LOCAL	int	isobsize;	/* The amount of remaining data in isobuf */
+LOCAL	int	isoboff;	/* The current "read" offset in isobuf	  */
 
 struct timeval	starttime;
 struct timeval	wstarttime;
@@ -196,7 +200,7 @@ EXPORT	int	get_buf		__PR((int f, track_t *trackp, long secno,
 EXPORT	int	write_secs	__PR((SCSI *scgp, cdr_t *dp, char *bp,
 						long startsec, int bytespt,
 						int secspt, BOOL islast));
-LOCAL	int	write_track_data __PR((SCSI *scgp, cdr_t *, track_t *));
+EXPORT	int	write_track_data __PR((SCSI *scgp, cdr_t *, track_t *));
 EXPORT	int	pad_track	__PR((SCSI *scgp, cdr_t *dp,
 					track_t *trackp,
 					long startsec, Llong amt,
@@ -214,6 +218,7 @@ LOCAL	void	setleadinout	__PR((int, track_t *));
 LOCAL	void	setpregaps	__PR((int, track_t *));
 LOCAL	long	checktsize	__PR((int, track_t *));
 LOCAL	void	opentracks	__PR((track_t *));
+LOCAL	int	cvt_hidden	__PR((track_t *));
 LOCAL	void	checksize	__PR((track_t *));
 LOCAL	BOOL	checkdsize	__PR((SCSI *scgp, cdr_t *dp,
 					long tsize, UInt32_t flags));
@@ -251,6 +256,9 @@ LOCAL	void	print_wrmodes	__PR((cdr_t *dp));
 LOCAL	BOOL	check_wrmode	__PR((cdr_t *dp, UInt32_t wmode, int tflags));
 LOCAL	void	set_wrmode	__PR((cdr_t *dp, UInt32_t wmode, int tflags));
 LOCAL	void	linuxcheck	__PR((void));
+#ifdef	TR_DEBUG
+EXPORT	void	prtrack		__PR((track_t *trackp));
+#endif
 
 struct exargs {
 	SCSI		*scgp;		/* The open SCSI * pointer	    */
@@ -368,7 +376,7 @@ main(ac, av)
 #	define	CLONE_TITLE	""
 #endif
 	if ((flags & F_MSINFO) == 0 || lverbose || flags & F_VERSION) {
-		printf("Cdrecord%s%s%s %s (%s-%s-%s) Copyright (C) 1995-2009 Jörg Schilling\n",
+		printf("Cdrecord%s%s%s %s (%s-%s-%s) Copyright (C) 1995-2010 Jörg Schilling\n",
 								PRODVD_TITLE,
 								PROBD_TITLE,
 								CLONE_TITLE,
@@ -452,14 +460,11 @@ main(ac, av)
 		 * of the advanced features. We need to be at least installed
 		 * suid root or called by RBACs pfexec.
 		 */
-		init_fifo(fs);	/* Attach shared memory (still one process) */
+		fs = init_fifo(fs); /* Attach shared memory (still one process) */
 	}
 
-	if ((flags & F_WAITI) != 0) {
-		if (lverbose)
-			printf("Waiting for data on stdin...\n");
+	if ((flags & F_WAITI) != 0)
 		wait_input();
-	}
 
 
 	/*
@@ -827,6 +832,7 @@ main(ac, av)
 		tracks = track[0].tracks;
 	} else {
 		opentracks(track);
+		tracks = track[0].tracks;
 	}
 
 	if (tracks > 1)
@@ -963,6 +969,8 @@ main(ac, av)
 	if (flags & F_PRATIP) {
 		comexit(0);
 	}
+	if (cuefilename != 0 && (dp->cdr_dstat->ds_flags & DSF_NOCD) != 0)
+		comerrno(EX_BAD, "Wrong media, the cuefile= option only works with CDs.\n");
 	/*
 	 * The next actions should depend on the disk type.
 	 */
@@ -1116,7 +1124,7 @@ main(ac, av)
 		    !checkdsize(scgp, dp, tsize, flags))
 			comexit(EX_BAD);
 	}
-	if (tracks > 0 && fs > 0l) {
+	if (tracks > 0 && fs > 0L) {
 #if defined(USE_POSIX_PRIORITY_SCHEDULING) && defined(HAVE_SETREUID)
 		/*
 		 * Hack to work around the POSIX design bug in real time
@@ -1332,7 +1340,7 @@ main(ac, av)
 		errs++;
 		goto restore_it;
 	}
-	if (tracks > 0 && fs > 0l) {
+	if (tracks > 0 && fs > 0L) {
 		/*
 		 * Wait for the read-buffer to become full.
 		 * This should be take no extra time if the input is a file.
@@ -1490,6 +1498,12 @@ main(ac, av)
 
 		if ((*dp->cdr_open_track)(scgp, dp, &track[i]) < 0) {
 			errmsgno(EX_BAD, "Cannot open next track.\n");
+			/*
+			 * XXX We should try to avoid to fixate unwritten media
+			 * XXX e.g. when opening track 1 fails, but then we
+			 * XXX would need to keep track of whether the media
+			 * XXX was written yet. This could be done in *dp.
+			 */
 			errs++;
 			break;
 		}
@@ -2108,6 +2122,19 @@ read_buf(f, bp, size)
 	int	amount = 0;
 	int	n;
 
+	if (isobsize > 0) {
+		if (size <= isobsize) {
+			movebytes(&isobuf[isoboff], bp, size);
+			isoboff += size;
+			isobsize -= size;
+			return (size);
+		} else {
+			amount = isobsize;
+			movebytes(&isobuf[isoboff], bp, isobsize);
+			isoboff += isobsize;
+			isobsize = 0;
+		}
+	}
 	do {
 		do {
 			n = read(f, p, size-amount);
@@ -2271,7 +2298,7 @@ again:
 	return (amount);
 }
 
-LOCAL int
+EXPORT int
 write_track_data(scgp, dp, trackp)
 	SCSI	*scgp;
 	cdr_t	*dp;
@@ -3096,8 +3123,15 @@ opentracks(trackp)
 	Llong	tracksize;
 	int	secsize;
 
-	for (i = 1; i <= tracks; i++) {
+	if (trackp[1].flags & TI_USEINFO &&
+	    auinfhidden(trackp[1].filename, 1, trackp)) {
+		tracks = cvt_hidden(trackp);
+	}
+
+	for (i = 0; i <= tracks; i++) {
 		tp = &trackp[i];
+		if (i == 0 && tp->filename == NULL)
+			continue;
 
 		if (auinfosize(tp->filename, tp)) {
 			/*
@@ -3107,11 +3141,20 @@ opentracks(trackp)
 			 * cdda2wav | cdrecord
 			 */
 			tp->xfp = xopen(NULL, O_RDONLY|O_BINARY, 0, 0);
+			tp->flags |= TI_STDIN;
 		} else if (strcmp("-", tp->filename) == 0) {
 			/*
 			 * open stdin
 			 */
 			tp->xfp = xopen(NULL, O_RDONLY|O_BINARY, 0, 0);
+			tp->flags |= TI_STDIN;
+			if (((tp->flags & TI_ISOSIZE) != 0) &&
+			    !is_audio(tp) && (is_sao(tp) || is_raw(tp))) {
+				if ((exargs.flags & F_WAITI) == 0) {
+					exargs.flags |= F_WAITI;
+					wait_input();
+				}
+			}
 		} else {
 			if ((tp->xfp = xopen(tp->filename,
 					O_RDONLY|O_BINARY, 0, 0)) == NULL) {
@@ -3163,6 +3206,45 @@ opentracks(trackp)
 	}
 }
 
+LOCAL int
+cvt_hidden(trackp)
+	track_t	*trackp;
+{
+	register int	i;
+	register int	tracks;
+		int	trackno;
+		track_t	*tp0 = &trackp[0];
+		track_t	*tp1 = &trackp[1];
+
+	tp0->filename = tp1->filename;
+	tp0->trackstart = tp1->trackstart;
+	tp0->itracksize = tp1->itracksize;
+	tp0->tracksize = tp1->tracksize;
+	tp0->tracksecs = tp1->tracksecs;
+
+	tracks = tp0->tracks - 1;	/* Reduce number of tracks by one */
+	trackno = trackp[2].trackno;	/* Will become track # f. track 1 */
+	trackno -= 2;
+	if (trackno < 0)
+		trackno = 0;
+
+	for (i = 1; i < MAX_TRACK+1; i++) {
+		movebytes(&trackp[i+1], &trackp[i], sizeof (trackp[0]));
+	}
+	for (i = 0; i < MAX_TRACK+2; i++) {
+		trackp[i].track = i;
+		trackp[i].trackno = trackno + i;
+		trackp[i].tracks = tracks;
+	}
+	tp0->trackno = 0;
+	tp0->flags |= TI_HIDDEN;
+	tp1->flags |= TI_HIDDEN;
+	tp1->flags &= ~TI_PREGAP;
+	tp0->flags |= tp1->flags &
+			(TI_SWAB|TI_AUDIO|TI_COPY|TI_QUADRO|TI_PREEMP|TI_SCMS);
+	return (tracks);
+}
+
 LOCAL void
 checksize(trackp)
 	track_t	*trackp;
@@ -3180,7 +3262,17 @@ checksize(trackp)
 	 * use fstat() or file parser to get the size of the file.
 	 */
 	if (trackp->itracksize < 0 && (trackp->flags & TI_ISOSIZE) != 0) {
-		lsize = isosize(f);
+		if ((trackp->flags & TI_STDIN) != 0) {
+			if (trackp->track != 1)
+				comerrno(EX_BAD, "-isosize on stdin only works for the first track.\n");
+			isobuf = malloc(32 * 2048);
+			if (isobuf == NULL)
+				comerrno(EX_BAD, "Cannot malloc iso size buffer.\n");
+			isobsize = read_buf(f, isobuf, 32 * 2048);
+			lsize = bisosize(isobuf, isobsize);
+		} else {
+			lsize = isosize(f);
+		}
 		trackp->itracksize = lsize;
 		if (trackp->itracksize != lsize)
 			comerrno(EX_BAD, "This OS cannot handle large ISO-9660 images.\n");
@@ -3975,6 +4067,7 @@ gargs(ac, av, tracksp, trackp, devp, timeoutp, dpp, speedp, flagsp, blankp)
 		if (tracks == 0) {
 			trackp[0].tracktype = tracktype;
 			trackp[0].dbtype = dbtype;
+			trackp[0].sectype = sectype;
 			trackp[0].isecsize = secsize;
 			trackp[0].secsize = secsize;
 			if ((*flagsp & F_RAW) != 0) {
@@ -4382,7 +4475,7 @@ load_media(scgp, dp, doexit)
 	scgp->silent--;
 	err = geterrno();
 	if (code < 0 && (err == EPERM || err == EACCES)) {
-		linuxcheck();	/* For version 1.390 of cdrecord.c */
+		linuxcheck();	/* For version 1.397 of cdrecord.c */
 		scg_openerr("");
 	}
 
@@ -4489,6 +4582,9 @@ _read_buffer(scgp, size)
 	buf[size-2] = (char)0x55; buf[size-1] = (char)0xFF;
 	if (read_buffer(scgp, buf, size, 0) < 0 ||
 	    scg_getresid(scgp) != 0) {
+		errmsgno(EX_BAD,
+			"Warning: 'read buffer' failed, DMA residual count %d.\n",
+			scg_getresid(scgp));
 		return (-1);
 	}
 	/*
@@ -4496,6 +4592,8 @@ _read_buffer(scgp, size)
 	 * DMA residual count (e.g. Linux).
 	 */
 	if (buf[size-2] == (char)0x55 || buf[size-1] == (char)0xFF) {
+		errmsgno(EX_BAD,
+		"Warning: DMA resid 0 for 'read buffer', actual data is too short.\n");
 		return (-1);
 	}
 	return (0);
@@ -4517,11 +4615,15 @@ get_dmaspeed(scgp, dp)
 	scgp->silent++;
 	i = read_buffer(scgp, buf, 4, 0);
 	scgp->silent--;
-	if (i < 0 || scg_getresid(scgp) != 0)
+	if (i < 0 || scg_getresid(scgp) != 0) {
+		errmsgno(EX_BAD, "Warning: Cannot read drive buffer.\n");
 		return (-1);
+	}
 	tsize = a_to_u_3_byte(&buf[1]);
-	if (tsize <= 0)
+	if (tsize <= 0) {
+		errmsgno(EX_BAD, "Warning: Drive returned invalid buffer size.\n");
 		return (-1);
+	}
 
 	bs = bufsize;
 	if (tsize < bs)
@@ -4533,6 +4635,9 @@ get_dmaspeed(scgp, dp)
 	fillbytes((caddr_t)buf, bs, '\0');
 	if (read_buffer(scgp, buf, bs, 0) < 0) {
 		scgp->silent--;
+		errmsgno(EX_BAD,
+			"Warning: Cannot read %d bytes from drive buffer.\n",
+			bs);
 		return (-1);
 	}
 	for (i = bs-1; i >= 0; i--) {
@@ -4579,8 +4684,10 @@ get_dmaspeed(scgp, dp)
 	}
 	scgp->silent--;
 
-	if (gettimeofday(&starttime, (struct timezone *)0) < 0)
+	if (gettimeofday(&starttime, (struct timezone *)0) < 0) {
+		errmsg("Cannot get DMA start time.\n");
 		return (-1);
+	}
 
 	for (i = 0; i < 100; i++) {
 		if (_read_buffer(scgp, bs) < 0)
@@ -4972,13 +5079,16 @@ wait_input()
 {
 #ifdef	HAVE_SELECT
 	fd_set	in;
-
+#else
+	struct pollfd pfd;
+#endif
+	if (lverbose)
+		printf("Waiting for data on stdin...\n");
+#ifdef	HAVE_SELECT
 	FD_ZERO(&in);
 	FD_SET(STDIN_FILENO, &in);
 	select(1, &in, NULL, NULL, 0);
 #else
-	struct pollfd pfd;
-
 	pfd.fd = STDIN_FILENO;
 	pfd.events = POLLIN;
 	pfd.revents = 0;
@@ -5253,7 +5363,7 @@ set_wrmode(dp, wmode, tflags)
 }
 
 /*
- * I am sorry that even for version 1.390 of cdrecord.c, I am forced to do
+ * I am sorry that even for version 1.397 of cdrecord.c, I am forced to do
  * things like this, but defective versions of cdrecord cause a lot of
  * work load to me.
  *
@@ -5270,7 +5380,7 @@ set_wrmode(dp, wmode, tflags)
 #endif
 
 LOCAL void
-linuxcheck()				/* For version 1.390 of cdrecord.c */
+linuxcheck()				/* For version 1.397 of cdrecord.c */
 {
 #if	defined(linux) || defined(__linux) || defined(__linux__)
 #ifdef	HAVE_UNAME
@@ -5292,3 +5402,35 @@ linuxcheck()				/* For version 1.390 of cdrecord.c */
 #endif
 #endif
 }
+
+#ifdef	TR_DEBUG
+EXPORT void
+prtrack(trackp)
+	track_t	*trackp;
+{
+	error("Track:		%d\n", (int)(trackp - track_base(trackp)));
+	error("xfp:		%p\n", trackp->xfp);
+	error("filename:	%s\n", trackp->filename);
+	error("itracksize:	%lld\n", (Llong)trackp->itracksize);
+	error("tracksize:	%lld\n", (Llong)trackp->tracksize);
+	error("trackstart:	%ld\n", trackp->trackstart);
+	error("tracksecs:	%ld\n", trackp->tracksecs);
+	error("padsecs:	%ld\n", trackp->padsecs);
+	error("pregapsize:	%ld\n", trackp->pregapsize);
+	error("index0start:	%ld\n", trackp->index0start);
+	error("isecsize:	%d\n", trackp->isecsize);
+	error("secsize:	%d\n", trackp->secsize);
+	error("secspt:		%d\n", trackp->secspt);
+	error("pktsize:	%d\n", trackp->pktsize);
+	error("dataoff:	%d\n", trackp->dataoff);
+	error("tracks:		%d\n", trackp->tracks);
+	error("track:		%d\n", trackp->track);
+	error("trackno:	%d\n", trackp->trackno);
+	error("tracktype:	%d\n", trackp->tracktype);
+	error("dbtype:		%d\n", trackp->dbtype);
+	error("sectype:	%2.2X\n", trackp->sectype);
+	error("flags:		%X\n", trackp->flags);
+	error("nindex:		%d\n", trackp->nindex);
+
+}
+#endif

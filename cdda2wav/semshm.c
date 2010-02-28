@@ -1,8 +1,8 @@
-/* @(#)semshm.c 1.29 09/08/08 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling */
+/* @(#)semshm.c 1.30 10/01/07 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2004-2010 J. Schilling */
 #include "config.h"
 #ifndef lint
 static	UConst char sccsid[] =
-"@(#)semshm.c	1.29 09/08/08 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling";
+"@(#)semshm.c	1.30 10/01/07 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2004-2010 J. Schilling";
 #endif
 
 #define	IPCTST
@@ -203,7 +203,7 @@ semdestroy()
 	/*
 	 * How do we stop the other process from waiting?
 	 */
-	return (0);
+	free_sem();
 }
 
 int
