@@ -1,6 +1,6 @@
-/* @(#)libport.h	1.20 09/10/22 Copyright 1995-2009 J. Schilling */
+/* @(#)libport.h	1.23 10/05/07 Copyright 1995-2010 J. Schilling */
 /*
- *	Copyright (c) 1995-2009 J. Schilling
+ *	Copyright (c) 1995-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -80,8 +80,17 @@ extern	char		*strcpy		__PR((char *s1, const char *s2));
 extern	char		*strdup		__PR((const char *s));
 #endif
 #ifdef	FOUND_SIZE_T
+#ifndef	HAVE_STRNDUP
+extern	char		*strndup	__PR((const char *s, size_t len));
+#endif
 #ifndef	HAVE_STRLEN
 extern	size_t		strlen		__PR((const char *s));
+#endif
+#ifndef	HAVE_STRNLEN
+extern	size_t		strnlen		__PR((const char *s, size_t len));
+#endif
+#ifndef	HAVE_STRLCAT
+extern	size_t		strlcat		__PR((char *s1, const char *s2, size_t len));
 #endif
 #ifndef	HAVE_STRLCPY
 extern	size_t		strlcpy		__PR((char *s1, const char *s2, size_t len));
@@ -117,8 +126,17 @@ extern	wchar_t		*wcscpy		__PR((wchar_t *s1, const wchar_t *s2));
 extern	wchar_t		*wcsdup		__PR((const wchar_t *s));
 #endif
 #ifdef	FOUND_SIZE_T
+#ifndef	HAVE_WCSNDUP
+extern	wchar_t		*wcsndup	__PR((const wchar_t *s, size_t len));
+#endif
 #ifndef	HAVE_WCSLEN
 extern	size_t		wcslen		__PR((const wchar_t *s));
+#endif
+#ifndef	HAVE_WCSNLEN
+extern	size_t		wcsnlen		__PR((const wchar_t *s, size_t len));
+#endif
+#ifndef	HAVE_WCSLCAT
+extern	size_t		wcslcat		__PR((wchar_t *s1, const wchar_t *s2, size_t len));
 #endif
 #ifndef	HAVE_WCSLCPY
 extern	size_t		wcslcpy		__PR((wchar_t *s1, const wchar_t *s2, size_t len));
@@ -142,8 +160,21 @@ extern	wchar_t		*wcsrchr	__PR((const wchar_t *s1, wchar_t c));
 extern	int		rename		__PR((const char *old, const char *new));
 #endif
 
+/*
+ * XXX Note: libgen.h / -lgen on Solaris contain eaccess()
+ */
 #ifndef	HAVE_EACCESS
-extern	int		eaccess		__PR((char *name, int mode));
+extern	int		eaccess		__PR((const char *name, int mode));
+#endif
+
+/*
+ * See also libgen.h
+ */
+#ifndef	HAVE_BASENAME
+extern	char		*basename	__PR((char *name));
+#endif
+#ifndef	HAVE_DIRNAME
+extern	char		*dirname	__PR((char *name));
 #endif
 
 #ifdef	__cplusplus

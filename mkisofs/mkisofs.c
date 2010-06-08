@@ -1,8 +1,8 @@
-/* @(#)mkisofs.c	1.256 10/02/03 joerg */
+/* @(#)mkisofs.c	1.258 10/04/25 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)mkisofs.c	1.256 10/02/03 joerg";
+	"@(#)mkisofs.c	1.258 10/04/25 joerg";
 #endif
 /*
  * Program mkisofs.c - generate iso9660 filesystem  based upon directory
@@ -88,6 +88,9 @@ struct iso_directory_record jroot_record;
 char	*extension_record = NULL;
 UInt32_t extension_record_extent = 0;
 int	extension_record_size = 0;
+BOOL	archive_isreg;
+dev_t	archive_dev;
+ino_t	archive_ino;
 
 /* These variables are associated with command line options */
 int	check_oldnames = 0;
@@ -204,6 +207,7 @@ findn_t	*find_node;		/* syntaxtree from find_parse()	*/
 void	*plusp;			/* residual for -exec ...{} +	*/
 int	find_patlen;		/* len for -find pattern state	*/
 
+LOCAL	BOOL		data_change_warn;
 LOCAL 	int		walkflags = WALK_CHDIR | WALK_PHYS | WALK_NOEXIT;
 LOCAL	int		maxdepth = -1;
 LOCAL	int		mindepth = -1;
@@ -774,6 +778,8 @@ LOCAL const struct mki_option mki_options[] =
 	"\1PARAMS\1Magic paramters from cdrecord"},
 	{{"d,omit-period", &omit_period },
 	"Omit trailing periods from filenames (violates ISO9660)"},
+	{{"data-change-warn", &data_change_warn },
+	"Treat data/size changes as warning only"},
 	{{"dir-mode*", &dirmode_str },
 	"\1mode\1Make the mode of all directories this mode."},
 	{{"D,disable-deep-relocation", &disable_deep_reloc },
@@ -1081,6 +1087,7 @@ struct directory *get_graft	__PR((char *arg, char *graft_point, size_t glen,
 						char **short_namep, BOOL do_insert));
 EXPORT	void	*e_malloc	__PR((size_t size));
 EXPORT	char	*e_strdup	__PR((const char *s));
+LOCAL	void	checkarch	__PR((char *name));
 
 LOCAL void
 read_rcfile(appname)
@@ -1770,6 +1777,8 @@ args_ok:
 		boot_catalog = BOOT_CATALOG_DEFAULT;
 	if (omit_period && iso9660_level < 4)
 		warn_violate++;
+	if (data_change_warn)
+		errconfig("WARN|GROW|SHRINK *");
 	if (dirmode_str) {
 		char	*end = 0;
 
@@ -2483,6 +2492,7 @@ setcharset:
 #endif
 		/* END CSTYLED */
 	}
+	checkarch(outfile);
 	if (log_file) {
 		FILE		*lfp;
 		int		i;
@@ -3403,4 +3413,35 @@ e_strdup(s)
 	if (s == NULL)
 		comerr("Not enough memory for strdup(%s)\n", s);
 	return (ret);
+}
+
+LOCAL void
+checkarch(name)
+	char	*name;
+{
+	struct stat	stbuf;
+
+	archive_isreg = FALSE;
+	archive_dev = (dev_t)0;
+	archive_ino = (ino_t)0;
+
+	if (name == NULL)
+		return;
+	if (stat(name, &stbuf) < 0)
+		return;
+
+	if (S_ISREG(stbuf.st_mode)) {
+		archive_dev = stbuf.st_dev;
+		archive_ino = stbuf.st_ino;
+		archive_isreg = TRUE;
+	} else if (((stbuf.st_mode & S_IFMT) == 0) ||
+			S_ISFIFO(stbuf.st_mode) ||
+			S_ISSOCK(stbuf.st_mode)) {
+		/*
+		 * This is a pipe or similar on different UNIX implementations.
+		 * (stbuf.st_mode & S_IFMT) == 0 may happen in stange cases.
+		 */
+		archive_dev = NODEV;
+		archive_ino = (ino_t)-1;
+	}
 }

@@ -1,8 +1,8 @@
-/* @(#)isovfy.c	1.41 09/10/12 joerg */
+/* @(#)isovfy.c	1.43 10/05/24 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)isovfy.c	1.41 09/10/12 joerg";
+	"@(#)isovfy.c	1.43 10/05/24 joerg";
 #endif
 /*
  * File isovfy.c - verify consistency of iso9660 filesystem.
@@ -11,7 +11,7 @@ static	UConst char sccsid[] =
  * Written by Eric Youngdale (1993).
  *
  * Copyright 1993 Yggdrasil Computing, Incorporated
- * Copyright (c) 1999-2009 J. Schilling
+ * Copyright (c) 1999-2010 J. Schilling
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2
@@ -78,14 +78,18 @@ LOCAL int	isonum_721	__PR((char * p));
 LOCAL int	isonum_723	__PR((char * p));
 LOCAL int	isonum_711	__PR((char * p));
 LOCAL int	isonum_731	__PR((char * p));
+#if 0
 LOCAL int	isonum_722	__PR((char * p));
+#endif
 LOCAL int	isonum_732	__PR((char * p));
 LOCAL int	isonum_733	__PR((char * p));
 LOCAL int	parse_rr	__PR((unsigned char * pnt, int len, int cont_flag));
 LOCAL void	find_rr		__PR((struct iso_directory_record * idr, Uchar **pntp, int *lenp));
 LOCAL int	dump_rr		__PR((struct iso_directory_record * idr));
 LOCAL void	check_tree	__PR((off_t file_addr, int file_size, off_t parent_addr));
+#if 0
 LOCAL void	check_path_tables __PR((int typel_extent, int typem_extent, int path_table_size));
+#endif
 LOCAL void	usage		__PR((int excode));
 EXPORT int	main		__PR((int argc, char *argv[]));
 
@@ -126,6 +130,7 @@ isonum_731(p)
 		| ((p[3] & 0xff) << 24));
 }
 
+#if 0
 LOCAL int
 isonum_722(p)
 	char	*p;
@@ -133,6 +138,7 @@ isonum_722(p)
 	return ((p[1] & 0xff)
 		| ((p[0] & 0xff) << 8));
 }
+#endif
 
 LOCAL int
 isonum_732(p)
@@ -438,7 +444,8 @@ check_tree(file_addr, file_size, parent_addr)
 				sprintf(&lbuffer[iline], ".             ");
 				iline += strlen(lbuffer + iline);
 				rflag = 0;
-				if (orig_file_addr != (off_t)(isonum_733(idr->extent) + isonum_711((char *) idr->ext_attr_length))) {
+				if (orig_file_addr != (off_t)(isonum_733(idr->extent) +
+							isonum_711((char *) idr->ext_attr_length))) {
 					sprintf(&lbuffer[iline], "***** Directory has null extent.");
 					goof++;
 					iline += strlen(lbuffer + iline);
@@ -452,7 +459,8 @@ check_tree(file_addr, file_size, parent_addr)
 				sprintf(&lbuffer[iline], "..            ");
 				iline += strlen(lbuffer + iline);
 				rflag = 0;
-				if (parent_file_addr != (off_t)(isonum_733(idr->extent) + isonum_711((char *) idr->ext_attr_length))) {
+				if (parent_file_addr != (off_t)(isonum_733(idr->extent) +
+							isonum_711((char *) idr->ext_attr_length))) {
 					sprintf(&lbuffer[iline], "***** Directory has null extent.");
 					goof++;
 					iline += strlen(lbuffer + iline);
@@ -558,6 +566,7 @@ struct path_table_info {
 	unsigned short	parent;
 };
 
+#if 0
 LOCAL void
 check_path_tables(typel_extent, typem_extent, path_table_size)
 	int	typel_extent;
@@ -638,6 +647,7 @@ check_path_tables(typel_extent, typem_extent, path_table_size)
 	free(typel);
 	free(typem);
 }
+#endif
 
 LOCAL void
 usage(excode)
@@ -687,7 +697,7 @@ main(argc, argv)
 	if (help)
 		usage(0);
 	if (prvers) {
-		printf("isovfy %s (%s-%s-%s) Copyright (C) 1993-1999 Eric Youngdale (C) 1999-2009 Jörg Schilling\n",
+		printf("isovfy %s (%s-%s-%s) Copyright (C) 1993-1999 Eric Youngdale (C) 1999-2010 Jörg Schilling\n",
 					VERSION,
 					HOST_CPU, HOST_VENDOR, HOST_OS);
 		exit(0);

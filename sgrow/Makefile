@@ -1,4 +1,4 @@
-#ident @(#)Makefile	1.5 07/12/16 
+#ident @(#)Makefile	1.6 10/05/12 
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -14,6 +14,7 @@ CFILES=		sgrow.c
 #HFILES=
 #LIBS=		-lunos
 LIBS=		-lschily
+XMK_FILE=	Makefile.man
 
 ###########################################################################
 include		$(SRCROOT)/$(RULESDIR)/rules.cmd

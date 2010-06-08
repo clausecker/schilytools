@@ -1,30 +1,20 @@
-/* @(#)edc_ecc.c	1.28 09/07/11 Copyright 1998-2009 Heiko Eissfeldt, Joerg Schilling */
+/* @(#)edc_ecc.c	1.29 10/05/24 Copyright 1998-2010 Heiko Eissfeldt, Joerg Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)edc_ecc.c	1.28 09/07/11 Copyright 1998-2009 Heiko Eissfeldt, Joerg Schilling";
+	"@(#)edc_ecc.c	1.29 10/05/24 Copyright 1998-2010 Heiko Eissfeldt, Joerg Schilling";
 #endif
 
 /*
  * Copyright 1998-2002,2008 by Heiko Eissfeldt
- * Copyright 2002-2009 by Joerg Schilling
+ * Copyright 2002-2010 by Joerg Schilling
  *
  * This file contains protected intellectual property.
  *
  * reed-solomon encoder / decoder for compact discs.
  *
  */
-/*
- * The contents of this file are subject to the terms of the
- * Common Development and Distribution License, Version 1.0 only
- * (the "License").  You may not use this file except in compliance
- * with the License.
- *
- * See the file CDDL.Schily.txt in this distribution for details.
- *
- * When distributing Covered Code, include this CDDL HEADER in each
- * file and include the License file CDDL.Schily.txt from this distribution.
- */
+/*@@C@@*/
 
 #include <schily/stdio.h>
 #include <schily/align.h>
@@ -35,7 +25,7 @@ static	UConst char sccsid[] =
 
 #ifndef	HAVE_MEMMOVE
 /*#define	memmove(dst, src, size)		movebytes((src), (dst), (size))*/
-#define memmove(d, s, n) bcopy ((s), (d), (n))
+#define	memmove(d, s, n)	bcopy((s), (d), (n))
 #endif
 
 /*
@@ -74,13 +64,13 @@ scramble_L2(inout)
 	unsigned int *f = (unsigned int *)inout;
 #endif
 
-	if (!xaligned(inout + 12, sizeof(UInt32_t)-1)) {
+	if (!xaligned(inout + 12, sizeof (UInt32_t)-1)) {
 
 		Uchar		*r = inout + 12;
 		const Uchar	*s = yellowbook_scrambler;
 		register int	i;
 
-		for (i = (L2_RAW + L2_Q + L2_P +16)/sizeof(unsigned char)/4; --i >= 0;) {
+		for (i = (L2_RAW + L2_Q + L2_P +16)/sizeof (unsigned char)/4; --i >= 0; ) {
 			DO4(*r++ ^= *s++);
 		}
 
@@ -89,7 +79,7 @@ scramble_L2(inout)
 		const UInt32_t  *s = yellowbook_scrambler_uint32;
 		register int	i;
 
-		for (i = (L2_RAW + L2_Q + L2_P +16)/sizeof(UInt32_t)/13; --i >= 0;) {
+		for (i = (L2_RAW + L2_Q + L2_P +16)/sizeof (UInt32_t)/13; --i >= 0; ) {
 			DO13(*r++ ^= *s++);
 		}
 	}
@@ -97,7 +87,7 @@ scramble_L2(inout)
 #ifndef	EDC_SCRAMBLE_NOSWAP
 
 	/* generate F1 frames */
-	for (i = 2352/sizeof(unsigned int); i; i--) {
+	for (i = 2352/sizeof (unsigned int); i; i--) {
 		*f++ = ((*f & 0xff00ff00UL) >> 8) | ((*f & 0x00ff00ffUL) << 8);
 	}
 #endif
@@ -139,11 +129,11 @@ encode_L2_Q(inout)
 			dp += 2*44-1;
 			if (dp >= &inout[(4 + L2_RAW + 4 + 8 + L2_P)]) {
 				dp -= (4 + L2_RAW + 4 + 8 + L2_P);
-			} 
+			}
 		}
-		Q[0]      = a >> 8;
-		Q[26*2]   = a;
-		Q[1]      = b >> 8;
+		Q[0]	  = a >> 8;
+		Q[26*2]	  = a;
+		Q[1]	  = b >> 8;
 		Q[26*2+1] = b;
 
 		Q += 2;
@@ -181,9 +171,9 @@ encode_L2_P(inout)
 
 			dp += 2*43 -1;
 		}
-		P[0]      = a >> 8;
-		P[43*2]   = a;
-		P[1]      = b >> 8;
+		P[0]	  = a >> 8;
+		P[43*2]	  = a;
+		P[1]	  = b >> 8;
 		P[43*2+1] = b;
 
 		P += 2;
@@ -265,14 +255,14 @@ do_encode_L2(inout, sectortype, address)
 {
 	unsigned int result;
 
-/*	SYNCPATTERN "\x00\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff" */
-#define SYNCPATTERN "\000\377\377\377\377\377\377\377\377\377\377"
+/*	SYNCPATTERN	"\x00\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff" */
+#define	SYNCPATTERN	"\000\377\377\377\377\377\377\377\377\377\377"
 
 	/* supply initial sync pattern */
-	memcpy(inout, SYNCPATTERN, sizeof(SYNCPATTERN));
+	memcpy(inout, SYNCPATTERN, sizeof (SYNCPATTERN));
 
 	if (sectortype == MODE_0) {
-		memset(inout + sizeof(SYNCPATTERN), 0, 4 + L2_RAW + 12 + L2_P + L2_Q);
+		memset(inout + sizeof (SYNCPATTERN), 0, 4 + L2_RAW + 12 + L2_P + L2_Q);
 		build_address(inout, sectortype, address);
 		return (0);
 	}
@@ -494,7 +484,7 @@ decode_LSUB_Q(inout)
 	int i;
 
 	memset(Q, 0, LSUB_Q);
-	for (i = LSUB_QRAW + LSUB_Q -1; i>=0; i--) {
+	for (i = LSUB_QRAW + LSUB_Q -1; i >= 0; i--) {
 		unsigned char data;
 
 		data = inout[LSUB_QRAW + LSUB_Q -1 -i] & 0x3f;
@@ -518,7 +508,7 @@ decode_LSUB_P(inout)
 	int i;
 
 	memset(P, 0, LSUB_P);
-	for (i = LSUB_RAW + LSUB_Q + LSUB_P-1; i>=0; i--) {
+	for (i = LSUB_RAW + LSUB_Q + LSUB_P-1; i >= 0; i--) {
 		unsigned char data;
 
 		data = inout[LSUB_RAW + LSUB_Q + LSUB_P -1 -i] & 0x3f;
@@ -535,11 +525,11 @@ decode_LSUB_P(inout)
 }
 
 /* Layer 1 CIRC en/decoder */
-#define MAX_L1_DEL1 2
+#define	MAX_L1_DEL1	2
 static unsigned char l1_delay_line1[MAX_L1_DEL1][L1_RAW];
-#define MAX_L1_DEL2 108
+#define	MAX_L1_DEL2	108
 static unsigned char l1_delay_line2[MAX_L1_DEL2][L1_RAW+L1_Q];
-#define MAX_L1_DEL3 1
+#define	MAX_L1_DEL3	1
 static unsigned char l1_delay_line3[MAX_L1_DEL3][L1_RAW+L1_Q+L1_P];
 static unsigned l1_del_index;
 
@@ -547,7 +537,8 @@ int do_encode_L1  __PR((unsigned char in[L1_RAW*FRAMES_PER_SECTOR],
 		unsigned char out[(L1_RAW+L1_Q+L1_P)*FRAMES_PER_SECTOR],
 		int delay1, int delay2, int delay3, int permute));
 
-int do_encode_L1(in, out, delay1, delay2, delay3, permute)
+int
+do_encode_L1(in, out, delay1, delay2, delay3, permute)
 	unsigned char in[L1_RAW*FRAMES_PER_SECTOR];
 	unsigned char out[(L1_RAW+L1_Q+L1_P)*FRAMES_PER_SECTOR];
 	int delay1;
@@ -630,7 +621,7 @@ int do_encode_L1(in, out, delay1, delay2, delay3, permute)
 
 #ifdef	MAIN	/* Make public (non-static) if completely implemented */
 
-static /* XXX should be non static XXX*/ 
+static /* XXX should be non static XXX*/
 
 int
 do_decode_L1(in, out, delay1, delay2, delay3, permute)
@@ -724,7 +715,7 @@ do_decode_L2(in, out)
 #endif	/* MAIN */
 
 
-#define MAX_SUB_DEL 8
+#define	MAX_SUB_DEL	8
 static unsigned char sub_delay_line[MAX_SUB_DEL][LSUB_RAW+LSUB_Q+LSUB_P];
 static unsigned sub_del_index;
 
@@ -781,13 +772,13 @@ do_encode_sub(in, out, delay1, permute)
 	return (0);
 }
 
-int 
+int
 do_decode_sub __PR((
 	unsigned char in[(LSUB_RAW+LSUB_Q+LSUB_P)*PACKETS_PER_SUBCHANNELFRAME],
 	unsigned char out[LSUB_RAW*PACKETS_PER_SUBCHANNELFRAME],
 	int delay1, int permute));
 
-int 
+int
 do_decode_sub(in, out, delay1, permute)
 	unsigned char in[(LSUB_RAW+LSUB_Q+LSUB_P)*PACKETS_PER_SUBCHANNELFRAME];
 	unsigned char out[LSUB_RAW*PACKETS_PER_SUBCHANNELFRAME];
@@ -852,7 +843,7 @@ int
 set_sector_type(st)
 	int st;
 {
-	switch(st) {
+	switch (st) {
 
 	case MODE_0:
 	case MODE_1:
@@ -860,22 +851,22 @@ set_sector_type(st)
 	case MODE_2_FORM_1:
 	case MODE_2_FORM_2:
 		sectortype = st;
-		return 0;
+		return (0);
 	default:
-		return -1;
+		return (-1);
 	}
 }
 
 /* ------------- --------------*/
 #ifdef MAIN
 
-#define DO_L1 1
-#define DO_L2 2
-#define DO_SUB 4
+#define	DO_L1	1
+#define	DO_L2	2
+#define	DO_SUB	4
 
 static const unsigned sect_size[8][2] = {
 /* nothing */
-{0,0},
+{0, 0},
 /* Layer 1 decode/encode */
 { (L1_RAW+L1_Q+L1_P)*FRAMES_PER_SECTOR, L1_RAW*FRAMES_PER_SECTOR},
 /* Layer 2 decode/encode */
@@ -884,22 +875,22 @@ static const unsigned sect_size[8][2] = {
 { (L1_RAW+L1_Q+L1_P)*FRAMES_PER_SECTOR, L1_RAW*FRAMES_PER_SECTOR},
 /* Subchannel decode/encode */
 { (LSUB_RAW+LSUB_Q+LSUB_P)*PACKETS_PER_SUBCHANNELFRAME,
- LSUB_RAW*PACKETS_PER_SUBCHANNELFRAME},
+	LSUB_RAW*PACKETS_PER_SUBCHANNELFRAME},
 /* Layer 1 and subchannel decode/encode */
 { (L1_RAW+L1_Q+L1_P)*FRAMES_PER_SECTOR +
-   (LSUB_RAW+LSUB_Q+LSUB_P)*PACKETS_PER_SUBCHANNELFRAME,
-  LSUB_RAW*PACKETS_PER_SUBCHANNELFRAME +
-   L1_RAW*FRAMES_PER_SECTOR},
+	(LSUB_RAW+LSUB_Q+LSUB_P)*PACKETS_PER_SUBCHANNELFRAME,
+	LSUB_RAW*PACKETS_PER_SUBCHANNELFRAME +
+	    L1_RAW*FRAMES_PER_SECTOR},
 /* Layer 2 and subchannel decode/encode */
-{ L2_RAW+L2_Q+L2_P+
-   (LSUB_RAW+LSUB_Q+LSUB_P)*PACKETS_PER_SUBCHANNELFRAME,
-  LSUB_RAW*PACKETS_PER_SUBCHANNELFRAME +
-   L2_RAW},
+{ L2_RAW+L2_Q+L2_P +
+	(LSUB_RAW+LSUB_Q+LSUB_P)*PACKETS_PER_SUBCHANNELFRAME,
+	LSUB_RAW*PACKETS_PER_SUBCHANNELFRAME +
+	    L2_RAW},
 /* Layer 1, 2 and subchannel decode/encode */
 { (L1_RAW+L1_Q+L1_P)*FRAMES_PER_SECTOR +
-   (LSUB_RAW+LSUB_Q+LSUB_P)*PACKETS_PER_SUBCHANNELFRAME,
-  LSUB_RAW*PACKETS_PER_SUBCHANNELFRAME +
-   L1_RAW*FRAMES_PER_SECTOR},
+	(LSUB_RAW+LSUB_Q+LSUB_P)*PACKETS_PER_SUBCHANNELFRAME,
+	LSUB_RAW*PACKETS_PER_SUBCHANNELFRAME +
+	L1_RAW*FRAMES_PER_SECTOR},
 };
 
 int main	__PR((int argc, char **argv));
@@ -933,7 +924,7 @@ main(argc, argv)
 	infp = fopen("sectors_in", "rb");
 	outfp = fopen("sectors_out", "wb");
 
-	sectortype= MODE_1;
+	sectortype = MODE_1;
 	address = 0 + 75*2;
 
 	switch (sectortype) {
@@ -949,7 +940,7 @@ main(argc, argv)
 	default:
 		load_offset = 0;
 	}
-	while(1) {
+	while (1) {
 
 		if (1 != fread(inbuf+load_offset,
 				sect_size[mask][encode], 1, infp)) {
@@ -966,27 +957,27 @@ main(argc, argv)
 					break;
 				case MODE_2:
 					if (1 !=
-					  fread(inbuf+load_offset+
+					    fread(inbuf+load_offset+
 						sect_size[mask][encode],
-					  2336 - sect_size[mask][encode],
+					    2336 - sect_size[mask][encode],
 						1, infp)) { perror(""); break; }
 					break;
 				case MODE_2_FORM_1:
 					break;
 				case MODE_2_FORM_2:
 					if (1 !=
-					  fread(inbuf+load_offset+
+					    fread(inbuf+load_offset+
 						sect_size[mask][encode],
-					  2324 - sect_size[mask][encode],
+					    2324 - sect_size[mask][encode],
 						1, infp)) { perror(""); break; }
 					break;
 				default:
 					if (1 !=
-					  fread(inbuf+load_offset+
+					    fread(inbuf+load_offset+
 						sect_size[mask][encode],
-					  2448 - sect_size[mask][encode],
+					    2448 - sect_size[mask][encode],
 						1, infp)) { perror(""); break; }
-					memset(inbuf,0,16);
+					memset(inbuf, 0, 16);
 					/*memset(inbuf+16+2048,0,12+272);*/
 					break;
 				}
@@ -998,7 +989,7 @@ main(argc, argv)
 				sub_outbuf = l2_outbuf + 12 + 4+ L2_RAW+4+ 8+ L2_Q+L2_P;
 			}
 			if (mask & DO_L1) {
-				do_encode_L1(l1_inbuf, l1_outbuf,1,1,1,1);
+				do_encode_L1(l1_inbuf, l1_outbuf, 1, 1, 1, 1);
 				last_outbuf = l1_outbuf;
 				sub_inbuf = l1_inbuf + L1_RAW*FRAMES_PER_SECTOR;
 				sub_outbuf = l1_outbuf + (L1_RAW+L1_Q+L1_P)*FRAMES_PER_SECTOR;
@@ -1008,7 +999,7 @@ main(argc, argv)
 			}
 		} else {
 			if (mask & DO_L1) {
-				do_decode_L1(l1_inbuf, l1_outbuf,1,1,1,1);
+				do_decode_L1(l1_inbuf, l1_outbuf, 1, 1, 1, 1);
 				last_outbuf = l2_inbuf = l1_outbuf;
 				l2_outbuf = l1_inbuf;
 				sub_inbuf = l1_inbuf + (L1_RAW+L1_Q+L1_P)*FRAMES_PER_SECTOR;

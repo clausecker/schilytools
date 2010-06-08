@@ -11,6 +11,8 @@ d none share ? ? ?
 d none share/man ? ? ?
 d none share/man/man1 ? ? ?
 f none share/man/man1/ved.1 0444 root bin
+f none share/man/man1/ved-e.1 0444 root bin
+f none share/man/man1/ved-w.1 0444 root bin
 d none share/man/help 0755 root bin
 f none share/man/help/ved.help 0444 root bin
 d none share/doc ? ? ?

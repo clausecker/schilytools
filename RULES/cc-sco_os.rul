@@ -1,4 +1,4 @@
-#ident "@(#)cc-sco_os.rul	1.8 07/05/08 "
+#ident "@(#)cc-sco_os.rul	1.9 10/05/15 "
 ###########################################################################
 # Written 1999 by J. Schilling/Santa Cruz Operation
 ###########################################################################
@@ -60,6 +60,7 @@ RMDEP=		:
 MKDEP=		@echo "	==> MAKING DEPENDENCIES \"$@\""; $(RMDEP); sh $(SRCROOT)/conf/mkdep-sco.sh
 MKDEP_OUT=
 MKDIR=		$(MKDIR_SH)
+INSMKDIR=	$(INSMKDIR_SH)
 
 #CC++ =		@echo "	==> COMPILING \"$@\""; CC
 #LDCC++ =	@echo "	==> LINKING \"$@\""; CC

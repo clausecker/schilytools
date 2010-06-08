@@ -1,5 +1,5 @@
 '\" t
-. \" @(#)spax.1	1.8 09/04/10 Copyr 2004-2009 J. Schilling
+. \" @(#)spax.1	1.10 10/05/12 Copyr 2004-2010 J. Schilling
 . \" Copyright (C) 2001-2004 by the Institute of Electrical and Electronics Engineers, Inc and The Open Group.
 . \" Manual page for spax
 . \"
@@ -30,7 +30,7 @@
 .ce
 .B \\$1
 ..
-.TH SPAX 1L "09/04/10" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH SPAX 1L "10/05/12" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 pax \- portable archive interchange
 .SH SYNOPSIS
@@ -318,7 +318,7 @@ Cause files of type directory being copied or archived or
 archive members of type directory being extracted or listed
 to match only the file or archive member itself and not the
 file hierarchy rooted at the file.
-.....XXX Ab hier noch nicht fertig
+.\".....XXX Ab hier noch nicht fertig
 .TP
 .BI \-f " archive
 Specify the pathname of the input or output archive,
@@ -3643,7 +3643,7 @@ or
 .B write 
 mode, it can reject the file, substitute a non-negative
 timestamp, or generate a non-portable timestamp with a leading
-'\-'. Even though some implementations can support finer file-time
+\&'\-'. Even though some implementations can support finer file-time
 granularities than seconds, the normative text requires support
 only for seconds since the Epoch because the ISO POSIX-1 standard
 states them that way. The 

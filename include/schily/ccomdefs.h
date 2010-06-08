@@ -1,8 +1,8 @@
-/* @(#)ccomdefs.h	1.8 10/02/23 Copyright 2000-2009 J. Schilling */
+/* @(#)ccomdefs.h	1.9 10/04/26 Copyright 2000-2010 J. Schilling */
 /*
  *	Various compiler dependant macros.
  *
- *	Copyright (c) 2000-2009 J. Schilling
+ *	Copyright (c) 2000-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

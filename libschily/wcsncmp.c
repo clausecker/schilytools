@@ -1,13 +1,13 @@
-/* @(#)wcsncmp.c	1.3 09/07/08 Copyright 2006-2009 J. Schilling */
+/* @(#)wcsncmp.c	1.4 10/05/06 Copyright 2006-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)wcsncmp.c	1.3 09/07/08 Copyright 2006-2009 J. Schilling";
+	"@(#)wcsncmp.c	1.4 10/05/06 Copyright 2006-2010 J. Schilling";
 #endif
 /*
  *	wcsncmp() to be used if missing in libc
  *
- *	Copyright (c) 2006-2009 J. Schilling
+ *	Copyright (c) 2006-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -37,17 +37,18 @@ wcsncmp(s1, s2, len)
 	if (s1 == s2)
 		return (0);
 
-	if (++len == 0) {	/* unsigned overflow */
-		--len;
-		while (len-- > 0 && *s1 == *s2++)
+	if (len == 0)
+		return (0);
+
+	do {
+		if (*s1 == *s2++) {
 			if (*s1++ == '\0')
 				return (0);
-		len++;
-	} else {
-		while (--len > 0 && *s1 == *s2++)
-			if (*s1++ == '\0')
-				return (0);
-	}
+		} else {
+			break;
+		}
+	} while (--len > 0);
+
 	return (len == 0 ? 0 : *s1 - *(--s2));
 }
 #endif	/* HAVE_WCSNCMP */

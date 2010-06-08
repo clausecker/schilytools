@@ -54,7 +54,7 @@ following method:
 
 	then edit the *.inf Files and add album and song titles.
 
-	Now call cdrecord as if the *.nf files contain CD-Text 
+	Now call cdrecord as if the *.inf files contain CD-Text 
 	information.
 
 	Note that it is recommended to use less that 160 characters

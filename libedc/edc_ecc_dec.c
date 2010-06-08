@@ -1,8 +1,8 @@
-/* @(#)edc_ecc_dec.c	1.11 09/07/11 Copyright 1998-2001 Heiko Eissfeldt, Copyright 2006-2009 J. Schilling */
+/* @(#)edc_ecc_dec.c	1.12 10/05/24 Copyright 1998-2001 Heiko Eissfeldt, Copyright 2006-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)edc_ecc_dec.c	1.11 09/07/11 Copyright 1998-2001 Heiko Eissfeldt, Copyright 2006-2009 J. Schilling";
+	"@(#)edc_ecc_dec.c	1.12 10/05/24 Copyright 1998-2001 Heiko Eissfeldt, Copyright 2006-2010 J. Schilling";
 #endif
 
 /*
@@ -11,18 +11,9 @@ static	UConst char sccsid[] =
  * reed-solomon encoder / decoder for compact discs.
  *
  * Copyright 1998-2001 by Heiko Eissfeldt
+ * Copyright 2006-2010 by Joerg Schilling
  */
-/*
- * The contents of this file are subject to the terms of the
- * Common Development and Distribution License, Version 1.0 only
- * (the "License").  You may not use this file except in compliance
- * with the License.
- *
- * See the file CDDL.Schily.txt in this distribution for details.
- *
- * When distributing Covered Code, include this CDDL HEADER in each
- * file and include the License file CDDL.Schily.txt from this distribution.
- */
+/*@@C@@*/
 
 #include <schily/stdio.h>
 #include <schily/stdlib.h>
@@ -30,15 +21,15 @@ static	UConst char sccsid[] =
 #include <assert.h>
 #include <schily/utypes.h>
 
-#define EDC_DECODER_HACK	 /* Hack to allow using edc.h with ecc.h */
-#define EDC_DECODER
-#define EDC_SUBCHANNEL
-#define EDC_LAYER2
+#define	EDC_DECODER_HACK	/* Hack to allow using edc.h with ecc.h */
+#define	EDC_DECODER
+#define	EDC_SUBCHANNEL
+#define	EDC_LAYER2
 #include "edc.h"
 
 #ifndef	HAVE_MEMMOVE
 /*#define	memmove(dst, src, size)		movebytes((src), (dst), (size))*/
-#define memmove(d, s, n) bcopy ((s), (d), (n))
+#define	memmove(d, s, n)	bcopy((s), (d), (n))
 #endif
 
 #include "edc_code_tables"
@@ -55,37 +46,37 @@ static	UConst char sccsid[] =
 /* macros for high level functionality */
 
 /* initialize the Berlekamp-Massey decoder */
-#define INIT_BMD \
-	memset(err_locations, 0, sizeof(err_locations)); \
-	memset(err_values, 0, sizeof(err_values)); \
-	memset(tmp_loc, 0, sizeof(tmp_loc)); \
-	err_locations[0] = 1; \
+#define	INIT_BMD \
+	memset(err_locations, 0, sizeof (err_locations));			\
+	memset(err_values, 0, sizeof (err_values));				\
+	memset(tmp_loc, 0, sizeof (tmp_loc));					\
+	err_locations[0] = 1;							\
 	err_values[0] = 1;
 
 /* create an error location polynomial from given erasures. */
-#define INIT_ERASURES(ERAS, ERRORS, MODUL, LOG, ALOG) \
-		err_locations[1] = ALOG[MODUL - (ERAS[0]+1)];    \
-		for (i = 1; i < min(erasures, ERRORS*2); i++) { \
+#define	INIT_ERASURES(ERAS, ERRORS, MODUL, LOG, ALOG)				\
+		err_locations[1] = ALOG[MODUL - (ERAS[0]+1)];			\
+		for (i = 1; i < min(erasures, ERRORS*2); i++) {			\
 			for (j = i+1; j > 0; j--) { 				\
 				if (err_locations[j - 1] != 0) {		\
-					err_locations[j] ^= ALOG[			\
-						LOG[err_locations[j - 1]]		\
-						 + MODUL - (ERAS[i]+1)];		\
-				}										\
-			}											\
+					err_locations[j] ^= ALOG[		\
+						LOG[err_locations[j - 1]]	\
+						+ MODUL - (ERAS[i]+1)];		\
+				}						\
+			}							\
 		}
 
 /* the condition for ignoring this root */
-#define FIND_ROOTS_TABOO(SECTORMACRO, UNIT, SKIPPED) \
-			((SECTORMACRO(UNIT,(i-SKIPPED))) >= low_taboo && \
-		     (SECTORMACRO(UNIT,(i-SKIPPED))) <= high_taboo)
+#define	FIND_ROOTS_TABOO(SECTORMACRO, UNIT, SKIPPED) \
+			((SECTORMACRO(UNIT, (i-SKIPPED))) >= low_taboo &&	\
+			(SECTORMACRO(UNIT, (i-SKIPPED))) <= high_taboo)
 
 /* debugging code for the error location polynomial. */
-#define DEBUG_ERASURE_POLY(LOG, ALOG, MODUL, ERRORS, SKIPPED, TABOO) \
-		if (DEBUG>4) { \
+#define	DEBUG_ERASURE_POLY(LOG, ALOG, MODUL, ERRORS, SKIPPED, TABOO) \
+		if (DEBUG > 4) { \
 			fprintf(stderr, " Errloc coeff.: "); \
 			for (i = 0; i <= min(erasures, ERRORS); i++) { \
-				fprintf(stderr, "%d (%d), ",err_locations[i], LOG[err_locations[i]]); \
+				fprintf(stderr, "%d (%d), ", err_locations[i], LOG[err_locations[i]]); \
 			} \
 			fprintf(stderr, "\n"); \
 		} \
@@ -103,13 +94,13 @@ static	UConst char sccsid[] =
 			} \
 			if (pval != 0) continue; \
 			roots_found++; \
-			if (DEBUG>4) fprintf(stderr, "root at %d\n", i - SKIPPED); \
+			if (DEBUG > 4) fprintf(stderr, "root at %d\n", i - SKIPPED); \
 		} \
 		if (min(erasures, ERRORS*2) != roots_found) \
-			fprintf(stderr, "error location poly is wrong erasures=%d, roots=%d\n",erasures,roots_found);
+			fprintf(stderr, "error location poly is wrong erasures=%d, roots=%d\n", erasures, roots_found);
 
 /* calculate the 'discrepancy' in the Berlekmap-Massey decoder. */
-#define CALC_DISCREPANCY(LOG, ALOG) \
+#define	CALC_DISCREPANCY(LOG, ALOG) \
 		discrepancy = SYND(j); \
 		for (i = 1; i <= j; i++) { \
 			if (err_locations[i] == 0 || SYND(j-i) == 0) \
@@ -120,46 +111,46 @@ static	UConst char sccsid[] =
 		}
 
 /* build a stage of the shift register. */
-#define BUILD_SHIFT_REGISTER(LOG, ALOG, MODUL, ERRORS) \
+#define	BUILD_SHIFT_REGISTER(LOG, ALOG, MODUL, ERRORS) \
 			int	ld = LOG[discrepancy]; \
 			if (l+l <= j + erasures) { \
 				/*						\
 				 * complex case			\
 				 * err_locations and tmp_loc needs to be changed \
 				 */						\
-				unsigned char	tmp_errl[2*ERRORS];	\
-				int		lnd = MODUL - ld;	\
-				/*								\
-				 * change shift register length	\
-				 */								\
-				memcpy(tmp_errl, err_locations+k, l); \
-				for (i = 0; i < k + l; i++) { \
-					int	c=err_locations[i]; \
-					if (i < l) { \
-						int	e=tmp_loc[i]; \
+				unsigned char	tmp_errl[2*ERRORS];		\
+				int		lnd = MODUL - ld;		\
+				/*						\
+				 * change shift register length			\
+				 */						\
+				memcpy(tmp_errl, err_locations+k, l);		\
+				for (i = 0; i < k + l; i++) {			\
+					int	c = err_locations[i];		\
+					if (i < l) {				\
+						int	e = tmp_loc[i];		\
 						if (e != 0) \
 							tmp_errl[i] ^= ALOG[ LOG[e] + ld]; \
-					} \
-					if (c != 0) \
+					}					\
+					if (c != 0)				\
 						tmp_loc[i] = ALOG[LOG[c] + lnd]; \
-					else \
-						tmp_loc[i] = 0; \
-				} \
-				memcpy(err_locations+k, tmp_errl, l); \
-				l = j - l + erasures + 1; \
-				k = 0; \
-			} else { \
-				/* \
-				 * increase order of shift register \
-				 */ \
-				for (i = k; i < k + l; i++) { \
-					if (tmp_loc[i-k] != 0) \
+					else					\
+						tmp_loc[i] = 0;			\
+				}						\
+				memcpy(err_locations+k, tmp_errl, l);		\
+				l = j - l + erasures + 1;			\
+				k = 0;						\
+			} else {						\
+				/*						\
+				 * increase order of shift register		\
+				 */						\
+				for (i = k; i < k + l; i++) {			\
+					if (tmp_loc[i-k] != 0)			\
 						err_locations[i] ^= ALOG[ LOG[tmp_loc[i-k]] + ld]; \
-				} \
+				}						\
 			}
 
 /* do a chien search to find roots of the error location polynomial. */
-#define FIND_ROOTS(LOG, ALOG, MODUL, ERRORS, SKIPPED, TABOOMACRO) \
+#define	FIND_ROOTS(LOG, ALOG, MODUL, ERRORS, SKIPPED, TABOOMACRO) \
 	for (roots_found = 0, i = SKIPPED; i < MODUL; i++) { \
 		unsigned pval; \
 		if (TABOOMACRO) { \
@@ -178,7 +169,7 @@ static	UConst char sccsid[] =
 				roots[roots_found] = (unsigned char)i; \
 			} \
 			roots_found++; \
-if (DEBUG>3) fprintf(stderr, "%d. root=%d\t", roots_found, i - SKIPPED); \
+if (DEBUG > 3) fprintf(stderr, "%d. root=%d\t", roots_found, i - SKIPPED); \
 		} \
 	}
 
@@ -192,18 +183,20 @@ if (DEBUG>3) fprintf(stderr, "%d. root=%d\t", roots_found, i - SKIPPED); \
 		} \
 	}
 
-/* do the correction in the 'msb' part of the p layer 
-   at column 'column' and row 'i'
-   with an error of 'ERROR' */
+/*
+ * do the correction in the 'msb' part of the p layer
+ * at column 'column' and row 'i'
+ * with an error of 'ERROR'
+ */
 #define	DO_L2_P_CORRECTION(ERROR, SKIPPED) \
 		{ \
 			unsigned position; \
 			unsigned dia; \
-			position = SECBPL(column,i-SKIPPED); \
-			assert (position < 2352-12); \
+			position = SECBPL(column, i-SKIPPED); \
+			assert(position < 2352-12); \
 			if (NO_DECODING_FAILURES) { \
-				if (gdp->global_erasures != NULL \
-				    && gdp->global_erasures[position+msb] == 0) return 1; \
+				if (gdp->global_erasures != NULL &&\
+				    gdp->global_erasures[position+msb] == 0) return (1); \
 			} \
 			dia = DIALO(position/2); \
 			if	(STOP_FAILURE) { \
@@ -211,39 +204,41 @@ if (DEBUG>3) fprintf(stderr, "%d. root=%d\t", roots_found, i - SKIPPED); \
 				    gdp->Pcorrcount[msb][dia] == 0 && \
 					gdp->corrcount[position+msb] == 0) { \
 					calc_L2_Q_syndrome(inout-msb, dia, &gdp->Qsyndromes[2*dia]); \
-					if (gdp->Qsyndromes[2*dia+msb] == 0 \
-					    && gdp->Qsyndromes[2*dia+msb+L2_Q/2] == 0) { \
+					if (gdp->Qsyndromes[2*dia+msb] == 0 &&\
+					    gdp->Qsyndromes[2*dia+msb+L2_Q/2] == 0) { \
 						/* probably a decoding failure */ \
 						if (TELLME)	{ \
-							fprintf(stderr, "FAILURE (@%d) Dia %d is clean\n",position+12+msb, dia); \
+							fprintf(stderr, "FAILURE (@%d) Dia %d is clean\n", position+12+msb, dia); \
 						} \
-						return 1; \
+						return (1); \
 					} \
 				} \
 			} \
 			if (gdp->corrcount[position+msb] < MAX_TOGGLE) { \
 				inout[position] ^= (unsigned char)ERROR; \
-				if (DEBUG>1) { \
+				if (DEBUG > 1) { \
 					fprintf(stderr, "\t-%d-", 12+position + msb); \
 				} \
 				gdp->corrcount[position+msb]++; \
 				gdp->Pcorrcount[msb][column]++; \
 				kill_erasure(position, msb, gdp); \
 				if (loops != 0) check_P_for_decoding_failures(gdp->Qsyndromes, msb, position/2, gdp); \
-			} else return 1; \
+			} else return (1); \
 		}
 
-/* do the correction in the 'msb' part of the q layer 
-   at diagonal 'diagonal' and offset 'i'
-   with an error of 'ERROR' */
+/*
+ * do the correction in the 'msb' part of the q layer
+ * at diagonal 'diagonal' and offset 'i'
+ * with an error of 'ERROR'
+ */
 #define	DO_L2_Q_CORRECTION(ERROR, SKIPPED) \
 		{ \
 			unsigned position; \
-			position = SECBQL(diagonal,i-SKIPPED); \
-			assert (position < 2352-12); \
+			position = SECBQL(diagonal, i-SKIPPED); \
+			assert(position < 2352-12); \
 			if (NO_DECODING_FAILURES) { \
-				if (gdp->global_erasures != NULL \
-				    && gdp->global_erasures[position+msb] == 0) return 1; \
+				if (gdp->global_erasures != NULL &&\
+				    gdp->global_erasures[position+msb] == 0) return (1); \
 			} \
 			if	(STOP_FAILURE2) { \
 				if (position < 2236) { \
@@ -253,13 +248,15 @@ if (DEBUG>3) fprintf(stderr, "%d. root=%d\t", roots_found, i - SKIPPED); \
 					    (gdp->Pcorrcount[msb][col] == 0 && \
 						gdp->corrcount[position+msb] > 0)) { \
 						calc_L2_P_syndrome(inout-msb, col, &gdp->Psyndromes[2*col]); \
-						if (gdp->Psyndromes[2*col+msb] == 0 \
-						    && gdp->Psyndromes[2*col+msb+L2_P/2] == 0) { \
-							/* probably a decoding failure */ \
-							if (TELLME)	{ \
-								fprintf(stderr, "FAILURE (@%d) col %d is clean\n",position+12+msb, col); \
-							} \
-							return 1; \
+						if (gdp->Psyndromes[2*col+msb] == 0 &&\
+						    gdp->Psyndromes[2*col+msb+L2_P/2] == 0) { \
+							/* probably a decoding failure */	\
+							if (TELLME)	{			\
+								fprintf(stderr,			\
+									"FAILURE (@%d) col %d is clean\n", \
+									position+12+msb, col);	\
+							}					\
+							return (1);				\
 						} \
 					} \
 				} \
@@ -268,34 +265,38 @@ if (DEBUG>3) fprintf(stderr, "%d. root=%d\t", roots_found, i - SKIPPED); \
 				inout[position] ^= (unsigned char)ERROR; \
 				gdp->corrcount[position+msb]++; \
 				gdp->Qcorrcount[msb][diagonal]++; \
-				if (DEBUG>1) { \
+				if (DEBUG > 1) { \
 					fprintf(stderr, "\t-%d-", 12+position + msb); \
 				} \
 				kill_erasure(position, msb, gdp); \
 				if (i-SKIPPED < L12_P_LENGTH) *q_changed_p = 1; \
 				check_Q_for_decoding_failures(gdp->Psyndromes, msb, position/2, gdp); \
-			} else return 1; \
+			} else return (1); \
 		}
 
 
-/* do the correction in one of the subchannel layers
-   at offset 'i'
-   with an error of 'ERROR' */
-#define DO_SUB_CORRECTION(ERROR, SKIPPED) \
+/*
+ * do the correction in one of the subchannel layers
+ * at offset 'i'
+ * with an error of 'ERROR'
+ */
+#define	DO_SUB_CORRECTION(ERROR, SKIPPED) \
 					{ \
 						unsigned position; \
 						position = (i-SKIPPED); \
-						if (DEBUG>1) \
+						if (DEBUG > 1) \
 								fprintf(stderr, \
-									 "Position %d=0x%x has error 0x%x giving 0x%x\n", \
-									 position, inout[position], ERROR, \
-									 inout[position] ^ ERROR); \
+									"Position %d=0x%x has error 0x%x giving 0x%x\n", \
+									position, inout[position], ERROR, \
+									inout[position] ^ ERROR); \
 						inout[position] ^= (unsigned char)ERROR; \
 					}
 
-/* apply the forney algorithm on error valuator and error location
- * polynomial in order to do the corrections. */
-#define APPLY_FORNEY_ALGORITHM(LOG, ALOG, MODUL, SKIPPED, DO_CORRECTION) \
+/*
+ * apply the forney algorithm on error valuator and error location
+ * polynomial in order to do the corrections.
+ */
+#define	APPLY_FORNEY_ALGORITHM(LOG, ALOG, MODUL, SKIPPED, DO_CORRECTION) \
 	for (j = 0; j < roots_found; j++) { \
 			/* \
 			 * root in error location polynomial is found! \
@@ -322,7 +323,7 @@ if (DEBUG>3) fprintf(stderr, "%d. root=%d\t", roots_found, i - SKIPPED); \
 						if (k == 0) \
 							break; \
 					} \
-					assert (denominator != 0); \
+					assert(denominator != 0); \
 					error = ALOG[(MODUL - LOG[denominator] + LOG[numerator]) % MODUL]; \
 					DO_CORRECTION(error, SKIPPED) \
 			} else { \
@@ -437,18 +438,18 @@ static int do_crc_check(inout, type, loops, gdp)
 			loops = 1;
 		break;
 		default:
-			return 0;
+			return (0);
 	}
 	result = build_edc(inout, low, high);
 	if (loops == 0 && result == 0 && gdp->global_erasures != NULL) {
 		unsigned i;
 		/* kill all erasures for this range */
-		for (i = max(low,12)-12; i <= high-12; i++) {
+		for (i = max(low, 12)-12; i <= high-12; i++) {
 			if (gdp->global_erasures[i] == 1)
 				kill_erasure(i, i & 1, gdp);
 		}
 	}
-	return result == 0;	/* failed, if result != 0 */
+	return (result == 0);	/* failed, if result != 0 */
 }
 
 
@@ -466,11 +467,12 @@ static int do_crc_check(inout, type, loops, gdp)
  *
  */
 int crc_check __PR((unsigned char inout[(L2_RAW + L2_Q + L2_P)], int type));
-int crc_check(inout, type)
+int
+crc_check(inout, type)
 	unsigned char inout[(L2_RAW + L2_Q + L2_P)];
 	int type;
 {
-	return do_crc_check(inout, type, 1, NULL);
+	return (do_crc_check(inout, type, 1, NULL));
 }
 
 /******************* SYNDROM FUNCTIONS ************************/
@@ -502,45 +504,45 @@ calc_L2_Q_syndrome(inout, diagonal, syndrome)
 	unsigned diagonal;
 	unsigned char syndrome[L2_Q/2+2];
 {
-	register unsigned       dp0,dp1;
-    register const	unsigned	short	*qa;
-	register unsigned       char    *Q;
+	register unsigned		dp0, dp1;
+	register const	unsigned	short	*qa;
+	register unsigned char		*Q;
 
 	qa = &qacc[diagonal][44];
-    Q = syndrome;
+	Q = syndrome;
 	Q[0] = Q[2*L12_Q_LENGTH] = 0;
 	Q[1] = Q[2*L12_Q_LENGTH+1] = 0;
 
-#define QBODYEND(i) \
-		dp0 = inout[*qa];    \
-		dp1 = inout[*qa+1];  \
-					\
+#define	QBODYEND(i) \
+		dp0 = inout[*qa];			\
+		dp1 = inout[*qa+1]; 			\
+							\
 		*Q++ ^= (unsigned char)dp0;		\
 		*Q   ^= (unsigned char)dp1;		\
-		Q += 26*2-1;		\
-		*Q++ ^= L2syn[i][dp0];        \
+		Q += 26*2-1;				\
+		*Q++ ^= L2syn[i][dp0];			\
 		*Q   ^= L2syn[i][dp1];
 
-#define QBODY(i)   \
+#define	QBODY(i)   \
 		QBODYEND(i) \
 		qa--;       \
 		Q -= 26*2+1;
 
-		QBODY( 0);QBODY( 1); QBODY( 2);	QBODY( 3);	QBODY( 4);
-		QBODY( 5);QBODY( 6); QBODY( 7);	QBODY( 8);	QBODY( 9);
-		QBODY(10);QBODY(11); QBODY(12);	QBODY(13);	QBODY(14);
-		QBODY(15);QBODY(16); QBODY(17);	QBODY(18);	QBODY(19);
-		QBODY(20);QBODY(21); QBODY(22);	QBODY(23);	QBODY(24);
-		QBODY(25);QBODY(26); QBODY(27);	QBODY(28);	QBODY(29);
-		QBODY(30);QBODY(31); QBODY(32);	QBODY(33);	QBODY(34);
-		QBODY(35);QBODY(36); QBODY(37);	QBODY(38);	QBODY(39);
-		QBODY(40);QBODY(41); QBODY(42);	QBODY(43);	QBODYEND(44);
+		QBODY(0);  QBODY(1);  QBODY(2);  QBODY(3);  QBODY(4);
+		QBODY(5);  QBODY(6);  QBODY(7);  QBODY(8);  QBODY(9);
+		QBODY(10); QBODY(11); QBODY(12); QBODY(13); QBODY(14);
+		QBODY(15); QBODY(16); QBODY(17); QBODY(18); QBODY(19);
+		QBODY(20); QBODY(21); QBODY(22); QBODY(23); QBODY(24);
+		QBODY(25); QBODY(26); QBODY(27); QBODY(28); QBODY(29);
+		QBODY(30); QBODY(31); QBODY(32); QBODY(33); QBODY(34);
+		QBODY(35); QBODY(36); QBODY(37); QBODY(38); QBODY(39);
+		QBODY(40); QBODY(41); QBODY(42); QBODY(43); QBODYEND(44);
 #undef  QBODY
 #undef  QBODYEND
-	return 0 == syndrome[0]
-	    && 0 == syndrome[1]
-	    && 0 == syndrome[0 + L12_Q_LENGTH * 2]
-	    && 0 == syndrome[1 + L12_Q_LENGTH * 2];
+	return (0 == syndrome[0] &&
+	    0 == syndrome[1] &&
+	    0 == syndrome[0 + L12_Q_LENGTH * 2] &&
+	    0 == syndrome[1 + L12_Q_LENGTH * 2]);
 }
 
 /*
@@ -569,40 +571,40 @@ calc_L2_P_syndrome(inout, column, syndrome)
 	unsigned column;
 	unsigned char syndrome[L2_P/2+2];
 {
-        register unsigned char  *P;
-        register unsigned dp0, dp1;
+	register unsigned char  *P;
+	register unsigned dp0, dp1;
 
-        P = syndrome;
-	    P[0] = P[1] = P[L12_P_LENGTH*2] = P[1+L12_P_LENGTH*2] = 0;
-        inout += 2*column + (L12_Q_LENGTH-1)*L12_P_LENGTH*2 + 1;
+	P = syndrome;
+	P[0] = P[1] = P[L12_P_LENGTH*2] = P[1+L12_P_LENGTH*2] = 0;
+	inout += 2*column + (L12_Q_LENGTH-1)*L12_P_LENGTH*2 + 1;
 
-#define PBODYEND(i)   \
-                dp1 = *inout--; \
-                dp0 = *inout;   \
-                                \
-                *P++ ^= (unsigned char)dp0;\
-                *P   ^= (unsigned char)dp1;\
-                 P   += L12_P_LENGTH*2-1;\
-                *P++ ^= L2syn[i][dp0];\
-                *P   ^= L2syn[i][dp1];
+#define	PBODYEND(i)					\
+	dp1 = *inout--;					\
+	dp0 = *inout;					\
+							\
+	*P++ ^= (unsigned char)dp0;			\
+	*P   ^= (unsigned char)dp1;			\
+	P   += L12_P_LENGTH*2-1;			\
+	*P++ ^= L2syn[i][dp0];				\
+	*P   ^= L2syn[i][dp1];
 
-#define PBODY(i)  \
-				PBODYEND(i) \
-                inout -= L12_P_LENGTH*2-1;\
-                 P   -= L12_P_LENGTH*2+1;
+#define	PBODY(i)					\
+			PBODYEND(i)			\
+			inout -= L12_P_LENGTH*2-1;	\
+			P   -= L12_P_LENGTH*2+1;
 
-    PBODY( 0)  PBODY( 1)  PBODY( 2)  PBODY( 3)  PBODY( 4)
-    PBODY( 5)  PBODY( 6)  PBODY( 7)  PBODY( 8)  PBODY( 9)
+    PBODY(0)   PBODY(1)   PBODY(2)   PBODY(3)   PBODY(4)
+    PBODY(5)   PBODY(6)   PBODY(7)   PBODY(8)   PBODY(9)
     PBODY(10)  PBODY(11)  PBODY(12)  PBODY(13)  PBODY(14)
     PBODY(15)  PBODY(16)  PBODY(17)  PBODY(18)  PBODY(19)
     PBODY(20)  PBODY(21)  PBODY(22)  PBODY(23)  PBODY(24)
     PBODYEND(25)
 #undef	PBODY
 #undef	PBODYEND
-	return 0 == syndrome[0]
-	    && 0 == syndrome[1]
-	    && 0 == syndrome[0 + L12_P_LENGTH * 2]
-	    && 0 == syndrome[1 + L12_P_LENGTH * 2];
+	return (0 == syndrome[0] &&
+	    0 == syndrome[1] &&
+	    0 == syndrome[0 + L12_P_LENGTH * 2] &&
+	    0 == syndrome[1 + L12_P_LENGTH * 2]);
 }
 
 
@@ -611,7 +613,7 @@ calc_L2_P_syndrome(inout, column, syndrome)
  *
  * Input parameters:
  *  position: even offset in the sector after the sync header.
- *  msb: 	  	1 for the most significant byte.
+ *  msb:		1 for the most significant byte.
  *				0 for the least significant byte.
  *  gdp:	  pointer to auxiliary structure.
  */
@@ -643,7 +645,7 @@ static void set_erasure(position, msb, gdp)
 		if (k == gdp->Pcount[msb][col])
 			gdp->Perapos[msb][col][gdp->Pcount[msb][col]++] = (unsigned char)cpos;
 
-#if	DEBUG >=0
+#if	DEBUG >= 0
 	fprintf(stderr, "\t+%d(c%u,d%u)", position+12+msb, col, dia);
 	if (gdp->global_erasures[position+msb] == 0)	fprintf(stderr, "??");
 	} else {
@@ -672,33 +674,34 @@ static void set_erasure(position, msb, gdp)
  *
  * Input parameters:
  *  position: even offset in the sector after the sync header.
- *  msb: 	  	1 for the most significant byte.
+ *  msb:		1 for the most significant byte.
  *				0 for the least significant byte.
  *		gdp is a pointer to auxiliary book keeping data.
  */
 
 static void
-kill_erasure (position, msb, gdp)
+kill_erasure(position, msb, gdp)
 	unsigned position;
 	unsigned msb;
 	gdatp gdp;
 {
-	unsigned i,j;
+	unsigned i, j;
 	unsigned dia;
 	unsigned pos;
 	unsigned col;
 	unsigned char *p, *q;
 
-	if (gdp->global_erasures==NULL) return;
+	if (gdp->global_erasures == NULL)
+		return;
 
-#if	DEBUG>=7
-	if(global_erasures[position + msb] == 0) {
+#if	DEBUG >= 7
+	if (global_erasures[position + msb] == 0) {
 		fprintf(stderr, "<WRONG(c%d,d%d)\t",
 		position < 2*L12_P_LENGTH*L12_Q_LENGTH ? COL(position/2) : -1, DIA(position/2));
 	}
 #endif
 
-#if	DEBUG>=0
+#if	DEBUG >= 0
 	/* is the erasure really defined once? */
 	if (position < 2*L12_P_LENGTH*L12_Q_LENGTH) {
 		col = COL(position/2);
@@ -708,8 +711,8 @@ kill_erasure (position, msb, gdp)
 			if (*p == pos + L12_P_SKIPPED) {
 				dia++;
 			}
-		if (dia > 1)	
-			 fprintf(stderr, "\nkill:P position %d %d times, count=%d!\n",position+12+msb,dia,gdp->Pcount[msb][col]);
+		if (dia > 1)
+			fprintf(stderr, "\nkill:P position %d %d times, count=%d!\n", position+12+msb, dia, gdp->Pcount[msb][col]);
 	}
 	dia = DIA(position/2);
 	pos = POSQ(position/2);
@@ -718,8 +721,8 @@ kill_erasure (position, msb, gdp)
 		if (*q == pos + L12_Q_SKIPPED) {
 			col++;
 		}
-	if (col > 1)	
-		 fprintf(stderr, "\nkill:Q position %d %d times!\n",position+12+msb,col);
+	if (col > 1)
+		fprintf(stderr, "\nkill:Q position %d %d times!\n", position+12+msb, col);
 #endif
 
 	gdp->global_erasures[position+msb] ^= 1;
@@ -736,7 +739,7 @@ kill_erasure (position, msb, gdp)
 		if (j > 1)
 			memmove(p, p+1, j-1);
 		else if (j == 1)
-			*p=0;
+			*p = 0;
 
 		if (gdp->Pcount[msb][col] > 0)
 			gdp->Pcount[msb][col]--;
@@ -751,24 +754,24 @@ kill_erasure (position, msb, gdp)
 	if (i > 1)
 		memmove(q, q+1, i-1);
 	else if (i == 1)
-		*q=0;
+		*q = 0;
 
 	if (gdp->Qcount[msb][dia] > 0)
 		gdp->Qcount[msb][dia]--;
 
-#if	DEBUG >=0
+#if	DEBUG >= 0
 	/* has the erasure really been deleted? */
 	pos = POSP(position/2);
 	p =  gdp->Perapos[msb][col];
 	for (j = gdp->Pcount[msb][col]; j > 0; j--, p++)
 		if (*p == pos + L12_P_SKIPPED) {
-			fprintf(stderr, "\nkill_era: error in p (pos=%d,dia=%d,col=%d)!\n",position+12+msb,dia,col);
+			fprintf(stderr, "\nkill_era: error in p (pos=%d,dia=%d,col=%d)!\n", position+12+msb, dia, col);
 		}
 	pos = POSQ(position/2);
 	q =  gdp->Qerapos[msb][dia];
 	for (i = gdp->Qcount[msb][dia]; i > 0; i--, q++)
 		if (*q == pos + L12_Q_SKIPPED) {
-			fprintf(stderr, "\nkill_era: error in q (pos=%d,dia=%d,col=%d)!\n",position+12+msb,dia,col);
+			fprintf(stderr, "\nkill_era: error in q (pos=%d,dia=%d,col=%d)!\n", position+12+msb, dia, col);
 		}
 #endif
 }
@@ -778,7 +781,7 @@ kill_erasure (position, msb, gdp)
  * translate the erasures in p and q coordinates.
  *
  * Input parameters:
- *  have_erasures:	the number of erasures 
+ *  have_erasures:	the number of erasures
  *					set in the erasures array.
  *	inout:			the content of the data sector as a byte array
  *					at offset 12.
@@ -799,15 +802,16 @@ unify_erasures(have_erasures, inout, gdp)
 	unsigned	retval = 0;
 
 	if (have_erasures != 0)
-		return 0;
+		return (0);
 
-	/* We assume the q layer has just been done. This possibly changed
+	/*
+	 * We assume the q layer has just been done. This possibly changed
 	 * something, so we update the status for the p layer.
 	 */
 	for (i = 0; i < L2_P/4; i++) {
 		unsigned char	synd[L2_P];
 
-		calc_L2_P_syndrome(inout,i,synd);
+		calc_L2_P_syndrome(inout, i, synd);
 		if (synd[0] == 0 && synd[L2_P/2] == 0) {
 			gdp->Pfailed[0][i] = 0;
 		}
@@ -849,7 +853,7 @@ unify_erasures(have_erasures, inout, gdp)
 			}
 		}
 #if	DEBUG	>= 0
-	fprintf(stderr, " pc%d qc%d\n",pcounter, qcounter);
+	fprintf(stderr, " pc%d qc%d\n", pcounter, qcounter);
 #endif
 
 		/*
@@ -861,7 +865,7 @@ unify_erasures(have_erasures, inout, gdp)
 #if	DEBUG	>= 0
 			fprintf(stderr, "\n");
 #endif
-			return 1;
+			return (1);
 		}
 
 		/*
@@ -872,10 +876,10 @@ unify_erasures(have_erasures, inout, gdp)
 			for (i = 0; i < L2_Q/4; i++) {
 				if (gdp->Qfailed[msb][i] != 0) {
 					if (gdp->global_erasures != NULL &&
-					    (gdp->global_erasures[SECBQL(i,L2_P/4)+msb] == 0
-					    || gdp->global_erasures[SECBQL(i,L2_P/4 + 1)+msb] == 0)) {
-						set_erasure(SECBQL(i,L2_P/4),msb, gdp);
-						set_erasure(SECBQL(i,L2_P/4 + 1),msb, gdp);
+					    (gdp->global_erasures[SECBQL(i, L2_P/4)+msb] == 0 ||
+					    gdp->global_erasures[SECBQL(i, L2_P/4 + 1)+msb] == 0)) {
+						set_erasure(SECBQL(i, L2_P/4), msb, gdp);
+						set_erasure(SECBQL(i, L2_P/4 + 1), msb, gdp);
 						retval = 1;
 					}
 				}
@@ -887,10 +891,10 @@ unify_erasures(have_erasures, inout, gdp)
 				if (gdp->Qfailed[msb][i] != 0) {
 					for (j = 0; j < L2_P/4; j++) {
 						if (gdp->Pfailed[msb][j] != 0) {
-							set_erasure(SECBQL(i,j)+msb, gdp);
+							set_erasure(SECBQL(i, j)+msb, gdp);
 							retval = 1;
 #if	DEBUG	>= 0
-	fprintf(stderr, " 2P%d\n",j);
+	fprintf(stderr, " 2P%d\n", j);
 #endif
 						}
 					}
@@ -908,10 +912,10 @@ unify_erasures(have_erasures, inout, gdp)
 				if (gdp->Pfailed[msb][i] != 0) {
 					for (j = 0; j < L2_Q/4; j++) {
 						if (gdp->Qfailed[msb][j] != 0) {
-							set_erasure(SECBQL(j,i),msb, gdp);
+							set_erasure(SECBQL(j, i), msb, gdp);
 							retval = 1;
 #if	DEBUG	>= 0
-	fprintf(stderr, " 2Q%d\n",j);
+	fprintf(stderr, " 2Q%d\n", j);
 #endif
 						}
 					}
@@ -924,17 +928,19 @@ unify_erasures(have_erasures, inout, gdp)
 					/* look for P status */
 					for (j = 0; j < L2_P/4; j++) {
 						if (pcounter == 0) {
-							set_erasure(SECBQL(i,L2_P/4),msb, gdp);
-							set_erasure(SECBQL(i,L2_P/4 + 1),msb, gdp);
+							set_erasure(SECBQL(i, L2_P/4), msb, gdp);
+							set_erasure(SECBQL(i, L2_P/4 + 1), msb, gdp);
 							break;
 #if 0
 						} else if (gdp->Pcount[msb][j] > 0 &&
-							  gdp->Pcount[msb][j] <= 2) {
+							    gdp->Pcount[msb][j] <= 2) {
 							int	k;
 							for (k = 0; k < gdp->Pcount[msb][j]; k++) {
-								set_erasure(SECBQL(i,gdp->Perapos[msb][j][k] - P_SKIPPED)+msb, gdp);
+								set_erasure(SECBQL(i,
+										gdp->Perapos[msb][j][k] - P_SKIPPED)+msb,
+										gdp);
 #if	DEBUG	>= 0
-		fprintf(stderr, " P%d,%d ",j,k);
+		fprintf(stderr, " P%d,%d ", j, k);
 #endif
 							}
 #endif
@@ -947,14 +953,14 @@ unify_erasures(have_erasures, inout, gdp)
 #if	DEBUG	>= 0
 	fprintf(stderr, " ->%d\n", retval);
 #endif
-	return retval;
+	return (retval);
 }
 
 /*
  * Initialize our separated p and q erasure arrays.
  *
  * Input parameters:
- *  have_erasures:	the number of erasures 
+ *  have_erasures:	the number of erasures
  *					set in the erasures array.
  *  erasures:		the byte array for the erasures. Each byte
  *					corresponds to a data byte in the L2 sector.
@@ -971,10 +977,10 @@ init_erasures(have_erasures, erasures, gdp)
 {
 	int	i;
 
-	memset(gdp->Perapos, 0, sizeof(gdp->Perapos));
-	memset(gdp->Qerapos, 0, sizeof(gdp->Qerapos));
-	memset(gdp->Pcount, 0, sizeof(gdp->Pcount));
-	memset(gdp->Qcount, 0, sizeof(gdp->Qcount));
+	memset(gdp->Perapos, 0, sizeof (gdp->Perapos));
+	memset(gdp->Qerapos, 0, sizeof (gdp->Qerapos));
+	memset(gdp->Pcount, 0, sizeof (gdp->Pcount));
+	memset(gdp->Qcount, 0, sizeof (gdp->Qcount));
 
 	if (erasures == NULL) {
 		have_erasures = 0;
@@ -982,7 +988,7 @@ init_erasures(have_erasures, erasures, gdp)
 	} else {
 		gdp->global_erasures = erasures+12;
 	}
-#if DEBUG>2
+#if DEBUG > 2
 	if (gdp->global_erasures != NULL) {
 #else
 	if (have_erasures != 0) {
@@ -996,24 +1002,24 @@ init_erasures(have_erasures, erasures, gdp)
 		 */
 
 
-		for (i = 0; i < 2*L12_P_LENGTH*L12_Q_LENGTH; i+=2) {
+		for (i = 0; i < 2*L12_P_LENGTH*L12_Q_LENGTH; i += 2) {
 			if (gdp->global_erasures[i  ] != 0) {
 				gdp->Perapos[0][COL(i/2)]
-					  [gdp->Pcount[0][COL(i/2)]]
+					[gdp->Pcount[0][COL(i/2)]]
 						= (unsigned char)(POSP(i/2) + L12_P_SKIPPED);
-#if DEBUG>2
+#if DEBUG > 2
 	fprintf(stderr, "off %d -> col %d pos %d   dia %d pos %d\n", i+12, COL(i/2), POSP(i/2), DIA(i/2), POSQ(i/2));
-	if (have_erasures != 0) 
+	if (have_erasures != 0)
 #endif
 				gdp->Pcount[0][COL(i/2)]++;
 			}
 			if (gdp->global_erasures[i+1] != 0) {
 				gdp->Perapos[1][COL(i/2)]
-					  [gdp->Pcount[1][COL(i/2)]]
+					[gdp->Pcount[1][COL(i/2)]]
 						= (unsigned char)(POSP(i/2) + L12_P_SKIPPED);
-#if DEBUG>2
+#if DEBUG > 2
 	fprintf(stderr, "off %d -> col %d pos %d   dia %d pos %d\n", i+12+1, COL(i/2), POSP(i/2), DIA(i/2), POSQ(i/2));
-	if (have_erasures != 0) 
+	if (have_erasures != 0)
 #endif
 				gdp->Pcount[1][COL(i/2)]++;
 			}
@@ -1021,23 +1027,23 @@ init_erasures(have_erasures, erasures, gdp)
 		for (i = 0; i < L12_Q_LENGTH; i++) {
 			int j;
 			for (j = 0; j < L12_P_LENGTH; j++) {
-				int ind = SECBQLLO(i,j);
+				int ind = SECBQLLO(i, j);
 
 				if (gdp->global_erasures[ind  ] != 0) {
 					gdp->Qerapos[0][i][gdp->Qcount[0][i]]
 							= (unsigned char)(j + L12_Q_SKIPPED);
-#if DEBUG>2
+#if DEBUG > 2
 	fprintf(stderr, "off %d -> dia %d pos %d   col %d pos %d\n", ind+12, i, j, COL(ind/2), POSP(ind/2));
-	if (have_erasures != 0) 
+	if (have_erasures != 0)
 #endif
 					gdp->Qcount[0][i]++;
 				}
 				if (gdp->global_erasures[ind+1] != 0) {
 					gdp->Qerapos[1][i][gdp->Qcount[1][i]]
 							= (unsigned char)(j + L12_Q_SKIPPED);
-#if DEBUG>2
+#if DEBUG > 2
 	fprintf(stderr, "off %d -> dia %d pos %d   col %d pos %d\n", ind+12+1, i, j, COL(ind/2), POSP(ind/2));
-	if (have_erasures != 0) 
+	if (have_erasures != 0)
 #endif
 					gdp->Qcount[1][i]++;
 				}
@@ -1046,23 +1052,23 @@ init_erasures(have_erasures, erasures, gdp)
 		for (i = 0; i < L12_Q_LENGTH; i++) {
 			int j;
 			for (j = L12_P_LENGTH; j < L12_P_LENGTH + 2; j++) {
-				int ind = SECBQLHI(i,j);
+				int ind = SECBQLHI(i, j);
 
 				if (gdp->global_erasures[ind  ] != 0) {
 					gdp->Qerapos[0][i][gdp->Qcount[0][i]]
 							= (unsigned char)(j + L12_Q_SKIPPED);
-#if DEBUG>2
+#if DEBUG > 2
 	fprintf(stderr, "off %d -> dia %d pos %d   col -- pos --\n", ind+12, i, j);
-	if (have_erasures != 0) 
+	if (have_erasures != 0)
 #endif
 					gdp->Qcount[0][i]++;
 				}
 				if (gdp->global_erasures[ind+1] != 0) {
 					gdp->Qerapos[1][i][gdp->Qcount[1][i]]
 							= (unsigned char)(j + L12_Q_SKIPPED);
-#if DEBUG>2
+#if DEBUG > 2
 	fprintf(stderr, "off %d -> dia %d pos %d   col -- pos --\n", ind+12+1, i, j);
-	if (have_erasures != 0) 
+	if (have_erasures != 0)
 #endif
 					gdp->Qcount[1][i]++;
 				}
@@ -1087,7 +1093,8 @@ void check_P_for_decoding_failures __PR((unsigned char syndrome[],
 	unsigned msb, unsigned position, gdatp gdp));
 
 static
-void check_P_for_decoding_failures(syndrome, msb, position, gdp)
+void
+check_P_for_decoding_failures(syndrome, msb, position, gdp)
 	unsigned char syndrome[];
 	unsigned	msb;
 	unsigned	position;
@@ -1096,7 +1103,7 @@ void check_P_for_decoding_failures(syndrome, msb, position, gdp)
 	unsigned	pos = msb+2*DIALO(position);
 	/* check Q syndrome at that position */
 	if (syndrome[pos] == 0 && syndrome[pos+L2_Q/2] == 0) {
-#if	DEBUG	>1
+#if	DEBUG > 1
 fprintf(stderr, " inval Q d %d", DIALO(position));
 #endif
 		syndrome[pos] = 1;
@@ -1122,7 +1129,8 @@ void check_Q_for_decoding_failures __PR((unsigned char syndrome[],
 	unsigned msb, unsigned position, gdatp gdp));
 
 static
-void check_Q_for_decoding_failures(syndrome, msb, position, gdp)
+void
+check_Q_for_decoding_failures(syndrome, msb, position, gdp)
 	unsigned char syndrome[];
 	unsigned	msb;
 	unsigned	position;
@@ -1130,12 +1138,13 @@ void check_Q_for_decoding_failures(syndrome, msb, position, gdp)
 {
 	unsigned	pos;
 
-	if (position >= L12_P_LENGTH*L12_Q_LENGTH) return;
+	if (position >= L12_P_LENGTH*L12_Q_LENGTH)
+		return;
 
 	pos = msb+2*COL(position);
 	/* check P syndrome at that position */
 	if (syndrome[pos] == 0 && syndrome[pos+L2_P/2] == 0) {
-#if	DEBUG	>1
+#if	DEBUG > 1
 fprintf(stderr, " inval P c %d", COL(position));
 #endif
 		syndrome[pos] = 1;
@@ -1207,7 +1216,7 @@ correct_P(inout, msb, column, syndrome, erasures, Perasures, low_taboo, high_tab
 
 	INIT_BMD
 
-#if	DEBUG>0
+#if	DEBUG > 0
 fprintf(stderr, "tab(%u-%u), era(%u)", low_taboo, high_taboo, erasures);
 #endif
 
@@ -1217,10 +1226,10 @@ fprintf(stderr, "tab(%u-%u), era(%u)", low_taboo, high_taboo, erasures);
 	 */
 	if (erasures > 0) {
 
-		INIT_ERASURES(Perasures, L12_P_ERRORS, L12_MODUL, 
+		INIT_ERASURES(Perasures, L12_P_ERRORS, L12_MODUL,
 						rs_l12_log, rs_l12_alog)
 
-		if (DEBUG>2) { DEBUG_ERASURE_POLY(rs_l12_log, rs_l12_alog,
+		if (DEBUG > 2) { DEBUG_ERASURE_POLY(rs_l12_log, rs_l12_alog,
 				L12_MODUL, L12_P_ERRORS, L12_P_SKIPPED, 0) }
 	}
 
@@ -1237,46 +1246,47 @@ fprintf(stderr, "tab(%u-%u), era(%u)", low_taboo, high_taboo, erasures);
 			BUILD_SHIFT_REGISTER(rs_l12_log, rs_l12_alog,
 					L12_MODUL, L12_P_ERRORS)
 		}
-#if	DEBUG>4
+#if	DEBUG > 4
 		fprintf(stderr, " Pdisc=%d, ", discrepancy);
 		fprintf(stderr, "j=%d, ", j);
-		fprintf(stderr, "k=%d, l(errors)=%d, e0=%d, e1=%d, B0=%d, B1=%d\n", k, l, err_locations[0], err_locations[1], tmp_loc[0], tmp_loc[1]);
+		fprintf(stderr, "k=%d, l(errors)=%d, e0=%d, e1=%d, B0=%d, B1=%d\n",
+				k, l, err_locations[0], err_locations[1], tmp_loc[0], tmp_loc[1]);
 #endif
 	}
 
-#if	DEBUG>0
+#if	DEBUG > 0
 	fprintf(stderr, ",l(%d)   ", l);
 	if (gdp->global_erasures != NULL) {
 		int b;
 		for (b = 0; b < L12_Q_LENGTH; b++) {
-			if (gdp->global_erasures[SECBPL(column,b)+ msb] == 1) {
-				fprintf(stderr, "%4d, ", 12+SECBPL(column,b) + msb);
+			if (gdp->global_erasures[SECBPL(column, b)+ msb] == 1) {
+				fprintf(stderr, "%4d, ", 12+SECBPL(column, b) + msb);
 			}
 		}
 		for (b = 0; b < gdp->Pcount[msb][column]; b++) {
-			if (gdp->global_erasures[SECBPL(column,gdp->Perapos[msb][column][b] - L12_P_SKIPPED) + msb] == 0) {
-				fprintf(stderr, " :%4d: ", 12+SECBPL(column,gdp->Perapos[msb][column][b] - L12_P_SKIPPED) + msb);
+			if (gdp->global_erasures[SECBPL(column, gdp->Perapos[msb][column][b] - L12_P_SKIPPED) + msb] == 0) {
+				fprintf(stderr, " :%4d: ", 12+SECBPL(column, gdp->Perapos[msb][column][b] - L12_P_SKIPPED) + msb);
 			}
 		}
 	}
 #endif
 	if (l > L12_P_ERRORS+erasures/2) {
-#if	DEBUG>0
+#if	DEBUG > 0
 		fprintf(stderr, "\tl > 2+era/2  ");
 #endif
-		return 1;
+		return (1);
 	}
 
 	/* find roots of err_locations */
-	FIND_ROOTS(rs_l12_log, rs_l12_alog, L12_MODUL, L12_P_ERRORS, 
+	FIND_ROOTS(rs_l12_log, rs_l12_alog, L12_MODUL, L12_P_ERRORS,
 		L12_P_SKIPPED, (FIND_ROOTS_TABOO(SECWP, column, L12_P_SKIPPED)))
 
 	/* too many errors if the number of roots is not what we expected */
 	if (roots_found != l) {
-#if	DEBUG>0
+#if	DEBUG > 0
 		fprintf(stderr, "roots(%d)!=l(%d)\t", roots_found, l);
 #endif
-		return 1;
+		return (1);
 	}
 
 	/*
@@ -1287,10 +1297,10 @@ fprintf(stderr, "tab(%u-%u), era(%u)", low_taboo, high_taboo, erasures);
 	CALC_ERROR_VALUATOR(rs_l12_log, rs_l12_alog)
 
 	/* use roots of err_locations */
-	APPLY_FORNEY_ALGORITHM(rs_l12_log, rs_l12_alog, L12_MODUL, 
+	APPLY_FORNEY_ALGORITHM(rs_l12_log, rs_l12_alog, L12_MODUL,
 			L12_P_SKIPPED, DO_L2_P_CORRECTION)
 
-	return 0;
+	return (0);
 }
 #undef	SYND
 
@@ -1315,7 +1325,7 @@ fprintf(stderr, "tab(%u-%u), era(%u)", low_taboo, high_taboo, erasures);
  *  low_taboo:  the lower limit of a range left to be unchanged.
  *  high_taboo: the upper limit of a range left to be unchanged.
  *  q_changed_p: pointer to int; the integer is set true, if a
- *				correction affects the part covered by the 
+ *				correction affects the part covered by the
  *				p parity layer.
  *  loops:		>= 0, the loop count of the iteration
  *	gdp:		is a pointer to auxiliary book keeping data.
@@ -1323,7 +1333,7 @@ fprintf(stderr, "tab(%u-%u), era(%u)", low_taboo, high_taboo, erasures);
 
 #define	SYND(a)		syndrome[(a)*L12_Q_LENGTH*2]
 static int
-correct_Q __PR((unsigned char inout[4 + L2_RAW + 4 + 8 + L2_P + L2_Q], 
+correct_Q __PR((unsigned char inout[4 + L2_RAW + 4 + 8 + L2_P + L2_Q],
 	unsigned msb,
 	unsigned diagonal, unsigned char syndrome[L2_Q/2+2],
 	unsigned erasures, unsigned char Qerasures[L12_P_LENGTH],
@@ -1356,7 +1366,7 @@ correct_Q(inout, msb, diagonal, syndrome, erasures, Qerasures, low_taboo, high_t
 
 	INIT_BMD
 
-#if	DEBUG>0
+#if	DEBUG > 0
 fprintf(stderr, "tab(%u-%u), era(%u)", low_taboo, high_taboo, erasures);
 #endif
 
@@ -1366,10 +1376,10 @@ fprintf(stderr, "tab(%u-%u), era(%u)", low_taboo, high_taboo, erasures);
 	 */
 	if (erasures > 0) {
 
-		INIT_ERASURES(Qerasures, L12_Q_ERRORS, L12_MODUL, 
+		INIT_ERASURES(Qerasures, L12_Q_ERRORS, L12_MODUL,
 						rs_l12_log, rs_l12_alog)
 
-		if (DEBUG>2) { DEBUG_ERASURE_POLY(rs_l12_log, rs_l12_alog,
+		if (DEBUG > 2) { DEBUG_ERASURE_POLY(rs_l12_log, rs_l12_alog,
 				L12_MODUL, L12_Q_ERRORS, L12_Q_SKIPPED,
 				(FIND_ROOTS_TABOO(SECWQ, diagonal, L12_Q_SKIPPED))) }
 	}
@@ -1387,34 +1397,36 @@ fprintf(stderr, "tab(%u-%u), era(%u)", low_taboo, high_taboo, erasures);
 			BUILD_SHIFT_REGISTER(rs_l12_log, rs_l12_alog,
 					L12_MODUL, L12_Q_ERRORS)
 		}
-#if	DEBUG>4
+#if	DEBUG > 4
 		fprintf(stderr, " Qdisc=%d, ", discrepancy);
 		fprintf(stderr, "j=%d, ", j);
-		fprintf(stderr, "k=%d, l(errors)=%d, e0=%d, e1=%d, B0=%d, B1=%d\n", k, l, err_locations[0], err_locations[1], tmp_loc[0], tmp_loc[1]);
+		fprintf(stderr, "k=%d, l(errors)=%d, e0=%d, e1=%d, B0=%d, B1=%d\n",
+				k, l, err_locations[0], err_locations[1], tmp_loc[0], tmp_loc[1]);
 #endif
 	}
 
-#if	DEBUG>0
+#if	DEBUG > 0
 	fprintf(stderr, ",l(%d)   ", l);
 	if (gdp->global_erasures != NULL) {
 		int b;
 		for (b = 0; b < L12_P_LENGTH+2; b++) {
-			if (gdp->global_erasures[SECBQL(diagonal,b)+ msb] == 1) {
-				fprintf(stderr, "%4d, ", 12+SECBQL(diagonal,b) + msb);
+			if (gdp->global_erasures[SECBQL(diagonal, b)+ msb] == 1) {
+				fprintf(stderr, "%4d, ", 12+SECBQL(diagonal, b) + msb);
 			}
 		}
 		for (b = 0; b < gdp->Qcount[msb][diagonal]; b++) {
-			if (gdp->global_erasures[SECBQL(diagonal,gdp->Qerapos[msb][diagonal][b] - L12_Q_SKIPPED) + msb] == 0) {
-				fprintf(stderr, " :%4d: ", 12+SECBQL(diagonal,gdp->Qerapos[msb][diagonal][b] - L12_Q_SKIPPED) + msb);
+			if (gdp->global_erasures[SECBQL(diagonal, gdp->Qerapos[msb][diagonal][b] - L12_Q_SKIPPED) + msb] == 0) {
+				fprintf(stderr, " :%4d: ",
+						12+SECBQL(diagonal, gdp->Qerapos[msb][diagonal][b] - L12_Q_SKIPPED) + msb);
 			}
 		}
 	}
 #endif
 	if (l > L12_Q_ERRORS+erasures/2) {
-#if	DEBUG>0
+#if	DEBUG > 0
 		fprintf(stderr, "l > 2+era/2  ");
 #endif
-		return 1;
+		return (1);
 	}
 
 	/* find roots of err_locations */
@@ -1423,10 +1435,10 @@ fprintf(stderr, "tab(%u-%u), era(%u)", low_taboo, high_taboo, erasures);
 
 	/* too many errors if the number of roots are not what we expected */
 	if (roots_found != l) {
-#if	DEBUG>0
+#if	DEBUG > 0
 		fprintf(stderr, "roots(%d)!=l(%d)\t", roots_found, l);
 #endif
-		return 1;
+		return (1);
 	}
 
 	/*
@@ -1437,10 +1449,10 @@ fprintf(stderr, "tab(%u-%u), era(%u)", low_taboo, high_taboo, erasures);
 	CALC_ERROR_VALUATOR(rs_l12_log, rs_l12_alog)
 
 	/* use roots of err_locations */
-	APPLY_FORNEY_ALGORITHM(rs_l12_log, rs_l12_alog, L12_MODUL, 
+	APPLY_FORNEY_ALGORITHM(rs_l12_log, rs_l12_alog, L12_MODUL,
 			L12_Q_SKIPPED, DO_L2_Q_CORRECTION)
 
-	return 0;
+	return (0);
 }
 #undef	SYND
 
@@ -1450,7 +1462,7 @@ fprintf(stderr, "tab(%u-%u), era(%u)", low_taboo, high_taboo, erasures);
  * in the p parity layer.
  *
  * Input/output parameters:
- *  inout_pq:	the byte array with the sector data 
+ *  inout_pq:	the byte array with the sector data
  *				after the sync header to be corrected.
  *  p_changed:	pointer to int; set true, if a
  *				correction (change) has been done.
@@ -1488,64 +1500,64 @@ p_correct_all(inout_pq, p_changed, low_taboo, high_taboo, loops, gdp)
 
 		gdp->Pfailed[0][i] = gdp->Pfailed[1][i] = 0;
 
-		if (loops > 0
-		 && gdp->Psyndromes[2*i] == 0
-		 && gdp->Psyndromes[2*i+1] == 0
-		 && gdp->Psyndromes[2*i+L2_P/2] == 0
-		 && gdp->Psyndromes[2*i+L2_P/2+1] == 0 ) continue;
+		if (loops > 0 &&
+		    gdp->Psyndromes[2*i] == 0 &&
+		    gdp->Psyndromes[2*i+1] == 0 &&
+		    gdp->Psyndromes[2*i+L2_P/2] == 0 &&
+		    gdp->Psyndromes[2*i+L2_P/2+1] == 0) continue;
 
 		if (!calc_L2_P_syndrome(inout_pq, i, &gdp->Psyndromes[2*i])) {
-		    unsigned	msb;
-		    /*
-		     * error(s) in column i in layer of p (LSB and MSB)
-		     */
-		    for (msb = 0; msb < 2; msb++) {
-			int	retval;
+			unsigned	msb;
+			/*
+			 * error(s) in column i in layer of p (LSB and MSB)
+			 */
+			for (msb = 0; msb < 2; msb++) {
+				int	retval;
 
-		    	if (gdp->Psyndromes[2*i+msb] != 0
-			 || gdp->Psyndromes[2*i+msb+L2_P/2] != 0) {
-			    if (TELLME) fprintf(stderr, "%2d p %s c %2d: ", loops, msb ? "MSB" : "LSB", i);
-if (0) fprintf(stderr, "\nP taboo:%u-%u, c/p:%u/%u - %u/%u\n",
-low_taboo, high_taboo, lowcol, lowpos, higcol, higpos );
-			     retval = correct_P(inout_pq+msb, msb, i,
-					 &gdp->Psyndromes[2*i+msb], gdp->Pcount[msb][i],
-					 gdp->Perapos[msb][i],
-					 i >= lowcol ? lowpos : lowpos+1,
-					 i <= higcol || higpos == 0 ? higpos : higpos-1,
-					loops, gdp);
-			     *p_changed |= !retval;
-			     have_error[msb] |= retval;
-			     if (retval == 0) {
-#if DEBUG>=0
-				/* recheck */
-				calc_L2_P_syndrome(inout_pq, i, &gdp->Psyndromes[2*i]);
 				if (gdp->Psyndromes[2*i+msb] != 0 ||
 				    gdp->Psyndromes[2*i+msb+L2_P/2] != 0) {
+					if (TELLME) fprintf(stderr, "%2d p %s c %2d: ", loops, msb ? "MSB" : "LSB", i);
+if (0) fprintf(stderr, "\nP taboo:%u-%u, c/p:%u/%u - %u/%u\n",
+low_taboo, high_taboo, lowcol, lowpos, higcol, higpos);
+					retval = correct_P(inout_pq+msb, msb, i,
+							&gdp->Psyndromes[2*i+msb], gdp->Pcount[msb][i],
+							gdp->Perapos[msb][i],
+							i >= lowcol ? lowpos : lowpos+1,
+							i <= higcol || higpos == 0 ? higpos : higpos-1,
+							loops, gdp);
+					*p_changed |= !retval;
+					have_error[msb] |= retval;
+					if (retval == 0) {
+#if DEBUG >= 0
+						/* recheck */
+						calc_L2_P_syndrome(inout_pq, i, &gdp->Psyndromes[2*i]);
+						if (gdp->Psyndromes[2*i+msb] != 0 ||
+							gdp->Psyndromes[2*i+msb+L2_P/2] != 0) {
 fprintf(stderr, "\n P %s internal error in %s, %d\n", msb ? "MSB" : "LSB", __FILE__, __LINE__);
-				}
+						}
 #endif
-				gdp->Psyndromes[2*i+msb] = 0;
-				gdp->Psyndromes[2*i+msb+L2_P/2] = 0;
-			     } else {
-				gdp->Pfailed[msb][i] = 1;
-			     }
-			     if (TELLME) fputs("\n", stderr);
-			} /* error in byte layer */
+						gdp->Psyndromes[2*i+msb] = 0;
+						gdp->Psyndromes[2*i+msb+L2_P/2] = 0;
+					} else {
+						gdp->Pfailed[msb][i] = 1;
+					}
+					if (TELLME) fputs("\n", stderr);
+				} /* error in byte layer */
 #if	DEBUG >= 0
-			  else {
-				/*
-				 * if this column is clean,
-				 * there should be no erasures left
-				 */
-				if (gdp->Pcount[msb][i] != 0) {
+				else {
+					/*
+					 * if this column is clean,
+					 * there should be no erasures left
+					 */
+					if (gdp->Pcount[msb][i] != 0) {
 fprintf(stderr, "p: %d stale erasures in column %d, MSB=%d\n", gdp->Pcount[msb][i], i, msb);
+					}
 				}
-			}
 #endif
-		    } /* for LSB and MSB */
+			} /* for LSB and MSB */
 		} /* error in column */
 	} /* for all columns */
-	return have_error[0] == 0 && have_error[1] == 0;
+	return (have_error[0] == 0 && have_error[1] == 0);
 }
 
 
@@ -1554,7 +1566,7 @@ fprintf(stderr, "p: %d stale erasures in column %d, MSB=%d\n", gdp->Pcount[msb][
  * in the q parity layer.
  *
  * Input/output parameters:
- *  inout_pq:	the byte array with the sector data 
+ *  inout_pq:	the byte array with the sector data
  *				after the sync header to be corrected.
  *  q_changed:	pointer to int; set true, if a
  *				correction (change) has been done.
@@ -1592,64 +1604,64 @@ q_correct_all(inout_pq, q_changed, q_changed_p, low_taboo, high_taboo, loops, gd
 
 		gdp->Qfailed[0][i] = gdp->Qfailed[1][i] = 0;
 
-		if (loops > 0
-		 && gdp->Qsyndromes[2*i] == 0
-		 && gdp->Qsyndromes[2*i+1] == 0
-		 && gdp->Qsyndromes[2*i+L2_Q/2] == 0
-		 && gdp->Qsyndromes[2*i+L2_Q/2+1] == 0 ) continue;
+		if (loops > 0 &&
+		    gdp->Qsyndromes[2*i] == 0 &&
+		    gdp->Qsyndromes[2*i+1] == 0 &&
+		    gdp->Qsyndromes[2*i+L2_Q/2] == 0 &&
+		    gdp->Qsyndromes[2*i+L2_Q/2+1] == 0) continue;
 
 		if (!calc_L2_Q_syndrome(inout_pq, i, &gdp->Qsyndromes[2*i])) {
-		    unsigned msb;
-		    /*
-		     * error(s) in diagonal i in layer of q (LSB and MSB)
-		     */
-		    for (msb = 0; msb < 2; msb++) {
-		    	if (gdp->Qsyndromes[2*i+msb] != 0
-			 || gdp->Qsyndromes[2*i+msb+L2_Q/2] != 0) {
-			     int	retval;
-
-			     if (TELLME) fprintf(stderr, "%2d q %s d %2d: ", loops, msb ? "MSB" : "LSB", i);
-
-			     retval = correct_Q(inout_pq+msb, msb, i,
-					 &gdp->Qsyndromes[2*i+msb], gdp->Qcount[msb][i],
-					 gdp->Qerapos[msb][i],
-					 low_taboo,
-					 high_taboo,
-					 q_changed_p,
-					 gdp);
-			     *q_changed |= !retval;
-			     have_error[msb] |= retval;
-			     if (retval == 0) {
-#if DEBUG>=0
-				/* recheck */
-				calc_L2_Q_syndrome(inout_pq, i, &gdp->Qsyndromes[2*i]);
+			unsigned msb;
+			/*
+			 * error(s) in diagonal i in layer of q (LSB and MSB)
+			 */
+			for (msb = 0; msb < 2; msb++) {
 				if (gdp->Qsyndromes[2*i+msb] != 0 ||
 				    gdp->Qsyndromes[2*i+msb+L2_Q/2] != 0) {
+					int	retval;
+
+					if (TELLME) fprintf(stderr, "%2d q %s d %2d: ", loops, msb ? "MSB" : "LSB", i);
+
+					retval = correct_Q(inout_pq+msb, msb, i,
+							&gdp->Qsyndromes[2*i+msb], gdp->Qcount[msb][i],
+							gdp->Qerapos[msb][i],
+							low_taboo,
+							high_taboo,
+							q_changed_p,
+							gdp);
+					*q_changed |= !retval;
+					have_error[msb] |= retval;
+					if (retval == 0) {
+#if DEBUG >= 0
+						/* recheck */
+						calc_L2_Q_syndrome(inout_pq, i, &gdp->Qsyndromes[2*i]);
+						if (gdp->Qsyndromes[2*i+msb] != 0 ||
+						    gdp->Qsyndromes[2*i+msb+L2_Q/2] != 0) {
 fprintf(stderr, "\n Q %s internal error in %s, %d\n", msb ? "MSB" : "LSB", __FILE__, __LINE__);
-				}
+						}
 #endif
-				gdp->Qsyndromes[2*i+msb] = 0;
-				gdp->Qsyndromes[2*i+msb+L2_Q/2] = 0;
-			     } else {
-				gdp->Qfailed[msb][i] = 1;
-			     }
-			     if (TELLME) fputs("\n", stderr);
-			} /* error in byte layer */
+						gdp->Qsyndromes[2*i+msb] = 0;
+						gdp->Qsyndromes[2*i+msb+L2_Q/2] = 0;
+					} else {
+						gdp->Qfailed[msb][i] = 1;
+					}
+					if (TELLME) fputs("\n", stderr);
+				} /* error in byte layer */
 #if	DEBUG >= 0
-			  else {
-				/*
-				 * if this column is clean,
-				 * there should be no erasures left
-				 */
-				if (gdp->Qcount[msb][i] != 0) {
+				else {
+					/*
+					 * if this column is clean,
+					 * there should be no erasures left
+					 */
+					if (gdp->Qcount[msb][i] != 0) {
 fprintf(stderr, "q: %d stale erasures in diagonal %d, MSB=%d\n", gdp->Qcount[msb][i], i, msb);
+					}
 				}
-			}
 #endif
-		    } /* for LSB and MSB */
+			} /* for LSB and MSB */
 		} /* error in column */
 	} /* for all columns */
-	return have_error[0] == 0 && have_error[1] == 0;
+	return (have_error[0] == 0 && have_error[1] == 0);
 }
 
 
@@ -1674,9 +1686,9 @@ fprintf(stderr, "q: %d stale erasures in diagonal %d, MSB=%d\n", gdp->Qcount[msb
 
 int
 do_decode_L2 __PR((unsigned char inout[(L2_RAW + L2_Q + L2_P)],
-		   int sectortype,
-		   int have_erasures,
-		   unsigned char erasures[(L2_RAW + L2_Q + L2_P)]));
+			int sectortype,
+			int have_erasures,
+			unsigned char erasures[(L2_RAW + L2_Q + L2_P)]));
 
 int
 do_decode_L2(inout, sectortype, have_erasures, erasures)
@@ -1685,19 +1697,20 @@ do_decode_L2(inout, sectortype, have_erasures, erasures)
 	int		have_erasures;
 	unsigned char	erasures[(L2_RAW + L2_Q + L2_P)];
 {
-	int 	crc_ok;
-	int 	q_ok=-1;
-	int 	p_ok=-1;
+	int	crc_ok;
+	int	q_ok = -1;
+	int	p_ok = -1;
 	unsigned p_changed = 0;
 	unsigned q_changed = 0;
 	unsigned q_changed_p = 0;
-	int 	loops;
+	int	loops;
 	unsigned 	low_taboo;
 	unsigned 	high_taboo;
 	gdat	gdata;
 	gdatp	gdp = &gdata;
 
-	if (sectortype != EDC_MODE_1 && sectortype != EDC_MODE_2_FORM_1) return WRONG_TYPE;
+	if (sectortype != EDC_MODE_1 && sectortype != EDC_MODE_2_FORM_1)
+		return (WRONG_TYPE);
 
 	memcpy(inout, "\000\377\377\377\377\377\377\377\377\377\377\000", 12);
 	if (sectortype == EDC_MODE_1) {
@@ -1711,9 +1724,9 @@ do_decode_L2(inout, sectortype, have_erasures, erasures)
 
 
 	init_erasures(have_erasures, erasures, gdp);
-	memset(gdp->corrcount, 0, sizeof(gdp->corrcount));
-	memset(gdp->Pcorrcount, 0, sizeof(gdp->Pcorrcount));
-	memset(gdp->Qcorrcount, 0, sizeof(gdp->Qcorrcount));
+	memset(gdp->corrcount, 0, sizeof (gdp->corrcount));
+	memset(gdp->Pcorrcount, 0, sizeof (gdp->Pcorrcount));
+	memset(gdp->Qcorrcount, 0, sizeof (gdp->Qcorrcount));
 
 	loops = 0;
 	do {
@@ -1722,48 +1735,51 @@ do_decode_L2(inout, sectortype, have_erasures, erasures)
 
 		/* we are satisfied, when the crc is correct. */
 		if (crc_ok) {
-#if	DEBUG>=3
-fprintf(stderr, "loop1:%d crc=%d, p=%d, p_chan=%d, q=%d, q_chan=%d, q_chan_p=%d lo=%d, hi=%d\n", loops, crc_ok, p_ok, p_changed, q_ok, q_changed, q_changed_p, low_taboo, high_taboo);
+#if	DEBUG >= 3
+fprintf(stderr, "loop1:%d crc=%d, p=%d, p_chan=%d, q=%d, q_chan=%d, q_chan_p=%d lo=%d, hi=%d\n",
+	loops, crc_ok, p_ok, p_changed, q_ok, q_changed, q_changed_p, low_taboo, high_taboo);
 #endif
 			break;
 		}
 
 
 		p_ok = p_correct_all(inout+12, &p_changed, low_taboo, high_taboo, loops, gdp);
- 
+
 		if (p_ok && p_changed) {
 			crc_ok = do_crc_check(inout, sectortype, loops, gdp);
 			/* we are satisfied, when the crc is correct. */
 			if (crc_ok) {
-#if	DEBUG>=3
-fprintf(stderr, "loop2:%d crc=%d, p=%d, p_chan=%d, q=%d, q_chan=%d, q_chan_p=%d lo=%d, hi=%d\n", loops, crc_ok, p_ok, p_changed, q_ok, q_changed, q_changed_p, low_taboo, high_taboo);
+#if	DEBUG >= 3
+fprintf(stderr, "loop2:%d crc=%d, p=%d, p_chan=%d, q=%d, q_chan=%d, q_chan_p=%d lo=%d, hi=%d\n",
+	loops, crc_ok, p_ok, p_changed, q_ok, q_changed, q_changed_p, low_taboo, high_taboo);
 #endif
 				break;
 			}
 		}
 
 		if (loops > 0 && !crc_ok && q_ok && p_ok) {
-			memset(gdp->Psyndromes, 1, sizeof(gdp->Psyndromes));
-			memset(gdp->Qsyndromes, 1, sizeof(gdp->Qsyndromes));
+			memset(gdp->Psyndromes, 1, sizeof (gdp->Psyndromes));
+			memset(gdp->Qsyndromes, 1, sizeof (gdp->Qsyndromes));
 		}
 		q_ok = q_correct_all(inout+12, &q_changed, &q_changed_p,
-					 low_taboo, high_taboo, loops, gdp);
+					low_taboo, high_taboo, loops, gdp);
 
-#if	DEBUG>=2
-fprintf(stderr, "loop :%d crc=%d, p=%d, p_chan=%d, q=%d, q_chan=%d, q_chan_p=%d lo=%d, hi=%d\n", loops, crc_ok, p_ok, p_changed, q_ok, q_changed, q_changed_p, low_taboo, high_taboo);
+#if	DEBUG >= 2
+fprintf(stderr, "loop :%d crc=%d, p=%d, p_chan=%d, q=%d, q_chan=%d, q_chan_p=%d lo=%d, hi=%d\n",
+	loops, crc_ok, p_ok, p_changed, q_ok, q_changed, q_changed_p, low_taboo, high_taboo);
 #endif
 		if (!q_changed_p && crc_ok && q_ok) {
 			if (loops == 0 && !q_changed && !p_changed && p_ok)
-				return NO_ERRORS;
+				return (NO_ERRORS);
 
 			if (p_ok)
-				return FULLY_CORRECTED;
+				return (FULLY_CORRECTED);
 		}
 		if ((!q_ok) && !q_changed_p)
 			q_changed_p |= unify_erasures(have_erasures, inout+12, gdp);
 
 		loops++;
-	} while ( q_changed_p && loops < MAXLOOPS);
+	} while (q_changed_p && loops < MAXLOOPS);
 
 	if (crc_ok) {
 		unsigned	i;
@@ -1776,43 +1792,45 @@ fprintf(stderr, "loop :%d crc=%d, p=%d, p_chan=%d, q=%d, q_chan=%d, q_chan_p=%d 
 			for (i = 0, q_ok = 1; i < L2_Q/4; i++) {
 				q_ok &= calc_L2_Q_syndrome(inout+12, i, &gdp->Qsyndromes[2*i]);
 			}
-#if	DEBUG>=2
-fprintf(stderr, "loop :%d crc=%d, p=%d, p_chan=%d, q=%d, q_chan=%d, q_chan_p=%d lo=%d, hi=%d\n", -1, crc_ok, p_ok, p_changed, q_ok, q_changed, q_changed_p, low_taboo, high_taboo);
+#if	DEBUG >= 2
+fprintf(stderr, "loop :%d crc=%d, p=%d, p_chan=%d, q=%d, q_chan=%d, q_chan_p=%d lo=%d, hi=%d\n",
+	-1, crc_ok, p_ok, p_changed, q_ok, q_changed, q_changed_p, low_taboo, high_taboo);
 #endif
 			if (p_ok && q_ok)
-				return NO_ERRORS;
+				return (NO_ERRORS);
 		}
 #endif
 
 		if (p_ok && q_ok && !q_changed_p)
-			return FULLY_CORRECTED;
+			return (FULLY_CORRECTED);
 
 		/* restore unused, p and q portions */
-		if (sectortype == EDC_MODE_1) 
+		if (sectortype == EDC_MODE_1)
 			memset(inout + 2064 + 4, 0, 8);
-        encode_L2_P(inout + 12);
-        encode_L2_Q(inout + 12);
+		encode_L2_P(inout + 12);
+		encode_L2_Q(inout + 12);
 
-		return FULLY_CORRECTED;
+		return (FULLY_CORRECTED);
 	}
 
 	crc_ok = do_crc_check(inout, sectortype, 1, gdp);
 
-#if	DEBUG>=2
-fprintf(stderr, "loop:%d crc=%d, p=%d, p_chan=%d, q=%d, q_chan=%d, q_chan_p=%d lo=%d, hi=%d\n", 99, crc_ok, p_ok, p_changed, q_ok, q_changed, q_changed_p, low_taboo, high_taboo);
+#if	DEBUG >= 2
+fprintf(stderr, "loop:%d crc=%d, p=%d, p_chan=%d, q=%d, q_chan=%d, q_chan_p=%d lo=%d, hi=%d\n",
+	99, crc_ok, p_ok, p_changed, q_ok, q_changed, q_changed_p, low_taboo, high_taboo);
 #endif
 	if (crc_ok) {
 		if (p_ok && q_ok)
-			return FULLY_CORRECTED;
+			return (FULLY_CORRECTED);
 
 		/* restore unused, p and q portions */
 		if (sectortype == EDC_MODE_1) memset(inout + 2064 + 4, 0, 8);
-                encode_L2_P(inout + 12);
-                encode_L2_Q(inout + 12);
+		encode_L2_P(inout + 12);
+		encode_L2_Q(inout + 12);
 
-		return FULLY_CORRECTED;
+		return (FULLY_CORRECTED);
 	}
-	return UNCORRECTABLE;
+	return (UNCORRECTABLE);
 }
 #endif
 #endif
@@ -1853,22 +1871,22 @@ calc_LSUB_Q_syndrome(inout, syndrome)
 	syndrome[0] = syndrome[1] = 0;
 	inout += 4-1;
 
-#define QBODYEND(i)   				\
-		data = *inout & (unsigned)0x3f;	\
-								\
-		*Q++ ^= (unsigned char)data;\
+#define	QBODYEND(i)   					\
+		data = *inout & (unsigned)0x3f;		\
+							\
+		*Q++ ^= (unsigned char)data;		\
 		*Q   ^= SUBsyn[i][0][data];
 
-#define QBODY(i) \
-		QBODYEND(i)	\
-		inout--; \
+#define	QBODY(i)					\
+		QBODYEND(i)				\
+		inout--; 				\
 		Q--;
 
 	QBODY(0)
 	QBODY(1)
 	QBODY(2)
 	QBODYEND(3)
-	return (syndrome[0] | syndrome[1]) != 0;
+	return ((syndrome[0] | syndrome[1]) != 0);
 }
 
 static int
@@ -1886,27 +1904,27 @@ calc_LSUB_P_syndrome(inout, syndrome)
 	syndrome[0] = syndrome[1] = syndrome[2] = syndrome[3] = 0;
 	inout += 24-1;
 
-#define PBODYEND(i)   				\
-		data = *inout & (unsigned)0x3f;	\
-								\
-		*P++ ^= (unsigned char)data;\
-		*P++ ^= SUBsyn[i][0][data]; \
-		*P++ ^= SUBsyn[i][1][data]; \
+#define	PBODYEND(i)   					\
+		data = *inout & (unsigned)0x3f;		\
+							\
+		*P++ ^= (unsigned char)data;		\
+		*P++ ^= SUBsyn[i][0][data]; 		\
+		*P++ ^= SUBsyn[i][1][data]; 		\
 		*P   ^= SUBsyn[i][2][data];
 
-#define PBODY(i)   	\
+#define	PBODY(i)   	\
 		PBODYEND(i) \
 		inout--; \
 		P -= 3;
 
-	PBODY( 0) PBODY( 1) PBODY( 2) PBODY( 3) PBODY( 4)
-	PBODY( 5) PBODY( 6) PBODY( 7) PBODY( 8) PBODY( 9)
+	PBODY(0)  PBODY(1)  PBODY(2)  PBODY(3)  PBODY(4)
+	PBODY(5)  PBODY(6)  PBODY(7)  PBODY(8)  PBODY(9)
 	PBODY(10) PBODY(11) PBODY(12) PBODY(13) PBODY(14)
 	PBODY(15) PBODY(16) PBODY(17) PBODY(18) PBODY(19)
 	PBODY(20) PBODY(21) PBODY(22) PBODYEND(23)
 
-	return (syndrome[0] | syndrome[1] |
-		    syndrome[2] | syndrome[3] ) != 0;
+	return ((syndrome[0] | syndrome[1] |
+		    syndrome[2] | syndrome[3]) != 0);
 }
 
 #ifdef	__needed__
@@ -1943,10 +1961,10 @@ correct_QSUB(inout, syndrome, erasures, Qerasures)
 	 */
 	if (erasures > 0) {
 
-		INIT_ERASURES(Qerasures, LSUB_Q_ERRORS, LSUB_MODUL, 
+		INIT_ERASURES(Qerasures, LSUB_Q_ERRORS, LSUB_MODUL,
 						rs_sub_rw_log, rs_sub_rw_alog)
 
-		if (DEBUG>2) { DEBUG_ERASURE_POLY(rs_sub_rw_log, rs_sub_rw_alog,
+		if (DEBUG > 2) { DEBUG_ERASURE_POLY(rs_sub_rw_log, rs_sub_rw_alog,
 				LSUB_MODUL, LSUB_Q_ERRORS, LSUB_Q_SKIPPED, 0) }
 	} /* erasure initialisation */
 
@@ -1964,21 +1982,23 @@ correct_QSUB(inout, syndrome, erasures, Qerasures)
 					LSUB_MODUL, LSUB_Q_ERRORS)
 		}
 
-#if	DEBUG>2
+#if	DEBUG > 2
 		fprintf(stderr, "Qdisc=%d, ", discrepancy);
 		fprintf(stderr, "j=%d, ", j);
-		fprintf(stderr, "k=%d, l(errors)=%d, e0=%d, e1=%d, B0=%d, B1=%d\n", k, l, err_locations[0], err_locations[1], tmp_loc[0], tmp_loc[1]);
+		fprintf(stderr, "k=%d, l(errors)=%d, e0=%d, e1=%d, B0=%d, B1=%d\n",
+				k, l, err_locations[0], err_locations[1], tmp_loc[0], tmp_loc[1]);
 #endif
 	}
 
-	if (l > LSUB_Q_ERRORS+erasures/2) return 1;
+	if (l > LSUB_Q_ERRORS+erasures/2)
+		return (1);
 
 	/* find roots of err_locations */
-	FIND_ROOTS(rs_sub_rw_log, rs_sub_rw_alog, LSUB_MODUL, LSUB_Q_ERRORS, 
+	FIND_ROOTS(rs_sub_rw_log, rs_sub_rw_alog, LSUB_MODUL, LSUB_Q_ERRORS,
 		LSUB_Q_SKIPPED, 0)
 
 	if (roots_found != l) {
-		return 1;
+		return (1);
 	}
 
 	/*
@@ -1988,10 +2008,10 @@ correct_QSUB(inout, syndrome, erasures, Qerasures)
 	 */
 	CALC_ERROR_VALUATOR(rs_sub_rw_log, rs_sub_rw_alog)
 
-	APPLY_FORNEY_ALGORITHM(rs_sub_rw_log, rs_sub_rw_alog, LSUB_MODUL, 
+	APPLY_FORNEY_ALGORITHM(rs_sub_rw_log, rs_sub_rw_alog, LSUB_MODUL,
 		LSUB_Q_SKIPPED, DO_SUB_CORRECTION)
 
-	return roots_found ? 0 : 1;
+	return (roots_found ? 0 : 1);
 }
 #undef	SYND
 #endif	/* __needed__ */
@@ -2030,10 +2050,10 @@ correct_PSUB(inout, syndrome, erasures, Perasures)
 	 */
 	if (erasures > 0) {
 
-		INIT_ERASURES(Perasures, LSUB_P_ERRORS, LSUB_MODUL, 
+		INIT_ERASURES(Perasures, LSUB_P_ERRORS, LSUB_MODUL,
 						rs_sub_rw_log, rs_sub_rw_alog)
 
-		if (DEBUG>2) { DEBUG_ERASURE_POLY(rs_sub_rw_log, rs_sub_rw_alog,
+		if (DEBUG > 2) { DEBUG_ERASURE_POLY(rs_sub_rw_log, rs_sub_rw_alog,
 				LSUB_MODUL, LSUB_P_ERRORS, LSUB_P_SKIPPED, 0) }
 	} /* erasure initialisation */
 
@@ -2050,21 +2070,23 @@ correct_PSUB(inout, syndrome, erasures, Perasures)
 			BUILD_SHIFT_REGISTER(rs_sub_rw_log, rs_sub_rw_alog,
 					LSUB_MODUL, LSUB_P_ERRORS)
 		}
-#if	DEBUG>2
+#if	DEBUG > 2
 fprintf(stderr, "Pdisc=%d, ", discrepancy);
 fprintf(stderr, "j=%d, ", j);
-fprintf(stderr, "k=%d, l(errors)=%d, e0=%d, e1=%d, B0=%d, B1=%d\n", k, l, err_locations[0], err_locations[1], tmp_loc[0], tmp_loc[1]);
+fprintf(stderr, "k=%d, l(errors)=%d, e0=%d, e1=%d, B0=%d, B1=%d\n",
+	k, l, err_locations[0], err_locations[1], tmp_loc[0], tmp_loc[1]);
 #endif
 	}
 
-	if (l > LSUB_P_ERRORS+erasures/2) return 1;
+	if (l > LSUB_P_ERRORS+erasures/2)
+		return (1);
 
 	/* find roots of err_locations */
-	FIND_ROOTS(rs_sub_rw_log, rs_sub_rw_alog, LSUB_MODUL, LSUB_P_ERRORS, 
+	FIND_ROOTS(rs_sub_rw_log, rs_sub_rw_alog, LSUB_MODUL, LSUB_P_ERRORS,
 		LSUB_P_SKIPPED, 0)
 
 	if (roots_found != l) {
-		return 1;
+		return (1);
 	}
 
 	/*
@@ -2077,10 +2099,10 @@ fprintf(stderr, "k=%d, l(errors)=%d, e0=%d, e1=%d, B0=%d, B1=%d\n", k, l, err_lo
 	/*
 	 * apply the forney algorithm
 	 */
-	APPLY_FORNEY_ALGORITHM(rs_sub_rw_log, rs_sub_rw_alog, LSUB_MODUL, 
+	APPLY_FORNEY_ALGORITHM(rs_sub_rw_log, rs_sub_rw_alog, LSUB_MODUL,
 		LSUB_P_SKIPPED, DO_SUB_CORRECTION)
 
-	return roots_found ? 0 : 1;
+	return (roots_found ? 0 : 1);
 }
 #undef	SYND
 #endif	/* __needed__ */
@@ -2089,10 +2111,10 @@ fprintf(stderr, "k=%d, l(errors)=%d, e0=%d, e1=%d, B0=%d, B1=%d\n", k, l, err_lo
 #ifdef	DECODE_SUB_IN_ENCODER	/* XXX we need to fix this in edc_ecc.c */
 int
 do_decode_sub __PR((
- unsigned char inout[(LSUB_RAW + LSUB_Q + LSUB_P)*PACKETS_PER_SUBCHANNELFRAME],
-   int have_erasures,
- unsigned char erasures[(LSUB_RAW +LSUB_Q +LSUB_P)*PACKETS_PER_SUBCHANNELFRAME],
- int results[PACKETS_PER_SUBCHANNELFRAME]
+	unsigned char inout[(LSUB_RAW + LSUB_Q + LSUB_P)*PACKETS_PER_SUBCHANNELFRAME],
+	int have_erasures,
+	unsigned char erasures[(LSUB_RAW +LSUB_Q +LSUB_P)*PACKETS_PER_SUBCHANNELFRAME],
+	int results[PACKETS_PER_SUBCHANNELFRAME]
 ));
 
 int
@@ -2121,10 +2143,10 @@ do_decode_sub(inout, have_erasures, erasures, results)
 	int 	changed_P;
 	int 	retval = -12;
 
-	memset(Perapos, 0, sizeof(Perapos));
-	memset(Qerapos, 0, sizeof(Qerapos));
-	memset(Pcount, 0, sizeof(Pcount));
-	memset(Qcount, 0, sizeof(Qcount));
+	memset(Perapos, 0, sizeof (Perapos));
+	memset(Qerapos, 0, sizeof (Qerapos));
+	memset(Pcount, 0, sizeof (Pcount));
+	memset(Qcount, 0, sizeof (Qcount));
 	if (have_erasures != 0) {
 		unsigned char i;
 		/*
@@ -2147,80 +2169,82 @@ do_decode_sub(inout, have_erasures, erasures, results)
 			}
 		}
 	}
-	for (have_error = 1, packet = 0; 
-		packet < PACKETS_PER_SUBCHANNELFRAME; 
+	for (have_error = 1, packet = 0;
+		packet < PACKETS_PER_SUBCHANNELFRAME;
 		packet++,
 		Qsyndromesp += LSUB_Q, Psyndromesp += LSUB_P,
 		Qcountp++, Pcountp++,
 		Qeraposp += LSUB_QRAW + LSUB_Q,
 		Peraposp += LSUB_RAW + LSUB_Q + LSUB_P,
-		inout += 24 ) {
+		inout += 24) {
 		int iCnt;
-	  for (iCnt = 0; have_error && iCnt < 2; iCnt++) {
-	  	unsigned i = 0;
-		changed_Q = have_error = 0;
 
-		if (calc_LSUB_P_syndrome(inout, Psyndromesp)) {
-		    error |= 2 << (2*i);
+		for (iCnt = 0; have_error && iCnt < 2; iCnt++) {
+			unsigned i = 0;
+			changed_Q = have_error = 0;
 
-		    retval = correct_PSUB(inout,Psyndromesp,0,NULL);
-			have_error |= retval;
-			changed_P = !retval;
-			if (retval == 0) {
-				Pcountp[0] = 0;
-#if DEBUG>=0
-				calc_LSUB_P_syndrome(inout, Psyndromesp);
-				if (Psyndromesp[0] != 0 ||
-				    Psyndromesp[1] != 0 ||
-				    Psyndromesp[2] != 0 ||
-				    Psyndromesp[3] != 0) {
+			if (calc_LSUB_P_syndrome(inout, Psyndromesp)) {
+				error |= 2 << (2*i);
+
+				retval = correct_PSUB(inout, Psyndromesp, 0, NULL);
+				have_error |= retval;
+				changed_P = !retval;
+				if (retval == 0) {
+					Pcountp[0] = 0;
+#if DEBUG >= 0
+					calc_LSUB_P_syndrome(inout, Psyndromesp);
+					if (Psyndromesp[0] != 0 ||
+					    Psyndromesp[1] != 0 ||
+					    Psyndromesp[2] != 0 ||
+					    Psyndromesp[3] != 0) {
 fprintf(stderr, "\nSubP internal error in %s, %d\n", __FILE__, __LINE__);
-				}
+					}
 #endif
+				}
 			}
-		}
-		if (calc_LSUB_Q_syndrome(inout, Qsyndromesp)) {
-		    error |= 1 << (2*i);
-	    retval = correct_QSUB(inout,Qsyndromesp,0,NULL);
-			have_error |= retval;
-			changed_Q = !retval;
-			if (retval == 0) {
-				Qcountp[0] = 0;
-#if DEBUG>=0
-				calc_LSUB_Q_syndrome(inout, Qsyndromesp);
-				if (Qsyndromesp[0] != 0 ||
-				    Qsyndromesp[1] != 0) {
+			if (calc_LSUB_Q_syndrome(inout, Qsyndromesp)) {
+				error |= 1 << (2*i);
+				retval = correct_QSUB(inout, Qsyndromesp, 0, NULL);
+				have_error |= retval;
+				changed_Q = !retval;
+				if (retval == 0) {
+					Qcountp[0] = 0;
+#if DEBUG >= 0
+					calc_LSUB_Q_syndrome(inout, Qsyndromesp);
+					if (Qsyndromesp[0] != 0 ||
+					    Qsyndromesp[1] != 0) {
 fprintf(stderr, "\nSubQ internal error in %s, %d\n", __FILE__, __LINE__);
-				}
+					}
 #endif
+				}
+			}
+			if (results != NULL) {
+				results[packet] = (error & (3 << (2*i))) != 0;
 			}
 		}
-		if (results != NULL) {
-			results[packet] = (error & (3 << (2*i))) != 0;
-		}
-	  }
 	}
-	return have_error;
+	return (have_error);
 }
 #endif	/* DECODE_SUB_IN_ENCODER	XXX we need to fix this in edc_ecc.c */
 
 int check_sub __PR((unsigned char input[]));
 
-int check_sub(input)
+int
+check_sub(input)
 	unsigned char input[];
 {
 	int error = 0;
 	int packet;
 
-	for (packet = 0; 
-		!error && packet < PACKETS_PER_SUBCHANNELFRAME; 
+	for (packet = 0;
+		!error && packet < PACKETS_PER_SUBCHANNELFRAME;
 		packet++, input += 24) {
 		unsigned char syndromes[4];
 
 		error |= calc_LSUB_P_syndrome(input, syndromes);
 		error |= calc_LSUB_Q_syndrome(input, syndromes);
 	}
-	return error;
+	return (error);
 }
 #endif
 #endif

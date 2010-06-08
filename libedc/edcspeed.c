@@ -1,12 +1,14 @@
-/* @(#)edcspeed.c	1.4 09/07/11 Copyright 2002-2009 J. Schilling */
+/* @(#)edcspeed.c	1.6 10/05/24 Copyright 2002-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)edcspeed.c	1.4 09/07/11 Copyright 2002-2009 J. Schilling";
+	"@(#)edcspeed.c	1.6 10/05/24 Copyright 2002-2010 J. Schilling";
 #endif
 /*
- *	Copyright (c) 2002-2009 J. Schilling
+ *	Copyright (c) 2002-2010 J. Schilling
  */
+/*@@C@@*/
+
 #include <schily/stdio.h>
 #include <schily/standard.h>
 #include <schily/stdlib.h>
@@ -34,14 +36,14 @@ encspeed()
 	secs = 10;
 	end = 75*1000000 * secs;
 
-	memset(sect, 0, sizeof(sect));
-	for (i=0; i < 2352; ) {
+	memset(sect, 0, sizeof (sect));
+	for (i = 0; i < 2352; ) {
 		sect[i++] = 'J';
 		sect[i++] = 'S';
 	}
 
 	gettimeofday(&tv, (struct timezone *)0);
-	for (i=0; i < end; i++) {
+	for (i = 0; i < end; i++) {
 #ifdef	OLD_LIBEDC
 		do_encode_L2(sect, 1, 1);
 		scramble_L2(sect);
@@ -61,7 +63,7 @@ encspeed()
 	printf("%d sectors/%ds\n", i, secs);
 	printf("%d sectors/s\n", i/secs);
 	printf("speed: %5.2fx\n", (1.0*i)/750.0);
-	return ((i+74)/75) / secs ;
+	return (((i+74)/75) / secs);
 }
 
 int

@@ -1,4 +1,4 @@
-/* @(#)format.c	1.48 09/07/28 Copyright 1985-2009 J. Schilling */
+/* @(#)format.c	1.49 10/05/24 Copyright 1985-2010 J. Schilling */
 /*
  *	format
  *	common code for printf fprintf & sprintf
@@ -6,7 +6,7 @@
  *	allows recursive printf with "%r", used in:
  *	error, comerr, comerrno, errmsg, errmsgno and the like
  *
- *	Copyright (c) 1985-2009 J. Schilling
+ *	Copyright (c) 1985-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -336,12 +336,12 @@ format(fun, farg, fmt, args)
 			if (!type)
 				type = 'Q';	/* convert to long long type */
 #else
-error sizeof(size_t) is unknown
+error sizeof (size_t) is unknown
 #endif
 #endif
 #endif
 			goto getmode;
-			
+
 		case 't':			/* ptrdiff_t */
 #if	SIZEOF_PTRDIFF_T == SIZEOF_INT
 			if (!type)
@@ -355,7 +355,7 @@ error sizeof(size_t) is unknown
 			if (!type)
 				type = 'Q';	/* convert to long long type */
 #else
-error sizeof(ptrdiff_t) is unknown
+error sizeof (ptrdiff_t) is unknown
 #endif
 #endif
 #endif

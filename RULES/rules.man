@@ -1,4 +1,4 @@
-#ident "@(#)rules.man	1.4 07/05/06 "
+#ident "@(#)rules.man	1.5 10/05/14 "
 ###########################################################################
 # Written 1997 by J. Schilling
 ###########################################################################
@@ -21,7 +21,7 @@
 include		$(SRCROOT)/$(RULESDIR)/man-$(MANSTYLE).def
 ###########################################################################
 
-INSDIR=		$(MANDIR)/$(MANSECT)
+INSDIR=		$(MANBASE:%=%/)$(MANDIR)/$(MANSECT)
 SUBARCHDIR=	/$(MANDIR)
 TARGET=		$(TARGETMAN).$(MANSUFFIX)
 SRCFILE=	$(MANFILE)

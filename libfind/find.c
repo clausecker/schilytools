@@ -1,14 +1,14 @@
 /*#define	PLUS_DEBUG*/
-/* @(#)find.c	1.84 09/11/15 Copyright 2004-2009 J. Schilling */
+/* @(#)find.c	1.90 10/04/27 Copyright 2004-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)find.c	1.84 09/11/15 Copyright 2004-2009 J. Schilling";
+	"@(#)find.c	1.90 10/04/27 Copyright 2004-2010 J. Schilling";
 #endif
 /*
  *	Another find implementation...
  *
- *	Copyright (c) 2004-2009 J. Schilling
+ *	Copyright (c) 2004-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -31,6 +31,7 @@ static	UConst char sccsid[] =
 #include <schily/stdlib.h>
 #include <schily/fcntl.h>
 #include <schily/stat.h>
+#include <schily/dirent.h>
 #include <schily/time.h>
 #include <schily/wait.h>
 #include <schily/string.h>
@@ -73,6 +74,7 @@ typedef struct {
 		gid_t	gid;
 		size_t	size;
 		time_t	time;
+		FILE	*fp;
 	} val, val2;
 } findn_t;
 
@@ -81,135 +83,8 @@ typedef struct {
 #include <schily/find.h>
 #include "find_list.h"
 #include "find_misc.h"
-
-LOCAL	char	*tokennames[] = {
-#define	OPEN	0
-	"(",
-#define	CLOSE	1
-	")",
-#define	LNOT	2
-	"!",
-#define	AND	3
-	"a",
-#define	LOR	4
-	"o",
-#define	ATIME	5
-	"atime",
-#define	CTIME	6
-	"ctime",
-#define	DEPTH	7
-	"depth",
-#define	EXEC	8
-	"exec",
-#define	FOLLOW	9	/* POSIX Extension */
-	"follow",
-#define	FSTYPE	10	/* POSIX Extension */
-	"fstype",
-#define	GROUP	11
-	"group",
-#define	INUM	12	/* POSIX Extension */
-	"inum",
-#define	LINKS	13
-	"links",
-#define	LOCL	14	/* POSIX Extension */
-	"local",
-#define	LS	15	/* POSIX Extension */
-	"ls",
-#define	MODE	16	/* POSIX Extension */
-	"mode",
-#define	MOUNT	17	/* POSIX Extension */
-	"mount",
-#define	MTIME	18
-	"mtime",
-#define	NAME	19
-	"name",
-#define	NEWER	20
-	"newer",
-#define	NOGRP	21
-	"nogroup",
-#define	NOUSER	22
-	"nouser",
-#define	OK_EXEC	23
-	"ok",
-#define	PERM	24
-	"perm",
-#define	PRINT	25
-	"print",
-#define	PRINTNNL 26	/* POSIX Extension */
-	"printnnl",
-#define	PRUNE	27
-	"prune",
-#define	SIZE	28
-	"size",
-#define	TIME	29	/* POSIX Extension */
-	"time",
-#define	TYPE	30
-	"type",
-#define	USER	31
-	"user",
-#define	XDEV	32
-	"xdev",
-#define	PATH	33	/* POSIX Extension */
-	"path",
-#define	LNAME	34	/* POSIX Extension */
-	"lname",
-#define	PAT	35	/* POSIX Extension */
-	"pat",
-#define	PPAT	36	/* POSIX Extension */
-	"ppat",
-#define	LPAT	37	/* POSIX Extension */
-	"lpat",
-#define	PACL	38	/* POSIX Extension */
-	"acl",
-#define	XATTR	39	/* POSIX Extension */
-	"xattr",
-#define	LINKEDTO 40	/* POSIX Extension */
-	"linkedto",
-#define	NEWERAA	41	/* POSIX Extension */
-	"neweraa",
-#define	NEWERAC	42	/* POSIX Extension */
-	"newerac",
-#define	NEWERAM	43	/* POSIX Extension */
-	"neweram",
-#define	NEWERCA	44	/* POSIX Extension */
-	"newerca",
-#define	NEWERCC	45	/* POSIX Extension */
-	"newercc",
-#define	NEWERCM	46	/* POSIX Extension */
-	"newercm",
-#define	NEWERMA	47	/* POSIX Extension */
-	"newerma",
-#define	NEWERMC	48	/* POSIX Extension */
-	"newermc",
-#define	NEWERMM	49	/* POSIX Extension */
-	"newermm",
-#define	SPARSE	50	/* POSIX Extension */
-	"sparse",
-#define	LTRUE	51	/* POSIX Extension */
-	"true",
-#define	LFALSE	52	/* POSIX Extension */
-	"false",
-#define	MAXDEPTH 53	/* POSIX Extension */
-	"maxdepth",
-#define	MINDEPTH 54	/* POSIX Extension */
-	"mindepth",
-#define	HELP	55	/* POSIX Extension */
-	"help",
-#define	CHOWN	56	/* POSIX Extension */
-	"chown",
-#define	CHGRP	57	/* POSIX Extension */
-	"chgrp",
-#define	CHMOD	58	/* POSIX Extension */
-	"chmod",
-#define	DOSTAT	59	/* POSIX Extension */
-	"dostat",
-#define	ENDPRIM	60
-	0,
-#define	EXECPLUS 61
-	"exec",
-	0
-};
-#define	NTOK	((sizeof (tokennames) / sizeof (tokennames[0])) - 1)
+#define	TOKEN_NAMES
+#include "find_tok.h"
 
 /*
  *	The struct plusargs and the adjacent space that holds the
@@ -302,7 +177,7 @@ LOCAL	inline BOOL find_expr	__PR((char *f, char *ff, struct stat *fs, struct WAL
 #else
 EXPORT	BOOL	find_expr	__PR((char *f, char *ff, struct stat *fs, struct WALK *state, findn_t *t));
 #endif
-LOCAL	BOOL	doexec		__PR((char *f, int ac, char **av, struct WALK *state));
+LOCAL	BOOL	doexec		__PR((char *f, findn_t *t, int ac, char **av, struct WALK *state));
 LOCAL	int	countenv	__PR((void));
 LOCAL	int	argsize		__PR((int xtype));
 LOCAL	int	extype		__PR((char *name));
@@ -438,6 +313,11 @@ find_freenode(t)
 		if (t->right != NULL)
 			free(t->right);	/* aux array for patcompile() */
 		break;
+	case FLS:
+	case FPRINT:
+	case FPRINT0:
+	case FPRINTNNL:
+		fclose(t->val.fp);
 	default:
 		;
 	}
@@ -505,6 +385,7 @@ find_token(word)
 	register char	*word;
 {
 	char	**tp;
+	char	*tn;
 	char	*equalp;
 	int	type;
 
@@ -521,7 +402,10 @@ find_token(word)
 		goto bad;
 	}
 	for (type = 0, tp = tokennames; *tp; tp++, type++) {
-		if (streql(*tp, word)) {
+		tn = *tp;
+		if (*tn != *word)
+			continue;
+		if (streql(tn, word)) {
 			if (equalp)
 				*equalp = '=';
 			return (type);
@@ -696,6 +580,16 @@ parseprim(fap)
 	/*
 	 * Use simple to old (historic) shell globbing.
 	 */
+	case INAME:
+	case ILNAME:
+	case IPATH:
+#ifndef	FNM_IGNORECASE
+		ferrmsgno(fap->std[2],
+			EX_BAD, gettext("The primary '-%s' is unsupported on this OS.\n"),
+					tokennames[n->op]);
+		errjmp(fap, EX_BAD);
+		/* NOTREACHED */
+#endif
 	case NAME:
 	case PATH:
 	case LNAME:
@@ -715,6 +609,14 @@ parseprim(fap)
 	 * Use patmatch() which is a regular expression matcher that implements
 	 * extensions that are compatible to old (historic) shell globbing.
 	 */
+	case IPAT:
+	case IPPAT:
+	case ILPAT:
+		ferrmsgno(fap->std[2],
+			EX_BAD, gettext("The primary '-%s' is currently unsupported.\n"),
+					tokennames[n->op]);
+		errjmp(fap, EX_BAD);
+		/* NOTREACHED */
 	case PAT:
 	case PPAT:
 	case LPAT: {
@@ -767,6 +669,12 @@ parseprim(fap)
 		fap->jmp = ojmp;		/* Restore old jump target */
 		return (n);
 	}
+
+	case EMPTY:
+		fap->walkflags &= ~WALK_NOSTAT;
+		nexttoken(fap);
+		fap->jmp = ojmp;		/* Restore old jump target */
+		return (n);
 
 	case LINKS:
 		fap->walkflags &= ~WALK_NOSTAT;
@@ -824,6 +732,10 @@ parseprim(fap)
 		return (n);
 	}
 
+	case AMIN:
+	case CMIN:
+	case MMIN:
+		n->val2.i = 1;
 	case TIME:
 	case ATIME:
 	case CTIME:
@@ -842,11 +754,22 @@ parseprim(fap)
 			errjmp(fap, EX_BAD);
 			/* NOTREACHED */
 		}
+		if (n->val2.i)
+			n->val.time *= 60;
+
 		len = strlen(p);
 		if (len > 0) {
 			len = (Uchar)p[len-1];
-			if (!(len >= '0' && len <= '9'))
-				n->val2.i = 1;
+			if (!(len >= '0' && len <= '9')) {
+				if (n->val2.i) { /* -mmin, No ext. time spec */
+					ferrmsgno(fap->std[2], EX_BAD,
+					gettext("Unsupported timespec in '-%s %s'.\n"),
+						tokennames[n->op], n->left);
+					errjmp(fap, geterrno());
+					/* NOTREACHED */
+				}
+				n->val2.i = 1;	/* Ext. time spec permitted */
+			}
 		}
 		nexttoken(fap);
 		fap->jmp = ojmp;		/* Restore old jump target */
@@ -1025,8 +948,15 @@ parseprim(fap)
 	case PERM:
 		fap->walkflags &= ~WALK_NOSTAT;
 
-		n->left = nextarg(fap, n);
-		if (getperm(fap->std[2], n->left, tokennames[n->op],
+		p = n->left = nextarg(fap, n);
+		if (p[0] == '+') {
+			if (p[1] == '0' ||
+			    p[1] == 'u' || p[1] == 'g' || p[1] == 'o' || p[1] == 'a')
+				p++;
+			else
+				n->left = "";
+		}
+		if (getperm(fap->std[2], p, tokennames[n->op],
 				&n->val.mode, (mode_t)0,
 				n->op == PERM ? GP_FPERM|GP_XERR:GP_NOX) < 0) {
 			errjmp(fap, EX_BAD);
@@ -1096,12 +1026,17 @@ parseprim(fap)
 	case PRUNE:
 	case LTRUE:
 	case LFALSE:
+	case READABLE:
+	case WRITABLE:
+	case EXECUTABLE:
 		nexttoken(fap);
 		fap->jmp = ojmp;		/* Restore old jump target */
 		return (n);
 
 	case OK_EXEC:
-	case EXEC: {
+	case OK_EXECDIR:
+	case EXEC:
+	case EXECDIR: {
 		int	i = 1;
 
 		n->this = (char *)fap->Argv;	/* Cheat: Pointer is pointer */
@@ -1110,6 +1045,13 @@ parseprim(fap)
 			if (streql(p, ";"))
 				break;
 			else if (streql(p, "+") && streql(fap->Argv[-2], "{}")) {
+				if (n->op == OK_EXECDIR || n->op == EXECDIR) {
+					ferrmsgno(fap->std[2], EX_BAD,
+					gettext("'-%s' does not yet work with '+'.\n"),
+						tokennames[n->op]);
+					errjmp(fap, EX_BAD);
+					/* NOTREACHED */
+				}
 				n->op = fap->primtype = EXECPLUS;
 				if (!pluscreate(fap->std[2], --i, (char **)n->this, fap)) {
 					errjmp(fap, EX_BAD);
@@ -1133,8 +1075,25 @@ parseprim(fap)
 
 	case LS:
 		fap->walkflags &= ~WALK_NOSTAT;
+		goto found_action;
+	case FLS:
+		fap->walkflags &= ~WALK_NOSTAT;
+	case FPRINT:
+	case FPRINT0:
+	case FPRINTNNL:
+		p = nextarg(fap, n);
+		n->val.fp = fileopen(p, "wcta");
+		if (n->val.fp == NULL) {
+			ferrmsg(fap->std[2],
+			gettext("Cannot open '%s' for '-%s'.\n"),
+				p, tokennames[n->op]);
+			errjmp(fap, EX_BAD);
+			/* NOTREACHED */
+		}
 	case PRINT:
+	case PRINT0:
 	case PRINTNNL:
+	found_action:
 		fap->found_action = TRUE;
 		nexttoken(fap);
 		fap->jmp = ojmp;		/* Restore old jump target */
@@ -1154,6 +1113,11 @@ parseprim(fap)
 	case OPEN:
 		nexttoken(fap);
 		n->this = (char *)parse(fap);
+		if (n->this == NULL) {
+			find_freenode(n);
+			fap->jmp = ojmp;	/* Restore old jump target */
+			return ((findn_t *)NULL);
+		}
 		if (fap->primtype != CLOSE) {
 			ferrmsgno(fap->std[2], EX_BAD,
 				gettext("Found '%s', but ')' expected.\n"),
@@ -1168,6 +1132,9 @@ parseprim(fap)
 		break;
 
 	case CLOSE:
+		/*
+		 * The triggering arg is at fap->Argv[-2].
+		 */
 		ferrmsgno(fap->std[2], EX_BAD, gettext("Missing '('.\n"));
 		errjmp(fap, EX_BAD);
 		/* NOTREACHED */
@@ -1177,7 +1144,7 @@ parseprim(fap)
 		n->this = (char *)parseprim(fap);
 		if (n->this == NULL) {
 			find_freenode(n);
-			return ((findn_t *)NULL);
+			n = (findn_t *)NULL;
 		}
 		fap->jmp = ojmp;		/* Restore old jump target */
 		return (n);
@@ -1185,18 +1152,21 @@ parseprim(fap)
 	case AND:
 	case LOR:
 		ferrmsgno(fap->std[2], EX_BAD,
-		gettext("Invalid expression with -%s.\n"), tokennames[n->op]);
+		gettext("Invalid expression with '-%s'.\n"), tokennames[n->op]);
 		errjmp(fap, EX_BAD);
 		/* NOTREACHED */
 
 	case HELP:
 		find_usage(fap->std[2]);
 		find_freenode(n);
+		fap->jmp = ojmp;		/* Restore old jump target */
 		return ((findn_t *)NULL);
 
 	default:
 		ferrmsgno(fap->std[2], EX_BAD,
-				gettext("Internal malfunction.\n"));
+		gettext(
+		"Internal malfunction, found unknown primary '-%s' (%d).\n"),
+			find_tname(n->op), n->op);
 		errjmp(fap, EX_BAD);
 		/* NOTREACHED */
 	}
@@ -1271,6 +1241,8 @@ find_pname(t, word)
 {
 	if (streql(word, "-exec+"))
 		return (find_primary(t, EXECPLUS));
+	if (streql(word, "-execdir+"))
+		return (find_primary(t, EXECDIRPLUS));
 	return (find_primary(t, find_token(word)));
 }
 
@@ -1326,11 +1298,17 @@ find_expr(f, ff, fs, state, t)
 	findn_t		*t;
 {
 	time_t	xtime;
+	FILE	*fp = state->std[1];
 	char	*p;
 	char	lname[8192];
+	int	fnflags = 0;
 
 	switch (t->op) {
 
+	case ILNAME:
+#ifdef	FNM_IGNORECASE
+		fnflags = FNM_IGNORECASE;
+#endif
 	case LNAME: {
 		int	lsize;
 
@@ -1342,6 +1320,10 @@ find_expr(f, ff, fs, state, t)
 			goto nmatch;
 		}
 		lname[0] = '\0';
+		/*
+		 * For file names from the command line, we did not perform
+		 * a chdir() before, so we need to use the full path name.
+		 */
 		lsize = readlink(state->level ? ff : f, lname, sizeof (lname));
 		if (lsize < 0) {
 			ferrmsg(state->std[2],
@@ -1354,14 +1336,22 @@ find_expr(f, ff, fs, state, t)
 		p = lname;
 		goto nmatch;
 	}
+	case IPATH:
+#ifdef	FNM_IGNORECASE
+		fnflags = FNM_IGNORECASE;
+#endif
 	case PATH:
 		p = f;
 		goto nmatch;
+	case INAME:
+#ifdef	FNM_IGNORECASE
+		fnflags = FNM_IGNORECASE;
+#endif
 	case NAME:
 		p = ff;
 	nmatch:
 #if	defined(HAVE_FNMATCH)
-		return (!fnmatch(t->this, p, 0));
+		return (!fnmatch(t->this, p, fnflags));
 #else
 		goto pattern;		/* Use patmatch() as "fallback" */
 #endif
@@ -1377,6 +1367,10 @@ find_expr(f, ff, fs, state, t)
 			goto pattern;
 		}
 		lname[0] = '\0';
+		/*
+		 * For file names from the command line, we did not perform
+		 * a chdir() before, so we need to use the full path name.
+		 */
 		lsize = readlink(state->level ? ff : f, lname, sizeof (lname));
 		if (lsize < 0) {
 			ferrmsg(state->std[2],
@@ -1418,6 +1412,38 @@ find_expr(f, ff, fs, state, t)
 			return ((fs->st_size+511)/512 == t->val.size);
 		}
 
+	case EMPTY:
+		if (S_ISREG(fs->st_mode) && fs->st_size == 0)
+			return (TRUE);
+		/*
+		 * For file names from the command line, we did not perform
+		 * a chdir() before, so we need to use the full path name.
+		 */
+		if (S_ISDIR(fs->st_mode)) {
+			struct dirent	*dp;
+			DIR		*d = opendir(state->level ? ff : f);
+
+			if (d == NULL) {
+				ferrmsg(state->std[2],
+					gettext("Cannot open directory '%s'.\n"),
+					ff);
+				return (FALSE);
+			}
+			while ((dp = readdir(d)) != NULL) {
+				register char *name = dp->d_name;
+				/*
+				 * Skip the following names: "", ".", "..".
+				 */
+				if (name[name[0] != '.' ? 0 :
+				    name[1] != '.' ? 1 : 2] == '\0')
+					continue;
+				closedir(d);
+				return (FALSE);
+			}
+			return (TRUE);
+		}
+		return (FALSE);
+
 	case LINKS:
 		switch (*(t->left)) {
 		case '+':
@@ -1442,12 +1468,32 @@ find_expr(f, ff, fs, state, t)
 			return ((fs->st_ino == t->val.ino) &&
 				(fs->st_dev == t->val2.dev));
 
+	case READABLE:
+		t->val.i = R_OK;
+		goto check_access;
+	case WRITABLE:
+		t->val.i = W_OK;
+		goto check_access;
+	case EXECUTABLE:
+		t->val.i = X_OK;
+	check_access:
+		/*
+		 * For file names from the command line, we did not perform
+		 * a chdir() before, so we need to use the full path name.
+		 */
+		if (access(state->level ? ff : f, t->val.i) < 0)
+			return (FALSE);
+		return (TRUE);
+
+	case AMIN:
 	case ATIME:
 		xtime = fs->st_atime;
 		goto times;
+	case CMIN:
 	case CTIME:
 		xtime = fs->st_ctime;
 		goto times;
+	case MMIN:
 	case MTIME:
 	case TIME:
 		xtime = fs->st_mtime;
@@ -1576,7 +1622,9 @@ find_expr(f, ff, fs, state, t)
 #endif
 
 	case PERM:
-		if (t->left[0] == '-')
+		if (t->left[0] == '+')
+			return ((fs->st_mode & t->val.mode) != 0);
+		else if (t->left[0] == '-')
 			return ((fs->st_mode & t->val.mode) == t->val.mode);
 		else
 			return ((fs->st_mode & S_ALLMODES) == t->val.mode);
@@ -1626,7 +1674,8 @@ find_expr(f, ff, fs, state, t)
 		return (FALSE);
 #endif
 
-	case OK_EXEC: {
+	case OK_EXEC:
+	case OK_EXECDIR: {
 		char qbuf[32];
 
 		fflush(state->std[1]);
@@ -1644,22 +1693,44 @@ find_expr(f, ff, fs, state, t)
 	/* FALLTHRU */
 
 	case EXEC:
-		return (doexec(f, t->val.i, (char **)t->this, state));
+	case EXECDIR:
+		return (doexec(
+			state->level && (t->op == OK_EXECDIR || t->op == EXECDIR)?
+			ff:f,
+			t, t->val.i, (char **)t->this, state));
 
 	case EXECPLUS:
 		return (plusexec(f, t, state));
 
+	case FPRINT:
+		fp = t->val.fp;
+		/* FALLTHRU */
 	case PRINT:
-		filewrite(state->std[1], f, strlen(f));
-		putc('\n', state->std[1]);
+		filewrite(fp, f, strlen(f));
+		putc('\n', fp);
 		return (TRUE);
 
+	case FPRINT0:
+		fp = t->val.fp;
+		/* FALLTHRU */
+	case PRINT0:
+		filewrite(fp, f, strlen(f));
+		putc('\0', fp);
+		return (TRUE);
+
+	case FPRINTNNL:
+		fp = t->val.fp;
+		/* FALLTHRU */
 	case PRINTNNL:
-		filewrite(state->std[1], f, strlen(f));
-		putc(' ', state->std[1]);
+		filewrite(fp, f, strlen(f));
+		putc(' ', fp);
 		return (TRUE);
 
-	case LS:
+	case FLS:
+		fp = t->val.fp;
+		/* FALLTHRU */
+	case LS: {
+		FILE	*std[3];
 		/*
 		 * The third parameter is the file name used for readlink()
 		 * (inside find_list()) relatively to the current working
@@ -1667,9 +1738,12 @@ find_expr(f, ff, fs, state, t)
 		 * perform a chdir() before, so we need to use the full path
 		 * name.
 		 */
-		find_list(state->std, fs, f, state->level ? ff : f, state);
+		std[0] = state->std[0];
+		std[1] = fp;
+		std[2] = state->std[2];
+		find_list(std, fs, f, state->level ? ff : f, state);
 		return (TRUE);
-
+	}
 	case LTRUE:
 		return (TRUE);
 
@@ -1687,24 +1761,49 @@ find_expr(f, ff, fs, state, t)
 		return (find_expr(f, ff, fs, state, (findn_t *)t->left) ?
 			1 : find_expr(f, ff, fs, state, (findn_t *)t->right));
 	}
+	if (!(state->pflags & 0x80000000)) {
+
+		ferrmsgno(state->std[2], EX_BAD,
+		gettext(
+		"Internal malfunction, found unknown primary '-%s' (%d).\n"),
+				find_tname(t->op), t->op);
+		state->pflags |= 0x80000000;
+	}
 	return (FALSE);		/* Unknown operator ??? */
 }
 
 LOCAL BOOL
-doexec(f, ac, av, state)
+doexec(f, t, ac, av, state)
 	char	*f;
+	findn_t	*t;
 	int	ac;
 	char	**av;
 	struct WALK *state;
 {
+#ifdef	HAVE_VFORK
+	char	**aav = NULL;
+#endif
 	pid_t	pid;
 	int	retval;
 
+#ifdef	HAVE_VFORK
+	if (f && ac >= 32) {
+		aav = malloc((ac+1) * sizeof (char **));
+		if (aav == NULL) {
+			ferrmsg(state->std[2], gettext("Cannot malloc arg vector for -exec.\n"));
+			return (FALSE);
+		}
+	}
+#endif
 	if ((pid = vfork()) < 0) {
 #ifdef	HAVE_VFORK
 		ferrmsg(state->std[2], gettext("Cannot vfork child.\n"));
 #else
 		ferrmsg(state->std[2], gettext("Cannot fork child.\n"));
+#endif
+#ifdef	HAVE_VFORK
+		if (aav)
+			free(aav);
 #endif
 		return (FALSE);
 	}
@@ -1712,8 +1811,16 @@ doexec(f, ac, av, state)
 		while (wait(&retval) != pid)
 			/* LINTED */
 			;
+#ifdef	HAVE_VFORK
+		if (aav)
+			free(aav);
+#endif
 		return (retval == 0);
 	} else {
+#ifdef	HAVE_VFORK
+			char	*xav[32];
+		register char	**pp2 = xav;
+#endif
 		register int	i;
 		register char	**pp = av;
 			int	err;
@@ -1722,7 +1829,9 @@ doexec(f, ac, av, state)
 		 * This is the forked process and for this reason, we may
 		 * call fcomerr() here without problems.
 		 */
-		if (walkhome(state) < 0) {
+		if (t != NULL &&	/* Not called from find_plusflush() */
+		    t->op != OK_EXECDIR && t->op != EXECDIR &&
+		    walkhome(state) < 0) {
 			fcomerr(state->std[2],
 					gettext("Cannot chdir to '.'.\n"));
 		}
@@ -1732,23 +1841,45 @@ doexec(f, ac, av, state)
 
 #define	iscurlypair(p)	((p)[0] == '{' && (p)[1] == '}' && (p)[2] == '\0')
 
-		if (f) {
+#ifdef	HAVE_VFORK
+		if (aav)
+			pp2 = aav;
+#endif
+		if (f) {				/* NULL for -exec+ */
 			for (i = 0; i < ac; i++, pp++) {
 				register char	*p = *pp;
 
+#ifdef	HAVE_VFORK
+				if (iscurlypair(p))	/* streql(p, "{}") */
+					*pp2++ = f;
+				else
+					*pp2++ = p;
+#else
 				if (iscurlypair(p))	/* streql(p, "{}") */
 					*pp = f;
+#endif
 			}
+#ifdef	HAVE_VFORK
+			if (aav)
+				pp = aav;
+			else
+				pp = xav;
+#endif
+		} else {
+			pp = av;
 		}
+#ifndef	HAVE_VFORK
+		pp = av;
+#endif
 #ifdef	PLUS_DEBUG
 		error("argsize %d\n",
 			(plusp->endp - (char *)&plusp->nextargp[0]) -
 			(plusp->laststr - (char *)&plusp->nextargp[1]));
 #endif
-		av[ac] = NULL;	/* -exec {} \; is not NULL terminated */
+		pp[ac] = NULL;	/* -exec {} \; is not NULL terminated */
 
 		fexecve(av[0], state->std[0], state->std[1], state->std[2],
-							av, state->env);
+							pp, state->env);
 		err = geterrno();
 #ifdef	PLUS_DEBUG
 		error("argsize %d\n",
@@ -1899,7 +2030,7 @@ extype(name)
 	 * We only support ELF binaries
 	 */
 	if (elfbuf[0] != 0x7F ||
-	    elfbuf[1] != 'E'  || elfbuf[2] != 'L'  || elfbuf[3] != 'F')
+	    elfbuf[1] != 'E' || elfbuf[2] != 'L' || elfbuf[3] != 'F')
 		return (0);
 
 	switch (elfbuf[4] & 0xFF) {
@@ -2062,7 +2193,7 @@ plusexec(f, t, state)
 	if (pp->laststr < nargp ||			/* Already full	    */
 	    slen > size) {				/* str does not fit */
 		pp->nextargp[0] = NULL;
-		ret = doexec(NULL, pp->ac, pp->av, state);
+		ret = doexec(NULL, t, pp->ac, pp->av, state);
 		pp->laststr = pp->endp;
 		pp->ac = t->val.i;
 		pp->nextargp = &pp->av[t->val.i];
@@ -2108,7 +2239,7 @@ find_plusflush(p, state)
 #endif
 		if (plusp->laststr != plusp->endp) {
 			plusp->nextargp[0] = NULL;
-			if (!doexec(NULL, plusp->ac, plusp->av, state))
+			if (!doexec(NULL, NULL, plusp->ac, plusp->av, state))
 				ret = FALSE;
 		}
 		plusp = plusp->next;
@@ -2145,13 +2276,26 @@ find_usage(f)
 	fprintf(f, gettext("	-ctime #      TRUE if st_ctime is in specified range\n"));
 	fprintf(f, gettext("	-depth	      evaluate directory content before directory (always TRUE)\n"));
 	fprintf(f, gettext("*	-dostat	      Do not do stat optimization (always TRUE)\n"));
+	fprintf(f, gettext("*	-empty	      TRUE zero sized plain file or empty directory\n"));
 	fprintf(f, gettext("	-exec program [argument ...] \\;\n"));
 	fprintf(f, gettext("	-exec program [argument ...] {} +\n"));
+	fprintf(f, gettext("*	-execdir program [argument ...] \\;\n"));
+	fprintf(f, gettext("*	-executable   TRUE if file is executable by real user id\n"));
 	fprintf(f, gettext("*	-false	      always FALSE\n"));
+	fprintf(f, gettext("*	-fls file     list files similar to 'ls -ilds' into 'file' (always TRUE)\n"));
 	fprintf(f, gettext("*	-follow	      outdated: follow all symbolic links (always TRUE)\n"));
+	fprintf(f, gettext("*	-fprint file  print file names line separated into 'file' (always TRUE)\n"));
+	fprintf(f, gettext("*	-fprint0 file print file names nul separated into 'file' (always TRUE)\n"));
+	fprintf(f, gettext("*	-fprintnnl file print file names space separated into 'file' (always TRUE)\n"));
 	fprintf(f, gettext("*	-fstype type  TRUE if st_fstype matches type\n"));
 	fprintf(f, gettext("	-group gname/gid TRUE if st_gid matches gname/gid\n"));
+	fprintf(f, gettext("*	-ilname glob  TRUE if symlink name matches shell glob\n"));
+	fprintf(f, gettext("*	-ilpat pattern TRUE if symlink name matches pattern\n"));
+	fprintf(f, gettext("*	-iname glob   TRUE if path component matches shell glob\n"));
 	fprintf(f, gettext("*	-inum #	      TRUE if st_ino is in specified range\n"));
+	fprintf(f, gettext("*	-ipat pattern TRUE if path component matches pattern\n"));
+	fprintf(f, gettext("*	-ipath glob   TRUE if full path matches shell glob\n"));
+	fprintf(f, gettext("*	-ippat pattern TRUE if full path matches pattern\n"));
 	fprintf(f, gettext("*	-linkedto path TRUE if the file is linked to path\n"));
 	fprintf(f, gettext("	-links #      TRUE if st_nlink is in specified range\n"));
 	fprintf(f, gettext("*	-lname glob   TRUE if symlink name matches shell glob\n"));
@@ -2163,22 +2307,26 @@ find_usage(f)
 	fprintf(f, gettext("	-mtime #      TRUE if st_mtime is in specified range\n"));
 	fprintf(f, gettext("	-name glob    TRUE if path component matches shell glob\n"));
 	fprintf(f, gettext("	-newer file   TRUE if st_mtime newer then mtime of file\n"));
-	fprintf(f, gettext("	-newerXY file TRUE if [acm]time (X) newer then [acm]time (Y) of file\n"));
+	fprintf(f, gettext("*	-newerXY file TRUE if [acm]time (X) newer then [acm]time (Y) of file\n"));
 	fprintf(f, gettext("	-nogroup      TRUE if not in group database\n"));
 	fprintf(f, gettext("	-nouser       TRUE if not in user database\n"));
 	fprintf(f, gettext("	-ok program [argument ...] \\;\n"));
+	fprintf(f, gettext("*	-okdir program [argument ...] \\;\n"));
 	fprintf(f, gettext("*	-pat pattern  TRUE if path component matches pattern\n"));
 	fprintf(f, gettext("*	-path glob    TRUE if full path matches shell glob\n"));
 	fprintf(f, gettext("	-perm mode/onum TRUE if symbolic/octal permission matches\n"));
 	fprintf(f, gettext("*	-ppat pattern TRUE if full path matches pattern\n"));
 	fprintf(f, gettext("	-print	      print file names line separated to stdout (always TRUE)\n"));
+	fprintf(f, gettext("*	-print0	      print file names nul separated to stdout (always TRUE)\n"));
 	fprintf(f, gettext("*	-printnnl     print file names space separated to stdout (always TRUE)\n"));
 	fprintf(f, gettext("	-prune	      do not descent current directory (always TRUE)\n"));
+	fprintf(f, gettext("*	-readable     TRUE if file is readable by real user id\n"));
 	fprintf(f, gettext("	-size #	      TRUE if st_size is in specified range\n"));
 	fprintf(f, gettext("*	-sparse	      TRUE if file appears to be sparse\n"));
 	fprintf(f, gettext("*	-true	      always TRUE\n"));
 	fprintf(f, gettext("	-type c	      TRUE if file type matches, c is from (b c d D e f l p P s)\n"));
 	fprintf(f, gettext("	-user uname/uid TRUE if st_uid matches uname/uid\n"));
+	fprintf(f, gettext("*	-writable     TRUE if file is writable by real user id\n"));
 	fprintf(f, gettext("*	-xattr	      TRUE if the file has extended attributes\n"));
 	fprintf(f, gettext("	-xdev, -mount restrict search to current filesystem (always TRUE)\n"));
 	fprintf(f, gettext("Primaries marked with '*' are POSIX extensions, avoid them in portable scripts.\n"));

@@ -1,8 +1,8 @@
-/* @(#)write.c	1.125 09/11/25 joerg */
+/* @(#)write.c	1.129 10/06/01 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)write.c	1.125 09/11/25 joerg";
+	"@(#)write.c	1.129 10/06/01 joerg";
 #endif
 /*
  * Program write.c - dump memory  structures to  file for iso9660 filesystem.
@@ -10,7 +10,7 @@ static	UConst char sccsid[] =
  * Written by Eric Youngdale (1993).
  *
  * Copyright 1993 Yggdrasil Computing, Incorporated
- * Copyright (c) 1999-2009 J. Schilling
+ * Copyright (c) 1999-2010 J. Schilling
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -431,7 +431,7 @@ static	char		buffer[SECTOR_SIZE * NSECT];
 			if (geterrno() == 0) {
 				if (!errhidden(amt > remain ? E_GROW:E_SHRINK, filename)) {
 					if (!errwarnonly(amt < remain ? E_SHRINK:E_GROW, filename))
-						;
+						errmsgno(EX_BAD, "Try to use the option -data-change-warn\n");
 					errmsgno(EX_BAD,
 					"File '%s' did %s.\n",
 						filename,
@@ -815,13 +815,13 @@ sort_directory(sort_dir, rr)
 	sortlist = (struct directory_entry **)
 		e_malloc(sizeof (struct directory_entry *) * dcount);
 
-	j = dcount - 1;
+	j = dcount - xcount;
 	dcount = 0;
 	s_entry = *sort_dir;
 	while (s_entry) {
 		if (s_entry->de_flags & INHIBIT_ISO9660_ENTRY) {
 			/* put any hidden entries at the end of the vector */
-			sortlist[j--] = s_entry;
+			sortlist[j++] = s_entry;
 		} else {
 			sortlist[dcount] = s_entry;
 			dcount++;
@@ -1263,13 +1263,6 @@ assign_file_addresses(dpnt, isnest)
 #else
 				dwpnt->off = (off_t)0;
 #endif	/* APPLE_HYB */
-				if (dw_tail) {
-					dw_tail->next = dwpnt;
-					dw_tail = dwpnt;
-				} else {
-					dw_head = dwpnt;
-					dw_tail = dwpnt;
-				}
 				if (s_entry->inode == TABLE_INODE) {
 					dwpnt->table = s_entry->table;
 					dwpnt->name = NULL;
@@ -1301,8 +1294,12 @@ assign_file_addresses(dpnt, isnest)
 					/*
 					 * Skip the multi extent root entry.
 					 */
-					if (s_entry->mxpart == 0)
+					if (s_entry->mxpart == 0) {
+						if (dwpnt->name)
+							free(dwpnt->name);
+						free(dwpnt);
 						continue;
+					}
 					/*
 					 * The directory is sorted, so we should
 					 * see s_entry->mxpart == 1 first.
@@ -1332,6 +1329,13 @@ assign_file_addresses(dpnt, isnest)
 					add_hash(s_entry);
 				}
 #endif
+				if (dw_tail) {
+					dw_tail->next = dwpnt;
+					dw_tail = dwpnt;
+				} else {
+					dw_head = dwpnt;
+					dw_tail = dwpnt;
+				}
 				add_hash(s_entry);
 				/*
 				 * The cache holds the full size of the file
@@ -1773,6 +1777,9 @@ generate_path_tables()
 				errmsgno(EX_BAD,
 			"Unable to generate sane path tables - too many directories (%u)\n",
 					dpnt->parent->path_index);
+				if (!nolimitpathtables)
+					errmsgno(EX_BAD,
+					"Try to use the option -no-limit-pathtables\n");
 			}
 			if (!nolimitpathtables)
 				exit(EX_BAD);

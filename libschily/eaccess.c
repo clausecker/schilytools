@@ -1,13 +1,13 @@
-/* @(#)eaccess.c	1.3 09/07/08 Copyright 2004-2009 J. Schilling */
+/* @(#)eaccess.c	1.4 10/05/08 Copyright 2004-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)eaccess.c	1.3 09/07/08 Copyright 2004-2009 J. Schilling";
+	"@(#)eaccess.c	1.4 10/05/08 Copyright 2004-2010 J. Schilling";
 #endif
 /*
  * Implement the best possible emulation for eaccess()
  *
- * Copyright 2004-2009 J. Schilling
+ * Copyright 2004-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -26,12 +26,12 @@ static	UConst char sccsid[] =
 #include <schily/schily.h>
 
 #ifndef	HAVE_EACCESS
-EXPORT	int	eaccess		__PR((char *name, int mode));
+EXPORT	int	eaccess		__PR((const char *name, int mode));
 
 EXPORT int
 eaccess(name, mode)
-	char	*name;
-	int	mode;
+	const	char	*name;
+		int	mode;
 {
 #ifdef	HAVE_EUIDACCESS
 	return (euidaccess(name, mode));

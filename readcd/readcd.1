@@ -1,4 +1,4 @@
-.\" @(#)readcd.1	1.42 10/02/14 Copyright 1996-2010 J. Schilling
+.\" @(#)readcd.1	1.44 10/05/28 Copyright 1996-2010 J. Schilling
 .\"
 .\" The contents of this file are subject to the terms of the
 .\" Common Development and Distribution License, Version 1.0 only
@@ -284,10 +284,9 @@ If this option is not present,
 .B readcd
 reads from the specified device.
 .SS "SCSI options"
-.....SS "OS Interface options"
 .TP
 .BI dev= target
-Sets the SCSI target for the CD/DVD/BluRay-Recorder, see notes above.
+Set the SCSI target for the CD/DVD/BluRay-Recorder, see notes above.
 A typical target device specification is
 .BI dev= 1,6,0
 \&.
@@ -364,10 +363,10 @@ to allow remote SCSI bus scanning or
 .BI REMOTE: user@host:1,0,0
 to access the SCSI device at 
 .I host
-connected to SCSI bus # 1,target 0 lun 0.
+connected to SCSI bus # 1,target 0, lun 0.
 In order to allow remote access to a specific
 .IR host ,
-the program
+the
 .BR rscsi (1)
 program needs to be present and configured on the
 .IR host .

@@ -1,8 +1,8 @@
-/* @(#)isoinfo.c	1.79 09/11/19 joerg */
+/* @(#)isoinfo.c	1.80 10/05/24 joerg */
 #include <schily/mconfig.h>
 #ifndef	lint
 static	UConst char sccsid[] =
-	"@(#)isoinfo.c	1.79 09/11/19 joerg";
+	"@(#)isoinfo.c	1.80 10/05/24 joerg";
 #endif
 /*
  * File isodump.c - dump iso9660 directory information.
@@ -11,7 +11,7 @@ static	UConst char sccsid[] =
  * Written by Eric Youngdale (1993).
  *
  * Copyright 1993 Yggdrasil Computing, Incorporated
- * Copyright (c) 1999-2009 J. Schilling
+ * Copyright (c) 1999-2010 J. Schilling
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2
@@ -369,7 +369,7 @@ dump_pathtab(block, size)
 							*to = '_';
 							u += 1;
 							to++;
-						} 
+						}
 					} else {
 						u += 4 - osize;
 						to = &namebuf[u];
@@ -382,7 +382,7 @@ dump_pathtab(block, size)
 				UInt16_t	unichar;
 
 				unichar = (buf[offset + 8 + j*2] & 0xFF) * 256 +
-					  (buf[offset + 8 + j*2+1] & 0xFF);
+					    (buf[offset + 8 + j*2+1] & 0xFF);
 
 				if (unls)
 					uc = sic_uni2c(unls, unichar);	/* Get the backconverted char */
@@ -821,7 +821,7 @@ parse_dir(rootname, extent, len)
 									*to = '_';
 									u += 1;
 									to++;
-								} 
+								}
 							} else {
 								u += 4 - osize;
 								to = &name_buf[u];
@@ -834,7 +834,7 @@ parse_dir(rootname, extent, len)
 						UInt16_t	unichar;
 
 						unichar = (idr->name[j*2] & 0xFF) * 256 +
-							  (idr->name[j*2+1] & 0xFF);
+							    (idr->name[j*2+1] & 0xFF);
 
 						/*
 						 * Get the backconverted char
@@ -843,7 +843,6 @@ parse_dir(rootname, extent, len)
 							uc = sic_uni2c(unls, unichar);
 						else
 							uc = unichar > 255 ? '_' : unichar;
-							
 
 						name_buf[j] = uc ? uc : '_';
 					}
@@ -1019,7 +1018,7 @@ main(argc, argv)
 	if (help)
 		usage(0);
 	if (prvers) {
-		printf("isoinfo %s (%s-%s-%s) Copyright (C) 1993-1999 Eric Youngdale (C) 1999-2009 Jörg Schilling\n",
+		printf("isoinfo %s (%s-%s-%s) Copyright (C) 1993-1999 Eric Youngdale (C) 1999-2010 Jörg Schilling\n",
 					VERSION,
 					HOST_CPU, HOST_VENDOR, HOST_OS);
 		exit(0);

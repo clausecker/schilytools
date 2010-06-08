@@ -1,6 +1,6 @@
-/* @(#)limits.h	1.1 09/05/24 Copyright 2009 J. Schilling */
+/* @(#)limits.h	1.4 10/05/07 Copyright 2010 J. Schilling */
 /*
- *	Copyright (c) 2009 J. Schilling
+ *	Copyright (c) 2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -26,6 +26,14 @@
 #include <limits.h>
 #define	_INCL_LIMITS_H
 #endif
+#endif
+
+#ifndef	COLL_WEIGHTS_MAX
+#define	COLL_WEIGHTS_MAX	2
+#endif
+
+#ifndef	_POSIX2_LINE_MAX
+#define	_POSIX2_LINE_MAX	2048
 #endif
 
 #endif	/* _SCHILY_LIMITS_H */

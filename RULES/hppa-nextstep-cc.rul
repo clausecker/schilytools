@@ -1,4 +1,4 @@
-#ident "@(#)hppa-nextstep-cc.rul	1.10 07/05/09 "
+#ident "@(#)hppa-nextstep-cc.rul	1.11 10/05/15 "
 ###########################################################################
 # Written 1996 by J. Schilling
 ###########################################################################
@@ -43,6 +43,7 @@ DYNLD=		@echo "	==> LINKING dynamic library \"$@\""; ld
 RANLIB=		@echo "	==> RANDOMIZING ARCHIVE \"$@\""; ranlib
 
 MKDIR=		$(MKDIR_SH)
+INSMKDIR=	$(INSMKDIR_SH)
 
 ####
 # XXX Better use something like CC=cc

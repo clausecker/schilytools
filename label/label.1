@@ -1,0 +1,95 @@
+. \" @(#)label.1	1.2 10/05/12 Copyright 1986-2010 J. Schilling
+. \"  Manual page for label
+. \"
+.if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
+.if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
+.if t .ds u \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'u
+.if t .ds A \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'A
+.if t .ds O \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'O
+.if t .ds U \v'-0.77m'\h'0.30n'\z.\h'0.45n'\z.\v'0.77m'\h'-.75n'U
+.if t .ds s \(*b
+.if t .ds S SS
+.if n .ds a ae
+.if n .ds o oe
+.if n .ds u ue
+.if n .ds s sz
+.TH LABEL 1L "15. May 2010" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.SH NAME
+label \- manipulate Sun disk labels
+.SH SYNOPSIS
+.B
+label
+[
+.I options
+]
+.SH DESCRIPTION
+The 
+.B label
+command manipulates Sun disk labels. It shares the menu subroutines with the
+.BR sformat (1)
+command and thus presents the same label and partition menu as
+.BR sformat (1).
+The 
+.B label
+however does not operate by sending SCSI commands to the drive but rather
+reads and writes files.
+
+.SH OPTIONS
+All boolean options can be abbreviated by their first letter.
+.TP
+.B \-print
+Print the disk label and the partition table and exit.
+.TP
+.B \-set
+Read the disk label and partition table, set the disk driver geometry and
+partition tables according to the data read from file and disk and exit.
+.TP
+.BI lproto= " label-name
+.TP
+.BI if= " label-name
+Set the name of the input file. This may be a plain file or a raw disk 
+device name.
+.TP
+.BI lname= " label-name
+.TP
+.BI of= " label-name
+Set the name of the output file. This may be a plain file or a raw disk 
+device name.
+.TP
+.BI f= " label-name
+Set the name for both, the input and the output file. This may be a plain 
+file or a raw disk device name.
+.TP
+.B \-help
+Prints a short summary of the 
+.BR label (1)
+options and exists.
+.TP
+.B \-version
+Prints the 
+.BR label (1)
+version number string and exists.
+
+.SH FILES
+.TP
+.B Label.prototype
+A file containing a Sun disk label that is read in case that no
+.B lproto=
+.B if=
+or
+.B f=
+option was specified.
+.TP
+.B Label
+A file containing a Sun disk label that is written in case that no
+.B lname=
+.B of=
+or
+.B f=
+option was specified.
+
+.SH "SEE ALSO
+.BR sformat (1)
+
+.SH NOTES
+.SH BUGS

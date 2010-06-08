@@ -1,8 +1,8 @@
-/* @(#)scsi_cmds.c	1.49 10/02/14 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling */
+/* @(#)scsi_cmds.c	1.51 10/05/24 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2004-2010 J. Schilling */
 #include "config.h"
 #ifndef lint
 static	UConst char sccsid[] =
-"@(#)scsi_cmds.c	1.49 10/02/14 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling";
+"@(#)scsi_cmds.c	1.51 10/05/24 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2004-2010 J. Schilling";
 #endif
 /*
  * file for all SCSI commands
@@ -1024,7 +1024,7 @@ ReadFullTOCMMC(scgp)
 	 * XXX cause a hang with odd transfer lengths.
 	 * XXX We should workaround the problem where it exists
 	 * XXX but the problem may exist elsewhere too.
-	 */ 
+	 */
 	if (len & 1)
 		len++;
 	scmd->size = len;

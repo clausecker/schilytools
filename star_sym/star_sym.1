@@ -1,0 +1,55 @@
+. \" @(#)star_sym.1	1.1 10/05/13 Copyright 2005-2010 J. Schilling
+. \"  Manual page for star_sym
+. \"
+.if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
+.if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
+.if t .ds u \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'u
+.if t .ds A \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'A
+.if t .ds O \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'O
+.if t .ds U \v'-0.77m'\h'0.30n'\z.\h'0.45n'\z.\v'0.77m'\h'-.75n'U
+.if t .ds s \(*b
+.if t .ds S SS
+.if n .ds a ae
+.if n .ds o oe
+.if n .ds u ue
+.if n .ds s sz
+.TH STAR_SYM 1L "15. May 2010" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.SH NAME
+star_sym \- Convert inode data base into human readable format
+.SH SYNOPSIS
+.B
+star_sym
+[
+.I options
+]
+.SH DESCRIPTION
+The 
+.B star_sym
+command reads a inode data base file from a previous incremental restore via
+.BR star (1)
+and prints the data base in a human readable format.
+
+.SH OPTIONS
+.TP
+.B \-help
+Prints a short summary of the 
+.BR star_sym (1)
+options and exists.
+.TP
+.B \-version
+Prints the 
+.BR star_sym (1)
+version number string and exists.
+
+.SH FILES
+.TP
+.B star-symtable
+The file that holds the 
+.B star
+inode data base from an incremental restore.
+
+.SH "SEE ALSO
+.BR star (1)
+
+.SH NOTES
+.SH BUGS

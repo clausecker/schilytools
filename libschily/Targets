@@ -1,4 +1,4 @@
-# @(#)Targets	1.16 09/06/06 Copyright 1995 J. Schilling
+# @(#)Targets	1.19 10/05/08 Copyright 1995 J. Schilling
 
 CFILES_STDIO=	cvmod.c dat.c fcons.c fdown.c fdup.c \
 		ffileread.c ffilewrite.c \
@@ -16,8 +16,9 @@ CFILES_STDIO=	cvmod.c dat.c fcons.c fdown.c fdup.c \
 # Otherwise getfp.o would be made as dependency of avoffset
 #
 
-CFILES_REST=	astoi.c astoll.c astoull.c breakline.c \
+CFILES_REST=	astoi.c astoll.c astoull.c basename.c breakline.c \
 		checkerr.c comerr.c fcomerr.c cmpbytes.c cmpnullbytes.c \
+		dirname.c \
 		eaccess.c error.c \
 		fconv.c fexec.c fillbytes.c \
 		findinpath.c \
@@ -39,13 +40,13 @@ CFILES_REST=	astoi.c astoll.c astoull.c breakline.c \
 		snprintf.c \
 		spawn.c \
 		strcat.c strcatl.c strchr.c strcmp.c strcpy.c \
-		strdup.c streql.c strlen.c strlcpy.c strncat.c strncmp.c \
-		strncpy.c strrchr.c \
+		strdup.c streql.c strlen.c strlcat.c strlcpy.c strncat.c strncmp.c \
+		strncpy.c strndup.c strnlen.c strrchr.c \
 		swabbytes.c \
 		usleep.c \
 		wcscat.c wcscatl.c wcschr.c wcscmp.c wcscpy.c \
-		wcsdup.c wcseql.c wcslen.c wcslcpy.c wcsncat.c wcsncmp.c \
-		wcsncpy.c wcsrchr.c
+		wcsdup.c wcseql.c wcslen.c wcslcat.c wcslcpy.c wcsncat.c wcsncmp.c \
+		wcsncpy.c wcsndup.c wcsnlen.c wcsrchr.c
 
 #
 # These interfaces have been moved to libschilypr in order to make

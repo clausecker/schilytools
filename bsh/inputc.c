@@ -1,8 +1,8 @@
-/* @(#)inputc.c	1.60 09/12/20 Copyright 1982, 1984-2009 J. Schilling */
+/* @(#)inputc.c	1.62 10/05/11 Copyright 1982, 1984-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)inputc.c	1.60 09/12/20 Copyright 1982, 1984-2009 J. Schilling";
+	"@(#)inputc.c	1.62 10/05/11 Copyright 1982, 1984-2010 J. Schilling";
 #endif
 /*
  *	inputc.c
@@ -20,7 +20,7 @@ static	UConst char sccsid[] =
  *	in 1982 and 1983. This prototype only contained the editor and called
  *	shell commands via system().
  *
- *	Copyright (c) 1982, 1984-2009 J. Schilling
+ *	Copyright (c) 1982, 1984-2010 J. Schilling
  *	This version was first coded August 1984 and rewritten 01/22/85
  *
  *	Exported functions:
@@ -103,6 +103,8 @@ static	UConst char sccsid[] =
 #endif	/* !USE_WCHAR */
 
 #ifdef INTERACTIVE
+
+#define	_isdigit(c)	((c) >= '0' && (c) <= '9')
 
 /*
  * The output buffer for the line editor.
@@ -1959,7 +1961,7 @@ esc_process(xc, lp, cp, lenp)
 		 * strcpy() doesn't handle overlapped buffers
 		 */
 		{ wchar_t *p2 = cp; wchar_t *p1 = pp;
-			while (*p2++ = *p1++)
+			while ((*p2++ = *p1++) != '\0')
 				;
 		}
 		writews(cp);
@@ -2326,7 +2328,7 @@ readhistory(f)
 			register char	*p;
 
 			for (p = &line[2]; *p != '\0'; p++)
-				if (!isdigit((unsigned char)*p))
+				if (!_isdigit((unsigned char)*p))
 					break;
 			if (*p == '\0')
 				continue;

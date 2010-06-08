@@ -1,28 +1,18 @@
-/* @(#)scgcheck.c	1.18 09/07/11 Copyright 1998-2009 J. Schilling */
+/* @(#)scgcheck.c	1.19 10/05/24 Copyright 1998-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)scgcheck.c	1.18 09/07/11 Copyright 1998-2009 J. Schilling";
+	"@(#)scgcheck.c	1.19 10/05/24 Copyright 1998-2010 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1998-2009 J. Schilling
+ *	Copyright (c) 1998-2010 J. Schilling
  *
  * Warning: This program has been written to verify the correctness
- * of the upper layer interface from the library "libscg". If you 
+ * of the upper layer interface from the library "libscg". If you
  * modify code from the program "scgcheck", you must change the
- * name of the program. 
+ * name of the program.
  */
-/*
- * The contents of this file are subject to the terms of the
- * Common Development and Distribution License, Version 1.0 only
- * (the "License").  You may not use this file except in compliance
- * with the License.
- *
- * See the file CDDL.Schily.txt in this distribution for details.
- *
- * When distributing Covered Code, include this CDDL HEADER in each
- * file and include the License file CDDL.Schily.txt from this distribution.
- */
+/*@@C@@*/
 
 #include <schily/stdio.h>
 #include <schily/stdlib.h>
@@ -95,7 +85,7 @@ usage(ret)
 	error("\t-auto		try to do a fully automated test\n");
 	error("\n");
 	exit(ret);
-}	
+}
 
 char	opts[]   = "debug#,d+,kdebug#,kd#,timeout#,verbose+,v+,Verbose+,V+,silent,s,x+,xd#,help,h,version,dev*,f*,auto";
 
@@ -137,7 +127,7 @@ main(ac, av)
 	if (help)
 		usage(0);
 	if (pversion) {
-		printf("scgcheck %s (%s-%s-%s) Copyright (C) 1998-2009 Jörg Schilling\n",
+		printf("scgcheck %s (%s-%s-%s) Copyright (C) 1998-2010 Jörg Schilling\n",
 								scgc_version,
 								HOST_CPU, HOST_VENDOR, HOST_OS);
 		exit(0);
@@ -368,17 +358,17 @@ Copyright (C) 1998-2008 Jörg Schilling\n",
 	if (!autotest)
 		chkprint("----------> SCSI status byte test NOT YET READY\n");
 /*
-scan OK
-work OK
-fail OK
-sense data/count OK
-SCSI status
-dma resid
-->error GOOD/FAIL/timeout/noselect
-	*    ??
-
-reset
-*/
+ * scan OK
+ * work OK
+ * fail OK
+ * sense data/count OK
+ * SCSI status
+ * dma resid
+ * ->error GOOD/FAIL/timeout/noselect
+ *    ??
+ *
+ * reset
+ */
 
 	dmaresid(scgp);
 	chkprint("----------> SCSI transport code test NOT YET READY\n");
@@ -417,8 +407,8 @@ checkversion(scgp)
 	char	*auth;
 
 	/*
-	 * Warning: If you modify this section of code, you must  
-	 * change the name of the program. 
+	 * Warning: If you modify this section of code, you must
+	 * change the name of the program.
 	 */
 	vers = scg_version(0, SCG_VERSION);
 	auth = scg_version(0, SCG_AUTHOR);
@@ -527,13 +517,13 @@ find_drive(scgp, sdevname, flags)
 		comerrno(EX_BAD, "Call 'cdrecord dev=help' or ask your sysadmin for possible targets.\n");
 	} else {
 		errmsgno(EX_BAD, "Too many CD/DVD/BD-Recorder targets found.\n");
-/*
+#ifdef	nonono
 		select_target(scgp, stdout);
 		comerrno(EX_BAD, "Select a target from the list above and use 'cdrecord dev=%s%sb,t,l'.\n",
 			sdevname?sdevname:"",
 			sdevname?(sdevname[strlen(sdevname)-1] == ':'?"":":"):"");
-*/
-		find_target(scgp, type, 1);		
+#endif	/* nonono */
+		find_target(scgp, type, 1);
 	}
 	if ((flags & F_MSINFO) == 0)
 		error("Using dev=%s%s%d,%d,%d.\n",

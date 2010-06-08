@@ -1,28 +1,10 @@
-/* @(#)scsireg.h	1.33 07/10/02 Copyright 1987-2007 J. Schilling */
+/* @(#)scsireg.h	1.34 10/05/16 Copyright 1987-2010 J. Schilling */
 /*
  *	usefull definitions for dealing with CCS SCSI - devices
  *
- *	Copyright (c) 1987-2007 J. Schilling
+ *	Copyright (c) 1987-2010 J. Schilling
  */
-/*
- * The contents of this file are subject to the terms of the
- * Common Development and Distribution License, Version 1.0 only
- * (the "License").  You may not use this file except in compliance
- * with the License.
- *
- * See the file CDDL.Schily.txt in this distribution for details.
- *
- * The following exceptions apply:
- * CDDL §3.6 needs to be replaced by: "You may create a Larger Work by
- * combining Covered Software with other code if all other code is governed by
- * the terms of a license that is OSI approved (see www.opensource.org) and
- * you may distribute the Larger Work as a single product. In such a case,
- * You must make sure the requirements of this License are fulfilled for
- * the Covered Software."
- *
- * When distributing Covered Code, include this CDDL HEADER in each
- * file and include the License file CDDL.Schily.txt from this distribution.
- */
+/*@@C@@*/
 
 #ifndef	_SCG_SCSIREG_H
 #define	_SCG_SCSIREG_H
@@ -1175,7 +1157,23 @@ struct scsi_format_cap_desc {
 /*
  * Defines for 'fmt_type'.
  */
+#define	FCAP_TYPE_FULL		0x00	/* Full Format			*/
+#define	FCAP_TYPE_EXPAND_SPARE	0x01	/* Spare area expansion		*/
+#define	FCAP_TYPE_ZONE_REFORMAT	0x04	/* DVD-RAM Zone Reformat	*/
+#define	FCAP_TYPE_ZONE_FORMAT	0x05	/* DVD-RAM Zone Format		*/
+#define	FCAP_TYPE_CDRW_FULL	0x10	/* CD-RW/DVD-RW Full Format	*/
+#define	FACP_TYPE_CDRW_GROW_SES	0x11	/* CD-RW/DVD-RW grow session	*/
+#define	FACP_TYPE_CDRW_ADD_SES	0x12	/* CD-RW/DVD-RW add session	*/
+#define	FACP_TYPE_DVDRW_QGROW	0x13	/* DVD-RW quick grow last border*/
+#define	FACP_TYPE_DVDRW_QADD_SES 0x14	/* DVD-RW quick add session	*/
+#define	FACP_TYPE_DVDRW_QUICK	0x15	/* DVD-RW quick interm. session	*/
+#define	FCAP_TYPE_FULL_SPARE	0x20	/* Full Format with sparing	*/
+#define	FCAP_TYPE_MRW_FULL	0x24	/* CD-RW/DVD+RW Full Format	*/
+#define	FCAP_TYPE_DVDPLUS_BASIC	0x26	/* DVD+RW Basic Format		*/
 #define	FCAP_TYPE_DVDPLUS_FULL	0x26	/* DVD+RW Full Format		*/
+#define	FCAP_TYPE_BDRE_SPARE	0x30	/* BD-RE Full Format with spare	*/
+#define	FCAP_TYPE_BDRE		0x31	/* BD-RE Full Format without spare*/
+#define	FCAP_TYPE_BDR_SPARE	0x32	/* BD-R Full Format with spare	*/
 
 /*
  * Defines for 'desc_type'.

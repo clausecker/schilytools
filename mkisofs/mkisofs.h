@@ -1,11 +1,11 @@
-/* @(#)mkisofs.h	1.139 09/10/08 joerg */
+/* @(#)mkisofs.h	1.140 10/04/25 joerg */
 /*
  * Header file mkisofs.h - assorted structure definitions and typecasts.
  *
  * Written by Eric Youngdale (1993).
  *
  * Copyright 1993 Yggdrasil Computing, Incorporated
- * Copyright (c) 1999,2000-2009 J. Schilling
+ * Copyright (c) 1999,2000-2010 J. Schilling
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -641,6 +641,9 @@ EXPORT	int	walkfunc	__PR((char *nm, struct stat *fs, int type,
 extern char	*extension_record;
 extern UInt32_t	extension_record_extent;
 /*extern int	n_data_extents;*/
+extern	BOOL	archive_isreg;
+extern	dev_t	archive_dev;
+extern	ino_t	archive_ino;
 
 /*
  * These are a few goodies that can be specified on the command line, and are

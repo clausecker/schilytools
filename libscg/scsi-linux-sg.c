@@ -1,7 +1,7 @@
-/* @(#)scsi-linux-sg.c	1.94 09/09/07 Copyright 1997-2009 J. Schilling */
+/* @(#)scsi-linux-sg.c	1.95 10/05/24 Copyright 1997-2010 J. Schilling */
 #ifndef lint
 static	char __sccsid[] =
-	"@(#)scsi-linux-sg.c	1.94 09/09/07 Copyright 1997-2009 J. Schilling";
+	"@(#)scsi-linux-sg.c	1.95 10/05/24 Copyright 1997-2010 J. Schilling";
 #endif
 /*
  *	Interface for Linux generic SCSI implementation (sg).
@@ -39,27 +39,9 @@ static	char __sccsid[] =
  *	Choose your name instead of "schily" and make clear that the version
  *	string is related to a modified source.
  *
- *	Copyright (c) 1997 J. Schilling
+ *	Copyright (c) 1997-2010 J. Schilling
  */
-/*
- * The contents of this file are subject to the terms of the
- * Common Development and Distribution License, Version 1.0 only
- * (the "License").  You may not use this file except in compliance
- * with the License.
- *
- * See the file CDDL.Schily.txt in this distribution for details.
- *
- * The following exceptions apply:
- * CDDL §3.6 needs to be replaced by: "You may create a Larger Work by
- * combining Covered Software with other code if all other code is governed by
- * the terms of a license that is OSI approved (see www.opensource.org) and
- * you may distribute the Larger Work as a single product. In such a case,
- * You must make sure the requirements of this License are fulfilled for
- * the Covered Software."
- *
- * When distributing Covered Code, include this CDDL HEADER in each
- * file and include the License file CDDL.Schily.txt from this distribution.
- */
+/*@@C@@*/
 
 #include <linux/version.h>
 
@@ -127,7 +109,7 @@ static	char __sccsid[] =
  *	Choose your name instead of "schily" and make clear that the version
  *	string is related to a modified source.
  */
-LOCAL	char	_scg_trans_version[] = "scsi-linux-sg.c-1.94";	/* The version for this transport*/
+LOCAL	char	_scg_trans_version[] = "scsi-linux-sg.c-1.95";	/* The version for this transport*/
 
 #ifndef	SCSI_IOCTL_GET_BUS_NUMBER
 #define	SCSI_IOCTL_GET_BUS_NUMBER 0x5386
@@ -991,7 +973,7 @@ sg_raisedma(scgp, newmax)
 		for (t = 0; t < MAX_TGT; t++) {
 			for (l = 0; l < MAX_LUN; l++) {
 /*
- * XXX Remove the SG_GET_MAX_TRANSFER_LENGTH after the 
+ * XXX Remove the SG_GET_MAX_TRANSFER_LENGTH after the
  * XXX SG_GET_RESERVED_SIZE call returns the real max DMA.
  */
 #ifdef	SG_GET_MAX_TRANSFER_LENGTH
@@ -1783,7 +1765,7 @@ sg_rwsend(scgp)
 	if (scgp->verbose > 0 && scgp->debug > 0) {
 #ifdef	SG_GET_BUFSIZE
 		js_fprintf((FILE *)scgp->errfile,
-				"status: 0x%08X pack_len: %d, reply_len: %d pack_id: %d result: %d wn: %d gn: %d cdb_len: %d sense_len: %d sense[0]: %02X\n",
+"status: 0x%08X pack_len: %d, reply_len: %d pack_id: %d result: %d wn: %d gn: %d cdb_len: %d sense_len: %d sense[0]: %02X\n",
 				GETINT(sgp->hd.sg_cmd_status),
 				GETINT(sgp->hd.pack_len),
 				GETINT(sgp->hd.reply_len),

@@ -1,13 +1,13 @@
-/* @(#)p.c	1.48 09/07/11 Copyright 1985-2009 J. Schilling */
+/* @(#)p.c	1.49 10/05/11 Copyright 1985-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)p.c	1.48 09/07/11 Copyright 1985-2009 J. Schilling";
+	"@(#)p.c	1.49 10/05/11 Copyright 1985-2010 J. Schilling";
 #endif
 /*
  *	Print some files on screen
  *
- *	Copyright (c) 1985-2009 J. Schilling
+ *	Copyright (c) 1985-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -153,7 +153,9 @@ LOCAL	void	init_termcap	__PR((void));
 LOCAL	int	oc		__PR((int c));
 LOCAL	void	start_standout	__PR((void));
 LOCAL	void	end_standout	__PR((void));
+#ifdef	__needed__
 LOCAL	void	start_bold	__PR((void));
+#endif
 LOCAL	void	end_attr	__PR((void));
 LOCAL	void	start_xstandout	__PR((void));
 LOCAL	void	end_xstandout	__PR((void));
@@ -1024,11 +1026,13 @@ end_standout()
 	tputs(se, 1, oc);
 }
 
+#ifdef	__needed__
 LOCAL void
 start_bold()
 {
 	tputs(md, 1, oc);
 }
+#endif
 
 LOCAL void
 end_attr()

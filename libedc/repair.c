@@ -1,23 +1,13 @@
-/* @(#)repair.c	1.3 09/07/13 Copyright 2001-2006 J. Schilling */
+/* @(#)repair.c	1.4 10/05/24 Copyright 2001-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)repair.c	1.3 09/07/13 Copyright 2001-2006 J. Schilling";
+	"@(#)repair.c	1.4 10/05/24 Copyright 2001-2010 J. Schilling";
 #endif
 /*
  * Code to check libedc_ecc_dec
  */
-/*
- * The contents of this file are subject to the terms of the
- * Common Development and Distribution License, Version 1.0 only
- * (the "License").  You may not use this file except in compliance
- * with the License.
- *
- * See the file CDDL.Schily.txt in this distribution for details.
- *
- * When distributing Covered Code, include this CDDL HEADER in each
- * file and include the License file CDDL.Schily.txt from this distribution.
- */
+/*@@C@@*/
 
 #include <schily/stdio.h>
 #include <schily/fcntl.h>
@@ -28,7 +18,7 @@ static	UConst char sccsid[] =
 #define	EDC_LAYER2
 #define	EDC_ENCODER
 
-#define EDC_DECODER
+#define	EDC_DECODER
 #define	EDC_SUBCHANNEL
 
 #include "ecc.h"
@@ -67,8 +57,8 @@ printf("crc_check %d\n", crc_check((unsigned char *)xxx, EDC_MODE_1));
 
 printf("crc_check %d\n", crc_check((unsigned char *)xxx, EDC_MODE_1));
 
-#define FALSE 0
-	do_decode_L2((unsigned char*)xxx, EDC_MODE_1, FALSE, 0); 
+#define	FALSE	0
+	do_decode_L2((unsigned char *)xxx, EDC_MODE_1, FALSE, 0);
 
 printf("crc_check %d\n", crc_check((unsigned char *)xxx, EDC_MODE_1));
 

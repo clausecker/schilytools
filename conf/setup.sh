@@ -1,12 +1,12 @@
 #!/bin/sh
-# @(#)setup.sh  1.16 05/11/11 Copyright 2005 J. Schilling
+# @(#)setup.sh  1.17 10/05/01 Copyright 2005 J. Schilling
 ###########################################################################
 # Written 2005 by J. Schilling
 ###########################################################################
 # Set up bins/<archdir>/{bzip2}!{gzip}!{patch}!{smake}!{star}!{wget}
 ###########################################################################
 # The contents of this file are subject to the terms of the
-# Common Development and Distribution License, Version 1.0 only.
+# Common Development and Distribution License, Version 1.0 only
 # (the "License").  You may not use this file except in compliance
 # with the License.
 #
@@ -123,7 +123,7 @@ ${UNZIP} < smake.tar${ZIP_SUFFIX} | tar xf -
 #
 # tar on HP-UX-10.x does not like tar xpf
 #
-cd smake-1.2/psmake/
+cd smake-*/psmake/.
 sh ./MAKE-all
 cd ..
 psmake/smake -r DESTDIR=/tmp/i.$$/ COPTX=-DDEFAULTS_PATH_SEARCH_FIRST install
@@ -141,7 +141,7 @@ cp -p /tmp/i.$$/opt/schily/bin/smake "$BINS"
 mkdir -p "$BINS"/lib
 rm -f "$BINS"/lib/defaults.smk
 cp -p /tmp/i.$$/opt/schily/lib/defaults.smk "$BINS"/lib
-rm -rf smake-1.2* smake.tar*
+rm -rf smake-* smake.tar*
 MAKE="${PWD}/${BINS}/smake"
 
 if [ $ZIP = cat ]; then
@@ -169,13 +169,13 @@ ${UNZIP} < star.tar${ZIP_SUFFIX} | tar xf -
 #
 # tar on HP-UX-10.x does not like tar xpf
 #
-cd star-1.5/
+cd star-*/.
 smake DESTDIR=/tmp/i.$$/ install
 cd ..
 strip /tmp/i.$$/opt/schily/bin/star
 rm -f "${BINS}"/star
 cp -p /tmp/i.$$/opt/schily/bin/star "$BINS"
-rm -rf star-1.5* star.tar*
+rm -rf star-* star.tar*
 
 do_compile() {
 	url="$1"

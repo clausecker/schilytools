@@ -1,7 +1,7 @@
 '\" t
 .\" To print, first run through tbl
 .\" -*- nroff -*-
-.\" @(#)mkisofs.8	1.134 10/01/29 joerg
+.\" @(#)mkisofs.8	1.135 10/04/25 joerg
 .\"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
 .if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
@@ -15,7 +15,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH MKISOFS 8 "2010/01/29" "Version 3.0"
+.TH MKISOFS 8 "2010/04/25" "Version 3.0"
 .SH NAME
 mkisofs \- create an hybrid ISO-9660/JOLIET/HFS/UDF filesystem-image with optional Rock Ridge attributes.
 .SH SYNOPSIS
@@ -763,6 +763,22 @@ way we see them.
 If ISO-9660:1999 has not been selected,
 this violates the ISO-9660 standard, but it happens to work on many systems.
 Use with caution.
+.TP
+.B \-data\-change\-warn
+If the size of a file changes while the file is being archived, treat this
+condition as a warning only that does not cause
+.B mkisofs
+to abort.
+A warning message is still written if the condition is not otherwise
+ignored by another rule from an
+.B errctl=
+option.
+The
+.B \-data\-change\-warn
+option works as if the last error control option was
+.sp
+	\fBerrctl=\fP\fI"WARN|GROW|SHRINK	*"\fP
+.sp
 .TP
 .BI \-dir\-mode " mode
 Overrides the mode of directories used to create the image to
@@ -3144,7 +3160,7 @@ J\*org Schilling wrote the SCSI transport library and its adaptation layer to
 and newer parts (starting from 1997) of the utility.
 J\*org Schilling is the primary maintainer since 1999, this makes
 .B mkisofs
-Copyright (C) 1997-2009 J\*org Schilling.
+Copyright (C) 1997-2010 J\*org Schilling.
 .PP
 HFS hybrid code Copyright (C) James Pearson 1997 .\|.\|. 2001.
 .sp

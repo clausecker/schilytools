@@ -1,15 +1,5 @@
-.\" @(#)scgcheck.1	1.16 10/01/29 Copyright 2000-2009 J. Schilling
-.\"
-.\" The contents of this file are subject to the terms of the
-.\" Common Development and Distribution License, Version 1.0 only
-.\" (the "License").  You may not use this file except in compliance
-.\" with the License.
-.\"
-.\" See the file CDDL.Schily.txt in this distribution for details.
-.\"
-.\" When distributing Covered Code, include this CDDL HEADER in each
-.\" file and include the License file CDDL.Schily.txt from this distribution.
-.\"
+.\" @(#)scgcheck.1	1.17 10/05/28 Copyright 2000-2009 J. Schilling
+.\"@@C@@
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
 .if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
 .if t .ds u \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'u
@@ -58,7 +48,7 @@ Instead of asking to confirm each test before runing it,
 tries to do a fully automated test.
 .TP
 .BI dev= target
-Sets the SCSI target for the device, see notes above.
+Set the SCSI target for the device, see notes above.
 A typical target device specification is
 .BI dev= 1,6,0
 \&.
@@ -135,10 +125,10 @@ to allow remote SCSI bus scanning or
 .BI REMOTE: user@host:1,0,0
 to access the SCSI device at 
 .I host
-connected to SCSI bus # 1,target 0 lun 0.
+connected to SCSI bus # 1,target 0, lun 0.
 In order to allow remote access to a specific
 .IR host ,
-the program
+the
 .BR rscsi (1)
 program needs to be present and configured on the
 .IR host .

@@ -1,23 +1,13 @@
-/* @(#)sense.c	1.9 09/07/11 Copyright 2001-2009 J. Schilling */
+/* @(#)sense.c	1.10 10/05/24 Copyright 2001-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)sense.c	1.9 09/07/11 Copyright 2001-2009 J. Schilling";
+	"@(#)sense.c	1.10 10/05/24 Copyright 2001-2010 J. Schilling";
 #endif
 /*
- *	Copyright (c) 2001-2009 J. Schilling
+ *	Copyright (c) 2001-2010 J. Schilling
  */
-/*
- * The contents of this file are subject to the terms of the
- * Common Development and Distribution License, Version 1.0 only
- * (the "License").  You may not use this file except in compliance
- * with the License.
- *
- * See the file CDDL.Schily.txt in this distribution for details.
- *
- * When distributing Covered Code, include this CDDL HEADER in each
- * file and include the License file CDDL.Schily.txt from this distribution.
- */
+/*@@C@@*/
 
 #include <schily/stdio.h>
 #include <schily/stdlib.h>
@@ -61,12 +51,12 @@ sensetest(scgp)
 	BOOL	needload = FALSE;
 
 	printf("Ready to start test for failing command? Enter <CR> to continue: ");
-	(void) chkgetline(abuf, sizeof(abuf));
+	(void) chkgetline(abuf, sizeof (abuf));
 	chkprint("**********> Testing for failed SCSI command.\n");
 /*	scgp->verbose++;*/
-	fillbytes(buf, sizeof(struct scsi_inquiry), '\0');
-	fillbytes((caddr_t)scgp->scmd, sizeof(*scgp->scmd), '\0');
-	ret = badinquiry(scgp, buf, sizeof(struct scsi_inquiry), CCS_SENSE_LEN);
+	fillbytes(buf, sizeof (struct scsi_inquiry), '\0');
+	fillbytes((caddr_t)scgp->scmd, sizeof (*scgp->scmd), '\0');
+	ret = badinquiry(scgp, buf, sizeof (struct scsi_inquiry), CCS_SENSE_LEN);
 	scg_vsetup(scgp);
 	scg_errfflush(scgp, logfile);
 	if (ret >= 0 || !scg_cmd_err(scgp)) {
@@ -77,7 +67,7 @@ sensetest(scgp)
 		printf("the test utility. Otherwise remove any medium from the drive.\n");
 
 		printf("Ready to start test for failing command? Enter <CR> to continue: ");
-		(void) chkgetline(abuf, sizeof(abuf));
+		(void) chkgetline(abuf, sizeof (abuf));
 		ret = test_unit_ready(scgp);
 		scg_vsetup(scgp);
 		scg_errfflush(scgp, logfile);
@@ -86,18 +76,18 @@ sensetest(scgp)
 /*
  * Another try to let the command fail with "illegal field in cdb"
  */
-if (0) { 
-	register struct scg_cmd *scmd = scgp->scmd; 
- 
-	fillbytes((caddr_t)scmd, sizeof (*scmd), '\0'); 
-	scmd->addr = (caddr_t)scgp->cap; 
-	scmd->size = sizeof (struct scsi_capacity); 
-	scmd->flags = SCG_RECV_DATA|SCG_DISRE_ENA; 
-	scmd->cdb_len = SC_G1_CDBLEN; 
-	scmd->sense_len = CCS_SENSE_LEN; 
-	scmd->cdb.g1_cdb.cmd = 0x25;    /* Read Capacity */ 
-	scmd->cdb.g1_cdb.lun = scg_lun(scgp); 
-	g1_cdblen(&scmd->cdb.g1_cdb, 0); /* Full Media */ 
+if (0) {
+	register struct scg_cmd *scmd = scgp->scmd;
+
+	fillbytes((caddr_t)scmd, sizeof (*scmd), '\0');
+	scmd->addr = (caddr_t)scgp->cap;
+	scmd->size = sizeof (struct scsi_capacity);
+	scmd->flags = SCG_RECV_DATA|SCG_DISRE_ENA;
+	scmd->cdb_len = SC_G1_CDBLEN;
+	scmd->sense_len = CCS_SENSE_LEN;
+	scmd->cdb.g1_cdb.cmd = 0x25;	/* Read Capacity */
+	scmd->cdb.g1_cdb.lun = scg_lun(scgp);
+	g1_cdblen(&scmd->cdb.g1_cdb, 0); /* Full Media */
 
 scmd->cdb.cmd_cdb[2] = 0xFF;
 scmd->cdb.cmd_cdb[9] = 0xFF;
@@ -105,7 +95,7 @@ scmd->cdb.cmd_cdb[9] = 0xFF;
 	scgp->cmdname = "read capacity";
 
 	if (scg_cmd(scgp) < 0)
-                ; 
+		;
 
 }
 #endif
@@ -116,7 +106,7 @@ scmd->cdb.cmd_cdb[9] = 0xFF;
 
 			printf("Ready to eject tray? Enter <CR> to continue: ");
 			flushit();
-			(void) getline(abuf, sizeof(abuf));
+			(void) getline(abuf, sizeof (abuf));
 			if (abuf[0] != 'n') {
 				scsi_unload(scgp, (cdr_t *)0);
 				needload = TRUE;
@@ -126,11 +116,11 @@ scmd->cdb.cmd_cdb[9] = 0xFF;
 			}
 		}
 	}
-/*
+#ifdef	nonono
 fprintf(logfile, "XXX\n");
 	scg_vsetup(scgp);
 	scg_errfflush(scgp, logfile);
-*/
+#endif
 /*	scgp->verbose--;*/
 	if (ret < 0 &&
 	    scgp->scmd->error == SCG_NO_ERROR &&
@@ -156,7 +146,7 @@ fprintf(logfile, "XXX\n");
 		scsi_start_stop_unit(scgp, 1, 1, 0);
 
 	printf("Ready to start test for sense data count? Enter <CR> to continue: ");
-	(void) chkgetline(abuf, sizeof(abuf));
+	(void) chkgetline(abuf, sizeof (abuf));
 	chkprint("**********> Testing for SCSI sense data count.\n");
 	chkprint("**********> Testing if at least CCS_SENSE_LEN (%d) is supported...\n", CCS_SENSE_LEN);
 	ret = sensecount(scgp, CCS_SENSE_LEN);
@@ -207,20 +197,20 @@ sensecount(scgp, sensecnt)
 
 	if (sensecnt > SCG_MAX_SENSE)
 		sensecnt = SCG_MAX_SENSE;
-		
+
 /*	scgp->verbose++;*/
 	scgp->silent++;
-	fillbytes(buf, sizeof(struct scsi_inquiry), '\0');
-	fillbytes((caddr_t)scgp->scmd, sizeof(*scgp->scmd), '\0');
+	fillbytes(buf, sizeof (struct scsi_inquiry), '\0');
+	fillbytes((caddr_t)scgp->scmd, sizeof (*scgp->scmd), '\0');
 	fillbytes((caddr_t)scgp->scmd->u_sense.cmd_sense, sensecnt, 0x00);
 	if (inq_nofail)
 		bad_unit_ready(scgp, sensecnt);
 	else
-		badinquiry(scgp, buf, sizeof(struct scsi_inquiry), sensecnt);
+		badinquiry(scgp, buf, sizeof (struct scsi_inquiry), sensecnt);
 	scg_fprbytes(stdout,  "Sense Data:", (Uchar *)scgp->scmd->u_sense.cmd_sense, sensecnt);
 	scg_fprbytes(logfile, "Sense Data:", (Uchar *)scgp->scmd->u_sense.cmd_sense, sensecnt);
 	p = (Uchar *)scgp->scmd->u_sense.cmd_sense;
-	for (i=sensecnt-1; i >= 0; i--) {
+	for (i = sensecnt-1; i >= 0; i--) {
 		if (p[i] != 0x00) {
 			break;
 		}
@@ -229,17 +219,17 @@ sensecount(scgp, sensecnt)
 	maxcnt = i;
 chkprint("---------->     Method 0x00: expected: %d reported: %d max found: %d\n", sensecnt, scgp->scmd->sense_count, maxcnt);
 
-	fillbytes(buf, sizeof(struct scsi_inquiry), '\0');
-	fillbytes((caddr_t)scgp->scmd, sizeof(*scgp->scmd), '\0');
+	fillbytes(buf, sizeof (struct scsi_inquiry), '\0');
+	fillbytes((caddr_t)scgp->scmd, sizeof (*scgp->scmd), '\0');
 	fillbytes((caddr_t)scgp->scmd->u_sense.cmd_sense, sensecnt, 0xFF);
 	if (inq_nofail)
 		bad_unit_ready(scgp, sensecnt);
 	else
-		badinquiry(scgp, buf, sizeof(struct scsi_inquiry), sensecnt);
+		badinquiry(scgp, buf, sizeof (struct scsi_inquiry), sensecnt);
 	scg_fprbytes(stdout,  "Sense Data:", (Uchar *)scgp->scmd->u_sense.cmd_sense, sensecnt);
 	scg_fprbytes(logfile, "Sense Data:", (Uchar *)scgp->scmd->u_sense.cmd_sense, sensecnt);
 	p = (Uchar *)scgp->scmd->u_sense.cmd_sense;
-	for (i=sensecnt-1; i >= 0; i--) {
+	for (i = sensecnt-1; i >= 0; i--) {
 		if (p[i] != 0xFF) {
 			break;
 		}
@@ -267,7 +257,7 @@ badinquiry(scgp, bp, cnt, sensecnt)
 	register struct	scg_cmd	*scmd = scgp->scmd;
 
 /*	fillbytes(bp, cnt, '\0');*/
-/*	fillbytes((caddr_t)scmd, sizeof(*scmd), '\0');*/
+/*	fillbytes((caddr_t)scmd, sizeof (*scmd), '\0');*/
 	scmd->addr = bp;
 	scmd->size = cnt;
 	scmd->flags = SCG_RECV_DATA|SCG_DISRE_ENA;
@@ -279,7 +269,7 @@ badinquiry(scgp, bp, cnt, sensecnt)
 	scmd->cdb.g0_cdb.count = cnt;
 
 scmd->cdb.cmd_cdb[3] = 0xFF;
-	
+
 	scgp->cmdname = "inquiry";
 
 	if (scg_cmd(scgp) < 0)
@@ -296,7 +286,7 @@ bad_unit_ready(scgp, sensecnt)
 {
 	register struct	scg_cmd	*scmd = scgp->scmd;
 
-/*	fillbytes((caddr_t)scmd, sizeof(*scmd), '\0');*/
+/*	fillbytes((caddr_t)scmd, sizeof (*scmd), '\0');*/
 	scmd->addr = (caddr_t)0;
 	scmd->size = 0;
 	scmd->flags = SCG_DISRE_ENA | (scgp->silent ? SCG_SILENT:0);
@@ -304,7 +294,7 @@ bad_unit_ready(scgp, sensecnt)
 	scmd->sense_len = sensecnt;
 	scmd->cdb.g0_cdb.cmd = SC_TEST_UNIT_READY;
 	scmd->cdb.g0_cdb.lun = scg_lun(scgp);
-	
+
 	scgp->cmdname = "test unit ready";
 
 	return (scg_cmd(scgp));

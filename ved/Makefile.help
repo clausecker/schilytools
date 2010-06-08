@@ -1,4 +1,4 @@
-#ident %W% %E% %Q%
+#ident @(#)Makefile.help	1.2 10/05/12 
 ###########################################################################
 # Sample makefile for installing non-localized auxiliary files
 ###########################################################################
@@ -7,7 +7,7 @@ RULESDIR=	RULES
 include		$(SRCROOT)/$(RULESDIR)/rules.top
 ###########################################################################
 
-INSDIR=		man/help
+INSDIR=		share/man/help
 TARGET=		ved.help
 #XMK_FILE=	Makefile.man
 

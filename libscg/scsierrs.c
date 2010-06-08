@@ -1,33 +1,15 @@
-/* @(#)scsierrs.c	2.33 09/07/11 Copyright 1987-2009 J. Schilling */
+/* @(#)scsierrs.c	2.34 10/05/24 Copyright 1987-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)scsierrs.c	2.33 09/07/11 Copyright 1987-2009 J. Schilling";
+	"@(#)scsierrs.c	2.34 10/05/24 Copyright 1987-2010 J. Schilling";
 #endif
 /*
  *	Error printing for scsitransp.c
  *
- *	Copyright (c) 1987-2009 J. Schilling
+ *	Copyright (c) 1987-2010 J. Schilling
  */
-/*
- * The contents of this file are subject to the terms of the
- * Common Development and Distribution License, Version 1.0 only
- * (the "License").  You may not use this file except in compliance
- * with the License.
- *
- * See the file CDDL.Schily.txt in this distribution for details.
- *
- * The following exceptions apply:
- * CDDL §3.6 needs to be replaced by: "You may create a Larger Work by
- * combining Covered Software with other code if all other code is governed by
- * the terms of a license that is OSI approved (see www.opensource.org) and
- * you may distribute the Larger Work as a single product. In such a case,
- * You must make sure the requirements of this License are fulfilled for
- * the Covered Software."
- *
- * When distributing Covered Code, include this CDDL HEADER in each
- * file and include the License file CDDL.Schily.txt from this distribution.
- */
+/*@@C@@*/
 
 #include <schily/stdio.h>
 #include <schily/unistd.h> /* for sys/types.h needed in schily.h for sprintf() */
@@ -64,7 +46,7 @@ static Uchar sd_adaptec_keys[] = {
 	4, 3, 3, 3,  3, 4, 3, 1,		/* 0x10-0x17 */
 	1, 1, 3, 4,  3, 4, 3, 3,		/* 0x18-0x1f */
 	5, 5, 5, 5,  5, 5, 5, 7,		/* 0x20-0x27 */
-	6, 6, 6, 5,  4,11,11,11			/* 0x28-0x2f */
+	6, 6, 6, 5,  4, 11, 11, 11		/* 0x28-0x2f */
 };
 #define	MAX_ADAPTEC_KEYS (sizeof (sd_adaptec_keys))
 #endif
@@ -117,9 +99,9 @@ static const char *sd_ccs_error_str[] = {
 	"\004\004logical unit not ready, format in progress",	/* 04 04 */
 	"\004\005logical unit not ready, rebuild in progress",	/* 04 05 */
 	"\004\006logical unit not ready, recalculation in progress",	/* 04 06 */
-	"\004\007logical unit not ready, operation in progress",/* 04 07 */
+	"\004\007logical unit not ready, operation in progress", /* 04 07 */
 	"\004\010logical unit not ready, long write in progress",	/* 04 08 */
-	"\004\011logical unit not ready, self-test in progress",/* 04 09 */
+	"\004\011logical unit not ready, self-test in progress", /* 04 09 */
 	"\004\012asymmetric access code 3 (00-232) [proposed]",	/* 04 0A */
 	"\004\013asymmetric access code 1 (00-232) [proposed]",	/* 04 0B */
 	"\004\014asymmetric access code 2 (00-232) [proposed]",	/* 04 0C */
@@ -246,7 +228,7 @@ static const char *sd_ccs_error_str[] = {
 	"\041\000logical block address out of range",		/* 21 00 */
 	"\041\001invalid element address",			/* 21 01 */
 	"\041\002invalid address for write",			/* 21 02 */
-	"\042\000illegal function (use 20 00, 24 00, or 26 00)",/* 22 00 */
+	"\042\000illegal function (use 20 00, 24 00, or 26 00)", /* 22 00 */
 #ifdef	__used__
 	"\043\000",						/* 23 00 */
 #endif
@@ -278,7 +260,7 @@ static const char *sd_ccs_error_str[] = {
 	"\047\006conditional write protect",			/* 27 06 */
 	"\050\000not ready to ready change, medium may have changed",	/* 28 00 */
 	"\050\001import or export element accessed",		/* 28 01 */
-	"\051\000power on, reset, or bus device reset occurred",/* 29 00 */
+	"\051\000power on, reset, or bus device reset occurred", /* 29 00 */
 	"\051\001power on occurred",				/* 29 01 */
 	"\051\002scsi bus reset occurred",			/* 29 02 */
 	"\051\003bus device reset function occurred",		/* 29 03 */
@@ -455,24 +437,24 @@ static const char *sd_ccs_error_str[] = {
 	"\135\001media failure prediction threshold exceeded",	/* 5D 01 */
 	"\135\002logical unit failure prediction threshold exceeded",	/* 5D 02 */
 	"\135\003spare area exhaustion prediction threshold exceeded",	/* 5D 03 */
-	"\135\020hardware impending failure general hard drive failure",/* 5D 10 */
+	"\135\020hardware impending failure general hard drive failure", /* 5D 10 */
 	"\135\021hardware impending failure drive error rate too high",	/* 5D 11 */
 	"\135\022hardware impending failure data error rate too high",	/* 5D 12 */
 	"\135\023hardware impending failure seek error rate too high",	/* 5D 13 */
 	"\135\024hardware impending failure too many block reassigns",	/* 5D 14 */
 	"\135\025hardware impending failure access times too high",	/* 5D 15 */
 	"\135\026hardware impending failure start unit times too high",	/* 5D 16 */
-	"\135\027hardware impending failure channel parametrics",/* 5D 17 */
-	"\135\030hardware impending failure controller detected",/* 5D 18 */
+	"\135\027hardware impending failure channel parametrics",	/* 5D 17 */
+	"\135\030hardware impending failure controller detected",	/* 5D 18 */
 	"\135\031hardware impending failure throughput performance",	/* 5D 19 */
 	"\135\032hardware impending failure seek time performance",	/* 5D 1A */
 	"\135\033hardware impending failure spin-up retry count",	/* 5D 1B */
 	"\135\034hardware impending failure drive calibration retry count",	/* 5D 1C */
 	"\135\040controller impending failure general hard drive failure",	/* 5D 20 */
 	"\135\041controller impending failure drive error rate too high",	/* 5D 21 */
-	"\135\042controller impending failure data error rate too high",/* 5D 22 */
-	"\135\043controller impending failure seek error rate too high",/* 5D 23 */
-	"\135\044controller impending failure too many block reassigns",/* 5D 24 */
+	"\135\042controller impending failure data error rate too high", /* 5D 22 */
+	"\135\043controller impending failure seek error rate too high", /* 5D 23 */
+	"\135\044controller impending failure too many block reassigns", /* 5D 24 */
 	"\135\045controller impending failure access times too high",	/* 5D 25 */
 	"\135\046controller impending failure start unit times too high",	/* 5D 26 */
 	"\135\047controller impending failure channel parametrics",	/* 5D 27 */
@@ -490,7 +472,7 @@ static const char *sd_ccs_error_str[] = {
 	"\135\066data channel impending failure start unit times too high",	/* 5D 36 */
 	"\135\067data channel impending failure channel parametrics",	/* 5D 37 */
 	"\135\070data channel impending failure controller detected",	/* 5D 38 */
-	"\135\071data channel impending failure throughput performance",/* 5D 39 */
+	"\135\071data channel impending failure throughput performance", /* 5D 39 */
 	"\135\072data channel impending failure seek time performance",	/* 5D 3A */
 	"\135\073data channel impending failure spin-up retry count",	/* 5D 3B */
 	"\135\074data channel impending failure drive calibration retry count",	/* 5D 3C */
@@ -499,14 +481,14 @@ static const char *sd_ccs_error_str[] = {
 	"\135\102servo impending failure data error rate too high",	/* 5D 42 */
 	"\135\103servo impending failure seek error rate too high",	/* 5D 43 */
 	"\135\104servo impending failure too many block reassigns",	/* 5D 44 */
-	"\135\105servo impending failure access times too high",/* 5D 45 */
+	"\135\105servo impending failure access times too high",	/* 5D 45 */
 	"\135\106servo impending failure start unit times too high",	/* 5D 46 */
-	"\135\107servo impending failure channel parametrics",	/* 5D 47 */
-	"\135\110servo impending failure controller detected",	/* 5D 48 */
+	"\135\107servo impending failure channel parametrics",		/* 5D 47 */
+	"\135\110servo impending failure controller detected",		/* 5D 48 */
 	"\135\111servo impending failure throughput performance",	/* 5D 49 */
-	"\135\112servo impending failure seek time performance",/* 5D 4A */
-	"\135\113servo impending failure spin-up retry count",	/* 5D 4B */
-	"\135\114servo impending failure drive calibration retry count",/* 5D 4C */
+	"\135\112servo impending failure seek time performance",	/* 5D 4A */
+	"\135\113servo impending failure spin-up retry count",		/* 5D 4B */
+	"\135\114servo impending failure drive calibration retry count", /* 5D 4C */
 	"\135\120spindle impending failure general hard drive failure",	/* 5D 50 */
 	"\135\121spindle impending failure drive error rate too high",	/* 5D 51 */
 	"\135\122spindle impending failure data error rate too high",	/* 5D 52 */
@@ -514,13 +496,13 @@ static const char *sd_ccs_error_str[] = {
 	"\135\124spindle impending failure too many block reassigns",	/* 5D 54 */
 	"\135\125spindle impending failure access times too high",	/* 5D 55 */
 	"\135\126spindle impending failure start unit times too high",	/* 5D 56 */
-	"\135\127spindle impending failure channel parametrics",/* 5D 57 */
-	"\135\130spindle impending failure controller detected",/* 5D 58 */
+	"\135\127spindle impending failure channel parametrics",	/* 5D 57 */
+	"\135\130spindle impending failure controller detected",	/* 5D 58 */
 	"\135\131spindle impending failure throughput performance",	/* 5D 59 */
 	"\135\132spindle impending failure seek time performance",	/* 5D 5A */
-	"\135\133spindle impending failure spin-up retry count",/* 5D 5B */
+	"\135\133spindle impending failure spin-up retry count",	/* 5D 5B */
 	"\135\134spindle impending failure drive calibration retry count",	/* 5D 5C */
-	"\135\140firmware impending failure general hard drive failure",/* 5D 60 */
+	"\135\140firmware impending failure general hard drive failure", /* 5D 60 */
 	"\135\141firmware impending failure drive error rate too high",	/* 5D 61 */
 	"\135\142firmware impending failure data error rate too high",	/* 5D 62 */
 	"\135\143firmware impending failure seek error rate too high",	/* 5D 63 */
@@ -533,7 +515,7 @@ static const char *sd_ccs_error_str[] = {
 	"\135\152firmware impending failure seek time performance",	/* 5D 6A */
 	"\135\153firmware impending failure spin-up retry count",	/* 5D 6B */
 	"\135\154firmware impending failure drive calibration retry count",	/* 5D 6C */
-	"\135\377failure prediction threshold exceeded (false)",/* 5D FF */
+	"\135\377failure prediction threshold exceeded (false)", /* 5D FF */
 	"\136\000low power condition on",			/* 5E 00 */
 	"\136\001idle condition activated by timer",		/* 5E 01 */
 	"\136\002standby condition activated by timer",		/* 5E 02 */
@@ -584,7 +566,7 @@ static const char *sd_ccs_error_str[] = {
 	"\154\000rebuild failure occurred",			/* 6C 00 */
 	"\155\000recalculate failure occurred",			/* 6D 00 */
 	"\156\000command to logical unit failed",		/* 6E 00 */
-	"\157\000copy protection key exchange failure - authentication failure",/* 6F 00 */
+	"\157\000copy protection key exchange failure - authentication failure", /* 6F 00 */
 	"\157\001copy protection key exchange failure - key not present",	/* 6F 01 */
 	"\157\002copy protection key exchange failure - key not established",	/* 6F 02 */
 	"\157\003read of scrambled sector without authentication",	/* 6F 03 */
@@ -783,7 +765,7 @@ scg__errmsg(scgp, obuf, maxcnt, sense, status, sense_code)
 {
 	char	sbuf[80];
 	const char *sensemsg, *cmdname, *sensekey;
-#define	ext_sense	((struct scsi_ext_sense* ) sense)
+#define	ext_sense	((struct scsi_ext_sense *) sense)
 	register int blkno = 0;
 	register int code;
 	int	badqual = 0;
@@ -838,19 +820,19 @@ scg__errmsg(scgp, obuf, maxcnt, sense, status, sense_code)
 		}
 		blkvalid = sense->adr_val;
 
-		sensemsg = scg_sensemsg(scgp->dev, code, qual, scgp->nonstderrs, sbuf, sizeof(sbuf));
+		sensemsg = scg_sensemsg(scgp->dev, code, qual, scgp->nonstderrs, sbuf, sizeof (sbuf));
 		if (sensemsg == NULL) {
-			sensemsg = scg_sensemsg(scgp->dev, code, 0, scgp->nonstderrs, sbuf, sizeof(sbuf));
+			sensemsg = scg_sensemsg(scgp->dev, code, 0, scgp->nonstderrs, sbuf, sizeof (sbuf));
 			badqual = 1;
 		}
 	}
-/*
-	if (un->un_cmd < sizeof(scsi_cmds)) {
+#ifdef	nonono
+	if (un->un_cmd < sizeof (scsi_cmds)) {
 		cmdname = scsi_cmds[un->un_cmd];
 	} else {
 		cmdname = "unknown cmd";
 	}
-*/
+#endif
 	cmdname = "";
 	n = js_snprintf(obuf, sizeleft, "%sSense Key: 0x%X %s%s, Segment %d\n",
 		cmdname, key, sensekey,
@@ -908,7 +890,7 @@ scg__errmsg(scgp, obuf, maxcnt, sense, status, sense_code)
 		}
 		obuf += n;
 		sizeleft -= n;
- 		break;
+		break;
 
 	case SC_RECOVERABLE_ERROR:
 	case SC_HARDWARE_ERROR:
@@ -927,7 +909,7 @@ scg__errmsg(scgp, obuf, maxcnt, sense, status, sense_code)
 	case SC_NOT_READY:
 		n = js_snprintf(obuf, sizeleft, "operation %d%% done",
 			(100*(ext_sense->field_ptr[0] << 8 |
-			      ext_sense->field_ptr[1]))/(unsigned)65536);
+				ext_sense->field_ptr[1]))/(unsigned)65536);
 		if (n < 0) {
 			obuf[0] = '\0';
 			return (maxcnt - sizeleft);
@@ -1000,7 +982,7 @@ main()
 	for (i = 0; i < 0x30; i++) {
 /*		js_printf("Code: 0x%x	Key: 0x%x	", i, sd_adaptec_keys[i]);*/
 		js_printf("Key: 0x%x %-16s ", sd_adaptec_keys[i],
-					sd_sense_keys[sd_adaptec_keys[i]] );
+					sd_sense_keys[sd_adaptec_keys[i]]);
 		js_print_err(i, CTYPE_ACB4000);
 		js_printf("\n");
 	}

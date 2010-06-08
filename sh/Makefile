@@ -1,4 +1,4 @@
-#ident "@(#)Makefile	1.14 09/07/25 "
+#ident "@(#)Makefile	1.16 10/05/12 "
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -54,7 +54,7 @@ HFILES=		brkincr.h ctype.h defs.h dup.h hash.h mac.h mode.h name.h \
 LIBS=		$(LIB_GEN) $(LIB_SECDB) -lshelledit -lxtermcap -lgetopt -lschily \
 		$(LIB_INTL)
 #LIBS=		-lgen -lsecdb 
-XMK_FILE=	Makefile.man
+XMK_FILE=	Makefile.man bosh.mk1 jsh.mk1 pfsh.mk1
 
 signames.c:
 	@echo "	==> MAKING SYMLINKS in ." && sh ./MKLINKS

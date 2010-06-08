@@ -1,8 +1,8 @@
-/* @(#)drv_bd.c	1.17 10/02/28 Copyright 2007-2010 J. Schilling */
+/* @(#)drv_bd.c	1.19 10/05/17 Copyright 2007-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)drv_bd.c	1.17 10/02/28 Copyright 2007-2010 J. Schilling";
+	"@(#)drv_bd.c	1.19 10/05/17 Copyright 2007-2010 J. Schilling";
 #endif
 /*
  *	Copyright (c) 2007-2010 J. Schilling
@@ -1494,7 +1494,7 @@ format_bd(scgp, dp, fmtflags)
 	 *	    ^^^
 	 *	    0x10	Format Data
 	 *	    0x01	Format Code == 1
-	 *	00 82 00 08 00 23 05 40 98 00 00 01"
+	 *	00 82 00 08 00 B4 74 00 C3 00 30 00"
 	 *	^^^^^^^^^^^ ^^^^^^^^^^^^^^^^^^^^^^^
 	 *	Format		Format
 	 *	header		descriptor
@@ -1510,6 +1510,7 @@ format_bd(scgp, dp, fmtflags)
 	struct scsi_format_cap_desc	*lp;
 	struct scsi_format_header	*fhp;
 	long	blocks = 0;
+	long	blen = 0;
 	struct timeval starttime;
 	struct timeval stoptime;
 #ifdef	BD_DEBUG
@@ -1547,11 +1548,14 @@ format_bd(scgp, dp, fmtflags)
 			lp->desc_type,
 			(long)a_to_u_3_byte(lp->blen));
 #endif
-		if (lp->fmt_type == FCAP_TYPE_DVDPLUS_FULL)
+		if (lp->fmt_type == FCAP_TYPE_BDRE_SPARE) {
 			blocks = a_to_u_4_byte(lp->nblock);
+			blen = (long)a_to_u_3_byte(lp->blen);
+			break;
+		}
 	}
 	if (blocks == 0) {
-		errmsgno(EX_BAD, "DVD+RW Full format capacity not found.\n");
+		errmsgno(EX_BAD, "BD-RE Full format with spares, capacity not found.\n");
 		return (-1);
 	}
 
@@ -1563,9 +1567,9 @@ format_bd(scgp, dp, fmtflags)
 	fhp->immed = 1;
 	i_to_2_byte(fhp->length, 8);
 	i_to_4_byte(lp->nblock, blocks);
-	lp->fmt_type = FCAP_TYPE_DVDPLUS_FULL;
-	i_to_3_byte(lp->blen, 0);
-/*	i_to_3_byte(lp->blen, 1);*/
+	lp->fmt_type = FCAP_TYPE_BDRE_SPARE;
+	lp->desc_type = 3;			/* Quick certification */
+	i_to_3_byte(lp->blen, blen);
 
 #ifdef	BD_DEBUG
 	scg_prbytes("Format desc:", (Uchar *)fmt_buf, 12);
@@ -1584,7 +1588,8 @@ format_bd(scgp, dp, fmtflags)
 	gettimeofday(&starttime, (struct timezone *)0);
 
 	if (format_unit(scgp, fhp, /*fhp->length*/ 8 + sizeof (struct scsi_format_header),
-				1, 0, 0, 0, 3800) < 0) {
+				1, 0, 0, 0,
+				blocks > 20000000 ? 11000:5300) < 0) {
 		return (-1);
 	}
 
@@ -1603,29 +1608,6 @@ format_bd(scgp, dp, fmtflags)
 	prtimediff("Format WAIT time: ", &stoptime, &stoptime2);
 	prtimediff("Format time TOTAL: ", &starttime, &stoptime2);
 #endif
-
-
-#ifdef	BD_DEBUG
-error("------------> STOP DE-ICE\n");
-#endif
-	scsi_close_tr_session(scgp, CL_TYPE_STOP_DEICE, 0, TRUE);
-	waitformat(scgp, 300);
-
-#ifdef	BD_DEBUG
-	gettimeofday(&stoptime2, (struct timezone *)0);
-	prtimediff("Format time TOTAL 2 : ", &starttime, &stoptime2);
-#endif
-
-#ifdef	BD_DEBUG
-error("------------> CLOSE SESSION\n");
-#endif
-	scsi_close_tr_session(scgp, CL_TYPE_SESSION, 0, TRUE);
-	waitformat(scgp, 300);
-
-#ifdef	BD_DEBUG
-	gettimeofday(&stoptime2, (struct timezone *)0);
-	prtimediff("Format time TOTAL 3: ", &starttime, &stoptime2);
-#endif
 	return (0);
 }
 
@@ -1634,9 +1616,8 @@ waitformat(scgp, secs)
 	SCSI	*scgp;
 	int	secs;
 {
-#ifdef	BD_DEBUG
 	Uchar   sensebuf[CCS_SENSE_LEN];
-#endif
+	int	printed = 0;
 	int	i;
 	int	key;
 #define	W_SLEEP	2
@@ -1650,7 +1631,6 @@ waitformat(scgp, secs)
 		key = scg_sense_key(scgp);
 		if (key != SC_UNIT_ATTENTION && key != SC_NOT_READY)
 			break;
-#ifdef	BD_DEBUG
 request_sense_b(scgp, (caddr_t)sensebuf, sizeof (sensebuf));
 #ifdef	XXX
 scg_prbytes("Sense:", sensebuf, sizeof (sensebuf));
@@ -1670,15 +1650,17 @@ scg_printerr(scgp);
  * operation 1% done
  */
 
-		if (sensebuf[15] & 0x80) {
-			error("operation %d%% done\n",
+		if (lverbose && (sensebuf[15] & 0x80)) {
+			printed++;
+			error("operation %d%% done\r",
 				(100*(sensebuf[16] << 8 |
 					sensebuf[17]))/(unsigned)65536);
 		}
-#endif	/* BD_DEBUG */
 		sleep(W_SLEEP);
 	}
 	scgp->silent--;
+	if (printed)
+		error("\n");
 	return (-1);
 #undef	W_SLEEP
 }

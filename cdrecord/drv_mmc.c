@@ -1,8 +1,8 @@
-/* @(#)drv_mmc.c	1.197 10/02/03 Copyright 1997-2010 J. Schilling */
+/* @(#)drv_mmc.c	1.198 10/05/11 Copyright 1997-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)drv_mmc.c	1.197 10/02/03 Copyright 1997-2010 J. Schilling";
+	"@(#)drv_mmc.c	1.198 10/05/11 Copyright 1997-2010 J. Schilling";
 #endif
 /*
  *	CDR device implementation for
@@ -86,7 +86,7 @@ EXPORT	int	check_writemodes_mmc	__PR((SCSI *scgp, cdr_t *dp));
 LOCAL	int	deflt_writemodes_mmc	__PR((SCSI *scgp, BOOL reset_dummy));
 LOCAL	void	di_to_dstat		__PR((struct disk_info *dip, dstat_t *dsp));
 LOCAL	int	get_atip		__PR((SCSI *scgp, struct atipinfo *atp));
-#ifdef	PRINT_ATIP
+#ifdef	PRINT_PMA
 LOCAL	int	get_pma			__PR((SCSI *scgp));
 #endif
 LOCAL	int	init_mmc		__PR((SCSI *scgp, cdr_t *dp));
@@ -1298,7 +1298,7 @@ get_atip(scgp, atp)
 	return (ret);
 }
 
-#ifdef	PRINT_ATIP
+#ifdef	PRINT_PMA
 
 LOCAL int
 /*get_pma(atp)*/
@@ -1341,7 +1341,7 @@ char	atp[1024];
 	return (ret);
 }
 
-#endif	/* PRINT_ATIP */
+#endif	/* PRINT_PMA */
 
 LOCAL int
 init_mmc(scgp, dp)
@@ -1493,7 +1493,9 @@ again:
 	 * Firmware 4.02 kann nicht get_pma
 	 */
 	if (dip->disk_status != DS_EMPTY) {
+#ifdef	PRINT_PMA
 /*		get_pma();*/
+#endif
 	}
 	printf("ATIP lead in:  %ld (%02d:%02d/%02d)\n",
 		msf_to_lba(mode[8], mode[9], mode[10], FALSE),

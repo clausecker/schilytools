@@ -1,4 +1,4 @@
-/* @(#)toc.h	1.11 10/01/22 Copyright 1998,1999 Heiko Eissfeldt, Copyright 2006 J. Schilling */
+/* @(#)toc.h	1.12 10/04/26 Copyright 1998,1999 Heiko Eissfeldt, Copyright 2006-2010 J. Schilling */
 
 /*
  * The contents of this file are subject to the terms of the

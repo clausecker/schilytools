@@ -3999,7 +3999,7 @@ Rate   Divider      Rate   Divider      Rate   Divider      Rate   Divider\n\
 			paranoia_overlapset(global.cdp, overlap);
 		}
 		/*
-		 * Implement the shortcut "paraopts=proof"w
+		 * Implement the shortcut "paraopts=proof"
 		 */
 		if ((global.paranoia_flags & 1) &&
 		    global.paranoia_parms.mindynoverlap < 0) {

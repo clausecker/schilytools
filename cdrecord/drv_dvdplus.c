@@ -1,8 +1,8 @@
-/* @(#)drv_dvdplus.c	1.60 10/02/16 Copyright 2003-2010 J. Schilling */
+/* @(#)drv_dvdplus.c	1.61 10/05/17 Copyright 2003-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)drv_dvdplus.c	1.60 10/02/16 Copyright 2003-2010 J. Schilling";
+	"@(#)drv_dvdplus.c	1.61 10/05/17 Copyright 2003-2010 J. Schilling";
 #endif
 /*
  *	Copyright (c) 2003-2010 J. Schilling
@@ -1757,9 +1757,8 @@ waitformat(scgp, secs)
 	SCSI	*scgp;
 	int	secs;
 {
-#ifdef	DVDPLUS_DEBUG
 	Uchar   sensebuf[CCS_SENSE_LEN];
-#endif
+	int	printed = 0;
 	int	i;
 	int	key;
 #define	W_SLEEP	2
@@ -1773,7 +1772,6 @@ waitformat(scgp, secs)
 		key = scg_sense_key(scgp);
 		if (key != SC_UNIT_ATTENTION && key != SC_NOT_READY)
 			break;
-#ifdef	DVDPLUS_DEBUG
 request_sense_b(scgp, (caddr_t)sensebuf, sizeof (sensebuf));
 #ifdef	XXX
 scg_prbytes("Sense:", sensebuf, sizeof (sensebuf));
@@ -1793,15 +1791,17 @@ scg_printerr(scgp);
  * operation 1% done
  */
 
-		if (sensebuf[15] & 0x80) {
-			error("operation %d%% done\n",
+		if (lverbose && (sensebuf[15] & 0x80)) {
+			printed++;
+			error("operation %d%% done\r",
 				(100*(sensebuf[16] << 8 |
 					sensebuf[17]))/(unsigned)65536);
 		}
-#endif	/* DVDPLUS_DEBUG */
 		sleep(W_SLEEP);
 	}
 	scgp->silent--;
+	if (printed)
+		error("\n");
 	return (-1);
 #undef	W_SLEEP
 }

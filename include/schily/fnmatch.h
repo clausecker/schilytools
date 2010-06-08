@@ -1,4 +1,4 @@
-/* @(#)fnmatch.h	8.7 09/05/05 Copyright 2006-2009 J. Schilling from 8.1 (Berkeley) */
+/* @(#)fnmatch.h	8.11 10/04/26 Copyright 2006-2010 J. Schilling from 8.1 (Berkeley) */
 
 #ifndef	_SCHILY_FNMATCH_H
 #define	_SCHILY_FNMATCH_H
@@ -9,6 +9,11 @@
 #ifdef	HAVE_FNMATCH_H
 #include <fnmatch.h>
 #else
+
+int	 fnmatch __PR((const char *, const char *, int));
+
+#endif /* !HAVE_FNMATCH */
+
 /*
  * Copyright (c) 1992, 1993
  *	The Regents of the University of California.  All rights reserved.
@@ -37,16 +42,44 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- *	@(#)fnmatch.h	8.7 (Berkeley) 05/05/09
+ *	@(#)fnmatch.h	8.11 (Berkeley) 04/26/10
  */
 
+#ifndef	FNM_NOMATCH
 #define	FNM_NOMATCH	1	/* Match failed. */
+#endif
+#ifndef	FNM_ERROR
+#define	FNM_ERROR	2	/* An error occured */
+#endif
+#ifndef	FNM_NOSYS
+#define	FNM_NOSYS	3	/* Function (XPG4) not supported */
+#endif
 
+#ifndef	FNM_NOESCAPE
 #define	FNM_NOESCAPE	0x01	/* Disable backslash escaping. */
+#endif
+#ifndef	FNM_PATHNAME
 #define	FNM_PATHNAME	0x02	/* Slash must be matched by slash. */
+#endif
+#ifndef	FNM_PERIOD
 #define	FNM_PERIOD	0x04	/* Period must be matched by period. */
+#endif
+#if	!defined(FNM_IGNORECASE) && !defined(FNM_CASEFOLD)
+#define	FNM_IGNORECASE	0x10	/* Ignore case when making comparisons */
+#endif
+#if	!defined(FNM_IGNORECASE) && defined(FNM_CASEFOLD)
+#define	FNM_IGNORECASE	FNM_CASEFOLD
+#endif
+#ifndef	FNM_CASEFOLD
+#define	FNM_CASEFOLD	FNM_IGNORECASE
+#endif
+#ifndef	FNM_LEADING_DIR
+#define	FNM_LEADING_DIR	0x20	/* Ignore /<tail> after Imatch. */
+#endif
 
-int	 fnmatch __PR((const char *, const char *, int));
+#ifndef	HAVE_FNMATCH_IGNORECASE
+int	 js_fnmatch __PR((const char *, const char *, int));
+#define	fnmatch	js_fnmatch
+#endif
 
-#endif /* !HAVE_FNMATCH */
 #endif /* !_SCHILY_FNMATCH_H */

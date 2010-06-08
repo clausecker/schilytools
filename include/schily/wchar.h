@@ -1,8 +1,8 @@
-/* @(#)wchar.h	1.12 09/06/14 Copyright 2007-2009 J. Schilling */
+/* @(#)wchar.h	1.17 10/05/07 Copyright 2007-2010 J. Schilling */
 /*
  *	Abstraction from wchar.h
  *
- *	Copyright (c) 2007-2009 J. Schilling
+ *	Copyright (c) 2007-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -50,6 +50,16 @@
 #define	_INCL_WCHAR_H
 #endif
 
+#ifndef	HAVE_MBSINIT
+#define	mbsinit(sp)			((int)((sp) == 0))
+#endif
+#ifndef	HAVE_MBRTOWC
+#define	mbrtowc(wp, cp, len, sp)	mbtowc(wp, cp, len)
+#endif
+#ifndef	HAVE_WCRTOMB
+#define	wcrtomb(cp, wc, sp)		wcrtomb(cp, wc)
+#endif
+
 #ifndef	USE_WCHAR
 #define	USE_WCHAR
 #endif
@@ -83,6 +93,12 @@
 #define	wchar_t	char
 #undef	wint_t
 #define	wint_t	int
+/*
+ * We cannot define wctype_t here because of a bug in Linux (missing xctype_t
+ * definition in wchar.h
+ */
+/*#undef	wctype_t*/
+/*#define	wctype_t	int*/
 
 #undef	WEOF
 #define	WEOF	((wint_t)-1)
@@ -95,6 +111,16 @@
 #define	WCHAR_MAX	TYPE_MAXVAL(wchar_t)
 #undef	WCHAR_MIN
 #define	WCHAR_MIN	TYPE_MINVAL(wchar_t)
+
+#undef	WINT_MAX
+#define	WINT_MAX	TYPE_MAXVAL(wint_t)
+#undef	WINT_MIN
+#define	WINT_MIN	TYPE_MINVAL(wint_t)
+
+#undef	WCTYPE_MAX
+#define	WCTYPE_MAX	TYPE_MAXVAL(wctype_t)
+#undef	WCTYPE_MIN
+#define	WCTYPE_MIN	TYPE_MINVAL(wctype_t)
 
 #undef	SIZEOF_WCHAR_T
 #define	SIZEOF_WCHAR_T	SIZEOF_CHAR
@@ -117,8 +143,16 @@
 #undef	mbtowc
 #define	mbtowc(wp, cp, len)	((void)((wp) ? \
 				*(wchar_t *)(wp) = *(char *)(cp) : 1), 1)
+#undef	mbrtowc
+#define	mbrtowc(wp, cp, len, sp)	((void)((wp) ? \
+					*(wchar_t *)(wp) = *(char *)(cp) : 1), 1)
 #undef	wctomb
 #define	wctomb(cp, wc)		(*(cp) = wc, 1)
+#undef	wcrtomb
+#define	wcrtomb(cp, wc, sp)	(*(cp) = wc, 1)
+
+#undef	mbsinit
+#define	mbsinit(sp)		((int)((sp) == 0))
 
 #endif	/* !USE_WCHAR */
 

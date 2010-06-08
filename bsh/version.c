@@ -1,14 +1,14 @@
-int mVERSION = 11;
+int mVERSION = 12;
 int MVERSION = 6;
 
-/* @(#)version.c	1.16 09/07/11 Copyright 1985-2009 J. Schilling */
+/* @(#)version.c	1.17 10/04/26 Copyright 1985-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)version.c	1.16 09/07/11 Copyright 1985-2009 J. Schilling";
+	"@(#)version.c	1.17 10/04/26 Copyright 1985-2010 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1985-2009 J. Schilling
+ *	Copyright (c) 1985-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

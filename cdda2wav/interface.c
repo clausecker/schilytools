@@ -1,13 +1,13 @@
-/* @(#)interface.c	1.71 10/01/23 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2006-2009 J. Schilling */
+/* @(#)interface.c	1.72 10/04/26 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2006-2010 J. Schilling */
 #include "config.h"
 #ifndef lint
 static	UConst char sccsid[] =
-"@(#)interface.c	1.71 10/01/23 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2006-2009 J. Schilling";
+"@(#)interface.c	1.72 10/04/26 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2006-2010 J. Schilling";
 
 #endif
 /*
  * Copyright (C) 1994-1997 Heiko Eissfeldt heiko@colossus.escape.de
- * Copyright (c) 2006-2009 J. Schilling
+ * Copyright (c) 2006-2010 J. Schilling
  *
  * Interface module for cdrom drive access
  *

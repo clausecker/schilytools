@@ -1,14 +1,14 @@
-/* @(#)cmpnullbytes.c	1.8 09/10/17 Copyright 1988,2002-2009 J. Schilling */
+/* @(#)cmpnullbytes.c	1.9 10/05/24 Copyright 1988,2002-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)cmpnullbytes.c	1.8 09/10/17 Copyright 1988,2002-2009 J. Schilling";
+	"@(#)cmpnullbytes.c	1.9 10/05/24 Copyright 1988,2002-2010 J. Schilling";
 #endif  /* lint */
 /*
  *	compare data against null
- *	Return the index of the first non-null character 
+ *	Return the index of the first non-null character
  *
- *	Copyright (c) 1988,2002-2009 J. Schilling
+ *	Copyright (c) 1988,2002-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

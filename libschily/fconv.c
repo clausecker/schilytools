@@ -1,9 +1,9 @@
-/* @(#)fconv.c	1.41 09/10/10 Copyright 1985, 1995-2009 J. Schilling */
+/* @(#)fconv.c	1.42 10/05/24 Copyright 1985, 1995-2010 J. Schilling */
 /*
  *	Convert floating point numbers to strings for format.c
  *	Should rather use the MT-safe routines [efg]convert()
  *
- *	Copyright (c) 1985, 1995-2009 J. Schilling
+ *	Copyright (c) 1985, 1995-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -139,11 +139,11 @@ extern	char	*fcvt __PR((double, int, int *, int *));
 #include <schily/btorder.h>
 
 #ifdef	WORDS_BIGENDIAN
-#define fpw_high(x)	((UInt32_t *)&x)[0]
-#define fpw_low(x)	((UInt32_t *)&x)[1]
+#define	fpw_high(x)	((UInt32_t *)&x)[0]
+#define	fpw_low(x)	((UInt32_t *)&x)[1]
 #else
-#define fpw_high(x)	((UInt32_t *)&x)[1]
-#define fpw_low(x)	((UInt32_t *)&x)[0]
+#define	fpw_high(x)	((UInt32_t *)&x)[1]
+#define	fpw_low(x)	((UInt32_t *)&x)[0]
 #endif
 #define	FP_EXP		0x7FF00000
 #define	fp_exp(x)	(fpw_high(x) & FP_EXP)

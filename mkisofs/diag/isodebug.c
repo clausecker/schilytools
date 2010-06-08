@@ -1,26 +1,13 @@
-/* @(#)isodebug.c	1.26 09/07/09 Copyright 1996-2009 J. Schilling */
+/* @(#)isodebug.c	1.27 10/05/24 Copyright 1996-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)isodebug.c	1.26 09/07/09 Copyright 1996-2009 J. Schilling";
+	"@(#)isodebug.c	1.27 10/05/24 Copyright 1996-2010 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1996-2009 J. Schilling
+ *	Copyright (c) 1996-2010 J. Schilling
  */
-/*
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2
- * as published by the Free Software Foundation.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along with
- * this program; see the file COPYING.  If not, write to the Free Software
- * Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
- */
+/*@@C@@*/
 
 #include <schily/stdio.h>
 #include <schily/types.h>
@@ -207,8 +194,8 @@ static	struct iso9660_voldesc		vd;
 
 	if (strncmp((char *)&vd, "MKI ", 4) == 0)
 		return ((char *)&vd);
-	
-	for(i = 0; i < 16; i++) {
+
+	for (i = 0; i < 16; i++) {
 #ifdef	USE_SCG
 		readsecs(sec_off, &vd, 1);
 #else
@@ -252,7 +239,7 @@ main(argc, argv)
 	if (help)
 		usage(0);
 	if (prvers) {
-		printf("isodebug %s (%s-%s-%s) Copyright (C) 1996-2009 Jörg Schilling\n",
+		printf("isodebug %s (%s-%s-%s) Copyright (C) 1996-2010 Jörg Schilling\n",
 					VERSION,
 					HOST_CPU, HOST_VENDOR, HOST_OS);
 		exit(0);

@@ -1,6 +1,6 @@
-dnl @(#)configure.in	1.202 09/12/31 Copyright 1998-2009 J. Schilling
+dnl @(#)configure.in	1.211 10/05/07 Copyright 1998-2009 J. Schilling
 dnl Process this file with autoconf to produce a configure script.
-AC_REVISION(1.202)dnl
+AC_REVISION(1.211)dnl
 
 dnl AC_INIT(xconfig.h.in)
 AC_INIT(config.guess)
@@ -97,6 +97,7 @@ AC_CHECK_HEADERS(exec_attr.h secdb.h)
 AC_CHECK_HEADERS(direct.h)
 AC_CHECK_HEADERS(pthread.h thread.h)
 AC_CHECK_HEADERS(libgen.h)
+AC_CHECK_HEADERS(regex.h regexp.h regexpr.h)
 AC_CHECK_HEADERS(dlfcn.h link.h dl.h)
 
 dnl from aclocal.m4 (uses AC_TRY_COMPILE)
@@ -161,6 +162,24 @@ AC_CHECK_TYPE(u_char, unsigned char)
 AC_CHECK_TYPE(u_short, unsigned short)
 AC_CHECK_TYPE(u_int, unsigned int)
 AC_CHECK_TYPE(u_long, unsigned long)
+
+AC_INCL_CHECK_TYPE(
+#ifdef	HAVE_WCHAR_H
+[#include <wchar.h>
+#endif
+#ifdef	HAVE_WCTYPE_H
+#include <wctype.h>
+#endif
+], wctype_t, int)
+
+AC_INCL_CHECK_TYPE(
+#ifdef	HAVE_WCHAR_H
+[#include <wchar.h>
+#endif
+#ifdef	HAVE_WCTYPE_H
+#include <wctype.h>
+#endif
+], mbstate_t, wctype_t, int)
 
 AC_CHECK_SIZEOF(char)
 AC_CHECK_SIZEOF(short int)
@@ -327,9 +346,10 @@ AC_CHECK_FUNCS(sleep usleep yield)
 AC_CHECK_FUNCS(tcgetattr tcsetattr tcgetpgrp tcsetpgrp)
 AC_CHECK_FUNCS(getenv putenv setenv unsetenv)
 AC_CHECK_FUNCS(snprintf strcasecmp)
-AC_CHECK_FUNCS(strcat strncat strcmp strncmp strcpy strlcpy strncpy strdup strlen strchr strrchr)
-AC_CHECK_FUNCS(wcscat wcsncat wcscmp wcsncmp wcscpy wcslcpy wcsncpy wcsdup wcslen wcschr wcsrchr)
+AC_CHECK_FUNCS(strcat strncat strcmp strncmp strcpy strlcat strlcpy strncpy strdup strndup strlen strnlen strchr strrchr)
+AC_CHECK_FUNCS(wcscat wcsncat wcscmp wcsncmp wcscpy wcslcat wcslcpy wcsncpy wcsdup wcsndup wcslen wcsnlen wcschr wcsrchr)
 AC_CHECK_FUNCS(wcwidth wcswidth wctype iswctype)
+AC_CHECK_FUNCS(basename dirname)
 AC_CHECK_FUNCS(malloc calloc valloc realloc memalign posix_memalign)
 AC_CHECK_FUNCS(madvise)
 AC_CHECK_FUNCS(mktemp mkstemp)
@@ -376,6 +396,33 @@ AC_CHECK_DFUNC([
 #endif
 ], iswprint)
 
+AC_CHECK_DFUNC([
+#ifdef	HAVE_WCHAR_H
+#include <wchar.h>
+#endif
+#ifdef	HAVE_WCTYPE_H
+#include <wctype.h>
+#endif
+], mbsinit)
+
+AC_CHECK_DFUNC([
+#ifdef	HAVE_WCHAR_H
+#include <wchar.h>
+#endif
+#ifdef	HAVE_WCTYPE_H
+#include <wctype.h>
+#endif
+], mbrtowc)
+
+AC_CHECK_DFUNC([
+#ifdef	HAVE_WCHAR_H
+#include <wchar.h>
+#endif
+#ifdef	HAVE_WCTYPE_H
+#include <wctype.h>
+#endif
+], wcrtomb)
+
 AC_CHECK_DFUNC([#include <ieeefp.h>], finite)
 AC_CHECK_DFUNC([#include <ieeefp.h>], isnand)
 
@@ -390,6 +437,7 @@ dnl Checks for OS characteristics.
 AC_HARD_SYMLINKS
 AC_LINK_NOFOLLOW
 AC_ACCESS_E_OK
+AC_FNMATCH_IGNORECASE
 
 dnl Need to check this in default compilation mode to find out
 dnl whether this platform supports both functions by default too.

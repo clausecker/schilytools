@@ -1,13 +1,13 @@
-/* @(#)skel.c	1.23 09/09/16 Copyright 1987, 1995-2009 J. Schilling */
+/* @(#)skel.c	1.24 10/05/11 Copyright 1987, 1995-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)skel.c	1.23 09/09/16 Copyright 1987, 1995-2009 J. Schilling";
+	"@(#)skel.c	1.24 10/05/11 Copyright 1987, 1995-2010 J. Schilling";
 #endif
 /*
  *	Skeleton for the use of the scg genearal SCSI - driver
  *
- *	Copyright (c) 1987, 1995-2009 J. Schilling
+ *	Copyright (c) 1987, 1995-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -59,9 +59,11 @@ LOCAL	void	usage		__PR((int ret));
 EXPORT	int	main		__PR((int ac, char **av));
 LOCAL	void	intr		__PR((int sig));
 LOCAL	void	exscsi		__PR((int excode, void *arg));
+#ifdef	__needed__
 LOCAL	void	excdr		__PR((int excode, void *arg));
 LOCAL	int	prstats		__PR((void));
 LOCAL	int	prstats_silent	__PR((void));
+#endif
 LOCAL	void	doit		__PR((SCSI *scgp));
 LOCAL	void	dofile		__PR((SCSI *scgp, char *filename));
 
@@ -151,7 +153,7 @@ main(ac, av)
 	if (help)
 		usage(0);
 	if (pversion) {
-		printf("btcflash %s (%s-%s-%s) Copyright (C) 1987, 1995-2009 Jörg Schilling (C) 2004 David Huang\n",
+		printf("btcflash %s (%s-%s-%s) Copyright (C) 1987, 1995-2010 Jörg Schilling (C) 2004 David Huang\n",
 								skel_version,
 								HOST_CPU, HOST_VENDOR, HOST_OS);
 		exit(0);
@@ -376,6 +378,7 @@ exscsi(excode, arg)
 	}
 }
 
+#ifdef	__needed__
 LOCAL void
 excdr(excode, arg)
 	int	excode;
@@ -387,7 +390,9 @@ excdr(excode, arg)
 	/* Do several other restores/statistics here (see cdrecord.c) */
 #endif
 }
+#endif
 
+#ifdef	__needed__
 /*
  * Return milliseconds since start time.
  */
@@ -415,7 +420,9 @@ prstats()
 	error("Time total: %d.%03dsec\n", sec, usec/1000);
 	return (1000*sec + (usec / 1000));
 }
+#endif
 
+#ifdef	__needed__
 /*
  * Return milliseconds since start time, but be silent this time.
  */
@@ -442,6 +449,7 @@ prstats_silent()
 
 	return (1000*sec + (usec / 1000));
 }
+#endif
 
 LOCAL void
 doit(scgp)

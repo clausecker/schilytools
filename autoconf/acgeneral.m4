@@ -1,4 +1,4 @@
-dnl @(#)acgeneral.m4	1.11 09/11/05 Copyright 1998-2009 J. Schilling
+dnl @(#)acgeneral.m4	1.12 10/04/30 Copyright 1998-2009 J. Schilling
 dnl
 dnl Parameterized macros.
 dnl Requires GNU m4.
@@ -2081,6 +2081,28 @@ changequote([,]), [#include <sys/types.h>
 AC_MSG_RESULT($ac_cv_type_$1)
 if test $ac_cv_type_$1 = no; then
   AC_DEFINE($1, $2)
+fi
+])
+
+dnl AC_INCL_CHECK_TYPE(INCLUDES, TYPE, DEFAULT)
+AC_DEFUN(AC_INCL_CHECK_TYPE,
+[AC_REQUIRE([AC_HEADER_STDC])dnl
+AC_MSG_CHECKING(for $2)
+AC_CACHE_VAL(ac_cv_type_$2,
+[AC_EGREP_CPP(dnl
+changequote(<<,>>)dnl
+<<(^|[^a-zA-Z_0-9])$2[^a-zA-Z_0-9]>>dnl
+changequote([,]), [#include <sys/types.h>
+#if	HAVE_STDLIB_H || STDC_HEADERS
+#include <stdlib.h>
+#endif
+#if	HAVE_STDDEF_H || STDC_HEADERS
+#include <stddef.h>
+#endif
+$1], ac_cv_type_$2=yes, ac_cv_type_$2=no)])dnl
+AC_MSG_RESULT($ac_cv_type_$2)
+if test $ac_cv_type_$2 = no; then
+  AC_DEFINE($2, $3)
 fi
 ])
 

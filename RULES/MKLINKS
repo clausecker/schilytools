@@ -1,6 +1,6 @@
 #!/bin/sh
 ###########################################################################
-#ident "@(#)MKLINKS	1.86 10/02/22 "
+#ident "@(#)MKLINKS	1.88 10/05/11 "
 ###########################################################################
 # Written 1996 by J. Schilling
 ###########################################################################
@@ -182,6 +182,10 @@ $symlink	i586-linux-cc.rul	sh4-linux-cc.rul
 $symlink	i586-linux-gcc.rul	sh4-linux-gcc.rul
 $symlink	i586-linux-cc.rul	sh4a-linux-cc.rul
 $symlink	i586-linux-gcc.rul	sh4a-linux-gcc.rul
+$symlink	i586-linux-gcc32.rul	x86_64-linux-gcc32.rul
+$symlink	i586-linux-gcc32.rul	sparc64-linux-gcc32.rul
+$symlink	i586-linux-gcc32.rul	mips64-linux-gcc32.rul
+$symlink	i586-linux-gcc32.rul	parisc64-linux-gcc32.rul
 $symlink	i586-linux-suncc.rul	i686-linux-suncc.rul
 $symlink	i586-linux-suncc.rul	i486-linux-suncc.rul
 $symlink	i586-linux-suncc.rul	i386-linux-suncc.rul
@@ -227,6 +231,8 @@ $symlink	power-macintosh-darwin-cc.rul	i386-darwin-cc.rul
 $symlink	power-macintosh-darwin-gcc.rul	i386-darwin-gcc.rul
 $symlink	power-macintosh-darwin-cc64.rul	i386-darwin-cc64.rul
 $symlink	power-macintosh-darwin-gcc64.rul	i386-darwin-gcc64.rul
+$symlink	power-macintosh-darwin-cc32.rul	i386-darwin-cc32.rul
+$symlink	power-macintosh-darwin-gcc32.rul	i386-darwin-gcc32.rul
 $symlink	sun4-sunos4-cc.rul	sun4c-sunos4-cc.rul
 $symlink	sun4-sunos4-gcc.rul	sun4c-sunos4-gcc.rul
 $symlink	sun4-sunos5-cc.rul	sun4c-sunos5-cc.rul

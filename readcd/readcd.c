@@ -1,8 +1,8 @@
-/* @(#)readcd.c	1.110 10/02/22 Copyright 1987, 1995-2010 J. Schilling */
+/* @(#)readcd.c	1.111 10/05/11 Copyright 1987, 1995-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)readcd.c	1.110 10/02/22 Copyright 1987, 1995-2010 J. Schilling";
+	"@(#)readcd.c	1.111 10/05/11 Copyright 1987, 1995-2010 J. Schilling";
 #endif
 /*
  *	Skeleton for the use of the scg genearal SCSI - driver
@@ -156,7 +156,9 @@ LOCAL	void	scg_openerr	__PR((char *errstr));
 LOCAL	int	find_drive	__PR((SCSI *scgp, char *dev));
 LOCAL	void	intr		__PR((int sig));
 LOCAL	void	exscsi		__PR((int excode, void *arg));
+#ifdef	__needed__
 LOCAL	void	excdr		__PR((int excode, void *arg));
+#endif
 LOCAL	int	prstats		__PR((void));
 LOCAL	int	prstats_silent	__PR((void));
 LOCAL	void	dorw		__PR((SCSI *scgp, char *filename, char *sectors));
@@ -717,6 +719,7 @@ exscsi(excode, arg)
 	}
 }
 
+#ifdef	__needed__
 LOCAL void
 excdr(excode, arg)
 	int	excode;
@@ -728,6 +731,7 @@ excdr(excode, arg)
 	/* Do several other restores/statistics here (see cdrecord.c) */
 #endif
 }
+#endif
 
 /*
  * Return milliseconds since start time.

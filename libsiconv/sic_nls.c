@@ -1,8 +1,8 @@
-/* @(#)sic_nls.c	1.13 09/11/08 Copyright 2007-2009 J. Schilling */
+/* @(#)sic_nls.c	1.16 10/05/24 Copyright 2007-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)sic_nls.c	1.13 09/11/08 Copyright 2007-2009 J. Schilling";
+	"@(#)sic_nls.c	1.16 10/05/24 Copyright 2007-2010 J. Schilling";
 #endif
 /*
  * This code reads translation files in the format used by
@@ -12,19 +12,9 @@ static	UConst char sccsid[] =
  * from single byte character sets to unicode.
  * We use this code on systems that do not provide the iconv() function.
  *
- * Copyright 2007-2009 J. Schilling
+ * Copyright 2007-2010 J. Schilling
  */
-/*
- * The contents of this file are subject to the terms of the
- * Common Development and Distribution License, Version 1.0 only
- * (the "License").  You may not use this file except in compliance
- * with the License.
- *
- * See the file CDDL.Schily.txt in this distribution for details.
- *
- * When distributing Covered Code, include this CDDL HEADER in each
- * file and include the License file CDDL.Schily.txt from this distribution.
- */
+/*@@C@@*/
 
 #include <schily/stdio.h>
 #include <schily/stdlib.h>
@@ -71,7 +61,7 @@ LOCAL UInt8_t	nullpage[TAB_SIZE] = { 0 };
 LOCAL	siconvt_t	*insert_sic		__PR((siconvt_t *sip));
 LOCAL	int		remove_sic		__PR((siconvt_t *sip));
 EXPORT	siconvt_t	*sic_open		__PR((char *name));
-EXPORT	void		sic_close		__PR((siconvt_t *sip));
+EXPORT	int		sic_close		__PR((siconvt_t *sip));
 EXPORT	int		sic_list		__PR((FILE *f));
 LOCAL	void		freetbl			__PR((UInt8_t **uni2cs));
 LOCAL	FILE		*pfopen			__PR((char *name));
@@ -118,9 +108,27 @@ LOCAL int
 remove_sic(sip)
 	siconvt_t	*sip;
 {
-	 siconvt_t	**sp = &glist;
+	siconvt_t	**sp = &glist;
 
 	while (*sp) {
+#ifdef	USE_ICONV
+		if (strcmp(sip->sic_name, (*sp)->sic_name) == 0) {
+			siconvt_t	*sap = *sp;
+
+			if (sip == *sp) {
+				*sp = sip->sic_next;
+				return (0);
+			}
+			while (sap->sic_alt != NULL) {
+				if (sap->sic_alt == sip) {
+					sap->sic_alt = sip->sic_alt;
+					sip->sic_name = NULL;	/* No free() */
+					return (0);
+				}
+				sap = sap->sic_alt;
+			}
+		}
+#endif
 		if (sip == *sp) {
 			*sp = sip->sic_next;
 			return (0);
@@ -148,6 +156,7 @@ sic_open(charset)
 			if (sip->sic_cd2uni != 0)
 				return (dup_iconv_sic(sip));
 #endif
+			sip->sic_refcnt++;
 			return (sip);
 		}
 		sip = sip->sic_next;
@@ -158,10 +167,30 @@ sic_open(charset)
 /*
  * Close a translation
  */
-EXPORT void
+EXPORT int
 sic_close(sip)
 	siconvt_t	*sip;
 {
+	if (remove_sic(sip) < 0)
+		return (-1);
+
+	if (--sip->sic_refcnt > 0)
+		return (0);
+
+	if (sip->sic_name)
+		free(sip->sic_name);
+	if (sip->sic_uni2cs)
+		freetbl(sip->sic_uni2cs);
+	if (sip->sic_cs2uni)
+		free(sip->sic_cs2uni);
+#ifdef	USE_ICONV
+	if (sip->sic_cd2uni)
+		iconv_close(sip->sic_cd2uni);
+	if (sip->sic_uni2cd)
+		iconv_close(sip->sic_uni2cd);
+#endif
+
+	return (0);
 }
 
 /*
@@ -380,6 +409,7 @@ do_reverse:
 	sip->sic_uni2cd = NULL;
 	sip->sic_alt    = NULL;
 	sip->sic_next   = NULL;
+	sip->sic_refcnt = 1;
 
 	return (insert_sic(sip));
 }
@@ -390,7 +420,7 @@ do_reverse:
 /*
  * Create a new translation from iconv_open()
  */
-LOCAL siconvt_t * 
+LOCAL siconvt_t *
 create_iconv_sic(name)
 	char	*name;
 {
@@ -428,6 +458,7 @@ create_iconv_sic(name)
 	sip->sic_uni2cd = to;
 	sip->sic_alt    = NULL;
 	sip->sic_next   = NULL;
+	sip->sic_refcnt = 1;
 	return (insert_sic(sip));
 }
 
@@ -467,6 +498,7 @@ dup_iconv_sic(sip)
 	sp->sic_uni2cd = to;
 	sp->sic_alt    = NULL;
 	sp->sic_next   = NULL;
+	sp->sic_refcnt = 1;
 	sip->sic_alt = sp;
 	return (sp);
 }

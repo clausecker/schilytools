@@ -1,4 +1,4 @@
-#ident @(#)label.mk	1.4 08/08/15 
+#ident @(#)label.mk	1.7 10/05/12 
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -22,10 +22,11 @@ HFILES=		fmt.h
 HFILES_TAG=	scsireg.h
 
 LIBS=		-lschily
+XMK_FILE=	label.mk1
 
 makelabel.c io.c check_part.c:
 	@echo "	==> MAKING SYMLINKS in ." && sh ./MKLINKS
-all: makelabel.c io.c check_part.c
+$(ALLTARGETS): makelabel.c io.c check_part.c
 
 ###########################################################################
 include		$(SRCROOT)/$(RULESDIR)/rules.cmd

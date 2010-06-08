@@ -1,13 +1,13 @@
-/* @(#)strncat.c	1.2 09/07/08 Copyright 2006-2009 J. Schilling */
+/* @(#)strncat.c	1.3 10/05/06 Copyright 2006-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)strncat.c	1.2 09/07/08 Copyright 2006-2009 J. Schilling";
+	"@(#)strncat.c	1.3 10/05/06 Copyright 2006-2010 J. Schilling";
 #endif
 /*
  *	strncat() to be used if missing in libc
  *
- *	Copyright (c) 2006-2009 J. Schilling
+ *	Copyright (c) 2006-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -35,20 +35,16 @@ strncat(s1, s2, len)
 {
 	char	 *ret	= s1;
 
+	if (len == 0)
+		return (ret);
+
 	while (*s1++ != '\0')
 		;
 	s1--;
-	if (++len == 0) {	/* unsigned overflow */
-		--len;
-		while (len-- > 0)
-			if ((*s1++ = *s2++) == '\0')
-				return (ret);
-		len++;
-	} else {
-		while (--len > 0)
-			if ((*s1++ = *s2++) == '\0')
-				return (ret);
-	}
+	do {
+		if ((*s1++ = *s2++) == '\0')
+			return (ret);
+	} while (--len > 0);
 	*s1 = '\0';
 	return (ret);
 }

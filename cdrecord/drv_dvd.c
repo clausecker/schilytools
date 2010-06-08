@@ -1,8 +1,8 @@
-/* @(#)drv_dvd.c	1.160 09/07/10 Copyright 1998-2009 J. Schilling */
+/* @(#)drv_dvd.c	1.162 10/05/11 Copyright 1998-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)drv_dvd.c	1.160 09/07/10 Copyright 1998-2009 J. Schilling";
+	"@(#)drv_dvd.c	1.162 10/05/11 Copyright 1998-2010 J. Schilling";
 #endif
 /*
  *	DVD-R device implementation for
@@ -32,7 +32,7 @@ static	UConst char sccsid[] =
  *			2		print disk info & write parameters
  *			3		print log pages & dvd structure
  *
- *	Copyright (c) 1998-2009 J. Schilling
+ *	Copyright (c) 1998-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -102,7 +102,9 @@ LOCAL	int	read_rzone_info		__PR((SCSI *scgp, caddr_t bp, int cnt));
 LOCAL	int	reserve_rzone		__PR((SCSI *scgp, long size));
 #endif
 /*LOCAL	int	send_dvd_structure	__PR((SCSI *scgp, caddr_t bp, int cnt));*/
+#ifdef	__needed__
 LOCAL	int	set_layerbreak		__PR((SCSI *scgp, long	tsize, Int32_t lbreak));
+#endif
 LOCAL	void	print_dvd00		__PR((struct dvd_structure_00 *dp));
 LOCAL	void	print_dvd01		__PR((struct dvd_structure_01 *dp));
 LOCAL	void	print_dvd04		__PR((struct dvd_structure_04 *dp));
@@ -113,7 +115,9 @@ LOCAL	void	print_dvd0F		__PR((struct dvd_structure_0F *dp));
 LOCAL	void	print_dvd20		__PR((struct dvd_structure_20 *dp));
 LOCAL	void	print_dvd22		__PR((struct dvd_structure_22 *dp));
 LOCAL	void	print_dvd23		__PR((struct dvd_structure_23 *dp));
+#ifdef	__needed__
 LOCAL	void	send_dvd0F		__PR((SCSI *scgp));
+#endif
 /*LOCAL	void	print_dvd_info		__PR((SCSI *scgp));*/
 EXPORT	void	print_dvd_info		__PR((SCSI *scgp));
 LOCAL	void	print_laserlog		__PR((SCSI *scgp));
@@ -607,6 +611,14 @@ again:
 	    (a_to_u_3_byte(sp->phys_end) != 0) &&
 			(dsp->ds_maxblocks !=
 			(long)(a_to_u_3_byte(sp->phys_end) - a_to_u_3_byte(sp->phys_start) + 1))) {
+		/*
+		 * NEC 'DVD_RW ND-3500AG' mit 'MCC 03RG20  ' DVD-R (leer):
+		 * dsp->ds_maxblocks:	2298496
+		 * sp->phys_start:	196608 (0x30000)
+		 * sp->phys_end:	2495103
+		 *			2298496 = 2495103 - 196608 +1
+		 * Bei diesen Parametern gibt es keine Warnung.
+		 */
 
 		printf("WARNING: Phys disk size %ld differs from rzone size %ld! Prerecorded disk?\n",
 			(long)(a_to_u_3_byte(sp->phys_end) - a_to_u_3_byte(sp->phys_start) + 1),
@@ -1356,6 +1368,7 @@ send_dvd_structure(scgp, bp, cnt)
 }
 #endif
 
+#ifdef	__needed__
 LOCAL int
 set_layerbreak(scgp, tsize, lbreak)
 	SCSI	*scgp;
@@ -1443,6 +1456,7 @@ set_layerbreak(scgp, tsize, lbreak)
 	ret = send_dvd_structure(scgp, (caddr_t)&lb, sizeof (lb), 0x23);
 	return (ret);
 }
+#endif
 
 LOCAL	char	ill_booktype[] = "reserved book type";
 char	*book_types[] = {
@@ -1780,6 +1794,7 @@ print_dvd0F(dp)
 }
 
 
+#ifdef	__needed__
 LOCAL void
 send_dvd0F(scgp)
 	SCSI	*scgp;
@@ -1794,6 +1809,7 @@ send_dvd0F(scgp)
 	strncpy((char *)d.second,	"00", 2);
 /*	send_dvd_structure(scgp, (caddr_t)&d, sizeof (d));*/
 }
+#endif
 
 LOCAL void
 print_dvd20(dp)

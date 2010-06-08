@@ -173,6 +173,55 @@ Using a different installation directory:
 	that compiles or links programs as the path is stored inside the
 	binaries.
 
+	The location for the root specific configuratin files is controlled
+	via the INS_RBASE= make macro. The default vaulue for this macro is "/".
+	If you like to install global default configuration files into 
+	/usr/local/etc instead of /etc, you need to spefify INS_RBASE=/usr/local
+
+	Note that some binaries have $(INS_BASE) and $(INS_RBASE) compiled into.
+	If you like to like to modify the compiled-in path values, call:
+
+		smake clean
+		smake INS_BASE=/usr/local INS_RBASE=/usr/local
+
+Compiling in a different ELF RUNPATH:
+
+	In order to allow binaries to work correctly even if the shared
+	libraries are not in the default search path of the runtime linker,
+	a RUINPATH needs to be set.
+
+	The ELF RUNPATH is by default derived from $(INS_BASE). If you like to
+	set INS_BASE=/usr and create binaries that do not include a RUNPATH at all,
+	call:
+
+		smake relink RUNPATH=
+
+
+Using a different man path prefix:
+
+	Man Pages are by default installed under:
+
+	$(INS_BASE)/$(MANBASE)/man
+	and MANBASE=share
+
+	If you like a different prefix for man pages, call:
+
+		smake DEFMANBASE=soething install
+
+	to install man pages into $(INS_BASE)/something/man/*
+
+	If you like to install man pages under $(INS_BASE)/man/*, call
+
+		smake DEFMANBASE=. install
+
+Installing stripped binaries:
+
+	If you like to install stripped binaries via "smake install", call:
+
+		smake STRIPFLAGS=-s install
+
+	This calls "strip" on every final install path for all executable
+	binaries.
 
 Installing to a prototype directory to implement package creation staging:
 
@@ -181,7 +230,30 @@ Installing to a prototype directory to implement package creation staging:
 
 		smake INS_BASE=/usr/local DESTDIR=/tmp install
 
-	This will create a usr/local tree below /tmp (i.e. /tmp/usr/local).
+	This will compile in "/usr/local" as prefix into all related binaries
+	and then create a usr/local tree below /tmp (i.e. /tmp/usr/local).
+
+	Note that you need to call "smake clean" before in case that the code
+	was previously compiled with different defaults.
+
+Setting different default directory permissions for install directories:
+
+	All directories that are created by the Schily makefile system in the
+	target directory path when
+
+		smake install
+
+	is called system use a special default 022 that is in DEFINSUMASK=
+	This causes all directories in the target install path to be created
+	with 0755 permissions.
+
+	All other directories that are created by the Schily makefile system 
+	use a single global default 002 that is in DEFUMASK=
+
+	If you like to create install directories with e.g. 0775 permissions,
+	call:
+
+		smake DEFINSUMASK=002 install
 
 Using a different C-compiler:
 

@@ -1,8 +1,8 @@
-/* @(#)ved.h	1.39 09/07/13 Copyright 1984, 85, 86, 88, 89, 97, 2000-2009 J. Schilling */
+/* @(#)ved.h	1.40 10/05/14 Copyright 1984, 85, 86, 88, 89, 97, 2000-2010 J. Schilling */
 /*
  *	Main include file for VED
  *
- *	Copyright (c) 1984, 85, 86, 88, 89, 97, 2000-2009 J. Schilling
+ *	Copyright (c) 1984, 85, 86, 88, 89, 97, 2000-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -139,7 +139,7 @@ extern	iobuf_t	_bb;
 #	define	HELPFILE UC "/doc/cmds/ved.help"
 #else
 #	define	DEFSHELL	"/bin/sh"
-#	define	HELPFILE UC "/opt/schily/man/help/ved.help"
+#	define	HELPFILE UC "/opt/schily/share/man/help/ved.help"
 #endif
 
 /*

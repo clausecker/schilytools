@@ -1,4 +1,4 @@
-.\" @(#)btcflash.1	1.7 10/01/29 Copyr 2006 J. Schilling
+.\" @(#)btcflash.1	1.8 10/05/28 Copyr 2006 J. Schilling
 .\" Manual page for btcflash
 .\"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -13,7 +13,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH BTCFLASH 1L "2010/01/29" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH BTCFLASH 1L "2010/05/28" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 btcflash \- Firmware flash utility for BTC DRW1008 DVD+/-RW recorder
 .SH SYNOPSIS
@@ -53,7 +53,7 @@ options and exists.
 Print version information and exit.
 .TP
 .BI dev= target
-Sets the SCSI target for the CD/DVD/BluRay-Recorder, see notes above.
+Set the SCSI target for the CD/DVD/BluRay-Recorder, see notes above.
 A typical target device specification is
 .BI dev= 1,6,0
 \&.
@@ -130,10 +130,10 @@ to allow remote SCSI bus scanning or
 .BI REMOTE: user@host:1,0,0
 to access the SCSI device at 
 .I host
-connected to SCSI bus # 1,target 0 lun 0.
+connected to SCSI bus # 1,target 0, lun 0.
 In order to allow remote access to a specific
 .IR host ,
-the program
+the
 .BR rscsi (1)
 program needs to be present and configured on the
 .IR host .

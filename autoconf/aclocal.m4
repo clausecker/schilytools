@@ -1,4 +1,4 @@
-dnl @(#)aclocal.m4	1.87 09/12/31 Copyright 1998-2009 J. Schilling
+dnl @(#)aclocal.m4	1.89 10/04/26 Copyright 1998-2009 J. Schilling
 
 dnl Set VARIABLE to VALUE in C-string form, verbatim, or 1.
 dnl AC_DEFINE_STRING(VARIABLE [, VALUE])
@@ -2708,6 +2708,35 @@ main()
                 [ac_cv_access_e_ok=no])])
 if test $ac_cv_access_e_ok = yes; then
   AC_DEFINE(HAVE_ACCESS_E_OK)
+fi])
+
+dnl Checks if fnmatch() does implement FNM_IGNORECASE
+dnl Defines HAVE_FNMATCH_IGNORECASE on success.
+AC_DEFUN([AC_FNMATCH_IGNORECASE],
+[AC_CHECK_HEADERS(fnmatch.h)
+AC_CACHE_CHECK([if fnmatch() does implement FNM_IGNORECASE or FNM_CASEFOLD], ac_cv_fnmatch_igncase,
+                [AC_TRY_RUN([
+#ifdef	HAVE_FNMATCH
+#include <fnmatch.h>
+#endif
+
+#ifndef	FNM_IGNORECASE
+#ifdef	FNM_CASEFOLD
+#define	FNM_IGNORECASE	FNM_CASEFOLD
+#endif
+#endif
+
+main()
+{
+	int	ret;
+
+	ret = fnmatch("a", "A", FNM_IGNORECASE);
+	exit(ret);
+}],
+                [ac_cv_fnmatch_igncase=yes],
+                [ac_cv_fnmatch_igncase=no])])
+if test $ac_cv_fnmatch_igncase = yes; then
+  AC_DEFINE(HAVE_FNMATCH_IGNORECASE)
 fi])
 
 

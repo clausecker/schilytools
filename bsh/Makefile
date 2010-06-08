@@ -1,4 +1,4 @@
-#ident @(#)Makefile	1.26 09/10/19 
+#ident @(#)Makefile	1.27 10/05/13 
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -55,7 +55,7 @@ HFILES=		abbrev.h bsh.h map.h node.h abbtab.h btab.h limit.h \
 # $(LIB_ACL_TEST) $(LIB_INTL) are needed for libfind
 #
 LIBS=		-lxtermcap -lfind -lschily $(LIB_SECDB) $(LIB_CRYPT) $(LIB_ACL_TEST) $(LIB_INTL)
-XMK_FILE=	Makefile.man Makefile.dot
+XMK_FILE=	Makefile.man pfbsh.mk1 Makefile.dot
 
 ###########################################################################
 include		$(SRCROOT)/$(RULESDIR)/rules.cmd

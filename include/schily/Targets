@@ -1,4 +1,4 @@
-#ident @(#)Targets	1.13 09/10/16 
+#ident @(#)Targets	1.14 10/05/07 
 
 X_MK_LIST=	\
 		align.mk alloca.mk archdefs.mk assert.mk avoffset.mk \
@@ -12,13 +12,13 @@ X_MK_LIST=	\
 		iconv.mk idcache.mk in.mk inet.mk io.mk ioctl.mk ipc.mk \
 		intcvt.mk \
 		jmpdefs.mk \
-		libport.mk librmt.mk limits.mk locale.mk \
+		libgen.mk libport.mk librmt.mk limits.mk locale.mk \
 		math.mk maxpath.mk mconfig.mk \
 		md4.mk md5.mk \
 		mman.mk mtio.mk \
 		netdb.mk nlsdefs.mk \
 		param.mk patmatch.mk priv.mk procfs.mk prototyp.mk pwd.mk \
-		resource.mk rmd160.mk rmtio.mk \
+		regex.mk _regex.mk resource.mk rmd160.mk rmtio.mk \
 		schily.mk schilyp.mk select.mk sem.mk shm.mk \
 		setjmp.mk sha1.mk sha2.mk shcall.mk \
 		siconv.mk shadow.mk \

@@ -1,0 +1,169 @@
+New features with AN-2010-03-99:
+
+-	smake bumped to version 1.2.1
+
+-	cdrtools bumped to 3.00
+
+-	Trying to add support for 32 bit compilation on newer Mac OS X
+	version via smake CCOM=cc32
+	This only works if 32 Bit development support is installed on Mac OS X.
+
+-	Trying to add support for 32 bit compilation on newer Linux
+	version via smake CCOM=cc32
+	This only works if 32 Bit development support is installed on Linux.
+
+-	New autoconf test checks whether fnmatch() has a working FNM_IGNORECASE
+
+-	New autoconf tests for supporting stateful multibyte locales
+	mbsinit() mbrtowc() wcrtomb()
+
+-	New autoconf tests for wctype_t mbstate_t
+
+-	New autoconf tests for basename() dirname() strndup() wcsndup()
+
+-	include/schily/wchar.h enhanced to support mbrtowc() and wcrtomb()
+
+-	include/schily/regex.h added
+
+-	include/schily/libgen.h added
+
+-	New autoconf test for strlcat() wcslcat()  strnlen() wcsnlen()
+
+-	New autoconf test for strndup() wcsndup()
+
+-	libschily fnmatch() now supports FNM_IGNORECASE
+
+-	libschily fnmatch() now supports multibyte characters
+
+-	libschily: new files strlcat.c wcslcat.c  strnlen.c wcsnlen.c strndup.c wcsndup.c
+			basename.c dirname.c
+
+-	A new algorithm in libschily
+	strncat.c strncmp.c strncpy.c strnlen.c wcsncat.c wcsncmp.c wcsncpy.c wcsnlen.c
+	makes the code faster and smaller.
+
+-	libsiconv now supports sic_close()
+
+-	libfind bumped to version 1.5
+
+-	New file libfind/find_tok.h to separate the token names from the rest of the implementation.
+
+-	Moved token definitions from find.c to find_tok.h
+
+-	The primary -perm now implements a new feature:
+
+	-perm +mode will evaluate as true if any of the bits set in mode are set in the
+	permission bits fro a file.
+
+-	A bug with -exec introduced with using vfork() instead of fork() was fixed.
+	The replacement of the string "{}" now works correctly again even if the location
+	of the path in memory was changed during a realloc().
+
+-	New primary operators:
+		-amin			deprecated - only for GNU find compatibility
+		-cmin			deprecated - only for GNU find compatibility
+		-mmin			deprecated - only for GNU find compatibility
+		-empty			TRUE zero sized plain file or empty directory
+		-execdir program [argument ...] \\;
+		-fls file     		list files similar to 'ls -ilds' into 'file' (always TRUE)
+		-fprint file		print file names line separated into 'file' (always TRUE)
+		-fprint0 file		print file names nul separated into 'file' (always TRUE)
+		-fprintnnl file		print file names space separated into 'file' (always TRUE)
+		-ilname glob		TRUE if symlink name matches shell glob
+		-ilpat pattern		TRUE if symlink name matches pattern
+		-iname glob		TRUE if path component matches shell glob
+		-ipat pattern		TRUE if path component matches pattern
+		-ipath glob		TRUE if full path matches shell glob
+		-ippat pattern		TRUE if full path matches pattern
+		-okdir program [argument ...] \\;
+		-print0			print file names nul separated to stdout (always TRUE)
+		-executable		TRUE if file is executable by real user id of process
+		-readable		TRUE if file is readable by real user id of process
+		-writable		TRUE if file is writable by real user id of process
+
+
+-	Mkisofs does no longer archive the output file if it is part of the archives directory
+	tree.
+
+-	New option -data-change-warn allows to prevent mkisofs from aborting when
+	a file changes size.
+
+	-data-change-warn is implemented via errctl="WARN|GROW|SHRINK *"
+
+-	Print a hint to the mkisofs option -data-change-warn if a shrunk/grown file is detected.
+
+-	Print a hint to the mkisofs option -no-limit-pathtables in case that there are more
+	than 65535 parent directories in the target filesystem.
+
+-	Mkisofs print hints on using -joliet-long or on avoiding -J in case that there are
+	file names that do not fit into 64 chars.
+
+-	Ved now installs it's help file intop */share/man/help/ instead of */man/help/
+
+-	The Bourne shell now also comes with man pages for "bosh" "jsh" and "pfsh"
+
+-	A man page was created for the "label" command.
+
+-	New (previously missing) man pages:
+	bsh/pfbsh.1 sh/bosh.1 sh/jsh.1 sh/pfsh.1 mt/mt.1 scgskeleton/scgskeleton.1 label/label.1
+	star/ustar.1 star_sym/star_sym.1 ved/ved-e.1 ved/ved-w.1
+
+-	Some smaller fixes in the man pages:
+	mountcd/mountcd.1 readcd/readcd.1 udiff/udiff.1 pxupgrade/pxupgrade.1 star/spax.1
+	sfind/sfind.1 hdump/hdump.1
+
+-	A new make macro STRIPFLAGS allows to install stripped binaries by calling
+	smake STRIPFLAGS=-s install
+
+-	Conf-files in /etc/default are now installed 0644
+
+-	Man pages are now by default installed in $(INS_BASE)/share/man
+	The base directory "share" may be changed by caling 
+
+		smake DEFMANBASE=something
+
+-	README.compile now mentions:
+
+	INS_RBASE=		Set different "root" install path
+	DEFMANBASE=		Set different man base directory
+	STRIPFLAGS=-s		Strip all binaries with "make install"
+	RUNPATH=		Overwrite ELF RUNPATH
+	DEFUMASK=		Set different default permissions for
+				creating directories
+	DEFINSUMASK=		Set different default permissions for
+				creating directories in the install path
+
+-	Man pages are now by default installed in $(INS_BASE)/share/man
+	The base directory "share" may be changed by caling 
+
+-	All Makefile.dfl now detect whether /etc/default/* already exists
+
+-	Cdrecord now auto-formats unformatted (maiden) BD-RE media.
+	Unformatted BD-RE media is rare but it exists. This function
+	completes the BluRay support in cdrecord.
+
+-	Cdrecord now prints progress messages when formatting DVD+RW media
+	and called with -v.
+
+-	The EXAMPLES section in the cdrecord man page has been improved by reordering
+	abd by creating sub-headlines. Thanks to Lucas Levrel.
+
+-	Libscg now retrys to send SCSI commands for the FreeBSD CAM subsystem in 
+	case that
+	(ccb->ccb_h.status & CAM_STATUS_MASK) == CAM_REQUEUE_REQ)
+
+-	Prevent mkisofs from aborting with "... -hide large-file". Thanks for
+	the bug report from Udo Büdel.
+
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.isdn.cs.tu-berlin.de, js@cs.tu-berlin.de
+	joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

@@ -1,4 +1,4 @@
-#ident "@(#)rules.aux	1.8 07/05/06 "
+#ident "@(#)rules.aux	1.9 10/05/14 "
 ###########################################################################
 # Written 1997 by J. Schilling
 ###########################################################################
@@ -18,8 +18,8 @@
 # When distributing Covered Code, include this CDDL HEADER in each
 # file and include the License file CDDL.Schily.txt from this distribution.
 ###########################################################################
-PTARGET=	$(TARGET)
-SRCFILE=	$(TARGET)
+PTARGET=	$(TARGET)$(AUXSRCEXT)
+SRCFILE=	$(TARGET)$(AUXSRCEXT)
 ###########################################################################
 
 _INSMODEI=	$(_UNIQ)$(INSMODE)

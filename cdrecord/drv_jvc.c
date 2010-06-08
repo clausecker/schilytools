@@ -1,14 +1,14 @@
-/** @(#)drv_jvc.c	1.93 09/07/10 Copyright 1997-2009 J. Schilling */
+/** @(#)drv_jvc.c	1.94 10/05/11 Copyright 1997-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)drv_jvc.c	1.93 09/07/10 Copyright 1997-2009 J. Schilling";
+	"@(#)drv_jvc.c	1.94 10/05/11 Copyright 1997-2010 J. Schilling";
 #endif
 /*
  *	CDR device implementation for
  *	JVC/TEAC
  *
- *	Copyright (c) 1997-2009 J. Schilling
+ *	Copyright (c) 1997-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -225,7 +225,9 @@ LOCAL	int	opt_power_judge		__PR((SCSI *scgp, int judge));
 LOCAL	int	clear_subcode		__PR((SCSI *scgp));
 LOCAL	int	set_limits		__PR((SCSI *scgp, long lba, long length));
 LOCAL	int	set_subcode		__PR((SCSI *scgp, Uchar *subcode_data, int length));
+#ifdef	XDI
 LOCAL	int	read_disk_info_teac	__PR((SCSI *scgp, Uchar *data, int length, int type));
+#endif
 LOCAL	int	teac_freeze		__PR((SCSI *scgp, int bp_flag));
 LOCAL	int	teac_wr_pma		__PR((SCSI *scgp));
 LOCAL	int	teac_rd_pma		__PR((SCSI *scgp));
@@ -233,8 +235,8 @@ LOCAL	int	next_wr_addr_teac	__PR((SCSI *scgp, long start_lba, long last_lba));
 LOCAL	int	blank_jvc		__PR((SCSI *scgp, cdr_t *dp, long addr, int blanktype));
 LOCAL	int	buf_cap_teac		__PR((SCSI *scgp, long *sp, long *fp));
 LOCAL	long	read_peak_buffer_cap_teac __PR((SCSI *scgp));
-LOCAL	int	buffer_inquiry_teac	__PR((SCSI *scgp, int fmt));
 #ifdef	XXBUFFER
+LOCAL	int	buffer_inquiry_teac	__PR((SCSI *scgp, int fmt));
 LOCAL	void	check_buffer_teac	__PR((SCSI *scgp));
 #endif
 #ifdef	XXDEBUG
@@ -1044,6 +1046,7 @@ set_subcode(scgp, subcode_data, length)
 	return (scg_cmd(scgp));
 }
 
+#ifdef	XDI
 LOCAL int
 read_disk_info_teac(scgp, data, length, type)
 	SCSI	*scgp;
@@ -1070,6 +1073,7 @@ read_disk_info_teac(scgp, data, length, type)
 
 	return (scg_cmd(scgp));
 }
+#endif
 
 /*
  * Perform the freeze command for Teac Drives.
@@ -1300,6 +1304,7 @@ read_peak_buffer_cap_teac(scgp)
 #define	BI_448_BYTE	0x40
 #define	BI_APP_CODE	0x10
 
+#ifdef	XXBUFFER
 LOCAL int
 buffer_inquiry_teac(scgp, fmt)
 	SCSI	*scgp;
@@ -1351,7 +1356,6 @@ buffer_inquiry_teac(scgp, fmt)
 #endif
 }
 
-#ifdef	XXBUFFER
 LOCAL void
 check_buffer_teac(scgp)
 	SCSI	*scgp;

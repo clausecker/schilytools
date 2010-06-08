@@ -1,7 +1,7 @@
-/* @(#)scsi-bsd.c	1.50 09/09/14 Copyright 1997-2009 J. Schilling */
+/* @(#)scsi-bsd.c	1.51 10/05/22 Copyright 1997-2009 J. Schilling */
 #ifndef lint
 static	char __sccsid[] =
-	"@(#)scsi-bsd.c	1.50 09/09/14 Copyright 1997-2009 J. Schilling";
+	"@(#)scsi-bsd.c	1.51 10/05/22 Copyright 1997-2009 J. Schilling";
 #endif
 /*
  *	Interface for the NetBSD/FreeBSD/OpenBSD generic SCSI implementation.
@@ -20,25 +20,7 @@ static	char __sccsid[] =
  *
  *	Copyright (c) 1997-2009 J. Schilling
  */
-/*
- * The contents of this file are subject to the terms of the
- * Common Development and Distribution License, Version 1.0 only
- * (the "License").  You may not use this file except in compliance
- * with the License.
- *
- * See the file CDDL.Schily.txt in this distribution for details.
- *
- * The following exceptions apply:
- * CDDL §3.6 needs to be replaced by: "You may create a Larger Work by
- * combining Covered Software with other code if all other code is governed by
- * the terms of a license that is OSI approved (see www.opensource.org) and
- * you may distribute the Larger Work as a single product. In such a case,
- * You must make sure the requirements of this License are fulfilled for
- * the Covered Software."
- *
- * When distributing Covered Code, include this CDDL HEADER in each
- * file and include the License file CDDL.Schily.txt from this distribution.
- */
+/*@@C@@*/
 
 #ifndef HAVE_CAMLIB_H
 
@@ -57,7 +39,7 @@ static	char __sccsid[] =
  *	Choose your name instead of "schily" and make clear that the version
  *	string is related to a modified source.
  */
-LOCAL	char	_scg_trans_version[] = "scsi-bsd.c-1.50";	/* The version for this transport*/
+LOCAL	char	_scg_trans_version[] = "scsi-bsd.c-1.51";	/* The version for this transport*/
 
 #define	MAX_SCG		32	/* Max # of SCSI controllers */
 #define	MAX_TGT		16
@@ -701,7 +683,7 @@ scgo_send(scgp)
  *	Choose your name instead of "schily" and make clear that the version
  *	string is related to a modified source.
  */
-LOCAL	char	_scg_trans_version[] = "scsi-bsd.c-1.50";	/* The version for this transport*/
+LOCAL	char	_scg_trans_version[] = "scsi-bsd.c-1.51";	/* The version for this transport*/
 
 #define	CAM_MAXDEVS	128
 struct scg_local {
@@ -1155,7 +1137,28 @@ scgo_send(scgp)
 
 	/* Run the command */
 	errno = 0;
-	if ((rv = cam_send_ccb(dev, ccb)) == -1) {
+	result = 16;
+	do {
+		/*
+		 * CAM_REQUEUE_REQ is a very unspecified status code. For this
+		 * reason, only the kernel could know why it happened.
+		 * This is therefore a loop that should be handled inside the
+		 * kernel in order not to break the layering model.
+		 * FreBSD unfortunately has dozens of places in the kernel that
+		 * set CAM_REQUEUE_REQ and most of the places that set
+		 * CAM_REQUEUE_REQ are handling missing kernel resources. As
+		 * it seems to be unlikely that there will be a clean fix in
+		 * the kernel soon, we are forced to handle this status here.
+		 *
+		 * Note that for May 2010, there is at least one definite bug
+		 * in the kernel where CAM_REQUEUE_REQ is returned for a SCSI
+		 * reservation conflict.
+		 */
+		rv = cam_send_ccb(dev, ccb);
+	} while (rv != -1 && --result > 0 &&
+		(ccb->ccb_h.status & CAM_STATUS_MASK) == CAM_REQUEUE_REQ);
+
+	if (rv == -1) {
 		return (rv);
 	} else {
 		/*

@@ -1,4 +1,4 @@
-#ident @(#)Makefile	1.5 07/02/04 
+#ident @(#)Makefile	1.6 10/05/12 
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -14,7 +14,7 @@ CPPOPTS +=	-DSCHILY_PRINT
 CFILES=		mt.c
 #HFILES=
 LIBS=		-lrmt -lschily $(LIB_SOCKET)
-XMK_FILE=	Makefile.man
+XMK_FILE=	Makefile.man mt.mk1
 
 ###########################################################################
 include		$(SRCROOT)/$(RULESDIR)/rules.cmd

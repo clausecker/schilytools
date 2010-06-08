@@ -1,4 +1,4 @@
-#ident @(#)Makefile	1.23 08/04/06 
+#ident @(#)Makefile	1.24 10/05/13 
 ###########################################################################
 #include		$(MAKE_M_ARCH).def
 SRCROOT=	..
@@ -52,7 +52,7 @@ LIBS=		-ldeflt -lrmt -lfind -lschily $(LIB_ACL) $(LIB_ATTR) $(LIB_SOCKET) $(LIB_
 #
 #	Wenn -lfind, dann auch  $(LIB_INTL)
 #
-XMK_FILE=	Makefile.man starformatman.mk scpioman.mk gnutarman.mk \
+XMK_FILE=	Makefile.man ustarman.mk starformatman.mk scpioman.mk gnutarman.mk \
 		spaxman.mk suntarman.mk Makefile.dfl Makefile.doc
 
 star_fat.c: star.c

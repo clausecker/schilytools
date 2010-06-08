@@ -1,13 +1,13 @@
-/* @(#)gettimeofday.c	1.3 09/07/08 Copyright 2007-2009 J. Schilling */
+/* @(#)gettimeofday.c	1.4 10/05/24 Copyright 2007-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)gettimeofday.c	1.3 09/07/08 Copyright 2007-2009 J. Schilling";
+	"@(#)gettimeofday.c	1.4 10/05/24 Copyright 2007-2010 J. Schilling";
 #endif
 /*
  *	Emulate gettimeofday where it does not exist
  *
- *	Copyright (c) 2007-2009 J. Schilling
+ *	Copyright (c) 2007-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -25,8 +25,8 @@ static	UConst char sccsid[] =
 #include <windows.h>
 #include <schily/time.h>
 
-const	__int64 MS_FTIME_ADD	= 0x2b6109100i64; 
-const	__int64 MS_FTIME_SECS	= 10000000i64; 
+const	__int64 MS_FTIME_ADD	= 0x2b6109100i64;
+const	__int64 MS_FTIME_SECS	= 10000000i64;
 
 EXPORT int
 gettimeofday(tp, dummy)

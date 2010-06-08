@@ -1,13 +1,13 @@
-/* @(#)wcsncpy.c	1.5 09/07/08 Copyright 2006-2009 J. Schilling */
+/* @(#)wcsncpy.c	1.6 10/05/07 Copyright 2006-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)wcsncpy.c	1.5 09/07/08 Copyright 2006-2009 J. Schilling";
+	"@(#)wcsncpy.c	1.6 10/05/07 Copyright 2006-2010 J. Schilling";
 #endif
 /*
  *	wcsncpy() to be used if missing in libc
  *
- *	Copyright (c) 2006-2009 J. Schilling
+ *	Copyright (c) 2006-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -36,15 +36,13 @@ wcsncpy(s1, s2, len)
 {
 	wchar_t	 *ret	= s1;
 
-	if (++len == 0) {	/* unsigned overflow */
-		--len;
-		while (len-- > 0 && (*s1++ = *s2++) != '\0')
-				;
-		len++;
-	} else {
-		while (--len > 0 && (*s1++ = *s2++) != '\0')
-				;
-	}
+	if (len == 0)
+		return (ret);
+
+	do {
+		if ((*s1++ = *s2++) == '\0')
+			break;
+	} while (--len > 0);
 	if (len > 0) {
 		while (--len > 0)
 			*s1++ = '\0';

@@ -1,7 +1,7 @@
-/* @(#)btcflash.c	1.15 09/04/08 2004-2009 J. Schilling */
+/* @(#)btcflash.c	1.16 10/05/24 2004-2010 J. Schilling */
 #ifndef lint
 static	const char _sccsid[] =
-	"@(#)btcflash.c	1.15 09/04/08 2004-2009 J. Schilling";
+	"@(#)btcflash.c	1.16 10/05/24 2004-2010 J. Schilling";
 #endif
 /*--------------------------------------------------------------------------*/
 /*
@@ -213,7 +213,7 @@ btcmain(scgp, fwfile)
 	unsigned short	checksum;
 	unsigned int	offset;
 
-	printf("BTC DVD+/-RW firmware flash utility release %s %s\n", "1.15", "09/04/08");
+	printf("BTC DVD+/-RW firmware flash utility release %s %s\n", "1.16", "10/05/24");
 	printf("USE AT YOUR OWN RISK!\n\n");
 
 	if (!(fwbuf = loadfirmware(fwfile)))
@@ -235,7 +235,7 @@ btcmain(scgp, fwfile)
 	if (strncmp((char *)inq + 8, (char *)fwbuf + 0x40bc, 24) != 0)
 		printf(
 		    "**********************************************************\n");
-		printf(		
+		printf(
 		    "WARNING! THIS FIRMWARE DOES NOT SEEM TO BE FOR THIS DRIVE!\n");
 		printf(
 		    "**********************************************************\n");
@@ -270,8 +270,8 @@ btcmain(scgp, fwfile)
 	if (write_buffer(scgp,	(char *)csbuf, 0x20,
 				6 /* Download Microcode with Offsets */,
 				0 /* Buffer ID 0 */,
-				0 /* Offset 0 */
-				) < 0) {
+				0) /* Offset 0 */
+				< 0) {
 		errmsgno(EX_BAD, "Cannot write microcode checksum\n");
 		return (1);
 	}
@@ -282,8 +282,8 @@ btcmain(scgp, fwfile)
 	if (write_buffer(scgp,	NULL, 0,
 				7 /* Download Microcode with Offsets and Save */,
 				0 /* Buffer ID 0 */,
-				0 /* Offset 0 */
-				) < 0) {
+				0) /* Offset 0 */
+				< 0) {
 		errmsgno(EX_BAD, "Cannot save microcode\n");
 		return (1);
 	}

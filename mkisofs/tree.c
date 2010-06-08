@@ -1,8 +1,8 @@
-/* @(#)tree.c	1.121 09/11/25 joerg */
+/* @(#)tree.c	1.123 10/05/24 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)tree.c	1.121 09/11/25 joerg";
+	"@(#)tree.c	1.123 10/05/24 joerg";
 #endif
 /*
  * File tree.c - scan directory  tree and build memory structures for iso9660
@@ -11,7 +11,7 @@ static	UConst char sccsid[] =
  * Written by Eric Youngdale (1993).
  *
  * Copyright 1993 Yggdrasil Computing, Incorporated
- * Copyright (c) 1999,2000-2009 J. Schilling
+ * Copyright (c) 1999,2000-2010 J. Schilling
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -1677,6 +1677,14 @@ insert_file_entry(this_dir, whole_path, short_name, statp, have_rsrc)
 			whole_path);
 		return (0);
 	}
+
+#define	is_archive(st)	((st).st_dev == archive_dev && (st).st_ino == archive_ino)
+	if (archive_isreg && is_archive(statbuf)) {
+		errmsgno(EX_BAD,
+			"'%s' is the archive. Not dumped.\n", whole_path);
+		return (0);
+	}
+
 	/*
 	 * Check to see if we have already seen this directory node. If so,
 	 * then we don't create a new entry for it, but we do want to recurse

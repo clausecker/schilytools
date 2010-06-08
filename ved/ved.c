@@ -1,13 +1,13 @@
-/* @(#)ved.c	1.72 09/07/13 Copyright 1984, 85, 86, 88, 89, 97, 2000-2009 J. Schilling */
+/* @(#)ved.c	1.74 10/05/21 Copyright 1984, 85, 86, 88, 89, 97, 2000-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)ved.c	1.72 09/07/13 Copyright 1984, 85, 86, 88, 89, 97, 2000-2009 J. Schilling";
+	"@(#)ved.c	1.74 10/05/21 Copyright 1984, 85, 86, 88, 89, 97, 2000-2010 J. Schilling";
 #endif
 /*
  *	VED Visual EDitor
  *
- *	Copyright (c) 1984, 85, 86, 88, 89, 97, 2000-2009 J. Schilling
+ *	Copyright (c) 1984, 85, 86, 88, 89, 97, 2000-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -75,6 +75,7 @@ LOCAL	void	exintr		__PR((int sig));
 EXPORT	void	settmodes	__PR((ewin_t *wp));
 EXPORT	void	rsttmodes	__PR((ewin_t *wp));
 LOCAL	Uchar	*gethelpfile	__PR((void));
+LOCAL	Uchar	*_gethelpfile	__PR((char *name));
 
 LOCAL void
 usage(exitcode)
@@ -157,7 +158,7 @@ main(ac, av)
 		usage(0);
 	if (prvers) {
 		printf("ved %s (%s-%s-%s)\n\n", ved_version, HOST_CPU, HOST_VENDOR, HOST_OS);
-		printf("Copyright (C) 1984, 85, 86, 88, 89, 97, 2000-2009 Jörg Schilling\n");
+		printf("Copyright (C) 1984, 85, 86, 88, 89, 97, 2000-2010 Jörg Schilling\n");
 		printf("This is free software; see the source for copying conditions.  There is NO\n");
 		printf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
 		exit(0);
@@ -473,14 +474,29 @@ rsttmodes(wp)
 LOCAL Uchar *
 gethelpfile()
 {
-	char	*path = getenv("PATH");
 	Uchar	*hfile = HELPFILE;
-	Uchar	*nbuf = curfname;
+	Uchar	*name;
+
+	name = _gethelpfile("share/man/help/ved.help");
+	if (name == NULL)
+		name = _gethelpfile("man/help/ved.help");
+
+	if (name == NULL)
+		return (hfile);
+
+	return (name);
+}
+
+LOCAL Uchar *
+_gethelpfile(name)
+	char	*name;
+{
+	char	*path = getenv("PATH");
+	Uchar	*nbuf = curfname;	/* Construct path in curfname space */
 	Uchar	*np;
-	char	*name = "man/help/ved.help";
 
 	if (path == NULL)
-		return (hfile);
+		return (NULL);
 
 	for (;;) {
 		np = nbuf;
@@ -503,5 +519,5 @@ gethelpfile()
 			break;
 		path++;
 	}
-	return (hfile);
+	return (NULL);
 }

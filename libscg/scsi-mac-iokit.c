@@ -1,7 +1,7 @@
-/* @(#)scsi-mac-iokit.c	1.16 09/11/03 Copyright 1997,2001-2009 J. Schilling */
+/* @(#)scsi-mac-iokit.c	1.17 10/05/24 Copyright 1997,2001-2010 J. Schilling */
 #ifndef lint
 static	char __sccsid[] =
-	"@(#)scsi-mac-iokit.c	1.16 09/11/03 Copyright 1997,2001-2009 J. Schilling";
+	"@(#)scsi-mac-iokit.c	1.17 10/05/24 Copyright 1997,2001-2010 J. Schilling";
 #endif
 /*
  *	Interface to the Darwin IOKit SCSI drivers
@@ -19,27 +19,9 @@ static	char __sccsid[] =
  *	Choose your name instead of "schily" and make clear that the version
  *	string is related to a modified source.
  *
- *	Copyright (c) 1997,2001-2009 J. Schilling
+ *	Copyright (c) 1997,2001-2010 J. Schilling
  */
-/*
- * The contents of this file are subject to the terms of the
- * Common Development and Distribution License, Version 1.0 only
- * (the "License").  You may not use this file except in compliance
- * with the License.
- *
- * See the file CDDL.Schily.txt in this distribution for details.
- *
- * The following exceptions apply:
- * CDDL §3.6 needs to be replaced by: "You may create a Larger Work by
- * combining Covered Software with other code if all other code is governed by
- * the terms of a license that is OSI approved (see www.opensource.org) and
- * you may distribute the Larger Work as a single product. In such a case,
- * You must make sure the requirements of this License are fulfilled for
- * the Covered Software."
- *
- * When distributing Covered Code, include this CDDL HEADER in each
- * file and include the License file CDDL.Schily.txt from this distribution.
- */
+/*@@C@@*/
 
 /*
  *	Warning: you may change this source, but if you do that
@@ -48,7 +30,7 @@ static	char __sccsid[] =
  *	Choose your name instead of "schily" and make clear that the version
  *	string is related to a modified source.
  */
-LOCAL	char	_scg_trans_version[] = "scsi-mac-iokit.c-1.16";	/* The version for this transport */
+LOCAL	char	_scg_trans_version[] = "scsi-mac-iokit.c-1.17";	/* The version for this transport */
 
 #define	MAX_SCG		16	/* Max # of SCSI controllers */
 #define	MAX_TGT		16
@@ -551,7 +533,7 @@ scgo_havebus(scgp, busno)
 	for (t = 0; t < MAX_TGT; t++) {
 		if (scglocal(scgp)->scg_if[busno][t].scsiTaskDeviceInterface != NULL)
 			return (TRUE);
-	} 
+	}
 	return (FALSE);
 }
 

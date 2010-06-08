@@ -1,4 +1,4 @@
-#ident "@(#)rules.prg	1.18 08/12/26 "
+#ident "@(#)rules.prg	1.20 10/05/15 "
 ###########################################################################
 # Written 1996 by J. Schilling
 ###########################################################################
@@ -51,6 +51,8 @@ CTAGS=		vctags
 ETAGS=		etags
 UMASK=		umask $(UMASK_VAL)
 UMASK_DEF=	002
+INSUMASK=	umask $(INSUMASK_VAL)
+INSUMASK_DEF=	022
 
 RM_FORCE=	-f
 RM_RECURS=	-r
@@ -62,6 +64,10 @@ INSMODEF_DEF=	444
 INSMODEX_DEF=	755
 INSUSR_DEF=	root
 INSGRP_DEF=	bin
+
+_DEFINSUMASK=	$(_UNIQ)$(DEFINSUMASK)
+__DEFINSUMASK=	$(_DEFINSUMASK:$(_UNIQ)=$(INSUMASK_DEF))
+INSUMASK_VAL=	$(__DEFINSUMASK:$(_UNIQ)%=%)
 
 _DEFUMASK=	$(_UNIQ)$(DEFUMASK)
 __DEFUMASK=	$(_DEFUMASK:$(_UNIQ)=$(UMASK_DEF))
@@ -100,3 +106,5 @@ MKDEP=		@echo "	==> MAKING DEPENDENCIES \"$@\""; makedepend
 MKDEP_OUT=	-f -
 MKDIR=		@echo "	==> MAKING DIRECTORY \"$@\""; $(UMASK); mkdir
 MKDIR_SH=	@echo "	==> MAKING DIRECTORY \"$@\""; $(UMASK); sh $(SRCROOT)/conf/mkdir-sh
+INSMKDIR=	@echo "	==> MAKING DIRECTORY \"$@\""; $(INSUMASK); mkdir
+INSMKDIR_SH=	@echo "	==> MAKING DIRECTORY \"$@\""; $(INSUMASK); sh $(SRCROOT)/conf/mkdir-sh

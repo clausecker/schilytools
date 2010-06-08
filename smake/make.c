@@ -1,13 +1,13 @@
-/* @(#)make.c	1.178 09/12/19 Copyright 1985, 87, 88, 91, 1995-2009 J. Schilling */
+/* @(#)make.c	1.179 10/03/19 Copyright 1985, 87, 88, 91, 1995-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)make.c	1.178 09/12/19 Copyright 1985, 87, 88, 91, 1995-2009 J. Schilling";
+	"@(#)make.c	1.179 10/03/19 Copyright 1985, 87, 88, 91, 1995-2010 J. Schilling";
 #endif
 /*
  *	Make program
  *
- *	Copyright (c) 1985, 87, 88, 91, 1995-2009 by J. Schilling
+ *	Copyright (c) 1985, 87, 88, 91, 1995-2010 by J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -43,7 +43,7 @@ static	UConst char sccsid[] =
 
 #include "make.h"
 
-char	make_version[] = "1.2";
+char	make_version[] = "1.2.1";
 
 #ifdef	NO_DEFAULTS_PATH
 #undef	DEFAULTS_PATH
@@ -940,7 +940,7 @@ main(ac, av)
 	if (help)
 		usage(0);
 	if (pversion) {
-		printf("Smake release %s (%s-%s-%s) Copyright (C) 1985, 87, 88, 91, 1995-2009 Jörg Schilling\n",
+		printf("Smake release %s (%s-%s-%s) Copyright (C) 1985, 87, 88, 91, 1995-2010 Jörg Schilling\n",
 				make_version,
 				HOST_CPU, HOST_VENDOR, HOST_OS);
 		exit(0);

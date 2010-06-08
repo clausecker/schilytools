@@ -1,15 +1,15 @@
-/* @(#)joliet.c	1.61 09/11/25 joerg */
+/* @(#)joliet.c	1.64 10/05/24 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)joliet.c	1.61 09/11/25 joerg";
+	"@(#)joliet.c	1.64 10/05/24 joerg";
 #endif
 /*
  * File joliet.c - handle Win95/WinNT long file/unicode extensions for iso9660.
  *
  * Copyright 1997 Eric Youngdale.
  * APPLE_HYB James Pearson j.pearson@ge.ucl.ac.uk 22/2/2000
- * Copyright (c) 1999-2009 J. Schilling
+ * Copyright (c) 1999-2010 J. Schilling
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -94,6 +94,7 @@ LOCAL	Uint		jpath_table_index;
 LOCAL	struct directory **jpathlist;
 LOCAL	int		next_jpath_index = 1;
 LOCAL	int		jsort_goof;
+LOCAL	int		jsort_glen;
 
 LOCAL	char	ucs_codes[] = {
 		'\0',		/* UCS-level 0 is illegal	*/
@@ -711,6 +712,9 @@ generate_joliet_path_tables()
 				errmsgno(EX_BAD,
 			"Unable to generate sane Joliet path tables - too many directories (%u)\n",
 					jpindex);
+				if (!nolimitpathtables)
+					errmsgno(EX_BAD,
+					"Try to use the option -no-limit-pathtables\n");
 			}
 			if (!nolimitpathtables)
 				exit(EX_BAD);
@@ -1113,6 +1117,18 @@ joliet_compare_dirs(rr, ll)
 				"Error: %s and %s have the same Joliet name\n",
 				(*r)->whole_name, (*l)->whole_name);
 			jsort_goof++;
+			{
+				char	*p1 = rpnt;
+				char	*p2 = lpnt;
+				int	len = 0;
+
+				for (; *p1 == *p2; p1++, p2++, len++) {
+					if (*p1 == '\0')
+						break;
+				}
+				if (len > jsort_glen)
+					jsort_glen = len;
+			}
 		}
 	}
 	/*
@@ -1247,6 +1263,7 @@ joliet_sort_directory(sort_dir)
 	}
 
 	jsort_goof = 0;
+	jsort_glen = 0;
 #ifdef	PROTOTYPES
 	qsort(sortlist, dcount, sizeof (struct directory_entry *),
 		(int (*) (const void *, const void *)) joliet_compare_dirs);
@@ -1254,6 +1271,19 @@ joliet_sort_directory(sort_dir)
 	qsort(sortlist, dcount, sizeof (struct directory_entry *),
 		joliet_compare_dirs);
 #endif
+
+	if (jsort_goof) {
+		errmsgno(EX_BAD,
+			"Joliet file names differ after %d chars\n",
+			jsort_glen);
+		if (jsort_glen > JLONGMAX) {
+			errmsgno(EX_BAD,
+			"Cannot use Joliet, please remove -J from the option list.\n");
+		} else if (jsort_glen > JMAX) {
+			errmsgno(EX_BAD,
+			"Try to use the option -joliet-long\n");
+		}
+	}
 
 	/* Now reassemble the linked list in the proper sorted order */
 	for (i = 0; i < dcount - 1; i++) {

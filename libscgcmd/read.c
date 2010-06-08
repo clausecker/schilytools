@@ -1,13 +1,13 @@
-/* @(#)read.c	1.158 09/07/10 Copyright 1995-2009 J. Schilling */
+/* @(#)read.c	1.159 10/05/24 Copyright 1995-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)read.c	1.158 09/07/10 Copyright 1995-2009 J. Schilling";
+	"@(#)read.c	1.159 10/05/24 Copyright 1995-2010 J. Schilling";
 #endif
 /*
  *	SCSI command functions for the read call
  *
- *	Copyright (c) 1995-2009 J. Schilling
+ *	Copyright (c) 1995-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -111,4 +111,3 @@ read_g1(scgp, bp, addr, cnt)
 
 	return (scg_cmd(scgp));
 }
-

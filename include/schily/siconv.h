@@ -1,8 +1,8 @@
-/* @(#)siconv.h	1.3 09/06/14 Copyright 2007-2009 J. Schilling */
+/* @(#)siconv.h	1.4 10/05/11 Copyright 2007-2010 J. Schilling */
 /*
  *	Definitions fur users of libsiconv
  *
- *	Copyright (c) 2007-2009 J. Schilling
+ *	Copyright (c) 2007-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -43,6 +43,7 @@ struct siconv_table {
 	iconv_t		sic_uni2cd;		/* iconv Unicode -> Charset */
 	siconvt_t	*sic_alt;		/* alternate iconv tab	*/
 	siconvt_t	*sic_next;		/* Next table		*/
+	int		sic_refcnt;		/* Reference count	*/
 };
 
 #define	use_iconv(t)	((t)->sic_cd2uni != NULL)
@@ -52,7 +53,7 @@ struct siconv_table {
 
 extern int		sic_list		__PR((FILE *));
 extern siconvt_t	*sic_open		__PR((char *));
-extern void 		sic_close		__PR((siconvt_t *));
+extern int 		sic_close		__PR((siconvt_t *));
 
 #ifdef	__cplusplus
 }

@@ -1,4 +1,4 @@
-#ident @(#)Makefile	1.29 09/07/09 
+#ident @(#)Makefile	1.30 10/05/13 
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -34,7 +34,8 @@ CFILES=		ved.c edit.c binding.c vedtmpops.c cmds.c quitcmds.c \
 HFILES=		buffer.h ved.h func.h map.h movedot.h terminal.h ttys.h
 #LIBS=		-lunos
 LIBS=		-lxtermcap -lschily
-XMK_FILE=	Makefile.man Makefile.help Makefile.doc Makefile.dot Makefile.warn
+XMK_FILE=	Makefile.man ved-e.mk1 ved-w.mk1 \
+		Makefile.help Makefile.doc Makefile.dot Makefile.warn
 
 ###########################################################################
 include		$(SRCROOT)/$(RULESDIR)/rules.cmd

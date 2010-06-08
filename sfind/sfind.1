@@ -1,4 +1,4 @@
-.\" @(#)sfind.1	1.18 07/11/26 Copyr 2004 J. Schilling
+.\" @(#)sfind.1	1.21 10/05/11 Copyr 2004-2010 J. Schilling
 .\" Manual page for sfimd
 .\"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -13,7 +13,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH SFIND 1L "07/11/26" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH SFIND 1L "10/05/11" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 sfind \- find files
 .SH SYNOPSIS
@@ -179,8 +179,28 @@ the primary always evaluates as false.
 Currently only Solaris, Linux and FreeBSD is supported.
 .sp
 This primary is not mentioned in the POSIX standard.
+.br
+.ne 5
+.TP
+.BI \-amin " n
+The parameter
+.I n
+must be a simple number that is evaluated as minutes for the 
+file access time
+relatively to the 
+start time of
+.BR smake .
+.sp
+This primary is deprecated and only exists for command line 
+compatibility with other find implementations. Please use
+the more flexible
+.B \-atime
+instead.
+.sp
+This primary is not mentioned in the POSIX standard.
 .TP
 .BI \-atime " n
+If
 .I n
 is a simple number, 
 the primary evaluates as true if the file access time
@@ -192,12 +212,32 @@ If
 is a number like
 .B 3h10m
 then it is representing an absolut number in seconds that is evaluated
-against the start time if
-.B sfind.
+against the start time of
+.BR sfind .
 The letters that are recognised in the time spec are taken from
 .BR smhdwy .
+.br
+.ne 5
+.TP
+.BI \-cmin " n
+The parameter
+.I n
+must be a simple number that is evaluated as minutes for the 
+last change of file status information
+relatively to the 
+start time of
+.BR smake .
+.sp
+This primary is deprecated and only exists for command line 
+compatibility with other find implementations. Please use
+the more flexible
+.B \-ctime
+instead.
+.sp
+This primary is not mentioned in the POSIX standard.
 .TP
 .BI \-ctime " n
+If
 .I n
 is a simple number, 
 the primary evaluates as true if the time of last change
@@ -209,8 +249,8 @@ If
 is a number like
 .B 3h10m
 then it is representing an absolut number in seconds that is evaluated
-against the start time if
-.B sfind.
+against the start time of
+.BR sfind .
 The letters that are recognised in the time spec are taken from
 .BR smhdwy .
 .TP
@@ -253,6 +293,14 @@ optimization is done
 by asuming that the number of subdirectories is st_nlink - 2
 and gives a significant increase in search speed in case that only
 filename related expressions are used.
+.sp
+This primary is not mentioned in the POSIX standard.
+.TP
+.B \-empty
+This primary evaluates true if the current file is a readable empty directory
+or an empty plain file.
+.sp
+This primary is not mentioned in the POSIX standard.
 .TP
 .BI "\-exec " "utility_name [argument ...] \e;
 .TP
@@ -344,8 +392,36 @@ names any of the special
 built-in utilities (see Special Built-In Utilities ), the
 results are undefined.
 .TP
+.BI "\-execdir " "utility_name [argument ...] \e;
+Similar to 
+.B \-exec
+but the utility
+is run inside the directory where the file is found and the file parameter is
+provided as a short file name.
+.sp
+This primary is not mentioned in the POSIX standard.
+.TP
+.B \-executable
+This primary evaluates as true if the file is executable by the real user id of the
+.B sfind
+process.
+The test is done by calling
+.BR access (2).
+.sp
+This primary is not mentioned in the POSIX standard.
+.TP
 .B \-false
 This primary always evaluates to false.
+.sp
+This primary is not mentioned in the POSIX standard.
+.TP
+.BI \-fls  " file
+This primary is similar to
+.B \-ls
+but it writes the output into 
+.IR file ,
+similar to 
+.BR \-fprint .
 .sp
 This primary is not mentioned in the POSIX standard.
 .TP
@@ -363,6 +439,39 @@ is used, using
 causes
 .B sfind
 to write a diagnostic message and to skip the symbolic link in this case.
+.sp
+This primary is not mentioned in the POSIX standard.
+.TP
+.BI \-fprint " file
+This primary is similar to
+.B \-print
+but it writes the output into 
+.IR file .
+If
+.I file
+does not exist, it is created, if it already exists, it is truncated.
+The file is written to in append mode.
+it is always created, even if the primary was never called.
+.sp
+This primary is not mentioned in the POSIX standard.
+.TP
+.BI \-fprint0  " file
+This primary is similar to
+.B \-print0
+but it writes the output into 
+.IR file ,
+similar to 
+.BR \-fprint .
+.sp
+This primary is not mentioned in the POSIX standard.
+.TP
+.BI \-fprintnnl  " file
+This primary is similar to
+.B \-printnnl
+but it writes the output into 
+.IR file ,
+similar to 
+.BR \-fprint .
 .sp
 This primary is not mentioned in the POSIX standard.
 .TP
@@ -389,12 +498,62 @@ is a decimal integer and the
 .BR getgrnam ()
 (or equivalent) function does not return a valid group name,
 gname is interpreted as a group ID.
+.br
+.sp 5
+.TP
+.BI \-ilname " glob
+Similar to
+.BR \-lname ,
+but the match is case insensitive.
+.sp
+This primary is not mentioned in the POSIX standard.
+.br
+.sp 5
+.TP
+.BI \-ilpat " pattern
+Similar to
+.BR \-lpat ,
+but the match is case insensitive.
+.sp
+This primary is not mentioned in the POSIX standard.
+.br
+.sp 5
+.TP
+.BI \-iname " glob
+Similar to
+.BR \-name ,
+but the match is case insensitive.
+.sp
+This primary is not mentioned in the POSIX standard.
+.br
+.sp 5
 .TP
 .BI \-inum " #
 The primary evaluates as true if the file's inode number
 .RI ( st_ino )
 matches
 .IR #.
+.sp
+This primary is not mentioned in the POSIX standard.
+.TP
+.BI \-ipat " pattern
+Similar to
+.BR \-pat ,
+but the match is case insensitive.
+.sp
+This primary is not mentioned in the POSIX standard.
+.TP
+.BI \-ipath " glob
+Similar to
+.BR \-path ,
+but the match is case insensitive.
+.sp
+This primary is not mentioned in the POSIX standard.
+.TP
+.BI \-ippat " pattern
+Similar to
+.BR \-ppat ,
+but the match is case insensitive.
 .sp
 This primary is not mentioned in the POSIX standard.
 .TP
@@ -500,8 +659,28 @@ try to avoid. This exists only for
 backwards compatibility with old UNIX find versions.
 .sp
 This primary is not mentioned in the POSIX standard.
+.br
+.ne 5
+.TP
+.BI \-mmin " n
+The parameter
+.I n
+must be a simple number that is evaluated as minutes for the 
+file modification time
+relatively to the 
+start time of
+.BR smake .
+.sp
+This primary is deprecated and only exists for command line 
+compatibility with other find implementations. Please use
+the more flexible
+.B \-mtime
+instead.
+.sp
+This primary is not mentioned in the POSIX standard.
 .TP
 .BI \-mtime " n
+If
 .I n
 is a simple number, 
 the primary evaluates as true if the file modification
@@ -513,8 +692,8 @@ If
 is a number like
 .B 3h10m
 then it is representing an absolut number in seconds that is evaluated
-against the start time if
-.B sfind.
+against the start time of
+.BR sfind .
 The letters that are recognised in the time spec are taken from
 .BR smhdwy .
 .TP
@@ -616,6 +795,15 @@ the
 .B \-ok 
 operand is false.
 .TP
+.BI "\-okdir " "utility_name [argument ...] \e;
+Similar to 
+.B \-ok
+but the utility
+is run inside the directory where the file is found and the file parameter is
+provided as a short file name.
+.sp
+This primary is not mentioned in the POSIX standard.
+.TP
 .BI \-pat " pattern
 The primary evaluates as true if the basename of the
 filename being examined matches 
@@ -653,7 +841,7 @@ and is interpreted as follows.
 To start, a template is assumed with all file mode bits
 cleared. An op symbol of '+' sets the appropriate mode
 bits in the template; '-' clears the appropriate bits;
-'=' sets the appropriate mode bits, without regard to
+\&'=' sets the appropriate mode bits, without regard to
 the contents of process' file mode creation mask. The op
 symbol of '-' cannot be the first character of mode; this
 avoids ambiguity with the optional leading hyphen. Since the
@@ -669,6 +857,42 @@ Otherwise, if
 is prefixed by a hyphen, the primary
 evaluates as true if at least all the bits in the resulting
 template are set in the file permission bits.
+.TP
+.BI \-perm " +mode
+This usage of the primary 
+.B \-perm 
+evaluates as true if any of the permission bits mode are set for the file.
+The specific interpretation when testing whether any of the mode bits are
+set for the file applies only to those mode strings that cannot have a 
+leading
+.RB ' + '
+in a POSIX compliant way. This is the case when the
+.RB ' + '
+is directly preceding the characters:
+.RB ' u ',
+.RB ' g ',
+.RB ' o ',
+or
+.RB ' a '.
+Because of this limitation, the otherwise correct symbolic mode
+.B +x
+has to be written as
+.B a+x 
+and then preceded by
+.RB ' + '
+resulting in
+.BR +a+x .
+This is required because the mode string
+.B ++x
+is still POSIXly correct syntax and there is no way to detect that the first
+.RB ' + '
+is indicating a usage specific to the 
+.B sfind \-perm
+primary.
+.sp
+This usage pf the primary 
+.B \-perm
+is not mentioned in the POSIX standard.
 .TP
 .BI \-perm " [-]onum
 If the hyphen is omitted, the primary evaluates as true
@@ -688,6 +912,17 @@ all of the bits specified in
 that are also set in the
 octal mask 07777 are set.
 .TP
+.BI \-perm " +onum
+This usage of the primary 
+.B \-perm 
+evaluates as true if any of the mode bits in the octal notation
+.B onum
+are set for the file.
+.sp
+This usage pf the primary 
+.B \-perm
+is not mentioned in the POSIX standard.
+.TP
 .BI \-ppat " pattern
 The primary evaluates as true if the full path name of the
 filename being examined matches 
@@ -705,6 +940,13 @@ The primary always evaluates as true; it causes the
 current pathname (new line separated)
 to be written to standard output.
 .TP
+.B \-print0
+The primary always evaluates as true; it causes the
+current pathname (nul separated)
+to be written to standard output.
+.sp
+This primary is not mentioned in the POSIX standard.
+.TP
 .B \-printnnl
 The primary always evaluates as true; it causes the
 current pathname (space separated)
@@ -721,6 +963,15 @@ directory. If the
 primary is specified, the 
 .B \-prune
 primary has no effect.
+.TP
+.B \-readable
+This primary evaluates as true if the file is readable by the real user id of the
+.B sfind
+process.
+The test is done by calling
+.BR access (2).
+.sp
+This primary is not mentioned in the POSIX standard.
 .TP
 .B \-sparse
 The primary evaluates as true if the file appears to be sparse,
@@ -808,6 +1059,15 @@ is a decimal integer and the
 (or equivalent) function does not return a valid user name,
 .I uname 
 is interpreted as a user ID.
+.TP
+.B \-writable
+This primary evaluates as true if the file is writable by the real user id of the
+.B sfind
+process.
+The test is done by calling
+.BR access (2).
+.sp
+This primary is not mentioned in the POSIX standard.
 .TP
 .B \-xattr
 The primary evaluates as true if the file 

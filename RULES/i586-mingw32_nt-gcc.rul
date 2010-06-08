@@ -1,4 +1,4 @@
-#ident "@(#)i586-mingw32_nt-gcc.rul	1.7 07/05/08 "
+#ident "@(#)i586-mingw32_nt-gcc.rul	1.8 10/05/15 "
 ###########################################################################
 #
 # Platform dependent MACROS for Win32/Mingw32
@@ -41,3 +41,4 @@ LORDER=		echo
 TSORT=		cat
 
 MKDIR=		$(MKDIR_SH)
+INSMKDIR=	$(INSMKDIR_SH)

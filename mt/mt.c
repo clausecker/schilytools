@@ -1,13 +1,13 @@
-/* @(#)mt.c	1.26 09/07/11 Copyright 2000-2009 J. Schilling */
+/* @(#)mt.c	1.27 10/05/11 Copyright 2000-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)mt.c	1.26 09/07/11 Copyright 2000-2009 J. Schilling";
+	"@(#)mt.c	1.27 10/05/11 Copyright 2000-2010 J. Schilling";
 #endif
 /*
  *	Magnetic tape manipulation program
  *
- *	Copyright (c) 2000-2009 J. Schilling
+ *	Copyright (c) 2000-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -196,7 +196,7 @@ main(ac, av)
 	}
 	if (help) usage(0);
 	if (prvers) {
-		printf("mt %s (%s-%s-%s)\n\n", "1.26", HOST_CPU, HOST_VENDOR, HOST_OS);
+		printf("mt %s (%s-%s-%s)\n\n", "1.27", HOST_CPU, HOST_VENDOR, HOST_OS);
 		printf("Copyright (C) 2000-2009 Jörg Schilling\n");
 		printf("This is free software; see the source for copying conditions.  There is NO\n");
 		printf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
@@ -363,17 +363,19 @@ main(ac, av)
  * in an OS independant way.
  * Don't use it for now.
  */
-LOCAL struct tape_info {
+/*LOCAL */
+struct tape_info {
 	short	t_type;		/* type of magnetic tape device	*/
 	char	*t_name;	/* name for prining		*/
 	char	*t_dsbits;	/* "drive status" register	*/
 	char	*t_erbits;	/* "error" register		*/
-} tapes[] = {
+};
 #ifdef	XXX
+ tapes[] = {
 	{ MT_ISTS,	"ts11",		0,		TSXS0_BITS },
-#endif
 	{ 0 }
 };
+#endif
 
 /*
  * Interpret the status buffer returned

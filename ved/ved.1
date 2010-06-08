@@ -1,5 +1,5 @@
 '\" t
-.\" @(#)ved.1	1.11 07/06/29 Copyright 1984-2007 J. Schilling
+.\" @(#)ved.1	1.12 10/05/13 Copyright 1984-2010 J. Schilling
 . \"  Manual page for ved
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -14,11 +14,25 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH VED 1L "07/06/29" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH VED 1L "10/05/13" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 ved \- visual editor (screen-oriented)
 .SH SYNOPSIS
 .B ved
+[
+.I options
+] [
+.I filename .\|.\|.\|
+]
+.br
+.B ved\-e
+[
+.I options
+] [
+.I filename .\|.\|.\|
+]
+.br
+.B ved\-w
 [
 .I options
 ] [
@@ -52,6 +66,16 @@ file name,
 will assume that you want to edit the last file you edited in your current
 directory. The cursor position in this case again will be the same as with the
 last editing session for this file.
+.PP
+Calling
+.B ved\-e
+is the same as calling
+.B ved \-e
+and
+calling
+.B ved\-w
+is the same as calling
+.B ved \-w\fR.
 
 .SH OPTIONS
 .TP
