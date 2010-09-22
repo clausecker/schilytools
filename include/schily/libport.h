@@ -1,4 +1,4 @@
-/* @(#)libport.h	1.23 10/05/07 Copyright 1995-2010 J. Schilling */
+/* @(#)libport.h	1.25 10/08/27 Copyright 1995-2010 J. Schilling */
 /*
  *	Copyright (c) 1995-2010 J. Schilling
  */
@@ -51,7 +51,7 @@ extern "C" {
  * Don't #undef HAVE_USLEEP in this file, SCO has a
  * usleep() prototype in unistd.h
  */
-/*#undef	HAVE_USLEEP*/
+/* #undef	HAVE_USLEEP */
 #endif
 
 #ifndef	HAVE_GETHOSTID
@@ -90,19 +90,24 @@ extern	size_t		strlen		__PR((const char *s));
 extern	size_t		strnlen		__PR((const char *s, size_t len));
 #endif
 #ifndef	HAVE_STRLCAT
-extern	size_t		strlcat		__PR((char *s1, const char *s2, size_t len));
+extern	size_t		strlcat		__PR((char *s1, const char *s2,
+							size_t len));
 #endif
 #ifndef	HAVE_STRLCPY
-extern	size_t		strlcpy		__PR((char *s1, const char *s2, size_t len));
+extern	size_t		strlcpy		__PR((char *s1, const char *s2,
+							size_t len));
 #endif
 #ifndef	HAVE_STRNCAT
-extern	char		*strncat	__PR((char *s1, const char *s2, size_t len));
+extern	char		*strncat	__PR((char *s1, const char *s2,
+							size_t len));
 #endif
 #ifndef	HAVE_STRNCMP
-extern	int		strncmp		__PR((const char *s1, const char *s2, size_t len));
+extern	int		strncmp		__PR((const char *s1, const char *s2,
+							size_t len));
 #endif
 #ifndef	HAVE_STRNCPY
-extern	char		*strncpy	__PR((char *s1, const char *s2, size_t len));
+extern	char		*strncpy	__PR((char *s1, const char *s2,
+							size_t len));
 #endif
 #endif	/* FOUND_SIZE_T */
 #ifndef	HAVE_STRRCHR
@@ -117,7 +122,8 @@ extern	wchar_t		*wcscat		__PR((wchar_t *s1, const wchar_t *s2));
 extern	wchar_t		*wcschr		__PR((const wchar_t *s1, wchar_t c));
 #endif
 #ifndef	HAVE_WCSCMP
-extern	int		wcscmp		__PR((const wchar_t *s1, const wchar_t *s2));
+extern	int		wcscmp		__PR((const wchar_t *s1,
+							const wchar_t *s2));
 #endif
 #ifndef	HAVE_WCSCPY
 extern	wchar_t		*wcscpy		__PR((wchar_t *s1, const wchar_t *s2));
@@ -136,19 +142,25 @@ extern	size_t		wcslen		__PR((const wchar_t *s));
 extern	size_t		wcsnlen		__PR((const wchar_t *s, size_t len));
 #endif
 #ifndef	HAVE_WCSLCAT
-extern	size_t		wcslcat		__PR((wchar_t *s1, const wchar_t *s2, size_t len));
+extern	size_t		wcslcat		__PR((wchar_t *s1, const wchar_t *s2,
+							size_t len));
 #endif
 #ifndef	HAVE_WCSLCPY
-extern	size_t		wcslcpy		__PR((wchar_t *s1, const wchar_t *s2, size_t len));
+extern	size_t		wcslcpy		__PR((wchar_t *s1, const wchar_t *s2,
+							size_t len));
 #endif
 #ifndef	HAVE_WCSNCAT
-extern	wchar_t		*wcsncat	__PR((wchar_t *s1, const wchar_t *s2, size_t len));
+extern	wchar_t		*wcsncat	__PR((wchar_t *s1, const wchar_t *s2,
+							size_t len));
 #endif
 #ifndef	HAVE_WCSNCMP
-extern	int		wcsncmp		__PR((const wchar_t *s1, const wchar_t *s2, size_t len));
+extern	int		wcsncmp		__PR((const wchar_t *s1,
+							const wchar_t *s2,
+							size_t len));
 #endif
 #ifndef	HAVE_WCSNCPY
-extern	wchar_t		*wcsncpy	__PR((wchar_t *s1, const wchar_t *s2, size_t len));
+extern	wchar_t		*wcsncpy	__PR((wchar_t *s1, const wchar_t *s2,
+							size_t len));
 #endif
 #endif	/* FOUND_SIZE_T */
 #ifndef	HAVE_WCSRCHR
@@ -157,7 +169,8 @@ extern	wchar_t		*wcsrchr	__PR((const wchar_t *s1, wchar_t c));
 #endif	/* _SCHILY_WCHAR_H */
 
 #ifndef	HAVE_RENAME
-extern	int		rename		__PR((const char *old, const char *new));
+extern	int		rename		__PR((const char *old,
+							const char *new));
 #endif
 
 /*

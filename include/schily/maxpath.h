@@ -1,8 +1,8 @@
-/* @(#)maxpath.h	1.11 09/02/17 Copyright 1985, 1995, 1998, 2001-2009 J. Schilling */
+/* @(#)maxpath.h	1.12 10/08/27 Copyright 1985, 1995, 1998, 2001-2010 J. Schilling */
 /*
  *	Definitions for dealing with statically limitations on pathnames
  *
- *	Copyright (c) 1985, 1995, 1998, 2001-2009 J. Schilling
+ *	Copyright (c) 1985, 1995, 1998, 2001-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -20,7 +20,7 @@
 #define	_SCHILY_MAXPATH_H
 
 #ifndef	_SCHILY_DIRENT_H
-#include <schily/dirent.h>			/* Includes mconfig.h if needed	    */
+#include <schily/dirent.h>		/* Includes mconfig.h if needed	*/
 #endif
 
 #ifdef	JOS

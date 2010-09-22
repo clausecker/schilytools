@@ -1,8 +1,8 @@
-/* @(#)xconfig.h	1.8 09/11/05 Copyright 1995-2009 J. Schilling */
+/* @(#)xconfig.h	1.9 10/08/24 Copyright 1995-2010 J. Schilling */
 /*
  *	This file either includes the dynamic or manual autoconf stuff.
  *
- *	Copyright (c) 1995-2009 J. Schilling
+ *	Copyright (c) 1995-2010 J. Schilling
  *
  *	This file is included from <schily/mconfig.h> and usually
  *	includes $(SRCROOT)/incs/$(OARCH)/xconfig.h via
@@ -136,5 +136,15 @@ Error unconfigured architecture
 #endif	/* SCHILY_BUILD */
 
 #endif	/* USE_STATIC_CONF */
+
+#ifdef	__cplusplus
+extern "C" {
+#endif
+/*
+ * Fake in order to keep the silly hdrchk(1) quiet.
+ */
+#ifdef	__cplusplus
+}
+#endif
 
 #endif /* _SCHILY_XCONFIG_H */

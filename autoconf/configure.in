@@ -1,6 +1,6 @@
-dnl @(#)configure.in	1.211 10/05/07 Copyright 1998-2009 J. Schilling
+dnl @(#)configure.in	1.214 10/09/21 Copyright 1998-2010 J. Schilling
 dnl Process this file with autoconf to produce a configure script.
-AC_REVISION(1.211)dnl
+AC_REVISION(1.214)dnl
 
 dnl AC_INIT(xconfig.h.in)
 AC_INIT(config.guess)
@@ -26,6 +26,8 @@ AC_HP_CC_GPROF_OPT
 dnl AC_PROG_INSTALL
 AC_PROG_RANLIB
 AC_PROG_MAKE_SET
+AC_CHECK_PROGS(YACC, yacc 'bison -y' byacc, noyacc)
+AC_CHECK_PROGS(BISON, bison, nobison)
 
 dnl Checks for header files.
 AC_HEADER_STDC
@@ -350,6 +352,7 @@ AC_CHECK_FUNCS(strcat strncat strcmp strncmp strcpy strlcat strlcpy strncpy strd
 AC_CHECK_FUNCS(wcscat wcsncat wcscmp wcsncmp wcscpy wcslcat wcslcpy wcsncpy wcsdup wcsndup wcslen wcsnlen wcschr wcsrchr)
 AC_CHECK_FUNCS(wcwidth wcswidth wctype iswctype)
 AC_CHECK_FUNCS(basename dirname)
+AC_CHECK_FUNCS(pathconf fpathconf)
 AC_CHECK_FUNCS(malloc calloc valloc realloc memalign posix_memalign)
 AC_CHECK_FUNCS(madvise)
 AC_CHECK_FUNCS(mktemp mkstemp)

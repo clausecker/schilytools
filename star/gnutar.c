@@ -1,13 +1,13 @@
-/* @(#)gnutar.c	1.26 08/12/22 Copyright 1989, 2003-2008 J. Schilling */
+/* @(#)gnutar.c	1.27 10/08/23 Copyright 1989, 2003-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char _g_sccsid[] =
-	"@(#)gnutar.c	1.26 08/12/22 Copyright 1989, 2003-2008 J. Schilling";
+	"@(#)gnutar.c	1.27 10/08/23 Copyright 1989, 2003-2010 J. Schilling";
 #endif
 /*
  *	GNU TAR specific routines for star main program.
  *
- *	Copyright (c) 1989, 2003-2008 J. Schilling
+ *	Copyright (c) 1989, 2003-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -259,8 +259,8 @@ signed	char	archive	 = -1;		/* On IRIX, we have unsigned chars by default */
 				&gnuveri, &gnuveri,
 				&gnuremove,
 				&keep_old, &keep_old,
-/*				--overwrite*/
-/*				--overwrite-dir / --nooverwrite-dir*/
+/*				--overwrite */
+/*				--overwrite-dir / --nooverwrite-dir */
 				&remove_first, &remove_first,
 				&remove_recursive,
 				&sparse, &sparse,

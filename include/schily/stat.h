@@ -1,8 +1,8 @@
-/* @(#)stat.h	1.14 09/12/31 Copyright 1998-2007 J. Schilling */
+/* @(#)stat.h	1.15 10/08/27 Copyright 1998-2010 J. Schilling */
 /*
  *	Definitions for stat() file mode
  *
- *	Copyright (c) 1998-2007 J. Schilling
+ *	Copyright (c) 1998-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -180,14 +180,16 @@
 #endif
 #ifndef	S_TYPEISSEM
 #	ifdef	S_INSEM
-#		define	S_TYPEISSEM(_stbuf)	(S_ISNAM((_stbuf)->st_mode) && (_stbuf)->st_rdev == S_INSEM)
+#		define	S_TYPEISSEM(_stbuf)	(S_ISNAM((_stbuf)->st_mode) && \
+						(_stbuf)->st_rdev == S_INSEM)
 #	else
 #		define	S_TYPEISSEM(_stbuf)	(0)
 #	endif
 #endif
 #ifndef	S_TYPEISSHM
 #	ifdef	S_INSHD
-#		define	S_TYPEISSHM(_stbuf)	(S_ISNAM((_stbuf)->st_mode) && (_stbuf)->st_rdev == S_INSHD)
+#		define	S_TYPEISSHM(_stbuf)	(S_ISNAM((_stbuf)->st_mode) && \
+						(_stbuf)->st_rdev == S_INSHD)
 #	else
 #		define	S_TYPEISSHM(_stbuf)	(0)
 #	endif

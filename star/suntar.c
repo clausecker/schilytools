@@ -1,13 +1,13 @@
-/* @(#)suntar.c	1.32 08/12/22 Copyright 1989, 2003-2008 J. Schilling */
+/* @(#)suntar.c	1.34 10/08/23 Copyright 1989, 2003-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char _s_sccsid[] =
-	"@(#)suntar.c	1.32 08/12/22 Copyright 1989, 2003-2008 J. Schilling";
+	"@(#)suntar.c	1.34 10/08/23 Copyright 1989, 2003-2010 J. Schilling";
 #endif
 /*
  *	Solaris TAR specific routines for star main program.
  *
- *	Copyright (c) 1989, 2003-2008 J. Schilling
+ *	Copyright (c) 1989, 2003-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -67,7 +67,7 @@ LOCAL	void	suntar_setopts	__PR((char *o));
  * Solaris TAR related options
  */
 /* BEGIN CSTYLED */
-char	_opts[] = "C*,help,xhelp,version,debug,xdebug#,xd#,time,no-statistics,do-statistics,fifostats,numeric,no-fifo,no-fsync,do-fsync%0,sattr,bs&,fs&,/,..,secure-links,acl,xfflags,copy,diff,artype&,O,z,bz,lzo,7z,c,r,t,u,x,b&,B,D,e,E,f&,F,h,I*,i,k&,l,m,n,o,p,P,q,v+,w,X&,@,T,?";
+char	_opts[] = "C*,help,xhelp,version,debug,xdebug#,xd#,time,no-statistics,do-statistics,fifostats,numeric,no-fifo,no-fsync,do-fsync%0,sattr,bs&,fs&,/,..,secure-links,acl,xfflags,copy,diff,artype&,O,z,bz,lzo,7z,xz,c,r,t,u,x,b&,B,D,e,E,f&,F,h,I*,i,k&,l,m,n,o,p,P,q,v+,w,X&,@,T,?";
 /* END CSTYLED */
 char	*opts = _opts;
 
@@ -140,7 +140,8 @@ signed	char	archive	 = -1;		/* On IRIX, we have unsigned chars by default */
 				&copyflag, &diff_flag,
 				gethdr, &chdrtype,
 				&oldtar,
-				&zflag, &bzflag, &lzoflag, &p7zflag,
+				&zflag, &bzflag, &lzoflag,
+				&p7zflag, &xzflag,
 
 				&cflag,
 				&rflag,
@@ -210,7 +211,6 @@ signed	char	archive	 = -1;		/* On IRIX, we have unsigned chars by default */
 	}
 	if (not_tape) {
 		errmsgno(EX_BAD, "The -n option is not yet implemented.\n");
-/*		susage(EX_BAD);*/
 	}
 	if (sunpflag) {
 		pflag = TRUE;
@@ -261,8 +261,6 @@ susage(ret)
 	error("\nUse\t%s --help\n", get_progname());
 	error("and\t%s --xhelp\n", get_progname());
 	error("to get a list of valid cmds and options.\n");
-/*	error("\nUse\t%s -x help\n", get_progname());*/
-/*	error("to get a list of valid archive header formats.\n");*/
 	suntar_info();
 	exit(ret);
 	/* NOTREACHED */
@@ -313,6 +311,7 @@ usage(ret)
 	error("\t--bz\t\t(*) pipe input/output through bzip2, does not work on tapes\n");
 	error("\t--lzo\t\t(*) pipe input/output through lzop, does not work on tapes\n");
 	error("\t--7z\t\t(*) pipe input/output through p7zip, does not work on tapes\n");
+	error("\t--xz\t\t(*) pipe input/output through xz, does not work on tapes\n");
 #ifdef	FIFO
 	error("\t--no-fifo\t(*) don't use a fifo to optimize data flow from/to tape\n");
 #endif

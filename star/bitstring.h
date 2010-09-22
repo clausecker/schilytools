@@ -1,6 +1,6 @@
-/* @(#)bitstring.h	1.6 07/03/11 J. Schilling */
+/* @(#)bitstring.h	1.7 10/08/24 J. Schilling */
 /*
- * Copyright (c) 2003, 2007 J. Schilling
+ * Copyright (c) 2003, 2007, 2010 J. Schilling
  *
  * Copyright (c) 1989, 1993
  *	The Regents of the University of California.  All rights reserved.
@@ -37,6 +37,10 @@
 
 #ifndef _BITSTRING_H
 #define	_BITSTRING_H
+
+#ifdef	__cplusplus
+extern "C" {
+#endif
 
 typedef	unsigned char bitstr_t;
 
@@ -218,5 +222,9 @@ typedef	unsigned char bitstr_t;
 		_value = -1; \
 	*(value) = _value; \
 } while (0)
+
+#ifdef	__cplusplus
+}
+#endif
 
 #endif /* !_BITSTRING_H */

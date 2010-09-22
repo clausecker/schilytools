@@ -1,25 +1,15 @@
-/* @(#)find_list.c	1.25 09/07/11 Copyright 1985, 1995, 2000-2009 J. Schilling*/
+/* @(#)find_list.c	1.27 10/08/23 Copyright 1985, 1995, 2000-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)find_list.c	1.25 09/07/11 Copyright 1985, 1995, 2000-2009 J. Schilling";
+	"@(#)find_list.c	1.27 10/08/23 Copyright 1985, 1995, 2000-2010 J. Schilling";
 #endif
 /*
  *	List a file
  *
- *	Copyright (c) 1985, 1995, 2000-2009 J. Schilling
+ *	Copyright (c) 1985, 1995, 2000-2010 J. Schilling
  */
-/*
- * The contents of this file are subject to the terms of the
- * Common Development and Distribution License, Version 1.0 only
- * (the "License").  You may not use this file except in compliance
- * with the License.
- *
- * See the file CDDL.Schily.txt in this distribution for details.
- *
- * When distributing Covered Code, include this CDDL HEADER in each
- * file and include the License file CDDL.Schily.txt from this distribution.
- */
+/*@@C@@*/
 
 #include <schily/stdio.h>
 #include <schily/unistd.h>
@@ -56,8 +46,12 @@ EXPORT	time_t	find_now;		/* now limit (ls)		*/
 extern	BOOL	numeric;
 extern	int	verbose;
 
-LOCAL	void	modstr		__PR((FILE *f, struct stat *fs, char *s, char *name, char *sname, struct WALK *state));
-EXPORT	void	find_list	__PR((FILE *std[3], struct stat *fs, char *name, char *sname, struct WALK *state));
+LOCAL	void	modstr		__PR((FILE *f, struct stat *fs, char *s,
+					char *name, char *sname,
+					struct WALK *state));
+EXPORT	void	find_list	__PR((FILE *std[3], struct stat *fs,
+					char *name, char *sname,
+					struct WALK *state));
 
 /*
  * Convert POSIX.1 mode/permission flags into string.
@@ -188,13 +182,15 @@ char	*lnamep = lname;
 #ifdef	HAVE_ST_BLOCKS
 			fprintf(std[1], "%4llu ", (Llong)fs->st_blocks/K_DIV);
 #else
-			fprintf(std[1], "%4llu ", (Llong)(fs->st_size+1023)/1024);
+			fprintf(std[1], "%4llu ",
+				(Llong)(fs->st_size+1023)/1024);
 #endif
 		}
 		if (!paxls) {
 			if (S_ISBLK(fs->st_mode) || S_ISCHR(fs->st_mode))
 				fprintf(std[1], "%3lu %3lu",
-					(long)major(fs->st_rdev), (long)minor(fs->st_rdev));
+					(long)major(fs->st_rdev),
+					(long)minor(fs->st_rdev));
 			else
 				fprintf(std[1], "%7llu", (Llong)fs->st_size);
 		}
@@ -282,9 +278,9 @@ char	*lnamep = lname;
 				umaxlen, uname,
 				gmaxlen, gname);
 			if (S_ISBLK(fs->st_mode) || S_ISCHR(fs->st_mode))
-/*				fprintf(std[1], "%3lu %3lu",*/
 /* XXXXXXXXXXXXXX */		fprintf(std[1], "%3lu, %3lu",
-					(long)major(fs->st_rdev), (long)minor(fs->st_rdev));
+					(long)major(fs->st_rdev),
+					(long)minor(fs->st_rdev));
 			else
 				fprintf(std[1], "%7llu", (Llong)fs->st_size);
 			if ((*tp < find_sixmonth) || (*tp > find_now)) {

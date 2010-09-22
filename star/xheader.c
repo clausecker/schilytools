@@ -1,14 +1,14 @@
-/* @(#)xheader.c	1.79 09/07/11 Copyright 2001-2009 J. Schilling */
+/* @(#)xheader.c	1.82 10/08/23 Copyright 2001-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)xheader.c	1.79 09/07/11 Copyright 2001-2009 J. Schilling";
+	"@(#)xheader.c	1.82 10/08/23 Copyright 2001-2010 J. Schilling";
 #endif
 /*
  *	Handling routines to read/write, parse/create
  *	POSIX.1-2001 extended archive headers
  *
- *	Copyright (c) 2001-2009 J. Schilling
+ *	Copyright (c) 2001-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -180,6 +180,8 @@ LOCAL xtab_t xtab[] = {
 
 			{ "charset",		7, get_dummy,	0	},
 			{ "comment",		7, get_dummy,	0	},
+			{ "hdrcharset",		10, get_dummy,	0	},
+/* "BINARY" */
 
 			{ "SCHILY.devmajor",	15, get_major,	0	},
 			{ "SCHILY.devminor",	15, get_minor,	0	},
@@ -335,7 +337,6 @@ write_xhdr(type)
 	else
 		finfo.f_flags |= F_TCB_BUF;
 	filltcb(xptb);
-/*	strcpy(xptb->dbuf.t_name, ptb->dbuf.t_name);*/
 	strcpy(xptb->dbuf.t_name, "././@PaxHeader");
 	finfo.f_name = xptb->dbuf.t_name;
 	finfo.f_mode = TUREAD|TUWRITE;
@@ -388,7 +389,6 @@ extern	BOOL	dodump;
 	if ((xflags & (XF_ATIME|XF_CTIME|XF_MTIME|XF_NOTIME)) == 0)
 		xflags |= (XF_ATIME|XF_CTIME|XF_MTIME);
 
-/*#define	DEBUG_XHDR*/
 #ifdef	DEBUG_XHDR
 	xflags = 0xffffffff;
 #endif
@@ -1024,8 +1024,9 @@ LOCAL	star_xattr_t	*static_xattr;
 EXPORT void
 tcb_to_xhdr_reset()
 {
-/*XXX Dies soll laut A Grünbacher in tcb_to_info() aufgerufen werden*/
-
+	/*
+	 * XXX Dies soll laut A Grünbacher in tcb_to_info() aufgerufen werden
+	 */
 	free_xattr(&static_xattr);
 }
 

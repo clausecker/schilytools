@@ -1,13 +1,13 @@
-/* @(#)strdup.c	1.5 09/07/08 Copyright 2003-2009 J. Schilling */
+/* @(#)strdup.c	1.6 10/08/21 Copyright 2003-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)strdup.c	1.5 09/07/08 Copyright 2003-2009 J. Schilling";
+	"@(#)strdup.c	1.6 10/08/21 Copyright 2003-2010 J. Schilling";
 #endif
 /*
  *	strdup() to be used if missing in libc
  *
- *	Copyright (c) 2003-2009 J. Schilling
+ *	Copyright (c) 2003-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -40,7 +40,7 @@ strdup(s)
 	if (res == NULL)
 		return (NULL);
 	if (i > 16) {
-		movebytes(s, res, (int) i);
+		movebytes(s, res, (int)i);
 	} else {
 		char	*s2 = res;
 

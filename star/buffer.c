@@ -1,13 +1,13 @@
-/* @(#)buffer.c	1.155 09/07/13 Copyright 1985, 1995, 2001-2009 J. Schilling */
+/* @(#)buffer.c	1.158 10/08/23 Copyright 1985, 1995, 2001-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)buffer.c	1.155 09/07/13 Copyright 1985, 1995, 2001-2009 J. Schilling";
+	"@(#)buffer.c	1.158 10/08/23 Copyright 1985, 1995, 2001-2010 J. Schilling";
 #endif
 /*
  *	Buffer handling routines
  *
- *	Copyright (c) 1985, 1995, 2001-2009 J. Schilling
+ *	Copyright (c) 1985, 1995, 2001-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -114,6 +114,7 @@ extern	BOOL	zflag;
 extern	BOOL	bzflag;
 extern	BOOL	lzoflag;
 extern	BOOL	p7zflag;
+extern	BOOL	xzflag;
 extern	char	*compress_prg;
 extern	BOOL	multblk;
 extern	BOOL	partial;
@@ -248,10 +249,8 @@ opentape()
 		tarf = (FILE *)NULL;
 	} else if (streql(tarfiles[tarfindex], "-")) {
 		if (cflag) {
-/*			tarfiles[tarfindex] = "stdout";*/
 			tarf = stdout;
 		} else {
-/*			tarfiles[tarfindex] = "stdin";*/
 			tarf = stdin;
 			multblk = TRUE;
 		}
@@ -343,7 +342,8 @@ opentape()
 	 * do automatic compression detection.
 	 */
 	if (stats->volno == 1 &&
-	    tape_isreg && !cflag && (!Zflag && !zflag && !bzflag && !lzoflag && !p7zflag && !compress_prg)) {
+	    tape_isreg && !cflag && (!Zflag && !zflag && !bzflag && !lzoflag &&
+	    !p7zflag && !xzflag && !compress_prg)) {
 		long	htype;
 		TCB	*ptb;
 
@@ -382,6 +382,11 @@ opentape()
 					"WARNING: Archive is '7z' compressed, trying to use the -7z option.\n");
 				p7zflag = TRUE;
 				break;
+			case C_XZ:
+				if (!silent) errmsgno(EX_BAD,
+					"WARNING: Archive is 'xz' compressed, trying to use the -xz option.\n");
+				xzflag = TRUE;
+				break;
 			default:
 				if (!silent) errmsgno(EX_BAD,
 					"WARNING: Unknown compression type %d.\n", cmptype);
@@ -390,7 +395,7 @@ opentape()
 		}
 		mtseek((off_t)0, SEEK_SET);
 	}
-	if (Zflag || zflag || bzflag || lzoflag || p7zflag || compress_prg) {
+	if (Zflag || zflag || bzflag || lzoflag || p7zflag || xzflag || compress_prg) {
 		if (isremote)
 			comerrno(EX_BAD, "Cannot compress remote archives (yet).\n");
 		/*
@@ -797,7 +802,7 @@ initbuf(nblocks)
 #undef	roundup
 #define	roundup(x, y)	((((x)+((y)-1))/(y))*(y))
 
-		bigptr = bigbuf = ___malloc((size_t) bufsize+10+pagesize,
+		bigptr = bigbuf = ___malloc((size_t)bufsize+10+pagesize,
 								"buffer");
 		bigptr = bigbuf = (char *)roundup((Intptr_t)bigptr, pagesize);
 		fillbytes(bigbuf, bufsize, '\0');
@@ -1055,7 +1060,6 @@ static	BOOL	teof = FALSE;
 
 #define	DO8(a)	a; a; a; a; a; a; a; a;
 
-/*#define	MY_SWABBYTES*/
 #ifdef	MY_SWABBYTES
 
 void
@@ -1407,7 +1411,6 @@ again:
 	} else
 #endif
 	{
-/*		if (bigcnt < amount)*/ /* neu ?? */
 		if (bigcnt <= 0)
 			readbuf();
 		cnt = bigcnt;
@@ -1834,6 +1837,8 @@ compressopen()
 		zip_prog = "lzop";
 	else if (p7zflag)
 		zip_prog = "p7zip";
+	else if (xzflag)
+		zip_prog = "xz";
 
 	multblk = TRUE;
 
@@ -1944,6 +1949,8 @@ compressclose()
 		zip_prog = "lzop";
 	else if (p7zflag)
 		zip_prog = "p7zip";
+	else if (xzflag)
+		zip_prog = "xz";
 
 #ifdef __DJGPP__
 	if (cflag) {

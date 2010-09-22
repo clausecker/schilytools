@@ -1,6 +1,6 @@
-/* @(#)fileopen.c	1.11 05/08/18 Copyright 1986, 1995-2005 J. Schilling */
+/* @(#)fileopen.c	1.12 10/08/21 Copyright 1986, 1995-2010 J. Schilling */
 /*
- *	Copyright (c) 1986, 1995-2005 J. Schilling
+ *	Copyright (c) 1986, 1995-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -26,10 +26,10 @@ fileopen(name, mode)
 	int	flag = 0;
 
 	if (!_cvmod(mode, &omode, &flag))
-		return ((FILE *) NULL);
+		return ((FILE *)NULL);
 
 	if ((ret = _openfd(name, omode)) < 0)
-		return ((FILE *) NULL);
+		return ((FILE *)NULL);
 
 	return (_fcons((FILE *)0, ret, flag | FI_CLOSE));
 }

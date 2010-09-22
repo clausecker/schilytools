@@ -1,8 +1,8 @@
-/* @(#)unicode.c	1.10 09/07/11 Copyright 2001-2009 J. Schilling */
+/* @(#)unicode.c	1.11 10/08/23 Copyright 2001-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)unicode.c	1.10 09/07/11 Copyright 2001-2009 J. Schilling";
+	"@(#)unicode.c	1.11 10/08/23 Copyright 2001-2010 J. Schilling";
 #endif
 /*
  *	Routines to convert from/to UNICODE
@@ -11,7 +11,7 @@ static	UConst char sccsid[] =
  *	handles ISO-8859-1 coding. There should be a better solution
  *	in the future.
  *
- *	Copyright (c) 2001-2009 J. Schilling
+ *	Copyright (c) 2001-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -50,7 +50,7 @@ to_utf8(to, from)
 		} else if (c <= 0xBF) {
 			*to++ = 0xC2;
 			*to++ = c;
-		} else { /*c <= 0xFF */
+		} else { /* c <= 0xFF */
 			*to++ = 0xC3;
 			*to++ = c & 0xBF;
 		}
@@ -75,7 +75,7 @@ to_utf8l(to, from, len)
 		} else if (c <= 0xBF) {
 			*to++ = 0xC2;
 			*to++ = c;
-		} else { /*c <= 0xFF */
+		} else { /* c <= 0xFF */
 			*to++ = 0xC3;
 			*to++ = c & 0xBF;
 		}

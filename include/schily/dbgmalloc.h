@@ -1,8 +1,8 @@
-/* @(#)dbgmalloc.h	1.3 09/10/19 Copyright 2009 J. Schilling */
+/* @(#)dbgmalloc.h	1.5 10/09/19 Copyright 2010 J. Schilling */
 /*
  *	Definitions for libdmalloc
  *
- *	Copyright (c) 2009 J. Schilling
+ *	Copyright (c) 2009-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -31,9 +31,12 @@
 extern "C" {
 #endif
 
-extern	void	*dbg_malloc		__PR((size_t size, char *file, int line));
-extern	void	*dbg_calloc		__PR((size_t nelem, size_t elsize, char *file, int line));
-extern	void	*dbg_realloc		__PR((void *t, size_t size, char *file, int line));
+extern	void	*dbg_malloc		__PR((size_t size, char *file,
+							int line));
+extern	void	*dbg_calloc		__PR((size_t nelem, size_t elsize,
+							char *file, int line));
+extern	void	*dbg_realloc		__PR((void *t, size_t size, char *file,
+							int line));
 #define	malloc(s)			dbg_malloc(s, __FILE__, __LINE__)
 #define	calloc(n, s)			dbg_calloc(n, s, __FILE__, __LINE__)
 #define	realloc(t, s)			dbg_realloc(t, s, __FILE__, __LINE__)
@@ -46,9 +49,16 @@ extern	void	*dbg_realloc		__PR((void *t, size_t size, char *file, int line));
 
 #include <schily/standard.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 extern	BOOL	acheckdamage		__PR((void));
 extern	void	freechecking		__PR((BOOL val));
 extern	void	nomemraising		__PR((BOOL val));
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif	/* _SCHILY_DBGMALLOC_H */

@@ -1,10 +1,10 @@
-/* @(#)match.c	1.23 09/05/30 Copyright 1985, 1995-2009 J. Schilling */
+/* @(#)match.c	1.24 10/08/21 Copyright 1985, 1995-2010 J. Schilling */
 #include <schily/standard.h>
 #include <schily/patmatch.h>
 /*
  *	Pattern matching functions
  *
- *	Copyright (c) 1985, 1995-2009 J. Schilling
+ *	Copyright (c) 1985, 1995-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -62,11 +62,9 @@ typedef	unsigned char	Uchar;
 
 #define	ENDSTATE	(-1)
 
-/*---------------------------------------------------------------------------
-|
-|	The Interpreter
-|
-+---------------------------------------------------------------------------*/
+/*
+ *	The Interpreter
+ */
 
 
 /*
@@ -290,11 +288,9 @@ return ((CHAR *)lastp);
 
 
 #ifndef	__LINE_MATCH
-/*---------------------------------------------------------------------------
-|
-|	The Compiler
-|
-+---------------------------------------------------------------------------*/
+/*
+ *	The Compiler
+ */
 
 typedef	struct args {
 	const CHAR	*pattern;

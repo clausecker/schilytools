@@ -1,6 +1,6 @@
-/* @(#)fileluopen.c	1.17 04/08/08 Copyright 1986, 1995-2003 J. Schilling */
+/* @(#)fileluopen.c	1.18 10/08/21 Copyright 1986, 1995-2010 J. Schilling */
 /*
- *	Copyright (c) 1986, 1995-2003 J. Schilling
+ *	Copyright (c) 1986, 1995-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -46,17 +46,17 @@ fileluopen(f, mode)
 	int	flag = 0;
 
 	if (!_cvmod(mode, &omode, &flag))
-		return ((FILE *) NULL);
+		return ((FILE *)NULL);
 
 	if (omode & (O_NDELAY|O_CREAT|O_TRUNC|O_EXCL)) {
 		raisecond(_badmode, 0L);
-		return ((FILE *) NULL);
+		return ((FILE *)NULL);
 	}
 
 #ifdef	F_GETFD
 	if (fcntl(f, F_GETFD, 0) < 0) {
 		raisecond(_badfile, 0L);
-		return ((FILE *) NULL);
+		return ((FILE *)NULL);
 	}
 #endif
 

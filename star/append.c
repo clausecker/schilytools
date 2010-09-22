@@ -1,14 +1,14 @@
-/* @(#)append.c	1.27 09/07/11 Copyright 1992, 2001-2009 J. Schilling */
+/* @(#)append.c	1.29 10/08/21 Copyright 1992, 2001-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)append.c	1.27 09/07/11 Copyright 1992, 2001-2009 J. Schilling";
+	"@(#)append.c	1.29 10/08/21 Copyright 1992, 2001-2010 J. Schilling";
 #endif
 /*
  *	Routines used to append files to an existing
  *	tape archive
  *
- *	Copyright (c) 1992, 2001-2009 J. Schilling
+ *	Copyright (c) 1992, 2001-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -55,7 +55,7 @@ LOCAL	int		cachesize;
 
 EXPORT	void	skipall		__PR((void));
 LOCAL	void	hash_new	__PR((size_t size));
-LOCAL	struct h_elem *	uhash_lookup	__PR((FINFO *info));
+LOCAL	struct h_elem *uhash_lookup	__PR((FINFO *info));
 LOCAL	void	hash_add	__PR((FINFO *info));
 EXPORT	BOOL	update_newer	__PR((FINFO *info));
 LOCAL	int	hashval		__PR((Uchar *str, Uint maxsize));

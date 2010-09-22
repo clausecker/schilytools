@@ -1,8 +1,8 @@
-/* @(#)sha2.h	1.3 09/08/09 2009 J. Schilling */
+/* @(#)sha2.h	1.5 10/08/27 2009-2010 J. Schilling */
 /*
  * SHA2 hash code taken from OpenBSD
  *
- * Portions Copyright (c) 2009 J. Schilling
+ * Portions Copyright (c) 2009-2010 J. Schilling
  */
 
 /*	$OpenBSD: sha2.h,v 1.7 2008/09/06 12:00:19 djm Exp $	*/
@@ -50,7 +50,7 @@
 #include <schily/utypes.h>
 
 
-/*** SHA-256/384/512 Various Length Definitions ***********************/
+/* ** SHA-256/384/512 Various Length Definitions ********************** */
 #define	SHA256_BLOCK_LENGTH		64
 #define	SHA256_DIGEST_LENGTH		32
 #define	SHA256_DIGEST_STRING_LENGTH	(SHA256_DIGEST_LENGTH * 2 + 1)
@@ -67,7 +67,7 @@
 #endif
 
 
-/*** SHA-256/384/512 Context Structure *******************************/
+/* ** SHA-256/384/512 Context Structure ****************************** */
 typedef struct _SHA2_CTX {
 	union {
 		UInt32_t	st32[8];
@@ -91,10 +91,12 @@ extern "C" {
 #endif
 
 extern void SHA256Init		__PR((SHA2_CTX *));
-extern void SHA256Transform	__PR((UInt32_t state[8], const UInt8_t [SHA256_BLOCK_LENGTH]));
+extern void SHA256Transform	__PR((UInt32_t state[8],
+					const UInt8_t [SHA256_BLOCK_LENGTH]));
 extern void SHA256Update	__PR((SHA2_CTX *, const UInt8_t *, size_t));
 extern void SHA256Pad		__PR((SHA2_CTX *));
-extern void SHA256Final		__PR((UInt8_t [SHA256_DIGEST_LENGTH], SHA2_CTX *));
+extern void SHA256Final		__PR((UInt8_t [SHA256_DIGEST_LENGTH],
+					SHA2_CTX *));
 extern char *SHA256End		__PR((SHA2_CTX *, char *));
 extern char *SHA256File		__PR((const char *, char *));
 extern char *SHA256FileChunk	__PR((const char *, char *, off_t, off_t));
@@ -102,20 +104,24 @@ extern char *SHA256Data		__PR((const UInt8_t *, size_t, char *));
 
 #ifdef	HAVE_LONGLONG
 extern void SHA384Init		__PR((SHA2_CTX *));
-extern void SHA384Transform	__PR((UInt64_t state[8], const UInt8_t [SHA384_BLOCK_LENGTH]));
+extern void SHA384Transform	__PR((UInt64_t state[8],
+					const UInt8_t [SHA384_BLOCK_LENGTH]));
 extern void SHA384Update	__PR((SHA2_CTX *, const UInt8_t *, size_t));
 extern void SHA384Pad		__PR((SHA2_CTX *));
-extern void SHA384Final		__PR((UInt8_t [SHA384_DIGEST_LENGTH], SHA2_CTX *));
+extern void SHA384Final		__PR((UInt8_t [SHA384_DIGEST_LENGTH],
+					SHA2_CTX *));
 extern char *SHA384End		__PR((SHA2_CTX *, char *));
 extern char *SHA384File		__PR((const char *, char *));
 extern char *SHA384FileChunk	__PR((const char *, char *, off_t, off_t));
 extern char *SHA384Data		__PR((const UInt8_t *, size_t, char *));
 
 extern void SHA512Init		__PR((SHA2_CTX *));
-extern void SHA512Transform	__PR((UInt64_t state[8], const UInt8_t [SHA512_BLOCK_LENGTH]));
+extern void SHA512Transform	__PR((UInt64_t state[8],
+					const UInt8_t [SHA512_BLOCK_LENGTH]));
 extern void SHA512Update	__PR((SHA2_CTX *, const UInt8_t *, size_t));
 extern void SHA512Pad		__PR((SHA2_CTX *));
-extern void SHA512Final		__PR((UInt8_t [SHA512_DIGEST_LENGTH], SHA2_CTX *));
+extern void SHA512Final		__PR((UInt8_t [SHA512_DIGEST_LENGTH],
+					SHA2_CTX *));
 extern char *SHA512End		__PR((SHA2_CTX *, char *));
 extern char *SHA512File		__PR((const char *, char *));
 extern char *SHA512FileChunk	__PR((const char *, char *, off_t, off_t));

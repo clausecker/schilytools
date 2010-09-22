@@ -1,8 +1,8 @@
-/* @(#)rmd160.h	1.3 09/08/08 2009 J. Schilling */
+/* @(#)rmd160.h	1.5 10/08/27 2009-2010 J. Schilling */
 /*
  * RMD160 hash code taken from OpenBSD
  *
- * Portions Copyright (c) 2009 J. Schilling
+ * Portions Copyright (c) 2009-2010 J. Schilling
  */
 /*	$OpenBSD: rmd160.h,v 1.16 2004/06/22 01:57:30 jfb Exp $	*/
 /*
@@ -36,6 +36,10 @@
 #endif
 #include <schily/utypes.h>
 
+#ifdef	__cplusplus
+extern "C" {
+#endif
+
 #define	RMD160_BLOCK_LENGTH		64
 #define	RMD160_DIGEST_LENGTH		20
 #define	RMD160_DIGEST_STRING_LENGTH	(RMD160_DIGEST_LENGTH * 2 + 1)
@@ -47,15 +51,13 @@ typedef struct RMD160Context {
 	UInt8_t  buffer[RMD160_BLOCK_LENGTH];	/* input buffer */
 } RMD160_CTX;
 
-#ifdef	__cplusplus
-extern "C" {
-#endif
-
 extern void	 RMD160Init	__PR((RMD160_CTX *));
-extern void	 RMD160Transform __PR((UInt32_t [5], const UInt8_t [RMD160_BLOCK_LENGTH]));
+extern void	 RMD160Transform __PR((UInt32_t [5],
+					const UInt8_t [RMD160_BLOCK_LENGTH]));
 extern void	 RMD160Update	__PR((RMD160_CTX *, const UInt8_t *, size_t));
 extern void	 RMD160Pad	__PR((RMD160_CTX *));
-extern void	 RMD160Final	__PR((UInt8_t [RMD160_DIGEST_LENGTH], RMD160_CTX *));
+extern void	 RMD160Final	__PR((UInt8_t [RMD160_DIGEST_LENGTH],
+					RMD160_CTX *));
 extern char	*RMD160End	__PR((RMD160_CTX *, char *));
 extern char	*RMD160File	__PR((const char *, char *));
 extern char	*RMD160FileChunk __PR((const char *, char *, off_t, off_t));
@@ -65,4 +67,4 @@ extern char	*RMD160Data	__PR((const UInt8_t *, size_t, char *));
 }
 #endif
 
-#endif  /* _SCHILY_RMD160_H */
+#endif	/* _SCHILY_RMD160_H */

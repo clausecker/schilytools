@@ -1,13 +1,13 @@
-/* @(#)match.c	1.13 09/07/11 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2009 J. Schilling */
+/* @(#)match.c	1.14 10/08/23 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)match.c	1.13 09/07/11 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2009 J. Schilling";
+	"@(#)match.c	1.14 10/08/23 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2010 J. Schilling";
 #endif
 /*
  *	Pattern matching routines for star
  *
- *	Copyright (c) 1985, 88-90, 92-96, 98, 99, 2000-2009 J. Schilling
+ *	Copyright (c) 1985, 88-90, 92-96, 98, 99, 2000-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -217,8 +217,11 @@ addpattern(pattern)
 {
 	int	plen;
 
-/*	if (debug)*/
-/*		error("Add pattern: '%s' currdir: '%s'.\n", pattern, currdir==NULL?dir_flags:currdir);*/
+#ifdef	ADDP_DEBUG
+	if (debug)
+		error("Add pattern: '%s' currdir: '%s'.\n",
+			pattern, currdir == NULL ? dir_flags:currdir);
+#endif
 
 	if (npat >= NPAT)
 		comerrno(EX_BAD, "Too many patterns (max is %d).\n", NPAT);
@@ -254,8 +257,10 @@ addarg(pattern)
 	if (narg == 0)
 		narg = npat;
 
-/*	if (debug)*/
-/*		error("Add arg '%s'.\n", pattern);*/
+#ifdef	ADDARG_DEBUG
+	if (debug)
+		error("Add arg '%s'.\n", pattern);
+#endif
 
 	if (narg >= NPAT)
 		comerrno(EX_BAD, "Too many patterns (max is %d).\n", NPAT);

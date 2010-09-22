@@ -1,11 +1,11 @@
-/* @(#)getdomainname.c	1.22 09/08/04 Copyright 1995-2009 J. Schilling */
+/* @(#)getdomainname.c	1.23 10/08/23 Copyright 1995-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)getdomainname.c	1.22 09/08/04 Copyright 1995-2009 J. Schilling";
+	"@(#)getdomainname.c	1.23 10/08/23 Copyright 1995-2010 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1995-2009 J. Schilling
+ *	Copyright (c) 1995-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -28,9 +28,6 @@ static	UConst char sccsid[] =
 EXPORT	int	getdomainname	__PR((char *name, int namelen));
 #endif
 
-
-/*#undef	HAVE_GETDOMAINNAME*/
-/*#undef	SI_SRPC_DOMAIN*/
 
 #if	!defined(HAVE_GETDOMAINNAME) && defined(SI_SRPC_DOMAIN)
 #define	FUNC_GETDOMAINNAME

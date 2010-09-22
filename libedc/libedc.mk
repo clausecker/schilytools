@@ -1,4 +1,4 @@
-#ident @(#)libedc.mk	1.6 08/12/22 
+#ident @(#)libedc.mk	1.7 10/06/23 
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -20,7 +20,7 @@ CPPOPTS +=	-Iold
 # lines to fall back to the standard optimisation level.
 #
 _XARCH_OPT=	$(OARCH:%cc64=$(SUNPROCOPT64))
-XARCH_OPT=	$(_XARCH_OPT:%cc=-xarch=generic)
+XARCH_OPT=	$(_XARCH_OPT:%cc=$(XARCH_GEN))
 
 SUNPROCOPTOPT=	-fast $(XARCH_OPT)
 GCCOPTOPT=	-O3  -fexpensive-optimizations

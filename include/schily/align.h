@@ -1,8 +1,8 @@
-/* @(#)align.h	1.7 09/06/06 Copyright 1995-2009 J. Schilling */
+/* @(#)align.h	1.8 10/08/24 Copyright 1995-2010 J. Schilling */
 /*
  *	Platform dependent definitions for aligning data.
  *
- *	Copyright (c) 1995-2009 J. Schilling
+ *	Copyright (c) 1995-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -129,5 +129,15 @@ Error unconfigured architecture
 #endif
 
 #endif	/* SCHILY_BUILD */
+
+#ifdef	__cplusplus
+extern "C" {
+#endif
+/*
+ * Fake in order to keep the silly hdrchk(1) quiet.
+ */
+#ifdef	__cplusplus
+}
+#endif
 
 #endif /* _SCHILY_ALIGN_H */

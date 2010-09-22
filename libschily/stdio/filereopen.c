@@ -1,8 +1,8 @@
-/* @(#)filereopen.c	1.16 07/04/03 Copyright 1986, 1995-2007 J. Schilling */
+/* @(#)filereopen.c	1.17 10/08/21 Copyright 1986, 1995-2010 J. Schilling */
 /*
  *	open new file on old stream
  *
- *	Copyright (c) 1986, 1995-2007 J. Schilling
+ *	Copyright (c) 1986, 1995-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -62,19 +62,19 @@ filereopen(name, mode, fp)
 	int	flag = 0;
 
 	if (!_cvmod(mode, &omode, &flag))
-		return ((FILE *) NULL);
+		return ((FILE *)NULL);
 
 	/*
 	 * create/truncate file if necessary
 	 */
 	if ((ret = _openfd(name, omode)) < 0)
-		return ((FILE *) NULL);
+		return ((FILE *)NULL);
 	close(ret);
 
 	fp = freopen(name,
 		fmtab[flag & (FI_READ | FI_WRITE | FI_BINARY | FI_APPEND)], fp);
 
-	if (fp != (FILE *) NULL) {
+	if (fp != (FILE *)NULL) {
 		set_my_flag(fp, 0); /* must clear it if fp is reused */
 
 		if (flag & FI_APPEND) {

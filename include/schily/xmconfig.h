@@ -1,9 +1,9 @@
-/* @(#)xmconfig.h	1.42 09/11/16 Copyright 1995-2009 J. Schilling */
+/* @(#)xmconfig.h	1.45 10/08/27 Copyright 1995-2010 J. Schilling */
 /*
  *	This file either includes the manual generated
  *	static definitions for a machine configuration.
  *
- *	Copyright (c) 1995-2009 J. Schilling
+ *	Copyright (c) 1995-2010 J. Schilling
  *
  *	Use only cpp instructions.
  *
@@ -36,7 +36,7 @@ extern "C" {
 
 #if defined(VMS)
 #	define	PROTOTYPES
-#	define	HAVE_OSDEF	/* prevent later definitions to overwrite current */
+#	define	HAVE_OSDEF	/* prevent later defines to overwrite current */
 #	define	__NOT_SVR4__	/* Not a real SVR4 implementation */
 
 #	define	HAVE_UNISTD_H
@@ -80,81 +80,24 @@ extern "C" {
 #	define HOST_VENDOR "HP"
 #	define HOST_OS "VMS/OpenVMS"
 #	define RETSIGTYPE   void
-/*#	define	HAVE_ELF    */
-/*#	define	HAVE_COFF   */
-/*#	define	HAVE_AOUT   */
 #	define	HAVE_STDARG_H
-/*#	define	HAVE_VA_COPY	*/
 #	define	HAVE_STDLIB_H
 #	define	HAVE_STRING_H
 #	define	HAVE_STDC_HEADERS
 #	define	STDC_HEADERS
-/*#	define	HAVE_LONGLONG	*/
-
 #	define	HAVE_UNISTD_H
 #	define	HAVE_FCNTL_H
 #	define	HAVE_DIRENT_H
-/*#	define	HAVE_SYS_DIR_H	*/
-/*#	define	HAVE_NDIR_H */
-/*#	define	HAVE_SYS_NDIR_H	*/
-/*#	define	HAVE_TERMIOS_H	*/
-/*#	define	HAVE_TERMIO_H	*/
-/*#	define	HAVE_SYS_TIME_H	*/
-/*#	define	HAVE_UTIMES */
-/*#	define	HAVE_UTIME_H	*/
 #	define	HAVE_WAIT_H
-/*#	define	HAVE_SYS_WAIT_H	*/
-/*#	define	HAVE_SYS_SYSTEMINFO_H	*/
 #	define	HAVE_SYS_UTSNAME_H
-/*#	define	HAVE_SYS_PRIOCNTL_H */
-/*#	define	HAVE_SYS_RTPRIOCNTL_H	*/
-/*#	define	HAVE_SYS_MTIO_H	*/
-/*#	define	HAVE_MTGET_DSREG    */
-/*#	define	HAVE_MTGET_RESID    */
-/*#	define	HAVE_MTGET_FILENO   */
-/*#	define	HAVE_MTGET_BLKNO    */
-/*#	define	MAJOR_IN_MKDEV	*/
-/*#	define	MAJOR_IN_SYSMACROS  */
-/*#	define	HAVE_USG_STDIO	*/
-/*#	define	HAVE_DTOA   */
 #	define	HAVE_GETCWD
 #	define	HAVE_STRERROR
 #	define	HAVE_MEMMOVE
 #	define	HAVE_MMAP
-/*#	define	HAVE_SMMAP  */
-/*#	define	HAVE_USGSHM */
-/*#	define	HAVE_USGSEM */
-/*#	define	HAVE_MSEM   */
-/*#	define	HAVE_LDSTUB */
-/*#	define	HAVE_XCHG   */
 #	define	HAVE_FLOCK
-/*#	define	HAVE_FCHDIR */
-/*#	define	HAVE_STATVFS	*/
-/*#	define	HAVE_QUOTA  */
-/*#	define	HAVE_YP	*/
-/*#	define	HAVE_SHADOW */
-/*#	define	HAVE_SETREUID	*/
-/*#	define	HAVE_SETRESUID	*/
-/*#	define	HAVE_SETEUID	*/
-/*#	define	HAVE_LCHOWN */
-/*#	define	HAVE_PROCFS */
-/*#	define	HAVE_PROCFS2	*/
-/*#	define	HAVE_SIGINFO	*/
-/*#	define	HAVE_WAIT3  */
-/*#	define	HAVE_WAITPID	*/
-/*#	define	HAVE_UNION_WAIT	*/
 #	define	HAVE_GETHOSTNAME
-/*#	define	HAVE_STREAMS	*/
-/*#	define	HAVE_STRPTYS	*/
-/*#	define	HAVE_POLL   */
 #	define	HAVE_SELECT
-/*#	define	HAVE_TIRPC  */
-/*#	define	GID_T		gid_t	*/
-#	define	USLEEPRETURN_T	uint
-/*#	define	USLEEPRETURN_T	void	*/
-/*#	define	USLEEPISVOID	*/
-/*#	define	HAVE_GETAV0 */
-/*#	define	HAVE_SCANSTACK	*/
+#	define	USLEEPRETURN_T	unsigned int
 
 #	define	HAVE_STRUCT_TIMEVAL
 #	define	HAVE_UTSNAME_ARCH	/* uname -p */
@@ -182,7 +125,7 @@ extern "C" {
 
 /* 2005-03-14 SMS.  Need VMS-specific open() parameters. */
 #ifndef	NO_OPENFD_SRC
-#	define _OPENFD_SRC	/* Use VMS-specific _openfd() function.*/
+#	define _OPENFD_SRC	/* Use VMS-specific _openfd() function. */
 #	define _openfd openfd_vms	/* This one. */
 #	define O_BINARY 0x0004	/* DOS-like value.  Implies "ctx=bin". */
 #endif

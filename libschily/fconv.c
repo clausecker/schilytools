@@ -1,4 +1,4 @@
-/* @(#)fconv.c	1.42 10/05/24 Copyright 1985, 1995-2010 J. Schilling */
+/* @(#)fconv.c	1.43 10/08/23 Copyright 1985, 1995-2010 J. Schilling */
 /*
  *	Convert floating point numbers to strings for format.c
  *	Should rather use the MT-safe routines [efg]convert()
@@ -70,7 +70,6 @@ extern	char	*fcvt __PR((double, int, int *, int *));
 #endif
 #if	!defined(isinf) && defined(FINITE)
 #define	isinf	!FINITE
-/*#define	isinf	IS_INF*/
 #define	FOUND_ISINF
 #endif
 #if	defined(FOUND_ISNAN) && defined(FOUND_ISINF)
@@ -78,7 +77,8 @@ extern	char	*fcvt __PR((double, int, int *, int *));
 #endif
 #endif
 
-#if	defined(HAVE_IEEEFP_H) && !defined(FOUND_ISXX) && !defined(FOUND_C99_ISXX)
+#if	defined(HAVE_IEEEFP_H) && !defined(FOUND_ISXX) && \
+	!defined(FOUND_C99_ISXX)
 /*
  * SVR4
  */
@@ -171,13 +171,13 @@ extern	char	*fcvt __PR((double, int, int *, int *));
 	 * local names instead.
 	 */
 #ifndef	HAVE_ECVT
-#	define	ecvt	js_ecvt
+#define	ecvt	js_ecvt
 #endif
 #ifndef	HAVE_FCVT
-#	define	fcvt	js_fcvt
+#define	fcvt	js_fcvt
 #endif
 #ifndef	HAVE_GCVT
-#	define	gcvt	js_gcvt
+#define	gcvt	js_gcvt
 #endif
 #endif
 
@@ -190,7 +190,7 @@ static	char	_js_inf[] = "(Infinity)";
 static	int	_ferr __PR((char *, double));
 
 #ifdef	abs
-#	undef	abs
+#undef	abs
 #endif
 #define	abs(i)	((i) < 0 ? -(i) : (i))
 

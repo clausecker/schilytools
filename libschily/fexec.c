@@ -1,8 +1,8 @@
-/* @(#)fexec.c	1.42 09/11/15 Copyright 1985, 1995-2009 J. Schilling */
+/* @(#)fexec.c	1.43 10/08/21 Copyright 1985, 1995-2010 J. Schilling */
 /*
  *	Execute a program with stdio redirection
  *
- *	Copyright (c) 1985, 1995-2009 J. Schilling
+ *	Copyright (c) 1985, 1995-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -426,12 +426,9 @@ fdmove(fd1, fd2)
 #endif
 #endif
 
-/*----------------------------------------------------------------------------
-|
-|	get PATH from env
-|
-+----------------------------------------------------------------------------*/
-
+/*
+ * get PATH from env
+ */
 LOCAL const char *
 getpath(env)
 	char	* const *env;
@@ -450,13 +447,10 @@ getpath(env)
 }
 
 
-/*----------------------------------------------------------------------------
-|
-| Check if name is in environment.
-| Return pointer to value name is found.
-|
-+----------------------------------------------------------------------------*/
-
+/*
+ * Check if name is in environment.
+ * Return pointer to value name is found.
+ */
 LOCAL const char *
 chkname(name, ev)
 	const char	*name;

@@ -1,13 +1,13 @@
-/* @(#)list.c	1.73 09/07/11 Copyright 1985, 1995, 2000-2009 J. Schilling */
+/* @(#)list.c	1.74 10/08/23 Copyright 1985, 1995, 2000-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)list.c	1.73 09/07/11 Copyright 1985, 1995, 2000-2009 J. Schilling";
+	"@(#)list.c	1.74 10/08/23 Copyright 1985, 1995, 2000-2010 J. Schilling";
 #endif
 /*
  *	List the content of an archive
  *
- *	Copyright (c) 1985, 1995, 2000-2009 J. Schilling
+ *	Copyright (c) 1985, 1995, 2000-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -298,8 +298,6 @@ list_file(info)
 	if (verbose) {
 		register Uint	xft = info->f_xftype;
 
-/*		tp = (time_t *) (acctime ? &info->f_atime :*/
-/*				(Ctime ? &info->f_ctime : &info->f_mtime));*/
 		tp = acctime ? &info->f_atime :
 				(Ctime ? &info->f_ctime : &info->f_mtime);
 		tstr = ctime(tp);

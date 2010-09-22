@@ -1,4 +1,4 @@
-/* @(#)findbytes.c	1.6 09/10/17 Copyright 2000-2009 J. Schilling */
+/* @(#)findbytes.c	1.7 10/08/23 Copyright 2000-2009 J. Schilling */
 /*
  *	Find a byte with specific value in memory.
  *
@@ -97,7 +97,8 @@ findbytes(vp, cnt, val)
 #if SIZE_LONG > 8
 	error	SIZE_LONG has unknown value
 #endif
-	for (lp = (const Ulong *)cp; cnt >= sizeof (long); cnt -= sizeof (long)) {
+	for (lp = (const Ulong *)cp; cnt >= sizeof (long);
+	    cnt -= sizeof (long)) {
 		/*
 		 * We are not looking for 0 bytes so we need to xor with the
 		 * long mask of repeated bytes. If any of the bytes matches our
@@ -112,7 +113,7 @@ findbytes(vp, cnt, val)
 		 * This will happen if there is 0x80nnnnnn / 0x80nnnnnnnnnnnnnn
 		 */
 		lval = (*lp++ ^ lmask);		   /* create 0 byte on match */
-		lval = (lval + magic_mask) ^ ~lval; /* set bits unchanged by +*/
+		lval = (lval + magic_mask) ^ ~lval; /* + and set unchg. bits */
 		if ((lval & ~magic_mask) != 0) {   /* a magic hole was set   */
 			/*
 			 * If any of the hole bits did not change by addition,

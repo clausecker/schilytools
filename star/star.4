@@ -1,5 +1,5 @@
 '\" t
-. \" @(#)star.4	1.17 09/04/10 Copyr 2003-2008 J. Schilling
+. \" @(#)star.4	1.18 10/08/02 Copyr 2003-2008 J. Schilling
 . \" star archive formats
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -14,7 +14,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH STAR 4L "09/04/10" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH STAR 4L "10/08/02" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 star \- tape archive file format
 .SH DESCRIPTION
@@ -618,7 +618,7 @@ This header type is used by
 .B star
 and
 .BR "GNU tar" .
-A sparse header is uses instead of a plain file header to denote a sparse
+A sparse header is used instead of a plain file header to denote a sparse
 file that follows. Directly after the header, a list of sparse hole descriptors
 follows followed by the compacted file data.
 With 

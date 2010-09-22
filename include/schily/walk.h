@@ -1,8 +1,8 @@
-/* @(#)walk.h	1.26 09/06/06 Copyright 2004-2009 J. Schilling */
+/* @(#)walk.h	1.28 10/08/27 Copyright 2004-2010 J. Schilling */
 /*
  *	Definitions for directory tree walking
  *
- *	Copyright (c) 2004-2009 J. Schilling
+ *	Copyright (c) 2004-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -74,7 +74,7 @@ extern "C" {
 #define	WALK_DP		4	/* Directory previously visited */
 #define	WALK_DNR	5	/* Directory with no read permission */
 #define	WALK_NS		6	/* Unknown file type stat failed */
-#define	WALK_SLN	7	/* Symbolic Link that points to nonexistent file */
+#define	WALK_SLN	7	/* Symbolic Link points to nonexistent file */
 
 #ifndef	__sqfun_t_defined
 typedef	int	(*sqfun_t)	__PR((void *arg));
@@ -105,15 +105,17 @@ struct WALK {
 /*
  * Flags in struct WALK used to communicate with (*walkfun)()
  */
-#define	WALK_WF_PRUNE	1	/* (*walkfun)() -> walk(): abort waking tree	*/
-#define	WALK_WF_QUIT	2	/* (*walkfun)() -> walk(): quit completely	*/
-#define	WALK_WF_NOCHDIR	4	/* walk() -> (*walkfun)(): WALK_DNR is cannot chdir() */
-#define	WALK_WF_NOCWD	8	/* walk() -> caller: cannot get working dir	*/
-#define	WALK_WF_NOHOME	16	/* walk() -> caller: cannot chdir("..")		*/
+#define	WALK_WF_PRUNE	1	/* (*walkfun)() -> walk(): abort waking tree */
+#define	WALK_WF_QUIT	2	/* (*walkfun)() -> walk(): quit completely   */
+#define	WALK_WF_NOCHDIR	4	/* walk() -> (*walkfun)(): WALK_DNR w chdir() */
+#define	WALK_WF_NOCWD	8	/* walk() -> caller: cannot get working dir  */
+#define	WALK_WF_NOHOME	16	/* walk() -> caller: cannot chdir("..")	    */
 
-typedef	int	(*walkfun)	__PR((char *_nm, struct stat *_fs, int _type, struct WALK *_state));
+typedef	int	(*walkfun)	__PR((char *_nm, struct stat *_fs, int _type,
+						struct WALK *_state));
 
-extern	int	treewalk	__PR((char *_nm, walkfun _fn, struct WALK *_state));
+extern	int	treewalk	__PR((char *_nm, walkfun _fn,
+						struct WALK *_state));
 extern	void	walkinitstate	__PR((struct WALK *_state));
 extern	void	*walkopen	__PR((struct WALK *_state));
 extern	int	walkgethome	__PR((struct WALK *_state));

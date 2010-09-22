@@ -1,4 +1,4 @@
-/* @(#)astoi.c	1.9 06/09/13 Copyright 1985, 1995-2003 J. Schilling */
+/* @(#)astoi.c	1.10 10/08/21 Copyright 1985, 1995-2010 J. Schilling */
 /*
  *	astoi() converts a string to int
  *	astol() converts a string to long
@@ -11,7 +11,7 @@
  *	leading "0"  makes conversion octal (base 8)
  *	leading "0x" makes conversion hex   (base 16)
  *
- *	Copyright (c) 1985, 1995-2003 J. Schilling
+ *	Copyright (c) 1985, 1995-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -44,7 +44,7 @@ atoi(s)
 	long	l;
 
 	(void) astol(s, &l);
-	return ((int) l);
+	return ((int)l);
 }
 
 EXPORT long

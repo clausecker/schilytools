@@ -1,0 +1,131 @@
+.\" @(#)cpp.1	1.1 10/09/18 Copyright 2010 J. Schilling
+.\" Manual page for cpp
+.\"
+.if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
+.if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
+.if t .ds u \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'u
+.if t .ds A \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'A
+.if t .ds O \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'O
+.if t .ds U \v'-0.77m'\h'0.30n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.75n'U
+.if t .ds s \\(*b
+.if t .ds S SS
+.if n .ds a ae
+.if n .ds o oe
+.if n .ds u ue
+.if n .ds s sz
+.TH CPP 1 "10/09/18" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.SH NAME
+cpp \- the C language preprocessor
+.SH SYNOPSIS
+.B
+cpp
+[
+'\".B \-BCHMpPRT
+.B \-CHPRT
+] [
+.B \-undef
+] [
+.BI \-D name
+]
+.if n .ti +5
+[
+.BI \-D name = val
+] [
+.BI \-I directory
+] [
+.BI \-U name
+]
+.if n .ti +5
+.if t .ti +.5i
+[
+.BI \-Y directory
+]
+[
+.I [input-file [output-file]]
+]
+.SH DESCRIPTION
+.B cpp
+is the C language prepeocessor. This implementation does not implement the
+ANSI C standard but K&R.
+. \" .SH RETURNS
+. \" .SH ERRORS
+.SH OPTIONS
+.TP
+.B \-C
+Pass all comments (except those that appear on lines with 
+.B cpp
+directives) to the output.
+The default is to suppress C-style comments.
+.TP
+.B \-H
+Print the path names of includes files on standard error.
+Each name is printed on a separate line, names pay appear more than once.
+.TP
+.B \-P
+Do not include line control information in the preprocessor output.
+.TP
+.B \-R
+Allow recursive macros.
+.TP
+.B \-T
+Only check for the first eight characters in macro names.
+This option allows backwards compatibility with old systems
+that only check for the first eight characters.
+.TP
+.B \-undef
+Remove all initially predefined macros.
+.TP
+.BI \-D name
+Defines 
+.I name
+as 1. This option has the same effect as if a
+.IP
+.RS
+.BI #define " name " 1
+.RE
+.IP
+line was in the input file.
+.TP
+.BI \-D name = val
+Defines 
+.I name
+as
+.IR val.
+This option has the same effect as if a
+.IP
+.RS
+.BI #define " name " val
+.RE
+.IP
+line was in the input file.
+.TP
+.BI \-I directory
+Adds
+.I directory
+to the search path for
+.B #include
+directives.
+.TP
+.BI \-U name
+Remove an initial definition of
+.IR name .
+.TP
+.BI \-Y directory
+Uses
+.I directory
+instead of the standard system include directory.
+
+.SH EXAMPLES
+.SH ENVIRONMENT
+.SH FILES
+.SH "SEE ALSO"
+.SH DIAGNOSTICS
+.SH NOTES
+ANSI C preprocessors replace an escaped NEWLINE (a backslash that
+is immediately followed by a NEWLINE) with a SPACE. This implementation
+keeps backslash NEWLINE intact.
+.SH BUGS
+.SH AUTHOR
+.B cpp
+was written by John F. Reiser in July/August 1978.
+This is a version enhanced by J. Schilling.

@@ -1,8 +1,8 @@
-/* @(#)librmt.h	1.20 07/01/16 Copyright 1995,1996,2000-2007 J. Schilling */
+/* @(#)librmt.h	1.22 10/08/27 Copyright 1995,1996,2000-2010 J. Schilling */
 /*
  *	Prototypes for rmt client subroutines
  *
- *	Copyright (c) 1995,1996,2000-2007 J. Schilling
+ *	Copyright (c) 1995,1996,2000-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -28,28 +28,42 @@
 
 #include <schily/rmtio.h>
 
+#ifdef	__cplusplus
+extern "C" {
+#endif
+
 /*
  * remote.c
  */
-extern	void		rmtinit		__PR((int (*errmsgn)(int, const char *, ...),
+extern	void		rmtinit		__PR((int (*errmsgn)
+						(int, const char *, ...),
 						void (*eexit)(int)));
 extern	int		rmtdebug	__PR((int dlevel));
 extern	char		*rmtfilename	__PR((char *name));
-extern	char		*rmthostname	__PR((char *hostname, int hnsize, char *rmtspec));
-extern	int		rmtgetconn	__PR((char *host, int trsize, int excode));
+extern	char		*rmthostname	__PR((char *hostname, int hnsize,
+						char *rmtspec));
+extern	int		rmtgetconn	__PR((char *host, int trsize,
+						int excode));
 extern	int		rmtopen		__PR((int fd, char *fname, int fmode));
 extern	int		rmtclose	__PR((int fd));
 extern	int		rmtread		__PR((int fd, char *buf, int count));
 extern	int		rmtwrite	__PR((int fd, char *buf, int count));
-extern	off_t		rmtseek		__PR((int fd, off_t offset, int whence));
+extern	off_t		rmtseek		__PR((int fd, off_t offset,
+						int whence));
 extern	int		rmtioctl	__PR((int fd, int cmd, int count));
 #ifdef	MTWEOF
 extern	int		rmtstatus	__PR((int fd, struct mtget *mtp));
 #endif
 extern	int		rmtxstatus	__PR((int fd, struct rmtget *mtp));
 #ifdef	MTWEOF
-extern	void		_rmtg2mtg	__PR((struct mtget *mtp, struct rmtget *rmtp));
-extern	int		_mtg2rmtg	__PR((struct rmtget *rmtp, struct mtget *mtp));
+extern	void		_rmtg2mtg	__PR((struct mtget *mtp,
+						struct rmtget *rmtp));
+extern	int		_mtg2rmtg	__PR((struct rmtget *rmtp,
+						struct mtget *mtp));
+#endif
+
+#ifdef	__cplusplus
+}
 #endif
 
 #endif	/* _SCHILY_LIBRMT_H */

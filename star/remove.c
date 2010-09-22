@@ -1,13 +1,13 @@
-/* @(#)remove.c	1.54 09/07/11 Copyright 1985, 1991-2009 J. Schilling */
+/* @(#)remove.c	1.55 10/08/23 Copyright 1985, 1991-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)remove.c	1.54 09/07/11 Copyright 1985, 1991-2009 J. Schilling";
+	"@(#)remove.c	1.55 10/08/23 Copyright 1985, 1991-2010 J. Schilling";
 #endif
 /*
  *	remove files an file trees
  *
- *	Copyright (c) 1985, 1992-2009 J. Schilling
+ *	Copyright (c) 1985, 1992-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -21,7 +21,6 @@ static	UConst char sccsid[] =
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-/*#define	RM_DEBUG*/
 #include <schily/stdio.h>
 #include <schily/standard.h>
 #include "star.h"

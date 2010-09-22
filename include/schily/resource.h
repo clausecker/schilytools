@@ -1,10 +1,10 @@
-/* @(#)resource.h	1.7 09/08/03 Copyright 1995-2009 J. Schilling */
+/* @(#)resource.h	1.8 10/08/24 Copyright 1995-2010 J. Schilling */
 /*
  *	Abstraction from resource limits
  *
  *	Missing parts for wait3() taken from SunOS
  *
- *	Copyright (c) 1995-2009 J. Schilling
+ *	Copyright (c) 1995-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -34,6 +34,10 @@
  */
 #ifdef	HAVE_SYS_RESOURCE_H
 #include <sys/resource.h>
+#endif
+
+#ifdef	__cplusplus
+extern "C" {
 #endif
 
 /*
@@ -97,5 +101,9 @@ struct rlimit {
 };
 
 #endif	/* RLIMIT_CPU */
+
+#ifdef	__cplusplus
+}
+#endif
 
 #endif /* _SCHILY_RESOURCE_H */

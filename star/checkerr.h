@@ -1,8 +1,8 @@
-/* @(#)checkerr.h	1.9 09/05/05 Copyright 2003-2009 J. Schilling */
+/* @(#)checkerr.h	1.11 10/08/27 Copyright 2003-2010 J. Schilling */
 /*
  *	Error control for star.
  *
- *	Copyright (c) 2003-2009 J. Schilling
+ *	Copyright (c) 2003-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -15,6 +15,13 @@
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
+
+#ifndef	_CHECKERR_H
+#define	_CHECKERR_H
+
+#ifdef	__cplusplus
+extern "C" {
+#endif
 
 /*
  * Error conditions handled by error control.
@@ -53,4 +60,11 @@
 extern	int	errconfig	__PR((char *name));
 extern	BOOL	errhidden	__PR((int etype, const char *fname));
 extern	BOOL	errwarnonly	__PR((int etype, const char *fname));
-extern	BOOL	errabort	__PR((int etype, const char *fname, BOOL doexit));
+extern	BOOL	errabort	__PR((int etype, const char *fname,
+					BOOL doexit));
+
+#ifdef	__cplusplus
+}
+#endif
+
+#endif	/* _CHECKERR_H */

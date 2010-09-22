@@ -1,4 +1,4 @@
-/* @(#)alloca.h	1.6 06/09/13 Copyright 2002 J. Schilling */
+/* @(#)alloca.h	1.7 10/08/24 Copyright 2002-2010 J. Schilling */
 /*
  *	Definitions for users of alloca()
  *
@@ -6,7 +6,7 @@
  *	and before any other include file.
  *	See comment in _AIX part below.
  *
- *	Copyright (c) 2002 J. Schilling
+ *	Copyright (c) 2002-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -48,6 +48,9 @@
 				#pragma alloca
 #			else
 #				ifndef alloca
+#ifdef	__cplusplus
+extern "C" {
+#endif
 					/*
 					 * predefined by HP cc +Olibcalls
 					 */
@@ -56,11 +59,13 @@
 #					else
 						extern char *alloca();
 #					endif
+#ifdef	__cplusplus
+}
+#endif
 #				endif
 #			endif
 #		endif
 #	endif
 #endif
-
 
 #endif	/* _SCHILY_ALLOCA_H */

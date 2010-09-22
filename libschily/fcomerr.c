@@ -1,8 +1,8 @@
-/* @(#)fcomerr.c	1.2 09/07/10 Copyright 1985-1989, 1995-2007 J. Schilling */
+/* @(#)fcomerr.c	1.4 10/08/23 Copyright 1985-1989, 1995-2010 J. Schilling */
 /*
  *	Routines for printing command errors on a specified FILE *
  *
- *	Copyright (c) 1985-1989, 1995-2007 J. Schilling
+ *	Copyright (c) 1985-1989, 1995-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -30,7 +30,6 @@ EXPORT	void	fcomerr		__PR((FILE *, const char *, ...));
 EXPORT	void	fcomerrno	__PR((FILE *, int, const char *, ...));
 EXPORT	int	ferrmsg		__PR((FILE *, const char *, ...));
 EXPORT	int	ferrmsgno	__PR((FILE *, int, const char *, ...));
-/*extern	int	_comerr		__PR((FILE *, int, int, const char *, va_list));*/
 
 /* VARARGS1 */
 #ifdef	PROTOTYPES

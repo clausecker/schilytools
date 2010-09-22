@@ -1,8 +1,8 @@
-/* @(#)fillbytes.c	1.17 09/10/17 Copyright 1987, 1995-2009 J. Schilling */
+/* @(#)fillbytes.c	1.18 10/08/21 Copyright 1987, 1995-2010 J. Schilling */
 /*
  *	fill memory with data
  *
- *	Copyright (c) 1987, 1995-2009 J. Schilling
+ *	Copyright (c) 1987, 1995-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -23,7 +23,7 @@
 
 #define	DO8(a)	a; a; a; a; a; a; a; a;
 
-#define	cval	((char) lval)
+#define	cval	((char)lval)
 
 /*
  * fillbytes(to, cnt, val) is the same as memset(to, val, cnt)

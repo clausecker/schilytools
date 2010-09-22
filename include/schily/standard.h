@@ -1,4 +1,4 @@
-/* @(#)standard.h	1.37 09/10/22 Copyright 1985-2007 J. Schilling */
+/* @(#)standard.h	1.38 10/08/24 Copyright 1985-2010 J. Schilling */
 /*
  *	standard definitions
  *
@@ -11,7 +11,7 @@
  *
  *	If you need stdio.h, you must include it before standard.h
  *
- *	Copyright (c) 1985-2007 J. Schilling
+ *	Copyright (c) 1985-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -30,6 +30,10 @@
 
 #ifndef _SCHILY_MCONFIG_H
 #include <schily/mconfig.h>
+#endif
+
+#ifdef	__cplusplus
+extern "C" {
 #endif
 
 #ifdef	M68000
@@ -129,6 +133,10 @@ typedef int BOOL;
 #endif
 #endif
 #endif	/* __never_def__ */
+
+#ifdef	__cplusplus
+}
+#endif
 
 #if defined(_JOS) || defined(JOS)
 #	ifndef	_SCHILY_SCHILY_H

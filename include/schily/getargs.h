@@ -1,8 +1,8 @@
-/* @(#)getargs.h	1.18 07/07/02 Copyright 1985-2007 J. Schilling */
+/* @(#)getargs.h	1.19 10/08/27 Copyright 1985-2010 J. Schilling */
 /*
  *	Definitions for getargs()/getallargs()/getfiles()
  *
- *	Copyright (c) 1985-2007 J. Schilling
+ *	Copyright (c) 1985-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -58,7 +58,9 @@ extern "C" {
 #define	NOTAFILE	(-3)	/* Seems to be a flag type	*/
 
 typedef	int	(*getargfun)	__PR((const char *__arg, void *__valp));
-typedef	int	(*getpargfun)	__PR((const char *__arg, void *__valp, int *__pac, char *const **__pav, const char *__opt));
+typedef	int	(*getpargfun)	__PR((const char *__arg, void *__valp,
+						int *__pac, char *const **__pav,
+						const char *__opt));
 
 #define	NO_ARGFUN	(getargpfun)0
 
@@ -107,9 +109,12 @@ extern	char	*getargerror __PR((int));
  * The new list versions of the functions need struct ga_props and thus need
  * getargs.h
  */
-extern	int	getlallargs __PR((int *, char * const**, struct ga_props *, const char *, ...));
-extern	int	getlargs __PR((int *, char * const**, struct ga_props *, const char *, ...));
-extern	int	getlfiles __PR((int *, char * const**, struct ga_props *, const char *));
+extern	int	getlallargs __PR((int *, char * const**, struct ga_props *,
+						const char *, ...));
+extern	int	getlargs __PR((int *, char * const**, struct ga_props *,
+						const char *, ...));
+extern	int	getlfiles __PR((int *, char * const**, struct ga_props *,
+						const char *));
 extern	int	_getarginit __PR((struct ga_props *, size_t, UInt32_t));
 
 #define	getarginit(p, f)	_getarginit(p, sizeof (struct ga_props), f)
@@ -118,9 +123,12 @@ extern	int	_getarginit __PR((struct ga_props *, size_t, UInt32_t));
  * The vector versions of the functions need struct ga_flags and thus need
  * getargs.h
  */
-extern	int	getvallargs __PR((int *, char * const**, struct ga_flags *, struct ga_props *));
-extern	int	getvargs __PR((int *, char * const**, struct ga_flags *, struct ga_props *));
-extern	int	getvfiles __PR((int *, char * const**, struct ga_flags *, struct ga_props *));
+extern	int	getvallargs __PR((int *, char * const**, struct ga_flags *,
+						struct ga_props *));
+extern	int	getvargs __PR((int *, char * const**, struct ga_flags *,
+						struct ga_props *));
+extern	int	getvfiles __PR((int *, char * const**, struct ga_flags *,
+						struct ga_props *));
 
 #ifdef	__cplusplus
 }

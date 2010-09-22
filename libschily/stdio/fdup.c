@@ -1,6 +1,6 @@
-/* @(#)fdup.c	1.14 04/08/08 Copyright 1986, 1995-2003 J. Schilling */
+/* @(#)fdup.c	1.15 10/08/21 Copyright 1986, 1995-2010 J. Schilling */
 /*
- *	Copyright (c) 1986, 1995-2003 J. Schilling
+ *	Copyright (c) 1986, 1995-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -29,7 +29,7 @@ fdup(f)
 
 	down(f);
 	if ((newfd = dup(fileno(f))) < 0)
-		return ((FILE *) NULL);
+		return ((FILE *)NULL);
 
 	lseek(newfd, ftell(f), SEEK_SET);
 	return (_fcons((FILE *)0, newfd, (FI_READ | FI_WRITE | FI_CLOSE)));

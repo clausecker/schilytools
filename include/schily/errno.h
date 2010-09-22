@@ -1,8 +1,8 @@
-/* @(#)errno.h	1.6 06/12/25 Copyright 2006 J. Schilling */
+/* @(#)errno.h	1.7 10/08/24 Copyright 2006-2010 J. Schilling */
 /*
  *	Error number related definitions
  *
- *	Copyright (c) 2006 J. Schilling
+ *	Copyright (c) 2006-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -46,9 +46,17 @@ extern	char	*sys_errlist[];
 extern	int	sys_nerr;
 #endif
 
+#ifdef	__cplusplus
+extern "C" {
+#endif
+
 #ifndef	seterrno
 extern	int	seterrno __PR((int));
 #endif
 extern	int	geterrno __PR((void));
+
+#ifdef	__cplusplus
+}
+#endif
 
 #endif /* _SCHILY_ERRNO_H */

@@ -1,8 +1,8 @@
-/* @(#)avoffset.c	1.30 09/07/10 Copyright 1987, 1995-2009 J. Schilling */
+/* @(#)avoffset.c	1.32 10/09/22 Copyright 1987, 1995-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)avoffset.c	1.30 09/07/10 Copyright 1987, 1995-2009 J. Schilling";
+	"@(#)avoffset.c	1.32 10/09/22 Copyright 1987, 1995-2009 J. Schilling";
 #endif
 /*
  * This program is a tool to generate the file "avoffset.h".
@@ -46,6 +46,9 @@ handler(signo)
 	int	signo;
 {
 	fprintf(stderr, "Warning: Cannot scan stack on this environment.\n");
+
+	printf("\n#endif	/* __AVOFFSET_H */\n");
+	fflush(stdout);
 	exit(0);
 }
 
@@ -94,6 +97,9 @@ main(ac, av)
 	printf(" * If AV_OFFSET or FP_INDIR are missing in this file, all programs\n");
 	printf(" * which use the definitions are automatically disabled.\n");
 	printf(" */\n");
+	printf("#ifndef	__AVOFFSET_H\n");
+	printf("#define	__AVOFFSET_H\n\n");
+
 	stdir = stack_direction(0);
 	printf("#define	STACK_DIRECTION	%d\n", stdir);
 	fflush(stdout);
@@ -120,16 +126,22 @@ main(ac, av)
 	if ((o % sizeof (char *)) != 0) {
 		fprintf(stderr, "AV_OFFSET value (%d) not a multiple of pointer size.\n", o);
 		fprintf(stderr, "Disabling scanning the stack.\n");
+
+		printf("\n#endif	/* __AVOFFSET_H */\n");
 		exit(0);
 	}
 	if (o < -1000 || o > 1000) {
 		fprintf(stderr, "AV_OFFSET value (%d) does not look reasonable.\n", o);
 		fprintf(stderr, "Disabling scanning the stack.\n");
+
+		printf("\n#endif	/* __AVOFFSET_H */\n");
 		exit(0);
 	}
 	printf("#define	AV_OFFSET	%d\n", o);
 	printf("#define	FP_INDIR	%d\n", i);
 #endif
+	printf("\n#endif	/* __AVOFFSET_H */\n");
+	fflush(stdout);
 	exit(0);
 	return (0);	/* keep lint happy */
 }

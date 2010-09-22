@@ -1,8 +1,8 @@
-/* @(#)fnmatch.c	8.15 10/05/08 2005-2010 J. Schilling from 8.2 (Berkeley) */
+/* @(#)fnmatch.c	8.16 10/08/23 2005-2010 J. Schilling from 8.2 (Berkeley) */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)fnmatch.c	8.15 10/05/08 2005-2010 J. Schilling from 8.2 (Berkeley)";
+	"@(#)fnmatch.c	8.16 10/08/23 2005-2010 J. Schilling from 8.2 (Berkeley)";
 #endif
 /*
  * Copyright (c) 1989, 1993, 1994
@@ -37,9 +37,9 @@ static	UConst char sccsid[] =
  */
 
 #if defined(LIBC_SCCS) && !defined(lint)
-static UConst char sccsid[] = "@(#)fnmatch.c	8.15 (Berkeley) 05/08/10";
+static UConst char sccsid[] = "@(#)fnmatch.c	8.16 (Berkeley) 08/23/10";
 #endif /* LIBC_SCCS and not lint */
-/*__FBSDID("$FreeBSD: src/lib/libc/gen/fnmatch.c,v 1.19 2010/04/16 22:29:24 jilles Exp $");*/
+/* "FBSD src/lib/libc/gen/fnmatch.c,v 1.19 2010/04/16 22:29:24 jilles Exp $" */
 
 /*
  * Function fnmatch() as specified in POSIX 1003.2-1992, section B.6.

@@ -1,13 +1,13 @@
-/* @(#)wcsdup.c	1.6 09/07/08 Copyright 2003-2009 J. Schilling */
+/* @(#)wcsdup.c	1.7 10/08/21 Copyright 2003-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)wcsdup.c	1.6 09/07/08 Copyright 2003-2009 J. Schilling";
+	"@(#)wcsdup.c	1.7 10/08/21 Copyright 2003-2010 J. Schilling";
 #endif
 /*
  *	wcsdup() to be used if missing in libc
  *
- *	Copyright (c) 2003-2009 J. Schilling
+ *	Copyright (c) 2003-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -39,7 +39,7 @@ wcsdup(s)
 	if (res == NULL)
 		return (NULL);
 	if (i > 16) {
-		movebytes(s, res, (int) (i * sizeof (wchar_t)));
+		movebytes(s, res, (int)(i * sizeof (wchar_t)));
 	} else {
 		wchar_t	*s2 = res;
 

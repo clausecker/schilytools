@@ -1,13 +1,13 @@
-/* @(#)acl_unix.c	1.40 09/07/11 Copyright 2001-2009 J. Schilling */
+/* @(#)acl_unix.c	1.41 10/08/23 Copyright 2001-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)acl_unix.c	1.40 09/07/11 Copyright 2001-2009 J. Schilling";
+	"@(#)acl_unix.c	1.41 10/08/23 Copyright 2001-2010 J. Schilling";
 #endif
 /*
  *	ACL get and set routines for unix like operating systems.
  *
- *	Copyright (c) 2001-2009 J. Schilling
+ *	Copyright (c) 2001-2010 J. Schilling
  *
  *	This implementation currently supports POSIX.1e and Solaris ACLs.
  *	Thanks to Andreas Gruenbacher <ag@bestbits.at> for the first POSIX ACL
@@ -264,7 +264,6 @@ acl_to_info(name, type, acltext)
 	 * XXX free() instead of acl_free() if we are on True64.
 	 * XXX Cast the string to acl_t to supress the warning.
 	 */
-/*	free(text);*/
 	acl_free((acl_t)text);
 	return (TRUE);
 }
@@ -391,9 +390,11 @@ set_acls(info)
 				(void) errabort(E_SETACL, info->f_name, TRUE);
 			}
 
+#ifdef	__needed__
 			/* Fall back to chmod */
-/* XXX chmod has already been done! */
-/*			chmod(info->f_name, info->f_mode);*/
+			/* XXX chmod has already been done! */
+			chmod(info->f_name, info->f_mode);
+#endif
 		}
 		acl_free(acl);
 	}
@@ -491,7 +492,7 @@ get_acls(info)
 		return (TRUE);
 
 #ifdef	HAVE_ST_ACLCNT
-	aclcount = info->f_aclcnt;
+	aclcount = info->f_aclcnt;	/* UnixWare */
 #else
 	if ((aclcount = acl(info->f_sname, GETACLCNT, 0, NULL)) < 0) {
 #ifdef	ENOSYS

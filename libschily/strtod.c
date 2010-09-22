@@ -1,6 +1,11 @@
-/* @(#)strtod.c	1.4 09/08/27 joerg */
+/* @(#)strtod.c	1.5 10/08/21 joerg */
 
 /*	$NetBSD: strtod.c,v 1.23 1996/10/13 00:07:55 christos Exp $	*/
+/*
+ *	The layout for this file was done by AT&T, we did not change it.
+ *	Switch off cstyle(1) checks for now.
+ */
+/* BEGIN CSTYLED */
 
 /****************************************************************
  *

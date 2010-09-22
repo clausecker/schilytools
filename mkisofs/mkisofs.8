@@ -1,7 +1,7 @@
 '\" t
 .\" To print, first run through tbl
 .\" -*- nroff -*-
-.\" @(#)mkisofs.8	1.135 10/04/25 joerg
+.\" @(#)mkisofs.8	1.136 10/06/04 joerg
 .\"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
 .if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
@@ -15,7 +15,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH MKISOFS 8 "2010/04/25" "Version 3.0"
+.TH MKISOFS 8 "2010/06/04" "Version 3.0"
 .SH NAME
 mkisofs \- create an hybrid ISO-9660/JOLIET/HFS/UDF filesystem-image with optional Rock Ridge attributes.
 .SH SYNOPSIS
@@ -330,7 +330,7 @@ for zero sized files.
 .BI \-b " eltorito_boot_image
 Specifies the path and filename of the boot image to be used when making
 an "El Torito" bootable CD. The pathname must be relative to the source
-path specified to
+path and inside the source tree specified to
 .B mkisofs.
 This option is required to make an "El Torito" bootable CD.
 The boot image must be exactly the size of either a 1200, 1440, or a 2880
@@ -1197,7 +1197,7 @@ the last component matches or the whole path matches.
 .BI \-exclude\-list " file
 A file containing a list of
 .I globs
-to be exclude as above.
+to be excluded as above.
 .TP
 .B \-max\-ISO-9660\-filenames
 Allow 37 chars in ISO-9660 filenames.

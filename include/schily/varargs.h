@@ -1,4 +1,4 @@
-/* @(#)varargs.h	1.6 06/09/13 Copyright 1998 J. Schilling */
+/* @(#)varargs.h	1.7 10/08/27 Copyright 1998-2010 J. Schilling */
 /*
  *	Generic header for users of var args ...
  *
@@ -6,7 +6,10 @@
  *	and some magic know how about the SVr4 Power PC var args ABI
  *	to create a __va_arg_list() macro.
  *
- *	Copyright (c) 1998 J. Schilling
+ *	The __va_arg_list() macro is needed to fetch a va_list type argument
+ *	from a va_list. This is needed to implement a recursive "%r" printf.
+ *
+ *	Copyright (c) 1998-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -60,7 +63,8 @@
 #endif
 
 #if (defined(__linux__) || defined(__linux) || defined(sun)) && \
-		(defined(__ppc) || defined(__PPC) || defined(powerpc) || defined(__powerpc__))
+		(defined(__ppc) || defined(__PPC) || \
+		defined(powerpc) || defined(__powerpc__))
 
 #	ifndef	VA_LIST_IS_ARRAY
 #	define	VA_LIST_IS_ARRAY

@@ -1,8 +1,8 @@
-/* @(#)fifo.c	1.72 09/11/28 Copyright 1989, 1994-2009 J. Schilling */
+/* @(#)fifo.c	1.74 10/08/23 Copyright 1989, 1994-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)fifo.c	1.72 09/11/28 Copyright 1989, 1994-2009 J. Schilling";
+	"@(#)fifo.c	1.74 10/08/23 Copyright 1989, 1994-2010 J. Schilling";
 #endif
 /*
  *	A "fifo" that uses shared memory between two processes
@@ -18,7 +18,7 @@ static	UConst char sccsid[] =
  *		n	fifo_chitape() wake up put side to start wrt Tape chng
  *		N	fifo_chotape()	wake up get side if mp->oblocked == TRUE
  *
- *	Copyright (c) 1989, 1994-2009 J. Schilling
+ *	Copyright (c) 1989, 1994-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -31,8 +31,6 @@ static	UConst char sccsid[] =
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
-
-/*#define	DEBUG*/
 
 #include <schily/stdio.h>
 #include <schily/stdlib.h>
@@ -331,20 +329,17 @@ fifo_ibs_shrink(newsize)
 	fifo_setparams();
 }
 
-/*---------------------------------------------------------------------------
-|
-| Der eigentliche star Prozess ist immer im Vordergrund.
-| Der Band Prozess ist immer im Hintergrund.
-|
-| Band -> fifo -> star
-| star -> fifo -> star	-copy	flag
-| star -> fifo -> Band	-c	flag
-|
-| Beim Lesen ist der star Prozess der get Prozess.
-| Beim Schreiben ist der star Prozess der put Prozess.
-|
-+---------------------------------------------------------------------------*/
-
+/*
+ * Der eigentliche star Prozess ist immer im Vordergrund.
+ * Der Band Prozess ist immer im Hintergrund.
+ *
+ * Band -> fifo -> star
+ * star -> fifo -> star	-copy	flag
+ * star -> fifo -> Band	-c	flag
+ *
+ * Beim Lesen ist der star Prozess der get Prozess.
+ * Beim Schreiben ist der star Prozess der put Prozess.
+ */
 EXPORT void
 runfifo(ac, av)
 	int		ac;
@@ -468,11 +463,9 @@ fifo_stats()
 }
 
 
-/*---------------------------------------------------------------------------
-|
-| Semaphore wait
-|
-+---------------------------------------------------------------------------*/
+/*
+ * Semaphore wait
+ */
 LOCAL int
 swait(f)
 	int	f;
@@ -506,11 +499,9 @@ swait(f)
 	return ((int)c);
 }
 
-/*---------------------------------------------------------------------------
-|
-| Semaphore wakeup
-|
-+---------------------------------------------------------------------------*/
+/*
+ * Semaphore wakeup
+ */
 LOCAL int
 swakeup(f, c)
 	int	f;
@@ -532,11 +523,9 @@ fifo_amount()
 }
 
 
-/*---------------------------------------------------------------------------
-|
-| wait until at least amount bytes may be put into the fifo
-|
-+---------------------------------------------------------------------------*/
+/*
+ * wait until at least amount bytes may be put into the fifo
+ */
 EXPORT int
 fifo_iwait(amount)
 	int	amount;
@@ -591,11 +580,9 @@ fifo_iwait(amount)
 }
 
 
-/*---------------------------------------------------------------------------
-|
-| add amount bytes to putcount and wake up get side if necessary
-|
-+---------------------------------------------------------------------------*/
+/*
+ * add amount bytes to putcount and wake up get side if necessary
+ */
 EXPORT void
 fifo_owake(amount)
 	int	amount;
@@ -628,11 +615,9 @@ fifo_owake(amount)
 }
 
 
-/*---------------------------------------------------------------------------
-|
-| send EOF condition to get side
-|
-+---------------------------------------------------------------------------*/
+/*
+ * send EOF condition to get side
+ */
 EXPORT void
 fifo_oflush()
 {
@@ -644,11 +629,9 @@ fifo_oflush()
 	}
 }
 
-/*---------------------------------------------------------------------------
-|
-| wait until at least obs bytes may be taken out of fifo
-|
-+---------------------------------------------------------------------------*/
+/*
+ * wait until at least obs bytes may be taken out of fifo
+ */
 EXPORT int
 fifo_owait(amount)
 	int	amount;
@@ -724,11 +707,9 @@ again:
 }
 
 
-/*---------------------------------------------------------------------------
-|
-| add amount bytes to getcount and wake up put side if necessary
-|
-+---------------------------------------------------------------------------*/
+/*
+ * add amount bytes to getcount and wake up put side if necessary
+ */
 EXPORT void
 fifo_iwake(amt)
 	int	amt;
@@ -1048,7 +1029,9 @@ mkshm(size)
 	 * or
 	 * warning: illegal combination of pointer and integer, op =
 	 */
-/*	extern	char *shmat();*/
+#ifdef	__never__
+	extern	char *shmat();
+#endif
 
 	if ((id = shmget(IPC_PRIVATE, size, IPC_CREAT|0600)) == -1)
 		comerr("shmget failed\n");

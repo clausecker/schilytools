@@ -1,8 +1,8 @@
-/* @(#)cdrecord.c	1.397 10/02/22 Copyright 1995-2010 J. Schilling */
+/* @(#)cdrecord.c	1.398 10/06/04 Copyright 1995-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)cdrecord.c	1.397 10/02/22 Copyright 1995-2010 J. Schilling";
+	"@(#)cdrecord.c	1.398 10/06/04 Copyright 1995-2010 J. Schilling";
 #endif
 /*
  *	Record data on a CD/CVD-Recorder
@@ -1228,7 +1228,7 @@ main(ac, av)
 		if ((p = getenv("CDR_FORCESPEED")) != NULL) {
 			if ((dp->cdr_dstat->ds_cdrflags & RF_BURNFREE) == 0) {
 				errmsgno(EX_BAD,
-				"WARNING: 'CDR_FORCSPEED=' is set.\n");
+				"WARNING: 'CDR_FORCESPEED=' is set.\n");
 				errmsgno(EX_BAD,
 				"WARNING: Use 'driveropts=burnfree' to avoid buffer underuns.\n");
 			}
@@ -4475,7 +4475,7 @@ load_media(scgp, dp, doexit)
 	scgp->silent--;
 	err = geterrno();
 	if (code < 0 && (err == EPERM || err == EACCES)) {
-		linuxcheck();	/* For version 1.397 of cdrecord.c */
+		linuxcheck();	/* For version 1.398 of cdrecord.c */
 		scg_openerr("");
 	}
 
@@ -5363,7 +5363,7 @@ set_wrmode(dp, wmode, tflags)
 }
 
 /*
- * I am sorry that even for version 1.397 of cdrecord.c, I am forced to do
+ * I am sorry that even for version 1.398 of cdrecord.c, I am forced to do
  * things like this, but defective versions of cdrecord cause a lot of
  * work load to me.
  *
@@ -5380,7 +5380,7 @@ set_wrmode(dp, wmode, tflags)
 #endif
 
 LOCAL void
-linuxcheck()				/* For version 1.397 of cdrecord.c */
+linuxcheck()				/* For version 1.398 of cdrecord.c */
 {
 #if	defined(linux) || defined(__linux) || defined(__linux__)
 #ifdef	HAVE_UNAME

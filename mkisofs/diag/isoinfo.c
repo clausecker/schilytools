@@ -1,8 +1,8 @@
-/* @(#)isoinfo.c	1.80 10/05/24 joerg */
+/* @(#)isoinfo.c	1.81 10/06/04 joerg */
 #include <schily/mconfig.h>
 #ifndef	lint
 static	UConst char sccsid[] =
-	"@(#)isoinfo.c	1.80 10/05/24 joerg";
+	"@(#)isoinfo.c	1.81 10/06/04 joerg";
 #endif
 /*
  * File isodump.c - dump iso9660 directory information.
@@ -47,7 +47,6 @@ static	UConst char sccsid[] =
 #include <schily/utypes.h>
 #include <schily/standard.h>
 #include <schily/signal.h>
-#include <schily/stat.h>
 #include <schily/stat.h>
 #include <schily/fcntl.h>
 #include <schily/schily.h>

@@ -1,13 +1,13 @@
-/* @(#)align_test.c	1.26 09/11/07 Copyright 1995-2009 J. Schilling */
+/* @(#)align_test.c	1.29 10/08/26 Copyright 1995-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef	lint
 static	UConst char sccsid[] =
-	"@(#)align_test.c	1.26 09/11/07 Copyright 1995-2009 J. Schilling";
+	"@(#)align_test.c	1.29 10/08/26 Copyright 1995-2010 J. Schilling";
 #endif
 /*
  *	Generate machine dependant align.h
  *
- *	Copyright (c) 1995-2009 J. Schilling
+ *	Copyright (c) 1995-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -220,6 +220,8 @@ main(ac, av)
 	printf(" * by %s\n", sccsid);
 	printf(" * do not edit by hand.\n");
 	printf(" */\n");
+	printf("#ifndef	__ALIGN_H\n");
+	printf("#define	__ALIGN_H\n\n");
 
 	s = sizeof (short);
 	i  = ALIGN_short;
@@ -327,6 +329,8 @@ main(ac, av)
 	printf("#define	SIZE_TMAX	%d\t/* %s(%s)\t\t\t*/\n", smax, so, mt);
 
 	printmacs();
+	printf("\n#endif	/* __ALIGN_H */\n");
+	fflush(stdout);
 	return (0);
 }
 
@@ -340,8 +344,8 @@ printf(" * Believe me that this macro would even be usable if I would cast to sh
 printf(" * In order to avoid this warning, we are now using UIntptr_t\n */\n");
 /*printf("\n");*/
 /*printf("\n");*/
-printf("#define	xaligned(a, s)		((((UIntptr_t)(a)) & (s)) == 0 )\n");
-printf("#define	x2aligned(a, b, s)	(((((UIntptr_t)(a)) | ((UIntptr_t)(b))) & (s)) == 0 )\n");
+printf("#define	xaligned(a, s)		((((UIntptr_t)(a)) & (s)) == 0)\n");
+printf("#define	x2aligned(a, b, s)	(((((UIntptr_t)(a)) | ((UIntptr_t)(b))) & (s)) == 0)\n");
 printf("\n");
 printf("#define	saligned(a)		xaligned(a, ALIGN_SMASK)\n");
 printf("#define	s2aligned(a, b)		x2aligned(a, b, ALIGN_SMASK)\n");
@@ -375,7 +379,7 @@ printf("/*\n * There used to be a cast to an int but we get a warning from GCC.\
 printf(" * This warning message from GCC is wrong.\n");
 printf(" * Believe me that this macro would even be usable if I would cast to short.\n");
 printf(" * In order to avoid this warning, we are now using UIntptr_t\n */\n");
-printf("#define	xalign(x, a, m)		( ((char *)(x)) + ( (a) - 1 - ((((UIntptr_t)(x))-1)&(m))) )\n");
+printf("#define	xalign(x, a, m)		(((char *)(x)) + ((a) - 1 - ((((UIntptr_t)(x))-1)&(m))))\n");
 printf("\n");
 printf("#define	salign(x)		xalign((x), ALIGN_SHORT, ALIGN_SMASK)\n");
 printf("#define	ialign(x)		xalign((x), ALIGN_INT, ALIGN_IMASK)\n");
@@ -683,10 +687,10 @@ speed_check(p, sfunc, n)
 	times(&tm2);
 
 #ifdef	DEBUG
-	fprintf(stderr, "t1: %ld\n", (long) tm2.tms_utime-tm1.tms_utime);
+	fprintf(stderr, "t1: %ld\n", (long)tm2.tms_utime-tm1.tms_utime);
 #endif
 
-	return ((int) tm2.tms_utime-tm1.tms_utime);
+	return ((int)tm2.tms_utime-tm1.tms_utime);
 }
 
 #endif	/* CHECK_ALIGN */

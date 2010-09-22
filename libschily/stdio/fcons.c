@@ -1,6 +1,6 @@
-/* @(#)fcons.c	2.18 07/04/03 Copyright 1986, 1995-2007 J. Schilling */
+/* @(#)fcons.c	2.19 10/08/21 Copyright 1986, 1995-2010 J. Schilling */
 /*
- *	Copyright (c) 1986, 1995-2007  J. Schilling
+ *	Copyright (c) 1986, 1995-2010  J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -75,5 +75,5 @@ _fcons(fd, f, flag)
 	if (flag & FI_CLOSE)
 		close(f);
 
-	return ((FILE *) NULL);
+	return ((FILE *)NULL);
 }

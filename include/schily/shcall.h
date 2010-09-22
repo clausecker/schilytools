@@ -1,8 +1,8 @@
-/* @(#)shcall.h	1.2 09/05/02 Copyright 2009 J. Schilling */
+/* @(#)shcall.h	1.3 10/08/27 Copyright 2009-2010 J. Schilling */
 /*
  *	Abstraction from shcall.h
  *
- *	Copyright (c) 2009 J. Schilling
+ *	Copyright (c) 2009-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -42,7 +42,8 @@ typedef struct {
 #define	__squit_t_defined
 #endif
 
-typedef	int	(*shcall)	__PR((int ac, char **av, char **ev, FILE *std[3], squit_t *__quit));
+typedef	int	(*shcall)	__PR((int ac, char **av, char **ev,
+					FILE *std[3], squit_t *__quit));
 
 #ifdef	__cplusplus
 }

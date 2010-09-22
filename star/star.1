@@ -1,4 +1,4 @@
-. \" @(#)star.1	1.162 09/12/22 Copyr 1982-2009 J. Schilling
+. \" @(#)star.1	1.164 10/07/28 Copyr 1982-2009 J. Schilling
 . \"  Manual Seite fuer star
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -13,7 +13,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH STAR 1 "09/12/22" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH STAR 1 "10/07/28" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 star \- unique standard tape archiver
 .SH SYNOPSIS
@@ -3791,8 +3791,20 @@ They may be created by using the
 option in
 .B star's 
 create mode.
-Existing files are not overwritten. In a file is missing, a zero sized
-files is created.
+Existing files are not overwritten. If a file is missing, a zero sized
+file is created.
+If the option
+.B \-meta
+is used together with the option
+.BR \-force\-hole ,
+missing plain files are created as sparse empty files of the original size.
+.TP
+.B \-xz
+run the input or output through a
+.B xz
+pipe - see option
+.B \-z
+below.
 .TP
 .B \-Z
 run the input or output through a 

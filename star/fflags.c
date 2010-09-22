@@ -1,13 +1,13 @@
-/* @(#)fflags.c	1.23 09/07/11 Copyright 2001-2009 J. Schilling */
+/* @(#)fflags.c	1.24 10/08/23 Copyright 2001-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)fflags.c	1.23 09/07/11 Copyright 2001-2009 J. Schilling";
+	"@(#)fflags.c	1.24 10/08/23 Copyright 2001-2010 J. Schilling";
 #endif
 /*
  *	Routines to handle extended file flags
  *
- *	Copyright (c) 2001-2009 J. Schilling
+ *	Copyright (c) 2001-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -225,7 +225,7 @@ LOCAL struct {
 	{ "journal-data",	EXT3_JOURNAL_DATA_FL },
 #endif
 
-/*--------------------------------------------------------------------------*/
+/* ------------------------------------------------------------------------- */
 
 	/* The following flags may be set without being super user. */
 #ifdef	UF_APPEND

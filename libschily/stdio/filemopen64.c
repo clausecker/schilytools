@@ -1,4 +1,4 @@
-/* @(#)filemopen64.c	1.2 04/08/08 Copyright 2000-2004 J. Schilling */
+/* @(#)filemopen64.c	1.3 10/08/23 Copyright 2000-2004 J. Schilling */
 /*
  *	Copyright (c) 2000-2004 J. Schilling
  */
@@ -18,7 +18,6 @@
 
 #include "schilyio.h"
 
-/*#if	_LFS_LARGEFILE*/
 #ifdef	HAVE_LARGEFILES
 
 #include "filemopen.c"

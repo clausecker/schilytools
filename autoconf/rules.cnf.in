@@ -1,8 +1,11 @@
-# @(#)rules.cnf.in	1.22 09/11/05 Copyright 1998-2009 J. Schilling
+# @(#)rules.cnf.in	1.23 10/09/21 Copyright 1998-2009 J. Schilling
 
 EXEEXT= @EXEEXT@
 XEXEEXT= @XEXEEXT@
 OBJEXT= @OBJEXT@
+
+YACC= @YACC@
+BISON= @BISON@
 
 LARGEFILE_CC_OPT= @largefile_cc_opt@
 SUN_CC64_OPT= @sun_cc64_opt@	# Used on e.g. Solaris and Linux

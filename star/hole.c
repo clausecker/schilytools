@@ -1,14 +1,13 @@
-/*#define	DEBUG*/
-/* @(#)hole.c	1.56 09/11/07 Copyright 1993-2009 J. Schilling */
+/* @(#)hole.c	1.59 10/08/23 Copyright 1993-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)hole.c	1.56 09/11/07 Copyright 1993-2009 J. Schilling";
+	"@(#)hole.c	1.59 10/08/23 Copyright 1993-2010 J. Schilling";
 #endif
 /*
  *	Handle files with holes (sparse files)
  *
- *	Copyright (c) 1993-2009 J. Schilling
+ *	Copyright (c) 1993-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -43,7 +42,6 @@ static	UConst char sccsid[] =
 #	endif
 #endif	/* sun */
 
-/*#define	SEEK_DEBUG*/
 #ifdef	SEEK_DEBUG
 #define	SEEK_DATA	3
 #define	SEEK_HOLE	4
@@ -104,6 +102,7 @@ LOCAL	int	get_end_hole	__PR((fh_t *fh));
 LOCAL	int	write_end_hole	__PR((fh_t *fh));
 EXPORT	int	gnu_skip_extended __PR((FINFO *info));
 EXPORT	int	get_sparse	__PR((FILE *f, FINFO *info));
+EXPORT	int	get_as_hole	__PR((FILE *f, FINFO *info));
 EXPORT	BOOL	cmp_sparse	__PR((FILE *f, FINFO *info));
 EXPORT	void	put_sparse	__PR((int *fp, FINFO *info));
 LOCAL	void	put_sp_list	__PR((FINFO *info, sp_t *sparse, int nsparse));
@@ -404,8 +403,6 @@ put_sparse_func(fh, p, amount)
 	}
 	fh->fh_size -= cnt;
 	fh->fh_newpos += cnt;
-/*	if (cnt < TBLOCK)*/
-/*		fillbytes(&p[cnt], TBLOCK-cnt, '\0');*/
 
 	EDEBUG(("off: %lld numb: %lld cnt: %d off+numb: %lld newpos: %lld index: %d\n",
 		(Llong)fh->fh_sparse[fh->fh_spindex].sp_offset,
@@ -460,7 +457,7 @@ get_sp_list(info, nsparsep)
 	register int	sparse_in_hdr = props.pr_sparse_in_hdr;
 	register int	ind;
 		char	*p;
-/*XXX*/extern long hdrtype;
+	extern long hdrtype;	/* XXX */
 
 	EDEBUG(("rsize: %lld\n", (Llong)info->f_rsize));
 
@@ -995,6 +992,7 @@ write_end_hole(fh)
 	f = fdown(fh->fh_file);
 	off = fh->fh_sparse[fh->fh_spindex].sp_offset;
 
+	seterrno(0);
 	if (lseek(f, off-1, SEEK_SET) == (off_t)-1) {
 		if (!errhidden(E_WRITE, fh->fh_name)) {
 			if (!errwarnonly(E_WRITE, fh->fh_name))
@@ -1065,6 +1063,28 @@ get_sparse(f, info)
 		ret = get_end_hole(&fh);
 	free(sparse);
 	return (ret);
+}
+
+EXPORT int
+get_as_hole(f, info)
+	FILE	*f;
+	FINFO	*info;
+{
+	fh_t	fh;
+	sp_t	sparse;
+
+	sparse.sp_offset = info->f_size;
+	sparse.sp_numbytes = 0;
+
+	fh.fh_file = f;
+	fh.fh_name = info->f_name;
+	fh.fh_size = info->f_rsize;
+	fh.fh_newpos = (off_t)0;
+	fh.fh_sparse = &sparse;
+	fh.fh_nsparse = 1;
+	fh.fh_spindex = 0;
+
+	return (get_end_hole(&fh));
 }
 
 EXPORT BOOL
@@ -1152,7 +1172,7 @@ put_sp_list(info, sparse, nsparse)
 	register char	*p;
 		TCB	tb;
 		TCB	*ptb = info->f_tcb;
-/*XXX*/extern long hdrtype;
+	extern long hdrtype;	/* XXX */
 
 	EDEBUG(("1nsparse: %d rsize: %lld\n", nsparse, (Llong)info->f_rsize));
 

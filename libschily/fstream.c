@@ -1,13 +1,13 @@
-/* @(#)fstream.c	1.26 09/07/08 Copyright 1985-2009 J. Schilling */
+/* @(#)fstream.c	1.28 10/08/23 Copyright 1985-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)fstream.c	1.26 09/07/08 Copyright 1985-2009 J. Schilling";
+	"@(#)fstream.c	1.28 10/08/23 Copyright 1985-2010 J. Schilling";
 #endif
 /*
  *	Stream filter module
  *
- *	Copyright (c) 1985-2009 J. Schilling
+ *	Copyright (c) 1985-2010 J. Schilling
  *
  *	Exported functions:
  *		mkfstream(f, fun, rfun, efun)	Construct new fstream
@@ -37,12 +37,13 @@ static	UConst char sccsid[] =
 #include <schily/stdlib.h>
 #include <schily/fstream.h>
 
-EXPORT	fstream *mkfstream	__PR((FILE * f, fstr_fun sfun, fstr_rfun rfun, fstr_efun efun));
+EXPORT	fstream *mkfstream	__PR((FILE *f, fstr_fun sfun, fstr_rfun rfun,
+					fstr_efun efun));
 EXPORT	void	fsclose		__PR((fstream *fsp));
-EXPORT	FILE	*fssetfile	__PR((fstream * fsp, FILE * f));
-EXPORT	int	fsgetc		__PR((fstream * fsp));
-EXPORT	void	fspushstr	__PR((fstream * fsp, char *ss));
-EXPORT	void	fspushcha	__PR((fstream * fsp, int c));
+EXPORT	FILE	*fssetfile	__PR((fstream *fsp, FILE *f));
+EXPORT	int	fsgetc		__PR((fstream *fsp));
+EXPORT	void	fspushstr	__PR((fstream *fsp, char *ss));
+EXPORT	void	fspushcha	__PR((fstream *fsp, int c));
 LOCAL	void	s_ccpy		__PR((CHAR *ts, unsigned char *ss));
 LOCAL	void	s_scpy		__PR((CHAR *ts, CHAR *ss));
 LOCAL	void	s_scat		__PR((CHAR *ts, CHAR *ss));
@@ -126,7 +127,6 @@ fspushstr(fsp, ss)
 
 	for (tp = fsp->fstr_bp; *tp; tp++);	/* Wide char strlen() */
 	len = tp - fsp->fstr_bp + strlen(ss);
-/*	len = strlen(fsp->fstr_bp) + strlen(ss);*/
 	if (len > STR_SBUF_SIZE) {			/* realloc !!! */
 		if ((ts = (CHAR *)malloc(sizeof (*ts)*(len+1))) == NULL)
 			raisecond("fspushstr", (long)NULL);
@@ -185,7 +185,6 @@ LOCAL void
 s_ccpy(ts, ss)
 	register CHAR	*ts;
 	register unsigned char	*ss;
-/*	register char	*ss;*/
 {
 	while (*ss)
 		*ts++ = *ss++;
@@ -210,7 +209,6 @@ LOCAL void
 s_ccat(ts, ss)
 	register string	ts;
 	register unsigned char	*ss;
-/*	register char	*ss;*/
 {
 	while (*ts)
 		ts++;

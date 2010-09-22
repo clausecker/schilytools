@@ -1,10 +1,23 @@
-# @(#)libschily-mapvers	1.15 09/06/06 Copyright 2005-2006 J. Schilling
+# @(#)libschily-mapvers	1.16 10/07/21 Copyright 2005-2010 J. Schilling
+
+SCHILY_1.5 {
+global:
+	_getarginit;
+
+	getlallargs;
+	getlargs;
+	getlfiles;
+
+	js_fnmatch;
+} SCHILY_1.4;
 
 SCHILY_1.4 {
 global:
 	patwcompile;
 	patwmatch;
 	patwlmatch;
+
+	strndup;
 
 #	wcscat;
 	wcscatl;
@@ -13,11 +26,15 @@ global:
 #	wcscpy;
 	wcsdup;
 	wcseql;
+	wcslcat;
 	wcslcpy;
 #	wcslen;
 #	wcsncat;
+#	wcsncat;
 #	wcsncmp;
 #	wcsncpy;
+	wcsndup;
+	wcsnlen;
 #	wcsrchr;
 } SCHILY_1.3;
 

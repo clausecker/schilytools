@@ -1,9 +1,9 @@
-/* @(#)props.h	1.23 07/10/25 Copyright 1994-2008 J. Schilling */
+/* @(#)props.h	1.24 10/08/27 Copyright 1994-2010 J. Schilling */
 /*
  *	Properties definitions to handle different
  *	archive types
  *
- *	Copyright (c) 1994-2006 J. Schilling
+ *	Copyright (c) 1994-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -54,7 +54,7 @@ struct properties {
 	int	pr_maxprefix;		/* max length of prefix if splitting */
 	int	pr_sparse_in_hdr;	/* # of sparse entries in header */
 	char	pr_xftypetab[32];	/* (*1) list of supported file types */
-	char	pr_typeflagtab[256];	/* (*2) list of supported TCB typeflags */
+	char	pr_typeflagtab[256];	/* (*2) list of supported TCB typeflg */
 };
 
 /*

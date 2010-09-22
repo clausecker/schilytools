@@ -1,4 +1,4 @@
-/* @(#)aspi-dos.h	1.2 05/05/15 J. Schilling */
+/* @(#)aspi-dos.h	1.3 10/08/08 J. Schilling */
 #ifndef	__ASPI16_H_
 #define	__ASPI16_H_
 
@@ -105,7 +105,7 @@ typedef struct {
 		BYTE	CDBLen;			// 17/023 CDB Length = 6/10/12
 		BYTE	HaStat;			// 18/024 Host Adapter Status
 		BYTE	TargStat;		// 19/025 Target Status
-		VOID	FAR *PostProc;		// 1A/026 Post routine
+		void	FAR *PostProc;		// 1A/026 Post routine
 		BYTE	Rsvd2[34];		// 1E/030 Reserved, MUST = 0
 
 		union {
@@ -137,7 +137,7 @@ typedef struct {
 
 	struct {
 
-		VOID	FAR	*SRBToAbort;	// 08/008 Pointer to SRB to abort
+		void	FAR	*SRBToAbort;	// 08/008 Pointer to SRB to abort
 
 	} PACKED Abort;
 
@@ -147,7 +147,7 @@ typedef struct {
 		BYTE	ResetRsvd1[14];	// 0A/010 Reserved, MUST = 0
 		BYTE	HaStat;		// 18/024 Host Adapter Status
 		BYTE	TargStat;	// 19/025 Target Status
-		VOID	FAR *PostProc;	// 1A/026 Post routine
+		void	FAR *PostProc;	// 1A/026 Post routine
 		BYTE	ResetRsvd2[34];	// 1E/030 Reserved, MUST = 0
 	} Reset;
 	} PACKED Type;

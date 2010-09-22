@@ -1,8 +1,8 @@
-/* @(#)mconfig.h	1.66 09/10/17 Copyright 1995-2009 J. Schilling */
+/* @(#)mconfig.h	1.68 10/08/27 Copyright 1995-2010 J. Schilling */
 /*
  *	definitions for machine configuration
  *
- *	Copyright (c) 1995-2009 J. Schilling
+ *	Copyright (c) 1995-2010 J. Schilling
  *
  *	This file must be included before any other file.
  *	If this file is not included before stdio.h you will not be
@@ -78,7 +78,8 @@ extern "C" {
 #endif
 
 #ifndef	IS_UNIX
-#	if (defined(unix) || defined(__unix) || defined(__unix__)) && !defined(__DJGPP__)
+#	if (defined(unix) || defined(__unix) || defined(__unix__)) && \
+	!defined(__DJGPP__)
 #		define	IS_UNIX
 #	endif
 #endif
@@ -108,7 +109,7 @@ extern "C" {
 #endif
 #endif
 
-/*--------------------------------------------------------------------------*/
+/* ------------------------------------------------------------------------- */
 /*
  * Some magic that cannot (yet) be figured out with autoconf.
  */
@@ -275,7 +276,8 @@ extern "C" {
 #define	NO_PRINT_OVR
 #undef	HAVE_USG_STDIO
 				/*
-				 * NeXT Step 3.x uses __flsbuf(unsigned char, FILE *)
+				 * NeXT Step 3.x uses
+				 * __flsbuf(unsigned char, FILE *)
 				 * instead of __flsbuf(int, FILE *)
 				 */
 #	ifndef	IS_UNIX
@@ -307,7 +309,7 @@ extern "C" {
 
 #endif	/* __OPRINTF__ */
 
-/*--------------------------------------------------------------------------*/
+/* ------------------------------------------------------------------------- */
 
 #ifndef	_SCHILY_PROTOTYP_H
 #include <schily/prototyp.h>
@@ -336,8 +338,8 @@ extern "C" {
  * #endif
  *
  * Be very careful here as older MSVC versions do not implement long long but
- * rather __int64 and once someone makes 'long long' 128 bits on a 64 bit machine,
- * we may need to check for a MSVC __int128 type.
+ * rather __int64 and once someone makes 'long long' 128 bits on a 64 bit
+ * machine, we may need to check for a MSVC __int128 type.
  */
 #ifndef	HAVE_LONGLONG
 #	if	defined(HAVE___INT64)

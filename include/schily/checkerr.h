@@ -1,4 +1,4 @@
-/* @(#)checkerr.h	1.11 09/06/06 Copyright 2003-2009 J. Schilling */
+/* @(#)checkerr.h	1.13 10/08/27 Copyright 2003-2010 J. Schilling */
 /*
  *	Generic error control for programs that do file i/o.
  *	The error control is usually used by archiving programs.
@@ -9,7 +9,7 @@
  *	an official stable and "library-compliant" interface, be careful
  *	and watch for changes.
  *
- *	Copyright (c) 2003-2009 J. Schilling
+ *	Copyright (c) 2003-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -34,6 +34,10 @@
 #endif
 #ifndef	_SCHILY_UTYPES_H
 #include <schily/utypes.h>
+#endif
+
+#ifdef	__cplusplus
+extern "C" {
 #endif
 
 /*
@@ -73,6 +77,11 @@
 extern	int	errconfig	__PR((char *name));
 extern	BOOL	errhidden	__PR((int etype, const char *fname));
 extern	BOOL	errwarnonly	__PR((int etype, const char *fname));
-extern	BOOL	errabort	__PR((int etype, const char *fname, BOOL doexit));
+extern	BOOL	errabort	__PR((int etype, const char *fname,
+						BOOL doexit));
+
+#ifdef	__cplusplus
+}
+#endif
 
 #endif /* _SCHILY_CHECKERR_H */

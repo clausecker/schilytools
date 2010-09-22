@@ -1,9 +1,16 @@
-/* @(#)xconfig.h.in	1.198 10/05/07 Copyright 1998-2009 J. Schilling */
+/* @(#)xconfig.h.in	1.202 10/08/26 Copyright 1998-2010 J. Schilling */
 /*
  *	Dynamic autoconf C-include code.
+ *	Do not edit, this file has been created automatically.
  *
- *	Copyright (c) 1998-2009 J. Schilling
+ *	Copyright (c) 1998-2010 J. Schilling
+ *
+ *	The layout for this file is controlled by "configure".
+ *	Switch off cstyle(1) checks for now.
  */
+#ifndef	__XCONFIG_H
+#define	__XCONFIG_H
+/* BEGIN CSTYLED */
 
 /*
  * Header Files
@@ -392,6 +399,8 @@
 #undef HAVE_STRCASECMP		/* strcasecmp() is present in libc */
 #undef HAVE_BASENAME		/* basename() is present in libc */
 #undef HAVE_DIRNAME		/* dirname() is present in libc */
+#undef HAVE_PATHCONF		/* pathconf() is present in libc */
+#undef HAVE_FPATHCONF		/* fpathconf() is present in libc */
 #undef HAVE_STRTOL		/* strtol() is present in libc */
 #undef HAVE_STRTOLL		/* strtoll() is present in libc */
 #undef HAVE_STRTOUL		/* strtoul() is present in libc */
@@ -920,3 +929,5 @@
 /*
  * End restricted code for quality assurance.
  */
+
+#endif	/* __XCONFIG_H */

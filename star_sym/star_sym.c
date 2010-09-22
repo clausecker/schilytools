@@ -1,14 +1,14 @@
-/* @(#)star_sym.c	1.12 09/07/11 Copyright 2005-2009 J. Schilling */
+/* @(#)star_sym.c	1.13 10/08/23 Copyright 2005-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)star_sym.c	1.12 09/07/11 Copyright 2005-2009 J. Schilling";
+	"@(#)star_sym.c	1.13 10/08/23 Copyright 2005-2010 J. Schilling";
 #endif
 /*
  *	Read in the star inode data base and write a human
  *	readable version.
  *
- *	Copyright (c) 2005-2009 J. Schilling
+ *	Copyright (c) 2005-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -227,7 +227,7 @@ extern	BOOL		is_star;
 	return (0);
 }
 
-/*--------------------------------------------------------------------------*/
+/* ------------------------------------------------------------------------- */
 #include <schily/nlsdefs.h>
 
 #include <schily/walk.h>
@@ -350,7 +350,6 @@ doscan(ac, av)
 		fa.std[i] = std[i];
 	}
 	fa.walkflags = WALK_CHDIR | WALK_PHYS;
-/*	fa.walkflags |= WALK_NOSTAT;*/
 	fa.walkflags |= WALK_NOEXIT;
 
 	Tree = 0;

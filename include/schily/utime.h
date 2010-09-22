@@ -1,8 +1,8 @@
-/* @(#)utime.h	1.8 07/01/16 Copyright 2001-2007 J. Schilling */
+/* @(#)utime.h	1.9 10/08/24 Copyright 2001-2010 J. Schilling */
 /*
  *	Defines for utimes() / utime()
  *
- *	Copyright (c) 2001-2007 J. Schilling
+ *	Copyright (c) 2001-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -45,10 +45,20 @@
 #define	_INCL_SYS_UTIME_H
 #endif
 #else
+
+#ifdef	__cplusplus
+extern "C" {
+#endif
+
 struct utimbuf {
 	time_t	actime;
 	time_t	modtime;
 };
+
+#ifdef	__cplusplus
+}
+#endif
+
 #endif
 #endif
 
@@ -66,6 +76,5 @@ struct utimbuf {
 #endif
 
 #endif	/* __comment__ */
-
 
 #endif	/* _SCHILY_UTIME_H */

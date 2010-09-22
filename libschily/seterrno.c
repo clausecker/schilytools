@@ -1,8 +1,8 @@
-/* @(#)seterrno.c	1.11 09/07/26 Copyright 1985, 1995-2003 J. Schilling */
+/* @(#)seterrno.c	1.13 10/08/23 Copyright 1985, 1995-2010 J. Schilling */
 /*
  *	Set error number
  *
- *	Copyright (c) 1985, 1995-2003 J. Schilling
+ *	Copyright (c) 1985, 1995-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -16,8 +16,12 @@
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
+#ifndef	_TS_ERRNO
 #define	_TS_ERRNO		/* Solaris: get thread safe errno value */
+#endif
+#ifndef	_LIBC_REENTRANT
 #define	_LIBC_REENTRANT		/* Linux: get thread safe errno value */
+#endif
 #include <schily/standard.h>
 #include <schily/errno.h>
 #include <schily/schily.h>

@@ -1,6 +1,6 @@
-/* @(#)fetchdir.h	1.5 08/04/06 Copyright 2002-2008 J. Schilling */
+/* @(#)fetchdir.h	1.6 10/08/27 Copyright 2002-2010 J. Schilling */
 /*
- *	Copyright (c) 2002-2008 J. Schilling
+ *	Copyright (c) 2002-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -18,15 +18,17 @@
 #define	_SCHILY_FETCHDIR_H
 
 #ifndef	_SCHILY_DIRENT_H
-#include <schily/dirent.h>			/* Includes mconfig.h if needed	    */
+#include <schily/dirent.h>		/* Includes mconfig.h if needed */
 #endif
 
 #ifdef	__cplusplus
 extern "C" {
 #endif
 
-extern	char	*fetchdir	__PR((char *dir, int *entp, int *lenp, ino_t **inop));
-extern	char	*dfetchdir	__PR((DIR *dir, char *dirname, int *entp, int *lenp, ino_t **inop));
+extern	char	*fetchdir	__PR((char *dir, int *entp, int *lenp,
+					ino_t **inop));
+extern	char	*dfetchdir	__PR((DIR *dir, char *dirname, int *entp,
+					int *lenp, ino_t **inop));
 extern	int	fdircomp	__PR((const void *p1, const void *p2));
 extern	char	**sortdir	__PR((char *dir, int *entp));
 extern	int	cmpdir		__PR((int ents1, int ents2,

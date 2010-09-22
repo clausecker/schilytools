@@ -1,8 +1,8 @@
-/* @(#)swabbytes.c	1.8 09/10/17 Copyright 1988, 1995-2009 J. Schilling */
+/* @(#)swabbytes.c	1.10 10/08/21 Copyright 1988, 1995-2010 J. Schilling */
 /*
  *	swab bytes in memory
  *
- *	Copyright (c) 1988, 1995-2009 J. Schilling
+ *	Copyright (c) 1988, 1995-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -32,6 +32,7 @@ swabbytes(vp, cnt)
 
 	cnt /= 2;	/* even count only */
 	while ((cnt -= 8) >= 0) {
+		/* CSTYLED */
 		DO8(c = *bp++; bp[-1] = *bp; *bp++ = c;);
 	}
 	cnt += 8;

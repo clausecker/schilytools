@@ -1,4 +1,4 @@
-/* @(#)stkframe.h	1.12 09/01/06 Copyright 1995-2009 J. Schilling */
+/* @(#)stkframe.h	1.13 10/08/27 Copyright 1995-2010 J. Schilling */
 /*
  * Common definitions for routines that parse the stack frame.
  *
@@ -85,6 +85,6 @@ struct frame {
 #endif
 
 # endif	/* ! defined (sun) */
-#endif	/* ! defined (sun) && (defined(SVR4) || defined(__SVR4) || defined(__SVR4__)) */
+#endif	/* ! defined (sun) && (defined(SVR4) || defined(__SVR4) || ... */
 
 #endif	/* _SCHILY_STKFRAME_H */

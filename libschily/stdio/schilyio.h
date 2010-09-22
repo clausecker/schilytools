@@ -1,6 +1,6 @@
-/* @(#)schilyio.h	2.27 09/06/30 Copyright 1986, 1995-2009 J. Schilling */
+/* @(#)schilyio.h	2.28 10/08/23 Copyright 1986, 1995-2010 J. Schilling */
 /*
- *	Copyright (c) 1986, 1995-2009 J. Schilling
+ *	Copyright (c) 1986, 1995-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -32,7 +32,6 @@
 #	endif
 #endif
 
-/*#if	_LFS_LARGEFILE*/
 #ifdef	HAVE_LARGEFILES
 /*
  * XXX We may need to put this code to a more global place to allow all
@@ -163,7 +162,6 @@ extern	void	_io_add_my_flag __PR((FILE *, int));
  * Define prototypes to verify if our interface is right
  */
 extern	int	__filbuf		__PR((FILE *));
-/*extern	int	__flsbuf		__PR(());*/
 #else
 #	ifdef	HAVE__FILBUF
 #	define	usg_filbuf(fp)		_filbuf(fp)
@@ -172,7 +170,6 @@ extern	int	__filbuf		__PR((FILE *));
  * Define prototypes to verify if our interface is right
  */
 extern	int	_filbuf			__PR((FILE *));
-/*extern	int	_flsbuf			__PR(());*/
 #	else
 /*
  * no filbuf() but this will not happen on USG_STDIO systems.
@@ -187,7 +184,6 @@ extern	int	_filbuf			__PR((FILE *));
  *
  * Note that the interface is now checked by autoconf.
  */
-/*extern	int	_flsbuf	__PR((int, FILE *));*/
 #else
 /*
  * If we are on a non USG system we cannot down file pointers

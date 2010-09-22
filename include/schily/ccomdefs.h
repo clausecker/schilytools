@@ -1,4 +1,4 @@
-/* @(#)ccomdefs.h	1.9 10/04/26 Copyright 2000-2010 J. Schilling */
+/* @(#)ccomdefs.h	1.11 10/08/01 Copyright 2000-2010 J. Schilling */
 /*
  *	Various compiler dependant macros.
  *
@@ -33,7 +33,8 @@ extern "C" {
  * that are not known to support the features properly (old versions of gcc-2
  * didn't permit keeping the keywords out of the application namespace).
  */
-#if __GNUC__ < 2 || __GNUC__ == 2 && __GNUC_MINOR__ < 7
+#if __GNUC__ < 2 || (__GNUC__ == 2 && __GNUC_MINOR__ < 7) || \
+	defined(NO_PRINTFLIKE)
 
 #define	__printflike__(fmtarg, firstvararg)
 #define	__printf0like__(fmtarg, firstvararg)

@@ -1,8 +1,8 @@
-/* @(#)cmpnullbytes.c	1.9 10/05/24 Copyright 1988,2002-2010 J. Schilling */
+/* @(#)cmpnullbytes.c	1.10 10/08/21 Copyright 1988,2002-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)cmpnullbytes.c	1.9 10/05/24 Copyright 1988,2002-2010 J. Schilling";
+	"@(#)cmpnullbytes.c	1.10 10/08/21 Copyright 1988,2002-2010 J. Schilling";
 #endif  /* lint */
 /*
  *	compare data against null
@@ -62,10 +62,12 @@ cmpnullbytes(fromp, cnt)
 
 			n /= (8 * sizeof (long));
 			do {
+				/* BEGIN CSTYLED */
 				DO8(
 					if (*froml++ != 0)
 						break;
 				);
+				/* END CSTYLED */
 			} while (--n > 0);
 
 			if (n > 0) {
@@ -80,10 +82,12 @@ cmpnullbytes(fromp, cnt)
 		if (n >= 8) {
 			n -= 8;
 			do {
+				/* BEGIN CSTYLED */
 				DO8(
 					if (*from++ != 0)
 						goto cdiff;
 				);
+				/* END CSTYLED */
 			} while ((n -= 8) >= 0);
 			n += 8;
 		}

@@ -1,4 +1,4 @@
-/* @(#)mtio.h	1.5 06/09/13 Copyright 1995,2000-2002 J. Schilling */
+/* @(#)mtio.h	1.6 10/08/23 Copyright 1995,2000-2010 J. Schilling */
 /*
  *	Generic header for users of magnetic tape ioctl interface.
  *
@@ -7,7 +7,7 @@
  *	to be able to do at least remote mtio on systems
  *	that have no local mtio
  *
- *	Copyright (c) 1995,2000-2002 J. Schilling
+ *	Copyright (c) 1995,2000-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -58,7 +58,7 @@ struct	mtop {
 #define	MTFSF		1	/* fwd space over file mark(s)		*/
 #define	MTBSF		2	/* back space over file mark(s) (1/2" only ) */
 #define	MTFSR		3	/* fwd space record(s) (to inter-record gap) */
-#define	MTBSR		4	/* back space record(s) (to inter-record gap)*/
+#define	MTBSR		4	/* back space record(s) (to inter-record gap) */
 #define	MTREW		5	/* rewind tape				*/
 #define	MTOFFL		6	/* rewind and put the drive offline	*/
 #define	MTNOP		7	/* no operation (sets status ?)		*/

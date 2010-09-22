@@ -1,4 +1,4 @@
-#ident "@(#)cc-sunpro64.rul	1.11 09/01/06 "
+#ident "@(#)cc-sunpro64.rul	1.12 10/06/23 "
 ###########################################################################
 # Written 1996-2009 by J. Schilling
 ###########################################################################
@@ -28,6 +28,8 @@ LINTFLAGS=	-Nlevel=4
 _SUNPROCOPT64=	$(_UNIQ)$(SUN_CC64_OPT)
 __SUNPROCOPT64=	$(_SUNPROCOPT64:$(_UNIQ)=-xarch=generic64)
 SUNPROCOPT64=	$(__SUNPROCOPT64:$(_UNIQ)%=%)
+
+XARCH_GEN=	$(SUNPROCOPT64)
 
 CPPOPTS=	-I$(ARCHDIR) -I$(OINCSDIR) $(INCDIRS:%=-I%) $(INCDIRSX:%=-I%) $(OSDEFS)
 COPTS=		-Xa $(SUNPROCOPT64)

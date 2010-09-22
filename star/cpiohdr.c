@@ -1,14 +1,14 @@
-/* @(#)cpiohdr.c	1.26 09/07/11 Copyright 1994-2009 J. Schilling */
+/* @(#)cpiohdr.c	1.27 10/08/23 Copyright 1994-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)cpiohdr.c	1.26 09/07/11 Copyright 1994-2009 J. Schilling";
+	"@(#)cpiohdr.c	1.27 10/08/23 Copyright 1994-2010 J. Schilling";
 #endif
 /*
  *	Handling routines to read/write, parse/create
  *	cpio archive headers
  *
- *	Copyright (c) 1994-2009 J. Schilling
+ *	Copyright (c) 1994-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -570,7 +570,7 @@ cpio_cksum(name)
 /*
  * Convert octal string -> long int
  */
-LOCAL void /*char **/
+LOCAL void
 astoo_cpio(s, l, cnt)
 	register char	*s;
 		Ulong	*l;
@@ -590,13 +590,12 @@ astoo_cpio(s, l, cnt)
 		ret += t;
 	}
 	*l = ret;
-	/*return (s);*/
 }
 
 /*
  * Convert hex string -> long int
  */
-LOCAL void /*char **/
+LOCAL void
 astoh_cpio(s, l, cnt)
 	register char	*s;
 		Ulong	*l;
@@ -620,7 +619,6 @@ astoh_cpio(s, l, cnt)
 		ret += t;
 	}
 	*l = ret;
-	/*return (s);*/
 }
 
 /*

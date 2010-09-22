@@ -1,13 +1,13 @@
-/* @(#)extract.c	1.134 09/07/11 Copyright 1985-2009 J. Schilling */
+/* @(#)extract.c	1.137 10/08/23 Copyright 1985-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)extract.c	1.134 09/07/11 Copyright 1985-2009 J. Schilling";
+	"@(#)extract.c	1.137 10/08/23 Copyright 1985-2010 J. Schilling";
 #endif
 /*
  *	extract files from archive
  *
- *	Copyright (c) 1985-2009 J. Schilling
+ *	Copyright (c) 1985-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -1381,7 +1381,9 @@ copy_file(from, to, do_symlink, eflags)
 		errmsg("Cannot open '%s'.\n", from);
 	} else {
 		if ((fout = fileopen(to, "wtcub")) == 0) {
-/*			errmsg("Cannot create '%s'.\n", to);*/
+#ifdef	__really__
+			errmsg("Cannot create '%s'.\n", to);
+#endif
 			return (-1);
 		} else {
 			while ((cnt = ffileread(fin, buf, sizeof (buf))) > 0)
@@ -1740,7 +1742,10 @@ get_ofile(f, info)
 	if (is_sparse(info)) {
 		ret = get_sparse(f, info);
 	} else if (force_hole) {
-		ret = get_forced_hole(f, info);
+		if (xmeta)
+			ret = get_as_hole(f, info);
+		else
+			ret = get_forced_hole(f, info);
 	} else {
 		ret = xt_file(info, (int(*)__PR((void *, char *, int)))ffilewrite,
 						f, 0, "writing");

@@ -1,8 +1,8 @@
-/* @(#)utypes.h	1.29 09/11/05 Copyright 1997-2009 J. Schilling */
+/* @(#)utypes.h	1.32 10/08/27 Copyright 1997-2010 J. Schilling */
 /*
  *	Definitions for some user defined types
  *
- *	Copyright (c) 1997-2009 J. Schilling
+ *	Copyright (c) 1997-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -214,6 +214,11 @@ typedef unsigned char	Ucbit;
 #	endif
 #endif
 #endif
+
+#ifdef	__cplusplus
+extern "C" {
+#endif
+
 /*
  * On VMS on VAX, these types are present but non-scalar.
  * Thus we may not be able to use them
@@ -295,7 +300,10 @@ error  Sizeof char is not equal 1
 	typedef		__int64		Int64_t;
 #	define	HAVE_INT64_T
 #else
-/*	error		No int64_t found*/
+/*
+ * Tolerate platforms without 64-Bit support.
+ */
+/*	error		No int64_t found */
 #endif
 #endif
 #endif
@@ -340,7 +348,10 @@ typedef	unsigned char		UInt8_t;
 	typedef	unsigned __int64	UInt64_t;
 #	define	HAVE_UINT64_T
 #else
-/*	error		No uint64_t found*/
+/*
+ * Tolerate platforms without 64-Bit support.
+ */
+/*	error		No uint64_t found */
 #endif
 #endif
 #endif
@@ -496,7 +507,7 @@ typedef	unsigned char		UInt8_t;
 
 #define	SIZE_T_MIN	TYPE_MINVAL(size_t)
 #ifdef	SIZE_T_MAX
-#undef	SIZE_T_MAX				/* FreeBSD has a similar #define */
+#undef	SIZE_T_MAX			/* FreeBSD has a similar #define */
 #endif
 #define	SIZE_T_MAX	TYPE_MAXVAL(size_t)
 
@@ -553,5 +564,9 @@ typedef	unsigned char		UInt8_t;
 
 #define	SOCKLEN_T_MIN	TYPE_MINVAL(socklen_t)
 #define	SOCKLEN_T_MAX	TYPE_MAXVAL(socklen_t)
+
+#ifdef	__cplusplus
+}
+#endif
 
 #endif	/* _SCHILY_UTYPES_H */

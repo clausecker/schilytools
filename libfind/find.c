@@ -1,26 +1,16 @@
 /*#define	PLUS_DEBUG*/
-/* @(#)find.c	1.90 10/04/27 Copyright 2004-2010 J. Schilling */
+/* @(#)find.c	1.92 10/08/23 Copyright 2004-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)find.c	1.90 10/04/27 Copyright 2004-2010 J. Schilling";
+	"@(#)find.c	1.92 10/08/23 Copyright 2004-2010 J. Schilling";
 #endif
 /*
  *	Another find implementation...
  *
  *	Copyright (c) 2004-2010 J. Schilling
  */
-/*
- * The contents of this file are subject to the terms of the
- * Common Development and Distribution License, Version 1.0 only
- * (the "License").  You may not use this file except in compliance
- * with the License.
- *
- * See the file CDDL.Schily.txt in this distribution for details.
- *
- * When distributing Covered Code, include this CDDL HEADER in each
- * file and include the License file CDDL.Schily.txt from this distribution.
- */
+/*@@C@@*/
 
 #ifdef	__FIND__
 #define	FIND_MAIN
@@ -2341,8 +2331,6 @@ getflg(optstr, argp)
 	char	*optstr;
 	long	*argp;
 {
-/*	error("optstr: '%s'\n", optstr);*/
-
 	if (optstr[1] != '\0')
 		return (-1);
 
@@ -2369,9 +2357,9 @@ main(ac, av)
 	char	**av;
 {
 	int	cac  = ac;
-	char *	*cav = av;
-	char *	*firstpath;
-	char *	*firstprim;
+	char	**cav = av;
+	char	**firstpath;
+	char	**firstprim;
 	BOOL	help = FALSE;
 	BOOL	prversion = FALSE;
 	finda_t	fa;

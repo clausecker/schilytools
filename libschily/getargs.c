@@ -1,12 +1,12 @@
-/* @(#)getargs.c	2.62 09/11/28 Copyright 1985, 1988, 1994-2009 J. Schilling */
+/* @(#)getargs.c	2.64 10/08/23 Copyright 1985, 1988, 1994-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)getargs.c	2.62 09/11/28 Copyright 1985, 1988, 1994-2009 J. Schilling";
+	"@(#)getargs.c	2.64 10/08/23 Copyright 1985, 1988, 1994-2010 J. Schilling";
 #endif
 #define	NEW
 /*
- *	Copyright (c) 1985, 1988, 1994-2009 J. Schilling
+ *	Copyright (c) 1985, 1988, 1994-2010 J. Schilling
  *
  *	1.3.88	 Start implementation of release 2
  */
@@ -128,11 +128,9 @@ _getarginit(props, size, flags)
 	return (0);
 }
 
-/*---------------------------------------------------------------------------
-|
-|	get flags until a non flag type argument is reached (old version)
-|
-+---------------------------------------------------------------------------*/
+/*
+ *	get flags until a non flag type argument is reached (old version)
+ */
 /* VARARGS3 */
 #ifdef	PROTOTYPES
 EXPORT int
@@ -160,11 +158,9 @@ getargs(pac, pav, fmt, va_alist)
 }
 
 
-/*---------------------------------------------------------------------------
-|
-|	get flags until a non flag type argument is reached (list version)
-|
-+---------------------------------------------------------------------------*/
+/*
+ *	get flags until a non flag type argument is reached (list version)
+ */
 /* VARARGS4 */
 #ifdef	PROTOTYPES
 EXPORT int
@@ -193,11 +189,9 @@ getlargs(pac, pav, props, fmt, va_alist)
 }
 
 
-/*---------------------------------------------------------------------------
-|
-|	get flags until a non flag type argument is reached (vector version)
-|
-+---------------------------------------------------------------------------*/
+/*
+ *	get flags until a non flag type argument is reached (vector version)
+ */
 EXPORT int
 getvargs(pac, pav, vfmt, props)
 	int	*pac;
@@ -209,11 +203,9 @@ getvargs(pac, pav, vfmt, props)
 }
 
 
-/*---------------------------------------------------------------------------
-|
-|	get all flags on the command line, do not stop on files (old version)
-|
-+---------------------------------------------------------------------------*/
+/*
+ *	get all flags on the command line, do not stop on files (old version)
+ */
 /* VARARGS3 */
 #ifdef	PROTOTYPES
 EXPORT int
@@ -244,11 +236,9 @@ getallargs(pac, pav, fmt, va_alist)
 }
 
 
-/*---------------------------------------------------------------------------
-|
-|	get all flags on the command line, do not stop on files (list version)
-|
-+---------------------------------------------------------------------------*/
+/*
+ *	get all flags on the command line, do not stop on files (list version)
+ */
 /* VARARGS4 */
 #ifdef	PROTOTYPES
 EXPORT int
@@ -282,11 +272,9 @@ getlallargs(pac, pav, props, fmt, va_alist)
 }
 
 
-/*---------------------------------------------------------------------------
-|
-|	get all flags on the command line, do not stop on files (vector version)
-|
-+---------------------------------------------------------------------------*/
+/*
+ *	get all flags on the command line, do not stop on files (vector version)
+ */
 EXPORT int
 getvallargs(pac, pav, vfmt, props)
 	int	*pac;
@@ -306,12 +294,10 @@ getvallargs(pac, pav, vfmt, props)
 }
 
 
-/*---------------------------------------------------------------------------
-|
-|	get next non flag type argument (i.e. a file) (old version)
-|	getfiles() is a dry run getargs()
-|
-+---------------------------------------------------------------------------*/
+/*
+ *	get next non flag type argument (i.e. a file) (old version)
+ *	getfiles() is a dry run getargs()
+ */
 EXPORT int
 getfiles(pac, pav, fmt)
 	int		*pac;
@@ -322,12 +308,10 @@ getfiles(pac, pav, fmt)
 }
 
 
-/*---------------------------------------------------------------------------
-|
-|	get next non flag type argument (i.e. a file) (list version)
-|	getlfiles() is a dry run getlargs()
-|
-+---------------------------------------------------------------------------*/
+/*
+ *	get next non flag type argument (i.e. a file) (list version)
+ *	getlfiles() is a dry run getlargs()
+ */
 EXPORT int
 getlfiles(pac, pav, props, fmt)
 	int		*pac;
@@ -339,12 +323,10 @@ getlfiles(pac, pav, props, fmt)
 }
 
 
-/*---------------------------------------------------------------------------
-|
-|	get next non flag type argument (i.e. a file) (vector version)
-|	getvfiles() is a dry run getvargs()
-|
-+---------------------------------------------------------------------------*/
+/*
+ *	get next non flag type argument (i.e. a file) (vector version)
+ *	getvfiles() is a dry run getvargs()
+ */
 EXPORT int
 getvfiles(pac, pav, vfmt, props)
 	int		*pac;
@@ -356,21 +338,20 @@ getvfiles(pac, pav, vfmt, props)
 }
 
 
-/*---------------------------------------------------------------------------
-|
-|	check args until the next non flag type argmument is reached
-|	*pac is decremented, *pav is incremented so that the
-|	non flag type argument is at *pav[0]
-|
-|	return code:
-|		+2 FLAGDELIM	"--" stopped flag processing
-|		+1 NOTAFLAG	not a flag type argument (is a file)
-|		 0 NOARGS	no more args
-|		-1 BADFLAG	a non-matching flag type argument
-|		-2 BADFMT	bad syntax in format string
-|
-+---------------------------------------------------------------------------*/
-/*LOCAL*/ int
+/*
+ *	check args until the next non flag type argmument is reached
+ *	*pac is decremented, *pav is incremented so that the
+ *	non flag type argument is at *pav[0]
+ *
+ *	return code:
+ *		+2 FLAGDELIM	"--" stopped flag processing
+ *		+1 NOTAFLAG	not a flag type argument (is a file)
+ *		 0 NOARGS	no more args
+ *		-1 BADFLAG	a non-matching flag type argument
+ *		-2 BADFMT	bad syntax in format string
+ */
+/* LOCAL int */
+EXPORT int
 _getargs(pac, pav, vfmt, flags, props, args)
 	register int		*pac;
 	register char	*const	**pav;
@@ -406,11 +387,9 @@ _getargs(pac, pav, vfmt, flags, props, args)
 }
 
 
-/*---------------------------------------------------------------------------
-|
-| check if *pargp is a file type argument
-|
-+---------------------------------------------------------------------------*/
+/*
+ * check if *pargp is a file type argument
+ */
 LOCAL int
 dofile(pac, pav, pargp, props)
 	register int		*pac;
@@ -471,17 +450,15 @@ dofile(pac, pav, pargp, props)
 }
 
 
-/*---------------------------------------------------------------------------
-|
-|	compare argp with the format string
-|	if a match is found store the result a la scanf in one of the
-|	arguments pointed to in the va_list
-|
-|	If (flags & SETARGS) == 0, only check arguments for getfiles()
-|	In case that (flags & SETARGS) == 0 or that (flags & ARGVECTOR) != 0,
-|	va_list may be a dummy argument.
-|
-+---------------------------------------------------------------------------*/
+/*
+ *	compare argp with the format string
+ *	if a match is found store the result a la scanf in one of the
+ *	arguments pointed to in the va_list
+ *
+ *	If (flags & SETARGS) == 0, only check arguments for getfiles()
+ *	In case that (flags & SETARGS) == 0 or that (flags & ARGVECTOR) != 0,
+ *	va_list may be a dummy argument.
+ */
 LOCAL int
 doflag(pac, pav, argp, vfmt, flags, oargs)
 		int		*pac;
@@ -998,11 +975,9 @@ again:
 }
 
 
-/*---------------------------------------------------------------------------
-|
-|	parse args for combined single char flags
-|
-+---------------------------------------------------------------------------*/
+/*
+ *	parse args for combined single char flags
+ */
 typedef struct {
 	void	*curarg;	/* The pointer to the arg to modify	 */
 	short	count;		/* The number of times a sc flag appears */
@@ -1162,13 +1137,11 @@ again:
 	return (NOTAFLAG);
 }
 
-/*---------------------------------------------------------------------------
-|
-|	If the next format character is a comma or the string delimiter,
-|	there are no invalid format specifiers. Return success.
-|	Otherwise raise the getarg_bad_format condition.
-|
-+---------------------------------------------------------------------------*/
+/*
+ *	If the next format character is a comma or the string delimiter,
+ *	there are no invalid format specifiers. Return success.
+ *	Otherwise raise the getarg_bad_format condition.
+ */
 LOCAL int
 checkfmt(fmt)
 	const char	*fmt;
@@ -1186,15 +1159,13 @@ checkfmt(fmt)
 	}
 }
 
-/*---------------------------------------------------------------------------
-|
-|	Parse the string as long as valid characters can be found.
-|	Valid flag identifiers are chosen from the set of
-|	alphanumeric characters, '-' and '_'.
-|	If the next character is an equal sign the string
-|	contains a valid flag identifier.
-|
-+---------------------------------------------------------------------------*/
+/*
+ *	Parse the string as long as valid characters can be found.
+ *	Valid flag identifiers are chosen from the set of
+ *	alphanumeric characters, '-' and '_'.
+ *	If the next character is an equal sign the string
+ *	contains a valid flag identifier.
+ */
 LOCAL int
 checkeql(str)
 	register const char *str;

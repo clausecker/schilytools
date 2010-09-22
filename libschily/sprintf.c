@@ -1,6 +1,6 @@
-/* @(#)sprintf.c	1.15 06/09/13 Copyright 1985, 1988-2003 J. Schilling */
+/* @(#)sprintf.c	1.16 10/08/21 Copyright 1985, 1988-2010 J. Schilling */
 /*
- *	Copyright (c) 1985, 1988-2003 J. Schilling
+ *	Copyright (c) 1985, 1988-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -32,7 +32,7 @@ static void _cput(c, ba)
 	long	ba;
 #endif
 {
-	*(*(char **) ba)++ = c;
+	*(*(char **)ba)++ = c;
 }
 
 /* VARARGS2 */

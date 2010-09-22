@@ -1,11 +1,11 @@
-/* @(#)wcsndup.c	1.1 10/05/04 Copyright 2003-2010 J. Schilling */
+/* @(#)wcsndup.c	1.2 10/07/21 Copyright 2003-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)wcsndup.c	1.1 10/05/04 Copyright 2003-2010 J. Schilling";
+	"@(#)wcsndup.c	1.2 10/07/21 Copyright 2003-2010 J. Schilling";
 #endif
 /*
- *	strndup() to be used if missing in libc
+ *	wcsndup() to be used if missing in libc
  *
  *	Copyright (c) 2003-2010 J. Schilling
  */
@@ -25,18 +25,19 @@ static	UConst char sccsid[] =
 #include <schily/stdlib.h>
 #include <schily/string.h>
 #include <schily/unistd.h>
+#include <schily/wchar.h>
 #include <schily/schily.h>
 #include <schily/libport.h>
 
-#ifndef	HAVE_STRNDUP
+#ifndef	HAVE_WCSNDUP
 
-EXPORT char *
-strndup(s, len)
-	const char	*s;
+EXPORT wchar_t *
+wcsndup(s, len)
+	const wchar_t	*s;
 	size_t		len;
 {
-	size_t	i	= strnlen(s, len) + 1;
-	char	 *res	= malloc(i);
+	size_t	i	= wcsnlen(s, len) + 1;
+	wchar_t	 *res	= malloc(i);
 
 	if (res == NULL)
 		return (NULL);
@@ -44,7 +45,7 @@ strndup(s, len)
 		movebytes(s, res, --i);
 		res[i] = '\0';
 	} else {
-		char	*s2 = res;
+		wchar_t	*s2 = res;
 
 		while (--i > 0 && (*s2++ = *s++) != '\0')
 			;

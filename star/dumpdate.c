@@ -1,11 +1,11 @@
-/* @(#)dumpdate.c	1.22 09/12/31 Copyright 2003-2009 J. Schilling */
+/* @(#)dumpdate.c	1.23 10/08/23 Copyright 2003-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)dumpdate.c	1.22 09/12/31 Copyright 2003-2009 J. Schilling";
+	"@(#)dumpdate.c	1.23 10/08/23 Copyright 2003-2010 J. Schilling";
 #endif
 /*
- *	Copyright (c) 2003-2009 J. Schilling
+ *	Copyright (c) 2003-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -31,8 +31,6 @@ static	UConst char sccsid[] =
 
 #include "dumpdate.h"
 #include "starsubs.h"
-
-/*#define	DEBUG*/
 
 #ifdef	HAVE_LARGEFILES
 /*

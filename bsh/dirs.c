@@ -1,8 +1,8 @@
-/* @(#)dirs.c	1.26 09/07/11 Copyright 1984-2009 J. Schilling */
+/* @(#)dirs.c	1.27 10/07/28 Copyright 1984-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)dirs.c	1.26 09/07/11 Copyright 1984-2009 J. Schilling";
+	"@(#)dirs.c	1.27 10/07/28 Copyright 1984-2009 J. Schilling";
 #endif
 /*
  *	Directory routines
@@ -277,6 +277,8 @@ changedir(std, dir, cdenv, locklist, flg)
 						 *p1 ?(flg|PRINT): flg)) == 0) {
 			break;
 		}
+		if (err == ENOENT && newdir[0] == '\0')
+			break;
 		if (err == EACCES || !p2)
 			break;
 		free(newdir);

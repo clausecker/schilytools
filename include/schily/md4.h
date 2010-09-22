@@ -1,8 +1,8 @@
-/* @(#)md4.h	1.3 09/08/08 2009 J. Schilling */
+/* @(#)md4.h	1.4 10/08/27 2009-2010 J. Schilling */
 /*
  * MD4 hash code taken from OpenBSD
  *
- * Portions Copyright (c) 2009 J. Schilling
+ * Portions Copyright (c) 2009-2010 J. Schilling
  */
 /*	$OpenBSD: md4.h,v 1.15 2004/06/22 01:57:30 jfb Exp $	*/
 
@@ -45,7 +45,8 @@ extern void	 MD4Init	__PR((MD4_CTX *));
 extern void	 MD4Update	__PR((MD4_CTX *, const void *, size_t));
 extern void	 MD4Pad		__PR((MD4_CTX *));
 extern void	 MD4Final	__PR((UInt8_t [MD4_DIGEST_LENGTH], MD4_CTX *));
-extern void	 MD4Transform	__PR((UInt32_t [4], const UInt8_t [MD4_BLOCK_LENGTH]));
+extern void	 MD4Transform	__PR((UInt32_t [4],
+					const UInt8_t [MD4_BLOCK_LENGTH]));
 extern char	*MD4End		__PR((MD4_CTX *, char *));
 extern char	*MD4File	__PR((const char *, char *));
 extern char	*MD4FileChunk	__PR((const char *, char *, off_t, off_t));

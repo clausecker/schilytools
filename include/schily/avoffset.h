@@ -1,8 +1,8 @@
-/* @(#)avoffset.h	1.7 07/12/01 Copyright 1995-2007 J. Schilling */
+/* @(#)avoffset.h	1.9 10/08/27 Copyright 1995-2010 J. Schilling */
 /*
  *	Platform dependent definitions for stack scanning.
  *
- *	Copyright (c) 1995-2007 J. Schilling
+ *	Copyright (c) 1995-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -32,8 +32,8 @@
  *	If getav0() does not work on a specific architecture
  *	the program which generated this automaticly generated include file
  *	may dump core. In this case, the generated include file does not include
- *	definitions for AV_OFFSET and FP_INDIR but ends after the STACK_DIRECTION
- *	definition.
+ *	definitions for AV_OFFSET and FP_INDIR but ends after the
+ *	STACK_DIRECTION definition.
  *	If AV_OFFSET or FP_INDIR are missing in the file, all code
  *	that use the definitions are automatically disabled.
  */
@@ -120,5 +120,15 @@ Error unconfigured architecture
 #endif
 
 #endif	/* SCHILY_BUILD */
+
+#ifdef	__cplusplus
+extern "C" {
+#endif
+/*
+ * Fake in order to keep the silly hdrchk(1) quiet.
+ */
+#ifdef	__cplusplus
+}
+#endif
 
 #endif /* _SCHILY_AVOFFSET_H */

@@ -1,8 +1,8 @@
-/* @(#)rmtio.h	1.6 06/09/13 Copyright 1995,2000 J. Schilling */
+/* @(#)rmtio.h	1.7 10/08/24 Copyright 1995,2000-2010 J. Schilling */
 /*
  *	Definition for enhanced remote tape IO
  *
- *	Copyright (c) 1995,2000-2002 J. Schilling
+ *	Copyright (c) 1995,2000-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -24,6 +24,10 @@
 #endif
 #ifndef	_SCHILY_UTYPES_H
 #include <schily/utypes.h>
+#endif
+
+#ifdef	__cplusplus
+extern "C" {
 #endif
 
 /*
@@ -147,6 +151,10 @@ struct rmtget	{
 #define	MT_ISTAND25G	0x37		/* sun: SCSI Tandberg 2.5 Gig QIC */
 #define	MT_ISDLT	0x38		/* sun: SCSI DLT tape drive */
 #define	MT_ISSTK9840	0x39		/* sun: STK 9840 (Ironsides) */
+#endif
+
+#ifdef	__cplusplus
+}
 #endif
 
 #endif /* _SCHILY_RMTIO_H */

@@ -1,8 +1,8 @@
-/* @(#)md5.h	1.10 09/08/08 2008-2009 J. Schilling */
+/* @(#)md5.h	1.11 10/08/27 2008-2010 J. Schilling */
 /*
  * MD5 hash code taken from OpenBSD
  *
- * Portions Copyright (c) 2008-2009 J. Schilling
+ * Portions Copyright (c) 2008-2010 J. Schilling
  */
 
 /*	$OpenBSD: md5.h,v 1.16 2004/06/22 01:57:30 jfb Exp $	*/
@@ -45,7 +45,8 @@ extern void	 MD5Init	__PR((MD5_CTX *));
 extern void	 MD5Update	__PR((MD5_CTX *, const void *, size_t));
 extern void	 MD5Pad		__PR((MD5_CTX *));
 extern void	 MD5Final	__PR((UInt8_t [MD5_DIGEST_LENGTH], MD5_CTX *));
-extern void	 MD5Transform	__PR((UInt32_t [4], const UInt8_t [MD5_BLOCK_LENGTH]));
+extern void	 MD5Transform	__PR((UInt32_t [4],
+					const UInt8_t [MD5_BLOCK_LENGTH]));
 extern char	*MD5End		__PR((MD5_CTX *, char *));
 extern char	*MD5File	__PR((const char *, char *));
 extern char	*MD5FileChunk	__PR((const char *, char *, off_t, off_t));

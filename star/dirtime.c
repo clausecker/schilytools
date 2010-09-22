@@ -1,11 +1,11 @@
-/* @(#)dirtime.c	1.27 09/07/11 Copyright 1988-2009 J. Schilling */
+/* @(#)dirtime.c	1.28 10/08/23 Copyright 1988-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)dirtime.c	1.27 09/07/11 Copyright 1988-2009 J. Schilling";
+	"@(#)dirtime.c	1.28 10/08/23 Copyright 1988-2010 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1988-2009 J. Schilling
+ *	Copyright (c) 1988-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -47,7 +47,6 @@ static	UConst char sccsid[] =
 #include "dirtime.h"
 #include "starsubs.h"
 
-/*#define DEBUG*/
 #ifdef DEBUG
 extern	BOOL	debug;
 #define	EDBG(a)	if (debug) error a

@@ -1,4 +1,4 @@
-/* @(#)filesize64.c	1.6 04/08/08 Copyright 2000 J. Schilling */
+/* @(#)filesize64.c	1.7 10/08/23 Copyright 2000 J. Schilling */
 /*
  *	Copyright (c) 2000 J. Schilling
  */
@@ -18,7 +18,6 @@
 
 #include "schilyio.h"
 
-/*#if	_LFS_LARGEFILE*/
 #ifdef	HAVE_LARGEFILES
 
 #include "filesize.c"

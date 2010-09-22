@@ -1,8 +1,8 @@
-/* @(#)write.c	1.129 10/06/01 joerg */
+/* @(#)write.c	1.130 10/06/04 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)write.c	1.129 10/06/01 joerg";
+	"@(#)write.c	1.130 10/06/04 joerg";
 #endif
 /*
  * Program write.c - dump memory  structures to  file for iso9660 filesystem.
@@ -430,8 +430,12 @@ static	char		buffer[SECTOR_SIZE * NSECT];
 			 */
 			if (geterrno() == 0) {
 				if (!errhidden(amt > remain ? E_GROW:E_SHRINK, filename)) {
-					if (!errwarnonly(amt < remain ? E_SHRINK:E_GROW, filename))
-						errmsgno(EX_BAD, "Try to use the option -data-change-warn\n");
+					if (!errwarnonly(amt < remain ? E_SHRINK:E_GROW, filename)) {
+						errmsgno(EX_BAD,
+						"Try to use the option -data-change-warn\n");
+						errmsgno(EX_BAD,
+						"Files should not change while mkisofs is running.\n");
+					}
 					errmsgno(EX_BAD,
 					"File '%s' did %s.\n",
 						filename,

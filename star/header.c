@@ -1,14 +1,14 @@
-/* @(#)header.c	1.139 09/07/11 Copyright 1985, 1994-2009 J. Schilling */
+/* @(#)header.c	1.144 10/08/23 Copyright 1985, 1994-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)header.c	1.139 09/07/11 Copyright 1985, 1994-2009 J. Schilling";
+	"@(#)header.c	1.144 10/08/23 Copyright 1985, 1994-2010 J. Schilling";
 #endif
 /*
  *	Handling routines to read/write, parse/create
  *	archive headers
  *
- *	Copyright (c) 1985, 1994-2009 J. Schilling
+ *	Copyright (c) 1985, 1994-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -54,6 +54,7 @@ typedef struct {
 #define	HF_RO	0x01	/* Read only entry - may not be set via cmd line */
 
 LOCAL	htab_t	htab[] = {
+/* BEGIN CSTYLED */
 /* 0 */	{ "UNDEFINED",	"Undefined archive",			H_UNDEF, HF_RO	},
 /* 1 */	{ "unknown tar", "Unknown tar format", 			H_TAR,   HF_RO	},
 /* 2 */	{ "v7tar",	"Old UNIX V7 tar format",		H_V7TAR,  0	},
@@ -79,21 +80,23 @@ LOCAL	htab_t	htab[] = {
 
 	{ NULL,		NULL, 					0, 0 },
 };
+/* END CSTYLED */
 
 /*
  * Compression names
  */
 LOCAL	char	*cnames[] = {
-	"unknown",		/* 0 C_NONE	*/
-	"pack",			/* 1 C_PACL	*/
-	"gzip",			/* 2 C_GZIP	*/
-	"lzw",			/* 3 C_LZW	*/
-	"freeze",		/* 4 C_FREEZE	*/
-	"lzh",			/* 5 C_LZH	*/
-	"pkzip",		/* 6 C_PKZIP	*/
-	"bzip2",		/* 7 C_BZIP2	*/
-	"lzo",			/* 8 C_LZO	*/
-	"7z",			/* 9 C_7Z	*/
+	"unknown",		/*  0 C_NONE	*/
+	"pack",			/*  1 C_PACL	*/
+	"gzip",			/*  2 C_GZIP	*/
+	"lzw",			/*  3 C_LZW	*/
+	"freeze",		/*  4 C_FREEZE	*/
+	"lzh",			/*  5 C_LZH	*/
+	"pkzip",		/*  6 C_PKZIP	*/
+	"bzip2",		/*  7 C_BZIP2	*/
+	"lzo",			/*  8 C_LZO	*/
+	"7z",			/*  9 C_7Z	*/
+	"xz",			/* 10 C_XZ	*/
 };
 
 extern	FILE	*tty;
@@ -478,7 +481,7 @@ hdr_usage()
 	for (; htp->h_name; htp++) {
 		if (htp->h_flags & HF_RO)
 			continue;
-		error("%s\t%s\t%s\n", 
+		error("%s\t%s\t%s\n",
 			hdrtype == htp->h_type ? "*":"",
 			htp->h_name, htp->h_text);
 	}
@@ -758,6 +761,15 @@ get_compression(ptb)
 	if (p[0] == '7' && p[1] == 'z' && p[2] == '\274' && p[3] == '\257' &&
 	    p[4] == '\047' && p[5] == '\034')
 		return (C_7Z);
+
+	/*
+	 * p[6] && p[7] contain the stream flags
+	 */
+	if (p[0] == '\375' &&
+	    p[1] == '7' && p[2] == 'z' && p[3] == 'X' && p[4] == 'Z' &&
+	    p[5] == '\0')
+		return (C_XZ);
+
 	return (C_NONE);
 }
 
@@ -1051,7 +1063,7 @@ extern	BOOL	ghdr;
 	if (info->f_xflags & (XF_PATH|XF_LINKPATH))
 		x1++;
 
-/*XXX start alter code und Test */
+/* XXX start alter code und Test */
 	if (((info->f_flags & F_ADDSLASH) ? 1:0 +
 	    info->f_namelen > props.pr_maxsname &&
 	    (ptb->dbuf.t_prefix[0] == '\0' || H_TYPE(hdrtype) == H_GNUTAR)) ||
@@ -1063,7 +1075,7 @@ error("type: %ld name: '%s' x1 %d x2 %d namelen: %ld prefix: '%s' lnamelen: %ld\
 info->f_filetype, info->f_name, x1, x2,
 info->f_namelen, ptb->dbuf.t_prefix, info->f_lnamelen);
 	}
-/*XXX ende alter code und Test */
+/* XXX ende alter code und Test */
 
 	if (x1 || x2 || (info->f_xflags != 0) || ghdr)
 		xhdr = TRUE;
@@ -1252,7 +1264,6 @@ info_to_star(info, ptb)
 
 	litos(ptb->dbuf.t_atime, (Ulong)info->f_atime, 11);
 	litos(ptb->dbuf.t_ctime, (Ulong)info->f_ctime, 11);
-/*	strcpy(ptb->dbuf.t_magic, stmagic);*/
 	ptb->dbuf.t_magic[0] = 't';
 	ptb->dbuf.t_magic[1] = 'a';
 	ptb->dbuf.t_magic[2] = 'r';
@@ -1317,13 +1328,12 @@ info_to_ustar(info, ptb)
 	register FINFO	*info;
 	register TCB	*ptb;
 {
-/*	strcpy(ptb->ustar_dbuf.t_magic, magic);*/
 	ptb->ustar_dbuf.t_magic[0] = 'u';
 	ptb->ustar_dbuf.t_magic[1] = 's';
 	ptb->ustar_dbuf.t_magic[2] = 't';
 	ptb->ustar_dbuf.t_magic[3] = 'a';
 	ptb->ustar_dbuf.t_magic[4] = 'r';
-/*	strncpy(ptb->ustar_dbuf.t_version, TVERSION, TVERSLEN);*/
+
 	/*
 	 * strncpy is slow: use handcrafted replacement.
 	 */
@@ -1406,7 +1416,6 @@ info_to_xstar(info, ptb)
 	ptb->xstar_dbuf.t_prefix[130] = '\0';
 
 	if (H_TYPE(hdrtype) == H_XSTAR) {
-/*		strcpy(ptb->xstar_dbuf.t_xmagic, stmagic);*/
 		ptb->xstar_dbuf.t_xmagic[0] = 't';
 		ptb->xstar_dbuf.t_xmagic[1] = 'a';
 		ptb->xstar_dbuf.t_xmagic[2] = 'r';
@@ -1716,7 +1725,7 @@ static	BOOL	modewarn = FALSE;
 	/* LINTED */
 	xpfx = ptb->dbuf.t_prefix[PFXSIZ];
 	/* LINTED */
-	ptb->dbuf.t_prefix[PFXSIZ] = '\0';	/* allow 155 chars in prefix*/
+	ptb->dbuf.t_prefix[PFXSIZ] = '\0';	/* allow 155 chars in prefix */
 
 	/*
 	 * Handle long name in posix split form now.
@@ -2130,7 +2139,7 @@ eofblock(ptb)
 	TCB	*ptb;
 {
 	register short	i;
-	register char	*s = (char *) ptb;
+	register char	*s = (char *)ptb;
 
 	if (props.pr_nflags & PR_DUMB_EOF)
 		return (ptb->dbuf.t_name[0] == '\0');
@@ -2144,7 +2153,7 @@ eofblock(ptb)
 /*
  * Convert string -> long int
  */
-LOCAL void /*char **/
+LOCAL void
 stoli(s, l)
 	register char	*s;
 		Ulong	*l;
@@ -2166,13 +2175,12 @@ stoli(s, l)
 		ret += t;
 	}
 	*l = ret;
-	/*return (s);*/
 }
 
 /*
  * Convert string -> long long int
  */
-EXPORT void /*char **/
+EXPORT void
 stolli(s, ull)
 	register char	*s;
 		Ullong	*ull;
@@ -2199,7 +2207,6 @@ stolli(s, ull)
 		ret += t;
 	}
 	*ull = ret;
-	/*return (s);*/
 }
 
 /*
@@ -2220,14 +2227,15 @@ litos(s, l, fieldw)
 	 * Da der TCB sowieso vorher genullt wird ist es aber kein Problem
 	 * das bei 8 Bytes Feldern notwendige Nullbyte wegzulassen.
 	 */
-/*XXX	*p = '\0';*/
+#ifdef	__needed__
+	*p = '\0';
+#endif
 	/*
 	 * Das Zeichen nach einer Zahl.
 	 * XXX Soll hier besser ein NULL Byte bei POSIX Tar hin?
 	 * XXX Wuerde das Probleme mit einer automatischen Erkennung geben?
 	 */
 	*--p = ' ';
-/*???	*--p = '\0';*/
 
 	do {
 		*--p = (l%8) + '0';	/* Compiler optimiert */
@@ -2269,7 +2277,7 @@ llitos(s, ull, fieldw)
 	 * Currently only used with fieldwidth == 11.
 	 * XXX Large 8 byte fields are handled separately.
 	 */
-	if (/*fieldw == 11 &&*/ ull > MAXOCTAL11) {
+	if (/* fieldw == 11 && */ ull > MAXOCTAL11) {
 		llbtos(s, ull, fieldw);
 		return;
 	}
@@ -2280,14 +2288,15 @@ llitos(s, ull, fieldw)
 	 * Da der TCB sowieso vorher genullt wird ist es aber kein Problem
 	 * das bei 8 Bytes Feldern notwendige Nullbyte wegzulassen.
 	 */
-/*XXX	*p = '\0';*/
+#ifdef	__needed__
+	*p = '\0';
+#endif
 	/*
 	 * Das Zeichen nach einer Zahl.
 	 * XXX Soll hier besser ein NULL Byte bei POSIX Tar hin?
 	 * XXX Wuerde das Probleme mit einer automatischen Erkennung geben?
 	 */
 	*--p = ' ';
-/*???	*--p = '\0';*/
 
 	do {
 		*--p = (ull%8) + '0';	/* Compiler optimiert */
@@ -2316,7 +2325,7 @@ llitos(s, ull, fieldw)
 /*
  * Convert binary (base 256) string -> long int.
  */
-LOCAL void /*char **/
+LOCAL void
 stob(s, l, fieldw)
 	register char	*s;
 		Ulong	*l;
@@ -2334,13 +2343,12 @@ stob(s, l, fieldw)
 		ret += c;
 	}
 	*l = ret;
-	/*return (s);*/
 }
 
 /*
  * Convert binary (base 256) string -> long long int.
  */
-LOCAL void /*char **/
+LOCAL void
 stollb(s, ull, fieldw)
 	register char	*s;
 		Ullong	*ull;
@@ -2358,7 +2366,6 @@ stollb(s, ull, fieldw)
 		ret += c;
 	}
 	*ull = ret;
-	/*return (s);*/
 }
 
 #if	DEV_MINOR_BITS > 21
@@ -2413,7 +2420,7 @@ print_hrange(type, ull)
 		type, ull, tblocks());
 }
 
-/*--------------------------------------------------------------------------*/
+/* ------------------------------------------------------------------------- */
 EXPORT void
 dump_info(info)
 	FINFO	*info;

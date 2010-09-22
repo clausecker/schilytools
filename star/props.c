@@ -1,8 +1,8 @@
-/* @(#)props.c	1.54 09/07/11 Copyright 1994-2009 J. Schilling */
+/* @(#)props.c	1.55 10/08/23 Copyright 1994-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)props.c	1.54 09/07/11 Copyright 1994-2009 J. Schilling";
+	"@(#)props.c	1.55 10/08/23 Copyright 1994-2010 J. Schilling";
 #endif
 /*
  *	Set up properties for different archive types
@@ -17,7 +17,7 @@ static	UConst char sccsid[] =
  *	pr_flags/pr_nflags or the fields pr_xftypetab[]/pr_typeflagtab[]
  *	take care of possible problems due to this fact.
  *
- *	Copyright (c) 1994-2009 J. Schilling
+ *	Copyright (c) 1994-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -135,7 +135,6 @@ setprops(htype)
 		 * XXX if -dump has been specified, we can only allow more
 		 * XXX filetypes in this case.
 		 */
-/*		if (H_TYPE(htype) == H_EXUSTAR)*/
 		if (dodump && H_TYPE(htype) == H_EXUSTAR)
 			movebytes(xtexustar_tab, props.pr_xftypetab, sizeof (props.pr_xftypetab));
 
@@ -146,9 +145,9 @@ setprops(htype)
 		prsettypeflags("gxKL",		   TF_XHEADERS);
 		break;
 
-	case H_PAX:				/* ieee 1003.1-2001 ext ustar*/
+	case H_PAX:				/* ieee 1003.1-2001 ext ustar */
 	case H_USTAR:				/* ieee 1003.1-1988 ustar    */
-	case H_SUNTAR:				/* Sun's tar from Solaris 7-9*/
+	case H_SUNTAR:				/* Sun's tar from Solaris 7-9 */
 		props.pr_maxsize = MAXOCTAL11;
 		props.pr_hdrsize = TAR_HDRSZ;
 		props.pr_flags = PR_POSIX_OCTAL;
@@ -254,7 +253,6 @@ setprops(htype)
 		 * by non large file aware systems.
 		 */
 		props.pr_maxsize = MAXNONLARGEFILE;
-/*		props.pr_maxsize = MAXOCTAL11;*/
 		props.pr_hdrsize = TAR_HDRSZ;
 		props.pr_flags = 0;
 		props.pr_xhdflags = 0;

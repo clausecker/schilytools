@@ -1,8 +1,8 @@
-/* @(#)getcwd.h	1.5 08/12/08 Copyright 1998-2008 J. Schilling */
+/* @(#)getcwd.h	1.6 10/08/24 Copyright 1998-2010 J. Schilling */
 /*
  *	Definitions for getcwd()
  *
- *	Copyright (c) 1998-2008 J. Schilling
+ *	Copyright (c) 1998-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -31,12 +31,23 @@
 #	include <sys/stypes.h>
 #	define	_INCL_SYS_STYPES_H
 #	endif
+#endif
+
+#ifdef	__cplusplus
+extern "C" {
+#endif
+
+#ifdef JOS
 	extern char	*gwd();
 #	define		getcwd(b, len)	gwd(b)
 #else
 #	ifndef	HAVE_GETCWD
 #		define	getcwd(b, len)	getwd(b)
 #	endif
+#endif
+
+#ifdef	__cplusplus
+}
 #endif
 
 #endif	/* _SCHILY_GETCWD_H */

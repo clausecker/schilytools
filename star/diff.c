@@ -1,14 +1,14 @@
-/* @(#)diff.c	1.86 09/07/28 Copyright 1993-2009 J. Schilling */
+/* @(#)diff.c	1.87 10/08/23 Copyright 1993-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)diff.c	1.86 09/07/28 Copyright 1993-2009 J. Schilling";
+	"@(#)diff.c	1.87 10/08/23 Copyright 1993-2010 J. Schilling";
 #endif
 /*
  *	List differences between a (tape) archive and
  *	the filesystem
  *
- *	Copyright (c) 1993-2009 J. Schilling
+ *	Copyright (c) 1993-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -215,9 +215,6 @@ diff_tcb(info)
 
 	fillbytes(&tb, sizeof (TCB), '\0');
 
-/*XXX	name_to_tcb ist hier nicht mehr nötig !! */
-/*XXX	finfo.f_namelen = strlen(finfo.f_name);*/
-/*XXX	name_to_tcb(&finfo, &tb);*/
 	info_to_tcb(&finfo, &tb);	/* XXX ist das noch nötig ??? */
 					/* z.Zt. wegen linkflag/uname/gname */
 
@@ -229,8 +226,6 @@ diff_tcb(info)
 	 * XXX Diff ACLs not yet implemented.
 	 */
 
-/* XXX hat ustar modes incl. filetype ???? */
-/*error("%llo %llo\n", (Ullong)info->f_mode, (Ullong)finfo.f_mode);*/
 	}
 
 	if ((diffopts & D_NLINK) && info->f_nlink > 0 &&
@@ -287,7 +282,7 @@ diff_tcb(info)
 	if ((diffopts & D_ATIME) != 0) {
 		if (info->f_atime != finfo.f_atime)
 			diffs |= D_ATIME;
-/*#define	should_we*/
+
 #ifdef	should_we
 		if ((info->f_xflags & XF_ATIME) && (finfo.f_flags & F_NSECS) &&
 		    info->f_ansec != finfo.f_ansec)
@@ -485,7 +480,6 @@ diff_tcb(info)
 	if (diffs) {
 		if (errhidden(E_DIFF, info->f_name))
 			goto out;
-/*		if (!errwarnonly(E_DIFF, info->f_name))*/
 
 		if (tpath) {
 			fprintf(f, "%s\n", info->f_name);
@@ -760,7 +754,6 @@ prdiffopts(f, label, flags)
 	if (flags & D_SIZE)
 		prdopt(f, "size", printed++);
 	if (flags & D_DATA)
-/*		prdopt(f, "cont", printed++);*/
 		prdopt(f, "data", printed++);
 	if (flags & D_RDEV)
 		prdopt(f, "rdev", printed++);

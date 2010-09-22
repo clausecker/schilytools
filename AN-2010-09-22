@@ -1,0 +1,115 @@
+New features with AN-2010-09-22:
+
+-	The macros XARCH_GEN & XARCH_OPT are now in RULES/cc-sunpro*.rul
+
+-	The include file include/schily/ccomdefs.h now allows to disable
+	the printf() format checks for GCC with -DNO_PRINTFLIKE
+	This is needed in order to allow star to compile in the Solaris ON
+	cosolidation as GCC id too dumb for the printf() extensions.
+
+-	libschily/?eterrno.c no longer overwrite the _TS_ERRNO definition
+	in order to pass the compile constrints in the Solaris ON consoliation.
+
+-	Several new global symbols in the mapfile for libschily/libschily-mapvers
+
+-	libschily/wcsndup.c had frgotten code and still did internaly implement
+	strndup()
+
+-	librmt.so now includes libsocked in the NEEDED ELF tag
+
+-	Typo corrections in mkisofs/mkisofs.8 man page
+
+-	Add a hint to the mkisofs output when files change while mkisofs
+	is running.
+
+-	Removed an superfluos #include <schily/stat.h> from mkisofs/disg/isoinfo.c
+
+-	star now supports automatic recognition of xz(1) compressed archives
+	and offers a new option -xz
+
+-	star offers new behavior:
+
+	A tar archive created with "star -c -dump -meta ..." does not include
+	the content for plain files but only the meta data. With "star -c -xmeta"
+	these files could be extracted as 0 by sized files in case that this would
+	not overwrite existing files. Star now supports "star -x -xmeta -fore-hole"
+	to extract these files as files of the original size but as sparse files
+	without any data inside. This is sufficient as a reference for wget -mirror.
+
+-	The man page star/spax.1 fixed a typo.
+
+-	A typo in cdrecord.c was corrected.
+
+-	The chdir builtin in bsh no longer tries to evaluate $CDPATH after
+	an attempt to do a chdir "" did result in a ENOENT condition because
+	chdir "" is illegal.
+
+-	All include files (even those created by autoconf) are now protected
+	against multiple includion.
+
+-	New autoconf test for pathconf() and fpathconf()
+
+-	libscg/scg/aspi-dos.h now uses viod instead of VOID ti allow a compilation
+	with gcc.
+
+-	libscg/scsi-wnt.c (MS-WIN) now supports 64 SCSI busses
+
+-	Fixed a typo in cdda2wav/cdda2ogg.1 (man page)
+
+-	Star now supports pax -oa (do not preserve atime with restore)
+
+-	A new program was added: "cpp"
+	This cpp implementation is based on the UNIX 32V version from 1978
+	with permission from Caldera Inc.
+	Note that this is a K&R cpp that is needed for several programs,
+	e.g. rpcgen(1) and dtrace(1). The port was done as part of the
+	OpenSolaris emancipation project. With this cpp, it is possible
+	to replace a non-redistributable cpp from Sun/Oracle.
+
+	Note that the program is installed as /opt/schily/lib/cpp by default.
+
+	This cpp adds the following new features to the cpp from 1978:
+
+	-	Support for #ident, #pragma and #error was added
+
+	-	Support for #elif was added
+
+	-	The length of identifiers was raised from 8 to 128
+
+	-	A new option -T allows to switch back to 8 char identifiers.
+
+	-	The number of supported -U/-D options was enhanced from 20 to 64
+
+	-	The number of supported -I options was enhanced from 8 to 20
+
+	-	The #include nesting level was enhanced from 10 to 16
+
+	-	cpp now looks in "." for #include "file" in case
+		the input is read from stdin.
+
+	-	A new -Ysystemdir option was added
+
+	-	A new -undef option was added
+
+	-	A new option -H was added to list the included file names
+
+	-	A bug in the yacc parser for the #if expressions was fixed
+
+	-	cpp now uses the Sun cpp specific output for # line "file"
+		lines in order to be usable for rpcgen(1) and dtrace(1)
+
+	-	cpp now converts newlines from actual macro parameters
+		by spaces. This is needed in case that cpp is used to
+		preprocess code for the assembler.
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.isdn.cs.tu-berlin.de, js@cs.tu-berlin.de
+	joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

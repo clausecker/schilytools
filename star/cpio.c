@@ -1,13 +1,13 @@
-/* @(#)cpio.c	1.24 08/12/22 Copyright 1989, 2005-2008 J. Schilling */
+/* @(#)cpio.c	1.26 10/08/23 Copyright 1989, 2005-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char _c_sccsid[] =
-	"@(#)cpio.c	1.24 08/12/22 Copyright 1989, 2005-2008 J. Schilling";
+	"@(#)cpio.c	1.26 10/08/23 Copyright 1989, 2005-2010 J. Schilling";
 #endif
 /*
  *	CPIO specific routines for star main program.
  *
- *	Copyright (c) 1989, 2005-2008 J. Schilling
+ *	Copyright (c) 1989, 2005-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -95,10 +95,10 @@ LOCAL	void	cpio_setopts	__PR((char *o));
 /*
  * CPIO related options
  *
- * The official POSIX options start after the -bz/-lzop/-7z option.
+ * The official POSIX options start after the -bz/-lzop/-7z/-xz option.
  */
 /* BEGIN CSTYLED */
-char	_opts[] = "help,xhelp,version,debug,xdebug#,xd#,time,no-statistics,fifostats,numeric,no-fifo,no-fsync,do-fsync%0,bs&,fs&,/,..,secure-links,acl,xfflags,z,bz,lzo,7z,i,o,p,a,A,b,B,c,C&,d,E*,f,H&,artype&,I&,O&,k,l,L,m,M*,P,r,R,s,S,t,u,6,@,V,v";
+char	_opts[] = "help,xhelp,version,debug,xdebug#,xd#,time,no-statistics,fifostats,numeric,no-fifo,no-fsync,do-fsync%0,bs&,fs&,/,..,secure-links,acl,xfflags,z,bz,lzo,7z,xz,i,o,p,a,A,b,B,c,C&,d,E*,f,H&,artype&,I&,O&,k,l,L,m,M*,P,r,R,s,S,t,u,6,@,V,v";
 /* END CSTYLED */
 char	*opts = _opts;
 
@@ -154,7 +154,9 @@ gargs(ac, av)
 
 	iftype		= I_CPIO;		/* command line interface */
 	ptype		= P_CPIO;		/* program interface type */
-/*	paxls		= TRUE;*/
+#ifdef	__never__
+	paxls		= TRUE;			/* If ever, implement cpiols */
+#endif
 	cpio_stats	= TRUE;
 	paxmatch	= TRUE;
 	pflag		= TRUE;			/* cpio always restores permissions */
@@ -187,7 +189,8 @@ gargs(ac, av)
 				getnum, &fs,
 				&abs_path, &allow_dotdot, &secure_links,
 				&doacl, &dofflags,
-				&zflag, &bzflag, &lzoflag, &p7zflag,
+				&zflag, &bzflag, &lzoflag,
+				&p7zflag, &xzflag,
 
 				&cpioiflag,		/* -i */
 				&cpiooflag,		/* -o */
@@ -416,6 +419,7 @@ usage(ret)
 	error("\t-bz\t\t(*) pipe input/output through bzip2, does not work on tapes\n");
 	error("\t-lzo\t\t(*) pipe input/output through lzop, does not work on tapes\n");
 	error("\t-7z\t\t(*) pipe input/output through p7zip, does not work on tapes\n");
+	error("\t-xz\t\t(*) pipe input/output through xp, does not work on tapes\n");
 #ifdef	FIFO
 	error("\t-no-fifo\t(*) don't use a fifo to optimize data flow from/to tape\n");
 #endif

@@ -1,11 +1,11 @@
-/* @(#)tartest.c	1.16 09/07/13 Copyright 2002-2009 J. Schilling */
+/* @(#)tartest.c	1.17 10/08/23 Copyright 2002-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)tartest.c	1.16 09/07/13 Copyright 2002-2009 J. Schilling";
+	"@(#)tartest.c	1.17 10/08/23 Copyright 2002-2010 J. Schilling";
 #endif
 /*
- *	Copyright (c) 2002-2009 J. Schilling
+ *	Copyright (c) 2002-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -83,7 +83,7 @@ main(ac, av)
 	if (help)
 		usage(0);
 
-	printf("tartest %s (%s-%s-%s)\n\n", "1.16",
+	printf("tartest %s (%s-%s-%s)\n\n", "1.17",
 					HOST_CPU, HOST_VENDOR, HOST_OS);
 	printf("Copyright (C) 2002 Jörg Schilling\n");
 	printf("This is free software; see the source for copying conditions.  There is NO\n");
@@ -349,7 +349,9 @@ checkoctal(ptr, len, text)
 	char	cs[4];
 
 	for (i = 0; i < len; i++) {
-/*		error("%d '%c'\n", i, ptr[i]);*/
+#ifdef	CHECKOCTAL_DEBUG
+		error("%d '%c'\n", i, ptr[i]);
+#endif
 
 #ifdef		END_ALL_THESAME
 		if (endoff > 0 && ptr[i] != endc) {
@@ -553,7 +555,7 @@ checkvers(ptr)
  * This is the debug version that stops at "len" size to be safe against
  * field overflow.
  */
-EXPORT void /*char **/
+EXPORT void
 stolli(s, ull, len)
 	register char	*s;
 		Ullong	*ull;
@@ -573,7 +575,9 @@ stolli(s, ull, len)
 		if (--len < 0)
 			break;
 		c = *s++;
-/*		error("'%c'\n", c);*/
+#ifdef	STOLLI_DEBUG
+		error("'%c'\n", c);
+#endif
 		if (isoctal(c))
 			t = c - '0';
 		else
@@ -582,8 +586,9 @@ stolli(s, ull, len)
 		ret += t;
 	}
 	*ull = ret;
-/*	error("len: %d\n", len);*/
-	/*return(s);*/
+#ifdef	STOLLI_DEBUG
+	error("len: %d\n", len);
+#endif
 }
 
 /*

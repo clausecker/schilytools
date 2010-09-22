@@ -1,10 +1,10 @@
-/* @(#)_regex.h	1.2 10/05/08 2010 J. Schilling */
+/* @(#)_regex.h	1.6 10/08/27 2010 J. Schilling */
 /*
  * regex.h code taken from FreeBSD
  *
  * Portions Copyright (c) 2010 J. Schilling
  */
-/*-
+/*
  * Copyright (c) 1992 Henry Spencer.
  * Copyright (c) 1992, 1993
  *	The Regents of the University of California.  All rights reserved.
@@ -49,6 +49,10 @@
 
 #ifndef	_SCHILY_TYPES_H
 #include <schily/types.h>
+#endif
+
+#ifdef	__cplusplus
+extern "C" {
 #endif
 
 #define	__restrict
@@ -108,17 +112,24 @@ typedef struct {
 #define	REG_LARGE	01000	/* force large representation */
 #define	REG_BACKR	02000	/* force use of backref code */
 
-extern int	regcomp __PR((regex_t * __restrict, const char * __restrict, int));
-extern size_t	regerror __PR((int, const regex_t * __restrict, char * __restrict, size_t));
+extern int	regcomp __PR((regex_t *__restrict, const char *__restrict,
+				    int));
+extern size_t	regerror __PR((int, const regex_t *__restrict, char *__restrict,
+				    size_t));
 /*
  * XXX forth parameter should be `regmatch_t [__restrict]', but isn't because
  * of a bug in GCC 3.2 (when -std=c99 is specified) which perceives this as a
  * syntax error.
  */
-extern int	regexec __PR((const regex_t * __restrict, const char * __restrict, size_t,
-				    regmatch_t * __restrict, int));
+extern int	regexec __PR((const regex_t *__restrict, const char *__restrict,
+				    size_t,
+				    regmatch_t *__restrict, int));
 extern void	regfree __PR((regex_t *));
 
 #undef	__restrict
+
+#ifdef	__cplusplus
+}
+#endif
 
 #endif	/* _SCHILY__REGEX_H */

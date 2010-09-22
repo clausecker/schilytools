@@ -1,14 +1,14 @@
-/* @(#)table.c	1.26 09/07/11 Copyright 1994-96 2000-2009 J. Schilling */
+/* @(#)table.c	1.27 10/08/23 Copyright 1994-96 2000-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)table.c	1.26 09/07/11 Copyright 1994-96 2000-2009 J. Schilling";
+	"@(#)table.c	1.27 10/08/23 Copyright 1994-96 2000-2010 J. Schilling";
 #endif
 /*
  *	Conversion tables for efficient conversion
  *	of different file type representations
  *
- *	Copyright (c) 1994-96 2000-2009 J. Schilling
+ *	Copyright (c) 1994-96 2000-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -90,12 +90,14 @@ static	UConst char sccsid[] =
  *
  * No bound checking in hope that S_IFMT will never hold more than 4 bits.
  */
+/* BEGIN CSTYLED */
 char	iftoxt_tab[] = {
 		/* 0 */	XT_NONE, XT_FIFO, XT_CHR,   XT_MPC,
 		/* 4 */	XT_DIR,  XT_NAM,  XT_BLK,   XT_MPB,
 		/* 8 */	XT_FILE, XT_CONT, XT_SLINK, XT_BAD,
 		/*12 */	XT_SOCK, XT_DOOR, XT_WHT,   XT_BAD,
 			};
+/* END CSTYLED */
 
 /*
  * Ustar File type to XT_ table
@@ -172,6 +174,7 @@ char	xttost_tab[] = {
 /*
  * XT_ Old UNIX V7 tar supported File type table
  */
+/* BEGIN CSTYLED */
 char	xtv7tar_tab[] = {
 		/* 0 */	0,	1,	1,	1,
 		/* 4 */	0,	0,	0,	0,
@@ -182,10 +185,12 @@ char	xtv7tar_tab[] = {
 		/*24 */	0,	0,	0,	0,
 		/*28 */	0,	0,	0,	0,
 };
+/* END CSTYLED */
 
 /*
  * XT_ Old BSD tar supported File type table
  */
+/* BEGIN CSTYLED */
 char	xttar_tab[] = {
 		/* 0 */	0,	1,	1,	1,
 		/* 4 */	1,	1,	0,	0,
@@ -196,9 +201,12 @@ char	xttar_tab[] = {
 		/*24 */	0,	0,	0,	0,
 		/*28 */	0,	0,	0,	0,
 			};
+/* END CSTYLED */
+
 /*
  * XT_ Star-1985 supported File type table
  */
+/* BEGIN CSTYLED */
 char	xtstar_tab[] = {
 		/* 0 */	0,	1,	1,	1,
 		/* 4 */	1,	1,	1,	1,
@@ -209,10 +217,12 @@ char	xtstar_tab[] = {
 		/*24 */	0,	1,	0,	1,
 		/*28 */	0,	0,	0,	0,
 };
+/* END CSTYLED */
 
 /*
  * XT_ Ustar-1988 supported File type table
  */
+/* BEGIN CSTYLED */
 char	xtustar_tab[] = {
 		/* 0 */	0,	1,	1,	1,
 		/* 4 */	1,	1,	1,	1,
@@ -223,9 +233,12 @@ char	xtustar_tab[] = {
 		/*24 */	0,	0,	0,	0,
 		/*28 */	0,	0,	0,	0,
 			};
+/* END CSTYLED */
+
 /*
  * XT_ Extended PAX-2001 'exustar' supported File type table
  */
+/* BEGIN CSTYLED */
 char	xtexustar_tab[] = {
 		/* 0 */	0,	1,	1,	1,
 		/* 4 */	1,	1,	1,	1,
@@ -236,10 +249,12 @@ char	xtexustar_tab[] = {
 		/*24 */	0,	1,	0,	1,
 		/*28 */	0,	0,	0,	0,
 };
+/* END CSTYLED */
 
 /*
  * XT_ CPIO-1988 supported File type table
  */
+/* BEGIN CSTYLED */
 char	xtcpio_tab[] = {
 		/* 0 */	0,	1,	1,	1,
 		/* 4 */	1,	1,	1,	1,
@@ -250,6 +265,7 @@ char	xtcpio_tab[] = {
 		/*24 */	0,	0,	0,	0,
 		/*28 */	0,	0,	0,	0,
 };
+/* END CSTYLED */
 
 /*
  * XT_ to Ustar (including Vendor Unique extensions) File type table
@@ -272,6 +288,7 @@ char	xttous_tab[] = {
 /*
  * XT_ to String table
  */
+/* BEGIN CSTYLED */
 char	*xttostr_tab[] = {
 #define	XT_DEBUG
 #ifdef	XT_DEBUG
@@ -293,10 +310,12 @@ char	*xttostr_tab[] = {
 
 		/*28 */	"~",	"~",	"~",	"~",
 };
+/* END CSTYLED */
 
 /*
  * XT_ to named file type text
  */
+/* BEGIN CSTYLED */
 char	*xttoname_tab[] = {
 		/* 0 */	"unallocated",	"regular",	"contiguous",		"hardlink",
 		/* 4 */	"symlink",	"directory",	"character special",	"block special",
@@ -307,3 +326,4 @@ char	*xttoname_tab[] = {
 		/*24 */	"names",	"sparse",	"volheader",		"meta",
 		/*28 */	"reserved",	"reserved",	"reserved",		"unknown/bad",
 };
+/* END CSTYLED */

@@ -1,14 +1,14 @@
-/* @(#)longnames.c	1.52 09/10/16 Copyright 1993, 1995, 2001-2009 J. Schilling */
+/* @(#)longnames.c	1.53 10/08/23 Copyright 1993, 1995, 2001-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)longnames.c	1.52 09/10/16 Copyright 1993, 1995, 2001-2009 J. Schilling";
+	"@(#)longnames.c	1.53 10/08/23 Copyright 1993, 1995, 2001-2010 J. Schilling";
 #endif
 /*
  *	Handle filenames that cannot fit into a single
  *	string of 100 charecters
  *
- *	Copyright (c) 1993, 1995, 2001-2009 J. Schilling
+ *	Copyright (c) 1993, 1995, 2001-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -221,8 +221,8 @@ tcb_to_name(ptb, info)
 	if (info->f_flags & F_HAS_NAME)
 		return;
 
-	if ((info->f_flags & F_LONGLINK) == 0 &&	/* name from 'K' head*/
-	    (info->f_xflags & XF_LINKPATH) == 0) {	/* name from 'x' head*/
+	if ((info->f_flags & F_LONGLINK) == 0 &&	/* name from 'K' head */
+	    (info->f_xflags & XF_LINKPATH) == 0) {	/* name from 'x' head */
 
 		/*
 		 * Our caller has set ptb->dbuf.t_linkname[NAMSIZ] to '\0'
@@ -301,14 +301,18 @@ tcb_to_longname(ptb, info)
 		 * We do not know the name here,
 		 * we only have the short ptb->dbuf.t_name
 		 */
-/*		if (!errhidden(E_NAMETOOLONG, name)) {*/
-/*			if (!errwarnonly(E_NAMETOOLONG, name))*/
+#ifdef	__can_we__
+		if (!errhidden(E_NAMETOOLONG, name)) {
+			if (!errwarnonly(E_NAMETOOLONG, name))
+#endif
 				xstats.s_toolong++;
 			errmsgno(EX_BAD,
 			"Long name too long (%lld) ignored.\n",
 							(Llong)info->f_size);
-/*			(void) errabort(E_NAMETOOLONG, name, TRUE);*/
-/*		}*/
+#ifdef	__can_we__
+			(void) errabort(E_NAMETOOLONG, name, TRUE);
+		}
+#endif
 		void_file(info);
 		return (get_tcb(ptb));
 	}

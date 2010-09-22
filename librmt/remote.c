@@ -1,35 +1,20 @@
-/*#define	USE_REMOTE*/
-/*#define	USE_RCMD_RSH*/
 /*#define	NO_LIBSCHILY*/
-/* @(#)remote.c	1.73 09/10/18 Copyright 1990-2009 J. Schilling */
+/* @(#)remote.c	1.75 10/08/23 Copyright 1990-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)remote.c	1.73 09/10/18 Copyright 1990-2009 J. Schilling";
+	"@(#)remote.c	1.75 10/08/23 Copyright 1990-2010 J. Schilling";
 #endif
 /*
  *	Remote tape client interface code
  *
- *	Copyright (c) 1990-2009 J. Schilling
+ *	Copyright (c) 1990-2010 J. Schilling
  *
  *	TOTO:
  *		Signal handler for SIGPIPE
  *		check rmtaborted for exit() / clean abort of connection
  */
-/*
- * The contents of this file are subject to the terms of the
- * Common Development and Distribution License, Version 1.0 only
- * (the "License").  You may not use this file except in compliance
- * with the License.
- *
- * See the file CDDL.Schily.txt in this distribution for details.
- *
- * When distributing Covered Code, include this CDDL HEADER in each
- * file and include the License file CDDL.Schily.txt from this distribution.
- */
-
-/*#undef	USE_REMOTE*/
-/*#undef	USE_RCMD_RSH*/
+/*@@C@@*/
 
 #if !defined(HAVE_FORK) || !defined(HAVE_SOCKETPAIR) || !defined(HAVE_DUP2)
 #undef	USE_RCMD_RSH
@@ -276,7 +261,7 @@ rmtfilename(name)
 		return (NULL);		/* Absolut pathname cannot be remote */
 	if (name[0] == '.') {
 		if (name[1] == '/' || (name[1] == '.' && name[2] == '/'))
-			return (NULL);	/* Relative pathname cannot be remote*/
+			return (NULL);	/* Relative pathname cannot be remote */
 	}
 	if ((ret = strchr(name, ':')) != NULL) {
 		if (name[0] == ':') {
@@ -342,15 +327,16 @@ rmtgetconn(host, trsize, excode)
 			if (excode)
 				rmt_exit(excode);
 			rmt_exit(EX_BAD);
-			return (-2);		/* exit function did not exit*/
+			return (-2);		/* exit function did not exit */
 		}
 		pw = getpwuid(getuid());
 		if (pw == 0) {
-			rmt_errmsgno(EX_BAD, "who are you? No passwd entry found.\n");
+			rmt_errmsgno(EX_BAD,
+				"who are you? No passwd entry found.\n");
 			if (excode)
 				rmt_exit(excode);
 			rmt_exit(EX_BAD);
-			return (-2);		/* exit function did not exit*/
+			return (-2);		/* exit function did not exit */
 		}
 	}
 	if ((p = strchr(host, '@')) != NULL) {
@@ -364,7 +350,7 @@ rmtgetconn(host, trsize, excode)
 			if (excode)
 				rmt_exit(excode);
 			rmt_exit(EX_BAD);
-			return (-2);		/* exit function did not exit*/
+			return (-2);		/* exit function did not exit */
 		}
 		name = rmtuser;
 		host = &p[1];
@@ -467,97 +453,125 @@ rmtoflags(fmode, cmode)
 
 	default:	p = "Cannot Happen";
 	}
-	amt = js_snprintf(cmode, maxcnt, "%s", p); if (amt < 0) return;
+	amt = js_snprintf(cmode, maxcnt, "%s", p);
+	if (amt < 0)
+		return;
 	p = cmode;
 	p += amt;
 	maxcnt -= amt;
 #ifdef	O_TEXT
 	if (fmode & O_TEXT) {
-		amt = js_snprintf(p, maxcnt, "|O_TEXT"); if (amt < 0) return;
+		amt = js_snprintf(p, maxcnt, "|O_TEXT");
+		if (amt < 0)
+			return;
 		p += amt;
 		maxcnt -= amt;
 	}
 #endif
 #ifdef	O_NDELAY
 	if (fmode & O_NDELAY) {
-		amt = js_snprintf(p, maxcnt, "|O_NDELAY"); if (amt < 0) return;
+		amt = js_snprintf(p, maxcnt, "|O_NDELAY");
+		if (amt < 0)
+			return;
 		p += amt;
 		maxcnt -= amt;
 	}
 #endif
 #ifdef	O_APPEND
 	if (fmode & O_APPEND) {
-		amt = js_snprintf(p, maxcnt, "|O_APPEND"); if (amt < 0) return;
+		amt = js_snprintf(p, maxcnt, "|O_APPEND");
+		if (amt < 0)
+			return;
 		p += amt;
 		maxcnt -= amt;
 	}
 #endif
 #ifdef	O_SYNC
 	if (fmode & O_SYNC) {
-		amt = js_snprintf(p, maxcnt, "|O_SYNC"); if (amt < 0) return;
+		amt = js_snprintf(p, maxcnt, "|O_SYNC");
+		if (amt < 0)
+			return;
 		p += amt;
 		maxcnt -= amt;
 	}
 #endif
 #ifdef	O_DSYNC
 	if (fmode & O_DSYNC) {
-		amt = js_snprintf(p, maxcnt, "|O_DSYNC"); if (amt < 0) return;
+		amt = js_snprintf(p, maxcnt, "|O_DSYNC");
+		if (amt < 0)
+			return;
 		p += amt;
 		maxcnt -= amt;
 	}
 #endif
 #ifdef	O_RSYNC
 	if (fmode & O_RSYNC) {
-		amt = js_snprintf(p, maxcnt, "|O_RSYNC"); if (amt < 0) return;
+		amt = js_snprintf(p, maxcnt, "|O_RSYNC");
+		if (amt < 0)
+			return;
 		p += amt;
 		maxcnt -= amt;
 	}
 #endif
 #ifdef	O_NONBLOCK
 	if (fmode & O_NONBLOCK) {
-		amt = js_snprintf(p, maxcnt, "|O_NONBLOCK"); if (amt < 0) return;
+		amt = js_snprintf(p, maxcnt, "|O_NONBLOCK");
+		if (amt < 0)
+			return;
 		p += amt;
 		maxcnt -= amt;
 	}
 #endif
 #ifdef	O_PRIV
 	if (fmode & O_PRIV) {
-		amt = js_snprintf(p, maxcnt, "|O_PRIV"); if (amt < 0) return;
+		amt = js_snprintf(p, maxcnt, "|O_PRIV");
+		if (amt < 0)
+			return;
 		p += amt;
 		maxcnt -= amt;
 	}
 #endif
 #ifdef	O_LARGEFILE
 	if (fmode & O_LARGEFILE) {
-		amt = js_snprintf(p, maxcnt, "|O_LARGEFILE"); if (amt < 0) return;
+		amt = js_snprintf(p, maxcnt, "|O_LARGEFILE");
+		if (amt < 0)
+			return;
 		p += amt;
 		maxcnt -= amt;
 	}
 #endif
 #ifdef	O_CREAT
 	if (fmode & O_CREAT) {
-		amt = js_snprintf(p, maxcnt, "|O_CREAT"); if (amt < 0) return;
+		amt = js_snprintf(p, maxcnt, "|O_CREAT");
+		if (amt < 0)
+			return;
 		p += amt;
 		maxcnt -= amt;
 	}
 #endif
 #ifdef	O_TRUNC
 	if (fmode & O_TRUNC) {
-		amt = js_snprintf(p, maxcnt, "|O_TRUNC"); if (amt < 0) return;
+		amt = js_snprintf(p, maxcnt, "|O_TRUNC");
+		if (amt < 0)
+			return;
 		p += amt;
 		maxcnt -= amt;
 	}
 #endif
 #ifdef	O_EXCL
 	if (fmode & O_EXCL) {
-		amt = js_snprintf(p, maxcnt, "|O_EXCL"); if (amt < 0) return;
+		amt = js_snprintf(p, maxcnt, "|O_EXCL");
+		if (amt < 0)
+			return;
 		p += amt;
 		maxcnt -= amt;
 	}
 #endif
 #ifdef	O_NOCTTY
 	if (fmode & O_NOCTTY) {
-		amt = js_snprintf(p, maxcnt, "|O_NOCTTY"); if (amt < 0) return;
+		amt = js_snprintf(p, maxcnt, "|O_NOCTTY");
+		if (amt < 0)
+			return;
 		p += amt;
 		maxcnt -= amt;
 	}
@@ -989,8 +1003,10 @@ rmtstatus(fd, mtp)
 		if (ret < 0)
 			return (ret);
 	} else {
-		if (rmt_debug)
-			rmt_errmsgno(EX_BAD, "Retrieving mt status from old server.\n");
+		if (rmt_debug) {
+			rmt_errmsgno(EX_BAD,
+				"Retrieving mt status from old server.\n");
+		}
 		return (rmt_v0_status(fd, mtp));
 	}
 
@@ -1409,7 +1425,7 @@ _mtg2rmtg(rmtp, mtp)
 	return (0);
 }
 
-/*--------------------------------------------------------------------------*/
+/* -------------------------------------------------------------------------- */
 #ifdef	USE_REMOTE
 #ifdef	USE_RCMD_RSH
 /*
@@ -1475,7 +1491,7 @@ _rcmdrsh(ahost, inport, locuser, remuser, cmd, rsh)
 			_exit(EX_BAD);
 			/* NOTREACHED */
 		}
-		(void) close(pp[1]);		/* We don't need this anymore*/
+		(void) close(pp[1]);		/* We don't need this anymore */
 
 		/*
 		 * Become 'locuser' to tell the rsh program the local user id.
@@ -1548,7 +1564,7 @@ _rcmdrsh(ahost, inport, locuser, remuser, cmd, rsh)
 		signal(SIGINT, SIG_IGN);
 		signal(SIGQUIT, SIG_IGN);
 #ifdef	SIGTSTP
-		signal(SIGTSTP, SIG_IGN); /* We would not be able to continue*/
+		signal(SIGTSTP, SIG_IGN); /* We would not be able to continue */
 #endif
 
 		av0 = rsh;

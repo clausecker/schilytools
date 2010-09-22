@@ -1,8 +1,8 @@
-/* @(#)sha1.h	1.2 09/08/01 2009 J. Schilling */
+/* @(#)sha1.h	1.4 10/08/27 2010 J. Schilling */
 /*
  * SHA1 hash code taken from OpenBSD
  *
- * Portions Copyright (c) 2009 J. Schilling
+ * Portions Copyright (c) 2010 J. Schilling
  */
 
 /*	$OpenBSD: sha1.h,v 1.23 2004/06/22 01:57:30 jfb Exp $	*/
@@ -39,13 +39,15 @@ extern "C" {
 
 extern	void	SHA1Init	__PR((SHA1_CTX *));
 extern	void	SHA1Pad		__PR((SHA1_CTX *));
-extern	void	SHA1Transform	__PR((UInt32_t [5], const UInt8_t [SHA1_BLOCK_LENGTH]));
+extern	void	SHA1Transform	__PR((UInt32_t [5],
+					const UInt8_t [SHA1_BLOCK_LENGTH]));
 extern	void	SHA1Update	__PR((SHA1_CTX *, const UInt8_t *, size_t));
-extern	void	SHA1Final	__PR((UInt8_t [SHA1_DIGEST_LENGTH], SHA1_CTX *));
-extern	char *	SHA1End		__PR((SHA1_CTX *, char *));
-extern	char *	SHA1File	__PR((const char *, char *));
-extern	char *	SHA1FileChunk	__PR((const char *, char *, off_t, off_t));
-extern	char *	SHA1Data	__PR((const UInt8_t *, size_t, char *));
+extern	void	SHA1Final	__PR((UInt8_t [SHA1_DIGEST_LENGTH],
+					SHA1_CTX *));
+extern	char	*SHA1End	__PR((SHA1_CTX *, char *));
+extern	char	*SHA1File	__PR((const char *, char *));
+extern	char	*SHA1FileChunk	__PR((const char *, char *, off_t, off_t));
+extern	char	*SHA1Data	__PR((const UInt8_t *, size_t, char *));
 
 #ifdef	__cplusplus
 }

@@ -1,8 +1,8 @@
-/* @(#)unistd.h	1.21 09/07/27 Copyright 1996-2009 J. Schilling */
+/* @(#)unistd.h	1.22 10/08/24 Copyright 1996-2010 J. Schilling */
 /*
  *	Definitions for unix system interface
  *
- *	Copyright (c) 1996-2009 J. Schilling
+ *	Copyright (c) 1996-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -119,6 +119,10 @@
 extern	char	**environ;
 #endif
 
+#ifdef	__cplusplus
+extern "C" {
+#endif
+
 #if	!defined(HAVE_UNISTD_H) || !defined(_POSIX_VERSION)
 /*
  * Maybe we need a lot more definitions here...
@@ -140,6 +144,10 @@ extern	int	link	__PR((const char *, const char *));
 extern	int	read	__PR((int, void *, size_t));
 extern	int	unlink	__PR((const char *));
 extern	int	write	__PR((int, const void *, size_t));
+#endif
+
+#ifdef	__cplusplus
+}
 #endif
 
 #endif	/* _SCHILY_UNISTD_H */

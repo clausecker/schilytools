@@ -1,4 +1,4 @@
-/* @(#)format.c	1.49 10/05/24 Copyright 1985-2010 J. Schilling */
+/* @(#)format.c	1.50 10/08/23 Copyright 1985-2010 J. Schilling */
 /*
  *	format
  *	common code for printf fprintf & sprintf
@@ -248,7 +248,6 @@ format(fun, farg, fmt, args)
 			 */
 			if (fa.fldwidth < 0) {
 				fa.fldwidth = -fa.fldwidth;
-/*				fa.minusflag ^= 1;*/
 				fa.minusflag = 1;
 			}
 		} else while (c = *fmt, is_dig(c)) {
@@ -384,7 +383,7 @@ error sizeof (ptrdiff_t) is unknown
 					mode = to_cap(mode);
 				if (mode == 'U')
 					unsflag = TRUE;
-				else if (mode == 'I')	/*XXX */
+				else if (mode == 'I')	/* XXX */
 					mode = 'D';
 			}
 			break;
@@ -411,10 +410,11 @@ error sizeof (ptrdiff_t) is unknown
 			if (!type)
 				type = cap_ty(*fmt);
 #ifdef	DEBUG
-/*dbg_print("*fmt: '%c' mode: '%c' type: '%c'\n", *fmt, mode, type);*/
+			dbg_print("*fmt: '%c' mode: '%c' type: '%c'\n",
+							*fmt, mode, type);
 #endif
-			if (mode == 'I')	/*XXX kann entfallen*/
-				mode = 'D';	/*wenn besseres uflg*/
+			if (mode == 'I')	/* XXX kann entfallen */
+				mode = 'D';	/* wenn besseres uflg */
 			break;
 		case 'p':
 			mode = 'P';

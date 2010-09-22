@@ -1,4 +1,4 @@
-#ident "@(#)cc-sunpro.rul	1.8 07/06/14 "
+#ident "@(#)cc-sunpro.rul	1.9 10/06/23 "
 ###########################################################################
 # Written 1996-2006 by J. Schilling
 ###########################################################################
@@ -25,6 +25,10 @@ C++FLAGS=	$(C++OPTS) $(C++WARNOPTS) $(C++OPTOPT) $(SUNPROC++OPTOPT) $(C++OPTX)
 
 
 LINTFLAGS=	-Nlevel=4 
+
+XARCH_GEN__=	$(_UNIQ)$(XARCH_GEN_)
+XARCH_GEN___=	$(XARCH_GEN__:$(_UNIQ)=-xarch=generic)
+XARCH_GEN=	$(XARCH_GEN___:$(_UNIQ)%=%)
 
 CPPOPTS=	-I$(ARCHDIR) -I$(OINCSDIR) $(INCDIRS:%=-I%) $(INCDIRSX:%=-I%) $(OSDEFS)
 COPTS=		-Xa

@@ -1,8 +1,8 @@
-/* @(#)string.h	1.10 06/10/10 Copyright 1996 J. Schilling */
+/* @(#)string.h	1.11 10/08/23 Copyright 1996-2010 J. Schilling */
 /*
  *	Definitions for strings
  *
- *	Copyright (c) 1996 J. Schilling
+ *	Copyright (c) 1996-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -74,13 +74,13 @@ extern void *memchr	__PR((const void *, int, int));
 extern char *strchr	__PR((const char *, int));
 
 extern int strcspn	__PR((const char *, const char *));
-/*#pragma int_to_unsigned strcspn*/
+/* #pragma int_to_unsigned strcspn */
 
 extern char *strpbrk	__PR((const char *, const char *));
 extern char *strrchr	__PR((const char *, int));
 
 extern int strspn	__PR((const char *, const char *));
-/*#pragma int_to_unsigned strspn*/
+/* #pragma int_to_unsigned strspn */
 
 extern char *strstr	__PR((const char *, const char *));
 extern char *strtok	__PR((char *, const char *));
@@ -88,15 +88,12 @@ extern void *memset	__PR((void *, int, int));
 extern char *strerror	__PR((int));
 
 extern int strlen	__PR((const char *));
-/*#pragma int_to_unsigned strlen*/
+/* #pragma int_to_unsigned strlen */
 
 extern void *memccpy	__PR((void *, const void *, int, int));
 
 extern int strcasecmp	__PR((const char *, const char *));
 extern int strncasecmp	__PR((const char *, const char *, int));
-
-/*#define	index	strchr*/
-/*#define	rindex	strrchr*/
 
 #ifdef	__cplusplus
 }

@@ -1,8 +1,8 @@
-/* @(#)diff.h	1.14 08/02/17 Copyright 1993-2008 J. Schilling */
+/* @(#)diff.h	1.15 10/08/24 Copyright 1993-2010 J. Schilling */
 /*
  *	Definitions for the taylorable diff command
  *
- *	Copyright (c) 1993-2008 J. Schilling
+ *	Copyright (c) 1993-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -15,6 +15,13 @@
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
+
+#ifndef	_DIFF_H
+#define	_DIFF_H
+
+#ifdef	__cplusplus
+extern "C" {
+#endif
 
 #define	D_PERM		0x000001
 #define	D_TYPE		0x000002
@@ -51,3 +58,9 @@
 #define	D_ALL	(~0L);
 
 extern	long	diffopts;
+
+#ifdef	__cplusplus
+}
+#endif
+
+#endif	/* _DIFF_H */
