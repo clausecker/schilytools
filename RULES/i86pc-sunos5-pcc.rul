@@ -1,4 +1,4 @@
-#ident "@(#)i86pc-sunos5-pcc.rul	1.1 10/02/28 "
+#ident "@(#)i86pc-sunos5-pcc.rul	1.2 10/10/02 "
 ###########################################################################
 # Written 2010 by J. Schilling
 ###########################################################################
@@ -31,6 +31,11 @@ LIB_MATH=	-lm
 LIB_KVM=	-lkvm -lelf
 LIB_VOLMGT=	-lvolmgt
 
-LDOPTDYN=	-dy -G -Wl,-ztext -h $(TARGET) -Wl,-Mlib$(TARGETLIB)-mapvers -ldl
+#
+# Solaris comes with a linker that supports mapfiles
+#
+MAPVERS=	$(_MAPVERS) # This enables to use mapfiles
+
+LDOPTDYN=	-dy -G -Wl,-ztext -h $(TARGET) $(PMAPVERS:%=-Wl,-M%) -ldl
 
 ARFLAGS=	crs

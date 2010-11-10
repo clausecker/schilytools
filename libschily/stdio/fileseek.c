@@ -1,6 +1,6 @@
-/* @(#)fileseek.c	1.13 07/04/03 Copyright 1986, 1996-2007 J. Schilling */
+/* @(#)fileseek.c	1.14 10/11/06 Copyright 1986, 1996-2010 J. Schilling */
 /*
- *	Copyright (c) 1986, 1996-2007 J. Schilling
+ *	Copyright (c) 1986, 1996-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -17,8 +17,8 @@
 #include "schilyio.h"
 
 /*
- * Note that because of a definition in schilyio.h we are using fseeko()/ftello()
- * instead of fseek()/ftell() if available.
+ * Note that because of a definition in schilyio.h we are using
+ * fseeko()/ftello() instead of fseek()/ftell() if available.
  */
 
 static	char	_seekerr[]	= "file_seek_err";

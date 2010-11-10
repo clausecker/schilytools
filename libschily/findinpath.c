@@ -1,13 +1,13 @@
-/* @(#)findinpath.c	1.5 09/07/08 Copyright 2004-2009 J. Schilling */
+/* @(#)findinpath.c	1.6 10/10/07 Copyright 2004-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)findinpath.c	1.5 09/07/08 Copyright 2004-2009 J. Schilling";
+	"@(#)findinpath.c	1.6 10/10/07 Copyright 2004-2010 J. Schilling";
 #endif
 /*
  * Search a file name in the PATH and return the path name in allocated space.
  *
- * Copyright 2004-2009 J. Schilling
+ * Copyright 2004-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -28,7 +28,8 @@ static	UConst char sccsid[] =
 #include <schily/standard.h>
 #include <schily/schily.h>
 
-EXPORT	char	*findinpath	__PR((char *name, int mode, BOOL plain_file));
+EXPORT	char	*findinpath	__PR((char *name, int mode, BOOL plain_file,
+								char *path));
 
 #ifdef	JOS
 #define	enofile(t)			((t) == EMISSDIR || \
@@ -43,10 +44,11 @@ EXPORT	char	*findinpath	__PR((char *name, int mode, BOOL plain_file));
 #endif
 
 EXPORT char *
-findinpath(name, mode, plain_file)
+findinpath(name, mode, plain_file, path)
 	char	*name;			/* The name to execute			*/
 	int	mode;			/* Mode for access() e.g. X_OK		*/
 	BOOL	plain_file;		/* Whether to check only plain files	*/
+	char	*path;			/* PATH to use if not NULL		*/
 {
 	char	*pathlist;
 	char	*p1;
@@ -61,7 +63,9 @@ findinpath(name, mode, plain_file)
 	if (strchr(name, '/'))
 		return (strdup(name));
 
-	if ((pathlist = getenv("PATH")) == NULL)
+	if (path != NULL)
+		pathlist = path;
+	else if ((pathlist = getenv("PATH")) == NULL)
 		pathlist = "/bin";
 	p2 = pathlist = strdup(pathlist);
 	if (pathlist == NULL)

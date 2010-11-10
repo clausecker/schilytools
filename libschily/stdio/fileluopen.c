@@ -1,4 +1,4 @@
-/* @(#)fileluopen.c	1.18 10/08/21 Copyright 1986, 1995-2010 J. Schilling */
+/* @(#)fileluopen.c	1.19 10/11/06 Copyright 1986, 1995-2010 J. Schilling */
 /*
  *	Copyright (c) 1986, 1995-2010 J. Schilling
  */
@@ -17,8 +17,8 @@
 #include "schilyio.h"
 
 /*
- * Note that because of a definition in schilyio.h we are using fseeko()/ftello()
- * instead of fseek()/ftell() if available.
+ * Note that because of a definition in schilyio.h we are using
+ * fseeko()/ftello() instead of fseek()/ftell() if available.
  */
 
 #ifndef	O_NDELAY		/* This is undefined on BeOS :-( */

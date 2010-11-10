@@ -1,13 +1,13 @@
-/* @(#)node.c	1.25 09/07/28 Copyright 1985-2009 J. Schilling */
+/* @(#)node.c	1.26 10/10/02 Copyright 1985-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)node.c	1.25 09/07/28 Copyright 1985-2009 J. Schilling";
+	"@(#)node.c	1.26 10/10/02 Copyright 1985-2010 J. Schilling";
 #endif
 /*
  *	Node handling routines
  *
- *	Copyright (c) 1985-2009 J. Schilling
+ *	Copyright (c) 1985-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -32,6 +32,7 @@ EXPORT	Tnode*	allocnode	__PR((long type, Tnode * lp, Tnode * rp));
 EXPORT	void	freetree	__PR((Tnode * np));
 EXPORT	Argvec*	allocvec	__PR((int len));
 EXPORT	void	freevec		__PR((Argvec * vp));
+EXPORT	int	listlen		__PR((Tnode * lp));
 EXPORT	void	printtree	__PR((FILE * f, Tnode * cmd));
 EXPORT	void	printio		__PR((FILE * f, Tnode * cmd));
 EXPORT	void	_printio	__PR((FILE * f, long type));
@@ -152,6 +153,17 @@ freevec(vp)
 	for (t = vp->av_av; *t != NULL; t++)
 		free(*t);
 	free((char *) vp);
+}
+
+EXPORT int
+listlen(lp)
+	register Tnode	*lp;
+{
+	register int	i;
+
+	for (i = 0; lp != (Tnode *) NULL; lp = lp->tn_right.tn_node)
+		i++;
+	return (i);
 }
 
 #ifdef	INTERACTIVE

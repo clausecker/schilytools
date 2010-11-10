@@ -1,4 +1,4 @@
-/* @(#)format.c	1.50 10/08/23 Copyright 1985-2010 J. Schilling */
+/* @(#)format.c	1.51 10/10/23 Copyright 1985-2010 J. Schilling */
 /*
  *	format
  *	common code for printf fprintf & sprintf
@@ -301,11 +301,21 @@ format(fun, farg, fmt, args)
 				 */
 				type = *fmt++;
 				if (!strchr("ZODX", mode = *fmt)) {
+					/*
+					 * Check long double "Le", "Lf" or "Lg"
+					 */
+					if (type == 'L' &&
+					    (mode == 'e' ||
+					    mode == 'f' ||
+					    mode == 'g'))
+						goto checkfmt;
 					fmt--;
 					mode = 'D'; /* default mode */
 				}
 			}
-		} else switch (*fmt) {
+		} else {
+	checkfmt:
+		switch (*fmt) {
 
 		case 'h':
 			if (!type)
@@ -365,6 +375,9 @@ error sizeof (ptrdiff_t) is unknown
 
 		getmode:
 			if (!strchr("udioxX", *(++fmt))) {
+				/*
+				 * %hhd -> char in decimal
+				 */
 				if (type == 'H' && *fmt == 'h') {
 					type = 'C';
 					goto getmode;
@@ -445,6 +458,19 @@ error sizeof (ptrdiff_t) is unknown
 		case 'e':
 			if (fa.signific == -1)
 				fa.signific = 6;
+			if (type == 'L') {
+#ifdef	HAVE_LONGDOUBLE
+				long double ldval = va_arg(args, long double);
+
+#if	(defined(HAVE_QECVT) || defined(HAVE__LDECVT))
+				qftoes(buf, ldval, 0, fa.signific);
+				count += prbuf(buf, &fa);
+				continue;
+#else
+				dval = ldval;
+#endif
+#endif
+			}
 			dval = va_arg(args, double);
 			ftoes(buf, dval, 0, fa.signific);
 			count += prbuf(buf, &fa);
@@ -452,6 +478,19 @@ error sizeof (ptrdiff_t) is unknown
 		case 'f':
 			if (fa.signific == -1)
 				fa.signific = 6;
+			if (type == 'L') {
+#ifdef	HAVE_LONGDOUBLE
+				long double ldval = va_arg(args, long double);
+
+#if	(defined(HAVE_QFCVT) || defined(HAVE__LDFCVT))
+				qftofs(buf, ldval, 0, fa.signific);
+				count += prbuf(buf, &fa);
+				continue;
+#else
+				dval = ldval;
+#endif
+#endif
+			}
 			dval = va_arg(args, double);
 			ftofs(buf, dval, 0, fa.signific);
 			count += prbuf(buf, &fa);
@@ -461,6 +500,23 @@ error sizeof (ptrdiff_t) is unknown
 				fa.signific = 6;
 			if (fa.signific == 0)
 				fa.signific = 1;
+			if (type == 'L') {
+#ifdef	HAVE_LONGDOUBLE
+				long double ldval = va_arg(args, long double);
+
+#if	(defined(HAVE_QGCVT) || defined(HAVE__LDGCVT))
+
+#ifdef	HAVE__LDGCVT
+#define	qgcvt(ld, n, b)	_ldgcvt(*(long_double *)&ld, n, b)
+#endif
+				(void) qgcvt(ldval, fa.signific, buf);
+				count += prbuf(buf, &fa);
+				continue;
+#else
+				dval = ldval;
+#endif
+#endif
+			}
 			dval = va_arg(args, double);
 			(void) gcvt(dval, fa.signific, buf);
 			count += prbuf(buf, &fa);
@@ -516,6 +572,7 @@ error sizeof (ptrdiff_t) is unknown
 				count++;
 				continue;
 			}
+		}
 		}
 		/*
 		 * print numbers:

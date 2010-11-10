@@ -1,4 +1,4 @@
-#ident "@(#)sun4-sunos5-gcc.rul	1.13 07/05/08 "
+#ident "@(#)sun4-sunos5-gcc.rul	1.14 10/10/02 "
 ###########################################################################
 # Written 1996 by J. Schilling
 ###########################################################################
@@ -33,9 +33,14 @@ LIB_KVM=	-lkvm -lelf
 LIB_VOLMGT=	-lvolmgt
 
 #
+# Solaris comes with a linker that supports mapfiles
+#
+MAPVERS=	$(_MAPVERS) # This enables to use mapfiles
+
+#
 # We should use -Wl,-ztext here, but gcc does not create fully compliant
 # object files.
 #
-LDOPTDYN=	-dy -G -h $(TARGET) -Wl,-Mlib$(TARGETLIB)-mapvers -ldl
+LDOPTDYN=	-dy -G -h $(TARGET) $(PMAPVERS:%=-Wl,-M%) -ldl
 
 ARFLAGS=	crs

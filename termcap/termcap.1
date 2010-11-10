@@ -1,4 +1,4 @@
-. \" @(#)termcap.1	1.5 09/07/12 Copyright 2008 J. Schilling
+. \" @(#)termcap.1	1.7 10/10/13 Copyright 2008 J. Schilling
 . \"  Manual page for termcap
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -13,7 +13,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH TERMCAP 1L "09/07/12" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH TERMCAP 1L "10/10/13" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 termcap \- a termcap compiler
 .SH SYNOPSIS
@@ -33,7 +33,7 @@ so people may believe that there is no need for a compiler.
 Syntax checks and unification however are a property of compilers.
 The
 .B termcap
-progam checks for correct data types, outputs all entries in a unique
+program checks for correct data types, outputs all entries in a unique
 order and recodes all strings with the same escape notation.
 This is needed in to compare two entries and it makes life easier.
 .PP
@@ -92,11 +92,20 @@ capabilities. Without
 the obsolete capabilities are printed last.
 .TP
 .B \-gnugoto
-Allow the GNU tgoto() format extexsions %C and %m.
+Allow the GNU tgoto() format extensions %C and %m.
+.TP
+.B \-nodisabled
+Do not output disabled termcap entries. A comment with a warning for this
+entry is still printed in the output.
+.TP
+.B \-nounknown
+Do not output unknown termcap entries. A comment with a warning for this
+entry is still printed in the output.
 .TP
 .B \-nowarn
-Do not warn about incorrect entries that could be fixed by asuming that the
-problem is a result from not correctly converting escape sequences in terminfo 
+Do not warn about incorrect entries that could be fixed by assuming that the
+problem is a result from not correctly converting escape sequences in
+.B terminfo 
 syntax to termcap syntax. For this purpose, currently null characters
 .RB ( \e0 )
 are converted to 
@@ -178,6 +187,194 @@ The system's terminal capabilities database.
 .B ~/.termcap
 The private terminal capabilities database.
 
+.SH MESSAGES
+.PP
+The following messages are created by
+.BR termcap (1):
+.TP
+.B "# BAD(name). Skipping blank entry: 'ent'"
+A colon (":") is followed by white space. White space is only permitted in
+a
+.B termcap
+entry if it appears at the beginning of a line.
+.sp
+This error type is usually caused by a bad manual edit.
+Carefully check every such problem in the source and manually correct it.
+.TP
+.B "# BAD(name). Illegal entry (3rd char 'c' for ':ccc'): 'ent'"
+A valid
+.B termcap
+entry is made of two characters followed by a colon (":")
+in case of a boolean entry, a hash mark ("#") in case of an integer entry,
+an equal sign ("=") for a string entry,
+or the at sign ("@") for disabled entries.
+.sp
+This error type is usually caused by a bad conversion from a
+.B terminfo 
+entry
+that is caused by illegal quoting. A bad quoting may cause the
+.B termcap
+parser to be out of sync. A quoted colon ("\e:") is permitted in 
+.B terminfo
+but not in
+.B termcap
+.RB ( termcap
+only permits "\e072" to include a colon in a string).
+.sp
+This error may also be caused by a bad manual edit, e.g. a backslash
+("\e") at the end of a termcap entry that causes the next terminal name to
+be interpreted as capability, a colon (":") instead of a bar ("|") in the 
+list of alternative terminal names or superfluous colon (":") in the list
+of capabilities.
+.sp
+Carefully check every such problem in the source and manually correct it.
+.TP
+.B "# BAD(name). Type mismatch 'ent' in 'full\-ent' ...
+The type for the current entry does not match the type from the termcap
+documentation.
+.sp
+This error type is usually caused by a bad manual edit, e.g. from typing
+":", "=" or "#" instead of the correct character "=" or "#" that is expected
+as the third character for the entry.
+Carefully check every such problem in the source and manually correct it.
+.TP
+.B "# BAD(name). Bad format '%c' in 'ent=value'"
+An invalid format character was found in a parameterized string (a string
+that is passed to
+.BR tgoto() ).
+.sp
+This error type is usually caused by badly converted 
+.B terminfo
+entry.
+Carefully check every such problem in the source and manually correct it.
+.TP
+.B "# BAD(name). Buffer overflow in 'ent=value'"
+A string that is passed to
+.B tgoto()
+is longer than 80 characters.
+.B tgoto()
+is not granted to work correctly in case that the parameterized string is
+longer than 80 characters.
+.sp
+This error type is usually caused by badly converted 
+.B terminfo
+entry.
+Carefully check every such problem in the source and manually correct it.
+
+.TP
+.B "# NOTICE(name). Short entry (':c:') removed"
+All
+.B termcap
+capability names must have two characters. A single char entry was found and removed.
+.TP
+.B "# NOTICE(name). Disabled entry: '.ent'"
+An entry that starts with a dot (".") was found.
+.sp
+This is usually caused by an intentional manual edit.
+.TP
+.B "# NOTICE(name). Unknown entry ('ent'): 'full\-ent'"
+An entry was found that is not part of the official
+.B termcap
+documentation.
+.sp
+It is unlikely that such an entry is supported by any program, so these
+entries may be removed from the the
+.B termcap
+database.
+This may be done automatically by specifying the
+.B \-nounknown
+option.
+.TP
+.B "# NOTICE(name). Canceled entry 'ent@' followed by 'full\-ent'..."
+A cancelled entry in the form "xx@" was followed by "xx=string" or
+"xx#number" in the same termcap entry.
+The
+.B cancel
+feature in
+.B termcap
+entries is intended to cancel entries from capabilities imported via the
+.BI tc= name
+feature. 
+.sp
+Carefully check every such problem in the source whether it was introduced
+intentionally (e.g. in order to temporarily disable a feeature) or whether
+it was introduced by accident.
+.TP
+.B "# NOTICE(name). NULL char (fixed) in entry ('ent') at..."
+A "\e0" string was found in a
+.B termcap
+entry.
+This is not permitted by the
+.B termcap
+documentation.
+.sp
+This error type is usually caused by a bad conversion from a
+.B terminfo
+entry.
+This typically happens if bad software converted a "\eE" string to "\e" or 
+in case that the string "\e0" that is valid in a
+.B terminfo
+entry was not converted to the correct
+.B termcap
+equivalent: "\e200".
+.BR termcap (1)
+assumes the latter and automatically converts "\e0" to "\e200".
+A NULL character may be used as a delay in an output sequence, but it is not expected in
+function key input sequence.
+Carefully check every such problem in the source and manually correct it.
+.TP
+.B "# NOTICE(name). Nonoctal char 'c' in entry ('ent') at position..."
+A character outside the range '0'..'7' was found in a '\ennn' octal sequence.
+.sp
+Carefully check every such problem in the source and manually correct it.
+.TP
+.B "# NOTICE(name). Badly quoted char '\ec' (fixed) in ('ent') at ..."
+A character quoted with "\e" was found but the character is not in the list
+of quotes documented by
+.BR termcap .
+As the character was from the list "\ee", "\e:", "\e,", "\es", "\el"
+it is assumed that the problem was caused by a bad conversion from a
+.B terminfo
+entry.
+.sp
+Carefully check every such problem in the source and manually correct it if needed.
+.TP
+.B "# NOTICE(name). Badly quoted char '\ec' in ('ent') at ..."
+A character quoted with "\e" was found but the character is not in the list
+of quotes documented by
+.BR termcap .
+As the character was neither from the list "\ee", "\e:", "\e,", "\es", "\el"
+it is assumed that the problem was caused by a bad manual edit.
+.sp
+Carefully check every such problem in the source and manually correct it.
+
 .SH NOTES
+.PP
+Termcap databases that have been created from a terminfo database often are full
+of noncompliances that prevent successful parsing by termcap-compliant software.
+The fact that terminfo permits "\e:" is the cause for the majority of all problems
+that cannot be automatically resolved.
+.PP
+There is a non-compliance between older and newer
+.B termcap
+entries. The capability named "ma" in former times (around 1980) was an 
+arrow key map for the
+.BR rogue (1)
+.I "Dungeons of Doom
+game.
+In newer times, the "ma" entry is used for the maximum number of attributes a
+terminal can handle and thus is of type integer.
+.PP
+As the functions
+.BR tgetstr ()
+and
+.BR tgetnum ()
+both skip entries with unappropriate type, this is not a problem.
+For this reason, we do not warn of a possible string/number type conflict 
+with the "ma" capability. It is even possible to have a
+.BI ma= maplist
+and
+.BI ma# num-attr
+entry at the same time for the same terminal entry.
 
 .SH BUGS

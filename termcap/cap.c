@@ -1,8 +1,8 @@
-/* @(#)cap.c	1.35 09/07/13 Copyright 2000-2009 J. Schilling */
+/* @(#)cap.c	1.41 10/10/13 Copyright 2000-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)cap.c	1.35 09/07/13 Copyright 2000-2009 J. Schilling";
+	"@(#)cap.c	1.41 10/10/13 Copyright 2000-2010 J. Schilling";
 #endif
 /*
  *	termcap		a TERMCAP compiler
@@ -14,7 +14,7 @@ static	UConst char sccsid[] =
  *	order and recode all strings with the same escape notation.
  *	This is needed in to compare two entries and it makes life easier.
  *
- *	Copyright (c) 2000-2009 J. Schilling
+ *	Copyright (c) 2000-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -66,12 +66,14 @@ typedef struct {
  * The list of capabilities for the termcap command.
  * This contains the Termcap Name, the Terminfo Name and a Comment.
  */
-clist caplist[] = {
+LOCAL clist caplist[] = {
 #include "caplist.c"
 };
 
-int	ncaps = sizeof (caplist) / sizeof (caplist[0]);
+LOCAL	int	ncaps = sizeof (caplist) / sizeof (caplist[0]);
 
+LOCAL	BOOL	nodisabled = FALSE;
+LOCAL	BOOL	nounknown = FALSE;
 LOCAL	BOOL	nowarn = FALSE;
 LOCAL	BOOL	dooctal = FALSE;
 LOCAL	BOOL	docaret = FALSE;
@@ -92,6 +94,7 @@ LOCAL	void	dumplist	__PR((void));
 LOCAL	void	usage		__PR((int ex));
 EXPORT	int	main		__PR((int ac, char **av));
 LOCAL	void	checkentries	__PR((char *tname, int *slenp));
+LOCAL	char	*type2str	__PR((int type));
 LOCAL	void	checkbad	__PR((char *tname, char *unknown, char *disabled));
 LOCAL	void	outcap		__PR((char *tname, char *unknown, char *disabled, BOOL obsolete_last));
 LOCAL	char *	checkgoto	__PR((char *tname, char *ent, char *cm, int col, int line));
@@ -290,6 +293,8 @@ usage(ex)
 	error("-docaret	prefer '^M' before '\\r' when creating escaped strings\n");
 	error("if=name		input file for termcap compiling\n");
 	error("-gnugoto	allow GNU tgoto() format extensions '%%C' and '%%m'.\n");
+	error("-nodisabled	do not output disabled termcap entries\n");
+	error("-nounknown	do not output unkonwn termcap entries\n");
 	error("-nowarn		do not warn about problems that could be fixed\n");
 	error("-tc		follow tc= entries and generate cumulative output\n");
 	error("-v		increase verbosity level\n");
@@ -333,11 +338,12 @@ main(ac, av)
 	cac = ac;
 	cav = av;
 	cac--, cav++;
-	if (getallargs(&cac, &cav, "help,version,dumplist,inorder,v+,tc,if*,nowarn,dooctal,docaret,gnugoto",
+	if (getallargs(&cac, &cav, "help,version,dumplist,inorder,v+,tc,if*,nodisabled,nounknown,nowarn,dooctal,docaret,gnugoto",
 				&help, &prvers,
 				&dodump, &inorder, &verbose,
 				&do_tc,
 				&infile,
+				&nodisabled, &nounknown,
 				&nowarn, &dooctal, &docaret,
 				&gnugoto) < 0) {
 		errmsgno(EX_BAD, "Bad option '%s'\n", cav[0]);
@@ -346,7 +352,7 @@ main(ac, av)
 	if (help)
 		usage(0);
 	if (prvers) {
-		printf("termcap %s (%s-%s-%s)\n\n", "1.35", HOST_CPU, HOST_VENDOR, HOST_OS);
+		printf("termcap %s (%s-%s-%s)\n\n", "1.41", HOST_CPU, HOST_VENDOR, HOST_OS);
 		printf("Copyright (C) 2000-2009 Jörg Schilling\n");
 		printf("This is free software; see the source for copying conditions.  There is NO\n");
 		printf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
@@ -471,12 +477,23 @@ checkentries(tname, slenp)
 				strcpy(sbp, p);
 				if ((p = strchr(sbp, ':')) != NULL)
 					*p = '\0';
-				p = sbp;
+				p = sbp;	/* The tc= parameter */
 			} else
 				break;
-		} else
+		} else {
 			p = tgetstr(caplist[i].tc_name, &sbp);
-		if (p) {
+		}
+		if (caplist[i].tc_name[0] == 'm' &&
+		    caplist[i].tc_name[1] == 'a' &&
+		    (caplist[i].tc_flags & C_STRING) == 0) {
+			/*
+			 * The "ma" entry exists as numeric and string
+			 * capability. We are currently not looking for
+			 * the string capability, so ignore this entry.
+			 */
+			/* EMPTY */
+			;
+		} else if (p) {
 			/*
 			 * XXX Option zum Deaktivieren des Quoten
 			 */
@@ -492,7 +509,18 @@ checkentries(tname, slenp)
 			continue;
 		}
 		b = tgetnum(caplist[i].tc_name);
-		if (b >= 0) {
+
+		if (caplist[i].tc_name[0] == 'm' &&
+		    caplist[i].tc_name[1] == 'a' &&
+		    (caplist[i].tc_flags & C_INT) == 0) {
+			/*
+			 * The "ma" entry exists as numeric and string
+			 * capability. We are currently not looking for
+			 * the numeric capability, so ignore this entry.
+			 */
+			/* EMPTY */
+			;
+		} else if (b >= 0) {
 			printf("'%s' -> %d", caplist[i].tc_name, b);
 			printf("		%s", caplist[i].tc_comment);
 			if ((caplist[i].tc_flags & C_INT) == 0)
@@ -514,6 +542,19 @@ checkentries(tname, slenp)
 		*slenp = sbp - stbuf;
 }
 
+LOCAL char *
+type2str(type)
+	int	type;
+{
+	switch (type & 0x07) {
+
+	case C_INT:	return ("INT");
+	case C_STRING:	return ("STRING");
+	case C_BOOL:	return ("BOOL");
+	default:	return ("<unknown>");
+	}
+}
+
 /*
  * Check for bad termcap entries
  */
@@ -526,6 +567,9 @@ checkbad(tname, unknown, disabled)
 	char	ent[3];		/* Space to hold termcap entry */
 	char	*up;		/* Unknown buffer Ende */
 	char	*dp;		/* Disabled buffer Ende */
+	int	rb;		/* Fuer bool/int Werte */
+	char	*rp;		/* Fuer string Werte */
+	BOOL	found;		/* Correct type already found */
 	int	i;
 	char	*p;
 	char	*p2;
@@ -539,11 +583,22 @@ checkbad(tname, unknown, disabled)
 	while (*p) {
 		while (*p == ':')
 			p = tskip(p);
+		if (*p == '\0')
+			break;
 		/*
 		 * Avoid to warn about bad termcap entries as long as we
 		 * implement support for the terminfo escape '\:'.
 		 */
 		if (p > (tbuf+1) && p[-1] == ':' && p[-2] == '\\') {
+			p = tskip(p);
+			continue;
+		}
+		if (p[1] == ':') {
+			printf("# NOTICE(%s). Short entry (':%c:') removed\n",
+				tname, p[0]);
+			if (!out_tty)
+			error("NOTICE(%s). Short entry (':%c:') removed\n",
+				tname, p[0]);
 			p = tskip(p);
 			continue;
 		}
@@ -608,6 +663,19 @@ checkbad(tname, unknown, disabled)
 			    caplist[i].tc_name[1] == '-')
 				continue;
 
+			if (caplist[i].tc_name[0] == 'm' &&
+			    caplist[i].tc_name[1] == 'a' &&
+			    (caplist[i].tc_flags & C_STRING) == 0) {
+				/*
+				 * We found the "ma" entry in the numeric
+				 * variant. If this was a string cap, continue
+				 * searching for the matching caplist entry.
+				 * The "ma=" entry is past "ma#" in our list.
+				 */
+				if (p[2] == '=')
+					continue;
+			}
+
 			if (streql(ent, caplist[i].tc_name))
 				break;
 		}
@@ -638,6 +706,62 @@ checkbad(tname, unknown, disabled)
 				checkgoto(tname, ent, val, 0, 0);
 			}
 		}
+
+		if (i == ncaps) {
+			/*
+			 * This is an unknown entry that has already been
+			 * handled above. We cannot check the type for unknown
+			 * entries, so continue to check the other entries.
+			 */
+			p = tskip(p);
+			continue;
+		}
+		found = FALSE;
+		rp = tgetstr(caplist[i].tc_name, NULL);
+		if (rp)
+			found = TRUE;
+		if (caplist[i].tc_name[0] == 'm' &&
+		    caplist[i].tc_name[1] == 'a' &&
+		    (caplist[i].tc_flags & C_STRING) == 0) {
+			/* EMPTY */
+			;
+		} else if (rp) {
+			if ((caplist[i].tc_flags & C_STRING) == 0) {
+				p2 = tskip(p);
+				printf("# BAD(%s). Type mismatch '%s' in '%.*s' is STRING should be %s\n",
+					tname, ent, (int)(p2 - p - 1), p, type2str(caplist[i].tc_flags));
+			}
+		}
+		rb = tgetnum(caplist[i].tc_name);
+		if (rb >= 0)
+			found = TRUE;
+		if (caplist[i].tc_name[0] == 'm' &&
+		    caplist[i].tc_name[1] == 'a' &&
+		    (caplist[i].tc_flags & C_INT) == 0) {
+			/* EMPTY */
+			;
+		} else if (rb >= 0) {
+			if ((caplist[i].tc_flags & C_INT) == 0) {
+				p2 = tskip(p);
+				printf("# BAD(%s). Type mismatch '%s' in '%.*s' is INT should be %s\n",
+					tname, ent, (int)(p2 - p - 1), p, type2str(caplist[i].tc_flags));
+			}
+		}
+
+		if (!found && p[2] != '@') {
+			rb = tgetflag(caplist[i].tc_name);
+			if ((caplist[i].tc_flags & C_BOOL) == 0) {
+				p2 = tskip(p);
+				if (rb == 0 && p[2] != '@') {
+					printf("# NOTICE(%s). Canceled entry '%s@' followed by '%.*s' expected type %s\n",
+						tname, ent, (int)(p2 - p - 1), p, type2str(caplist[i].tc_flags));
+				} else {
+					printf("# BAD(%s). Type mismatch '%s' in '%.*s' is BOOL should be %s\n",
+						tname, ent, (int)(p2 - p - 1), p, type2str(caplist[i].tc_flags));
+				}
+			}
+		}
+
 		p = tskip(p);
 	}
 	*up = '\0';
@@ -651,6 +775,9 @@ checkbad(tname, unknown, disabled)
 }
 
 LOCAL int	itotype[5] = { 0, C_BOOL, C_INT, C_STRING, 0 };
+#ifdef	DEBUG
+LOCAL char	*itoname[5] = { "0", "C_BOOL", "C_INT", "C_STRING", "C_TC" };
+#endif
 
 LOCAL void
 outcap(tname, unknown, disabled, obsolete_last)
@@ -688,6 +815,12 @@ BOOL	didobsolete = FALSE;
 
 	for (j = obsolete_last ? -1:1; j != 0 && j <= 4; j++)
 	for (i = 0; i < ncaps; i++) {
+#ifdef	DEBUG
+		flush();
+		error("caplist[%d]->'%c%c' (%s)->'%.10s' j=%d\n",
+			i, caplist[i].tc_name[0], caplist[i].tc_name[1],
+			itoname[j], tfind(tbuf, caplist[i].tc_name), j);
+#endif
 		/*
 		 * Skip meta entries.
 		 */
@@ -708,6 +841,8 @@ BOOL	didobsolete = FALSE;
 			if (streql(caplist[i].tc_var, "unknown")) {
 				if (unknown[0] == '\0')
 					continue;
+				if (nounknown)
+					continue;
 
 				if (llen > 9 || flags == 0)
 					printf("\\\n\t:");
@@ -715,6 +850,8 @@ BOOL	didobsolete = FALSE;
 				llen = 9;
 			} else {
 				if (disabled[0] == '\0')
+					continue;
+				if (nodisabled)
 					continue;
 
 				if (llen > 9 || flags == 0)
@@ -733,7 +870,16 @@ BOOL	didobsolete = FALSE;
 			goto printit;
 		}
 		if (i == ncaps -1) {
-			p2 = tfind(p2, "tc");
+			/*
+			 * tfind() first calls tskip() but the last printed
+			 * entry may be just before the "tc=" enty and did
+			 * already call p2 = tskip(pe). In this case, we must
+			 * not call tfind().
+			 */
+			if (strncmp(p2, "tc=", 3) == 0)
+				p2 = &p2[2];
+			else
+				p2 = tfind(p2, "tc");
 			if (p2 == NULL)
 				break;
 			if (*p2 == '=') {
@@ -747,9 +893,24 @@ BOOL	didobsolete = FALSE;
 			curlen = sprintf(line, "%s=%s:", caplist[i].tc_name, p);
 			i--;
 			goto printit;
-		} else
+		} else {
 			p = tgetstr(caplist[i].tc_name, &sbp);
+		}
+
 		if (p) {
+			if (caplist[i].tc_flags & C_INT) {	/* check type for "ma" */
+				if (caplist[i].tc_name[0] == 'm' &&
+				    caplist[i].tc_name[1] == 'a') {
+					/*
+					 * The "ma" entry exists as numeric and
+					 * string capability. We are currently
+					 * not looking for the string
+					 * capability, so try to check for int.
+					 */
+					goto trynum;
+				}
+			}
+
 			if (caplist[i].tc_flags & C_STRING) {	/* check type for "ma" */
 				curlen = sprintf(line, "%s=%s:", caplist[i].tc_name, quote(p));
 				goto printit;
@@ -761,6 +922,7 @@ BOOL	didobsolete = FALSE;
 				continue;
 			}
 		}
+trynum:
 		b = tgetnum(caplist[i].tc_name);
 		if (b >= 0) {
 			if (caplist[i].tc_flags & C_INT) {	/* check type for "ma" */
@@ -768,6 +930,17 @@ BOOL	didobsolete = FALSE;
 				goto printit;
 			} else {
 				p2 = tskip(pe);
+				if (caplist[i].tc_name[0] == 'm' &&
+				    caplist[i].tc_name[1] == 'a') {
+					/*
+					 * The "ma" entry exists as numeric and
+					 * string capability. We are currently
+					 * not looking for the string
+					 * capability. We will check the string
+					 * entry later in the caplist[i] loop.
+					 */
+					continue;
+				}
 				error("%s: Illegal entry '%s' '%.*s' (should not be a number)\n",
 						tname, caplist[i].tc_name,
 						(int)(p2 - pe - 1), pe);
@@ -789,6 +962,17 @@ BOOL	didobsolete = FALSE;
 			}
 		}
 		p2 = tskip(pe);
+		if (caplist[i].tc_flags & C_INT) {	/* check type for "ma" */
+			if (caplist[i].tc_name[0] == 'm' &&
+			    caplist[i].tc_name[1] == 'a' &&
+			    *pe == '=') {
+				/*
+				 * This entry will be checked later.
+				 * The "ma=" entry is past "ma#" in our list.
+				 */
+				continue;
+			}
+		}
 		error("%s: Illegal entry '%s' '%.*s'\n",
 						tname, caplist[i].tc_name,
 						(int)(p2 - pe - 1), pe);
@@ -998,9 +1182,9 @@ badfmt:
 
 		default:
 		badchar:
-			printf("# BAD(%s) Bad format '%%%c' in '%s=%s'\n", tname, c, ent, quote(cm));
+			printf("# BAD(%s). Bad format '%%%c' in '%s=%s'\n", tname, c, ent, quote(cm));
 			if (!out_tty)
-			error("BAD(%s) Bad format '%%%c' in '%s=%s'\n", tname, c, ent, quote(cm));
+			error("BAD(%s). Bad format '%%%c' in '%s=%s'\n", tname, c, ent, quote(cm));
 			hadbad = TRUE;
 /*			goto badfmt;*/
 		}
@@ -1010,9 +1194,9 @@ badfmt:
 	 */
 	if ((op + strlen(xbuf)) >= &outbuf[OBUF_SIZE]) {
 overflow:
-		printf("# BAD(%s) Buffer overflow in '%s=%s'\n", tname, ent, quote(cm));
+		printf("# BAD(%s). Buffer overflow in '%s=%s'\n", tname, ent, quote(cm));
 		if (!out_tty)
-		error("BAD(%s) Buffer overflow in '%s=%s'\n", tname, ent, quote(cm));
+		error("BAD(%s). Buffer overflow in '%s=%s'\n", tname, ent, quote(cm));
 		return ("OVERFLOW");
 	}
 	if (hadbad)
@@ -1079,7 +1263,7 @@ static			char	out[TBUF];
 
 					len = p2 - s - (*p2?1:0);
 					pos -= 4-i;
-					if (!nowarn) {
+					if (!nowarn && nm[0] != '.') {
 					printf("# NOTICE(%s). NULL char (fixed) in entry ('%s') at abs position %d in '%.*s'\n",
 							tname, nm, pos, len, s);
 					if (!out_tty)
@@ -1094,10 +1278,11 @@ static			char	out[TBUF];
 					int	pos = (char *)ep - s;
 
 					len = p2 - s - (*p2?1:0);
-					printf("# NOTICE(%s) Nonoctal char '%c' in entry ('%s') at position %d (abs %d) in '%.*s'\n",
+					printf(
+					"# NOTICE(%s). Nonoctal char '%c' in entry ('%s') at position %d (abs %d) in '%.*s'\n",
 							tname, *ep, nm, 4-i, pos, len, s);
 					if (!out_tty)
-					error("NOTICE(%s) Nonoctal char '%c' in entry ('%s') at position %d (abs %d) in '%.*s'\n",
+					error("NOTICE(%s). Nonoctal char '%c' in entry ('%s') at position %d (abs %d) in '%.*s'\n",
 							tname, *ep, nm, 4-i, pos, len, s);
 				}
 #endif
@@ -1123,10 +1308,10 @@ static			char	out[TBUF];
 
 					len = p2 - s - (*p2?1:0);
 					if (!nowarn && strchr("e:,sl", c)) {
-					printf("# NOTICE(%s) Badly quoted char '\\%c' %sin ('%s') at abs position %d in '%.*s'\n",
+					printf("# NOTICE(%s). Badly quoted char '\\%c' %sin ('%s') at abs position %d in '%.*s'\n",
 							tname, c, strchr("e:,sl", c)?"(fixed) ":"", nm, pos, len, s);
 					if (!out_tty)
-					error("NOTICE(%s) Badly quoted char '\\%c' %sin ('%s') at abs position %d in '%.*s'\n",
+					error("NOTICE(%s). Badly quoted char '\\%c' %sin ('%s') at abs position %d in '%.*s'\n",
 							tname, c, strchr("e:,sl", c)?"(fixed) ":"", nm, pos, len, s);
 					}
 				}

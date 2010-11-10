@@ -1,4 +1,4 @@
-/* @(#)schily.h	1.88 10/08/27 Copyright 1985-2010 J. Schilling */
+/* @(#)schily.h	1.92 10/10/23 Copyright 1985-2010 J. Schilling */
 /*
  *	Definitions for libschily
  *
@@ -140,22 +140,6 @@ extern "C" {
 
 #endif
 
-#ifdef	RENAME_FEXEC
-#define	fexecl		js_fexecl
-#define	fexecle		js_fexecle
-#define	fexecv		js_fexecv
-#define	fexecve		js_fexecve
-#endif
-#ifdef	RENAME_FSPAWN
-#define	fspawnv		js_fspawnv
-#define	fspawnv_nowait	js_fspawnv_nowait
-#define	fspawnl		js_fspawnl
-#endif
-#ifdef	RENAME_GETLINE
-#define	getline		js_getline
-#define	fgetline	js_fgetline
-#endif
-
 #ifdef	EOF	/* stdio.h has been included */
 
 extern	int	_cvmod __PR((const char *, int *, int *));
@@ -167,20 +151,20 @@ extern	FILE	*fdup __PR((FILE *));
  */
 extern	int	fdown __PR((FILE *));
 #endif
-extern	int	fexecl __PR((const char *, FILE *, FILE *, FILE *,
+extern	int	js_fexecl __PR((const char *, FILE *, FILE *, FILE *,
 							const char *, ...));
-extern	int	fexecle __PR((const char *, FILE *, FILE *, FILE *,
+extern	int	js_fexecle __PR((const char *, FILE *, FILE *, FILE *,
 							const char *, ...));
 		/* 6th arg not const, fexecv forces av[ac] = NULL */
-extern	int	fexecv __PR((const char *, FILE *, FILE *, FILE *, int,
+extern	int	js_fexecv __PR((const char *, FILE *, FILE *, FILE *, int,
 							char **));
-extern	int	fexecve __PR((const char *, FILE *, FILE *, FILE *,
+extern	int	js_fexecve __PR((const char *, FILE *, FILE *, FILE *,
 					char * const *, char * const *));
-extern	int	fspawnv __PR((FILE *, FILE *, FILE *, int, char * const *));
-extern	int	fspawnl __PR((FILE *, FILE *, FILE *, const char *, ...));
-extern	int	fspawnv_nowait __PR((FILE *, FILE *, FILE *,
+extern	int	js_fspawnv __PR((FILE *, FILE *, FILE *, int, char * const *));
+extern	int	js_fspawnl __PR((FILE *, FILE *, FILE *, const char *, ...));
+extern	int	js_fspawnv_nowait __PR((FILE *, FILE *, FILE *,
 					const char *, int, char *const*));
-extern	int	fgetline __PR((FILE *, char *, int));
+extern	int	js_fgetline __PR((FILE *, char *, int));
 extern	int	fgetstr __PR((FILE *, char *, int));
 extern	int	file_getraise __PR((FILE *));
 extern	void	file_raise __PR((FILE *, int));
@@ -316,10 +300,11 @@ extern	int	error __PR((const char *, ...)) __printflike__(1, 2);
 extern	char	*fillbytes __PR((void *, ssize_t, char));
 extern	char	*findbytes __PR((const void *, ssize_t, char));
 #endif
-extern	char	*findinpath __PR((char *__name, int __mode, BOOL __plain_file));
+extern	char	*findinpath __PR((char *__name, int __mode,
+					BOOL __plain_file, char *__path));
 extern	int	findline __PR((const char *, char, const char *,
 							int, char **, int));
-extern	int	getline __PR((char *, int));
+extern	int	js_getline __PR((char *, int));
 extern	int	getstr __PR((char *, int));
 extern	int	breakline __PR((char *, char, char **, int));
 extern	int	getallargs __PR((int *, char * const**, const char *, ...));
@@ -354,6 +339,8 @@ extern	void	save_args __PR((int, char **));
 extern	int	saved_ac __PR((void));
 extern	char	**saved_av __PR((void));
 extern	char	*saved_av0 __PR((void));
+extern	char	*searchfileinpath __PR((char *__name, int __mode,
+					BOOL __plain_file, char *__path));
 #ifndef	seterrno
 extern	int	seterrno __PR((int));
 #endif
@@ -397,6 +384,10 @@ extern	int	format __PR((void (*)(char, long), long, const char *, void *));
 
 extern	int	ftoes __PR((char *, double, int, int));
 extern	int	ftofs __PR((char *, double, int, int));
+#ifdef	HAVE_LONGDOUBLE
+extern	int	qftoes __PR((char *, long double, int, int));
+extern	int	qftofs __PR((char *, long double, int, int));
+#endif
 
 #ifdef	EOF	/* stdio.h has been included */
 /*PRINTFLIKE2*/
@@ -451,6 +442,7 @@ extern	int	_openfd64	__PR((const char *, int));
 #endif
 #endif
 
+#ifndef	NO_SCHILY_PRINT		/* Define to disable *printf() redirects */
 #ifdef	SCHILY_PRINT
 #undef	fprintf
 #define	fprintf		js_fprintf
@@ -466,7 +458,34 @@ extern	int	_openfd64	__PR((const char *, int));
 #define	snprintf	js_snprintf
 #endif
 #endif
+#endif
 
+#ifndef	NO_SCHILY_GETLINE	/* Define to disable *getline() redirect */
+#undef	getline
+#define	getline		js_getline
+#undef	fgetline
+#define	fgetline	js_fgetline
+#endif
+
+#ifndef	NO_SCHILY_FEXEC		/* Define to disable fexec*() redirect */
+#undef	fexecl
+#define	fexecl		js_fexecl
+#undef	fexecle
+#define	fexecle		js_fexecle
+#undef	fexecv
+#define	fexecv		js_fexecv
+#undef	fexecve
+#define	fexecve		js_fexecve
+#endif
+
+#ifndef	NO_SCHILY_FSPAWN	/* Define to disable fspawn*() redirect */
+#undef	fspawnv
+#define	fspawnv		js_fspawnv
+#undef	fspawnv_nowait
+#define	fspawnv_nowait	js_fspawnv_nowait
+#undef	fspawnl
+#define	fspawnl		js_fspawnl
+#endif
 
 #ifdef	FOUND_SIZE_T
 extern	void	*js_malloc	__PR((size_t size, char *msg));

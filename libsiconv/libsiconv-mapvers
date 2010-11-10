@@ -1,4 +1,4 @@
-# @(#)libsiconv-mapvers	1.1 07/05/19 Copyright 2007 J. Schilling
+# /* @(#)libsiconv-mapvers	1.2 10/10/02 Copyright 2007-2010 J. Schilling */
 
 SCHILY_1.0 {
 global:

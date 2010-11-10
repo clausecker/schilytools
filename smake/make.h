@@ -1,7 +1,7 @@
-/* @(#)make.h	1.90 09/11/25 Copyright 1985, 87, 91, 1995-2009 J. Schilling */
+/* @(#)make.h	1.92 10/10/06 Copyright 1985, 87, 91, 1995-2010 J. Schilling */
 /*
  *	Definitions for make.
- *	Copyright (c) 1985, 87, 91, 1995-2009 by J. Schilling
+ *	Copyright (c) 1985, 87, 91, 1995-2010 by J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -90,6 +90,7 @@ typedef struct obj {
 #define	F_TERM		32		/* Object is source of a TERM rule  */
 #define	F_PERCENT	64		/* o_name has % in pattern dep list */
 #define	F_PATRULE	128		/* Pattern rule pointer in o_node   */
+#define	F_NEWNODE	256		/* This node was just created	    */
 
 /*
  * list element, used to build dependency lists from unique obj elements
@@ -142,7 +143,11 @@ typedef struct patrule {
  */
 #define	PF_TERM	0x01			/* This is a terminator rule	    */
 
-
+/*
+ * node types
+ *
+ * Note that NWARN cannot be in o_flags as there may be no associated node.
+ */
 #define	EQUAL	'='
 #define	COLON	':'
 #define	SEMI	';'
@@ -151,7 +156,10 @@ typedef struct patrule {
 #define	DCOLON	(':' | (':'<<8)) /* ::	 */
 #define	SHVAR	0x1001		 /* :sh= */
 
+#define	NWARN	0x4000		/* We did warn already on this node */
+
 #define	basetype(x)	((x) & 0xFF)
+#define	ntype(x)	((x) & 0x3FFF)
 
 /*
  * make.c

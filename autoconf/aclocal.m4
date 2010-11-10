@@ -1,4 +1,4 @@
-dnl @(#)aclocal.m4	1.89 10/04/26 Copyright 1998-2009 J. Schilling
+dnl @(#)aclocal.m4	1.91 10/10/01 Copyright 1998-2009 J. Schilling
 
 dnl Set VARIABLE to VALUE in C-string form, verbatim, or 1.
 dnl AC_DEFINE_STRING(VARIABLE [, VALUE])
@@ -55,6 +55,41 @@ fi])
 if test $ac_cv_iconv_const = yes; then
   AC_DEFINE(HAVE_ICONV_CONST)
 fi])
+
+AC_DEFUN(AC_PROG_CPPX,
+[AC_REQUIRE([AC_PROG_CPP])dnl
+AC_MSG_CHECKING(how to run the C preprocessor for any type of file)
+if test -z "$CPPX"; then
+AC_CACHE_VAL(ac_cv_prog_CPPX,
+[  # This must be in double quotes, not single quotes, because CPP may get
+  # substituted into the Makefile and "${CC-cc}" will confuse make.
+  CPPX="$CPP"
+	cat > conftestcpp << EOF
+	xxzzy
+EOF
+	# gcc -E does not accept any file suffix, so we need to test
+	# and if $CC -E fails, we try to use dirname(which($CC))/cpp
+	# We cannot use AC_TRY_EVAL(CPPX conftestcpp | grep xxzzy) because
+	# of a bug in the parser from bash
+	ac_result=`(echo configure:1288: "$CPPX conftestcpp | grep xxzzy" 1>&5; eval $CPPX conftestcpp | grep xxzzy) 2>&5`
+	if test -z "$ac_result"; then
+		changequote(, )dnl
+		ac_file=`eval type ${CC-cc} 2>/dev/null | sed 's%[^/]*/%/%'`
+		# Remove last slash and all that follows it.  Not all systems have dirname.
+		ac_dir=`echo "$ac_file" | sed 's%/[^/][^/]*$%%'`
+		changequote([, ])dnl
+		if test -f "$ac_dir"/cpp; then
+			CPPX="$ac_dir"/cpp
+		fi
+	fi
+	ac_cv_prog_CPPX="$CPPX"])dnl
+	CPPX="$ac_cv_prog_CPPX"
+else
+	ac_cv_prog_CPPX="$CPPX"
+fi
+AC_MSG_RESULT($CPPX)
+AC_SUBST(CPPX)dnl
+])
 
 dnl Checks if /bin/sh is bash
 dnl Defines BIN_SHELL_IS_BASH on success.

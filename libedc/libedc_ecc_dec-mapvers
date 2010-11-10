@@ -1,4 +1,4 @@
-#ident %W% %E% %Q%
+# /* @(#)libedc_ecc_dec-mapvers        1.2 10/10/02 Copyright 2006-2010 J. Schilling */
 
 SCHILY_1.0 {
 global:

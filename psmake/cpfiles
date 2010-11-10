@@ -1,5 +1,5 @@
 #!/bin/sh
-# @(#)cpfiles	1.16 09/11/14 Copyright 1999 J. Schilling
+# %Z%%M%	%I% %E% Copyright 1999 J. Schilling
 
 cp='cp -p'
 smake=smake
@@ -93,6 +93,7 @@ $cp ${incsrc}/${lib}/stdio/schilyio.h	schilyio.h
 $cp ${incsrc}/${lib}/astoi.c		astoi.c
 $cp ${incsrc}/${lib}/astoll.c		astoll.c
 $cp ${incsrc}/${lib}/comerr.c		comerr.c
+$cp ${incsrc}/${lib}/eaccess.c		eaccess.c
 $cp ${incsrc}/${lib}/error.c		error.c
 $cp ${incsrc}/${lib}/format.c		format.c
 #$cp ${incsrc}/${lib}/printf.c		printf.c
@@ -110,6 +111,7 @@ $cp ${incsrc}/${lib}/geterrno.c		geterrno.c
 $cp ${incsrc}/${lib}/movebytes.c		movebytes.c
 $cp ${incsrc}/${lib}/raisecond.c		raisecond.c
 $cp ${incsrc}/${lib}/rename.c		rename.c
+$cp ${incsrc}/${lib}/searchinpath.c	searchinpath.c
 $cp ${incsrc}/${lib}/jsprintf.c		jsprintf.c
 $cp ${incsrc}/${lib}/jssnprintf.c		jssnprintf.c
 $cp ${incsrc}/${lib}/stdio/cvmod.c	cvmod.c

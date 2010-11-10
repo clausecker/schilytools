@@ -1,8 +1,8 @@
-/* @(#)make.c	1.179 10/03/19 Copyright 1985, 87, 88, 91, 1995-2010 J. Schilling */
+/* @(#)make.c	1.181 10/10/06 Copyright 1985, 87, 88, 91, 1995-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)make.c	1.179 10/03/19 Copyright 1985, 87, 88, 91, 1995-2010 J. Schilling";
+	"@(#)make.c	1.181 10/10/06 Copyright 1985, 87, 88, 91, 1995-2010 J. Schilling";
 #endif
 /*
  *	Make program
@@ -93,15 +93,10 @@ LOCAL	void	handler		__PR((int signo));
 LOCAL	void	exhandler	__PR((int excode, void *arg));
 EXPORT	char	*curwdir	__PR((void));
 LOCAL	char	*getdefaultsfile	__PR((void));
-LOCAL	char	*searchfileinpath	__PR((char *name));
-LOCAL	char	*searchonefile	__PR((char *name, char *nbuf, char *np, char *ep));
 LOCAL	int	put_env		__PR((char *new));
 LOCAL	int	unset_env	__PR((char *name));
 #ifndef	HAVE_PUTENV
 EXPORT	int	putenv		__PR((const char *new));
-#endif
-#if defined(__DJGPP__)
-LOCAL	char 	*strbs2s	__PR((char *s));
 #endif
 #ifndef	HAVE_UNSETENV
 EXPORT	int	unsetenv	__PR((const char *name));
@@ -129,7 +124,7 @@ int	Dmake		= 0;		/* -D Display makefile		*/
 BOOL	help		= FALSE;	/* -help    Show Usage		*/
 BOOL	pversion	= FALSE;	/* -version Show version string	*/
 BOOL	No_Warn		= FALSE;	/* -w No warnings		*/
-BOOL	Do_Warn		= FALSE;	/* -W Print extra warnings	*/
+int	Do_Warn		= 0;		/* -W Print extra warnings	*/
 char	Makeflags[]	= "MAKEFLAGS";
 char	Make_Flags[]	= "MAKE_FLAGS";
 char	Make_Macs[]	= "MAKE_MACS";
@@ -263,6 +258,7 @@ usage(exitcode)
 	error("	-t	Touch Objects instead of executing defined commands.\n");
 	error("	-w	Don't print warning Messages.\n");
 	error("	-W	Print extra (debug) warning Messages.\n");
+	error("	-WW	Print even more (debug) warning Messages.\n");
 	error("	-D	Display Makefiles as read in.\n");
 	error("	-DD	Display Makefiles/Rules as read in.\n");
 	error("	-d	Print reason why a target has to be rebuilt.\n");
@@ -645,9 +641,9 @@ setup_SHELL()
 	if (shellname == NULL)
 		shellname = getenv("DJGPP_SH");	/* Backward compat */
 	if (shellname == NULL)
-		shellname = searchfileinpath("bin/sh.exe"); /* alloc() */
+		shellname = searchfileinpath("bin/sh.exe", X_OK, TRUE, NULL); /* alloc() */
 	if (shellname == NULL)
-		shellname = searchfileinpath("sh.exe");	/* alloc() */
+		shellname = searchfileinpath("sh.exe", X_OK, TRUE, NULL);	/* alloc() */
 	if (shellname != NULL)
 		shell = shellname;
 #endif	/* !__DJGPP__ */
@@ -902,7 +898,7 @@ main(ac, av)
 		int	cac = ac;
 		char	* const *cav = av;
 		char	*newdir = NULL;
-	static	char	options[] = "help,version,posix,e,i,k,n,N,p,q,r,s,S,t,w,W,d+,D+,xM,xd+,probj,C*,mf&,f&,&";
+	static	char	options[] = "help,version,posix,e,i,k,n,N,p,q,r,s,S,t,w,W+,d+,D+,xM,xd+,probj,C*,mf&,f&,&";
 
 	save_args(ac, av);
 
@@ -1244,7 +1240,7 @@ getmakeflags()
 			break;
 
 		case 'W':		/* Extra Warnings */
-			Do_Warn = TRUE;
+			Do_Warn++;
 			break;
 
 		case 'w':		/* No Warnings */
@@ -1376,11 +1372,11 @@ setmakeflags()
 {
 		/*
 		 * MAKEFLAGS=-	12 bytes incl '\0'
-		 * 3 x 8 bytes=	24 bytes
+		 * 4 x 8 bytes=	32 bytes
 		 * 15 flags	15 bytes
 		 * '-- '	 3 bytes
 		 * =====================
-		 *		54 bytes
+		 *		62 bytes
 		 */
 #define	MAKEENV_SIZE_STATIC	64
 static	char	makeenv[MAKEENV_SIZE_STATIC];
@@ -1403,6 +1399,12 @@ static	char	makeenv[MAKEENV_SIZE_STATIC];
 		i = 8;
 	while (--i >= 0)
 		*p++ = 'd';
+
+	i = Do_Warn;		/* Do_Wan - Extra Warnings */
+	if (i > 8)
+		i = 8;
+	while (--i >= 0)
+		*p++ = 'W';
 
 	i = XDebug;		/* XDebug */
 	if (i > 8)
@@ -1434,8 +1436,6 @@ static	char	makeenv[MAKEENV_SIZE_STATIC];
 		*p++ = 'S';
 	if (Tflag)		/* Touch */
 		*p++ = 't';
-	if (Do_Warn)		/* Extra Warnings */
-		*p++ = 'W';
 	if (No_Warn)		/* No Warnings */
 		*p++ = 'w';
 	if (Prdep)		/* Print includes */
@@ -2272,85 +2272,7 @@ curwdir()
 LOCAL char *
 getdefaultsfile()
 {
-	return (searchfileinpath("lib/defaults.smk"));
-}
-
-LOCAL char *
-searchfileinpath(name)
-	char	*name;
-{
-	char	*path = getenv("PATH");
-	char	pbuf[NAMEMAX];
-	char	*nbuf = pbuf;
-	char	*np;
-	int	nlen = strlen(name);
-#ifdef	HAVE_GETEXECNAME
-	char	*pn = (char *)getexecname();
-#else
-	char	*pn = get_progname();
-#endif
-
-	if (strchr(pn, '/') != NULL) {
-		strncpy(nbuf, pn, sizeof (pbuf));
-		nbuf[sizeof (pbuf) - 1] = '\0';
-		np = nbuf + strlen(nbuf);
-
-		while (np > nbuf && np[-1] != '/')
-			*--np = '\0';
-		pn = &nbuf[sizeof (pbuf) - 1];
-		if ((np = searchonefile(name, nbuf, np, pn)) != NULL)
-			return (np);
-	}
-
-	if (path == NULL)
-		return (NULL);
-
-
-#ifdef __DJGPP__
-	strbs2s(path);	/* PATH under DJGPP can contain both slashes */
-#endif
-
-	pn = &nbuf[sizeof (pbuf) - 1];
-	for (;;) {
-		np = nbuf;
-		while (*path != PATH_ENV_DELIM && *path != '\0' &&
-		    np < &nbuf[sizeof (pbuf) - nlen])
-				*np++ = *path++;
-		*np = '\0';
-		if ((np = searchonefile(name, nbuf, np, pn)) != NULL)
-			return (np);
-
-		if (*path == '\0')
-			break;
-		path++;
-	}
-	return (NULL);
-}
-
-LOCAL char *
-searchonefile(name, nbuf, np, ep)
-	register char	*name;
-	register char	*nbuf;
-	register char	*np;
-	register char	*ep;
-{
-	while (np > nbuf && np[-1] == '/')
-		*--np = '\0';
-	if (np >= &nbuf[4] && streql(&np[-4], "/bin"))
-		np = &np[-4];
-	*np++ = '/';
-	*np   = '\0';
-	strncpy(np, name, ep - np);
-	*ep = '\0';
-
-	if (gftime(nbuf)) {
-		np = malloc(strlen(nbuf)+1);
-		if (np == NULL)
-			return (NULL);
-		strcpy(np, nbuf);
-		return (np);
-	}
-	return (NULL);
+	return (searchfileinpath("lib/defaults.smk", R_OK, TRUE, NULL));
 }
 
 LOCAL int
@@ -2373,24 +2295,6 @@ unset_env(name)
 	unsetenv(name);			/* OpenBSD deviates and returns void */
 	return (0);
 }
-
-#ifdef __DJGPP__
-LOCAL char *
-strbs2s(s)
-	char	*s;
-{
-	char	*tmp = s;
-
-	if (tmp) {
-		while (*tmp) {
-			if (*tmp == '\\')
-				*tmp = '/';
-			tmp++;
-		}
-	}
-	return (s);
-}
-#endif
 
 #ifndef	HAVE_PUTENV
 

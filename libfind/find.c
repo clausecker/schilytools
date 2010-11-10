@@ -1,16 +1,26 @@
 /*#define	PLUS_DEBUG*/
-/* @(#)find.c	1.92 10/08/23 Copyright 2004-2010 J. Schilling */
+/* @(#)find.c	1.93 10/10/07 Copyright 2004-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)find.c	1.92 10/08/23 Copyright 2004-2010 J. Schilling";
+	"@(#)find.c	1.93 10/10/07 Copyright 2004-2010 J. Schilling";
 #endif
 /*
  *	Another find implementation...
  *
  *	Copyright (c) 2004-2010 J. Schilling
  */
-/*@@C@@*/
+/*
+ * The contents of this file are subject to the terms of the
+ * Common Development and Distribution License, Version 1.0 only
+ * (the "License").  You may not use this file except in compliance
+ * with the License.
+ *
+ * See the file CDDL.Schily.txt in this distribution for details.
+ *
+ * When distributing Covered Code, include this CDDL HEADER in each
+ * file and include the License file CDDL.Schily.txt from this distribution.
+ */
 
 #ifdef	__FIND__
 #define	FIND_MAIN
@@ -1999,7 +2009,7 @@ extype(name)
 	char	*xname;
 	char	elfbuf[8];
 
-	xname = findinpath(name, X_OK, TRUE);
+	xname = findinpath(name, X_OK, TRUE, NULL);
 	if (name == NULL)
 		xname = name;
 

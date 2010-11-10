@@ -1,6 +1,6 @@
-/* @(#)openfd.c	1.10 06/11/28 Copyright 1986, 1995 J. Schilling */
+/* @(#)openfd.c	1.11 10/11/06 Copyright 1986, 1995-2010 J. Schilling */
 /*
- *	Copyright (c) 1986, 1995 J. Schilling
+ *	Copyright (c) 1986, 1995-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -17,7 +17,7 @@
 #include "schilyio.h"
 
 #if	defined(_openfd) && !defined(USE_LARGEFILES)
-#	undef	_openfd
+#undef	_openfd
 #endif
 
 EXPORT int

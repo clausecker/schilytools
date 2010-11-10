@@ -1,0 +1,184 @@
+New features with AN-2010-11-10:
+
+-	The linker map files are now processed via "cpp" (or $CC -E) and
+	the output is stored in $(ARCHDIR). This allows to have a single
+	linker map file source for all platforms.
+
+-	New autoconf test for a working cpp.
+
+-	New autoconf test for /dev/stdin, /dev/stdout, /dev/stderr,
+	/dev/fd/0, /dev/fd/1, /dev/fd2
+
+-	New autoconf tests for: qecvt() qfcvt() qgcvt()
+	_ldecvt() _ldfcvt() _ldgcvt() _ldecvt_r() _ldfcvt_r() _ldgcvt_r()
+	qeconvert() qfconvert() qgconvert()
+	needed for long double support.
+
+-	All linker map files have been modified to allow platform
+	dependent #ifdef's
+
+-	libschily now by default renames getline(), fgetline() and
+	fexec*() into js_getline(), js_fgetline() and js_fexec*().
+	This was needed because the POSIX standard commitee ignored
+	POSIX basic rules not to define functions that are in conflict
+	with existing published functions. The functions from linschily
+	have been in the public since more than 25 years and the 
+	functions defined by POSIX.1-2008 even violate POSIX naming rules.
+	The POSIX fexec*() functions would e.g. have to be correctly called
+	fdexec*().
+
+	Existing programs can keep the official names getline(), fgetline()
+	and fexec*() as they are by default #defined to the new js_*() names.
+	To disable this convenience, add:
+
+	#define NO_SCHILY_GETLINE	To disable schily getline(), fgetline()
+	#define	NO_SCHILY_FEXEC		To disable schily fexec*()
+	#define	NO_SCHILY_FSPAWN	To disable schily fspawn*()
+
+-	Libschily now has new "long double" support functions:
+	qftoes() and qftofs()
+
+-	Libschily now supports a locale dependend decimal point for printing
+	floating point numbers.
+
+-	Libschily now supports to print long double numbers using the
+	format() based portable printf() implementation. If this does not
+	work for your platform or if this does not work correctly for
+	your platform, please report. This was needed for out new "od" 
+	implementation.
+
+-	The option parsing implementation getargs()/getfiles() from
+	libschily now supports to combine single character boolean
+	flags even in case the option string mentions to call a callback
+	function if a valid option was found. This was needed for out new 
+	"od" implementation.
+
+-	filereopen() from libschily no longer calls open() internally
+	as long as there is no need to create or truncate the file.
+
+-	include/schily/wchar.h now includes a workyround for platforms
+	that do not have wcwidth().
+
+-	libschily's findinpath() now includes a new path parameter
+	to allow to use the function from bsh.
+
+-	smake's searchfileinpath() moved into libschily to allow it
+	to be generally used for searching for program resources.
+
+-	smake's -W option now is no longer a BOOL but an inc type
+	flag.
+
+-	A new flag F_NEWNODE for smake allows better warnings for
+	redefined macros.
+
+-	Smake -W now is able to warn on non-obvious empty targets
+	like:
+
+	$(EMPTY): dependency
+
+-	bsh's exec.c::listlen() has been moved to node.c::listlen()
+
+-	fnmatch is now always available as js_fnmatch()
+
+-	The library libxtermcap now carefully checks for backslash
+	quotes when stripping down the termcap entry in order to avoid
+	to convert "\::" to "\:" while looking for superfluous ":"
+	separators in the entry.
+
+-	The termcap program now implements a new option -nodisabled
+	that automatically removes all disabled termcap entries while
+	compiling a termcap file.
+
+-	The termcap program now implements a new option -nounknown
+	that automatically removes all unknown termcap entries while
+	compiling a termcap file.
+
+-	The termcap(1) man page now explains the error and warning messages
+	that are automatically inserted into the termcap file while
+	compiling it's entries. This helps to understand how problems could
+	have been introduced and how they should be fixed.
+
+-	The termcap program now accepts both:
+
+	ma=mapstring			(the historic termcap meaning)
+	and
+	ma#number-of-map-entries	(the terminfo meaning)
+
+	at the same time and even in the same terminal entry. This is 
+	aligned with the behavior of termcap implementations that all
+	match an entry by name and type.
+
+-	The termcap program now warns of short (single char) termcap entries
+	like :0: that appear in some termcap databases. These entries are
+	not permitted by the termcap documentation.
+
+-	The termcap program now warns of a type mismatch in a termcap database.
+	This happens when an actual entry in the database does not match the
+	type mentioned in the documentation. Such entries usually happen
+	by bad manual edits.
+
+-	cdrecord/cue.c now uses a correct byte order for RAW audio data in
+	Intel byte-order
+
+-	New program "od" as a hard link to "hdump"
+
+	"od" aims to implement 100% compatibility to the POSIX standard and to
+	the traditional Solaris "od". "od" can be installed as /usr/bin/od and
+	/usr/xpg4/bin/od as well as /usr/bin/hdump, note that this must be done
+	as separate file copies or as hardlinks to make the interface detection
+	work correctly. Note that this release does not yet install as 
+	.../xpg4/bin/od, you need to create this hard link this by hand if you
+	like to test it.
+
+	Please test this new program for compatibility with POSIX and the closed
+	source Solaris implementation and for bugs as it is intended to act as a
+	OSS replacemtent for the closed source "od" from Solaris on SchilliX.
+
+	Note that the new OSS od(1) fixes several bugs found in the current
+	closed source implementation on Solaris:
+
+	-	This od implements UTF-8 char printing in a 100% correct way
+
+	-	This od implementation honors the size of long double numbers
+		and uses a block size of 12 or 24 in case it is compiled as
+		32 bit application on Intel x86 or Motorola mc680x0 systems,
+		where sizeof (long double) is 12.
+
+	-	This od produdes multi-line output that is properly aligned
+
+	-	This od correctly works even when called as
+
+			"od unreadable - name"
+
+		and "-" appears amongst other file names in the command line
+		past an unreadable file.
+
+	Note that the Sun od implementation supports to have multiple "-" 
+	arguents in a command line referring to stdin multiple times. In this
+	case the old Sun implementation uses the actual stdin file offset at 
+	start time for the first occurence of "-" and rewinds stdin before
+	using it another time. This results in:
+
+	(read line; od -ta - - ) < /etc/passwd
+
+	to first dump the passwd file starting at line #2 and then to dump 
+	the whole passwd file again starting at offset 0.
+
+	This implementation of od currently keeps the file offset for stdin.
+	This results in an EOF condition in case "-" is used a second time.
+	The example above would result in printing the passwd file once
+	starting with the second line. Please send me a message if you like
+	this implementation to behave the way Solaris od(1) does in this case. 
+
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.isdn.cs.tu-berlin.de, js@cs.tu-berlin.de
+	joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

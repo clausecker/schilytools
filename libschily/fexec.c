@@ -1,8 +1,13 @@
-/* @(#)fexec.c	1.43 10/08/21 Copyright 1985, 1995-2010 J. Schilling */
+/* @(#)fexec.c	1.45 10/10/21 Copyright 1985, 1995-2010 J. Schilling */
 /*
  *	Execute a program with stdio redirection
  *
  *	Copyright (c) 1985, 1995-2010 J. Schilling
+ *
+ *	This is an interface that exists in the public since 1982.
+ *	The POSIX.1-2008 standard did ignore POSIX rules not to
+ *	redefine existing public interfaces and redefined the interfaces
+ *	forcing us to add a js_*() prefix to the original functions.
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -15,6 +20,13 @@
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
+
+#ifndef	__DO__FEXEC__
+
+#define	fexecl	__no__fexecl__
+#define	fexecle	__no__fexecle__
+#define	fexecv	__no__fexecv__
+#define	fexecve	__no__fexecve__
 
 #include <schily/mconfig.h>
 #include <schily/stdio.h>
@@ -30,14 +42,68 @@
 #include <schily/schily.h>
 #define	VMS_VFORK_OK
 #include <schily/vfork.h>
+#endif	/* __DO__FEXEC__ */
 
 /*
  * Check whether fexec may be implemented...
  */
 #if	defined(HAVE_DUP) && (defined(HAVE_DUP2) || defined(F_DUPFD))
 
-
 #define	MAX_F_ARGS	16
+
+#ifndef	__DO__FEXEC__
+#ifndef	NO_FEXEC_COMPAT		/* Define to disable backward compatibility */
+#undef	fexecl
+#undef	fexecle
+#undef	fexecv
+#undef	fexecve
+#ifdef	HAVE_PRAGMA_WEAK
+#pragma	weak fexecl =	js_fexecl
+#pragma	weak fexecle =	js_fexecle
+#pragma	weak fexecv =	js_fexecv
+#pragma	weak fexecve =	js_fexecve
+#else
+
+EXPORT	int	fexecl __PR((const char *, FILE *, FILE *, FILE *,
+							const char *, ...));
+EXPORT	int	fexecle __PR((const char *, FILE *, FILE *, FILE *,
+							const char *, ...));
+		/* 6th arg not const, fexecv forces av[ac] = NULL */
+EXPORT	int	fexecv __PR((const char *, FILE *, FILE *, FILE *, int,
+							char **));
+EXPORT	int	fexecve __PR((const char *, FILE *, FILE *, FILE *,
+					char * const *, char * const *));
+
+#define	__DO__FEXEC__
+#define	js_fexecl	fexecl
+#define	js_fexecle	fexecle
+#include "fexec.c"
+#undef	js_fexecl
+#undef	js_fexecle
+#undef	__DO__FEXEC__
+
+EXPORT int
+fexecv(name, in, out, err, ac, av)
+	const char *name;
+	FILE *in, *out, *err;
+	int ac;
+	char *av[];
+{
+	av[ac] = NULL;			/*  force list to be null terminated */
+	return (js_fexecve(name, in, out, err, av, environ));
+}
+
+EXPORT int
+fexecve(name, in, out, err, av, env)
+	const char *name;
+	FILE *in, *out, *err;
+	char * const av[], * const env[];
+{
+	return (js_fexecve(name, in, out, err, av, env));
+}
+#endif	/* HAVE_PRAGMA_WEAK */
+#endif	/* NO_FEXEC_COMPAT */
+
 
 #ifdef	JOS
 #define	enofile(t)			((t) == EMISSDIR || \
@@ -79,13 +145,15 @@ LOCAL const char *getpath __PR((char * const *));
 #else
 #define	fd_setfd(fd, val)
 #endif
+#endif	/* __DO__FEXEC__ */
 
 #ifdef	PROTOTYPES
 EXPORT int
-fexecl(const char *name, FILE *in, FILE *out, FILE *err, const char *arg0, ...)
+js_fexecl(const char *name, FILE *in, FILE *out, FILE *err, const char *arg0,
+	    ...)
 #else
 EXPORT int
-fexecl(name, in, out, err, arg0, va_alist)
+js_fexecl(name, in, out, err, arg0, va_alist)
 	char		*name;
 	FILE		*in;
 	FILE		*out;
@@ -135,7 +203,7 @@ const	char	**pav;
 	} while (p != NULL);
 	va_end(args);
 
-	ret = fexecv(name, in, out, err, ac, av);
+	ret = js_fexecv(name, in, out, err, ac, av);
 	if (av != xav)
 		free(av);
 	return (ret);
@@ -143,10 +211,11 @@ const	char	**pav;
 
 #ifdef	PROTOTYPES
 EXPORT int
-fexecle(const char *name, FILE *in, FILE *out, FILE *err, const char *arg0, ...)
+js_fexecle(const char *name, FILE *in, FILE *out, FILE *err, const char *arg0,
+	    ...)
 #else
 EXPORT int
-fexecle(name, in, out, err, arg0, va_alist)
+js_fexecle(name, in, out, err, arg0, va_alist)
 	char		*name;
 	FILE		*in;
 	FILE		*out;
@@ -198,25 +267,26 @@ const	char	**pav;
 	} while (p != NULL);
 	va_end(args);
 
-	ret = fexecve(name, in, out, err, av, env);
+	ret = js_fexecve(name, in, out, err, av, env);
 	if (av != xav)
 		free(av);
 	return (ret);
 }
 
+#ifndef	__DO__FEXEC__
 EXPORT int
-fexecv(name, in, out, err, ac, av)
+js_fexecv(name, in, out, err, ac, av)
 	const char *name;
 	FILE *in, *out, *err;
 	int ac;
 	char *av[];
 {
 	av[ac] = NULL;			/*  force list to be null terminated */
-	return (fexecve(name, in, out, err, av, environ));
+	return (js_fexecve(name, in, out, err, av, environ));
 }
 
 EXPORT int
-fexecve(name, in, out, err, av, env)
+js_fexecve(name, in, out, err, av, env)
 	const char *name;
 	FILE *in, *out, *err;
 	char * const av[], * const env[];
@@ -466,5 +536,6 @@ chkname(name, ev)
 		ev++;
 	}
 }
+#endif	/* __DO__FEXEC__ */
 
 #endif	/* defined(HAVE_DUP) && (defined(HAVE_DUP2) || defined(F_DUPFD)) */

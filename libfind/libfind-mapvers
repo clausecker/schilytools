@@ -1,4 +1,4 @@
-# @(#)libfind-mapvers	1.9 08/04/06 Copyright 2005-2008 J. Schilling
+# /* @(#)libfind-mapvers	1.10 10/10/02 Copyright 2005-2010 J. Schilling */
 
 SCHILY_0.1 {		# Not yet a stable interface!
 global:

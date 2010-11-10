@@ -1,13 +1,13 @@
-/* @(#)exec.c	1.60 09/12/20 Copyright 1985-2009 J. Schilling */
+/* @(#)exec.c	1.61 10/10/02 Copyright 1985-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)exec.c	1.60 09/12/20 Copyright 1985-2009 J. Schilling";
+	"@(#)exec.c	1.61 10/10/02 Copyright 1985-2010 J. Schilling";
 #endif
 /*
  *	bsh command interpreter - Execution of parsed Tree
  *
- *	Copyright (c) 1985-2009 J. Schilling
+ *	Copyright (c) 1985-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -68,7 +68,6 @@ LOCAL	int	parseback	__PR((FILE *f, Tnode **npp));
 LOCAL	Tnode*	expand_string	__PR((Tnode *np));
 /*LOCAL	void	trim		__PR((char *s));*/
 /*LOCAL	void	trim1		__PR((char *s));*/
-EXPORT	int	listlen		__PR((Tnode * lp));
 LOCAL	int	newio		__PR((Tnode * list, FILE ** old, FILE ** new, int flag));
 LOCAL	void	closeio		__PR((FILE ** o, FILE ** n));
 LOCAL	FILE	*openio		__PR((Tnode *np, char *omode, int type));
@@ -753,17 +752,6 @@ trim1(s)
 	}
 }
 #endif	/* __nneeded__ */
-
-EXPORT int
-listlen(lp)
-	register Tnode	*lp;
-{
-	register int	i;
-
-	for (i = 0; lp != (Tnode *) NULL; lp = lp->tn_right.tn_node)
-		i++;
-	return (i);
-}
 
 LOCAL int
 newio(list, old, new, flag)

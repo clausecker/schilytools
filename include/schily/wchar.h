@@ -1,4 +1,4 @@
-/* @(#)wchar.h	1.19 10/08/27 Copyright 2007-2010 J. Schilling */
+/* @(#)wchar.h	1.20 10/11/07 Copyright 2007-2010 J. Schilling */
 /*
  *	Abstraction from wchar.h
  *
@@ -156,6 +156,16 @@
 #undef	mbsinit
 #define	mbsinit(sp)		((int)((sp) == 0))
 
-#endif	/* !USE_WCHAR */
+#undef	wcwidth
+#define	wcwidth(wc)		(1)
+
+#else	/* !USE_WCHAR */
+
+#ifndef	HAVE_WCWIDTH
+#undef	wcwidth
+#define	wcwidth(wc)		(1)
+#endif
+
+#endif	/* USE_WCHAR */
 
 #endif	/* _SCHILY_WCHAR_H */

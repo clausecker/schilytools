@@ -1,8 +1,8 @@
-/* @(#)bsh.h	1.54 09/10/17 Copyright 1985-2009 J. Schilling */
+/* @(#)bsh.h	1.55 10/10/02 Copyright 1985-2010 J. Schilling */
 /*
  *	Bsh general definitions
  *
- *	Copyright (c) 1985-2009 J. Schilling
+ *	Copyright (c) 1985-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -196,7 +196,6 @@ extern	void	hashcmd		__PR((FILE **std));
 extern	int	execute		__PR((Tnode *cmd, int flag, FILE **std));
 extern	int	execcmd		__PR((Argvec *vp, FILE **std, int flag));
 extern	Argvec*	scan		__PR((Tnode *cmd));
-extern	int	listlen		__PR((Tnode *lp));
 
 /*
  * sys.c

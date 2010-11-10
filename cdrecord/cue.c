@@ -1,8 +1,8 @@
-/* @(#)cue.c	1.54 10/02/22 Copyright 2001-2010 J. Schilling */
+/* @(#)cue.c	1.55 10/10/24 Copyright 2001-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)cue.c	1.54 10/02/22 Copyright 2001-2010 J. Schilling";
+	"@(#)cue.c	1.55 10/10/24 Copyright 2001-2010 J. Schilling";
 #endif
 /*
  *	Cue sheet parser
@@ -654,6 +654,8 @@ file_ok:
 			if (fstat(xfileno(sp->xfp), &st) >= 0 &&
 			    S_ISREG(st.st_mode)) {
 				sp->filesize = st.st_size;
+				if (kp->k_type == K_BINARY)
+					sp->flags |= TI_SWAB;
 			} else {
 				cueabort("Unknown file size for FILE '%s'",
 								sp->filename);

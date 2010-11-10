@@ -1,4 +1,4 @@
-#ident "@(#)i86pc-sunos5-cc64.rul	1.5 07/05/08 "
+#ident "@(#)i86pc-sunos5-cc64.rul	1.6 10/10/02 "
 ###########################################################################
 # Written 1996 by J. Schilling
 ###########################################################################
@@ -31,7 +31,5 @@ LIB_SOCKET=	-lsocket -lnsl -ldl
 LIB_MATH=	-lm
 LIB_KVM=	-lkvm -lelf
 LIB_VOLMGT=	-lvolmgt
-
-LDOPTDYN=	-dy -G -ztext -h $(TARGET) -Mlib$(TARGETLIB)-mapvers -ldl
 
 ARFLAGS=	crs

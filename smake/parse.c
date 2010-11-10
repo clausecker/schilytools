@@ -1,14 +1,14 @@
-/* @(#)parse.c	1.105 09/12/23 Copyright 1985-2009 J. Schilling */
+/* @(#)parse.c	1.107 10/10/06 Copyright 1985-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)parse.c	1.105 09/12/23 Copyright 1985-2009 J. Schilling";
+	"@(#)parse.c	1.107 10/10/06 Copyright 1985-2010 J. Schilling";
 #endif
 /*
  *	Make program
  *	Parsing routines
  *
- *	Copyright (c) 1985-2009 by J. Schilling
+ *	Copyright (c) 1985-2010 by J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -135,9 +135,18 @@ parsefile()
 		}
 		type = 0;
 		if ((objcnt = read_ovec(ovec, &type)) == 0) {
+			if (Do_Warn && (type & NWARN) == 0) {
+				/*
+				 * This is when $(EMPTY) was expanded tonothing
+				 * in exp_ovec() inside read_ovec().
+				 */
+				warn("Missing object name");
+			}
+			type = ntype(type);
 			if (type != COLON && type != DCOLON)
 				continue;
 		}
+		type = ntype(type);
 
 		if (objcnt < 0) {
 			errmsgno(EX_BAD, "Objcount: %d Objects: ", -objcnt);
@@ -312,7 +321,11 @@ define_obj(obj, n, objcnt, type, dep, cmd)
 	    (type != ADDMAC) &&
 	    !streql(obj->o_name, ".SUFFIXES")) {
 
-		if (Do_Warn)
+		/*
+		 * We unfortunately also print this warning in case that "obj"
+		 * just has been created by the parser.
+		 */
+		if (Do_Warn && (obj->o_flags & F_NEWNODE) == 0)
 			warn("'%s' RE-defined", obj->o_name);
 		if (obj->o_fileindex == MF_IDX_ENVIRON) {
 			obj->o_fileindex = Mfileindex;
@@ -320,6 +333,7 @@ define_obj(obj, n, objcnt, type, dep, cmd)
 		}
 		obj->o_list = dep;
 		obj->o_cmd = cmd;
+		obj->o_flags &= ~F_NEWNODE;
 		return;
 	}
 
@@ -414,11 +428,15 @@ listappend(obj, dep)
 			    streql(obj->o_name, ".SCCS_GET") ||
 			    streql(obj->o_name, ".SPACE_IN_NAMES"))
 				obj->o_list = NULL;
+			obj->o_flags &= ~F_NEWNODE;
 			return;
 		}
 
-		if (Do_Warn)
-			warn("'%s' ADD-defined", obj->o_name);
+		if (Do_Warn && (obj->o_flags & F_NEWNODE) == 0) {
+			if (obj->o_type != ':' || Do_Warn > 1)
+				warn("'%s' ADD-defined", obj->o_name);
+		}
+
 		/*
 		 * if not already head of list, try to append ...
 		 */
@@ -431,6 +449,7 @@ listappend(obj, dep)
 	} else {
 		obj->o_list = dep;
 	}
+	obj->o_flags &= ~F_NEWNODE;
 }
 
 patr_t	*Patrules;
@@ -606,6 +625,7 @@ define_var(name, val)
 	*tail = (list_t *) NULL;
 	o->o_list = list;
 	o->o_type = EQUAL;
+	o->o_flags &= ~F_NEWNODE;
 }
 
 #ifdef	NEEDED
@@ -631,6 +651,7 @@ define_lvar(name, vallist)
 	*tail = (list_t *) NULL;
 	o->o_list = list;
 	o->o_type = EQUAL;
+	o->o_flags &= ~F_NEWNODE;
 }
 
 /*
@@ -1152,6 +1173,7 @@ read_ovec(ovec, typep)
 	int	objcnt;
 	char	*p;
 	int	c;
+	BOOL	didwarn = FALSE;
 
 /*printf("read_ovec\n");*/
 	for (objcnt = 0; lastc != EOF; ) {
@@ -1184,11 +1206,17 @@ read_ovec(ovec, typep)
 			 * There are makefiles that include $(EMPTY): something
 			 * and we like to support them, so allow empty targets
 			 * with ':' and '::', but abort with '=', '+=' or ':='
+			 *
+			 * We come here only with a definitely empty list. An
+			 * empty list still can be created later if $(EMPTY)
+			 * gets expanded in exp_ovec() below.
 			 */
 			if (lastc != ':' || peekch() == '=')
 				exerror("Missing object name");
-			if (!nowarn(":"))
+			if (!nowarn(":")) {
 				warn("Missing object name");
+				didwarn = TRUE;
+			}
 		}
 		/*
 		 * end of definition:
@@ -1222,6 +1250,8 @@ read_ovec(ovec, typep)
 	 */
 	objcnt = exp_ovec(ovec, objcnt);
 
+	if (didwarn)
+		*typep |= NWARN;
 	return (objcnt);
 }
 
@@ -1402,6 +1432,7 @@ _objlook(table, name, create)
 	p->o_level = MAXLEVEL;
 	p->o_type = 0;
 	p->o_flags = 0;
+	p->o_flags = F_NEWNODE;
 	p->o_fileindex = Mfileindex;
 	p->o_name = strsave(name);
 	p->o_namelen = strlen(name);

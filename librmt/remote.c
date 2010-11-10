@@ -14,7 +14,17 @@ static	UConst char sccsid[] =
  *		Signal handler for SIGPIPE
  *		check rmtaborted for exit() / clean abort of connection
  */
-/*@@C@@*/
+/*
+ * The contents of this file are subject to the terms of the
+ * Common Development and Distribution License, Version 1.0 only
+ * (the "License").  You may not use this file except in compliance
+ * with the License.
+ *
+ * See the file CDDL.Schily.txt in this distribution for details.
+ *
+ * When distributing Covered Code, include this CDDL HEADER in each
+ * file and include the License file CDDL.Schily.txt from this distribution.
+ */
 
 #if !defined(HAVE_FORK) || !defined(HAVE_SOCKETPAIR) || !defined(HAVE_DUP2)
 #undef	USE_RCMD_RSH

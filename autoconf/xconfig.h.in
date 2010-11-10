@@ -1,4 +1,4 @@
-/* @(#)xconfig.h.in	1.202 10/08/26 Copyright 1998-2010 J. Schilling */
+/* @(#)xconfig.h.in	1.206 10/11/06 Copyright 1998-2010 J. Schilling */
 /*
  *	Dynamic autoconf C-include code.
  *	Do not edit, this file has been created automatically.
@@ -354,9 +354,21 @@
 #undef HAVE_ECVT_R		/* ecvt_r() is present in libc */
 #undef HAVE_FCVT_R		/* fcvt_r() is present in libc */
 #undef HAVE_GCVT_R		/* gcvt_r() is present in libc */
+#undef HAVE_QECVT		/* qecvt() is present in libc */
+#undef HAVE_QFCVT		/* qfcvt() is present in libc */
+#undef HAVE_QGCVT		/* qgcvt() is present in libc */
+#undef HAVE__LDECVT		/* _ldecvt() is present in libc */
+#undef HAVE__LDFCVT		/* _ldfcvt() is present in libc */
+#undef HAVE__LDGCVT		/* _ldgcvt() is present in libc */
+#undef HAVE__LDECVT_R		/* _ldecvt_r() is present in libc */
+#undef HAVE__LDFCVT_R		/* _ldfcvt_r() is present in libc */
+#undef HAVE__LDGCVT_R		/* _ldgcvt_r() is present in libc */
 #undef HAVE_ECONVERT		/* econvert() is present in libc */
 #undef HAVE_FCONVERT		/* fconvert() is present in libc */
 #undef HAVE_GCONVERT		/* gconvert() is present in libc */
+#undef HAVE_QECONVERT		/* qeconvert() is present in libc */
+#undef HAVE_QFCONVERT		/* qfconvert() is present in libc */
+#undef HAVE_QGCONVERT		/* qgconvert() is present in libc */
 #undef HAVE_ISINF		/* isinf() is present in libc */
 #undef HAVE_ISNAN		/* isnan() is present in libc */
 #undef HAVE_C99_ISINF		/* isinf() is present in math.h/libc */
@@ -560,6 +572,12 @@
 #undef HAVE_DEV_TTY		/* /dev/tty present */
 #undef HAVE_DEV_NULL		/* /dev/null present */
 #undef HAVE_DEV_ZERO		/* /dev/zero present */
+#undef HAVE_DEV_STDIN		/* /dev/stdin present */
+#undef HAVE_DEV_STDOUT		/* /dev/stdout present */
+#undef HAVE_DEV_STDERR		/* /dev/stderr present */
+#undef HAVE_DEV_FD_0		/* /dev/fd/0 present */
+#undef HAVE_DEV_FD_1		/* /dev/fd/1 present */
+#undef HAVE_DEV_FD_2		/* /dev/fd/2 present */
 
 /*
  * Misc OS programs

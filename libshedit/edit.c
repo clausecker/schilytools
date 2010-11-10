@@ -1,11 +1,11 @@
-/* @(#)edit.c	1.9 09/07/11 Copyright 2006-2009 J. Schilling */
+/* @(#)edit.c	1.12 10/10/02 Copyright 2006-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)edit.c	1.9 09/07/11 Copyright 2006-2009 J. Schilling";
+	"@(#)edit.c	1.12 10/10/02 Copyright 2006-2010 J. Schilling";
 #endif
 /*
- *	Copyright (c) 2006-2009 J. Schilling
+ *	Copyright (c) 2006-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -30,14 +30,9 @@ static	UConst char sccsid[] =
 LOCAL fstream	*instrm = (fstream *) NULL;	/* Alias expanded input stream */
 LOCAL fstream	*rawstrm = (fstream *) NULL;	/* Unexpanded input stream */
 
-int	__in__	= STDIN_FILENO;
-int	__out__	= STDOUT_FILENO;
-int	__err__	= STDERR_FILENO;
-
 LOCAL	void	einit		__PR((void));
 LOCAL	int	readchar	__PR((fstream *fsp));
 EXPORT	int	egetc		__PR((void));
-EXPORT	int	listlen		__PR((Tnode * lp));
 EXPORT	void	bsh_treset	__PR((void));
 EXPORT	void	bhist		__PR((void));
 
@@ -59,19 +54,10 @@ setinput(f)
 	return (f);
 }
 
-FILE	*gstd[3];
 extern  char    **environ;
-char    **evarray;
-
-int	delim;
-int	ctlc;
-int	ex_status;
-int	ttyflg = 1;
-int	prflg = 1;
-int	prompt;
-char	*prompts[2] = { "prompt1 > ", "prompt2 > " };
-char	*inithome = ".";
-
+extern	int	delim;
+extern	int	prompt;
+extern	char	*inithome;
 
 #ifndef	LIB
 int
@@ -230,17 +216,6 @@ pushline(s)
 		fspushcha(rawstrm, delim);
 		fspushstr(rawstrm, s);
 	}
-}
-
-EXPORT int
-listlen(lp)
-	register Tnode	*lp;
-{
-	register int	i;
-
-	for (i = 0; lp != (Tnode *) NULL; lp = lp->tn_right.tn_node)
-		i++;
-	return (i);
 }
 
 /*

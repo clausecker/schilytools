@@ -1,5 +1,5 @@
 #!/bin/sh
-# @(#)rmlinks	1.13 09/11/14 Copyright 1999 J. Schilling
+# %Z%%M%	%I% %E% Copyright 1999 J. Schilling
 
 rm -f archconf.c
 rm -f make.c
@@ -67,6 +67,7 @@ rm -f install-sh
 rm -f astoi.c
 rm -f astoll.c
 rm -f comerr.c
+rm -f eaccess.c
 rm -f error.c
 rm -f format.c
 rm -f printf.c
@@ -86,6 +87,7 @@ rm -f snprintf.c
 rm -f movebytes.c
 rm -f raisecond.c
 rm -f rename.c
+rm -f searchinpath.c
 rm -f cvmod.c
 rm -f fcons.c
 rm -f fileopen.c

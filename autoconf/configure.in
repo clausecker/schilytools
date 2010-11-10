@@ -1,6 +1,6 @@
-dnl @(#)configure.in	1.214 10/09/21 Copyright 1998-2010 J. Schilling
+dnl @(#)configure.in	1.219 10/11/06 Copyright 1998-2010 J. Schilling
 dnl Process this file with autoconf to produce a configure script.
-AC_REVISION(1.214)dnl
+AC_REVISION(1.219)dnl
 
 dnl AC_INIT(xconfig.h.in)
 AC_INIT(config.guess)
@@ -19,6 +19,7 @@ dnl AC_PROG_CC
 AC_OBJEXT
 AC_EXEEXT
 AC_PROG_CPP
+AC_PROG_CPPX
 AC_SUN_CC64_OPT
 AC_HP_CC_ANSI_OPT
 AC_HP_CC_OPT_OPT
@@ -322,8 +323,12 @@ AC_CHECK_FUNCS(poll select isastream)
 AC_CHECK_FUNCS(chown fchown lchown chmod fchmod lchmod times utime utimes futimes lutimes)
 AC_CHECK_FUNCS(futimens utimensat)
 dnl AC_CHECK_FUNCS(ecvt fcvt gcvt)
+AC_CHECK_FUNCS(qecvt qfcvt qgcvt)
+AC_CHECK_FUNCS(_ldecvt _ldfcvt _ldgcvt)
 AC_CHECK_FUNCS(ecvt_r fcvt_r gcvt_r)
+AC_CHECK_FUNCS(_ldecvt_r _ldfcvt_r _ldgcvt_r)
 AC_CHECK_FUNCS(econvert fconvert gconvert)
+AC_CHECK_FUNCS(qeconvert qfconvert qgconvert)
 AC_CHECK_FUNCS(isinf isnan)
 AC_CHECK_FUNCS(rand drand48)
 AC_CHECK_FUNCS(strtol strtoll strtoul strtoull strtod)
@@ -630,6 +635,48 @@ AC_MSG_CHECKING(for /dev/zero)
 if test -r /dev/zero; then
 	echo yes
 	AC_DEFINE(HAVE_DEV_ZERO)
+else
+	echo no
+fi
+AC_MSG_CHECKING(for /dev/stdin)
+if test -r /dev/stdin; then
+	echo yes
+	AC_DEFINE(HAVE_DEV_STDIN)
+else
+	echo no
+fi
+AC_MSG_CHECKING(for /dev/stdout)
+if test -r /dev/stdout; then
+	echo yes
+	AC_DEFINE(HAVE_DEV_STDOUT)
+else
+	echo no
+fi
+AC_MSG_CHECKING(for /dev/stderr)
+if test -r /dev/stderr; then
+	echo yes
+	AC_DEFINE(HAVE_DEV_STDERR)
+else
+	echo no
+fi
+AC_MSG_CHECKING(for /dev/fd/0)
+if test -r /dev/fd/0; then
+	echo yes
+	AC_DEFINE(HAVE_DEV_FD_0)
+else
+	echo no
+fi
+AC_MSG_CHECKING(for /dev/fd/1)
+if test -r /dev/fd/1; then
+	echo yes
+	AC_DEFINE(HAVE_DEV_FD_1)
+else
+	echo no
+fi
+AC_MSG_CHECKING(for /dev/fd/2)
+if test -r /dev/fd/2; then
+	echo yes
+	AC_DEFINE(HAVE_DEV_FD_2)
 else
 	echo no
 fi

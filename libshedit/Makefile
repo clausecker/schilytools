@@ -1,4 +1,4 @@
-#ident "@(#)Makefile	1.12 09/07/06 "
+#ident "@(#)Makefile	1.13 10/10/07 "
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -37,7 +37,7 @@ CPPOPTS	+=	-Iinclude
 #	-DNO_USER_MALLOC Do not use our own (user defined) malloc()
 
 CFILES=		edit.c inputc.c expand.c node.c map.c strsubs.c str.c ttymodes.c \
-		fprint.c error.c fgetline.c fileopen.c fio.c comerr.c
+		fprint.c error.c fgetline.c fileopen.c fio.c comerr.c dat.c
 
 
 #
@@ -47,8 +47,7 @@ CFILES=		edit.c inputc.c expand.c node.c map.c strsubs.c str.c ttymodes.c \
 HFILES=		bsh.h map.h node.h \
 		str.h \
 		strsubs.h bshconf.h schilyio.h include/stdio.h
-#LIBS=		-lunos
-LIBS=		-lxtermcap -lschily $(LIB_CRYPT)
+LIBS=		-lxtermcap -lschily -lc
 #XMK_FILE=	Makefile.man
 XMK_FILE=	
 

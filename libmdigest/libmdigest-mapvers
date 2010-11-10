@@ -1,3 +1,5 @@
+# /* %Z%%M%        %I% %E% Copyright 2009-2010 J. Schilling */
+
 SCHILY_1.0 {
 global:
 	MD4Final;
@@ -12,10 +14,12 @@ global:
 	MD5Transform;
 	MD5Update;
 
-#	MD5End;
-#	MD5File;
-#	MD5FileChunk;
-#	MD5Data;
+#ifdef	__never__
+	MD5End;
+	MD5File;
+	MD5FileChunk;
+	MD5Data;
+#endif
 
 	RMD160Final;
 	RMD160Init;

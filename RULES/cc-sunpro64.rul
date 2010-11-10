@@ -1,4 +1,4 @@
-#ident "@(#)cc-sunpro64.rul	1.12 10/06/23 "
+#ident "@(#)cc-sunpro64.rul	1.13 10/10/02 "
 ###########################################################################
 # Written 1996-2009 by J. Schilling
 ###########################################################################
@@ -53,8 +53,14 @@ LIBS_PATH_STATIC= -L$(OLIBSDIR_STATIC)
 LDFLAGS=	$(LDOPTS) $(LDOPTX)
 LDLIBS=		$(LIBS) $(LIBX)
 
+#
+# Sunpro C/C++ run on Solaris and Linux and both have linkers
+# that support mapfiles
+#
+MAPVERS=	$(_MAPVERS) # This enables to use mapfiles
+
 LDOPTS=		$(LIBS_PATH) $(LDPATH) $(RUNPATH)
-LDOPTDYN=	-dy -G -ztext -h $(TARGET) -Mlib$(TARGETLIB)-mapvers -ldl
+LDOPTDYN=	-dy -G -ztext -h $(TARGET) $(PMAPVERS:%=-M%) -ldl
 LNDYNLIB=	@$(RM) $(RM_FORCE) $(PTARGET_BASE).so; $(SYMLINK) $(TARGET) $(PTARGET_BASE).so
 
 FLOAT_OPTIONS=	

@@ -1,4 +1,4 @@
-#ident "@(#)rules.shl	1.13 07/05/06 "
+#ident "@(#)rules.shl	1.15 10/10/03 "
 ###########################################################################
 # Written 1996 by J. Schilling
 ###########################################################################
@@ -35,6 +35,20 @@ TARGET_BASE=	$(LIB_PREFIX)$(TARGETLIB)
 TARGET_PATH=	$(OLIBSDIR)
 PTARGET=	$(OLIBSDIR)/$(TARGET)
 PTARGET_BASE=	$(OLIBSDIR)/$(TARGET_BASE)
+
+_MAPVERS=	lib$(TARGETLIB)-mapvers
+#MAPVERS=	$(_MAPVERS)	# Use this in *-os-*cc*.rul to enable mapfiles
+PMAPVERS=	$(MAPVERS:%=$(ARCHDIR)/$(MAPVERS))
+
+$(PTARGET):	$(PMAPVERS)
+
+#
+# $(PMAPVERS) may be empty and POSIX does not permit empty target lists.
+# We add an impossible target to make sure there is no empty target.
+#
+$(PMAPVERS) No/TaR/GeT:	$(MAPVERS)
+			@echo "	==> LOCALIZING mapfile \"$@\""; \
+			$(CPPX) $(CPPFLAGS) $^ > $@ || $(RM) $(RM_FORCE) $@
 
 _INSMODEI=	$(_UNIQ)$(INSMODE)
 __INSMODEI=	$(_INSMODEI:$(_UNIQ)=$(INSMODEF))

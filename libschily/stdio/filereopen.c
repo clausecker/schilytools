@@ -1,4 +1,4 @@
-/* @(#)filereopen.c	1.17 10/08/21 Copyright 1986, 1995-2010 J. Schilling */
+/* @(#)filereopen.c	1.18 10/11/06 Copyright 1986, 1995-2010 J. Schilling */
 /*
  *	open new file on old stream
  *
@@ -19,8 +19,8 @@
 #include "schilyio.h"
 
 /*
- * Note that because of a definition in schilyio.h we are using fseeko()/ftello()
- * instead of fseek()/ftell() if available.
+ * Note that because of a definition in schilyio.h we are using
+ * fseeko()/ftello() instead of fseek()/ftell() if available.
  */
 
 LOCAL	char	*fmtab[] = {
@@ -57,7 +57,7 @@ filereopen(name, mode, fp)
 	const char 	*mode;
 	FILE		*fp;
 {
-	int	ret;
+	int	ret = -1;
 	int	omode = 0;
 	int	flag = 0;
 
@@ -67,9 +67,11 @@ filereopen(name, mode, fp)
 	/*
 	 * create/truncate file if necessary
 	 */
-	if ((ret = _openfd(name, omode)) < 0)
-		return ((FILE *)NULL);
-	close(ret);
+	if ((flag & (FI_CREATE | FI_TRUNC)) != 0) {
+		if ((ret = _openfd(name, omode)) < 0)
+			return ((FILE *)NULL);
+		close(ret);
+	}
 
 	fp = freopen(name,
 		fmtab[flag & (FI_READ | FI_WRITE | FI_BINARY | FI_APPEND)], fp);

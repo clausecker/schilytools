@@ -1,3 +1,6 @@
+# /* @(#)libscg-mapvers	1.3 10/10/02 Copyright 2006-2010 J. Schilling */
+#include <schily/mconfig.h>
+
 SCHILY_1.0 {
 global:
 	__scg_help;
@@ -11,13 +14,17 @@ global:
 	scg_cmd;
 	scg_cmd_err;
 	scg_cmd_status;
-	#scg_comerr;
+#ifdef	__use_scglerror__
+	scg_comerr;
+#endif
 	scg_dummy_ops;
 	scg_errfflush;
 	scg_errflush;
-	#scg_errmsg;
-	#scg_exit;
-	#scg_ferrmsg;
+#ifdef	__use_scglerror__
+	scg_errmsg;
+	scg_exit;
+	scg_ferrmsg;
+#endif
 	scg_fprascii;
 	scg_fprbytes;
 	scg_fprintdev;
@@ -51,7 +58,9 @@ global:
 	scg_sense_key;
 	scg_sense_qual;
 	scg_sensemsg;
-	#scg_serrmsg;
+#ifdef	__use_scglerror__
+	scg_serrmsg;
+#endif
 	scg_setnonstderrs;
 	scg_settarget;
 	scg_settimeout;

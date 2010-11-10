@@ -1,14 +1,33 @@
-# @(#)libschily-mapvers	1.16 10/07/21 Copyright 2005-2010 J. Schilling
+# /* @(#)libschily-mapvers	1.21 10/10/21 Copyright 2005-2010 J. Schilling */
+#include <schily/mconfig.h>
 
 SCHILY_1.5 {
 global:
+	js_fgetline;
+	js_getline;
+
+	js_fexecl;
+	js_fexecle;
+	js_fexecv;
+	js_fexecve;
+
+	js_fspawnv;
+	js_fspawnl;
+	js_fspawnv_nowait;
+
 	_getarginit;
 
 	getlallargs;
 	getlargs;
 	getlfiles;
 
+#if	!defined(HAVE_FNMATCH)
+	fnmatch;
+#endif
 	js_fnmatch;
+
+	findinpath;
+	searchfileinpath;
 } SCHILY_1.4;
 
 SCHILY_1.4 {
@@ -17,37 +36,69 @@ global:
 	patwmatch;
 	patwlmatch;
 
+#ifndef	HAVE_STRNDUP
 	strndup;
+#endif
+#ifndef	HAVE_WCSCAT
+	wcscat;
+#endif
 
-#	wcscat;
 	wcscatl;
-#	wcschr;
-#	wcscmp;
-#	wcscpy;
+
+#ifndef	HAVE_WCSCHR
+	wcschr;
+#endif
+#ifndef	HAVE_WCSCMP
+	wcscmp;
+#endif
+#ifndef	HAVE_WCSCPY
+	wcscpy;
+#endif
+#ifndef	HAVE_WCSDUP
 	wcsdup;
+#endif
+
 	wcseql;
+
+#ifndef	HAVE_WCSLCAT
 	wcslcat;
+#endif
+#ifndef	HAVE_WCSLCPY
 	wcslcpy;
-#	wcslen;
-#	wcsncat;
-#	wcsncat;
-#	wcsncmp;
-#	wcsncpy;
+#endif
+#ifndef	HAVE_WCSLEN
+	wcslen;
+#endif
+#ifndef	HAVE_WCSNCAT
+	wcsncat;
+#endif
+#ifndef	HAVE_WCSNCMP
+	wcsncmp;
+#endif
+#ifndef	HAVE_WCSNCPY
+	wcsncpy;
+#endif
+#ifndef	HAVE_WCSNDUP
 	wcsndup;
+#endif
+#ifndef	HAVE_WCSNLEN
 	wcsnlen;
-#	wcsrchr;
+#endif
+#ifndef	HAVE_WCSRCHR
+	wcsrchr;
+#endif
 } SCHILY_1.3;
 
 SCHILY_1.3 {
 global:
+#ifndef	HAVE_EACCESS
 	eaccess;
+#endif
 
 	errabort;	# Non stable
 	errconfig;	# Non stable
 	errhidden;	# Non stable
 	errwarnonly;	# Non stable
-
-	findinpath;
 
 	getperm;
 
@@ -75,9 +126,12 @@ global:
 	getvfiles;
 	getargerror;
 
-#	fnmatch;
-#	strlcpy;
-#	strncpy;
+#ifndef	HAVE_STRLCPY
+	strlcpy;
+#endif
+#ifndef	HAVE_STRNCPY
+	strncpy;
+#endif
 
 	js_malloc;
 	js_realloc;
@@ -134,13 +188,17 @@ global:
 	fdown;
 	fdup;
 	fdup64;
+#ifndef	NO_FEXEC_COMPAT
 	fexecl;
 	fexecle;
 	fexecv;
 	fexecve;
+#endif
 	ffileread;
 	ffilewrite;
+#ifndef	NO_GETLINE_COMPAT
 	fgetline;
+#endif
 	fgetstr;
 	file_raise;
 	fileclose;
@@ -168,9 +226,11 @@ global:
 	flush;
 	format;
 	fpipe;
+#ifndef	NO_FSPAWN_COMPAT
 	fspawnl;
 	fspawnv;
 	fspawnv_nowait;
+#endif
 	ftoes;
 	ftofs;
 	get_progname;
@@ -183,7 +243,9 @@ global:
 	geterrno;
 	getfiles;
 	getfp;
+#ifndef	NO_GETLINE_COMPAT
 	getline;
+#endif
 	getmainfp;
 	getstr;
 	handlecond;
@@ -211,25 +273,49 @@ global:
 	seterrno;
 	setfp;
 	starthandlecond;
-#	strcat;
+#ifndef	HAVE_STRCAT
+	strcat;
+#endif
+
 	strcatl;
-#	strchr;
-#	strcmp;
-#	strcpy;
-#	strdup;
+
+#ifndef	HAVE_STRCHR
+	strchr;
+#endif
+#ifndef	HAVE_STRCMP
+	strcmp;
+#endif
+#ifndef	HAVE_STRCPY
+	strcpy;
+#endif
+#ifndef	HAVE_STRDUP
+	strdup;
+#endif
+
 	streql;
-#	strlen;
-#	strncat;
-#	strncmp;
-#	strrchr;
+
+#ifndef	HAVE_STRLEN
+	strlen;
+#endif
+#ifndef	HAVE_STRNCAT
+	strncat;
+#endif
+#ifndef	HAVE_STRNCMP
+	strncmp;
+#endif
+#ifndef	HAVE_STRRCHR
+	strrchr;
+#endif
 	swabbytes;
 	unhandlecond;
 	wait_chld;
 
-#	fprintf;
-#	printf;
-#	snprintf;
-#	sprintf;
+#ifdef	_should_we_
+	fprintf;
+	printf;
+	snprintf;
+	sprintf;
+#endif
 
 local:
 	*;

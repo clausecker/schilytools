@@ -1,8 +1,8 @@
-/* @(#)fnmatch.c	8.16 10/08/23 2005-2010 J. Schilling from 8.2 (Berkeley) */
+/* @(#)fnmatch.c	8.17 10/10/10 2005-2010 J. Schilling from 8.2 (Berkeley) */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)fnmatch.c	8.16 10/08/23 2005-2010 J. Schilling from 8.2 (Berkeley)";
+	"@(#)fnmatch.c	8.17 10/10/10 2005-2010 J. Schilling from 8.2 (Berkeley)";
 #endif
 /*
  * Copyright (c) 1989, 1993, 1994
@@ -37,7 +37,7 @@ static	UConst char sccsid[] =
  */
 
 #if defined(LIBC_SCCS) && !defined(lint)
-static UConst char sccsid[] = "@(#)fnmatch.c	8.16 (Berkeley) 08/23/10";
+static UConst char sccsid[] = "@(#)fnmatch.c	8.17 (Berkeley) 10/10/10";
 #endif /* LIBC_SCCS and not lint */
 /* "FBSD src/lib/libc/gen/fnmatch.c,v 1.19 2010/04/16 22:29:24 jilles Exp $" */
 
@@ -58,7 +58,6 @@ static UConst char sccsid[] = "@(#)fnmatch.c	8.16 (Berkeley) 08/23/10";
  */
 
 #include <schily/mconfig.h>
-#if	!defined(HAVE_FNMATCH) || !defined(HAVE_FNMATCH_IGNORECASE)
 #include <schily/fnmatch.h>
 #include <schily/limits.h>
 #include <schily/string.h>
@@ -75,8 +74,24 @@ static int rangematch __PR((const char *, wchar_t, int, char **, mbstate_t *));
 static int fnmatch1 __PR((const char *, const char *, const char *, int,
 				mbstate_t, mbstate_t));
 
+#ifndef	HAVE_FNMATCH
+#undef	fnmatch
+#ifdef	HAVE_PRAGMA_WEAK
+#pragma	weak fnmatch =	js_fnmatch
+#else
 int
 fnmatch(pattern, string, flags)
+	const char	*pattern;
+	const char	*string;
+	int		flags;
+{
+	return (js_fnmatch(pattern, string, flags));
+}
+#endif
+#endif
+
+int
+js_fnmatch(pattern, string, flags)
 	const char	*pattern;
 	const char	*string;
 	int		flags;
@@ -315,4 +330,3 @@ rangematch(pattern, test, flags, newp, patmbs)
 	*newp = (char *)pattern;
 	return (ok == negate ? RANGE_NOMATCH : RANGE_MATCH);
 }
-#endif /* !defined(HAVE_FNMATCH) || !defined(HAVE_FNMATCH_IGNORECASE) */

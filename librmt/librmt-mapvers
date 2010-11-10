@@ -1,3 +1,5 @@
+# /* @(#)librmt-mapvers        1.1 10/10/02 Copyright 2005-2010 J. Schilling */
+
 SCHILY_1.0 {
 global:
 	_mtg2rmtg;

@@ -1,4 +1,4 @@
-. \" @(#)hdump.1	1.3 10/05/11 Copyright 1985-2010 J. Schilling
+. \" %Z%%M%	%I% %E% Copyright 1985-2010 J. Schilling
 . \"  Manual page for hdump
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -13,7 +13,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH HDUMP 1 "10/05/11" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH HDUMP 1 "%E%" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 hdump \- displays (dumps) binary contents of a file
 .SH SYNOPSIS
@@ -50,7 +50,7 @@ if the
 .I "starting address
 is followed by a
 .IR 'B' ,
-the number is multiplied by 1024.
+the number is multiplied by 512.
 
 .PP
 The output radix of the label is hexadecimal by default and
@@ -69,6 +69,23 @@ A decimal radix of the label will be displayed if the
 is followed by a dot.
 
 .SH OPTIONS
+.TP 10
+.BI \-A " radix
+Select the radix used for address labels. The folowing values are supported:
+.RS
+.TP
+.B d
+Use a decimal radix for address labels.
+.TP
+.B o
+Use an octal radix for address labels.
+.TP
+.B n
+Do not print address labels.
+.TP
+.B x
+Use a hexadecimal radix for address labels.
+.RE
 .TP
 .B \-a
 Display content also in characters
@@ -88,17 +105,96 @@ Display content longs as floats
 .B \-F
 Display content double longs as doubles
 .TP
+.BI \-j " skip
+Seek or skip
+.I skip
+bytes before starting to dump.
+The same syntax as with
+.BR sdd (1)
+is supported.
+.TP
 .B \-l
 Display content as longs
+.TP
+.BI \-N " count
+Stop after dumping
+.B count
+bytes.
+The same syntax as with
+.BR sdd (1)
+is supported.
 .TP
 .B \-o
 Display content in octal
 .TP
+.BI \-t " format
+.RS
+.TP
+.B a
+Print bytes as 7 bit named ASCII characters.
+.TP
+.B c
+Print bytes as quoted characters.
+.TP
+.B d
+Print signed decimal numbers.
+.TP
+.B f
+Print floating point numbers
+.TP
+.B o
+Print octal numbers.
+.TP
+.B u
+Print unsigned decimal numbers.
+.TP
+.B x
+Print hexadecimal numbers.
+.PP
+The type specification characters
+.BR d ,
+.BR f ,
+.BR o , 
+.BR u ,
+and
+.B x
+can be followed by an optional size specifier.
+For the types
+.BR d ,
+.BR o , 
+.BR u ,
+and
+.BR x ,
+this may be one of:
+.BR 1 ,
+.BR 2 ,
+.BR 4 ,
+.BR 8 ,
+.BR C ,
+.BR S ,
+.BR I ,
+and
+.BR L .
+For the type
+.BR f ,
+this may be one of:
+.BR F ,
+.BR D ,
+and
+.BR L .
+.PP
+A 
+.B \-t
+option may have multiple type arguments and there may be multiple
+.B \-t
+options on the command line.
+.RE
+.TP
 .B \-u
-Display content as unsigned
+Display content as unsigned numbers.
 .TP
 .B \-v
-Show all data even if it is identical
+Show all data even if it is identical.
 .TP
 .B \-help
 Prints a short summary of the 

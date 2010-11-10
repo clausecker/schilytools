@@ -1,6 +1,6 @@
-/* @(#)flag.c	2.13 07/04/03 Copyright 1986-2007 J. Schilling */
+/* @(#)flag.c	2.14 10/11/06 Copyright 1986-2010 J. Schilling */
 /*
- *	Copyright (c) 1986-2007 J. Schilling
+ *	Copyright (c) 1986-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -30,7 +30,7 @@ EXPORT	int	_io_glflag = 0;		/* global default flag */
 #else
 EXPORT	int	_io_glflag;		/* global default flag */
 #endif
-LOCAL	int	_fl_inc = 10;		/* increment for expanding flag struct */
+LOCAL	int	_fl_inc = 10;		/* increment to expand flag struct */
 EXPORT	int	_fl_max = FL_INIT;	/* max fd currently in _io_myfl */
 LOCAL	_io_fl	_io_smyfl[FL_INIT];	/* initial static space */
 EXPORT	_io_fl	*_io_myfl = _io_smyfl;	/* init to static space */

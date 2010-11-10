@@ -1,13 +1,13 @@
-/* @(#)tgetent.c	1.34 09/12/19 Copyright 1986-2009 J. Schilling */
+/* @(#)tgetent.c	1.35 10/10/13 Copyright 1986-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)tgetent.c	1.34 09/12/19 Copyright 1986-2009 J. Schilling";
+	"@(#)tgetent.c	1.35 10/10/13 Copyright 1986-2010 J. Schilling";
 #endif
 /*
  *	Access routines for TERMCAP database.
  *
- *	Copyright (c) 1986-2009 J. Schilling
+ *	Copyright (c) 1986-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -816,6 +816,12 @@ tstrip()
 	bp = tbuf;
 #endif
 	while (*bp) {
+		if (*bp == '\\') {
+			++bp;
+			if (*bp++ == '\0')
+				break;
+			continue;
+		}
 		if (*bp++ == ':') {
 			if (*bp == ':' || *bp == ' ' || *bp == '\t') {
 				p = bp;
