@@ -1,13 +1,13 @@
-/* @(#)drv_simul.c	1.60 09/07/10 Copyright 1998-2009 J. Schilling */
+/* @(#)drv_simul.c	1.61 10/12/19 Copyright 1998-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)drv_simul.c	1.60 09/07/10 Copyright 1998-2009 J. Schilling";
+	"@(#)drv_simul.c	1.61 10/12/19 Copyright 1998-2010 J. Schilling";
 #endif
 /*
  *	Simulation device driver
  *
- *	Copyright (c) 1998-2009 J. Schilling
+ *	Copyright (c) 1998-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -36,6 +36,7 @@ static	UConst char sccsid[] =
 #include <schily/utypes.h>
 #include <schily/btorder.h>
 #include <schily/schily.h>
+#include <schily/nlsdefs.h>
 
 /*#include <scgio.h>*/
 #include <scg/scsidefs.h>
@@ -305,8 +306,8 @@ speed_select_simul(scgp, dp, speedp)
 		sleep_max = 228 * simul_bufsize / simul_speed;
 
 	if (lverbose) {
-		printf("Simulation drive buffer size: %d KB\n", simul_bufsize);
-		printf("Maximum reserve time in drive buffer: %d.%3.3d ms for speed %dx\n",
+		printf(_("Simulation drive buffer size: %d KB\n"), simul_bufsize);
+		printf(_("Maximum reserve time in drive buffer: %d.%3.3d ms for speed %dx\n"),
 					sleep_max / 1000,
 					sleep_max % 1000,
 					simul_speed);
@@ -345,7 +346,7 @@ cdr_write_simul(scgp, bp, sectaddr, size, blocks, islast)
 static	struct timeval	tv2;
 
 	if (lverbose > 1 && islast)
-		printf("\nWriting last record for this track.\n");
+		printf(_("\nWriting last record for this track.\n"));
 
 	simul_nwa += blocks;
 
@@ -359,7 +360,7 @@ static	struct timeval	tv2;
 				sleep_min = (sleep_rest - sleep_diff);
 
 			if (sleep_diff > sleep_rest) {
-				printf("Buffer underrun: actual delay was %d.%3.3d ms, max delay was %d.%3.3d ms.\n",
+				printf(_("Buffer underrun: actual delay was %d.%3.3d ms, max delay was %d.%3.3d ms.\n"),
 						sleep_diff / 1000,
 						sleep_diff % 1000,
 						sleep_rest / 1000,
@@ -434,10 +435,10 @@ close_track_simul(scgp, dp, trackp)
 	track_t	*trackp;
 {
 	if (lverbose) {
-		printf("Remaining reserve time in drive buffer: %d.%3.3d ms\n",
+		printf(_("Remaining reserve time in drive buffer: %d.%3.3d ms\n"),
 					sleep_rest / 1000,
 					sleep_rest % 1000);
-		printf("Minimum reserve time in drive buffer: %d.%3.3d ms\n",
+		printf(_("Minimum reserve time in drive buffer: %d.%3.3d ms\n"),
 					sleep_min / 1000,
 					sleep_min % 1000);
 	}

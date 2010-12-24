@@ -1,13 +1,13 @@
-/* @(#)scsilog.c	1.24 09/07/10 Copyright 1998-2009 J. Schilling */
+/* @(#)scsilog.c	1.25 10/12/19 Copyright 1998-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)scsilog.c	1.24 09/07/10 Copyright 1998-2009 J. Schilling";
+	"@(#)scsilog.c	1.25 10/12/19 Copyright 1998-2010 J. Schilling";
 #endif
 /*
  *	SCSI log page handling
  *
- *	Copyright (c) 1998-2009 J. Schilling
+ *	Copyright (c) 1998-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -28,6 +28,7 @@ static	UConst char sccsid[] =
 #include <schily/utypes.h>
 #include <schily/btorder.h>
 #include <schily/schily.h>
+#include <schily/nlsdefs.h>
 
 #include <scg/scgcmd.h>
 #include <scg/scsidefs.h>
@@ -75,7 +76,7 @@ log_sense(scgp, bp, cnt, page, pc, pp)
 	if (scg_cmd(scgp) < 0)
 		return (-1);
 	if (scgp->verbose)
-		scg_prbytes("Log sense Data   :", (Uchar *)bp, cnt - scg_getresid(scgp));
+		scg_prbytes(_("Log sense Data   :"), (Uchar *)bp, cnt - scg_getresid(scgp));
 	return (0);
 }
 
@@ -164,7 +165,7 @@ print_logpages(scgp)
 
 	len -= scg_getresid(scgp);
 
-	printf("Supported log pages:");
+	printf(_("Supported log pages:"));
 
 	for (i = 0; i < len; i++) {
 		printf(" %X", sp->p_code[i]);

@@ -1,8 +1,8 @@
-/* @(#)subchan.c	1.27 10/02/03 Copyright 2000-2010 J. Schilling */
+/* @(#)subchan.c	1.28 10/12/19 Copyright 2000-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)subchan.c	1.27 10/02/03 Copyright 2000-2010 J. Schilling";
+	"@(#)subchan.c	1.28 10/12/19 Copyright 2000-2010 J. Schilling";
 #endif
 /*
  *	Subchannel processing
@@ -27,6 +27,7 @@ static	UConst char sccsid[] =
 #include <schily/standard.h>
 #include <schily/utypes.h>
 #include <schily/schily.h>
+#include <schily/nlsdefs.h>
 
 #include <scg/scsitransp.h>
 
@@ -95,14 +96,14 @@ do_leadin(trackp)
 
 	if (_nsubh) {
 		if (xdebug)
-			printf("Using CLONE TOC....\n");
+			printf(_("Using CLONE TOC....\n"));
 		return (0);
 	}
 	if (xdebug)
-		printf("Leadin TOC Type: %d\n", trackp[0].tracktype & TOC_MASK);
+		printf(_("Leadin TOC Type: %d\n"), trackp[0].tracktype & TOC_MASK);
 	if (lverbose > 1) {
 		for (i = 1; i <= tracks+1; i++)
-			printf("Track %d start %ld\n", i, trackp[i].trackstart);
+			printf(_("Track %d start %ld\n"), i, trackp[i].trackstart);
 	}
 
 #ifdef	TEST_CRC
@@ -206,13 +207,13 @@ write_leadin(scgp, dp, trackp, leadinstart)
 
 	if (_nsubh) {
 		if (xdebug)
-			printf("Using CLONE LEADIN\n");
+			printf(_("Using CLONE LEADIN\n"));
 	}
 	if (xdebug) {
-		printf("Leadinstart: %d %d:%d/%d",
+		printf(_("Leadinstart: %d %d:%d/%d"),
 			leadinstart,
 			msf.msf_min, msf.msf_sec, msf.msf_frame);
-		printf(" FLAGS: 0x%X sect: %X RAW16:%d secs: %d spt: %d\n",
+		printf(_(" FLAGS: 0x%X sect: %X RAW16:%d secs: %d spt: %d\n"),
 			trackp[0].flags, trackp[0].sectype,
 			is_raw16(&trackp[0]), secsize, secspt);
 	}
@@ -270,7 +271,7 @@ write_leadin(scgp, dp, trackp, leadinstart)
 			amount = write_secs(scgp, dp,
 					(char *)bp, startsec, bytespt, secspt, FALSE);
 			if (amount < 0) {
-				printf("write leadin data: error after %ld bytes\n",
+				printf(_("write leadin data: error after %ld bytes\n"),
 							bytes);
 				return (-1);
 			}
@@ -328,11 +329,11 @@ write_leadout(scgp, dp, trackp)
 	fillbytes(bp, bytespt, '\0');
 
 	if (xdebug) {
-		printf("Leadoutstart: %d %d:%d/%d amt %ld",
+		printf(_("Leadoutstart: %d %d:%d/%d amt %ld"),
 			leadoutstart,
 			msf.msf_min, msf.msf_sec, msf.msf_frame,
 			trackp[tracks+1].tracksecs);
-		printf(" FLAGS: 0x%X sect: %X RAW16:%d secs: %d spt: %d\n",
+		printf(_(" FLAGS: 0x%X sect: %X RAW16:%d secs: %d spt: %d\n"),
 			trackp[tracks+1].flags, trackp[tracks+1].sectype,
 			is_raw16(&trackp[tracks+1]), secsize, secspt);
 	}
@@ -377,7 +378,7 @@ write_leadout(scgp, dp, trackp)
 			amount = write_secs(scgp, dp,
 					(char *)bp, startsec, bytespt, secspt, FALSE);
 			if (amount < 0) {
-				printf("write leadout data: error after %ld bytes\n",
+				printf(_("write leadout data: error after %ld bytes\n"),
 							bytes);
 				return (-1);
 			}
@@ -439,7 +440,7 @@ static	Uchar	lastindex = 255;
 	rsecno = secno - trackp->trackstart;
 	if ((secno + nsecs) > (trackp->trackstart + trackp->tracksecs)) {
 		comerrno(EX_BAD,
-			"Implementation botch: track boundary in buffer.\n");
+			_("Implementation botch: track boundary in buffer.\n"));
 	}
 	sup = sp + 2352;
 	if (mcn && (nextmcn < secno || nextmcn > (secno+100))) {
@@ -919,7 +920,7 @@ encsectors(trackp, bp, address, nsecs)
 	if ((sectype & ST_MODE_MASK) == ST_MODE_AUDIO)
 		return;
 
-	comerrno(EX_BAD, "Can only write audio sectors in RAW mode.\n");
+	comerrno(EX_BAD, _("Can only write audio sectors in RAW mode.\n"));
 }
 
 EXPORT void
@@ -929,7 +930,7 @@ scrsectors(trackp, bp, address, nsecs)
 	int	address;
 	int	nsecs;
 {
-	comerrno(EX_BAD, "Cannot write in clone RAW mode.\n");
+	comerrno(EX_BAD, _("Cannot write in clone RAW mode.\n"));
 }
 #endif
 

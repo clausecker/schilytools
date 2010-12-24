@@ -1,5 +1,5 @@
 #!/bin/sh
-# %Z%%M%	%I% %E% Copyright 1999 J. Schilling
+# @(#)lnfiles	1.17 10/11/12 Copyright 1999 J. Schilling
 
 cp='ln -s'
 smake=smake

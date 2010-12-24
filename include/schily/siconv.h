@@ -1,4 +1,4 @@
-/* @(#)siconv.h	1.4 10/05/11 Copyright 2007-2010 J. Schilling */
+/* @(#)siconv.h	1.5 10/12/20 Copyright 2007-2010 J. Schilling */
 /*
  *	Definitions fur users of libsiconv
  *
@@ -53,6 +53,7 @@ struct siconv_table {
 
 extern int		sic_list		__PR((FILE *));
 extern siconvt_t	*sic_open		__PR((char *));
+extern const char	*sic_base		__PR((void));
 extern int 		sic_close		__PR((siconvt_t *));
 
 #ifdef	__cplusplus

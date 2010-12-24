@@ -1,4 +1,4 @@
-/* @(#)xconfig.h.in	1.206 10/11/06 Copyright 1998-2010 J. Schilling */
+/* @(#)xconfig.h.in	1.210 10/11/17 Copyright 1998-2010 J. Schilling */
 /*
  *	Dynamic autoconf C-include code.
  *	Do not edit, this file has been created automatically.
@@ -79,6 +79,7 @@
 #undef HAVE_SYS_RESOURCE_H	/* to use sys/resource.h for rlimit() and wait3() */
 #undef HAVE_PROCFS_H		/* to use procfs.h instead of sys/procfs.h (Solaris forces profcs-2) */
 #undef HAVE_SYS_PROCFS_H	/* to use sys/procfs.h for wait3() emulation */
+#undef HAVE_LIBPROC_H		/* to use libproc.h (Mac OS X) */
 #undef HAVE_SYS_SYSTEMINFO_H	/* to use SVr4 sysinfo() */
 #undef HAVE_SYS_SYSCTL_H	/* to use BSD sysctl() */
 #undef HAVE_SYS_UTSNAME_H	/* to use uname() */
@@ -357,6 +358,12 @@
 #undef HAVE_QECVT		/* qecvt() is present in libc */
 #undef HAVE_QFCVT		/* qfcvt() is present in libc */
 #undef HAVE_QGCVT		/* qgcvt() is present in libc */
+#undef HAVE__QECVT		/* _qecvt() is present in libc */
+#undef HAVE__QFCVT		/* _qfcvt() is present in libc */
+#undef HAVE__QGCVT		/* _qgcvt() is present in libc */
+#undef HAVE__QECVT_R		/* _qecvt_r() is present in libc */
+#undef HAVE__QFCVT_R		/* _qfcvt_r() is present in libc */
+#undef HAVE__QGCVT_R		/* _qgcvt_r() is present in libc */
 #undef HAVE__LDECVT		/* _ldecvt() is present in libc */
 #undef HAVE__LDFCVT		/* _ldfcvt() is present in libc */
 #undef HAVE__LDGCVT		/* _ldgcvt() is present in libc */
@@ -449,6 +456,9 @@
 #undef HAVE_GETEXECNAME		/* getexecname() is present in libc */
 #undef HAVE_GETPROGNAME		/* getprogname() is present in libc */
 #undef HAVE_SETPROGNAME		/* setprogname() is present in libc */
+#undef HAVE_PROC_PIDPATH	/* proc_pidpath() is present in libc */
+#undef HAVE_VAR_PROGNAME	/* extern char *__progname is present in libc */
+#undef HAVE_VAR_PROGNAME_FULL	/* extern char *__progname_full is present in libc */
 #undef HAVE_ALLOCA		/* alloca() is present (else use malloc())*/
 #undef HAVE_MALLOC		/* malloc() is present in libc */
 #undef HAVE_CALLOC		/* calloc() is present in libc */
@@ -513,10 +523,12 @@
 #undef HAVE_CREATE_AREA		/* create_area() is present in libc */
 #undef HAVE_DELETE_AREA		/* delete_area() is present in libc */
 
+#undef HAVE_DLOPEN_IN_LIBC	/* whether dlopen() is in libc (needs no -ldl) */
 #undef HAVE_DLOPEN		/* dlopen() is present in libc */
 #undef HAVE_DLCLOSE		/* dlclose() is present in libc */
 #undef HAVE_DLSYM		/* dlsym() is present in libc */
 #undef HAVE_DLERROR		/* dlerror() is present in libc */
+#undef HAVE_DLINFO		/* dlinfo() is present in libc */
 #undef HAVE_SHL_LOAD		/* shl_load() is present in libc */
 #undef HAVE_SHL_UNLOAD		/* shl_unload() is present in libc */
 #undef HAVE_SHL_GETHANDLE	/* shl_gethandle() is present in libc */

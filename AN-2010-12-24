@@ -1,0 +1,103 @@
+New features with AN-2010-12-24:
+
+-	New autoconf test for _qecvt() _qfcvt() _qgcvt()
+	and _qecvt_r() _qfcvt_r() _qgcvt_r() on AIX
+
+-	libschily/getexecpath.c new
+
+-	include/schily/nlsdefs.h now includes macros _(s) and __(s) to support
+	gettext() and xgettext(1)
+
+-	libsiconv no longer depends on static compiled in install path.
+
+-	new function sic_base() returns the dynamically retrieved install base
+	for the siconv database.
+
+-	Cdrecord now uses gettext() to translate texts.
+	There are currently not yet translated texts. The cdrtools project needs help
+	with translating the texts.
+
+-	Cdda2wav now uses gettext() to translate texts.
+	There are currently not yet translated texts. The cdrtools project needs help
+	with translating the texts.
+
+-	Readcd now uses gettext() to translate texts.
+	There are currently not yet translated texts. The cdrtools project needs help
+	with translating the texts.
+
+-	Scgcheck now uses gettext() to translate texts.
+	There are currently not yet translated texts. The cdrtools project needs help
+	with translating the texts.
+
+-	Scgskeleton now uses gettext() to translate texts.
+	There are currently not yet translated texts. The cdrtools project needs help
+	with translating the texts.
+
+-	Btcflash now uses gettext() to translate texts.
+	There are currently not yet translated texts. The cdrtools project needs help
+	with translating the texts.
+
+-	Mkisofs and the disgnostic programs now use gettext() to translate texts.
+	There are currently not yet translated texts. The cdrtools project needs help
+	with translating the texts.
+
+-	Typo corrections in mkisofs/mkisofs.8 man page
+
+-	A bug was fixed with -sort and files > 4 GB. Mkisofs now correctly sorts the
+	disk addresses of the file content is such a case.
+
+-	New options -long-rr-time -no-long-rr-time -short-rr-time allow to control
+	the time format used for files with Rock Ridge extensions.
+
+	-	The short time format supports year 1900..2155 with a one second
+		granularity
+
+	-	The long time format supports year 0..9999 with a 10ms granularity.
+
+	Note that the Linux kernel only implements partial Rock Ridge support and 
+	unfortunately does not support the long time format. It is planned to 
+	make the long time stamp format the default in the future, so I encourage
+	the Linux kernel folks to add support for this time format.
+
+-	isoinfo now supports the new option -find and (via libfind) allows to use
+	find expressions on ISO-9660 images. If the find expression neither contains
+	-print nor -ls and isoinfo is called:
+
+		isoinfo -i xxx.iso -l -find .....
+
+	the ISO-9660 listing function from isoinfo is called whenever the find expression
+	returns TRUE. If there is a print or list primary in the find expression, then
+	the ISO-9660 listing is never called.
+
+
+-	star now correctly detects xz(1) compressed archives even when they are
+	read from a non-seekable stdin.
+
+-	ved no longer waits for 2 seconds when a Cygwin release is detected that
+	supports file locking.
+
+-	hdump/od now uses gettext() to translate texts.
+	There are currently not yet translated texts. The schily project needs help
+	with translating the texts.
+
+-	The float printf() format for hdump/od has been corrected to properly create
+	aligned output.
+
+-	copy now uses gettext() to translate texts.
+	There are currently not yet translated texts. The schily project needs help
+	with translating the texts.
+
+-	The "p" command now automatically supresses carriage returns from DOS newlines.
+	A new option -nodos to supress the new behavior was added.
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.isdn.cs.tu-berlin.de, js@cs.tu-berlin.de
+	joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

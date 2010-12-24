@@ -1,13 +1,13 @@
-/* @(#)sector.c	1.17 09/07/10 Copyright 2001-2009 J. Schilling */
+/* @(#)sector.c	1.18 10/12/19 Copyright 2001-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)sector.c	1.17 09/07/10 Copyright 2001-2009 J. Schilling";
+	"@(#)sector.c	1.18 10/12/19 Copyright 2001-2010 J. Schilling";
 #endif
 /*
  *	Functions needed to use libedc_ecc from cdrecord
  *
- *	Copyright (c) 2001-2009 J. Schilling
+ *	Copyright (c) 2001-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -27,6 +27,7 @@ static	UConst char sccsid[] =
 #include <schily/utypes.h>
 #include <schily/time.h>
 #include <schily/schily.h>
+#include <schily/nlsdefs.h>
 
 #include "cdrecord.h"
 #include "movesect.h"
@@ -122,8 +123,9 @@ encspeed(be_verbose)
 			break;
 	}
 	if (be_verbose) {
-		printf("Encoding speed : %dx (%d sectors/s) for libedc from Heiko Eiﬂfeldt\n",
-				(i+74)/75, i);
+		printf(_("Encoding speed : %dx (%d sectors/s) for libedc from %s\n"),
+				(i+74)/75, i,
+				_("Heiko Eissfeldt"));
 	}
 	return ((i+74)/75);
 }
@@ -192,7 +194,7 @@ scrsectors(trackp, bp, address, nsecs)
 	int	address;
 	int	nsecs;
 {
-	comerrno(EX_BAD, "Cannot write in clone RAW mode.\n");
+	comerrno(EX_BAD, _("Cannot write in clone RAW mode.\n"));
 }
 #endif
 

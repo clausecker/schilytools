@@ -1,8 +1,8 @@
-/* @(#)drv_dvd.c	1.162 10/05/11 Copyright 1998-2010 J. Schilling */
+/* @(#)drv_dvd.c	1.163 10/12/19 Copyright 1998-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)drv_dvd.c	1.162 10/05/11 Copyright 1998-2010 J. Schilling";
+	"@(#)drv_dvd.c	1.163 10/12/19 Copyright 1998-2010 J. Schilling";
 #endif
 /*
  *	DVD-R device implementation for
@@ -61,6 +61,7 @@ static	UConst char sccsid[] =
 #include <schily/btorder.h>
 #include <schily/intcvt.h>
 #include <schily/schily.h>
+#include <schily/nlsdefs.h>
 
 #include <scg/scgcmd.h>
 #include <scg/scsidefs.h>
@@ -270,7 +271,7 @@ attach_dvd(scgp, dp)
 	mp2Aspeed = a_to_u_2_byte(mp->max_write_speed);
 
 	if (lverbose > 2) {
-		printf("max page 2A speed %lu (%lux), max perf speed %lu (%lux)\n",
+		printf(_("max page 2A speed %lu (%lux), max perf speed %lu (%lux)\n"),
 			mp2Aspeed, mp2Aspeed/1385,
 			xspeed, xspeed/1385);
 	}
@@ -381,7 +382,7 @@ attach_dvd(scgp, dp)
 			if ((*ep != '\0' && *ep != ',') ||
 			    ll <= 0 || ll != lb) {
 				errmsgno(EX_BAD,
-					"Bad layer break value '%s'.\n", p);
+					_("Bad layer break value '%s'.\n"), p);
 				return (-1);
 			}
 			dp->cdr_dstat->ds_layer_break = lb;
@@ -393,14 +394,14 @@ attach_dvd(scgp, dp)
 		if (dp->cdr_dstat->ds_layer_break >= 0 &&
 		    (dp->cdr_flags & CDR_LAYER_JUMP) == 0) {
 			errmsgno(EX_BAD,
-			"Cannot set layer break on this drive/medium.\n");
+			_("Cannot set layer break on this drive/medium.\n"));
 			return (-1);
 		}
 		if (dp->cdr_dstat->ds_layer_break != -1 &&
 		    dp->cdr_dstat->ds_layer_break !=
 		    roundup(dp->cdr_dstat->ds_layer_break, 16)) {
 			errmsgno(EX_BAD,
-			"Layer break at %u is not properly aligned.\n",
+			_("Layer break at %u is not properly aligned.\n"),
 				dp->cdr_dstat->ds_layer_break);
 			return (-1);
 		}
@@ -515,7 +516,7 @@ again:
 			 * it is mentioned in the MMC standard.
 			 */
 			if (lverbose)
-				printf("Trying to clear drive status.\n");
+				printf(_("Trying to clear drive status.\n"));
 
 			dp->cdr_cmdflags &= ~F_DUMMY;
 			speed_select_dvd(scgp, dp, &xspeed);
@@ -570,7 +571,7 @@ again:
 	 */
 	fillbytes((caddr_t)mode, sizeof (mode), '\0');
 	if (read_dvd_structure(scgp, (caddr_t)mode, 2, 0, 0, 0, 0) < 0) {
-		errmsgno(EX_BAD, "Cannot read DVD structure.\n");
+		errmsgno(EX_BAD, _("Cannot read DVD structure.\n"));
 		return (-1);
 	}
 	len = a_to_u_2_byte(mode);
@@ -620,10 +621,10 @@ again:
 		 * Bei diesen Parametern gibt es keine Warnung.
 		 */
 
-		printf("WARNING: Phys disk size %ld differs from rzone size %ld! Prerecorded disk?\n",
+		printf(_("WARNING: Phys disk size %ld differs from rzone size %ld! Prerecorded disk?\n"),
 			(long)(a_to_u_3_byte(sp->phys_end) - a_to_u_3_byte(sp->phys_start) + 1),
 			(long)dsp->ds_maxblocks);
-		printf("WARNING: Phys start: %ld Phys end %ld\n",
+		printf(_("WARNING: Phys start: %ld Phys end %ld\n"),
 			(long)a_to_u_3_byte(sp->phys_start),
 			(long)a_to_u_3_byte(sp->phys_end));
 
@@ -634,7 +635,7 @@ again:
 		 * Use the information from ADIP instead.
 		 */
 		if (dsp->ds_maxblocks == 0) {
-			printf("WARNING: Drive returns zero media size. Using media size from ADIP.\n");
+			printf(_("WARNING: Drive returns zero media size. Using media size from ADIP.\n"));
 			dsp->ds_maxblocks = a_to_u_3_byte(sp->phys_end) - a_to_u_3_byte(sp->phys_start) + 1;
 		}
 	}
@@ -673,7 +674,7 @@ speed_select_dvd(scgp, dp, speedp)
 
 	fillbytes((caddr_t)mode, sizeof (mode), '\0');
 
-	if (!get_mode_params(scgp, 0x05, "CD write parameter",
+	if (!get_mode_params(scgp, 0x05, _("CD write parameter"),
 			mode, (Uchar *)0, (Uchar *)0, (Uchar *)0, &len))
 		return (-1);
 	if (len == 0)
@@ -684,11 +685,11 @@ speed_select_dvd(scgp, dp, speedp)
 		((struct scsi_mode_header *)mode)->blockdesc_len);
 #ifdef	DEBUG
 	if (lverbose > 1)
-		scg_prbytes("CD write parameter:", (Uchar *)mode, len);
+		scg_prbytes(_("CD write parameter:"), (Uchar *)mode, len);
 #endif
 
 	if (dp->cdr_dstat->ds_type == DST_DVD_RAM && dummy != 0) {
-		errmsgno(EX_BAD, "DVD-RAM has no -dummy mode.\n");
+		errmsgno(EX_BAD, _("DVD-RAM has no -dummy mode.\n"));
 		return (-1);
 	}
 
@@ -708,9 +709,9 @@ speed_select_dvd(scgp, dp, speedp)
 
 #ifdef	DEBUG
 	if (lverbose > 1)
-		scg_prbytes("CD write parameter:", (Uchar *)mode, len);
+		scg_prbytes(_("CD write parameter:"), (Uchar *)mode, len);
 #endif
-	if (!set_mode_params(scgp, "CD write parameter", mode, len, 0, -1))
+	if (!set_mode_params(scgp, _("CD write parameter"), mode, len, 0, -1))
 		return (-1);
 
 	/*
@@ -726,21 +727,21 @@ speed_select_dvd(scgp, dp, speedp)
 	}
 
 	if (lverbose && (dp->cdr_flags & CDR_FORCESPEED) != 0)
-		printf("Forcespeed is %s.\n", forcespeed?"ON":"OFF");
+		printf(_("Forcespeed is %s.\n"), forcespeed?_("ON"):_("OFF"));
 
 	if (!forcespeed && (dp->cdr_dstat->ds_cdrflags & RF_FORCESPEED) != 0) {
-		printf("Turning forcespeed on\n");
+		printf(_("Turning forcespeed on\n"));
 		forcespeed = TRUE;
 	}
 	if (forcespeed && (dp->cdr_dstat->ds_cdrflags & RF_FORCESPEED) == 0) {
-		printf("Turning forcespeed off\n");
+		printf(_("Turning forcespeed off\n"));
 		forcespeed = FALSE;
 	}
 	if ((dp->cdr_flags & CDR_FORCESPEED) != 0) {
 
 		if (rp) {
 			rp->AWSCD = forcespeed?1:0;
-			set_mode_params(scgp, "Ricoh Vendor Page", moder, moder[0]+1, 0, -1);
+			set_mode_params(scgp, _("Ricoh Vendor Page"), moder, moder[0]+1, 0, -1);
 			rp = get_justlink_ricoh(scgp, moder);
 		}
 	}
@@ -754,7 +755,7 @@ speed_select_dvd(scgp, dp, speedp)
 		val = 0x7FFFFFFF;
 	if (dp->cdr_flags & CDR_MMC3) {
 		if (speed_select_mdvd(scgp, -1, val) < 0)
-			errmsgno(EX_BAD, "MMC-3 speed select did not work.\n");
+			errmsgno(EX_BAD, _("MMC-3 speed select did not work.\n"));
 	} else {
 		if (val > 0xFFFF)
 			val = 0xFFFF;
@@ -850,7 +851,7 @@ next_wr_addr_dvd(scgp, trackp, ap)
 			read_rzone_info(scgp, (caddr_t)&rz, sizeof (struct rzone_info));
 		dvd_next_addr = a_to_4_byte(rz.next_recordable_addr);
 		if (lverbose > 1)
-			printf("next writable addr: %ld valid: %d\n", dvd_next_addr, rz.nwa_v);
+			printf(_("next writable addr: %ld valid: %d\n"), dvd_next_addr, rz.nwa_v);
 	}
 	if (ap)
 		*ap = dvd_next_addr;
@@ -883,7 +884,7 @@ open_track_dvd(scgp, dp, trackp)
 
 	fillbytes((caddr_t)mode, sizeof (mode), '\0');
 
-	if (!get_mode_params(scgp, 0x05, "CD write parameter",
+	if (!get_mode_params(scgp, 0x05, _("CD write parameter"),
 			mode, (Uchar *)0, (Uchar *)0, (Uchar *)0, &len))
 		return (-1);
 	if (len == 0)
@@ -911,9 +912,9 @@ open_track_dvd(scgp, dp, trackp)
 
 #ifdef	DEBUG
 	if (lverbose > 1)
-		scg_prbytes("CD write parameter:", (Uchar *)mode, len);
+		scg_prbytes(_("CD write parameter:"), (Uchar *)mode, len);
 #endif
-	if (!set_mode_params(scgp, "CD write parameter", mode, len, 0, trackp->secsize))
+	if (!set_mode_params(scgp, _("CD write parameter"), mode, len, 0, trackp->secsize))
 		return (-1);
 
 	/*
@@ -949,11 +950,11 @@ rzone_size(trackp)
 	if (i >= 1)
 		vtracks = TRUE;
 	if (vtracks && lverbose)
-		printf("Compiling virtual track list ...\n");
+		printf(_("Compiling virtual track list ...\n"));
 
 	for (i = 0; i < MAX_TRACK; i++) {
 		if (trackp[i].tracksize < (tsize_t)0) {
-			errmsgno(EX_BAD, "VTrack %d has unknown length.\n", i);
+			errmsgno(EX_BAD, _("VTrack %d has unknown length.\n"), i);
 			return (-1);
 		}
 		amount = roundup(trackp[i].tracksize, secsize);
@@ -962,7 +963,7 @@ rzone_size(trackp)
 		ttrsize += trackp[i].tracksize;
 		tamount += amount;
 		if (vtracks && lverbose)
-			printf("Vtrack:  %d size: %lld bytes %lld rounded (%lld sectors)\n",
+			printf(_("Vtrack:  %d size: %lld bytes %lld rounded (%lld sectors)\n"),
 				(int)trackp[i].track, (Llong)trackp[i].tracksize,
 				amount, amount / (Llong)secsize);
 
@@ -975,12 +976,12 @@ rzone_size(trackp)
 		 * XXX I believe that not.
 		 */
 		if (trackp[i].tracksize % secsize) {
-			comerrno(EX_BAD, "Virtual track %d is not a multiple of secsize.\n", (int)trackp[i].track);
+			comerrno(EX_BAD, _("Virtual track %d is not a multiple of secsize.\n"), (int)trackp[i].track);
 		}
 	}
 
 	if (vtracks && lverbose)
-		printf("Vtracks: %d size: %lld bytes %lld rounded (%ld sectors) total\n",
+		printf(_("Vtracks: %d size: %lld bytes %lld rounded (%ld sectors) total\n"),
 			i+1, ttrsize, tamount, sectors);
 
 	return (sectors);
@@ -1025,7 +1026,7 @@ open_session_dvd(scgp, dp, trackp)
 
 	fillbytes((caddr_t)mode, sizeof (mode), '\0');
 
-	if (!get_mode_params(scgp, 0x05, "CD write parameter",
+	if (!get_mode_params(scgp, 0x05, _("CD write parameter"),
 			mode, (Uchar *)0, (Uchar *)0, (Uchar *)0, &len))
 		return (-1);
 	if (len == 0)
@@ -1063,14 +1064,14 @@ open_session_dvd(scgp, dp, trackp)
 	}
 
 	if (lverbose && (dp->cdr_flags & CDR_BURNFREE) != 0)
-		printf("BURN-Free is %s.\n", burnfree?"ON":"OFF");
+		printf(_("BURN-Free is %s.\n"), burnfree?_("ON"):_("OFF"));
 
 	if (!burnfree && (dp->cdr_dstat->ds_cdrflags & RF_BURNFREE) != 0) {
-		printf("Turning BURN-Free on\n");
+		printf(_("Turning BURN-Free on\n"));
 		burnfree = TRUE;
 	}
 	if (burnfree && (dp->cdr_dstat->ds_cdrflags & RF_BURNFREE) == 0) {
-		printf("Turning BURN-Free off\n");
+		printf(_("Turning BURN-Free off\n"));
 		burnfree = FALSE;
 	}
 	if (dp->cdr_cdcap->BUF != 0) {
@@ -1083,9 +1084,9 @@ open_session_dvd(scgp, dp, trackp)
 	if (rp) {
 		i_to_2_byte(rp->link_counter, 0);
 		if (xdebug)
-			scg_prbytes("Mode Select Data ", moder, moder[0]+1);
+			scg_prbytes(_("Mode Select Data "), moder, moder[0]+1);
 
-		set_mode_params(scgp, "Ricoh Vendor Page", moder, moder[0]+1, 0, -1);
+		set_mode_params(scgp, _("Ricoh Vendor Page"), moder, moder[0]+1, 0, -1);
 		rp = get_justlink_ricoh(scgp, moder);
 	}
 
@@ -1115,9 +1116,9 @@ open_session_dvd(scgp, dp, trackp)
 
 #ifdef	DEBUG
 	if (lverbose > 1)
-		scg_prbytes("CD write parameter:", (Uchar *)mode, len);
+		scg_prbytes(_("CD write parameter:"), (Uchar *)mode, len);
 #endif
-	if (!set_mode_params(scgp, "CD write parameter", mode, len, 0, -1))
+	if (!set_mode_params(scgp, _("CD write parameter"), mode, len, 0, -1))
 		return (-1);
 
 	return (0);
@@ -1147,7 +1148,7 @@ waitformat(scgp, secs)
 #ifdef	DVD_DEBUG
 		request_sense_b(scgp, (caddr_t)sensebuf, sizeof (sensebuf));
 #ifdef	XXX
-		scg_prbytes("Sense:", sensebuf, sizeof (sensebuf));
+		scg_prbytes(_("Sense:"), sensebuf, sizeof (sensebuf));
 		scgp->scmd->u_scb.cmd_scb[0] = 2;
 		movebytes(sensebuf, scgp->scmd->u_sense.cmd_sense, sizeof (sensebuf));
 		scgp->scmd->sense_count = sizeof (sensebuf);
@@ -1165,7 +1166,7 @@ waitformat(scgp, secs)
  */
 
 		if (sensebuf[15] & 0x80) {
-			error("operation %d%% done\n",
+			error(_("operation %d%% done\n"),
 				(100*(sensebuf[16] << 8 |
 					sensebuf[17]))/(unsigned)65536);
 		}
@@ -1198,7 +1199,7 @@ fixate_dvd(scgp, dp, trackp)
 		scg_settimeout(scgp, 1000);
 
 	if (scsi_flush_cache(scgp, FALSE) < 0) {
-		printf("Trouble flushing the cache\n");
+		printf(_("Trouble flushing the cache\n"));
 		scg_settimeout(scgp, oldtimeout);
 		return (-1);
 	}
@@ -1254,7 +1255,7 @@ blank_dvd(scgp, dp, addr, blanktype)
 		return (blank_dummy(scgp, dp, addr, blanktype));
 
 	if (lverbose) {
-		printf("Blanking %s\n", blank_types[blanktype & 0x07]);
+		printf(_("Blanking %s\n"), blank_types[blanktype & 0x07]);
 		flush();
 	}
 
@@ -1278,9 +1279,9 @@ stats_dvd(scgp, dp)
 		count = a_to_u_2_byte(rp->link_counter);
 		if (lverbose) {
 			if (count == 0)
-				printf("BURN-Free was not used.\n");
+				printf(_("BURN-Free was not used.\n"));
 			else
-				printf("BURN-Free was %d times used.\n",
+				printf(_("BURN-Free was %d times used.\n"),
 					(int)count);
 		}
 	}
@@ -1425,7 +1426,7 @@ set_layerbreak(scgp, tsize, lbreak)
 
 	jump_lba = a_to_u_4_byte(lb.jump_lba);
 	if (lbreak > 0 && lbreak > jump_lba) {
-		errmsgno(EX_BAD, "Manual layer break %d > %u not allowed.\n",
+		errmsgno(EX_BAD, _("Manual layer break %d > %u not allowed.\n"),
 							lbreak, jump_lba);
 		return (-1);
 	}
@@ -1436,15 +1437,15 @@ set_layerbreak(scgp, tsize, lbreak)
 		 * in case of manual layer break set up.
 		 */
 		errmsgno(EX_BAD,
-			"Layer 0 size %u is bigger than expected disk size %u.\n",
+			_("Layer 0 size %u is bigger than expected disk size %u.\n"),
 			(jump_lba+1), dsize);
-		errmsgno(EX_BAD, "Use single layer medium.\n");
+		errmsgno(EX_BAD, _("Use single layer medium.\n"));
 		return (-1);
 	}
 	jump_lba = dsize / 2;
 	jump_lba = roundup(jump_lba, 16);
 	if (lbreak > 0 && lbreak < jump_lba) {
-		errmsgno(EX_BAD, "Manual layer break %d < %u not allowed.\n",
+		errmsgno(EX_BAD, _("Manual layer break %d < %u not allowed.\n"),
 							lbreak, jump_lba);
 		return (-1);
 	}
@@ -1656,41 +1657,41 @@ print_dvd00(dp)
 		}
 	}
 
-	printf("book type:       %s, Version %s%s%s(%d.%d)\n",
+	printf(_("book type:       %s, Version %s%s%s(%d.%d)\n"),
 					book_types[dp->book_type],
 					vers, ext_vers, *vers ? " ":"",
 					dp->book_type,
 					dp->book_version);
-	printf("disc size:       %s (%d)\n", disc_sizes[dp->disc_size], dp->disc_size);
-	printf("maximum rate:    %s (%d)\n", tr_rates[dp->maximum_rate], dp->maximum_rate);
-	printf("number of layers:%d\n", dp->numlayers+1);
-	printf("track path:      %s Track Path (%d)\n",
-					dp->track_path?"Opposite":"Parallel",
+	printf(_("disc size:       %s (%d)\n"), disc_sizes[dp->disc_size], dp->disc_size);
+	printf(_("maximum rate:    %s (%d)\n"), tr_rates[dp->maximum_rate], dp->maximum_rate);
+	printf(_("number of layers:%d\n"), dp->numlayers+1);
+	printf(_("track path:      %s Track Path (%d)\n"),
+					dp->track_path?_("Opposite"):_("Parallel"),
 					dp->track_path);
-	printf("layer type:      %s (%d)\n", layer_types[dp->layer_type],
+	printf(_("layer type:      %s (%d)\n"), layer_types[dp->layer_type],
 					dp->layer_type);
-	printf("linear density:  %s (%d)\n", ldensities[dp->linear_density],
+	printf(_("linear density:  %s (%d)\n"), ldensities[dp->linear_density],
 					dp->linear_density);
-	printf("track density:   %s (%d)\n", tdensities[dp->track_density],
+	printf(_("track density:   %s (%d)\n"), tdensities[dp->track_density],
 					dp->track_density);
-	printf("phys start:      %ld (0x%lX) \n",
+	printf(_("phys start:      %ld (0x%lX) \n"),
 					a_to_u_3_byte(dp->phys_start),
 					a_to_u_3_byte(dp->phys_start));
-	printf("phys end:        %ld\n", a_to_u_3_byte(dp->phys_end));
-	printf("end layer 0:     %ld\n", a_to_u_3_byte(dp->end_layer0));
-	printf("bca:             %d\n", dp->bca);
-	printf("phys size:...    %ld\n", a_to_u_3_byte(dp->phys_end) - a_to_u_3_byte(dp->phys_start) + 1);
+	printf(_("phys end:        %ld\n"), a_to_u_3_byte(dp->phys_end));
+	printf(_("end layer 0:     %ld\n"), a_to_u_3_byte(dp->end_layer0));
+	printf(_("bca:             %d\n"), dp->bca);
+	printf(_("phys size:...    %ld\n"), a_to_u_3_byte(dp->phys_end) - a_to_u_3_byte(dp->phys_start) + 1);
 	lbr = a_to_u_3_byte(dp->end_layer0) - a_to_u_3_byte(dp->phys_start) + 1;
 	if (lbr > 0)
-		printf("layer break at:  %ld\n", lbr);
+		printf(_("layer break at:  %ld\n"), lbr);
 }
 
 LOCAL void
 print_dvd01(dp)
 	struct dvd_structure_01 *dp;
 {
-	printf("copyr prot type: %d\n", dp->copyr_prot_type);
-	printf("region mgt info: %d\n", dp->region_mgt_info);
+	printf(_("copyr prot type: %d\n"), dp->copyr_prot_type);
+	printf(_("region mgt info: %d\n"), dp->region_mgt_info);
 }
 
 LOCAL void
@@ -1699,7 +1700,7 @@ print_dvd04(dp)
 {
 	if (cmpnullbytes(dp->man_info, sizeof (dp->man_info)) <
 						sizeof (dp->man_info)) {
-		printf("Manufacturing info: '%.2048s'\n", dp->man_info);
+		printf(_("Manufacturing info: '%.2048s'\n"), dp->man_info);
 	}
 }
 
@@ -1707,15 +1708,15 @@ LOCAL void
 print_dvd05(dp)
 	struct dvd_structure_05 *dp;
 {
-	printf("cpm:             %d\n", dp->cpm);
-	printf("cgms:            %d\n", dp->cgms);
+	printf(_("cpm:             %d\n"), dp->cpm);
+	printf(_("cgms:            %d\n"), dp->cgms);
 }
 
 LOCAL void
 print_dvd0D(dp)
 	struct dvd_structure_0D *dp;
 {
-	printf("last rma sector: %d\n", a_to_u_2_byte(dp->last_rma_sector));
+	printf(_("last rma sector: %d\n"), a_to_u_2_byte(dp->last_rma_sector));
 }
 
 LOCAL void
@@ -1728,25 +1729,25 @@ print_dvd0E(dp)
 	char	*p = (char *)dp;
 
 	if (dp->field_id != 1)
-	printf("field id:        %d\n", dp->field_id);
-	printf("application code:%d\n", dp->application_code);
-	printf("physical code:   %d\n", dp->phys_data);
-	printf("last rec address:%ld\n", a_to_u_3_byte(dp->last_recordable_addr));
-	printf("part v./ext code:%X/%X\n", (Uint)(dp->res_a[0] & 0xF0) >> 4,
+	printf(_("field id:        %d\n"), dp->field_id);
+	printf(_("application code:%d\n"), dp->application_code);
+	printf(_("physical code:   %d\n"), dp->phys_data);
+	printf(_("last rec address:%ld\n"), a_to_u_3_byte(dp->last_recordable_addr));
+	printf(_("part v./ext code:%X/%X\n"), (Uint)(dp->res_a[0] & 0xF0) >> 4,
 						dp->res_a[0] & 0xF);
 
 	if (dp->field_id_2 != 2)
-	printf("field id2:       %d\n", dp->field_id_2);
-	printf("ind wr. power:   %d\n", dp->ind_wr_power);
-	printf("wavelength code: %d\n", dp->ind_wavelength);
-	scg_fprbytes(stdout, "write str. code:", dp->opt_wr_strategy, 4);
+	printf(_("field id2:       %d\n"), dp->field_id_2);
+	printf(_("ind wr. power:   %d\n"), dp->ind_wr_power);
+	printf(_("wavelength code: %d\n"), dp->ind_wavelength);
+	scg_fprbytes(stdout, _("write str. code:"), dp->opt_wr_strategy, 4);
 
 	if (dp->field_id_3 != 3)
-	printf("field id3:       %d\n", dp->field_id_3);
+	printf(_("field id3:       %d\n"), dp->field_id_3);
 	if (dp->field_id_4 != 4)
-	printf("field id4:       %d\n", dp->field_id_4);
+	printf(_("field id4:       %d\n"), dp->field_id_4);
 
-	printf("Manufacturer:   '");
+	printf(_("Manufacturer:   '"));
 	for (i = 0; i < 6; i++) {
 		c = dp->man_id[i];
 		if (c >= ' ' && c < 0177)
@@ -1769,7 +1770,7 @@ print_dvd0E(dp)
 
 	if (lverbose <= 1)
 		return;
-	printf("Prerecorded info   : ");
+	printf(_("Prerecorded info   : "));
 	for (i = 0; i < len; i++) {
 		c = p[i];
 		if (c >= ' ' && c < 0177)
@@ -1784,13 +1785,13 @@ LOCAL void
 print_dvd0F(dp)
 	struct dvd_structure_0F *dp;
 {
-	printf("random:          %d\n", a_to_u_2_byte(dp->random));
-	printf("year:            %.4s\n", dp->year);
-	printf("month:           %.2s\n", dp->month);
-	printf("day:             %.2s\n", dp->day);
-	printf("hour:            %.2s\n", dp->hour);
-	printf("minute:          %.2s\n", dp->minute);
-	printf("second:          %.2s\n", dp->second);
+	printf(_("random:          %d\n"), a_to_u_2_byte(dp->random));
+	printf(_("year:            %.4s\n"), dp->year);
+	printf(_("month:           %.2s\n"), dp->month);
+	printf(_("day:             %.2s\n"), dp->day);
+	printf(_("hour:            %.2s\n"), dp->hour);
+	printf(_("minute:          %.2s\n"), dp->minute);
+	printf(_("second:          %.2s\n"), dp->second);
 }
 
 
@@ -1815,22 +1816,22 @@ LOCAL void
 print_dvd20(dp)
 	struct dvd_structure_20 *dp;
 {
-	printf("L0 init status:  %d\n", dp->res47[0] & 0x80 ? 1 : 0);
-	printf("L0 data areacap: %ld\n", a_to_u_4_byte(dp->l0_area_cap));
+	printf(_("L0 init status:  %d\n"), dp->res47[0] & 0x80 ? 1 : 0);
+	printf(_("L0 data areacap: %ld\n"), a_to_u_4_byte(dp->l0_area_cap));
 }
 
 LOCAL void
 print_dvd22(dp)
 	struct dvd_structure_22 *dp;
 {
-	printf("Jump intervalsz: %ld\n", a_to_u_4_byte(dp->jump_interval_size));
+	printf(_("Jump intervalsz: %ld\n"), a_to_u_4_byte(dp->jump_interval_size));
 }
 
 LOCAL void
 print_dvd23(dp)
 	struct dvd_structure_23 *dp;
 {
-	printf("Jump LBA:        %ld\n", a_to_u_4_byte(dp->jump_lba));
+	printf(_("Jump LBA:        %ld\n"), a_to_u_4_byte(dp->jump_lba));
 }
 
 
@@ -1845,7 +1846,7 @@ print_dvd_info(scgp)
 	int	i;
 
 	if (lverbose > 2)
-		printf("Enterning DVD info....\n");
+		printf(_("Enterning DVD info....\n"));
 	/*
 	 * The ACARD TECH AEC-7720 ATAPI<->SCSI adaptor
 	 * chokes if we try to transfer odd byte counts (rounds up to
@@ -1863,10 +1864,10 @@ print_dvd_info(scgp)
 	if (lverbose > 1)
 		mode_sense(scgp, mode, 250, 0x3F, 0);
 	if (lverbose > 2)
-		scg_prbytes("Mode: ", mode, 250 - scg_getresid(scgp));
+		scg_prbytes(_("Mode: "), mode, 250 - scg_getresid(scgp));
 	wait_unit_ready(scgp, 120);
 	if (lverbose > 1) {
-		printf("Supported DVD (readable) structures:");
+		printf(_("Supported DVD (readable) structures:"));
 		scgp->silent++;
 		for (i = 0; i <= 255; i++) {
 			fillbytes((caddr_t)mode, sizeof (mode), '\0');
@@ -1878,7 +1879,7 @@ print_dvd_info(scgp)
 		printf("\n");
 /*		printf("Page: %d ret: %d len: %d\n", i, ret, sizeof (mode) - scg_getresid(scgp));*/
 		if (lverbose > 2)
-			scg_prbytes("Page FF: ", mode, sizeof (mode) - scg_getresid(scgp));
+			scg_prbytes(_("Page FF: "), mode, sizeof (mode) - scg_getresid(scgp));
 		if (sizeof (mode) - scg_getresid(scgp) > 4) {
 			int	len = a_to_u_2_byte(mode) - 2;
 			Uchar	*p = &mode[4];
@@ -1887,12 +1888,12 @@ print_dvd_info(scgp)
 			len /= 4;
 			for (i = 0; i < len; i++) {
 				m = p[1] & 0xC0;
-				printf("Page %02X %s  (%02X) len %d\n",
+				printf(_("Page %02X %s  (%02X) len %d\n"),
 					*p & 0xFF,
 					m == 0xC0 ?
-					"read/write" :
-					(m == 0x80 ? "     write" :
-					(m == 0x40 ? "read      " : "unknown   ")),
+					_("read/write") :
+					(m == 0x80 ? _("     write") :
+					(m == 0x40 ? _("read      ") : _("unknown   "))),
 					p[1] & 0xFF,
 					a_to_u_2_byte(&p[2]));
 				p += 4;
@@ -1910,7 +1911,7 @@ print_dvd_info(scgp)
 	scgp->silent--;
 	if (ret >= 0) {
 		if (lverbose > 2) {
-			scg_prbytes("DVD structure[0]: ",
+			scg_prbytes(_("DVD structure[0]: "),
 				mode, sizeof (mode) - scg_getresid(scgp));
 /*			scg_prascii("DVD structure[0]: ", mode, sizeof (mode) - scg_getresid(scgp));*/
 		}
@@ -1918,8 +1919,8 @@ print_dvd_info(scgp)
 		ret = get_curprofile(scgp);
 		if (ret == 0x001A || ret == 0x001B) {
 			/*profile >= 0x0018 && profile < 0x0020*/
-			printf("Manufacturer:    '%.8s'\n", &mode[23]);
-			printf("Media type:      '%.3s'\n", &mode[23+8]);
+			printf(_("Manufacturer:    '%.8s'\n"), &mode[23]);
+			printf(_("Media type:      '%.3s'\n"), &mode[23+8]);
 		}
 	}
 
@@ -1933,9 +1934,9 @@ print_dvd_info(scgp)
 	if (ret >= 0) {
 		adip_t	*adp;
 		if (lverbose > 2) {
-			scg_prbytes("DVD structure[11]: ",
+			scg_prbytes(_("DVD structure[11]: "),
 				mode, sizeof (mode) - scg_getresid(scgp));
-			scg_prascii("DVD structure[11]: ",
+			scg_prascii(_("DVD structure[11]: "),
 				mode, sizeof (mode) - scg_getresid(scgp));
 		}
 /*		print_dvd0F((struct dvd_structure_0F *)mode);*/
@@ -1944,17 +1945,17 @@ print_dvd_info(scgp)
 #define	offsetof(TYPE, MEMBER)  ((size_t) &((TYPE *)0)->MEMBER)
 #endif
 /*		printf("size %d %d\n", sizeof (adip_t), offsetof(adip_t, res_controldat));*/
-		printf("Category/Version	%02X\n", adp->cat_vers);
-		printf("Disk size		%02X\n", adp->disk_size);
-		printf("Disk structure		%02X\n", adp->disk_struct);
-		printf("Recoding density	%02X\n", adp->density);
+		printf(_("Category/Version	%02X\n"), adp->cat_vers);
+		printf(_("Disk size		%02X\n"), adp->disk_size);
+		printf(_("Disk structure		%02X\n"), adp->disk_struct);
+		printf(_("Recoding density	%02X\n"), adp->density);
 
-		printf("Manufacturer:		'%.8s'\n", adp->man_id);
-		printf("Media type:		'%.3s'\n", adp->media_id);
-		printf("Product revision	%u\n", adp->prod_revision);
-		printf("ADIP numbytes		%u\n", adp->adip_numbytes);
-		printf("Reference speed		%u\n", adp->ref_speed);
-		printf("Max speed		%u\n", adp->max_speed);
+		printf(_("Manufacturer:		'%.8s'\n"), adp->man_id);
+		printf(_("Media type:		'%.3s'\n"), adp->media_id);
+		printf(_("Product revision	%u\n"), adp->prod_revision);
+		printf(_("ADIP numbytes		%u\n"), adp->adip_numbytes);
+		printf(_("Reference speed		%u\n"), adp->ref_speed);
+		printf(_("Max speed		%u\n"), adp->max_speed);
 	}
 
 	/*
@@ -1966,9 +1967,9 @@ print_dvd_info(scgp)
 	scgp->silent--;
 	if (ret >= 0) {
 		if (lverbose > 2) {
-			scg_prbytes("DVD structure[20]: ",
+			scg_prbytes(_("DVD structure[20]: "),
 				mode, sizeof (mode) - scg_getresid(scgp));
-			scg_prascii("DVD structure[20]: ",
+			scg_prascii(_("DVD structure[20]: "),
 				mode, sizeof (mode) - scg_getresid(scgp));
 		}
 		print_dvd20((struct dvd_structure_20 *)mode);
@@ -1983,9 +1984,9 @@ print_dvd_info(scgp)
 	scgp->silent--;
 	if (ret >= 0) {
 		if (lverbose > 2) {
-			scg_prbytes("DVD structure[22]: ",
+			scg_prbytes(_("DVD structure[22]: "),
 				mode, sizeof (mode) - scg_getresid(scgp));
-			scg_prascii("DVD structure[22]: ",
+			scg_prascii(_("DVD structure[22]: "),
 				mode, sizeof (mode) - scg_getresid(scgp));
 		}
 		print_dvd22((struct dvd_structure_22 *)mode);
@@ -2000,9 +2001,9 @@ print_dvd_info(scgp)
 	scgp->silent--;
 	if (ret >= 0) {
 		if (lverbose > 2) {
-			scg_prbytes("DVD structure[23]: ",
+			scg_prbytes(_("DVD structure[23]: "),
 				mode, sizeof (mode) - scg_getresid(scgp));
-			scg_prascii("DVD structure[23]: ",
+			scg_prascii(_("DVD structure[23]: "),
 				mode, sizeof (mode) - scg_getresid(scgp));
 		}
 		print_dvd23((struct dvd_structure_23 *)mode);
@@ -2017,7 +2018,7 @@ print_dvd_info(scgp)
 	scgp->silent--;
 	if (ret >= 0) {
 		if (lverbose > 2) {
-			scg_prbytes("DVD structure[1]: ",
+			scg_prbytes(_("DVD structure[1]: "),
 				mode, sizeof (mode) - scg_getresid(scgp));
 		}
 		print_dvd01((struct dvd_structure_01 *)mode);
@@ -2032,7 +2033,7 @@ print_dvd_info(scgp)
 	scgp->silent--;
 	if (ret >= 0) {
 		if (lverbose > 2) {
-			scg_prbytes("DVD structure[4]: ",
+			scg_prbytes(_("DVD structure[4]: "),
 				mode, sizeof (mode) - scg_getresid(scgp));
 		}
 		print_dvd04((struct dvd_structure_04 *)mode);
@@ -2047,7 +2048,7 @@ print_dvd_info(scgp)
 	scgp->silent--;
 	if (ret >= 0) {
 		if (lverbose > 2) {
-			scg_prbytes("DVD structure[5]: ",
+			scg_prbytes(_("DVD structure[5]: "),
 				mode, sizeof (mode) - scg_getresid(scgp));
 		}
 		print_dvd05((struct dvd_structure_05 *)mode);
@@ -2062,7 +2063,7 @@ print_dvd_info(scgp)
 	scgp->silent--;
 	if (ret >= 0) {
 		if (lverbose > 2) {
-			scg_prbytes("DVD structure[D]: ",
+			scg_prbytes(_("DVD structure[D]: "),
 				mode, sizeof (mode) - scg_getresid(scgp));
 		}
 		print_dvd0D((struct dvd_structure_0D *)mode);
@@ -2077,7 +2078,7 @@ print_dvd_info(scgp)
 	scgp->silent--;
 	if (ret >= 0) {
 		if (lverbose > 2) {
-			scg_prbytes("DVD structure[E]: ",
+			scg_prbytes(_("DVD structure[E]: "),
 				mode, sizeof (mode) - scg_getresid(scgp));
 		}
 		print_dvd0E((struct dvd_structure_0E *)mode);
@@ -2096,7 +2097,7 @@ print_dvd_info(scgp)
 	scgp->silent--;
 	if (ret >= 0) {
 		if (lverbose > 2) {
-			scg_prbytes("DVD structure[F]: ",
+			scg_prbytes(_("DVD structure[F]: "),
 				mode, sizeof (mode) - scg_getresid(scgp));
 		}
 		print_dvd0F((struct dvd_structure_0F *)mode);
@@ -2105,7 +2106,7 @@ print_dvd_info(scgp)
 	fillbytes((caddr_t)mode, sizeof (mode), '\0');
 	read_rzone_info(scgp, (caddr_t)mode, sizeof (mode));
 	if (lverbose > 2)
-		scg_prbytes("Rzone info: ", mode, sizeof (mode) - scg_getresid(scgp));
+		scg_prbytes(_("Rzone info: "), mode, sizeof (mode) - scg_getresid(scgp));
 	przone((struct rzone_info *)mode);
 
 	scgp->verbose++;
@@ -2114,7 +2115,7 @@ print_dvd_info(scgp)
 	scgp->verbose--;
 
 	if (lverbose > 2)
-		printf("Leaving DVD info.\n");
+		printf(_("Leaving DVD info.\n"));
 }
 
 LOCAL void
@@ -2145,7 +2146,7 @@ print_laserlog(scgp)
 
 	val = a_to_u_4_byte(((struct pioneer_logpage_30_0 *)p)->total_poh);
 	if (((struct scsi_logp_header *)log)->p_len > 0)
-		printf("Total power on  hours: %ld\n", val);
+		printf(_("Total power on  hours: %ld\n"), val);
 
 	scgp->silent++;
 	fillbytes((caddr_t)log, sizeof (log), '\0');
@@ -2157,7 +2158,7 @@ print_laserlog(scgp)
 
 	val = a_to_u_4_byte(((struct pioneer_logpage_30_1 *)p)->laser_poh);
 	if (((struct scsi_logp_header *)log)->p_len > 0)
-		printf("Total laser on  hours: %ld\n", val);
+		printf(_("Total laser on  hours: %ld\n"), val);
 
 	scgp->silent++;
 	fillbytes((caddr_t)log, sizeof (log), '\0');
@@ -2169,5 +2170,5 @@ print_laserlog(scgp)
 
 	val = a_to_u_4_byte(((struct pioneer_logpage_30_2 *)p)->record_poh);
 	if (((struct scsi_logp_header *)log)->p_len > 0)
-		printf("Total recording hours: %ld\n", val);
+		printf(_("Total recording hours: %ld\n"), val);
 }

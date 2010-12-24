@@ -1,8 +1,8 @@
-/* @(#)header.c	1.144 10/08/23 Copyright 1985, 1994-2010 J. Schilling */
+/* @(#)header.c	1.145 10/11/30 Copyright 1985, 1994-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)header.c	1.144 10/08/23 Copyright 1985, 1994-2010 J. Schilling";
+	"@(#)header.c	1.145 10/11/30 Copyright 1985, 1994-2010 J. Schilling";
 #endif
 /*
  *	Handling routines to read/write, parse/create
@@ -872,6 +872,9 @@ get_tcb(ptb)
 					break;
 				case C_7Z:
 					comerrno(EX_BAD, "Archive is '7z' compressed, try to use the -7z option.\n");
+					break;
+				case C_XZ:
+					comerrno(EX_BAD, "Archive is 'xz' compressed, try to use the -xz option.\n");
 					break;
 				default:
 					errmsgno(EX_BAD, "WARNING: Unknown compression type %d.\n", t);

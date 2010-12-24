@@ -1,4 +1,4 @@
-#ident @(#)Makefile	1.26 10/02/11 
+#ident @(#)Makefile	1.27 10/12/19 
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -23,6 +23,8 @@ INSUSR=		root
 CPPOPTS +=	-I../libcdrdeflt
 CPPOPTS +=	-DFIFO -I../libscg -I../libparanoia -I../cdrecord $(CDDA2WAVDEFS)
 CPPOPTS +=	-DSCHILY_PRINT
+CPPOPTS +=	-DINS_BASE=\"${INS_BASE}\"
+CPPOPTS +=	-DTEXT_DOMAIN=\"SCHILY_cdrtools\"
 
 CFILES=		cdda2wav.c interface.c semshm.c resample.c \
 		scsi_scan.c \
@@ -38,7 +40,7 @@ HFILES=		cdda2wav.h interface.h semshm.h global.h resample.h \
 		base64.h mmsystem.h cd_text.c cd_extra.c \
 		parse.h version.h
 
-LIBS=		-lscgcmd -lrscg -lscg $(LIB_VOLMGT) -lparanoia -lcdrdeflt -ldeflt -lmdigest -lschily $(SCSILIB) $(EXTRALIB) $(LIB_SOCKET)
+LIBS=		-lscgcmd -lrscg -lscg $(LIB_VOLMGT) -lparanoia -lcdrdeflt -ldeflt -lmdigest -lschily $(SCSILIB) $(EXTRALIB) $(LIB_SOCKET) $(LIB_INTL)
 XMK_FILE=	Makefile.man Makefile.rd cdda2ogg.mk cdda2mp3.mk
 # cdda2ogg.mk1 fehlt noch für make rel
 

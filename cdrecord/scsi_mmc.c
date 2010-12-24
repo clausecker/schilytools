@@ -1,14 +1,14 @@
-/* @(#)scsi_mmc.c	1.50 09/07/10 Copyright 2002-2009 J. Schilling */
+/* @(#)scsi_mmc.c	1.51 10/12/19 Copyright 2002-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)scsi_mmc.c	1.50 09/07/10 Copyright 2002-2009 J. Schilling";
+	"@(#)scsi_mmc.c	1.51 10/12/19 Copyright 2002-2010 J. Schilling";
 #endif
 /*
  *	SCSI command functions for cdrecord
  *	covering MMC-3 level and above
  *
- *	Copyright (c) 2002-2009 J. Schilling
+ *	Copyright (c) 2002-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -39,6 +39,7 @@ static	UConst char sccsid[] =
 #include <schily/btorder.h>
 #include <schily/intcvt.h>
 #include <schily/schily.h>
+#include <schily/nlsdefs.h>
 
 #include <scg/scgcmd.h>
 #include <scg/scsidefs.h>
@@ -313,10 +314,10 @@ get_curprofile(scgp)
 	profile = a_to_u_2_byte(&cbuf[6]);
 
 	if (xdebug > 1)
-		scg_prbytes("Features: ", cbuf, amt);
+		scg_prbytes(_("Features: "), cbuf, amt);
 
 	if (xdebug > 0)
-		printf("feature len: %d current profile 0x%04X len %d\n",
+		printf(_("feature len: %d current profile 0x%04X len %d\n"),
 				flen, profile, amt);
 
 	return (profile);
@@ -378,7 +379,7 @@ has_profile(scgp, profile)
 	for (i = 0; i < n; i++) {
 		prf = a_to_u_2_byte(p);
 		if (xdebug > 0)
-			printf("Profile: 0x%04X ", prf);
+			printf(_("Profile: 0x%04X "), prf);
 		if (profile == prf)
 			return (1);
 		p += 4;
@@ -404,17 +405,17 @@ print_profiles(scgp)
 
 	p = cbuf;
 	if (xdebug > 1)
-		scg_prbytes("Features: ", cbuf, flen);
+		scg_prbytes(_("Features: "), cbuf, flen);
 
 	curprofile = a_to_u_2_byte(&p[6]);
 	if (xdebug > 0)
-		printf("feature len: %d current profile 0x%04X\n",
+		printf(_("feature len: %d current profile 0x%04X\n"),
 				flen, curprofile);
 
 	if (pname_known(curprofile))
-		printf("Current: %s\n", curprofile == 0 ? "none" : pname(curprofile));
+		printf(_("Current: %s\n"), curprofile == 0 ? _("none") : pname(curprofile));
 	else
-		printf("Current: 0x%04X unknown\n", curprofile);
+		printf(_("Current: 0x%04X unknown\n"), curprofile);
 
 	p += 8;		/* Skip feature header	*/
 	n = p[3];	/* Additional length	*/
@@ -424,13 +425,13 @@ print_profiles(scgp)
 	for (i = 0; i < n; i++) {
 		profile = a_to_u_2_byte(p);
 		if (xdebug > 0)
-			printf("Profile: 0x%04X ", profile);
+			printf(_("Profile: 0x%04X "), profile);
 		else
-			printf("Profile: ");
+			printf(_("Profile: "));
 		if (pname_known(profile))
-			printf("%s %s\n", pname(profile), p[2] & 1 ? "(current)":"");
+			printf("%s %s\n", pname(profile), p[2] & 1 ? _("(current)"):"");
 		else
-			printf("0x%04X %s\n", profile, p[2] & 1 ? "(current)":"");
+			printf("0x%04X %s\n", profile, p[2] & 1 ? _("(current)"):"");
 		p += 4;
 	}
 	return (curprofile);
@@ -464,11 +465,11 @@ get_proflist(scgp, wp, cdp, dvdp, dvdplusp, ddcdp)
 
 	p = cbuf;
 	if (xdebug > 1)
-		scg_prbytes("Features: ", cbuf, flen);
+		scg_prbytes(_("Features: "), cbuf, flen);
 
 	curprofile = a_to_u_2_byte(&p[6]);
 	if (xdebug > 0)
-		printf("feature len: %d current profile 0x%04X\n",
+		printf(_("feature len: %d current profile 0x%04X\n"),
 				flen, curprofile);
 
 	p += 8;		/* Skip feature header	*/
@@ -750,8 +751,8 @@ scsi_get_perf_maxspeed(scgp, readp, writep, endp)
 		return (-1);
 
 #ifdef	XDEBUG
-	error("Bytes: %d\n", scmd->size - scg_getresid(scgp));
-	error("header: %ld\n", a_to_4_byte(buffer) + 4);
+	error(_("Bytes: %d\n"), scmd->size - scg_getresid(scgp));
+	error(_("header: %ld\n"), a_to_4_byte(buffer) + 4);
 #endif
 
 	ph = (struct mmc_performance_header *)buffer;
@@ -777,18 +778,18 @@ scsi_get_perf_maxspeed(scgp, readp, writep, endp)
 	if (i > scmd->cdb.cmd_cdb[9])
 		i = scmd->cdb.cmd_cdb[9];
 	if (xdebug > 0)
-		error("MaxSpeed Nperf:   %d\n", i);
+		error(_("MaxSpeed Nperf:   %d\n"), i);
 	if (xdebug != 0) for (; --i >= 0; wsp++) {
 		ul = a_to_u_4_byte(wsp->end_lba);
-		error("End LBA:     %7lu\n", ul);
+		error(_("End LBA:     %7lu\n"), ul);
 		ul = a_to_u_4_byte(wsp->read_speed);
-		error("Read Speed:  %7lu == %lux %s\n", ul, ul/ssp, mname);
+		error(_("Read Speed:  %7lu == %lux %s\n"), ul, ul/ssp, mname);
 		ul = a_to_u_4_byte(wsp->write_speed);
-		error("Write Speed: %7lu == %lux %s\n", ul, ul/ssp, mname);
+		error(_("Write Speed: %7lu == %lux %s\n"), ul, ul/ssp, mname);
 		error("\n");
 	}
 #ifdef	XDEBUG
-	scg_prbytes("Performance data:", (Uchar *)buffer, scmd->size - scg_getresid(scgp));
+	scg_prbytes(_("Performance data:"), (Uchar *)buffer, scmd->size - scg_getresid(scgp));
 #endif
 
 	return (0);
@@ -842,8 +843,8 @@ scsi_get_perf_curspeed(scgp, readp, writep, endp)
 			return (-1);
 
 #ifdef	XDEBUG
-		error("Bytes: %d\n", scmd->size - scg_getresid(scgp));
-		error("header: %ld\n", a_to_4_byte(buffer) + 4);
+		error(_("Bytes: %d\n"), scmd->size - scg_getresid(scgp));
+		error(_("header: %ld\n"), a_to_4_byte(buffer) + 4);
 #endif
 
 		ph = (struct mmc_performance_header *)buffer;
@@ -876,22 +877,22 @@ scsi_get_perf_curspeed(scgp, readp, writep, endp)
 		if (i > scmd->cdb.cmd_cdb[9])
 			i = scmd->cdb.cmd_cdb[9];
 		if (xdebug > 1)
-			error("CurSpeed Writeperf: %d\n", i);
+			error(_("CurSpeed Writeperf: %d\n"), i);
 		else if (xdebug < 0)
-			error("Write Performance:\n");
+			error(_("Write Performance:\n"));
 		if (xdebug != 0) for (; --i >= 0; perfp++) {
 			ul = a_to_u_4_byte(perfp->start_lba);
-			error("START LBA:   %7lu\n", ul);
+			error(_("START LBA:   %7lu\n"), ul);
 			ul = a_to_u_4_byte(perfp->end_lba);
-			error("End LBA:     %7lu\n", ul);
+			error(_("End LBA:     %7lu\n"), ul);
 			ul = a_to_u_4_byte(perfp->start_perf);
-			error("Start Perf:  %7lu == %lux %s\n", ul, ul/ssp, mname);
+			error(_("Start Perf:  %7lu == %lux %s\n"), ul, ul/ssp, mname);
 			ul = a_to_u_4_byte(perfp->end_perf);
-			error("END Perf:    %7lu == %lux %s\n", ul, ul/ssp, mname);
+			error(_("END Perf:    %7lu == %lux %s\n"), ul, ul/ssp, mname);
 			error("\n");
 		}
 #ifdef	XDEBUG
-		scg_prbytes("Performance data:", (Uchar *)buffer, scmd->size - scg_getresid(scgp));
+		scg_prbytes(_("Performance data:"), (Uchar *)buffer, scmd->size - scg_getresid(scgp));
 #endif
 	}
 doread:
@@ -915,8 +916,8 @@ doread:
 			return (-1);
 
 #ifdef	XDEBUG
-		error("Bytes: %d\n", scmd->size - scg_getresid(scgp));
-		error("header: %ld\n", a_to_4_byte(buffer) + 4);
+		error(_("Bytes: %d\n"), scmd->size - scg_getresid(scgp));
+		error(_("header: %ld\n"), a_to_4_byte(buffer) + 4);
 #endif
 
 		ph = (struct mmc_performance_header *)buffer;
@@ -944,22 +945,22 @@ doread:
 		if (i > scmd->cdb.cmd_cdb[9])
 			i = scmd->cdb.cmd_cdb[9];
 		if (xdebug > 1)
-			error("CurSpeed Readperf: %d\n", i);
+			error(_("CurSpeed Readperf: %d\n"), i);
 		else if (xdebug < 0)
-			error("Read Performance:\n");
+			error(_("Read Performance:\n"));
 		if (xdebug != 0) for (; --i >= 0; perfp++) {
 			ul = a_to_u_4_byte(perfp->start_lba);
-			error("START LBA:   %7lu\n", ul);
+			error(_("START LBA:   %7lu\n"), ul);
 			ul = a_to_u_4_byte(perfp->end_lba);
-			error("End LBA:     %7lu\n", ul);
+			error(_("End LBA:     %7lu\n"), ul);
 			ul = a_to_u_4_byte(perfp->start_perf);
-			error("Start Perf:  %7lu == %lux %s\n", ul, ul/ssp, mname);
+			error(_("Start Perf:  %7lu == %lux %s\n"), ul, ul/ssp, mname);
 			ul = a_to_u_4_byte(perfp->end_perf);
-			error("END Perf:    %7lu == %lux %s\n", ul, ul/ssp, mname);
+			error(_("END Perf:    %7lu == %lux %s\n"), ul, ul/ssp, mname);
 			error("\n");
 		}
 #ifdef	XDEBUG
-		scg_prbytes("Performance data:", (Uchar *)buffer, scmd->size - scg_getresid(scgp));
+		scg_prbytes(_("Performance data:"), (Uchar *)buffer, scmd->size - scg_getresid(scgp));
 #endif
 	}
 
@@ -1009,7 +1010,7 @@ scsi_set_streaming(scgp, readp, writep, endp)
 	i_to_4_byte(sp->write_time, 1000);
 
 #ifdef	DEBUG
-	scg_prbytes("Streaming data:", (Uchar *)sp, sizeof (*sp));
+	scg_prbytes(_("Streaming data:"), (Uchar *)sp, sizeof (*sp));
 #endif
 
 	return (scg_cmd(scgp));
@@ -1122,11 +1123,11 @@ print_features(scgp)
 		amt = flen+4;
 	pend = &p[amt];
 	if (xdebug > 1)
-		scg_prbytes("Features: ", fbuf, amt);
+		scg_prbytes(_("Features: "), fbuf, amt);
 
 	feature = a_to_u_2_byte(&p[6]);
 	if (xdebug > 0)
-		printf("feature len: %d current profile 0x%04X len %lld\n",
+		printf(_("feature len: %d current profile 0x%04X len %lld\n"),
 				flen, feature, (Llong)(pend - p));
 
 	p = fbuf + 8;	/* Skip feature header	*/
@@ -1136,23 +1137,23 @@ print_features(scgp)
 		col = 0;
 		feature = a_to_u_2_byte(p);
 		if (xdebug > 0)
-			col += printf("Feature: 0x%04X ", feature);
+			col += printf(_("Feature: 0x%04X "), feature);
 		else
-			col += printf("Feature: ");
+			col += printf(_("Feature: "));
 		if (fname_known(feature))
 			col += printf("'%s' ", fname(feature));
 		else
 			col += printf("0x%04X ", feature);
 		col += printf("%s %s",
-			p[2] & 1 ? "(current)":"",
-			p[2] & 2 ? "(persistent)":"");
+			p[2] & 1 ? _("(current)"):"",
+			p[2] & 2 ? _("(persistent)"):"");
 
 		if (feature == 0x108)
-			col += printf("	Serial: '%.*s'", p[3], &p[4]);
+			col += printf(_("	Serial: '%.*s'"), p[3], &p[4]);
 		if (xdebug > 1 && p[3]) {
 			if (col < 50)
 				printf("%*s", 50-col, "");
-			scg_fprbytes(stdout, " Data: ", &p[4], p[3]);
+			scg_fprbytes(stdout, _(" Data: "), &p[4], p[3]);
 		} else {
 			printf("\n");
 		}
@@ -1191,14 +1192,14 @@ print_format_capacities(scgp)
 
 	if (xdebug > 0) {
 		i = b[3] + 4;
-		scg_prbytes("Format cap: ", b, i);
+		scg_prbytes(_("Format cap: "), b, i);
 	}
 	i = b[3];
 	if (i > 0) {
 		int	cnt;
 		UInt32_t n1;
 		UInt32_t n2;
-		printf("\n    Capacity  Blklen/Sparesz.  Format-type  Type\n");
+		printf(_("\n    Capacity  Blklen/Sparesz.  Format-type  Type\n"));
 		for (p = &b[4]; i > 0; i -= 8, p += 8) {
 			cnt = 0;
 			n1 = a_to_u_4_byte(p);
@@ -1277,33 +1278,33 @@ przone(rp)
 
 	if (rsize < 12)
 		return;
-	printf("rzone size:         %d\n", rsize);
-	printf("rzone number:       %d\n", rp->rzone_num_msb * 256 + rp->rzone_num_lsb);
-	printf("border number:      %d\n", rp->border_num_msb * 256 + rp->border_num_lsb);
-	printf("ljrs:               %d\n", rp->ljrs);
-	printf("track mode:         %d copy: %d\n", rp->trackmode, rp->copy);
-	printf("damage:             %d\n", rp->damage);
-	printf("reserved track:     %d blank: %d incremental: %d fp: %d\n",
+	printf(_("rzone size:         %d\n"), rsize);
+	printf(_("rzone number:       %d\n"), rp->rzone_num_msb * 256 + rp->rzone_num_lsb);
+	printf(_("border number:      %d\n"), rp->border_num_msb * 256 + rp->border_num_lsb);
+	printf(_("ljrs:               %d\n"), rp->ljrs);
+	printf(_("track mode:         %d copy: %d\n"), rp->trackmode, rp->copy);
+	printf(_("damage:             %d\n"), rp->damage);
+	printf(_("reserved track:     %d blank: %d incremental: %d fp: %d\n"),
 						rp->rt, rp->blank,
 						rp->incremental, rp->fp);
-	printf("data mode:          %d\n", rp->datamode);
-	printf("lra valid:          %d\n", rp->lra_v);
-	printf("nwa valid:          %d\n", rp->nwa_v);
-	printf("rzone start:        %ld\n", a_to_4_byte(rp->rzone_start));
-	printf("next wr addr:       %ld\n", a_to_4_byte(rp->next_recordable_addr));
-	printf("free blocks:        %ld\n", a_to_4_byte(rp->free_blocks));
-	printf("blocking factor:    %ld\n", a_to_4_byte(rp->block_factor));
-	printf("rzone size:         %ld\n", a_to_4_byte(rp->rzone_size));
-	printf("last recorded addr: %ld\n", a_to_4_byte(rp->last_recorded_addr));
+	printf(_("data mode:          %d\n"), rp->datamode);
+	printf(_("lra valid:          %d\n"), rp->lra_v);
+	printf(_("nwa valid:          %d\n"), rp->nwa_v);
+	printf(_("rzone start:        %ld\n"), a_to_4_byte(rp->rzone_start));
+	printf(_("next wr addr:       %ld\n"), a_to_4_byte(rp->next_recordable_addr));
+	printf(_("free blocks:        %ld\n"), a_to_4_byte(rp->free_blocks));
+	printf(_("blocking factor:    %ld\n"), a_to_4_byte(rp->block_factor));
+	printf(_("rzone size:         %ld\n"), a_to_4_byte(rp->rzone_size));
+	printf(_("last recorded addr: %ld\n"), a_to_4_byte(rp->last_recorded_addr));
 	if (rsize < 40)
 		return;
-	printf("read compat lba:    %ld\n", a_to_4_byte(rp->read_compat_lba));
+	printf(_("read compat lba:    %ld\n"), a_to_4_byte(rp->read_compat_lba));
 	if (rsize < 44)
 		return;
-	printf("next layerjmp addr: %ld\n", a_to_4_byte(rp->next_layer_jump));
+	printf(_("next layerjmp addr: %ld\n"), a_to_4_byte(rp->next_layer_jump));
 	if (rsize < 48)
 		return;
-	printf("last layerjmp addr: %ld\n", a_to_4_byte(rp->last_layer_jump));
+	printf(_("last layerjmp addr: %ld\n"), a_to_4_byte(rp->last_layer_jump));
 }
 
 EXPORT int
@@ -1331,13 +1332,13 @@ get_diskinfo(scgp, dip, cnt)
 
 #ifdef	DEBUG
 	if (lverbose > 1)
-		scg_prbytes("Disk info:", (Uchar *)dip,
+		scg_prbytes(_("Disk info:"), (Uchar *)dip,
 				len-scg_getresid(scgp));
 #endif
 	return (ret);
 }
 
-#define	IS(what, flag)		printf("Disk Is %s%s\n", flag?"":"not ", what);
+#define	IS(what, flag)		printf(_("Disk Is %s%s\n"), flag?"":_("not "), what);
 
 LOCAL	char	res[] = "reserved";
 
@@ -1370,51 +1371,51 @@ static	char *ds_name[] = { "empty", "incomplete/appendable", "complete", "illega
 static	char *ss_name[] = { "empty", "incomplete/appendable", "illegal", "complete", };
 static	char *fd_name[] = { "none", "incomplete", "in progress", "completed", };
 
-	IS("erasable", dip->erasable);
-	printf("data type:                %s\n", dt_name[dip->dtype]);
-	printf("disk status:              %s\n", ds_name[dip->disk_status]);
-	printf("session status:           %s\n", ss_name[dip->sess_status]);
-	printf("BG format status:         %s\n", fd_name[dip->bg_format_stat]);
-	printf("first track:              %d\n",
+	IS(_("erasable"), dip->erasable);
+	printf(_("data type:                %s\n"), dt_name[dip->dtype]);
+	printf(_("disk status:              %s\n"), ds_name[dip->disk_status]);
+	printf(_("session status:           %s\n"), ss_name[dip->sess_status]);
+	printf(_("BG format status:         %s\n"), fd_name[dip->bg_format_stat]);
+	printf(_("first track:              %d\n"),
 		dip->first_track);
-	printf("number of sessions:       %d\n",
+	printf(_("number of sessions:       %d\n"),
 		dip->numsess + dip->numsess_msb * 256);
-	printf("first track in last sess: %d\n",
+	printf(_("first track in last sess: %d\n"),
 		dip->first_track_ls + dip->first_track_ls_msb * 256);
-	printf("last track in last sess:  %d\n",
+	printf(_("last track in last sess:  %d\n"),
 		dip->last_track_ls + dip->last_track_ls_msb * 256);
-	IS("unrestricted", dip->uru);
-	printf("Disk type: ");
+	IS(_("unrestricted"), dip->uru);
+	printf(_("Disk type: "));
 	if (is_cd) {
 		printf("%s", get_ses_type(dip->disk_type));
 	} else {
-		printf("DVD, HD-DVD or BD");
+		printf(_("DVD, HD-DVD or BD"));
 	}
 	printf("\n");
 	if (dip->did_v)
-		printf("Disk id: 0x%lX\n", a_to_u_4_byte(dip->disk_id));
+		printf(_("Disk id: 0x%lX\n"), a_to_u_4_byte(dip->disk_id));
 
 	if (is_cd) {
-		printf("last start of lead in: %ld\n",
+		printf(_("last start of lead in: %ld\n"),
 			msf_to_lba(dip->last_lead_in[1],
 			dip->last_lead_in[2],
 			dip->last_lead_in[3], FALSE));
-		printf("last start of lead out: %ld\n",
+		printf(_("last start of lead out: %ld\n"),
 			msf_to_lba(dip->last_lead_out[1],
 			dip->last_lead_out[2],
 			dip->last_lead_out[3], TRUE));
 	}
 
 	if (dip->dbc_v)
-		printf("Disk bar code: 0x%lX%lX\n",
+		printf(_("Disk bar code: 0x%lX%lX\n"),
 			a_to_u_4_byte(dip->disk_barcode),
 			a_to_u_4_byte(&dip->disk_barcode[4]));
 
 	if (dip->dac_v)
-		printf("Disk appl. code: %d\n", dip->disk_appl_code);
+		printf(_("Disk appl. code: %d\n"), dip->disk_appl_code);
 
 	if (dip->num_opc_entries > 0) {
-		printf("OPC table:\n");
+		printf(_("OPC table:\n"));
 	}
 }
 
@@ -1445,10 +1446,10 @@ prdiskstatus(scgp, dp, is_cd)
 	if (profile > 0) {
 		int mt = get_mediatype(scgp);
 
-		printf("Mounted media class:      %s\n",
+		printf(_("Mounted media class:      %s\n"),
 				get_mclassname(mt));
 		if (pname_known(profile)) {
-			printf("Mounted media type:       %s\n",
+			printf(_("Mounted media type:       %s\n"),
 				pname(profile));
 		}
 	}
@@ -1458,8 +1459,8 @@ prdiskstatus(scgp, dp, is_cd)
 	sessions = di.numsess + di.numsess_msb * 256;
 	tracks = di.last_track_ls + di.last_track_ls_msb * 256;
 
-	printf("\nTrack  Sess Type   Start Addr End Addr   Size\n");
-	printf("==============================================\n");
+	printf(_("\nTrack  Sess Type   Start Addr End Addr   Size\n"));
+	printf(_("==============================================\n"));
 	fillbytes((caddr_t)&rz, sizeof (rz), '\0');
 	for (t = di.first_track; t <= tracks; t++) {
 		fillbytes((caddr_t)&rz, sizeof (rz), '\0');
@@ -1483,8 +1484,8 @@ prdiskstatus(scgp, dp, is_cd)
 		}
 		printf("%5d %5d %-6s %-10ld %-10ld %ld",
 			track, s,
-			rz.blank ? "Blank" :
-				rz.trackmode & 4 ? "Data" : "Audio",
+			rz.blank ? _("Blank") :
+				rz.trackmode & 4 ? _("Data") : _("Audio"),
 			raddr, raddr + rsize -1, rsize);
 		if (lverbose > 0)
 			printf(" %10ld", border_size);
@@ -1492,12 +1493,12 @@ prdiskstatus(scgp, dp, is_cd)
 	}
 	printf("\n");
 	if (lastaddr >= 0)
-		printf("Last session start address:         %ld\n", lastaddr);
+		printf(_("Last session start address:         %ld\n"), lastaddr);
 	if (leadout >= 0)
-		printf("Last session leadout start address: %ld\n", leadout);
+		printf(_("Last session leadout start address: %ld\n"), leadout);
 	if (rz.nwa_v) {
-		printf("Next writable address:              %ld\n", nwa);
-		printf("Remaining writable size:            %ld\n", rsize);
+		printf(_("Next writable address:              %ld\n"), nwa);
+		printf(_("Remaining writable size:            %ld\n"), rsize);
 	}
 
 	return (0);
@@ -1581,10 +1582,10 @@ print_performance_mmc(scgp)
 	if (xdebug == 0)
 		xdebug = -1;
 
-	printf("\nCurrent performance according to MMC get performance:\n");
+	printf(_("\nCurrent performance according to MMC get performance:\n"));
 	scsi_get_perf_curspeed(scgp, &reads, &writes, &ends);
 
-	printf("\nMaximum performance according to MMC get performance:\n");
+	printf(_("\nMaximum performance according to MMC get performance:\n"));
 	scsi_get_perf_maxspeed(scgp, &reads, &writes, &ends);
 
 	xdebug = oxdebug;

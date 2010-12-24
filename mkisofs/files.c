@@ -1,7 +1,7 @@
-/* @(#)files.c	1.18 09/11/25 joerg */
+/* @(#)files.c	1.19 10/12/19 joerg */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)files.c	1.18 09/11/25 joerg";
+	"@(#)files.c	1.19 10/12/19 joerg";
 
 #endif
 /*
@@ -10,6 +10,7 @@ static	char sccsid[] =
  * Written by Eric Youngdale (1993).
  *
  * Copyright 1993 Yggdrasil Computing, Incorporated
+ * Copyright (c) 1999-2010 J. Schilling
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -219,7 +220,7 @@ add_file(filename)
 	} else {
 		f = fopen(filename, "r");
 		if (f == NULL) {
-			comerr("Cannot open '%s'.\n", filename);
+			comerr(_("Cannot open '%s'.\n"), filename);
 		}
 	}
 	while (fgets(buff, sizeof (buff), f)) {
@@ -236,7 +237,7 @@ add_file(filename)
 			ptr[strlen(ptr) - 1] = 0;
 		p2 = strchr(ptr, '=');
 		if (p2 == NULL) {
-			comerrno(EX_BAD, "Error in file '%s' line %d: %s\n",
+			comerrno(EX_BAD, _("Error in file '%s' line %d: %s\n"),
 						filename, count, buff);
 		}
 		*p2 = 0;

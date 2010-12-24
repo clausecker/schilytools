@@ -1,8 +1,8 @@
-/* @(#)toc.c	1.96 10/02/10 Copyright 1998-2003 Heiko Eissfeldt, Copyright 2004-2010 J. Schilling */
+/* @(#)toc.c	1.97 10/12/19 Copyright 1998-2003 Heiko Eissfeldt, Copyright 2004-2010 J. Schilling */
 #include "config.h"
 #ifndef lint
 static	UConst char sccsid[] =
-"@(#)toc.c	1.96 10/02/10 Copyright 1998-2003 Heiko Eissfeldt, Copyright 2004-2010 J. Schilling";
+"@(#)toc.c	1.97 10/12/19 Copyright 1998-2003 Heiko Eissfeldt, Copyright 2004-2010 J. Schilling";
 #endif
 /*
  * CDDA2WAV (C) Heiko Eissfeldt heiko@hexco.de
@@ -35,6 +35,7 @@ static	UConst char sccsid[] =
 #include <schily/fcntl.h>
 #include <schily/varargs.h>
 #include <schily/schily.h>
+#include <schily/nlsdefs.h>
 #include <schily/hostname.h>
 #include <schily/ioctl.h>
 #include <schily/sha1.h>
@@ -147,7 +148,7 @@ UpdateTrackData(p_num)
 	int	p_num;
 {
 	if (global.quiet == 0) {
-		fprintf(outfp, "\ntrack: %.2d, ", p_num); fflush(outfp);
+		fprintf(outfp, _("\ntrack: %.2d, "), p_num); fflush(outfp);
 	}
 	g_track = (unsigned char) p_num;
 }
@@ -161,7 +162,7 @@ UpdateIndexData(p_num)
 	int	p_num;
 {
 	if (global.quiet == 0) {
-		fprintf(outfp, "index: %.2d\n", p_num); fflush(outfp);
+		fprintf(outfp, _("index: %.2d\n"), p_num); fflush(outfp);
 	}
 	g_index = (unsigned char) p_num;
 }
@@ -177,7 +178,7 @@ UpdateTimeData(p_min, p_sec, p_frm)
 	int	p_frm;
 {
 	if (global.quiet == 0) {
-		fprintf(outfp, "time: %.2d:%.2d.%.2d\r", p_min, p_sec, p_frm);
+		fprintf(outfp, _("time: %.2d:%.2d.%.2d\r"), p_min, p_sec, p_frm);
 		fflush(outfp);
 	}
 }
@@ -226,7 +227,7 @@ no_disguised_audiotracks()
 		int	i;
 
 		errmsgno(EX_BAD,
-		"Warning: wrong track types found: patching to audio...\n");
+		_("Warning: wrong track types found: patching to audio...\n"));
 		for (i = 0; i < cdtracks; i++)
 			patch_to_audio(i);
 	}
@@ -371,11 +372,11 @@ is_multisession()
 		result = ioctl(tmp_fd, CDROMMULTISESSION, &ms_str);
 		if (result == -1) {
 			if (global.verbose != 0)
-				errmsg("Multi session ioctl not supported.\n");
+				errmsg(_("Multi session ioctl not supported.\n"));
 		} else {
 #ifdef DEBUG_XTRA
 			fprintf(outfp,
-				"current ioctl multisession_offset = %u\n",
+				_("current ioctl multisession_offset = %u\n"),
 				ms_str.addr.lba);
 #endif
 			if (interface == GENERIC_SCSI)
@@ -392,7 +393,7 @@ is_multisession()
 
 #ifdef DEBUG_XTRA
 	fprintf(outfp,
-		"current guessed multisession_offset = %u\n",
+		_("current guessed multisession_offset = %u\n"),
 		mult_off);
 #endif
 	return (mult_off);
@@ -524,7 +525,7 @@ FixupTOC(no_tracks)
 	 */
 	if (Get_StartSector(1) > Get_StartSector(LastTrack())) {
 		errmsgno(EX_BAD,
-		"Warning: first track has negative start sector! Setting to zero.\n");
+		_("Warning: first track has negative start sector! Setting to zero.\n"));
 		toc_entry(1, Get_Flags(1), Get_Tracknumber(1),
 		Get_ISRC(1), 0, 0, 2, 0);
 	}
@@ -571,7 +572,7 @@ FixupTOC(no_tracks)
 		}
 #else
 		errmsgno(EX_BAD,
-			"Cannot lookup titles: no cddbp support included!\n");
+			_("Cannot lookup titles: no cddbp support included!\n"));
 #endif
 	}
 #if defined CDINDEX_SUPPORT || defined CDDB_SUPPORT
@@ -636,8 +637,8 @@ check_hidden()
 		}
 		if (global.quiet == 0) {
 			fprintf(outfp,
-			"%ld sectors of %sdata before track #%ld",
-			sect, !isdata ? "audio ":"", FirstAudioTrack());
+			_("%ld sectors of %sdata before track #%ld"),
+			sect, !isdata ? _("audio "):"", FirstAudioTrack());
 		}
 		/*
 		 * switch cdrom to audio mode
@@ -647,12 +648,12 @@ check_hidden()
 		if (isdata && i != 1) {
 			if (global.quiet == 0) {
 				fprintf(outfp,
-				", ignoring.\n");
+				_(", ignoring.\n"));
 			}
 		} else if (i != 1) {
 			if (global.quiet == 0) {
 				fprintf(outfp,
-				", unreadable by this drive.\n");
+				_(", unreadable by this drive.\n"));
 			}
 			have_hiddenAudioTrack = 0;
 		} else {
@@ -667,7 +668,7 @@ check_hidden()
 				    global.nsectors * CD_FRAMESIZE_RAW) {
 					if (global.quiet == 0) {
 						fprintf(outfp,
-						", audible data at sector %d.\n",
+						_(", audible data at sector %d.\n"),
 						n + o / CD_FRAMESIZE_RAW);
 					}
 					break;
@@ -680,7 +681,7 @@ check_hidden()
 			} else {
 				if (global.quiet == 0)
 					fprintf(outfp,
-					"Hidden audio track with %ld sectors found.\n", sect);
+					_("Hidden audio track with %ld sectors found.\n"), sect);
 			}
 		}
 		get_scsi_p()->silent--;
@@ -1000,7 +1001,7 @@ readn(fd, ptr, nbytes)
 	}
 #endif
 	if (nread < 0) {
-		errmsg("Socket read error: fd=%d, ptr=%p, nbytes=%d.\n",
+		errmsg(_("Socket read error: fd=%d, ptr=%p, nbytes=%d.\n"),
 			fd, ptr, nbytes);
 		ptr[0] = '\0';
 	}
@@ -1022,7 +1023,7 @@ writen(fd, ptr, nbytes)
 		fprintf(outfp, "WRITE:%s\n", ptr);
 #endif
 	if (nwritten < 0) {
-		errmsg("Socket write error: fd=%d, ptr=%p, nbytes=%d.\n",
+		errmsg(_("Socket write error: fd=%d, ptr=%p, nbytes=%d.\n"),
 			fd, ptr, nbytes);
 	}
 	return (nwritten);
@@ -1270,7 +1271,7 @@ handle_userchoice(p, size)
 	 * list entries.
 	 */
 	q = p;
-	fprintf(outfp, "%u entries found:\n", nr);
+	fprintf(outfp, _("%u entries found:\n"), nr);
 	for (q = (char *)memchr(q, '\n', size - (q-p)), o = p, i = 0;
 								i < nr; i++) {
 		*q = '\0';
@@ -1278,13 +1279,13 @@ handle_userchoice(p, size)
 		o = q+1;
 		q = (char *)memchr(q, '\n', size - (q-p));
 	}
-	fprintf(outfp, "%02u: ignore\n", i);
+	fprintf(outfp, _("%02u: ignore\n"), i);
 
 	/*
 	 * get user response.
 	 */
 	do {
-		fprintf(outfp, "please choose one (0-%u): ", nr);
+		fprintf(outfp, _("please choose one (0-%u): "), nr);
 		if (scanf("%u", &user_choice) != 1)
 			user_choice = nr;
 	} while (user_choice > nr);
@@ -1331,7 +1332,7 @@ request_titles()
 
 	sock_fd = socket(AF_INET, SOCK_STREAM, 0);
 	if (sock_fd < 0) {
-		errmsg("Cddb socket failed.\n");
+		errmsg(_("Cddb socket failed.\n"));
 		retval = -1;
 		goto errout;
 	}
@@ -1356,7 +1357,7 @@ request_titles()
 		sa.sin_family	   = he->h_addrtype;	/* AF_INET; */
 		sa.sin_addr.s_addr = ((struct in_addr *)((he->h_addr_list)[0]))->s_addr;
 	} else {
-		errmsg("Cddb cannot resolve freedb host.\n");
+		errmsg(_("Cddb cannot resolve freedb host.\n"));
 		sa.sin_family	   = AF_INET;
 		sa.sin_addr.s_addr = htonl(UINT_C(0x526256aa)); /* freedb.freedb.de */
 	}
@@ -1385,7 +1386,7 @@ request_titles()
 	/* TODO timeout */
 	if (0 > connect(sock_fd, (struct sockaddr *)&sa,
 			sizeof (struct sockaddr_in))) {
-		errmsg("Cddb connect failed.\n");
+		errmsg(_("Cddb connect failed.\n"));
 		retval = -1;
 		goto errout;
 	}
@@ -1400,7 +1401,7 @@ request_titles()
 	}
 	if (strncmp(inbuff, "200 ", 4) && strncmp(inbuff, "201 ", 4)) {
 		errmsgno(EX_BAD,
-		"Bad status from freedb server during sign-on banner: %s.\n", inbuff);
+		_("Bad status from freedb server during sign-on banner: %s.\n"), inbuff);
 		retval = -1;
 		goto errout;
 	}
@@ -1425,7 +1426,7 @@ request_titles()
 				if (!space_err) {
 					space_err = TRUE;
 					errmsgno(EX_BAD,
-					"Warning: Space in user name '%s'.\n",
+					_("Warning: Space in user name '%s'.\n"),
 					pw->pw_name);
 				}
 				*q = '_';
@@ -1434,7 +1435,7 @@ request_titles()
 				if (!ascii_err) {
 					ascii_err = TRUE;
 					errmsgno(EX_BAD,
-					"Warning: Nonascii character in user name '%s'.\n",
+					_("Warning: Nonascii character in user name '%s'.\n"),
 					pw->pw_name);
 				}
 				*q = '_';
@@ -1458,7 +1459,7 @@ request_titles()
 				if (!space_err) {
 					space_err = TRUE;
 					errmsgno(EX_BAD,
-					"Warning: Space in hostname '%s'.\n",
+					_("Warning: Space in hostname '%s'.\n"),
 					hostname);
 				}
 				*q = '_';
@@ -1467,7 +1468,7 @@ request_titles()
 				if (!ascii_err) {
 					ascii_err = TRUE;
 					errmsgno(EX_BAD,
-					"Warning: Nonascii character in hostname '%s'.\n",
+					_("Warning: Nonascii character in hostname '%s'.\n"),
 					hostname);
 				}
 				*q = '_';
@@ -1490,7 +1491,7 @@ request_titles()
 	if (strncmp(inbuff, "200 ", 4)) {
 		inbuff[readbytes] = '\0';
 		errmsgno(EX_BAD,
-		"Bad status from freedb server during hello: %s.\n", inbuff);
+		_("Bad status from freedb server during hello: %s.\n"), inbuff);
 		retval = -1;
 		goto signoff;
 	}
@@ -1510,7 +1511,7 @@ request_titles()
 	if (strncmp(inbuff, "201 ", 4) > 0) {
 		inbuff[readbytes] = '\0';
 		errmsgno(EX_BAD,
-		"Bad status from freedb server during proto command: %s.\n",
+		_("Bad status from freedb server during proto command: %s.\n"),
 			inbuff);
 		retval = -1;
 		goto signoff;
@@ -1545,7 +1546,7 @@ request_titles()
 				if (strncmp(inbuff, "201 ", 4) > 0) {
 					inbuff[readbytes] = '\0';
 					errmsgno(EX_BAD,
-					"Bad status from freedb server during proto x: %s.\n",
+					_("Bad status from freedb server during proto x: %s.\n"),
 						inbuff);
 					retval = -1;
 					goto signoff;
@@ -1663,7 +1664,7 @@ request_titles()
 				break;
 				default:
 					errmsgno(EX_BAD,
-					"Multiple entries found: %s.\n", inbuff);
+					_("Multiple entries found: %s.\n"), inbuff);
 					retval = 2;
 					goto signoff;
 			}
@@ -1671,11 +1672,11 @@ request_titles()
 
 	} else if (strncmp(inbuff, "200 ", 4)) {
 		if (strncmp(inbuff, "202 ", 4) == 0) {
-			errmsgno(EX_BAD, "No cddb entry found: %s.\n", inbuff);
+			errmsgno(EX_BAD, _("No cddb entry found: %s.\n"), inbuff);
 			retval = 1;
 		} else {
 			errmsgno(EX_BAD,
-			"Bad status from freedb server during query: %s.\n%s",
+			_("Bad status from freedb server during query: %s.\n%s"),
 				inbuff, outbuff);
 			retval = -1;
 		}
@@ -1705,14 +1706,14 @@ request_titles()
 	if (strncmp(inbuff, "210 ", 4)) {
 		inbuff[readbytes] = '\0';
 		errmsgno(EX_BAD,
-			"Bad status from freedb server during read: %s.\n",
+			_("Bad status from freedb server during read: %s.\n"),
 			inbuff);
 		retval = -1;
 		goto signoff;
 	}
 
 	if (1 != process_cddb_titles(sock_fd, inbuff, readbytes)) {
-		errmsgno(EX_BAD, "Cddb read finished not correctly!\n");
+		errmsgno(EX_BAD, _("Cddb read finished not correctly!\n"));
 	}
 
 signoff:
@@ -1728,7 +1729,7 @@ signoff:
 	if (strncmp(inbuff, "230 ", 4)) {
 		inbuff[readbytes] = '\0';
 		errmsgno(EX_BAD,
-			"Bad status from freedb server during quit: %s.\n",
+			_("Bad status from freedb server during quit: %s.\n"),
 			inbuff);
 		goto errout;
 	}
@@ -2045,7 +2046,7 @@ dump_cdtext_info()
 		block_number = ((unsigned)(c->headerfield[3] & 0x30)) >> 4; /* language */
 		character_position = c->headerfield[3] & 0x0f;
 
-		fprintf(outfp, "CDText: ext_fl=%d, trnr=%u, seq_nr=%d, dbcc=%d, block_nr=%d, char_pos=%d\n",
+		fprintf(outfp, _("CDText: ext_fl=%d, trnr=%u, seq_nr=%d, dbcc=%d, block_nr=%d, char_pos=%d\n"),
 			extension_flag, tracknr, sequence_number, dbcc, block_number, character_position);
 		}
 #endif
@@ -2074,7 +2075,7 @@ dump_cdtext_info()
 #else
 			if (DETAILED) {
 				if (crc_error)
-					fputs(" ! uncorr. CRC-Error", outfp);
+					fputs(_(" ! uncorr. CRC-Error"), outfp);
 				fputs("\n", outfp);
 			}
 #endif
@@ -2206,43 +2207,43 @@ DisplayToc_with_gui(dw)
 	if ((global.verbose & SHOW_STARTPOSITIONS) != 0) {
 		if (global.illleadout_cd != 0 && have_CD_extra == 0) {
 			fprintf(outfp,
-				"Tracks:%u > %u:%02u.%02u\n",
+				_("Tracks:%u > %u:%02u.%02u\n"),
 				cdtracks, mins, secnds, frames);
 		} else {
 			fprintf(outfp,
-				"Tracks:%u %u:%02u.%02u\n",
+				_("Tracks:%u %u:%02u.%02u\n"),
 				cdtracks, mins, secnds, frames);
 		}
 	}
 
 	if (global.quiet == 0) {
-		fprintf(outfp, "CDINDEX discid: %s\n", global.cdindex_id);
-		fprintf(outfp, "CDDB discid: 0x%08lx",
+		fprintf(outfp, _("CDINDEX discid: %s\n"), global.cdindex_id);
+		fprintf(outfp, _("CDDB discid: 0x%08lx"),
 				(unsigned long) global.cddb_id);
 
 		if (have_CDDB != 0) {
-			fprintf(outfp, " CDDBP titles: resolved\n");
+			fprintf(outfp, _(" CDDBP titles: resolved\n"));
 		} else {
 			fprintf(outfp, "\n");
 		}
 		if (have_CD_text != 0) {
-			fprintf(outfp, "CD-Text: detected\n");
+			fprintf(outfp, _("CD-Text: detected\n"));
 			dump_cdtext_info();
 		} else {
-			fprintf(outfp, "CD-Text: not detected\n");
+			fprintf(outfp, _("CD-Text: not detected\n"));
 		}
 		if (have_CD_extra != 0) {
-			fprintf(outfp, "CD-Extra: detected\n");
+			fprintf(outfp, _("CD-Extra: detected\n"));
 			dump_extra_info(have_CD_extra);
 		} else {
-			fprintf(outfp, "CD-Extra: not detected\n");
+			fprintf(outfp, _("CD-Extra: not detected\n"));
 		}
 
 		fprintf(outfp,
-			"Album title: '%s'", (void *)global.disctitle != NULL
+			_("Album title: '%s'"), (void *)global.disctitle != NULL
 			? quote(global.disctitle) : "");
 
-		fprintf(outfp, " from '%s'\n", (void *)global.performer != NULL
+		fprintf(outfp, _(" from '%s'\n"), (void *)global.performer != NULL
 			? quote(global.performer) : "");
 	}
 	count_audio_trks = 0;
@@ -2286,17 +2287,17 @@ DisplayToc_with_gui(dw)
 
 				if (global.verbose & SHOW_SUMMARY)
 					fprintf(outfp,
-						" data %s %s N/A",
+						_(" data %s %s N/A"),
 
 						/* how recorded */
 						IS__INCREMENTAL(o)
-						? "incremental" :
-						"uninterrupted",
+						? _("incremental") :
+						_("uninterrupted"),
 
 						/* copy-permission */
 						IS__COPYRIGHTED(o)
-						? "copydenied" :
-						"copyallowed");
+						? _("copydenied") :
+						_("copyallowed"));
 				fputs("\n", outfp);
 			} else {
 				dw = (unsigned long) (GETSTART(p) -
@@ -2317,24 +2318,24 @@ DisplayToc_with_gui(dw)
 
 				if (global.verbose & SHOW_SUMMARY)
 					fprintf(outfp,
-						" audio %s %s %s",
+						_(" audio %s %s %s"),
 
 					/* how recorded */
 					IS__PREEMPHASIZED(o)
-					? "pre-emphasized" : "linear",
+					? _("pre-emphasized") : _("linear"),
 
 					/* copy-permission */
 					IS__COPYRIGHTED(o)
-					? "copydenied" : "copyallowed",
+					? _("copydenied") : _("copyallowed"),
 
 					/* channels */
 					IS__QUADRO(o)
-						? "quadro" : "stereo");
+						? _("quadro") : _("stereo"));
 
 				/* Title */
 				if (global.verbose & SHOW_TITLES) {
 					fprintf(outfp,
-						" title '%s' from ",
+						_(" title '%s' from "),
 
 						(void *) global.tracktitle[GETTRACK(o)] != NULL
 						? quote(global.tracktitle[GETTRACK(o)]) : "");
@@ -2352,7 +2353,7 @@ DisplayToc_with_gui(dw)
 		} /* while */
 		if (global.verbose & SHOW_STARTPOSITIONS)
 			if (GETTRACK(o) == CDROM_LEADOUT) {
-				fprintf(outfp, "Leadout: %7u\n", GETSTART(o));
+				fprintf(outfp, _("Leadout: %7u\n"), GETSTART(o));
 			}
 	} /* if */
 }
@@ -2395,26 +2396,26 @@ DisplayToc_no_gui(dw)
 				continue;
 
 			if (IS__DATA(o)) {
-				fputs(" DATAtrack recorded      copy-permitted tracktype\n", outfp);
+				fputs(_(" DATAtrack recorded      copy-permitted tracktype\n"), outfp);
 				fprintf(outfp,
-					"     %2d-%2d %13.13s %14.14s      data\n",
+					_("     %2d-%2d %13.13s %14.14s      data\n"),
 					from,
 					GETTRACK(o),
 					/* how recorded */
 					IS__INCREMENTAL(o)
-					? "incremental" : "uninterrupted",
+					? _("incremental") : _("uninterrupted"),
 
 					/* copy-perm */
-					IS__COPYRIGHTED(o) ? "no" : "yes");
+					IS__COPYRIGHTED(o) ? _("no") : _("yes"));
 			} else {
-				fputs("AUDIOtrack pre-emphasis  copy-permitted tracktype channels\n", outfp);
+				fputs(_("AUDIOtrack pre-emphasis  copy-permitted tracktype channels\n"), outfp);
 				fprintf(outfp,
-					"     %2d-%2d %12.12s  %14.14s     audio    %1c\n",
+					_("     %2d-%2d %12.12s  %14.14s     audio    %1c\n"),
 					from,
 					GETTRACK(o),
 					IS__PREEMPHASIZED(o)
-					? "yes" : "no",
-					IS__COPYRIGHTED(o) ? "no" : "yes",
+					? _("yes") : _("no"),
+					IS__COPYRIGHTED(o) ? _("no") : _("yes"),
 					IS__QUADRO(o) ? '4' : '2');
 				count_audio_trks++;
 			}
@@ -2425,11 +2426,11 @@ DisplayToc_no_gui(dw)
 		if (global.illleadout_cd != 0 && have_multisession == 0) {
 
 			fprintf(outfp,
-			"Table of Contents: total tracks:%u, (total time more than %u:%02u.%02u)\n",
+			_("Table of Contents: total tracks:%u, (total time more than %u:%02u.%02u)\n"),
 				cdtracks, mins, secnds, frames);
 		} else {
 			fprintf(outfp,
-			"Table of Contents: total tracks:%u, (total time %u:%02u.%02u)\n",
+			_("Table of Contents: total tracks:%u, (total time %u:%02u.%02u)\n"),
 				cdtracks, mins, secnds, frames);
 		}
 	}
@@ -2494,7 +2495,7 @@ DisplayToc_no_gui(dw)
 	} /* if */
 
 	if ((global.verbose & SHOW_STARTPOSITIONS) != 0) {
-		fputs("\nTable of Contents: starting sectors\n", outfp);
+		fputs(_("\nTable of Contents: starting sectors\n"), outfp);
 
 		ii = 0;
 		InitIterator(&i, 1);
@@ -2522,38 +2523,38 @@ DisplayToc_no_gui(dw)
 					fputc(',', outfp);
 				o = p;
 			}
-			fprintf(outfp, " lead-out(%8u)", GETSTART(o));
+			fprintf(outfp, _(" lead-out(%8u)"), GETSTART(o));
 			fputs("\n", outfp);
 		}
 	}
 	if (global.quiet == 0) {
-		fprintf(outfp, "CDINDEX discid: %s\n", global.cdindex_id);
-		fprintf(outfp, "CDDB discid: 0x%08lx",
+		fprintf(outfp, _("CDINDEX discid: %s\n"), global.cdindex_id);
+		fprintf(outfp, _("CDDB discid: 0x%08lx"),
 				(unsigned long) global.cddb_id);
 
 		if (have_CDDB != 0) {
-			fprintf(outfp, " CDDBP titles: resolved\n");
+			fprintf(outfp, _(" CDDBP titles: resolved\n"));
 		} else {
 			fprintf(outfp, "\n");
 		}
 		if (have_CD_text != 0) {
-			fprintf(outfp, "CD-Text: detected\n");
+			fprintf(outfp, _("CD-Text: detected\n"));
 		} else {
-			fprintf(outfp, "CD-Text: not detected\n");
+			fprintf(outfp, _("CD-Text: not detected\n"));
 		}
 		if (have_CD_extra != 0) {
-			fprintf(outfp, "CD-Extra: detected\n");
+			fprintf(outfp, _("CD-Extra: detected\n"));
 		} else {
-			fprintf(outfp, "CD-Extra: not detected\n");
+			fprintf(outfp, _("CD-Extra: not detected\n"));
 		}
 	}
 	if ((global.verbose & SHOW_TITLES) != 0) {
 		int maxlen = 0;
 
 		if (global.disctitle != NULL) {
-			fprintf(outfp, "Album title: '%s'", global.disctitle);
+			fprintf(outfp, _("Album title: '%s'"), global.disctitle);
 			if (global.performer != NULL) {
-				fprintf(outfp, "\t[from %s]", global.performer);
+				fprintf(outfp, _("\t[from %s]"), global.performer);
 			}
 			fputs("\n", outfp);
 		}
@@ -2585,10 +2586,10 @@ DisplayToc_no_gui(dw)
 
 			if (maxlen != 3) {
 				if (global.tracktitle[jj] != NULL) {
-					fprintf(outfp, "Track %2u: '%s'",
+					fprintf(outfp, _("Track %2u: '%s'"),
 						jj, global.tracktitle[jj]);
 				} else {
-					fprintf(outfp, "Track %2u: '%s'",
+					fprintf(outfp, _("Track %2u: '%s'"),
 						jj, "");
 				}
 				if (global.trackperformer[jj] != NULL &&
@@ -2611,7 +2612,7 @@ DisplayToc_no_gui(dw)
 						fprintf(outfp, "\t");
 					}
 					fprintf(outfp,
-						"[from %s]",
+						_("[from %s]"),
 						global.trackperformer[jj]);
 				}
 				fputs("\n", outfp);
@@ -2657,7 +2658,7 @@ DisplayToc()
 
 	if (global.illleadout_cd != 0) {
 		if (global.quiet == 0) {
-			errmsgno(EX_BAD, "CD with illegal leadout position detected!\n");
+			errmsgno(EX_BAD, _("CD with illegal leadout position detected!\n"));
 		}
 
 		if (global.reads_illleadout == 0) {
@@ -2669,16 +2670,16 @@ DisplayToc()
 
 			if (global.quiet == 0) {
 				errmsgno(EX_BAD,
-				"The cdrom drive firmware does not permit access beyond the leadout position!\n");
+				_("The cdrom drive firmware does not permit access beyond the leadout position!\n"));
 			}
 			if (global.verbose & (SHOW_ISRC | SHOW_INDICES)) {
 				global.verbose &= ~(SHOW_ISRC | SHOW_INDICES);
-				fprintf(outfp, "Switching index scan and ISRC scan off!\n");
+				fprintf(outfp, _("Switching index scan and ISRC scan off!\n"));
 			}
 
 			if (global.quiet == 0) {
 				fprintf(outfp,
-				"Audio extraction will be limited to track %ld with maximal %ld sectors...\n",
+				_("Audio extraction will be limited to track %ld with maximal %ld sectors...\n"),
 					LastTrack(),
 					Get_EndSector(LastTrack())+1);
 			}
@@ -2692,7 +2693,7 @@ DisplayToc()
 			patch_real_end(150 + (99*60+59)*75 + 74);
 			if (global.quiet == 0) {
 				fprintf(outfp,
-				"Restrictions apply, since the size of the last track is unknown!\n");
+				_("Restrictions apply, since the size of the last track is unknown!\n"));
 			}
 		}
 	}
@@ -2737,7 +2738,7 @@ Get_Set_MCN()
 	subq_chnl	*sub_ch;
 	subq_catalog	*subq_cat = NULL;
 
-	fprintf(outfp, "scanning for MCN...");
+	fprintf(outfp, _("scanning for MCN..."));
 
 	sub_ch = ReadSubQ(get_scsi_p(), GET_CATALOGNUMBER, 0);
 
@@ -2843,7 +2844,7 @@ Get_Set_ISRC(tr)
 	subq_chnl	*sub_ch;
 	subq_track_isrc	*subq_tr;
 
-	fprintf(outfp, "\rscanning for ISRCs: %d ...", tr);
+	fprintf(outfp, _("\rscanning for ISRCs: %d ..."), tr);
 
 	subq_tr = NULL;
 	sub_ch = ReadSubQ(get_scsi_p(), GET_TRACK_ISRC, tr);
@@ -2940,7 +2941,7 @@ Get_Set_ISRC(tr)
 			if ((cp[7] & 3) == 3) {
 				if (global.verbose) {
 					fprintf(outfp,
-						"Recorder-ID encountered: ");
+						_("Recorder-ID encountered: "));
 					for (bits = 0; bits < 30; bits += 6) {
 						unsigned binval = (ind & (ULONG_C(0x3f) << (24-bits)))
 											>> (24-bits);
@@ -2967,7 +2968,7 @@ Get_Set_ISRC(tr)
 			}
 			if ((cp[7] & 3) != 0) {
 				fprintf(outfp,
-				"unknown mode 3 entry C1=0x%02x, C2=0x%02x\n",
+				_("unknown mode 3 entry C1=0x%02x, C2=0x%02x\n"),
 					(cp[7] >> 1) & 1, cp[7] & 1);
 				return;
 			}
@@ -2986,7 +2987,7 @@ Get_Set_ISRC(tr)
 
 					Get_ISRC(tr)[0] = '\0';
 					fprintf(outfp,
-					"\nIllegal ISRC for track %d, skipped: ",
+					_("\nIllegal ISRC for track %d, skipped: "),
 						tr);
 					for (y = 0; y < 15; y++) {
 						fprintf(outfp, "%02x ",
@@ -3033,7 +3034,7 @@ Get_Set_ISRC(tr)
 				int y;
 
 				Get_ISRC(ii)[0] = '\0';
-				fprintf(outfp, "\nIllegal ISRC for track %d, skipped: ", ii+1);
+				fprintf(outfp, _("\nIllegal ISRC for track %d, skipped: "), ii+1);
 				for (y = 0; y < 15; y++) {
 					fprintf(outfp, "%02x ", cp[y]);
 				}
@@ -3083,11 +3084,11 @@ Read_MCN_ISRC()
 
 		if (Get_MCN()[0] != '\0') {
 			fprintf(outfp,
-				"\rMedia catalog number: %13.13s\n",
+				_("\rMedia catalog number: %13.13s\n"),
 				Get_MCN());
 		} else {
 			fprintf(outfp,
-				"\rNo media catalog number present.\n");
+				_("\rNo media catalog number present.\n"));
 		}
 	}
 
@@ -3195,7 +3196,7 @@ ReadSubChannel(sec)
 		}
 		ReadSubChannels = NULL;
 		fprintf(outfp,
-		"\nCould not get position information (%02x) for sectors %d, %d, %d: switching ReadSubChannels off !\n",
+		_("\nCould not get position information (%02x) for sectors %d, %d, %d: switching ReadSubChannels off !\n"),
 		sub_ch->control_adr &0x0f, sec-1, sec, sec+2);
 	}
 
@@ -3267,7 +3268,7 @@ GetIndexOfSector(sec, track)
 	if (sub_ch == NULL) {
 		if ((long)sec == Get_EndSector(track)) {
 			errmsgno(EX_BAD,
-			"Driver and/or firmware bug detected! Drive cannot play the very last sector (%u)!\n",
+			_("Driver and/or firmware bug detected! Drive cannot play the very last sector (%u)!\n"),
 			sec);
 		}
 		return (-1);
@@ -3289,7 +3290,7 @@ GetIndexOfSector(sec, track)
 	if (sub_ch->index != 0 && track != sub_ch->track) {
 		if (global.verbose)
 			fprintf(outfp,
-			"\ntrack mismatch: %1d, in-track subchannel: %1d (index %1d, sector %1d)\n",
+			_("\ntrack mismatch: %1d, in-track subchannel: %1d (index %1d, sector %1d)\n"),
 			track, sub_ch->track, sub_ch->index, sec);
 	}
 #endif
@@ -3306,9 +3307,9 @@ GetIndexOfSector(sec, track)
 			 */
 			if (global.verbose) {
 				fprintf(outfp,
-				"broadcast type conflict detected -> TOC:%s, subchannel:%s\n",
-				(sub_ch->control_adr & 0x80) == 0 ? "broadcast" : "nonbroadcast",
-				(sub_ch->control_adr & 0x80) != 0 ? "broadcast" : "nonbroadcast");
+				_("broadcast type conflict detected -> TOC:%s, subchannel:%s\n"),
+				(sub_ch->control_adr & 0x80) == 0 ? _("broadcast") : _("nonbroadcast"),
+				(sub_ch->control_adr & 0x80) != 0 ? _("broadcast") : _("nonbroadcast"));
 			}
 		}
 		if ((diffbits & 0x40) == 0x40) {
@@ -3317,9 +3318,9 @@ GetIndexOfSector(sec, track)
 			 */
 			if (global.verbose) {
 				fprintf(outfp,
-				"track type conflict detected -> TOC:%s, subchannel:%s\n",
-				(sub_ch->control_adr & 0x40) == 0 ? "data" : "audio",
-				(sub_ch->control_adr & 0x40) != 0 ? "data" : "audio");
+				_("track type conflict detected -> TOC:%s, subchannel:%s\n"),
+				(sub_ch->control_adr & 0x40) == 0 ? _("data") : _("audio"),
+				(sub_ch->control_adr & 0x40) != 0 ? _("data") : _("audio"));
 			}
 		}
 		if ((diffbits & 0x20) == 0x20 && !Get_SCMS(track)) {
@@ -3329,9 +3330,9 @@ GetIndexOfSector(sec, track)
 			 */
 			if (global.verbose) {
 				fprintf(outfp,
-				"difference: TOC:%s, subchannel:%s\ncorrecting TOC...\n",
-				(sub_ch->control_adr & 0x20) == 0 ? "unprotected" : "copyright protected",
-				(sub_ch->control_adr & 0x20) != 0 ? "unprotected" : "copyright protected");
+				_("difference: TOC:%s, subchannel:%s\ncorrecting TOC...\n"),
+				(sub_ch->control_adr & 0x20) == 0 ? _("unprotected") : _("copyright protected"),
+				(sub_ch->control_adr & 0x20) != 0 ? _("unprotected") : _("copyright protected"));
 			}
 
 			toc_entry(track,
@@ -3349,9 +3350,9 @@ GetIndexOfSector(sec, track)
 			 */
 			if (global.verbose)
 				fprintf(outfp,
-				"difference: TOC:%s, subchannel:%s preemphasis\ncorrecting TOC...\n",
-				(sub_ch->control_adr & 0x10) == 0 ? "with" : "without",
-				(sub_ch->control_adr & 0x10) != 0 ? "with" : "without");
+				_("difference: TOC:%s, subchannel:%s preemphasis\ncorrecting TOC...\n"),
+				(sub_ch->control_adr & 0x10) == 0 ? _("with") : _("without"),
+				(sub_ch->control_adr & 0x10) != 0 ? _("with") : _("without"));
 
 			toc_entry(track,
 			    (Get_Flags(track) & 0xEF) | (sub_ch->control_adr & 0x10),
@@ -3428,7 +3429,7 @@ ScanBackwardFrom(sec, limit, where, track)
 				 */
 				if (!global.quiet)
 					errmsgno(EX_BAD,
-					"Could not find index transition for pre-gap.\n");
+					_("Could not find index transition for pre-gap.\n"));
 				if (where != NULL)
 					*where = -1;
 			}
@@ -3456,7 +3457,7 @@ ScanBackwardFrom(sec, limit, where, track)
 				 */
 				if (!global.quiet)
 					errmsgno(EX_BAD,
-					"Could not find index transition for pre-gap.\n");
+					_("Could not find index transition for pre-gap.\n"));
 				if (where != NULL)
 					*where = -1;
 			}
@@ -3591,7 +3592,7 @@ register_index_position(IndexOffset, last_index_entry)
 #if defined INFOFILES
 	} else {
 		fprintf(outfp,
-		"No memory for index lists. Index positions\nwill not be written in info file!\n");
+		_("No memory for index lists. Index positions\nwill not be written in info file!\n"));
 #endif
 	}
 }
@@ -3642,7 +3643,7 @@ ScanIndices(track, cd_index, bulk)
 	EnableCdda(scgp, 1, CD_FRAMESIZE_RAW + 16);
 
 	if (!global.quiet && !(global.verbose & SHOW_INDICES))
-		fprintf(outfp, "seeking index start ...");
+		fprintf(outfp, _("seeking index start ..."));
 
 	if (bulk != 1) {
 		starttrack = track;
@@ -3671,7 +3672,7 @@ ScanIndices(track, cd_index, bulk)
 			if (global.illleadout_cd && global.reads_illleadout &&
 			    ii == endtrack) {
 				fprintf(outfp,
-				"Analysis of track %d skipped due to unknown length\n", ii);
+				_("Analysis of track %d skipped due to unknown length\n"), ii);
 			}
 		}
 		if (global.illleadout_cd && global.reads_illleadout &&
@@ -3683,7 +3684,7 @@ ScanIndices(track, cd_index, bulk)
 			Set_SCMS(ii);
 		}
 		if (global.verbose & SHOW_INDICES) {
-			fprintf(outfp, "\rindex scan: %d...", ii);
+			fprintf(outfp, _("\rindex scan: %d..."), ii);
 			fflush(outfp);
 		}
 		LastIndex = ScanBackwardFrom(Get_EndSector(ii), StartSector,
@@ -3716,7 +3717,7 @@ ScanIndices(track, cd_index, bulk)
 
 		if ((global.verbose & SHOW_INDICES) && LastIndex > 1) {
 			fprintf(outfp,
-			"\rtrack %2d has %d indices, index table (pairs of 'index: frame offset')\n",
+			_("\rtrack %2d has %d indices, index table (pairs of 'index: frame offset')\n"),
 			ii, LastIndex);
 		}
 		startindex = 0;

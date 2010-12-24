@@ -1,13 +1,13 @@
-/* @(#)cdr_drv.c	1.48 09/07/10 Copyright 1997-2009 J. Schilling */
+/* @(#)cdr_drv.c	1.49 10/12/19 Copyright 1997-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)cdr_drv.c	1.48 09/07/10 Copyright 1997-2009 J. Schilling";
+	"@(#)cdr_drv.c	1.49 10/12/19 Copyright 1997-2010 J. Schilling";
 #endif
 /*
  *	CDR device abstraction layer
  *
- *	Copyright (c) 1997-2009 J. Schilling
+ *	Copyright (c) 1997-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -27,6 +27,7 @@ static	UConst char sccsid[] =
 #include <schily/unistd.h>	/* Include sys/types.h to make off_t available */
 #include <schily/standard.h>
 #include <schily/schily.h>
+#include <schily/nlsdefs.h>
 
 #include <scg/scsidefs.h>
 #include <scg/scsireg.h>
@@ -139,7 +140,7 @@ drive_attach(scgp, dp)
 EXPORT int
 attach_unknown()
 {
-	errmsgno(EX_BAD, "Unsupported drive type\n");
+	errmsgno(EX_BAD, _("Unsupported drive type\n"));
 	return (-1);
 }
 
@@ -150,7 +151,7 @@ blank_dummy(scgp, dp, addr, blanktype)
 	long	addr;
 	int	blanktype;
 {
-	printf("This drive or media does not support the 'BLANK media' command\n");
+	printf(_("This drive or media does not support the 'BLANK media' command\n"));
 	return (-1);
 }
 
@@ -176,13 +177,13 @@ blank_simul(scgp, dp, addr, blanktype)
 				padbytes = dp->cdr_dstat->ds_maxblocks * (Llong)secsize;
 			break;
 	default:
-			printf("Unsupported blank type for simulation mode.\n");
-			printf("Try blank=all or blank=fast\n");
+			printf(_("Unsupported blank type for simulation mode.\n"));
+			printf(_("Try blank=all or blank=fast\n"));
 			padbytes = 0;
 	}
 	if (padbytes > 0) {
-		printf("Running pad based emulation to blank the medium.\n");
-		printf("secsize %d padbytes %lld padblocks %lld maxblocks %d\n",
+		printf(_("Running pad based emulation to blank the medium.\n"));
+		printf(_("secsize %d padbytes %lld padblocks %lld maxblocks %d\n"),
 			secsize, padbytes, padbytes/secsize, dp->cdr_dstat->ds_maxblocks);
 
 		ret = pad_track(scgp, dp, trackp, 0, padbytes, TRUE, NULL);
@@ -190,7 +191,7 @@ blank_simul(scgp, dp, addr, blanktype)
 		flush();
 	}
 	if (0) {
-		printf("This drive or media does not support the 'BLANK media' command\n");
+		printf(_("This drive or media does not support the 'BLANK media' command\n"));
 		return (-1);
 	}
 	return (ret);
@@ -203,7 +204,7 @@ format_dummy(scgp, dp, fmtflags)
 	cdr_t	*dp;
 	int	fmtflags;
 {
-	printf("This drive or media does not support the 'FORMAT media' command\n");
+	printf(_("This drive or media does not support the 'FORMAT media' command\n"));
 	return (-1);
 }
 
@@ -220,7 +221,7 @@ EXPORT int
 cmd_ill(scgp)
 	SCSI	*scgp;
 {
-	errmsgno(EX_BAD, "Unspecified command not implemented for this drive.\n");
+	errmsgno(EX_BAD, _("Unspecified command not implemented for this drive.\n"));
 	return (-1);
 }
 
@@ -238,7 +239,7 @@ no_sendcue(scgp, dp, trackp)
 	cdr_t	*dp;
 	track_t	*trackp;
 {
-	errmsgno(EX_BAD, "SAO writing not available or not implemented for this drive.\n");
+	errmsgno(EX_BAD, _("SAO writing not available or not implemented for this drive.\n"));
 	return (-1);
 }
 
@@ -247,7 +248,7 @@ no_diskstatus(scgp, dp)
 	SCSI	*scgp;
 	cdr_t	*dp;
 {
-	errmsgno(EX_BAD, "Printing of disk status not implemented for this drive.\n");
+	errmsgno(EX_BAD, _("Printing of disk status not implemented for this drive.\n"));
 	return (-1);
 }
 
@@ -279,9 +280,9 @@ set_cdrcmds(name, dpp)
 		return (FALSE);
 
 	if (!streql("help", name))
-		error("Illegal driver type '%s'.\n", name);
+		error(_("Illegal driver type '%s'.\n"), name);
 
-	error("Driver types:\n");
+	error(_("Driver types:\n"));
 	for (d = drivers; *d != (cdr_t *)NULL; d++) {
 		error("%s%n",
 			(*d)->cdr_drname, &n);
@@ -321,8 +322,8 @@ get_cdrcmds(scgp)
 						&is_dvdpluswr, &is_ddcdwr);
 		if (xdebug) {
 			error(
-			"Found MMC-3 %s CD: %s/%s DVD-: %s/%s DVD+: %s/%s DDCD: %s/%s.\n",
-					is_wr ? "writer": "reader",
+			_("Found MMC-3 %s CD: %s/%s DVD-: %s/%s DVD+: %s/%s DDCD: %s/%s.\n"),
+					is_wr ? _("writer"): _("reader"),
 					is_cd?"r":"-",
 					is_cdwr?"w":"-",
 					is_dvd?"r":"-",
@@ -343,7 +344,7 @@ get_cdrcmds(scgp)
 	 */
 	if (is_mmc(scgp, &is_cdwr, &is_dvdwr)) {
 		if (xdebug) {
-			error("Found MMC drive CDWR: %d DVDWR: %d.\n",
+			error(_("Found MMC drive CDWR: %d DVDWR: %d.\n"),
 							is_cdwr, is_dvdwr);
 		}
 
@@ -388,20 +389,20 @@ get_cdrcmds(scgp)
 	odp = dp;
 
 	if (xdebug) {
-		error("Using driver '%s' for identify.\n",
+		error(_("Using driver '%s' for identify.\n"),
 			dp != NULL ?
 			dp->cdr_drname :
-			"<no driver>");
+			_("<no driver>"));
 	}
 
 	if (dp != (cdr_t *)0)
 		dp = dp->cdr_identify(scgp, dp, scgp->inq);
 
 	if (xdebug && dp != odp) {
-		error("Identify set driver to '%s'.\n",
+		error(_("Identify set driver to '%s'.\n"),
 			dp != NULL ?
 			dp->cdr_drname :
-			"<no driver>");
+			_("<no driver>"));
 	}
 
 	return (dp);

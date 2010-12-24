@@ -1,8 +1,8 @@
-/* @(#)sndconfig.c	1.35 09/11/29 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling */
+/* @(#)sndconfig.c	1.36 10/12/19 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2010 J. Schilling */
 #include "config.h"
 #ifndef lint
 static	UConst char sccsid[] =
-"@(#)sndconfig.c	1.35 09/11/29 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling";
+"@(#)sndconfig.c	1.36 10/12/19 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2010 J. Schilling";
 #endif
 
 /*
@@ -29,6 +29,7 @@ static	UConst char sccsid[] =
 #include <schily/ioctl.h>
 #include <schily/select.h>
 #include <schily/schily.h>
+#include <schily/nlsdefs.h>
 
 
 /* soundcard setup */
@@ -116,7 +117,7 @@ check_winsound_caps(bits, rate, channels)
 	 * get caps
 	 */
 	if (waveOutGetDevCaps(0, &caps, sizeof (caps))) {
-		errmsgno(EX_BAD, "Cannot get soundcard capabilities!\n");
+		errmsgno(EX_BAD, _("Cannot get soundcard capabilities!\n"));
 		return (1);
 	}
 
@@ -125,14 +126,14 @@ check_winsound_caps(bits, rate, channels)
 	 */
 	if ((bits == 8 && !(caps.dwFormats & 0x333)) ||
 	    (bits == 16 && !(caps.dwFormats & 0xccc))) {
-		errmsgno(EX_BAD, "%d bits sound are not supported.\n", bits);
+		errmsgno(EX_BAD, _("%d bits sound are not supported.\n"), bits);
 		result = 2;
 	}
 
 	if ((channels == 1 && !(caps.dwFormats & 0x555)) ||
 	    (channels == 2 && !(caps.dwFormats & 0xaaa))) {
 		errmsgno(EX_BAD,
-			"%d sound channels are not supported.\n", channels);
+			_("%d sound channels are not supported.\n"), channels);
 		result = 3;
 	}
 
@@ -140,7 +141,7 @@ check_winsound_caps(bits, rate, channels)
 	    (rate == 22050.0 && !(caps.dwFormats & 0xf0)) ||
 	    (rate == 11025.0 && !(caps.dwFormats & 0xf))) {
 		errmsgno(EX_BAD,
-			"%d sample rate is not supported.\n", (int)rate);
+			_("%d sample rate is not supported.\n"), (int)rate);
 		result = 4;
 	}
 
@@ -174,7 +175,7 @@ init_soundcard(rate, bits)
 	if (global.echo) {
 # if	defined(HAVE_OSS) && HAVE_OSS == 1
 		if (open_snd_device() != 0) {
-			errmsg("Cannot open sound device '%s'.\n", snd_device);
+			errmsg(_("Cannot open sound device '%s'.\n"), snd_device);
 			global.echo = 0;
 		} else {
 			/*
@@ -190,13 +191,13 @@ init_soundcard(rate, bits)
 
 			if (ioctl(global.soundcard_fd,
 			    SNDCTL_DSP_GETBLKSIZE, &dummy) == -1) {
-				errmsg("Cannot get blocksize for %s.\n",
+				errmsg(_("Cannot get blocksize for %s.\n"),
 					snd_device);
 				global.echo = 0;
 			}
 			if (ioctl(global.soundcard_fd,
 			    SNDCTL_DSP_SYNC, NULL) == -1) {
-				errmsg("Cannot sync for %s.\n",
+				errmsg(_("Cannot sync for %s.\n"),
 					snd_device);
 				global.echo = 0;
 			}
@@ -204,7 +205,7 @@ init_soundcard(rate, bits)
 #if	defined SNDCTL_DSP_GETOSPACE
 			if (ioctl(global.soundcard_fd,
 			    SNDCTL_DSP_GETOSPACE, &abinfo) == -1) {
-				errmsg("Cannot get input buffersize for %s.\n",
+				errmsg(_("Cannot get input buffersize for %s.\n"),
 					snd_device);
 				abinfo.fragments  = 0;
 			}
@@ -216,12 +217,12 @@ init_soundcard(rate, bits)
 			 */
 			if (ioctl(global.soundcard_fd,
 			    SNDCTL_DSP_GETFMTS, &mask) == -1) {
-				errmsg("Fatal error in ioctl(SNDCTL_DSP_GETFMTS).\n");
+				errmsg(_("Fatal error in ioctl(SNDCTL_DSP_GETFMTS).\n"));
 				return (-1);
 			}
 			if ((mask & myformat) == 0) {
 				errmsgno(EX_BAD,
-				"Sound format (%d bits signed) is not available.\n",
+				_("Sound format (%d bits signed) is not available.\n"),
 				bits);
 				if ((mask & AFMT_U8) != 0) {
 					bits = 8;
@@ -230,7 +231,7 @@ init_soundcard(rate, bits)
 			}
 			if (ioctl(global.soundcard_fd,
 			    SNDCTL_DSP_SETFMT, &myformat) == -1) {
-				errmsg("Cannot set %d bits/sample for %s.\n",
+				errmsg(_("Cannot set %d bits/sample for %s.\n"),
 					bits, snd_device);
 			    global.echo = 0;
 			}
@@ -241,14 +242,14 @@ init_soundcard(rate, bits)
 			if (stereo &&
 			    ioctl(global.soundcard_fd,
 			    SNDCTL_DSP_STEREO, &stereo) == -1) {
-				errmsg("Cannot set stereo mode for %s.\n",
+				errmsg(_("Cannot set stereo mode for %s.\n"),
 					snd_device);
 				stereo = 0;
 			}
 			if (!stereo &&
 			    ioctl(global.soundcard_fd,
 			    SNDCTL_DSP_STEREO, &stereo) == -1) {
-				errmsg("Cannot set mono mode for %s.\n",
+				errmsg(_("Cannot set mono mode for %s.\n"),
 					snd_device);
 				global.echo = 0;
 			}
@@ -258,14 +259,14 @@ init_soundcard(rate, bits)
 			 */
 			if (ioctl(global.soundcard_fd,
 			    SNDCTL_DSP_SPEED, &garbled_rate) == -1) {
-				errmsg("Cannot set rate %d.%2d Hz for %s.\n",
+				errmsg(_("Cannot set rate %d.%2d Hz for %s.\n"),
 					(int)rate, (int)(rate*100)%100,
 					snd_device);
 				global.echo = 0;
 			}
 			if (abs((long)rate - garbled_rate) > rate / 20) {
 				errmsgno(EX_BAD,
-				"Sound device: next best sample rate is %d.\n",
+				_("Sound device: next best sample rate is %d.\n"),
 				garbled_rate);
 			}
 		}
@@ -279,7 +280,7 @@ init_soundcard(rate, bits)
 		 */
 		if ((global.soundcard_fd = open(snd_device, O_WRONLY, 0)) ==
 		    EOF) {
-			errmsg("Cannot open '%s'.\n", snd_device);
+			errmsg(_("Cannot open '%s'.\n"), snd_device);
 			global.echo = 0;
 		} else {
 			audio_info_t	info;
@@ -295,13 +296,13 @@ init_soundcard(rate, bits)
 			info.monitor_gain = 0;
 			if (ioctl(global.soundcard_fd, AUDIO_SETINFO, &info) <
 			    0) {
-				errmsg("Cannot init %s (sun).\n",
+				errmsg(_("Cannot init %s (sun).\n"),
 					snd_device);
 				global.echo = 0;
 			}
 #   else
 			errmsgno(EX_BAD,
-			"Cannot init sound device with 44.1 KHz sample rate on %s (sun compatible).\n",
+			_("Cannot init sound device with 44.1 KHz sample rate on %s (sun compatible).\n"),
 			snd_device);
 			global.echo = 0;
 #   endif
@@ -315,7 +316,7 @@ init_soundcard(rate, bits)
 		WAVEFORMATEX	wavform;
 
 		if (waveOutGetNumDevs() < 1) {
-			errmsgno(EX_BAD, "No sound devices available!\n");
+			errmsgno(EX_BAD, _("No sound devices available!\n"));
 			global.echo = 0;
 			return (1);
 		}
@@ -325,7 +326,7 @@ init_soundcard(rate, bits)
 		 */
 		if (check_winsound_caps(bits, rate, global.channels) != 0) {
 			errmsgno(EX_BAD,
-			"Soundcard capabilities are not sufficient!\n");
+			_("Soundcard capabilities are not sufficient!\n"));
 			global.echo = 0;
 			return (1);
 		}
@@ -347,7 +348,7 @@ init_soundcard(rate, bits)
 
 			waveOutGetErrorText(mmres, erstr, sizeof (erstr));
 			errmsgno(EX_BAD,
-				"Soundcard open error: %s!\n", erstr);
+				_("Soundcard open error: %s!\n"), erstr);
 			global.echo = 0;
 			return (1);
 		}
@@ -365,7 +366,7 @@ init_soundcard(rate, bits)
 				wavehdr[i].lpData = malloc(wavehdr[i].dwBufferLength);
 				if (wavehdr[i].lpData == NULL) {
 					errmsg(
-					"No memory for sound buffers available.\n");
+					_("No memory for sound buffers available.\n"));
 					waveOutReset(0);
 					waveOutClose(DeviceID);
 					return (1);
@@ -378,7 +379,7 @@ init_soundcard(rate, bits)
 					waveOutGetErrorText(mmres, erstr,
 							sizeof (erstr));
 					errmsgno(EX_BAD,
-					"soundcard prepare error: %s!\n",
+					_("soundcard prepare error: %s!\n"),
 						erstr);
 					return (1);
 				}
@@ -427,7 +428,7 @@ init_soundcard(rate, bits)
 			/*
 			 * no sound
 			 */
-			errmsgno(EX_BAD, "No sound devices available!\n");
+			errmsgno(EX_BAD, _("No sound devices available!\n"));
 			global.echo = 0;
 			return (1);
 		}
@@ -456,7 +457,7 @@ init_soundcard(rate, bits)
 				MCI_GENERIC_PARMS	mciGenericParms;
 
 				errmsgno(EX_BAD,
-				"Soundcard capabilities are not sufficient!\n");
+				_("Soundcard capabilities are not sufficient!\n"));
 				global.echo = 0;
 				/*
 				 * close
@@ -480,14 +481,14 @@ init_soundcard(rate, bits)
 			rtn = snd_pcm_open_preferred(&pcm_handle,
 				&card, &dev, SND_PCM_OPEN_PLAYBACK);
 			if (rtn < 0) {
-				errmsg("Error opening sound device.\n");
+				errmsg(_("Error opening sound device.\n"));
 				return (1);
 			}
 		} else {
 			rtn = snd_pcm_open(&pcm_handle,
 				card, dev, SND_PCM_OPEN_PLAYBACK);
 			if (rtn < 0) {
-				errmsg("Error opening sound device.\n");
+				errmsg(_("Error opening sound device.\n"));
 				return (1);
 			}
 		}
@@ -496,7 +497,7 @@ init_soundcard(rate, bits)
 		pi.channel = SND_PCM_CHANNEL_PLAYBACK;
 		rtn = snd_pcm_plugin_info(pcm_handle, &pi);
 		if (rtn < 0) {
-			errmsg("Snd_pcm_plugin_info failed: '%s'.\n",
+			errmsg(_("Snd_pcm_plugin_info failed: '%s'.\n"),
 				snd_strerror(rtn));
 			return (1);
 		}
@@ -522,7 +523,7 @@ init_soundcard(rate, bits)
 
 		rtn = snd_pcm_plugin_params(pcm_handle, &pp);
 		if (rtn < 0) {
-			errmsg("Snd_pcm_plugin_params failed: '%s'.\n",
+			errmsg(_("Snd_pcm_plugin_params failed: '%s'.\n"),
 				snd_strerror(rtn));
 			return (1);
 		}
@@ -530,7 +531,7 @@ init_soundcard(rate, bits)
 		rtn = snd_pcm_plugin_prepare(pcm_handle,
 						SND_PCM_CHANNEL_PLAYBACK);
 		if (rtn < 0) {
-			errmsg("Snd_pcm_plugin_prepare failed: '%s'.\n",
+			errmsg(_("Snd_pcm_plugin_prepare failed: '%s'.\n"),
 				snd_strerror(rtn));
 			return (1);
 		}
@@ -631,7 +632,7 @@ write_snd_device(buffer, todo)
 		char erstr[129];
 
 		waveOutGetErrorText(mmres, erstr, sizeof (erstr));
-		errmsgno(EX_BAD, "Soundcard write error: %s!\n", erstr);
+		errmsgno(EX_BAD, _("Soundcard write error: %s!\n"), erstr);
 		return (1);
 	}
 	if (++lastwav >= WAVEHDRS)
@@ -650,7 +651,7 @@ write_snd_device(buffer, todo)
 	 */
 	memset(&mciPlayParms, 0, sizeof (mciPlayParms));
 	if (mciSendCommand(DeviceID, MCI_PLAY, MCI_FROM, &mciPlayParms, 0)) {
-		errmsgno(EX_BAD, "Soundcard write error: %s!\n", erstr);
+		errmsgno(EX_BAD, _("Soundcard write error: %s!\n"), erstr);
 		return (1);
 	}
 	result = 0;
@@ -678,7 +679,7 @@ write_snd_device(buffer, todo)
 		switch (retval2) {
 
 		default:
-		case -1: errmsg("Select failed.\n");
+		case -1: errmsg(_("Select failed.\n"));
 			/* FALLTHROUGH */
 		case 0: /* timeout */
 			result = 2;
@@ -694,7 +695,7 @@ write_snd_device(buffer, todo)
 		wrote = write(global.soundcard_fd, buffer, towrite);
 #endif
 		if (wrote <= 0) {
-			errmsg("Can't write audio.\n");
+			errmsg(_("Can't write audio.\n"));
 			result = 1;
 			goto outside_loop;
 		} else {

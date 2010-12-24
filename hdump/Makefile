@@ -1,4 +1,4 @@
-#ident %W% %E% %Q%
+#ident @(#)Makefile	1.10 10/12/23 
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -8,9 +8,12 @@ include		$(SRCROOT)/$(RULESDIR)/rules.top
 INSDIR=		bin
 TARGET=		hdump
 HARDLINKS=	od
+#HARDLINKS=	../xpg4/bin/od
 CPPOPTS +=	-DUSE_LARGEFILES
 CPPOPTS +=	-DSCHILY_PRINT
 CPPOPTS +=	-DUSE_NLS
+CPPOPTS +=	-DINS_BASE=\"${INS_BASE}\"
+CPPOPTS +=	-DTEXT_DOMAIN=\"SCHILY_UTILS\"
 #
 # Selectively increase the opimisation for hdump for better performance
 #
@@ -27,8 +30,7 @@ GCCOPTOPT=	-O3  -fexpensive-optimizations
 #
 CFILES=		hdump.c
 #HFILES=
-#LIBS=		-lunos
-LIBS=		-lschily
+LIBS=		-lschily $(LIB_INTL)
 XMK_FILE=	Makefile.man
 
 ###########################################################################

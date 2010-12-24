@@ -1,8 +1,8 @@
-/* @(#)isodebug.c	1.27 10/05/24 Copyright 1996-2010 J. Schilling */
+/* @(#)isodebug.c	1.28 10/12/19 Copyright 1996-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)isodebug.c	1.27 10/05/24 Copyright 1996-2010 J. Schilling";
+	"@(#)isodebug.c	1.28 10/12/19 Copyright 1996-2010 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1996-2010 J. Schilling
@@ -32,6 +32,7 @@ static	UConst char sccsid[] =
 #include <schily/utypes.h>
 #include <schily/intcvt.h>
 #include <schily/schily.h>
+#include <schily/nlsdefs.h>
 
 #include "../scsi.h"
 #include "cdrdeflt.h"
@@ -119,15 +120,15 @@ LOCAL void
 usage(excode)
 	int	excode;
 {
-	errmsgno(EX_BAD, "Usage: %s [options] image\n",
+	errmsgno(EX_BAD, _("Usage: %s [options] image\n"),
 						get_progname());
 
-	error("Options:\n");
-	error("\t-help,-h	Print this help\n");
-	error("\t-version	Print version info and exit\n");
-	error("\t-i filename	Filename to read ISO-9660 image from\n");
-	error("\tdev=target	SCSI target to use as CD/DVD-Recorder\n");
-	error("\nIf neither -i nor dev= are speficied, <image> is needed.\n");
+	error(_("Options:\n"));
+	error(_("\t-help,-h	Print this help\n"));
+	error(_("\t-version	Print version info and exit\n"));
+	error(_("\t-i filename	Filename to read ISO-9660 image from\n"));
+	error(_("\tdev=target	SCSI target to use as CD/DVD-Recorder\n"));
+	error(_("\nIf neither -i nor dev= are speficied, <image> is needed.\n"));
 	exit(excode);
 }
 
@@ -237,24 +238,46 @@ main(argc, argv)
 	BOOL	prvers = FALSE;
 	char	*filename = NULL;
 	char	*sdevname = NULL;
+#if	defined(USE_NLS)
+	char	*dir;
+#endif
 	char	*p;
 	char	*eol;
 
 	save_args(argc, argv);
 
+#if	defined(USE_NLS)
+	setlocale(LC_ALL, "");
+#if !defined(TEXT_DOMAIN)	/* Should be defined by cc -D */
+#define	TEXT_DOMAIN "isoinfo"	/* Use this only if it weren't */
+#endif
+	dir = searchfileinpath("share/locale", F_OK,
+					SIP_ANY_FILE|SIP_NO_PATH, NULL);
+	if (dir)
+		(void) bindtextdomain(TEXT_DOMAIN, dir);
+	else
+#if defined(PROTOTYPES) && defined(INS_BASE)
+	(void) bindtextdomain(TEXT_DOMAIN, INS_BASE "/share/locale");
+#else
+	(void) bindtextdomain(TEXT_DOMAIN, "/usr/share/locale");
+#endif
+	(void) textdomain(TEXT_DOMAIN);
+#endif
+
 	cac = argc - 1;
 	cav = argv + 1;
 	if (getallargs(&cac, &cav, opts, &help, &help, &prvers,
 			&filename, &sdevname) < 0) {
-		errmsgno(EX_BAD, "Bad Option: '%s'\n", cav[0]);
+		errmsgno(EX_BAD, _("Bad Option: '%s'\n"), cav[0]);
 		usage(EX_BAD);
 	}
 	if (help)
 		usage(0);
 	if (prvers) {
-		printf("isodebug %s (%s-%s-%s) Copyright (C) 1996-2010 Jörg Schilling\n",
+		printf(_("isodebug %s (%s-%s-%s) Copyright (C) 1996-2010 %s\n"),
 					VERSION,
-					HOST_CPU, HOST_VENDOR, HOST_OS);
+					HOST_CPU, HOST_VENDOR, HOST_OS,
+					_("Joerg Schilling"));
 		exit(0);
 	}
 	cac = argc - 1;
@@ -266,11 +289,11 @@ main(argc, argv)
 		}
 	}
 	if (getfiles(&cac, &cav, opts) != 0) {
-		errmsgno(EX_BAD, "Bad Argument: '%s'\n", cav[0]);
+		errmsgno(EX_BAD, _("Bad Argument: '%s'\n"), cav[0]);
 		usage(EX_BAD);
 	}
 	if (filename != NULL && sdevname != NULL) {
-		errmsgno(EX_BAD, "Only one of -i or dev= allowed\n");
+		errmsgno(EX_BAD, _("Only one of -i or dev= allowed\n"));
 		usage(EX_BAD);
 	}
 #ifdef	USE_SCG
@@ -278,7 +301,7 @@ main(argc, argv)
 		cdr_defaults(&sdevname, NULL, NULL, NULL, NULL);
 #endif
 	if (filename == NULL && sdevname == NULL) {
-		errmsgno(EX_BAD, "ISO-9660 image not specified\n");
+		errmsgno(EX_BAD, _("ISO-9660 image not specified\n"));
 		usage(EX_BAD);
 	}
 
@@ -294,12 +317,12 @@ main(argc, argv)
 #else
 	} else {
 #endif
-		comerr("Cannot open '%s'\n", filename);
+		comerr(_("Cannot open '%s'\n"), filename);
 	}
 
 	p = isodinfo(infile);
 	if (p == NULL) {
-		printf("No ISO-9660 image debug info.\n");
+		printf(_("No ISO-9660 image debug info.\n"));
 	} else if (strncmp(p, "MKI ", 4) == 0) {
 		int	sum;
 
@@ -310,14 +333,14 @@ main(argc, argv)
 		sum += p[2047] & 0xFF;
 		p[2045] = '\0';
 		if (sum == vol_desc_sum)
-			printf("ISO-9660 image includes checksum signature for correct inode numbers.\n");
+			printf(_("ISO-9660 image includes checksum signature for correct inode numbers.\n"));
 
 		eol = strchr(p, '\n');
 		if (eol)
 			*eol = '\0';
-		printf("ISO-9660 image created at %s\n", &p[4]);
+		printf(_("ISO-9660 image created at %s\n"), &p[4]);
 		if (eol) {
-			printf("\nCmdline: '%s'\n", &eol[1]);
+			printf(_("\nCmdline: '%s'\n"), &eol[1]);
 		}
 	}
 	return (0);

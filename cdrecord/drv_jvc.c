@@ -1,8 +1,8 @@
-/** @(#)drv_jvc.c	1.94 10/05/11 Copyright 1997-2010 J. Schilling */
+/** @(#)drv_jvc.c	1.95 10/12/19 Copyright 1997-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)drv_jvc.c	1.94 10/05/11 Copyright 1997-2010 J. Schilling";
+	"@(#)drv_jvc.c	1.95 10/12/19 Copyright 1997-2010 J. Schilling";
 #endif
 /*
  *	CDR device implementation for
@@ -40,6 +40,7 @@ static	UConst char sccsid[] =
 #include <schily/btorder.h>
 #include <schily/intcvt.h>
 #include <schily/schily.h>
+#include <schily/nlsdefs.h>
 
 #include <scg/scgcmd.h>
 #include <scg/scsidefs.h>
@@ -502,7 +503,7 @@ open_track_jvc(scgp, dp, trackp)
 
 if (trackp->pregapsize != 0) {
 	if (lverbose > 1) {
-		printf("set_limits(%ld, %ld)-> %ld\n",
+		printf(_("set_limits(%ld, %ld)-> %ld\n"),
 		lba_addr, trackp->pregapsize, lba_addr + trackp->pregapsize);
 	}
 
@@ -517,7 +518,7 @@ if (trackp->pregapsize != 0) {
 			st2mode[trackp->sectype&ST_MASK], ADR_POS, trackp->trackno, 0);
 
 	if (lverbose > 1)
-		scg_prbytes("Subcode:", (Uchar *)&sc, sizeof (sc));
+		scg_prbytes(_("Subcode:"), (Uchar *)&sc, sizeof (sc));
 
 	status = set_subcode(scgp, (Uchar *)&sc, sizeof (sc));
 	if (status < 0)
@@ -529,7 +530,7 @@ if (trackp->pregapsize != 0) {
 		pregapsize -= 5;
 	}
 	if (lverbose > 1) {
-		printf("pad_track(%ld, %ld)-> %ld\n",
+		printf(_("pad_track(%ld, %ld)-> %ld\n"),
 			lba_addr, pregapsize, lba_addr + pregapsize);
 	}
 	/*
@@ -558,7 +559,7 @@ if (!is_last(trackp) && trackp[1].pregapsize == 0)
 	 * We definitely need to know the tracksize in this driver.
 	 */
 	if (lverbose > 1) {
-		printf("set_limits(%ld, %ld)-> %ld\n",
+		printf(_("set_limits(%ld, %ld)-> %ld\n"),
 			lba_addr, blocks, lba_addr + blocks);
 	}
 	status = set_limits(scgp, lba_addr, blocks);
@@ -572,7 +573,7 @@ if (!is_last(trackp) && trackp[1].pregapsize == 0)
 			st2mode[trackp->sectype&ST_MASK], ADR_POS, trackp->trackno, 1);
 
 	if (lverbose > 1)
-		scg_prbytes("Subcode:", (Uchar *)&sc, sizeof (sc));
+		scg_prbytes(_("Subcode:"), (Uchar *)&sc, sizeof (sc));
 
 	status = set_subcode(scgp, (Uchar *)&sc, sizeof (sc));
 	if (status < 0)
@@ -583,7 +584,7 @@ if (!is_last(trackp) && trackp[1].pregapsize == 0) {
 	pregapsize = 150;
 
 	if (lverbose > 1) {
-		printf("set_limits(%ld, %ld)-> %ld\n",
+		printf(_("set_limits(%ld, %ld)-> %ld\n"),
 		blocks, pregapsize, blocks + pregapsize);
 	}
 
@@ -599,7 +600,7 @@ if (!is_last(trackp) && trackp[1].pregapsize == 0) {
 			st2mode[trackp->sectype&ST_MASK], ADR_POS, trackp->trackno, 0);
 
 	if (lverbose > 1)
-		scg_prbytes("Subcode:", (Uchar *)&sc, sizeof (sc));
+		scg_prbytes(_("Subcode:"), (Uchar *)&sc, sizeof (sc));
 
 	status = set_subcode(scgp, (Uchar *)&sc, sizeof (sc));
 	if (status < 0)
@@ -619,7 +620,7 @@ close_track_teac(scgp, dp, trackp)
 	int	ret = 0;
 
 	if (!last_done) {
-		printf("WARNING: adding dummy block to close track.\n");
+		printf(_("WARNING: adding dummy block to close track.\n"));
 		/*
 		 * need read sector size
 		 * XXX do we really need this ?
@@ -732,7 +733,7 @@ extern	char	*buf;
 		 */
 		teac_rd_pma(scgp);
 /*		errmsgno(EX_BAD, "Cannot fixate zero track disk.\n");*/
-		errmsgno(EX_BAD, "Cannot fixate without track list (not yet implemented).\n");
+		errmsgno(EX_BAD, _("Cannot fixate without track list (not yet implemented).\n"));
 		return (-1);
 	}
 	sp = (Uchar *)buf;
@@ -794,10 +795,10 @@ extern	char	*buf;
 	 */
 	lba = lba_addr + 150;
 	if (lverbose > 1)
-	printf("lba: %ld lba_addr: %ld\n", lba, lba_addr);
+	printf(_("lba: %ld lba_addr: %ld\n"), lba, lba_addr);
 
 	if (lverbose > 1)
-	printf("Lead out start: (%02d:%02d/%02d)\n",
+	printf(_("Lead out start: (%02d:%02d/%02d)\n"),
 			minutes(lba*2352),
 			seconds(lba*2352),
 			frames(lba*2352));
@@ -812,8 +813,8 @@ extern	char	*buf;
 
 	status = sp - ((Uchar *)buf);
 	if (lverbose > 1) {
-		printf("Subcode len: %d\n", status);
-		scg_prbytes("Subcode:", (Uchar *)buf, status);
+		printf(_("Subcode len: %d\n"), status);
+		scg_prbytes(_("Subcode:"), (Uchar *)buf, status);
 	}
 	status = set_subcode(scgp, (Uchar *)buf, status);
 	sleep(1);
@@ -843,7 +844,7 @@ teac_open_session(scgp, dp, trackp)
 			 * XXX and correct it in clode track before writing
 			 * XXX the PMA?
 			 */
-			errmsgno(EX_BAD, "Track %d has unknown length.\n", i);
+			errmsgno(EX_BAD, _("Track %d has unknown length.\n"), i);
 			return (-1);
 		}
 	}
@@ -878,7 +879,7 @@ teac_doopc(scgp)
 	int	status;
 
 	if (lverbose) {
-		fprintf(stdout, "Judging disk...");
+		fprintf(stdout, _("Judging disk..."));
 		flush();
 	}
 	status = opt_power_judge(scgp, 1);
@@ -887,13 +888,13 @@ teac_doopc(scgp)
 		return (status);
 	}
 	if (lverbose) {
-		fprintf(stdout, "done.\nCalibrating laser...");
+		fprintf(stdout, _("done.\nCalibrating laser..."));
 		flush();
 	}
 
 	status = opt_power_judge(scgp, 0);
 	if (lverbose) {
-		fprintf(stdout, "done.\n");
+		fprintf(stdout, _("done.\n"));
 	}
 	/*
 	 * Check for error codes 0xCD ... 0xCF
@@ -1153,13 +1154,13 @@ teac_rd_pma(scgp)
 		return (-1);
 
 	if (scgp->verbose) {
-		scg_prbytes("PMA Data", xx, sizeof (xx) - scg_getresid(scgp));
+		scg_prbytes(_("PMA Data"), xx, sizeof (xx) - scg_getresid(scgp));
 	}
 	if (lverbose) {
 		unsigned i;
 		Uchar	*p;
 
-		scg_prbytes("PMA Header: ", xx, 4);
+		scg_prbytes(_("PMA Header: "), xx, 4);
 		i = xx[2];
 		p = &xx[4];
 		for (; i <= xx[3]; i++) {
@@ -1197,7 +1198,7 @@ next_wr_addr_teac(scgp, start_lba, last_lba)
 	i_to_4_byte(&scmd->cdb.g5_cdb.count[0], last_lba);
 
 	if (scgp->verbose)
-		printf("start lba: %ld last lba: %ld\n",
+		printf(_("start lba: %ld last lba: %ld\n"),
 					start_lba, last_lba);
 
 	scgp->cmdname = "next writable address";
@@ -1207,8 +1208,8 @@ next_wr_addr_teac(scgp, start_lba, last_lba)
 		return (-1);
 
 	if (scgp->verbose) {
-		scg_prbytes("WRa Data", xx, sizeof (xx) - scg_getresid(scgp));
-		printf("NWA: %ld\n", a_to_4_byte(xx));
+		scg_prbytes(_("WRa Data"), xx, sizeof (xx) - scg_getresid(scgp));
+		printf(_("NWA: %ld\n"), a_to_4_byte(xx));
 	}
 	return (0);
 }
@@ -1223,7 +1224,7 @@ blank_jvc(scgp, dp, addr, blanktype)
 	extern	char	*blank_types[];
 
 	if (lverbose) {
-		printf("Blanking %s\n", blank_types[blanktype & 0x07]);
+		printf(_("Blanking %s\n"), blank_types[blanktype & 0x07]);
 		flush();
 	}
 
@@ -1252,7 +1253,7 @@ buf_cap_teac(scgp, sp, fp)
 		*fp = freespace;
 
 	if (scgp->verbose || (sp == 0 && fp == 0))
-		printf("BFree: %ld K BSize: %ld K\n", freespace >> 10, bufsize >> 10);
+		printf(_("BFree: %ld K BSize: %ld K\n"), freespace >> 10, bufsize >> 10);
 
 	if (bufsize == 0)
 		return (0);
@@ -1292,8 +1293,8 @@ read_peak_buffer_cap_teac(scgp)
 		return (-1);
 
 	if (scgp->verbose) {
-		scg_prbytes("WRa Data", xx, sizeof (xx) - scg_getresid(scgp));
-		printf("Buffer cap: %ld\n", a_to_u_3_byte(&xx[1]));
+		scg_prbytes(_("WRa Data"), xx, sizeof (xx) - scg_getresid(scgp));
+		printf(_("Buffer cap: %ld\n"), a_to_u_3_byte(&xx[1]));
 	}
 	return (a_to_u_3_byte(&xx[1]));
 /*	return (0);*/
@@ -1348,7 +1349,7 @@ buffer_inquiry_teac(scgp, fmt)
 /*		scg_prbytes("WRa Data", xx, 1);*/
 
 		if (fmt > 0) printf("fmt: %X ", fmt);
-		scg_prbytes("WRa Data", xx, 9);
+		scg_prbytes(_("WRa Data"), xx, 9);
 		printf("%d\n", xx[8] - xx[1]);
 /*		printf("Buffer cap: %ld\n", a_to_u_3_byte(&xx[1]));*/
 	}
@@ -1408,7 +1409,7 @@ g7_teac(scgp)
 		return (-1);
 
 /*	if (scgp->verbose) {*/
-		scg_prbytes("WRa Data", xx, sizeof (xx) - scg_getresid(scgp));
+		scg_prbytes(_("WRa Data"), xx, sizeof (xx) - scg_getresid(scgp));
 /*		scg_prbytes("WRa Data", xx, 1);*/
 /*		scg_prbytes("WRa Data", xx, 9);*/
 /*printf("%d\n", xx[8] - xx[1]);*/
@@ -1448,7 +1449,7 @@ g6_teac(scgp)
 		return (-1);
 
 /*	if (scgp->verbose) {*/
-		scg_prbytes("WRa Data", xx, sizeof (xx) - scg_getresid(scgp));
+		scg_prbytes(_("WRa Data"), xx, sizeof (xx) - scg_getresid(scgp));
 /*		scg_prbytes("WRa Data", xx, 1);*/
 /*		scg_prbytes("WRa Data", xx, 9);*/
 /*printf("%d\n", xx[8] - xx[1]);*/
@@ -1472,7 +1473,7 @@ xxtest_teac(scgp)
 /*		read_disk_info_teac(scgp, cbuf, 512, 2);*/
 /*		read_disk_info_teac(scgp, cbuf, 512, 2);*/
 		read_disk_info_teac(scgp, cbuf, 512, 3);
-		scg_prbytes("DI Data", cbuf, sizeof (cbuf) - scg_getresid(scgp));
+		scg_prbytes(_("DI Data"), cbuf, sizeof (cbuf) - scg_getresid(scgp));
 	}
 #endif	/* XDI */
 

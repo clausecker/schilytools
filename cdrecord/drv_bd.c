@@ -1,8 +1,8 @@
-/* @(#)drv_bd.c	1.19 10/05/17 Copyright 2007-2010 J. Schilling */
+/* @(#)drv_bd.c	1.20 10/12/19 Copyright 2007-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)drv_bd.c	1.19 10/05/17 Copyright 2007-2010 J. Schilling";
+	"@(#)drv_bd.c	1.20 10/12/19 Copyright 2007-2010 J. Schilling";
 #endif
 /*
  *	Copyright (c) 2007-2010 J. Schilling
@@ -77,6 +77,7 @@ static	UConst char sccsid[] =
 #include <schily/btorder.h>
 #include <schily/intcvt.h>
 #include <schily/schily.h>
+#include <schily/nlsdefs.h>
 
 #include <scg/scgcmd.h>
 #include <scg/scsidefs.h>
@@ -350,7 +351,7 @@ identify_bd(scgp, dp, ip)
 
 	profile = get_curprofile(scgp);
 	if (xdebug)
-		printf("Current profile: 0x%04X\n", profile);
+		printf(_("Current profile: 0x%04X\n"), profile);
 
 	if (profile == 0x0043) {
 		dp = &cdr_bdre;
@@ -359,7 +360,7 @@ identify_bd(scgp, dp, ip)
 	} else if (profile == 0x0040) {
 		dp = &cdr_bdrom;
 	} else {
-		errmsgno(EX_BAD, "Found unsupported 0x%X profile.\n", profile);
+		errmsgno(EX_BAD, _("Found unsupported 0x%X profile.\n"), profile);
 		return ((cdr_t *)0);
 	}
 
@@ -416,7 +417,7 @@ attach_bd(scgp, dp)
 	mp2Aspeed = a_to_u_2_byte(mp->max_write_speed);
 
 	if (lverbose > 2) {
-		printf("max page 2A speed %lu (%lux), max perf speed %lu (%lux)\n",
+		printf(_("max page 2A speed %lu (%lux), max perf speed %lu (%lux)\n"),
 			mp2Aspeed, mp2Aspeed/4495,
 			xspeed, xspeed/4495);
 	}
@@ -599,7 +600,7 @@ again:
 	 * Check for non writable disk first.
 	 */
 #ifdef	BD_DEBUG
-error("DISK STATUS %X\n", dip->disk_status);
+error(_("DISK STATUS %X\n"), dip->disk_status);
 #endif
 	if (dip->disk_status == DS_COMPLETE &&
 			(dsp->ds_cdrflags & (RF_WRITE|RF_BLANK)) == RF_WRITE) {
@@ -621,7 +622,7 @@ error("DISK STATUS %X\n", dip->disk_status);
 			 * it is mentioned in the MMC standard.
 			 */
 			if (lverbose)
-				printf("Trying to clear drive status.\n");
+				printf(_("Trying to clear drive status.\n"));
 
 			dp->cdr_cmdflags &= ~F_DUMMY;
 			speed_select_bd(scgp, dp, &xspeed);
@@ -747,7 +748,7 @@ error("NWAv %d Next rec addr %d\n", rp->nwa_v, (int)a_to_u_4_byte(rp->next_recor
 	 */
 	fillbytes((caddr_t)mode, sizeof (mode), '\0');
 	if (read_dvd_structure(scgp, (caddr_t)mode, 2, 1, 0, 0, 0) < 0) {
-		errmsgno(EX_BAD, "Cannot read BD structure.\n");
+		errmsgno(EX_BAD, _("Cannot read BD structure.\n"));
 		return (drive_getdisktype(scgp, dp));
 	}
 	len = a_to_u_2_byte(mode);
@@ -777,10 +778,10 @@ error("NWAv %d Next rec addr %d\n", rp->nwa_v, (int)a_to_u_4_byte(rp->next_recor
 	    (a_to_u_3_byte(sp->phys_end) != 0) &&
 			(dsp->ds_maxblocks !=
 			(long)(a_to_u_3_byte(sp->phys_end) - a_to_u_3_byte(sp->phys_start) + 1))) {
-		printf("WARNING: Phys disk size %ld differs from rzone size %ld! Prerecorded disk?\n",
+		printf(_("WARNING: Phys disk size %ld differs from rzone size %ld! Prerecorded disk?\n"),
 			(long)(a_to_u_3_byte(sp->phys_end) - a_to_u_3_byte(sp->phys_start) + 1),
 			(long)dsp->ds_maxblocks);
-		printf("WARNING: Phys start: %ld Phys end %ld\n",
+		printf(_("WARNING: Phys start: %ld Phys end %ld\n"),
 			(long)a_to_u_3_byte(sp->phys_start),
 			(long)a_to_u_3_byte(sp->phys_end));
 	}
@@ -808,7 +809,7 @@ error("end_lba; %lu\n", end_lba);
 #endif
 	if ((Int32_t)end_lba > dsp->ds_maxblocks) {
 		if (maxblocks == 0)
-			printf("WARNING: Drive returns zero media size, correcting.\n");
+			printf(_("WARNING: Drive returns zero media size, correcting.\n"));
 		dsp->ds_maxblocks = end_lba + 1;
 	}
 
@@ -849,7 +850,7 @@ speed_select_bd(scgp, dp, speedp)
 
 	fillbytes((caddr_t)mode, sizeof (mode), '\0');
 
-	if (!get_mode_params(scgp, 0x05, "CD write parameter",
+	if (!get_mode_params(scgp, 0x05, _("CD write parameter"),
 			mode, (Uchar *)0, (Uchar *)0, (Uchar *)0, &len))
 		return (-1);
 	if (len == 0)
@@ -860,13 +861,13 @@ speed_select_bd(scgp, dp, speedp)
 		((struct scsi_mode_header *)mode)->blockdesc_len);
 #ifdef	DEBUG
 	if (lverbose > 1)
-		scg_prbytes("CD write parameter:", (Uchar *)mode, len);
+		scg_prbytes(_("CD write parameter:"), (Uchar *)mode, len);
 #endif
 
 
 	if (get_curprofile(scgp) == 0x0043) {	/* This is a BD-RE */
 		if (dummy != 0) {
-			errmsgno(EX_BAD, "BD-RE has no -dummy mode.\n");
+			errmsgno(EX_BAD, _("BD-RE has no -dummy mode.\n"));
 			return (-1);
 		}
 		if (dp->cdr_cmdflags & F_FIX)
@@ -886,9 +887,9 @@ speed_select_bd(scgp, dp, speedp)
 
 #ifdef	DEBUG
 	if (lverbose > 1)
-		scg_prbytes("CD write parameter:", (Uchar *)mode, len);
+		scg_prbytes(_("CD write parameter:"), (Uchar *)mode, len);
 #endif
-	if (!set_mode_params(scgp, "CD write parameter", mode, len, 0, -1)) {
+	if (!set_mode_params(scgp, _("CD write parameter"), mode, len, 0, -1)) {
 		return (-1);
 	}
 
@@ -905,21 +906,21 @@ speed_select_bd(scgp, dp, speedp)
 	}
 
 	if (lverbose && (dp->cdr_flags & CDR_FORCESPEED) != 0)
-		printf("Forcespeed is %s.\n", forcespeed?"ON":"OFF");
+		printf(_("Forcespeed is %s.\n"), forcespeed?_("ON"):_("OFF"));
 
 	if (!forcespeed && (dp->cdr_dstat->ds_cdrflags & RF_FORCESPEED) != 0) {
-		printf("Turning forcespeed on\n");
+		printf(_("Turning forcespeed on\n"));
 		forcespeed = TRUE;
 	}
 	if (forcespeed && (dp->cdr_dstat->ds_cdrflags & RF_FORCESPEED) == 0) {
-		printf("Turning forcespeed off\n");
+		printf(_("Turning forcespeed off\n"));
 		forcespeed = FALSE;
 	}
 	if ((dp->cdr_flags & CDR_FORCESPEED) != 0) {
 
 		if (rp) {
 			rp->AWSCD = forcespeed?1:0;
-			set_mode_params(scgp, "Ricoh Vendor Page", moder, moder[0]+1, 0, -1);
+			set_mode_params(scgp, _("Ricoh Vendor Page"), moder, moder[0]+1, 0, -1);
 			rp = get_justlink_ricoh(scgp, moder);
 		}
 	}
@@ -933,7 +934,7 @@ speed_select_bd(scgp, dp, speedp)
 		val = 0x7FFFFFFF;
 	if (dp->cdr_flags & CDR_MMC3) {
 		if (speed_select_mdvd(scgp, -1, val) < 0)
-			errmsgno(EX_BAD, "MMC-3 speed select did not work.\n");
+			errmsgno(EX_BAD, _("MMC-3 speed select did not work.\n"));
 	} else {
 		if (val > 0xFFFF)
 			val = 0xFFFF;
@@ -1028,7 +1029,7 @@ next_wr_addr_bdr(scgp, trackp, ap)
 error("NWA: %ld valid: %d\n", dvd_next_addr, rz.nwa_v);
 #endif
 		if (lverbose > 1)
-			printf("next writable addr: %ld valid: %d\n", dvd_next_addr, rz.nwa_v);
+			printf(_("next writable addr: %ld valid: %d\n"), dvd_next_addr, rz.nwa_v);
 	}
 	if (ap)
 		*ap = dvd_next_addr;
@@ -1051,7 +1052,7 @@ open_track_bd(scgp, dp, trackp)
 
 	fillbytes((caddr_t)mode, sizeof (mode), '\0');
 
-	if (!get_mode_params(scgp, 0x05, "CD write parameter",
+	if (!get_mode_params(scgp, 0x05, _("CD write parameter"),
 			mode, (Uchar *)0, (Uchar *)0, (Uchar *)0, &len))
 		return (-1);
 	if (len == 0)
@@ -1079,9 +1080,9 @@ open_track_bd(scgp, dp, trackp)
 
 #ifdef	DEBUG
 	if (lverbose > 1)
-		scg_prbytes("CD write parameter:", (Uchar *)mode, len);
+		scg_prbytes(_("CD write parameter:"), (Uchar *)mode, len);
 #endif
-	if (!set_mode_params(scgp, "CD write parameter", mode, len, 0, trackp->secsize))
+	if (!set_mode_params(scgp, _("CD write parameter"), mode, len, 0, trackp->secsize))
 		return (-1);
 
 	/*
@@ -1127,11 +1128,11 @@ rzone_size(trackp)
 	if (i >= 1)
 		vtracks = TRUE;
 	if (vtracks && lverbose)
-		printf("Compiling virtual track list ...\n");
+		printf(_("Compiling virtual track list ...\n"));
 
 	for (i = 0; i < MAX_TRACK; i++) {
 		if (trackp[i].tracksize < (tsize_t)0) {
-			errmsgno(EX_BAD, "VTrack %d has unknown length.\n", i);
+			errmsgno(EX_BAD, _("VTrack %d has unknown length.\n"), i);
 			return (-1);
 		}
 		amount = roundup(trackp[i].tracksize, secsize);
@@ -1140,7 +1141,7 @@ rzone_size(trackp)
 		ttrsize += trackp[i].tracksize;
 		tamount += amount;
 		if (vtracks && lverbose)
-			printf("Vtrack:  %d size: %lld bytes %lld rounded (%lld sectors)\n",
+			printf(_("Vtrack:  %d size: %lld bytes %lld rounded (%lld sectors)\n"),
 				(int)trackp[i].track, (Llong)trackp[i].tracksize,
 				amount, amount / (Llong)secsize);
 
@@ -1153,12 +1154,12 @@ rzone_size(trackp)
 		 * XXX I believe that not.
 		 */
 		if (trackp[i].tracksize % secsize) {
-			comerrno(EX_BAD, "Virtual track %d is not a multiple of secsize.\n", (int)trackp[i].track);
+			comerrno(EX_BAD, _("Virtual track %d is not a multiple of secsize.\n"), (int)trackp[i].track);
 		}
 	}
 
 	if (vtracks && lverbose)
-		printf("Vtracks: %d size: %lld bytes %lld rounded (%ld sectors) total\n",
+		printf(_("Vtracks: %d size: %lld bytes %lld rounded (%ld sectors) total\n"),
 			i+1, ttrsize, tamount, sectors);
 
 	return (sectors);
@@ -1204,7 +1205,7 @@ open_session_dvd(scgp, dp, trackp)
 
 	fillbytes((caddr_t)mode, sizeof (mode), '\0');
 
-	if (!get_mode_params(scgp, 0x05, "CD write parameter",
+	if (!get_mode_params(scgp, 0x05, _("CD write parameter"),
 			mode, (Uchar *)0, (Uchar *)0, (Uchar *)0, &len))
 		return (-1);
 	if (len == 0)
@@ -1240,14 +1241,14 @@ open_session_dvd(scgp, dp, trackp)
 	}
 
 	if (lverbose && (dp->cdr_flags & CDR_BURNFREE) != 0)
-		printf("BURN-Free is %s.\n", burnfree?"ON":"OFF");
+		printf(_("BURN-Free is %s.\n"), burnfree?_("ON"):_("OFF"));
 
 	if (!burnfree && (dp->cdr_dstat->ds_cdrflags & RF_BURNFREE) != 0) {
-		printf("Turning BURN-Free on\n");
+		printf(_("Turning BURN-Free on\n"));
 		burnfree = TRUE;
 	}
 	if (burnfree && (dp->cdr_dstat->ds_cdrflags & RF_BURNFREE) == 0) {
-		printf("Turning BURN-Free off\n");
+		printf(_("Turning BURN-Free off\n"));
 		burnfree = FALSE;
 	}
 	if (dp->cdr_cdcap->BUF != 0) {
@@ -1260,17 +1261,17 @@ open_session_dvd(scgp, dp, trackp)
 	if (rp) {
 		i_to_2_byte(rp->link_counter, 0);
 		if (xdebug)
-			scg_prbytes("Mode Select Data ", moder, moder[0]+1);
+			scg_prbytes(_("Mode Select Data "), moder, moder[0]+1);
 
-		set_mode_params(scgp, "Ricoh Vendor Page", moder, moder[0]+1, 0, -1);
+		set_mode_params(scgp, _("Ricoh Vendor Page"), moder, moder[0]+1, 0, -1);
 		rp = get_justlink_ricoh(scgp, moder);
 	}
 
 #ifdef	DEBUG
 	if (lverbose > 1)
-		scg_prbytes("CD write parameter:", (Uchar *)mode, len);
+		scg_prbytes(_("CD write parameter:"), (Uchar *)mode, len);
 #endif
-	if (!set_mode_params(scgp, "CD write parameter", mode, len, 0, -1))
+	if (!set_mode_params(scgp, _("CD write parameter"), mode, len, 0, -1))
 		return (-1);
 
 	return (0);
@@ -1307,7 +1308,7 @@ fixate_bdre(scgp, dp, trackp)
 					scg_printerr(scgp);
 					scg_printresult(scgp);	/* XXX restore key/code in future */
 				}
-				printf("Trouble flushing the cache\n");
+				printf(_("Trouble flushing the cache\n"));
 				scgp->silent--;
 				scg_settimeout(scgp, oldtimeout);
 				return (-1);
@@ -1329,7 +1330,7 @@ fixate_bdre(scgp, dp, trackp)
 					scg_printerr(scgp);
 					scg_printresult(scgp);	/* XXX restore key/code in future */
 				}
-				printf("Trouble closing the session\n");
+				printf(_("Trouble closing the session\n"));
 				break;
 			}
 			sleep(1);
@@ -1379,7 +1380,7 @@ fixate_bdr(scgp, dp, trackp)
 					scg_printerr(scgp);
 					scg_printresult(scgp);	/* XXX restore key/code in future */
 				}
-				printf("Trouble flushing the cache\n");
+				printf(_("Trouble flushing the cache\n"));
 				scgp->silent--;
 				scg_settimeout(scgp, oldtimeout);
 				return (-1);
@@ -1410,7 +1411,7 @@ fixate_bdr(scgp, dp, trackp)
 					scg_printerr(scgp);
 					scg_printresult(scgp);	/* XXX restore key/code in future */
 				}
-				printf("Trouble closing the track\n");
+				printf(_("Trouble closing the track\n"));
 				break;
 			}
 			sleep(1);
@@ -1431,7 +1432,7 @@ fixate_bdr(scgp, dp, trackp)
 					scg_printerr(scgp);
 					scg_printresult(scgp);	/* XXX restore key/code in future */
 				}
-				printf("Trouble closing the last session\n");
+				printf(_("Trouble closing the last session\n"));
 				break;
 			}
 			sleep(1);
@@ -1522,8 +1523,8 @@ format_bd(scgp, dp, fmtflags)
 		return (-1);
 
 #ifdef	BD_DEBUG
-	error("Cap len: %d\n", len);
-	scg_prbytes("Format cap:", (Uchar *)cap_buf, len);
+	error(_("Cap len: %d\n"), len);
+	scg_prbytes(_("Format cap:"), (Uchar *)cap_buf, len);
 #endif
 
 	cp = (struct scsi_cap_data *)cap_buf;
@@ -1531,7 +1532,7 @@ format_bd(scgp, dp, fmtflags)
 	len -= sizeof (struct scsi_format_cap_header);
 	if (lp->desc_type == 2) {
 		if ((dp->cdr_cmdflags & F_FORCE) == 0) {
-			errmsgno(EX_BAD, "Medium is already formatted.\n");
+			errmsgno(EX_BAD, _("Medium is already formatted.\n"));
 			return (-1);
 		}
 	}
@@ -1555,7 +1556,7 @@ format_bd(scgp, dp, fmtflags)
 		}
 	}
 	if (blocks == 0) {
-		errmsgno(EX_BAD, "BD-RE Full format with spares, capacity not found.\n");
+		errmsgno(EX_BAD, _("BD-RE Full format with spares, capacity not found.\n"));
 		return (-1);
 	}
 
@@ -1572,14 +1573,14 @@ format_bd(scgp, dp, fmtflags)
 	i_to_3_byte(lp->blen, blen);
 
 #ifdef	BD_DEBUG
-	scg_prbytes("Format desc:", (Uchar *)fmt_buf, 12);
+	scg_prbytes(_("Format desc:"), (Uchar *)fmt_buf, 12);
 #endif
 
 	if (lverbose) {
 		/*
 		 * XXX evt. restart Format ansagen...
 		 */
-		printf("Formatting media\n");
+		printf(_("Formatting media\n"));
 		flush();
 	}
 	starttime.tv_sec = 0;
@@ -1598,15 +1599,15 @@ format_bd(scgp, dp, fmtflags)
 /*	if (ret >= 0 && lverbose) {*/
 	if (1) {
 		gettimeofday(&stoptime, (struct timezone *)0);
-		prtimediff("Format time: ", &starttime, &stoptime);
+		prtimediff(_("Format time: "), &starttime, &stoptime);
 	}
 #endif
 	waitformat(scgp, 300);
 
 #ifdef	BD_DEBUG
 	gettimeofday(&stoptime2, (struct timezone *)0);
-	prtimediff("Format WAIT time: ", &stoptime, &stoptime2);
-	prtimediff("Format time TOTAL: ", &starttime, &stoptime2);
+	prtimediff(_("Format WAIT time: "), &stoptime, &stoptime2);
+	prtimediff(_("Format time TOTAL: "), &starttime, &stoptime2);
 #endif
 	return (0);
 }
@@ -1652,7 +1653,7 @@ scg_printerr(scgp);
 
 		if (lverbose && (sensebuf[15] & 0x80)) {
 			printed++;
-			error("operation %d%% done\r",
+			error(_("operation %d%% done\r"),
 				(100*(sensebuf[16] << 8 |
 					sensebuf[17]))/(unsigned)65536);
 		}
@@ -1682,9 +1683,9 @@ stats_bd(scgp, dp)
 		count = a_to_u_2_byte(rp->link_counter);
 		if (lverbose) {
 			if (count == 0)
-				printf("BURN-Free was not used.\n");
+				printf(_("BURN-Free was not used.\n"));
 			else
-				printf("BURN-Free was %d times used.\n",
+				printf(_("BURN-Free was %d times used.\n"),
 					(int)count);
 		}
 	}
@@ -1724,10 +1725,10 @@ format_unit(scgp, fmt, length, list_format, dgdl, interlv, pattern, timeout)
 	scmd->cdb.g0_cdb.count = interlv;
 
 #ifdef	BD_DEBUG
-	scg_prbytes("Format CDB: ", (u_char *)scmd->cdb.cmd_cdb, scmd->cdb_len);
+	scg_prbytes(_("Format CDB: "), (u_char *)scmd->cdb.cmd_cdb, scmd->cdb_len);
 
 /*	if (scgp->verbose && fmt)*/
-		scg_prbytes("Format Data:", (u_char *)fmt, length);
+		scg_prbytes(_("Format Data:"), (u_char *)fmt, length);
 #endif
 
 	scgp->cmdname = "format unit";
@@ -1745,7 +1746,7 @@ print_bd_info(scgp)
 	int	i;
 
 	if (lverbose > 2)
-		printf("Enterning BD info....\n");
+		printf(_("Enterning BD info....\n"));
 	/*
 	 * The ACARD TECH AEC-7720 ATAPI<->SCSI adaptor
 	 * chokes if we try to transfer odd byte counts (rounds up to
@@ -1759,10 +1760,10 @@ print_bd_info(scgp)
 	if (lverbose > 1)
 		mode_sense(scgp, mode, 250, 0x3F, 0);
 	if (lverbose > 2)
-		scg_prbytes("Mode: ", mode, 250 - scg_getresid(scgp));
+		scg_prbytes(_("Mode: "), mode, 250 - scg_getresid(scgp));
 	wait_unit_ready(scgp, 120);
 	if (lverbose > 1) {
-		printf("Supported BD (readable) structures:");
+		printf(_("Supported BD (readable) structures:"));
 		scgp->silent++;
 		for (i = 0; i <= 255; i++) {
 			fillbytes((caddr_t)mode, sizeof (mode), '\0');
@@ -1774,7 +1775,7 @@ print_bd_info(scgp)
 		printf("\n");
 /*		printf("Page: %d ret: %d len: %d\n", i, ret, sizeof (mode) - scg_getresid(scgp));*/
 		if (lverbose > 2)
-			scg_prbytes("Page FF: ", mode, sizeof (mode) - scg_getresid(scgp));
+			scg_prbytes(_("Page FF: "), mode, sizeof (mode) - scg_getresid(scgp));
 		if (sizeof (mode) - scg_getresid(scgp) > 4) {
 			int	len = a_to_u_2_byte(mode) - 2;
 			Uchar	*p = &mode[4];
@@ -1783,12 +1784,12 @@ print_bd_info(scgp)
 			len /= 4;
 			for (i = 0; i < len; i++) {
 				m = p[1] & 0xC0;
-				printf("Page %02X %s  (%02X) len %d\n",
+				printf(_("Page %02X %s  (%02X) len %d\n"),
 					*p & 0xFF,
 					m == 0xC0 ?
-					"read/write" :
-					(m == 0x80 ? "     write" :
-					(m == 0x40 ? "read      " : "unknown   ")),
+					_("read/write") :
+					(m == 0x80 ? _("     write") :
+					(m == 0x40 ? _("read      ") : _("unknown   "))),
 					p[1] & 0xFF,
 					a_to_u_2_byte(&p[2]));
 				p += 4;
@@ -1806,7 +1807,7 @@ print_bd_info(scgp)
 	scgp->silent--;
 	if (ret >= 0) {
 		if (lverbose > 2) {
-			scg_prbytes("BD structure[0]: ",
+			scg_prbytes(_("BD structure[0]: "),
 				mode, sizeof (mode) - scg_getresid(scgp));
 /*			scg_prascii("BD structure[0]: ", mode, sizeof (mode) - scg_getresid(scgp));*/
 		}
@@ -1820,9 +1821,9 @@ print_bd_info(scgp)
 	scgp->silent--;
 	if (ret >= 0) {
 		if (lverbose > 2) {
-			scg_prbytes("BD structure[0x09]: ",
+			scg_prbytes(_("BD structure[0x09]: "),
 				mode, sizeof (mode) - scg_getresid(scgp));
-			scg_prascii("BD structure[0x09]: ", mode, sizeof (mode) - scg_getresid(scgp));
+			scg_prascii(_("BD structure[0x09]: "), mode, sizeof (mode) - scg_getresid(scgp));
 		}
 		print_bd09(mode);
 	}
@@ -1832,9 +1833,9 @@ print_bd_info(scgp)
 	scgp->silent--;
 	if (ret >= 0) {
 		if (lverbose > 2) {
-			scg_prbytes("BD structure[0x0A]: ",
+			scg_prbytes(_("BD structure[0x0A]: "),
 				mode, sizeof (mode) - scg_getresid(scgp));
-			scg_prascii("BD structure[0x0A]: ", mode, sizeof (mode) - scg_getresid(scgp));
+			scg_prascii(_("BD structure[0x0A]: "), mode, sizeof (mode) - scg_getresid(scgp));
 		}
 		print_bd0A(mode);
 	}
@@ -1844,9 +1845,9 @@ print_bd_info(scgp)
 	scgp->silent--;
 	if (ret >= 0) {
 		if (lverbose > 2) {
-			scg_prbytes("BD structure[0xC0]: ",
+			scg_prbytes(_("BD structure[0xC0]: "),
 				mode, sizeof (mode) - scg_getresid(scgp));
-			scg_prascii("BD structure[0xC0]: ", mode, sizeof (mode) - scg_getresid(scgp));
+			scg_prascii(_("BD structure[0xC0]: "), mode, sizeof (mode) - scg_getresid(scgp));
 		}
 	}
 #endif
@@ -1871,13 +1872,13 @@ print_bd00(dp)
 	printf("Type: '%.3s'\n", &bd[12+94]);
 #endif
 
-	printf("Disk type:          '%.3s' (BD-%s)\n", &bd[8],
+	printf(_("Disk type:          '%.3s' (BD-%s)\n"), &bd[8],
 		bd[10] == 'O' ? "ROM":
 		(bd[10] == 'R' ? "R" :
 		(bd[10] == 'W' ? "RE": "???")));
-	printf("Disk class:         %2.2X\n", bd[11]);
-	printf("Manufacturer:       '%.6s'\n", &bd[12+88]);
-	printf("Media type:         '%.3s'\n", &bd[12+94]);
+	printf(_("Disk class:         %2.2X\n"), bd[11]);
+	printf(_("Manufacturer:       '%.6s'\n"), &bd[12+88]);
+	printf(_("Media type:         '%.3s'\n"), &bd[12+94]);
 
 }
 
@@ -1894,14 +1895,14 @@ print_bd09(dp)
 	scg_prascii("BD structure[09]: ", bd, len);
 #endif
 
-	printf("Disk:               is %sin cartridge\n",
-					(bd[4] & 0x80) == 0 ? "not ": "");
+	printf(_("Disk:               is %sin cartridge\n"),
+					(bd[4] & 0x80) == 0 ? _("not "): "");
 	if (bd[4] & 0x80) {
-		printf("Disk:               was %staken out of cartridge\n",
-					(bd[4] & 0x40) == 0 ? "not ": "");
+		printf(_("Disk:               was %staken out of cartridge\n"),
+					(bd[4] & 0x40) == 0 ? _("not "): "");
 	}
-	printf("Media cartrige:     write protect is %s\n",
-					(bd[4] & 0x04) ? "on": "off");
+	printf(_("Media cartrige:     write protect is %s\n"),
+					(bd[4] & 0x04) ? _("on"): _("off"));
 }
 
 LOCAL void
@@ -1917,8 +1918,8 @@ print_bd0A(dp)
 	scg_prascii("BD structure[0A]: ", bd, len);
 #endif
 
-	printf("Free Spare Blocks:  %lu\n", (unsigned long)
+	printf(_("Free Spare Blocks:  %lu\n"), (unsigned long)
 					a_to_4_byte(&dp[8]));
-	printf("Alloc Spare Blocks: %lu\n", (unsigned long)
+	printf(_("Alloc Spare Blocks: %lu\n"), (unsigned long)
 					a_to_4_byte(&dp[12]));
 }

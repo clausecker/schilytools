@@ -1,8 +1,11 @@
-# /* @(#)libschily-mapvers	1.21 10/10/21 Copyright 2005-2010 J. Schilling */
+# /* @(#)libschily-mapvers	1.23 10/11/18 Copyright 2005-2010 J. Schilling */
 #include <schily/mconfig.h>
 
 SCHILY_1.5 {
 global:
+	get_progpath;
+	getexecpath;
+
 	js_fgetline;
 	js_getline;
 

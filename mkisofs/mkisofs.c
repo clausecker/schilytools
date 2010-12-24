@@ -1,8 +1,8 @@
-/* @(#)mkisofs.c	1.258 10/04/25 joerg */
+/* @(#)mkisofs.c	1.261 10/12/20 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)mkisofs.c	1.258 10/04/25 joerg";
+	"@(#)mkisofs.c	1.261 10/12/20 joerg";
 #endif
 /*
  * Program mkisofs.c - generate iso9660 filesystem  based upon directory
@@ -309,6 +309,7 @@ int	do_sort = 0;		/* sort file data */
 UInt32_t null_inodes = NULL_INO_MAX;
 BOOL	correct_inodes = TRUE;	/* TRUE: add a "correct inodes" fingerprint */
 BOOL	rrip112 = TRUE;		/* TRUE: create Rock Ridge V 1.12	    */
+BOOL	long_rr_time = FALSE;	/* TRUE: use long (17 Byte) time format	    */
 
 siconvt_t	*in_nls = NULL;  /* input UNICODE conversion table */
 siconvt_t	*out_nls = NULL; /* output UNICODE conversion table */
@@ -388,7 +389,7 @@ get_boot_image(opt_arg)
 					/* on disk */
 	if (boot_image == NULL || *boot_image == '\0') {
 		comerrno(EX_BAD,
-		"Required Eltorito boot image pathname missing\n");
+		_("Required Eltorito boot image pathname missing\n"));
 	}
 	get_boot_entry();
 	current_boot_entry->boot_image = boot_image;
@@ -438,7 +439,7 @@ get_boot_addr(opt_arg)
 	use_eltorito++;
 	val = strtol(opt_arg, &ptr, 0);
 	if (*ptr || val < 0 || val >= 0x10000) {
-		comerrno(EX_BAD, "Boot image load address invalid.\n");
+		comerrno(EX_BAD, _("Boot image load address invalid.\n"));
 	}
 	load_addr = val;
 	get_boot_entry();
@@ -457,7 +458,7 @@ get_boot_size(opt_arg)
 	val = strtol(opt_arg, &ptr, 0);
 	if (*ptr || val < 0 || val >= 0x10000) {
 		comerrno(EX_BAD,
-		"Boot image load size invalid.\n");
+		_("Boot image load size invalid.\n"));
 	}
 	load_size = val;
 	get_boot_entry();
@@ -485,13 +486,13 @@ get_prep_boot(opt_arg)
 	use_prep_boot++;
 	if (use_prep_boot > 4 - use_chrp_boot) {
 		comerrno(EX_BAD,
-		"Maximum of 4 PRep+CHRP partition entries are allowed\n");
+		_("Maximum of 4 PRep+CHRP partition entries are allowed\n"));
 	}
 	/* pathname of the boot image on cd */
 	prep_boot_image[use_prep_boot - 1] = opt_arg;
 	if (prep_boot_image[use_prep_boot - 1] == NULL) {
 		comerrno(EX_BAD,
-		"Required PReP boot image pathname missing\n");
+		_("Required PReP boot image pathname missing\n"));
 	}
 	return (1);
 }
@@ -505,7 +506,7 @@ get_chrp_boot(opt_arg)
 	use_chrp_boot = 1;
 	if (use_prep_boot > 3) {
 		comerrno(EX_BAD,
-		"Maximum of 4 PRep+CHRP partition entries are allowed\n");
+		_("Maximum of 4 PRep+CHRP partition entries are allowed\n"));
 	}
 	return (1);
 }
@@ -608,7 +609,7 @@ hfs_xhfs()
 	hfs_select |= DO_XHFS;
 #else
 	errmsgno(EX_BAD,
-	"Warning: --osx-hfs only works on MacOS X ... ignoring\n");
+	_("Warning: --osx-hfs only works on MacOS X ... ignoring\n"));
 #endif
 	return (1);
 }
@@ -721,351 +722,357 @@ LOCAL const struct mki_option mki_options[] =
 {
 #ifdef	USE_FIND
 	{{"find~", NULL, (getpargfun)getfind },
-	"\1file... [find expr.]\1Option separator: Use find command line to the right"},
+	__("\1file... [find expr.]\1Option separator: Use find command line to the right")},
 #endif
 	{{"posix-H~", &walkflags, getH },
-	"Follow symbolic links encountered on command line"},
+	__("Follow symbolic links encountered on command line")},
 /*	{{"H~", &walkflags, getH },*/
 /*	NULL},*/
 	{{"posix-L~", &walkflags, getL },
-	"Follow all symbolic links"},
+	__("Follow all symbolic links")},
 /*	{{"L~", &walkflags, getL },*/
 /*	NULL},*/
 	{{"posix-P~", &walkflags, getP },
-	"Do not follow symbolic links (default)"},
+	__("Do not follow symbolic links (default)")},
 /*	{{"P~", &walkflags, getP },*/
 /*	NULL},*/
 
 	{{"abstract*", &abstract },
-	"\1FILE\1Set Abstract filename"},
+	__("\1FILE\1Set Abstract filename")},
 	{{"A*,appid*", &appid },
-	"\1ID\1Set Application ID"},
+	__("\1ID\1Set Application ID")},
 	{{"biblio*", &biblio },
-	"\1FILE\1Set Bibliographic filename"},
+	__("\1FILE\1Set Bibliographic filename")},
 	{{"cache-inodes", &cache_inodes },
-	"Cache inodes (needed to detect hard links)"},
+	__("Cache inodes (needed to detect hard links)")},
 	{{"no-cache-inodes%0", &cache_inodes },
-	"Do not cache inodes (if filesystem has no unique inodes)"},
+	__("Do not cache inodes (if filesystem has no unique inodes)")},
 	{{"rrip110%0", &rrip112 },
-	"Create old Rock Ridge V 1.10"},
+	__("Create old Rock Ridge V 1.10")},
 	{{"rrip112", &rrip112 },
-	"Create new Rock Ridge V 1.12 (default)"},
+	__("Create new Rock Ridge V 1.12 (default)")},
 	{{"check-oldnames", &check_oldnames },
-	"Check all imported ISO9660 names from old session"},
+	__("Check all imported ISO9660 names from old session")},
 	{{"check-session*", &check_image },
-	"\1FILE\1Check all ISO9660 names from previous session"},
+	__("\1FILE\1Check all ISO9660 names from previous session")},
 	{{"copyright*", &copyright },
-	"\1FILE\1Set Copyright filename"},
+	__("\1FILE\1Set Copyright filename")},
 	{{"debug+", &debug },
-	"Set debug flag"},
+	__("Set debug flag")},
 	{{"b& ,eltorito-boot&", NULL, (getpargfun)get_boot_image },
-	"\1FILE\1Set El Torito boot image name"},
+	__("\1FILE\1Set El Torito boot image name")},
 	{{"eltorito-alt-boot~", NULL, (getpargfun)new_boot_entry },
-	"Start specifying alternative El Torito boot parameters"},
+	__("Start specifying alternative El Torito boot parameters")},
 	{{"B&,sparc-boot&", NULL, (getpargfun)scan_sparc_boot },
-	"\1FILES\1Set sparc boot image names"},
+	__("\1FILES\1Set sparc boot image names")},
 	{{"sunx86-boot&", NULL, (getpargfun)scan_sunx86_boot },
-	"\1FILES\1Set sunx86 boot image names"},
+	__("\1FILES\1Set sunx86 boot image names")},
 	{{"G*,generic-boot*", &genboot_image },
-	"\1FILE\1Set generic boot image name"},
+	__("\1FILE\1Set generic boot image name")},
 	{{"sparc-label&", NULL, (getpargfun)sparc_boot_label },
-	"\1label text\1Set sparc boot disk label"},
+	__("\1label text\1Set sparc boot disk label")},
 	{{"sunx86-label&", NULL, (getpargfun)sunx86_boot_label },
-	"\1label text\1Set sunx86 boot disk label"},
+	__("\1label text\1Set sunx86 boot disk label")},
 	{{"c* ,eltorito-catalog*", &boot_catalog },
-	"\1FILE\1Set El Torito boot catalog name"},
+	__("\1FILE\1Set El Torito boot catalog name")},
 	{{"C*,cdrecord-params*", &cdrecord_data },
-	"\1PARAMS\1Magic paramters from cdrecord"},
+	__("\1PARAMS\1Magic paramters from cdrecord")},
 	{{"d,omit-period", &omit_period },
-	"Omit trailing periods from filenames (violates ISO9660)"},
+	__("Omit trailing periods from filenames (violates ISO9660)")},
 	{{"data-change-warn", &data_change_warn },
-	"Treat data/size changes as warning only"},
+	__("Treat data/size changes as warning only")},
 	{{"dir-mode*", &dirmode_str },
-	"\1mode\1Make the mode of all directories this mode."},
+	__("\1mode\1Make the mode of all directories this mode.")},
 	{{"D,disable-deep-relocation", &disable_deep_reloc },
-	"Disable deep directory relocation (violates ISO9660)"},
+	__("Disable deep directory relocation (violates ISO9660)")},
 	{{"file-mode*", &filemode_str },
-	"\1mode\1Make the mode of all plain files this mode."},
+	__("\1mode\1Make the mode of all plain files this mode.")},
 	{{"errctl&", NULL, (getpargfun)errconfig },
-	"\1name\1Read error control defs from file or inline."},
+	__("\1name\1Read error control defs from file or inline.")},
 	{{"f,follow-links", &follow_links },
-	"Follow symbolic links"},
+	__("Follow symbolic links")},
 	{{"gid*", &gid_str },
-	"\1gid\1Make the group owner of all files this gid."},
+	__("\1gid\1Make the group owner of all files this gid.")},
 	{{"graft-points", &use_graft_ptrs },
-	"Allow to use graft points for filenames"},
+	__("Allow to use graft points for filenames")},
 	{{"root*", &reloc_root },
-	"\1DIR\1Set root directory for all new files and directories"},
+	__("\1DIR\1Set root directory for all new files and directories")},
 	{{"old-root*", &reloc_old_root },
-	"\1DIR\1Set root directory in previous session that is searched for files"},
+	__("\1DIR\1Set root directory in previous session that is searched for files")},
 	{{"help", &help },
-	"Print option help"},
+	__("Print option help")},
 	{{"hide& ", NULL, (getpargfun)i_add_match },
-	"\1GLOBFILE\1Hide ISO9660/RR file"},
+	__("\1GLOBFILE\1Hide ISO9660/RR file")},
 	{{"hide-list&", NULL, (getpargfun)i_add_list },
-	"\1FILE\1File with list of ISO9660/RR files to hide"},
+	__("\1FILE\1File with list of ISO9660/RR files to hide")},
 	{{"hidden& ", NULL, (getpargfun)h_add_match },
-	"\1GLOBFILE\1Set hidden attribute on ISO9660 file"},
+	__("\1GLOBFILE\1Set hidden attribute on ISO9660 file")},
 	{{"hidden-list&", NULL, (getpargfun)h_add_list },
-	"\1FILE\1File with list of ISO9660 files with hidden attribute"},
+	__("\1FILE\1File with list of ISO9660 files with hidden attribute")},
 	{{"hide-joliet& ", NULL, (getpargfun)j_add_match },
-	"\1GLOBFILE\1Hide Joliet file"},
+	__("\1GLOBFILE\1Hide Joliet file")},
 	{{"hide-joliet-list&", NULL, (getpargfun)j_add_list },
-	"\1FILE\1File with list of Joliet files to hide"},
+	__("\1FILE\1File with list of Joliet files to hide")},
 #ifdef UDF
 	{{"hide-udf& ", NULL, (getpargfun)u_add_match },
-	"\1GLOBFILE\1Hide UDF file"},
+	__("\1GLOBFILE\1Hide UDF file")},
 	{{"hide-udf-list&", NULL, (getpargfun)u_add_list },
-	"\1FILE\1File with list of UDF files to hide"},
+	__("\1FILE\1File with list of UDF files to hide")},
 #endif
 	{{"hide-joliet-trans-tbl", &jhide_trans_tbl},
-	"Hide TRANS.TBL from Joliet tree"},
+	__("Hide TRANS.TBL from Joliet tree")},
 	{{"hide-rr-moved", &hide_rr_moved },
-	"Rename RR_MOVED to .rr_moved in Rock Ridge tree"},
+	__("Rename RR_MOVED to .rr_moved in Rock Ridge tree")},
 	{{"gui", &gui},
-	"Switch behaviour for GUI"},
+	__("Switch behaviour for GUI")},
 	{{"input-charset*", &icharset },
-	"\1CHARSET\1Local input charset for file name conversion"},
+	__("\1CHARSET\1Local input charset for file name conversion")},
 	{{"output-charset*", &ocharset },
-	"\1CHARSET\1Output charset for file name conversion"},
+	__("\1CHARSET\1Output charset for file name conversion")},
 	{{"iso-level#", &iso9660_level },
-	"\1LEVEL\1Set ISO9660 conformance level (1..3) or 4 for ISO9660 version 2"},
+	__("\1LEVEL\1Set ISO9660 conformance level (1..3) or 4 for ISO9660 version 2")},
 	{{"J,joliet", &use_Joliet },
-	"Generate Joliet directory information"},
+	__("Generate Joliet directory information")},
 	{{"joliet-long", &joliet_long },
-	"Allow Joliet file names to be 103 Unicode characters"},
+	__("Allow Joliet file names to be 103 Unicode characters")},
 	{{"jcharset*", &jcharset },
-	"\1CHARSET\1Local charset for Joliet directory information"},
+	__("\1CHARSET\1Local charset for Joliet directory information")},
 	{{"l,full-iso9660-filenames", &full_iso9660_filenames },
-	"Allow full 31 character filenames for ISO9660 names"},
+	__("Allow full 31 character filenames for ISO9660 names")},
 	{{"max-iso9660-filenames", &max_filenames },
-	"Allow 37 character filenames for ISO9660 names (violates ISO9660)"},
+	__("Allow 37 character filenames for ISO9660 names (violates ISO9660)")},
 
 	{{"allow-leading-dots", &allow_leading_dots },
-	"Allow ISO9660 filenames to start with '.' (violates ISO9660)"},
+	__("Allow ISO9660 filenames to start with '.' (violates ISO9660)")},
 	{{"ldots", &allow_leading_dots },
-	"Allow ISO9660 filenames to start with '.' (violates ISO9660)"},
+	__("Allow ISO9660 filenames to start with '.' (violates ISO9660)")},
 
 	{{"log-file*", &log_file },
-	"\1LOG_FILE\1Re-direct messages to LOG_FILE"},
+	__("\1LOG_FILE\1Re-direct messages to LOG_FILE")},
+	{{"long-rr-time%1", &long_rr_time },
+	__("Use long Rock Ridge time format")},
 	{{"m& ,exclude& ", NULL, (getpargfun)add_match },
-	"\1GLOBFILE\1Exclude file name"},
+	__("\1GLOBFILE\1Exclude file name")},
 	{{"exclude-list&", NULL, (getpargfun)add_list},
-	"\1FILE\1File with list of file names to exclude"},
+	__("\1FILE\1File with list of file names to exclude")},
 	{{"nobak%0", &all_files },
-	"Do not include backup files"},
+	__("Do not include backup files")},
 	{{"no-bak%0", &all_files},
-	"Do not include backup files"},
+	__("Do not include backup files")},
 	{{"pad", &dopad },
-	"Pad output to a multiple of 32k (default)"},
+	__("Pad output to a multiple of 32k (default)")},
 	{{"no-pad%0", &dopad },
-	"Do not pad output to a multiple of 32k"},
+	__("Do not pad output to a multiple of 32k")},
 	{{"no-limit-pathtables", &nolimitpathtables },
-	"Allow more than 65535 parent directories (violates ISO9660)"},
+	__("Allow more than 65535 parent directories (violates ISO9660)")},
+	{{"no-long-rr-time%0", &long_rr_time },
+	__("Use short Rock Ridge time format")},
 	{{"M*,prev-session*", &merge_image },
-	"\1FILE\1Set path to previous session to merge"},
+	__("\1FILE\1Set path to previous session to merge")},
 	{{"dev*", &merge_image },
-	"\1SCSIdev\1Set path to previous session to merge"},
+	__("\1SCSIdev\1Set path to previous session to merge")},
 	{{"N,omit-version-number", &omit_version_number },
-	"Omit version number from ISO9660 filename (violates ISO9660)"},
+	__("Omit version number from ISO9660 filename (violates ISO9660)")},
 	{{"new-dir-mode*", &dir_mode_str },
-	"\1mode\1Mode used when creating new directories."},
+	__("\1mode\1Mode used when creating new directories.")},
 	{{"force-rr", &force_rr },
-	"Inhibit automatic Rock Ridge detection for previous session"},
+	__("Inhibit automatic Rock Ridge detection for previous session")},
 	{{"no-rr", &no_rr },
-	"Inhibit reading of Rock Ridge attributes from previous session"},
+	__("Inhibit reading of Rock Ridge attributes from previous session")},
 	{{"no-split-symlink-components%0", &split_SL_component },
-	"Inhibit splitting symlink components"},
+	__("Inhibit splitting symlink components")},
 	{{"no-split-symlink-fields%0", &split_SL_field },
-	"Inhibit splitting symlink fields"},
+	__("Inhibit splitting symlink fields")},
 	{{"o* ,output* ", &outfile },
-	"\1FILE\1Set output file name"},
+	__("\1FILE\1Set output file name")},
 	{{"path-list*", &pathnames },
-	"\1FILE\1File with list of pathnames to process"},
+	__("\1FILE\1File with list of pathnames to process")},
 	{{"p* ,preparer*", &preparer },
-	"\1PREP\1Set Volume preparer"},
+	__("\1PREP\1Set Volume preparer")},
 	{{"print-size", &print_size },
-	"Print estimated filesystem size and exit"},
+	__("Print estimated filesystem size and exit")},
 	{{"publisher*", &publisher },
-	"\1PUB\1Set Volume publisher"},
+	__("\1PUB\1Set Volume publisher")},
 	{{"quiet%0", &verbose },
-	"Run quietly"},
+	__("Run quietly")},
 	{{"r,rational-rock", &rationalize_rr },
-	"Generate rationalized Rock Ridge directory information"},
+	__("Generate rationalized Rock Ridge directory information")},
 	{{"R,rock", &use_RockRidge },
-	"Generate Rock Ridge directory information"},
+	__("Generate Rock Ridge directory information")},
 	{{"s* ,sectype*", &sectype },
-	"\1TYPE\1Set output sector type to e.g. data/xa1/raw"},
+	__("\1TYPE\1Set output sector type to e.g. data/xa1/raw")},
+	{{"short-rr-time%0", &long_rr_time },
+	__("Use short Rock Ridge time format")},
 
 #ifdef SORTING
 	{ {"sort&", NULL, (getpargfun)add_sort_list },
-	"\1FILE\1Sort file content locations according to rules in FILE"},
+	__("\1FILE\1Sort file content locations according to rules in FILE")},
 #endif /* SORTING */
 
 	{{"split-output", &split_output },
-	"Split output into files of approx. 1GB size"},
+	__("Split output into files of approx. 1GB size")},
 	{{"stream-file-name*", &stream_filename },
-	"\1FILE_NAME\1Set the stream file ISO9660 name (incl. version)"},
+	__("\1FILE_NAME\1Set the stream file ISO9660 name (incl. version)")},
 	{{"stream-media-size#", &stream_media_size },
-	"\1#\1Set the size of your CD media in sectors"},
+	__("\1#\1Set the size of your CD media in sectors")},
 	{{"sysid*", &system_id },
-	"\1ID\1Set System ID"},
+	__("\1ID\1Set System ID")},
 	{{"T,translation-table", &generate_tables },
-	"Generate translation tables for systems that don't understand long filenames"},
+	__("Generate translation tables for systems that don't understand long filenames")},
 	{{"table-name*", &trans_tbl },
-	"\1TABLE_NAME\1Translation table file name"},
+	__("\1TABLE_NAME\1Translation table file name")},
 	{{"ucs-level#", &ucs_level },
-	"\1LEVEL\1Set Joliet UCS level (1..3)"},
+	__("\1LEVEL\1Set Joliet UCS level (1..3)")},
 
 #ifdef UDF
 	{{"udf", &rationalize_udf },
-	"Generate rationalized UDF file system"},
+	__("Generate rationalized UDF file system")},
 	{{"UDF", &use_udf },
-	"Generate UDF file system"},
+	__("Generate UDF file system")},
 	{{"udf-symlinks", &create_udfsymlinks },
-	"Create symbolic links on UDF image (default)"},
+	__("Create symbolic links on UDF image (default)")},
 	{{"no-udf-symlinks%0", &create_udfsymlinks },
-	"Do not reate symbolic links on UDF image"},
+	__("Do not reate symbolic links on UDF image")},
 #endif
 
 #ifdef DVD_VIDEO
 	{{"dvd-video", &dvd_video },
-	"Generate DVD-Video compliant UDF file system"},
+	__("Generate DVD-Video compliant UDF file system")},
 #endif
 
 	{{"uid*", &uid_str },
-	"\1uid\1Make the owner of all files this uid."},
+	__("\1uid\1Make the owner of all files this uid.")},
 	{{"U,untranslated-filenames", &untranslated_filenames },
 	/* CSTYLED */
-	"Allow Untranslated filenames (for HPUX & AIX - violates ISO9660). Forces -l, -d, -N, -allow-leading-dots, -relaxed-filenames, -allow-lowercase, -allow-multidot"},
+	__("Allow Untranslated filenames (for HPUX & AIX - violates ISO9660). Forces -l, -d, -N, -allow-leading-dots, -relaxed-filenames, -allow-lowercase, -allow-multidot")},
 	{{"relaxed-filenames", &relaxed_filenames },
-	"Allow 7 bit ASCII except lower case characters (violates ISO9660)"},
+	__("Allow 7 bit ASCII except lower case characters (violates ISO9660)")},
 	{{"no-iso-translate%0", &iso_translate },
-	"Do not translate illegal ISO characters '~', '-' and '#' (violates ISO9660)"},
+	__("Do not translate illegal ISO characters '~', '-' and '#' (violates ISO9660)")},
 	{{"allow-lowercase", &allow_lowercase },
-	"Allow lower case characters in addition to the current character set (violates ISO9660)"},
+	__("Allow lower case characters in addition to the current character set (violates ISO9660)")},
 	{{"allow-multidot", &allow_multidot },
-	"Allow more than one dot in filenames (e.g. .tar.gz) (violates ISO9660)"},
+	__("Allow more than one dot in filenames (e.g. .tar.gz) (violates ISO9660)")},
 	{{"use-fileversion", &use_fileversion },
-	"\1LEVEL\1Use file version # from filesystem"},
+	__("\1LEVEL\1Use file version # from filesystem")},
 	{{"v+,verbose+", &verbose },
-	"Verbose"},
+	__("Verbose")},
 	{{"version", &pversion },
-	"Print the current version"},
+	__("Print the current version")},
 	{{"V*,volid*", &volume_id },
-	"\1ID\1Set Volume ID"},
+	__("\1ID\1Set Volume ID")},
 	{{"volset* ", &volset_id },
-	"\1ID\1Set Volume set ID"},
+	__("\1ID\1Set Volume set ID")},
 	{{"volset-size#", &volume_set_size },
-	"\1#\1Set Volume set size"},
+	__("\1#\1Set Volume set size")},
 	{{"volset-seqno#", &volume_sequence_number },
-	"\1#\1Set Volume set sequence number"},
+	__("\1#\1Set Volume set sequence number")},
 	{{"x& ,old-exclude&", NULL, (getpargfun)add_match },
-	"\1FILE\1Exclude file name(depreciated)"},
+	__("\1FILE\1Exclude file name(depreciated)")},
 	{{"hard-disk-boot~", NULL, (getpargfun)get_hd_boot },
-	"Boot image is a hard disk image"},
+	__("Boot image is a hard disk image")},
 	{{"no-emul-boot~", NULL, (getpargfun)get_ne_boot },
-	"Boot image is 'no emulation' image"},
+	__("Boot image is 'no emulation' image")},
 	{{"no-boot~", NULL, (getpargfun)get_no_boot },
-	"Boot image is not bootable"},
+	__("Boot image is not bootable")},
 	{{"boot-load-seg&", NULL, (getpargfun)get_boot_addr },
-	"\1#\1Set load segment for boot image"},
+	__("\1#\1Set load segment for boot image")},
 	{{"boot-load-size&", NULL, (getpargfun)get_boot_size },
-	"\1#\1Set numbers of load sectors"},
+	__("\1#\1Set numbers of load sectors")},
 	{{"boot-info-table~", NULL, (getpargfun)get_boot_table },
-	"Patch boot image with info table"},
+	__("Patch boot image with info table")},
 	{{"XA", &use_XA },
-	"Generate XA directory attruibutes"},
+	__("Generate XA directory attruibutes")},
 	{{"xa", &rationalize_xa },
-	"Generate rationalized XA directory attruibutes"},
+	__("Generate rationalized XA directory attruibutes")},
 	{{"z,transparent-compression", &transparent_compression },
-	"Enable transparent compression of files"},
+	__("Enable transparent compression of files")},
 
 #ifdef APPLE_HYB
 	{{"hfs-type*", &deftype },
-	"\1TYPE\1Set HFS default TYPE"},
+	__("\1TYPE\1Set HFS default TYPE")},
 	{{"hfs-creator", &defcreator },
-	"\1CREATOR\1Set HFS default CREATOR"},
+	__("\1CREATOR\1Set HFS default CREATOR")},
 	{{"g,apple", &apple_ext },
-	"Add Apple ISO9660 extensions"},
+	__("Add Apple ISO9660 extensions")},
 	{{"h,hfs", &apple_hyb },
-	"Create ISO9660/HFS hybrid"},
+	__("Create ISO9660/HFS hybrid")},
 	{{"map*", &afpfile },
-	"\1MAPPING_FILE\1Map file extensions to HFS TYPE/CREATOR"},
+	__("\1MAPPING_FILE\1Map file extensions to HFS TYPE/CREATOR")},
 	{{"magic*", &magic_file },
-	"\1FILE\1Magic file for HFS TYPE/CREATOR"},
+	__("\1FILE\1Magic file for HFS TYPE/CREATOR")},
 	{{"probe", &probe },
-	"Probe all files for Apple/Unix file types"},
+	__("Probe all files for Apple/Unix file types")},
 	{{"mac-name", &use_mac_name },
-	"Use Macintosh name for ISO9660/Joliet/RockRidge file name"},
+	__("Use Macintosh name for ISO9660/Joliet/RockRidge file name")},
 	{{"no-mac-files", &nomacfiles },
-	"Do not look for Unix/Mac files (depreciated)"},
+	__("Do not look for Unix/Mac files (depreciated)")},
 	{{"boot-hfs-file*", &hfs_boot_file },
-	"\1FILE\1Set HFS boot image name"},
+	__("\1FILE\1Set HFS boot image name")},
 	{{"part", &gen_pt },
-	"Generate HFS partition table"},
+	__("Generate HFS partition table")},
 	{{"cluster-size&", NULL, (getpargfun)get_bsize },
-	"\1SIZE\1Cluster size for PC Exchange Macintosh files"},
+	__("\1SIZE\1Cluster size for PC Exchange Macintosh files")},
 	{{"auto*", &autoname },
-	"\1FILE\1Set HFS AutoStart file name"},
+	__("\1FILE\1Set HFS AutoStart file name")},
 	{{"no-desktop%0", &create_dt },
-	"Do not create the HFS (empty) Desktop files"},
+	__("Do not create the HFS (empty) Desktop files")},
 	{{"hide-hfs&", NULL, (getpargfun)hfs_add_match },
-	"\1GLOBFILE\1Hide HFS file"},
+	__("\1GLOBFILE\1Hide HFS file")},
 	{{"hide-hfs-list&", NULL, (getpargfun)hfs_add_list },
-	"\1FILE\1List of HFS files to hide"},
+	__("\1FILE\1List of HFS files to hide")},
 	{{"hfs-volid*", &hfs_volume_id },
-	"\1HFS_VOLID\1Volume name for the HFS partition"},
+	__("\1HFS_VOLID\1Volume name for the HFS partition")},
 	{{"icon-position", &icon_pos },
-	"Keep HFS icon position"},
+	__("Keep HFS icon position")},
 	{{"root-info*", &root_info },
-	"\1FILE\1finderinfo for root folder"},
+	__("\1FILE\1finderinfo for root folder")},
 	{{"input-hfs-charset*", &hfs_icharset },
-	"\1CHARSET\1Local input charset for HFS file name conversion"},
+	__("\1CHARSET\1Local input charset for HFS file name conversion")},
 	{{"output-hfs-charset*", &hfs_ocharset },
-	"\1CHARSET\1Output charset for HFS file name conversion"},
+	__("\1CHARSET\1Output charset for HFS file name conversion")},
 	{{"hfs-unlock%0", &hfs_lock },
-	"Leave HFS Volume unlocked"},
+	__("Leave HFS Volume unlocked")},
 	{{"hfs-bless*", &hfs_bless },
-	"\1FOLDER_NAME\1Name of Folder to be blessed"},
+	__("\1FOLDER_NAME\1Name of Folder to be blessed")},
 	{{"hfs-parms*", &hfs_parms },
-	"\1PARAMETERS\1Comma separated list of HFS parameters"},
+	__("\1PARAMETERS\1Comma separated list of HFS parameters")},
 #ifdef PREP_BOOT
 	{{"prep-boot&", NULL, (getpargfun)get_prep_boot },
-	"\1FILE\1PReP boot image file -- up to 4 are allowed"},
+	__("\1FILE\1PReP boot image file -- up to 4 are allowed")},
 	{{"chrp-boot&", NULL, (getpargfun)get_chrp_boot },
-	"Add CHRP boot header"},
+	__("Add CHRP boot header")},
 #endif	/* PREP_BOOT */
 	{{"cap~", NULL, (getpargfun)hfs_cap },
-	"-Look for AUFS CAP Macintosh files"},
+	__("-Look for AUFS CAP Macintosh files")},
 	{{"netatalk~", NULL, (getpargfun)hfs_neta},
-	"-Look for NETATALK Macintosh files"},
+	__("-Look for NETATALK Macintosh files")},
 	{{"double~", NULL, (getpargfun)hfs_dbl },
-	"-Look for AppleDouble Macintosh files"},
+	__("-Look for AppleDouble Macintosh files")},
 	{{"ethershare~", NULL, (getpargfun)hfs_esh },
-	"-Look for Helios EtherShare Macintosh files"},
+	__("-Look for Helios EtherShare Macintosh files")},
 	{{"exchange~", NULL, (getpargfun)hfs_fe },
-	"-Look for PC Exchange Macintosh files"},
+	__("-Look for PC Exchange Macintosh files")},
 	{{"sgi~", NULL, (getpargfun)hfs_sgi },
-	"-Look for SGI Macintosh files"},
+	__("-Look for SGI Macintosh files")},
 	{{"macbin~", NULL, (getpargfun)hfs_mbin },
-	"-Look for MacBinary Macintosh files"},
+	__("-Look for MacBinary Macintosh files")},
 	{{"single~", NULL, (getpargfun)hfs_sgl },
-	"-Look for AppleSingle Macintosh files"},
+	__("-Look for AppleSingle Macintosh files")},
 	{{"ushare~", NULL, (getpargfun)hfs_esh },
-	"-Look for IPT UShare Macintosh files"},
+	__("-Look for IPT UShare Macintosh files")},
 	{{"xinet~", NULL, (getpargfun)hfs_sgi },
-	"-Look for XINET Macintosh files"},
+	__("-Look for XINET Macintosh files")},
 	{{"dave~", NULL, (getpargfun)hfs_dave },
-	"-Look for DAVE Macintosh files"},
+	__("-Look for DAVE Macintosh files")},
 	{{"sfm~", NULL, (getpargfun)hfs_sfm },
-	"-Look for SFM Macintosh files"},
+	__("-Look for SFM Macintosh files")},
 	{{"osx-double~", NULL, (getpargfun)hfs_xdbl },
-	"-Look for MacOS X AppleDouble Macintosh files"},
+	__("-Look for MacOS X AppleDouble Macintosh files")},
 	{{"osx-hfs~", NULL, (getpargfun)hfs_xhfs },
-	"-Look for MacOS X HFS Macintosh files"},
+	__("-Look for MacOS X HFS Macintosh files")},
 	{{"no-hfs~", NULL, (getpargfun)hfs_nohfs },
-	"Do not create ISO9660/HFS hybrid"},
+	__("Do not create ISO9660/HFS hybrid")},
 #endif	/* APPLE_HYB */
 };
 
@@ -1106,7 +1113,7 @@ read_rcfile(appname)
 	if (access(filename, R_OK) == 0)
 		rcfile = fopen(filename, "r");
 	if (!rcfile && errno != ENOENT)
-		errmsg("Cannot open '%s'.\n", filename);
+		errmsg(_("Cannot open '%s'.\n"), filename);
 
 	if (!rcfile) {
 		pnt = getenv("MKISOFSRC");
@@ -1115,7 +1122,7 @@ read_rcfile(appname)
 			if (access(filename, R_OK) == 0)
 				rcfile = fopen(filename, "r");
 			if (!rcfile && errno != ENOENT)
-				errmsg("Cannot open '%s'.\n", filename);
+				errmsg(_("Cannot open '%s'.\n"), filename);
 		}
 	}
 	if (!rcfile) {
@@ -1131,7 +1138,7 @@ read_rcfile(appname)
 			if (access(filename, R_OK) == 0)
 				rcfile = fopen(filename, "r");
 			if (!rcfile && errno != ENOENT)
-				errmsg("Cannot open '%s'.\n", filename);
+				errmsg(_("Cannot open '%s'.\n"), filename);
 		}
 	}
 	if (!rcfile && strlen(appname) + sizeof (rcfn) + 2 <=
@@ -1144,13 +1151,13 @@ read_rcfile(appname)
 			if (access(filename, R_OK) == 0)
 				rcfile = fopen(filename, "r");
 			if (!rcfile && errno != ENOENT)
-				errmsg("Cannot open '%s'.\n", filename);
+				errmsg(_("Cannot open '%s'.\n"), filename);
 		}
 	}
 	if (!rcfile)
 		return;
 	if (verbose > 0) {
-		fprintf(stderr, "Using \"%s\"\n", filename);
+		fprintf(stderr, _("Using \"%s\"\n"), filename);
 	}
 	/* OK, we got it.  Now read in the lines and parse them */
 	linum = 0;
@@ -1179,7 +1186,7 @@ read_rcfile(appname)
 			pnt++;
 		}
 		if (name == pnt) {
-			fprintf(stderr, "%s:%d: name required\n", filename,
+			fprintf(stderr, _("%s:%d: name required\n"), filename,
 					linum);
 			continue;
 		}
@@ -1189,7 +1196,7 @@ read_rcfile(appname)
 			pnt++;
 		/* silently ignore errors in the rc file. */
 		if (*pnt != '=') {
-			fprintf(stderr, "%s:%d: equals sign required after '%.*s'\n",
+			fprintf(stderr, _("%s:%d: equals sign required after '%.*s'\n"),
 						filename, linum,
 						/* XXX Should not be > int */
 						(int)(name_end-name), name);
@@ -1222,13 +1229,13 @@ read_rcfile(appname)
 			}
 		}
 		if (rco->tag == NULL) {
-			fprintf(stderr, "%s:%d: field name \"%s\" unknown\n",
+			fprintf(stderr, _("%s:%d: field name \"%s\" unknown\n"),
 				filename, linum,
 				name);
 		}
 	}
 	if (ferror(rcfile))
-		errmsg("Read error on '%s'.\n", filename);
+		errmsg(_("Read error on '%s'.\n"), filename);
 	fclose(rcfile);
 }
 
@@ -1255,31 +1262,31 @@ susage(excode)
 	const char	*program_name = "mkisofs";
 
 #ifdef	USE_FIND
-	fprintf(stderr, "Usage: %s [options] [-find] file... [find expression]\n", program_name);
+	fprintf(stderr, _("Usage: %s [options] [-find] file... [find expression]\n"), program_name);
 #else
-	fprintf(stderr, "Usage: %s [options] file...\n", program_name);
+	fprintf(stderr, _("Usage: %s [options] file...\n"), program_name);
 #endif
-	fprintf(stderr, "\nUse %s -help\n", program_name);
-	fprintf(stderr, "to get a list all of valid options.\n");
+	fprintf(stderr, _("\nUse %s -help\n"), program_name);
+	fprintf(stderr, _("to get a list all of valid options.\n"));
 #ifdef	USE_FIND
-	fprintf(stderr, "\nUse %s -find -help\n", program_name);
-	fprintf(stderr, "to get a list of all valid -find options.\n");
+	fprintf(stderr, _("\nUse %s -find -help\n"), program_name);
+	fprintf(stderr, _("to get a list of all valid -find options.\n"));
 #endif
-	error("\nMost important Options:\n");
-	error("	-posix-H		Follow sylinks encountered on command line\n");
-	error("	-posix-L		Follow all symlinks\n");
-	error("	-posix-P		Do not follow symlinks (default)\n");
-	error("	-o FILE, -output FILE	Set output file name\n");
-	error("	-R, -rock		Generate Rock Ridge directory information\n");
-	error("	-r, -rational-rock	Generate rationalized Rock Ridge directory info\n");
-	error("	-J, -joliet		Generate Joliet directory information\n");
-	error("	-print-size		Print estimated filesystem size and exit\n");
-	error("	-UDF			Generate UDF file system\n");
-	error("	-dvd-video		Generate DVD-Video compliant UDF file system\n");
-	error("	-iso-level LEVEL	Set ISO9660 level (1..3) or 4 for ISO9660 v 2\n");
-	error("	-V ID, -volid ID	Set Volume ID\n");
-	error("	-graft-points		Allow to use graft points for filenames\n");
-	error("	-M FILE, -prev-session FILE	Set path to previous session to merge\n");
+	error(_("\nMost important Options:\n"));
+	error(_("	-posix-H		Follow sylinks encountered on command line\n"));
+	error(_("	-posix-L		Follow all symlinks\n"));
+	error(_("	-posix-P		Do not follow symlinks (default)\n"));
+	error(_("	-o FILE, -output FILE	Set output file name\n"));
+	error(_("	-R, -rock		Generate Rock Ridge directory information\n"));
+	error(_("	-r, -rational-rock	Generate rationalized Rock Ridge directory info\n"));
+	error(_("	-J, -joliet		Generate Joliet directory information\n"));
+	error(_("	-print-size		Print estimated filesystem size and exit\n"));
+	error(_("	-UDF			Generate UDF file system\n"));
+	error(_("	-dvd-video		Generate DVD-Video compliant UDF file system\n"));
+	error(_("	-iso-level LEVEL	Set ISO9660 level (1..3) or 4 for ISO9660 v 2\n"));
+	error(_("	-V ID, -volid ID	Set Volume ID\n"));
+	error(_("	-graft-points		Allow to use graft points for filenames\n"));
+	error(_("	-M FILE, -prev-session FILE	Set path to previous session to merge\n"));
 
 	exit(excode);
 }
@@ -1394,12 +1401,12 @@ usage(excode)
 	int	i;
 
 #ifdef	USE_FIND
-	fprintf(stderr, "Usage: %s [options] [-find] file... [find expression]\n", program_name);
+	fprintf(stderr, _("Usage: %s [options] [-find] file... [find expression]\n"), program_name);
 #else
-	fprintf(stderr, "Usage: %s [options] file...\n", program_name);
+	fprintf(stderr, _("Usage: %s [options] file...\n"), program_name);
 #endif
 
-	fprintf(stderr, "Options:\n");
+	fprintf(stderr, _("Options:\n"));
 	for (i = 0; i < (int)OPTION_COUNT; i++) {
 		if (docstr(mki_options[i].doc, NULL) != NULL) {
 			int	len;
@@ -1451,6 +1458,7 @@ usage(excode)
 
 /*
  * Fill in date in the iso9660 format
+ * This takes 7 bytes and supports year 1900 .. 2155 with 1 second granularity
  *
  * The standards  state that the timezone offset is in multiples of 15
  * minutes, and is what you add to GMT to get the localtime.  The U.S.
@@ -1463,35 +1471,67 @@ iso9660_date(result, crtime)
 	char	*result;
 	time_t	crtime;
 {
-	struct tm	*local;
+	struct tm	local;
+	struct tm	gmt;
 
-	local = localtime(&crtime);
-	result[0] = local->tm_year;
-	result[1] = local->tm_mon + 1;
-	result[2] = local->tm_mday;
-	result[3] = local->tm_hour;
-	result[4] = local->tm_min;
-	result[5] = local->tm_sec;
+	local = *localtime(&crtime);
+	gmt   = *gmtime(&crtime);
+
+	result[0] = local.tm_year;
+	result[1] = local.tm_mon + 1;
+	result[2] = local.tm_mday;
+	result[3] = local.tm_hour;
+	result[4] = local.tm_min;
+	result[5] = local.tm_sec;
+
+	local.tm_min  -= gmt.tm_min;
+	local.tm_hour -= gmt.tm_hour;
+	local.tm_yday -= gmt.tm_yday;
+	local.tm_year -= gmt.tm_year;
+	if (local.tm_year)		/* Hit new-year limit	*/
+		local.tm_yday = local.tm_year;	/* yday = +-1	*/
+
+	result[6] = (local.tm_min + 60 *
+			(local.tm_hour + 24 * local.tm_yday)) / 15;
+
+	return (0);
+}
+
+/*
+ * Fill in date in the iso9660 long format
+ * This takes 17 bytes and supports year 0 .. 9999 with 10ms granularity
+ */
+EXPORT int
+iso9660_ldate(result, crtime, nsec)
+	char	*result;
+	time_t	crtime;
+	int	nsec;
+{
+	struct tm	local;
+	struct tm	gmt;
+
+	local = *localtime(&crtime);
+	gmt   = *gmtime(&crtime);
 
 	/*
-	 * Must recalculate proper timezone offset each time, as some files use
-	 * daylight savings time and some don't...
+	 * There was a comment here about breaking in the year 2000.
+	 * That's not true, in 2000 tm_year == 100, so 1900+tm_year == 2000.
 	 */
-	result[6] = local->tm_yday;	/* save yday 'cause gmtime zaps it */
-	local = gmtime(&crtime);
-	local->tm_year -= result[0];
-	local->tm_yday -= result[6];
-	local->tm_hour -= result[3];
-	local->tm_min -= result[4];
-	if (local->tm_year < 0) {
-		local->tm_yday = -1;
-	} else {
-		if (local->tm_year > 0)
-			local->tm_yday = 1;
-	}
+	sprintf(result, "%4.4d%2.2d%2.2d%2.2d%2.2d%2.2d%2.2d",
+		1900 + local.tm_year,
+		local.tm_mon + 1, local.tm_mday,
+		local.tm_hour, local.tm_min, local.tm_sec,
+		nsec / 10000000);
 
-	result[6] = -(local->tm_min + 60 *
-			(local->tm_hour + 24 * local->tm_yday)) / 15;
+	local.tm_min  -= gmt.tm_min;
+	local.tm_hour -= gmt.tm_hour;
+	local.tm_yday -= gmt.tm_yday;
+	local.tm_year -= gmt.tm_year;
+	if (local.tm_year)		/* Hit new-year limit	*/
+		local.tm_yday = local.tm_year;	/* yday = +-1	*/
+
+	result[16] = (local.tm_min + 60 *
+			(local.tm_hour + 24 * local.tm_yday)) / 15;
 
 	return (0);
 }
@@ -1601,16 +1641,26 @@ main(argc, argv)
 	save_args(argc, argv);
 
 #if	defined(USE_NLS)
-	/*
-	 * As long as we do not support gettext(), we only set up LC_CTYPE
-	 * for the automated set up of -input-charset. When upgrading to
-	 * gettext() we need to replace this by setlocale(LC_ALL, "").
-	 */
-	setlocale(LC_CTYPE, "");
+	setlocale(LC_ALL, "");
+#if !defined(TEXT_DOMAIN)	/* Should be defined by cc -D */
+#define	TEXT_DOMAIN "mkisofs"	/* Use this only if it weren't */
+#endif
+	arg = searchfileinpath("share/locale", F_OK,
+					SIP_ANY_FILE|SIP_NO_PATH, NULL);
+	if (arg)
+		(void) bindtextdomain(TEXT_DOMAIN, arg);
+	else
+#ifdef	PROTOTYPES
+	(void) bindtextdomain(TEXT_DOMAIN, INS_BASE "/share/locale");
+#else
+	(void) bindtextdomain(TEXT_DOMAIN, "/usr/share/locale");
+#endif
+	(void) textdomain(TEXT_DOMAIN);
 #endif
 
+
 	if (argc < 2) {
-		errmsgno(EX_BAD, "Missing pathspec.\n");
+		errmsgno(EX_BAD, _("Missing pathspec.\n"));
 		susage(1);
 	}
 	/* Get the defaults from the .mkisofsrc file */
@@ -1646,7 +1696,7 @@ main(argc, argv)
 			argind = argc - cac;
 			goto args_ok;
 		}
-		error("Bad Option '%s' (error %d %s).\n",
+		error(_("Bad Option '%s' (error %d %s).\n"),
 					cav[0], c, getargerror(c));
 		susage(EX_BAD);
 	}
@@ -1659,14 +1709,16 @@ args_ok:
 	if (help)
 		usage(0);
 	if (pversion) {
-		printf("mkisofs %s (%s-%s-%s) Copyright (C) 1993-1997 Eric Youngdale (C) 1997-2010 Jörg Schilling\n",
+		printf(_("mkisofs %s (%s-%s-%s) Copyright (C) 1993-1997 %s (C) 1997-2010 %s\n"),
 			version_string,
-			HOST_CPU, HOST_VENDOR, HOST_OS);
+			HOST_CPU, HOST_VENDOR, HOST_OS,
+			_("Eric Youngdale"),
+			_("Joerg Schilling"));
 #ifdef	OPTION_SILO_BOOT
-		printf("Warning: this is unofficial (modified) version of mkisofs that incorporates\n");
-		printf("	support for a non Sparc compliant boot method called SILO.\n");
-		printf("	The official method to create Sparc boot CDs is to use -sparc-boot\n");
-		printf("	In case of problems first test with an official version of mkisofs.\n");
+		printf(_("Warning: this is unofficial (modified) version of mkisofs that incorporates\n"));
+		printf(_("	support for a non Sparc compliant boot method called SILO.\n"));
+		printf(_("	The official method to create Sparc boot CDs is to use -sparc-boot\n"));
+		printf(_("	In case of problems first test with an official version of mkisofs.\n"));
 #endif
 		exit(0);
 	}
@@ -1690,7 +1742,7 @@ args_ok:
 			if (fa.primtype == FIND_ERRARG)
 				comexit(fa.error);
 			if (fa.primtype != FIND_ENDARGS)
-				comerrno(EX_BAD, "Incomplete expression.\n");
+				comerrno(EX_BAD, _("Incomplete expression.\n"));
 			plusp = fa.plusp;
 			find_patlen = fa.patlen;
 			walkflags = fa.walkflags;
@@ -1705,12 +1757,12 @@ args_ok:
 				    find_pname(find_node, "-exec+") ||
 				    find_pname(find_node, "-ok"))
 					comerrno(EX_BAD,
-					"Cannot -exec with '-o -'.\n");
+					_("Cannot -exec with '-o -'.\n"));
 			}
 		}
 
 		if (find_ac <= 0 || find_ac == find_pac) {
-			errmsgno(EX_BAD, "Missing pathspec for -find.\n");
+			errmsgno(EX_BAD, _("Missing pathspec for -find.\n"));
 			susage(EX_BAD);
 		}
 	}
@@ -1719,21 +1771,21 @@ args_ok:
 	if (abstract) {
 		if (strlen(abstract) > 37) {
 			comerrno(EX_BAD,
-			"Abstract filename string too long (cur. %lld max. 37 chars).\n",
+			_("Abstract filename string too long (cur. %lld max. 37 chars).\n"),
 			(Llong)strlen(abstract));
 		}
 	}
 	if (appid) {
 		if (strlen(appid) > 128) {
 			comerrno(EX_BAD,
-			"Application-id string too long (cur. %lld max. 128 chars).\n",
+			_("Application-id string too long (cur. %lld max. 128 chars).\n"),
 			(Llong)strlen(appid));
 		}
 	}
 	if (biblio) {
 		if (strlen(biblio) > 37) {
 			comerrno(EX_BAD,
-			"Bibliographic filename string too long (cur. %lld max. 37 chars).\n",
+			_("Bibliographic filename string too long (cur. %lld max. 37 chars).\n"),
 			(Llong)strlen(biblio));
 		}
 	}
@@ -1741,10 +1793,10 @@ args_ok:
 		correct_inodes = FALSE;
 		if (use_RockRidge) {
 			errmsgno(EX_BAD,
-			"Warning: Cannot write inode/link information with -no-cache-inodes.\n");
+			_("Warning: Cannot write inode/link information with -no-cache-inodes.\n"));
 		} else {
 			errmsgno(EX_BAD,
-			"Warning: Cannot add inode hints with -no-cache-inodes.\n");
+			_("Warning: Cannot add inode hints with -no-cache-inodes.\n"));
 		}
 	}
 	if (!correct_inodes)
@@ -1765,7 +1817,7 @@ args_ok:
 	if (copyright) {
 		if (strlen(copyright) > 37) {
 			comerrno(EX_BAD,
-			"Copyright filename string too long (cur. %lld max. 37 chars).\n",
+			_("Copyright filename string too long (cur. %lld max. 37 chars).\n"),
 			(Llong)strlen(copyright));
 		}
 	}
@@ -1789,7 +1841,7 @@ args_ok:
 		dirmode_to_use = strtol(dirmode_str, &end, 8);
 		if (!end || *end != 0 ||
 		    dirmode_to_use < 0 || dirmode_to_use > 07777) {
-			comerrno(EX_BAD, "Bad mode for -dir-mode\n");
+			comerrno(EX_BAD, _("Bad mode for -dir-mode\n"));
 		}
 	}
 	if (disable_deep_reloc)
@@ -1804,13 +1856,13 @@ args_ok:
 		filemode_to_use = strtol(filemode_str, &end, 8);
 		if (!end || *end != 0 ||
 		    filemode_to_use < 0 || filemode_to_use > 07777) {
-			comerrno(EX_BAD, "Bad mode for -file-mode\n");
+			comerrno(EX_BAD, _("Bad mode for -file-mode\n"));
 		}
 	}
 #ifdef	__warn_follow__
 	if (follow_links) {
 			errmsgno(EX_BAD,
-			"Warning: -follow-links does not always work correctly; be careful.\n");
+			_("Warning: -follow-links does not always work correctly; be careful.\n"));
 	}
 #endif
 	if (gid_str) {
@@ -1822,7 +1874,7 @@ args_ok:
 
 		gid_to_use = strtol(gid_str, &end, 0);
 		if (!end || *end != 0) {
-			comerrno(EX_BAD, "Bad value for -gid\n");
+			comerrno(EX_BAD, _("Bad value for -gid\n"));
 		}
 	}
 	switch (iso9660_level) {
@@ -1866,7 +1918,7 @@ args_ok:
 		break;
 
 	default:
-		comerrno(EX_BAD, "Illegal iso9660 Level %d, use 1..3 or 4.\n",
+		comerrno(EX_BAD, _("Illegal iso9660 Level %d, use 1..3 or 4.\n"),
 					iso9660_level);
 	}
 
@@ -1896,7 +1948,7 @@ args_ok:
 		new_dir_mode = strtol(dir_mode_str, &end, 8);
 		if (!end || *end != 0 ||
 		    new_dir_mode < 0 || new_dir_mode > 07777) {
-			comerrno(EX_BAD, "Bad mode for -new-dir-mode\n");
+			comerrno(EX_BAD, _("Bad mode for -new-dir-mode\n"));
 		}
 	}
 	if (sectype) {
@@ -1907,20 +1959,20 @@ args_ok:
 		else if (strcmp(sectype, "raw") == 0) {
 			osecsize = 2352;
 			comerrno(EX_BAD,
-				"Unsupported sector type '%s'.\n",
+				_("Unsupported sector type '%s'.\n"),
 				sectype);
 		}
 	}
 	if (preparer) {
 		if (strlen(preparer) > 128) {
-			comerrno(EX_BAD, "Preparer string too long (cur. %lld max. 128 chars).\n",
+			comerrno(EX_BAD, _("Preparer string too long (cur. %lld max. 128 chars).\n"),
 			(Llong)strlen(preparer));
 		}
 	}
 	if (publisher) {
 		if (strlen(publisher) > 128) {
 			comerrno(EX_BAD,
-				"Publisher string too long (cur. %lld max. 128 chars).\n",
+				_("Publisher string too long (cur. %lld max. 128 chars).\n"),
 				(Llong)strlen(publisher));
 		}
 	}
@@ -1931,10 +1983,10 @@ args_ok:
 	if (stream_filename) {
 		if (strlen(stream_filename) > MAX_ISONAME)
 			comerrno(EX_BAD,
-				"stream-file-name too long (%llu), max is %d.\n",
+				_("stream-file-name too long (%llu), max is %d.\n"),
 				(Ullong)strlen(stream_filename), MAX_ISONAME);
 		if (strchr(stream_filename, '/'))
-			comerrno(EX_BAD, "Illegal character '/' in stream-file-name.\n");
+			comerrno(EX_BAD, _("Illegal character '/' in stream-file-name.\n"));
 		iso9660_level = 4;
 	} else {
 		stream_filename = "STREAM.IMG;1";
@@ -1942,7 +1994,7 @@ args_ok:
 	if (system_id) {
 		if (strlen(system_id) > 32) {
 			comerrno(EX_BAD,
-					"System ID string too long\n");
+					_("System ID string too long\n"));
 		}
 	}
 	if (trans_tbl)
@@ -1950,7 +2002,7 @@ args_ok:
 	else
 		trans_tbl = "TRANS.TBL";
 	if (ucs_level < 1 || ucs_level > 3)
-		comerrno(EX_BAD, "Illegal UCS Level %d, use 1..3.\n",
+		comerrno(EX_BAD, _("Illegal UCS Level %d, use 1..3.\n"),
 						ucs_level);
 #ifdef	DVD_VIDEO
 	if (dvd_video) {
@@ -1973,7 +2025,7 @@ args_ok:
 
 		uid_to_use = strtol(uid_str, &end, 0);
 		if (!end || *end != 0) {
-			comerrno(EX_BAD, "Bad value for -uid\n");
+			comerrno(EX_BAD, _("Bad value for -uid\n"));
 		}
 	}
 	if (untranslated_filenames && iso9660_level < 4) {
@@ -2012,31 +2064,31 @@ args_ok:
 	if (volume_id) {
 		if (strlen(volume_id) > 32) {
 			comerrno(EX_BAD,
-				"Volume ID string too long (cur. %lld max. 32 chars).\n",
+				_("Volume ID string too long (cur. %lld max. 32 chars).\n"),
 				(Llong)strlen(volume_id));
 		}
 	}
 	if (volset_id) {
 		if (strlen(volset_id) > 128) {
 			comerrno(EX_BAD,
-			"Volume set ID string too long (cur. %lld max. 128 chars).\n",
+			_("Volume set ID string too long (cur. %lld max. 128 chars).\n"),
 			(Llong)strlen(volset_id));
 		}
 	}
 	if (volume_set_size) {
 		if (volume_set_size <= 0) {
 			comerrno(EX_BAD,
-			"Illegal Volume Set Size %d\n", volume_set_size);
+			_("Illegal Volume Set Size %d\n"), volume_set_size);
 		}
 		if (volume_set_size > 1) {
 			comerrno(EX_BAD,
-			"Volume Set Size > 1 not yet supported\n");
+			_("Volume Set Size > 1 not yet supported\n"));
 		}
 	}
 	if (volume_sequence_number) {
 		if (volume_sequence_number > volume_set_size) {
 			comerrno(EX_BAD,
-			"Volume set sequence number too big\n");
+			_("Volume set sequence number too big\n"));
 		}
 	}
 	if (rationalize_xa) {
@@ -2046,7 +2098,7 @@ args_ok:
 	if (transparent_compression) {
 #ifdef VMS
 		comerrno(EX_BAD,
-		"Transparent compression not supported with VMS\n");
+		_("Transparent compression not supported with VMS\n"));
 #endif
 	}
 #ifdef APPLE_HYB
@@ -2054,7 +2106,7 @@ args_ok:
 		hfs_ct++;
 		if (strlen(deftype) != 4) {
 			comerrno(EX_BAD,
-			"HFS default TYPE string has illegal length.\n");
+			_("HFS default TYPE string has illegal length.\n"));
 		}
 	} else {
 		deftype = APPLE_TYPE_DEFAULT;
@@ -2063,7 +2115,7 @@ args_ok:
 		hfs_ct++;
 		if (strlen(defcreator) != 4) {
 			comerrno(EX_BAD,
-			"HFS default CREATOR string has illegal length.\n");
+			_("HFS default CREATOR string has illegal length.\n"));
 		}
 	} else {
 		defcreator = APPLE_CREATOR_DEFAULT;
@@ -2074,7 +2126,7 @@ args_ok:
 		hfs_last = MAG_LAST;
 	if (nomacfiles) {
 		errmsgno(EX_BAD,
-		"Warning: -no-mac-files no longer used ... ignoring\n");
+		_("Warning: -no-mac-files no longer used ... ignoring\n"));
 	}
 	if (hfs_boot_file)
 		gen_pt = 1;
@@ -2086,7 +2138,7 @@ args_ok:
 		hfs_parms = e_strdup(hfs_parms);
 
 	if (apple_hyb && apple_ext) {
-		comerrno(EX_BAD, "Can't have both -apple and -hfs options\n");
+		comerrno(EX_BAD, _("Can't have both -apple and -hfs options\n"));
 	}
 	/*
 	 * if -probe, -macname, any hfs selection and/or mapping file is given,
@@ -2103,7 +2155,7 @@ args_ok:
 				donotwrite_macpart = 1;
 				if (!no_apple_hyb) {
 					error(
-					"Warning: no HFS hybrid will be created with -udf and --osx-hfs\n");
+					_("Warning: no HFS hybrid will be created with -udf and --osx-hfs\n"));
 				}
 			}
 		}
@@ -2113,7 +2165,7 @@ args_ok:
 		create_udfsymlinks = 0;
 #if 0
 	if (use_RockRidge && use_udf && create_udfsymlinks) {
-		error("Warning: cannot create UDF symlinks with activated Rock Ridge\n");
+		error(_("Warning: cannot create UDF symlinks with activated Rock Ridge\n"));
 		create_udfsymlinks = 0;
 	}
 #endif
@@ -2124,26 +2176,26 @@ args_ok:
 	if (apple_hyb && !donotwrite_macpart && do_largefiles > 0) {
 		do_largefiles = 0;
 		maxnonlarge = (off_t)0x7FFFFFFF;
-		error("Warning: cannot support large files with -hfs\n");
+		error(_("Warning: cannot support large files with -hfs\n"));
 	}
 	if (apple_hyb && use_udf && !donotwrite_macpart) {
-		comerrno(EX_BAD, "Can't have -hfs with -udf\n");
+		comerrno(EX_BAD, _("Can't have -hfs with -udf\n"));
 	}
 	if (apple_ext && hfs_boot_file) {
-		comerrno(EX_BAD, "Can't have -hfs-boot-file with -apple\n");
+		comerrno(EX_BAD, _("Can't have -hfs-boot-file with -apple\n"));
 	}
 	if (apple_ext && autoname) {
-		comerrno(EX_BAD, "Can't have -auto with -apple\n");
+		comerrno(EX_BAD, _("Can't have -auto with -apple\n"));
 	}
 	if (apple_hyb && (use_sparcboot || use_sunx86boot)) {
-		comerrno(EX_BAD, "Can't have -hfs with -sparc-boot/-sunx86-boot\n");
+		comerrno(EX_BAD, _("Can't have -hfs with -sparc-boot/-sunx86-boot\n"));
 	}
 	if (apple_hyb && use_genboot) {
-		comerrno(EX_BAD, "Can't have -hfs with -generic-boot\n");
+		comerrno(EX_BAD, _("Can't have -hfs with -generic-boot\n"));
 	}
 #ifdef PREP_BOOT
 	if (apple_ext && use_prep_boot) {
-		comerrno(EX_BAD, "Can't have -prep-boot with -apple\n");
+		comerrno(EX_BAD, _("Can't have -prep-boot with -apple\n"));
 	}
 #endif	/* PREP_BOOT */
 
@@ -2156,12 +2208,12 @@ args_ok:
 
 	if (apple_both && verbose && !(hfs_select || *afpfile || magic_file)) {
 		errmsgno(EX_BAD,
-		"Warning: no Apple/Unix files will be decoded/mapped\n");
+		_("Warning: no Apple/Unix files will be decoded/mapped\n"));
 	}
 	if (apple_both && verbose && !afe_size &&
 					(hfs_select & (DO_FEU | DO_FEL))) {
 		errmsgno(EX_BAD,
-		"Warning: assuming PC Exchange cluster size of 512 bytes\n");
+		_("Warning: assuming PC Exchange cluster size of 512 bytes\n"));
 		afe_size = 512;
 	}
 	if (apple_both) {
@@ -2178,7 +2230,7 @@ args_ok:
 #endif
 	}
 	if (apple_ext && !(use_XA || use_RockRidge)) {
-		comerrno(EX_BAD, "Need either -XA/-xa or -R/-r for -apple to become active.\n");
+		comerrno(EX_BAD, _("Need either -XA/-xa or -R/-r for -apple to become active.\n"));
 	}
 #endif	/* APPLE_HYB */
 
@@ -2209,7 +2261,7 @@ args_ok:
 	 */
 	if (dvd_video && use_Joliet) {
 		use_Joliet = 0;
-		error("Warning: Disabling Joliet support for DVD-Video.\n");
+		error(_("Warning: Disabling Joliet support for DVD-Video.\n"));
 	}
 	if (use_udf && !use_Joliet)
 		jlen = 255;
@@ -2218,27 +2270,27 @@ args_ok:
 		iso9660_namelen = MAX_ISONAME_V2_RR;
 
 	if (warn_violate)
-		error("Warning: creating filesystem that does not conform to ISO-9660.\n");
+		error(_("Warning: creating filesystem that does not conform to ISO-9660.\n"));
 	if (iso9660_level > 3)
-		error("Warning: Creating ISO-9660:1999 (version 2) filesystem.\n");
+		error(_("Warning: Creating ISO-9660:1999 (version 2) filesystem.\n"));
 	if (iso9660_namelen > LEN_ISONAME)
-		error("Warning: ISO-9660 filenames longer than %d may cause buffer overflows in the OS.\n",
+		error(_("Warning: ISO-9660 filenames longer than %d may cause buffer overflows in the OS.\n"),
 			LEN_ISONAME);
 	if (use_Joliet && !use_RockRidge) {
-		error("Warning: creating filesystem with (nonstandard) Joliet extensions\n");
-		error("         but without (standard) Rock Ridge extensions.\n");
-		error("         It is highly recommended to add Rock Ridge\n");
+		error(_("Warning: creating filesystem with (nonstandard) Joliet extensions\n"));
+		error(_("         but without (standard) Rock Ridge extensions.\n"));
+		error(_("         It is highly recommended to add Rock Ridge\n"));
 	}
 	if (transparent_compression) {
-		error("Warning: using transparent compression. This is a nonstandard Rock Ridge\n");
-		error("         extension. The resulting filesystem can only be transparently\n");
-		error("         read on Linux. On other operating systems you need to call\n");
-		error("         mkzftree by hand to decompress the files.\n");
+		error(_("Warning: using transparent compression. This is a nonstandard Rock Ridge\n"));
+		error(_("         extension. The resulting filesystem can only be transparently\n"));
+		error(_("         read on Linux. On other operating systems you need to call\n"));
+		error(_("         mkzftree by hand to decompress the files.\n"));
 	}
 	if (transparent_compression && !use_RockRidge) {
-		error("Warning: transparent decompression is a Linux Rock Ridge extension, but\n");
-		error("         creating filesystem without Rock Ridge attributes; files\n");
-		error("         will not be transparently decompressed.\n");
+		error(_("Warning: transparent decompression is a Linux Rock Ridge extension, but\n"));
+		error(_("         creating filesystem without Rock Ridge attributes; files\n"));
+		error(_("         will not be transparently decompressed.\n"));
 	}
 
 #if	defined(USE_NLS) && defined(HAVE_NL_LANGINFO) && defined(CODESET)
@@ -2286,7 +2338,7 @@ args_ok:
 			free(codeset);
 
 		if (verbose > 0 && icharset != NULL) {
-			error("Setting input-charset to '%s' from locale.\n",
+			error(_("Setting input-charset to '%s' from locale.\n"),
 				icharset);
 		}
 	}
@@ -2316,7 +2368,7 @@ setcharset:
 	out_nls = sic_open(ocharset);
 
 	if (in_nls == NULL || out_nls == NULL) { /* Unknown charset specified */
-		fprintf(stderr, "Unknown charset '%s'.\nKnown charsets are:\n",
+		fprintf(stderr, _("Unknown charset '%s'.\nKnown charsets are:\n"),
 		in_nls == NULL ? icharset : (ocharset ? ocharset : "NULL"));
 		list_locales();
 		exit(EX_BAD);
@@ -2329,9 +2381,9 @@ setcharset:
 	if ((in_nls->sic_cd2uni != NULL || out_nls->sic_cd2uni != NULL) &&
 	    (in_nls->sic_name != out_nls->sic_name)) {
 		errmsgno(EX_BAD,
-		"Iconv based locales may change file name length.\n");
+		_("Iconv based locales may change file name length.\n"));
 		comerrno(EX_BAD,
-		"Cannot yet have different -input-charset/-output-charset.\n");
+		_("Cannot yet have different -input-charset/-output-charset.\n"));
 	}
 #endif
 
@@ -2352,7 +2404,7 @@ setcharset:
 	if (use_mac_name)
 		apple_hyb = 1;
 	if (apple_hyb && (hfs_inls == NULL || hfs_onls == NULL)) {
-		fprintf(stderr, "Unknown HFS charset '%s'.\nKnown charsets are:\n",
+		fprintf(stderr, _("Unknown HFS charset '%s'.\nKnown charsets are:\n"),
 		hfs_inls == NULL ? hfs_icharset : (hfs_ocharset ? hfs_ocharset : "NULL"));
 		list_locales();
 		exit(EX_BAD);
@@ -2362,9 +2414,9 @@ setcharset:
 	    ((hfs_inls->sic_cd2uni != NULL || hfs_onls->sic_cd2uni != NULL) &&
 	    (hfs_inls->sic_name != hfs_onls->sic_name))) {
 		errmsgno(EX_BAD,
-		"Iconv based locales may change file name length.\n");
+		_("Iconv based locales may change file name length.\n"));
 		comerrno(EX_BAD,
-		"Cannot yet have different -input-hfs-charset/-output-hfs-charset.\n");
+		_("Cannot yet have different -input-hfs-charset/-output-hfs-charset.\n"));
 	}
 #endif
 #endif /* APPLE_HYB */
@@ -2372,7 +2424,7 @@ setcharset:
 	if (merge_image != NULL) {
 		if (open_merge_image(merge_image) < 0) {
 			/* Complain and die. */
-			comerr("Unable to open previous session image '%s'.\n",
+			comerr(_("Unable to open previous session image '%s'.\n"),
 				merge_image);
 		}
 	}
@@ -2386,7 +2438,7 @@ setcharset:
 	if (setuid(getuid()) < 0)
 #endif
 #endif
-		comerr("Panic cannot set back effective uid.\n");
+		comerr(_("Panic cannot set back effective uid.\n"));
 
 
 #ifdef	no_more_needed
@@ -2396,11 +2448,11 @@ setcharset:
 		struct rlimit	rlp;
 
 		if (getrlimit(RLIMIT_DATA, &rlp) == -1)
-			errmsg("Warning: Cannot get rlimit.\n");
+			errmsg(_("Warning: Cannot get rlimit.\n"));
 		else {
 			rlp.rlim_cur = 33554432;
 			if (setrlimit(RLIMIT_DATA, &rlp) == -1)
-				errmsg("Warning: Cannot set rlimit.\n");
+				errmsg(_("Warning: Cannot set rlimit.\n"));
 		}
 	}
 #endif
@@ -2416,16 +2468,16 @@ setcharset:
 	}
 	if (cdrecord_data == NULL && !check_session && merge_image != NULL) {
 		comerrno(EX_BAD,
-		"Multisession usage bug: Must specify -C if -M is used.\n");
+		_("Multisession usage bug: Must specify -C if -M is used.\n"));
 	}
 	if (cdrecord_data != NULL && merge_image == NULL) {
 		errmsgno(EX_BAD,
-		"Warning: -C specified without -M: old session data will not be merged.\n");
+		_("Warning: -C specified without -M: old session data will not be merged.\n"));
 	}
 #ifdef APPLE_HYB
 	if (merge_image != NULL && apple_hyb) {
 		errmsgno(EX_BAD,
-		"Warning: files from previous sessions will not be included in the HFS volume.\n");
+		_("Warning: files from previous sessions will not be included in the HFS volume.\n"));
 	}
 #endif	/* APPLE_HYB */
 
@@ -2436,7 +2488,7 @@ setcharset:
 		/* "-" means take list from the standard input */
 		if (strcmp(pathnames, "-") != 0) {
 			if ((pfp = fopen(pathnames, "r")) == NULL) {
-				comerr("Unable to open pathname list %s.\n",
+				comerr(_("Unable to open pathname list %s.\n"),
 								pathnames);
 			}
 		} else
@@ -2448,7 +2500,7 @@ setcharset:
 	if ((arg = get_pnames(argc, argv, argind, pname,
 					sizeof (pname), pfp)) == NULL) {
 		if (check_session == 0 && !stream_media_size) {
-			errmsgno(EX_BAD, "Missing pathspec.\n");
+			errmsgno(EX_BAD, _("Missing pathspec.\n"));
 			susage(1);
 		}
 	}
@@ -2464,17 +2516,17 @@ setcharset:
 	if (stream_media_size) {
 		if (use_XA || use_RockRidge || use_udf || use_Joliet)
 			comerrno(EX_BAD,
-			"Cannot use XA, Rock Ridge, UDF or Joliet with -stream-media-size\n");
+			_("Cannot use XA, Rock Ridge, UDF or Joliet with -stream-media-size\n"));
 		if (merge_image)
 			comerrno(EX_BAD,
-			"Cannot use multi session with -stream-media-size\n");
+			_("Cannot use multi session with -stream-media-size\n"));
 		if (use_eltorito || use_sparcboot || use_sunx86boot ||
 		    use_genboot || use_prep_boot || hfs_boot_file)
 			comerrno(EX_BAD,
-			"Cannot use boot options with -stream-media-size\n");
+			_("Cannot use boot options with -stream-media-size\n"));
 		if (apple_hyb)
 			comerrno(EX_BAD,
-			"Cannot use Apple hybrid options with -stream-media-size\n");
+			_("Cannot use Apple hybrid options with -stream-media-size\n"));
 	}
 
 	if (use_RockRidge) {
@@ -2499,17 +2551,17 @@ setcharset:
 
 		/* open log file - test that we can open OK */
 		if ((lfp = fopen(log_file, "w")) == NULL) {
-			comerr("Can't open logfile: '%s'.\n", log_file);
+			comerr(_("Can't open logfile: '%s'.\n"), log_file);
 		}
 		fclose(lfp);
 
 		/* redirect all stderr message to log_file */
-		fprintf(stderr, "re-directing all messages to %s\n", log_file);
+		fprintf(stderr, _("re-directing all messages to %s\n"), log_file);
 		fflush(stderr);
 
 		/* associate stderr with the log file */
 		if (freopen(log_file, "w", stderr) == NULL) {
-			comerr("Can't open logfile: '%s'.\n", log_file);
+			comerr(_("Can't open logfile: '%s'.\n"), log_file);
 		}
 		if (verbose > 1) {
 			for (i = 0; i < argc; i++)
@@ -2579,7 +2631,7 @@ setcharset:
 			/* Complain and die. */
 			if (errno == 0)
 				errno = -1;
-			comerr("Unable to find previous session PVD '%s'.\n",
+			comerr(_("Unable to find previous session PVD '%s'.\n"),
 				merge_image);
 		}
 		memcpy(de.isorec.extent, mrootp->extent, 8);
@@ -2592,44 +2644,44 @@ setcharset:
 		readsecs(extent, sector, 1);
 		c = rr_flags((struct iso_directory_record *)sector);
 		if (c & RR_FLAG_XA)
-			fprintf(stderr, "XA signatures found\n");
+			fprintf(stderr, _("XA signatures found\n"));
 		if (c & RR_FLAG_AA)
-			fprintf(stderr, "AA signatures found\n");
+			fprintf(stderr, _("AA signatures found\n"));
 		if (c & ~(RR_FLAG_XA|RR_FLAG_AA)) {
 			extern	int	su_version;
 			extern	int	rr_version;
 			extern	char	er_id[];
 
 			if (c & RR_FLAG_SP) {
-				fprintf(stderr, "SUSP signatures version %d found\n", su_version);
+				fprintf(stderr, _("SUSP signatures version %d found\n"), su_version);
 				if (c & RR_FLAG_ER) {
 					if (rr_version < 1) {
 						fprintf(stderr,
-							"No valid Rock Ridge signature found\n");
+							_("No valid Rock Ridge signature found\n"));
 						if (!force_rr)
 							no_rr++;
 					} else {
 						fprintf(stderr,
-							"Rock Ridge signatures version %d found\n",
+							_("Rock Ridge signatures version %d found\n"),
 						rr_version);
 						fprintf(stderr,
-							"Rock Ridge id '%s'\n", er_id);
+							_("Rock Ridge id '%s'\n"), er_id);
 					}
 				}
 			} else {
-				fprintf(stderr, "Bad Rock Ridge signatures found (SU record missing)\n");
+				fprintf(stderr, _("Bad Rock Ridge signatures found (SU record missing)\n"));
 				if (!force_rr)
 					no_rr++;
 			}
 		} else {
-			fprintf(stderr, "No SUSP/Rock Ridge present\n");
+			fprintf(stderr, _("No SUSP/Rock Ridge present\n"));
 			if ((c & (RR_FLAG_XA|RR_FLAG_AA)) == 0) {
 				if (!force_rr)
 					no_rr++;
 			}
 		}
 		if (no_rr)
-			fprintf(stderr, "Disabling Rock Ridge / XA / AA\n");
+			fprintf(stderr, _("Disabling Rock Ridge / XA / AA\n"));
 	}
 	/*
 	 * Create an empty root directory. If we ever scan it for real,
@@ -2658,7 +2710,7 @@ extern		int	walkfunc	__PR((char *nm, struct stat *fs, int type, struct WALK *sta
 		walkinitstate(&walkstate);
 		if (find_patlen > 0) {
 			walkstate.patstate = ___malloc(sizeof (int) * find_patlen,
-						"space for pattern state");
+						_("space for pattern state"));
 		}
 
 		find_timeinit(time(0));
@@ -2726,7 +2778,7 @@ path_done:
 	 * path on the command line
 	 */
 	if (no_path_names && !check_session && !stream_media_size) {
-		errmsgno(EX_BAD, "No pathnames found.\n");
+		errmsgno(EX_BAD, _("No pathnames found.\n"));
 		susage(1);
 	}
 	/*
@@ -2736,7 +2788,7 @@ path_done:
 	if (merge_image != NULL) {
 		if (merge_previous_session(root, mrootp,
 					reloc_root, reloc_old_root) < 0) {
-			comerrno(EX_BAD, "Cannot merge previous session.\n");
+			comerrno(EX_BAD, _("Cannot merge previous session.\n"));
 		}
 		close_merge_image();
 
@@ -2779,7 +2831,7 @@ path_done:
 	goof += sort_tree(root);
 
 	if (goof) {
-		comerrno(EX_BAD, "ISO9660/Rock Ridge tree sort failed.\n");
+		comerrno(EX_BAD, _("ISO9660/Rock Ridge tree sort failed.\n"));
 	}
 #ifdef UDF
 	if (use_Joliet || use_udf) {
@@ -2789,7 +2841,7 @@ path_done:
 		goof += joliet_sort_tree(root);
 	}
 	if (goof) {
-		comerrno(EX_BAD, "Joliet tree sort failed.\n");
+		comerrno(EX_BAD, _("Joliet tree sort failed.\n"));
 	}
 	/*
 	 * Fix a couple of things in the root directory so that everything is
@@ -2801,13 +2853,13 @@ path_done:
 	if (print_size) {
 		discimage = fopen("/dev/null", "wb");
 		if (!discimage) {
-			comerr("Unable to open /dev/null\n");
+			comerr(_("Unable to open /dev/null\n"));
 		}
 	} else if (outfile != NULL &&
 			!(outfile[0] == '-' && outfile[1] == '\0')) {
 		discimage = fopen(outfile, "wb");
 		if (!discimage) {
-			comerr("Unable to open disc image file '%s'.\n", outfile);
+			comerr(_("Unable to open disc image file '%s'.\n"), outfile);
 		}
 	} else {
 		discimage = stdout;
@@ -2935,7 +2987,7 @@ path_done:
 		opnt->of_start_extent = last_extent;
 		if (opnt->of_size != NULL) {
 			if (verbose > 2)
-				fprintf(stderr, "Computing size: %-40sStart Block %u\n",
+				fprintf(stderr, _("Computing size: %-40sStart Block %u\n"),
 					opnt->of_name, last_extent);
 			(*opnt->of_size) (last_extent);
 		}
@@ -2950,7 +3002,7 @@ path_done:
 	for (opnt = out_list; opnt; opnt = opnt->of_next) {
 		if (opnt->of_generate != NULL) {
 			if (verbose > 2)
-				fprintf(stderr, "Generating content: %-40s\n",
+				fprintf(stderr, _("Generating content: %-40s\n"),
 					opnt->of_name);
 			(*opnt->of_generate) ();
 		}
@@ -3027,7 +3079,7 @@ path_done:
 	if (print_size > 0) {
 		if (verbose > 0)
 			fprintf(stderr,
-			"Total extents scheduled to be written = %u\n",
+			_("Total extents scheduled to be written = %u\n"),
 			(last_extent - session_start));
 		printf("%u\n", (last_extent - session_start));
 		exit(0);
@@ -3048,31 +3100,31 @@ path_done:
 			 * XXXX of_start_extent set up correctly.
 			 */
 			comerrno(EX_BAD,
-			"Implementation botch: %s should start at %u but starts at %u.\n",
+			_("Implementation botch: %s should start at %u but starts at %u.\n"),
 			opnt->of_name, opnt->of_start_extent, last_extent_written);
 		}
 		if (opnt->of_write != NULL) {
 			if (verbose > 1)
-				fprintf(stderr, "Writing:   %-40sStart Block %u\n",
+				fprintf(stderr, _("Writing:   %-40sStart Block %u\n"),
 					opnt->of_name, last_extent_written);
 			(*opnt->of_write) (discimage);
 			if (verbose > 1)
-				fprintf(stderr, "Done with: %-40sBlock(s)    %u\n",
+				fprintf(stderr, _("Done with: %-40sBlock(s)    %u\n"),
 					opnt->of_name, last_extent_written-oext);
 		}
 	}
 	if (last_extent != last_extent_written) {
 		comerrno(EX_BAD,
-		"Implementation botch: FS should end at %u but ends at %u.\n",
+		_("Implementation botch: FS should end at %u but ends at %u.\n"),
 				last_extent, last_extent_written);
 	}
 
 	if (verbose > 0) {
 #ifdef HAVE_SBRK
-		fprintf(stderr, "Max brk space used %x\n",
+		fprintf(stderr, _("Max brk space used %x\n"),
 			(unsigned int)(((unsigned long) sbrk(0)) - mem_start));
 #endif
-		fprintf(stderr, "%u extents written (%u MB)\n",
+		fprintf(stderr, _("%u extents written (%u MB)\n"),
 			(last_extent-session_start),
 			(last_extent-session_start) >> 9);
 	}
@@ -3090,18 +3142,22 @@ list_locales()
 
 	n = sic_list(stdout);
 	if (n <= 0) {
-		errmsgno(EX_BAD, "Installation problem: '%s/lib/siconv/' %s.\n",
-			INS_BASE, n < 0 ? "missing":"incomplete");
+		const char	*ins_base = sic_base();
+
+		if (ins_base == NULL)
+			ins_base = "$INS_BASE/lib/siconv/";
+		errmsgno(EX_BAD, _("Installation problem: '%s' %s.\n"),
+			ins_base, n < 0 ? _("missing"):_("incomplete"));
 		if (n == 0) {
 			errmsgno(EX_BAD,
-			"Check '%s/lib/siconv/' for missing translation tables.\n",
-			INS_BASE);
+			_("Check '%s' for missing translation tables.\n"),
+			ins_base);
 		}
 	}
 #ifdef	USE_ICONV
 	if (n > 0) {
 		errmsgno(EX_BAD,
-		"'iconv -l' lists more available names.\n");
+		_("'iconv -l' lists more available names.\n"));
 	}
 #endif
 }
@@ -3335,11 +3391,11 @@ get_graft(arg, graft_point, glen, nodename, nlen, short_namep, do_insert)
 		 * This is a fatal error - the user won't be getting
 		 * what they want if we were to proceed.
 		 */
-		comerr("Invalid node - '%s'.\n", node);
+		comerr(_("Invalid node - '%s'.\n"), node);
 	} else {
 		if (S_ISDIR(st.st_mode)) {
 			if (debug) {
-				error("graft_dir: '%s : %s', node: '%s', (scan)\n",
+				error(_("graft_dir: '%s : %s', node: '%s', (scan)\n"),
 					graft_dir->whole_name,
 					graft_dir->de_name, node);
 			}
@@ -3350,7 +3406,7 @@ get_graft(arg, graft_point, glen, nodename, nlen, short_namep, do_insert)
 				exit(1);
 			}
 			if (debug) {
-				error("scan done\n");
+				error(_("scan done\n"));
 			}
 		} else {
 			if (short_name == NULL) {
@@ -3364,7 +3420,7 @@ get_graft(arg, graft_point, glen, nodename, nlen, short_namep, do_insert)
 				}
 			}
 			if (debug) {
-				error("graft_dir: '%s : %s', node: '%s', short_name: '%s'\n",
+				error(_("graft_dir: '%s : %s', node: '%s', short_name: '%s'\n"),
 					graft_dir->whole_name,
 					graft_dir->de_name, node,
 					short_name);
@@ -3393,7 +3449,7 @@ e_malloc(size)
 	if (size == 0)
 		size = 1;
 	if ((pt = malloc(size)) == NULL) {
-		comerr("Not enough memory\n");
+		comerr(_("Not enough memory\n"));
 	}
 	/*
 	 * Not all code is clean yet.
@@ -3411,7 +3467,7 @@ e_strdup(s)
 	char	*ret = strdup(s);
 
 	if (s == NULL)
-		comerr("Not enough memory for strdup(%s)\n", s);
+		comerr(_("Not enough memory for strdup(%s)\n"), s);
 	return (ret);
 }
 

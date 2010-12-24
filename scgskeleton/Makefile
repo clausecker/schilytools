@@ -1,4 +1,4 @@
-#ident @(#)Makefile	1.16 10/05/13 
+#ident @(#)Makefile	1.17 10/12/19 
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -14,6 +14,8 @@ CPPOPTS +=	-I../libscg
 CPPOPTS +=	-I../libcdrdeflt
 CPPOPTS +=	-I../cdrecord
 CPPOPTS +=	-I../readcd
+CPPOPTS +=	-DINS_BASE=\"${INS_BASE}\"
+CPPOPTS +=	-DTEXT_DOMAIN=\"SCHILY_cdrtools\"
 
 CFILES=		skel.c \
 		io.c cd_misc.c scsi_cdr.c \
@@ -22,7 +24,7 @@ CFILES=		skel.c \
 
 #HFILES=		cdrecord.h iodefs.h scsi_scan.h scsimmc.h
 
-LIBS=		-lscgcmd -lrscg -lscg $(LIB_VOLMGT) -lcdrdeflt -ldeflt -lschily $(SCSILIB) $(LIB_SOCKET)
+LIBS=		-lscgcmd -lrscg -lscg $(LIB_VOLMGT) -lcdrdeflt -ldeflt -lschily $(SCSILIB) $(LIB_SOCKET) $(LIB_INTL)
 XMK_FILE=	Makefile.man
 
 cd_misc.c scsi_cdr.c scsi_scan.c io.c misc.c:

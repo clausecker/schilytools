@@ -1,8 +1,8 @@
-/* @(#)cdda2wav.c	1.134 10/02/10 Copyright 1993-2004 Heiko Eissfeldt, Copyright 2004-2010 J. Schilling */
+/* @(#)cdda2wav.c	1.135 10/12/19 Copyright 1993-2004 Heiko Eissfeldt, Copyright 2004-2010 J. Schilling */
 #include "config.h"
 #ifndef lint
 static	UConst char sccsid[] =
-"@(#)cdda2wav.c	1.134 10/02/10 Copyright 1993-2004 Heiko Eissfeldt, Copyright 2004-2010 J. Schilling";
+"@(#)cdda2wav.c	1.135 10/12/19 Copyright 1993-2004 Heiko Eissfeldt, Copyright 2004-2010 J. Schilling";
 
 #endif
 #undef	DEBUG_BUFFER_ADDRESSES
@@ -70,6 +70,7 @@ static	UConst char sccsid[] =
 #include <schily/stdlib.h>
 #include <schily/string.h>
 #include <schily/schily.h>
+#include <schily/nlsdefs.h>
 #include <schily/signal.h>
 #include <schily/math.h>
 #include <schily/fcntl.h>
@@ -816,12 +817,12 @@ CloseAll()
 
 #if	defined	HAVE_FORK_AND_SHAREDMEM
 #ifdef DEBUG_CLEANUP
-	fprintf(stderr, "%s terminating, \n", amiparent ?
-		"Parent (READER)" : "Child (WRITER)");
+	fprintf(stderr, _("%s terminating, \n"), amiparent ?
+		_("Parent (READER)") : _("Child (WRITER)"));
 #endif
 #else
 #ifdef DEBUG_CLEANUP
-	fprintf(stderr, "Cdda2wav single process terminating, \n");
+	fprintf(stderr, _("Cdda2wav single process terminating, \n"));
 #endif
 #endif
 
@@ -850,18 +851,18 @@ CloseAll()
 		/* tell minimum and maximum amplitudes, if required */
 		if (global.findminmax) {
 			fprintf(outfp,
-			"Right channel: minimum amplitude :%d/-32768, maximum amplitude :%d/32767\n",
+			_("Right channel: minimum amplitude :%d/-32768, maximum amplitude :%d/32767\n"),
 			global.minamp[0], global.maxamp[0]);
 			fprintf(outfp,
-			"Left  channel: minimum amplitude :%d/-32768, maximum amplitude :%d/32767\n",
+			_("Left  channel: minimum amplitude :%d/-32768, maximum amplitude :%d/32767\n"),
 			global.minamp[1], global.maxamp[1]);
 		}
 
 		/* tell mono or stereo recording, if required */
 		if (global.findmono) {
 			fprintf(outfp,
-				"Audio samples are originally %s.\n",
-				global.ismono ? "mono" : "stereo");
+				_("Audio samples are originally %s.\n"),
+				global.ismono ? _("mono") : _("stereo"));
 		}
 
 		return;	/* end of child or single process */
@@ -870,36 +871,36 @@ CloseAll()
 
 	if (global.have_forked == 1) {
 #ifdef DEBUG_CLEANUP
-		fprintf(stderr, "Parent wait for child death, \n");
+		fprintf(stderr, _("Parent wait for child death, \n"));
 #endif
 		semdestroy();
 
 		/* wait for child to terminate */
 		if (0 > wait(&chld_return_status)) {
-			errmsg("Error waiting for child.\n");
+			errmsg(_("Error waiting for child.\n"));
 		} else {
 			if (WIFEXITED(chld_return_status)) {
 				if (WEXITSTATUS(chld_return_status)) {
 					fprintf(stderr,
-					"\nW Child exited with %d\n",
+					_("\nW Child exited with %d\n"),
 					WEXITSTATUS(chld_return_status));
 				}
 			}
 			if (WIFSIGNALED(chld_return_status)) {
 				fprintf(stderr,
-				"\nW Child exited due to signal %d\n",
+				_("\nW Child exited due to signal %d\n"),
 				WTERMSIG(chld_return_status));
 			}
 			if (WIFSTOPPED(chld_return_status)) {
 				fprintf(stderr,
-				"\nW Child is stopped due to signal %d\n",
+				_("\nW Child is stopped due to signal %d\n"),
 				WSTOPSIG(chld_return_status));
 			}
 		}
 
 #ifdef DEBUG_CLEANUP
 		fprintf(stderr,
-			"\nW Parent child death, state:%d\n",
+			_("\nW Parent child death, state:%d\n"),
 			chld_return_status);
 #endif
 	}
@@ -935,7 +936,7 @@ usage2(szMessage, va_alist)
 
 	va_end(marker);
 	fprintf(stderr,
-		"\nPlease use -help or consult the man page for help.\n");
+		_("Please use -help or consult the man page for help.\n"));
 
 	exit(1);
 }
@@ -1014,11 +1015,11 @@ OpenAudio(fname, rate, nBitsPerSample, channels_val, expected_bytes, audio_out)
 		if (global.audio == -1) {
 			if (errno == EAGAIN && is_fifo(fname)) {
 				FatalError(errno,
-				"Could not open fifo %s. Probably no fifo reader present.\n",
+				_("Could not open fifo %s. Probably no fifo reader present.\n"),
 				fname);
 			}
 			FatalError(errno,
-				"Could not open audio sample file %s.\n",
+				_("Could not open audio sample file %s.\n"),
 				fname);
 		}
 	}
@@ -1085,7 +1086,7 @@ set_offset(p, offset)
 	int		offset;
 {
 #ifdef DEBUG_SHM
-	fprintf(stderr, "Write offset %d at %p\n", offset, &p->offset);
+	fprintf(stderr, _("Write offset %d at %p\n"), offset, &p->offset);
 #endif
 	p->offset = offset;
 }
@@ -1096,7 +1097,7 @@ get_offset(p)
 	myringbuff	*p;
 {
 #ifdef DEBUG_SHM
-	fprintf(stderr, "Read offset %d from %p\n", p->offset, &p->offset);
+	fprintf(stderr, _("Read offset %d from %p\n"), p->offset, &p->offset);
 #endif
 	return (p->offset);
 }
@@ -1106,19 +1107,19 @@ LOCAL void
 usage()
 {
 	/* BEGIN CSTYLED */
-	fputs("usage: cdda2wav [OPTIONS ...] [trackfilenames ...]\n\
+	fputs(_("Usage: cdda2wav [OPTIONS ...] [trackfilenames ...]\n\
 OPTIONS:\n\
         [-c chans] [-s] [-m] [-b bits] [-r rate] [-a divider] [-S speed] [-x]\n\
         [-t track[+endtrack]] [-i index] [-o offset] [-d duration] [-F] [-G]\n\
         [-q] [-w] [-v vopts] [-R] [-P overlap] [-B] [-T] [-C input-endianess]\n\
         [-e] [-n sectors] [-N] [-J] [-L cddbp-mode] [-H] [-g] [-l buffers] [-D cd-device]\n\
         [-I interface] [-K sound-device] [-O audiotype] [-E output-endianess]\n\
-        [-A auxdevice] [-paranoia] [-cddbp-server=name] [-cddbp-port=port] [-version]\n",
+        [-A auxdevice] [-paranoia] [-cddbp-server=name] [-cddbp-port=port] [-version]\n"),
 		stderr);
 	/* END CSTYLED */
 
 	/* BEGIN CSTYLED */
-	fputs("\
+	fputs(_("\
   (-D) dev=device		set the cdrom or scsi device (as Bus,Id,Lun).\n\
        ts=#			set maximum transfer size for a single SCSI command\n\
   (-A) auxdevice=device		set the aux device (typically /dev/cdrom).\n\
@@ -1183,11 +1184,11 @@ OPTIONS:\n\
 Please note: some short options will be phased out soon (disappear)!\n\
 \n\
 parameters: (optional) one or more file names or - for standard output.\n\
-",
+"),
 	stderr);
 	/* END CSTYLED */
 
-	fputs("Version ", stderr);
+	fputs(_("Version "), stderr);
 	fputs(VERSION, stderr);
 	fputs(VERSION_OS, stderr);
 	prdefaults(stderr);
@@ -1199,17 +1200,17 @@ prdefaults(f)
 	FILE	*f;
 {
 	/* BEGIN CSTYLED */
-	fprintf(f, "\n\
-Defaults: %s, %d bit, %d.%02d Hz, track 1, no offset, one track,\n",
-		  CHANNELS-1?"stereo":"mono", BITS_P_S,
+	fprintf(f, _("\n\
+Defaults: %s, %d bit, %d.%02d Hz, track 1, no offset, one track,\n"),
+		  CHANNELS-1?_("stereo"):_("mono"), BITS_P_S,
 		 44100 / UNDERSAMPLING,
 		 (4410000 / UNDERSAMPLING) % 100);
 
-	fprintf(f, "\
-	  type: %s filename: '%s', don't wait for signal, not quiet,\n",
+	fprintf(f, _("\
+	  type: %s filename: '%s', don't wait for signal, not quiet,\n"),
 		AUDIOTYPE, FILENAME);
-	fprintf(f, "\
-	  use: '%s', device: '%s', aux: '%s'\n",
+	fprintf(f, _("\
+	  use: '%s', device: '%s', aux: '%s'\n"),
 		DEF_INTERFACE, CD_DEVICE, AUX_DEVICE);
 	/* END CSTYLED */
 }
@@ -1370,7 +1371,7 @@ is_fifo(filename)
 		if (errno == ENOENT)
 			return (0);
 		else
-			comerr("Error during stat for output file\n");
+			comerr(_("Error during stat for output file\n"));
 	} else {
 		if (S_ISFIFO(statstruct.st_mode)) {
 			return (1);
@@ -1437,7 +1438,7 @@ switch_to_realtime_priority()
 	 */
 	strcpy(info.pc_clname, "RT");
 	if (-1 == priocntl(P_PID, pid, PC_GETCID, (void *)&info)) {
-		errmsg("Cannot get priority class id priocntl(PC_GETCID)\n");
+		errmsg(_("Cannot get priority class id priocntl(PC_GETCID)\n"));
 		goto prio_done;
 	}
 
@@ -1455,7 +1456,7 @@ switch_to_realtime_priority()
 	needroot(0);
 	if (-1 == priocntl(P_PID, pid, PC_SETPARMS, (void *)&param))
 		errmsg(
-		"Cannot set priority class parameters priocntl(PC_SETPARMS)\n");
+		_("Cannot set priority class parameters priocntl(PC_SETPARMS)\n"));
 prio_done:
 	priv_off();
 	dontneedroot();
@@ -1472,7 +1473,7 @@ switch_to_realtime_priority()
 {
 #ifdef  _SC_PRIORITY_SCHEDULING
 	if (sysconf(_SC_PRIORITY_SCHEDULING) == -1) {
-		errmsg("WARNING: RR-scheduler not available, disabling.\n");
+		errmsg(_("WARNING: RR-scheduler not available, disabling.\n"));
 	} else
 #endif
 	{
@@ -1486,7 +1487,7 @@ switch_to_realtime_priority()
 	needroot(0);
 	if (-1 == sched_setscheduler(getpid(), SCHED_FIFO, &sched_parms) &&
 	    global.quiet != 1)
-		errmsg("cannot set posix realtime scheduling policy\n");
+		errmsg(_("Cannot set posix realtime scheduling policy.\n"));
 	priv_off();
 	dontneedroot();
 	}
@@ -1527,7 +1528,7 @@ switch_to_realtime_priority()
 		/*
 		 * XXX No errno?
 		 */
-		errmsgno(EX_BAD, "No realtime priority possible.\n");
+		errmsgno(EX_BAD, _("No realtime priority possible.\n"));
 		return;
 	}
 
@@ -1539,7 +1540,7 @@ switch_to_realtime_priority()
 		/*
 		 * XXX No errno?
 		 */
-		errmsgno(EX_BAD, "Could not set realtime priority.\n");
+		errmsgno(EX_BAD, _("Could not set realtime priority.\n"));
 	}
 }
 #else
@@ -1573,8 +1574,8 @@ exit_wrapper(status)
 	int	status;
 {
 #if defined DEBUG_CLEANUP
-	fprintf(stderr, "Exit(%d) for %s\n",
-			status, global.child_pid == 0 ? "Child" : "Parent");
+	fprintf(stderr, _("Exit(%d) for %s\n"),
+			status, global.child_pid == 0 ? _("Child") : _("Parent"));
 	fflush(stderr);
 #endif
 
@@ -1605,8 +1606,8 @@ set_nonforked(status)
 {
 	global.parent_died = 1;
 #if defined DEBUG_CLEANUP
-	fprintf(stderr, "SIGPIPE received from %s\n.",
-			global.child_pid == 0 ? "Child" : "Parent");
+	fprintf(stderr, _("SIGPIPE received from %s.\n"),
+			global.child_pid == 0 ? _("Child") : _("Parent"));
 #endif
 #ifdef	HAVE_KILL
 	if (global.child_pid == 0) {
@@ -1919,7 +1920,7 @@ do_read(p, total_unsuccessful_retries)
 					CD_FRAMESIZE_RAW);
 			} else {
 				errmsgno(EX_BAD,
-					"E unrecoverable error!\n");
+					_("E unrecoverable error!\n"));
 				exit(READ_ERROR);
 			}
 		}
@@ -2165,7 +2166,7 @@ do_write(p)
 
 		if (left_in_track < 0) {
 			errmsgno(EX_BAD,
-			"internal error: negative left_in_track:%ld, current_track=%d\n",
+			_("internal error: negative left_in_track:%ld, current_track=%d\n"),
 				left_in_track, current_track);
 		}
 
@@ -2236,17 +2237,17 @@ do_write(p)
 				fputc(' ', outfp);
 #ifndef	THOMAS_SCHAU_MAL
 				if ((unsigned long)left_in_track > InSamples) {
-					fputs(" incomplete", outfp);
+					fputs(_(" incomplete"), outfp);
 				}
 #endif
 				if (global.tracktitle[current_track] != NULL) {
 					fprintf(outfp,
-					" track %2u '%s' recorded",
+					_(" track %2u '%s' recorded"),
 					current_track,
 					global.tracktitle[current_track]);
 				} else {
 					fprintf(outfp,
-						" track %2u recorded",
+						_(" track %2u recorded"),
 						current_track);
 				}
 #ifdef	USE_PARANOIA
@@ -2261,43 +2262,43 @@ do_write(p)
 
 				if (para_stat->readerrs) {
 					fprintf(outfp,
-						" with audible hard errors");
+						_(" with audible hard errors"));
 				} else if ((para_stat->skips) > 0) {
 					fprintf(outfp,
-						" with %sretry/skip errors",
-						f < 2.0 ? "":"audible ");
+						_(" with %sretry/skip errors"),
+						f < 2.0 ? "":_("audible "));
 				} else if (oper > 0) {
 					oper = f;
 
-					fprintf(outfp, " with ");
+					fprintf(outfp, _(" with "));
 					if (oper < 2)
-						fprintf(outfp, "minor");
+						fprintf(outfp, _("minor"));
 					else if (oper < 10)
-						fprintf(outfp, "medium");
+						fprintf(outfp, _("medium"));
 					else if (oper < 67)
 						fprintf(outfp,
-							"noticable audible");
+							_("noticable audible"));
 					else if (oper < 100)
 						fprintf(outfp,
-							"major audible");
+							_("major audible"));
 					else
 						fprintf(outfp,
-							"extreme audible");
-					fprintf(outfp, " problems");
+							_("extreme audible"));
+					fprintf(outfp, _(" problems"));
 				} else {
-					fprintf(outfp, " successfully");
+					fprintf(outfp, _(" successfully"));
 				}
 				if (f >= 0.1) {
 					fprintf(outfp,
-					" (%.1f%% problem sectors)", f);
+					_(" (%.1f%% problem sectors)"), f);
 				}
 #else
-				fprintf(outfp, " successfully");
+				fprintf(outfp, _(" successfully"));
 #endif
 
 				if (waitforsignal == 1) {
 					fprintf(outfp,
-					". %d silent samples omitted",
+					_(". %d silent samples omitted"),
 						global.SkippedSamples);
 				}
 				fputs("\n", outfp);
@@ -2305,7 +2306,7 @@ do_write(p)
 				if (global.reads_illleadout &&
 				    *eorecording == 1) {
 					fprintf(outfp,
-					"Real lead out at: %ld sectors\n",
+					_("Real lead out at: %ld sectors\n"),
 					(*nSamplesToDo+BeginAtSample)/CD_FRAMESAMPLES);
 				}
 #ifdef	USE_PARANOIA
@@ -2315,7 +2316,7 @@ do_write(p)
 					if (para_stat->minoverlap == 0x7FFFFFFF)
 						para_stat->minoverlap = 0;
 					fprintf(outfp,
-						"  %u rderr, %u skip, %u atom, %u edge, %u drop, %u dup, %u drift\n",
+						_("  %u rderr, %u skip, %u atom, %u edge, %u drop, %u dup, %u drift\n"),
 						para_stat->readerrs,
 						para_stat->skips,
 						para_stat->fixup_atoms,
@@ -2326,7 +2327,7 @@ do_write(p)
 					oper = 200;	/* force new output */
 					print_percentage(&oper, current_offset);
 					fprintf(outfp,
-						"  %u overlap(%.4g .. %.4g)\n",
+						_("  %u overlap(%.4g .. %.4g)\n"),
 						para_stat->overlaps,
 						(float)para_stat->minoverlap /
 						    (2352.0/2.0),
@@ -2391,9 +2392,9 @@ do_write(p)
 #define	PRINT_OVERLAP_INIT \
 	if (global.verbose) { \
 		if (global.overlap > 0) \
-			fprintf(outfp, "overlap:min/max/cur, jitter, percent_done:\n  /  /  /          0%%"); \
+			fprintf(outfp, _("overlap:min/max/cur, jitter, percent_done:\n  /  /  /          0%%")); \
 		else \
-			fputs("percent_done:\n  0%", outfp); \
+			fputs(_("percent_done:\n  0%"), outfp); \
 	}
 
 #if defined HAVE_FORK_AND_SHAREDMEM
@@ -2460,7 +2461,7 @@ forked_read()
 
 	if (total_unsuccessful_retries) {
 		fprintf(stderr,
-			"%u unsuccessful matches while reading\n",
+			_("%u unsuccessful matches while reading\n"),
 			total_unsuccessful_retries);
 	}
 }
@@ -2553,7 +2554,7 @@ nonforked_loop()
 	}
 
 	if (total_unsuccessful_retries) {
-		fprintf(stderr, "%u unsuccessful matches while reading\n", total_unsuccessful_retries);
+		fprintf(stderr, _("%u unsuccessful matches while reading\n"), total_unsuccessful_retries);
 	}
 }
 
@@ -2562,7 +2563,7 @@ LOCAL void verbose_usage __PR((void));
 LOCAL void
 verbose_usage()
 {
-	fputs("\
+	fputs(_("\
 	help		lists all verbose options.\n\
 	disable		disables verbose mode.\n\
 	all		enables all verbose options.\n\
@@ -2576,7 +2577,7 @@ verbose_usage()
 	sectors		display the start sectors of each track.\n\
 	titles		display any known track titles.\n\
 	audio-tracks	list the audio tracks and their start sectors.\n\
-", stderr);
+"), stderr);
 }
 
 #ifdef	USE_PARANOIA
@@ -2586,7 +2587,7 @@ LOCAL void
 paranoia_usage()
 {
 	/* BEGIN CSTYLED */
-	fputs("\
+	fputs(_("\
 	help		lists all paranoia options.\n\
 	disable		disables paranoia mode. Paranoia is still being used.\n\
 	no-verify	switches verify off, and overlap on.\n\
@@ -2595,7 +2596,7 @@ paranoia_usage()
 	minoverlap=amt	set the min. number of sectors used for dynamic paranoia overlap.\n\
 	maxoverlap=amt	set the max. number of sectors used for dynamic paranoia overlap.\n\
 	proof		shortcut for minoverlap=sectors-per-request-1,retries=200.\n\
-",
+"),
 		stderr);
 	/* END CSTYLED */
 }
@@ -2669,10 +2670,10 @@ handle_verbose_opts(optstr, flagp)
 			    arg <= SHOW_MAX) {
 				*flagp |= arg;
 				errmsgno(EX_BAD,
-					"Warning: numerical parameters for -v are no more supported in the next releases!\n");
+					_("Warning: numerical parameters for -v are no more supported in the next releases!\n"));
 			} else {
 				errmsgno(EX_BAD,
-					"Unknown option '%s'.\n", optstr);
+					_("Unknown option '%s'.\n"), optstr);
 				verbose_usage();
 				exit(SYNTAX_ERROR);
 			}
@@ -2752,7 +2753,7 @@ handle_paranoia_opts(optstr, flagp)
 			global.paranoia_parms.mindynoverlap = -1;
 			global.paranoia_parms.retries = 200;
 		} else {
-			errmsgno(EX_BAD, "Unknown option '%s'.\n", optstr);
+			errmsgno(EX_BAD, _("Unknown option '%s'.\n"), optstr);
 			paranoia_usage();
 			exit(SYNTAX_ERROR);
 		}
@@ -2761,7 +2762,7 @@ handle_paranoia_opts(optstr, flagp)
 	global.paranoia_selected = TRUE;
 	return (1);
 #else
-	errmsgno(EX_BAD, "lib paranoia support is not configured!\n");
+	errmsgno(EX_BAD, _("lib paranoia support is not configured!\n"));
 	return (0);
 #endif
 }
@@ -2788,12 +2789,33 @@ main(argc, argv)
 	char		*int_name;
 static char		*user_sound_device = "";
 	char		*env_p;
+#if	defined(USE_NLS)
+	char		*dir;
+#endif
 	int		tracks_included;
 	int		moreargs;
 
 	int_name = DEF_INTERFACE;
 	audio_type = AUDIOTYPE;
 	save_args(argc, argv);
+
+#if	defined(USE_NLS)
+	(void) setlocale(LC_ALL, "");
+#if !defined(TEXT_DOMAIN)	/* Should be defined by cc -D */
+#define	TEXT_DOMAIN "cdda2wav"	/* Use this only if it weren't */
+#endif
+	dir = searchfileinpath("share/locale", F_OK,
+					SIP_ANY_FILE|SIP_NO_PATH, NULL);
+	if (dir)
+		(void) bindtextdomain(TEXT_DOMAIN, dir);
+	else
+#if defined(PROTOTYPES) && defined(INS_BASE)
+	(void) bindtextdomain(TEXT_DOMAIN, INS_BASE "/share/locale");
+#else
+	(void) bindtextdomain(TEXT_DOMAIN, "/usr/share/locale");
+#endif
+	(void) textdomain(TEXT_DOMAIN);
+#endif
 
 	/*
 	 * init global variables
@@ -2926,8 +2948,8 @@ static char		*user_sound_device = "";
 			&global.quiet, &global.quiet,
 			&domax, &domax, &outfd, &audiofd,
 			&global.no_fork, &global.interactive) < 0) {
-		errmsgno(EX_BAD, "Bad Option: %s.\n", cav[0]);
-		fputs("use 'cdda2wav -help' to get more information.\n",
+		errmsgno(EX_BAD, _("Bad Option: %s.\n"), cav[0]);
+		fputs(_("Use 'cdda2wav -help' to get more information.\n"),
 				stderr);
 		exit(SYNTAX_ERROR);
 	}
@@ -2936,7 +2958,7 @@ static char		*user_sound_device = "";
 	moreargs = cav - argv;
 	if (version) {
 #ifdef	OLD_VERSION_PRINT
-		fputs("cdda2wav version ", outfp);
+		fputs(_("cdda2wav version "), outfp);
 		fputs(VERSION, outfp);
 		fputs(VERSION_OS, outfp);
 		fputs("\n", outfp);
@@ -2944,9 +2966,11 @@ static char		*user_sound_device = "";
 		/*
 		 * Make the version string similar for all cdrtools programs.
 		 */
-		printf("cdda2wav %s (%s-%s-%s) Copyright (C) 1993-2004 Heiko Eißfeldt (C) 2004-2010 Jörg Schilling\n",
+		printf(_("cdda2wav %s (%s-%s-%s) Copyright (C) 1993-2004 %s (C) 2004-2010 %s\n"),
 					VERSION,
-					HOST_CPU, HOST_VENDOR, HOST_OS);
+					HOST_CPU, HOST_VENDOR, HOST_OS,
+					_("Heiko Eissfeldt"),
+					_("Joerg Schilling"));
 		prdefaults(stdout);
 #endif
 		exit(NO_ERROR);
@@ -2957,11 +2981,11 @@ static char		*user_sound_device = "";
 	if (outfd >= 0) {
 #ifdef	F_GETFD
 		if (fcntl(outfd, F_GETFD, 0) < 0)
-			comerr("Cannot redirect output to fd %d.\n", outfd);
+			comerr(_("Cannot redirect output to fd %d.\n"), outfd);
 #endif
 		global.out_fp = fdopen(outfd, "wa");
 		if (global.out_fp == NULL)
-			comerr("Cannot open output fd %d.\n", outfd);
+			comerr(_("Cannot open output fd %d.\n"), outfd);
 	}
 	if (!global.scanbus)
 		cdr_defaults(&global.dev_name, NULL, NULL, &global.bufsize, NULL);
@@ -2972,10 +2996,10 @@ static char		*user_sound_device = "";
 		int	ii;
 
 		/* BEGIN CSTYLED */
-		fputs("\
+		fputs(_("\
 Available rates are:\n\
 Rate   Divider      Rate   Divider      Rate   Divider      Rate   Divider\n\
-",
+"),
 			outfp);
 		/* END CSTYLED */
 		for (ii = 1; ii <= 44100 / 880 / 2; ii++) {
@@ -3007,12 +3031,12 @@ Rate   Divider      Rate   Divider      Rate   Divider      Rate   Divider\n\
 			rate = 44100.0 / divider_d;
 		} else {
 			errmsgno(EX_BAD,
-			"E option -divider requires a nonzero, positive argument.\nSee -dump-rates.\n");
+			_("E option -divider requires a nonzero, positive argument.\nSee -dump-rates.\n"));
 			exit(SYNTAX_ERROR);
 		}
 	}
 	if (sector_offset != 0 && start_sector != -1) {
-		errmsgno(EX_BAD, "-offset and -start-sector are mutual exclusive.\n");
+		errmsgno(EX_BAD, _("-offset and -start-sector are mutual exclusive.\n"));
 		exit(SYNTAX_ERROR);
 	}
 	if (trackspec) {
@@ -3025,7 +3049,7 @@ Rate   Divider      Rate   Divider      Rate   Divider      Rate   Divider\n\
 			track = strtoul(trackspec, &endptr, 10);
 			if (trackspec == endptr)
 				comerrno(EX_BAD,
-					"Invalid track specification '%s'.\n",
+					_("Invalid track specification '%s'.\n"),
 					trackspec);
 			if (streql(endptr, "+max")) {
 				if (track <= 1) {
@@ -3049,7 +3073,7 @@ Rate   Divider      Rate   Divider      Rate   Divider      Rate   Divider\n\
 			}
 		}
 		if (start_sector != -1 && !alltracks) {
-			errmsgno(EX_BAD, "-t and -start-sector are mutual exclusive.\n");
+			errmsgno(EX_BAD, _("-t and -start-sector are mutual exclusive.\n"));
 			exit(SYNTAX_ERROR);
 		}
 	}
@@ -3080,7 +3104,7 @@ Rate   Divider      Rate   Divider      Rate   Divider      Rate   Divider\n\
 			global.outputendianess = LITTLE;
 #endif
 		} else {
-			usage2("Wrong parameter '%s' for option -E", oendianess);
+			usage2(_("Wrong parameter '%s' for option -E\n"), oendianess);
 		}
 	}
 	if (cendianess) {
@@ -3098,7 +3122,7 @@ Rate   Divider      Rate   Divider      Rate   Divider      Rate   Divider\n\
 		} else if (strcasecmp(cendianess, "guess") == 0) {
 			littleendian = -2;
 		} else {
-			usage2("Wrong parameter '%s' for option -C", cendianess);
+			usage2(_("Wrong parameter '%s' for option -C\n"), cendianess);
 		}
 	}
 	if (cddbp >= 0) {
@@ -3119,7 +3143,7 @@ Rate   Divider      Rate   Divider      Rate   Divider      Rate   Divider\n\
 		global.need_hostorder = 1;
 #else
 		errmsgno(EX_BAD,
-			"There is no sound support compiled into %s.\n",
+			_("There is no sound support compiled into %s.\n"),
 			argv[0]);
 		global.echo = 0;
 #endif
@@ -3167,12 +3191,12 @@ Rate   Divider      Rate   Divider      Rate   Divider      Rate   Divider\n\
 	if (global.md5blocksize) {
 #ifndef	MD5_SIGNATURES
 		errmsgno(EX_BAD,
-			"The option MD5 signatures is not configured!\n");
+			_("The option MD5 signatures is not configured!\n"));
 #endif
 	}
 	if (user_sound_device[0] != '\0') {
 #ifndef	ECHO_TO_SOUNDCARD
-		errmsgno(EX_BAD, "There is no sound support configured!\n");
+		errmsgno(EX_BAD, _("There is no sound support configured!\n"));
 #else
 		global.echo = TRUE;
 #endif
@@ -3187,38 +3211,38 @@ Rate   Divider      Rate   Divider      Rate   Divider      Rate   Divider\n\
 	 * check all parameters
 	 */
 	if (global.bufsize < CD_FRAMESIZE_RAW) {
-		usage2("Incorrect transfer size setting: %d", global.bufsize);
+		usage2(_("Incorrect transfer size setting: %d\n"), global.bufsize);
 	}
 
 	if (global.buffers < 1) {
-		usage2("Incorrect buffer setting: %d", global.buffers);
+		usage2(_("Incorrect buffer setting: %d\n"), global.buffers);
 	}
 
 	if (global.nsectors < 1) {
-		usage2("Incorrect nsectors setting: %d", global.nsectors);
+		usage2(_("Incorrect nsectors setting: %d\n"), global.nsectors);
 	}
 
 	if (global.verbose < 0 || global.verbose > SHOW_MAX) {
-		usage2("Incorrect verbose level setting: %d", global.verbose);
+		usage2(_("Incorrect verbose level setting: %d\n"), global.verbose);
 	}
 	if (global.verbose == 0)
 		global.quiet = 1;
 
 	if (rectime < 0.0) {
-		usage2("Incorrect recording time setting: %d.%02d",
+		usage2(_("Incorrect recording time setting: %d.%02d\n"),
 			(int)rectime, (int)(rectime*100+0.5) % 100);
 	}
 
 	if (global.channels != 1 && global.channels != 2) {
-		usage2("Incorrect channel setting: %d", global.channels);
+		usage2(_("Incorrect channel setting: %d\n"), global.channels);
 	}
 
 	if (bits != 8 && bits != 12 && bits != 16) {
-		usage2("Incorrect bits_per_sample setting: %d", bits);
+		usage2(_("Incorrect bits_per_sample setting: %d\n"), bits);
 	}
 
 	if (rate < 827.0 || rate > 44100.0) {
-		usage2("Incorrect sample rate setting: %d.%02d",
+		usage2(_("Incorrect sample rate setting: %d.%02d\n"),
 			(int)rate, ((int)rate*100) % 100);
 	}
 
@@ -3227,7 +3251,7 @@ Rate   Divider      Rate   Divider      Rate   Divider      Rate   Divider\n\
 	if (2*44100.0 / rate - int_part >= 0.5) {
 		int_part += 1.0;
 		fprintf(outfp,
-			"Nearest available sample rate is %d.%02d Hertz\n",
+			_("Nearest available sample rate is %d.%02d Hertz\n"),
 			2*44100 / (int)int_part,
 			(2*4410000 / (int)int_part) % 100);
 	}
@@ -3241,7 +3265,7 @@ Rate   Divider      Rate   Divider      Rate   Divider      Rate   Divider\n\
 	} else if (strcmp((char *)int_name, "cooked_ioctl") == 0) {
 		interface = COOKED_IOCTL;
 	} else  {
-		usage2("Incorrect interface setting: %s", int_name);
+		usage2(_("Incorrect interface setting: %s\n"), int_name);
 	}
 
 	/*
@@ -3271,16 +3295,16 @@ Rate   Divider      Rate   Divider      Rate   Divider      Rate   Divider\n\
 
 			fetch_lame_version(Lame_version);
 			fprintf(outfp,
-				"Using LAME version %s.\n", Lame_version);
+				_("Using LAME version %s.\n"), Lame_version);
 		}
 		if (bits < 9) {
 			bits = 16;
 			fprintf(outfp,
-			"Warning: sample size forced to 16 bit for MP3 format.\n");
+			_("Warning: sample size forced to 16 bit for MP3 format.\n"));
 		}
 #endif /* USE_LAME */
 	} else {
-		usage2("Incorrect audio type setting: %3s", audio_type);
+		usage2(_("Incorrect audio type setting: %3s\n"), audio_type);
 	}
 
 	if (bulk == -1)
@@ -3329,7 +3353,7 @@ Rate   Divider      Rate   Divider      Rate   Divider      Rate   Divider\n\
 #ifdef	F_GETFD
 				if (fcntl(audiofd, F_GETFD, 0) < 0) {
 					comerr(
-					"Cannot redirect audio data to fd %d.\n",
+					_("Cannot redirect audio data to fd %d.\n"),
 					audiofd);
 				}
 #endif
@@ -3354,7 +3378,7 @@ Rate   Divider      Rate   Divider      Rate   Divider      Rate   Divider\n\
 }	/* End of getargs() local vars */
 
 #define	SETSIGHAND(PROC, SIG, SIGNAME) if (signal(SIG, PROC) == SIG_ERR) \
-	{ errmsg("Cannot set signal %s handler.\n", SIGNAME); exit(SETSIG_ERROR); }
+	{ errmsg(_("Cannot set signal %s handler.\n"), SIGNAME); exit(SETSIG_ERROR); }
 #ifdef	SIGINT
 	SETSIGHAND(exit_wrapper, SIGINT, "SIGINT")
 #endif
@@ -3388,14 +3412,14 @@ Rate   Divider      Rate   Divider      Rate   Divider      Rate   Divider\n\
 	 */
 	if (global.nsectors < 1+global.overlap) {
 		errmsgno(EX_BAD,
-		"Warning: Setting #nsectors to minimum of %d, due to jitter correction!\n",
+		_("Warning: Setting #nsectors to minimum of %d, due to jitter correction!\n"),
 			global.overlap+1);
 		global.nsectors = global.overlap+1;
 	}
 
 	if (global.overlap > 0 && global.buffers < 2) {
 		errmsgno(EX_BAD,
-		"Warning: Setting #buffers to minimum of 2, due to jitter correction!\n");
+		_("Warning: Setting #buffers to minimum of 2, due to jitter correction!\n"));
 		global.buffers = 2;
 	}
 
@@ -3428,13 +3452,13 @@ Rate   Divider      Rate   Divider      Rate   Divider      Rate   Divider\n\
 	he_fill_buffer = request_shm_sem(global.shmsize,
 				(unsigned char **)(void *)&he_fill_buffer);
 	if (he_fill_buffer == NULL) {
-		errmsgno(EX_BAD, "No shared memory available!\n");
+		errmsgno(EX_BAD, _("No shared memory available!\n"));
 		exit(SHMMEM_ERROR);
 	}
 #else /* do not have fork() and shared memory */
 	he_fill_buffer = malloc(global.shmsize);
 	if (he_fill_buffer == NULL) {
-		errmsg("No buffer memory available!\n");
+		errmsg(_("No buffer memory available!\n"));
 		exit(NOMEM_ERROR);
 	}
 #endif
@@ -3469,7 +3493,7 @@ Rate   Divider      Rate   Divider      Rate   Divider      Rate   Divider\n\
 
 	if (global.verbose != 0) {
 		fprintf(outfp,
-		"%u bytes buffer memory requested, transfer size %ld bytes, %d buffers, %d sectors\n",
+		_("%u bytes buffer memory requested, transfer size %ld bytes, %d buffers, %d sectors\n"),
 			global.shmsize, global.bufsize, global.buffers, global.nsectors);
 	}
 
@@ -3507,7 +3531,7 @@ Rate   Divider      Rate   Divider      Rate   Divider      Rate   Divider\n\
 	cdtracks = ReadToc();
 	if (cdtracks == 0) {
 		errmsgno(EX_BAD,
-			"No track in table of contents! Aborting...\n");
+			_("No track in table of contents! Aborting...\n"));
 		exit(MEDIA_ERROR);
 	} else if (maxtrack) {
 		endtrack = cdtracks;
@@ -3546,19 +3570,19 @@ Rate   Divider      Rate   Divider      Rate   Divider      Rate   Divider\n\
 	}
 
 	if (global.verbose != 0) {
-		fputs("#Cdda2wav version ", outfp);
+		fputs(_("#Cdda2wav version "), outfp);
 		fputs(VERSION, outfp);
 		fputs(VERSION_OS, outfp);
 #if defined USE_POSIX_PRIORITY_SCHEDULING || defined HAVE_SYS_PRIOCNTL_H
-		fputs(", real time sched.", outfp);
+		fputs(_(", real time sched."), outfp);
 #endif
 #if defined ECHO_TO_SOUNDCARD
-		fputs(", soundcard", outfp);
+		fputs(_(", soundcard"), outfp);
 #endif
 #if defined USE_PARANOIA
-		fputs(", libparanoia", outfp);
+		fputs(_(", libparanoia"), outfp);
 #endif
-		fputs(" support\n", outfp);
+		fputs(_(" support\n"), outfp);
 	}
 
 	/*
@@ -3607,7 +3631,7 @@ Rate   Divider      Rate   Divider      Rate   Divider      Rate   Divider\n\
 	if (FirstAudioTrack() == -1) {
 		if (no_disguised_audiotracks()) {
 			FatalError(EX_BAD,
-				"This disk has no audio tracks.\n");
+				_("This disk has no audio tracks.\n"));
 		}
 	}
 
@@ -3618,14 +3642,14 @@ Rate   Divider      Rate   Divider      Rate   Divider      Rate   Divider\n\
 	 */
 	if (track < 1 || track > cdtracks) {
 		if (!(track == 0 && useHiddenTrack()))
-			usage2("Incorrect start track setting: %d", track);
+			usage2(_("Incorrect start track setting: %d\n"), track);
 	}
 
 	/*
 	 * check if end track is in range
 	 */
 	if (endtrack < track || endtrack > cdtracks) {
-		usage2("Incorrect end track setting: %ld", endtrack);
+		usage2(_("Incorrect end track setting: %ld\n"), endtrack);
 	}
 
 	/*
@@ -3665,10 +3689,10 @@ Rate   Divider      Rate   Divider      Rate   Divider      Rate   Divider\n\
 		if (lSector < 0) {
 			if (bulk == 0 && !alltracks) {
 				FatalError(EX_BAD,
-					"Track %d not found.\n", track);
+					_("Track %d not found.\n"), track);
 			} else {
 				fprintf(outfp,
-					"Skipping data track %d...\n", track);
+					_("Skipping data track %d...\n"), track);
 				if (endtrack == track)
 					endtrack++;
 				track++;
@@ -3695,13 +3719,13 @@ Rate   Divider      Rate   Divider      Rate   Divider      Rate   Divider\n\
 	 */
 	if (lSector >= lSector_p1) {
 		fprintf(stderr,
-		"W Sector offset %lu exceeds track size (ignored)\n",
+		_("W Sector offset %lu exceeds track size (ignored)\n"),
 			sector_offset);
 		lSector -= sector_offset;
 	}
 
 	if (lSector < 0L) {
-		fputs("Negative start sector! Set to zero.\n", stderr);
+		fputs(_("Negative start sector! Set to zero.\n"), stderr);
 		lSector = 0L;
 	}
 
@@ -3722,12 +3746,12 @@ Rate   Divider      Rate   Divider      Rate   Divider      Rate   Divider\n\
 				*nSamplesToDo = (long)(rectime*44100.0 + 0.5);
 			} else {
 				fputs(
-				"End track is no valid audio track (ignored)\n",
+				_("End track is no valid audio track (ignored)\n"),
 					stderr);
 			}
 		} else {
 			fputs(
-			"Track range does not consist of audio tracks only (ignored)\n",
+			_("Track range does not consist of audio tracks only (ignored)\n"),
 				stderr);
 		}
 	} else {
@@ -3748,7 +3772,7 @@ Rate   Divider      Rate   Divider      Rate   Divider      Rate   Divider\n\
 
 	global.OutSampleSize = (1+bits/12);
 	if (*nSamplesToDo/undersampling == 0L) {
-		usage2("Time interval is too short. Choose a duration greater than %d.%02d secs!",
+		usage2(_("Time interval is too short. Choose a duration greater than %d.%02d secs!\n"),
 			undersampling/44100, (int)(undersampling/44100) % 100);
 	}
 	if (moreargs < argc) {
@@ -3759,7 +3783,7 @@ Rate   Divider      Rate   Divider      Rate   Divider      Rate   Divider\n\
 			 */
 			if (bulk == 1) {
 				fprintf(stderr,
-				"W Bulk mode is disabled while outputting to a %spipe\n",
+				_("W Bulk mode is disabled while outputting to a %spipe\n"),
 					is_fifo(argv[moreargs]) ?
 							"named " : "");
 				bulk = 0;
@@ -3771,22 +3795,22 @@ Rate   Divider      Rate   Divider      Rate   Divider      Rate   Divider\n\
 		global.no_infofile = 1;
 		if (global.channels == 1 || bits != 16 || rate != 44100) {
 			fprintf(stderr,
-			"W Sample conversions disable generation of info files!\n");
+			_("W Sample conversions disable generation of info files!\n"));
 		} else if (waitforsignal == 1) {
 			fprintf(stderr,
-			"W Option -w 'wait for signal' disables generation of info files!\n");
+			_("W Option -w 'wait for signal' disables generation of info files!\n"));
 		} else if (alltracks) {
 			fprintf(stderr,
-			"W Option -tall 'all tracks into one file' disables generation of info files!\n");
+			_("W Option -tall 'all tracks into one file' disables generation of info files!\n"));
 		} else if (sector_offset != 0) {
 			fprintf(stderr,
-			"W Using an start offset (option -o) disables generation of info files!\n");
+			_("W Using an start offset (option -o) disables generation of info files!\n"));
 		} else if (!bulk && !alltracks &&
 			    !((lSector == Get_AudioStartSector(track)) &&
 			    ((long)(lSector + rectime*75.0 + 0.5) ==
 			    Get_EndSector(track) + 1))) {
 			fprintf(stderr,
-			"W Duration is not set for complete tracks (option -d), this disables generation\n  of info files!\n");
+			_("W Duration is not set for complete tracks (option -d), this disables generation\n  of info files!\n"));
 		} else {
 			global.no_infofile = 0;
 		}
@@ -3794,11 +3818,11 @@ Rate   Divider      Rate   Divider      Rate   Divider      Rate   Divider\n\
 	if (global.cuefile) {
 		if (global.outputendianess != NONE) {
 			fprintf(stderr,
-			"W Option -E 'outout endianess' disables generation of cue file!\n");
+			_("W Option -E 'outout endianess' disables generation of cue file!\n"));
 			global.cuefile = 0;
 		} else if (!alltracks) {
 			fprintf(stderr,
-			"W Not selecting all tracks disables generation of cue file!\n");
+			_("W Not selecting all tracks disables generation of cue file!\n"));
 			global.cuefile = 0;
 		}
 	}
@@ -3846,7 +3870,7 @@ Rate   Divider      Rate   Divider      Rate   Divider      Rate   Divider\n\
 						bulk && global.multiname == 0);
 				} else {
 					fprintf(stderr,
-					"Partial length copy for track %d, no info file will be generated for this track!\n", i);
+					_("Partial length copy for track %d, no info file will be generated for this track!\n"), i);
 				}
 				if (!bulk)
 					break;
@@ -3961,13 +3985,13 @@ Rate   Divider      Rate   Divider      Rate   Divider      Rate   Divider\n\
 	    lSector+*nSamplesToDo/CD_FRAMESAMPLES
 	    <= (unsigned) Get_AudioStartSector(cdtracks-1))) {
 
-		fprintf(outfp, "samplefile size will be %lu bytes.\n",
+		fprintf(outfp, _("samplefile size will be %lu bytes.\n"),
 			global.audio_out->GetHdrSize() +
 			global.audio_out->InSizeToOutSize(SamplesToWrite*global.OutSampleSize*global.channels));
 		fprintf(outfp,
-		"recording %d.%04d seconds %s with %d bits @ %5d.%01d Hz",
+		_("recording %d.%04d seconds %s with %d bits @ %5d.%01d Hz"),
 			(int)rectime, (int)(rectime * 10000) % 10000,
-			global.channels == 1 ? "mono":"stereo",
+			global.channels == 1 ? _("mono"):_("stereo"),
 			bits, (int)rate, (int)(rate*10)%10);
 		if (!global.no_file && *global.fname_base)
 			fprintf(outfp, " ->'%s'...", global.fname_base);
@@ -4036,7 +4060,7 @@ Rate   Divider      Rate   Divider      Rate   Divider      Rate   Divider\n\
 
 		paranoia_modeset(global.cdp, paranoia_mode);
 		if (global.verbose)
-			fprintf(outfp, "using lib paranoia for reading.\n");
+			fprintf(outfp, _("using lib paranoia for reading.\n"));
 		paranoia_seek(global.cdp, lSector, SEEK_SET);
 		paranoia_reset();
 	}
@@ -4053,7 +4077,7 @@ Rate   Divider      Rate   Divider      Rate   Divider      Rate   Divider\n\
 		global.child_pid = fork();
 
 	if (global.child_pid > 0 && global.gui > 0 && global.verbose > 0)
-		fprintf(stderr, "child pid is %lld\n", (Llong)global.child_pid);
+		fprintf(stderr, _("child pid is %lld\n"), (Llong)global.child_pid);
 
 	/* ********************** fork ************************************* */
 	if (global.child_pid == 0) {
@@ -4085,14 +4109,14 @@ Rate   Divider      Rate   Divider      Rate   Divider      Rate   Divider\n\
 				area_address = inf.address;
 				if (B_OK != delete_area(inf.area)) {
 					errmsgno(EX_BAD,
-					"delete_area: no valid area.\n");
+					_("delete_area: no valid area.\n"));
 					exit(SHMMEM_ERROR);
 				}
 				/* get the parent mapping. */
 				area_parent = find_area(inf.name);
 				if (area_parent == B_NAME_NOT_FOUND) {
 					errmsgno(EX_BAD,
-					"find_area: no such area name.\n");
+					_("find_area: no such area name.\n"));
 					exit(SHMMEM_ERROR);
 				}
 				/* clone the parent mapping without cow. */
@@ -4100,7 +4124,7 @@ Rate   Divider      Rate   Divider      Rate   Divider      Rate   Divider\n\
 				    &area_address, B_CLONE_ADDRESS,
 				    B_READ_AREA | B_WRITE_AREA, area_parent)) {
 					errmsgno(EX_BAD,
-						"clone_area failed\n");
+						_("clone_area failed\n"));
 					exit(SHMMEM_ERROR);
 				}
 			}
@@ -4108,7 +4132,7 @@ Rate   Divider      Rate   Divider      Rate   Divider      Rate   Divider\n\
 #endif
 #ifdef	__EMX__
 		if (DosGetSharedMem(he_fill_buffer, 3)) {
-			comerr("DosGetSharedMem() failed.\n");
+			comerr(_("DosGetSharedMem() failed.\n"));
 		}
 #endif
 		global.have_forked = 1;
@@ -4132,7 +4156,7 @@ Rate   Divider      Rate   Divider      Rate   Divider      Rate   Divider\n\
 			area_id aid;
 			aid = find_area(AREA_NAME);
 			if (aid < B_OK) {
-				comerrno(aid, "find_area() failed.\n");
+				comerrno(aid, _("find_area() failed.\n"));
 			}
 			delete_area(aid);
 		}
@@ -4144,7 +4168,7 @@ Rate   Divider      Rate   Divider      Rate   Divider      Rate   Divider\n\
 		/* NOTREACHED */
 	} else {
 		if (global.child_pid != -2)
-			errmsg("Cannot fork.\n");
+			errmsg(_("Cannot fork.\n"));
 	}
 
 #endif	/* defined(HAVE_FORK_AND_SHAREDMEM) */
@@ -4159,7 +4183,7 @@ Rate   Divider      Rate   Divider      Rate   Divider      Rate   Divider\n\
 		}
 #endif
 		if (!global.quiet)
-			fprintf(stderr, "a nonforking version is running...\n");
+			fprintf(stderr, _("a nonforking version is running...\n"));
 		nonforked_loop();
 		exit_wrapper(NO_ERROR);
 		/* NOTREACHED */

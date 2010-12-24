@@ -1,8 +1,8 @@
-/* @(#)isodump.c	1.44 09/10/12 joerg */
+/* @(#)isodump.c	1.45 10/12/19 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)isodump.c	1.44 09/10/12 joerg";
+	"@(#)isodump.c	1.45 10/12/19 joerg";
 #endif
 /*
  * File isodump.c - dump iso9660 directory information.
@@ -11,7 +11,7 @@ static	UConst char sccsid[] =
  * Written by Eric Youngdale (1993).
  *
  * Copyright 1993 Yggdrasil Computing, Incorporated
- * Copyright (c) 1999-2009 J. Schilling
+ * Copyright (c) 1999-2010 J. Schilling
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2
@@ -37,6 +37,7 @@ static	UConst char sccsid[] =
 #include <schily/termios.h>
 #include <schily/signal.h>
 #include <schily/schily.h>
+#include <schily/nlsdefs.h>
 
 #include "../iso9660.h"
 #include "../rock.h"
@@ -151,7 +152,7 @@ reset_tty()
 	if (ioctl(STDIN_FILENO, TCSETAF, &savetty) == -1) {
 #endif
 #endif
-		printf("Cannot put tty into normal mode\n");
+		printf(_("Cannot put tty into normal mode\n"));
 		exit(1);
 	}
 }
@@ -168,7 +169,7 @@ set_tty()
 	if (ioctl(STDIN_FILENO, TCSETAF, &newtty) == -1) {
 #endif
 #endif
-		printf("Cannot put tty into raw mode\n");
+		printf(_("Cannot put tty into raw mode\n"));
 		exit(1);
 	}
 }
@@ -245,7 +246,7 @@ parse_rr(pnt, len, cont_flag)
 			printf("[");
 		printf("%c%c", pnt[0], pnt[1]);
 		if (pnt[3] != 1 && pnt[3] != 2) {
-			printf("**BAD RRVERSION (%d) for %c%c\n", pnt[3], pnt[0], pnt[1]);
+			printf(_("**BAD RRVERSION (%d) for %c%c\n"), pnt[3], pnt[0], pnt[1]);
 			return (0);	/* JS ??? Is this right ??? */
 		} else if (pnt[0] == 'R' && pnt[1] == 'R') {
 			printf("=%d", pnt[3]);			/* RR version */
@@ -290,12 +291,12 @@ parse_rr(pnt, len, cont_flag)
 			int	lsrc = pnt[6] & 0xFF;			/* Len src */
 			int	xver = pnt[7] & 0xFF;			/* X vers  */
 
-			printf("=[len_id=%d,len_des=%d,len_src=%d,ext_ver=%d,id=\"%.*s\"]",
+			printf(_("=[len_id=%d,len_des=%d,len_src=%d,ext_ver=%d,id=\"%.*s\"]"),
 				lid, ldes, lsrc, xver, lid, &pnt[8]);
 
 		}
 		if (strncmp((char *)pnt, "SP", 2) == 0) {		/* SUSP */
-			printf("=[skip=%d]", pnt[6] & 0xFF);		/* SUSP skip off */
+			printf(_("=[skip=%d]"), pnt[6] & 0xFF);		/* SUSP skip off */
 
 		}
 		if (strncmp((char *)pnt, "ST", 2) == 0) {		/* Terminate SUSP */
@@ -330,19 +331,19 @@ parse_rr(pnt, len, cont_flag)
 					break;
 				case 16:
 					strcat(symlinkname, "/mnt");
-					printf("Warning - mount point requested");
+					printf(_("Warning - mount point requested"));
 					break;
 				case 32:
 					strcat(symlinkname, "kafka");
-					printf("Warning - host_name requested");
+					printf(_("Warning - host_name requested"));
 					break;
 				default:
-					printf("Reserved bit setting in symlink");
+					printf(_("Reserved bit setting in symlink"));
 					goof++;
 					break;
 				}
 				if ((pnts[0] & 0xfe) && pnts[1] != 0) {
-					printf("Incorrect length in symlink component");
+					printf(_("Incorrect length in symlink component"));
 				}
 				if ((pnts[0] & 1) == 0)
 					strcat(symlinkname, "/");
@@ -373,7 +374,7 @@ parse_rr(pnt, len, cont_flag)
 	if (ncount)
 		printf("]");
 	if (!cont_flag && flag1 != -1 && flag1 != (flag2 & 0xFF)) {
-		printf("Flag %x != %x", flag1, flag2);
+		printf(_("Flag %x != %x"), flag1, flag2);
 		goof++;
 	}
 	/*
@@ -477,11 +478,11 @@ showblock(flag)
 	}
 	printf("\n");
 	if (sizeof (file_addr) > sizeof (long)) {
-		printf(" Zone, zone offset: %14llx %12.12llx  ",
+		printf(_(" Zone, zone offset: %14llx %12.12llx  "),
 			(Llong)file_addr / blocksize,
 			(Llong)file_addr & (Llong)(blocksize - 1));
 	} else {
-		printf(" Zone, zone offset: %6lx %4.4lx  ",
+		printf(_(" Zone, zone offset: %6lx %4.4lx  "),
 			(long) (file_addr / blocksize),
 			(long) file_addr & (blocksize - 1));
 	}
@@ -504,15 +505,15 @@ LOCAL void
 usage(excode)
 	int	excode;
 {
-	errmsgno(EX_BAD, "Usage: %s [options] image\n",
+	errmsgno(EX_BAD, _("Usage: %s [options] image\n"),
 						get_progname());
 
-	error("Options:\n");
-	error("\t-help, -h	Print this help\n");
-	error("\t-version	Print version info and exit\n");
-	error("\t-i filename	Filename to read ISO-9660 image from\n");
-	error("\tdev=target	SCSI target to use as CD/DVD-Recorder\n");
-	error("\nIf neither -i nor dev= are speficied, <image> is needed.\n");
+	error(_("Options:\n"));
+	error(_("\t-help, -h	Print this help\n"));
+	error(_("\t-version	Print version info and exit\n"));
+	error(_("\t-i filename	Filename to read ISO-9660 image from\n"));
+	error(_("\tdev=target	SCSI target to use as CD/DVD-Recorder\n"));
+	error(_("\nIf neither -i nor dev= are speficied, <image> is needed.\n"));
 	exit(excode);
 }
 
@@ -528,6 +529,9 @@ main(argc, argv)
 	BOOL	prvers = FALSE;
 	char	*filename = NULL;
 	char	*sdevname = NULL;
+#if	defined(USE_NLS)
+	char	*dir;
+#endif
 	char	c;
 	int	i;
 	struct iso_primary_descriptor	ipd;
@@ -535,19 +539,39 @@ main(argc, argv)
 
 	save_args(argc, argv);
 
+#if	defined(USE_NLS)
+	setlocale(LC_ALL, "");
+#if !defined(TEXT_DOMAIN)	/* Should be defined by cc -D */
+#define	TEXT_DOMAIN "isoinfo"	/* Use this only if it weren't */
+#endif
+	dir = searchfileinpath("share/locale", F_OK,
+					SIP_ANY_FILE|SIP_NO_PATH, NULL);
+	if (dir)
+		(void) bindtextdomain(TEXT_DOMAIN, dir);
+	else
+#if defined(PROTOTYPES) && defined(INS_BASE)
+	(void) bindtextdomain(TEXT_DOMAIN, INS_BASE "/share/locale");
+#else
+	(void) bindtextdomain(TEXT_DOMAIN, "/usr/share/locale");
+#endif
+	(void) textdomain(TEXT_DOMAIN);
+#endif
+
 	cac = argc - 1;
 	cav = argv + 1;
 	if (getallargs(&cac, &cav, opts, &help, &help, &prvers,
 			&filename, &sdevname) < 0) {
-		errmsgno(EX_BAD, "Bad Option: '%s'\n", cav[0]);
+		errmsgno(EX_BAD, _("Bad Option: '%s'\n"), cav[0]);
 		usage(EX_BAD);
 	}
 	if (help)
 		usage(0);
 	if (prvers) {
-		printf("isodump %s (%s-%s-%s) Copyright (C) 1993-1999 Eric Youngdale (C) 1999-2009 Jörg Schilling\n",
+		printf(_("isodump %s (%s-%s-%s) Copyright (C) 1993-1999 %s (C) 1999-2009 %s\n"),
 					VERSION,
-					HOST_CPU, HOST_VENDOR, HOST_OS);
+					HOST_CPU, HOST_VENDOR, HOST_OS,
+					_("Eric Youngdale"),
+					_("Joerg Schilling"));
 		exit(0);
 	}
 	cac = argc - 1;
@@ -559,11 +583,11 @@ main(argc, argv)
 		}
 	}
 	if (getfiles(&cac, &cav, opts) != 0) {
-		errmsgno(EX_BAD, "Bad Argument: '%s'\n", cav[0]);
+		errmsgno(EX_BAD, _("Bad Argument: '%s'\n"), cav[0]);
 		usage(EX_BAD);
 	}
 	if (filename != NULL && sdevname != NULL) {
-		errmsgno(EX_BAD, "Only one of -i or dev= allowed\n");
+		errmsgno(EX_BAD, _("Only one of -i or dev= allowed\n"));
 		usage(EX_BAD);
 	}
 #ifdef	USE_SCG
@@ -571,7 +595,7 @@ main(argc, argv)
 		cdr_defaults(&sdevname, NULL, NULL, NULL, NULL);
 #endif
 	if (filename == NULL && sdevname == NULL) {
-		fprintf(stderr, "ISO-9660 image not specified\n");
+		fprintf(stderr, _("ISO-9660 image not specified\n"));
 		usage(EX_BAD);
 	}
 
@@ -587,7 +611,7 @@ main(argc, argv)
 #else
 	} else {
 #endif
-		fprintf(stderr, "Cannot open '%s'\n", filename);
+		fprintf(stderr, _("Cannot open '%s'\n"), filename);
 		exit(1);
 	}
 
@@ -618,7 +642,7 @@ main(argc, argv)
 	if (ioctl(STDIN_FILENO, TCGETA, &savetty) == -1) {
 #endif
 #endif
-		printf("Stdin must be a tty\n");
+		printf(_("Stdin must be a tty\n"));
 		exit(1);
 	}
 	newtty = savetty;
@@ -647,7 +671,7 @@ main(argc, argv)
 			file_addr += blocksize;
 		if (c == 'g') {
 			crsr2(20, 1);
-			printf("Enter new starting block (in hex):");
+			printf(_("Enter new starting block (in hex):"));
 			if (sizeof (file_addr) > sizeof (long)) {
 				Llong	ll;
 				scanf("%llx", &ll);
@@ -663,7 +687,7 @@ main(argc, argv)
 		}
 		if (c == 'f') {
 			crsr2(20, 1);
-			printf("Enter new search string:");
+			printf(_("Enter new search string:"));
 			fgets((char *)search, sizeof (search), stdin);
 			while (search[strlen((char *)search)-1] == '\n')
 				search[strlen((char *)search)-1] = 0;

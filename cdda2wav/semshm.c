@@ -1,8 +1,8 @@
-/* @(#)semshm.c 1.30 10/01/07 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2004-2010 J. Schilling */
+/* @(#)semshm.c 1.31 10/12/19 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2004-2010 J. Schilling */
 #include "config.h"
 #ifndef lint
 static	UConst char sccsid[] =
-"@(#)semshm.c	1.30 10/01/07 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2004-2010 J. Schilling";
+"@(#)semshm.c	1.31 10/12/19 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2004-2010 J. Schilling";
 #endif
 
 #define	IPCTST
@@ -67,6 +67,7 @@ static	UConst char sccsid[] =
 #include <schily/errno.h>
 #include <schily/standard.h>
 #include <schily/schily.h>
+#include <schily/nlsdefs.h>
 
 #if defined(HAVE_SEMGET) && defined(USE_SEMAPHORES)
 #include <schily/types.h>
@@ -135,7 +136,7 @@ seminstall(key, amount)
 #endif
 	ret_val = semget(key, amount, semflag);
 	if (ret_val == -1) {
-		errmsg("Semget: (Key %lx, #%d) failed.\n",
+		errmsg(_("Semget: (Key %lx, #%d) failed.\n"),
 			(long)key, amount);
 	}
 	return (ret_val);
@@ -164,7 +165,7 @@ semrequest(semid, semnum)
 		errno = 0;
 		ret_val = semop(semid, sops, 1);
 		if (ret_val == -1 && errno != EAGAIN && errno != EINTR) {
-			errmsg("Request Sema %d(%d) failed.\n",
+			errmsg(_("Request Sema %d(%d) failed.\n"),
 				semid, semnum);
 		}
 	} while (errno == EAGAIN || errno == EINTR);
@@ -191,7 +192,7 @@ semrelease(semid, semnum, amount)
 	sops[0].sem_flg = 0;
 	ret_val = semop(semid, sops, 1);
 	if (ret_val == -1 && errno != EAGAIN) {
-		errmsg("Release Sema %d(%d) failed.\n",
+		errmsg(_("Release Sema %d(%d) failed.\n"),
 			semid, semnum);
 	}
 	return (ret_val);
@@ -220,11 +221,11 @@ void
 init_pipes()
 {
 	if (pipe(pipefdp2c) < 0) {
-		errmsg("Cannot create pipe parent to child.\n");
+		errmsg(_("Cannot create pipe parent to child.\n"));
 		exit(PIPE_ERROR);
 	}
 	if (pipe(pipefdc2p) < 0) {
-		errmsg("Cannot create pipe child to parent.\n");
+		errmsg(_("Cannot create pipe child to parent.\n"));
 		exit(PIPE_ERROR);
 	}
 }
@@ -367,7 +368,7 @@ shm_request_nommap(size, memptr)
 	shmflag = IPC_CREAT | 0600;
 	ret_val = shmget(key, size, shmflag);
 	if (ret_val == -1) {
-		errmsg("Shmget failed.\n");
+		errmsg(_("Shmget failed.\n"));
 		return (-1);
 	}
 
@@ -386,12 +387,12 @@ shm_request_nommap(size, memptr)
 	*memptr = (unsigned char *) shmat(SHMEM_ID, NULL, 0);
 	if (*memptr == (unsigned char *) -1) {
 		*memptr = NULL;
-		errmsg("Shmat failed for %d bytes.\n", size);
+		errmsg(_("Shmat failed for %d bytes.\n"), size);
 		return (-1);
 	}
 
 	if (shmctl(SHMEM_ID, IPC_RMID, 0) < 0) {
-		errmsg("Shmctl failed to detach shared memory segment.\n");
+		errmsg(_("Shmctl failed to detach shared memory segment.\n"));
 		return (-1);
 	}
 
@@ -471,7 +472,7 @@ shm_request(size, memptr)
 					MAP_SHARED|MAP_ANONYMOUS, f, 0);
 #else
 	if ((f = open("/dev/zero", O_RDWR)) < 0)
-		comerr("Cannot open '/dev/zero'.\n");
+		comerr(_("Cannot open '/dev/zero'.\n"));
 	addr = mmap(0, mmap_sizeparm(size),
 					PROT_READ|PROT_WRITE,
 					MAP_SHARED, f, 0);
@@ -484,7 +485,7 @@ shm_request(size, memptr)
 		if (0 != shm_request_nommap(size, &address) ||
 		    (addr = (char *)address) == NULL)
 #endif
-			comerr("Cannot get mmap for %d Bytes on /dev/zero.\n",
+			comerr(_("Cannot get mmap for %d Bytes on /dev/zero.\n"),
 				size);
 	}
 	close(f);
@@ -516,7 +517,7 @@ shm_request(size, memptr)
 	 * it allowing fifos of arbitrary size
 	 */
 	if (DosAllocSharedMem(&addr, NULL, size, 0X100L | 0x1L | 0x2L | 0x10L))
-		comerr("DosAllocSharedMem() failed\n");
+		comerr(_("DosAllocSharedMem() failed\n"));
 
 	if (memptr != NULL)
 		*memptr = (unsigned char *)addr;
@@ -553,7 +554,7 @@ shm_request(size, memptr)
 		B_READ_AREA | B_WRITE_AREA);	/* read and write permissions */
 
 	if (aid < B_OK)
-		comerrno(aid, "create_area() failed\n");
+		comerrno(aid, _("create_area() failed\n"));
 
 	if (memptr != NULL)
 		*memptr = (unsigned char *)addr;
@@ -573,7 +574,7 @@ request_shm_sem(amount_of_sh_mem, pointer)
 	 */
 	sem_id = seminstall(IPC_PRIVATE, 2);
 	if (sem_id == -1) {
-		errmsg("Seminstall failed.\n");
+		errmsg(_("Seminstall failed.\n"));
 		exit(SEMAPHORE_ERROR);
 	}
 
@@ -581,7 +582,7 @@ request_shm_sem(amount_of_sh_mem, pointer)
 
 #if defined(FIFO)
 	if (-1 == shm_request(amount_of_sh_mem, pointer)) {
-		errmsg("Shm_request failed.\n");
+		errmsg(_("Shm_request failed.\n"));
 		exit(SHMMEM_ERROR);
 	}
 

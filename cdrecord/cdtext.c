@@ -1,13 +1,13 @@
-/* @(#)cdtext.c	1.16 09/07/10 Copyright 1999-2009 J. Schilling */
+/* @(#)cdtext.c	1.17 10/12/19 Copyright 1999-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)cdtext.c	1.16 09/07/10 Copyright 1999-2009 J. Schilling";
+	"@(#)cdtext.c	1.17 10/12/19 Copyright 1999-2010 J. Schilling";
 #endif
 /*
  *	Generic CD-Text support functions
  *
- *	Copyright (c) 1999-2009 J. Schilling
+ *	Copyright (c) 1999-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -29,6 +29,7 @@ static	UConst char sccsid[] =
 #include <schily/utypes.h>
 #include <schily/string.h>
 #include <schily/schily.h>
+#include <schily/nlsdefs.h>
 
 #include <scg/scsitransp.h>	/* For write_leadin() */
 
@@ -135,12 +136,12 @@ checktextfile(fname)
 	off_t	fs;
 
 	if ((f = fileopen(fname, "rb")) == NULL) {
-		errmsg("Cannot open '%s'.\n", fname);
+		errmsg(_("Cannot open '%s'.\n"), fname);
 		return (FALSE);
 	}
 	fs = filesize(f);
 	if (fs == (off_t)0) {
-		errmsgno(EX_BAD, "Empty CD-Text file.\n");
+		errmsgno(EX_BAD, _("Empty CD-Text file.\n"));
 		fclose(f);
 		return (FALSE);
 	}
@@ -149,9 +150,9 @@ checktextfile(fname)
 		n = fileread(f, hbuf, 4);
 		if (n != 4) {
 			if (n < 0)
-				errmsg("Cannot read '%s'.\n", fname);
+				errmsg(_("Cannot read '%s'.\n"), fname);
 			else
-				errmsgno(EX_BAD, "File '%s' is too small for CD-Text.\n", fname);
+				errmsgno(EX_BAD, _("File '%s' is too small for CD-Text.\n"), fname);
 			fclose(f);
 			return (FALSE);
 		}
@@ -159,23 +160,23 @@ checktextfile(fname)
 		len -= 2;
 		n = fs - 4;
 		if (n != len) {
-			errmsgno(EX_BAD, "Inconsistent CD-Text file '%s' length should be %d but is %lld\n",
+			errmsgno(EX_BAD, _("Inconsistent CD-Text file '%s' length should be %d but is %lld\n"),
 				fname, len+4, (Llong)fs);
 			fclose(f);
 			return (FALSE);
 		}
 	} else if (j != 0) {
-		errmsgno(EX_BAD, "Inconsistent CD-Text file '%s' not a multiple of pack length\n",
+		errmsgno(EX_BAD, _("Inconsistent CD-Text file '%s' not a multiple of pack length\n"),
 			fname);
 		fclose(f);
 		return (FALSE);
 	} else {
 		len = fs;
 	}
-	printf("Text len: %d\n", len);
+	printf(_("Text len: %d\n"), len);
 	bp = malloc(len);
 	if (bp == NULL) {
-		errmsg("Cannot malloc CD-Text read buffer.\n");
+		errmsg(_("Cannot malloc CD-Text read buffer.\n"));
 		fclose(f);
 		return (FALSE);
 	}
@@ -184,7 +185,7 @@ checktextfile(fname)
 	tp = (struct textpack *)bp;
 	for (n = 0; n < len; n += sizeof (struct textpack), tp++) {
 		if (tp->pack_type < 0x80 || tp->pack_type > 0x8F) {
-			errmsgno(EX_BAD, "Illegal pack type 0x%02X pack #%ld in CD-Text file '%s'.\n",
+			errmsgno(EX_BAD, _("Illegal pack type 0x%02X pack #%ld in CD-Text file '%s'.\n"),
 				tp->pack_type, (long)(n/sizeof (struct textpack)), fname);
 			fclose(f);
 			return (FALSE);
@@ -194,12 +195,12 @@ checktextfile(fname)
 		if (crc != calcCRC((Uchar *)tp, sizeof (*tp)-2)) {
 			if (cdtext_crc_ok(tp)) {
 				errmsgno(EX_BAD,
-				"Corrected CRC ERROR in pack #%ld (offset %d-%ld) in CD-Text file '%s'.\n",
+				_("Corrected CRC ERROR in pack #%ld (offset %d-%ld) in CD-Text file '%s'.\n"),
 				(long)(n/sizeof (struct textpack)),
 				n+j, (long)(n+j+sizeof (struct textpack)),
 				fname);
 			} else {
-			errmsgno(EX_BAD, "CRC ERROR in pack #%ld (offset %d-%ld) in CD-Text file '%s'.\n",
+			errmsgno(EX_BAD, _("CRC ERROR in pack #%ld (offset %d-%ld) in CD-Text file '%s'.\n"),
 				(long)(n/sizeof (struct textpack)),
 				n+j, (long)(n+j+sizeof (struct textpack)),
 				fname);
@@ -228,12 +229,12 @@ setuptextdata(bp, len)
 	Uchar	*p;
 
 	if (xdebug) {
-		printf("%ld packs %% 4 = %ld\n",
+		printf(_("%ld packs %% 4 = %ld\n"),
 			(long)(len/sizeof (struct textpack)),
 			(long)(len/sizeof (struct textpack)) % 4);
 	}
 	if (len == 0) {
-		errmsgno(EX_BAD, "No CD-Text data found.\n");
+		errmsgno(EX_BAD, _("No CD-Text data found.\n"));
 		return;
 	}
 	i = (len/sizeof (struct textpack)) % 4;
@@ -247,7 +248,7 @@ setuptextdata(bp, len)
 	n = (n * 4) / 3;
 	p = malloc(n);
 	if (p == NULL) {
-		errmsg("Cannot malloc CD-Text write buffer.\n");
+		errmsg(_("Cannot malloc CD-Text write buffer.\n"));
 		return;
 	}
 	for (i = 0, j = 0; j < n; ) {
@@ -529,7 +530,7 @@ write_cdtext(scgp, dp, startsec)
 			amount = write_secs(scgp, dp,
 				(char *)&bp[idx], startsec, nbytes, secs, FALSE);
 			if (amount < 0) {
-				printf("write CD-Text data: error after %ld bytes\n",
+				printf(_("write CD-Text data: error after %ld bytes\n"),
 						bytes);
 				return (-1);
 			}

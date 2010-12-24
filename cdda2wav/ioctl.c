@@ -1,13 +1,13 @@
-/* @(#)ioctl.c	1.38 09/08/07 Copyright 1998,1999,2000 Heiko Eissfeldt, Copyright 2006-2009 J. Schilling */
+/* @(#)ioctl.c	1.39 10/12/19 Copyright 1998,1999,2000 Heiko Eissfeldt, Copyright 2006-2010 J. Schilling */
 #include "config.h"
 #ifndef lint
 static	UConst char sccsid[] =
-"@(#)ioctl.c	1.38 09/08/07 Copyright 1998,1999,2000 Heiko Eissfeldt, Copyright 2006-2009 J. Schilling";
+"@(#)ioctl.c	1.39 10/12/19 Copyright 1998,1999,2000 Heiko Eissfeldt, Copyright 2006-2010 J. Schilling";
 
 #endif
 /*
  * Copyright (C) 1999 Heiko Eissfeldt heiko@colossus.escape.de
- * Copyright (c) 2006-2009 J. Schilling
+ * Copyright (c) 2006-2010 J. Schilling
  *
  * Ioctl interface module for cdrom drive access
  *
@@ -39,6 +39,7 @@ static	UConst char sccsid[] =
 #include <schily/ioctl.h>
 #include <schily/stat.h>
 #include <schily/schily.h>
+#include <schily/nlsdefs.h>
 #include <schily/device.h>
 
 #include <scg/scsitransp.h>
@@ -98,7 +99,7 @@ EnableCdda_cooked(scgp, fAudioMode, uSectorsize)
 				__FreeBSD_version >= 400014) || \
 					defined(__DragonFly__)
 	if (scgp && scgp->verbose)
-		fprintf(stderr, "EnableCdda_cooked (CDRIOCSETBLOCKSIZE)...\n");
+		fprintf(stderr, _("EnableCdda_cooked (CDRIOCSETBLOCKSIZE)...\n"));
 
 	if (fAudioMode) {
 		if (ioctl(global.cooked_fd, CDRIOCGETBLOCKSIZE,
@@ -110,15 +111,15 @@ EnableCdda_cooked(scgp, fAudioMode, uSectorsize)
 #else
 #if	defined	CDIOCSETCDDA
 	if (scgp && scgp->verbose) {
-		fprintf(stderr, "EnableCdda_cooked (CDIOCSETCDDA)...\n");
+		fprintf(stderr, _("EnableCdda_cooked (CDIOCSETCDDA)...\n"));
 		if (uSectorsize != CD_FRAMESIZE_RAW)
-			fprintf(stderr, "non audio sector size is ignored.\n");
+			fprintf(stderr, _("non audio sector size is ignored.\n"));
 	}
 
 	ioctl(global.cooked_fd, CDIOCSETCDDA, &fAudioMode);
 #else
 	fprintf(stderr,
-		"EnableCdda_cooked (CDIOCSETCDDA) is not available...\n");
+		_("EnableCdda_cooked (CDIOCSETCDDA) is not available...\n"));
 #endif
 #endif
 
@@ -139,7 +140,7 @@ ReadToc_cooked(x)
 	struct cdrom_tocentry	entryMSF[100];
 
 	if (x && x->verbose) {
-		fprintf(stderr, "ReadToc_cooked (CDROMREADTOCHDR)...\n");
+		fprintf(stderr, _("ReadToc_cooked (CDROMREADTOCHDR)...\n"));
 	}
 
 	/*
@@ -153,13 +154,13 @@ ReadToc_cooked(x)
 		if (err == -1) {
 			if (errno == EPERM) {
 				fprintf(stderr,
-				"Please run this program setuid root.\n");
+				_("Please run this program setuid root.\n"));
 			}
-			errmsg("Cooked: Error in read TOC.\n");
+			errmsg(_("Cooked: Error in read TOC.\n"));
 			exit(DEVICE_ERROR);
 		} else {
 			errmsgno(EX_BAD,
-				"Can't get TocHeader (error %d).\n", err);
+				_("Can't get TocHeader (error %d).\n"), err);
 			exit(MEDIA_ERROR);
 		}
 	}
@@ -174,7 +175,7 @@ ReadToc_cooked(x)
 			/*
 			 * error handling
 			 */
-			errmsg("Can't get TocEntry #%d msf (error %d).\n",
+			errmsg(("Can't get TocEntry #%d msf (error %d).\n"),
 				i+1, err);
 			exit(MEDIA_ERROR);
 		}
@@ -186,7 +187,7 @@ ReadToc_cooked(x)
 		/*
 		 * error handling
 		 */
-		errmsg("Can't get TocEntry LEADOUT msf (error %d).\n",
+		errmsg(_("Can't get TocEntry LEADOUT msf (error %d).\n"),
 			err);
 		exit(MEDIA_ERROR);
 	}
@@ -211,7 +212,7 @@ ReadToc_cooked(x)
 			/*
 			 * error handling
 			 */
-			errmsg("Can't get TocEntry #%d lba (error %d).\n",
+			errmsg(_("Can't get TocEntry #%d lba (error %d).\n"),
 				i+1, err);
 			exit(MEDIA_ERROR);
 		}
@@ -226,7 +227,7 @@ ReadToc_cooked(x)
 		/*
 		 * error handling
 		 */
-		errmsg("Can't get TocEntry LEADOUT lba (error %d).\n",
+		errmsg(_("Can't get TocEntry LEADOUT lba (error %d).\n"),
 			err);
 		exit(MEDIA_ERROR);
 	}
@@ -318,16 +319,16 @@ ReadCdRomData_cooked(x, p, lSector, SectorBurstVal)
 	int		retval;
 
 	if (x && x->verbose) {
-		fprintf(stderr, "ReadCdRomData_cooked (lseek & read)...\n");
+		fprintf(stderr, _("ReadCdRomData_cooked (lseek & read)...\n"));
 	}
 
 	if ((retval = lseek(global.cooked_fd, lSector*CD_FRAMESIZE, SEEK_SET))
 				!= (int)lSector*CD_FRAMESIZE) {
-		errmsg("Cannot seek sector.\n");
+		errmsg(_("Cannot seek sector.\n"));
 	}
 	if ((retval = read(global.cooked_fd, p, SectorBurstVal*CD_FRAMESIZE))
 				!= (int)SectorBurstVal*CD_FRAMESIZE) {
-		errmsg("Cannot read sector.\n");
+		errmsg(_("Cannot read sector.\n"));
 	}
 }
 
@@ -353,7 +354,7 @@ static int	nothing_read = 1;
 #if	(defined(__FreeBSD__) || defined(__FreeBSD_kernel__)) && \
 						__FreeBSD_version >= 501112
 	if (x && x->verbose) {
-		fprintf(stderr, "ReadCdRom_cooked (pread)...\n");
+		fprintf(stderr, _("ReadCdRom_cooked (pread)...\n"));
 	}
 
 	do {
@@ -370,7 +371,7 @@ static int	nothing_read = 1;
 	arg.buffer = (unsigned char *) &p[0];
 
 	if (x && x->verbose) {
-		fprintf(stderr, "ReadCdRom_cooked (CDROMREADAUDIO)...\n");
+		fprintf(stderr, _("ReadCdRom_cooked (CDROMREADAUDIO)...\n"));
 	}
 
 	do {
@@ -384,7 +385,7 @@ static int	nothing_read = 1;
 	arg.buf = (unsigned char *) &p[0];
 
 	if (x && x->verbose) {
-		fprintf(stderr, "ReadCdRom_cooked (CDROMREADAUDIO)...\n");
+		fprintf(stderr, _("ReadCdRom_cooked (CDROMREADAUDIO)...\n"));
 	}
 
 	do {
@@ -400,7 +401,7 @@ static int	nothing_read = 1;
 	suncdda.cdda_subcode = CDROM_DA_NO_SUBCODE;
 
 	if (x && x->verbose) {
-		fprintf(stderr, "ReadCdRom_cooked (CDROMCDDA)...\n");
+		fprintf(stderr, _("ReadCdRom_cooked (CDROMCDDA)...\n"));
 	}
 
 	do {
@@ -423,14 +424,14 @@ static int	nothing_read = 1;
 				if (nothing_read &&
 				    (errno == EINVAL || errno == EIO)) {
 					fprintf(stderr,
-						"Sorry, this driver and/or drive does not support cdda reading.\n");
+						_("Sorry, this driver and/or drive does not support cdda reading.\n"));
 				}
-				errmsg("Cooked: Error read cdda sector %u + %u, buffer %p + %x\n",
+				errmsg(_("Cooked: Error read cdda sector %u + %u, buffer %p + %x\n"),
 					lSector, SectorBurstVal, p,
 					global.shmsize);
 			} else {
 				errmsgno(EX_BAD,
-					"Can't read frame #%u (error %d).\n",
+					_("Can't read frame #%u (error %d).\n"),
 					lSector, err);
 			}
 		}
@@ -448,7 +449,7 @@ StopPlay_cooked(x)
 	SCSI	*x;
 {
 	if (x && x->verbose) {
-		fprintf(stderr, "StopPlay_cooked (CDROMSTOP)...\n");
+		fprintf(stderr, _("StopPlay_cooked (CDROMSTOP)...\n"));
 	}
 
 	return (ioctl(global.cooked_fd, CDROMSTOP, 0) ? 0 : -1);
@@ -467,7 +468,7 @@ Play_at_cooked(x, from_sector, sectors)
 
 	if (x && x->verbose) {
 		fprintf(stderr,
-		"Play_at_cooked (CDROMSTART & CDROMPLAYMSF)... (%u-%u)",
+		_("Play_at_cooked (CDROMSTART & CDROMPLAYMSF)... (%u-%u)"),
 			from_sector, from_sector+sectors-1);
 		fprintf(stderr, "\n");
 	}
@@ -484,12 +485,12 @@ Play_at_cooked(x, from_sector, sectors)
 	 * makes index scanning under FreeBSD too slow
 	 */
 	if ((retval = ioctl(global.cooked_fd, CDROMSTART, 0)) != 0) {
-		errmsg("Cannot do ioctl(%d, CDROMSTART, 0).\n",
+		errmsg(_("Cannot do ioctl(%d, CDROMSTART, 0).\n"),
 			global.cooked_fd);
 	}
 #endif
 	if ((retval = ioctl(global.cooked_fd, CDROMPLAYMSF, &cmsf)) != 0) {
-		errmsg("Cannot do ioctl(%d, CDROMPLAYMSF, ...).\n",
+		errmsg(_("Cannot do ioctl(%d, CDROMPLAYMSF, ...).\n"),
 			global.cooked_fd);
 	}
 	return (retval);
@@ -518,7 +519,7 @@ ReadSubQ_cooked(x, sq_format, track)
 
 	if (x && x->verbose) {
 		fprintf(stderr,
-		"ReadSubQ_cooked (CDROM_GET_MCN or CDROMSUBCHNL)...\n");
+		_("ReadSubQ_cooked (CDROM_GET_MCN or CDROMSUBCHNL)...\n"));
 	}
 
 	sub_ch.address_format = CD_MSF_FORMAT;
@@ -533,7 +534,7 @@ ReadSubQ_cooked(x, sq_format, track)
 #else
 	if (x && x->verbose) {
 		fprintf(stderr,
-		"ReadSubQ_cooked (CDROM_GET_MCN or CDROMSUBCHNL)...\n");
+		_("ReadSubQ_cooked (CDROM_GET_MCN or CDROMSUBCHNL)...\n"));
 	}
 
 	switch (sq_format) {
@@ -586,12 +587,12 @@ ReadSubQ_cooked(x, sq_format, track)
 			if (err == -1) {
 				if (errno == EPERM)
 					fprintf(stderr,
-					"Please run this program setuid root.\n");
-				errmsg("Cooked: Error in read subq.\n");
+					_("Please run this program setuid root.\n"));
+				errmsg(_("Cooked: Error in read subq.\n"));
 				exit(DEVICE_ERROR);
 			} else {
 				errmsgno(EX_BAD,
-				"Can't read sub q channel (error %d).\n",
+				_("Can't read sub q channel (error %d).\n"),
 					err);
 				exit(DEVICE_ERROR);
 			}
@@ -617,7 +618,7 @@ SpeedSelect_cooked(x, speed)
 {
 	if (x && x->verbose) {
 		fprintf(stderr,
-			"SpeedSelect_cooked (CDROM_SELECT_SPEED)...\n");
+			_("SpeedSelect_cooked (CDROM_SELECT_SPEED)...\n"));
 	}
 
 #ifdef CDROM_SELECT_SPEED
@@ -628,13 +629,13 @@ SpeedSelect_cooked(x, speed)
 		if (err == -1) {
 			if (errno == EPERM) {
 				fprintf(stderr,
-				"Please run this program setuid root.\n");
+				_("Please run this program setuid root.\n"));
 			}
-			errmsg("Cooked: Error in speed select.\n");
+			errmsg(_("Cooked: Error in speed select.\n"));
 			/* exit(err); */
 		} else {
 			errmsgno(EX_BAD,
-				"Can't set speed %d (error %d).\n",
+				_("Can't set speed %d (error %d).\n"),
 				speed, err);
 			exit(DEVICE_ERROR);
 		}
@@ -653,7 +654,7 @@ SetupCookedIoctl(pdev_name)
 	struct stat	statstruct;
 
 	if (fstat(global.cooked_fd, &statstruct)) {
-		errmsg("Cannot stat cd %d (%s).\n",
+		errmsg(_("Cannot stat cd %d (%s).\n"),
 				global.cooked_fd, pdev_name);
 		exit(STAT_ERROR);
 	}
@@ -692,7 +693,7 @@ SetupCookedIoctl(pdev_name)
 	case MATSUSHITA_CDROM4_MAJOR:	/* sbpcd 4 */
 
 		if (err == -1) {
-			errmsg("Error doing ioctl(CDROMAUDIOBUFSIZ).\n");
+			errmsg(_("Error doing ioctl(CDROMAUDIOBUFSIZ).\n"));
 		}
 	}
 #endif

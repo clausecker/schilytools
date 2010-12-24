@@ -1,14 +1,14 @@
-/* @(#)scsi_cdr_mmc4.c	1.6 09/07/10 Copyright 1995-2009 J. Schilling */
+/* @(#)scsi_cdr_mmc4.c	1.7 10/12/19 Copyright 1995-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)scsi_cdr_mmc4.c	1.6 09/07/10 Copyright 1995-2009 J. Schilling";
+	"@(#)scsi_cdr_mmc4.c	1.7 10/12/19 Copyright 1995-2010 J. Schilling";
 #endif
 /*
  *	SCSI command functions for cdrecord
  *	covering MMC-4
  *
- *	Copyright (c) 1995-2009 J. Schilling
+ *	Copyright (c) 1995-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -37,6 +37,7 @@ static	UConst char sccsid[] =
 #include <schily/btorder.h>
 #include <schily/intcvt.h>
 #include <schily/schily.h>
+#include <schily/nlsdefs.h>
 
 #include <scg/scgcmd.h>
 #include <scg/scsidefs.h>
@@ -48,7 +49,7 @@ static	UConst char sccsid[] =
 
 EXPORT	void	print_capabilities_mmc4 __PR((SCSI *scgp));
 
-#define	DOES(what, flag)	printf("  Does %s%s\n", flag?"":"not ", what)
+#define	DOES(what, flag)	printf(_("  Does %s%s\n"), flag?"":_("not "), what)
 
 
 EXPORT void
@@ -62,10 +63,10 @@ print_capabilities_mmc4(scgp)
 
 	cdrw_types = get_supported_cdrw_media_types(scgp);
 	if (cdrw_types != -1) {
-		printf("\nSupported CD-RW media types according to MMC-4 feature 0x37:\n");
-		DOES("write multi speed       CD-RW media", (cdrw_types & CDR_CDRW_MULTI));
-		DOES("write high  speed       CD-RW media", (cdrw_types & CDR_CDRW_HIGH));
-		DOES("write ultra high speed  CD-RW media", (cdrw_types & CDR_CDRW_ULTRA));
-		DOES("write ultra high speed+ CD-RW media", (cdrw_types & CDR_CDRW_ULTRAP));
+		printf(_("\nSupported CD-RW media types according to MMC-4 feature 0x37:\n"));
+		DOES(_("write multi speed       CD-RW media"), (cdrw_types & CDR_CDRW_MULTI));
+		DOES(_("write high  speed       CD-RW media"), (cdrw_types & CDR_CDRW_HIGH));
+		DOES(_("write ultra high speed  CD-RW media"), (cdrw_types & CDR_CDRW_ULTRA));
+		DOES(_("write ultra high speed+ CD-RW media"), (cdrw_types & CDR_CDRW_ULTRAP));
 	}
 }

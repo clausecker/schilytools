@@ -1,8 +1,8 @@
-/* @(#)eltorito.c	1.48 09/11/25 joerg */
+/* @(#)eltorito.c	1.49 10/12/19 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)eltorito.c	1.48 09/11/25 joerg";
+	"@(#)eltorito.c	1.49 10/12/19 joerg";
 
 #endif
 /*
@@ -12,7 +12,7 @@ static	UConst char sccsid[] =
  *  Written by Michael Fulbright <msf@redhat.com> (1996).
  *
  * Copyright 1996 RedHat Software, Incorporated
- * Copyright (c) 1999-2009 J. Schilling
+ * Copyright (c) 1999-2010 J. Schilling
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -74,7 +74,7 @@ init_boot_catalog(path)
 		char	*p;
 
 		if (cbe->boot_image == NULL)
-			comerrno(EX_BAD, "Missing boot image name, use -eltorito-boot option.\n");
+			comerrno(EX_BAD, _("Missing boot image name, use -eltorito-boot option.\n"));
 		p = (char *)e_malloc(strlen(cbe->boot_image) + strlen(path) + 2);
 		strcpy(p, path);
 		if (p[strlen(p) - 1] != '/') {
@@ -149,7 +149,7 @@ insert_boot_cat()
 		/* find the dirname directory entry */
 		de = search_tree_file(root, p1);
 		if (!de) {
-			ex_boot_enoent("catalog directory", p1);
+			ex_boot_enoent(_("catalog directory"), p1);
 			/* NOTREACHED */
 		}
 		this_dir = 0;
@@ -166,7 +166,7 @@ insert_boot_cat()
 				this_dir = dir;
 
 		if (this_dir == 0) {
-			ex_boot_enoent("catalog directory", p3);
+			ex_boot_enoent(_("catalog directory"), p3);
 			/* NOTREACHED */
 		}
 	} else {
@@ -273,7 +273,7 @@ get_torito_desc(boot_desc)
 	 */
 	de2 = search_tree_file(root, boot_catalog);
 	if (!de2 || !(de2->de_flags & MEMORY_FILE)) {
-		ex_boot_enoent("catalog", boot_catalog);
+		ex_boot_enoent(_("catalog"), boot_catalog);
 		/* NOTREACHED */
 	}
 	set_731(boot_desc->bootcat_ptr,
@@ -322,7 +322,7 @@ get_torito_desc(boot_desc)
 
 		if (offset >= SECTOR_SIZE) {
 			comerrno(EX_BAD,
-			"Too many El Torito boot entries\n");
+			_("Too many El Torito boot entries\n"));
 		}
 		fill_boot_desc(&boot_desc_record, current_boot_entry);
 		memcpy(de2->table + offset, &boot_desc_record,
@@ -347,7 +347,7 @@ fill_boot_desc(boot_desc_entry, boot_entry)
 	/* now adjust boot catalog lets find boot image first */
 	de = search_tree_file(root, boot_entry->boot_image);
 	if (!de) {
-		ex_boot_enoent("image", boot_entry->boot_image);
+		ex_boot_enoent(_("image"), boot_entry->boot_image);
 		/* NOTREACHED */
 	}
 	/* now make the initial/default entry for boot catalog */
@@ -368,30 +368,30 @@ fill_boot_desc(boot_desc_entry, boot_entry)
 
 	if (verbose > 0) {
 		fprintf(stderr,
-			"Size of boot image is %d sectors -> ", nsectors);
+			_("Size of boot image is %d sectors -> "), nsectors);
 	}
 
 	if (boot_entry->hard_disk_boot) {
 		/* sanity test hard disk boot image */
 		boot_desc_entry->boot_media[0] = EL_TORITO_MEDIA_HD;
 		if (verbose > 0)
-			fprintf(stderr, "Emulating a hard disk\n");
+			fprintf(stderr, _("Emulating a hard disk\n"));
 
 		/* read MBR */
 		bootmbr = open(de->whole_name, O_RDONLY | O_BINARY);
 		if (bootmbr == -1) {
-			comerr("Error opening boot image '%s' for read.\n",
+			comerr(_("Error opening boot image '%s' for read.\n"),
 							de->whole_name);
 		}
 		if (read(bootmbr, &disk_mbr, sizeof (disk_mbr)) !=
 							sizeof (disk_mbr)) {
-			comerr("Error reading MBR from boot image '%s'.\n",
+			comerr(_("Error reading MBR from boot image '%s'.\n"),
 							de->whole_name);
 		}
 		close(bootmbr);
 		if (la_to_u_2_byte(disk_mbr.magic) != MBR_MAGIC) {
 			errmsgno(EX_BAD,
-			"Warning: boot image '%s' MBR is not a boot sector.\n",
+			_("Warning: boot image '%s' MBR is not a boot sector.\n"),
 							de->whole_name);
 		}
 		/* find partition type */
@@ -409,7 +409,7 @@ fill_boot_desc(boot_desc_entry, boot_entry)
 				if (boot_desc_entry->sys_type[0] !=
 							PARTITION_UNUSED) {
 					comerrno(EX_BAD,
-					"Boot image '%s' has multiple partitions.\n",
+					_("Boot image '%s' has multiple partitions.\n"),
 							de->whole_name);
 				}
 				boot_desc_entry->sys_type[0] =
@@ -420,20 +420,20 @@ fill_boot_desc(boot_desc_entry, boot_entry)
 				    disk_mbr.partition[i].status !=
 							PARTITION_ACTIVE) {
 					fprintf(stderr,
-					"Warning: partition not marked active.\n");
+					_("Warning: partition not marked active.\n"));
 				}
 				if (MBR_CYLINDER(s_cyl_sec) != 0 ||
 					disk_mbr.partition[i].s_head != 1 ||
 					MBR_SECTOR(s_cyl_sec != 1)) {
 					fprintf(stderr,
-					"Warning: partition does not start at 0/1/1.\n");
+					_("Warning: partition does not start at 0/1/1.\n"));
 				}
 				geosec = (MBR_CYLINDER(e_cyl_sec) + 1) *
 					(disk_mbr.partition[i].e_head + 1) *
 					MBR_SECTOR(e_cyl_sec);
 				if (geosec != nsectors) {
 					fprintf(stderr,
-					"Warning: image size does not match geometry (%d)\n",
+					_("Warning: image size does not match geometry (%d)\n"),
 						geosec);
 				}
 #ifdef DEBUG_TORITO
@@ -450,7 +450,7 @@ fill_boot_desc(boot_desc_entry, boot_entry)
 		}
 		if (boot_desc_entry->sys_type[0] == PARTITION_UNUSED) {
 			comerrno(EX_BAD,
-					"Boot image '%s' has no partitions.\n",
+					_("Boot image '%s' has no partitions.\n"),
 							de->whole_name);
 		}
 #ifdef DEBUG_TORITO
@@ -467,28 +467,28 @@ fill_boot_desc(boot_desc_entry, boot_entry)
 		 */
 		boot_desc_entry->boot_media[0] = EL_TORITO_MEDIA_NOEMUL;
 		if (verbose > 0)
-			fprintf(stderr, "No emulation\n");
+			fprintf(stderr, _("No emulation\n"));
 
 	} else {
 		/* choose size of emulated floppy based on boot image size */
 		if (nsectors == 2880) {
 			boot_desc_entry->boot_media[0] = EL_TORITO_MEDIA_144FLOP;
 			if (verbose > 0)
-				fprintf(stderr, "Emulating a 1440 kB floppy\n");
+				fprintf(stderr, _("Emulating a 1440 kB floppy\n"));
 
 		} else if (nsectors == 5760) {
 			boot_desc_entry->boot_media[0] = EL_TORITO_MEDIA_288FLOP;
 			if (verbose > 0)
-				fprintf(stderr, "Emulating a 2880 kB floppy\n");
+				fprintf(stderr, _("Emulating a 2880 kB floppy\n"));
 
 		} else if (nsectors == 2400) {
 			boot_desc_entry->boot_media[0] = EL_TORITO_MEDIA_12FLOP;
 			if (verbose > 0)
-				fprintf(stderr, "Emulating a 1200 kB floppy\n");
+				fprintf(stderr, _("Emulating a 1200 kB floppy\n"));
 
 		} else {
 			comerrno(EX_BAD,
-			"Error - boot image '%s' has not an allowable size.\n",
+			_("Error - boot image '%s' has not an allowable size.\n"),
 							de->whole_name);
 		}
 
@@ -519,7 +519,7 @@ fill_boot_desc(boot_desc_entry, boot_entry)
 		bootimage = open(de->whole_name, O_RDWR | O_BINARY);
 		if (bootimage == -1) {
 			comerr(
-			"Error opening boot image file '%s' for update.\n",
+			_("Error opening boot image file '%s' for update.\n"),
 							de->whole_name);
 		}
 	/* Compute checksum of boot image, sans 64 bytes */
@@ -528,7 +528,7 @@ fill_boot_desc(boot_desc_entry, boot_entry)
 		while ((len = read(bootimage, csum_buffer, SECTOR_SIZE)) > 0) {
 			if (total_len & 3) {
 				comerrno(EX_BAD,
-				"Odd alignment at non-end-of-file in boot image '%s'.\n",
+				_("Odd alignment at non-end-of-file in boot image '%s'.\n"),
 							de->whole_name);
 			}
 			if (total_len < 64)
@@ -542,7 +542,7 @@ fill_boot_desc(boot_desc_entry, boot_entry)
 
 		if (total_len != de->size) {
 			comerrno(EX_BAD,
-			"Boot image file '%s' changed underneath us!\n",
+			_("Boot image file '%s' changed underneath us!\n"),
 						de->whole_name);
 		}
 		/* End of file, set position to byte 8 */
@@ -593,7 +593,7 @@ ex_boot_enoent(msg, pname)
 	char	*msg;
 	char	*pname;
 {
-	comerrno(EX_BAD, "Uh oh, I cant find the boot %s '%s' inside the target tree.\n", msg, pname);
+	comerrno(EX_BAD, _("Uh oh, I cant find the boot %s '%s' inside the target tree.\n"), msg, pname);
 	/* NOTREACHED */
 }
 
@@ -606,7 +606,7 @@ tvd_write(outfile)
 {
 	/* check the boot image is not NULL */
 	if (!boot_image) {
-		comerrno(EX_BAD, "No boot image specified.\n");
+		comerrno(EX_BAD, _("No boot image specified.\n"));
 	}
 	/* Next we write out the boot volume descriptor for the disc */
 	get_torito_desc(&gboot_desc);

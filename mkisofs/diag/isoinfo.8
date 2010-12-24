@@ -1,5 +1,5 @@
 .\"
-.\" @(#)isoinfo.8	1.10 09/10/11 joerg
+.\" @(#)isoinfo.8	1.11 10/11/24 joerg
 .\"
 .\" -*- nroff -*-
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -14,7 +14,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH ISOINFO 8 "09/10/11" "Version 3.0"
+.TH ISOINFO 8 "10/11/24" "Version 3.0"
 .SH NAME
 devdump, isoinfo, isovfy, isodump \- Utility programs for dumping and verifying iso9660
 images.
@@ -27,46 +27,13 @@ images.
 .PP
 .B isoinfo
 [
-.B \-d
+.I options
 ]
 [
-.B \-h
-]
+.B\-find
 [
-.B \-R
-]
-[
-.B \-J
-]
-[
-.B \-j
-.I charset
-]
-[
-.B \-f
-]
-[
-.B \-l
-]
-[
-.B \-p
-]
-[
-.B \-T
-.I sector
-]
-[
-.B \-N
-.I sector
-]
-[
-.B \-i
-.I isoimage
-]
-[
-.B \-x
-.I path
-]
+.I find expression
+]]
 .PP
 .B isovfy 
 .I isoimage
@@ -134,6 +101,29 @@ image. You should not use the
 image with the
 .B -f
 option.
+The same output is created by calling 
+.I isoinfo
+with
+.B \-find \-print
+.TP
+.BI \-find " find expression
+This option acts a separator. If it is used, all
+.B isoinfo
+options must be to the left of the
+.B \-find
+option. To the right of the
+.B \-find
+option, mkisofs accepts the find command line syntax only.
+If the find expression includes a
+.B \-print
+or 
+.B \-ls
+promary, the
+.B \-l to
+.B isoinfo
+is ignored.
+If the find expression evaluates as true, the selected action (e.g.
+list the ISO-9660 directory) is performed.
 .TP
 .B \-i iso_image
 Specifies the path of the iso9660 image that we wish to examine.

@@ -1,4 +1,4 @@
-/* @(#)mkisofs.h	1.140 10/04/25 joerg */
+/* @(#)mkisofs.h	1.142 10/12/19 joerg */
 /*
  * Header file mkisofs.h - assorted structure definitions and typecasts.
  *
@@ -34,6 +34,7 @@
 #include <schily/utypes.h>
 #include <schily/standard.h>
 #include <schily/libport.h>
+#include <schily/nlsdefs.h>
 #include "scsi.h"
 
 #ifdef	DVD_VIDEO
@@ -549,6 +550,7 @@ extern int iso9660_file_length __PR((const char *name,
 
 /* various */
 extern int iso9660_date __PR((char *, time_t));
+extern int iso9660_ldate __PR((char *, time_t, int));
 extern void add_hash __PR((struct directory_entry *));
 extern struct file_hash *find_hash __PR((dev_t, ino_t));
 
@@ -672,6 +674,7 @@ extern struct eltorito_boot_entry_info *current_boot_entry;
 extern	UInt32_t null_inodes;
 extern	BOOL	correct_inodes;
 extern	BOOL	rrip112;
+extern	BOOL	long_rr_time;	/* TRUE: use long (17 Byte) time format	    */
 
 extern char	*findgequal	__PR((char *));
 extern void	*e_malloc	__PR((size_t));

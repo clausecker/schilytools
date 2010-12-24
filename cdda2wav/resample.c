@@ -1,8 +1,8 @@
-/* @(#)resample.c	1.33 09/08/27 Copyright 1998,1999,2000 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling */
+/* @(#)resample.c	1.34 10/12/19 Copyright 1998,1999,2000 Heiko Eissfeldt, Copyright 2004-2010 J. Schilling */
 #include "config.h"
 #ifndef lint
 static	UConst char sccsid[] =
-"@(#)resample.c	1.33 09/08/27 Copyright 1998,1999,2000 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling";
+"@(#)resample.c	1.34 10/12/19 Copyright 1998,1999,2000 Heiko Eissfeldt, Copyright 2004-2010 J. Schilling";
 #endif
 /*
  * resampling module
@@ -43,6 +43,7 @@ static	UConst char sccsid[] =
 #include <schily/assert.h>
 #include <schily/math.h>
 #include <schily/schily.h>
+#include <schily/nlsdefs.h>
 
 #include <scg/scsitransp.h>
 
@@ -109,7 +110,7 @@ check_mem(p, amount, q, line, file)
 {
 	if (p < q || p+amount > q + ENTRY_SIZE) {
 		errmsgno(EX_BAD,
-		"File %s, line %u: invalid buffer range (%p - %p), allowed is (%p - %p).\n",
+		_("File %s, line %u: invalid buffer range (%p - %p), allowed is (%p - %p).\n"),
 			file, line, p, p+amount-1, q, q + ENTRY_SIZE-1);
 		exit(INTERNAL_ERROR);
 	}
@@ -305,7 +306,7 @@ sync_buffers(newbuf)
 			fprintf(stderr, "%d\n",
 			retval-(newbuf+global.overlap*CD_FRAMESIZE_RAW));
 		} else {
-			fprintf(stderr, "no match\n");
+			fprintf(stderr, _("no match\n"));
 		}
 #endif
 	}
@@ -793,7 +794,7 @@ SaveBuffer(p, SamplesToDo, TotSamplesDone)
 		if (localoutputbuffer == NULL) {
 			localoutputbuffer = malloc(global.nsectors*CD_FRAMESIZE_RAW);
 			if (localoutputbuffer == NULL) {
-				errmsg("Cannot allocate local buffer.\n");
+				errmsg(_("Cannot allocate local buffer.\n"));
 				return (1);
 			}
 		}
@@ -1178,7 +1179,7 @@ none__missing:
 			return (0);
 		} else {
 			errmsg(
-			"Error in write(audio, 0x%p, %u) = %d\nProbably disk space exhausted.\n",
+			_("Error in write(audio, 0x%p, %u) = %d\nProbably disk space exhausted.\n"),
 				pStart, outlen, retval);
 			return (1);
 		}

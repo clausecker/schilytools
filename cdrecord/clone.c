@@ -1,13 +1,13 @@
-/* @(#)clone.c	1.11 09/07/10 Copyright 2001-2009 J. Schilling */
+/* @(#)clone.c	1.12 10/12/19 Copyright 2001-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)clone.c	1.11 09/07/10 Copyright 2001-2009 J. Schilling";
+	"@(#)clone.c	1.12 10/12/19 Copyright 2001-2010 J. Schilling";
 #endif
 /*
  *	Clone Subchannel processing
  *
- *	Copyright (c) 2001-2009 J. Schilling
+ *	Copyright (c) 2001-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -30,6 +30,7 @@ static	UConst char sccsid[] =
 #include <schily/btorder.h>
 #include <schily/utypes.h>
 #include <schily/schily.h>
+#include <schily/nlsdefs.h>
 
 #include <scg/scgcmd.h>
 #include <scg/scsitransp.h>
@@ -89,17 +90,17 @@ clone_toc(trackp)
 
 	f = open(filename, O_RDONLY|O_BINARY);
 	if (f < 0)
-		comerr("Cannot open '%s'.\n", filename);
+		comerr(_("Cannot open '%s'.\n"), filename);
 	amt = read(f, buf, sizeof (buf));
 
 	if (amt == sizeof (buf))
-		comerrno(EX_BAD, "TOC too large.\n");
+		comerrno(EX_BAD, _("TOC too large.\n"));
 	close(f);
 	tp = (struct tocheader *)buf;
 	len = a_to_u_2_byte(tp->len) + sizeof (struct tocheader)-2;
 
 	if (xdebug) {
-		printf("Read %d bytes TOC len: %d first session: %d last session: %d\n",
+		printf(_("Read %d bytes TOC len: %d first session: %d last session: %d\n"),
 			amt, len, tp->first, tp->last);
 	}
 
@@ -110,7 +111,7 @@ clone_toc(trackp)
 		if (xdebug)
 			scg_prbytes("FT", (Uchar *)&buf[i], 11);
 		if (fp->sess_number != 1)
-			comerrno(EX_BAD, "Can only copy session # 1.\n");
+			comerrno(EX_BAD, _("Can only copy session # 1.\n"));
 
 		if (fp->adr == 1) {
 			if (fp->point < first) {
@@ -174,16 +175,16 @@ clone_toc(trackp)
 		printf("first %u last %u ctrl first: %X ctrl last %X\n", first, last, ctrl_first, ctrl_last);
 	}
 	if (trackp->tracks != 1)
-		comerrno(EX_BAD, "Clone writing currently supports only one file argument.\n");
+		comerrno(EX_BAD, _("Clone writing currently supports only one file argument.\n"));
 	if (loutstart > trackp[1].tracksecs)
-		comerrno(EX_BAD, "Clone writing TOC length %ld does not match track length %ld\n",
+		comerrno(EX_BAD, _("Clone writing TOC length %ld does not match track length %ld\n"),
 			loutstart, trackp[1].tracksecs);
 
 	if (amt > len) {
 		sectype_first = buf[len];
 		sectype_last = buf[len+1];
 		if (xdebug) {
-			printf("sectype first: %X sectype last %X\n",
+			printf(_("sectype first: %X sectype last %X\n"),
 				sectype_first, sectype_last);
 		}
 	}

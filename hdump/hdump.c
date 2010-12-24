@@ -1,8 +1,8 @@
-/* @(#)hdump.c	1.28 10/11/10 Copyright 1986-2010 J. Schilling */
+/* @(#)hdump.c	1.30 10/12/19 Copyright 1986-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)hdump.c	1.28 10/11/10 Copyright 1986-2010 J. Schilling";
+	"@(#)hdump.c	1.30 10/12/19 Copyright 1986-2010 J. Schilling";
 #endif
 /*
  *	hex dump for files
@@ -248,7 +248,11 @@ DEF_PR(ll_x, 17, Llong, " %16.16llx");
  * Floatingpoint formats
  */
 #ifndef	NO_FLOATINGPOINT
+#ifdef	FLOAT_WRONG_AS_ON_SUNOS
 DEF_PR(f_f, 15, float, " %14.7e");
+#else
+DEF_PR(f_f, 14, float, " %13.6e");
+#endif
 DEF_PR(d_f, 23, double, " %22.14e");
 #ifdef	HAVE_LONGDOUBLE
 DEF_PR(ld_f, 24, long double, " %23.14Le");
@@ -277,45 +281,45 @@ LOCAL void
 usage(exitcode)
 	int	exitcode;
 {
-	error(
-	"Usage:	%s [options] [file] [[+]starting address[.][b|B]%s]\n",
-	is_od?"od":"hdump", is_od?"":" [count]]");
-	error(
-"Usage:	%s [options] [-t type]... [-A base] [-j skip] [-N count] [file...]\n",
+	error(_(
+	"Usage:	%s [options] [file] [[+]starting address[.][b|B]%s]\n"),
+	is_od?"od":"hdump", is_od?"":_(" [count]]"));
+	error(_(
+"Usage:	%s [options] [-t type]... [-A base] [-j skip] [-N count] [file...]\n"),
 	is_od?"od":"hdump");
-	error("Options:\n");
-	error("\t-A c\tSet address base c ('d', 'o', 'n' or 'x')\n");
-	error("\t-j skip\tSkip input for the first file\n");
-	error("\t-N n\tOnly process n bytes\n");
-	error("\t-t type\tSpecify output format type\n");
-	error("\t-a\tDisplay content also in characters\n");
-	error("\t-b\tDisplay content in bytes\n");
-	error("\t-c\tDisplay content as %s quoted characters\n",
-			is_xpg4 ? "single or multi byte" : "single byte");
-	error("\t-C\tDisplay content as %s quoted characters\n",
-				"single or multi byte");
-	error("\t-d\tDisplay content in decimal%s\n",
+	error(_("Options:\n"));
+	error(_("\t-A c\tSet address base c ('d', 'o', 'n' or 'x')\n"));
+	error(_("\t-j skip\tSkip input for the files\n"));
+	error(_("\t-N n\tOnly process n bytes\n"));
+	error(_("\t-t type\tSpecify output format type\n"));
+	error(_("\t-a\tDisplay content also in characters\n"));
+	error(_("\t-b\tDisplay content in bytes\n"));
+	error(_("\t-c\tDisplay content as %s quoted characters\n"),
+			is_xpg4 ? _("single or multi byte") : _("single byte"));
+	error(_("\t-C\tDisplay content as %s quoted characters\n"),
+				_("single or multi byte"));
+	error(_("\t-d\tDisplay content in decimal%s\n"),
 			is_od ? " -tu2" : "");
-	error("\t-D\tDisplay content in decimal -tu4\n");
+	error(_("\t-D\tDisplay content in decimal -tu4\n"));
 #ifndef	NO_FLOATINGPOINT
-	error("\t-f\tDisplay content as floats\n");
-	error("\t-F\tDisplay content as doubles\n");
+	error(_("\t-f\tDisplay content as floats\n"));
+	error(_("\t-F\tDisplay content as doubles\n"));
 #endif
 	if (!is_od)
-	error("\t-l\tDisplay content as longs\n");
-	error("\t-o\tDisplay content in octal%s\n",
+	error(_("\t-l\tDisplay content as longs\n"));
+	error(_("\t-o\tDisplay content in octal%s\n"),
 			is_od ? " -to2" : "");
-	error("\t-O\tDisplay content in octal -to4\n");
-	error("\t-s\tDisplay content in decimal -td2\n");
-	error("\t-S\tDisplay content in decimal -td4\n");
+	error(_("\t-O\tDisplay content in octal -to4\n"));
+	error(_("\t-s\tDisplay content in decimal -td2\n"));
+	error(_("\t-S\tDisplay content in decimal -td4\n"));
 	if (!is_od)
-	error("\t-u\tDisplay content as unsigned\n");
-	error("\t-v\tShow all data even if it is identical\n");
-	error("\t-x\tDisplay content in hexadecimal -tx2\n");
-	error("\t-X\tDisplay content in hexadecimal -tx4\n");
-	error("\t-help\tPrint this help.\n");
-	error("\t-version\tPrint version number.\n");
-	error("'b' after starting address multiplies with 512\n");
+	error(_("\t-u\tDisplay content as unsigned\n"));
+	error(_("\t-v\tShow all data even if it is identical\n"));
+	error(_("\t-x\tDisplay content in hexadecimal -tx2\n"));
+	error(_("\t-X\tDisplay content in hexadecimal -tx4\n"));
+	error(_("\t-help\tPrint this help.\n"));
+	error(_("\t-version\tPrint version number.\n"));
+	error(_("'b' after starting address multiplies with 512\n"));
 	exit(exitcode);
 }
 
@@ -348,12 +352,30 @@ main(ac, av)
 	int	lradix = 16;
 	int	cac;
 	char	* const * cav;
+	char	*dir;
 	dst_t	dst;
 	struct ga_props ga_props;
 
 	save_args(ac, av);
 
 	(void) setlocale(LC_ALL, "");
+
+#if	defined(USE_NLS)
+#if !defined(TEXT_DOMAIN)	/* Should be defined by cc -D */
+#define	TEXT_DOMAIN "hdump"	/* Use this only if it weren't */
+#endif
+	dir = searchfileinpath("share/locale", F_OK,
+					SIP_ANY_FILE|SIP_NO_PATH, NULL);
+	if (dir)
+		(void) bindtextdomain(TEXT_DOMAIN, dir);
+	else
+#ifdef	PROTOTYPES
+	(void) bindtextdomain(TEXT_DOMAIN, INS_BASE "/share/locale");
+#else
+	(void) bindtextdomain(TEXT_DOMAIN, "/usr/share/locale");
+#endif
+	(void) textdomain(TEXT_DOMAIN);
+#endif
 
 	if (streql(filename(av[0]), "od")) {		/* "od" interface? */
 		is_od = TRUE;
@@ -392,40 +414,43 @@ main(ac, av)
 			add_fmt, "x2",		/* -x		*/
 			add_fmt, "x4",		/* -X		*/
 						&help, &prversion) < 0) {
-		error("Bad flag: '%s'\n", cav[0]);
+		error(_("Bad flag: '%s'.\n"), cav[0]);
 		usage(1);
 	}
 	if (help)
 		usage(0);
 	if (prversion) {
-		printf("%s release %s (%s-%s-%s) Copyright (C) 1986-2010 %s\n",
+		printf(
+		_("%s release %s (%s-%s-%s) Copyright (C) 1986-2010 %s\n"),
 				is_od ? "Od":"Hdump",
-				"1.28",
+				"1.30",
 				HOST_CPU, HOST_VENDOR, HOST_OS,
-				"Jörg Schilling");
+				_("Joerg Schilling"));
 		exit(0);
 	}
 	is_pipe = out_ispipe();
 
 	if (skip < 0)
-		comerrno(EX_BAD, "Invalid offset\n");
+		comerrno(EX_BAD, _("Invalid offset %lld.\n"), skip);
 	if (skip > 0) {
 		is_posix = TRUE;
 		pos = skip;
 		if (pos != skip) {
 			comerrno(EX_BAD,
-			"Offset is too large for type 'off_t'.\n");
+			_("Offset %lld is too large for type 'off_t'.\n"),
+				skip);
 		}
 	}
 	if (nbytes < 0)
-		comerrno(EX_BAD, "Invalid number of bytes\n");
+		comerrno(EX_BAD, _("Invalid number of bytes.\n"));
 	if (nbytes > 0) {
 		is_posix = TRUE;
 		lenflag = TRUE;
 		len = nbytes;
 		if (len != nbytes) {
 			comerrno(EX_BAD,
-			"Number of bytes is too large for type 'off_t'.\n");
+		_("Number of bytes %lld is too large for type 'off_t'.\n"),
+				nbytes);
 		}
 	}
 	if (Aflag || tflag)
@@ -485,7 +510,7 @@ main(ac, av)
 	}
 
 	if (didoffset && cac > 0) {
-		errmsgno(EX_BAD, "Unexpected argument '%s'.\n", cav[0]);
+		errmsgno(EX_BAD, _("Unexpected argument '%s'.\n"), cav[0]);
 		usage(1);
 	}
 
@@ -495,7 +520,7 @@ main(ac, av)
 		off_t	newpos = advance(&dst, pos);
 
 		if (newpos > 0)
-			comerrno(-2, "Cannot skip past EOF.\n");
+			comerrno(-2, _("Cannot skip past EOF.\n"));
 		/*
 		 * In case of a POSIX -j offset spec, start with address
 		 * label 0, otherwise use the address label that matches pos.
@@ -578,7 +603,7 @@ add_dout(this)
 	pr_t	*new = malloc(sizeof (*new));
 
 	if (new == NULL)
-		comerr("No memory.\n");
+		comerr(_("No memory.\n"));
 
 	*new = *this;
 	new->pr_next = (pr_t *)0;
@@ -1178,7 +1203,7 @@ myatoll(s)
 			if (*p == 'b') val *= 512;
 			if (*p == 'B') val *= 512;
 		} else if (*p)
-			comerrno(EX_BAD, "Bad numeric argument '%s'.\n", s);
+			comerrno(EX_BAD, _("Bad numeric argument '%s'.\n"), s);
 	}
 
 	return (val);
@@ -1196,8 +1221,10 @@ read_input(dstp, bp, cnt)
 	while (cnt > 0) {
 		amt = fileread(dstp->f, bp, cnt);
 		if (amt <= 0) {
-			if (amt < 0)
-				errmsg("Error reading '%s'.\n", dstp->inname);
+			if (amt < 0) {
+				errmsg(_("Error reading '%s'.\n"),
+					dstp->inname);
+			}
 			if (!open_next(dstp))
 				return (total);
 			continue;
@@ -1260,7 +1287,7 @@ open_next(dstp)
 		if (stdinflag && f != (FILE *)NULL)
 			setmode(fileno(f), O_BINARY);
 		if (f == (FILE *)NULL) {
-			errmsg("Can't open '%s'.\n", dstp->inname);
+			errmsg(_("Can't open '%s'.\n"), dstp->inname);
 			dstp->excode = geterrno();
 		}
 		dstp->argc--;
@@ -1597,7 +1624,7 @@ illsize(size)
 	int	size;
 {
 	errmsgno(EX_BAD,
-		"Illegal size '%c', use C, S, I, L, 1, 2, 4 or 8.\n",
+		_("Illegal size '%c', use C, S, I, L, 1, 2, 4 or 8.\n"),
 		size);
 	return (-1);
 }
@@ -1607,7 +1634,7 @@ illfsize(size)
 	int	size;
 {
 	errmsgno(EX_BAD,
-		"Illegal size '%c', use F, D L, 4 or 8.\n",
+		_("Illegal size '%c', use F, D L, 4 or 8.\n"),
 		size);
 	return (-1);
 }
@@ -1618,9 +1645,9 @@ illtype(type)
 {
 	errmsgno(EX_BAD,
 #ifndef	NO_FLOATINGPOINT
-		"Illegal type '%c', use 'a', 'c', 'd', 'f', 'o', 'u' or 'x'.\n",
+	_("Illegal type '%c', use 'a', 'c', 'd', 'f', 'o', 'u' or 'x'.\n"),
 #else
-		"Illegal type '%c', use 'a', 'c', 'd', 'o', 'u' or 'x'.\n",
+	_("Illegal type '%c', use 'a', 'c', 'd', 'o', 'u' or 'x'.\n"),
 #endif
 		type);
 	return (-1);
@@ -1698,7 +1725,7 @@ setaddrfmt(Aflag, lradix)
 
 		/* NOTREACHED */
 		comerrno(EX_BAD,
-		"-A option only accepts the following:  d, o, n, and x\n");
+		_("-A option only accepts the following:  d, o, n, and x.\n"));
 	}
 	if (sizeof (pos) > sizeof (long))
 		addrfmt = llfmt;

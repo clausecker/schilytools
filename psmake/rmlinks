@@ -1,5 +1,5 @@
 #!/bin/sh
-# %Z%%M%	%I% %E% Copyright 1999 J. Schilling
+# @(#)rmlinks	1.14 10/11/12 Copyright 1999 J. Schilling
 
 rm -f archconf.c
 rm -f make.c

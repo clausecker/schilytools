@@ -1,8 +1,8 @@
-/* @(#)apple.c	1.42 10/02/28 joerg, Copyright 1997, 1998, 1999, 2000 James Pearson, Copyright 2000-2010 J. Schilling */
+/* @(#)apple.c	1.43 10/12/19 joerg, Copyright 1997, 1998, 1999, 2000 James Pearson, Copyright 2000-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)apple.c	1.42 10/02/28 joerg, Copyright 1997, 1998, 1999, 2000 James Pearson, Copyright 2000-2010 J. Schilling";
+	"@(#)apple.c	1.43 10/12/19 joerg, Copyright 1997, 1998, 1999, 2000 James Pearson, Copyright 2000-2010 J. Schilling";
 #endif
 /*
  *      Copyright (c) 1997, 1998, 1999, 2000 James Pearson
@@ -635,7 +635,7 @@ get_cap_info(hname, dname, s_entry, ret)
 		/* failed to open/read finderinfo - so try afpfile mapping */
 		if (verbose > 2) {
 			fprintf(stderr,
-				"warning: %s doesn't appear to be a %s file\n",
+				_("warning: %s doesn't appear to be a %s file\n"),
 				s_entry->whole_name, hfs_types[ret].desc);
 		}
 		ret = get_none_info(hname, dname, s_entry, TYPE_NONE);
@@ -691,7 +691,7 @@ get_es_dir(hname, dname, s_entry, ret)
 		/* failed to open/read finderinfo - so try afpfile mapping */
 		if (verbose > 2) {
 			fprintf(stderr,
-				"warning: %s doesn't appear to be a %s file\n",
+				_("warning: %s doesn't appear to be a %s file\n"),
 				s_entry->whole_name, hfs_types[ret].desc);
 		}
 		ret = get_none_dir(hname, dname, s_entry, TYPE_NONE);
@@ -767,7 +767,7 @@ get_es_info(hname, dname, s_entry, ret)
 		/* failed to open/read finderinfo - so try afpfile mapping */
 		if (verbose > 2) {
 			fprintf(stderr,
-				"warning: %s doesn't appear to be a %s file\n",
+				_("warning: %s doesn't appear to be a %s file\n"),
 				s_entry->whole_name, hfs_types[ret].desc);
 		}
 		ret = get_none_info(hname, dname, s_entry, TYPE_NONE);
@@ -871,7 +871,7 @@ get_mb_info(hname, dname, s_entry, ret)
 			crc_calc = calc_mb_crc((unsigned char *) info, 124, 0);
 			crc_file = d_getw(info->crc);
 #ifdef DEBUG
-			fprintf(stderr, "%s: file %d, calc %d\n", hname,
+			fprintf(stderr, _("%s: file %d, calc %d\n"), hname,
 							crc_file, crc_calc);
 #endif	/* DEBUG */
 			if (crc_file == crc_calc)
@@ -1072,7 +1072,7 @@ get_dbl_dir(hname, dname, s_entry, ret)
 		/* problem with the file - try mapping/magic */
 		if (verbose > 2) {
 			fprintf(stderr,
-				"warning: %s doesn't appear to be a %s file\n",
+				_("warning: %s doesn't appear to be a %s file\n"),
 				s_entry->whole_name, hfs_types[ret].desc);
 		}
 		ret = get_none_dir(hname, dname, s_entry, TYPE_NONE);
@@ -1256,7 +1256,7 @@ get_dbl_info(hname, dname, s_entry, ret)
 		/* problem with the file - try mapping/magic */
 		if (verbose > 2) {
 			fprintf(stderr,
-				"warning: %s doesn't appear to be a %s file\n",
+				_("warning: %s doesn't appear to be a %s file\n"),
 				s_entry->whole_name, hfs_types[ret].desc);
 		}
 		ret = get_none_info(hname, dname, s_entry, TYPE_NONE);
@@ -1391,7 +1391,7 @@ static	a_entry		*entries;
 			 */
 			if (verbose > 2) {
 				fprintf(stderr,
-				"warning: %s doesn't appear to be a %s file\n",
+				_("warning: %s doesn't appear to be a %s file\n"),
 					s_entry->whole_name,
 					hfs_types[ret].desc);
 			}
@@ -1711,7 +1711,7 @@ get_fe_info(hname, dname, s_entry, ret)
 	}
 	/* no entry found - use extension mapping */
 	if (verbose > 2) {
-		fprintf(stderr, "warning: %s doesn't appear to be a %s file\n",
+		fprintf(stderr, _("warning: %s doesn't appear to be a %s file\n"),
 			s_entry->whole_name, hfs_types[ret].desc);
 	}
 	ret = get_none_info(hname, dname, s_entry, TYPE_NONE);
@@ -1805,7 +1805,7 @@ get_sgi_info(hname, dname, s_entry, ret)
 	}
 	/* no entry found, so try file extension */
 	if (verbose > 2) {
-		fprintf(stderr, "warning: %s doesn't appear to be a %s file\n",
+		fprintf(stderr, _("warning: %s doesn't appear to be a %s file\n"),
 			s_entry->whole_name, hfs_types[ret].desc);
 	}
 	ret = get_none_info(hname, dname, s_entry, TYPE_NONE);
@@ -1846,7 +1846,7 @@ get_sfm_info(hname, dname, s_entry, ret)
 		/* failed to open/read finderinfo - so try afpfile mapping */
 		if (verbose > 2) {
 			fprintf(stderr,
-				"warning: %s doesn't appear to be a %s file\n",
+				_("warning: %s doesn't appear to be a %s file\n"),
 				s_entry->whole_name, hfs_types[ret].desc);
 		}
 		ret = get_none_info(hname, dname, s_entry, TYPE_NONE);
@@ -2029,7 +2029,7 @@ get_xhfs_info(hname, dname, s_entry, ret)
 		 */
 		if (verbose > 2) {
 			fprintf(stderr,
-				"warning: %s doesn't appear to be a %s file\n",
+				_("warning: %s doesn't appear to be a %s file\n"),
 				s_entry->whole_name, hfs_types[ret].desc);
 		}
 #endif
@@ -2627,21 +2627,21 @@ EXPORT void
 print_hfs_info(s_entry)
 	dir_ent	*s_entry;
 {
-	fprintf(stderr, "Name: %s\n", s_entry->whole_name);
-	fprintf(stderr, "\tFile type: %s\n", hfs_types[s_entry->hfs_type].desc);
-	fprintf(stderr, "\tHFS Name: %s\n", s_entry->hfs_ent->name);
-	fprintf(stderr, "\tISO Name: %s\n", s_entry->isorec.name);
-	fprintf(stderr, "\tCREATOR: '%s'\n", s_entry->hfs_ent->u.file.creator);
-	fprintf(stderr, "\tTYPE:	'%s'\n", s_entry->hfs_ent->u.file.type);
-	fprintf(stderr, "\tFlags:	 %d\n", s_entry->hfs_ent->fdflags);
-	fprintf(stderr, "\tISO-Size: %ld\n", (long)get_733(s_entry->isorec.size));
-	fprintf(stderr, "\tSize:     %llu\n", (Llong)s_entry->size);
-	fprintf(stderr, "\tExtent:	 %ld\n", (long)get_733(s_entry->isorec.extent));
+	fprintf(stderr, _("Name: %s\n"), s_entry->whole_name);
+	fprintf(stderr, _("\tFile type: %s\n"), hfs_types[s_entry->hfs_type].desc);
+	fprintf(stderr, _("\tHFS Name: %s\n"), s_entry->hfs_ent->name);
+	fprintf(stderr, _("\tISO Name: %s\n"), s_entry->isorec.name);
+	fprintf(stderr, _("\tCREATOR: '%s'\n"), s_entry->hfs_ent->u.file.creator);
+	fprintf(stderr, _("\tTYPE:	'%s'\n"), s_entry->hfs_ent->u.file.type);
+	fprintf(stderr, _("\tFlags:	 %d\n"), s_entry->hfs_ent->fdflags);
+	fprintf(stderr, _("\tISO-Size: %ld\n"), (long)get_733(s_entry->isorec.size));
+	fprintf(stderr, _("\tSize:     %llu\n"), (Llong)s_entry->size);
+	fprintf(stderr, _("\tExtent:	 %ld\n"), (long)get_733(s_entry->isorec.extent));
 	if (s_entry->assoc) {
-		fprintf(stderr, "\tResource Name: %s\n", s_entry->assoc->whole_name);
-		fprintf(stderr, "\t\tISO-Size:	%ld\n", (long)get_733(s_entry->assoc->isorec.size));
-		fprintf(stderr, "\t\tSize:     %llu\n", (Llong)s_entry->assoc->size);
-		fprintf(stderr, "\t\tExtent:	%ld\n", (long)get_733(s_entry->assoc->isorec.extent));
+		fprintf(stderr, _("\tResource Name: %s\n"), s_entry->assoc->whole_name);
+		fprintf(stderr, _("\t\tISO-Size:	%ld\n"), (long)get_733(s_entry->assoc->isorec.size));
+		fprintf(stderr, _("\t\tSize:     %llu\n"), (Llong)s_entry->assoc->size);
+		fprintf(stderr, _("\t\tExtent:	%ld\n"), (long)get_733(s_entry->assoc->isorec.extent));
 	}
 }
 
@@ -2818,7 +2818,7 @@ hfs_init(name, fdflags, hfs_select)
 				tmp, c, c + 1, c + 2, c + 3,
 				t, t + 1, t + 2, t + 3) != 9) {
 			fprintf(stderr,
-				"error scanning afpfile %s - continuing", name);
+				_("error scanning afpfile %s - continuing\n"), name);
 			free(amap);
 			continue;
 		}
@@ -2987,9 +2987,9 @@ perr(a)
 	char	*a;
 {
 	if (a)
-		comerr("%s\n", a);
+		comerr("%s\n", _(a));
 	else
-		comerr("<no error message given>\n");
+		comerr(_("<no error message given>\n"));
 }
 
 #ifndef APPLE_HFS_HYB

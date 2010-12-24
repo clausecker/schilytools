@@ -1,8 +1,8 @@
-/* @(#)cdrecord.c	1.398 10/06/04 Copyright 1995-2010 J. Schilling */
+/* @(#)cdrecord.c	1.399 10/12/19 Copyright 1995-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)cdrecord.c	1.398 10/06/04 Copyright 1995-2010 J. Schilling";
+	"@(#)cdrecord.c	1.399 10/12/19 Copyright 1995-2010 J. Schilling";
 #endif
 /*
  *	Record data on a CD/CVD-Recorder
@@ -39,6 +39,7 @@ static	UConst char sccsid[] =
 #include <schily/signal.h>
 #include <schily/schily.h>
 #include <schily/getargs.h>
+#include <schily/nlsdefs.h>
 #include <schily/priv.h>
 
 #include "xio.h"
@@ -274,6 +275,9 @@ main(ac, av)
 	char	*av[];
 {
 	char	*dev = NULL;
+#if	defined(USE_NLS)
+	char	*dir;
+#endif
 	int	timeout = 40;	/* Set default timeout to 40s CW-7502 is slow*/
 	int	speed = -1;
 	UInt32_t flags = 0L;
@@ -297,6 +301,24 @@ main(ac, av)
 	save_args(ac, av);
 	oeuid = geteuid();		/* Remember saved set uid	*/
 
+#if	defined(USE_NLS)
+	(void) setlocale(LC_ALL, "");
+#if !defined(TEXT_DOMAIN)	/* Should be defined by cc -D */
+#define	TEXT_DOMAIN "cdrecord"	/* Use this only if it weren't */
+#endif
+	dir = searchfileinpath("share/locale", F_OK,
+					SIP_ANY_FILE|SIP_NO_PATH, NULL);
+	if (dir)
+		(void) bindtextdomain(TEXT_DOMAIN, dir);
+	else
+#if defined(PROTOTYPES) && defined(INS_BASE)
+	(void) bindtextdomain(TEXT_DOMAIN, INS_BASE "/share/locale");
+#else
+	(void) bindtextdomain(TEXT_DOMAIN, "/usr/share/locale");
+#endif
+	(void) textdomain(TEXT_DOMAIN);
+#endif
+
 
 	fillbytes(track, sizeof (track), '\0');
 	for (i = 0; i < MAX_TRACK+2; i++)
@@ -306,7 +328,7 @@ main(ac, av)
 	gargs(ac, av, &tracks, track, &dev, &timeout, &dp, &speed, &flags,
 							&blanktype);
 	if ((track[0].tracktype & TOC_MASK) == TOC_MASK)
-		comerrno(EX_BAD, "Internal error: Bad TOC type.\n");
+		comerrno(EX_BAD, _("Internal error: Bad TOC type.\n"));
 
 	/*
 	 * Attention: Additional restrictions to the CDDL are in place
@@ -376,32 +398,33 @@ main(ac, av)
 #	define	CLONE_TITLE	""
 #endif
 	if ((flags & F_MSINFO) == 0 || lverbose || flags & F_VERSION) {
-		printf("Cdrecord%s%s%s %s (%s-%s-%s) Copyright (C) 1995-2010 Jörg Schilling\n",
+		printf(_("Cdrecord%s%s%s %s (%s-%s-%s) Copyright (C) 1995-2010 %s\n"),
 								PRODVD_TITLE,
 								PROBD_TITLE,
 								CLONE_TITLE,
 								cdr_version,
-								HOST_CPU, HOST_VENDOR, HOST_OS);
+								HOST_CPU, HOST_VENDOR, HOST_OS,
+								_("Joerg Schilling"));
 
 #if	defined(SOURCE_MODIFIED) || !defined(IS_SCHILY_XCONFIG)
 #define	INSERT_YOUR_EMAIL_ADDRESS_HERE
 #define	NO_SUPPORT	0
-		printf("NOTE: this version of cdrecord is an inofficial (modified) release of cdrecord\n");
-		printf("      and thus may have bugs that are not present in the original version.\n");
+		printf(_("NOTE: this version of cdrecord is an inofficial (modified) release of cdrecord\n"));
+		printf(_("      and thus may have bugs that are not present in the original version.\n"));
 #if	NO_SUPPORT
-		printf("      The author of the modifications decided not to provide a support e-mail\n");
-		printf("      address so there is absolutely no support for this version.\n");
+		printf(_("      The author of the modifications decided not to provide a support e-mail\n"));
+		printf(_("      address so there is absolutely no support for this version.\n"));
 #else
-		printf("      Please send bug reports and support requests to <%s>.\n", INSERT_YOUR_EMAIL_ADDRESS_HERE);
+		printf(_("      Please send bug reports and support requests to <%s>.\n"), INSERT_YOUR_EMAIL_ADDRESS_HERE);
 #endif
-		printf("      The original author should not be bothered with problems of this version.\n");
+		printf(_("      The original author should not be bothered with problems of this version.\n"));
 		printf("\n");
 #endif
 #if	!defined(IS_SCHILY_XCONFIG)
-		printf("\nWarning: This version of cdrecord has not been configured via the standard\n");
-		printf("autoconfiguration method of the Schily makefile system. There is a high risk\n");
-		printf("that the code is not configured correctly and for this reason will not behave\n");
-		printf("as expected.\n");
+		printf(_("\nWarning: This version of cdrecord has not been configured via the standard\n"));
+		printf(_("autoconfiguration method of the Schily makefile system. There is a high risk\n"));
+		printf(_("that the code is not configured correctly and for this reason will not behave\n"));
+		printf(_("as expected.\n"));
 #endif
 	}
 
@@ -413,7 +436,7 @@ main(ac, av)
 	checkgui();
 
 	if (debug || lverbose) {
-		printf("TOC Type: %d = %s\n",
+		printf(_("TOC Type: %d = %s\n"),
 			track[0].tracktype & TOC_MASK,
 			toc2name[track[0].tracktype & TOC_MASK]);
 	}
@@ -441,8 +464,8 @@ main(ac, av)
 		 * XXX mlockall() needs root privilleges.
 		 */
 		if (mlockall(MCL_CURRENT|MCL_FUTURE) < 0) {
-			errmsg("WARNING: Cannot do mlockall(2).\n");
-			errmsgno(EX_BAD, "WARNING: This causes a high risk for buffer underruns.\n");
+			errmsg(_("WARNING: Cannot do mlockall(2).\n"));
+			errmsgno(EX_BAD, _("WARNING: This causes a high risk for buffer underruns.\n"));
 		}
 #endif
 
@@ -524,7 +547,7 @@ main(ac, av)
 		if (setuid(getuid()) < 0)
 #endif
 #endif
-			comerr("Panic cannot set back effective uid.\n");
+			comerr(_("Panic cannot set back effective uid.\n"));
 	}
 	/*
 	 * WARNING: We now are no more able to do any privilleged operation
@@ -551,42 +574,42 @@ main(ac, av)
 		 */
 		vers = scg_version(0, SCG_VERSION);
 		auth = scg_version(0, SCG_AUTHOR);
-		printf("Using libscg version '%s-%s'.\n", auth, vers);
+		printf(_("Using libscg version '%s-%s'.\n"), auth, vers);
 		if (auth == 0 || strcmp("schily", auth) != 0) {
 			errmsgno(EX_BAD,
-			"Warning: using inofficial version of libscg (%s-%s '%s').\n",
+			_("Warning: using inofficial version of libscg (%s-%s '%s').\n"),
 				auth, vers, scg_version(0, SCG_SCCS_ID));
 		}
 
 		vers = scg_version(scgp, SCG_VERSION);
 		auth = scg_version(scgp, SCG_AUTHOR);
 		if (lverbose > 1)
-			error("Using libscg transport code version '%s-%s'\n", auth, vers);
+			error(_("Using libscg transport code version '%s-%s'\n"), auth, vers);
 		if (auth == 0 || strcmp("schily", auth) != 0) {
 			errmsgno(EX_BAD,
-			"Warning: using inofficial libscg transport code version (%s-%s '%s').\n",
+			_("Warning: using inofficial libscg transport code version (%s-%s '%s').\n"),
 				auth, vers, scg_version(scgp, SCG_SCCS_ID));
 		}
 
 		vers = scg_version(scgp, SCG_RVERSION);
 		auth = scg_version(scgp, SCG_RAUTHOR);
 		if (lverbose > 1 && vers && auth)
-			error("Using remote transport code version '%s-%s'\n", auth, vers);
+			error(_("Using remote transport code version '%s-%s'\n"), auth, vers);
 		if (auth != 0 && strcmp("schily", auth) != 0) {
 			errmsgno(EX_BAD,
-			"Warning: using inofficial remote transport code version (%s-%s '%s').\n",
+			_("Warning: using inofficial remote transport code version (%s-%s '%s').\n"),
 				auth, vers, scg_version(scgp, SCG_RSCCS_ID));
 		}
 	}
 	if (lverbose && driveropts)
-		printf("Driveropts: '%s'\n", driveropts);
+		printf(_("Driveropts: '%s'\n"), driveropts);
 
 /*	bufsize = scg_bufsize(scgp, CDR_BUF_SIZE);*/
 	bufsize = scg_bufsize(scgp, bufsize);
 	if (lverbose || debug)
-		error("SCSI buffer size: %ld\n", bufsize);
+		error(_("SCSI buffer size: %ld\n"), bufsize);
 	if ((buf = scg_getbuf(scgp, bufsize)) == NULL)
-		comerr("Cannot get SCSI I/O buffer.\n");
+		comerr(_("Cannot get SCSI I/O buffer.\n"));
 
 	if ((flags & F_SCANBUS) != 0) {
 		i = select_target(scgp, stdout);
@@ -606,11 +629,11 @@ main(ac, av)
 	}
 	if ((flags & F_RESET) != 0) {
 		if (scg_reset(scgp, SCG_RESET_NOP) < 0)
-			comerr("Cannot reset (OS does not implement reset).\n");
+			comerr(_("Cannot reset (OS does not implement reset).\n"));
 		if (scg_reset(scgp, SCG_RESET_TGT) >= 0)
 			exit(0);
 		if (scg_reset(scgp, SCG_RESET_BUS) < 0)
-			comerr("Cannot reset target.\n");
+			comerr(_("Cannot reset target.\n"));
 		exit(0);
 	}
 	/*
@@ -631,9 +654,9 @@ main(ac, av)
 		}
 	}
 	if (!do_inquiry(scgp, (flags & F_MSINFO) == 0 || lverbose)) {
-		errmsgno(EX_BAD, "Cannot do inquiry for CD/DVD/BD-Recorder.\n");
+		errmsgno(EX_BAD, _("Cannot do inquiry for CD/DVD/BD-Recorder.\n"));
 		if (unit_ready(scgp))
-			errmsgno(EX_BAD, "The unit seems to be hung and needs power cycling.\n");
+			errmsgno(EX_BAD, _("The unit seems to be hung and needs power cycling.\n"));
 		exit(EX_BAD);
 	}
 
@@ -642,9 +665,9 @@ main(ac, av)
 		print_performance_mmc(scgp);
 		print_capabilities_mmc4(scgp);
 		if (get_curprofile(scgp) >= 0) {
-			printf("\nSupported profiles according to MMC-4 feature list:\n");
+			printf(_("\nSupported profiles according to MMC-4 feature list:\n"));
 			print_profiles(scgp);
-			printf("\nSupported features according to MMC-4 feature list:\n");
+			printf(_("\nSupported features according to MMC-4 feature list:\n"));
 			print_features(scgp);
 		}
 		exit(0);
@@ -660,13 +683,13 @@ main(ac, av)
 	if (dp == (cdr_t *)NULL) {	/* No driver= option specified	*/
 		dp = get_cdrcmds(scgp);	/* Calls dp->cdr_identify()	*/
 	} else if (!is_unknown_dev(scgp) && dp != get_cdrcmds(scgp)) {
-		errmsgno(EX_BAD, "WARNING: Trying to use other driver on known device.\n");
+		errmsgno(EX_BAD, _("WARNING: Trying to use other driver on known device.\n"));
 	}
 
 	if (!is_cddrive(scgp))
-		comerrno(EX_BAD, "Sorry, no CD/DVD/BD-Drive found on this target.\n");
+		comerrno(EX_BAD, _("Sorry, no CD/DVD/BD-Drive found on this target.\n"));
 	if (dp == (cdr_t *)0)
-		comerrno(EX_BAD, "Sorry, no supported CD/DVD/BD-Recorder found on this target.\n");
+		comerrno(EX_BAD, _("Sorry, no supported CD/DVD/BD-Recorder found on this target.\n"));
 	/*
 	 * The driver is known, set up data structures...
 	 */
@@ -677,7 +700,7 @@ main(ac, av)
 		ndp = malloc(sizeof (cdr_t));
 		dsp = malloc(sizeof (dstat_t));
 		if (ndp == NULL || dsp == NULL)
-			comerr("Cannot allocate memory for driver structure.\n");
+			comerr(_("Cannot allocate memory for driver structure.\n"));
 		movebytes(dp, ndp, sizeof (cdr_t));
 		dp = ndp;
 		dp->cdr_flags |= CDR_ALLOC;
@@ -704,7 +727,7 @@ main(ac, av)
 
 		if ((dp->cdr_flags & CDR_ISREADER) != 0) {
 			errmsgno(EX_BAD,
-			"Sorry, no CD/DVD/BD-Recorder or unsupported CD/DVD/BD-Recorder found on this target.\n");
+			_("Sorry, no CD/DVD/BD-Recorder or unsupported CD/DVD/BD-Recorder found on this target.\n"));
 			comexit(EX_BAD);
 		}
 
@@ -714,12 +737,12 @@ main(ac, av)
 	 * Set up data structures for current drive state.
 	 */
 	if ((*dp->cdr_attach)(scgp, dp) != 0)
-		comerrno(EX_BAD, "Cannot attach driver for CD/DVD/BD-Recorder.\n");
+		comerrno(EX_BAD, _("Cannot attach driver for CD/DVD/BD-Recorder.\n"));
 
 	if (lverbose > 1) {
-		printf("Drive current speed: %d\n", dp->cdr_dstat->ds_dr_cur_wspeed);
-		printf("Drive default speed: %d\n", dp->cdr_speeddef);
-		printf("Drive max speed    : %d\n", dp->cdr_speedmax);
+		printf(_("Drive current speed: %d\n"), dp->cdr_dstat->ds_dr_cur_wspeed);
+		printf(_("Drive default speed: %d\n"), dp->cdr_speeddef);
+		printf(_("Drive max speed    : %d\n"), dp->cdr_speedmax);
 	}
 	if (speed > (int)dp->cdr_speedmax && (flags & F_FORCE) == 0)
 		speed = dp->cdr_speedmax;
@@ -727,7 +750,7 @@ main(ac, av)
 		speed = dp->cdr_speeddef;
 
 	if (lverbose > 1) {
-		printf("Selected speed     : %d\n", speed);
+		printf(_("Selected speed     : %d\n"), speed);
 	}
 	dp->cdr_dstat->ds_wspeed = speed; /* XXX Remove 'speed' in future */
 
@@ -737,7 +760,7 @@ main(ac, av)
 	exargs.flags	   = flags;
 
 	if ((flags & F_MSINFO) == 0 || lverbose) {
-		printf("Using %s (%s).\n", dp->cdr_drtext, dp->cdr_drname);
+		printf(_("Using %s (%s).\n"), dp->cdr_drtext, dp->cdr_drname);
 		print_drflags(dp);
 		print_wrmodes(dp);
 	}
@@ -754,11 +777,11 @@ main(ac, av)
 			physbufsize = a_to_u_3_byte(&buf[1]);
 		}
 		if (tsize > 0) {
-			printf("Drive buf size : %lu = %lu KB\n",
+			printf(_("Drive buf size : %lu = %lu KB\n"),
 						tsize, tsize >> 10);
 		}
 		if (physbufsize > 0 && physbufsize != tsize) {
-			printf("Drive pbuf size: %lu = %lu KB\n",
+			printf(_("Drive pbuf size: %lu = %lu KB\n"),
 					physbufsize, physbufsize >> 10);
 		}
 	}
@@ -766,17 +789,17 @@ main(ac, av)
 
 	dma_speed = get_dmaspeed(scgp, dp);
 	if (dma_speed <= 0)
-		errmsgno(EX_BAD, "Warning: The DMA speed test has been skipped.\n");
+		errmsgno(EX_BAD, _("Warning: The DMA speed test has been skipped.\n"));
 	if ((debug || lverbose) && dma_speed > 0) {
 		/*
 		 * We do not yet know what medium type is in...
 		 */
-		printf("Drive DMA Speed: %d kB/s %dx CD %dx DVD %dx BD\n",
+		printf(_("Drive DMA Speed: %d kB/s %dx CD %dx DVD %dx BD\n"),
 			dma_speed, dma_speed/176, dma_speed/1385,
 			dma_speed/4495);
 	}
 	if ((tracks > 0 || cuefilename != NULL) && (debug || lverbose))
-		printf("FIFO size      : %lu = %lu KB\n", fs, fs >> 10);
+		printf(_("FIFO size      : %lu = %lu KB\n"), fs, fs >> 10);
 
 #ifdef	HAVE_LIB_EDC_ECC
 	if ((flags & F_RAW) != 0 && (dp->cdr_dstat->ds_flags & DSF_NOCD) == 0)
@@ -793,7 +816,7 @@ main(ac, av)
 		if (flags & F_MULTI)  {
 			if ((dp->cdr_flags & CDR_PACKET) == 0) {
 				comerrno(EX_BAD,
-				"Drive does not support packet writing (needed for -multi).\n");
+				_("Drive does not support packet writing (needed for -multi).\n"));
 			}
 /*			flags &= F_TAO;*/
 			flags |= F_SAO;
@@ -839,7 +862,7 @@ main(ac, av)
 		sleep(2);	/* Let the user watch the inquiry messages */
 
 	if (tracks > 0 && !check_wrmode(dp, flags, track[1].flags))
-		comerrno(EX_BAD, "Illegal write mode for this drive.\n");
+		comerrno(EX_BAD, _("Illegal write mode for this drive.\n"));
 
 	if ((track[0].flags & TI_TEXT) == 0 &&	/* CD-Text not yet processed */
 	    (track[MAX_TRACK+1].flags & TI_TEXT) != 0) {
@@ -913,7 +936,7 @@ main(ac, av)
 	if (exargs.old_secsize < 0)
 		exargs.old_secsize = sense_secsize(scgp, 0);
 	if (debug)
-		printf("Current Secsize: %d\n", exargs.old_secsize);
+		printf(_("Current Secsize: %d\n"), exargs.old_secsize);
 	scgp->silent++;
 	if (read_capacity(scgp) < 0) {
 		if (exargs.old_secsize > 0)
@@ -923,11 +946,11 @@ main(ac, av)
 	if (exargs.old_secsize < 0)
 		exargs.old_secsize = scgp->cap->c_bsize;
 	if (exargs.old_secsize != scgp->cap->c_bsize)
-		errmsgno(EX_BAD, "Warning: blockdesc secsize %d differs from cap secsize %d.\n",
+		errmsgno(EX_BAD, _("Warning: blockdesc secsize %d differs from cap secsize %d.\n"),
 				exargs.old_secsize, scgp->cap->c_bsize);
 
 	if (lverbose)
-		printf("Current Secsize: %d\n", exargs.old_secsize);
+		printf(_("Current Secsize: %d\n"), exargs.old_secsize);
 
 	if (exargs.old_secsize > 0 && exargs.old_secsize != DATA_SEC_SIZE) {
 		/*
@@ -962,7 +985,7 @@ main(ac, av)
 		dp->cdr_dstat->ds_cdrflags |= RF_WR_WAIT;
 	}
 	if ((*dp->cdr_getdisktype)(scgp, dp) < 0) {
-		errmsgno(EX_BAD, "Cannot get disk type.\n");
+		errmsgno(EX_BAD, _("Cannot get disk type.\n"));
 		if ((flags & F_FORCE) == 0)
 			comexit(EX_BAD);
 	}
@@ -970,7 +993,7 @@ main(ac, av)
 		comexit(0);
 	}
 	if (cuefilename != 0 && (dp->cdr_dstat->ds_flags & DSF_NOCD) != 0)
-		comerrno(EX_BAD, "Wrong media, the cuefile= option only works with CDs.\n");
+		comerrno(EX_BAD, _("Wrong media, the cuefile= option only works with CDs.\n"));
 	/*
 	 * The next actions should depend on the disk type.
 	 */
@@ -1007,7 +1030,7 @@ main(ac, av)
 	/* END CSTYLED */
 	scgp->silent++;
 	if ((*dp->cdr_init)(scgp, dp) < 0)
-		comerrno(EX_BAD, "Cannot init drive.\n");
+		comerrno(EX_BAD, _("Cannot init drive.\n"));
 	scgp->silent--;
 
 	if (flags & F_SETDROPTS) {
@@ -1016,14 +1039,14 @@ main(ac, av)
 		 * drive option processing for speed related drive options.
 		 */
 		if ((*dp->cdr_opt1)(scgp, dp) < 0) {
-			errmsgno(EX_BAD, "Cannot set up 1st set of driver options.\n");
+			errmsgno(EX_BAD, _("Cannot set up 1st set of driver options.\n"));
 		}
 		if ((*dp->cdr_set_speed_dummy)(scgp, dp, &speed) < 0) {
-			errmsgno(EX_BAD, "Cannot set speed/dummy.\n");
+			errmsgno(EX_BAD, _("Cannot set speed/dummy.\n"));
 		}
 		dp->cdr_dstat->ds_wspeed = speed; /* XXX Remove 'speed' in future */
 		if ((*dp->cdr_opt2)(scgp, dp) < 0) {
-			errmsgno(EX_BAD, "Cannot set up 2nd set of driver options.\n");
+			errmsgno(EX_BAD, _("Cannot set up 2nd set of driver options.\n"));
 		}
 		comexit(0);
 	}
@@ -1048,8 +1071,8 @@ main(ac, av)
 
 		dp->cdr_dstat->ds_wrmode = WM_FORMAT;
 		if (lverbose) {
-			printf("Format was %sneeded.\n",
-			(dp->cdr_dstat->ds_flags & DSF_NEED_FORMAT) ? "" : "not ");
+			printf(_("Format was %sneeded.\n"),
+			(dp->cdr_dstat->ds_flags & DSF_NEED_FORMAT) ? "" : _("not "));
 		}
 		/*
 		 * XXX Sollte hier (*dp->cdr_set_speed_dummy)() hin?
@@ -1064,17 +1087,17 @@ main(ac, av)
 
 		wait_unit_ready(scgp, 120);
 		if (gettimeofday(&starttime, (struct timezone *)0) < 0)
-			errmsg("Cannot get start time.\n");
+			errmsg(_("Cannot get start time.\n"));
 
 		if ((*dp->cdr_format)(scgp, dp, 0) < 0) {
-			errmsgno(EX_BAD, "Cannot format medium.\n");
+			errmsgno(EX_BAD, _("Cannot format medium.\n"));
 			comexit(EX_BAD);
 		}
 
 		if (gettimeofday(&fixtime, (struct timezone *)0) < 0)
-			errmsg("Cannot get format time.\n");
+			errmsg(_("Cannot get format time.\n"));
 		if (lverbose)
-			prtimediff("Formatting time: ", &starttime, &fixtime);
+			prtimediff(_("Formatting time: "), &starttime, &fixtime);
 
 		if (!wait_unit_ready(scgp, 240) || tracks == 0) {
 			comexit(0);
@@ -1086,7 +1109,7 @@ main(ac, av)
 
 			dp->cdr_dstat->ds_cdrflags &= ~RF_PRATIP;
 			if ((*dp->cdr_getdisktype)(scgp, dp) < 0) {
-				errmsgno(EX_BAD, "Cannot get disk type.\n");
+				errmsgno(EX_BAD, _("Cannot get disk type.\n"));
 				if ((flags & F_FORCE) == 0)
 					comexit(EX_BAD);
 			}
@@ -1103,17 +1126,17 @@ main(ac, av)
 		Int32_t omb = dp->cdr_dstat->ds_maxblocks;
 
 		if ((*dp->cdr_opt1)(scgp, dp) < 0) {
-			errmsgno(EX_BAD, "Cannot set up 1st set of driver options.\n");
+			errmsgno(EX_BAD, _("Cannot set up 1st set of driver options.\n"));
 		}
 		if (tsize > 0 && omb != dp->cdr_dstat->ds_maxblocks) {
-			printf("Disk size changed by user options.\n");
-			printf("Checking disk capacity according to new values.\n");
+			printf(_("Disk size changed by user options.\n"));
+			printf(_("Checking disk capacity according to new values.\n"));
 		}
 	}
 	if (tsize == 0) {
 		if (tracks > 0) {
 			errmsgno(EX_BAD,
-			"WARNING: Total disk size unknown. Data may not fit on disk.\n");
+			_("WARNING: Total disk size unknown. Data may not fit on disk.\n"));
 		}
 	} else if (tracks > 0) {
 		/*
@@ -1136,7 +1159,7 @@ main(ac, av)
 		 */
 		if (oeuid != getuid()) {
 			if (setreuid(-1, oeuid) < 0)
-				errmsg("Could set back effective uid.\n");
+				errmsg(_("Could set back effective uid.\n"));
 		}
 #endif
 		/*
@@ -1157,7 +1180,7 @@ main(ac, av)
 			if (nbs != bufsize) {
 				if (lverbose) {
 					printf(
-					"Reducing transfer size from %ld to %ld bytes.\n",
+					_("Reducing transfer size from %ld to %ld bytes.\n"),
 									bufsize, nbs);
 				}
 				bufsize = nbs;
@@ -1180,12 +1203,12 @@ main(ac, av)
 		if (geteuid() != getuid()) {	/* AIX does not like to do this */
 						/* If we are not root		*/
 			if (setreuid(-1, getuid()) < 0)
-				comerr("Panic cannot set back effective uid.\n");
+				comerr(_("Panic cannot set back effective uid.\n"));
 		}
 #endif
 	}
 	if ((*dp->cdr_set_speed_dummy)(scgp, dp, &speed) < 0) {
-		errmsgno(EX_BAD, "Cannot set speed/dummy.\n");
+		errmsgno(EX_BAD, _("Cannot set speed/dummy.\n"));
 		if ((flags & F_FORCE) == 0)
 			comexit(EX_BAD);
 	}
@@ -1195,7 +1218,7 @@ main(ac, av)
 
 		if (getenv("CDR_FORCERAWSPEED")) {
 			errmsgno(EX_BAD,
-			"WARNING: 'CDR_FORCERAWSPEED=' is set, buffer underruns may occur.\n");
+			_("WARNING: 'CDR_FORCERAWSPEED=' is set, buffer underruns may occur.\n"));
 			max_raw = raw_speed;
 		}
 
@@ -1213,9 +1236,9 @@ main(ac, av)
 
 			if (speed > max_raw) {
 				errmsgno(EX_BAD,
-				"Processor too slow. Cannot write RAW data at speed %d.\n",
+				_("Processor too slow. Cannot write RAW data at speed %d.\n"),
 				speed);
-				comerrno(EX_BAD, "Max RAW data speed on this processor is %d.\n",
+				comerrno(EX_BAD, _("Max RAW data speed on this processor is %d.\n"),
 				max_raw);
 			}
 			break;
@@ -1228,28 +1251,28 @@ main(ac, av)
 		if ((p = getenv("CDR_FORCESPEED")) != NULL) {
 			if ((dp->cdr_dstat->ds_cdrflags & RF_BURNFREE) == 0) {
 				errmsgno(EX_BAD,
-				"WARNING: 'CDR_FORCESPEED=' is set.\n");
+				_("WARNING: 'CDR_FORCESPEED=' is set.\n"));
 				errmsgno(EX_BAD,
-				"WARNING: Use 'driveropts=burnfree' to avoid buffer underuns.\n");
+				_("WARNING: Use 'driveropts=burnfree' to avoid buffer underuns.\n"));
 			}
 			max_dma = dma_speed;
 		}
 
 		if (speed > max_dma) {
 			errmsgno(EX_BAD,
-			"DMA speed too slow (OK for %dx). Cannot write at speed %dx.\n",
+			_("DMA speed too slow (OK for %dx). Cannot write at speed %dx.\n"),
 					max_dma, speed);
 			if ((dp->cdr_dstat->ds_cdrflags & RF_BURNFREE) == 0) {
-				errmsgno(EX_BAD, "Max DMA data speed is %d.\n", max_dma);
+				errmsgno(EX_BAD, _("Max DMA data speed is %d.\n"), max_dma);
 				if (p == NULL || !streql(p, "any"))
-					comerrno(EX_BAD, "Try to use 'driveropts=burnfree'.\n");
+					comerrno(EX_BAD, _("Try to use 'driveropts=burnfree'.\n"));
 			}
 		}
 	}
 	if ((flags & (F_WRITE|F_BLANK)) != 0 &&
 				(dp->cdr_dstat->ds_flags & DSF_ERA) != 0) {
 		if (xdebug) {
-			printf("Current speed %d, medium low speed: %d medium high speed: %d\n",
+			printf(_("Current speed %d, medium low speed: %d medium high speed: %d\n"),
 				speed,
 				dp->cdr_dstat->ds_at_min_speed,
 				dp->cdr_dstat->ds_at_max_speed);
@@ -1264,10 +1287,10 @@ main(ac, av)
 			 */
 			if ((flags & F_FORCE) == 0) {
 				errmsgno(EX_BAD,
-				"Write speed %d of medium not sufficient for this writer.\n",
+				_("Write speed %d of medium not sufficient for this writer.\n"),
 					dp->cdr_dstat->ds_at_max_speed);
 				comerrno(EX_BAD,
-				"You may have used an ultra low speed medium on a high speed writer.\n");
+				_("You may have used an ultra low speed medium on a high speed writer.\n"));
 			}
 		}
 
@@ -1276,20 +1299,20 @@ main(ac, av)
 			if ((dp->cdr_cdrw_support & CDR_CDRW_ULTRAP) == 0) {
 				comerrno(EX_BAD,
 				/* CSTYLED */
-				"Trying to use ultra high speed+ medium on a writer which is not\ncompatible with ultra high speed+ media.\n");
+				_("Trying to use ultra high speed+ medium on a writer which is not\ncompatible with ultra high speed+ media.\n"));
 			} else if ((flags & F_FORCE) == 0) {
 				comerrno(EX_BAD,
-				"Probably trying to use ultra high speed+ medium on improper writer.\n");
+				_("Probably trying to use ultra high speed+ medium on improper writer.\n"));
 			}
 		} else if ((dp->cdr_dstat->ds_flags & DSF_ULTRASP_ERA) != 0 &&
 		    (speed < 10 || (dp->cdr_cdrw_support & CDR_CDRW_ULTRA) == 0)) {
 			if ((dp->cdr_cdrw_support & CDR_CDRW_ULTRA) == 0) {
 				comerrno(EX_BAD,
 				/* CSTYLED */
-				"Trying to use ultra high speed medium on a writer which is not\ncompatible with ultra high speed media.\n");
+				_("Trying to use ultra high speed medium on a writer which is not\ncompatible with ultra high speed media.\n"));
 			} else if ((flags & F_FORCE) == 0) {
 				comerrno(EX_BAD,
-				"Probably trying to use ultra high speed medium on improper writer.\n");
+				_("Probably trying to use ultra high speed medium on improper writer.\n"));
 			}
 		}
 		if (dp->cdr_dstat->ds_at_min_speed >= 4 &&
@@ -1297,20 +1320,20 @@ main(ac, av)
 				dp->cdr_dstat->ds_dr_max_wspeed <= 4) {
 			if ((flags & F_FORCE) == 0) {
 				comerrno(EX_BAD,
-				"Trying to use high speed medium on low speed writer.\n");
+				_("Trying to use high speed medium on low speed writer.\n"));
 			}
 		}
 		if ((int)dp->cdr_dstat->ds_at_min_speed > speed) {
 			if ((flags & F_FORCE) == 0) {
 				errmsgno(EX_BAD,
-				"Write speed %d of writer not sufficient for this medium.\n",
+				_("Write speed %d of writer not sufficient for this medium.\n"),
 					speed);
 				errmsgno(EX_BAD,
-				"You did use a %s speed medium on an improper writer or\n",
+				_("You did use a %s speed medium on an improper writer or\n"),
 				dp->cdr_dstat->ds_flags & DSF_ULTRASP_ERA ?
 				"ultra high": "high");
 				comerrno(EX_BAD,
-				"you used a speed=# option with a speed too low for this medium.\n");
+				_("you used a speed=# option with a speed too low for this medium.\n"));
 			}
 		}
 	}
@@ -1318,7 +1341,7 @@ main(ac, av)
 		/*
 		 * This is a first "blind" blanking attempt.
 		 */
-		printf("Waiting for drive to calm down.\n");
+		printf(_("Waiting for drive to calm down.\n"));
 		wait_unit_ready(scgp, 120);
 		if (gracewait(dp, &gracedone) < 0) {
 			/*
@@ -1349,7 +1372,7 @@ main(ac, av)
 		 * we abort before the writing process started.
 		 */
 		if (!await_faio()) {
-			comerrno(EX_BAD, "Input buffer error, aborting.\n");
+			comerrno(EX_BAD, _("Input buffer error, aborting.\n"));
 		}
 	}
 	wait_unit_ready(scgp, 120);
@@ -1359,7 +1382,7 @@ main(ac, av)
 	stoptime.tv_sec = 0;
 	fixtime.tv_sec = 0;
 	if (gettimeofday(&starttime, (struct timezone *)0) < 0)
-		errmsg("Cannot get start time.\n");
+		errmsg(_("Cannot get start time.\n"));
 
 	/*
 	 * Blank the media if we were requested to do so
@@ -1378,20 +1401,20 @@ main(ac, av)
 		scgp->silent--;
 		wait_unit_ready(scgp, 120);
 		if (gettimeofday(&starttime, (struct timezone *)0) < 0)
-			errmsg("Cannot get start time.\n");
+			errmsg(_("Cannot get start time.\n"));
 
 		if ((*dp->cdr_blank)(scgp, dp, 0L, blanktype) < 0) {
-			errmsgno(EX_BAD, "Cannot blank disk, aborting.\n");
+			errmsgno(EX_BAD, _("Cannot blank disk, aborting.\n"));
 			if (blanktype != BLANK_DISC) {
-				errmsgno(EX_BAD, "Some drives do not support all blank types.\n");
-				errmsgno(EX_BAD, "Try again with cdrecord blank=all.\n");
+				errmsgno(EX_BAD, _("Some drives do not support all blank types.\n"));
+				errmsgno(EX_BAD, _("Try again with cdrecord blank=all.\n"));
 			}
 			comexit(EX_BAD);
 		}
 		if (gettimeofday(&fixtime, (struct timezone *)0) < 0)
-			errmsg("Cannot get blank time.\n");
+			errmsg(_("Cannot get blank time.\n"));
 		if (lverbose)
-			prtimediff("Blanking time: ", &starttime, &fixtime);
+			prtimediff(_("Blanking time: "), &starttime, &fixtime);
 
 		/*
 		 * XXX Erst blank und dann format?
@@ -1405,7 +1428,7 @@ main(ac, av)
 
 			dp->cdr_dstat->ds_cdrflags &= ~RF_PRATIP;
 			if ((*dp->cdr_getdisktype)(scgp, dp) < 0) {
-				errmsgno(EX_BAD, "Cannot get disk type.\n");
+				errmsgno(EX_BAD, _("Cannot get disk type.\n"));
 				if ((flags & F_FORCE) == 0)
 					comexit(EX_BAD);
 			}
@@ -1419,10 +1442,10 @@ main(ac, av)
 		 * writing time counted together.
 		 */
 		if (gettimeofday(&starttime, (struct timezone *)0) < 0)
-			errmsg("Cannot get start time.\n");
+			errmsg(_("Cannot get start time.\n"));
 	}
 	if (tracks == 0 && (flags & F_FIX) == 0)
-		comerrno(EX_BAD, "No tracks found.\n");
+		comerrno(EX_BAD, _("No tracks found.\n"));
 
 	/*
 	 * Get the number of last recorded track by reading the CD TOC.
@@ -1439,7 +1462,7 @@ main(ac, av)
 		/*
 		 * XXX How many tracks are allowed on a DVD -> 1024
 		 */
-		comerrno(EX_BAD, "Too many tracks for this disk, last track number is %d.\n",
+		comerrno(EX_BAD, _("Too many tracks for this disk, last track number is %d.\n"),
 				tracks + trackno);
 	}
 
@@ -1455,7 +1478,7 @@ main(ac, av)
 	}
 
 	if ((*dp->cdr_opt2)(scgp, dp) < 0) {
-		errmsgno(EX_BAD, "Cannot set up 2nd set of driver options.\n");
+		errmsgno(EX_BAD, _("Cannot set up 2nd set of driver options.\n"));
 	}
 
 	/*
@@ -1463,7 +1486,7 @@ main(ac, av)
 	 * XXX Check total size of the tracks and remaining size of disk.
 	 */
 	if ((*dp->cdr_open_session)(scgp, dp, track) < 0) {
-		comerrno(EX_BAD, "Cannot open new session.\n");
+		comerrno(EX_BAD, _("Cannot open new session.\n"));
 	}
 	if (!do_opc(scgp, dp, flags))
 		comexit(EX_BAD);
@@ -1482,22 +1505,22 @@ main(ac, av)
 	 * This call may modify trackp[i].trackstart for all tracks.
 	 */
 	if ((*dp->cdr_write_leadin)(scgp, dp, track) < 0)
-		comerrno(EX_BAD, "Could not write Lead-in.\n");
+		comerrno(EX_BAD, _("Could not write Lead-in.\n"));
 
 	if (lverbose && (dp->cdr_dstat->ds_cdrflags & RF_LEADIN) != 0) {
 
 		if (gettimeofday(&fixtime, (struct timezone *)0) < 0)
-			errmsg("Cannot get lead-in write time.\n");
-		prtimediff("Lead-in write time: ", &starttime, &fixtime);
+			errmsg(_("Cannot get lead-in write time.\n"));
+		prtimediff(_("Lead-in write time: "), &starttime, &fixtime);
 	}
 
 	if (gettimeofday(&wstarttime, (struct timezone *)0) < 0)
-		errmsg("Cannot get start time.\n");
+		errmsg(_("Cannot get start time.\n"));
 	for (i = 1; i <= tracks; i++) {
 		startsec = 0L;
 
 		if ((*dp->cdr_open_track)(scgp, dp, &track[i]) < 0) {
-			errmsgno(EX_BAD, "Cannot open next track.\n");
+			errmsgno(EX_BAD, _("Cannot open next track.\n"));
 			/*
 			 * XXX We should try to avoid to fixate unwritten media
 			 * XXX e.g. when opening track 1 fails, but then we
@@ -1517,7 +1540,7 @@ main(ac, av)
 		    ((dp->cdr_dstat->ds_flags & DSF_DVD) &&
 		    (flags & F_MULTI) != 0)) {
 			if ((*dp->cdr_next_wr_address)(scgp, &track[i], &startsec) < 0) {
-				errmsgno(EX_BAD, "Cannot get next writable address.\n");
+				errmsgno(EX_BAD, _("Cannot get next writable address.\n"));
 				errs++;
 				break;
 			}
@@ -1525,31 +1548,31 @@ main(ac, av)
 		}
 		if (debug || lverbose) {
 			if (track[i].trackno != track[i-1].trackno)
-				printf("Starting new track at sector: %ld\n",
+				printf(_("Starting new track at sector: %ld\n"),
 						track[i].trackstart);
 			else
-				printf("Continuing track at sector: %ld\n",
+				printf(_("Continuing track at sector: %ld\n"),
 						track[i].trackstart);
 			flush();
 		}
 		if (write_track_data(scgp, dp, &track[i]) < 0) {
 			if (cdr_underrun(scgp)) {
 				errmsgno(EX_BAD,
-				"The current problem looks like a buffer underrun.\n");
+				_("The current problem looks like a buffer underrun.\n"));
 				if ((dp->cdr_dstat->ds_cdrflags & RF_BURNFREE) == 0)
 					errmsgno(EX_BAD,
-				"Try to use 'driveropts=burnfree'.\n");
+				_("Try to use 'driveropts=burnfree'.\n"));
 				else {
 					errmsgno(EX_BAD,
-				"It looks like 'driveropts=burnfree' does not work for this drive.\n");
-					errmsgno(EX_BAD, "Please report.\n");
+				_("It looks like 'driveropts=burnfree' does not work for this drive.\n"));
+					errmsgno(EX_BAD, _("Please report.\n"));
 				}
 
 				errmsgno(EX_BAD,
-				"Make sure that you are root, enable DMA and check your HW/OS set up.\n");
+				_("Make sure that you are root, enable DMA and check your HW/OS set up.\n"));
 			} else {
-				errmsgno(EX_BAD, "A write error occured.\n");
-				errmsgno(EX_BAD, "Please properly read the error message above.\n");
+				errmsgno(EX_BAD, _("A write error occured.\n"));
+				errmsgno(EX_BAD, _("Please properly read the error message above.\n"));
 			}
 			errs++;
 			sleep(5);
@@ -1563,7 +1586,7 @@ main(ac, av)
 			 */
 			if (scg_sense_key(scgp) != SC_ILLEGAL_REQUEST ||
 					scg_sense_code(scgp) != 0xB5) {
-				errmsgno(EX_BAD, "Cannot close track.\n");
+				errmsgno(EX_BAD, _("Cannot close track.\n"));
 				errs++;
 				break;
 			}
@@ -1571,19 +1594,19 @@ main(ac, av)
 	}
 fix_it:
 	if (gettimeofday(&stoptime, (struct timezone *)0) < 0)
-		errmsg("Cannot get stop time.\n");
+		errmsg(_("Cannot get stop time.\n"));
 	cdrstats(dp);
 
 	if (flags & F_RAW) {
 		if (lverbose) {
-			printf("Writing Leadout...\n");
+			printf(_("Writing Leadout...\n"));
 			flush();
 		}
 		write_leadout(scgp, dp, track);
 	}
 	if ((flags & F_NOFIX) == 0) {
 		if (lverbose) {
-			printf("Fixating...\n");
+			printf(_("Fixating...\n"));
 			flush();
 		}
 		if ((*dp->cdr_fixate)(scgp, dp, track) < 0) {
@@ -1591,14 +1614,14 @@ fix_it:
 			 * Ignore fixating errors in dummy mode.
 			 */
 			if ((flags & F_DUMMY) == 0) {
-				errmsgno(EX_BAD, "Cannot fixate disk.\n");
+				errmsgno(EX_BAD, _("Cannot fixate disk.\n"));
 				errs++;
 			}
 		}
 		if (gettimeofday(&fixtime, (struct timezone *)0) < 0)
-			errmsg("Cannot get fix time.\n");
+			errmsg(_("Cannot get fix time.\n"));
 		if (lverbose)
-			prtimediff("Fixating time: ", &stoptime, &fixtime);
+			prtimediff(_("Fixating time: "), &stoptime, &fixtime);
 	}
 	if ((dp->cdr_dstat->ds_cdrflags & RF_DID_CDRSTAT) == 0) {
 		dp->cdr_dstat->ds_cdrflags |= RF_DID_CDRSTAT;
@@ -1631,10 +1654,10 @@ LOCAL void
 scg_openerr(errstr)
 	char	*errstr;
 {
-	errmsg("%s%sCannot open or use SCSI driver.\n", errstr, errstr[0]?". ":"");
-	errmsgno(EX_BAD, "For possible targets try 'cdrecord -scanbus'.%s\n",
-				geteuid() ? " Make sure you are root.":"");
-	errmsgno(EX_BAD, "For possible transport specifiers try 'cdrecord dev=help'.\n");
+	errmsg(_("%s%sCannot open or use SCSI driver.\n"), errstr, errstr[0]?". ":"");
+	errmsgno(EX_BAD, _("For possible targets try 'cdrecord -scanbus'.%s\n"),
+				geteuid() ? _(" Make sure you are root."):"");
+	errmsgno(EX_BAD, _("For possible transport specifiers try 'cdrecord dev=help'.\n"));
 	exit(EX_BAD);
 }
 
@@ -1647,7 +1670,7 @@ find_drive(scgp, dev, flags)
 	int	ntarget;
 
 	if ((flags & F_MSINFO) == 0)
-		error("No target specified, trying to find one...\n");
+		error(_("No target specified, trying to find one...\n"));
 	ntarget = find_target(scgp, INQ_ROMD, -1);
 	if (ntarget < 0)
 		return (ntarget);
@@ -1665,17 +1688,17 @@ find_drive(scgp, dev, flags)
 		/*
 		 * No single CD-ROM or WORM found.
 		 */
-		errmsgno(EX_BAD, "No CD/DVD/BD-Recorder target found.\n");
-		errmsgno(EX_BAD, "Your platform may not allow to scan for SCSI devices.\n");
-		comerrno(EX_BAD, "Call 'cdrecord dev=help' or ask your sysadmin for possible targets.\n");
+		errmsgno(EX_BAD, _("No CD/DVD/BD-Recorder target found.\n"));
+		errmsgno(EX_BAD, _("Your platform may not allow to scan for SCSI devices.\n"));
+		comerrno(EX_BAD, _("Call 'cdrecord dev=help' or ask your sysadmin for possible targets.\n"));
 	} else {
-		errmsgno(EX_BAD, "Too many CD/DVD/BD-Recorder targets found.\n");
+		errmsgno(EX_BAD, _("Too many CD/DVD/BD-Recorder targets found.\n"));
 		select_target(scgp, stdout);
-		comerrno(EX_BAD, "Select a target from the list above and use 'cdrecord dev=%s%sb,t,l'.\n",
+		comerrno(EX_BAD, _("Select a target from the list above and use 'cdrecord dev=%s%sb,t,l'.\n"),
 			dev?dev:"", dev?(dev[strlen(dev)-1] == ':'?"":":"):"");
 	}
 	if ((flags & F_MSINFO) == 0)
-		error("Using dev=%s%s%d,%d,%d.\n",
+		error(_("Using dev=%s%s%d,%d,%d.\n"),
 			dev?dev:"", dev?(dev[strlen(dev)-1] == ':'?"":":"):"",
 			scg_scsibus(scgp), scg_target(scgp), scg_lun(scgp));
 
@@ -1698,18 +1721,18 @@ gracewait(dp, didgracep)
 	if (gracetime > 999)
 		gracetime = 999;
 
-	printf("Starting to write CD/DVD/BD at speed %d in %s%s %s mode for %s session.\n",
+	printf(_("Starting to write CD/DVD/BD at speed %d in %s%s %s mode for %s session.\n"),
 		(int)dp->cdr_dstat->ds_wspeed,
-		(dp->cdr_cmdflags & F_DUMMY) ? "dummy" : "real",
-		(dp->cdr_cmdflags & F_FORCE) ? " force" : "",
+		(dp->cdr_cmdflags & F_DUMMY) ? _("dummy") : _("real"),
+		(dp->cdr_cmdflags & F_FORCE) ? _(" force") : "",
 		wm2name[dp->cdr_dstat->ds_wrmode],
-		(dp->cdr_cmdflags & F_MULTI) ? "multi" : "single");
+		(dp->cdr_cmdflags & F_MULTI) ? _("multi") : _("single"));
 	if (didgrace) {
-		printf("No chance to quit anymore.");
+		printf(_("No chance to quit anymore."));
 		goto grace_done;
 	}
-	printf("Last chance to quit, starting %s write in %d seconds.",
-		(dp->cdr_cmdflags & F_DUMMY)?"dummy":"real", gracetime);
+	printf(_("Last chance to quit, starting %s write in %d seconds."),
+		(dp->cdr_cmdflags & F_DUMMY)?_("dummy"):_("real"), gracetime);
 	flush();
 #ifdef	SIGINT
 	signal(SIGINT, intr);
@@ -1744,11 +1767,11 @@ gracewait(dp, didgracep)
 				*didgracep = FALSE;
 			return (-1);
 		}
-		printf("\b\b\b\b\b\b\b\b\b\b\b\b\b%4d seconds.", i);
+		printf(_("\b\b\b\b\b\b\b\b\b\b\b\b\b%4d seconds."), i);
 		flush();
 	}
 grace_done:
-	printf(" Operation starts.");
+	printf(_(" Operation starts."));
 	flush();
 #ifdef	SIGINT
 	signal(SIGINT, SIG_DFL);
@@ -1810,7 +1833,7 @@ cdrstats(dp)
 	tlast = wstarttime;
 	tcur = stoptime;
 
-	prtimediff("Writing  time: ", &starttime, &stoptime);
+	prtimediff(_("Writing  time: "), &starttime, &stoptime);
 
 	nsecs = dp->cdr_dstat->ds_endsec - dp->cdr_dstat->ds_startsec;
 
@@ -1837,15 +1860,15 @@ cdrstats(dp)
 			(tlast.tv_sec * 1.0 + tlast.tv_usec * 0.000001);
 		if (fspeed > 999.0)
 			fspeed = 999.0;
-		printf("Average write speed %5.1fx.\n", fspeed);
+		printf(_("Average write speed %5.1fx.\n"), fspeed);
 	}
 
 	if (dp->cdr_dstat->ds_minbuf <= 100) {
-		printf("Min drive buffer fill was %u%%\n",
+		printf(_("Min drive buffer fill was %u%%\n"),
 			(unsigned int)dp->cdr_dstat->ds_minbuf);
 	}
 	if (dp->cdr_dstat->ds_buflow > 0) {
-		printf("Total of %ld possible drive buffer underruns predicted.\n",
+		printf(_("Total of %ld possible drive buffer underruns predicted.\n"),
 			(long)dp->cdr_dstat->ds_buflow);
 	}
 }
@@ -1857,15 +1880,15 @@ LOCAL void
 susage(ret)
 	int	ret;
 {
-	error("Usage: %s [options] track1...trackn\n", get_progname());
-	error("\nUse\t%s -help\n", get_progname());
-	error("to get a list of valid options.\n");
-	error("\nUse\t%s blank=help\n", get_progname());
-	error("to get a list of valid blanking options.\n");
-	error("\nUse\t%s dev=b,t,l driveropts=help -checkdrive\n", get_progname());
-	error("to get a list of drive specific options.\n");
-	error("\nUse\t%s dev=help\n", get_progname());
-	error("to get a list of possible SCSI transport specifiers.\n");
+	error(_("Usage: %s [options] track1...trackn\n"), get_progname());
+	error(_("\nUse\t%s -help\n"), get_progname());
+	error(_("to get a list of valid options.\n"));
+	error(_("\nUse\t%s blank=help\n"), get_progname());
+	error(_("to get a list of valid blanking options.\n"));
+	error(_("\nUse\t%s dev=b,t,l driveropts=help -checkdrive\n"), get_progname());
+	error(_("to get a list of drive specific options.\n"));
+	error(_("\nUse\t%s dev=help\n"), get_progname());
+	error(_("to get a list of possible SCSI transport specifiers.\n"));
 	exit(ret);
 	/* NOTREACHED */
 }
@@ -1874,96 +1897,97 @@ LOCAL void
 usage(excode)
 	int excode;
 {
-	error("Usage: %s [options] track1...trackn\n", get_progname());
-	error("Options:\n");
-	error("\t-version	print version information and exit\n");
-	error("\tdev=target	SCSI target to use as CD/DVD/BD-Recorder\n");
-	error("\tgracetime=#	set the grace time before starting to write to #.\n");
-	error("\ttimeout=#	set the default SCSI command timeout to #.\n");
-	error("\tdebug=#,-d	Set to # or increment misc debug level\n");
-	error("\tkdebug=#,kd=#	do Kernel debugging\n");
-	error("\t-verbose,-v	increment general verbose level by one\n");
-	error("\t-Verbose,-V	increment SCSI command transport verbose level by one\n");
-	error("\t-silent,-s	do not print status of failed SCSI commands\n");
-	error("\tdriver=name	user supplied driver name, use with extreme care\n");
-	error("\tdriveropts=opt	a comma separated list of driver specific options\n");
-	error("\t-setdropts	set driver specific options and exit\n");
-	error("\t-checkdrive	check if a driver for the drive is present\n");
-	error("\t-prcap		print drive capabilities for MMC compliant drives\n");
-	error("\t-inq		do an inquiry for the drive and exit\n");
-	error("\t-scanbus	scan the SCSI bus and exit\n");
-	error("\t-reset		reset the SCSI bus with the cdrecorder (if possible)\n");
-	error("\t-abort		send an abort sequence to the drive (may help if hung)\n");
-	error("\t-overburn	allow to write more than the official size of a medium\n");
-	error("\t-ignsize	ignore the known size of a medium (may cause problems)\n");
-	error("\t-useinfo	use *.inf files to overwrite audio options.\n");
-	error("\tspeed=#		set speed of drive\n");
-	error("\tblank=type	blank a CD-RW disc (see blank=help)\n");
-	error("\t-format		format a CD-RW/DVD-RW/DVD+RW disc\n");
+	error(_("Usage: %s [options] track1...trackn\n"), get_progname());
+	error(_("Options:\n"));
+	error(_("\t-version	print version information and exit\n"));
+	error(_("\tdev=target	SCSI target to use as CD/DVD/BD-Recorder\n"));
+	error(_("\tgracetime=#	set the grace time before starting to write to #.\n"));
+	error(_("\ttimeout=#	set the default SCSI command timeout to #.\n"));
+	error(_("\tdebug=#,-d	Set to # or increment misc debug level\n"));
+	error(_("\tkdebug=#,kd=#	do Kernel debugging\n"));
+	error(_("\t-verbose,-v	increment general verbose level by one\n"));
+	error(_("\t-Verbose,-V	increment SCSI command transport verbose level by one\n"));
+	error(_("\t-silent,-s	do not print status of failed SCSI commands\n"));
+	error(_("\tdriver=name	user supplied driver name, use with extreme care\n"));
+	error(_("\tdriveropts=opt	a comma separated list of driver specific options\n"));
+	error(_("\t-setdropts	set driver specific options and exit\n"));
+	error(_("\t-checkdrive	check if a driver for the drive is present\n"));
+	error(_("\t-prcap		print drive capabilities for MMC compliant drives\n"));
+	error(_("\t-inq		do an inquiry for the drive and exit\n"));
+	error(_("\t-scanbus	scan the SCSI bus and exit\n"));
+	error(_("\t-reset		reset the SCSI bus with the cdrecorder (if possible)\n"));
+	error(_("\t-abort		send an abort sequence to the drive (may help if hung)\n"));
+	error(_("\t-overburn	allow to write more than the official size of a medium\n"));
+	error(_("\t-ignsize	ignore the known size of a medium (may cause problems)\n"));
+	error(_("\t-useinfo	use *.inf files to overwrite audio options.\n"));
+	error(_("\tspeed=#		set speed of drive\n"));
+	error(_("\tblank=type	blank a CD-RW disc (see blank=help)\n"));
+	error(_("\t-format		format a CD-RW/DVD-RW/DVD+RW disc\n"));
 #ifdef	FIFO
-	error("\tfs=#		Set fifo size to # (0 to disable, default is %ld MB)\n",
+	error(_("\tfs=#		Set fifo size to # (0 to disable, default is %ld MB)\n"),
 							DEFAULT_FIFOSIZE/(1024L*1024L));
 #endif
-	error("\tts=#		set maximum transfer size for a single SCSI command\n");
-	error("\t-load		load the disk and exit (works only with tray loader)\n");
-	error("\t-lock		load and lock the disk and exit (works only with tray loader)\n");
-	error("\t-eject		eject the disk after doing the work\n");
-	error("\t-dummy		do everything with laser turned off\n");
-	error("\t-minfo		retrieve and print media information/status\n");
-	error("\t-media-info	retrieve and print media information/status\n");
-	error("\t-msinfo		retrieve multi-session info for mkisofs >= 1.10\n");
-	error("\t-toc		retrieve and print TOC/PMA data\n");
-	error("\t-atip		retrieve and print ATIP data\n");
-	error("\t-multi		generate a TOC that allows multi session\n");
-	error("\t		In this case default track type is CD-ROM XA mode 2 form 1 - 2048 bytes\n");
-	error("\t-fix		fixate a corrupt or unfixated disk (generate a TOC)\n");
-	error("\t-nofix		do not fixate disk after writing tracks\n");
-	error("\t-waiti		wait until input is available before opening SCSI\n");
-	error("\t-immed		Try to use the SCSI IMMED flag with certain long lasting commands\n");
-	error("\t-force		force to continue on some errors to allow blanking bad disks\n");
-	error("\t-tao		Write disk in TAO mode. This option will be replaced in the future.\n");
-	error("\t-dao		Write disk in SAO mode. This option will be replaced in the future.\n");
-	error("\t-sao		Write disk in SAO mode. This option will be replaced in the future.\n");
-	error("\t-raw		Write disk in RAW mode. This option will be replaced in the future.\n");
-	error("\t-raw96r		Write disk in RAW/RAW96R mode. This option will be replaced in the future.\n");
-	error("\t-raw96p		Write disk in RAW/RAW96P mode. This option will be replaced in the future.\n");
-	error("\t-raw16		Write disk in RAW/RAW16 mode. This option will be replaced in the future.\n");
+	error(_("\tts=#		set maximum transfer size for a single SCSI command\n"));
+	error(_("\t-load		load the disk and exit (works only with tray loader)\n"));
+	error(_("\t-lock		load and lock the disk and exit (works only with tray loader)\n"));
+	error(_("\t-eject		eject the disk after doing the work\n"));
+	error(_("\t-dummy		do everything with laser turned off\n"));
+	error(_("\t-minfo		retrieve and print media information/status\n"));
+	error(_("\t-media-info	retrieve and print media information/status\n"));
+	error(_("\t-msinfo		retrieve multi-session info for mkisofs >= 1.10\n"));
+	error(_("\t-toc		retrieve and print TOC/PMA data\n"));
+	error(_("\t-atip		retrieve and print ATIP data\n"));
+	error(_("\t-multi		generate a TOC that allows multi session\n"));
+	error(_("\t		In this case default track type is CD-ROM XA mode 2 form 1 - 2048 bytes\n"));
+	error(_("\t-fix		fixate a corrupt or unfixated disk (generate a TOC)\n"));
+	error(_("\t-nofix		do not fixate disk after writing tracks\n"));
+	error(_("\t-waiti		wait until input is available before opening SCSI\n"));
+	error(_("\t-immed		Try to use the SCSI IMMED flag with certain long lasting commands\n"));
+	error(_("\t-force		force to continue on some errors to allow blanking bad disks\n"));
+	error(_("\t-tao		Write disk in TAO mode. This option will be replaced in the future.\n"));
+	error(_("\t-dao		Write disk in SAO mode. This option will be replaced in the future.\n"));
+	error(_("\t-sao		Write disk in SAO mode. This option will be replaced in the future.\n"));
+	error(_("\t-raw		Write disk in RAW mode. This option will be replaced in the future.\n"));
+	error(_("\t-raw96r		Write disk in RAW/RAW96R mode. This option will be replaced in the future.\n"));
+	error(_("\t-raw96p		Write disk in RAW/RAW96P mode. This option will be replaced in the future.\n"));
+	error(_("\t-raw16		Write disk in RAW/RAW16 mode. This option will be replaced in the future.\n"));
 #ifdef	CLONE_WRITE
-	error("\t-clone		Write disk in clone write mode.\n");
+	error(_("\t-clone		Write disk in clone write mode.\n"));
 #endif
-	error("\ttsize=#		Length of valid data in next track\n");
-	error("\tpadsize=#	Amount of padding for next track\n");
-	error("\tpregap=#	Amount of pre-gap sectors before next track\n");
-	error("\tdefpregap=#	Amount of pre-gap sectors for all but track #1\n");
-	error("\tmcn=text	Set the media catalog number for this CD to 'text'\n");
-	error("\tisrc=text	Set the ISRC number for the next track to 'text'\n");
-	error("\tindex=list	Set the index list for the next track to 'list'\n");
-	error("\t-text		Write CD-Text from information from *.inf or *.cue files\n");
-	error("\ttextfile=name	Set the file with CD-Text data to 'name'\n");
-	error("\tcuefile=name	Set the file with CDRWIN CUE data to 'name'\n");
+	error(_("\ttsize=#		Length of valid data in next track\n"));
+	error(_("\tpadsize=#	Amount of padding for next track\n"));
+	error(_("\tpregap=#	Amount of pre-gap sectors before next track\n"));
+	error(_("\tdefpregap=#	Amount of pre-gap sectors for all but track #1\n"));
+	error(_("\tmcn=text	Set the media catalog number for this CD to 'text'\n"));
+	error(_("\tisrc=text	Set the ISRC number for the next track to 'text'\n"));
+	error(_("\tindex=list	Set the index list for the next track to 'list'\n"));
+	error(_("\t-text		Write CD-Text from information from *.inf or *.cue files\n"));
+	error(_("\ttextfile=name	Set the file with CD-Text data to 'name'\n"));
+	error(_("\tcuefile=name	Set the file with CDRWIN CUE data to 'name'\n"));
 
-	error("\t-audio		Subsequent tracks are CD-DA audio tracks\n");
-	error("\t-data		Subsequent tracks are CD-ROM data mode 1 - 2048 bytes (default)\n");
-	error("\t-mode2		Subsequent tracks are CD-ROM data mode 2 - 2336 bytes\n");
-	error("\t-xa		Subsequent tracks are CD-ROM XA mode 2 form 1 - 2048 bytes\n");
-	error("\t-xa1		Subsequent tracks are CD-ROM XA mode 2 form 1 - 2056 bytes\n");
-	error("\t-xa2		Subsequent tracks are CD-ROM XA mode 2 form 2 - 2324 bytes\n");
-	error("\t-xamix		Subsequent tracks are CD-ROM XA mode 2 form 1/2 - 2332 bytes\n");
-	error("\t-cdi		Subsequent tracks are CDI tracks\n");
-	error("\t-isosize	Use iso9660 file system size for next data track\n");
-	error("\t-preemp		Audio tracks are mastered with 50/15 µs preemphasis\n");
-	error("\t-nopreemp	Audio tracks are mastered with no preemphasis (default)\n");
-	error("\t-copy		Audio tracks have unlimited copy permission\n");
-	error("\t-nocopy		Audio tracks may only be copied once for personal use (default)\n");
-	error("\t-scms		Audio tracks will not have any copy permission at all\n");
-	error("\t-pad		Pad data tracks with %d zeroed sectors\n", PAD_SECS);
-	error("\t		Pad audio tracks to a multiple of %d bytes\n", AUDIO_SEC_SIZE);
-	error("\t-nopad		Do not pad data tracks (default)\n");
-	error("\t-shorttrack	Subsequent tracks may be non Red Book < 4 seconds if in SAO or RAW mode\n");
-	error("\t-noshorttrack	Subsequent tracks must be >= 4 seconds\n");
-	error("\t-swab		Audio data source is byte-swapped (little-endian/Intel)\n");
-	error("The type of the first track is used for the toc type.\n");
-	error("Currently only form 1 tracks are supported.\n");
+	error(_("\t-audio		Subsequent tracks are CD-DA audio tracks\n"));
+	error(_("\t-data		Subsequent tracks are CD-ROM data mode 1 - 2048 bytes (default)\n"));
+	error(_("\t-mode2		Subsequent tracks are CD-ROM data mode 2 - 2336 bytes\n"));
+	error(_("\t-xa		Subsequent tracks are CD-ROM XA mode 2 form 1 - 2048 bytes\n"));
+	error(_("\t-xa1		Subsequent tracks are CD-ROM XA mode 2 form 1 - 2056 bytes\n"));
+	error(_("\t-xa2		Subsequent tracks are CD-ROM XA mode 2 form 2 - 2324 bytes\n"));
+	error(_("\t-xamix		Subsequent tracks are CD-ROM XA mode 2 form 1/2 - 2332 bytes\n"));
+	error(_("\t-cdi		Subsequent tracks are CDI tracks\n"));
+	error(_("\t-isosize	Use iso9660 file system size for next data track\n"));
+									/* micro-s */
+	error(_("\t-preemp		Audio tracks are mastered with 50/15 us preemphasis\n"));
+	error(_("\t-nopreemp	Audio tracks are mastered with no preemphasis (default)\n"));
+	error(_("\t-copy		Audio tracks have unlimited copy permission\n"));
+	error(_("\t-nocopy		Audio tracks may only be copied once for personal use (default)\n"));
+	error(_("\t-scms		Audio tracks will not have any copy permission at all\n"));
+	error(_("\t-pad		Pad data tracks with %d zeroed sectors\n"), PAD_SECS);
+	error(_("\t		Pad audio tracks to a multiple of %d bytes\n"), AUDIO_SEC_SIZE);
+	error(_("\t-nopad		Do not pad data tracks (default)\n"));
+	error(_("\t-shorttrack	Subsequent tracks may be non Red Book < 4 seconds if in SAO or RAW mode\n"));
+	error(_("\t-noshorttrack	Subsequent tracks must be >= 4 seconds\n"));
+	error(_("\t-swab		Audio data source is byte-swapped (little-endian/Intel)\n"));
+	error(_("The type of the first track is used for the toc type.\n"));
+	error(_("Currently only form 1 tracks are supported.\n"));
 	exit(excode);
 }
 
@@ -1971,17 +1995,17 @@ LOCAL void
 blusage(ret)
 	int	ret;
 {
-	error("Blanking options:\n");
-	error("\tall\t\tblank the entire disk\n");
-	error("\tdisc\t\tblank the entire disk\n");
-	error("\tdisk\t\tblank the entire disk\n");
-	error("\tfast\t\tminimally blank the entire disk (PMA, TOC, pregap)\n");
-	error("\tminimal\t\tminimally blank the entire disk (PMA, TOC, pregap)\n");
-	error("\ttrack\t\tblank a track\n");
-	error("\tunreserve\tunreserve a track\n");
-	error("\ttrtail\t\tblank a track tail\n");
-	error("\tunclose\t\tunclose last session\n");
-	error("\tsession\t\tblank last session\n");
+	error(_("Blanking options:\n"));
+	error(_("\tall\t\tblank the entire disk\n"));
+	error(_("\tdisc\t\tblank the entire disk\n"));
+	error(_("\tdisk\t\tblank the entire disk\n"));
+	error(_("\tfast\t\tminimally blank the entire disk (PMA, TOC, pregap)\n"));
+	error(_("\tminimal\t\tminimally blank the entire disk (PMA, TOC, pregap)\n"));
+	error(_("\ttrack\t\tblank a track\n"));
+	error(_("\tunreserve\tunreserve a track\n"));
+	error(_("\ttrtail\t\tblank a track tail\n"));
+	error(_("\tunclose\t\tunclose last session\n"));
+	error(_("\tsession\t\tblank last session\n"));
 
 	exit(ret);
 	/* NOTREACHED */
@@ -2022,13 +2046,13 @@ LOCAL void
 intfifo(sig)
 	int	sig;
 {
-	errmsgno(EX_BAD, "Caught interrupt.\n");
+	errmsgno(EX_BAD, _("Caught interrupt.\n"));
 	if (exargs.scgp) {
 		SCSI	*scgp = exargs.scgp;
 
 		if (scgp->running) {
 			if (scgp->cb_fun != NULL) {
-				comerrno(EX_BAD, "Second interrupt. Doing hard abort.\n");
+				comerrno(EX_BAD, _("Second interrupt. Doing hard abort.\n"));
 				/* NOTREACHED */
 			}
 			scgp->cb_fun = scsi_cb;
@@ -2365,16 +2389,16 @@ int oper = -1;
 	pad = !isaudio && is_pad(trackp);	/* Pad only data tracks */
 
 	if (debug) {
-		printf("secsize:%d secspt:%d bytespt:%d audio:%d pad:%d\n",
+		printf(_("secsize:%d secspt:%d bytespt:%d audio:%d pad:%d\n"),
 			secsize, secspt, bytespt, isaudio, pad);
 	}
 
 	if (lverbose) {
 		if (tracksize > 0)
-			printf("\rTrack %02d:    0 of %4lld MB written.",
+			printf(_("\rTrack %02d:    0 of %4lld MB written."),
 				track, tracksize >> 20);
 		else
-			printf("\rTrack %02d:    0 MB written.", track);
+			printf(_("\rTrack %02d:    0 MB written."), track);
 		flush();
 		neednl = TRUE;
 	}
@@ -2391,7 +2415,7 @@ int oper = -1;
 		count = get_buf(f, trackp, startsec, &bp, bytes_to_read);
 
 		if (count < 0)
-			comerr("Read error on input file.\n");
+			comerr(_("Read error on input file.\n"));
 		if (count == 0)
 			break;
 		bytes_read += count;
@@ -2409,7 +2433,7 @@ int oper = -1;
 
 		if (count < bytespt) {
 			if (debug) {
-				printf("\nNOTICE: reducing block size for last record.\n");
+				printf(_("\nNOTICE: reducing block size for last record.\n"));
 				neednl = FALSE;
 			}
 
@@ -2417,7 +2441,7 @@ int oper = -1;
 				amount = secsize - amount;
 				count += amount;
 				printf(
-				"\nWARNING: padding up to secsize (by %ld bytes).\n",
+				_("\nWARNING: padding up to secsize (by %ld bytes).\n"),
 					amount);
 				neednl = FALSE;
 			}
@@ -2435,7 +2459,7 @@ int oper = -1;
 
 		amount = write_secs(scgp, dp, bp, startsec, bytespt, secspt, islast);
 		if (amount < 0) {
-			printf("%swrite track data: error after %lld bytes\n",
+			printf(_("%swrite track data: error after %lld bytes\n"),
 							neednl?"\n":"", bytes);
 			return (-1);
 		}
@@ -2448,15 +2472,15 @@ int oper = -1;
 			float	fspeed;
 
 			gettimeofday(&tcur, (struct timezone *)0);
-			printf("\rTrack %02d: %4lld", track, bytes >> 20);
+			printf(_("\rTrack %02d: %4lld"), track, bytes >> 20);
 			if (tracksize > 0)
-				printf(" of %4lld MB", tracksize >> 20);
+				printf(_(" of %4lld MB"), tracksize >> 20);
 			else
 				printf(" MB");
-			printf(" written");
+			printf(_(" written"));
 			fper = fifo_percent(TRUE);
 			if (fper >= 0)
-				printf(" (fifo %3d%%)", fper);
+				printf(_(" (fifo %3d%%)"), fper);
 #ifdef	BCAP
 			/*
 			 * Work around a bug in the firmware from drives
@@ -2478,7 +2502,7 @@ int oper = -1;
 					    (startsec*secsize) > bsize) {
 						dp->cdr_dstat->ds_minbuf = per;
 					}
-					printf(" [buf %3d%%]", per);
+					printf(_(" [buf %3d%%]"), per);
 #ifdef	BCAPDBG
 					printf(" %3ld %3ld", bsize >> 10, bfree >> 10);
 #endif
@@ -2525,9 +2549,9 @@ int oper = -1;
 					wt = 0;
 
 				if (xdebug)
-					printf(" |%3d %4dms %5dms|", wsecs, wt, mt);
+					printf(_(" |%3d %4dms %5dms|"), wsecs, wt, mt);
 				else
-					printf(" |%3d %4dms|", wsecs, wt);
+					printf(_(" |%3d %4dms|"), wsecs, wt);
 				if (wt > 0)
 					usleep(wt*1000);
 			}
@@ -2578,7 +2602,7 @@ int oper = -1;
 		if ((padbytes >> 20) > 0) {
 			neednl = TRUE;
 		} else if (lverbose) {
-			printf("Track %02d: writing %3lld KB of pad data.\n",
+			printf(_("Track %02d: writing %3lld KB of pad data.\n"),
 					track, (Llong)(padbytes >> 10));
 			neednl = FALSE;
 		}
@@ -2587,7 +2611,7 @@ int oper = -1;
 		bytes += savbytes;
 		startsec += savbytes / secsize;
 	}
-	printf("%sTrack %02d: Total bytes read/written: %lld/%lld (%lld sectors).\n",
+	printf(_("%sTrack %02d: Total bytes read/written: %lld/%lld (%lld sectors).\n"),
 		neednl?"\n":"", track, bytes_read, bytes, bytes/secsize);
 	flush();
 	return (0);
@@ -2645,7 +2669,7 @@ int oper = -1;
 	fillbytes(buf, bytespt, '\0');
 
 	if ((amt >> 20) > 0) {
-		printf("\rTrack %02d:    0 of %4lld MB pad written.",
+		printf(_("\rTrack %02d:    0 of %4lld MB pad written."),
 						track, amt >> 20);
 		flush();
 	}
@@ -2665,7 +2689,7 @@ int oper = -1;
 
 		amount = write_secs(scgp, dp, buf, startsec, bytespt, secspt, islast);
 		if (amount < 0) {
-			printf("%swrite track pad data: error after %lld bytes\n",
+			printf(_("%swrite track pad data: error after %lld bytes\n"),
 							neednl?"\n":"", bytes);
 			if (bytesp)
 				*bytesp = bytes;
@@ -2681,12 +2705,12 @@ int oper = -1;
 			float	fspeed;
 
 			gettimeofday(&tcur, (struct timezone *)0);
-			printf("\rTrack %02d: %4lld", track, bytes >> 20);
+			printf(_("\rTrack %02d: %4lld"), track, bytes >> 20);
 			if (padsize > 0)
-				printf(" of %4lld MB", padsize >> 20);
+				printf(_(" of %4lld MB"), padsize >> 20);
 			else
 				printf(" MB");
-			printf(" pad written");
+			printf(_(" pad written"));
 			savbytes = (bytes >> 20) << 20;
 
 #ifdef	BCAP
@@ -2710,7 +2734,7 @@ int oper = -1;
 					    (startsec*secsize) > bsize) {
 						dp->cdr_dstat->ds_minbuf = per;
 					}
-					printf(" [buf %3d%%]", per);
+					printf(_(" [buf %3d%%]"), per);
 #ifdef	BCAPDBG
 					printf(" %3ld %3ld", bsize >> 10, bfree >> 10);
 #endif
@@ -2775,7 +2799,7 @@ write_buf(scgp, dp, trackp, bp, startsec, amt, secsize, dolast, bytesp)
 /*	fillbytes(buf, bytespt, '\0');*/
 
 	if ((amt >> 20) > 0) {
-		printf("\rTrack %02d:   0 of %4ld MB pad written.",
+		printf(_("\rTrack %02d:   0 of %4ld MB pad written."),
 						track, amt >> 20);
 		flush();
 	}
@@ -2789,7 +2813,7 @@ write_buf(scgp, dp, trackp, bp, startsec, amt, secsize, dolast, bytesp)
 
 		amount = write_secs(scgp, dp, bp, startsec, bytespt, secspt, islast);
 		if (amount < 0) {
-			printf("%swrite track data: error after %ld bytes\n",
+			printf(_("%swrite track data: error after %ld bytes\n"),
 							neednl?"\n":"", bytes);
 			if (bytesp)
 				*bytesp = bytes;
@@ -2801,7 +2825,7 @@ write_buf(scgp, dp, trackp, bp, startsec, amt, secsize, dolast, bytesp)
 		startsec += amount / secsize;
 
 		if (lverbose && (bytes >= (savbytes + 0x100000))) {
-			printf("\rTrack %02d: %3ld", track, bytes >> 20);
+			printf(_("\rTrack %02d: %3ld"), track, bytes >> 20);
 			savbytes = (bytes >> 20) << 20;
 			flush();
 			neednl = TRUE;
@@ -2820,22 +2844,22 @@ printdata(track, trackp)
 	track_t	*trackp;
 {
 	if (trackp->itracksize >= 0) {
-		printf("Track %02d: data  %4lld MB        ",
+		printf(_("Track %02d: data  %4lld MB        "),
 					track, (Llong)(trackp->itracksize >> 20));
 	} else {
-		printf("Track %02d: data  unknown length",
+		printf(_("Track %02d: data  unknown length"),
 					track);
 	}
 	if (trackp->padsecs > 0) {
 		Llong	padbytes = (Llong)trackp->padsecs * trackp->isecsize;
 
 		if ((padbytes >> 20) > 0)
-			printf(" padsize: %4lld MB", (Llong)(padbytes >> 20));
+			printf(_(" padsize: %4lld MB"), (Llong)(padbytes >> 20));
 		else
-			printf(" padsize: %4lld KB", (Llong)(padbytes >> 10));
+			printf(_(" padsize: %4lld KB"), (Llong)(padbytes >> 10));
 	}
 	if (trackp->pregapsize != (trackp->flags & TI_NOCD)? 0 : 150) {
-		printf(" pregapsize: %3ld", trackp->pregapsize);
+		printf(_(" pregapsize: %3ld"), trackp->pregapsize);
 	}
 	if (xdebug)
 		printf(" START: %ld SECTORS: %ld INDEX0 %ld",
@@ -2849,21 +2873,21 @@ printaudio(track, trackp)
 	track_t	*trackp;
 {
 	if (trackp->itracksize >= 0) {
-		printf("Track %02d: audio %4lld MB (%02d:%02d.%02d) %spreemp%s%s",
+		printf(_("Track %02d: audio %4lld MB (%02d:%02d.%02d) %spreemp%s%s"),
 			track, (Llong)(trackp->itracksize >> 20),
 			minutes(trackp->itracksize),
 			seconds(trackp->itracksize),
 			hseconds(trackp->itracksize),
-			is_preemp(trackp) ? "" : "no ",
-			is_swab(trackp) ? " swab":"",
+			is_preemp(trackp) ? "" : _("no "),
+			is_swab(trackp) ? _(" swab"):"",
 			((trackp->itracksize < 300L*trackp->isecsize) ||
 			(trackp->itracksize % trackp->isecsize)) &&
-			is_pad(trackp) ? " pad" : "");
+			is_pad(trackp) ? _(" pad") : "");
 	} else {
-		printf("Track %02d: audio unknown length    %spreemp%s%s",
-			track, is_preemp(trackp) ? "" : "no ",
-			is_swab(trackp) ? " swab":"",
-			(trackp->itracksize % trackp->isecsize) && is_pad(trackp) ? " pad" : "");
+		printf(_("Track %02d: audio unknown length    %spreemp%s%s"),
+			track, is_preemp(trackp) ? "" : _("no "),
+			is_swab(trackp) ? _(" swab"):"",
+			(trackp->itracksize % trackp->isecsize) && is_pad(trackp) ? _(" pad") : "");
 	}
 	if (is_scms(trackp))
 		printf(" scms");
@@ -2876,16 +2900,16 @@ printaudio(track, trackp)
 		Llong	padbytes = (Llong)trackp->padsecs * trackp->isecsize;
 
 		if ((padbytes >> 20) > 0)
-			printf(" padsize: %4lld MB", (Llong)(padbytes >> 20));
+			printf(_(" padsize: %4lld MB"), (Llong)(padbytes >> 20));
 		else
-			printf(" padsize: %4lld KB", (Llong)(padbytes >> 10));
+			printf(_(" padsize: %4lld KB"), (Llong)(padbytes >> 10));
 		printf(" (%02d:%02d.%02d)",
 			Sminutes(trackp->padsecs),
 			Sseconds(trackp->padsecs),
 			Shseconds(trackp->padsecs));
 	}
 	if (trackp->pregapsize != ((trackp->flags & TI_NOCD)? 0 : 150) || xdebug > 0) {
-		printf(" pregapsize: %3ld", trackp->pregapsize);
+		printf(_(" pregapsize: %3ld"), trackp->pregapsize);
 	}
 	if (xdebug)
 		printf(" START: %ld SECTORS: %ld INDEX0 %ld",
@@ -2904,15 +2928,15 @@ checkfile(track, trackp)
 			(trackp->itracksize < 300L*trackp->isecsize)) ||
 			(trackp->itracksize % trackp->isecsize)) &&
 						!is_pad(trackp)) {
-		errmsgno(EX_BAD, "Bad audio track size %lld for track %02d.\n",
+		errmsgno(EX_BAD, _("Bad audio track size %lld for track %02d.\n"),
 				(Llong)trackp->itracksize, track);
-		errmsgno(EX_BAD, "Audio tracks must be at least %ld bytes and a multiple of %d.\n",
+		errmsgno(EX_BAD, _("Audio tracks must be at least %ld bytes and a multiple of %d.\n"),
 				300L*trackp->isecsize, trackp->isecsize);
 
 		if (!is_shorttrk(trackp) && (trackp->itracksize < 300L*trackp->isecsize))
-			comerrno(EX_BAD, "See -shorttrack option.\n");
+			comerrno(EX_BAD, _("See -shorttrack option.\n"));
 		if (!is_pad(trackp) && (trackp->itracksize % trackp->isecsize))
-			comerrno(EX_BAD, "See -pad option.\n");
+			comerrno(EX_BAD, _("See -pad option.\n"));
 	}
 
 	if (lverbose == 0 && xdebug == 0)
@@ -3052,7 +3076,7 @@ checktsize(tracks, trackp)
 			total += tp->pregapsize;
 
 		if (lverbose > 1) {
-			printf("track: %d start: %lld pregap: %ld\n",
+			printf(_("track: %d start: %lld pregap: %ld\n"),
 					i, total, tp->pregapsize);
 		}
 		tp->trackstart = total;
@@ -3074,9 +3098,9 @@ checktsize(tracks, trackp)
 			}
 			total += curr;
 		} else if (is_sao(tp) || is_raw(tp)) {
-			errmsgno(EX_BAD, "Track %d has unknown length.\n", i);
+			errmsgno(EX_BAD, _("Track %d has unknown length.\n"), i);
 			comerrno(EX_BAD,
-			"Use tsize= option in %s mode to specify track size.\n",
+			_("Use tsize= option in %s mode to specify track size.\n"),
 			is_sao(tp) ? "SAO" : "RAW");
 		}
 	}
@@ -3093,16 +3117,16 @@ checktsize(tracks, trackp)
 /* XXX CD Sector Size ??? */
 	if (tracks > 0) {
 		if (trackp->flags & TI_NOCD) {
-			printf("Total size:     %4llu MB = %lld sectors\n",
+			printf(_("Total size:     %4llu MB = %lld sectors\n"),
 				btotal >> 20, total);
 		} else {
-			printf("Total size:     %4llu MB (%02d:%02d.%02d) = %lld sectors\n",
+			printf(_("Total size:     %4llu MB (%02d:%02d.%02d) = %lld sectors\n"),
 				btotal >> 20,
 				minutes(btotal),
 				seconds(btotal),
 				hseconds(btotal), total);
 			btotal += 150 * 2352;
-			printf("Lout start:     %4llu MB (%02d:%02d/%02d) = %lld sectors\n",
+			printf(_("Lout start:     %4llu MB (%02d:%02d/%02d) = %lld sectors\n"),
 				btotal >> 20,
 				minutes(btotal),
 				seconds(btotal),
@@ -3158,7 +3182,7 @@ opentracks(trackp)
 		} else {
 			if ((tp->xfp = xopen(tp->filename,
 					O_RDONLY|O_BINARY, 0, 0)) == NULL) {
-				comerr("Cannot open '%s'.\n", tp->filename);
+				comerr(_("Cannot open '%s'.\n"), tp->filename);
 			}
 		}
 
@@ -3175,9 +3199,9 @@ opentracks(trackp)
 					300 - tracksize / secsize;
 			}
 			if (xdebug) {
-				printf("TRACK %d SECTORS: %ld",
+				printf(_("TRACK %d SECTORS: %ld"),
 					i, tp->tracksecs);
-				printf(" pasdize %lld (%ld sectors)\n",
+				printf(_(" pasdize %lld (%ld sectors)\n"),
 					(Llong)tp->padsecs * secsize,
 					tp->padsecs);
 			}
@@ -3197,7 +3221,7 @@ opentracks(trackp)
 			tp->tracksecs += tp->padsecs;
 
 		if (debug) {
-			printf("File: '%s' itracksize: %lld isecsize: %d tracktype: %d = %s sectype: %X = %s dbtype: %s flags %X\n",
+			printf(_("File: '%s' itracksize: %lld isecsize: %d tracktype: %d = %s sectype: %X = %s dbtype: %s flags %X\n"),
 				tp->filename, (Llong)tp->itracksize,
 				tp->isecsize,
 				tp->tracktype & TOC_MASK, toc2name[tp->tracktype & TOC_MASK],
@@ -3264,10 +3288,10 @@ checksize(trackp)
 	if (trackp->itracksize < 0 && (trackp->flags & TI_ISOSIZE) != 0) {
 		if ((trackp->flags & TI_STDIN) != 0) {
 			if (trackp->track != 1)
-				comerrno(EX_BAD, "-isosize on stdin only works for the first track.\n");
+				comerrno(EX_BAD, _("-isosize on stdin only works for the first track.\n"));
 			isobuf = malloc(32 * 2048);
 			if (isobuf == NULL)
-				comerrno(EX_BAD, "Cannot malloc iso size buffer.\n");
+				comerrno(EX_BAD, _("Cannot malloc iso size buffer.\n"));
 			isobsize = read_buf(f, isobuf, 32 * 2048);
 			lsize = bisosize(isobuf, isobsize);
 		} else {
@@ -3275,26 +3299,26 @@ checksize(trackp)
 		}
 		trackp->itracksize = lsize;
 		if (trackp->itracksize != lsize)
-			comerrno(EX_BAD, "This OS cannot handle large ISO-9660 images.\n");
+			comerrno(EX_BAD, _("This OS cannot handle large ISO-9660 images.\n"));
 	}
 	if (trackp->itracksize < 0 && (trackp->flags & TI_NOAUHDR) == 0) {
 		lsize = ausize(f);
 		xmarkpos(trackp->xfp);
 		trackp->itracksize = lsize;
 		if (trackp->itracksize != lsize)
-			comerrno(EX_BAD, "This OS cannot handle large audio images.\n");
+			comerrno(EX_BAD, _("This OS cannot handle large audio images.\n"));
 	}
 	if (trackp->itracksize < 0 && (trackp->flags & TI_NOAUHDR) == 0) {
 		lsize = wavsize(f);
 		xmarkpos(trackp->xfp);
 		trackp->itracksize = lsize;
 		if (trackp->itracksize != lsize)
-			comerrno(EX_BAD, "This OS cannot handle large WAV images.\n");
+			comerrno(EX_BAD, _("This OS cannot handle large WAV images.\n"));
 		if (trackp->itracksize > 0)	/* Force little endian input */
 			trackp->flags |= TI_SWAB;
 	}
 	if (trackp->itracksize == AU_BAD_CODING) {
-		comerrno(EX_BAD, "Inappropriate audio coding in '%s'.\n",
+		comerrno(EX_BAD, _("Inappropriate audio coding in '%s'.\n"),
 							trackp->filename);
 	}
 	if (trackp->itracksize < 0 &&
@@ -3374,7 +3398,7 @@ checkdsize(scgp, dp, tsize, flags)
 		 * dsp->ds_maxblocks > 0 (disk capacity is known).
 		 */
 		if (lverbose)
-			printf("Blocks total: %ld Blocks current: %ld Blocks remaining: %ld\n",
+			printf(_("Blocks total: %ld Blocks current: %ld Blocks remaining: %ld\n"),
 					(long)dsp->ds_maxblocks,
 					(long)dsp->ds_maxblocks - startsec,
 					(long)dsp->ds_maxblocks - endsec);
@@ -3385,23 +3409,23 @@ checkdsize(scgp, dp, tsize, flags)
 				 * There is no overburning on DVD/BD...
 				 */
 				errmsgno(EX_BAD,
-				"Data does not fit on current disk.\n");
+				_("Data does not fit on current disk.\n"));
 				goto toolarge;
 			}
 			errmsgno(EX_BAD,
-			"WARNING: Data may not fit on current disk.\n");
+			_("WARNING: Data may not fit on current disk.\n"));
 
 			/* XXX Check for flags & CDR_NO_LOLIMIT */
 /*			goto toolarge;*/
 		}
 		if (lverbose && dsp->ds_maxrblocks > 0)
-			printf("RBlocks total: %ld RBlocks current: %ld RBlocks remaining: %ld\n",
+			printf(_("RBlocks total: %ld RBlocks current: %ld RBlocks remaining: %ld\n"),
 					(long)dsp->ds_maxrblocks,
 					(long)dsp->ds_maxrblocks - startsec,
 					(long)dsp->ds_maxrblocks - endsec);
 		if (dsp->ds_maxrblocks > 0 && endsec > dsp->ds_maxrblocks) {
 			errmsgno(EX_BAD,
-			"Data does not fit on current disk.\n");
+			_("Data does not fit on current disk.\n"));
 			goto toolarge;
 		}
 		if ((endsec > dsp->ds_maxblocks && endsec > 404700) ||
@@ -3412,16 +3436,16 @@ checkdsize(scgp, dp, tsize, flags)
 			 * capacity between 90 and 99 minutes.
 			 */
 			if (dsp->ds_maxrblocks > 404700)
-				printf("RedBook total: %ld RedBook current: %ld RedBook remaining: %ld\n",
+				printf(_("RedBook total: %ld RedBook current: %ld RedBook remaining: %ld\n"),
 					404700L,
 					404700L - startsec,
 					404700L - endsec);
 			if (endsec > dsp->ds_maxblocks && endsec > 404700) {
 				if ((flags & (F_IGNSIZE|F_FORCE)) == 0) {
 					errmsgno(EX_BAD,
-					"Notice: Most recorders cannot write CD's >= 90 minutes.\n");
+					_("Notice: Most recorders cannot write CD's >= 90 minutes.\n"));
 					errmsgno(EX_BAD,
-					"Notice: Use -ignsize option to allow >= 90 minutes.\n");
+					_("Notice: Use -ignsize option to allow >= 90 minutes.\n"));
 				}
 				goto toolarge;
 			}
@@ -3430,15 +3454,15 @@ checkdsize(scgp, dp, tsize, flags)
 		/*
 		 * dsp->ds_maxblocks == 0 (disk capacity is unknown).
 		 */
-		errmsgno(EX_BAD, "Disk capacity is unknown.\n");
+		errmsgno(EX_BAD, _("Disk capacity is unknown.\n"));
 
 		if (endsec >= (405000-300)) {			/*<90 min disk*/
 			errmsgno(EX_BAD,
-				"Data will not fit on any CD.\n");
+				_("Data will not fit on any CD.\n"));
 			goto toolarge;
 		} else if (endsec >= (333000-150)) {		/* 74 min disk*/
 			errmsgno(EX_BAD,
-			"WARNING: Data may not fit on standard 74min CD.\n");
+			_("WARNING: Data may not fit on standard 74min CD.\n"));
 		}
 	}
 	if (dsp->ds_maxblocks <= 0 || endsec <= dsp->ds_maxblocks)
@@ -3449,17 +3473,17 @@ toolarge:
 		if ((flags & (F_OVERBURN|F_IGNSIZE|F_FORCE)) != 0) {
 			if (dsp->ds_flags & DSF_NOCD) {		/* Not a CD */
 				errmsgno(EX_BAD,
-				"Notice: -overburn is not expected to work with DVD/BD media.\n");
+				_("Notice: -overburn is not expected to work with DVD/BD media.\n"));
 			}
 			errmsgno(EX_BAD,
-				"Notice: Overburning active. Trying to write more than the official disk capacity.\n");
+				_("Notice: Overburning active. Trying to write more than the official disk capacity.\n"));
 			return (TRUE);
 		} else {
 			if ((dsp->ds_flags & DSF_NOCD) == 0) {	/* A CD and not a DVD/BD */
 				errmsgno(EX_BAD,
-				"Notice: Use -overburn option to write more than the official disk capacity.\n");
+				_("Notice: Use -overburn option to write more than the official disk capacity.\n"));
 				errmsgno(EX_BAD,
-				"Notice: Most CD-writers do overburning only on SAO or RAW mode.\n");
+				_("Notice: Most CD-writers do overburning only on SAO or RAW mode.\n"));
 			}
 			return (FALSE);
 		}
@@ -3469,21 +3493,21 @@ toolarge:
 			if (endsec <= dsp->ds_maxblocks)
 				return (TRUE);
 			if (dsp->ds_maxblocks <= 0) {
-				errmsgno(EX_BAD, "DVD/BD capacity is unknown.\n");
+				errmsgno(EX_BAD, _("DVD/BD capacity is unknown.\n"));
 				if ((flags & (F_IGNSIZE|F_FORCE)) != 0) {
 					errmsgno(EX_BAD,
-						"Notice: -ignsize active.\n");
+						_("Notice: -ignsize active.\n"));
 					return (TRUE);
 				}
 			}
-			errmsgno(EX_BAD, "Cannot write more than remaining DVD/BD capacity.\n");
+			errmsgno(EX_BAD, _("Cannot write more than remaining DVD/BD capacity.\n"));
 			return (FALSE);
 		}
 		/*
 		 * Assume that this must be a CD and not a DVD.
 		 */
 		if (endsec > 449700) {
-			errmsgno(EX_BAD, "Cannot write CD's >= 100 minutes.\n");
+			errmsgno(EX_BAD, _("Cannot write CD's >= 100 minutes.\n"));
 			return (FALSE);
 		}
 	}
@@ -3509,7 +3533,7 @@ raise_fdlim()
 	rlim.rlim_cur = MAX_TRACK + 10;
 	if (rlim.rlim_cur > rlim.rlim_max)
 		errmsgno(EX_BAD,
-			"Warning: low file descriptor limit (%lld).\n",
+			_("Warning: low file descriptor limit (%lld).\n"),
 						(Llong)rlim.rlim_max);
 	setrlimit(RLIMIT_NOFILE, &rlim);
 
@@ -3525,7 +3549,7 @@ raise_memlock()
 	rlim.rlim_cur = rlim.rlim_max = RLIM_INFINITY;
 
 	if (setrlimit(RLIMIT_MEMLOCK, &rlim) < 0)
-		errmsg("Warning: Cannot raise RLIMIT_MEMLOCK limits.\n");
+		errmsg(_("Warning: Cannot raise RLIMIT_MEMLOCK limits.\n"));
 #endif	/* RLIMIT_MEMLOCK */
 }
 
@@ -3709,7 +3733,7 @@ gargs(ac, av, tracksp, trackp, devp, timeoutp, dpp, speedp, flagsp, blankp)
 				&cuefile, &textfile, &usetext,
 				&shorttrack, &noshorttrack,
 				&gracetime, &dminbuf)) < 0) {
-			errmsgno(EX_BAD, "Bad Option: %s.\n", cav[0]);
+			errmsgno(EX_BAD, _("Bad Option: %s.\n"), cav[0]);
 			susage(EX_BAD);
 		}
 		if (help)
@@ -3879,42 +3903,42 @@ gargs(ac, av, tracksp, trackp, devp, timeoutp, dpp, speedp, flagsp, blankp)
 				mcn = NULL;
 			}
 			if ((raw96r + raw96p + raw16) > 1) {
-				errmsgno(EX_BAD, "Too many raw modes.\n");
-				comerrno(EX_BAD, "Only one of -raw16, -raw96p, -raw96r allowed.\n");
+				errmsgno(EX_BAD, _("Too many raw modes.\n"));
+				comerrno(EX_BAD, _("Only one of -raw16, -raw96p, -raw96r allowed.\n"));
 			}
 			if ((tao + ispacket + dao + raw) > 1) {
-				errmsgno(EX_BAD, "Too many write modes.\n");
-				comerrno(EX_BAD, "Only one of -packet, -dao, -raw allowed.\n");
+				errmsgno(EX_BAD, _("Too many write modes.\n"));
+				comerrno(EX_BAD, _("Only one of -packet, -dao, -raw allowed.\n"));
 			}
 			if (dao && (raw96r + raw96p + raw16) > 0) {
 				if (raw16)
-					comerrno(EX_BAD, "SAO RAW writing does not allow -raw16.\n");
+					comerrno(EX_BAD, _("SAO RAW writing does not allow -raw16.\n"));
 				if (!clone)
-					comerrno(EX_BAD, "SAO RAW writing only makes sense in clone mode.\n");
+					comerrno(EX_BAD, _("SAO RAW writing only makes sense in clone mode.\n"));
 #ifndef	CLONE_WRITE
-				comerrno(EX_BAD, "SAO RAW writing not compiled in.\n");
+				comerrno(EX_BAD, _("SAO RAW writing not compiled in.\n"));
 #endif
-				comerrno(EX_BAD, "SAO RAW writing not yet implemented.\n");
+				comerrno(EX_BAD, _("SAO RAW writing not yet implemented.\n"));
 			}
 			if (clone) {
 				*flagsp |= F_CLONE;
 				trackp[0].flags |= TI_CLONE;
 #ifndef	CLONE_WRITE
-				comerrno(EX_BAD, "Clone writing not compiled in.\n");
+				comerrno(EX_BAD, _("Clone writing not compiled in.\n"));
 #endif
 			}
 			if (textfile) {
 				if (!checktextfile(textfile)) {
 					if ((*flagsp & F_WRITE) != 0) {
 						comerrno(EX_BAD,
-							"Cannot use '%s' as CD-Text file.\n",
+							_("Cannot use '%s' as CD-Text file.\n"),
 							textfile);
 					}
 				}
 				if ((*flagsp & F_WRITE) != 0) {
 					if ((dao + raw96r + raw96p) == 0)
 						comerrno(EX_BAD,
-							"CD-Text needs -dao, -raw96r or -raw96p.\n");
+							_("CD-Text needs -dao, -raw96r or -raw96p.\n"));
 				}
 				trackp[0].flags |= TI_TEXT;
 			}
@@ -3931,7 +3955,7 @@ gargs(ac, av, tracksp, trackp, devp, timeoutp, dpp, speedp, flagsp, blankp)
 			    waiti + immed + force + dao + setdropts +
 			    raw96r + raw96p + raw16 + clone) > 0 ||
 				mcn != NULL)
-			comerrno(EX_BAD, "Badly placed option. Global options must be before any track.\n");
+			comerrno(EX_BAD, _("Badly placed option. Global options must be before any track.\n"));
 
 		if (nopreemp)
 			preemp = 0;
@@ -3943,11 +3967,11 @@ gargs(ac, av, tracksp, trackp, devp, timeoutp, dpp, speedp, flagsp, blankp)
 			shorttrack = 0;
 
 		if ((audio + data + mode2 + xa + xa1 + xa2 + xamix) > 1) {
-			errmsgno(EX_BAD, "Too many types for track %d.\n", tracks+1);
-			comerrno(EX_BAD, "Only one of -audio, -data, -mode2, -xa, -xa1, -xa2, -xamix allowed.\n");
+			errmsgno(EX_BAD, _("Too many types for track %d.\n"), tracks+1);
+			comerrno(EX_BAD, _("Only one of -audio, -data, -mode2, -xa, -xa1, -xa2, -xamix allowed.\n"));
 		}
 		if (ispacket && audio) {
-			comerrno(EX_BAD, "Audio data cannot be written in packet mode.\n");
+			comerrno(EX_BAD, _("Audio data cannot be written in packet mode.\n"));
 		}
 		/*
 		 * Check whether the next argument is a file type arg.
@@ -4087,7 +4111,7 @@ gargs(ac, av, tracksp, trackp, devp, timeoutp, dpp, speedp, flagsp, blankp)
 		if (isize) {
 			flags |= TI_ISOSIZE;
 			if ((*flagsp & F_MULTI) != 0)
-				comerrno(EX_BAD, "Cannot get isosize for multi session disks.\n");
+				comerrno(EX_BAD, _("Cannot get isosize for multi session disks.\n"));
 			/*
 			 * As we do not get the padding from the ISO-9660
 			 * formatting utility, we need to force padding here.
@@ -4137,7 +4161,7 @@ gargs(ac, av, tracksp, trackp, devp, timeoutp, dpp, speedp, flagsp, blankp)
 		tracks++;
 
 		if (tracks > MAX_TRACK)
-			comerrno(EX_BAD, "Track limit (%d) exceeded.\n",
+			comerrno(EX_BAD, _("Track limit (%d) exceeded.\n"),
 								MAX_TRACK);
 		/*
 		 * Make 'tracks' immediately usable in track structure.
@@ -4186,9 +4210,9 @@ gargs(ac, av, tracksp, trackp, devp, timeoutp, dpp, speedp, flagsp, blankp)
 #ifndef	HAVE_LIB_EDC_ECC
 			if ((sectype & ST_MODE_MASK) != ST_MODE_AUDIO) {
 				errmsgno(EX_BAD,
-					"EDC/ECC library not compiled in.\n");
+					_("EDC/ECC library not compiled in.\n"));
 				comerrno(EX_BAD,
-					"Data sectors are not supported in RAW mode.\n");
+					_("Data sectors are not supported in RAW mode.\n"));
 			}
 #endif
 		}
@@ -4228,18 +4252,18 @@ gargs(ac, av, tracksp, trackp, devp, timeoutp, dpp, speedp, flagsp, blankp)
 	if (dminbuf >= 0) {
 		if (dminbuf < 25 || dminbuf > 95)
 			comerrno(EX_BAD,
-			"Bad minbuf=%d option (must be between 25 and 95).\n",
+			_("Bad minbuf=%d option (must be between 25 and 95).\n"),
 				dminbuf);
 	}
 
 	if (speed < 0 && speed != -1)
-		comerrno(EX_BAD, "Bad speed option.\n");
+		comerrno(EX_BAD, _("Bad speed option.\n"));
 
 	if (fs < 0L && fs != -1L)
-		comerrno(EX_BAD, "Bad fifo size option.\n");
+		comerrno(EX_BAD, _("Bad fifo size option.\n"));
 
 	if (bufsize < 0L && bufsize != -1L)
-		comerrno(EX_BAD, "Bad transfer size option.\n");
+		comerrno(EX_BAD, _("Bad transfer size option.\n"));
 
 	dev = *devp;
 	cdr_defaults(&dev, &speed, &fs, &bufsize, &driveropts);
@@ -4250,7 +4274,7 @@ gargs(ac, av, tracksp, trackp, devp, timeoutp, dpp, speedp, flagsp, blankp)
 		bufsize = CDR_MAX_BUF_SIZE;
 
 	if (debug) {
-		printf("dev: '%s' speed: %d fs: %ld driveropts '%s'\n",
+		printf(_("dev: '%s' speed: %d fs: %ld driveropts '%s'\n"),
 					dev, speed, fs, driveropts);
 	}
 	if (speed >= 0)
@@ -4259,7 +4283,7 @@ gargs(ac, av, tracksp, trackp, devp, timeoutp, dpp, speedp, flagsp, blankp)
 	if (fs < 0L)
 		fs = DEFAULT_FIFOSIZE;
 	if (fs < 2*bufsize) {
-		errmsgno(EX_BAD, "Fifo size %ld too small, turning fifo off.\n", fs);
+		errmsgno(EX_BAD, _("Fifo size %ld too small, turning fifo off.\n"), fs);
 		fs = 0L;
 	}
 
@@ -4268,7 +4292,7 @@ gargs(ac, av, tracksp, trackp, devp, timeoutp, dpp, speedp, flagsp, blankp)
 
 #ifdef	NO_SEARCH_FOR_DEVICE
 	if (!*devp && (*flagsp & (F_VERSION|F_SCANBUS)) == 0) {
-		errmsgno(EX_BAD, "No CD/DVD/BD-Recorder device specified.\n");
+		errmsgno(EX_BAD, _("No CD/DVD/BD-Recorder device specified.\n"));
 		susage(EX_BAD);
 	}
 #endif
@@ -4283,7 +4307,7 @@ gargs(ac, av, tracksp, trackp, devp, timeoutp, dpp, speedp, flagsp, blankp)
 	    F_FIX|F_VERSION|
 	    F_CHECKDRIVE|F_PRCAP|F_INQUIRY|F_SCANBUS|F_RESET|F_ABORT)) {
 		if (tracks != 0) {
-			errmsgno(EX_BAD, "No tracks allowed with this option.\n");
+			errmsgno(EX_BAD, _("No tracks allowed with this option.\n"));
 			susage(EX_BAD);
 		}
 		return;
@@ -4306,20 +4330,20 @@ gargs(ac, av, tracksp, trackp, devp, timeoutp, dpp, speedp, flagsp, blankp)
 
 		if ((*flagsp & F_SAO) == 0 &&
 		    (*flagsp & F_RAW) == 0) {
-			errmsgno(EX_BAD, "The cuefile= option only works with -sao/-raw.\n");
+			errmsgno(EX_BAD, _("The cuefile= option only works with -sao/-raw.\n"));
 			susage(EX_BAD);
 		}
 		if (pad)
 			trackp[0].flags |= TI_PAD;
 		if (tracks > 0) {
-			errmsgno(EX_BAD, "No tracks allowed with the cuefile= option.\n");
+			errmsgno(EX_BAD, _("No tracks allowed with the cuefile= option.\n"));
 			susage(EX_BAD);
 		}
 		cuefilename = cuefile;
 		return;
 	}
 	if (tracks == 0 && (*flagsp & (F_LOAD|F_DLCK|F_EJECT|F_BLANK|F_FORMAT)) == 0) {
-		errmsgno(EX_BAD, "No tracks specified. Need at least one.\n");
+		errmsgno(EX_BAD, _("No tracks specified. Need at least one.\n"));
 		susage(EX_BAD);
 	}
 }
@@ -4333,12 +4357,12 @@ default_wr_mode(tracks, trackp, flagsp, wmp, flags)
 	int	flags;
 {
 	if (tracks == 0 && (*wmp == 0)) {
-		errmsgno(EX_BAD, "No write mode specified.\n");
-		errmsgno(EX_BAD, "Assuming %s mode.\n",
+		errmsgno(EX_BAD, _("No write mode specified.\n"));
+		errmsgno(EX_BAD, _("Assuming %s mode.\n"),
 				(*flagsp & F_MULTI)?"-tao":"-sao");
 		if ((*flagsp & F_MULTI) == 0)
-			errmsgno(EX_BAD, "If your drive does not accept -sao, try -tao.\n");
-		errmsgno(EX_BAD, "Future versions of cdrecord may have different drive dependent defaults.\n");
+			errmsgno(EX_BAD, _("If your drive does not accept -sao, try -tao.\n"));
+		errmsgno(EX_BAD, _("Future versions of cdrecord may have different drive dependent defaults.\n"));
 		if (*flagsp & F_MULTI) {
 			*wmp |= M_TAO;
 		} else {
@@ -4357,7 +4381,7 @@ LOCAL void
 etracks(opt)
 	char	*opt;
 {
-	errmsgno(EX_BAD, "No tracks allowed with '-%s'.\n", opt);
+	errmsgno(EX_BAD, _("No tracks allowed with '-%s'.\n"), opt);
 	susage(EX_BAD);
 }
 
@@ -4375,7 +4399,7 @@ set_trsizes(dp, tracks, trackp)
 	trackp[tracks].flags	|= TI_LAST;
 
 	if (xdebug)
-		printf("Set Transfersizes start\n");
+		printf(_("Set Transfersizes start\n"));
 	for (i = 0; i <= tracks+1; i++) {
 		if ((dp->cdr_flags & CDR_SWABAUDIO) != 0 &&
 					is_audio(&trackp[i])) {
@@ -4405,18 +4429,18 @@ set_trsizes(dp, tracks, trackp)
 				trackp[i].secspt = trackp[i].pktsize;
 			} else {
 				comerrno(EX_BAD,
-					"Track %d packet size %d exceeds buffer limit of %d sectors",
+					_("Track %d packet size %d exceeds buffer limit of %d sectors"),
 					i, trackp[i].pktsize, trackp[i].secspt);
 			}
 		}
 		if (xdebug) {
-			printf("Track %d flags %X secspt %d secsize: %d isecsize: %d\n",
+			printf(_("Track %d flags %X secspt %d secsize: %d isecsize: %d\n"),
 				i, trackp[i].flags, trackp[i].secspt,
 				trackp[i].secsize, trackp[i].isecsize);
 		}
 	}
 	if (xdebug)
-		printf("Set Transfersizes end\n");
+		printf(_("Set Transfersizes end\n"));
 }
 
 EXPORT void
@@ -4438,7 +4462,7 @@ load_media(scgp, dp, doexit)
 	if ((*dp->cdr_load)(scgp, dp) < 0) {	/* now try to load media and	*/
 		if (!doexit)
 			return;
-		comerrno(EX_BAD, "Cannot load media.\n");
+		comerrno(EX_BAD, _("Cannot load media.\n"));
 	}
 	scsi_start_stop_unit(scgp, 1, 0, immed); /* start unit in silent mode	*/
 	scgp->silent--;
@@ -4453,8 +4477,8 @@ load_media(scgp, dp, doexit)
 		if (!doexit)
 			return;
 		if (key == SC_NOT_READY && (code == 0x3A || code == 0x30))
-			comerrno(EX_BAD, "No disk / Wrong disk!\n");
-		comerrno(EX_BAD, "CD/DVD/BD-Recorder not ready.\n");
+			comerrno(EX_BAD, _("No disk / Wrong disk!\n"));
+		comerrno(EX_BAD, _("CD/DVD/BD-Recorder not ready.\n"));
 	}
 
 	scsi_prevent_removal(scgp, 1);
@@ -4475,7 +4499,7 @@ load_media(scgp, dp, doexit)
 	scgp->silent--;
 	err = geterrno();
 	if (code < 0 && (err == EPERM || err == EACCES)) {
-		linuxcheck();	/* For version 1.398 of cdrecord.c */
+		linuxcheck();	/* For version 1.399 of cdrecord.c */
 		scg_openerr("");
 	}
 
@@ -4494,7 +4518,7 @@ unload_media(scgp, dp, flags)
 	scsi_prevent_removal(scgp, 0);
 	if ((flags & F_EJECT) != 0) {
 		if ((*dp->cdr_unload)(scgp, dp) < 0)
-			errmsgno(EX_BAD, "Cannot eject media.\n");
+			errmsgno(EX_BAD, _("Cannot eject media.\n"));
 	}
 }
 
@@ -4508,7 +4532,7 @@ reload_media(scgp, dp)
 	int	f = -1;
 #endif
 
-	errmsgno(EX_BAD, "Drive needs to reload the media to return to proper status.\n");
+	errmsgno(EX_BAD, _("Drive needs to reload the media to return to proper status.\n"));
 	unload_media(scgp, dp, F_EJECT);
 
 	/*
@@ -4525,7 +4549,7 @@ reload_media(scgp, dp)
 				!wait_unit_ready(scgp, 5)) {
 		static FILE	*tty = NULL;
 
-		printf("Re-load disk and hit <CR>");
+		printf(_("Re-load disk and hit <CR>"));
 		if (isgui)
 			printf("\n");
 		flush();
@@ -4541,14 +4565,14 @@ reload_media(scgp, dp)
 		if (f < 0 || (f & O_ACCMODE) == O_WRONLY) {
 #ifdef	SIGUSR1
 			signal(SIGUSR1, catchsig);
-			printf("Controlling file not open for reading, send SIGUSR1 to continue.\n");
+			printf(_("Controlling file not open for reading, send SIGUSR1 to continue.\n"));
 			flush();
 			pause();
 #endif
 		} else
 #endif
 		if (fgetline(tty, ans, 1) < 0)
-			comerrno(EX_BAD, "Aborted by EOF on input.\n");
+			comerrno(EX_BAD, _("Aborted by EOF on input.\n"));
 	}
 	scgp->silent--;
 
@@ -4583,7 +4607,7 @@ _read_buffer(scgp, size)
 	if (read_buffer(scgp, buf, size, 0) < 0 ||
 	    scg_getresid(scgp) != 0) {
 		errmsgno(EX_BAD,
-			"Warning: 'read buffer' failed, DMA residual count %d.\n",
+			_("Warning: 'read buffer' failed, DMA residual count %d.\n"),
 			scg_getresid(scgp));
 		return (-1);
 	}
@@ -4593,7 +4617,7 @@ _read_buffer(scgp, size)
 	 */
 	if (buf[size-2] == (char)0x55 || buf[size-1] == (char)0xFF) {
 		errmsgno(EX_BAD,
-		"Warning: DMA resid 0 for 'read buffer', actual data is too short.\n");
+		_("Warning: DMA resid 0 for 'read buffer', actual data is too short.\n"));
 		return (-1);
 	}
 	return (0);
@@ -4616,12 +4640,12 @@ get_dmaspeed(scgp, dp)
 	i = read_buffer(scgp, buf, 4, 0);
 	scgp->silent--;
 	if (i < 0 || scg_getresid(scgp) != 0) {
-		errmsgno(EX_BAD, "Warning: Cannot read drive buffer.\n");
+		errmsgno(EX_BAD, _("Warning: Cannot read drive buffer.\n"));
 		return (-1);
 	}
 	tsize = a_to_u_3_byte(&buf[1]);
 	if (tsize <= 0) {
-		errmsgno(EX_BAD, "Warning: Drive returned invalid buffer size.\n");
+		errmsgno(EX_BAD, _("Warning: Drive returned invalid buffer size.\n"));
 		return (-1);
 	}
 
@@ -4636,7 +4660,7 @@ get_dmaspeed(scgp, dp)
 	if (read_buffer(scgp, buf, bs, 0) < 0) {
 		scgp->silent--;
 		errmsgno(EX_BAD,
-			"Warning: Cannot read %d bytes from drive buffer.\n",
+			_("Warning: Cannot read %d bytes from drive buffer.\n"),
 			bs);
 		return (-1);
 	}
@@ -4662,8 +4686,8 @@ get_dmaspeed(scgp, dp)
 	if (i > maxdma)
 		maxdma = i;
 	if (maxdma < bs && (scg_getresid(scgp) != (bs - maxdma))) {
-		errmsgno(EX_BAD, "Warning: OS does not return a correct DMA residual count.\n");
-		errmsgno(EX_BAD, "Warning: expected DMA residual count %d but got %d.\n",
+		errmsgno(EX_BAD, _("Warning: OS does not return a correct DMA residual count.\n"));
+		errmsgno(EX_BAD, _("Warning: expected DMA residual count %d but got %d.\n"),
 			(bs - maxdma), scg_getresid(scgp));
 	}
 	/*
@@ -4671,7 +4695,7 @@ get_dmaspeed(scgp, dp)
 	 * They return less data than advertized as buffersize (tsize).
 	 */
 	if (maxdma < bs) {
-		errmsgno(EX_BAD, "Warning: drive returns unreliable data from 'read buffer'.\n");
+		errmsgno(EX_BAD, _("Warning: drive returns unreliable data from 'read buffer'.\n"));
 		return (-1);
 	}
 	if (maxdma < bs)
@@ -4685,7 +4709,7 @@ get_dmaspeed(scgp, dp)
 	scgp->silent--;
 
 	if (gettimeofday(&starttime, (struct timezone *)0) < 0) {
-		errmsg("Cannot get DMA start time.\n");
+		errmsg(_("Cannot get DMA start time.\n"));
 		return (-1);
 	}
 
@@ -4694,7 +4718,7 @@ get_dmaspeed(scgp, dp)
 			return (-1);
 	}
 	if (gettimeofday(&fixtime, (struct timezone *)0) < 0) {
-		errmsg("Cannot get DMA stop time.\n");
+		errmsg(_("Cannot get DMA stop time.\n"));
 		return (-1);
 	}
 	timevaldiff(&starttime, &fixtime);
@@ -4719,11 +4743,11 @@ do_opc(scgp, dp, flags)
 {
 	if ((flags & F_DUMMY) == 0 && dp->cdr_opc) {
 		if (debug || lverbose) {
-			printf("Performing OPC...\n");
+			printf(_("Performing OPC...\n"));
 			flush();
 		}
 		if (dp->cdr_opc(scgp, NULL, 0, TRUE) < 0) {
-			errmsgno(EX_BAD, "OPC failed.\n");
+			errmsgno(EX_BAD, _("OPC failed.\n"));
 			if ((flags & F_FORCE) == 0)
 				return (FALSE);
 		}
@@ -4738,7 +4762,7 @@ check_recovery(scgp, dp, flags)
 	UInt32_t flags;
 {
 	if ((*dp->cdr_check_recovery)(scgp, dp)) {
-		errmsgno(EX_BAD, "Recovery needed.\n");
+		errmsgno(EX_BAD, _("Recovery needed.\n"));
 		unload_media(scgp, dp, flags);
 		comexit(EX_BAD);
 	}
@@ -4784,11 +4808,11 @@ print_msinfo(scgp, dp)
 	long	fa = 0;
 
 	if ((*dp->cdr_session_offset)(scgp, &off) < 0) {
-		errmsgno(EX_BAD, "Cannot read session offset.\n");
+		errmsgno(EX_BAD, _("Cannot read session offset.\n"));
 		return;
 	}
 	if (lverbose)
-		printf("session offset: %ld\n", off);
+		printf(_("session offset: %ld\n"), off);
 
 	/*
 	 * Set the track pointer to NULL in order to signal the driver that we
@@ -4796,7 +4820,7 @@ print_msinfo(scgp, dp)
 	 * session.
 	 */
 	if (dp->cdr_next_wr_address(scgp, (track_t *)0, &fa) < 0) {
-		errmsgno(EX_BAD, "Cannot read first writable address.\n");
+		errmsgno(EX_BAD, _("Cannot read first writable address.\n"));
 		return;
 	}
 	printf("%ld,%ld\n", off, fa);
@@ -4820,15 +4844,15 @@ print_toc(scgp, dp)
 	scgp->silent++;
 	if (read_capacity(scgp) < 0) {
 		scgp->silent--;
-		errmsgno(EX_BAD, "Cannot read capacity.\n");
+		errmsgno(EX_BAD, _("Cannot read capacity.\n"));
 		return;
 	}
 	scgp->silent--;
 	if (read_tochdr(scgp, dp, &first, &last) < 0) {
-		errmsgno(EX_BAD, "Cannot read TOC/PMA.\n");
+		errmsgno(EX_BAD, _("Cannot read TOC/PMA.\n"));
 		return;
 	}
-	printf("first: %d last %d\n", first, last);
+	printf(_("first: %d last %d\n"), first, last);
 	for (i = first; i <= last; i++) {
 		read_trackinfo(scgp, i, &lba, &msf, &adr, &control, &mode);
 		xlba = -150 +
@@ -4847,7 +4871,7 @@ print_toc(scgp, dp)
 	if (lverbose > 1) {
 		scgp->silent++;
 		if (read_cdtext(scgp) < 0)
-			errmsgno(EX_BAD, "No CD-Text or CD-Text unaware drive.\n");
+			errmsgno(EX_BAD, _("No CD-Text or CD-Text unaware drive.\n"));
 		scgp->silent++;
 	}
 }
@@ -4864,9 +4888,9 @@ print_track(track, lba, msp, adr, control, mode)
 	long	lba_512 = lba*4;
 
 	if (track == 0xAA)
-		printf("track:lout ");
+		printf(_("track:lout "));
 	else
-		printf("track: %3d ", track);
+		printf(_("track: %3d "), track);
 
 	printf("lba: %9ld (%9ld) %02d:%02d:%02d adr: %X control: %X mode: %d\n",
 			lba, lba_512,
@@ -4900,7 +4924,7 @@ raisepri(pri)
 	strcpy(info.pc_clname, "RT");
 	classes = priocntl(P_PID, pid, PC_GETCID, (void *)&info);
 	if (classes == -1)
-		comerr("Cannot get priority class id priocntl(PC_GETCID).\n");
+		comerr(_("Cannot get priority class id priocntl(PC_GETCID).\n"));
 
 	movebytes(info.pc_clinfo, &rtinfo, sizeof (rtinfo_t));
 
@@ -4912,8 +4936,8 @@ raisepri(pri)
 	movebytes(&rtparam, param.pc_clparms, sizeof (rtparms_t));
 	ret = priocntl(P_PID, pid, PC_SETPARMS, (void *)&param);
 	if (ret == -1) {
-		errmsg("WARNING: Cannot set priority class parameters priocntl(PC_SETPARMS).\n");
-		errmsgno(EX_BAD, "WARNING: This causes a high risk for buffer underruns.\n");
+		errmsg(_("WARNING: Cannot set priority class parameters priocntl(PC_SETPARMS).\n"));
+		errmsgno(EX_BAD, _("WARNING: This causes a high risk for buffer underruns.\n"));
 	}
 }
 
@@ -4948,14 +4972,14 @@ rt_raisepri(pri)
 	 */
 #ifdef	_SC_PRIORITY_SCHEDULING
 	if (sysconf(_SC_PRIORITY_SCHEDULING) == -1) {
-		errmsg("WARNING: RR-scheduler not available, disabling.\n");
+		errmsg(_("WARNING: RR-scheduler not available, disabling.\n"));
 		return (-1);
 	}
 #endif
 	fillbytes(&scp, sizeof (scp), '\0');
 	scp.sched_priority = sched_get_priority_max(SCHED_RR) - pri;
 	if (sched_setscheduler(0, SCHED_RR, &scp) < 0) {
-		errmsg("WARNING: Cannot set RR-scheduler.\n");
+		errmsg(_("WARNING: Cannot set RR-scheduler.\n"));
 		return (-1);
 	}
 	return (0);
@@ -4997,13 +5021,13 @@ rt_raisepri(pri)
 
 	/* set priority class */
 	if (SetPriorityClass(GetCurrentProcess(), REALTIME_PRIORITY_CLASS) == FALSE) {
-		errmsgno(EX_BAD, "No realtime priority class possible.\n");
+		errmsgno(EX_BAD, _("No realtime priority class possible.\n"));
 		return (-1);
 	}
 
 	/* set thread priority */
 	if (pri >= 0 && pri <= 1 && SetThreadPriority(GetCurrentThread(), prios[pri]) == FALSE) {
-		errmsgno(EX_BAD, "Could not set realtime priority.\n");
+		errmsgno(EX_BAD, _("Could not set realtime priority.\n"));
 		return (-1);
 	}
 	return (0);
@@ -5033,8 +5057,8 @@ raisepri(pri)
 #if	defined(HAVE_SETPRIORITY) && defined(PRIO_PROCESS)
 
 	if (setpriority(PRIO_PROCESS, getpid(), -20 + pri) < 0) {
-		errmsg("WARNING: Cannot set priority using setpriority().\n");
-		errmsgno(EX_BAD, "WARNING: This causes a high risk for buffer underruns.\n");
+		errmsg(_("WARNING: Cannot set priority using setpriority().\n"));
+		errmsgno(EX_BAD, _("WARNING: This causes a high risk for buffer underruns.\n"));
 	}
 #else
 #ifdef	HAVE_DOSSETPRIORITY	/* RT priority on OS/2 */
@@ -5046,12 +5070,12 @@ raisepri(pri)
 #else
 #if	defined(HAVE_NICE) && !defined(__DJGPP__) /* DOS has nice but no multitasking */
 	if (nice(-NZERO + pri) == -1) {
-		errmsg("WARNING: Cannot set priority using nice().\n");
-		errmsgno(EX_BAD, "WARNING: This causes a high risk for buffer underruns.\n");
+		errmsg(_("WARNING: Cannot set priority using nice().\n"));
+		errmsgno(EX_BAD, _("WARNING: This causes a high risk for buffer underruns.\n"));
 	}
 #else
-	errmsgno(EX_BAD, "WARNING: Cannot set priority on this OS.\n");
-	errmsgno(EX_BAD, "WARNING: This causes a high risk for buffer underruns.\n");
+	errmsgno(EX_BAD, _("WARNING: Cannot set priority on this OS.\n"));
+	errmsgno(EX_BAD, _("WARNING: This causes a high risk for buffer underruns.\n"));
 #endif
 #endif
 #endif
@@ -5083,7 +5107,7 @@ wait_input()
 	struct pollfd pfd;
 #endif
 	if (lverbose)
-		printf("Waiting for data on stdin...\n");
+		printf(_("Waiting for data on stdin...\n"));
 #ifdef	HAVE_SELECT
 	FD_ZERO(&in);
 	FD_SET(STDIN_FILENO, &in);
@@ -5104,7 +5128,7 @@ checkgui()
 	if (fstat(STDERR_FILENO, &st) >= 0 && !S_ISCHR(st.st_mode)) {
 		isgui = TRUE;
 		if (lverbose > 1)
-			printf("Using remote (pipe) mode for interactive i/o.\n");
+			printf(_("Using remote (pipe) mode for interactive i/o.\n"));
 	}
 }
 
@@ -5136,7 +5160,7 @@ getbltype(optstr, typep)
 	} else if (streql(optstr, "help")) {
 		blusage(0);
 	} else {
-		error("Illegal blanking type '%s'.\n", optstr);
+		error(_("Illegal blanking type '%s'.\n"), optstr);
 		blusage(EX_BAD);
 		return (-1);
 	}
@@ -5147,7 +5171,7 @@ LOCAL void
 print_drflags(dp)
 	cdr_t	*dp;
 {
-	printf("Driver flags   : ");
+	printf(_("Driver flags   : "));
 
 	if ((dp->cdr_flags2 & CDR2_NOCD) != 0)
 		printf("NO-CD ");
@@ -5247,50 +5271,50 @@ check_wrmode(dp, wmode, tflags)
 	int	cdflags = dp->cdr_flags;
 
 	if ((tflags & TI_PACKET) != 0 && (cdflags & CDR_PACKET) == 0) {
-		errmsgno(EX_BAD, "Drive does not support PACKET recording.\n");
+		errmsgno(EX_BAD, _("Drive does not support PACKET recording.\n"));
 		return (FALSE);
 	}
 	if ((tflags & TI_TAO) != 0 && (cdflags & CDR_TAO) == 0) {
-		errmsgno(EX_BAD, "Drive does not support TAO recording.\n");
+		errmsgno(EX_BAD, _("Drive does not support TAO recording.\n"));
 		return (FALSE);
 	}
 	if ((wmode & F_SAO) != 0) {
 		if ((cdflags & CDR_SAO) == 0) {
-			errmsgno(EX_BAD, "Drive does not support SAO recording.\n");
+			errmsgno(EX_BAD, _("Drive does not support SAO recording.\n"));
 			if ((cdflags & CDR_RAW) != 0)
-				errmsgno(EX_BAD, "Try -raw option.\n");
+				errmsgno(EX_BAD, _("Try -raw option.\n"));
 			return (FALSE);
 		}
 #ifdef	__needed__
 		if ((tflags & TI_RAW16) != 0 && (cdflags & CDR_SRAW16) == 0) {
-			errmsgno(EX_BAD, "Drive does not support SAO/RAW16.\n");
+			errmsgno(EX_BAD, _("Drive does not support SAO/RAW16.\n"));
 			goto badsecs;
 		}
 #endif
 		if ((tflags & (TI_RAW|TI_RAW16|TI_RAW96R)) == TI_RAW && (cdflags & CDR_SRAW96P) == 0) {
-			errmsgno(EX_BAD, "Drive does not support SAO/RAW96P.\n");
+			errmsgno(EX_BAD, _("Drive does not support SAO/RAW96P.\n"));
 			goto badsecs;
 		}
 		if ((tflags & (TI_RAW|TI_RAW16|TI_RAW96R)) == (TI_RAW|TI_RAW96R) && (cdflags & CDR_SRAW96R) == 0) {
-			errmsgno(EX_BAD, "Drive does not support SAO/RAW96R.\n");
+			errmsgno(EX_BAD, _("Drive does not support SAO/RAW96R.\n"));
 			goto badsecs;
 		}
 	}
 	if ((wmode & F_RAW) != 0) {
 		if ((cdflags & CDR_RAW) == 0) {
-			errmsgno(EX_BAD, "Drive does not support RAW recording.\n");
+			errmsgno(EX_BAD, _("Drive does not support RAW recording.\n"));
 			return (FALSE);
 		}
 		if ((tflags & TI_RAW16) != 0 && (cdflags & CDR_RAW16) == 0) {
-			errmsgno(EX_BAD, "Drive does not support RAW/RAW16.\n");
+			errmsgno(EX_BAD, _("Drive does not support RAW/RAW16.\n"));
 			goto badsecs;
 		}
 		if ((tflags & (TI_RAW|TI_RAW16|TI_RAW96R)) == TI_RAW && (cdflags & CDR_RAW96P) == 0) {
-			errmsgno(EX_BAD, "Drive does not support RAW/RAW96P.\n");
+			errmsgno(EX_BAD, _("Drive does not support RAW/RAW96P.\n"));
 			goto badsecs;
 		}
 		if ((tflags & (TI_RAW|TI_RAW16|TI_RAW96R)) == (TI_RAW|TI_RAW96R) && (cdflags & CDR_RAW96R) == 0) {
-			errmsgno(EX_BAD, "Drive does not support RAW/RAW96R.\n");
+			errmsgno(EX_BAD, _("Drive does not support RAW/RAW96R.\n"));
 			goto badsecs;
 		}
 	}
@@ -5303,11 +5327,11 @@ badsecs:
 		cdflags &= ~(CDR_SRAW96P|CDR_SRAW96R);
 
 	if ((cdflags & (CDR_SRAW96R|CDR_RAW96R)) != 0)
-		errmsgno(EX_BAD, "Try -raw96r option.\n");
+		errmsgno(EX_BAD, _("Try -raw96r option.\n"));
 	else if ((cdflags & (CDR_SRAW96P|CDR_RAW96P)) != 0)
-		errmsgno(EX_BAD, "Try -raw96p option.\n");
+		errmsgno(EX_BAD, _("Try -raw96p option.\n"));
 	else if ((cdflags & CDR_RAW16) != 0)
-		errmsgno(EX_BAD, "Try -raw16 option.\n");
+		errmsgno(EX_BAD, _("Try -raw16 option.\n"));
 	return (FALSE);
 }
 
@@ -5363,7 +5387,7 @@ set_wrmode(dp, wmode, tflags)
 }
 
 /*
- * I am sorry that even for version 1.398 of cdrecord.c, I am forced to do
+ * I am sorry that even for version 1.399 of cdrecord.c, I am forced to do
  * things like this, but defective versions of cdrecord cause a lot of
  * work load to me.
  *
@@ -5380,7 +5404,7 @@ set_wrmode(dp, wmode, tflags)
 #endif
 
 LOCAL void
-linuxcheck()				/* For version 1.398 of cdrecord.c */
+linuxcheck()				/* For version 1.399 of cdrecord.c */
 {
 #if	defined(linux) || defined(__linux) || defined(__linux__)
 #ifdef	HAVE_UNAME
@@ -5391,12 +5415,12 @@ linuxcheck()				/* For version 1.398 of cdrecord.c */
 		    (un.release[2] > '6' ||
 		    (un.release[2] == '6' && un.release[3] == '.' && un.release[4] >= '8'))) {
 			errmsgno(EX_BAD,
-			"Warning: Linux-2.6.8 introduced incompatible interface changes.\n");
+			_("Warning: Linux-2.6.8 introduced incompatible interface changes.\n"));
 			errmsgno(EX_BAD,
-			"Warning: SCSI transport only works for suid root programs.\n");
+			_("Warning: SCSI transport only works for suid root programs.\n"));
 
 			errmsgno(EX_BAD,
-			"If you have unsolvable problems, please try Linux-2.4 or Solaris.\n");
+			_("If you have unsolvable problems, please try Linux-2.4 or Solaris.\n"));
 		}
 	}
 #endif

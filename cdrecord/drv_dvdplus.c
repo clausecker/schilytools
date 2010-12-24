@@ -1,8 +1,8 @@
-/* @(#)drv_dvdplus.c	1.61 10/05/17 Copyright 2003-2010 J. Schilling */
+/* @(#)drv_dvdplus.c	1.62 10/12/19 Copyright 2003-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)drv_dvdplus.c	1.61 10/05/17 Copyright 2003-2010 J. Schilling";
+	"@(#)drv_dvdplus.c	1.62 10/12/19 Copyright 2003-2010 J. Schilling";
 #endif
 /*
  *	Copyright (c) 2003-2010 J. Schilling
@@ -77,6 +77,7 @@ static	UConst char sccsid[] =
 #include <schily/btorder.h>
 #include <schily/intcvt.h>
 #include <schily/schily.h>
+#include <schily/nlsdefs.h>
 
 #include <scg/scgcmd.h>
 #include <scg/scsidefs.h>
@@ -310,7 +311,7 @@ identify_dvdplus(scgp, dp, ip)
 
 	profile = get_curprofile(scgp);
 	if (xdebug)
-		printf("Current profile: 0x%04X\n", profile);
+		printf(_("Current profile: 0x%04X\n"), profile);
 
 	if (profile == 0x001A)
 		dp = &cdr_dvdplusrw;
@@ -374,7 +375,7 @@ attach_dvdplus(scgp, dp)
 	mp2Aspeed = a_to_u_2_byte(mp->max_write_speed);
 
 	if (lverbose > 2) {
-		printf("max page 2A speed %lu (%lux), max perf speed %lu (%lux)\n",
+		printf(_("max page 2A speed %lu (%lux), max perf speed %lu (%lux)\n"),
 			mp2Aspeed, mp2Aspeed/1385,
 			xspeed, xspeed/1385);
 	}
@@ -487,7 +488,7 @@ attach_dvdplus(scgp, dp)
 			if ((*ep != '\0' && *ep != ',') || *p == '\0' ||
 			    ll <= 0 || ll != lb) {
 				errmsgno(EX_BAD,
-					"Bad layer break value '%s'.\n", p);
+					_("Bad layer break value '%s'.\n"), p);
 				return (-1);
 			}
 			dp->cdr_dstat->ds_layer_break = lb;
@@ -495,14 +496,14 @@ attach_dvdplus(scgp, dp)
 		if (dp->cdr_dstat->ds_layer_break >= 0 &&
 		    get_curprofile(scgp) != 0x2B) {
 			errmsgno(EX_BAD,
-			"Cannot set layer break on this drive/medium.\n");
+			_("Cannot set layer break on this drive/medium.\n"));
 			return (-1);
 		}
 		if (dp->cdr_dstat->ds_layer_break != -1 &&
 		    dp->cdr_dstat->ds_layer_break !=
 		    roundup(dp->cdr_dstat->ds_layer_break, 16)) {
 			errmsgno(EX_BAD,
-			"Layer break at %d is not properly aligned.\n",
+			_("Layer break at %d is not properly aligned.\n"),
 				dp->cdr_dstat->ds_layer_break);
 			return (-1);
 		}
@@ -633,7 +634,7 @@ error("DISK STATUS %X\n", dip->disk_status);
 			 * it is mentioned in the MMC standard.
 			 */
 			if (lverbose)
-				printf("Trying to clear drive status.\n");
+				printf(_("Trying to clear drive status.\n"));
 
 			dp->cdr_cmdflags &= ~F_DUMMY;
 			speed_select_dvdplus(scgp, dp, &xspeed);
@@ -693,7 +694,7 @@ dip->disk_type);
 		dsp->ds_flags |= DSF_DVD_PLUS_RW;	/* This is a DVD+RW */
 		if (dip->disk_status == DS_EMPTY) {	/* Unformatted	    */
 			if (dip->disk_type != SES_UNDEF) {	/* Not a CD */
-				printf("WARNING: Drive returns illegal Disk type %s.\n",
+				printf(_("WARNING: Drive returns illegal Disk type %s.\n"),
 							get_ses_type(dip->disk_type));
 			}
 			dsp->ds_flags |= DSF_NEED_FORMAT;
@@ -768,7 +769,7 @@ error("NWAv %d Next rec addr %d\n", rp->nwa_v, (int)a_to_u_4_byte(rp->next_recor
 	if (read_dvd_structure(scgp, (caddr_t)mode, 2, 0, 0, 0, 0) < 0) {
 		scgp->silent--;
 		if (lverbose > 2)
-			errmsgno(EX_BAD, "Cannot read DVD structure 00.\n");
+			errmsgno(EX_BAD, _("Cannot read DVD structure 00.\n"));
 		return (drive_getdisktype(scgp, dp));
 	}
 	scgp->silent--;
@@ -821,7 +822,7 @@ error("NWAv %d Next rec addr %d\n", rp->nwa_v, (int)a_to_u_4_byte(rp->next_recor
 error("MAXBLOx1 %d\n", dsp->ds_maxblocks);
 #endif
 		if ((long)dsp->ds_maxblocks == 0) {
-			printf("WARNING: Drive returns zero media size. Using media size from ADIP.\n");
+			printf(_("WARNING: Drive returns zero media size. Using media size from ADIP.\n"));
 			dsp->ds_maxblocks = a_to_u_3_byte(sp->phys_end) - a_to_u_3_byte(sp->phys_start) + 1;
 		}
 	}
@@ -841,7 +842,7 @@ error("end_lba: %lu\n", end_lba);
 	 */
 	if ((Int32_t)end_lba > dsp->ds_maxblocks) {
 		if (maxblocks == 0)
-			printf("WARNING: Drive returns zero media size, correcting.\n");
+			printf(_("WARNING: Drive returns zero media size, correcting.\n"));
 		dsp->ds_maxblocks = end_lba + 1;
 	}
 
@@ -879,7 +880,7 @@ speed_select_dvdplus(scgp, dp, speedp)
 
 	fillbytes((caddr_t)mode, sizeof (mode), '\0');
 
-	if (!get_mode_params(scgp, 0x05, "CD write parameter",
+	if (!get_mode_params(scgp, 0x05, _("CD write parameter"),
 			mode, (Uchar *)0, (Uchar *)0, (Uchar *)0, &len))
 		return (-1);
 	if (len == 0)
@@ -895,7 +896,7 @@ speed_select_dvdplus(scgp, dp, speedp)
 
 
 	if (dummy != 0) {
-		errmsgno(EX_BAD, "DVD+R/DVD+RW has no -dummy mode.\n");
+		errmsgno(EX_BAD, _("DVD+R/DVD+RW has no -dummy mode.\n"));
 		return (-1);
 	}
 	if (get_curprofile(scgp) == 0x001A) {	/* This is a DVD+RW */
@@ -918,7 +919,7 @@ speed_select_dvdplus(scgp, dp, speedp)
 	if (lverbose > 1)
 		scg_prbytes("CD write parameter:", (Uchar *)mode, len);
 #endif
-	if (!set_mode_params(scgp, "CD write parameter", mode, len, 0, -1)) {
+	if (!set_mode_params(scgp, _("CD write parameter"), mode, len, 0, -1)) {
 		return (-1);
 	}
 
@@ -935,21 +936,21 @@ speed_select_dvdplus(scgp, dp, speedp)
 	}
 
 	if (lverbose && (dp->cdr_flags & CDR_FORCESPEED) != 0)
-		printf("Forcespeed is %s.\n", forcespeed?"ON":"OFF");
+		printf(_("Forcespeed is %s.\n"), forcespeed?_("ON"):_("OFF"));
 
 	if (!forcespeed && (dp->cdr_dstat->ds_cdrflags & RF_FORCESPEED) != 0) {
-		printf("Turning forcespeed on\n");
+		printf(_("Turning forcespeed on\n"));
 		forcespeed = TRUE;
 	}
 	if (forcespeed && (dp->cdr_dstat->ds_cdrflags & RF_FORCESPEED) == 0) {
-		printf("Turning forcespeed off\n");
+		printf(_("Turning forcespeed off\n"));
 		forcespeed = FALSE;
 	}
 	if ((dp->cdr_flags & CDR_FORCESPEED) != 0) {
 
 		if (rp) {
 			rp->AWSCD = forcespeed?1:0;
-			set_mode_params(scgp, "Ricoh Vendor Page", moder, moder[0]+1, 0, -1);
+			set_mode_params(scgp, _("Ricoh Vendor Page"), moder, moder[0]+1, 0, -1);
 			rp = get_justlink_ricoh(scgp, moder);
 		}
 	}
@@ -963,7 +964,7 @@ speed_select_dvdplus(scgp, dp, speedp)
 		val = 0x7FFFFFFF;
 	if (dp->cdr_flags & CDR_MMC3) {
 		if (speed_select_mdvd(scgp, -1, val) < 0)
-			errmsgno(EX_BAD, "MMC-3 speed select did not work.\n");
+			errmsgno(EX_BAD, _("MMC-3 speed select did not work.\n"));
 	} else {
 		if (val > 0xFFFF)
 			val = 0xFFFF;
@@ -1060,7 +1061,7 @@ next_wr_addr_dvdplusr(scgp, trackp, ap)
 error("NWA: %ld valid: %d\n", dvd_next_addr, rz.nwa_v);
 #endif
 		if (lverbose > 1)
-			printf("next writable addr: %ld valid: %d\n", dvd_next_addr, rz.nwa_v);
+			printf(_("next writable addr: %ld valid: %d\n"), dvd_next_addr, rz.nwa_v);
 	}
 	if (ap)
 		*ap = dvd_next_addr;
@@ -1084,7 +1085,7 @@ open_track_dvdplus(scgp, dp, trackp)
 
 	fillbytes((caddr_t)mode, sizeof (mode), '\0');
 
-	if (!get_mode_params(scgp, 0x05, "CD write parameter",
+	if (!get_mode_params(scgp, 0x05, _("CD write parameter"),
 			mode, (Uchar *)0, (Uchar *)0, (Uchar *)0, &len))
 		return (-1);
 	if (len == 0)
@@ -1114,7 +1115,7 @@ open_track_dvdplus(scgp, dp, trackp)
 	if (lverbose > 1)
 		scg_prbytes("CD write parameter:", (Uchar *)mode, len);
 #endif
-	if (!set_mode_params(scgp, "CD write parameter", mode, len, 0, trackp->secsize))
+	if (!set_mode_params(scgp, _("CD write parameter"), mode, len, 0, trackp->secsize))
 		return (-1);
 
 	/*
@@ -1167,11 +1168,11 @@ rzone_size(trackp)
 	if (i >= 1)
 		vtracks = TRUE;
 	if (vtracks && lverbose)
-		printf("Compiling virtual track list ...\n");
+		printf(_("Compiling virtual track list ...\n"));
 
 	for (i = 0; i < MAX_TRACK; i++) {
 		if (trackp[i].tracksize < (tsize_t)0) {
-			errmsgno(EX_BAD, "VTrack %d has unknown length.\n", i);
+			errmsgno(EX_BAD, _("VTrack %d has unknown length.\n"), i);
 			return (-1);
 		}
 		amount = roundup(trackp[i].tracksize, secsize);
@@ -1180,7 +1181,7 @@ rzone_size(trackp)
 		ttrsize += trackp[i].tracksize;
 		tamount += amount;
 		if (vtracks && lverbose)
-			printf("Vtrack:  %d size: %lld bytes %lld rounded (%lld sectors)\n",
+			printf(_("Vtrack:  %d size: %lld bytes %lld rounded (%lld sectors)\n"),
 				(int)trackp[i].track, (Llong)trackp[i].tracksize,
 				amount, amount / (Llong)secsize);
 
@@ -1193,12 +1194,12 @@ rzone_size(trackp)
 		 * XXX I believe that not.
 		 */
 		if (trackp[i].tracksize % secsize) {
-			comerrno(EX_BAD, "Virtual track %d is not a multiple of secsize.\n", (int)trackp[i].track);
+			comerrno(EX_BAD, _("Virtual track %d is not a multiple of secsize.\n"), (int)trackp[i].track);
 		}
 	}
 
 	if (vtracks && lverbose)
-		printf("Vtracks: %d size: %lld bytes %lld rounded (%ld sectors) total\n",
+		printf(_("Vtracks: %d size: %lld bytes %lld rounded (%ld sectors) total\n"),
 			i+1, ttrsize, tamount, sectors);
 
 	return (sectors);
@@ -1244,7 +1245,7 @@ open_session_dvd(scgp, dp, trackp)
 
 	fillbytes((caddr_t)mode, sizeof (mode), '\0');
 
-	if (!get_mode_params(scgp, 0x05, "CD write parameter",
+	if (!get_mode_params(scgp, 0x05, _("CD write parameter"),
 			mode, (Uchar *)0, (Uchar *)0, (Uchar *)0, &len))
 		return (-1);
 	if (len == 0)
@@ -1280,14 +1281,14 @@ open_session_dvd(scgp, dp, trackp)
 	}
 
 	if (lverbose && (dp->cdr_flags & CDR_BURNFREE) != 0)
-		printf("BURN-Free is %s.\n", burnfree?"ON":"OFF");
+		printf(_("BURN-Free is %s.\n"), burnfree?_("ON"):_("OFF"));
 
 	if (!burnfree && (dp->cdr_dstat->ds_cdrflags & RF_BURNFREE) != 0) {
-		printf("Turning BURN-Free on\n");
+		printf(_("Turning BURN-Free on\n"));
 		burnfree = TRUE;
 	}
 	if (burnfree && (dp->cdr_dstat->ds_cdrflags & RF_BURNFREE) == 0) {
-		printf("Turning BURN-Free off\n");
+		printf(_("Turning BURN-Free off\n"));
 		burnfree = FALSE;
 	}
 	if (dp->cdr_cdcap->BUF != 0) {
@@ -1300,9 +1301,9 @@ open_session_dvd(scgp, dp, trackp)
 	if (rp) {
 		i_to_2_byte(rp->link_counter, 0);
 		if (xdebug)
-			scg_prbytes("Mode Select Data ", moder, moder[0]+1);
+			scg_prbytes(_("Mode Select Data "), moder, moder[0]+1);
 
-		set_mode_params(scgp, "Ricoh Vendor Page", moder, moder[0]+1, 0, -1);
+		set_mode_params(scgp, _("Ricoh Vendor Page"), moder, moder[0]+1, 0, -1);
 		rp = get_justlink_ricoh(scgp, moder);
 	}
 
@@ -1310,7 +1311,7 @@ open_session_dvd(scgp, dp, trackp)
 	if (lverbose > 1)
 		scg_prbytes("CD write parameter:", (Uchar *)mode, len);
 #endif
-	if (!set_mode_params(scgp, "CD write parameter", mode, len, 0, -1))
+	if (!set_mode_params(scgp, _("CD write parameter"), mode, len, 0, -1))
 		return (-1);
 
 	return (0);
@@ -1347,7 +1348,7 @@ fixate_dvdplusrw(scgp, dp, trackp)
 					scg_printerr(scgp);
 					scg_printresult(scgp);	/* XXX restore key/code in future */
 				}
-				printf("Trouble flushing the cache\n");
+				printf(_("Trouble flushing the cache\n"));
 				scgp->silent--;
 				scg_settimeout(scgp, oldtimeout);
 				return (-1);
@@ -1368,7 +1369,7 @@ fixate_dvdplusrw(scgp, dp, trackp)
 					scg_printerr(scgp);
 					scg_printresult(scgp);	/* XXX restore key/code in future */
 				}
-				printf("Trouble closing the session\n");
+				printf(_("Trouble closing the session\n"));
 				break;
 			}
 			sleep(1);
@@ -1416,7 +1417,7 @@ fixate_dvdplusr(scgp, dp, trackp)
 					scg_printerr(scgp);
 					scg_printresult(scgp);	/* XXX restore key/code in future */
 				}
-				printf("Trouble flushing the cache\n");
+				printf(_("Trouble flushing the cache\n"));
 				scgp->silent--;
 				scg_settimeout(scgp, oldtimeout);
 				return (-1);
@@ -1447,7 +1448,7 @@ fixate_dvdplusr(scgp, dp, trackp)
 					scg_printerr(scgp);
 					scg_printresult(scgp);	/* XXX restore key/code in future */
 				}
-				printf("Trouble closing the track\n");
+				printf(_("Trouble closing the track\n"));
 				break;
 			}
 			sleep(1);
@@ -1468,7 +1469,7 @@ fixate_dvdplusr(scgp, dp, trackp)
 					scg_printerr(scgp);
 					scg_printresult(scgp);	/* XXX restore key/code in future */
 				}
-				printf("Trouble closing the last session\n");
+				printf(_("Trouble closing the last session\n"));
 				break;
 			}
 			sleep(1);
@@ -1540,7 +1541,7 @@ blank_dvdplus(scgp, dp, addr, blanktype)
 /*		return (blank_dummy(scgp, dp, addr, blanktype));*/
 
 	if (!dvdplus_ricohbased(scgp)) {
-		errmsgno(EX_BAD, "Cannot blank DVD+RW media with non Ricoh based drive.\n");
+		errmsgno(EX_BAD, _("Cannot blank DVD+RW media with non Ricoh based drive.\n"));
 		if (profile == 0x1A || profile == 0x2A) {
 			ret = blank_simul(scgp, dp, addr, blanktype);
 			waitformat(scgp, 600);
@@ -1559,7 +1560,7 @@ blank_dvdplus(scgp, dp, addr, blanktype)
 		blanksize = 0x30000;
 	}
 	if (lverbose) {
-		printf("Blanking %s\n", blank_types[blanktype & 0x07]);
+		printf(_("Blanking %s\n"), blank_types[blanktype & 0x07]);
 		flush();
 	}
 	if (driveropts != NULL) {
@@ -1653,7 +1654,7 @@ format_dvdplus(scgp, dp, fmtflags)
 	len -= sizeof (struct scsi_format_cap_header);
 	if (lp->desc_type == 2) {
 		if ((dp->cdr_cmdflags & F_FORCE) == 0) {
-			errmsgno(EX_BAD, "Medium is already formatted.\n");
+			errmsgno(EX_BAD, _("Medium is already formatted.\n"));
 			return (-1);
 		}
 	}
@@ -1674,7 +1675,7 @@ format_dvdplus(scgp, dp, fmtflags)
 			blocks = a_to_u_4_byte(lp->nblock);
 	}
 	if (blocks == 0) {
-		errmsgno(EX_BAD, "DVD+RW Full format capacity not found.\n");
+		errmsgno(EX_BAD, _("DVD+RW Full format capacity not found.\n"));
 		return (-1);
 	}
 
@@ -1698,7 +1699,7 @@ format_dvdplus(scgp, dp, fmtflags)
 		/*
 		 * XXX evt. restart Format ansagen...
 		 */
-		printf("Formatting media\n");
+		printf(_("Formatting media\n"));
 		flush();
 	}
 	starttime.tv_sec = 0;
@@ -1793,7 +1794,7 @@ scg_printerr(scgp);
 
 		if (lverbose && (sensebuf[15] & 0x80)) {
 			printed++;
-			error("operation %d%% done\r",
+			error(_("operation %d%% done\r"),
 				(100*(sensebuf[16] << 8 |
 					sensebuf[17]))/(unsigned)65536);
 		}
@@ -1823,9 +1824,9 @@ stats_dvdplus(scgp, dp)
 		count = a_to_u_2_byte(rp->link_counter);
 		if (lverbose) {
 			if (count == 0)
-				printf("BURN-Free was not used.\n");
+				printf(_("BURN-Free was not used.\n"));
 			else
-				printf("BURN-Free was %d times used.\n",
+				printf(_("BURN-Free was %d times used.\n"),
 					(int)count);
 		}
 	}
@@ -1895,13 +1896,13 @@ set_p_layerbreak(scgp, tsize, lbreak)
 		return (ret);
 
 	if (lb.res47[0] & 0x80) {
-		errmsgno(EX_BAD, "Layer 0 zone capacity already set.\n");
+		errmsgno(EX_BAD, _("Layer 0 zone capacity already set.\n"));
 		return (-1);
 	}
 
 	l0_cap = a_to_u_4_byte(lb.l0_area_cap);
 	if (lbreak > 0 && lbreak > l0_cap) {
-		errmsgno(EX_BAD, "Manual layer break %d > %u not allowed.\n",
+		errmsgno(EX_BAD, _("Manual layer break %d > %u not allowed.\n"),
 							lbreak, l0_cap);
 		return (-1);
 	}
@@ -1912,15 +1913,15 @@ set_p_layerbreak(scgp, tsize, lbreak)
 		 * in case of manual layer break set up.
 		 */
 		errmsgno(EX_BAD,
-			"Layer 0 size %u is bigger than expected disk size %u.\n",
+			_("Layer 0 size %u is bigger than expected disk size %u.\n"),
 			l0_cap, dsize);
-		errmsgno(EX_BAD, "Use single layer medium.\n");
+		errmsgno(EX_BAD, _("Use single layer medium.\n"));
 		return (-1);
 	}
 	l0_cap = dsize / 2;
 	l0_cap = roundup(l0_cap, 16);
 	if (lbreak > 0 && lbreak < l0_cap) {
-		errmsgno(EX_BAD, "Manual layer break %d < %u not allowed.\n",
+		errmsgno(EX_BAD, _("Manual layer break %d < %u not allowed.\n"),
 							lbreak, l0_cap);
 		return (-1);
 	}

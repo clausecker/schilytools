@@ -1,8 +1,8 @@
-/* @(#)drv_mmc.c	1.198 10/05/11 Copyright 1997-2010 J. Schilling */
+/* @(#)drv_mmc.c	1.199 10/12/19 Copyright 1997-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)drv_mmc.c	1.198 10/05/11 Copyright 1997-2010 J. Schilling";
+	"@(#)drv_mmc.c	1.199 10/12/19 Copyright 1997-2010 J. Schilling";
 #endif
 /*
  *	CDR device implementation for
@@ -40,6 +40,7 @@ static	UConst char sccsid[] =
 #include <schily/btorder.h>
 #include <schily/intcvt.h>
 #include <schily/schily.h>
+#include <schily/nlsdefs.h>
 
 #include <scg/scgcmd.h>
 #include <scg/scsidefs.h>
@@ -404,7 +405,7 @@ mmc_opthelp(scgp, dp, excode)
 {
 	BOOL	haveopts = FALSE;
 
-	error("Driver options:\n");
+	error(_("Driver options:\n"));
 	if (dp->cdr_flags & CDR_BURNFREE) {
 		error("burnfree	Prepare writer to use BURN-Free technology\n");
 		error("noburnfree	Disable using BURN-Free technology\n");

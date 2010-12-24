@@ -1,4 +1,4 @@
-#ident @(#)Makefile	1.49 08/12/26 Copyr 1995-2008 J. Schilling
+#ident @(#)Makefile	1.50 10/12/19 Copyr 1995-2008 J. Schilling
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -21,6 +21,8 @@ CPPOPTS +=	-DHAVE_LIB_EDC_ECC
 CPPOPTS +=	-DCLONE_WRITE
 CPPOPTS +=	-DUSE_LARGEFILES
 CPPOPTS +=	-DSCHILY_PRINT
+CPPOPTS +=	-DINS_BASE=\"${INS_BASE}\"
+CPPOPTS +=	-DTEXT_DOMAIN=\"SCHILY_cdrtools\"
 
 CFILES=		cdrecord.c \
 		cd_misc.c fifo.c isosize.c audiosize.c auinfo.c \
@@ -47,7 +49,7 @@ HFILES=		cdrecord.h iso9660.h auheader.h cdtext.h \
 HFILES_TAG=	../include/scg/scgio.h ../include/scg/scsidefs.h \
 		../include/scg/scsireg.h ../include/scg/scsitransp.h
 #LIBS=		-lschily $(LIB_SOCKET)
-LIBS=		-lscgcmd -lrscg -lscg $(LIB_VOLMGT) -ledc_ecc -lcdrdeflt -ldeflt -lschily $(SCSILIB) $(LIB_SOCKET)
+LIBS=		-lscgcmd -lrscg -lscg $(LIB_VOLMGT) -ledc_ecc -lcdrdeflt -ldeflt -lschily $(SCSILIB) $(LIB_SOCKET) $(LIB_INTL)
 XMK_FILE=	Makefile.man Makefile.dfl Makefile.doc
 
 

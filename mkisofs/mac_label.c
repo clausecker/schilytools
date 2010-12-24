@@ -1,12 +1,12 @@
-/* @(#)mac_label.c	1.18 09/11/25 joerg, Copyright 1997-2000 James Pearson, Copyright 2004-2009 J. Schilling */
+/* @(#)mac_label.c	1.19 10/12/19 joerg, Copyright 1997-2000 James Pearson, Copyright 2004-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)mac_label.c	1.18 09/11/25 joerg, Copyright 1997-2000 James Pearson, Copyright 2004-2009 J. Schilling";
+	"@(#)mac_label.c	1.19 10/12/19 joerg, Copyright 1997-2000 James Pearson, Copyright 2004-2010 J. Schilling";
 #endif
 /*
  *      Copyright (c) 1997, 1998, 1999, 2000 James Pearson
- *	Copyright (c) 2004-2009 J. Schilling
+ *	Copyright (c) 2004-2010 J. Schilling
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -70,14 +70,14 @@ gen_prepboot_label(ml)
 	MacLabel	*mac_label = (MacLabel *) ml;
 
 	if (verbose > 1) {
-		fprintf(stderr, "Creating %d PReP boot partition(s)\n",
+		fprintf(stderr, _("Creating %d PReP boot partition(s)\n"),
 						use_prep_boot + use_chrp_boot);
 	}
 	mac_label->fdiskMagic[0] = fdiskMagic0;
 	mac_label->fdiskMagic[1] = fdiskMagic1;
 
 	if (use_chrp_boot) {
-		fprintf(stderr, "CHRP boot partition 1\n");
+		fprintf(stderr, _("CHRP boot partition 1\n"));
 
 		mac_label->image[i].boot = 0x80;
 
@@ -108,14 +108,14 @@ gen_prepboot_label(ml)
 	for (; i < use_prep_boot + use_chrp_boot; i++) {
 		de = search_tree_file(root, prep_boot_image[i - use_chrp_boot]);
 		if (!de) {
-			ex_boot_enoent("image",
+			ex_boot_enoent(_("image"),
 				prep_boot_image[i - use_chrp_boot]);
 			/* NOTREACHED */
 		}
 		/* get size and block in 512-byte blocks */
 		block = get_733(de->isorec.extent) * 2048 / 512;
 		size = get_733(de->isorec.size) / 512 + 1;
-		fprintf(stderr, "PReP boot partition %d is \"%s\"\n",
+		fprintf(stderr, _("PReP boot partition %d is \"%s\"\n"),
 			i + 1, prep_boot_image[i - use_chrp_boot]);
 
 		mac_label->image[i].boot = 0x80;
@@ -173,17 +173,17 @@ gen_mac_label(mac_boot)
 	/* If we have a boot file, then open and check it */
 	if (mac_boot->name) {
 		if (stat(mac_boot->name, &stat_buf) < 0) {
-			sprintf(hce->error, "unable to stat HFS boot file %s",
+			sprintf(hce->error, _("unable to stat HFS boot file %s"),
 								mac_boot->name);
 			return (-1);
 		}
 		if ((fp = fopen(mac_boot->name, "rb")) == NULL) {
-			sprintf(hce->error, "unable to open HFS boot file %s",
+			sprintf(hce->error, _("unable to open HFS boot file %s"),
 								mac_boot->name);
 			return (-1);
 		}
 		if (fread(tmp, 1, SECTOR_SIZE, fp) != SECTOR_SIZE) {
-			sprintf(hce->error, "unable to read HFS boot file %s",
+			sprintf(hce->error, _("unable to read HFS boot file %s"),
 								mac_boot->name);
 			return (-1);
 		}
@@ -192,20 +192,20 @@ gen_mac_label(mac_boot)
 
 		if (!(IS_MAC_PART(mac_part) &&
 		    strncmp((char *)mac_part->pmPartType, pmPartType_2, 12) == 0)) {
-			sprintf(hce->error, "%s is not a HFS boot file",
+			sprintf(hce->error, _("%s is not a HFS boot file"),
 								mac_boot->name);
 			return (-1);
 		}
 		/* check we have a boot block as well - last 2 blocks of file */
 
 		if (fseek(fp, (off_t)-2 * HFS_BLOCKSZ, SEEK_END) != 0) {
-			sprintf(hce->error, "unable to seek HFS boot file %s",
+			sprintf(hce->error, _("unable to seek HFS boot file %s"),
 								mac_boot->name);
 			return (-1);
 		}
 		/* overwrite (empty) boot block for our HFS volume */
 		if (fread(hce->hfs_hdr, 2, HFS_BLOCKSZ, fp) != HFS_BLOCKSZ) {
-			sprintf(hce->error, "unable to read HFS boot block %s",
+			sprintf(hce->error, _("unable to read HFS boot block %s"),
 								mac_boot->name);
 			return (-1);
 		}
@@ -214,7 +214,7 @@ gen_mac_label(mac_boot)
 		/* check boot block is valid */
 		if (d_getw((unsigned char *)hce->hfs_hdr) != HFS_BB_SIGWORD) {
 			sprintf(hce->error,
-				"%s does not contain a valid boot block",
+				_("%s does not contain a valid boot block"),
 								mac_boot->name);
 			return (-1);
 		}
@@ -257,8 +257,8 @@ gen_mac_label(mac_boot)
 	mpc++;
 
 	if (verbose > 1)
-		fprintf(stderr, "Creating HFS Label %s %s\n", mac_boot->name ?
-			"with boot file" : "",
+		fprintf(stderr, _("Creating HFS Label %s %s\n"), mac_boot->name ?
+			_("with boot file") : "",
 			mac_boot->name ? mac_boot->name : "");
 
 	/* for a bootable CD, block size is SECTOR_SIZE */

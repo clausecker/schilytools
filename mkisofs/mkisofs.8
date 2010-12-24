@@ -1,7 +1,7 @@
 '\" t
 .\" To print, first run through tbl
 .\" -*- nroff -*-
-.\" @(#)mkisofs.8	1.136 10/06/04 joerg
+.\" @(#)mkisofs.8	1.138 10/11/24 joerg
 .\"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
 .if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
@@ -15,7 +15,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH MKISOFS 8 "2010/06/04" "Version 3.0"
+.TH MKISOFS 8 "2010/11/24" "Version 3.0"
 .SH NAME
 mkisofs \- create an hybrid ISO-9660/JOLIET/HFS/UDF filesystem-image with optional Rock Ridge attributes.
 .SH SYNOPSIS
@@ -1157,12 +1157,16 @@ Use with caution.
 Outdated option reserved by POSIX.1-2001, use
 .B \-allow\-leading\-dots
 instead.
-This option will get POSIX.1-2001 semantics with mkisofs-2.02.
+This option will get POSIX.1-2001 semantics with mkisofs-3.02.
 .TP
 .BI \-log\-file " log_file
 Redirect all error, warning and informational messages to
 .I log_file
 instead of the standard error.
+.TP
+.B \-long\-rr\-time
+Use the long ISO-9660 time format for the file time stamps used in Rock Ridge.
+This time format allows to represent year 0 .. year 9999 with a granularity of 10ms.
 .TP
 .BI \-m " glob
 Exclude
@@ -1264,6 +1268,10 @@ is in use, further parent directories will be folded to the root directory
 and the resulting filesystem will no longer be usable on
 .BR DOS .
 .TP
+.B \-no\-long\-rr\-time
+Use the short ISO-9660 time format for the file time stamps used in Rock Ridge.
+This time format allows to represent year 1990 .. year 2155 with a granularity of one second.
+.TP
 .B \-force\-rr
 Do not use the automatic Rock Ridge attributes recognition for previous sessions.
 This helps to show rotten ISO-9660 extension records as e.g. created by NERO burning ROM.
@@ -1352,7 +1360,7 @@ then the list is read from the standard input.
 Outdated option reserved by POSIX.1-2001, use
 .B \-publisher
 instead.
-This option will get POSIX.1-2001 semantics with mkisofs-2.02.
+This option will get POSIX.1-2001 semantics with mkisofs-3.02.
 .TP
 .BI \-publisher " publisher_id
 Specifies a text string that will be written into the volume header.
@@ -1531,6 +1539,10 @@ support by the operating system to choose which sessions are to be
 mounted.
 .br
 .ne 8
+.TP
+.B \-short\-rr\-time
+Use the short ISO-9660 time format for the file time stamps used in Rock Ridge.
+This time format allows to represent year 1990 .. year 2155 with a granularity of one second.
 .TP
 .BI \-s " sector type
 .TP

@@ -1,9 +1,9 @@
 /*#define	PLUS_DEBUG*/
-/* @(#)find.c	1.93 10/10/07 Copyright 2004-2010 J. Schilling */
+/* @(#)find.c	1.94 10/11/24 Copyright 2004-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)find.c	1.93 10/10/07 Copyright 2004-2010 J. Schilling";
+	"@(#)find.c	1.94 10/11/24 Copyright 2004-2010 J. Schilling";
 #endif
 /*
  *	Another find implementation...
@@ -169,6 +169,8 @@ LOCAL	findn_t	*parseprim	__PR((finda_t *fap));
 EXPORT	void	find_firstprim	__PR((int *pac, char *const **pav));
 EXPORT	BOOL	find_primary	__PR((findn_t *t, int op));
 EXPORT	BOOL	find_pname	__PR((findn_t *t, char *word));
+EXPORT	BOOL	find_hasprint	__PR((findn_t *t));
+EXPORT	BOOL	find_hasexec	__PR((findn_t *t));
 #ifdef	FIND_MAIN
 LOCAL	int	walkfunc	__PR((char *nm, struct stat *fs, int type, struct WALK *state));
 #endif
@@ -1244,6 +1246,37 @@ find_pname(t, word)
 	if (streql(word, "-execdir+"))
 		return (find_primary(t, EXECDIRPLUS));
 	return (find_primary(t, find_token(word)));
+}
+
+EXPORT BOOL
+find_hasprint(t)
+	findn_t	*t;
+{
+	if (t == NULL)
+		return (FALSE);
+
+	if (find_primary(t, PRINT) || find_primary(t, PRINTNNL) ||
+	    find_primary(t, PRINT0))
+		return (TRUE);
+	if (find_primary(t, LS))
+		return (TRUE);
+	return (FALSE);
+}
+
+EXPORT BOOL
+find_hasexec(t)
+	findn_t	*t;
+{
+	if (t == NULL)
+		return (FALSE);
+
+	if (find_primary(t, EXEC) || find_primary(t, EXECPLUS))
+		return (TRUE);
+	if (find_primary(t, EXECDIR) || find_primary(t, EXECDIRPLUS))
+		return (TRUE);
+	if (find_primary(t, OK_EXEC) || find_primary(t, OK_EXECDIR))
+		return (TRUE);
+	return (FALSE);
 }
 
 #ifdef	FIND_MAIN

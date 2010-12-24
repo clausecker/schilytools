@@ -1,8 +1,8 @@
-/* @(#)cue.c	1.55 10/10/24 Copyright 2001-2010 J. Schilling */
+/* @(#)cue.c	1.56 10/12/19 Copyright 2001-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)cue.c	1.55 10/10/24 Copyright 2001-2010 J. Schilling";
+	"@(#)cue.c	1.56 10/12/19 Copyright 2001-2010 J. Schilling";
 #endif
 /*
  *	Cue sheet parser
@@ -30,6 +30,7 @@ static	UConst char sccsid[] =
 #include <schily/stat.h>
 #include <schily/varargs.h>
 #include <schily/schily.h>
+#include <schily/nlsdefs.h>
 #include <schily/string.h>
 #include <schily/utypes.h>
 #include <schily/ctype.h>
@@ -401,7 +402,7 @@ fparsecue(f, trackp)
 	state.pflags	= 0;
 
 	if (xdebug > 1)
-		printf("---> Entering CUE Parser...\n");
+		printf(_("---> Entering CUE Parser...\n"));
 	do {
 		if (nextline(f) == NULL) {
 			/*
@@ -409,15 +410,15 @@ fparsecue(f, trackp)
 			 * Do post processing here
 			 */
 			if (state.state < STATE_INDEX1 && state.state != STATE_POSTGAP) {
-				statewarn(&state, "INDEX 01 missing");
-				cueabort("Incomplete CUE file");
+				statewarn(&state, _("INDEX 01 missing"));
+				cueabort(_("Incomplete CUE file"));
 			}
 			if (state.xfp) {
 				xclose(state.xfp);
 				state.xfp = NULL;
 			}
 			if (xdebug > 1) {
-				printf("---> CUE Parser got EOF, found %2.2d tracks.\n",
+				printf(_("---> CUE Parser got EOF, found %2.2d tracks.\n"),
 								state.track);
 			}
 			return;
@@ -427,10 +428,10 @@ fparsecue(f, trackp)
 			continue;
 
 		if (xdebug > 1)
-			printf("\nKEY: '%s'     %s\n", word, peekword());
+			printf(_("\nKEY: '%s'     %s\n"), word, peekword());
 		kp = lookup(word, keywords);
 		if (kp == NULL)
-			cueabort("Unknown CUE keyword '%s'", word);
+			cueabort(_("Unknown CUE keyword '%s'"), word);
 
 		if ((kp->k_type & K_G) == 0) {
 			if (isglobal)
@@ -439,9 +440,9 @@ fparsecue(f, trackp)
 		if ((kp->k_type & K_T) == 0) {
 			if (!isglobal) {
 				statewarn(&state,
-					"%s keyword must be before first TRACK",
+					_("%s keyword must be before first TRACK"),
 					word);
-				cueabort("Badly placed CUE keyword '%s'", word);
+				cueabort(_("Badly placed CUE keyword '%s'"), word);
 			}
 		}
 #ifdef	DEBUG
@@ -469,7 +470,7 @@ fparsecue(f, trackp)
 		case K_TRACK:	   parse_track(trackp, &state);		break;
 
 		default:
-			cueabort("Panic: unknown CUE command '%s'", word);
+			cueabort(_("Panic: unknown CUE command '%s'"), word);
 		}
 	} while (1);
 }
@@ -486,8 +487,8 @@ parse_arranger(trackp, sp)
 		extabort("ARRANGER");
 
 	if (sp->track > 0 && sp->state > STATE_INDEX0) {
-		statewarn(sp, "ARRANGER keyword cannot be after INDEX keyword");
-		cueabort("Badly placed ARRANGER keyword");
+		statewarn(sp, _("ARRANGER keyword cannot be after INDEX keyword"));
+		cueabort(_("Badly placed ARRANGER keyword"));
 	}
 
 	word = needitem("arranger");
@@ -506,7 +507,7 @@ parse_mcn(trackp, sp)
 	textptr_t *txp;
 
 	if (sp->track != 0)
-		cueabort("CATALOG keyword must be before first TRACK");
+		cueabort(_("CATALOG keyword must be before first TRACK"));
 
 	word = needitem("MCN");
 	setmcn(word, &trackp[0]);
@@ -524,20 +525,20 @@ parse_textfile(trackp, sp)
 	char	*word;
 
 	if (sp->track != 0)
-		cueabort("CDTEXTFILE keyword must be before first TRACK");
+		cueabort(_("CDTEXTFILE keyword must be before first TRACK"));
 
 	word = needitem("cdtextfile");
 
 	if (trackp[MAX_TRACK+1].flags & TI_TEXT) {
 		if (!checktextfile(word)) {
 			comerrno(EX_BAD,
-				"Cannot use '%s' as CD-Text file.\n",
+				_("Cannot use '%s' as CD-Text file.\n"),
 				word);
 		}
 		trackp[0].flags |= TI_TEXT;
 	} else {
-		errmsgno(EX_BAD, "Ignoring CDTEXTFILE '%s'.\n", word);
-		errmsgno(EX_BAD, "If you like to write CD-Text, call cdrecord -text.\n");
+		errmsgno(EX_BAD, _("Ignoring CDTEXTFILE '%s'.\n"), word);
+		errmsgno(EX_BAD, _("If you like to write CD-Text, call cdrecord -text.\n"));
 	}
 
 	checkextra();
@@ -555,8 +556,8 @@ parse_composer(trackp, sp)
 		extabort("COMPOSER");
 
 	if (sp->track > 0 && sp->state > STATE_INDEX0) {
-		statewarn(sp, "COMPOSER keyword cannot be after INDEX keyword");
-		cueabort("Badly placed COMPOSER keyword");
+		statewarn(sp, _("COMPOSER keyword cannot be after INDEX keyword"));
+		cueabort(_("Badly placed COMPOSER keyword"));
 	}
 
 	word = needitem("composer");
@@ -585,19 +586,19 @@ parse_file(trackp, sp)
 	    (sp->state >= STATE_TRACK && sp->state < STATE_INDEX1)) {
 		if (sp->state >= STATE_INDEX0 && sp->state < STATE_INDEX1) {
 			if ((sp->pflags & PF_CDRTOOLS_EXT) == 0)
-				extabort("FILE keyword after INDEX 00 and before INDEX 01");
+				extabort(_("FILE keyword after INDEX 00 and before INDEX 01"));
 			sp->prevstate = sp->state;
 			goto file_ok;
 		}
 		if (sp->state <= STATE_TRACK && sp->state > STATE_POSTGAP)
-			statewarn(sp, "FILE keyword only allowed once before TRACK keyword");
+			statewarn(sp, _("FILE keyword only allowed once before TRACK keyword"));
 		if (sp->state >= STATE_TRACK && sp->state < STATE_INDEX1)
-			statewarn(sp, "FILE keyword not allowed after TRACK and before INDEX 01");
-		cueabort("Badly placed FILE keyword");
+			statewarn(sp, _("FILE keyword not allowed after TRACK and before INDEX 01"));
+		cueabort(_("Badly placed FILE keyword"));
 	}
 file_ok:
 	if (sp->state < STATE_INDEX1 && sp->pflags & PF_FILE_FOUND)
-		cueabort("Only one FILE keyword allowed per TRACK");
+		cueabort(_("Only one FILE keyword allowed per TRACK"));
 
 	sp->pflags |= PF_FILE_FOUND;
 	sp->state = STATE_FILE;
@@ -626,9 +627,9 @@ file_ok:
 	}
 	if (sp->xfp == NULL) {
 #ifdef	PARSE_DEBUG
-		errmsg("Cannot open FILE '%s'.\n", word);
+		errmsg(_("Cannot open FILE '%s'.\n"), word);
 #else
-		comerr("Cannot open FILE '%s'.\n", word);
+		comerr(_("Cannot open FILE '%s'.\n"), word);
 #endif
 	}
 
@@ -641,11 +642,11 @@ file_ok:
 	filetype = needitem("filetype");
 	kp = lookup(filetype, filetypes);
 	if (kp == NULL)
-		cueabort("Unknown filetype '%s'", filetype);
+		cueabort(_("Unknown filetype '%s'"), filetype);
 
 	if ((sp->pflags & PF_CDRTOOLS_EXT) == 0 &&
 	    kp->k_type > K_FT_CDRWIN_MAX)
-		extabort("Filetype '%s'", kp->k_name);
+		extabort(_("Filetype '%s'"), kp->k_name);
 
 	switch (kp->k_type) {
 
@@ -657,12 +658,12 @@ file_ok:
 				if (kp->k_type == K_BINARY)
 					sp->flags |= TI_SWAB;
 			} else {
-				cueabort("Unknown file size for FILE '%s'",
+				cueabort(_("Unknown file size for FILE '%s'"),
 								sp->filename);
 			}
 			break;
 	case K_AIFF:
-			cueabort("Unsupported filetype '%s'", kp->k_name);
+			cueabort(_("Unsupported filetype '%s'"), kp->k_name);
 			break;
 	case K_AU:
 			sp->filesize = ausize(xfileno(sp->xfp));
@@ -677,18 +678,18 @@ file_ok:
 			break;
 	case K_MP3:
 	case K_OGG:
-			cueabort("Unsupported filetype '%s'", kp->k_name);
+			cueabort(_("Unsupported filetype '%s'"), kp->k_name);
 			break;
 
-	default:	cueabort("Panic: unknown filetype '%s'", filetype);
+	default:	cueabort(_("Panic: unknown filetype '%s'"), filetype);
 	}
 
 	if (sp->filesize == AU_BAD_CODING) {
-		cueabort("Inappropriate audio coding in '%s'",
+		cueabort(_("Inappropriate audio coding in '%s'"),
 							sp->filename);
 	}
 	if (xdebug > 0)
-		printf("Track[%2.2d] %2.2d File '%s' Filesize %lld\n",
+		printf(_("Track[%2.2d] %2.2d File '%s' Filesize %lld\n"),
 			sp->track, sp->trackno, sp->filename, sp->filesize);
 
 	sp->filetype = kp->k_type;
@@ -699,7 +700,7 @@ file_ok:
 #ifdef	hint
 		trackp->itracksize = lsize;
 		if (trackp->itracksize != lsize)
-			comerrno(EX_BAD, "This OS cannot handle large audio images.\n");
+			comerrno(EX_BAD, _("This OS cannot handle large audio images.\n"));
 #endif
 }
 
@@ -713,8 +714,8 @@ parse_flags(trackp, sp)
 
 	if ((sp->state < STATE_TRACK) ||
 	    (sp->state >= STATE_INDEX0)) {
-		statewarn(sp, "FLAGS keyword must be after TRACK and before INDEX keyword");
-		cueabort("Badly placed FLAGS keyword");
+		statewarn(sp, _("FLAGS keyword must be after TRACK and before INDEX keyword"));
+		cueabort(_("Badly placed FLAGS keyword"));
 	}
 	sp->state = STATE_FLAGS;
 
@@ -722,7 +723,7 @@ parse_flags(trackp, sp)
 		word = needitem("flag");
 		kp = lookup(word, flags);
 		if (kp == NULL)
-			cueabort("Unknown flag '%s'", word);
+			cueabort(_("Unknown flag '%s'"), word);
 
 		switch (kp->k_type) {
 
@@ -730,13 +731,13 @@ parse_flags(trackp, sp)
 		case K_4CH:	sp->flags |= TI_QUADRO;	break;
 		case K_PRE:	sp->flags |= TI_PREEMP;	break;
 		case K_SCMS:	sp->flags |= TI_SCMS;	break;
-		default:	cueabort("Panic: unknown FLAG '%s'", word);
+		default:	cueabort(_("Panic: unknown FLAG '%s'"), word);
 		}
 
 	} while (peekword() < lineend());
 
 	if (xdebug > 0)
-		printf("Track[%2.2d] %2.2d flags 0x%08X\n", sp->track, sp->trackno, sp->flags);
+		printf(_("Track[%2.2d] %2.2d flags 0x%08X\n"), sp->track, sp->trackno, sp->flags);
 }
 
 LOCAL void
@@ -753,29 +754,29 @@ parse_index(trackp, sp)
 		    sp->prevstate >= STATE_TRACK &&
 		    sp->prevstate <= STATE_INDEX1) {
 			if ((sp->pflags & PF_CDRTOOLS_EXT) == 0)
-				extabort("INDEX keyword after FILE keyword");
+				extabort(_("INDEX keyword after FILE keyword"));
 			goto index_ok;
 		}
-		statewarn(sp, "INDEX keyword must be after TRACK keyword");
-		cueabort("Badly placed INDEX keyword");
+		statewarn(sp, _("INDEX keyword must be after TRACK keyword"));
+		cueabort(_("Badly placed INDEX keyword"));
 	}
 index_ok:
 
 	word = needitem("index");
 	if (*astolb(word, &l, 10) != '\0')
-		cueabort("Not a number '%s'", word);
+		cueabort(_("Not a number '%s'"), word);
 	if (l < 0 || l > 99)
-		cueabort("Illegal index '%s'", word);
+		cueabort(_("Illegal index '%s'"), word);
 
 	if ((sp->index < l) &&
 	    (((sp->index + 1) == l) || l == 1))
 		sp->index = l;
 	else
-		cueabort("Badly placed INDEX %2.2ld number", l);
+		cueabort(_("Badly placed INDEX %2.2ld number"), l);
 
 	if (sp->state == STATE_FILE) {
 		if (track == 1 || l > 1)
-			cueabort("INDEX %2.2d not allowed after FILE", l);
+			cueabort(_("INDEX %2.2d not allowed after FILE"), l);
 		if (l == 1)
 			sp->pflags |= PF_INDEX0_PREV;
 	}
@@ -789,7 +790,7 @@ index_ok:
 	parse_offset(&l);
 
 	if (xdebug > 1)
-		printf("Track[%2.2d] %2.2d Index %2.2d %ld\n", sp->track, sp->trackno, sp->index, l);
+		printf(_("Track[%2.2d] %2.2d Index %2.2d %ld\n"), sp->track, sp->trackno, sp->index, l);
 
 	if (track == 1 ||
 	    !streql(sp->filename, trackp[track-1].filename)) {
@@ -797,9 +798,9 @@ index_ok:
 		 * Check for offset 0 when a new file begins.
 		 */
 		if (sp->index == 0 && l > 0)
-			cueabort("Bad INDEX 00 offset in CUE file (must be 00:00:00 for new FILE)");
+			cueabort(_("Bad INDEX 00 offset in CUE file (must be 00:00:00 for new FILE)"));
 		if (sp->index == 1 && sp->index0 < 0 && l > 0)
-			cueabort("Bad INDEX 01 offset in CUE file (must be 00:00:00 for new FILE)");
+			cueabort(_("Bad INDEX 01 offset in CUE file (must be 00:00:00 for new FILE)"));
 	}
 
 	if (sp->index == 0) {
@@ -810,7 +811,7 @@ index_ok:
 		newtrack(trackp, sp);
 
 		if (xdebug > 1) {
-			printf("Track[%2.2d] %2.2d pregapsize %ld\n",
+			printf(_("Track[%2.2d] %2.2d pregapsize %ld\n"),
 				sp->track, sp->trackno, trackp[track].pregapsize);
 		}
 	} else if (sp->index == 2) {
@@ -836,19 +837,19 @@ parse_isrc(trackp, sp)
 	int	track = sp->track;
 
 	if (track == 0)
-		cueabort("ISRC keyword must be past first TRACK");
+		cueabort(_("ISRC keyword must be past first TRACK"));
 
 	if ((sp->state < STATE_TRACK) ||
 	    (sp->state >= STATE_INDEX0)) {
-		statewarn(sp, "ISRC keyword must be after TRACK and before INDEX keyword");
-		cueabort("Badly placed ISRC keyword");
+		statewarn(sp, _("ISRC keyword must be after TRACK and before INDEX keyword"));
+		cueabort(_("Badly placed ISRC keyword"));
 	}
 	sp->state = STATE_FLAGS;
 
 	word = needitem("ISRC");
 	if ((sp->pflags & PF_CDRTOOLS_EXT) == 0 &&
 	    strchr(word, '-')) {
-		extabort("'-' in ISRC arg");
+		extabort(_("'-' in ISRC arg"));
 	}
 	setisrc(word, &trackp[track]);
 	txp = gettextptr(track, trackp);
@@ -869,8 +870,8 @@ parse_message(trackp, sp)
 		extabort("MESSAGE");
 
 	if (sp->track > 0 && sp->state > STATE_INDEX0) {
-		statewarn(sp, "MESSAGE keyword cannot be after INDEX keyword");
-		cueabort("Badly placed MESSAGE keyword");
+		statewarn(sp, _("MESSAGE keyword cannot be after INDEX keyword"));
+		cueabort(_("Badly placed MESSAGE keyword"));
 	}
 
 	word = needitem("message");
@@ -889,8 +890,8 @@ parse_performer(trackp, sp)
 	textptr_t *txp;
 
 	if (sp->track > 0 && sp->state > STATE_INDEX0) {
-		statewarn(sp, "PERFORMER keyword cannot be after INDEX keyword");
-		cueabort("Badly placed PERFORMER keyword");
+		statewarn(sp, _("PERFORMER keyword cannot be after INDEX keyword"));
+		cueabort(_("Badly placed PERFORMER keyword"));
 	}
 
 	word = needitem("performer");
@@ -908,8 +909,8 @@ parse_postgap(trackp, sp)
 	long	l;
 
 	if (sp->state < STATE_INDEX1) {
-		statewarn(sp, "POSTGAP keyword must be after INDEX 01");
-		cueabort("Badly placed POSTGAP keyword");
+		statewarn(sp, _("POSTGAP keyword must be after INDEX 01"));
+		cueabort(_("Badly placed POSTGAP keyword"));
 	}
 	sp->state = STATE_POSTGAP;
 
@@ -935,8 +936,8 @@ parse_pregap(trackp, sp)
 
 	if ((sp->state < STATE_TRACK) ||
 	    (sp->state >= STATE_INDEX0)) {
-		statewarn(sp, "PREGAP keyword must be after TRACK and before INDEX keyword");
-		cueabort("Badly placed PREGAP keyword");
+		statewarn(sp, _("PREGAP keyword must be after TRACK and before INDEX keyword"));
+		cueabort(_("Badly placed PREGAP keyword"));
 	}
 	sp->state = STATE_FLAGS;
 
@@ -961,7 +962,7 @@ parse_rem(trackp, sp)
 	    streql(word, "CDRTOOLS")) {
 		sp->pflags |= PF_CDRTOOLS_EXT;
 		errmsgno(EX_BAD,
-		"Warning: Enabling cdrecord specific CUE extensions.\n");
+		_("Warning: Enabling cdrecord specific CUE extensions.\n"));
 	}
 	if ((sp->pflags & PF_CDRTOOLS_EXT) == 0 &&
 	    streql(word, "COMMENT")) {
@@ -972,7 +973,7 @@ parse_rem(trackp, sp)
 		if (strncmp(word, "ExactAudioCopy ", 15) == 0) {
 			sp->pflags |= PF_CDRTOOLS_EXT;
 			errmsgno(EX_BAD,
-			"Warning: Found ExactAudioCopy, enabling CUE extensions.\n");
+			_("Warning: Found ExactAudioCopy, enabling CUE extensions.\n"));
 		}
 	}
 }
@@ -986,8 +987,8 @@ parse_songwriter(trackp, sp)
 	textptr_t *txp;
 
 	if (sp->track > 0 && sp->state > STATE_INDEX0) {
-		statewarn(sp, "SONGWRITER keyword cannot be after INDEX keyword");
-		cueabort("Badly placed SONGWRITER keyword");
+		statewarn(sp, _("SONGWRITER keyword cannot be after INDEX keyword"));
+		cueabort(_("Badly placed SONGWRITER keyword"));
 	}
 	word = needitem("songwriter");
 	txp = gettextptr(sp->track, trackp);
@@ -1005,8 +1006,8 @@ parse_title(trackp, sp)
 	textptr_t *txp;
 
 	if (sp->track > 0 && sp->state > STATE_INDEX0) {
-		statewarn(sp, "TITLE keyword cannot be after INDEX keyword");
-		cueabort("Badly placed TITLE keyword");
+		statewarn(sp, _("TITLE keyword cannot be after INDEX keyword"));
+		cueabort(_("Badly placed TITLE keyword"));
 	}
 	word = needitem("title");
 	txp = gettextptr(sp->track, trackp);
@@ -1027,8 +1028,8 @@ parse_track(trackp, sp)
 
 	if ((sp->state >= STATE_TRACK) &&
 	    (sp->state < STATE_INDEX1)) {
-		statewarn(sp, "TRACK keyword must be after INDEX 01");
-		cueabort("Badly placed TRACK keyword");
+		statewarn(sp, _("TRACK keyword must be after INDEX 01"));
+		cueabort(_("Badly placed TRACK keyword"));
 	}
 	sp->pflags &= ~(PF_INDEX0_PREV|PF_FILE_FOUND);
 	if (sp->state == STATE_FILE)
@@ -1043,25 +1044,25 @@ parse_track(trackp, sp)
 
 	word = needitem("track number");
 	if (*astolb(word, &l, 10) != '\0')
-		cueabort("Not a number '%s'", word);
+		cueabort(_("Not a number '%s'"), word);
 	if (l <= 0 || l > 99)
-		cueabort("Illegal TRACK number '%s'", word);
+		cueabort(_("Illegal TRACK number '%s'"), word);
 
 	if ((sp->trackno < l) &&
 	    (((sp->trackno + 1) == l) || sp->trackno == 0))
 		sp->trackno = l;
 	else
-		cueabort("Badly placed TRACK %ld number", l);
+		cueabort(_("Badly placed TRACK %ld number"), l);
 
 	word = needword("data type");
 	kp = lookup(word, dtypes);
 	if (kp == NULL)
-		cueabort("Unknown data type '%s'", word);
+		cueabort(_("Unknown data type '%s'"), word);
 
 	if (getworddelim() == '/') {
 		word = needitem("sector size");
 		if (*astol(++word, &secsize) != '\0')
-			cueabort("Not a number '%s'", word);
+			cueabort(_("Not a number '%s'"), word);
 	}
 
 	/*
@@ -1087,7 +1088,7 @@ parse_track(trackp, sp)
 		sp->secsize = secsize;
 		sp->dataoff = 0;
 		if (secsize != 2352)
-			cueabort("Unsupported sector size %ld for audio", secsize);
+			cueabort(_("Unsupported sector size %ld for audio"), secsize);
 		break;
 
 	case K_MODE1:
@@ -1104,7 +1105,7 @@ parse_track(trackp, sp)
 		 * XXX It seems that there exist bin/cue pairs with this value
 		 */
 		if (secsize != 2048)
-			cueabort("Unsupported sector size %ld for data", secsize);
+			cueabort(_("Unsupported sector size %ld for data"), secsize);
 		break;
 
 	case K_MODE2:
@@ -1121,12 +1122,12 @@ parse_track(trackp, sp)
 			sp->dbtype = DB_RAW;
 			sp->dataoff = 0;
 		} else if (secsize != 2336)
-			cueabort("Unsupported sector size %ld for mode2", secsize);
+			cueabort(_("Unsupported sector size %ld for mode2"), secsize);
 		if (kp->k_type == K_CDI)
 			sp->tracktype = TOC_CDI;
 		break;
 
-	default:	cueabort("Panic: unknown datatype '%s'", word);
+	default:	cueabort(_("Panic: unknown datatype '%s'"), word);
 	}
 
 	if (sp->flags & TI_PREEMP)
@@ -1134,7 +1135,7 @@ parse_track(trackp, sp)
 	sp->secsize = secsize;
 
 	if (xdebug > 1) {
-		printf("Track[%2.2d] %2.2d Tracktype %s/%d\n",
+		printf(_("Track[%2.2d] %2.2d Tracktype %s/%d\n"),
 			sp->track, sp->trackno, kp->k_name, sp->secsize);
 	}
 
@@ -1155,23 +1156,23 @@ parse_offset(lp)
 
 	if (strchr(word, ':') == NULL) {
 		if (*astol(word, lp) != '\0')
-			cueabort("Not a number '%s'", word);
+			cueabort(_("Not a number '%s'"), word);
 		return;
 	}
 	if (*(p = astolb(word, &m, 10)) != ':')
-		cueabort("Not a number '%s'", word);
+		cueabort(_("Not a number '%s'"), word);
 	if (m < 0 || m >= 160)
-		cueabort("Illegal minute value in '%s'", word);
+		cueabort(_("Illegal minute value in '%s'"), word);
 	p++;
 	if (*(p = astolb(p, &s, 10)) != ':')
-		cueabort("Not a number '%s'", p);
+		cueabort(_("Not a number '%s'"), p);
 	if (s < 0 || s >= 60)
-		cueabort("Illegal second value in '%s'", word);
+		cueabort(_("Illegal second value in '%s'"), word);
 	p++;
 	if (*(p = astolb(p, &f, 10)) != '\0')
-		cueabort("Not a number '%s'", p);
+		cueabort(_("Not a number '%s'"), p);
 	if (f < 0 || f >= 75)
-		cueabort("Illegal frame value in '%s'", word);
+		cueabort(_("Illegal frame value in '%s'"), word);
 
 	m = m * 60 + s;
 	m = m * 75 + f;
@@ -1189,7 +1190,7 @@ newtrack(trackp, sp)
 		Llong	tracksize;
 
 	if (xdebug > 1)
-		printf("-->Newtrack %2.2d Trackno %2.2d\n", track, sp->trackno);
+		printf(_("-->Newtrack %2.2d Trackno %2.2d\n"), track, sp->trackno);
 	if (track > 1 && streql(sp->filename, trackp[track-1].filename)) {
 		tracksize = (sp->index1 - sp->secoff) * trackp[track-1].isecsize;
 
@@ -1249,7 +1250,7 @@ newtrack(trackp, sp)
 	trackp[track].tracksecs = (tracksize + sp->secsize - 1) / sp->secsize;
 
 	if (xdebug > 1)
-		printf("    Remaining Filesize %lld (%lld secs)\n",
+		printf(_("    Remaining Filesize %lld (%lld secs)\n"),
 			(sp->filesize-sp->trackoff),
 			(sp->filesize-sp->trackoff +sp->secsize - 1) / sp->secsize);
 
@@ -1283,9 +1284,9 @@ newtrack(trackp, sp)
 #ifndef	HAVE_LIB_EDC_ECC
 		if ((sp->sectype & ST_MODE_MASK) != ST_MODE_AUDIO) {
 			errmsgno(EX_BAD,
-				"EDC/ECC library not compiled in.\n");
+				_("EDC/ECC library not compiled in.\n"));
 			comerrno(EX_BAD,
-				"Data sectors are not supported in RAW mode.\n");
+				_("Data sectors are not supported in RAW mode.\n"));
 		}
 #endif
 	}
@@ -1342,20 +1343,20 @@ newtrack(trackp, sp)
 		}
 
 		if (xdebug > 1) {
-			printf("Track[%2.2d] %2.2d Tracktype %X\n",
+			printf(_("Track[%2.2d] %2.2d Tracktype %X\n"),
 					0, 0, trackp[0].tracktype);
 		}
 	}
 	if (xdebug > 1) {
-		printf("Track[%2.2d] %2.2d Tracktype %X\n",
+		printf(_("Track[%2.2d] %2.2d Tracktype %X\n"),
 				track, sp->trackno, trackp[track].tracktype);
 	}
 	trackp[track].nindex = 1;
 	trackp[track].tindex = 0;
 
 	if (xdebug > 1) {
-		printf("Track[%2.2d] %2.2d flags 0x%08X\n", 0, 0, trackp[0].flags);
-		printf("Track[%2.2d] %2.2d flags 0x%08X\n", track, sp->trackno, trackp[track].flags);
+		printf(_("Track[%2.2d] %2.2d flags 0x%08X\n"), 0, 0, trackp[0].flags);
+		printf(_("Track[%2.2d] %2.2d flags 0x%08X\n"), track, sp->trackno, trackp[track].flags);
 	}
 }
 
@@ -1419,7 +1420,7 @@ cueopen(name)
 
 	f = fileopen(name, "r");
 	if (f == NULL)
-		comerr("Cannot open '%s'.\n", name);
+		comerr(_("Cannot open '%s'.\n"), name);
 
 	fname = name;
 	return (f);
@@ -1559,9 +1560,9 @@ neednextitem(delim, type)
 
 	if ((olinep == nlinep) || (*nlinep == '\0')) {
 		if (type == NULL)
-			cueabort("Missing text");
+			cueabort(_("Missing text"));
 		else
-			cueabort("Missing '%s'", type);
+			cueabort(_("Missing '%s'"), type);
 	}
 
 	return (nlinep);
@@ -1605,7 +1606,7 @@ LOCAL void
 checkextra()
 {
 	if (peekword() < lineend())
-		cueabort("Extra text '%s'", peekword());
+		cueabort(_("Extra text '%s'"), peekword());
 }
 
 /* VARARGS2 */
@@ -1627,7 +1628,7 @@ statewarn(sp, fmt, va_alist)
 #else
 	va_start(args);
 #endif
-	errmsgno(EX_BAD, "%r. Current state is '%s'.\n",
+	errmsgno(EX_BAD, _("%r. Current state is '%s'.\n"),
 		fmt, args, state_name(sp->state));
 	va_end(args);
 }
@@ -1651,7 +1652,7 @@ cuewarn(fmt, va_alist)
 #else
 	va_start(args);
 #endif
-	errmsgno(EX_BAD, "%r on line %d col %d in '%s'.\n",
+	errmsgno(EX_BAD, _("%r on line %d col %d in '%s'.\n"),
 		fmt, args, lineno, linep - linebuf, fname);
 	va_end(args);
 }
@@ -1676,9 +1677,9 @@ cueabort(fmt, va_alist)
 	va_start(args);
 #endif
 #ifdef	PARSE_DEBUG
-	errmsgno(EX_BAD, "%r on line %d col %d in '%s'.\n",
+	errmsgno(EX_BAD, _("%r on line %d col %d in '%s'.\n"),
 #else
-	comerrno(EX_BAD, "%r on line %d col %d in '%s'.\n",
+	comerrno(EX_BAD, _("%r on line %d col %d in '%s'.\n"),
 #endif
 		fmt, args, lineno, linep - linebuf, fname);
 	va_end(args);
@@ -1702,9 +1703,9 @@ extabort(fmt, va_alist)
 #else
 	va_start(args);
 #endif
-	errmsgno(EX_BAD, "Unsupported by CDRWIN: %r on line %d col %d in '%s'.\n",
+	errmsgno(EX_BAD, _("Unsupported by CDRWIN: %r on line %d col %d in '%s'.\n"),
 		fmt, args, lineno, linep - linebuf, fname);
 	va_end(args);
-	errmsgno(EX_BAD, "Add 'REM CDRTOOLS' to enable cdrtools specific CUE extensions.\n");
+	errmsgno(EX_BAD, _("Add 'REM CDRTOOLS' to enable cdrtools specific CUE extensions.\n"));
 	comexit(EX_BAD);
 }

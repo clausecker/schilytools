@@ -1,14 +1,14 @@
-/* @(#)drv_philips.c	1.81 09/07/10 Copyright 1997-2009 J. Schilling */
+/* @(#)drv_philips.c	1.82 10/12/19 Copyright 1997-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)drv_philips.c	1.81 09/07/10 Copyright 1997-2009 J. Schilling";
+	"@(#)drv_philips.c	1.82 10/12/19 Copyright 1997-2010 J. Schilling";
 #endif
 /*
  *	CDR device implementation for
  *	Philips/Yamaha/Ricoh/Plasmon
  *
- *	Copyright (c) 1997-2009 J. Schilling
+ *	Copyright (c) 1997-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -29,6 +29,7 @@ static	UConst char sccsid[] =
 #include <schily/standard.h>
 #include <schily/intcvt.h>
 #include <schily/schily.h>
+#include <schily/nlsdefs.h>
 
 #include <scg/scsireg.h>
 #include <scg/scsitransp.h>
@@ -749,7 +750,7 @@ speed_select_yamaha(scgp, dp, speedp)
 	} else {
 		fillbytes((caddr_t)mode, sizeof (mode), '\0');
 
-		if (!get_mode_params(scgp, page, "Speed/Dummy information",
+		if (!get_mode_params(scgp, page, _("Speed/Dummy information"),
 			(Uchar *)mode, (Uchar *)0, (Uchar *)0, (Uchar *)0, &len)) {
 			return (-1);
 		}
@@ -799,7 +800,7 @@ speed_select_philips(scgp, dp, speedp)
 	} else {
 		fillbytes((caddr_t)mode, sizeof (mode), '\0');
 
-		if (!get_mode_params(scgp, page, "Speed/Dummy information",
+		if (!get_mode_params(scgp, page, _("Speed/Dummy information"),
 			(Uchar *)mode, (Uchar *)0, (Uchar *)0, (Uchar *)0, &len)) {
 			return (-1);
 		}
@@ -836,7 +837,7 @@ speed_select_pioneer(scgp, dp, speedp)
 	if (speedp != 0 && *speedp < 2) {
 		*speedp = 2;
 		if (lverbose)
-			printf("WARNING: setting to minimum speed (2).\n");
+			printf(_("WARNING: setting to minimum speed (2).\n"));
 	}
 	return (speed_select_philips(scgp, dp, speedp));
 }
@@ -850,9 +851,9 @@ speed_select_oldphilips(scgp, dp, speedp)
 	BOOL	dummy = (dp->cdr_cmdflags & F_DUMMY) != 0;
 
 	if (lverbose)
-		printf("WARNING: ignoring selected speed.\n");
+		printf(_("WARNING: ignoring selected speed.\n"));
 	if (dummy) {
-		errmsgno(EX_BAD, "Cannot set dummy writing for this device.\n");
+		errmsgno(EX_BAD, _("Cannot set dummy writing for this device.\n"));
 		return (-1);
 	}
 	return (0);
@@ -878,7 +879,7 @@ philips_init(scgp, dp)
 }
 
 
-#define	IS(what, flag)	printf("  Is %s%s\n", flag?"":"not ", what);
+#define	IS(what, flag)	printf(_("  Is %s%s\n"), flag?"":_("not "), what);
 
 LOCAL int
 philips_getdisktype(scgp, dp)
@@ -924,18 +925,18 @@ philips_getdisktype(scgp, dp)
 /*			printf("lead-in len: %d lead-out len: %d\n", lilen, lolen);*/
 			lba_to_msf(-150 - lilen, &msf);
 
-			printf("ATIP info from disk:\n");
+			printf(_("ATIP info from disk:\n"));
 			if (audio >= 0)
-				IS("unrestricted", audio);
+				IS(_("unrestricted"), audio);
 			if (audio == 1 || (audio == 0 && (sbuf[7] & 0x3F) != 0x3F))
-				printf("  Disk application code: %d\n", sbuf[7] & 0x3F);
-			printf("  ATIP start of lead in:  %ld (%02d:%02d/%02d)\n",
+				printf(_("  Disk application code: %d\n"), sbuf[7] & 0x3F);
+			printf(_("  ATIP start of lead in:  %ld (%02d:%02d/%02d)\n"),
 				-150 - lilen, msf.msf_min, msf.msf_sec, msf.msf_frame);
 
 			if (capacity_philips(scgp, &lolen)) {
 				lba_to_msf(lolen, &msf);
 				printf(
-				"  ATIP start of lead out: %ld (%02d:%02d/%02d)\n",
+				_("  ATIP start of lead out: %ld (%02d:%02d/%02d)\n"),
 				lolen, msf.msf_min, msf.msf_sec, msf.msf_frame);
 			}
 			lba_to_msf(-150 - lilen, &msf);
@@ -955,7 +956,7 @@ philips_getdisktype(scgp, dp)
 	/*read_subchannel(scgp, bp, track, cnt, msf, subq, fmt); */
 
 	if (read_subchannel(scgp, sbuf, 0, 14, 0, 0, 0xf1) >= 0)
-		scg_prbytes("Disk bar code:", (Uchar *)sbuf, 14 - scg_getresid(scgp));
+		scg_prbytes(_("Disk bar code:"), (Uchar *)sbuf, 14 - scg_getresid(scgp));
 	scgp->silent--;
 
 	return (drive_getdisktype(scgp, dp));
@@ -972,16 +973,16 @@ capacity_philips(scgp, lp)
 	scgp->silent++;
 	if (read_B0(scgp, FALSE, NULL, &l) >= 0) {
 		if (debug)
-			printf("lead out B0: %ld\n", l);
+			printf(_("lead out B0: %ld\n"), l);
 		*lp = l;
 	} else if (read_trackinfo(scgp, 0xAA, &l, NULL, NULL, NULL, NULL) >= 0) {
 		if (debug)
-			printf("lead out AA: %ld\n", l);
+			printf(_("lead out AA: %ld\n"), l);
 		*lp = l;
 	} if (read_capacity(scgp) >= 0) {
 		l = scgp->cap->c_baddr + 1;
 		if (debug)
-			printf("lead out capacity: %ld\n", l);
+			printf(_("lead out capacity: %ld\n"), l);
 	} else {
 		succeed = FALSE;
 	}
@@ -1398,7 +1399,7 @@ ricoh_attach(scgp, dp)
 	cdr_t	*dp;
 {
 	if (dp == &cdr_ricoh_ro1060) {
-		errmsgno(EX_BAD, "No support for Ricoh RO-1060C\n");
+		errmsgno(EX_BAD, _("No support for Ricoh RO-1060C\n"));
 		return (-1);
 	}
 	scg_setnonstderrs(scgp, sd_ro1420_error_str);
@@ -1431,7 +1432,7 @@ philips_getlilo(scgp, lilenp, lolenp)
 		return (-1);
 
 	if (scgp->verbose)
-		scg_prbytes("Session info data: ", (Uchar *)buf, sizeof (buf) - scg_getresid(scgp));
+		scg_prbytes(_("Session info data: "), (Uchar *)buf, sizeof (buf) - scg_getresid(scgp));
 
 	li = a_to_u_2_byte(buf);
 	lo = a_to_u_2_byte(&buf[2]);

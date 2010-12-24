@@ -1,8 +1,8 @@
-/* @(#)dvd_reader.c	1.10 09/11/25 joerg */
+/* @(#)dvd_reader.c	1.11 10/12/19 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)dvd_reader.c	1.10 09/11/25 joerg";
+	"@(#)dvd_reader.c	1.11 10/12/19 joerg";
 #endif
 /*
  * Copyright (C) 2001, 2002 Billy Biggs <vektor@dumbterm.net>,
@@ -207,7 +207,7 @@ DVDOpenFile(dvd, titlenum, domain)
 		return (DVDOpenVOBPath(dvd, titlenum, 0));
 
 	default:
-		errmsgno(EX_BAD, "Invalid domain for file open.\n");
+		errmsgno(EX_BAD, _("Invalid domain for file open.\n"));
 		return (0);
 	}
 	return (DVDOpenFilePath(dvd, filename));
@@ -249,7 +249,7 @@ DVDOpen(path)
 	ret = stat(path, &fileinfo);
 	if (ret < 0) {
 	/* If we can't stat the file, give up */
-		errmsg("Can't stat '%s'.\n", path);
+		errmsg(_("Can't stat '%s'.\n"), path);
 		return (0);
 	}
 
@@ -259,7 +259,7 @@ DVDOpen(path)
 	}
 
 	/* If it's none of the above, screw it. */
-	errmsgno(EX_BAD, "Could not open '%s'.\n", path);
+	errmsgno(EX_BAD, _("Could not open '%s'.\n"), path);
 	return (0);
 }
 

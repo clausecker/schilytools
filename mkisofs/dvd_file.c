@@ -1,13 +1,13 @@
-/* @(#)dvd_file.c	1.11 09/11/25 joerg */
+/* @(#)dvd_file.c	1.12 10/12/19 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)dvd_file.c	1.11 09/11/25 joerg";
+	"@(#)dvd_file.c	1.12 10/12/19 joerg";
 #endif
 /*
  * DVD_VIDEO code
  *  Copyright (c) 2002 Olaf Beck - olaf_sc@yahoo.com
- *  Copyright (c) 2002-2009 Jörg Schilling <schilling@fokus.gmd.de>
+ *  Copyright (c) 2002-2010 Jörg Schilling <schilling@fokus.gmd.de>
  */
 /*
  * This program is free software; you can redistribute it and/or modify
@@ -86,7 +86,7 @@ uniq(sector, title, title_sets_array, sector_sets_array, titles)
 			title_sets_array[i]  = title[j];
 			sector_sets_array[i] = sector[j];
 #ifdef DEBUG
-			fprintf(stderr, "Sector offset is %d\n", sector_sets_array[i]);
+			fprintf(stderr, _("Sector offset is %d\n"), sector_sets_array[i]);
 #endif
 			i++;
 			j++;
@@ -182,12 +182,12 @@ DVDGetFileSet(dvd)
 
 	_dvd = DVDOpen(dvd);
 	if (!_dvd) {
-		errmsgno(EX_BAD, "Can't open device '%s'.\n", dvd);
+		errmsgno(EX_BAD, _("Can't open device '%s'.\n"), dvd);
 		return (0);
 	}
 	vmg_ifo = ifoOpen(_dvd, 0);
 	if (!vmg_ifo) {
-		errmsgno(EX_BAD, "Can't open VMG info for '%s'.\n", dvd);
+		errmsgno(EX_BAD, _("Can't open VMG info for '%s'.\n"), dvd);
 		/* Close the DVD */
 		DVDClose(_dvd);
 		return (0);
@@ -201,7 +201,7 @@ DVDGetFileSet(dvd)
 
 	if (stat(temppoint, &fileinfo) < 0) {
 		/* If we can't stat the file, give up */
-		errmsg("Can't stat '%s'.\n", temppoint);
+		errmsg(_("Can't stat '%s'.\n"), temppoint);
 		return (0);
 	}
 
@@ -253,7 +253,7 @@ DVDGetFileSet(dvd)
 
 	if ((vmg_vob_file == 0) && vmg_ifo->vmgi_mat->vmg_last_sector + 1
 			< 2 * DVDFileSize(vmg_ifo_file)) {
-		errmsgno(EX_BAD, "IFO is not of correct size aborting.\n");
+		errmsgno(EX_BAD, _("IFO is not of correct size aborting.\n"));
 		DVDFreeFileSetArrays(sector, title, title_sets_array,
 					sector_sets_array);
 		DVDFreeFileSet(title_set_info);
@@ -261,7 +261,7 @@ DVDGetFileSet(dvd)
 	} else if ((vmg_vob_file != 0) && (vmg_ifo->vmgi_mat->vmg_last_sector
 		    + 1  < 2 * DVDFileSize(vmg_ifo_file) +
 		    DVDFileSize(vmg_vob_file))) {
-		errmsgno(EX_BAD, "Either VIDEO_TS.IFO or VIDEO_TS.VOB is not of correct size.");
+		errmsgno(EX_BAD, _("Either VIDEO_TS.IFO or VIDEO_TS.VOB is not of correct size.\n"));
 		DVDFreeFileSetArrays(sector, title, title_sets_array,
 					sector_sets_array);
 		DVDFreeFileSet(title_set_info);
@@ -305,7 +305,7 @@ DVDGetFileSet(dvd)
 		snprintf(temppoint, sizeof (temppoint),
 				"%s/VIDEO_TS/VIDEO_TS.VOB", mountpoint);
 		if (stat(temppoint, &fileinfo) < 0) {
-			errmsg("calc: Can't stat '%s'.\n", temppoint);
+			errmsg(_("calc: Can't stat '%s'.\n"), temppoint);
 			DVDFreeFileSetArrays(sector, title, title_sets_array,
 						sector_sets_array);
 			DVDFreeFileSet(title_set_info);
@@ -338,7 +338,7 @@ DVDGetFileSet(dvd)
 				"%s/VIDEO_TS/VIDEO_TS.IFO", mountpoint);
 
 	if (stat(temppoint, &fileinfo) < 0) {
-		errmsg("calc: Can't stat '%s'.\n", temppoint);
+		errmsg(_("calc: Can't stat '%s'.\n"), temppoint);
 		DVDFreeFileSetArrays(sector, title, title_sets_array,
 					sector_sets_array);
 		DVDFreeFileSet(title_set_info);
@@ -363,7 +363,7 @@ DVDGetFileSet(dvd)
 			vts_ifo = ifoOpen(_dvd, counter + 1);
 
 			if (!vts_ifo) {
-				errmsgno(EX_BAD, "Can't open VTS info.\n");
+				errmsgno(EX_BAD, _("Can't open VTS info.\n"));
 				DVDFreeFileSetArrays(sector, title,
 					title_sets_array, sector_sets_array);
 				DVDFreeFileSet(title_set_info);
@@ -375,7 +375,7 @@ DVDGetFileSet(dvd)
 				mountpoint, counter + 1);
 
 			if (stat(temppoint, &fileinfo) < 0) {
-				errmsg("calc: Can't stat '%s'.\n", temppoint);
+				errmsg(_("calc: Can't stat '%s'.\n"), temppoint);
 				DVDFreeFileSetArrays(sector, title,
 					title_sets_array, sector_sets_array);
 				DVDFreeFileSet(title_set_info);
@@ -406,7 +406,7 @@ DVDGetFileSet(dvd)
 
 			if (vts_ifo->vtsi_mat->vts_last_sector + 1
 				< 2 * DVDFileSize(vts_ifo_file)) {
-				errmsgno(EX_BAD, "IFO is not of correct size aborting.\n");
+				errmsgno(EX_BAD, _("IFO is not of correct size aborting.\n"));
 				DVDFreeFileSetArrays(sector, title,
 					title_sets_array, sector_sets_array);
 				DVDFreeFileSet(title_set_info);
@@ -417,7 +417,7 @@ DVDGetFileSet(dvd)
 				    < 2 * DVDFileSize(vts_ifo_file) +
 				    DVDFileSize(vts_title_file) +
 				    DVDFileSize(vts_menu_file))) {
-				errmsgno(EX_BAD, "Either VIDEO_TS.IFO or VIDEO_TS.VOB is not of correct size.\n");
+				errmsgno(EX_BAD, _("Either VIDEO_TS.IFO or VIDEO_TS.VOB is not of correct size.\n"));
 				DVDFreeFileSetArrays(sector, title,
 					title_sets_array, sector_sets_array);
 				DVDFreeFileSet(title_set_info);
@@ -427,7 +427,7 @@ DVDGetFileSet(dvd)
 				    (vts_ifo->vtsi_mat->vts_last_sector + 1
 				    < 2 * DVDFileSize(vts_ifo_file) +
 				    DVDFileSize(vts_title_file))) {
-				errmsgno(EX_BAD, "Either VIDEO_TS.IFO or VIDEO_TS.VOB is not of correct size.\n");
+				errmsgno(EX_BAD, _("Either VIDEO_TS.IFO or VIDEO_TS.VOB is not of correct size.\n"));
 				DVDFreeFileSetArrays(sector, title,
 					title_sets_array, sector_sets_array);
 				DVDFreeFileSet(title_set_info);
@@ -437,7 +437,7 @@ DVDGetFileSet(dvd)
 				    (vts_ifo->vtsi_mat->vts_last_sector + 1
 				    < 2 * DVDFileSize(vts_ifo_file) +
 				    DVDFileSize(vts_menu_file))) {
-				errmsgno(EX_BAD, "Either VIDEO_TS.IFO or VIDEO_TS.VOB is not of correct size.\n");
+				errmsgno(EX_BAD, _("Either VIDEO_TS.IFO or VIDEO_TS.VOB is not of correct size.\n"));
 				DVDFreeFileSetArrays(sector, title,
 					title_sets_array, sector_sets_array);
 				DVDFreeFileSet(title_set_info);
@@ -492,7 +492,7 @@ DVDGetFileSet(dvd)
 						 * come here...
 						 */
 						errmsgno(EX_BAD,
-							"%s/VIDEO_TS/VTS_%02i_0.IFO appears to be corrupted.\n",
+							_("%s/VIDEO_TS/VTS_%02i_0.IFO appears to be corrupted.\n"),
 							mountpoint, counter+1);
 						return (0);
 					}
@@ -519,7 +519,7 @@ DVDGetFileSet(dvd)
 					"%s/VIDEO_TS/VTS_%02i_0.VOB", mountpoint, counter + 1);
 
 				if (stat(temppoint, &fileinfo)  < 0) {
-					errmsg("calc: Can't stat '%s'.\n", temppoint);
+					errmsg(_("calc: Can't stat '%s'.\n"), temppoint);
 					DVDFreeFileSetArrays(sector, title,
 						title_sets_array, sector_sets_array);
 					DVDFreeFileSet(title_set_info);
@@ -593,7 +593,7 @@ DVDGetFileSet(dvd)
 				mountpoint, counter + 1);
 
 			if (stat(temppoint, &fileinfo) < 0) {
-				errmsg("calc: Can't stat '%s'\n", temppoint);
+				errmsg(_("calc: Can't stat '%s'\n"), temppoint);
 				DVDFreeFileSetArrays(sector, title,
 					title_sets_array, sector_sets_array);
 				DVDFreeFileSet(title_set_info);

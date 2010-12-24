@@ -1,7 +1,7 @@
-/* @(#)btcflash.c	1.16 10/05/24 2004-2010 J. Schilling */
+/* @(#)btcflash.c	1.17 10/12/19 2004-2010 J. Schilling */
 #ifndef lint
 static	const char _sccsid[] =
-	"@(#)btcflash.c	1.16 10/05/24 2004-2010 J. Schilling";
+	"@(#)btcflash.c	1.17 10/12/19 2004-2010 J. Schilling";
 #endif
 /*--------------------------------------------------------------------------*/
 /*
@@ -59,13 +59,13 @@ loadfirmware(firmware)
 
 	fwbuf = malloc(FLASHSIZE);
 	if (!fwbuf) {
-		fprintf(stderr, "Could not allocate memory for firmware\n");
+		fprintf(stderr, _("Could not allocate memory for firmware\n"));
 		return (NULL);
 	}
 
 	f = fopen(firmware, "r");
 	if (!f) {
-		fprintf(stderr, "%s: Unable to open: ", firmware);
+		fprintf(stderr, _("%s: Unable to open: "), firmware);
 		perror(NULL);
 		free(fwbuf);
 		return (NULL);
@@ -79,7 +79,7 @@ loadfirmware(firmware)
 	if (ftell(f) == FLASHSIZE) {
 		rewind(f);
 		if (fread(fwbuf, 1, FLASHSIZE, f) != FLASHSIZE) {
-			fprintf(stderr, "%s: Short read\n", firmware);
+			fprintf(stderr, _("%s: Short read\n"), firmware);
 			return (NULL);
 		}
 		fclose(f);
@@ -101,7 +101,7 @@ loadfirmware(firmware)
 		type = getbyte(&p);
 		if (length < 0 || offset < 0 || type < 0 ||
 		    (type != 0 && length != 0)) {
-			errmsgno(EX_BAD, "Malformed line: %.79s\n", line);
+			errmsgno(EX_BAD, _("Malformed line: %.79s\n"), line);
 			fclose(f);
 			free(fwbuf);
 			return (NULL);
@@ -109,7 +109,7 @@ loadfirmware(firmware)
 			if (strncmp(line, ":00000155AA", 11) == 0) {
 				if (++bank >= 16) {
 					errmsgno(EX_BAD,
-					    "Firmware file larger than 1MB\n");
+					    _("Firmware file larger than 1MB\n"));
 					fclose(f);
 					free(fwbuf);
 					return (NULL);
@@ -118,7 +118,7 @@ loadfirmware(firmware)
 			} else if (strncmp(line, ":00000001FF", 11) == 0) {
 				break;
 			} else {
-				errmsgno(EX_BAD, "Malformed line: %.79s\n", line);
+				errmsgno(EX_BAD, _("Malformed line: %.79s\n"), line);
 				fclose(f);
 				free(fwbuf);
 				return (NULL);
@@ -130,7 +130,7 @@ loadfirmware(firmware)
 			b = getbyte(&p);
 			hexsum = (hexsum + b) & 0xff;
 			if (b < 0) {
-				errmsgno(EX_BAD, "Short line: %.79s\n", line);
+				errmsgno(EX_BAD, _("Short line: %.79s\n"), line);
 				fclose(f);
 				free(fwbuf);
 				return (NULL);
@@ -139,7 +139,7 @@ loadfirmware(firmware)
 		}
 		hexsum = (0x100 - hexsum) & 0xff;
 		if (hexsum != getbyte(&p)) {
-			errmsgno(EX_BAD, "Checksum mismatch: %.79s", line);
+			errmsgno(EX_BAD, _("Checksum mismatch: %.79s\n"), line);
 			fclose(f);
 			free(fwbuf);
 			return (NULL);
@@ -149,7 +149,7 @@ loadfirmware(firmware)
 	fclose(f);
 
 	if (bank != 15) {
-		errmsgno(EX_BAD, "Firmware file too small\n");
+		errmsgno(EX_BAD, _("Firmware file too small\n"));
 		free(fwbuf);
 		return (NULL);
 	}
@@ -213,42 +213,42 @@ btcmain(scgp, fwfile)
 	unsigned short	checksum;
 	unsigned int	offset;
 
-	printf("BTC DVD+/-RW firmware flash utility release %s %s\n", "1.16", "10/05/24");
-	printf("USE AT YOUR OWN RISK!\n\n");
+	printf(_("BTC DVD+/-RW firmware flash utility release %s %s\n"), "1.17", "10/12/19");
+	printf(_("USE AT YOUR OWN RISK!\n\n"));
 
 	if (!(fwbuf = loadfirmware(fwfile)))
 		return (1);
 
 	checksum = calcsum(fwbuf);
 
-	printf("Loaded firmware from %s\nFirmware checksum is %04X\n",
+	printf(_("Loaded firmware from %s\nFirmware checksum is %04X\n"),
 	    fwfile, checksum);
 
 	if (inquiry(scgp, (char *)inq, 36) < 0)
 		return (1);
 
-	printf("Drive is currently:     [%.8s][%.16s][%.4s]\n",
+	printf(_("Drive is currently:     [%.8s][%.16s][%.4s]\n"),
 	    inq+8, inq+16, inq+32);
-	printf("Firmware appears to be: [%.8s][%.16s][%.4s]\n\n",
+	printf(_("Firmware appears to be: [%.8s][%.16s][%.4s]\n\n"),
 	    fwbuf+0x40bc, fwbuf+0x40c4, fwbuf+0x40d4);
 
 	if (strncmp((char *)inq + 8, (char *)fwbuf + 0x40bc, 24) != 0)
 		printf(
 		    "**********************************************************\n");
 		printf(
-		    "WARNING! THIS FIRMWARE DOES NOT SEEM TO BE FOR THIS DRIVE!\n");
+		    _("WARNING! THIS FIRMWARE DOES NOT SEEM TO BE FOR THIS DRIVE!\n"));
 		printf(
 		    "**********************************************************\n");
 
-	printf("Type \"YES\" to proceed with flash: ");
+	printf(_("Type \"YES\" to proceed with flash: "));
 	fflush(stdout);
 	fgets(confirm, sizeof (confirm), stdin);
 	if (strcmp(confirm, "YES\n") != 0) {
-		printf("\nFlash canceled.\n");
+		printf(_("\nFlash canceled.\n"));
 		return (0);
 	}
 
-	printf("\nUploading firmware...\n");
+	printf(_("\nUploading firmware...\n"));
 
 	/* Upload firmware */
 	for (offset = 0; offset < FLASHSIZE; offset += 0x1000) {
@@ -257,7 +257,7 @@ btcmain(scgp, fwfile)
 					6 /* Download Microcode with Offsets */,
 					0 /* Buffer ID 0 */,
 					offset + 0x20) < 0) {
-			errmsgno(EX_BAD, "Cannot write microcode\n");
+			errmsgno(EX_BAD, _("Cannot write microcode\n"));
 			return (1);
 		}
 	}
@@ -272,11 +272,11 @@ btcmain(scgp, fwfile)
 				0 /* Buffer ID 0 */,
 				0) /* Offset 0 */
 				< 0) {
-		errmsgno(EX_BAD, "Cannot write microcode checksum\n");
+		errmsgno(EX_BAD, _("Cannot write microcode checksum\n"));
 		return (1);
 	}
 
-	printf("Flashing drive...\n");
+	printf(_("Flashing drive...\n"));
 
 	/* Firmware uploaded; now flash it! */
 	if (write_buffer(scgp,	NULL, 0,
@@ -284,7 +284,7 @@ btcmain(scgp, fwfile)
 				0 /* Buffer ID 0 */,
 				0) /* Offset 0 */
 				< 0) {
-		errmsgno(EX_BAD, "Cannot save microcode\n");
+		errmsgno(EX_BAD, _("Cannot save microcode\n"));
 		return (1);
 	}
 
@@ -297,9 +297,9 @@ btcmain(scgp, fwfile)
 	if (inquiry(scgp, (char *)inq, 36) < 0)
 		return (1);
 
-	printf("Drive is now:           [%.8s][%.16s][%.4s]\n\n",
+	printf(_("Drive is now:           [%.8s][%.16s][%.4s]\n\n"),
 	    inq+8, inq+16, inq+32);
-	printf("Please reboot before using the drive.\n");
+	printf(_("Please reboot before using the drive.\n"));
 
 	return (0);
 }

@@ -1,11 +1,11 @@
-/* @(#)scsi.c	1.33 09/07/09 Copyright 1997-2009 J. Schilling */
+/* @(#)scsi.c	1.34 10/12/19 Copyright 1997-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)scsi.c	1.33 09/07/09 Copyright 1997-2009 J. Schilling";
+	"@(#)scsi.c	1.34 10/12/19 Copyright 1997-2010 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1997-2009 J. Schilling
+ *	Copyright (c) 1997-2010 J. Schilling
  */
 /*
  * This program is free software; you can redistribute it and/or modify
@@ -93,7 +93,7 @@ readsecs(startsecno, buffer, sectorcount)
 #ifdef	OLD
 				return (-1);
 #else
-				comerr("Read error on old image\n");
+				comerr(_("Read error on old image\n"));
 #endif
 			}
 
@@ -107,13 +107,13 @@ readsecs(startsecno, buffer, sectorcount)
 	f = fileno(in_image);
 
 	if (lseek(f, (off_t)startsecno * SECTOR_SIZE, SEEK_SET) == (off_t)-1) {
-		comerr("Seek error on old image\n");
+		comerr(_("Seek error on old image\n"));
 	}
 	if ((amt = read(f, buffer, (sectorcount * SECTOR_SIZE)))
 			!= (sectorcount * SECTOR_SIZE)) {
 		if (amt < 0)
-			comerr("Read error on old image\n");
-		comerrno(EX_BAD, "Short read on old image\n"); /* < secnt aber > 0 */
+			comerr(_("Read error on old image\n"));
+		comerrno(EX_BAD, _("Short read on old image\n")); /* < secnt aber > 0 */
 	}
 	return (sectorcount * SECTOR_SIZE);
 }
@@ -137,13 +137,13 @@ scsidev_open(path)
 			/* path, debug, verboseopen */
 	scgp = scg_open(path, errstr, sizeof (errstr), 0, 0);
 	if (scgp == 0) {
-		errmsg("%s%sCannot open SCSI driver.\n", errstr, errstr[0]?". ":"");
+		errmsg(_("%s%sCannot open SCSI driver.\n"), errstr, errstr[0]?". ":"");
 		return (-1);
 	}
 
 	bufsize = scg_bufsize(scgp, BUF_SIZE);
 	if ((buf = scg_getbuf(scgp, bufsize)) == NULL) {
-		errmsg("Cannot get SCSI I/O buffer.\n");
+		errmsg(_("Cannot get SCSI I/O buffer.\n"));
 		scg_close(scgp);
 		return (-1);
 	}

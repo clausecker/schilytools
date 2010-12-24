@@ -1,13 +1,13 @@
-/* @(#)diskid.c	1.43 09/07/10 Copyright 1998-2009 J. Schilling */
+/* @(#)diskid.c	1.44 10/12/19 Copyright 1998-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)diskid.c	1.43 09/07/10 Copyright 1998-2009 J. Schilling";
+	"@(#)diskid.c	1.44 10/12/19 Copyright 1998-2010 J. Schilling";
 #endif
 /*
  *	Disk Idientification Method
  *
- *	Copyright (c) 1998-2009 J. Schilling
+ *	Copyright (c) 1998-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -27,6 +27,7 @@ static	UConst char sccsid[] =
 #include <schily/standard.h>
 #include <schily/utypes.h>
 #include <schily/schily.h>
+#include <schily/nlsdefs.h>
 
 #include "cdrecord.h"
 
@@ -370,19 +371,19 @@ pr_manufacturer(mp, rw, audio)
 
 	type = mp->msf_frame % 10;
 	if (type < 5) {
-		tname = "Long strategy type (Cyanine, AZO or similar)";
+		tname = _("Long strategy type (Cyanine, AZO or similar)");
 	} else {
-		tname = "Short strategy type (Phthalocyanine or similar)";
+		tname = _("Short strategy type (Phthalocyanine or similar)");
 	}
 	if (rw) {
-		tname = "Phase change";
+		tname = _("Phase change");
 	}
 
 	dp = man_ptr(mp);
 	if (dp != NULL) {
 		if (dp->mi_num == 0 || dp->mi_num >= 80) {
 			if (!rw) {
-				tname = "unknown dye (old id code)";
+				tname = _("unknown dye (old id code)");
 			} else {
 				xdman = *dp;
 				dp = &xdman;
@@ -391,25 +392,25 @@ pr_manufacturer(mp, rw, audio)
 			}
 		}
 	} else {
-		tname = "unknown dye (reserved id code)";
+		tname = _("unknown dye (reserved id code)");
 		dp = &notable;
 	}
-	printf("Disk type:    %s\n", tname);
-	printf("Manuf. index: %d\n", dp->mi_num);
-	printf("Manufacturer: %s\n", dp->mi_name);
+	printf(_("Disk type:    %s\n"), tname);
+	printf(_("Manuf. index: %d\n"), dp->mi_num);
+	printf(_("Manufacturer: %s\n"), dp->mi_name);
 
 	if (mp->msf_min != 97)	/* This may be garbage ATIP from a DVD */
 		return;
 
 	if (dp >= &dman[I_GUESS] && dp < &dman[ndman]) {
-		printf("Manufacturer is guessed because of the orange forum embargo.\n");
-		printf("The orange forum likes to get money for recent information.\n");
-		printf("The information for this media may not be correct.\n");
+		printf(_("Manufacturer is guessed because of the orange forum embargo.\n"));
+		printf(_("The orange forum likes to get money for recent information.\n"));
+		printf(_("The information for this media may not be correct.\n"));
 	}
 	if (dp == &notable) {
-		printf("Manufacturer is unknown because of the orange forum embargo.\n");
-		printf("As the orange forum likes to get money for recent information,\n");
-		printf("it may be that this media does not use illegal manufacturer coding.\n");
+		printf(_("Manufacturer is unknown because of the orange forum embargo.\n"));
+		printf(_("As the orange forum likes to get money for recent information,\n"));
+		printf(_("it may be that this media does not use illegal manufacturer coding.\n"));
 	}
 }
 

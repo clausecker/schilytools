@@ -1,8 +1,8 @@
-/* @(#)p.c	1.49 10/05/11 Copyright 1985-2010 J. Schilling */
+/* @(#)p.c	1.50 10/12/19 Copyright 1985-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)p.c	1.49 10/05/11 Copyright 1985-2010 J. Schilling";
+	"@(#)p.c	1.50 10/12/19 Copyright 1985-2010 J. Schilling";
 #endif
 /*
  *	Print some files on screen
@@ -73,6 +73,7 @@ int	psize;		/* # of lines on a page */
 int	supressblank;	/* supress multiple blank lines on output */
 int	clear;		/* clear screen before displaying page */
 int	dosmode;	/* wether to supress ^M^J sequences */
+BOOL	autodos = TRUE;	/* whether to automatically detect DOS mode */
 int	endline;	/* print a $ at each end of line */
 int	raw;		/* do not expand control characters */
 BOOL	raw8;		/* Ausgabe ohne ~ */
@@ -124,7 +125,7 @@ char	buffer[BUFSIZ];		/* our buffer for stdout */
 #endif
 char	dcl[] = ":::::::::::::::";
 char	options[] =
-"help,version,debug,nobeep,length#,l#,width#,w#,blank,b,clear,c,dos,end,e,raw,r,raw8,silent,s,tab,t,unul,visible,v";
+"help,version,debug,nobeep,length#,l#,width#,w#,blank,b,clear,c,dos,nodos%0,end,e,raw,r,raw8,silent,s,tab,t,unul,visible,v";
 
 BOOL nameprint = FALSE;
 
@@ -217,6 +218,7 @@ usage(exitcode)
 	error("\t-blank,-b\tsupress multiple blank lines on output\n");
 	error("\t-clear,-c\tclear screen before displaying new page\n");
 	error("\t-dos\t\tsupress '\\r' in '\\r\\n'\n");
+	error("\t-nodos\t\tsupress auto detecting the dos mode\n");
 	error("\t-end,-e\t\tprint a $ at each end of line\n");
 	error("\t-raw,-r\t\tdo not expand chars\n");
 	error("\t-raw8\t\tdo not expand 8bit chars\n");
@@ -252,7 +254,7 @@ main(ac, av)
 			&lwidth, &lwidth,
 			&supressblank, &supressblank,
 			&clear, &clear,
-			&dosmode,
+			&dosmode, &autodos,
 			&endline, &endline,
 			&raw, &raw,
 			&raw8,
@@ -266,7 +268,7 @@ main(ac, av)
 	if (help) usage(0);
 	if (prvers) {
 		printf("p %s (%s-%s-%s)\n\n", "2.1", HOST_CPU, HOST_VENDOR, HOST_OS);
-		printf("Copyright (C) 1985, 87-92, 95-99, 2000-2009 Jörg Schilling\n");
+		printf("Copyright (C) 1985, 87-92, 95-99, 2000-2010 Jörg Schilling\n");
 		printf("This is free software; see the source for copying conditions.  There is NO\n");
 		printf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
 		exit(0);
@@ -434,7 +436,9 @@ page()
 
 		} else if (c == '+' && underline && peekc() == '\b') {
 			nextc();
-		} else if (c == '\r' && dosmode && peekc() == '\n') {
+		} else if (c == '\r' &&
+			    (autodos || dosmode) && peekc() == '\n') {
+			/* EMPTY */
 		} else if (c == '\n') {
 			if (ocolcnt == 0 && colcnt == 0 && supressblank)
 				continue;

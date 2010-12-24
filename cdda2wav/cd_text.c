@@ -1,4 +1,4 @@
-/* @(#)cd_text.c	1.10 10/01/09 Copyright 2000-2001 Heiko Eissfeldt, Copyright 2006-2010 J. Schilling */
+/* @(#)cd_text.c	1.11 10/12/19 Copyright 2000-2001 Heiko Eissfeldt, Copyright 2006-2010 J. Schilling */
 
 /*
  * This is an include file!
@@ -173,7 +173,7 @@ static void
 dump_binary(c)
 	cdtextpackdata	*c;
 {
-	fprintf(stderr, ": header fields %02x %02x %02x  ",
+	fprintf(stderr, _(": header fields %02x %02x %02x  "),
 		c->headerfield[1], c->headerfield[2], c->headerfield[3]);
 	fprintf(stderr,
 		"%02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x",
@@ -206,7 +206,7 @@ process_header(c, tracknr, dbcc, line)
 
 	case 0x80:	/* Title of album or track */
 #if	DETAILED
-		fprintf(stderr, "Title");
+		fprintf(stderr, _("Title"));
 #endif
 		if (tracknr > 0 && tracknr < 100 &&
 		    global.tracktitle[tracknr] == NULL) {
@@ -237,7 +237,7 @@ process_header(c, tracknr, dbcc, line)
 
 	case 0x81:	/* Name(s) of the performer(s) */
 #if	DETAILED
-		fprintf(stderr, "Performer(s)");
+		fprintf(stderr, _("Performer(s)"));
 #endif
 		if (tracknr > 0 && tracknr < 100 &&
 		    global.trackperformer[tracknr] == NULL) {
@@ -270,7 +270,7 @@ process_header(c, tracknr, dbcc, line)
 
 	case 0x82:	/* Name(s) of the songwriter(s) */
 #if	DETAILED
-		fprintf(stderr, "Songwriter(s)");
+		fprintf(stderr, _("Songwriter(s)"));
 #endif
 		if (tracknr > 0 && tracknr < 100 &&
 		    global.tracksongwriter[tracknr] == NULL) {
@@ -303,7 +303,7 @@ process_header(c, tracknr, dbcc, line)
 
 	case 0x83:	/* Name(s) of the composer(s) */
 #if	DETAILED
-		fprintf(stderr, "Composer(s)");
+		fprintf(stderr, _("Composer(s)"));
 #endif
 		if (tracknr > 0 && tracknr < 100 &&
 		    global.trackcomposer[tracknr] == NULL) {
@@ -336,7 +336,7 @@ process_header(c, tracknr, dbcc, line)
 
 	case 0x84:	/* Name(s) of the arranger(s) */
 #if	DETAILED
-		fprintf(stderr, "Arranger(s)");
+		fprintf(stderr, _("Arranger(s)"));
 #endif
 		if (tracknr > 0 && tracknr < 100 &&
 		    global.trackarranger[tracknr] == NULL) {
@@ -369,7 +369,7 @@ process_header(c, tracknr, dbcc, line)
 
 	case 0x85:	/* Message from content provider and/or artist */
 #if	DETAILED
-		fprintf(stderr, "Message");
+		fprintf(stderr, _("Message"));
 #endif
 		if (tracknr > 0 && tracknr < 100 &&
 		    global.trackmessage[tracknr] == NULL) {
@@ -402,22 +402,22 @@ process_header(c, tracknr, dbcc, line)
 
 	case 0x86:	/* Disc Identification and information */
 #if	DETAILED
-		fprintf(stderr, "Disc identification");
+		fprintf(stderr, _("Disc identification"));
 #endif
 		if (tracknr == 0 && line[0] != '\0') {
-			fprintf(stderr, "Disc identification: %s\n", line);
+			fprintf(stderr, _("Disc identification: %s\n"), line);
 		}
 		break;
 
 	case 0x87:	/* Genre Identification and information */
 #if	DETAILED
-		fprintf(stderr, "Genre identification");
+		fprintf(stderr, _("Genre identification"));
 #endif
 		break;
 
 	case 0x8d:	/* Closed information */
 #if	DETAILED
-		fprintf(stderr, "Closed information");
+		fprintf(stderr, _("Closed information"));
 #endif
 		if (tracknr > 0 && tracknr < 100 &&
 		    global.trackclosed_info[tracknr] == NULL) {
@@ -450,7 +450,7 @@ process_header(c, tracknr, dbcc, line)
 
 	case 0x8e:	/* UPC/EAN code or ISRC code */
 #if	DETAILED
-		fprintf(stderr, "UPC or ISRC");
+		fprintf(stderr, _("UPC or ISRC"));
 #endif
 		if (tracknr > 0 && tracknr < 100) {
 			Set_ISRC(tracknr, line);
@@ -461,14 +461,14 @@ process_header(c, tracknr, dbcc, line)
 
 	case 0x88:	/* Table of Content information */
 #if	DETAILED
-		fprintf(stderr, "Table of Content identification");
+		fprintf(stderr, _("Table of Content identification"));
 		dump_binary(c);
 #endif
 		return (0);
 
 	case 0x89:	/* Second Table of Content information */
 #if	DETAILED
-		fprintf(stderr, "Second Table of Content identification");
+		fprintf(stderr, _("Second Table of Content identification"));
 		dump_binary(c);
 #endif
 		return (0);
@@ -481,83 +481,83 @@ process_header(c, tracknr, dbcc, line)
 
 		case 0:
 			fprintf(outfp,
-				"first track is %d, last track is %d\n",
+				_("first track is %d, last track is %d\n"),
 				c->textdatafield[1],
 				c->textdatafield[2]);
 			if (c->textdatafield[3] & 0x80) {
 				fprintf(outfp,
-				"Program Area CD Text information available\n");
+				_("Program Area CD Text information available\n"));
 				if (c->textdatafield[3] & 0x40) {
-					fprintf(outfp, "Program Area copy protection available\n");
+					fprintf(outfp, _("Program Area copy protection available\n"));
 				}
 			}
 			if (c->textdatafield[3] & 0x07) {
 				fprintf(outfp,
-				"message information is %scopyrighted\n",
+				_("message information is %scopyrighted\n"),
 					c->textdatafield[3] & 0x04 ?
-							"": "not ");
+							"": _("not "));
 				fprintf(outfp,
-				"Names of performer/songwriter/composer/arranger(s) are %scopyrighted\n",
+				_("Names of performer/songwriter/composer/arranger(s) are %scopyrighted\n"),
 					c->textdatafield[3] & 0x02 ?
-							"": "not ");
+							"": _("not "));
 				fprintf(outfp,
-				"album and track names are %scopyrighted\n",
+				_("album and track names are %scopyrighted\n"),
 					c->textdatafield[3] & 0x01 ?
-							"": "not ");
+							"": _("not "));
 			}
 			fprintf(outfp,
-				"%d packs with album/track names\n",
+				_("%d packs with album/track names\n"),
 				c->textdatafield[4]);
 			fprintf(outfp,
-				"%d packs with performer names\n",
+				_("%d packs with performer names\n"),
 				c->textdatafield[5]);
 			fprintf(outfp,
-				"%d packs with songwriter names\n",
+				_("%d packs with songwriter names\n"),
 				c->textdatafield[6]);
 			fprintf(outfp,
-				"%d packs with composer names\n",
+				_("%d packs with composer names\n"),
 				c->textdatafield[7]);
 			fprintf(outfp,
-				"%d packs with arranger names\n",
+				_("%d packs with arranger names\n"),
 				c->textdatafield[8]);
 			fprintf(outfp,
-				"%d packs with artist or content provider messages\n",
+				_("%d packs with artist or content provider messages\n"),
 				c->textdatafield[9]);
 			fprintf(outfp,
-				"%d packs with disc identification information\n",
+				_("%d packs with disc identification information\n"),
 				c->textdatafield[10]);
 			fprintf(outfp,
-			"%d packs with genre identification/information\n",
+			_("%d packs with genre identification/information\n"),
 				c->textdatafield[11]);
 			break;
 
 		case 1:
 			fprintf(outfp,
-			"%d packs with table of contents information\n",
+			_("%d packs with table of contents information\n"),
 				c->textdatafield[0]);
 			fprintf(outfp,
-			"%d packs with second table of contents information\n",
+			_("%d packs with second table of contents information\n"),
 				c->textdatafield[1]);
 			fprintf(outfp,
-				"%d packs with reserved information\n",
+				_("%d packs with reserved information\n"),
 				c->textdatafield[2]);
 			fprintf(outfp,
-				"%d packs with reserved information\n",
+				_("%d packs with reserved information\n"),
 				c->textdatafield[3]);
 			fprintf(outfp,
-				"%d packs with reserved information\n",
+				_("%d packs with reserved information\n"),
 				c->textdatafield[4]);
 			fprintf(outfp,
-				"%d packs with closed information\n",
+				_("%d packs with closed information\n"),
 				c->textdatafield[5]);
 			fprintf(outfp,
-				"%d packs with UPC/EAN ISRC information\n",
+				_("%d packs with UPC/EAN ISRC information\n"),
 				c->textdatafield[6]);
 			fprintf(outfp,
-				"%d packs with size information\n",
+				_("%d packs with size information\n"),
 				c->textdatafield[7]);
 			fprintf(outfp,
-			"last sequence numbers for blocks 1-8: %d %d %d %d ",
+			_("last sequence numbers for blocks 1-8: %d %d %d %d "),
 				c->textdatafield[8],
 				c->textdatafield[9],
 				c->textdatafield[10],
@@ -571,7 +571,7 @@ process_header(c, tracknr, dbcc, line)
 				c->textdatafield[2],
 				c->textdatafield[3]);
 			fprintf(outfp,
-			"Language codes for blocks 1-8: %d %d %d %d %d %d %d %d\n",
+			_("Language codes for blocks 1-8: %d %d %d %d %d %d %d %d\n"),
 				c->textdatafield[4],
 				c->textdatafield[5],
 				c->textdatafield[6],
@@ -583,7 +583,7 @@ process_header(c, tracknr, dbcc, line)
 			break;
 		}
 
-		fprintf(stderr, "Blocksize");
+		fprintf(stderr, _("Blocksize"));
 		dump_binary(c);
 		return (0);
 
@@ -593,7 +593,7 @@ process_header(c, tracknr, dbcc, line)
 	}
 #endif
 
-		fprintf(stderr, ": header fields %02x %02x %02x  ",
+		fprintf(stderr, _(": header fields %02x %02x %02x  "),
 			c->headerfield[1], c->headerfield[2],
 			c->headerfield[3]);
 #endif /* DETAILED */
@@ -602,9 +602,9 @@ process_header(c, tracknr, dbcc, line)
 	}
 #if	DETAILED
 	if (tracknr == 0) {
-		fprintf(stderr, " for album   : ->");
+		fprintf(stderr, _(" for album   : ->"));
 	} else {
-		fprintf(stderr, " for track %2u: ->", tracknr);
+		fprintf(stderr, _(" for track %2u: ->"), tracknr);
 	}
 	fputs((char *)line, stderr);
 	fputs("<-", stderr);

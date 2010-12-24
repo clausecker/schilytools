@@ -1,4 +1,4 @@
-#ident "@(#)Makefile	1.9 08/10/26 "
+#ident "@(#)Makefile	1.10 10/12/19 "
 ###########################################################################
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 2
@@ -28,3 +28,8 @@ $(ALLTARGETS): scsi.c
 ###########################################################################
 include		$(SRCROOT)/$(RULESDIR)/rules.mks
 ###########################################################################
+
+CFILES: dump.c isodebug.c isodump.c isoinfo.c isovfy.c
+
+xtxt:	$(CFILES)
+	gxgettext --no-wrap -k_ -k__ $(CFILES)

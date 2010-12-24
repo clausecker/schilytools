@@ -1,14 +1,14 @@
-/* @(#)wm_packet.c	1.30 09/07/10 Copyright 1995, 1997, 2001-2009 J. Schilling */
+/* @(#)wm_packet.c	1.31 10/12/19 Copyright 1995, 1997, 2001-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)wm_packet.c	1.30 09/07/10 Copyright 1995, 1997, 2001-2009 J. Schilling";
+	"@(#)wm_packet.c	1.31 10/12/19 Copyright 1995, 1997, 2001-2010 J. Schilling";
 #endif
 /*
  *	CDR write method abtraction layer
  *	packet writing intercace routines
  *
- *	Copyright (c) 1995, 1997, 2001-2009 J. Schilling
+ *	Copyright (c) 1995, 1997, 2001-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -30,6 +30,7 @@ static	UConst char sccsid[] =
 #include <schily/standard.h>
 #include <schily/utypes.h>
 #include <schily/schily.h>
+#include <schily/nlsdefs.h>
 
 #include <scg/scsitransp.h>
 #include "cdrecord.h"
@@ -110,16 +111,16 @@ int oper = -1;
 	pad = !isaudio && is_pad(trackp);	/* Pad only data tracks */
 
 	if (debug) {
-		printf("secsize:%d secspt:%d bytespt:%d audio:%d pad:%d\n",
+		printf(_("secsize:%d secspt:%d bytespt:%d audio:%d pad:%d\n"),
 			secsize, secspt, bytespt, isaudio, pad);
 	}
 
 	if (lverbose) {
 		if (tracksize > 0)
-			printf("\rTrack %02d:    0 of %4lld MB written.",
+			printf(_("\rTrack %02d:    0 of %4lld MB written."),
 				track, tracksize >> 20);
 		else
-			printf("\rTrack %02d:    0 MB written.", track);
+			printf(_("\rTrack %02d:    0 MB written."), track);
 		flush();
 		neednl = TRUE;
 	}
@@ -136,7 +137,7 @@ int oper = -1;
 					/* XXX next wr addr ??? */
 		count = get_buf(f, trackp, startsec, &bp, bytes_to_read);
 		if (count < 0)
-			comerr("read error on input file\n");
+			comerr(_("read error on input file\n"));
 		if (count == 0)
 			break;
 		bytes_read += count;
@@ -148,7 +149,7 @@ int oper = -1;
 
 		if (count < bytespt) {
 			if (debug) {
-				printf("\nNOTICE: reducing block size for last record.\n");
+				printf(_("\nNOTICE: reducing block size for last record.\n"));
 				neednl = FALSE;
 			}
 
@@ -156,14 +157,14 @@ int oper = -1;
 				amount = secsize - amount;
 				fillbytes(&bp[count], amount, '\0');
 				count += amount;
-				printf("\nWARNING: padding up to secsize.\n");
+				printf(_("\nWARNING: padding up to secsize.\n"));
 				neednl = FALSE;
 			}
 			if (is_packet(trackp) && trackp->pktsize > 0) {
 				if (count < bytespt) {
 					amount = bytespt - count;
 					count += amount;
-					printf("\nWARNING: padding remainder of packet.\n");
+					printf(_("\nWARNING: padding remainder of packet.\n"));
 					neednl = FALSE;
 				}
 			}
@@ -198,13 +199,13 @@ int oper = -1;
 		amount = write_secs(scgp, dp, bp, startsec, bytespt, secspt, islast);
 		if (amount < 0) {
 			if (is_packet(trackp) && trackp->pktsize == 0 && !retried) {
-				printf("%swrite track data: error after %lld bytes, retry with new packet\n",
+				printf(_("%swrite track data: error after %lld bytes, retry with new packet\n"),
 					neednl?"\n":"", bytes);
 				retried = 1;
 				neednl = FALSE;
 				goto retry;
 			}
-			printf("%swrite track data: error after %lld bytes\n",
+			printf(_("%swrite track data: error after %lld bytes\n"),
 							neednl?"\n":"", bytes);
 			return (-1);
 		}
@@ -217,12 +218,12 @@ int oper = -1;
 			float	fspeed;
 
 			gettimeofday(&tcur, (struct timezone *)0);
-			printf("\rTrack %02d: %4lld", track, bytes >> 20);
+			printf(_("\rTrack %02d: %4lld"), track, bytes >> 20);
 			if (tracksize > 0)
-				printf(" of %4lld MB", tracksize >> 20);
+				printf(_(" of %4lld MB"), tracksize >> 20);
 			else
 				printf(" MB");
-			printf(" written");
+			printf(_(" written"));
 			fper = fifo_percent(TRUE);
 			if (fper >= 0)
 				printf(" (fifo %3d%%)", fper);
@@ -286,7 +287,7 @@ int oper = -1;
 		if ((padbytes >> 20) > 0) {
 			neednl = TRUE;
 		} else if (lverbose) {
-			printf("Track %02d: writing %3lld KB of pad data.\n",
+			printf(_("Track %02d: writing %3lld KB of pad data.\n"),
 					track, (Llong)(padbytes >> 10));
 			neednl = FALSE;
 		}
@@ -295,7 +296,7 @@ int oper = -1;
 		bytes += savbytes;
 		startsec += savbytes / secsize;
 	}
-	printf("%sTrack %02d: Total bytes read/written: %lld/%lld (%lld sectors).\n",
+	printf(_("%sTrack %02d: Total bytes read/written: %lld/%lld (%lld sectors).\n"),
 		neednl?"\n":"", track, bytes_read, bytes, bytes/secsize);
 	return (0);
 }

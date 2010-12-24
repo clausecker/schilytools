@@ -1,13 +1,13 @@
-/* @(#)cd_misc.c	1.17 09/07/10 Copyright 1997-2009 J. Schilling */
+/* @(#)cd_misc.c	1.18 10/12/19 Copyright 1997-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)cd_misc.c	1.17 09/07/10 Copyright 1997-2009 J. Schilling";
+	"@(#)cd_misc.c	1.18 10/12/19 Copyright 1997-2010 J. Schilling";
 #endif
 /*
  *	Misc CD support routines
  *
- *	Copyright (c) 1997-2009 J. Schilling
+ *	Copyright (c) 1997-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -26,6 +26,7 @@ static	UConst char sccsid[] =
 #include <schily/utypes.h>	/* Includes <sys/types.h> for caddr_t */
 #include <schily/stdio.h>
 #include <schily/schily.h>
+#include <schily/nlsdefs.h>
 
 #include "cdrecord.h"
 
@@ -136,12 +137,12 @@ print_min_atip(li, lo)
 	if (li < 0) {
 		lba_to_msf(li, &msf);
 
-		printf("  ATIP start of lead in:  %ld (%02d:%02d/%02d)\n",
+		printf(_("  ATIP start of lead in:  %ld (%02d:%02d/%02d)\n"),
 			li, msf.msf_min, msf.msf_sec, msf.msf_frame);
 	}
 	if (lo > 0) {
 		lba_to_msf(lo, &msf);
-		printf("  ATIP start of lead out: %ld (%02d:%02d/%02d)\n",
+		printf(_("  ATIP start of lead out: %ld (%02d:%02d/%02d)\n"),
 			lo, msf.msf_min, msf.msf_sec, msf.msf_frame);
 	}
 }

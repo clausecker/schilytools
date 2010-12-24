@@ -1,14 +1,14 @@
-/* @(#)scsi_cdr.c	1.158 09/07/10 Copyright 1995-2009 J. Schilling */
+/* @(#)scsi_cdr.c	1.159 10/12/19 Copyright 1995-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)scsi_cdr.c	1.158 09/07/10 Copyright 1995-2009 J. Schilling";
+	"@(#)scsi_cdr.c	1.159 10/12/19 Copyright 1995-2010 J. Schilling";
 #endif
 /*
  *	SCSI command functions for cdrecord
  *	covering pre-MMC standard functions up to MMC-2
  *
- *	Copyright (c) 1995-2009 J. Schilling
+ *	Copyright (c) 1995-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -45,6 +45,7 @@ static	UConst char sccsid[] =
 #include <schily/btorder.h>
 #include <schily/intcvt.h>
 #include <schily/schily.h>
+#include <schily/nlsdefs.h>
 
 #include <scg/scgcmd.h>
 #include <scg/scsidefs.h>
@@ -383,7 +384,7 @@ inquiry(scgp, bp, cnt)
 	if (scg_cmd(scgp) < 0)
 		return (-1);
 	if (scgp->verbose)
-		scg_prbytes("Inquiry Data   :", (Uchar *)bp, cnt - scg_getresid(scgp));
+		scg_prbytes(_("Inquiry Data   :"), (Uchar *)bp, cnt - scg_getresid(scgp));
 	return (0);
 }
 
@@ -437,9 +438,9 @@ print_capacity(scgp, f)
 	kb = dkb;
 	mb = dkb / 1024.0;
 	prmb = dkb / 1000.0 * 1.024;
-	fprintf(f, "Capacity: %ld Blocks = %ld kBytes = %ld MBytes = %ld prMB\n",
+	fprintf(f, _("Capacity: %ld Blocks = %ld kBytes = %ld MBytes = %ld prMB\n"),
 		(long)scgp->cap->c_baddr+1, kb, mb, prmb);
-	fprintf(f, "Sectorsize: %ld Bytes\n", (long)scgp->cap->c_bsize);
+	fprintf(f, _("Sectorsize: %ld Bytes\n"), (long)scgp->cap->c_bsize);
 }
 
 EXPORT int
@@ -1065,7 +1066,7 @@ get_trackinfo(scgp, bp, type, addr, cnt)
 
 #ifdef	DEBUG
 	if (lverbose > 1)
-		scg_prbytes("Track info:", (Uchar *)bp,
+		scg_prbytes(_("Track info:"), (Uchar *)bp,
 				len-scg_getresid(scgp));
 #endif
 	return (ret);
@@ -1344,7 +1345,7 @@ read_buff_cap(scgp, sp, fp)
 		*fp = freespace;
 
 	if (scgp->verbose || (sp == 0 && fp == 0))
-		printf("BFree: %ld K BSize: %ld K\n", freespace >> 10, bufsize >> 10);
+		printf(_("BFree: %ld K BSize: %ld K\n"), freespace >> 10, bufsize >> 10);
 
 	if (bufsize == 0)
 		return (0);
@@ -1476,7 +1477,7 @@ mode_select_sg0(scgp, dp, cnt, smp, pf)
 	xmode[5] = 0;
 	i_to_2_byte(&xmode[6], (unsigned int)dp[3]);
 
-	if (scgp->verbose) scg_prbytes("Mode Parameters (un-converted)", dp, cnt);
+	if (scgp->verbose) scg_prbytes(_("Mode Parameters (un-converted)"), dp, cnt);
 
 	return (mode_select_g1(scgp, xmode, amt, smp, pf));
 }
@@ -1532,7 +1533,7 @@ mode_sense_sg0(scgp, dp, cnt, page, pcf)
 	len = a_to_u_2_byte(&xmode[6]);
 	dp[3] = len;
 
-	if (scgp->verbose) scg_prbytes("Mode Sense Data (converted)", dp, amt);
+	if (scgp->verbose) scg_prbytes(_("Mode Sense Data (converted)"), dp, amt);
 	return (0);
 }
 
@@ -1558,8 +1559,8 @@ mode_select_g0(scgp, dp, cnt, smp, pf)
 	scmd->cdb.g0_cdb.count = cnt;
 
 	if (scgp->verbose) {
-		error("%s ", smp?"Save":"Set ");
-		scg_prbytes("Mode Parameters", dp, cnt);
+		error("%s ", smp?_("Save"):_("Set "));
+		scg_prbytes(_("Mode Parameters"), dp, cnt);
 	}
 
 	scgp->cmdname = "mode select g0";
@@ -1589,8 +1590,8 @@ mode_select_g1(scgp, dp, cnt, smp, pf)
 	g1_cdblen(&scmd->cdb.g1_cdb, cnt);
 
 	if (scgp->verbose) {
-		printf("%s ", smp?"Save":"Set ");
-		scg_prbytes("Mode Parameters", dp, cnt);
+		printf("%s ", smp?_("Save"):_("Set "));
+		scg_prbytes(_("Mode Parameters"), dp, cnt);
 	}
 
 	scgp->cmdname = "mode select g1";
@@ -1628,7 +1629,7 @@ mode_sense_g0(scgp, dp, cnt, page, pcf)
 
 	if (scg_cmd(scgp) < 0)
 		return (-1);
-	if (scgp->verbose) scg_prbytes("Mode Sense Data", dp, cnt - scg_getresid(scgp));
+	if (scgp->verbose) scg_prbytes(_("Mode Sense Data"), dp, cnt - scg_getresid(scgp));
 	return (0);
 }
 
@@ -1660,7 +1661,7 @@ mode_sense_g1(scgp, dp, cnt, page, pcf)
 
 	if (scg_cmd(scgp) < 0)
 		return (-1);
-	if (scgp->verbose) scg_prbytes("Mode Sense Data", dp, cnt - scg_getresid(scgp));
+	if (scgp->verbose) scg_prbytes(_("Mode Sense Data"), dp, cnt - scg_getresid(scgp));
 	return (0);
 }
 
@@ -1730,7 +1731,7 @@ read_tochdr(scgp, dp, fp, lp)
 	fillbytes((caddr_t)xb, sizeof (xb), '\0');
 	if (read_toc(scgp, xb, 0, sizeof (struct tocheader), 0, FMT_TOC) < 0) {
 		if (scgp->silent == 0)
-			errmsgno(EX_BAD, "Cannot read TOC header\n");
+			errmsgno(EX_BAD, _("Cannot read TOC header\n"));
 		return (-1);
 	}
 	len = a_to_u_2_byte(tp->len) + sizeof (struct tocheader)-2;
@@ -1758,15 +1759,15 @@ read_cdtext(scgp)
 	fillbytes((caddr_t)xb, sizeof (xb), '\0');
 	if (read_toc(scgp, xb, 0, sizeof (struct tocheader), 0, FMT_CDTEXT) < 0) {
 		if (scgp->silent == 0 || scgp->verbose > 0)
-			errmsgno(EX_BAD, "Cannot read CD-Text header\n");
+			errmsgno(EX_BAD, _("Cannot read CD-Text header\n"));
 		return (-1);
 	}
 	len = a_to_u_2_byte(tp->len) + sizeof (struct tocheader)-2;
-	printf("CD-Text len: %d\n", len);
+	printf(_("CD-Text len: %d\n"), len);
 
 	if (read_toc(scgp, xxb, 0, len, 0, FMT_CDTEXT) < 0) {
 		if (scgp->silent == 0)
-			errmsgno(EX_BAD, "Cannot read CD-Text\n");
+			errmsgno(EX_BAD, _("Cannot read CD-Text\n"));
 		return (-1);
 	}
 	{
@@ -1796,7 +1797,7 @@ read_trackinfo(scgp, track, offp, msfp, adrp, controlp, modep)
 	fillbytes((caddr_t)xb, sizeof (xb), '\0');
 	if (read_toc(scgp, xb, track, sizeof (struct diskinfo), 0, FMT_TOC) < 0) {
 		if (scgp->silent <= 0)
-			errmsgno(EX_BAD, "Cannot read TOC\n");
+			errmsgno(EX_BAD, _("Cannot read TOC\n"));
 		return (-1);
 	}
 	len = a_to_u_2_byte(dp->hd.len) + sizeof (struct tocheader)-2;
@@ -1884,7 +1885,7 @@ read_B0(scgp, isbcd, b0p, lop)
 		return (-1);
 	}
 	if (scgp->verbose) {
-		scg_prbytes("TOC data: ", (Uchar *)xb,
+		scg_prbytes(_("TOC data: "), (Uchar *)xb,
 			len > (int)sizeof (xb) - scg_getresid(scgp) ?
 				sizeof (xb) - scg_getresid(scgp) : len);
 
@@ -1892,7 +1893,7 @@ read_B0(scgp, isbcd, b0p, lop)
 		pe = &xb[len];
 
 		while ((char *)tp < pe) {
-			scg_prbytes("ENT: ", (Uchar *)tp, 11);
+			scg_prbytes(_("ENT: "), (Uchar *)tp, 11);
 			tp++;
 		}
 	}
@@ -1919,7 +1920,7 @@ read_B0(scgp, isbcd, b0p, lop)
 			*b0p = l;
 
 		if (scgp->verbose)
-			printf("B0 start: %ld\n", l);
+			printf(_("B0 start: %ld\n"), l);
 
 		if (isbcd) {
 			l = msf_to_lba(from_bcd(tp->pmin),
@@ -1932,7 +1933,7 @@ read_B0(scgp, isbcd, b0p, lop)
 		}
 
 		if (scgp->verbose)
-			printf("B0 lout: %ld\n", l);
+			printf(("B0 lout: %ld\n"), l);
 		if (lop)
 			*lop = l;
 		return (0);
@@ -1960,19 +1961,19 @@ read_session_offset(scgp, offp)
 		return (-1);
 
 	if (scgp->verbose)
-		scg_prbytes("tocheader: ",
+		scg_prbytes(_("tocheader: "),
 		(Uchar *)xb, sizeof (struct tocheader) - scg_getresid(scgp));
 
 	len = a_to_u_2_byte(dp->hd.len) + sizeof (struct tocheader)-2;
 	if (len > (int)sizeof (xb)) {
-		errmsgno(EX_BAD, "Session info too big.\n");
+		errmsgno(EX_BAD, _("Session info too big.\n"));
 		return (-1);
 	}
 	if (read_toc(scgp, (caddr_t)xb, 0, len, 0, FMT_SINFO) < 0)
 		return (-1);
 
 	if (scgp->verbose)
-		scg_prbytes("tocheader: ",
+		scg_prbytes(_("tocheader: "),
 			(Uchar *)xb, len - scg_getresid(scgp));
 
 	dp = (struct diskinfo *)xb;
@@ -2000,7 +2001,7 @@ read_session_offset_philips(scgp, offp)
 		return (-1);
 	len = a_to_u_2_byte(sp->hd.len) + sizeof (struct siheader)-2;
 	if (len > (int)sizeof (xb)) {
-		errmsgno(EX_BAD, "Session info too big.\n");
+		errmsgno(EX_BAD, _("Session info too big.\n"));
 		return (-1);
 	}
 	if (read_toc_philips(scgp, (caddr_t)xb, 0, len, 0, FMT_SINFO) < 0)
@@ -2054,9 +2055,9 @@ sense_secsize(scgp, current)
 	}
 	if (mode[3] == 8) {
 		if (scgp->debug) {
-			printf("Density: 0x%X\n", mode[4]);
-			printf("Blocks:  %ld\n", a_to_u_3_byte(&mode[5]));
-			printf("Blocklen:%ld\n", a_to_u_3_byte(&mode[9]));
+			printf(_("Density: 0x%X\n"), mode[4]);
+			printf(_("Blocks:  %ld\n"), a_to_u_3_byte(&mode[5]));
+			printf(_("Blocklen:%ld\n"), a_to_u_3_byte(&mode[9]));
 		}
 		secsize = a_to_u_3_byte(&mode[9]);
 	}
@@ -2073,7 +2074,7 @@ sense_secsize(scgp, current)
 		ep = mode+mode[0];	/* Points to last byte of data */
 		p = &mode[4];
 		p += mode[3];
-		printf("Pages: ");
+		printf(_("Pages: "));
 		while (p < ep) {
 			printf("0x%X ", *p&0x3F);
 			p += p[1]+2;
@@ -2228,7 +2229,7 @@ getdev(scgp, print)
 	if (!got_inquiry) {
 		if (scgp->verbose) {
 			printf(
-		"error: %d scb.chk: %d sense_count: %d sense.code: 0x%x\n",
+		_("error: %d scb.chk: %d sense_count: %d sense.code: 0x%x\n"),
 				scmd->error, scmd->scb.chk,
 				scmd->sense_count, scmd->sense.code);
 		}
@@ -2270,7 +2271,7 @@ getdev(scgp, print)
 		} else {
 			len = sizeof (*inq);
 		}
-		printf("Inquiry Data   : ");
+		printf(_("Inquiry Data   : "));
 		for (i = 0; i < len; i++) {
 			c = ip[i];
 			if (c >= ' ' && c < 0177)
@@ -2604,12 +2605,12 @@ printinq(scgp, f)
 {
 	register struct scsi_inquiry *inq = scgp->inq;
 
-	fprintf(f, "Device type    : ");
+	fprintf(f, _("Device type    : "));
 	scg_fprintdev(f, inq);
-	fprintf(f, "Version        : %d\n", inq->ansi_version);
-	fprintf(f, "Response Format: %d\n", inq->data_format);
+	fprintf(f, ("Version        : %d\n"), inq->ansi_version);
+	fprintf(f, _("Response Format: %d\n"), inq->data_format);
 	if (inq->data_format >= 2) {
-		fprintf(f, "Capabilities   : ");
+		fprintf(f, _("Capabilities   : "));
 		if (inq->aenc)		fprintf(f, "AENC ");
 		if (inq->termiop)	fprintf(f, "TERMIOP ");
 		if (inq->reladr)	fprintf(f, "RELADR ");
@@ -2625,9 +2626,9 @@ printinq(scgp, f)
 			inq->vendor_info[0] ||
 			inq->prod_ident[0] ||
 			inq->prod_revision[0]) {
-		fprintf(f, "Vendor_info    : '%.8s'\n", inq->vendor_info);
-		fprintf(f, "Identifikation : '%.16s'\n", inq->prod_ident);
-		fprintf(f, "Revision       : '%.4s'\n", inq->prod_revision);
+		fprintf(f, _("Vendor_info    : '%.8s'\n"), inq->vendor_info);
+		fprintf(f, _("Identifikation : '%.16s'\n"), inq->prod_ident);
+		fprintf(f, _("Revision       : '%.4s'\n"), inq->prod_revision);
 	}
 }
 
@@ -2635,11 +2636,11 @@ EXPORT void
 printdev(scgp)
 	SCSI	*scgp;
 {
-	printf("Device seems to be: ");
+	printf(_("Device seems to be: "));
 
 	switch (scgp->dev) {
 
-	case DEV_UNKNOWN:	printf("unknown");		break;
+	case DEV_UNKNOWN:	printf(_("unknown"));		break;
 	case DEV_ACB40X0:	printf("Adaptec 4000/4010/4070"); break;
 	case DEV_ACB4000:	printf("Adaptec 4000");		break;
 	case DEV_ACB4010:	printf("Adaptec 4010");		break;
@@ -2683,7 +2684,7 @@ printdev(scgp)
 	case DEV_PIONEER_DW_S114X: printf("Pioneer DW-S114X");	break;
 	case DEV_PIONEER_DVDR_S101:printf("Pioneer DVD-R S101"); break;
 
-	default:		printf("Missing Entry for dev %d",
+	default:		printf(_("Missing Entry for dev %d"),
 						scgp->dev);	break;
 
 	}
@@ -2749,9 +2750,9 @@ scsi_load(scgp, dp)
 	code = scg_sense_code(scgp);
 
 	if (key == SC_NOT_READY && (code == 0x3A || code == 0x30)) {
-		errmsgno(EX_BAD, "Cannot load media with %s drive!\n",
-			dp && (dp->cdr_flags & CDR_CADDYLOAD) ? "caddy" : "this");
-		errmsgno(EX_BAD, "Try to load media by hand.\n");
+		errmsgno(EX_BAD, _("Cannot load media with %s drive!\n"),
+			dp && (dp->cdr_flags & CDR_CADDYLOAD) ? _("caddy") : _("this"));
+		errmsgno(EX_BAD, _("Try to load media by hand.\n"));
 	}
 	return (-1);
 }
@@ -2791,7 +2792,7 @@ mmc_cap(scgp, modep)
 retry:
 	fillbytes((caddr_t)mode, sizeof (mode), '\0');
 
-	if (!get_mode_params(scgp, 0x2A, "CD capabilities",
+	if (!get_mode_params(scgp, 0x2A, _("CD capabilities"),
 			mode, (Uchar *)0, (Uchar *)0, (Uchar *)0, &len)) {
 
 		if (scg_sense_key(scgp) == SC_NOT_READY) {
@@ -2942,10 +2943,10 @@ print_speed(fmt, val)
 	printf(" BD %2ux)\n", val/4495);
 }
 
-#define	DOES(what, flag)	printf("  Does %s%s\n", flag?"":"not ", what)
-#define	IS(what, flag)		printf("  Is %s%s\n", flag?"":"not ", what)
-#define	VAL(what, val)		printf("  %s: %d\n", what, val[0]*256 + val[1])
-#define	SVAL(what, val)		printf("  %s: %s\n", what, val)
+#define	DOES(what, flag)	printf(_("  Does %s%s\n"), flag?"":_("not "), what)
+#define	IS(what, flag)		printf(_("  Is %s%s\n"), flag?"":_("not "), what)
+#define	VAL(what, val)		printf(_("  %s: %d\n"), what, val[0]*256 + val[1])
+#define	SVAL(what, val)		printf(_("  %s: %s\n"), what, val)
 
 EXPORT void
 print_capabilities(scgp)
@@ -2974,82 +2975,82 @@ static	const	char	*rotctl[4] = {"CLV/PCAV", "CAV", "reserved(2)", "reserved(3)"}
 	if (mp == NULL)
 		return;
 
-	printf("\nDrive capabilities, per");
+	printf(_("\nDrive capabilities, per"));
 	if (mp->p_len >= 28)
 		printf(" MMC-3");
 	else if (mp->p_len >= 24)
 		printf(" MMC-2");
 	else
 		printf(" MMC");
-	printf(" page 2A:\n\n");
+	printf(_(" page 2A:\n\n"));
 
-	DOES("read CD-R media", mp->cd_r_read);
-	DOES("write CD-R media", mp->cd_r_write);
-	DOES("read CD-RW media", mp->cd_rw_read);
-	DOES("write CD-RW media", mp->cd_rw_write);
-	DOES("read DVD-ROM media", mp->dvd_rom_read);
-	DOES("read DVD-R media", mp->dvd_r_read);
-	DOES("write DVD-R media", mp->dvd_r_write);
-	DOES("read DVD-RAM media", mp->dvd_ram_read);
-	DOES("write DVD-RAM media", mp->dvd_ram_write);
-	DOES("support test writing", mp->test_write);
+	DOES(_("read CD-R media"), mp->cd_r_read);
+	DOES(_("write CD-R media"), mp->cd_r_write);
+	DOES(_("read CD-RW media"), mp->cd_rw_read);
+	DOES(_("write CD-RW media"), mp->cd_rw_write);
+	DOES(_("read DVD-ROM media"), mp->dvd_rom_read);
+	DOES(_("read DVD-R media"), mp->dvd_r_read);
+	DOES(_("write DVD-R media"), mp->dvd_r_write);
+	DOES(_("read DVD-RAM media"), mp->dvd_ram_read);
+	DOES(_("write DVD-RAM media"), mp->dvd_ram_write);
+	DOES(_("support test writing"), mp->test_write);
 	printf("\n");
-	DOES("read Mode 2 Form 1 blocks", mp->mode_2_form_1);
-	DOES("read Mode 2 Form 2 blocks", mp->mode_2_form_2);
-	DOES("read digital audio blocks", mp->cd_da_supported);
+	DOES(_("read Mode 2 Form 1 blocks"), mp->mode_2_form_1);
+	DOES(_("read Mode 2 Form 2 blocks"), mp->mode_2_form_2);
+	DOES(_("read digital audio blocks"), mp->cd_da_supported);
 	if (mp->cd_da_supported)
-		DOES("restart non-streamed digital audio reads accurately", mp->cd_da_accurate);
-	DOES("support Buffer-Underrun-Free recording", mp->BUF);
-	DOES("read multi-session CDs", mp->multi_session);
-	DOES("read fixed-packet CD media using Method 2", mp->method2);
-	DOES("read CD bar code", mp->read_bar_code);
-	DOES("read R-W subcode information", mp->rw_supported);
+		DOES(_("restart non-streamed digital audio reads accurately"), mp->cd_da_accurate);
+	DOES(_("support Buffer-Underrun-Free recording"), mp->BUF);
+	DOES(_("read multi-session CDs"), mp->multi_session);
+	DOES(_("read fixed-packet CD media using Method 2"), mp->method2);
+	DOES(_("read CD bar code"), mp->read_bar_code);
+	DOES(_("read R-W subcode information"), mp->rw_supported);
 	if (mp->rw_supported)
-		DOES("return R-W subcode de-interleaved and error-corrected", mp->rw_deint_corr);
-	DOES("read raw P-W subcode data from lead in", mp->pw_in_lead_in);
-	DOES("return CD media catalog number", mp->UPC);
-	DOES("return CD ISRC information", mp->ISRC);
-	DOES("support C2 error pointers", mp->c2_pointers);
-	DOES("deliver composite A/V data", mp->composite);
+		DOES(_("return R-W subcode de-interleaved and error-corrected"), mp->rw_deint_corr);
+	DOES(_("read raw P-W subcode data from lead in"), mp->pw_in_lead_in);
+	DOES(_("return CD media catalog number"), mp->UPC);
+	DOES(_("return CD ISRC information"), mp->ISRC);
+	DOES(_("support C2 error pointers"), mp->c2_pointers);
+	DOES(_("deliver composite A/V data"), mp->composite);
 	printf("\n");
-	DOES("play audio CDs", mp->audio_play);
+	DOES(_("play audio CDs"), mp->audio_play);
 	if (mp->audio_play) {
-		VAL("Number of volume control levels", mp->num_vol_levels);
-		DOES("support individual volume control setting for each channel", mp->sep_chan_vol);
-		DOES("support independent mute setting for each channel", mp->sep_chan_mute);
-		DOES("support digital output on port 1", mp->digital_port_1);
-		DOES("support digital output on port 2", mp->digital_port_2);
+		VAL(_("Number of volume control levels"), mp->num_vol_levels);
+		DOES(_("support individual volume control setting for each channel"), mp->sep_chan_vol);
+		DOES(_("support independent mute setting for each channel"), mp->sep_chan_mute);
+		DOES(_("support digital output on port 1"), mp->digital_port_1);
+		DOES(_("support digital output on port 2"), mp->digital_port_2);
 		if (mp->digital_port_1 || mp->digital_port_2) {
-			DOES("send digital data LSB-first", mp->LSBF);
-			DOES("set LRCK high for left-channel data", mp->RCK);
-			DOES("have valid data on falling edge of clock", mp->BCK);
-			SVAL("Length of data in BCLKs", bclk[mp->length]);
+			DOES(_("send digital data LSB-first"), mp->LSBF);
+			DOES(_("set LRCK high for left-channel data"), mp->RCK);
+			DOES(_("have valid data on falling edge of clock"), mp->BCK);
+			SVAL(_("Length of data in BCLKs"), bclk[mp->length]);
 		}
 	}
 	printf("\n");
-	SVAL("Loading mechanism type", load[mp->loading_type]);
-	DOES("support ejection of CD via START/STOP command", mp->eject);
-	DOES("lock media on power up via prevent jumper", mp->prevent_jumper);
-	DOES("allow media to be locked in the drive via PREVENT/ALLOW command", mp->lock);
-	IS("currently in a media-locked state", mp->lock_state);
-	DOES("support changing side of disk", mp->side_change);
-	DOES("have load-empty-slot-in-changer feature", mp->sw_slot_sel);
-	DOES("support Individual Disk Present feature", mp->disk_present_rep);
+	SVAL(_("Loading mechanism type"), load[mp->loading_type]);
+	DOES(_("support ejection of CD via START/STOP command"), mp->eject);
+	DOES(_("lock media on power up via prevent jumper"), mp->prevent_jumper);
+	DOES(_("allow media to be locked in the drive via PREVENT/ALLOW command"), mp->lock);
+	IS(_("currently in a media-locked state"), mp->lock_state);
+	DOES(_("support changing side of disk"), mp->side_change);
+	DOES(_("have load-empty-slot-in-changer feature"), mp->sw_slot_sel);
+	DOES(_("support Individual Disk Present feature"), mp->disk_present_rep);
 	printf("\n");
-	print_speed("Maximum read  speed", a_to_u_2_byte(mp->max_read_speed));
-	print_speed("Current read  speed", a_to_u_2_byte(mp->cur_read_speed));
-	print_speed("Maximum write speed", a_to_u_2_byte(mp->max_write_speed));
+	print_speed(_("Maximum read  speed"), a_to_u_2_byte(mp->max_read_speed));
+	print_speed(_("Current read  speed"), a_to_u_2_byte(mp->cur_read_speed));
+	print_speed(_("Maximum write speed"), a_to_u_2_byte(mp->max_write_speed));
 	if (mp->p_len >= 28)
-		print_speed("Current write speed", a_to_u_2_byte(mp->v3_cur_write_speed));
+		print_speed(_("Current write speed"), a_to_u_2_byte(mp->v3_cur_write_speed));
 	else
-		print_speed("Current write speed", a_to_u_2_byte(mp->cur_write_speed));
+		print_speed(_("Current write speed"), a_to_u_2_byte(mp->cur_write_speed));
 	if (mp->p_len >= 28) {
-		SVAL("Rotational control selected", rotctl[mp->rot_ctl_sel]);
+		SVAL(_("Rotational control selected"), rotctl[mp->rot_ctl_sel]);
 	}
-	VAL("Buffer size in KB", mp->buffer_size);
+	VAL(_("Buffer size in KB"), mp->buffer_size);
 
 	if (mp->p_len >= 24) {
-		VAL("Copy management revision supported", mp->copy_man_rev);
+		VAL(_("Copy management revision supported"), mp->copy_man_rev);
 	}
 
 	if (mp->p_len >= 28) {
@@ -3060,9 +3061,9 @@ static	const	char	*rotctl[4] = {"CLV/PCAV", "CAV", "reserved(2)", "reserved(3)"}
 
 		ndesc = a_to_u_2_byte(mp->num_wr_speed_des);
 		pp = mp->wr_speed_des;
-		printf("  Number of supported write speeds: %d\n", ndesc);
+		printf(_("  Number of supported write speeds: %d\n"), ndesc);
 		for (i = 0; i < ndesc; i++, pp++) {
-			printf("  Write speed # %d:", i);
+			printf(_("  Write speed # %d:"), i);
 			n = a_to_u_2_byte(pp->wr_speed_supp);
 			printf(" %5d kB/s", n);
 			printf(" %s", rotctl[pp->rot_ctl_sel]);

@@ -1,8 +1,8 @@
-/* @(#)skel.c	1.24 10/05/11 Copyright 1987, 1995-2010 J. Schilling */
+/* @(#)skel.c	1.25 10/12/19 Copyright 1987, 1995-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)skel.c	1.24 10/05/11 Copyright 1987, 1995-2010 J. Schilling";
+	"@(#)skel.c	1.25 10/12/19 Copyright 1987, 1995-2010 J. Schilling";
 #endif
 /*
  *	Skeleton for the use of the scg genearal SCSI - driver
@@ -31,6 +31,7 @@ static	UConst char sccsid[] =
 #include <schily/errno.h>
 #include <schily/signal.h>
 #include <schily/schily.h>
+#include <schily/nlsdefs.h>
 #include <schily/priv.h>
 #include <schily/io.h>				/* for setmode() prototype */
 
@@ -85,20 +86,20 @@ LOCAL void
 usage(ret)
 	int	ret;
 {
-	error("Usage:\tbtcflash [options] f=firmwarefile\n");
-	error("options:\n");
-	error("\t-version	print version information and exit\n");
-	error("\tdev=target	SCSI target to use\n");
-	error("\tf=filename	Name of firmware file to read from\n");
-	error("\tts=#		set maximum transfer size for a single SCSI command\n");
-	error("\ttimeout=#	set the default SCSI command timeout to #.\n");
-	error("\tdebug=#,-d	Set to # or increment misc debug level\n");
-	error("\tkdebug=#,kd=#	do Kernel debugging\n");
-	error("\t-quiet,-q	be more quiet in error retry mode\n");
-	error("\t-verbose,-v	increment general verbose level by one\n");
-	error("\t-Verbose,-V	increment SCSI command transport verbose level by one\n");
-	error("\t-silent,-s	do not print status of failed SCSI commands\n");
-	error("\t-scanbus	scan the SCSI bus and exit\n");
+	error(_("Usage:\tbtcflash [options] f=firmwarefile\n"));
+	error(_("Options:\n"));
+	error(_("\t-version	print version information and exit\n"));
+	error(_("\tdev=target	SCSI target to use\n"));
+	error(_("\tf=filename	Name of firmware file to read from\n"));
+	error(_("\tts=#		set maximum transfer size for a single SCSI command\n"));
+	error(_("\ttimeout=#	set the default SCSI command timeout to #.\n"));
+	error(_("\tdebug=#,-d	Set to # or increment misc debug level\n"));
+	error(_("\tkdebug=#,kd=#	do Kernel debugging\n"));
+	error(_("\t-quiet,-q	be more quiet in error retry mode\n"));
+	error(_("\t-verbose,-v	increment general verbose level by one\n"));
+	error(_("\t-Verbose,-V	increment SCSI command transport verbose level by one\n"));
+	error(_("\t-silent,-s	do not print status of failed SCSI commands\n"));
+	error(_("\t-scanbus	scan the SCSI bus and exit\n"));
 	exit(ret);
 }
 
@@ -114,6 +115,9 @@ main(ac, av)
 	int	fcount;
 	int	cac;
 	char	* const *cav;
+#if	defined(USE_NLS)
+	char	*dir;
+#endif
 	int	scsibus	= -1;
 	int	target	= -1;
 	int	lun	= -1;
@@ -129,6 +133,24 @@ main(ac, av)
 	int	err;
 
 	save_args(ac, av);
+
+#if	defined(USE_NLS)
+	(void) setlocale(LC_ALL, "");
+#if !defined(TEXT_DOMAIN)	/* Should be defined by cc -D */
+#define	TEXT_DOMAIN "btcflash"	/* Use this only if it weren't */
+#endif
+	dir = searchfileinpath("share/locale", F_OK,
+					SIP_ANY_FILE|SIP_NO_PATH, NULL);
+	if (dir)
+		(void) bindtextdomain(TEXT_DOMAIN, dir);
+	else
+#if defined(PROTOTYPES) && defined(INS_BASE)
+	(void) bindtextdomain(TEXT_DOMAIN, INS_BASE "/share/locale");
+#else
+	(void) bindtextdomain(TEXT_DOMAIN, "/usr/share/locale");
+#endif
+	(void) textdomain(TEXT_DOMAIN);
+#endif
 
 	cac = --ac;
 	cav = ++av;
@@ -147,15 +169,16 @@ main(ac, av)
 			&dev,
 			getnum, &Sbufsize,
 			&filename) < 0) {
-		errmsgno(EX_BAD, "Bad flag: %s.\n", cav[0]);
+		errmsgno(EX_BAD, _("Bad flag: %s.\n"), cav[0]);
 		usage(EX_BAD);
 	}
 	if (help)
 		usage(0);
 	if (pversion) {
-		printf("btcflash %s (%s-%s-%s) Copyright (C) 1987, 1995-2010 Jörg Schilling (C) 2004 David Huang\n",
+		printf(_("btcflash %s (%s-%s-%s) Copyright (C) 1987, 1995-2010 %s (C) 2004 David Huang\n"),
 								skel_version,
-								HOST_CPU, HOST_VENDOR, HOST_OS);
+								HOST_CPU, HOST_VENDOR, HOST_OS,
+								_("Joerg Schilling"));
 		exit(0);
 	}
 
@@ -168,7 +191,7 @@ main(ac, av)
 		if (fcount == 1) {
 			if (*astoi(cav[0], &target) != '\0') {
 				errmsgno(EX_BAD,
-					"Target '%s' is not a Number.\n",
+					_("Target '%s' is not a Number.\n"),
 								cav[0]);
 				usage(EX_BAD);
 				/* NOTREACHED */
@@ -177,7 +200,7 @@ main(ac, av)
 		if (fcount == 2) {
 			if (*astoi(cav[0], &lun) != '\0') {
 				errmsgno(EX_BAD,
-					"Lun is '%s' not a Number.\n",
+					_("Lun is '%s' not a Number.\n"),
 								cav[0]);
 				usage(EX_BAD);
 				/* NOTREACHED */
@@ -186,7 +209,7 @@ main(ac, av)
 		if (fcount == 3) {
 			if (*astoi(cav[0], &scsibus) != '\0') {
 				errmsgno(EX_BAD,
-					"Scsibus is '%s' not a Number.\n",
+					_("Scsibus is '%s' not a Number.\n"),
 								cav[0]);
 				usage(EX_BAD);
 				/* NOTREACHED */
@@ -201,11 +224,11 @@ main(ac, av)
 
 	cdr_defaults(&dev, NULL, NULL, &Sbufsize, NULL);
 	if (debug) {
-		printf("dev: '%s'\n", dev);
+		printf(_("dev: '%s'\n"), dev);
 	}
 	if (!scanbus && dev == NULL &&
 	    scsibus == -1 && (target == -1 || lun == -1)) {
-		errmsgno(EX_BAD, "No SCSI device specified.\n");
+		errmsgno(EX_BAD, _("No SCSI device specified.\n"));
 		usage(EX_BAD);
 	}
 	if (dev || scanbus) {
@@ -226,9 +249,9 @@ main(ac, av)
 		if ((scgp = scg_open(dev, errstr, sizeof (errstr), debug, lverbose)) == (SCSI *)0) {
 			err = geterrno();
 
-			errmsgno(err, "%s%sCannot open SCSI driver.\n", errstr, errstr[0]?". ":"");
-			errmsgno(EX_BAD, "For possible targets try 'btcflash -scanbus'. Make sure you are root.\n");
-			errmsgno(EX_BAD, "For possible transport specifiers try 'btcflash dev=help'.\n");
+			errmsgno(err, _("%s%sCannot open SCSI driver.\n"), errstr, errstr[0]?". ":"");
+			errmsgno(EX_BAD, _("For possible targets try 'btcflash -scanbus'. Make sure you are root.\n"));
+			errmsgno(EX_BAD, _("For possible transport specifiers try 'btcflash dev=help'.\n"));
 			exit(err);
 		}
 	} else {
@@ -241,7 +264,7 @@ main(ac, av)
 
 		scg_settarget(scgp, scsibus, target, lun);
 		if (scg__open(scgp, NULL) <= 0)
-			comerr("Cannot open SCSI driver.\n");
+			comerr(_("Cannot open SCSI driver.\n"));
 	}
 	scgp->silent = silent;
 	scgp->verbose = verbose;
@@ -253,7 +276,7 @@ main(ac, av)
 		Sbufsize = 256*1024L;
 	Sbufsize = scg_bufsize(scgp, Sbufsize);
 	if ((Sbuf = scg_getbuf(scgp, Sbufsize)) == NULL)
-		comerr("Cannot get SCSI I/O buffer.\n");
+		comerr(_("Cannot get SCSI I/O buffer.\n"));
 
 #ifdef	HAVE_PRIV_SET
 	/*
@@ -286,7 +309,7 @@ main(ac, av)
 	if (setuid(getuid()) < 0)
 #endif
 #endif
-		comerr("Panic cannot set back effective uid.\n");
+		comerr(_("Panic cannot set back effective uid.\n"));
 
 	/* code to use SCG */
 
@@ -317,7 +340,7 @@ main(ac, av)
 	if (filename) {
 		dofile(scgp, filename);
 	} else {
-		errmsgno(EX_BAD, "Firmware file missing.\n");
+		errmsgno(EX_BAD, _("Firmware file missing.\n"));
 		doit(scgp);
 	}
 
@@ -357,7 +380,7 @@ exscsi(excode, arg)
 				break;
 			if (i == 10) {
 				errmsgno(EX_BAD,
-					"Waiting for current SCSI command to finish.\n");
+					_("Waiting for current SCSI command to finish.\n"));
 			}
 			usleep(100000);
 		}
@@ -404,7 +427,7 @@ prstats()
 	int	tmsec;
 
 	if (gettimeofday(&stoptime, (struct timezone *)0) < 0)
-		comerr("Cannot get time\n");
+		comerr(_("Cannot get time\n"));
 
 	sec = stoptime.tv_sec - starttime.tv_sec;
 	usec = stoptime.tv_usec - starttime.tv_usec;
@@ -417,7 +440,7 @@ prstats()
 		usec += 1000000;
 	}
 
-	error("Time total: %d.%03dsec\n", sec, usec/1000);
+	error(_("Time total: %d.%03dsec\n"), sec, usec/1000);
 	return (1000*sec + (usec / 1000));
 }
 #endif
@@ -434,7 +457,7 @@ prstats_silent()
 	int	tmsec;
 
 	if (gettimeofday(&stoptime, (struct timezone *)0) < 0)
-		comerr("Cannot get time\n");
+		comerr(_("Cannot get time\n"));
 
 	sec = stoptime.tv_sec - starttime.tv_sec;
 	usec = stoptime.tv_usec - starttime.tv_usec;
@@ -459,12 +482,12 @@ doit(scgp)
 
 	for (;;) {
 		if (!wait_unit_ready(scgp, 60))
-			comerrno(EX_BAD, "Device not ready.\n");
+			comerrno(EX_BAD, _("Device not ready.\n"));
 
-		printf("0:read\n");
+		printf(_("0:read\n"));
 /*		printf("7:wne  8:floppy 9:verify 10:checkcmds  11:read disk 12:write disk\n");*/
 
-		getint("Enter selection:", &i, 0, 20);
+		getint(_("Enter selection:"), &i, 0, 20);
 		if (didintr)
 			return;
 
@@ -472,7 +495,7 @@ doit(scgp)
 
 /*		case 1:		read_disk(scgp, 0);	break;*/
 
-		default:	error("Unimplemented selection %d\n", i);
+		default:	error(_("Unimplemented selection %d\n"), i);
 		}
 	}
 }

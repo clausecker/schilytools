@@ -1,6 +1,8 @@
-/* @(#)nlsdefs.h	1.3 09/05/23 Copyright 2004-2009 J. Schilling */
+/* @(#)nlsdefs.h	1.5 10/12/19 Copyright 2004-2010 J. Schilling */
 /*
- *	Copyright (c) 2004-2009 J. Schilling
+ *	Native language support
+ *
+ *	Copyright (c) 2004-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -19,6 +21,12 @@
 
 #ifndef _SCHILY_MCONFIG_H
 #include <schily/mconfig.h>
+#endif
+
+#ifndef	NO_NLS
+#ifndef	USE_NLS
+#define	USE_NLS			/* Make nls the default */
+#endif
 #endif
 
 #ifdef	HAVE_LIBINTL_H
@@ -54,6 +62,9 @@
 #undef	USE_NLS
 #endif
 
+#ifdef	NO_TEXT_DOMAIN
+#undef	TEXT_DOMAIN
+#endif
 
 #ifndef	USE_NLS
 #undef	gettext
@@ -70,5 +81,23 @@
 #undef	bind_textdomain_codeset
 #define	bind_textdomain_codeset(d, c)	((char *)0)
 #endif
+
+#ifdef	lint
+/*
+ * Allow lint to check printf() format strings.
+ */
+#define	_(s)				s
+#else	/* lint */
+
+#ifdef	USE_DGETTEXT			/* e.g. in a library */
+#define	_(s)				dgettext(TEXT_DOMAIN, s)
+#else
+#define	_(s)				gettext(s)
+#endif
+#endif	/* lint */
+/*
+ * Allow to mark strings for xgettext(1)
+ */
+#define	__(s)				s
 
 #endif	/* _SCHILY_NLSDEFS_H */

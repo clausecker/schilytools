@@ -1,4 +1,4 @@
-# @(#)Targets	1.20 10/10/07 Copyright 1995 J. Schilling
+# @(#)Targets	1.21 10/11/18 Copyright 1995 J. Schilling
 
 CFILES_STDIO=	cvmod.c dat.c fcons.c fdown.c fdup.c \
 		ffileread.c ffilewrite.c \
@@ -24,7 +24,7 @@ CFILES_REST=	astoi.c astoll.c astoull.c basename.c breakline.c \
 		findinpath.c \
 		findbytes.c findline.c fnmatch.c format.c \
 		fstream.c \
-		getargs.c getav0.c geterrno.c getfp.c \
+		getargs.c getav0.c geterrno.c getexecpath.c getfp.c \
 		getdomainname.c gethostid.c gethostname.c getpagesize.c \
 		getnum.c getxnum.c \
 		gettnum.c getxtnum.c \

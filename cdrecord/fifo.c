@@ -1,8 +1,8 @@
-/* @(#)fifo.c	1.64 10/02/12 Copyright 1989,1997-2010 J. Schilling */
+/* @(#)fifo.c	1.65 10/12/19 Copyright 1989,1997-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)fifo.c	1.64 10/02/12 Copyright 1989,1997-2010 J. Schilling";
+	"@(#)fifo.c	1.65 10/12/19 Copyright 1989,1997-2010 J. Schilling";
 #endif
 /*
  *	A "fifo" that uses shared memory between two processes
@@ -82,6 +82,7 @@ static	UConst char sccsid[] =
 #include <schily/signal.h>
 #include <schily/libport.h>
 #include <schily/schily.h>
+#include <schily/nlsdefs.h>
 #include <schily/vfork.h>
 
 #include "cdrecord.h"
@@ -260,16 +261,16 @@ mkshare(size)
 			PROT_READ|PROT_WRITE, MAP_SHARED|MAP_ANONYMOUS, f, 0);
 #else
 	if ((f = open("/dev/zero", O_RDWR)) < 0)
-		comerr("Cannot open '/dev/zero'.\n");
+		comerr(_("Cannot open '/dev/zero'.\n"));
 	addr = mmap(0, mmap_sizeparm(size),
 			PROT_READ|PROT_WRITE, MAP_SHARED, f, 0);
 #endif
 	if (addr == (char *)-1)
-		comerr("Cannot get mmap for %d Bytes on /dev/zero.\n", size);
+		comerr(_("Cannot get mmap for %d Bytes on /dev/zero.\n"), size);
 	if (f >= 0)
 		close(f);
 
-	if (debug) errmsgno(EX_BAD, "shared memory segment attached at: %p size %d\n",
+	if (debug) errmsgno(EX_BAD, _("shared memory segment attached at: %p size %d\n"),
 				(void *)addr, size);
 
 	return (addr);
@@ -300,18 +301,18 @@ mkshm(size)
 /*	extern	char *shmat();*/
 
 	if ((id = shmget(IPC_PRIVATE, size, IPC_CREAT|0600)) == -1)
-		comerr("shmget failed\n");
+		comerr(_("shmget failed\n"));
 
-	if (debug) errmsgno(EX_BAD, "shared memory segment allocated: %d\n", id);
+	if (debug) errmsgno(EX_BAD, _("shared memory segment allocated: %d\n"), id);
 
 	if ((addr = shmat(id, (char *)0, 0600)) == (char *)-1)
-		comerr("shmat failed\n");
+		comerr(_("shmat failed\n"));
 
-	if (debug) errmsgno(EX_BAD, "shared memory segment attached at: %p size %d\n",
+	if (debug) errmsgno(EX_BAD, _("shared memory segment attached at: %p size %d\n"),
 				(void *)addr, size);
 
 	if (shmctl(id, IPC_RMID, 0) < 0)
-		comerr("shmctl failed to detach shared memory segment\n");
+		comerr(_("shmctl failed to detach shared memory segment\n"));
 
 #ifdef	SHM_LOCK
 	/*
@@ -319,7 +320,7 @@ mkshm(size)
 	 * ommit this definition.
 	 */
 	if (shmctl(id, SHM_LOCK, 0) < 0)
-		comerr("shmctl failed to lock shared memory segment\n");
+		comerr(_("shmctl failed to lock shared memory segment\n"));
 #endif
 
 	return (addr);
@@ -339,9 +340,9 @@ mkos2shm(size)
 	 * no such restriction so I decided to use it allowing fifos of arbitrary size.
 	 */
 	if (DosAllocSharedMem(&addr, NULL, size, 0X100L | 0x1L | 0x2L | 0x10L))
-		comerr("DosAllocSharedMem() failed\n");
+		comerr(_("DosAllocSharedMem() failed\n"));
 
-	if (debug) errmsgno(EX_BAD, "shared memory allocated attached at: %p size %d\n",
+	if (debug) errmsgno(EX_BAD, _("shared memory allocated attached at: %p size %d\n"),
 				(void *)addr, size);
 
 	return (addr);
@@ -366,9 +367,9 @@ mkbeosshm(size)
 			B_NO_LOCK, B_READ_AREA|B_WRITE_AREA);
 	if (faio_addr == NULL) {
 		comerrno(faio_aid,
-			"Cannot get create_area for %d Bytes FIFO.\n", size);
+			_("Cannot get create_area for %d Bytes FIFO.\n"), size);
 	}
-	if (debug) errmsgno(EX_BAD, "shared memory allocated attached at: %p size %d\n",
+	if (debug) errmsgno(EX_BAD, _("shared memory allocated attached at: %p size %d\n"),
 				(void *)faio_addr, size);
 	return (faio_addr);
 }
@@ -387,7 +388,7 @@ beosshm_child()
 			B_ANY_ADDRESS, B_READ_AREA|B_WRITE_AREA,
 			faio_aid);
 	if (bufbase != faio_addr) {
-		comerrno(EX_BAD, "Panic FIFO addr.\n");
+		comerrno(EX_BAD, _("Panic FIFO addr.\n"));
 		/* NOTREACHED */
 	}
 }
@@ -460,13 +461,13 @@ init_faio(trackp, bufsize)
 
 	if (faio_buffers < MIN_BUFFERS) {
 		errmsgno(EX_BAD,
-			"write-buffer too small, minimum is %dk. Disabling.\n",
+			_("write-buffer too small, minimum is %dk. Disabling.\n"),
 						MIN_BUFFERS*bufsize/1024);
 		return (FALSE);
 	}
 
 	if (debug)
-		printf("Using %d buffers of %d bytes.\n", faio_buffers, faio_buf_size);
+		printf(_("Using %d buffers of %d bytes.\n"), faio_buffers, faio_buf_size);
 
 	f = (faio_t *)buf;
 	base = buf + roundup(sizeof (*sp) + faio_buffers * sizeof (struct faio),
@@ -485,7 +486,7 @@ init_faio(trackp, bufsize)
 
 	faio_pid = fork();
 	if (faio_pid < 0)
-		comerr("fork(2) failed");
+		comerr(_("fork(2) failed"));
 
 	if (faio_pid == 0) {
 		/*
@@ -540,7 +541,7 @@ await_faio()
 	 * Wait until the reader is active and has filled the buffer.
 	 */
 	if (lverbose || debug) {
-		printf("Waiting for reader process to fill input buffer ... ");
+		printf(_("Waiting for reader process to fill input buffer ... "));
 		flush();
 	}
 
@@ -548,7 +549,7 @@ await_faio()
 			    500*MSECS, 0);
 
 	if (lverbose || debug)
-		printf("input buffer ready.\n");
+		printf(_("input buffer ready.\n"));
 
 	sp->empty = sp->full = 0L;	/* set correct stat state */
 	sp->cont_low = faio_buffers;	/* set cont to max value  */
@@ -557,7 +558,7 @@ await_faio()
 	for (n = 0; n < faio_buffers; n++, f++) {
 		if (f->fd != lastfd &&
 			f->fd == STDIN_FILENO && f->len == 0) {
-			errmsgno(EX_BAD, "Premature EOF on stdin.\n");
+			errmsgno(EX_BAD, _("Premature EOF on stdin.\n"));
 			kill_faio();
 			return (FALSE);
 		}
@@ -590,18 +591,18 @@ faio_reader(trackp)
 	Uint	trackno;
 
 	if (debug)
-		printf("\nfaio_reader starting\n");
+		printf(_("\nfaio_reader starting\n"));
 
 	for (trackno = 0; trackno <= trackp->tracks; trackno++) {
 		if (trackno == 0 && trackp[0].xfp == NULL)
 			continue;
 		if (debug)
-			printf("\nfaio_reader reading track %u\n", trackno);
+			printf(_("\nfaio_reader reading track %u\n"), trackno);
 		faio_read_track(&trackp[trackno]);
 	}
 	sp->done++;
 	if (debug)
-		printf("\nfaio_reader all tracks read, exiting\n");
+		printf(_("\nfaio_reader all tracks read, exiting\n"));
 
 	/* Prevent hang if buffer is larger than all the tracks combined */
 	if (sp->gets == 0)
@@ -613,7 +614,7 @@ faio_reader(trackp)
 			/* XXX This should be fixed soon */
 #endif
 	if (debug)
-		error("\nfaio_reader _exit(0)\n");
+		error(_("\nfaio_reader _exit(0)\n"));
 	_exit(0);
 }
 
@@ -645,7 +646,7 @@ faio_read_track(trackp)
 
 	if (bytespt > faio_buf_size) {
 		comerrno(EX_BAD,
-		"faio_read_track fatal: secsize %d secspt %d, bytespt(%d) > %d !!\n",
+		_("faio_read_track fatal: secsize %d secspt %d, bytespt(%d) > %d !!\n"),
 			trackp->secsize, trackp->secspt, bytespt,
 			faio_buf_size);
 	}
@@ -709,10 +710,10 @@ faio_wait_on_buffer(f, s, delay, max_wait)
 	}
 	if (debug) {
 		errmsgno(EX_BAD,
-		"%lu microseconds passed waiting for %d current: %d idx: %ld\n",
+		_("%lu microseconds passed waiting for %d current: %d idx: %ld\n"),
 		max_wait, s, f->owner, (long)(f - faio_ref(0))/sizeof (*f));
 	}
-	comerrno(EX_BAD, "faio_wait_on_buffer for %s timed out.\n",
+	comerrno(EX_BAD, _("faio_wait_on_buffer for %s timed out.\n"),
 	(s > owner_reader || s < owner_none) ? "bad_owner" : onames[s-owner_none]);
 }
 
@@ -789,12 +790,12 @@ again:
 			goto again;
 		}
 		comerrno(EX_BAD,
-		"faio_get_buf fatal: fd=%d, f->fd=%d, f->len=%d f->errno=%d\n",
+		_("faio_get_buf fatal: fd=%d, f->fd=%d, f->len=%d f->errno=%d\n"),
 		fd, f->fd, f->len, f->saved_errno);
 	}
 	if (size < len) {
 		comerrno(EX_BAD,
-		"unexpected short read-attempt in faio_get_buf. size = %d, len = %d\n",
+		_("unexpected short read-attempt in faio_get_buf. size = %d, len = %d\n"),
 		size, len);
 	}
 
@@ -815,9 +816,9 @@ fifo_stats()
 	if (sp == NULL)	/* We might not use a FIFO */
 		return;
 
-	errmsgno(EX_BAD, "fifo had %ld puts and %ld gets.\n",
+	errmsgno(EX_BAD, _("fifo had %ld puts and %ld gets.\n"),
 		sp->puts, sp->gets);
-	errmsgno(EX_BAD, "fifo was %ld times empty and %ld times full, min fill was %ld%%.\n",
+	errmsgno(EX_BAD, _("fifo was %ld times empty and %ld times full, min fill was %ld%%.\n"),
 		sp->empty, sp->full, (100L*sp->cont_low)/faio_buffers);
 }
 
@@ -842,6 +843,7 @@ fifo_percent(addone)
 #include <schily/standard.h>
 #include <schily/utypes.h>	/* includes sys/types.h */
 #include <schily/schily.h>
+#include <schily/nlsdefs.h>
 
 #include "cdrecord.h"
 
@@ -860,7 +862,7 @@ EXPORT long
 init_fifo(fs)
 	long	fs;
 {
-	errmsgno(EX_BAD, "Fifo not supported.\n");
+	errmsgno(EX_BAD, _("Fifo not supported.\n"));
 	return (0L);
 }
 

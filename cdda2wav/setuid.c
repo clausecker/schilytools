@@ -1,8 +1,8 @@
-/* @(#)setuid.c	1.19 09/07/10 Copyright 1998,1999,2004 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling */
+/* @(#)setuid.c	1.20 10/12/19 Copyright 1998,1999,2004 Heiko Eissfeldt, Copyright 2004-2010 J. Schilling */
 #include "config.h"
 #ifndef lint
 static	UConst char sccsid[] =
-"@(#)setuid.c	1.19 09/07/10 Copyright 1998,1999,2004 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling";
+"@(#)setuid.c	1.20 10/12/19 Copyright 1998,1999,2004 Heiko Eissfeldt, Copyright 2004-2010 J. Schilling";
 
 #endif
 /*
@@ -42,6 +42,7 @@ static	UConst char sccsid[] =
 #include <schily/stdio.h>
 #include <schily/stdlib.h>
 #include <schily/schily.h>
+#include <schily/nlsdefs.h>
 
 #include "exitcodes.h"
 #include "setuid.h"
@@ -70,9 +71,9 @@ initsecurity()
 	leffective_uid = geteuid();
 	if ((int) real_uid != leffective_uid && leffective_uid != 0) { /* sanity check */
 		errmsgno(EX_BAD,
-		"Warning: setuid but not to root (uid=%ld, euid=%d)\n",
+		_("Warning: setuid but not to root (uid=%ld, euid=%d)\n"),
 				(long) real_uid, leffective_uid);
-		fprintf(stderr, "Dropping setuid privileges now.\n");
+		fprintf(stderr, _("Dropping setuid privileges now.\n"));
 		neverneedroot();
 	} else {
 		effective_uid = leffective_uid;
@@ -104,13 +105,13 @@ needroot(necessary)
 	if (effective_uid) {
 		if (necessary) {
 			errmsgno(EX_BAD,
-			"Fatal error: require root privilege but not setuid root.\n");
+			_("Fatal error: require root privilege but not setuid root.\n"));
 			exit(PERM_ERROR);
 		} else
 			return;
 	}
 	if (real_uid == (uid_t) (-1)) {
-		errmsgno(EX_BAD, "Fatal error: initsecurity() not called.\n");
+		errmsgno(EX_BAD, _("Fatal error: initsecurity() not called.\n"));
 		exit(INTERNAL_ERROR);
 	}
 
@@ -119,19 +120,19 @@ needroot(necessary)
 
 #if defined _POSIX_SAVED_IDS && defined(HAVE_SETEUID)
 	if (seteuid(effective_uid)) {
-		errmsg("Error with seteuid in needroot().\n");
+		errmsg(_("Error with seteuid in needroot().\n"));
 		exit(PERM_ERROR);
 	}
 #else
 #if defined(HAVE_SETREUID)
 	if (setreuid(real_uid, effective_uid)) {
-		errmsg("Error with setreuid in needroot().\n");
+		errmsg(_("Error with setreuid in needroot().\n"));
 		exit(PERM_ERROR);
 	}
 #endif
 #endif
 	    if (geteuid() != 0 && necessary) {
-		errmsgno(EX_BAD, "Fatal error: did not get root privilege.\n");
+		errmsgno(EX_BAD, _("Fatal error: did not get root privilege.\n"));
 		exit(PERM_ERROR);
 	}
 #ifdef DEBUG
@@ -155,7 +156,7 @@ dontneedroot()
 			geteuid(), getuid(), getpid());
 #endif
 	if (real_uid == (uid_t) (-1)) {
-		errmsgno(EX_BAD, "Fatal error: initsecurity() not called.\n");
+		errmsgno(EX_BAD, _("Fatal error: initsecurity() not called.\n"));
 		exit(INTERNAL_ERROR);
 	}
 	if (effective_uid)
@@ -165,20 +166,20 @@ dontneedroot()
 
 #if defined _POSIX_SAVED_IDS && defined(HAVE_SETEUID)
 	if (seteuid(real_uid)) {
-		errmsg("Error with seteuid in dontneedroot().\n");
+		errmsg(_("Error with seteuid in dontneedroot().\n"));
 		exit(PERM_ERROR);
 	}
 #else
 #if defined(HAVE_SETREUID)
 	if (setreuid(effective_uid, real_uid)) {
-		errmsg("Error with setreuid in dontneedroot().\n");
+		errmsg(_("Error with setreuid in dontneedroot().\n"));
 		exit(PERM_ERROR);
 	}
 #endif
 #endif
 	if (geteuid() != real_uid) {
 		errmsgno(EX_BAD,
-			"Fatal error: did not drop root privilege.\n");
+			_("Fatal error: did not drop root privilege.\n"));
 #ifdef DEBUG
 		fprintf(stderr,
 		"in   to dontneedroot (_euid_=%d, uid=%d), current=%d/%d, pid=%d\n",
@@ -202,13 +203,13 @@ neverneedroot()
 			geteuid(), getuid(), getpid());
 #endif
 	if (real_uid == (uid_t) (-1)) {
-		errmsgno(EX_BAD, "Fatal error: initsecurity() not called.\n");
+		errmsgno(EX_BAD, _("Fatal error: initsecurity() not called.\n"));
 		exit(INTERNAL_ERROR);
 	}
 	if (geteuid() == effective_uid) {
 #if defined(HAVE_SETUID)
 		if (setuid(real_uid)) {
-			errmsg("Error with setuid in neverneedroot().\n");
+			errmsg(_("Error with setuid in neverneedroot().\n"));
 			exit(PERM_ERROR);
 		}
 #endif
@@ -218,7 +219,7 @@ neverneedroot()
 	else {
 #if defined(HAVE_SETUID)
 		if (setuid(real_uid)) {
-			errmsg("Error with setuid in neverneedroot().\n");
+			errmsg(_("Error with setuid in neverneedroot().\n"));
 			exit(PERM_ERROR);
 		}
 #endif
@@ -226,7 +227,7 @@ neverneedroot()
 #endif
 	if (geteuid() != real_uid || getuid() != real_uid) {
 		errmsgno(EX_BAD,
-		"Fatal error: did not drop root privilege.\n");
+		_("Fatal error: did not drop root privilege.\n"));
 #ifdef DEBUG
 		fprintf(stderr,
 		"in  to neverneedroot (_euid_=%d, uid=%d), current=%d/%d, pid=%d\n",
@@ -258,7 +259,7 @@ needgroup(necessary)
 #endif
 	if (real_gid == (gid_t) (-1)) {
 		errmsgno(EX_BAD,
-		"Fatal error: initsecurity() not called.\n");
+		_("Fatal error: initsecurity() not called.\n"));
 		exit(INTERNAL_ERROR);
 	}
 
@@ -267,20 +268,20 @@ needgroup(necessary)
 
 #if defined _POSIX_SAVED_IDS && defined(HAVE_SETEGID)
 	if (setegid(effective_gid)) {
-		errmsg("Error with setegid in needgroup().\n");
+		errmsg(_("Error with setegid in needgroup().\n"));
 		exit(PERM_ERROR);
 	}
 #else
 #if defined(HAVE_SETREGID)
 	if (setregid(real_gid, effective_gid)) {
-		errmsg("Error with setregid in needgroup().\n");
+		errmsg(_("Error with setregid in needgroup().\n"));
 		exit(PERM_ERROR);
 	}
 #endif
 #endif
 	if (necessary && getegid() != effective_gid) {
 		errmsgno(EX_BAD,
-			"Fatal error: did not get group privilege.\n");
+			_("Fatal error: did not get group privilege.\n"));
 		exit(PERM_ERROR);
 	}
 }
@@ -298,27 +299,27 @@ dontneedgroup()
 			getegid(), getgid(), getpid());
 #endif
 	if (real_gid == (gid_t) (-1)) {
-		errmsgno(EX_BAD, "Fatal error: initsecurity() not called.\n");
+		errmsgno(EX_BAD, _("Fatal error: initsecurity() not called.\n"));
 		exit(INTERNAL_ERROR);
 	}
 	if (getegid() != effective_gid)
 		return; /* nothing to do */
 #if defined _POSIX_SAVED_IDS && defined(HAVE_SETEGID)
 	if (setegid(real_gid)) {
-		errmsg("Error with setegid in dontneedgroup().\n");
+		errmsg(_("Error with setegid in dontneedgroup().\n"));
 		exit(PERM_ERROR);
 	}
 #else
 #if defined(HAVE_SETREGID)
 	if (setregid(effective_gid, real_gid)) {
-		errmsg("Error with setregid in dontneedgroup().\n");
+		errmsg(_("Error with setregid in dontneedgroup().\n"));
 		exit(PERM_ERROR);
 	}
 #endif
 #endif
 	if (getegid() != real_gid) {
 		errmsgno(EX_BAD,
-			"Fatal error: did not drop group privilege.\n");
+			_("Fatal error: did not drop group privilege.\n"));
 		exit(PERM_ERROR);
 	}
 #ifdef DEBUG
@@ -342,13 +343,13 @@ neverneedgroup()
 			getegid(), getgid(), getpid());
 #endif
 	if (real_gid == (gid_t) (-1)) {
-		errmsgno(EX_BAD, "Fatal error: initsecurity() not called.\n");
+		errmsgno(EX_BAD, _("Fatal error: initsecurity() not called.\n"));
 		exit(INTERNAL_ERROR);
 	}
 	if (getegid() == effective_gid) {
 #if defined(HAVE_SETGID)
 		if (setgid(real_gid)) {
-			errmsg("Error with setgid in neverneedgroup().\n");
+			errmsg(_("Error with setgid in neverneedgroup().\n"));
 			exit(PERM_ERROR);
 		}
 #endif
@@ -358,7 +359,7 @@ neverneedgroup()
 	else {
 #if defined(HAVE_SETGID)
 		if (setgid(real_gid)) {
-			errmsg("Error with setgid in neverneedgroup().\n");
+			errmsg(_("Error with setgid in neverneedgroup().\n"));
 			exit(PERM_ERROR);
 		}
 #endif
@@ -366,7 +367,7 @@ neverneedgroup()
 #endif
 	if (getegid() != real_gid || getgid() != real_gid) {
 		errmsgno(EX_BAD,
-			"Fatal error: did not drop group privilege.\n");
+			_("Fatal error: did not drop group privilege.\n"));
 		exit(PERM_ERROR);
 	}
 	effective_gid = real_gid;

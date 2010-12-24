@@ -1,8 +1,8 @@
-/* @(#)drv_7501.c	1.29 10/02/03 Copyright 2003-2010 J. Schilling */
+/* @(#)drv_7501.c	1.30 10/12/19 Copyright 2003-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)drv_7501.c	1.29 10/02/03 Copyright 2003-2010 J. Schilling";
+	"@(#)drv_7501.c	1.30 10/12/19 Copyright 2003-2010 J. Schilling";
 #endif
 /*
  *	Device driver for the Masushita CW-7501
@@ -49,6 +49,7 @@ static	UConst char sccsid[] =
 #include <schily/btorder.h>
 #include <schily/intcvt.h>
 #include <schily/schily.h>
+#include <schily/nlsdefs.h>
 
 #include <scg/scgcmd.h>
 #include <scg/scsidefs.h>
@@ -381,7 +382,7 @@ cw7501_getdisktype(scgp, dp)
 		 * it is mentioned in the MMC standard.
 		 */
 		if (lverbose)
-			printf("Trying to clear drive status.\n");
+			printf(_("Trying to clear drive status.\n"));
 		cw7501_rezero(scgp, 0, 1);
 		wait_unit_ready(scgp, 60);
 		ret = cw7501_read_trackinfo(scgp, buf, 12, 0, TI_NWA);
@@ -420,7 +421,7 @@ cw7501_speed_select(scgp, dp, speedp)
 	} else {
 		fillbytes((caddr_t)mode, sizeof (mode), '\0');
 
-		if (!get_mode_params(scgp, page, "Speed information",
+		if (!get_mode_params(scgp, page, _("Speed information"),
 			(Uchar *)mode, (Uchar *)0, (Uchar *)0, (Uchar *)0, &len)) {
 			return (-1);
 		}
@@ -494,7 +495,7 @@ cw7501_next_wr_addr(scgp, trackp, ap)
 			return (-1);
 	}
 	if (scgp->verbose)
-		scg_prbytes("track info:", buf,
+		scg_prbytes(_("track info:"), buf,
 				12-scg_getresid(scgp));
 	next_addr = a_to_4_byte(nwa->nwa_nwa);
 	/*
@@ -517,7 +518,7 @@ cw7501_write(scgp, bp, sectaddr, size, blocks, islast)
 	BOOL	islast;		/* last write for track */
 {
 	if (lverbose > 1 && islast)
-		printf("\nWriting last record for this track.\n");
+		printf(_("\nWriting last record for this track.\n"));
 
 	return (write_xg0(scgp, bp, 0, size, blocks));
 }
@@ -533,11 +534,11 @@ cw7501_write_leadin(scgp, dp, trackp)
 
 	if (wm_base(dp->cdr_dstat->ds_wrmode) == WM_SAO) {
 		if (debug || lverbose) {
-			printf("Sending CUE sheet...\n");
+			printf(_("Sending CUE sheet...\n"));
 			flush();
 		}
 		if ((*dp->cdr_send_cue)(scgp, dp, trackp) < 0) {
-			errmsgno(EX_BAD, "Cannot send CUE sheet.\n");
+			errmsgno(EX_BAD, _("Cannot send CUE sheet.\n"));
 			return (-1);
 		}
 
@@ -547,10 +548,10 @@ cw7501_write_leadin(scgp, dp, trackp)
 		 */
 		startsec = -150;
 		if (debug)
-			printf("SAO startsec: %ld\n", startsec);
+			printf(_("SAO startsec: %ld\n"), startsec);
 
 		if (trackp[0].flags & TI_TEXT) {
-			errmsgno(EX_BAD, "CD-Text unsupported in CW-7501 - ignoring.\n");
+			errmsgno(EX_BAD, _("CD-Text unsupported in CW-7501 - ignoring.\n"));
 		} else for (i = 1; i <= trackp->tracks; i++) {
 			trackp[i].trackstart += startsec +150;
 		}
@@ -592,7 +593,7 @@ cw7501_open_track(scgp, dp, trackp)
 	if (!is_tao(trackp) && !is_packet(trackp)) {
 		if (trackp->pregapsize > 0 && (trackp->flags & TI_PREGAP) == 0) {
 			if (lverbose) {
-				printf("Writing pregap for track %d at %ld\n",
+				printf(_("Writing pregap for track %d at %ld\n"),
 					(int)trackp->trackno,
 					trackp->trackstart-trackp->pregapsize);
 			}
@@ -619,7 +620,7 @@ cw7501_open_track(scgp, dp, trackp)
 	if (select_secsize(scgp, trackp->secsize) < 0)
 		return (-1);
 
-	if (!get_mode_params(scgp, page, "Dummy/autopg information",
+	if (!get_mode_params(scgp, page, _("Dummy/autopg information"),
 			(Uchar *)mode, (Uchar *)0, (Uchar *)0, (Uchar *)0, &len)) {
 		return (-1);
 	}
@@ -632,7 +633,7 @@ cw7501_open_track(scgp, dp, trackp)
 
 	xp23  = (struct cw7501_mode_page_23 *)mp;
 	xp23->autopg = 1;
-	if (!set_mode_params(scgp, "Dummy/autopg page", mode, len, 0, trackp->secsize))
+	if (!set_mode_params(scgp, _("Dummy/autopg page"), mode, len, 0, trackp->secsize))
 		return (-1);
 
 	/*
@@ -683,7 +684,7 @@ cw7501_open_session(scgp, dp, trackp)
 		int				page = 0x23;
 		struct cw7501_mode_page_23	*xp23;
 
-		if (!get_mode_params(scgp, page, "Dummy/autopg information",
+		if (!get_mode_params(scgp, page, _("Dummy/autopg information"),
 				(Uchar *)mode, (Uchar *)0, (Uchar *)0, (Uchar *)0, &len)) {
 			return (-1);
 		}
@@ -696,7 +697,7 @@ cw7501_open_session(scgp, dp, trackp)
 
 		xp23  = (struct cw7501_mode_page_23 *)mp;
 		xp23->autopg = 0;
-		if (!set_mode_params(scgp, "Dummy/autopg page", mode, len, 0, trackp->secsize))
+		if (!set_mode_params(scgp, _("Dummy/autopg page"), mode, len, 0, trackp->secsize))
 			return (-1);
 
 		return (0);
@@ -886,7 +887,7 @@ cw7501_send_cue(scgp, dp, trackp)
 
 	for (i = 1; i <= trackp->tracks; i++) {
 		if (trackp[i].tracksize < (tsize_t)0) {
-			errmsgno(EX_BAD, "Track %d has unknown length.\n", i);
+			errmsgno(EX_BAD, _("Track %d has unknown length.\n"), i);
 			return (-1);
 		}
 	}
@@ -902,14 +903,14 @@ cw7501_send_cue(scgp, dp, trackp)
 	scgp->silent--;
 	free(cp);
 	if (ret < 0) {
-		errmsgno(EX_BAD, "CUE sheet not accepted. Retrying with minimum pregapsize = 1.\n");
+		errmsgno(EX_BAD, _("CUE sheet not accepted. Retrying with minimum pregapsize = 1.\n"));
 		ncue = (*dp->cdr_gen_cue)(trackp, &cp, TRUE);
 		ret  = cw7501_write_dao(scgp, (Uchar *)cp, ncue*8, disktype);
 		free(cp);
 	}
 	if (ret >= 0 && lverbose) {
 		gettimeofday(&stoptime, (struct timezone *)0);
-		prtimediff("Write Lead-in time: ", &starttime, &stoptime);
+		prtimediff(_("Write Lead-in time: "), &starttime, &stoptime);
 	}
 	return (ret);
 }
@@ -1019,7 +1020,7 @@ cw7501_reserve_track(scgp, len)
 
 	scgp->cmdname = "cw7501 reserve_track";
 
-	comerrno(EX_BAD, "Control (as in set mode) missing.\n");
+	comerrno(EX_BAD, _("Control (as in set mode) missing.\n"));
 
 	if (scg_cmd(scgp) < 0)
 		return (-1);

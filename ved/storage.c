@@ -1,14 +1,14 @@
-/* @(#)storage.c	1.50 09/07/09 Copyright 1984-2009 J. Schilling */
+/* @(#)storage.c	1.52 10/12/19 Copyright 1984-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)storage.c	1.50 09/07/09 Copyright 1984-2009 J. Schilling";
+	"@(#)storage.c	1.52 10/12/19 Copyright 1984-2010 J. Schilling";
 #endif
 /*
  *	Storage management based on the paged virtual memory
  *	provided by buffer.c
  *
- *	Copyright (c) 1984-2009 J. Schilling
+ *	Copyright (c) 1984-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -334,7 +334,9 @@ again:
 #if	defined(IS_CYGWIN) || defined(__DJGPP__)
 	if (newdefault && !retry && wp->curfd >= 0) {
 		write_errno(wp, "LOCK WORKED!");
+#ifdef	SLEEP_ON_WORKING_CYGWIN_LOCK
 		sleep(2);
+#endif
 	}
 #ifdef	NONOONO
 	if (newdefault && wp->curfd < 0) {

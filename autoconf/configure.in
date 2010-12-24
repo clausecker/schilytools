@@ -1,6 +1,6 @@
-dnl @(#)configure.in	1.219 10/11/06 Copyright 1998-2010 J. Schilling
+dnl @(#)configure.in	1.223 10/11/17 Copyright 1998-2010 J. Schilling
 dnl Process this file with autoconf to produce a configure script.
-AC_REVISION(1.219)dnl
+AC_REVISION(1.223)dnl
 
 dnl AC_INIT(xconfig.h.in)
 AC_INIT(config.guess)
@@ -61,7 +61,7 @@ AC_CHECK_HEADERS(sys/time.h sys/times.h utime.h sys/utime.h sys/ioctl.h sys/fili
 AC_CHECK_HEADERS(sys/syscall.h)
 AC_CHECK_HEADERS(mach/machine.h)
 AC_CHECK_HEADERS(mntent.h sys/mntent.h sys/mnttab.h sys/mount.h)
-AC_CHECK_HEADERS(sys/fork.h vfork.h wait.h sys/wait.h sys/resource.h procfs.h sys/procfs.h)
+AC_CHECK_HEADERS(sys/fork.h vfork.h wait.h sys/wait.h sys/resource.h procfs.h sys/procfs.h libproc.h)
 AC_CHECK_HEADERS(sys/utsname.h sys/priocntl.h sys/rtpriocntl.h sys/procset.h)
 AC_CHECK_HEADERS(sys/mtio.h sys/tape.h sys/mman.h linux/pg.h camlib.h)
 AC_CHECK_HEADERS(sys/shm.h sys/sem.h sys/ipc.h)
@@ -315,6 +315,7 @@ AC_CHECK_FUNCS(sync fsync fork forkx vforkx forkall forkallx wait wait4 waitid w
 AC_CHECK_FUNCS(execl execle execlp execv execve execvp)
 AC_CHECK_FUNCS(getexecname)
 AC_CHECK_FUNCS(getprogname setprogname)
+AC_CHECK_FUNCS(proc_pidpath)
 AC_CHECK_FUNCS(gethostid gethostname getdomainname getpagesize getdtablesize)
 AC_CHECK_FUNCS(gettimeofday settimeofday time stime gethrtime)
 AC_CHECK_FUNCS(ftime tzset mktime gmtime localtime timegm timelocal)
@@ -324,6 +325,8 @@ AC_CHECK_FUNCS(chown fchown lchown chmod fchmod lchmod times utime utimes futime
 AC_CHECK_FUNCS(futimens utimensat)
 dnl AC_CHECK_FUNCS(ecvt fcvt gcvt)
 AC_CHECK_FUNCS(qecvt qfcvt qgcvt)
+AC_CHECK_FUNCS(_qecvt _qfcvt _qgcvt)
+AC_CHECK_FUNCS(_qecvt_r _qfcvt_r _qgcvt_r)
 AC_CHECK_FUNCS(_ldecvt _ldfcvt _ldgcvt)
 AC_CHECK_FUNCS(ecvt_r fcvt_r gcvt_r)
 AC_CHECK_FUNCS(_ldecvt_r _ldfcvt_r _ldgcvt_r)
@@ -440,6 +443,8 @@ AC_USER_MALLOC
 dnl AC_USER_XCVT test macro does not yet work
 AC_VAR_TIMEZONE
 AC_VAR_TIMEZONE_DEF
+AC_VAR___PROGNAME
+AC_VAR___PROGNAME_FULL
 
 dnl Checks for OS characteristics.
 AC_HARD_SYMLINKS
@@ -459,10 +464,13 @@ AC_CHECK_LIB(c, dlopen, lib_dl="",
   [AC_CHECK_LIB(dl, dlopen, lib_dl="-ldl")])
 ac_save_LIBS="$LIBS"
 LIBS="$LIBS $lib_dl"
-AC_CHECK_FUNCS(dlopen dlclose dlsym dlerror)
+AC_CHECK_FUNCS(dlopen dlclose dlsym dlerror dlinfo)
 AC_CHECK_FUNCS(shl_load shl_unload shl_gethandle)
 AC_CHECK_FUNCS(LoadLibrary FreeLibrary GetProcAddress)
 LIBS="$ac_save_LIBS"
+if test ."$lib_dl" = .""; then
+	AC_DEFINE(HAVE_DLOPEN_IN_LIBC)
+fi
 
 dnl ??? AC_CHECK_LIB(socket, socket, lib_socket="-lsocket")
 dnl

@@ -1,8 +1,8 @@
-/* @(#)match.c	1.29 09/07/09 joerg */
+/* @(#)match.c	1.30 10/12/19 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)match.c	1.29 09/07/09 joerg";
+	"@(#)match.c	1.30 10/12/19 joerg";
 #endif
 /*
  * 27-Mar-96: Jan-Piet Mens <jpm@mens.de>
@@ -12,7 +12,7 @@ static	UConst char sccsid[] =
  * Re-written 13-Apr-2000 James Pearson
  * now uses a generic set of routines
  * Conversions to make the code more portable May 2000 .. March 2004
- * Copyright (c) 2000-2009 J. Schilling
+ * Copyright (c) 2000-2010 J. Schilling
  */
 
 #include <schily/stdio.h>
@@ -22,6 +22,7 @@ static	UConst char sccsid[] =
 #include <schily/standard.h>
 #include <schily/schily.h>
 #include <schily/libport.h>
+#include <schily/nlsdefs.h>
 #include "match.h"
 
 struct match {
@@ -64,12 +65,12 @@ add_sort_match(fn, val)
 
 	s_mat = (sort_match *)malloc(sizeof (sort_match));
 	if (s_mat == NULL) {
-		errmsg("Can't allocate memory for sort filename\n");
+		errmsg(_("Can't allocate memory for sort filename\n"));
 		return (0);
 	}
 
 	if ((s_mat->name = strdup(fn)) == NULL) {
-		errmsg("Can't allocate memory for sort filename\n");
+		errmsg(_("Can't allocate memory for sort filename\n"));
 		free(s_mat);
 		return (0);
 	}
@@ -97,7 +98,7 @@ extern	int	do_sort;
 
 	do_sort++;
 	if ((fp = fopen(file, "r")) == NULL) {
-		comerr("Can't open sort file list %s\n", file);
+		comerr(_("Can't open sort file list %s\n"), file);
 	}
 
 	while (fgets(name, sizeof (name), fp) != NULL) {
@@ -113,7 +114,7 @@ extern	int	do_sort;
 			/*
 			 * XXX old code did not abort here.
 			 */
-			comerrno(EX_BAD, "Incorrect sort file format\n\t%s", name);
+			comerrno(EX_BAD, _("Incorrect sort file format\n\t%s\n"), name);
 			continue;
 		} else {
 			*p = '\0';
@@ -173,18 +174,18 @@ gen_add_match(fn, n)
 	match	*mat;
 
 	if (n >= MAX_MAT) {
-		errmsgno(EX_BAD, "Too many patterns.\n");
+		errmsgno(EX_BAD, _("Too many patterns.\n"));
 		return (0);
 	}
 
 	mat = (match *)malloc(sizeof (match));
 	if (mat == NULL) {
-		errmsg("Can't allocate memory for %s filename\n", mesg[n]);
+		errmsg(_("Can't allocate memory for %s filename\n"), mesg[n]);
 		return (0);
 	}
 
 	if ((mat->name = strdup(fn)) == NULL) {
-		errmsg("Can't allocate memory for %s filename\n", mesg[n]);
+		errmsg(_("Can't allocate memory for %s filename\n"), mesg[n]);
 		free(mat);
 		return (0);
 	}
@@ -271,7 +272,7 @@ gen_add_list(file, n)
 	int	len;
 
 	if ((fp = fopen(file, "r")) == NULL) {
-		comerr("Can't open %s file list %s\n", mesg[n], file);
+		comerr(_("Can't open %s file list %s\n"), mesg[n], file);
 	}
 
 	while (fgets(name, sizeof (name), fp) != NULL) {

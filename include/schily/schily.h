@@ -1,4 +1,4 @@
-/* @(#)schily.h	1.92 10/10/23 Copyright 1985-2010 J. Schilling */
+/* @(#)schily.h	1.94 10/11/18 Copyright 1985-2010 J. Schilling */
 /*
  *	Definitions for libschily
  *
@@ -340,12 +340,19 @@ extern	int	saved_ac __PR((void));
 extern	char	**saved_av __PR((void));
 extern	char	*saved_av0 __PR((void));
 extern	char	*searchfileinpath __PR((char *__name, int __mode,
-					BOOL __plain_file, char *__path));
+					int __file_mode, char *__path));
+#define	SIP_ANY_FILE	0x00
+#define	SIP_PLAIN_FILE	0x01
+#define	SIP_NO_PATH	0x10
+#define	SIP_TYPE_MASK	0x0F
+
 #ifndef	seterrno
 extern	int	seterrno __PR((int));
 #endif
 extern	void	set_progname __PR((const char *));
 extern	char	*get_progname __PR((void));
+extern	char	*get_progpath __PR((void));
+extern	char	*getexecpath __PR((void));
 
 extern	void	setfp __PR((void * const *));
 extern	int	wait_chld __PR((int));		/* for fspawnv_nowait() */

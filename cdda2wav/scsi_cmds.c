@@ -1,8 +1,8 @@
-/* @(#)scsi_cmds.c	1.51 10/05/24 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2004-2010 J. Schilling */
+/* @(#)scsi_cmds.c	1.52 10/12/19 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2004-2010 J. Schilling */
 #include "config.h"
 #ifndef lint
 static	UConst char sccsid[] =
-"@(#)scsi_cmds.c	1.51 10/05/24 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2004-2010 J. Schilling";
+"@(#)scsi_cmds.c	1.52 10/12/19 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2004-2010 J. Schilling";
 #endif
 /*
  * file for all SCSI commands
@@ -31,6 +31,7 @@ static	UConst char sccsid[] =
 #include <schily/stdlib.h>
 #include <schily/string.h>
 #include <schily/schily.h>
+#include <schily/nlsdefs.h>
 
 #include <schily/btorder.h>
 
@@ -130,7 +131,7 @@ static unsigned char	*modesense = NULL;
 		modesense = malloc(12);
 		if (modesense == NULL) {
 			errmsg(
-			"Cannot allocate memory for mode sense command in line %d.\n",
+			_("Cannot allocate memory for mode sense command in line %d.\n"),
 				__LINE__);
 			return (0);
 		}
@@ -140,9 +141,9 @@ static unsigned char	*modesense = NULL;
 	 * do the scsi cmd
 	 */
 	if (scgp->verbose)
-		fprintf(stderr, "\nget density and sector size...");
+		fprintf(stderr, _("\nget density and sector size..."));
 	if (mode_sense(scgp, modesense, 12, 0x01, 0) < 0)
-		fprintf(stderr, "get_orig_sectorsize mode sense failed\n");
+		fprintf(stderr, _("get_orig_sectorsize mode sense failed\n"));
 
 	/*
 	 * FIXME: some drives dont deliver block descriptors !!!
@@ -194,13 +195,13 @@ static unsigned char	mode [4 + 8];
 	mode[11] =  secsize & 0xFF;	/* block length lsb */
 
 	if (scgp->verbose)
-		fprintf(stderr, "\nset density and sector size...");
+		fprintf(stderr, _("\nset density and sector size..."));
 	/*
 	 * do the scsi cmd
 	 */
 	if ((retval = mode_select(scgp, mode, 12, 0,
 					scgp->inq->data_format >= 2)) < 0)
-		errmsgno(EX_BAD, "Setting sector size failed.\n");
+		errmsgno(EX_BAD, _("Setting sector size failed.\n"));
 
 	return (retval);
 }
@@ -273,13 +274,13 @@ static unsigned char mode [4 + 8] = {
 
 	if (scgp->verbose) {
 		fprintf(stderr,
-		"\nset density/sector size (EnableCddaModeSelect)...\n");
+		_("\nset density/sector size (EnableCddaModeSelect)...\n"));
 	}
 	/*
 	 * do the scsi cmd
 	 */
 	if (mode_select(scgp, mode, 12, 0, scgp->inq->data_format >= 2) < 0)
-		errmsgno(EX_BAD, "Audio mode switch failed.\n");
+		errmsgno(EX_BAD, _("Audio mode switch failed.\n"));
 }
 
 
@@ -318,7 +319,7 @@ ReadTocTextSCSIMMC(scgp)
 
 	scgp->silent++;
 	if (scgp->verbose)
-		fprintf(stderr, "\nRead TOC CD Text size ...");
+		fprintf(stderr, _("\nRead TOC CD Text size ..."));
 
 	scgp->cmdname = "read toc size (text)";
 
@@ -326,7 +327,7 @@ ReadTocTextSCSIMMC(scgp)
 		scgp->silent--;
 		if (global.quiet != 1) {
 			errmsgno(EX_BAD,
-			"Read TOC CD Text failed (probably not supported).\n");
+			_("Read TOC CD Text failed (probably not supported).\n"));
 		}
 		p[0] = p[1] = '\0';
 		return;
@@ -359,14 +360,14 @@ ReadTocTextSCSIMMC(scgp)
 	scgp->silent++;
 	if (scgp->verbose) {
 		fprintf(stderr,
-		"\nRead TOC CD Text data (length %d)...", (int)datalength);
+		_("\nRead TOC CD Text data (length %d)..."), (int)datalength);
 	}
 	scgp->cmdname = "read toc data (text)";
 
 	if (scg_cmd(scgp) < 0) {
 		if (global.quiet != 1) {
 			errmsgno(EX_BAD,
-			"Read TOC CD Text data failed (probably not supported).\n");
+			_("Read TOC CD Text data failed (probably not supported).\n"));
 		}
 		p[0] = p[1] = '\0';
 		unit_ready(scgp);
@@ -383,12 +384,12 @@ ReadTocTextSCSIMMC(scgp)
 	/*fp = fopen("celine.cdtext", "rb");*/
 	fp = fopen("japan.cdtext", "rb");
 	if (fp == NULL) {
-		errmsg("Cannot open '%s'.\n", "japan.cdtext");
+		errmsg(_("Cannot open '%s'.\n"), "japan.cdtext");
 		return;
 	}
 	fillbytes(global.buf, global.bufsize, '\0');
 	read_ = fread(global.buf, 1, global.bufsize, fp);
-	fprintf(stderr, "read %d bytes. sizeof(buffer)=%u\n",
+	fprintf(stderr, _("read %d bytes. sizeof(buffer)=%u\n"),
 			read_, global.bufsize);
 	datalength  = ((global.buf[0] & 0xFF) << 8) | (global.buf[1] & 0xFF) + 2;
 	fclose(fp);
@@ -428,14 +429,14 @@ ReadFullTOCSony(scgp)
 
 	scgp->silent++;
 	if (scgp->verbose)
-		fprintf(stderr, "\nRead Full TOC Sony ...");
+		fprintf(stderr, _("\nRead Full TOC Sony ..."));
 
 	scgp->cmdname = "read full toc sony";
 
 	if (scg_cmd(scgp) < 0) {
 		if (global.quiet != 1) {
 			errmsgno(EX_BAD,
-			"Read Full TOC Sony failed (probably not supported).\n");
+			_("Read Full TOC Sony failed (probably not supported).\n"));
 		}
 		unit_ready(scgp);
 		scgp->silent--;
@@ -581,7 +582,7 @@ collect_tracks(po, entries, bcd_flag)
 
 #ifdef	WARN_FULLTOC
 		if (ep->tno != 0) {
-			fprintf(stderr, "entry %d, tno is not 0: %d!\n",
+			fprintf(stderr, _("entry %d, tno is not 0: %d!\n"),
 				i, ep->tno);
 		}
 #endif
@@ -606,7 +607,7 @@ collect_tracks(po, entries, bcd_flag)
 #ifdef	WARN_FULLTOC
 			else {
 				fprintf(stderr,
-				"entry %d, session anomaly %d != %d!\n",
+				_("entry %d, session anomaly %d != %d!\n"),
 					i, session+1, ep->session);
 			}
 			/*
@@ -614,7 +615,7 @@ collect_tracks(po, entries, bcd_flag)
 			 */
 			if (0x10 != (ep->adrctl & 0x10)) {
 				fprintf(stderr,
-				"entry %d, incorrect adrctl field %x!\n",
+				_("entry %d, incorrect adrctl field %x!\n"),
 					i, ep->adrctl);
 			}
 #endif
@@ -628,7 +629,7 @@ collect_tracks(po, entries, bcd_flag)
 #ifdef	WARN_FULLTOC
 			else
 				fprintf(stderr,
-"entry %d, session %d: start tracknumber anomaly: %d <= %d,%d(last)!\n",
+_("entry %d, session %d: start tracknumber anomaly: %d <= %d,%d(last)!\n"),
 					i, session, ep->pmins,
 					bufferTOC[2], bufferTOC[3]);
 #endif
@@ -641,7 +642,7 @@ collect_tracks(po, entries, bcd_flag)
 			 */
 			if (session != ep->session) {
 				fprintf(stderr,
-				"entry %d, session anomaly %d != %d!\n",
+				_("entry %d, session anomaly %d != %d!\n"),
 					i, session, ep->session);
 			}
 
@@ -650,7 +651,7 @@ collect_tracks(po, entries, bcd_flag)
 			 */
 			if (0x10 != (ep->adrctl & 0x10)) {
 				fprintf(stderr,
-				"entry %d, incorrect adrctl field %x!\n",
+				_("entry %d, incorrect adrctl field %x!\n"),
 					i, ep->adrctl);
 			}
 #endif
@@ -664,7 +665,7 @@ collect_tracks(po, entries, bcd_flag)
 #ifdef	WARN_FULLTOC
 			else
 				fprintf(stderr,
-"entry %d, session %d: end tracknumber anomaly: %d <= %d,%d(last)!\n",
+_("entry %d, session %d: end tracknumber anomaly: %d <= %d,%d(last)!\n"),
 					i, session, ep->pmins,
 					bufferTOC[2], bufferTOC[3]);
 #endif
@@ -677,7 +678,7 @@ collect_tracks(po, entries, bcd_flag)
 			 */
 			if (session != ep->session) {
 				fprintf(stderr,
-				"entry %d, session anomaly %d != %d!\n",
+				_("entry %d, session anomaly %d != %d!\n"),
 					i, session, ep->session);
 			}
 
@@ -686,7 +687,7 @@ collect_tracks(po, entries, bcd_flag)
 			 */
 			if (0x10 != (ep->adrctl & 0x10)) {
 				fprintf(stderr,
-				"entry %d, incorrect adrctl field %x!\n",
+				_("entry %d, incorrect adrctl field %x!\n"),
 				i, ep->adrctl);
 			}
 #endif
@@ -708,7 +709,7 @@ collect_tracks(po, entries, bcd_flag)
 #ifdef	WARN_FULLTOC
 			else
 				fprintf(stderr,
-				"entry %d, leadout position anomaly %u!\n",
+				_("entry %d, leadout position anomaly %u!\n"),
 					i, leadout_start_tmp);
 #endif
 		}
@@ -721,7 +722,7 @@ collect_tracks(po, entries, bcd_flag)
 			 */
 			if (session != ep->session) {
 				fprintf(stderr,
-				"entry %d, session anomaly %d != %d!\n",
+				_("entry %d, session anomaly %d != %d!\n"),
 					i, session, ep->session);
 			}
 
@@ -730,7 +731,7 @@ collect_tracks(po, entries, bcd_flag)
 			 */
 			if (0x50 != (ep->adrctl & 0x50)) {
 				fprintf(stderr,
-				"entry %d, incorrect adrctl field %x!\n",
+				_("entry %d, incorrect adrctl field %x!\n"),
 					i, ep->adrctl);
 			}
 
@@ -739,7 +740,7 @@ collect_tracks(po, entries, bcd_flag)
 			 */
 			if (lba((struct msf_address *)&ep->mins) < 6750 + leadout_start) {
 				fprintf(stderr,
-"entry %d, next program area %u < leadout_start + 6750 = %u!\n",
+_("entry %d, next program area %u < leadout_start + 6750 = %u!\n"),
 					i, lba((struct msf_address *)&ep->mins),
 					6750 + leadout_start);
 			}
@@ -750,7 +751,7 @@ collect_tracks(po, entries, bcd_flag)
 			if (max_leadout != 0 && dvd_lba((struct zmsf_address *)&ep->zero) !=
 								max_leadout) {
 				fprintf(stderr,
-"entry %d, max leadout_start %u != last max_leadout_start %u!\n",
+_("entry %d, max leadout_start %u != last max_leadout_start %u!\n"),
 					i, dvd_lba((struct zmsf_address *)&ep->zero),
 					max_leadout);
 			}
@@ -776,7 +777,7 @@ collect_tracks(po, entries, bcd_flag)
 			if (session != ep->session) {
 #ifdef	WARN_FULLTOC
 				fprintf(stderr,
-				"entry %d, session anomaly %d != %d!\n",
+				_("entry %d, session anomaly %d != %d!\n"),
 					i, session, ep->session);
 #endif
 				continue;
@@ -792,7 +793,7 @@ collect_tracks(po, entries, bcd_flag)
 			    ep->point > bufferTOC[3]) {
 #ifdef	WARN_FULLTOC
 				fprintf(stderr,
-				"entry %d, track number anomaly %d - %d - %d!\n",
+				_("entry %d, track number anomaly %d - %d - %d!\n"),
 					i, bufferTOC[2], ep->point,
 					bufferTOC[3]);
 #endif
@@ -812,7 +813,7 @@ collect_tracks(po, entries, bcd_flag)
 				    trackstart >= leadout_start) {
 #ifdef	WARN_FULLTOC
 					fprintf(stderr,
-"entry %d, track %d start position anomaly %d - %d - %d!\n",
+_("entry %d, track %d start position anomaly %d - %d - %d!\n"),
 						i, ep->point,
 						last_start,
 						trackstart, leadout_start);
@@ -1000,7 +1001,7 @@ ReadFullTOCMMC(scgp)
 
 	scgp->silent++;
 	if (scgp->verbose)
-		fprintf(stderr, "\nRead Full TOC MMC...");
+		fprintf(stderr, _("\nRead Full TOC MMC..."));
 
 	scgp->cmdname = "read full toc mmc";
 
@@ -1009,7 +1010,7 @@ ReadFullTOCMMC(scgp)
 	if (scg_cmd(scgp) < 0) {
 		if (global.quiet != 1) {
 			errmsgno(EX_BAD,
-			"Read Full TOC MMC failed (probably not supported).\n");
+			_("Read Full TOC MMC failed (probably not supported).\n"));
 		}
 	/* XXX was ist das ??? */
 #ifdef	B_BEOS_VERSION
@@ -1128,7 +1129,7 @@ ReadTocSCSI(scgp)
 	g1_cdblen(&scmd->cdb.g1_cdb, 4);
 
 	if (scgp->verbose)
-	fprintf(stderr, "\nRead TOC size (standard)...");
+	fprintf(stderr, _("\nRead TOC size (standard)..."));
 
 	/*
 	 * do the scsi cmd (read table of contents)
@@ -1136,7 +1137,7 @@ ReadTocSCSI(scgp)
 
 	scgp->cmdname = "read toc size";
 	if (scg_cmd(scgp) < 0)
-		FatalError(EX_BAD, "Read TOC size failed.\n");
+		FatalError(EX_BAD, _("Read TOC size failed.\n"));
 
 	scgp->silent++;
 	unit_ready(scgp);
@@ -1162,7 +1163,7 @@ ReadTocSCSI(scgp)
 	g1_cdblen(&scmd->cdb.g1_cdb, 4 + tracks * 8);
 
 	if (scgp->verbose)
-		fprintf(stderr, "\nRead TOC tracks (standard MSF)...");
+		fprintf(stderr, _("\nRead TOC tracks (standard MSF)..."));
 	/*
 	 * do the scsi cmd (read table of contents)
 	 */
@@ -1221,14 +1222,14 @@ ReadTocSCSI(scgp)
 	g1_cdblen(&scmd->cdb.g1_cdb, 4 + tracks * 8);
 
 	if (scgp->verbose)
-		fprintf(stderr, "\nRead TOC tracks (standard LBA)...");
+		fprintf(stderr, _("\nRead TOC tracks (standard LBA)..."));
 	/*
 	 * do the scsi cmd (read table of contents)
 	 */
 
 	scgp->cmdname = "read toc tracks ";
 	if (scg_cmd(scgp) < 0) {
-		FatalError(EX_BAD, "Read TOC tracks (lba) failed.\n");
+		FatalError(EX_BAD, _("Read TOC tracks (lba) failed.\n"));
 	}
 	scgp->silent++;
 	unit_ready(scgp);
@@ -1295,7 +1296,7 @@ ReadStandardLowlevel(scgp, p, lSector, SectorBurstVal, secsize)
 	g1_cdblen(&scmd->cdb.g1_cdb, SectorBurstVal);
 
 	if (scgp->verbose) {
-		fprintf(stderr, "\nReadStandard10 %s (%u)...",
+		fprintf(stderr, _("\nReadStandard10 %s (%u)..."),
 			secsize > 2048 ? "CDDA" : "CD_DATA", secsize);
 	}
 	scgp->cmdname = "ReadStandard10";
@@ -1361,7 +1362,7 @@ ReadCdda10(scgp, p, lSector, SectorBurstVal)
 	g1_cdbaddr(&scmd->cdb.g1_cdb, lSector);
 	g1_cdblen(&scmd->cdb.g1_cdb, SectorBurstVal);
 	if (scgp->verbose)
-		fprintf(stderr, "\nReadNEC10 CDDA...");
+		fprintf(stderr, _("\nReadNEC10 CDDA..."));
 
 	scgp->cmdname = "Read10 NEC";
 
@@ -1401,7 +1402,7 @@ ReadCdda12(scgp, p, lSector, SectorBurstVal)
 	g5_cdblen(&scmd->cdb.g5_cdb, SectorBurstVal);
 
 	if (scgp->verbose)
-		fprintf(stderr, "\nReadSony12 CDDA...");
+		fprintf(stderr, _("\nReadSony12 CDDA..."));
 
 	scgp->cmdname = "Read12";
 
@@ -1448,7 +1449,7 @@ ReadCdda12Matsushita(scgp, p, lSector, SectorBurstVal)
 	g5_cdblen(&scmd->cdb.g5_cdb, SectorBurstVal);
 
 	if (scgp->verbose)
-			fprintf(stderr, "\nReadMatsushita12 CDDA...");
+			fprintf(stderr, _("\nReadMatsushita12 CDDA..."));
 
 	scgp->cmdname = "Read12Matsushita";
 
@@ -1490,7 +1491,7 @@ ReadCddaMMC12(scgp, p, lSector, SectorBurstVal)
 	scmd->cdb.g5_cdb.count[3] = 1 << 4;	/* User data */
 
 	if (scgp->verbose)
-		fprintf(stderr, "\nReadMMC12 CDDA...");
+		fprintf(stderr, _("\nReadMMC12 CDDA..."));
 
 	scgp->cmdname = "ReadCD MMC 12";
 
@@ -1568,12 +1569,12 @@ ReadSubQFallback(scgp, sq_format, track)
 	g1_cdblen(&scmd->cdb.g1_cdb, 24);
 
 	if (scgp->verbose)
-		fprintf(stderr, "\nRead Subchannel_dumb...");
+		fprintf(stderr, _("\nRead Subchannel_dumb..."));
 
 	scgp->cmdname = "Read Subchannel_dumb";
 
 	if (scg_cmd(scgp) < 0) {
-		errmsgno(EX_BAD, "Read SubQ failed.\n");
+		errmsgno(EX_BAD, _("Read SubQ failed.\n"));
 	}
 
 	/*
@@ -1629,7 +1630,7 @@ ReadSubQSCSI(scgp, sq_format, track)
 
 	default:
 		fprintf(stderr,
-			"ReadSubQSCSI: unknown format %d\n", sq_format);
+			_("ReadSubQSCSI: unknown format %d\n"), sq_format);
 		return (NULL);
 	}
 
@@ -1648,7 +1649,7 @@ ReadSubQSCSI(scgp, sq_format, track)
 	g1_cdblen(&scmd->cdb.g1_cdb, resp_size);
 
 	if (scgp->verbose)
-		fprintf(stderr, "\nRead Subchannel...");
+		fprintf(stderr, _("\nRead Subchannel..."));
 
 	scgp->cmdname = "Read Subchannel";
 
@@ -1701,7 +1702,7 @@ ReadCddaSubSony(scgp, p, lSector, SectorBurstVal)
 	g5_cdblen(&scmd->cdb.g5_cdb, SectorBurstVal);
 
 	if (scgp->verbose)
-		fprintf(stderr, "\nReadSony12 CDDA + SubChannels...");
+		fprintf(stderr, _("\nReadSony12 CDDA + SubChannels..."));
 
 	scgp->cmdname = "Read12SubChannelsSony";
 
@@ -1744,7 +1745,7 @@ ReadCddaSub96Sony(scgp, p, lSector, SectorBurstVal)
 	g5_cdblen(&scmd->cdb.g5_cdb, SectorBurstVal);
 
 	if (scgp->verbose)
-		fprintf(stderr, "\nReadSony12 CDDA + 96 byte SubChannels...");
+		fprintf(stderr, _("\nReadSony12 CDDA + 96 byte SubChannels..."));
 
 	scgp->cmdname = "Read12SubChannelsSony";
 
@@ -1805,7 +1806,7 @@ ReadCddaSubMMC12(scgp, p, lSector, SectorBurstVal)
 	scmd->cdb.g5_cdb.res10 = 0x02;	/* subcode 2 -> cdda + 16 * q sub */
 
 	if (scgp->verbose)
-		fprintf(stderr, "\nReadMMC12 CDDA + SUB...");
+		fprintf(stderr, _("\nReadMMC12 CDDA + SUB..."));
 
 	scgp->cmdname = "ReadCD Sub MMC 12";
 
@@ -1904,7 +1905,7 @@ static unsigned char	mode [4 + 3];
 	page[2] = speed; /* 0 for single speed, 1 for double speed (3401) */
 
 	if (scgp->verbose)
-		fprintf(stderr, "\nspeed select Toshiba...");
+		fprintf(stderr, _("\nspeed select Toshiba..."));
 
 	scgp->silent++;
 	/*
@@ -1912,7 +1913,7 @@ static unsigned char	mode [4 + 3];
 	 */
 	if ((retval = mode_select(scgp, mode, 7, 0,
 					scgp->inq->data_format >= 2)) < 0)
-		fprintf(stderr, "speed select Toshiba failed\n");
+		fprintf(stderr, _("speed select Toshiba failed\n"));
 	scgp->silent--;
 }
 
@@ -1949,7 +1950,7 @@ static unsigned char	mode [4 + 8];
 	g1_cdblen(&scmd->cdb.g1_cdb, 12);
 
 	if (scgp->verbose)
-		fprintf(stderr, "\nspeed select NEC...");
+		fprintf(stderr, _("\nspeed select NEC..."));
 
 	/*
 	 * do the scsi cmd
@@ -1957,7 +1958,7 @@ static unsigned char	mode [4 + 8];
 	scgp->cmdname = "speed select NEC";
 
 	if ((retval = scg_cmd(scgp)) < 0)
-		errmsgno(EX_BAD, "Speed select NEC failed.\n");
+		errmsgno(EX_BAD, _("Speed select NEC failed.\n"));
 }
 
 void
@@ -1983,13 +1984,13 @@ static unsigned char	mode [4 + 8];
 	page[3] = 1;
 
 	if (scgp->verbose)
-		fprintf(stderr, "\nspeed select Philips...");
+		fprintf(stderr, _("\nspeed select Philips..."));
 	/*
 	 * do the scsi cmd
 	 */
 	if ((retval = mode_select(scgp, mode, 12, 0,
 					scgp->inq->data_format >= 2)) < 0)
-		errmsgno(EX_BAD, "Speed select PhilipsCDD2600 failed.\n");
+		errmsgno(EX_BAD, _("Speed select PhilipsCDD2600 failed.\n"));
 }
 
 void
@@ -2010,14 +2011,14 @@ static unsigned char	mode [4 + 4];
 	page[2] = speed;
 
 	if (scgp->verbose)
-		fprintf(stderr, "\nspeed select Sony...");
+		fprintf(stderr, _("\nspeed select Sony..."));
 	/*
 	 * do the scsi cmd
 	 */
 	scgp->silent++;
 	if ((retval = mode_select(scgp, mode, 8, 0,
 					scgp->inq->data_format >= 2)) < 0)
-		errmsgno(EX_BAD, "Speed select Sony failed.\n");
+		errmsgno(EX_BAD, _("Speed select Sony failed.\n"));
 	scgp->silent--;
 }
 
@@ -2039,13 +2040,13 @@ static unsigned char	mode [4 + 4];
 	page[2] = speed;
 
 	if (scgp->verbose)
-		fprintf(stderr, "\nspeed select Yamaha...");
+		fprintf(stderr, _("\nspeed select Yamaha..."));
 	/*
 	 * do the scsi cmd
 	 */
 	if ((retval = mode_select(scgp, mode, 8, 0,
 					scgp->inq->data_format >= 2)) < 0)
-		errmsgno(EX_BAD, "Speed select Yamaha failed.\n");
+		errmsgno(EX_BAD, _("Speed select Yamaha failed.\n"));
 }
 
 void
@@ -2071,7 +2072,7 @@ SpeedSelectSCSIMMC(scgp, speed)
 	i_to_2_byte(&scmd->cdb.g5_cdb.addr[2], 0xffff);
 
 	if (scgp->verbose)
-		fprintf(stderr, "\nspeed select MMC...");
+		fprintf(stderr, _("\nspeed select MMC..."));
 
 	scgp->cmdname = "set cd speed";
 
@@ -2085,7 +2086,7 @@ SpeedSelectSCSIMMC(scgp, speed)
 			 */
 		} else {
 			scg_printerr(scgp);
-			errmsgno(EX_BAD, "Speed select MMC failed.\n");
+			errmsgno(EX_BAD, _("Speed select MMC failed.\n"));
 		}
 	}
 	scgp->silent--;
@@ -2105,7 +2106,7 @@ static unsigned char 		*Inqbuffer = NULL;
 		Inqbuffer = malloc(36);
 		if (Inqbuffer == NULL) {
 			errmsg(
-			"Cannot allocate memory for inquiry command in line %d\n",
+			_("Cannot allocate memory for inquiry command in line %d\n"),
 			__LINE__);
 			return (NULL);
 		}
@@ -2133,7 +2134,7 @@ static unsigned char 		*Inqbuffer = NULL;
 	memcpy(scgp->inq, Inqbuffer, sizeof (*scgp->inq));
 
 	if (scgp->verbose) {
-		scg_prbytes("Inquiry Data   :",
+		scg_prbytes(_("Inquiry Data   :"),
 			(Uchar *)Inqbuffer, 22 - scmd->resid);
 	}
 	return (Inqbuffer);
@@ -2171,7 +2172,7 @@ TestForMedium(scgp)
 	scmd->cdb.g0_cdb.lun = scg_lun(scgp);
 
 	if (scgp->verbose)
-		fprintf(stderr, "\ntest unit ready...");
+		fprintf(stderr, _("\ntest unit ready..."));
 	scgp->silent++;
 
 	scgp->cmdname = "test unit ready";
@@ -2211,7 +2212,7 @@ StopPlaySCSI(scgp)
 	scmd->cdb.g0_cdb.lun = scg_lun(scgp);
 
 	if (scgp->verbose)
-		fprintf(stderr, "\nstop audio play");
+		fprintf(stderr, _("\nstop audio play"));
 
 	/*
 	 * do the scsi cmd
@@ -2245,7 +2246,7 @@ Play_atSCSI(scgp, from_sector, sectors)
 	scmd->cdb.g1_cdb.count[1] = (from_sector + 150 + sectors) % 75;
 
 	if (scgp->verbose)
-		fprintf(stderr, "\nplay sectors...");
+		fprintf(stderr, _("\nplay sectors..."));
 
 	/*
 	 * do the scsi cmd
@@ -2266,12 +2267,12 @@ init_scsibuf(scgp, amt)
 {
 	if (scsibuffer != NULL) {
 		errmsgno(EX_BAD,
-		"The SCSI transfer buffer has already been allocated!\n");
+		_("The SCSI transfer buffer has already been allocated!\n"));
 		exit(SETUPSCSI_ERROR);
 	}
 	scsibuffer = scg_getbuf(scgp, amt);
 	if (scsibuffer == NULL) {
-		errmsg("Could not get SCSI transfer buffer!\n");
+		errmsg(_("Could not get SCSI transfer buffer!\n"));
 		exit(SETUPSCSI_ERROR);
 	}
 	global.buf = scsibuffer;

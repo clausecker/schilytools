@@ -1,13 +1,13 @@
-/* @(#)parse.c	1.9 09/12/19 Copyright 2001-2009 J. Schilling */
+/* @(#)parse.c	1.10 10/12/19 Copyright 2001-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)parse.c	1.9 09/12/19 Copyright 2001-2009 J. Schilling";
+	"@(#)parse.c	1.10 10/12/19 Copyright 2001-2010 J. Schilling";
 #endif
 /*
  *	Interactive command parser for cdda2wav
  *
- *	Copyright (c) 2001-2009 J. Schilling
+ *	Copyright (c) 2001-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -40,6 +40,7 @@ static	UConst char sccsid[] =
 #include <schily/utypes.h>
 #include <schily/varargs.h>
 #include <schily/schily.h>
+#include <schily/nlsdefs.h>
 
 #include "toc.h"
 
@@ -172,19 +173,19 @@ again:
 			if (streql(p, "sectors")) {
 				p = nextword();
 				if (*astol(p, &l) != '\0') {
-					pabort(E_BAD, "Not a number '%s'", p);
+					pabort(E_BAD, _("Not a number '%s'"), p);
 				}
 				*lp = l;
 			} else if (streql(p, "tracks")) {
 				p = nextword();
 				if (*astol(p, &l) != '\0') {
-					pabort(E_BAD, "Not a number '%s'", p);
+					pabort(E_BAD, _("Not a number '%s'"), p);
 				}
 				if (l < FirstAudioTrack() || l > LastAudioTrack())
-					pabort(E_BAD, "Bad track number '%s'", p);
+					pabort(E_BAD, _("Bad track number '%s'"), p);
 				*lp = Get_StartSector(l);
 			} else {
-				pabort(E_BAD, "Bad 'read' parameter '%s'", p);
+				pabort(E_BAD, _("Bad 'read' parameter '%s'"), p);
 			}
 			wok();
 			break;
@@ -196,14 +197,14 @@ again:
 			wok();
 			goto again;
 		default:
-			pabort(E_NOTFOUND, "Unknown command '%s'", p);
+			pabort(E_NOTFOUND, _("Unknown command '%s'"), p);
 			return (0);
 		}
 		checkextra();
 		return (0);
 	}
 /*	checkextra();*/
-	pabort(E_NOTFOUND, "Unknown command '%s'", p);
+	pabort(E_NOTFOUND, _("Unknown command '%s'"), p);
 	return (0);
 }
 
@@ -263,7 +264,7 @@ pfopen(name)
 	}
 	f = fileopen(name, "r");
 	if (f == NULL)
-		comerr("Cannot open '%s'.\n", name);
+		comerr(_("Cannot open '%s'.\n"), name);
 
 	fname = name;
 	return (f);
@@ -406,7 +407,7 @@ neednextitem(delim)
 	nlinep = getnextitem(delim);
 
 	if ((olinep == nlinep) || (*nlinep == '\0'))
-		pabort(E_BAD, "Missing text");
+		pabort(E_BAD, _("Missing text"));
 
 	return (nlinep);
 }
@@ -448,7 +449,7 @@ LOCAL void
 checkextra()
 {
 	if (peekword() < lineend())
-		pabort(E_BAD, "Extra text '%s'", peekword());
+		pabort(E_BAD, _("Extra text '%s'"), peekword());
 }
 
 /* VARARGS1 */
@@ -479,7 +480,7 @@ pabort(errnum, fmt, va_alist)
 	if (ep->num >= 0) {
 		error("%d %s. ", ep->num, ep->name);
 	}
-	errmsgno(EX_BAD, "%r on line %d in '%s'.\n",
+	errmsgno(EX_BAD, _("%r on line %d in '%s'.\n"),
 		fmt, args, lineno, fname);
 	va_end(args);
 	siglongjmp(jmp.jb, 1);
@@ -494,14 +495,14 @@ wok()
 LOCAL void
 pusage()
 {
-	error("Usage:\n");
-	error("	command	parameters		descriptionn\n");
-	error("	============================================\n");
-	error("	stop				stop processing and wait for new input.\n");
-	error("	cont				continue processing.\n");
-	error("	read sectors <sector number>	read sectors starting from sector number.\n");
-	error("	read tracks <track number>	read sectors starting from track number.\n");
-	error("	exit				exit processing.\n");
-	error("	quit				exit processing.\n");
-	error("	help				print this help and wait for new input.\n");
+	error(_("Usage:\n"));
+	error(_("	command	parameters		descriptionn\n"));
+	error(_("	============================================\n"));
+	error(_("	stop				stop processing and wait for new input.\n"));
+	error(_("	cont				continue processing.\n"));
+	error(_("	read sectors <sector number>	read sectors starting from sector number.\n"));
+	error(_("	read tracks <track number>	read sectors starting from track number.\n"));
+	error(_("	exit				exit processing.\n"));
+	error(_("	quit				exit processing.\n"));
+	error(_("	help				print this help and wait for new input.\n"));
 }

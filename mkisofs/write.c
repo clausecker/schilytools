@@ -1,8 +1,8 @@
-/* @(#)write.c	1.130 10/06/04 joerg */
+/* @(#)write.c	1.134 10/12/19 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)write.c	1.130 10/06/04 joerg";
+	"@(#)write.c	1.134 10/12/19 joerg";
 #endif
 /*
  * Program write.c - dump memory  structures to  file for iso9660 filesystem.
@@ -76,7 +76,7 @@ EXPORT	struct iso_primary_descriptor	vol_desc;
 LOCAL	int				vol_desc_sum;
 
 #ifndef	APPLE_HFS_HYB
-	char	*hfs_error = "no error";
+	char	*hfs_error = __("no error");
 #endif
 
 LOCAL	int	xawrite		__PR((void *buffer, int size, int count,
@@ -182,11 +182,11 @@ xfwrite(buffer, size, count, file, submode, islast)
 
 #ifdef	XFWRITE_DEBUG
 	if (count != 1 || (size % 2048) != 0)
-		error("Count: %d, size: %d\n", count, size);
+		error(_("Count: %d, size: %d\n"), count, size);
 #endif
 	if (count == 0 || size == 0) {
 		errmsgno(EX_BAD,
-		"Implementation botch, write 0 bytes (size %d count %d).\n",
+		_("Implementation botch, write 0 bytes (size %d count %d).\n"),
 		size, count);
 		abort();
 	}
@@ -201,7 +201,7 @@ xfwrite(buffer, size, count, file, submode, islast)
 		sprintf(nbuf, "%s_%02d", outfile, idx++);
 		file = freopen(nbuf, "wb", file);
 		if (file == NULL) {
-			comerr("Cannot open '%s'.\n", nbuf);
+			comerr(_("Cannot open '%s'.\n"), nbuf);
 		}
 	}
 	while (count) {
@@ -214,7 +214,7 @@ xfwrite(buffer, size, count, file, submode, islast)
 			got = fwrite(buffer, size, count, file);
 
 		if (got <= 0) {
-			comerr("cannot fwrite %d*%d\n", size, count);
+			comerr(_("cannot fwrite %d*%d\n"), size, count);
 		}
 		/*
 		 * This comment is in hope to prevent silly people from
@@ -251,7 +251,7 @@ xawrite(buffer, size, count, file, submode, islast)
 
 	if (amt % 2048)
 		comerrno(EX_BAD,
-			"Trying to write %d bytes (not a multiple of 2048).\n",
+			_("Trying to write %d bytes (not a multiple of 2048).\n"),
 			amt);
 
 	subhdr[0].file_number		= subhdr[1].file_number		= 0;
@@ -299,6 +299,7 @@ LOCAL struct deferred_write	*dw_head = NULL,
 UInt32_t	last_extent_written = 0;
 LOCAL	Uint	path_table_index;
 EXPORT	time_t	begun;
+EXPORT	struct timeval tv_begun;
 
 /*
  * We recursively walk through all of the directories and assign extent
@@ -386,7 +387,7 @@ static	char		buffer[SECTOR_SIZE * NSECT];
 		if (!errhidden(E_OPEN, filename)) {
 			if (!errwarnonly(E_OPEN, filename))
 				;
-			errmsg("Cannot open '%s'.\n", filename);
+			errmsg(_("Cannot open '%s'.\n"), filename);
 			(void) errabort(E_OPEN, filename, TRUE);
 		}
 	}
@@ -432,15 +433,15 @@ static	char		buffer[SECTOR_SIZE * NSECT];
 				if (!errhidden(amt > remain ? E_GROW:E_SHRINK, filename)) {
 					if (!errwarnonly(amt < remain ? E_SHRINK:E_GROW, filename)) {
 						errmsgno(EX_BAD,
-						"Try to use the option -data-change-warn\n");
+						_("Try to use the option -data-change-warn\n"));
 						errmsgno(EX_BAD,
-						"Files should not change while mkisofs is running.\n");
+						_("Files should not change while mkisofs is running.\n"));
 					}
 					errmsgno(EX_BAD,
-					"File '%s' did %s.\n",
+					_("File '%s' did %s.\n"),
 						filename,
 						amt < remain ?
-						"shrink":"grow");
+						_("shrink"):_("grow"));
 					(void) errabort(amt < remain ?
 							E_SHRINK:E_GROW,
 							filename, TRUE);
@@ -448,7 +449,7 @@ static	char		buffer[SECTOR_SIZE * NSECT];
 			} else if (!errhidden(E_READ, filename)) {
 				if (!errwarnonly(E_READ, filename))
 					;
-				errmsg("Cannot read from '%s'\n", filename);
+				errmsg(_("Cannot read from '%s'\n"), filename);
 				(void) errabort(E_READ, filename, TRUE);
 			}
 			amt = remain;		/* Fake success */
@@ -496,10 +497,10 @@ static	char		buffer[SECTOR_SIZE * NSECT];
 			frac = last_extent_written / (1.0 * last_extent);
 			the_end = begun + (now - begun) / frac;
 #ifndef NO_FLOATINGPOINT
-			fprintf(stderr, "%6.2f%% done, estimate finish %s",
+			fprintf(stderr, _("%6.2f%% done, estimate finish %s"),
 				frac * 100., ctime(&the_end));
 #else
-			fprintf(stderr, "%3d.%-02d%% done, estimate finish %s",
+			fprintf(stderr, _("%3d.%-02d%% done, estimate finish %s"),
 				(int)(frac * 100.),
 				(int)((frac+.00005) * 10000.)%100,
 				ctime(&the_end));
@@ -535,13 +536,13 @@ write_udf_symlink(filename, size, outfile)
 	int		use;
 
 	if (udf_get_symlinkcontents(filename, buffer, &remain) < 0) {
-		comerr("Cannot open smylink '%s'\n", filename);
+		comerr(_("Cannot open smylink '%s'\n"), filename);
 	}
 	if (remain != size) {
-		comerrno(EX_BAD, "Symlink '%s' did %s.\n",
+		comerrno(EX_BAD, _("Symlink '%s' did %s.\n"),
 					filename,
 					size > remain ?
-					"shrink":"grow");
+					_("shrink"):_("grow"));
 	}
 	use = (remain > SECTOR_SIZE * NSECT - 1 ?
 			NSECT * SECTOR_SIZE : remain);
@@ -565,7 +566,7 @@ write_files(outfile)
 /*#define DEBUG*/
 #ifdef DEBUG
 		fprintf(stderr,
-		"The file name is %s and pad is %d, size is %lld and extent is %d\n",
+		_("The file name is %s and pad is %d, size is %lld and extent is %d\n"),
 				dwpnt->name, dwpnt->pad,
 				(Llong)dwpnt->size, dwpnt->extent);
 #endif
@@ -575,7 +576,7 @@ write_files(outfile)
 							XA_SUBH_DATA, TRUE);
 			last_extent_written += ISO_BLOCKS(dwpnt->size);
 			table_size += dwpnt->size;
-/*			fprintf(stderr, "Size %lld ", (Llong)dwpnt->size); */
+/*			fprintf(stderr, _("Size %lld "), (Llong)dwpnt->size); */
 			free(dwpnt->table);
 			dwpnt->table = NULL;
 		} else {
@@ -651,7 +652,7 @@ dump_filelist()
 
 	dwpnt = dw_head;
 	while (dwpnt) {
-		fprintf(stderr, "File %s\n", dwpnt->name);
+		fprintf(stderr, _("File %s\n"), dwpnt->name);
 		dwpnt = dwpnt->next;
 	}
 	fprintf(stderr, "\n");
@@ -698,7 +699,7 @@ compare_dirs(rr, ll)
 			return (1);
 #endif
 		errmsgno(EX_BAD,
-			"Error: '%s' and '%s' have the same ISO9660 name '%s'.\n",
+			_("Error: '%s' and '%s' have the same ISO9660 name '%s'.\n"),
 			(*r)->whole_name, (*l)->whole_name,
 			rpnt);
 		sort_goof++;
@@ -711,7 +712,7 @@ compare_dirs(rr, ll)
 		 */
 		if (strcmp((*r)->name, (*l)->name) == 0) {
 			errmsgno(EX_BAD,
-			"Error: '%s' and '%s' have the same Rock Ridge name '%s'.\n",
+			_("Error: '%s' and '%s' have the same Rock Ridge name '%s'.\n"),
 				(*r)->whole_name, (*l)->whole_name,
 				(*r)->name);
 			sort_goof++;
@@ -838,8 +839,7 @@ sort_directory(sort_dir, rr)
 	/* Each directory is required to contain at least . and .. */
 	if (dcount < 2) {
 		errmsgno(EX_BAD,
-			"Directory size too small (. or .. missing ??%s)\n",
-			"?");	/* Try to avoid a GCC trigraph warning */
+			_("Directory size too small (. or .. may be missing)\n"));
 		sort_goof = 1;
 
 	} else {
@@ -1009,9 +1009,25 @@ sort_file_addresses()
 	for (i = 0, dwpnt = dw_head; i < num; i++, dwpnt = dwpnt->next) {
 		s_entry = dwpnt->s_entry;
 		dwpnt->extent = s_entry->starting_block = start_extent;
-		set_733((char *)s_entry->isorec.extent, start_extent);
 
-		start_extent += ISO_BLOCKS(s_entry->size);
+		if (s_entry->de_flags & MULTI_EXTENT) {
+			struct directory_entry  *s_e;
+
+			s_entry->mxroot->starting_block = start_extent;
+			set_733((char *)s_entry->mxroot->isorec.extent,
+								start_extent);
+			for (s_e = s_entry;
+			    s_e && s_e->mxroot == s_entry->mxroot;
+			    s_e = s_e->next) {
+				set_733((char *)s_e->isorec.extent,
+								start_extent);
+				s_entry->starting_block = start_extent;
+				start_extent += ISO_BLOCKS(s_e->size);
+			}
+		} else {
+			set_733((char *)s_entry->isorec.extent, start_extent);
+			start_extent += ISO_BLOCKS(s_entry->size);
+		}
 #ifdef DVD_VIDEO
 		/*
 		 * Shouldn't this be done for every type of sort? Otherwise
@@ -1060,7 +1076,7 @@ assign_file_addresses(dpnt, isnest)
 				maxlen = sizeof (dvd_path);
 			strlcpy(dvd_path, dpnt->whole_name, maxlen);
 #ifdef DEBUG
-			fprintf(stderr, "Found 'VIDEO_TS', the path is %s \n", dvd_path);
+			fprintf(stderr, _("Found 'VIDEO_TS', the path is %s \n"), dvd_path);
 #endif
 			title_set_info = DVDGetFileSet(dvd_path);
 			if (title_set_info == 0) {
@@ -1068,7 +1084,7 @@ assign_file_addresses(dpnt, isnest)
 				 * Do not switch off -dvd-video but let is fail later.
 				 */
 /*				dvd_video = 0;*/
-				errmsgno(EX_BAD, "Unable to parse DVD-Video structures.\n");
+				errmsgno(EX_BAD, _("Unable to parse DVD-Video structures.\n"));
 			} else {
 				ret = TRUE;
 			}
@@ -1094,7 +1110,8 @@ assign_file_addresses(dpnt, isnest)
 			s_hash = find_hash(s_entry->dev, s_entry->inode);
 			if (s_hash) {
 				if (verbose > 2) {
-					fprintf(stderr, "Cache hit for '%s%s%s'\n", s_entry->filedir->de_name,
+					fprintf(stderr, _("Cache hit for '%s%s%s'\n"),
+						s_entry->filedir->de_name,
 						SPATH_SEPARATOR,
 						s_entry->name);
 				}
@@ -1119,7 +1136,7 @@ assign_file_addresses(dpnt, isnest)
 					 */
 					if (s_entry->mxpart != 1) {
 						comerrno(EX_BAD,
-						"Panic: Multi extent parts for %s not sorted.\n",
+						_("Panic: Multi extent parts for %s not sorted.\n"),
 						s_entry->whole_name);
 					}
 					s_entry->mxroot->starting_block = ext;
@@ -1166,7 +1183,7 @@ assign_file_addresses(dpnt, isnest)
 						}
 #endif
 						comerrno(EX_BAD,
-							"Fatal goof - could not find dir entry for '%s'\n",
+							_("Fatal goof - could not find dir entry for '%s'\n"),
 							s_entry->name);
 					}
 				}
@@ -1245,15 +1262,16 @@ assign_file_addresses(dpnt, isnest)
 					pad = DVDGetFilePad(title_set_info, s_entry->name);
 					if (pad < 0) {
 						errmsgno(EX_BAD,
-						"Implementation botch. Video pad for file %s is %d\n",
+						_("Implementation botch. Video pad for file %s is %d\n"),
 						s_entry->name, pad),
 						comerrno(EX_BAD,
-						"Either the *.IFO file is bad or you found a mkisofs bug.\n");
+						_("Either the *.IFO file is bad or you found a mkisofs bug.\n"));
 					}
 					dwpnt->pad = pad;
 					if (verbose > 0 && pad != 0) {
 						fprintf(stderr,
-							"The pad was %d for file %s\n", dwpnt->pad, s_entry->name);
+							_("The pad was %d for file %s\n"),
+								dwpnt->pad, s_entry->name);
 					}
 				}
 #endif /* DVD_VIDEO */
@@ -1310,7 +1328,7 @@ assign_file_addresses(dpnt, isnest)
 					 */
 					if (s_entry->mxpart != 1) {
 						comerrno(EX_BAD,
-						"Panic: Multi extent parts for %s not sorted.\n",
+						_("Panic: Multi extent parts for %s not sorted.\n"),
 						s_entry->whole_name);
 					}
 					dwpnt->size = s_entry->mxroot->size;
@@ -1371,13 +1389,13 @@ assign_file_addresses(dpnt, isnest)
 #ifdef DBG_ISO
 				if (ISO_BLOCKS(s_entry->size) > 500) {
 					fprintf(stderr,
-						"Warning: large file '%s'\n",
+						_("Warning: large file '%s'\n"),
 						whole_path);
 					fprintf(stderr,
-						"Starting block is %d\n",
+						_("Starting block is %d\n"),
 						s_entry->starting_block);
 					fprintf(stderr,
-					"Reported file size is %lld\n",
+					_("Reported file size is %lld\n"),
 						(Llong)s_entry->size);
 
 				}
@@ -1387,13 +1405,13 @@ assign_file_addresses(dpnt, isnest)
 				if (last_extent > (800000000 >> 11)) {
 					/* More than 800Mb? Punt */
 					fprintf(stderr,
-					"Extent overflow processing file '%s'\n",
+					_("Extent overflow processing file '%s'\n"),
 						whole_path);
 					fprintf(stderr,
-						"Starting block is %d\n",
+						_("Starting block is %d\n"),
 						s_entry->starting_block);
 					fprintf(stderr,
-					"Reported file size is %lld\n",
+					_("Reported file size is %lld\n"),
 							(Llong)s_entry->size);
 					exit(1);
 				}
@@ -1421,7 +1439,7 @@ assign_file_addresses(dpnt, isnest)
 	}
 	if (dvd_video && !ret && !isnest) {
 		errmsgno(EX_BAD,
-			"Could not find correct 'VIDEO_TS' directory.\n");
+			_("Could not find correct 'VIDEO_TS' directory.\n"));
 	}
 #endif /* DVD_VIDEO */
 	return (ret);
@@ -1571,7 +1589,7 @@ generate_one_directory(dpnt, outfile)
 #ifdef DEBUG
 					if (ce_size <= 0) {
 						fprintf(stderr,
-						"Warning: ce_index(%d) && ce_address(%d) not initialized\n",
+						_("Warning: ce_index(%d) && ce_address(%d) not initialized\n"),
 							ce_index, ce_address);
 					}
 #endif
@@ -1629,7 +1647,7 @@ generate_one_directory(dpnt, outfile)
 
 	if (dpnt->size != dir_index) {
 		errmsgno(EX_BAD,
-			"Unexpected directory length %lld expected: %d '%s'\n",
+			_("Unexpected directory length %lld expected: %d '%s'\n"),
 			(Llong)dpnt->size,
 			dir_index, dpnt->de_name);
 	}
@@ -1641,7 +1659,7 @@ generate_one_directory(dpnt, outfile)
 	if (ce_size > 0) {
 		if (ce_index != dpnt->ce_bytes) {
 			errmsgno(EX_BAD,
-			"Continuation entry record length mismatch %d expected: %d.\n",
+			_("Continuation entry record length mismatch %d expected: %d.\n"),
 				ce_index, dpnt->ce_bytes);
 		}
 		xfwrite(ce_buffer, ce_size, 1, outfile, 0, FALSE);
@@ -1741,7 +1759,7 @@ generate_path_tables()
 	for (j = 1; j < next_path_index; j++) {
 		dpnt = pathlist[j];
 		if (!dpnt) {
-			comerrno(EX_BAD, "Entry %d not in path tables\n", j);
+			comerrno(EX_BAD, _("Entry %d not in path tables\n"), j);
 		}
 		npnt = dpnt->de_name;
 
@@ -1756,7 +1774,7 @@ generate_path_tables()
 		de = dpnt->self;
 		if (!de) {
 			comerrno(EX_BAD,
-			"Fatal ISO9660 goof - directory has amnesia\n");
+			_("Fatal ISO9660 goof - directory has amnesia\n"));
 		}
 		namelen = de->isorec.name_len[0];
 
@@ -1779,11 +1797,11 @@ generate_path_tables()
 			if (!warned) {
 				warned++;
 				errmsgno(EX_BAD,
-			"Unable to generate sane path tables - too many directories (%u)\n",
+			_("Unable to generate sane path tables - too many directories (%u)\n"),
 					dpnt->parent->path_index);
 				if (!nolimitpathtables)
 					errmsgno(EX_BAD,
-					"Try to use the option -no-limit-pathtables\n");
+					_("Try to use the option -no-limit-pathtables\n"));
 			}
 			if (!nolimitpathtables)
 				exit(EX_BAD);
@@ -1810,7 +1828,7 @@ generate_path_tables()
 	pathlist = NULL;
 	if (path_table_index != path_table_size) {
 		errmsgno(EX_BAD,
-			"Path table lengths do not match %d expected: %d\n",
+			_("Path table lengths do not match %d expected: %d\n"),
 			path_table_index,
 			path_table_size);
 	}
@@ -1885,20 +1903,20 @@ file_write(outfile)
 	if (verbose > 2) {
 #ifdef DBG_ISO
 		fprintf(stderr,
-			"Total directory extents being written = %u\n",
+			_("Total directory extents being written = %u\n"),
 							last_extent);
 #endif
 
 #ifdef APPLE_HYB
 		if (apple_hyb && !donotwrite_macpart)
 			fprintf(stderr,
-			"Total extents scheduled to be written (inc HFS) = %u\n",
+			_("Total extents scheduled to be written (inc HFS) = %u\n"),
 				last_extent - session_start);
 		else
 #endif	/* APPLE_HYB */
 
 			fprintf(stderr,
-				"Total extents scheduled to be written = %u\n",
+				_("Total extents scheduled to be written = %u\n"),
 				last_extent - session_start);
 	}
 	/* Now write all of the files that we need. */
@@ -1934,29 +1952,29 @@ file_write(outfile)
 #ifdef APPLE_HYB
 	if (apple_hyb && !donotwrite_macpart) {
 		fprintf(stderr,
-			"Total extents actually written (inc HFS) = %u\n",
+			_("Total extents actually written (inc HFS) = %u\n"),
 			last_extent_written - session_start);
-		fprintf(stderr, "(Size of ISO volume = %d, HFS extra = %d)\n",
+		fprintf(stderr, _("(Size of ISO volume = %d, HFS extra = %d)\n"),
 			last_extent_written - session_start - hfs_extra,
 			hfs_extra);
 	} else
 #else
-	fprintf(stderr, "Total extents actually written = %d\n",
+	fprintf(stderr, _("Total extents actually written = %d\n"),
 		last_extent_written - session_start);
 #endif	/* APPLE_HYB */
 
 	/* Hard links throw us off here */
 	if (should_write != (last_extent - session_start)) {
 		fprintf(stderr,
-		"Number of extents written not what was predicted.  Please fix.\n");
-		fprintf(stderr, "Predicted = %d, written = %d\n",
+		_("Number of extents written not what was predicted.  Please fix.\n"));
+		fprintf(stderr, _("Predicted = %d, written = %d\n"),
 						should_write, last_extent);
 	}
-	fprintf(stderr, "Total translation table size: %d\n", table_size);
-	fprintf(stderr, "Total rockridge attributes bytes: %d\n",
+	fprintf(stderr, _("Total translation table size: %d\n"), table_size);
+	fprintf(stderr, _("Total rockridge attributes bytes: %d\n"),
 						rockridge_size);
-	fprintf(stderr, "Total directory bytes: %d\n", total_dir_size);
-	fprintf(stderr, "Path table size(bytes): %d\n", path_table_size);
+	fprintf(stderr, _("Total directory bytes: %d\n"), total_dir_size);
+	fprintf(stderr, _("Path table size(bytes): %d\n"), path_table_size);
 
 #ifdef DEBUG
 	fprintf(stderr,
@@ -1977,36 +1995,14 @@ pvd_write(outfile)
 {
 	char		iso_time[17];
 	int		should_write;
-	struct tm	local;
-	struct tm	gmt;
 	int		i;
 	int		s;
 	Uchar		*cp;
 
 
 	time(&begun);
-
-	local = *localtime(&begun);
-	gmt = *gmtime(&begun);
-
-	/*
-	 * There was a comment here about breaking in the year 2000.
-	 * That's not true, in 2000 tm_year == 100, so 1900+tm_year == 2000.
-	 */
-	sprintf(iso_time, "%4.4d%2.2d%2.2d%2.2d%2.2d%2.2d00",
-		1900 + local.tm_year,
-		local.tm_mon + 1, local.tm_mday,
-		local.tm_hour, local.tm_min, local.tm_sec);
-
-	local.tm_min -= gmt.tm_min;
-	local.tm_hour -= gmt.tm_hour;
-	local.tm_yday -= gmt.tm_yday;
-	local.tm_year -= gmt.tm_year;
-	if (local.tm_year)		/* Hit new-year limit	*/
-		local.tm_yday = local.tm_year;	/* yday = +-1	*/
-
-	iso_time[16] = (local.tm_min + 60 *
-				(local.tm_hour + 24 * local.tm_yday)) / 15;
+	gettimeofday(&tv_begun, NULL);
+	iso9660_ldate(iso_time, tv_begun.tv_sec, tv_begun.tv_usec * 1000);
 
 	/* Next we write out the primary descriptor for the disc */
 	memset(&vol_desc, 0, sizeof (vol_desc));
@@ -2390,7 +2386,7 @@ file_gen()
 	if (!assign_file_addresses(root, FALSE)) {
 #ifdef DVD_VIDEO
 		if (dvd_video) {
-			comerrno(EX_BAD, "Unable to make a DVD-Video image.\n");
+			comerrno(EX_BAD, _("Unable to make a DVD-Video image.\n"));
 		}
 #else
 		;

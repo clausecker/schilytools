@@ -1,8 +1,8 @@
-/* @(#)isovfy.c	1.43 10/05/24 joerg */
+/* @(#)isovfy.c	1.44 10/12/19 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)isovfy.c	1.43 10/05/24 joerg";
+	"@(#)isovfy.c	1.44 10/12/19 joerg";
 #endif
 /*
  * File isovfy.c - verify consistency of iso9660 filesystem.
@@ -37,6 +37,7 @@ static	UConst char sccsid[] =
 #include <schily/standard.h>
 #include <schily/signal.h>
 #include <schily/schily.h>
+#include <schily/nlsdefs.h>
 
 #include "../iso9660.h"
 #include "../rock.h"
@@ -200,7 +201,7 @@ parse_rr(pnt, len, cont_flag)
 		iline += strlen(lbuffer + iline);
 		if (pnt[0] < 'A' || pnt[0] > 'Z' || pnt[1] < 'A' ||
 		    pnt[1] > 'Z') {
-			sprintf(lbuffer+iline, "**BAD SUSP %d %d]",
+			sprintf(lbuffer+iline, _("**BAD SUSP %d %d]"),
 					pnt[0], pnt[1]);
 			rr_goof++;
 			iline += strlen(lbuffer + iline);
@@ -208,7 +209,7 @@ parse_rr(pnt, len, cont_flag)
 		}
 
 		if (pnt[3] != 1 && pnt[3] != 2) {
-			sprintf(lbuffer+iline, "**BAD RRVERSION (%d)\n", pnt[3]);
+			sprintf(lbuffer+iline, _("**BAD RRVERSION (%d)\n"), pnt[3]);
 			rr_goof++;
 			iline += strlen(lbuffer + iline);
 			return (flag2);
@@ -263,22 +264,22 @@ parse_rr(pnt, len, cont_flag)
 					break;
 				case 16:
 					strcat(symlinkname, "/mnt");
-					sprintf(lbuffer+iline, "Warning - mount point requested");
+					sprintf(lbuffer+iline, _("Warning - mount point requested"));
 					iline += strlen(lbuffer + iline);
 					break;
 				case 32:
 					strcat(symlinkname, "kafka");
-					sprintf(lbuffer+iline, "Warning - host_name requested");
+					sprintf(lbuffer+iline, _("Warning - host_name requested"));
 					iline += strlen(lbuffer + iline);
 					break;
 				default:
-					sprintf(lbuffer+iline, "Reserved bit setting in symlink");
+					sprintf(lbuffer+iline, _("Reserved bit setting in symlink"));
 					rr_goof++;
 					iline += strlen(lbuffer + iline);
 					break;
 				}
 				if ((pnts[0] & 0xfe) && pnts[1] != 0) {
-					sprintf(lbuffer+iline, "Incorrect length in symlink component");
+					sprintf(lbuffer+iline, _("Incorrect length in symlink component"));
 					iline += strlen(lbuffer + iline);
 				}
 				if ((pnts[0] & 1) == 0)
@@ -311,7 +312,7 @@ parse_rr(pnt, len, cont_flag)
 		iline += strlen(lbuffer + iline);
 	}
 	if (!cont_flag && flag1 != -1 && flag1 != (flag2 & 0xFF)) {
-		sprintf(lbuffer+iline, "Flag %x != %x", flag1, flag2);
+		sprintf(lbuffer+iline, _("Flag %x != %x"), flag1, flag2);
 		rr_goof++;
 		iline += strlen(lbuffer + iline);
 	}
@@ -410,7 +411,7 @@ check_tree(file_addr, file_size, parent_addr)
 	dir_size_count += file_size / blocksize;
 
 	if (file_size & 0x3ff)
-		printf("********Directory has unusual size\n");
+		printf(_("********Directory has unusual size\n"));
 
 	for (k = 0; k < (file_size / sizeof (buffer)); k++) {
 #ifdef	USE_SCG
@@ -436,7 +437,7 @@ check_tree(file_addr, file_size, parent_addr)
 			iline += strlen(lbuffer + iline);
 
 			if (idr->name_len[0] > 33) {
-				sprintf(&lbuffer[iline], "File name length=(%d)",
+				sprintf(&lbuffer[iline], _("File name length=(%d)"),
 							idr->name_len[0]);
 				goof++;
 				iline += strlen(lbuffer + iline);
@@ -446,12 +447,12 @@ check_tree(file_addr, file_size, parent_addr)
 				rflag = 0;
 				if (orig_file_addr != (off_t)(isonum_733(idr->extent) +
 							isonum_711((char *) idr->ext_attr_length))) {
-					sprintf(&lbuffer[iline], "***** Directory has null extent.");
+					sprintf(&lbuffer[iline], _("***** Directory has null extent."));
 					goof++;
 					iline += strlen(lbuffer + iline);
 				}
 				if (i1) {
-					sprintf(&lbuffer[iline], "***** . not  first entry.");
+					sprintf(&lbuffer[iline], _("***** . not  first entry."));
 					rr_goof++;
 					iline += strlen(lbuffer + iline);
 				}
@@ -461,18 +462,18 @@ check_tree(file_addr, file_size, parent_addr)
 				rflag = 0;
 				if (parent_file_addr != (off_t)(isonum_733(idr->extent) +
 							isonum_711((char *) idr->ext_attr_length))) {
-					sprintf(&lbuffer[iline], "***** Directory has null extent.");
+					sprintf(&lbuffer[iline], _("***** Directory has null extent."));
 					goof++;
 					iline += strlen(lbuffer + iline);
 				}
 				if (i1 != 1) {
-					sprintf(&lbuffer[iline], "***** .. not second entry.");
+					sprintf(&lbuffer[iline], _("***** .. not second entry."));
 					rr_goof++;
 					iline += strlen(lbuffer + iline);
 				}
 			} else {
 				if (i1 < 2) {
-					sprintf(&lbuffer[iline], " Improper sorting.");
+					sprintf(&lbuffer[iline], _(" Improper sorting."));
 					rr_goof++;
 				}
 				for (j = 0; j < (int)idr->name_len[0]; j++) {
@@ -486,38 +487,38 @@ check_tree(file_addr, file_size, parent_addr)
 			}
 
 			if (size && extent == 0) {
-				sprintf(&lbuffer[iline], "****Extent==0, size != 0");
+				sprintf(&lbuffer[iline], _("****Extent==0, size != 0"));
 				goof++;
 				iline += strlen(lbuffer + iline);
 			}
 #if 0
 			/* This is apparently legal. */
 			if (size == 0 && extent) {
-				sprintf(&lbuffer[iline], "****Extent!=0, size == 0");
+				sprintf(&lbuffer[iline], _("****Extent!=0, size == 0"));
 				goof++;
 				iline += strlen(lbuffer + iline);
 			}
 #endif
 
 			if (idr->flags[0] & 0xf5) {
-				sprintf(&lbuffer[iline], "Flags=(%x) ", idr->flags[0]);
+				sprintf(&lbuffer[iline], _("Flags=(%x) "), idr->flags[0]);
 				goof++;
 				iline += strlen(lbuffer + iline);
 			}
 			if (idr->interleave[0]) {
-				sprintf(&lbuffer[iline], "Interleave=(%d) ", idr->interleave[0]);
+				sprintf(&lbuffer[iline], _("Interleave=(%d) "), idr->interleave[0]);
 				goof++;
 				iline += strlen(lbuffer + iline);
 			}
 
 			if (idr->file_unit_size[0]) {
-				sprintf(&lbuffer[iline], "File unit size=(%d) ", idr->file_unit_size[0]);
+				sprintf(&lbuffer[iline], _("File unit size=(%d) "), idr->file_unit_size[0]);
 				goof++;
 				iline += strlen(lbuffer + iline);
 			}
 
 			if (idr->volume_sequence_number[0] != 1) {
-				sprintf(&lbuffer[iline], "Volume sequence number=(%d) ", idr->volume_sequence_number[0]);
+				sprintf(&lbuffer[iline], _("Volume sequence number=(%d) "), idr->volume_sequence_number[0]);
 				goof++;
 				iline += strlen(lbuffer + iline);
 			}
@@ -653,15 +654,15 @@ LOCAL void
 usage(excode)
 	int	excode;
 {
-	errmsgno(EX_BAD, "Usage: %s [options] image\n",
+	errmsgno(EX_BAD, _("Usage: %s [options] image\n"),
 						get_progname());
 
-	error("Options:\n");
-	error("\t-help, -h	Print this help\n");
-	error("\t-version	Print version info and exit\n");
-	error("\t-i filename	Filename to read ISO-9660 image from\n");
-	error("\tdev=target	SCSI target to use as CD/DVD-Recorder\n");
-	error("\nIf neither -i nor dev= are speficied, <image> is needed.\n");
+	error(_("Options:\n"));
+	error(_("\t-help, -h	Print this help\n"));
+	error(_("\t-version	Print version info and exit\n"));
+	error(_("\t-i filename	Filename to read ISO-9660 image from\n"));
+	error(_("\tdev=target	SCSI target to use as CD/DVD-Recorder\n"));
+	error(_("\nIf neither -i nor dev= are speficied, <image> is needed.\n"));
 	exit(excode);
 }
 
@@ -677,6 +678,9 @@ main(argc, argv)
 	BOOL	prvers = FALSE;
 	char	*filename = NULL;
 	char	*sdevname = NULL;
+#if	defined(USE_NLS)
+	char	*dir;
+#endif
 	off_t	file_addr;
 	int	file_size;
 	struct iso_primary_descriptor	ipd;
@@ -687,19 +691,39 @@ main(argc, argv)
 
 	save_args(argc, argv);
 
+#if	defined(USE_NLS)
+	setlocale(LC_ALL, "");
+#if !defined(TEXT_DOMAIN)	/* Should be defined by cc -D */
+#define	TEXT_DOMAIN "isoinfo"	/* Use this only if it weren't */
+#endif
+	dir = searchfileinpath("share/locale", F_OK,
+					SIP_ANY_FILE|SIP_NO_PATH, NULL);
+	if (dir)
+		(void) bindtextdomain(TEXT_DOMAIN, dir);
+	else
+#if defined(PROTOTYPES) && defined(INS_BASE)
+	(void) bindtextdomain(TEXT_DOMAIN, INS_BASE "/share/locale");
+#else
+	(void) bindtextdomain(TEXT_DOMAIN, "/usr/share/locale");
+#endif
+	(void) textdomain(TEXT_DOMAIN);
+#endif
+
 	cac = argc - 1;
 	cav = argv + 1;
 	if (getallargs(&cac, &cav, opts, &help, &help, &prvers,
 			&filename, &sdevname) < 0) {
-		errmsgno(EX_BAD, "Bad Option: '%s'\n", cav[0]);
+		errmsgno(EX_BAD, _("Bad Option: '%s'\n"), cav[0]);
 		usage(EX_BAD);
 	}
 	if (help)
 		usage(0);
 	if (prvers) {
-		printf("isovfy %s (%s-%s-%s) Copyright (C) 1993-1999 Eric Youngdale (C) 1999-2010 Jörg Schilling\n",
+		printf(_("isovfy %s (%s-%s-%s) Copyright (C) 1993-1999 %s (C) 1999-2010 %s\n"),
 					VERSION,
-					HOST_CPU, HOST_VENDOR, HOST_OS);
+					HOST_CPU, HOST_VENDOR, HOST_OS,
+					_("Eric Youngdale"),
+					_("Joerg Schilling"));
 		exit(0);
 	}
 	cac = argc - 1;
@@ -711,11 +735,11 @@ main(argc, argv)
 		}
 	}
 	if (getfiles(&cac, &cav, opts) != 0) {
-		errmsgno(EX_BAD, "Bad Argument: '%s'\n", cav[0]);
+		errmsgno(EX_BAD, _("Bad Argument: '%s'\n"), cav[0]);
 		usage(EX_BAD);
 	}
 	if (filename != NULL && sdevname != NULL) {
-		errmsgno(EX_BAD, "Only one of -i or dev= allowed\n");
+		errmsgno(EX_BAD, _("Only one of -i or dev= allowed\n"));
 		usage(EX_BAD);
 	}
 #ifdef	USE_SCG
@@ -723,7 +747,7 @@ main(argc, argv)
 		cdr_defaults(&sdevname, NULL, NULL, NULL, NULL);
 #endif
 	if (filename == NULL && sdevname == NULL) {
-		fprintf(stderr, "ISO-9660 image not specified\n");
+		fprintf(stderr, _("ISO-9660 image not specified\n"));
 		usage(EX_BAD);
 	}
 
@@ -739,7 +763,7 @@ main(argc, argv)
 #else
 	} else {
 #endif
-		fprintf(stderr, "Cannot open '%s'\n", filename);
+		fprintf(stderr, _("Cannot open '%s'\n"), filename);
 		exit(1);
 	}
 
@@ -763,9 +787,9 @@ main(argc, argv)
 	file_size = isonum_733(idr->size);
 
 	if (sizeof (file_addr) > sizeof (long)) {
-		printf("Root at extent %llx, %d bytes\n", (Llong)file_addr, file_size);
+		printf(_("Root at extent %llx, %d bytes\n"), (Llong)file_addr, file_size);
 	} else {
-		printf("Root at extent %lx, %d bytes\n", (long)file_addr, file_size);
+		printf(_("Root at extent %lx, %d bytes\n"), (long)file_addr, file_size);
 	}
 	file_addr = file_addr * blocksize;
 
@@ -784,6 +808,6 @@ main(argc, argv)
 		fclose(infile);
 
 	if (!ngoof)
-		printf("No errors found\n");
+		printf(_("No errors found\n"));
 	return (0);
 }

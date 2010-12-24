@@ -1,8 +1,8 @@
-/* @(#)readcd.c	1.111 10/05/11 Copyright 1987, 1995-2010 J. Schilling */
+/* @(#)readcd.c	1.113 10/12/19 Copyright 1987, 1995-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)readcd.c	1.111 10/05/11 Copyright 1987, 1995-2010 J. Schilling";
+	"@(#)readcd.c	1.113 10/12/19 Copyright 1987, 1995-2010 J. Schilling";
 #endif
 /*
  *	Skeleton for the use of the scg genearal SCSI - driver
@@ -32,6 +32,7 @@ static	UConst char sccsid[] =
 #include <schily/errno.h>
 #include <schily/signal.h>
 #include <schily/schily.h>
+#include <schily/nlsdefs.h>
 #include <schily/priv.h>
 #include <schily/io.h>				/* for setmode() prototype */
 
@@ -273,44 +274,44 @@ LOCAL void
 usage(ret)
 	int	ret;
 {
-	error("Usage:\treadcd [options]\n");
-	error("options:\n");
-	error("\t-version	print version information and exit\n");
-	error("\tdev=target	SCSI target to use\n");
-	error("\tf=filename	Name of file to read/write\n");
-	error("\tsectors=range	Range of sectors to read/write\n");
-	error("\tspeed=#		set speed of drive (MMC only)\n");
-	error("\tts=#		set maximum transfer size for a single SCSI command\n");
-	error("\t-w		Switch to write mode\n");
-	error("\t-c2scan		Do a C2 error scan\n");
-	error("\t-cxscan		Do a C1/C2/CU scan (only available on a few drives)\n");
-	error("\t-pi8scan	Do a DVD pisum8 scan (only available on a few drives)\n");
-	error("\t-pifscan	Do a DVD pif scan (only available on a few drives)\n");
-	error("\t-plot		Print data suitable for gnuplot\n");
+	error(_("Usage:\treadcd [options]\n"));
+	error(_("Options:\n"));
+	error(_("\t-version	print version information and exit\n"));
+	error(_("\tdev=target	SCSI target to use\n"));
+	error(_("\tf=filename	Name of file to read/write\n"));
+	error(_("\tsectors=range	Range of sectors to read/write\n"));
+	error(_("\tspeed=#		set speed of drive (MMC only)\n"));
+	error(_("\tts=#		set maximum transfer size for a single SCSI command\n"));
+	error(_("\t-w		Switch to write mode\n"));
+	error(_("\t-c2scan		Do a C2 error scan\n"));
+	error(_("\t-cxscan		Do a C1/C2/CU scan (only available on a few drives)\n"));
+	error(_("\t-pi8scan	Do a DVD pisum8 scan (only available on a few drives)\n"));
+	error(_("\t-pifscan	Do a DVD pif scan (only available on a few drives)\n"));
+	error(_("\t-plot		Print data suitable for gnuplot\n"));
 #ifdef	CLONE_WRITE
-	error("\t-fulltoc	Retrieve the full TOC\n");
-	error("\t-clone		Retrieve the full TOC and all data\n");
-	error("\t-edc-corr	Try to do user level Reed Solomon repair (experimental)\n");
+	error(_("\t-fulltoc	Retrieve the full TOC\n"));
+	error(_("\t-clone		Retrieve the full TOC and all data\n"));
+	error(_("\t-edc-corr	Try to do user level Reed Solomon repair (experimental)\n"));
 #endif
-	error("\ttimeout=#	set the default SCSI command timeout to #.\n");
-	error("\tdebug=#,-d	Set to # or increment misc debug level\n");
-	error("\tkdebug=#,kd=#	do Kernel debugging\n");
-	error("\t-quiet,-q	be more quiet in error retry mode\n");
-	error("\t-verbose,-v	increment general verbose level by one\n");
-	error("\t-Verbose,-V	increment SCSI command transport verbose level by one\n");
-	error("\t-silent,-s	do not print status of failed SCSI commands\n");
-	error("\t-scanbus	scan the SCSI bus and exit\n");
-	error("\t-noerror	do not abort on error\n");
+	error(_("\ttimeout=#	set the default SCSI command timeout to #.\n"));
+	error(_("\tdebug=#,-d	Set to # or increment misc debug level\n"));
+	error(_("\tkdebug=#,kd=#	do Kernel debugging\n"));
+	error(_("\t-quiet,-q	be more quiet in error retry mode\n"));
+	error(_("\t-verbose,-v	increment general verbose level by one\n"));
+	error(_("\t-Verbose,-V	increment SCSI command transport verbose level by one\n"));
+	error(_("\t-silent,-s	do not print status of failed SCSI commands\n"));
+	error(_("\t-scanbus	scan the SCSI bus and exit\n"));
+	error(_("\t-noerror	do not abort on error\n"));
 #ifdef	CLONE_WRITE
-	error("\t-nocorr		do not apply error correction in drive\n");
+	error(_("\t-nocorr		do not apply error correction in drive\n"));
 #endif
-	error("\t-notrunc	do not truncate outputfile in read mode\n");
-	error("\tretries=#	set retry count (default is %d)\n", retries);
-	error("\t-overhead	meter SCSI command overhead times\n");
-	error("\tmeshpoints=#	print read-speed at # locations\n");
-	error("\t-factor		try to use speed factor with meshpoints=# if possible\n");
+	error(_("\t-notrunc	do not truncate outputfile in read mode\n"));
+	error(_("\tretries=#	set retry count (default is %d)\n"), retries);
+	error(_("\t-overhead	meter SCSI command overhead times\n"));
+	error(_("\tmeshpoints=#	print read-speed at # locations\n"));
+	error(_("\t-factor		try to use speed factor with meshpoints=# if possible\n"));
 	error("\n");
-	error("sectors=0-0 will read nothing, sectors=0-1 will read one sector starting from 0\n");
+	error(_("sectors=0-0 will read nothing, sectors=0-1 will read one sector starting from 0\n"));
 	exit(ret);
 }
 
@@ -326,6 +327,9 @@ main(ac, av)
 	int	fcount;
 	int	cac;
 	char	* const *cav;
+#if	defined(USE_NLS)
+	char	*dir;
+#endif
 	int	scsibus	= -1;
 	int	target	= -1;
 	int	lun	= -1;
@@ -343,6 +347,24 @@ main(ac, av)
 	char	*sectors = NULL;
 
 	save_args(ac, av);
+
+#if	defined(USE_NLS)
+	(void) setlocale(LC_ALL, "");
+#if !defined(TEXT_DOMAIN)	/* Should be defined by cc -D */
+#define	TEXT_DOMAIN "cdrecord"	/* Use this only if it weren't */
+#endif
+	dir = searchfileinpath("share/locale", F_OK,
+					SIP_ANY_FILE|SIP_NO_PATH, NULL);
+	if (dir)
+		(void) bindtextdomain(TEXT_DOMAIN, dir);
+	else
+#if defined(PROTOTYPES) && defined(INS_BASE)
+	(void) bindtextdomain(TEXT_DOMAIN, INS_BASE "/share/locale");
+#else
+	(void) bindtextdomain(TEXT_DOMAIN, "/usr/share/locale");
+#endif
+	(void) textdomain(TEXT_DOMAIN);
+#endif
 
 	cac = --ac;
 	cav = ++av;
@@ -366,15 +388,16 @@ main(ac, av)
 			&notrunc, &retries, &do_factor, &filename,
 			&speed, getnum, &Sbufsize,
 			&dooverhead, &meshpoints) < 0) {
-		errmsgno(EX_BAD, "Bad flag: %s.\n", cav[0]);
+		errmsgno(EX_BAD, _("Bad flag: %s.\n"), cav[0]);
 		usage(EX_BAD);
 	}
 	if (help)
 		usage(0);
 	if (pversion) {
-		printf("readcd %s (%s-%s-%s) Copyright (C) 1987, 1995-2010 Jörg Schilling\n",
+		printf(_("readcd %s (%s-%s-%s) Copyright (C) 1987, 1995-2010 %s\n"),
 								cdr_version,
-								HOST_CPU, HOST_VENDOR, HOST_OS);
+								HOST_CPU, HOST_VENDOR, HOST_OS,
+								_("Joerg Schilling"));
 		exit(0);
 	}
 
@@ -387,7 +410,7 @@ main(ac, av)
 		if (fcount == 1) {
 			if (*astoi(cav[0], &target) != '\0') {
 				errmsgno(EX_BAD,
-					"Target '%s' is not a Number.\n",
+					_("Target '%s' is not a Number.\n"),
 								cav[0]);
 				usage(EX_BAD);
 				/* NOTREACHED */
@@ -396,7 +419,7 @@ main(ac, av)
 		if (fcount == 2) {
 			if (*astoi(cav[0], &lun) != '\0') {
 				errmsgno(EX_BAD,
-					"Lun is '%s' not a Number.\n",
+					_("Lun is '%s' not a Number.\n"),
 								cav[0]);
 				usage(EX_BAD);
 				/* NOTREACHED */
@@ -405,7 +428,7 @@ main(ac, av)
 		if (fcount == 3) {
 			if (*astoi(cav[0], &scsibus) != '\0') {
 				errmsgno(EX_BAD,
-					"Scsibus is '%s' not a Number.\n",
+					_("Scsibus is '%s' not a Number.\n"),
 								cav[0]);
 				usage(EX_BAD);
 				/* NOTREACHED */
@@ -458,7 +481,7 @@ main(ac, av)
 
 		scg_settarget(scgp, scsibus, target, lun);
 		if (scg__open(scgp, NULL) <= 0)
-			comerr("Cannot open SCSI driver.\n");
+			comerr(_("Cannot open SCSI driver.\n"));
 	}
 	scgp->silent = silent;
 	scgp->verbose = verbose;
@@ -470,7 +493,7 @@ main(ac, av)
 		Sbufsize = 256*1024L;
 	Sbufsize = scg_bufsize(scgp, Sbufsize);
 	if ((Sbuf = scg_getbuf(scgp, Sbufsize)) == NULL)
-		comerr("Cannot get SCSI I/O buffer.\n");
+		comerr(_("Cannot get SCSI I/O buffer.\n"));
 
 #ifdef	HAVE_PRIV_SET
 	is_suid = priv_ineffect(PRIV_FILE_DAC_READ) &&
@@ -506,7 +529,7 @@ main(ac, av)
 	if (setuid(getuid()) < 0)
 #endif
 #endif
-		comerr("Panic cannot set back effective uid.\n");
+		comerr(_("Panic cannot set back effective uid.\n"));
 
 	/* code to use SCG */
 
@@ -577,9 +600,9 @@ main(ac, av)
 			speed = 0xFFFF;
 		scsi_set_speed(scgp, speed, speed, ROTCTL_CLV);
 		if (scsi_get_speed(scgp, &rspeed, &wspeed) >= 0) {
-			error("Read  speed: %5d kB/s (CD %3dx, DVD %2dx, BD %2dx).\n",
+			error(_("Read  speed: %5d kB/s (CD %3dx, DVD %2dx, BD %2dx).\n"),
 				rspeed, rspeed/176, rspeed/1385, rspeed/4495);
-			error("Write speed: %5d kB/s (CD %3dx, DVD %2dx, BD %2dx).\n",
+			error(_("Write speed: %5d kB/s (CD %3dx, DVD %2dx, BD %2dx).\n"),
 				wspeed, wspeed/176, wspeed/1385, wspeed/4495);
 		}
 	}
@@ -604,7 +627,7 @@ main(ac, av)
 
 	if (is_suid) {
 		if (scgp->inq->type != INQ_ROMD)
-			comerrno(EX_BAD, "Not root. Will only work on CD-ROM in suid/priv mode\n");
+			comerrno(EX_BAD, _("Not root. Will only work on CD-ROM in suid/priv mode\n"));
 	}
 
 	if (filename || sectors || c2scan || cxscan || pi8scan || pifscan ||
@@ -624,10 +647,10 @@ scg_openerr(errstr)
 {
 	int	err = geterrno();
 
-	errmsgno(err, "%s%sCannot open or use SCSI driver.\n", errstr, errstr[0]?". ":"");
-	errmsgno(EX_BAD, "For possible targets try 'readcd -scanbus'.%s\n",
-				geteuid() ? " Make sure you are root.":"");
-	errmsgno(EX_BAD, "For possible transport specifiers try 'readcd dev=help'.\n");
+	errmsgno(err, _("%s%sCannot open or use SCSI driver.\n"), errstr, errstr[0]?". ":"");
+	errmsgno(EX_BAD, _("For possible targets try 'readcd -scanbus'.%s\n"),
+				geteuid() ? _(" Make sure you are root."):"");
+	errmsgno(EX_BAD, _("For possible transport specifiers try 'readcd dev=help'.\n"));
 	exit(err);
 }
 
@@ -638,7 +661,7 @@ find_drive(scgp, dev)
 {
 	int	ntarget;
 
-	error("No target specified, trying to find one...\n");
+	error(_("No target specified, trying to find one...\n"));
 	ntarget = find_target(scgp, INQ_ROMD, -1);
 	if (ntarget < 0)
 		return (ntarget);
@@ -656,16 +679,16 @@ find_drive(scgp, dev)
 		/*
 		 * No single CD-ROM or WORM found.
 		 */
-		errmsgno(EX_BAD, "No CD/DVD/BD-Recorder target found.\n");
-		errmsgno(EX_BAD, "Your platform may not allow to scan for SCSI devices.\n");
-		comerrno(EX_BAD, "Call 'readcd dev=help' or ask your sysadmin for possible targets.\n");
+		errmsgno(EX_BAD, _("No CD/DVD/BD-Recorder target found.\n"));
+		errmsgno(EX_BAD, _("Your platform may not allow to scan for SCSI devices.\n"));
+		comerrno(EX_BAD, _("Call 'readcd dev=help' or ask your sysadmin for possible targets.\n"));
 	} else {
-		errmsgno(EX_BAD, "Too many CD/DVD/BD-Recorder targets found.\n");
+		errmsgno(EX_BAD, _("Too many CD/DVD/BD-Recorder targets found.\n"));
 		select_target(scgp, stdout);
-		comerrno(EX_BAD, "Select a target from the list above and use 'readcd dev=%s%sb,t,l'.\n",
+		comerrno(EX_BAD, _("Select a target from the list above and use 'readcd dev=%s%sb,t,l'.\n"),
 			dev?dev:"", dev?(dev[strlen(dev)-1] == ':'?"":":"):"");
 	}
-	error("Using dev=%s%s%d,%d,%d.\n",
+	error(_("Using dev=%s%s%d,%d,%d.\n"),
 			dev?dev:"", dev?(dev[strlen(dev)-1] == ':'?"":":"):"",
 			scg_scsibus(scgp), scg_target(scgp), scg_lun(scgp));
 	return (ntarget);
@@ -703,7 +726,7 @@ exscsi(excode, arg)
 				break;
 			if (i == 10) {
 				errmsgno(EX_BAD,
-					"Waiting for current SCSI command to finish.\n");
+					_("Waiting for current SCSI command to finish.\n"));
 			}
 			usleep(100000);
 		}
@@ -744,7 +767,7 @@ prstats()
 	int	tmsec;
 
 	if (gettimeofday(&stoptime, (struct timezone *)0) < 0)
-		comerr("Cannot get time\n");
+		comerr(_("Cannot get time\n"));
 
 	sec = stoptime.tv_sec - starttime.tv_sec;
 	usec = stoptime.tv_usec - starttime.tv_usec;
@@ -757,7 +780,7 @@ prstats()
 		usec += 1000000;
 	}
 
-	error("Time total: %d.%03dsec\n", sec, usec/1000);
+	error(_("Time total: %d.%03dsec\n"), sec, usec/1000);
 	return (1000*sec + (usec / 1000));
 }
 
@@ -772,7 +795,7 @@ prstats_silent()
 	int	tmsec;
 
 	if (gettimeofday(&stoptime, (struct timezone *)0) < 0)
-		comerr("Cannot get time\n");
+		comerr(_("Cannot get time\n"));
 
 	sec = stoptime.tv_sec - starttime.tv_sec;
 	usec = stoptime.tv_usec - starttime.tv_usec;
@@ -814,10 +837,10 @@ dorw(scgp, filename, sectors)
 	if (p && *p == '-')
 		p = astol(++p, &params.end);
 	if (p && *p != '\0')
-		comerrno(EX_BAD, "Not a valid sector range '%s'\n", sectors);
+		comerrno(EX_BAD, _("Not a valid sector range '%s'\n"), sectors);
 
 	if (!wait_unit_ready(scgp, 60))
-		comerrno(EX_BAD, "Device not ready.\n");
+		comerrno(EX_BAD, _("Device not ready.\n"));
 
 #ifdef	CLONE_WRITE
 	if (fulltoc) {
@@ -826,7 +849,7 @@ dorw(scgp, filename, sectors)
 		read_ftoc(scgp, &params, FALSE);
 	} else if (clone || edc_corr) {
 		if (!is_mmc(scgp, NULL, NULL))
-			comerrno(EX_BAD, "Unsupported device for clone mode.\n");
+			comerrno(EX_BAD, _("Unsupported device for clone mode.\n"));
 		if (!edc_corr)
 			noerror = TRUE;
 		if (retries == MAX_RETRY)
@@ -836,7 +859,7 @@ dorw(scgp, filename, sectors)
 
 		if (clone)
 		if (read_ftoc(scgp, &params, TRUE) < 0)
-			comerrno(EX_BAD, "Read fulltoc problems.\n");
+			comerrno(EX_BAD, _("Read fulltoc problems.\n"));
 		readcd_disk(scgp, &params);
 	} else
 #endif
@@ -886,16 +909,16 @@ doit(scgp)
 
 	for (;;) {
 		if (!wait_unit_ready(scgp, 60))
-			comerrno(EX_BAD, "Device not ready.\n");
+			comerrno(EX_BAD, _("Device not ready.\n"));
 
-		printf("0:read 1:veri   2:erase   3:read buffer 4:cache 5:ovtime 6:cap\n");
-		printf("7:wne  8:floppy 9:verify 10:checkcmds  11:read disk 12:write disk\n");
-		printf("13:scsireset 14:seektest 15: readda 16: reada 17: c2err\n");
+		printf(_("0:read 1:veri   2:erase   3:read buffer 4:cache 5:ovtime 6:cap\n"));
+		printf(_("7:wne  8:floppy 9:verify 10:checkcmds  11:read disk 12:write disk\n"));
+		printf(_("13:scsireset 14:seektest 15: readda 16: reada 17: c2err\n"));
 #ifdef	CLONE_WRITE
-		printf("18:readcd 19: lin 20: full toc\n");
+		printf(_("18:readcd 19: lin 20: full toc\n"));
 #endif
 
-		getint("Enter selection:", &i, 0, 20);
+		getint(_("Enter selection:"), &i, 0, 20);
 		if (didintr)
 			return;
 
@@ -969,10 +992,10 @@ readcd_disk(scgp, parmp)
 
 	wait_unit_ready(scgp, 10);
 	if (fread_2448(scgp, &rp, Sbuf, 0, 0) < 0) {
-		errmsgno(EX_BAD, "read 2448 failed\n");
+		errmsgno(EX_BAD, _("read 2448 failed\n"));
 		if (rp.ismmc &&
 		    fread_2448_16(scgp, &rp, Sbuf, 0, 0) >= 0) {
-			errmsgno(EX_BAD, "read 2448_16 : OK\n");
+			errmsgno(EX_BAD, _("read 2448_16 : OK\n"));
 
 			funcp = fread_2448_16;
 		}
@@ -1095,11 +1118,11 @@ read_ftoc(scgp, parmp, do_sectype)
 	fillbytes((caddr_t)xb, sizeof (xb), '\0');
 	if (read_toc(scgp, xb, 0, sizeof (struct tocheader), 0, FMT_FULLTOC) < 0) {
 		if (scgp->silent == 0 || scgp->verbose > 0)
-			errmsgno(EX_BAD, "Cannot read TOC header\n");
+			errmsgno(EX_BAD, _("Cannot read TOC header\n"));
 		return (-1);
 	}
 	len = a_to_u_2_byte(tp->len) + sizeof (struct tocheader)-2;
-	error("TOC len: %d. First Session: %d Last Session: %d.\n", len, tp->first, tp->last);
+	error(_("TOC len: %d. First Session: %d Last Session: %d.\n"), len, tp->first, tp->last);
 
 	/*
 	 * XXX there is a bug in some ASPI versions that
@@ -1123,7 +1146,7 @@ read_ftoc(scgp, parmp, do_sectype)
 			}
 		}
 		if (scgp->silent == 0)
-			errmsgno(EX_BAD, "Cannot read full TOC\n");
+			errmsgno(EX_BAD, _("Cannot read full TOC\n"));
 		return (-1);
 	}
 
@@ -1131,7 +1154,7 @@ itworked:
 	f = fileopen(filename, "wctb");
 
 	if (f == NULL)
-		comerr("Cannot open '%s'.\n", filename);
+		comerr(_("Cannot open '%s'.\n"), filename);
 	filewrite(f, xxb, len);
 	if (do_sectype)
 		read_sectypes(scgp, f);
@@ -1151,7 +1174,7 @@ itworked:
 	p = &xxb[4];
 	for (; p < &xxb[len]; p += 11) {
 		if ((p[3] & 0xFF) == 0xA2) {
-			error("Lead out %d: %ld\n", p[0], msf_to_lba(p[8], p[9], p[10], TRUE));
+			error(_("Lead out %d: %ld\n"), p[0], msf_to_lba(p[8], p[9], p[10], TRUE));
 		}
 	}
 	return (0);
@@ -1169,15 +1192,15 @@ read_sectypes(scgp, f)
 	if (f != NULL)
 		filewrite(f, &sect, 1);
 	if (xdebug)
-		scg_prbytes("sec 0", (Uchar *)Sbuf, 16);
+		scg_prbytes(_("sec 0"), (Uchar *)Sbuf, 16);
 
 	sect = SECT_AUDIO;
 	get_sectype(scgp, scgp->cap->c_baddr-4, &sect);
 	if (f != NULL)
 		filewrite(f, &sect, 1);
 	if (xdebug) {
-		scg_prbytes("sec E", (Uchar *)Sbuf, 16);
-		error("baddr: %ld\n", (long)scgp->cap->c_baddr);
+		scg_prbytes(_("sec E"), (Uchar *)Sbuf, 16);
+		error(_("baddr: %ld\n"), (long)scgp->cap->c_baddr);
 	}
 }
 
@@ -1202,59 +1225,59 @@ get_sectype(scgp, addr, st)
 	}
 	scgp->silent--;
 	if (i >= _MAX_TRY_) {
-		error("Sectype (%ld) is CANNOT\n", addr);
+		error(_("Sectype (%ld) is CANNOT\n"), addr);
 		return;
 	} else if (i > 0) {
-		error("Sectype (%ld) needed %d retries\n", addr, i);
+		error(_("Sectype (%ld) needed %d retries\n"), addr, i);
 	}
 #undef	_MAX_TRY_
 
 	if (cmpbytes(Sbuf, synchdr, 12) < 12) {
 		if (xdebug)
-			error("Sectype (%ld) is AUDIO\n", addr);
+			error(_("Sectype (%ld) is AUDIO\n"), addr);
 		if (st)
 			*st = SECT_AUDIO;
 		return;
 	}
 	if (xdebug)
-		error("Sectype (%ld) is DATA\n", addr);
+		error(_("Sectype (%ld) is DATA\n"), addr);
 	if (Sbuf[15] == 0) {
 		if (xdebug)
-			error("Sectype (%ld) is MODE 0\n", addr);
+			error(_("Sectype (%ld) is MODE 0\n"), addr);
 		sectype = SECT_MODE_0;
 
 	} else if (Sbuf[15] == 1) {
 		if (xdebug)
-			error("Sectype (%ld) is MODE 1\n", addr);
+			error(_("Sectype (%ld) is MODE 1\n"), addr);
 		sectype = SECT_ROM;
 
 	} else if (Sbuf[15] == 2) {
 		if (xdebug)
-			error("Sectype (%ld) is MODE 2\n", addr);
+			error(_("Sectype (%ld) is MODE 2\n"), addr);
 
 		if ((Sbuf[16+2]  & 0x20) == 0 &&
 		    (Sbuf[16+4+2]  & 0x20) == 0) {
 			if (xdebug)
-				error("Sectype (%ld) is MODE 2 form 1\n", addr);
+				error(_("Sectype (%ld) is MODE 2 form 1\n"), addr);
 			sectype = SECT_MODE_2_F1;
 
 		} else if ((Sbuf[16+2]  & 0x20) != 0 &&
 		    (Sbuf[16+4+2]  & 0x20) != 0) {
 			if (xdebug)
-				error("Sectype (%ld) is MODE 2 form 2\n", addr);
+				error(_("Sectype (%ld) is MODE 2 form 2\n"), addr);
 			sectype = SECT_MODE_2_F2;
 		} else {
 			if (xdebug)
-				error("Sectype (%ld) is MODE 2 formless\n", addr);
+				error(_("Sectype (%ld) is MODE 2 formless\n"), addr);
 			sectype = SECT_MODE_2;
 		}
 	} else {
-		error("Sectype (%ld) is UNKNOWN\n", addr);
+		error(_("Sectype (%ld) is UNKNOWN\n"), addr);
 	}
 	if (st)
 		*st = sectype;
 	if (xdebug)
-		error("Sectype (%ld) is 0x%02X\n", addr, sectype);
+		error(_("Sectype (%ld) is 0x%02X\n"), addr, sectype);
 }
 
 #endif	/* CLONE_WRITE */
@@ -1301,10 +1324,10 @@ readc2_disk(scgp, parmp)
 		select_secsize(scgp, osecsize);
 	domode(scgp, oerr, oretr);
 
-	printf("Total of %d hard read errors.\n", rp.errors);
-	printf("C2 errors total: %d bytes in %d sectors on disk\n", rp.c2_errors, rp.c2_errsecs);
-	printf("C2 errors rate: %f%% \n", (100.0*rp.c2_errors)/scgp->cap->c_baddr/2352);
-	printf("C2 errors on worst sector: %d, sectors with 100+ C2 errors: %d\n", rp.c2_maxerrs, rp.c2_badsecs);
+	printf(_("Total of %d hard read errors.\n"), rp.errors);
+	printf(_("C2 errors total: %d bytes in %d sectors on disk\n"), rp.c2_errors, rp.c2_errsecs);
+	printf(_("C2 errors rate: %f%% \n"), (100.0*rp.c2_errors)/scgp->cap->c_baddr/2352);
+	printf(_("C2 errors on worst sector: %d, sectors with 100+ C2 errors: %d\n"), rp.c2_maxerrs, rp.c2_badsecs);
 }
 
 
@@ -1326,7 +1349,7 @@ readcx_disk(scgp, parmp)
 
 	if (is_suid) {
 		if (scgp->inq->type != INQ_ROMD)
-			comerrno(EX_BAD, "Not root. Will only read from CD in suid/priv mode\n");
+			comerrno(EX_BAD, _("Not root. Will only read from CD in suid/priv mode\n"));
 	}
 
 	scgp->silent++;
@@ -1340,7 +1363,7 @@ readcx_disk(scgp, parmp)
 	if (parmp != NULL && !askrange && (parmp->start <= parmp->end))
 		isrange = TRUE;
 
-	if ((end <= 0 && isrange) || (askrange && scg_yes("Ignore disk size? ")))
+	if ((end <= 0 && isrange) || (askrange && scg_yes(_("Ignore disk size? "))))
 		end = 10000000;	/* Hack to read empty (e.g. blank=fast) disks */
 
 	if (parmp) {
@@ -1354,7 +1377,7 @@ readcx_disk(scgp, parmp)
 			break;
 	}
 	if (sp->start_func == NULL)
-		comerrno(EX_BAD, "Unsupported drive for -cxscan\n");
+		comerrno(EX_BAD, _("Unsupported drive for -cxscan\n"));
 
 	secs = (end - addr) / 75;	/* Compute # of seconds */
 
@@ -1395,13 +1418,13 @@ readcx_disk(scgp, parmp)
 
 	if (plot)
 		f = stderr;
-	fprintf(f, "\n\ntotal result:\n\n");
-	fprintf(f, "total:   C1: %5d,   C2: %5d,   CU: %5d\n",
+	fprintf(f, _("\n\ntotal result:\n\n"));
+	fprintf(f, _("total:   C1: %5d,   C2: %5d,   CU: %5d\n"),
 			stats.c1_errors, stats.c2_errors, stats.cu_errors);
-	fprintf(f, "max  :   C1: %5d,   C2: %5d,   CU: %5d\n",
+	fprintf(f, _("max  :   C1: %5d,   C2: %5d,   CU: %5d\n"),
 			max_errors.c1_errors, max_errors.c2_errors,
 			max_errors.cu_errors);
-	fprintf(f, "avg/s:   C1: %5.1f,   C2: %5.1f,   CU: %5.1f\n\n",
+	fprintf(f, _("avg/s:   C1: %5.1f,   C2: %5.1f,   CU: %5.1f\n\n"),
 			(float)stats.c1_errors/secs,
 			(float)stats.c2_errors/secs,
 			(float)stats.cu_errors/secs);
@@ -1427,7 +1450,7 @@ readpi_disk(scgp, parmp)
 
 	if (is_suid) {
 		if (scgp->inq->type != INQ_ROMD)
-			comerrno(EX_BAD, "Not root. Will only read from CD in suid/priv mode\n");
+			comerrno(EX_BAD, _("Not root. Will only read from CD in suid/priv mode\n"));
 	}
 
 	scgp->silent++;
@@ -1441,7 +1464,7 @@ readpi_disk(scgp, parmp)
 	if (parmp != NULL && !askrange && (parmp->start <= parmp->end))
 		isrange = TRUE;
 
-	if ((end <= 0 && isrange) || (askrange && scg_yes("Ignore disk size? ")))
+	if ((end <= 0 && isrange) || (askrange && scg_yes(_("Ignore disk size? "))))
 		end = 10000000;	/* Hack to read empty (e.g. blank=fast) disks */
 
 	if (parmp) {
@@ -1452,9 +1475,9 @@ readpi_disk(scgp, parmp)
 
 	if (pifscan) {
 		if (plextor_init_pif_scan(scgp) < 0)
-			comerrno(EX_BAD, "Unsupported drive for -pifscan\n");
+			comerrno(EX_BAD, _("Unsupported drive for -pifscan\n"));
 	} else if (plextor_init_pi8_scan(scgp) < 0)
-		comerrno(EX_BAD, "Unsupported drive for -pi8scan\n");
+		comerrno(EX_BAD, _("Unsupported drive for -pi8scan\n"));
 
 	secs = (end - addr) / (8*16);	/* Compute # of blocks */
 	if (pifscan)
@@ -1489,12 +1512,12 @@ readpi_disk(scgp, parmp)
 
 	if (plot)
 		f = stderr;
-	fprintf(f, "\n\ntotal result:\n\n");
-	fprintf(f, "total:   PI: %8d\n",
+	fprintf(f, _("\n\ntotal result:\n\n"));
+	fprintf(f, _("total:   PI: %8d\n"),
 			stats.pi_errors);
-	fprintf(f, "max  :   PI: %8d\n",
+	fprintf(f, _("max  :   PI: %8d\n"),
 			max_errors.pi_errors);
-	fprintf(f, "avg sum: PI: %8.1f\n\n",
+	fprintf(f, _("avg sum: PI: %8.1f\n\n"),
 			(float)stats.pi_errors/secs);
 
 	plextor_end_scan(scgp);
@@ -1575,7 +1598,7 @@ fread_2448_16(scgp, rp, bp, addr, cnt)
 		}
 		return (ret);
 	} else {
-		comerrno(EX_BAD, "Cannot fread_2448_16 on non MMC drives\n");
+		comerrno(EX_BAD, _("Cannot fread_2448_16 on non MMC drives\n"));
 
 		return (read_da(scgp, bp, addr, cnt, rp->secsize,
 			/* Sync + all headers + user data + EDC/ECC + all subch */
@@ -1598,7 +1621,7 @@ fread_2352(scgp, rp, bp, addr, cnt)
 			/* NO subchannels */
 			0));
 	} else {
-		comerrno(EX_BAD, "Cannot fread_2352 on non MMC drives\n");
+		comerrno(EX_BAD, _("Cannot fread_2352 on non MMC drives\n"));
 
 		return (read_da(scgp, bp, addr, cnt, rp->secsize,
 			/* Sync + all headers + user data + EDC/ECC + all subch */
@@ -1770,11 +1793,11 @@ fdata_c2(rp, bp, addr, cnt)
 	for (i = 0; i < cnt; i++, p += (2352+294)) {
 /*		scg_prbytes("XXX ", p, 294);*/
 		if ((j = cmpbytes(p, zeroblk, 294)) < 294) {
-			printf("C2 in sector: %3ld first at byte: %4d (0x%02X)", addr+i,
+			printf(_("C2 in sector: %3ld first at byte: %4d (0x%02X)"), addr+i,
 				j*8 + bitidx(p[j]), p[j]&0xFF);
 			for (j = 0, k = 0; j < 294; j++)
 				k += bits(p[j]);
-			printf(" total: %4d errors\n", k);
+			printf(_(" total: %4d errors\n"), k);
 /*			scg_prbytes("XXX ", p, 294);*/
 			rp->c2_errors += k;
 			if (k > rp->c2_maxerrs)
@@ -1944,11 +1967,11 @@ read_retry(scgp, bp, addr, cnt, rfunc, rp)
 	char	dummybuf[8192];
 
 	if (secsize > sizeof (dummybuf)) {
-		errmsgno(EX_BAD, "Cannot retry, sector size %d too big.\n", secsize);
+		errmsgno(EX_BAD, _("Cannot retry, sector size %d too big.\n"), secsize);
 		return (-1);
 	}
 
-	errmsgno(EX_BAD, "Retrying from sector %ld.\n", addr);
+	errmsgno(EX_BAD, _("Retrying from sector %ld.\n"), addr);
 	while (cnt > 0) {
 		error(".");
 
@@ -1992,7 +2015,7 @@ read_retry(scgp, bp, addr, cnt, rfunc, rp)
 /*				errmsgno(err, "Cannot read source disk\n");*/
 			} else {
 				if (scg_getresid(scgp)) {
-					error("\nresid: %d\n", scg_getresid(scgp));
+					error(_("\nresid: %d\n"), scg_getresid(scgp));
 					/*
 					 * If we use -ledc_ecc_dec for
 					 * correction, let the correction
@@ -2007,7 +2030,7 @@ read_retry(scgp, bp, addr, cnt, rfunc, rp)
 
 		if (try >= retries) {
 			error("\n");
-			errmsgno(err, "Error on sector %ld not corrected. Total of %d errors.\n",
+			errmsgno(err, _("Error on sector %ld not corrected. Total of %d errors.\n"),
 					addr, ++rp->errors);
 
 			if (scgp->silent <= 1 && lverbose > 0)
@@ -2017,7 +2040,7 @@ read_retry(scgp, bp, addr, cnt, rfunc, rp)
 
 			if (!noerror)
 				return (-1);
-			errmsgno(EX_BAD, "-noerror set, continuing ...\n");
+			errmsgno(EX_BAD, _("-noerror set, continuing ...\n"));
 		} else {
 			if (try >= maxtry)
 				maxtry = try;
@@ -2025,7 +2048,7 @@ read_retry(scgp, bp, addr, cnt, rfunc, rp)
 			if (try > 1) {
 				error("\n");
 				errmsgno(EX_BAD,
-				"Error on sector %ld corrected after %d tries. Total of %d errors.\n",
+				_("Error on sector %ld corrected after %d tries. Total of %d errors.\n"),
 					addr, try, rp->errors);
 			}
 		}
@@ -2067,7 +2090,7 @@ read_generic(scgp, parmp, rfunc, rp, dfunc)
 
 	if (is_suid) {
 		if (scgp->inq->type != INQ_ROMD)
-			comerrno(EX_BAD, "Not root. Will only read from CD in suid/priv mode\n");
+			comerrno(EX_BAD, _("Not root. Will only read from CD in suid/priv mode\n"));
 	}
 
 	if (parmp == NULL || parmp->askrange)
@@ -2082,14 +2105,14 @@ read_generic(scgp, parmp, rfunc, rp, dfunc)
 		end = scgp->cap->c_baddr + 1;
 	scgp->silent--;
 
-	if ((end <= 0 && isrange) || (askrange && scg_yes("Ignore disk size? ")))
+	if ((end <= 0 && isrange) || (askrange && scg_yes(_("Ignore disk size? "))))
 		end = 10000000;	/* Hack to read empty (e.g. blank=fast) disks */
 
 	if (parmp) {
 		if (parmp->name)
 			defname = parmp->name;
 		if (defname != NULL) {
-			error("Copy from SCSI (%d,%d,%d) disk to file '%s'\n",
+			error(_("Copy from SCSI (%d,%d,%d) disk to file '%s'\n"),
 					scg_scsibus(scgp), scg_target(scgp), scg_lun(scgp),
 					defname);
 		}
@@ -2107,22 +2130,22 @@ read_generic(scgp, parmp, rfunc, rp, dfunc)
 
 	if (defname == NULL) {
 		defname = "disk.out";
-		error("Copy from SCSI (%d,%d,%d) disk to file\n",
+		error(_("Copy from SCSI (%d,%d,%d) disk to file\n"),
 					scg_scsibus(scgp), scg_target(scgp), scg_lun(scgp));
-		error("Enter filename [%s]: ", defname); flush();
+		error(_("Enter filename [%s]: "), defname); flush();
 		(void) getline(filename, sizeof (filename));
 	}
 
 	if (askrange) {
 		addr = start;
-		getlong("Enter starting sector for copy:", &addr, start, end-1);
-/*		getlong("Enter starting sector for copy:", &addr, -300, end-1);*/
+		getlong(_("Enter starting sector for copy:"), &addr, start, end-1);
+/*		getlong(_("Enter starting sector for copy:"), &addr, -300, end-1);*/
 		start = addr;
 	}
 
 	if (askrange) {
 		num = end - addr;
-		getlong("Enter number of sectors to copy:", &num, 1L, num);
+		getlong(_("Enter number of sectors to copy:"), &num, 1L, num);
 		end = addr + num;
 	}
 
@@ -2134,7 +2157,7 @@ read_generic(scgp, parmp, rfunc, rp, dfunc)
 		 */
 		if (edc_corr)
 			cnt = Sbufsize / rp->isecsize;
-		getlong("Enter number of sectors per copy:", &cnt, 1L, cnt);
+		getlong(_("Enter number of sectors per copy:"), &cnt, 1L, cnt);
 	}
 
 	if (filename[0] == '\0')
@@ -2144,12 +2167,12 @@ read_generic(scgp, parmp, rfunc, rp, dfunc)
 		f = stdout;
 		setmode(STDOUT_FILENO, O_BINARY);
 	} else if ((f = fileopen(filename, notrunc?"wcub":"wctub")) == NULL)
-		comerr("Cannot open '%s'.\n", filename);
+		comerr(_("Cannot open '%s'.\n"), filename);
 	file_raise(f, FALSE);
 
-	error("end:  %8ld\n", end);
+	error(_("end:  %8ld\n"), end);
 	if (gettimeofday(&starttime, (struct timezone *)0) < 0)
-		comerr("Cannot get start time\n");
+		comerr(_("Cannot get start time\n"));
 
 	if (meshpoints > 0) {
 		if ((end-start) < meshpoints)
@@ -2182,7 +2205,7 @@ read_generic(scgp, parmp, rfunc, rp, dfunc)
 					if (is_bd)
 						speed /= 4495.0;
 				}
-				error("addr: %8ld cnt: %ld", addr, cnt);
+				error(_("addr: %8ld cnt: %ld"), addr, cnt);
 				printf("%8ld %8.2f\n", addr, speed);
 				if (plot)
 					flush();
@@ -2197,7 +2220,7 @@ read_generic(scgp, parmp, rfunc, rp, dfunc)
 					flush();
 			}
 		}
-		error("addr: %8ld cnt: %ld\r", addr, cnt);
+		error(_("addr: %8ld cnt: %ld\r"), addr, cnt);
 
 		scgp->silent++;
 		if ((*rfunc)(scgp, rp, Sbuf, addr, cnt) < 0) {
@@ -2208,7 +2231,7 @@ read_generic(scgp, parmp, rfunc, rp, dfunc)
 			} else if (scgp->silent == 0) {
 				scg_printerr(scgp);
 			}
-			errmsgno(err, "Cannot read source disk\n");
+			errmsgno(err, _("Cannot read source disk\n"));
 
 			if (read_retry(scgp, Sbuf, addr, cnt, rfunc, rp) < 0) {
 				exargs.excode = -2;
@@ -2217,7 +2240,7 @@ read_generic(scgp, parmp, rfunc, rp, dfunc)
 		} else {
 			scgp->silent--;
 			if (scg_getresid(scgp)) {
-				error("\nresid: %d\n", scg_getresid(scgp));
+				error(_("\nresid: %d\n"), scg_getresid(scgp));
 				/*
 				 * If we use -ledc_ecc_dec for
 				 * correction, let the correction
@@ -2232,23 +2255,23 @@ read_generic(scgp, parmp, rfunc, rp, dfunc)
 		if (filewrite(f, Sbuf, cnt * secsize) < 0) {
 			err = geterrno();
 			error("\n");
-			errmsgno(err, "Cannot write '%s'\n", filename);
+			errmsgno(err, _("Cannot write '%s'\n"), filename);
 			exargs.excode = err;
 			break;
 		}
 	}
-	error("addr: %8ld", addr);
+	error(_("addr: %8ld"), addr);
 out:
 	error("\n");
 	msec = prstats();
 	if (msec == 0)		/* Avoid division by zero */
 		msec = 1;
 #ifdef	OOO
-	error("Read %.2f kB at %.1f kB/sec.\n",
+	error(_("Read %.2f kB at %.1f kB/sec.\n"),
 		(double)(addr - start)/(1024.0/scgp->cap->c_bsize),
 		(double)((addr - start)/(1024.0/scgp->cap->c_bsize)) / (0.001*msec));
 #else
-	error("Read %.2f kB at %.1f kB/sec.\n",
+	error(_("Read %.2f kB at %.1f kB/sec.\n"),
 		(double)(addr - start)/(1024.0/secsize),
 		(double)((addr - start)/(1024.0/secsize)) / (0.001*msec));
 #endif
@@ -2271,7 +2294,7 @@ write_disk(scgp, parmp)
 	int	start;
 
 	if (is_suid)
-		comerrno(EX_BAD, "Not root. Will not write in suid/priv mode\n");
+		comerrno(EX_BAD, _("Not root. Will not write in suid/priv mode\n"));
 
 	filename[0] = '\0';
 	if (read_capacity(scgp) >= 0) {
@@ -2285,7 +2308,7 @@ write_disk(scgp, parmp)
 	if (parmp) {
 		if (parmp->name)
 			defname = parmp->name;
-		error("Copy from file '%s' to SCSI (%d,%d,%d) disk\n",
+		error(_("Copy from file '%s' to SCSI (%d,%d,%d) disk\n"),
 					defname,
 					scg_scsibus(scgp), scg_target(scgp), scg_lun(scgp));
 
@@ -2294,20 +2317,20 @@ write_disk(scgp, parmp)
 			end = parmp->end;
 		cnt = Sbufsize / scgp->cap->c_bsize;
 	} else {
-		error("Copy from file to SCSI (%d,%d,%d) disk\n",
+		error(_("Copy from file to SCSI (%d,%d,%d) disk\n"),
 					scg_scsibus(scgp), scg_target(scgp), scg_lun(scgp));
-		error("Enter filename [%s]: ", defname); flush();
+		error(_("Enter filename [%s]: "), defname); flush();
 		(void) getline(filename, sizeof (filename));
-		error("Notice: reading from file always starts at file offset 0.\n");
+		error(_("Notice: reading from file always starts at file offset 0.\n"));
 
-		getlong("Enter starting sector for copy:", &addr, 0L, end-1);
+		getlong(_("Enter starting sector for copy:"), &addr, 0L, end-1);
 		start = addr;
 		cnt = end - addr;
-		getlong("Enter number of sectors to copy:", &end, 1L, end);
+		getlong(_("Enter number of sectors to copy:"), &end, 1L, end);
 		end = addr + cnt;
 
 		cnt = Sbufsize / scgp->cap->c_bsize;
-		getlong("Enter number of sectors per copy:", &cnt, 1L, cnt);
+		getlong(_("Enter number of sectors per copy:"), &cnt, 1L, cnt);
 /*		error("end:  %8ld\n", end);*/
 	}
 
@@ -2318,11 +2341,11 @@ write_disk(scgp, parmp)
 		f = stdin;
 		setmode(STDIN_FILENO, O_BINARY);
 	} else if ((f = fileopen(filename, "rub")) == NULL)
-		comerr("Cannot open '%s'.\n", filename);
+		comerr(_("Cannot open '%s'.\n"), filename);
 
-	error("end:  %8ld\n", end);
+	error(_("end:  %8ld\n"), end);
 	if (gettimeofday(&starttime, (struct timezone *)0) < 0)
-		comerr("Cannot get start time\n");
+		comerr(_("Cannot get start time\n"));
 
 	for (; addr < end; addr += cnt) {
 		if (didintr)
@@ -2331,23 +2354,23 @@ write_disk(scgp, parmp)
 		if ((addr + cnt) > end)
 			cnt = end - addr;
 
-		error("addr: %8ld cnt: %ld\r", addr, cnt);
+		error(_("addr: %8ld cnt: %ld\r"), addr, cnt);
 
 		if ((amt = fileread(f, Sbuf, cnt * scgp->cap->c_bsize)) < 0)
-			comerr("Cannot read '%s'\n", filename);
+			comerr(_("Cannot read '%s'\n"), filename);
 		if (amt == 0)
 			break;
 		if ((amt / scgp->cap->c_bsize) < cnt)
 			cnt = amt / scgp->cap->c_bsize;
 		if (write_scsi(scgp, Sbuf, addr, cnt) < 0)
 			comerrno(scgp->scmd->ux_errno,
-					"Cannot write destination disk\n");
+					_("Cannot write destination disk\n"));
 	}
-	error("addr: %8ld\n", addr);
+	error(_("addr: %8ld\n"), addr);
 	msec = prstats();
 	if (msec == 0)		/* Avoid division by zero */
 		msec = 1;
-	error("Wrote %.2f kB at %.1f kB/sec.\n",
+	error(_("Wrote %.2f kB at %.1f kB/sec.\n"),
 		(double)(addr - start)/(1024.0/scgp->cap->c_bsize),
 		(double)((addr - start)/(1024.0/scgp->cap->c_bsize)) / (0.001*msec));
 }
@@ -2389,7 +2412,7 @@ ra(scgp)
 	print_capacity(scgp, stderr);
 	fillbytes(Sbuf, 50*2352, 0);
 	if (read_g1(scgp, Sbuf, 0, 50) < 0)
-		errmsg("read CD\n");
+		errmsg(_("read CD\n"));
 	f = fileopen("DDA", "wctb");
 /*	filewrite(f, Sbuf, 50 * 2352 - scg_getresid(scgp));*/
 	filewrite(f, Sbuf, 50 * 2352);
@@ -2832,12 +2855,12 @@ oldmode(scgp, errp, retrp)
 	fillbytes(mode, sizeof (mode), '\0');
 	fillbytes(cmode, sizeof (cmode), '\0');
 
-	if (!get_mode_params(scgp, 0x01, "CD error recovery parameter",
+	if (!get_mode_params(scgp, 0x01, _("CD error recovery parameter"),
 			mode, (Uchar *)0, (Uchar *)cmode, (Uchar *)0, &len)) {
 		return;
 	}
 	if (xdebug)
-		scg_prbytes("Mode Sense Data", mode, len);
+		scg_prbytes(_("Mode Sense Data"), mode, len);
 
 	mode[0] = 0;
 	mode[2] = 0; /* ??? ist manchmal 0x80 */
@@ -2846,7 +2869,7 @@ oldmode(scgp, errp, retrp)
 	*p &= 0x3F;
 
 	if (xdebug)
-		scg_prbytes("Mode page 1:", p, 0x10);
+		scg_prbytes(_("Mode page 1:"), p, 0x10);
 
 	i = p[2];
 	if (errp != NULL)
@@ -2872,12 +2895,12 @@ domode(scgp, err, retr)
 	fillbytes(mode, sizeof (mode), '\0');
 	fillbytes(cmode, sizeof (cmode), '\0');
 
-	if (!get_mode_params(scgp, 0x01, "CD error recovery parameter",
+	if (!get_mode_params(scgp, 0x01, _("CD error recovery parameter"),
 			mode, (Uchar *)0, (Uchar *)cmode, (Uchar *)0, &len)) {
 		return;
 	}
 	if (xdebug || (err == -1 && retr == -1)) {
-		scg_prbytes("Mode Sense Data", mode, len);
+		scg_prbytes(_("Mode Sense Data"), mode, len);
 	}
 
 	mode[0] = 0;
@@ -2887,32 +2910,32 @@ domode(scgp, err, retr)
 	*p &= 0x3F;
 
 	if (xdebug || (err == -1 && retr == -1))
-		scg_prbytes("Mode page 1:", p, 0x10);
+		scg_prbytes(_("Mode page 1:"), p, 0x10);
 
 	i = p[2];
 	if (err == -1) {
-		getint("Error handling? ", &i, 0, 255);
+		getint(_("Error handling? "), &i, 0, 255);
 		p[2] = i;
 	} else {
 		if (xdebug)
-			error("Error handling set from %02X to %02X\n",
+			error(_("Error handling set from %02X to %02X\n"),
 		p[2], err);
 		p[2] = err;
 	}
 
 	i = p[3];
 	if (retr == -1) {
-		getint("Retry count? ", &i, 0, 255);
+		getint(_("Retry count? "), &i, 0, 255);
 		p[3] = i;
 	} else {
 		if (xdebug)
-			error("Retry count set from %d to %d\n",
+			error(_("Retry count set from %d to %d\n"),
 		p[3] & 0xFF, retr);
 		p[3] = retr;
 	}
 
 	if (xdebug || (err == -1 && retr == -1))
-		scg_prbytes("Mode Select Data", mode, len);
+		scg_prbytes(_("Mode Select Data"), mode, len);
 	mode_select(scgp, mode, len, 0, scgp->inq->data_format >= 2);
 }
 
@@ -2999,10 +3022,10 @@ ovtime(scgp)
 	if (test_unit_ready(scgp) < 0)
 		return;
 
-	printf("Doing 1000 'TEST UNIT READY' operations.\n");
+	printf(_("Doing 1000 'TEST UNIT READY' operations.\n"));
 
 	if (gettimeofday(&starttime, (struct timezone *)0) < 0)
-		comerr("Cannot get start time\n");
+		comerr(_("Cannot get start time\n"));
 
 	for (i = 1000; --i >= 0; ) {
 		(void) test_unit_ready(scgp);
@@ -3021,10 +3044,10 @@ ovtime(scgp)
 	scgp->silent--;
 
 	if (i >= 0) {
-		printf("Doing 1000 'SEEK_G0 (0)' operations.\n");
+		printf(_("Doing 1000 'SEEK_G0 (0)' operations.\n"));
 
 		if (gettimeofday(&starttime, (struct timezone *)0) < 0)
-			comerr("Cannot get start time\n");
+			comerr(_("Cannot get start time\n"));
 
 		for (i = 1000; --i >= 0; ) {
 			(void) seek_g0(scgp, 0L);
@@ -3042,10 +3065,10 @@ ovtime(scgp)
 	if (i < 0)
 		return;
 
-	printf("Doing 1000 'SEEK_G1 (0)' operations.\n");
+	printf(_("Doing 1000 'SEEK_G1 (0)' operations.\n"));
 
 	if (gettimeofday(&starttime, (struct timezone *)0) < 0)
-		comerr("Cannot get start time\n");
+		comerr(_("Cannot get start time\n"));
 
 	for (i = 1000; --i >= 0; ) {
 		(void) seek_g1(scgp, 0L);
@@ -3070,13 +3093,13 @@ add_bad(addr)
 		maxbad = BAD_INC;
 		badsecs = malloc(maxbad * sizeof (long));
 		if (badsecs == NULL)
-			comerr("No memory for bad sector list\n.");
+			comerr(_("No memory for bad sector list.\n"));
 	}
 	if (nbad >= maxbad) {
 		maxbad += BAD_INC;
 		badsecs = realloc(badsecs, maxbad * sizeof (long));
 		if (badsecs == NULL)
-			comerr("No memory to grow bad sector list\n.");
+			comerr(_("No memory to grow bad sector list.\n"));
 	}
 	badsecs[nbad++] = addr;
 }
@@ -3089,8 +3112,8 @@ print_bad()
 	if (nbad == 0)
 		return;
 
-	error("Max corected retry count was %d (limited to %d).\n", maxtry, retries);
-	error("The following %d sector(s) could not be read correctly:\n", nbad);
+	error(_("Max corected retry count was %d (limited to %d).\n"), maxtry, retries);
+	error(_("The following %d sector(s) could not be read correctly:\n"), nbad);
 	for (i = 0; i < nbad; i++)
 		error("%ld\n", badsecs[i]);
 }

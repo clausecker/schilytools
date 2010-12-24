@@ -1,11 +1,11 @@
-/* @(#)io.c	1.7 09/07/10 Copyright 1988-2009 J. Schilling */
+/* @(#)io.c	1.8 10/12/19 Copyright 1988-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)io.c	1.7 09/07/10 Copyright 1988-2009 J. Schilling";
+	"@(#)io.c	1.8 10/12/19 Copyright 1988-2010 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1988-2009 J. Schilling
+ *	Copyright (c) 1988-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -27,6 +27,7 @@ static	UConst char sccsid[] =
 #include <schily/string.h>
 #include <schily/utypes.h>
 #include <schily/schily.h>
+#include <schily/nlsdefs.h>
 #include <schily/ctype.h>
 
 #include "iodefs.h"
@@ -74,15 +75,15 @@ cvt_std(linep, lp, mini, maxi, dp)
 /*	printf("cvt_std(\"%s\", %d, %d, %d);\n", linep, *lp, mini, maxi);*/
 
 	if (linep[0] == '?') {
-		printf("Enter a number in the range from %ld to %ld\n",
+		printf(_("Enter a number in the range from %ld to %ld\n"),
 								mini, maxi);
-		printf("The default radix is 10\n");
-		printf("Precede number with '0x' for hexadecimal or with '0' for octal\n");
-		printf("Shorthands are:\n");
-		printf("\t'^' for minimum value (%ld)\n", mini);
-		printf("\t'$' for maximum value (%ld)\n", maxi);
-		printf("\t'+' for incrementing value to %ld\n", *lp + 1);
-		printf("\t'-' for decrementing value to %ld\n", *lp - 1);
+		printf(_("The default radix is 10\n"));
+		printf(_("Precede number with '0x' for hexadecimal or with '0' for octal\n"));
+		printf(_("Shorthands are:\n"));
+		printf(_("\t'^' for minimum value (%ld)\n"), mini);
+		printf(_("\t'$' for maximum value (%ld)\n"), maxi);
+		printf(_("\t'+' for incrementing value to %ld\n"), *lp + 1);
+		printf(_("\t'-' for decrementing value to %ld\n"), *lp - 1);
 		return (FALSE);
 	}
 	if (linep[0] == '^' && *skipwhite(&linep[1]) == '\0') {
@@ -96,11 +97,11 @@ cvt_std(linep, lp, mini, maxi, dp)
 		if (*lp > mini)
 			l = *lp - 1;
 	} else if (*astol(linep, &l)) {
-		printf("Not a number: '%s'.\n", linep);
+		printf(_("Not a number: '%s'.\n"), linep);
 		return (FALSE);
 	}
 	if (l < mini || l > maxi) {
-		printf("'%s' is out of range.\n", linep);
+		printf(_("'%s' is out of range.\n"), linep);
 		return (FALSE);
 	}
 	*lp = l;
@@ -207,13 +208,16 @@ again:
 	if (getline(okbuf, sizeof (okbuf)) == EOF)
 		exit(EX_BAD);
 	if (okbuf[0] == '?') {
-		printf("Enter 'y', 'Y', 'yes' or 'YES' if you agree with the previous asked question.\n");
-		printf("All other input will be handled as if the question has beed answered with 'no'.\n");
+		printf(_("Enter 'y', 'Y', 'yes' or 'YES' if you agree with the previous asked question.\n"));
+		printf(_("All other input will be handled as if the question has beed answered with 'no'.\n"));
 		goto again;
 	}
 	if (streql(okbuf, "y") || streql(okbuf, "yes") ||
 	    streql(okbuf, "Y") || streql(okbuf, "YES"))
 		return (TRUE);
-	else
-		return (FALSE);
+#if	defined(USE_NLS) && defined(HAVE_NL_LANGINFO) && defined(YESSTR)
+	if (streql(okbuf, nl_langinfo(YESSTR)))
+		return (TRUE);
+#endif
+	return (FALSE);
 }

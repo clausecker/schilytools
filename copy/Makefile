@@ -1,4 +1,4 @@
-#ident @(#)Makefile	1.10 08/04/08 
+#ident @(#)Makefile	1.12 10/12/23 
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -9,10 +9,12 @@ INSDIR=		bin
 TARGET=		copy
 CPPOPTS +=	-DUSE_LARGEFILES
 CPPOPTS +=	-DSCHILY_PRINT
+CPPOPTS +=	-DINS_BASE=\"${INS_BASE}\"
+CPPOPTS +=	-DTEXT_DOMAIN=\"SCHILY_utils\"
 
 CFILES=		copy.c
 #HFILES=
-LIBS=		-lschily
+LIBS=		-lschily $(LIB_INTL)
 XMK_FILE=	Makefile.man
 
 ###########################################################################

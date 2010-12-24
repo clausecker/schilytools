@@ -1,8 +1,8 @@
-/* @(#)hash.c	1.27 09/11/25 joerg */
+/* @(#)hash.c	1.28 10/12/19 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)hash.c	1.27 09/11/25 joerg";
+	"@(#)hash.c	1.28 10/12/19 joerg";
 
 #endif
 /*
@@ -11,7 +11,7 @@ static	UConst char sccsid[] =
  * Written by Eric Youngdale (1993).
  *
  * Copyright 1993 Yggdrasil Computing, Incorporated
- * Copyright (c) 1999,2000-2009 J. Schilling
+ * Copyright (c) 1999,2000-2010 J. Schilling
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -116,7 +116,7 @@ add_hash(spnt)
 	if (spnt->size == 0 || spnt->starting_block == 0)
 		if (spnt->size != 0 && spnt->starting_block == 0) {
 			comerrno(EX_BAD,
-			"Non zero-length file '%s' assigned zero extent.\n",
+			_("Non zero-length file '%s' assigned zero extent.\n"),
 							spnt->name);
 		};
 
@@ -343,7 +343,7 @@ find_file_hash(name)
 		p1 = name;
 		p2 = nh->de->isorec.name;
 		if (debug > 1)
-			error("Checking name '%s' isorec.name '%s'\n", p1, p2);
+			error(_("Checking name '%s' isorec.name '%s'\n"), p1, p2);
 
 		/* Look for end of string, or a mismatch. */
 		while (1 == 1) {
@@ -358,9 +358,9 @@ find_file_hash(name)
 		if (!isoname_endsok(p1) || !isoname_endsok(p2)) {
 			if (debug > 1) {
 				if (!isoname_endsok(p1))
-					error("'%s' does NOT END OK\n", p1);
+					error(_("'%s' does NOT END OK\n"), p1);
 				if (!isoname_endsok(p2))
-					error("'%s' does NOT END OK\n", p2);
+					error(_("'%s' does NOT END OK\n"), p2);
 			}
 			/*
 			 * If one file does not end with a valid version number

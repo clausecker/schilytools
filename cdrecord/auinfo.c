@@ -1,8 +1,8 @@
-/* @(#)auinfo.c	1.32 10/01/31 Copyright 1998-2010 J. Schilling */
+/* @(#)auinfo.c	1.33 10/12/19 Copyright 1998-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)auinfo.c	1.32 10/01/31 Copyright 1998-2010 J. Schilling";
+	"@(#)auinfo.c	1.33 10/12/19 Copyright 1998-2010 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1998-2010 J. Schilling
@@ -29,6 +29,7 @@ static	UConst char sccsid[] =
 #include <schily/deflts.h>
 #include <schily/utypes.h>
 #include <schily/schily.h>
+#include <schily/nlsdefs.h>
 
 #include "cdtext.h"
 #include "cdrecord.h"
@@ -106,7 +107,7 @@ auinfosize(name, trackp)
 	 */
 	if (isatty(STDIN_FILENO)) {
 		errmsgno(EX_BAD,
-			"WARNING: Stdin is connected to a terminal.\n");
+			_("WARNING: Stdin is connected to a terminal.\n"));
 		return (FALSE);
 	}
 
@@ -122,7 +123,7 @@ auinfosize(name, trackp)
 	tlp = p = readtag("Tracklength=");
 	if (p == NULL) {		/* Tracklength= Tag not found	*/
 		errmsgno(EX_BAD,
-			"WARNING: %s does not contain a 'Tracklength=' tag.\n",
+			_("WARNING: %s does not contain a 'Tracklength=' tag.\n"),
 			name);
 		defltclose();
 		return (FALSE);
@@ -131,7 +132,7 @@ auinfosize(name, trackp)
 	p = astol(p, &secs);
 	if (*p != '\0' && *p != ',') {
 		errmsgno(EX_BAD,
-			"WARNING: %s: 'Tracklength=' contains illegal parameter '%s'.\n",
+			_("WARNING: %s: 'Tracklength=' contains illegal parameter '%s'.\n"),
 			name, tlp);
 		defltclose();
 		return (FALSE);
@@ -141,14 +142,14 @@ auinfosize(name, trackp)
 	p = astol(p, &nsamples);
 	if (*p != '\0') {
 		errmsgno(EX_BAD,
-			"WARNING: %s: 'Tracklength=' contains illegal parameter '%s'.\n",
+			_("WARNING: %s: 'Tracklength=' contains illegal parameter '%s'.\n"),
 			name, tlp);
 		defltclose();
 		return (FALSE);
 	}
 	tracksize = (secs * 2352) + (nsamples * 4);
 	if (xdebug > 0) {
-		error("%s: Tracksize %lld bytes (%ld sectors, %ld samples)\n",
+		error(_("%s: Tracksize %lld bytes (%ld sectors, %ld samples)\n"),
 			name, tracksize, secs, nsamples);
 	}
 	trackp->itracksize = tracksize;
@@ -315,7 +316,7 @@ auinfo(name, track, trackp)
 		astol(p, &l);
 		if (track == 1 && tr == 1 && l > 0) {
 			trackp[1].pregapsize = 150 + l;
-			printf("Track1 Start: '%s' (%ld)\n", p, l);
+			printf(_("Track1 Start: '%s' (%ld)\n"), p, l);
 		}
 	}
 
@@ -384,7 +385,7 @@ gettextptr(track, trackp)
 	if (txp == NULL) {
 		txp = malloc(sizeof (textptr_t));
 		if (txp == NULL)
-			comerr("Cannot malloc CD-Text structure.\n");
+			comerr(_("Cannot malloc CD-Text structure.\n"));
 		fillbytes(txp, sizeof (textptr_t), '\0');
 		trackp[track].text = txp;
 	}
@@ -401,7 +402,7 @@ savestr(str)
 	if (ret)
 		strcpy(ret, str);
 	else
-		comerr("Cannot malloc auinfo string.\n");
+		comerr(_("Cannot malloc auinfo string.\n"));
 	return (ret);
 }
 
@@ -453,18 +454,18 @@ setmcn(mcn, trackp)
 	register char	*p;
 
 	if (strlen(mcn) != 13)
-		comerrno(EX_BAD, "MCN '%s' has illegal length.\n", mcn);
+		comerrno(EX_BAD, _("MCN '%s' has illegal length.\n"), mcn);
 
 	for (p = mcn; *p; p++) {
 		if (*p < '0' || *p > '9')
-			comerrno(EX_BAD, "MCN '%s' contains illegal character '%c'.\n", mcn, *p);
+			comerrno(EX_BAD, _("MCN '%s' contains illegal character '%c'.\n"), mcn, *p);
 	}
 	p = malloc(14);
 	strcpy(p, mcn);
 	trackp->isrc = p;
 
 	if (debug)
-		printf("Track %d MCN: '%s'\n", (int)trackp->trackno, trackp->isrc);
+		printf(_("Track %d MCN: '%s'\n"), (int)trackp->trackno, trackp->isrc);
 }
 
 LOCAL	char	upper[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -474,7 +475,7 @@ isrc_illchar(isrc, c)
 	char	*isrc;
 	int	c;
 {
-	errmsgno(EX_BAD, "ISRC '%s' contains illegal character '%c'.\n", isrc, c);
+	errmsgno(EX_BAD, _("ISRC '%s' contains illegal character '%c'.\n"), isrc, c);
 }
 
 /*
@@ -504,7 +505,7 @@ setisrc(isrc, trackp)
 				i++;
 		}
 		if (((len - i) != 12) || i > 3)
-			comerrno(EX_BAD, "ISRC '%s' has illegal length.\n", isrc);
+			comerrno(EX_BAD, _("ISRC '%s' has illegal length.\n"), isrc);
 	}
 
 	/*
@@ -560,7 +561,7 @@ setisrc(isrc, trackp)
 	trackp->isrc = p;
 
 	if (debug)
-		printf("Track %d ISRC: '%s'\n", (int)trackp->trackno, trackp->isrc);
+		printf(_("Track %d ISRC: '%s'\n"), (int)trackp->trackno, trackp->isrc);
 	return;
 illchar:
 	isrc_illchar(isrc, *p);
@@ -588,7 +589,7 @@ setindex(tindex, trackp)
 			goto illchar;
 		i++;
 		if (i > 99)
-			comerrno(EX_BAD, "Too many indices for track %d\n", (int)trackp->trackno);
+			comerrno(EX_BAD, _("Too many indices for track %d\n"), (int)trackp->trackno);
 		idxlist[i] = idx;
 		if (*p == ',')
 			p++;
@@ -598,7 +599,7 @@ setindex(tindex, trackp)
 	nindex = i;
 
 	if (debug)
-		printf("Track %d %d Index: '%s'\n", (int)trackp->trackno, i, tindex);
+		printf(_("Track %d %d Index: '%s'\n"), (int)trackp->trackno, i, tindex);
 
 	if (debug) {
 		for (i = 0; i <= nindex; i++)
@@ -609,5 +610,5 @@ setindex(tindex, trackp)
 	trackp->tindex = idxlist;
 	return;
 illchar:
-	comerrno(EX_BAD, "Index '%s' contains illegal character '%c'.\n", tindex, *p);
+	comerrno(EX_BAD, _("Index '%s' contains illegal character '%c'.\n"), tindex, *p);
 }

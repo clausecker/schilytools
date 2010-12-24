@@ -1,11 +1,11 @@
-/* @(#)isonum.c	1.8 09/07/09 Copyright 2006-2009 J. Schilling */
+/* @(#)isonum.c	1.9 10/12/19 Copyright 2006-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)isonum.c	1.8 09/07/09 Copyright 2006-2009 J. Schilling";
+	"@(#)isonum.c	1.9 10/12/19 Copyright 2006-2010 J. Schilling";
 #endif
 /*
- *	Copyright (c) 2006-2009 J. Schilling
+ *	Copyright (c) 2006-2010 J. Schilling
  */
 /*
  * This program is free software; you can redistribute it and/or modify
@@ -172,7 +172,7 @@ get_723(vp)
 	Uchar	*p = vp;
 #if 0
 	if (p[0] != p[3] || p[1] != p[2]) {
-		comerrno(EX_BAD, "invalid format 7.2.3 number\n");
+		comerrno(EX_BAD, _("Invalid format 7.2.3 number\n"));
 	}
 #endif
 	return (get_721(p));

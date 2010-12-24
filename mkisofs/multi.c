@@ -1,15 +1,15 @@
-/* @(#)multi.c	1.95 09/11/25 joerg */
+/* @(#)multi.c	1.96 10/12/19 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)multi.c	1.95 09/11/25 joerg";
+	"@(#)multi.c	1.96 10/12/19 joerg";
 #endif
 /*
  * File multi.c - scan existing iso9660 image and merge into
  * iso9660 filesystem.  Used for multisession support.
  *
  * Written by Eric Youngdale (1996).
- * Copyright (c) 1999-2009 J. Schilling
+ * Copyright (c) 1999-2010 J. Schilling
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -120,11 +120,11 @@ readsecs(startsecno, buffer, sectorcount)
 	int		f = fileno(in_image);
 
 	if (lseek(f, (off_t)startsecno * SECTOR_SIZE, SEEK_SET) == (off_t)-1) {
-		comerr(" Seek error on old image\n");
+		comerr(_("Seek error on old image\n"));
 	}
 	if (read(f, buffer, (sectorcount * SECTOR_SIZE))
 		!= (sectorcount * SECTOR_SIZE)) {
-		comerr(" Read error on old image\n");
+		comerr(_("Read error on old image\n"));
 	}
 	return (sectorcount * SECTOR_SIZE);
 }
@@ -184,7 +184,7 @@ static	int		did_xa = 0;
 			*lenp = len;
 			if (!did_xa) {
 				did_xa = 1;
-				errmsgno(EX_BAD, "Found XA directory extension record.\n");
+				errmsgno(EX_BAD, _("Found XA directory extension record.\n"));
 			}
 		} else if (pnt[2] == 0) {
 			char *cp = NULL;
@@ -198,16 +198,16 @@ static	int		did_xa = 0;
 				printasc("XA REC:", pnt, len);
 			}
 			if (no_rr == 0) {
-				errmsgno(EX_BAD, "Disabling RR / XA / AA.\n");
+				errmsgno(EX_BAD, _("Disabling RR / XA / AA.\n"));
 				no_rr = 1;
 			}
 			*lenp = 0;
 			if (cp) {
-				errmsgno(EX_BAD, "Problems with old ISO directory entry for file: '%s'.\n", &cp[33]);
+				errmsgno(EX_BAD, _("Problems with old ISO directory entry for file: '%s'.\n"), &cp[33]);
 			}
-			errmsgno(EX_BAD, "Illegal extended directory attributes found (bad XA disk?).\n");
-/*			errmsgno(EX_BAD, "Disabling Rock Ridge for old session.\n");*/
-			comerrno(EX_BAD, "Try again using the -no-rr option.\n");
+			errmsgno(EX_BAD, _("Illegal extended directory attributes found (bad XA disk?).\n"));
+/*			errmsgno(EX_BAD, _("Disabling Rock Ridge for old session.\n"));*/
+			comerrno(EX_BAD, _("Try again using the -no-rr option.\n"));
 		}
 	}
 	if (len >= 4 && pnt[3] != 1 && pnt[3] != 2) {
@@ -277,7 +277,7 @@ parse_rrflags(pnt, len, cont_flag)
 	while (len >= 4) {
 		if (pnt[3] != 1 && pnt[3] != 2) {
 			errmsgno(EX_BAD,
-				"**BAD RRVERSION (%d) in '%c%c' field (%2.2X %2.2X).\n",
+				_("**BAD RRVERSION (%d) in '%c%c' field (%2.2X %2.2X).\n"),
 				pnt[3], pnt[0], pnt[1], pnt[0], pnt[1]);
 			return (0);	/* JS ??? Is this right ??? */
 		}
@@ -374,7 +374,7 @@ parse_rr(pnt, len, dpnt)
 	while (len >= 4) {
 		if (pnt[3] != 1 && pnt[3] != 2) {
 			errmsgno(EX_BAD,
-				"**BAD RRVERSION (%d) in '%c%c' field (%2.2X %2.2X).\n",
+				_("**BAD RRVERSION (%d) in '%c%c' field (%2.2X %2.2X).\n"),
 				pnt[3], pnt[0], pnt[1], pnt[0], pnt[1]);
 			return (-1);
 		}
@@ -466,7 +466,7 @@ check_rr_dates(dpnt, current, statbuf, lstatbuf)
 	while (len >= 4) {
 		if (pnt[3] != 1 && pnt[3] != 2) {
 			errmsgno(EX_BAD,
-				"**BAD RRVERSION (%d) in '%c%c' field (%2.2X %2.2X).\n",
+				_("**BAD RRVERSION (%d) in '%c%c' field (%2.2X %2.2X).\n"),
 				pnt[3], pnt[0], pnt[1], pnt[0], pnt[1]);
 			return (-1);
 		}
@@ -627,7 +627,7 @@ read_merging_directory(mrootp, nentp)
 	while (i < len) {
 		idr = (struct iso_directory_record *)&dirbuff[i];
 		if ((i + (idr->length[0] & 0xFF)) > len) {
-			comerrno(EX_BAD, "Bad directory length for '%.*s'.\n",
+			comerrno(EX_BAD, _("Bad directory length for '%.*s'.\n"),
 					idr->name_len[0] & 0xFF, idr->name);
 		}
 		if (idr->length[0] == 0) {
@@ -737,7 +737,7 @@ read_merging_directory(mrootp, nentp)
 
 		if (parse_rr((*pnt)->rr_attributes, rlen, *pnt) == -1) {
 			comerrno(EX_BAD,
-			    "Cannot parse Rock Ridge attributes for '%s'.\n",
+			    _("Cannot parse Rock Ridge attributes for '%s'.\n"),
 								idr->name);
 		}
 		if (((*pnt)->isorec.name_len[0] == 1) &&
@@ -954,11 +954,11 @@ read_merging_directory(mrootp, nentp)
 		 * found.
 		 */
 		fprintf(stderr,
-		    "Warning: Neither Rock Ridge (-R) nor TRANS.TBL (-T) \n");
+		    _("Warning: Neither Rock Ridge (-R) nor TRANS.TBL (-T) \n"));
 		fprintf(stderr,
-		    "name translations were found on previous session.\n");
+		    _("name translations were found on previous session.\n"));
 		fprintf(stderr,
-		    "ISO-9660 file names have been used instead.\n");
+		    _("ISO-9660 file names have been used instead.\n"));
 		warning_given = 1;
 	}
 	if (dirbuff != NULL) {
@@ -1297,7 +1297,7 @@ merge_isofs(path)
 	for (i = 0; i < 100; i++) {
 		if (readsecs(file_addr, buffer,
 				sizeof (buffer) / SECTOR_SIZE) != sizeof (buffer)) {
-			comerr(" Read error on old image %s\n", path);
+			comerr(_("Read error on old image %s\n"), path);
 		}
 		vdp = (struct iso_volume_descriptor *)buffer;
 
@@ -1319,13 +1319,13 @@ merge_isofs(path)
 	/* Check the blocksize of the image to make sure it is compatible. */
 	if (get_723(pri->logical_block_size) != SECTOR_SIZE) {
 		errmsgno(EX_BAD,
-			"Previous session has incompatible sector size %u.\n",
+			_("Previous session has incompatible sector size %u.\n"),
 			get_723(pri->logical_block_size));
 		return (NULL);
 	}
 	if (get_723(pri->volume_set_size) != 1) {
 		errmsgno(EX_BAD,
-			"Previous session has volume set size %u (must be 1).\n",
+			_("Previous session has volume set size %u (must be 1).\n"),
 			get_723(pri->volume_set_size));
 		return (NULL);
 	}
@@ -1338,7 +1338,7 @@ merge_isofs(path)
 	for (i = 0; i < 100; i++) {
 		if (readsecs(file_addr, buffer,
 				sizeof (buffer) / SECTOR_SIZE) != sizeof (buffer)) {
-			comerr(" Read error on old image %s\n", path);
+			comerr(_("Read error on old image %s\n"), path);
 		}
 		if (strncmp(buffer, "MKI ", 4) == 0) {
 			int	sum2;
@@ -1349,7 +1349,7 @@ merge_isofs(path)
 			sum2 *= 256;
 			sum2 += p[2047] & 0xFF;
 			if (sum == sum2) {
-				error("ISO-9660 image includes checksum signature for correct inode numbers.\n");
+				error(_("ISO-9660 image includes checksum signature for correct inode numbers.\n"));
 			} else {
 				correct_inodes = FALSE;
 				rrip112 = FALSE;
@@ -1643,14 +1643,14 @@ get_session_start(file_addr)
 
 	if (cdrecord_data == NULL) {
 		comerrno(EX_BAD,
-		    "Special parameters for cdrecord not specified with -C\n");
+		    _("Special parameters for cdrecord not specified with -C\n"));
 	}
 	/*
 	 * Next try and find the ',' in there which delimits the two numbers.
 	 */
 	pnt = strchr(cdrecord_data, ',');
 	if (pnt == NULL) {
-		comerrno(EX_BAD, "Malformed cdrecord parameters\n");
+		comerrno(EX_BAD, _("Malformed cdrecord parameters\n"));
 	}
 
 	*pnt = '\0';
@@ -1706,7 +1706,7 @@ merge_previous_session(this_dir, mrootp, reloc_root, reloc_old_root)
 	if (orig_contents == NULL) {
 		if (reloc_old_root) {
 			comerrno(EX_BAD,
-			"Reading old session failed, cannot execute -old-root.\n");
+			_("Reading old session failed, cannot execute -old-root.\n"));
 		}
 		return (0);
 	}
@@ -1753,7 +1753,7 @@ merge_previous_session(this_dir, mrootp, reloc_root, reloc_old_root)
 
 				if (!new_orig_contents) {
 					comerrno(EX_BAD,
-					"Reading directory %s in old session failed, cannot execute -old-root.\n",
+					_("Reading directory %s in old session failed, cannot execute -old-root.\n"),
 							reloc_old_root);
 				}
 				i = -1;
@@ -1762,7 +1762,7 @@ merge_previous_session(this_dir, mrootp, reloc_root, reloc_old_root)
 
 			if (i == new_n_orig) {
 				comerrno(EX_BAD,
-				"-old-root (sub)directory %s not found in old session.\n",
+				_("-old-root (sub)directory %s not found in old session.\n"),
 						reloc_old_root);
 			}
 
@@ -1947,7 +1947,7 @@ check_rr_relocation(de)
 	while (len >= 4) {
 		if (pnt[3] != 1 && pnt[3] != 2) {
 			errmsgno(EX_BAD,
-				"**BAD RRVERSION (%d) in '%c%c' field (%2.2X %2.2X).\n",
+				_("**BAD RRVERSION (%d) in '%c%c' field (%2.2X %2.2X).\n"),
 				pnt[3], pnt[0], pnt[1], pnt[0], pnt[1]);
 		}
 		if (strncmp((char *)pnt, "CL", 2) == 0) {
@@ -2050,7 +2050,7 @@ finish_cl_pl_for_prev_session()
 				d_entry = d_entry->next;
 			}
 			if (!d_entry) {
-				comerrno(EX_BAD, "Unable to locate directory parent\n");
+				comerrno(EX_BAD, _("Unable to locate directory parent\n"));
 			}
 
 			if (s_entry->filedir != NULL && s_entry->parent_rec != NULL) {

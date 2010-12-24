@@ -1,7 +1,7 @@
-/* @(#)cd_extra.c	1.18 10/01/09 Copyright 2000-2001 Heiko Eissfeldt, Copyright 2004-2010 J. Schilling */
+/* @(#)cd_extra.c	1.19 10/12/19 Copyright 2000-2001 Heiko Eissfeldt, Copyright 2004-2010 J. Schilling */
 #ifndef lint
 static	const char _sccsid[] =
-"@(#)cd_extra.c	1.18 10/01/09 Copyright 2000-2001 Heiko Eissfeldt, Copyright 2004-2010 J. Schilling";
+"@(#)cd_extra.c	1.19 10/12/19 Copyright 2000-2001 Heiko Eissfeldt, Copyright 2004-2010 J. Schilling";
 #endif
 
 /*
@@ -203,7 +203,7 @@ Read_Subinfo(pos, length)
 	orgSubp = Subp = malloc(length);
 
 	if (Subp == NULL) {
-		errmsg("Read_Subinfo no memory(%d).\n", length);
+		errmsg(_("Read_Subinfo no memory(%d).\n"), length);
 		goto errorout;
 	}
 
@@ -374,17 +374,17 @@ Read_Subinfo(pos, length)
 		case 0x1c:
 		case 0x1d:
 #ifdef	INFOPACKETSTRINGS
-			fprintf(outfp, "%s %scopyrighted\n",
+			fprintf(outfp, _("%s %scopyrighted\n"),
 				infopacketID[id], *(Subp + 2) == 0 ?
-								"not " : "");
+								_("not ") : "");
 #endif
 			break;
 
 	case 0x21:
-			fprintf(outfp, "lyrics file beginning at sector %u",
+			fprintf(outfp, _("lyrics file beginning at sector %u"),
 				(unsigned) GET_BE_UINT_FROM_CHARP(Subp + 2));
 			if (len == 8)
-				fprintf(outfp, ", having length: %u\n",
+				fprintf(outfp, _(", having length: %u\n"),
 				(unsigned) GET_BE_UINT_FROM_CHARP(Subp + 6));
 			else
 				fputs("\n", outfp);
@@ -420,10 +420,10 @@ Read_Subinfo(pos, length)
 			break;
 
 		case 0x40:
-			fprintf(outfp, "MIDI file beginning at sector %u",
+			fprintf(outfp, _("MIDI file beginning at sector %u"),
 				(unsigned) GET_BE_UINT_FROM_CHARP(Subp + 2));
 			if (len == 8)
-				fprintf(outfp, ", having length: %u\n",
+				fprintf(outfp, _(", having length: %u\n"),
 				(unsigned) GET_BE_UINT_FROM_CHARP(Subp + 6));
 			else
 				fputs("\n", outfp);
@@ -431,7 +431,7 @@ Read_Subinfo(pos, length)
 
 #ifdef	INFOPACKETSTRINGS
 		case 0x42:
-			fprintf(outfp, "%s: %d beats per minute\n",
+			fprintf(outfp, _("%s: %d beats per minute\n"),
 					infopacketID[id], *(Subp + 2));
 			break;
 

@@ -1,8 +1,8 @@
-/* @(#)tree.c	1.123 10/05/24 joerg */
+/* @(#)tree.c	1.124 10/12/19 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)tree.c	1.123 10/05/24 joerg";
+	"@(#)tree.c	1.124 10/12/19 joerg";
 #endif
 /*
  * File tree.c - scan directory  tree and build memory structures for iso9660
@@ -331,7 +331,7 @@ sort_n_finish(this_dir)
 
 		if (s_entry1 == s_entry) {
 			comerrno(EX_BAD,
-			"Fatal goof, file '%s' already in hash table.\n",
+			_("Fatal goof, file '%s' already in hash table.\n"),
 			s_entry->isorec.name);
 		}
 		/*
@@ -400,7 +400,7 @@ sort_n_finish(this_dir)
 					newname[new_reclen + 2] =
 					    (d3 <= 9 ? '0' + d3 : 'A' + d3 - 10);
 					if (debug)
-						error("NEW name '%s'\n", newname);
+						error(_("NEW name '%s'\n"), newname);
 
 #ifdef VMS
 					/* Sigh.  VAXCRTL seems to be broken here */
@@ -425,7 +425,7 @@ sort_n_finish(this_dir)
 		 * If we fell off the bottom here, we were in real trouble.
 		 */
 		comerrno(EX_BAD,
-			"Unable to generate unique name for file %s\n",
+			_("Unable to generate unique name for file %s\n"),
 			s_entry->name);
 
 got_valid_name:
@@ -435,7 +435,7 @@ got_valid_name:
 		 */
 		if (s_entry->priority < s_entry1->priority) {
 			if (verbose > 0) {
-				fprintf(stderr, "Using %s for  %s%s%s (%s)\n",
+				fprintf(stderr, _("Using %s for  %s%s%s (%s)\n"),
 					newname,
 					this_dir->whole_name, SPATH_SEPARATOR,
 					s_entry->name, s_entry1->name);
@@ -492,7 +492,7 @@ got_valid_name:
 		} else {
 			delete_file_hash(s_entry1);
 			if (verbose > 0) {
-				fprintf(stderr, "Using %s for  %s%s%s (%s)\n",
+				fprintf(stderr, _("Using %s for  %s%s%s (%s)\n"),
 					newname,
 					this_dir->whole_name, SPATH_SEPARATOR,
 					s_entry1->name, s_entry->name);
@@ -675,7 +675,7 @@ got_valid_name:
 
 		if (new_reclen > 0xff) {
 			comerrno(EX_BAD,
-				"Fatal error - RR overflow (reclen %d) for file %s\n",
+				_("Fatal error - RR overflow (reclen %d) for file %s\n"),
 				new_reclen,
 				s_entry->name);
 		}
@@ -684,12 +684,12 @@ got_valid_name:
 
 	status = sort_directory(&this_dir->contents, (reloc_dir == this_dir));
 	if (status > 0) {
-		errmsgno(EX_BAD, "Unable to sort directory %s\n",
+		errmsgno(EX_BAD, _("Unable to sort directory %s\n"),
 			this_dir->whole_name);
 		errmsgno(EX_BAD,
-		"If there was more than one directory type argument to mkisofs\n");
+		_("If there was more than one directory type argument to mkisofs\n"));
 		comerrno(EX_BAD,
-		"use -graft-points to create different target directory names.\n");
+		_("use -graft-points to create different target directory names.\n"));
 	}
 	/*
 	 * If we are filling out a TRANS.TBL, generate the entries that will
@@ -745,7 +745,7 @@ got_valid_name:
 
 		if (count != tablesize) {
 			comerrno(EX_BAD,
-				"Translation table size mismatch %d %d\n",
+				_("Translation table size mismatch %d %d\n"),
 				count, tablesize);
 		}
 	}
@@ -1011,7 +1011,7 @@ find_rr_attribute(pnt, len, attr_type)
 	while (len >= 4) {
 		if (pnt[3] != 1 && pnt[3] != 2) {
 			errmsgno(EX_BAD,
-				"**BAD RRVERSION (%d) in '%c%c' field (%2.2X %2.2X).\n",
+				_("**BAD RRVERSION (%d) in '%c%c' field (%2.2X %2.2X).\n"),
 				pnt[3], pnt[0], pnt[1], pnt[0], pnt[1]);
 		}
 		if (strncmp((char *)pnt, attr_type, 2) == 0)
@@ -1052,7 +1052,7 @@ finish_cl_pl_entries()
 		};
 		if (!d_entry) {
 			comerrno(EX_BAD,
-					"Unable to locate directory parent\n");
+					_("Unable to locate directory parent\n"));
 		};
 
 		if (s_entry->filedir != NULL && s_entry->parent_rec != NULL) {
@@ -1115,14 +1115,14 @@ dir_nesting_warn(this_dir, path, contflag)
 	static	BOOL	did_hint = FALSE;
 
 	errmsgno(EX_BAD,
-		"Directories too deep for '%s' (%d) max is %d%s.\n",
+		_("Directories too deep for '%s' (%d) max is %d%s.\n"),
 		path, this_dir->depth, RR_relocation_depth,
-		contflag?"; ignored - continuing":"");
+		contflag?_("; ignored - continuing"):"");
 	if (!did_hint) {
 		did_hint = TRUE;
-		errmsgno(EX_BAD, "To include the complete directory tree,\n");
-		errmsgno(EX_BAD, "use Rock Ridge extensions via -R or -r,\n");
-		errmsgno(EX_BAD, "or allow deep ISO9660 directory nesting via -D.\n");
+		errmsgno(EX_BAD, _("To include the complete directory tree,\n"));
+		errmsgno(EX_BAD, _("use Rock Ridge extensions via -R or -r,\n"));
+		errmsgno(EX_BAD, _("or allow deep ISO9660 directory nesting via -D.\n"));
 	}
 }
 
@@ -1153,7 +1153,7 @@ extern	BOOL		nodesc;
 		return (1);
 
 	if (verbose > 1) {
-		fprintf(stderr, "Scanning %s\n", path);
+		fprintf(stderr, _("Scanning %s\n"), path);
 	}
 /*#define	check_needed*/
 #ifdef	check_needed
@@ -1163,7 +1163,7 @@ extern	BOOL		nodesc;
 	 * implementing merge directories.
 	 */
 	if (this_dir->dir_flags & DIR_WAS_SCANNED) {
-		fprintf(stderr, "Already scanned directory %s\n", path);
+		fprintf(stderr, _("Already scanned directory %s\n"), path);
 		return (1);	/* It's a directory */
 	}
 #endif
@@ -1187,7 +1187,7 @@ extern	BOOL		nodesc;
 	if (!current_dir || (!d_entry && errno != 0)) {
 		int	ret = 1;
 
-		errmsg("Unable to open directory %s\n", path);
+		errmsg(_("Unable to open directory %s\n"), path);
 
 		if (errno == ENOTDIR) {
 			/*
@@ -1275,7 +1275,7 @@ extern	BOOL		nodesc;
 			    rstr(d_name, ".bak")) {
 				if (verbose > 0) {
 					fprintf(stderr,
-						"Ignoring file %s\n",
+						_("Ignoring file %s\n"),
 						d_name);
 				}
 				continue;
@@ -1293,9 +1293,9 @@ extern	BOOL		nodesc;
 #endif	/* APPLE_HYB */
 
 		if (strlen(path) + strlen(d_name) + 2 > sizeof (whole_path)) {
-			errmsgno(EX_BAD, "Path name %s/%s too long.\n",
+			errmsgno(EX_BAD, _("Path name %s/%s too long.\n"),
 					path, d_name);
-			comerrno(EX_BAD, "Overflow of stat buffer\n");
+			comerrno(EX_BAD, _("Overflow of stat buffer\n"));
 		};
 
 		/*
@@ -1317,7 +1317,7 @@ extern	BOOL		nodesc;
 		    (matches(d_name) || matches(whole_path))) {
 			if (verbose > 1) {
 				fprintf(stderr,
-					"Excluded by match: %s\n", whole_path);
+					_("Excluded by match: %s\n"), whole_path);
 			}
 			continue;
 		}
@@ -1329,7 +1329,7 @@ extern	BOOL		nodesc;
 			 * any originals that we might have found.
 			 */
 			if (verbose > 1) {
-				fprintf(stderr, "Excluded: %s\n", whole_path);
+				fprintf(stderr, _("Excluded: %s\n"), whole_path);
 			}
 			continue;
 		}
@@ -1481,7 +1481,7 @@ insert_file_entry(this_dir, whole_path, short_name, statp, have_rsrc)
 		 * This means that the file doesn't exist, or isn't accessible.
 		 * Sometimes this is because of NFS permissions problems.
 		 */
-		errmsg("Non-existent or inaccessible: %s\n", whole_path);
+		errmsg(_("Non-existent or inaccessible: %s\n"), whole_path);
 		return (0);
 	}
 	if (S_ISDIR(statbuf.st_mode) &&
@@ -1538,11 +1538,11 @@ insert_file_entry(this_dir, whole_path, short_name, statp, have_rsrc)
 			} else {
 				if (follow_links) {
 					/* XXX errno may be wrong! */
-					errmsg("Unable to stat file %s - ignoring and continuing.\n",
+					errmsg(_("Unable to stat file %s - ignoring and continuing.\n"),
 						whole_path);
 				} else {
 					errmsgno(EX_BAD,
-						"Symlink %s ignored - continuing.\n",
+						_("Symlink %s ignored - continuing.\n"),
 						whole_path);
 					return (0); /* Non Rock Ridge discs */
 						    /* - ignore all symlinks */
@@ -1565,7 +1565,7 @@ insert_file_entry(this_dir, whole_path, short_name, statp, have_rsrc)
 							STAT_INODE(statbuf))) {
 					if (!use_RockRidge) {
 						fprintf(stderr,
-						"Already cached directory seen (%s)\n",
+						_("Already cached directory seen (%s)\n"),
 							whole_path);
 						return (0);
 					}
@@ -1611,8 +1611,7 @@ insert_file_entry(this_dir, whole_path, short_name, statp, have_rsrc)
 	if (!S_ISDIR(lstatbuf.st_mode) && (statbuf.st_fab_rfm != FAB$C_FIX &&
 			statbuf.st_fab_rfm != FAB$C_STMLF)) {
 		fprintf(stderr,
-			"Warning - file %s has an unsupported VMS record"
-			" format (%d)\n",
+		_("Warning - file %s has an unsupported VMS record format (%d)\n"),
 			whole_path, statbuf.st_fab_rfm);
 	}
 #endif
@@ -1620,7 +1619,7 @@ insert_file_entry(this_dir, whole_path, short_name, statp, have_rsrc)
 	if (S_ISREG(lstatbuf.st_mode) &&
 	    ((statp != NULL && (status = access(short_name, R_OK))) ||
 	    (statp == NULL && (status = access(whole_path, R_OK))))) {
-		errmsg("File %s is not readable - ignoring\n",
+		errmsg(_("File %s is not readable - ignoring\n"),
 			whole_path);
 		return (0);
 	}
@@ -1638,7 +1637,7 @@ insert_file_entry(this_dir, whole_path, short_name, statp, have_rsrc)
 #else
 		errno = EFBIG;
 #endif
-		errmsg("File %s is too large for current mkisofs settings - ignoring\n",
+		errmsg(_("File %s is too large for current mkisofs settings - ignoring\n"),
 			whole_path);
 		return (0);
 	}
@@ -1652,9 +1651,9 @@ insert_file_entry(this_dir, whole_path, short_name, statp, have_rsrc)
 	    strcmp(short_name, "..") != 0) {
 		if (find_directory_hash(statbuf.st_dev, STAT_INODE(statbuf))) {
 /*			comerrno(EX_BAD,*/
-/*			"Directory loop - fatal goof (%s %lx %lu).\n",*/
+/*			_("Directory loop - fatal goof (%s %lx %lu).\n"),*/
 			errmsgno(EX_BAD,
-			"Warning: Directory loop (%s dev: %lx ino: %lu).\n",
+			_("Warning: Directory loop (%s dev: %lx ino: %lu).\n"),
 				whole_path, (unsigned long) statbuf.st_dev,
 				(unsigned long) STAT_INODE(statbuf));
 		}
@@ -1665,7 +1664,7 @@ insert_file_entry(this_dir, whole_path, short_name, statp, have_rsrc)
 		!S_ISLNK(lstatbuf.st_mode) && !S_ISREG(lstatbuf.st_mode) &&
 		!S_ISDIR(lstatbuf.st_mode)) {
 		fprintf(stderr,
-		"Unknown file type (%s) %s - ignoring and continuing.\n",
+		_("Unknown file type (%s) %s - ignoring and continuing.\n"),
 			filetype((int)lstatbuf.st_mode), whole_path);
 		return (0);
 	}
@@ -1673,7 +1672,7 @@ insert_file_entry(this_dir, whole_path, short_name, statp, have_rsrc)
 	 * Who knows what trash this is - ignore and continue
 	 */
 	if (status) {
-		errmsg("Unable to stat file %s - ignoring and continuing.\n",
+		errmsg(_("Unable to stat file %s - ignoring and continuing.\n"),
 			whole_path);
 		return (0);
 	}
@@ -1681,7 +1680,7 @@ insert_file_entry(this_dir, whole_path, short_name, statp, have_rsrc)
 #define	is_archive(st)	((st).st_dev == archive_dev && (st).st_ino == archive_ino)
 	if (archive_isreg && is_archive(statbuf)) {
 		errmsgno(EX_BAD,
-			"'%s' is the archive. Not dumped.\n", whole_path);
+			_("'%s' is the archive. Not dumped.\n"), whole_path);
 		return (0);
 	}
 
@@ -1749,7 +1748,7 @@ insert_file_entry(this_dir, whole_path, short_name, statp, have_rsrc)
 		if ((x_hfs = (hfs_matches(short_name) ||
 					hfs_matches(whole_path))) == 1) {
 			if (verbose > 1) {
-				fprintf(stderr, "Hidden from HFS tree: %s\n",
+				fprintf(stderr, _("Hidden from HFS tree: %s\n"),
 							whole_path);
 			}
 		}
@@ -1824,7 +1823,7 @@ insert_file_entry(this_dir, whole_path, short_name, statp, have_rsrc)
 		if (i_matches(short_name) || i_matches(whole_path)) {
 			if (verbose > 1) {
 				fprintf(stderr,
-					"Hidden from ISO9660 tree: %s\n",
+					_("Hidden from ISO9660 tree: %s\n"),
 					whole_path);
 			}
 			s_entry->de_flags |= INHIBIT_ISO9660_ENTRY;
@@ -1832,7 +1831,7 @@ insert_file_entry(this_dir, whole_path, short_name, statp, have_rsrc)
 		if (h_matches(short_name) || h_matches(whole_path)) {
 			if (verbose > 1) {
 				fprintf(stderr,
-					"Hidden ISO9660 attribute: %s\n",
+					_("Hidden ISO9660 attribute: %s\n"),
 					whole_path);
 			}
 			s_entry->de_flags |= HIDDEN_FILE;
@@ -1846,7 +1845,7 @@ insert_file_entry(this_dir, whole_path, short_name, statp, have_rsrc)
 		if (j_matches(short_name) || j_matches(whole_path)) {
 			if (verbose > 1) {
 				fprintf(stderr,
-					"Hidden from Joliet tree: %s\n",
+					_("Hidden from Joliet tree: %s\n"),
 					whole_path);
 			}
 			s_entry->de_flags |= INHIBIT_JOLIET_ENTRY;
@@ -1860,7 +1859,7 @@ insert_file_entry(this_dir, whole_path, short_name, statp, have_rsrc)
 		if (u_matches(short_name) || u_matches(whole_path)) {
 			if (verbose > 1) {
 				fprintf(stderr,
-					"Hidden from UDF tree: %s\n",
+					_("Hidden from UDF tree: %s\n"),
 					whole_path);
 			}
 			s_entry->de_flags |= INHIBIT_UDF_ENTRY;
@@ -2157,7 +2156,7 @@ insert_file_entry(this_dir, whole_path, short_name, statp, have_rsrc)
 				(char *)symlink_buff,
 				sizeof (symlink_buff)-1);
 			if (nchar < 0) {
-				errmsg("Cannot read link '%s'.\n",
+				errmsg(_("Cannot read link '%s'.\n"),
 					statp?short_name:whole_path);
 			}
 #else
@@ -2358,7 +2357,7 @@ insert_file_entry(this_dir, whole_path, short_name, statp, have_rsrc)
 #define	EOVERFLOW	EFBIG
 #endif
 			errmsgno(EOVERFLOW,
-			"File %s is too large - hiding from UDF tree.\n",
+			_("File %s is too large - hiding from UDF tree.\n"),
 							whole_path);
 			s_entry->de_flags |= INHIBIT_UDF_ENTRY;
 		}
@@ -2499,10 +2498,10 @@ find_or_create_directory(parent, path, de, flag)
 	 * XXX be found.
 	 */
 	if (path == NULL) {
-		error("Warning: missing whole name for: '%s'\n", de->name);
+		error(_("Warning: missing whole name for: '%s'\n"), de->name);
 		path = de->name;
 		if (path == NULL)
-			comerrno(EX_BAD, "Panic no node name.\n");
+			comerrno(EX_BAD, _("Panic no node name.\n"));
 	}
 	pnt = strrchr(path, PATH_SEPARATOR);
 	if (pnt == NULL) {
@@ -2641,7 +2640,7 @@ find_or_create_directory(parent, path, de, flag)
 		else
 			sts = stat_filter(parent->whole_name, &xstatbuf);
 		if (debug && parent) {
-			error("stat parent->whole_name: '%s' -> %d.\n",
+			error(_("stat parent->whole_name: '%s' -> %d.\n"),
 				parent->whole_name, sts);
 		}
 		if (sts == 0) {
@@ -2771,7 +2770,7 @@ delete_directory(parent, child)
 	if (child == NULL)
 		return;
 	if (child->contents != NULL) {
-		comerrno(EX_BAD, "Unable to delete non-empty directory\n");
+		comerrno(EX_BAD, _("Unable to delete non-empty directory\n"));
 	}
 	free(child->whole_name);
 	child->whole_name = NULL;
@@ -2796,7 +2795,7 @@ delete_directory(parent, child)
 		}
 		if (tdir == NULL || tdir->next != child->next) {
 			comerrno(EX_BAD,
-			"Unable to locate child directory in parent list\n");
+			_("Unable to locate child directory in parent list\n"));
 		}
 	}
 	free(child);
@@ -2863,9 +2862,9 @@ search_tree_file(node, filename)
 
 	if ((p1 = strchr(subdir, '/')) == subdir) {
 		fprintf(stderr,
-		"call to search_tree_file with an absolute path, stripping\n");
+		_("call to search_tree_file with an absolute path, stripping\n"));
 		fprintf(stderr,
-		"initial path separator. Hope this was intended...\n");
+		_("initial path separator. Hope this was intended...\n"));
 		memmove(subdir, subdir + 1, strlen(subdir) - 1);
 		p1 = strchr(subdir, '/');
 	}
@@ -2876,13 +2875,13 @@ search_tree_file(node, filename)
 		*p1 = '\0';
 
 #ifdef DEBUG_TORITO
-		fprintf(stderr, "Looking for subdir called %s\n", p1);
+		fprintf(stderr, _("Looking for subdir called %s\n"), p1);
 #endif
 
 		rest = p1 + 1;
 
 #ifdef DEBUG_TORITO
-		fprintf(stderr, "Remainder of path name is now %s\n", rest);
+		fprintf(stderr, _("Remainder of path name is now %s\n"), rest);
 #endif
 
 		dpnt = node->subdir;
@@ -2895,7 +2894,7 @@ search_tree_file(node, filename)
 			if (strcmp(subdir, dpnt->de_name) == 0) {
 #ifdef DEBUG_TORITO
 				fprintf(stderr,
-				"Calling next level with filename = %s", rest);
+				_("Calling next level with filename = %s\n"), rest);
 #endif
 				return (search_tree_file(dpnt, rest));
 			}
@@ -2918,7 +2917,7 @@ search_tree_file(node, filename)
 #endif
 			if (strcmp(filename, depnt->name) == 0) {
 #ifdef DEBUG_TORITO
-				fprintf(stderr, "Found our file %s", filename);
+				fprintf(stderr, _("Found our file %s"), filename);
 #endif
 				return (depnt);
 			}
@@ -2930,7 +2929,7 @@ search_tree_file(node, filename)
 		return (NULL);
 	}
 #ifdef	ERIC_FUN
-	fprintf(stderr, "We cant get here in search_tree_file :-/ \n");
+	fprintf(stderr, _("We cant get here in search_tree_file :-/ \n"));
 #endif
 }
 

@@ -1,15 +1,15 @@
-/* @(#)udf.c	1.34 09/07/09 Copyright 2001-2009 J. Schilling */
+/* @(#)udf.c	1.35 10/12/19 Copyright 2001-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)udf.c	1.34 09/07/09 Copyright 2001-2009 J. Schilling";
+	"@(#)udf.c	1.35 10/12/19 Copyright 2001-2010 J. Schilling";
 #endif
 /*
  * udf.c - UDF support for mkisofs
  *
  * Written by Ben Rudiak-Gould (2001).
  *
- * Copyright 2001-2009 J. Schilling.
+ * Copyright 2001-2010 J. Schilling.
  */
 /*
  * This program is free software; you can redistribute it and/or modify
@@ -1087,7 +1087,7 @@ udf_size_panic(n)
 	int	n;
 {
 	comerrno(EX_BAD,
-		"Panic: UDF file size error, too many extents (%d).\n", n);
+		_("Panic: UDF file size error, too many extents (%d).\n"), n);
 }
 
 
@@ -1733,7 +1733,7 @@ write_one_udf_directory(dpnt, outfile)
 			}
 			if (!de1) {
 				comerrno(EX_BAD,
-				"Unable to locate relocated directory\n");
+				_("Unable to locate relocated directory\n"));
 			}
 		}
 

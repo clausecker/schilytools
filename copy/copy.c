@@ -1,13 +1,13 @@
-/* @(#)copy.c	1.47 09/07/28 Copyright 1984, 86-90, 95-97, 99, 2000-2009 J. Schilling */
+/* @(#)copy.c	1.48 10/12/19 Copyright 1984, 86-90, 95-97, 99, 2000-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)copy.c	1.47 09/07/28 Copyright 1984, 86-90, 95-97, 99, 2000-2009 J. Schilling";
+	"@(#)copy.c	1.48 10/12/19 Copyright 1984, 86-90, 95-97, 99, 2000-2010 J. Schilling";
 #endif
 /*
  *	copy files ...
  *
- *	Copyright (c) 1984, 86-90, 95-97, 99, 2000-2009 J. Schilling
+ *	Copyright (c) 1984, 86-90, 95-97, 99, 2000-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -53,11 +53,12 @@ static	UConst char sccsid[] =
 #include <schily/string.h>
 #include <schily/maxpath.h>
 #include <schily/libport.h>
+#include <schily/nlsdefs.h>
 
 		/* Probably only needed for Mark Williams C */
-#	ifndef	EEXIST
-#		define	EEXIST	-1	/* XXX ??? */
-#	endif
+#ifndef	EEXIST
+#define	EEXIST	-1	/* XXX ??? */
+#endif
 #define	is_dir(sp)	S_ISDIR((sp)->st_mode)
 #define	is_link(sp)	S_ISLNK((sp)->st_mode)
 #ifndef	S_IFLNK
@@ -76,9 +77,9 @@ static	UConst char sccsid[] =
 #ifdef	HAVE_ST_BLOCKS
 #undef	disk_size
 #if	defined(hpux) || defined(__hpux)
-#	define	disk_size(sp)	((sp)->st_blocks * (off_t)1024)
+#define	disk_size(sp)	((sp)->st_blocks * (off_t)1024)
 #else
-#	define	disk_size(sp)	((sp)->st_blocks * (off_t)DEV_BSIZE)
+#define	disk_size(sp)	((sp)->st_blocks * (off_t)DEV_BSIZE)
 #endif
 #endif
 
@@ -118,20 +119,24 @@ EXPORT	int	main		__PR((int ac, char **av));
 LOCAL	int	do_one_arg	__PR((char *from));
 LOCAL	int	do_interactive	__PR((void));
 LOCAL	int	copy		__PR((char *from, char *to));
-LOCAL	int	copyfile	__PR((char *from, char *to, off_t fromsize, off_t disksize));
+LOCAL	int	copyfile	__PR((char *from, char *to, off_t fromsize,
+							off_t disksize));
 LOCAL	int	copy_link	__PR((char *from, char *to));
 LOCAL	int	do_recurse	__PR((char *from, char *to));
 LOCAL	BOOL	samefile	__PR((STATBUF * sp1, STATBUF * sp2));
-LOCAL	void	set_access	__PR((STATBUF * fromstat, char *to, BOOL to_exists));
+LOCAL	void	set_access	__PR((STATBUF * fromstat, char *to,
+							BOOL to_exists));
 LOCAL	void	etoolong	__PR((char *name));
 LOCAL	BOOL	yes		__PR((char *form, ...));
-LOCAL	BOOL	getbase		__PR((char *path, char *basenamep, size_t bsize));
+LOCAL	BOOL	getbase		__PR((char *path, char *basenamep,
+							size_t bsize));
 LOCAL	void	mygetline	__PR((char *pstr, char *str, int len));
 LOCAL	int	xutimes		__PR((char *name, STATBUF * sp));
 LOCAL	BOOL	doremove	__PR((char *name));
 #if	defined(SEEK_HOLE) && defined(SEEK_DATA)
 LOCAL	BOOL	sparse_file	__PR((int fd, off_t fsize));
-LOCAL	int	sparse_copy	__PR((int fin, int fout, char *from, char *to, off_t fsize));
+LOCAL	int	sparse_copy	__PR((int fin, int fout, char *from, char *to,
+							off_t fsize));
 LOCAL	int	write_end_hole	__PR((int fout, char *to, off_t fsize));
 #endif
 
@@ -139,24 +144,24 @@ LOCAL void
 usage(ret)
 	int	ret;
 {
-	error("Usage:\tcopy -i [options]\n");
-	error("\tcopy [options] from to\n");
-	error("\tcopy [options] file1..filen target_dir\n");
-	error("options:\n");
-	error("\t-q\t\tquery to confirm each copy\n");
-	error("\t-i\t\tinteractive copy / prompt to confirm to overwrite files\n");
-	error("\t-R\t\trecursive copy - POSIX mode\n");
-	error("\t-r\t\trecursive copy\n");
-	error("\t-v\t\tbe verbose\n");
-	error("\t-setowner\trestore the original user\n");
-	error("\t-setgrp\t\trestore the original group\n");
-	error("\t-s\t\trestore the original user and group\n");
-	error("\t-olddate|-o\trestore the original access times\n");
-	error("\t-p\t\tpreserve file permissons ids and acces times\n");
-	error("\t-sparse\t\tpreserve holes in sparse regular files\n");
-	error("\t-force-hole\ttry to insert holes into all copied regular files\n");
-	error("\t-help\t\tPrint this help.\n");
-	error("\t-version\tPrint version information and exit.\n");
+	error(_("Usage:\tcopy -i [options]\n"));
+	error(_("\tcopy [options] from to\n"));
+	error(_("\tcopy [options] file1..filen target_dir\n"));
+	error(_("Options:\n"));
+	error(_("\t-q\t\tquery to confirm each copy\n"));
+	error(_("\t-i\t\tinteractive copy / prompt to confirm to overwrite files\n"));
+	error(_("\t-R\t\trecursive copy - POSIX mode\n"));
+	error(_("\t-r\t\trecursive copy\n"));
+	error(_("\t-v\t\tbe verbose\n"));
+	error(_("\t-setowner\trestore the original user\n"));
+	error(_("\t-setgrp\t\trestore the original group\n"));
+	error(_("\t-s\t\trestore the original user and group\n"));
+	error(_("\t-olddate|-o\trestore the original access times\n"));
+	error(_("\t-p\t\tpreserve file permissons ids and acces times\n"));
+	error(_("\t-sparse\t\tpreserve holes in sparse regular files\n"));
+	error(_("\t-force-hole\ttry to insert holes into all copied regular files\n"));
+	error(_("\t-help\t\tPrint this help.\n"));
+	error(_("\t-version\tPrint version information and exit.\n"));
 	exit(ret);
 }
 
@@ -218,6 +223,7 @@ mystat(name, statbuf)
 #endif
 
 LOCAL	char *opts =
+/* CSTYLED */
 "q,i,v,R,r,s,setowner,setgrp,o,olddate,p,is_recurse,sparse,force-hole,help,h,version";
 
 EXPORT int
@@ -228,6 +234,9 @@ main(ac, av)
 	int	cac;
 	char	* const * cav;
 	char	*lastarg = NULL;
+#if	defined(USE_NLS)
+	char	*dir;
+#endif
 	STATBUF statbuf;
 	char	toname[PATH_MAX];
 	char	frombase[PATH_MAX];
@@ -241,6 +250,25 @@ main(ac, av)
 	save_args(ac, av);
 
 	file_raise((FILE *)NULL, FALSE);
+
+	(void) setlocale(LC_ALL, "");
+
+#if	defined(USE_NLS)
+#if !defined(TEXT_DOMAIN)	/* Should be defined by cc -D */
+#define	TEXT_DOMAIN "copy"	/* Use this only if it weren't */
+#endif
+	dir = searchfileinpath("share/locale", F_OK,
+					SIP_ANY_FILE|SIP_NO_PATH, NULL);
+	if (dir)
+		(void) bindtextdomain(TEXT_DOMAIN, dir);
+	else
+#if defined(PROTOTYPES) && defined(INS_BASE)
+		(void) bindtextdomain(TEXT_DOMAIN, INS_BASE "/share/locale");
+#else
+		(void) bindtextdomain(TEXT_DOMAIN, "/usr/share/locale");
+#endif
+	(void) textdomain(TEXT_DOMAIN);
+#endif
 
 #ifdef	_FASCII			/* Mark Williams C	*/
 	stderr->_ff &= ~_FSTBUF; /* setbuf was called ??? */
@@ -263,16 +291,17 @@ main(ac, av)
 			&is_recurse,
 			&sparseflag, &force_hole,
 			&help, &help, &prversion) < 0) {
-		errmsgno(EX_BAD, "Bad flag: %s.\n", cav[0]);
+		errmsgno(EX_BAD, _("Bad flag: '%s'.\n"), cav[0]);
 		usage(EX_BAD);
 	}
 	if (help)
 		usage(0);
 	if (prversion) {
 		/* CSTYLED */
-		printf("Copy release %s (%s-%s-%s) Copyright (C) 1984, 86-90, 95-97, 99, 2000-2009 Jörg Schilling\n",
-				"1.47",
-				HOST_CPU, HOST_VENDOR, HOST_OS);
+		printf(_("Copy release %s (%s-%s-%s) Copyright (C) 1984, 86-90, 95-97, 99, 2000-2010 %s\n"),
+				"1.48",
+				HOST_CPU, HOST_VENDOR, HOST_OS,
+				_("Joerg Schilling"));
 		exit(0);
 	}
 
@@ -300,7 +329,7 @@ main(ac, av)
 		copybuf = valloc(copybsize);
 	}
 	if (copybuf == NULL)
-		comerr("Cannot allocate copy buffer.\n");
+		comerr(("Cannot allocate copy buffer.\n"));
 	fillbytes(copybuf, copybsize, '\0');
 	zeroblk	= &copybuf[1024];
 
@@ -311,10 +340,11 @@ main(ac, av)
 		exit(do_one_arg(lastarg));
 	if (filecount > 2) {
 		if (stat(lastarg, &statbuf) < 0)
-			comerr("'%s'%s%s", lastarg, " must be a directory, ",
-					"but cannot get status on it\n");
+			comerr("'%s'%s%s", lastarg, _(" must be a directory, "),
+					_("but cannot get status on it\n"));
 		if (!is_dir(&statbuf)) {
-			errmsgno(EX_BAD, "'%s' is not a directory.\n", lastarg);
+			errmsgno(EX_BAD, _("'%s' is not a directory.\n"),
+					lastarg);
 			usage(EX_BAD);
 		} else {
 			last_is_dir = TRUE;
@@ -340,7 +370,8 @@ main(ac, av)
 				continue;
 			}
 			if (snprintf(toname, sizeof (toname), "%s%s%s",
-			    lastarg, PATH_DELIM_STR, frombase) >= sizeof (toname)) {
+			    lastarg, PATH_DELIM_STR, frombase) >=
+			    sizeof (toname)) {
 				etoolong(toname);
 				ret = 1;
 				continue;
@@ -362,7 +393,7 @@ do_one_arg(from)
 {
 	char	toname[PATH_MAX];
 
-	mygetline("To:", toname, sizeof (toname));
+	mygetline(_("To:"), toname, sizeof (toname));
 	if (toname[0] != '\0' && copy(from, toname) < 0)
 		return (1);
 	return (0);
@@ -376,10 +407,10 @@ do_interactive()
 	int	ret = 0;
 
 	for (;;) {
-		mygetline("From:", fromname, sizeof (fromname));
+		mygetline(_("From:"), fromname, sizeof (fromname));
 		if (fromname[0] == '\0')
 			return (ret);
-		mygetline("To:", toname, sizeof (toname));
+		mygetline(_("To:"), toname, sizeof (toname));
 		if (toname[0] == '\0')
 			return (ret);
 		if (copy(fromname, toname) < 0)
@@ -410,7 +441,7 @@ copy(from, to)
 	if (is_recurse && (streql(frombase, ".") || streql(frombase, ".."))) {
 		return (0);
 	}
-	if (query && !interactive && !yes("%s to %s?", from, to)) {
+	if (query && !interactive && !yes(_("%s to %s?"), from, to)) {
 		return (0);
 	}
 	if (lstat(from, &fromstat) < 0) {
@@ -422,25 +453,25 @@ copy(from, to)
 			(streql(frombase, ".*") || streql(frombase, "*"))) {
 			return (0);
 		}
-		errmsg("Can not get status of '%s'.\n", from);
+		errmsg(_("Cannot get status of '%s'.\n"), from);
 		return (-1);
 	}
 	if (stat(to, &tostat) >= 0) {
 		if (samefile(&fromstat, &tostat)) {
 			errmsgno(EEXIST,
-				"Will not copy '%s' to itself ('%s').\n",
+				_("Will not copy '%s' to itself ('%s').\n"),
 								from, to);
 			return (-1);
 		}
 		if (!(to_is_dir = is_dir(&tostat)) &&
-				interactive && !yes("overwrite %s? ", to)) {
+				interactive && !yes(_("overwrite %s? "), to)) {
 			return (0);
 		}
 		to_exists = TRUE;
 	}
 	if (is_dir(&fromstat)) {
 		if (!to_is_dir && mkdir(to, 0777) < 0) {
-			errmsg("Can not make dir '%s'.\n", to);
+			errmsg(_("Cannot make dir '%s'.\n"), to);
 			return (-1);
 		}
 	} else if (to_is_dir) {
@@ -453,11 +484,11 @@ copy(from, to)
 		if (stat(to, &tostat) >= 0) {
 			if (samefile(&fromstat, &tostat)) {
 				errmsgno(EEXIST,
-				"Will not copy '%s' to itself ('%s').\n",
+				_("Will not copy '%s' to itself ('%s').\n"),
 								from, to);
 				return (-1);
 			}
-			if (interactive && !yes("overwrite %s? ", to)) {
+			if (interactive && !yes(_("overwrite %s? "), to)) {
 				return (0);
 			}
 			to_exists = TRUE;
@@ -487,7 +518,7 @@ copy(from, to)
 			seterrno(EINVAL);
 			if (1) {
 #endif
-				errmsg("Could not make device '%s'.\n", to);
+				errmsg(_("Could not make device '%s'.\n"), to);
 				return (-1);
 			}
 			break;
@@ -509,7 +540,7 @@ copy(from, to)
 			if (1) {
 #endif
 #endif
-				errmsg("Could not make fifo '%s'.\n", to);
+				errmsg(_("Could not make fifo '%s'.\n"), to);
 				return (-1);
 			}
 			break;
@@ -523,7 +554,7 @@ copy(from, to)
 #endif
 #ifdef	S_IFSOCK
 		case S_IFSOCK:
-			errmsgno(EX_BAD, "Can not copy socket '%s'.\n", from);
+			errmsgno(EX_BAD, _("Cannot copy socket '%s'.\n"), from);
 			return (-1);
 #endif
 		}
@@ -531,7 +562,7 @@ copy(from, to)
 	if (!is_dir(&fromstat) || !recurse)
 		set_access(&fromstat, to, to_exists);
 	if (verbose)
-		error("Copied '%s' to '%s'.\n", from, to);
+		error(_("Copied '%s' to '%s'.\n"), from, to);
 	fflush(stderr);
 	if (is_dir(&fromstat) && recurse) {
 		int	ret;
@@ -562,7 +593,7 @@ copyfile(from, to, fromsize, disksize)
 		BOOL	do_sparse = FALSE;
 
 	if ((fin = open(from, 0)) < 0) {
-		errmsg("Can not open '%s'.\n", from);
+		errmsg(_("Cannot open '%s'.\n"), from);
 		return (-1);
 	}
 	if ((fout = creat(to, 0666)) < 0) {
@@ -571,11 +602,11 @@ copyfile(from, to, fromsize, disksize)
 		 */
 		serrno = geterrno();
 		if (lstat(to, &statbuf) >= 0 &&
-		    interactive && yes("remove %s? ", to) &&
+		    interactive && yes(_("remove %s? "), to) &&
 		    doremove(to) &&
 		    (fout = creat(to, 0666)) >= 0)
 			goto docopy;
-		errmsgno(serrno, "Can not create '%s'.\n", to);
+		errmsgno(serrno, _("Cannot create '%s'.\n"), to);
 		close(fin);
 		return (-1);
 	}
@@ -600,13 +631,15 @@ docopy:
 			if (lseek(fout, newpos, SEEK_SET) < 0) {
 				err = geterrno();
 				errmsgno(err,
-					"A seek error occurred on '%s'.\n", to);
+					_("A seek error occurred on '%s'.\n"),
+					to);
 				cnt = 0;
 				break;
 			}
 		} else if (write(fout, bp, cnt) != cnt) {
 			err = geterrno();
-			errmsgno(err, "A write error occurred on '%s'.\n", to);
+			errmsgno(err, _("A write error occurred on '%s'.\n"),
+					to);
 			cnt = 0;
 			break;
 		}
@@ -617,7 +650,7 @@ docopy:
 	close(fin);
 	close(fout);
 	if (cnt != 0)
-		errmsgno(err, "A read error occurred on '%s'.\n", from);
+		errmsgno(err, _("A read error occurred on '%s'.\n"), from);
 	if (err || cnt != 0)
 		return (-1);
 	return (0);
@@ -632,12 +665,12 @@ copy_link(from, to)
 	int	cnt;
 
 	if ((cnt = readlink(from, copybuf, copybsize)) < 0) {
-		errmsg("Could not read symbolic link '%s'.\n", from);
+		errmsg(_("Could not read symbolic link '%s'.\n"), from);
 		return (-1);
 	}
 	copybuf[cnt] = '\0';
 	if (symlink(copybuf, to) < 0) {
-		errmsg("Could not make symbolic link '%s'.\n", to);
+		errmsg(_("Could not make symbolic link '%s'.\n"), to);
 		return (-1);
 	}
 	return (0);
@@ -701,11 +734,11 @@ set_access(fromstat, to, to_exists)
 
 #if	defined(HAVE_CHOWN) || defined(HAVE_LCHOWN)
 	if (uid == 0 && setown && lchown(to, fromstat->st_uid, -1) < 0) {
-		errmsg("Unable to set owner of '%s'.\n", to);
+		errmsg(_("Unable to set owner of '%s'.\n"), to);
 		id_ok = FALSE;
 	}
 	if (uid == 0 && setgrp && lchown(to, -1, fromstat->st_gid) < 0) {
-		errmsg("Unable to set group of '%s'.\n", to);
+		errmsg(_("Unable to set group of '%s'.\n"), to);
 		id_ok = FALSE;
 	}
 #endif
@@ -713,13 +746,13 @@ set_access(fromstat, to, to_exists)
 		mode_t	omode = fromstat->st_mode;
 
 		if (olddate && xutimes(to, fromstat) < 0)
-			errmsg("Unable to set date of '%s'.\n", to);
+			errmsg(_("Unable to set date of '%s'.\n"), to);
 
 		if (!id_ok)
 			omode &= ~(S_ISUID|S_ISGID);
 
 		if ((setperm || ! to_exists) && chmod(to, omode) < 0)
-			errmsg("Unable to set access modes of '%s'.\n", to);
+			errmsg(_("Unable to set access modes of '%s'.\n"), to);
 	}
 }
 
@@ -727,7 +760,7 @@ LOCAL void
 etoolong(name)
 	char	*name;
 {
-	errmsgno(EX_BAD, "Path name '%s' too long.\n", name);
+	errmsgno(EX_BAD, _("Path name '%s' too long.\n"), name);
 }
 
 /* VARARGS1 */
@@ -802,7 +835,7 @@ mygetline(pstr, str, len)
 #else
 		if (strchr(str, '/') && streql(getenv("SLASH"), "off")) {
 #endif
-			error("restricted.\n");
+			error(_("restricted.\n"));
 			continue;
 		} else {
 			break;
@@ -876,7 +909,7 @@ doremove(name)
 	}
 	return (TRUE);
 cannot:
-	errmsgno(err, "File '%s' not removed.\n", name);
+	errmsgno(err, _("File '%s' not removed.\n"), name);
 	return (FALSE);
 }
 
@@ -940,12 +973,14 @@ sparse_copy(fin, fout, from, to, fsize)
 
 		if (lseek(fin, data, SEEK_SET) == (off_t)-1) {
 			err = geterrno();
-			errmsgno(err, "A seek error occurred on '%s'.\n", from);
+			errmsgno(err, _("A seek error occurred on '%s'.\n"),
+					from);
 			goto fail;
 		}
 		if (lseek(fout, data, SEEK_SET) == (off_t)-1) {
 			err = geterrno();
-			errmsgno(err, "A seek error occurred on '%s'.\n", to);
+			errmsgno(err, _("A seek error occurred on '%s'.\n"),
+					to);
 			goto fail;
 		}
 		cnt = 0;
@@ -953,7 +988,9 @@ sparse_copy(fin, fout, from, to, fsize)
 			newpos += cnt;
 			if (write(fout, bp, cnt) != cnt) {
 				err = geterrno();
-				errmsgno(err, "A write error occurred on '%s'.\n", to);
+				errmsgno(err,
+					_("A write error occurred on '%s'.\n"),
+						to);
 				cnt = 0;
 				goto fail;
 			}
@@ -963,11 +1000,13 @@ sparse_copy(fin, fout, from, to, fsize)
 		}
 		if (cnt < 0) {
 			err = geterrno();
-			errmsgno(err, "A read error occurred on '%s'.\n", from);
+			errmsgno(err,
+				_("A read error occurred on '%s'.\n"),
+				from);
 			goto fail;
 		}
 		if (cnt == 0) {
-			errmsgno(EX_BAD, "File '%s' shrunk.\n", from);
+			errmsgno(EX_BAD, _("File '%s' shrunk.\n"), from);
 			err = ENDOFFILE;
 			goto fail;
 		}
@@ -1021,7 +1060,7 @@ write_end_hole(fout, to, fsize)
 		err = geterrno();
 	}
 	if (err)
-		errmsgno(err, "A seek error occurred on '%s'.\n", to);
+		errmsgno(err, _("A seek error occurred on '%s'.\n"), to);
 	return (err);
 }
 #endif

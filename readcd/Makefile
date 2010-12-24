@@ -1,4 +1,4 @@
-#ident @(#)readcd.mk	1.17 09/01/14 
+#ident @(#)readcd.mk	1.18 10/12/19 
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -16,6 +16,8 @@ CPPOPTS +=	-I../libcdrdeflt
 CPPOPTS +=	-DCLONE_WRITE
 CPPOPTS +=	-DUSE_LARGEFILES
 CPPOPTS +=	-DSCHILY_PRINT
+CPPOPTS +=	-DINS_BASE=\"${INS_BASE}\"
+CPPOPTS +=	-DTEXT_DOMAIN=\"SCHILY_cdrtools\"
 
 CFILES=		readcd.c cd_misc.c io.c \
 		scsi_scan.c \
@@ -25,7 +27,7 @@ CFILES=		readcd.c cd_misc.c io.c \
 		misc.c
 HFILES=		
 #LIBS=		-lschily $(LIB_SOCKET)
-LIBS=		-lscgcmd -lrscg -lscg $(LIB_VOLMGT) -ledc_ecc_dec -ledc_ecc -lcdrdeflt -ldeflt -lschily $(SCSILIB) $(LIB_SOCKET)
+LIBS=		-lscgcmd -lrscg -lscg $(LIB_VOLMGT) -ledc_ecc_dec -ledc_ecc -lcdrdeflt -ldeflt -lschily $(SCSILIB) $(LIB_SOCKET) $(LIB_INTL)
 XMK_FILE=	Mreadcd.man
 
 cd_misc.c scsi_scan.c scsi_cdr.c misc.c:

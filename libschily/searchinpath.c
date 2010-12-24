@@ -1,8 +1,8 @@
-/* @(#)searchinpath.c	1.2 10/10/10 Copyright 1999-2010 J. Schilling */
+/* @(#)searchinpath.c	1.3 10/11/18 Copyright 1999-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)searchinpath.c	1.2 10/10/10 Copyright 1999-2010 J. Schilling";
+	"@(#)searchinpath.c	1.3 10/11/18 Copyright 1999-2010 J. Schilling";
 #endif
 /*
  *	Search a file name in the PATH of the current exeecutable.
@@ -35,10 +35,11 @@ static	UConst char sccsid[] =
 #define	NAMEMAX	4096
 
 EXPORT	char	*searchfileinpath	__PR((char *name, int mode,
-							BOOL plain_file,
+							int file_mode,
 							char *path));
 LOCAL	char	*searchonefile		__PR((char *name, int mode,
 							BOOL plain_file,
+							char *xn,
 							char *nbuf,
 							char *np, char *ep));
 #if defined(__DJGPP__)
@@ -62,23 +63,32 @@ LOCAL	char 	*strbs2s		__PR((char *s));
  * Assume that the file is ... bin/../name.
  */
 EXPORT char *
-searchfileinpath(name, mode, plain_file, path)
+searchfileinpath(name, mode, file_mode, path)
 	char	*name;			/* Find <execname>/../name in PATH	*/
 	int	mode;			/* Mode for access() e.g. X_OK		*/
-	BOOL	plain_file;		/* Whether to check only plain files	*/
+	int	file_mode;		/* How to check files			*/
 	char	*path;			/* PATH to use if not NULL		*/
 {
 	char	pbuf[NAMEMAX];
 	char	*nbuf = pbuf;
 	char	*np;
+	char	*ep;
+	char	*xn;
 	int	nlen = strlen(name);
 	int	oerrno = geterrno();
 	int	err = 0;
 #ifdef	HAVE_GETEXECNAME
 	char	*pn = (char *)getexecname();
 #else
-	char	*pn = get_progname();
+	char	*pn = getexecpath();
 #endif
+
+	if (pn == NULL)
+		xn = get_progname();
+	else
+		xn = pn;
+	if ((np = strrchr(xn, '/')) != NULL)
+		xn = ++np;
 
 	/*
 	 * getexecname() is the best choice for our seach. getexecname()
@@ -87,19 +97,24 @@ searchfileinpath(name, mode, plain_file, path)
 	 * If getexecname() returns a path with slashes, try to search
 	 * first relatively to the known location of the current binary.
 	 */
-	if (strchr(pn, '/') != NULL) {
+	if (pn != NULL && strchr(pn, '/') != NULL) {
 		strlcpy(nbuf, pn, sizeof (pbuf));
 		np = nbuf + strlen(nbuf);
 
 		while (np > nbuf && np[-1] != '/')
 			*--np = '\0';
 		pn = &nbuf[sizeof (pbuf) - 1];
-		if ((np = searchonefile(name, mode, plain_file,
-						nbuf, np, pn)) != NULL) {
+		if ((np = searchonefile(name, mode,
+					(file_mode & SIP_PLAIN_FILE) != 0,
+					xn,
+					nbuf, np, pn)) != NULL) {
 			seterrno(oerrno);
 			return (np);
 		}
 	}
+
+	if (file_mode & SIP_NO_PATH)
+		return (NULL);
 
 	if (path == NULL)
 		path = getenv("PATH");
@@ -121,15 +136,17 @@ searchfileinpath(name, mode, plain_file, path)
 	 * of a symlink, we can follow the link. In case of a hardlink, we
 	 * are lost.
 	 */
-	pn = &nbuf[sizeof (pbuf) - 1];
+	ep = &nbuf[sizeof (pbuf) - 1];
 	for (;;) {
 		np = nbuf;
 		while (*path != PATH_ENV_DELIM && *path != '\0' &&
 		    np < &nbuf[sizeof (pbuf) - nlen])
 				*np++ = *path++;
 		*np = '\0';
-		if ((np = searchonefile(name, mode, plain_file,
-						nbuf, np, pn)) != NULL) {
+		if ((np = searchonefile(name, mode,
+					(file_mode & SIP_PLAIN_FILE) != 0,
+					xn,
+					nbuf, np, ep)) != NULL) {
 #ifdef __DJGPP__
 			free(path);
 #endif
@@ -156,10 +173,11 @@ searchfileinpath(name, mode, plain_file, path)
 }
 
 LOCAL char *
-searchonefile(name, mode, plain_file, nbuf, np, ep)
+searchonefile(name, mode, plain_file, xn, nbuf, np, ep)
 	register char	*name;		/* Find <execname>/../name in PATH	*/
 		int	mode;		/* Mode for access() e.g. X_OK		*/
 		BOOL	plain_file;	/* Whether to check only plain files	*/
+		char	*xn;		/* The basename of the executable	*/
 	register char	*nbuf;		/* Name buffer base			*/
 	register char	*np;		/* Where to append name to path		*/
 	register char	*ep;		/* Point to last valid char in nbuf	*/
@@ -168,6 +186,15 @@ searchonefile(name, mode, plain_file, nbuf, np, ep)
 
 	while (np > nbuf && np[-1] == '/')
 		*--np = '\0';
+	if (xn) {
+		*np++ = '/';
+		strlcpy(np, xn, ep - np);
+		if (stat(nbuf, &sb) < 0)
+			return (NULL);
+		if (!S_ISREG(sb.st_mode))
+			return (NULL);
+		*--np = '\0';
+	}
 	if (np >= &nbuf[4] && streql(&np[-4], "/bin"))
 		np = &np[-4];
 	*np++ = '/';

@@ -1,15 +1,15 @@
-/* @(#)scsi_scan.c	1.34 09/07/10 Copyright 1997-2009 J. Schilling */
+/* @(#)scsi_scan.c	1.35 10/12/19 Copyright 1997-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)scsi_scan.c	1.34 09/07/10 Copyright 1997-2009 J. Schilling";
+	"@(#)scsi_scan.c	1.35 10/12/19 Copyright 1997-2010 J. Schilling";
 #endif
 /*
  *	Scan SCSI Bus.
  *	Stolen from sformat. Need a more general form to
  *	re-use it in sformat too.
  *
- *	Copyright (c) 1997-2009 J. Schilling
+ *	Copyright (c) 1997-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -30,6 +30,7 @@ static	UConst char sccsid[] =
 #include <schily/btorder.h>
 #include <schily/errno.h>
 #include <schily/schily.h>
+#include <schily/nlsdefs.h>
 
 #include <scg/scgcmd.h>
 #include <scg/scsidefs.h>
@@ -184,12 +185,12 @@ _select_target(scgp, f, type, idx)
 	scgp->silent--;
 
 	if (low < 0) {
-		errmsgno(EX_BAD, "No target found.\n");
+		errmsgno(EX_BAD, _("No target found.\n"));
 		return (0);
 	}
 	n = -1;
 #ifdef	FMT
-	getint("Select target", &n, low, high);
+	getint(_("Select target"), &n, low, high);
 	bus = n/100;
 	tgt = n%100;
 	scg_settarget(scgp, bus, tgt, lun);
@@ -214,7 +215,7 @@ select_unit(scgp, f)
 
 	scgp->silent++;
 
-	fprintf(f, "scsibus%d target %d:\n", scg_scsibus(scgp), scg_target(scgp));
+	fprintf(f, _("scsibus%d target %d:\n"), scg_scsibus(scgp), scg_target(scgp));
 
 	initiator = scg_initiator_id(scgp);
 	for (lun = 0; lun < 8; lun++) {
@@ -258,12 +259,12 @@ select_unit(scgp, f)
 	scgp->silent--;
 
 	if (low < 0) {
-		errmsgno(EX_BAD, "No lun found.\n");
+		errmsgno(EX_BAD, _("No lun found.\n"));
 		return (0);
 	}
 	lun = -1;
 #ifdef	FMT
-	getint("Select lun", &lun, low, high);
+	getint(_("Select lun"), &lun, low, high);
 	scg_settarget(scgp, scg_scsibus(scgp), scg_target(scgp), lun);
 	format_one(scgp);
 	return (1);

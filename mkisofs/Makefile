@@ -1,4 +1,4 @@
-#ident @(#)Makefile	1.41 09/07/13 
+#ident @(#)Makefile	1.42 10/12/19 
 ###########################################################################
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 2
@@ -43,6 +43,7 @@ CPPOPTS +=	-DSCHILY_PRINT
 CPPOPTS +=	-DUSE_NLS
 CPPOPTS +=	-DUSE_ICONV
 CPPOPTS +=	-DINS_BASE=\"${INS_BASE}\"
+CPPOPTS +=	-DTEXT_DOMAIN=\"SCHILY_cdrtools\"
 
 CFILES=		mkisofs.c tree.c write.c hash.c rock.c inode.c udf.c multi.c \
 		joliet.c match.c name.c eltorito.c boot.c isonum.c \
@@ -67,3 +68,6 @@ include		$(SRCROOT)/$(RULESDIR)/rules.cmd
 ###########################################################################
 count:	$(CFILES) $(HFILES)
 	count $r1
+
+xtxt:	$(CFILES) apple_driver.c
+	gxgettext -k_ -k__ -kperr $(CFILES) apple_driver.c

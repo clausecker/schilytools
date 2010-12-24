@@ -1,4 +1,4 @@
-#ident @(#)isodump.mk	1.10 08/10/26 
+#ident @(#)isodump.mk	1.11 10/12/19 
 ###########################################################################
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 2
@@ -28,11 +28,13 @@ CPPOPTS +=	-I../../libscg
 CPPOPTS +=	-I../../libscgcmd
 CPPOPTS +=	-I../../libcdrdeflt
 CPPOPTS +=	-DSCHILY_PRINT
+CPPOPTS +=	-DINS_BASE=\"${INS_BASE}\"
+CPPOPTS +=	-DTEXT_DOMAIN=\"SCHILY_cdrtools\"
 
 CFILES=		isodump.c \
 		scsi.c
 
-LIBS=		-lscgcmd -lrscg -lscg $(LIB_VOLMGT) -lcdrdeflt -ldeflt -lschily $(SCSILIB) $(LIB_SOCKET)
+LIBS=		-lscgcmd -lrscg -lscg $(LIB_VOLMGT) -lcdrdeflt -ldeflt -lschily $(SCSILIB) $(LIB_SOCKET) $(LIB_INTL)
 XMK_FILE=	isodump_man.mk
 
 ###########################################################################

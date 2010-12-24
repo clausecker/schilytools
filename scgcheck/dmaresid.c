@@ -1,11 +1,11 @@
-/* @(#)dmaresid.c	1.11 09/07/11 Copyright 1998-2009 J. Schilling */
+/* @(#)dmaresid.c	1.12 10/12/19 Copyright 1998-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)dmaresid.c	1.11 09/07/11 Copyright 1998-2009 J. Schilling";
+	"@(#)dmaresid.c	1.12 10/12/19 Copyright 1998-2010 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1998-2009 J. Schilling
+ *	Copyright (c) 1998-2010 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -24,6 +24,7 @@ static	UConst char sccsid[] =
 #include <schily/unistd.h>
 #include <schily/string.h>
 #include <schily/schily.h>
+#include <schily/nlsdefs.h>
 #include <schily/standard.h>
 
 #include <schily/utypes.h>
@@ -57,122 +58,122 @@ dmaresid(scgp)
 	int	ret;
 	BOOL	passed;
 
-	printf("Ready to start test for working DMA residual count? Enter <CR> to continue: ");
+	printf(_("Ready to start test for working DMA residual count? Enter <CR> to continue: "));
 	(void) chkgetline(abuf, sizeof (abuf));
 
-	chkprint("**********> Testing for working DMA residual count.\n");
-	chkprint("**********> Testing for working DMA residual count == 0.\n");
+	chkprint(_("**********> Testing for working DMA residual count.\n"));
+	chkprint(_("**********> Testing for working DMA residual count == 0.\n"));
 	passed = TRUE;
 	dmacnt = cnt;
 	ret = xtinquiry(scgp, cnt, dmacnt);
 	if (ret == dmacnt) {
-		chkprint("---------->	Wanted %d bytes, got it.\n", dmacnt);
+		chkprint(_("---------->	Wanted %d bytes, got it.\n"), dmacnt);
 	}
 	if (ret != dmacnt) {
-		chkprint("---------->	Wanted %d bytes, got (%d)\n", dmacnt, ret);
+		chkprint(_("---------->	Wanted %d bytes, got (%d)\n"), dmacnt, ret);
 	}
 	if (ret != scg_getdmacnt(scgp)) {
 		passed = FALSE;
-		chkprint("---------->	Libscg says %d bytes but got (%d)\n", scg_getdmacnt(scgp), ret);
+		chkprint(_("---------->	Libscg says %d bytes but got (%d)\n"), scg_getdmacnt(scgp), ret);
 	}
 	if (passed && ret == dmacnt) {
-		chkprint("----------> SCSI DMA residual count == 0 test PASSED\n");
+		chkprint(_("----------> SCSI DMA residual count == 0 test PASSED\n"));
 	} else {
-		chkprint("----------> SCSI DMA residual count == 0 test FAILED\n");
+		chkprint(_("----------> SCSI DMA residual count == 0 test FAILED\n"));
 	}
 
-	printf("Ready to start test for working DMA residual count == DMA count? Enter <CR> to continue: ");
-	fprintf(logfile, "**********> Testing for working DMA residual count == DMA count.\n");
+	printf(_("Ready to start test for working DMA residual count == DMA count? Enter <CR> to continue: "));
+	fprintf(logfile, _("**********> Testing for working DMA residual count == DMA count.\n"));
 	flushit();
 	(void) getline(abuf, sizeof (abuf));
 	passed = TRUE;
 	dmacnt = cnt;
 	ret = xtinquiry(scgp, 0, dmacnt);
 	if (ret == 0) {
-		printf("---------->	Wanted 0 bytes, got it.\n");
-		fprintf(logfile, "---------->	Wanted 0 bytes, got it.\n");
+		printf(_("---------->	Wanted 0 bytes, got it.\n"));
+		fprintf(logfile, _("---------->	Wanted 0 bytes, got it.\n"));
 	}
 	if (ret != 0) {
-		printf("---------->	Wanted %d bytes, got (%d)\n", 0, ret);
-		fprintf(logfile, "---------->	Wanted %d bytes, got (%d)\n", 0, ret);
+		printf(_("---------->	Wanted %d bytes, got (%d)\n"), 0, ret);
+		fprintf(logfile, _("---------->	Wanted %d bytes, got (%d)\n"), 0, ret);
 	}
 	if (ret != scg_getdmacnt(scgp)) {
 		passed = FALSE;
-		printf("---------->	Libscg says %d bytes but got (%d)\n", scg_getdmacnt(scgp), ret);
-		fprintf(logfile, "---------->	Libscg says %d bytes but got (%d)\n", scg_getdmacnt(scgp), ret);
+		printf(_("---------->	Libscg says %d bytes but got (%d)\n"), scg_getdmacnt(scgp), ret);
+		fprintf(logfile, _("---------->	Libscg says %d bytes but got (%d)\n"), scg_getdmacnt(scgp), ret);
 	}
 	if (passed && ret == 0) {
-		printf("----------> SCSI DMA residual count == DMA count test PASSED\n");
-		fprintf(logfile, "----------> SCSI DMA residual count == DMA count test PASSED\n");
+		printf(_("----------> SCSI DMA residual count == DMA count test PASSED\n"));
+		fprintf(logfile, _("----------> SCSI DMA residual count == DMA count test PASSED\n"));
 	} else {
 		passed = FALSE;
-		printf("----------> SCSI DMA residual count == DMA count test FAILED\n");
-		fprintf(logfile, "----------> SCSI DMA residual count == DMA count test FAILED\n");
+		printf(_("----------> SCSI DMA residual count == DMA count test FAILED\n"));
+		fprintf(logfile, _("----------> SCSI DMA residual count == DMA count test FAILED\n"));
 	}
 
 	if (!passed) {
-		printf("----------> SCSI DMA residual count not working - no further tests\n");
-		fprintf(logfile, "----------> SCSI DMA residual count not working - no further tests\n");
+		printf(_("----------> SCSI DMA residual count not working - no further tests\n"));
+		fprintf(logfile, _("----------> SCSI DMA residual count not working - no further tests\n"));
 		return;
 	}
 
-	printf("Ready to start test for working DMA residual count == 1? Enter <CR> to continue: ");
+	printf(_("Ready to start test for working DMA residual count == 1? Enter <CR> to continue: "));
 	flushit();
 	(void) getline(abuf, sizeof (abuf));
-	chkprint("**********> Testing for working DMA residual count == 1.\n");
+	chkprint(_("**********> Testing for working DMA residual count == 1.\n"));
 	passed = TRUE;
 	dmacnt = cnt+1;
 	ret = xtinquiry(scgp, cnt, dmacnt);
 	if (ret == cnt) {
-		printf("---------->	Wanted %d bytes, got it.\n", cnt);
-		fprintf(logfile, "---------->	Wanted %d bytes, got it.\n", cnt);
+		printf(_("---------->	Wanted %d bytes, got it.\n"), cnt);
+		fprintf(logfile, _("---------->	Wanted %d bytes, got it.\n"), cnt);
 	}
 	if (ret != cnt) {
-		printf("---------->	Wanted %d bytes, got (%d)\n", cnt, ret);
-		fprintf(logfile, "---------->	Wanted %d bytes, got (%d)\n", cnt, ret);
+		printf(_("---------->	Wanted %d bytes, got (%d)\n"), cnt, ret);
+		fprintf(logfile, _("---------->	Wanted %d bytes, got (%d)\n"), cnt, ret);
 	}
 	if (ret != scg_getdmacnt(scgp)) {
 		passed = FALSE;
-		printf("---------->	Libscg says %d bytes but got (%d)\n", scg_getdmacnt(scgp), ret);
-		fprintf(logfile, "---------->	Libscg says %d bytes but got (%d)\n", scg_getdmacnt(scgp), ret);
+		printf(_("---------->	Libscg says %d bytes but got (%d)\n"), scg_getdmacnt(scgp), ret);
+		fprintf(logfile, _("---------->	Libscg says %d bytes but got (%d)\n"), scg_getdmacnt(scgp), ret);
 	}
 	if (passed && ret == cnt) {
-		printf("----------> SCSI DMA residual count == 1 test PASSED\n");
-		fprintf(logfile, "----------> SCSI DMA residual count == 1 test PASSED\n");
+		printf(_("----------> SCSI DMA residual count == 1 test PASSED\n"));
+		fprintf(logfile, _("----------> SCSI DMA residual count == 1 test PASSED\n"));
 	} else {
 		passed = FALSE;
-		printf("----------> SCSI DMA residual count == 1 test FAILED\n");
-		fprintf(logfile, "----------> SCSI DMA residual count == 1 test FAILED\n");
+		printf(_("----------> SCSI DMA residual count == 1 test FAILED\n"));
+		fprintf(logfile, _("----------> SCSI DMA residual count == 1 test FAILED\n"));
 	}
 
-	printf("Ready to start test for working DMA overrun detection? Enter <CR> to continue: ");
+	printf(_("Ready to start test for working DMA overrun detection? Enter <CR> to continue: "));
 	flushit();
 	(void) getline(abuf, sizeof (abuf));
-	chkprint("**********> Testing for working DMA overrun detection.\n");
+	chkprint(_("**********> Testing for working DMA overrun detection.\n"));
 	passed = TRUE;
 	dmacnt = cnt-1;
 	ret = xtinquiry(scgp, cnt, dmacnt);
 	if (ret == cnt) {
 		passed = FALSE;
-		printf("---------->	Wanted %d bytes, got it - DMA overrun not blocked.\n", cnt);
-		fprintf(logfile, "---------->	Wanted %d bytes, got it - DMA overrun not blocked.\n", cnt);
+		printf(_("---------->	Wanted %d bytes, got it - DMA overrun not blocked.\n"), cnt);
+		fprintf(logfile, _("---------->	Wanted %d bytes, got it - DMA overrun not blocked.\n"), cnt);
 	}
 	if (ret != dmacnt) {
 		passed = FALSE;
-		printf("---------->	Wanted %d bytes, got (%d)\n", dmacnt, ret);
-		fprintf(logfile, "---------->	Wanted %d bytes, got (%d)\n", dmacnt, ret);
+		printf(_("---------->	Wanted %d bytes, got (%d)\n"), dmacnt, ret);
+		fprintf(logfile, _("---------->	Wanted %d bytes, got (%d)\n"), dmacnt, ret);
 	}
 	if (ret != scg_getdmacnt(scgp)) {
 		passed = FALSE;
-		printf("---------->	Libscg says %d bytes but got (%d)\n", scg_getdmacnt(scgp), ret);
-		fprintf(logfile, "---------->	Libscg says %d bytes but got (%d)\n", scg_getdmacnt(scgp), ret);
+		printf(_("---------->	Libscg says %d bytes but got (%d)\n"), scg_getdmacnt(scgp), ret);
+		fprintf(logfile, _("---------->	Libscg says %d bytes but got (%d)\n"), scg_getdmacnt(scgp), ret);
 	}
 	if (passed && scg_getresid(scgp) < 0) {
-		printf("----------> SCSI DMA overrun test PASSED\n");
-		fprintf(logfile, "----------> SCSI DMA overrun test PASSED\n");
+		printf(_("----------> SCSI DMA overrun test PASSED\n"));
+		fprintf(logfile, _("----------> SCSI DMA overrun test PASSED\n"));
 	} else {
-		printf("----------> SCSI DMA overrun test FAILED\n");
-		fprintf(logfile, "----------> SCSI DMA overrun test FAILED\n");
+		printf(_("----------> SCSI DMA overrun test FAILED\n"));
+		fprintf(logfile, _("----------> SCSI DMA overrun test FAILED\n"));
 	}
 }
 
@@ -200,7 +201,7 @@ xtinquiry(scgp, cnt, dmacnt)
 	i++;
 	maxcnt = i;
 	rescnt = dmacnt - scg_getresid(scgp);
-	printf("CDB cnt: %d DMA cnt: %d got really: %d (System says: RDMA cnt: %d resid %d)\n",
+	printf(_("CDB cnt: %d DMA cnt: %d got really: %d (System says: RDMA cnt: %d resid %d)\n"),
 				cnt, dmacnt, i, rescnt, scg_getresid(scgp));
 
 	fillbytes(ibuf, sizeof (ibuf), 0xFF);
@@ -214,7 +215,7 @@ xtinquiry(scgp, cnt, dmacnt)
 	if (i > maxcnt)
 		maxcnt = i;
 	rescnt = dmacnt - scg_getresid(scgp);
-	printf("CDB cnt: %d DMA cnt: %d got really: %d (System says: RDMA cnt: %d resid %d)\n",
+	printf(_("CDB cnt: %d DMA cnt: %d got really: %d (System says: RDMA cnt: %d resid %d)\n"),
 				cnt, dmacnt, i, rescnt, scg_getresid(scgp));
 
 	return (maxcnt);
@@ -245,6 +246,6 @@ tinquiry(scgp, bp, cnt, dmacnt)
 	if (scg_cmd(scgp) < 0)
 		return (-1);
 	if (scgp->verbose)
-		scg_prbytes("Inquiry Data   :", (Uchar *)bp, cnt - scg_getresid(scgp));
+		scg_prbytes(_("Inquiry Data   :"), (Uchar *)bp, cnt - scg_getresid(scgp));
 	return (0);
 }

@@ -1,8 +1,8 @@
-/* @(#)joliet.c	1.64 10/05/24 joerg */
+/* @(#)joliet.c	1.65 10/12/19 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)joliet.c	1.64 10/05/24 joerg";
+	"@(#)joliet.c	1.65 10/12/19 joerg";
 #endif
 /*
  * File joliet.c - handle Win95/WinNT long file/unicode extensions for iso9660.
@@ -656,7 +656,7 @@ generate_joliet_path_tables()
 	for (j = 1; j < next_jpath_index; j++) {
 		dpnt = jpathlist[j];
 		if (!dpnt) {
-			comerrno(EX_BAD, "Entry %d not in path tables\n", j);
+			comerrno(EX_BAD, _("Entry %d not in path tables\n"), j);
 		}
 		npnt = dpnt->de_name;
 
@@ -667,7 +667,7 @@ generate_joliet_path_tables()
 		de = dpnt->self;
 		if (!de) {
 			comerrno(EX_BAD,
-			"Fatal Joliet goof - directory has amnesia\n");
+			_("Fatal Joliet goof - directory has amnesia\n"));
 		}
 #ifdef APPLE_HYB
 		if (USE_MAC_NAME(de))
@@ -710,11 +710,11 @@ generate_joliet_path_tables()
 			if (!warned) {
 				warned++;
 				errmsgno(EX_BAD,
-			"Unable to generate sane Joliet path tables - too many directories (%u)\n",
+			_("Unable to generate sane Joliet path tables - too many directories (%u)\n"),
 					jpindex);
 				if (!nolimitpathtables)
 					errmsgno(EX_BAD,
-					"Try to use the option -no-limit-pathtables\n");
+					_("Try to use the option -no-limit-pathtables\n"));
 			}
 			if (!nolimitpathtables)
 				exit(EX_BAD);
@@ -767,7 +767,7 @@ generate_joliet_path_tables()
 	free(jpathlist);
 	if (jpath_table_index != jpath_table_size) {
 		errmsgno(EX_BAD,
-		"Joliet path table lengths do not match %d expected: %d\n",
+		_("Joliet path table lengths do not match %d expected: %d\n"),
 			jpath_table_index,
 			jpath_table_size);
 	}
@@ -817,7 +817,7 @@ generate_one_joliet_directory(dpnt, outfile)
 			if (s_entry1 == NULL) {
 				/* We got trouble. */
 				comerrno(EX_BAD,
-				"Unable to locate relocated directory\n");
+				_("Unable to locate relocated directory\n"));
 			}
 		} else {
 			s_entry1 = s_entry;
@@ -878,7 +878,7 @@ generate_one_joliet_directory(dpnt, outfile)
 						break;
 					finddir = finddir->next;
 					if (!finddir) {
-						comerrno(EX_BAD, "Fatal goof - unable to find directory location\n");
+						comerrno(EX_BAD, _("Fatal goof - unable to find directory location\n"));
 					}
 				}
 				set_733((char *)jrec.extent, finddir->jextent);
@@ -928,7 +928,7 @@ generate_one_joliet_directory(dpnt, outfile)
 
 	if (dpnt->jsize != dir_index) {
 		errmsgno(EX_BAD,
-		"Unexpected joliet directory length %d expected: %d '%s'\n",
+		_("Unexpected joliet directory length %d expected: %d '%s'\n"),
 			dpnt->jsize,
 			dir_index, dpnt->de_name);
 	}
@@ -1114,7 +1114,7 @@ joliet_compare_dirs(rr, ll)
 #endif
 		{
 			errmsgno(EX_BAD,
-				"Error: %s and %s have the same Joliet name\n",
+				_("Error: %s and %s have the same Joliet name\n"),
 				(*r)->whole_name, (*l)->whole_name);
 			jsort_goof++;
 			{
@@ -1274,14 +1274,14 @@ joliet_sort_directory(sort_dir)
 
 	if (jsort_goof) {
 		errmsgno(EX_BAD,
-			"Joliet file names differ after %d chars\n",
+			_("Joliet file names differ after %d chars\n"),
 			jsort_glen);
 		if (jsort_glen > JLONGMAX) {
 			errmsgno(EX_BAD,
-			"Cannot use Joliet, please remove -J from the option list.\n");
+			_("Cannot use Joliet, please remove -J from the option list.\n"));
 		} else if (jsort_glen > JMAX) {
 			errmsgno(EX_BAD,
-			"Try to use the option -joliet-long\n");
+			_("Try to use the option -joliet-long\n"));
 		}
 	}
 

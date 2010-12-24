@@ -1,4 +1,4 @@
-. \" @(#)p.1	1.6 07/06/29 Copyr 1982-2007 J. Schilling
+. \" @(#)p.1	1.7 10/12/23 Copyr 1982-2007 J. Schilling
 . \"  Manual page for p
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -76,16 +76,19 @@ Print additional debugging information.
 .TP
 .B \-dos
 Hide carriage-return characters that are directly followed by a new-line.
-As
-.B p
-is binary transparent, reading in files that do not follow DOS
-newline conventions will not be automatically converted.
 .TP
 .B \-end
 Mark the end of each line with the character '$'.
 .TP
 .B \-help
 Print a short summary of the available options and commands.
+.TP
+.B \-nodos
+Do not hide carriage-return characters that are directly followed by a new-line.
+This option is needed in order to make
+.B p
+binary transparent, so reading files that do not follow DOS
+newline conventions will not be automatically converted.
 .TP
 .B \-raw
 Do not expand control characters.

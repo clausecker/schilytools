@@ -1,12 +1,12 @@
-/* @(#)volume.c	1.24 09/07/09 joerg, Copyright 1997, 1998, 1999, 2000 James Pearson, Copyright 2004-2009 J. Schilling */
+/* @(#)volume.c	1.25 10/12/19 joerg, Copyright 1997, 1998, 1999, 2000 James Pearson, Copyright 2004-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)volume.c	1.24 09/07/09 joerg, Copyright 1997, 1998, 1999, 2000 James Pearson, Copyright 2004-2009 J. Schilling";
+	"@(#)volume.c	1.25 10/12/19 joerg, Copyright 1997, 1998, 1999, 2000 James Pearson, Copyright 2004-2010 J. Schilling";
 #endif
 /*
  *      Copyright (c) 1997, 1998, 1999, 2000 James Pearson
- *	Copyright (c) 2004-2009 J. Schilling
+ *	Copyright (c) 2004-2010 J. Schilling
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -224,7 +224,7 @@ make_mac_volume(dpnt, start_extent)
 	Csize = lastCsize = SECTOR_SIZE;
 
 	if (verbose > 1)
-		fprintf(stderr, "Creating HFS Volume info\n");
+		fprintf(stderr, _("Creating HFS Volume info\n"));
 
 	/* name or copy ISO volume name to Mac Volume name */
 	strncpy(vol_name, hfs_volume_id ? hfs_volume_id : volume_id,
@@ -258,7 +258,7 @@ make_mac_volume(dpnt, start_extent)
 			 */
 			if ((vblen = get_adj_size(Csize)) < 0) {
 				sprintf(hce->error,
-					"too many files for HFS volume");
+					_("too many files for HFS volume"));
 				return (-1);
 			}
 			vblen +=
@@ -278,7 +278,7 @@ make_mac_volume(dpnt, start_extent)
 
 	/* format and mount the "volume" */
 	if (hfs_format(hce, 0, vol_name) < 0) {
-		sprintf(hce->error, "can't HFS format %s", vol_name);
+		sprintf(hce->error, _("can't HFS format %s"), vol_name);
 		return (-1);
 	}
 	/*
@@ -291,7 +291,7 @@ make_mac_volume(dpnt, start_extent)
 		adj_size_other(dpnt);
 	}
 	if ((vol = hfs_mount(hce, 0, 0)) == 0) {
-		sprintf(hce->error, "can't HFS mount %s", vol_name);
+		sprintf(hce->error, _("can't HFS mount %s"), vol_name);
 		return (-1);
 	}
 	/* save the volume for possible later use */
@@ -365,7 +365,7 @@ copy_to_mac_vol(vol, node)
 		return (-1);
 
 	if (verbose > 1)
-		fprintf(stderr, "HFS scanning %s\n", node->whole_name);
+		fprintf(stderr, _("HFS scanning %s\n"), node->whole_name);
 
 	/* loop through the ISO directory entries and process files */
 	for (s_entry = node->contents; s_entry; s_entry = s_entry->next) {
@@ -412,7 +412,7 @@ copy_to_mac_vol(vol, node)
 					 * HFS_MAX_FLEN chars
 					 */
 					sprintf(hce->error,
-						"can't HFS create file %s %s",
+						_("can't HFS create file %s %s"),
 						s_entry->whole_name, ent->name);
 					return (-1);
 				} else if (i == 0) {
@@ -443,13 +443,13 @@ copy_to_mac_vol(vol, node)
 
 		/* warn that we have a new name */
 		if (new_name && verbose > 0) {
-			fprintf(stderr, "Using HFS name: %s for %s\n",
+			fprintf(stderr, _("Using HFS name: %s for %s\n"),
 				ent->name,
 				s_entry->whole_name);
 		}
 		/* open file */
 		if ((hfp = hfs_open(vol, ent->name)) == 0) {
-			sprintf(hce->error, "can't HFS open %s",
+			sprintf(hce->error, _("can't HFS open %s"),
 				s_entry->whole_name);
 			return (-1);
 		}
@@ -470,7 +470,7 @@ copy_to_mac_vol(vol, node)
 
 		/* update any HFS file attributes */
 		if ((hfs_fsetattr(hfp, ent)) < 0) {
-			sprintf(hce->error, "can't HFS set attributes %s",
+			sprintf(hce->error, _("can't HFS set attributes %s"),
 				s_entry->whole_name);
 			return (-1);
 		}
@@ -499,7 +499,7 @@ copy_to_mac_vol(vol, node)
 
 		/* close the file and update the starting blocks */
 		if (hfs_close(hfp, dext, rext) < 0) {
-			sprintf(hce->error, "can't HFS close file %s",
+			sprintf(hce->error, _("can't HFS close file %s"),
 				s_entry->whole_name);
 			return (-1);
 		}
@@ -531,7 +531,7 @@ copy_to_mac_vol(vol, node)
 			/* have a problem - can't find the real directory */
 			if (s_entry1 == NULL) {
 				sprintf(hce->error,
-					"can't locate relocated directory %s",
+					_("can't locate relocated directory %s"),
 					s_entry->whole_name);
 				return (-1);
 			}
@@ -553,7 +553,7 @@ copy_to_mac_vol(vol, node)
 				dpnt = dpnt->next;
 				if (!dpnt) {
 					sprintf(hce->error,
-					    "can't find directory location %s",
+					    _("can't find directory location %s"),
 							s_entry1->whole_name);
 					return (-1);
 				}
@@ -593,7 +593,7 @@ copy_to_mac_vol(vol, node)
 						 * HFS_MAX_FLEN chars
 						 */
 						sprintf(hce->error,
-						    "can't HFS create folder %s",
+						    _("can't HFS create folder %s"),
 							s_entry->whole_name);
 						return (-1);
 					} else if (i == 0) {
@@ -624,7 +624,7 @@ copy_to_mac_vol(vol, node)
 
 			/* warn that we have a new name */
 			if (new_name && verbose > 0) {
-				fprintf(stderr, "Using HFS name: %s for %s\n",
+				fprintf(stderr, _("Using HFS name: %s for %s\n"),
 							ent->name,
 							s_entry->whole_name);
 			}
@@ -634,7 +634,7 @@ copy_to_mac_vol(vol, node)
 				hfs_stat(vol, ent->name, ent);
 				hfs_vsetbless(vol, ent->cnid);
 				if (verbose > 0) {
-					fprintf(stderr, "Blessing %s (%s)\n",
+					fprintf(stderr, _("Blessing %s (%s)\n"),
 							ent->name,
 							s_entry->whole_name);
 				}

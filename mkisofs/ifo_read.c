@@ -1,12 +1,12 @@
-/* @(#)ifo_read.c	1.14 09/11/25 joerg */
+/* @(#)ifo_read.c	1.15 10/12/19 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)ifo_read.c	1.14 09/11/25 joerg";
+	"@(#)ifo_read.c	1.15 10/12/19 joerg";
 #endif
 /*
  * Copyright (C) 2002 Olaf Beck <olaf_sc@yahoo.com>
- * Copyright (C) 2002-2009 Jörg Schilling <schilling@fokus.gmd.de>
+ * Copyright (C) 2002-2010 Jörg Schilling <schilling@fokus.gmd.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -78,13 +78,13 @@ ifoReadVTSI(file, ifofile)
 	offset = 12;
 
 	if (lseek(file, offset, SEEK_SET) != offset) {
-		errmsg("Failed to seek VIDEO_TS.IFO.\n");
+		errmsg(_("Failed to seek VIDEO_TS.IFO.\n"));
 		ifoClose(ifofile);
 		return (0);
 	}
 
 	if (read(file, &sector, sizeof (sector)) != sizeof (sector)) {
-		errmsg("Failed to read VIDEO_TS.IFO.\n");
+		errmsg(_("Failed to read VIDEO_TS.IFO.\n"));
 		ifoClose(ifofile);
 		return (0);
 	}
@@ -98,13 +98,13 @@ ifoReadVTSI(file, ifofile)
 	offset = 28;
 
 	if (lseek(file, offset, SEEK_SET) != offset) {
-		errmsg("Failed to seek VIDEO_TS.IFO.\n");
+		errmsg(_("Failed to seek VIDEO_TS.IFO.\n"));
 		ifoClose(ifofile);
 		return (0);
 	}
 
 	if (read(file, &sector, sizeof (sector)) != sizeof (sector)) {
-		errmsg("Failed to read VIDEO_TS.IFO.\n");
+		errmsg(_("Failed to read VIDEO_TS.IFO.\n"));
 		ifoClose(ifofile);
 		return (0);
 	}
@@ -119,14 +119,14 @@ ifoReadVTSI(file, ifofile)
 	offset = 192;
 
 	if (lseek(file, offset, SEEK_SET) != offset) {
-		errmsg("Failed to seek VIDEO_TS.IFO.\n");
+		errmsg(_("Failed to seek VIDEO_TS.IFO.\n"));
 		ifoClose(ifofile);
 		return (0);
 	}
 
 
 	if (read(file, &sector, sizeof (sector)) != sizeof (sector)) {
-		errmsg("Failed to read VIDEO_TS.IFO.\n");
+		errmsg(_("Failed to read VIDEO_TS.IFO.\n"));
 		ifoClose(ifofile);
 		return (0);
 	}
@@ -141,14 +141,14 @@ ifoReadVTSI(file, ifofile)
 	offset = 196;
 
 	if (lseek(file, offset, SEEK_SET) != offset) {
-		errmsg("Failed to seek VIDEO_TS.IFO.\n");
+		errmsg(_("Failed to seek VIDEO_TS.IFO.\n"));
 		ifoClose(ifofile);
 		return (0);
 	}
 
 
 	if (read(file, &sector, sizeof (sector)) != sizeof (sector)) {
-		errmsg("Failed to read VIDEO_TS.IFO.\n");
+		errmsg(_("Failed to read VIDEO_TS.IFO.\n"));
 		ifoClose(ifofile);
 		return (0);
 	}
@@ -191,13 +191,13 @@ ifoReadVGMI(file, ifofile)
 	offset = 12;
 
 	if (lseek(file, offset, SEEK_SET) != offset) {
-		errmsg("Failed to seek VIDEO_TS.IFO.\n");
+		errmsg(_("Failed to seek VIDEO_TS.IFO.\n"));
 		ifoClose(ifofile);
 		return (0);
 	}
 
 	if (read(file, &sector, sizeof (sector)) != sizeof (sector)) {
-		errmsg("Failed to read VIDEO_TS.IFO.\n");
+		errmsg(_("Failed to read VIDEO_TS.IFO.\n"));
 		ifoClose(ifofile);
 		return (0);
 	}
@@ -211,14 +211,14 @@ ifoReadVGMI(file, ifofile)
 	offset = 28;
 
 	if (lseek(file, offset, SEEK_SET) != offset) {
-		errmsg("Failed to seek VIDEO_TS.IFO.\n");
+		errmsg(_("Failed to seek VIDEO_TS.IFO.\n"));
 		ifoClose(ifofile);
 		return (0);
 	}
 
 
 	if (read(file, &sector, sizeof (sector)) != sizeof (sector)) {
-		errmsg("Failed to read VIDEO_TS.IFO.\n");
+		errmsg(_("Failed to read VIDEO_TS.IFO.\n"));
 		ifoClose(ifofile);
 		return (0);
 	}
@@ -233,14 +233,14 @@ ifoReadVGMI(file, ifofile)
 	offset = 62;
 
 	if (lseek(file, offset, SEEK_SET) != offset) {
-		errmsg("Failed to seek VIDEO_TS.IFO.\n");
+		errmsg(_("Failed to seek VIDEO_TS.IFO.\n"));
 		ifoClose(ifofile);
 		return (0);
 	}
 
 
 	if (read(file, &titles, sizeof (titles)) != sizeof (titles)) {
-		errmsg("Failed to read VIDEO_TS.IFO.\n");
+		errmsg(_("Failed to read VIDEO_TS.IFO.\n"));
 		ifoClose(ifofile);
 		return (0);
 	}
@@ -255,14 +255,14 @@ ifoReadVGMI(file, ifofile)
 	offset = 192;
 
 	if (lseek(file, offset, SEEK_SET) != offset) {
-		errmsg("Failed to seek VIDEO_TS.IFO.\n");
+		errmsg(_("Failed to seek VIDEO_TS.IFO.\n"));
 		ifoClose(ifofile);
 		return (0);
 	}
 
 
 	if (read(file, &sector, sizeof (sector)) != sizeof (sector)) {
-		errmsg("Failed to read VIDEO_TS.IFO.\n");
+		errmsg(_("Failed to read VIDEO_TS.IFO.\n"));
 		ifoClose(ifofile);
 		return (0);
 	}
@@ -277,14 +277,14 @@ ifoReadVGMI(file, ifofile)
 	offset = 196;
 
 	if (lseek(file, offset, SEEK_SET) != offset) {
-		errmsg("Failed to seek VIDEO_TS.IFO.\n");
+		errmsg(_("Failed to seek VIDEO_TS.IFO.\n"));
 		ifoClose(ifofile);
 		return (0);
 	}
 
 
 	if (read(file, &sector, sizeof (sector)) != sizeof (sector)) {
-		errmsg("Failed to read VIDEO_TS.IFO.\n");
+		errmsg(_("Failed to read VIDEO_TS.IFO.\n"));
 		ifoClose(ifofile);
 		return (0);
 	}
@@ -308,12 +308,12 @@ ifoReadVGMI(file, ifofile)
 	offset = 2048 * vmgi_mat->tt_srpt;
 
 	if (lseek(file, offset, SEEK_SET) != offset) {
-		errmsg("Failed to seek VIDEO_TS.IFO.\n");
+		errmsg(_("Failed to seek VIDEO_TS.IFO.\n"));
 		return (0);
 	}
 
 	if (read(file, &titles, sizeof (titles)) != sizeof (titles)) {
-		errmsg("Failed to read VIDEO_TS.IFO.\n");
+		errmsg(_("Failed to read VIDEO_TS.IFO.\n"));
 		return (0);
 	}
 
@@ -333,13 +333,13 @@ ifoReadVGMI(file, ifofile)
 	for (counter = 0; counter < tt_srpt->nr_of_srpts; counter++) {
 		offset = (2048 * vmgi_mat->tt_srpt) + 8 + (counter * 12) + 8;
 		if (lseek(file, offset, SEEK_SET) != offset) {
-			errmsg("Failed to seek VIDEO_TS.IFO.\n");
+			errmsg(_("Failed to seek VIDEO_TS.IFO.\n"));
 			ifoClose(ifofile);
 			return (0);
 		}
 
 		if (read(file, &sector, sizeof (sector)) != sizeof (sector)) {
-			errmsg("Failed to read VIDEO_TS.IFO.\n");
+			errmsg(_("Failed to read VIDEO_TS.IFO.\n"));
 			ifoClose(ifofile);
 			return (0);
 		}
@@ -383,7 +383,7 @@ ifoOpen(dvd, title)
 	}
 
 	if ((file = open(full_path, O_RDONLY | O_BINARY)) == -1) {
-		errmsg("Failed to open '%s'.\n", full_path);
+		errmsg(_("Failed to open '%s'.\n"), full_path);
 		free(ifofile);
 		return (0);
 	}
@@ -393,7 +393,7 @@ ifoOpen(dvd, title)
 	/* Determine if we have a VMGI or VTSI */
 
 	if (read(file, identifier, sizeof (identifier)) != sizeof (identifier)) {
-		errmsg("Failed to read VIDEO_TS.IFO.\n");
+		errmsg(_("Failed to read VIDEO_TS.IFO.\n"));
 		free(ifofile);
 		return (0);
 	}
@@ -407,7 +407,7 @@ ifoOpen(dvd, title)
 		close(file);
 		return (ifofile);
 	} else {
-		errmsgno(EX_BAD, "Giving up this is not a valid IFO file.\n");
+		errmsgno(EX_BAD, _("Giving up this is not a valid IFO file.\n"));
 		close(file);
 		free(ifofile);
 		ifofile = 0;

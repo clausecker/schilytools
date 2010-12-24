@@ -1,8 +1,8 @@
-/* @(#)interface.c	1.72 10/04/26 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2006-2010 J. Schilling */
+/* @(#)interface.c	1.73 10/12/19 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2006-2010 J. Schilling */
 #include "config.h"
 #ifndef lint
 static	UConst char sccsid[] =
-"@(#)interface.c	1.72 10/04/26 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2006-2010 J. Schilling";
+"@(#)interface.c	1.73 10/12/19 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2006-2010 J. Schilling";
 
 #endif
 /*
@@ -55,6 +55,7 @@ static	UConst char sccsid[] =
 #include <schily/fcntl.h>
 #include <schily/assert.h>
 #include <schily/schily.h>
+#include <schily/nlsdefs.h>
 #include <schily/device.h>
 #include <schily/ioctl.h>
 #include <schily/stat.h>
@@ -224,7 +225,7 @@ SetupSCSI(scgp)
 		 * not able to change on the fly
 		 */
 		errmsgno(EX_BAD,
-		"The generic SCSI interface and devices are required\n");
+		_("The generic SCSI interface and devices are required\n"));
 		exit(SYNTAX_ERROR);
 	}
 
@@ -249,19 +250,19 @@ SetupSCSI(scgp)
 #undef	TYPE_WORM
 #define	TYPE_WORM 	4
 	if (p == NULL) {
-		errmsgno(EX_BAD, "Inquiry command failed. Aborting...\n");
+		errmsgno(EX_BAD, _("Inquiry command failed. Aborting...\n"));
 		exit(DEVICE_ERROR);
 	}
 
 	if ((*p != TYPE_ROM && *p != TYPE_WORM)) {
 		errmsgno(EX_BAD,
-		"This is neither a scsi cdrom nor a worm device.\n");
+		_("This is neither a scsi cdrom nor a worm device.\n"));
 		exit(SYNTAX_ERROR);
 	}
 
 	if (global.quiet == 0) {
 		fprintf(outfp,
-		"Type: %s, Vendor '%8.8s' Model '%16.16s' Revision '%4.4s' ",
+		_("Type: %s, Vendor '%8.8s' Model '%16.16s' Revision '%4.4s' "),
 			*p == TYPE_ROM ? "ROM" : "WORM",
 			p+8,
 			p+16,
@@ -376,7 +377,7 @@ lost_toshibas:
 				fprintf(outfp, "MMC-CDDA\n");
 			/* FALLTHROUGH */
 		case 0:	/* non SCSI-3 cdrom drive */
-			if (!global.quiet) fprintf(outfp, "no MMC\n");
+			if (!global.quiet) fprintf(outfp, _("no MMC\n"));
 				ReadLastAudio = (unsigned (*) __PR((SCSI *)))NULL;
 			if (!memcmp(p+8, "TOSHIBA", 7) ||
 			    !memcmp(p+8, "IBM", 3) ||
@@ -475,7 +476,7 @@ lost_toshibas:
 		scgp->silent++;
 		while (!wait_unit_ready(scgp, 60)) {
 			fprintf(outfp,
-			"load cdrom please and press enter");
+			_("load cdrom please and press enter"));
 			getchar();
 		}
 		scgp->silent--;
@@ -498,7 +499,7 @@ Check_interface_for_device(statstruct, pdev_name)
 #if !defined(STAT_MACROS_BROKEN) || (STAT_MACROS_BROKEN != 1)
 	if (!S_ISCHR(statstruct->st_mode) &&
 	    !S_ISBLK(statstruct->st_mode)) {
-		errmsgno(EX_BAD, "%s is not a device.\n",
+		errmsgno(EX_BAD, _("%s is not a device.\n"),
 			pdev_name);
 		exit(SYNTAX_ERROR);
 	}
@@ -514,14 +515,14 @@ Check_interface_for_device(statstruct, pdev_name)
 #if !defined(STAT_MACROS_BROKEN) || (STAT_MACROS_BROKEN != 1)
 #if defined(__linux__)
 		if (!S_ISCHR(statstruct->st_mode)) {
-			errmsgno(EX_BAD, "%s is not a char device.\n",
+			errmsgno(EX_BAD, _("%s is not a char device.\n"),
 				pdev_name);
 			exit(SYNTAX_ERROR);
 		}
 
 		if (interface != GENERIC_SCSI) {
 			fprintf(outfp,
-			"wrong interface (cooked_ioctl) for this device (%s)\nset to generic_scsi\n",
+			_("wrong interface (cooked_ioctl) for this device (%s)\nset to generic_scsi\n"),
 				pdev_name);
 			interface = GENERIC_SCSI;
 		}
@@ -547,14 +548,14 @@ Check_interface_for_device(statstruct, pdev_name)
 #endif
 	case 117:			/* pre-GEOM atapi cd */
 		if (!S_ISCHR(statstruct->st_mode)) {
-			errmsgno(EX_BAD, "%s is not a char device.\n",
+			errmsgno(EX_BAD, _("%s is not a char device.\n"),
 				pdev_name);
 			exit(SYNTAX_ERROR);
 		}
 		if (interface != COOKED_IOCTL) {
 			fprintf(outfp,
-"cdrom device (%s) is not of type generic SCSI. \
-Setting interface to cooked_ioctl.\n", pdev_name);
+_("cdrom device (%s) is not of type generic SCSI. \
+Setting interface to cooked_ioctl.\n"), pdev_name);
 			interface = COOKED_IOCTL;
 		}
 		break;
@@ -562,7 +563,7 @@ Setting interface to cooked_ioctl.\n", pdev_name);
 #endif
 #endif
 		if (!S_ISBLK(statstruct->st_mode)) {
-			errmsgno(EX_BAD, "%s is not a block device.\n",
+			errmsgno(EX_BAD, _("%s is not a block device.\n"),
 				pdev_name);
 			exit(SYNTAX_ERROR);
 		}
@@ -577,18 +578,18 @@ Setting interface to cooked_ioctl.\n", pdev_name);
 #endif
 		if (interface != COOKED_IOCTL) {
 			fprintf(outfp,
-"cdrom device (%s) is not of type generic SCSI. \
-Setting interface to cooked_ioctl.\n", pdev_name);
+_("cdrom device (%s) is not of type generic SCSI. \
+Setting interface to cooked_ioctl.\n"), pdev_name);
 			interface = COOKED_IOCTL;
 		}
 
 		if (interface == COOKED_IOCTL) {
 			fprintf(outfp,
-			"\nW: The cooked_ioctl interface is functionally very limited!!\n");
+			_("\nW: The cooked_ioctl interface is functionally very limited!!\n"));
 #if	defined(__linux__)
 			fprintf(outfp,
-			"\nW: For good sampling quality simply use the generic SCSI interface!\n"
-				"For example dev=1,0,0\n");
+			_("\nW: For good sampling quality simply use the generic SCSI interface!\n"
+				"For example dev=1,0,0\n"));
 #endif
 		}
 
@@ -633,7 +634,7 @@ OpenCdRom(pdev_name)
 
 	if (have_named_device) {
 		if (stat(pdev_name, &statstruct)) {
-			errmsg("Cannot stat device %s.\n", pdev_name);
+			errmsg(_("Cannot stat device %s.\n"), pdev_name);
 			exit(STAT_ERROR);
 		} else {
 			Check_interface_for_device(&statstruct, pdev_name);
@@ -725,7 +726,7 @@ OpenCdRom(pdev_name)
 		dontneedgroup();
 
 		if (retval < 0) {
-			errmsg("Cannot open '%s'.\n", pdev_name);
+			errmsg(_("Cannot open '%s'.\n"), pdev_name);
 			exit(DEVICEOPEN_ERROR);
 		}
 
@@ -733,7 +734,7 @@ OpenCdRom(pdev_name)
 		 * Do final security checks here
 		 */
 		if (fstat(retval, &fstatstruct)) {
-			errmsg("Could not fstat %s (fd %d).\n",
+			errmsg(_("Could not fstat %s (fd %d).\n"),
 				pdev_name, retval);
 			exit(STAT_ERROR);
 		}
@@ -745,7 +746,7 @@ OpenCdRom(pdev_name)
 		    (fstatstruct.st_dev != statstruct.st_dev ||
 		    fstatstruct.st_ino != statstruct.st_ino)) {
 			errmsgno(EX_BAD,
-			"Race condition attempted in OpenCdRom.  Exiting now.\n");
+			_("Race condition attempted in OpenCdRom.  Exiting now.\n"));
 			exit(RACE_ERROR);
 		}
 #endif
@@ -767,32 +768,32 @@ scg_openerr(errstr)
 {
 	int	err = geterrno();
 
-	errmsgno(err, "%s%sCannot open or use SCSI driver.\n",
+	errmsgno(err, _("%s%sCannot open or use SCSI driver.\n"),
 			errstr, errstr[0]?". ":"");
 	errmsgno(EX_BAD,
-	"For possible targets try 'cdda2wav -scanbus'.%s\n",
+	_("For possible targets try 'cdda2wav -scanbus'.%s\n"),
 			geteuid() ?
-				" Make sure you are root.":"");
+				_(" Make sure you are root."):"");
 
 	priv_off();
 	dontneedgroup();
 	dontneedroot();
 #if defined(sun) || defined(__sun)
 	fprintf(stderr,
-	"On SunOS/Solaris make sure you have Joerg Schillings scg SCSI driver installed.\n");
+	_("On SunOS/Solaris make sure you have Joerg Schillings scg SCSI driver installed.\n"));
 #endif
 #if defined(__linux__)
 	fprintf(stderr,
-	"Use the script scan_scsi.linux to find out more.\n");
+	_("Use the script scan_scsi.linux to find out more.\n"));
 #endif
 	fprintf(stderr,
-	"Probably you did not define your SCSI device.\n");
+	_("Probably you did not define your SCSI device.\n"));
 	fprintf(stderr,
-	"Set the CDDA_DEVICE environment variable or use the -D option.\n");
+	_("Set the CDDA_DEVICE environment variable or use the -D option.\n"));
 	fprintf(stderr,
-	"You can also define the default device in the Makefile.\n");
+	_("You can also define the default device in the Makefile.\n"));
 	fprintf(stderr,
-	"For possible transport specifiers try 'cdda2wav dev=help'.\n");
+	_("For possible transport specifiers try 'cdda2wav dev=help'.\n"));
 	exit(SYNTAX_ERROR);
 }
 
@@ -803,7 +804,7 @@ find_drive(scgp, dev)
 {
 	int	ntarget;
 
-	fprintf(outfp, "No target specified, trying to find one...\n");
+	fprintf(outfp, _("No target specified, trying to find one...\n"));
 	ntarget = find_target(scgp, INQ_ROMD, -1);
 	if (ntarget < 0)
 		return (ntarget);
@@ -822,19 +823,19 @@ find_drive(scgp, dev)
 		/*
 		 * No single CD-ROM or WORM found.
 		 */
-		errmsgno(EX_BAD, "No CD/DVD/BD-Recorder target found.\n");
+		errmsgno(EX_BAD, _("No CD/DVD/BD-Recorder target found.\n"));
 		errmsgno(EX_BAD,
-		"Your platform may not allow to scan for SCSI devices.\n");
+		_("Your platform may not allow to scan for SCSI devices.\n"));
 		comerrno(EX_BAD,
-		"Call 'cdda2wav dev=help' or ask your sysadmin for possible targets.\n");
+		_("Call 'cdda2wav dev=help' or ask your sysadmin for possible targets.\n"));
 	} else {
-		errmsgno(EX_BAD, "Too many CD/DVD/BD-Recorder targets found.\n");
+		errmsgno(EX_BAD, _("Too many CD/DVD/BD-Recorder targets found.\n"));
 		select_target(scgp, outfp);
 		comerrno(EX_BAD,
-		"Select a target from the list above and use 'cdda2wav dev=%s%sb,t,l'.\n",
+		_("Select a target from the list above and use 'cdda2wav dev=%s%sb,t,l'.\n"),
 			dev?dev:"", dev?(dev[strlen(dev)-1] == ':'?"":":"):"");
 	}
-	fprintf(outfp, "Using dev=%s%s%d,%d,%d.\n",
+	fprintf(outfp, _("Using dev=%s%s%d,%d,%d.\n"),
 			dev?dev:"", dev?(dev[strlen(dev)-1] == ':'?"":":"):"",
 			scg_scsibus(scgp), scg_target(scgp), scg_lun(scgp));
 	return (ntarget);
@@ -868,7 +869,7 @@ ReadCdRom_sim(x, p, lSector, SectorBurstVal)
 	if (lSector > g_toc[cdtracks].dwStartSector ||
 	    lSector + SectorBurstVal > g_toc[cdtracks].dwStartSector + 1) {
 		fprintf(stderr,
-		"Read request out of bounds: %u - %u (%d - %d allowed)\n",
+		_("Read request out of bounds: %u - %u (%d - %d allowed)\n"),
 			lSector, lSector + SectorBurstVal,
 			0, g_toc[cdtracks].dwStartSector);
 	}
@@ -1129,14 +1130,14 @@ SetupInterface()
 	 */
 	SubQbuffer = malloc(48);		/* assumes sufficient aligned addresses */
 	if (!bufferTOC || !SubQbuffer) {
-		errmsg("Too low on memory. Giving up.\n");
+		errmsg(_("Too low on memory. Giving up.\n"));
 		exit(NOMEM_ERROR);
 	}
 
 #if	defined SIM_CD
 	scgp = malloc(sizeof (* scgp));
 	if (scgp == NULL) {
-		FatalError(geterrno(), "No memory for SCSI structure.\n");
+		FatalError(geterrno(), _("No memory for SCSI structure.\n"));
 	}
 	scgp->silent = 0;
 	SetupSimCd();
@@ -1155,7 +1156,7 @@ SetupInterface()
 			if (sector_size != 2048 &&
 			    set_sectorsize(scgp, 2048)) {
 				fprintf(stderr,
-				"Could not change sector size from %d to 2048\n",
+				_("Could not change sector size from %d to 2048\n"),
 					sector_size);
 			}
 		} else {
@@ -1172,13 +1173,13 @@ SetupInterface()
 		_scgp = malloc(sizeof (* _scgp));
 		if (_scgp == NULL) {
 			FatalError(geterrno(),
-				"No memory for SCSI structure.\n");
+				_("No memory for SCSI structure.\n"));
 		}
 		_scgp->silent = 0;
 		SetupCookedIoctl(global.dev_name);
 #else
 		FatalError(EX_BAD,
-		"Sorry, there is no known method to access the device.\n");
+		_("Sorry, there is no known method to access the device.\n"));
 #endif
 	}
 #endif	/* if def SIM_CD */
@@ -1270,7 +1271,7 @@ poll_in()
 	tv.tv_usec = 0;
 	return (select(1, &rd, NULL, NULL, &tv));
 #else
-	comerrno(EX_BAD, "Poll/Select not available.\n");
+	comerrno(EX_BAD, _("Poll/Select not available.\n"));
 #endif
 #endif
 }

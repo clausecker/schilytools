@@ -1,13 +1,13 @@
-/* @(#)stream.c	1.15 09/11/25 Copyright 2002-2009 J. Schilling */
+/* @(#)stream.c	1.16 10/12/19 Copyright 2002-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)stream.c	1.15 09/11/25 Copyright 2002-2009 J. Schilling";
+	"@(#)stream.c	1.16 10/12/19 Copyright 2002-2010 J. Schilling";
 #endif
 /*
  *	ISO-9660 stream (pipe) file module for mkisofs
  *
- *	Copyright (c) 2002-2009 J. Schilling
+ *	Copyright (c) 2002-2010 J. Schilling
  *	Implemented after an idea from M.H. Voase
  */
 /*
@@ -77,7 +77,7 @@ extern	int	dopad;
 
 	if (n >= avail_extent) {
 		comerrno(EX_BAD,
-			"-stream-media-size %d but must be at least %d\n",
+			_("-stream-media-size %d but must be at least %d\n"),
 			avail_extent, n+2);
 	}
 	avail_extent -= n;

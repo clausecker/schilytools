@@ -1,4 +1,4 @@
-dnl @(#)aclocal.m4	1.91 10/10/01 Copyright 1998-2009 J. Schilling
+dnl @(#)aclocal.m4	1.92 10/11/17 Copyright 1998-2009 J. Schilling
 
 dnl Set VARIABLE to VALUE in C-string form, verbatim, or 1.
 dnl AC_DEFINE_STRING(VARIABLE [, VALUE])
@@ -1094,6 +1094,42 @@ main()
                 [ac_cv_var_timezone=no])])
 if test $ac_cv_var_timezone = yes; then
   AC_DEFINE(HAVE_VAR_TIMEZONE)
+fi])
+
+dnl Checks if extern char *__progname exists in libc
+dnl Defines HAVE_VAR___PROGNAME on success.
+AC_DEFUN([AC_VAR___PROGNAME],
+[AC_CACHE_CHECK([for working extern char *__progname ], ac_cv_var___progname,
+                [AC_TRY_RUN([
+extern	char	*__progname;
+
+int
+main()
+{
+	exit (!(__progname != 0 && *__progname != '\0'));
+}],
+                [ac_cv_var___progname=yes],
+                [ac_cv_var___progname=no])])
+if test $ac_cv_var___progname = yes; then
+  AC_DEFINE(HAVE_VAR___PROGNAME)
+fi])
+
+dnl Checks if extern char *__progname_full exists in libc
+dnl Defines HAVE_VAR___PROGNAME_FULL on success.
+AC_DEFUN([AC_VAR___PROGNAME_FULL],
+[AC_CACHE_CHECK([for working extern char *__progname_full ], ac_cv_var___progname_full,
+                [AC_TRY_RUN([
+extern	char	*__progname_full;
+
+int
+main()
+{
+	exit (!(__progname_full != 0 && *__progname_full != '\0'));
+}],
+                [ac_cv_var___progname_full=yes],
+                [ac_cv_var___progname_full=no])])
+if test $ac_cv_var___progname_full = yes; then
+  AC_DEFINE(HAVE_VAR___PROGNAME_FULL)
 fi])
 
 dnl Checks for UNIX-98 compliant <inttypes.h>

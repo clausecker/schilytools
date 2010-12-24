@@ -1,8 +1,8 @@
-/* @(#)drv_sony.c	1.87 10/02/03 Copyright 1997-2010 J. Schilling */
+/* @(#)drv_sony.c	1.88 10/12/19 Copyright 1997-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)drv_sony.c	1.87 10/02/03 Copyright 1997-2010 J. Schilling";
+	"@(#)drv_sony.c	1.88 10/12/19 Copyright 1997-2010 J. Schilling";
 #endif
 /*
  *	CDR device implementation for
@@ -39,6 +39,7 @@ static	UConst char sccsid[] =
 #include <schily/btorder.h>
 #include <schily/intcvt.h>
 #include <schily/schily.h>
+#include <schily/nlsdefs.h>
 
 #include <scg/scgcmd.h>
 #include <scg/scsidefs.h>
@@ -435,7 +436,7 @@ finalize_sony(scgp, dp, trackp)
 		return (0);
 	}
 	if (dummy) {
-		printf("Fixating is not possible in dummy write mode.\n");
+		printf(_("Fixating is not possible in dummy write mode.\n"));
 		return (0);
 	}
 	fillbytes((caddr_t)scmd, sizeof (*scmd), '\0');
@@ -575,7 +576,7 @@ init_sony(scgp, dp)
 }
 
 
-#define	IS(what, flag)	printf("  Is %s%s\n", flag?"":"not ", what);
+#define	IS(what, flag)	printf(_("  Is %s%s\n"), flag?"":_("not "), what);
 
 LOCAL int
 getdisktype_sony(scgp, dp)
@@ -607,11 +608,11 @@ getdisktype_sony(scgp, dp)
 
 	if ((dp->cdr_dstat->ds_cdrflags & RF_PRATIP) != 0 && dummy >= 0) {
 
-		printf("ATIP info from disk:\n");
-		printf("  Indicated writing power: %d\n",
+		printf(_("ATIP info from disk:\n"));
+		printf(_("  Indicated writing power: %d\n"),
 				(unsigned)(xp->disk_appl_code[1] & 0x70) >> 4);
-		IS("unrestricted", xp->disk_appl_code[2] & 0x40);
-		printf("  Disk application code: %d\n", xp->disk_appl_code[2] & 0x3F);
+		IS(_("unrestricted"), xp->disk_appl_code[2] & 0x40);
+		printf(_("  Disk application code: %d\n"), xp->disk_appl_code[2] & 0x3F);
 		msf.msf_min = xp->lead_in_start[1];
 		msf.msf_sec = xp->lead_in_start[2];
 		msf.msf_frame = xp->lead_in_start[3];
@@ -621,14 +622,14 @@ getdisktype_sony(scgp, dp)
 			 * The Sony CDU 920 seems to deliver 00:00/00 for
 			 * lead-in start time, dont use it.
 			 */
-			printf("  ATIP start of lead in:  %ld (%02d:%02d/%02d)\n",
+			printf(_("  ATIP start of lead in:  %ld (%02d:%02d/%02d)\n"),
 				msf_to_lba(msf.msf_min, msf.msf_sec, msf.msf_frame, FALSE),
 				msf.msf_min, msf.msf_sec, msf.msf_frame);
 		}
 		msf.msf_min = xp->last_start_time[1];
 		msf.msf_sec = xp->last_start_time[2];
 		msf.msf_frame = xp->last_start_time[3];
-		printf("  ATIP start of lead out: %ld (%02d:%02d/%02d)\n",
+		printf(_("  ATIP start of lead out: %ld (%02d:%02d/%02d)\n"),
 			msf_to_lba(msf.msf_min, msf.msf_sec, msf.msf_frame, TRUE),
 			msf.msf_min, msf.msf_sec, msf.msf_frame);
 		if (lst  < -150) {
@@ -781,7 +782,7 @@ next_writable_address_sony(scgp, ap, track, sectype, tracktype)
 	fillbytes((caddr_t)mode, sizeof (mode), '\0');
 
 	inc_verbose();
-	if (!get_mode_params(scgp, page, "CD track information",
+	if (!get_mode_params(scgp, page, _("CD track information"),
 			(Uchar *)mode, (Uchar *)0, (Uchar *)0, (Uchar *)0, &len)) {
 		dec_verbose();
 		return (-1);
@@ -826,7 +827,7 @@ new_track_sony(scgp, track, sectype, tracktype)
 	fillbytes((caddr_t)mode, sizeof (mode), '\0');
 
 	inc_verbose();
-	if (!get_mode_params(scgp, page, "CD track information",
+	if (!get_mode_params(scgp, page, _("CD track information"),
 			(Uchar *)mode, (Uchar *)0, (Uchar *)0, (Uchar *)0, &len)) {
 		dec_verbose();
 		return (-1);
@@ -888,7 +889,7 @@ open_track_sony(scgp, dp, trackp)
 	if (!is_tao(trackp) && !is_packet(trackp)) {
 		if (trackp->pregapsize > 0 && (trackp->flags & TI_PREGAP) == 0) {
 			if (lverbose) {
-				printf("Writing pregap for track %d at %ld\n",
+				printf(_("Writing pregap for track %d at %ld\n"),
 					(int)trackp->trackno,
 					trackp->trackstart-trackp->pregapsize);
 			}
@@ -963,7 +964,7 @@ open_session_sony(scgp, dp, trackp)
 		 */
 		if ((xp->disk_status & 0xC0) != 0) {
 			if (xp->disk_style != 0x00)
-				errmsgno(EX_BAD, "Cannot change disk stile for recorded disk.\n");
+				errmsgno(EX_BAD, _("Cannot change disk stile for recorded disk.\n"));
 		}
 		xp->disk_style = 0x00;
 	}
@@ -1009,7 +1010,7 @@ get_page22_sony(scgp, mode)
 	fillbytes((caddr_t)mode, sizeof (mode), '\0');
 
 	inc_verbose();
-	if (!get_mode_params(scgp, page, "CD disk information",
+	if (!get_mode_params(scgp, page, _("CD disk information"),
 			(Uchar *)mode, (Uchar *)0, (Uchar *)0, (Uchar *)0, &len)) {
 		dec_verbose();
 		return (-1);
@@ -1205,7 +1206,7 @@ send_cue_sony(scgp, dp, trackp)
 
 	for (i = 1; i <= trackp->tracks; i++) {
 		if (trackp[i].tracksize < (tsize_t)0) {
-			errmsgno(EX_BAD, "Track %d has unknown length.\n", i);
+			errmsgno(EX_BAD, _("Track %d has unknown length.\n"), i);
 			return (-1);
 		}
 	}
@@ -1221,14 +1222,14 @@ send_cue_sony(scgp, dp, trackp)
 	scgp->silent--;
 	free(cp);
 	if (ret < 0) {
-		errmsgno(EX_BAD, "CUE sheet not accepted. Retrying with minimum pregapsize = 1.\n");
+		errmsgno(EX_BAD, _("CUE sheet not accepted. Retrying with minimum pregapsize = 1.\n"));
 		ncue = (*dp->cdr_gen_cue)(trackp, &cp, TRUE);
 		ret  = write_start_sony(scgp, (caddr_t)cp, ncue*8);
 		free(cp);
 	}
 	if (ret >= 0 && lverbose) {
 		gettimeofday(&stoptime, (struct timezone *)0);
-		prtimediff("Write Lead-in time: ", &starttime, &stoptime);
+		prtimediff(_("Write Lead-in time: "), &starttime, &stoptime);
 	}
 	return (ret);
 }
@@ -1245,38 +1246,38 @@ write_leadin_sony(scgp, dp, trackp)
 /*	if (flags & F_SAO) {*/
 	if (wm_base(dp->cdr_dstat->ds_wrmode) == WM_SAO) {
 		if (debug || lverbose) {
-			printf("Sending CUE sheet...\n");
+			printf(_("Sending CUE sheet...\n"));
 			flush();
 		}
 		if (trackp[0].flags & TI_TEXT) {
 			if (dp->cdr_speeddef != 4) {
 				errmsgno(EX_BAD,
-				"The CDU-924 does not support CD-Text, disabling.\n");
+				_("The CDU-924 does not support CD-Text, disabling.\n"));
 
 				trackp[0].flags &= ~TI_TEXT;
 			}
 		}
 		if ((*dp->cdr_send_cue)(scgp, dp, trackp) < 0) {
-			errmsgno(EX_BAD, "Cannot send CUE sheet.\n");
+			errmsgno(EX_BAD, _("Cannot send CUE sheet.\n"));
 			return (-1);
 		}
 
 		if (trackp[0].flags & TI_TEXT) {
 			startsec = dp->cdr_dstat->ds_first_leadin;
-			printf("SAO startsec: %ld\n", startsec);
+			printf(_("SAO startsec: %ld\n"), startsec);
 		} else {
 			startsec = -150;
 		}
 		if (debug)
-			printf("SAO startsec: %ld\n", startsec);
+			printf(_("SAO startsec: %ld\n"), startsec);
 
 		if (trackp[0].flags & TI_TEXT) {
 			if (startsec > 0) {
-				errmsgno(EX_BAD, "CD-Text must be in first session.\n");
+				errmsgno(EX_BAD, _("CD-Text must be in first session.\n"));
 				return (-1);
 			}
 			if (debug || lverbose)
-				printf("Writing lead-in...\n");
+				printf(_("Writing lead-in...\n"));
 			if (write_cdtext(scgp, dp, startsec) < 0)
 				return (-1);
 
@@ -1428,7 +1429,7 @@ buf_cap_sony(scgp, sp, fp)
 		*fp = freespace;
 
 	if (scgp->verbose || (sp == 0 && fp == 0))
-		printf("BFree: %ld K BSize: %ld K\n", freespace >> 10, bufsize >> 10);
+		printf(_("BFree: %ld K BSize: %ld K\n"), freespace >> 10, bufsize >> 10);
 
 	if (bufsize == 0)
 		return (0);

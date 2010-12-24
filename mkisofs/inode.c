@@ -1,8 +1,8 @@
-/* @(#)inode.c	1.14 09/11/25 Copyright 2006-2009 J. Schilling */
+/* @(#)inode.c	1.15 10/12/19 Copyright 2006-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)inode.c	1.14 09/11/25 Copyright 2006-2009 J. Schilling";
+	"@(#)inode.c	1.15 10/12/19 Copyright 2006-2010 J. Schilling";
 #endif
 /*
  *	Inode and link count handling for ISO-9660/RR
@@ -14,7 +14,7 @@ static	UConst char sccsid[] =
  *	of asigning the related number to the "extent" field in the ISO
  *	directory record.
  *
- *	Copyright (c) 2006-2009 J. Schilling
+ *	Copyright (c) 2006-2010 J. Schilling
  */
 /*
  * This program is free software; you can redistribute it and/or modify
@@ -69,7 +69,7 @@ do_inode(dpnt)
 	assign_linkcount(dpnt);
 
 	if (null_inodes < last_extent)
-		comerrno(EX_BAD, "Inode number overflow, too many files in file system.\n");
+		comerrno(EX_BAD, _("Inode number overflow, too many files in file system.\n"));
 }
 
 /*
@@ -124,7 +124,7 @@ assign_inodes(dpnt)
 
 				if (e != 0) {
 					errmsgno(EX_BAD,
-					"Implementation botch, fetching extend %d for %s from dir entry.\n",
+					_("Implementation botch, fetching extend %d for %s from dir entry.\n"),
 					e, s_entry->whole_name);
 				}
 			}
@@ -158,7 +158,7 @@ assign_inodes(dpnt)
 				 */
 				if (s_hash->starting_block <= last_extent)
 					comerrno(EX_BAD,
-					"Implementation botch: Hashed file '%s' has illegal inode %u.\n",
+					_("Implementation botch: Hashed file '%s' has illegal inode %u.\n"),
 					s_entry->whole_name ?
 					s_entry->whole_name : s_entry->name,
 					s_hash->starting_block);
@@ -227,7 +227,7 @@ compute_linkcount(dpnt)
 					s_entry->inode = null_inodes--;	/* Only used for caching */
 					if (correct_inodes)
 						comerrno(EX_BAD,
-						"Implementation botch: Unhashed file '%s'.\n",
+						_("Implementation botch: Unhashed file '%s'.\n"),
 						s_entry->whole_name ?
 						s_entry->whole_name : s_entry->name);
 				}
@@ -244,7 +244,7 @@ compute_linkcount(dpnt)
 						continue;
 					}
 					comerrno(EX_BAD,
-					"Implementation botch: File '%s' not hashed (dev/ino %llX/%llX).\n",
+					_("Implementation botch: File '%s' not hashed (dev/ino %llX/%llX).\n"),
 					s_entry->whole_name ?
 					s_entry->whole_name : s_entry->name,
 					(Llong)s_entry->dev,
@@ -294,7 +294,7 @@ assign_linkcount(dpnt)
 					continue;
 				}
 				comerrno(EX_BAD,
-				"Implementation botch: File '%s' not hashed.\n",
+				_("Implementation botch: File '%s' not hashed.\n"),
 					s_entry->whole_name ?
 					s_entry->whole_name : s_entry->name);
 			}
@@ -327,7 +327,7 @@ update_inode(s_entry, value)
 	while (len >= 4) {
 		if (pnt[3] != 1 && pnt[3] != 2) {
 			errmsgno(EX_BAD,
-				"**BAD RRVERSION (%d) in '%c%c' field (%2.2X %2.2X).\n",
+				_("**BAD RRVERSION (%d) in '%c%c' field (%2.2X %2.2X).\n"),
 				pnt[3], pnt[0], pnt[1], pnt[0], pnt[1]);
 		}
 		if (pnt[0] == 'P' && pnt[1] == 'X') {
@@ -358,7 +358,7 @@ update_nlink(s_entry, value)
 	while (len >= 4) {
 		if (pnt[3] != 1 && pnt[3] != 2) {
 			errmsgno(EX_BAD,
-				"**BAD RRVERSION (%d) in '%c%c' field (%2.2X %2.2X).\n",
+				_("**BAD RRVERSION (%d) in '%c%c' field (%2.2X %2.2X).\n"),
 				pnt[3], pnt[0], pnt[1], pnt[0], pnt[1]);
 		}
 		if (pnt[0] == 'P' && pnt[1] == 'X') {

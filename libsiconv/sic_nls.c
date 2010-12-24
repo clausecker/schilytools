@@ -1,8 +1,8 @@
-/* @(#)sic_nls.c	1.16 10/05/24 Copyright 2007-2010 J. Schilling */
+/* @(#)sic_nls.c	1.17 10/12/20 Copyright 2007-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)sic_nls.c	1.16 10/05/24 Copyright 2007-2010 J. Schilling";
+	"@(#)sic_nls.c	1.17 10/12/20 Copyright 2007-2010 J. Schilling";
 #endif
 /*
  * This code reads translation files in the format used by
@@ -30,6 +30,7 @@ static	UConst char sccsid[] =
 #include <schily/stdlib.h>
 #include <schily/string.h>
 #include <schily/libport.h>	/* For strdup() */
+#include <schily/unistd.h>	/* For R_OK	*/
 #include <schily/schily.h>
 #include <schily/dirent.h>
 #include <schily/siconv.h>
@@ -67,10 +68,12 @@ Error Table size too small
 #endif
 
 LOCAL UInt8_t	nullpage[TAB_SIZE] = { 0 };
+LOCAL char	*ins_base;
 
 LOCAL	siconvt_t	*insert_sic		__PR((siconvt_t *sip));
 LOCAL	int		remove_sic		__PR((siconvt_t *sip));
 EXPORT	siconvt_t	*sic_open		__PR((char *name));
+EXPORT	const char	*sic_base		__PR((void));
 EXPORT	int		sic_close		__PR((siconvt_t *sip));
 EXPORT	int		sic_list		__PR((FILE *f));
 LOCAL	void		freetbl			__PR((UInt8_t **uni2cs));
@@ -175,6 +178,24 @@ sic_open(charset)
 }
 
 /*
+ * Open a new translation
+ */
+EXPORT const char *
+sic_base()
+{
+	if (ins_base == NULL) {
+		ins_base = searchfileinpath("lib/siconv/iso8859-1", R_OK,
+					SIP_PLAIN_FILE, NULL);
+		if (ins_base != NULL) {
+			int	len = strlen(ins_base);
+
+			ins_base[len - 9] = '\0';
+		}
+	}
+	return (ins_base);
+}
+
+/*
  * Close a translation
  */
 EXPORT int
@@ -215,7 +236,13 @@ sic_list(f)
 	struct dirent	*dp;
 	int		i = 0;
 
-	snprintf(path, sizeof (path), "%s/lib/siconv/", INS_BASE);
+	if (ins_base == NULL)
+		(void) sic_base();
+
+	if (ins_base != NULL)
+		snprintf(path, sizeof (path), "%s", ins_base);
+	else
+		snprintf(path, sizeof (path), "%s/lib/siconv/", INS_BASE);
 	if ((d = opendir(path)) == NULL)
 		return (-1);
 
@@ -258,6 +285,7 @@ pfopen(name)
 	char	*name;
 {
 	char	path[1024];
+	char	*p;
 	FILE	*f;
 
 	if ((f = fopen(name, "r")) != NULL)
@@ -266,9 +294,18 @@ pfopen(name)
 	if (strchr(name, '/'))
 		return ((FILE *)NULL);
 
+	if (ins_base == NULL)
+		(void) sic_base();
+
+	p = ins_base;
+	if (p != NULL) {
+		snprintf(path, sizeof (path), "%s%s", p, name);
+		return (fopen(path, "r"));
+	}
 	snprintf(path, sizeof (path), "%s/lib/siconv/%s", INS_BASE, name);
 	return (fopen(path, "r"));
 }
+
 
 /*
  * Create a new translation either from a file or from iconv_open()

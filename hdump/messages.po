@@ -1,0 +1,1108 @@
+domain "messages"
+# File:hdump.c, line:5
+msgid  "@(#)hdump.c	1.30 10/12/19 Copyright 1986-2010 J. Schilling"
+msgstr
+# File:hdump.c, line:190
+msgid  " %3hhd"
+msgstr
+# File:hdump.c, line:191
+msgid  " %6.5hd"
+msgstr
+# File:hdump.c, line:192
+msgid  " %11.10d"
+msgstr
+# File:hdump.c, line:194
+msgid  " %20.18ld"
+msgstr
+# File:hdump.c, line:199
+msgid  " %20.18lld"
+msgstr
+# File:hdump.c, line:205
+msgid  " %3.3hho"
+msgstr
+# File:hdump.c, line:206
+msgid  " %6.6ho"
+msgstr
+# File:hdump.c, line:207
+msgid  " %11.11o"
+msgstr
+# File:hdump.c, line:209
+msgid  " %22.22lo"
+msgstr
+# File:hdump.c, line:214
+msgid  " %22.22llo"
+msgstr
+# File:hdump.c, line:220
+msgid  " %3.3hhu"
+msgstr
+# File:hdump.c, line:221
+msgid  " %5.5hu"
+msgstr
+# File:hdump.c, line:222
+msgid  " %10.10u"
+msgstr
+# File:hdump.c, line:224
+msgid  " %20.20lu"
+msgstr
+# File:hdump.c, line:229
+msgid  " %20.20llu"
+msgstr
+# File:hdump.c, line:235
+msgid  " %2.2hhx"
+msgstr
+# File:hdump.c, line:236
+msgid  " %4.4hx"
+msgstr
+# File:hdump.c, line:237
+msgid  " %8.8x"
+msgstr
+# File:hdump.c, line:239
+msgid  " %16.16lx"
+msgstr
+# File:hdump.c, line:244
+msgid  " %16.16llx"
+msgstr
+# File:hdump.c, line:252
+msgid  " %14.7e"
+msgstr
+# File:hdump.c, line:254
+msgid  " %13.6e"
+msgstr
+# File:hdump.c, line:256
+msgid  " %22.14e"
+msgstr
+# File:hdump.c, line:258
+msgid  " %23.14Le"
+msgstr
+# File:hdump.c, line:266
+msgid  ""
+msgstr
+# File:hdump.c, line:267
+# msgid  ""
+# msgstr
+# File:hdump.c, line:268
+# msgid  ""
+# msgstr
+# File:hdump.c, line:270
+# msgid  ""
+# msgstr
+# File:hdump.c, line:271
+# msgid  ""
+# msgstr
+# File:hdump.c, line:272
+# msgid  ""
+# msgstr
+# File:hdump.c, line:273
+# msgid  ""
+# msgstr
+# File:hdump.c, line:274
+# msgid  ""
+# msgstr
+# File:hdump.c, line:285
+msgid  "Usage:	%s [options] [file] [[+]starting address[.][b|B]%s]\n"
+msgstr
+# File:hdump.c, line:286
+msgid  "od"
+msgstr
+# File:hdump.c, line:286
+msgid  "hdump"
+msgstr
+# File:hdump.c, line:286
+# msgid  ""
+# msgstr
+# File:hdump.c, line:286
+msgid  " [count]]"
+msgstr
+# File:hdump.c, line:288
+msgid  "Usage:	%s [options] [-t type]... [-A base] [-j skip] [-N count] [file...]\n"
+msgstr
+# File:hdump.c, line:289
+# msgid  "od"
+# msgstr
+# File:hdump.c, line:289
+# msgid  "hdump"
+# msgstr
+# File:hdump.c, line:290
+msgid  "Options:\n"
+msgstr
+# File:hdump.c, line:291
+msgid  "\t-A c\tSet address base c ('d', 'o', 'n' or 'x')\n"
+msgstr
+# File:hdump.c, line:292
+msgid  "\t-j skip\tSkip input for the files\n"
+msgstr
+# File:hdump.c, line:293
+msgid  "\t-N n\tOnly process n bytes\n"
+msgstr
+# File:hdump.c, line:294
+msgid  "\t-t type\tSpecify output format type\n"
+msgstr
+# File:hdump.c, line:295
+msgid  "\t-a\tDisplay content also in characters\n"
+msgstr
+# File:hdump.c, line:296
+msgid  "\t-b\tDisplay content in bytes\n"
+msgstr
+# File:hdump.c, line:297
+msgid  "\t-c\tDisplay content as %s quoted characters\n"
+msgstr
+# File:hdump.c, line:298
+msgid  "single or multi byte"
+msgstr
+# File:hdump.c, line:298
+msgid  "single byte"
+msgstr
+# File:hdump.c, line:299
+msgid  "\t-C\tDisplay content as %s quoted characters\n"
+msgstr
+# File:hdump.c, line:300
+# msgid  "single or multi byte"
+# msgstr
+# File:hdump.c, line:301
+msgid  "\t-d\tDisplay content in decimal%s\n"
+msgstr
+# File:hdump.c, line:302
+msgid  " -tu2"
+msgstr
+# File:hdump.c, line:302
+# msgid  ""
+# msgstr
+# File:hdump.c, line:303
+msgid  "\t-D\tDisplay content in decimal -tu4\n"
+msgstr
+# File:hdump.c, line:305
+msgid  "\t-f\tDisplay content as floats\n"
+msgstr
+# File:hdump.c, line:306
+msgid  "\t-F\tDisplay content as doubles\n"
+msgstr
+# File:hdump.c, line:309
+msgid  "\t-l\tDisplay content as longs\n"
+msgstr
+# File:hdump.c, line:310
+msgid  "\t-o\tDisplay content in octal%s\n"
+msgstr
+# File:hdump.c, line:311
+msgid  " -to2"
+msgstr
+# File:hdump.c, line:311
+# msgid  ""
+# msgstr
+# File:hdump.c, line:312
+msgid  "\t-O\tDisplay content in octal -to4\n"
+msgstr
+# File:hdump.c, line:313
+msgid  "\t-s\tDisplay content in decimal -td2\n"
+msgstr
+# File:hdump.c, line:314
+msgid  "\t-S\tDisplay content in decimal -td4\n"
+msgstr
+# File:hdump.c, line:316
+msgid  "\t-u\tDisplay content as unsigned\n"
+msgstr
+# File:hdump.c, line:317
+msgid  "\t-v\tShow all data even if it is identical\n"
+msgstr
+# File:hdump.c, line:318
+msgid  "\t-x\tDisplay content in hexadecimal -tx2\n"
+msgstr
+# File:hdump.c, line:319
+msgid  "\t-X\tDisplay content in hexadecimal -tx4\n"
+msgstr
+# File:hdump.c, line:320
+msgid  "\t-help\tPrint this help.\n"
+msgstr
+# File:hdump.c, line:321
+msgid  "\t-version\tPrint version number.\n"
+msgstr
+# File:hdump.c, line:322
+msgid  "'b' after starting address multiplies with 512\n"
+msgstr
+# File:hdump.c, line:345
+msgid  "A?,j&,N&,t&,a~,b~,c~,C~,d~,D~,f~,F~,l~,o~,O~,s~,S~,u~,v,x~,X~,help,version"
+msgstr
+# File:hdump.c, line:361
+# msgid  ""
+# msgstr
+# File:hdump.c, line:367
+msgid  "share/locale"
+msgstr
+# File:hdump.c, line:373
+msgid  "/share/locale"
+msgstr
+# File:hdump.c, line:375
+msgid  "/usr/share/locale"
+msgstr
+# File:hdump.c, line:380
+# msgid  "od"
+# msgstr
+# File:hdump.c, line:384
+msgid  "/xpg4"
+msgstr
+# File:hdump.c, line:404
+msgid  "u4"
+msgstr
+# File:hdump.c, line:405
+msgid  "f4"
+msgstr
+# File:hdump.c, line:406
+msgid  "f8"
+msgstr
+# File:hdump.c, line:409
+msgid  "o4"
+msgstr
+# File:hdump.c, line:410
+msgid  "d2"
+msgstr
+# File:hdump.c, line:411
+msgid  "d4"
+msgstr
+# File:hdump.c, line:414
+msgid  "x2"
+msgstr
+# File:hdump.c, line:415
+msgid  "x4"
+msgstr
+# File:hdump.c, line:417
+msgid  "Bad flag: '%s'.\n"
+msgstr
+# File:hdump.c, line:424
+msgid  "%s release %s (%s-%s-%s) Copyright (C) 1986-2010 %s\n"
+msgstr
+# File:hdump.c, line:425
+msgid  "Od"
+msgstr
+# File:hdump.c, line:425
+msgid  "Hdump"
+msgstr
+# File:hdump.c, line:426
+msgid  "1.30"
+msgstr
+# File:hdump.c, line:428
+msgid  "Joerg Schilling"
+msgstr
+# File:hdump.c, line:434
+msgid  "Invalid offset %lld.\n"
+msgstr
+# File:hdump.c, line:440
+msgid  "Offset %lld is too large for type 'off_t'.\n"
+msgstr
+# File:hdump.c, line:445
+msgid  "Invalid number of bytes.\n"
+msgstr
+# File:hdump.c, line:452
+msgid  "Number of bytes %lld is too large for type 'off_t'.\n"
+msgstr
+# File:hdump.c, line:488
+msgid  "+0123456789"
+msgstr
+# File:hdump.c, line:490
+# msgid  "+0123456789"
+# msgstr
+# File:hdump.c, line:492
+msgid  "0123456789abcdef"
+msgstr
+# File:hdump.c, line:513
+msgid  "Unexpected argument '%s'.\n"
+msgstr
+# File:hdump.c, line:523
+msgid  "Cannot skip past EOF.\n"
+msgstr
+# File:hdump.c, line:606
+msgid  "No memory.\n"
+msgstr
+# File:hdump.c, line:651
+msgid  "o1"
+msgstr
+# File:hdump.c, line:686
+msgid  "u2"
+msgstr
+# File:hdump.c, line:716
+msgid  "o2"
+msgstr
+# File:hdump.c, line:788
+msgid  "\n"
+msgstr
+# File:hdump.c, line:823
+msgid  "\n       "
+msgstr
+# File:hdump.c, line:825
+# msgid  "\n"
+# msgstr
+# File:hdump.c, line:833
+msgid  "nul"
+msgstr
+# File:hdump.c, line:833
+msgid  "soh"
+msgstr
+# File:hdump.c, line:833
+msgid  "stx"
+msgstr
+# File:hdump.c, line:833
+msgid  "etx"
+msgstr
+# File:hdump.c, line:833
+msgid  "eot"
+msgstr
+# File:hdump.c, line:833
+msgid  "enq"
+msgstr
+# File:hdump.c, line:833
+msgid  "ack"
+msgstr
+# File:hdump.c, line:833
+msgid  "bel"
+msgstr
+# File:hdump.c, line:834
+msgid  " bs"
+msgstr
+# File:hdump.c, line:834
+msgid  " ht"
+msgstr
+# File:hdump.c, line:834
+msgid  " lf"
+msgstr
+# File:hdump.c, line:834
+msgid  " vt"
+msgstr
+# File:hdump.c, line:834
+msgid  " ff"
+msgstr
+# File:hdump.c, line:834
+msgid  " cr"
+msgstr
+# File:hdump.c, line:834
+msgid  " so"
+msgstr
+# File:hdump.c, line:834
+msgid  " si"
+msgstr
+# File:hdump.c, line:835
+msgid  "dle"
+msgstr
+# File:hdump.c, line:835
+msgid  "dc1"
+msgstr
+# File:hdump.c, line:835
+msgid  "dc2"
+msgstr
+# File:hdump.c, line:835
+msgid  "dc3"
+msgstr
+# File:hdump.c, line:835
+msgid  "dc4"
+msgstr
+# File:hdump.c, line:835
+msgid  "nak"
+msgstr
+# File:hdump.c, line:835
+msgid  "syn"
+msgstr
+# File:hdump.c, line:835
+msgid  "etb"
+msgstr
+# File:hdump.c, line:836
+msgid  "can"
+msgstr
+# File:hdump.c, line:836
+msgid  " em"
+msgstr
+# File:hdump.c, line:836
+msgid  "sub"
+msgstr
+# File:hdump.c, line:836
+msgid  "esc"
+msgstr
+# File:hdump.c, line:836
+msgid  " fs"
+msgstr
+# File:hdump.c, line:836
+msgid  " gs"
+msgstr
+# File:hdump.c, line:836
+msgid  " rs"
+msgstr
+# File:hdump.c, line:836
+msgid  " us"
+msgstr
+# File:hdump.c, line:837
+msgid  " sp"
+msgstr
+# File:hdump.c, line:837
+msgid  "  !"
+msgstr
+# File:hdump.c, line:837
+msgid  "  \""
+msgstr
+# File:hdump.c, line:837
+msgid  "  #"
+msgstr
+# File:hdump.c, line:837
+msgid  "  $"
+msgstr
+# File:hdump.c, line:837
+msgid  "  %"
+msgstr
+# File:hdump.c, line:837
+msgid  "  &"
+msgstr
+# File:hdump.c, line:837
+msgid  "  '"
+msgstr
+# File:hdump.c, line:838
+msgid  "  ("
+msgstr
+# File:hdump.c, line:838
+msgid  "  )"
+msgstr
+# File:hdump.c, line:838
+msgid  "  *"
+msgstr
+# File:hdump.c, line:838
+msgid  "  +"
+msgstr
+# File:hdump.c, line:838
+msgid  "  ,"
+msgstr
+# File:hdump.c, line:838
+msgid  "  -"
+msgstr
+# File:hdump.c, line:838
+msgid  "  ."
+msgstr
+# File:hdump.c, line:838
+msgid  "  /"
+msgstr
+# File:hdump.c, line:839
+msgid  "  0"
+msgstr
+# File:hdump.c, line:839
+msgid  "  1"
+msgstr
+# File:hdump.c, line:839
+msgid  "  2"
+msgstr
+# File:hdump.c, line:839
+msgid  "  3"
+msgstr
+# File:hdump.c, line:839
+msgid  "  4"
+msgstr
+# File:hdump.c, line:839
+msgid  "  5"
+msgstr
+# File:hdump.c, line:839
+msgid  "  6"
+msgstr
+# File:hdump.c, line:839
+msgid  "  7"
+msgstr
+# File:hdump.c, line:840
+msgid  "  8"
+msgstr
+# File:hdump.c, line:840
+msgid  "  9"
+msgstr
+# File:hdump.c, line:840
+msgid  "  :"
+msgstr
+# File:hdump.c, line:840
+msgid  "  ;"
+msgstr
+# File:hdump.c, line:840
+msgid  "  <"
+msgstr
+# File:hdump.c, line:840
+msgid  "  ="
+msgstr
+# File:hdump.c, line:840
+msgid  "  >"
+msgstr
+# File:hdump.c, line:840
+msgid  "  ?"
+msgstr
+# File:hdump.c, line:841
+msgid  "  @"
+msgstr
+# File:hdump.c, line:841
+msgid  "  A"
+msgstr
+# File:hdump.c, line:841
+msgid  "  B"
+msgstr
+# File:hdump.c, line:841
+msgid  "  C"
+msgstr
+# File:hdump.c, line:841
+msgid  "  D"
+msgstr
+# File:hdump.c, line:841
+msgid  "  E"
+msgstr
+# File:hdump.c, line:841
+msgid  "  F"
+msgstr
+# File:hdump.c, line:841
+msgid  "  G"
+msgstr
+# File:hdump.c, line:842
+msgid  "  H"
+msgstr
+# File:hdump.c, line:842
+msgid  "  I"
+msgstr
+# File:hdump.c, line:842
+msgid  "  J"
+msgstr
+# File:hdump.c, line:842
+msgid  "  K"
+msgstr
+# File:hdump.c, line:842
+msgid  "  L"
+msgstr
+# File:hdump.c, line:842
+msgid  "  M"
+msgstr
+# File:hdump.c, line:842
+msgid  "  N"
+msgstr
+# File:hdump.c, line:842
+msgid  "  O"
+msgstr
+# File:hdump.c, line:843
+msgid  "  P"
+msgstr
+# File:hdump.c, line:843
+msgid  "  Q"
+msgstr
+# File:hdump.c, line:843
+msgid  "  R"
+msgstr
+# File:hdump.c, line:843
+msgid  "  S"
+msgstr
+# File:hdump.c, line:843
+msgid  "  T"
+msgstr
+# File:hdump.c, line:843
+msgid  "  U"
+msgstr
+# File:hdump.c, line:843
+msgid  "  V"
+msgstr
+# File:hdump.c, line:843
+msgid  "  W"
+msgstr
+# File:hdump.c, line:844
+msgid  "  X"
+msgstr
+# File:hdump.c, line:844
+msgid  "  Y"
+msgstr
+# File:hdump.c, line:844
+msgid  "  Z"
+msgstr
+# File:hdump.c, line:844
+msgid  "  ["
+msgstr
+# File:hdump.c, line:844
+msgid  "  \\"
+msgstr
+# File:hdump.c, line:844
+msgid  "  ]"
+msgstr
+# File:hdump.c, line:844
+msgid  "  ^"
+msgstr
+# File:hdump.c, line:844
+msgid  "  _"
+msgstr
+# File:hdump.c, line:845
+msgid  "  `"
+msgstr
+# File:hdump.c, line:845
+msgid  "  a"
+msgstr
+# File:hdump.c, line:845
+msgid  "  b"
+msgstr
+# File:hdump.c, line:845
+msgid  "  c"
+msgstr
+# File:hdump.c, line:845
+msgid  "  d"
+msgstr
+# File:hdump.c, line:845
+msgid  "  e"
+msgstr
+# File:hdump.c, line:845
+msgid  "  f"
+msgstr
+# File:hdump.c, line:845
+msgid  "  g"
+msgstr
+# File:hdump.c, line:846
+msgid  "  h"
+msgstr
+# File:hdump.c, line:846
+msgid  "  i"
+msgstr
+# File:hdump.c, line:846
+msgid  "  j"
+msgstr
+# File:hdump.c, line:846
+msgid  "  k"
+msgstr
+# File:hdump.c, line:846
+msgid  "  l"
+msgstr
+# File:hdump.c, line:846
+msgid  "  m"
+msgstr
+# File:hdump.c, line:846
+msgid  "  n"
+msgstr
+# File:hdump.c, line:846
+msgid  "  o"
+msgstr
+# File:hdump.c, line:847
+msgid  "  p"
+msgstr
+# File:hdump.c, line:847
+msgid  "  q"
+msgstr
+# File:hdump.c, line:847
+msgid  "  r"
+msgstr
+# File:hdump.c, line:847
+msgid  "  s"
+msgstr
+# File:hdump.c, line:847
+msgid  "  t"
+msgstr
+# File:hdump.c, line:847
+msgid  "  u"
+msgstr
+# File:hdump.c, line:847
+msgid  "  v"
+msgstr
+# File:hdump.c, line:847
+msgid  "  w"
+msgstr
+# File:hdump.c, line:848
+msgid  "  x"
+msgstr
+# File:hdump.c, line:848
+msgid  "  y"
+msgstr
+# File:hdump.c, line:848
+msgid  "  z"
+msgstr
+# File:hdump.c, line:848
+msgid  "  {"
+msgstr
+# File:hdump.c, line:848
+msgid  "  |"
+msgstr
+# File:hdump.c, line:848
+msgid  "  }"
+msgstr
+# File:hdump.c, line:848
+msgid  "  ~"
+msgstr
+# File:hdump.c, line:848
+msgid  "del"
+msgstr
+# File:hdump.c, line:886
+msgid  " %3c"
+msgstr
+# File:hdump.c, line:889
+msgid  "  \\0"
+msgstr
+# File:hdump.c, line:890
+msgid  "  \\a"
+msgstr
+# File:hdump.c, line:891
+msgid  "  \\b"
+msgstr
+# File:hdump.c, line:892
+msgid  "  \\f"
+msgstr
+# File:hdump.c, line:893
+msgid  "  \\n"
+msgstr
+# File:hdump.c, line:894
+msgid  "  \\r"
+msgstr
+# File:hdump.c, line:895
+msgid  "  \\t"
+msgstr
+# File:hdump.c, line:896
+msgid  "  \\v"
+msgstr
+# File:hdump.c, line:898
+# msgid  " %3.3hho"
+# msgstr
+# File:hdump.c, line:923
+msgid  "  **"
+msgstr
+# File:hdump.c, line:925
+# msgid  " %3.3hho"
+# msgstr
+# File:hdump.c, line:948
+msgid  "%*c%.*s"
+msgstr
+# File:hdump.c, line:950
+# msgid  "  **"
+# msgstr
+# File:hdump.c, line:957
+# msgid  "  \\0"
+# msgstr
+# File:hdump.c, line:958
+# msgid  "  \\a"
+# msgstr
+# File:hdump.c, line:959
+# msgid  "  \\b"
+# msgstr
+# File:hdump.c, line:960
+# msgid  "  \\f"
+# msgstr
+# File:hdump.c, line:961
+# msgid  "  \\n"
+# msgstr
+# File:hdump.c, line:962
+# msgid  "  \\r"
+# msgstr
+# File:hdump.c, line:963
+# msgid  "  \\t"
+# msgstr
+# File:hdump.c, line:964
+# msgid  "  \\v"
+# msgstr
+# File:hdump.c, line:967
+# msgid  " %3.3hho"
+# msgstr
+# File:hdump.c, line:993
+msgid  "  \\%02X"
+msgstr
+# File:hdump.c, line:995
+msgid  "    %c"
+msgstr
+# File:hdump.c, line:997
+# msgid  "\n       "
+# msgstr
+# File:hdump.c, line:1017
+msgid  "  %4d"
+msgstr
+# File:hdump.c, line:1019
+# msgid  "  %4d"
+# msgstr
+# File:hdump.c, line:1021
+msgid  " %04o"
+msgstr
+# File:hdump.c, line:1023
+msgid  "   %02X"
+msgstr
+# File:hdump.c, line:1026
+# msgid  "\n       "
+# msgstr
+# File:hdump.c, line:1046
+msgid  "   "
+msgstr
+# File:hdump.c, line:1049
+msgid  "%4u"
+msgstr
+# File:hdump.c, line:1051
+msgid  "%4d"
+msgstr
+# File:hdump.c, line:1053
+msgid  " %03o"
+msgstr
+# File:hdump.c, line:1055
+msgid  " %02X"
+msgstr
+# File:hdump.c, line:1058
+msgid  "  "
+msgstr
+# File:hdump.c, line:1061
+msgid  "\n         "
+msgstr
+# File:hdump.c, line:1063
+# msgid  "   "
+# msgstr
+# File:hdump.c, line:1091
+msgid  "%12lu"
+msgstr
+# File:hdump.c, line:1093
+msgid  "%12ld"
+msgstr
+# File:hdump.c, line:1095
+msgid  " %012lo"
+msgstr
+# File:hdump.c, line:1097
+msgid  "   %08lX"
+msgstr
+# File:hdump.c, line:1129
+msgid  "%7hu"
+msgstr
+# File:hdump.c, line:1131
+msgid  "%7hd"
+msgstr
+# File:hdump.c, line:1133
+msgid  " %06ho"
+msgstr
+# File:hdump.c, line:1135
+msgid  "   %04hX"
+msgstr
+# File:hdump.c, line:1180
+msgid  "0123456789abcdefABCDEF"
+msgstr
+# File:hdump.c, line:1185
+msgid  "0"
+msgstr
+# File:hdump.c, line:1202
+msgid  "b"
+msgstr
+# File:hdump.c, line:1202
+msgid  "B"
+msgstr
+# File:hdump.c, line:1206
+msgid  "Bad numeric argument '%s'.\n"
+msgstr
+# File:hdump.c, line:1225
+msgid  "Error reading '%s'.\n"
+msgstr
+# File:hdump.c, line:1253
+msgid  "/dev/stdin"
+msgstr
+# File:hdump.c, line:1254
+msgid  "stdin"
+msgstr
+# File:hdump.c, line:1268
+# msgid  "/dev/stdin"
+# msgstr
+# File:hdump.c, line:1269
+# msgid  "stdin"
+# msgstr
+# File:hdump.c, line:1278
+msgid  "rb"
+msgstr
+# File:hdump.c, line:1282
+# msgid  "rb"
+# msgstr
+# File:hdump.c, line:1284
+# msgid  "rb"
+# msgstr
+# File:hdump.c, line:1290
+msgid  "Can't open '%s'.\n"
+msgstr
+# File:hdump.c, line:1445
+msgid  "CHAR Named character\n"
+msgstr
+# File:hdump.c, line:1449
+msgid  "CHAR Character\n"
+msgstr
+# File:hdump.c, line:1458
+msgid  "INT Dezimal\n"
+msgstr
+# File:hdump.c, line:1462
+msgid  "CHAR Dezimal\n"
+msgstr
+# File:hdump.c, line:1465
+msgid  "SHORT Dezimal\n"
+msgstr
+# File:hdump.c, line:1468
+# msgid  "INT Dezimal\n"
+# msgstr
+# File:hdump.c, line:1471
+msgid  "LONG Dezimal\n"
+msgstr
+# File:hdump.c, line:1475
+msgid  "LONG LONG Dezimal\n"
+msgstr
+# File:hdump.c, line:1481
+# msgid  "INT Dezimal\n"
+# msgstr
+# File:hdump.c, line:1492
+msgid  "DOUBLE\n"
+msgstr
+# File:hdump.c, line:1496
+msgid  "FLOAT\n"
+msgstr
+# File:hdump.c, line:1499
+# msgid  "DOUBLE\n"
+# msgstr
+# File:hdump.c, line:1503
+msgid  "LONG DOUBLE\n"
+msgstr
+# File:hdump.c, line:1509
+# msgid  "DOUBLE\n"
+# msgstr
+# File:hdump.c, line:1520
+msgid  "INT Octal\n"
+msgstr
+# File:hdump.c, line:1524
+msgid  "CHAR Octal\n"
+msgstr
+# File:hdump.c, line:1527
+msgid  "SHORT Octal\n"
+msgstr
+# File:hdump.c, line:1530
+# msgid  "INT Octal\n"
+# msgstr
+# File:hdump.c, line:1533
+msgid  "LONG Octal\n"
+msgstr
+# File:hdump.c, line:1537
+msgid  "LONG LONG Octal\n"
+msgstr
+# File:hdump.c, line:1543
+# msgid  "INT Octal\n"
+# msgstr
+# File:hdump.c, line:1553
+msgid  "INT Unsigned\n"
+msgstr
+# File:hdump.c, line:1557
+msgid  "CHAR Unsigned\n"
+msgstr
+# File:hdump.c, line:1560
+msgid  "SHORT Unsigned\n"
+msgstr
+# File:hdump.c, line:1563
+# msgid  "INT Unsigned\n"
+# msgstr
+# File:hdump.c, line:1566
+msgid  "LONG Unsigned\n"
+msgstr
+# File:hdump.c, line:1570
+msgid  "LONG LONG Unsigned\n"
+msgstr
+# File:hdump.c, line:1576
+# msgid  "INT Unsigned\n"
+# msgstr
+# File:hdump.c, line:1586
+msgid  "INT Hex\n"
+msgstr
+# File:hdump.c, line:1590
+msgid  "CHAR Hex\n"
+msgstr
+# File:hdump.c, line:1593
+msgid  "SHORT Hex\n"
+msgstr
+# File:hdump.c, line:1596
+# msgid  "INT Hex\n"
+# msgstr
+# File:hdump.c, line:1599
+msgid  "LONG Hex\n"
+msgstr
+# File:hdump.c, line:1603
+msgid  "LONG LONG Hex\n"
+msgstr
+# File:hdump.c, line:1609
+msgid  "INT hex\n"
+msgstr
+# File:hdump.c, line:1627
+msgid  "Illegal size '%c', use C, S, I, L, 1, 2, 4 or 8.\n"
+msgstr
+# File:hdump.c, line:1637
+msgid  "Illegal size '%c', use F, D L, 4 or 8.\n"
+msgstr
+# File:hdump.c, line:1648
+msgid  "Illegal type '%c', use 'a', 'c', 'd', 'f', 'o', 'u' or 'x'.\n"
+msgstr
+# File:hdump.c, line:1650
+msgid  "Illegal type '%c', use 'a', 'c', 'd', 'o', 'u' or 'x'.\n"
+msgstr
+# File:hdump.c, line:1665
+msgid  "*\n"
+msgstr
+# File:hdump.c, line:1667
+msgid  "     *\n"
+msgstr
+# File:hdump.c, line:1673
+msgid  "%7.7lx"
+msgstr
+# File:hdump.c, line:1674
+msgid  "%7.7llx"
+msgstr
+# File:hdump.c, line:1676
+msgid  "%6lx: "
+msgstr
+# File:hdump.c, line:1677
+msgid  "%6llx: "
+msgstr
+# File:hdump.c, line:1683
+msgid  "%7.7ld"
+msgstr
+# File:hdump.c, line:1684
+msgid  "%7.7lld"
+msgstr
+# File:hdump.c, line:1686
+msgid  "%6ld: "
+msgstr
+# File:hdump.c, line:1687
+msgid  "%6lld: "
+msgstr
+# File:hdump.c, line:1693
+msgid  "%7.7lo"
+msgstr
+# File:hdump.c, line:1694
+msgid  "%7.7llo"
+msgstr
+# File:hdump.c, line:1696
+msgid  "%6.6lo: "
+msgstr
+# File:hdump.c, line:1697
+msgid  "%6.6llo: "
+msgstr
+# File:hdump.c, line:1703
+msgid  "\t"
+msgstr
+# File:hdump.c, line:1705
+msgid  "        "
+msgstr
+# File:hdump.c, line:1707
+# msgid  "*\n"
+# msgstr
+# File:hdump.c, line:1712
+msgid  "%07.7llx"
+msgstr
+# File:hdump.c, line:1713
+# msgid  "%7.7lld"
+# msgstr
+# File:hdump.c, line:1713
+# msgid  "%7.7llo"
+# msgstr
+# File:hdump.c, line:1714
+msgid  "%07.7lx"
+msgstr
+# File:hdump.c, line:1715
+# msgid  "%7.7ld"
+# msgstr
+# File:hdump.c, line:1715
+# msgid  "%7.7lo"
+# msgstr
+# File:hdump.c, line:1717
+msgid  "%06llo:"
+msgstr
+# File:hdump.c, line:1718
+msgid  "%6lld:"
+msgstr
+# File:hdump.c, line:1718
+msgid  "%6llx:"
+msgstr
+# File:hdump.c, line:1719
+msgid  "%06lo:"
+msgstr
+# File:hdump.c, line:1720
+msgid  "%6ld:"
+msgstr
+# File:hdump.c, line:1720
+msgid  "%6lx:"
+msgstr
+# File:hdump.c, line:1724
+# msgid  ""
+# msgstr
+# File:hdump.c, line:1728
+msgid  "-A option only accepts the following:  d, o, n, and x.\n"
+msgstr

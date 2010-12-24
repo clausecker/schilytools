@@ -1,8 +1,8 @@
-/* @(#)name.c	1.37 09/07/10 joerg */
+/* @(#)name.c	1.38 10/12/19 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)name.c	1.37 09/07/10 joerg";
+	"@(#)name.c	1.38 10/12/19 joerg";
 
 #endif
 /*
@@ -14,7 +14,7 @@ static	UConst char sccsid[] =
  * Almost totally rewritten by J. Schilling (2000).
  *
  * Copyright 1993 Yggdrasil Computing, Incorporated
- * Copyright (c) 1999,2000-2009 J. Schilling
+ * Copyright (c) 1999,2000-2010 J. Schilling
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -73,12 +73,12 @@ iso9660_check(idr, ndr)
 		if (np)
 			*np = ';';	/* Restore new version # */
 		errmsgno(EX_BAD,
-			"Old session has illegal name '%.*s' length %d\n",
+			_("Old session has illegal name '%.*s' length %d\n"),
 			idr->name_len[0],
 			idr->name,
 			idr->name_len[0]);
 		errmsgno(EX_BAD,
-			"New session will use    name '%s'\n",
+			_("New session will use    name '%s'\n"),
 			ndr->isorec.name);
 	}
 	if (p)
@@ -275,7 +275,7 @@ iso9660_file_length(name, sresult, dirflag)
 			/*
 			 * Does not work as we may truncate before the dot.
 			 */
-			error("Truncating '%s' to '%.*s'.\n",
+			error(_("Truncating '%s' to '%.*s'.\n"),
 				name,
 				current_length, sresult->isorec.name);
 			ignore++;

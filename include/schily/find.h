@@ -1,4 +1,4 @@
-/* @(#)find.h	1.21 10/08/27 Copyright 2005-2010 J. Schilling */
+/* @(#)find.h	1.22 10/11/24 Copyright 2005-2010 J. Schilling */
 /*
  *	Definitions for libfind users.
  *
@@ -95,6 +95,8 @@ extern	void	find_firstprim	__PR((int *pac, char *const **pav));
 
 extern	BOOL	find_primary	__PR((findn_t *t, int op));
 extern	BOOL	find_pname	__PR((findn_t *t, char *word));
+extern	BOOL	find_hasprint	__PR((findn_t *t));
+extern	BOOL	find_hasexec	__PR((findn_t *t));
 extern	BOOL	find_expr	__PR((char *f, char *ff, struct stat *fs,
 					struct WALK *state, findn_t *t));
 

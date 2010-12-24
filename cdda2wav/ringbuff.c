@@ -1,8 +1,8 @@
-/* @(#)ringbuff.c	1.23 10/01/07 Copyright 1998,1999,2000 Heiko Eissfeldt, Copyright 2004-2010 J. Schilling */
+/* @(#)ringbuff.c	1.24 10/12/19 Copyright 1998,1999,2000 Heiko Eissfeldt, Copyright 2004-2010 J. Schilling */
 #include "config.h"
 #ifndef lint
 static	UConst char sccsid[] =
-"@(#)ringbuff.c	1.23 10/01/07 Copyright 1998,1999,2000 Heiko Eissfeldt, Copyright 2004-2010 J. Schilling";
+"@(#)ringbuff.c	1.24 10/12/19 Copyright 1998,1999,2000 Heiko Eissfeldt, Copyright 2004-2010 J. Schilling";
 #endif
 /*
  * Ringbuffer handling
@@ -26,6 +26,7 @@ static	UConst char sccsid[] =
 #include <schily/standard.h>
 #include <schily/unistd.h>
 #include <schily/schily.h>
+#include <schily/nlsdefs.h>
 
 #if defined(HAVE_SEMGET) && defined(USE_SEMAPHORES)
 #include <schily/ipc.h>
@@ -77,12 +78,12 @@ set_total_buffers(num_buffers, mysem_id)
 
 	mysemun.val   = 0;
 	if (semctl(mysem_id, (int) DEF_SEM, SETVAL, mysemun) < 0) {
-		errmsg("Error in semctl DEF_SEM.\n");
+		errmsg(_("Error in semctl DEF_SEM.\n"));
 	}
 
 	mysemun.val   = num_buffers;
 	if (semctl(mysem_id, (int) FREE_SEM, SETVAL, mysemun) < 0) {
-		errmsg("Error in semctl FREE_SEM.\n");
+		errmsg(_("Error in semctl FREE_SEM.\n"));
 	}
 #endif
 
@@ -197,7 +198,7 @@ get_next_buffer()
 #ifdef WARN_INTERRUPT
 	if (free_buffers() <= 0) {
 		fprintf(stderr,
-		"READER waits!! r=%lu, w=%lu\n", *total_segments_read,
+		_("READER waits!! r=%lu, w=%lu\n"), *total_segments_read,
 			*total_segments_written);
 	}
 #endif
@@ -210,7 +211,7 @@ get_next_buffer()
 		 * semaphore operation failed.
 		 * try again...
 		 */
-		errmsgno(EX_BAD, "Child reader sem request failed.\n");
+		errmsgno(EX_BAD, _("Child reader sem request failed.\n"));
 		exit(SEMAPHORE_ERROR);
 	}
 #if 0
@@ -239,7 +240,7 @@ get_oldest_buffer()
 #ifdef WARN_INTERRUPT
 	if (free_buffers() == total_buffers) {
 		fprintf(stderr,
-		"WRITER waits!! r=%lu, w=%lu\n", *total_segments_read,
+		_("WRITER waits!! r=%lu, w=%lu\n"), *total_segments_read,
 			*total_segments_written);
 	}
 #endif
@@ -253,7 +254,7 @@ get_oldest_buffer()
 		/*
 		 * semaphore operation failed.
 		 */
-		errmsg("Parent writer sem request failed.\n");
+		errmsg(_("Parent writer sem request failed.\n"));
 		return ((myringbuff *)NULL);
 	}
 
