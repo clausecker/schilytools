@@ -1,7 +1,7 @@
-/* @(#)scsi-bsd.c	1.51 10/05/22 Copyright 1997-2009 J. Schilling */
+/* @(#)scsi-bsd.c	1.52 11/01/01 Copyright 1997-2011 J. Schilling */
 #ifndef lint
 static	char __sccsid[] =
-	"@(#)scsi-bsd.c	1.51 10/05/22 Copyright 1997-2009 J. Schilling";
+	"@(#)scsi-bsd.c	1.52 11/01/01 Copyright 1997-2011 J. Schilling";
 #endif
 /*
  *	Interface for the NetBSD/FreeBSD/OpenBSD generic SCSI implementation.
@@ -18,7 +18,7 @@ static	char __sccsid[] =
  *	Choose your name instead of "schily" and make clear that the version
  *	string is related to a modified source.
  *
- *	Copyright (c) 1997-2009 J. Schilling
+ *	Copyright (c) 1997-2011 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -57,7 +57,7 @@ static	char __sccsid[] =
  *	Choose your name instead of "schily" and make clear that the version
  *	string is related to a modified source.
  */
-LOCAL	char	_scg_trans_version[] = "scsi-bsd.c-1.51";	/* The version for this transport*/
+LOCAL	char	_scg_trans_version[] = "scsi-bsd.c-1.52";	/* The version for this transport*/
 
 #define	MAX_SCG		32	/* Max # of SCSI controllers */
 #define	MAX_TGT		16
@@ -658,7 +658,7 @@ scgo_send(scgp)
  *
  * Copyright (c) 1998 Michael Smith <msmith@freebsd.org>
  * Copyright (c) 1998 Kenneth D. Merry <ken@kdm.org>
- * Copyright (c) 1998-2009 Joerg Schilling <joerg.schilling@fokus.fraunhofer.de>
+ * Copyright (c) 1998-2011 Joerg Schilling <joerg.schilling@fokus.fraunhofer.de>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -701,7 +701,7 @@ scgo_send(scgp)
  *	Choose your name instead of "schily" and make clear that the version
  *	string is related to a modified source.
  */
-LOCAL	char	_scg_trans_version[] = "scsi-bsd.c-1.51";	/* The version for this transport*/
+LOCAL	char	_scg_trans_version[] = "scsi-bsd.c-1.52";	/* The version for this transport*/
 
 #define	CAM_MAXDEVS	128
 struct scg_local {
@@ -1101,6 +1101,7 @@ scgo_send(scgp)
 	union ccb		*ccb = &ccb_space;
 	int			rv, result;
 	u_int32_t		flags;
+	int			sense_len;
 
 	if (scgp->fd < 0) {
 #if 0
@@ -1140,7 +1141,14 @@ scgo_send(scgp)
 	 * the tag action valid field like this in scgo_send():
 	 *
 	 *	flags |= CAM_DEV_QFRZDIS | CAM_TAG_ACTION_VALID;
+	 *
+	 * Note that SSD_FULL_SIZE is 32 on FreeBSD and that it is impossible
+	 * to get more that SSD_FULL_SIZE == sizeof ((struct scsi_sense_data)
+	 * on FreeBSD.
 	 */
+	sense_len = sp->sense_len;
+	if (sense_len > SSD_FULL_SIZE)
+		sense_len = SSD_FULL_SIZE;
 
 	cam_fill_csio(&ccb->csio,
 			/* retries */	1,
@@ -1149,7 +1157,7 @@ scgo_send(scgp)
 			/* tag_action */ MSG_SIMPLE_Q_TAG,
 			/* data_ptr */	(u_int8_t *)sp->addr,
 			/* dxfer_len */	sp->size,
-			/* sense_len */	SSD_FULL_SIZE,
+			/* sense_len */	sense_len,
 			/* cdb_len */	sp->cdb_len,
 			/* timeout */	sp->timeout * 1000);
 
@@ -1207,12 +1215,14 @@ scgo_send(scgp)
 
 	/* Pass the result back up */
 	fillbytes(&sp->scb, sizeof (sp->scb), '\0');
+#ifdef	CLEAR_SENSE
 	fillbytes(&sp->u_sense.cmd_sense, sizeof (sp->u_sense.cmd_sense), '\0');
+#endif
 	sp->resid = ccb->csio.resid;
-	sp->sense_count = SSD_FULL_SIZE - ccb->csio.sense_resid;
+	sp->sense_count = sense_len - ccb->csio.sense_resid;
 
 	/*
-	 * Determine how much room we have for sense data.
+	 * Determine how much room we have for sense data in struct scg_cmd.
 	 */
 	if (sp->sense_count > SCG_MAX_SENSE)
 		sp->sense_count = SCG_MAX_SENSE;

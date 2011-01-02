@@ -45,6 +45,7 @@
 ./psmake/configure
 ./psmake/cvmod.c
 ./psmake/dat.c
+./psmake/eaccess.c
 ./psmake/error.c
 ./psmake/fcons.c
 ./psmake/fileopen.c
@@ -56,12 +57,14 @@
 ./psmake/format.c
 ./psmake/getargs.c
 ./psmake/geterrno.c
+./psmake/getexecpath.c
 ./psmake/include/schily/align.h
 ./psmake/include/schily/archdefs.h
 ./psmake/include/schily/avoffset.h
 ./psmake/include/schily/ccomdefs.h
 ./psmake/include/schily/ctype.h
 ./psmake/include/schily/dirent.h
+./psmake/include/schily/dlfcn.h
 ./psmake/include/schily/errno.h
 ./psmake/include/schily/fcntl.h
 ./psmake/include/schily/getargs.h
@@ -111,6 +114,7 @@
 ./psmake/rules.cnf.in
 ./psmake/saveargs.c
 ./psmake/schilyio.h
+./psmake/searchinpath.c
 ./psmake/seterrno.c
 ./psmake/strcatl.c
 ./psmake/streql.c

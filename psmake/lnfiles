@@ -1,5 +1,5 @@
 #!/bin/sh
-# @(#)lnfiles	1.17 10/11/12 Copyright 1999 J. Schilling
+# @(#)lnfiles	1.19 11/01/02 Copyright 1999 J. Schilling
 
 cp='ln -s'
 smake=smake
@@ -39,6 +39,7 @@ $cp ${incsrc}/../../include/schily/archdefs.h	include/schily/archdefs.h
 $cp ${incsrc}/../../include/schily/ccomdefs.h	include/schily/ccomdefs.h
 $cp ${incsrc}/../../include/schily/ctype.h	include/schily/ctype.h
 $cp ${incsrc}/../../include/schily/dirent.h		include/schily/dirent.h
+$cp ${incsrc}/../../include/schily/dlfcn.h		include/schily/dlfcn.h
 $cp ${incsrc}/../../include/schily/fcntl.h		include/schily/fcntl.h
 $cp ${incsrc}/../../include/schily/getargs.h	include/schily/getargs.h
 $cp ${incsrc}/../../include/schily/getcwd.h		include/schily/getcwd.h
@@ -96,6 +97,7 @@ $cp ${incsrc}/${lib}/comerr.c		comerr.c
 $cp ${incsrc}/${lib}/eaccess.c		eaccess.c
 $cp ${incsrc}/${lib}/error.c		error.c
 $cp ${incsrc}/${lib}/format.c		format.c
+$cp ${incsrc}/${lib}/getexecpath.c	getexecpath.c
 #$cp ${incsrc}/${lib}/printf.c		printf.c
 #$cp ${incsrc}/${lib}/sprintf.c		sprintf.c
 #$cp ${incsrc}/${lib}/snprintf.c	snprintf.c

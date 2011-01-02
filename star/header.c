@@ -1,14 +1,14 @@
-/* @(#)header.c	1.145 10/11/30 Copyright 1985, 1994-2010 J. Schilling */
+/* @(#)header.c	1.146 11/01/01 Copyright 1985, 1994-2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)header.c	1.145 10/11/30 Copyright 1985, 1994-2010 J. Schilling";
+	"@(#)header.c	1.146 11/01/01 Copyright 1985, 1994-2011 J. Schilling";
 #endif
 /*
  *	Handling routines to read/write, parse/create
  *	archive headers
  *
- *	Copyright (c) 1985, 1994-2010 J. Schilling
+ *	Copyright (c) 1985, 1994-2011 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -1570,8 +1570,7 @@ static	BOOL	modewarn = FALSE;
 			ptb->dbuf.t_linkflag, ptb->dbuf.t_linkflag, tblocks());
 	}
 
-	/* LINTED */
-	if (ptb->dbuf.t_name[NAMSIZ] == '\0') {
+	if (ptb->ndbuf.t_name[NAMSIZ] == '\0') { /* "ndbuf" is NAMSIZE+1 */
 		if (ptb->dbuf.t_name[NAMSIZ-1] == '\0') {
 			if (!nowarn && !modewarn) {
 				errmsgno(EX_BAD,
@@ -1583,8 +1582,7 @@ static	BOOL	modewarn = FALSE;
 			"WARNING: Archive violates POSIX 1003.1 (100 char filename is null terminated).\n");
 			namewarn = TRUE;
 		}
-		/* LINTED */
-		ptb->dbuf.t_name[NAMSIZ] = ' ';
+		ptb->ndbuf.t_name[NAMSIZ] = ' ';
 	}
 	stoli(ptb->dbuf.t_mode, &ul);
 	info->f_mode = ul;
@@ -1716,19 +1714,14 @@ static	BOOL	modewarn = FALSE;
 	/*
 	 * Hack for list module (option -newest) ...
 	 * Save and restore t_name[NAMSIZ] & t_linkname[NAMSIZ]
+	 * Use "ndbuf" to permit NAMESIZE as index.
 	 */
-	/* LINTED */
-	xname = ptb->dbuf.t_name[NAMSIZ];
-	/* LINTED */
-	ptb->dbuf.t_name[NAMSIZ] = '\0';	/* allow 100 chars in name */
-	/* LINTED */
-	xlink = ptb->dbuf.t_linkname[NAMSIZ];
-	/* LINTED */
-	ptb->dbuf.t_linkname[NAMSIZ] = '\0'; /* allow 100 chars in linkname */
-	/* LINTED */
-	xpfx = ptb->dbuf.t_prefix[PFXSIZ];
-	/* LINTED */
-	ptb->dbuf.t_prefix[PFXSIZ] = '\0';	/* allow 155 chars in prefix */
+	xname = ptb->ndbuf.t_name[NAMSIZ];
+	ptb->ndbuf.t_name[NAMSIZ] = '\0';	/* allow 100 chars in name */
+	xlink = ptb->ndbuf.t_linkname[NAMSIZ];
+	ptb->ndbuf.t_linkname[NAMSIZ] = '\0'; /* allow 100 chars in linkname */
+	xpfx = ptb->ndbuf.t_prefix[PFXSIZ];
+	ptb->ndbuf.t_prefix[PFXSIZ] = '\0';	/* allow 155 chars in prefix */
 
 	/*
 	 * Handle long name in posix split form now.
@@ -1736,12 +1729,9 @@ static	BOOL	modewarn = FALSE;
 	 */
 	tcb_to_name(ptb, info);
 
-	/* LINTED */
-	ptb->dbuf.t_name[NAMSIZ] = xname;	/* restore remembered value */
-	/* LINTED */
-	ptb->dbuf.t_linkname[NAMSIZ] = xlink;	/* restore remembered value */
-	/* LINTED */
-	ptb->dbuf.t_prefix[PFXSIZ] = xpfx;	/* restore remembered value */
+	ptb->ndbuf.t_name[NAMSIZ] = xname;	/* restore remembered value */
+	ptb->ndbuf.t_linkname[NAMSIZ] = xlink;	/* restore remembered value */
+	ptb->ndbuf.t_prefix[PFXSIZ] = xpfx;	/* restore remembered value */
 
 	if (info->f_flags & F_BAD_UID)
 		info->f_mode &= ~TSUID;

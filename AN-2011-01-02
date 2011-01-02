@@ -1,0 +1,46 @@
+New features with AN-2011-01-02:
+
+This is the first localization step for the schily source consolidation. Many
+programs now (hopefully) call gettext() for all strings that need localization.
+
+-	The next step will include dgettext() calls for the libraries and the
+	missing programs
+
+-	The following step will include the extracted strings
+
+-	The last step will include German translations and install support
+	for the resulting binary message object files.
+
+----------> Please test and report compilation problems! <---------
+
+***** NOTE: As mentioned since 2004, frontends to the tools should *****
+*****		call all programs in the "C" locale		   *****
+*****		by e.g. calling: LC_ALL=C cdrecord ....		   *****
+*****		unless these frontends support localized strings   *****
+*****		used by the cdrtools with NLS support.		   *****
+
+
+-	Since libschily added support for retrieving argv[0] via
+	RTLD_DI_ARGSINFO, the portable smake compile directory "psmake" did
+	miss the file include/schily/dlfcn.h. This file has been added to 
+	the scripts that create links into the directory "psmake.
+
+-	libscg/scsi-bsd.c tries to better support the SCSI sense data
+	length in the recently upgrades in FreeBSDs ATAPI/CAM module.
+
+-	star/header.c now uses a new structure "ndbuf" that defines 
+	a namelength of 101 instead of 100 in order to be able to access
+	the 101th element in the arrays without accessing an aray out of
+	bounds.
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.isdn.cs.tu-berlin.de, js@cs.tu-berlin.de
+	joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

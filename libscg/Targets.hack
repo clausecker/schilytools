@@ -1,0 +1,24 @@
+HACKFILES=	scsi-aix.c\
+		scsi-amigaos.c \
+		scsi-apollo.c \
+		scsi-atari.c \
+		scsi-beos.c \
+		scsi-bsd-os.c \
+		scsi-bsd.c \
+		scsi-dos.c \
+		scsi-hpux.c \
+		scsi-linux-ata.c \
+		scsi-linux-pg.c \
+		scsi-linux-sg.c \
+		scsi-mac-iokit.c \
+		scsi-next.c \
+		scsi-openserver.c \
+		scsi-os2.c \
+		scsi-osf.c \
+		scsi-qnx.c \
+		scsi-sgi.c \
+		scsi-sun.c \
+		scsi-syllable.c \
+		scsi-unixware.c \
+		scsi-vms.c \
+		scsi-wnt.c

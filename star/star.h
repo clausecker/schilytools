@@ -1,6 +1,6 @@
-/* @(#)star.h	1.122 10/08/27 Copyright 1985, 1995-2010 J. Schilling */
+/* @(#)star.h	1.123 11/01/01 Copyright 1985, 1995-2011 J. Schilling */
 /*
- *	Copyright (c) 1985, 1995-2010 J. Schilling
+ *	Copyright (c) 1985, 1995-2011 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -264,6 +264,32 @@ struct header {
 };
 
 /*
+ * This is the ustar (Posix 1003.1) header with extended name arrays.
+ * Extended name arrays are needed to avoid compiler warnings for the code
+ * that deals with 100/155 byte names that are not null terminated.
+ */
+struct name_header {
+	char t_name[NAMSIZ+1];	    /*   0 Dateiname			*/
+	char t_res1[7];		    /* 101 Reserved: t_mode Rest	*/
+	char t_uid[8];		    /* 108 Benutzernummer		*/
+	char t_gid[8];		    /* 116 Benutzergruppe		*/
+	char t_size[12];	    /* 124 Dateigroesze			*/
+	char t_mtime[12];	    /* 136 Zeit d. letzten Aenderung	*/
+	char t_chksum[8];	    /* 148 Checksumme			*/
+	Uchar t_typeflag;	    /* 156 Typ der Datei		*/
+	char t_linkname[NAMSIZ+1];  /* 157 Zielname des Links		*/
+	char t_res2[TMAGLEN-1];	    /* 258 Reserved: t_magic Rest	*/
+	char t_version[TVERSLEN];   /* 263 Version v. star		*/
+	char t_uname[TUNMLEN];	    /* 265 Benutzername			*/
+	char t_gname[TGNMLEN];	    /* 297 Gruppenname			*/
+	char t_devmajor[8];	    /* 329 Major bei Geraeten		*/
+	char t_devminor[8];	    /* 337 Minor bei Geraeten		*/
+	char t_prefix[PFXSIZ+1];    /* 345 Prefix fuer t_name		*/
+				    /* 501 Ende				*/
+	char t_res3[11];	    /* 501 Filler bis 512		*/
+};
+
+/*
  * star header specific definitions
  */
 #define	STMAGIC		"tar"	/* star magic */
@@ -516,6 +542,7 @@ typedef union hblock {
 	struct xstar_in_header xstar_in_dbuf;
 	struct xstar_ext_header xstar_ext_dbuf;
 	struct header ustar_dbuf;
+	struct name_header ndbuf;
 	struct gnu_header gnu_dbuf;
 	struct gnu_in_header gnu_in_dbuf;
 	struct gnu_extended_header gnu_ext_dbuf;

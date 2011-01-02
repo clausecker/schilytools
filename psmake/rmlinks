@@ -1,5 +1,5 @@
 #!/bin/sh
-# @(#)rmlinks	1.14 10/11/12 Copyright 1999 J. Schilling
+# @(#)rmlinks	1.16 11/01/02 Copyright 1999 J. Schilling
 
 rm -f archconf.c
 rm -f make.c
@@ -13,6 +13,7 @@ rm -f include/schily/archdefs.h
 rm -f include/schily/ccomdefs.h
 rm -f include/schily/ctype.h
 rm -f include/schily/dirent.h
+rm -f include/schily/dlfcn.h
 rm -f include/schily/fcntl.h
 rm -f include/schily/getargs.h
 rm -f include/schily/getcwd.h
@@ -70,6 +71,7 @@ rm -f comerr.c
 rm -f eaccess.c
 rm -f error.c
 rm -f format.c
+rm -f getexecpath.c
 rm -f printf.c
 rm -f sprintf.c
 rm -f saveargs.c
