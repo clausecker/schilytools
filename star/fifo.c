@@ -1,8 +1,8 @@
-/* @(#)fifo.c	1.74 10/08/23 Copyright 1989, 1994-2010 J. Schilling */
+/* @(#)fifo.c	1.75 11/01/04 Copyright 1989, 1994-2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)fifo.c	1.74 10/08/23 Copyright 1989, 1994-2010 J. Schilling";
+	"@(#)fifo.c	1.75 11/01/04 Copyright 1989, 1994-2011 J. Schilling";
 #endif
 /*
  *	A "fifo" that uses shared memory between two processes
@@ -18,7 +18,7 @@ static	UConst char sccsid[] =
  *		n	fifo_chitape() wake up put side to start wrt Tape chng
  *		N	fifo_chotape()	wake up get side if mp->oblocked == TRUE
  *
- *	Copyright (c) 1989, 1994-2010 J. Schilling
+ *	Copyright (c) 1989, 1994-2011 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -77,6 +77,9 @@ static	UConst char sccsid[] =
 #define	EDEBUG(a)
 #endif
 
+	/*
+	 * roundup(x, y), x needs to be unsigned or x+y non-genative.
+	 */
 #undef	roundup
 #define	roundup(x, y)	((((x)+((y)-1))/(y))*(y))
 

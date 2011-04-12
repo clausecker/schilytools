@@ -1,8 +1,8 @@
-/* @(#)hdump.c	1.30 10/12/19 Copyright 1986-2010 J. Schilling */
+/* @(#)hdump.c	1.32 11/01/17 Copyright 1986-2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)hdump.c	1.30 10/12/19 Copyright 1986-2010 J. Schilling";
+	"@(#)hdump.c	1.32 11/01/17 Copyright 1986-2011 J. Schilling";
 #endif
 /*
  *	hex dump for files
@@ -20,7 +20,7 @@ static	UConst char sccsid[] =
  *	traditional Solaris interface, /usr/bin/od and /usr/xpg4/bin/od must be
  *	hard linked. Symlinks would be followed by getexecname().
  *
- *	Copyright (c) 1986-2010 J. Schilling
+ *	Copyright (c) 1986-2011 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -248,7 +248,8 @@ DEF_PR(ll_x, 17, Llong, " %16.16llx");
  * Floatingpoint formats
  */
 #ifndef	NO_FLOATINGPOINT
-#ifdef	FLOAT_WRONG_AS_ON_SUNOS
+#define	FLOAT_AS_ON_SUNOS
+#ifdef	FLOAT_AS_ON_SUNOS
 DEF_PR(f_f, 15, float, " %14.7e");
 #else
 DEF_PR(f_f, 14, float, " %13.6e");
@@ -421,9 +422,9 @@ main(ac, av)
 		usage(0);
 	if (prversion) {
 		printf(
-		_("%s release %s (%s-%s-%s) Copyright (C) 1986-2010 %s\n"),
+		_("%s release %s (%s-%s-%s) Copyright (C) 1986-2011 %s\n"),
 				is_od ? "Od":"Hdump",
-				"1.30",
+				"1.32",
 				HOST_CPU, HOST_VENDOR, HOST_OS,
 				_("Joerg Schilling"));
 		exit(0);
@@ -553,6 +554,7 @@ checkfill(dstp)
 {
 	pr_t	*dp;
 	int	kgv = 1;
+	int	n = 0;
 
 	for (dp = pr_root; dp != NULL; dp = dp->pr_next) {
 		if (kgv % dp->pr_size) {
@@ -568,11 +570,21 @@ checkfill(dstp)
 
 	for (dp = pr_root; dp != NULL; dp = dp->pr_next) {
 		int	lmax;
+		int	nmax;
 
 		lmax = dstp->blocksize / dp->pr_size * dp->pr_fieldw;
 		if (lmax > maxline)
 			maxline = lmax;
+		nmax = dstp->blocksize / dp->pr_size;
+		if (nmax > n)
+			n = nmax;
 	}
+	/*
+	 * Round up to the next value that is dividable by the highest
+	 * number of objects per line.
+	 */
+	while (maxline > (maxline / n * n))
+		maxline++;
 	for (dp = pr_root; dp != NULL; dp = dp->pr_next) {
 		dp->pr_fill =
 			maxline/(dstp->blocksize/dp->pr_size)-dp->pr_fieldw;
@@ -1039,9 +1051,10 @@ prascii(cnt, buf, dstp)
 		dst_t	*dstp;
 {
 	register short	i;
+	register short	n = dstp->blocksize;
 	register char	c;
 
-	for (i = 0; i < cnt; i++) {
+	for (i = 0; i < n; i++) {
 		if (i >= cnt)
 			printf("   ");
 		else if (dflag) {

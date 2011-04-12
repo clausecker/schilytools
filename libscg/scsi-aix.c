@@ -1,7 +1,7 @@
-/* @(#)scsi-aix.c	1.37 06/11/26 Copyright 1997 J. Schilling */
+/* @(#)scsi-aix.c	1.38 11/03/07 Copyright 1997 J. Schilling */
 #ifndef lint
 static	char __sccsid[] =
-	"@(#)scsi-aix.c	1.37 06/11/26 Copyright 1997 J. Schilling";
+	"@(#)scsi-aix.c	1.38 11/03/07 Copyright 1997 J. Schilling";
 #endif
 /*
  *	Interface for the AIX generic SCSI implementation.
@@ -46,7 +46,7 @@ static	char __sccsid[] =
  *	Choose your name instead of "schily" and make clear that the version
  *	string is related to a modified source.
  */
-LOCAL	char	_scg_trans_version[] = "scsi-aix.c-1.37";	/* The version for this transport*/
+LOCAL	char	_scg_trans_version[] = "scsi-aix.c-1.38";	/* The version for this transport*/
 
 
 #define	MAX_SCG		16	/* Max # of SCSI controllers */
@@ -444,6 +444,8 @@ scgo_send(scgp)
 	SCSI		*scgp;
 {
 	struct scg_cmd	*sp = scgp->scmd;
+	int	error = sp->error;
+	Uchar	status = sp->u_scb.cmd_scb[0];
 	int	ret;
 
 	if (scgp->fd < 0) {
@@ -451,9 +453,11 @@ scgo_send(scgp)
 		return (0);
 	}
 	ret = do_scg_cmd(scgp, sp);
-	if (ret < 0)
-		return (ret);
-	if (sp->u_scb.cmd_scb[0] & 02)
-		ret = do_scg_sense(scgp, sp);
+	if (ret >= 0) {
+		if (sp->u_scb.cmd_scb[0] & 02)
+			ret = do_scg_sense(scgp, sp);
+	}
+	sp->error = error;
+	sp->u_scb.cmd_scb[0] = status;
 	return (ret);
 }

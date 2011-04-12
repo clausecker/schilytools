@@ -27,10 +27,10 @@
 /*
  * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)val.c	1.10 09/11/08 J. Schilling
+ * @(#)val.c	1.11 11/04/05 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)val.c 1.10 09/11/08 J. Schilling"
+#pragma ident "@(#)val.c 1.11 11/04/05 J. Schilling"
 #endif
 /*
  * @(#)val.c 1.22 06/12/12
@@ -66,6 +66,7 @@
 # define	FALSE		0
 # define	BLANK(l)	while (!(*l == ' ' || *l == '\t')) l++;
 
+static int	debug;		/* print debug messages */
 static int	ret_code;	/* prime return code from 'main' program */
 static int	inline_err=0;	/* input line error code (from 'process') */
 static int	infile_err=0;	/* file error code (from 'validate') */
@@ -246,7 +247,7 @@ char	*argv[];
 			   }
 			}
 			j = current_optind;
-		        c = getopt(argc, argv, "-r:sm:y:V(version)");
+		        c = getopt(argc, argv, "-r:sm:y:TV(version)");
 
 				/* this takes care of options given after
 				** file names.
@@ -281,6 +282,9 @@ char	*argv[];
 					strcpy(name,p);
 					break;
 
+				case 'T':
+					debug = TRUE;
+					continue;	/* Not into had[] */
 				case 'V':		/* version */
 					printf("val %s-SCCS version %s (%s-%s-%s)\n",
 						PROVIDER,
@@ -291,6 +295,8 @@ char	*argv[];
 				default:
 					Fflags &= ~FTLEXIT;
 					fatal(gettext("Usage: val [ -s ] [ -m name ] [ -r SID ] [ -y type ] s.filename..."));
+					if (debug)
+						printf(gettext("Uknown option '%c'.\n"), c);
 					inline_err |= UNKDUP_ERR;
 					if (inpstd)
 					   report(inline_err,savelinep,"");
@@ -302,8 +308,11 @@ char	*argv[];
 			use 'had' array and determine if the keyletter
 			was given twice.
 			*/
-			if (had[c - 'a']++)
+			if (had[c - 'a']++) {
+				if (debug)
+					printf(gettext("Duplicate option '%c'.\n"), c);
 				inline_err |= UNKDUP_ERR;
+			}
 	}
 
 	for(j=1; j<argc; j++){
@@ -317,8 +326,11 @@ char	*argv[];
 	/*
 	check if any files were named as arguments
 	*/
-	if (num_files == 0)
+	if (num_files == 0) {
+		if (debug)
+			printf(gettext("Missing file argument.\n"));
 		inline_err |= FILARG_ERR;
+	}
 	/*
 	check for error in command line.
 	*/
@@ -382,14 +394,24 @@ char	*c_name;
 
 	infile_err = goods = goodt = goodn = hadmflag = 0;
 	s_init(&gpkt,c_path);
-	if (!sccsfile(c_path) || (gpkt.p_iop = fopen(c_path, "rb")) == NULL)
+	if (!sccsfile(c_path) || (gpkt.p_iop = fopen(c_path, "rb")) == NULL) {
+		if (debug) {
+			if (!sccsfile(c_path))
+				printf(gettext("Not a sccs file '%s'.\n"), c_path);
+			else
+				printf(gettext("Cannot open '%s'.\n"), c_path);
+		}
 		infile_err |= FILENAM_ERR;
-	else {
+	} else {
 		l = get_line(&gpkt);		/* read first line in file */
 		/*
 		check that it is header line.
 		*/
 		if (l == NULL || *l++ != CTLCHAR || *l++ != HEAD) {
+			if (debug)
+				printf(
+				gettext("Corrupted first line in file '%s'.\n"),
+					c_path);
 			infile_err |= CORRUPT_ERR;
 		}
 		else {
@@ -403,8 +425,13 @@ char	*c_name;
 				/*
 				check for invalid or ambiguous SID.
 				*/
-				if (invalid(c_sid))
+				if (invalid(c_sid)) {
+					if (debug)
+						printf(gettext(
+						"Invalid SID '%s'.\n"),
+							c_sid);
 					infile_err |= INVALSID_ERR;
+				}
 			/*
 			read delta table checking for errors and/or
 			SID.
@@ -412,6 +439,10 @@ char	*c_name;
 			if (do_delt(&gpkt,goods,c_sid)) {
 				fclose(gpkt.p_iop);
 				gpkt.p_iop = NULL;
+				if (debug)
+					printf(gettext(
+					"Invalid delta table in '%s'.\n"),
+							c_path);
 				infile_err |= CORRUPT_ERR;
 				return;
 			}
@@ -442,23 +473,44 @@ char	*c_name;
 				if (*(--l) != BUSERTXT) {
 					fclose(gpkt.p_iop);
 					gpkt.p_iop = NULL;
+					if (debug)
+						printf(gettext(
+						"Flag section error in '%s'.\n"),
+							c_path);
 					infile_err |= CORRUPT_ERR;
 					return;
 				}
 				/*
 				check if 'y' flag matched '-y' arg value.
 				*/
-				if (!goodt && HADY)
+				if (!goodt && HADY) {
+					if (debug)
+						printf(gettext(
+						"Missmatch between %cY%c and '%s' in '%s'.\n"),
+							'%', '%', c_type,
+							c_path);
 					infile_err |= TYPE_ERR;
+				}
 				/*
 				check if 'm' flag matched '-m' arg value.
 				*/
 				if (HADM && !hadmflag) {
-					if (!equal(auxf(sname(c_path),'g'),c_name))
+					if (!equal(auxf(sname(c_path),'g'),c_name)) {
+						if (debug)
+							printf(gettext(
+							"No 'm' flag in '%s'.\n"),
+							c_path);
+						infile_err |= NAME_ERR;
+					}
+				}
+				else if (HADM && hadmflag && !goodn) {
+						if (debug)
+							printf(gettext(
+							"Missmatch between %cM%c and '%s' in '%s'.\n"),
+							'%', '%', c_name,
+							c_path);
 						infile_err |= NAME_ERR;
 				}
-				else if (HADM && hadmflag && !goodn)
-						infile_err |= NAME_ERR;
 			}
 			else read_to(BUSERTXT,&gpkt);
 			read_to(EUSERTXT,&gpkt);
@@ -656,10 +708,18 @@ register struct packet *pkt;
 	/* check end of file condition */
 	if (eof && (used == 0)) {
 		if (!pkt->p_chkeof) {
+			if (debug)
+				printf(gettext(
+					"Incomplete delta table in '%s'.\n"),
+							pkt->p_file);
 			infile_err |= CORRUPT_ERR;
 		}
 		if (pkt->do_chksum && (pkt->p_chash ^ pkt->p_ihash)&0xFFFF) {
 		   if (pkt->do_chksum && (pkt->p_uchash ^ pkt->p_ihash)&0xFFFF) {
+			if (debug)
+				printf(gettext(
+				"Invalid checksum in '%s'.\n"),
+							pkt->p_file);
 		   	infile_err |= CORRUPT_ERR;
 		   }
 		}
@@ -712,6 +772,10 @@ register struct packet *pkt;
 			continue;
 		else {
 			if (!((iord = *p++) == INS || iord == DEL || iord == END)) {
+				if (debug)
+					printf(gettext(
+					"Invalid control in weave data for '%s'.\n"),
+								pkt->p_file);
 				infile_err |= CORRUPT_ERR;
 				return(0);
 			}
@@ -731,7 +795,11 @@ register struct packet *pkt;
 				add_q(pkt,ser,iord == INS ? NO : 0,iord,0);
 		}
 	}
-	if (pkt->p_q){
+	if (pkt->p_q) {
+		if (debug)
+			printf(gettext(
+			"Incomplete weave data for '%s'.\n"),
+				pkt->p_file);
 		infile_err |= CORRUPT_ERR;
 	}
 	return(0);
@@ -750,8 +818,13 @@ int user;
 	for (cur = (struct queue *) (&pkt->p_q); (cur = (prev = cur)->q_next) != NULL; )
 		if (cur->q_sernum <= ser)
 			break;
-	if (cur && cur != (struct queue *)&pkt->p_q && cur->q_sernum == ser)
+	if (cur && cur != (struct queue *)&pkt->p_q && cur->q_sernum == ser) {
+		if (debug)
+			printf(gettext(
+			"Duplicate delta block in weave data for '%s'.\n"),
+				pkt->p_file);
 		infile_err |= CORRUPT_ERR;
+	}
 	prev->q_next = q = (struct queue *) fmalloc(sizeof(*q));
 	q->q_next = cur;
 	q->q_sernum = ser;
@@ -784,6 +857,10 @@ int ser;
 		set_keep(pkt);
 	}
 	else {
+		if (debug)
+			printf(gettext(
+			"Incomplete delta block in weave data for '%s'.\n"),
+				pkt->p_file);
 		infile_err |= CORRUPT_ERR;
 	}
 }
@@ -897,8 +974,13 @@ register char *d_sid;
 	}
 	if (pkt->p_line[1] != BUSERNAM)
 		return(1);
-	if (HADR && !goods && !(infile_err & INVALSID_ERR))
+	if (HADR && !goods && !(infile_err & INVALSID_ERR)) {
+		if (debug)
+			printf(gettext(
+			"Nonexistent SID '%s'.\n"),
+					d_sid);
 		infile_err |= NONEXSID_ERR;
+	}
 	return(0);
 }
 

@@ -18,7 +18,8 @@
 .\"
 .\" CDDL HEADER END
 .\" Copyright (c) 1999, Sun Microsystems, Inc.
-.TH sccs-prs 1 "1 Nov 1999" "SunOS 5.11" "User Commands"
+.\" Copyright 2007-2011 J. Schilling
+.TH sccs-prs 1 "2011/04/03" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs-prs, prs \- display selected portions of an SCCS history
 .SH SYNOPSIS
@@ -47,52 +48,27 @@ In the absence of options, \fBprs\fR displays the delta table (version log). In 
 
 .sp
 .ne 2
-.mk
-.na
+.TP 13
 \fB\fB-a\fR \fR
-.ad
-.RS 14n
-.rt  
 Includes all deltas, including those marked as removed (see 
 \fBsccs-rmdel\fR(1)). 
-.sp
-
-.RE
 
 .sp
 .ne 2
-.mk
-.na
+.TP
 \fB\fB-e\fR \fR
-.ad
-.RS 14n
-.rt  
 Requests information for all deltas created \fIearlier\fR than, and including, the delta indicated with \fB-r\fR or \fB-c\fR. 
-.sp
-
-.RE
 
 .sp
 .ne 2
-.mk
-.na
+.TP
 \fB\fB-l\fR \fR
-.ad
-.RS 14n
-.rt  
 Requests information for all deltas created \fIlater\fR than, and including, the delta indicated with \fB-r\fR or \fB-c\fR. 
-.sp
-
-.RE
 
 .sp
 .ne 2
-.mk
-.na
+.TP
 \fB\fB-c\fR\fIdate-time\fR \fR
-.ad
-.RS 14n
-.rt  
 Either options \fB-e \fRor \fB-l \fRmust be used with this option. \fB-c\fR\fIdate-time\fR displays information on the deltas checked in either prior to and including the date and time indicated by the \fIdate-time\fR argument (option \fB-e\fR); or later than and including the date and time indicated (option \fB-l\fR). \fIdate-time\fR takes the form:
 .sp
 
@@ -103,35 +79,25 @@ Either options \fB-e \fRor \fB-l \fRmust be used with this option. \fB-c\fR\fIda
 .sp
 Units omitted from the indicated date and time default to their maximum possible values; that is \fB-c\fR\fB7502\fR is equivalent to \fB-c\fR\fB750228235959\fR. Any number of non-numeric characters may separate the various 2 digit components.  If white-space characters occur, the \fIdate-time\fR specification must be quoted. Values of \fIyy\fR in the range \fB69\(mi99\fR refer to the twentieth
 century. Values in the range of \fB00\(mi68\fR refer to the twenty-first century.
-.sp
-
-.RE
 
 .sp
 .ne 2
-.mk
-.na
+.TP
 \fB\fB-d\fR\fIdataspec\fR \fR
-.ad
-.RS 14n
-.rt  
 Produce a report according to the indicated data specification. \fIdataspec\fR consists of a (quoted) text string that includes embedded data keywords of the form: `\fB:\fR\fIkey\fR\fB:\fR' (see \fBData Keywords\fR, below). \fBprs\fR expands these keywords in the output it produces. To specify a \fBTAB\fR character in the output, use \fB\et\fR; to specify a NEWLINE in the output, use \fB\en\fR\&. 
-.sp
-
-.RE
 
 .sp
 .ne 2
-.mk
-.na
+.TP
 \fB\fB-r\fR\fIsid\fR \fR
-.ad
-.RS 14n
-.rt  
 Specifies the \fBSCCS\fR delta \fBID\fR (\fBSID\fR) of the delta for which information is desired. If no  \fBSID\fR is specified, the most recently created delta is used.
-.sp
 
-.RE
+.ne 3
+.TP
+.B \-V
+Prints the
+.B prs
+version number string and exists.
 
 .SH USAGE
 

@@ -1,7 +1,7 @@
-/* @(#)scsi-apollo.c	1.7 06/11/26 Copyright 1997,2000 J. Schilling */
+/* @(#)scsi-apollo.c	1.8 11/03/07 Copyright 1997,2000 J. Schilling */
 #ifndef lint
 static	char __sccsid[] =
-	"@(#)scsi-apollo.c	1.7 06/11/26 Copyright 1997,2000 J. Schilling";
+	"@(#)scsi-apollo.c	1.8 11/03/07 Copyright 1997,2000 J. Schilling";
 #endif
 /*
  *	Code to support Apollo Domain/OS 10.4.1
@@ -41,7 +41,7 @@ static	char __sccsid[] =
  *	Choose your name instead of "schily" and make clear that the version
  *	string is related to a modified source.
  */
-LOCAL	char	_scg_trans_version[] = "scsi-apollo.c-1.7";	/* The version for this transport */
+LOCAL	char	_scg_trans_version[] = "scsi-apollo.c-1.8";	/* The version for this transport */
 
 
 #define	MAX_SCG		1	/* Max # of SCSI controllers */
@@ -538,6 +538,10 @@ scgo_send(scgp)
 									op_status.op_status);
 				exit(EXIT_FAILURE);
 			}
+			/*
+			 * Is this the right place to copy the SCSI status byte?
+			 */
+			sp->u_scb.cmd_scb[0] = op_status.op_status;
 			break;
 		/*
 		 * Handle recognized error conditions by copying the error

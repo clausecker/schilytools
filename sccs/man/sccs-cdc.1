@@ -18,7 +18,8 @@
 .\"
 .\" CDDL HEADER END
 .\" Copyright (c) 1999, Sun Microsystems, Inc.
-.TH sccs-cdc 1 "1 Nov 1999" "SunOS 5.11" "User Commands"
+.\" Copyright 2007-2011 J. Schilling
+.TH sccs-cdc 1 "2011/04/03" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs-cdc, cdc \- change the delta commentary of an SCCS delta
 .SH SYNOPSIS
@@ -67,28 +68,15 @@ argument, each line of the standard input is taken as the name of an \fBSCCS\fR 
 .sp
 
 .SH OPTIONS
-
 .sp
-.ne 2
-.mk
-.na
-\fB\fB-r\fR\fIsid\fR\fR
-.ad
-.RS 13n
-.rt  
+.ne 3
+.TP 13
+.BI \-r sid
 Specify the \fBSID\fR of the delta to change.
 .sp
-
-.RE
-
-.sp
-.ne 2
-.mk
-.na
-\fB\fB-m\fR\fImr-list\fR\fR
-.ad
-.RS 13n
-.rt  
+.ne 3
+.TP
+.BI \-m mr-list
 Specify one or more MR numbers to add or delete. When specifying
 more than one MR on the command line, \fImr-list\fR
 takes the form of a quoted, space-separated list. To delete an MR number,
@@ -100,26 +88,23 @@ a program to validate the MR numbers.  If that validation program returns
 a non-zero exit status, \fBcdc\fR terminates and the delta
 commentary remains unchanged.
 .sp
-
-.RE
+.ne 3
+.TP
+.B \-V
+Prints the
+.B cdc
+version number string and exists.
 
 .sp
-.ne 2
-.mk
-.na
-\fB\fB-y\fR[\fIcomment\fR]\fR
-.ad
-.RS 13n
-.rt  
+.ne 3
+.TP
+.BI \-y [comment]
 Use \fIcomment\fR as the annotation
 in the delta commentary. The previous comments are retained; the \fIcomment\fR is added along with a notation that the commentary
 was changed. A  null \fIcomment\fR leaves the commentary
 unaffected. If \fB-y\fR is not specified and the standard input
 is a terminal, \fBcdc\fR prompts with \fBcomments?\fR
 for the text of the notation to be added.  An unescaped \fBNEWLINE\fR character terminates the annotation text.
-.sp
-
-.RE
 
 .SH EXAMPLES
 .LP

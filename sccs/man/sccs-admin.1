@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sccs-admin.1	1.5 08/09/10 portions Copyright 2008 J. Schilling */
+.\" @(#)sccs-admin.1	1.8 11/04/03 portions Copyright 2007-2011 J. Schilling */
 .\" CDDL HEADER START
 .\"
 .\" The contents of this file are subject to the terms of the
@@ -19,7 +19,7 @@
 .\"
 .\" CDDL HEADER END
 .\"  Copyright (c) 2002, Sun Microsystems, Inc. All Rights Reserved.
-.TH sccs-admin 1 "30 Sep 2002" "SunOS 5.11" "User Commands"
+.TH sccs-admin 1 "2011/04/03" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs-admin, admin \- create and administer SCCS history files
 .SH SYNOPSIS
@@ -166,6 +166,9 @@ flag.
 This flag is a
 .B \s-1SCHILY\s+1
 extension that does not exist in historic
+.B sccs 
+implementations. 
+
 .ne 3
 .TP
 \fB\fBy\fR[\fIvalue\fR\fB,\fR[\fIvalue\fR]]\fR
@@ -208,6 +211,13 @@ Specifies the release for the initial delta. \fB-r\fR may be used only in conjun
 \fB\fB-t\fR\fB[\fR\fIdescription-file\fR\fB]\fR\fR
 Inserts descriptive text from the file \fIdescription-file\fR. When  \fB-t\fR is used in conjunction with \fB-n\fR, or \fB-i\fR to initialize a new s.file, the \fIdescription-file\fR must be supplied. When modifying the description for an existing file: a \fB-t\fR option without
 a \fIdescription-file\fR removes the descriptive text, if any; a \fB-t\fR option with a \fIdescription-file\fR replaces the existing text.
+.sp
+.ne 3
+.TP
+.B \-V
+Prints the
+.B admin
+version number string and exists.
 .sp
 .ne 3
 .TP

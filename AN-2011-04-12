@@ -1,0 +1,97 @@
+New features with AN-2011-04-12:
+
+This is the first localization step for the schily source consolidation. Many
+programs now (hopefully) call gettext() for all strings that need localization.
+
+-	The next step will include dgettext() calls for the libraries and the
+	missing programs
+
+-	The following step will include the extracted strings
+
+-	The last step will include German translations and install support
+	for the resulting binary message object files.
+
+----------> Please test and report compilation problems! <---------
+
+***** NOTE: As mentioned since 2004, frontends to the tools should *****
+*****		call all programs in the "C" locale		   *****
+*****		by e.g. calling: LC_ALL=C cdrecord ....		   *****
+*****		unless these frontends support localized strings   *****
+*****		used by the cdrtools with NLS support.		   *****
+
+
+-	Fixed a typo in star/buffer.c that caused star to dump core
+	on Linux with -c -mulvivol due to the unusual memory layout found
+	on Linux.
+
+-	The star -multivol buffer management now mallocs less memory.
+	Before it malloc()d the same size as the FIFO size, now it only
+	malloc()s 2 * bufsize
+
+-	star -c -find is now interruptable by ^C
+
+-	star -x -U -k now works as well as star -x -U -keep-old
+
+-	Some typo fixes in star.4 man page
+
+-	Star -sparse -force-hole now archives all files as sparse files in case
+	that they at least contain 512 block aligned bytes of nulls.
+	Thanks to markk@clara.co.uk
+
+-	star -find now removes leading "./" in filenames as star does in
+	other cases.
+
+-	star -r/-u now correctly depends on the old archive format type.
+
+-	cdrecord now warns and aborts if someone tries to write more CD-Text
+	for a single language than permitted by the standard.
+
+-	Fixed several typos in the cdda2wav man page. Thanks to John Bradshaw
+	for reporting.
+
+-	Added several forgotten alias names for options to the mkisofs
+	man page.
+
+-	cdrtools version bumped to 3.01a04
+
+-	hdump(1) / od(1) now correctly indents the output if single byte
+	and floatingoint output was requested at the same time.
+
+-	A new program was added: patch
+	This is based on the last patch(1) implementation from Larry Wall
+	and in contrary to the GNU fork from the same software, it tries to be
+	closer to the POSIX standard requirements.
+
+-	libscg/scsi-bsd.c tries to better support the SCSI sense data
+	length in the recently upgrades in FreeBSDs ATAPI/CAM module.
+
+-	try to keep SCSI status and error codes when doing a manual GET SENSE
+	on AIX, UnixWare, VMS, Linux Parallel Port, Apollo Domain
+
+-	The val(1) cmmand now includes a -T (debug) option that allows to get 
+	much better mesages when a SCCS history file is corrupted. Use:
+	sccs val -T filename
+
+-	The SCCS man pages have been enhanced in order to include the -V (retrieve
+	program version) option.
+
+-	The man page sccsfile.1 now mentiones the new 'x' flag for the enhanced SCCS
+	keywords.
+
+-	The man page for sccs.1 and val.1 now mention the -T option
+
+-	Added missing directories to the SCCS package description file.
+
+-	The sccsdiffs script now includes a -V option
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.isdn.cs.tu-berlin.de, js@cs.tu-berlin.de
+	joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

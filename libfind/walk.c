@@ -1,13 +1,13 @@
-/* @(#)walk.c	1.39 10/02/28 Copyright 2004-2010 J. Schilling */
+/* @(#)walk.c	1.40 11/04/12 Copyright 2004-2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)walk.c	1.39 10/02/28 Copyright 2004-2010 J. Schilling";
+	"@(#)walk.c	1.40 11/04/12 Copyright 2004-2011 J. Schilling";
 #endif
 /*
  *	Walk a directory tree
  *
- *	Copyright (c) 2004-2010 J. Schilling
+ *	Copyright (c) 2004-2011 J. Schilling
  *
  *	In order to make treewalk() thread safe, we need to make it to not use
  *	chdir(2)/fchdir(2) which is process global.
@@ -146,8 +146,15 @@ treewalk(nm, fn, state)
 		return (-1);
 	}
 
-	if (nm == NULL || nm[0] == '\0')
+	if (nm == NULL || nm[0] == '\0') {
 		nm = ".";
+	} else if (state->walkflags & WALK_STRIPLDOT) {
+		if (nm[0] == '.' && nm[1] == '/') {
+			for (nm++; nm[0] == '/'; nm++)
+				/* LINTED */
+				;
+		} 
+	}
 
 	vars.Curdir = ___malloc(DIR_INCR, "path buffer");
 	vars.Curdir[0] = 0;
@@ -201,8 +208,16 @@ walk(nm, sf, fn, state, last)
 	state->base = otail;
 	state->flags = 0;
 	if (varp->Curdtail == 0 || varp->Curdir[varp->Curdtail-1] == '/') {
-		p = strcatl(&varp->Curdir[varp->Curdtail], nm, (char *)0);
-		varp->Curdtail = p - varp->Curdir;
+		if (varp->Curdtail == 0 &&
+		    (state->walkflags & WALK_STRIPLDOT) &&
+		    (nm[0] == '.' && nm[1] == '\0')) {
+			varp->Curdir[0] = '.';
+			varp->Curdir[1] = '\0';
+		} else {
+			p = strcatl(&varp->Curdir[varp->Curdtail], nm,
+								(char *)0);
+			varp->Curdtail = p - varp->Curdir;
+		}
 	} else {
 		p = strcatl(&varp->Curdir[varp->Curdtail], "/", nm, (char *)0);
 		varp->Curdtail = p - varp->Curdir;
@@ -401,8 +416,15 @@ type_known:
 			if (ret < 0)		/* Do not call callback	    */
 				goto out;	/* func past fatal errors   */
 		}
-		if ((state->walkflags & WALK_DEPTH) != 0)
+		if ((state->walkflags & WALK_DEPTH) != 0) {
+			if (varp->Curdtail == 0 &&
+			    (state->walkflags & WALK_STRIPLDOT) &&
+			    (nm[0] == '.' && nm[1] == '\0')) {
+				varp->Curdir[0] = '.';
+				varp->Curdir[1] = '\0';
+			}
 			ret = (*fn)(varp->Curdir, &fs, type, state);
+		}
 	} else {
 		/*
 		 * Any other non-directory and non-symlink file type.

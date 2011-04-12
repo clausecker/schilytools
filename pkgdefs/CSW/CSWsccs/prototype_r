@@ -1,8 +1,10 @@
 i pkginfo
 i depend
 i copyright
+d none /opt ? ? ?
 #d none /opt/csw ? ? ?
 d none /opt/csw 0755 root bin
+d none /opt/csw/bin 0755 root bin
 s none /opt/csw/bin/sccs=../ccs/bin/sccs
 d none /opt/csw/ccs 0775 root bin
 d none /opt/csw/ccs/lib 0775 root bin
@@ -57,6 +59,7 @@ d none /opt/csw/xpg4/bin 0775 root bin
 f none /opt/csw/xpg4/bin/sccs 0755 root bin
 f none /opt/csw/xpg4/bin/delta 0755 root bin
 f none /opt/csw/xpg4/bin/get 0755 root bin
+d none /opt/csw/share 0755 root bin
 #d none /opt/csw/share/man ? ? ?
 #d none /opt/csw/share/man/man1 ? ? ?
 d none /opt/csw/share/man 0755 root bin

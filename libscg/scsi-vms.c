@@ -1,7 +1,7 @@
-/* @(#)scsi-vms.c	1.34 06/11/26 Copyright 1997 J. Schilling */
+/* @(#)scsi-vms.c	1.35 11/03/07 Copyright 1997 J. Schilling */
 #ifndef lint
 static	char __sccsid[] =
-	"@(#)scsi-vms.c	1.34 06/11/26 Copyright 1997 J. Schilling";
+	"@(#)scsi-vms.c	1.35 11/03/07 Copyright 1997 J. Schilling";
 #endif
 /*
  *	Interface for the VMS generic SCSI implementation.
@@ -55,7 +55,7 @@ static	char __sccsid[] =
  *	Choose your name instead of "schily" and make clear that the version
  *	string is related to a modified source.
  */
-LOCAL	char	_scg_trans_version[] = "scsi-vms.c-1.34";	/* The version for this transport*/
+LOCAL	char	_scg_trans_version[] = "scsi-vms.c-1.35";	/* The version for this transport*/
 
 #define	VMS_MAX_DK	4		/* DK[A-D] VMS device controllers */
 #define	VMS_MAX_GK	4		/* GK[A-D] VMS device controllers */
@@ -556,6 +556,8 @@ scgo_send(scgp)
 	SCSI		*scgp;
 {
 	struct scg_cmd	*sp = scgp->scmd;
+	int	error = sp->error;
+	Uchar	status = sp->u_scb.cmd_scb[0];
 	int	ret;
 
 	if (scgp->fd < 0) {
@@ -563,9 +565,11 @@ scgo_send(scgp)
 		return (0);
 	}
 	ret = do_scg_cmd(scgp, sp);
-	if (ret < 0)
-		return (ret);
-	if (sp->u_scb.cmd_scb[0] & 02)
-		ret = do_scg_sense(scgp, sp);
+	if (ret >= 0) {
+		if (sp->u_scb.cmd_scb[0] & 02)
+			ret = do_scg_sense(scgp, sp);
+	}
+	sp->error = error;
+	sp->u_scb.cmd_scb[0] = status;
 	return (ret);
 }

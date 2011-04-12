@@ -1,8 +1,8 @@
-/* @(#)mkisofs.c	1.261 10/12/20 joerg */
+/* @(#)mkisofs.c	1.262 11/03/08 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)mkisofs.c	1.261 10/12/20 joerg";
+	"@(#)mkisofs.c	1.262 11/03/08 joerg";
 #endif
 /*
  * Program mkisofs.c - generate iso9660 filesystem  based upon directory
@@ -982,9 +982,9 @@ LOCAL const struct mki_option mki_options[] =
 	{{"boot-info-table~", NULL, (getpargfun)get_boot_table },
 	__("Patch boot image with info table")},
 	{{"XA", &use_XA },
-	__("Generate XA directory attruibutes")},
+	__("Generate XA directory attributes")},
 	{{"xa", &rationalize_xa },
-	__("Generate rationalized XA directory attruibutes")},
+	__("Generate rationalized XA directory attributes")},
 	{{"z,transparent-compression", &transparent_compression },
 	__("Enable transparent compression of files")},
 

@@ -1,13 +1,13 @@
-/* @(#)extract.c	1.137 10/08/23 Copyright 1985-2010 J. Schilling */
+/* @(#)extract.c	1.139 11/04/08 Copyright 1985-2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)extract.c	1.137 10/08/23 Copyright 1985-2010 J. Schilling";
+	"@(#)extract.c	1.139 11/04/08 Copyright 1985-2011 J. Schilling";
 #endif
 /*
  *	extract files from archive
  *
- *	Copyright (c) 1985-2010 J. Schilling
+ *	Copyright (c) 1985-2011 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -352,7 +352,9 @@ extracti(info, imp)
 		return (FALSE);
 	}
 	/*
-	 * If uncond is set, then newer() doesn't call getinfo(&cinfo)
+	 * If uncond is set and neither keep_old nor refresh_old is set,
+	 * then newer() doesn't call getinfo(&cinfo).
+	 * As newer() calls getinfo(&cinfo), it also checks for refresh_old.
 	 */
 	if (newer(info, &cinfo) && !(xdir && is_dir(info))) {
 		void_file(info);
@@ -526,7 +528,7 @@ newer(info, cinfo)
 	FINFO	*cinfo;
 {
 
-	if (uncond)
+	if (uncond && !keep_old && !refresh_old)
 		return (FALSE);
 	if (!_getinfo(info->f_name, cinfo)) {
 		if (refresh_old) {
@@ -540,6 +542,9 @@ newer(info, cinfo)
 			errmsgno(EX_BAD, "file '%s' exists.\n", info->f_name);
 		return (TRUE);
 	}
+	if (uncond)
+		return (FALSE);
+
 	if (xdot) {
 		if (info->f_name[0] == '.' &&
 		    (info->f_name[1] == '\0' ||

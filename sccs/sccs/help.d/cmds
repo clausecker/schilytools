@@ -117,7 +117,7 @@ read-only.
 
 -val
 	val -
-	val [-s] [-r<SID>] [-m<name>] [-y<type>] file ...
+	val [-T] [-s] [-r<SID>] [-m<name>] [-y<type>] file ...
 -vc
 	vc [-a] [-t] [-c<char>] [-s] [keyword=value ... keyword=value]
 -prs
@@ -187,7 +187,7 @@ Keyword       Data Item            Section           Type           Type
  :PN:   Pathname                     N/A           pathname          S
 
 -sccs
-	  sccs [-R] [-r] [-d<rootprefix>] [-p<subdir>]
+	  sccs [-R] [-T] [-r] [-d<rootprefix>] [-p<subdir>]
 		subcommand [option ...] [filename ...]
 
 	(do 'help sccs_subcmds' for description of sccs subcommands)

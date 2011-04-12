@@ -19,7 +19,8 @@
 .\" CDDL HEADER END
 .\" Copyright (c) 2002, Sun Microsystems, Inc. All Rights Reserved.
 .\" Copyright 1989 AT&T
-.TH sccsfile 4 "30 Sep 2002" "SunOS 5.11" "File Formats"
+.\"  Copyright 2007-2011 J. Schilling
+.TH sccsfile 4 "2011/04/03" "SunOS 5.11" "File Formats"
 .SH NAME
 sccsfile \- format of an SCCS history file
 .SH DESCRIPTION
@@ -198,6 +199,30 @@ allows files that contain binary data to be checked in.
 .TP
 .BI "^Af s " nnn
 The number of lines to be scanned for keyword expansion. 
+
+.ne 3
+.TP
+.BR "^Af x SCHILY" | 0
+Enable 
+.B sccs
+extensions that are not implemented in classical 
+.B sccs
+variants. If the
+.B `x'
+flag is enabled, the keywords
+.BR %\&d\&% ", " %\&e\&% ", " %\&g\&% 
+and
+.B %\&h\&%
+are expanded even though not explicitely enabled by the
+.B `y'
+flag.
+.sp
+This flag is a
+.B \s-1SCHILY\s+1
+extension that does not exist in historic
+.B sccs 
+implementations. 
+
 .ne 3
 .TP
 .BI "^Af y " "val .\|.\|.

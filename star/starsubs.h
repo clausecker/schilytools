@@ -1,8 +1,8 @@
-/* @(#)starsubs.h	1.112 10/08/27 Copyright 1996-2010 J. Schilling */
+/* @(#)starsubs.h	1.113 11/04/12 Copyright 1996-2011 J. Schilling */
 /*
  *	Prototypes for star subroutines
  *
- *	Copyright (c) 1996-2010 J. Schilling
+ *	Copyright (c) 1996-2011 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -34,6 +34,7 @@ extern	int	getnum		__PR((char *arg, long *valp));
 extern	int	getbnum		__PR((char *arg, Llong *valp));
 extern	int	getknum		__PR((char *arg, Llong *valp));
 extern	void	copy_create	__PR((int ac, char *const *av));
+extern	void	star_verifyopts	__PR((void));
 
 /*
  * chdir.c

@@ -1,13 +1,13 @@
-/* @(#)cdtext.c	1.17 10/12/19 Copyright 1999-2010 J. Schilling */
+/* @(#)cdtext.c	1.20 11/04/03 Copyright 1999-2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)cdtext.c	1.17 10/12/19 Copyright 1999-2010 J. Schilling";
+	"@(#)cdtext.c	1.20 11/04/03 Copyright 1999-2011 J. Schilling";
 #endif
 /*
  *	Generic CD-Text support functions
  *
- *	Copyright (c) 1999-2010 J. Schilling
+ *	Copyright (c) 1999-2011 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -100,6 +100,7 @@ typedef struct textargs {
 	txtpack_t	*tp;
 	char		*p;
 	txtsize_t	*tsize;
+	txtpack_t	*endp;
 	int		seqno;
 } txtarg_t;
 
@@ -324,7 +325,8 @@ packtext(tracks, trackp)
 	struct textpack *tp;
 	struct textsizes tsize;
 	txtarg_t targ;
-	char	sbuf[256*18];
+	char	sbuf[256*18];	/* Sufficient for a single language block */
+				/* Max 8 languages in total... */
 
 	fillbytes(sbuf, sizeof (sbuf), 0);
 	fillbytes(&tsize, sizeof (tsize), 0);
@@ -346,6 +348,7 @@ packtext(tracks, trackp)
 	targ.tp = tp;
 	targ.p = NULL;
 	targ.tsize = &tsize;
+	targ.endp = (struct textpack *)&sbuf[256 * sizeof (struct textpack)];
 	targ.seqno = 0;
 
 	for (type = 0; type <= 0x0E; type++) {
@@ -442,6 +445,11 @@ fillpacks(ap, from, len, track_no, pack_type)
 	p  = ap->p;
 	charpos = 0;
 	do {
+		if (tp >= ap->endp) {
+			comerrno(EX_BAD,
+				_("CD-Text size overflow in track %d.\n"),
+				track_no);
+		}
 		if (p == 0) {
 			p = tp->text;
 			tp->pack_type = pack_type;

@@ -18,7 +18,8 @@
 .\"
 .\" CDDL HEADER END
 .\" Copyright (c) 1999, Sun Microsystems, Inc.
-.TH sccs-comb 1 "1 Nov 1999" "SunOS 5.11" "User Commands"
+.\" Copyright 2007-2011 J. Schilling
+.TH sccs-comb 1 "2011/04/03" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs-comb, comb \- combine SCCS deltas
 .SH SYNOPSIS
@@ -57,29 +58,17 @@ The following options are supported:
 
 .sp
 .ne 2
-.mk
-.na
+.TP 13
 \fB\fB-o\fR\fR
-.ad
-.RS 12n
-.rt  
 For each `\fBget \fR\fB-e\fR'
 generated, access the reconstructed file at the release of the delta to
 be created. Otherwise, the reconstructed file is accessed at the most recent
 ancestor. The use of \fB-o\fR may decrease the size of the reconstructed \fBs.\fRfile. It may also alter the shape of the delta tree of the original
 file.
 .sp
-
-.RE
-
-.sp
 .ne 2
-.mk
-.na
+.TP
 \fB\fB-s\fR\fR
-.ad
-.RS 12n
-.rt  
 Generate scripts
 to gather statistics, rather than combining deltas. When run, the shell
 scripts report: the file name, size (in blocks) after combining, original
@@ -95,36 +84,25 @@ This option can be used to calculate the space that will be saved,
 before actually doing the combining.
 .sp
 
-.RE
-
 .sp
 .ne 2
-.mk
-.na
+.TP
 \fB\fB-c\fR\fIsid-list\fR\fR
-.ad
-.RS 12n
-.rt  
 Include the indicated list of deltas.  All other deltas
 are omitted. \fIsid-list\fR is a comma-separated list
 of \fBSCCS\fR delta \fBIDs\fR (SIDs). To specify a range of deltas, use a `\fB\(mi\fR' separator instead of a comma, between two \fBSIDs\fR in the list.
 .sp
-
-.RE
-
-.sp
 .ne 2
-.mk
-.na
+.TP
 \fB\fB-p\fR\fISID\fR\fR
-.ad
-.RS 12n
-.rt  
 The \fBSID\fR of the oldest delta
 to be preserved.
-.sp
-
-.RE
+.ne 3
+.TP
+.B \-V
+Prints the
+.B comb
+version number string and exists.
 
 .SH FILES
 

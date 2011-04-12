@@ -1,13 +1,13 @@
-/* @(#)buffer.c	1.158 10/08/23 Copyright 1985, 1995, 2001-2010 J. Schilling */
+/* @(#)buffer.c	1.161 11/02/11 Copyright 1985, 1995, 2001-2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)buffer.c	1.158 10/08/23 Copyright 1985, 1995, 2001-2010 J. Schilling";
+	"@(#)buffer.c	1.161 11/02/11 Copyright 1985, 1995, 2001-2011 J. Schilling";
 #endif
 /*
  *	Buffer handling routines
  *
- *	Copyright (c) 1985, 1995, 2001-2010 J. Schilling
+ *	Copyright (c) 1985, 1995, 2001-2011 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -59,7 +59,8 @@ static	UConst char sccsid[] =
 #include <schily/io.h>		/* for setmode() prototype */
 
 long	bigcnt	= 0;
-int	bigsize	= 0;		/* Tape block size */
+int	bigsize	= 0;		/* Tape block size (may shrink < bigbsize) */
+int	bigbsize = 0;		/* Big buffer size */
 int	bufsize	= 0;		/* Available buffer size */
 char	*bigbase = NULL;
 char	*bigbuf	= NULL;
@@ -786,6 +787,13 @@ initbuf(nblocks)
 		initfifo();
 	}
 #endif
+	/*
+	 * As bigbuf is allocated here only in case that we have no FIFO or we
+	 * are in create mode, there are no aliasing problems with bigbuf and
+	 * the shared memory in the FIFO while trying to detect the archive
+	 * format and byte swapping in read/extract modes.
+	 * Note that -r and -u currently disable the FIFO.
+	 */
 	if (!use_fifo || cvolhdr) {
 		int	pagesize = getpagesize();
 
@@ -795,27 +803,33 @@ initbuf(nblocks)
 		 * If we create multi volume archives that need volume
 		 * headers, we need additional space to prepare the
 		 * first write to a new medium after a medium change.
+		 * "bufsize" may be modified by initfifo() in the FIFO case,
+		 * so we use "bigsize" for the extra multivol buffer to
+		 * avoid allocating an unneeded huge amount of data here.
 		 */
 		if (cvolhdr)
-			bufsize *= 2;
+			bigsize *= 2;
 
+		/*
+		 * roundup(x, y), x needs to be unsigned or x+y non-genative.
+		 */
 #undef	roundup
 #define	roundup(x, y)	((((x)+((y)-1))/(y))*(y))
 
-		bigptr = bigbuf = ___malloc((size_t)bufsize+10+pagesize,
+		bigptr = bigbuf = ___malloc((size_t)bigsize+10+pagesize,
 								"buffer");
-		bigptr = bigbuf = (char *)roundup((Intptr_t)bigptr, pagesize);
-		fillbytes(bigbuf, bufsize, '\0');
-		fillbytes(&bigbuf[bufsize], 10, 'U');
+		bigptr = bigbuf = (char *)roundup((UIntptr_t)bigptr, pagesize);
+		fillbytes(bigbuf, bigsize, '\0');
+		fillbytes(&bigbuf[bigsize], 10, 'U');
 
 		if (cvolhdr) {
-			bufsize /= 2;
+			bigsize /= 2;
 			bigbase = bigbuf;
-			bigbuf = bigptr = &bigbase[bufsize];
+			bigbuf = bigptr = &bigbase[bigsize];
 		}
 	}
 	stats->nblocks = nblocks;
-	stats->blocksize = bigsize;
+	stats->blocksize = bigbsize = bigsize;
 	stats->volno = 1;
 	stats->swapflg = -1;
 }
@@ -1597,7 +1611,8 @@ prstats()
 		p = mp->end;
 	} else
 #endif
-		p = &bigbuf[bufsize];
+		p = &bigbuf[bigbsize];
+
 	if ((*p != 'U' && *p != ' ') || p[1] != 'U')
 		errmsgno(EX_BAD, "The buffer has been overwritten, please contact the author.\n");
 

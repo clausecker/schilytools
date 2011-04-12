@@ -1,5 +1,5 @@
 '\" t
-.\" @(#)cdda2wav.1	1.55 10/04/08 Copyright 1998,1999,2000 Heiko Eissfeldt, Copyright 2004-2010 J. Schilling
+.\" @(#)cdda2wav.1	1.57 11/01/23 Copyright 1998,1999,2000 Heiko Eissfeldt, Copyright 2004-2010 J. Schilling
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
 .if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
 .if t .ds u \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'u
@@ -29,8 +29,8 @@ or
 .IR directories ]
 .SH DESCRIPTION
 .B cdda2wav
-can retrieve audio tracks from CDROM drives that are
-capable of reading audio data digitally to the host via SCSI
+can retrieve audio tracks from CDROM drives which are
+capable of reading audio data digitally via SCSI
 .RB ( CDDA ).
 .LP
 As
@@ -39,7 +39,7 @@ implements strategies to work around typical defects on audio CDs it reads many 
 cannot be read by other software.
 As 
 .B cdda2wav
-may be told to use
+can use
 .B libparanoia
 (see
 .B \-paranoia
@@ -49,7 +49,7 @@ if the medium is dusty, scratched or if other problems occur.
 .LP
 As
 .B cdda2wav
-may be directed to write the audio data to stdout, it writes all it's informational output
+may be directed to write the audio data to stdout, it writes all its informational output
 to stderr by default. See
 .BI out\-fd= descriptor
 option below.
@@ -57,7 +57,7 @@ option below.
 .SS "Default settings
 .PP
 .B Cdda2wav
-defaults to reead the first audio track from the medium and the default verbose level is set to
+defaults to read the first audio track from the medium and the default verbose level is set to
 .BR "\-vtoc,summary,sectors,titles"
 and
 .B cdda2wav
@@ -68,16 +68,16 @@ To extract all audio tracks with quality verification, it is recommended to call
 .PP
 .B "cdda2wav -vall cddb=0 -paranoia -B"
 .SS "Device naming"
-Most users do not need to care about device naming at all.
+Most users do not need to care about device naming.
 If no
 .B dev=
 option was specified, 
 .B cdda2wav
 implements 
 .B auto target
-support and automagically finds the drive in case that exactly
+support and automagically finds the drive when exactly
 one CD-ROM type drive is available in the system.
-In case that more than one CD-ROM type drive exists on the system,
+When more than one CD-ROM type drive exists,
 a list of possible device name parameters may be retrieved with
 .B "cdda2wav \-scanbus
 or from the target example from the output of
@@ -158,7 +158,7 @@ for stereo recording
 .B s
 for stereo recording with both channels swapped
 .PP
-The default is to do stereo recording.
+The default is stereo recording.
 .RE
 .TP
 .BI \-C " endianess
@@ -220,8 +220,8 @@ sets the port number to be used for title lookups.
 .BI \-d " duration
 .TP
 .BI \-duration " duration
-sets recording time in seconds or frames.
-Frames (sectors) are indicated by a 'f' suffix (like 75f for 75 sectors).
+sets recording time in seconds or frames (sectors).
+Frames are indicated by a 'f' suffix (e.g. 75f for 75 sectors).
 .B 0
 sets the time for whole track.
 .sp
@@ -248,14 +248,14 @@ finds if input samples are in mono.
 .B \-g
 .TP
 .B \-gui
-formats the output to be better parsable by gui frontends.
+reformats the output for parsing by gui frontends.
 .br
 .ne 5
 .TP
 .B \-H
 .TP
 .B \-no\-infofile
-does not write an info file, a cddb file and no cdtext file.
+does not write info file, cddb file or cdtext file.
 .TP
 .BI \-i " index
 .TP
@@ -272,7 +272,7 @@ does not write to a file, it just gives information about the disc.
 .B \-md5
 enables calculation of MD-5 checksum for all audio bytes from the beginning 
 of a track. The audio header is skipped when calculating the MD-5 checksum
-to allow to compare MD-5 sums even for files with different header type.
+to allow comparison of MD-5 sums for files with different header types.
 .br
 .ne 5
 .TP
@@ -301,8 +301,8 @@ without creating output files with audio data.
 .B \-no\-textdefaults
 By default,
 .B cdda2wav
-replaces empty CD-Text fields from tracks by the related CD-Text fiel for the
-whole CD in case this is defined. If the option
+replaces empty CD-Text fields from tracks with the related CD-Text field (when
+defined) for the whole CD. If the option
 .B \-no\-textdefaults
 is used,
 .B cdda2wav
@@ -344,10 +344,10 @@ or
 .sp
 The default output format is now
 .B wav
-for all platforms as this file format has become the most
+for all platforms as it has become the most
 common format. Note that former versions of
 .B cdda2wav 
-made an exception and by default did create
+made an exception and by default created
 .B au
 type files on Solaris.
 .TP
@@ -361,7 +361,7 @@ changes pitch of audio data copied to sound device.
 .BI  \-set\-overlap " sectors
 sets the initial number of overlap
 .I sectors
-for jitter correction in non-paranoia mode. Note that overlapped reads re handled
+for jitter correction in non-paranoia mode. Note that overlapped reads are handled
 differently in paranoia mode.
 .sp
 The default overlap in non-paranoia mode is 1.
@@ -373,9 +373,9 @@ In
 mode, the latency time 
 for the  
 .B \-interactive 
-mode is increased to typically 5..10 seconds. This is caused by the fact that the
+mode is increased to typically 5..10 seconds. This is due to the
 .B paranoia
-code reads anything at least twice and in between needs to take care of emptying the
+code reading everything at least twice and having to empty the
 cache RAM of the CD-ROM drive.
 .sp
 .ne 10
@@ -507,7 +507,7 @@ titles	show the table of contents with track titles (when available)
 audio-tracks	list the audio tracks and their start sectors
 .TE
 .sp
-The default value for the verbose-level is
+The default verbose-level is
 .BR "toc,summary,sectors,titles" " ."
 .TP
 .B \-w
@@ -564,7 +564,7 @@ If no
 .B dev=
 option is present, or if the
 .B dev=
-option only contains a transport specifyer but no address,
+option only contains a transport specifier but no address,
 .B cdda2wav 
 tries to scan the SCSI address space for CD-ROM drives.
 If exactly one is found, this is used by default.
@@ -591,7 +591,7 @@ Set the kernel debug level for the kernel driver called by the
 SCSI OS abstraction layer. This option is not supported on all platforms.
 .TP
 .B \-scanbus
-Scan all SCSI devices on all SCSI busses and print the inquiry
+Scan all SCSI devices on all SCSI buses and print the inquiry
 strings. This option may be used to find SCSI address of the 
 CD/DVD-Recorder on a system.
 The numbers printed out as labels are computed by: 
@@ -670,7 +670,7 @@ Go into interactive mode that reads commands from
 .B stdin 
 and writes the textual replies to
 .BR stderr ,
-or the file descriptor that has been specified by the
+or the file descriptor specified by the
 .B out\-fd
 option.
 This mode has been introduced mainly to allow cdrecord to be called by gstreamer plugins.
@@ -721,7 +721,7 @@ By default,
 sends informational output to
 .BR stderr .
 Redirecting the informational output to a different file descriptor
-helps gui's and other programs that call
+helps guis and other programs that call
 .B cdda2wav
 via pipes.
 .TP
@@ -738,7 +738,7 @@ sends audio data to
 .B stdout
 if the output is not directed into a file.
 Redirecting the audio output to a different file descriptor
-helps gui's and other programs that call
+helps guis and other programs that call
 .B cdda2wav
 via pipes.
 .br
@@ -751,8 +751,8 @@ is used and
 .B cdda2wav
 is used to play back audio CDs in
 .B paranoia
-mode, the playback is not always uninterrupted due to lack of buffering.
-On the other side, allowing
+mode, the playback may be interrupted due to lack of buffering.
+On the other hand, allowing
 .B cdda2wav
 to fork will increase the latency time for the 
 .B \-interactive
@@ -761,7 +761,7 @@ mode.
 .B \-e
 .TP
 .B \-echo
-copies audio data to sound device from the operating system e.g.
+copies audio data to the operating system's sound device e.g.
 .BR /dev/dsp .
 .TP
 .BI "sound\-device=" sounddevice
@@ -842,7 +842,7 @@ using an account that has been created with a remote SCSI server program as
 login shell.
 .SH "EXIT STATUS"
 .B cdda2wav
-uses the following exit codes to indicate various degress of success:
+uses the following exit codes to indicate various degrees of success:
 .TS H
 center box;
 r | l.
@@ -985,7 +985,7 @@ to at most onefold speed.
 changes the pitch of all audio echoed to a sound card. Only the copy
 to the soundcard is affected, the recorded audio samples in a file
 remain the same.
-Normal pitch, which is the default, is given by 100%.
+Normal pitch, which is the default, is given by 100.
 Lower percentages correspond to lower pitches, i.e.
 \-p 50 transposes the audio output one octave lower.
 See also the script
@@ -1005,7 +1005,7 @@ selects stereo recording. Parameter s
 will swap both sound channels.
 .SS "Select maximum quality"
 .B \-x
-will set stereo, 16 bits per sample at 44.1 KHz (full CD quality).  Note
+will set stereo, 16 bits per sample at 44.1 kHz (full CD quality).  Note
 that other format options given later can change this setting.
 .SS "Select sample quality"
 .B "\-b 8"
@@ -1021,15 +1021,14 @@ aligned to 16-bit samples, so they waste some disk space.
 .BI \-r " samplerate"
 selects a sample rate.
 .I samplerate
-can be in a range between 44100 and 900. Option
+can be in a range between 900 and 44100. Option
 .B \-R
 lists all available rates.
 .SS "Select sample rate divider"
 .BI \-a " divider"
 selects a sample rate divider.
 .I divider
-can be minimally 1 and maximally 50.5 and everything between in steps of 0.5.
-Option
+can be from 1 to 50.5 in steps of 0.5.  Option
 .B \-R
 lists all available rates.
 .sp
@@ -1172,7 +1171,7 @@ format, the sample parameters can only be identified by playing the samples
 on a soundcard or similar. The default filename extension is '.cdr' or '.raw'.
 .SS "Select cdrom drive reading speed"
 .B \-S " speed"
-allows to switch the cdrom drive to a certain level of speed in order to
+allows to switch the cdrom drive to a certain speed in order to
 reduce read errors. The argument is transferred verbatim to the drive.
 Details depend very much on the cdrom drives.
 An argument of 0 for example is often the default speed of the drive,
@@ -1212,7 +1211,7 @@ The argument given has to be lower than the total number of sectors per request
 below).
 Cdda2wav will check this setting and issues a error message otherwise.
 The case of zero sectors is nice on low load situations or errorfree (perfect)
-cdrom drives and perfect (not scratched) audio cds.
+cdrom drives and perfect (unscratched) audio cds.
 .SS "Set the transfer size"
 .B \-n " sectors"
 will set the transfer size to the specified sectors per request.
@@ -1246,7 +1245,7 @@ Invert the meaning of all members in the diffopts list i.e. exclude
 all present options from an initially complete set compare list.
 When using 
 .BR csh (1)
-you might have problems to use 
+you might have problems with
 .B "!"
 due to its strange parser.
 This is why the 
@@ -1380,11 +1379,11 @@ Use a filename of
 .B \-
 to let cdda2wav output its samples to standard output.
 .PP
-Conversion to other sound formats can be done using the
+Conversion to other sound formats is possible using the
 .B sox
-program package (although the use of
+program package (it should no longer be necessary to use
 .B sox \-x
-to change the byte order of samples should be no more necessary; see option
+to change the byte order of samples; see option
 .B \-E
 to change the output byteorder).
 .PP
@@ -1417,12 +1416,12 @@ then .cddb, .cdindex and .cdtext files are generated unless suppressed by the
 option
 .BR \-H .
 They contain suitable formatted entries for submission to
-audio cd track title databases in the internet. The CDINDEX and CDDB(tm)
+audio cd track title databases in the Internet. The CDINDEX and CDDB(tm)
 systems are currently supported. For more information please visit
 www.musicbrainz.org and www.freedb.com.
 .SS "Inf files:
 .PP
-The inf files are describing the sample files and the part from the audio cd,
+The inf files describe the sample files and the part of the audio cd
 it was taken from. They are a means to transfer information to a cd burning
 program like cdrecord. For example, if the original audio cd had pre-emphasis
 enabled, and cdda2wav
@@ -1442,10 +1441,8 @@ The resampling (rate conversion code) uses polynomial interpolation, which
 is not optimal.
 .sp
 Cdda2wav should use threads.
-.sp
-Cdda2wav currently cannot sample hidden audio tracks that reside in track #1 index 0.
 .SH ACKNOWLEDGEMENTS
-Thanks goto Project MODE (http://www.mode.net/) and Fraunhofer Institut f\*ur
+Thanks go to Project MODE (http://www.mode.net/) and Fraunhofer Institut f\*ur
 integrierte Schaltungen (FhG-IIS) (http://www.iis.fhg.de/) for financial
 support.
 Plextor Europe and Ricoh Japan provided cdrom disk drives and cd burners

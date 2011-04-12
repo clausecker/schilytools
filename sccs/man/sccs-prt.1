@@ -18,7 +18,8 @@
 .\"
 .\" CDDL HEADER END
 .\" Copyright (c) 1990, Sun Microsystems, Inc.
-.TH sccs-prt 1 "5 Oct 1990" "SunOS 5.11" "User Commands"
+.\" Copyright 2007-2011 J. Schilling
+.TH sccs-prt 1 "2011/04/03" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs-prt, prt \- display delta table information from an SCCS file
 .SH SYNOPSIS
@@ -53,163 +54,86 @@ exclusive, as are \fB-c\fR and \fB-r\fR.
 
 .sp
 .ne 2
-.mk
-.na
+.TP 13
 \fB\fB-a\fR\fR
-.ad
-.RS 13n
-.rt  
 Display log entries for all deltas, including those marked as removed.
-.sp
-
-.RE
 
 .sp
 .ne 2
-.mk
-.na
+.TP
 \fB\fB-b\fR\fR
-.ad
-.RS 13n
-.rt  
 Print the body of the \fBs.\fRfile.
-.sp
-
-.RE
 
 .sp
 .ne 2
-.mk
-.na
+.TP
 \fB\fB-d\fR\fR
-.ad
-.RS 13n
-.rt  
 Print delta table entries.  This is the default.
-.sp
-
-.RE
 
 .sp
 .ne 2
-.mk
-.na
+.TP
 \fB\fB-e\fR\fR
-.ad
-.RS 13n
-.rt  
 Everything.  This option implies \fB-d\fR, \fB-i\fR, \fB-u\fR, \fB-f\fR, and \fB-t\fR.
-.sp
-
-.RE
 
 .sp
 .ne 2
-.mk
-.na
+.TP
 \fB\fB-f\fR\fR
-.ad
-.RS 13n
-.rt  
 Print the flags of each named \fBs.\fRfile.
-.sp
-
-.RE
 
 .sp
 .ne 2
-.mk
-.na
+.TP
 \fB\fB-i\fR\fR
-.ad
-.RS 13n
-.rt  
 Print the serial numbers of included, excluded, and ignored deltas.
-.sp
-
-.RE
 
 .sp
 .ne 2
-.mk
-.na
+.TP
 \fB\fB-s\fR\fR
-.ad
-.RS 13n
-.rt  
 Print only the first line of the delta table entries; that is, only up to the statistics.
-.sp
-
-.RE
 
 .sp
 .ne 2
-.mk
-.na
+.TP
 \fB\fB-t\fR\fR
-.ad
-.RS 13n
-.rt  
 Print the descriptive text contained in the \fBs.\fRfile.
-.sp
-
-.RE
 
 .sp
 .ne 2
-.mk
-.na
+.TP
 \fB\fB-u\fR\fR
-.ad
-.RS 13n
-.rt  
 Print the user-names and/or numerical group \fBIDs\fR of users allowed to make deltas.
-.sp
-
-.RE
 
 .sp
 .ne 2
-.mk
-.na
+.TP
 \fB\fB-c\fR\fIdate-time\fR\fR
-.ad
-.RS 13n
-.rt  
 Exclude delta table entries that are specified cutoff date and time. Each entry is printed as a single line,
 preceded by the name of the \fBSCCS\fR file.  This format (also produced by \fB-r\fR \fB,\fR and \fB-y\fR) makes it easy to sort multiple delta
 tables in chronological order. When both \fB-y\fR and \fB-c\fR, or \fB-y\fR and \fB-r\fR are supplied, \fBprt\fR stops printing when the first of the
 two conditions is met.
-.sp
-
-.RE
 
 .sp
 .ne 2
-.mk
-.na
+.TP
 \fB\fB-r\fR\fIdate-time\fR\fR
-.ad
-.RS 13n
-.rt  
 Exclude delta table entries that are newer than the specified cutoff date and time.
-.sp
-
-.RE
 
 .sp
 .ne 2
-.mk
-.na
+.TP
 \fB\fB-y\fR\fIsid\fR\fR
-.ad
-.RS 13n
-.rt  
 Exclude delta table entries made prior to the \fBSID\fR specified.  If no delta in the
 table has the specified SID, the entire table is printed.  If no \fBSID\fR is specified, the most recent delta is printed.
-.sp
 
-.RE
+.ne 3
+.TP
+.B \-V
+Prints the
+.B prt
+version number string and exists.
 
 .SH USAGE
 

@@ -18,7 +18,8 @@
 .\"
 .\" CDDL HEADER END
 .\" Copyright (c) 1999, Sun Microsystems, Inc.
-.TH sccs-rmdel 1 "1 Nov 1999" "SunOS 5.11" "User Commands"
+.\" Copyright 2007-2011 J. Schilling
+.TH sccs-rmdel 1 "2011/04/03" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs-rmdel, rmdel \- remove a delta from an SCCS file
 .SH SYNOPSIS
@@ -50,16 +51,16 @@ The following option is supported:
 
 .sp
 .ne 2
-.mk
-.na
+.TP 7
 \fB\fB-r\fR\fIsid\fR\fR
-.ad
-.RS 7n
-.rt  
 Remove the version corresponding to the indicated \fBSID\fR (delta).
-.sp
 
-.RE
+.ne 3
+.TP
+.B \-V
+Prints the
+.B rmdel
+version number string and exists.
 
 .SH ENVIRONMENT VARIABLES
 

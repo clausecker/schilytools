@@ -1,7 +1,7 @@
-/* @(#)scsi-unixware.c	1.38 06/11/26 Copyright 1998 J. Schilling, Santa Cruz Operation */
+/* @(#)scsi-unixware.c	1.39 11/03/07 Copyright 1998 J. Schilling, Santa Cruz Operation */
 #ifndef lint
 static	char __sccsid[] =
-	"@(#)scsi-unixware.c	1.38 06/11/26 Copyright 1998 J. Schilling, Santa Cruz Operation";
+	"@(#)scsi-unixware.c	1.39 11/03/07 Copyright 1998 J. Schilling, Santa Cruz Operation";
 #endif
 /*
  *	Interface for the SCO UnixWare SCSI implementation.
@@ -50,7 +50,7 @@ static	char __sccsid[] =
  *	Choose your name instead of "schily" and make clear that the version
  *	string is related to a modified source.
  */
-LOCAL	char	_scg_trans_version[] = "scsi-unixware.c-1.38";	/* The version for this transport*/
+LOCAL	char	_scg_trans_version[] = "scsi-unixware.c-1.39";	/* The version for this transport*/
 
 /* Max. number of scg scsibusses.  The real limit would be		*/
 /* MAX_HBA * MAX_BUS (which would be 32 * 8 on UnixWare 2.1/7.x),	*/
@@ -871,6 +871,8 @@ scgo_send(scgp)
 	SCSI		*scgp;
 {
 	struct scg_cmd	*sp = scgp->scmd;
+	int	error = sp->error;
+	Uchar	status = sp->u_scb.cmd_scb[0];
 	int	ret;
 
 	if (scgp->fd < 0) {
@@ -879,12 +881,12 @@ scgo_send(scgp)
 	}
 
 	ret = do_scg_cmd(scgp, sp);
-	if (ret < 0)
-		return (ret);
-
-	if (sp->u_scb.cmd_scb[0] & S_CKCON)
-		ret = do_scg_sense(scgp, sp);
-
+	if (ret >= 0) {
+		if (sp->u_scb.cmd_scb[0] & S_CKCON)
+			ret = do_scg_sense(scgp, sp);
+	}
+	sp->error = error;
+	sp->u_scb.cmd_scb[0] = status;
 	return (ret);
 }
 

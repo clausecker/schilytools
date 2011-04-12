@@ -1,8 +1,8 @@
-/* @(#)header.c	1.146 11/01/01 Copyright 1985, 1994-2011 J. Schilling */
+/* @(#)header.c	1.147 11/04/12 Copyright 1985, 1994-2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)header.c	1.146 11/01/01 Copyright 1985, 1994-2011 J. Schilling";
+	"@(#)header.c	1.147 11/04/12 Copyright 1985, 1994-2011 J. Schilling";
 #endif
 /*
  *	Handling routines to read/write, parse/create
@@ -113,6 +113,8 @@ extern	BOOL	print_artype;
 extern	BOOL	debug;
 extern	BOOL	numeric;
 extern	int	verbose;
+extern	BOOL	rflag;
+extern	BOOL	uflag;
 extern	BOOL	xflag;
 extern	BOOL	nflag;
 extern	BOOL	ignoreerr;
@@ -885,11 +887,21 @@ get_tcb(ptb)
 					"Unknown archive type (neither tar, nor bar/cpio).\n");
 				}
 			}
-			if (chdrtype != H_UNDEF && chdrtype != hdrtype) {
+			if ((chdrtype != H_UNDEF || (rflag || uflag)) && \
+			    chdrtype != hdrtype) {
 				errmsgno(EX_BAD, "Found: ");
 				print_hdrtype(stderr, hdrtype);
-				errmsgno(EX_BAD, "WARNING: extracting as ");
-				print_hdrtype(stderr, chdrtype);
+				if (chdrtype == H_UNDEF) {
+					chdrtype = hdrtype;
+					if (rflag || uflag) {
+						setprops(hdrtype);
+						star_verifyopts();
+					}
+				} else {
+					errmsgno(EX_BAD,
+						"WARNING: extracting as ");
+					print_hdrtype(stderr, chdrtype);
+				}
 				hdrtype = chdrtype;
 			}
 			setprops(hdrtype);

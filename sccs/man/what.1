@@ -19,7 +19,8 @@
 .\" CDDL HEADER END
 .\" Copyright (c) 2002, Sun Microsystems, Inc. All Rights Reserved.
 .\" Copyright 1989 AT&T
-.TH what 1 "30 Sep 2002" "SunOS 5.11" "User Commands"
+.\" Copyright 2007-2011 J. Schilling
+.TH what 1 "2011/04/03" "SunOS 5.11" "User Commands"
 .SH NAME
 what \- extract SCCS version information from a file
 .SH SYNOPSIS
@@ -43,16 +44,17 @@ The following option is supported:
 
 .sp
 .ne 2
-.mk
-.na
+.TP
 \fB\fB-s\fR\fR
-.ad
-.RS 4n
-.rt  
 Stops after the first occurrence of the pattern.
-.sp
 
-.RE
+.sp
+.ne 3
+.TP
+.B \-V
+Prints the
+.B what
+version number string and exists.
 
 .SH EXAMPLES
 .LP
@@ -202,7 +204,7 @@ Interface StabilityStandard
 \fBsccs-rmdel\fR(1), 
 \fBsccs-sact\fR(1), 
 \fBsccs-sccsdiff\fR(1), 
-\fB sccs-unget\fR(1), 
+\fBsccs-unget\fR(1), 
 \fBsccs-val\fR(1), 
 \fBsccsfile\fR(4), 
 \fBattributes\fR(5), 

@@ -18,7 +18,8 @@
 .\"
 .\" CDDL HEADER END
 .\" Copyright (c) 1990, Sun Microsystems, Inc.
-.TH sccs-unget 1 "11 Oct 1990" "SunOS 5.11" "User Commands"
+.\" Copyright 2007-2011 J. Schilling
+.TH sccs-unget 1 "2011/04/03" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs-unget, unget \- undo a previous get of an SCCS file
 .SH SYNOPSIS
@@ -46,42 +47,28 @@ The following options are supported:
 
 .sp
 .ne 2
-.mk
-.na
+.TP 7
 \fB\fB-n\fR\fR
-.ad
-.RS 7n
-.rt  
 Retains the retrieved version, which is otherwise removed.
-.sp
-
-.RE
 
 .sp
 .ne 2
-.mk
-.na
+.TP
 \fB\fB-s\fR\fR
-.ad
-.RS 7n
-.rt  
 Suppress display of the \fBSCCS\fR delta \fBID\fR (SID).
-.sp
-
-.RE
 
 .sp
 .ne 2
-.mk
-.na
+.TP
 \fB\fB-r\fR\fIsid\fR\fR
-.ad
-.RS 7n
-.rt  
 When multiple versions are checked out, this option specifies which pending delta to abort. A diagnostic results if the specified \fBSID\fR is ambiguous, or if it is necessary but omitted from the command line.
-.sp
 
-.RE
+.ne 3
+.TP
+.B \-V
+Prints the
+.B unget
+version number string and exists.
 
 .SH ENVIRONMENT VARIABLES
 

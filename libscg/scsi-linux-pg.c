@@ -1,7 +1,7 @@
-/* @(#)scsi-linux-pg.c	1.45 06/11/26 Copyright 1997 J. Schilling */
+/* @(#)scsi-linux-pg.c	1.46 11/03/07 Copyright 1997 J. Schilling */
 #ifndef lint
 static	char ___sccsid[] =
-	"@(#)scsi-linux-pg.c	1.45 06/11/26 Copyright 1997 J. Schilling";
+	"@(#)scsi-linux-pg.c	1.46 11/03/07 Copyright 1997 J. Schilling";
 #endif
 /*
  *	Interface for the Linux PARIDE implementation.
@@ -51,7 +51,7 @@ static	char ___sccsid[] =
  *	Choose your name instead of "schily" and make clear that the version
  *	string is related to a modified source.
  */
-LOCAL	char	_scg_trans_version_pg[] = "scsi-linux-pg.c-1.45";	/* The version for this transport*/
+LOCAL	char	_scg_trans_version_pg[] = "scsi-linux-pg.c-1.46";	/* The version for this transport*/
 
 #ifdef	USE_PG_ONLY
 
@@ -586,6 +586,8 @@ scgo_send(scgp)
 	SCSI		*scgp;
 {
 	struct scg_cmd	*sp = scgp->scmd;
+	int	error = sp->error;
+	Uchar	status = sp->u_scb.cmd_scb[0];
 	int	ret;
 
 	if (scgp->fd < 0) {
@@ -593,10 +595,12 @@ scgo_send(scgp)
 		return (0);
 	}
 	ret = do_scg_cmd(scgp, sp);
-	if (ret < 0)
-		return (ret);
-	if (sp->u_scb.cmd_scb[0] & 2)
-		ret = do_scg_sense(scgp, sp);
+	if (ret >= 0) {
+		if (sp->u_scb.cmd_scb[0] & 02)
+			ret = do_scg_sense(scgp, sp);
+	}
+	sp->error = error;
+	sp->u_scb.cmd_scb[0] = status;
 	return (ret);
 }
 

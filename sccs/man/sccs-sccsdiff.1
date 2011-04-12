@@ -18,7 +18,8 @@
 .\"
 .\" CDDL HEADER END
 .\" Copyright (c) 2001, Sun Microsystems, Inc.
-.TH sccs-sccsdiff 1 "28 Sep 2001" "SunOS 5.11" "User Commands"
+.\" Copyright 2007-2011 J. Schilling
+.TH sccs-sccsdiff 1 "2011/04/03" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs-sccsdiff, sccsdiff \- compare two versions of an SCCS file
 .SH SYNOPSIS
@@ -41,45 +42,31 @@ The following options are supported:
 
 .sp
 .ne 2
-.mk
-.na
+.TP 13
 \fB\fB-p\fR\fR
-.ad
-.RS 14n
-.rt  
 Pipe output for each file through 
 \fBpr\fR(1).
-.sp
-
-.RE
 
 .sp
 .ne 2
-.mk
-.na
+.TP
 \fB\fB-r\fR\fIsid\fR\fR
-.ad
-.RS 14n
-.rt  
 Specify a version corresponding to the indicated \fBSCCS\fR delta \fBID\fR (SID) for comparison.  Versions are passed to 
 \fBdiff\fR(1) in the order given.
-.sp
-
-.RE
 
 .sp
 .ne 2
-.mk
-.na
+.TP
 \fB\fIdiff-options\fR\fR
-.ad
-.RS 14n
-.rt  
 Pass options to 
 \fBdiff\fR(1), including: \fB-b\fR, \fB-c\fR, \fB-e\fR, \fB-f\fR, \fB-h\fR, \fB-u\fR, \fB-C\fR \fInumber\fR, \fB-U\fR \fInumber\fR, and \fB-D\fR \fIstring\fR.
-.sp
 
-.RE
+.ne 3
+.TP
+.B \-V
+Prints the
+.B sccsdiff
+version number string and exists.
 
 .SH FILES
 

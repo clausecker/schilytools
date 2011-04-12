@@ -1,14 +1,14 @@
-/* @(#)star_unix.c	1.97 10/08/23 Copyright 1985, 1995, 2001-2010 J. Schilling */
+/* @(#)star_unix.c	1.100 11/04/09 Copyright 1985, 1995, 2001-2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)star_unix.c	1.97 10/08/23 Copyright 1985, 1995, 2001-2010 J. Schilling";
+	"@(#)star_unix.c	1.100 11/04/09 Copyright 1985, 1995, 2001-2011 J. Schilling";
 #endif
 /*
  *	Stat / mode / owner routines for unix like
  *	operating systems
  *
- *	Copyright (c) 1985, 1995, 2001-2010 J. Schilling
+ *	Copyright (c) 1985, 1995, 2001-2011 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -432,11 +432,22 @@ again:
 
 #ifdef	HAVE_ST_BLOCKS
 #if	defined(hpux) || defined(__hpux)
-	if (info->f_size > (sp->st_blocks * 1024 + 1024))
+	if (info->f_size > (sp->st_blocks * 1024 + 1024)) {
 #else
-	if (info->f_size > (sp->st_blocks * 512 + 512))
+	if (info->f_size > (sp->st_blocks * 512 + 512)) {
 #endif
 		info->f_flags |= F_SPARSE;
+
+		/*
+		 * Some filesystems do not allocate disk space for files that
+		 * file consist of one hole and no written data.
+		 * If we are on a platform that does not support to read hole
+		 * lists for sparse files, this allows to avoid wasting time
+		 * reading through the whole file.
+		 */
+		if ((info->f_size > 0) && (sp->st_blocks == 0))
+			info->f_flags |= F_ALL_HOLE;
+	}
 #endif
 
 	/*

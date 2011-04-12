@@ -1,8 +1,8 @@
-/* @(#)star.c	1.330 11/01/02 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2011 J. Schilling */
+/* @(#)star.c	1.331 11/04/12 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)star.c	1.330 11/01/02 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2011 J. Schilling";
+	"@(#)star.c	1.331 11/04/12 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2011 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1985, 88-90, 92-96, 98, 99, 2000-2011 J. Schilling
@@ -67,6 +67,7 @@ LOCAL	void	star_helpvers	__PR((char *name, BOOL help, BOOL xhelp, BOOL prvers));
 LOCAL	void	star_checkopts	__PR((BOOL oldtar, BOOL dodesc, BOOL usetape,
 					int archive, BOOL no_fifo,
 					Llong llbs));
+EXPORT	void	star_verifyopts	__PR((void));
 LOCAL	void	star_nfiles	__PR((int files, int minfiles));
 LOCAL	int	getpaxH		__PR((char *arg, long *valp, int *pac, char *const **pav));
 LOCAL	int	getpaxL		__PR((char *arg, long *valp, int *pac, char *const **pav));
@@ -291,7 +292,8 @@ findn_t	*find_node;			/* syntaxtree from find_parse()	*/
 void	*plusp;				/* residual for -exec ...{} +	*/
 int	find_patlen;			/* len for -find pattern state	*/
 
-LOCAL 	int		walkflags = WALK_CHDIR | WALK_PHYS | WALK_NOEXIT;
+LOCAL 	int		walkflags = WALK_CHDIR | WALK_PHYS | WALK_NOEXIT | \
+				    WALK_STRIPLDOT;
 LOCAL	int		maxdepth = -1;
 LOCAL	int		mindepth = -1;
 EXPORT	struct WALK	walkstate;
@@ -405,13 +407,9 @@ main(ac, av)
 	star_mkvers();		/* Create version string */
 	setprops(chdrtype);	/* Set up properties for archive format */
 
-	if (cflag && (props.pr_flags & PR_LINK_DATA) == 0)
-		linkdata = FALSE;
-	if (cflag && multivol && (props.pr_flags & PR_MULTIVOL) == 0) {
-		comerrno(EX_BAD,
-		"Multi volume archives are not supported with %s format.\n",
-		hdr_name(chdrtype));
-	}
+	if (!(rflag || uflag) || chdrtype != H_UNDEF)
+		star_verifyopts(); /* Chk if options are valid for chdrtype */
+
 	if (dumplevel >= 0)
 		initdumpdates(dumpdates, wtardumps);
 	dev_init(debug);	/* Init device macro handling */
@@ -1754,10 +1752,14 @@ star_checkopts(oldtar, dodesc, usetape, archive, no_fifo, llbs)
 		if (H_TYPE(chdrtype) == H_OTAR)
 			oldtar = TRUE;	/* XXX hack */
 	}
-	if (cflag) {
+	/*
+	 * We do not set chdrtype here in case it is H_UNDEF and -r or -u have
+	 * been specified.
+	 */
+	if (cflag && (!(rflag || uflag) || chdrtype != H_UNDEF)) {
 		if (chdrtype != H_UNDEF)
 			hdrtype = chdrtype;
-		chdrtype = hdrtype;	/* wegen setprops in main() */
+		chdrtype = hdrtype;	/* wegen setprops(chdrtype) in main() */
 
 		/*
 		 * hdrtype und chdrtype
@@ -1934,25 +1936,34 @@ star_checkopts(oldtar, dodesc, usetape, archive, no_fifo, llbs)
 	/*
 	 * -acl includes -p
 	 */
-	if (doacl) {
+	if (doacl)
 		pflag = TRUE;
 
-		if (cflag) {
-			/*
-			 * Set up and check properties for archive format.
-			 */
-			setprops(chdrtype);
-			if ((props.pr_xhmask & (XF_ACL_ACCESS|XF_ACL_DEFAULT))
-									== 0) {
-				errmsgno(EX_BAD,
+	star_defaults(&fs, NULL);
+}
+
+EXPORT void
+star_verifyopts()
+{
+	if (cflag && (props.pr_flags & PR_LINK_DATA) == 0)
+		linkdata = FALSE;
+	if (cflag && multivol && (props.pr_flags & PR_MULTIVOL) == 0) {
+		errmsgno(EX_BAD,
+		"Multi volume archives are not supported with %s format.\n",
+		hdr_name(chdrtype));
+		susage(EX_BAD);
+	}
+	if (cflag && doacl) {
+		/*
+		 * Check properties for archive format.
+		 */
+		if ((props.pr_xhmask & (XF_ACL_ACCESS|XF_ACL_DEFAULT)) == 0) {
+			errmsgno(EX_BAD,
 				"Archive format '%s' does not support -acl.\n",
 							hdr_name(chdrtype));
-				susage(EX_BAD);
-			}
+			susage(EX_BAD);
 		}
 	}
-
-	star_defaults(&fs, NULL);
 }
 
 LOCAL void

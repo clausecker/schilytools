@@ -1,5 +1,5 @@
 '\" t
-. \" @(#)star.4	1.18 10/08/02 Copyr 2003-2008 J. Schilling
+. \" @(#)star.4	1.19 11/01/20 Copyr 2003-2008 J. Schilling
 . \" star archive formats
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -14,7 +14,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH STAR 4L "10/08/02" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH STAR 4L "11/01/20" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 star \- tape archive file format
 .SH DESCRIPTION
@@ -675,7 +675,7 @@ Block type/Description
 
 Ustar Header [typeflag='g']/Global Extended Header
 Global Extended Data/
-Ustar Header [typeflag='h']/Extended Header
+Ustar Header [typeflag='x']/Extended Header
 Extended Data/
 Ustar header [typeflag='0']/File with Extended Header
 Data for File #1/
@@ -755,7 +755,7 @@ This field is used if the group ID of a file is greater than 2097151 (octal 7777
 .TP
 .B gname
 The group name of the following file(s) coded in UTF-8 if the group name does not
-fit into 323 characters or cannot be expressed in 7-Bit ASCII.
+fit into 32 characters or cannot be expressed in 7-Bit ASCII.
 .TP
 .B linkpath
 The name of the 
@@ -801,7 +801,7 @@ This field is used if the uid ID of a file is greater than 2097151 (octal 777777
 .TP
 .B uname
 The user name of the following file(s) coded in UTF-8 if the user name does not
-fit into 323 characters or cannot be expressed in 7-Bit ASCII.
+fit into 32 characters or cannot be expressed in 7-Bit ASCII.
 .TP
 .IR VENDOR .keyword
 Any keyword that starts with a vendor name in capital letters is reserved 

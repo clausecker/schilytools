@@ -40,7 +40,7 @@ PATH=$PATH:/usr/ccs/bin
 trap "rm -f /tmp/get[abc]$$;exit 1" 1 2 3 15
 umask 077
 
-if [ $# -lt 3 ]
+if [ $# -lt 3 -a ! "$1" = -V ]
 then
 	echo "Usage: sccsdiff -r<sid1> -r<sid2> [-p] [-q] sccsfile ..." 1>&2
 	exit 1
@@ -117,6 +117,10 @@ do
 				opt=`echo $i | sed -e 's/^-U/-U /'`
 				flags="$flags $opt"
 			fi
+			;;
+		-V)
+			echo "$0 PROVIDER-SCCS version VERSION (HOST_SUB)"
+			exit 0
 			;;
 		*)
 			echo "$0: unknown argument: $i" 1>&2

@@ -17,8 +17,9 @@
 .\" information: Portions Copyright [yyyy] [name of copyright owner]
 .\"
 .\" CDDL HEADER END
-.\"  Copyright (c) 2002, Sun Microsystems, Inc. All Rights Reserved
-.TH sccs-val 1 "30 Sep 2002" "SunOS 5.11" "User Commands"
+.\" Copyright (c) 2002, Sun Microsystems, Inc. All Rights Reserved
+.\" Copyright 2007-2011 J. Schilling
+.TH sccs-val 1 "2011/04/05" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs-val, val \- validate an SCCS file
 .SH SYNOPSIS
@@ -28,7 +29,7 @@ sccs-val, val \- validate an SCCS file
 .fi
 .LP
 .nf
-\fB/usr/ccs/bin/val\fR [\fB-s\fR] [\fB-m\fR \fIname\fR] [\fB-r\fR\fIsid\fR] [\fB-y\fR \fItype\fR] \fIs.filename\fR...
+\fB/usr/ccs/bin/val\fR [\fB-T\fR] [\fB-s\fR] [\fB-m\fR \fIname\fR] [\fB-r\fR\fIsid\fR] [\fB-y\fR \fItype\fR] \fIs.filename\fR...
 .fi
 
 .SH DESCRIPTION
@@ -76,55 +77,40 @@ The following options are supported:
 
 .sp
 .ne 2
-.mk
-.na
+.TP 9
 \fB\fB-s\fR\fR
-.ad
-.RS 9n
-.rt  
 Silent.  Suppresses the normal error or warning messages.
-.sp
-
-.RE
 
 .sp
 .ne 2
-.mk
-.na
+.TP
 \fB\fB-m\fR \fIname\fR\fR
-.ad
-.RS 9n
-.rt  
 Compares \fIname\fR with the \fB%\&M%\fR ID keyword in the \fBs.\fRfile.
-.sp
-
-.RE
 
 .sp
 .ne 2
-.mk
-.na
+.TP
 \fB\fB-r\fR\fIsid\fR\fR
-.ad
-.RS 9n
-.rt  
 Checks to see if the indicated \fBSID\fR is ambiguous, invalid, or absent from the \fBs.\fRfile.
-.sp
-
-.RE
 
 .sp
 .ne 2
-.mk
-.na
+.TP
 \fB\fB-y\fR \fItype\fR\fR
-.ad
-.RS 9n
-.rt  
 Compares \fItype\fR with the \fB%\&Y%\fR ID keyword.
-.sp
 
-.RE
+.sp
+.ne 2
+.TP
+\fB\fB-T\fR\fR
+Trace.  Print extra debug messages.
+
+.ne 3
+.TP
+.B \-V
+Prints the
+.B val
+version number string and exists.
 
 .SH ENVIRONMENT VARIABLES
 

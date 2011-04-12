@@ -18,7 +18,8 @@
 .\"
 .\" CDDL HEADER END
 .\" Copyright (c) 1999, Sun Microsystems, Inc.
-.TH sccs-sact 1 "1 Nov 1999" "SunOS 5.11" "User Commands"
+.\" Copyright 2007-2011 J. Schilling
+.TH sccs-sact 1 "2011/04/03" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs-sact, sact \- show editing activity status of an SCCS file
 .SH SYNOPSIS
@@ -91,6 +92,13 @@ Time that the version was checked out.
 If a directory name is used in place of the \fIs.filename\fR argument, the \fBsact\fR command applies to all \fBs.\fRfiles in that directory. Unreadable \fBs.\fRfiles produce an error; processing continues with the next file (if any). The use of `\fB\(mi\fR' as the \fIs.filename\fR argument indicates that the names of files are to be read from the standard input, one \fBs.\fRfile per
 line.
 .sp
+
+.SH OPTIONS
+.TP
+.B \-V
+Prints the
+.B sact
+version number string and exists.
 
 .SH ENVIRONMENT VARIABLES
 

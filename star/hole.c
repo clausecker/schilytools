@@ -1,13 +1,13 @@
-/* @(#)hole.c	1.59 10/08/23 Copyright 1993-2010 J. Schilling */
+/* @(#)hole.c	1.61 11/04/08 Copyright 1993-2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)hole.c	1.59 10/08/23 Copyright 1993-2010 J. Schilling";
+	"@(#)hole.c	1.61 11/04/08 Copyright 1993-2011 J. Schilling";
 #endif
 /*
  *	Handle files with holes (sparse files)
  *
- *	Copyright (c) 1993-2010 J. Schilling
+ *	Copyright (c) 1993-2011 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -754,6 +754,18 @@ mk_sp_list(fp, info, spp)
 		return (i);
 	}
 
+	/*
+	 * Shortcut for files which consist of a single hole and no written
+	 * data. In that case on some file systems a file may occupy 0 blocks
+	 * on disk, and the F_ALL_HOLE flag could be set in info->f_flags. In
+	 * such a case, we can avoid scanning the file on dumb operating
+	 * systems that do not support SEEK_HOLE nor something equivalent.
+	 */
+	if (info->f_flags & F_ALL_HOLE) {
+		pos = info->f_size;
+		goto scan_done;
+	}
+
 #if	defined(SEEK_HOLE) && defined(SEEK_DATA)
 	/*
 	 * Error codes: EINVAL -> OS does not support SEEK_HOLE
@@ -895,6 +907,8 @@ mk_sp_list(fp, info, spp)
 		}
 		pos += amount;
 	}
+
+scan_done:
 	EDEBUG(("data: %d\n", data));
 
 	if (data) {

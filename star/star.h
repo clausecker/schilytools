@@ -1,4 +1,4 @@
-/* @(#)star.h	1.123 11/01/01 Copyright 1985, 1995-2011 J. Schilling */
+/* @(#)star.h	1.124 11/04/08 Copyright 1985, 1995-2011 J. Schilling */
 /*
  *	Copyright (c) 1985, 1995-2011 J. Schilling
  */
@@ -664,6 +664,7 @@ typedef	struct	{
 #define	F_SAME		0x80000	/* Same symlink of special found	  */
 #define	F_DATA_SKIPPED	0x100000 /* The data part of the file was skipped */
 #define	F_BAD_ACL	0x200000 /* Unsupported ACL encoding type	  */
+#define	F_ALL_HOLE	0x400000 /* File is sparse, one hole with no data */
 
 /*
  * Used with f_xflags
