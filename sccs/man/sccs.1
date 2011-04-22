@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sccs.1	4.8 11/04/05 portions Copyright 2007-2011 J. Schilling */
+.\" @(#)sccs.1	4.9 11/04/21 portions Copyright 2007-2011 J. Schilling */
 .\" 
 .\" CDDL HEADER START
 .\"
@@ -20,7 +20,7 @@
 .\"
 .\" CDDL HEADER END
 .\"  Copyright (c) 2007, Sun Microsystems, Inc.  All Rights Reserved.
-.TH sccs 1 "2011/04/05" "SunOS 5.11" "User Commands"
+.TH sccs 1 "2011/04/21" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs \- front end for the Source Code Control System (SCCS)
 .SH SYNOPSIS
@@ -172,7 +172,7 @@ The usage for \fBsccs\fR is described below.
 .SS "Subcommands"
 .sp
 .LP
-Many of the following \fBsccs\fR subcommands invoke programs that reside in \fB/usr/bin\fR. Many of these subcommands accept additional arguments that are documented in the reference page for the utility program the subcommand invokes.
+Many of the following \fBsccs\fR subcommands invoke programs that reside in \fB/usr/ccs/bin\fR. Many of these subcommands accept additional arguments that are documented in the reference page for the utility program the subcommand invokes.
 .sp
 .ne 5
 .TP
@@ -744,7 +744,7 @@ to:
 .sp
 .in +2
 .nf
-\fB/usr/bin/get   /usr/src/include/SCCS/s.stdio.h\fR
+\fB/usr/ccs/bin/get   /usr/src/include/SCCS/s.stdio.h\fR
 .fi
 .in -2
 .sp
@@ -766,7 +766,7 @@ becomes:
 .sp
 .in +2
 .nf
-\fB/usr/bin/get   include/private/s.stdio.h\fR
+\fB/usr/ccs/bin/get   include/private/s.stdio.h\fR
 .fi
 .in -2
 .sp
@@ -1032,7 +1032,7 @@ temporary lock file
 .ne 2
 .mk
 .na
-\fB\fB/usr/bin/*\fR\fR
+\fB\fB/usr/ccs/bin/*\fR\fR
 .ad
 .RS 15n
 .rt  

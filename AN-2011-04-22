@@ -1,0 +1,78 @@
+New features with AN-2011-04-22:
+
+This is the first localization step for the schily source consolidation. Many
+programs now (hopefully) call gettext() for all strings that need localization.
+
+-	The next step will include dgettext() calls for the libraries and the
+	missing programs
+
+-	The following step will include the extracted strings
+
+-	The last step will include German translations and install support
+	for the resulting binary message object files.
+
+----------> Please test and report compilation problems! <---------
+
+***** NOTE: As mentioned since 2004, frontends to the tools should *****
+*****		call all programs in the "C" locale		   *****
+*****		by e.g. calling: LC_ALL=C cdrecord ....		   *****
+*****		unless these frontends support localized strings   *****
+*****		used by the cdrtools with NLS support.		   *****
+
+
+-	Disable Simple suffix rules and Sufffix rules in smake to speedup builds
+
+-	Added a comment in RULES/rules.rdi that this rule is no longer needed.
+	Use RULES/rules.dir in all cases.
+
+-	Star adds a new option -lzip and automated support to recognize lzip
+	compressed archives.
+	Thanks to markk@clara.co.uk
+
+-	star now accepts a command like:
+
+	star -c -onull -find . -ls
+
+	as there is no archive output to stdout that could mix with the -ls
+	output
+
+-	libfind no longer exits the process in treewalk() in case that 
+	the path strings could not be allocated.
+
+-	libfind::walkclose() now free()s the internal data structures
+	in case of a user that does not call treewalk() (e.g.  star -x)
+
+-	Avoid some gcc warnings for patch
+
+-	Avoid some gcc warnings for hdump/od
+
+-	SCCS "val" now supports directory type command line arguments that
+	result in scanning the related directory for s. files.
+
+-	SCCS "val" now gives better debug messages with val -T, inclufing line
+	numbers for the s. file.
+
+-	SCCS "sccs" now permits -R together with the val subcommand.
+
+-	SCCS "sccs" now correclty deals with lon path names (> 64 chars) when
+	in -R mode
+
+-	The diff command (as used by SCCS) now supports the -N option.
+
+-	The sccsfile.4 man page now correclty mentions the ^Ahddddd checksum line.
+
+-	patch(1) no longer calls mkdir(1) but mkdir(2)
+
+-	Some forgotten variables in patch(1) are now off_t for large file compliance.
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.isdn.cs.tu-berlin.de, js@cs.tu-berlin.de
+	joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

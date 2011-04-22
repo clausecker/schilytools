@@ -25,12 +25,15 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2009 J. Schilling
+ * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)ccstypes.h	1.6 09/11/08 J. Schilling
+ * @(#)ccstypes.h	1.7 11/04/20 J. Schilling
  */
+#ifndef	_COMMON_CCSTYPES_H
+#define	_COMMON_CCSTYPES_H
+
 #if defined(sun)
-#pragma ident "@(#)ccstypes.h 1.6 09/11/08 J. Schilling"
+#pragma ident "@(#)ccstypes.h 1.7 11/04/20 J. Schilling"
 #endif
 /*
  * @(#)ccstypes.h 1.2 06/12/12
@@ -63,3 +66,5 @@ typedef short nlink_t;
 #endif
 
 #endif /* never */
+
+#endif	/* _COMMON_CCSTYPES_H */

@@ -37,12 +37,12 @@
  * contributors.
  */
 /*
- * This file contains modifications Copyright 2006-2009 J. Schilling
+ * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)diff.h	1.9 09/11/08 J. Schilling
+ * @(#)diff.h	1.10 11/04/21 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)diff.h 1.9 09/11/08 J. Schilling"
+#pragma ident "@(#)diff.h 1.10 11/04/21 J. Schilling"
 #endif
 
 #ifndef	_DIFF_H
@@ -89,6 +89,7 @@ int	opt;
 #define	SAME	2		/* Both places and same */
 #define	DIFFER	4		/* Both places and different */
 #define	DIRECT	8		/* Directory */
+#define	XDIRECT	16		/* Directory present only at right side */
 
 struct dir {
 	ino_t		d_ino;
@@ -174,6 +175,8 @@ int  slen[2];
  */
 char	*file1, *file2, *efile1, *efile2;
 struct	stat stb1, stb2;
+int	file1ok;
+int	file2ok;
 
 /*
  * input_file1 and input_file2 are to display
@@ -184,7 +187,7 @@ char	*input_file1, *input_file2;
 char pr[] = "/usr/bin/pr";
 
 #if	defined(INS_BASE)
-# ifdef __STDC__
+#ifdef __STDC__
 char diff[] = INS_BASE "/ccs/bin/diff";
 char diffh[] = INS_BASE "/ccs/lib/diffh";
 #else

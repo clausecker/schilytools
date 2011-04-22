@@ -1,8 +1,8 @@
-/* @(#)walk.c	1.40 11/04/12 Copyright 2004-2011 J. Schilling */
+/* @(#)walk.c	1.42 11/04/13 Copyright 2004-2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)walk.c	1.40 11/04/12 Copyright 2004-2011 J. Schilling";
+	"@(#)walk.c	1.42 11/04/13 Copyright 2004-2011 J. Schilling";
 #endif
 /*
  *	Walk a directory tree
@@ -49,6 +49,7 @@ static	UConst char sccsid[] =
 #include <schily/string.h>
 #include <schily/standard.h>
 #include <schily/getcwd.h>
+#include <schily/jmpdefs.h>
 #include <schily/schily.h>
 #include <schily/nlsdefs.h>
 #include <schily/walk.h>
@@ -85,10 +86,13 @@ extern int lstat __PR((const char *, struct stat *));
 			(p)[3] == '\0')
 
 #define	DIR_INCR	1024		/* How to increment Curdir size */
+#define	TW_MALLOC	0x01		/* Struct was allocated		*/
 struct twvars {
 	char		*Curdir;	/* The current path name	*/
 	int		Curdtail;	/* Where to append to Curdir	*/
 	int		Curdlen;	/* Current size of 'Curdir'	*/
+	int		Flags;		/* Flags related to this struct	*/
+	struct WALK	*Walk;		/* Backpointer to struct WALK	*/
 	struct stat	Sb;		/* stat(2) buffer for start dir	*/
 #ifdef	HAVE_FCHDIR
 	int		Home;		/* open fd to start CWD		*/
@@ -110,7 +114,7 @@ typedef	int	(*statfun)	__PR((const char *_nm, struct stat *_fs));
 
 EXPORT	int	treewalk	__PR((char *nm, walkfun fn, struct WALK *_state));
 LOCAL	int	walk		__PR((char *nm, statfun sf, walkfun fn, struct WALK *state, struct pdirs *last));
-LOCAL	int	incr_dspace	__PR((struct twvars *varp, int amt));
+LOCAL	int	incr_dspace	__PR((FILE *f, struct twvars *varp, int amt));
 EXPORT	void	walkinitstate	__PR((struct WALK *_state));
 EXPORT	void	*walkopen	__PR((struct WALK *_state));
 EXPORT	int	walkgethome	__PR((struct WALK *_state));
@@ -137,10 +141,12 @@ treewalk(nm, fn, state)
 	vars.Curdir  = NULL;
 	vars.Curdlen = 0;
 	vars.Curdtail = 0;
+	vars.Flags = 0;
 #ifdef	HAVE_FCHDIR
 	vars.Home = -1;
 #endif
 	state->twprivate = &vars;
+	vars.Walk = state;
 	if (walkgethome(state) < 0) {
 		state->twprivate = NULL;
 		return (-1);
@@ -153,10 +159,13 @@ treewalk(nm, fn, state)
 			for (nm++; nm[0] == '/'; nm++)
 				/* LINTED */
 				;
-		} 
+		}
 	}
 
-	vars.Curdir = ___malloc(DIR_INCR, "path buffer");
+	vars.Curdir = __fjmalloc(state->std[2],
+					DIR_INCR, "path buffer", JM_RETURN);
+	if (vars.Curdir == NULL)
+		return (-1);
 	vars.Curdir[0] = 0;
 	vars.Curdlen = DIR_INCR;
 	/*
@@ -164,7 +173,8 @@ treewalk(nm, fn, state)
 	 */
 	nlen = strlen(nm);
 	if ((vars.Curdlen - 2) < nlen)
-		incr_dspace(&vars, nlen + 2);
+		if (incr_dspace(state->std[2], &vars, nlen + 2) < 0)
+			return (-1);
 
 	while (lstat(nm, &vars.Sb) < 0 && geterrno() == EINTR)
 		;
@@ -384,9 +394,15 @@ type_known:
 				name = &dp[1];
 				nlen = strlen(name);
 
-				if (Dspace < nlen)
-					Dspace += incr_dspace(varp, nlen + 2);
-
+				if (Dspace < nlen) {
+					int incr = incr_dspace(state->std[2],
+								varp, nlen + 2);
+					if (incr < 0) {
+						ret = -1;
+						break;
+					}
+					Dspace += incr;
+				}
 				state->level++;
 				ret = walk(name, sf, fn, state, &thisd);
 				state->level--;
@@ -438,22 +454,30 @@ out:
 }
 
 LOCAL int
-incr_dspace(varp, amt)
-	int		amt;
+incr_dspace(f, varp, amt)
+	FILE		*f;
 	struct twvars	*varp;
+	int		amt;
 {
 	int	incr = DIR_INCR;
+	char	*new;
 
 	if (amt < 0)
 		amt = 0;
 	while (incr < amt)
 		incr += DIR_INCR;
-	varp->Curdir = ___realloc(varp->Curdir, varp->Curdlen + incr,
-								"path buffer");
+	new = __fjrealloc(f, varp->Curdir, varp->Curdlen + incr,
+						"path buffer", JM_RETURN);
+	if (new == NULL)
+		return (-1);
+	varp->Curdir = new;
 	varp->Curdlen += incr;
 	return (incr);
 }
 
+/*
+ * Call first to create a useful WALK state default.
+ */
 EXPORT void
 walkinitstate(state)
 	struct WALK	*state;
@@ -472,23 +496,30 @@ walkinitstate(state)
 	state->auxp = NULL;
 }
 
+/*
+ * For users that do not call treewalk(), e.g. star in extract mode.
+ */
 EXPORT void *
 walkopen(state)
 	struct WALK	*state;
 {
-	struct twvars	*varp = ___malloc(sizeof (struct twvars), "walk vars");
+	struct twvars	*varp = __fjmalloc(state->std[2],
+					sizeof (struct twvars), "walk vars",
+								JM_RETURN);
 
 	if (varp == NULL)
 		return (NULL);
 	varp->Curdir  = NULL;
 	varp->Curdlen = 0;
 	varp->Curdtail = 0;
+	varp->Flags = TW_MALLOC;
 #ifdef	HAVE_FCHDIR
 	varp->Home = -1;
 #else
 	varp->Home[0] = '\0';
 #endif
 	state->twprivate = varp;
+	varp->Walk = state;
 
 	return ((void *)varp);
 }
@@ -573,6 +604,10 @@ walkclose(state)
 #else
 	varp->Home[0] = '\0';
 #endif
+	if (varp->Flags & TW_MALLOC) {
+		free(varp);
+		state->twprivate = NULL;
+	}
 	return (ret);
 }
 

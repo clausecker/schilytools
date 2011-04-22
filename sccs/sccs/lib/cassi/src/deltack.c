@@ -25,12 +25,12 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2009 J. Schilling
+ * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)deltack.c	1.8 09/11/08 J. Schilling
+ * @(#)deltack.c	1.9 11/04/22 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)deltack.c 1.8 09/11/08 J. Schilling"
+#pragma ident "@(#)deltack.c 1.9 11/04/22 J. Schilling"
 #endif
 /*
  * @(#)deltack.c 1.8 06/12/12
@@ -97,9 +97,9 @@ deltack(pfile,mrs,nsid,apl)
 		 error(NOGETTEXT("no FRED file or system name in admin directory "));
 		 return(0);
 		}
-	strcpy(errorlog,fred);
+	strlcpy(errorlog, fred, sizeof (errorlog));
 	*(errorlog + strlen(errorlog) - 11) = '\0';
-	strcat(errorlog,NOGETTEXT("LOG"));
+	strlcat(errorlog, NOGETTEXT("LOG"), sizeof (errorlog));
 	if(!(mrs))
 		{
 		 if ((efd=fopen(errorlog, "ab")) != NULL)
@@ -115,7 +115,7 @@ deltack(pfile,mrs,nsid,apl)
 		 return(0);
 		}
 	/*now build the chpost line  */
-	(void) strcpy(hold,mrs);
+	(void) strlcpy(hold, mrs, sizeof (hold));
 	h=strtok(hold,",\0");
 	(void) msg(apl,pfile,h,sthold,type,nsid,fred);
 	while((h=strtok(0,",\0 ")) != NULL)
@@ -146,7 +146,7 @@ char *cmrs,*statp,*type,*fred;
 	 char *h;
 
 	 /*place the cmrs list in the array of pointers and remove the commas */
-	 strcpy(hold,cmrs);
+	 strlcpy(hold, cmrs, sizeof (hold));
 	 (void) strtok(hold,",");
    	 cmrlist[0]=hold;
 	 for(i=1;i<MAXLIST;i++)
@@ -365,7 +365,7 @@ msg(syst,name,cmrs,stats,types,sids,fred)
 		}
 	else
 		{
-		 strcpy(pname,name);
+		 strlcpy(pname, name, sizeof (pname));
 		}
 	(void) abspath(pname);				/* get rid of . and .. */
 /******** the net is replaced by psudonet ******
@@ -373,12 +373,12 @@ msg(syst,name,cmrs,stats,types,sids,fred)
 *	 system(holdit);
 ************************************************/
 	 /* build the name of the  termLOG file */
-	 strcpy(holdfred,fred);
+	 strlcpy(holdfred, fred, sizeof (holdfred));
 	 ptr=strchr(holdfred,'.');
 	 *ptr = '\0';
-	 strcat(holdfred,NOGETTEXT("source"));
-	 strcpy(dir,holdfred);
-	 strcat(holdfred,NOGETTEXT("/termLOG"));
+	 strlcat(holdfred, NOGETTEXT("source"), sizeof (holdfred));
+	 strlcpy(dir, holdfred, sizeof (dir));
+	 strlcat(holdfred, NOGETTEXT("/termLOG"), sizeof (holdfred));
 	 if(stat(holdfred,&stbuf) == -1)
 		noexist = 1; /*new termLOG */
 	 if(!(fd=fopen(holdfred, "ab")))

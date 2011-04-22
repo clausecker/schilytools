@@ -1,4 +1,4 @@
-/* @(#)star.h	1.124 11/04/08 Copyright 1985, 1995-2011 J. Schilling */
+/* @(#)star.h	1.125 11/04/12 Copyright 1985, 1995-2011 J. Schilling */
 /*
  *	Copyright (c) 1985, 1995-2011 J. Schilling
  */
@@ -97,7 +97,8 @@ extern "C" {
 #define	C_LZO		8	/* Compr. with 'lzop', unpack with 'lzop'   */
 #define	C_7Z		9	/* Compr. with 'p7zip', unpack with 'p7zip' */
 #define	C_XZ		10	/* Compr. with 'xz', unpack with 'xz'	    */
-#define	C_MAX		10
+#define	C_LZIP		11	/* Compr. with 'lzip', unpack with 'lzip'   */
+#define	C_MAX		11
 
 /*
  * Header size values

@@ -25,12 +25,15 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2009 J. Schilling
+ * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)fatal.h	1.7 09/11/08 J. Schilling
+ * @(#)fatal.h	1.8 11/04/20 J. Schilling
  */
+#ifndef	_COMMON_FATAL_H
+#define	_COMMON_FATAL_H
+
 #if defined(sun)
-#pragma ident "@(#)fatal.h 1.7 09/11/08 J. Schilling"
+#pragma ident "@(#)fatal.h 1.8 11/04/20 J. Schilling"
 #endif
 /*
  * @(#)fatal.h 1.3 06/12/12
@@ -63,3 +66,5 @@ extern  char    *nsedelim;
 # define FRSTR()	RSTR(Fflags,old_Fflags);
 
 extern  char    *nse_file_trim __PR((char *, int));
+
+#endif	/* _COMMON_FATAL_H */

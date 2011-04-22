@@ -25,12 +25,12 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2009 J. Schilling
+ * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)prs.c	1.17 09/11/15 J. Schilling
+ * @(#)prs.c	1.19 11/04/20 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)prs.c 1.17 09/11/15 J. Schilling"
+#pragma ident "@(#)prs.c 1.19 11/04/20 J. Schilling"
 #endif
 /*
  * @(#)prs.c 1.33 06/12/12
@@ -275,9 +275,10 @@ char *argv[];
                                 break;
 
 			case 'V':		/* version */
-				printf("prs %s-SCCS version %s (%s-%s-%s)\n",
+				printf("prs %s-SCCS version %s %s (%s-%s-%s)\n",
 					PROVIDER,
 					VERSION,
+					VDATE,
 					HOST_CPU, HOST_VENDOR, HOST_OS);
 				exit(EX_OK);
 

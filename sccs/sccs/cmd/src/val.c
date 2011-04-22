@@ -25,12 +25,12 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2009 J. Schilling
+ * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)val.c	1.11 11/04/05 J. Schilling
+ * @(#)val.c	1.16 11/04/22 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)val.c 1.11 11/04/05 J. Schilling"
+#pragma ident "@(#)val.c 1.16 11/04/22 J. Schilling"
 #endif
 /*
  * @(#)val.c 1.22 06/12/12
@@ -66,6 +66,9 @@
 # define	FALSE		0
 # define	BLANK(l)	while (!(*l == ' ' || *l == '\t')) l++;
 
+struct stat Statbuf;
+
+static int	silent;		/* be silent, report only in exit code */
 static int	debug;		/* print debug messages */
 static int	ret_code;	/* prime return code from 'main' program */
 static int	inline_err=0;	/* input line error code (from 'process') */
@@ -75,7 +78,7 @@ static int	inpstd;		/* TRUE = args from standard input */
 static struct packet gpkt;
 
 static char	path[FILESIZE];	/* storage for file name value */
-char	sid[50];	/* storage for sid (-r) value */
+static char	sid[50];	/* storage for sid  (-r) value */
 static char	type[50];	/* storage for type (-y) value */
 static char	name[50];	/* storage for name (-m) value */
 static char	*Argv[BUFSIZ];
@@ -93,6 +96,7 @@ static struct delent {		/* structure for delta table entry */
 
 	int	main __PR((int argc, char **argv));
 static void	process __PR((char *p_line, int argc, char **argv));
+static void	do_validate __PR((char *path));
 static void	validate __PR((char *c_path, char *c_sid, char *c_type, char *c_name));
 static void	getdel __PR((struct delent *delp, char *lp));
 static void	read_to __PR((int ch, struct packet *pkt));
@@ -155,7 +159,7 @@ char	*argv[];
 		while (fgets(line,BUFSIZ,iop) != NULL) {
 		   if (line[0] != '\n') {
 		      repl(line,'\n','\0');
-		      strcpy(save_line,line);
+		      strlcpy(save_line, line, sizeof (save_line));
 		      argv = Argv;
 		      *argv++ = "val";
 		      lp = save_line;
@@ -207,7 +211,6 @@ char	*argv[];
 	register int	line_sw;
 	register char   *p;
 
-	int	silent;
 	int	num_files;
 
 	char	*filelist[50];
@@ -273,22 +276,23 @@ char	*argv[];
 					silent = TRUE;
 					break;
 				case 'r':
-					strcpy(sid,p);
+					strlcpy(sid, p, sizeof (sid));
 					break;
 				case 'y':
-					strcpy(type,p);
+					strlcpy(type, p, sizeof (type));
 					break;
 				case 'm':
-					strcpy(name,p);
+					strlcpy(name, p, sizeof (name));
 					break;
 
 				case 'T':
 					debug = TRUE;
 					continue;	/* Not into had[] */
 				case 'V':		/* version */
-					printf("val %s-SCCS version %s (%s-%s-%s)\n",
+					printf("val %s-SCCS version %s %s (%s-%s-%s)\n",
 						PROVIDER,
 						VERSION,
+						VDATE,
 						HOST_CPU, HOST_VENDOR, HOST_OS);
 					exit(EX_OK);
 
@@ -356,7 +360,11 @@ char	*argv[];
 			Ffile = filelist[j];
 			fatal(gettext("too long (co7)"));
 		}
-		strcpy(path, filelist[j]);
+		strlcpy(path, filelist[j], sizeof (path));
+		if (!inpstd) {
+			do_file(path, do_validate, 1);
+			continue;
+		}
 		validate(path,sid,type,name);
 		inline_err |= infile_err;
 		/*
@@ -374,6 +382,21 @@ char	*argv[];
 	return;		/* return to 'main' routine */
 }
 
+static void
+do_validate(path)
+	char	*path;
+{
+	validate(path, sid, type, name);
+	inline_err |= infile_err;
+
+	/*
+	 * check for error from 'validate' and call 'report'
+	 * depending on 'silent' flag.
+	 */
+	if (infile_err && !silent) {
+		report(infile_err,"",path);
+	}
+}
 
 /* This function actually does the validation on the named file.
  * It determines whether the file is an SCCS-file or if the file
@@ -428,8 +451,8 @@ char	*c_name;
 				if (invalid(c_sid)) {
 					if (debug)
 						printf(gettext(
-						"Invalid SID '%s'.\n"),
-							c_sid);
+						"Invalid SID '%s' at line %d.\n"),
+							c_sid, gpkt.p_slnno);
 					infile_err |= INVALSID_ERR;
 				}
 			/*
@@ -441,8 +464,8 @@ char	*c_name;
 				gpkt.p_iop = NULL;
 				if (debug)
 					printf(gettext(
-					"Invalid delta table in '%s'.\n"),
-							c_path);
+					"Invalid delta table in '%s'. at line %d\n"),
+							c_path, gpkt.p_slnno);
 				infile_err |= CORRUPT_ERR;
 				return;
 			}
@@ -475,8 +498,8 @@ char	*c_name;
 					gpkt.p_iop = NULL;
 					if (debug)
 						printf(gettext(
-						"Flag section error in '%s'.\n"),
-							c_path);
+						"Flag section error in '%s' at line %d.\n"),
+							c_path, gpkt.p_slnno);
 					infile_err |= CORRUPT_ERR;
 					return;
 				}
@@ -774,8 +797,8 @@ register struct packet *pkt;
 			if (!((iord = *p++) == INS || iord == DEL || iord == END)) {
 				if (debug)
 					printf(gettext(
-					"Invalid control in weave data for '%s'.\n"),
-								pkt->p_file);
+					"Invalid control in weave data for '%s' near line %d.\n"),
+						pkt->p_file, pkt->p_slnno);
 				infile_err |= CORRUPT_ERR;
 				return(0);
 			}
@@ -798,8 +821,8 @@ register struct packet *pkt;
 	if (pkt->p_q) {
 		if (debug)
 			printf(gettext(
-			"Incomplete weave data for '%s'.\n"),
-				pkt->p_file);
+			"Incomplete weave data for '%s' near line %d.\n"),
+				pkt->p_file, pkt->p_slnno);
 		infile_err |= CORRUPT_ERR;
 	}
 	return(0);
@@ -821,8 +844,8 @@ int user;
 	if (cur && cur != (struct queue *)&pkt->p_q && cur->q_sernum == ser) {
 		if (debug)
 			printf(gettext(
-			"Duplicate delta block in weave data for '%s'.\n"),
-				pkt->p_file);
+			"Duplicate delta block in weave data for '%s' with serial %d near line %d.\n"),
+				pkt->p_file, cur->q_sernum, pkt->p_slnno);
 		infile_err |= CORRUPT_ERR;
 	}
 	prev->q_next = q = (struct queue *) fmalloc(sizeof(*q));
@@ -859,8 +882,8 @@ int ser;
 	else {
 		if (debug)
 			printf(gettext(
-			"Incomplete delta block in weave data for '%s'.\n"),
-				pkt->p_file);
+			"Incomplete delta block in weave data for '%s' near line %d.\n"),
+				pkt->p_file, pkt->p_slnno);
 		infile_err |= CORRUPT_ERR;
 	}
 }

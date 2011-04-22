@@ -1,7 +1,7 @@
-/* @(#)patch.c	1.13 11/01/31 2011 J. Schilling */
+/* @(#)patch.c	1.14 11/04/12 2011 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)patch.c	1.13 11/01/31 2011 J. Schilling";
+	"@(#)patch.c	1.14 11/04/12 2011 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1984-1988 Larry Wall
@@ -69,7 +69,7 @@ main(argc, argv)
 	int failed = 0;
 	int failtotal = 0;
 	int i;
-#ifdef	INS_BASE
+#if	defined(USE_NLS) && defined(INS_BASE)
 	char *dir;
 #endif
 

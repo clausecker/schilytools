@@ -1,8 +1,8 @@
-/* @(#)hdump.c	1.32 11/01/17 Copyright 1986-2011 J. Schilling */
+/* @(#)hdump.c	1.33 11/04/12 Copyright 1986-2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)hdump.c	1.32 11/01/17 Copyright 1986-2011 J. Schilling";
+	"@(#)hdump.c	1.33 11/04/12 Copyright 1986-2011 J. Schilling";
 #endif
 /*
  *	hex dump for files
@@ -353,7 +353,9 @@ main(ac, av)
 	int	lradix = 16;
 	int	cac;
 	char	* const * cav;
+#if	defined(USE_NLS)
 	char	*dir;
+#endif
 	dst_t	dst;
 	struct ga_props ga_props;
 
@@ -424,7 +426,7 @@ main(ac, av)
 		printf(
 		_("%s release %s (%s-%s-%s) Copyright (C) 1986-2011 %s\n"),
 				is_od ? "Od":"Hdump",
-				"1.32",
+				"1.33",
 				HOST_CPU, HOST_VENDOR, HOST_OS,
 				_("Joerg Schilling"));
 		exit(0);
@@ -554,11 +556,11 @@ checkfill(dstp)
 {
 	pr_t	*dp;
 	int	kgv = 1;
-	int	n = 0;
+	int	n;
 
 	for (dp = pr_root; dp != NULL; dp = dp->pr_next) {
 		if (kgv % dp->pr_size) {
-			int n = kgv;
+			n = kgv;
 			while (n % dp->pr_size)
 				n += kgv;
 			kgv = n;
@@ -568,7 +570,7 @@ checkfill(dstp)
 		kgv *= 2;
 	dstp->blocksize = kgv;
 
-	for (dp = pr_root; dp != NULL; dp = dp->pr_next) {
+	for (dp = pr_root, n = 0; dp != NULL; dp = dp->pr_next) {
 		int	lmax;
 		int	nmax;
 

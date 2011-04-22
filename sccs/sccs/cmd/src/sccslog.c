@@ -1,11 +1,11 @@
-/* @(#)sccslog.c	1.28 09/12/22 Copyright 1997-2009 J. Schilling */
+/* @(#)sccslog.c	1.30 11/04/20 Copyright 1997-2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)sccslog.c	1.28 09/12/22 Copyright 1997-2009 J. Schilling";
+	"@(#)sccslog.c	1.30 11/04/20 Copyright 1997-2011 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1997-2009 J. Schilling
+ *	Copyright (c) 1997-2011 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -203,9 +203,10 @@ main(ac, av)
 	if (help)
 		usage(0);
 	if (pversion) {
-		printf("sccslog %s-SCCS version %s (%s-%s-%s) Copyright (C) 1997-2009 Jörg Schilling\n",
+		printf("sccslog %s-SCCS version %s %s (%s-%s-%s) Copyright (C) 1997-2011 Jörg Schilling\n",
 			PROVIDER,
 			VERSION,
+			VDATE,
 			HOST_CPU, HOST_VENDOR, HOST_OS);
 		exit(0);
 	}

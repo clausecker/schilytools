@@ -1,8 +1,8 @@
-/* @(#)buffer.c	1.161 11/02/11 Copyright 1985, 1995, 2001-2011 J. Schilling */
+/* @(#)buffer.c	1.162 11/04/12 Copyright 1985, 1995, 2001-2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)buffer.c	1.161 11/02/11 Copyright 1985, 1995, 2001-2011 J. Schilling";
+	"@(#)buffer.c	1.162 11/04/12 Copyright 1985, 1995, 2001-2011 J. Schilling";
 #endif
 /*
  *	Buffer handling routines
@@ -116,6 +116,7 @@ extern	BOOL	bzflag;
 extern	BOOL	lzoflag;
 extern	BOOL	p7zflag;
 extern	BOOL	xzflag;
+extern	BOOL	lzipflag;
 extern	char	*compress_prg;
 extern	BOOL	multblk;
 extern	BOOL	partial;
@@ -388,6 +389,11 @@ opentape()
 					"WARNING: Archive is 'xz' compressed, trying to use the -xz option.\n");
 				xzflag = TRUE;
 				break;
+			case C_LZIP:
+				if (!silent) errmsgno(EX_BAD,
+					"WARNING: Archive is 'lzip' compressed, trying to use the -lzip option.\n");
+				lzipflag = TRUE;
+				break;
 			default:
 				if (!silent) errmsgno(EX_BAD,
 					"WARNING: Unknown compression type %d.\n", cmptype);
@@ -396,7 +402,9 @@ opentape()
 		}
 		mtseek((off_t)0, SEEK_SET);
 	}
-	if (Zflag || zflag || bzflag || lzoflag || p7zflag || xzflag || compress_prg) {
+	if (Zflag || zflag || bzflag || lzoflag ||
+	    p7zflag || xzflag || lzipflag ||
+	    compress_prg) {
 		if (isremote)
 			comerrno(EX_BAD, "Cannot compress remote archives (yet).\n");
 		/*
@@ -1854,6 +1862,8 @@ compressopen()
 		zip_prog = "p7zip";
 	else if (xzflag)
 		zip_prog = "xz";
+	else if (lzipflag)
+		zip_prog = "lzip";
 
 	multblk = TRUE;
 
@@ -1966,6 +1976,8 @@ compressclose()
 		zip_prog = "p7zip";
 	else if (xzflag)
 		zip_prog = "xz";
+	else if (lzipflag)
+		zip_prog = "lzip";
 
 #ifdef __DJGPP__
 	if (cflag) {

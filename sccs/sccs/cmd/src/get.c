@@ -25,12 +25,12 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2009 J. Schilling
+ * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)get.c	1.23 09/12/30 J. Schilling
+ * @(#)get.c	1.26 11/04/22 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)get.c 1.23 09/12/30 J. Schilling"
+#pragma ident "@(#)get.c 1.26 11/04/22 J. Schilling"
 #endif
 /*
  * @(#)get.c 1.59 06/12/12
@@ -293,9 +293,10 @@ register char *argv[];
 				break;
 
 			case 'V':		/* version */
-				printf("get %s-SCCS version %s (%s-%s-%s)\n",
+				printf("get %s-SCCS version %s %s (%s-%s-%s)\n",
 					PROVIDER,
 					VERSION,
+					VDATE,
 					HOST_CPU, HOST_VENDOR, HOST_OS);
 				exit(EX_OK);
 
@@ -393,8 +394,8 @@ char *file;
 		cat(gfile,Cwd,auxf(gpkt.p_file,'g'), (char *)0);
 		cat(Gfile,Cwd,auxf(gpkt.p_file,'A'), (char *)0);
 	}
-	strcpy(buf1, dname(Gfile));
-	strcat(buf1, template);
+	strlcpy(buf1, dname(Gfile), sizeof (buf1));
+	strlcat(buf1, template, sizeof (buf1));
 	Gfile[0] = '\0';		/* File not yet created */
 	first = 0;
 
@@ -1364,15 +1365,15 @@ retry:
 	/* Now, check the comma separated list of CMRs for accuracy. */
 	bad = 0;
 	isvalid = 0;
-	strcpy(tcmr, cmr);
+	strlcpy(tcmr, cmr, sizeof (tcmr));
 	while ((p=strrchr(tcmr,',')) != NULL) {
 		++p;
 		if (cmrcheck(p,Sflags[CMFFLAG - 'a'])) {
 			++bad;
 		} else {
 			++isvalid;
-			strcat(holdcmr,",");
-			strcat(holdcmr,p);
+			strlcat(holdcmr, ",", sizeof (holdcmr));
+			strlcat(holdcmr, p, sizeof (holdcmr));
 		}
 		*(--p) = '\0';
 	}
@@ -1381,12 +1382,12 @@ retry:
 			++bad;
 		} else {
 			++isvalid;
-			strcat(holdcmr,",");
-			strcat(holdcmr,tcmr);
+			strlcat(holdcmr, ",", sizeof (holdcmr));
+			strlcat(holdcmr, tcmr, sizeof (holdcmr));
 		}
 	}
 	if (!bad && holdcmr[1]) {
-	   strcpy(cmr,holdcmr+1);
+	   strlcpy(cmr, holdcmr+1, sizeof (cmr));
 	   return(1);
 	} else {
 	   if ((isatty(0)) && (isatty(1))) {

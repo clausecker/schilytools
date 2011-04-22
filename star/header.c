@@ -1,8 +1,8 @@
-/* @(#)header.c	1.147 11/04/12 Copyright 1985, 1994-2011 J. Schilling */
+/* @(#)header.c	1.148 11/04/12 Copyright 1985, 1994-2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)header.c	1.147 11/04/12 Copyright 1985, 1994-2011 J. Schilling";
+	"@(#)header.c	1.148 11/04/12 Copyright 1985, 1994-2011 J. Schilling";
 #endif
 /*
  *	Handling routines to read/write, parse/create
@@ -97,6 +97,7 @@ LOCAL	char	*cnames[] = {
 	"lzo",			/*  8 C_LZO	*/
 	"7z",			/*  9 C_7Z	*/
 	"xz",			/* 10 C_XZ	*/
+	"lzip",			/* 11 C_LZIP	*/
 };
 
 extern	FILE	*tty;
@@ -772,6 +773,17 @@ get_compression(ptb)
 	    p[5] == '\0')
 		return (C_XZ);
 
+	/*
+	 * The lzip file format has four "magic bytes", followed by a version
+	 * byte (0 or 1 currently), then the coded dictionary size. To reduce
+	 * the number of false-positive detections, require the version byte
+	 * be 0 or 1, and validate the dictionary size.
+	 */
+	if (p[0] == 'L' && p[1] == 'Z' && p[2] == 'I' && p[3] == 'P' &&
+	    (p[4] == '\0' || p[4] == '\001') &&
+	    ((p[5] & 0x1f) > 12 || (p[5] & 0x1f) == 0 || p[5] == 12))
+		return (C_LZIP);
+
 	return (C_NONE);
 }
 
@@ -887,7 +899,7 @@ get_tcb(ptb)
 					"Unknown archive type (neither tar, nor bar/cpio).\n");
 				}
 			}
-			if ((chdrtype != H_UNDEF || (rflag || uflag)) && \
+			if ((chdrtype != H_UNDEF || (rflag || uflag)) &&
 			    chdrtype != hdrtype) {
 				errmsgno(EX_BAD, "Found: ");
 				print_hdrtype(stderr, hdrtype);

@@ -1,11 +1,11 @@
-#ident @(#)rules1.dir	1.15 09/08/14 
+#ident @(#)rules1.dir	1.16 11/04/14 
 ###########################################################################
 # Written 1996 by J. Schilling
 ###########################################################################
 #
 # DIRS contains the names of all directories where sub make should take place
 #
-# The code that is shared bwtween rules.dir and rules.rdi
+# The code that is shared between rules.dir and rules.rdi
 #
 ###########################################################################
 # Copyright (c) J. Schilling

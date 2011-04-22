@@ -25,12 +25,12 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2009 J. Schilling
+ * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)admin.c	1.24 09/11/15 J. Schilling
+ * @(#)admin.c	1.27 11/04/22 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)admin.c 1.24 09/11/15 J. Schilling"
+#pragma ident "@(#)admin.c 1.27 11/04/22 J. Schilling"
 #endif
 /*
  * @(#)admin.c 1.39 06/12/12
@@ -499,9 +499,10 @@ char *argv[];
 				break;
 
 			case 'V':		/* version */
-				printf("admin %s-SCCS version %s (%s-%s-%s)\n",
+				printf("admin %s-SCCS version %s %s (%s-%s-%s)\n",
 					PROVIDER,
 					VERSION,
+					VDATE,
 					HOST_CPU, HOST_VENDOR, HOST_OS);
 				exit(EX_OK);
 
@@ -1097,7 +1098,7 @@ char	*afile;
 
 				from_stdin = 1;
 				ifile 	   = stdin_file_buf;
-				strcpy(stdin_file_buf, "/tmp/admin.XXXXXX");
+				strlcpy(stdin_file_buf, "/tmp/admin.XXXXXX", sizeof (stdin_file_buf));
 				cur_umask = umask((mode_t)((S_IRWXU|S_IRWXG|S_IRWXO)&~(S_IRUSR|S_IWUSR)));
 #ifdef	HAVE_MKSTEMP
 				if ((out = fdopen(mkstemp(ifile), "wb")) == NULL) {

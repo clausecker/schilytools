@@ -1,4 +1,4 @@
-#ident "@(#)mk-smake.id	1.7 09/08/12 "
+#ident "@(#)mk-smake.id	1.8 11/04/14 "
 ###########################################################################
 # Written 1996 by J. Schilling
 ###########################################################################
@@ -61,3 +61,12 @@ OSNAME=		$(MAKE_OS)
 OSDEFS=		$(MAKE_OSDEFS)
 OSREL=		$(MAKE_OSREL)
 OSVERSION=	$(MAKE_OSVERSION)
+
+#
+# Disable Simple Suffix Rules
+#
+.SSUFFIX_RULES:
+#
+# Disable Suffix Rules
+#
+.SUFFIXES:

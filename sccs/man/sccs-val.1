@@ -19,7 +19,7 @@
 .\" CDDL HEADER END
 .\" Copyright (c) 2002, Sun Microsystems, Inc. All Rights Reserved
 .\" Copyright 2007-2011 J. Schilling
-.TH sccs-val 1 "2011/04/05" "SunOS 5.11" "User Commands"
+.TH sccs-val 1 "2011/04/21" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs-val, val \- validate an SCCS file
 .SH SYNOPSIS
@@ -40,6 +40,13 @@ The \fBval\fR utility determines if the specified \fBs.\fRfiles meet the charact
 
 .LP
 \fBval\fR has a special argument, `\fB\(mi\fR', which reads the standard input until the end-of-file condition is detected. Each line read is independently processed as if it were a command line argument list.
+.sp
+
+.LP
+If a directory name is used in place of the \fIs.filename\fR command line argument,
+the
+.B val
+command applies to all \fBs.\fRfiles in that directory. Unreadable \fBs.\fRfiles produce an error; processing continues with the next file (if any).
 .sp
 
 .LP

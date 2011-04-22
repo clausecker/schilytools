@@ -23,12 +23,12 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2009 J. Schilling
+ * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)sccs.c	1.37 09/12/30 J. Schilling
+ * @(#)sccs.c	1.40 11/04/21 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)sccs.c 1.37 09/12/30 J. Schilling"
+#pragma ident "@(#)sccs.c 1.40 11/04/21 J. Schilling"
 #endif
 /*
  * @(#)sccs.c 1.85 06/12/12
@@ -330,7 +330,7 @@ static struct sccsprog SccsProg[] =
 	"prt",		PROG,	RF_OK,			PROGPATH(prt),
 	"rmdel",	PROG,	REALUSER,		PROGPATH(rmdel),
  	"sact",		PROG,	RF_OK,			PROGPATH(sact),
-	"val",		PROG,	0,			PROGPATH(val),
+	"val",		PROG,	RF_OK,			PROGPATH(val),
 	"what",		PROG,	NO_SDOT,		PROGPATH(what),
 #ifndef V6	
 	"sccsdiff",	PROG,	REALUSER,		PROGPATH(sccsdiff),
@@ -612,9 +612,10 @@ main(argc, argv)
 #endif
 
 			  case 'V':		/* version */
-				printf("sccs %s-SCCS version %s (%s-%s-%s)\n",
+				printf("sccs %s-SCCS version %s %s (%s-%s-%s)\n",
 					PROVIDER,
 					VERSION,
+					VDATE,
 					HOST_CPU, HOST_VENDOR, HOST_OS);
 				exit(EX_OK);
 
@@ -3121,15 +3122,31 @@ walkfunc(nm, fs, type, state)
 				if ((strlen(nm+state->base) + 11) < sizeof (nb))
 					cat(nb, nm + state->base, "/",
 						".sccsignore", (char *)0);
+
+				/*
+				 * Check whether this directory contains a file
+				 * ".sccsignore" and thus this sub-tree should
+				 * be ignored.
+				 */
 				if (nb[0] && access(nb, F_OK) >= 0)
 					state->flags |= WALK_WF_PRUNE;
+				/*
+				 * This is not a "SCCS" directory, so do
+				 * nothing and just return.
+				 */
 				return (0);
 			}
 		}
 	} else {
+		/*
+		 * The find expression did not match, so return.
+		 */
 		return (0);
 	}
 
+	/*
+	 * At this point we either found a SCCS directory or a matching file.
+	 */
 	{
 		struct wargs	*wp = state->auxp;
 		int		cwdlen;
@@ -3137,6 +3154,9 @@ walkfunc(nm, fs, type, state)
 		 * The chdir code is only needed as long as we do not have
 		 * a portable treewalk() that does not require itself
 		 * an internal chdir() to work correctly.
+		 *
+		 * First fetch the current directory in case we collect names
+		 * and call the command only once.
 		 */
 #ifdef	HAVE_FCHDIR
 		int f = -1;
@@ -3183,8 +3203,8 @@ walkfunc(nm, fs, type, state)
 			return (0);
 		}
 
-		if ((cwdlen + 3) < Cwdlen) {
-			Cwdlen = roundup(cwdlen, 64);
+		if ((cwdlen + 3) > Cwdlen) {
+			Cwdlen = roundup(cwdlen+3, 64);
 			Cwd = realloc(Cwd, Cwdlen);
 			if (Cwd == NULL) {
 				perror(gettext("Sccs: no mem"));

@@ -25,12 +25,12 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2009 J. Schilling
+ * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)rmchg.c	1.16 09/11/08 J. Schilling
+ * @(#)rmchg.c	1.19 11/04/22 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)rmchg.c 1.16 09/11/08 J. Schilling"
+#pragma ident "@(#)rmchg.c 1.19 11/04/22 J. Schilling"
 #endif
 /*
  * @(#)rmchg.c 1.19 06/12/12
@@ -226,9 +226,10 @@ char *argv[];
 				break;
 
 			case 'V':		/* version */
-				printf("rmchg %s-SCCS version %s (%s-%s-%s)\n",
+				printf("rmchg %s-SCCS version %s %s (%s-%s-%s)\n",
 					PROVIDER,
 					VERSION,
+					VDATE,
 					HOST_CPU, HOST_VENDOR, HOST_OS);
 				exit(EX_OK);
 
@@ -656,7 +657,7 @@ struct packet *pkt;
 		 /* move the cmr data to a holder*/
 		 p = pkt->p_line;
 		 p += 3;
-		 strcpy(holder,p);
+		 strlcpy(holder, p, sizeof (holder));
 		 i=0;
 		 outhold[0]= '\0';
 		 holdptr[0]= strtok(holder,",\n");
@@ -728,7 +729,7 @@ struct packet *pkt;
 	int i,j;
 	p = pkt->p_line;
 	p += 3;
-	strcpy(holder,p);
+	strlcpy(holder, p, sizeof (holder));
 	mrhold[0]=strtok(holder,"\n,");
 	i=0;
 	while((mrhold[++i] = strtok(0,"\n,")) != NULL)
@@ -796,14 +797,14 @@ msg(app,name,cmrs,stats,sids,fred)
 	}
 	else
 	{
-		strcpy(pname,name);
+		strlcpy(pname, name, sizeof (pname));
 	}
-	strcpy(holdfred,fred);
+	strlcpy(holdfred, fred, sizeof (holdfred));
 	ptr=(char *)strchr(holdfred,'.');
 	*ptr = '\0';
-	 strcat(holdfred,NOGETTEXT("source"));
-	 strcpy(dir,holdfred);
-	 strcat(holdfred,NOGETTEXT("/termLOG"));
+	 strlcat(holdfred, NOGETTEXT("source"), sizeof (holdfred));
+	 strlcpy(dir, holdfred, sizeof (dir));
+	 strlcat(holdfred, NOGETTEXT("/termLOG"), sizeof (holdfred));
 	 if(stat(holdfred,&stbuf) == -1)
 		noexist = 1; /*new termLOG */
 	if(!(fd=fopen(holdfred, NOGETTEXT("ab"))))

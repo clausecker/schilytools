@@ -1,16 +1,16 @@
-#ident @(#)rules.rdi	1.9 06/05/14 
+#ident @(#)rules.rdi	1.10 11/04/14 
 ###########################################################################
 # Written 1996 by J. Schilling
 ###########################################################################
 #
 # DIRS contains the names of all directories where sub make should take place
-# This is a modified version for the prokect's root directory
+# This is a modified version for the project's root directory
 #
 ###########################################################################
 # Copyright (c) J. Schilling
 ###########################################################################
 # The contents of this file are subject to the terms of the
-# Common Development and Distribution License, Version 1.0 only.
+# Common Development and Distribution License, Version 1.0 only
 # (the "License").  You may not use this file except in compliance
 # with the License.
 #
@@ -24,6 +24,10 @@ include		$(SRCROOT)/$(RULESDIR)/rules1.dir
 
 ###########################################################################
 include		$(SRCROOT)/$(RULESDIR)/rules.hlp
+###########################################################################
+
+# The need for this special variant of rules has been removed by introducing
+# the SRCROOTSL macro in RULES/rules1.top
 ###########################################################################
 # Due to a serious bug in SunPRO make we cannot include the configuration
 # rules. SunPRO make inconsistsently shortens rules that start with "./"

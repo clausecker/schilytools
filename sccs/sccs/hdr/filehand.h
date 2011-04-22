@@ -25,12 +25,15 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2009 J. Schilling
+ * This file contains modifications Copyright 2009-2011 J. Schilling
  *
- * @(#)filehand.h	1.4 09/11/08 J. Schilling
+ * @(#)filehand.h	1.5 11/04/20 J. Schilling
  */
+#ifndef	_HDR_FILEHAND_H
+#define	_HDR_FILEHAND_H
+
 #if defined(sun)
-#pragma ident "@(#)filehand.h 1.4 09/11/08 J. Schilling"
+#pragma ident "@(#)filehand.h 1.5 11/04/20 J. Schilling"
 #endif
 /*
  * @(#)filehand.h 1.3 06/12/12
@@ -125,3 +128,4 @@
 # define FIXED 1		/* Records are of a fixed size. */
 # define VARIED 2		/* Records are of a varied size. */
 
+#endif	/* _HDR_FILEHAND_H */

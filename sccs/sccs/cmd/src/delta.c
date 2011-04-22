@@ -25,12 +25,12 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2009 J. Schilling
+ * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)delta.c	1.17 09/11/15 J. Schilling
+ * @(#)delta.c	1.20 11/04/22 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)delta.c 1.17 09/11/15 J. Schilling"
+#pragma ident "@(#)delta.c 1.20 11/04/22 J. Schilling"
 #endif
 /*
  * @(#)delta.c 1.40 06/12/12
@@ -249,9 +249,10 @@ register char *argv[];
 				break;
 
 			case 'V':		/* version */
-				printf("delta %s-SCCS version %s (%s-%s-%s)\n",
+				printf("delta %s-SCCS version %s %s (%s-%s-%s)\n",
 					PROVIDER,
 					VERSION,
+					VDATE,
 					HOST_CPU, HOST_VENDOR, HOST_OS);
 				exit(EX_OK);
 
@@ -343,7 +344,7 @@ char *file;
 	if((pp->pf_cmrlist)==0)
 		Cmrs[0] = 0;
 	else
-		strcpy(Cmrs,pp->pf_cmrlist);
+		strlcpy(Cmrs, pp->pf_cmrlist, sizeof (Cmrs));
 
 	if(!pp->pf_nsid.s_br) {
 		sprintf(nsid, NOGETTEXT("%d.%d"),

@@ -37,12 +37,12 @@
  * contributors.
  */
 /*
- * This file contains modifications Copyright 2006-2009 J. Schilling
+ * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)diff.c	1.25 09/11/15 J. Schilling
+ * @(#)diff.c	1.30 11/04/22 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)diff.c 1.25 09/11/15 J. Schilling"
+#pragma ident "@(#)diff.c 1.30 11/04/22 J. Schilling"
 #endif
 
 #if defined(sun)
@@ -193,6 +193,9 @@
 #endif
 #ifndef	HOST_OS
 #define	HOST_OS		"SunOS"
+#endif
+#ifndef	VDATE
+#define	VDATE		""
 #endif
 
 #ifdef	USE_VERSION_H
@@ -377,7 +380,8 @@ main(argc, argv)
 
 	diffargv = argv;
 	whichtemp = 0;
-	while ((flag = getopt(argc, argv, "bitwcuefhnlrsC:D:S:U:V(version)")) != EOF) {
+	while ((flag =
+	    getopt(argc, argv, "bitwcuefhnlrsNC:D:S:U:V(version)")) != EOF) {
 		switch (flag) {
 		case 'D':
 			opt = D_IFDEF;
@@ -415,6 +419,10 @@ main(argc, argv)
 				uflag = 0;
 			break;
 
+		case 'N':
+			Nflag = 1;
+			break;
+
 		case 'e':
 			opt = D_EDIT;
 			break;
@@ -444,7 +452,7 @@ main(argc, argv)
 			break;
 
 		case 'S':
-			(void) strcpy(start, optarg);
+			(void) strlcpy(start, optarg, sizeof (start));
 			break;
 
 		case 's':
@@ -464,9 +472,11 @@ main(argc, argv)
 			break;
 
 		case 'V':		/* version */
-			printf("diff %s-SCCS version %s (%s-%s-%s)\n",
+			printf("diff %s-SCCS version %s%s%s (%s-%s-%s)\n",
 				PROVIDER,
 				VERSION,
+				*VDATE ? " ":"",
+				VDATE,
 				HOST_CPU, HOST_VENDOR, HOST_OS);
 			exit(EX_OK);
 
@@ -490,6 +500,7 @@ main(argc, argv)
 
 	file1 = argv[0];
 	file2 = argv[1];
+	file1ok = file2ok = 1;
 
 	if (hflag) {
 		if (opt) {
@@ -506,6 +517,42 @@ gettext("-h doesn't support -e, -f, -n, -c, or -I"));
 
 	}
 
+	if (Nflag) {
+		int	fail = 0;
+
+		if (stat(file1, &stb1) < 0) {
+			if (errno == ENOENT) {		/* file1 nonexisting */
+				file1ok = 0;
+				stb1.st_mode = S_IFREG;	/* assume plain file */
+				stb1.st_size = 0;
+				input[0] = fopen("/dev/null", "r");
+				fail += 1;
+			}
+		}
+		if (stat(file2, &stb2) < 0) {
+			if (errno == ENOENT) {
+				file2ok = 0;
+				if (!fail)
+					stb2.st_mode = stb1.st_mode;
+				else
+					stb2.st_mode = S_IFREG;
+				stb2.st_size = 0;
+				input[1] = fopen("/dev/null", "r");
+				fail += 1;
+			}
+		} else if (fail == 1) {			/* file2 exists	    */
+			stb1.st_mode = stb2.st_mode;	/* file1 like file2 */
+		}
+		if (fail > 1) {				/* both files missing */
+			if (input[0] != NULL)
+				fclose(input[0]);
+			if (input[1] != NULL)
+				fclose(input[1]);
+			input[0] = NULL;
+			input[1] = NULL;
+		}
+	}
+
 	if (strcmp(file1, "-") == 0) {
 		if (fstat(fileno(stdin), &stb1) == 0)
 			stb1.st_mode = S_IFREG;
@@ -514,7 +561,7 @@ gettext("-h doesn't support -e, -f, -n, -c, or -I"));
 			perror("stdin");
 			done();
 		}
-	} else if (stat(file1, &stb1) < 0) {
+	} else if (input[0] == NULL && stat(file1, &stb1) < 0) {
 		(void) fprintf(stderr, "diff: ");
 		perror(file1);
 		done();
@@ -532,7 +579,7 @@ gettext("-h doesn't support -e, -f, -n, -c, or -I"));
 				done();
 			}
 		}
-	} else if (stat(file2, &stb2) < 0) {
+	} else if (input[1] == NULL && stat(file2, &stb2) < 0) {
 		(void) fprintf(stderr, "diff: ");
 		perror(file2);
 		done();
@@ -546,7 +593,7 @@ gettext("-h doesn't support -e, -f, -n, -c, or -I"));
 
 	filename(&file1, &file2, &stb1, &input_file1);
 	filename(&file2, &file1, &stb2, &input_file2);
-	if ((input[0] = fopen(file1, "r")) == NULL) {
+	if (input[0] == NULL && (input[0] = fopen(file1, "r")) == NULL) {
 		(void) fprintf(stderr, "diff: ");
 		perror(file1);
 		status = 2;
@@ -554,7 +601,7 @@ gettext("-h doesn't support -e, -f, -n, -c, or -I"));
 	}
 	initbuf(input[0], 0, (off_t)0);
 
-	if ((input[1] = fopen(file2, "r")) == NULL) {
+	if (input[1] == NULL && (input[1] = fopen(file2, "r")) == NULL) {
 		(void) fprintf(stderr, "diff: ");
 		perror(file2);
 		status = 2;
@@ -583,8 +630,10 @@ gettext("-h doesn't support -e, -f, -n, -c, or -I"));
 			/* files are the same; diff -D needs to print one */
 			if (opt == D_IFDEF) {
 				rewind(input[0]);
-				while ((i = fread(buf1, 1, BUFSIZ, input[0])) > 0)
+				while ((i =
+				    fread(buf1, 1, BUFSIZ, input[0])) > 0) {
 					(void) fwrite(buf1, 1, i, stdout);
+				}
 			}
 			(void) fclose(input[0]);
 			(void) fclose(input[1]);
@@ -1303,9 +1352,23 @@ dump_context_vec()
 	upd  = min(len[1], context_vec_ptr->d + context);
 
 	if (uflag) {
+		/*
+		 * The POSIX standard likes to see 0,0 for an empty range at
+		 * the beginning of a file. We use
+		 * 	1,0 for "diff -Nu file /dev/null"
+		 * and
+		 * 	0,0 for "diff -Nu file non-existent"
+		 * which matches the behavior of patch(1) that removes files
+		 * only if the range was specified by 0,0.
+		 */
+		a = b = 0;
+		if (file1ok == 0)
+			a = 1;
+		if (file2ok == 0)
+			b = 1;
 		(void) printf("@@ -%d,%d +%d,%d @@\n",
-		    lowa, upb - lowa + 1,
-		    lowc, upd - lowc + 1);
+		    lowa - a, upb - lowa + 1,
+		    lowc - b, upd - lowc + 1);
 	} else {
 		(void) printf("***************\n*** ");
 		range(lowa, upb, ",");
@@ -1441,13 +1504,13 @@ diffdir(argv)
 	}
 	dirstatus = 0;
 	title[0] = 0;
-	(void) strcpy(title, "diff ");
+	(void) strlcpy(title, "diff ", sizeof (title));
 	for (i = 1; diffargv[i + 2]; i++) {
 		if (strcmp(diffargv[i], "-") == 0) {
 			continue;	/* Skip -S and its argument */
 		}
-		(void) strcat(title, diffargv[i]);
-		(void) strcat(title, " ");
+		(void) strlcat(title, diffargv[i], sizeof (title));
+		(void) strlcat(title, " ", sizeof (title));
 	}
 	for (etitle = title; *etitle; etitle++)
 		;
@@ -1474,26 +1537,40 @@ diffdir(argv)
 		else
 			cmp = strcmp(d1->d_entry, d2->d_entry);
 		if (cmp < 0) {
-			if (lflag)
+			if (Nflag) {
+				result = compare(d1);
+				if (result > dirstatus)
+					dirstatus = result;
+			} else if (lflag)
 				d1->d_flags |= ONLY;
 			else if (opt == D_NORMAL || opt == D_CONTEXT)
 				only(d1, 1);
-			d1++;
-			if (dirstatus == 0)
+			if (d1->d_entry)
+				d1++;
+			if (!Nflag && dirstatus == 0)
 				dirstatus = 1;
 		} else if (cmp == 0) {
 			result = compare(d1);
 			if (result > dirstatus)
 				dirstatus = result;
-			d1++;
-			d2++;
+			if (d1->d_entry)
+				d1++;
+			if (d2->d_entry)
+				d2++;
 		} else {
-			if (lflag)
+			if (Nflag) {
+				result = compare(d2);
+				if (result > dirstatus)
+					dirstatus = result;
+				if (d2->d_flags & DIRECT)
+					d2->d_flags |= XDIRECT;
+			} else if (lflag)
 				d2->d_flags |= ONLY;
 			else if (opt == D_NORMAL || opt == D_CONTEXT)
 				only(d2, 2);
-			d2++;
-			if (dirstatus == 0)
+			if (d2->d_entry)
+				d2++;
+			if (!Nflag && dirstatus == 0)
 				dirstatus = 1;
 		}
 	}
@@ -1523,6 +1600,17 @@ diffdir(argv)
 			result = calldiff((char *)0);
 			if (result > dirstatus)
 				dirstatus = result;
+		}
+		if (Nflag) {
+			for (d2 = dir2; d2->d_entry; d2++)  {
+				if ((d2->d_flags & XDIRECT) == 0)
+						continue;
+				(void) strcpy(efile1, d2->d_entry);
+				(void) strcpy(efile2, d2->d_entry);
+				result = calldiff((char *)0);
+				if (result > dirstatus)
+					dirstatus = result;
+			}
 		}
 	}
 	status = dirstatus;
@@ -1588,7 +1676,8 @@ only(dp, which)
 	char *filen = which == 1 ? file1 : file2;
 	char *efilen = which == 1 ? efile1 : efile2;
 
-	(void) printf(gettext("Only in %.*s: %s\n"), (int)(efilen - filen - 1), filen,
+	(void) printf(gettext("Only in %.*s: %s\n"),
+	    (int)(efilen - filen - 1), filen,
 	    dp->d_entry);
 }
 
@@ -1603,6 +1692,13 @@ setupdir(cp)
 	DIR *dirp;
 
 	dirp = opendir(cp);
+	if (Nflag && dirp == NULL) {
+		dp = (struct dir *)malloc(sizeof (struct dir));
+		if (dp == 0)
+			error(gettext(NO_MEM_ERR));
+		dp[0].d_entry = 0;		/* delimiter */
+		return (dp);
+	}
 	if (dirp == NULL) {
 		(void) fprintf(stderr, "diff: ");
 		perror(cp);
@@ -1657,20 +1753,30 @@ compare(dp)
 	mode_t fmt1, fmt2;
 	struct stat statb1, statb2;
 	char buf1[BUFSIZ], buf2[BUFSIZ];
-	int result;
+	int result = 0;
 
 	(void) strcpy(efile1, dp->d_entry);
 	(void) strcpy(efile2, dp->d_entry);
 
 	if (stat(file1, &statb1) == -1) {
-		(void) fprintf(stderr, "diff: ");
-		perror(file1);
-		return (2);
+		if (errno == ENOENT && Nflag) {
+			statb1.st_mode = 0;
+			result = 1;
+		} else {
+			(void) fprintf(stderr, "diff: ");
+			perror(file1);
+			return (2);
+		}
 	}
 	if (stat(file2, &statb2) == -1) {
-		(void) fprintf(stderr, "diff: ");
-		perror(file2);
-		return (2);
+		if (errno == ENOENT && Nflag) {
+			statb2.st_mode = 0;
+			result = 1;
+		} else {
+			(void) fprintf(stderr, "diff: ");
+			perror(file2);
+			return (2);
+		}
 	}
 
 	fmt1 = statb1.st_mode & S_IFMT;
@@ -1695,6 +1801,13 @@ compare(dp)
 		}
 	}
 
+	if (result) {
+		if (fmt1 == S_IFDIR || fmt2 == S_IFDIR)
+			fmt1 = fmt2 = S_IFDIR;
+		if (fmt1 == S_IFREG || fmt2 == S_IFREG)
+			goto notsame;
+	}
+
 	if (fmt1 != S_IFREG || fmt2 != S_IFREG) {
 		if (fmt1 == fmt2) {
 			switch (fmt1) {
@@ -1702,6 +1815,8 @@ compare(dp)
 			case S_IFDIR:
 				dp->d_flags = DIRECT;
 				if (lflag || opt == D_EDIT)
+					goto closem;
+				if (Nflag && rflag)
 					goto closem;
 				(void) printf(gettext(
 				    "Common subdirectories: %s and %s\n"),
@@ -1867,7 +1982,7 @@ calldiff(wantpr)
 			(void) close(pv[0]);
 			(void) close(pv[1]);
 #endif
-			(void) execv(pr+5, prargs);
+			(void) execv(pr+4, prargs);
 			(void) execv(pr, prargs);
 			perror(pr);
 #ifdef	HAVE_VFORK
@@ -1887,7 +2002,10 @@ calldiff(wantpr)
 			(void) close(pv[0]);
 			(void) close(pv[1]);
 		}
-		(void) execv(diff+5, diffargv);
+#ifdef	HAVE_GETEXECNAME
+		(void) execv(getexecname(), diffargv);
+#endif
+		(void) execv(diff+4, diffargv);
 		(void) execv(diff, diffargv);
 		perror(diff);
 #ifdef	HAVE_VFORK
@@ -1974,6 +2092,8 @@ binary(f)
 	char buf[BUFSIZ];
 	int cnt;
 
+	if (f < 0)
+		return (0);
 	(void) lseek(f, (off_t)0, SEEK_SET);
 	cnt = read(f, buf, BUFSIZ);
 	if (cnt < 0)

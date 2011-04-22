@@ -119,7 +119,7 @@ do
 			fi
 			;;
 		-V)
-			echo "$0 PROVIDER-SCCS version VERSION (HOST_SUB)"
+			echo "$0 PROVIDER-SCCS version VERSION VDATE (HOST_SUB)"
 			exit 0
 			;;
 		*)

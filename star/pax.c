@@ -1,13 +1,13 @@
-/* @(#)pax.c	1.27 10/07/28 Copyright 1989, 2003-2010 J. Schilling */
+/* @(#)pax.c	1.28 11/04/16 Copyright 1989, 2003-2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char _p_sccsid[] =
-	"@(#)pax.c	1.27 10/07/28 Copyright 1989, 2003-2010 J. Schilling";
+	"@(#)pax.c	1.28 11/04/16 Copyright 1989, 2003-2011 J. Schilling";
 #endif
 /*
  *	PAX specific routines for star main program.
  *
- *	Copyright (c) 1989, 2003-2010 J. Schilling
+ *	Copyright (c) 1989, 2003-2011 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -82,10 +82,10 @@ LOCAL	void	pax_setopts	__PR((char *o));
 /*
  * PAX related options
  *
- * The official POSIX options start after the -bz/-lzo/-7z/-xz option.
+ * The official POSIX options start after the -bz/-lzo/-7z/-xz/-lzip option.
  */
 /* BEGIN CSTYLED */
-char	_opts[] = "help,xhelp,version,debug,xdebug#,xd#,time,no-statistics,do-statistics,fifostats,numeric,no-fifo,no-fsync,bs&,fs&,/,..,secure-links,acl,xfflags,z,bz,lzo,7z,xz,r,w,a,b&,c,d,f&,H,i,k,L,l,n,o*,p&,s&,t,u,v+,x&,artype&,X";
+char	_opts[] = "help,xhelp,version,debug,xdebug#,xd#,time,no-statistics,do-statistics,fifostats,numeric,no-fifo,no-fsync,bs&,fs&,/,..,secure-links,acl,xfflags,z,bz,lzo,7z,xz,lzip,r,w,a,b&,c,d,f&,H,i,k,L,l,n,o*,p&,s&,t,u,v+,x&,artype&,X";
 /* END CSTYLED */
 char	*opts = _opts;
 
@@ -140,7 +140,7 @@ gargs(ac, av)
 				&abs_path, &allow_dotdot, &secure_links,
 				&doacl, &dofflags,
 				&zflag, &bzflag, &lzoflag,
-				&p7zflag, &xzflag,
+				&p7zflag, &xzflag, &lzipflag,
 				&paxrflag,
 				&paxwflag,
 				&paxaflag,
@@ -284,6 +284,7 @@ usage(ret)
 	error("\t-lzo\t\t(*) pipe input/output through lzop, does not work on tapes\n");
 	error("\t-7z\t\t(*) pipe input/output through p7zip, does not work on tapes\n");
 	error("\t-xz\t\t(*) pipe input/output through xz, does not work on tapes\n");
+	error("\t-lzip\t\t(*) pipe input/output through lzip, does not work on tapes\n");
 #ifdef	FIFO
 	error("\t-no-fifo\t(*) don't use a fifo to optimize data flow from/to tape\n");
 #endif

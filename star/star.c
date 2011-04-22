@@ -1,8 +1,8 @@
-/* @(#)star.c	1.331 11/04/12 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2011 J. Schilling */
+/* @(#)star.c	1.333 11/04/14 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)star.c	1.331 11/04/12 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2011 J. Schilling";
+	"@(#)star.c	1.333 11/04/14 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2011 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1985, 88-90, 92-96, 98, 99, 2000-2011 J. Schilling
@@ -201,6 +201,7 @@ BOOL	bzflag	  = FALSE;		/* -bz has been specified	*/
 BOOL	lzoflag	  = FALSE;		/* -lzo has been specified	*/
 BOOL	p7zflag	  = FALSE;		/* -7z has been specified	*/
 BOOL	xzflag	  = FALSE;		/* -xz has been specified	*/
+BOOL	lzipflag  = FALSE;		/* -lzip has been specified	*/
 char	*compress_prg = NULL;		/* -compress-program specified	*/
 BOOL	multblk	  = FALSE;		/* -B has been specified	*/
 BOOL	ignoreerr = FALSE;		/* -i has been specified	*/
@@ -292,7 +293,7 @@ findn_t	*find_node;			/* syntaxtree from find_parse()	*/
 void	*plusp;				/* residual for -exec ...{} +	*/
 int	find_patlen;			/* len for -find pattern state	*/
 
-LOCAL 	int		walkflags = WALK_CHDIR | WALK_PHYS | WALK_NOEXIT | \
+LOCAL 	int		walkflags = WALK_CHDIR | WALK_PHYS | WALK_NOEXIT |
 				    WALK_STRIPLDOT;
 LOCAL	int		maxdepth = -1;
 LOCAL	int		mindepth = -1;
@@ -325,7 +326,7 @@ GINFO	*grip = &_grinfo;		/* Global read info pointer	*/
  * werden wird bei Falschschreibung von -fifo evt. eine Datei angelegt wird.
  */
 /* BEGIN CSTYLED */
-char	_opts[] = "C*,find~,help,xhelp,version,debug,xdebug#,xd#,bsdchdir,pax-ls,level#,tardumps*,wtardumps,time,no_statistics,no-statistics,cpio-statistics,fifostats,numeric,v+,block-number,tpath,c,u,r,x,t,copy,n,diff,diffopts&,H&,artype&,print-artype,fs-name*,force_hole,force-hole,sparse,to_stdout,to-stdout,wready,force_remove,force-remove,ask_remove,ask-remove,remove_first,remove-first,remove_recursive,remove-recursive,keep-nonempty-dirs,install,nullout,onull,fifo,no_fifo,no-fifo,shm,fs&,VOLHDR*,list*,pkglist*,multivol,new-volume-script*,force-local,restore,force-restore,file&,f&,T,Z,z,bz,j,lzo,7z,xz,compress-program*,bs&,blocks&,b&,B,pattern&,pat&,i,d,m,o,nochown,pax-p&,a,atime,p,no-p,dirmode,l,h,L,pax-L~,pax-H~,pax-P~,D,dodesc,M,xdev,w,pax-i,I,X&,exclude-from&,O,signed_checksum,signed-checksum,P,S,F+,U,xdir,xdot,k,keep_old_files,keep-old-files,refresh_old_files,refresh-old-files,refresh,/,..,secure-links,no-dirslash,not,V,match-tree,pax-match,pax-n,pax-c,notarg,maxsize&,newer*,ctime,nodump,tsize&,qic24,qic120,qic150,qic250,qic525,nowarn,newest_file,newest-file,newest,hpdev,modebits,copylinks,copyhardlinks,copysymlinks,copydlinks,hardlinks,symlinks,link-data,acl,xattr,xattr-linux,xfflags,link-dirs,dumpdate*,dump,cumulative,dump-cumulative,meta,dumpmeta,xmeta,silent,lowmem,no-xheader,no-fsync,read0,errctl&,e,data-change-warn,prinodes,dir-owner*,dir-group*,umask*,s&,?";
+char	_opts[] = "C*,find~,help,xhelp,version,debug,xdebug#,xd#,bsdchdir,pax-ls,level#,tardumps*,wtardumps,time,no_statistics,no-statistics,cpio-statistics,fifostats,numeric,v+,block-number,tpath,c,u,r,x,t,copy,n,diff,diffopts&,H&,artype&,print-artype,fs-name*,force_hole,force-hole,sparse,to_stdout,to-stdout,wready,force_remove,force-remove,ask_remove,ask-remove,remove_first,remove-first,remove_recursive,remove-recursive,keep-nonempty-dirs,install,nullout,onull,fifo,no_fifo,no-fifo,shm,fs&,VOLHDR*,list*,pkglist*,multivol,new-volume-script*,force-local,restore,force-restore,file&,f&,T,Z,z,bz,j,lzo,7z,xz,lzip,compress-program*,bs&,blocks&,b&,B,pattern&,pat&,i,d,m,o,nochown,pax-p&,a,atime,p,no-p,dirmode,l,h,L,pax-L~,pax-H~,pax-P~,D,dodesc,M,xdev,w,pax-i,I,X&,exclude-from&,O,signed_checksum,signed-checksum,P,S,F+,U,xdir,xdot,k,keep_old_files,keep-old-files,refresh_old_files,refresh-old-files,refresh,/,..,secure-links,no-dirslash,not,V,match-tree,pax-match,pax-n,pax-c,notarg,maxsize&,newer*,ctime,nodump,tsize&,qic24,qic120,qic150,qic250,qic525,nowarn,newest_file,newest-file,newest,hpdev,modebits,copylinks,copyhardlinks,copysymlinks,copydlinks,hardlinks,symlinks,link-data,acl,xattr,xattr-linux,xfflags,link-dirs,dumpdate*,dump,cumulative,dump-cumulative,meta,dumpmeta,xmeta,silent,lowmem,no-xheader,no-fsync,read0,errctl&,e,data-change-warn,prinodes,dir-owner*,dir-group*,umask*,s&,?";
 /* END CSTYLED */
 char	*opts = _opts;
 #else
@@ -1041,6 +1042,7 @@ usage(ret)
 	error("\t-lzo\t\tpipe input/output through lzop, does not work on tapes\n");
 	error("\t-7z\t\tpipe input/output through p7zip, does not work on tapes\n");
 	error("\t-xz\t\tpipe input/output through xz, does not work on tapes\n");
+	error("\t-lzip\t\tpipe input/output through lzip, does not work on tapes\n");
 	error("\tcompress-program=name\tpipe input/output through program 'name', does not work on tapes\n");
 	error("\t-B\t\tperform multiple reads (needed on pipes)\n");
 	error("\t-i\t\tignore checksum errors\n");
@@ -1293,7 +1295,7 @@ signed	char	archive	 = -1;		/* On IRIX, we have unsigned chars by default */
 BOOL	Ointeractive	 = FALSE;
 
 /* BEGIN CSTYLED */
-/*char	_opts[] = "C*,find~,help,xhelp,version,debug,xdebug#,xd#,bsdchdir,pax-ls,level#,tardumps*,wtardumps,time,no_statistics,no-statistics,cpio-statistics,fifostats,numeric,v+,block-number,tpath,c,u,r,x,t,copy,n,diff,diffopts&,H&,artype&,print-artype,fs-name*,force_hole,force-hole,sparse,to_stdout,to-stdout,wready,force_remove,force-remove,ask_remove,ask-remove,remove_first,remove-first,remove_recursive,remove-recursive,keep-nonempty-dirs,install,nullout,onull,fifo,no_fifo,no-fifo,shm,fs&,VOLHDR*,list*,pkglist*,multivol,new-volume-script*,force-local,restore,force-restore,file&,f&,T,Z,z,bz,j,lzo,7z,xz,compress-program*,bs&,blocks&,b&,B,pattern&,pat&,i,d,m,o,nochown,pax-p&,a,atime,p,no-p,dirmode,l,h,L,pax-L~,pax-H~,pax-P~,D,dodesc,M,xdev,w,pax-i,I,X&,exclude-from&,O,signed_checksum,signed-checksum,P,S,F+,U,xdir,xdot,k,keep_old_files,keep-old-files,refresh_old_files,refresh-old-files,refresh,/,..,secure-links,no-dirslash,not,V,match-tree,pax-match,pax-n,pax-c,notarg,maxsize&,newer*,ctime,nodump,tsize&,qic24,qic120,qic150,qic250,qic525,nowarn,newest_file,newest-file,newest,hpdev,modebits,copylinks,copyhardlinks,copysymlinks,copydlinks,hardlinks,symlinks,link-data,acl,xattr,xattr-linux,xfflags,link-dirs,dumpdate*,dump,cumulative,dump-cumulative,meta,dumpmeta,xmeta,silent,lowmem,no-xheader,no-fsync,read0,errctl&,e,data-change-warn,prinodes,dir-owner*,dir-group*,umask*,s&,?";*/
+/*char	_opts[] = "C*,find~,help,xhelp,version,debug,xdebug#,xd#,bsdchdir,pax-ls,level#,tardumps*,wtardumps,time,no_statistics,no-statistics,cpio-statistics,fifostats,numeric,v+,block-number,tpath,c,u,r,x,t,copy,n,diff,diffopts&,H&,artype&,print-artype,fs-name*,force_hole,force-hole,sparse,to_stdout,to-stdout,wready,force_remove,force-remove,ask_remove,ask-remove,remove_first,remove-first,remove_recursive,remove-recursive,keep-nonempty-dirs,install,nullout,onull,fifo,no_fifo,no-fifo,shm,fs&,VOLHDR*,list*,pkglist*,multivol,new-volume-script*,force-local,restore,force-restore,file&,f&,T,Z,z,bz,j,lzo,7z,xz,lzip,compress-program*,bs&,blocks&,b&,B,pattern&,pat&,i,d,m,o,nochown,pax-p&,a,atime,p,no-p,dirmode,l,h,L,pax-L~,pax-H~,pax-P~,D,dodesc,M,xdev,w,pax-i,I,X&,exclude-from&,O,signed_checksum,signed-checksum,P,S,F+,U,xdir,xdot,k,keep_old_files,keep-old-files,refresh_old_files,refresh-old-files,refresh,/,..,secure-links,no-dirslash,not,V,match-tree,pax-match,pax-n,pax-c,notarg,maxsize&,newer*,ctime,nodump,tsize&,qic24,qic120,qic150,qic250,qic525,nowarn,newest_file,newest-file,newest,hpdev,modebits,copylinks,copyhardlinks,copysymlinks,copydlinks,hardlinks,symlinks,link-data,acl,xattr,xattr-linux,xfflags,link-dirs,dumpdate*,dump,cumulative,dump-cumulative,meta,dumpmeta,xmeta,silent,lowmem,no-xheader,no-fsync,read0,errctl&,e,data-change-warn,prinodes,dir-owner*,dir-group*,umask*,s&,?";*/
 /* END CSTYLED */
 
 #ifdef	STAR_FAT
@@ -1386,7 +1388,7 @@ BOOL	Ointeractive	 = FALSE;
 				addtarfile, NULL,
 				&usetape,
 				&Zflag, &zflag, &bzflag, &bzflag, &lzoflag,
-				&p7zflag, &xzflag,
+				&p7zflag, &xzflag, &lzipflag,
 				&compress_prg,
 				getnum, &bs,
 				getbnum, &llbs,
@@ -1555,6 +1557,8 @@ BOOL	Ointeractive	 = FALSE;
 				if (tarfiles[i][0] == '-' && tarfiles[i][1] == '\0')
 					did_stdout = TRUE;
 			}
+			if (ntarfiles == 1 && nullout)
+				did_stdout = FALSE;
 
 			if (find_node && (did_stdin || did_stdout)) {
 				if (find_pname(find_node, "-exec") ||

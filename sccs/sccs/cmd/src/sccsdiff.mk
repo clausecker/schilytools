@@ -1,4 +1,4 @@
-#ident @(#)sccsdiff.mk	1.2 11/04/03 
+#ident @(#)sccsdiff.mk	1.3 11/04/18 
 ###########################################################################
 # Sample makefile for installing localized shell scripts
 ###########################################################################
@@ -19,10 +19,12 @@ include		$(SRCROOT)/$(RULESDIR)/rules.scr
 ###########################################################################
 
 CPPOPTS +=	-I../../hdr
+VERSION=	../../hdr/version.c
 
 LOCALIZE=	@echo "	==> LOCALIZING \"$@\""; $(RM_F) $@; \
-	SVERS=`$(CPP) $(CPPFLAGS) version.c | grep '^version' | awk '{ print $$2 }' | sed 's/"//g'`\
-	SPROV=`$(CPP) $(CPPFLAGS) version.c | grep '^provider' | awk '{ print $$2 }' | sed 's/"//g'`\
-	SHOST=`$(CPP) $(CPPFLAGS) version.c | grep '^host_sub' | awk '{ print $$2 }' | sed 's/"//g'`\
+	SVERS=`$(CPP) $(CPPFLAGS) $(VERSION) | grep '^version' | awk '{ print $$2 }' | sed 's/"//g'`\
+	VDATE=`$(CPP) $(CPPFLAGS) $(VERSION) | grep '^vdate' | awk '{ print $$2 }' | sed 's/"//g'`\
+	SPROV=`$(CPP) $(CPPFLAGS) $(VERSION) | grep '^provider' | awk '{ print $$2 }' | sed 's/"//g'`\
+	SHOST=`$(CPP) $(CPPFLAGS) $(VERSION) | grep '^host_sub' | awk '{ print $$2 }' | sed 's/"//g'`\
 	export SVERS SPROV;\
-	sed "s/VERSION/$$SVERS/;s/PROVIDER/$$SPROV/;s/HOST_SUB/$$SHOST/" $(SRCFILE) > $@ ; :
+	sed "s/VERSION/$$SVERS/;s,VDATE,$$VDATE,;s/PROVIDER/$$SPROV/;s/HOST_SUB/$$SHOST/" $(SRCFILE) > $@ ; :

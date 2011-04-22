@@ -1,7 +1,7 @@
-/* @(#)util.c	1.12 11/01/30 2011 J. Schilling */
+/* @(#)util.c	1.14 11/04/22 2011 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)util.c	1.12 11/01/30 2011 J. Schilling";
+	"@(#)util.c	1.14 11/04/22 2011 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1986 Larry Wall
@@ -156,7 +156,6 @@ savestr(s)
 	char *s;
 {
 	char *rv;
-	char *t;
 
 	if (!s)
 		s = "Oops";
@@ -346,6 +345,15 @@ makedirs(filename, striplast)
 		dirvp--;
 	if (dirvp < 0)
 		return;
+#if 1
+	for (i = 0; i <= dirvp; i++) {
+		mkdir(tmpbuf, 
+			S_IRUSR|S_IWUSR|S_IXUSR 
+			|S_IRGRP|S_IWGRP|S_IXGRP 
+			|S_IROTH|S_IWOTH|S_IXOTH); 
+		*dirv[i] = '/';
+	}
+#else
 	strcpy(buf, "mkdir");
 	s = buf;
 	for (i = 0; i <= dirvp; i++) {
@@ -355,6 +363,7 @@ makedirs(filename, striplast)
 		*dirv[i] = '/';
 	}
 	system(buf);
+#endif
 }
 
 /* Make filenames more reasonable. */

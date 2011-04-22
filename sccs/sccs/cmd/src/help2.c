@@ -25,12 +25,12 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2009 J. Schilling
+ * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)help2.c	1.7 09/11/08 J. Schilling
+ * @(#)help2.c	1.8 11/04/22 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)help2.c 1.7 09/11/08 J. Schilling"
+#pragma ident "@(#)help2.c 1.8 11/04/22 J. Schilling"
 #endif
 /*
  * @(#)help2.c 1.10 06/12/12
@@ -123,7 +123,7 @@ static char   *locale = NULL; /* User's locale. */
 	int	main __PR((int argc, char **argv));
 static int	findprt __PR((char *p));
 static char *	ask __PR((void));
-static int	lochelp __PR((char *ky, char *fi));
+static int	lochelp __PR((char *ky, char *fi, size_t fisize));
 
 
 int
@@ -173,8 +173,8 @@ char *argv[];
 	 * Set directory to search for SCCS help text, not general
 	 * message text wrapped with "gettext()".
 	 */
-	strcpy(help_dir, helpdir);
-	strcat(help_dir, locale);
+	strlcpy(help_dir, helpdir, sizeof (help_dir));
+	strlcat(help_dir, locale, sizeof (help_dir));
 
        /*
 	* The text of the printf statement below should not be wrapped
@@ -183,8 +183,8 @@ char *argv[];
 	*/
 	if (stat(help_dir, &Statbuf) != 0) { /* Does help directory exist? */
 	        printf(NOGETTEXT("Unrecognized locale... setting to English\n"));
-	        strcpy(help_dir, helpdir); /* If not, set default locale */
-		strcat(help_dir, default_locale); /* to English. */
+	        strlcpy(help_dir, helpdir, sizeof (help_dir)); /* If not, set default locale */
+		strlcat(help_dir, default_locale, sizeof (help_dir)); /* to English. */
 		locale = default_locale;
 	}
 
@@ -214,28 +214,28 @@ char *p;		/* "p" is user specified error code. */
 		q++;
 
 	if (*q == '\0') {		/* all alphabetics */
-		strcpy(key,p);
+		strlcpy(key, p, sizeof (key));
 		sprintf(hfile,"%s%s%s",helpdir,locale,NOGETTEXT("/cmds"));
 		if (!exists(hfile))     
 			sprintf(hfile,"%s%s%s",helpdir,locale,dftfile);
 	}
 	else
 		if (q == p) {		/* first char numeric */
-			strcpy(key,p);
+			strlcpy(key, p, sizeof (key));
 			sprintf(hfile,"%s%s%s",helpdir,locale,dftfile);
 		}
 	else {				/* first char alpha, then numeric */
-		strcpy(key,p);		/* key used as temporary */
+		strlcpy(key, p, sizeof (key));	/* key used as temporary */
 		*(key + (q - p)) = '\0';
-		if(!lochelp(key,hfile)) 
+		if(!lochelp(key, hfile, sizeof (hfile))) 
 		        sprintf(hfile,"%s%s%s%s",helpdir,locale,
 		           NOGETTEXT("/"),key);
 		else
 			cat(hfile,hfile,NOGETTEXT("/"),locale,
 			   NOGETTEXT("/"),key, (char *)0);
-		strcpy(key,q);
+		strlcpy(key, q, sizeof (key));
 		if (!exists(hfile)) {
-			strcpy(key,p);
+			strlcpy(key, p, sizeof (key));
 			sprintf(hfile,"%s%s%s",helpdir,locale,dftfile);
 		}
 	}
@@ -293,8 +293,9 @@ ask()
  * variable fi).
  */
 static int
-lochelp(ky,fi)
+lochelp(ky, fi, fisize)
         char *ky,*fi; /*ky is key  fi is found file name */
+	size_t	fisize;
 {
 	FILE *fp;
 	char locfile[MAXLINE + 1];
@@ -310,7 +311,7 @@ lochelp(ky,fi)
 		if(!(strcmp(ky,hold)))
 		{
 			hold=(char *)strtok(0,"\n");
-			strcpy(fi,hold); /* copy file name to fi */
+			strlcpy(fi, hold, fisize); /* copy file name to fi */
 			fclose(fp);
 			return(1); /* entry found */
 		}

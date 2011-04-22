@@ -25,12 +25,12 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2009 J. Schilling
+ * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)comb.c	1.8 09/11/08 J. Schilling
+ * @(#)comb.c	1.10 11/04/20 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)comb.c 1.8 09/11/08 J. Schilling"
+#pragma ident "@(#)comb.c 1.10 11/04/20 J. Schilling"
 #endif
 /*
  * @(#)comb.c 1.15 06/12/12
@@ -159,9 +159,10 @@ register char *argv[];
 				break;
 
 			case 'V':		/* version */
-				printf("comb %s-SCCS version %s (%s-%s-%s)\n",
+				printf("comb %s-SCCS version %s %s (%s-%s-%s)\n",
 					PROVIDER,
 					VERSION,
+					VDATE,
 					HOST_CPU, HOST_VENDOR, HOST_OS);
 				exit(EX_OK);
 

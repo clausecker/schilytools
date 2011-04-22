@@ -1,7 +1,7 @@
-/* @(#)pch.c	1.12 11/01/31 2011 J. Schilling */
+/* @(#)pch.c	1.13 11/04/22 2011 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)pch.c	1.12 11/01/31 2011 J. Schilling";
+	"@(#)pch.c	1.13 11/04/22 2011 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1986-1988 Larry Wall
@@ -46,7 +46,7 @@ static LINENUM p_bfake = -1;		/* beg of faked up lines */
 
 static	void	grow_hunkmax __PR((void));
 static	int	intuit_diff_type __PR((void));
-static	void	next_intuit_at __PR((long file_pos, long file_line));
+static	void	next_intuit_at __PR((LINENUM file_pos, LINENUM file_line));
 static	void	skip_to __PR((off_t file_pos, off_t file_line));
 static	void	malformed __PR((void));
 static	char	*pgets __PR((char *bf, int sz, FILE *fp));
@@ -85,7 +85,7 @@ open_patch_file(filename)
 		fatal(_("patch file %s not found\n"), filename);
 	Fstat(fileno(pfp), &file_stat);
 	p_filesize = file_stat.st_size;
-	next_intuit_at(0L, 1L);			/* start at the beginning */
+	next_intuit_at((LINENUM)0, (LINENUM)1);	/* start at the beginning */
 	set_hunkmax();
 }
 
@@ -204,9 +204,9 @@ there_is_another_patch()
 static int
 intuit_diff_type()
 {
-	long this_line = 0;
-	long previous_line;
-	long first_command_line = -1;
+	off_t this_line = 0;
+	off_t previous_line;
+	off_t first_command_line = (off_t)-1;
 	LINENUM fcl_line = 0;
 	bool last_line_was_command = FALSE;
 	bool this_is_a_command = FALSE;
@@ -405,8 +405,8 @@ intuit_diff_type()
 
 static void
 next_intuit_at(file_pos, file_line)
-	long file_pos;
-	long file_line;
+	LINENUM	file_pos;
+	LINENUM	file_line;
 {
 	p_base = file_pos;
 	p_bline = file_line;
@@ -451,9 +451,9 @@ malformed()
 bool
 another_hunk()
 {
-	char *s;
-	char *ret;
-	int context = 0;
+	char	*s;
+	char	*ret;
+	LINENUM	context = 0;
 
 	while (p_end >= 0) {
 		if (p_end == p_efake)
@@ -467,7 +467,7 @@ another_hunk()
 
 	p_max = hunkmax;		/* gets reduced when --- found */
 	if (diff_type == CONTEXT_DIFF || diff_type == NEW_CONTEXT_DIFF) {
-		long line_beginning = ftell(pfp);
+		off_t	line_beginning = ftell(pfp);
 					/* file pos of the current line */
 		LINENUM repl_beginning = 0; /* index of --- line */
 		LINENUM fillcnt = 0;	/* #lines of missing ptrn or repl */
@@ -808,7 +808,7 @@ _("Replacement text or line numbers mangled in hunk at line %lld\n"),
 			assert(filldst == p_end+1 || filldst == repl_beginning);
 		}
 	} else if (diff_type == UNI_DIFF) {
-		long line_beginning = ftell(pfp);
+		off_t	line_beginning = ftell(pfp);
 						/* file pos of the current line */
 		LINENUM fillsrc;		/* index of old lines */
 		LINENUM filldst;		/* index of new lines */
@@ -963,8 +963,8 @@ _("Unexpected end of file in patch.\n"));
 		int i;
 #undef	min
 #undef	max
-		LINENUM min, max;
-		long line_beginning = ftell(pfp);
+		LINENUM	min, max;
+		off_t	line_beginning = ftell(pfp);
 
 		p_context = 0;
 		ret = pgets(buf, sizeof (buf), pfp);
@@ -1312,10 +1312,10 @@ pch_hunk_beg()
 void
 do_ed_script()
 {
-	char *t;
-	long beginning_of_this_line;
-	bool this_line_is_command = FALSE;
-	FILE *pipefp = 0;
+	char	*t;
+	off_t	beginning_of_this_line;
+	bool	this_line_is_command = FALSE;
+	FILE	*pipefp = 0;
 
 	if (!skip_rest_of_patch) {
 		Unlink(TMPOUTNAME);

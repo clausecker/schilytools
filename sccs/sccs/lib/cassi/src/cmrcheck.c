@@ -25,12 +25,12 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2009 J. Schilling
+ * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)cmrcheck.c	1.7 09/11/08 J. Schilling
+ * @(#)cmrcheck.c	1.8 11/04/22 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)cmrcheck.c 1.7 09/11/08 J. Schilling"
+#pragma ident "@(#)cmrcheck.c 1.8 11/04/22 J. Schilling"
 #endif
 /*
  * @(#)cmrcheck.c 1.5 06/12/12
@@ -82,7 +82,7 @@ char	*cmr,
 
 	TR("Cmrcheck: cmr=(%s) appl=(%s)\n", cmr, appl, NULL);
 	p[1] = EMPTY;
-	(void) strcpy (lcmr, cmr);
+	(void) strlcpy (lcmr, cmr, sizeof (lcmr));
 	while ((p[0] = strrchr (lcmr, ',')) != EMPTY) {
 		p[0]++;		/* Skip the ','. */
 		if (strlen (p[0]) != MAXLENCMR || sweep (SEQVERIFY, gf (appl), EMPTY,

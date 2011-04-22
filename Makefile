@@ -1,4 +1,4 @@
-#ident @(#)Makefile	1.5 08/09/10 
+#ident @(#)Makefile	1.6 11/04/14 
 ###########################################################################
 SRCROOT=	.
 DIRNAME=	SRCROOT
@@ -21,7 +21,5 @@ include		$(SRCROOT)/$(RULESDIR)/rules.top
 #include		$(SRCROOT)/TARGETS/Targetdirs.$(M_ARCH)
 
 ###########################################################################
-# Due to a bug in SunPRO make we need special rules for the root makefile
-#
-include		$(SRCROOT)/$(RULESDIR)/rules.rdi
+include		$(SRCROOT)/$(RULESDIR)/rules.dir
 ###########################################################################

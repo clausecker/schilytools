@@ -25,12 +25,12 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2009 J. Schilling
+ * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)dofile.c	1.7 09/11/08 J. Schilling
+ * @(#)dofile.c	1.8 11/04/22 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)dofile.c 1.7 09/11/08 J. Schilling"
+#pragma ident "@(#)dofile.c 1.8 11/04/22 J. Schilling"
 #endif
 /*
  * @(#)dofile.c 1.12 06/12/12
@@ -141,11 +141,7 @@ int check_file;
 		closedir(dirf);
 	}
 	else {
-		if (strlen(p) < sizeof(str)) {
-			strcpy(str, p);
-		} else {
-			strncpy(str, p, sizeof(str));
-		}
+		strlcpy(str, p, sizeof(str));
 		if (!check_permission_SccsDir(dname(str))) {
 			return;
 		}

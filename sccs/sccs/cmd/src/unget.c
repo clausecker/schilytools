@@ -25,12 +25,12 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2009 J. Schilling
+ * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)unget.c	1.11 09/11/08 J. Schilling
+ * @(#)unget.c	1.13 11/04/20 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)unget.c 1.11 09/11/08 J. Schilling"
+#pragma ident "@(#)unget.c 1.13 11/04/20 J. Schilling"
 #endif
 /*
  * @(#)unget.c 1.24 06/12/12
@@ -186,9 +186,10 @@ char *argv[];
                                 break;
 
 			case 'V':		/* version */
-				printf("unget %s-SCCS version %s (%s-%s-%s)\n",
+				printf("unget %s-SCCS version %s %s (%s-%s-%s)\n",
 					PROVIDER,
 					VERSION,
+					VDATE,
 					HOST_CPU, HOST_VENDOR, HOST_OS);
 				exit(EX_OK);
 

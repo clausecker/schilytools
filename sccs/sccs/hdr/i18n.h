@@ -23,8 +23,16 @@
  * Use is subject to license terms.
  */
 /*
+ * This file contains modifications Copyright 2009-2011 J. Schilling
+ *
+ * @(#)i18n.h	1.2 11/04/20 J. Schilling
+ */
+/*
  * @(#)i18n.h 1.2 06/12/12
  */
+#ifndef	_HDR_I18N_H
+#define	_HDR_I18N_H
+
 
 /*
  * This file contains general definitions and macros to be used for i18n
@@ -33,3 +41,4 @@
 
 #define  NOGETTEXT(str)  (str)	/* Wrap text not to be translated. */
 
+#endif	/* _HDR_I18N_H */

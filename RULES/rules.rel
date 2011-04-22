@@ -1,4 +1,4 @@
-#ident @(#)rules.rel	1.8 10/10/07 
+#ident @(#)rules.rel	1.9 11/04/14 
 ###########################################################################
 # Written 2001 by J. Schilling
 ###########################################################################
@@ -29,7 +29,10 @@ _RELFILES=	$(_UNIQ)$(RELFILES)
 __RELFILES=	$(_RELFILES:$(_UNIQ)=$(DRELFILES))
 RELFILES_=      $(__RELFILES:$(_UNIQ)%=%)
 
-rel: $(RELFILES_)
+rel: release/ $(RELFILES_)
+
+release/:
+	$(MKDIR) -p $@
 
 release/%.c: %.c
 	rm -f $@

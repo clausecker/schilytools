@@ -25,12 +25,12 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2009 J. Schilling
+ * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)logname.c	1.5 09/11/08 J. Schilling
+ * @(#)logname.c	1.6 11/04/22 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)logname.c 1.5 09/11/08 J. Schilling"
+#pragma ident "@(#)logname.c 1.6 11/04/22 J. Schilling"
 #endif
 /*
  * @(#)logname.c 1.7 06/12/12
@@ -54,6 +54,6 @@ char	*logname()
 	if (!log_name)
 	   return(0);
 	else
-	   strcpy(saveid,log_name->pw_name);
+	   strlcpy(saveid, log_name->pw_name, sizeof (saveid));
 	return(saveid);
 }

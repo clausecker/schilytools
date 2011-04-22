@@ -22,16 +22,16 @@
 /*	Copyright (c) 1988 AT&T	*/
 /*	  All Rights Reserved  	*/
 /*
- * This file contains modifications Copyright 2006-2009 J. Schilling
+ * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)macros.h	1.7 09/11/08 J. Schilling
+ * @(#)macros.h	1.8 11/04/20 J. Schilling
  */
-#if defined(sun)
-#pragma ident "@(#)macros.h 1.7 09/11/08 J. Schilling"
-#endif
+#ifndef	_COMMON_MACROS_H
+#define	_COMMON_MACROS_H
 
-#ifndef	_MACROS_H
-#define	_MACROS_H
+#if defined(sun)
+#pragma ident "@(#)macros.h 1.8 11/04/20 J. Schilling"
+#endif
 
 #if defined(sun)
 #pragma ident	"@(#)macros.h	1.10	05/06/08 SMI"	/* SVr4.0 1.3.1.7 */
@@ -131,4 +131,4 @@ extern char	Error[128];
 }
 #endif
 
-#endif	/* _MACROS_H */
+#endif	/* _COMMON_MACROS_H */

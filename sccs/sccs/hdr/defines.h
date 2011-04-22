@@ -25,12 +25,14 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2009 J. Schilling
+ * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)defines.h	1.19 09/11/29 J. Schilling
+ * @(#)defines.h	1.20 11/04/20 J. Schilling
  */
+#ifndef	_HDR_DEFINES_H
+#define	_HDR_DEFINES_H
 #if defined(sun)
-#pragma ident "@(#)defines.h 1.19 09/11/29 J. Schilling"
+#pragma ident "@(#)defines.h 1.20 11/04/20 J. Schilling"
 #endif
 /*
  * @(#)defines.h 1.21 06/12/12
@@ -440,3 +442,4 @@ extern	void	enter	__PR((struct packet *pkt, int ch, int n, struct sid *sidp));
 		char *malloc(n) unsigned n; {int p; p=xalloc(n); \
 			return((char *)(p != -1?p:0));}
 
+#endif	/* _HDR_DEFINES_H */

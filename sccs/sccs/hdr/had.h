@@ -25,12 +25,15 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2009 J. Schilling
+ * This file contains modifications Copyright 2009-2011 J. Schilling
  *
- * @(#)had.h	1.3 09/11/08 J. Schilling
+ * @(#)had.h	1.4 11/04/20 J. Schilling
  */
+#ifndef	_HDR_HAD_H
+#define	_HDR_HAD_H
+
 #if defined(sun)
-#pragma ident "@(#)had.h 1.3 09/11/08 J. Schilling"
+#pragma ident "@(#)had.h 1.4 11/04/20 J. Schilling"
 #endif
 /*
  * @(#)had.h 1.4 06/12/12
@@ -71,3 +74,5 @@ extern char 	had[HAD_SIZE];	/* one extre for luch (val clears had[26] ??? */
 # define HADX had[('x'-'a')]
 # define HADY had[('y'-'a')]
 # define HADZ had[('z'-'a')]
+
+#endif	/* _HDR_HAD_H */
