@@ -1,28 +1,16 @@
-#ident @(#)help2.mk	1.3 11/04/30 
+#ident "@(#)pr.mk	1.1 11/04/30 "
 ###########################################################################
-# Sample makefile for general application programs
+# Sample makefile for installing non-localized auxiliary files
 ###########################################################################
-SRCROOT=	../../../..
+SRCROOT=	../../..
 RULESDIR=	RULES
 include		$(SRCROOT)/$(RULESDIR)/rules.top
 ###########################################################################
 
-#INSDIR=	sccs
-INSDIR=		ccs/lib/help/lib
-TARGET=		help2
-
-CPPOPTS +=	-DSUN5_0
-CPPOPTS +=	-DUSE_LARGEFILES
-CPPOPTS +=	-I../../../sgs/inc/common
-CPPOPTS +=	-I../../hdr
-CPPOPTS +=	-DUSE_NLS
-CPPOPTS +=	-DINS_BASE=\"${INS_BASE}\"
-
-CFILES=		help2.c
-
-LIBS=		-lcomobj -lcassi -lmpw -lschily $(LIB_INTL)
+INSDIR=		ccs/lib/help/locale/C
+TARGET=		pr
 #XMK_FILE=	Makefile.man
 
 ###########################################################################
-include		$(SRCROOT)/$(RULESDIR)/rules.cmd
+include		$(SRCROOT)/$(RULESDIR)/rules.aux
 ###########################################################################

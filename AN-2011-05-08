@@ -1,0 +1,90 @@
+New features with AN-2011-05-08:
+
+This is the first localization step for the schily source consolidation. Many
+programs now (hopefully) call gettext() for all strings that need localization.
+
+-	The next step will include dgettext() calls for the libraries and the
+	missing programs
+
+-	The following step will include the extracted strings
+
+-	The last step will include German translations and install support
+	for the resulting binary message object files.
+
+----------> Please test and report compilation problems! <---------
+
+***** NOTE: As mentioned since 2004, frontends to the tools should *****
+*****		call all programs in the "C" locale		   *****
+*****		by e.g. calling: LC_ALL=C cdrecord ....		   *****
+*****		unless these frontends support localized strings   *****
+*****		used by the cdrtools with NLS support.		   *****
+
+
+-	A compile variant of the SCCS system (use "smake COPTX=-DGMT_TIME")
+	that results is a SCCS system that archives GMT based times inside
+	the SCCS history files has been made more more robust and more correct.
+
+	This compile variant has been introduced by Sun a while ago, but it
+	was not cleanly portable and it did not work correctly when close to
+	a DST switch time, as it abused the function localtime(), introduced
+	math based on "timezone" and assumed that all DST variants add one
+	hour to the winter time.
+
+	The new code is based on a new function mkgmtime() that only needs
+	to know the Gregorian calendar and based on correct usage of the POSIX
+	time functions. 
+
+	The change is a preparation for a future enhancement to SCCS that
+	will make it time zone independent.
+
+-	The messages from the SCCS val program have been unified and made better
+	readable.
+
+-	The SCCS val program now checks for problems in the statistics lines
+	from SCCS history files in case the -T option has been used.
+
+-	The SCCS val program now gives more harmonized debug messages.
+
+-	SCCS now checks whether the 'x' flag in the SCCS history files has the
+	tag "SCHILY", as the SCO sccs implementation uses the x flag for setting
+	the executable permission on files.
+
+-	SCCS now warns if currently unsupported uppercase flags are present in
+	a history file.
+
+-	sccs help now includes help for all help codes
+
+-	The sccsfile.4 man page now mentiones that year numbers may be 4 digit
+	numbers also.
+
+-	Make some of the sccs commands compile again on HP-UX after the
+	sources have been converted to use strlcpy(). This needs libschily
+	on some platforms.
+
+-	The sccslog(1) command now implements a new option -a to prevent sccslog
+	from collecting deltas with the same delta comment in case they happen 
+	within 24 hours. Not collecting such deltas makes it easier to understand
+	the exact time line in changes.
+
+-	The diff(1) command delivered with SCCS now outputs the correct time stamp
+	format for unified diffs (-u) as required by POSIX. This is needed in order
+	to be able to automatically remove removed files by patch(1).
+
+-	The patch(1) command now supports to automatically remove files in case the
+	patch has been created by "diff -Nur". This only works in non-POSIX mode.
+	So either call "opatch" or POSIXLY_CORRECT= patch to switch patch into a
+	mode similar to GNU patch.
+
+-	The patch(1) command now includes a -E option like GNU diff.
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.isdn.cs.tu-berlin.de, js@cs.tu-berlin.de
+	joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

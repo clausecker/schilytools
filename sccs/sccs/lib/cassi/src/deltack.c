@@ -27,10 +27,10 @@
 /*
  * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)deltack.c	1.9 11/04/22 J. Schilling
+ * @(#)deltack.c	1.11 11/05/01 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)deltack.c 1.9 11/04/22 J. Schilling"
+#pragma ident "@(#)deltack.c 1.11 11/05/01 J. Schilling"
 #endif
 /*
  * @(#)deltack.c 1.8 06/12/12
@@ -138,7 +138,6 @@ static int
 promdelt(cmrs,statp,type,fred)
 char *cmrs,*statp,*type,*fred;
 {
-	 extern char had[];
 	 extern char * Sflags[];
 	 static char hold[300],nold[300], *cmrlist[MAXLIST2 + 1];
 	 char answ[100];
@@ -360,7 +359,7 @@ msg(syst,name,cmrs,stats,types,sids,fred)
 	 if(*name != '/') /* not full path name */
 		{
 		 if(getcwd(path,sizeof(path)) == NULL)
-			(void) fatal(gettext("getcwd() failed (ge=20)"));
+			(void) fatal(gettext("getcwd() failed (ge20)"));
 		 cat(pname, path, "/", name, (char *)0);
 		}
 	else

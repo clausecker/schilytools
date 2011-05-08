@@ -23,7 +23,7 @@
 *
 * This file contains modifications Copyright 2006-2011 J. Schilling
 *
-* @(#)cmds	1.6 11/04/21 J. Schilling 
+* @(#)cmds	1.7 11/04/30 J. Schilling 
 *
 * @(#)cmds 1.3 06/12/12
 *
@@ -70,6 +70,8 @@ Keyword       Type
  %W%          Shorthand notation for an ID line with %Z%%M%  %I%
  %Y%          Module type: value of the t flag in the s.file
  %Z%          4-character string: `@(#)'
+
+ %sccs.include.filename%	Lines are replaced by the content from filename
 
 -admin
      admin [-n] [-i<name>] [-r<rel>] [-t<name>] [-f<add-flag<flag-val>>] ...

@@ -1,23 +1,13 @@
-/* @(#)sccslog.c	1.30 11/04/20 Copyright 1997-2011 J. Schilling */
+/* @(#)sccslog.c	1.31 11/05/04 Copyright 1997-2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)sccslog.c	1.30 11/04/20 Copyright 1997-2011 J. Schilling";
+	"@(#)sccslog.c	1.31 11/05/04 Copyright 1997-2011 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1997-2011 J. Schilling
  */
-/*
- * The contents of this file are subject to the terms of the
- * Common Development and Distribution License, Version 1.0 only
- * (the "License").  You may not use this file except in compliance
- * with the License.
- *
- * See the file CDDL.Schily.txt in this distribution for details.
- *
- * When distributing Covered Code, include this CDDL HEADER in each
- * file and include the License file CDDL.Schily.txt from this distribution.
- */
+/*@@C@@*/
 
 #include <schily/stdio.h>
 #include <schily/stdlib.h>
@@ -172,6 +162,7 @@ usage(exitcode)
 	fprintf(stderr, "Usage: sccslog [options] file1..filen\n");
 	fprintf(stderr, "	-help	Print this help.\n");
 	fprintf(stderr, "	-version Print version number.\n");
+	fprintf(stderr, "	-a	Print all deltas with different times separately.\n");
 	fprintf(stderr, "	-Cdir	Base dir for printed filenames.\n");
 	fprintf(stderr, "	-p subdir	Define SCCS subdir.\n");
 	exit(exitcode);
@@ -184,9 +175,10 @@ main(ac, av)
 {
 	int	cac;
 	char	* const *cav;
-	char	*opts = "help,V,version,C*,p*";
+	char	*opts = "help,V,version,a,C*,p*";
 	BOOL	help = FALSE;
 	BOOL	pversion = FALSE;
+	BOOL	nopooling = FALSE;
 	int	i;
 	int	j;
 
@@ -196,7 +188,9 @@ main(ac, av)
 	cav = ++av;
 
 	if (getallargs(&cac, &cav, opts,
-			&help, &pversion, &pversion, &Cwd, &SccsPath) < 0) {
+			&help, &pversion, &pversion,
+			&nopooling,
+			&Cwd, &SccsPath) < 0) {
 		errmsgno(EX_BAD, "Bad flag: %s.\n", cav[0]);
 		usage(EX_BAD);
 	}
@@ -239,7 +233,8 @@ main(ac, av)
 			list[i].file,
 			list[i].vers);
 		for (j = i+1; j < listsize; j++) {
-			if (list[i].time - list[j].time > 24*60*30)
+			if (!nopooling &&
+			    list[i].time - list[j].time > 24*60*60)
 				break;
 			if (list[i].comment == NULL || list[j].comment == NULL)
 				continue;

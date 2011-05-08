@@ -39,10 +39,10 @@
 /*
  * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)diff.c	1.30 11/04/22 J. Schilling
+ * @(#)diff.c	1.32 11/05/02 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)diff.c 1.30 11/04/22 J. Schilling"
+#pragma ident "@(#)diff.c 1.32 11/05/02 J. Schilling"
 #endif
 
 #if defined(sun)
@@ -162,6 +162,7 @@
 #include <schily/sysexits.h>
 #define	VMS_VFORK_OK
 #include <schily/vfork.h>
+#include <schily/libport.h>
 
 #else	/* non-portable SunOS definitions BEGIN */
 
@@ -1034,7 +1035,11 @@ change(a, b, c, d)
 			 * %T -- Time as %H:%M:%S
 			 * %Y -- Year, including the century
 			 */
-			dcmsg = dcgettext(NULL, "%a %b %e %T %Y", LC_TIME);
+			if (uflag)
+				dcmsg = "%Y-%m-%d %H:%M:%S %z";
+			else
+				dcmsg = dcgettext(NULL, "%a %b %e %T %Y",
+								LC_TIME);
 			(void) cftime(time_buf, dcmsg, &stb1.st_mtime);
 			if (uflag)
 				(void) printf("--- %s	%s\n", input_file1,

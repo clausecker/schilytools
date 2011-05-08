@@ -27,10 +27,10 @@
 /*
  * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)prt.c	1.12 11/04/20 J. Schilling
+ * @(#)prt.c	1.15 11/04/27 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)prt.c 1.12 11/04/20 J. Schilling"
+#pragma ident "@(#)prt.c 1.15 11/04/27 J. Schilling"
 #endif
 /*
  * @(#)prt.c 1.22 06/12/12
@@ -283,6 +283,14 @@ char *argv[];
 				fatal(gettext("Usage: prt [ -abdefistu ][ -c date-time ]\n\t[ -r date-time ][ -ySID ] s.filename..."));
 			}
 
+			/*
+			 * As long as we don't have a way to collect more than
+			 * 'a'..'z' in had[], avoid to collect option letters
+			 * outside the range 'a'..'z'.
+			 */
+			if ((c < 'a') || (c > 'z'))
+				continue;
+
 			if (had[c - 'a']++ && testklt++)
 				fatal(gettext("key letter twice (cm2)"));
 #if 0
@@ -339,6 +347,7 @@ char *file;
 	time_t	bindate;
 #if defined(BUG_1205145) || defined(GMT_TIME)
 	time_t	tim;
+	struct tm *tmp;
 
 	tzset();
 #endif
@@ -384,11 +393,11 @@ char *file;
 			Local time corrections before date_ba() call.
 			Because this function uses gmtime() instead of localtime().
 			*/
-			tim = bindate - timezone;		/* GMT correction */
-			if((localtime(&tim))->tm_isdst)
-				tim += 1*60*60;			/* daylight savings */
+			tmp = localtime(&bindate);
+			tim = mkgmtime(tmp);
+
 			if (tim > Y2038)
-				date_bal(&tim,del.datetim);	/* 4 digit year */
+				date_bal(&tim,del.datetime);	/* 4 digit year */
 			else
 				date_ba(&tim,del.datetime);	/* 2 digit year */
 #endif

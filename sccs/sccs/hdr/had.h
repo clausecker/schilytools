@@ -27,13 +27,13 @@
 /*
  * This file contains modifications Copyright 2009-2011 J. Schilling
  *
- * @(#)had.h	1.4 11/04/20 J. Schilling
+ * @(#)had.h	1.5 11/04/27 J. Schilling
  */
 #ifndef	_HDR_HAD_H
 #define	_HDR_HAD_H
 
 #if defined(sun)
-#pragma ident "@(#)had.h 1.4 11/04/20 J. Schilling"
+#pragma ident "@(#)had.h 1.5 11/04/27 J. Schilling"
 #endif
 /*
  * @(#)had.h 1.4 06/12/12
@@ -45,7 +45,8 @@
 #endif
 /*
  */
-#define	HAD_SIZE	27
+#define	HAD_SIZE	('z'-'a'+2)	/* Add one for safety */
+
 extern char 	had[HAD_SIZE];	/* one extre for luch (val clears had[26] ??? */
 
 # define HADA had[('a'-'a')]

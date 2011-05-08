@@ -27,10 +27,10 @@
 /*
  * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)val.c	1.16 11/04/22 J. Schilling
+ * @(#)val.c	1.20 11/04/29 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)val.c 1.16 11/04/22 J. Schilling"
+#pragma ident "@(#)val.c 1.20 11/04/29 J. Schilling"
 #endif
 /*
  * @(#)val.c 1.22 06/12/12
@@ -96,7 +96,7 @@ static struct delent {		/* structure for delta table entry */
 
 	int	main __PR((int argc, char **argv));
 static void	process __PR((char *p_line, int argc, char **argv));
-static void	do_validate __PR((char *path));
+static void	do_validate __PR((char *c_path));
 static void	validate __PR((char *c_path, char *c_sid, char *c_type, char *c_name));
 static void	getdel __PR((struct delent *delp, char *lp));
 static void	read_to __PR((int ch, struct packet *pkt));
@@ -111,6 +111,7 @@ static void	set_keep __PR((struct packet *pkt));
 static int	chk_ix __PR((struct queue *new, struct queue *head));
 static int	do_delt __PR((struct packet *pkt, int goods, char *d_sid));
 static int	getstats __PR((struct packet *pkt));
+static char *	getastat __PR((char *p, int  *ip));
 
 
 /* This is the main program that determines whether the command line
@@ -230,7 +231,7 @@ char	*argv[];
 	/*
 	clear out had flags for each 'line' processed
 	*/
-	for (j = 0; j < 27; j++)
+	for (j = 0; j < HAD_SIZE; j++)
 		had[j] = 0;
 	/*
 	execute loop until all characters in 'line' are checked.
@@ -287,7 +288,8 @@ char	*argv[];
 
 				case 'T':
 					debug = TRUE;
-					continue;	/* Not into had[] */
+					silent = FALSE;
+					break;
 				case 'V':		/* version */
 					printf("val %s-SCCS version %s %s (%s-%s-%s)\n",
 						PROVIDER,
@@ -308,6 +310,14 @@ char	*argv[];
 					   report(inline_err,"","");
 					return;
 			}
+			/*
+			 * As long as we don't have a way to collect more than
+			 * 'a'..'z' in had[], avoid to collect option letters
+			 * outside the range 'a'..'z'.
+			 */
+			if ((c < 'a') || (c > 'z'))
+				continue;
+
 			/*
 			use 'had' array and determine if the keyletter
 			was given twice.
@@ -383,10 +393,10 @@ char	*argv[];
 }
 
 static void
-do_validate(path)
-	char	*path;
+do_validate(c_path)
+	char	*c_path;
 {
-	validate(path, sid, type, name);
+	validate(c_path, sid, type, name);
 	inline_err |= infile_err;
 
 	/*
@@ -394,7 +404,7 @@ do_validate(path)
 	 * depending on 'silent' flag.
 	 */
 	if (infile_err && !silent) {
-		report(infile_err,"",path);
+		report(infile_err, "", c_path);
 	}
 }
 
@@ -419,10 +429,13 @@ char	*c_name;
 	s_init(&gpkt,c_path);
 	if (!sccsfile(c_path) || (gpkt.p_iop = fopen(c_path, "rb")) == NULL) {
 		if (debug) {
-			if (!sccsfile(c_path))
-				printf(gettext("Not a sccs file '%s'.\n"), c_path);
-			else
-				printf(gettext("Cannot open '%s'.\n"), c_path);
+			if (!sccsfile(c_path)) {
+				printf(gettext("%s%s: not a sccs file\n"),
+					"    ", c_path);
+			} else {
+				printf(gettext("%s%s cannot open\n"),
+					"    ", c_path);
+			}
 		}
 		infile_err |= FILENAM_ERR;
 	} else {
@@ -433,8 +446,8 @@ char	*c_name;
 		if (l == NULL || *l++ != CTLCHAR || *l++ != HEAD) {
 			if (debug)
 				printf(
-				gettext("Corrupted first line in file '%s'.\n"),
-					c_path);
+				gettext("%s%s: corrupted first line in file\n"),
+					"    ", c_path);
 			infile_err |= CORRUPT_ERR;
 		}
 		else {
@@ -449,10 +462,6 @@ char	*c_name;
 				check for invalid or ambiguous SID.
 				*/
 				if (invalid(c_sid)) {
-					if (debug)
-						printf(gettext(
-						"Invalid SID '%s' at line %d.\n"),
-							c_sid, gpkt.p_slnno);
 					infile_err |= INVALSID_ERR;
 				}
 			/*
@@ -464,8 +473,8 @@ char	*c_name;
 				gpkt.p_iop = NULL;
 				if (debug)
 					printf(gettext(
-					"Invalid delta table in '%s'. at line %d\n"),
-							c_path, gpkt.p_slnno);
+					"%s%s: invalid delta table at line %d\n"),
+						"    ", c_path, gpkt.p_slnno);
 				infile_err |= CORRUPT_ERR;
 				return;
 			}
@@ -498,8 +507,8 @@ char	*c_name;
 					gpkt.p_iop = NULL;
 					if (debug)
 						printf(gettext(
-						"Flag section error in '%s' at line %d.\n"),
-							c_path, gpkt.p_slnno);
+						"%s%s: flag section error at line %d\n"),
+						"    ", c_path, gpkt.p_slnno);
 					infile_err |= CORRUPT_ERR;
 					return;
 				}
@@ -509,9 +518,9 @@ char	*c_name;
 				if (!goodt && HADY) {
 					if (debug)
 						printf(gettext(
-						"Missmatch between %cY%c and '%s' in '%s'.\n"),
-							'%', '%', c_type,
-							c_path);
+						"%s%s: missmatch between %cY%c and '%s'\n"),
+							"    ", c_path,
+							'%', '%', c_type);
 					infile_err |= TYPE_ERR;
 				}
 				/*
@@ -521,17 +530,17 @@ char	*c_name;
 					if (!equal(auxf(sname(c_path),'g'),c_name)) {
 						if (debug)
 							printf(gettext(
-							"No 'm' flag in '%s'.\n"),
-							c_path);
+							"%s%s: no 'm' flag\n"),
+							"    ", c_path);
 						infile_err |= NAME_ERR;
 					}
 				}
 				else if (HADM && hadmflag && !goodn) {
 						if (debug)
 							printf(gettext(
-							"Missmatch between %cM%c and '%s' in '%s'.\n"),
-							'%', '%', c_name,
-							c_path);
+							"%s%s: missmatch between %cM%c and '%s'\n"),
+							"    ", c_path,
+							'%', '%', c_name);
 						infile_err |= NAME_ERR;
 				}
 			}
@@ -733,16 +742,18 @@ register struct packet *pkt;
 		if (!pkt->p_chkeof) {
 			if (debug)
 				printf(gettext(
-					"Incomplete delta table in '%s'.\n"),
-							pkt->p_file);
+					"%s%s: incomplete delta table\n"),
+							"    ", pkt->p_file);
 			infile_err |= CORRUPT_ERR;
 		}
 		if (pkt->do_chksum && (pkt->p_chash ^ pkt->p_ihash)&0xFFFF) {
 		   if (pkt->do_chksum && (pkt->p_uchash ^ pkt->p_ihash)&0xFFFF) {
 			if (debug)
 				printf(gettext(
-				"Invalid checksum in '%s'.\n"),
-							pkt->p_file);
+				"%s%s: invalid checksum %d, expected %d\n"),
+						"    ", pkt->p_file,
+						pkt->p_ihash,
+						pkt->p_chash & 0xFFFF);
 		   	infile_err |= CORRUPT_ERR;
 		   }
 		}
@@ -797,8 +808,9 @@ register struct packet *pkt;
 			if (!((iord = *p++) == INS || iord == DEL || iord == END)) {
 				if (debug)
 					printf(gettext(
-					"Invalid control in weave data for '%s' near line %d.\n"),
-						pkt->p_file, pkt->p_slnno);
+					"%s%s: invalid control in weave data near line %d\n"),
+						"    ", pkt->p_file,
+						pkt->p_slnno);
 				infile_err |= CORRUPT_ERR;
 				return(0);
 			}
@@ -821,8 +833,9 @@ register struct packet *pkt;
 	if (pkt->p_q) {
 		if (debug)
 			printf(gettext(
-			"Incomplete weave data for '%s' near line %d.\n"),
-				pkt->p_file, pkt->p_slnno);
+			"%s%s: incomplete weave data near line %d\n"),
+				"    ", pkt->p_file,
+				pkt->p_slnno);
 		infile_err |= CORRUPT_ERR;
 	}
 	return(0);
@@ -844,8 +857,9 @@ int user;
 	if (cur && cur != (struct queue *)&pkt->p_q && cur->q_sernum == ser) {
 		if (debug)
 			printf(gettext(
-			"Duplicate delta block in weave data for '%s' with serial %d near line %d.\n"),
-				pkt->p_file, cur->q_sernum, pkt->p_slnno);
+			"%s%s: duplicate delta block in weave data with serial %d near line %d\n"),
+				"    ", pkt->p_file,
+				cur->q_sernum, pkt->p_slnno);
 		infile_err |= CORRUPT_ERR;
 	}
 	prev->q_next = q = (struct queue *) fmalloc(sizeof(*q));
@@ -882,8 +896,9 @@ int ser;
 	else {
 		if (debug)
 			printf(gettext(
-			"Incomplete delta block in weave data for '%s' near line %d.\n"),
-				pkt->p_file, pkt->p_slnno);
+			"%s%s: incomplete delta block in weave data near line %d\n"),
+				"    ", pkt->p_file,
+				pkt->p_slnno);
 		infile_err |= CORRUPT_ERR;
 	}
 }
@@ -998,10 +1013,6 @@ register char *d_sid;
 	if (pkt->p_line[1] != BUSERNAM)
 		return(1);
 	if (HADR && !goods && !(infile_err & INVALSID_ERR)) {
-		if (debug)
-			printf(gettext(
-			"Nonexistent SID '%s'.\n"),
-					d_sid);
 		infile_err |= NONEXSID_ERR;
 	}
 	return(0);
@@ -1015,9 +1026,76 @@ getstats(pkt)
 register struct packet *pkt;
 {
 	register char *p = get_line(pkt);
+	register char *op;
+	register int i = 0;
+
 	if ( p == NULL || *p++ != CTLCHAR || *p != STATS)
 		return(0);
+
+	/*
+	 * We do not check the format of the statistics line in non-debug mode
+	 * as the related values are otherwise ignored by SCCS.
+	 */
+	if (!debug)
+		return(1);
+
+	p++;
+	NONBLANK(p);
+	if (*p < '0' || *p > '9') {
+		printf(gettext(
+		"%s%s: illegal character in statistics in line %d\n"),
+		"    ", pkt->p_file, pkt->p_slnno);
+	}
+	while (*p) {
+		if (*p == '\n')
+			break;
+		op = p;
+		p = getastat(p, NULL);
+		if ((i == 2 && *p != '\n') || (i < 2 && *p != '/')) {
+			printf(gettext(
+			"%s%s: illegal character in statistics in line %d\n"),
+				"    ", pkt->p_file, pkt->p_slnno);
+			infile_err |= CORRUPT_ERR;
+			return(1);
+		} else if ((p - op) != 5) {
+			if ((p - op) > 5)
+				printf(gettext(
+				"%s%s: number exceeds '99999' in statistics in line %d\n"),
+				"    ", pkt->p_file, pkt->p_slnno);
+			else
+				printf(gettext(
+				"%s%s: illegal number length in statistics in line %d\n"),
+				"    ", pkt->p_file, pkt->p_slnno);
+			infile_err |= CORRUPT_ERR;
+			return(1);
+		}
+		p++;
+		i++;
+	}
 	return(1);
+}
+
+static char *
+getastat(p, ip)
+	char	*p;
+	int	*ip;
+{
+	int	i = 0;
+	int	c;
+
+	while ((c = *p) != '\0') {
+		if (c < '0' || c > '9') {
+			if (c != '/' && c != '\n')
+				i = -1;
+			break;
+		}
+		i *= 10;
+		i += c - '0';
+		p++;
+	}
+	if (ip)
+		*ip = i;
+	return (p);
 }
 
 /* for fatal() */

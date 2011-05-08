@@ -1,7 +1,7 @@
-/* @(#)patch.c	1.14 11/04/12 2011 J. Schilling */
+/* @(#)patch.c	1.17 11/05/07 2011 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)patch.c	1.14 11/04/12 2011 J. Schilling";
+	"@(#)patch.c	1.17 11/05/07 2011 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1984-1988 Larry Wall
@@ -44,6 +44,7 @@ static	bool	similar __PR((char *a, char *b, int len));
 static int reverse_flag_specified = FALSE;
 
 static bool do_defines;			/* -D patch using ifdef, ifndef, etc. */
+static bool remove_empty;		/* -E on command line */
 static char if_defined[128];		/* #ifdef xyzzy */
 static char not_defined[128];		/* #ifndef xyzzy */
 static char else_defined[] = "#else\n";	/* #else */
@@ -95,6 +96,7 @@ main(argc, argv)
 #endif	/* INS_BASE */
 	(void) textdomain(TEXT_DOMAIN);
 #endif
+	time(&starttime);
 
 	for (i = 0; i < MAXFILEC; i++)
 		filearg[i] = Nullch;
@@ -306,7 +308,14 @@ _("\n\nRan out of memory using Plan A--trying again...\n\n"));
 		/* and put the output where desired */
 		ignore_signals();
 		if (!skip_rest_of_patch) {
-			if (move_file(TMPOUTNAME, outname) < 0) {
+			if (!failed && wall_plus && !strEQ(outname, "-") &&
+			    (file_stat.st_size == (size_t)0) &&
+			    (remove_empty || is_null_time[reverse])) {
+				say(_(
+"Removing file %s and any empty ancestor directories.\n"), outname);
+				move_file(NULL, outname);
+				removedirs(outname);
+			} else if (move_file(TMPOUTNAME, outname) < 0) {
 				toutkeep = TRUE;
 				chmod(TMPOUTNAME, filemode);
 			} else {
@@ -417,7 +426,9 @@ init_defaults()
 	}
 	if (!do_posix) {	/* If not POSIX			*/
 		wall_plus = TRUE; /* allow old patch options 	*/
+#ifdef	BACKUP_BY_DEFAULT
 		do_backup = TRUE; /* and always create a backup	*/
+#endif
 	}
 
 	verbose = TRUE;		/* Initial default */
@@ -463,10 +474,18 @@ get_some_switches()
 				 * Larry Wall:	always create a backup file
 				 *		set backup extension with -b
 				 */
+#ifdef	BACKUP_BY_DEFAULT
 				if (do_posix)
 					do_backup = TRUE;
 				else
 					origext = savestr(nextarg());
+#else
+				/*
+				 * We by default follow POSIX and GNU and do
+				 * not create a backup unless -b was used.
+				 */
+				do_backup = TRUE;
+#endif
 				break;
 			case 'B':			/* Wall: PL 10	*/
 				if (!wall_plus)
@@ -497,6 +516,11 @@ _("Argument to -D not an identifier.\n"));
 					Sprintf(end_defined,
 						"#endif /* %s */\n", s);
 				}
+				break;
+			case 'E':			/* GNU		*/
+				if (!wall_plus)
+					goto unknown;
+				remove_empty = TRUE;
 				break;
 			case 'e':			/* POSIX: OK	*/
 				diff_type = ED_DIFF;
@@ -618,7 +642,8 @@ Usage: patch [-blNR] [-c|-e|-n] [-d dir] [-D define] [-i patchfile]\n\
 "));
 				} else {
 					fprintf(stderr, _("\
-Usage: patch [-ceflnNRsSuv] [-b backup-ext] [-B backup-prefix] [-d directory]\n\
+Usage: patch [-bcEeflnNRsSuv] \n\
+       [-z backup-ext] [-B backup-prefix] [-d directory]\n\
        [-D symbol] [-Fmax-fuzz] [-i patchfile] [-o out-file] [-p[strip-count]]\n\
        [-r rej-name] [origfile] [patchfile] [[+] [options] [origfile]...]\n\
 "));
@@ -897,6 +922,9 @@ spew_output()
 #endif
 	if (input_lines)
 		copy_till(input_lines);		/* dump remainder of file */
+	fflush(ofp);
+	file_stat.st_size = -1;
+	fstat(fileno(ofp), &file_stat);
 	Fclose(ofp);
 	ofp = Nullfp;
 }

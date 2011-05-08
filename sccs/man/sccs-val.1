@@ -19,7 +19,7 @@
 .\" CDDL HEADER END
 .\" Copyright (c) 2002, Sun Microsystems, Inc. All Rights Reserved
 .\" Copyright 2007-2011 J. Schilling
-.TH sccs-val 1 "2011/04/21" "SunOS 5.11" "User Commands"
+.TH sccs-val 1 "2011/05/01" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs-val, val \- validate an SCCS file
 .SH SYNOPSIS
@@ -60,14 +60,14 @@ The 8-bit code returned by \fBval\fR is a disjunction of the possible errors, th
 .LP
 .in +2
 .nf
-bit 0 = missing file argument
-bit 1 = unknown or duplicate option
-bit 2 = corrupted s.file
-bit 3 = can not open file or file not in s.file format
-bit 4 = the SCCS delta ID (SID) is invalid or ambiguous
-bit 5 = the SID does not exist
-bit 6 = mismatch between %\&Y% and -y argument
-bit 7 = mismatch between %\&M% and -m argument
+bit 0 (value 128) = missing file argument
+bit 1 (value  64) = unknown or duplicate option
+bit 2 (value  32) = corrupted s.file
+bit 3 (value  16) = can not open file or file not in s.file format
+bit 4 (value   8) = the SCCS delta ID (SID) is invalid or ambiguous
+bit 5 (value   4) = the SID does not exist
+bit 6 (value   2) = mismatch between %\&Y% and -y argument
+bit 7 (value   1) = mismatch between %\&M% and -m argument
 .fi
 .in -2
 .sp
@@ -110,7 +110,8 @@ Compares \fItype\fR with the \fB%\&Y%\fR ID keyword.
 .ne 2
 .TP
 \fB\fB-T\fR\fR
-Trace.  Print extra debug messages.
+Trace. Print extra debug messages.
+This disables the silent mode.
 
 .ne 3
 .TP

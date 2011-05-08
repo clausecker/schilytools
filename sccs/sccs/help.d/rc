@@ -85,3 +85,6 @@ This is indicated by the presence of the specified sid in
 an entry of the p-file for the named SCCS file.
 Removal of the delta specified is prohibited because
 its removal would interfere with other work in progress.
+-13
+"may not remove the last delta"
+This is the last remaining delta. You may not remove it.

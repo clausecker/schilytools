@@ -1,4 +1,4 @@
-/* @(#)common.h	1.14 11/01/30 2011 J. Schilling */
+/* @(#)common.h	1.15 11/05/06 2011 J. Schilling */
 /*
  *	Copyright (c) 1986, 1988 Larry Wall
  *	Copyright (c) 2011 J. Schilling
@@ -11,6 +11,7 @@
 
 #include <schily/stdio.h>
 #include <schily/types.h>
+#include <schily/time.h>
 #include <schily/stdlib.h>
 #include <schily/unistd.h>
 #include <schily/standard.h>
@@ -109,7 +110,9 @@ EXT bool out_of_mem;			/* ran out of memory in plan a */
 EXT int filec;				/* how many file arguments? */
 EXT char *filearg[MAXFILEC];
 EXT bool ok_to_create_file;
+EXT bool is_null_time[2];
 EXT char *bestguess;			/* guess at correct filename */
+EXT time_t starttime;
 
 EXT char *outname;			/*   -o outname		*/
 EXT char rejname[128];			/*   -r rejname		*/

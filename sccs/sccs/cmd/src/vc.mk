@@ -1,4 +1,4 @@
-#ident @(#)vc.mk	1.2 08/01/02 
+#ident @(#)vc.mk	1.3 11/04/30 
 ###########################################################################
 # Sample makefile for general application programs
 ###########################################################################
@@ -20,7 +20,7 @@ CPPOPTS +=	-DINS_BASE=\"${INS_BASE}\"
 
 CFILES=		vc.c
 
-LIBS=		-lcomobj -lcassi -lmpw $(LIB_INTL)
+LIBS=		-lcomobj -lcassi -lmpw -lschily $(LIB_INTL)
 #XMK_FILE=	Makefile.man
 
 ###########################################################################

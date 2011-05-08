@@ -30,6 +30,10 @@
 "not an SCCS file"
 A file that you think is an SCCS file
 does not begin with the characters "s.".
+-2
+"not an sccs file"
+A file that you think is an SCCS file
+does not begin with the magic ^Ahnnnnn.
 -3
 "more than one link"
 SCCS files may only have one name (link).

@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sccsfile.4	1.5 11/04/21 portions Copyright 2007-2011 J. Schilling */
+.\" @(#)sccsfile.4	1.7 11/04/30 portions Copyright 2007-2011 J. Schilling */
 .\" CDDL HEADER START
 .\"
 .\" The contents of this file are subject to the terms of the
@@ -21,7 +21,7 @@
 .\" Copyright (c) 2002, Sun Microsystems, Inc. All Rights Reserved.
 .\" Copyright 1989 AT&T
 .\"  Copyright 2007-2011 J. Schilling
-.TH sccsfile 4 "2011/04/21" "SunOS 5.11" "File Formats"
+.TH sccsfile 4 "2011/04/30" "SunOS 5.11" "File Formats"
 .SH NAME
 sccsfile \- format of an SCCS history file
 .SH DESCRIPTION
@@ -65,11 +65,20 @@ Each section is described in detail below.
 .SS Conventions
 
 .LP
-Throughout an SCCS file there are lines which begin with the \fBASCII\fR \fBSOH\fR (start of heading) character (octal 001). This character is hereafter referred to as the \fIcontrol character\fR, and will be represented as `\fB^A\fR'.
-If a line described below is not depicted as beginning with the control character, it cannot do so and still be within SCCS file format.
+Throughout an SCCS file there are lines which begin with the
+.B ASCII SOH
+(start of heading) character (octal 001). This character is 
+hereafter referred to as the
+.IR "control character" ,
+and will be represented as
+.RB ` ^A '.
+If a line described below is not depicted as beginning with the
+control character, it cannot do so and still be within SCCS file format.
 
 .LP
-Entries of the form \fIddddd\fR represent a five digit string (a number between 00000 and 99999).
+Entries of the form 
+.I ddddd
+represent a five digit string (a number between 00000 and 99999).
 
 .SS Checksum
 
@@ -84,7 +93,12 @@ The checksum is the first line of an SCCS file. The form of the line is:
 .in -2
 
 .LP
-The value of the checksum is the sum of all characters, except those contained in the first line. The \fB^Ah\fR provides a \fImagic number\fR of (octal) 064001.
+The value of the checksum is the sum of all characters, except those 
+contained in the first line. The
+.B ^Ah
+provides a
+.I magic number
+of (octal) 064001.
 
 .SS Delta Table
 
@@ -110,21 +124,53 @@ predecessor-sn\fR
 .sp
 
 .LP
-The first line (\fB^As\fR) contains the number of lines inserted/deleted/unchanged respectively. The second line (\fB^Ad\fR) contains the type of the delta (normal: \fBD\fR and removed: \fBR\fR), the SCCS ID of the delta, the date and
-time of creation of the delta, the user-name corresponding to the real user ID at the time the delta was created, and the serial numbers of the delta and its predecessor, respectively. The \fB^Ai\fR, \fB^Ax\fR, and \fB^Ag\fR lines contain the serial numbers
-of deltas included, excluded, and ignored, respectively. These lines do not always appear.
-
+The first line
+.RB ( ^As )
+contains the number of lines inserted/deleted/unchanged respectively.
+The actual values for inserted/deleted/unchanged are five digit numbers.
+If an actual value is greater than 99999, then it is replaced by 99999.
 .LP
-The \fB^Am\fR lines (optional) each contain one MR number associated with the delta. The \fB^Ac\fR lines contain comments associated with the delta.
-
+The second line
+.RB ( ^Ad )
+contains the type of the delta (normal:
+.B D
+and removed:
+.BR R ),
+the SCCS ID of the delta, the date and
+time of creation of the delta, the user-name corresponding to the real
+user ID at the time the delta was created, and the serial numbers of
+the delta and its predecessor, respectively. The year is either represented by
+a two digit year in the range 69..99 for 1969..1999 or 00..68 for 2000..2068
+or by a four digit year number. Year numbers before 1969 are currently not
+supported.
 .LP
-The \fB^Ae\fR line ends the delta table entry.
+The
+.BR ^Ai ,
+.BR ^Ax ,
+and 
+.B ^Ag
+lines contain the serial numbers
+of deltas included, excluded, and ignored, respectively.
+These lines do not always appear.
+.LP
+The
+.B ^Am
+lines (optional) each contain one MR number associated with the delta. The
+.B ^Ac
+lines contain comments associated with the delta.
+.LP
+The
+.B ^Ae
+line ends the delta table entry.
 
 .SS User Names
 
 .LP
-The list of user-names and/or numerical group IDs of users who may add deltas to the file, separated by NEWLINE characters. The lines containing these login names and/or numerical group IDs are surrounded by the bracketing lines \fB^Au\fR and \fB^AU\fR. An empty
-list allows anyone to make a delta.
+The list of user-names and/or numerical group IDs of users who may add deltas to the file, separated by NEWLINE characters. The lines containing these login names and/or numerical group IDs are surrounded by the bracketing lines
+.B ^Au
+and
+.BR ^AU .
+An empty list allows anyone to make a delta.
 
 .SS Flags
 
@@ -133,12 +179,11 @@ Flags are keywords that are used internally (see
 \fBsccs-admin\fR(1) for more information on their use).  Each flag line takes the form:
 
 .LP
-.in +2
-.nf
- ^Af \fIflag\fR
-         \fIoptional text\fR
-.fi
-.in -2
+.RS
+ ^Af
+.B flag
+.I optional text
+.RE
 
 .LP
 The following flags are defined in order of appearance:
@@ -224,11 +269,15 @@ extension that does not exist in historic
 .B sccs 
 implementations. 
 
-.ne 3
+.ne 5
 .TP
 .BI "^Af y " "val .\|.\|.
 The list of sccs keywords to be expanded.
-If the list is empty, no keyword is expanded. The value `\fB*\fP' controls the 
+If the
+.BR y -flag
+is missing in the sccs historyfile, all sccs keywords are expanded.
+If the flag is present but the list is empty, no keyword is expanded.
+The value `\fB*\fP' controls the 
 expansion of the \fB%\&sccs.include.\fIfilename\fB\&%\fR keyword.
 
 .SS Comments

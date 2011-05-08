@@ -18,10 +18,21 @@
 *
 * CDDL HEADER END
 *
-* @(#)va 1.2 11/04/30
+* @(#)pr 1.1 11/04/30
 *
-*	Messages for the val command.
+*	Diagnostic messages for the 'prt' command
 *
 -1
-"too many files"
-You may supply a maximum of 50 files to val.
+"i not allowed with s"
+You can't use both the -i and -s arguments on the same val command.
+
+The option -i tells prt to print all included serial numbers while
+the option -s tells prt to print only the first line of the delta table.
+This is in conflict.
+-2
+"c not allowed with r"
+You can't use both the -c and -r arguments on the same val command.
+
+Cutoff time (the arg to -c) and SID (the arg to -r) both specify
+a release in different ways. This is why they are conflicting
+options.

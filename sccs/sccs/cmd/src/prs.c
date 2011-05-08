@@ -27,10 +27,10 @@
 /*
  * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)prs.c	1.19 11/04/20 J. Schilling
+ * @(#)prs.c	1.21 11/04/27 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)prs.c 1.19 11/04/20 J. Schilling"
+#pragma ident "@(#)prs.c 1.21 11/04/27 J. Schilling"
 #endif
 /*
  * @(#)prs.c 1.33 06/12/12
@@ -134,7 +134,11 @@ static int	read_mod __PR((struct packet *pkt));
 static void	getbody __PR((struct sid *gsid, struct packet *pkt));
 static void	getit __PR((char *str, char *cp));
 static void	aux_create __PR((FILE *iop, char *file, int delchar));
+#if defined(BUG_1205145) || defined(GMT_TIME)
+static void	idsetup __PR((struct sid *gsid, struct packet *pkt, struct deltab *dt));
+#else
 static void	idsetup __PR((struct sid *gsid, struct packet *pkt, time_t *bdate));
+#endif
 static void	putmr __PR((char *cp));
 static void	putcom __PR((char *cp));
 static void	read_to __PR((int ch, struct packet *pkt));
@@ -1374,9 +1378,7 @@ time_t	*bdate;
 	Local time corrections before del_ba() and date_ba() calls.
 	Because these functions use gmtime() instead of localtime().
 	*/
-	dt->d_datetime -= timezone;			/* GMT correction */
-	if(Dtime->tm_isdst)
-		dt->d_datetime += 1*60*60;		/* daylight saving */
+	dt->d_datetime = mkgmtime(Dtime);
 
 	del_ba(dt, dt_line);				/* create delta table line for :Dt: keywd */
 	date_ba(&dt->d_datetime,Deltadate);

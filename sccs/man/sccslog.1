@@ -1,4 +1,4 @@
-.\" @(#)sccslog.1	1.6 11/04/03 Copyr 1997-2007 J. Schilling
+.\" @(#)sccslog.1	1.7 11/05/04 Copyr 1997-2007 J. Schilling
 .\" Manual page for sccslog
 .\"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -13,7 +13,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sccslog 1 "2011/04/03" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH sccslog 1 "2011/05/04" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 sccslog \- create a changelog from SCCS history files
 .SH SYNOPSIS
@@ -31,6 +31,15 @@ for file names that start with ``s.'' and examines all these files.
 . \" .SH ERRORS
 .SH OPTIONS
 .LP
+.TP
+.B \-a
+.B sccslog
+normally collects all deltas with the same delta comment and prints them
+as one log table entry in case the related delta time for the files differs
+no more than one day. With 
+.BR \-a ,
+.B sccslog
+collects only those deltas that have been created in the same second.
 .TP
 .BI \-C dir
 Use

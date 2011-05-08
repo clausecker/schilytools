@@ -1,7 +1,7 @@
-/* @(#)pch.c	1.13 11/04/22 2011 J. Schilling */
+/* @(#)pch.c	1.15 11/05/06 2011 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)pch.c	1.13 11/04/22 2011 J. Schilling";
+	"@(#)pch.c	1.15 11/05/06 2011 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1986-1988 Larry Wall
@@ -164,8 +164,7 @@ there_is_another_patch()
 		    "an ed script");
 	if (p_indent && verbose) {
 		if (p_indent == 1)
-			say("(Patch is indented 1 space.)\n",
-			(Llong)p_indent);
+			say("(Patch is indented 1 space.)\n");
 		else
 			say("(Patch is indented %lld spaces.)\n",
 			(Llong)p_indent);
@@ -182,7 +181,7 @@ there_is_another_patch()
 			if (bestguess)
 				free(bestguess);
 			bestguess = savestr(buf);
-			filearg[0] = fetchname(buf, 0, FALSE);
+			filearg[0] = fetchname(buf, 0, FALSE, NULL);
 		}
 		if (filearg[0] == Nullch) {
 			ask(_("No file found--skip this patch? [n] "));
@@ -191,7 +190,7 @@ there_is_another_patch()
 			}
 			if (verbose)
 				say(_("Skipping patch...\n"));
-			filearg[0] = fetchname(bestguess, 0, TRUE);
+			filearg[0] = fetchname(bestguess, 0, TRUE, NULL);
 			skip_rest_of_patch = TRUE;
 			return (TRUE);
 		}
@@ -224,6 +223,7 @@ intuit_diff_type()
 	int retval;
 	bool no_filearg = (filearg[0] == Nullch);
 
+	is_null_time[0] = is_null_time[1] = FALSE;
 	ok_to_create_file = FALSE;
 	Fseek(pfp, p_base, 0);
 	p_input_line = p_bline - 1;
@@ -342,13 +342,15 @@ intuit_diff_type()
 	if (no_filearg) {
 		if (indtmp != Nullch)
 			indname = fetchname(indtmp, strippath,
-						ok_to_create_file);
+						ok_to_create_file, NULL);
 		if (oldtmp != Nullch)
 			oldname = fetchname(oldtmp, strippath,
-						ok_to_create_file);
+						ok_to_create_file,
+						&is_null_time[0]);
 		if (newtmp != Nullch)
 			newname = fetchname(newtmp, strippath,
-						ok_to_create_file);
+						ok_to_create_file,
+						&is_null_time[1]);
 		if (oldname && newname) {
 			if (strlen(oldname) < strlen(newname))
 				filearg[0] = savestr(oldname);
@@ -369,12 +371,12 @@ intuit_diff_type()
 	if (filearg[0] != Nullch)
 		bestguess = savestr(filearg[0]);
 	else if (indtmp != Nullch)
-		bestguess = fetchname(indtmp, strippath, TRUE);
+		bestguess = fetchname(indtmp, strippath, TRUE, NULL);
 	else {
 		if (oldtmp != Nullch)
-			oldname = fetchname(oldtmp, strippath, TRUE);
+			oldname = fetchname(oldtmp, strippath, TRUE, NULL);
 		if (newtmp != Nullch)
-			newname = fetchname(newtmp, strippath, TRUE);
+			newname = fetchname(newtmp, strippath, TRUE, NULL);
 		if (oldname && newname) {
 			if (strlen(oldname) < strlen(newname))
 				bestguess = savestr(oldname);

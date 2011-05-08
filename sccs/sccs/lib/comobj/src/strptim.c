@@ -25,12 +25,12 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2009 J. Schilling
+ * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)strptim.c	1.5 09/11/08 J. Schilling
+ * @(#)strptim.c	1.8 11/04/26 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)strptim.c 1.5 09/11/08 J. Schilling"
+#pragma ident "@(#)strptim.c 1.8 11/04/26 J. Schilling"
 #endif
 /*
  * @(#)strptim.c 1.7 06/12/12
@@ -89,6 +89,7 @@ mystrptime(p, t, val)
 		t->tm_mday=gN(p, &p, 2, &dn, &cn);
 		if(t->tm_mday<1 || t->tm_mday>mosize(t->tm_year,t->tm_mon)) return(-1);
 		if(dn!=2 || cn!=dn+1) warn=1;
+		t->tm_mon -= 1;			/* tm_mon is 0..11 */
 
 		NONBLANK(p);
 
@@ -104,10 +105,9 @@ mystrptime(p, t, val)
 		if(t->tm_sec<0 || t->tm_sec>59) return(-1);
 		if(dn!=2 || cn!=dn+1) warn=1;
 #if defined(BUG_1205145) || defined(GMT_TIME)
-		gtime = mktime(t);
+		gtime = mktime(t);		/* local time -> GMT time_t */
 		if (gtime == -1) return(-1);
-		gtime -= timezone;
-		*t = *(localtime(&gtime));
+		*t = *(gmtime(&gtime));		/* GMT time_t -> GMT tm *   */
 #endif
 	} else {
 		if((t->tm_year=gN(p, &p, 2, NULL, NULL)) == -2) t->tm_year = 99;
@@ -115,9 +115,11 @@ mystrptime(p, t, val)
 
 		if((t->tm_mon=gN(p, &p, 2, NULL, NULL)) == -2) t->tm_mon = 12;
 		if(t->tm_mon<1 || t->tm_mon>12) return(-1);
+		cn = t->tm_mon;
+		t->tm_mon -= 1;			/* tm_mon is 0..11 */
 
-		if((t->tm_mday=gN(p, &p, 2, NULL, NULL)) == -2) t->tm_mday = mosize(t->tm_year,t->tm_mon);
-		if(t->tm_mday<1 || t->tm_mday>mosize(t->tm_year,t->tm_mon)) return(-1);
+		if((t->tm_mday=gN(p, &p, 2, NULL, NULL)) == -2) t->tm_mday = mosize(t->tm_year,cn);
+		if(t->tm_mday<1 || t->tm_mday>mosize(t->tm_year,cn)) return(-1);
 
 		if((t->tm_hour=gN(p, &p, 2, NULL, NULL)) == -2) t->tm_hour = 23;
 		if(t->tm_hour<0 || t->tm_hour>23) return(-1);

@@ -27,12 +27,12 @@
 /*
  * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)defines.h	1.20 11/04/20 J. Schilling
+ * @(#)defines.h	1.21 11/04/26 J. Schilling
  */
 #ifndef	_HDR_DEFINES_H
 #define	_HDR_DEFINES_H
 #if defined(sun)
-#pragma ident "@(#)defines.h 1.20 11/04/20 J. Schilling"
+#pragma ident "@(#)defines.h 1.21 11/04/26 J. Schilling"
 #endif
 /*
  * @(#)defines.h 1.21 06/12/12
@@ -376,6 +376,7 @@ extern	void	setkeep	__PR((struct packet *));
 extern	void	get_Del_Date_time __PR((char *, struct deltab *, struct packet *, struct tm *));
 extern	char*	stalloc	__PR((unsigned int));
 extern	int	mosize	__PR((int y, int t));
+extern	Llong	mkgmtime __PR((struct tm *tmp));
 extern	int	gN	__PR((char *str, char **next, int num, int *digits, int *chars));
 extern	void	xtzset	__PR((void));
 

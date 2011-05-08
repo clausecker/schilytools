@@ -27,10 +27,10 @@
 /*
  * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)dodelt.c	1.5 09/11/08 J. Schilling
+ * @(#)dodelt.c	1.6 11/04/27 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)dodelt.c 1.5 09/11/08 J. Schilling"
+#pragma ident "@(#)dodelt.c 1.6 11/04/27 J. Schilling"
 #endif
 /*
  * @(#)dodelt.c 1.8 06/12/12
@@ -41,6 +41,7 @@
 #pragma ident	"@(#)sccs:lib/comobj/dodelt.c"
 #endif
 #include	<defines.h>
+#include	<had.h>
 
 # define ONEYEAR 31536000L
 
@@ -61,7 +62,6 @@ struct stats *statp;
 struct sid *sidp;
 char type;
 {
-	extern  char	had[26];
 	char *c;
 	struct deltab dt;
 	register struct idel *rdp = NULL;
@@ -123,7 +123,7 @@ char type;
 					if (founddel)
 					{
 						escdodelt(pkt);
-						if(type == 'R' && (had[('z' - 'a')]) && pkt->p_line[1] == MRNUM )
+						if(type == 'R' && HADZ && pkt->p_line[1] == MRNUM )
 						{
 							fredck(pkt);
 						}

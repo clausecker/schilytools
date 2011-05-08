@@ -27,10 +27,10 @@
 /*
  * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)rmchg.c	1.19 11/04/22 J. Schilling
+ * @(#)rmchg.c	1.21 11/05/01 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)rmchg.c 1.19 11/04/22 J. Schilling"
+#pragma ident "@(#)rmchg.c 1.21 11/05/01 J. Schilling"
 #endif
 /*
  * @(#)rmchg.c 1.19 06/12/12
@@ -236,6 +236,14 @@ char *argv[];
 			default:
 				fatal(gettext("Usage: rmdel [ -r SID ] s.filename ..."));
 			}
+
+			/*
+			 * As long as we don't have a way to collect more than
+			 * 'a'..'z' in had[], avoid to collect option letters
+			 * outside the range 'a'..'z'.
+			 */
+			if ((c < 'a') || (c > 'z'))
+				continue;
 
 			if (had[c - 'a']++)
 				fatal(gettext("key letter twice (cm2)"));
@@ -792,7 +800,7 @@ msg(app,name,cmrs,stats,sids,fred)
 	if( *name != '/' )   /* NOT full path name */
 	{
 		if(getcwd(path,sizeof(path)) == NULL)
-                 	fatal(gettext("getcwd() failed (ge=20)"));
+                 	fatal(gettext("getcwd() failed (ge20)"));
 		cat(pname,path,"/",name, (char *)0);
 	}
 	else

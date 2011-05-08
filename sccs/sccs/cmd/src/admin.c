@@ -27,10 +27,10 @@
 /*
  * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)admin.c	1.27 11/04/22 J. Schilling
+ * @(#)admin.c	1.28 11/04/27 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)admin.c 1.27 11/04/22 J. Schilling"
+#pragma ident "@(#)admin.c 1.28 11/04/27 J. Schilling"
 #endif
 /*
  * @(#)admin.c 1.39 06/12/12
@@ -509,6 +509,13 @@ char *argv[];
 			default:
 				fatal(gettext("Usage: admin [ -bhnz ][ -ausername|groupid ]\n\t[ -dflag ][ -eusername|groupid ]\n\t[ -fflag [value]][ -i [filename]]\n\t[ -m mr-list][ -r release ][ -t [description-file]]\n\t[ -y[comment]] s.filename ..."));
 			}
+			/*
+			 * As long as we don't have a way to collect more than
+			 * 'a'..'z' in had[], avoid to collect option letters
+			 * outside the range 'a'..'z'.
+			 */
+			if ((c < 'a') || (c > 'z'))
+				continue;
 
 			if (had[c - 'a']++ && testklt++)
 				fatal(gettext("key letter twice (cm2)"));

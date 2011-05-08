@@ -25,12 +25,12 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2009 J. Schilling
+ * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)permiss.c	1.8 09/11/08 J. Schilling
+ * @(#)permiss.c	1.10 11/05/01 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)permiss.c 1.8 09/11/08 J. Schilling"
+#pragma ident "@(#)permiss.c 1.10 11/05/01 J. Schilling"
 #endif
 /*
  * @(#)permiss.c 1.9 06/12/12
@@ -43,6 +43,8 @@
 # define	NEED_SCHILY_PRINT	/* We need defines for js_snprintf() */
 # include	<defines.h>
 # include       <i18n.h>
+
+# define	BLANK(l)	while (!(*l == '\0' || *l == ' ' || *l == '\t')) l++;
 
 static void ck_lock __PR((char *p, struct packet *pkt));
 
@@ -98,12 +100,51 @@ struct packet *pkt;
 	while ((p = getline(pkt)) != NULL && *p++ == CTLCHAR && *p++ == FLAG) {
 		NONBLANK(p);
 		k = *p++ - 'a';
+		if (k < 0 || k >= NFLAGS) {
+			if (Ffile) {
+				fprintf(stderr,
+					gettext(
+					"WARNING [%s]: unsupported flag at line %d\n"),
+					Ffile, pkt->p_slnno);
+			} else {
+				fprintf(stderr,
+					gettext(
+					"WARNING: unsupported flag at line %d\n"),
+					pkt->p_slnno);
+			}
+			continue;
+		}
 		NONBLANK(p);
 		Sflags[k] = fmalloc(size(p));
 		copy(p,Sflags[k]);
 		for (p = Sflags[k]; *p++ != '\n'; )
 			;
 		*--p = 0;
+	}
+
+	/*
+	 * We only support type "SCHILY" extensions. Check for "SCHILY" in the
+	 * list of extensions.
+	 * We ignore the SCO SCCS meaning for 'x': make files executable.
+	 * We don't need the SCO SCCS meaning as a simple chmod +x SCCS/s.file
+	 * is sufficient.
+	 */
+	p =  Sflags[EXTENSFLAG-'a'];
+	if (p == NULL)			/* 'x' flag not set */
+		return;
+	for (k = 0; *p; ) {
+		char	*p2;
+
+		NONBLANK(p);
+		p2 = p;
+		BLANK(p2);
+		if ((p2 - p) == 6 && strncmp("SCHILY", p, 6) == 0)
+			k++;
+		p = p2;
+	}
+	if (k == 0) {
+		ffree(Sflags[EXTENSFLAG-'a']);
+		Sflags[EXTENSFLAG-'a'] = NULL;
 	}
 }
 

@@ -1,4 +1,4 @@
-# @(#)Targets	1.3 08/01/05 Copyright 20006-2008 J. Schilling
+# @(#)Targets	1.3 08/01/05 Copyright 2006-2008 J. Schilling
 
 CFILES=	auxf.c chkid.c chksid.c cmpdate.c date_ab.c date_ba.c date_bal.c \
 	del_ab.c \
