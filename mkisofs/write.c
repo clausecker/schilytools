@@ -1,8 +1,8 @@
-/* @(#)write.c	1.134 10/12/19 joerg */
+/* @(#)write.c	1.135 11/06/05 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)write.c	1.134 10/12/19 joerg";
+	"@(#)write.c	1.135 11/06/05 joerg";
 #endif
 /*
  * Program write.c - dump memory  structures to  file for iso9660 filesystem.
@@ -1998,11 +1998,10 @@ pvd_write(outfile)
 	int		i;
 	int		s;
 	Uchar		*cp;
+extern	ldate		modification_date;
 
 
-	time(&begun);
-	gettimeofday(&tv_begun, NULL);
-	iso9660_ldate(iso_time, tv_begun.tv_sec, tv_begun.tv_usec * 1000);
+	iso9660_ldate(iso_time, tv_begun.tv_sec, tv_begun.tv_usec * 1000, -100);
 
 	/* Next we write out the primary descriptor for the disc */
 	memset(&vol_desc, 0, sizeof (vol_desc));
@@ -2078,8 +2077,11 @@ pvd_write(outfile)
 	vol_desc.file_structure_version[0] = 1;
 	FILL_SPACE(application_data);
 
-	memcpy(vol_desc.creation_date, iso_time, 17);
-	memcpy(vol_desc.modification_date, iso_time, 17);
+	iso9660_ldate(vol_desc.modification_date,
+		modification_date.l_sec,
+		modification_date.l_usec * 1000,
+		modification_date.l_gmtoff);
+
 	memcpy(vol_desc.expiration_date, "0000000000000000", 17);
 	memcpy(vol_desc.effective_date, iso_time, 17);
 

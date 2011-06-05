@@ -1,4 +1,4 @@
-/* @(#)wait.h	1.17 09/11/15 Copyright 1995-2007 J. Schilling */
+/* @(#)wait.h	1.18 11/06/02 Copyright 1995-2007 J. Schilling */
 /*
  *	Definitions to deal with various kinds of wait flavour
  *
@@ -119,6 +119,10 @@ extern "C" {
 #	ifndef WSTOPSIG
 #		define WSTOPSIG(status)		((_W_I(status) >> 8) & 0xFF)
 #	endif
+/*
+ * WIFSTOPPED and WIFSIGNALED match the definitions on older UNIX versions
+ * e.g. SunOS-4.x or HP-UX
+ */
 #	ifndef WIFSTOPPED
 #		define	WIFSTOPPED(status)	((_W_I(status) & 0xFF) == 0x7F)
 #	endif

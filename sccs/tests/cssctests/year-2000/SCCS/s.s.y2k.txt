@@ -1,0 +1,33 @@
+h07782
+s 00020/00000/00000
+d D 1.1 10/04/18 18:20:27 joerg 1 0
+c date and time created 10/04/18 18:20:27 by joerg
+e
+u
+U
+f e 1
+f y 
+t
+T
+I 1
+M 6@U-S U-0H!<R P,# P,2\P,# P,"\P,# Q, H!9"!$(#$N-2 V."\Q,B\S
+M,2 R,SHU.3HU.2!J86UE<R U(#0* 6,@5&AE(&5N9"!O9B!T:&4@=V]R;&0*
+M 64* 7,@,# P,#$O,# P,# O,# P,#D* 60@1" Q+C0@,# O,#(O,CD@,# Z
+M,# Z,# @:F%M97,@-" S"@%C( H!90H!<R P,# P,2\P,# P,"\P,# P. H!
+M9"!$(#$N,R P,"\P,2\P,2 P,#HP,#HP,"!J86UE<R S(#(* 6,@"@%E"@%S
+M(# P,# Q+S P,# P+S P,# W"@%D($0@,2XR(#DY+S$R+S,Q(#(S.C4Y.C4Y
+M(&IA;65S(#(@,0H!8R!!9&1E9"!A;B!E>'1R82!L:6YE"@%E"@%S(# P,# W
+M+S P,# P+S P,# P"@%D($0@,2XQ(#8Y+S Q+S Q(# P.C P.C P(&IA;65S
+M(#$@, H!8R!C<F5A=&5D(&%T('1H92!D87=N(&]F('1I;64* 64* 74* 54*
+M 68@92 P"@%T"@%4"@%)(#$*5&AI<R!I<R!A('1E>'0@9FEL92P@>3)K+G1X
+M="P@=VAI8V@@:7,@"G5S960@=&\@=&5S="!T:&4@>65A<B R,# P(&-O;7!L
+M:6%N8V4@;V8*1TY5($-34T,N"@IY>2]M;2]D9"!D871E(&]F(&%P<&QI8V%T
+M:6]N(&]F(&YE=V5S="!D96QT83H@)44E"FUM+V1D+WEY(&1A=&4@;V8@87!P
+M;&EC871I;VX@;V8@;F5W97-T(&1E;'1A.B E1R4*"@%)(#(*061D960@82!L
+M:6YE(&AE<F4L(&)E8V%U<V4@=V4@;F5E9"!S979E<F%L(&1E;'1A<RX* 4D@
+M,PI!9&1E9"!A;F]T:&5R(&QI;F4L(&9O<B!T:&4@=&AI<F0@9&5L=&$L(#$N
+M,RX* 4D@- I4:&ES(&ES('1H92!T:&ER9"!L:6YE($D@861D960N("!)="!M
+M:6=H="!B92!T:&4@;&%S="X* 4D@-0I/2RP@<V\@:70@=V%S;B=T+B @4V]R
+H<GD@86)O=70@=&AA="X* 44@-0H!12 T"@%%(#,* 44@,@H!12 Q"B @
+ 
+E 1

@@ -1,0 +1,66 @@
+
+s.testfile:
+
+ Users allowed to make deltas -- 
+	everyone
+
+Flags --
+	none
+
+Description --
+	none
+
+*** I 1
+	root:x:0:0:root:/root:/bin/bash
+	bin:x:1:1:bin:/bin:
+	daemon:x:2:2:daemon:/sbin:
+	adm:x:3:4:adm:/var/adm:
+	lp:x:4:7:lp:/var/spool/lpd:
+	sync:x:5:0:sync:/sbin:/bin/sync
+	shutdown:x:6:0:shutdown:/sbin:/sbin/shutdown
+	halt:x:7:0:halt:/sbin:/sbin/halt
+	mail:x:8:12:mail:/var/spool/mail:
+	news:x:9:13:news:/var/spool/news:
+	uucp:x:10:14:uucp:/var/spool/uucp:
+	operator:x:11:0:operator:/root:
+	games:x:12:100:games:/usr/games:
+	gopher:x:13:30:gopher:/usr/lib/gopher-data:
+	ftp:x:14:50:FTP User:/home/ftp:
+	amanda:x:15:6:Amanda Backup System:/etc/amanda:
+	nobody:x:99:99:Nobody:/:
+	james:x:101:100:James Youngman,,,,:/home/james:/bin/bash
+	erica:x:102:100::/home/erica:/bin/bash
+	robert:x:103:100:Robert Templeman:/home/robert:/bin/bash
+	adam:x:104:100:Adam Woodcraft:/home/adam:/bin/bash
+	mbctprd:x:105:100:Robert Bowler:/home/mbctprd:/bin/bash
+	ian:x:106:100:Ian Porter:/home/ian:/bin/bash
+*** D 2
+*** D 4
+	This is file number 1
+*** E 1
+*** E 2
+*** I 2
+*** D 3
+	This is file number 2
+*** E 2
+*** E 3
+*** I 3
+*** D 6
+	This is file number 3
+*** E 3
+*** E 4
+*** I 4
+*** D 5
+	This is file number 4
+*** E 4
+*** E 5
+*** I 5
+	This is file number 5
+*** E 5
+*** E 6
+*** I 6
+	This is file number 6
+*** E 6
+*** I 7
+	
+*** E 7

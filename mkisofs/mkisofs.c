@@ -1,8 +1,8 @@
-/* @(#)mkisofs.c	1.262 11/03/08 joerg */
+/* @(#)mkisofs.c	1.264 11/06/05 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)mkisofs.c	1.262 11/03/08 joerg";
+	"@(#)mkisofs.c	1.264 11/06/05 joerg";
 #endif
 /*
  * Program mkisofs.c - generate iso9660 filesystem  based upon directory
@@ -192,6 +192,7 @@ char	*uid_str;		/* CLI Parameter for -uid option	    */
 int	untranslated_filenames;	/* CLI Parameter for -U option		    */
 int	pversion;		/* CLI Parameter for -version option	    */
 int	rationalize_xa;		/* CLI Parameter for -xa option		    */
+ldate	modification_date;	/* CLI Parameter for -modification-date	    */
 #ifdef	APPLE_HYB
 char	*afpfile = "";		/* CLI Parameter for -map option	    */
 char	*root_info;		/* CLI Parameter for -root-info option	    */
@@ -206,6 +207,9 @@ char	*const *find_pav = NULL; /* av for first find primary	*/
 findn_t	*find_node;		/* syntaxtree from find_parse()	*/
 void	*plusp;			/* residual for -exec ...{} +	*/
 int	find_patlen;		/* len for -find pattern state	*/
+
+extern	time_t		begun;
+extern	struct timeval	tv_begun;
 
 LOCAL	BOOL		data_change_warn;
 LOCAL 	int		walkflags = WALK_CHDIR | WALK_PHYS | WALK_NOEXIT;
@@ -355,6 +359,7 @@ LOCAL	int	get_ne_boot	__PR((char *opt_arg));
 LOCAL	int	get_no_boot	__PR((char *opt_arg));
 LOCAL	int	get_boot_addr	__PR((char *opt_arg));
 LOCAL	int	get_boot_size	__PR((char *opt_arg));
+LOCAL	int	get_boot_platid	__PR((char *opt_arg));
 LOCAL	int	get_boot_table	__PR((char *opt_arg));
 #ifdef	APPLE_HYB
 #ifdef PREP_BOOT
@@ -362,6 +367,11 @@ LOCAL	int	get_prep_boot	__PR((char *opt_arg));
 LOCAL	int	get_chrp_boot	__PR((char *opt_arg));
 #endif
 LOCAL	int	get_bsize	__PR((char *opt_arg));
+LOCAL	void	ldate_error	__PR((char *arg));
+LOCAL	char	*strntoi	__PR((char *p, int n, int *ip));
+LOCAL	int	mosize		__PR((int y, int m));
+LOCAL	char	*parse_date	__PR((char *arg, struct tm *tp));
+LOCAL	int	get_ldate	__PR((char *opt_arg, void *valp));
 
 LOCAL	int	hfs_cap		__PR((void));
 LOCAL	int	hfs_neta	__PR((void));
@@ -467,6 +477,45 @@ get_boot_size(opt_arg)
 }
 
 LOCAL int
+get_boot_platid(opt_arg)
+	char	*opt_arg;
+{
+	long	val;
+	char	*ptr;
+	
+	use_eltorito++;
+	if (streql(opt_arg, "x86")) {
+		val = EL_TORITO_ARCH_x86;
+	} else if (streql(opt_arg, "PPC")) {
+		val = EL_TORITO_ARCH_PPC;
+	} else if (streql(opt_arg, "Mac")) {
+		val = EL_TORITO_ARCH_PPC;
+	} else if (streql(opt_arg, "efi")) {
+		val = EL_TORITO_ARCH_EFI;
+	} else {
+		val = strtol(opt_arg, &ptr, 0);
+		if (*ptr || val < 0 || val >= 0x100) {
+			comerrno(EX_BAD, _("Bad boot system ID.\n"));
+		}
+	}
+
+	/*
+	 * If there is already a boot entry and the boot file name has been set
+	 * for this boot entry and the new platform id differs from the
+	 * previous value, we start a new boot section.
+	 */
+	if (current_boot_entry &&
+	    current_boot_entry->boot_image != NULL &&
+	    current_boot_entry->boot_platform != val) {
+		new_boot_entry();
+	}
+	get_boot_entry();
+	current_boot_entry->type |= ELTORITO_BOOT_ID;
+	current_boot_entry->boot_platform = val;
+	return (1);
+}
+
+LOCAL int
 get_boot_table(opt_arg)
 	char	*opt_arg;
 {
@@ -520,6 +569,211 @@ get_bsize(opt_arg)
 	afe_size = atoi(opt_arg);
 	hfs_select |= DO_FEU;
 	hfs_select |= DO_FEL;
+	return (1);
+}
+
+LOCAL void
+ldate_error(arg)
+	char	*arg;
+{
+	comerrno(EX_BAD, _("Ilegal date specification '%s'.\n"), arg);
+}
+
+LOCAL char *
+strntoi(p, n, ip)
+	char	*p;
+	int	n;
+	int	*ip;
+{
+	int	i = 0;
+	int	digits = 0;
+	int	c;
+
+	while (*p) {
+		if (digits >= n)
+			break;
+		c = *p;
+		if (c < '0' || c > '9')
+			break;
+		p++;
+		digits++;
+		i *= 10;
+		i += c - '0';
+	}
+	*ip = i;
+	
+	return (p);
+}
+
+#define	dysize(A) (((A)%4)? 365 : (((A)%100) == 0 && ((A)%400)) ? 365 : 366)
+
+static int dmsize[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+
+LOCAL int
+mosize(y, m)
+	int	y;
+	int	m;
+{
+
+	if (m == 1 && dysize(y) == 366)
+		return (29);
+	return (dmsize[m]);
+}
+
+LOCAL char *
+parse_date(arg, tp)
+	char	*arg;
+	struct tm *tp;
+{
+	char	*oarg = arg;
+	char	*p;
+
+	tp->tm_mon = tp->tm_hour = tp->tm_min = tp->tm_sec = 0;
+	tp->tm_mday = 1;
+	tp->tm_isdst = -1;
+
+	p = strchr(arg, '/');
+	if (p == NULL)
+		p = strchr(arg, '-');
+	if (p) {
+		if ((p - arg) != 2 && (p - arg) != 4)
+			ldate_error(oarg);
+		p = strntoi(arg, 4, &tp->tm_year);
+		if ((p - arg) != 2 && (p - arg) != 4)
+			ldate_error(oarg);
+		if ((p - arg) == 2) {
+			if (tp->tm_year < 69)
+				tp->tm_year += 100; 
+		} else {
+			tp->tm_year -= 1900;
+		}
+		if (*p == '/' || *p == '-')
+			p++;
+	} else if (strlen(arg) < 4) {
+		ldate_error(oarg);
+	} else {
+		p = strntoi(arg, 4, &tp->tm_year);
+		if ((p - arg) != 4)
+			ldate_error(oarg);
+		tp->tm_year -= 1900;
+	}
+	if (*p == '\0' || strchr(".+-", *p))
+		return (p);
+	arg = p;
+	p = strntoi(arg, 2, &tp->tm_mon);
+	if ((p - arg) != 2)
+		ldate_error(oarg);
+	tp->tm_mon -= 1;
+	if (tp->tm_mon < 0 || tp->tm_mon >= 12)
+		ldate_error(oarg);
+	if (*p == '/' || *p == '-')
+		p++;
+	if (*p == '\0' || strchr(".+-", *p))
+		return (p);
+	arg = p;
+	p = strntoi(arg, 2, &tp->tm_mday);
+	if ((p - arg) != 2)
+		ldate_error(oarg);
+	if (tp->tm_mday < 1 || tp->tm_mday > mosize(tp->tm_year+1900, tp->tm_mon))
+		ldate_error(oarg);
+	if (*p == ' ')
+		p++;
+	if (*p == '\0' || strchr(".+-", *p))
+		return (p);
+	arg = p;
+	p = strntoi(arg, 2, &tp->tm_hour);
+	if ((p - arg) != 2)
+		ldate_error(oarg);
+	if (tp->tm_hour > 23)
+		ldate_error(oarg);
+	if (*p == ':')
+		p++;
+	if (*p == '\0' || strchr(".+-", *p))
+		return (p);
+	arg = p;
+	p = strntoi(arg, 2, &tp->tm_min);
+	if ((p - arg) != 2)
+		ldate_error(oarg);
+	if (tp->tm_min > 59)
+		ldate_error(oarg);
+	if (*p == ':')
+		p++;
+	if (*p == '\0' || strchr(".+-", *p))
+		return (p);
+	arg = p;
+	p = strntoi(arg, 2, &tp->tm_sec);
+	if ((p - arg) != 2)
+		ldate_error(oarg);
+	if (tp->tm_sec > 61)
+		ldate_error(oarg);
+	return (p);
+}
+
+/*
+ * Parse a date spec similar to:
+ * YYYY[MM[DD[HH[MM[SS]]]]][.hh][+-GHGM]
+ */
+LOCAL int
+get_ldate(opt_arg, valp)
+	char	*opt_arg;
+	void	*valp;
+{
+	time_t	t;
+	int	usec = 0;
+	int	gmtoff = -100;
+	struct tm tm;
+	char	*p;
+	char	*arg;
+
+	p = parse_date(opt_arg, &tm);
+	if (*p == '.') {
+		p++;
+		arg = p;
+		p = strntoi(arg, 2, &usec);
+		if ((p - arg) != 2)
+			ldate_error(opt_arg);
+		if (usec > 99)
+			ldate_error(opt_arg);
+		usec *= 10000;
+	}
+	if (*p == ' ')
+		p++;
+	if (*p == '+' || *p == '-') {
+		int	i;
+		char	*s = p++;
+
+		arg = p;
+		p = strntoi(arg, 2, &gmtoff);
+		if ((p - arg) != 2)
+			ldate_error(opt_arg);
+		arg = p;
+		p = strntoi(arg, 2, &i);
+		if ((p - arg) != 2)
+			ldate_error(opt_arg);
+		if (i > 59)
+			ldate_error(opt_arg);
+		gmtoff *= 60;
+		gmtoff += i;
+		if (gmtoff % 15)
+			ldate_error(opt_arg);
+		if (*s == '-')
+			gmtoff *= -1;
+		gmtoff /= 15;
+		if (gmtoff < -48 || gmtoff > 52)
+			ldate_error(opt_arg);
+	}
+	if (*p != '\0')
+		ldate_error(opt_arg);
+
+	seterrno(0);
+	t = mktime(&tm);
+	if (t == -1 && geterrno() != 0)
+		comerr(_("Date '%s' is out of range.\n"), opt_arg);
+
+	((ldate *)valp)->l_sec = t;
+	((ldate *)valp)->l_usec = usec;
+	((ldate *)valp)->l_gmtoff = gmtoff;
+
 	return (1);
 }
 
@@ -763,6 +1017,8 @@ LOCAL const struct mki_option mki_options[] =
 	__("\1FILE\1Set El Torito boot image name")},
 	{{"eltorito-alt-boot~", NULL, (getpargfun)new_boot_entry },
 	__("Start specifying alternative El Torito boot parameters")},
+	{{"eltorito-platform&", NULL, (getpargfun)get_boot_platid },
+	__("\1ID\1Set El Torito platform id for the next boot entry")},
 	{{"B&,sparc-boot&", NULL, (getpargfun)scan_sparc_boot },
 	__("\1FILES\1Set sparc boot image names")},
 	{{"sunx86-boot&", NULL, (getpargfun)scan_sunx86_boot },
@@ -855,6 +1111,8 @@ LOCAL const struct mki_option mki_options[] =
 	__("\1GLOBFILE\1Exclude file name")},
 	{{"exclude-list&", NULL, (getpargfun)add_list},
 	__("\1FILE\1File with list of file names to exclude")},
+	{{"modification-date&", &modification_date, (getpargfun)get_ldate },
+	__("\1DATE\1Set the modification date field of the PVD")},
 	{{"nobak%0", &all_files },
 	__("Do not include backup files")},
 	{{"no-bak%0", &all_files},
@@ -1502,10 +1760,11 @@ iso9660_date(result, crtime)
  * This takes 17 bytes and supports year 0 .. 9999 with 10ms granularity
  */
 EXPORT int
-iso9660_ldate(result, crtime, nsec)
+iso9660_ldate(result, crtime, nsec, gmtoff)
 	char	*result;
 	time_t	crtime;
 	int	nsec;
+	int	gmtoff;
 {
 	struct tm	local;
 	struct tm	gmt;
@@ -1523,16 +1782,19 @@ iso9660_ldate(result, crtime, nsec)
 		local.tm_hour, local.tm_min, local.tm_sec,
 		nsec / 10000000);
 
-	local.tm_min  -= gmt.tm_min;
-	local.tm_hour -= gmt.tm_hour;
-	local.tm_yday -= gmt.tm_yday;
-	local.tm_year -= gmt.tm_year;
-	if (local.tm_year)		/* Hit new-year limit	*/
-		local.tm_yday = local.tm_year;	/* yday = +-1	*/
+	if (gmtoff == -100) {
+		local.tm_min  -= gmt.tm_min;
+		local.tm_hour -= gmt.tm_hour;
+		local.tm_yday -= gmt.tm_yday;
+		local.tm_year -= gmt.tm_year;
+		if (local.tm_year)		/* Hit new-year limit	*/
+			local.tm_yday = local.tm_year;	/* yday = +-1	*/
 
-	result[16] = (local.tm_min + 60 *
-			(local.tm_hour + 24 * local.tm_yday)) / 15;
-
+		result[16] = (local.tm_min + 60 *
+				(local.tm_hour + 24 * local.tm_yday)) / 15;
+	} else {
+		result[16] = gmtoff;
+	}
 	return (0);
 }
 
@@ -1679,6 +1941,11 @@ main(argc, argv)
 		}
 		flags[il].ga_format = NULL;
 	}
+	time(&begun);
+	gettimeofday(&tv_begun, NULL);
+	modification_date.l_sec  = tv_begun.tv_sec;
+	modification_date.l_usec = tv_begun.tv_usec;
+	modification_date.l_gmtoff = -100;
 
 #if	defined(IS_CYGWIN) || defined(__MINGW32__)
 	/*

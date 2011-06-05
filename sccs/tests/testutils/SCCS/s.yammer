@@ -1,0 +1,29 @@
+h19778
+s 00017/00000/00000
+d D 1.1 11/05/27 20:17:18 joerg 1 0
+c date and time created 11/05/27 20:17:18 by joerg
+e
+u
+U
+f e 0
+t
+T
+I 1
+#!/bin/sh
+
+if test $# -lt 2
+then
+	echo "Usage yammer count string"
+fi
+
+I=1
+while true
+do
+	if test $I -gt $1
+	then
+		break
+	fi
+	echo $I "$2"
+	I=`expr $I + 1`
+done
+E 1

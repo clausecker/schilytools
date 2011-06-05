@@ -1,0 +1,78 @@
+h11822
+s 00001/00000/00002
+d D 1.3.1.3 00/12/03 00:49:44 xjames 10 7
+x 7
+c 
+e
+s 00001/00000/00004
+d D 1.7 00/12/03 00:49:43 xjames 9 8
+c 
+e
+s 00001/00000/00004
+d D 1.6 00/12/03 00:49:42 xjames 8 5
+g 2
+c 
+e
+s 00001/00000/00002
+d D 1.3.1.2 00/12/03 00:49:42 xjames 7 6
+c 
+e
+s 00001/00001/00001
+d D 1.3.1.1 00/12/03 00:49:41 xjames 6 3
+c 
+e
+s 00001/00000/00003
+d D 1.5 00/12/03 00:49:40 xjames 5 4
+c 
+e
+s 00001/00000/00002
+d D 1.4 00/12/03 00:49:39 xjames 4 3
+c 
+e
+s 00001/00000/00001
+d D 1.3 00/12/03 00:49:39 xjames 3 2
+c 
+e
+s 00001/00000/00000
+d D 1.2 00/12/03 00:49:38 xjames 2 1
+c 
+e
+s 00000/00000/00000
+d D 1.1 00/12/03 00:49:37 xjames 1 0
+c date and time created 00/12/03 00:49:37 by xjames
+e
+u
+U
+t
+T
+I 2
+This line was added in version 1.2
+I 3
+D 6
+This line was added in version 1.3
+E 6
+I 6
+This line was added in version 1.3 and changed in 1.3.1.1
+I 10
+This line was added in version 1.3.1.3; that version also excludes 1.3.1.2
+E 10
+I 7
+This line was added in version 1.3.1.2
+E 7
+E 6
+I 4
+This line was added in version 1.4
+I 5
+This line was added in version 1.5
+I 8
+This line was added in version 1.6; that version also ignores 1.2
+I 9
+This line was added in version 1.7
+E 9
+E 8
+E 5
+E 4
+E 3
+E 2
+I 1
+E 1

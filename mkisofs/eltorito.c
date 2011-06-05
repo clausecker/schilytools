@@ -1,8 +1,8 @@
-/* @(#)eltorito.c	1.49 10/12/19 joerg */
+/* @(#)eltorito.c	1.50 11/06/04 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)eltorito.c	1.49 10/12/19 joerg";
+	"@(#)eltorito.c	1.50 11/06/04 joerg";
 
 #endif
 /*
@@ -44,6 +44,8 @@ static	UConst char sccsid[] =
 EXPORT	void	init_boot_catalog	__PR((const char *path));
 EXPORT	void	insert_boot_cat		__PR((void));
 LOCAL	void	get_torito_desc		__PR((struct eltorito_boot_descriptor *boot_desc));
+LOCAL  void	fill_boot_shdr		__PR((struct eltorito_sectionheader_entry *boot_shdr_entry,
+						int arch));
 LOCAL	void	fill_boot_desc		__PR((struct eltorito_defaultboot_entry *boot_desc_entry,
 						struct eltorito_boot_entry_info *boot_entry));
 EXPORT	void	get_boot_entry		__PR((void));
@@ -256,7 +258,14 @@ get_torito_desc(boot_desc)
 	struct directory_entry	*de2;	/* Boot catalog */
 	int			i;
 	int			offset;
+	int			arch = 0;
+	int			nentries = 0;
 	struct eltorito_defaultboot_entry boot_desc_record;
+	struct eltorito_sectionheader_entry boot_shdr_record;
+#ifdef	__needed__
+	struct eltorito_section_entry boot_section_record;
+#endif
+	struct eltorito_sectionheader_entry *last_section_header = 0;
 
 	memset(boot_desc, 0, sizeof (*boot_desc));
 	boot_desc->type[0] = 0;
@@ -280,12 +289,21 @@ get_torito_desc(boot_desc)
 		(unsigned int) get_733(de2->isorec.extent));
 
 	/*
+	 * If the platform id for the first (default) boot entry has not been
+	 * explicitly set, we default to EL_TORITO_ARCH_x86
+	 */
+	if ((first_boot_entry->type & ELTORITO_BOOT_ID) == 0) {
+		first_boot_entry->boot_platform = EL_TORITO_ARCH_x86;
+	}
+	arch = first_boot_entry->boot_platform;
+
+	/*
 	 * we have the boot image, so write boot catalog information
 	 * Next we write out the primary descriptor for the disc
 	 */
 	memset(&valid_desc, 0, sizeof (valid_desc));
 	valid_desc.headerid[0] = 1;
-	valid_desc.arch[0] = EL_TORITO_ARCH_x86;
+	valid_desc.arch[0] = arch;	/* Platform id for the default boot */
 
 	/*
 	 * we'll shove start of publisher id into id field,
@@ -319,16 +337,64 @@ get_torito_desc(boot_desc)
 		current_boot_entry != NULL;
 		current_boot_entry = current_boot_entry->next,
 		offset += sizeof (boot_desc_record)) {
+		int	newarch = arch;
 
-		if (offset >= SECTOR_SIZE) {
+		if (current_boot_entry->type & ELTORITO_BOOT_ID)
+			newarch = current_boot_entry->boot_platform;
+		else
+			current_boot_entry->boot_platform = arch;
+
+		/*
+		 * El Torito has no such limitation but we currently have...
+		 */
+		if (offset >= (SECTOR_SIZE - sizeof (boot_desc_record))) {
 			comerrno(EX_BAD,
 			_("Too many El Torito boot entries\n"));
 		}
+		if (current_boot_entry == first_boot_entry) {
+			;
+			/* EMPTY */
+		} else if ((current_boot_entry == first_boot_entry->next) ||
+			    (arch != newarch) ||
+			    (current_boot_entry->type & ELTORITO_SECTION_HEADER)) {
+			if (last_section_header)
+				set_721(&last_section_header->entry_count, nentries);
+			nentries = 1;
+			last_section_header = (struct eltorito_sectionheader_entry *)
+							(de2->table + offset);
+			fill_boot_shdr(&boot_shdr_record, newarch);
+			memcpy(de2->table + offset, &boot_shdr_record,
+						sizeof (boot_shdr_record));
+			offset += sizeof (boot_desc_record);
+		} else {
+			nentries++;	/* Add entry to this section header */
+		}
+		/*
+		 * This works because a section entry has the same essential
+		 * layout as a default entry (and we do not populate the
+		 * selection criteria fields).
+		 */
 		fill_boot_desc(&boot_desc_record, current_boot_entry);
 		memcpy(de2->table + offset, &boot_desc_record,
 					sizeof (boot_desc_record));
 	}
+
+	if (last_section_header) {
+		set_721(&last_section_header->entry_count, nentries);
+		last_section_header->header_id[0] = EL_TORITO_SHDR_ID_LAST_SHDR;
+	}
+
 } /* get_torito_desc(... */
+
+LOCAL void
+fill_boot_shdr(boot_shdr_entry, arch)
+	struct eltorito_sectionheader_entry	*boot_shdr_entry;
+	int					arch;
+{
+	memset(boot_shdr_entry, 0, sizeof(struct eltorito_sectionheader_entry));
+	boot_shdr_entry->header_id[0] = EL_TORITO_SHDR_ID_SHDR;
+	boot_shdr_entry->platform_id[0] = arch;
+}
 
 LOCAL void
 fill_boot_desc(boot_desc_entry, boot_entry)
@@ -572,7 +638,9 @@ get_boot_entry()
 	if (!first_boot_entry) {
 		first_boot_entry = current_boot_entry;
 		last_boot_entry = current_boot_entry;
+		current_boot_entry->boot_platform = EL_TORITO_ARCH_x86;
 	} else {
+		current_boot_entry->boot_platform = last_boot_entry->boot_platform;
 		last_boot_entry->next = current_boot_entry;
 		last_boot_entry = current_boot_entry;
 	}

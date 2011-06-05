@@ -27,10 +27,10 @@
 /*
  * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)get.c	1.26 11/04/22 J. Schilling
+ * @(#)get.c	1.31 11/05/29 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)get.c 1.26 11/04/22 J. Schilling"
+#pragma ident "@(#)get.c 1.31 11/05/29 J. Schilling"
 #endif
 /*
  * @(#)get.c 1.59 06/12/12
@@ -46,6 +46,7 @@
 #include	<had.h>
 #include	<i18n.h>
 #include	<schily/utsname.h>
+#include	<schily/utime.h>
 #include	<ccstypes.h>
 #include	<schily/limits.h>
 #include	<schily/sysexits.h>
@@ -149,6 +150,8 @@ register char *argv[];
 #endif
 	(void) textdomain(NOGETTEXT("SUNW_SPRO_SCCS"));
 
+	tzset();	/* Set up timezome related vars */
+
 	Fflags = FTLEXIT | FTLMSG | FTLCLN;
 	current_optind = 1;
 	optind = 1;
@@ -171,7 +174,7 @@ register char *argv[];
 			}
 			no_arg = 0;
 			i = current_optind;
-		        c = getopt(argc, argv, "-r:c:ebi:x:kl:Lpsmngta:G:w:zqdC:V(version)");
+		        c = getopt(argc, argv, "-r:c:ebi:x:kl:Lpsmnogta:G:w:zqdC:V(version)");
 				/* this takes care of options given after
 				** file names.
 				*/
@@ -269,6 +272,7 @@ register char *argv[];
 			case 'k':
 			case 'm':
 			case 'n':
+			case 'o':
 			case 's':
 			case 't':
 			case 'd':
@@ -301,7 +305,7 @@ register char *argv[];
 				exit(EX_OK);
 
 			default:
-			   fatal(gettext("Usage: get [-begkmLpst] [-l[p]] [-asequence] [-cdate-time] [-Gg-file] [-isid-list] [-rsid] [-xsid-list] file ..."));
+			   fatal(gettext("Usage: get [-begkmLopst] [-l[p]] [-asequence] [-cdate-time] [-Gg-file] [-isid-list] [-rsid] [-xsid-list] file ..."));
 			
 			}
 
@@ -499,7 +503,7 @@ char *file;
 				copy(buf1, Gfile);
 				/*
 				 * It may be better to use fdopen() and chmod()
-				 * instead of xfcreat() in order to avoind an
+				 * instead of xfcreat() in order to avoid an
 				 * unlink()/create() chain.
 				 */
 				if (exists(gpkt.p_file) && (S_IEXEC & Statbuf.st_mode)) {
@@ -548,7 +552,9 @@ char *file;
 		      fprintf(gpkt.p_stdout,gettext("%d lines\n"),gpkt.p_glnno);
 #endif
 		}		
-		if (!Did_id && !HADK && !HADQ) {
+		if (!Did_id && !HADK && !HADQ &&
+		    (!Sflags[EXPANDFLAG - 'a'] ||
+		    *(Sflags[EXPANDFLAG - 'a']))) {
 		   if (Sflags[IDFLAG - 'a']) {
 		      if (!(*Sflags[IDFLAG - 'a'])) {
 		         fatal(gettext("no id keywords (cm6)"));
@@ -563,6 +569,19 @@ char *file;
 		}
 		if (Gfile[0] != '\0' && exists(Gfile) ) {
 			rename(Gfile, gfile);
+#ifdef	HAVE_UTIME
+			if (HADO) {
+				struct utimbuf	ut;
+				unsigned int	gser;
+				extern time_t	Timenow;
+
+				gser = sidtoser(&gpkt.p_gotsid, &gpkt);
+
+				ut.actime = Timenow;
+				ut.modtime = gpkt.p_idel[gser].i_datetime;
+				utime(gfile, &ut);
+			}
+#endif
 		}
 		setuid(holduid);
 		setgid(holdgid);
@@ -681,7 +700,17 @@ register struct packet *pkt;
 			sid_ba(&dt.d_sid,str);
 			if (fprintf(out, "%s\t", str) == EOF)
 				xmsg(outname, NOGETTEXT("gen_lfile"));
-			if (dt.d_datetime > Y2038)
+			/*
+			 * POSIX requires a 2-digit year for the l-file.
+			 * We use 4-digits before 1969 and past 2068
+			 * which is outside the year range specified by POSIX.
+			 */
+#if SIZEOF_TIME_T == 4
+			if (dt.d_datetime < Y1969)
+#else
+			if ((dt.d_datetime < Y1969) ||
+			    (dt.d_datetime >= Y2069))
+#endif
 				date_bal(&dt.d_datetime,str);	/* 4 digit year */
 			else
 				date_ba(&dt.d_datetime,str);	/* 2 digit year */
@@ -1280,7 +1309,18 @@ char *inc, *exc;
 		xmsg(pfile, NOGETTEXT("wrtpfile"));
 	sid_ba(&pkt->p_gotsid,str1);
 	sid_ba(&pkt->p_reqsid,str2);
-	if (Timenow > Y2038)
+	/*
+	 * POSIX does not explicitly mention a 2-digit year for the p-file but 
+	 * refers to "date-time" which is most likely expected to have 2-digits.
+	 * We use 4-digits before 1969 and past 2068
+	 * which is outside the year range specified by POSIX.
+	 */
+#if SIZEOF_TIME_T == 4
+	if (Timenow < Y1969)
+#else
+	if ((Timenow < Y1969) ||
+	    (Timenow >= Y2069))
+#endif
 		date_bal(&Timenow,line);	/* 4 digit year */
 	else
 		date_ba(&Timenow,line);		/* 2 digit year */

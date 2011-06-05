@@ -1,0 +1,29 @@
+#!/bin/sh
+
+if [ $# -gt 0 ]
+then
+	srcdir=$1
+else
+	srcdir=.
+fi
+
+common_files=`ls ${srcdir}/common` 
+#echo "common files = " ${common_files}
+
+
+for d in * 
+do 
+	if test -d "$d" && ! test "$d" = common
+	then 
+		for i in ${common_files}
+		do 
+			case $i in 
+			*~) 
+			;;
+			*) 
+			( cd $d; rm -f $i; ln -s ../${srcdir}/common/$i $i ) 
+			;;
+			esac
+		done 
+	fi 
+done 

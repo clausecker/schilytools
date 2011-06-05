@@ -1,0 +1,40 @@
+h44208
+s 00027/00000/00000
+d D 1.1 11/05/28 12:03:27 joerg 1 0
+c date and time created 11/05/28 12:03:27 by joerg
+e
+u
+U
+f e 0
+f y 
+t
+T
+I 1
+#!/bin/sh
+
+SRCROOT=`../../../../conf/srcroot.sh`
+. ${SRCROOT}/tests/bin/base
+
+. ../common/command-names
+
+TESTING_CSSC=false
+TESTING_REAL_CSSC=false
+TESTING_REAL_SCCS=false
+
+if ( ${admin} -V 2>&1 ; echo xxx ) 2>/dev/null | grep CSSC >/dev/null
+then
+	TESTING_CSSC=true
+	TESTING_REAL_CSSC=true
+fi
+
+if ( ${admin} -V 2>&1 ; echo xxx ) 2>/dev/null | grep SCCS >/dev/null
+then
+	if test ".$CSSC_ONLY" = ".true"
+	then
+		:
+	else
+		TESTING_CSSC=true
+	fi
+	TESTING_REAL_SCCS=true
+fi
+E 1

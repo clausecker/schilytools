@@ -1,0 +1,27 @@
+h43699
+s 00001/00000/00001
+d D 1.2 11/05/28 17:43:53 joerg 2 1
+c Added a single line
+c_X this is an extension that has been hidden in degenerated comment
+c_X this is another extension line
+e
+s 00000/00000/00000
+d D 1.1 11/05/28 15:31:10 joerg 1 0
+c date and time created 11/05/28 15:31:10 by joerg
+c_X this is an extension in the initial comment
+c_X this is another extension line in the initial comment
+e
+u
+U
+f b
+f e 0
+t
+Larry McVoy discovered that SCCS accepts degenerated comment lines
+that do not look like '^Ac comment'.
+T
+I 1
+%Z%%M%
+I 2
+Add a line
+E 2
+E 1

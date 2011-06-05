@@ -1,0 +1,653 @@
+h54069
+s 00640/00000/00000
+d D 1.1 10/04/18 18:20:27 joerg 1 0
+c date and time created 10/04/18 18:20:27 by joerg
+e
+u
+U
+f e 0
+f y 
+t
+T
+I 1
+echo '${prt}' s.testfile2
+${prt} s.testfile2
+echo '${prt}' -u s.testfile2
+${prt} -u s.testfile2
+echo '${prt}' -t s.testfile2
+${prt} -t s.testfile2
+echo '${prt}' -t -u s.testfile2
+${prt} -t -u s.testfile2
+echo '${prt}' -s s.testfile2
+${prt} -s s.testfile2
+echo '${prt}' -s -u s.testfile2
+${prt} -s -u s.testfile2
+echo '${prt}' -s -t s.testfile2
+${prt} -s -t s.testfile2
+echo '${prt}' -s -t -u s.testfile2
+${prt} -s -t -u s.testfile2
+echo '${prt}' -i s.testfile2
+${prt} -i s.testfile2
+echo '${prt}' -i -u s.testfile2
+${prt} -i -u s.testfile2
+echo '${prt}' -i -t s.testfile2
+${prt} -i -t s.testfile2
+echo '${prt}' -i -t -u s.testfile2
+${prt} -i -t -u s.testfile2
+echo '${prt}' -f s.testfile2
+${prt} -f s.testfile2
+echo '${prt}' -f -u s.testfile2
+${prt} -f -u s.testfile2
+echo '${prt}' -f -t s.testfile2
+${prt} -f -t s.testfile2
+echo '${prt}' -f -t -u s.testfile2
+${prt} -f -t -u s.testfile2
+echo '${prt}' -f -s s.testfile2
+${prt} -f -s s.testfile2
+echo '${prt}' -f -s -u s.testfile2
+${prt} -f -s -u s.testfile2
+echo '${prt}' -f -s -t s.testfile2
+${prt} -f -s -t s.testfile2
+echo '${prt}' -f -s -t -u s.testfile2
+${prt} -f -s -t -u s.testfile2
+echo '${prt}' -f -i s.testfile2
+${prt} -f -i s.testfile2
+echo '${prt}' -f -i -u s.testfile2
+${prt} -f -i -u s.testfile2
+echo '${prt}' -f -i -t s.testfile2
+${prt} -f -i -t s.testfile2
+echo '${prt}' -f -i -t -u s.testfile2
+${prt} -f -i -t -u s.testfile2
+echo '${prt}' -e s.testfile2
+${prt} -e s.testfile2
+echo '${prt}' -e -u s.testfile2
+${prt} -e -u s.testfile2
+echo '${prt}' -e -t s.testfile2
+${prt} -e -t s.testfile2
+echo '${prt}' -e -t -u s.testfile2
+${prt} -e -t -u s.testfile2
+echo '${prt}' -e -i s.testfile2
+${prt} -e -i s.testfile2
+echo '${prt}' -e -i -u s.testfile2
+${prt} -e -i -u s.testfile2
+echo '${prt}' -e -i -t s.testfile2
+${prt} -e -i -t s.testfile2
+echo '${prt}' -e -i -t -u s.testfile2
+${prt} -e -i -t -u s.testfile2
+echo '${prt}' -e -f s.testfile2
+${prt} -e -f s.testfile2
+echo '${prt}' -e -f -u s.testfile2
+${prt} -e -f -u s.testfile2
+echo '${prt}' -e -f -t s.testfile2
+${prt} -e -f -t s.testfile2
+echo '${prt}' -e -f -t -u s.testfile2
+${prt} -e -f -t -u s.testfile2
+echo '${prt}' -e -f -i s.testfile2
+${prt} -e -f -i s.testfile2
+echo '${prt}' -e -f -i -u s.testfile2
+${prt} -e -f -i -u s.testfile2
+echo '${prt}' -e -f -i -t s.testfile2
+${prt} -e -f -i -t s.testfile2
+echo '${prt}' -e -f -i -t -u s.testfile2
+${prt} -e -f -i -t -u s.testfile2
+echo '${prt}' -d s.testfile2
+${prt} -d s.testfile2
+echo '${prt}' -d -u s.testfile2
+${prt} -d -u s.testfile2
+echo '${prt}' -d -t s.testfile2
+${prt} -d -t s.testfile2
+echo '${prt}' -d -t -u s.testfile2
+${prt} -d -t -u s.testfile2
+echo '${prt}' -d -s s.testfile2
+${prt} -d -s s.testfile2
+echo '${prt}' -d -s -u s.testfile2
+${prt} -d -s -u s.testfile2
+echo '${prt}' -d -s -t s.testfile2
+${prt} -d -s -t s.testfile2
+echo '${prt}' -d -s -t -u s.testfile2
+${prt} -d -s -t -u s.testfile2
+echo '${prt}' -d -i s.testfile2
+${prt} -d -i s.testfile2
+echo '${prt}' -d -i -u s.testfile2
+${prt} -d -i -u s.testfile2
+echo '${prt}' -d -i -t s.testfile2
+${prt} -d -i -t s.testfile2
+echo '${prt}' -d -i -t -u s.testfile2
+${prt} -d -i -t -u s.testfile2
+echo '${prt}' -d -f s.testfile2
+${prt} -d -f s.testfile2
+echo '${prt}' -d -f -u s.testfile2
+${prt} -d -f -u s.testfile2
+echo '${prt}' -d -f -t s.testfile2
+${prt} -d -f -t s.testfile2
+echo '${prt}' -d -f -t -u s.testfile2
+${prt} -d -f -t -u s.testfile2
+echo '${prt}' -d -f -s s.testfile2
+${prt} -d -f -s s.testfile2
+echo '${prt}' -d -f -s -u s.testfile2
+${prt} -d -f -s -u s.testfile2
+echo '${prt}' -d -f -s -t s.testfile2
+${prt} -d -f -s -t s.testfile2
+echo '${prt}' -d -f -s -t -u s.testfile2
+${prt} -d -f -s -t -u s.testfile2
+echo '${prt}' -d -f -i s.testfile2
+${prt} -d -f -i s.testfile2
+echo '${prt}' -d -f -i -u s.testfile2
+${prt} -d -f -i -u s.testfile2
+echo '${prt}' -d -f -i -t s.testfile2
+${prt} -d -f -i -t s.testfile2
+echo '${prt}' -d -f -i -t -u s.testfile2
+${prt} -d -f -i -t -u s.testfile2
+echo '${prt}' -d -e s.testfile2
+${prt} -d -e s.testfile2
+echo '${prt}' -d -e -u s.testfile2
+${prt} -d -e -u s.testfile2
+echo '${prt}' -d -e -t s.testfile2
+${prt} -d -e -t s.testfile2
+echo '${prt}' -d -e -t -u s.testfile2
+${prt} -d -e -t -u s.testfile2
+echo '${prt}' -d -e -i s.testfile2
+${prt} -d -e -i s.testfile2
+echo '${prt}' -d -e -i -u s.testfile2
+${prt} -d -e -i -u s.testfile2
+echo '${prt}' -d -e -i -t s.testfile2
+${prt} -d -e -i -t s.testfile2
+echo '${prt}' -d -e -i -t -u s.testfile2
+${prt} -d -e -i -t -u s.testfile2
+echo '${prt}' -d -e -f s.testfile2
+${prt} -d -e -f s.testfile2
+echo '${prt}' -d -e -f -u s.testfile2
+${prt} -d -e -f -u s.testfile2
+echo '${prt}' -d -e -f -t s.testfile2
+${prt} -d -e -f -t s.testfile2
+echo '${prt}' -d -e -f -t -u s.testfile2
+${prt} -d -e -f -t -u s.testfile2
+echo '${prt}' -d -e -f -i s.testfile2
+${prt} -d -e -f -i s.testfile2
+echo '${prt}' -d -e -f -i -u s.testfile2
+${prt} -d -e -f -i -u s.testfile2
+echo '${prt}' -d -e -f -i -t s.testfile2
+${prt} -d -e -f -i -t s.testfile2
+echo '${prt}' -d -e -f -i -t -u s.testfile2
+${prt} -d -e -f -i -t -u s.testfile2
+echo '${prt}' -b s.testfile2
+${prt} -b s.testfile2
+echo '${prt}' -b -u s.testfile2
+${prt} -b -u s.testfile2
+echo '${prt}' -b -t s.testfile2
+${prt} -b -t s.testfile2
+echo '${prt}' -b -t -u s.testfile2
+${prt} -b -t -u s.testfile2
+echo '${prt}' -b -s s.testfile2
+${prt} -b -s s.testfile2
+echo '${prt}' -b -s -u s.testfile2
+${prt} -b -s -u s.testfile2
+echo '${prt}' -b -s -t s.testfile2
+${prt} -b -s -t s.testfile2
+echo '${prt}' -b -s -t -u s.testfile2
+${prt} -b -s -t -u s.testfile2
+echo '${prt}' -b -i s.testfile2
+${prt} -b -i s.testfile2
+echo '${prt}' -b -i -u s.testfile2
+${prt} -b -i -u s.testfile2
+echo '${prt}' -b -i -t s.testfile2
+${prt} -b -i -t s.testfile2
+echo '${prt}' -b -i -t -u s.testfile2
+${prt} -b -i -t -u s.testfile2
+echo '${prt}' -b -f s.testfile2
+${prt} -b -f s.testfile2
+echo '${prt}' -b -f -u s.testfile2
+${prt} -b -f -u s.testfile2
+echo '${prt}' -b -f -t s.testfile2
+${prt} -b -f -t s.testfile2
+echo '${prt}' -b -f -t -u s.testfile2
+${prt} -b -f -t -u s.testfile2
+echo '${prt}' -b -f -s s.testfile2
+${prt} -b -f -s s.testfile2
+echo '${prt}' -b -f -s -u s.testfile2
+${prt} -b -f -s -u s.testfile2
+echo '${prt}' -b -f -s -t s.testfile2
+${prt} -b -f -s -t s.testfile2
+echo '${prt}' -b -f -s -t -u s.testfile2
+${prt} -b -f -s -t -u s.testfile2
+echo '${prt}' -b -f -i s.testfile2
+${prt} -b -f -i s.testfile2
+echo '${prt}' -b -f -i -u s.testfile2
+${prt} -b -f -i -u s.testfile2
+echo '${prt}' -b -f -i -t s.testfile2
+${prt} -b -f -i -t s.testfile2
+echo '${prt}' -b -f -i -t -u s.testfile2
+${prt} -b -f -i -t -u s.testfile2
+echo '${prt}' -b -e s.testfile2
+${prt} -b -e s.testfile2
+echo '${prt}' -b -e -u s.testfile2
+${prt} -b -e -u s.testfile2
+echo '${prt}' -b -e -t s.testfile2
+${prt} -b -e -t s.testfile2
+echo '${prt}' -b -e -t -u s.testfile2
+${prt} -b -e -t -u s.testfile2
+echo '${prt}' -b -e -i s.testfile2
+${prt} -b -e -i s.testfile2
+echo '${prt}' -b -e -i -u s.testfile2
+${prt} -b -e -i -u s.testfile2
+echo '${prt}' -b -e -i -t s.testfile2
+${prt} -b -e -i -t s.testfile2
+echo '${prt}' -b -e -i -t -u s.testfile2
+${prt} -b -e -i -t -u s.testfile2
+echo '${prt}' -b -e -f s.testfile2
+${prt} -b -e -f s.testfile2
+echo '${prt}' -b -e -f -u s.testfile2
+${prt} -b -e -f -u s.testfile2
+echo '${prt}' -b -e -f -t s.testfile2
+${prt} -b -e -f -t s.testfile2
+echo '${prt}' -b -e -f -t -u s.testfile2
+${prt} -b -e -f -t -u s.testfile2
+echo '${prt}' -b -e -f -i s.testfile2
+${prt} -b -e -f -i s.testfile2
+echo '${prt}' -b -e -f -i -u s.testfile2
+${prt} -b -e -f -i -u s.testfile2
+echo '${prt}' -b -e -f -i -t s.testfile2
+${prt} -b -e -f -i -t s.testfile2
+echo '${prt}' -b -e -f -i -t -u s.testfile2
+${prt} -b -e -f -i -t -u s.testfile2
+echo '${prt}' -b -d s.testfile2
+${prt} -b -d s.testfile2
+echo '${prt}' -b -d -u s.testfile2
+${prt} -b -d -u s.testfile2
+echo '${prt}' -b -d -t s.testfile2
+${prt} -b -d -t s.testfile2
+echo '${prt}' -b -d -t -u s.testfile2
+${prt} -b -d -t -u s.testfile2
+echo '${prt}' -b -d -s s.testfile2
+${prt} -b -d -s s.testfile2
+echo '${prt}' -b -d -s -u s.testfile2
+${prt} -b -d -s -u s.testfile2
+echo '${prt}' -b -d -s -t s.testfile2
+${prt} -b -d -s -t s.testfile2
+echo '${prt}' -b -d -s -t -u s.testfile2
+${prt} -b -d -s -t -u s.testfile2
+echo '${prt}' -b -d -i s.testfile2
+${prt} -b -d -i s.testfile2
+echo '${prt}' -b -d -i -u s.testfile2
+${prt} -b -d -i -u s.testfile2
+echo '${prt}' -b -d -i -t s.testfile2
+${prt} -b -d -i -t s.testfile2
+echo '${prt}' -b -d -i -t -u s.testfile2
+${prt} -b -d -i -t -u s.testfile2
+echo '${prt}' -b -d -f s.testfile2
+${prt} -b -d -f s.testfile2
+echo '${prt}' -b -d -f -u s.testfile2
+${prt} -b -d -f -u s.testfile2
+echo '${prt}' -b -d -f -t s.testfile2
+${prt} -b -d -f -t s.testfile2
+echo '${prt}' -b -d -f -t -u s.testfile2
+${prt} -b -d -f -t -u s.testfile2
+echo '${prt}' -b -d -f -s s.testfile2
+${prt} -b -d -f -s s.testfile2
+echo '${prt}' -b -d -f -s -u s.testfile2
+${prt} -b -d -f -s -u s.testfile2
+echo '${prt}' -b -d -f -s -t s.testfile2
+${prt} -b -d -f -s -t s.testfile2
+echo '${prt}' -b -d -f -s -t -u s.testfile2
+${prt} -b -d -f -s -t -u s.testfile2
+echo '${prt}' -b -d -f -i s.testfile2
+${prt} -b -d -f -i s.testfile2
+echo '${prt}' -b -d -f -i -u s.testfile2
+${prt} -b -d -f -i -u s.testfile2
+echo '${prt}' -b -d -f -i -t s.testfile2
+${prt} -b -d -f -i -t s.testfile2
+echo '${prt}' -b -d -f -i -t -u s.testfile2
+${prt} -b -d -f -i -t -u s.testfile2
+echo '${prt}' -b -d -e s.testfile2
+${prt} -b -d -e s.testfile2
+echo '${prt}' -b -d -e -u s.testfile2
+${prt} -b -d -e -u s.testfile2
+echo '${prt}' -b -d -e -t s.testfile2
+${prt} -b -d -e -t s.testfile2
+echo '${prt}' -b -d -e -t -u s.testfile2
+${prt} -b -d -e -t -u s.testfile2
+echo '${prt}' -b -d -e -i s.testfile2
+${prt} -b -d -e -i s.testfile2
+echo '${prt}' -b -d -e -i -u s.testfile2
+${prt} -b -d -e -i -u s.testfile2
+echo '${prt}' -b -d -e -i -t s.testfile2
+${prt} -b -d -e -i -t s.testfile2
+echo '${prt}' -b -d -e -i -t -u s.testfile2
+${prt} -b -d -e -i -t -u s.testfile2
+echo '${prt}' -b -d -e -f s.testfile2
+${prt} -b -d -e -f s.testfile2
+echo '${prt}' -b -d -e -f -u s.testfile2
+${prt} -b -d -e -f -u s.testfile2
+echo '${prt}' -b -d -e -f -t s.testfile2
+${prt} -b -d -e -f -t s.testfile2
+echo '${prt}' -b -d -e -f -t -u s.testfile2
+${prt} -b -d -e -f -t -u s.testfile2
+echo '${prt}' -b -d -e -f -i s.testfile2
+${prt} -b -d -e -f -i s.testfile2
+echo '${prt}' -b -d -e -f -i -u s.testfile2
+${prt} -b -d -e -f -i -u s.testfile2
+echo '${prt}' -b -d -e -f -i -t s.testfile2
+${prt} -b -d -e -f -i -t s.testfile2
+echo '${prt}' -b -d -e -f -i -t -u s.testfile2
+${prt} -b -d -e -f -i -t -u s.testfile2
+echo '${prt}' -a s.testfile2
+${prt} -a s.testfile2
+echo '${prt}' -a -u s.testfile2
+${prt} -a -u s.testfile2
+echo '${prt}' -a -t s.testfile2
+${prt} -a -t s.testfile2
+echo '${prt}' -a -t -u s.testfile2
+${prt} -a -t -u s.testfile2
+echo '${prt}' -a -s s.testfile2
+${prt} -a -s s.testfile2
+echo '${prt}' -a -s -u s.testfile2
+${prt} -a -s -u s.testfile2
+echo '${prt}' -a -s -t s.testfile2
+${prt} -a -s -t s.testfile2
+echo '${prt}' -a -s -t -u s.testfile2
+${prt} -a -s -t -u s.testfile2
+echo '${prt}' -a -i s.testfile2
+${prt} -a -i s.testfile2
+echo '${prt}' -a -i -u s.testfile2
+${prt} -a -i -u s.testfile2
+echo '${prt}' -a -i -t s.testfile2
+${prt} -a -i -t s.testfile2
+echo '${prt}' -a -i -t -u s.testfile2
+${prt} -a -i -t -u s.testfile2
+echo '${prt}' -a -f s.testfile2
+${prt} -a -f s.testfile2
+echo '${prt}' -a -f -u s.testfile2
+${prt} -a -f -u s.testfile2
+echo '${prt}' -a -f -t s.testfile2
+${prt} -a -f -t s.testfile2
+echo '${prt}' -a -f -t -u s.testfile2
+${prt} -a -f -t -u s.testfile2
+echo '${prt}' -a -f -s s.testfile2
+${prt} -a -f -s s.testfile2
+echo '${prt}' -a -f -s -u s.testfile2
+${prt} -a -f -s -u s.testfile2
+echo '${prt}' -a -f -s -t s.testfile2
+${prt} -a -f -s -t s.testfile2
+echo '${prt}' -a -f -s -t -u s.testfile2
+${prt} -a -f -s -t -u s.testfile2
+echo '${prt}' -a -f -i s.testfile2
+${prt} -a -f -i s.testfile2
+echo '${prt}' -a -f -i -u s.testfile2
+${prt} -a -f -i -u s.testfile2
+echo '${prt}' -a -f -i -t s.testfile2
+${prt} -a -f -i -t s.testfile2
+echo '${prt}' -a -f -i -t -u s.testfile2
+${prt} -a -f -i -t -u s.testfile2
+echo '${prt}' -a -e s.testfile2
+${prt} -a -e s.testfile2
+echo '${prt}' -a -e -u s.testfile2
+${prt} -a -e -u s.testfile2
+echo '${prt}' -a -e -t s.testfile2
+${prt} -a -e -t s.testfile2
+echo '${prt}' -a -e -t -u s.testfile2
+${prt} -a -e -t -u s.testfile2
+echo '${prt}' -a -e -i s.testfile2
+${prt} -a -e -i s.testfile2
+echo '${prt}' -a -e -i -u s.testfile2
+${prt} -a -e -i -u s.testfile2
+echo '${prt}' -a -e -i -t s.testfile2
+${prt} -a -e -i -t s.testfile2
+echo '${prt}' -a -e -i -t -u s.testfile2
+${prt} -a -e -i -t -u s.testfile2
+echo '${prt}' -a -e -f s.testfile2
+${prt} -a -e -f s.testfile2
+echo '${prt}' -a -e -f -u s.testfile2
+${prt} -a -e -f -u s.testfile2
+echo '${prt}' -a -e -f -t s.testfile2
+${prt} -a -e -f -t s.testfile2
+echo '${prt}' -a -e -f -t -u s.testfile2
+${prt} -a -e -f -t -u s.testfile2
+echo '${prt}' -a -e -f -i s.testfile2
+${prt} -a -e -f -i s.testfile2
+echo '${prt}' -a -e -f -i -u s.testfile2
+${prt} -a -e -f -i -u s.testfile2
+echo '${prt}' -a -e -f -i -t s.testfile2
+${prt} -a -e -f -i -t s.testfile2
+echo '${prt}' -a -e -f -i -t -u s.testfile2
+${prt} -a -e -f -i -t -u s.testfile2
+echo '${prt}' -a -d s.testfile2
+${prt} -a -d s.testfile2
+echo '${prt}' -a -d -u s.testfile2
+${prt} -a -d -u s.testfile2
+echo '${prt}' -a -d -t s.testfile2
+${prt} -a -d -t s.testfile2
+echo '${prt}' -a -d -t -u s.testfile2
+${prt} -a -d -t -u s.testfile2
+echo '${prt}' -a -d -s s.testfile2
+${prt} -a -d -s s.testfile2
+echo '${prt}' -a -d -s -u s.testfile2
+${prt} -a -d -s -u s.testfile2
+echo '${prt}' -a -d -s -t s.testfile2
+${prt} -a -d -s -t s.testfile2
+echo '${prt}' -a -d -s -t -u s.testfile2
+${prt} -a -d -s -t -u s.testfile2
+echo '${prt}' -a -d -i s.testfile2
+${prt} -a -d -i s.testfile2
+echo '${prt}' -a -d -i -u s.testfile2
+${prt} -a -d -i -u s.testfile2
+echo '${prt}' -a -d -i -t s.testfile2
+${prt} -a -d -i -t s.testfile2
+echo '${prt}' -a -d -i -t -u s.testfile2
+${prt} -a -d -i -t -u s.testfile2
+echo '${prt}' -a -d -f s.testfile2
+${prt} -a -d -f s.testfile2
+echo '${prt}' -a -d -f -u s.testfile2
+${prt} -a -d -f -u s.testfile2
+echo '${prt}' -a -d -f -t s.testfile2
+${prt} -a -d -f -t s.testfile2
+echo '${prt}' -a -d -f -t -u s.testfile2
+${prt} -a -d -f -t -u s.testfile2
+echo '${prt}' -a -d -f -s s.testfile2
+${prt} -a -d -f -s s.testfile2
+echo '${prt}' -a -d -f -s -u s.testfile2
+${prt} -a -d -f -s -u s.testfile2
+echo '${prt}' -a -d -f -s -t s.testfile2
+${prt} -a -d -f -s -t s.testfile2
+echo '${prt}' -a -d -f -s -t -u s.testfile2
+${prt} -a -d -f -s -t -u s.testfile2
+echo '${prt}' -a -d -f -i s.testfile2
+${prt} -a -d -f -i s.testfile2
+echo '${prt}' -a -d -f -i -u s.testfile2
+${prt} -a -d -f -i -u s.testfile2
+echo '${prt}' -a -d -f -i -t s.testfile2
+${prt} -a -d -f -i -t s.testfile2
+echo '${prt}' -a -d -f -i -t -u s.testfile2
+${prt} -a -d -f -i -t -u s.testfile2
+echo '${prt}' -a -d -e s.testfile2
+${prt} -a -d -e s.testfile2
+echo '${prt}' -a -d -e -u s.testfile2
+${prt} -a -d -e -u s.testfile2
+echo '${prt}' -a -d -e -t s.testfile2
+${prt} -a -d -e -t s.testfile2
+echo '${prt}' -a -d -e -t -u s.testfile2
+${prt} -a -d -e -t -u s.testfile2
+echo '${prt}' -a -d -e -i s.testfile2
+${prt} -a -d -e -i s.testfile2
+echo '${prt}' -a -d -e -i -u s.testfile2
+${prt} -a -d -e -i -u s.testfile2
+echo '${prt}' -a -d -e -i -t s.testfile2
+${prt} -a -d -e -i -t s.testfile2
+echo '${prt}' -a -d -e -i -t -u s.testfile2
+${prt} -a -d -e -i -t -u s.testfile2
+echo '${prt}' -a -d -e -f s.testfile2
+${prt} -a -d -e -f s.testfile2
+echo '${prt}' -a -d -e -f -u s.testfile2
+${prt} -a -d -e -f -u s.testfile2
+echo '${prt}' -a -d -e -f -t s.testfile2
+${prt} -a -d -e -f -t s.testfile2
+echo '${prt}' -a -d -e -f -t -u s.testfile2
+${prt} -a -d -e -f -t -u s.testfile2
+echo '${prt}' -a -d -e -f -i s.testfile2
+${prt} -a -d -e -f -i s.testfile2
+echo '${prt}' -a -d -e -f -i -u s.testfile2
+${prt} -a -d -e -f -i -u s.testfile2
+echo '${prt}' -a -d -e -f -i -t s.testfile2
+${prt} -a -d -e -f -i -t s.testfile2
+echo '${prt}' -a -d -e -f -i -t -u s.testfile2
+${prt} -a -d -e -f -i -t -u s.testfile2
+echo '${prt}' -a -b s.testfile2
+${prt} -a -b s.testfile2
+echo '${prt}' -a -b -u s.testfile2
+${prt} -a -b -u s.testfile2
+echo '${prt}' -a -b -t s.testfile2
+${prt} -a -b -t s.testfile2
+echo '${prt}' -a -b -t -u s.testfile2
+${prt} -a -b -t -u s.testfile2
+echo '${prt}' -a -b -s s.testfile2
+${prt} -a -b -s s.testfile2
+echo '${prt}' -a -b -s -u s.testfile2
+${prt} -a -b -s -u s.testfile2
+echo '${prt}' -a -b -s -t s.testfile2
+${prt} -a -b -s -t s.testfile2
+echo '${prt}' -a -b -s -t -u s.testfile2
+${prt} -a -b -s -t -u s.testfile2
+echo '${prt}' -a -b -i s.testfile2
+${prt} -a -b -i s.testfile2
+echo '${prt}' -a -b -i -u s.testfile2
+${prt} -a -b -i -u s.testfile2
+echo '${prt}' -a -b -i -t s.testfile2
+${prt} -a -b -i -t s.testfile2
+echo '${prt}' -a -b -i -t -u s.testfile2
+${prt} -a -b -i -t -u s.testfile2
+echo '${prt}' -a -b -f s.testfile2
+${prt} -a -b -f s.testfile2
+echo '${prt}' -a -b -f -u s.testfile2
+${prt} -a -b -f -u s.testfile2
+echo '${prt}' -a -b -f -t s.testfile2
+${prt} -a -b -f -t s.testfile2
+echo '${prt}' -a -b -f -t -u s.testfile2
+${prt} -a -b -f -t -u s.testfile2
+echo '${prt}' -a -b -f -s s.testfile2
+${prt} -a -b -f -s s.testfile2
+echo '${prt}' -a -b -f -s -u s.testfile2
+${prt} -a -b -f -s -u s.testfile2
+echo '${prt}' -a -b -f -s -t s.testfile2
+${prt} -a -b -f -s -t s.testfile2
+echo '${prt}' -a -b -f -s -t -u s.testfile2
+${prt} -a -b -f -s -t -u s.testfile2
+echo '${prt}' -a -b -f -i s.testfile2
+${prt} -a -b -f -i s.testfile2
+echo '${prt}' -a -b -f -i -u s.testfile2
+${prt} -a -b -f -i -u s.testfile2
+echo '${prt}' -a -b -f -i -t s.testfile2
+${prt} -a -b -f -i -t s.testfile2
+echo '${prt}' -a -b -f -i -t -u s.testfile2
+${prt} -a -b -f -i -t -u s.testfile2
+echo '${prt}' -a -b -e s.testfile2
+${prt} -a -b -e s.testfile2
+echo '${prt}' -a -b -e -u s.testfile2
+${prt} -a -b -e -u s.testfile2
+echo '${prt}' -a -b -e -t s.testfile2
+${prt} -a -b -e -t s.testfile2
+echo '${prt}' -a -b -e -t -u s.testfile2
+${prt} -a -b -e -t -u s.testfile2
+echo '${prt}' -a -b -e -i s.testfile2
+${prt} -a -b -e -i s.testfile2
+echo '${prt}' -a -b -e -i -u s.testfile2
+${prt} -a -b -e -i -u s.testfile2
+echo '${prt}' -a -b -e -i -t s.testfile2
+${prt} -a -b -e -i -t s.testfile2
+echo '${prt}' -a -b -e -i -t -u s.testfile2
+${prt} -a -b -e -i -t -u s.testfile2
+echo '${prt}' -a -b -e -f s.testfile2
+${prt} -a -b -e -f s.testfile2
+echo '${prt}' -a -b -e -f -u s.testfile2
+${prt} -a -b -e -f -u s.testfile2
+echo '${prt}' -a -b -e -f -t s.testfile2
+${prt} -a -b -e -f -t s.testfile2
+echo '${prt}' -a -b -e -f -t -u s.testfile2
+${prt} -a -b -e -f -t -u s.testfile2
+echo '${prt}' -a -b -e -f -i s.testfile2
+${prt} -a -b -e -f -i s.testfile2
+echo '${prt}' -a -b -e -f -i -u s.testfile2
+${prt} -a -b -e -f -i -u s.testfile2
+echo '${prt}' -a -b -e -f -i -t s.testfile2
+${prt} -a -b -e -f -i -t s.testfile2
+echo '${prt}' -a -b -e -f -i -t -u s.testfile2
+${prt} -a -b -e -f -i -t -u s.testfile2
+echo '${prt}' -a -b -d s.testfile2
+${prt} -a -b -d s.testfile2
+echo '${prt}' -a -b -d -u s.testfile2
+${prt} -a -b -d -u s.testfile2
+echo '${prt}' -a -b -d -t s.testfile2
+${prt} -a -b -d -t s.testfile2
+echo '${prt}' -a -b -d -t -u s.testfile2
+${prt} -a -b -d -t -u s.testfile2
+echo '${prt}' -a -b -d -s s.testfile2
+${prt} -a -b -d -s s.testfile2
+echo '${prt}' -a -b -d -s -u s.testfile2
+${prt} -a -b -d -s -u s.testfile2
+echo '${prt}' -a -b -d -s -t s.testfile2
+${prt} -a -b -d -s -t s.testfile2
+echo '${prt}' -a -b -d -s -t -u s.testfile2
+${prt} -a -b -d -s -t -u s.testfile2
+echo '${prt}' -a -b -d -i s.testfile2
+${prt} -a -b -d -i s.testfile2
+echo '${prt}' -a -b -d -i -u s.testfile2
+${prt} -a -b -d -i -u s.testfile2
+echo '${prt}' -a -b -d -i -t s.testfile2
+${prt} -a -b -d -i -t s.testfile2
+echo '${prt}' -a -b -d -i -t -u s.testfile2
+${prt} -a -b -d -i -t -u s.testfile2
+echo '${prt}' -a -b -d -f s.testfile2
+${prt} -a -b -d -f s.testfile2
+echo '${prt}' -a -b -d -f -u s.testfile2
+${prt} -a -b -d -f -u s.testfile2
+echo '${prt}' -a -b -d -f -t s.testfile2
+${prt} -a -b -d -f -t s.testfile2
+echo '${prt}' -a -b -d -f -t -u s.testfile2
+${prt} -a -b -d -f -t -u s.testfile2
+echo '${prt}' -a -b -d -f -s s.testfile2
+${prt} -a -b -d -f -s s.testfile2
+echo '${prt}' -a -b -d -f -s -u s.testfile2
+${prt} -a -b -d -f -s -u s.testfile2
+echo '${prt}' -a -b -d -f -s -t s.testfile2
+${prt} -a -b -d -f -s -t s.testfile2
+echo '${prt}' -a -b -d -f -s -t -u s.testfile2
+${prt} -a -b -d -f -s -t -u s.testfile2
+echo '${prt}' -a -b -d -f -i s.testfile2
+${prt} -a -b -d -f -i s.testfile2
+echo '${prt}' -a -b -d -f -i -u s.testfile2
+${prt} -a -b -d -f -i -u s.testfile2
+echo '${prt}' -a -b -d -f -i -t s.testfile2
+${prt} -a -b -d -f -i -t s.testfile2
+echo '${prt}' -a -b -d -f -i -t -u s.testfile2
+${prt} -a -b -d -f -i -t -u s.testfile2
+echo '${prt}' -a -b -d -e s.testfile2
+${prt} -a -b -d -e s.testfile2
+echo '${prt}' -a -b -d -e -u s.testfile2
+${prt} -a -b -d -e -u s.testfile2
+echo '${prt}' -a -b -d -e -t s.testfile2
+${prt} -a -b -d -e -t s.testfile2
+echo '${prt}' -a -b -d -e -t -u s.testfile2
+${prt} -a -b -d -e -t -u s.testfile2
+echo '${prt}' -a -b -d -e -i s.testfile2
+${prt} -a -b -d -e -i s.testfile2
+echo '${prt}' -a -b -d -e -i -u s.testfile2
+${prt} -a -b -d -e -i -u s.testfile2
+echo '${prt}' -a -b -d -e -i -t s.testfile2
+${prt} -a -b -d -e -i -t s.testfile2
+echo '${prt}' -a -b -d -e -i -t -u s.testfile2
+${prt} -a -b -d -e -i -t -u s.testfile2
+echo '${prt}' -a -b -d -e -f s.testfile2
+${prt} -a -b -d -e -f s.testfile2
+echo '${prt}' -a -b -d -e -f -u s.testfile2
+${prt} -a -b -d -e -f -u s.testfile2
+echo '${prt}' -a -b -d -e -f -t s.testfile2
+${prt} -a -b -d -e -f -t s.testfile2
+echo '${prt}' -a -b -d -e -f -t -u s.testfile2
+${prt} -a -b -d -e -f -t -u s.testfile2
+echo '${prt}' -a -b -d -e -f -i s.testfile2
+${prt} -a -b -d -e -f -i s.testfile2
+echo '${prt}' -a -b -d -e -f -i -u s.testfile2
+${prt} -a -b -d -e -f -i -u s.testfile2
+echo '${prt}' -a -b -d -e -f -i -t s.testfile2
+${prt} -a -b -d -e -f -i -t s.testfile2
+echo '${prt}' -a -b -d -e -f -i -t -u s.testfile2
+${prt} -a -b -d -e -f -i -t -u s.testfile2
+E 1

@@ -27,10 +27,10 @@
 /*
  * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)delta.c	1.20 11/04/22 J. Schilling
+ * @(#)delta.c	1.25 11/06/02 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)delta.c 1.20 11/04/22 J. Schilling"
+#pragma ident "@(#)delta.c 1.25 11/06/02 J. Schilling"
 #endif
 /*
  * @(#)delta.c 1.40 06/12/12
@@ -152,6 +152,8 @@ register char *argv[];
 	
 	(void) textdomain(NOGETTEXT("SUNW_SPRO_SCCS"));
 
+	tzset();	/* Set up timezome related vars */
+
 	Fflags = FTLEXIT | FTLMSG | FTLCLN;
 
 	current_optind = 1;
@@ -175,7 +177,7 @@ register char *argv[];
 			}
 			no_arg = 0;
 			i = current_optind;
-		        c = getopt(argc, argv, "-r:dpsnm:g:y:fhqzC:V(version)");
+		        c = getopt(argc, argv, "-r:dpsnm:g:y:fhoqzC:V(version)");
 
 				/* this takes care of options given after
 				** file names.
@@ -231,7 +233,8 @@ register char *argv[];
 				   }
 				}
 				break;
-                        case 'h': /* allow diffh for large files (NSE only) */
+			case 'h': /* allow diffh for large files (NSE only) */
+			case 'o': /* use original file date */
                                 break;
                         case 'q': /* enable NSE mode */
 				if(p) {
@@ -257,7 +260,7 @@ register char *argv[];
 				exit(EX_OK);
 
 			default:
-				fatal(gettext("Usage: delta [ -dnps ][ -g sid-list ][ -m mr-list ]\n\t[ -r SID ][ -y[comment] ] s.filename... "));
+				fatal(gettext("Usage: delta [ -dnops ][ -g sid-list ][ -m mr-list ]\n\t[ -r SID ][ -y[comment] ] s.filename... "));
 			}
 
 			/* The following is necessary in case the user types */
@@ -382,11 +385,15 @@ char *file;
                                 fatal(gettext("invalid sid in p-file (de3)"));
 		gpkt.p_reqsid = pp->pf_nsid;
         }
-        if (HADQ && stat(gfilename, &sbuf) == 0) {
-                /* In NSE mode, the mtime of the clear file is remembered for
+        if ((HADO || HADQ) && stat(gfilename, &sbuf) == 0) {
+                /*
+		 * When specifying -o (original date) and when
+		 * in NSE mode, the mtime of the clear file is remembered for
                  * use as delta time. Sccs is thus now vulnerable to clock
                  * skew between NFS server and host machine and to a mis-set
                  * clock when file is last changed.
+		 * In non-original date mode, sccs is vulnerable to a mis-set of
+		 * the local clock while calling 'delta'.
                  */
                 gfile_mtime = sbuf.st_mtime;
 	}
@@ -413,7 +420,7 @@ char *file;
 	copy(auxf(gpkt.p_file,'d'),dfilename);
 	gpkt.p_gout = xfcreat(dfilename,(mode_t)0444);
 	while(readmod(&gpkt)) {
-		chkid(gpkt.p_line,Sflags['i'-'a']);
+		chkid(gpkt.p_line,Sflags['i'-'a'], Sflags);
 		if(fputs(gpkt.p_line,gpkt.p_gout)==EOF)
 			xmsg(dfilename, NOGETTEXT("delta"));
 	}
@@ -433,7 +440,7 @@ char *file;
  	   	number_of_lines++;
  	   }
  	   if (Did_id == 0) {
- 	      chkid(line,Sflags['i'-'a']);
+ 	      chkid(line,Sflags['i'-'a'], Sflags);
  	   }
  	}
  	if (stat(gfilename, &Statbuf) == 0) {
@@ -461,14 +468,17 @@ char *file;
 		fgetchk(gfilename, &gpkt);
 	}
 
-	if (!Did_id && !HADQ) {
-		if (Sflags[IDFLAG - 'a'])
+	if (!Did_id && !HADQ &&
+	    (!Sflags[EXPANDFLAG - 'a'] ||
+	    *(Sflags[EXPANDFLAG - 'a']))) {
+		if (Sflags[IDFLAG - 'a']) {
 			if(!(*Sflags[IDFLAG - 'a']))
 				fatal(gettext("no id keywords (cm6)"));
 			else
 				fatal(gettext("invalid id keywords (cm10)"));
-		else if (gpkt.p_verbose)
+		} else if (gpkt.p_verbose) {
 			fprintf(stderr,gettext("No id keywords (cm7)\n"));
+		}
 	}
 
 	/*
@@ -686,7 +696,7 @@ int orig_nlines;
          * supported), the delta time is set to be the mtime of the clear
          * file.
          */
-        if (HADQ && (gfile_mtime != 0)) {
+        if ((HADO || HADQ) && (gfile_mtime != 0)) {
                 dt.d_datetime = gfile_mtime;
         }
 	strncpy(dt.d_pgmr,logname(),LOGSIZE-1);

@@ -1,0 +1,82 @@
+#!/bin/sh
+###########################################################################
+# @(#)echo_nonl	1.1 11/05/28 Written 2011 by J. Schilling
+###########################################################################
+# The contents of this file are subject to the terms of the
+# Common Development and Distribution License, Version 1.0 only
+# (the "License").  You may not use this file except in compliance
+# with the License.
+#
+# See the file CDDL.Schily.txt in this distribution for details.
+#
+# When distributing Covered Code, include this CDDL HEADER in each
+# file and include the License file CDDL.Schily.txt from this distribution.
+###########################################################################
+#
+# echo_nnl()	is a echo function that does not echo a new line and that
+#		expands POSIX ecape sequences.
+#		If no suitable echo function is found on the system, the
+#		script is aborted.
+#
+###########################################################################
+#
+# echo -n is the BSD variant for echo with no newline
+# echo -e switches on POSIX echo features in bash
+# echo "foo\c" is the POSIX variant of telling echo not to write a new line
+# echo "\0nnn" with "nnn" being one to three octal digits is the POSIX escape
+#
+###########################################################################
+found_echo_nnl=false
+for x_echo in echo /bin/echo /usr/bin/echo /usr/5bin/echo /usr/xpg*/bin/echo
+do
+	if test \( $x_echo != "echo" -a ! -f $x_echo \)
+	then
+		continue
+	fi
+	ac_n= ac_e= ac_c=
+	($x_echo "test\c" ; echo bla) | grep c > /dev/null
+	if test $? -ne 0
+	then
+		ac_c='\c'
+	else
+		( $x_echo -e "test\c" ; echo bla ) | grep c > /dev/null
+		if test $? -ne 0
+		then
+			ac_e=-e
+			ac_c='\c'
+		else
+			( $x_echo -n "test" | sed 's/-n/nn/' ; echo bla ) | grep nn > /dev/null
+			if test $? -eq 0
+			then
+				ac_n=-n
+			fi
+		fi
+	fi
+	($x_echo $ac_n $ac_e "test\0122$ac_c" ; echo bla ) | grep 122 > /dev/null
+	if test $? -ne 0
+	then
+		found_echo_nnl=true
+		break
+	fi
+done
+if test "$found_echo_nnl" = false
+then
+	echo "No suitable echo command found"
+	exit 255
+fi
+
+echo_nonl() {
+	#
+	# bash is broken here and will cause junk to be written in case that
+	# the parameter is an empty string.
+	#
+	if test -z "$*"
+	then
+		:
+	else
+		$x_echo $ac_n $ac_e "$@$ac_c"
+	fi
+}
+
+#echo $x_echo
+#set

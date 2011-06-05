@@ -27,10 +27,10 @@
 /*
  * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)val.c	1.20 11/04/29 J. Schilling
+ * @(#)val.c	1.22 11/05/18 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)val.c 1.20 11/04/29 J. Schilling"
+#pragma ident "@(#)val.c 1.22 11/05/18 J. Schilling"
 #endif
 /*
  * @(#)val.c 1.22 06/12/12
@@ -64,9 +64,10 @@
 # define	NAME_ERR	01	/* name arg value error code */
 # define	TRUE		1
 # define	FALSE		0
-# define	BLANK(l)	while (!(*l == ' ' || *l == '\t')) l++;
+# define	BLANK(l)	while (!(*l == '\0' || *l == ' ' || *l == '\t')) l++;
 
 struct stat Statbuf;
+char	SccsError[MAXERRORLEN];
 
 static int	silent;		/* be silent, report only in exit code */
 static int	debug;		/* print debug messages */
@@ -76,6 +77,9 @@ static int	infile_err=0;	/* file error code (from 'validate') */
 static int	inpstd;		/* TRUE = args from standard input */
 
 static struct packet gpkt;
+
+static struct deltab dt;
+static struct deltab odt;
 
 static char	path[FILESIZE];	/* storage for file name value */
 static char	sid[50];	/* storage for sid  (-r) value */
@@ -98,7 +102,7 @@ static struct delent {		/* structure for delta table entry */
 static void	process __PR((char *p_line, int argc, char **argv));
 static void	do_validate __PR((char *c_path));
 static void	validate __PR((char *c_path, char *c_sid, char *c_type, char *c_name));
-static void	getdel __PR((struct delent *delp, char *lp));
+static void	getdel __PR((struct delent *delp, char *lp, struct packet *pkt));
 static void	read_to __PR((int ch, struct packet *pkt));
 static void	report __PR((int code, char *inp_line, char *file));
 static int	invalid __PR((char *i_sid));
@@ -145,6 +149,8 @@ char	*argv[];
 #endif
 	
 	(void) textdomain(NOGETTEXT("SUNW_SPRO_SCCS"));
+
+	tzset();	/* Set up timezome related vars */
 
 	/*
 	Set flags for 'fatal' to issue message, call clean-up
@@ -426,6 +432,8 @@ char	*c_name;
 	int	goods,goodt,goodn,hadmflag;
 
 	infile_err = goods = goodt = goodn = hadmflag = 0;
+	dt.d_datetime = odt.d_datetime = 0;
+
 	s_init(&gpkt,c_path);
 	if (!sccsfile(c_path) || (gpkt.p_iop = fopen(c_path, "rb")) == NULL) {
 		if (debug) {
@@ -566,33 +574,91 @@ char	*c_name;
 */
 
 static void
-getdel(delp,lp)
+getdel(delp, lp, pkt)
 register struct delent *delp;
 register char *lp;
+struct packet *pkt;
 {
+	char	*p;
+	int	dflags = 0;
+	int	missfld = 0;
+
+	if (debug) {
+		char	str[32];
+		char	ostr[32];
+
+		del_ab(&lp[-2], &dt, pkt);	/* We are called with &lp[2] */
+
+		if (dt.d_datetime != 0 && odt.d_datetime != 0 &&
+		    dt.d_datetime > odt.d_datetime) {
+			sid_ba(&dt.d_sid, str);
+			sid_ba(&odt.d_sid, ostr);
+			printf(gettext(
+"%s%s: warning: date for sid %s is later than the date for sid %s in line %d\n"),
+				"    ", pkt->p_file,
+				str, ostr, pkt->p_slnno);
+		}
+		odt = dt;			/* Remember last date */
+	}
+
 	NONBLANK(lp);
-	delp->type = *lp++;
+	delp->type = *lp++;			/* Type	'D'		*/
 	NONBLANK(lp);
-	delp->osid = lp;
+	delp->osid = lp;			/* SID	"1.2"		*/
 	BLANK(lp);
-	*lp++ = '\0';
+	if (*lp)
+		*lp++ = '\0';
+	else
+		missfld++;
 	NONBLANK(lp);
-	delp->datetime = lp;
-	BLANK(lp);
-	NONBLANK(lp);
-	BLANK(lp);
-	*lp++ = '\0';
-	NONBLANK(lp);
-	delp->pgmr = lp;
-	BLANK(lp);
-	*lp++ = '\0';
-	NONBLANK(lp);
-	delp->serial = lp;
-	BLANK(lp);
-	*lp++ = '\0';
-	NONBLANK(lp);
-	delp->pred = lp;
+	delp->datetime = lp;			/* Date	"06/12/20 23:46:27" */
+	BLANK(lp);				/* Skip past date	*/
+	NONBLANK(lp);				/* Find time		*/
+	BLANK(lp);				/* Skip past time	*/
+	if (*lp)
+		*lp++ = '\0';
+	else
+		missfld++;
+	p = lp;
+	NONBLANK(lp);				/* Find programmer	*/
+	/*
+	 * Old sccs implementations did frequently write something like
+	 * "^Ad D 4.42 82/10/19 10:30:32  64 63"
+	 * So we check for extra blanks and later verify whether there
+	 * are too few fields.
+	 */
+	if (lp != p && *p == ' ')
+		dflags |= 1;
+	delp->pgmr = lp;			/* Programmer	"bill"	*/
+	BLANK(lp);				/* Skip past programmer	*/
+	if (*lp)
+		*lp++ = '\0';
+	else
+		missfld++;
+	NONBLANK(lp);				/* Find serial		*/
+	delp->serial = lp;			/* Serial	"42"	*/
+	BLANK(lp);				/* Skip past serial	*/
+	if (*lp)
+		*lp++ = '\0';
+	else
+		missfld++;
+	NONBLANK(lp);				/* Find pred		*/
+	delp->pred = lp;			/* Pred serial	"41"	*/
+	if (missfld == 0 && (*lp == '\0' || *lp == '\n'))
+		missfld++;
 	repl(lp,'\n','\0');
+	if (dflags && (*lp == '\0' || *lp == '\n')) {
+		if (debug)
+			printf(gettext("%s%s: username missing in line %d\n"),
+			"    ", pkt->p_file, pkt->p_slnno);
+		infile_err |= CORRUPT_ERR;
+	}
+	if (missfld > 1 || (missfld && dflags == 0)) {
+		if (debug)
+			printf(gettext("%s%s: missing field in delta in line %d\n"),
+			"    ", pkt->p_file, pkt->p_slnno);
+		infile_err |= CORRUPT_ERR;
+	}
 }
 
 
@@ -984,8 +1050,8 @@ register char *d_sid;
 		if ((((l = get_line(pkt)) != NULL) && *l++ != CTLCHAR) ||
 		    *l++ != BDELTAB)
 			return(1);
+		getdel(&del, l, pkt);
 		if (HADR && !(infile_err & INVALSID_ERR)) {
-			getdel(&del,l);
 			if (equal(d_sid,del.osid) && del.type == 'D')
 				goods++;
 		}

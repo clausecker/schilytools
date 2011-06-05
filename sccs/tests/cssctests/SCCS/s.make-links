@@ -1,0 +1,42 @@
+h33715
+s 00029/00000/00000
+d D 1.1 10/05/11 11:30:00 joerg 1 0
+c date and time created 10/05/11 11:30:00 by joerg
+e
+u
+U
+f e 0
+f y 
+t
+T
+I 1
+#!/bin/sh
+
+if [ $# -gt 0 ]
+then
+	srcdir=$1
+else
+	srcdir=.
+fi
+
+common_files=`ls ${srcdir}/common` 
+#echo "common files = " ${common_files}
+
+
+for d in * 
+do 
+	if test -d "$d" && ! test "$d" = common
+	then 
+		for i in ${common_files}
+		do 
+			case $i in 
+			*~) 
+			;;
+			*) 
+			( cd $d; rm -f $i; ln -s ../${srcdir}/common/$i $i ) 
+			;;
+			esac
+		done 
+	fi 
+done 
+E 1

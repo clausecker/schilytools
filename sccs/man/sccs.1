@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sccs.1	4.9 11/04/21 portions Copyright 2007-2011 J. Schilling */
+.\" @(#)sccs.1	4.11 11/05/17 portions Copyright 2007-2011 J. Schilling */
 .\" 
 .\" CDDL HEADER START
 .\"
@@ -20,30 +20,73 @@
 .\"
 .\" CDDL HEADER END
 .\"  Copyright (c) 2007, Sun Microsystems, Inc.  All Rights Reserved.
-.TH sccs 1 "2011/04/21" "SunOS 5.11" "User Commands"
+.TH sccs 1 "2011/05/17" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs \- front end for the Source Code Control System (SCCS)
 .SH SYNOPSIS
 .LP
-.nf
-\fB/usr/bin/sccs\fR [\fB-r\fR] [\fB-d\fR\fIrootprefix\fR] [\fB-p\fR\fIsubdir\fR] \fIsubcommand\fR 
-    [\fIoption\fR]... [\fIfile\fR]...
-.fi
-
+.B /usr/bin/sccs
+.RB [ \-R ]
+.RB [ \-r ]
+.RB [ \-d \fIrootprefix\fP]
+.RB [ \-p \fIsubdir\fR]
+.I subcommand
+.RI "	[" option ]...
+.RI [ file ]...
 .LP
-.nf
-\fB/usr/xpg4/bin/sccs\fR [\fB-r\fR] [\fB-d\fR \fIrootprefix\fR] [\fB-p\fR \fIsubdir\fR] \fIsubcommand\fR 
-    [\fIoption\fR]... [\fIfile\fR]...
-.fi
+.B /usr/xpg4/bin/sccs
+.RB [ \-R ]
+.RB [ \-r ]
+.RB [ \-d " \fIrootprefix\fP]
+.RB [ \-p " \fIsubdir\fR]
+.I "	subcommand
+.RI "[" option ]...
+.RI [ file ]...
 
 .SH DESCRIPTION
 .LP
-The \fBsccs\fR command is a comprehensive, straightforward front end to the various utility programs of the Source Code Control System (\fBSCCS\fR).
+The
+.B sccs
+command is a comprehensive, straightforward front end to the various utility
+programs of the Source Code Control System
+.RB ( SCCS ).
 .LP
-\fBsccs\fR applies the indicated \fIsubcommand\fR to the history file associated with each of the indicated files.
+.B sccs
+applies the indicated
+.I subcommand
+to the history file associated with each of the indicated files.
 .LP
-The name of an \fBSCCS\fR history file is derived by prepending the `\fBs.\fR' prefix to the filename of a working copy. The \fBsccs\fR command normally expects these `\fBs.\fRfiles' to reside in an \fBSCCS\fR subdirectory.
-Thus, when you supply \fBsccs\fR with a \fIfile\fR argument, it normally applies the subcommand to a file named \fBs.\fR\fIfile\fR in the \fBSCCS\fR subdirectory. If \fIfile\fR is a path name, \fBsccs\fR looks for the history file in the \fBSCCS\fR subdirectory of that file's parent directory. If \fIfile\fR is a directory, however, \fBsccs\fR applies the subcommand to every \fBs.\fRfile file it contains. Thus, the command:
+The name of an
+.B SCCS
+history file is derived by prepending the
+.RB ` s. '
+prefix to the filename of a working copy. The
+.B sccs
+command normally expects these
+.RB ` s. files'
+to reside in an
+.B SCCS
+subdirectory.
+Thus, when you supply
+.B sccs
+with a
+.I file
+argument, it normally applies the subcommand to a file named
+.BI s. file
+in the.B SCCS
+subdirectory. If
+.I file
+is a path name,
+.B sccs
+looks for the history file in the
+.B SCCS
+subdirectory of that file's parent directory. If
+.I file
+is a directory, however,
+.B sccs
+applies the subcommand to every
+.BR s. file
+it contains. Thus, the command:
 .sp
 .in +2
 .nf
@@ -51,7 +94,11 @@ example% \fBsccs get program.c\fR
 .fi
 .in -2
 .LP
-would apply the \fBget\fR subcommand to a history file named \fBSCCS/s.program.c\fR, while the command:
+would apply the
+.B get
+subcommand to a history file named
+.BR SCCS/s.program.c ,
+while the command:
 .sp
 .in +2
 .nf
@@ -59,13 +106,248 @@ example% \fBsccs get SCCS\fR
 .fi
 .in -2
 .LP
-would apply it to every \fBs.\fRfile in the  \fBSCCS\fR subdirectory.
+would apply it to every
+.BR s. file
+in the
+.B SCCS
+subdirectory.
 .LP
-Options for the \fBsccs\fR command itself must appear before the \fIsubcommand\fR argument.  Options for a given subcommand must appear after the \fIsubcommand\fR argument. These options are specific to each subcommand, and are described
-along with the subcommands themselves (see \fBSubcommands\fR below).
+Options for the
+.B sccs
+command itself must appear before the
+.I subcommand
+argument. Options for a given subcommand must appear after the
+.I subcommand
+argument. These options are specific to each subcommand, and are described
+along with the subcommands themselves (see
+.B Subcommands
+below).
+.SS "Subcommand overview"
+.LP
+.ne 5
+Besides the usual
+.SM SCCS
+commands,
+several ``pseudo-commands'' can be issued.
+These are:
+.TP 1i
+.B edit
+Equivalent to ``get \-e''.
+.br
+.ne 5
+.TP
+.B delget
+Perform a delta on the named files
+and then get new versions.
+The new versions will have id keywords expanded,
+and will not be editable.
+The
+.BR \-m ,
+.BR \-o ,
+.BR \-p ,
+.BR \-r ,
+.BR \-s ,
+and
+.B \-y
+flags will be passed to delta,
+and the
+.BR \-b ,
+.BR \-c ,
+.BR \-e ,
+.BR \-i,
+.BR \-k ,
+.BR \-l ,
+.BR \-s ,
+and
+.B \-x
+flags will be passed to get.
+.TP
+.B deledit
+Equivalent to
+.B delget
+except that the
+.B get
+phase includes the
+.B \-e
+flag.
+This option is useful for making a ``checkpoint''
+of your current editing phase.
+The same flags will be passed to delta
+as described above,
+and all the flags listed for
+.B get
+above except
+.B \-e
+and
+.B \-k
+are passed to
+.BR edit .
+.TP
+.B create
+Creates an
+.SM SCCS
+file,
+taking the initial contents from the file of the same name.
+Any flags to
+.B admin
+are accepted.
+If the creation is successful,
+the files are renamed with a comma on the front.
+These should be removed when you are convinced that
+the
+.SM SCCS
+files have been created successfully.
+.TP
+.B fix
+Must be followed by a
+.B \-r
+flag.
+This command essentially removes the named delta,
+but leaves you with a copy of the delta
+with the changes that were in it.
+It is useful for fixing small compiler bugs, etc.
+Since it doesn't leave audit trails,
+it should be used carefully.
+.TP
+.B clean
+This routine removes everything from the current directory
+that can be recreated from SCCS files.
+It will not remove any files being edited.
+If the
+.B \-b
+flag is given, branches are ignored in the determination
+of whether they are being edited;
+this is dangerous if you are keeping the branches in the
+same directory.
+.TP
+.B unedit
+This is the opposite of an
+.B edit
+or a
+.BR "get \-e" .
+It should be used with extreme caution,
+since any changes you made since the get
+will be irretrievably lost.
+.TP
+.B info
+Gives a listing of all files being edited.
+If the
+.B \-b
+flag is given,
+branches (i.e.,
+\s-1SID\s0's with two or fewer components)
+are ignored.
+If the
+.B \-u
+flag is given
+(with an optional argument)
+then only files being edited by you
+(or the named user)
+are listed.
+.br
+.ne 5
+.TP
+.B check
+Like
+.B info
+except that nothing is printed if nothing is being edited,
+and a non-zero exit status is returned if anything
+is being edited.
+The intent is to have this included in an ``install''
+entry in a makefile
+to insure that everything is included into the
+.SM SCCS
+file
+before a version is installed.
+.TP
+.B tell
+Gives a newline-separated list
+of the files being edited
+on the standard output.
+Takes the
+.B \-b
+and
+.B \-u
+flags like 
+.B info
+and
+.BR check .
+.TP
+.B diffs
+Gives a ``diff'' listing between the current version of the
+program(s) you have out for editing and the versions
+in
+.SM SCCS
+format.
+The
+.B \-r,
+.B \-c,
+.B \-i,
+.B \-x,
+and
+.B \-t
+flags are passed to
+.I get\c
+; the
+.B \-l,
+.B \-s,
+.B \-e,
+.B \-f,
+.B \-h,
+and
+.B \-b
+options are passed to
+.B diff.
+The
+.B \-C
+flag is passed to
+.B diff
+as
+.B \-c.
+.TP
+.B ldiffs
+The same as
+.B sccs diffs
+but the
+.BR diff (1)
+command from the local platform is used instead of the
+.B diff
+command included with the
+.B SCCS
+system.
+.TP
+.B log
+Display a changelog from  
+.SM SCCS 
+history files using delta comments.
+.TP
+.B print
+This command prints out verbose information
+about the named files.
+
+.SS "Running Recursively"
+.LP
+The
+.B \-R
+flag lets
+.B sccs
+iterate the command over the directory tree below the directory
+tree below the current working directory or the directory tree
+below the directory type argument. Some commands are currently 
+not permitted to be run in recursive mode.
+
 .SS "Running Setuid"
 .LP
 The \fBsccs\fR command also includes the capability to run ``setuid'' to provide additional protection.  However, this does not apply to subcommands such as \fBsccs-admin\fR(1), since this would allow anyone to change the authorizations of the history file.  Commands that would do so always run as the real user.
+The
+.B \-r
+flag runs
+.B sccs
+as the real user
+rather than as whatever effective user
+.B sccs
+is ``set user id'' to.
+
 .SH OPTIONS
 .LP
 The following options are supported:
@@ -265,7 +547,7 @@ Generate scripts to combine deltas. Refer to \fBsccs-comb\fR(1).
 .sp
 .ne 5
 .TP
-\fB\fBcreate\fR\fR
+.BR create " [" \-o ]
 .sp .6
 Create (initialize) history files. \fBcreate\fR performs the following steps: 
 .RS +5
@@ -281,12 +563,20 @@ Create the history file called \fBs.program.c\fR in the \fBSCCS\fR subdirectory.
 .ie t \(bu
 .el o
 Performs an `\fBsccs get\fR' on \fBprogram.c\fR to retrieve a read-only copy of the initial version.
+.LP
+Options are passed tp the
+.B admin
+program, e.g.:
+.TP
+.B \-o
+Use the original file time instead of the current time for
+the time of the initial delta.
 .RE
 
 .sp
 .ne 5
 .TP
-\fB\fBdeledit\fR [\fB-s\fR] [\fB-y\fR[\fIcomment\fR]\|]\fR
+.BR deledit " [" \-o "] [" \-s "] [\fB\-y\fR[\fIcomment\fR]\|]"
 .sp .6
 Equivalent to an `\fBsccs delta\fR' and then an `\fBsccs edit\fR'. \fBdeledit\fR checks in a delta, and checks the file back out again, but leaves the current working copy of the file intact.
 The same flags will be passed to delta
@@ -299,6 +589,10 @@ are passed to ``edit''.
 .ne 2
 .RS
 .TP 15n
+.B \-o
+Use the original file time instead of the current time for
+the time of the delta.
+.TP
 \fB\fB-s\fR\fR
 Silent. Do not report delta numbers or statistics.
 
@@ -312,11 +606,12 @@ Supply a comment for the delta commentary.  If \fB-y\fR is omitted, \fBdelta\fR 
 .sp
 .ne 5
 .TP
-\fB\fBdelget\fR [\fB-s\fR] [\fB-y\fR[\fIcomment\fR]\|]\fR
+.BR delget " [" \-o "] [" \-s "] [\fB\-y\fR[\fIcomment\fR]\|]"
 .sp .6
 Perform an `\fBsccs delta\fR' and then an `\fBsccs get\fR' to check in a delta and retrieve read-only copies of the resulting new version. See the \fBdeledit\fR subcommand for a description of \fB-s\fR and \fB-y\fR. \fBsccs\fR performs a \fBdelta\fR on all the files specified in the argument list, and then a  \fBget\fR on all the files. If an error occurs during the \fBdelta\fR, the \fBget\fR is not performed.
 The 
-.BR \-m ", " \-p ", " \-r , 
+.BR \-m ",
+.BR \-o ", "\-p ", " \-r , 
 .BR \-s ", and " \-y
 flags will be passed to delta,
 and the 
@@ -328,7 +623,7 @@ flags will be passed to get.
 .sp
 .ne 5
 .TP
-\fB\fBdelta\fR [\fB-s\fR] [\fB-y\fR[\fIcomment\fR]\|]\fR
+.BR delta " [" \-o "] [" \-s "] [\fB\-y\fR[\fIcomment\fR]\|]"
 .sp .6
 Check in pending changes. Records the line-by-line changes introduced while the file was checked out. The effective user \fBID\fR must be the same as the \fBID\fR of the person who has the file checked out. Refer to \fBsccs-delta\fR(1). See the \fBdeledit\fR subcommand for a description of \fB-s\fR and \fB-y\fR.
 
@@ -543,13 +838,16 @@ implementations.
 .sp .6
 Display a changelog from 
 .SM SCCS
-history files.
+history files using delta comments.
 .sp
 This subcommand is a
 .B \s-1SCHILY\s+1
 extension that does not exist in historic
 .B sccs
 implementations.
+Refer to
+.BR sccslog (1).
+
 
 .sp
 .ne 5

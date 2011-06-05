@@ -1,0 +1,11 @@
+#!/bin/sh
+
+SRCROOT=`../../../../conf/srcroot.sh`
+. ${SRCROOT}/tests/bin/echo_nonl
+
+case "$1" in
+-n | -ne) shift;;
+esac
+
+echo_nonl "$@"
+

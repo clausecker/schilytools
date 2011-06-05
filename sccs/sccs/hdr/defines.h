@@ -27,12 +27,12 @@
 /*
  * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)defines.h	1.21 11/04/26 J. Schilling
+ * @(#)defines.h	1.28 11/06/04 J. Schilling
  */
 #ifndef	_HDR_DEFINES_H
 #define	_HDR_DEFINES_H
 #if defined(sun)
-#pragma ident "@(#)defines.h 1.21 11/04/26 J. Schilling"
+#pragma ident "@(#)defines.h 1.28 11/06/04 J. Schilling"
 #endif
 /*
  * @(#)defines.h 1.21 06/12/12
@@ -70,6 +70,18 @@ extern long timezone;
 long	timezone;
 #endif
 #define	tzset		xtzset
+
+#if SIZEOF_TIME_T == 4
+
+#define	mktime		xmktime
+#define	localtime	xlocaltime
+#define	gmtime		xgmtime
+
+extern time_t	xmktime		__PR((struct tm *));
+extern struct tm *xlocaltime	__PR((time_t *));
+extern struct tm *xgmtime	__PR((time_t *));
+#endif
+
 
 extern int optind, opterr, optopt;
 extern char *optarg;
@@ -110,10 +122,18 @@ extern char *optarg;
  * We start to create 4 digit year strings in Y2038 when 32 bit SCCS
  * implementations will stop working.
  */
-#define	Y2038		0x7FFFFFFE
-#ifdef	FOUR_DIGIT_YEAR_TEST
-#define	Y2038		0x47800000	/* Jan 6th 2008 for tests */
+#define	_Y2069		0xBA37E000	/* Jan 1  2069 00:00:00 GMT */
+#ifdef	OLD_Y2038
+#define	_Y2038		0x7FFFFFFE	/* Jan 19 2038 03:14:07 GMT */
 #endif
+#define	_Y2038		0x7FE81780	/* Jan 1  2038 00:00:00 GMT */
+#ifdef	FOUR_DIGIT_YEAR_TEST
+#define	_Y2038		0x47800000	/* Jan 6th 2008 for tests */
+#endif
+#define	_Y1969		(-31536000)	/* Jan 1  1969 00:00:00 GMT */
+extern time_t	Y2069;
+extern time_t	Y2038;
+extern time_t	Y1969;
 
 #define ALIGNMENT  	(sizeof(long long))
 #define ROUND(x,base)   (((x) + (base-1)) & ~(base-1))
@@ -136,7 +156,8 @@ extern char *optarg;
 # define BUSERNAM	'u'	/* ^Au begin list of allowed delta users    */
 # define EUSERNAM	'U'	/* ^AU end list of allowed delta users      */
 
-# define NFLAGS	28
+#define	NFLAGS	28
+#define	fdx(c)	((c)-'a')	/* Flag array index (e.g. for Sflags)	    */
 
 #if	defined(IS_MACOS_X)
 /*
@@ -144,6 +165,7 @@ extern char *optarg;
  */
 char	*Sflags[NFLAGS];	/* sync with lib/comobj/src/permiss.c */
 char	saveid[50];		/* sync with lib/comobj/src/logname.c */
+time_t	Y2038;			/* sync with lib/comobj/src/tzset.c   */
 #endif
 
 # define FLAG		'f'	/* ^Af	the begin of a flag line	    */
@@ -154,7 +176,7 @@ char	saveid[50];		/* sync with lib/comobj/src/logname.c */
 # define VALFLAG	'v'	/* ^Af v val-prog used or mr-flags	    */
 # define CMFFLAG	'z'	/* ^Af z CMFFLAG ????			    */
 # define BRCHFLAG	'b'	/* ^Af b enables branch deltas		    */
-# define IDFLAG		'i'	/* ^Af i "No id keywords (ge6)" is an error */
+# define IDFLAG		'i'	/* ^Af i "No id keywords (cm7)" is an error */
 # define MODFLAG	'm'	/* ^Af m mod-name used for %M % keyword	    */
 # define FLORFLAG	'f'	/* ^Af f floor-rel allowed to check out	    */
 # define CEILFLAG	'c'	/* ^Af c ceiling-rel allowed to check out   */
@@ -363,7 +385,7 @@ extern	void	mrfixup	__PR((void));
 extern	void	xrm	__PR((void));
 extern	void	flushto	__PR((struct packet *, int, int));
 extern	void	flushline __PR((struct packet *, struct stats *));
-extern	int 	chkid	__PR((char *, char *));
+extern	int 	chkid	__PR((char *, char *, char *[]));
 extern	int	valmrs	__PR((struct packet *, char *));
 extern	void	encode	__PR((FILE *, FILE *));
 extern	void	decode	__PR((char *, FILE *));
@@ -376,7 +398,6 @@ extern	void	setkeep	__PR((struct packet *));
 extern	void	get_Del_Date_time __PR((char *, struct deltab *, struct packet *, struct tm *));
 extern	char*	stalloc	__PR((unsigned int));
 extern	int	mosize	__PR((int y, int t));
-extern	Llong	mkgmtime __PR((struct tm *tmp));
 extern	int	gN	__PR((char *str, char **next, int num, int *digits, int *chars));
 extern	void	xtzset	__PR((void));
 

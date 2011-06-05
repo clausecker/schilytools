@@ -27,10 +27,10 @@
 /*
  * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)comb.c	1.11 11/04/27 J. Schilling
+ * @(#)comb.c	1.13 11/05/17 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)comb.c 1.11 11/04/27 J. Schilling"
+#pragma ident "@(#)comb.c 1.13 11/05/17 J. Schilling"
 #endif
 /*
  * @(#)comb.c 1.15 06/12/12
@@ -100,6 +100,8 @@ register char *argv[];
 #endif
 	
 	(void) textdomain(NOGETTEXT("SUNW_SPRO_SCCS"));
+
+	tzset();	/* Set up timezome related vars */
 
 	Fflags = FTLEXIT | FTLMSG | FTLCLN;
 
@@ -290,6 +292,10 @@ char *file;
 		fatal(gettext("nothing to do (cb4)"));
 	rdp = gpkt.p_idel;
 	Do_prs = 0;
+#if defined(INS_BASE)
+	fprintf(iop,"PATH=%s/ccs/bin:$PATH\n", INS_BASE);
+	fprintf(iop,"export PATH\n");
+#endif
 	fprintf(iop,"trap \"rm -f COMB$$ comb$$ s.COMB$$; exit 2\" 1 2 3 15\n");
 	sp = prtget(rdp, Cvec[0], iop, gpkt.p_file);
 	sid_ba(sp,rarg);

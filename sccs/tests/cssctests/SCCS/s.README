@@ -1,0 +1,25 @@
+h63410
+s 00012/00000/00000
+d D 1.1 10/05/11 11:30:00 joerg 1 0
+c date and time created 10/05/11 11:30:00 by joerg
+e
+u
+U
+f e 0
+f y 
+t
+T
+I 1
+This directory contains regression tests for the CSSC package (unit
+tests are in ../unit-tests).
+
+The environment variable "dir" selects where the programs to be tested
+are found, so if your machine has "genuine" SCCS in (say) /usr/sccs,
+you can say export dir=/usr/sccs and run these tests on the genuine
+article.  This serves to test the test suite itself.
+
+Most of these tests contain no checks of the contents of stderr.   
+Output to stdout is checked, as are return values.   However, CSSC
+produces more warning messages than genuine SCCS and also these
+messages are in a different (more helpful?) format.
+E 1

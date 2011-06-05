@@ -25,12 +25,12 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2009 J. Schilling
+ * Copyright 2006-2011 J. Schilling
  *
- * @(#)chkid.c	1.5 09/11/08 J. Schilling
+ * @(#)chkid.c	1.6 11/05/22 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)chkid.c 1.5 09/11/08 J. Schilling"
+#pragma ident "@(#)chkid.c 1.6 11/05/22 J. Schilling"
 #endif
 /*
  * @(#)chkid.c 1.5 06/12/12
@@ -40,75 +40,67 @@
 #pragma ident	"@(#)chkid.c"
 #pragma ident	"@(#)sccs:lib/comobj/chkid.c"
 #endif
-# include	<defines.h>
-# include	<ctype.h>
+#include	<defines.h>
+#include	<ctype.h>
 
 
 int
-chkid(line,idstr)
-
-char *line;
-char *idstr;
-
+chkid(line, idstr, sflags)
+	char	*line;
+	char	*idstr;
+	char	*sflags[];
 {
-	register char *lp;
-	register char *p;
-	extern int Did_id;
+	register char	*lp;
+	register char	*p;
+		int	expand_XIDs;
+		char	*list_expand_IDs;
+	extern	int	Did_id;
 
-	if (!Did_id && (lp = strchr(line,'%') ) ) {
-		if (!idstr || idstr[0]=='\0' ) 
-			for( ; *lp != 0; lp++) {
-				if(lp[0] == '%' && lp[1] != 0 && lp[2] == '%')
-					if (isupper(((unsigned char *)lp)[1]))
-						switch (lp[1]) {
-						case 'J':
-							break;
-						case 'K':
-							break;
-						case 'N':
-							break;
-						case 'O':
-							break;
-						case 'V':
-							break;
-						case 'X':
-							break;
-						default:
-							return(Did_id++);
-						}
+	if (Did_id || (lp = strchr(line, '%')) == NULL)
+		return (Did_id);
+
+	if (idstr && idstr[0] != '\0' && (lp = strchr(idstr, '%')) == NULL)
+		return (Did_id);
+
+	list_expand_IDs = sflags[EXPANDFLAG - 'a'];
+	expand_XIDs = sflags[EXTENSFLAG - 'a'] != NULL ||
+			list_expand_IDs != NULL;
+
+	for (; *lp != 0; lp++) {
+		if (lp[0] == '%' && lp[1] != 0 && lp[2] == '%')
+			if (list_expand_IDs != NULL) {
+				if (!any(lp[1], list_expand_IDs)) {
+					lp++;
+					continue;
+				}
 			}
-		else {
-			if ( (lp = strchr(idstr,'%')) == NULL ) return(Did_id);
-			for( ; *lp != 0; lp++) {
-				if(lp[0] == '%' && lp[1] != 0 && lp[2] == '%')
-					if (isupper(((unsigned char *)lp)[1]))
-						switch (lp[1]) {
-						case 'J':
-							break;
-						case 'K':
-							break;
-						case 'N':
-							break;
-						case 'O':
-							break;
-						case 'V':
-							break;
-						case 'X':
-							break;
-						default:
-							Did_id++;
-						}
+			switch (lp[1]) {
+			case 'A': case 'B': case 'C': case 'D':
+			case 'E': case 'F': case 'G': case 'H':
+			case 'I': case 'L': case 'M': case 'P':
+			case 'Q': case 'R': case 'S': case 'T':
+			case 'U': case 'W': case 'Y': case 'Z':
+				Did_id++;
+				break;
+			case 'd': case 'e': case 'g': case 'h':
+				if (expand_XIDs)
+					Did_id++;
+				break;
+			default:
+				break;
 			}
-			if (!Did_id) return(Did_id); /* There's no keyword in idstr */
-			Did_id = 0;
-			p=idstr;
-			lp=line;
-			while((lp=strchr(lp,*p)) != NULL)
-				if(!(strncmp(lp,p,strlen(p))))
-					return(Did_id++);
-				else
-					++lp;
-		}
 	}
-	return(Did_id);
+	if (!Did_id)
+		return (Did_id);	/* There's no keyword in idstr */
+	if (!idstr || idstr[0] == '\0')
+		return (Did_id);
+	Did_id = 0;
+	p = idstr;
+	lp = line;
+	while ((lp = strchr(lp, *p)) != NULL)
+		if (!(strncmp(lp, p, strlen(p))))
+			return (Did_id++);
+		else
+			++lp;
+	return (Did_id);
 }

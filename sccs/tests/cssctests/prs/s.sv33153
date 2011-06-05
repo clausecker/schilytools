@@ -1,0 +1,32 @@
+h28507
+s 00000/00000/00000
+d D 6.1 11/04/28 23:55:56 james 6 5
+e
+s 00000/00000/00000
+d D 5.1 11/04/28 23:55:56 james 5 4
+c AUTO NULL DELTA
+e
+s 00000/00000/00000
+d D 4.1 11/04/28 23:55:56 james 4 3
+c AUTO NULL DELTA
+e
+s 00000/00000/00000
+d D 3.1 11/04/28 23:55:56 james 3 2
+c AUTO NULL DELTA
+e
+s 00000/00000/00000
+d D 2.1 11/04/28 23:55:56 james 2 1
+c AUTO NULL DELTA
+e
+s 00000/00000/00000
+d D 1.1 11/04/28 23:55:56 james 1 0
+c date and time created 11/04/28 23:55:56 by james
+e
+u
+U
+f n
+f e 0
+t
+T
+I 1
+E 1

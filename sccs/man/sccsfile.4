@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sccsfile.4	1.7 11/04/30 portions Copyright 2007-2011 J. Schilling */
+.\" @(#)sccsfile.4	1.10 11/05/26 portions Copyright 2007-2011 J. Schilling */
 .\" CDDL HEADER START
 .\"
 .\" The contents of this file are subject to the terms of the
@@ -21,7 +21,7 @@
 .\" Copyright (c) 2002, Sun Microsystems, Inc. All Rights Reserved.
 .\" Copyright 1989 AT&T
 .\"  Copyright 2007-2011 J. Schilling
-.TH sccsfile 4 "2011/04/30" "SunOS 5.11" "File Formats"
+.TH sccsfile 4 "2011/05/26" "SunOS 5.11" "File Formats"
 .SH NAME
 sccsfile \- format of an SCCS history file
 .SH DESCRIPTION
@@ -98,7 +98,7 @@ contained in the first line. The
 .B ^Ah
 provides a
 .I magic number
-of (octal) 064001.
+of (octal) 064001 in PDP-byteorder and 000550 in Motorola-byteorder ("\e001\e150").
 
 .SS Delta Table
 
@@ -197,8 +197,31 @@ Defines the replacement for the \fB%\&Y%\fR ID keyword.
 Controls prompting for MR numbers in addition to comments. If the optional text is present, it defines an MR number validity checking program.
 .ne 3
 .TP
-\fB\fB^Af i\fR \fR
-Indicates that the `\fBNo id keywords\fR' message is to generate an error that terminates the SCCS command. Otherwise, the message is treated as a warning only.
+\fB\fB^Af i\fR [\fIvalue\fR]
+Indicates that the
+.RB `  "No id keywords" '
+message is to generate an error that terminates the SCCS command.
+Otherwise, the message is treated as a warning only.
+.sp
+If the parameter
+.I value
+to the
+.RB ` i '
+flag is not empty, then it holds a line fragment with keywords
+starting with a
+.RB ` "%" ',
+e.g.
+.br
+.RB "        `" "%\&Z%%\&M%	%\&I% %\&E%" '
+.br
+This line fragment needs to exactly match a part of a line in the file
+and to result in expanded keywords. Otherwise an attempt to check in a 
+new delta will fail.
+The parameter to the
+.RB ` i '
+flag is a
+.B \s-1SUN\s+1
+extension.
 .ne 3
 .TP
 \fB\fB^Af b\fR \fR
@@ -245,6 +268,12 @@ allows files that contain binary data to be checked in.
 .TP
 .BI "^Af s " nnn
 The number of lines to be scanned for keyword expansion. 
+.sp
+This flag is a
+.B \s-1SUN\s+1
+extension that does not exist in historic
+.B sccs
+implementations.
 
 .ne 3
 .TP
@@ -276,9 +305,18 @@ The list of sccs keywords to be expanded.
 If the
 .BR y -flag
 is missing in the sccs historyfile, all sccs keywords are expanded.
-If the flag is present but the list is empty, no keyword is expanded.
+If the flag is present but the list is empty, no keyword is expanded
+and no
+.RB `  "No id keywords" '
+message is generated.
 The value `\fB*\fP' controls the 
 expansion of the \fB%\&sccs.include.\fIfilename\fB\&%\fR keyword.
+.sp
+This flag is a
+.BR \s-1SUN\s+1 / SCHILY
+extension that does not exist in historic
+.B sccs 
+implementations. 
 
 .SS Comments
 

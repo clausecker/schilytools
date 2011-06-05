@@ -19,19 +19,19 @@
 .\" CDDL HEADER END
 .\" Copyright (c) 1999, Sun Microsystems, Inc. All Rights Reserved
 .\" Copyright 2007-2011 J. Schilling
-.TH sccs-delta 1 "2011/04/03" "SunOS 5.11" "User Commands"
+.TH sccs-delta 1 "2011/05/20" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs-delta, delta \- make a delta to an SCCS file
 .SH SYNOPSIS
 .LP
 .nf
-\fB/usr/ccs/bin/delta\fR [\fB-dnps\fR] [\fB-g\fR \fIsid-list\fR | \fB-g\fR\fIsid-list\fR] 
+\fB/usr/ccs/bin/delta\fR [\fB-dnops\fR] [\fB-g\fR \fIsid-list\fR | \fB-g\fR\fIsid-list\fR] 
     [\fB-m\fR \fImr-list\fR | \fB-m\fR\fImr-list\fR] [\fB-r\fR \fIsid\fR | \fB-r\fR\fIsid\fR] 
     [\fB-y\fR [\fIcomment\fR]] \fI s.filename\fR...
 .fi
 .LP
 .nf
-\fB/usr/xpg4/bin/delta\fR [\fB-dnps\fR] [\fB-g\fR \fIsid-list\fR | \fB-g\fR\fIsid-list\fR] 
+\fB/usr/xpg4/bin/delta\fR [\fB-dnops\fR] [\fB-g\fR \fIsid-list\fR | \fB-g\fR\fIsid-list\fR] 
     [\fB-m\fR \fImr-list\fR | \fB-m\fR\fImr-list\fR] [\fB-r\fR \fIsid\fR | \fB-r\fR\fIsid\fR] 
     [\fB-y\fR [\fIcomment\fR]] \fI s.filename\fR...
 .fi
@@ -101,6 +101,12 @@ Specify a list of deltas to omit when the file is accessed at the \fBSCCS\fR ver
 If the SCCS file has the \fBv\fR flag set (see 
 \fBsccs-admin\fR(1)), you must supply one or more Modification Request (MR) numbers for the new delta. When specifying more than one MR number on the command line, \fImr-list\fR takes the form of a quoted, space-separated list. If \fB-m\fR is not used and the standard input is a terminal, \fBdelta\fR prompts with \fBMRs?\fR for the list (before issuing the \fBcomments?\fR prompt). If the \fBv\fR flag in the \fBs.\fRfile has a value, it is taken to be the name of a program to validate the MR numbers. If that validation program returns a non-zero exit status, \fBdelta\fR terminates
 without checking in the changes.
+.sp
+.ne 3
+.TP
+.B \-o
+Use the original time of the edited file for the delta time
+when applying the delta.
 .sp
 .ne 2
 .TP

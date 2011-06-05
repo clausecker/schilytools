@@ -1,0 +1,251 @@
+New features with AN-2011-05-99:
+
+This is the first localization step for the schily source consolidation. Many
+programs now (hopefully) call gettext() for all strings that need localization.
+
+-	The next step will include dgettext() calls for the libraries and the
+	missing programs
+
+-	The following step will include the extracted strings
+
+-	The last step will include German translations and install support
+	for the resulting binary message object files.
+
+----------> Please test and report compilation problems! <---------
+
+***** NOTE: As mentioned since 2004, frontends to the tools should *****
+*****		call all programs in the "C" locale		   *****
+*****		by e.g. calling: LC_ALL=C cdrecord ....		   *****
+*****		unless these frontends support localized strings   *****
+*****		used by the cdrtools with NLS support.		   *****
+
+
+-	SCCS now checks whether the 'x' flag in the SCCS history files has the
+	tag "SCHILY", as the SCO sccs implementation uses the x flag for setting
+	the executable permission on files.
+
+-	SCCS now warns if currently unsupported uppercase flags are present in
+	a history file.
+
+-	sccs help now includes help for all help codes
+
+-	The sccsfile.4 man page now mentiones that year numbers may be 4 digit
+	numbers also.
+
+-	The sccslog(1) command now implements a new option -a to control the way
+	sccslog collects deltas with the same delta comment in case they happen 
+	within 24 hours. Not collecting such deltas makes it easier to understand
+	the exact time line in changes for many files that belong to a common
+	project.
+
+	sccslog -a will still collect time stamps that differ less than a minute
+	sccslog -aa will not collect time stamps if they differ more than a
+	second
+
+-	The diff(1) command delivered with SCCS now outputs the correct time stamp
+	format for unified diffs (-u) as required by POSIX. This is needed in order
+	to be able to automatically remove removed files by patch(1).
+
+-	The SCCS commands now switch to 4 digit year numbers in SCCS files when
+	the year 2038 starts. This makes it easier to write shell scripts that
+	work on SCCS files.
+
+-	Since SCCS no longer uses the libc variable "timezone", a call to tzset()
+	is no longer required. Since SCCS now switches to a 4 digit year format
+	at the beginning of Y2038 local time, we need to call tzset() again, but
+	we now do it in main() for each related tool.
+
+-	The leap year functions did not correctly know that February 2000 has
+	29 days. This was a result from switching to a correct Gregorian leap
+	year algorithm but using year-1900 as a parameter to the mosize()
+	function.
+
+-	SCCS comb now writes a shell script that has $(INS_BASE)/ccs/bin in
+	front of PATH.
+
+-	SCCS sccsdiff now has $(INS_BASE)/ccs/bin in front of PATH.
+
+-	The string parsing functions now stop when encountering a null byte at
+	the end of a line and thus no longer cause core dumps with corrupted
+	SCCS history files.
+
+-	SCCS val -T now checks for defective statistics lines in the SCCS
+	history file.
+
+-	SCCS val now checks for missing usernames in delta table lines. Missing
+	usernames have been a frequent problem with SCCS releases until
+	around 1982. Recent SCCS versions abort before modifying files when the
+	username appears to be empty.
+
+-	SCCS val now checks for various missinf fields in delta table lines.
+	Missing fields may cause SCCS to incorrectly interpret the weave data
+	part and result in modified checkouts.
+
+-	SCCS val now can check for non-monotone time stamps in SCCS history
+	files. SCCS creates time stamps but never really uses them except when
+	a cut-off time has been specified. Call val -T to enable this check.
+	The exit code will not change and only a warning will be emmited in case
+	of a non-monotonic time.
+
+-	The SCCS admin command now supports a new option -o that uses the
+	original file time for the initial delta instead of using the current
+	time.
+
+-	The SCCS delta command now supports a new option -o that uses the
+	original file time for the delta instead of using the current time.
+
+-	The sccs command now avoids a GCC warning related to array of struct
+	initialization.
+
+-	The SCCS admin and delta man pages now mention -o
+
+-	The SCCS val man page now includes a better description for the debug
+	option -T.
+
+-	The sccs.1 man page now contains an overview on the subcommands
+
+-	The sccs.1 man page now mentions the new option -o for "admin" and
+	"delta" and for related pseudo commands.
+
+-	SCCS admin no longer silently removes flags from the range 'A'..'Z'
+	from the SCCS history file.
+
+-	SCCS "admin -fy s.foo" now not only turns off keyword expansion but also
+	turns off the "No iy keyword" warning for admin, delta and get.
+
+-	SCCS admin and delta now correctly check for expanded keywords the same
+	way as the enhanced get command does.
+
+-	SCCS get now implements a new -o (original file date) option for
+	orthogonality with the -o flag introduced in admin and delta.
+
+-	The sccsfile.4 and sccs-admin.1 man pages now mention the optional
+	parameter to the 'i' flag in the SCCS history file introduced by Sun.
+	This parameter permits to require a specific SCCS keyword string.
+
+-	The sccs-get.1 man page now mentions the -L option introduced by Sun.
+
+-	The diff(1) man page has been added
+
+-	The SCCS prt command now correctly adds a newline when printing the
+	"encoded" ('e') flag via prt -f ...
+
+-	The SCCS prt command now prints labels for the 's', 'x' and 'y' flags
+	with prt -f. The label for 'x' is "extensions", the labels for 's'
+	and 'y' are the same labels as used by the "prs" program.
+
+-	All SCCS programs are now able to deal with time stamps in the range
+	2038 .. 2068 in history-files even with 32 bit programs that use a
+	signed int for time_t. This however does not affect problems caused
+	by the OS on such platforms.
+
+-	The switch to 4-digit year numbers is done at January 1 2038 for the
+	s-file and at January 1 2069 for all files that are mentioned in
+	POSIX (e.g. the l-file and the p-file). The latter is done to follow
+	the POSIX standard. The first is possible al POSIX does not define
+	the file format for the s-file.
+
+-	date_ab() now supports reading dates < 1969 in 4-digit mode from
+	delta entries in SCCS history files.
+
+-	date_ba() now always prints 2-digit year numbers even for e.g. 2120.
+
+-	SCCS now supports to specify cutoff dates using 4-digit year numbers
+	by specifying something like:
+
+	yyyy/[mm[dd[hh[mm[ss]]]]]
+
+-	The man pages sccs-get.1 and sccs-prs.1 now mention how to specify
+	a 4-digit year with a cutoff date.
+
+-	The SCCS admin program now permits to specify binary mode via -b
+	and -n even in case that the new SCCS history file is not initialized
+	with -i. A history file created with "admin -n s.foo" will still
+	not include the 'e' flag at all. James Youngman promised to permit
+	"admin -r2 -n s.foo" with CSSC in return....
+
+-	The SCCS commands now switches to 4 digit year numbers in SCCS files
+	when the year is < 1969 or if the year is > 2068. This switch is
+	done for all files, as this is outside the time range mentioned by
+	POSIX.
+
+-	The SCCS prs command now prints "extensions" for the 'x' flag
+
+-	SCCS "sccs unedit" now also works on Linux. The problem was
+	caused by using /tmp/sccsXXXXX instead of /tmp/sccsXXXXXX for mkstemp()
+
+-	A test suite has been added in directory "sccs/tests".
+	The test suite contains two parts:
+
+	-	1188 tests taken from CSSC (James Youngman)
+		The related tests are in "sccs/tests/cssctests"
+
+	-	Additional tests from the SCCS project (Joerg Schilling).
+		The related tests are in "sccs/tests/sccstests"
+
+	The tests have recently been run with success on SunOS, AIX, CYGWIN,
+	HP-UX, Linux, Mac OS X.
+
+	Please run tests on the other OS and report.
+
+	To run the test, just type:
+
+		smake
+
+	from the directory "sccs/tests" after you compiled SCCS at top level.
+	For more information, have a look at: sccs/tests/README
+
+	Check the output for problems that are flagged by the word FAIL or XFAIL.
+
+	Please report any problems!
+
+	Note that some operating systems do not support everything.
+
+	-	HP-UX will e.g. fail on some tests with "Arg list too long".
+
+	-	AIX will fail with all dates before 1970 January 1
+		as the time functions in libc return -1 or such dates
+		and this will lead to dates like: 69/12/31 23:59:59
+
+
+
+-	New functions mkgmtime() mklgmtime() and timegm()
+
+-	Mkisofs now correctly supports El Torito multi boot entries by introducing
+	a Boot Dection Header before a list of alternate boot entries.
+
+-	New option -eltorito-platform allows to set the El Torito platform id
+	for a boot entry or for a list of boot entries. Supported values for the
+	parameter are:
+
+	-	x86	the standard value vor x86 based PCs
+
+	-	PPC	the Power PC platform
+
+	-	Mac	The Apple Mac platform
+
+	-	efi	EFI based boot for PCs
+
+	-	#	an arbitrary numerical value
+
+-	New option -modification-date allows to specify a predictable UUID for grub.
+
+	The syntax is: YYYY[MM[DD[HH[MM[SS]]]]][.hh][+-GHGM] and is forgiving
+	enought to accept the pupular POSIX date format created by:
+
+		date "+%Y-%m-%d %H:%M:%S %z"
+
+
+
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.isdn.cs.tu-berlin.de, js@cs.tu-berlin.de
+	joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

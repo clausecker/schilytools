@@ -1,7 +1,8 @@
-/* @(#)inp.c	1.10 11/01/30 2011 J. Schilling */
+/* @(#)inp.c	1.11 11/05/22 2011 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)inp.c	1.10 11/01/30 2011 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)inp.c	1.11 11/05/22 2011 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1986, 1988 Larry Wall

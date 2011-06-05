@@ -1,0 +1,25 @@
+h14292
+s 00013/00000/00000
+d D 1.1 11/05/27 20:17:18 joerg 1 0
+c date and time created 11/05/27 20:17:18 by joerg
+e
+u
+U
+f e 0
+t
+T
+I 1
+#!/bin/sh
+
+if test $# -lt 1
+then
+arg="y"
+else
+arg="$1"
+fi
+
+while echo "$arg"
+do
+	:
+done
+E 1

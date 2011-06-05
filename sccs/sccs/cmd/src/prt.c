@@ -27,10 +27,10 @@
 /*
  * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)prt.c	1.15 11/04/27 J. Schilling
+ * @(#)prt.c	1.21 11/06/04 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)prt.c 1.15 11/04/27 J. Schilling"
+#pragma ident "@(#)prt.c 1.21 11/06/04 J. Schilling"
 #endif
 /*
  * @(#)prt.c 1.22 06/12/12
@@ -67,7 +67,7 @@
 # include	<schily/sysexits.h>
 
 # define NOEOF	0
-# define BLANK(p)	while (!(*p == ' ' || *p == '\t')) p++;
+# define BLANK(p)	while (!(*p == '\0' || *p == ' ' || *p == '\t')) p++;
 
 char SccsError[MAXERRORLEN];
 struct stat Statbuf;
@@ -108,13 +108,13 @@ static char *flagdesc[26] = {
 			NOGETTEXT(""),
 			NOGETTEXT("csect name"),
 			NOGETTEXT(""),
-			NOGETTEXT(""),
+			NOGETTEXT("keywd scan lines"),
 			NOGETTEXT("type"),
 			NOGETTEXT(""),
 			NOGETTEXT("validate MRs"),
 			NOGETTEXT(""),
-			NOGETTEXT(""),
-			NOGETTEXT(""),
+			NOGETTEXT("extensions"),
+			NOGETTEXT("expand keywds"),
 			NOGETTEXT("")
 };
 
@@ -155,6 +155,8 @@ char *argv[];
 #endif
 	
 	(void) textdomain(NOGETTEXT("SUNW_SPRO_SCCS"));
+
+	tzset();	/* Set up timezome related vars */
 
 	/*
 	Set flags for 'fatal' to issue message, call clean-up
@@ -348,8 +350,6 @@ char *file;
 #if defined(BUG_1205145) || defined(GMT_TIME)
 	time_t	tim;
 	struct tm *tmp;
-
-	tzset();
 #endif
 
 	if (setjmp(Fjmp))	/* set up to return here from 'fatal' */
@@ -394,9 +394,16 @@ char *file;
 			Because this function uses gmtime() instead of localtime().
 			*/
 			tmp = localtime(&bindate);
-			tim = mkgmtime(tmp);
-
-			if (tim > Y2038)
+			tim = mklgmtime(tmp);
+			/*
+			 * Avoid to use more space as expectecd in del.datetime
+			 */
+#if SIZEOF_TIME_T == 4
+			if (tim < Y1969)
+#else
+			if ((tim < Y1969) ||
+			    (tim >= Y2069))
+#endif
 				date_bal(&tim,del.datetime);	/* 4 digit year */
 			else
 				date_ba(&tim,del.datetime);	/* 2 digit year */
@@ -510,14 +517,20 @@ char *file;
 				if (*++p) {
 					NONBLANK(p);
 					if (*p == '1')
-						printf("\t%s",
+						printf("\t%s\n",
 							flagdesc['e' - 'a']);
 				}
-			}
-			else {
+			} else if (*p - 'a' < 0 || *p - 'a' >= NFLAGS) {
+				printf("\tUnknown flag '%c'\t", *p);
+				if (*++p) {
+					NONBLANK(p);
+					printf("\t%s", p);
+				}
+			} else {
 				/*
 				 * Standard flag: print description and
 				 * operand value if present.
+				 * The newline is included in the operand.
 				 */
 				printf("\t%s", flagdesc[*p - 'a']);
 

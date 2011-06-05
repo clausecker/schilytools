@@ -1,7 +1,8 @@
-/* @(#)util.c	1.15 11/05/06 2011 J. Schilling */
+/* @(#)util.c	1.18 11/06/04 2011 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)util.c	1.15 11/05/06 2011 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)util.c	1.18 11/06/04 2011 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1986 Larry Wall
@@ -20,7 +21,6 @@ static	char sccsid[] =
 #include <schily/errno.h>
 
 static	Llong	fetchtime	__PR((char *t));
-static	Llong	mkgmtime	__PR((struct tm *tp));
 
 /* Rename a file, copying it if necessary. */
 
@@ -509,59 +509,9 @@ fetchtime(t)
 		return (d);
 	if (m < 0 || m > 59)
 		return (d);
-	d = mkgmtime(&tm);
+	d = mklgmtime(&tm);
 	m += 60 * h;
 	m *= 60;
 	d -= m;
 	return (d);
-}
-
-#define	dysize(A) (((A)%4)? 365 : (((A)%100) == 0 && ((A)%400)) ? 365 : 366)
-/*
- * Return the number of leap years since 0 AD assuming that the Gregorian
- * calendar applies to all years.
- */
-#define	LEAPS(Y) 	((Y) / 4 - (Y) / 100 + (Y) / 400)
-/*
- * Return the number of days since 0 AD
- */
-#define	YRDAYS(Y)	(((Y) * 365L) + LEAPS(Y))
-/*
- * Return the number of days between Januar 1 1970 and the end of the year
- * before the the year used as argument.
- */
-#define	DAYS_SINCE_70(Y) (YRDAYS((Y)-1) - YRDAYS(1970-1))
-
-char *Datep;
-static int dmsize[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
-
-static int
-mosize(y, t)
-int y, t;
-{
-
-	if (t == 2 && dysize(y) == 366)
-		return (29);
-	return (dmsize[t-1]);
-}
-
-static Llong
-mkgmtime(tp)
-	struct tm	*tp;
-{
-	Llong	tim = (time_t)0L;
-	int	y = tp->tm_year + 1900;
-	int	t = tp->tm_mon + 1;
-
-	tim = DAYS_SINCE_70(y);
-	while (--t)
-		tim += mosize(y, t);
-	tim += tp->tm_mday - 1;
-	tim *= 24;
-	tim += tp->tm_hour;
-	tim *= 60;
-	tim += tp->tm_min;
-	tim *= 60;
-	tim += tp->tm_sec;
-	return (tim);
 }

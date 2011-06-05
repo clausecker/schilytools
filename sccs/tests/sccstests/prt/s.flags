@@ -1,0 +1,27 @@
+h23536
+s 00000/00000/00000
+d D 1.1 11/05/28 15:31:10 joerg 1 0
+c date and time created 11/05/28 15:31:10 by joerg
+e
+u
+U
+f b
+f c 9999
+f d 1.1
+f e 1
+f f 1
+f j
+f l 99
+f m MODULE-name
+f n
+f q Q-MODULE-name
+f t MODULE-type
+f v /bin/true
+f x SCHILY
+f y Z M
+t
+Note: Sun's extensions forbid to have the 'v' and the 'z' flag
+at the same time.
+T
+I 1
+E 1

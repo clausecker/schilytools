@@ -19,7 +19,7 @@
 .\" CDDL HEADER END
 .\" Copyright (c) 2002, Sun Microsystems, Inc. All Rights Reserved
 .\" Copyright 2007-2011 J. Schilling
-.TH sccs-val 1 "2011/05/01" "SunOS 5.11" "User Commands"
+.TH sccs-val 1 "2011/05/18" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs-val, val \- validate an SCCS file
 .SH SYNOPSIS
@@ -85,33 +85,60 @@ The following options are supported:
 .sp
 .ne 2
 .TP 9
-\fB\fB-s\fR\fR
+.B \-s
 Silent.  Suppresses the normal error or warning messages.
 
 .sp
 .ne 2
 .TP
-\fB\fB-m\fR \fIname\fR\fR
-Compares \fIname\fR with the \fB%\&M%\fR ID keyword in the \fBs.\fRfile.
+.BI \-m " name
+Compares
+.I name
+with the 
+.B "%\&M%"
+ID keyword in the \fBs.\fRfile.
 
 .sp
 .ne 2
 .TP
-\fB\fB-r\fR\fIsid\fR\fR
-Checks to see if the indicated \fBSID\fR is ambiguous, invalid, or absent from the \fBs.\fRfile.
+.BI \-r sid
+Checks to see if the indicated
+.B SID
+is ambiguous, invalid, or absent from the \fBs.\fRfile.
 
 .sp
 .ne 2
 .TP
-\fB\fB-y\fR \fItype\fR\fR
-Compares \fItype\fR with the \fB%\&Y%\fR ID keyword.
+.BI \-y " type
+Compares
+.I type
+with the 
+.B "%\&Y%"
+ID keyword.
 
 .sp
 .ne 2
 .TP
-\fB\fB-T\fR\fR
+.B \-T
 Trace. Print extra debug messages.
 This disables the silent mode.
+When in debug mode, extra tests are enabled for:
+.RS
+.TP 12
+.B statistics
+The statistics line in the SCCS history file is written but not used.
+This is why this test is only enabled in debug mode and why a defective
+statistics line does not affect the exit code.
+.TP
+.B time stamps
+The time stamps in the SCCS history file are only used when a cut-off time
+was specified. This test checks for monotonic growing time stamps. A warning
+caused by time stamps that go backwards does not affect the exit code.
+.LP
+For a complete consistency check, it is recommended to run
+.B val
+in debug mode to check for all problems.
+.RE
 
 .ne 3
 .TP

@@ -1,0 +1,17 @@
+I 2
+D 3
+hello %A% %Z% world.
+E 3
+I 3
+D 4
+hello %A% world.
+E 4
+I 4
+hello %Z% world.
+E 4
+E 3
+
+E 2
+I 1
+E 1
+

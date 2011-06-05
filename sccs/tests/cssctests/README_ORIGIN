@@ -1,0 +1,75 @@
+The files in this directory (except for the directory "common") are
+taken from the CSSC project. The files below this directory contain mors
+that 1100 tests written by James Youngman. We introduced a few modifications:
+
+-	$TESTING_CSSC			was originally set to "true" for
+					CSSC and to "false" for other
+					software.
+
+					$TESTING_CSSC is now set to "true" by
+					our script "common/real-thing" for both
+					CSSC and recent generic SCCS (this
+					version of SCCS).
+
+					Run the tests with the environment
+					variable CSSC_ONLY=true to switch
+					back to the original behavior.
+
+
+-	Test t5 from admin/r-option.sh	tests for something to fail with
+					CSSC that is expected to work with SCCS.
+					As the CSSC maintainer James Youngman
+					now agrees that "admin -i ..." and
+					"admin -n ..." are equivalent calls,
+					The related action is no longer
+					expected to fail even with CSSC.
+
+					Test "t5" has been replaced by "t5a"
+					and "t5b" that test for the results
+					that are expected when using SCCS.
+
+-	admin/y-flag.sh			This script calles "test -e ..."
+					but the -e option to test(1) may not
+					be available with the Bourne Shell.
+
+
+-	Test "fa11" from binary/auto.sh	tries to grant that a file with the
+					content "x\000y\n" to cause SCCS to
+					initialize a history file that is
+					unencoded. This is wrong. Leaving this
+					test as it has been would cause the
+					test suite to require the existence
+					of a CSSC-specific bug.
+
+					Test "fa11" has been modified to verify
+					that an encoded history file is created
+					instead.
+
+					A new test "fa12" has been introduced
+					that tests whether a fle with the
+					content "x\001y\n" will result in an
+					unencoded history file.
+
+-	binary/seeking.sh		contained a direct call to:
+					if ( ${admin} -V 2>&1 ; echo umsp )  | grep CSSC >/dev/null
+					instead of testing $TESTING_CSSC
+
+					binary/seeking.sh now checks for
+					$TESTING_CSSC to allow the test to be
+					run for SCCS too.
+
+-	year-2000/ext.sh		This test used to check for a CSSC
+					specific 4-digit cut-off date extension
+					that is not implemented with SCCS.
+
+					This test has been enhanced by a test
+					for a SCCS specific 4-digit cut-off date
+					extension. This new test is now
+					enabled by $TESTING_REAL_SCCS, the
+					original test is run if
+					$TESTING_REAL_CSSC is set.
+					
+
+If you are interested in the test suite below this directory, please have a look
+at the original code from CSSC written by James Youngman.
+

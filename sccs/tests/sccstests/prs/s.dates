@@ -1,0 +1,20 @@
+h13782
+s 00001/00000/00001
+d D 1.2 99/12/31 23:59:59 joerg 2 1
+c Added in 1999
+e
+s 00001/00000/00000
+d D 1.1 70/01/01 00:00:00 joerg 1 0
+c date and time created 70/01/01 00:00:00 by joerg
+e
+u
+U
+f e 0
+t
+T
+I 1
+%M%
+I 2
+Line from 1999
+E 2
+E 1

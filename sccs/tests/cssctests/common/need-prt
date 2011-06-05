@@ -1,0 +1,12 @@
+#!/bin/sh
+
+SRCROOT=`../../../../conf/srcroot.sh`
+. ${SRCROOT}/tests/bin/base
+
+. ../common/command-names
+
+HAVE_PRT=true
+if test ! -x ${prt}
+then
+	HAVE_PRT=false
+fi

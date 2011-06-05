@@ -1,4 +1,4 @@
-/* @(#)mkisofs.h	1.142 10/12/19 joerg */
+/* @(#)mkisofs.h	1.144 11/06/05 joerg */
 /*
  * Header file mkisofs.h - assorted structure definitions and typecasts.
  *
@@ -295,7 +295,22 @@ struct eltorito_boot_entry_info {
 	int		boot_info_table;
 	int		load_size;
 	int		load_addr;
+
+#define	ELTORITO_BOOT_ID	1
+#define	ELTORITO_SECTION_HEADER 2
+	int		type;
+	/*
+	 * Valid if (type & ELTORITO_BOOT_ID) != 0
+	 */
+	int		boot_platform;
+
 };
+
+typedef struct ldate {
+	time_t	l_sec;
+	int	l_usec;
+	int	l_gmtoff;
+} ldate;
 
 extern int	goof;
 extern struct directory *root;
@@ -550,7 +565,7 @@ extern int iso9660_file_length __PR((const char *name,
 
 /* various */
 extern int iso9660_date __PR((char *, time_t));
-extern int iso9660_ldate __PR((char *, time_t, int));
+extern int iso9660_ldate __PR((char *, time_t, int, int));
 extern void add_hash __PR((struct directory_entry *));
 extern struct file_hash *find_hash __PR((dev_t, ino_t));
 

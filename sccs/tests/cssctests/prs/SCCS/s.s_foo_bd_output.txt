@@ -1,0 +1,17 @@
+h16881
+s 00004/00000/00000
+d D 1.1 10/05/03 03:45:26 joerg 1 0
+c date and time created 10/05/03 03:45:26 by joerg
+e
+u
+U
+f e 1
+f y 
+t
+T
+I 1
+M 4D@,@H!1" S"FAE;&QO("5!)2 E6B4@=V]R;&0N"@%%(#,* 4D@,PH!1" T
+M"FAE;&QO("5!)2!W;W)L9"X* 44@- H!22 T"FAE;&QO("5:)2!W;W)L9"X*
+; 44@- H!12 S"@H!12 R"@%)(#$* 44@,0H*
+ 
+E 1

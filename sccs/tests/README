@@ -1,0 +1,64 @@
+The content of this directory (except for the content of the directory
+"cssctests") is part of the SCCS project. The content of the directory
+"cssctests" (except for the content of the directory "cssctests/common")
+has been taken from the CSSC project (from James Youngman).
+
+We use the 1188 tests in "cssctests" for basic testing of the SCCS project and
+the content from the directory "sccstests" for tests that are specific to this
+version of SCCS and for enhanced additional tests.
+
+To run the test, just type:
+
+	smake
+
+and check the output for problems that are flagged by the word FAIL or XFAIL.
+
+	Please report any problems!
+
+But note that some operating systems do not support everything.
+
+	-	HP-UX will e.g. fail on some tests with "Arg list too long".
+
+	-	AIX will fail with all dates before 1970 January 1
+		as the time functions in libc return -1 or such dates
+		and this will lead to dates like: 69/12/31 23:59:59
+
+If you only like to run the tests imported from CSSC, run:
+
+	smake cssc-tests
+
+The CSSC tests give a fairly good basic test coverage, but as CSSC does not
+support every feature from SCCS, it may not be complete. See for:
+cssctests/README_ORIGIN for some hints on how we changed the CSSC test suite.
+
+If you only like to run only the SCCS specific enhancement tests, run:
+
+	smake sccs-tests
+
+These tests do not do a full test, but they check:
+
+-	Some SCCS features not tested by the CSSC test suite
+
+-	Some corner cases that are supported by SCCS but prohibited by CSSC
+	and thus not checked by the CSSC test suite.
+
+-	A behavior supported by SCCS (e.g. permitting new flags in the SCCS
+	history file) and needed to permit future SCCS enhancements.
+
+-	Features added to SCCS by Sun (some of them are also found on HP-UX
+	and probably other CDE-co-developers) and not tested by the
+	CSSC test suite.
+
+-	Features added by the Schily SCCS enhancement project (e.g. permit
+	to switch off the "No id keywords" warnings via admin -fy) and not
+	tested by the CSSC test suite.
+
+-	Corner cases that have been made to work by this SCCS version,
+	e.g. support for the time period beyond 1969..2068.
+
+
+If you like to test other implementations or installations, run e.g.:
+
+	dir=/usr/ccs/bin smake
+
+to run all tests against the SVr4 default install directory for SCCS.

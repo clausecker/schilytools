@@ -1,0 +1,14 @@
+h20708
+s 00002/00000/00000
+d D 1.1 11/05/27 20:18:04 joerg 1 0
+c date and time created 11/05/27 20:18:04 by joerg
+e
+u
+U
+f e 0
+t
+T
+I 1
+The scripts in this directory have been written to permit the tests in
+../cssctests/* to work without a need for having binary programs.
+E 1

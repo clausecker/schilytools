@@ -1,0 +1,17 @@
+#!/bin/sh
+
+if test $# -lt 2
+then
+	echo "Usage yammer count string"
+fi
+
+I=1
+while true
+do
+	if test $I -gt $1
+	then
+		break
+	fi
+	echo $I "$2"
+	I=`expr $I + 1`
+done

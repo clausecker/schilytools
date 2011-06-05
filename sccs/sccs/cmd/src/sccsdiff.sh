@@ -35,7 +35,7 @@
 # if running under control of the NSE (-q option given), will look for
 # get in the directtory from which it was run (if -q, $0 will be full pathname)
 #
-PATH=$PATH:/usr/ccs/bin
+PATH=INS_BASE/ccs/bin:$PATH:/usr/ccs/bin
 
 trap "rm -f /tmp/get[abc]$$;exit 1" 1 2 3 15
 umask 077

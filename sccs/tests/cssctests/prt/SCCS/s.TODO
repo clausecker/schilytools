@@ -1,0 +1,16 @@
+h16492
+s 00003/00000/00000
+d D 1.1 10/05/11 11:30:00 joerg 1 0
+c date and time created 10/05/11 11:30:00 by joerg
+e
+u
+U
+f e 0
+f y 
+t
+T
+I 1
+Thu Jul 13 14:47:10 2006  James Youngman  <jay@gnu.org>
+
+	* Check that doing both -s and -i is diagnosed.
+E 1

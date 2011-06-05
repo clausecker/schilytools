@@ -1,0 +1,16 @@
+#!/bin/sh
+
+if [ $# -lt 1 ]; then
+	echo bla
+fi
+if [ "$1" = "name" ]; then
+	n=`id | sed -e 's/).*//' -e 's/.*(//' `
+	echo $n
+fi
+if [ "$1" = "group" ]; then
+	n=`id | sed -e 's/.*id=//' -e 's/[ 	(].*//'`
+	echo $n
+fi
+if [ "$1" = "foreigngroup" ]; then
+	echo 4711
+fi

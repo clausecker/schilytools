@@ -1,0 +1,51 @@
+h51882
+s 00001/00001/00015
+d D 1.3 11/05/31 21:13:40 joerg 3 2
+c Besserer sed Pattern damit es auch auf Mac OS X funktioniert
+e
+s 00002/00002/00014
+d D 1.2 11/05/27 20:29:30 joerg 2 1
+c Umstellung auf sed
+e
+s 00016/00000/00000
+d D 1.1 09/11/15 22:29:06 joerg 1 0
+c date and time created 09/11/15 22:29:06 by joerg
+e
+u
+U
+f e 0
+t
+T
+I 1
+#!/bin/sh
+
+if [ $# -lt 1 ]; then
+	echo bla
+fi
+if [ "$1" = "name" ]; then
+D 2
+	n=`id | change ')*' '' | change '*(' '' `
+E 2
+I 2
+	n=`id | sed -e 's/).*//' -e 's/.*(//' `
+E 2
+	echo $n
+fi
+if [ "$1" = "group" ]; then
+D 2
+	n=`id | change -- '*id=' '' | change '(*' '' | change '#[ 	]' ''`
+E 2
+I 2
+D 3
+	n=`id | sed -e 's/.*id=//' -e 's/(.*//' -e 's/[ 	]*//'`
+E 3
+I 3
+	n=`id | sed -e 's/.*id=//' -e 's/[ 	(].*//'`
+E 3
+E 2
+	echo $n
+fi
+if [ "$1" = "foreigngroup" ]; then
+	echo 4711
+fi
+E 1

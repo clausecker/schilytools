@@ -1,4 +1,4 @@
-/* @(#)schily.h	1.94 10/11/18 Copyright 1985-2010 J. Schilling */
+/* @(#)schily.h	1.95 11/06/04 Copyright 1985-2010 J. Schilling */
 /*
  *	Definitions for libschily
  *
@@ -229,9 +229,17 @@ extern	int	getxtnum  __PR((char *arg, time_t *valp, gnmult_t *mult));
 extern	int	getllxtnum __PR((char *arg, Llong *lvalp, gnmult_t *mult));
 #endif
 extern	int	getnum	__PR((char *arg, long *valp));
-#ifdef	_SCHILY_TYPES_H
+#ifdef	_SCHILY_TIME_H
 extern	int	gettnum	__PR((char *arg, time_t *valp));
 #endif
+
+#ifdef	_SCHILY_TIME_H
+#ifdef	_SCHILY_UTYPES_H
+extern	Llong		mklgmtime	__PR((struct tm *));
+#endif
+extern	time_t		mkgmtime	__PR((struct tm *));
+#endif
+
 
 #ifdef	EOF			/* stdio.h has been included */
 #ifdef	_SCHILY_TYPES_H

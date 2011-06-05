@@ -1,0 +1,13 @@
+#!/bin/sh
+
+if test $# -lt 1
+then
+arg="y"
+else
+arg="$1"
+fi
+
+while echo "$arg"
+do
+	:
+done

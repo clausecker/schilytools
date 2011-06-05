@@ -27,10 +27,10 @@
 /*
  * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)rmchg.c	1.21 11/05/01 J. Schilling
+ * @(#)rmchg.c	1.24 11/05/29 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)rmchg.c 1.21 11/05/01 J. Schilling"
+#pragma ident "@(#)rmchg.c 1.24 11/05/29 J. Schilling"
 #endif
 /*
  * @(#)rmchg.c 1.19 06/12/12
@@ -144,6 +144,8 @@ char *argv[];
 #endif
 	
 	(void) textdomain(NOGETTEXT("SUNW_SPRO_SCCS"));
+
+	tzset();	/* Set up timezome related vars */
 
 	/*
 	Set flags for 'fatal' to issue message, call clean-up
@@ -634,7 +636,13 @@ struct packet *pkt;
 				putline(pkt,line);
 				putline(pkt,"*** CHANGED *** ");
 				/* get date and time */
-				if (Timenow > Y2038)
+				/*
+				 * The s-file is not part of the POSIX standard.
+				 * For this reason, we are free to switch to a
+				 * 4-digit year for the initial comment.
+				 */
+				if ((Timenow < Y1969) ||
+				    (Timenow >= Y2038))			/* comment only */
 					date_bal(&Timenow,line);	/* 4 digit year */
 				else
 					date_ba(&Timenow,line);		/* 2 digit year */

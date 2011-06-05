@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sccs-admin.1	1.8 11/04/03 portions Copyright 2007-2011 J. Schilling */
+.\" @(#)sccs-admin.1	1.12 11/05/22 portions Copyright 2007-2011 J. Schilling */
 .\" CDDL HEADER START
 .\"
 .\" The contents of this file are subject to the terms of the
@@ -19,13 +19,13 @@
 .\"
 .\" CDDL HEADER END
 .\"  Copyright (c) 2002, Sun Microsystems, Inc. All Rights Reserved.
-.TH sccs-admin 1 "2011/04/03" "SunOS 5.11" "User Commands"
+.TH sccs-admin 1 "2011/05/22" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs-admin, admin \- create and administer SCCS history files
 .SH SYNOPSIS
 .LP
 .nf
-\fB/usr/ccs/bin/admin\fR [\fB-bhnz\fR] [\fB-a\fR \fIusername\fR | \fIgroupid\fR]... 
+\fB/usr/ccs/bin/admin\fR [\fB-bhnoz\fR] [\fB-a\fR \fIusername\fR | \fIgroupid\fR]... 
     [\fB-d\fR \fIflag\fR] ... [\fB-e\fR \fIusername\fR | \fIgroupid\fR]... 
     [\fB-f\fR \fIflag\fR [\fIvalue\fR]] ... [\fB-i\fR [\fIfilename \fR]] [\fB-m\fR \fImr-list\fR] 
     [\fB-r\fR\fIrelease\fR] [\fB-t\fR [\fIdescription-file\fR]] [\fB-y\fR [\fIcomment\fR]] \fIs.filename\fR...
@@ -94,8 +94,28 @@ Sets a floor on the releases that can be checked out. The floor is a number grea
 .sp
 .ne 3
 .TP
-\fB\fBi\fR\fR
-Treats the `\fBNo id keywords (ge6)\fR' message issued by an SCCS \fBget\fR or \fBdelta\fR command as an error rather than a warning.
+.BI i\fR[ value\fR]
+Treats the `\fBNo id keywords (cm7)\fR' message issued by an SCCS \fBget\fR or \fBdelta\fR command as an error rather than a warning.
+.sp
+If the parameter
+.I value
+to the
+.RB ` i '
+flag is not empty, then it holds a line fragment with keywords
+starting with a
+.RB ` "%" ',
+e.g.
+.br
+.RB "        `" "%\&Z%%\&M%	%\&I% %\&E%" '
+.br
+This line fragment needs to exactly match a part of a line in the file
+and to result in expanded keywords. Otherwise an attempt to check in a 
+new delta will fail.
+The parameter to the
+.RB ` i '
+flag is a
+.B \s-1SUN\s+1
+extension.
 .sp
 .ne 3
 .TP
@@ -154,14 +174,14 @@ Enable
 extensions that are not implemented in classical 
 .B sccs
 variants. If the
-.B `x'
+.RB ` x '
 flag is enabled, the keywords
 .BR %\&d\&% ", " %\&e\&% ", " %\&g\&% 
 and
 .B %\&h\&%
-are expanded even though not explicitely enabled by the
-.B `y'
-flag.
+are expanded even though the
+.RB ` y '
+flag was not set.
 .sp
 This flag is a
 .B \s-1SCHILY\s+1
@@ -169,16 +189,34 @@ extension that does not exist in historic
 .B sccs 
 implementations. 
 
-.ne 3
+.br
+.ne 4
 .TP
 \fB\fBy\fR[\fIvalue\fR\fB,\fR[\fIvalue\fR]]\fR
-Specifies the SCCS keywords to be expanded. If no \fIvalue\fR is specified, no keywords will be expanded.
+Specifies the SCCS keywords to be expanded. If no
+.I value
+is specified, no keywords will be expanded.
 The value `\fB*\fP'
 controls the expansion of the \fB%\&sccs.include.\fIfilename\fB\&%\fR keyword.
+If the letters
+.BR d ", " e ", " g
+or
+.B h
+are present, the related keywords are expanded even though the
+.RB ` x '
+flag was not set.
+.sp
+If
+.I value
+is set to an empty string, the
+.RB ` "No id keywords (cm7)" '
+message will not be created even though no keyword was expanded.
 .sp
 This flag is a
-.B \s-1SUN\s+1
+.BR \s-1SUN\s+1 / SCHILY
 extension that does not exist in historic
+.B sccs 
+implementations. 
 .RE
 .sp
 .ne 3
@@ -200,6 +238,13 @@ Inserts the indicated Modification Request (MR) numbers into the commentary for 
 .TP
 \fB\fB-n\fR\fR
 Creates a new SCCS history file.
+.sp
+.ne 3
+.TP
+.B \-o
+Use the original time of the existing file for the delta time
+when creating a new
+.BR s. file.
 .sp
 .ne 3
 .TP

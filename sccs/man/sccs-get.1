@@ -19,20 +19,20 @@
 .\" CDDL HEADER END
 .\" Copyright (c) 1999, Sun Microsystems, Inc. All Rights Reserved
 .\" Copyright 2007-2011 J. Schilling
-.TH sccs-get 1 "2011/04/03" "SunOS 5.11" "User Commands"
+.TH sccs-get 1 "2011/05/27" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs-get, get \- retrieve a version of an SCCS file
 .SH SYNOPSIS
 .LP
 .nf
-\fB/usr/ccs/bin/get\fR [\fB-begkmnpst\fR] [\fB-l\fR [p]] [\fB-a\fR\fIsequence\fR] 
+\fB/usr/ccs/bin/get\fR [\fB-begkmnopst\fR] [\fB-l\fR [p]] [\fB-a\fR\fIsequence\fR] 
     [\fB-c\fR \fIdate-time\fR | \fB-c\fR\fIdate-time\fR] [\fB-G\fR\fIg-file\fR] 
     [\fB-i\fR \fIsid-list\fR | \fB-i\fR\fIsid-list\fR] [\fB-r\fR [\fIsid\fR]] 
     [\fB-x\fR \fIsid-list\fR | \fB-x\fR\fIsid-list\fR] \fIs.filename\fR...
 .fi
 .LP
 .nf
-\fB/usr/xpg4/bin/get\fR [\fB-begkmnpst\fR] [\fB-l\fR [p]] [\fB-a\fR\fIsequence\fR] 
+\fB/usr/xpg4/bin/get\fR [\fB-begkmnopst\fR] [\fB-l\fR [p]] [\fB-a\fR\fIsequence\fR] 
     [\fB-c\fR \fIdate-time\fR | \fB-c\fR\fIdate-time\fR] [\fB-G\fR\fIg-file\fR] 
     [\fB-i\fR \fIsid-list\fR | \fB-i\fR\fIsid-list\fR] [\fB-r\fR \fIsid\fR | \fB-r\fR\fIsid\fR] 
     [\fB-x\fR \fIsid-list\fR | \fB-x\fR\fIsid-list\fR] \fIs.filename\fR...
@@ -85,7 +85,12 @@ increment the branch component of the \fBSID\fR. If the \fBb\fR flag is not set 
 \fB\fB-c\fR \fIdate-time\fR
 .TP
 \fB-c\fR\fIdate-time\fR\fR
-Retrieves the latest version checked in prior to the date and time indicated by the \fIdate-time\fR argument. \fIdate-time\fR takes the form:
+Retrieves the latest version checked in prior to the date and time indicated by
+the
+.I date-time
+argument.
+.I date-time
+takes the form:
 .sp
 
 .sp
@@ -93,8 +98,32 @@ Retrieves the latest version checked in prior to the date and time indicated by 
 .sp
 
 .sp
-Units omitted from the indicated date and time default to their maximum possible values; that is \fB\fR\fB-c\fR\fB7502\fR is equivalent to \fB\fR\fB-c\fR\fB750228235959\fR. Values of \fIyy\fR in the range \fB69\fR\(mi\fB99\fR refer to the twentieth century. Values in the range \fB00\fR\(mi\fB68\fR refer to the twenty-first century. Any number of non-numeric characters may separate
-the various 2 digit components. If white-space characters occur, the \fIdate-time\fR specification must be quoted.
+Units omitted from the indicated date and time default to their maximum possible
+values; that is
+.B \-c7502
+is equivalent to
+.BR \-c750228235959 .
+Values of
+.I yy
+in the range
+.BR 69 \(mi 99
+refer to the twentieth century. Values in the range
+.BR 00 \(mi 68
+refer to the twenty-first century.
+Any number of non-numeric characters may separate
+the various 2 digit components. If white-space characters occur, the
+.I date-time
+specification must be quoted.
+.sp
+A
+.I date-time
+specification in the form:
+.sp
+ \fIyyyy/\fR[\fImm\fR[\fIdd\fR[\fIhh\fR[\fImm\fR[\fIss\fR]\|]\|]\|]\|]
+.sp
+refers to a 4-digit year and allows to specify a year outside the
+range
+.BR 1969 \(mi 2068 .
 .sp
 .ne 2
 .TP
@@ -125,8 +154,22 @@ Suppresses expansion of \fBID\fR keywords. \fB-k\fR is implied by the \fB-e\fR.
 .sp
 .ne 2
 .TP
-\fB\fB-l\fR\|[\|\fBp\fR\|]\fR
-Retrieves a summary of the delta table (version log) and write it to a listing file, with the `\fBl.\fR' prefix (called `\fBl.\fRfile'). When \fB-lp\fR is used, write the summary onto the standard output.
+.BR \-l \|[\| p \|] 
+Retrieves a summary of the delta table (version log) and write it to a
+listing file, with the
+.RB ` l. '
+prefix (called
+.RB ` l. file').
+When 
+.B \-lp
+is used, write the summary onto the standard output.
+.sp
+.ne 2
+.TP
+.B \-L
+Treated as if
+.B \-lp
+was given.
 .sp
 .ne 2
 .TP
@@ -137,6 +180,24 @@ Precedes each retrieved line with the \fBSID\fR of the delta in which it was add
 .TP
 \fB\fB-n\fR\fR
 Precedes each line with the \fB%\&M%\fR \fBID\fR keyword and a TAB. When both the \fB-m\fR and \fB-n\fR options are used, the \fBID\fR keyword precedes the \fBSID\fR, and the line of text.
+.sp
+.ne 3
+.TP
+.B \-o
+Retrieves the file under the original time of the requested version.
+.sp
+Use this option with care, as it may be in conflict with
+.BR make (1)
+rules. Using
+.RB ` "get -o" '
+thus may cause
+.B make 
+to perform an automatic retrival of the latest version as the
+.BR s. file
+is newer than the gotten file, or cause
+.B make
+to skip the compilation
+as the compilation result is already newer than the gotten file.
 .sp
 .ne 2
 .TP

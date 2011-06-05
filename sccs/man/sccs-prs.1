@@ -19,7 +19,7 @@
 .\" CDDL HEADER END
 .\" Copyright (c) 1999, Sun Microsystems, Inc.
 .\" Copyright 2007-2011 J. Schilling
-.TH sccs-prs 1 "2011/04/03" "SunOS 5.11" "User Commands"
+.TH sccs-prs 1 "2011/05/27" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs-prs, prs \- display selected portions of an SCCS history
 .SH SYNOPSIS
@@ -69,16 +69,52 @@ Requests information for all deltas created \fIlater\fR than, and including, the
 .ne 2
 .TP
 \fB\fB-c\fR\fIdate-time\fR \fR
-Either options \fB-e \fRor \fB-l \fRmust be used with this option. \fB-c\fR\fIdate-time\fR displays information on the deltas checked in either prior to and including the date and time indicated by the \fIdate-time\fR argument (option \fB-e\fR); or later than and including the date and time indicated (option \fB-l\fR). \fIdate-time\fR takes the form:
+Either options
+.B \-e
+or
+.B \-l
+must be used with this option. 
+.BI \-c date-time
+displays information on the deltas checked in either prior to and including the
+date and time indicated by the \fIdate-time\fR argument (option
+.BR \-e );
+or later than and including the date and time indicated (option
+.BR \-l ).
+.I date-time
+takes the form:
 .sp
 
 .sp
-\fIyy\fR[\fImm\fR[\fIdd\fR[\fIhh\fR[\fImm\fR[\fIss\fR]\|]\|]\|]\|]
+ \fIyy\fR[\fImm\fR[\fIdd\fR[\fIhh\fR[\fImm\fR[\fIss\fR]\|]\|]\|]\|]
 .sp
 
 .sp
-Units omitted from the indicated date and time default to their maximum possible values; that is \fB-c\fR\fB7502\fR is equivalent to \fB-c\fR\fB750228235959\fR. Any number of non-numeric characters may separate the various 2 digit components.  If white-space characters occur, the \fIdate-time\fR specification must be quoted. Values of \fIyy\fR in the range \fB69\(mi99\fR refer to the twentieth
-century. Values in the range of \fB00\(mi68\fR refer to the twenty-first century.
+Units omitted from the indicated date and time default to their maximum
+possible values; that is
+.B \-c7502
+is equivalent to
+.BR "\-c750228235959" .
+Any number of non-numeric characters may separate the various 2 digit components. 
+If white-space characters occur, the
+.I date-time
+specification must be quoted. Values of
+.I yy
+in the range
+.BR 69 \(mi 99
+refer to the twentieth century.
+Values in the range of
+.BR 00 \(mi 68
+refer to the twenty-first century.
+.sp
+A
+.I date-time
+specification in the form:
+.sp
+ \fIyyyy/\fR[\fImm\fR[\fIdd\fR[\fIhh\fR[\fImm\fR[\fIss\fR]\|]\|]\|]\|]
+.sp
+refers to a 4-digit year and allows to specify a year outside the
+range
+.BR 1969 \(mi 2068 .
 
 .sp
 .ne 2

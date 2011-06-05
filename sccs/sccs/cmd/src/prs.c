@@ -27,10 +27,10 @@
 /*
  * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)prs.c	1.21 11/04/27 J. Schilling
+ * @(#)prs.c	1.24 11/06/04 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)prs.c 1.21 11/04/27 J. Schilling"
+#pragma ident "@(#)prs.c 1.24 11/06/04 J. Schilling"
 #endif
 /*
  * @(#)prs.c 1.33 06/12/12
@@ -174,6 +174,8 @@ char *argv[];
 #endif
 
 	(void) textdomain(NOGETTEXT("SUNW_SPRO_SCCS"));
+
+	tzset();	/* Set up timezome related vars */
 
 	/*
 	Set flags for 'fatal' to issue message, call clean-up
@@ -1378,7 +1380,7 @@ time_t	*bdate;
 	Local time corrections before del_ba() and date_ba() calls.
 	Because these functions use gmtime() instead of localtime().
 	*/
-	dt->d_datetime = mkgmtime(Dtime);
+	dt->d_datetime = mklgmtime(Dtime);
 
 	del_ba(dt, dt_line);				/* create delta table line for :Dt: keywd */
 	date_ba(&dt->d_datetime,Deltadate);
@@ -1520,6 +1522,8 @@ printflags()
 	}
 	if ((k = (Sflags[SCANFLAG - 'a'])) != NULL)	/* check for 'keywd scan lines' flag */
 		printf(gettext("keywd scan lines\t%s\n"), k);
+	if ((k = (Sflags[EXTENSFLAG - 'a'])) != NULL)	/* check for 'extensions' flag */
+		printf(gettext("extensions\t%s\n"), k);
 	if ((k = (Sflags[EXPANDFLAG - 'a'])) != NULL)	/* check for 'expand keywds' flag */
 		printf(gettext("expand keywds\t%s\n"), k);
 	return;

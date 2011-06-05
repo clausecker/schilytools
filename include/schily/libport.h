@@ -1,4 +1,4 @@
-/* @(#)libport.h	1.25 10/08/27 Copyright 1995-2010 J. Schilling */
+/* @(#)libport.h	1.26 11/06/04 Copyright 1995-2010 J. Schilling */
 /*
  *	Copyright (c) 1995-2010 J. Schilling
  */
@@ -188,6 +188,12 @@ extern	char		*basename	__PR((char *name));
 #endif
 #ifndef	HAVE_DIRNAME
 extern	char		*dirname	__PR((char *name));
+#endif
+
+#ifndef	HAVE_TIMEGM
+#if	defined(_SCHILY_TIME_H)
+extern	time_t		timegm		__PR((struct tm *));
+#endif
 #endif
 
 #ifdef	__cplusplus

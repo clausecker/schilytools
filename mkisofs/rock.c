@@ -1,8 +1,8 @@
-/* @(#)rock.c	1.64 10/12/19 joerg */
+/* @(#)rock.c	1.65 11/06/05 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)rock.c	1.64 10/12/19 joerg";
+	"@(#)rock.c	1.65 11/06/05 joerg";
 #endif
 /*
  * File rock.c - generate RRIP  records for iso9660 filesystems.
@@ -743,13 +743,13 @@ generate_xa_rr_attributes(whole_name, name,
 #endif
 	if (long_rr_time) {
 		iso9660_ldate((char *)&Rock[ipnt],
-				lstatbuf->st_mtime, stat_mnsecs(lstatbuf));
+				lstatbuf->st_mtime, stat_mnsecs(lstatbuf), -100);
 		ipnt += 17;
 		iso9660_ldate((char *)&Rock[ipnt],
-				lstatbuf->st_atime, stat_ansecs(lstatbuf));
+				lstatbuf->st_atime, stat_ansecs(lstatbuf), -100);
 		ipnt += 17;
 		iso9660_ldate((char *)&Rock[ipnt],
-				lstatbuf->st_ctime, stat_cnsecs(lstatbuf));
+				lstatbuf->st_ctime, stat_cnsecs(lstatbuf), -100);
 		ipnt += 17;
 	} else {
 		iso9660_date((char *)&Rock[ipnt], lstatbuf->st_mtime);

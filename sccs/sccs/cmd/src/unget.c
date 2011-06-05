@@ -27,10 +27,10 @@
 /*
  * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)unget.c	1.14 11/04/27 J. Schilling
+ * @(#)unget.c	1.15 11/05/17 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)unget.c 1.14 11/04/27 J. Schilling"
+#pragma ident "@(#)unget.c 1.15 11/05/17 J. Schilling"
 #endif
 /*
  * @(#)unget.c 1.24 06/12/12
@@ -116,6 +116,8 @@ char *argv[];
 #endif
 	
 	(void) textdomain(NOGETTEXT("SUNW_SPRO_SCCS"));
+
+	tzset();	/* Set up timezome related vars */
 
 	Fflags = FTLEXIT | FTLMSG | FTLCLN;
 

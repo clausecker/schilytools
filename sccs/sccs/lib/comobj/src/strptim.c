@@ -27,10 +27,10 @@
 /*
  * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)strptim.c	1.8 11/04/26 J. Schilling
+ * @(#)strptim.c	1.10 11/05/27 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)strptim.c 1.8 11/04/26 J. Schilling"
+#pragma ident "@(#)strptim.c 1.10 11/05/27 J. Schilling"
 #endif
 /*
  * @(#)strptim.c 1.7 06/12/12
@@ -52,9 +52,9 @@ mystrptime(p, t, val)
 	struct tm	*t;
 	int		val;
 {
-	int dn, cn, warn = 0;
+	int	y, dn, cn, warn = 0;
 #if defined(BUG_1205145) || defined(GMT_TIME)
-	time_t gtime;
+	time_t	gtime;
 #endif
 
 	/*
@@ -81,13 +81,14 @@ mystrptime(p, t, val)
 			}
 			t->tm_year -= 1900;
 		}
+		y = t->tm_year + 1900;		/* For Gregorian leap year */
 
 		t->tm_mon=gN(p, &p, 2, &dn, &cn);
 		if(t->tm_mon<1 || t->tm_mon>12) return(-1);
 		if(dn!=2 || cn!=dn+1 || *p!='/') warn=1;
 
 		t->tm_mday=gN(p, &p, 2, &dn, &cn);
-		if(t->tm_mday<1 || t->tm_mday>mosize(t->tm_year,t->tm_mon)) return(-1);
+		if(t->tm_mday<1 || t->tm_mday>mosize(y,t->tm_mon)) return(-1);
 		if(dn!=2 || cn!=dn+1) warn=1;
 		t->tm_mon -= 1;			/* tm_mon is 0..11 */
 
@@ -110,16 +111,32 @@ mystrptime(p, t, val)
 		*t = *(gmtime(&gtime));		/* GMT time_t -> GMT tm *   */
 #endif
 	} else {
-		if((t->tm_year=gN(p, &p, 2, NULL, NULL)) == -2) t->tm_year = 99;
-		if (t->tm_year<69) t->tm_year += 100;
+		char *sl = strchr(p, '/');
+
+		if (sl && sl - p == 4) {	/* Permit 4-digit cutoff year */
+			t->tm_year = gN(p, &p, 4, &dn, &cn);
+			if (dn != 4 || *p != '/')
+				return (-1);
+			p++;			/* Skip '/'		*/
+#if SIZEOF_TIME_T == 4
+			if (t->tm_year < 1933) { /* Unsupported in 32bit mode */
+				return(-1);	 /* see xlocaltime.c	*/
+			}
+#endif
+			t->tm_year -= 1900;
+		} else {
+			if((t->tm_year=gN(p, &p, 2, NULL, NULL)) == -2) t->tm_year = 99;
+			if (t->tm_year<69) t->tm_year += 100;
+		}
+		y = t->tm_year + 1900;		/* For Gregorian leap year */
 
 		if((t->tm_mon=gN(p, &p, 2, NULL, NULL)) == -2) t->tm_mon = 12;
 		if(t->tm_mon<1 || t->tm_mon>12) return(-1);
 		cn = t->tm_mon;
 		t->tm_mon -= 1;			/* tm_mon is 0..11 */
 
-		if((t->tm_mday=gN(p, &p, 2, NULL, NULL)) == -2) t->tm_mday = mosize(t->tm_year,cn);
-		if(t->tm_mday<1 || t->tm_mday>mosize(t->tm_year,cn)) return(-1);
+		if((t->tm_mday=gN(p, &p, 2, NULL, NULL)) == -2) t->tm_mday = mosize(y,cn);
+		if(t->tm_mday<1 || t->tm_mday>mosize(y,cn)) return(-1);
 
 		if((t->tm_hour=gN(p, &p, 2, NULL, NULL)) == -2) t->tm_hour = 23;
 		if(t->tm_hour<0 || t->tm_hour>23) return(-1);

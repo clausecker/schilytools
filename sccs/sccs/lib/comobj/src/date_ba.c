@@ -27,10 +27,10 @@
 /*
  * This file contains modifications Copyright 2009 J. Schilling
  *
- * @(#)date_ba.c	1.3 09/11/08 J. Schilling
+ * @(#)date_ba.c	1.4 11/05/29 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)date_ba.c 1.3 09/11/08 J. Schilling"
+#pragma ident "@(#)date_ba.c 1.4 11/05/29 J. Schilling"
 #endif
 /*
  * @(#)date_ba.c 1.5 06/12/12
@@ -60,8 +60,9 @@ char	*adt;
 #endif
 	p = adt;
 	if (lcltm->tm_year >= 100) {
-	   lcltm->tm_year -= 100;
+	   lcltm->tm_year %= 100;
 	}
+	
 	DO2(p,lcltm->tm_year,'/');
 	DO2(p,lcltm->tm_mon + 1,'/');
 	DO2(p,lcltm->tm_mday,' ');

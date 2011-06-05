@@ -1,0 +1,20 @@
+h26065
+s 00000/00000/00000
+d D 1.1 11/05/28 15:31:10 joerg 1 0
+c date and time created 11/05/28 15:31:10 by joerg
+e
+u
+U
+f b
+f e 0
+F Named Flag Extension1
+F Named Flag Extension2
+G Global Extension1
+G Global Extension2
+t
+SCCS supports any extension between the end of the flag section
+and the beginning of this comment section.
+T
+I 1
+%Z%%M%
+E 1

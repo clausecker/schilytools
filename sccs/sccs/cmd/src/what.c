@@ -27,10 +27,10 @@
 /*
  * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)what.c	1.11 11/04/20 J. Schilling
+ * @(#)what.c	1.12 11/05/17 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)what.c 1.11 11/04/20 J. Schilling"
+#pragma ident "@(#)what.c 1.12 11/05/17 J. Schilling"
 #endif
 /*
  * @(#)what.c 1.11 06/12/12
@@ -87,6 +87,8 @@ register char **argv;
 #endif
 	
 	(void) textdomain(NOGETTEXT("SUNW_SPRO_SCCS"));
+
+	tzset();	/* Set up timezome related vars */
 
 	if (argc < 2)
 		dowhat(stdin);

@@ -1,4 +1,4 @@
-# /* @(#)libschily-mapvers	1.23 10/11/18 Copyright 2005-2010 J. Schilling */
+# /* @(#)libschily-mapvers	1.24 11/06/04 Copyright 2005-2010 J. Schilling */
 #include <schily/mconfig.h>
 
 SCHILY_1.5 {
@@ -24,6 +24,9 @@ global:
 	getlargs;
 	getlfiles;
 
+	mkgmtime;
+	mklgmtime;
+
 #if	!defined(HAVE_FNMATCH)
 	fnmatch;
 #endif
@@ -31,6 +34,10 @@ global:
 
 	findinpath;
 	searchfileinpath;
+
+#ifndef	HAVE_TIMEGM
+	timegm;
+#endif
 } SCHILY_1.4;
 
 SCHILY_1.4 {

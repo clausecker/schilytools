@@ -1,0 +1,102 @@
+#!/bin/sh
+###########################################################################
+# @(#)misc	1.2 11/05/28 Written 2011 by J. Schilling
+###########################################################################
+# The contents of this file are subject to the terms of the
+# Common Development and Distribution License, Version 1.0 only
+# (the "License").  You may not use this file except in compliance
+# with the License.
+#
+# See the file CDDL.Schily.txt in this distribution for details.
+#
+# When distributing Covered Code, include this CDDL HEADER in each
+# file and include the License file CDDL.Schily.txt from this distribution.
+###########################################################################
+#
+# Miscellaneous test functions
+#
+###########################################################################
+#
+# xfail()	is used internally to handle failed commands
+#
+###########################################################################
+xfail() {
+	echo "$0 could not be completed:" "$@"
+	exit 1
+}
+
+###########################################################################
+#
+# remove()	is used internally to remove files created by the test
+#
+###########################################################################
+remove() {
+	if test -z "$*"
+	then
+		:
+	else
+		rm -rf "$@" || xfail "Could not remove $@"
+	fi
+}
+
+###########################################################################
+#
+# rename()	rename files and check for success
+#
+###########################################################################
+rename() {
+	mv "$1" "$2" || xfail "Could not rename $1 to $2"
+}
+
+###########################################################################
+#
+# success()	is the clear up code called at the end of a test script
+#
+###########################################################################
+success() {
+	remove exp.stdout exp.stderr got.stdout got.stderr cmd.last cmd.log
+
+	echo
+	echo "All tests in $0 have completed"
+	if ${expect_fail-false}
+	then
+		echo XPASS "$0" "$@"
+		exit 0
+	else
+		echo PASS "$0" "$@"
+		exit 0
+	fi
+}
+
+###########################################################################
+#
+# expect_fail	is used to tell docommand() and do_output() not to abort a
+#		test script completely in case of a failure.
+#
+#		Make sure to set it back to "false" after relelated tests
+#		Allow a global overwrite to "true" from $EXPECT_FAIL
+#
+###########################################################################
+expect_fail=false
+if test .$EXPECT_FAIL = .true
+then
+	expect_fail=true
+fi
+
+###########################################################################
+#
+# fail()	is called by docommand() and do_output() in case of a
+#		miscompare. If "expect_fail=true", the whole test script
+#		is aborted.
+#
+###########################################################################
+fail() {
+	if ${expect_fail-false}
+	then
+		echo XFAIL "$0" "$@"
+		false
+	else
+		echo FAIL "$0" "$@"
+		exit 2
+	fi
+}

@@ -27,10 +27,10 @@
 /*
  * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)admin.c	1.28 11/04/27 J. Schilling
+ * @(#)admin.c	1.38 11/06/02 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)admin.c 1.28 11/04/27 J. Schilling"
+#pragma ident "@(#)admin.c 1.38 11/06/02 J. Schilling"
 #endif
 /*
  * @(#)admin.c 1.39 06/12/12
@@ -186,6 +186,8 @@ char *argv[];
 	
 	(void) textdomain(NOGETTEXT("SUNW_SPRO_SCCS"));
 
+	tzset();	/* Set up timezome related vars */
+
 	/*
 	Set flags for 'fatal' to issue message, call clean-up
 	routine and terminate processing.
@@ -221,7 +223,7 @@ char *argv[];
 			}
 			no_arg = 0;
 			j = current_optind;
-		        c = getopt(argc, argv, "-i:t:m:y:d:f:r:nhzbqa:e:V(version)");
+		        c = getopt(argc, argv, "-i:t:m:y:d:f:r:nhzboqa:e:V(version)");
 		        	/*
 				*  this takes care of options given after
 				*  file names.
@@ -251,12 +253,15 @@ char *argv[];
 				   break;
 				}
 				ifile = p;
-				if (*ifile && exists(ifile))
+				if (*ifile && exists(ifile)) {
 				   if ((Statbuf.st_mode & S_IFMT) == S_IFDIR) {
 				      sprintf(SccsError,
 				        gettext("directory `%s' specified as `%c' keyletter value (ad29)"),
 				        ifile, c);
 				      fatal(SccsError);
+				   } else {
+					ifile_mtime = Statbuf.st_mtime;
+				   }
 				}
 				break;
 			case 't':	/* name of file of descriptive text */
@@ -468,6 +473,7 @@ char *argv[];
 			case 'h':	/* only check hash of file */
 			case 'z':	/* zero the input hash */
 			case 'b':	/* force file to be encoded (binary) */
+			case 'o':	/* use original file date */
 				break;
 
                         case 'q':       /* activate NSE features */
@@ -507,7 +513,7 @@ char *argv[];
 				exit(EX_OK);
 
 			default:
-				fatal(gettext("Usage: admin [ -bhnz ][ -ausername|groupid ]\n\t[ -dflag ][ -eusername|groupid ]\n\t[ -fflag [value]][ -i [filename]]\n\t[ -m mr-list][ -r release ][ -t [description-file]]\n\t[ -y[comment]] s.filename ..."));
+				fatal(gettext("Usage: admin [ -bhnoz ][ -ausername|groupid ]\n\t[ -dflag ][ -eusername|groupid ]\n\t[ -fflag [value]][ -i [filename]]\n\t[ -m mr-list][ -r release ][ -t [description-file]]\n\t[ -y[comment]] s.filename ..."));
 			}
 			/*
 			 * As long as we don't have a way to collect more than
@@ -784,8 +790,10 @@ char	*afile;
 			 dt.d_sid.s_br = dt.d_sid.s_seq = 0;
 			}
 		time(&dt.d_datetime);		/* get time and date */
-                if (HADN && HADI && HADQ && (ifile_mtime != 0)) {
-                        /* for NSE when putting existing file under sccs the
+                if (HADN && HADI && (HADO || HADQ) && (ifile_mtime != 0)) {
+                        /*
+			 * When specifying -o (oroginal date) and
+			 * for NSE when putting existing file under sccs the
                          * delta time is the mtime of the clear file.
                          */
                         dt.d_datetime = ifile_mtime;
@@ -916,6 +924,19 @@ char	*afile;
 
 			NONBLANK(cp);	/* point to flag character */
 			k = *cp - 'a';
+			if (k < 0 || k >= NFLAGS) {
+				fprintf(stderr,
+				gettext(
+				"WARNING [%s]: unsupported flag at line %d\n"),
+					gpkt.p_file,
+					gpkt.p_slnno);
+				/*
+				 * Better to abort then to silently remove flags
+				 * as previous versions did.
+				 */
+				fatal("unsupported flag (ad36)");
+				continue;
+			}
 			f = *cp++;
 			NONBLANK(cp);
 			if (f == LOCKFLAG) {
@@ -1016,7 +1037,7 @@ char	*afile;
 		}
 
 	if (HADN) {
-		if (HADI) {
+		if (HADI || HADB) {
 			/*
 			If the "encoded" flag was not present, put it in
 			with a value of 0; this acts as a place holder,
@@ -1078,6 +1099,8 @@ char	*afile;
 		sprintf(line,"%c%c %d\n",CTLCHAR,INS,1);
 		putline(&gpkt,line);
 
+		if (HADB)
+			Encoded=1;
 		if (HADI) {		/* get body */
 
 			/*
@@ -1177,17 +1200,21 @@ char	*afile;
 			stats.s_del = stats.s_unc = 0;
 
 			/*
-			 *If no keywords were found, issue warning unless in
-			 * NSE mode..
+			 * If no keywords were found, issue warning unless in
+			 * NSE mode...or warnings have been disabled via an
+			 * empty 'y' flag value.
 			 */
-			if (!Did_id && !HADQ) {
-				if (had_flag[IDFLAG - 'a'])
+			if (!Did_id && !HADQ &&
+			    (!flag_p[EXPANDFLAG - 'a'] ||
+			    *(flag_p[EXPANDFLAG - 'a']))) {
+				if (had_flag[IDFLAG - 'a']) {
 					if(!(flag_p[IDFLAG -'a']))
 						fatal(gettext("no id keywords (cm6)"));
 					else
 						fatal(gettext("invalid id keywords (cm10)"));
-				else
+				} else {
 					fprintf(stderr, gettext("No id keywords (cm7)\n"));
+				}
 			}
 
 			check_id = 0;
@@ -1309,7 +1336,7 @@ struct	packet *pkt;
 	      }
 	   }   
 	   if (check_id) {
-	      (void)chkid(line, flag_p['i'-'a']);
+	      (void)chkid(line, flag_p['i'-'a'], flag_p);
 	   }
 	   putline(pkt, line);
 	   (void)memset(line, '\377', BUFSIZ);
@@ -1365,7 +1392,12 @@ char *str;
 		;
 	--p;
 	*p++ = ' ';
-	if (dt->d_datetime > Y2038)
+	/*
+	 * The s-file is not part of the POSIX standard. For this reason, we
+	 * are free to switch to a 4-digit year for the initial comment.
+	 */
+	if ((dt->d_datetime < Y1969) ||
+	    (dt->d_datetime >= Y2038))		/* comment only */
 		date_bal(&dt->d_datetime,p);	/* 4 digit year */
 	else
 		date_ba(&dt->d_datetime,p);	/* 2 digit year */

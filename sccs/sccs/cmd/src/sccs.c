@@ -25,10 +25,10 @@
 /*
  * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)sccs.c	1.40 11/04/21 J. Schilling
+ * @(#)sccs.c	1.46 11/05/30 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)sccs.c 1.40 11/04/21 J. Schilling"
+#pragma ident "@(#)sccs.c 1.46 11/05/30 J. Schilling"
 #endif
 /*
  * @(#)sccs.c 1.85 06/12/12
@@ -319,47 +319,47 @@ static int dorecurse __PR((char **argv, char **np, char *dir, struct sccsprog *c
 
 static struct sccsprog SccsProg[] =
 {
-	"admin",	PROG,	REALUSER,		PROGPATH(admin),
-	"cdc",		PROG,	0,			PROGPATH(rmdel),
-	"comb",		PROG,	0,			PROGPATH(comb),
-	"delta",	PROG,	RF_OK|PDOT,		PROGPATH(delta),
-	"get",		PROG,	RF_OK,			PROGPATH(get),
-	"help",		PROG,	NO_SDOT,		PROGPATH(help),
-	"log",		PROG,	RF_OK|COLLECT,		PROGPATH(sccslog),
-	"prs",		PROG,	RF_OK,			PROGPATH(prs),
-	"prt",		PROG,	RF_OK,			PROGPATH(prt),
-	"rmdel",	PROG,	REALUSER,		PROGPATH(rmdel),
- 	"sact",		PROG,	RF_OK,			PROGPATH(sact),
-	"val",		PROG,	RF_OK,			PROGPATH(val),
-	"what",		PROG,	NO_SDOT,		PROGPATH(what),
+	{ "admin",	PROG,	REALUSER,		PROGPATH(admin) },
+	{ "cdc",	PROG,	0,			PROGPATH(rmdel) },
+	{ "comb",	PROG,	0,			PROGPATH(comb) },
+	{ "delta",	PROG,	RF_OK|PDOT,		PROGPATH(delta) },
+	{ "get",	PROG,	RF_OK,			PROGPATH(get) },
+	{ "help",	PROG,	NO_SDOT,		PROGPATH(help) },
+	{ "log",	PROG,	RF_OK|COLLECT,		PROGPATH(sccslog) },
+	{ "prs",	PROG,	RF_OK,			PROGPATH(prs) },
+	{ "prt",	PROG,	RF_OK,			PROGPATH(prt) },
+	{ "rmdel",	PROG,	REALUSER,		PROGPATH(rmdel) },
+ 	{ "sact",	PROG,	RF_OK,			PROGPATH(sact) },
+	{ "val",	PROG,	RF_OK,			PROGPATH(val) },
+	{ "what",	PROG,	NO_SDOT,		PROGPATH(what) },
 #ifndef V6	
-	"sccsdiff",	PROG,	REALUSER,		PROGPATH(sccsdiff),
+	{ "sccsdiff",	PROG,	REALUSER,		PROGPATH(sccsdiff) },
 #else
-	"sccsdiff",	SHELL,	REALUSER,		PROGPATH(sccsdiff),
+	{ "sccsdiff",	SHELL,	REALUSER,		PROGPATH(sccsdiff) },
 #endif /* V6 */
-	"edit",		CMACRO,	RF_OK|NO_SDOT,		"get -e",
-	"delget",	CMACRO,	RF_OK|NO_SDOT|PDOT,
-	   "delta:mysrpd/get:ixbeskcl -t",
-	"deledit",	CMACRO,	RF_OK|NO_SDOT|PDOT,
-	   "delta:mysrpd/get:ixbskcl -e -t -d",
-	"fix",		FIX,	NO_SDOT,		NULL,
-	"clean",	CLEAN,	RF_OK|REALUSER|NO_SDOT,	(char *) CLEANC,
-	"info",		CLEAN,	RF_OK|REALUSER|NO_SDOT,	(char *) INFOC,
-	"check",	CLEAN,	RF_OK|REALUSER|NO_SDOT,	(char *) CHECKC,
-	"tell",		CLEAN,	RF_OK|REALUSER|NO_SDOT,	(char *) TELLC,
-	"unedit",	UNEDIT,	RF_OK|NO_SDOT|PDOT,	NULL,
-	"unget",	PROG,	RF_OK|PDOT,		PROGPATH(unget),
-	"diffs",	DIFFS,	RF_OK|NO_SDOT|PDOT|REALUSER,	NULL,
-	"ldiffs",	DIFFS,	RF_OK|NO_SDOT|PDOT|REALUSER,	NULL,
-	"-diff",	PROG,	NO_SDOT|REALUSER,	PROGPATH(diff),
-	"-ldiff",	PROG,	NO_SDOT|REALUSER,	"diff",
-	"print",	CMACRO,	RF_OK|NO_SDOT,		"prs -e/get -p -m -s",
-	"branch",	CMACRO,	RF_OK|NO_SDOT,
-	   "get:ixrc -e -b/delta: -s -n -ybranch-place-holder/get:pl -e -t -g",
-	"enter",	ENTER,	NO_SDOT,		NULL,
-	"create",	CMACRO,	NO_SDOT,
-	   "enter:abdfmrtyz/get:ixbeskcl -t",
-	NULL,		-1,	0,			NULL
+	{ "edit",	CMACRO,	RF_OK|NO_SDOT,		"get -e" },
+	{ "delget",	CMACRO,	RF_OK|NO_SDOT|PDOT,
+	   "delta:mysropd/get:ixbeskcl -t" },
+	{ "deledit",	CMACRO,	RF_OK|NO_SDOT|PDOT,
+	   "delta:mysropd/get:ixbskcl -e -t -d" },
+	{ "fix",		FIX,	NO_SDOT,		NULL },
+	{ "clean",	CLEAN,	RF_OK|REALUSER|NO_SDOT,	(char *) CLEANC },
+	{ "info",		CLEAN,	RF_OK|REALUSER|NO_SDOT,	(char *) INFOC },
+	{ "check",	CLEAN,	RF_OK|REALUSER|NO_SDOT,	(char *) CHECKC },
+	{ "tell",		CLEAN,	RF_OK|REALUSER|NO_SDOT,	(char *) TELLC },
+	{ "unedit",	UNEDIT,	RF_OK|NO_SDOT|PDOT,	NULL },
+	{ "unget",	PROG,	RF_OK|PDOT,		PROGPATH(unget) },
+	{ "diffs",	DIFFS,	RF_OK|NO_SDOT|PDOT|REALUSER,	NULL },
+	{ "ldiffs",	DIFFS,	RF_OK|NO_SDOT|PDOT|REALUSER,	NULL },
+	{ "-diff",	PROG,	NO_SDOT|REALUSER,	PROGPATH(diff) },
+	{ "-ldiff",	PROG,	NO_SDOT|REALUSER,	"diff" },
+	{ "print",	CMACRO,	RF_OK|NO_SDOT,		"prs -e/get -p -m -s" },
+	{ "branch",	CMACRO,	RF_OK|NO_SDOT,
+	   "get:ixrc -e -b/delta: -s -n -ybranch-place-holder/get:pl -e -t -g" },
+	{ "enter",	ENTER,	NO_SDOT,		NULL },
+	{ "create",	CMACRO,	NO_SDOT,
+	   "enter:abdfmortyz/get:ixbeskcl -t" },
+	{ NULL,		-1,	0,			NULL }
 };
 
 /* one line from a p-file */
@@ -468,6 +468,8 @@ main(argc, argv)
 #endif
  	
  	(void) textdomain(NOGETTEXT("SUNW_SPRO_SCCS"));
+
+	tzset();	/* Set up timezome related vars */
 
 #ifdef	SCHILY_BUILD
 	save_args(argc, argv);
@@ -802,7 +804,7 @@ command(argv, forkflag, arg0)
 
 	np = ap = &nav[1];
 	head_files.next = NULL;
-	editchs = NULL;
+	editchs = NULL;		/* arg0 -> cmd:editchs/next... */
 	macro_opstr_p = NULL;
 	for (p = arg0, q = buf; *p != '\0' && *p != '/'; )
 	{
@@ -847,7 +849,10 @@ command(argv, forkflag, arg0)
 	if (cmd->sccsoper == CMACRO) {
 	
 	   char *cp, *cp_opstr;
-	
+
+	   /*
+	    * Fill the sum of all permitted option chars into "macro_opstr".
+	    */	
 	   cp_opstr = NULL;   
 	   cp = cmd->sccspath;
 	   while (*cp != '\0') {
@@ -984,7 +989,8 @@ command(argv, forkflag, arg0)
 			    }
 		            break;
 			 case 'a':
- 			    if (strcmp(cmd->sccsname,"prs") != 0) {
+ 			    if ((strcmp(cmd->sccsname,"prs") != 0) &&
+ 			        (strcmp(cmd->sccsname,"log") != 0)) {
 			       if ( editchs != NULL
  			            && strchr(editchs,p[1]) == NULL ) {
  			          argv++;
@@ -1936,6 +1942,15 @@ callprog(progpath, flags, argv, forkflag)
 	}
 	
 	/* call real SCCS program */
+#ifdef DEBUG
+	if (Debug) {
+		printf("exec: %s\n", argv[0]?argv[0]:"(NULL)");
+		printf("progpath: %s\n", progpath);
+		for (i = 0; argv[i] != NULL; i++)
+			printf("\t\"%s\"\n", argv[i]);
+		fflush(stdout);
+	}
+#endif
 #ifndef V6	
 	execvp(progpath, argv);
 #else
@@ -2461,9 +2476,9 @@ unedit(fn)
 	char *gfile, *pfn;
 	char *Gfile = NULL;
 #ifdef	PROTOTYPES
-	char   template[] = NOGETTEXT("/tmp/sccsXXXXX");
+	char   template[] = NOGETTEXT("/tmp/sccsXXXXXX");
 #else
-	char   *template = NOGETTEXT("/tmp/sccsXXXXX");
+	char   *template = NOGETTEXT("/tmp/sccsXXXXXX");
 #endif
 	static char tfn[20];
 	FILE *tfp;

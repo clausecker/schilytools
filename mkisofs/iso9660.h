@@ -1,4 +1,4 @@
-/* @(#)iso9660.h	1.21 07/07/26 joerg */
+/* @(#)iso9660.h	1.22 11/06/04 joerg */
 /*
  * Header file iso9660.h - assorted structure definitions and typecasts.
  * specific to iso9660 filesystem.
@@ -50,6 +50,7 @@ struct iso_volume_descriptor {
 #define	EL_TORITO_ARCH_x86	0
 #define	EL_TORITO_ARCH_PPC	1
 #define	EL_TORITO_ARCH_MAC	2
+#define	EL_TORITO_ARCH_EFI	0xEF
 
 #define	EL_TORITO_BOOTABLE	0x88
 #define	EL_TORITO_NOT_BOOTABLE	0
@@ -147,10 +148,15 @@ struct eltorito_boot_descriptor {
 };
 
 /* Validation entry for El Torito */
+/*
+ * headerid must be 1
+ * id is the manufacturer ID
+ * cksum to make the sum of all shorts in this record 0
+ */
 struct eltorito_validation_entry {
 	char headerid			[ISODCL(1,    1)]; /* 711 */
 	char arch			[ISODCL(2,    2)];
-	char pad1			[ISODCL(3,    4)]; /* 711 */
+	char pad1			[ISODCL(3,    4)]; /* 721 */
 	char id				[ISODCL(5,   28)]; /* CD devel/man*/
 	char cksum			[ISODCL(29,  30)];
 	char key1			[ISODCL(31,  31)];
@@ -161,12 +167,35 @@ struct eltorito_validation_entry {
 struct eltorito_defaultboot_entry {
 	char boot_id			[ISODCL(1,    1)]; /* 711 */
 	char boot_media			[ISODCL(2,    2)];
-	char loadseg			[ISODCL(3,    4)]; /* 711 */
+	char loadseg			[ISODCL(3,    4)]; /* 721 */
 	char sys_type			[ISODCL(5,    5)];
 	char pad1			[ISODCL(6,    6)];
 	char nsect			[ISODCL(7,    8)];
 	char bootoff			[ISODCL(9,   12)];
 	char pad2			[ISODCL(13,  32)];
+};
+
+/* El Torito section header entry in boot catalog */
+struct eltorito_sectionheader_entry {
+#define	EL_TORITO_SHDR_ID_SHDR		0x90
+#define	EL_TORITO_SHDR_ID_LAST_SHDR	0x91
+	char header_id			[ISODCL(1,    1)]; /* 711 */
+	char platform_id		[ISODCL(2,    2)];
+	char entry_count		[ISODCL(3,    4)]; /* 721 */
+	char id				[ISODCL(5,   32)];
+};
+
+/* El Torito section entry in boot catalog */
+struct eltorito_section_entry {
+	char boot_id			[ISODCL(1,    1)]; /* 711 */
+	char boot_media			[ISODCL(2,    2)];
+	char loadseg			[ISODCL(3,    4)]; /* 721 */
+	char sys_type			[ISODCL(5,    5)];
+	char pad1			[ISODCL(6,    6)];
+	char nsect			[ISODCL(7,    8)];
+	char bootoff			[ISODCL(9,   12)];
+	char sel_criteria		[ISODCL(13,  13)];
+	char vendor_sel_criteria	[ISODCL(14,  32)];
 };
 
 /*

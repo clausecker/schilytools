@@ -23,7 +23,7 @@
 *
 * This file contains modifications Copyright 2006-2011 J. Schilling
 *
-* @(#)cmds	1.7 11/04/30 J. Schilling 
+* @(#)cmds	1.10 11/05/20 J. Schilling 
 *
 * @(#)cmds 1.3 06/12/12
 *
@@ -31,11 +31,11 @@
 *	Synopsis of SCCS commands
 *
 -delta
-	  delta [-r<SID>] [-s] [-n] [-g<list>] [-m<mrlist>] [-y<comment>]
+	  delta [-r<SID>] [-s] [-n] [-o] [-g<list>] [-m<mrlist>] [-y<comment>]
 		[-p] file ...
 -get
 	get [-r<SID>] [-c<cutoff>] [-i<list>] [-x<list>] [-a<seq no.>]
-	    [-k] [-e] [-l<p>] [-p] [-m] [-n] [-s] [-b] [-g] [-t] file ...
+	    [-k] [-e] [-l<p>] [-p] [-m] [-n] [-o] [-s] [-b] [-g] [-t] file ...
 
 	(do 'help get_kywds' for description of recognized ID keywords)
 
@@ -76,7 +76,7 @@ Keyword       Type
 -admin
      admin [-n] [-i<name>] [-r<rel>] [-t<name>] [-f<add-flag<flag-val>>] ...
            [-d<del-flag>] ... [-a<add-login>] ... [-e<erase-login>] ...
-           [-m<mrlist>] [-y<comment>] [-h] [-z] file ...
+           [-m<mrlist>] [-y<comment>] [-h] [-o] [-z] file ...
 -help
 	help [arg]
 
@@ -91,6 +91,8 @@ Keyword       Type
 	cdc -rSID [-m<mrlist>] [-y<comment>] file ...
 -rmdel
 	rmdel -rSID file ...
+-log
+	log [-a] file...
 -sccsdiff
 	sccsdiff old-spec new-spec [pr-args] sccsfile ...
 -stuck
