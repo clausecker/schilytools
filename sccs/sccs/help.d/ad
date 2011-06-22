@@ -176,3 +176,10 @@ You supplied a non-numeric number of lines for the 's' flag.
 "bad m argument"
 You did not follow the 'm' keyletter with a Modification Request
 (MR).
+-35
+"unsupported flag"
+The s-file contains a flag that is not in the supported range
+for flag characters in SCCS. SCCS supports flag characters in the
+range 'a'..'z'. The admin program refuses to work on this s-file
+in order to avoid silent deletion of flags from this s-file that
+might have been inserted by other software.

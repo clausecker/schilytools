@@ -25,12 +25,12 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2009 J. Schilling
+ * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)putline.c	1.5 09/11/08 J. Schilling
+ * @(#)putline.c	1.6 11/06/19 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)putline.c 1.5 09/11/08 J. Schilling"
+#pragma ident "@(#)putline.c 1.6 11/06/19 J. Schilling"
 #endif
 /*
  * @(#)putline.c 1.13 06/12/12
@@ -66,7 +66,9 @@ putline(pkt,newline)
 register struct packet *pkt;
 char *newline;
 {
+#ifndef	USE_SETVBUF
 	static char obf[BUFSIZ];
+#endif
 	char *xf = (char *) NULL;
 	register signed char *p;
 	register unsigned char *u_p;
@@ -91,7 +93,11 @@ char *newline;
 		uid = Statbuf.st_uid;
 		*/
 		Xiop = xfcreat(xf,Statbuf.st_mode);
-		setbuf(Xiop,obf);
+#ifdef	USE_SETVBUF
+		setvbuf(Xiop, NULL, _IOFBF, VBUF_SIZE);
+#else
+		setbuf(Xiop, obf);
+#endif
      /* commenting it out as it doesn't do anything useful and creates problems
 	 in networked environment where some platforms allow chown for non root
 	 users.

@@ -27,10 +27,10 @@
 /*
  * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)delta.c	1.25 11/06/02 J. Schilling
+ * @(#)delta.c	1.28 11/06/20 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)delta.c 1.25 11/06/02 J. Schilling"
+#pragma ident "@(#)delta.c 1.28 11/06/20 J. Schilling"
 #endif
 /*
  * @(#)delta.c 1.40 06/12/12
@@ -263,12 +263,12 @@ register char *argv[];
 				fatal(gettext("Usage: delta [ -dnops ][ -g sid-list ][ -m mr-list ]\n\t[ -r SID ][ -y[comment] ] s.filename... "));
 			}
 
-			/* The following is necessary in case the user types */
-			/* some localized character,  which will exceed the */
-			/* limit of the array "had", defined in ../hdr/had.h */
-			if ((c - 'a') < 0 || (c - 'a') > 25) 
-			       continue;
-			if (had[c - 'a']++)
+			/*
+			 * Make sure that we only collect option letters from
+			 * the range 'a'..'z' and 'A'..'Z'.
+			 */
+			if (ALPHA(c) &&
+			    (had[LOWER(c)? c-'a' : NLOWER+c-'A']++))
 				fatal(gettext("key letter twice (cm2)"));
 	}
 #ifdef	NO_BDIFF
@@ -342,6 +342,9 @@ char *file;
 	gpkt.p_stdout = stdout;
 	cat(gfilename,Cwd,auxf(gpkt.p_file,'g'), (char *)0);
 	Gin = xfopen(gfilename, O_RDONLY|O_BINARY);
+#ifdef	USE_SETVBUF
+	setvbuf(Gin, NULL, _IOFBF, VBUF_SIZE);
+#endif
 	pp = rdpfile(&gpkt,&sid);
 
 	if((pp->pf_cmrlist)==0)
@@ -411,14 +414,23 @@ char *file;
 	 */
 	if (Sflags[ENCODEFLAG - 'a'] && (strcmp(Sflags[ENCODEFLAG - 'a'],"1") == 0)) {
 		efp = xfcreat(auxf(gpkt.p_file,'e'),0644);
+#ifdef	USE_SETVBUF
+		setvbuf(efp, NULL, _IOFBF, VBUF_SIZE);
+#endif
 		encode(Gin,efp);
 		fclose(efp);
 		if (Gin)
 			fclose(Gin);
 		Gin = xfopen(auxf(gpkt.p_file,'e'), O_RDONLY|O_BINARY);
+#ifdef	USE_SETVBUF
+		setvbuf(Gin, NULL, _IOFBF, VBUF_SIZE);
+#endif
 	}
 	copy(auxf(gpkt.p_file,'d'),dfilename);
 	gpkt.p_gout = xfcreat(dfilename,(mode_t)0444);
+#ifdef	USE_SETVBUF
+	setvbuf(gpkt.p_gout, NULL, _IOFBF, VBUF_SIZE);
+#endif
 	while(readmod(&gpkt)) {
 		chkid(gpkt.p_line,Sflags['i'-'a'], Sflags);
 		if(fputs(gpkt.p_line,gpkt.p_gout)==EOF)
@@ -561,7 +573,11 @@ char *file;
 				Re-open s-file.
 				*/
 				gpkt.p_iop = xfopen(gpkt.p_file, O_RDONLY|O_BINARY);
-				setbuf(gpkt.p_iop,gpkt.p_buf);
+#ifdef	USE_SETVBUF
+				setvbuf(gpkt.p_iop, NULL, _IOFBF, VBUF_SIZE);
+#else
+				setbuf(gpkt.p_iop, gpkt.p_buf);
+#endif
 				/*
 				Reset counters.
 				*/
@@ -1223,31 +1239,75 @@ char	*file;
 struct	packet	*pkt;
 {
 	FILE	*inptr;
+#ifndef	RECORD_IO
+	char	*p = NULL;	/* Intialize to make gcc quiet */
+	char	*pn =  NULL;
+	char	line[VBUF_SIZE];
+#else
 	char	line[BUFSIZ];
-	int	nline, idx = 0, search_on = 0;
+	int	search_on = 0;
+#endif
+	int	nline, idx = 0;
 	char	lastchar;
 
 	inptr = xfopen(file, O_RDONLY|O_BINARY);
+#ifdef	USE_SETVBUF
+	setvbuf(inptr, NULL, _IOFBF, VBUF_SIZE);
+#endif
 	/*
 	 * This gives the illusion that a zero-length file ends
 	 * in a newline so that it won't be mistaken for a 
 	 * binary file.
 	 */
 	lastchar = '\n';
-	(void)memset(line, '\377', BUFSIZ);
+	(void)memset(line, '\377', sizeof (line));
 	nline = 0;
-	while (fgets(line, BUFSIZ, inptr) != NULL) {
-	   if (line[0] == CTLCHAR) {
+#ifndef	RECORD_IO
+	/*
+	 * In most cases (non record oriented I/O), we can optimize the way we
+	 * scan files for '\0' bytes, line-ends '\n' and ^A '\1'. The optimized
+	 * algorithm allows to avoid to do a reverse scan for '\0' from the end
+	 * of the buffer.
+	 */
+	while ((idx = fread(line, 1, sizeof (line), inptr)) > 0) {
+		if (lastchar == '\n' && line[0] == CTLCHAR)
+			goto err;
+		lastchar = line[idx-1];
+		p = findbytes(line, idx, '\0');
+		if (p != NULL)
+			pn = p;
+		for (p = line;
+		    (p = findbytes(p, idx - (p-line), '\n')) != NULL; p++) {
+			if (pn && p > pn)
+				goto err;
+			nline++;
+			if ((p - line) >= (idx-1))
+				break;
+
+			if (p[1] == CTLCHAR) {
+	err:
+				fclose(inptr);
+				sprintf(SccsError,
+				gettext(
+			  "file '%s' contains illegal data on line %d (de14)"),
+				file, ++nline);
+				fatal(SccsError);
+			}
+		}
+	}
+#else	/* !RECORD_IO */
+	while (fgets(line, sizeof (line), inptr) != NULL) {
+	   if (lastchar == '\n' && line[0] == CTLCHAR) {
 	      nline++;
 	      goto err;
 	   }
 	   search_on = 0;
-	   for (idx = BUFSIZ-1; idx >= 0; idx--) {
-	      if (search_on == 1) {
+	   for (idx = sizeof (line)-1; idx >= 0; idx--) {
+	      if (search_on > 0) {
 		 if (line[idx] == '\0') {
 	err:
 		    fclose(inptr);
-		    sprintf(SccsError, 
+		    sprintf(SccsError,
 		      gettext("file '%s' contains illegal data on line %d (de14)"),
 		      file, nline);
 		    fatal(SccsError);
@@ -1262,8 +1322,9 @@ struct	packet	*pkt;
 		 }
 	      }
 	   }   
-	   (void)memset(line, '\377', BUFSIZ);
+	   (void)memset(line, '\377', sizeof (line));
 	}
+#endif	/* !RECORD_IO */
 	fclose(inptr);
 	if (lastchar != '\n'){
 	   sprintf(SccsError,
@@ -1271,7 +1332,6 @@ struct	packet	*pkt;
 	     file);
 	   fatal(SccsError);
 	}
-
 }
  
 /* SVR4.0 does not support getdtablesize().				  */

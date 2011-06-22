@@ -1,6 +1,6 @@
-dnl @(#)configure.in	1.223 10/11/17 Copyright 1998-2010 J. Schilling
+dnl @(#)configure.in	1.224 11/06/20 Copyright 1998-2010 J. Schilling
 dnl Process this file with autoconf to produce a configure script.
-AC_REVISION(1.223)dnl
+AC_REVISION(1.224)dnl
 
 dnl AC_INIT(xconfig.h.in)
 AC_INIT(config.guess)
@@ -296,6 +296,8 @@ AC_FUNC_C99_ISINF
 AC_FUNC_C99_ISNAN
 AC_FUNC_SIGSETJMP
 AC_FUNC_SIGLONGJMP
+AC_FUNC_PRINTF_J
+AC_FUNC_PRINTF_LL
 AC_CHECK_FUNCS(access eaccess euidaccess)
 AC_CHECK_FUNCS(memchr memcpy memmove memset)
 AC_CHECK_FUNCS(brk sbrk strerror nice flock lockf fchdir statvfs quotactl)

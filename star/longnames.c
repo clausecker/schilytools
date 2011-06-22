@@ -1,14 +1,14 @@
-/* @(#)longnames.c	1.53 10/08/23 Copyright 1993, 1995, 2001-2010 J. Schilling */
+/* @(#)longnames.c	1.54 11/06/14 Copyright 1993, 1995, 2001-2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)longnames.c	1.53 10/08/23 Copyright 1993, 1995, 2001-2010 J. Schilling";
+	"@(#)longnames.c	1.54 11/06/14 Copyright 1993, 1995, 2001-2011 J. Schilling";
 #endif
 /*
  *	Handle filenames that cannot fit into a single
  *	string of 100 charecters
  *
- *	Copyright (c) 1993, 1995, 2001-2010 J. Schilling
+ *	Copyright (c) 1993, 1995, 2001-2011 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -153,9 +153,9 @@ name_to_tcb(info, ptb)
 
 	if ((namelen+add) <= props.pr_maxsname) {	/* Fits in shortname */
 		if (add)
-			strcatl(ptb->dbuf.t_name, name, "/", (char *)NULL);
+			strcatl(ptb->ndbuf.t_name, name, "/", (char *)NULL);
 		else
-			strcpy(ptb->dbuf.t_name, name);
+			strcpy(ptb->ndbuf.t_name, name);
 		return (TRUE);
 	}
 

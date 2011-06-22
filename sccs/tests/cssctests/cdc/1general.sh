@@ -7,7 +7,7 @@
 g=testfile
 s=s.$g
 z=z.$g
-x=z.$g
+x=x.$g
 p=p.$g
 files="$s $z $x $p"
 

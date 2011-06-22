@@ -1,8 +1,8 @@
-/* @(#)xheader.c	1.82 10/08/23 Copyright 2001-2010 J. Schilling */
+/* @(#)xheader.c	1.84 11/06/15 Copyright 2001-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)xheader.c	1.82 10/08/23 Copyright 2001-2010 J. Schilling";
+	"@(#)xheader.c	1.84 11/06/15 Copyright 2001-2010 J. Schilling";
 #endif
 /*
  *	Handling routines to read/write, parse/create
@@ -1376,7 +1376,9 @@ get_xtime(keyword, arg, len, secp, nsecp)
 	time_t	*secp;
 	long	*nsecp;
 {
+#ifdef	__use_default_time__
 extern struct	timeval	ddate;
+#endif
 	Llong	ll;
 	long	l;
 	int	flen;
@@ -1384,11 +1386,15 @@ extern struct	timeval	ddate;
 
 	p = astollb(arg, &ll, 10);
 	if (*p == '\0' || *p == '.') {
-		*secp = ll;		/* XXX Check for NULL ptr? */
-		if (*secp != ll) {
+		time_t	secs = ll;
+		if (secs != ll) {
 			xh_rangeerr(keyword, arg, len);
+#ifdef	__use_default_time__
 			*secp = ddate.tv_sec;
+#endif
+			goto bad;
 		}
+		*secp = ll;		/* XXX Check for NULL ptr? */
 	}
 	if (*p == '\0') {		/* time has second resolution only */
 		if (nsecp == NULL)
@@ -1413,6 +1419,7 @@ extern struct	timeval	ddate;
 			}
 		}
 	}
+bad:
 	errmsgno(EX_BAD, "Bad timespec '%s' for '%s' in extended header at %lld.\n",
 		arg, keyword, tblocks());
 	return (FALSE);

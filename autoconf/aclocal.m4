@@ -1,4 +1,4 @@
-dnl @(#)aclocal.m4	1.92 10/11/17 Copyright 1998-2009 J. Schilling
+dnl @(#)aclocal.m4	1.93 11/06/20 Copyright 1998-2009 J. Schilling
 
 dnl Set VARIABLE to VALUE in C-string form, verbatim, or 1.
 dnl AC_DEFINE_STRING(VARIABLE [, VALUE])
@@ -2516,6 +2516,45 @@ exit(1);}],
                 [ac_cv_func_bsd_setpgrp=no])])
 if test $ac_cv_func_bsd_setpgrp = yes; then
   AC_DEFINE(HAVE_BSD_SETPGRP)
+fi])
+
+dnl Checks if *printf() supports %jd
+dnl Defines HAVE_PRINTF_J on success.
+AC_DEFUN([AC_FUNC_PRINTF_J],
+[AC_CACHE_CHECK([whether *printf() supports %jd], ac_cv_func_printf_j,
+                [AC_TRY_RUN([
+#include <inttypes.h>
+int
+main()
+{ intmax_t m = 123456789012LL;
+char buf[32];
+sprintf(buf, "%jd", m);
+if (strcmp(buf, "123456789012") == 0)
+	exit(0);
+exit(1);}],
+                [ac_cv_func_printf_j=yes],
+                [ac_cv_func_printf_j=no])])
+if test $ac_cv_func_printf_j = yes; then
+  AC_DEFINE(HAVE_PRINTF_J)
+fi])
+
+dnl Checks if *printf() supports %lld
+dnl Defines HAVE_PRINTF_LL on success.
+AC_DEFUN([AC_FUNC_PRINTF_LL],
+[AC_CACHE_CHECK([whether *printf() supports %lld], ac_cv_func_printf_ll,
+                [AC_TRY_RUN([
+int
+main()
+{ long long ll = 123456789012LL;
+char buf[32];
+sprintf(buf, "%lld", ll);
+if (strcmp(buf, "123456789012") == 0)
+	exit(0);
+exit(1);}],
+                [ac_cv_func_printf_ll=yes],
+                [ac_cv_func_printf_ll=no])])
+if test $ac_cv_func_printf_ll = yes; then
+  AC_DEFINE(HAVE_PRINTF_LL)
 fi])
 
 dnl Checks if C99 compliant isinf() exists

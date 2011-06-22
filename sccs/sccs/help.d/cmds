@@ -23,7 +23,7 @@
 *
 * This file contains modifications Copyright 2006-2011 J. Schilling
 *
-* @(#)cmds	1.10 11/05/20 J. Schilling 
+* @(#)cmds	1.11 11/06/13 J. Schilling 
 *
 * @(#)cmds 1.3 06/12/12
 *
@@ -153,6 +153,7 @@ Keyword       Data Item            Section           Type           Type
   :S:   Sequence number               "              nnnn            S
   :D:   Date delta created            "         :Dy:/:Dm:/:Dd:       S
   :d:   Date delta created            "         :DY:/:Dm:/:Dd:       S
+ :D_:   Date delta created            "         :DY:-:Dm:-:Dd:       S
  :Dy:   Year delta created            "               nn             S
  :DY:   Year delta created            "              nnnn            S
  :Dm:   Month delta created           "               nn             S
@@ -192,6 +193,7 @@ Keyword       Data Item            Section           Type           Type
   :A:   form of _w_h_a_t(I) str          N/A       :Z::Y: :M: :I::Z:     S
   :Z:   _w_h_a_t(I) str construct        N/A             @(#)            S
   :F:   File name                    N/A           file name         S
+  :G:   G-File name                  N/A           file name         S
  :PN:   Pathname                     N/A           pathname          S
 
 -sccs

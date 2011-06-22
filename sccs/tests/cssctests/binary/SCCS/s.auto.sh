@@ -1,4 +1,8 @@
-h26168
+h31707
+s 00001/00001/00122
+d D 1.3 11/06/18 16:06:36 joerg 3 2
+c x=z.$g -> x=x.$g
+e
 s 00002/00001/00121
 d D 1.2 11/05/30 01:18:01 joerg 2 1
 c Falscher Binaertest fuer CSSC korrigiert
@@ -95,7 +99,12 @@ rm -f infile $s
 g=testfile
 s=s.$g
 z=z.$g
+D 3
 x=z.$g
+E 3
+I 3
+x=x.$g
+E 3
 p=p.$g
 files="$s $z $x $p"
 

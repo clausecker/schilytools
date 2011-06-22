@@ -27,10 +27,10 @@
 /*
  * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)unget.c	1.15 11/05/17 J. Schilling
+ * @(#)unget.c	1.16 11/06/06 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)unget.c 1.15 11/05/17 J. Schilling"
+#pragma ident "@(#)unget.c 1.16 11/06/06 J. Schilling"
 #endif
 /*
  * @(#)unget.c 1.24 06/12/12
@@ -212,14 +212,11 @@ char *argv[];
 			}
 
 			/*
-			 * As long as we don't have a way to collect more than
-			 * 'a'..'z' in had[], avoid to collect option letters
-			 * outside the range 'a'..'z'.
+			 * Make sure that we only collect option letters from
+			 * the range 'a'..'z' and 'A'..'Z'.
 			 */
-			if ((c < 'a') || (c > 'z'))
-				continue;
-
-			if (had[c - 'a']++)
+			if (ALPHA(c) &&
+			    (had[LOWER(c)? c-'a' : NLOWER+c-'A']++))
 				fatal(gettext("key letter twice (cm2)"));
 	}
 

@@ -1,4 +1,8 @@
-h57946
+h63493
+s 00001/00001/00175
+d D 1.3 11/06/18 16:06:36 joerg 3 2
+c x=z.$g -> x=x.$g
+e
 s 00001/00001/00175
 d D 1.2 11/05/30 01:17:27 joerg 2 1
 c if ( ${admin} -V 2>&1 ; echo umsp )  | grep CSSC >/dev/null -> if $TESTING_CSSC
@@ -105,7 +109,12 @@ rm -f $s
 g=testfile
 s=s.$g
 z=z.$g
+D 3
 x=z.$g
+E 3
+I 3
+x=x.$g
+E 3
 p=p.$g
 files="$s $z $x $p"
 

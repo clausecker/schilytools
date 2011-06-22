@@ -25,12 +25,12 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2009 J. Schilling
+ * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)dohist.c	1.7 09/11/15 J. Schilling
+ * @(#)dohist.c	1.8 11/06/19 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)dohist.c 1.7 09/11/15 J. Schilling"
+#pragma ident "@(#)dohist.c 1.8 11/06/19 J. Schilling"
 #endif
 /*
  * @(#)dohist.c 1.7 06/12/12
@@ -60,13 +60,19 @@ void
 dohist(file)
 char *file;
 {
-	char line[BUFSIZ];
+	char line[VBUF_SIZE];
 	int doprmt;
 	register char *p;
 	FILE	*in;
 	extern char *Comments;
 
+	/*
+	 * Quick and dirty way to find whether VALFLAG is set.
+	 */
 	in = xfopen(file, O_RDONLY|O_BINARY);
+#ifdef	USE_SETVBUF
+	setvbuf(in, NULL, _IOFBF, VBUF_SIZE);
+#endif
 	while ((p = fgets(line,sizeof(line),in)) != NULL)
 		if (line[0] == CTLCHAR && line[1] == EUSERNAM)
 			break;
@@ -81,6 +87,7 @@ char *file;
 		}
 	}
 	(void) fclose(in);
+
 	doprmt = 0;
 	if (isatty(0) == 1)
 		doprmt++;
@@ -105,7 +112,7 @@ getresp(repstr,result)
 char *repstr;
 char *result;
 {
-	char line[BUFSIZ];
+	char line[BUFSIZ];	/* Line length for typed in MR numbers */
 	register int done, sz;
 	register char *p;
 	extern char	had_standinp;
@@ -154,7 +161,7 @@ getcomments()
   char *buffer;
   char *temp;
   int c;
-  int bufsiz = BUFSIZ;
+  int bufsiz = BUFSIZ;	/* Just an increment for malloc() */
   int cnt = 0;
   extern char had_standinp;
   

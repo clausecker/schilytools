@@ -19,7 +19,7 @@
 .\" CDDL HEADER END
 .\" Copyright (c) 1999, Sun Microsystems, Inc.
 .\" Copyright 2007-2011 J. Schilling
-.TH sccs-rmdel 1 "2011/04/03" "SunOS 5.11" "User Commands"
+.TH sccs-rmdel 1 "2011/06/13" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs-rmdel, rmdel \- remove a delta from an SCCS file
 .SH SYNOPSIS
@@ -73,42 +73,32 @@ See
 
 .sp
 .ne 2
-.mk
-.na
-\fB\fBp.\fR\fBfile\fR\fR
-.ad
-.RS 8n
-.rt  
-permissions file
-.sp
-
-.RE
+.TP 12
+.BI p. file
+permissions (lock) file for checked-out versions
 
 .sp
 .ne 2
-.mk
-.na
-\fB\fBs.\fR\fBfile\fR\fR
-.ad
-.RS 8n
-.rt  
+.TP
+.BI s. file
 history file
-.sp
-
-.RE
 
 .sp
 .ne 2
-.mk
-.na
-\fB\fBz.\fR\fBfile\fR\fR
-.ad
-.RS 8n
-.rt  
-temporary copy of the \fBs.\fRfile
-.sp
+.TP
+.BI x. file
+temporary copy of the
+.BR s. file;
+renamed to the
+.BR s. file
+after completion
 
-.RE
+.sp
+.ne 2
+.TP
+.BI z. file
+temporary lock file contains the binary process id in host byte order
+followed by the host name
 
 .SH ATTRIBUTES
 

@@ -1,4 +1,4 @@
-/* @(#)xconfig.h.in	1.210 10/11/17 Copyright 1998-2010 J. Schilling */
+/* @(#)xconfig.h.in	1.211 11/06/20 Copyright 1998-2010 J. Schilling */
 /*
  *	Dynamic autoconf C-include code.
  *	Do not edit, this file has been created automatically.
@@ -560,6 +560,9 @@
 #undef HAVE_MBSINIT		/* mbsinit() is present in libc */
 #undef HAVE_MBRTOWC		/* mbrtowc() is present in libc */
 #undef HAVE_WCRTOMB		/* wcrtomb() is present in libc */
+
+#undef HAVE_PRINTF_J		/* *printf() in libc supports %jd */
+#undef HAVE_PRINTF_LL		/* *printf() in libc supports %lld */
 
 /*
  * Functions that we defined in 1982 but where POSIX.1-2008 defined

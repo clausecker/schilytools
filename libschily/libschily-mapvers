@@ -1,4 +1,4 @@
-# /* @(#)libschily-mapvers	1.24 11/06/04 Copyright 2005-2010 J. Schilling */
+# /* @(#)libschily-mapvers	1.25 11/06/15 Copyright 2005-2010 J. Schilling */
 #include <schily/mconfig.h>
 
 SCHILY_1.5 {
@@ -33,6 +33,7 @@ global:
 	js_fnmatch;
 
 	findinpath;
+	permtostr;
 	searchfileinpath;
 
 #ifndef	HAVE_TIMEGM

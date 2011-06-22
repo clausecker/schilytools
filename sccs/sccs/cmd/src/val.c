@@ -27,10 +27,10 @@
 /*
  * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)val.c	1.22 11/05/18 J. Schilling
+ * @(#)val.c	1.23 11/06/06 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)val.c 1.22 11/05/18 J. Schilling"
+#pragma ident "@(#)val.c 1.23 11/06/06 J. Schilling"
 #endif
 /*
  * @(#)val.c 1.22 06/12/12
@@ -317,18 +317,14 @@ char	*argv[];
 					return;
 			}
 			/*
-			 * As long as we don't have a way to collect more than
-			 * 'a'..'z' in had[], avoid to collect option letters
-			 * outside the range 'a'..'z'.
+			 * Make sure that we only collect option letters from
+			 * the range 'a'..'z' and 'A'..'Z'.
+			 *
+			 * use 'had' array and determine if the keyletter
+			 * was given twice.
 			 */
-			if ((c < 'a') || (c > 'z'))
-				continue;
-
-			/*
-			use 'had' array and determine if the keyletter
-			was given twice.
-			*/
-			if (had[c - 'a']++) {
+			if (ALPHA(c) &&
+			    (had[LOWER(c)? c-'a' : NLOWER+c-'A']++)) {
 				if (debug)
 					printf(gettext("Duplicate option '%c'.\n"), c);
 				inline_err |= UNKDUP_ERR;

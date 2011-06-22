@@ -27,10 +27,10 @@
 /*
  * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)admin.c	1.38 11/06/02 J. Schilling
+ * @(#)admin.c	1.42 11/06/19 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)admin.c 1.38 11/06/02 J. Schilling"
+#pragma ident "@(#)admin.c 1.42 11/06/19 J. Schilling"
 #endif
 /*
  * @(#)admin.c 1.39 06/12/12
@@ -516,14 +516,11 @@ char *argv[];
 				fatal(gettext("Usage: admin [ -bhnoz ][ -ausername|groupid ]\n\t[ -dflag ][ -eusername|groupid ]\n\t[ -fflag [value]][ -i [filename]]\n\t[ -m mr-list][ -r release ][ -t [description-file]]\n\t[ -y[comment]] s.filename ..."));
 			}
 			/*
-			 * As long as we don't have a way to collect more than
-			 * 'a'..'z' in had[], avoid to collect option letters
-			 * outside the range 'a'..'z'.
+			 * Make sure that we only collect option letters from
+			 * the range 'a'..'z' and 'A'..'Z'.
 			 */
-			if ((c < 'a') || (c > 'z'))
-				continue;
-
-			if (had[c - 'a']++ && testklt++)
+			if (ALPHA(c) &&
+			    (had[LOWER(c)? c-'a' : NLOWER+c-'A']++ && testklt++))
 				fatal(gettext("key letter twice (cm2)"));
 	}
 
@@ -934,7 +931,7 @@ char	*afile;
 				 * Better to abort then to silently remove flags
 				 * as previous versions did.
 				 */
-				fatal("unsupported flag (ad36)");
+				fatal("unsupported flag (ad35)");
 				continue;
 			}
 			f = *cp++;
@@ -1071,6 +1068,9 @@ char	*afile;
 		if (tfile) {
 		   if (*tfile) {
 			iptr = xfopen(tfile, O_RDONLY|O_BINARY);
+#ifdef	USE_SETVBUF
+			setvbuf(iptr, NULL, _IOFBF, VBUF_SIZE);
+#endif
 			(void)fgetchk(iptr, tfile, &gpkt, 0);
 			fclose(iptr);
 			iptr = NULL;
@@ -1164,6 +1164,9 @@ char	*afile;
 				fclose(out);
 			   }
 			   iptr = xfopen(ifile, O_RDONLY|O_BINARY);
+#ifdef	USE_SETVBUF
+			   setvbuf(iptr, NULL, _IOFBF, VBUF_SIZE);
+#endif
 			}
 
 			/* save an offset to x-file in case need to encode
@@ -1269,7 +1272,7 @@ char	*afile;
 	*/
 	if (!HADH) {
 		if (!HADN) stat(gpkt.p_file,&sbuf);
-		rename(auxf(gpkt.p_file,'x'),(char *)&gpkt);
+		rename(auxf(gpkt.p_file,'x'), gpkt.p_file);
 		if (!HADN) {
 			chmod(gpkt.p_file, sbuf.st_mode);
 			chown(gpkt.p_file,sbuf.st_uid, sbuf.st_gid);
@@ -1295,7 +1298,7 @@ struct	packet *pkt;
 {
 	int	nline, idx = 0, search_on = 0;
 	char	lastchar;
-	char	line[BUFSIZ];	
+	char	line[256];	/* Avoid a too long buffer for speed */
 
 	/*
 	 * This gives the illusion that a zero-length file ends
@@ -1305,15 +1308,15 @@ struct	packet *pkt;
 	lastchar = '\n';
 	
 	nline = 0;
-	(void)memset(line, '\377', BUFSIZ);
-	while (fgets(line, BUFSIZ, inptr) != NULL) {
-	   if (line[0] == CTLCHAR) {
+	(void)memset(line, '\377', sizeof (line));
+	while (fgets(line, sizeof (line), inptr) != NULL) {
+	   if (lastchar == '\n' && line[0] == CTLCHAR) {
 	      nline++;
 	      goto err;
 	   }
 	   search_on = 0;
-	   for (idx = BUFSIZ-1; idx >= 0; idx--) {
-	      if (search_on == 1) {
+	   for (idx = sizeof (line)-1; idx >= 0; idx--) {
+	      if (search_on > 0) {
 		 if (line[idx] == '\0') {
 	err:
 		    if (fflag) {
@@ -1329,7 +1332,7 @@ struct	packet *pkt;
 		 if (line[idx] == '\0') {
 		    search_on = 1;
 		    lastchar = line[idx-1];
-	   	    if (lastchar == '\n') {
+		    if (lastchar == '\n') {
 		       nline++;
 		    }
 		 }
@@ -1339,7 +1342,7 @@ struct	packet *pkt;
 	      (void)chkid(line, flag_p['i'-'a'], flag_p);
 	   }
 	   putline(pkt, line);
-	   (void)memset(line, '\377', BUFSIZ);
+	   (void)memset(line, '\377', sizeof (line));
 	}
 	if (lastchar != '\n'){
 	   if (fflag) {

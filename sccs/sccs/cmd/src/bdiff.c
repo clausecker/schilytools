@@ -28,12 +28,12 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2008 J. Schilling
+ * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)bdiff.c	1.12 09/11/15 J. Schilling
+ * @(#)bdiff.c	1.14 11/06/20 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)bdiff.c 1.12 09/11/15 J. Schilling"
+#pragma ident "@(#)bdiff.c 1.14 11/06/20 J. Schilling"
 #endif
 
 #if defined(sun)
@@ -56,10 +56,10 @@
 #define	VMS_VFORK_OK
 #include <schily/vfork.h>
 #include <schily/io.h>		/* for setmode() prototype */
+#ifndef	HAVE_PRINTF_LL
 #undef	printf
-#define	printf	js_printf
-#undef	fprintf
-#define	fprintf	js_fprintf
+#define	printf	js_printf	/* Use libschily::printf() for %lld */
+#endif
 
 #undef	offset_t
 #define	offset_t	Llong
@@ -178,6 +178,10 @@ main(argc, argv)
 
 	/* Allocate the buffers and initialize their lengths */
 
+#ifdef	HAVE_SETVBUF
+	setvbuf(poldfile, NULL, _IOFBF, 32*1024);
+	setvbuf(pnewfile, NULL, _IOFBF, 32*1024);
+#endif
 	obufsiz = BUFSIZ;
 	nbufsiz = BUFSIZ;
 	dbufsiz = BUFSIZ;

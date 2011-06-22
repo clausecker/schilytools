@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sccs-admin.1	1.12 11/05/22 portions Copyright 2007-2011 J. Schilling */
+.\" @(#)sccs-admin.1	1.13 11/06/13 portions Copyright 2007-2011 J. Schilling */
 .\" CDDL HEADER START
 .\"
 .\" The contents of this file are subject to the terms of the
@@ -19,7 +19,7 @@
 .\"
 .\" CDDL HEADER END
 .\"  Copyright (c) 2002, Sun Microsystems, Inc. All Rights Reserved.
-.TH sccs-admin 1 "2011/05/22" "SunOS 5.11" "User Commands"
+.TH sccs-admin 1 "2011/06/13" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs-admin, admin \- create and administer SCCS history files
 .SH SYNOPSIS
@@ -324,36 +324,40 @@ An error occurred.
 .SH FILES
 .sp
 .ne 2
-.mk
-.na
-\fB\fBs.*\fR\fR
-.ad
-.RS 12n
-.rt  
+.TP 15
+.BI e. file
+temporary file to hold an uuencoded version of the
+.B g-file
+in case of an encoded history file
+
+.sp
+.ne 2
+.TP
+.BI s. file
 history file
-.RE
 
 .sp
 .ne 2
-.mk
-.na
-\fB\fBSCCS/s.*\fR\fR
-.ad
-.RS 12n
-.rt  
+.TP
+.BI SCCS/s. file
 history file in SCCS subdirectory
-.RE
 
 .sp
 .ne 2
-.mk
-.na
-\fB\fBz.*\fR\fR
-.ad
-.RS 12n
-.rt  
-temporary lock file
-.RE
+.TP
+.BI x. file
+temporary copy of the
+.BR s. file;
+renamed to the
+.BR s. file
+after completion.
+
+.sp
+.ne 2
+.TP
+.BI z. file
+temporary lock file contains the binary process id in host byte order
+followed by the host name
 
 .SH ATTRIBUTES
 .sp

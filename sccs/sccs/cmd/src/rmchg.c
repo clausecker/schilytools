@@ -27,10 +27,10 @@
 /*
  * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)rmchg.c	1.24 11/05/29 J. Schilling
+ * @(#)rmchg.c	1.26 11/06/13 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)rmchg.c 1.24 11/05/29 J. Schilling"
+#pragma ident "@(#)rmchg.c 1.26 11/06/13 J. Schilling"
 #endif
 /*
  * @(#)rmchg.c 1.19 06/12/12
@@ -240,14 +240,11 @@ char *argv[];
 			}
 
 			/*
-			 * As long as we don't have a way to collect more than
-			 * 'a'..'z' in had[], avoid to collect option letters
-			 * outside the range 'a'..'z'.
+			 * Make sure that we only collect option letters from
+			 * the range 'a'..'z' and 'A'..'Z'.
 			 */
-			if ((c < 'a') || (c > 'z'))
-				continue;
-
-			if (had[c - 'a']++)
+			if (ALPHA(c) &&
+			    (had[LOWER(c)? c-'a' : NLOWER+c-'A']++))
 				fatal(gettext("key letter twice (cm2)"));
 	}
 
@@ -535,7 +532,7 @@ char *file;
 	Delete old s-file, change x-file name to s-file.
 	*/
 	stat(gpkt.p_file,&sbuf);
-	rename(auxf(gpkt.p_file,'x'),(char *)&gpkt);
+	rename(auxf(gpkt.p_file,'x'), gpkt.p_file);
 	chmod(gpkt.p_file,sbuf.st_mode);
 	chown(gpkt.p_file,sbuf.st_uid,sbuf.st_gid);
 	clean_up();

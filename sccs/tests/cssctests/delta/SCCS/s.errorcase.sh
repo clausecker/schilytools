@@ -1,4 +1,8 @@
-h17954
+h44566
+s 00004/00003/00206
+d D 1.3 11/06/15 23:36:37 joerg 3 2
+c Test ob chmod 0 eine Datei unlesbar macht
+e
 s 00004/00000/00205
 d D 1.2 11/05/31 22:43:36 joerg 2 1
 c if [ ".$CYGWIN" = '.' ]; then um Tests mit chmod 0 p.foo / s.foo
@@ -132,13 +136,27 @@ remove $q
 
 # Unreadable g-file should also cause a failure. 
 I 2
+D 3
 if [ ".$CYGWIN" = '.' ]; then
+E 3
 E 2
 chmod 0 $g
+D 3
 docommand E17 "${vg_delta} -yNoComment $s" 1 IGNORE IGNORE
+E 3
+I 3
+cat $g > /dev/null 2> /dev/null
+if [ $? -ne 0 ]; then
+	docommand E17 "${vg_delta} -yNoComment $s" 1 IGNORE IGNORE
+E 3
 I 2
 else
+D 3
 	echo "Your OS or your the filesystem do not support chmod 0 - some tests skipped"
+E 3
+I 3
+	echo "Your permissions on your OS do not support chmod 0 to remove read permission - test E17 skipped"
+E 3
 fi
 E 2
 chmod +r $g

@@ -27,12 +27,12 @@
 /*
  * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)defines.h	1.28 11/06/04 J. Schilling
+ * @(#)defines.h	1.31 11/06/20 J. Schilling
  */
 #ifndef	_HDR_DEFINES_H
 #define	_HDR_DEFINES_H
 #if defined(sun)
-#pragma ident "@(#)defines.h 1.28 11/06/04 J. Schilling"
+#pragma ident "@(#)defines.h 1.31 11/06/20 J. Schilling"
 #endif
 /*
  * @(#)defines.h 1.21 06/12/12
@@ -105,6 +105,10 @@ extern char *optarg;
 #define	MAXPATHLEN	PATH_MAX
 #endif
 
+#if	defined(NEED_PRINTF_J) && !defined(HAVE_PRINTF_J)
+#define	NEED_SCHILY_PRINT	/* We need defines for js_snprintf() */
+#endif
+
 /*
  * Always include schily/schily.h to allow POSIX bug workarounds to be
  * implemented in schily/schily.h.
@@ -157,6 +161,12 @@ extern time_t	Y1969;
 # define EUSERNAM	'U'	/* ^AU end list of allowed delta users      */
 
 #define	NFLAGS	28
+#define	NLOWER		('z'-'a'+1)
+#define	NUPPER		('Z'-'A'+1)
+#define	NALPHA		(NLOWER + NUPPER)
+#define	LOWER(c)	((c) >= 'a' && (c) <= 'z')
+#define	UPPER(c)	((c) >= 'A' && (c) <= 'Z')
+#define	ALPHA(c)	(LOWER(c) || UPPER(c))
 #define	fdx(c)	((c)-'a')	/* Flag array index (e.g. for Sflags)	    */
 
 #if	defined(IS_MACOS_X)
@@ -277,6 +287,32 @@ struct	idel {
 # define maxser(pkt)	((pkt)->p_idel->i_pred)
 # define sccsfile(f)	imatch("s.", sname(f))
 
+/*
+ * SCCS used to use setbuf() with packet.p_buf as buffer. Since at least
+ * Solaris uses parts of such a buffer for multi-byte putback features,
+ * calling setbuf() is counter-productive as it results in unaligned reads
+ * with BUFSIZE-8 as read(2) buffer size.
+ * We try to avoid this problem by calling setvbuf(f, NULL, _IOFBF, size)
+ * and telling stdio to allocate the buffer for us instead. Thus, if we have
+ * setvbuf, we no longer need packet.p_buf.
+ */
+#ifdef	HAVE_SETVBUF
+#define	VBUF_SIZE	(32*1024)
+#define	USE_SETVBUF
+#else
+#define	VBUF_SIZE	BUFSIZ
+#endif
+#ifdef	pdp11
+#undef	VBUF_SIZE
+#define	VBUF_SIZE	512
+#endif
+#ifdef	VMS
+#define	RECORD_IO
+#endif
+#if !defined(SCHILY_BUILD) && !defined(RECORD_IO)
+#define	RECORD_IO
+#endif
+
 struct packet {
 	char	p_file[FILESIZE]; /* file name containing module */
 	struct	sid p_reqsid;	/* requested SID, then new SID */
@@ -296,7 +332,9 @@ struct packet {
 	struct	apply *p_apply;	/* ptr to apply array */
 	struct	queue *p_q;	/* ptr to control queue */
 	FILE	*p_iop;		/* input file */
+#ifndef	HAVE_SETVBUF
 	char	p_buf[BUFSIZ];	/* input file buffer */
+#endif
 	char	*p_line;	/* buffer for getline() */
 	size_t	p_line_size;	/* size of the buffer for getline() */
 	time_t	p_cdt;		/* date/time of newest applied delta */

@@ -1,7 +1,7 @@
-/* @(#)scsi-aix.c	1.38 11/03/07 Copyright 1997 J. Schilling */
+/* %Z%%M%	%I% %E% Copyright 1997-2011 J. Schilling */
 #ifndef lint
 static	char __sccsid[] =
-	"@(#)scsi-aix.c	1.38 11/03/07 Copyright 1997 J. Schilling";
+	"%Z%%M%	%I% %E% Copyright 1997-2011 J. Schilling";
 #endif
 /*
  *	Interface for the AIX generic SCSI implementation.
@@ -15,7 +15,7 @@ static	char __sccsid[] =
  *	Choose your name instead of "schily" and make clear that the version
  *	string is related to a modified source.
  *
- *	Copyright (c) 1997 J. Schilling
+ *	Copyright (c) 1997-2011 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -38,6 +38,16 @@ static	char __sccsid[] =
  */
 
 #include <sys/scdisk.h>
+#include <sys/ide.h>
+
+/*
+ * The scsi_inquiry struct in <sys/scsi_buf.h> clashes
+ * with the one in "scg/scsireg.h".
+ * Well, our scg/scsireg.h is from 1986, AIX sys/scsi_buf.h is from 1995 ;-)
+ */
+#define	scsi_inquiry	_scsi_inquiry
+#include <sys/scsi_buf.h>
+#undef	scsi_inquiry
 
 /*
  *	Warning: you may change this source, but if you do that
@@ -46,7 +56,7 @@ static	char __sccsid[] =
  *	Choose your name instead of "schily" and make clear that the version
  *	string is related to a modified source.
  */
-LOCAL	char	_scg_trans_version[] = "scsi-aix.c-1.38";	/* The version for this transport*/
+LOCAL	char	_scg_trans_version[] = "%M%-%I%";	/* The version for this transport*/
 
 
 #define	MAX_SCG		16	/* Max # of SCSI controllers */
@@ -55,11 +65,26 @@ LOCAL	char	_scg_trans_version[] = "scsi-aix.c-1.38";	/* The version for this tra
 
 struct scg_local {
 	short	scgfiles[MAX_SCG][MAX_TGT][MAX_LUN];
+	char	trtypes[MAX_SCG][MAX_TGT];
+	char	transp;
 };
 #define	scglocal(p)	((struct scg_local *)((p)->local))
 
-#define	MAX_DMA_AIX (64*1024)
+#define	TR_UNKNONW	0
+#define	TR_DKIOCMD	1
+#define	TR_DKPASSTHRU	2
+#define	TR_IDEPASSTHRU	3
 
+
+/*
+ * At least with ATAPI, AIX is unable to transfer more than 65535
+ */
+#define	MAX_DMA_AIX ((64*1024)-1)
+
+LOCAL	void	sciocmd_to_scpassthru	__PR((struct sc_iocmd *req, struct sc_passthru *pthru_req, struct scg_cmd *sp));
+LOCAL	void	scpassthru_to_sciocmd	__PR((struct sc_passthru *pthru_req, struct sc_iocmd *req));
+LOCAL	int	sciocmd_to_idepassthru	__PR((struct sc_iocmd *req, struct ide_atapi_passthru *ide_req, struct scg_cmd *sp));
+LOCAL	int	do_ioctl		__PR((SCSI *scgp, struct sc_iocmd *req, struct scg_cmd *sp));
 LOCAL	int	do_scg_cmd	__PR((SCSI *scgp, struct scg_cmd *sp));
 LOCAL	int	do_scg_sense	__PR((SCSI *scgp, struct scg_cmd *sp));
 
@@ -130,10 +155,13 @@ scgo_open(scgp, device)
 		if (scgp->local == NULL)
 			return (0);
 
+		scglocal(scgp)->transp = TR_UNKNONW;
+
 		for (b = 0; b < MAX_SCG; b++) {
 			for (t = 0; t < MAX_TGT; t++) {
 				for (l = 0; l < MAX_LUN; l++)
 					scglocal(scgp)->scgfiles[b][t][l] = (short)-1;
+				scglocal(scgp)->trtypes[b][t] = TR_UNKNONW;
 			}
 		}
 	}
@@ -295,6 +323,8 @@ scgo_fileno(scgp, busno, tgt, tlun)
 	if (scgp->local == NULL)
 		return (-1);
 
+	scglocal(scgp)->transp = scglocal(scgp)->trtypes[busno][tgt];
+
 	return ((int)scglocal(scgp)->scgfiles[busno][tgt][tlun]);
 }
 
@@ -305,10 +335,155 @@ scgo_initiator_id(scgp)
 	return (-1);
 }
 
+LOCAL void
+sciocmd_to_scpassthru(req, pthru_req, sp)
+	struct sc_iocmd		*req;
+	struct sc_passthru	*pthru_req;
+	struct scg_cmd		*sp;
+{
+	fillbytes(pthru_req, sizeof (*pthru_req), '\0');
+
+	pthru_req->version = SCSI_VERSION_1;
+	pthru_req->status_validity = req->status_validity;
+	pthru_req->scsi_bus_status = req->scsi_bus_status;
+	pthru_req->adapter_status = req->adapter_status;
+	pthru_req->adap_q_status = req->adap_q_status;
+	pthru_req->q_tag_msg = req->q_tag_msg;
+	pthru_req->flags = req->flags;
+	pthru_req->devflags = SC_QUIESCE_IO;
+	pthru_req->q_flags = req->q_flags;
+	pthru_req->command_length = req->command_length;
+	pthru_req->autosense_length = 0;
+	pthru_req->timeout_value = req->timeout_value;
+	pthru_req->data_length = (unsigned long long)req->data_length;
+	pthru_req->scsi_id = 0;
+	pthru_req->lun_id = req->lun;
+	pthru_req->buffer = req->buffer;
+	pthru_req->autosense_buffer_ptr = NULL;
+	movebytes(&sp->cdb, pthru_req->scsi_cdb, 12);
+}
+
+LOCAL void
+scpassthru_to_sciocmd(pthru_req, req)
+	struct sc_passthru	*pthru_req;
+	struct sc_iocmd		*req;
+{
+	req->data_length = pthru_req->data_length;
+	req->buffer = pthru_req->buffer;
+	req->timeout_value = pthru_req->timeout_value;
+	req->status_validity = pthru_req->status_validity;
+	req->scsi_bus_status = pthru_req->scsi_bus_status;
+	req->adapter_status = pthru_req->adapter_status;
+	req->adap_q_status = pthru_req->adap_q_status;
+	req->q_tag_msg = pthru_req->q_tag_msg;
+	req->flags = pthru_req->flags;
+}
+
+LOCAL int
+sciocmd_to_idepassthru(req, ide_req, sp)
+	struct sc_iocmd			*req;
+	struct ide_atapi_passthru	*ide_req;
+	struct scg_cmd			*sp;
+{
+	fillbytes(ide_req, sizeof (*ide_req), '\0');
+
+#ifdef	III
+	if (sp->size > 65535) {		/* Too large for IDE */
+		sp->ux_errno = errno = EINVAL;
+		return (-1);
+	} else {
+		ide_req->buffsize = (ushort)sp->size;
+	}
+#else
+	ide_req->buffsize = (ushort)sp->size;
+#endif
+
+	if (sp->flags & SCG_RECV_DATA) {
+		ide_req->flags |= ATA_LBA_MODE | IDE_PASSTHRU_READ;
+	} else if (sp->size > 0) {
+		ide_req->flags |= ATA_LBA_MODE;
+	}
+
+	if (sp->size > 0) {
+		ide_req->data_ptr = (uchar *)sp->addr;
+	} else {
+		ide_req->data_ptr = NULL;
+	}
+	ide_req->timeout_value = (uint) sp->timeout;
+
+	/* IDE cmd length is 12 */
+	ide_req->atapi_cmd.length = 12;
+	movebytes(&sp->cdb, &(ide_req->atapi_cmd.packet), 12);
+
+	return (0);
+}
+
+LOCAL int
+do_ioctl(scgp, req, sp)
+	SCSI		*scgp;
+	struct sc_iocmd *req;
+	struct scg_cmd  *sp;
+{
+	int				dkiocmd_ret;
+	int				dkiocmd_errno;
+	int				ret;
+	int				transp = scglocal(scgp)->transp;
+	struct sc_passthru		pthru_req;
+	struct ide_atapi_passthru	ide_req;
+
+	if (transp == TR_UNKNONW) {
+		/* Try with DKIOCMD first. */
+		if ((dkiocmd_ret = ioctl(scgp->fd, DKIOCMD, req)) >= 0) {
+			scglocal(scgp)->transp = TR_DKIOCMD;
+			return (dkiocmd_ret);
+		} else {
+			dkiocmd_errno = geterrno();
+		}
+
+		/* Try DKPASSTHRU second. */
+		sciocmd_to_scpassthru(req, &pthru_req, sp);
+		if ((ret = ioctl(scgp->fd, DK_PASSTHRU, &pthru_req)) >= 0) {
+			scglocal(scgp)->transp = TR_DKPASSTHRU;
+			scpassthru_to_sciocmd(&pthru_req, req);
+			return (ret);
+		}
+
+		/* Last try IDEPASSTHRU */
+		if ((sciocmd_to_idepassthru(req, &ide_req, sp) >= 0) &&
+		    ((ret = ioctl(scgp->fd, IDEPASSTHRU, &ide_req)) >= 0)) {
+			scglocal(scgp)->transp = TR_IDEPASSTHRU;
+			return (ret);
+		}
+
+		/* Everything failed. */
+		errno = dkiocmd_errno;
+		return (dkiocmd_ret);
+	} else if (transp == TR_DKIOCMD) {
+		return (ioctl(scgp->fd, DKIOCMD, req));
+	} else if (transp == TR_DKPASSTHRU) {
+		sciocmd_to_scpassthru(req, &pthru_req, sp);
+		ret = ioctl(scgp->fd, DK_PASSTHRU, &pthru_req);
+		scpassthru_to_sciocmd(&pthru_req, req);
+		return (ret);
+	} else if (transp == TR_IDEPASSTHRU) {
+		if (sciocmd_to_idepassthru(req, &ide_req, sp) < 0)
+			ret = -1;
+		else
+			ret = ioctl(scgp->fd, IDEPASSTHRU, &ide_req);
+
+		return (ret);
+	} else {
+		/* Shouldn't get here. */
+		return (-1);
+	}
+}
+
 LOCAL int
 scgo_isatapi(scgp)
 	SCSI	*scgp;
 {
+	if (scglocal(scgp)->transp == TR_IDEPASSTHRU)
+		return (TRUE);
 	return (FALSE);
 }
 
@@ -355,12 +530,13 @@ do_scg_cmd(scgp, sp)
 
 	movebytes(&sp->cdb, req.scsi_cdb, 12);
 	errno = 0;
-	ret = ioctl(scgp->fd, DKIOCMD, &req);
+/*	ret = ioctl(scgp->fd, DKIOCMD, &req);*/
+	ret = do_ioctl(scgp, &req, sp);
 
 	if (scgp->debug > 0) {
 		js_fprintf((FILE *)scgp->errfile, "ret: %d errno: %d (%s)\n", ret, errno, errmsgstr(errno));
 		js_fprintf((FILE *)scgp->errfile, "data_length:     %d\n", req.data_length);
-		js_fprintf((FILE *)scgp->errfile, "buffer:          0x%X\n", req.buffer);
+		js_fprintf((FILE *)scgp->errfile, "buffer:          %p\n", req.buffer);
 		js_fprintf((FILE *)scgp->errfile, "timeout_value:   %d\n", req.timeout_value);
 		js_fprintf((FILE *)scgp->errfile, "status_validity: %d\n", req.status_validity);
 		js_fprintf((FILE *)scgp->errfile, "scsi_bus_status: 0x%X\n", req.scsi_bus_status);
@@ -368,6 +544,21 @@ do_scg_cmd(scgp, sp)
 		js_fprintf((FILE *)scgp->errfile, "adap_q_status:   0x%X\n", req.adap_q_status);
 		js_fprintf((FILE *)scgp->errfile, "q_tag_msg:       0x%X\n", req.q_tag_msg);
 		js_fprintf((FILE *)scgp->errfile, "flags:           0X%X\n", req.flags);
+
+		switch(scglocal(scgp)->transp) {
+		case TR_UNKNONW:
+			js_fprintf((FILE *)scgp->errfile, "using ioctl: Unknown\n");
+			break;
+		case TR_DKIOCMD:
+			js_fprintf((FILE *)scgp->errfile, "using ioctl: DKIOCMD\n");
+			break;
+		case TR_DKPASSTHRU:
+			js_fprintf((FILE *)scgp->errfile, "using ioctl: DK_PASSTHRU\n");
+			break;
+		case TR_IDEPASSTHRU:
+			js_fprintf((FILE *)scgp->errfile, "using ioctl: IDEPASSTHRU\n");
+			break;
+		}
 	}
 	if (ret < 0) {
 		sp->ux_errno = geterrno();
@@ -420,7 +611,7 @@ do_scg_sense(scgp, sp)
 	struct scg_cmd	s_cmd;
 
 	fillbytes((caddr_t)&s_cmd, sizeof (s_cmd), '\0');
-	s_cmd.addr = sp->u_sense.cmd_sense;
+	s_cmd.addr = (caddr_t)sp->u_sense.cmd_sense;
 	s_cmd.size = sp->sense_len;
 	s_cmd.flags = SCG_RECV_DATA|SCG_DISRE_ENA;
 	s_cmd.cdb_len = SC_G0_CDBLEN;
@@ -444,7 +635,7 @@ scgo_send(scgp)
 	SCSI		*scgp;
 {
 	struct scg_cmd	*sp = scgp->scmd;
-	int	error = sp->error;
+	int	err = sp->error;		/* GCC: error shadows error() */
 	Uchar	status = sp->u_scb.cmd_scb[0];
 	int	ret;
 
@@ -457,7 +648,7 @@ scgo_send(scgp)
 		if (sp->u_scb.cmd_scb[0] & 02)
 			ret = do_scg_sense(scgp, sp);
 	}
-	sp->error = error;
+	sp->error = err;
 	sp->u_scb.cmd_scb[0] = status;
 	return (ret);
 }

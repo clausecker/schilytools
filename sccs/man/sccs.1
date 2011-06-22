@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sccs.1	4.11 11/05/17 portions Copyright 2007-2011 J. Schilling */
+.\" @(#)sccs.1	4.12 11/06/13 portions Copyright 2007-2011 J. Schilling */
 .\" 
 .\" CDDL HEADER START
 .\"
@@ -20,7 +20,7 @@
 .\"
 .\" CDDL HEADER END
 .\"  Copyright (c) 2007, Sun Microsystems, Inc.  All Rights Reserved.
-.TH sccs 1 "2011/05/17" "SunOS 5.11" "User Commands"
+.TH sccs 1 "2011/06/13" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs \- front end for the Source Code Control System (SCCS)
 .SH SYNOPSIS
@@ -1251,91 +1251,81 @@ An error occurred.
 .SH FILES
 .sp
 .ne 2
-.mk
-.na
-\fB\fBSCCS\fR\fR
-.ad
-.RS 15n
-.rt  
-\fBSCCS\fR subdirectory
-.RE
+.TP 15
+.B SCCS
+.B SCCS
+subdirectory
 
 .sp
 .ne 2
-.mk
-.na
-\fB\fBSCCS/d.\fIfile\fR\fR\fR
-.ad
-.RS 15n
-.rt  
-temporary file of differences
-.RE
+.TP
+.BI SCCS/d. file
+temporary file of differences created by the
+.BR delta (1)
+program
 
 .sp
 .ne 2
-.mk
-.na
-\fB\fBSCCS/p.\fIfile\fR\fR\fR
-.ad
-.RS 15n
-.rt  
-lock (permissions) file for checked-out versions
-.RE
+.TP
+.BI SCCS/e. file
+temporary file to hold an uuencoded version of the 
+.B g-file 
+in case of an encoded history file 
 
 .sp
 .ne 2
-.mk
-.na
-\fB\fBSCCS/q.\fIfile\fR\fR\fR
-.ad
-.RS 15n
-.rt  
-temporary file
-.RE
+.TP
+.BI l. file
+file containing extracted delta table info created by the
+.BR get (1)
+program
 
 .sp
 .ne 2
-.mk
-.na
-\fB\fBSCCS/s.\fIfile\fR\fR\fR
-.ad
-.RS 15n
-.rt  
-\fBSCCS\fR history file
-.RE
+.TP
+.BI SCCS/p. file
+permissions (lock) file for checked-out versions
 
 .sp
 .ne 2
-.mk
-.na
-\fB\fBSCCS/x.\fIfile\fR\fR\fR
-.ad
-.RS 15n
-.rt  
-temporary copy of the \fBs.\fRfile
-.RE
+.TP
+.BI SCCS/q. file
+temporary copy of the
+.BR p. file;
+renamed to the
+.BR p. file
+after completion
 
 .sp
 .ne 2
-.mk
-.na
-\fB\fBSCCS/z.\fIfile\fR\fR\fR
-.ad
-.RS 15n
-.rt  
-temporary lock file
-.RE
+.TP
+.BI SCCS/s. file
+.B SCCS
+history file
 
 .sp
 .ne 2
-.mk
-.na
-\fB\fB/usr/ccs/bin/*\fR\fR
-.ad
-.RS 15n
-.rt  
-\fBSCCS\fR utility programs
-.RE
+.TP
+.BI SCCS/x. file
+temporary copy of the
+.BR s. file;
+renamed to the
+.BR s. file
+after completion
+
+.sp
+.ne 2
+.TP
+.BI SCCS/z. file
+temporary lock file contains the binary process id in host byte order
+followed by the host name
+
+.sp
+.ne 2
+.TP
+.B /usr/ccs/bin/*
+.B SCCS
+utility programs
 
 .SH ATTRIBUTES
 .LP

@@ -45,6 +45,13 @@
   License: CDDL
 
 ----------------------------------------------------------------------------
+* cpp
+  Written by John F. Reiser in July/August 1978
+  Copyright Caldera International Inc. 2001-2002
+  Copyright 2010 J. Schilling
+  License: BSD
+
+----------------------------------------------------------------------------
 * hdump
   Copyright 1986-2008 J. Schilling
   License: CDDL
@@ -147,6 +154,23 @@
 * p
   Copyright 1985-2008 J. Schilling
   License: CDDL
+
+----------------------------------------------------------------------------
+* patch
+  Copyright (c) 1986-1988 Larry Wall
+  Copyright (c) 2011 J. Schilling
+  License: 
+This program may be copied as long as you don't try to make any
+money off of it, or pretend that you wrote it.
+
+According to Larry Wall:
+
+I have no problem with anyone including patch in a commercial
+distribution.  The copyright was only put there to scare off anyone who
+might take patch when it was still young and innocent and try to dupe
+someone else into paying for something that can be had for free.
+You're not trying to dupe people.  And patch is no longer young and
+innocent.
 
 ----------------------------------------------------------------------------
 * pkgdefs

@@ -25,10 +25,10 @@
 /*
  * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)sccs.c	1.46 11/05/30 J. Schilling
+ * @(#)sccs.c	1.47 11/06/18 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)sccs.c 1.46 11/05/30 J. Schilling"
+#pragma ident "@(#)sccs.c 1.47 11/06/18 J. Schilling"
 #endif
 /*
  * @(#)sccs.c 1.85 06/12/12
@@ -1699,19 +1699,7 @@ command(argv, forkflag, arg0)
 		      }
 		      strcat(buf, ",");
 		      gstrcat(buf, tail(*np), sizeof(buf));
-		      if (link(*np, buf) >= 0) {
-			 unlink(*np);
-		      } else {
-		         if (errno == EEXIST) {
-			    /*
-			     * File to link to exists,
-			     * Remove it and try again.
-			     */
-			    unlink(buf);
-			    if (link(*np, buf) >= 0)
-			       unlink(*np);
-			 }
-		      }
+		      (void)rename(*np, buf);
 		   }
 		   np++;
 		}

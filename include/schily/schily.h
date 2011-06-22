@@ -1,4 +1,4 @@
-/* @(#)schily.h	1.95 11/06/04 Copyright 1985-2010 J. Schilling */
+/* @(#)schily.h	1.96 11/06/15 Copyright 1985-2010 J. Schilling */
 /*
  *	Definitions for libschily
  *
@@ -253,6 +253,7 @@ extern	time_t		mkgmtime	__PR((struct tm *));
 
 extern	int	getperm	__PR((FILE *f, char *perm, char *opname, \
 				mode_t *modep, int smode, int flag));
+extern	void	permtostr	__PR((mode_t mode, char *));
 #endif
 #endif
 

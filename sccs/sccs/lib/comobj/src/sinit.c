@@ -25,12 +25,12 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2009 J. Schilling
+ * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)sinit.c	1.6 09/11/08 J. Schilling
+ * @(#)sinit.c	1.7 11/06/19 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)sinit.c 1.6 09/11/08 J. Schilling"
+#pragma ident "@(#)sinit.c 1.7 11/06/19 J. Schilling"
 #endif
 /*
  * @(#)sinit.c 1.7 06/12/12
@@ -63,7 +63,11 @@ int openflag;
 	pkt->do_chksum = 1;	/* turn on checksum check for getline */
 	if (openflag) {
 		pkt->p_iop = xfopen(file, O_RDONLY|O_BINARY);
-		setbuf(pkt->p_iop,pkt->p_buf);
+#ifdef	USE_SETVBUF
+		setvbuf(pkt->p_iop, NULL, _IOFBF, VBUF_SIZE);
+#else
+		setbuf(pkt->p_iop, pkt->p_buf);
+#endif
 		fstat((int)fileno(pkt->p_iop),&Statbuf);
 		if (Statbuf.st_nlink > 1)
 			fatal(gettext("more than one link (co3)"));

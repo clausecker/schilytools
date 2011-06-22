@@ -1,11 +1,11 @@
-/* @(#)sys.c	1.69 09/11/15 Copyright 1986-2009 J. Schilling */
+/* @(#)sys.c	1.70 11/06/15 Copyright 1986-2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)sys.c	1.69 09/11/15 Copyright 1986-2009 J. Schilling";
+	"@(#)sys.c	1.70 11/06/15 Copyright 1986-2011 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1986-2009 J. Schilling
+ *	Copyright (c) 1986-2011 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -118,6 +118,7 @@ start(vp, std)
 		vp->av_av[0], fdown(std[0]), fdown(std[1]), fdown(std[2]));
 	for (i = 1; i < vp->av_ac; i++)
 		fprintf(stderr, " %s", vp->av_av[i]);
+	i = 0;		/* Siehe pfexec */
 	fputc('\n', stderr);
 	fflush(stderr);
 #endif
@@ -505,9 +506,9 @@ printf("ewait: back from child (WSTOPPED).\n");
 #ifdef DEBUG
 printf("ewait: back from child.\n");
 printf("       died       = %lx (%ld) errno= %d\n", (long)died, (long)died, geterrno());
-printf("       wait       = %x\n", *(int *)&status);
-printf("       exit_state = %x\n", status.exit);
-printf("       return     = %x\n", status.type);
+printf("       wait       = %4.4x\n", *(int *)&status);
+printf("       exit_state = %2.2x\n", status.exit);
+printf("       return     = %2.2x\n", status.type);
 #endif
 		ex_status = status.exit;
 		if (!ex_status && status.type)		/* Joerg */

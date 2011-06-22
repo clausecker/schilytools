@@ -27,10 +27,10 @@
 /*
  * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)prs.c	1.24 11/06/04 J. Schilling
+ * @(#)prs.c	1.26 11/06/13 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)prs.c 1.24 11/06/04 J. Schilling"
+#pragma ident "@(#)prs.c 1.26 11/06/13 J. Schilling"
 #endif
 /*
  * @(#)prs.c 1.33 06/12/12
@@ -292,13 +292,12 @@ char *argv[];
 				fatal(gettext("Usage: prs [ -ael ][ -c date-time ][ -d dataspec ]\n\t[ -r SID ] s.filename ..."));
 			}
 
-			/* The following is necessary in case the */
-			/* user types some localized character,  */
-			/* which will exceed the limits of the */
-			/* array "had", defined in ../../hdr/had.h . */
-			if ((c - 'a') < 0 || (c - 'a') > 25) 
-			       continue;
-			if (had[c - 'a']++)
+			/*
+			 * Make sure that we only collect option letters from
+			 * the range 'a'..'z' and 'A'..'Z'.
+			 */
+			if (ALPHA(c) &&
+			    (had[LOWER(c)? c-'a' : NLOWER+c-'A']++))
 				fatal(gettext("key letter twice (cm2)"));
 	}
 
@@ -684,6 +683,9 @@ struct	stats	*statp;
 			case 'F':	/* File name */
 				printf("%s",sname(gpkt.p_file));
 				break;
+			case 'G':	/* Basename of g-file */
+				printf("%s", auxf(gpkt.p_file,'g'));
+				break;
 			default:
 				putchar(':');
 				--lp;
@@ -721,13 +723,20 @@ struct	stats	*statp;
 				break;
 			case 256*'y'+'D':	/* :Dy: Year delta created */
 				if (Dtime->tm_year >= 100) {
-				   Dtime->tm_year -= 100;
+				   Dtime->tm_year %= 100;
 				}
 				printf("%02d",Dtime->tm_year);
 				break;
 			case 256*'Y'+'D':	/* :DY: Year delta created */
 				Dtime->tm_year += 1900;
 				printf("%4d",Dtime->tm_year); /* 4 digits */
+				break;
+			case 256*'_'+'D':	/* :D_: Date delta created y-m-d */
+				Deltadatel[4] = '-';
+				Deltadatel[7] = '-';
+				printf("%s",Deltadatel);
+				Deltadatel[4] = '/';
+				Deltadatel[7] = '/';
 				break;
 			case 256*'m'+'D':	/* :Dm: Month delta created */
 				printf("%02d",(Dtime->tm_mon + 1));

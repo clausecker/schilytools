@@ -1,4 +1,8 @@
-h50287
+h55822
+s 00001/00001/00053
+d D 1.2 11/06/18 16:06:36 joerg 2 1
+c x=z.$g -> x=x.$g
+e
 s 00054/00000/00000
 d D 1.1 10/05/11 11:30:00 joerg 1 0
 c date and time created 10/05/11 11:30:00 by joerg
@@ -19,7 +23,12 @@
 g=testfile
 s=s.$g
 z=z.$g
+D 2
 x=z.$g
+E 2
+I 2
+x=x.$g
+E 2
 p=p.$g
 files="$s $z $x $p"
 

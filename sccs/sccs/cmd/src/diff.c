@@ -39,10 +39,10 @@
 /*
  * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)diff.c	1.32 11/05/02 J. Schilling
+ * @(#)diff.c	1.34 11/06/21 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)diff.c 1.32 11/05/02 J. Schilling"
+#pragma ident "@(#)diff.c 1.34 11/06/21 J. Schilling"
 #endif
 
 #if defined(sun)
@@ -1018,6 +1018,7 @@ change(a, b, c, d)
 {
 	char	time_buf[BUFSIZ];
 	char	*dcmsg;
+	char	*p;
 
 	if (opt != D_IFDEF && a > b && c > d)
 		return;
@@ -1035,12 +1036,24 @@ change(a, b, c, d)
 			 * %T -- Time as %H:%M:%S
 			 * %Y -- Year, including the century
 			 */
-			if (uflag)
+			if (uflag) {
+#if	!defined(_FOUND_STAT_NSECS_)
 				dcmsg = "%Y-%m-%d %H:%M:%S %z";
-			else
+#else
+				dcmsg = "%Y-%m-%d %H:%M:%S.000000000 %z";
+#endif
+			} else {
 				dcmsg = dcgettext(NULL, "%a %b %e %T %Y",
 								LC_TIME);
+			}
 			(void) cftime(time_buf, dcmsg, &stb1.st_mtime);
+			if ((p = strchr(time_buf, '.')) != NULL) {
+				long	ns = stat_mnsecs(&stb1);
+				if (ns < 0)
+					ns = 0;
+				sprintf(++p, "%9.9ld", ns);
+				p[9] = ' ';	/* '\0' from sprintf() */
+			}
 			if (uflag)
 				(void) printf("--- %s	%s\n", input_file1,
 				    time_buf);
@@ -1048,6 +1061,13 @@ change(a, b, c, d)
 				(void) printf("*** %s	%s\n", input_file1,
 				    time_buf);
 			(void) cftime(time_buf, dcmsg, &stb2.st_mtime);
+			if ((p = strchr(time_buf, '.')) != NULL) {
+				long	ns = stat_mnsecs(&stb2);
+				if (ns < 0)
+					ns = 0;
+				sprintf(++p, "%9.9ld", ns);
+				p[9] = ' ';	/* '\0' from sprintf() */
+			}
 			if (uflag)
 				(void) printf("+++ %s	%s\n", input_file2,
 				    time_buf);

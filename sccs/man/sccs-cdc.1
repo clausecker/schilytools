@@ -19,7 +19,7 @@
 .\" CDDL HEADER END
 .\" Copyright (c) 1999, Sun Microsystems, Inc.
 .\" Copyright 2007-2011 J. Schilling
-.TH sccs-cdc 1 "2011/04/03" "SunOS 5.11" "User Commands"
+.TH sccs-cdc 1 "2011/06/13" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs-cdc, cdc \- change the delta commentary of an SCCS delta
 .SH SYNOPSIS
@@ -143,16 +143,20 @@ performance enhancements in main()
 
 .sp
 .ne 2
-.mk
-.na
-\fB\fBz.file\fR\fR
-.ad
-.RS 8n
-.rt  
-temporary lock file
-.sp
+.TP 12
+.BI x. file
+temporary copy of the
+.BR s. file;
+renamed to the
+.BR s. file
+after completion
 
-.RE
+.sp
+.ne 2
+.TP
+.BI z. file
+temporary lock file contains the binary process id in host byte order
+followed by the host name
 
 .SH ATTRIBUTES
 

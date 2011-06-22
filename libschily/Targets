@@ -1,4 +1,4 @@
-# @(#)Targets	1.22 11/06/04 Copyright 1995 J. Schilling
+# @(#)Targets	1.23 11/06/15 Copyright 1995 J. Schilling
 
 CFILES_STDIO=	cvmod.c dat.c fcons.c fdown.c fdup.c \
 		ffileread.c ffilewrite.c \
@@ -35,6 +35,7 @@ CFILES_REST=	astoi.c astoll.c astoull.c basename.c breakline.c \
 		match.c matchl.c matchw.c matchwl.c movebytes.c \
 		mkgmtime.c \
 		mem.c jmem.c fjmem.c \
+		permtostr.c \
 		raisecond.c rename.c \
 		saveargs.c \
 		searchinpath.c serrmsg.c seterrno.c setfp.c \

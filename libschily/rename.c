@@ -1,13 +1,13 @@
-/* @(#)rename.c	1.10 09/07/08 Copyright 1998-2009 J. Schilling */
+/* @(#)rename.c	1.11 11/06/18 Copyright 1998-2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)rename.c	1.10 09/07/08 Copyright 1998-2009 J. Schilling";
+	"@(#)rename.c	1.11 11/06/18 Copyright 1998-2011 J. Schilling";
 #endif
 /*
  *	rename() for old systems that don't have it.
  *
- *	Copyright (c) 1998-2009 J. Schilling
+ *	Copyright (c) 1998-2011 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -27,6 +27,7 @@ static	UConst char sccsid[] =
 #ifndef	HAVE_RENAME
 
 #include <schily/stdio.h>	/* XXX not OK but needed for js_xx() in schily/schily.h */
+#include <schily/stdlib.h>
 #include <schily/unistd.h>
 #include <schily/string.h>
 #include <schily/stat.h>
@@ -60,10 +61,11 @@ rename(old, new)
 	const char	*old;
 	const char	*new;
 {
-	char	nname[MAXNAME];
 	char	bakname[MAXNAME];
+	char	*p;
 	char	strpid[32];
 	int	strplen;
+	int	plen;
 	BOOL	savpresent = FALSE;
 	BOOL	newpresent = FALSE;
 	int	serrno;
@@ -82,21 +84,34 @@ rename(old, new)
 			return (0);		/* old == new we are done */
 	}
 
-	strplen = js_snprintf(strpid, sizeof (strpid), ".%lld",
+#ifndef	HAVE_MKTEMP
+	strplen = js_snprintf(strpid, sizeof (strpid), ".%llx",
 							(Llong)getpid());
+#else
+	strplen = 6;
+	strcpy(strpid, "XXXXXX");
+#endif
 
-	if (strlen(new) <= (MAXNAME-strplen) ||
-	    strchr(&new[MAXNAME-strplen], '/') == NULL) {
-		/*
-		 * Save old version of file 'new'.
-		 */
-		strncpy(nname, new, MAXNAME-strplen);
-		nname[MAXNAME-strplen] = '\0';
-		js_snprintf(bakname, sizeof (bakname), "%s%s", nname, strpid);
-		unlink(bakname);
-		if (link(new, bakname) >= 0)
-			savpresent = TRUE;
-	}
+	/*
+	 * Save old version of file 'new' to allow us to restore it.
+	 * Platforms without rename() usually only support short filenames
+	 * but limit pid to 32000.
+	 */
+	strlcpy(bakname, new, MAXNAME-strplen);
+	p = strrchr(bakname, '/');
+	if (p == NULL)
+		p = bakname;
+	else
+		p++;
+	plen = strlen(p);
+	if ((plen + strplen) > 14)
+		p[14-strplen] = '\0';
+	strcat(p, strpid);
+#ifdef	HAVE_MKTEMP
+	mktemp(bakname);
+#endif
+	if (bakname[0] != '\0' && link(new, bakname) >= 0)
+		savpresent = TRUE;
 
 	if (newpresent) {
 		if (rmdir(new) < 0) {
@@ -127,7 +142,8 @@ rename(old, new)
 	}
 	if (unlink(old) < 0)
 		return (-1);
-	unlink(bakname);		/* Fails in most cases...	*/
+	if (savpresent)
+		unlink(bakname);	/* Fails in most cases...	*/
 	seterrno(serrno);		/* ...so restore errno		*/
 	return (0);
 }

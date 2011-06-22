@@ -19,7 +19,7 @@
 .\" CDDL HEADER END
 .\" Copyright (c) 1999, Sun Microsystems, Inc. All Rights Reserved
 .\" Copyright 2007-2011 J. Schilling
-.TH sccs-get 1 "2011/05/27" "SunOS 5.11" "User Commands"
+.TH sccs-get 1 "2011/06/13" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs-get, get \- retrieve a version of an SCCS file
 .SH SYNOPSIS
@@ -548,55 +548,38 @@ files for a \fB%\&sccs.include.\fIfilename\fB\&%\fR replacement.
 
 .sp
 .ne 2
-.mk
-.na
-\fB``g-file''\fR
-.ad
-.RS 12n
-.rt  
+.TP 12
+.B ``g-file''
 version retrieved by \fBget\fR
-.sp
-
-.RE
 
 .sp
 .ne 2
-.mk
-.na
-\fB\fBl.\fR\fIfile\fR\fR
-.ad
-.RS 12n
-.rt  
+.TP
+.BI l. file
 file containing extracted delta table info
-.sp
-
-.RE
 
 .sp
 .ne 2
-.mk
-.na
-\fB\fBp.\fR\fIfile\fR\fR
-.ad
-.RS 12n
-.rt  
-permissions (lock) file
-.sp
-
-.RE
+.TP
+.BI p. file
+permissions (lock) file for checked-out versions
 
 .sp
-.ne 2
-.mk
-.na
-\fB\fBz.\fR\fIfile\fR\fR
-.ad
-.RS 12n
-.rt  
-temporary copy of \fBs.\fR\fIfile\fR
-.sp
+.ne 3
+.TP
+.BI q. file
+temporary copy of the 
+.BR p. file; 
+renamed to the 
+.BR p. file 
+after completion 
 
-.RE
+.sp
+.ne 3
+.TP
+.BI z. file
+temporary lock file contains the binary process id in host byte order 
+followed by the host name
 
 .SH ATTRIBUTES
 

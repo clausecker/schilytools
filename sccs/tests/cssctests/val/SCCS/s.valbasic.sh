@@ -1,4 +1,8 @@
-h03752
+h36880
+s 00006/00005/00091
+d D 1.3 11/06/15 23:36:37 joerg 3 2
+c Test ob chmod 0 eine Datei unlesbar macht
+e
 s 00004/00000/00092
 d D 1.2 11/05/31 22:43:36 joerg 2 1
 c if [ ".$CYGWIN" = '.' ]; then um Tests mit chmod 0 p.foo / s.foo
@@ -61,15 +65,31 @@ docommand v12 "${vg_val} -r1.2 s.f" 4 IGNORE IGNORE
 docommand v13 "${vg_val} -r1.2xyzzy s.f" 8 IGNORE IGNORE
 
 I 2
+D 3
 if [ ".$CYGWIN" = '.' ]; then
+E 3
 E 2
 chmod 0 s.f || miscarry "Cannot change permissions for file s.f"
+D 3
 # Cannot read file
 docommand v14 "${vg_val} s.f" 16 IGNORE IGNORE
 chmod +r s.f || miscarry "Cannot reset permissions for file s.f"
+E 3
+I 3
+cat s.f > /dev/null 2> /dev/null
+if [ $? -ne 0 ]; then
+	# Cannot read file
+	docommand v14 "${vg_val} s.f" 16 IGNORE IGNORE
+	chmod +r s.f || miscarry "Cannot reset permissions for file s.f"
+E 3
 I 2
 else
+D 3
 	echo "Your OS or your the filesystem do not support chmod 0 - some tests skipped"
+E 3
+I 3
+	echo "Your permissions on your OS do not support chmod 0 to remove read permission - test v14 skipped"
+E 3
 fi
 E 2
 

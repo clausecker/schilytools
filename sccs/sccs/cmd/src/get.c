@@ -27,10 +27,10 @@
 /*
  * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)get.c	1.31 11/05/29 J. Schilling
+ * @(#)get.c	1.33 11/06/19 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)get.c 1.31 11/05/29 J. Schilling"
+#pragma ident "@(#)get.c 1.33 11/06/19 J. Schilling"
 #endif
 /*
  * @(#)get.c 1.59 06/12/12
@@ -309,18 +309,13 @@ register char *argv[];
 			
 			}
 
-			/* The following is necessary in case the */
-			/* user types some localized character,  */
-			/* which will exceed the limits of the */
-			/* array "had", defined in ../hdr/had.h . */
-			/* This guard is also necessary in case the */
-			/* user types a capital ascii character, in */
-			/* which case the had[] array reference will */
-			/* be out of bounds.  */
-			if (!((c - 'a') < 0 || (c - 'a') > 25)) {
-			   if (had[c - 'a']++)
-			      fatal(gettext("key letter twice (cm2)"));
-			}
+			/*
+			 * Make sure that we only collect option letters from
+			 * the range 'a'..'z' and 'A'..'Z'.
+			 */
+			if (ALPHA(c) &&
+			    (had[LOWER(c)? c-'a' : NLOWER+c-'A']++))
+				fatal(gettext("key letter twice (cm2)"));
 	}
 	for (i=1; i<argc; i++) {
 		if (argv[i]) {
@@ -513,6 +508,13 @@ char *file;
 					gpkt.p_gout = xfcreat(Gfile,HADK ? 
 						((mode_t)0644) : ((mode_t)0444));
 				}
+#ifdef	USE_SETVBUF
+				/*
+				 * Do not call setvbuf() with stdout as this may result
+				 * in a second illegal call in gen_lfile().
+				 */
+				setvbuf(gpkt.p_gout, NULL, _IOFBF, VBUF_SIZE);
+#endif
 			}
 		}
 		if (Sflags[ENCODEFLAG - 'a'] &&
@@ -658,6 +660,10 @@ register struct packet *pkt;
 
 	in = xfopen(pkt->p_file, O_RDONLY|O_BINARY);
 	if (pkt->p_lfile) {
+		/*
+		 * Do not call setvbuf() with stdout as this may result
+		 * in a second illegal call in get().
+		 */
 		out = stdout;
 	} else {
 		outname = auxf(pkt->p_file, 'l');

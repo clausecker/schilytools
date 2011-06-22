@@ -1,0 +1,138 @@
+New features with AN-2011-06-22:
+
+This is the first localization step for the schily source consolidation. Many
+programs now (hopefully) call gettext() for all strings that need localization.
+
+-	The next step will include dgettext() calls for the libraries and the
+	missing programs
+
+-	The following step will include the extracted strings
+
+-	The last step will include German translations and install support
+	for the resulting binary message object files.
+
+----------> Please test and report compilation problems! <---------
+
+***** NOTE: As mentioned since 2004, frontends to the tools should *****
+*****		call all programs in the "C" locale		   *****
+*****		by e.g. calling: LC_ALL=C cdrecord ....		   *****
+*****		unless these frontends support localized strings   *****
+*****		used by the cdrtools with NLS support.		   *****
+
+
+-	Schily.Copyright updated for "cpp" and "patch"
+
+-	COPYING updated for "cpp" and "patch"
+
+-	A new rule RULES/profiled.lnk allows to call:
+
+	smake COPTX=-pg LDOPTX=-pg LINKMODE=profiles
+
+	to create binaries that use gprof.
+
+-	New function permtostr() in libschily allows to convert a
+	mode_t like stat.st_mode into a chmod compliant string like:
+
+		u=rw,g=r,o=r
+
+	that is accepted by libschily::getperm() to allow a  conversion
+	back to a mode_t variable.
+
+-	libschily::rename() now uses mktemp() to temorarily save the
+	rename target file.
+
+-	libscg::scsi-aix.c was updated with some experimental code to support
+	two new SCSI kernel interfaces on AIX.
+
+-	star::longnames.c now uses a hack with a 101 char array t_name
+	to avoid an incorrect buffer overflow warning from gcc.
+
+-	star no longer replaces the out of range time stamps from the
+	extended header times by the current time but uses the
+	time stamp from the standard header. *** What it the right
+	way to go here? ***
+
+-	All SCCS commands now remember upper case option letters in the
+	extended had[] array.
+
+-	A new help text for the new admin error message (ad35) was added.
+
+-	SCCS admin and rmchg now use gpkt.p_file instead of the hacky
+	(char *)&gpkt
+
+-	The function mkgmtime() has been moved to libschily
+
+-	The SCCS prs command now supports two new keywords:
+
+	:G:	The base name of the file. This is "file" for a history
+		file name "s.file"
+
+	:D_:	yyyy-mm-dd for a delta
+
+-	The diff command now includes the nanosecond value for the time
+	stamp with "diff -u" in case it is run on an OS that supports
+	sub-second file time stamps.
+
+-	Several SCCS man pages have been updated to include a better and more
+	complete description of the various files and their prefixes.
+
+-	The sccs-delta.1 man page now tries to avoid a confusion with the 
+	exit code when using -d
+
+-	The bugs in the lock file mechanism introduced by Sun have been
+	removed. SCCS is now again able to automatically recover from
+	a sccs program killed by a signal during the creation of a lock
+	file.
+
+-	A bug (introduced by Sun while introducing automated binary file
+	support around 1986) was fixed. SCCS no longer incorrectly asumes
+	a binary file in case that a long line (longer than BUFSIZ) contains
+	a ^A character at BUFSIZ offset.
+
+-	SCCS no longer calls link() and thus is now portable to platforms
+	that do not support hard links (such as BeOS).
+
+-	The SCCS performance has been enhanced. This includes fixing
+	some oddities that caused SCCS to call read(2)/write(2) with
+	a bytecount of 1016.
+
+	-	SCCS "admin -n -ifile" (to create a new SCCS history file)
+		is now typically 4x faster than "Sun SCCS" admin.
+
+	-	A typical edit chain "get -e" followed by "delta" is now
+		typically 50% faster than "Sun SCCS".
+
+	-	SCCS is now typically 4x-6x faster than GNU CSSC
+		As CSSC slows down by ndeltas**2, this difference may become
+		larger with a high number of deltas.
+
+	Some data to compare with other systems:
+
+	-	SCCS is now typically 2x faster than RCS
+
+	-	SCCS is now typically aprox. 4x-10x faster than mercurial
+
+	-	SCCS is now typically 6x-12x faster than CVS
+
+
+-	New autocof tests on whether printf supoorts %lld and %jd
+
+-	bdiff and the SCCS basic command now try to avoid to link against printf
+	from libschily in case that the lical libc supports printf("%lld") and
+	printf("%jd")
+
+
+
+
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.isdn.cs.tu-berlin.de, js@cs.tu-berlin.de
+	joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

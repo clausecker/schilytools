@@ -25,12 +25,12 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2009 J. Schilling
+ * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)lockit.c	1.7 09/11/08 J. Schilling
+ * @(#)lockit.c	1.9 11/06/20 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)lockit.c 1.7 09/11/08 J. Schilling"
+#pragma ident "@(#)lockit.c 1.9 11/06/20 J. Schilling"
 #endif
 /*
  * @(#)lockit.c 1.20 06/12/12
@@ -59,7 +59,7 @@
 	the given pid, and is successfully removed; -1 otherwise.
 */
 
-# define	NEED_SCHILY_PRINT	/* We need defines for js_snprintf() */
+# define	NEED_PRINTF_J		/* Need defines for js_snprintf()? */
 # include	<defines.h>
 # include	<i18n.h>
 # include	<sys/utsname.h>
@@ -119,6 +119,8 @@ char	*uuname;
 		omtime = Statbuf.st_mtime;
 		if ((fd = open(lockfile, O_RDONLY|O_BINARY)) < 0)
 		   continue;
+		opid = pid;
+		ouuname[0] = '\0';
 		(void)read(fd, (char *)&opid, sizeof(opid));
 		(void)read(fd, ouuname, nodenamelength);
 		(void)close(fd);
@@ -139,6 +141,9 @@ char	*uuname;
 		      (void) sleep(60);
 		   }
 		}
+		if (exists(lockfile) &&
+		    Statbuf.st_size == 0 && omtime == Statbuf.st_mtime)
+			(void) unlink(lockfile);
 		continue;
 	}
 	return(-1);
@@ -174,25 +179,35 @@ char	*uuname;
 char	*lockfile;
 {
 	int	fd;
-	
-        if ((fd = open(lockfile, O_WRONLY|O_CREAT|O_EXCL|O_DSYNC|O_BINARY, 0444)) >= 0) {
-	   if (write(fd, (char *)&pid, sizeof(pid)) != sizeof(pid)) {
-	      (void)close(fd);
-	      (void)unlink(lockfile);
-	      return(xmsg(lockfile, NOGETTEXT("lockit")));
-	   }
-	   if (write(fd, uuname, nodenamelength) != nodenamelength) {
-	      (void)close(fd);
-	      (void)unlink(lockfile);
-	      return(xmsg(lockfile, NOGETTEXT("lockit")));
-	   }
-	   close(fd);
-	   return(0);
+	char	lock[sizeof (pid_t) + nodenamelength];
+	char	*p;
+	int	i;
+
+	/*
+	 * Copy pid and nodename together and write it in a single write() call
+	 * to make sure we are not interrupted with a partially written lock
+	 * file.
+	 * The original implementation wrote into the file under a temporary
+	 * name and the linked it to lockname, but not all platforms support
+	 * hard links.
+	 */
+	for (i = 0, p = (char *)&pid; i < sizeof (pid_t); i++)
+		lock[i] = *p++;
+	strncpy(&lock[sizeof (pid_t)], uuname, nodenamelength);
+
+	if ((fd = open(lockfile, O_WRONLY|O_CREAT|O_EXCL|O_DSYNC|O_BINARY, 0444)) >= 0) {
+		if (write(fd, lock, sizeof (lock)) != sizeof (lock)) {
+			(void)close(fd);
+			(void)unlink(lockfile);
+			return (xmsg(lockfile, NOGETTEXT("lockit")));
+		}
+		close(fd);
+		return (0);
 	}
 	if ((errno == ENFILE) || (errno == EACCES) || (errno == EEXIST)) {
-	   return(-1);
+		return (-1);
 	} else {
-	   return(xmsg(lockfile, NOGETTEXT("lockit")));
+		return (xmsg(lockfile, NOGETTEXT("lockit")));
 	}
 }
 

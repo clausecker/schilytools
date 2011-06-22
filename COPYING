@@ -38,6 +38,8 @@ copy/
 	A program to make a copies of file(s) (CDDL)
 count/
 	A program to count items in file(s) (CDDL)
+cpp/
+	C language preprocessor (BSD)
 DEFAULTS/
 	Default files for the Schily Makefile system (CDDL)
 DEFAULTS_ENG/
@@ -113,6 +115,8 @@ mt/
 	magnetic tape control (CDDL)
 p/
 	paginates text and filters non-printing characters (CDDL)
+patch/
+	a program for applying a diff file to an original
 pkgdefs/
 	Package definitions for CSW (CDDL)
 psmake/

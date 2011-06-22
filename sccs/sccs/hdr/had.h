@@ -27,13 +27,13 @@
 /*
  * This file contains modifications Copyright 2009-2011 J. Schilling
  *
- * @(#)had.h	1.5 11/04/27 J. Schilling
+ * @(#)had.h	1.6 11/06/06 J. Schilling
  */
 #ifndef	_HDR_HAD_H
 #define	_HDR_HAD_H
 
 #if defined(sun)
-#pragma ident "@(#)had.h 1.5 11/04/27 J. Schilling"
+#pragma ident "@(#)had.h 1.6 11/06/06 J. Schilling"
 #endif
 /*
  * @(#)had.h 1.4 06/12/12
@@ -45,7 +45,16 @@
 #endif
 /*
  */
-#define	HAD_SIZE	('z'-'a'+2)	/* Add one for safety */
+#ifndef	NLOWER		/* Copy from defines.h */
+#define	NLOWER		('z'-'a'+1)
+#define	NUPPER		('Z'-'A'+1)
+#define	NALPHA		(NLOWER + NUPPER)
+#define	LOWER(c)	((c) >= 'a' && (c) <= 'z')
+#define	UPPER(c)	((c) >= 'A' && (c) <= 'Z')
+#define	ALPHA(c)	(LOWER(c) || UPPER(c))
+#endif
+
+#define	HAD_SIZE	(NALPHA + 1)	/* Add one for safety */
 
 extern char 	had[HAD_SIZE];	/* one extre for luch (val clears had[26] ??? */
 
@@ -75,5 +84,33 @@ extern char 	had[HAD_SIZE];	/* one extre for luch (val clears had[26] ??? */
 # define HADX had[('x'-'a')]
 # define HADY had[('y'-'a')]
 # define HADZ had[('z'-'a')]
+
+# define HADUCA had[(NLOWER+'A'-'A')]
+# define HADUCB had[(NLOWER+'B'-'A')]
+# define HADUCC had[(NLOWER+'C'-'A')]
+# define HADUCD had[(NLOWER+'D'-'A')]
+# define HADUCE had[(NLOWER+'E'-'A')]
+# define HADUCF had[(NLOWER+'F'-'A')]
+# define HADUCG had[(NLOWER+'G'-'A')]
+# define HADUCH had[(NLOWER+'H'-'A')]
+# define HADUCI had[(NLOWER+'I'-'A')]
+# define HADUCJ had[(NLOWER+'J'-'A')]
+# define HADUCK had[(NLOWER+'K'-'A')]
+# define HADUCL had[(NLOWER+'L'-'A')]
+# define HADUCM had[(NLOWER+'M'-'A')]
+# define HADUCN had[(NLOWER+'N'-'A')]
+# define HADUCO had[(NLOWER+'O'-'A')]
+# define HADUCP had[(NLOWER+'P'-'A')]
+# define HADUCQ had[(NLOWER+'Q'-'A')]
+# define HADUCR had[(NLOWER+'R'-'A')]
+# define HADUCS had[(NLOWER+'S'-'A')]
+# define HADUCT had[(NLOWER+'T'-'A')]
+# define HADUCU had[(NLOWER+'U'-'A')]
+# define HADUCV had[(NLOWER+'V'-'A')]
+# define HADUCW had[(NLOWER+'W'-'A')]
+# define HADUCX had[(NLOWER+'X'-'A')]
+# define HADUCY had[(NLOWER+'Y'-'A')]
+# define HADUCZ had[(NLOWER+'Z'-'A')]
+
 
 #endif	/* _HDR_HAD_H */

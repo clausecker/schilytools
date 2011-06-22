@@ -19,7 +19,7 @@
 .\" CDDL HEADER END
 .\" Copyright (c) 1999, Sun Microsystems, Inc. All Rights Reserved
 .\" Copyright 2007-2011 J. Schilling
-.TH sccs-delta 1 "2011/05/20" "SunOS 5.11" "User Commands"
+.TH sccs-delta 1 "2011/06/15" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs-delta, delta \- make a delta to an SCCS file
 .SH SYNOPSIS
@@ -72,7 +72,13 @@ The following options are supported:
 \fB\fB-d\fR\fR
 Use command 
 \fBdiff\fR(1) instead of 
-\fBbdiff\fR(1). Returns exit status \fB2\fR if \fIs.filename\fR argument is not specified.
+\fBbdiff\fR(1). Returns exit status
+.B 2
+instead of
+.B 1
+if the
+.I s.filename
+argument is not specified.
 .sp
 .ne 2
 .TP
@@ -180,81 +186,57 @@ An error occurred, the \fB-d\fR option had been specified, and the \fIs.filename
 
 .sp
 .ne 2
-.mk
-.na
-\fB\fBd.file\fR\fR
-.ad
-.RS 8n
-.rt  
+.TP 12
+.BI d. file
 temporary file of differences
-.sp
-
-.RE
 
 .sp
 .ne 2
-.mk
-.na
-\fB\fBp.file\fR\fR
-.ad
-.RS 8n
-.rt  
-lock file for a checked-out version
-.sp
-
-.RE
+.TP 12
+.BI e. file
+temporary file to hold an uuencoded version of the
+.B g-file
+in case of an encoded history file
 
 .sp
 .ne 2
-.mk
-.na
-\fB\fBq.file\fR\fR
-.ad
-.RS 8n
-.rt  
-temporary file
-.sp
-
-.RE
+.TP
+.BI p. file
+permission (lock) file for checked-out versions
 
 .sp
 .ne 2
-.mk
-.na
-\fB\fBs.file\fR\fR
-.ad
-.RS 8n
-.rt  
-\fBSCCS\fR history file
-.sp
-
-.RE
+.TP
+.BI q. file
+temporary copy of the
+.BR p. file;
+renamed to the
+.BR p. file
+after completion
 
 .sp
 .ne 2
-.mk
-.na
-\fB\fBx.file\fR\fR
-.ad
-.RS 8n
-.rt  
-temporary copy of the \fBs.\fRfile
-.sp
-
-.RE
+.TP
+.BI s. file
+.B SCCS
+history file
 
 .sp
 .ne 2
-.mk
-.na
-\fB\fBz.file\fR\fR
-.ad
-.RS 8n
-.rt  
-temporary file
-.sp
+.TP
+.BI x. file
+temporary copy of the 
+.BR s. file; 
+renamed to the 
+.BR s. file 
+after completion 
 
-.RE
+.sp
+.ne 2
+.TP
+.BI z. file
+temporary lock file contains the binary process id in host byte order
+followed by the host name
 
 .SH ATTRIBUTES
 
