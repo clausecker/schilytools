@@ -1,4 +1,4 @@
-#ident @(#)rules.inc	1.9 09/07/26 
+#ident @(#)rules.inc	1.10 11/07/16 
 ###########################################################################
 # Written 1999 by J. Schilling
 ###########################################################################
@@ -42,9 +42,14 @@ all:		$(PTARGETCX) $(PTARGET)
 
 $(PTARGETCX):	$(OFILES) $(SRCLIBS)
 		$(LDCC) $(_LD_OUTPUT_OPTION) $(POFILES) $(LDFLAGS) $(LDLIBS)
-
+#
+# If calling "$(PTARGETC)$(_XEXEEXT)" fails, this may be a cross compilation,
+# so retry to run the command under control of "$(CONFIG_RMTCALL)".
+#
 $(PTARGET):	$(OINCSDIR) $(PTARGETCX)
-		@echo "	==> GENERATING include file \"$@\""; $(PTARGETC)$(_XEXEEXT) > $@
+		@echo "	==> GENERATING include file \"$@\""; \
+		$(PTARGETC)$(_XEXEEXT) > $@ || \
+		$(CONFIG_RMTCALL) $(PTARGETC)$(_XEXEEXT) > $@
 
 ###########################################################################
 include		$(SRCROOT)/$(RULESDIR)/sub.htm

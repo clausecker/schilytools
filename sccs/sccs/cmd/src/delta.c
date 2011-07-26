@@ -27,10 +27,10 @@
 /*
  * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)delta.c	1.28 11/06/20 J. Schilling
+ * @(#)delta.c	1.32 11/07/04 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)delta.c 1.28 11/06/20 J. Schilling"
+#pragma ident "@(#)delta.c 1.32 11/07/04 J. Schilling"
 #endif
 /*
  * @(#)delta.c 1.40 06/12/12
@@ -52,6 +52,7 @@
 # include	<schily/vfork.h>
 # include	<ccstypes.h>
 # include	<schily/sysexits.h>
+# include	<schily/resource.h>
 
 struct stat Statbuf;
 char Null[1];
@@ -295,7 +296,7 @@ register char *argv[];
 	Fflags |= FTLJMP;
 	for (i=1; i<argc; i++)
 		if ((p=argv[i]) != NULL)
-			do_file(p, delta, 1);
+			do_file(p, delta, 1, 1);
 
 	return (Fcnt ? 1 : 0);
 }
@@ -330,6 +331,7 @@ char *file;
 	if (setjmp(Fjmp))
 		return;
 	sinit(&gpkt,file,1);
+	gpkt.p_flags |= PF_GMT;
 	if (first) {
 		first = 0;
 		dohist(file);
@@ -717,7 +719,7 @@ int orig_nlines;
         }
 	strncpy(dt.d_pgmr,logname(),LOGSIZE-1);
 	dt.d_type = 'D';
-	del_ba(&dt,str);
+	del_ba(&dt,str, 0);
 	putline(pkt,str);
 	if (ilist)
 		mkixg(pkt,INCLUSER,INCLUDE);
@@ -771,7 +773,7 @@ int orig_nlines;
 				dt.d_pred -= 1;
 			else
 				dt.d_pred = opred;	/* point to old pred */
-			del_ba(&dt,str);
+			del_ba(&dt,str, pkt->p_flags);
 			putline(pkt,str);
 			sprintf(str, NOGETTEXT("%c%c "), CTLCHAR, COMMENTS);
 			putline(pkt,str);
@@ -925,9 +927,11 @@ char *newf, *oldf;
 int difflim;
 {
 	register int i;
+	register int n;
 	int pfd[2];
 	FILE *iop;
 	char num[10];
+	struct rlimit	rlim;
 
 	xpipe(pfd);
 	if ((i = vfork()) < 0) {
@@ -942,7 +946,8 @@ int difflim;
 					STDERR_FILENO);
 #ifdef	F_SETFD
 		fcntl(pfd[0], F_SETFD, 1);
-		for (i = 5; i < getdtablesize(); i++)
+		n = getdtablesize();	/* We are single threaded, so cache */
+		for (i = 5; i < n; i++)
 			fcntl(i, F_SETFD, 1);
 #endif
 #else
@@ -950,7 +955,19 @@ int difflim;
 		close(1);
 		dup(pfd[1]);
 		close(pfd[1]);
-		for (i = 5; i < getdtablesize(); i++)
+
+#if defined(HAVE_GETRLIMIT) && defined(HAVE_SETRLIMIT) && defined(RLIMIT_NOFILE)
+		/*
+		 * Set max # of file descriptors to allow bdiff to hold all
+		 * files open and to reduce the number of files to close.
+		 */
+		getrlimit(RLIMIT_NOFILE, &rlim);
+		if (rlim.rlim_cur > 20)
+			rlim.rlim_cur = 20;	/* Suffifient for bdiff/diff */
+		setrlimit(RLIMIT_NOFILE, &rlim);
+#endif
+		n = getdtablesize();	/* We are single threaded, so cache */
+		for (i = 5; i < n; i++)
 			close(i);
 #endif
 		sprintf(num, NOGETTEXT("%d"), difflim);
@@ -1327,6 +1344,10 @@ struct	packet	*pkt;
 #endif	/* !RECORD_IO */
 	fclose(inptr);
 	if (lastchar != '\n'){
+#ifndef	RECORD_IO
+		if (pn && nline == 0)	/* Found null byte but no newline */
+			goto err;
+#endif
 	   sprintf(SccsError,
 	     gettext("No newline at end of file '%s' (de18)"),
 	     file);
@@ -1335,12 +1356,18 @@ struct	packet	*pkt;
 }
  
 /* SVR4.0 does not support getdtablesize().				  */
-/* Code should be rewritten using getrlimit() when R_NFILES is available. */
 
 #ifndef	HAVE_GETDTABLESIZE
 int
 getdtablesize()
 {
-	return (15);
+#if defined(HAVE_GETRLIMIT) && defined(RLIMIT_NOFILE)
+	struct rlimit	rlim;
+
+	rlim.rlim_cur = 20;
+	getrlimit(RLIMIT_NOFILE, &rlim);
+	return (rlim.rlim_cur);
+#endif
+	return (20);
 }
 #endif

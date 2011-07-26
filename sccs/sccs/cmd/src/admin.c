@@ -27,10 +27,10 @@
 /*
  * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)admin.c	1.42 11/06/19 J. Schilling
+ * @(#)admin.c	1.50 11/07/15 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)admin.c 1.42 11/06/19 J. Schilling"
+#pragma ident "@(#)admin.c 1.50 11/07/15 J. Schilling"
 #endif
 /*
  * @(#)admin.c 1.39 06/12/12
@@ -113,7 +113,12 @@ extern char *Sflags[];
 
 static char	stdin_file_buf [20];
 static char	*ifile, *tfile;
+static char	*dir_name;
 static time_t	ifile_mtime;
+static int	Nsdot = 1;
+static int	Nsubd;
+static char	*Nprefix;
+static char	*Nparm;
 static char	*CMFAPPL;	/* CMF MODS */
 static char	*z;			/* for validation program name */
 static char	had_flag[NFLAGS], rm_flag[NFLAGS];
@@ -146,7 +151,9 @@ static	char *	getval __PR((register char *sourcep, register char *destp));
 static	int	val_list __PR((register char *list));
 static	int	pos_ser __PR((char *s1, char *s2));
 static	int	range __PR((register char *line));
-static	void	code __PR((FILE *iptr, char *afile, int offset, int thash, struct packet *pktp));
+static	FILE *	code __PR((FILE *iptr, char *afile, int offset, int thash, struct packet *pktp));
+static	void	direrror __PR((char *dir, int keylet));
+static	char *	bulkprepare __PR((char *afile));
 
 extern int	org_ihash;
 extern int	org_chash;
@@ -223,7 +230,7 @@ char *argv[];
 			}
 			no_arg = 0;
 			j = current_optind;
-		        c = getopt(argc, argv, "-i:t:m:y:d:f:r:nhzboqa:e:V(version)");
+		        c = getopt(argc, argv, "-i:t:m:y:d:f:r:nN:hzboqa:e:V(version)");
 		        	/*
 				*  this takes care of options given after
 				*  file names.
@@ -255,10 +262,7 @@ char *argv[];
 				ifile = p;
 				if (*ifile && exists(ifile)) {
 				   if ((Statbuf.st_mode & S_IFMT) == S_IFDIR) {
-				      sprintf(SccsError,
-				        gettext("directory `%s' specified as `%c' keyletter value (ad29)"),
-				        ifile, c);
-				      fatal(SccsError);
+					direrror(ifile, c);
 				   } else {
 					ifile_mtime = Statbuf.st_mtime;
 				   }
@@ -272,12 +276,8 @@ char *argv[];
 				}
 				tfile = p;
 				if (*tfile && exists(tfile))
-				   if ((Statbuf.st_mode & S_IFMT) == S_IFDIR) {
-				      sprintf(SccsError,
-				        gettext("directory `%s' specified as `%c' keyletter value (ad29)"),
-				        tfile, c);
-				      fatal(SccsError);
-				}
+				   if ((Statbuf.st_mode & S_IFMT) == S_IFDIR)
+					direrror(tfile, c);
 				break;
 			case 'm':	/* mr flag */
 				/*
@@ -469,6 +469,14 @@ char *argv[];
 					fatal(gettext("r out of range (ad7)"));
 				 break;
 
+			case 'N':	/* creating new SCCS files */
+				if (optarg == argv[j+1]) {
+				   no_arg = 1;
+				   Nparm = "";
+				   break;
+				}
+				Nparm = p;
+				break;
 			case 'n':	/* creating new SCCS file */
 			case 'h':	/* only check hash of file */
 			case 'z':	/* zero the input hash */
@@ -513,7 +521,7 @@ char *argv[];
 				exit(EX_OK);
 
 			default:
-				fatal(gettext("Usage: admin [ -bhnoz ][ -ausername|groupid ]\n\t[ -dflag ][ -eusername|groupid ]\n\t[ -fflag [value]][ -i [filename]]\n\t[ -m mr-list][ -r release ][ -t [description-file]]\n\t[ -y[comment]] s.filename ..."));
+				fatal(gettext("Usage: admin [ -bhnoz ][ -ausername|groupid ]\n\t[ -dflag ][ -eusername|groupid ]\n\t[ -fflag [value]][ -i [filename]]\n\t[ -m mr-list][ -r release ][ -t [description-file]]\n\t[ -N[bulk-spec]] [ -y[comment]] s.filename ..."));
 			}
 			/*
 			 * Make sure that we only collect option letters from
@@ -533,6 +541,31 @@ char *argv[];
 	if (num_files == 0) 
 		fatal(gettext("missing file arg (cm3)"));
 
+	if (HADUCN) {
+		HADI = HADN = 1;
+		Nsdot = sccsfile(Nparm);
+		if (Nsdot) {				/* Nparm ends in s. */
+			if (strlen(sname(Nparm)) > 2)
+				fatal(gettext("bad N argument (ad38)"));
+			Nprefix = Nparm;		/* -Ns. / -NSCCS/s. */
+			Nsubd = Nparm != sname(Nparm);
+		} else if (*Nparm == '\0') {		/* Empty Nparm	*/
+			Nprefix = "s.";
+			Nsubd = 0;
+		} else {				/* -NSCCS	*/
+			size_t	len = strlen(Nparm);
+			int	slseen = 1;
+
+			if (Nparm[len-1] != '/') {
+				slseen = 0;
+				len++;
+			}
+			len += 3;
+			Nprefix = fmalloc(len);			
+			cat(Nprefix, Nparm, slseen?"":"/", "s.", (char *)0);
+			Nsubd = 1;
+		}
+	}
 	if ((HADY || HADM) && ! (HADI || HADN))
 		fatal(gettext("illegal use of 'y' or 'm' keyletter (ad30)"));
 	if (HADI && num_files > 1) /* only one file allowed with `i' */
@@ -554,7 +587,7 @@ char *argv[];
 	*/
 	for (j=1; j<argc; j++)
 		if ((p = argv[j]) != NULL)
-			do_file(p, admin, HADN|HADI ? 0 : 1);
+			do_file(p, admin, HADN|HADI ? 0 : 1, Nsdot);
 
 	return (Fcnt ? 1 : 0);
 }
@@ -610,8 +643,14 @@ char	*afile;
 	lval = NULL;
 	ck_it = 0;
 	from_stdin = 0;
+	dir_name = "";
 
 	zero((char *) &stats,sizeof(stats));
+
+	if (HADUCN) {
+		afile = bulkprepare(afile);
+		had_dir = 0;
+	}
 
 	if (HADI && had_dir) /* directory not allowed with `i' keyletter */
 		fatal(gettext("directory named with `i' keyletter (ad26)"));
@@ -711,20 +750,33 @@ char	*afile;
 	
 
 	else {
-		FILE	*xf;
-
 		if ((int) strlen(sname(afile)) > MAXNAMLEN) {
 			sprintf(SccsError, gettext("file name is greater than %d characters"),
 				MAXNAMLEN);
 			fatal(SccsError);
 		}
-		if (exists(auxf(afile,'g')) && (S_IEXEC & Statbuf.st_mode)) {
-			xf = xfcreat(afile,0555);	/* create dummy s-file */
-		} else {
-			xf = xfcreat(afile,0444);	/* create dummy s-file */
+		if (sccsfile(afile)) {
+			FILE	*xf;
+
+			/*
+			 * create dummy s-file
+			 *
+			 * Closing is needed on Cygwin to avoid an EPERM in
+			 * rename()
+			 */
+			Statbuf.st_mode = 0;
+			if (HADI && *ifile)
+				(void) exists(ifile);
+			else
+				(void )exists(auxf(afile,'g'));
+			if (S_IEXEC & Statbuf.st_mode) {
+				xf = xfcreat(afile, 0555);
+			} else {
+				xf = xfcreat(afile, 0444);
+			}
+			if (xf)
+				fclose(xf);
 		}
-		if (xf)			/* XXX Closing is needed on Cygwin   */
-			fclose(xf);	/* XXX to avoid an EPERM in rename() */
 
 		sinit(&gpkt,afile,0);	/* and init pkt */
 	}
@@ -801,7 +853,7 @@ char	*afile;
 		dt.d_serial = 1;
 		dt.d_pred = 0;
 
-		del_ba(&dt,line);	/* form and write */
+		del_ba(&dt,line, 0);	/* form and write */
 		putline(&gpkt,line);	/* delta-table entry */
 
 		/*
@@ -982,7 +1034,7 @@ char	*afile;
 	if (had_flag[CMFFLAG - 'a']) {
 		if (had_flag[VALFLAG - 'a'] && !rm_flag[VALFLAG - 'a'])
 			fatal (gettext("Can't use -fz with -fv."));
-		}
+	}
 	for (k = 0; k < NFLAGS; k++)
 		if (had_flag[k]) {
 			if (flag_p[k] || lval ) {
@@ -1191,14 +1243,20 @@ char	*afile;
 			   stats.s_ins = fgetchk(iptr, ifile, &gpkt, 1);
 			   if (stats.s_ins == -1 ) {
 			      Encoded = 1;
+			   } else {
+			      Encoded = 0;
 			   }
 			} else {
 			   Encoded = 1;
 			}
 			if (Encoded) {
 			   /* non-ascii characters in file, encode them */
-			   code(iptr, afile, offset, thash, &gpkt);
+			   iptr = code(iptr, afile, offset, thash, &gpkt);
 			   stats.s_ins = fgetchk(iptr, ifile, &gpkt, 0);
+			}
+			if (iptr) {
+				fclose(iptr);
+				iptr = NULL;
 			}
 			stats.s_del = stats.s_unc = 0;
 
@@ -1296,9 +1354,16 @@ int	fflag;
 FILE	*inptr;
 struct	packet *pkt;
 {
-	int	nline, idx = 0, search_on = 0;
+	int	nline, idx = 0;
 	char	lastchar;
+#ifndef	RECORD_IO
+	char	*p = NULL;	/* Intialize to make gcc quiet */
+	char	*pn =  NULL;
+	char	line[VBUF_SIZE+1];
+#else
+	int	search_on = 0;
 	char	line[256];	/* Avoid a too long buffer for speed */
+#endif
 
 	/*
 	 * This gives the illusion that a zero-length file ends
@@ -1309,6 +1374,48 @@ struct	packet *pkt;
 	
 	nline = 0;
 	(void)memset(line, '\377', sizeof (line));
+#ifndef	RECORD_IO
+	/*
+	 * In most cases (non record oriented I/O), we can optimize the way we
+	 * scan files for '\0' bytes, line-ends '\n' and ^A '\1'. The optimized
+	 * algorithm allows to avoid to do a reverse scan for '\0' from the end
+	 * of the buffer.
+	 */
+	while ((idx = fread(line, 1, sizeof (line) - 1, inptr)) > 0) {
+		if (lastchar == '\n' && line[0] == CTLCHAR)
+			goto err;
+		lastchar = line[idx-1];
+		p = findbytes(line, idx, '\0');
+		if (p != NULL)
+			pn = p;
+		for (p = line;
+		    (p = findbytes(p, idx - (p-line), '\n')) != NULL; p++) {
+			if (pn && p > pn)
+				goto err;
+			nline++;
+			if ((p - line) >= (idx-1))
+				break;
+
+			if (p[1] == CTLCHAR) {
+	err:
+				if (fflag) {
+					return(-1);
+				} else {
+					sprintf(SccsError,
+					gettext(
+			  "file '%s' contains illegal data on line %d (ad21)"),
+					file, ++nline);
+					fatal(SccsError);
+				}
+			}
+		}
+		if (check_id) {
+			(void)chkid(line, flag_p['i'-'a'], flag_p);
+		}
+		line[idx] = '\0';
+		putline(pkt, line);
+	}
+#else	/* !RECORD_IO */
 	while (fgets(line, sizeof (line), inptr) != NULL) {
 	   if (lastchar == '\n' && line[0] == CTLCHAR) {
 	      nline++;
@@ -1344,7 +1451,12 @@ struct	packet *pkt;
 	   putline(pkt, line);
 	   (void)memset(line, '\377', sizeof (line));
 	}
+#endif	/* !RECORD_IO */
 	if (lastchar != '\n'){
+#ifndef	RECORD_IO
+		if (pn && nline == 0)	/* Found null byte but no newline */
+			goto err;
+#endif
 	   if (fflag) {
 	      return(-1);
 	   } else {
@@ -1401,9 +1513,9 @@ char *str;
 	 */
 	if ((dt->d_datetime < Y1969) ||
 	    (dt->d_datetime >= Y2038))		/* comment only */
-		date_bal(&dt->d_datetime,p);	/* 4 digit year */
+		date_bal(&dt->d_datetime,p, 0);	/* 4 digit year */
 	else
-		date_ba(&dt->d_datetime,p);	/* 2 digit year */
+		date_ba(&dt->d_datetime,p, 0);	/* 2 digit year */
 	while (*p++)
 		;
 	--p;
@@ -1548,7 +1660,7 @@ register char *line;
 	return(1);
 }
 
-static void
+static FILE *
 code(iptr,afile,offset,thash,pktp)
 FILE *iptr;
 char *afile;
@@ -1560,8 +1672,13 @@ struct packet *pktp;
 
 
 	/* issue a warning that file is non-text */
-	if (!HADB)
-		fprintf(stderr, gettext("Not a text file (ad32)\n"));
+	if (!HADB) {
+		fprintf(stderr, "WARNING [%s%s%s]: %s",
+			dir_name,
+			*dir_name?"/":"",
+			ifile,
+			gettext("Not a text file (ad32)\n"));
+	}
 	rewind(iptr);
 	eptr = fopen(auxf(afile,'e'), "wb");
 
@@ -1575,4 +1692,132 @@ struct packet *pktp;
 	putline(pktp,0);
 	fseek(Xiop,offset,0);
 	pktp->p_nhash = thash;
+
+	return (iptr);
+}
+
+static void
+direrror(dir, keylet)
+	char	*dir;
+	int	keylet;
+{
+	sprintf(SccsError,
+	gettext("directory `%s' specified as `%c' keyletter value (ad29)"),
+		dir, (char)keylet);
+	fatal(SccsError);
+}
+
+/*
+ * Compute path names for the bulk enter mode that is selected by -N
+ *
+ * admin -Ns.		Arguments are aaa/s.xxx files with matching aaa/xxx files
+ * admin -N		Arguments are aaa/xxx files, aaa/s.xxx is created
+ * admin -NSCCS/s.	Arguments are aaa/SCCS/s.xxx with matching aaa/xxx files
+ * admin -NSCCS		Arguments are aaa/xxx Files, aaa/SCCS/s.xxx is created
+ */
+static char *
+bulkprepare(afile)
+	char	*afile;
+{
+static int	dfd = -1;
+static char	Dir[MAXPATHLEN];
+static char	Nhold[MAXPATHLEN];
+
+#ifdef	HAVE_FCHDIR
+	if (dfd < 0) {
+		dfd = open(".", 0);		/* on failure use full path */
+	} else {
+		if (fchdir(dfd) < 0)
+			xmsg(".",NOGETTEXT("admin"));
+	}
+#endif
+
+	Dir[0] = '\0';
+	if (!Nsdot) {				/* afile is ifile name */
+		char	*sn = sname(afile);
+
+		if (exists(afile)) {		/* must exist */
+			if ((Statbuf.st_mode & S_IFMT) == S_IFDIR) {
+				direrror(afile, 'i');
+			} else {
+				ifile_mtime = Statbuf.st_mtime;
+			}
+		} else {
+			xmsg(afile,NOGETTEXT("admin"));
+		}
+		if (sn == afile) {		/* No dir for short names */
+			Dir[0] = '\0';
+		} else if (*afile == '/' && &afile[1] == sn) {
+			copy("/", Dir);
+		} else {
+			size_t	len = sn - afile;
+			if (len > sizeof (Dir))
+				len = sizeof (Dir);
+			strlcpy(Dir, afile, len); /* replace last '/' by '\0' */
+		}
+		if (Dir[0] != '\0' && (dfd < 0 || chdir(Dir) < 0)) {
+			cat(Nhold, Dir, *Dir?"/":"", Nprefix, sn, (char *)0);
+			ifile = afile;
+		} else {					/* Did chdir  */
+			cat(Nhold, Nprefix, sn, (char *)0); /* use short name */
+			ifile = sn;
+			dir_name = Dir;
+		}
+		afile = Nhold;			/* Use computed s.file name */
+	} else {				/* afile is s.file name */
+		char	*np;
+		size_t	plen = strlen(Nprefix);
+
+		if (!sccsfile(afile))
+			fatal(gettext("not an SCCS file (co1)"));
+
+		np = sname(afile);
+		np = np + 2 - plen;
+		if (np < afile ||
+		    ((np > afile) && (np[-1] != '/')) ||
+		    strncmp(np, Nprefix, plen) != 0)
+			fatal(gettext("not in specified sub directory (ad37)"));
+
+		if (np > afile) {
+			np[-1] = '\0';
+			if (dfd >= 0) {
+				if (afile[0] == '\0')
+					copy("/", Dir);
+				else
+					copy(afile, Dir);
+				if (chdir(Dir) < 0)
+					fatal("Chdir");
+				dir_name = Dir;
+				afile = np;
+				copy(auxf(np,'g'), Nhold);
+			} else {
+				cat(Nhold, afile, "/", auxf(np,'g'), (char *)0);
+			}
+			np[-1] = '/';
+		} else {
+			copy(auxf(np,'g'), Nhold);
+		}
+		ifile = Nhold;
+
+		if (exists(ifile)) {
+			if ((Statbuf.st_mode & S_IFMT) == S_IFDIR) {
+				direrror(ifile, 'i');
+			} else {
+				ifile_mtime = Statbuf.st_mtime;
+			}
+		} else {
+			xmsg(afile,NOGETTEXT("admin"));
+		}
+	}
+	if (Nsubd) {			/* Want to put s.file in subdir */
+		char	dbuf[MAXPATHLEN];
+
+		copy (afile, dbuf);	/* Copy as dname() modifies arg */
+		dname(dbuf);
+		if (!exists(dbuf)) {
+			if (mkdir(dbuf, 0777) < 0)
+				xmsg(dbuf, NOGETTEXT("admin"));
+		}
+	}
+	return (afile);
 }

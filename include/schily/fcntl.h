@@ -1,8 +1,8 @@
-/* @(#)fcntl.h	1.16 07/01/16 Copyright 1996-2007 J. Schilling */
+/* @(#)fcntl.h	1.17 11/07/09 Copyright 1996-2011 J. Schilling */
 /*
  *	Generic header for users of open(), creat() and chmod()
  *
- *	Copyright (c) 1996-2007 J. Schilling
+ *	Copyright (c) 1996-2011 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -72,6 +72,10 @@
 
 #ifndef	O_ACCMODE
 #define	O_ACCMODE		(O_RDONLY|O_WRONLY|O_RDWR)
+#endif
+
+#ifndef	FD_CLOEXEC
+#define	FD_CLOEXEC		1	/* close on exec flag */
 #endif
 
 #endif	/* _SCHILY_FCNTL_H */

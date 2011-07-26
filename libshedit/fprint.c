@@ -1,6 +1,6 @@
-/* @(#)printf.c	1.16 06/09/13 Copyright 1985, 1989, 1995-2003 J. Schilling */
+/* @(#)fprint.c	1.1 07/12/26 Copyright 1985, 1989, 1995-2007 J. Schilling */
 /*
- *	Copyright (c) 1985, 1989, 1995-2003 J. Schilling
+ *	Copyright (c) 1985, 1989, 1995-2007 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

@@ -27,10 +27,10 @@
 /*
  * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)date_ab.c	1.13 11/06/04 J. Schilling
+ * @(#)date_ab.c	1.14 11/06/27 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)date_ab.c 1.13 11/06/04 J. Schilling"
+#pragma ident "@(#)date_ab.c 1.14 11/06/27 J. Schilling"
 #endif
 /*
  * @(#)date_ab.c 1.8 06/12/12
@@ -58,9 +58,10 @@ static int dmsize[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
  *	Function returns -1 if bad time is given.
  */
 int
-date_ab(adt, bdt)
+date_ab(adt, bdt, flags)
 char	*adt;
 time_t	*bdt;
+int	flags;
 {
 	int	y, dn, cn, warn = 0;
 	time_t	tim;
@@ -113,7 +114,10 @@ time_t	*bdt;
 	tm.tm_isdst = -1;	/* let mktime() find out */
 
 #if !(defined(BUG_1205145) || defined(GMT_TIME))
-	tim = mktime(&tm);
+	if (flags & PF_GMT)
+		tim = mklgmtime(&tm);
+	else
+		tim = mktime(&tm);
 #else
 	tim = mklgmtime(&tm);
 #endif
@@ -135,9 +139,10 @@ time_t	*bdt;
  *	Function returns -1 if bad time is given (i.e., "730229").
  */
 int
-parse_date(adt, bdt)
+parse_date(adt, bdt, flags)
 char	*adt;
 time_t	*bdt;
+int	flags;
 {
 	int	y;
 	time_t	tim;
@@ -180,7 +185,10 @@ time_t	*bdt;
 	tm.tm_mon -= 1;		/* tm_mon is 0..11 */
 	tm.tm_isdst = -1;	/* let mktime() find out */
 
-	tim = mktime(&tm);
+	if (flags & PF_GMT)
+		tim = mklgmtime(&tm);
+	else
+		tim = mktime(&tm);
 
 	*bdt = tim;
 	return (0);

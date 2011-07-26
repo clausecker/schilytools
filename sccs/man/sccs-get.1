@@ -19,7 +19,7 @@
 .\" CDDL HEADER END
 .\" Copyright (c) 1999, Sun Microsystems, Inc. All Rights Reserved
 .\" Copyright 2007-2011 J. Schilling
-.TH sccs-get 1 "2011/06/13" "SunOS 5.11" "User Commands"
+.TH sccs-get 1 "2011/07/11" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs-get, get \- retrieve a version of an SCCS file
 .SH SYNOPSIS
@@ -199,6 +199,12 @@ is newer than the gotten file, or cause
 to skip the compilation
 as the compilation result is already newer than the gotten file.
 .sp
+This option is a
+.B SCHILY
+extension that does not exist in historic
+.B sccs
+implementations.
+.sp
 .ne 2
 .TP
 \fB\fB-p\fR\fR
@@ -225,6 +231,17 @@ version number string and exists.
 .sp
 .ne 2
 .TP 13
+.B \-d
+Do not print the number of gotten lines.
+.sp
+This option is an undocumented
+.B SUN
+extension that does not exist in historic
+.B sccs
+implementations.
+.sp
+.ne 2
+.TP
 \fB\fB-r\fR[\fIsid\fR]\fR
 Retrieves the version corresponding to the indicated \fBSID\fR (delta).
 .sp
@@ -246,6 +263,14 @@ When you specify a release but omit the level, \fBget\fR retrieves the highest l
 Similarly with branches, if you specify a release, level and branch, \fBget\fR retrieves the highest sequence in that branch.
 .sp
 
+.sp
+.ne 2
+.TP
+\fB\fB-x\fR \fIsid-list\fR
+.TP
+\fB-x\fR[\fIsid-list\fR]\fR
+Excludes the indicated deltas from the retrieved version. The excluded deltas are noted in the standard output message. \fIsid-list\fR is a comma-separated list of \fBSID\fRs. To specify a range of deltas, use a  `\fB\(mi\fR' separator instead of a comma, between two  \fBSID\fRs in the list.
+
 .RE
 
 .SS /usr/xpg4/bin/get
@@ -262,7 +287,9 @@ Same as for \fB/usr/ccs/bin/get\fR except that \fBSID\fR is mandatory.
 \fB\fB-x\fR \fIsid-list\fR
 .TP
 \fB-x\fR\fIsid-list\fR\fR
-Excludes the indicated deltas from the retrieved version. The excluded deltas are noted in the standard output message. \fIsid-list\fR is a comma-separated list of \fBSID\fRs. To specify a range of deltas, use a  `\fB\(mi\fR' separator instead of a comma, between two  \fBSID\fRs in the list.
+Same as for \fB/usr/ccs/bin/get\fR except that
+.B sid-list
+is mandatory.
 
 .SH OUTPUT
 

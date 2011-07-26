@@ -1,14 +1,14 @@
 /*#define	PLUS_DEBUG*/
-/* @(#)find.c	1.94 10/11/24 Copyright 2004-2010 J. Schilling */
+/* @(#)find.c	1.96 11/07/16 Copyright 2004-2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)find.c	1.94 10/11/24 Copyright 2004-2010 J. Schilling";
+	"@(#)find.c	1.96 11/07/16 Copyright 2004-2011 J. Schilling";
 #endif
 /*
  *	Another find implementation...
  *
- *	Copyright (c) 2004-2010 J. Schilling
+ *	Copyright (c) 2004-2011 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -179,7 +179,9 @@ LOCAL	inline BOOL find_expr	__PR((char *f, char *ff, struct stat *fs, struct WAL
 #else
 EXPORT	BOOL	find_expr	__PR((char *f, char *ff, struct stat *fs, struct WALK *state, findn_t *t));
 #endif
+#ifdef	HAVE_FORK
 LOCAL	BOOL	doexec		__PR((char *f, findn_t *t, int ac, char **av, struct WALK *state));
+#endif
 LOCAL	int	countenv	__PR((void));
 LOCAL	int	argsize		__PR((int xtype));
 LOCAL	int	extype		__PR((char *name));
@@ -187,7 +189,9 @@ LOCAL	int	extype		__PR((char *name));
 LOCAL	int	xargsize	__PR((int xtype, int maxarg));
 #endif
 LOCAL	BOOL	pluscreate	__PR((FILE *f, int ac, char **av, finda_t *fap));
+#ifdef	HAVE_FORK
 LOCAL	BOOL	plusexec	__PR((char *f, findn_t *t, struct WALK *state));
+#endif
 EXPORT	int	find_plusflush	__PR((void *p, struct WALK *state));
 EXPORT	void	find_usage	__PR((FILE *f));
 #ifdef	FIND_MAIN
@@ -1727,13 +1731,29 @@ find_expr(f, ff, fs, state, t)
 
 	case EXEC:
 	case EXECDIR:
+#ifdef	HAVE_FORK
 		return (doexec(
 			state->level && (t->op == OK_EXECDIR || t->op == EXECDIR)?
 			ff:f,
 			t, t->val.i, (char **)t->this, state));
+#else
+		ferrmsgno(state->std[2], EX_BAD,
+		gettext(
+		"'-%s' is unsupported on this platform, returning FALSE.\n"),
+				find_tname(t->op));
+		return (FALSE);
+#endif
 
 	case EXECPLUS:
+#ifdef	HAVE_FORK
 		return (plusexec(f, t, state));
+#else
+		ferrmsgno(state->std[2], EX_BAD,
+		gettext(
+		"'-%s' is unsupported on this platform, returning FALSE.\n"),
+				find_tname(t->op));
+		return (FALSE);
+#endif
 
 	case FPRINT:
 		fp = t->val.fp;
@@ -1805,6 +1825,7 @@ find_expr(f, ff, fs, state, t)
 	return (FALSE);		/* Unknown operator ??? */
 }
 
+#ifdef	HAVE_FORK
 LOCAL BOOL
 doexec(f, t, ac, av, state)
 	char	*f;
@@ -1930,6 +1951,7 @@ doexec(f, t, ac, av, state)
 		return (-1);
 	}
 }
+#endif	/* HAVE FORK */
 
 #ifndef	LINE_MAX
 #define	LINE_MAX	1024
@@ -2201,6 +2223,7 @@ pluscreate(f, ac, av, fap)
 	return (TRUE);
 }
 
+#ifdef	HAVE_FORK
 LOCAL BOOL
 plusexec(f, t, state)
 	char	*f;
@@ -2254,6 +2277,7 @@ plusexec(f, t, state)
 #endif
 	return (ret);
 }
+#endif	/* HAVE_FORK */
 
 EXPORT int
 find_plusflush(p, state)
@@ -2272,8 +2296,10 @@ find_plusflush(p, state)
 #endif
 		if (plusp->laststr != plusp->endp) {
 			plusp->nextargp[0] = NULL;
+#ifdef	HAVE_FORK
 			if (!doexec(NULL, NULL, plusp->ac, plusp->av, state))
 				ret = FALSE;
+#endif
 		}
 		plusp = plusp->next;
 	}

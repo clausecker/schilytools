@@ -1,8 +1,8 @@
-/* @(#)wait.h	1.18 11/06/02 Copyright 1995-2007 J. Schilling */
+/* @(#)wait.h	1.19 11/07/19 Copyright 1995-2011 J. Schilling */
 /*
  *	Definitions to deal with various kinds of wait flavour
  *
- *	Copyright (c) 1995-2007 J. Schilling
+ *	Copyright (c) 1995-2011 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -72,6 +72,49 @@
 extern "C" {
 #endif
 
+#ifndef	WCOREFLG
+#define	WCOREFLG	0x80
+#define	NO_WCOREFLG
+#endif
+
+#ifndef	WSTOPFLG
+#define	WSTOPFLG	0x7F
+#define	NO_WSTOPFLG
+#endif
+
+#ifndef	WCONTFLG
+#define	WCONTFLG	0xFFFF
+#define	NO_WCONTFLG
+#endif
+
+/*
+ * waitid() option flags:
+ */
+#ifndef	WCONTINUED
+#define	WCONTINUED	0
+#define	NO_WCONTINUED
+#endif
+#ifndef	WEXITED
+#define	WEXITED		0
+#define	NO_WEXITED
+#endif
+#ifndef	WNOHANG
+#define	WNOHANG		0
+#define	NO_WNOHANG
+#endif
+#ifndef	WNOWAIT
+#define	WNOWAIT		0
+#define	NO_WNOWAIT
+#endif
+#ifndef	WSTOPPED
+#define	WSTOPPED	0
+#define	NO_WSTOPPED
+#endif
+#ifndef	WTRAPPED
+#define	WTRAPPED	0
+#define	NO_WTRAPPED
+#endif
+
 #if defined(HAVE_UNION_WAIT) && defined(USE_UNION_WAIT)
 #	define WAIT_T union wait
 #	define	_W_U(w)	((union wait *)&(w))
@@ -89,6 +132,9 @@ extern "C" {
 #	endif
 #	ifndef WSTOPSIG
 #		define WSTOPSIG(status)		(_W_U(status)->w_stopsig)
+#	endif
+#	ifndef WIFCONTINUED
+#		define	WIFCONTINUED(status)	(0)
 #	endif
 #	ifndef WIFSTOPPED
 #		define WIFSTOPPED(status)	(_W_U(status)->w_stopval == \
@@ -123,6 +169,14 @@ extern "C" {
  * WIFSTOPPED and WIFSIGNALED match the definitions on older UNIX versions
  * e.g. SunOS-4.x or HP-UX
  */
+#	ifndef WIFCONTINUED
+#	ifdef	NO_WCONTINUED
+#		define	WIFCONTINUED(status)	(0)
+#	else
+#		define	WIFCONTINUED(status)	((_W_I(status) & 0xFFFF) == \
+								WCONTFLG)
+#	endif
+#	endif
 #	ifndef WIFSTOPPED
 #		define	WIFSTOPPED(status)	((_W_I(status) & 0xFF) == 0x7F)
 #	endif
@@ -135,18 +189,6 @@ extern "C" {
 #	endif
 #endif
 
-
-#ifndef	WCOREFLG
-#define	WCOREFLG	0x80
-#endif
-
-#ifndef	WSTOPFLG
-#define	WSTOPFLG	0x7F
-#endif
-
-#ifndef	WCONTFLG
-#define	WCONTFLG	0xFFFF
-#endif
 
 #ifdef	__cplusplus
 }

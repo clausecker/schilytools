@@ -1,4 +1,4 @@
-#ident "@(#)cc-openvms.rul	1.3 09/11/05 "
+#ident "@(#)cc-openvms.rul	1.4 11/07/16 "
 ###########################################################################
 # Written 1998-2009 by J. Schilling
 ###########################################################################
@@ -52,13 +52,14 @@ LNDYNLIB=	@$(RM) $(RM_FORCE) $(PTARGET_BASE).so; $(SYMLINK) $(TARGET) $(PTARGET_
 
 FLOAT_OPTIONS=	
 
-CC=		@echo "	==> COMPILING \"$@\""; cc
-LDCC=		@echo "	==> LINKING \"$@\""; cc
-DYNLD=		@echo "	==> LINKING dynamic library \"$@\""; cc
+CC_COM=		cc
+CC=		@echo "	==> COMPILING \"$@\""; $(CC_COM)
+LDCC=		@echo "	==> LINKING \"$@\""; $(CC_COM)
+DYNLD=		@echo "	==> LINKING dynamic library \"$@\""; $(CC_COM)
 
 RMDEP=		:
 # cc -M t.c creates a file t.mms wich t.obj : /EISNER$DRA3/decuserve_user/schilling/t.c lines
-#MKDEP=		@echo "	==> MAKING DEPENDENCIES \"$@\""; $(RMDEP); cc -M
+#MKDEP=		@echo "	==> MAKING DEPENDENCIES \"$@\""; $(RMDEP); $(CC_COM) -M
 MKDEP=		@echo "	==> MAKING DEPENDENCIES \"$@\""; $(RMDEP); echo "Cannot yet do -M with OpenVMS cc"; :
 MKDEP_OUT=
 

@@ -1,8 +1,8 @@
-/* @(#)limit.c	1.35 09/08/04 Copyright 1987-2009 J. Schilling */
+/* @(#)limit.c	1.36 11/07/16 Copyright 1987-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)limit.c	1.35 09/08/04 Copyright 1987-2009 J. Schilling";
+	"@(#)limit.c	1.36 11/07/16 Copyright 1987-2009 J. Schilling";
 #endif
 /*
  *	Resource usage routines
@@ -143,10 +143,12 @@ EXPORT	void	inittime	__PR((void));
 EXPORT	void	setstime	__PR((void));
 EXPORT	void	prtime		__PR((FILE ** std, long sec, long usec));
 EXPORT	void	getpruself	__PR((struct rusage *prusage));
+EXPORT	void	getpruchld	__PR((struct rusage *prusage));
 EXPORT	void	btime		__PR((Argvec * vp, FILE ** std, int flag));
 EXPORT	void	prtimes		__PR((FILE ** std, struct rusage *prusage));
 LOCAL	void	prtm		__PR((FILE ** std, struct rusage *prusage, struct timeval *stt));
 EXPORT	void	rusagesub	__PR((struct rusage *pru1, struct rusage *pru2));
+EXPORT	void	rusageadd	__PR((struct rusage *pru1, struct rusage *pru2));
 
 /* ARGSUSED */
 EXPORT void
@@ -399,6 +401,13 @@ getpruself(prusage)
 	getrusage(RUSAGE_SELF, prusage);
 }
 
+EXPORT void
+getpruchld(prusage)
+	struct rusage *prusage;
+{
+	getrusage(RUSAGE_CHILDREN, prusage);
+}
+
 /* ARGSUSED */
 EXPORT void
 btime(vp, std, flag)
@@ -423,6 +432,13 @@ btime(vp, std, flag)
 
 EXPORT void
 getpruself(prusage)
+	struct rusage *prusage;
+{
+	fillbytes(&prusage, sizeof (*prusage), '\0');
+}
+
+EXPORT void
+getpruchld(prusage)
 	struct rusage *prusage;
 {
 	fillbytes(&prusage, sizeof (*prusage), '\0');
@@ -534,5 +550,35 @@ rusagesub(pru1, pru2)
 	pru2->ru_oublock	-= pru1->ru_oublock;
 	pru2->ru_majflt		-= pru1->ru_majflt;
 	pru2->ru_nswap		-= pru1->ru_nswap;
+#endif
+}
+
+EXPORT void
+rusageadd(pru1, pru2)
+	register struct rusage *pru1;
+	register struct rusage *pru2;
+{
+	pru2->ru_utime.tv_sec	+= pru1->ru_utime.tv_sec;
+	pru2->ru_utime.tv_usec	+= pru1->ru_utime.tv_usec;
+	if (pru2->ru_utime.tv_usec >= 1000000) {
+		pru2->ru_utime.tv_sec += 1;
+		pru2->ru_utime.tv_usec -= 1000000;
+	}
+	pru2->ru_stime.tv_sec	+= pru1->ru_stime.tv_sec;
+	pru2->ru_stime.tv_usec	+= pru1->ru_stime.tv_usec;
+	if (pru2->ru_stime.tv_usec >= 1000000) {
+		pru2->ru_stime.tv_sec += 1;
+		pru2->ru_stime.tv_usec -= 1000000;
+	}
+#if defined(__BEOS__) || defined(__HAIKU__)	/* XXX dirty hack */
+#else
+	pru2->ru_maxrss		+= pru1->ru_maxrss;
+	pru2->ru_ixrss		+= pru1->ru_ixrss;
+	pru2->ru_idrss		+= pru1->ru_idrss;
+	pru2->ru_isrss		+= pru1->ru_isrss;
+	pru2->ru_inblock	+= pru1->ru_inblock;
+	pru2->ru_oublock	+= pru1->ru_oublock;
+	pru2->ru_majflt		+= pru1->ru_majflt;
+	pru2->ru_nswap		+= pru1->ru_nswap;
 #endif
 }

@@ -1,13 +1,13 @@
-/* @(#)p.c	1.50 10/12/19 Copyright 1985-2010 J. Schilling */
+/* @(#)p.c	1.51 11/07/14 Copyright 1985-2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)p.c	1.50 10/12/19 Copyright 1985-2010 J. Schilling";
+	"@(#)p.c	1.51 11/07/14 Copyright 1985-2011 J. Schilling";
 #endif
 /*
  *	Print some files on screen
  *
- *	Copyright (c) 1985-2010 J. Schilling
+ *	Copyright (c) 1985-2011 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -268,7 +268,7 @@ main(ac, av)
 	if (help) usage(0);
 	if (prvers) {
 		printf("p %s (%s-%s-%s)\n\n", "2.1", HOST_CPU, HOST_VENDOR, HOST_OS);
-		printf("Copyright (C) 1985, 87-92, 95-99, 2000-2010 Jörg Schilling\n");
+		printf("Copyright (C) 1985, 87-92, 95-99, 2000-2011 Jörg Schilling\n");
 		printf("This is free software; see the source for copying conditions.  There is NO\n");
 		printf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
 		exit(0);
@@ -1159,7 +1159,7 @@ get_modes()
 LOCAL void
 set_modes()
 {
-#ifdef	HAVE_DEV_TTY
+#ifdef	HAVE__DEV_TTY
 	if (tty < 0 && (tty = open("/dev/tty", 0)) < 0)
 		comerr("Can't open '/dev/tty'\n");
 #else

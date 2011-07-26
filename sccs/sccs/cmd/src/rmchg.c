@@ -27,10 +27,10 @@
 /*
  * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)rmchg.c	1.26 11/06/13 J. Schilling
+ * @(#)rmchg.c	1.28 11/07/04 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)rmchg.c 1.26 11/06/13 J. Schilling"
+#pragma ident "@(#)rmchg.c 1.28 11/07/04 J. Schilling"
 #endif
 /*
  * @(#)rmchg.c 1.19 06/12/12
@@ -285,7 +285,7 @@ char *argv[];
 	*/
 	for (i=1; i<argc; i++)
 		if ((p = argv[i]) != NULL)
-			do_file(p, rmchg, 1);
+			do_file(p, rmchg, 1, 1);
 
 	return (Fcnt ? 1 : 0);
 }
@@ -640,9 +640,9 @@ struct packet *pkt;
 				 */
 				if ((Timenow < Y1969) ||
 				    (Timenow >= Y2038))			/* comment only */
-					date_bal(&Timenow,line);	/* 4 digit year */
+					date_bal(&Timenow,line, 0);	/* 4 digit year */
 				else
-					date_ba(&Timenow,line);		/* 2 digit year */
+					date_ba(&Timenow,line, 0);	/* 2 digit year */
 				putline(pkt,line);
 				sprintf(line," %s\n",logname());
 				putline(pkt,line);

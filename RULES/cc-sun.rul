@@ -1,4 +1,4 @@
-#ident "@(#)cc-sun.rul	1.6 07/05/08 "
+#ident "@(#)cc-sun.rul	1.7 11/07/16 "
 ###########################################################################
 # Written 1996-2006 by J. Schilling
 ###########################################################################
@@ -52,13 +52,14 @@ LNDYNLIB=	@
 
 FLOAT_OPTIONS=	
 
-CC=		@echo "	==> COMPILING \"$@\""; cc
-LDCC=		@echo "	==> LINKING \"$@\""; cc
+CC_COM=		cc
+CC=		@echo "	==> COMPILING \"$@\""; $(CC_COM)
+LDCC=		@echo "	==> LINKING \"$@\""; $(CC_COM)
 DYNLD=		@echo "	==> LINKING dynamic library \"$@\""; ld
 RANLIB=		@echo "	==> RANDOMIZING ARCHIVE \"$@\""; ranlib
 
 RMDEP=		:
-MKDEP=		@echo "	==> MAKING DEPENDENCIES \"$@\""; $(RMDEP); cc -M
+MKDEP=		@echo "	==> MAKING DEPENDENCIES \"$@\""; $(RMDEP); $(CC_COM) -M
 MKDEP_OUT=
 
 #CC++ =		@echo "	==> COMPILING \"$@\""; CC

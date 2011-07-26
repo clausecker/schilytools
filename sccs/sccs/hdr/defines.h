@@ -27,12 +27,12 @@
 /*
  * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)defines.h	1.31 11/06/20 J. Schilling
+ * @(#)defines.h	1.38 11/07/26 J. Schilling
  */
 #ifndef	_HDR_DEFINES_H
 #define	_HDR_DEFINES_H
 #if defined(sun)
-#pragma ident "@(#)defines.h 1.31 11/06/20 J. Schilling"
+#pragma ident "@(#)defines.h 1.38 11/07/26 J. Schilling"
 #endif
 /*
  * @(#)defines.h 1.21 06/12/12
@@ -174,8 +174,11 @@ extern time_t	Y1969;
  * Quick and dirty hack to work around a bug in the Mac OS X linker
  */
 char	*Sflags[NFLAGS];	/* sync with lib/comobj/src/permiss.c */
+char	SCOx;			/* sync with lib/comobj/src/permiss.c */
 char	saveid[50];		/* sync with lib/comobj/src/logname.c */
+time_t	Y2069;			/* sync with lib/comobj/src/tzset.c   */
 time_t	Y2038;			/* sync with lib/comobj/src/tzset.c   */
+time_t	Y1969;			/* sync with lib/comobj/src/tzset.c   */
 #endif
 
 # define FLAG		'f'	/* ^Af	the begin of a flag line	    */
@@ -320,6 +323,7 @@ struct packet {
 	struct	sid p_inssid;	/* SID which inserted current line */
 	char	p_verbose;	/* verbose flags (see #define's below) */
 	char	p_upd;		/* update flag (!0 = update mode) */
+	char	p_flags;	/* general flags see below */
 	time_t	p_cutoff;	/* specified cutoff date-time */
 	int	p_ihash;	/* initial (input) hash */
 	int	p_chash;	/* current (input) hash */
@@ -350,6 +354,16 @@ struct packet {
 	int	p_ixuser;	/* HADI | HADX (in get) */
 	int	do_chksum;	/* for getline(), 1 = do check sum */
 };
+
+/*
+ * General flags
+ *
+ * The PF_GMT flag is used to avoid calling mktime(3) in get(1) and delta(1)
+ * as this is an expensive operation on some systems like SunOS-4.x and Linux.
+ * If we set the flag, we need to carefully compensate the systematic error
+ * introduced by this hack.
+ */
+#define	PF_GMT	1		/* use GMT conversion */
 
 struct	stats {
 	int	s_ins;
@@ -388,11 +402,11 @@ extern	void	permiss	__PR((struct packet *));
 extern	char*	sid_ab	__PR((char *, struct sid *));
 extern	char*	sid_ba	__PR((struct sid *, char *));
 extern	char*	omit_sid __PR((char *));
-extern	int	date_ab	__PR((char *, time_t *));
-extern	char*	date_ba	__PR((time_t *, char *));
-extern	char*	date_bal __PR((time_t *, char *));
+extern	int	date_ab	__PR((char *, time_t *, int flags));
+extern	char*	date_ba	__PR((time_t *, char *, int flags));
+extern	char*	date_bal __PR((time_t *, char *, int flags));
 extern	char	del_ab	__PR((char *, struct deltab *, struct packet *));
-extern	char*	del_ba	__PR((struct deltab *, char *));
+extern	char*	del_ba	__PR((struct deltab *, char *, int flags));
 extern	void	stats_ab __PR((struct packet *, struct stats *));
 extern	void	pf_ab	__PR((char *, struct pfile *, int));
 extern	int	getser	__PR((struct packet *));
@@ -407,7 +421,7 @@ extern	void	dohist	__PR((char *));
 extern	void	doie	__PR((struct packet *, char *, char *, char *));
 extern	void	doflags	__PR((struct packet *));
 extern	struct idel *dodelt __PR((struct packet *, struct stats *, struct sid *, int));
-extern	void	do_file __PR((char *, void (*func)(char *), int));
+extern	void	do_file __PR((char *, void (*func)(char *), int, int));
 extern	void	fmterr	__PR((struct packet *));
 /*
  * Deal with unfriendly and non POSIX compliant glibc that defines getline()
@@ -428,7 +442,7 @@ extern	int	valmrs	__PR((struct packet *, char *));
 extern	void	encode	__PR((FILE *, FILE *));
 extern	void	decode	__PR((char *, FILE *));
 extern	int	readmod	__PR((struct packet *));
-extern	int	parse_date __PR((char *, time_t *));
+extern	int	parse_date __PR((char *, time_t *, int flags));
 extern	int	cmpdate	__PR((struct tm *, struct tm *));
 extern	void	addq	__PR((struct packet *, int, int, int, int));
 extern	void	remq	__PR((struct packet *, int));
@@ -444,6 +458,9 @@ extern	void	xtzset	__PR((void));
 */
 
 extern	int	any	__PR((int, char *));
+#ifdef	HAVE_STRCHR
+#define	any(c, s)	strchr(s, c)
+#endif
 extern	char	*abspath __PR((char *));
 extern	char	*sname	__PR((char *));
 extern	char	*cat	__PR((char *dest, ...));
@@ -474,6 +491,11 @@ extern	void	setsig	__PR((void));
 extern	int	check_permission_SccsDir __PR((char *));
 extern  char*	get_Sccs_Comments __PR((void));
 extern	int	userexit __PR((int code));
+extern	void	*zrealloc __PR((void *ptr, size_t amt));
+
+#ifndef	HAVE_REALLOC_NULL
+#define	realloc	zrealloc
+#endif
 
 /*
  * Exported from vaious programs in /usr/ccs/bin
@@ -501,5 +523,31 @@ extern	void	enter	__PR((struct packet *pkt, int ch, int n, struct sid *sidp));
 		free(n) char *n; {xfree(n);} \
 		char *malloc(n) unsigned n; {int p; p=xalloc(n); \
 			return((char *)(p != -1?p:0));}
+
+
+#if defined(linux) && !defined(NO_LINUX_SETVBUF_HACK) && \
+    defined(HAVE_FILE__FLAGS) && defined(HAVE_FILE__IO_BUF_BASE) && \
+    defined(_IO_USER_BUF)
+/*
+ * Work around a performance problem in the baroque stdio implementaion on
+ * Linux.
+ */
+#define setvbuf(f, buf, type, sz)     setvbuf(f, malloc(sz), type, sz)
+
+static inline int xfclose __PR((FILE *f));
+static inline int xfclose(f)
+	FILE	*f;
+{	int	ret;
+	int	flags = f->_flags;
+	char	*buf = f->_IO_buf_base;
+
+	ret = fclose(f);
+	if (ret == 0 && (flags & _IO_USER_BUF)) {
+		free(buf);
+	}
+	return (ret);
+}
+#define	fclose(f)	xfclose(f)
+#endif
 
 #endif	/* _HDR_DEFINES_H */

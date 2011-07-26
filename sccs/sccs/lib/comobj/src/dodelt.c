@@ -27,10 +27,10 @@
 /*
  * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)dodelt.c	1.7 11/05/21 J. Schilling
+ * @(#)dodelt.c	1.8 11/06/27 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)dodelt.c 1.7 11/05/21 J. Schilling"
+#pragma ident "@(#)dodelt.c 1.8 11/06/27 J. Schilling"
 #endif
 /*
  * @(#)dodelt.c 1.8 06/12/12
@@ -47,6 +47,7 @@
 
 static char	getadel	__PR((struct packet *,struct deltab *));
 static void	doixg	__PR((char *,struct ixg **));
+static time_t	gmtoff	__PR((time_t crtime));
 
 time_t	Timenow;
 
@@ -67,15 +68,19 @@ char type;
 	register struct idel *rdp = NULL;
 	int n, founddel;
 	register char *p;
+	time_t	TN;
 
 	pkt->p_idel = 0;
 	founddel = 0;
 
 	(void) time(&Timenow);
+	TN = Timenow;
+	if (pkt->p_flags & PF_GMT)
+		TN += gmtoff(Timenow);
 	stats_ab(pkt,statp);
 	while (getadel(pkt,&dt) == BDELTAB) {
 		if (pkt->p_idel == 0) {
-			if (Timenow < dt.d_datetime)
+			if (TN < dt.d_datetime)
 				fprintf(stderr,gettext("Time stamp later than current clock time (co10)\n"));
 			pkt->p_idel = (struct idel *)
 					fmalloc((unsigned) (n=((dt.d_serial+1)*
@@ -192,4 +197,29 @@ struct ixg **ixgp;
 	curp->i_cnt = (char) cnt;
 	for (i=0; cnt>0; --cnt)
 		curp->i_ser[i++] = *v++;
+}
+
+static time_t
+gmtoff(crtime)
+	time_t	crtime;
+{
+	struct tm	local;
+	struct tm	gmt;
+
+	local = *localtime(&crtime);
+	gmt   = *gmtime(&crtime);
+
+	local.tm_sec  -= gmt.tm_sec;
+	local.tm_min  -= gmt.tm_min;
+	local.tm_hour -= gmt.tm_hour;
+	local.tm_yday -= gmt.tm_yday;
+	local.tm_year -= gmt.tm_year;
+	if (local.tm_year)		/* Hit new-year limit	*/
+		local.tm_yday = local.tm_year;	/* yday = +-1	*/
+
+	crtime = local.tm_sec + 60 *
+		    (local.tm_min + 60 *
+			(local.tm_hour + 24 * local.tm_yday));
+
+	return (crtime);
 }

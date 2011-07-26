@@ -25,14 +25,14 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2008-2009 J. Schilling
+ * This file contains modifications Copyright 2008-2011 J. Schilling
  *
- * @(#)date_bal.c	1.4 09/11/08 J. Schilling
+ * @(#)date_bal.c	1.5 11/06/27 J. Schilling
  *
  * From Sun: @(#)sccs:lib/comobj/date_ba.c @(#)date_ba.c 1.5 06/12/12
  */
 #if defined(sun)
-#pragma ident "@(#)date_bal.c 1.4 09/11/08 J. Schilling"
+#pragma ident "@(#)date_bal.c 1.5 11/06/27 J. Schilling"
 #endif
 # include	<defines.h>
 
@@ -42,9 +42,10 @@
 
 
 char *
-date_bal(bdt, adt)
+date_bal(bdt, adt, flags)
 time_t	*bdt;
 char	*adt;
+int	flags;
 {
 	register struct tm *lcltm;
 	register char *p;
@@ -52,7 +53,10 @@ char	*adt;
 #if defined(BUG_1205145) || defined(GMT_TIME)
 	lcltm = gmtime(bdt);
 #else
-	lcltm = localtime(bdt);
+	if (flags & PF_GMT)
+		lcltm = gmtime(bdt);
+	else
+		lcltm = localtime(bdt);
 #endif
 	p = adt;
 	lcltm->tm_year += 1900;

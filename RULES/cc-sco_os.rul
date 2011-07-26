@@ -1,4 +1,4 @@
-#ident "@(#)cc-sco_os.rul	1.9 10/05/15 "
+#ident "@(#)cc-sco_os.rul	1.10 11/07/16 "
 ###########################################################################
 # Written 1999 by J. Schilling/Santa Cruz Operation
 ###########################################################################
@@ -51,9 +51,10 @@ LNDYNLIB=	@$(RM) $(RM_FORCE) $(PTARGET_BASE).so; $(SYMLINK) $(TARGET) $(PTARGET_
 
 FLOAT_OPTIONS=	
 
-CC=		@echo "	==> COMPILING \"$@\""; cc
-LDCC=		@echo "	==> LINKING \"$@\""; cc
-DYNLD=		@echo "	==> LINKING dynamic library \"$@\""; cc
+CC_COM=		cc
+CC=		@echo "	==> COMPILING \"$@\""; $(CC_COM)
+LDCC=		@echo "	==> LINKING \"$@\""; $(CC_COM)
+DYNLD=		@echo "	==> LINKING dynamic library \"$@\""; $(CC_COM)
 RANLIB=		@echo "	==> RANDOMIZING ARCHIVE \"$@\""; true
 
 RMDEP=		:

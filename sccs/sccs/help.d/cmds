@@ -23,7 +23,7 @@
 *
 * This file contains modifications Copyright 2006-2011 J. Schilling
 *
-* @(#)cmds	1.11 11/06/13 J. Schilling 
+* @(#)cmds	1.14 11/07/05 J. Schilling 
 *
 * @(#)cmds 1.3 06/12/12
 *
@@ -32,10 +32,11 @@
 *
 -delta
 	  delta [-r<SID>] [-s] [-n] [-o] [-g<list>] [-m<mrlist>] [-y<comment>]
-		[-p] file ...
+		[-d] [-p] [-Cdir] file ...
 -get
-	get [-r<SID>] [-c<cutoff>] [-i<list>] [-x<list>] [-a<seq no.>]
-	    [-k] [-e] [-l<p>] [-p] [-m] [-n] [-o] [-s] [-b] [-g] [-t] file ...
+	get [-r<SID>] [-c<cutoff>] [-i<list>] [-x<list>] [-a<seq no.>] [-Cdir]
+	    [-k] [-e] [-l<p>] [-L]
+	    [-p] [-m] [-n] [-o] [-s] [-b] [-g] [-t] file ...
 
 	(do 'help get_kywds' for description of recognized ID keywords)
 
@@ -76,7 +77,8 @@ Keyword       Type
 -admin
      admin [-n] [-i<name>] [-r<rel>] [-t<name>] [-f<add-flag<flag-val>>] ...
            [-d<del-flag>] ... [-a<add-login>] ... [-e<erase-login>] ...
-           [-m<mrlist>] [-y<comment>] [-h] [-o] [-z] file ...
+           [-m<mrlist>] [-N[bulk-spec]] [-y<comment>]
+           [-b] [-h] [-o] [-z] file ...
 -help
 	help [arg]
 
@@ -92,9 +94,9 @@ Keyword       Type
 -rmdel
 	rmdel -rSID file ...
 -log
-	log [-a] file...
+	log [-a|-aa] [-Cdir] [-p<subdir>] file...
 -sccsdiff
-	sccsdiff old-spec new-spec [pr-args] sccsfile ...
+	sccsdiff -rSID1 -rSID2 [-p] [-q] [<diff-flags>] sccsfile ...
 -stuck
 
 The SCCS help facility provides limited
@@ -105,6 +107,12 @@ parentheses) that you can use as an
 argument to help.
 
     help [ <msg-code>|<sccs-command> ]
+
+Other help parameters to get an overview:
+
+    help sccs_subcmds
+    help get_kywds
+    help prs_kywds
 
 More information about sccs commands
 can be found in the ``SunOS Reference
@@ -129,7 +137,7 @@ read-only.
 -vc
 	vc [-a] [-t] [-c<char>] [-s] [keyword=value ... keyword=value]
 -prs
-	prs [-d<dataspec>] [-r<SID>] [-e] [-l] [-a] file ...
+	prs [-d<dataspec>] [-r<SID>] [-c<cutoff>] [-e] [-l] [-a] file ...
 
 	(do 'help prs_kywds' for description of recognized data keywords)
 
@@ -196,6 +204,14 @@ Keyword       Data Item            Section           Type           Type
   :G:   G-File name                  N/A           file name         S
  :PN:   Pathname                     N/A           pathname          S
 
+-prt
+	prt [-y<SID>] [-c<cutoff>] [-r<cutoff>]
+	    [-a] [-b] [-d] [-e] [-f] [-i] [-s] [-t] [-u] file ...
+-sact
+	sact file ...
+-unget
+	unget [-r<SID>] [-n] [-s] file...
+
 -sccs
 	  sccs [-R] [-T] [-r] [-d<rootprefix>] [-p<subdir>]
 		subcommand [option ...] [filename ...]
@@ -216,7 +232,7 @@ Keyword       Data Item            Section           Type           Type
 	sccs sact	editing activity status of an SCCS file
 	sccs val	validate an SCCS file
 	sccs what	extract SCCS version information from a file
-	sccs sccsdiffs	compare two versions of an SCCS file
+	sccs sccsdiff	compare two versions of an SCCS file
 	sccs edit	get files for editing
 	sccs delget	do a delta followed by a get
 	sccs deledit	do a delta followed by an edit
@@ -233,3 +249,37 @@ Keyword       Data Item            Section           Type           Type
 	sccs branch	create a branch on an SCCS file
 	sccs enter	create a new SCCS file from file content
 	sccs create	same as "enter" but followed by "get"
+
+-edit
+	edit [-r<SID>] [-c<cutoff>] [-i<list>] [-x<list>] [-a<seq no.>]
+	    [-s] [-b] [-g] [-t] file ...
+-delget
+	delget [-o] [-s] [-y<comment>] file...
+-deledit
+	deledit [-o] [-s] [-y<comment>] file...
+-fix
+	fix [-r<SID>] file...
+-clean
+	clean [b]
+-info
+	info [-b] [-u<username>] [-U]
+-check
+	check [-b] [-u<username>] [-U]
+-tell
+	tell [-b] [-u<username>] [-U]
+-unedit
+	unedit
+-diffs
+	diffs [-r<SID>] [-c<cutoff>] [<diff-options>]
+-ldiffs
+	ldiffs [-r<SID>] [-c<cutoff>] [<diff-options>]
+-print
+	print
+-branch
+	branch [-r<SID>] [-c<cutoff>] [-i<list>] [-x<list>] [-a<seq no.>]
+	    [-p] [-l] file ...
+-enter
+	enter [-o] file...
+-create
+	create [-o] file...
+	

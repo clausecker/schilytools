@@ -1,4 +1,4 @@
-#ident "@(#)cc-sgi.rul	1.7 09/11/29 "
+#ident "@(#)cc-sgi.rul	1.8 11/07/16 "
 ###########################################################################
 # Written 1996-2006 by J. Schilling
 ###########################################################################
@@ -52,13 +52,14 @@ LNDYNLIB=	@
 
 FLOAT_OPTIONS=	
 
-CC=		@echo "	==> COMPILING \"$@\""; cc
-LDCC=		@echo "	==> LINKING \"$@\""; cc
-DYNLD=		@echo "	==> LINKING dynamic library \"$@\""; cc
+CC_COM=		cc
+CC=		@echo "	==> COMPILING \"$@\""; $(CC_COM)
+LDCC=		@echo "	==> LINKING \"$@\""; $(CC_COM)
+DYNLD=		@echo "	==> LINKING dynamic library \"$@\""; $(CC_COM)
 RANLIB=		@echo "	==> RANDOMIZING ARCHIVE \"$@\""; true
 
 RMDEP=		:
-MKDEP=		@echo "	==> MAKING DEPENDENCIES \"$@\""; $(RMDEP); cc -M
+MKDEP=		@echo "	==> MAKING DEPENDENCIES \"$@\""; $(RMDEP); $(CC_COM) -M
 MKDEP_OUT=
 
 CC++ =		@echo "	==> COMPILING \"$@\""; CC

@@ -1,4 +1,4 @@
-#ident "@(#)cc-dumb.rul	1.7 07/05/08 "
+#ident "@(#)cc-dumb.rul	1.8 11/07/16 "
 ###########################################################################
 # Written 1997-2006 by J. Schilling
 ###########################################################################
@@ -55,12 +55,13 @@ LNDYNLIB=	@$(RM) $(RM_FORCE) $(PTARGET_BASE).so; $(SYMLINK) $(TARGET) $(PTARGET_
 
 FLOAT_OPTIONS=	
 
-CC=		@echo "	==> COMPILING \"$@\""; cc
-LDCC=		@echo "	==> LINKING \"$@\""; cc
-DYNLD=		@echo "	==> LINKING dynamic library \"$@\""; cc
+CC_COM=		cc
+CC=		@echo "	==> COMPILING \"$@\""; $(CC_COM)
+LDCC=		@echo "	==> LINKING \"$@\""; $(CC_COM)
+DYNLD=		@echo "	==> LINKING dynamic library \"$@\""; $(CC_COM)
 
 RMDEP=		:
-#MKDEP=		@echo "	==> MAKING DEPENDENCIES \"$@\""; $(RMDEP); cc -M
+#MKDEP=		@echo "	==> MAKING DEPENDENCIES \"$@\""; $(RMDEP); $(CC_COM) -M
 MKDEP=		@echo "	==> MAKING DEPENDENCIES \"$@\""; $(RMDEP); echo "Cannot do -M with unknown cc"; :
 MKDEP_OUT=
 

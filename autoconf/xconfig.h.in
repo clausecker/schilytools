@@ -1,9 +1,9 @@
-/* @(#)xconfig.h.in	1.211 11/06/20 Copyright 1998-2010 J. Schilling */
+/* @(#)xconfig.h.in	1.217 11/07/19 Copyright 1998-2011 J. Schilling */
 /*
  *	Dynamic autoconf C-include code.
  *	Do not edit, this file has been created automatically.
  *
- *	Copyright (c) 1998-2010 J. Schilling
+ *	Copyright (c) 1998-2011 J. Schilling
  *
  *	The layout for this file is controlled by "configure".
  *	Switch off cstyle(1) checks for now.
@@ -133,6 +133,10 @@
 #undef HAVE_ARPA_INET_H		/* if we have arpa/inet.h (missing on BeOS) */
 				/* BeOS has inet_ntoa() in <netdb.h> */
 #undef HAVE_BSD_DEV_SCSIREG_H	/* if we have a NeXT Step compatible sg driver */
+#undef HAVE_SCSI_SCSI_H		/* if we may include scsi/scsi.h */
+#undef HAVE_SCSI_SG_H		/* if we may include scsi/sg.h */
+#undef HAVE_LINUX_SCSI_H	/* if we may include linux/scsi.h */
+#undef HAVE_LINUX_SG_H		/* if we may include linux/sg.h */
 #undef HAVE_LINUX_TYPES_H	/* if we may include linux/types.h */
 #undef HAVE_LINUX_GFP_H		/* if we may include linux/gfp.h */
 #undef HAVE_ASM_TYPES_H		/* if we may include asm/types.h */
@@ -276,6 +280,16 @@
 #undef HAVE_SETPGRP		/* setpgrp() is present in libc (ANY) */
 #undef HAVE_BSD_GETPGRP		/* getpgrp() in libc is BSD-4.2 compliant */
 #undef HAVE_BSD_SETPGRP		/* setpgrp() in libc is BSD-4.2 compliant */
+#undef HAVE_GETPWNAM		/* getpwnam() in libc */
+#undef HAVE_GETPWENT		/* getpwent() in libc */
+#undef HAVE_GETPWUID		/* getpwuid() in libc */
+#undef HAVE_SETPWENT		/* setpwent() in libc */
+#undef HAVE_ENDPWENT		/* endpwent() in libc */
+#undef HAVE_GETGRNAM		/* getgrnam() in libc */
+#undef HAVE_GETGRENT		/* getgrent() in libc */
+#undef HAVE_GETGRGID		/* getgrgid() in libc */
+#undef HAVE_SETGRENT		/* setgrent() in libc */
+#undef HAVE_ENDGRENT		/* endgrent() in libc */
 #undef HAVE_GETSPNAM		/* getspnam() in libc (SVR4 compliant) */
 #undef HAVE_GETSPWNAM		/* getspwnam() in libsec.a (HP-UX) */
 #undef HAVE_SYNC		/* sync() is present in libc */
@@ -463,6 +477,7 @@
 #undef HAVE_MALLOC		/* malloc() is present in libc */
 #undef HAVE_CALLOC		/* calloc() is present in libc */
 #undef HAVE_REALLOC		/* realloc() is present in libc */
+#undef HAVE_REALLOC_NULL	/* realloc() implements realloc(NULL, size) */
 #undef HAVE_VALLOC		/* valloc() is present in libc (else use malloc())*/
 #undef HAVE_MEMALIGN		/* memalign() is present in libc */
 #undef HAVE_POSIX_MEMALIGN	/* posix_memalign() is present in libc */
@@ -558,6 +573,8 @@
 #undef HAVE_DIRFD		/* dirfd() is present in libc */
 #undef HAVE_ISWPRINT		/* iswprint() is present in libc */
 #undef HAVE_MBSINIT		/* mbsinit() is present in libc */
+#undef HAVE_MBTOWC		/* mbtowc() is present in libc */
+#undef HAVE_WCTOMB		/* wctomb() is present in libc */
 #undef HAVE_MBRTOWC		/* mbrtowc() is present in libc */
 #undef HAVE_WCRTOMB		/* wcrtomb() is present in libc */
 
@@ -584,15 +601,15 @@
 /*
  * Misc OS stuff
  */
-#undef HAVE_DEV_TTY		/* /dev/tty present */
-#undef HAVE_DEV_NULL		/* /dev/null present */
-#undef HAVE_DEV_ZERO		/* /dev/zero present */
-#undef HAVE_DEV_STDIN		/* /dev/stdin present */
-#undef HAVE_DEV_STDOUT		/* /dev/stdout present */
-#undef HAVE_DEV_STDERR		/* /dev/stderr present */
-#undef HAVE_DEV_FD_0		/* /dev/fd/0 present */
-#undef HAVE_DEV_FD_1		/* /dev/fd/1 present */
-#undef HAVE_DEV_FD_2		/* /dev/fd/2 present */
+#undef HAVE__DEV_TTY		/* /dev/tty present */
+#undef HAVE__DEV_NULL		/* /dev/null present */
+#undef HAVE__DEV_ZERO		/* /dev/zero present */
+#undef HAVE__DEV_STDIN		/* /dev/stdin present */
+#undef HAVE__DEV_STDOUT		/* /dev/stdout present */
+#undef HAVE__DEV_STDERR		/* /dev/stderr present */
+#undef HAVE__DEV_FD_0		/* /dev/fd/0 present */
+#undef HAVE__DEV_FD_1		/* /dev/fd/1 present */
+#undef HAVE__DEV_FD_2		/* /dev/fd/2 present */
 
 /*
  * Misc OS programs
@@ -675,6 +692,9 @@
 /*
  * Structures
  */
+#undef HAVE_FILE__FLAGS		/* if FILE * contains _flags */
+#undef HAVE_FILE__IO_BUF_BASE	/* if FILE * contains _IO_buf_base */
+
 #undef HAVE_MTGET_TYPE		/* if struct mtget contains mt_type (drive type) */
 #undef HAVE_MTGET_MODEL		/* if struct mtget contains mt_model (drive type) */
 #undef HAVE_MTGET_DSREG		/* if struct mtget contains mt_dsreg (drive status) */

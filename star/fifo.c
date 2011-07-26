@@ -1,8 +1,8 @@
-/* @(#)fifo.c	1.75 11/01/04 Copyright 1989, 1994-2011 J. Schilling */
+/* @(#)fifo.c	1.76 11/07/10 Copyright 1989, 1994-2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)fifo.c	1.75 11/01/04 Copyright 1989, 1994-2011 J. Schilling";
+	"@(#)fifo.c	1.76 11/07/10 Copyright 1989, 1994-2011 J. Schilling";
 #endif
 /*
  *	A "fifo" that uses shared memory between two processes
@@ -271,10 +271,10 @@ extern	BOOL	cflag;
 	 * Set close on exec() flag so the compress program
 	 * or other programs will not inherit out pipes.
 	 */
-	fcntl(mp->gp[0], F_SETFD, 1);
-	fcntl(mp->gp[1], F_SETFD, 1);
-	fcntl(mp->pp[0], F_SETFD, 1);
-	fcntl(mp->pp[1], F_SETFD, 1);
+	fcntl(mp->gp[0], F_SETFD, FD_CLOEXEC);
+	fcntl(mp->gp[1], F_SETFD, FD_CLOEXEC);
+	fcntl(mp->pp[0], F_SETFD, FD_CLOEXEC);
+	fcntl(mp->pp[1], F_SETFD, FD_CLOEXEC);
 #endif
 
 	mp->putptr = mp->getptr = mp->base;

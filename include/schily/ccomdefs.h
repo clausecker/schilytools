@@ -1,8 +1,8 @@
-/* @(#)ccomdefs.h	1.11 10/08/01 Copyright 2000-2010 J. Schilling */
+/* @(#)ccomdefs.h	1.12 11/07/21 Copyright 2000-2011 J. Schilling */
 /*
  *	Various compiler dependant macros.
  *
- *	Copyright (c) 2000-2010 J. Schilling
+ *	Copyright (c) 2000-2011 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -61,16 +61,17 @@ extern "C" {
 
 #endif /* GNUC */
 
-#if __GNUC__ > 3 || __GNUC__ == 3 && __GNUC_MINOR__ > 1
+#if __GNUC__ > 3 || __GNUC__ == 3 && __GNUC_MINOR__ > 2
+/* GCC-3.3 or more */
 
 /* CSTYLED */
 #define	UConst	__attribute__ ((__used__)) const
 
-#else	/* GNUC 3.2 */
+#else	/* less than GNUC 3.3 */
 
 #define	UConst	const
 
-#endif /* GNUC 3.2 */
+#endif /* less than GNUC 3.3 */
 
 #ifdef	__PCC__
 /*

@@ -1,4 +1,4 @@
-/* @(#)limit.h	1.7 08/03/27 Copyright 1995-2008 J. Schilling */
+/* @(#)limit.h	1.8 11/07/16 Copyright 1995-2008 J. Schilling */
 /*
  * limit.c
  */
@@ -17,11 +17,13 @@
 extern	void	blimit		__PR((Argvec *vp, FILE **std, int flag));
 extern	void	prtime		__PR((FILE **std, long sec, long usec));
 extern	void	getpruself	__PR((struct rusage *prusage));
+extern	void	getpruchld	__PR((struct rusage *prusage));
 extern	void	btime		__PR((Argvec *vp, FILE **std, int flag));
 extern	void	inittime	__PR((void));
 extern	void	setstime	__PR((void));
 extern	void	prtimes		__PR((FILE **std, struct rusage *prusage));
 extern	void	rusagesub	__PR((struct rusage *pru1, struct rusage *pru2));
+extern	void	rusageadd	__PR((struct rusage *pru1, struct rusage *pru2));
 
 /*
  * in getrusage.c

@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sccs-admin.1	1.13 11/06/13 portions Copyright 2007-2011 J. Schilling */
+.\" @(#)sccs-admin.1	1.19 11/07/12 portions Copyright 2007-2011 J. Schilling */
 .\" CDDL HEADER START
 .\"
 .\" The contents of this file are subject to the terms of the
@@ -19,7 +19,7 @@
 .\"
 .\" CDDL HEADER END
 .\"  Copyright (c) 2002, Sun Microsystems, Inc. All Rights Reserved.
-.TH sccs-admin 1 "2011/06/13" "SunOS 5.11" "User Commands"
+.TH sccs-admin 1 "2011/07/12" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs-admin, admin \- create and administer SCCS history files
 .SH SYNOPSIS
@@ -109,13 +109,18 @@ e.g.
 .RB "        `" "%\&Z%%\&M%	%\&I% %\&E%" '
 .br
 This line fragment needs to exactly match a part of a line in the file
-and to result in expanded keywords. Otherwise an attempt to check in a 
-new delta will fail.
+and to result in expanded keywords.
+The string must begin with a keyword, and may not have embedded
+.B newline
+characters.
+If no match was found, an attempt to check in a new delta will fail.
 The parameter to the
 .RB ` i '
 flag is a
 .B \s-1SUN\s+1
-extension.
+extension that was adopted by the
+.B POSIX
+standard.
 .sp
 .ne 3
 .TP
@@ -127,8 +132,26 @@ Allows concurrent updates.
 \fB\fBla\fR\fR
 .TP
 \fB\fBl\fR \fIrelease\fR[\fB,\fR \fIrelease\fR...]\fR
-Locks the indicated list of releases against deltas. If \fBa\fR is used, this flag locks out deltas to all releases. An SCCS `\fBget\fR \fB-e\fR' command fails when applied against a locked release.
+Locks the indicated list of releases against deltas.
+An SCCS `\fBget\fR \fB-e\fR' command fails when applied against a locked release.
+The following syntax is accepted to specify a list:
 .sp
+.nf
+<list> ::= \fBa\fR | <range-list>
+<range-list> ::= <range> | <range-list>, <range>
+<range> ::= <SID>
+.fi
+.sp
+The character
+.B a
+in the
+.I list
+is the equivalent to specifying all releases for the named SCCS file.
+The non-terminal
+.I <SID>
+in
+.I range
+is the delta number of an existing delta associated with the SCCS file.
 .ne 3
 .TP
 \fB\fBm\fR\fImodule\fR\fR
@@ -168,7 +191,7 @@ in which case the list of \fBMR\fRs may be empty.
 .sp
 .ne 3
 .TP
-\fB\fBx\fR
+.B x
 Enable 
 .B sccs
 extensions that are not implemented in classical 
@@ -188,6 +211,17 @@ This flag is a
 extension that does not exist in historic
 .B sccs 
 implementations. 
+.sp
+This version of SCCS implements compatibility support for a SCO SCCS
+extension that sets the executable bit in the file permissions of a
+gotten file if the
+.BR x -flag
+was set in the history file with no parameter. This version of SCCS
+does not allow to set this variant of the
+.BR x -flag
+in the history file.
+If you like to get executable files from SCCS, set the executable
+bit in the file permissions of the history file.
 
 .br
 .ne 4
@@ -227,12 +261,113 @@ Checks the structure of an existing \fBs.\fRfile (see \fBsccsfile\fR(4)), and co
 .ne 3
 .TP
 \fB\fB-i\fR[\fIfilename\fR]\fR
-Initializes the history file with text from the indicated file. This text constitutes the initial delta, or set of checked-in changes. If \fIfilename\fR is omitted, the initial text is obtained from the standard input. Omitting the \fB-i\fR option altogether creates an empty \fBs.\fRfile. You can only initialize one \fBs.\fRfile with text using \fB-i\fR. This option implies the \fB-n\fR option.
+Initializes the history file with text from the indicated file.
+This text constitutes the initial delta, or set of checked-in changes.
+If
+.I filename
+is omitted, the initial text is obtained from the standard input.
+Omitting the
+.B \-i
+option altogether creates an empty
+.BR s. file.
+You can only initialize one
+.BR s. file
+with text using
+.BR \-i .
+This option implies the
+.B \-n
+option.
+.sp
+If you like to initialize more than one
+.BR s. file
+in one call, use the
+.B \-N
+option.
 .sp
 .ne 3
 .TP
 \fB\fB-m\fR \fImr-list\fR\fR
 Inserts the indicated Modification Request (MR) numbers into the commentary for the initial version. When specifying more than one MR number on the command line, \fImr-list\fR takes the form of a quoted, space-separated list. A warning results if the \fBv\fR flag is not set or the \fBMR\fR validation fails.
+.sp
+.ne 3
+.TP
+.BI -N bulk-spec
+Creates a bulk of new SCCS history files.
+This option allows to do an efficient mass creation of SCCS history files
+and to initialize the SCCS history files from named files that
+are the respective counterpart to the actual SCCS history file.
+.sp
+The following option types are supported:
+.RS
+.TP 10
+.B \-N
+The file name parameters to the
+.B admin
+command are not
+.I s.filename
+files but the names of the g-files.
+The
+.I s.filename
+names are automatically derived from the g-file names by prepending
+.B s.
+to the last path name component.
+.TP
+.B \-Ns.
+The file name parameters to the
+.B admin
+command are
+.I s.filename
+files.
+The the g-files names are automatically derived by removing
+.B s.
+from the beginning of last path name component of the
+.IR s.filename.
+.TP
+.BI \-N dir
+The file name parameters to the
+.B admin
+command are not
+.I s.filename
+files but the names of the g-files.
+The
+.I s.filename
+names are put into directory
+.IR dir ,
+the names are automatically derived from the g-file names by prepending
+.IB dir /s.
+to the last path name component.
+.TP
+.BI \-N dir /s.
+The file name parameters to the
+.B admin
+command are
+.I s.filename
+files in directory
+.IR dir .
+The the g-files names are automatically derived by removing
+.IB dir /s.
+from the beginning of last path name component of the
+.IR s.filename.
+.PP
+A typical value for
+.I dir
+is
+.BR SCCS .
+.PP
+In order to overcome the limited number of
+.BR exec (2)
+arguments, it is recommended to use `\fB\(mi\fR\&'
+as the file name parameter for
+.B admin
+and to send a list of path names to
+.BR stdin .
+.PP
+This option is a
+.B SCHILY
+extension that does not exist in historic
+.B sccs
+implementations.
+.RE
 .sp
 .ne 3
 .TP
@@ -245,6 +380,12 @@ Creates a new SCCS history file.
 Use the original time of the existing file for the delta time
 when creating a new
 .BR s. file.
+.sp
+This option is a
+.B SCHILY
+extension that does not exist in historic
+.B sccs
+implementations.
 .sp
 .ne 3
 .TP
@@ -284,9 +425,56 @@ In the following example, \fB10\fR lines of \fBfile\fR will be scanned and only 
 .sp
 .in +2
 .nf
-example% \fBsccs admin -fs10 file\fR
-example% \fBsccs admin -fyW,Y,X file\fR
+example% \fBsccs admin \-fs10 file\fR
+example% \fBsccs admin \-fyW,Y,X file\fR
 example% \fBget file\fR
+.fi
+.in -2
+.sp
+
+.LP
+\fBExample 2 \fRPreventing SCCS keyword expansion and suppressing the
+.RB ` "No id keywords (cm7)" '
+warning
+.sp
+.LP
+In the following example, no keywords will be interpreted and no warning will be generated:
+
+.sp
+.in +2
+.nf
+example% \fBsccs admin \-fy file\fR
+example% \fBget file\fR
+.fi
+.in -2
+.sp
+
+.LP
+\fBExample 3 \fRMass entering files with auto-initialization
+.sp
+.LP
+In the following example, all files in the usr/src tree will be put under SCCS
+and the SCCS history files will be put into SCCS sub directories:
+
+.sp
+.in +2
+.nf
+example% \fBfind usr/src -type f | sccs admin -NSCCS -\fR
+.fi
+.in -2
+.sp
+
+.LP
+\fBExample 4 \fREntering all files in a directory with auto-initialization
+.sp
+.LP
+In the following example, all files in the current directory will be put under SCCS
+and the SCCS history files will be put into the SCCS sub directory:
+
+.sp
+.in +2
+.nf
+example% \fBsccs admin -NSCCS .\fR
 .fi
 .in -2
 .sp
@@ -399,4 +587,4 @@ It is recommended that directories containing SCCS files have permission mode \f
 If it should be necessary to patch an SCCS file for any reason, the mode may be changed to \fB644\fR by the owner to allow use of a text editor. However, extreme care must be taken when doing this. The edited file should \fIalways\fR be processed by an `\fBadmin\fR \fB-h\fR' command to check for corruption, followed by an `\fBadmin\fR \fB-z\fR' command to generate a proper check-sum. Another `\fBadmin\fR \fB-h\fR' command is recommended to ensure that the resulting \fBs.\fRfile is valid.
 .sp
 .LP
-\fBadmin\fR also uses a temporary lock \fBs.\fRfile, starting with the `\fBz.\fR' prefix, to prevent simultaneous updates to the \fBs.\fRfile. See \fBsccs-get\fR(1) for further information about the `\fBz.\fRfile'.
+\fBadmin\fR uses a temporary lock file, starting with the `\fBz.\fR' prefix, to prevent simultaneous updates to the \fBs.\fRfile. See \fBsccs-get\fR(1) for further information about the `\fBz.\fRfile'.

@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sccs.1	4.12 11/06/13 portions Copyright 2007-2011 J. Schilling */
+.\" @(#)sccs.1	4.14 11/07/11 portions Copyright 2007-2011 J. Schilling */
 .\" 
 .\" CDDL HEADER START
 .\"
@@ -20,7 +20,7 @@
 .\"
 .\" CDDL HEADER END
 .\"  Copyright (c) 2007, Sun Microsystems, Inc.  All Rights Reserved.
-.TH sccs 1 "2011/06/13" "SunOS 5.11" "User Commands"
+.TH sccs 1 "2011/07/11" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs \- front end for the Source Code Control System (SCCS)
 .SH SYNOPSIS
@@ -122,6 +122,8 @@ argument. These options are specific to each subcommand, and are described
 along with the subcommands themselves (see
 .B Subcommands
 below).
+.sp
+.ne 8
 .SS "Subcommand overview"
 .LP
 .ne 5
@@ -130,8 +132,31 @@ Besides the usual
 commands,
 several ``pseudo-commands'' can be issued.
 These are:
+.ne 4
 .TP 1i
+.B branch
+Create a new branch and retrieve a version for editing.
+Equivalent to ``get \-b \-e'' followed by ``delta \-s \-n'' followed by
+``get \-e \-t \-g''.
+
+The
+.BR \-c ,
+.BR \-i ,
+.BR \-r
+and
+.B \-x
+flags are passed to the first
+.B get\c
+; the
+.B \-p
+and
+.B \-l
+flags are passed to the second
+.BR get .
+
+.TP
 .B edit
+Retrieves a version for editing.
 Equivalent to ``get \-e''.
 .br
 .ne 5
@@ -280,30 +305,30 @@ in
 .SM SCCS
 format.
 The
-.B \-r,
-.B \-c,
-.B \-i,
-.B \-x,
+.BR \-r ,
+.BR \-c ,
+.BR \-i ,
+.BR \-x ,
 and
 .B \-t
 flags are passed to
-.I get\c
+.B get\c
 ; the
-.B \-l,
-.B \-s,
-.B \-e,
-.B \-f,
-.B \-h,
+.BR \-l ,
+.BR \-s ,
+.BR \-e ,
+.BR \-f ,
+.B \-h
 and
 .B \-b
-options are passed to
-.B diff.
+flags are passed to
+.BR diff .
 The
 .B \-C
 flag is passed to
 .B diff
 as
-.B \-c.
+.BR \-c .
 .TP
 .B ldiffs
 The same as
@@ -336,6 +361,8 @@ tree below the current working directory or the directory tree
 below the directory type argument. Some commands are currently 
 not permitted to be run in recursive mode.
 
+.br
+.ne 5 
 .SS "Running Setuid"
 .LP
 The \fBsccs\fR command also includes the capability to run ``setuid'' to provide additional protection.  However, this does not apply to subcommands such as \fBsccs-admin\fR(1), since this would allow anyone to change the authorizations of the history file.  Commands that would do so always run as the real user.
@@ -350,7 +377,9 @@ is ``set user id'' to.
 
 .SH OPTIONS
 .LP
-The following options are supported:
+The following options are supported by the
+.BR sccs (1)
+command itself:
 .SS "/usr/bin/sccs"
 .TP
 \fB-d\fR\fIrootprefix\fR
@@ -462,6 +491,16 @@ Many of the following \fBsccs\fR subcommands invoke programs that reside in \fB/
 .sp .6
 Modify the flags or checksum of an \fBSCCS\fR history file. Refer to \fBsccs-admin\fR(1) for more information about the \fBadmin\fR utility.
 While \fBadmin\fR can be used to initialize a history file, you might find that the \fBcreate\fR subcommand is simpler to use for this purpose.
+
+.sp
+.ne 5
+.TP
+\fB\fBbranch\fR\fR
+.sp .6
+Create a new branch and retrieve a version for editing.
+Except for creating a new branch, this is equivalent to the
+.B edit
+subcommand.
 
 .sp
 .ne 5

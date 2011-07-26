@@ -27,10 +27,10 @@
 /*
  * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)comb.c	1.14 11/06/06 J. Schilling
+ * @(#)comb.c	1.15 11/07/04 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)comb.c 1.14 11/06/06 J. Schilling"
+#pragma ident "@(#)comb.c 1.15 11/07/04 J. Schilling"
 #endif
 /*
  * @(#)comb.c 1.15 06/12/12
@@ -208,7 +208,7 @@ register char *argv[];
 	iop = stdout;
 	for (i = 1; i < argc; i++)
 		if ((p=argv[i]) != NULL)
-			do_file(p, comb, 1);
+			do_file(p, comb, 1, 1);
 	fclose(iop);
 	iop = NULL;
 

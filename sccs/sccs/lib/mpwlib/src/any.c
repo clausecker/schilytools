@@ -25,12 +25,12 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2009 J. Schilling
+ * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)any.c	1.5 09/11/08 J. Schilling
+ * @(#)any.c	1.6 11/07/26 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)any.c 1.5 09/11/08 J. Schilling"
+#pragma ident "@(#)any.c 1.6 11/07/26 J. Schilling"
 #endif
 /*
  * @(#)any.c 1.4 06/12/12
@@ -46,6 +46,8 @@
 */
 
 #include <defines.h>
+
+#undef	any
 
 int
 any(c,s)

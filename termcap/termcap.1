@@ -1,4 +1,4 @@
-. \" @(#)termcap.1	1.7 10/10/13 Copyright 2008 J. Schilling
+. \" @(#)termcap.1	1.8 11/07/26 Copyright 2008 J. Schilling
 . \"  Manual page for termcap
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -13,7 +13,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH TERMCAP 1L "10/10/13" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH TERMCAP 1L "11/07/26" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 termcap \- a termcap compiler
 .SH SYNOPSIS
@@ -75,6 +75,8 @@ before escape sequences like
 .TP
 .B \-dumplist
 Dump the complete internal list of terminal capabilities.
+.br
+.ne 5
 .TP
 .BI if= filename
 Read the file 
@@ -130,6 +132,17 @@ normally does not interpret
 .B tc=
 entries in order to allow the entries to be reused the same way they are
 in the termcap file.
+.sp
+When the
+.B \-tc
+option is used together with
+.BI if= filename
+and 
+.BR termcap (1)
+is in compile mode, the output will increase noticably in size as all
+.B termcap
+entries for all terminals will be fully expanded. This also removes all
+hints to similar terminals in the output.
 .TP
 .B \-v
 Increment verbose level.

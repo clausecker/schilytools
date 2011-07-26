@@ -25,12 +25,12 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2009 J. Schilling
+ * This file contains modifications Copyright 2011 J. Schilling
  *
- * @(#)date_ba.c	1.4 11/05/29 J. Schilling
+ * @(#)date_ba.c	1.5 11/06/27 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)date_ba.c 1.4 11/05/29 J. Schilling"
+#pragma ident "@(#)date_ba.c 1.5 11/06/27 J. Schilling"
 #endif
 /*
  * @(#)date_ba.c 1.5 06/12/12
@@ -46,9 +46,10 @@
 
 
 char *
-date_ba(bdt, adt)
+date_ba(bdt, adt, flags)
 time_t	*bdt;
 char	*adt;
+int	flags;
 {
 	register struct tm *lcltm;
 	register char *p;
@@ -56,7 +57,10 @@ char	*adt;
 #if defined(BUG_1205145) || defined(GMT_TIME)
 	lcltm = gmtime(bdt);
 #else
-	lcltm = localtime(bdt);
+	if (flags & PF_GMT)
+		lcltm = gmtime(bdt);
+	else
+		lcltm = localtime(bdt);
 #endif
 	p = adt;
 	if (lcltm->tm_year >= 100) {

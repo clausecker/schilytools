@@ -1,4 +1,4 @@
-#ident "@(#)cc-hp64.rul	1.9 09/10/12 "
+#ident "@(#)cc-hp64.rul	1.10 11/07/16 "
 ###########################################################################
 # Written 1996-2006 by J. Schilling
 ###########################################################################
@@ -62,9 +62,9 @@ LNDYNLIB=	@
 FLOAT_OPTIONS=	
 
 CC_COM=		cc
-CC=		@echo "	==> COMPILING \"$@\""; cc +DD64
-LDCC=		@echo "	==> LINKING \"$@\""; cc +DD64
-DYNLD=		@echo "	==> LINKING dynamic library \"$@\""; cc +DD64
+CC=		@echo "	==> COMPILING \"$@\""; $(CC_COM) +DD64
+LDCC=		@echo "	==> LINKING \"$@\""; $(CC_COM) +DD64
+DYNLD=		@echo "	==> LINKING dynamic library \"$@\""; $(CC_COM) +DD64
 
 RMDEP=		:
 MKDEP=		@echo "	==> MAKING DEPENDENCIES \"$@\""; $(RMDEP); $(SRCROOT)/conf/mkdep-hpux.sh

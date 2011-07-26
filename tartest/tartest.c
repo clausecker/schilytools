@@ -1,11 +1,11 @@
-/* @(#)tartest.c	1.17 10/08/23 Copyright 2002-2010 J. Schilling */
+/* @(#)tartest.c	1.18 11/07/15 Copyright 2002-2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)tartest.c	1.17 10/08/23 Copyright 2002-2010 J. Schilling";
+	"@(#)tartest.c	1.18 11/07/15 Copyright 2002-2011 J. Schilling";
 #endif
 /*
- *	Copyright (c) 2002-2010 J. Schilling
+ *	Copyright (c) 2002-2011 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -83,7 +83,7 @@ main(ac, av)
 	if (help)
 		usage(0);
 
-	printf("tartest %s (%s-%s-%s)\n\n", "1.17",
+	printf("tartest %s (%s-%s-%s)\n\n", "1.18",
 					HOST_CPU, HOST_VENDOR, HOST_OS);
 	printf("Copyright (C) 2002 Jörg Schilling\n");
 	printf("This is free software; see the source for copying conditions.  There is NO\n");
@@ -257,14 +257,14 @@ checkhdr(ptb)
 	if (ptb->ustar_dbuf.t_name[  0] != '\0' &&
 	    ptb->ustar_dbuf.t_name[ 99] != '\0' &&
 	    /* LINTED */
-	    ptb->ustar_dbuf.t_name[100] == '\0') {
+	    ptb->ndbuf.t_name[100] == '\0') {
 		printf("Warning: t_name[100] is a null character.\n");
 		errs++;
 	}
 	if (ptb->ustar_dbuf.t_linkname[  0] != '\0' &&
 	    ptb->ustar_dbuf.t_linkname[ 99] != '\0' &&
 	    /* LINTED */
-	    ptb->ustar_dbuf.t_linkname[100] == '\0') {
+	    ptb->ndbuf.t_linkname[100] == '\0') {
 		printf("Warning: t_linkname[100] is a null character.\n");
 		errs++;
 	}

@@ -1,4 +1,4 @@
-#ident @(#)Makefile	1.3 11/05/26 
+#ident @(#)Makefile	1.4 11/07/06 
 ###########################################################################
 # Sample makefile for installing manual pages
 ###########################################################################
@@ -17,7 +17,8 @@ XMK_FILE=	adminman.mk bdiffman.mk cdcman.mk combman.mk deltaman.mk \
 		sccs-sactman.mk sccs-sccsdiffman.mk sccs-ungetman.mk \
 		sccs-valman.mk \
 		sccsdiffman.mk sccsfileman.mk sccsman.mk ungetman.mk \
-		sccslogman.mk valman.mk whatman.mk
+		sccslogman.mk valman.mk whatman.mk \
+		vcman.mk
 
 ###########################################################################
 include		$(SRCROOT)/$(RULESDIR)/sub.htm

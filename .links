@@ -187,6 +187,8 @@
 ./RULES/armv4l-linux-gcc.rul
 ./RULES/armv5teb-linux-cc.rul
 ./RULES/armv5teb-linux-gcc.rul
+./RULES/armv5tejl-linux-cc.rul
+./RULES/armv5tejl-linux-gcc.rul
 ./RULES/atariclone-freemint-gcc.rul
 ./RULES/atariste-freemint-gcc.rul
 ./RULES/ataritt-freemint-gcc.rul

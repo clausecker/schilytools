@@ -1,4 +1,4 @@
-# @(#)vc7-setup	1.5 09/05/16 Copyright 2006 J. Schilling
+# @(#)vc9-cygwin-setup	1.2 11/07/21 Copyright 2006-2011 J. Schilling
 
 #
 # Keep in sync with vc9-cygwin-setup as we cannot rely on hard links

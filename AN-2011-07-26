@@ -1,0 +1,375 @@
+New features with AN-2011-07-26:
+
+This is the first localization step for the schily source consolidation. Many
+programs now (hopefully) call gettext() for all strings that need localization.
+
+-	The next step will include dgettext() calls for the libraries and the
+	missing programs
+
+-	The following step will include the extracted strings
+
+-	The last step will include German translations and install support
+	for the resulting binary message object files.
+
+----------> Please test and report compilation problems! <---------
+
+***** NOTE: As mentioned since 2004, frontends to the tools should *****
+*****		call all programs in the "C" locale		   *****
+*****		by e.g. calling: LC_ALL=C cdrecord ....		   *****
+*****		unless these frontends support localized strings   *****
+*****		used by the cdrtools with NLS support.		   *****
+
+-	The setup for the PATHs needed by Visual Studio 9 has been
+	corrected.
+
+-	autoconf has been modified to avoid optimizing away code that 
+	is intended for testing. This help to work against a problem
+	with detecting mbrtowc() on MinGW
+
+-	autoconf now tests for mbtowc() and wctomb()
+
+-	RULES/i*86-mingw32_nt-gcc.rul now link against -lmingw32 instead
+	of -lmgw32.
+
+-	include/schily/stat.h now defines S_IREAD/S_IWRITE/S_IEXEC
+	These macros are available on typical UNIX systems but not
+	on Android. The definition comes from UNIX V7 and is not in
+	POSIX. Needed by SCCS and the Bourne Shell
+
+-	include/schily/wait.h now defines WIFCONTINUED() if needed
+
+-	include/schily/wchar.h now defines mbtowc() to mbrtowc() if
+	needed (e.g. on Android)
+
+-	include/schily/ccomdefs.h now correctly knows about the GCC
+	release that introduced __attribute__ (used).
+
+-	Allow to disable the SCSI low level transport adoption layer
+	from libscg by adding -DNO_SCSI_IMPL
+
+-	Android is not POSIX (by not defining various functions as functions 
+	in libc as required by POSIX) because it tries to define many 
+	functions that are part of the standard as inline macros in
+	include files only. This breaks autoconf, so we needed to rewrite
+	some tests (e.g for getpagesize, tcgetpgrp, tcsetpgrp)
+
+-	The Schily autoconf system has been enhanced to support cross
+	compilation. Schily autoconf is based on GNU autoconf and
+	GNU autoconf does not support cross compilation because it needs
+	to run scripts on the target system for some of the tests.
+
+	The "configure" script that is delivered with the Schily makefile
+	system runs 718 tests and 68 of them need to be run on the target
+	system.
+
+	The Schily autoconf system now supports a method to run these 65
+	tests natively on a target system. You either need a machine with
+	remote login features or you need an emulator with a method to
+	copy files into the emulated system and to run binaries on the
+	emulated system as e.g. the Android emulator.
+
+	We currently deliver three scripts for "remote" execution of
+	programs on the target system:
+
+	runrmt_ssh		runs the commands remove via ssh
+	runrmt_rsh		runs the commands remove via rsh
+	runrmt_android		runs the commands remove via the debug bridge
+
+	If you need to remotely run programs on a system that is not
+	supported by one of there three scripts, you need to modify one
+	of them to match your needs.
+
+	To enable Cross Compilation use the following environment variables:
+
+	CONFIG_RMTCALL=		Set up to point to a script that does
+				the remote execution, e.g.:
+
+				CONFIG_RMTCALL=`pwd`/conf/runrmt_ssh
+
+	CONFIG_RMTHOST=		Set up to point to your remote host, e.g.:
+
+				CONFIG_RMTHOST=hostname 
+				or
+				CONFIG_RMTHOST=user@hostname
+
+				use a dummy if you like to use something
+				like to the Android emulator.
+
+	CONFIG_RMTDEBUG=	Set to something non-null in order to 
+				let the remote execution script mark
+				remote comands. This will result in
+				configure messages like:
+
+				checking bits in minor device number... REMOTE 8
+
+	Note that smake includes automake features that automatically
+	retrieve system ID information. For this reason, you need to overwrite 
+	related macros from the command line if you like to do a
+	cross compilation.
+
+	Related make macros:
+
+	K_ARCH=			# (sun4v) Kernel ARCH filled from uname -m / arch -k
+	M_ARCH=			# (sun4)  Machine filled from arch
+	P_ARCH=			# (sparc) CPU ARCH filled from uname -p / mach
+	OSNAME=			# sunos, linux, ....
+	OSREL=			# 5.11
+	OSVERSION=		# snv_130
+	CCOM=			# generic compiler name (e.g. "gcc")
+	CC_COM=			# compiler to call (name + basic args)
+
+	ARCH=			overwrites M_ARCH and P_ARCH
+
+	It is usually suffucient to set ARCH and OSNAME.
+
+	In order to use a cross compiler environment instead of a native compiler,
+	set the make macro CC_COM to something different than "cc".
+
+	If you are on Linux and like to compile for Android, do the following:
+
+	1) 	set up CC acording to the instructions from the cross compiler
+		tool chain
+
+	2)	set environment variables CONFIG_RMTCALL / CONFIG_RMTHOST, e.g.:
+		setenv CONFIG_RMTCALL `pwd`/conf/runrmt_android
+		setenv CONFIG_RMTHOST NONE
+
+	3)	call smake:
+
+		smake ARCH=armv5 OSNAME=linux CCOM=gcc "CC_COM=$CC"
+	
+
+-	Several programs no longer test for HAVE_DEV_* but for HAVE__DEV_*
+	as we did switch from hand written tests for /dev/tty, /dev/null 
+	and similar to  AC_CHECK_FILES(/dev/tty /dev/null /dev/zero)
+
+-	patch/Makefile now includes $(LIB_INTL) - needed on platforms
+	that have gettext() in -lintl instead of libc.
+
+-	bsh now correctly returns the exit code for programs called from
+	the bsh builtin env(1)
+
+-	bsh now correctly shows child time statistics for build ins (like 
+	find) that call command.
+
+-	bsh/evops.c now includes schily/hostname.h, needed in general
+	but it did show up on the Android platform.
+
+-	include/schily/fcntl.h now defines FD_CLOEXEC
+
+-	Several commands now use fcntl(fd, F_SETFD, FD_CLOEXEC)
+	instead of fcntl(fd, F_SETFD, 1)
+
+-	tartest/tartest.c now also uses the hack ptb->ndbuf.t_name[100]
+	with an intentionally oversized union to avoid warnings from
+	some compilers.
+
+-	cdrecord/cdrecord.c now avoids to call poll() if on a system
+	that does not include poll() (e.g. MinGW)
+
+-	libschily/gettimeofday.c now supports MinGW
+
+-	New autoconf test HAVE_REALLOC_NULL checks whether realloc()
+	implements realloc(NULL, size)
+
+-	Trying to support __MINGW32__ (native WIN-DOS) in smake
+	new file job.h
+
+-	libfind/find.c disables -exec in case there is no fork().
+	This is in order to support MINGW
+
+-	New autoconf tests for:
+	getpwnam getpwent getpwuid setpwent endpwent
+	getgrnam getgrent getgrgid setgrent endgrent
+	This is in order to support MINGW
+
+-	libschily now supports fallback implementations for:
+	getpwnam getpwent getpwuid setpwent endpwent
+	getgrnam getgrent getgrgid setgrent endgrent
+	This is in order to support MINGW
+
+-	libschily now supports fallback implementations for:
+	getuid geteuid setuid seteuid
+	getgid getegid setgid setegid
+	This is in order to support MINGW
+
+-	udiff needs  $(LIB_INTL) in Makefile
+
+-	The termcap compiler now avoids a coredump in compile mode (using if=)
+	when TERM= or TERMCAP= are not set. Thanks to Yuri Pankov for reporting.
+
+-	The termcap compiler now allows to use the -tc option together with
+	the if= option (in compile mode).
+
+-	SCCS avoids to use the local any() function in favor of strchr()
+	for performance reasons.
+
+
+-	SCCS admin now changed a static variable from dirname to dir_name
+	to avoid problems with some compilers that do not like char *dirname
+	because a function char *dirname() already exists in libc.
+
+-	SCCS delta no longer exists in a separate version under /usr/xpg4/bin
+	as the POSIX definition for delta(1) has been fixed to match the actual
+	behavior of the vanilla delta(1) program.
+
+-	The SCCS delta man page has been updated to reflect the removal of
+	/usr/xpg4/bin/delta
+
+-	The SVR4 package description file has been updated to reflect the
+	removal of /usr/xpg4/bin/delta
+
+-	The SCCS get man page has been updated to mention that -x works
+	not only with /usr/xpg4/bin/get
+
+-	The SCCS admin man page metter mentions the POSIX aspects for the
+	'i' and 'l' flags in the SCCS history files.
+
+
+-	SCCS bumped to release 5.1
+
+-	SCCS delta is now using a faster method to close open files before
+	calling "diff".
+
+-	The Makefile System is now able to switch gmake-3.82 into a more POSIX 
+	compliant mode to tell the shell to report problems back to gmake.
+
+-	libmpw now has a new funktion zrealloc() that calls malloc()
+	when the first realloc() parameter is NULL. This is needed on
+	platforms that do not support realloc(NULL, size)
+
+-	A work around for the performance problems from the baroque Linux
+	stdio implementaion was introduced.
+
+-	A workaround for the performance problems in DST support from
+	libc::mktime() on platforms (like AIX. Linux and SunOS-4.x) has been
+	introduced. SCCS now converts the ASCII time notation from the history
+	file into a GMT based time_t in case that get(1) does not need to 
+	deal with time stamps.
+
+-	For the same reason as before, delta(1) now also tries to avoid to do
+	local time conversions.
+
+	We are now able to confirm that claims that RCS is supposed to be faster
+	than SCCS are no more than a myth.
+
+	With these optimzations in effect, we are now again able to prove that
+	SCCS is always faster than RCS or CVS regardless of what OS is being
+	used. The most frequently used SCCS command is get(1) and get(1) is
+	typically 3 times faster than RCS co(1) when retrieving the most recent
+	version and up to 6 times faster than co(1) when retrieving older
+	revisions.
+
+	Note that all optimizations affect only parts of SCCS that have been 
+	introduced past 1986. So we did just allow to see how fast SCCS has 
+	been in 1980 already. 
+
+-	SCCS admin no longer creates left over files with admin -n a.xx
+	as a.xx is recognized as illegal name early.
+
+-	SCCS admin no longer depends on a lucky side effect when creating
+	SCCS history files that keep archived uuenoded version from binary
+	files. This fixes a bug that most likely has been introduced in
+	1987 while adding binary file support for SunOS-4.0.
+
+-	SCCS admin now checks for the executable permissioons on the right
+	file when using admin -ibar s.foo. Before it did check foo instead
+	of bar.
+
+-	SCCS admin now uses the same fast algorithm for detecting binary
+	files as SCCS delta does. This speeds up mass enters of files.
+
+-	The new fast algorithm that checks for binary files now correctly
+	reports 
+		"file '%s' contains illegal data..."
+	instead of
+		"No newline at end of file..."
+
+	if there is binary data that is not folowed by a new line.
+
+-	Reset the internal variable "Encoded" in SCCS admin in case a pure
+	text file was found. This permits to enter pure text files after a
+	binary file has been entered.
+
+-	SCCS admin now supports a new option -N for efficient mass entering
+	of files.
+
+        The following option types are supported:
+
+          -N        The file name parameters to the admin command
+                    are not s.filename files but the names of the
+                    g-files.  The s.filename names are  automati-
+                    cally   derived  from  the  g-file  names  by
+                    prepending s. to  the  last  path  name  com-
+                    ponent.
+
+          -Ns.      The file name parameters to the admin command
+                    are  s.filename files.  The the g-files names
+                    are automatically derived by removing s. from
+                    the  beginning of last path name component of
+                    the s.filename.
+
+          -Ndir     The file name parameters to the admin command
+                    are not s.filename files but the names of the
+                    g-files.  The s.filename names are  put  into
+                    directory  dir,  the  names are automatically
+                    derived from the g-file names  by  prepending
+                    dir/s.  to the last path name component.
+
+          -Ndir/s.  The file name parameters to the admin command
+                    are  s.filename  files in directory dir.  The
+                    the g-files names are  automatically  derived
+                    by  removing  dir/s.   from  the beginning of
+                    last path name component of the s.filename.
+
+        A typical value for dir is SCCS.
+
+	To enter all files below usr/src, call:
+
+		find usr/src -type f | admin -NSCCS -
+
+	This tells admin to read file names of g-files from stdin
+	and to automatically place related new s.files into corresponding
+	SCCS directories. If the SCCS directories are missing, they are
+	created.
+
+	This new method is very fast. Entering the whole OpenSolaris base OS
+	sources (500 MB in > 46000 files) takes 17 seconds on tmpfs on a 6 
+	year old 2.4 Ghz Opteron system. This is 2700 files per second and 
+	30 MB/s.
+
+-	SCCS get now implements compatibility support for the SCO 'x' flag
+	in history files. There is no support to set this flag in history files
+	and calling "admin -fx s.file" will set up the history file for
+	supporting extended SCCS get keywords.
+
+	The recommended method to set the executable bit in files is to
+	start with an executable g-file or to set the executable bit in the
+	related s. history file.
+
+-	The sccs speudo command "branch" has been documented in the sccs.1
+	man page
+
+-	Several missing command descriptions have been added to the SCCS help
+	for cmds.
+
+-	The Makefile system now links dynamic libraries on Mac OS X against
+	libgcc_s.1 instead of libgcc.
+
+-	libschily/fexec.c moved the workaround against the Mac OS X linker
+	for "environ" upwards to cover the new code also.
+
+-	SCCS vc man page added
+
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.isdn.cs.tu-berlin.de, js@cs.tu-berlin.de
+	joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

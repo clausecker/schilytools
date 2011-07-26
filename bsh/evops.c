@@ -1,8 +1,8 @@
-/* @(#)evops.c	1.35 09/07/28 Copyright 1984-2009 J. Schilling */
+/* @(#)evops.c	1.36 11/07/18 Copyright 1984-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)evops.c	1.35 09/07/28 Copyright 1984-2009 J. Schilling";
+	"@(#)evops.c	1.36 11/07/18 Copyright 1984-2009 J. Schilling";
 #endif
 /*
  *	bsh environment section
@@ -31,6 +31,7 @@ static	UConst char sccsid[] =
 #include <schily/string.h>
 #include <schily/limits.h>
 #include <schily/systeminfo.h>
+#include <schily/hostname.h>
 #include <schily/utsname.h>
 #include <schily/locale.h>
 

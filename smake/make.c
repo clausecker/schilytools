@@ -1,13 +1,13 @@
-/* @(#)make.c	1.181 10/10/06 Copyright 1985, 87, 88, 91, 1995-2010 J. Schilling */
+/* %Z%%M%	%I% %E% Copyright 1985, 87, 88, 91, 1995-2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)make.c	1.181 10/10/06 Copyright 1985, 87, 88, 91, 1995-2010 J. Schilling";
+	"%Z%%M%	%I% %E% Copyright 1985, 87, 88, 91, 1995-2011 J. Schilling";
 #endif
 /*
  *	Make program
  *
- *	Copyright (c) 1985, 87, 88, 91, 1995-2010 by J. Schilling
+ *	Copyright (c) 1985, 87, 88, 91, 1995-2011 by J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -936,7 +936,7 @@ main(ac, av)
 	if (help)
 		usage(0);
 	if (pversion) {
-		printf("Smake release %s (%s-%s-%s) Copyright (C) 1985, 87, 88, 91, 1995-2010 Jörg Schilling\n",
+		printf("Smake release %s (%s-%s-%s) Copyright (C) 1985, 87, 88, 91, 1995-2011 Jörg Schilling\n",
 				make_version,
 				HOST_CPU, HOST_VENDOR, HOST_OS);
 		exit(0);
@@ -1561,14 +1561,23 @@ setmakeenv(envbase, envp)
 	doexport(Make_Macs);
 }
 
+#include "job.h"
+#define	MAXJ	1
+int	curjobs = 0;
+int	maxjobs = MAXJ;
+job	jobs[MAXJ];
+
+EXPORT	void	cmd_run		__PR((job *jobp));
+EXPORT	int	cmd_wait	__PR((job *jobp));
+
 #define	iswhite(c)	((c) == ' ' || (c) == '\t')
 
 #if	defined(__linux__) || defined(__linux) || \
 	defined(SHELL_IS_BASH) || defined(BIN_SHELL_IS_BASH)
 /*
- * Needed to handle the Linux bash signal bug.
+ * Needed to handle the Linux/bash signal bug.
  */
-int	lpid;
+pid_t	lpid;
 #endif
 
 /*
@@ -1581,16 +1590,11 @@ docmd(cmd, obj)
 	obj_t		*obj;
 {
 	int	code;
-	int	pid = 0;
-	int	retries;
-	int	Exit;
 	int	Silent = Sflag;
 	int	NoError = Iflag;
 	int	NoExec = Nflag;
 	BOOL	foundplus = FALSE;
-	obj_t	*shello;
-	char	*shell = NULL;
-	char	*shellflag;
+	job	*jobp = NULL;
 
 	while (iswhite(*cmd))
 		cmd++;
@@ -1631,7 +1635,43 @@ docmd(cmd, obj)
 	if (NoExec && !found_make)
 		return (0);
 
+	jobp = &jobs[0];
+	if (curjobs >= maxjobs) {
+		(void) cmd_wait(jobp);
+	}
+
+	jobp->j_pid = 0;
+	jobp->j_flags = 0;
+	if (Silent)
+		jobp->j_flags |= J_SILENT;
+	if (NoError)
+		jobp->j_flags |= J_NOERROR;
+	jobp->j_cmd = cmd;
+	jobp->j_obj = obj;
+	curjobs++;
+
 	curtarget = obj;
+
+	cmd_run(jobp);
+	return (cmd_wait(jobp));
+}
+
+EXPORT	void	cmd_run	__PR((job *jobp));
+
+EXPORT void
+cmd_run(jobp)
+	job	*jobp;
+{
+	pid_t	pid = 0;
+	int	retries;
+#if defined(USE_SYSTEM) || defined(__DJGPP__) || defined(__MINGW32__)
+	int	Exit;
+#endif
+	int	NoError = (jobp->j_flags & J_NOERROR) != 0;
+	obj_t	*shello;
+	char	*shell = NULL;
+	char	*shellflag;
+	char	*cmd = jobp->j_cmd;
 
 	shellflag = get_var(NoError ? "MAKE_SHELL_IFLAG":"MAKE_SHELL_FLAG");
 	if (shellflag == NULL || *shellflag == '\0') {
@@ -1652,13 +1692,15 @@ docmd(cmd, obj)
 	(((defined(HAVE_FORK) || defined(HAVE_VFORK)) && \
 		defined HAVE_EXECL) || defined(JOS))
 
-#if defined(__EMX__) || defined(__DJGPP__)
+#if defined(__EMX__) || defined(__DJGPP__) || defined(__MINGW32__)
+
 #ifdef	__EMX__
 	pid = spawnl(P_NOWAIT, shell, filename(shell), shellflag,
 							cmd, (char *)NULL);
 	if (pid < 0)
 		comerr("Can't spawn %s.\n", shell);
-#else
+#else	/* ! __EMX__ */
+
 	if (shello == NULL)
 		comerr("Can't find sh.exe.\n");		/* DJGPP setup problem */
 
@@ -1668,8 +1710,11 @@ docmd(cmd, obj)
 		/* TODO: DOS error code to UNIX error code */
 		Exit = 0xFF<<8;
 	}
-#endif
-#else
+	jobp->j_flags |= J_NOWAIT;
+	jobp->j_excode = Exit;
+#endif	/* ! __EMX__ */
+
+#else	/* ! __EMX__ && ! __DJGPP__ && ! __MINGW32__ */
 	/*
 	 *  Do several tries to fork child to allow working on loaded systems.
 	 */
@@ -1700,7 +1745,8 @@ docmd(cmd, obj)
 							cmd, (char *)NULL);
 		comerr("Can't exec %s.\n", shell);
 	}
-#endif	/* __EMX__ || __DJGPP__ */
+#endif	/* ! __EMX__ && ! __DJGPP__ && ! __MINGW32__ */
+
 
 #if	defined(__linux__) || defined(__linux) || \
 	defined(SHELL_IS_BASH) || defined(BIN_SHELL_IS_BASH)
@@ -1709,15 +1755,61 @@ docmd(cmd, obj)
 	 */
 	lpid = pid;
 #endif
+	jobp->j_pid = pid;
 
-	/* Parent process: wait for child. */
-#ifndef	__DJGPP__
-	if ((code = wait((WAIT_T *)&Exit)) != pid)
-		comerrno(Exit, "code %d waiting for %s.\n", geterrno(), shell);
-#endif
 #else	/* Use system() */
 	Exit = system(cmd);
+	jobp->j_flags |= J_NOWAIT;
+	jobp->j_excode = Exit;
 #endif
+}
+
+EXPORT	int	cmd_wait	__PR((job *jobp));
+
+EXPORT int
+cmd_wait(jobp)
+	job	*jobp;
+{
+	int	code;
+	pid_t	pid = jobp->j_pid;
+	int	Exit;
+	int	Silent = (jobp->j_flags & J_SILENT) != 0;
+	int	NoError = (jobp->j_flags & J_NOERROR) != 0;
+	obj_t	*shello;
+	char	*shell = NULL;
+	char	*cmd = jobp->j_cmd;
+	obj_t	*obj = jobp->j_obj;
+
+	shello = objlook("SHELL", FALSE);
+	shell = get_var("SHELL");
+	if (shell == NULL || *shell == '\0') {
+		shello = NULL;
+		shell = "/bin/sh";
+	}
+
+	if (jobp->j_flags & J_NOWAIT) {
+		Exit = jobp->j_excode;
+		goto nowait;
+	}
+
+	/* Parent process: wait for child. */
+#ifdef	HAVE_WAIT
+	if ((code = wait((WAIT_T *)&Exit)) != pid)
+		comerrno(Exit, "code %d waiting for %s.\n", geterrno(), shell);
+#else
+	/*
+	 * Some platforms (__DJGPP__, __MINGW32__) do not have wait(), but we
+	 * set J_NOWAIT on such platforms and thus should never come here.
+	 * WIN-DOS (__MINGW32__) offers a cwait() that is not complatible to
+	 * cwait() from UNOS, so WIN-DOS created a clash.
+	 */
+	/* NOTREACHED */
+	errmsgno(EX_BAD,
+	"Implementation botch, wait for %s not possible on this platform.\n",
+			shell);
+#endif
+
+nowait:
 	if (Exit) {
 		errmsgno(Exit>>8, "*** Code %d from command line for target '%s'%s.\n",
 			Exit>>8,
@@ -1728,6 +1820,9 @@ docmd(cmd, obj)
 			error("%s\n", cmd);
 		}
 	}
+	curjobs--;
+	jobp->j_pid = 0;
+	jobp->j_obj = (obj_t *)NULL;
 	curtarget = (obj_t *)NULL;
 
 	if (NoError)
@@ -2014,6 +2109,16 @@ gftime(file)
 	STATBUF	stbuf;
 	char	this_time[32];
 	char	cur_time[32];
+
+/*#define	nonono__*/
+#ifdef	nonono__
+{
+	obj_t	*o = objlook(file, FALSE);
+
+	if (o != NULL && VALIDTIME(o->o_date))
+		return (o->o_date);		/* Cached file time */
+}
+#endif
 
 	stbuf.st_mtime = NOTIME;
 	if (stat(file, &stbuf) < 0) {

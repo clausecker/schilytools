@@ -1,4 +1,4 @@
-#ident "@(#)mk-gmake.id	1.22 09/09/09 "
+#ident "@(#)mk-gmake.id	1.23 11/06/23 "
 ###########################################################################
 # Written 1996 by J. Schilling
 ###########################################################################
@@ -27,6 +27,8 @@ SET_ENV=	$(___SETENV:$(_UNIQ)%=%)
 include		$(SRCROOT)/$(RULESDIR)/$(SET_ENV)
 
 MAKEPROG=	gmake
+.SHELLFLAGS=	-ce	# switch gmake-3.82 ff. to POSIX behavior
+WAIT=			# gmake is unable to wait for parallel targets
 
 ###########################################################################
 #

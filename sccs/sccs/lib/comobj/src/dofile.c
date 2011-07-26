@@ -27,10 +27,10 @@
 /*
  * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)dofile.c	1.8 11/04/22 J. Schilling
+ * @(#)dofile.c	1.9 11/07/04 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)dofile.c 1.8 11/04/22 J. Schilling"
+#pragma ident "@(#)dofile.c 1.9 11/07/04 J. Schilling"
 #endif
 /*
  * @(#)dofile.c 1.12 06/12/12
@@ -52,10 +52,11 @@ char	had_standinp;
 #define	dot_dotdot(n)	((n)[(n)[0] != '.' ? 0 : (n)[1] != '.' ? 1 : 2] == '\0')
 
 void
-do_file(p,func,check_file)
+do_file(p, func, check_file, need_sdot)
 register char *p;
 void (*func) __PR((char *));
-int check_file;
+int check_file;		/* Check whether file is readable */
+int need_sdot;		/* Skip non s. files */
 {
 	extern char *Ffile;
 	int fd;
@@ -90,7 +91,10 @@ int check_file;
 					if(dir[0]->d_ino == 0) continue;
 #endif
 					sprintf(str,"%s/%s",ibuf,dir[0]->d_name);
-					if(sccsfile(str)) {
+					if (!need_sdot) {
+						Ffile = str;
+						(*func)(str);
+					} else if(sccsfile(str)) {
 					   if (check_file && (fd=open(str, O_RDONLY|O_BINARY)) < 0) {
 					      errno = 0;
 					   } else {
@@ -101,8 +105,10 @@ int check_file;
 					}
 				}
 				closedir(dirf);
-			}
-			else if (sccsfile(ibuf)) {
+			} else if (!need_sdot) {
+				Ffile = ibuf;
+				(*func)(ibuf);
+			} else if (sccsfile(ibuf)) {
 				if (check_file && (fd=open(ibuf, O_RDONLY|O_BINARY)) < 0) {
 				   errno = 0;
 				} else {
@@ -128,7 +134,10 @@ int check_file;
 			if(dir[0]->d_ino == 0) continue;
 #endif
 			sprintf(str,"%s/%s",p,dir[0]->d_name);
-			if(sccsfile(str)) {
+			if (!need_sdot) {
+				Ffile = str;
+				(*func)(str);
+			} else if(sccsfile(str)) {
 			   if (check_file && (fd=open(str, O_RDONLY|O_BINARY)) < 0) {
 			      errno = 0;
 			   } else {

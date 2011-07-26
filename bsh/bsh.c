@@ -1,13 +1,13 @@
-/* @(#)bsh.c	1.64 10/04/26 Copyright 1984,1985,1988,1989,1991,1994-2010 J. Schilling */
+/* @(#)bsh.c	1.65 11/07/10 Copyright 1984,1985,1988,1989,1991,1994-2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)bsh.c	1.64 10/04/26 Copyright 1982,1984,1985,1988,1989,1991,1994-2010 J. Schilling";
+	"@(#)bsh.c	1.65 11/07/10 Copyright 1982,1984,1985,1988,1989,1991,1994-2011 J. Schilling";
 #endif
 /*
  *	bsh command interpreter - main Program
  *
- *	Copyright (c) 1982,1984,1985,1988,1989,1991,1994-2010 J. Schilling
+ *	Copyright (c) 1982,1984,1985,1988,1989,1991,1994-2011 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -257,7 +257,7 @@ proton_off(sig)
 		sprintf(protfname, "%s.%ld", tmpname, (long)mypid);
 		protfile = fileopen(protfname, for_wca);
 #ifdef	F_SETFD
-		fcntl(fdown(protfile), F_SETFD, 1);
+		fcntl(fdown(protfile), F_SETFD, FD_CLOEXEC);
 #endif
 	}
 }
@@ -500,7 +500,7 @@ dofile(s, tab, flag, std, jump)
 		fflush(stderr);
 #endif
 #ifdef	F_SETFD
-		fcntl(fdown(fd), F_SETFD, 1);
+		fcntl(fdown(fd), F_SETFD, FD_CLOEXEC);
 #endif
 		doopen(fd, s, tab, flag, std, jump);
 		fclose(fd);
@@ -863,7 +863,7 @@ gargs(ac, av, opts, no_i2flg, no_gaflg, no_laflg)
 		extern	int	mVERSION;
 
 		printf("bsh %d.%02d (%s-%s-%s)\n\n", MVERSION, mVERSION, HOST_CPU, HOST_VENDOR, HOST_OS);
-		printf("Copyright (C) 1982, 1984, 1985, 1988-1989, 1991, 1994-2010 Jörg Schilling\n");
+		printf("Copyright (C) 1982, 1984, 1985, 1988-1989, 1991, 1994-2011 Jörg Schilling\n");
 		printf("This is free software; see the source for copying conditions.  There is NO\n");
 		printf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
 		exit(0);

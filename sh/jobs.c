@@ -34,13 +34,13 @@
 #include "defs.h"
 
 /*
- * This file contains modifications Copyright 2008-2009 J. Schilling
+ * This file contains modifications Copyright 2008-2011 J. Schilling
  *
- * @(#)jobs.c	1.18 09/11/27 2008-2009 J. Schilling
+ * @(#)jobs.c	1.19 11/07/19 2008-2011 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)jobs.c	1.18 09/11/27 2008-2009 J. Schilling";
+	"@(#)jobs.c	1.19 11/07/19 2008-2011 J. Schilling";
 #endif
 
 /*
@@ -65,6 +65,9 @@ static	UConst char sccsid[] =
 
 #ifndef	WCONTINUED
 #define	WCONTINUED	0
+#define	WIFCONTINUED(s)	0
+#endif
+#ifndef	WIFCONTINUED
 #define	WIFCONTINUED(s)	0
 #endif
 #ifndef	WNOWAIT

@@ -1,6 +1,6 @@
-/* @(#)fileopen.c	1.11 05/08/18 Copyright 1986, 1995-2005 J. Schilling */
+/* @(#)fileopen.c	1.1 06/12/11 Copyright 1986, 1995-2006 J. Schilling */
 /*
- *	Copyright (c) 1986, 1995-2005 J. Schilling
+ *	Copyright (c) 1986, 1995-2006 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

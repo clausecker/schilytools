@@ -128,3 +128,9 @@ a text SCCS file.
 The file of differencies for delta does not exist.
 One of reasons may be the /tmp directory overflow.
 Contact please with system administrator.
+-20
+"file ... line ... begins with '\001'"
+The named line in the file ... begins with the SCCS control
+character SOH(ASCII 001). This is not allowed for the files
+created earlier as text SCCS files.
+(see sccs-admin(1), keyletter 'b').

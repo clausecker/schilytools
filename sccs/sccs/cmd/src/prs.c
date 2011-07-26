@@ -27,10 +27,10 @@
 /*
  * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)prs.c	1.26 11/06/13 J. Schilling
+ * @(#)prs.c	1.28 11/07/04 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)prs.c 1.26 11/06/13 J. Schilling"
+#pragma ident "@(#)prs.c 1.28 11/07/04 J. Schilling"
 #endif
 /*
  * @(#)prs.c 1.33 06/12/12
@@ -339,7 +339,7 @@ char *argv[];
 	*/
 	for (j = 1; j < argc; j++)
 		if ((p = argv[j]) != NULL)
-			do_file(p, process, 1);
+			do_file(p, process, 1, 1);
 
 	return (Fcnt ? 1 : 0);
 }
@@ -1392,11 +1392,11 @@ time_t	*bdate;
 	dt->d_datetime = mklgmtime(Dtime);
 
 	del_ba(dt, dt_line);				/* create delta table line for :Dt: keywd */
-	date_ba(&dt->d_datetime,Deltadate);
-	date_bal(&dt->d_datetime,Deltadatel);
+	date_ba(&dt->d_datetime,Deltadate, 0);
+	date_bal(&dt->d_datetime,Deltadatel, 0);
 #else
-	date_ba(bdate,Deltadate);
-	date_bal(bdate,Deltadatel);
+	date_ba(bdate,Deltadate, 0);
+	date_bal(bdate,Deltadatel, 0);
 #endif
 	Deltatime = &Deltadate[9];
 	Deltadate[8] = 0;

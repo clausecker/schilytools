@@ -19,19 +19,13 @@
 .\" CDDL HEADER END
 .\" Copyright (c) 1999, Sun Microsystems, Inc. All Rights Reserved
 .\" Copyright 2007-2011 J. Schilling
-.TH sccs-delta 1 "2011/06/15" "SunOS 5.11" "User Commands"
+.TH sccs-delta 1 "2011/07/11" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs-delta, delta \- make a delta to an SCCS file
 .SH SYNOPSIS
 .LP
 .nf
 \fB/usr/ccs/bin/delta\fR [\fB-dnops\fR] [\fB-g\fR \fIsid-list\fR | \fB-g\fR\fIsid-list\fR] 
-    [\fB-m\fR \fImr-list\fR | \fB-m\fR\fImr-list\fR] [\fB-r\fR \fIsid\fR | \fB-r\fR\fIsid\fR] 
-    [\fB-y\fR [\fIcomment\fR]] \fI s.filename\fR...
-.fi
-.LP
-.nf
-\fB/usr/xpg4/bin/delta\fR [\fB-dnops\fR] [\fB-g\fR \fIsid-list\fR | \fB-g\fR\fIsid-list\fR] 
     [\fB-m\fR \fImr-list\fR | \fB-m\fR\fImr-list\fR] [\fB-r\fR \fIsid\fR | \fB-r\fR\fIsid\fR] 
     [\fB-y\fR [\fIcomment\fR]] \fI s.filename\fR...
 .fi
@@ -52,12 +46,6 @@ line (requires \fB-y\fR, and in some cases, \fB-m\fR).
 .LP
 \fBdelta\fR may issue prompts on the standard output depending upon the options specified and the flags that are set in the \fBs.\fRfile (see 
 \fBsccs-admin\fR(1), and the \fB-m\fR and \fB-y\fR options below, for details).
-.sp
-
-.SS /usr/xpg4/bin/delta
-
-.LP
-The \fBSID\fR of the delta is not echoed to \fBstdout\fR.
 .sp
 
 .SH OPTIONS
@@ -113,6 +101,12 @@ without checking in the changes.
 .B \-o
 Use the original time of the edited file for the delta time
 when applying the delta.
+.sp
+This option is a
+.B SCHILY
+extension that does not exist in historic
+.B sccs
+implementations.
 .sp
 .ne 2
 .TP
@@ -258,23 +252,6 @@ lw(2.75i) |lw(2.75i)
 ATTRIBUTE TYPEATTRIBUTE VALUE
 _
 AvailabilitySUNWsprot
-.TE
-
-.SS /usr/xpg4/bin/delta
-
-.LP
-
-.sp
-.TS
-tab() box;
-cw(2.75i) |cw(2.75i) 
-lw(2.75i) |lw(2.75i) 
-.
-ATTRIBUTE TYPEATTRIBUTE VALUE
-_
-AvailabilitySUNWxcu4t
-_
-Interface StabilityStandard
 .TE
 
 .SH SEE ALSO

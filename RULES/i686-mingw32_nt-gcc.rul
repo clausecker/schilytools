@@ -1,4 +1,4 @@
-#ident "@(#)i686-mingw32_nt-gcc.rul	1.8 10/05/15 "
+#ident "@(#)i686-mingw32_nt-gcc.rul	1.9 11/07/13 "
 ###########################################################################
 #
 # Platform dependent MACROS for Win32/Mingw32
@@ -33,7 +33,7 @@ LIB_SOCKET=
 LIB_MATH=	-lm
 LIB_KVM=	
 
-LDLIBS=		$(LIBS) $(LIBX) -lmgw32
+LDLIBS=		$(LIBS) $(LIBX) -lmingw32
 
 LDOPTS=		$(LIBS_PATH) $(LDPATH)
 

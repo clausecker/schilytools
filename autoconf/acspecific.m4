@@ -1,4 +1,4 @@
-dnl @(#)acspecific.m4	1.13 10/02/28 Copyright 1998-2009 J. Schilling
+dnl @(#)acspecific.m4	1.15 11/07/15 Copyright 1998-2011 J. Schilling
 dnl
 dnl Macros that test for specific features.
 dnl This file is part of Autoconf.
@@ -208,11 +208,25 @@ AC_TRY_COMPILER([main(){return(0);}], ac_cv_prog_cc_works, ac_cv_prog_cc_cross)
 AC_LANG_RESTORE
 AC_MSG_RESULT($ac_cv_prog_cc_works)
 if test $ac_cv_prog_cc_works = no; then
+  ccout=`eval "${CC-cc} 2>&1" 2> /dev/null`
+  ret=$?
+  nf=`echo "$ccout" | grep 'not found'`
+  if test $ret = 127 -a -n "$nf" ; then	# Korn Shell
+      ccout=""
+  fi
+  if test "$ret" -ne 0 -a ! -n "$ccout" ; then
+      AC_MSG_ERROR([installation or configuration problem: C compiler ${CC-cc} not found.])
+  fi
   AC_MSG_ERROR([installation or configuration problem: C compiler cannot create executables.])
 fi
 AC_MSG_CHECKING([whether the C compiler ($CC $CFLAGS $LDFLAGS) is a cross-compiler])
 AC_MSG_RESULT($ac_cv_prog_cc_cross)
 cross_compiling=$ac_cv_prog_cc_cross
+if test "$cross_compiling" = yes -a "$CONFIG_RMTCALL" != NONE ; then
+	cross_compiling=remote
+	rmtcall="$CONFIG_RMTCALL"
+	rmttest="$CONFIG_RMTCALL"
+fi
 ])
 
 AC_DEFUN(AC_PROG_CXX_WORKS,
@@ -228,6 +242,11 @@ fi
 AC_MSG_CHECKING([whether the C++ compiler ($CXX $CXXFLAGS $LDFLAGS) is a cross-compiler])
 AC_MSG_RESULT($ac_cv_prog_cxx_cross)
 cross_compiling=$ac_cv_prog_cxx_cross
+if test "$cross_compiling" = yes -a "$CONFIG_RMTCALL" != NONE ; then
+	cross_compiling=remote
+	rmtcall="$CONFIG_RMTCALL"
+	rmttest="$CONFIG_RMTCALL"
+fi
 ])
 
 dnl Test whether the Fortran 77 compiler can compile and link a trivial
@@ -252,7 +271,32 @@ fi
 AC_MSG_CHECKING([whether the Fortran 77 compiler ($F77 $FFLAGS $LDFLAGS) is a cross-compiler])
 AC_MSG_RESULT($ac_cv_prog_f77_cross)
 cross_compiling=$ac_cv_prog_f77_cross
+if test "$cross_compiling" = yes -a "$CONFIG_RMTCALL" != NONE ; then
+	cross_compiling=remote
+	rmtcall="$CONFIG_RMTCALL"
+	rmttest="$CONFIG_RMTCALL"
+fi
 ])
+
+dnl Checks whether $CONFIG_RMTCALL and $CONFIG_RMTHOST are both set up
+dnl in our enviroment to avoid hidden failures in the tests.
+dnl In case of calling programs on an emulator, set CONFIG_RMTHOST=none
+AC_DEFUN(AC_REMOTE_PARMS,[
+if test "$cross_compiling" = remote -a ."$CONFIG_RMTCALL" = . ; then
+	echo 'CONFIG_RMTCALL=script-path required for remote execution' 1>&2
+	exit 1
+fi
+if test "$cross_compiling" = remote -a ."$CONFIG_RMTHOST" = . ; then
+	echo 'CONFIG_RMTHOST=host or CONFIG_RMTHOST=user@host required for remote execution' 1>&2
+	exit 1
+fi
+if test "$cross_compiling" = remote ; then
+	echo "Cross-Compiling with remote execution of test programs"
+	echo "Cross-Compile script: $CONFIG_RMTCALL"
+	echo "Cross-Compile host:   $CONFIG_RMTHOST"
+fi
+])
+
 
 AC_DEFUN(AC_PROG_CC_GNU,
 [AC_CACHE_CHECK(whether we are using GNU C, ac_cv_prog_gcc,
@@ -2711,6 +2755,10 @@ dnl Check for the extension used for executables.  This knows that we
 dnl add .exe for Cygwin or mingw32.  Otherwise, it compiles a test
 dnl executable.  If this is called, the executable extensions will be
 dnl automatically used by link commands run by the configure script.
+dnl
+dnl exeext -> whether prog.exe ist created instead of prog
+dnl xexeect -> whether prog.exe needs to be called instead of prog
+dnl
 AC_DEFUN(AC_EXEEXT,
 [AC_REQUIRE([AC_CYGWIN])
 AC_REQUIRE([AC_MINGW32])
@@ -2738,7 +2786,7 @@ else
     if test $ret = 127 -a -n "$nf" ; then	# Korn Shell
         ccout=""
     fi
-    if test ! -n "$ccout" ; then
+    if test "$ret" -ne 0 -a ! -n "$ccout" ; then
         AC_MSG_ERROR([installation or configuration problem: C compiler ${CC-cc} not found.])
     fi
     AC_MSG_ERROR([installation or configuration problem: compiler cannot create executables.])

@@ -27,10 +27,10 @@
 /*
  * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)prt.c	1.22 11/06/06 J. Schilling
+ * @(#)prt.c	1.24 11/07/04 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)prt.c 1.22 11/06/06 J. Schilling"
+#pragma ident "@(#)prt.c 1.24 11/07/04 J. Schilling"
 #endif
 /*
  * @(#)prt.c 1.22 06/12/12
@@ -250,7 +250,7 @@ char *argv[];
 				  prefix++;
 				  break;
 				}
-				if (*p && parse_date(p,&cutoff))
+				if (*p && parse_date(p,&cutoff, 0))
 					fatal(gettext("bad date/time (cm5)"));
 				prefix++;
 				break;
@@ -268,7 +268,7 @@ char *argv[];
 				  prefix++;
 				  break;
 				}
-				if (*p && parse_date(p,&revcut))
+				if (*p && parse_date(p,&revcut, 0))
 					fatal (gettext("bad date/time (cm5)"));
 				prefix++;
 				break;
@@ -326,7 +326,7 @@ char *argv[];
 	*/
 	for (j = 1; j < argc; j++)
 		if ((p = argv[j]) != NULL)
-			do_file(p, prt, 1);
+			do_file(p, prt, 1, 1);
 
 	return (Fcnt ? 1 : 0);
 }
@@ -385,7 +385,7 @@ char *file;
 			p = lineread(NOEOF);
 			getdel(&del,p);
 #if defined(BUG_1205145) || defined(GMT_TIME)
-			date_ab(del.datetime,&bindate);
+			date_ab(del.datetime, &bindate, 0);
 			/*
 			Local time corrections before date_ba() call.
 			Because this function uses gmtime() instead of localtime().
@@ -401,9 +401,9 @@ char *file;
 			if ((tim < Y1969) ||
 			    (tim >= Y2069))
 #endif
-				date_bal(&tim,del.datetime);	/* 4 digit year */
+				date_bal(&tim,del.datetime, 0);	/* 4 digit year */
 			else
-				date_ba(&tim,del.datetime);	/* 2 digit year */
+				date_ba(&tim,del.datetime, 0);	/* 2 digit year */
 #endif
 
 			if (!HADA && del.type != 'D') {
@@ -412,7 +412,7 @@ char *file;
 			}
 			if (HADC) {
 #if !(defined(BUG_1205145) || defined(GMT_TIME))
-				date_ab(del.datetime,&bindate);
+				date_ab(del.datetime, &bindate, 0);
 #endif
 				if (bindate < cutoff) {
 					stopdel = 1;
@@ -421,7 +421,7 @@ char *file;
 			}
 			if (HADR) {
 #if !(defined(BUG_1205145) || defined(GMT_TIME))
-				date_ab(del.datetime,&bindate);
+				date_ab(del.datetime, &bindate, 0);
 #endif
 				if (bindate >= revcut) {
 					(void) read_to(EDELTAB);

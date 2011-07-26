@@ -1,4 +1,4 @@
-# @(#)vc7-setup	1.5 09/05/16 Copyright 2006 J. Schilling
+# @(#)vc9-setup	1.2 11/07/21 Copyright 2006-2011 J. Schilling
 
 #
 # Keep in sync with vc9-cygwin-setup as we cannot rely on hard links
@@ -19,8 +19,8 @@ VSINS=/cygdrive/c/Programme/Microsoft Visual Studio 9.0
 #
 # An English installation
 #
-VSINSTALLDIR=C:\Program Files(x86)\Microsoft Visual Studio 9.0
-VSINS=/cygdrive/c/Program Files(x86)/Microsoft Visual Studio 9.0
+VSINSTALLDIR=C:\Program Files (x86)\Microsoft Visual Studio 9.0
+VSINS=/cygdrive/c/Program Files (x86)/Microsoft Visual Studio 9.0
 
 export	VSINSTALLDIR
 

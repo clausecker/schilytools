@@ -1,6 +1,6 @@
-dnl @(#)configure.in	1.224 11/06/20 Copyright 1998-2010 J. Schilling
+dnl @(#)configure.in	1.232 11/07/19 Copyright 1998-2011 J. Schilling
 dnl Process this file with autoconf to produce a configure script.
-AC_REVISION(1.224)dnl
+AC_REVISION(1.232)dnl
 
 dnl AC_INIT(xconfig.h.in)
 AC_INIT(config.guess)
@@ -16,6 +16,21 @@ AC_BIN_SHELL_BOSH
 AC_OPT_SCHILY_BIN_SHELL_BOSH
 dnl CC=${CC-cc}
 dnl AC_PROG_CC
+AC_CHECK_PROG(CC, cc, cc, gcc)	dnl we default to cc not gcc
+dnl The cross compile concepts from GNU autoconf are not usable.
+dnl We permit to execute test programs on a remote machine while
+dnl running "configure" in a cross compile environment.
+AC_PROG_CC			dnl now check for cross compiling
+dnl cross_compiling=remote	dnl disable GNU cross compile "defaults"
+dnl rmtcall="$CONFIG_RMTCALL"	dnl enable script for remote execution
+dnl remote execution of test programs may be set up with:
+dnl CONFIG_RMTCALL=script-path
+dnl and
+dnl CONFIG_RMTHOST=host or CONFIG_RMTHOST=user@host
+dnl If AC_PROG_CC detects a cross compiler and CONFIG_RMTCALL is set, then
+dnl all test programs are automatically transferred to the test machine
+dnl and run on that machine.
+AC_REMOTE_PARMS			dnl check for correct remote parameters
 AC_OBJEXT
 AC_EXEEXT
 AC_PROG_CPP
@@ -78,6 +93,7 @@ AC_CHECK_HEADERS(bsd/dev/scsireg.h)
 dnl Check for HP-UX sys/bsdtty.h (needed for TIOCGPGRP)
 AC_CHECK_HEADERS(sys/bsdtty.h)
 dnl Check for Linux kernel definitions
+AC_CHECK_HEADERS(scsi/scsi.h scsi/sg.h linux/scsi.h linux.sg.h)
 AC_CHECK_HEADERS(linux/types.h linux/gfp.h asm/types.h)
 dnl Check for BeOS kernel definitions (e.g. B_PAGE_SIZE)
 AC_CHECK_HEADERS(OS.h)
@@ -215,6 +231,8 @@ AC_CHECK_SIZE_WCHAR_T
 dnl # AC_TYPE_SIZE_T_		# Defines HAVE_SIZE_T / NO_SIZE_T
 AC_TYPE_CHAR
 AC_TYPE_VA_LIST
+AC_HEADER_FILE__FLAGS
+AC_HEADER_FILE__IO_BUF_BASE
 AC_STRUCT_TIMEVAL
 AC_STRUCT_TIMEZONE
 AC_STRUCT_MTGET_TYPE
@@ -279,6 +297,7 @@ AC_FUNC_FCVT
 AC_FUNC_GCVT
 AC_FUNC_DTOA
 AC_FUNC_DTOA_R
+AC_FUNC_GETPAGESIZE
 jsAC_FUNC_MMAP
 AC_MMAP_SIZEP
 AC_FUNC_SMMAP
@@ -298,6 +317,7 @@ AC_FUNC_SIGSETJMP
 AC_FUNC_SIGLONGJMP
 AC_FUNC_PRINTF_J
 AC_FUNC_PRINTF_LL
+AC_FUNC_REALLOC_NULL
 AC_CHECK_FUNCS(access eaccess euidaccess)
 AC_CHECK_FUNCS(memchr memcpy memmove memset)
 AC_CHECK_FUNCS(brk sbrk strerror nice flock lockf fchdir statvfs quotactl)
@@ -311,6 +331,8 @@ AC_CHECK_FUNCS(getuid geteuid getgid getegid)
 AC_CHECK_FUNCS(getpid getppid)
 AC_CHECK_FUNCS(getpgid setpgid getsid setsid)
 AC_CHECK_FUNCS(getpgrp setpgrp)
+AC_CHECK_FUNCS(getpwnam getpwent getpwuid setpwent endpwent)
+AC_CHECK_FUNCS(getgrnam getgrent getgrgid setgrent endgrent)
 dnl			getspwnam() on HP-UX is in libsec.a
 AC_CHECK_FUNCS(getspnam getspwnam)
 AC_CHECK_FUNCS(sync fsync fork forkx vforkx forkall forkallx wait wait4 waitid waitpid getrusage getrlimit setrlimit ulimit)
@@ -318,7 +340,7 @@ AC_CHECK_FUNCS(execl execle execlp execv execve execvp)
 AC_CHECK_FUNCS(getexecname)
 AC_CHECK_FUNCS(getprogname setprogname)
 AC_CHECK_FUNCS(proc_pidpath)
-AC_CHECK_FUNCS(gethostid gethostname getdomainname getpagesize getdtablesize)
+AC_CHECK_FUNCS(gethostid gethostname getdomainname getdtablesize)
 AC_CHECK_FUNCS(gettimeofday settimeofday time stime gethrtime)
 AC_CHECK_FUNCS(ftime tzset mktime gmtime localtime timegm timelocal)
 AC_CHECK_FUNCS(ctime cftime ascftime strftime)
@@ -355,7 +377,18 @@ AC_CHECK_FUNCS(strsignal str2sig sig2str)
 AC_CHECK_FUNCS(kill killpg)
 AC_CHECK_FUNCS(signal sigrelse sigprocmask sigsetmask sigset sigaltstack)
 AC_CHECK_FUNCS(sleep usleep yield)
-AC_CHECK_FUNCS(tcgetattr tcsetattr tcgetpgrp tcsetpgrp)
+dnl tcgetattr and tcsetattr are a inline functions in termios.h on Android
+AC_CHECK_DFUNC([
+#ifdef	HAVE_TERMIOS_H
+#include <termios.h>
+#endif
+], tcgetattr)
+AC_CHECK_DFUNC([
+#ifdef	HAVE_TERMIOS_H
+#include <termios.h>
+#endif
+], tcsetattr)
+AC_CHECK_FUNCS(tcgetpgrp tcsetpgrp)
 AC_CHECK_FUNCS(getenv putenv setenv unsetenv)
 AC_CHECK_FUNCS(snprintf strcasecmp)
 AC_CHECK_FUNCS(strcat strncat strcmp strncmp strcpy strlcat strlcpy strncpy strdup strndup strlen strnlen strchr strrchr)
@@ -417,6 +450,18 @@ AC_CHECK_DFUNC([
 #include <wctype.h>
 #endif
 ], mbsinit)
+
+AC_CHECK_DFUNC([
+#ifdef	HAVE_STDLIB_H
+#include <stdlib.h>
+#endif
+], mbtowc)
+
+AC_CHECK_DFUNC([
+#ifdef	HAVE_STDLIB_H
+#include <stdlib.h>
+#endif
+], wctomb)
 
 AC_CHECK_DFUNC([
 #ifdef	HAVE_WCHAR_H
@@ -627,69 +672,9 @@ AC_CHECK_FUNCS(nanosleep)
 LIBS="$ac_save_LIBS"
 
 dnl Misc OS checks.
-AC_MSG_CHECKING(for /dev/tty)
-if test -r /dev/tty; then
-	echo yes
-	AC_DEFINE(HAVE_DEV_TTY)
-else
-	echo no
-fi
-AC_MSG_CHECKING(for /dev/null)
-if test -r /dev/null; then
-	echo yes
-	AC_DEFINE(HAVE_DEV_NULL)
-else
-	echo no
-fi
-AC_MSG_CHECKING(for /dev/zero)
-if test -r /dev/zero; then
-	echo yes
-	AC_DEFINE(HAVE_DEV_ZERO)
-else
-	echo no
-fi
-AC_MSG_CHECKING(for /dev/stdin)
-if test -r /dev/stdin; then
-	echo yes
-	AC_DEFINE(HAVE_DEV_STDIN)
-else
-	echo no
-fi
-AC_MSG_CHECKING(for /dev/stdout)
-if test -r /dev/stdout; then
-	echo yes
-	AC_DEFINE(HAVE_DEV_STDOUT)
-else
-	echo no
-fi
-AC_MSG_CHECKING(for /dev/stderr)
-if test -r /dev/stderr; then
-	echo yes
-	AC_DEFINE(HAVE_DEV_STDERR)
-else
-	echo no
-fi
-AC_MSG_CHECKING(for /dev/fd/0)
-if test -r /dev/fd/0; then
-	echo yes
-	AC_DEFINE(HAVE_DEV_FD_0)
-else
-	echo no
-fi
-AC_MSG_CHECKING(for /dev/fd/1)
-if test -r /dev/fd/1; then
-	echo yes
-	AC_DEFINE(HAVE_DEV_FD_1)
-else
-	echo no
-fi
-AC_MSG_CHECKING(for /dev/fd/2)
-if test -r /dev/fd/2; then
-	echo yes
-	AC_DEFINE(HAVE_DEV_FD_2)
-else
-	echo no
-fi
+AC_CHECK_FILES(/dev/tty /dev/null /dev/zero)
+AC_CHECK_FILES(/dev/stdin /dev/stdout /dev/stderr)
+AC_CHECK_FILES(/dev/fd/0 /dev/fd/1 /dev/fd/2)
 
 dnl Checks for OS madness.
 UNAME=`uname || true`

@@ -27,10 +27,10 @@
 /*
  * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)permiss.c	1.11 11/06/20 J. Schilling
+ * @(#)permiss.c	1.12 11/06/29 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)permiss.c 1.11 11/06/20 J. Schilling"
+#pragma ident "@(#)permiss.c 1.12 11/06/29 J. Schilling"
 #endif
 /*
  * @(#)permiss.c 1.9 06/12/12
@@ -87,6 +87,7 @@ register struct packet *pkt;
 
 
 char	*Sflags[NFLAGS];	/* sync with hdr/defines.h */
+char	SCOx;			/* sync with hdr/defines.h */
 
 void
 doflags(pkt)
@@ -132,6 +133,9 @@ struct packet *pkt;
 	p =  Sflags[EXTENSFLAG-'a'];
 	if (p == NULL)			/* 'x' flag not set */
 		return;
+	NONBLANK(p);
+	if (*p == '\0')
+		SCOx++;
 	for (k = 0; *p; ) {
 		char	*p2;
 

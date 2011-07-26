@@ -1,7 +1,7 @@
-/* @(#)scsihack.c	1.55 09/07/13 Copyright 1997,2000-2009 J. Schilling */
+/* @(#)scsihack.c	1.56 11/07/19 Copyright 1997,2000-2011 J. Schilling */
 #ifndef lint
 static	char _sccsid[] =
-	"@(#)scsihack.c	1.55 09/07/13 Copyright 1997,2000-2009 J. Schilling";
+	"@(#)scsihack.c	1.56 11/07/19 Copyright 1997,2000-2011 J. Schilling";
 #endif
 /*
  *	Interface for other generic SCSI implementations.
@@ -24,7 +24,7 @@ static	char _sccsid[] =
  *	If your version has been integrated into the main steam release,
  *	the return value will be set to "schily".
  *
- *	Copyright (c) 1997,2000-2009 J. Schilling
+ *	Copyright (c) 1997,2000-2011 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -99,6 +99,8 @@ EXPORT scg_ops_t scg_std_ops = {
 	scgo_reset,
 };
 
+#ifndef	NO_SCSI_IMPL
+
 /*#undef sun*/
 /*#undef __sun*/
 /*#undef __sun__*/
@@ -124,7 +126,12 @@ EXPORT scg_ops_t scg_std_ops = {
 #ifdef	USE_PG_ONLY
 #include "scsi-linux-pg.c"
 #else
+#if (defined(HAVE_SCSI_SCSI_H) || defined(HAVE_LINUX_SCSI_H)) &&\
+    (defined(HAVE_SCSI_SG_H) || defined(HAVE_LINUX_SG_H))
 #include "scsi-linux-sg.c"
+#else
+#undef	SCSI_IMPL		/* We have no SCSI for this Linux variant */
+#endif
 #endif
 
 #endif	/* linux */
@@ -268,6 +275,7 @@ EXPORT scg_ops_t scg_std_ops = {
 #include "scsi-new-arch.c"
 #endif
 
+#endif	/* !NO_SCSI_IMPL */
 
 #ifndef	SCSI_IMPL
 /*
@@ -349,7 +357,7 @@ EXPORT scg_ops_t scg_dummy_ops = {
  *	Choose your name instead of "schily" and make clear that the version
  *	string is related to a modified source.
  */
-LOCAL	char	_scg_trans_dversion[] = "scsihack.c-1.55";	/* The version for this transport*/
+LOCAL	char	_scg_trans_dversion[] = "scsihack.c-1.56";	/* The version for this transport*/
 
 /*
  * Return version information for the low level SCSI transport code.

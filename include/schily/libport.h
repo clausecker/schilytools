@@ -1,4 +1,4 @@
-/* @(#)libport.h	1.26 11/06/04 Copyright 1995-2010 J. Schilling */
+/* @(#)libport.h	1.28 11/07/12 Copyright 1995-2010 J. Schilling */
 /*
  *	Copyright (c) 1995-2010 J. Schilling
  */
@@ -195,6 +195,66 @@ extern	char		*dirname	__PR((char *name));
 extern	time_t		timegm		__PR((struct tm *));
 #endif
 #endif
+
+#ifndef	HAVE_GETUID
+extern	uid_t	getuid	__PR((void));
+#endif
+#ifndef	HAVE_GETEUID
+extern	uid_t	geteuid	__PR((void));
+#endif
+#ifndef	HAVE_SETUID
+extern	int	setuid	__PR((uid_t uid));
+#endif
+#ifndef	HAVE_SETEUID
+extern	int	seteuid	__PR((uid_t uid));
+#endif
+
+#ifndef	HAVE_GETGID
+extern	gid_t	getgid	__PR((void));
+#endif
+#ifndef	HAVE_GETEGID
+extern	gid_t	getegid	__PR((void));
+#endif
+#ifndef	HAVE_SETGID
+extern	int	setgid	__PR((gid_t gid));
+#endif
+#ifndef	HAVE_SETEGID
+extern	int	setegid	__PR((gid_t gid));
+#endif
+
+#ifndef	HAVE_GETPWNAM
+extern	struct passwd *getpwnam __PR((const char *name));
+#endif
+#ifndef	HAVE_GETPWENT
+extern	struct passwd *getpwent __PR((void));
+#endif
+#ifndef	HAVE_GETPWUID
+extern	struct passwd *getpwuid __PR((uid_t uid));
+#endif
+#ifndef	HAVE_SETPWENT
+extern	void		setpwent __PR((void));
+#endif
+#ifndef	HAVE_ENDPWENT
+extern	void		endpwent __PR((void));
+#endif
+
+
+#ifndef	HAVE_GETGRNAM
+extern	struct passwd *getgrnam __PR((const char *name));
+#endif
+#ifndef	HAVE_GETGRENT
+extern	struct passwd *getgrent __PR((void));
+#endif
+#ifndef	HAVE_GETGRGID
+extern	struct passwd *getgrgid __PR((gid_t gid));
+#endif
+#ifndef	HAVE_SETGRENT
+extern	void		setgrent __PR((void));
+#endif
+#ifndef	HAVE_ENDGRENT
+extern	void		endgrent __PR((void));
+#endif
+
 
 #ifdef	__cplusplus
 }

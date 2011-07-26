@@ -27,10 +27,10 @@
 /*
  * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)get.c	1.33 11/06/19 J. Schilling
+ * @(#)get.c	1.37 11/07/04 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)get.c 1.33 11/06/19 J. Schilling"
+#pragma ident "@(#)get.c 1.37 11/07/04 J. Schilling"
 #endif
 /*
  * @(#)get.c 1.59 06/12/12
@@ -228,7 +228,7 @@ register char *argv[];
 				break;
 			case 'c':
 				if (*p == 0) continue;
-				if (parse_date(p,&cutoff))
+				if (parse_date(p,&cutoff, PF_GMT))
 				   fatal(gettext("bad date/time (cm5)"));
 				break;
 			case 'L':
@@ -335,12 +335,13 @@ register char *argv[];
 	Fflags |= FTLJMP;
 	for (i=1; i<argc; i++)
 		if ((p=argv[i]) != NULL)
-			do_file(p, get, 1);
+			do_file(p, get, 1, 1);
 
 	return (Fcnt ? 1 : 0);
 }
 
 extern char *Sflags[];
+extern char SCOx;
 
 static void
 get(file)
@@ -389,6 +390,7 @@ char *file;
 	gpkt.p_stdout  = (HADP||lfile) ? stderr : stdout;
 	gpkt.p_cutoff = cutoff;
 	gpkt.p_lfile = lfile;
+	gpkt.p_flags |= PF_GMT;
 	if (Gfile[0] == 0 || !first) {
 		cat(gfile,Cwd,auxf(gpkt.p_file,'g'), (char *)0);
 		cat(Gfile,Cwd,auxf(gpkt.p_file,'A'), (char *)0);
@@ -501,7 +503,8 @@ char *file;
 				 * instead of xfcreat() in order to avoid an
 				 * unlink()/create() chain.
 				 */
-				if (exists(gpkt.p_file) && (S_IEXEC & Statbuf.st_mode)) {
+				if ((exists(gpkt.p_file) && (S_IEXEC & Statbuf.st_mode)) ||
+				    SCOx) {
 					gpkt.p_gout = xfcreat(Gfile,HADK ? 
 						((mode_t)0755) : ((mode_t)0555));
 				} else {
@@ -573,14 +576,22 @@ char *file;
 			rename(Gfile, gfile);
 #ifdef	HAVE_UTIME
 			if (HADO) {
+				struct tm	tm;
 				struct utimbuf	ut;
 				unsigned int	gser;
 				extern time_t	Timenow;
 
 				gser = sidtoser(&gpkt.p_gotsid, &gpkt);
 
+				/*
+				 * We did cheat while scanning the delta table
+				 * and converted the time stamps assuming GMT.
+				 * Fix the resulting error here.
+				 */
 				ut.actime = Timenow;
-				ut.modtime = gpkt.p_idel[gser].i_datetime;
+				tm = *gmtime(&gpkt.p_idel[gser].i_datetime);
+				tm.tm_isdst = -1;
+				ut.modtime = mktime(&tm);
 				utime(gfile, &ut);
 			}
 #endif
@@ -717,9 +728,9 @@ register struct packet *pkt;
 			if ((dt.d_datetime < Y1969) ||
 			    (dt.d_datetime >= Y2069))
 #endif
-				date_bal(&dt.d_datetime,str);	/* 4 digit year */
+				date_bal(&dt.d_datetime,str, pkt->p_flags);	/* 4 digit year */
 			else
-				date_ba(&dt.d_datetime,str);	/* 2 digit year */
+				date_ba(&dt.d_datetime,str, pkt->p_flags);	/* 2 digit year */
 			if (fprintf(out, "%s %s\n", str, dt.d_pgmr) == EOF)
 				xmsg(outname, NOGETTEXT("gen_lfile"));
 		}
@@ -785,8 +796,8 @@ register struct packet *pkt;
 	register int n;
 	register char *p;
 
-	date_ba(&Timenow,Curdate);
-	date_bal(&Timenow,Curdatel);
+	date_ba(&Timenow,Curdate, 0);
+	date_bal(&Timenow,Curdatel, 0);
 	Curdatel[10] = 0;
 	Curtime = &Curdate[9];
 	Curdate[8] = 0;
@@ -796,8 +807,8 @@ register struct packet *pkt;
 		if (pkt->p_apply[n].a_code == APPLY)
 			break;
 	if (n) {
-		date_ba(&pkt->p_idel[n].i_datetime, Chgdate);
-		date_bal(&pkt->p_idel[n].i_datetime, Chgdatel);
+		date_ba(&pkt->p_idel[n].i_datetime, Chgdate, pkt->p_flags);
+		date_bal(&pkt->p_idel[n].i_datetime, Chgdatel, pkt->p_flags);
 	} else {
 #ifdef XPG4
 		FILE	*xf;
@@ -1327,9 +1338,9 @@ char *inc, *exc;
 	if ((Timenow < Y1969) ||
 	    (Timenow >= Y2069))
 #endif
-		date_bal(&Timenow,line);	/* 4 digit year */
+		date_bal(&Timenow,line, 0);	/* 4 digit year */
 	else
-		date_ba(&Timenow,line);		/* 2 digit year */
+		date_ba(&Timenow,line, 0);	/* 2 digit year */
 	if (fprintf(out,"%s %s %s %s",str1,str2,user,line) == EOF)
 		xmsg(pfile, NOGETTEXT("wrtpfile"));
 	if (inc)

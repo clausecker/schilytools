@@ -25,12 +25,12 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2009 J. Schilling
+ * This file contains modifications Copyright 2011 J. Schilling
  *
- * @(#)del_ab.c	1.3 09/11/08 J. Schilling
+ * @(#)del_ab.c	1.4 11/06/27 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)del_ab.c 1.3 09/11/08 J. Schilling"
+#pragma ident "@(#)del_ab.c 1.4 11/06/27 J. Schilling"
 #endif
 /*
  * @(#)del_ab.c 1.7 06/12/12
@@ -60,7 +60,7 @@ struct packet *pkt;
 	NONBLANK(p);
 	p = sid_ab(p,&dt->d_sid);
 	NONBLANK(p);
-	if (date_ab(p,&dt->d_datetime) > 0) {
+	if (date_ab(p,&dt->d_datetime, pkt->p_flags) > 0) {
 		if (Ffile) {
 			fprintf(stderr, gettext("WARNING [%s]: date format violation at line %d\n"),
 					Ffile, pkt->p_slnno);

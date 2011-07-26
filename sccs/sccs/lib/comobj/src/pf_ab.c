@@ -25,12 +25,12 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2009 J. Schilling
+ * This file contains modifications Copyright 2011 J. Schilling
  *
- * @(#)pf_ab.c	1.3 09/11/08 J. Schilling
+ * @(#)pf_ab.c	1.4 11/06/27 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)pf_ab.c 1.3 09/11/08 J. Schilling"
+#pragma ident "@(#)pf_ab.c 1.4 11/06/27 J. Schilling"
 #endif
 /*
  * @(#)pf_ab.c 1.6 06/12/12
@@ -75,7 +75,7 @@ int all;
 	else
 		fatal(gettext("bad p-file format (co17)"));
 	p = p + i + 1;
-	date_ab(p,&pp->pf_date);
+	date_ab(p,&pp->pf_date, 0);
 	p = Datep;
 	pp->pf_ilist = 0;
 	pp->pf_elist = 0;

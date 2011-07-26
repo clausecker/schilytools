@@ -27,10 +27,10 @@
 /*
  * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)val.c	1.23 11/06/06 J. Schilling
+ * @(#)val.c	1.24 11/07/04 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)val.c 1.23 11/06/06 J. Schilling"
+#pragma ident "@(#)val.c 1.24 11/07/04 J. Schilling"
 #endif
 /*
  * @(#)val.c 1.22 06/12/12
@@ -374,7 +374,7 @@ char	*argv[];
 		}
 		strlcpy(path, filelist[j], sizeof (path));
 		if (!inpstd) {
-			do_file(path, do_validate, 1);
+			do_file(path, do_validate, 1, 1);
 			continue;
 		}
 		validate(path,sid,type,name);

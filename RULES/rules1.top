@@ -1,4 +1,4 @@
-#ident "@(#)rules1.top	1.43 10/05/14 "
+#ident "@(#)rules1.top	1.44 11/06/23 "
 ###########################################################################
 # Written 1996 by J. Schilling
 ###########################################################################
@@ -99,7 +99,7 @@ __MAKEPROG=	$(_MAKEPROG:$(_UNIQ)=$(MAKEPROG))
 _XMAKEPROG=	$(__MAKEPROG:$(_UNIQ)%=%)
 
 # gmake defines a macro MAKE_COMMAND. If neither MAKE_NAME is defined by 
-# the make program, not MAKEPROG is set, try this to recognize gmake.
+# the make program, nor MAKEPROG is set, try this to recognize gmake.
 #
 _MAKE_COMMAND=	$(MAKE_COMMAND:%make=gmake)
 

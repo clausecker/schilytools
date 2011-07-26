@@ -1,8 +1,8 @@
-/* @(#)cap.c	1.41 10/10/13 Copyright 2000-2010 J. Schilling */
+/* @(#)cap.c	1.42 11/07/26 Copyright 2000-2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)cap.c	1.41 10/10/13 Copyright 2000-2010 J. Schilling";
+	"@(#)cap.c	1.42 11/07/26 Copyright 2000-2011 J. Schilling";
 #endif
 /*
  *	termcap		a TERMCAP compiler
@@ -14,7 +14,7 @@ static	UConst char sccsid[] =
  *	order and recode all strings with the same escape notation.
  *	This is needed in to compare two entries and it makes life easier.
  *
- *	Copyright (c) 2000-2010 J. Schilling
+ *	Copyright (c) 2000-2011 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -101,8 +101,8 @@ LOCAL	char *	checkgoto	__PR((char *tname, char *ent, char *cm, int col, int line
 LOCAL	char *	checkquote	__PR((char *tname, char *s));
 LOCAL	char *	quote		__PR((char *s));
 LOCAL	char *	requote		__PR((char *s));
-LOCAL	void	compile_ent	__PR((char *tname));
-LOCAL	void	read_names	__PR((char *fname));
+LOCAL	void	compile_ent	__PR((char *tname, BOOL	do_tc));
+LOCAL	void	read_names	__PR((char *fname, BOOL	do_tc));
 
 /*
  * Initialize the tc_flags struct member in "caplist".
@@ -352,8 +352,8 @@ main(ac, av)
 	if (help)
 		usage(0);
 	if (prvers) {
-		printf("termcap %s (%s-%s-%s)\n\n", "1.41", HOST_CPU, HOST_VENDOR, HOST_OS);
-		printf("Copyright (C) 2000-2009 Jörg Schilling\n");
+		printf("termcap %s (%s-%s-%s)\n\n", "1.42", HOST_CPU, HOST_VENDOR, HOST_OS);
+		printf("Copyright (C) 2000-2011 Jörg Schilling\n");
 		printf("This is free software; see the source for copying conditions.  There is NO\n");
 		printf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
 		exit(0);
@@ -371,11 +371,13 @@ main(ac, av)
 	if (infile) {
 		char	env[2048];
 
-		*tcap = '\0';
-		*tname = '\0';
+		if (tcap)
+			*tcap = '\0';
+		if (tname)
+			*tname = '\0';
 		snprintf(env, sizeof (env), "TERMPATH=%s", infile);
 		putenv(env);
-		read_names(infile);
+		read_names(infile, do_tc);
 		exit(0);
 	}
 
@@ -1412,13 +1414,14 @@ requote(s)
 }
 
 LOCAL void
-compile_ent(tname)
+compile_ent(tname, do_tc)
 	char	*tname;
+	BOOL	do_tc;
 {
 	char	unknown[TBUF];	/* Buffer fuer "unknown" Entries */
 	char	disabled[TBUF];	/* Buffer fuer :..xx: Entries */
 
-	tcsetflags(TCF_NO_TC|TCF_NO_SIZE);
+	tcsetflags((do_tc?0:TCF_NO_TC)|TCF_NO_SIZE);
 	if (tgetent(NULL, tname) != 1)
 		return;
 /*	tbuf = tcgetbuf();*/
@@ -1440,8 +1443,9 @@ compile_ent(tname)
 #define	TINC	1
 
 LOCAL void
-read_names(fname)
+read_names(fname, do_tc)
 	char	*fname;
+	BOOL	do_tc;
 {
 			char	nbuf[TMAX];
 			char	rdbuf[TRDBUF];
@@ -1525,7 +1529,8 @@ read_names(fname)
 				strncpy(name, tbuf, amt);
 				nbuf[amt] = '\0';
 /*				printf("name: %s'\n", name);*/
-				compile_ent(name);
+				compile_ent(name, do_tc);
+				tcsetflags(TCF_NO_TC|TCF_NO_SIZE);
 			} else {
 				printf("%s\n", tbuf);
 			}

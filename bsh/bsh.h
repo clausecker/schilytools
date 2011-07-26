@@ -1,4 +1,4 @@
-/* @(#)bsh.h	1.55 10/10/02 Copyright 1985-2010 J. Schilling */
+/* @(#)bsh.h	1.56 11/07/16 Copyright 1985-2010 J. Schilling */
 /*
  *	Bsh general definitions
  *
@@ -286,8 +286,10 @@ extern	void	inittime	__PR((void));
 extern	void	setstime	__PR((void));
 #ifdef	RUSAGE_SELF
 extern	void	getpruself	__PR((struct rusage *prusage));
+extern	void	getpruchld	__PR((struct rusage *prusage));
 extern	void	prtimes		__PR((FILE **std, struct rusage *prusage));
 extern	void	rusagesub	__PR((struct rusage *pru1, struct rusage *pru2));
+extern	void	rusageadd	__PR((struct rusage *pru1, struct rusage *pru2));
 #endif
 
 /*

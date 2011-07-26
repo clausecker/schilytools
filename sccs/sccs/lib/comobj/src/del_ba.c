@@ -27,10 +27,10 @@
 /*
  * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)del_ba.c	1.10 11/05/27 J. Schilling
+ * @(#)del_ba.c	1.11 11/06/27 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)del_ba.c 1.10 11/05/27 J. Schilling"
+#pragma ident "@(#)del_ba.c 1.11 11/06/27 J. Schilling"
 #endif
 /*
  * @(#)del_ba.c 1.3 06/12/12
@@ -44,9 +44,10 @@
 
 
 char *
-del_ba(dt,str)
+del_ba(dt, str, flags)
 register struct deltab *dt;
-char *str;
+char	*str;
+int	flags;
 {
 	register char *p;
 
@@ -60,9 +61,9 @@ char *str;
 	*p++ = ' ';
 	if ((dt->d_datetime < Y1969) ||
 	    (dt->d_datetime >= Y2038))
-		date_bal(&dt->d_datetime,p);	/* 4 digit year */
+		date_bal(&dt->d_datetime,p, flags);	/* 4 digit year */
 	else
-		date_ba(&dt->d_datetime,p);	/* 2 digit year */
+		date_ba(&dt->d_datetime,p, flags);	/* 2 digit year */
 	while (*p++)
 		;
 	--p;

@@ -1,8 +1,8 @@
-/* @(#)sys.c	1.70 11/06/15 Copyright 1986-2011 J. Schilling */
+/* @(#)sys.c	1.71 11/07/10 Copyright 1986-2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)sys.c	1.70 11/06/15 Copyright 1986-2011 J. Schilling";
+	"@(#)sys.c	1.71 11/07/10 Copyright 1986-2011 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1986-2011 J. Schilling
@@ -554,12 +554,12 @@ printf("ewait: returning %x (%d)\n", status.type, status.type);
 #ifdef	F_GETFD
 #define	fd_getfd(fd)		fcntl((fd), F_GETFD, 0)
 #else
-#define	fd_getfd(fd)
+#define	fd_getfd(fd)		(0)
 #endif
 #ifdef	F_SETFD
 #define	fd_setfd(fd, val)	fcntl((fd), F_SETFD, (val));
 #else
-#define	fd_setfd(fd, val)
+#define	fd_setfd(fd, val)	(0)
 #endif
 
 EXPORT int
@@ -602,19 +602,19 @@ fexec(path, name, in, out, err, av, env)
 	if (din != STDIN_FILENO) {
 		f[0] = fd_getfd(STDIN_FILENO);
 		o[0] = dup(STDIN_FILENO);
-		fd_setfd(o[0], 1);
+		fd_setfd(o[0], FD_CLOEXEC);
 		fdmove(din, STDIN_FILENO);
 	}
 	if (dout != STDOUT_FILENO) {
 		f[1] = fd_getfd(STDOUT_FILENO);
 		o[1] = dup(STDOUT_FILENO);
-		fd_setfd(o[1], 1);
+		fd_setfd(o[1], FD_CLOEXEC);
 		fdmove(dout, STDOUT_FILENO);
 	}
 	if (derr != STDERR_FILENO) {
 		f[2] = fd_getfd(STDERR_FILENO);
 		o[2] = dup(STDERR_FILENO);
-		fd_setfd(o[2], 1);
+		fd_setfd(o[2], FD_CLOEXEC);
 		fdmove(derr, STDERR_FILENO);
 	}
 #endif

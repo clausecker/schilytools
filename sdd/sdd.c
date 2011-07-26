@@ -1,8 +1,8 @@
-/* @(#)sdd.c	1.61 09/10/18 Copyright 1984-2009 J. Schilling */
+/* @(#)sdd.c	1.62 11/07/14 Copyright 1984-2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)sdd.c	1.61 09/10/18 Copyright 1984-2009 J. Schilling";
+	"@(#)sdd.c	1.62 11/07/14 Copyright 1984-2011 J. Schilling";
 #endif
 /*
  *	sdd	Disk and Tape copy
@@ -16,7 +16,7 @@ static	UConst char sccsid[] =
  *	than large files, we use long long for several important
  *	variables that should not overflow.
  *
- *	Copyright (c) 1984-2009 J. Schilling
+ *	Copyright (c) 1984-2011 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -484,7 +484,7 @@ main(ac, av)
 		file_raise(fin, FALSE);
 		infile = "stdin";
 		if (ivsize != 0 || ovsize != 0)
-#ifdef	HAVE_DEV_TTY
+#ifdef	HAVE__DEV_TTY
 			tty = openfile("/dev/tty", "r");
 #else
 			tty = stderr;
@@ -1456,9 +1456,9 @@ getopts(ac, av)
 	if (help)
 		usage(0);
 	if (prvers) {
-		printf("sdd %s (%s-%s-%s)\n\n", "1.61",
+		printf("sdd %s (%s-%s-%s)\n\n", "1.62",
 					HOST_CPU, HOST_VENDOR, HOST_OS);
-		printf("Copyright (C) 1984-2009 Jörg Schilling\n");
+		printf("Copyright (C) 1984-2011 Jörg Schilling\n");
 		printf("This is free software; see the source for copying ");
 		printf("conditions.  There is NO\n");
 		printf("warranty; not even for MERCHANTABILITY or ");

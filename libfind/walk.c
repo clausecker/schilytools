@@ -1,8 +1,8 @@
-/* @(#)walk.c	1.42 11/04/13 Copyright 2004-2011 J. Schilling */
+/* @(#)walk.c	1.43 11/07/10 Copyright 2004-2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)walk.c	1.42 11/04/13 Copyright 2004-2011 J. Schilling";
+	"@(#)walk.c	1.43 11/07/10 Copyright 2004-2011 J. Schilling";
 #endif
 /*
  *	Walk a directory tree
@@ -553,7 +553,7 @@ walkgethome(state)
 		return (-1);
 	}
 #ifdef	F_SETFD
-	fcntl(varp->Home, F_SETFD, 1);
+	fcntl(varp->Home, F_SETFD, FD_CLOEXEC);
 #endif
 #else
 	if (getcwd(varp->Home, sizeof (varp->Home)) == NULL) {

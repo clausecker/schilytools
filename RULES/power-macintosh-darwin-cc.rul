@@ -1,4 +1,4 @@
-#ident "@(#)power-macintosh-darwin-cc.rul	1.16 09/07/29 "
+#ident "@(#)power-macintosh-darwin-cc.rul	1.17 11/06/29 "
 ###########################################################################
 # Written 1996 by J. Schilling
 ###########################################################################
@@ -40,7 +40,7 @@ LIB_KVM=
 #LDOPTS=		$(LIBS_PATH) $(LDPATH) $(RUNPATH:-R%=-Wl,-R%)
 LDOPTS=		$(LIBS_PATH) $(LDPATH) -framework IOKit -framework CoreFoundation
 LDOPTDYN=	-install_name $(INSBASE)/lib/$(TARGET)
-LDLIBDYN=	-lgcc
+LDLIBDYN=	-lgcc_s.1
 LNDYNLIB=	@
 
 DYNLD=		@echo "	==> LINKING dynamic library \"$@\""; libtool -dynamic

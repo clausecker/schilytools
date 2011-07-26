@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sccsfile.4	1.10 11/05/26 portions Copyright 2007-2011 J. Schilling */
+.\" @(#)sccsfile.4	1.11 11/06/30 portions Copyright 2007-2011 J. Schilling */
 .\" CDDL HEADER START
 .\"
 .\" The contents of this file are subject to the terms of the
@@ -21,7 +21,7 @@
 .\" Copyright (c) 2002, Sun Microsystems, Inc. All Rights Reserved.
 .\" Copyright 1989 AT&T
 .\"  Copyright 2007-2011 J. Schilling
-.TH sccsfile 4 "2011/05/26" "SunOS 5.11" "File Formats"
+.TH sccsfile 4 "2011/06/30" "SunOS 5.11" "File Formats"
 .SH NAME
 sccsfile \- format of an SCCS history file
 .SH DESCRIPTION
@@ -297,6 +297,17 @@ This flag is a
 extension that does not exist in historic
 .B sccs 
 implementations. 
+.sp
+This version of SCCS implements compatibility support for a SCO SCCS
+extension that sets the executable bit in the file permissions of a
+gotten file if the
+.BR x -flag
+was set in the history file with no parameter. This version of SCCS
+does not allow to set this variant of the
+.BR x -flag
+in the history file.
+If you like to get executable files from SCCS, set the executable
+bit in the file permissions of the history file.
 
 .ne 5
 .TP

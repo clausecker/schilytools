@@ -25,10 +25,10 @@
 /*
  * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)sccs.c	1.47 11/06/18 J. Schilling
+ * @(#)sccs.c	1.48 11/07/04 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)sccs.c 1.47 11/06/18 J. Schilling"
+#pragma ident "@(#)sccs.c 1.48 11/07/04 J. Schilling"
 #endif
 /*
  * @(#)sccs.c 1.85 06/12/12
@@ -1562,7 +1562,7 @@ command(argv, forkflag, arg0)
 				err = 1;
 				continue;
 			}
-			do_file(cp, unedit, 1);
+			do_file(cp, unedit, 1, 1);
 			if (!Fcnt)
 				*np++ = *argv;
 			else
@@ -1625,7 +1625,7 @@ command(argv, forkflag, arg0)
 			diffs_ap = ap;
 			diffs_np = np;
 			for (i=0; i<nargs; i++) {
-				do_file(*cur_arg, diffs, 1);
+				do_file(*cur_arg, diffs, 1, 0);
 				if (Fcnt) {
 					err = 1;
 				}

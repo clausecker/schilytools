@@ -1,8 +1,8 @@
-/* @(#)hdump.c	1.33 11/04/12 Copyright 1986-2011 J. Schilling */
+/* @(#)hdump.c	1.34 11/07/14 Copyright 1986-2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)hdump.c	1.33 11/04/12 Copyright 1986-2011 J. Schilling";
+	"@(#)hdump.c	1.34 11/07/14 Copyright 1986-2011 J. Schilling";
 #endif
 /*
  *	hex dump for files
@@ -426,7 +426,7 @@ main(ac, av)
 		printf(
 		_("%s release %s (%s-%s-%s) Copyright (C) 1986-2011 %s\n"),
 				is_od ? "Od":"Hdump",
-				"1.33",
+				"1.34",
 				HOST_CPU, HOST_VENDOR, HOST_OS,
 				_("Joerg Schilling"));
 		exit(0);
@@ -1284,7 +1284,7 @@ open_next(dstp)
 			dstp->inname = "stdin";
 			stdinflag = TRUE;
 		}
-#ifndef	HAVE_DEV_STDIN
+#ifndef	HAVE__DEV_STDIN
 		if (stdinflag) {
 			if (dstp->f != (FILE *)NULL) {
 				fclose(dstp->f);

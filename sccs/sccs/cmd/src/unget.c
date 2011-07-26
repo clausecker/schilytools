@@ -27,10 +27,10 @@
 /*
  * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)unget.c	1.16 11/06/06 J. Schilling
+ * @(#)unget.c	1.17 11/07/04 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)unget.c 1.16 11/06/06 J. Schilling"
+#pragma ident "@(#)unget.c 1.17 11/07/04 J. Schilling"
 #endif
 /*
  * @(#)unget.c 1.24 06/12/12
@@ -242,7 +242,7 @@ char *argv[];
 	Fflags |= FTLJMP;
 	for (i=1; i<argc; i++)
 		if ((p=argv[i]) != NULL)
-			do_file(p, unget, 1);
+			do_file(p, unget, 1, 1);
 
 	return (Fcnt ? 1 : 0);
 }

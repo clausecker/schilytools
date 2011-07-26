@@ -1,8 +1,51 @@
-# /* @(#)libschily-mapvers	1.25 11/06/15 Copyright 2005-2010 J. Schilling */
+# /* @(#)libschily-mapvers	1.27 11/07/12 Copyright 2005-2011 J. Schilling */
 #include <schily/mconfig.h>
 
 SCHILY_1.5 {
 global:
+#ifndef	HAVE_GETUID
+	getuid;
+#endif
+#ifndef	HAVE_GETEUID
+	geteuid;
+#endif
+#ifndef	HAVE_SETUID
+	setuid;
+#endif
+#ifndef	HAVE_SETEUID
+	seteuid;
+#endif
+
+#ifndef	HAVE_GETGID
+	getgid;
+#endif
+#ifndef	HAVE_GETEGID
+	getegid;
+#endif
+#ifndef	HAVE_SETGID
+	setgid;
+#endif
+#ifndef	HAVE_SETEGID
+	setegid;
+#endif
+#if !defined(HAVE_GETGRNAM) && !defined(HAVE_GETGRENT) && \
+	!defined(HAVE_GETGRGID) && !defined(HAVE_SETGRENT) && \
+	!defined(HAVE_ENDGRENT)
+	getgrent;
+	setgrent;
+	endgrent;
+	getgrnam;
+	getgrgid;
+#endif
+#if !defined(HAVE_GETPWNAM) && !defined(HAVE_GETPWENT) && \
+	!defined(HAVE_GETPWUID) && !defined(HAVE_SETPWENT) && \
+	!defined(HAVE_ENDPWENT)
+	getpwent;
+	setpwent;
+	endpwent;
+	getpwnam;
+	getpwuid;
+#endif
 	get_progpath;
 	getexecpath;
 

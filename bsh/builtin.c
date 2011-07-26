@@ -1,13 +1,13 @@
-/* @(#)builtin.c	1.71 09/08/04 Copyright 1988-2009 J. Schilling */
+/* @(#)builtin.c	1.73 11/07/16 Copyright 1988-2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)builtin.c	1.71 09/08/04 Copyright 1988-2009 J. Schilling";
+	"@(#)builtin.c	1.73 11/07/16 Copyright 1988-2011 J. Schilling";
 #endif
 /*
  *	Builtin commands
  *
- *	Copyright (c) 1985-2009 J. Schilling
+ *	Copyright (c) 1985-2011 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -668,6 +668,8 @@ volatile int	cstat;
 			nvp->av_av[i] = vp->av_av[i + (len-ac) + 1];
 		}
 		cstat = execcmd(nvp, std, flag);
+		if (ex_status)
+			_exit(ex_status);
 		_exit(cstat);
 		/*
 		 * This is a (hidden) background command, so we wo not
@@ -1681,11 +1683,14 @@ builtin(vp, std, flag)
 	register char	*name = vp->av_av[0];
 		struct rusage	ru1;
 		struct rusage	ru2;
+		struct rusage	cru1;
+		struct rusage	cru2;
 
 	if (ctlc)
 		return (TRUE);
 	setstime();
 	getpruself(&ru1);
+	getpruchld(&cru1);
 	if ((bp = blook(name, bitab, n_builtin)) == (btab *) NULL)
 		return (FALSE);
 	ex_status = 0;
@@ -1699,7 +1704,10 @@ builtin(vp, std, flag)
 	fflush(std[2]);
 	if ((flag & NOTMS) == 0 && getcurenv("TIME")) {
 		getpruself(&ru2);
+		getpruchld(&cru2);
 		rusagesub(&ru1, &ru2);
+		rusagesub(&cru1, &cru2);
+		rusageadd(&cru2, &ru2);
 		prtimes(gstd, &ru2);
 	}
 	return (TRUE);

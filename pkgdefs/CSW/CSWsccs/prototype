@@ -3,16 +3,16 @@ i depend
 i copyright
 d none bin ? ? ?
 s none bin/sccs=../ccs/bin/sccs
-d none ccs 0775 root bin
-d none ccs/lib 0775 root bin
+d none ccs 0755 root bin
+d none ccs/lib 0755 root bin
 f none ccs/lib/libcassi.a 0444 root bin
 f none ccs/lib/libcomobj.a 0444 root bin
 f none ccs/lib/libmpw.a 0444 root bin
-d none ccs/lib/help 0775 root bin
-d none ccs/lib/help/lib 0775 root bin
+d none ccs/lib/help 0755 root bin
+d none ccs/lib/help/lib 0755 root bin
 f none ccs/lib/help/lib/help2 0755 root bin
-d none ccs/lib/help/locale 0775 root bin
-d none ccs/lib/help/locale/C 0775 root bin
+d none ccs/lib/help/locale 0755 root bin
+d none ccs/lib/help/locale/C 0755 root bin
 f none ccs/lib/help/locale/C/ad 0444 root bin
 f none ccs/lib/help/locale/C/bd 0444 root bin
 f none ccs/lib/help/locale/C/cb 0444 root bin
@@ -29,8 +29,9 @@ f none ccs/lib/help/locale/C/un 0444 root bin
 f none ccs/lib/help/locale/C/ut 0444 root bin
 f none ccs/lib/help/locale/C/va 0444 root bin
 f none ccs/lib/help/locale/C/vc 0444 root bin
+f none ccs/lib/help/locale/C/pr 0444 root bin
 f none ccs/lib/diffh 0755 root bin
-d none ccs/bin 0775 root bin
+d none ccs/bin 0755 root bin
 f none ccs/bin/sccs 0755 root bin
 f none ccs/bin/admin 0755 root bin
 f none ccs/bin/comb 0755 root bin
@@ -39,9 +40,8 @@ f none ccs/bin/get 0755 root bin
 f none ccs/bin/help 0755 root bin
 f none ccs/bin/prs 0755 root bin
 f none ccs/bin/prt 0755 root bin
-f none ccs/bin/rmchg 0755 root bin
-l none ccs/bin/rmdel=rmchg
-l none ccs/bin/cdc=rmchg
+f none ccs/bin/rmdel 0755 root bin
+l none ccs/bin/cdc=rmdel
 f none ccs/bin/sccsdiff 0755 root bin
 f none ccs/bin/unget 0755 root bin
 l none ccs/bin/sact=unget
@@ -51,11 +51,11 @@ f none ccs/bin/what 0755 root bin
 f none ccs/bin/sccslog 0755 root bin
 f none ccs/bin/bdiff 0755 root bin
 f none ccs/bin/diff 0755 root bin
-d none xpg4 0775 root bin
-d none xpg4/bin 0775 root bin
+d none xpg4 0755 root bin
+d none xpg4/bin 0755 root bin
 f none xpg4/bin/sccs 0755 root bin
-f none xpg4/bin/delta 0755 root bin
 f none xpg4/bin/get 0755 root bin
+d none share ? ? ?
 d none share/man ? ? ?
 d none share/man/man1 ? ? ?
 f none share/man/man1/admin.1 0444 root bin
@@ -63,6 +63,7 @@ f none share/man/man1/bdiff.1 0444 root bin
 f none share/man/man1/cdc.1 0444 root bin
 f none share/man/man1/comb.1 0444 root bin
 f none share/man/man1/delta.1 0444 root bin
+f none share/man/man1/diff.1 0444 root bin
 f none share/man/man1/get.1 0444 root bin
 f none share/man/man1/help.1 0444 root bin
 f none share/man/man1/prs.1 0444 root bin
@@ -88,6 +89,7 @@ f none share/man/man1/unget.1 0444 root bin
 f none share/man/man1/sccslog.1 0444 root bin
 f none share/man/man1/val.1 0444 root bin
 f none share/man/man1/what.1 0444 root bin
+f none share/man/man1/vc.1 0444 root bin
 d none share/man/man4 ? ? ?
 f none share/man/man4/sccsfile.4 0444 root bin
 s none man=share/man

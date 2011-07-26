@@ -1,4 +1,4 @@
-# @(#)Targets	1.23 11/06/15 Copyright 1995 J. Schilling
+# @(#)Targets	1.25 11/07/12 Copyright 1995 J. Schilling
 
 CFILES_STDIO=	cvmod.c dat.c fcons.c fdown.c fdup.c \
 		ffileread.c ffilewrite.c \
@@ -25,11 +25,14 @@ CFILES_REST=	astoi.c astoll.c astoull.c basename.c breakline.c \
 		findbytes.c findline.c fnmatch.c format.c \
 		fstream.c \
 		getargs.c getav0.c geterrno.c getexecpath.c getfp.c \
+		getgrent.c \
 		getdomainname.c gethostid.c gethostname.c getpagesize.c \
 		getnum.c getxnum.c \
 		gettnum.c getxtnum.c \
 		getperm.c \
+		getpwent.c \
 		gettimeofday.c \
+		gid.c \
 		handlecond.c \
 		jsprintf.c jssnprintf.c jssprintf.c \
 		match.c matchl.c matchw.c matchwl.c movebytes.c \
@@ -47,7 +50,7 @@ CFILES_REST=	astoi.c astoll.c astoull.c basename.c breakline.c \
 		strncpy.c strndup.c strnlen.c strrchr.c \
 		swabbytes.c \
 		timegm.c \
-		usleep.c \
+		uid.c usleep.c \
 		wcscat.c wcscatl.c wcschr.c wcscmp.c wcscpy.c \
 		wcsdup.c wcseql.c wcslen.c wcslcat.c wcslcpy.c wcsncat.c wcsncmp.c \
 		wcsncpy.c wcsndup.c wcsnlen.c wcsrchr.c

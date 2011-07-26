@@ -1,4 +1,4 @@
-#ident "@(#)Makefile	1.11 11/01/30 "
+#ident "@(#)Makefile	1.12 11/07/15 "
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -17,7 +17,7 @@ CPPOPTS +=	-DTEXT_DOMAIN=\"SCHILY_UTILS\"
 CFILES=		patch.c inp.c pch.c util.c
 HFILES=		common.h inp.h pch.h util.h patchlevel.h
 
-LIBS=		-lschily
+LIBS=		-lschily $(LIB_INTL)
 XMK_FILE=	Makefile.man
 
 ###########################################################################

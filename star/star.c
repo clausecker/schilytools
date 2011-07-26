@@ -1,8 +1,8 @@
-/* @(#)star.c	1.333 11/04/14 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2011 J. Schilling */
+/* @(#)star.c	1.334 11/07/14 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)star.c	1.333 11/04/14 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2011 J. Schilling";
+	"@(#)star.c	1.334 11/07/14 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2011 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1985, 88-90, 92-96, 98, 99, 2000-2011 J. Schilling
@@ -1908,7 +1908,7 @@ star_checkopts(oldtar, dodesc, usetape, archive, no_fifo, llbs)
 #ifdef	JOS
 		tty = stderr;
 #else
-#ifdef	HAVE_DEV_TTY
+#ifdef	HAVE__DEV_TTY
 		if ((tty = fileopen("/dev/tty", "r")) == (FILE *)NULL)
 			comerr("Cannot open '/dev/tty'.\n");
 #else

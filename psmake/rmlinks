@@ -1,7 +1,8 @@
 #!/bin/sh
-# @(#)rmlinks	1.16 11/01/02 Copyright 1999 J. Schilling
+# @(#)rmlinks	1.17 11/07/12 Copyright 1999 J. Schilling
 
 rm -f archconf.c
+rm -f job.h
 rm -f make.c
 rm -f make.h
 rm -f memory.c

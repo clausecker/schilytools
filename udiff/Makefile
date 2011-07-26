@@ -1,4 +1,4 @@
-#ident @(#)Makefile	1.8 08/04/21 
+#ident @(#)Makefile	1.9 11/07/12 
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -13,7 +13,7 @@ CPPOPTS +=	-DSCHILY_PRINT
 CFILES=		udiff.c
 HFILES=
 #LIBS=		-lunos
-LIBS=		-lschily
+LIBS=		-lschily $(LIB_INTL)
 XMK_FILE=	Makefile.man
 
 ###########################################################################

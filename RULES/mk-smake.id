@@ -1,4 +1,4 @@
-#ident "@(#)mk-smake.id	1.8 11/04/14 "
+#ident "@(#)mk-smake.id	1.9 11/06/23 "
 ###########################################################################
 # Written 1996 by J. Schilling
 ###########################################################################
@@ -27,6 +27,7 @@ SET_ENV=	$(___SETENV:$(_UNIQ)%=%)
 include		$(SRCROOT)/$(RULESDIR)/$(SET_ENV)
 
 MAKEPROG=	$(MAKE_NAME)
+WAIT=			# smake-1.2.1 does not yet wait for parallel targets
 
 ###########################################################################
 #

@@ -26,7 +26,7 @@ programs now (hopefully) call gettext() for all strings that need localization.
 
 -	A new rule RULES/profiled.lnk allows to call:
 
-	smake COPTX=-pg LDOPTX=-pg LINKMODE=profiles
+	smake COPTX=-pg LDOPTX=-pg LINKMODE=profiled
 
 	to create binaries that use gprof.
 
