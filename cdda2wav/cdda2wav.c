@@ -1,8 +1,8 @@
-/* @(#)cdda2wav.c	1.135 10/12/19 Copyright 1993-2004 Heiko Eissfeldt, Copyright 2004-2010 J. Schilling */
+/* @(#)cdda2wav.c	1.138 11/08/03 Copyright 1993-2004 Heiko Eissfeldt, Copyright 2004-2011 J. Schilling */
 #include "config.h"
 #ifndef lint
 static	UConst char sccsid[] =
-"@(#)cdda2wav.c	1.135 10/12/19 Copyright 1993-2004 Heiko Eissfeldt, Copyright 2004-2010 J. Schilling";
+"@(#)cdda2wav.c	1.138 11/08/03 Copyright 1993-2004 Heiko Eissfeldt, Copyright 2004-2011 J. Schilling";
 
 #endif
 #undef	DEBUG_BUFFER_ADDRESSES
@@ -26,7 +26,7 @@ static	UConst char sccsid[] =
  */
 /*
  * Copright 1993-2004	(C) Heiko Eissfeldt
- * Copright 2004-2010	(C) J. Schilling
+ * Copright 2004-2011	(C) J. Schilling
  *
  * last changes:
  *   18.12.93 - first version,	OK
@@ -875,7 +875,11 @@ CloseAll()
 #endif
 		semdestroy();
 
-		/* wait for child to terminate */
+#ifdef	HAVE_FORK
+		/*
+		 * If we don't have fork don't wait() either,
+		 * else wait for child to terminate.
+		 */
 		if (0 > wait(&chld_return_status)) {
 			errmsg(_("Error waiting for child.\n"));
 		} else {
@@ -897,6 +901,7 @@ CloseAll()
 				WSTOPSIG(chld_return_status));
 			}
 		}
+#endif
 
 #ifdef DEBUG_CLEANUP
 		fprintf(stderr,
@@ -1493,7 +1498,7 @@ switch_to_realtime_priority()
 	}
 }
 #else
-#if defined(__CYGWIN32__) || defined(__MINGW32__)
+#if defined(__CYGWIN32__) || defined(__MINGW32__) || defined(_MSC_VER)
 
 /*
  * NOTE: Base.h from Cygwin-B20 has a second typedef for BOOL.
@@ -1510,11 +1515,10 @@ switch_to_realtime_priority()
  * NOTE: windows.h defines interface as an alias for struct, this
  *	 is used by COM/OLE2, I guess it is class on C++
  *	 We man need to #undef 'interface'
+ *
+ *	 These workarounds are now applied in schily/windows.h
  */
-#define	BOOL	WBOOL		/* This is the Win BOOL		*/
-#define	format	__format	/* Avoid format parameter hides global ... */
-#include <windows.h>
-#undef format
+#include <schily/windows.h>
 #undef interface
 
 LOCAL void
@@ -2966,7 +2970,7 @@ static char		*user_sound_device = "";
 		/*
 		 * Make the version string similar for all cdrtools programs.
 		 */
-		printf(_("cdda2wav %s (%s-%s-%s) Copyright (C) 1993-2004 %s (C) 2004-2010 %s\n"),
+		printf(_("cdda2wav %s (%s-%s-%s) Copyright (C) 1993-2004 %s (C) 2004-2011 %s\n"),
 					VERSION,
 					HOST_CPU, HOST_VENDOR, HOST_OS,
 					_("Heiko Eissfeldt"),

@@ -34,13 +34,13 @@
 #include "defs.h"
 
 /*
- * This file contains modifications Copyright 2008-2009 J. Schilling
+ * This file contains modifications Copyright 2008-2011 J. Schilling
  *
- * @(#)test.c	1.11 09/11/01 2008-2009 J. Schilling
+ * @(#)test.c	1.12 11/08/04 2008-2011 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)test.c	1.11 09/11/01 2008-2008 J. Schilling";
+	"@(#)test.c	1.12 11/08/04 2008-2011 J. Schilling";
 #endif
 
 
@@ -66,6 +66,8 @@ extern int stat	__PR((const char *, struct stat *));
 #ifndef	HAVE_DECL_LSTAT
 extern int lstat __PR((const char *, struct stat *));
 #endif
+
+#define	exp	_exp	/* Some compilers do not like exp() */
 
 	int	test		__PR((int argn, unsigned char *com[]));
 static	unsigned char *nxtarg	__PR((int mt));

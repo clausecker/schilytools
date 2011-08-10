@@ -1,3 +1,4 @@
+
 /*
  * CDDL HEADER START
  *
@@ -27,12 +28,12 @@
 /*
  * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)defines.h	1.38 11/07/26 J. Schilling
+ * @(#)defines.h	1.45 11/08/07 J. Schilling
  */
 #ifndef	_HDR_DEFINES_H
 #define	_HDR_DEFINES_H
 #if defined(sun)
-#pragma ident "@(#)defines.h 1.38 11/07/26 J. Schilling"
+#pragma ident "@(#)defines.h 1.45 11/08/07 J. Schilling"
 #endif
 /*
  * @(#)defines.h 1.21 06/12/12
@@ -89,7 +90,7 @@ extern char *optarg;
 # include	<schily/maxpath.h>
 #ifndef PATH_MAX
 #ifdef	FILENAME_MAX
-#define PATH_MAX	FILENAME_MAX
+#define	PATH_MAX	FILENAME_MAX
 #endif
 #endif
 #ifndef	PATH_MAX
@@ -116,7 +117,7 @@ extern char *optarg;
 #ifdef	NEED_SCHILY_PRINT
 #define	SCHILY_PRINT
 #endif
-#define error	__js_error__		/* SCCS error differs from schily.h */
+#define	error	__js_error__		/* SCCS error differs from schily.h */
 #include	<schily/schily.h>
 #undef	error				/* SCCS only uses the SCCS error() */
 
@@ -126,10 +127,9 @@ extern char *optarg;
  * We start to create 4 digit year strings in Y2038 when 32 bit SCCS
  * implementations will stop working.
  */
+#define	_YM9999		0x3AFFF4417FL	/* Dec 31 9999 23:59:59 GMT */
 #define	_Y2069		0xBA37E000	/* Jan 1  2069 00:00:00 GMT */
-#ifdef	OLD_Y2038
-#define	_Y2038		0x7FFFFFFE	/* Jan 19 2038 03:14:07 GMT */
-#endif
+#define	_YM2038		0x7FFFFFFE	/* Jan 19 2038 03:14:07 GMT */
 #define	_Y2038		0x7FE81780	/* Jan 1  2038 00:00:00 GMT */
 #ifdef	FOUR_DIGIT_YEAR_TEST
 #define	_Y2038		0x47800000	/* Jan 6th 2008 for tests */
@@ -138,9 +138,14 @@ extern char *optarg;
 extern time_t	Y2069;
 extern time_t	Y2038;
 extern time_t	Y1969;
+#if SIZEOF_TIME_T == 4			/* a 32 bit program: */
+#define	MAX_TIME	(time_t)_YM2038	/* max positive long */
+#else					/* a 64 bit or larger program: */
+#define	MAX_TIME	(time_t)_YM9999	/* We currently support 4 digit years */
+#endif
 
-#define ALIGNMENT  	(sizeof(long long))
-#define ROUND(x,base)   (((x) + (base-1)) & ~(base-1))
+#define	ALIGNMENT  	(sizeof (long long))
+#define	ROUND(x,base)   (((x) + (base-1)) & ~(base-1))
 
 # define CTLSTR		"%c%c\n"
 
@@ -207,6 +212,8 @@ time_t	Y1969;			/* sync with lib/comobj/src/tzset.c   */
 # define DEL		'D'	/* ^AD release Delete block start	    */
 # define END		'E'	/* ^AE release Insert/Delete block end	    */
 
+# define NONL		'N'	/* ^AN escaped text line with no newline    */
+
 # define MINR		1		/* minimum release number */
 # define MAXR		9999		/* maximum release number */
 # define FILESIZE	MAXPATHLEN
@@ -228,14 +235,20 @@ time_t	Y1969;			/* sync with lib/comobj/src/tzset.c   */
 
 struct apply {
 	char	a_inline;	/* in the line of normally applied deltas */
-	int	a_code;		/* APPLY, NOAPPLY or SX_EMPTY */
-	int	a_reason;
+	char	a_code;		/* APPLY, NOAPPLY or SX_EMPTY */
+	char	a_reason;
 };
 
+/*
+ * Definitions for a_code
+ */
 #define SX_EMPTY	(0)
 #define APPLY		(1)
 #define NOAPPLY		(2)
 
+/*
+ * Definitions for a_reason
+ */
 # define IGNR		0100
 # define USER		040
 # define INCL		1
@@ -324,6 +337,7 @@ struct packet {
 	char	p_verbose;	/* verbose flags (see #define's below) */
 	char	p_upd;		/* update flag (!0 = update mode) */
 	char	p_flags;	/* general flags see below */
+	char	p_props;	/* file properties see below */
 	time_t	p_cutoff;	/* specified cutoff date-time */
 	int	p_ihash;	/* initial (input) hash */
 	int	p_chash;	/* current (input) hash */
@@ -339,7 +353,9 @@ struct packet {
 #ifndef	HAVE_SETVBUF
 	char	p_buf[BUFSIZ];	/* input file buffer */
 #endif
+	char	*p_lineptr;	/* begin of line past escape process */
 	char	*p_line;	/* buffer for getline() */
+	size_t	p_line_length;	/* actual line length for getline() */
 	size_t	p_line_size;	/* size of the buffer for getline() */
 	time_t	p_cdt;		/* date/time of newest applied delta */
 	char	*p_lfile;	/* 0 = no l-file; else ptr to l arg */
@@ -356,14 +372,23 @@ struct packet {
 };
 
 /*
- * General flags
+ * General flags (p_flags)
  *
  * The PF_GMT flag is used to avoid calling mktime(3) in get(1) and delta(1)
  * as this is an expensive operation on some systems like SunOS-4.x and Linux.
  * If we set the flag, we need to carefully compensate the systematic error
  * introduced by this hack.
  */
-#define	PF_GMT	1		/* use GMT conversion */
+#define	PF_GMT	1		/* Use GMT conversion			  */
+#define	PF_V6	2		/* Support SCCS V6 features		  */
+#define	PF_NONL	4		/* This line has no newline		  */
+
+/*
+ * Flags to collect reasons for non-Text files also used in p_props
+ */
+#define	CK_NONL		1	/* No newline at end of file	*/
+#define	CK_CTLCHAR	2	/* CTLCHAR ar beginning of line	*/
+#define	CK_NULL		4	/* NUL character found in file	*/
 
 struct	stats {
 	int	s_ins;
@@ -430,6 +455,9 @@ extern	void	fmterr	__PR((struct packet *));
 #define	getline	comgetline
 extern	char	*getline __PR((struct packet *));
 extern	void	putline	__PR((struct packet *, char *));
+extern	void	putchr	__PR((struct packet *, int c));
+extern	void	putctl	__PR((struct packet *));
+extern	void	putctlnnl __PR((struct packet *));
 extern	char*	logname	__PR((void));
 extern	int	mystrptime __PR((char *, struct tm *, int));
 extern	char*	savecmt	__PR((char *));
@@ -493,6 +521,13 @@ extern  char*	get_Sccs_Comments __PR((void));
 extern	int	userexit __PR((int code));
 extern	void	*zrealloc __PR((void *ptr, size_t amt));
 
+#ifdef	DBG_MALLOC
+extern	void	*dbg_fmalloc __PR((unsigned, char *, int));
+
+#define	fmalloc(s)	dbg_fmalloc(s, __FILE__, __LINE__)
+#endif
+
+
 #ifndef	HAVE_REALLOC_NULL
 #define	realloc	zrealloc
 #endif
@@ -532,7 +567,7 @@ extern	void	enter	__PR((struct packet *pkt, int ch, int n, struct sid *sidp));
  * Work around a performance problem in the baroque stdio implementaion on
  * Linux.
  */
-#define setvbuf(f, buf, type, sz)     setvbuf(f, malloc(sz), type, sz)
+#define	setvbuf(f, buf, type, sz)     setvbuf(f, malloc(sz), type, sz)
 
 static inline int xfclose __PR((FILE *f));
 static inline int xfclose(f)

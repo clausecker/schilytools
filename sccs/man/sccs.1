@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sccs.1	4.14 11/07/11 portions Copyright 2007-2011 J. Schilling */
+.\" @(#)sccs.1	4.15 11/07/27 portions Copyright 2007-2011 J. Schilling */
 .\" 
 .\" CDDL HEADER START
 .\"
@@ -20,7 +20,7 @@
 .\"
 .\" CDDL HEADER END
 .\"  Copyright (c) 2007, Sun Microsystems, Inc.  All Rights Reserved.
-.TH sccs 1 "2011/07/11" "SunOS 5.11" "User Commands"
+.TH sccs 1 "2011/07/27" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs \- front end for the Source Code Control System (SCCS)
 .SH SYNOPSIS
@@ -1299,9 +1299,10 @@ subdirectory
 .ne 2
 .TP
 .BI SCCS/d. file
-temporary file of differences created by the
+temporary file created by the
 .BR delta (1)
-program
+program with the content of the previous version, 
+used to compute differences to the current version
 
 .sp
 .ne 2

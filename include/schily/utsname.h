@@ -1,8 +1,8 @@
-/* @(#)utsname.h	1.1 09/07/13 Copyright 2009 J. Schilling */
+/* @(#)utsname.h	1.3 11/08/05 Copyright 2009-2011 J. Schilling */
 /*
  *	Utsname abstraction
  *
- *	Copyright (c) 2009 J. Schilling
+ *	Copyright (c) 2009-2011 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -31,6 +31,32 @@
 #define	_INCL_SYS_UTSNAME_H
 #include <sys/utsname.h>
 #endif
+#else	/* !HAVE_SYS_UTSNAME_H */
+
+#ifdef	__cplusplus
+extern "C" {
 #endif
+
+#ifndef	SYS_NMLN
+#define	SYS_NMLN	257
+#endif
+
+struct utsname {
+	char	sysname[SYS_NMLN];	/* Name of this OS		*/
+	char	nodename[SYS_NMLN];	/* Name of this network node	*/
+	char	release[SYS_NMLN];	/* Release level		*/
+	char	version[SYS_NMLN];	/* Version level		*/
+	char	machine[SYS_NMLN];	/* hardware type		*/
+};
+
+#ifndef	HAVE_UNAME
+extern	int	uname	__PR((struct utsname *));
+#endif
+
+#ifdef	__cplusplus
+}
+#endif
+
+#endif	/* !HAVE_SYS_UTSNAME_H */
 
 #endif	/* _SCHILY_UTSNAME_H */

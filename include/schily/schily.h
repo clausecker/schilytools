@@ -1,4 +1,4 @@
-/* @(#)schily.h	1.96 11/06/15 Copyright 1985-2010 J. Schilling */
+/* @(#)schily.h	1.98 11/08/03 Copyright 1985-2011 J. Schilling */
 /*
  *	Definitions for libschily
  *
@@ -18,7 +18,7 @@
  *	include ctype.h past schily/schily.h as OpenBSD does not follow POSIX
  *	and defines EOF in ctype.h
  *
- *	Copyright (c) 1985-2010 J. Schilling
+ *	Copyright (c) 1985-2011 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -307,6 +307,7 @@ extern	int	_comerr		__PR((FILE *, int, int, const char *, va_list));
 extern	int	error __PR((const char *, ...)) __printflike__(1, 2);
 #ifdef	FOUND_SIZE_T
 extern	char	*fillbytes __PR((void *, ssize_t, char));
+extern	char	*zerobytes __PR((void *, ssize_t));
 extern	char	*findbytes __PR((const void *, ssize_t, char));
 #endif
 extern	char	*findinpath __PR((char *__name, int __mode,
@@ -431,6 +432,7 @@ extern	void	**getfp		__PR((void));
 extern	int	flush_reg_windows __PR((int));
 #ifdef	FOUND_SIZE_T
 extern	ssize_t	cmpbytes	__PR((const void *, const void *, ssize_t));
+extern	int	cmpmbytes	__PR((const void *, const void *, ssize_t));
 extern	ssize_t	cmpnullbytes	__PR((const void *, ssize_t));
 #endif
 

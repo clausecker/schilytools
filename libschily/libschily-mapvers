@@ -1,4 +1,4 @@
-# /* @(#)libschily-mapvers	1.27 11/07/12 Copyright 2005-2011 J. Schilling */
+# /* @(#)libschily-mapvers	1.28 11/07/29 Copyright 2005-2011 J. Schilling */
 #include <schily/mconfig.h>
 
 SCHILY_1.5 {
@@ -82,6 +82,8 @@ global:
 #ifndef	HAVE_TIMEGM
 	timegm;
 #endif
+	cmpmbytes;
+	zerobytes;
 } SCHILY_1.4;
 
 SCHILY_1.4 {

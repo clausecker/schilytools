@@ -35,9 +35,9 @@
 #endif
 
 /*
- * This file contains modifications Copyright 2008-2009 J. Schilling
+ * This file contains modifications Copyright 2008-2011 J. Schilling
  *
- * @(#)defs.h	1.25 09/12/31 2008-2009 J. Schilling
+ * @(#)defs.h	1.26 11/08/03 2008-2011 J. Schilling
  */
 
 #ifdef	__cplusplus
@@ -628,6 +628,7 @@ extern	void	bhist		__PR((void));
 #define		round(a, b)		(((Intptr_t)(((char *)(a)+b)-1))&~((b)-1))
 #define		closepipe(x)		(close(x[INPIPE]), close(x[OTPIPE]))
 #define		eq(a, b)		(cf((unsigned char *)(a), (unsigned char *)(b)) == 0)
+#undef		max
 #define		max(a, b)		((a) > (b)?(a):(b))
 #define		assert(x)
 #define		_gettext(s)		(unsigned char *)gettext(s)

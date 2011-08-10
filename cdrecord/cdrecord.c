@@ -1,8 +1,8 @@
-/* @(#)cdrecord.c	1.400 11/07/10 Copyright 1995-2011 J. Schilling */
+/* @(#)cdrecord.c	1.401 11/08/02 Copyright 1995-2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)cdrecord.c	1.400 11/07/10 Copyright 1995-2011 J. Schilling";
+	"@(#)cdrecord.c	1.401 11/08/02 Copyright 1995-2011 J. Schilling";
 #endif
 /*
  *	Record data on a CD/CVD-Recorder
@@ -1758,7 +1758,9 @@ gracewait(dp, didgracep)
 #ifdef	SIGINT
 			excdr(SIGINT, &exargs);
 			signal(SIGINT, SIG_DFL);
+#ifdef	HAVE_KILL
 			kill(getpid(), SIGINT);
+#endif
 #endif
 			/*
 			 * In case kill() did not work ;-)
@@ -4499,7 +4501,7 @@ load_media(scgp, dp, doexit)
 	scgp->silent--;
 	err = geterrno();
 	if (code < 0 && (err == EPERM || err == EACCES)) {
-		linuxcheck();	/* For version 1.400 of cdrecord.c */
+		linuxcheck();	/* For version 1.401 of cdrecord.c */
 		scg_openerr("");
 	}
 
@@ -4987,7 +4989,7 @@ rt_raisepri(pri)
 
 #else	/* _POSIX_PRIORITY_SCHEDULING */
 
-#if defined(__CYGWIN32__) || defined(__MINGW32__)
+#if defined(__CYGWIN32__) || defined(__MINGW32__) || defined(_MSC_VER)
 /*
  * Win32 specific priority settings.
  */
@@ -5006,11 +5008,10 @@ rt_raisepri(pri)
  * NOTE: windows.h defines interface as an alias for struct, this
  *	 is used by COM/OLE2, I guess it is class on C++
  *	 We man need to #undef 'interface'
+ *
+ *	 These workarounds are now applied in schily/windows.h
  */
-#define	BOOL	WBOOL		/* This is the Win BOOL		*/
-#define	format	__format	/* Avoid format parameter hides global ... */
-#include <windows.h>
-#undef format
+#include <schily/windows.h>
 #undef interface
 
 LOCAL	int
@@ -5395,7 +5396,7 @@ set_wrmode(dp, wmode, tflags)
 }
 
 /*
- * I am sorry that even for version 1.400 of cdrecord.c, I am forced to do
+ * I am sorry that even for version 1.401 of cdrecord.c, I am forced to do
  * things like this, but defective versions of cdrecord cause a lot of
  * work load to me.
  *
@@ -5412,7 +5413,7 @@ set_wrmode(dp, wmode, tflags)
 #endif
 
 LOCAL void
-linuxcheck()				/* For version 1.400 of cdrecord.c */
+linuxcheck()				/* For version 1.401 of cdrecord.c */
 {
 #if	defined(linux) || defined(__linux) || defined(__linux__)
 #ifdef	HAVE_UNAME

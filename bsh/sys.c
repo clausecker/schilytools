@@ -1,8 +1,8 @@
-/* @(#)sys.c	1.71 11/07/10 Copyright 1986-2011 J. Schilling */
+/* @(#)sys.c	1.72 11/08/03 Copyright 1986-2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)sys.c	1.71 11/07/10 Copyright 1986-2011 J. Schilling";
+	"@(#)sys.c	1.72 11/08/03 Copyright 1986-2011 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1986-2011 J. Schilling
@@ -250,9 +250,11 @@ psigsetup(flag)
 	if (osig2 != (sigtype) SIG_IGN || firstsh)
 		signal(SIGINT, intr);
 
+#ifdef	SIGQUIT
 	signal(SIGQUIT, (sigtype) SIG_IGN);
 	if (qflg)
 		signal(SIGQUIT, (sigtype) SIG_DFL);
+#endif
 
 	signal(SIGTERM, (sigtype) SIG_IGN);
 #ifdef	SIGTSTP
@@ -281,7 +283,9 @@ csigsetup(flag)
 		sig3 = osig3;
 	}
 	signal(SIGINT, sig2);
+#ifdef	SIGQUIT
 	signal(SIGQUIT, sig3);
+#endif
 	signal(SIGTERM, osig15);
 #ifdef	SIGTSTP
 	signal(SIGTSTP, osig18);

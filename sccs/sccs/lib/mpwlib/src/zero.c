@@ -25,12 +25,12 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2009 J. Schilling
+ * This file contains modifications Copyright 1987, 2006-2011 J. Schilling
  *
- * @(#)zero.c	1.5 09/11/08 J. Schilling
+ * @(#)zero.c	1.7 11/07/30 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)zero.c 1.5 09/11/08 J. Schilling"
+#pragma ident "@(#)zero.c 1.7 11/07/30 J. Schilling"
 #endif
 /*
  * @(#)zero.c 1.3 06/12/12
@@ -47,6 +47,8 @@
 
 #include <defines.h>
 
+#ifdef	pdp11
+
 char	*zero(p,n)
 register char *p;
 register int n;
@@ -56,3 +58,77 @@ register int n;
 		*p++ = 0;
 	return(op);
 }
+
+#else	/* !pdp11 */
+
+#include <schily/align.h>
+
+#define	DO8(a)	a; a; a; a; a; a; a; a;
+
+/*
+ * zero(to, cnt)
+ */
+EXPORT char *
+zero(to, cnt)
+	register char	*to;
+	int	cnt;
+{
+		char	*oto = to;
+	register ssize_t n;
+	register long	lval = 0L;
+
+	/*
+	 * If we change cnt to be unsigned, check for == instead of <=
+	 */
+	if ((n = cnt) <= 0)
+		return (to);
+
+	if (n < 8 * sizeof (long)) {	/* Simple may be faster... */
+		do {			/* n is always > 0 */
+			*to++ = '\0';
+		} while (--n > 0);
+		return (oto);
+	}
+
+	/*
+	 * Assign byte-wise until properly aligned for a long pointer.
+	 */
+	while (--n >= 0 && !laligned(to)) {
+		*to++ = '\0';
+	}
+	n++;
+
+	if (n >= (ssize_t)(8 * sizeof (long))) {
+		register ssize_t rem = n % (8 * sizeof (long));
+
+		n /= (8 * sizeof (long));
+		{
+			register long *tol = (long *)to;
+
+			do {
+				DO8 (*tol++ = lval);
+			} while (--n > 0);
+
+			to = (char *)tol;
+		}
+		n = rem;
+
+		if (n >= 8) {
+			n -= 8;
+			do {
+				DO8 (*to++ = '\0');
+			} while ((n -= 8) >= 0);
+			n += 8;
+		}
+		if (n > 0) do {
+			*to++ = '\0';
+		} while (--n > 0);
+		return (oto);
+	}
+	if (n > 0) do {
+		*to++ = '\0';
+	} while (--n > 0);
+	return (oto);
+}
+
+#endif	/* !pdp11 */

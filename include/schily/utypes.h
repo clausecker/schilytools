@@ -1,8 +1,8 @@
-/* @(#)utypes.h	1.32 10/08/27 Copyright 1997-2010 J. Schilling */
+/* @(#)utypes.h	1.33 11/08/05 Copyright 1997-2011 J. Schilling */
 /*
  *	Definitions for some user defined types
  *
- *	Copyright (c) 1997-2010 J. Schilling
+ *	Copyright (c) 1997-2011 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -259,7 +259,15 @@ extern "C" {
 #define	uintmax_t	ULlong
 #endif
 
+#ifdef	__cplusplus
+}
+#endif
+
 #else	/* !HAVE_INTTYPES_H */
+
+#ifdef	__cplusplus
+extern "C" {
+#endif
 
 #if SIZEOF_CHAR != 1 || SIZEOF_UNSIGNED_CHAR != 1
 /*
@@ -283,7 +291,11 @@ error  Sizeof char is not equal 1
 #endif
 
 #if SIZEOF_INT == 4
+#if defined(_MSC_VER) && SIZEOF_LONG_INT == 4
+	typedef	long			Int32_t;
+#else
 	typedef	int			Int32_t;
+#endif
 #else
 	error		No int32_t found
 #endif
@@ -331,7 +343,11 @@ typedef	unsigned char		UInt8_t;
 #endif
 
 #if SIZEOF_UNSIGNED_INT == 4
+#if defined(_MSC_VER) && SIZEOF_UNSIGNED_LONG_INT == 4
+	typedef	unsigned long		UInt32_t;
+#else
 	typedef	unsigned int		UInt32_t;
+#endif
 #else
 	error		No int32_t found
 #endif
@@ -408,6 +424,10 @@ typedef	unsigned char		UInt8_t;
 #undef	uintptr_t
 #define	uintptr_t		UIntptr_t
 #endif	/* _MSC_VER */
+
+#ifdef	__cplusplus
+}
+#endif
 
 #endif	/* HAVE_INTTYPES_H */
 
@@ -564,9 +584,5 @@ typedef	unsigned char		UInt8_t;
 
 #define	SOCKLEN_T_MIN	TYPE_MINVAL(socklen_t)
 #define	SOCKLEN_T_MAX	TYPE_MAXVAL(socklen_t)
-
-#ifdef	__cplusplus
-}
-#endif
 
 #endif	/* _SCHILY_UTYPES_H */

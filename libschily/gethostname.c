@@ -1,11 +1,11 @@
-/* @(#)gethostname.c	1.20 09/08/04 Copyright 1995-2009 J. Schilling */
+/* @(#)gethostname.c	1.21 11/08/04 Copyright 1995-2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)gethostname.c	1.20 09/08/04 Copyright 1995-2009 J. Schilling";
+	"@(#)gethostname.c	1.21 11/08/04 Copyright 1995-2011 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1995-2009 J. Schilling
+ *	Copyright (c) 1995-2011 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -39,7 +39,7 @@ gethostname(name, namelen)
 		return (-1);
 	return (0);
 }
-#else
+#else	/* ! SI_HOSTNAME */
 
 #ifdef	HAVE_UNAME
 #include <schily/utsname.h>
@@ -58,6 +58,48 @@ gethostname(name, namelen)
 	strncpy(name, uts.nodename, namelen);
 	return (0);
 }
+#else	/* !HAVE_UNAME */
+
+#if	defined(__MINGW32__) || defined(_MSC_VER)
+#include <schily/utypes.h>
+#include <schily/errno.h>
+#define	gethostname	__winsock_gethostname
+#include <schily/windows.h>
+#undef	gethostname
+
+EXPORT int
+gethostname(name, namelen)
+	char	*name;
+	int	namelen;
+{
+	uint32_t	len = namelen;
+	char		nbuf[MAX_COMPUTERNAME_LENGTH+1];
+
+	if (namelen < 0) {
+#ifdef	ENOSYS
+		seterrno(ENOSYS);
+#else
+		seterrno(EINVAL);
+#endif
+		return (-1);
+	}
+	if (namelen == 0)
+		return (0);
+
+	name[0] = '\0';
+	if (!GetComputerName(name, &len)) {
+		if (len > namelen) {
+			nbuf[0] = '\0';
+			len = sizeof (nbuf);
+			(void) GetComputerName(nbuf, &len);
+			strncpy(name, nbuf, namelen);
+			return (0);
+		}
+		seterrno(EIO);
+		return (-1);
+	}
+	return (0);
+}
 #else
 #include <schily/errno.h>
 
@@ -67,7 +109,11 @@ gethostname(name, namelen)
 	int	namelen;
 {
 	if (namelen < 0) {
+#ifdef	ENOSYS
+		seterrno(ENOSYS);
+#else
 		seterrno(EINVAL);
+#endif
 		return (-1);
 	}
 	if (namelen > 0)
@@ -75,7 +121,8 @@ gethostname(name, namelen)
 	return (0);
 }
 #endif
+#endif	/* !HAVE_UNAME */
 
-#endif
+#endif	/* !SI_HOSTNAME */
 
 #endif	/* HAVE_GETHOSTNAME */

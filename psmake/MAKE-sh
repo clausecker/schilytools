@@ -1,5 +1,5 @@
 #!/bin/sh
-#ident "@(#)MAKE-sh	1.11 11/01/02 "
+#ident "@(#)MAKE-sh	1.13 11/08/04 "
 ###############################################################################
 #
 # The shell variables CFLAGS & LDFLAGS may be used to pass additional flags
@@ -68,12 +68,19 @@ if [ ! -r make.c ]; then
 	# Check if the current system allows to create symlinks
 	#
 	lnfiles="sh lnfiles"
-	rm -f xxzzy.123 xxzzy.345
-	echo test > xxzzy.123
-	ln -s xxzzy.123 xxzzy.345
-	test $? = 0 || lnfiles="sh cpfiles"
-	test -r xxzzy.345 || lnfiles="sh cpfiles"
-	rm -f xxzzy.123 xxzzy.345
+	[ ".$BASH" '!=' . ]  && MKLINKS_TEST=test
+	MKLINKS_TEST=${MKLINKS_TEST-:}
+	if [ ".$MKLINKS_COPY" = '.' ]; then
+		rm -f xxzzy.123 xxzzy.345
+		echo test > xxzzy.123
+		ln -s xxzzy.123 xxzzy.345
+		test $? = 0 || lnfiles="sh cpfiles"
+		test -r xxzzy.345 || lnfiles="sh cpfiles"
+		${MKLINKS_TEST} -h xxzzy.345 || lnfiles="sh cpfiles"
+		rm -f xxzzy.123 xxzzy.345
+	else
+		lnfiles="sh cpfiles"
+	fi
 
 	echo "Creating links to source files..."
 	sh rmlinks

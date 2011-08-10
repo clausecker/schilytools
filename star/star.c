@@ -1,8 +1,8 @@
-/* @(#)star.c	1.334 11/07/14 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2011 J. Schilling */
+/* @(#)star.c	1.336 11/08/04 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)star.c	1.334 11/07/14 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2011 J. Schilling";
+	"@(#)star.c	1.336 11/08/04 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2011 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1985, 88-90, 92-96, 98, 99, 2000-2011 J. Schilling
@@ -357,12 +357,18 @@ main(ac, av)
 	oac = cac;
 	oav = cav;
 
+#ifdef	SIGHUP
 	if (signal(SIGHUP, SIG_IGN) != SIG_IGN)
 		set_signal(SIGHUP, sighup);
+#endif
+#ifdef	SIGINT
 	if (signal(SIGINT, SIG_IGN) != SIG_IGN)
 		set_signal(SIGINT, sigintr);
+#endif
+#ifdef	SIGQUIT
 	if (signal(SIGQUIT, SIG_IGN) != SIG_IGN)
 		set_signal(SIGQUIT, sigquit);
+#endif
 #ifdef	SIGINFO
 	/*
 	 * Be polite to *BSD users.
@@ -574,10 +580,12 @@ main(ac, av)
 		 */
 		fflush(vpr);
 		fflush(stderr);
+#ifdef	HAVE_FSYNC
 		if (!no_fsync) {
 			fsync(fdown(vpr));
 			fsync(fdown(stderr));
 		}
+#endif
 		usleep(100000);
 	}
 #ifdef	FIFO
@@ -2410,7 +2418,9 @@ LOCAL void
 sighup(sig)
 	int	sig;
 {
+#ifdef	SIGHUP
 	set_signal(SIGHUP, sighup);
+#endif
 	prstats();
 	intr++;
 	if (!cflag)
@@ -2422,7 +2432,9 @@ LOCAL void
 sigintr(sig)
 	int	sig;
 {
+#ifdef	SIGINT
 	set_signal(SIGINT, sigintr);
+#endif
 	prstats();
 	intr++;
 	if (!cflag)

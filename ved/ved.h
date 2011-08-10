@@ -1,8 +1,8 @@
-/* @(#)ved.h	1.40 10/05/14 Copyright 1984, 85, 86, 88, 89, 97, 2000-2010 J. Schilling */
+/* @(#)ved.h	1.41 11/08/03 Copyright 1984, 85, 86, 88, 89, 97, 2000-2011 J. Schilling */
 /*
  *	Main include file for VED
  *
- *	Copyright (c) 1984, 85, 86, 88, 89, 97, 2000-2010 J. Schilling
+ *	Copyright (c) 1984, 85, 86, 88, 89, 97, 2000-2011 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -126,7 +126,9 @@ extern	iobuf_t	_bb;
 #define	MAXULONG	(~((unsigned long)0))
 #define	MAXLONG		(MAXULONG >> 1)
 
+#undef	min
 #define	min(x, y)	(((x) < (y)) ? (x) : (y))
+#undef	max
 #define	max(x, y)	(((x) < (y)) ? (y) : (x))
 /*#define	abs(x)	(((x) > 0) ? (x) : (-x))*/
 

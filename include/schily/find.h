@@ -1,8 +1,8 @@
-/* @(#)find.h	1.22 10/11/24 Copyright 2005-2010 J. Schilling */
+/* @(#)find.h	1.23 11/08/05 Copyright 2005-2011 J. Schilling */
 /*
  *	Definitions for libfind users.
  *
- *	Copyright (c) 2004-2010 J. Schilling
+ *	Copyright (c) 2004-2011 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -70,6 +70,11 @@ typedef struct find_args {
 
 #ifndef	FIND_NODE
 #define	findn_t	void
+#endif
+
+#ifndef	__sqfun_t_defined
+typedef	int	(*sqfun_t)	__PR((void *arg));
+#define	__sqfun_t_defined
 #endif
 
 #ifndef	__squit_t_defined

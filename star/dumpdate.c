@@ -1,11 +1,11 @@
-/* @(#)dumpdate.c	1.23 10/08/23 Copyright 2003-2010 J. Schilling */
+/* @(#)dumpdate.c	1.24 11/08/03 Copyright 2003-2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)dumpdate.c	1.23 10/08/23 Copyright 2003-2010 J. Schilling";
+	"@(#)dumpdate.c	1.24 11/08/03 Copyright 2003-2011 J. Schilling";
 #endif
 /*
- *	Copyright (c) 2003-2010 J. Schilling
+ *	Copyright (c) 2003-2011 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -69,7 +69,7 @@ LOCAL	struct flock	__fl;
 
 #ifndef	HAVE_LOCKING
 #undef	flock
-#define	flock(fd, flag)
+#define	flock(fd, flag)	(0)
 #endif
 
 LOCAL	dumpd_t	*dumpdates;

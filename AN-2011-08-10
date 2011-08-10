@@ -1,0 +1,269 @@
+New features with AN-2011-08-10:
+
+This is the first localization step for the schily source consolidation. Many
+programs now (hopefully) call gettext() for all strings that need localization.
+
+-	The next step will include dgettext() calls for the libraries and the
+	missing programs
+
+-	The following step will include the extracted strings
+
+-	The last step will include German translations and install support
+	for the resulting binary message object files.
+
+----------> Please test and report compilation problems! <---------
+
+***** NOTE: As mentioned since 2004, frontends to the tools should *****
+*****		call all programs in the "C" locale		   *****
+*****		by e.g. calling: LC_ALL=C cdrecord ....		   *****
+*****		unless these frontends support localized strings   *****
+*****		used by the cdrtools with NLS support.		   *****
+
+-	Changed the default Microsoft compiler version to VC9
+
+	Please note that the Microsoft environment violates nearly all
+	available standards. 
+
+	It is a hard job to make things compile with a compiler that
+	is more than 12 years behind IEEE standards.
+
+	It is a harder job to deal with an OS environment that ignores
+	nearly every POSIX rule.
+
+	Just note that MSC returns stat.st_ino == 0 for all files
+	with stat(). This causes POSIX compliant software to believe that
+	all files are hardlinked together.
+
+	Thanks to Johannes Hausensteiner <johau@gmx.net> for giving the
+	initiation for this actual porting attempt and for doing some
+	tests with mingw.
+
+	Thanks to Frank Kanschur <frank.kanschur@gmx.de> for giving
+	ideas on how to implement things for Win-DOS
+
+	Thanks to Alex Kopylov <cdrtools@bootcd.ru> for writing some
+	code for mingw and for creating a missing callback-function
+	for the audio speaker outout from cdda2wav.
+
+-	Fixed the vc9-setup files to make VC9 work.
+
+-	Newer Cygwin "tail" versions do no longer support UNIX syntax.
+	change tail +2 to tail -n +2 in RULES/cc-mcs.rul to allow to use
+	the Microsoft compiler again
+
+-	A new environment variable MKLINKS_COPY allows to tell all
+	MKLINS scripts to generate file copies rather than symlinks.
+	Call:
+		MKLINKS_COPY=true
+		export MKLINKS_COPY
+	to enable this feature
+
+-	Run an additional test -h command in MKLNKS to verify whether mingw
+	supports symlinks
+
+-	MKLINKS now creates copies instead of symlink when we use MSC
+	as MSC does not support to read symlinks files
+
+-	Fixed a typo in include/schily/libport.h (group functions have been
+	defined to return struct passwd* instead of struct group*
+
+-	Fixed wrong bracketing for C++ in include/schily/stdlib.h
+
+-	Fixed wrong bracketing for C++ in include/schily/utypes.h
+
+-	Added a workaround for MSC to include/schily/utypes.h
+	MSC believes that a 32 bit int and a 32 bit long are incompatible
+	and cannot even be casted, so we need to make uint32_t a n unsigned long
+
+-	Let include/schily/archdefs.h define the standard processor #defines
+	when compiling with MSC.
+
+-	New include file include/schily/windows.h works around the oddities
+	from the MSC include file windows.h
+
+-	include/schily/stdio.h now defines popen()/pclose() to _popen()/_pclose()
+	if on WIN-DOS
+
+-	include/schily/limits.h now defines PIPE_BUF
+
+-	include/schily/utsname.h now defines struct utsname for our MSC uname()
+	emulation.
+
+-	New autoconf tests for memcmp() and memccpy()
+
+-	New autoconf tests for spawn*(), cwait() process.h
+
+-	New autoconf tests for pipe() / _pipe()
+
+-	include/schily/unistd.h now defines pipe() via _pipe() on WIN-DOS
+
+-	Many rewritten autoconf tests in order to work around the oddities
+	from MSC (cl).
+
+-	New functions zerobytes() and cmpmbytes() added to libschily.
+
+-	Fixed libschily/gettimeofday.c to compile with MSC
+
+-	Fixed libschily/sleep.c to compile with MSC
+
+-	Fixed libschily/usleep.c to be empty with MSC as sleep.c includes
+	a working usleep()
+
+-	libschily/gethostname.c enhanced to support Win-DOS with cl.exe
+
+-	libschily/uname.c New function to support Win-DOS with cl.exe
+
+-	libschily/dirent.c New functions: opendir()/closedir()/readdir()
+				to support Win-DOS with cl.exe
+
+-	libschily/kill.c New function to support Win-DOS with cl.exe
+
+-	libschily/stdio/fgetline.c 64 bit speedup by calling fgets() in
+	case that getc() is not a macro.
+
+-	libschily/stdio/fgetstr.c 64 bit speedup by calling fgets() in
+	case that getc() is not a macro.
+
+-	libshedit/include/stdio.h now includes a workaround against a
+	redefinition of FILE stdout, .... from wchar.h on MSC
+
+-	libshedit/expand.c bsh/expand.c bsh/test.c sh/test.c now 
+	include a workaround to the fact that MSC does not allow
+	to redefine compiler built-ins in case the optimizer is
+	in use
+
+-	libscg/scsihack.c not also uses the ASPI/SPTI code from
+	libscg/scsi-wnt.c in case the code is compiled with MSC
+
+-	Several changes in libscg to work around the problems from
+	using an original MSC windows.h: use <schily/windows.h> 
+	instead.
+
+-	smake now compiles with with MSC
+
+-	cdrecord/cdrecord.c now checks for HAVE_KILL as MSC does not
+	define kill()
+
+-	cdda2wav/cdda2wav.c was fixed to compile with MSC
+
+-	cdda2wav/sndconfig.c was fixed to compile with MSC
+
+-	bsh now only sets up signal handlers for existing signals to support MSC
+
+-	change now only sets up signal handlers for existing signals to support MSC
+
+-	p now only sets up signal handlers for existing signals to support MSC
+
+-	patch now only sets up signal handlers for existing signals to support MSC
+
+-	sccs now only sets up signal handlers for existing signals to support MSC
+
+-	sdd now only sets up signal handlers for existing signals to support MSC
+
+-	sformat now only sets up signal handlers for existing signals to support MSC
+
+-	sh now only sets up signal handlers for existing signals to support MSC
+
+-	star now only sets up signal handlers for existing signals to support MSC
+
+-	star fixed a typo in dumpdates.c that hit on WIN-DOS because flock() is 
+	not present
+
+-	star now checks HAVE_FSYNC to support MSC
+
+-	star::findinfo.c now checks whether stat.st_blksize exists
+
+-	diff now compiles with MSC (signals & S_IF* from sys/stat.h)
+
+-	ved now only sets up signal handlers for existing signals to support MSC
+
+New SCCS features:
+
+-	This is the first step towards the upcoming SCCS v6, as this version of
+	SCCS starts to support features that are not understood by earlier versions
+	of SCCS. As the SCCS v6 file format is not yet fully defined and we don't
+	like to cdreate files by accident that are not understood by older versions,
+	you need to set the environment variable "SCCS_VERSION" to enable the new
+	features.
+
+-	SCCS now supports to archive files as text files even when they contain
+	lines that start with ^A. This is a SCCS Version 6 feature.
+	If you like to use this feature now, you need to set the environment
+	variable "SCCS_VERSION".
+
+	To implement support for text lines that start with ^A, SCCS now
+	checks for "^A^Atext" at the beginning of a line in the history file and
+	extracts it as "^Atext".
+	
+-	SCCS now supports to archive files as text files even when their last
+	line does not end in a newline character. This is a SCCS Version 6
+	feature. If you like to use this feature now, you need to set the
+	environment variable "SCCS_VERSION".
+
+	To implement support for text lines at the end of a file that do not end
+	in a newline, SCCS now checks for "^ANtext" at the beginning of a line in
+	the history file and extracts it as "text".
+	
+-	SCCS now supports to archive files as text files even when they do not
+	end in a newline character. This is SCCS Version 6 feature.
+	If you like to use this feature now, you need to set the environment
+	variable "SCCS_VERSION".
+
+
+-	SCCS bdiff bow is compatible to diff(1) and outputs a newline even after
+	files that do not end in a newline
+	
+
+-	The SCCS admin man page metter mentions the POSIX aspects for the
+	'i' and 'l' flags in the SCCS history files.
+
+-	The SCCS admin page and the sccsfile man page now have a better 
+	description for the 'j' flag (Joint Editing).
+
+-	The sccsfile man page now has a complete description on how the
+	checksum is computed
+
+-	The sccs man page now mentions that only the statisctics numbers
+	in the SCCS history files are limted in range from 00000 to 99999.
+	Other numbers are not limited to allow an arbitrary number of
+	deltas.
+	
+-	Struct "apply" was reduced in size from 3xint to 3xchar. This is 
+	important with hundreds of thousands of deltas in order to limit
+	the SCCS memory footprint.
+
+-	A bug in fmalloc.c (introduced by Sun in the past 20 years) has been
+	fixed: fmalloc() no longer mallocs sizeof (int) (typically 4) times
+	more memory than needed. This is important with hundreds of thousands
+	of deltas in order to limit the SCCS memory footprint.
+
+-	Copying SCCS history now gives better performance as it no longer
+	calls a path name manipulation function for each written line in
+	a history file.
+
+-	strchr() is used instead of the local function any() to speed up
+	things.
+
+-	The zero() function was speed up with code from fillbytes.c to
+	speed up clearing large chunks of data.
+
+-	The diff program now reads bigger chunks of data and uses memcmp()
+	to speed up operation.
+
+All speed ups indroduced in the past 6 months cause that this version
+of SCCS only consumes aprox. 1/3 of the CPU time from Sun SCCS.
+
+-	SCCS now checks HAVE_FSYNC to support MSC
+
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.isdn.cs.tu-berlin.de, js@cs.tu-berlin.de
+	joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

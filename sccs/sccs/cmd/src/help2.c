@@ -27,10 +27,10 @@
 /*
  * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)help2.c	1.8 11/04/22 J. Schilling
+ * @(#)help2.c	1.9 11/08/05 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)help2.c 1.8 11/04/22 J. Schilling"
+#pragma ident "@(#)help2.c 1.9 11/08/05 J. Schilling"
 #endif
 /*
  * @(#)help2.c 1.10 06/12/12
@@ -145,6 +145,7 @@ char *argv[];
 	 */
 	setlocale(LC_ALL, NOGETTEXT(""));
 
+#ifdef	LC_MESSAGES
 	/*
 	 * Returns the locale value for the LC_MESSAGES category.  This
 	 * will be used to set the path to retrieve the appropriate
@@ -154,6 +155,9 @@ char *argv[];
  	if (locale == NULL) {
  	   locale = default_locale;
  	}
+#else
+	locale = default_locale;
+#endif
 
 	/* 
 	 * Set directory to search for general l10n SCCS messages.

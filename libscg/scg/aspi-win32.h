@@ -1,9 +1,13 @@
-/* @(#)aspi-win32.h	1.2 08/08/03 1999-2008 J. Schilling */
+/* @(#)aspi-win32.h	1.3 11/08/02 1999-2011 J. Schilling */
 
 #ifndef __ASPI_WIN32_H_
 #define __ASPI_WIN32_H_
 
-#include <Windows.h>
+#include <schily/windows.h>
+
+#ifdef	_MSC_VER
+#define	PACKED
+#endif
 
 /***************************************************************************
  ** SCSI MISCELLANEOUS EQUATES

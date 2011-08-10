@@ -1,8 +1,8 @@
-/* @(#)walk.h	1.29 11/04/12 Copyright 2004-2010 J. Schilling */
+/* @(#)walk.h	1.30 11/08/03 Copyright 2004-2011 J. Schilling */
 /*
  *	Definitions for directory tree walking
  *
- *	Copyright (c) 2004-2010 J. Schilling
+ *	Copyright (c) 2004-2011 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

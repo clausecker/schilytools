@@ -1,13 +1,13 @@
-/* @(#)findinfo.c	1.11 09/07/11 Copyright 2005-2009 J. Schilling */
+/* @(#)findinfo.c	1.12 11/08/03 Copyright 2005-2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)findinfo.c	1.11 09/07/11 Copyright 2005-2009 J. Schilling";
+	"@(#)findinfo.c	1.12 11/08/03 Copyright 2005-2011 J. Schilling";
 #endif
 /*
  *	Convert FINFO -> struct stat for find_expr()
  *
- *	Copyright (c) 2005-2009 J. Schilling
+ *	Copyright (c) 2005-2011 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -62,7 +62,9 @@ extern	struct WALK walkstate;
 	sb.st_atime = info->f_atime;
 	sb.st_mtime = info->f_mtime;
 	sb.st_ctime = info->f_ctime;
+#ifdef	HAVE_ST_BLKSIZE
 	sb.st_blksize = 0;
+#endif
 #ifdef	HAVE_ST_BLOCKS
 	sb.st_blocks = (info->f_size+1023) / DEV_BSIZE;
 #endif

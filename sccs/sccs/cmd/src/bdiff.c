@@ -30,10 +30,10 @@
 /*
  * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)bdiff.c	1.14 11/06/20 J. Schilling
+ * @(#)bdiff.c	1.15 11/08/05 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)bdiff.c 1.14 11/06/20 J. Schilling"
+#pragma ident "@(#)bdiff.c 1.15 11/08/05 J. Schilling"
 #endif
 
 #if defined(sun)
@@ -406,6 +406,7 @@ putsave(linep, bufsizp, type)
 	char type;
 {
 	FILE *temptr;
+	size_t	len;
 
 	if ((temptr = fopen(tempfile, "rb")) == NULL) {
 		(void) snprintf(Error, sizeof (Error),
@@ -414,6 +415,13 @@ putsave(linep, bufsizp, type)
 
 	while (readline(linep, bufsizp, temptr))
 		(void) printf("%c %s", type, *linep);
+
+	/*
+	 * JS: make bdiff compatible to diff as claimed in the man page.
+	 */
+	len = strlen(*linep);
+	if (len == 0 || (*linep)[len-1] != '\n')
+		(void) printf("\n");
 
 	(void) fclose(temptr);
 

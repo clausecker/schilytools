@@ -1,8 +1,8 @@
-/* @(#)expand.c	1.42 09/07/11 Copyright 1985-2009 J. Schilling */
+/* @(#)expand.c	1.43 11/08/04 Copyright 1985-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)expand.c	1.42 09/07/11 Copyright 1985-2009 J. Schilling";
+	"@(#)expand.c	1.43 11/08/04 Copyright 1985-2009 J. Schilling";
 #endif
 /*
  *	Expand a pattern (do shell name globbing)
@@ -39,6 +39,8 @@ static	UConst char sccsid[] =
 #endif
 
 static char mchars[] = "!#%*{}[]?\\";
+
+#define	exp	_exp	/* Some compilers do not like exp() */
 
 LOCAL	int	dncmp		__PR((char *s1, char *s2));
 LOCAL	char	*save_base	__PR((char *s, char *endptr));

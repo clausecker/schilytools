@@ -1,8 +1,8 @@
-/* @(#)sndconfig.c	1.36 10/12/19 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2010 J. Schilling */
+/* @(#)sndconfig.c	1.39 11/08/09 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2011 J. Schilling */
 #include "config.h"
 #ifndef lint
 static	UConst char sccsid[] =
-"@(#)sndconfig.c	1.36 10/12/19 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2010 J. Schilling";
+"@(#)sndconfig.c	1.39 11/08/09 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2011 J. Schilling";
 #endif
 
 /*
@@ -59,8 +59,8 @@ static	UConst char sccsid[] =
 #include "sndconfig.h"
 
 #ifdef	ECHO_TO_SOUNDCARD
-#   if defined(__CYGWIN32__) || defined(__MINGW32__)
-#	include <windows.h>
+#   if defined(__CYGWIN32__) || defined(__MINGW32__) || defined(_MSC_VER)
+#	include <schily/windows.h>
 #	include "mmsystem.h"
 #   endif
 
@@ -96,11 +96,13 @@ set_snd_device(devicename)
 	return (0);
 }
 
-#   if	defined(__CYGWIN32__) || defined(__MINGW32__)
+#   if	defined(__CYGWIN32__) || defined(__MINGW32__) || defined(_MSC_VER)
 static HWAVEOUT	DeviceID;
 #	define	WAVEHDRS	3
 static WAVEHDR	wavehdr[WAVEHDRS];
-static unsigned lastwav = 0;
+static unsigned	lastwav = 0;
+static unsigned	wavehdrinuse = 0;
+static HANDLE	waveOutEvent;
 
 static int check_winsound_caps __PR((int bits, double rate, int channels));
 
@@ -147,6 +149,24 @@ check_winsound_caps(bits, rate, channels)
 
 	return (result);
 }
+
+static void CALLBACK waveOutProc __PR((HWAVEOUT hwo, UINT uMsg, DWORD dwInstance, DWORD dwParam1, DWORD dwParam2));
+
+static void CALLBACK waveOutProc(hwo, uMsg, dwInstance, dwParam1, dwParam2)
+	HWAVEOUT hwo;
+	UINT	uMsg;
+	DWORD	dwInstance;
+	DWORD	dwParam1;
+	DWORD	dwParam2;
+{
+	if (uMsg == WOM_DONE) {
+		if (wavehdrinuse) {
+			wavehdrinuse--;
+			SetEvent(waveOutEvent); 
+		} 
+	}
+} 
+
 #   endif /* defined CYGWIN */
 #endif /* defined ECHO_TO_SOUNDCARD */
 
@@ -308,7 +328,7 @@ init_soundcard(rate, bits)
 #   endif
 		}
 #  else /* SUN audio */
-#   if defined(__CYGWIN32__) || defined(__MINGW32__)
+#   if defined(__CYGWIN32__) || defined(__MINGW32__) || defined(_MSC_VER)
 		/*
 		 * Windows sound info
 		 */
@@ -340,9 +360,10 @@ init_soundcard(rate, bits)
 						(wavform.wBitsPerSample / 8);
 		wavform.nBlockAlign = global.channels * (wavform.wBitsPerSample / 8);
 
+		waveOutEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
 		DeviceID = 0;
 		mmres = waveOutOpen(&DeviceID, WAVE_MAPPER, &wavform,
-			(unsigned long)WIN_CallBack, 0, CALLBACK_FUNCTION);
+			(uint32_t)waveOutProc, 0, CALLBACK_FUNCTION);
 		if (mmres) {
 			char	erstr[329];
 
@@ -368,6 +389,7 @@ init_soundcard(rate, bits)
 					errmsg(
 					_("No memory for sound buffers available.\n"));
 					waveOutReset(0);
+CloseHandle(waveOutEvent);
 					waveOutClose(DeviceID);
 					return (1);
 				}
@@ -587,8 +609,9 @@ close_snd_device()
 	return (0);
 #else
 
-# if	defined(__CYGWIN32__) || defined(__MINGW32__)
+# if	defined(__CYGWIN32__) || defined(__MINGW32__) || defined(_MSC_VER)
 	waveOutReset(0);
+CloseHandle(waveOutEvent);
 	return (waveOutClose(DeviceID));
 # else /* !Cygwin32 */
 
@@ -621,12 +644,17 @@ write_snd_device(buffer, todo)
 {
 	int	result = 0;
 #ifdef	ECHO_TO_SOUNDCARD
-#if	defined(__CYGWIN32__) || defined(__MINGW32__)
+#if	defined(__CYGWIN32__) || defined(__MINGW32__) || defined(_MSC_VER)
 	MMRESULT	mmres;
 
 	wavehdr[lastwav].dwBufferLength = todo;
 	memcpy(wavehdr[lastwav].lpData, buffer, todo);
 
+	while (wavehdrinuse >= WAVEHDRS) {
+		WaitForSingleObject(waveOutEvent, INFINITE);
+		ResetEvent(waveOutEvent);
+	}
+	wavehdrinuse++;
 	mmres = waveOutWrite(DeviceID, &wavehdr[lastwav], sizeof (WAVEHDR));
 	if (mmres) {
 		char erstr[129];
@@ -665,9 +693,10 @@ write_snd_device(buffer, todo)
 #endif
 		towrite = todo;
 	do {
+		int		wrote;
+#ifdef	HAVE_SELECT
 		fd_set		writefds[1];
 		struct timeval	timeout2;
-		int		wrote;
 
 		timeout2.tv_sec = 0;
 		timeout2.tv_usec = 4*120000;
@@ -686,6 +715,7 @@ write_snd_device(buffer, todo)
 			goto outside_loop;
 		case 1: break;
 		}
+#endif	/* HAVE_SELECT */
 		if (towrite > todo) {
 			towrite = todo;
 		}

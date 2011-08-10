@@ -27,10 +27,10 @@
 /*
  * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)putline.c	1.6 11/06/19 J. Schilling
+ * @(#)putline.c	1.10 11/08/07 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)putline.c 1.6 11/06/19 J. Schilling"
+#pragma ident "@(#)putline.c 1.10 11/08/07 J. Schilling"
 #endif
 /*
  * @(#)putline.c 1.13 06/12/12
@@ -62,6 +62,34 @@ FILE	*Xiop;
 static const int signed_chksum = 1;
 
 void
+putchr(pkt, c)
+register struct packet *pkt;
+	int		c;
+{
+	if (Xiop) {
+		if (fprintf(Xiop,"%c", c) == EOF)
+			FAILPUT;
+		if (Xcreate)
+			pkt->p_nhash += c;
+	}
+}
+
+void
+putctl(pkt)
+register struct packet *pkt;
+{
+	putchr(pkt, CTLCHAR);
+}
+
+void
+putctlnnl(pkt)
+register struct packet *pkt;
+{
+	putchr(pkt, CTLCHAR);
+	putchr(pkt, NONL);
+}
+
+void
 putline(pkt,newline)
 register struct packet *pkt;
 char *newline;
@@ -75,8 +103,6 @@ char *newline;
 	
 
 	if(pkt->p_upd == 0) return;
-
-	xf = auxf(pkt->p_file,'x');
 
 	if(!Xcreate) {
 		/*
@@ -92,6 +118,7 @@ char *newline;
 		gid = Statbuf.st_gid;
 		uid = Statbuf.st_uid;
 		*/
+		xf = auxf(pkt->p_file,'x');
 		Xiop = xfcreat(xf,Statbuf.st_mode);
 #ifdef	USE_SETVBUF
 		setvbuf(Xiop, NULL, _IOFBF, VBUF_SIZE);

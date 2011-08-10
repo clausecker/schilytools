@@ -1,13 +1,13 @@
-/* @(#)diskfmt.c	1.24 09/07/11 Copyright 1988-2009 J. Schilling */
+/* @(#)diskfmt.c	1.25 11/08/02 Copyright 1988-2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)diskfmt.c	1.24 09/07/11 Copyright 1988-2009 J. Schilling";
+	"@(#)diskfmt.c	1.25 11/08/02 Copyright 1988-2011 J. Schilling";
 #endif
 /*
  *	Format SCSI disks
  *
- *	Copyright (c) 1988-2009 J. Schilling
+ *	Copyright (c) 1988-2011 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -747,9 +747,11 @@ prpercent(ftim)
 	if (fatim == 0)
 		fatim = 1;
 	for (;;) {
+#ifdef	SIGALRM
 		signal(SIGALRM, sigalrm);
 		alarm(fatim);
 		pause();
+#endif
 		if (gettimeofday(&tv, (struct timezone *)0) < 0)
 			break;
 		printf("%4ld%%\b\b\b\b\b", (tv.tv_sec-starttime.tv_sec)*100/ftim);
@@ -802,7 +804,9 @@ format_disk(scgp, dp, clear_gdl)
 	convert_def_blk(scgp);
 	write_def_blk(scgp, TRUE);
 	restore_sigs(oldmask);
+#ifdef	SIGKILL
 	kill(pid, SIGKILL);
+#endif
 	while (wait(0) > 0)
 		;
 	return (ret);
@@ -852,7 +856,9 @@ reformat_disk(scgp, dp)
 	convert_def_blk(scgp);
 	write_def_blk(scgp, TRUE);
 	restore_sigs(oldmask);
+#ifdef	SIGKILL
 	kill(pid, SIGKILL);
+#endif
 	while (wait(0) > 0)
 		;
 	return (ret);
@@ -900,7 +906,9 @@ reformat_with_bad(dp)
 	convert_def_blk();
 	write_def_blk(TRUE);
 	restore_sigs(oldmask);
+#ifdef	SIGKILL
 	kill(pid, SIGKILL);
+#endif
 	while (wait(0) > 0)
 		;
 	return (ret);
@@ -952,7 +960,9 @@ acb_format_disk(scgp, dp, clear_gdl)
 	convert_def_blk(scgp);
 	write_def_blk(scgp, TRUE);
 	restore_sigs(oldmask);
+#ifdef	SIGKILL
 	kill(pid, SIGKILL);
+#endif
 	while (wait(0) > 0)
 		;
 	return (ret);

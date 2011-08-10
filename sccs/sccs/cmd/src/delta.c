@@ -27,10 +27,10 @@
 /*
  * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)delta.c	1.32 11/07/04 J. Schilling
+ * @(#)delta.c	1.41 11/08/07 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)delta.c 1.32 11/07/04 J. Schilling"
+#pragma ident "@(#)delta.c 1.41 11/08/07 J. Schilling"
 #endif
 /*
  * @(#)delta.c 1.40 06/12/12
@@ -41,6 +41,7 @@
 #pragma ident	"@(#)sccs:cmd/delta.c"
 #endif
 
+# define	NEED_PRINTF_J		/* Need defines for js_snprintf()? */
 # include	<defines.h>
 # include	<version.h>
 # include	<had.h>
@@ -88,7 +89,7 @@ static char	*uuname;
 static char	*Cwd = "";
 
 static	time_t	gfile_mtime;
-static	time_t	cutoff = (time_t)0x7FFFFFFFL;
+static	time_t	cutoff = MAX_TIME;
 
 struct sid sid;
 char	*Comments,*Mrs;
@@ -118,6 +119,7 @@ static char *	linerange __PR((char *cp, int *low, int *high));
 static void	skipline __PR((char *lp, int num));
 static char *	rddiff __PR((char *s, int n));
 static void	fgetchk __PR((char *file, struct packet *pkt));
+static void	warnctl __PR((char *file, off_t nline));
 
 extern int	org_ihash;
 extern int	org_chash;
@@ -332,6 +334,8 @@ char *file;
 		return;
 	sinit(&gpkt,file,1);
 	gpkt.p_flags |= PF_GMT;
+	if (getenv("SCCS_VERSION"))
+		gpkt.p_flags |= PF_V6;
 	if (first) {
 		first = 0;
 		dohist(file);
@@ -435,13 +439,17 @@ char *file;
 #endif
 	while(readmod(&gpkt)) {
 		chkid(gpkt.p_line,Sflags['i'-'a'], Sflags);
-		if(fputs(gpkt.p_line,gpkt.p_gout)==EOF)
+		if (gpkt.p_flags & PF_NONL)
+			gpkt.p_line[gpkt.p_line_length-1] = '\0';
+		if(fputs(gpkt.p_lineptr, gpkt.p_gout) == EOF)
 			xmsg(dfilename, NOGETTEXT("delta"));
 	}
 	if (fflush(gpkt.p_gout) == EOF)
 		xmsg(dfilename, NOGETTEXT("delta"));
+#ifdef	HAVE_FSYNC
 	if (fsync(fileno(gpkt.p_gout)) < 0)
 		xmsg(dfilename, NOGETTEXT("delta"));
+#endif
 	if (fclose(gpkt.p_gout) == EOF)
 		xmsg(dfilename, NOGETTEXT("delta"));
 	gpkt.p_gout = NULL;
@@ -861,7 +869,11 @@ struct sid *sp;
 	if ((fd=open(outname, O_WRONLY|O_CREAT|O_EXCL|O_BINARY, 0444)) < 0) {
 	   fatal(gettext("cannot create lock file (cm4)"));
 	}
+#ifdef	HAVE_FCHMOD
 	fchmod(fd, (mode_t)0644);
+#else
+	chmod(outname, (mode_t)0644);
+#endif
 	out = fdfopen(fd, O_WRONLY|O_BINARY);
 	while (fgets(line,sizeof(line),in) != NULL) {
 		pf_ab(line,&pf,1);
@@ -871,8 +883,10 @@ struct sid *sp;
 				if (++cnt) {
 					if (fflush(out) == EOF)
 						xmsg(outname, NOGETTEXT("rdpfile"));
+#ifdef	HAVE_FSYNC
 					if (fsync(fileno(out)) < 0)
 						xmsg(outname, NOGETTEXT("rdpfile"));
+#endif
 					if (fclose(out) == EOF)
 						xmsg(outname, NOGETTEXT("rdpfile"));
 					fclose(in);
@@ -892,8 +906,10 @@ struct sid *sp;
 					if (++uniq) {
 						if (fflush(out) == EOF)
 							xmsg(outname, NOGETTEXT("rdpfile"));
+#ifdef	HAVE_FSYNC
 						if (fsync(fileno(out)) < 0)
 							xmsg(outname, NOGETTEXT("rdpfile"));
+#endif
 						if (fclose(out) == EOF)
 							xmsg(outname, NOGETTEXT("rdpfile"));
 						fclose(in);
@@ -909,8 +925,10 @@ struct sid *sp;
 	fflush(stderr);
 	if (fflush(out) == EOF)
 		xmsg(outname, NOGETTEXT("rdpfile"));
+#ifdef	HAVE_FSYNC
 	if (fsync(fileno(out)) < 0)
 		xmsg(outname, NOGETTEXT("rdpfile"));
+#endif
 	if (fclose(out) == EOF)
 		xmsg(outname, NOGETTEXT("rdpfile"));
 	copy(auxf(pkt->p_file,'p'),Pfilename);
@@ -1051,21 +1069,37 @@ int	linenum, n, ser;
 {
  	char	str[BUFSIZ];
  	int 	first;
+	int	nonl = 0;
+	extern char *Sflags[];
+
+	/*
+	 * We only count newlines and thus need to add one to number_of_lines
+	 * to get the same view as bdiff/diff.
+	 */
+	if ((pkt->p_props & CK_NONL) && (linenum + n) >= (number_of_lines+1)) {
+		if ((Sflags[ENCODEFLAG - 'a'] == NULL) ||
+		    (strcmp(Sflags[ENCODEFLAG - 'a'],"0") == 0)) {
+			nonl++;
+		}
+	}
 
 	after(pkt, linenum);
 	sprintf(str, NOGETTEXT("%c%c %d\n"), CTLCHAR, INS, ser);
 	putline(pkt, str);
-	for (; n; n--) {
+	while (--n >= 0) {
  		first = 1;
- 		for (;;) {
+ 		for (;;) {			/* Loop over partial line */
 			if (rddiff(str, BUFSIZ) == NULL) {
 				fatal(gettext("Cannot read the diffs file (de19)"));
 			}
 			if (first) {
 				first = 0;
-				putline(pkt, str+2);
-			}
-			else {
+				if (n == 0 && nonl) {	/* No newline at end */
+					putctlnnl(pkt);	/* ^AN escape	    */
+				} else if (str[2] == CTLCHAR) /* ^A escape? */
+					putctl(pkt);
+				putline(pkt, str+2);	/* Skip diff's "> " */
+			} else {
 				putline(pkt, str);
 			}
 			if (str[strlen(str)-1] == '\n') {
@@ -1264,7 +1298,10 @@ struct	packet	*pkt;
 	char	line[BUFSIZ];
 	int	search_on = 0;
 #endif
-	int	nline, idx = 0;
+	off_t	nline;
+	int	idx = 0;
+	int	warned = 0;
+	char	chkflags = 0;
 	char	lastchar;
 
 	inptr = xfopen(file, O_RDONLY|O_BINARY);
@@ -1287,12 +1324,21 @@ struct	packet	*pkt;
 	 * of the buffer.
 	 */
 	while ((idx = fread(line, 1, sizeof (line), inptr)) > 0) {
-		if (lastchar == '\n' && line[0] == CTLCHAR)
-			goto err;
+		if (lastchar == '\n' && line[0] == CTLCHAR) {
+			chkflags |= CK_CTLCHAR;
+			if ((pkt->p_flags & PF_V6) == 0)
+				goto err;
+			if (!warned) {
+				warnctl(file, nline+1);
+				warned = 1;
+			}
+		}
 		lastchar = line[idx-1];
 		p = findbytes(line, idx, '\0');
-		if (p != NULL)
+		if (p != NULL) {
+			chkflags |= CK_NULL;
 			pn = p;
+		}
 		for (p = line;
 		    (p = findbytes(p, idx - (p-line), '\n')) != NULL; p++) {
 			if (pn && p > pn)
@@ -1302,12 +1348,21 @@ struct	packet	*pkt;
 				break;
 
 			if (p[1] == CTLCHAR) {
+				chkflags |= CK_CTLCHAR;
 	err:
+				if ((pkt->p_flags & PF_V6) &&
+				    (chkflags & CK_NULL) == 0) {
+					if (!warned) {
+						warnctl(file, nline+1);
+						warned = 1;
+					}
+					continue;
+				}
 				fclose(inptr);
 				sprintf(SccsError,
 				gettext(
-			  "file '%s' contains illegal data on line %d (de14)"),
-				file, ++nline);
+			  "file '%s' contains illegal data on line %jd (de14)"),
+				file, (intmax_t)++nline);
 				fatal(SccsError);
 			}
 		}
@@ -1315,18 +1370,26 @@ struct	packet	*pkt;
 #else	/* !RECORD_IO */
 	while (fgets(line, sizeof (line), inptr) != NULL) {
 	   if (lastchar == '\n' && line[0] == CTLCHAR) {
-	      nline++;
-	      goto err;
+	      chkflags |= CK_CTLCHAR;
+	      if ((pkt->p_flags & PF_V6) == 0) {
+		nline++;
+		goto err;
+	      }
+	      if (!warned) {
+		warnctl(file, nline);
+		warned = 1;
+	      }
 	   }
 	   search_on = 0;
 	   for (idx = sizeof (line)-1; idx >= 0; idx--) {
 	      if (search_on > 0) {
 		 if (line[idx] == '\0') {
+		    chkflags |= CK_NULL;
 	err:
 		    fclose(inptr);
 		    sprintf(SccsError,
-		      gettext("file '%s' contains illegal data on line %d (de14)"),
-		      file, nline);
+		      gettext("file '%s' contains illegal data on line %jd (de14)"),
+		      file, (intmax_t)nline);
 		    fatal(SccsError);
 		 }
 	      } else {
@@ -1343,16 +1406,38 @@ struct	packet	*pkt;
 	}
 #endif	/* !RECORD_IO */
 	fclose(inptr);
-	if (lastchar != '\n'){
+
+	if (lastchar != '\n')
+		chkflags |= CK_NONL;
+	pkt->p_props |= chkflags;
+
+	if (chkflags & CK_NONL) {
 #ifndef	RECORD_IO
 		if (pn && nline == 0)	/* Found null byte but no newline */
 			goto err;
 #endif
-	   sprintf(SccsError,
-	     gettext("No newline at end of file '%s' (de18)"),
-	     file);
-	   fatal(SccsError);
+		if ((pkt->p_flags & PF_V6) == 0) {
+			sprintf(SccsError,
+			    gettext("No newline at end of file '%s' (de18)"),
+			    file);
+			fatal(SccsError);
+		} else {
+			fprintf(stderr,
+			    gettext("WARNING [%s]: No newline at end of file (de18)"),
+			    file);
+		}
 	}
+}
+
+static void
+warnctl(file, nline)
+	char	*file;
+	off_t	nline;
+{
+	fprintf(stderr,
+		gettext(
+		"WARNING [%s]: line %jd begins with ^A\n"),
+		file, (intmax_t)nline);
 }
  
 /* SVR4.0 does not support getdtablesize().				  */

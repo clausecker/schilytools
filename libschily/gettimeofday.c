@@ -1,8 +1,8 @@
-/* @(#)gettimeofday.c	1.6 11/07/12 Copyright 2007-2011 J. Schilling */
+/* @(#)gettimeofday.c	1.7 11/08/02 Copyright 2007-2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)gettimeofday.c	1.6 11/07/12 Copyright 2007-2011 J. Schilling";
+	"@(#)gettimeofday.c	1.7 11/08/02 Copyright 2007-2011 J. Schilling";
 #endif
 /*
  *	Emulate gettimeofday where it does not exist
@@ -22,7 +22,7 @@ static	UConst char sccsid[] =
  */
 
 #if	!defined(HAVE_GETTIMEOFDAY) && (defined(_MSC_VER) || defined(__MINGW32__))
-#include <windows.h>
+#include <schily/windows.h>
 #include <schily/time.h>
 #include <schily/utypes.h>
 #include <schily/standard.h>

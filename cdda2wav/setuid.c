@@ -1,8 +1,8 @@
-/* @(#)setuid.c	1.20 10/12/19 Copyright 1998,1999,2004 Heiko Eissfeldt, Copyright 2004-2010 J. Schilling */
+/* @(#)setuid.c	1.22 11/08/03 Copyright 1998,1999,2004 Heiko Eissfeldt, Copyright 2004-2011 J. Schilling */
 #include "config.h"
 #ifndef lint
 static	UConst char sccsid[] =
-"@(#)setuid.c	1.20 10/12/19 Copyright 1998,1999,2004 Heiko Eissfeldt, Copyright 2004-2010 J. Schilling";
+"@(#)setuid.c	1.22 11/08/03 Copyright 1998,1999,2004 Heiko Eissfeldt, Copyright 2004-2011 J. Schilling";
 
 #endif
 /*
@@ -66,7 +66,9 @@ initsecurity()
 {
 	int	leffective_uid;
 
+#ifdef	HAVE_ALARM
 	alarm(0);		/* can be inherited from parent process */
+#endif
 	real_uid = getuid();
 	leffective_uid = geteuid();
 	if ((int) real_uid != leffective_uid && leffective_uid != 0) { /* sanity check */

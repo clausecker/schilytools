@@ -1,6 +1,6 @@
-/* @(#)fgetstr.c	1.9 04/09/25 Copyright 1986, 1996-2003 J. Schilling */
+/* @(#)fgetstr.c	1.10 11/08/09 Copyright 1986, 1996-2011 J. Schilling */
 /*
- *	Copyright (c) 1986, 1996-2003 J. Schilling
+ *	Copyright (c) 1986, 1996-2011 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -20,6 +20,26 @@
  * XXX should we check if HAVE_USG_STDIO is defined and
  * XXX use something line memccpy to speed things up ???
  */
+
+#if !defined(getc)
+#include <schily/string.h>
+
+EXPORT int
+fgetstr(f, buf, len)
+	register	FILE	*f;
+			char	*buf;
+	register	int	len;
+{
+	char	*bp = fgets(buf, len, f);
+
+	if (bp) {
+		return (strlen(bp));
+	}
+	buf[0] = '\0';
+	return (-1);
+}
+
+#else
 
 EXPORT int
 fgetstr(f, buf, len)
@@ -50,6 +70,8 @@ fgetstr(f, buf, len)
 
 	return (bp - buf);
 }
+
+#endif
 
 EXPORT int
 getstr(buf, len)

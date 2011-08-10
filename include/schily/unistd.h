@@ -1,8 +1,8 @@
-/* @(#)unistd.h	1.22 10/08/24 Copyright 1996-2010 J. Schilling */
+/* @(#)unistd.h	1.23 11/08/03 Copyright 1996-2011 J. Schilling */
 /*
  *	Definitions for unix system interface
  *
- *	Copyright (c) 1996-2010 J. Schilling
+ *	Copyright (c) 1996-2011 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -144,6 +144,20 @@ extern	int	link	__PR((const char *, const char *));
 extern	int	read	__PR((int, void *, size_t));
 extern	int	unlink	__PR((const char *));
 extern	int	write	__PR((int, const void *, size_t));
+#endif
+
+#if !defined(HAVE_PIPE) && defined(HAVE__PIPE) && defined(HAVE_IO_H)
+#ifndef	_SCHILY_LIMITS_H
+#include <schily/limits.h>	/* for PIPE_BUF */
+#endif
+#ifndef	_SCHILY_FCNTL_H
+#include <schily/fcntl.h>	/* for O_BINARY */
+#endif
+#ifndef	_SCHILY_IO_H
+#include <schily/io.h>		/* for _pipe() */
+#endif
+
+#define	pipe(pp)	_pipe(pp, PIPE_BUF, O_BINARY)
 #endif
 
 #ifdef	__cplusplus

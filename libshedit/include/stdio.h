@@ -1,9 +1,9 @@
-/* @(#)stdio.h	1.5 09/07/06 Copyright 2006-2009 J. Schilling */
+/* @(#)stdio.h	1.6 11/08/04 Copyright 2006-2011 J. Schilling */
 /*
  *	Defines to make FILE * -> int *, used to allow
  *	the Bourne shell to use functions that expect stdio.
  *
- *	Copyright (c) 2006-2009 J. Schilling
+ *	Copyright (c) 2006-2011 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -19,6 +19,8 @@
 
 #ifndef	_STDIO_H
 #define	_STDIO_H
+
+#define _FILE_DEFINED	/* Prevent MSC from redefining FILE in wchar.h */
 
 #undef	FILE
 #define	FILE	int

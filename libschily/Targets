@@ -1,4 +1,4 @@
-# @(#)Targets	1.25 11/07/12 Copyright 1995 J. Schilling
+# @(#)Targets	1.28 11/08/05 Copyright 1995 J. Schilling
 
 CFILES_STDIO=	cvmod.c dat.c fcons.c fdown.c fdup.c \
 		ffileread.c ffilewrite.c \
@@ -17,8 +17,9 @@ CFILES_STDIO=	cvmod.c dat.c fcons.c fdown.c fdup.c \
 #
 
 CFILES_REST=	astoi.c astoll.c astoull.c basename.c breakline.c \
-		checkerr.c comerr.c fcomerr.c cmpbytes.c cmpnullbytes.c \
-		dirname.c \
+		checkerr.c comerr.c fcomerr.c \
+		cmpbytes.c cmpmbytes.c cmpnullbytes.c \
+		dirent.c dirname.c \
 		eaccess.c error.c \
 		fconv.c fexec.c fillbytes.c \
 		findinpath.c \
@@ -35,6 +36,7 @@ CFILES_REST=	astoi.c astoll.c astoull.c basename.c breakline.c \
 		gid.c \
 		handlecond.c \
 		jsprintf.c jssnprintf.c jssprintf.c \
+		kill.c \
 		match.c matchl.c matchw.c matchwl.c movebytes.c \
 		mkgmtime.c \
 		mem.c jmem.c fjmem.c \
@@ -50,10 +52,11 @@ CFILES_REST=	astoi.c astoll.c astoull.c basename.c breakline.c \
 		strncpy.c strndup.c strnlen.c strrchr.c \
 		swabbytes.c \
 		timegm.c \
-		uid.c usleep.c \
+		uid.c uname.c usleep.c \
 		wcscat.c wcscatl.c wcschr.c wcscmp.c wcscpy.c \
 		wcsdup.c wcseql.c wcslen.c wcslcat.c wcslcpy.c wcsncat.c wcsncmp.c \
-		wcsncpy.c wcsndup.c wcsnlen.c wcsrchr.c
+		wcsncpy.c wcsndup.c wcsnlen.c wcsrchr.c \
+		zerobytes.c
 
 #
 # These interfaces have been moved to libschilypr in order to make

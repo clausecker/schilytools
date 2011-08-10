@@ -25,12 +25,12 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2009 J. Schilling
+ * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)fmalloc.c	1.5 09/11/08 J. Schilling
+ * @(#)fmalloc.c	1.6 11/07/27 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)fmalloc.c 1.5 09/11/08 J. Schilling"
+#pragma ident "@(#)fmalloc.c 1.6 11/07/27 J. Schilling"
 #endif
 /*
  * @(#)fmalloc.c 1.5 06/12/12
@@ -63,6 +63,39 @@ static unsigned	ptrcnt = 0;
 static unsigned	listsize = 0;
 static void	**ptrlist = NULL;
 
+#ifdef	DBG_MALLOC
+void *
+dbg_fmalloc(asize, file, line)
+unsigned asize;
+char	*file;
+int	line;
+{
+	void *ptr;
+	char dfile[100];
+
+	if (listsize == 0) {
+		listsize = LCHUNK;
+		snprintf(dfile, sizeof (dfile), "%s/%s", __FILE__, file);
+		if ((ptrlist = (void **)dbg_malloc(sizeof(void *)*listsize, dfile, line)) == NULL)
+			fatal(gettext("OUT OF SPACE (ut9)"));
+	}
+	if (ptrcnt >= listsize) {
+		listsize += LCHUNK;
+		snprintf(dfile, sizeof (dfile), "%s/%s", __FILE__, file);
+		if ((ptrlist = (void **)dbg_realloc((void *) ptrlist,
+					sizeof(void *)*listsize, dfile, line)) == NULL)
+			fatal(gettext("OUT OF SPACE (ut9)"));
+	}
+
+	if ((ptr = dbg_malloc(asize, file, line)) == NULL)
+		fatal(gettext("OUT OF SPACE (ut9)"));
+	else
+		ptrlist[ptrcnt++] = ptr;
+	return(ptr);
+}
+#undef	fmalloc
+#endif
+
 void *
 fmalloc(asize)
 unsigned asize;
@@ -81,7 +114,7 @@ unsigned asize;
 			fatal(gettext("OUT OF SPACE (ut9)"));
 	}
 
-	if ((ptr = malloc(sizeof(int)*asize)) == NULL)
+	if ((ptr = malloc(asize)) == NULL)
 		fatal(gettext("OUT OF SPACE (ut9)"));
 	else
 		ptrlist[ptrcnt++] = ptr;

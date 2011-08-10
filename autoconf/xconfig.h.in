@@ -1,4 +1,4 @@
-/* @(#)xconfig.h.in	1.217 11/07/19 Copyright 1998-2011 J. Schilling */
+/* @(#)xconfig.h.in	1.219 11/08/03 Copyright 1998-2011 J. Schilling */
 /*
  *	Dynamic autoconf C-include code.
  *	Do not edit, this file has been created automatically.
@@ -33,6 +33,7 @@
 #undef HAVE_AOUTHDR_H	/* if aouthdr.h is present. This is a COFF system */
 #undef HAVE_ELF_H	/* if elf.h is present. This is an ELF system */
 #undef HAVE_FCNTL_H	/* to access, O_XXX constants for open(), otherwise use sys/file.h */
+#undef HAVE_IO_H	/* to access setmode()... from WIN-DOS, OS/2 and similar */
 #undef HAVE_SYS_FILE_H	/* to use O_XXX constants for open() and flock() defs */
 #undef HAVE_INTTYPES_H	/* to use UNIX-98 inttypes.h */
 #undef HAVE_STDINT_H	/* to use SUSv3 stdint.h */
@@ -76,6 +77,7 @@
 #undef HAVE_SYS_MOUNT_H		/* if sys/mount.h is present */
 #undef HAVE_WAIT_H		/* to use wait.h for prototypes and union wait */
 #undef HAVE_SYS_WAIT_H		/* else use sys/wait.h */
+#undef HAVE_PROCESS_H		/* to use process.h for spawn*() and cwait() */
 #undef HAVE_SYS_RESOURCE_H	/* to use sys/resource.h for rlimit() and wait3() */
 #undef HAVE_PROCFS_H		/* to use procfs.h instead of sys/procfs.h (Solaris forces profcs-2) */
 #undef HAVE_SYS_PROCFS_H	/* to use sys/procfs.h for wait3() emulation */
@@ -214,7 +216,9 @@
 #undef HAVE_CRYPT		/* crypt() is present in libc or libcrypt */
 #undef HAVE_STRERROR		/* strerror() is present in libc */
 #undef HAVE_MEMCHR		/* memchr() is present in libc */
+#undef HAVE_MEMCMP		/* memcmp() is present in libc */
 #undef HAVE_MEMCPY		/* memcpy() is present in libc */
+#undef HAVE_MEMCCPY		/* memccpy() is present in libc */
 #undef HAVE_MEMMOVE		/* memmove() is present in libc */
 #undef HAVE_MEMSET		/* memset() is present in libc */
 #undef HAVE_MADVISE		/* madvise() is present in libc */
@@ -251,6 +255,10 @@
 #undef HAVE_SYMLINKAT		/* symlinkat() is present in libc */
 #undef HAVE_FUTIMENS		/* futimens() is present in libc */
 #undef HAVE_UTIMENSAT		/* utimensat() is present in libc */
+#undef HAVE_IOCTL		/* ioctl() is present in libc */
+#undef HAVE_FCNTL		/* fcntl() is present in libc */
+#undef HAVE_PIPE		/* pipe() is present in libc */
+#undef HAVE__PIPE		/* _pipe() is present in libc */
 #undef HAVE_POPEN		/* popen() is present in libc */
 #undef HAVE_PCLOSE		/* pclose() is present in libc */
 #undef HAVE__POPEN		/* _popen() is present in libc */
@@ -303,6 +311,7 @@
 #undef HAVE_WAIT4		/* wait4() is present in libc */
 #undef HAVE_WAITID		/* waitid() is present in libc */
 #undef HAVE_WAITPID		/* waitpid() is present in libc */
+#undef HAVE_CWAIT		/* cwait() is present in libc */
 #undef HAVE_GETHOSTID		/* gethostid() is present in libc */
 #undef HAVE_GETHOSTNAME		/* gethostname() is present in libc */
 #undef HAVE_GETDOMAINNAME	/* getdomainname() is present in libc */
@@ -453,6 +462,7 @@
 #undef HAVE_SIGSET		/* sigset() is present in libc (POSIX) */
 #undef HAVE_SIGALTSTACK		/* sigaltstack() is present in libc (POSIX) */
 #undef HAVE_SYS_SIGLIST		/* char *sys_siglist[] is present in libc */
+#undef HAVE_ALARM		/* alarm() is present in libc */
 #undef HAVE_SLEEP		/* sleep() is present in libc */
 #undef HAVE_USLEEP		/* usleep() is present in libc */
 #undef HAVE_FORK		/* fork() is present in libc */
@@ -467,6 +477,14 @@
 #undef HAVE_EXECV		/* execv() is present in libc */
 #undef HAVE_EXECVE		/* execve() is present in libc */
 #undef HAVE_EXECVP		/* execvp() is present in libc */
+#undef HAVE_SPAWNL		/* spawnl() is present in libc */
+#undef HAVE_SPAWNLE		/* spawnle() is present in libc */
+#undef HAVE_SPAWNLP		/* spawnlp() is present in libc */
+#undef HAVE_SPAWNLPE		/* spawnlpe() is present in libc */
+#undef HAVE_SPAWNV		/* spawnv() is present in libc */
+#undef HAVE_SPAWNVE		/* spawnve() is present in libc */
+#undef HAVE_SPAWNVP		/* spawnvp() is present in libc */
+#undef HAVE_SPAWNVPE		/* spawnvpe() is present in libc */
 #undef HAVE_GETEXECNAME		/* getexecname() is present in libc */
 #undef HAVE_GETPROGNAME		/* getprogname() is present in libc */
 #undef HAVE_SETPROGNAME		/* setprogname() is present in libc */

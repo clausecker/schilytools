@@ -1,8 +1,8 @@
-/* @(#)p.c	1.51 11/07/14 Copyright 1985-2011 J. Schilling */
+/* @(#)p.c	1.52 11/08/03 Copyright 1985-2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)p.c	1.51 11/07/14 Copyright 1985-2011 J. Schilling";
+	"@(#)p.c	1.52 11/08/03 Copyright 1985-2011 J. Schilling";
 #endif
 /*
  *	Print some files on screen
@@ -1173,7 +1173,9 @@ set_modes()
 	 */
 	if (signal(SIGINT, SIG_IGN) != SIG_IGN) {
 		signal(SIGINT, fixtty);
+#ifdef	SIGQUIT
 		signal(SIGQUIT, fixtty);
+#endif
 #ifdef	SIGTSTP
 		if (signal(SIGTSTP, SIG_IGN) == SIG_DFL)
 			signal(SIGTSTP, tstp);

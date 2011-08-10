@@ -1,7 +1,7 @@
-/* @(#)scsi-wnt.c	1.47 10/09/21 Copyright 1998-2004 J. Schilling, A.L. Faber, J.A. Key */
+/* @(#)scsi-wnt.c	1.48 11/08/02 Copyright 1998-2011 J. Schilling, A.L. Faber, J.A. Key */
 #ifndef lint
 static	char __sccsid[] =
-	"@(#)scsi-wnt.c	1.47 10/09/21 Copyright 1998-2004 J. Schilling, A.L. Faber, J.A. Key";
+	"@(#)scsi-wnt.c	1.48 11/08/02 Copyright 1998-2011 J. Schilling, A.L. Faber, J.A. Key";
 #endif
 /*
  *	Interface for the Win32 ASPI library.
@@ -14,7 +14,7 @@ static	char __sccsid[] =
  *	Choose your name instead of "schily" and make clear that the version
  *	string is related to a modified source.
  *
- *	Copyright (c) 1998-2004 J. Schilling
+ *	Copyright (c) 1998-2011 J. Schilling
  *	Copyright (c) 1999 A.L. Faber for the first implementation
  *			   of this interface.
  *	TODO:
@@ -51,12 +51,12 @@ static	char __sccsid[] =
  *	 We define BOOL to make all local code use BOOL
  *	 from Windows.h and use the hidden __SBOOL for
  *	 our global interfaces.
+ *
+ *	 These workarounds are now applied in schily/windows.h
  */
-#define	BOOL	WBOOL		/* This is the Win BOOL		*/
-#define	format	__format
+#include <schily/windows.h>
 #include <scg/aspi-win32.h>
 #include <scg/spti-wnt.h>
-#undef format
 
 #ifdef	__CYGWIN32__		/* Use dlopen()			*/
 #include <dlfcn.h>
@@ -69,8 +69,8 @@ static	char __sccsid[] =
  *	Choose your name instead of "schily" and make clear that the version
  *	string is related to a modified source.
  */
-LOCAL	char	_scg_trans_version[] = "scsi-wnt.c-1.47";	/* The version for this transport*/
-LOCAL	char	_scg_itrans_version[] = "SPTI-scsi-wnt.c-1.47";	/* The version for SPTI */
+LOCAL	char	_scg_trans_version[] = "scsi-wnt.c-1.48";	/* The version for this transport*/
+LOCAL	char	_scg_itrans_version[] = "SPTI-scsi-wnt.c-1.48";	/* The version for SPTI */
 
 /*
  * Local defines and constants

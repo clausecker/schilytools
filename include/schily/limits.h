@@ -1,6 +1,6 @@
-/* @(#)limits.h	1.4 10/05/07 Copyright 2010 J. Schilling */
+/* @(#)limits.h	1.6 11/08/03 Copyright 2011 J. Schilling */
 /*
- *	Copyright (c) 2010 J. Schilling
+ *	Copyright (c) 2011 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -35,5 +35,13 @@
 #ifndef	_POSIX2_LINE_MAX
 #define	_POSIX2_LINE_MAX	2048
 #endif
+
+#ifndef	PIPE_BUF
+#if	defined(__MINGW32__) || defined(_MSC_VER)
+#define	PIPE_BUF		5120
+#else
+#define	PIPE_BUF		512
+#endif
+#endif	/* PIPE_BUF */
 
 #endif	/* _SCHILY_LIMITS_H */

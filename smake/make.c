@@ -1664,7 +1664,7 @@ cmd_run(jobp)
 {
 	pid_t	pid = 0;
 	int	retries;
-#if defined(USE_SYSTEM) || defined(__DJGPP__) || defined(__MINGW32__)
+#if defined(USE_SYSTEM) || defined(__DJGPP__) || defined(__MINGW32__) || defined(_MSC_VER)
 	int	Exit;
 #endif
 	int	NoError = (jobp->j_flags & J_NOERROR) != 0;
@@ -1692,7 +1692,7 @@ cmd_run(jobp)
 	(((defined(HAVE_FORK) || defined(HAVE_VFORK)) && \
 		defined HAVE_EXECL) || defined(JOS))
 
-#if defined(__EMX__) || defined(__DJGPP__) || defined(__MINGW32__)
+#if defined(__EMX__) || defined(__DJGPP__) || defined(__MINGW32__) || defined(_MSC_VER)
 
 #ifdef	__EMX__
 	pid = spawnl(P_NOWAIT, shell, filename(shell), shellflag,

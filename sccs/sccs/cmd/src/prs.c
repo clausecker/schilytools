@@ -27,10 +27,10 @@
 /*
  * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)prs.c	1.28 11/07/04 J. Schilling
+ * @(#)prs.c	1.30 11/08/07 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)prs.c 1.28 11/07/04 J. Schilling"
+#pragma ident "@(#)prs.c 1.30 11/08/07 J. Schilling"
 #endif
 /*
  * @(#)prs.c 1.33 06/12/12
@@ -1234,8 +1234,13 @@ register struct packet *pkt;
 		if (*p++ != CTLCHAR)
 			continue;
 		else {
-			if (!((iod = *p++) == INS || iod == DEL || iod == END))
+			if (!((iod = *p++) == INS || iod == DEL || iod == END)) {
+				if (iod == CTLCHAR)
+					continue;
+				if (iod == NONL)
+					continue;
 				fmterr(pkt);
+			}
 			NONBLANK(p);
 			satoi(p,&ser);
 			if (iod == END)

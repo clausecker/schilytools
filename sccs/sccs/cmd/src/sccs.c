@@ -25,10 +25,10 @@
 /*
  * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)sccs.c	1.48 11/07/04 J. Schilling
+ * @(#)sccs.c	1.49 11/08/03 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)sccs.c 1.48 11/07/04 J. Schilling"
+#pragma ident "@(#)sccs.c 1.49 11/08/03 J. Schilling"
 #endif
 /*
  * @(#)sccs.c 1.85 06/12/12
@@ -1866,7 +1866,11 @@ callprog(progpath, flags, argv, forkflag)
 			{
 				coredumped = sigcode & 0200;
 				sigcode &= 0177;
+#ifdef	SIGPIPE
 				if (sigcode != SIGINT && sigcode != SIGPIPE)
+#else
+				if (sigcode != SIGINT)
+#endif
 				{
 #ifdef	HAVE_STRSIGNAL
 					sigmsg = strsignal(sigcode);

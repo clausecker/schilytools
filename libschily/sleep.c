@@ -1,13 +1,13 @@
-/* @(#)sleep.c	1.3 09/07/08 Copyright 2007-2009 J. Schilling */
+/* @(#)sleep.c	1.5 11/08/02 Copyright 2007-2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)sleep.c	1.3 09/07/08 Copyright 2007-2009 J. Schilling";
+	"@(#)sleep.c	1.5 11/08/02 Copyright 2007-2011 J. Schilling";
 #endif
 /*
  *	Emulate sleep where it does not exist
  *
- *	Copyright (c) 2007-2009 J. Schilling
+ *	Copyright (c) 2007-2011 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -22,7 +22,8 @@ static	UConst char sccsid[] =
  */
 
 #if	!defined(HAVE_SLEEP) && defined(_MSC_VER)
-#include <windows.h>
+#include <schily/windows.h>
+#include <schily/standard.h>
 
 EXPORT unsigned int
 sleep(secs)

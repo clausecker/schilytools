@@ -1,8 +1,8 @@
-/* @(#)sdd.c	1.62 11/07/14 Copyright 1984-2011 J. Schilling */
+/* @(#)sdd.c	1.64 11/08/03 Copyright 1984-2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)sdd.c	1.62 11/07/14 Copyright 1984-2011 J. Schilling";
+	"@(#)sdd.c	1.64 11/08/03 Copyright 1984-2011 J. Schilling";
 #endif
 /*
  *	sdd	Disk and Tape copy
@@ -106,7 +106,8 @@ LOCAL	void	mdinit		__PR((void));
 LOCAL	void	mdupdate	__PR((void *a, size_t s));
 LOCAL	void	mdfinal		__PR((void));
 
-#define	min(a, b)	(a < b ? a : b)
+#undef	min
+#define	min(a, b)	((a) < (b) ? (a) : (b))
 
 #define	SDD_BSIZE	512L
 
@@ -432,8 +433,10 @@ main(ac, av)
 	getstarttime();
 	if (signal(SIGINT, SIG_IGN) != SIG_IGN)
 		(void) set_signal(SIGINT, intr);
+#ifdef	SIGQUIT
 	if (signal(SIGQUIT, SIG_IGN) != SIG_IGN)
 		(void) set_signal(SIGQUIT, intr);
+#endif
 #ifdef	SIGINFO
 	/*
 	 * Be polite to *BSD users.
@@ -1456,7 +1459,7 @@ getopts(ac, av)
 	if (help)
 		usage(0);
 	if (prvers) {
-		printf("sdd %s (%s-%s-%s)\n\n", "1.62",
+		printf("sdd %s (%s-%s-%s)\n\n", "1.64",
 					HOST_CPU, HOST_VENDOR, HOST_OS);
 		printf("Copyright (C) 1984-2011 Jörg Schilling\n");
 		printf("This is free software; see the source for copying ");

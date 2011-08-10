@@ -1,11 +1,11 @@
-/* @(#)usleep.c	1.22 09/08/04 Copyright 1995-2009 J. Schilling */
+/* @(#)usleep.c	1.23 11/08/02 Copyright 1995-2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)usleep.c	1.22 09/08/04 Copyright 1995-2009 J. Schilling";
+	"@(#)usleep.c	1.23 11/08/02 Copyright 1995-20011 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1995-2009 J. Schilling
+ *	Copyright (c) 1995-2011 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -57,7 +57,7 @@ EXPORT	int	usleep		__PR((int usec));
 #undef HAVE_USLEEP
 #endif
 
-#if	!defined(HAVE_USLEEP)
+#if	!defined(HAVE_USLEEP) && !defined(_MSC_VER)
 
 EXPORT int
 usleep(usec)

@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sccs-admin.1	1.19 11/07/12 portions Copyright 2007-2011 J. Schilling */
+.\" @(#)sccs-admin.1	1.20 11/07/27 portions Copyright 2007-2011 J. Schilling */
 .\" CDDL HEADER START
 .\"
 .\" The contents of this file are subject to the terms of the
@@ -19,7 +19,7 @@
 .\"
 .\" CDDL HEADER END
 .\"  Copyright (c) 2002, Sun Microsystems, Inc. All Rights Reserved.
-.TH sccs-admin 1 "2011/07/12" "SunOS 5.11" "User Commands"
+.TH sccs-admin 1 "2011/07/27" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs-admin, admin \- create and administer SCCS history files
 .SH SYNOPSIS
@@ -124,12 +124,17 @@ standard.
 .sp
 .ne 3
 .TP
-\fB\fBj\fR\fR
-Allows concurrent updates.
+.B j
+Allow concurrent
+.B get \-e
+calls for editing on the same base
+.B SID
+of an SCCS file.
+This allows multiple concurrent updates to take place on the same version of the SCCS file.
 .sp
 .ne 3
 .TP
-\fB\fBla\fR\fR
+.B la
 .TP
 \fB\fBl\fR \fIrelease\fR[\fB,\fR \fIrelease\fR...]\fR
 Locks the indicated list of releases against deltas.

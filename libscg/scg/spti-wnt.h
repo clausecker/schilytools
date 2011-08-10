@@ -1,4 +1,4 @@
-/* @(#)spti-wnt.h	1.2 08/08/03 2004-2008 J. Schilling */
+/* @(#)spti-wnt.h	1.3 11/08/02 2004-2011 J. Schilling */
 /*
  * distilled information from various header files from Microsoft's
  * DDK for Windows NT 4.0
@@ -6,7 +6,7 @@
 #ifndef	_SCSIPT_H_INC
 #define	_SCSIPT_H_INC
 
-#include <windows.h>
+#include <schily/windows.h>
 
 typedef struct {
 	USHORT		Length;
@@ -101,10 +101,18 @@ typedef struct {
 
 /*
  * file access values
+ *
+ * These are #defined already when we include a MSC windows.h
  */
+#ifndef	FILE_ANY_ACCESS
 #define	FILE_ANY_ACCESS		0
+#endif
+#ifndef	FILE_READ_ACCESS
 #define	FILE_READ_ACCESS	0x0001
+#endif
+#ifndef	FILE_WRITE_ACCESS
 #define	FILE_WRITE_ACCESS	0x0002
+#endif
 
 
 #define	IOCTL_SCSI_BASE    0x00000004
@@ -119,9 +127,14 @@ typedef struct {
 /*
  * Standard IOCTL define
  */
+#ifndef	CTL_CODE
 #define	CTL_CODE(DevType, Function, Method, Access) 		\
 	(((DevType) << 16) | ((Access) << 14) | ((Function) << 2) | (Method))
+#endif
 
+/*
+ * These are in ntddscsi.h with MSC
+ */
 #define	IOCTL_SCSI_PASS_THROUGH 	CTL_CODE(IOCTL_SCSI_BASE, 0x0401, METHOD_BUFFERED, FILE_READ_ACCESS | FILE_WRITE_ACCESS)
 #define	IOCTL_SCSI_MINIPORT		CTL_CODE(IOCTL_SCSI_BASE, 0x0402, METHOD_BUFFERED, FILE_READ_ACCESS | FILE_WRITE_ACCESS)
 #define	IOCTL_SCSI_GET_INQUIRY_DATA	CTL_CODE(IOCTL_SCSI_BASE, 0x0403, METHOD_BUFFERED, FILE_ANY_ACCESS)

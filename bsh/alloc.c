@@ -1,8 +1,8 @@
-/* @(#)alloc.c	1.51 09/10/23 Copyright 1985,1988,1991,1995-2009 J. Schilling */
+/* %Z%%M%	%I% %E% Copyright 1985,1988,1991,1995-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)alloc.c	1.51 09/10/23 Copyright 1985,1988,1991,1995-2009 J. Schilling";
+	"%Z%%M%	%I% %E% Copyright 1985,1988,1991,1995-2009 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1985,1988,1991,1995-2009 J. Schilling
@@ -39,7 +39,9 @@ static	UConst char sccsid[] =
 /*#define	NO_USER_MALLOC*/
 
 #ifndef	HAVE_SBRK
+#ifndef	NO_USER_MALLOC
 #define	NO_USER_MALLOC
+#endif
 #endif
 #ifndef	NO_USER_MALLOC
 #define	malloc	__orig_malloc__
@@ -516,6 +518,77 @@ frext(size)
 }
 
 #ifdef	XADEBUG
+#define	DBG_MALLOC	1
+#define	DBG_CALLOC	2
+#define	DBG_REALLOC	3
+char	*dbg_type[4] = {
+	"NULL",
+	"malloc",
+	"calloc",
+	"reallloc"
+};
+typedef struct mstat {
+	int	ms_type;
+	int	ms_calls;
+	size_t	ms_size;
+	char	ms_which[100];
+} mstat_t;
+#define	DBG_NENT	512
+mstat_t mstat[DBG_NENT];
+
+LOCAL void
+dbg_stat()
+{
+	int	i;
+
+	for (i= 0; i < DBG_NENT; i++) {
+		if (mstat[i].ms_which[0] == '\0') {
+			break;
+		}
+		error("%d	size: %8zd	sum %8zd	%s %s\n",
+			mstat[i].ms_calls,
+			mstat[i].ms_size,
+			mstat[i].ms_size * mstat[i].ms_calls,
+			dbg_type[mstat[i].ms_type],
+			mstat[i].ms_which);
+	}
+	error("%d entries max size: %zd\n", i, (char *)heapend - (char *)heapbeg);
+}
+
+LOCAL void
+dbg_enter(dtype, size, file, line)
+	int	dtype;
+	size_t	size;
+	char	*file;
+	int	line;
+{
+	char	which[100];
+	int	i;
+static	int	init;
+
+	if (!init) {
+		atexit(dbg_stat);
+		init++;
+	}
+
+	snprintf(which, sizeof (which), "%s line %d", file, line);
+	for (i= 0; i < DBG_NENT; i++) {
+		if (mstat[i].ms_which[0] == '\0') {
+			strcpy(mstat[i].ms_which, which);
+			mstat[i].ms_type = dtype;
+			mstat[i].ms_size = size;
+			break;
+		}
+		if (mstat[i].ms_size != size)
+			continue;
+		if (strcmp(which, mstat[i].ms_which) == 0)
+			break;
+	}
+	if (i >= DBG_NENT)
+		return;
+	mstat[i].ms_calls++;
+}
+
 EXPORT void *
 dbg_malloc(size, file, line)
 	register	size_t	size;
@@ -532,6 +605,7 @@ dbg_malloc(size, file, line)
 	this->file = file;
 	this->line = line;
 
+	dbg_enter(DBG_MALLOC, size, file, line);
 	return (ret);
 }
 
@@ -552,6 +626,7 @@ dbg_calloc(nelem, elsize, file, line)
 	this->file = file;
 	this->line = line;
 
+	dbg_enter(DBG_CALLOC, nelem*elsize, file, line);
 	return (ret);
 }
 
@@ -572,6 +647,7 @@ dbg_realloc(t, size, file, line)
 	this->file = file;
 	this->line = line;
 
+	dbg_enter(DBG_REALLOC, size, file, line);
 	return (ret);
 }
 #endif

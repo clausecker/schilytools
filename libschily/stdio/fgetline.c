@@ -1,6 +1,6 @@
-/* @(#)fgetline.c	1.10 10/10/21 Copyright 1986, 1996-2010 J. Schilling */
+/* @(#)fgetline.c	1.12 11/08/09 Copyright 1986, 1996-2011 J. Schilling */
 /*
- *	Copyright (c) 1986, 1996-2010 J. Schilling
+ *	Copyright (c) 1986, 1996-2011 J. Schilling
  *
  *	This is an interface that exists in the public since 1982.
  *	The POSIX.1-2008 standard did ignore POSIX rules not to
@@ -58,7 +58,31 @@ getline(buf, len)
  * XXX should we check if HAVE_USG_STDIO is defined and
  * XXX use something line memccpy to speed things up ???
  */
+#if !defined(getc)
+#include <schily/string.h>
 
+EXPORT int
+js_fgetline(f, buf, len)
+	register	FILE	*f;
+			char	*buf;
+	register	int	len;
+{
+	char	*bp = fgets(buf, len, f);
+
+	if (bp) {
+		len = strlen(bp);
+
+		if (len > 0) {
+			if (bp[len-1] == '\n')
+				bp[--len] = '\0';
+		}
+		return (len);
+	}
+	buf[0] = '\0';
+	return (-1);
+}
+
+#else
 EXPORT int
 js_fgetline(f, buf, len)
 	register	FILE	*f;
@@ -79,12 +103,14 @@ js_fgetline(f, buf, len)
 		if (--len > 0) {
 			*bp++ = (char)c;
 		} else {
+#ifdef	__never__
 			/*
 			 * Read up to end of line
 			 */
 			while ((c = getc(f)) >= 0 && c != nl)
 				/* LINTED */
 				;
+#endif
 			break;
 		}
 	}
@@ -97,6 +123,7 @@ js_fgetline(f, buf, len)
 
 	return (bp - buf);
 }
+#endif
 
 EXPORT int
 js_getline(buf, len)

@@ -1,14 +1,14 @@
-/* @(#)xheader.c	1.84 11/06/15 Copyright 2001-2010 J. Schilling */
+/* @(#)xheader.c	1.85 11/08/03 Copyright 2001-2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)xheader.c	1.84 11/06/15 Copyright 2001-2010 J. Schilling";
+	"@(#)xheader.c	1.85 11/08/03 Copyright 2001-2011 J. Schilling";
 #endif
 /*
  *	Handling routines to read/write, parse/create
  *	POSIX.1-2001 extended archive headers
  *
- *	Copyright (c) 2001-2010 J. Schilling
+ *	Copyright (c) 2001-2011 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

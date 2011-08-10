@@ -34,13 +34,13 @@
 #include "defs.h"
 
 /*
- * This file contains modifications Copyright 2008-2009 J. Schilling
+ * This file contains modifications Copyright 2008-2011 J. Schilling
  *
- * @(#)fault.c	1.12 09/11/01 2008-2009 J. Schilling
+ * @(#)fault.c	1.13 11/08/03 2008-2011 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)fault.c	1.12 09/11/01 2008-2009 J. Schilling";
+	"@(#)fault.c	1.13 11/08/03 2008-2011 J. Schilling";
 #endif
 
 /*
@@ -277,10 +277,12 @@ fault(sig)
 	int flag = 0;
 
 	switch (sig) {
+#ifdef	SIGALRM
 		case SIGALRM:
 			if (sleeping)
 				return;
 			break;
+#endif
 	}
 
 	if (trapcom[sig])
@@ -496,6 +498,7 @@ void
 sh_sleep(ticks)
 	unsigned int	ticks;
 {
+#ifdef	SIGALRM
 	sigset_t set, oset;
 	struct sigaction act, oact;
 
@@ -533,7 +536,9 @@ sh_sleep(ticks)
 	alarm(0);
 	sigaction(SIGALRM, &oact, NULL);
 	sigprocmask(SIG_SETMASK, &oset, 0);
-
+#else
+	sleep(ticks);
+#endif
 }
 
 static void

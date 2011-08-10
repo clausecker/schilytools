@@ -27,10 +27,10 @@
 /*
  * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)get.c	1.37 11/07/04 J. Schilling
+ * @(#)get.c	1.43 11/08/07 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)get.c 1.37 11/07/04 J. Schilling"
+#pragma ident "@(#)get.c 1.43 11/08/07 J. Schilling"
 #endif
 /*
  * @(#)get.c 1.59 06/12/12
@@ -90,7 +90,7 @@ static char	*list_expand_IDs;
 static char    *Whatstr = NULL;
 static char	Pfilename[FILESIZE];
 static char	*ilist, *elist, *lfile;
-static time_t	cutoff = (time_t)0X7FFFFFFFL;	/* max positive long */
+static time_t	cutoff = MAX_TIME;
 static char	Gfile[PATH_MAX];
 static char	gfile[PATH_MAX];
 static char	*Type;
@@ -528,7 +528,9 @@ char *file;
 		} else {
 			while (readmod(&gpkt)) {
 				prfx(&gpkt);
-				p = idsubst(&gpkt,gpkt.p_line);
+				if (gpkt.p_flags & PF_NONL)
+					gpkt.p_line[gpkt.p_line_length-1] = '\0';
+				p = idsubst(&gpkt, gpkt.p_lineptr);
 				if (fputs(p,gpkt.p_gout)==EOF)
 					xmsg(gfile, NOGETTEXT("get"));
 			}
@@ -543,8 +545,10 @@ char *file;
 			 * Force g-file to disk and verify
 			 * that it actually got there.
 			 */
+#ifdef	HAVE_FSYNC
 			if (fsync(fileno(gpkt.p_gout)) < 0)
 				xmsg(gfile, NOGETTEXT("get"));
+#endif
 			if (fclose(gpkt.p_gout) == EOF)
 				xmsg(gfile, NOGETTEXT("get"));
 			gpkt.p_gout = NULL;
@@ -762,8 +766,10 @@ register struct packet *pkt;
 	}
 	fclose(in);
 	if (out != stdout) {
+#ifdef	HAVE_FSYNC
 		if (fsync(fileno(out)) < 0)
 			xmsg(outname, NOGETTEXT("gen_lfile"));
+#endif
 		if (fclose(out) == EOF)
 			xmsg(outname, NOGETTEXT("gen_lfile"));
 	}
@@ -1291,7 +1297,11 @@ char *inc, *exc;
 	if ((fd=open(auxf(pkt->p_file,'q'),O_WRONLY|O_CREAT|O_EXCL|O_BINARY,0444)) < 0) {
 	   fatal(gettext("cannot create lock file (cm4)"));
 	}
+#ifdef	HAVE_FCHMOD
 	fchmod(fd, (mode_t)0644);
+#else
+	chmod(auxf(pkt->p_file,'q'), (mode_t)0644);
+#endif
 	out = fdfopen(fd, O_WRONLY|O_BINARY);
 	if (exists(pfile = auxf(pkt->p_file,'p'))) {
 		in = fdfopen(xopen(pfile, O_RDONLY|O_BINARY), O_RDONLY|O_BINARY);
@@ -1322,7 +1332,7 @@ char *inc, *exc;
 		}
 		fclose(in);
 	}
-	if (fseek(out,0L,2) == EOF)
+	if (fseek(out, (off_t)0, SEEK_END) == EOF)
 		xmsg(pfile, NOGETTEXT("wrtpfile"));
 	sid_ba(&pkt->p_gotsid,str1);
 	sid_ba(&pkt->p_reqsid,str2);
@@ -1356,8 +1366,10 @@ char *inc, *exc;
 		xmsg(pfile, NOGETTEXT("wrtpfile"));
 	if (fflush(out) == EOF)
 		xmsg(pfile, NOGETTEXT("wrtpfile"));
+#ifdef	HAVE_FSYNC
 	if (fsync(fileno(out)) < 0)
 		xmsg(pfile, NOGETTEXT("wrtpfile"));
+#endif
 	if (fclose(out) == EOF)
 		xmsg(pfile, NOGETTEXT("wrtpfile"));
 	if (pkt->p_verbose) {

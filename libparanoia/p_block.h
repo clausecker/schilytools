@@ -1,8 +1,8 @@
-/* @(#)p_block.h	1.18 07/02/09 J. Schilling from cdparanoia-III-alpha9.8 */
+/* @(#)p_block.h	1.19 11/08/03 J. Schilling from cdparanoia-III-alpha9.8 */
 /*
  * CopyPolicy: GNU Lesser General Public License v2.1 applies
  * Copyright (C) 1997-2001 by Monty (xiphmont@mit.edu)
- * Copyright (C) 2002-2006 by J. Schilling
+ * Copyright (C) 2002-2011 by J. Schilling
  */
 
 #ifndef	_P_BLOCK_H
@@ -17,8 +17,10 @@
 #define	JIGGLE_MODULO		  15	/* sectors */
 #define	MIN_SILENCE_BOUNDARY	1024	/* 16 bit words */
 
-#define	min(x, y) ((x) > (y)?(y):(x))
-#define	max(x, y) ((x) < (y)?(y):(x))
+#undef	min
+#define	min(x, y)	((x) < (y) ? (x) : (y))
+#undef	max
+#define	max(x, y)	((x) < (y) ? (y) : (x))
 
 #include "isort.h"
 

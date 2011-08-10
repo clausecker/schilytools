@@ -1,8 +1,8 @@
-/* @(#)util.c	1.18 11/06/04 2011 J. Schilling */
+/* @(#)util.c	1.19 11/08/03 2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)util.c	1.18 11/06/04 2011 J. Schilling";
+	"@(#)util.c	1.19 11/08/03 2011 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1986 Larry Wall
@@ -337,14 +337,18 @@ set_signals(reset)
 	static RETSIGTYPE (*hupval) __PR((int)), (*intval) __PR((int));
 
 	if (!reset) {
+#ifdef	SIGHUP
 		hupval = signal(SIGHUP, SIG_IGN);
 		if (hupval != SIG_IGN)
 			hupval = (RETSIGTYPE(*) __PR((int)))my_exit;
+#endif
 		intval = signal(SIGINT, SIG_IGN);
 		if (intval != SIG_IGN)
 			intval = (RETSIGTYPE(*) __PR((int)))my_exit;
 	}
+#ifdef	SIGHUP
 	Signal(SIGHUP, hupval);
+#endif
 	Signal(SIGINT, intval);
 }
 
@@ -353,7 +357,9 @@ set_signals(reset)
 void
 ignore_signals()
 {
+#ifdef	SIGHUP
 	Signal(SIGHUP, SIG_IGN);
+#endif
 	Signal(SIGINT, SIG_IGN);
 }
 

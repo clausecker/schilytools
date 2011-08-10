@@ -1,8 +1,8 @@
-/* @(#)test.c	1.27 09/07/14 Copyright 1986,1995-2009 J. Schilling */
+/* @(#)test.c	1.28 11/08/04 Copyright 1986,1995-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)test.c	1.27 09/07/14 Copyright 1986,1995-2009 J. Schilling";
+	"@(#)test.c	1.28 11/08/04 Copyright 1986,1995-2009 J. Schilling";
 #endif
 /*
  *	Test routine (the test builtin command)
@@ -56,6 +56,8 @@ LOCAL	int	tac	= 0;
 LOCAL	char	**tav	= 0;
 LOCAL	FILE	**tstd	= 0;
 LOCAL	Argvec	*tvp	= 0;
+
+#define	exp2	_exp2	/* Some compilers do not like exp2() */
 
 EXPORT	void	bcompute	__PR((Argvec * vp, FILE ** std, int flag));
 EXPORT	void	btest		__PR((Argvec * vp, FILE ** std, int flag));

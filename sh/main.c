@@ -34,13 +34,13 @@
 #include "defs.h"
 
 /*
- * This file contains modifications Copyright 2008-2009 J. Schilling
+ * This file contains modifications Copyright 2008-2011 J. Schilling
  *
- * @(#)main.c	1.13 09/11/01 2008-2009 J. Schilling
+ * @(#)main.c	1.14 11/08/03 2008-2011 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)main.c	1.13 09/11/01 2008-2009 J. Schilling";
+	"@(#)main.c	1.14 11/08/03 2008-2011 J. Schilling";
 #endif
 
 /*
@@ -140,9 +140,12 @@ main(c, v, e)
 	 * (ex. -sh, or /bin/-sh), this is a login shell
 	 */
 	if (*simple((unsigned char *)v[0]) == '-') {
+#ifdef	SIGXCPU
 		signal(SIGXCPU, SIG_DFL);
+#endif
+#ifdef	SIGXFSZ
 		signal(SIGXFSZ, SIG_DFL);
-
+#endif
 		/*
 		 * As the previous comment states, this is a login shell.
 		 * Therefore, we set the login_shell flag to explicitly

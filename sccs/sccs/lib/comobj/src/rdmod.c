@@ -25,12 +25,12 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2009 J. Schilling
+ * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)rdmod.c	1.5 09/11/08 J. Schilling
+ * @(#)rdmod.c	1.7 11/08/07 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)rdmod.c 1.5 09/11/08 J. Schilling"
+#pragma ident "@(#)rdmod.c 1.7 11/08/07 J. Schilling"
 #endif
 /*
  * @(#)rdmod.c 1.11 06/12/12
@@ -52,10 +52,12 @@ struct packet *pkt;
 	int ser, iord, oldixmsg;
 	struct apply *ap;
 
+	pkt->p_flags &= ~PF_NONL;
 	oldixmsg = pkt->p_ixmsg;
 	while (getline(pkt) != NULL) {
-	   p = pkt->p_line;
+	   p = pkt->p_lineptr = pkt->p_line;
 	   if (*p++ != CTLCHAR) {
+found_esc:
 	      if (pkt->p_keep == YES) {
  		 pkt->p_glnno++;
 		 if (pkt->p_verbose) {
@@ -75,6 +77,19 @@ struct packet *pkt;
 	      }
 	   } else {
 	      iord = *p++;
+	      if (iord == CTLCHAR) {	/* "^A^Atext\n" -> "^Atext\n"	*/
+		 pkt->p_lineptr++;
+		 goto found_esc;
+	      } else if (iord == NONL) { /* "^ANtext\n" -> "text"	*/
+		 pkt->p_lineptr += 2;
+		 /*
+		  * We cannot kill the newline here because of getline()'s auto
+		  * copy mode. Just flag the missing newline for our users.
+		  */
+		 if (pkt->p_keep == YES)
+			 pkt->p_flags |= PF_NONL;
+		 goto found_esc;
+	      } else
 	      if (iord != INS && iord != DEL && iord != END)
 		 fmterr(pkt);
 	      NONBLANK(p);

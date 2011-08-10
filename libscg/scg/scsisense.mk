@@ -1,4 +1,4 @@
-#ident %W% %E% %Q%
+#ident @(#)scsisense.mk	1.1 08/07/07 
 ###########################################################################
 # Sample makefile for installing non-localized auxiliary files
 ###########################################################################
@@ -15,11 +15,3 @@ TARGET=		scsisense.h
 include		$(SRCROOT)/$(RULESDIR)/rules.aux
 ###########################################################################
 
-IFDEF=	-UJOSxx
-
-XRELFILES=	scsisense.h scsisense.mk
-
-###########################################################################
-include		$(SRCROOT)/$(RULESDIR)/rules.rel
-###########################################################################
-MAKE_LICENSE=MKCDDL

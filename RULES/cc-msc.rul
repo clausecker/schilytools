@@ -1,4 +1,4 @@
-#ident "@(#)cc-msc.rul	1.18 09/05/21 "
+#ident "@(#)cc-msc.rul	1.20 11/08/05 "
 ###########################################################################
 # Written 2006 by J. Schilling
 ###########################################################################
@@ -67,7 +67,7 @@ CC_COM=		cl.exe
 CC=		@echo "	==> COMPILING \"$@\""; $(CC_COM) -nologo
 CC++ =		@echo "	==> COMPILING \"$@\""; $(CC_COM) -nologo
 OUTPUT_OPTION=	-Fo$(O:%=%/)$@
-CC_OUTPUT_FILTER= | tail +2	# Filter cl.exe filename echo
+CC_OUTPUT_FILTER= | tail -n +2	# Filter cl.exe filename echo
 LD_OUTPUT_OPTION= -Fe$@
 LDCC=		@echo "	==> LINKING \"$@\""; $(CC_COM) -nologo
 LDCC++ =	@echo "	==> LINKING \"$@\""; $(CC_COM) -nologo
@@ -100,3 +100,9 @@ VCSETUP=	$(__VC_SETUP:$(_UNIQ)%=%)
 include		$(DEFLTSROOT)/$(DEFLTSDIR)/$(VCSETUP)
 
 OSDEFS	+=	$(WINNTDEFS)
+
+#
+# Tell MKLINKS to copy files instead of linking them
+#
+MKLINKS_COPY=	true
+export		MKLINKS_COPY

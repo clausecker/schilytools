@@ -1,9 +1,9 @@
-/* @(#)archdefs.h	1.8 09/08/09 Copyright 2006-2009 J. Schilling */
+/* @(#)archdefs.h	1.9 11/08/05 Copyright 2006-2011 J. Schilling */
 /*
  *	Processor, instruction set and OS architecture specific defines.
  *	The information is fetched from compiler predefinitions only.
  *
- *	Copyright (c) 2006-2009 J. Schilling
+ *	Copyright (c) 2006-2011 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -49,14 +49,14 @@
 #endif
 #endif
 
-#if	defined(i386) || defined(__i386) || defined(__i386__)
+#if	defined(i386) || defined(__i386) || defined(__i386__) || defined(_M_IX86)
 #ifndef	__i386
 #define	__i386
 #endif
 #endif
 
 #if	defined(__amd64) || defined(__amd64__) || \
-	defined(__x86_64) || defined(__x86_64__)
+	defined(__x86_64) || defined(__x86_64__) || defined(_M_AMD64)
 #ifndef	__amd64
 #define	__amd64
 #endif
@@ -217,11 +217,14 @@
  * MS-WIN specific defines
  *
  * cl defines one of:
+ *	_M_ALPHA
  *	_M_IX86
  *	_M_AMD64
  *	_M_M68K
- *	_M_MPPC
- *	_M_IA64
+ *	_M_PPC		PPC in general
+ *	_M_MPPC		Power Macintosh
+ *	_M_MRX000	Mips
+ *	_M_IA64		Itanium
  */
 #if	defined(_MSC_VER) && (defined(_X86_) || defined(_M_IX86))
 #define	__MSWIN_X86_CL32

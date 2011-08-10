@@ -1,13 +1,13 @@
-/* @(#)repair.c	1.21 09/07/11 Copyright 1988-2009 J. Schilling */
+/* @(#)repair.c	1.22 11/08/03 Copyright 1988-2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)repair.c	1.21 09/07/11 Copyright 1988-2009 J. Schilling";
+	"@(#)repair.c	1.22 11/08/03 Copyright 1988-2011 J. Schilling";
 #endif
 /*
  *	Repair SCSI disks
  *
- *	Copyright (c) 1988-2009 J. Schilling
+ *	Copyright (c) 1988-2011 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -37,7 +37,9 @@ static	UConst char sccsid[] =
 #include "scsicmds.h"
 #include "fmt.h"
 
+#undef	min
 #define	min(a, b)	((a) < (b) ? (a) : (b))
+#undef	max
 #define	max(a, b)	((a) > (b) ? (a) : (b))
 
 extern	char	*Sbuf;

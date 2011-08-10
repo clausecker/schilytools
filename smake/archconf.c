@@ -1,14 +1,14 @@
-/* @(#)archconf.c	1.27 09/10/31 Copyright 1996-2009 J. Schilling */
+/* @(#)archconf.c	1.28 11/08/04 Copyright 1996-2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)archconf.c	1.27 09/10/31 Copyright 1996-2009 J. Schilling";
+	"@(#)archconf.c	1.28 11/08/04 Copyright 1996-2011 J. Schilling";
 #endif
 /*
  *	Make program
  *	Architecture autoconfiguration support
  *
- *	Copyright (c) 1996-2009 by J. Schilling
+ *	Copyright (c) 1996-2011 by J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -69,7 +69,10 @@ setup_arch()
 	do_archheuristics();
 }
 
-#ifdef	HAVE_UNAME		/* NeXT Step has sys/utsname but not uname() */
+/*
+ * NeXT Step has sys/utsname but not uname()
+ */
+#if	defined(HAVE_UNAME) || defined(__MINGW32__) || defined(_MSC_VER)
 #include <schily/utsname.h>
 
 /*

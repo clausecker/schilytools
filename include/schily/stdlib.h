@@ -1,8 +1,8 @@
-/* @(#)stdlib.h	1.8 10/08/24 Copyright 1996-2010 J. Schilling */
+/* @(#)stdlib.h	1.9 11/07/27 Copyright 1996-2011 J. Schilling */
 /*
  *	Definitions for stdlib
  *
- *	Copyright (c) 1996-2010 J. Schilling
+ *	Copyright (c) 1996-2011 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -28,7 +28,8 @@
 #include <stdlib.h>
 #define	_INCL_STDLIB_H
 #endif
-#else
+
+#else	/* !HAVE_STDLIB_H */
 
 #ifdef	__cplusplus
 extern "C" {
@@ -38,6 +39,10 @@ extern	char	*malloc();
 extern	char	*realloc();
 
 extern	double	atof();
+
+#ifdef	__cplusplus
+}
+#endif
 
 #endif	/* HAVE_STDLIB_H */
 
@@ -49,10 +54,6 @@ extern	double	atof();
 #endif
 #ifndef	RAND_MAX
 #define	RAND_MAX	32767
-#endif
-
-#ifdef	__cplusplus
-}
 #endif
 
 #endif	/* _SCHILY_STDLIB_H */

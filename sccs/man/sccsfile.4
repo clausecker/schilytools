@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sccsfile.4	1.11 11/06/30 portions Copyright 2007-2011 J. Schilling */
+.\" @(#)sccsfile.4	1.15 11/08/07 portions Copyright 2007-2011 J. Schilling */
 .\" CDDL HEADER START
 .\"
 .\" The contents of this file are subject to the terms of the
@@ -21,7 +21,7 @@
 .\" Copyright (c) 2002, Sun Microsystems, Inc. All Rights Reserved.
 .\" Copyright 1989 AT&T
 .\"  Copyright 2007-2011 J. Schilling
-.TH sccsfile 4 "2011/06/30" "SunOS 5.11" "File Formats"
+.TH sccsfile 4 "2011/08/07" "SunOS 5.11" "File Formats"
 .SH NAME
 sccsfile \- format of an SCCS history file
 .SH DESCRIPTION
@@ -52,15 +52,26 @@ Definitions of internal keywords.
 .ne 3
 .TP
 .I comments
-Arbitrary descriptive information about the file.
+An arbitrary descriptive information block about the file.
 .sp
 .ne 3
 .TP
 .I body
 the Actual text lines intermixed with control lines.
+This body is also known as
+.B interleaved deltas
+or
+.BR "the weave" .
 
 .LP
 Each section is described in detail below.
+.LP
+This document describes the
+.B SCCS v4
+history file format that has been introduced in February 1977 as well
+as the
+.B SCCS v6
+enhancements that have been introduced in 2011.
 
 .SS Conventions
 
@@ -78,8 +89,22 @@ control character, it cannot do so and still be within SCCS file format.
 .LP
 Entries of the form 
 .I ddddd
-represent a five digit string (a number between 00000 and 99999).
+represent a decimal number.
+In the statistics line from the delta table, this represents a
+five digit string (a number between 00000 and 99999).
+Other numbers are not artificially limited to a specific range.
+.B Serial numbers
+and
+.B SID
+number components may be any non negative number representable by a
+signed 32 bit integer.
+.LP
+The usable range is however limited by the available virtual memory.
+This implementation needs virtual memory that is 
+approx. 100 times the highest serial number from the file.
 
+.br
+.ne 5
 .SS Checksum
 
 .LP
@@ -93,10 +118,12 @@ The checksum is the first line of an SCCS file. The form of the line is:
 .in -2
 
 .LP
-The value of the checksum is the sum of all characters, except those 
-contained in the first line. The
+The value of the checksum is the low 16 bits from the signed sum of all characters,
+except those contained in the first line.
+When reading files, values computed as the unsigned sum of all characters are accepted too.
+The
 .B ^Ah
-provides a
+provides a 16 bit
 .I magic number
 of (octal) 064001 in PDP-byteorder and 000550 in Motorola-byteorder ("\e001\e150").
 
@@ -136,7 +163,9 @@ contains the type of the delta (normal:
 .B D
 and removed:
 .BR R ),
-the SCCS ID of the delta, the date and
+the SCCS ID
+.RB ( SID )
+of the delta, the date and
 time of creation of the delta, the user-name corresponding to the real
 user ID at the time the delta was created, and the serial numbers of
 the delta and its predecessor, respectively. The year is either represented by
@@ -250,7 +279,12 @@ when delta 5.1 is made after delta 2.7, releases 3 and 4 are skipped).
 .ne 3
 .TP
 \fB\fB^Af j\fR \fR
-Enables the SCCS \fBget\fR command to allow concurrent edits of the same base \fBSID\fR.
+Enables concurrent
+.B get \-e
+calls for editing on the same base
+.B SID
+of an SCCS file.
+This allows multiple concurrent updates to take place on the same version of the SCCS file.
 .ne 3
 .TP
 \fB\fB^Af l\fR \fIlock-releases\fR\fR
@@ -288,7 +322,7 @@ flag is enabled, the keywords
 .BR %\&d\&% ", " %\&e\&% ", " %\&g\&% 
 and
 .B %\&h\&%
-are expanded even though not explicitely enabled by the
+are expanded even though not explicitly enabled by the
 .B `y'
 flag.
 .sp
@@ -337,7 +371,17 @@ Arbitrary text surrounded by the bracketing lines \fB^At\fR and \fB^AT\fR. The c
 .SS Body
 
 .LP
-The body consists of text lines and control lines. Text lines do not begin with the control character, control lines do. There are three kinds of control lines: \fIinsert\fR, \fIdelete\fR, and \fIend\fR, represented by:
+The body consists of text lines and control lines.
+Text lines do not begin with the control character, unless they
+are using SCCS v6 escape extensions. Control lines always begin with the
+control character.
+.LP
+There are three kinds of control lines:
+.IR insert ,
+.IR delete ,
+and
+.IR end ,
+represented by:
 
 .LP
 .in +2
@@ -351,10 +395,34 @@ The body consists of text lines and control lines. Text lines do not begin with 
 .LP
 respectively. The digit string is the serial number corresponding to the delta for the control line.
 
-.SH SEE ALSO
-
+.SS "SCCS v6 Body escape extensions"
 .LP
+There are two additional types of text lines with a control character at the
+beginning that represent features introduced by SCCS v6.
+These features are not understood by SCCS implementations that support the
+SCCS v4 history file format only.
+.LP
+.RS +2
+.TP 10
+^A^A
+A line in the interleaved delta block that begins with two control characters
+represents a text line that begins at the second control character.
+.TP
+^AN
+A line in the interleaved delta block that begins with the
+.B "^AN"
+sequence represents a text line that does not end with a newline character.
+A line in the form
+.B "^AN^Atext"
+is extracted as
+.B "^Atext"
+without a need to add another quote.
+.RE
 
+.br
+.ne 5
+.SH SEE ALSO
+.LP
 \fBsccs-admin\fR(1), 
 \fBsccs-cdc\fR(1), 
 \fBsccs-comb\fR(1), 
@@ -369,4 +437,5 @@ respectively. The digit string is the serial number corresponding to the delta f
 \fBsccs-unget\fR(1), 
 \fBsccs-val\fR(1), 
 \fBsccs\fR(1), 
+\fBsccslog\fR(1), 
 \fBwhat\fR(1)

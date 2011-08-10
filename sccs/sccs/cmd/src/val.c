@@ -27,10 +27,10 @@
 /*
  * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)val.c	1.24 11/07/04 J. Schilling
+ * @(#)val.c	1.26 11/08/07 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)val.c 1.24 11/07/04 J. Schilling"
+#pragma ident "@(#)val.c 1.26 11/08/07 J. Schilling"
 #endif
 /*
  * @(#)val.c 1.22 06/12/12
@@ -431,6 +431,9 @@ char	*c_name;
 	dt.d_datetime = odt.d_datetime = 0;
 
 	s_init(&gpkt,c_path);
+	if (getenv("SCCS_VERSION"))
+		gpkt.p_flags |= PF_V6;
+
 	if (!sccsfile(c_path) || (gpkt.p_iop = fopen(c_path, "rb")) == NULL) {
 		if (debug) {
 			if (!sccsfile(c_path)) {
@@ -868,6 +871,10 @@ register struct packet *pkt;
 			continue;
 		else {
 			if (!((iord = *p++) == INS || iord == DEL || iord == END)) {
+				if (iord == CTLCHAR && pkt->p_flags & PF_V6)
+					continue;
+				if (iord == NONL && pkt->p_flags & PF_V6)
+					continue;
 				if (debug)
 					printf(gettext(
 					"%s%s: invalid control in weave data near line %d\n"),

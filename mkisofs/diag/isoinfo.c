@@ -1,8 +1,8 @@
-/* @(#)isoinfo.c	1.84 10/12/19 joerg */
+/* @(#)isoinfo.c	1.85 11/08/04 joerg */
 #include <schily/mconfig.h>
 #ifndef	lint
 static	UConst char sccsid[] =
-	"@(#)isoinfo.c	1.84 10/12/19 joerg";
+	"@(#)isoinfo.c	1.85 11/08/04 joerg";
 #endif
 /*
  * File isodump.c - dump iso9660 directory information.
@@ -11,7 +11,7 @@ static	UConst char sccsid[] =
  * Written by Eric Youngdale (1993).
  *
  * Copyright 1993 Yggdrasil Computing, Incorporated
- * Copyright (c) 1999-2010 J. Schilling
+ * Copyright (c) 1999-2011 J. Schilling
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2
@@ -1098,7 +1098,7 @@ main(argc, argv)
 	if (help)
 		usage(0);
 	if (prvers) {
-		printf(_("isoinfo %s (%s-%s-%s) Copyright (C) 1993-1999 %s (C) 1999-2010 %s\n"),
+		printf(_("isoinfo %s (%s-%s-%s) Copyright (C) 1993-1999 %s (C) 1999-2011 %s\n"),
 					VERSION,
 					HOST_CPU, HOST_VENDOR, HOST_OS,
 					_("Eric Youngdale"),
@@ -1879,7 +1879,9 @@ extern	struct WALK walkstate;
 				    S_IRGRP|S_IXGRP |
 				    S_IROTH|S_IXOTH;
 	}
+#ifdef	HAVE_ST_BLKSIZE
 	fstat_buf.st_blksize = 0;
+#endif
 #ifdef	HAVE_ST_BLOCKS
 	fstat_buf.st_blocks = (fstat_buf.st_size+1023) / DEV_BSIZE;
 #endif

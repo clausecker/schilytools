@@ -1,4 +1,4 @@
-dnl @(#)acgeneral.m4	1.14 11/07/15 Copyright 1998-2011 J. Schilling
+dnl @(#)acgeneral.m4	1.15 11/08/02 Copyright 1998-2011 J. Schilling
 dnl
 dnl Parameterized macros.
 dnl Requires GNU m4.
@@ -55,7 +55,7 @@ divert(-1)dnl Throw away output until AC_INIT is called.
 changequote([, ])
 
 define(AC_ACVERSION, 2.13)
-define(AC_ACVERSION_SCHILY, 1.14-Schily)
+define(AC_ACVERSION_SCHILY, 1.15-Schily)
 
 dnl Some old m4's don't support m4exit.  But they provide
 dnl equivalent functionality by core dumping because of the
@@ -1215,7 +1215,7 @@ echo "configure:__oline__: checking $1" >&AC_FD_CC])
 
 dnl AC_MSG_RESULT(RESULT-DESCRIPTION)
 define(AC_MSG_RESULT,
-[echo "$ac_t""$1" 1>&AC_FD_MSG])
+[eval echo "$ac_t""$1" 1>&AC_FD_MSG])
 
 dnl AC_VERBOSE(RESULT-DESCRIPTION)
 define(AC_VERBOSE,

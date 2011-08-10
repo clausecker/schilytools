@@ -1,8 +1,8 @@
-/* @(#)bsh.c	1.65 11/07/10 Copyright 1984,1985,1988,1989,1991,1994-2011 J. Schilling */
+/* @(#)bsh.c	1.66 11/08/03 Copyright 1984,1985,1988,1989,1991,1994-2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)bsh.c	1.65 11/07/10 Copyright 1982,1984,1985,1988,1989,1991,1994-2011 J. Schilling";
+	"@(#)bsh.c	1.66 11/08/03 Copyright 1982,1984,1985,1988,1989,1991,1994-2011 J. Schilling";
 #endif
 /*
  *	bsh command interpreter - main Program
@@ -355,7 +355,9 @@ error  No function to set uid available
 	osig2 = signal(SIGINT, (sigtype) SIG_IGN);
 	if (osig2 != (sigtype) SIG_IGN)
 		signal(SIGINT, intr);
+#ifdef	SIGQUIT
 	osig3 = signal(SIGQUIT, (sigtype) SIG_IGN);
+#endif
 	osig15 = signal(SIGTERM, (sigtype) SIG_IGN);
 #ifdef	SIGTSTP
 	osig18 = signal(SIGTSTP, (sigtype) SIG_IGN);
@@ -389,8 +391,10 @@ error  No function to set uid available
 
 	gargs(ac, av, bshopts, &no_i2flg, &no_gaflg, &no_laflg);
 
+#ifdef	SIGQUIT
 	if (qflg)
 		(void) signal(SIGQUIT, SIG_DFL);
+#endif
 
 	if (batch) {
 		vac -= ac - batch;

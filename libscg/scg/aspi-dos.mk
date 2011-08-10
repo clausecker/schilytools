@@ -1,4 +1,4 @@
-#ident %W% %E% %Q%
+#ident @(#)aspi-dos.mk	1.1 08/07/07 
 ###########################################################################
 # Sample makefile for installing non-localized auxiliary files
 ###########################################################################
@@ -15,11 +15,3 @@ TARGET=		aspi-dos.h
 include		$(SRCROOT)/$(RULESDIR)/rules.aux
 ###########################################################################
 
-IFDEF=	-UJOSxx
-
-XRELFILES=	aspi-dos.h aspi-dos.mk
-
-###########################################################################
-include		$(SRCROOT)/$(RULESDIR)/rules.rel
-###########################################################################
-MAKE_LICENSE=MKCDDL

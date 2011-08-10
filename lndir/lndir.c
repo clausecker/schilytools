@@ -94,6 +94,10 @@ in this Software without prior written authorization from The Open Group.
 #endif
 #include <schily/varargs.h>
 
+#ifndef	HAVE_LSTAT
+#define	lstat	stat
+#endif
+
 static void quit __PR((int code, char * fmt, ...));
 static void quiterr __PR((int code, char *s));
 static void msg  __PR((char * fmt, ...));
@@ -310,11 +314,13 @@ dodir (fn, fs, ts, rel)
 			continue;
 		    }
 		}
+#ifdef	HAVE_READLINK
 		if (readlink (dp->d_name, symbuf, sizeof(symbuf) - 1) >= 0) {
 		    msg ("%s: is a link instead of a directory", dp->d_name);
 		    curdir = rcurdir = ocurdir;
 		    continue;
 		}
+#endif
 		if (chdir (dp->d_name) < 0) {
 		    mperror (dp->d_name);
 		    curdir = rcurdir = ocurdir;
@@ -328,6 +334,7 @@ dodir (fn, fs, ts, rel)
 	    }
 	}
 
+#ifdef	HAVE_READLINK
 	/* non-directory */
 	symlen = readlink (dp->d_name, symbuf, sizeof(symbuf) - 1);
 	if (symlen >= 0)
@@ -342,6 +349,7 @@ dodir (fn, fs, ts, rel)
 	    if (basesymlen >= 0)
 		basesym[basesymlen] = '\0';
 	}
+#endif
 
 	if (symlen >= 0) {
 	    /* Link exists in new tree.  Print message if it doesn't match. */
@@ -396,8 +404,10 @@ dodir (fn, fs, ts, rel)
 	    }
 	    else
 		sympath = buf;
+#ifdef	HAVE_SYMLINK
 	    if (symlink (sympath, dp->d_name) < 0)
 		mperror (dp->d_name);
+#endif
 	}
     }
 

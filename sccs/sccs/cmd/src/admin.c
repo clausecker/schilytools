@@ -27,10 +27,10 @@
 /*
  * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)admin.c	1.50 11/07/15 J. Schilling
+ * @(#)admin.c	1.55 11/08/07 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)admin.c 1.50 11/07/15 J. Schilling"
+#pragma ident "@(#)admin.c 1.55 11/08/07 J. Schilling"
 #endif
 /*
  * @(#)admin.c 1.39 06/12/12
@@ -41,6 +41,7 @@
 #pragma ident	"@(#)sccs:cmd/admin.c"
 #endif
 
+# define	NEED_PRINTF_J		/* Need defines for js_snprintf()? */
 # include	<defines.h>
 # include	<version.h>
 # include	<had.h>
@@ -143,6 +144,7 @@ static off_t	Encodeflag_offset;	/* offset in file where encoded flag is stored *
 	int	main __PR((int argc, char **argv));
 static	void	admin __PR((char *afile));
 static	int	fgetchk __PR((FILE *inptr, char *file, struct packet *pkt, int fflag));
+static	void	warnctl __PR((char *file, off_t nline));
 	void	clean_up __PR((void));
 static	void	cmt_ba __PR((register struct deltab *dt, char *str));
 static	void	putmrs __PR((struct packet *pkt));
@@ -151,7 +153,7 @@ static	char *	getval __PR((register char *sourcep, register char *destp));
 static	int	val_list __PR((register char *list));
 static	int	pos_ser __PR((char *s1, char *s2));
 static	int	range __PR((register char *line));
-static	FILE *	code __PR((FILE *iptr, char *afile, int offset, int thash, struct packet *pktp));
+static	FILE *	code __PR((FILE *iptr, char *afile, off_t offset, int thash, struct packet *pktp));
 static	void	direrror __PR((char *dir, int keylet));
 static	char *	bulkprepare __PR((char *afile));
 
@@ -627,7 +629,7 @@ char	*afile;
 	char	line[BUFSIZ];
 	int	i;		/* used in forking procedure */
 	int	ck_it;		/* used for lockflag checking */
-	int     offset;
+	off_t	offset;
 	int     thash;
 	int	status;		/* used for status return from fork */
 	int	from_stdin;	/* used for ifile */
@@ -780,6 +782,9 @@ char	*afile;
 
 		sinit(&gpkt,afile,0);	/* and init pkt */
 	}
+
+	if (getenv("SCCS_VERSION"))
+		gpkt.p_flags |= PF_V6;
 
 	if (!HADH)
 		/*
@@ -1311,7 +1316,7 @@ char	*afile;
 		q = (signed char *) line;
 		while (*q)
 			gpkt.p_nhash += *q++;
-		fseek(Xiop,Encodeflag_offset,0);
+		fseek(Xiop, Encodeflag_offset, SEEK_SET);
 		fprintf(Xiop,"%c%c %c 1\n",
 			CTLCHAR, FLAG, ENCODEFLAG);
 	}
@@ -1349,21 +1354,28 @@ char	*afile;
 
 static int
 fgetchk(inptr, file, pkt, fflag)
-char	*file;
-int	fflag;
-FILE	*inptr;
-struct	packet *pkt;
+	FILE	*inptr;		/* File pointer to read from	*/
+	char	*file;		/* File name to read from	*/
+struct	packet	*pkt;		/* struct paket for output	*/
+	int	fflag;		/* 0 = abort, 1 == flag		*/
 {
-	int	nline, idx = 0;
+	off_t	nline;
+	int	idx = 0;
+	int	warned = 0;
+	char	chkflags = 0;
 	char	lastchar;
 #ifndef	RECORD_IO
 	char	*p = NULL;	/* Intialize to make gcc quiet */
 	char	*pn =  NULL;
 	char	line[VBUF_SIZE+1];
+	char	*lastline = line; /* Init to make GCC quiet */
 #else
 	int	search_on = 0;
 	char	line[256];	/* Avoid a too long buffer for speed */
 #endif
+	off_t	ibase = 0;	/* Ifile off from last read operation	*/
+	off_t	ioff = 0;	/* Ifile offset past last newline	*/
+	off_t	soff = ftell(Xiop); /* Ofile (s. file) base offset	*/
 
 	/*
 	 * This gives the illusion that a zero-length file ends
@@ -1382,14 +1394,28 @@ struct	packet *pkt;
 	 * of the buffer.
 	 */
 	while ((idx = fread(line, 1, sizeof (line) - 1, inptr)) > 0) {
-		if (lastchar == '\n' && line[0] == CTLCHAR)
-			goto err;
+		lastline = line;
+		if (lastchar == '\n' && line[0] == CTLCHAR) {
+			chkflags |= CK_CTLCHAR;
+			if (fflag && (pkt->p_flags & PF_V6)) {
+				if (!warned) {
+					warnctl(file, nline+1);
+					warned = 1;
+				}
+				putctl(pkt);
+			} else {
+				goto err;
+			}
+		}
 		lastchar = line[idx-1];
 		p = findbytes(line, idx, '\0');
-		if (p != NULL)
+		if (p != NULL) {
+			chkflags |= CK_NULL;
 			pn = p;
+		}
 		for (p = line;
 		    (p = findbytes(p, idx - (p-line), '\n')) != NULL; p++) {
+			ioff = ibase + (p - line) + 1;
 			if (pn && p > pn)
 				goto err;
 			nline++;
@@ -1397,14 +1423,28 @@ struct	packet *pkt;
 				break;
 
 			if (p[1] == CTLCHAR) {
+				chkflags |= CK_CTLCHAR;
 	err:
+				if (fflag && (pkt->p_flags & PF_V6) &&
+				    (chkflags & CK_NULL) == 0) {
+					if (!warned) {
+						warnctl(file, nline+1);
+						warned = 1;
+					}
+					p[1] = '\0';
+					putline(pkt, lastline);
+					p[1] = CTLCHAR;
+					lastline = &p[1];
+					putctl(pkt);
+					continue;
+				}
 				if (fflag) {
 					return(-1);
 				} else {
 					sprintf(SccsError,
 					gettext(
-			  "file '%s' contains illegal data on line %d (ad21)"),
-					file, ++nline);
+			  "file '%s' contains illegal data on line %jd (ad21)"),
+					file, (intmax_t)++nline);
 					fatal(SccsError);
 				}
 			}
@@ -1413,25 +1453,36 @@ struct	packet *pkt;
 			(void)chkid(line, flag_p['i'-'a'], flag_p);
 		}
 		line[idx] = '\0';
-		putline(pkt, line);
+		putline(pkt, lastline);
+		ibase += idx;
 	}
 #else	/* !RECORD_IO */
 	while (fgets(line, sizeof (line), inptr) != NULL) {
 	   if (lastchar == '\n' && line[0] == CTLCHAR) {
-	      nline++;
-	      goto err;
+		chkflags |= CK_CTLCHAR;
+		if (fflag && (pkt->p_flags & PF_V6)) {
+			if (!warned) {
+				warnctl(file, nline+1);
+				warned = 1;
+			}
+			putctl(pkt);
+		} else {
+			nline++;
+			goto err;
+		}
 	   }
 	   search_on = 0;
 	   for (idx = sizeof (line)-1; idx >= 0; idx--) {
 	      if (search_on > 0) {
 		 if (line[idx] == '\0') {
+		    chkflags |= CK_NULL;
 	err:
 		    if (fflag) {
 		       return(-1);
 		    } else {
 		       sprintf(SccsError, 
-			 gettext("file '%s' contains illegal data on line %d (ad21)"),
-			 file, nline);
+			 gettext("file '%s' contains illegal data on line %jd (ad21)"),
+			 file, (intmax_t)nline);
 		       fatal(SccsError);
 		    }
 		 }
@@ -1441,7 +1492,10 @@ struct	packet *pkt;
 		    lastchar = line[idx-1];
 		    if (lastchar == '\n') {
 		       nline++;
+		       ioff = ibase + idx;
+
 		    }
+		    ibase += idx;
 		 }
 	      }
 	   }   
@@ -1452,11 +1506,32 @@ struct	packet *pkt;
 	   (void)memset(line, '\377', sizeof (line));
 	}
 #endif	/* !RECORD_IO */
-	if (lastchar != '\n'){
+	if (lastchar != '\n')
+		chkflags |= CK_NONL;
+	pkt->p_props |= chkflags;
+
+	if (chkflags & CK_NONL) {
 #ifndef	RECORD_IO
 		if (pn && nline == 0)	/* Found null byte but no newline */
 			goto err;
 #endif
+		if (fflag && (pkt->p_flags & PF_V6)) {
+			fseek(inptr, ioff, SEEK_SET);
+			fseek(Xiop, ioff + soff, SEEK_SET);
+
+			putctlnnl(pkt);
+			while ((idx =
+			    fread(line, 1, sizeof (line) - 1, inptr)) > 0) {
+				if (fwrite(line, 1, idx, Xiop) <= 0)
+					FAILPUT;
+			}
+			putchr(pkt, '\n');
+			fprintf(stderr, gettext(
+			    "WARNING [%s]: No newline at end of file (ad31)\n"),
+				file);
+			return (nline);
+		}
+
 	   if (fflag) {
 	      return(-1);
 	   } else {
@@ -1469,6 +1544,17 @@ struct	packet *pkt;
 	return(nline);
 }
 
+static void
+warnctl(file, nline)
+	char	*file;
+	off_t	nline;
+{
+	fprintf(stderr,
+		gettext(
+		"WARNING [%s]: line %jd begins with ^A\n"),
+		file, (intmax_t)nline);
+}
+ 
 void
 clean_up()
 {
@@ -1664,7 +1750,7 @@ static FILE *
 code(iptr,afile,offset,thash,pktp)
 FILE *iptr;
 char *afile;
-int offset;
+off_t offset;
 int thash;
 struct packet *pktp;
 {
@@ -1690,7 +1776,7 @@ struct packet *pktp;
 	 * the end of sccs header info and before gfile contents
 	 */
 	putline(pktp,0);
-	fseek(Xiop,offset,0);
+	fseek(Xiop, offset, SEEK_SET);
 	pktp->p_nhash = thash;
 
 	return (iptr);

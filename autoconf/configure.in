@@ -1,6 +1,6 @@
-dnl @(#)configure.in	1.232 11/07/19 Copyright 1998-2011 J. Schilling
+dnl @(#)configure.in	1.235 11/08/03 Copyright 1998-2011 J. Schilling
 dnl Process this file with autoconf to produce a configure script.
-AC_REVISION(1.232)dnl
+AC_REVISION(1.235)dnl
 
 dnl AC_INIT(xconfig.h.in)
 AC_INIT(config.guess)
@@ -63,7 +63,7 @@ AC_HEADER_SYS_SELECT
 dnl check whether select() needs sys/socket.h (BeOS)
 AC_HEADER_SELECT2
 AC_CHECK_HEADERS(assert.h)
-AC_CHECK_HEADERS(stdio.h varargs.h stdarg.h stdlib.h stddef.h string.h strings.h unistd.h fcntl.h sys/file.h)
+AC_CHECK_HEADERS(stdio.h varargs.h stdarg.h stdlib.h stddef.h string.h strings.h unistd.h fcntl.h io.h sys/file.h)
 AC_CHECK_HEADERS(getopt.h)
 AC_CHECK_HEADERS(limits.h)
 AC_CHECK_HEADERS(a.out.h aouthdr.h elf.h)
@@ -77,6 +77,7 @@ AC_CHECK_HEADERS(sys/syscall.h)
 AC_CHECK_HEADERS(mach/machine.h)
 AC_CHECK_HEADERS(mntent.h sys/mntent.h sys/mnttab.h sys/mount.h)
 AC_CHECK_HEADERS(sys/fork.h vfork.h wait.h sys/wait.h sys/resource.h procfs.h sys/procfs.h libproc.h)
+AC_CHECK_HEADERS(process.h)
 AC_CHECK_HEADERS(sys/utsname.h sys/priocntl.h sys/rtpriocntl.h sys/procset.h)
 AC_CHECK_HEADERS(sys/mtio.h sys/tape.h sys/mman.h linux/pg.h camlib.h)
 AC_CHECK_HEADERS(sys/shm.h sys/sem.h sys/ipc.h)
@@ -198,7 +199,7 @@ AC_INCL_CHECK_TYPE(
 #ifdef	HAVE_WCTYPE_H
 #include <wctype.h>
 #endif
-], mbstate_t, wctype_t, int)
+], mbstate_t, int)
 
 AC_CHECK_SIZEOF(char)
 AC_CHECK_SIZEOF(short int)
@@ -319,7 +320,7 @@ AC_FUNC_PRINTF_J
 AC_FUNC_PRINTF_LL
 AC_FUNC_REALLOC_NULL
 AC_CHECK_FUNCS(access eaccess euidaccess)
-AC_CHECK_FUNCS(memchr memcpy memmove memset)
+AC_CHECK_FUNCS(memchr memcmp memcpy memccpy memmove memset)
 AC_CHECK_FUNCS(brk sbrk strerror nice flock lockf fchdir statvfs quotactl)
 AC_CHECK_FUNCS(realpath resolvepath)
 AC_CHECK_FUNCS(dup dup2)
@@ -337,6 +338,9 @@ dnl			getspwnam() on HP-UX is in libsec.a
 AC_CHECK_FUNCS(getspnam getspwnam)
 AC_CHECK_FUNCS(sync fsync fork forkx vforkx forkall forkallx wait wait4 waitid waitpid getrusage getrlimit setrlimit ulimit)
 AC_CHECK_FUNCS(execl execle execlp execv execve execvp)
+AC_CHECK_FUNCS(spawnl spawnle spawnlp spawnlpe)
+AC_CHECK_FUNCS(spawnv spawnve spawnvp spawnvpe)
+AC_CHECK_FUNCS(cwait)
 AC_CHECK_FUNCS(getexecname)
 AC_CHECK_FUNCS(getprogname setprogname)
 AC_CHECK_FUNCS(proc_pidpath)
@@ -347,6 +351,7 @@ AC_CHECK_FUNCS(ctime cftime ascftime strftime)
 AC_CHECK_FUNCS(poll select isastream)
 AC_CHECK_FUNCS(chown fchown lchown chmod fchmod lchmod times utime utimes futimes lutimes)
 AC_CHECK_FUNCS(futimens utimensat)
+AC_CHECK_FUNCS(ioctl fcntl)
 dnl AC_CHECK_FUNCS(ecvt fcvt gcvt)
 AC_CHECK_FUNCS(qecvt qfcvt qgcvt)
 AC_CHECK_FUNCS(_qecvt _qfcvt _qgcvt)
@@ -372,11 +377,12 @@ dnl This appeared not yet in POSIX
 AC_CHECK_FUNCS(accessat)
 dnl This are POSIX extensions not found on Solaris 10
 AC_CHECK_FUNCS(mkdirat faccessat fchmodat linkat mkfifoat mknodat readlinkat symlinkat)
+AC_CHECK_FUNCS(pipe _pipe)
 AC_CHECK_FUNCS(popen pclose _popen _pclose)
 AC_CHECK_FUNCS(strsignal str2sig sig2str)
 AC_CHECK_FUNCS(kill killpg)
 AC_CHECK_FUNCS(signal sigrelse sigprocmask sigsetmask sigset sigaltstack)
-AC_CHECK_FUNCS(sleep usleep yield)
+AC_CHECK_FUNCS(alarm sleep usleep yield)
 dnl tcgetattr and tcsetattr are a inline functions in termios.h on Android
 AC_CHECK_DFUNC([
 #ifdef	HAVE_TERMIOS_H
@@ -391,8 +397,18 @@ AC_CHECK_DFUNC([
 AC_CHECK_FUNCS(tcgetpgrp tcsetpgrp)
 AC_CHECK_FUNCS(getenv putenv setenv unsetenv)
 AC_CHECK_FUNCS(snprintf strcasecmp)
-AC_CHECK_FUNCS(strcat strncat strcmp strncmp strcpy strlcat strlcpy strncpy strdup strndup strlen strnlen strchr strrchr)
-AC_CHECK_FUNCS(wcscat wcsncat wcscmp wcsncmp wcscpy wcslcat wcslcpy wcsncpy wcsdup wcsndup wcslen wcsnlen wcschr wcsrchr)
+
+AC_CHECK_DFUNCS([
+#ifdef	HAVE_STRING_H
+#include <string.h>
+#endif
+], strcat strncat strcmp strncmp strcpy strlcat strlcpy strncpy strdup strndup strlen strnlen strchr strrchr)
+AC_CHECK_DFUNCS([
+#ifdef	HAVE_WCHAR_H
+#include <wchar.h>
+#endif
+], wcscat wcsncat wcscmp wcsncmp wcscpy wcslcat wcslcpy wcsncpy wcsdup wcsndup wcslen wcsnlen wcschr wcsrchr)
+
 AC_CHECK_FUNCS(wcwidth wcswidth wctype iswctype)
 AC_CHECK_FUNCS(basename dirname)
 AC_CHECK_FUNCS(pathconf fpathconf)
@@ -513,11 +529,20 @@ ac_save_LIBS="$LIBS"
 LIBS="$LIBS $lib_dl"
 AC_CHECK_FUNCS(dlopen dlclose dlsym dlerror dlinfo)
 AC_CHECK_FUNCS(shl_load shl_unload shl_gethandle)
-AC_CHECK_FUNCS(LoadLibrary FreeLibrary GetProcAddress)
 LIBS="$ac_save_LIBS"
 if test ."$lib_dl" = .""; then
 	AC_DEFINE(HAVE_DLOPEN_IN_LIBC)
 fi
+
+AC_CHECK_DFUNCS([
+#ifdef	HAVE_WINDOWS_H
+#undef	u_char
+#undef	u_short
+#undef	u_int
+#undef	u_long
+#include <windows.h>
+#endif
+], LoadLibrary FreeLibrary GetProcAddress)
 
 dnl ??? AC_CHECK_LIB(socket, socket, lib_socket="-lsocket")
 dnl

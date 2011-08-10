@@ -25,12 +25,12 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2009 J. Schilling
+ * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)getline.c	1.5 09/11/08 J. Schilling
+ * @(#)getline.c	1.7 11/08/01 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)getline.c 1.5 09/11/08 J. Schilling"
+#pragma ident "@(#)getline.c 1.7 11/08/01 J. Schilling"
 #endif
 /*
  * @(#)getline.c 1.10 06/12/12
@@ -93,7 +93,7 @@ register struct packet *pkt;
 		    if(pkt->do_chksum && (pkt->p_uchash ^ pkt->p_ihash)&0xFFFF) 
 			fatal(gettext("Corrupted file (co6)"));
 		if (pkt->p_reopen) {
-			fseek(pkt->p_iop,0L,0);
+			fseek(pkt->p_iop, (off_t)0, SEEK_SET);
 			pkt->p_reopen = 0;
 			pkt->p_slnno = 0;
 			pkt->p_ihash = 0;
@@ -108,6 +108,7 @@ register struct packet *pkt;
 
 	pkt->p_wrttn = 0;
 	pkt->p_slnno++;
+	pkt->p_line_length = used;
 
 	/* update check sum */
 	for (p = (signed char *)pkt->p_line,u_p = (unsigned char *)pkt->p_line; *p; ) {

@@ -1,8 +1,8 @@
-/* @(#)change.c	1.40 11/07/14 Copyright 1985, 87-90, 95-99, 2000-2011 J. Schilling */
+/* @(#)change.c	1.41 11/08/03 Copyright 1985, 87-90, 95-99, 2000-2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)change.c	1.40 11/07/14 Copyright 1985, 87-90, 95-99, 2000-2011 J. Schilling";
+	"@(#)change.c	1.41 11/08/03 Copyright 1985, 87-90, 95-99, 2000-2011 J. Schilling";
 #endif
 /*
  *	find pattern and substitute in files
@@ -128,9 +128,15 @@ main(ac, av)
 
 	save_args(ac, av);
 
+#ifdef	SIGHUP
 	signal(SIGHUP, intr);
+#endif
+#ifdef	SIGINT
 	signal(SIGINT, intr);
+#endif
+#ifdef	SIGTERM
 	signal(SIGTERM, intr);
+#endif
 
 	cac = --ac;
 	cav = ++av;
@@ -146,7 +152,7 @@ main(ac, av)
 	if (help) usage(0);
 	if (prversion) {
 		printf("Change release %s (%s-%s-%s) Copyright (C) 1985, 87-90, 95-99, 2000-2011 Jörg Schilling\n",
-				"1.40",
+				"1.41",
 				HOST_CPU, HOST_VENDOR, HOST_OS);
 		exit(0);
 	}

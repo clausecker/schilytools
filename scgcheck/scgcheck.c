@@ -1,11 +1,11 @@
-/* @(#)scgcheck.c	1.20 10/12/19 Copyright 1998-2010 J. Schilling */
+/* @(#)scgcheck.c	1.21 11/08/03 Copyright 1998-2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)scgcheck.c	1.20 10/12/19 Copyright 1998-2010 J. Schilling";
+	"@(#)scgcheck.c	1.21 11/08/03 Copyright 1998-2011 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1998-2010 J. Schilling
+ *	Copyright (c) 1998-2011 J. Schilling
  *
  * Warning: This program has been written to verify the correctness
  * of the upper layer interface from the library "libscg". If you
@@ -159,7 +159,7 @@ main(ac, av)
 	if (help)
 		usage(0);
 	if (pversion) {
-		printf(_("scgcheck %s (%s-%s-%s) Copyright (C) 1998-2010 %s\n"),
+		printf(_("scgcheck %s (%s-%s-%s) Copyright (C) 1998-2011 %s\n"),
 								scgc_version,
 								HOST_CPU, HOST_VENDOR, HOST_OS,
 								_("Joerg Schilling"));
@@ -184,7 +184,7 @@ main(ac, av)
 		comerr(_("Cannot open logfile.\n"));
 
 	chkprint(_("Scgcheck %s (%s-%s-%s) SCSI user level transport library ABI checker.\n\
-Copyright (C) 1998-2010 %s\n"),
+Copyright (C) 1998-2011 %s\n"),
 						scgc_version,
 						HOST_CPU, HOST_VENDOR, HOST_OS,
 						_("Joerg Schilling"));
@@ -585,10 +585,12 @@ countopen()
 	int	nopen = 0;
 	int	i;
 
+#ifdef	F_GETFD				/* XXX how to count open fd on MSC */
 	for (i = 0; i < 1000; i++) {
 		if (fcntl(i, F_GETFD, 0) >= 0)
 			nopen++;
 	}
+#endif
 	return (nopen);
 }
 /*--------------------------------------------------------------------------*/

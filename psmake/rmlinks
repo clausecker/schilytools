@@ -1,5 +1,5 @@
 #!/bin/sh
-# @(#)rmlinks	1.17 11/07/12 Copyright 1999 J. Schilling
+# @(#)rmlinks	1.18 11/08/05 Copyright 1999 J. Schilling
 
 rm -f archconf.c
 rm -f job.h
@@ -19,6 +19,7 @@ rm -f include/schily/fcntl.h
 rm -f include/schily/getargs.h
 rm -f include/schily/getcwd.h
 rm -f include/schily/hostname.h
+rm -f include/schily/io.h
 rm -f include/schily/libport.h
 rm -f include/schily/limits.h
 rm -f include/schily/maxpath.h

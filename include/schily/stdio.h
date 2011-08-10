@@ -1,8 +1,8 @@
-/* @(#)stdio.h	1.2 09/04/08 Copyright 2009 J. Schilling */
+/* @(#)stdio.h	1.3 11/08/03 Copyright 2009-2011 J. Schilling */
 /*
  *	Abstraction from stdio.h
  *
- *	Copyright (c) 2009 J. Schilling
+ *	Copyright (c) 2009-2011 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -52,6 +52,14 @@
 #ifdef	HAVE_FTELLO
 #	define	ftell	ftello
 #endif
+#endif
+
+#if	!defined(HAVE_POPEN) && defined(HAVE__POPEN)
+#define	popen(c, m)	_popen((c), (m))
+#endif
+
+#if	!defined(HAVE_PCLOSE) && defined(HAVE__PCLOSE)
+#define	pclose(fp)	_pclose(fp)
 #endif
 
 #endif	/* _SCHILY_STDIO_H */

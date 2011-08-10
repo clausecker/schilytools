@@ -19,7 +19,7 @@
 .\" CDDL HEADER END
 .\" Copyright (c) 1999, Sun Microsystems, Inc. All Rights Reserved
 .\" Copyright 2007-2011 J. Schilling
-.TH sccs-delta 1 "2011/07/11" "SunOS 5.11" "User Commands"
+.TH sccs-delta 1 "2011/07/27" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs-delta, delta \- make a delta to an SCCS file
 .SH SYNOPSIS
@@ -182,7 +182,10 @@ An error occurred, the \fB-d\fR option had been specified, and the \fIs.filename
 .ne 2
 .TP 12
 .BI d. file
-temporary file of differences
+temporary file created by the
+.BR delta (1)
+program with the content of the previous version, 
+used to compute differences to the current version
 
 .sp
 .ne 2

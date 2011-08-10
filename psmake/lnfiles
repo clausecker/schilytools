@@ -1,5 +1,5 @@
 #!/bin/sh
-# @(#)lnfiles	1.20 11/07/12 Copyright 1999 J. Schilling
+# @(#)lnfiles	1.21 11/08/05 Copyright 1999 J. Schilling
 
 cp='ln -s'
 smake=smake
@@ -45,6 +45,7 @@ $cp ${incsrc}/../../include/schily/fcntl.h		include/schily/fcntl.h
 $cp ${incsrc}/../../include/schily/getargs.h	include/schily/getargs.h
 $cp ${incsrc}/../../include/schily/getcwd.h		include/schily/getcwd.h
 $cp ${incsrc}/../../include/schily/hostname.h		include/schily/hostname.h
+$cp ${incsrc}/../../include/schily/io.h		include/schily/io.h
 $cp ${incsrc}/../../include/schily/libport.h	include/schily/libport.h
 $cp ${incsrc}/../../include/schily/limits.h	include/schily/limits.h
 $cp ${incsrc}/../../include/schily/maxpath.h	include/schily/maxpath.h

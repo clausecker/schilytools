@@ -27,10 +27,10 @@
 /*
  * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)setsig.c	1.6 09/11/08 J. Schilling
+ * @(#)setsig.c	1.7 11/08/03 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)setsig.c 1.6 09/11/08 J. Schilling"
+#pragma ident "@(#)setsig.c 1.7 11/08/03 J. Schilling"
 #endif
 /*
  * @(#)setsig.c 1.8 06/12/12
@@ -91,10 +91,13 @@ setsig()
 	register int j;
 	register void (*n) __PR((int));
 
-	for (j=1; j<ONSIG; j++)
+	for (j = 1; j < ONSIG; j++) {
+#ifdef	SIGBUS
 		if (j != SIGBUS)
-			if ((n=signal(j,setsig1)) != NULL)
-				signal(j,n);
+#endif
+			if ((n=signal(j, setsig1)) != NULL)
+				signal(j, n);
+	}
 }
 
 
@@ -106,13 +109,13 @@ int sig;
 	
 	if (die++) {
 #ifdef	SIGIOT
-		signal(SIGIOT,0);
+		signal(SIGIOT, SIG_DFL);
 #endif
 #ifdef	SIGEMT
-		signal(SIGEMT,0);
+		signal(SIGEMT, SIG_DFL);
 #endif
 #ifdef	SIGILL
-		signal(SIGILL,0);
+		signal(SIGILL, SIG_DFL);
 #endif
 		exit(1);
 	}
@@ -122,17 +125,17 @@ int sig;
 		(void) write(2, NOGETTEXT(" (ut12)\n"), length(" (ut12)\n"));
 	}
 	else
-		signal(sig,SIG_IGN);
+		signal(sig, SIG_IGN);
 	clean_up();
 	if(open(NOGETTEXT("dump.core"), O_RDONLY|O_BINARY) > 0) {
 #ifdef	SIGIOT
-		signal(SIGIOT,0);
+		signal(SIGIOT, SIG_DFL);
 #endif
 #ifdef	SIGEMT
-		signal(SIGEMT,0);
+		signal(SIGEMT, SIG_DFL);
 #endif
 #ifdef	SIGILL
-		signal(SIGILL,0);
+		signal(SIGILL, SIG_DFL);
 #endif
 		abort();
 	}

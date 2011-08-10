@@ -1,6 +1,6 @@
-/* @(#)libport.h	1.28 11/07/12 Copyright 1995-2010 J. Schilling */
+/* @(#)libport.h	1.30 11/08/03 Copyright 1995-2011 J. Schilling */
 /*
- *	Copyright (c) 1995-2010 J. Schilling
+ *	Copyright (c) 1995-2011 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -240,13 +240,13 @@ extern	void		endpwent __PR((void));
 
 
 #ifndef	HAVE_GETGRNAM
-extern	struct passwd *getgrnam __PR((const char *name));
+extern	struct group	*getgrnam __PR((const char *name));
 #endif
 #ifndef	HAVE_GETGRENT
-extern	struct passwd *getgrent __PR((void));
+extern	struct group	*getgrent __PR((void));
 #endif
 #ifndef	HAVE_GETGRGID
-extern	struct passwd *getgrgid __PR((gid_t gid));
+extern	struct group	*getgrgid __PR((gid_t gid));
 #endif
 #ifndef	HAVE_SETGRENT
 extern	void		setgrent __PR((void));

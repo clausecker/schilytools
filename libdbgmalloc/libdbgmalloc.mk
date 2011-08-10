@@ -1,4 +1,4 @@
-#ident @(#)libdbgmalloc.mk	1.1 09/10/18 
+#ident @(#)libdbgmalloc.mk	1.2 11/08/02 
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES

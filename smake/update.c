@@ -1,14 +1,14 @@
-/* @(#)update.c	1.119 09/12/03 Copyright 1985, 88, 91, 1995-2009 J. Schilling */
+/* @(#)update.c	1.121 11/08/04 Copyright 1985, 88, 91, 1995-2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)update.c	1.119 09/12/03 Copyright 1985, 88, 91, 1995-2009 J. Schilling";
+	"@(#)update.c	1.121 11/08/04 Copyright 1985, 88, 91, 1995-2011 J. Schilling";
 #endif
 /*
  *	Make program
  *	Macro handling / Dependency Update
  *
- *	Copyright (c) 1985, 88, 91, 1995-2009 by J. Schilling
+ *	Copyright (c) 1985, 88, 91, 1995-2011 by J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -1510,11 +1510,11 @@ parsepat(pat, fp1, fp2, tp1, tp2)
 /*	printf("f1: '%s' f2: '%s' t1: '%s' t2: '%s'\n", f1, f2, t1, t2);*/
 }
 
-#if	!defined(HAVE_POPEN) && defined(HAVE__POPEN)
+#if	!defined(popen) && !defined(HAVE_POPEN) && defined(HAVE__POPEN)
 #	define	popen	_popen
 #	define	HAVE_POPEN
 #endif
-#if	!defined(HAVE_PCLOSE) && defined(HAVE__PCLOSE)
+#if	!defined(pclose) && !defined(HAVE_PCLOSE) && defined(HAVE__PCLOSE)
 #	define	pclose	_pclose
 #	define	HAVE_PCLOSE
 #endif

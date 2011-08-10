@@ -27,10 +27,10 @@
 /*
  * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)lockit.c	1.9 11/06/20 J. Schilling
+ * @(#)lockit.c	1.10 11/08/02 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)lockit.c 1.9 11/06/20 J. Schilling"
+#pragma ident "@(#)lockit.c 1.10 11/08/02 J. Schilling"
 #endif
 /*
  * @(#)lockit.c 1.20 06/12/12
@@ -62,7 +62,7 @@
 # define	NEED_PRINTF_J		/* Need defines for js_snprintf()? */
 # include	<defines.h>
 # include	<i18n.h>
-# include	<sys/utsname.h>
+# include	<schily/utsname.h>
 # include	<ccstypes.h>
 # include	<signal.h>
 # include	<limits.h>

@@ -1,4 +1,4 @@
-dnl @(#)aclocal.m4	1.98 11/07/19 Copyright 1998-2011 J. Schilling
+dnl @(#)aclocal.m4	1.99 11/08/02 Copyright 1998-2011 J. Schilling
 
 dnl Set VARIABLE to VALUE in C-string form, verbatim, or 1.
 dnl AC_DEFINE_STRING(VARIABLE [, VALUE])
@@ -32,7 +32,7 @@ changequote([,]), [#include <sys/types.h>
 #if	HAVE_STDDEF_H || STDC_HEADERS
 #include <stddef.h>
 #endif
-$1], ac_cv_have_type_$2=yes, ac_cv_have_type_$2=no)])dnl
+$1], eval ac_cv_have_type_$2=yes, eval ac_cv_have_type_$2=no)])dnl
 AC_MSG_RESULT($ac_cv_have_type_$2)
 changequote(, )dnl
   ac_tr_type=HAVE_TYPE_`echo $2 | sed 'y%abcdefghijklmnopqrstuvwxyz./-%ABCDEFGHIJKLMNOPQRSTUVWXYZ___%'`
@@ -309,8 +309,8 @@ AC_DEFUN([AC_CHECK_DECLARE],
 [AC_CACHE_CHECK([if $2 is declared], ac_cv_have_decl_$2,
                 [AC_TRY_COMPILE([$1],
 [ char *p = (char *) $2; exit (p != (char *)0 && *p != 0); ],
-		[ac_cv_have_decl_$2=yes],
-		[ac_cv_have_decl_$2=no])])
+		[eval ac_cv_have_decl_$2=yes],
+		[eval ac_cv_have_decl_$2=no])])
 changequote(, )dnl
   ac_tr_decl=HAVE_DECL_`echo $2 | sed 'y%abcdefghijklmnopqrstuvwxyz./-%ABCDEFGHIJKLMNOPQRSTUVWXYZ___%'`
 changequote([, ])dnl
@@ -322,22 +322,31 @@ dnl AC_CHECK_DFUNC(INCLUDES, SYMBOL)
 dnl Checks if symbol is defined or a function
 dnl Defines HAVE_SYMBOL on success.
 AC_DEFUN([AC_CHECK_DFUNC],
-[AC_CACHE_CHECK([if $2 is defined or function], ac_cv_have_$2,
+[AC_CACHE_CHECK([if $2 is defined or function], ["ac_cv_have_$2"],
                 [AC_TRY_LINK([$1],
 [
 #ifndef $2
 	char *p = (char *) $2;
 	exit (p != (char *)0 && *p != 0);
 #endif],
-		[ac_cv_have_$2=yes],
-		[ac_cv_have_$2=no])])
+		[eval ac_cv_have_$2=yes],
+		[eval ac_cv_have_$2=no])])
 changequote(, )dnl
   ac_tr_dfunc=HAVE_`echo $2 | sed 'y%abcdefghijklmnopqrstuvwxyz./-%ABCDEFGHIJKLMNOPQRSTUVWXYZ___%'`
 changequote([, ])dnl
-if test $ac_cv_have_$2 = yes; then
+if eval "test \"`echo '$ac_cv_have_'$2`\" = yes"; then
   AC_DEFINE_UNQUOTED($ac_tr_dfunc)
-fi])
+fi
+])
 
+dnl AC_CHECK_DFUNCS(INCLUDES, FUNCTION...)
+AC_DEFUN(AC_CHECK_DFUNCS,
+[for ac_func in [$2]
+do
+AC_CHECK_DFUNC([$1], $ac_func)dnl
+done
+])
+ 
 dnl Checks whether symbol is defined or a function in a lib
 dnl AC_CHECK_DLIB(INCLUDES, LIBRARY, FUNCTION [, ACTION-IF-FOUND [, ACTION-IF-NOT-FOUND
 dnl              [, OTHER-LIBRARIES]]])

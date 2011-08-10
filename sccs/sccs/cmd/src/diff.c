@@ -39,10 +39,10 @@
 /*
  * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)diff.c	1.34 11/06/21 J. Schilling
+ * @(#)diff.c	1.36 11/08/03 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)diff.c 1.34 11/06/21 J. Schilling"
+#pragma ident "@(#)diff.c 1.36 11/08/03 J. Schilling"
 #endif
 
 #if defined(sun)
@@ -245,6 +245,12 @@
 #define	PATH_MAX	MAXPATHNAME
 #endif
 
+#ifdef	pdp11
+#define	D_BUFSIZ	BUFSIZ
+#else
+#define	D_BUFSIZ	(32*1024)
+#endif
+
 #ifndef	HAVE_CFTIME
 #define	cftime(buf, dcmsg, tl)	(strcpy(buf, ctime(tl)), buf[24] = 0)
 #endif
@@ -257,7 +263,9 @@ extern int	optind, opterr, optopt;
 
 #define	CHRTRAN(x)	(iflag ? (iswupper(x) ? towlower(x) : (x)) : (x))
 #define	NCCHRTRAN(x)	(iswupper(x) ? towlower(x) : (x))
+#undef	max
 #define	max(a, b)	((a) < (b) ? (b) : (a))
+#undef	min
 #define	min(a, b)	((a) > (b) ? (b) : (a))
 
 int pref, suff;		/* length of prefix and suffix */
@@ -368,7 +376,7 @@ main(argc, argv)
 	char *argp;
 	int flag;			/* option flag read by getopt() */
 	int i, j;
-	char buf1[BUFSIZ], buf2[BUFSIZ];
+	char buf1[D_BUFSIZ], buf2[D_BUFSIZ];
 
 
 	(void) setlocale(LC_ALL, "");
@@ -610,12 +618,17 @@ gettext("-h doesn't support -e, -f, -n, -c, or -I"));
 	}
 	initbuf(input[1], 1, (off_t)0);
 
+#ifdef	HAVE_SETVBUF
+	setvbuf(input[0], NULL, _IOFBF, 32*1024);
+	setvbuf(input[1], NULL, _IOFBF, 32*1024);
+#endif
+
 	if (stb1.st_size != stb2.st_size)
 		goto notsame;
 
 	for (;;) {
-		i = fread(buf1, 1, BUFSIZ, input[0]);
-		j = fread(buf2, 1, BUFSIZ, input[1]);
+		i = fread(buf1, 1, D_BUFSIZ, input[0]);
+		j = fread(buf2, 1, D_BUFSIZ, input[1]);
 		if (ferror(input[0]) || ferror(input[1])) {
 			(void) fprintf(stderr, "diff: ");
 			(void) fprintf(stderr, gettext("Error reading "));
@@ -632,7 +645,7 @@ gettext("-h doesn't support -e, -f, -n, -c, or -I"));
 			if (opt == D_IFDEF) {
 				rewind(input[0]);
 				while ((i =
-				    fread(buf1, 1, BUFSIZ, input[0])) > 0) {
+				    fread(buf1, 1, D_BUFSIZ, input[0])) > 0) {
 					(void) fwrite(buf1, 1, i, stdout);
 				}
 			}
@@ -641,9 +654,14 @@ gettext("-h doesn't support -e, -f, -n, -c, or -I"));
 			status = 0;
 			goto same;		/* files don't differ */
 		}
+#ifdef	HAVE_MEMCMP
+		if (memcmp(buf1, buf2, i))
+			goto notsame;
+#else
 		for (j = 0; j < i; j++)
 			if (buf1[j] != buf2[j])
 				goto notsame;
+#endif
 	}
 
 notsame:
@@ -1777,7 +1795,7 @@ compare(dp)
 	int f1 = -1, f2 = -1;
 	mode_t fmt1, fmt2;
 	struct stat statb1, statb2;
-	char buf1[BUFSIZ], buf2[BUFSIZ];
+	char buf1[D_BUFSIZ], buf2[D_BUFSIZ];
 	int result = 0;
 
 	(void) strcpy(efile1, dp->d_entry);
@@ -1848,23 +1866,28 @@ compare(dp)
 				    file1, file2);
 				goto closem;
 
+#if	defined(S_IFCHR) || defined(S_IFBLK)
 			case S_IFCHR:
+#ifdef	S_IFBLK
 			case S_IFBLK:
+#endif
 				if (statb1.st_rdev == statb2.st_rdev)
 					goto same;
 				(void) printf(gettext(
 				    "Special files %s and %s differ\n"),
 				    file1, file2);
 				break;
+#endif
 
+#ifdef	S_IFLNK
 			case S_IFLNK:
-				if ((i = readlink(file1, buf1, BUFSIZ)) == -1) {
+				if ((i = readlink(file1, buf1, D_BUFSIZ)) == -1) {
 					(void) fprintf(stderr, gettext(
 					    "diff: cannot read link\n"));
 					return (2);
 				}
 
-				if ((j = readlink(file2, buf2, BUFSIZ)) == -1) {
+				if ((j = readlink(file2, buf2, D_BUFSIZ)) == -1) {
 					(void) fprintf(stderr, gettext(
 					    "diff: cannot read link\n"));
 					return (2);
@@ -1879,7 +1902,9 @@ compare(dp)
 				    "Symbolic links %s and %s differ\n"),
 				    file1, file2);
 				break;
+#endif
 
+#ifdef	S_IFIFO
 			case S_IFIFO:
 				if (statb1.st_ino == statb2.st_ino)
 					goto same;
@@ -1887,6 +1912,7 @@ compare(dp)
 				    "Named pipes %s and %s differ\n"),
 				    file1, file2);
 				break;
+#endif
 			}
 		} else {
 			if (lflag)
@@ -1918,8 +1944,8 @@ gettext("File %s is %s while file %s is %s\n"),
 	if (statb1.st_size != statb2.st_size)
 		goto notsame;
 	for (;;) {
-		i = read(f1, buf1, BUFSIZ);
-		j = read(f2, buf2, BUFSIZ);
+		i = read(f1, buf1, D_BUFSIZ);
+		j = read(f2, buf2, D_BUFSIZ);
 		if (i < 0 || j < 0) {
 			(void) fprintf(stderr, "diff: ");
 			(void) fprintf(stderr, gettext("Error reading "));
@@ -2114,13 +2140,13 @@ static int
 binary(f)
 	int	f;
 {
-	char buf[BUFSIZ];
+	char buf[D_BUFSIZ];
 	int cnt;
 
 	if (f < 0)
 		return (0);
 	(void) lseek(f, (off_t)0, SEEK_SET);
-	cnt = read(f, buf, BUFSIZ);
+	cnt = read(f, buf, D_BUFSIZ);
 	if (cnt < 0)
 		return (1);
 	return (isbinary(buf, cnt));
@@ -2130,11 +2156,11 @@ static int
 filebinary(f)
 	FILE	*f;
 {
-	char buf[BUFSIZ];
+	char buf[D_BUFSIZ];
 	int cnt;
 
 	(void) fseek(f, (off_t)0, SEEK_SET);
-	cnt = fread(buf, 1, BUFSIZ, f);
+	cnt = fread(buf, 1, D_BUFSIZ, f);
 	if (ferror(f))
 		return (1);
 	return (isbinary(buf, cnt));
@@ -2301,7 +2327,7 @@ copytemp(fn)
 	int ifd, ofd;	/* input and output file descriptors */
 	int i;
 	char template[13];	/* template for temp file name */
-	char buf[BUFSIZ];
+	char buf[D_BUFSIZ];
 
 	/*
 	 * a "-" file is interpreted as fd 0 for pre-/dev/fd systems
@@ -2312,10 +2338,18 @@ copytemp(fn)
 		(void) fprintf(stderr, gettext("cannot open %s\n"), fn);
 		done();
 	}
+#ifdef	SIGHUP
 	(void) signal(SIGHUP, (void (*) __PR((int)))done);
+#endif
+#ifdef	SIGINT
 	(void) signal(SIGINT, (void (*) __PR((int)))done);
+#endif
+#ifdef	SIGPIPE
 	(void) signal(SIGPIPE, (void (*) __PR((int)))done);
+#endif
+#ifdef	SIGTERM
 	(void) signal(SIGTERM, (void (*) __PR((int)))done);
+#endif
 	(void) strcpy(template, "/tmp/dXXXXXX");
 	if ((ofd = mkstemp(template)) < 0) {
 		(void) fprintf(stderr, "diff: ");
@@ -2323,7 +2357,7 @@ copytemp(fn)
 		done();
 	}
 	(void) strcpy(tempfile[whichtemp++], template);
-	while ((i = read(ifd, buf, BUFSIZ)) > 0)
+	while ((i = read(ifd, buf, D_BUFSIZ)) > 0)
 		if (write(ofd, buf, i) != i) {
 			(void) fprintf(stderr, "diff: ");
 			(void) fprintf(stderr,

@@ -27,10 +27,10 @@
 /*
  * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)logname.c	1.6 11/04/22 J. Schilling
+ * @(#)logname.c	1.7 11/08/02 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)logname.c 1.6 11/04/22 J. Schilling"
+#pragma ident "@(#)logname.c 1.7 11/08/02 J. Schilling"
 #endif
 /*
  * @(#)logname.c 1.7 06/12/12
@@ -41,7 +41,7 @@
 #pragma ident	"@(#)sccs:lib/comobj/logname.c"
 #endif
 # include	<defines.h>
-# include	<pwd.h>
+# include	<schily/pwd.h>
 
 char saveid[50];		/* sync with hdr/defines.h */
 char	*logname()

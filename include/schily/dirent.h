@@ -1,6 +1,6 @@
-/* @(#)dirent.h	1.28 09/05/24 Copyright 1987, 1998, 2000-2009 J. Schilling */
+/* @(#)dirent.h	1.29 11/08/04 Copyright 1987, 1998, 2000-2011 J. Schilling */
 /*
- *	Copyright (c) 1987, 1998, 2000-2009 J. Schilling
+ *	Copyright (c) 1987, 1998, 2000-2011 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -61,6 +61,9 @@ extern "C" {
 #	endif
 #	ifndef	_SCHILY_PARAM_H
 #		include <schily/param.h>
+#	endif
+#	ifndef	_SCHILY_STDLIB_H
+#	include <schily/stdlib.h>	/* MSVC: get _MAX_DIR */
 #	endif
 
 #	ifdef	HAVE_DIRENT_H		/* This a POSIX compliant system */
@@ -131,12 +134,26 @@ extern "C" {
 
 #	else	/* !_FOUND_DIR_ */
 
+#	if !defined(FOUND_DIRSIZE) && defined(_MAX_DIR)
+#	if	defined(__MINGW32__) || defined(_MSC_VER)
+#		define	DIRSIZE		_MAX_DIR	/* From stdlib.h    */
+#		define	FOUND_DIRSIZE
+#		define	NEED_READDIR
+#		undef	dirent
+#		define 	dirent			_direct
+#		undef	DIR_NAMELEN
+#		define	DIR_NAMELEN(dirent)	strlen((dirent)->d_name)
+#	endif
+#	endif
+
+#		ifndef	NEED_READDIR
 #		define	NEED_DIRENT
 #		define	NEED_READDIR
 #		undef	dirent
 #		define 	dirent			_direct
 #		undef	DIR_NAMELEN
 #		define	DIR_NAMELEN(dirent)	strlen((dirent)->d_name)
+#		endif	/* !NEED_READDIR */
 
 #	endif	/* _FOUND_DIR_ */
 
@@ -162,10 +179,14 @@ typedef struct _dirent {
 #ifndef _SCHILY_STDIO_H
 #include <schily/stdio.h>
 #endif
-
-	typedef struct __dirdesc {
-		FILE	*dd_fd;
-	} DIR;
+#if	defined(__MINGW32__) || defined(_MSC_VER)
+#ifndef	_SCHILY_IO_H
+#include <schily/io.h>		/* for _findfirst() */
+#endif
+#ifndef _SCHILY_UTYPES_H
+#include <schily/utypes.h>
+#endif
+#endif
 
 	struct _direct {
 		unsigned long	d_ino;
@@ -175,9 +196,21 @@ typedef struct _dirent {
 	};
 #define	HAVE_DIRENT_D_INO
 
-extern	DIR		*opendir();
-extern			closedir();
-extern	struct dirent	*readdir();
+	typedef struct __dirdesc {
+		FILE		*dd_fd;
+
+#if	defined(__MINGW32__) || defined(_MSC_VER)
+		struct _direct	dd_dir;		/* dirent for this dir	*/
+		struct _finddata_t dd_data;	/* _findnext() results	*/
+		intptr_t	dd_handle;	/* _findnext() handle	*/
+		int		dd_state;	/* Current Dir state	*/
+		char		dd_dirname[1];	/* Dir to open		*/
+#endif
+	} DIR;
+
+extern	DIR		*opendir __PR((const char *));
+extern	int		closedir __PR((DIR *));
+extern	struct dirent	*readdir __PR((DIR *));
 
 #endif	/* NEED_READDIR */
 
