@@ -1,5 +1,5 @@
 #!/bin/sh
-#ident "@(#)mkdep-msc.sh	1.2 06/10/10 "
+#ident "@(#)mkdep-msc.sh	1.3 11/08/11 "
 ###########################################################################
 # Copyright 1999,2006 by J. Schilling
 ###########################################################################
@@ -46,5 +46,8 @@ done
 OFILES=`echo "$FILES" | sed -e 's;\([^.]*\)\.[cC]$;\1.obj;g' -e 's;\([^.]*\)\.cc$;\1.obj;g' -e 's;\([^.]*\)\.c..$;\1.obj;g' `
 
 echo ".SPACE_IN_NAMES: true"
-cl -E -nologo 2> /dev/null "$@" | grep '^\#line' | cut -d\" -f2 | sort -u | sed 's/\([^\]\) /\1\\ /g' | sed -e "s;^;$OFILES: ;"
+cl -E -nologo 2> /dev/null "$@"  | grep '\#line' | sed -e 's,^.*\#line[ \t]*[^ ]*[ \t]*",,' \
+							-e 's,"$,,' -e 's/\([^\]\) /\1\\ /g' \
+							-e  's,\.\\\\*,.\\,g' \
+							-e "s;^;$OFILES: ;" | sort -u
 echo ".SPACE_IN_NAMES:"

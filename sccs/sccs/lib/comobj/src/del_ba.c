@@ -27,10 +27,10 @@
 /*
  * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)del_ba.c	1.11 11/06/27 J. Schilling
+ * @(#)del_ba.c	1.12 11/08/21 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)del_ba.c 1.11 11/06/27 J. Schilling"
+#pragma ident "@(#)del_ba.c 1.12 11/08/21 J. Schilling"
 #endif
 /*
  * @(#)del_ba.c 1.3 06/12/12
@@ -59,11 +59,12 @@ int	flags;
 	*p++ = ' ';
 	p = sid_ba(&dt->d_sid,p);
 	*p++ = ' ';
-	if ((dt->d_datetime < Y1969) ||
-	    (dt->d_datetime >= Y2038))
-		date_bal(&dt->d_datetime,p, flags);	/* 4 digit year */
+	if ((flags & PF_V6) ||
+	    (dt->d_dtime.dt_sec < Y1969) ||
+	    (dt->d_dtime.dt_sec >= Y2038))
+		date_bazl(&dt->d_dtime, p, flags);	/* 4 digit year */
 	else
-		date_ba(&dt->d_datetime,p, flags);	/* 2 digit year */
+		date_ba(&dt->d_dtime.dt_sec, p, flags);	/* 2 digit year */
 	while (*p++)
 		;
 	--p;

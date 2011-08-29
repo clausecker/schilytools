@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sccs-admin.1	1.20 11/07/27 portions Copyright 2007-2011 J. Schilling */
+.\" @(#)sccs-admin.1	1.22 11/08/24 portions Copyright 2007-2011 J. Schilling */
 .\" CDDL HEADER START
 .\"
 .\" The contents of this file are subject to the terms of the
@@ -19,7 +19,7 @@
 .\"
 .\" CDDL HEADER END
 .\"  Copyright (c) 2002, Sun Microsystems, Inc. All Rights Reserved.
-.TH sccs-admin 1 "2011/07/27" "SunOS 5.11" "User Commands"
+.TH sccs-admin 1 "2011/08/24" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs-admin, admin \- create and administer SCCS history files
 .SH SYNOPSIS
@@ -412,6 +412,25 @@ version number string and exists.
 .sp
 .ne 3
 .TP
+.B \-V6
+When used together with
+.B \-i
+of
+.BR \-n ,
+.BR admin (1)
+will create a 
+.B "SCCS v6
+history file instead of a
+.B "SCCS v4
+history file.
+.B "SCCS v6
+history files are not understood by historic SCCS implementations.
+See
+.BR sccsfile (4)
+for more information on the new features.
+.sp
+.ne 3
+.TP
 \fB\fB-y\fR\fB[\fR\fIcomment\fR\fB]\fR\fR
 Inserts the indicated \fIcomment\fR in the ``\fBComments:\fR'' field for the initial delta. Valid only in conjunction with \fB-i\fR or \fB-n\fR. If \fB-y\fR option is omitted, a default comment line is inserted that notes the date and time the history file was created.
 .sp
@@ -572,9 +591,30 @@ Interface StabilityStandard
 .TE
 
 .SH SEE ALSO
-.sp
 .LP
-\fBsccs\fR(1), \fBsccs-cdc\fR(1), \fBsccs-delta\fR(1), \fBsccs-get\fR(1), \fBsccs-help\fR(1), \fBsccs-rmdel\fR(1), \fBsccs-val\fR(1), \fBsccsfile\fR(4), \fBattributes\fR(5), \fBenviron\fR(5), \fBstandards\fR(5)
+.BR sccs (1),
+.BR sccs-cdc (1),
+.BR sccs-comb (1)
+.BR sccs-delta (1),
+.BR sccs-get (1),
+.BR sccs-help (1),
+.BR sccs-prs (1),
+.BR sccs-prt (1),
+.BR sccs-rmdel (1),
+.BR sccs-sact (1),
+.BR sccs-sccsdiff (1),
+.BR sccs-unget (1),
+.BR sccs-val (1),
+.BR sccscvt (1),
+.BR sccslog (1),
+.BR bdiff (1), 
+.BR diff (1), 
+.BR what (1),
+.BR sccsfile (4),
+.BR attributes (5),
+.BR environ (5),
+.BR standards (5).
+
 .SH DIAGNOSTICS
 .sp
 .LP

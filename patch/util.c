@@ -1,8 +1,8 @@
-/* @(#)util.c	1.19 11/08/03 2011 J. Schilling */
+/* @(#)util.c	1.20 11/08/15 2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)util.c	1.19 11/08/03 2011 J. Schilling";
+	"@(#)util.c	1.20 11/08/15 2011 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1986 Larry Wall
@@ -96,6 +96,13 @@ move_file(from, to)
 		if (debug & 4)
 			say(_("Moving %s to %s.\n"), to, bakname);
 #endif
+#ifdef	HAVE_RENAME
+		if (rename(to, bakname) < 0) {
+			say(_("patch: can't backup %s, output is in %s\n"),
+			    to, from);
+			return (-1);
+		}
+#else
 		if (link(to, bakname) < 0) {
 			say(_("patch: can't backup %s, output is in %s\n"),
 			    to, from);
@@ -105,6 +112,7 @@ move_file(from, to)
 			;
 			/* LINTED */
 		}
+#endif
 	}
 backup_done:
 	if (from == NULL) {
@@ -120,7 +128,11 @@ backup_done:
 	if (debug & 4)
 		say(_("Moving %s to %s.\n"), from, to);
 #endif
+#ifdef	HAVE_RENAME
+	if (rename(from, to) < 0) {		/* different file system? */
+#else
 	if (link(from, to) < 0) {		/* different file system? */
+#endif
 		int tofd;
 
 		tofd = creat(to, 0666);

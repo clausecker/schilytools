@@ -27,10 +27,10 @@
 /*
  * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)sinit.c	1.7 11/06/19 J. Schilling
+ * @(#)sinit.c	1.8 11/08/22 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)sinit.c 1.7 11/06/19 J. Schilling"
+#pragma ident "@(#)sinit.c 1.8 11/08/22 J. Schilling"
 #endif
 /*
  * @(#)sinit.c 1.7 06/12/12
@@ -41,6 +41,7 @@
 #pragma ident	"@(#)sccs:lib/comobj/sinit.c"
 #endif
 # include	<defines.h>
+
 /*
 	Does initialization for sccs files and packet.
 */
@@ -71,16 +72,42 @@ int openflag;
 		fstat((int)fileno(pkt->p_iop),&Statbuf);
 		if (Statbuf.st_nlink > 1)
 			fatal(gettext("more than one link (co3)"));
-		if ((p = getline(pkt)) == NULL || *p++ != CTLCHAR || *p++ != HEAD) {
+		p = getline(pkt);
+		if (p == NULL || (p = checkmagic(pkt, p)) == NULL) {
 			if (pkt->p_iop)
 				(void) fclose(pkt->p_iop);
 			pkt->p_iop = NULL;
 			fmterr(pkt);
 		}
-		p = satoi(p,&pkt->p_ihash);
-		if (*p != '\n')
-			fmterr(pkt);
+		p = satoi(p, &pkt->p_ihash);
 	}
 	pkt->p_chash = 0;
 	pkt->p_uchash = 0;
+}
+
+char *
+checkmagic(pkt, p)
+	register struct packet	*pkt;
+	register char		*p;
+{
+	register int	i;
+	register int	c;
+
+	if (*p++ != CTLCHAR || *p++ != HEAD)
+		return (NULL);
+
+	if (strncmp(p, "V6,sum=", 7) == 0) {
+		pkt->p_flags |= PF_V6;
+		p += 7;
+	}
+	for (i = 5; --i >= 0; ) {
+		c = *p++ - '0';
+		if (c < 0 || c > 9)
+			return (NULL);		
+	}
+	if (*p == '\n')
+		return (&p[-5]);
+	if ((pkt->p_flags & PF_V6) && *p == ',')
+		return (&p[-5]);
+	return (NULL);
 }

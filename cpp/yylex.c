@@ -1,13 +1,13 @@
-/* @(#)yylex.c	1.6 10/09/21 2010 J. Schilling */
+/* @(#)yylex.c	1.7 11/08/03 2010-2011 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)yylex.c	1.6 10/09/21 2010 J. Schilling";
+	"@(#)yylex.c	1.7 11/08/03 2010-2011 J. Schilling";
 #endif
 /*
  * This implementation is based on the UNIX 32V release from 1978
  * with permission from Caldera Inc.
  *
- * Copyright (c) 2010 J. Schilling
+ * Copyright (c) 2010-2011 J. Schilling
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -96,7 +96,7 @@ yylex()
 	static int  val2[]={OROR, ANDAND,  RS,   LS,   GE,   LE,   NE,   EQ};
 	static char *opc="b\bt\tn\nf\fr\r\\\\";
 	extern char fastab[];
-	extern char *outp,*inp,*newp; extern int flslvl;
+	extern char *outptr,*inptr,*newp; extern int flslvl;
 	register char savc, *s;
 	int val;
 	register char **p2;
@@ -104,40 +104,40 @@ yylex()
 
 for (;;) {
 	newp=skipbl(newp);
-	if (*inp=='\n') return(stop);	/* end of #if */
+	if (*inptr=='\n') return(stop);	/* end of #if */
 	savc= *newp; *newp='\0';
 	for (p2=op2+8; --p2>=op2; )	/* check 2-char ops */
-		if (0==strcmp(*p2,inp)) {val=val2[p2-op2]; goto ret;}
+		if (0==strcmp(*p2,inptr)) {val=val2[p2-op2]; goto ret;}
 	s="+-*/%<>&^|?:!~(),";	/* check 1-char ops */
-	while (*s) if (*s++== *inp) {val= *--s; goto ret;}
-	if (*inp<='9' && *inp>='0') {/* a number */
-		if (*inp=='0') yylval= (inp[1]=='x' || inp[1]=='X') ?
-			tobinary(inp+2,16) : tobinary(inp+1,8);
-		else yylval=tobinary(inp,10);
+	while (*s) if (*s++== *inptr) {val= *--s; goto ret;}
+	if (*inptr<='9' && *inptr>='0') {/* a number */
+		if (*inptr=='0') yylval= (inptr[1]=='x' || inptr[1]=='X') ?
+			tobinary(inptr+2,16) : tobinary(inptr+1,8);
+		else yylval=tobinary(inptr,10);
 		val=number;
-	} else if (isid(*inp)) {
-		if (0==strcmp(inp,"defined")) {ifdef=1; ++flslvl; val=DEFINED;}
+	} else if (isid(*inptr)) {
+		if (0==strcmp(inptr,"defined")) {ifdef=1; ++flslvl; val=DEFINED;}
 		else {
-			sp=lookup(inp,-1); if (ifdef!=0) {ifdef=0; --flslvl;}
+			sp=lookup(inptr,-1); if (ifdef!=0) {ifdef=0; --flslvl;}
 			yylval= (sp->value==0) ? 0 : 1;
 			val=number;
 		}
-	} else 	if (*inp=='\'') {/* character constant */
+	} else 	if (*inptr=='\'') {/* character constant */
 		val=number;
-		if (inp[1]=='\\') {/* escaped */
+		if (inptr[1]=='\\') {/* escaped */
 			char c; if (newp[-1]=='\'') newp[-1]='\0';
 			s=opc;
-			while (*s) if (*s++!=inp[2]) ++s; else {yylval= *s; goto ret;}
-			if (inp[2]<='9' && inp[2]>='0') yylval=c=tobinary(inp+2,8);
-			else yylval=inp[2];
-		} else yylval=inp[1];
-	} else if (0==strcmp("\\\n",inp)) {*newp=savc; continue;}
+			while (*s) if (*s++!=inptr[2]) ++s; else {yylval= *s; goto ret;}
+			if (inptr[2]<='9' && inptr[2]>='0') yylval=c=tobinary(inptr+2,8);
+			else yylval=inptr[2];
+		} else yylval=inptr[1];
+	} else if (0==strcmp("\\\n",inptr)) {*newp=savc; continue;}
 	else {
-		*newp=savc; pperror("Illegal character %c in preprocessor if", *inp);
+		*newp=savc; pperror("Illegal character %c in preprocessor if", *inptr);
 		continue;
 	}
 ret:
-	*newp=savc; outp=inp=newp; return(val);
+	*newp=savc; outptr=inptr=newp; return(val);
 }
 }
 

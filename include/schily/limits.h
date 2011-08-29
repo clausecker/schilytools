@@ -1,4 +1,4 @@
-/* @(#)limits.h	1.6 11/08/03 Copyright 2011 J. Schilling */
+/* @(#)limits.h	1.7 11/08/13 Copyright 2011 J. Schilling */
 /*
  *	Copyright (c) 2011 J. Schilling
  */
@@ -34,6 +34,13 @@
 
 #ifndef	_POSIX2_LINE_MAX
 #define	_POSIX2_LINE_MAX	2048
+#endif
+
+/*
+ * Include sys/param.h for PIPE_BUF
+ */
+#ifndef	_SCHILY_PARAM_H
+#include <schily/param.h>
 #endif
 
 #ifndef	PIPE_BUF

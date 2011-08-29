@@ -27,10 +27,10 @@
 /*
  * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)admin.c	1.55 11/08/07 J. Schilling
+ * @(#)admin.c	1.61 11/08/29 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)admin.c 1.55 11/08/07 J. Schilling"
+#pragma ident "@(#)admin.c 1.61 11/08/29 J. Schilling"
 #endif
 /*
  * @(#)admin.c 1.39 06/12/12
@@ -129,6 +129,7 @@ static char	Valpgmp[]	=	NOGETTEXT(INS_BASE "/ccs/bin/" "val");
 static char	Valpgm[]	=	NOGETTEXT("val");
 static int	fexists, num_files;
 static int	VFLAG  =  0;
+static int	versflag = 4;
 static struct sid	new_sid;
 static char	*anames[MAXNAMES], *enames[MAXNAMES];
 static char	*unlock;
@@ -146,7 +147,7 @@ static	void	admin __PR((char *afile));
 static	int	fgetchk __PR((FILE *inptr, char *file, struct packet *pkt, int fflag));
 static	void	warnctl __PR((char *file, off_t nline));
 	void	clean_up __PR((void));
-static	void	cmt_ba __PR((register struct deltab *dt, char *str));
+static	void	cmt_ba __PR((register struct deltab *dt, char *str, int flags));
 static	void	putmrs __PR((struct packet *pkt));
 static	char *	adjust __PR((char *line));
 static	char *	getval __PR((register char *sourcep, register char *destp));
@@ -232,7 +233,7 @@ char *argv[];
 			}
 			no_arg = 0;
 			j = current_optind;
-		        c = getopt(argc, argv, "-i:t:m:y:d:f:r:nN:hzboqa:e:V(version)");
+		        c = getopt(argc, argv, "-i:t:m:y:d:f:r:nN:hzboqa:e:V:(version)");
 		        	/*
 				*  this takes care of options given after
 				*  file names.
@@ -515,14 +516,33 @@ char *argv[];
 				break;
 
 			case 'V':		/* version */
-				printf("admin %s-SCCS version %s %s (%s-%s-%s)\n",
-					PROVIDER,
-					VERSION,
-					VDATE,
-					HOST_CPU, HOST_VENDOR, HOST_OS);
-				exit(EX_OK);
+				if (optarg == argv[j+1]) {
+				doversion:
+					printf("admin %s-SCCS version %s %s (%s-%s-%s)\n",
+						PROVIDER,
+						VERSION,
+						VDATE,
+						HOST_CPU, HOST_VENDOR, HOST_OS);
+					exit(EX_OK);
+				}
+				if (p[1] == '\0') {
+					if (p[0] == '4')
+						break;
+					if (p[0] == '6') {
+						versflag = 6;
+						break;
+					}
+				}
 
 			default:
+				/*
+				 * Check whether "-V" was last arg...
+				 */
+				if (optind == argc &&
+				    argv[argc-1][0] == '-' &&
+				    argv[argc-1][1] == 'V' &&
+				    argv[argc-1][2] == '\0')
+					goto doversion;
 				fatal(gettext("Usage: admin [ -bhnoz ][ -ausername|groupid ]\n\t[ -dflag ][ -eusername|groupid ]\n\t[ -fflag [value]][ -i [filename]]\n\t[ -m mr-list][ -r release ][ -t [description-file]]\n\t[ -N[bulk-spec]] [ -y[comment]] s.filename ..."));
 			}
 			/*
@@ -733,19 +753,21 @@ char	*afile;
 		fatal(gettext("cannot create lock file (cm4)"));
 
 	if (fexists) { /* modifying */
+		int	cklen = 8;
 
 		sinit(&gpkt,afile,1);	/* init pkt & open s-file */
+
+		if (gpkt.p_flags & PF_V6)
+			cklen = 15;
 	
 		/* Modify checksum if corrupted */
 
-	        if ((int) strlen(gpkt.p_line) > 8 && gpkt.p_line[0] == '\001'
-		         && gpkt.p_line[1] == '\150' ) 
-		{
-			gpkt.p_line[7] = '\012';
-		   	gpkt.p_line[8] = '\000';
-	
+		if ((int) strlen(gpkt.p_line) > cklen &&
+		    gpkt.p_line[0] == '\001' &&
+		    gpkt.p_line[1] == '\150') {
+			gpkt.p_line[cklen-1] = '\012';
+			gpkt.p_line[cklen]   = '\000';
 		}
-
 	}
 
 
@@ -783,9 +805,6 @@ char	*afile;
 		sinit(&gpkt,afile,0);	/* and init pkt */
 	}
 
-	if (getenv("SCCS_VERSION"))
-		gpkt.p_flags |= PF_V6;
-
 	if (!HADH)
 		/*
 		   set the flag for 'putline' routine to open
@@ -810,11 +829,13 @@ char	*afile;
 
 	if (HADN) {		/*   N E W   F I L E   */
 
+		if (versflag == 6)
+			gpkt.p_flags |= PF_V6;
+
 		/*
 		Beginning of SCCS file.
 		*/
-		sprintf(line,"%c%c%s\n",CTLCHAR,HEAD,"00000");
-		putline(&gpkt,line);
+		putmagic(&gpkt, "00000");
 
 		/*
 		Statistics.
@@ -843,14 +864,14 @@ char	*afile;
 			 dt.d_sid.s_lev = 1;
 			 dt.d_sid.s_br = dt.d_sid.s_seq = 0;
 			}
-		time(&dt.d_datetime);		/* get time and date */
+		dtime(&dt.d_dtime);		/* get time and date */
                 if (HADN && HADI && (HADO || HADQ) && (ifile_mtime != 0)) {
                         /*
 			 * When specifying -o (oroginal date) and
 			 * for NSE when putting existing file under sccs the
                          * delta time is the mtime of the clear file.
                          */
-                        dt.d_datetime = ifile_mtime;
+			time2dt(&dt.d_dtime, ifile_mtime, 0);
                 }
 
 		copy(logname(),dt.d_pgmr);	/* get user's name */
@@ -858,7 +879,7 @@ char	*afile;
 		dt.d_serial = 1;
 		dt.d_pred = 0;
 
-		del_ba(&dt,line, 0);	/* form and write */
+		del_ba(&dt,line, gpkt.p_flags);	/* form and write */
 		putline(&gpkt,line);	/* delta-table entry */
 
 		/*
@@ -892,7 +913,7 @@ char	*afile;
 			/*
 			insert date/time and pgmr into comment line
 			*/
-			cmt_ba(&dt,line);
+			cmt_ba(&dt, line, gpkt.p_flags);
 			putline(&gpkt,line);
 		}
 		/*
@@ -1376,6 +1397,7 @@ struct	packet	*pkt;		/* struct paket for output	*/
 	off_t	ibase = 0;	/* Ifile off from last read operation	*/
 	off_t	ioff = 0;	/* Ifile offset past last newline	*/
 	off_t	soff = ftell(Xiop); /* Ofile (s. file) base offset	*/
+	unsigned int sum = 0;
 
 	/*
 	 * This gives the illusion that a zero-length file ends
@@ -1394,6 +1416,7 @@ struct	packet	*pkt;		/* struct paket for output	*/
 	 * of the buffer.
 	 */
 	while ((idx = fread(line, 1, sizeof (line) - 1, inptr)) > 0) {
+		sum += usum(line, idx);
 		lastline = line;
 		if (lastchar == '\n' && line[0] == CTLCHAR) {
 			chkflags |= CK_CTLCHAR;
@@ -1449,11 +1472,12 @@ struct	packet	*pkt;		/* struct paket for output	*/
 				}
 			}
 		}
-		if (check_id) {
-			(void)chkid(line, flag_p['i'-'a'], flag_p);
-		}
 		line[idx] = '\0';
 		putline(pkt, lastline);
+
+		if (check_id && Did_id == 0) {
+			(void)chkid(line, flag_p['i'-'a'], flag_p);
+		}
 		ibase += idx;
 	}
 #else	/* !RECORD_IO */
@@ -1488,6 +1512,7 @@ struct	packet	*pkt;		/* struct paket for output	*/
 		 }
 	      } else {
 		 if (line[idx] == '\0') {
+		    sum += usum(line, idx);
 		    search_on = 1;
 		    lastchar = line[idx-1];
 		    if (lastchar == '\n') {
@@ -1499,13 +1524,14 @@ struct	packet	*pkt;		/* struct paket for output	*/
 		 }
 	      }
 	   }   
-	   if (check_id) {
+	   if (check_id && Did_id == 0) {
 	      (void)chkid(line, flag_p['i'-'a'], flag_p);
 	   }
 	   putline(pkt, line);
 	   (void)memset(line, '\377', sizeof (line));
 	}
 #endif	/* !RECORD_IO */
+	pkt->p_ghash = sum & 0xFFFF;
 	if (lastchar != '\n')
 		chkflags |= CK_NONL;
 	pkt->p_props |= chkflags;
@@ -1527,7 +1553,9 @@ struct	packet	*pkt;		/* struct paket for output	*/
 			}
 			putchr(pkt, '\n');
 			fprintf(stderr, gettext(
-			    "WARNING [%s]: No newline at end of file (ad31)\n"),
+			    "WARNING [%s%s%s]: No newline at end of file (ad31)\n"),
+				dir_name,
+				*dir_name?"/":"",
 				file);
 			return (nline);
 		}
@@ -1551,7 +1579,9 @@ warnctl(file, nline)
 {
 	fprintf(stderr,
 		gettext(
-		"WARNING [%s]: line %jd begins with ^A\n"),
+		"WARNING [%s%s%s]: line %jd begins with ^A\n"),
+		dir_name,
+		*dir_name?"/":"",
 		file, (intmax_t)nline);
 }
  
@@ -1578,9 +1608,10 @@ clean_up()
 }
 
 static void
-cmt_ba(dt,str)
+cmt_ba(dt,str, flags)
 register struct deltab *dt;
 char *str;
+int flags;
 {
 	register char *p;
 
@@ -1597,11 +1628,12 @@ char *str;
 	 * The s-file is not part of the POSIX standard. For this reason, we
 	 * are free to switch to a 4-digit year for the initial comment.
 	 */
-	if ((dt->d_datetime < Y1969) ||
-	    (dt->d_datetime >= Y2038))		/* comment only */
-		date_bal(&dt->d_datetime,p, 0);	/* 4 digit year */
+	if ((flags & PF_V6) ||
+	    (dt->d_dtime.dt_sec < Y1969) ||
+	    (dt->d_dtime.dt_sec >= Y2038))		/* comment only */
+		date_bazl(&dt->d_dtime,p, flags);	/* 4 digit year */
 	else
-		date_ba(&dt->d_datetime,p, 0);	/* 2 digit year */
+		date_ba(&dt->d_dtime.dt_sec,p, flags);	/* 2 digit year */
 	while (*p++)
 		;
 	--p;

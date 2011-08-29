@@ -27,10 +27,10 @@
 /*
  * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)get.c	1.43 11/08/07 J. Schilling
+ * @(#)get.c	1.44 11/08/21 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)get.c 1.43 11/08/07 J. Schilling"
+#pragma ident "@(#)get.c 1.44 11/08/21 J. Schilling"
 #endif
 /*
  * @(#)get.c 1.59 06/12/12
@@ -91,6 +91,7 @@ static char    *Whatstr = NULL;
 static char	Pfilename[FILESIZE];
 static char	*ilist, *elist, *lfile;
 static time_t	cutoff = MAX_TIME;
+static char	*cutoffstr;
 static char	Gfile[PATH_MAX];
 static char	gfile[PATH_MAX];
 static char	*Type;
@@ -228,6 +229,7 @@ register char *argv[];
 				break;
 			case 'c':
 				if (*p == 0) continue;
+				cutoffstr = p;
 				if (parse_date(p,&cutoff, PF_GMT))
 				   fatal(gettext("bad date/time (cm5)"));
 				break;
@@ -351,7 +353,7 @@ char *file;
 	register unsigned ser;
 	extern char had_dir, had_standinp;
 	struct stats stats;
-	char	str[32];
+	char	str[32];		/* Must fit a SID string */
 #ifdef	PROTOTYPES
 	char template[] = NOGETTEXT("/get.XXXXXX");
 #else
@@ -390,7 +392,13 @@ char *file;
 	gpkt.p_stdout  = (HADP||lfile) ? stderr : stdout;
 	gpkt.p_cutoff = cutoff;
 	gpkt.p_lfile = lfile;
-	gpkt.p_flags |= PF_GMT;
+	if ((gpkt.p_flags & PF_V6) == 0) {
+		gpkt.p_flags |= PF_GMT;
+	} else if (cutoffstr != NULL) {
+		if (parse_date(cutoffstr, &cutoff, 0))
+			fatal(gettext("bad date/time (cm5)"));
+		gpkt.p_cutoff = cutoff;
+	}
 	if (Gfile[0] == 0 || !first) {
 		cat(gfile,Cwd,auxf(gpkt.p_file,'g'), (char *)0);
 		cat(Gfile,Cwd,auxf(gpkt.p_file,'A'), (char *)0);
@@ -587,15 +595,18 @@ char *file;
 
 				gser = sidtoser(&gpkt.p_gotsid, &gpkt);
 
-				/*
-				 * We did cheat while scanning the delta table
-				 * and converted the time stamps assuming GMT.
-				 * Fix the resulting error here.
-				 */
 				ut.actime = Timenow;
-				tm = *gmtime(&gpkt.p_idel[gser].i_datetime);
-				tm.tm_isdst = -1;
-				ut.modtime = mktime(&tm);
+				ut.modtime = gpkt.p_idel[gser].i_datetime;
+				/*
+				 * If we did cheat while scanning the delta
+				 * table and converted the time stamps assuming
+				 * GMT. Fix the resulting error here.
+				 */
+				if (gpkt.p_flags & PF_GMT) {
+					tm = *gmtime(&ut.modtime);
+					tm.tm_isdst = -1;
+					ut.modtime = mktime(&tm);
+				}
 				utime(gfile, &ut);
 			}
 #endif
@@ -625,7 +636,7 @@ char ch;
 int n;
 struct sid *sidp;
 {
-	char str[32];
+	char	str[32];		/* Must fit a SID string */
 	register struct apply *ap;
 
 	sid_ba(sidp,str);
@@ -662,7 +673,7 @@ register struct packet *pkt;
 {
 	char *n;
 	int reason;
-	char str[32];
+	char str[DT_ZSTRSIZE];		/* SCCS v6 date or SID str */
 	char line[BUFSIZ];
 	struct deltab dt;
 	FILE *in;
@@ -727,14 +738,14 @@ register struct packet *pkt;
 			 * which is outside the year range specified by POSIX.
 			 */
 #if SIZEOF_TIME_T == 4
-			if (dt.d_datetime < Y1969)
+			if (dt.d_dtime.dt_sec < Y1969)
 #else
-			if ((dt.d_datetime < Y1969) ||
-			    (dt.d_datetime >= Y2069))
+			if ((dt.d_dtime.dt_sec < Y1969) ||
+			    (dt.d_dtime.dt_sec >= Y2069))
 #endif
-				date_bal(&dt.d_datetime,str, pkt->p_flags);	/* 4 digit year */
+				date_bal(&dt.d_dtime.dt_sec,str, pkt->p_flags);	/* 4 digit year */
 			else
-				date_ba(&dt.d_datetime,str, pkt->p_flags);	/* 2 digit year */
+				date_ba(&dt.d_dtime.dt_sec,str, pkt->p_flags);	/* 2 digit year */
 			if (fprintf(out, "%s %s\n", str, dt.d_pgmr) == EOF)
 				xmsg(outname, NOGETTEXT("gen_lfile"));
 		}
@@ -777,13 +788,13 @@ register struct packet *pkt;
 #undef	OUTPUTC
 }
 
-static char	Curdatel[20];
-static char	Curdate[18];
+static char	Curdatel[DT_ZSTRSIZE];
+static char	Curdate[DT_ZSTRSIZE];
 static char	*Curtime;
 static char	Gdate[DATELEN];
 static char	Gdatel[DATELEN];
-static char	Chgdate[18];
-static char	Chgdatel[20];
+static char	Chgdate[DT_ZSTRSIZE];
+static char	Chgdatel[DT_ZSTRSIZE];
 static char	*Chgtime;
 static char	Gchgdate[DATELEN];
 static char	Gchgdatel[DATELEN];
@@ -1236,7 +1247,7 @@ static void
 prfx(pkt)
 register struct packet *pkt;
 {
-	char str[32];
+	char str[32];		/* Must fit a SID string */
 
 	if (HADN)
 		if (fprintf(pkt->p_gout, "%s\t", Mod) == EOF)
@@ -1285,7 +1296,8 @@ wrtpfile(pkt,inc,exc)
 register struct packet *pkt;
 char *inc, *exc;
 {
-	char line[64], str1[32], str2[32];
+	char line[64];
+	char str1[32], str2[32];	/* Must fit a SID string */
 	char *user, *pfile;
 	FILE *in, *out;
 	struct pfile pf;

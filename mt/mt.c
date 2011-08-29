@@ -1,13 +1,13 @@
-/* @(#)mt.c	1.27 10/05/11 Copyright 2000-2010 J. Schilling */
+/* @(#)mt.c	1.28 11/08/14 Copyright 2000-2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)mt.c	1.27 10/05/11 Copyright 2000-2010 J. Schilling";
+	"@(#)mt.c	1.28 11/08/14 Copyright 2000-2011 J. Schilling";
 #endif
 /*
  *	Magnetic tape manipulation program
  *
- *	Copyright (c) 2000-2010 J. Schilling
+ *	Copyright (c) 2000-2011 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -196,7 +196,7 @@ main(ac, av)
 	}
 	if (help) usage(0);
 	if (prvers) {
-		printf("mt %s (%s-%s-%s)\n\n", "1.27", HOST_CPU, HOST_VENDOR, HOST_OS);
+		printf("mt %s (%s-%s-%s)\n\n", "1.28", HOST_CPU, HOST_VENDOR, HOST_OS);
 		printf("Copyright (C) 2000-2009 Jörg Schilling\n");
 		printf("This is free software; see the source for copying conditions.  There is NO\n");
 		printf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
@@ -587,6 +587,7 @@ mtp->mt_blkno, mtp->mt_flags, mtp->mt_bf);
 		comerrno(EX_BAD, "Remote tape support not present.\n");
 #endif
 	} else {
+#ifdef	HAVE_IOCTL
 		if (cmd == MTIOCGET) {
 			struct mtget mtget;
 
@@ -597,6 +598,14 @@ mtp->mt_blkno, mtp->mt_flags, mtp->mt_bf);
 			}
 		} else
 		ret = ioctl(mtfd, cmd, arg);
+#else
+		ret = -1;
+#ifdef	ENOSYS
+		seterrno(ENOSYS);
+#else
+		seterrno(EINVAL);
+#endif
+#endif
 	}
 	return (ret);
 }

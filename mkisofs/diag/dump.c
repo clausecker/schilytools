@@ -1,8 +1,8 @@
-/* @(#)dump.c	1.37 10/12/19 joerg */
+/* @(#)dump.c	1.38 11/08/13 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)dump.c	1.37 10/12/19 joerg";
+	"@(#)dump.c	1.38 11/08/13 joerg";
 #endif
 /*
  * File dump.c - dump a file/device both in hex and in ASCII.
@@ -10,7 +10,7 @@ static	UConst char sccsid[] =
  * Written by Eric Youngdale (1993).
  *
  * Copyright 1993 Yggdrasil Computing, Incorporated
- * Copyright (c) 1999-2010 J. Schilling
+ * Copyright (c) 1999-2011 J. Schilling
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2
@@ -67,8 +67,10 @@ LOCAL	Uchar		search[64];
 LOCAL	struct sgttyb	savetty;
 LOCAL	struct sgttyb	newtty;
 #else
+#ifdef	USE_TERMIOS
 LOCAL	struct termios	savetty;
 LOCAL	struct termios	newtty;
+#endif
 #endif
 
 LOCAL void	reset_tty	__PR((void));
@@ -87,11 +89,15 @@ reset_tty()
 #ifdef USE_V7_TTY
 	if (ioctl(STDIN_FILENO, TIOCSETN, &savetty) == -1) {
 #else
-#ifdef TCSANOW
+#ifdef	USE_TERMIOS
+#ifdef	TCSANOW
 	if (tcsetattr(STDIN_FILENO, TCSANOW, &savetty) == -1) {
 #else
 	if (ioctl(STDIN_FILENO, TCSETAF, &savetty) == -1) {
 #endif
+#else	/* USE_TERMIOS */
+	if (0) {
+#endif	/* USE_TERMIOS */
 #endif
 		printf(_("Cannot put tty into normal mode\n"));
 		exit(1);
@@ -104,11 +110,15 @@ set_tty()
 #ifdef USE_V7_TTY
 	if (ioctl(STDIN_FILENO, TIOCSETN, &newtty) == -1) {
 #else
-#ifdef TCSANOW
+#ifdef	USE_TERMIOS
+#ifdef	TCSANOW
 	if (tcsetattr(STDIN_FILENO, TCSANOW, &newtty) == -1) {
 #else
 	if (ioctl(STDIN_FILENO, TCSETAF, &newtty) == -1) {
 #endif
+#else	/* USE_TERMIOS */
+	if (0) {
+#endif	/* USE_TERMIOS */
 #endif
 		printf(_("Cannot put tty into raw mode\n"));
 		exit(1);
@@ -348,23 +358,30 @@ main(argc, argv)
 #ifdef USE_V7_TTY
 	if (ioctl(STDIN_FILENO, TIOCGETP, &savetty) == -1) {
 #else
-#ifdef TCSANOW
+#ifdef	USE_TERMIOS
+#ifdef	TCSANOW
 	if (tcgetattr(STDIN_FILENO, &savetty) == -1) {
 #else
 	if (ioctl(STDIN_FILENO, TCGETA, &savetty) == -1) {
 #endif
+#else	/* USE_TERMIOS */
+	if (0) {
+#endif	/* USE_TERMIOS */
 #endif
 		printf(_("Stdin must be a tty\n"));
 		exit(1);
 	}
-	newtty = savetty;
 #ifdef USE_V7_TTY
+	newtty = savetty;
 	newtty.sg_flags  &= ~(ECHO|CRMOD);
 	newtty.sg_flags  |= CBREAK;
 #else
+#ifdef	USE_TERMIOS
+	newtty = savetty;
 	newtty.c_lflag   &= ~ICANON;
 	newtty.c_lflag   &= ~ECHO;
 	newtty.c_cc[VMIN] = 1;
+#endif
 #endif
 	set_tty();
 #ifdef	SIGTSTP
@@ -375,7 +392,11 @@ main(argc, argv)
 	do {
 		if (file_addr < (off_t)0) file_addr = (off_t)0;
 		showblock(1);
+#ifdef	USE_GETCH
+		c = getch();	/* DOS console input */
+#else
 		read(STDIN_FILENO, &c, 1);
+#endif
 		if (c == 'a')
 			file_addr -= PAGE;
 		if (c == 'b')

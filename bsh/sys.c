@@ -1,8 +1,8 @@
-/* @(#)sys.c	1.72 11/08/03 Copyright 1986-2011 J. Schilling */
+/* @(#)sys.c	1.73 11/08/13 Copyright 1986-2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)sys.c	1.72 11/08/03 Copyright 1986-2011 J. Schilling";
+	"@(#)sys.c	1.73 11/08/13 Copyright 1986-2011 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1986-2011 J. Schilling
@@ -475,7 +475,9 @@ printf("ewait: back from child (WSTOPPED).\n");
 			status.exit = stype;
 		}
 #	else	/* defined(HAVE_WAIT3) || defined(HAVE_SYS_PROCFS_H) */
+#if	defined(HAVE_SYS_TIMES_H) && defined(HAVE_TIMES)
 		times(&tms1);
+#endif
 		do {
 			died = wait(&status);
 		} while (died < 0 && geterrno() == EINTR);

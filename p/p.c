@@ -1,8 +1,8 @@
-/* @(#)p.c	1.52 11/08/03 Copyright 1985-2011 J. Schilling */
+/* @(#)p.c	1.53 11/08/13 Copyright 1985-2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)p.c	1.52 11/08/03 Copyright 1985-2011 J. Schilling";
+	"@(#)p.c	1.53 11/08/13 Copyright 1985-2011 J. Schilling";
 #endif
 /*
  *	Print some files on screen
@@ -35,7 +35,9 @@ static	UConst char sccsid[] =
 #include <schily/patmatch.h>
 #include <schily/schily.h>
 #include <schily/errno.h>
+#define	ungetch	dos_ungetch	/* Avoid DOS/curses ungetch() type clash */
 #include <schily/termios.h>
+#undef	ungetch			/* Restore our old value */
 
 /*#define SEARCHSIZE	80*/
 #define	SEARCHSIZE	256
@@ -56,8 +58,10 @@ struct sgttyb new;
 
 #	else	/* USE_V7_TTY */
 
+#ifdef	USE_TERMIOS
 struct termios	old;
 struct termios	new;
+#endif
 
 #	endif	/* USE_V7_TTY */
 int	tty = -1;
@@ -730,11 +734,15 @@ LOCAL char
 inchar()
 {
 	char	c;
-	int	ret;
+	int	ret = 0;
 
 	c = '\004';		/* return ^D on EOF */
 	do {
+#	ifdef	USE_GETCH
+		c = getch();	/* DOS console input	*/
+#	else
 		ret = read(tty, &c, 1);
+#	endif
 	} while (ret < 0 && geterrno() == EINTR);
 	return (c);
 }
@@ -1148,11 +1156,15 @@ get_modes()
 
 #	else	/* USE_V7_TTY */
 
+#	ifdef	USE_TERMIOS
 #	ifdef	TCSANOW
 	return (tcgetattr(STDOUT_FILENO, &old));
 #	else
 	return (ioctl(STDOUT_FILENO, TCGETS, &old));
 #	endif
+#	else	/* USE_TERMIOS */
+	return (0);
+#	endif	/* USE_TERMIOS */
 #	endif	/* USE_V7_TTY */
 }
 
@@ -1181,8 +1193,8 @@ set_modes()
 			signal(SIGTSTP, tstp);
 #endif
 	}
-	movebytes(&old, &new, sizeof (old));
 #	ifdef	USE_V7_TTY
+	movebytes(&old, &new, sizeof (old));
 #		ifdef	LPASS8
 	{
 		int	lmode;
@@ -1202,6 +1214,8 @@ set_modes()
 
 #	else	/* USE_V7_TTY */
 
+#	ifdef	USE_TERMIOS
+	movebytes(&old, &new, sizeof (old));
 	if (!(old.c_iflag & ISTRIP))
 		raw8 = TRUE;
 /*	new.c_iflag = ICRNL;*/
@@ -1216,6 +1230,7 @@ set_modes()
 	if (ioctl(STDOUT_FILENO, TCSETSW, &new) < 0)
 #	endif
 		comerr("Can not set new modes.\n");
+#	endif	/* USE_TERMIOS */
 
 #	endif	/* USE_V7_TTY */
 
@@ -1238,12 +1253,15 @@ reset_modes()
 
 #	else	/* USE_V7_TTY */
 
+#	ifdef	USE_TERMIOS
 #		ifdef	TCSANOW
 		if (tcsetattr(STDOUT_FILENO, TCSADRAIN, &old) < 0)
 #		else
 		if (ioctl(STDOUT_FILENO, TCSETSW, &old) < 0)
 #		endif
-
+#	else	/* USE_TERMIOS */
+		if (0)
+#	endif	/* USE_TERMIOS */
 #	endif	/* USE_V7_TTY */
 			comerr("Can not reset old modes.\n");
 	}

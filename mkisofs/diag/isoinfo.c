@@ -1,8 +1,8 @@
-/* @(#)isoinfo.c	1.85 11/08/04 joerg */
+/* @(#)isoinfo.c	1.86 11/08/13 joerg */
 #include <schily/mconfig.h>
 #ifndef	lint
 static	UConst char sccsid[] =
-	"@(#)isoinfo.c	1.85 11/08/04 joerg";
+	"@(#)isoinfo.c	1.86 11/08/13 joerg";
 #endif
 /*
  * File isodump.c - dump iso9660 directory information.
@@ -448,7 +448,7 @@ parse_rr(pnt, len, cont_flag)
 	int flag1, flag2;
 	unsigned char *pnts;
 	char symlinkname[1024];
-	int goof;
+	int goof = 0;
 
 	symlinkname[0] = 0;
 

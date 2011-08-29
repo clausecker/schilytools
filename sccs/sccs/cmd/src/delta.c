@@ -27,10 +27,10 @@
 /*
  * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)delta.c	1.41 11/08/07 J. Schilling
+ * @(#)delta.c	1.44 11/08/28 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)delta.c 1.41 11/08/07 J. Schilling"
+#pragma ident "@(#)delta.c 1.44 11/08/28 J. Schilling"
 #endif
 /*
  * @(#)delta.c 1.40 06/12/12
@@ -333,9 +333,8 @@ char *file;
 	if (setjmp(Fjmp))
 		return;
 	sinit(&gpkt,file,1);
-	gpkt.p_flags |= PF_GMT;
-	if (getenv("SCCS_VERSION"))
-		gpkt.p_flags |= PF_V6;
+	if ((gpkt.p_flags & PF_V6) == 0)
+		gpkt.p_flags |= PF_GMT;
 	if (first) {
 		first = 0;
 		dohist(file);
@@ -438,7 +437,6 @@ char *file;
 	setvbuf(gpkt.p_gout, NULL, _IOFBF, VBUF_SIZE);
 #endif
 	while(readmod(&gpkt)) {
-		chkid(gpkt.p_line,Sflags['i'-'a'], Sflags);
 		if (gpkt.p_flags & PF_NONL)
 			gpkt.p_line[gpkt.p_line_length-1] = '\0';
 		if(fputs(gpkt.p_lineptr, gpkt.p_gout) == EOF)
@@ -457,14 +455,24 @@ char *file;
 	gpkt.p_glnno = 0;
 	gpkt.p_verbose = (HADS) ? 0 : 1;
  	Did_id = number_of_lines = size_of_file = 0;
- 	while (fgets(line,sizeof(line),Gin) != NULL) {
- 	   if (line[strlen(line)-1] == '\n') {
- 	   	number_of_lines++;
- 	   }
- 	   if (Did_id == 0) {
- 	      chkid(line,Sflags['i'-'a'], Sflags);
- 	   }
- 	}
+
+	if (Sflags[EXPANDFLAG - 'a'] && *(Sflags[EXPANDFLAG - 'a']) == '\0') {
+		Did_id++;		/* No need to scan for keywds */
+	}
+	if ((Sflags[ENCODEFLAG - 'a'] == NULL) ||
+	    (strcmp(Sflags[ENCODEFLAG - 'a'],"0") == 0)) {
+		fgetchk(gfilename, &gpkt);
+		number_of_lines = gpkt.p_glines;
+	} else {
+	 	while (fgets(line,sizeof(line),Gin) != NULL) {
+ 			if (line[strlen(line)-1] == '\n') {
+ 	   			number_of_lines++;
+			}
+			if (Did_id == 0) {
+				chkid(line,Sflags['i'-'a'], Sflags);
+			}
+		}
+	}
  	if (stat(gfilename, &Statbuf) == 0) {
  	   size_of_file = Statbuf.st_size;
  	}
@@ -484,11 +492,6 @@ char *file;
  	      }
  	   }
  	}
-
-	if ((Sflags[ENCODEFLAG - 'a'] == NULL) ||
-	    (strcmp(Sflags[ENCODEFLAG - 'a'],"0") == 0)) {
-		fgetchk(gfilename, &gpkt);
-	}
 
 	if (!Did_id && !HADQ &&
 	    (!Sflags[EXPANDFLAG - 'a'] ||
@@ -680,8 +683,7 @@ int orig_nlines;
 		fprintf(pkt->p_stdout,"%s\n",str);
 		fflush(pkt->p_stdout);
 	}
-	sprintf(str, NOGETTEXT("%c%c00000\n"), CTLCHAR, HEAD);
-	putline(pkt,str);
+	putmagic(pkt, "00000");
 	newstats(pkt,str,"0");
 	dt.d_sid = *sp;
 
@@ -716,18 +718,20 @@ int orig_nlines;
 		dt.d_pred = newser - 1;	/* set predecessor to 'null' delta */
 	else
 		dt.d_pred = opred;
-	dt.d_datetime = Timenow;
+
+	time2dt(&dt.d_dtime, Timenow, 0); /* Timenow was set by dodelt() */
+
         /* Since the NSE always preserves the clear file after delta and
          * makes it read only (no get is required since keywords are not
          * supported), the delta time is set to be the mtime of the clear
          * file.
          */
         if ((HADO || HADQ) && (gfile_mtime != 0)) {
-                dt.d_datetime = gfile_mtime;
+		time2dt(&dt.d_dtime, gfile_mtime, 0);
         }
 	strncpy(dt.d_pgmr,logname(),LOGSIZE-1);
 	dt.d_type = 'D';
-	del_ba(&dt,str, 0);
+	del_ba(&dt,str, pkt->p_flags & ~PF_GMT);
 	putline(pkt,str);
 	if (ilist)
 		mkixg(pkt,INCLUSER,INCLUDE);
@@ -1293,7 +1297,7 @@ struct	packet	*pkt;
 #ifndef	RECORD_IO
 	char	*p = NULL;	/* Intialize to make gcc quiet */
 	char	*pn =  NULL;
-	char	line[VBUF_SIZE];
+	char	line[VBUF_SIZE+1];
 #else
 	char	line[BUFSIZ];
 	int	search_on = 0;
@@ -1303,6 +1307,8 @@ struct	packet	*pkt;
 	int	warned = 0;
 	char	chkflags = 0;
 	char	lastchar;
+	unsigned int sum = 0;
+	extern char *Sflags[];
 
 	inptr = xfopen(file, O_RDONLY|O_BINARY);
 #ifdef	USE_SETVBUF
@@ -1323,7 +1329,8 @@ struct	packet	*pkt;
 	 * algorithm allows to avoid to do a reverse scan for '\0' from the end
 	 * of the buffer.
 	 */
-	while ((idx = fread(line, 1, sizeof (line), inptr)) > 0) {
+	while ((idx = fread(line, 1, sizeof (line) - 1, inptr)) > 0) {
+		sum += usum(line, idx);
 		if (lastchar == '\n' && line[0] == CTLCHAR) {
 			chkflags |= CK_CTLCHAR;
 			if ((pkt->p_flags & PF_V6) == 0)
@@ -1366,6 +1373,10 @@ struct	packet	*pkt;
 				fatal(SccsError);
 			}
 		}
+		line[idx] = '\0';
+		if (Did_id == 0) {
+			chkid(line, Sflags['i'-'a'], Sflags);
+		}
 	}
 #else	/* !RECORD_IO */
 	while (fgets(line, sizeof (line), inptr) != NULL) {
@@ -1394,6 +1405,7 @@ struct	packet	*pkt;
 		 }
 	      } else {
 		 if (line[idx] == '\0') {
+		    sum += usum(line, idx);
 		    search_on = 1;
 		    lastchar = line[idx-1];
 		    if (lastchar == '\n') {
@@ -1402,10 +1414,16 @@ struct	packet	*pkt;
 		 }
 	      }
 	   }   
+	   if (Did_id == 0) {
+		chkid(line, Sflags['i'-'a'], Sflags);
+	   }
 	   (void)memset(line, '\377', sizeof (line));
 	}
 #endif	/* !RECORD_IO */
 	fclose(inptr);
+
+	pkt->p_ghash = sum & 0xFFFF;
+	pkt->p_glines = nline;
 
 	if (lastchar != '\n')
 		chkflags |= CK_NONL;

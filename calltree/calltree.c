@@ -1,13 +1,13 @@
-/* @(#)calltree.c	1.44 09/07/11 Copyright 1985, 1999-2009 J. Schilling */
+/* @(#)calltree.c	1.45 11/08/15 Copyright 1985, 1999-2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)calltree.c	1.44 09/07/11 Copyright 1985, 1999-2009 J. Schilling";
+	"@(#)calltree.c	1.45 11/08/15 Copyright 1985, 1999-2011 J. Schilling";
 #endif
 /*
  *	A program to produce a static calltree for C-functions
  *
- *	Copyright (c) 1985, 1999-2009 J. Schilling
+ *	Copyright (c) 1985, 1999-2011 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -21,18 +21,24 @@ static	UConst char sccsid[] =
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#include <schily/stdio.h>
+#include <schily/stdio.h>		/* Includes popen()/pclose()	*/
 #include <schily/standard.h>
 #include <schily/stdlib.h>
 #include <schily/unistd.h>
 #include <schily/string.h>
 #include <schily/schily.h>
+#define	VMS_VFORK_OK
+#include <schily/vfork.h>
 #include "strsubs.h"
 #include "sym.h"
 #include "clex.h"
 
+#ifdef	HAVE_FORK
 #	include <schily/wait.h>
-#	define	Pwait(pidp, statp)	wait(0)
+#	define	Pwait(f)	{ wait(0); fclose(f); }
+#else
+#	define	Pwait(f)	pclose(f)
+#endif
 
 LOCAL	char	ct_version[] = "2.4";
 
@@ -66,8 +72,18 @@ char	*curfname;
 
 #define	MAXARGS		32
 
+#ifdef	_MSC_VER
+int	Argc = 2;
+char	*Argv [MAXARGS] = { "cl.exe", "-E" };
+#else
+#ifndef	HAVE_FORK
+int	Argc = 2;
+char	*Argv [MAXARGS] = { "cc", "-E" };
+#else
 int	Argc = 2;
 char	*Argv [MAXARGS] = { "cpp", "-I/usr/include" };
+#endif	/* HAVE_FORK */
+#endif	/* _MSC_VER */
 #ifdef	__EMX__
 char	*Env[2] = { "PATH=/lib;/usr/ccs/lib;/usr/bin;/bin", 0 };
 #else
@@ -76,6 +92,7 @@ char	*Env[2] = { "PATH=/lib:/usr/ccs/lib:/usr/bin:/bin", 0 };
 
 LOCAL	void	usage		__PR((int exitcode));
 EXPORT	int	main		__PR((int ac, char **av));
+LOCAL	FILE	*mkcpppipe	__PR((FILE *f, char *fname));
 LOCAL	void	printfuncs	__PR((sym_t *table));
 LOCAL	void	printafunc	__PR((sym_t *sym));
 LOCAL	void	printusage	__PR((int indt, sym_t *tab));
@@ -131,7 +148,6 @@ main(ac, av)
 	int	ac;
 	char	*av[];
 {
-	FILE	*fpp[2];
 	FILE	*f;
 	int	i;
 	int	help = 0;
@@ -171,7 +187,7 @@ main(ac, av)
 	if (help)
 		usage(0);
 	if (version) {
-		printf("Calltree release %s (%s-%s-%s) Copyright (C) 1985, 88-90, 95-99, 2000-2009 Jörg Schilling\n",
+		printf("Calltree release %s (%s-%s-%s) Copyright (C) 1985, 88-90, 95-99, 2000-2011 Jörg Schilling\n",
 				ct_version,
 				HOST_CPU, HOST_VENDOR, HOST_OS);
 		exit(0);
@@ -219,35 +235,14 @@ main(ac, av)
 		if ((f = fileopen(cav[0], "r")) == (FILE *) NULL)
 			comerr("Cannot open '%s'.\n", cav[0]);
 
+		if (pflag)
+			f = mkcpppipe(f, cav[0]);
+
+		parsefile(f, cav[0]);
+
 		if (pflag) {
-			if (debug) {
-				error("CPP args: ");
-				for (i = 0; i < Argc; i++)
-					error("'%s' ", Argv[i]);
-				error("\n");
-			}
-			if (fpipe(fpp) == 0)
-				comerr("Can not make pipe to C-preprocessor.\n");
-
-			if ((i = fork()) == 0) {	/* child */
-				fclose(fpp[0]);
-				fexecve(Argv[0], f, fpp[1], stderr,
-					Argv, Env);
-				comerr("Cannot execute '%s'.\n", Argv[0]);
-			}
-			if (i < 0)
-				comerr("Fork failed.\n");
-
-			/*
-			 * parent
-			 */
-			fclose(f);			/* don't need it here*/
-			fclose(fpp[1]);
-			parsefile(fpp[0], cav[0]);
-			fclose(fpp[0]);
-			Pwait(&dummy, &dummy);
+			Pwait(f);
 		} else {
-			parsefile(f, cav[0]);
 			fclose(f);
 		}
 	}
@@ -304,6 +299,73 @@ main(ac, av)
 	exit(0);
 	/* NOTREACHED */
 	return (0);	/* Keep lint happy */
+}
+
+LOCAL FILE *
+mkcpppipe(f, fname)
+	FILE	*f;
+	char	*fname;
+{
+#ifdef	HAVE_FORK
+	FILE	*fpp[2];
+	int	i;
+
+	if (debug) {
+		error("CPP args: ");
+		for (i = 0; i < Argc; i++)
+			error("'%s' ", Argv[i]);
+		error("\n");
+	}
+	if (fpipe(fpp) == 0)
+		comerr("Can not make pipe to C-preprocessor.\n");
+
+	if ((i = vfork()) == 0) {	/* child */
+#ifdef	F_SETFD
+		fcntl(fileno(pfd[0]), F_SETFD, FD_CLOEXEC);
+#endif
+		fexecve(Argv[0], f, fpp[1], stderr,
+			Argv, Env);
+		errmsg("Cannot execute '%s'.\n", Argv[0]);
+#ifdef	HAVE_VFORK
+		_exit(geterrno());
+#else
+		exit(geterrno());
+#endif
+	}
+	if (i < 0)
+		comerr("Fork failed.\n");
+
+	/*
+	 * parent
+	 */
+	fclose(f);			/* don't need it here*/
+	fclose(fpp[1]);
+	return (fpp[0]);
+#else					/* No fork(), try popen() */
+	FILE	*fp;
+	int	i;
+	char	cmd[8192];
+	char	*p;
+
+	if (debug) {
+		error("CPP args: ");
+		for (i = 0; i < Argc; i++)
+			error("'%s' ", Argv[i]);
+		error("\n");
+	}
+	cmd[0] = '\0';
+	for (i = 0; i < Argc; i++) {
+		p = cmd + strlen(cmd);
+		js_snprintf(p, sizeof (cmd) + cmd - p,
+			"%s ", Argv[i]);
+	}	
+	p = cmd + strlen(cmd);
+	js_snprintf(p, sizeof (cmd) + cmd - p,
+		"%s ", fname);
+	fp = popen(cmd, "r");
+	fclose(f);
+	return (fp);
+#endif
 }
 
 /*

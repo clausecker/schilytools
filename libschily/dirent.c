@@ -1,8 +1,8 @@
-/* @(#)dirent.c	1.1 11/08/04 Copyright 2011 J. Schilling */
+/* @(#)dirent.c	1.2 11/08/16 Copyright 2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)dirent.c	1.1 11/08/04 Copyright 2011 J. Schilling";
+	"@(#)dirent.c	1.2 11/08/16 Copyright 2011 J. Schilling";
 #endif
 /*
  *	Copyright (c) 2011 J. Schilling
@@ -58,7 +58,7 @@ opendir(dname)
 		seterrno(ENOENT);
 		return ((DIR *)0);
 	}
-	
+
 	attr = GetFileAttributes(dname);
 	if (attr == INVALID_FILE_ATTRIBUTES ||
 	    (attr & FILE_ATTRIBUTE_DIRECTORY) == 0) {
@@ -66,7 +66,7 @@ opendir(dname)
 		return ((DIR *)0);
 	}
 	path[0] = '\0';
-	_fullpath (path, dname, PATH_MAX);
+	_fullpath(path, dname, PATH_MAX);
 	len = strlen(path);
 	if (len == 0) {
 		seterrno(ENOENT);

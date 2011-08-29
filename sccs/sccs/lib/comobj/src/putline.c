@@ -27,10 +27,10 @@
 /*
  * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)putline.c	1.10 11/08/07 J. Schilling
+ * @(#)putline.c	1.13 11/08/22 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)putline.c 1.10 11/08/07 J. Schilling"
+#pragma ident "@(#)putline.c 1.13 11/08/22 J. Schilling"
 #endif
 /*
  * @(#)putline.c 1.13 06/12/12
@@ -151,13 +151,18 @@ char *newline;
 	if (p) {
 		if(fputs((const char *)p,Xiop)==EOF)
 			FAILPUT;
-		if (Xcreate)
-			while (*p) {
-			   if(signed_chksum)
-				pkt->p_nhash += *p++;
-			   else
-				pkt->p_nhash += *u_p++;
+		if (Xcreate) {
+			register int	hash = 0;
+
+			if(signed_chksum) {
+				while (*p)
+					hash += *p++;
+			} else {
+				while (*p)
+					hash += *u_p++;
 			}
+			pkt->p_nhash += hash;
+		}
 	}
 	Xcreate = 1;
 }
@@ -216,7 +221,7 @@ register struct stats *stats;
 	sprintf(hash,"%5d",pkt->p_nhash&0xFFFF);
 	for (p=(signed char*)hash; *p == ' '; p++)	/* replace initial blanks with '0's */
 		*p = '0';
-	fprintf(Xiop,"%c%c%s\n",CTLCHAR,HEAD,hash);
+	putmagic(pkt, hash);
 	if (stats)
 		fprintf(Xiop,"%c%c %s/%s/%s\n",CTLCHAR,STATS,ins,del,unc);
 	if (fflush(Xiop) == EOF)
@@ -226,11 +231,37 @@ register struct stats *stats;
 	 * Lots of paranoia here, to try to catch
 	 * delayed failure information from NFS.
 	 */
+#ifdef	HAVE_FSYNC
 	 if (fsync(fileno(Xiop)) < 0)
 		xmsg(xf, NOGETTEXT("flushline"));
+#endif
 	if (fclose(Xiop) == EOF)
 		xmsg(xf, NOGETTEXT("flushline"));
 	Xiop = NULL;
+}
+
+/*
+ * Magic at the beginning of SCCS file.
+ */
+void
+putmagic(pkt, hash)
+register struct packet	*pkt;
+		char	*hash;
+{
+	char	line[128];
+extern	FILE	*Xiop;
+
+	snprintf(line, sizeof (line), "%c%c%s%s\n", CTLCHAR, HEAD,
+		(pkt->p_flags & PF_V6) ? "V6,sum=" : "",
+		hash);
+
+	if (Xiop) {
+		rewind(Xiop);
+		if(fputs(line, Xiop) == EOF)
+			FAILPUT;
+		return;
+	}
+	putline(pkt, line);	/* First write does not change hash */
 }
 
 void

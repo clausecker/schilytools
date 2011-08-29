@@ -1,8 +1,8 @@
-/* @(#)permtostr.c	1.1 11/06/15 Copyright 2011 J. Schilling */
+/* @(#)permtostr.c	1.2 11/08/16 Copyright 2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)permtostr.c	1.1 11/06/15 Copyright 2011 J. Schilling";
+	"@(#)permtostr.c	1.2 11/08/16 Copyright 2011 J. Schilling";
 #endif
 /*
  *	mkgmtime() is a complement to getperm()
@@ -52,7 +52,7 @@ permtostr(mode, s)
 	register char	*mstr = "xwrxwrxwr";
 	register char	*str = s;
 	register int	i;
- 
+
 	for (i = 9; --i >= 0; ) {
 		if (i % 3 == 2) {
 			if (str > s)

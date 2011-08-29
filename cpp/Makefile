@@ -1,4 +1,4 @@
-#ident "@(#)Makefile	1.12 10/09/22 "
+#ident "@(#)Makefile	1.15 10/10/10 "
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -26,8 +26,6 @@ HFILES=		cpp.h
 LIBS=		-lschily
 XMK_FILE=	Makefile.man
 
-$(DEP_FILE):	$(ARCHDIR)/cpy.c cpy.c
-
 cpy.c $(ARCHDIR)/cpy.c:	cpy.y
 		@echo "	==> YACCING $@"; $(YACC) cpy.y
 		@mv y.tab.c $(ARCHDIR)/cpy.c
@@ -37,6 +35,7 @@ CLEAN_FILEX +=	$(ARCHDIR)/cpy.c
 ###########################################################################
 include		$(SRCROOT)/$(RULESDIR)/rules.cmd
 ###########################################################################
+
 count:	$(CFILES) $(HFILES)
 	count $r1
 

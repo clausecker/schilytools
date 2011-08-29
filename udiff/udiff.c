@@ -1,13 +1,13 @@
-/* @(#)udiff.c	1.22 09/07/11 Copyright 1985-2009 J. Schilling */
+/* @(#)udiff.c	1.28 11/08/13 Copyright 1985-2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)udiff.c	1.22 09/07/11 Copyright 1985-2009 J. Schilling";
+	"@(#)udiff.c	1.28 11/08/13 Copyright 1985-2011 J. Schilling";
 #endif
 /*
  *	line by line diff for two files
  *
- *	Copyright (c) 1985-2009 J. Schilling
+ *	Copyright (c) 1985-2011 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -53,24 +53,27 @@ static	UConst char sccsid[] =
 #include <schily/stat.h>
 #include <schily/schily.h>
 
-#define	MAXLINE		8192
+#define	MAXLINE		32768
 
 typedef struct line {
 	off_t	off;
 	long	hash;
 } line;
 
-BOOL	posix;		/* -posix flag */
-int	nmatch = 2;
+LOCAL	BOOL	posix;		/* -posix flag */
+LOCAL	int	nmatch = 2;
 
-line	*oldfile;	/* Offsets and hashes for old file */
-char	*oldname;	/* Old file name */
-FILE	*of = 0;	/* File pointer for old file */
-long	olc = 0;	/* Line count for old file */
-line	*newfile;	/* Offsets and hashes for new file */
-char	*newname;	/* New file name */
-FILE	*nf = 0;	/* File pointer for new file */
-long	nlc = 0;	/* Line count for new file */
+LOCAL	line	*oldfile;	/* Offsets and hashes for old file */
+LOCAL	char	*oldname;	/* Old file name */
+LOCAL	FILE	*of = 0;	/* File pointer for old file */
+LOCAL	long	olc = 0;	/* Line count for old file */
+LOCAL	line	*newfile;	/* Offsets and hashes for new file */
+LOCAL	char	*newname;	/* New file name */
+LOCAL	FILE	*nf = 0;	/* File pointer for new file */
+LOCAL	long	nlc = 0;	/* Line count for new file */
+LOCAL	long	clc = 0;	/* Common line count */
+LOCAL	off_t	ooff;		/* Saved seek offset for old file */
+LOCAL	off_t	noff;		/* Saved seek offset for new file */
 
 #define	glinep(i, a)	(&((a)[(i)]))
 #define	compare(o, n)	(linecmp(glinep((o), oldfile), glinep((n), newfile)))
@@ -78,6 +81,8 @@ long	nlc = 0;	/* Line count for new file */
 LOCAL	void	usage		__PR((int exitcode));
 EXPORT	int	main		__PR((int ac, char **av));
 LOCAL	const char *filename	__PR((const char *name));
+LOCAL	off_t	readcommon	__PR((FILE *ofp, char *oname,
+				    FILE *nfp, char *nname));
 LOCAL	long	readfile	__PR((FILE *f, char *fname, line **hline));
 LOCAL	void	addline		__PR((char *s, off_t loff, long lc, line *hline));
 LOCAL	long	hash		__PR((char *s));
@@ -97,7 +102,8 @@ usage(exitcode)
 	error("	-help	Print this help.\n");
 	error("	-version Print version number.\n");
 	error("	-posix	Print diffs in POSIX mode.\n");
-	error("	nmatch=# Set number of matching lines for resync.\n");
+	error("	nmatch=# Set number of matching lines for resync (default = %d).\n",
+		nmatch);
 	exit(exitcode);
 }
 
@@ -116,10 +122,13 @@ main(ac, av)
 	const char *av0 = filename(av[0]);
 	struct stat sb1;
 	struct stat sb2;
+	off_t	lineoff;
 
 	save_args(ac, av);
-	if (av0[0] != 'u')
+	if (av0[0] != 'u') {
 		nmatch = 1;
+		posix = 1;
+	}
 	fac = --ac;
 	fav = ++av;
 	if (getallargs(&fac, &fav, options, &posix, &nmatch,
@@ -130,12 +139,12 @@ main(ac, av)
 	if (help)
 		usage(0);
 	if (nmatch <= 0) {
-		errmsgno(EX_BAD, "Bad nmatch value: '%s'\n", av[0]);		
+		errmsgno(EX_BAD, "Bad nmatch value: '%s'\n", av[0]);
 		usage(EX_BAD);
 	}
 	if (prversion) {
-		printf("Udiff release %s (%s-%s-%s) Copyright (C) 1985-2009 Jörg Schilling\n",
-				"1.22",
+		printf("Udiff release %s (%s-%s-%s) Copyright (C) 1985-2011 Jörg Schilling\n",
+				"1.28",
 				HOST_CPU, HOST_VENDOR, HOST_OS);
 		exit(0);
 	}
@@ -172,9 +181,14 @@ main(ac, av)
 		comerr("Cannot stat '%s'\n", newname);
 	if (sb1.st_ino == sb2.st_ino && sb1.st_dev == sb2.st_dev)
 		goto same;
+
+#ifdef	HAVE_SETVBUF
+	setvbuf(of, NULL, _IOFBF, MAXLINE);
+	setvbuf(nf, NULL, _IOFBF, MAXLINE);
+#endif
 	if (sb1.st_size == sb2.st_size) {
-		long	ob[8192 / sizeof (long)];
-		long	nb[8192 / sizeof (long)];
+		long	ob[MAXLINE / sizeof (long)];
+		long	nb[MAXLINE / sizeof (long)];
 		int	n1;
 		int	n2;
 
@@ -195,6 +209,10 @@ notsame:
 	if (fileseek(of, (off_t)0) == (off_t)-1 ||
 	    fileseek(nf, (off_t)0) == (off_t)-1)
 		comerr("Cannot seek.\n");
+
+	lineoff = readcommon(of, oldname, nf, newname);
+	fileseek(of, lineoff);
+	fileseek(nf, lineoff);
 
 	olc = readfile(of, oldname, &oldfile);
 	nlc = readfile(nf, newname, &newfile);
@@ -218,7 +236,47 @@ filename(name)
 	return (++p);
 }
 
+LOCAL off_t
+readcommon(ofp, oname, nfp, nname)
+	FILE	*ofp;
+	char	*oname;
+	FILE	*nfp;
+	char	*nname;
+{
+	off_t	lineoff = 0;
+	off_t	readoff = 0;
 
+	clc = 0;
+	for (;;) {
+		long	ob[MAXLINE / sizeof (long)];
+		long	nb[MAXLINE / sizeof (long)];
+		int	n;
+		int	n1;
+		int	n2;
+		char	*op;
+		char	*nl;
+
+		n1 = fileread(ofp, ob, sizeof (ob));
+		n2 = fileread(nfp, nb, sizeof (nb));
+		if (n1 <= 0 || n2 <= 0)
+			break;
+		if (n2 < n1)
+			n1 = n2;
+		n = n2 = cmpbytes(ob, nb, n1);
+
+		op = (char *)ob;
+		while (n > 0 && (nl = findbytes(op, n, '\n'))) {
+			lineoff = readoff + 1 + (nl - (char *)ob);
+			n -= nl - op + 1;
+			op = nl + 1;
+			clc++;
+		}
+		if (n2 < n1)
+			break;
+		readoff += n2;
+	}
+	return (lineoff);
+}
 
 LOCAL long
 readfile(f, fname, hlinep)
@@ -233,8 +291,17 @@ readfile(f, fname, hlinep)
 		off_t	loff = 0;
 		long	lc = 0;
 
+	/*
+	 * Get current posision as we skipped over the common parts.
+	 */
+	loff = filepos(f);
+
+	/*
+	 * Use fgetstr() to include the newline in the hash.
+	 * This allows to correctly deal with files that do not end in a newline
+	 */
 	for (;;) {
-		if ((len = fgetline(f, rb, maxlen)) < 0) {
+		if ((len = fgetstr(f, rb, maxlen)) < 0) {
 			if (ferror(f))
 				comerr("Cannot read '%s'.\n", fname);
 			break;
@@ -244,16 +311,19 @@ readfile(f, fname, hlinep)
 					(lc + 1024) * sizeof (line),
 					"new line");
 		addline(rb, loff, lc++, *hlinep);
+#ifdef	USE_CRLF
+		loff = filepos(f);
+#else	/* USE_CRLF */
 #ifndef	tos
-		if (++len < maxlen)
+		if (len < maxlen)
 			loff += len;
 		else
 #endif
 			loff = filepos(f);
+#endif	/* USE_CRLF */
 	}
 	return (lc);
 }
-
 
 LOCAL void
 addline(s, loff, lc, hline)
@@ -294,20 +364,33 @@ linecmp(olp, nlp)
 	line	*olp;
 	line	*nlp;
 {
-	char	olb[MAXLINE];
-	char	nlb[MAXLINE];
+	long	olb[MAXLINE / sizeof (long)];
+	long	nlb[MAXLINE / sizeof (long)];
 
 	if (olp->hash != nlp->hash)
 		return (FALSE);
 
-	if (filepos(of) != olp->off)
+	if (ooff != olp->off) {
 		fileseek(of, olp->off);
-	fgetline(of, olb, sizeof (olb));
-	if (filepos(nf) != nlp->off)
-		fileseek(nf, nlp->off);
-	fgetline(nf, nlb, sizeof (nlb));
+		ooff = olp->off;
+	}
+	ooff += 1 +
+		fgetline(of, (char *)olb, sizeof (olb));
+#ifdef	USE_CRLF
+	ooff = filepos(of);
+#endif
 
-	return (streql(olb, nlb));
+	if (noff != nlp->off) {
+		fileseek(nf, nlp->off);
+		noff = nlp->off;
+	}
+	noff += 1 +
+		fgetline(nf, (char *)nlb, sizeof (nlb));
+#ifdef	USE_CRLF
+	ooff = filepos(nf);
+#endif
+
+	return (streql((char *)olb, (char *)nlb));
 }
 
 
@@ -325,6 +408,7 @@ diff()
 		BOOL	m;
 		int	ret = 0;
 
+	ooff = noff = -1;
 	oln = 0, nln = 0;
 	while (oln < olc && nln < nlc) {
 		if (compare(oln, nln)) {
@@ -338,8 +422,12 @@ diff()
 		m = FALSE;
 		for (k = 1; k < mx; k++)
 		    for (l = 0; l <= k; l++) {
-			if ((oln+l >= olc) || (nln+k-l >= nlc))
+			if (oln+l >= olc)
+				break;
+			if (nln+k-l >= nlc) {
+				l = nln+k - nlc;
 				continue;
+			}
 			if (compare((long)(oln+l), (long)(nln+k-l))) {
 				for (j = 1, b = FALSE;
 					(j < nmatch) &&
@@ -398,6 +486,8 @@ showdel(o, n, c)
 	line	*lp;
 	char	lbuf[MAXLINE];
 
+	o += clc;
+	n += clc;
 	if (posix) {
 		if (c == 1)
 			printf("%ldd%ld\n", o+1, n);
@@ -407,12 +497,20 @@ showdel(o, n, c)
 		printf("\n-------- 1 line deleted at %ld:\n", o);
 	else
 		printf("\n-------- %ld lines deleted at %ld:\n", c, o);
+	o -= clc;
+	n -= clc;
 
 	for (i = 0; i < c; i++) {
 		lp = glinep((long)(o+i), oldfile);
-		if (filepos(of) != lp->off)
+		if (ooff != lp->off) {
 			fileseek(of, lp->off);
+			ooff = lp->off;
+		}
+		ooff += 1 +
 		fgetline(of, lbuf, sizeof (lbuf));
+#ifdef	USE_CRLF
+		ooff = filepos(of);
+#endif
 		if (posix)
 			printf("< ");
 		printf("%s\n", lbuf);
@@ -430,6 +528,8 @@ showadd(o, n, c)
 	line	*lp;
 	char	lbuf[MAXLINE];
 
+	o += clc;
+	n += clc;
 	if (posix) {
 		if (c == 1)
 			printf("%lda%ld\n", o, n+1);
@@ -439,12 +539,20 @@ showadd(o, n, c)
 		printf("\n-------- 1 line added at %ld:\n", o);
 	else
 		printf("\n-------- %ld lines added at %ld:\n", c, o);
+	o -= clc;
+	n -= clc;
 
 	for (i = 0; i < c; i++) {
 		lp = glinep((long)(n+i), newfile);
-		if (filepos(nf) != lp->off)
+		if (noff != lp->off) {
 			fileseek(nf, lp->off);
+			noff = lp->off;
+		}
+		noff += 1 +
 		fgetline(nf, lbuf, sizeof (lbuf));
+#ifdef	USE_CRLF
+		noff = filepos(nf);
+#endif
 		if (posix)
 			printf("> ");
 		printf("%s\n", lbuf);
@@ -462,6 +570,8 @@ showchange(o, n, c)
 	line	*lp;
 	char	lbuf[MAXLINE];
 
+	o += clc;
+	n += clc;
 	if (posix) {
 		if (c == 1)
 			printf("%ldc%ld\n", o+1, n+1);
@@ -472,12 +582,20 @@ showchange(o, n, c)
 	else
 		printf("\n-------- %ld lines changed at %ld-%ld from:\n",
 							c, o, o+c-1);
+	o -= clc;
+	n -= clc;
 
 	for (i = 0; i < c; i++) {
 		lp = glinep((long)(o+i), oldfile);
-		if (filepos(of) != lp->off)
+		if (ooff != lp->off) {
 			fileseek(of, lp->off);
+			ooff = lp->off;
+		}
+		ooff += 1 +
 		fgetline(of, lbuf, sizeof (lbuf));
+#ifdef	USE_CRLF
+		ooff = filepos(of);
+#endif
 		if (posix)
 			printf("< ");
 		printf("%s\n", lbuf);
@@ -488,9 +606,15 @@ showchange(o, n, c)
 		printf("-------- to:\n");
 	for (i = 0; i < c; i++) {
 		lp = glinep((long)(n+i), newfile);
-		if (filepos(nf) != lp->off)
+		if (noff != lp->off) {
 			fileseek(nf, lp->off);
+			noff = lp->off;
+		}
+		noff += 1 +
 		fgetline(nf, lbuf, sizeof (lbuf));
+#ifdef	USE_CRLF
+		noff = filepos(nf);
+#endif
 		if (posix)
 			printf("> ");
 		printf("%s\n", lbuf);
@@ -509,6 +633,8 @@ showxchange(o, n, oc, nc)
 	line	*lp;
 	char	lbuf[MAXLINE];
 
+	o += clc;
+	n += clc;
 	if (posix) {
 		if (oc == 1)
 			printf("%ldc%ld,%ld\n", o+1, n+1, n+nc);
@@ -525,12 +651,20 @@ showxchange(o, n, oc, nc)
 	else
 		printf("\n-------- %ld lines changed to %ld lines at %ld-%ld from:\n",
 							oc, nc, o, o+oc-1);
+	o -= clc;
+	n -= clc;
 
 	for (i = 0; i < oc; i++) {
 		lp = glinep((long)(o+i), oldfile);
-		if (filepos(of) != lp->off)
+		if (ooff != lp->off) {
 			fileseek(of, lp->off);
+			ooff = lp->off;
+		}
+		ooff += 1 +
 		fgetline(of, lbuf, sizeof (lbuf));
+#ifdef	USE_CRLF
+		ooff = filepos(of);
+#endif
 		if (posix)
 			printf("< ");
 		printf("%s\n", lbuf);
@@ -541,9 +675,15 @@ showxchange(o, n, oc, nc)
 		printf("-------- to:\n");
 	for (i = 0; i < nc; i++) {
 		lp = glinep((long)(n+i), newfile);
-		if (filepos(nf) != lp->off)
+		if (noff != lp->off) {
 			fileseek(nf, lp->off);
+			noff = lp->off;
+		}
+		noff += 1 +
 		fgetline(nf, lbuf, sizeof (lbuf));
+#ifdef	USE_CRLF
+		noff = filepos(nf);
+#endif
 		if (posix)
 			printf("> ");
 		printf("%s\n", lbuf);

@@ -27,10 +27,10 @@
 /*
  * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)prs.c	1.30 11/08/07 J. Schilling
+ * @(#)prs.c	1.31 11/08/21 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)prs.c 1.30 11/08/07 J. Schilling"
+#pragma ident "@(#)prs.c 1.31 11/08/21 J. Schilling"
 #endif
 /*
  * @(#)prs.c 1.33 06/12/12
@@ -91,8 +91,8 @@ static char	Pname[BUFSIZ];
 static char	Dir[BUFSIZ];
 static char	*Type;
 static char	*Qsect;
-static char	Deltadate[18];
-static char	Deltadatel[20];
+static char	Deltadate[DT_ZSTRSIZE];
+static char	Deltadatel[DT_ZSTRSIZE];
 static char	*Deltatime;
 static char	tempskel[]   =   NOGETTEXT("/tmp/prXXXXXX");	/* used to generate temp
 						   file names
@@ -614,7 +614,7 @@ struct	stats	*statp;
 #if defined(BUG_1205145) || defined(GMT_TIME)
 	idsetup(&dtp->d_sid,&gpkt,dtp);
 #else
-	idsetup(&dtp->d_sid,&gpkt,&dtp->d_datetime);
+	idsetup(&dtp->d_sid,&gpkt,&dtp->d_dtime.dt_sec);
 #endif
 
 	/*
@@ -1389,16 +1389,16 @@ time_t	*bdate;
 	register	char	*p;
 
 #if defined(BUG_1205145) || defined(GMT_TIME)
-	Dtime = localtime(&dt->d_datetime);
+	Dtime = localtime(&dt->d_dtime.dt_sec);
 	/*
 	Local time corrections before del_ba() and date_ba() calls.
 	Because these functions use gmtime() instead of localtime().
 	*/
-	dt->d_datetime = mklgmtime(Dtime);
+	dt->d_dtime.dt_sec = mklgmtime(Dtime);
 
 	del_ba(dt, dt_line);				/* create delta table line for :Dt: keywd */
-	date_ba(&dt->d_datetime,Deltadate, 0);
-	date_bal(&dt->d_datetime,Deltadatel, 0);
+	date_ba(&dt->d_dtime.dt_sec,Deltadate, 0);
+	date_bal(&dt->d_dtime.dt_sec,Deltadatel, 0);
 #else
 	date_ba(bdate,Deltadate, 0);
 	date_bal(bdate,Deltadatel, 0);

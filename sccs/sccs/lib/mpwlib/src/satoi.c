@@ -25,12 +25,12 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2009 J. Schilling
+ * Copyright 2006-2011 J. Schilling
  *
- * @(#)satoi.c	1.5 09/11/08 J. Schilling
+ * @(#)satoi.c	1.6 11/08/16 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)satoi.c 1.5 09/11/08 J. Schilling"
+#pragma ident "@(#)satoi.c 1.6 11/08/16 J. Schilling"
 #endif
 /*
  * @(#)satoi.c 1.4 06/12/12
@@ -41,17 +41,21 @@
 #pragma ident	"@(#)sccs:lib/mpwlib/satoi.c"
 #endif
 # include	<defines.h>
-# include	<macros.h>
 
-char *satoi(p,ip)
-register char *p;
-register int *ip;
+char *satoi(p, ip)
+	register char	*p;
+		int	*ip;
 {
 	register int sum;
+	register int c;
 
 	sum = 0;
-	while (numeric(*p))
-		sum = sum * 10 + (*p++ - '0');
+	for (;;) {
+		c = *p++ - '0';
+		if (c < 0 || c > 9)
+			break;
+		sum = sum * 10 + c;
+	}
 	*ip = sum;
-	return(p);
+	return(--p);
 }

@@ -1,8 +1,8 @@
-/* @(#)cmpmbytes.c	1.1 11/07/29 Copyright 1988, 1995-2011 J. Schilling */
+/* @(#)cmpmbytes.c	1.2 11/08/16 Copyright 1988, 1995-2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)cmpmbytes.c	1.1 11/07/29 Copyright 1988, 1995-2011 J. Schilling";
+	"@(#)cmpmbytes.c	1.2 11/08/16 Copyright 1988, 1995-2011 J. Schilling";
 #endif
 /*
  *	compare data
@@ -118,5 +118,5 @@ ldiff:
 			goto cdiff;
 	} while (--n > 0);
 cdiff:
-	return (*((unsigned char*)--from) - *((unsigned char*)--to));
+	return (*((unsigned char *)--from) - *((unsigned char *)--to));
 }

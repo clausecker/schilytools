@@ -1,0 +1,142 @@
+New features with AN-2011-08-29:
+
+This is the first localization step for the schily source consolidation. Many
+programs now (hopefully) call gettext() for all strings that need localization.
+
+-	The next step will include dgettext() calls for the libraries and the
+	missing programs
+
+-	The following step will include the extracted strings
+
+-	The last step will include German translations and install support
+	for the resulting binary message object files.
+
+----------> Please test and report compilation problems! <---------
+
+***** NOTE: As mentioned since 2004, frontends to the tools should *****
+*****		call all programs in the "C" locale		   *****
+*****		by e.g. calling: LC_ALL=C cdrecord ....		   *****
+*****		unless these frontends support localized strings   *****
+*****		used by the cdrtools with NLS support.		   *****
+
+-	README.compile now includes instructions on how to compile
+	using a cross compiler.
+
+-	conf/mkdep-msc.sh now includes a workaround for a bug in the
+	Microsoft compiler. The MS compiler outputs filenames like:
+	'.\\scg/xxx.h' but '.\\name' is not accepted as filename.
+
+-	include/schily/termios.h has been enhanced to better deal with
+	nonstandard platforms like Win-DOS.
+
+-	New autoconf test for conio.h
+
+-	New autoconf test for int*_t and uint*_t
+
+-	include/schily/termios.h now defines USE_GETCH in case there 
+	is no standard TERMIOS
+
+-	include/schily/limits.h now includes sys/param.h where available in
+	order to make sure PIPE_BUF was defined before we define out fallback.
+
+-	The performance of the mkgmtime() function in libschily has been enhanced
+	This affects e.g. SCCS
+
+-	libschily::fgetline() now calls fgets() in case that getc() is not
+	a macro. This speeds up performance.
+
+-	libschily::fgetstr() now calls fgets() in case that getc() is not
+	a macro. This speeds up performance.
+
+-	udiff(1) is now aprox. 20x faster than before. Seeks are avoided,
+	file I/O is buffered with larger blocks, common parts at the
+	beginning of files are skipped.
+
+-	udiff(1) now detects differences if one file ends without a
+	newline and the other does not.
+
+-	calltree(1) now compiles and works on Win-DOS using the Microsoft compiler.
+
+-	ved(1) now compiles and works on Win-DOS using the Microsoft compiler.
+	Input only works from WIN-DOS window but not from xterm or ssh.
+	Is there somebody who can help?
+
+-	bsh(1) now compiles on Win-DOS using the Microsoft compiler.
+	It does not yet link due to fork().
+
+-	cpp(1) We cannot use char *inp / char *outp on Win-DOS
+	because there are inp() and outp().
+
+-	p(1) now compiles and works on Win-DOS using the Microsoft compiler.
+	Input only works from WIN-DOS window but not from xterm or ssh.
+	Is there somebody who can help?
+
+-	patch(1) now compiles and works on Win-DOS using the Microsoft compiler.
+
+-	mkisofs/devdump now compiles and works on Win-DOS using the Microsoft compiler.
+	Input only works from WIN-DOS window but not from xterm or ssh.
+	Is there somebody who can help?
+
+-	mkisofs/isodump now compiles and works on Win-DOS using the Microsoft compiler.
+	Input only works from WIN-DOS window but not from xterm or ssh.
+	Is there somebody who can help?
+
+-	sformat(1) now compiles and works on Win-DOS using the Microsoft compiler.
+
+-	the diff(1) source now again mentions Harold Stone as author of the
+	"best match" resync algorithm. This comment has been removed by
+	AT&T for SVr4
+
+-	The SCCS getline() library function no longer copies the line.
+	This results in a 20% performance improvement on SCCS.
+
+-	SCCS getline()/putline() now use a more efficient way to compute the
+	checksum.
+
+-	SCCS satoi() has been rewritten to be fast even with a compiler that
+	offers a bad optimizer.
+
+
+-	SCCS sccscvt new program to convert between SCCS v4 and SCCS v6 history
+	file format.
+
+-	The sccs command now also supports "sccs cvt" for the command "sccscvt"
+
+-	The SEE ALSO section of most SCCS man pages has been reworked
+
+-	SCCS admin now computes a checksum for the file content when called
+	as admin -ifile s.file.
+
+-	SCCS admin now prints full path names in warnings when a file does not
+	end in a newline or includes a line that starts qith ^A in V6 mode.
+
+-	SCCS delta no longer reads the new file two times before adding the delta.
+
+-	SCCS delta is now more correct when checking whether a file includes
+	SCCS keywords to expand.
+
+-	SCCS delta now computes a checksum for the new content of the file.
+
+-	SCCS libcomobj/date_ab.c now uses a specialized and speed up version of
+	gN() for date_ab().
+
+-	SCCS libcomobj/getline.c now uses a completely new algorithm to compute
+	the checksum with better performance.
+
+-	libschily/mkgmtime.c is now faster then previous release.
+	Make it also correct when tm_month < 0 or > 11.
+
+
+
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.isdn.cs.tu-berlin.de, js@cs.tu-berlin.de
+	joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

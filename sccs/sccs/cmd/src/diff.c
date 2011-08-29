@@ -39,10 +39,10 @@
 /*
  * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)diff.c	1.36 11/08/03 J. Schilling
+ * @(#)diff.c	1.37 11/08/13 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)diff.c 1.36 11/08/03 J. Schilling"
+#pragma ident "@(#)diff.c 1.37 11/08/13 J. Schilling"
 #endif
 
 #if defined(sun)
@@ -52,7 +52,7 @@
 /*
  *	diff - differential file comparison
  *
- *	Uses an algorithm  which finds
+ *	Uses an algorithm due to Harold Stone, which finds
  *	a pair of longest identical subsequences in the two
  *	files.
  *

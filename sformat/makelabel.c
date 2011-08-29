@@ -1,13 +1,13 @@
-/* @(#)makelabel.c	1.56 09/11/07 Copyright 1988-2009 J. Schilling */
+/* @(#)makelabel.c	1.57 11/08/13 Copyright 1988-2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)makelabel.c	1.56 09/11/07 Copyright 1988-2009 J. Schilling";
+	"@(#)makelabel.c	1.57 11/08/13 Copyright 1988-2011 J. Schilling";
 #endif
 /*
  *	Routines to create / modify a label
  *
- *	Copyright (c) 1988-2009 J. Schilling
+ *	Copyright (c) 1988-2011 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -26,7 +26,9 @@ static	UConst char sccsid[] =
 #include <schily/ioctl.h>
 #include <schily/termios.h>	/* For TIOCSTI (simulate terminal input) */
 #include <schily/fcntl.h>
+#ifdef	HAVE_SYS_FILE_H
 #include <sys/file.h>
+#endif
 #include "dsklabel.h"
 #ifndef	HAVE_DKIO
 #	undef	SVR4
@@ -612,6 +614,7 @@ writelabel(name, lp)
 	if (write(f, (char *)lp, sizeof (*lp)) < 0)
 		errmsg("Cannot write '%s'\n", name);
 
+#ifdef	HAVE_IOCTL
 	if (ioctl(f, DKIOCGAPART, &map) >= 0) {
 		/*
 		 * It seemes to be a disk!
@@ -622,6 +625,7 @@ writelabel(name, lp)
 			comerr("Cannot set partitions.\n");
 		(void) setgeom(f, lp);
 	}
+#endif
 	close(f);
 	exit(0);
 }
@@ -639,6 +643,7 @@ writebackuplabel(f, lp)
 	backup_label_blk *= lp->dkl_nhead * lp->dkl_nsect;
 	backup_label_blk += (lp->dkl_nhead-1) * lp->dkl_nsect;
 
+#ifdef	HAVE_IOCTL
 	ioctl(f, DKIOCGAPART, &map);
 	/*
 	 * If he's not using partition '2' (the whole disk)
@@ -658,6 +663,7 @@ writebackuplabel(f, lp)
 				errmsg("Cannot write backup label\n");
 		}
 	}
+#endif
 }
 
 EXPORT int
@@ -675,6 +681,7 @@ setlabel(name, lp)
 		return (err);
 	}
 
+#ifdef	HAVE_IOCTL
 	if (ioctl(f, DKIOCGAPART, &map) < 0) {
 		err = geterrno();
 		errmsgno(err, "Cannot get partitions from '%s'.\n", name);
@@ -688,6 +695,7 @@ setlabel(name, lp)
 		close(f);
 		return (err);
 	}
+#endif
 	err = setgeom(f, lp);
 	close(f);
 	return (err);
@@ -717,12 +725,14 @@ setgeom(f, lp)
 	gp->dkg_rpm = lp->dkl_rpm;
 	gp->dkg_pcyl = lp->dkl_pcyl;
 
+#ifdef	HAVE_IOCTL
 	if (ioctl(f, DKIOCSGEOM, gp) < 0) {
 		int	err = geterrno();
 
 		errmsgno(err, "Cannot set geometry\n");
 		return (err);
 	}
+#endif
 	return (0);
 }
 

@@ -1,8 +1,8 @@
-/* @(#)isodump.c	1.45 10/12/19 joerg */
+/* @(#)isodump.c	1.46 11/08/13 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)isodump.c	1.45 10/12/19 joerg";
+	"@(#)isodump.c	1.46 11/08/13 joerg";
 #endif
 /*
  * File isodump.c - dump iso9660 directory information.
@@ -136,8 +136,10 @@ isonum_733(p)
 LOCAL	struct sgttyb	savetty;
 LOCAL	struct sgttyb	newtty;
 #else
+#ifdef	USE_TERMIOS
 LOCAL	struct termios savetty;
 LOCAL	struct termios newtty;
+#endif
 #endif
 
 LOCAL void
@@ -146,11 +148,15 @@ reset_tty()
 #ifdef USE_V7_TTY
 	if (ioctl(STDIN_FILENO, TIOCSETN, &savetty) == -1) {
 #else
-#ifdef TCSANOW
-	if (tcsetattr(STDIN_FILENO, TCSANOW, &savetty) == -1)  {
+#ifdef	USE_TERMIOS
+#ifdef	TCSANOW
+	if (tcsetattr(STDIN_FILENO, TCSANOW, &savetty) == -1) {
 #else
 	if (ioctl(STDIN_FILENO, TCSETAF, &savetty) == -1) {
 #endif
+#else	/* USE_TERMIOS */
+	if (0) {
+#endif	/* USE_TERMIOS */
 #endif
 		printf(_("Cannot put tty into normal mode\n"));
 		exit(1);
@@ -163,11 +169,15 @@ set_tty()
 #ifdef USE_V7_TTY
 	if (ioctl(STDIN_FILENO, TIOCSETN, &newtty) == -1) {
 #else
-#ifdef TCSANOW
+#ifdef	USE_TERMIOS
+#ifdef	TCSANOW
 	if (tcsetattr(STDIN_FILENO, TCSANOW, &newtty) == -1) {
 #else
 	if (ioctl(STDIN_FILENO, TCSETAF, &newtty) == -1) {
 #endif
+#else	/* USE_TERMIOS */
+	if (0) {
+#endif	/* USE_TERMIOS */
 #endif
 		printf(_("Cannot put tty into raw mode\n"));
 		exit(1);
@@ -636,23 +646,30 @@ main(argc, argv)
 #ifdef USE_V7_TTY
 	if (ioctl(STDIN_FILENO, TIOCGETP, &savetty) == -1) {
 #else
-#ifdef TCSANOW
+#ifdef	USE_TERMIOS
+#ifdef	TCSANOW
 	if (tcgetattr(STDIN_FILENO, &savetty) == -1) {
 #else
 	if (ioctl(STDIN_FILENO, TCGETA, &savetty) == -1) {
 #endif
+#else	/* USE_TERMIOS */
+	if (0) {
+#endif	/* USE_TERMIOS */
 #endif
 		printf(_("Stdin must be a tty\n"));
 		exit(1);
 	}
-	newtty = savetty;
 #ifdef USE_V7_TTY
+	newtty = savetty;
 	newtty.sg_flags  &= ~(ECHO|CRMOD);
 	newtty.sg_flags  |= CBREAK;
 #else
+#ifdef	USE_TERMIOS
+	newtty = savetty;
 	newtty.c_lflag   &= ~ICANON;
 	newtty.c_lflag   &= ~ECHO;
 	newtty.c_cc[VMIN] = 1;
+#endif
 #endif
 	set_tty();
 #ifdef	SIGTSTP
@@ -664,7 +681,11 @@ main(argc, argv)
 		if (file_addr < 0)
 			file_addr = (off_t)0;
 		showblock(1);
+#ifdef	USE_GETCH
+		c = getch();	/* DOS console input */
+#else
 		read(STDIN_FILENO, &c, 1);
+#endif
 		if (c == 'a')
 			file_addr -= blocksize;
 		if (c == 'b')

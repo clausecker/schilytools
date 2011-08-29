@@ -27,10 +27,10 @@
 /*
  * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)val.c	1.26 11/08/07 J. Schilling
+ * @(#)val.c	1.28 11/08/22 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)val.c 1.26 11/08/07 J. Schilling"
+#pragma ident "@(#)val.c 1.28 11/08/22 J. Schilling"
 #endif
 /*
  * @(#)val.c 1.22 06/12/12
@@ -428,11 +428,11 @@ char	*c_name;
 	int	goods,goodt,goodn,hadmflag;
 
 	infile_err = goods = goodt = goodn = hadmflag = 0;
-	dt.d_datetime = odt.d_datetime = 0;
+	dt.d_dtime.dt_sec = odt.d_dtime.dt_sec = 0;
+	dt.d_dtime.dt_nsec = odt.d_dtime.dt_nsec = 0;
+	dt.d_dtime.dt_zone = odt.d_dtime.dt_zone = DT_NO_ZONE;
 
 	s_init(&gpkt,c_path);
-	if (getenv("SCCS_VERSION"))
-		gpkt.p_flags |= PF_V6;
 
 	if (!sccsfile(c_path) || (gpkt.p_iop = fopen(c_path, "rb")) == NULL) {
 		if (debug) {
@@ -450,7 +450,7 @@ char	*c_name;
 		/*
 		check that it is header line.
 		*/
-		if (l == NULL || *l++ != CTLCHAR || *l++ != HEAD) {
+		if (l == NULL || (l = checkmagic(&gpkt, l)) == NULL) {
 			if (debug)
 				printf(
 				gettext("%s%s: corrupted first line in file\n"),
@@ -588,8 +588,8 @@ struct packet *pkt;
 
 		del_ab(&lp[-2], &dt, pkt);	/* We are called with &lp[2] */
 
-		if (dt.d_datetime != 0 && odt.d_datetime != 0 &&
-		    dt.d_datetime > odt.d_datetime) {
+		if (dt.d_dtime.dt_sec != 0 && odt.d_dtime.dt_sec != 0 &&
+		    dt.d_dtime.dt_sec > odt.d_dtime.dt_sec) {
 			sid_ba(&dt.d_sid, str);
 			sid_ba(&odt.d_sid, ostr);
 			printf(gettext(

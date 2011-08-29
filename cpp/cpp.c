@@ -1,7 +1,7 @@
-/* @(#)cpp.c	1.24 10/09/21 2010 J. Schilling */
+/* @(#)cpp.c	1.25 11/08/03 2010-2011 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)cpp.c	1.24 10/09/21 2010 J. Schilling";
+	"@(#)cpp.c	1.25 11/08/03 2010-2011 J. Schilling";
 #endif
 /*
  * C command
@@ -12,7 +12,7 @@ static	char sccsid[] =
  * This implementation is based on the UNIX 32V release from 1978
  * with permission from Caldera Inc.
  *
- * Copyright (c) 2010 J. Schilling
+ * Copyright (c) 2010-2011 J. Schilling
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -103,7 +103,7 @@ STATIC	int symlen = SYMLEN;
 STATIC	char *pbeg;
 STATIC	char *pbuf;
 STATIC	char *pend;
-char *outp,*inp;
+char *outptr,*inptr;
 char *newp;
 STATIC	char cinit;
 
@@ -356,14 +356,14 @@ sayline(what)
  *          |    to be      |<-- current -->|    to be
  *          |    written    |    token      |    scanned
  *          |               |               |
- *          outp            inp             p
+ *          outptr          inptr           p
  *
- *  *outp   first char not yet written to output file
- *  *inp    first char of current token
+ *  *outptr   first char not yet written to outptrut file
+ *  *inptr    first char of current token
  *  *p      first char not yet scanned
  *
- * macro expansion: write from *outp to *inp (chars waiting to be written),
- * ignore from *inp to *p (chars of the macro call), place generated
+ * macro expansion: write from *outptr to *inptr (chars waiting to be written),
+ * ignore from *inptr to *p (chars of the macro call), place generated
  * characters in front of *p (in reverse order), update pointers,
  * resume scanning.
  *
@@ -398,7 +398,7 @@ sayline(what)
 STATIC void
 dump() {
 /*
- * write part of buffer which lies between  outp  and  inp .
+ * write part of buffer which lies between  outptr  and  inptr .
  * this should be a direct call to 'write', but the system slows to a crawl
  * if it has to do an unaligned copy.  thus we buffer.  this silly loop
  * is 15% of the total time, thus even the 'putc' macro is too slow.
@@ -408,23 +408,23 @@ dump() {
 	register char *p2;
 #endif
 	register FILE *f;
-	if ((p1=outp)==inp || flslvl!=0) return;
+	if ((p1=outptr)==inptr || flslvl!=0) return;
 #if tgp
 #define MAXOUT 80
 	if (!tgpscan) {/* scan again to insure <= MAXOUT chars between linefeeds */
 		register char c,*pblank; char savc,stopc,brk;
-		tgpscan=1; brk=stopc=pblank=0; p2=inp; savc= *p2; *p2='\0';
+		tgpscan=1; brk=stopc=pblank=0; p2=inptr; savc= *p2; *p2='\0';
 		while (c= *p1++) {
 			if (c=='\\') c= *p1++;
 			if (stopc==c) stopc=0;
 			else if (c=='"' || c=='\'') stopc=c;
-			if (p1-outp>MAXOUT && pblank!=0) {
-				*pblank++='\n'; inp=pblank; dump(); brk=1; pblank=0;
+			if (p1-outptr>MAXOUT && pblank!=0) {
+				*pblank++='\n'; inptr=pblank; dump(); brk=1; pblank=0;
 			}
 			if (c==' ' && stopc==0) pblank=p1-1;
 		}
 		if (brk) sayline(NOINCLUDE);
-		*p2=savc; inp=p2; p1=outp; tgpscan=0;
+		*p2=savc; inptr=p2; p1=outptr; tgpscan=0;
 	}
 #endif
 	f=fout;
@@ -439,20 +439,20 @@ dump() {
 	}
 }
 # endif
-	while (p1<inp) putc(*p1++,f);
-	outp=p1;
+	while (p1<inptr) putc(*p1++,f);
+	outptr=p1;
 }
 
 STATIC char *
 refill(p) register char *p; {
 /*
- * dump buffer.  save chars from inp to p.  read into buffer at pbuf,
+ * dump buffer.  save chars from inptr to p.  read into buffer at pbuf,
  * contiguous with p.  update pointers, return new p.
  */
 	register char *np,*op; register int ninbuf;
-	dump(); np=pbuf-(p-inp); op=inp;
-	if (bob(np+1)) {pperror("token too long"); np=pbeg; p=inp+BUFFERSIZ;}
-	macdam += np-inp; outp=inp=np;
+	dump(); np=pbuf-(p-inptr); op=inptr;
+	if (bob(np+1)) {pperror("token too long"); np=pbeg; p=inptr+BUFFERSIZ;}
+	macdam += np-inptr; outptr=inptr=np;
 	while (op<p) *np++= *op++;
 	p=np;
 	for (;;) {
@@ -480,7 +480,7 @@ refill(p) register char *p; {
 					pend=np; *np='\0'; if (plvl<0) plvl=0;
 					return(p);
 				}
-				inp=p; dump(); exit(exfail);
+				inptr=p; dump(); exit(exfail);
 			}
 			close(fin); fin=fins[--ifno]; dirs[0]=dirnams[ifno]; sayline(LEAVEINCLUDE);
 		}
@@ -499,13 +499,13 @@ cotoken(p) register char *p; {
 for (;;) {
 again:
 	while (!isspc(*p++));
-	switch (*(inp=p-1)) {
+	switch (*(inptr=p-1)) {
 	case 0: {
 		if (eob(--p)) {p=refill(p); goto again;}
 		else ++p; /* ignore null byte */
 	} break;
 	case '|': case '&': for (;;) {/* sloscan only */
-		if (*p++== *inp) break;
+		if (*p++== *inptr) break;
 		if (eob(--p)) p=refill(p);
 		else break;
 	} break;
@@ -526,33 +526,33 @@ again:
 	} break;
 	case '/': for (;;) {
 		if (*p++=='*') {/* comment */
-			if (!passcom) {inp=p-2; dump(); ++flslvl;}
+			if (!passcom) {inptr=p-2; dump(); ++flslvl;}
 			for (;;) {
 				while (!iscom(*p++));
 				if (p[-1]=='*') for (;;) {
 					if (*p++=='/') goto endcom;
 					if (eob(--p)) {
-						if (!passcom) {inp=p; p=refill(p);}
-						else if ((p-inp)>=BUFFERSIZ) {/* split long comment */
-							inp=p; p=refill(p);	/* last char written is '*' */
+						if (!passcom) {inptr=p; p=refill(p);}
+						else if ((p-inptr)>=BUFFERSIZ) {/* split long comment */
+							inptr=p; p=refill(p);	/* last char written is '*' */
 							putc('/',fout);	/* terminate first part */
 							/* and fake start of 2nd */
-							outp=inp=p-=3; *p++='/'; *p++='*'; *p++='*';
+							outptr=inptr=p-=3; *p++='/'; *p++='*'; *p++='*';
 						} else p=refill(p);
 					} else break;
 				} else if (p[-1]=='\n') {
 					++lineno[ifno]; if (!passcom) putc('\n',fout);
 				} else if (eob(--p)) {
-					if (!passcom) {inp=p; p=refill(p);}
-					else if ((p-inp)>=BUFFERSIZ) {/* split long comment */
-						inp=p; p=refill(p);
+					if (!passcom) {inptr=p; p=refill(p);}
+					else if ((p-inptr)>=BUFFERSIZ) {/* split long comment */
+						inptr=p; p=refill(p);
 						putc('*',fout); putc('/',fout);
-						outp=inp=p-=2; *p++='/'; *p++='*';
+						outptr=inptr=p-=2; *p++='/'; *p++='*';
 					} else p=refill(p);
 				} else ++p; /* ignore null byte */
 			}
 		endcom:
-			if (!passcom) {outp=inp=p; --flslvl; goto again;}
+			if (!passcom) {outptr=inptr=p; --flslvl; goto again;}
 			break;
 		}
 		if (eob(--p)) p=refill(p);
@@ -581,7 +581,7 @@ prevlf:
 		state=BEG;
 		for (;;) {
 			if (*p++=='#') return(p);
-			if (eob(inp= --p)) p=refill(p);
+			if (eob(inptr= --p)) p=refill(p);
 			else goto again;
 		}
 	}
@@ -634,13 +634,13 @@ prevlf:
 		i= *p++; if (!isid(i)) goto endid; tmac1(i,b7); tmac2(c,i,6);
 		                                                tmac2(i,0,7);
 		while (isid(*p++));
-		if (eob(--p)) {refill(p); p=inp+1; continue;}
+		if (eob(--p)) {refill(p); p=inptr+1; continue;}
 		goto lokid;
 	endid:
-		if (eob(--p)) {refill(p); p=inp+1; continue;}
-		tmac2(p[-1],0,-1+(p-inp));
+		if (eob(--p)) {refill(p); p=inptr+1; continue;}
+		tmac2(p[-1],0,-1+(p-inptr));
 	lokid:
-		slookup(inp,p,0); if (newp) {p=newp; goto again;}
+		slookup(inptr,p,0); if (newp) {p=newp; goto again;}
 		else break;
 	nomac:
 		while (isid(*p++));
@@ -655,7 +655,7 @@ prevlf:
 
 char *
 skipbl(p) register char *p; {/* get next non-blank token */
-	do {outp=inp=p; p=cotoken(p);} while ((toktyp+COFF)[(int)*inp]==BLANK);
+	do {outptr=inptr=p; p=cotoken(p);} while ((toktyp+COFF)[(int)*inptr]==BLANK);
 	return(p);
 }
 
@@ -668,8 +668,8 @@ unfill(p) register char *p; {
 	register char *np,*op; register int d;
 	if (mactop>=MAXFRE) {
 		pperror("%s: too much pushback",macnam);
-		p=inp=pend; dump();	/* begin flushing pushback */
-		while (mactop>inctop[ifno]) {p=refill(p); p=inp=pend; dump();}
+		p=inptr=pend; dump();	/* begin flushing pushback */
+		while (mactop>inctop[ifno]) {p=refill(p); p=inptr=pend; dump();}
 	}
 	if (fretop>0) np=bufstack[--fretop];
 	else {
@@ -681,9 +681,9 @@ unfill(p) register char *p; {
 	for (;;) {while ((*np++= *op++) != '\0'); if (eob(op)) break;} /* out with old */
 	endbuf[mactop++]=np;	/* mark end of saved text */
 	np=pbuf+BUFFERSIZ; op=pend-BUFFERSIZ; pend=np; if (op<p) op=p;
-	while (outp<op) *--np= *--op; /* slide over new */
+	while (outptr<op) *--np= *--op; /* slide over new */
 	if (bob(np)) pperror("token too long");
-	d=np-outp; outp+=d; inp+=d; macdam+=d; return(p+d);
+	d=np-outptr; outptr+=d; inptr+=d; macdam+=d; return(p+d);
 }
 
 STATIC char *
@@ -693,29 +693,29 @@ doincl(p) register char *p; {
 
 	filname[0] = '\0';	/* Make lint quiet */
 	p=skipbl(p); cp=filname;
-	if (*inp++=='<') {/* special <> syntax */
+	if (*inptr++=='<') {/* special <> syntax */
 		inctype=1;
 		for (;;) {
-			outp=inp=p; p=cotoken(p);
-			if (*inp=='\n') {--p; *cp='\0'; break;}
-			if (*inp=='>') {      *cp='\0'; break;}
+			outptr=inptr=p; p=cotoken(p);
+			if (*inptr=='\n') {--p; *cp='\0'; break;}
+			if (*inptr=='>') {      *cp='\0'; break;}
 # ifdef gimpel
-			if (*inp=='.' && !intss()) *inp='#';
+			if (*inptr=='.' && !intss()) *inptr='#';
 # endif
-			while (inp<p) *cp++= *inp++;
+			while (inptr<p) *cp++= *inptr++;
 		}
-	} else if (inp[-1]=='"') {/* regular "" syntax */
+	} else if (inptr[-1]=='"') {/* regular "" syntax */
 		inctype=0;
 # ifdef gimpel
-		while (inp<p) {if (*inp=='.' && !intss()) *inp='#'; *cp++= *inp++;}
+		while (inptr<p) {if (*inptr=='.' && !intss()) *inptr='#'; *cp++= *inptr++;}
 # else
-		while (inp<p) *cp++= *inp++;
+		while (inptr<p) *cp++= *inptr++;
 # endif
 		if (*--cp=='"') *cp='\0';
 	} else {pperror("bad include syntax",0); inctype=2;}
 	/* flush current file to \n , then write \n */
-	++flslvl; do {outp=inp=p; p=cotoken(p);} while (*inp!='\n'); --flslvl;
-	inp=p; dump(); if (inctype==2) return(p);
+	++flslvl; do {outptr=inptr=p; p=cotoken(p);} while (*inptr!='\n'); --flslvl;
+	inptr=p; dump(); if (inctype==2) return(p);
 	/* look for included file */
 	if (ifno+1 >=MAXINC) {
 		pperror("Unreasonable include nesting",0); return(p);
@@ -780,9 +780,9 @@ dodef(p) char *p; {/* process '#define' */
 	if (savch>sbf+SBSIZE-BUFFERSIZ) {pperror("too much defining"); return(p);}
 	oldsavch=savch; /* to reclaim space if redefinition */
 	++flslvl; /* prevent macro expansion during 'define' */
-	p=skipbl(p); pin=inp;
+	p=skipbl(p); pin=inptr;
 	if ((toktyp+COFF)[(int)*pin]!=IDENT) {
-		ppwarn("illegal macro name"); while (*inp!='\n') p=skipbl(p); return(p);
+		ppwarn("illegal macro name"); while (*inptr!='\n') p=skipbl(p); return(p);
 	}
 	np=slookup(pin,p,1);
 	if ((oldval=np->value) != NULL) savch=oldsavch;	/* was previously defined */
@@ -795,13 +795,13 @@ dodef(p) char *p; {/* process '#define' */
 			xmac2(c,0,-1+(cf-pin),|=);
 		}
 	}
-	params=0; outp=inp=p; p=cotoken(p); pin=inp;
+	params=0; outptr=inptr=p; p=cotoken(p); pin=inptr;
 	formal[0] = "";	/* Prepare for hack at next line... */
 	pf = formal;	/* Make gcc/lint quiet, pf only used with params!=0 */
 	if (*pin=='(') {/* with parameters; identify the formals */
 		cf=formtxt; pf=formal;
 		for (;;) {
-			p=skipbl(p); pin=inp;
+			p=skipbl(p); pin=inptr;
 			if (*pin=='\n') {
 				--lineno[ifno]; --p; pperror("%s: missing )",np->name); break;
 			}
@@ -823,7 +823,7 @@ dodef(p) char *p; {/* process '#define' */
 	 */
 	oldsavch=psav=savch;
 	for (;;) {/* accumulate definition until linefeed */
-		outp=inp=p; p=cotoken(p); pin=inp;
+		outptr=inptr=p; p=cotoken(p); pin=inptr;
 		if (*pin=='\\' && pin[1]=='\n') continue;	/* ignore escaped lf */
 		if (*pin=='\n') break;
 		if (params) {/* mark the appearance of formals in the definiton */
@@ -862,7 +862,7 @@ dodef(p) char *p; {/* process '#define' */
 			np->value=psav-1;
 		} else psav=oldsavch; /* identical redef.; reclaim space */
 	} else np->value=psav-1;
-	--flslvl; inp=pin; savch=psav; return(p);
+	--flslvl; inptr=pin; savch=psav; return(p);
 }
 
 #define fasscan() ptrtab=fastab+COFF
@@ -872,19 +872,19 @@ STATIC char *
 control(p) register char *p; {/* find and handle preprocessor control lines */
 	register struct symtab *np;
 for (;;) {
-	fasscan(); p=cotoken(p); if (*inp=='\n') ++inp; dump();
+	fasscan(); p=cotoken(p); if (*inptr=='\n') ++inptr; dump();
 	sloscan(); p=skipbl(p);
-	*--inp=SALT; outp=inp; ++flslvl; np=slookup(inp,p,0); --flslvl;
+	*--inptr=SALT; outptr=inptr; ++flslvl; np=slookup(inptr,p,0); --flslvl;
 	if (np==defloc) {/* define */
 		if (flslvl==0) {p=dodef(p); continue;}
 	} else if (np==incloc) {/* include */
 		if (flslvl==0) {p=doincl(p); continue;}
 	} else if (np==ifnloc) {/* ifndef */
-		++flslvl; p=skipbl(p); np=slookup(inp,p,0); --flslvl;
+		++flslvl; p=skipbl(p); np=slookup(inptr,p,0); --flslvl;
 		if (flslvl==0 && np->value==0) ++trulvl;
 		else ++flslvl;
 	} else if (np==ifdloc) {/* ifdef */
-		++flslvl; p=skipbl(p); np=slookup(inp,p,0); --flslvl;
+		++flslvl; p=skipbl(p); np=slookup(inptr,p,0); --flslvl;
 		if (flslvl==0 && np->value!=0) ++trulvl;
 		else ++flslvl;
 	} else if (np==eifloc) {/* endif */
@@ -935,7 +935,7 @@ for (;;) {
 
 	} else if (np==udfloc) {/* undefine */
 		if (flslvl==0) {
-			++flslvl; p=skipbl(p); slookup(inp,p,DROP); --flslvl;
+			++flslvl; p=skipbl(p); slookup(inptr,p,DROP); --flslvl;
 		}
 	} else if (np==ifloc) {/* if */
 #if tgp
@@ -948,10 +948,10 @@ for (;;) {
 #endif
 	} else if (np == idtloc) {		/* ident */
 		if (pflag == 0)
-			while (*inp != '\n')	/* pass text */
+			while (*inptr != '\n')	/* pass text */
 				p = cotoken(p);
 	} else if (np == pragmaloc) {		/* pragma */
-		while (*inp != '\n')		/* pass text */
+		while (*inptr != '\n')		/* pass text */
 			p = cotoken(p);
 	} else if (np == errorloc) {		/* error */
 #ifdef	EXIT_ON_ERROR
@@ -959,13 +959,13 @@ for (;;) {
 			char ebuf[BUFFERSIZ];
 
 			p = ebuf;
-			while (*inp != '\n') {
-				if (*inp == '\0')
-					if (eob(--inp)) {
-						inp = refill(inp);
+			while (*inptr != '\n') {
+				if (*inptr == '\0')
+					if (eob(--inptr)) {
+						inptr = refill(inptr);
 						continue;
 					}
-				*p++ = *inp++;
+				*p++ = *inptr++;
 				if (p >= &ebuf[BUFFERSIZ-1])
 					break;
 			}
@@ -974,18 +974,18 @@ for (;;) {
 			exit(exfail);
 		}
 #else
-		while (*inp != '\n')		/* pass text */
+		while (*inptr != '\n')		/* pass text */
 			p = cotoken(p);
 #endif
 	} else if (np==lneloc) {/* line */
 		if (flslvl==0 && pflag==0) {
-			outp=inp=p; *--outp='#'; while (*inp!='\n') p=cotoken(p);
+			outptr=inptr=p; *--outptr='#'; while (*inptr!='\n') p=cotoken(p);
 			continue;
 		}
-	} else if (*++inp=='\n') outp=inp;	/* allows blank line after # */
+	} else if (*++inptr=='\n') outptr=inptr;	/* allows blank line after # */
 	else pperror("undefined control",0);
 	/* flush to lf */
-	++flslvl; while (*inp!='\n') {outp=inp=p; p=cotoken(p);} --flslvl;
+	++flslvl; while (*inptr!='\n') {outptr=inptr=p; p=cotoken(p);} --flslvl;
 }
 }
 
@@ -1158,17 +1158,17 @@ subst(p,sp) register char *p; struct symtab *sp; {
 		if (params==0xFF) params=1;	/* #define foo() ... */
 		sloscan(); ++flslvl; /* no expansion during search for actuals */
 		plvl= -1;
-		do p=skipbl(p); while (*inp=='\n');	/* skip \n too */
-		if (*inp=='(') {
+		do p=skipbl(p); while (*inptr=='\n');	/* skip \n too */
+		if (*inptr=='(') {
 			maclin=lineno[ifno]; macfil=fnames[ifno];
 			for (plvl=1; plvl!=0; ) {
 				*ca++='\0';
 				for (;;) {
-					outp=inp=p; p=cotoken(p);
-					if (*inp=='(') ++plvl;
-					if (*inp==')' && --plvl==0) {--params; break;}
-					if (plvl==1 && *inp==',') {--params; break;}
-					while (inp<p) {
+					outptr=inptr=p; p=cotoken(p);
+					if (*inptr=='(') ++plvl;
+					if (*inptr==')' && --plvl==0) {--params; break;}
+					if (plvl==1 && *inptr==',') {--params; break;}
+					while (inptr<p) {
 						/*
 						 * Sun cpp compatibility.
 						 * Needed for kernel assembler
@@ -1179,10 +1179,10 @@ subst(p,sp) register char *p; struct symtab *sp; {
 						 * are assumed to be inside a
 						 * string.
 						 */
-						if (*inp == '\n' &&
-						    inp[-1] != '\\')
-							*inp = ' ';
-						*ca++= *inp++;
+						if (*inptr == '\n' &&
+						    inptr[-1] != '\\')
+							*inptr = ' ';
+						*ca++= *inptr++;
 					}
 					if (ca> &acttxt[BUFFERSIZ])
 						pperror("%s: actuals too long",sp->name);
@@ -1197,18 +1197,18 @@ subst(p,sp) register char *p; struct symtab *sp; {
 	}
 	for (;;) {/* push definition onto front of input stack */
 		while (!iswarn(*--vp)) {
-			if (bob(p)) {outp=inp=p; p=unfill(p);}
+			if (bob(p)) {outptr=inptr=p; p=unfill(p);}
 			*--p= *vp;
 		}
 		if (*vp==warnc) {/* insert actual param */
 			ca=actual[*--vp-1];
 			while (*--ca) {
-				if (bob(p)) {outp=inp=p; p=unfill(p);}
+				if (bob(p)) {outptr=inptr=p; p=unfill(p);}
 				*--p= *ca;
 			}
 		} else break;
 	}
-	outp=inp=p;
+	outptr=inptr=p;
 	return(p);
 }
 
@@ -1373,8 +1373,8 @@ main(argc,argv)
 					dirs[0]=dirnams[ifno]=trmdir(argv[i]);
 # ifndef gcos
 /* too dangerous to have file name in same syntactic position
-   be input or output file depending on file redirections,
-   so force output to stdout, willy-nilly
+   be input or outptrut file depending on file redirections,
+   so force outptrut to stdout, willy-nilly
 	[i don't see what the problem is.  jfr]
 */
 				} else if (fout==stdout) {
@@ -1517,7 +1517,7 @@ main(argc,argv)
 
 	trulvl = 0; flslvl = 0;
 	lineno[0] = 1; sayline(NOINCLUDE);
-	outp=inp=pend;
+	outptr=inptr=pend;
 	control(pend);
 	return (exfail);
 }

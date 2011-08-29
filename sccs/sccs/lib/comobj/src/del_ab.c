@@ -27,10 +27,10 @@
 /*
  * This file contains modifications Copyright 2011 J. Schilling
  *
- * @(#)del_ab.c	1.4 11/06/27 J. Schilling
+ * @(#)del_ab.c	1.5 11/08/21 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)del_ab.c 1.4 11/06/27 J. Schilling"
+#pragma ident "@(#)del_ab.c 1.5 11/08/21 J. Schilling"
 #endif
 /*
  * @(#)del_ab.c 1.7 06/12/12
@@ -60,7 +60,7 @@ struct packet *pkt;
 	NONBLANK(p);
 	p = sid_ab(p,&dt->d_sid);
 	NONBLANK(p);
-	if (date_ab(p,&dt->d_datetime, pkt->p_flags) > 0) {
+	if (date_abz(p,&dt->d_dtime, pkt->p_flags) > 0) {
 		if (Ffile) {
 			fprintf(stderr, gettext("WARNING [%s]: date format violation at line %d\n"),
 					Ffile, pkt->p_slnno);

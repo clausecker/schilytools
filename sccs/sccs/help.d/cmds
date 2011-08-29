@@ -23,7 +23,7 @@
 *
 * This file contains modifications Copyright 2006-2011 J. Schilling
 *
-* @(#)cmds	1.14 11/07/05 J. Schilling 
+* @(#)cmds	1.15 11/08/24 J. Schilling 
 *
 * @(#)cmds 1.3 06/12/12
 *
@@ -87,6 +87,8 @@ Keyword       Type
 	what file ...
 -comb
 	comb [-o] [-s] [-p<SID>] [-c<list>] file ...
+-cvt
+	cvt -V4/-V6 file ...
 -bdiff
 	bdiff file1 file2 [numarg] [-s]
 -cdc
@@ -222,6 +224,7 @@ Keyword       Data Item            Section           Type           Type
 	sccs admin	create or administer SCCS history files
 	sccs cdc	change the delta commentary of an SCCS delta
 	sccs comb	combine SCCS deltas
+	sccs cvt	convert SCCS history format between SCCS v4 and SCCS v6
 	sccs delta	make a delta to an SCCS file
 	sccs get	retrieve a version of an SCCS file
 	sccs help	ask for help regarding SCCS error or warning messages

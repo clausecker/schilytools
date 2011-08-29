@@ -1,8 +1,8 @@
-/* @(#)diskfmt.c	1.25 11/08/02 Copyright 1988-2011 J. Schilling */
+/* @(#)diskfmt.c	1.27 11/08/15 Copyright 1988-2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)diskfmt.c	1.25 11/08/02 Copyright 1988-2011 J. Schilling";
+	"@(#)diskfmt.c	1.27 11/08/15 Copyright 1988-2011 J. Schilling";
 #endif
 /*
  *	Format SCSI disks
@@ -736,6 +736,7 @@ LOCAL int
 prpercent(ftim)
 	long	ftim;
 {
+#ifdef	HAVE_FORK
 	int	pid = fork();
 	int	fatim;
 	struct timeval	tv;
@@ -758,6 +759,9 @@ prpercent(ftim)
 		flush();
 	}
 	return (pid);
+#else
+	return (999999999);
+#endif
 }
 
 LOCAL int
@@ -795,7 +799,9 @@ format_disk(scgp, dp, clear_gdl)
 		if (yes("Continue? "))
 			ret = TRUE;
 	}
+#ifdef	SIGALRM
 	alarm(0);
+#endif
 	printf("done.\n");
 	if (read_capacity(scgp) < 0)
 		ret = FALSE;
@@ -804,11 +810,13 @@ format_disk(scgp, dp, clear_gdl)
 	convert_def_blk(scgp);
 	write_def_blk(scgp, TRUE);
 	restore_sigs(oldmask);
+#ifdef	HAVE_FORK
 #ifdef	SIGKILL
 	kill(pid, SIGKILL);
 #endif
 	while (wait(0) > 0)
 		;
+#endif
 	return (ret);
 }
 
@@ -847,7 +855,9 @@ reformat_disk(scgp, dp)
 		if (yes("Continue? "))
 			ret = TRUE;
 	}
+#ifdef	SIGALRM
 	alarm(0);
+#endif
 	printf("done.\n");
 	if (read_capacity(scgp) < 0)
 		ret = FALSE;
@@ -856,11 +866,13 @@ reformat_disk(scgp, dp)
 	convert_def_blk(scgp);
 	write_def_blk(scgp, TRUE);
 	restore_sigs(oldmask);
+#ifdef	HAVE_FORK
 #ifdef	SIGKILL
 	kill(pid, SIGKILL);
 #endif
 	while (wait(0) > 0)
 		;
+#endif
 	return (ret);
 }
 
@@ -906,11 +918,13 @@ reformat_with_bad(dp)
 	convert_def_blk();
 	write_def_blk(TRUE);
 	restore_sigs(oldmask);
+#ifdef	HAVE_FORK
 #ifdef	SIGKILL
 	kill(pid, SIGKILL);
 #endif
 	while (wait(0) > 0)
 		;
+#endif
 	return (ret);
 }
 #endif
@@ -951,7 +965,9 @@ acb_format_disk(scgp, dp, clear_gdl)
 		if (yes("Continue? "))
 			ret = TRUE;
 	}
+#ifdef	SIGALRM
 	alarm(0);
+#endif
 	printf("done.\n");
 	if (read_capacity(scgp) < 0)
 		ret = FALSE;
@@ -960,11 +976,13 @@ acb_format_disk(scgp, dp, clear_gdl)
 	convert_def_blk(scgp);
 	write_def_blk(scgp, TRUE);
 	restore_sigs(oldmask);
+#ifdef	HAVE_FORK
 #ifdef	SIGKILL
 	kill(pid, SIGKILL);
 #endif
 	while (wait(0) > 0)
 		;
+#endif
 	return (ret);
 }
 

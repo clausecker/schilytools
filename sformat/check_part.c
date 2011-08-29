@@ -1,13 +1,13 @@
-/* @(#)check_part.c	1.34 09/08/08 Copyright 1993-2009 J. Schilling */
+/* @(#)check_part.c	1.35 11/08/13 Copyright 1993-2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)check_part.c	1.34 09/08/08 Copyright 1993-2009 J. Schilling";
+	"@(#)check_part.c	1.35 11/08/13 Copyright 1993-2011 J. Schilling";
 #endif
 /*
  *	Check Partition validity
  *
- *	Copyright (c) 1993-2009 J. Schilling
+ *	Copyright (c) 1993-2011 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -27,7 +27,9 @@ static	UConst char sccsid[] =
 #include <schily/schily.h>
 #include <schily/ioctl.h>
 #include <schily/fcntl.h>
+#ifdef	HAVE_SYS_FILE_H
 #include <sys/file.h>
+#endif
 #include "dsklabel.h"
 #include <schily/float.h>
 

@@ -1,9 +1,10 @@
-# @(#)Targets	1.5 11/05/26 Copyright 2006-2008 J. Schilling
+# @(#)Targets	1.8 11/08/27 Copyright 2006-2008 J. Schilling
 
 CFILES=	auxf.c chkid.c chksid.c cmpdate.c date_ab.c date_ba.c date_bal.c \
 	del_ab.c \
-	del_ba.c dodelt.c dofile.c dohist.c doie.c dolist.c encode.c \
+	del_ba.c dodelt.c dofile.c dohist.c doie.c dolist.c dtime.c encode.c \
 	eqsid.c flushto.c fmterr.c getline.c getser.c logname.c newsid.c \
 	newstats.c permiss.c pf_ab.c putline.c rdmod.c setup.c sid_ab.c \
 	sid_ba.c sidtoser.c sinit.c stats_ab.c strptim.c \
+	ssum.c usum.c \
 	xgmtime.c xlocaltime.c xmktime.c xtzset.c

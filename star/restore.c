@@ -1,15 +1,15 @@
-/* @(#)restore.c	1.63 10/08/23 Copyright 2003-2010 J. Schilling */
+/* @(#)restore.c	1.64 11/08/14 Copyright 2003-2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)restore.c	1.63 10/08/23 Copyright 2003-2010 J. Schilling";
+	"@(#)restore.c	1.64 11/08/14 Copyright 2003-2011 J. Schilling";
 #endif
 /*
  *	Data base management for incremental restores
  *	needed to detect and execute rename() and unlink()
  *	operations between two incremental dumps.
  *
- *	Copyright (c) 2003-2010 J. Schilling
+ *	Copyright (c) 2003-2011 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -1043,7 +1043,16 @@ move2dir(dir, name, oino)
 	}
 	if (xdebug)
 		error("link(%s, %s)\n", tpath, path);
+#ifdef	HAVE_LINK
 	if (link(tpath, path) < 0) {
+#else
+	if (1) {
+#ifdef	ENOSYS
+		seterrno(ENOSYS);
+#else
+		seterrno(EINVAL);
+#endif
+#endif
 		/* XXX error code */
 		errmsg("Cannot link(%s, %s)\n", tpath, path);
 	} else {

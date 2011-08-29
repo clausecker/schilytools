@@ -27,16 +27,17 @@
 /*
  * This file contains modifications Copyright 2008-2011 J. Schilling
  *
- * @(#)date_bal.c	1.5 11/06/27 J. Schilling
+ * @(#)date_bal.c	1.8 11/08/24 J. Schilling
  *
  * From Sun: @(#)sccs:lib/comobj/date_ba.c @(#)date_ba.c 1.5 06/12/12
  */
 #if defined(sun)
-#pragma ident "@(#)date_bal.c 1.5 11/06/27 J. Schilling"
+#pragma ident "@(#)date_bal.c 1.8 11/08/24 J. Schilling"
 #endif
 # include	<defines.h>
 
 # define DO2(p,n,c)	*p++ = ((char) ((n)/10) + '0'); *p++ = ( (char) ((n)%10) + '0'); *p++ = c;
+# define DO2_(p,n)	*p++ = ((char) ((n)/10) + '0'); *p++ = ( (char) ((n)%10) + '0');
 # define DO4(p,n,c)	*p++ = ((char) ((n)/1000) + '0'); *p++ = ( (char) ((n)%1000/100) + '0'); \
 			*p++ = ((char) ((n)%100/10) + '0'); *p++ = ( (char) ((n)%10) + '0'); *p++ = c;
 
@@ -47,16 +48,38 @@ time_t	*bdt;
 char	*adt;
 int	flags;
 {
+	dtime_t	dt;
+
+	dt.dt_sec = *bdt;
+	dt.dt_nsec = 0;
+	dt.dt_zone = DT_NO_ZONE;
+	return (date_bazl(&dt, adt, flags));
+}
+
+char *
+date_bazl(bdt, adt, flags)
+dtime_t	*bdt;
+char	*adt;
+int	flags;
+{
 	register struct tm *lcltm;
-	register char *p;
+	register char	*p;
+		int	zone = bdt->dt_zone;
 
 #if defined(BUG_1205145) || defined(GMT_TIME)
-	lcltm = gmtime(bdt);
+	lcltm = gmtime(&bdt->dt_sec);
 #else
-	if (flags & PF_GMT)
-		lcltm = gmtime(bdt);
-	else
-		lcltm = localtime(bdt);
+	if (zone != DT_NO_ZONE && (flags & PF_V6)) {
+		time_t	sec = bdt->dt_sec + zone;
+
+		lcltm = gmtime(&sec);
+	} else if (flags & PF_GMT) {
+		lcltm = gmtime(&bdt->dt_sec);
+		zone = DT_NO_ZONE;
+	} else {
+		lcltm = localtime(&bdt->dt_sec);
+		zone = DT_NO_ZONE;
+	}
 #endif
 	p = adt;
 	lcltm->tm_year += 1900;
@@ -67,5 +90,19 @@ int	flags;
 	DO2(p,lcltm->tm_hour,':');
 	DO2(p,lcltm->tm_min,':');
 	DO2(p,lcltm->tm_sec,0);
+	if (zone != DT_NO_ZONE) {
+		register int	z = zone / 60;	/* seconds -> minutes */
+		register int	n;
+
+		--p;
+		if (z < 0)
+			*p++ = '-';
+		else
+			*p++ = '+';
+		n = z / 60;
+		DO2_(p, n);
+		n = z % 60;
+		DO2(p, n, 0);
+	}
 	return(adt);
 }

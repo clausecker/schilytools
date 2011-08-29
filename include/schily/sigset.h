@@ -1,8 +1,8 @@
-/* @(#)sigset.h	1.9 09/06/30 Copyright 1997-2009 J. Schilling */
+/* @(#)sigset.h	1.10 11/08/14 Copyright 1997-2011 J. Schilling */
 /*
  *	Signal set abstraction for BSD/SVR4 signals
  *
- *	Copyright (c) 1997-2009 J. Schilling
+ *	Copyright (c) 1997-2011 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -48,6 +48,7 @@
 #define	restore_sigs(a)	sigprocmask(SIG_SETMASK, &a, 0);
 
 #else	/* !HAVE_SIGPROCMASK */
+#if	defined(HAVE_SIGBLOCK) && defined(HAVE_SIGSETMASK)
 
 #define	sigset_t	int
 #define	block_sigs(a)	a = sigblock(0xFFFFFFFF)
@@ -60,7 +61,13 @@
 				__new = __old & ~__new;	\
 				sigsetmask(__new);	\
 			}
+#else	/* ! defined(HAVE_SIGBLOCK) && defined(HAVE_SIGSETMASK) */
 
+#define	sigset_t	int
+#define	block_sigs(a)
+#define	restore_sigs(a)
+#define	unblock_sig(s)
+#endif	/* ! defined(HAVE_SIGBLOCK) && defined(HAVE_SIGSETMASK) */
 #endif	/* HAVE_SIGPROCMASK */
 
 #endif	/* _SCHILY_SIGSET_H */

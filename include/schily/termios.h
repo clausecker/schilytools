@@ -1,8 +1,8 @@
-/* @(#)termios.h	1.32 09/07/21 Copyright 1984-2007 J. Schilling */
+/* @(#)termios.h	1.34 11/08/13 Copyright 1984-2011 J. Schilling */
 /*
  *	Terminal driver tty mode handling
  *
- *	Copyright (c) 1984-2007 J. Schilling
+ *	Copyright (c) 1984-2011 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -36,8 +36,10 @@
 #	include <spfcode.h>
 #else
 #ifdef	HAVE_TERMIOS_H
+#	ifndef	_INCL_TERMIOS_H
 #	include <termios.h>
 #	define	_INCL_TERMIOS_H
+#	endif	/* _INCL_TERMIOS_H */
 #	ifdef TIOCGETA				/* FreeBSD */
 #		define	TCGETS	TIOCGETA
 #		define	TCSETSW	TIOCSETAW
@@ -48,8 +50,10 @@
 #	endif
 #else
 #	ifdef	HAVE_TERMIO_H
+#		ifndef	_INCL_TERMIO_H
 #		include	<termio.h>
 #		define	_INCL_TERMIO_H
+#		endif	/* _INCL_TERMIO_H */
 #		ifndef	TCGETS
 #		define	termios	termio
 #		define	TCGETS	TCGETA
@@ -63,20 +67,54 @@
 
 #if !defined(HAVE_TCGETATTR) || !defined(HAVE_TCSETATTR)
 #	undef	TCSANOW
+#else
+#	define	USE_TCSETATTR	/* Use tcsetattr() instead of ioctl()	*/
+#	define	USE_TERMIOS	/* Termio as classification		*/
 #endif
 
 #ifndef	TCSANOW
 #	if	!defined(TCGETS) || !defined(TCSETSW)
 #		define	USE_V7_TTY
+#	else
+#		define	USE_TCSETSW	/* Use ioctl()s			*/
+#		ifndef	USE_TERMIOS
+#		define	USE_TERMIOS	/* Termio as classification	*/
+#		endif
 #	endif
 #endif
+
+#if	defined(USE_V7_TTY) && defined(HAVE_SGTTY_H)
+#	ifndef	_INCL_SGTTY_H
+#	include	<sgtty.h>
+#	define	_INCL_SGTTY_H
+#	endif
+#endif
+
+#if	defined(USE_V7_TTY)
+#	ifndef	TIOCGETP
+#		undef	USE_V7_TTY
+#		define	USE_NO_TTY_IOCTL	/* A DOS system?	*/
+#	endif
+#endif
+
+#if	defined(USE_NO_TTY_IOCTL) && defined(HAVE_CONIO_H)
+#	ifndef	_INCL_CONIO_H
+#	include <conio.h>
+#	define	_INCL_CONIO_H
+#	endif	/* _INCL_CONIO_H */
+#	define	USE_GETCH			/* A DOS system!	*/
+#endif
+
 
 #if !defined(_INCL_TERMIOS_H) && !defined(_INCL_TERMIO_H)
 #	include	<schily/ioctl.h>
 #endif
 
 #ifdef	HAVE_SYS_BSDTTY_H
+#ifndef	_INCL_SYS_BSDTTY_H
 #include <sys/bsdtty.h>
+#define	_INCL_SYS_BSDTTY_H
+#endif
 #endif
 
 #if	!defined(TIOCGWINSZ) && ! defined(TIOCGSIZE)

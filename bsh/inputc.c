@@ -1,8 +1,8 @@
-/* @(#)inputc.c	1.63 11/07/10 Copyright 1982, 1984-2011 J. Schilling */
+/* @(#)inputc.c	1.65 11/08/13 Copyright 1982, 1984-2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)inputc.c	1.63 11/07/10 Copyright 1982, 1984-2011 J. Schilling";
+	"@(#)inputc.c	1.65 11/08/13 Copyright 1982, 1984-2011 J. Schilling";
 #endif
 /*
  *	inputc.c
@@ -53,7 +53,6 @@ static	UConst char sccsid[] =
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#include <schily/stdio.h>
 #include <schily/string.h>
 #include <schily/stdlib.h>
 #include <schily/fcntl.h>
@@ -61,6 +60,12 @@ static	UConst char sccsid[] =
 #include <schily/wchar.h>	/* wchar_t		*/
 #include <schily/wctype.h>	/* For iswprint()	*/
 #include <schily/patmatch.h>	/* Past wchar.h to enable patchwmatch() */
+#include <schily/stdio.h>	/* Past wchar.h to allow to redefine stdin */
+#define	putch	dos_putch	/* Avoid DOS/curses putch() type clash */
+#define	ungetch	dos_ungetch	/* Avoid DOS/curses ungetch() type clash */
+#include <schily/termios.h>	/* For WIN-DOS test and USE_GETCH */
+#undef	putch			/* Restore our old value */
+#undef	ungetch			/* Restore our old value */
 #include "bsh.h"
 #include "map.h"
 #include "node.h"
@@ -459,7 +464,11 @@ getnextc()
 	int	errs = 0;
 
 again:
+#ifdef	USE_GETCH
+	c = getch();	/* DOS console input */
+#else
 	c = getc(infile);
+#endif
 	if (c < 0 && geterrno() == EINTR) {
 		clearerr(infile);
 		if (++errs < 10)

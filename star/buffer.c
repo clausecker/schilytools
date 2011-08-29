@@ -1,8 +1,8 @@
-/* @(#)buffer.c	1.162 11/04/12 Copyright 1985, 1995, 2001-2011 J. Schilling */
+/* @(#)buffer.c	1.163 11/08/14 Copyright 1985, 1995, 2001-2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)buffer.c	1.162 11/04/12 Copyright 1985, 1995, 2001-2011 J. Schilling";
+	"@(#)buffer.c	1.163 11/08/14 Copyright 1985, 1995, 2001-2011 J. Schilling";
 #endif
 /*
  *	Buffer handling routines
@@ -1536,7 +1536,7 @@ mtioctl(cmd, count)
 		ret = rmtioctl(remfd, cmd, count);
 #endif
 	} else {
-#ifdef	MTIOCTOP
+#if	defined(MTIOCTOP) && defined(HAVE_IOCTL)
 		struct mtop mtop;
 
 		mtop.mt_op = cmd;
@@ -1544,6 +1544,11 @@ mtioctl(cmd, count)
 
 		ret = ioctl(fdown(tarf), MTIOCTOP, &mtop);
 #else
+#ifdef	ENOSYS
+		seterrno(ENOSYS);
+#else
+		seterrno(EINVAL);
+#endif
 		return (-1);
 #endif
 	}

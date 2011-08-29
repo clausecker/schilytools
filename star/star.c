@@ -1,8 +1,8 @@
-/* @(#)star.c	1.336 11/08/04 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2011 J. Schilling */
+/* @(#)star.c	1.337 11/08/14 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)star.c	1.336 11/08/04 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2011 J. Schilling";
+	"@(#)star.c	1.337 11/08/14 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2011 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1985, 88-90, 92-96, 98, 99, 2000-2011 J. Schilling
@@ -557,10 +557,12 @@ main(ac, av)
 		fifo_exit(0);
 #endif
 
+#ifdef	HAVE_FORK
 	while (wait(0) >= 0) {
 		;
 		/* LINTED */
 	}
+#endif
 	if (!no_stats)
 		prpatstats();
 	prstats();

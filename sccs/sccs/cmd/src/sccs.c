@@ -25,10 +25,10 @@
 /*
  * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)sccs.c	1.49 11/08/03 J. Schilling
+ * @(#)sccs.c	1.50 11/08/24 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)sccs.c 1.49 11/08/03 J. Schilling"
+#pragma ident "@(#)sccs.c 1.50 11/08/24 J. Schilling"
 #endif
 /*
  * @(#)sccs.c 1.85 06/12/12
@@ -322,6 +322,7 @@ static struct sccsprog SccsProg[] =
 	{ "admin",	PROG,	REALUSER,		PROGPATH(admin) },
 	{ "cdc",	PROG,	0,			PROGPATH(rmdel) },
 	{ "comb",	PROG,	0,			PROGPATH(comb) },
+	{ "cvt",	PROG,	RF_OK,			PROGPATH(sccscvt) },
 	{ "delta",	PROG,	RF_OK|PDOT,		PROGPATH(delta) },
 	{ "get",	PROG,	RF_OK,			PROGPATH(get) },
 	{ "help",	PROG,	NO_SDOT,		PROGPATH(help) },

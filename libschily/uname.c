@@ -1,8 +1,8 @@
-/* @(#)uname.c	1.1 11/08/04 Copyright 2011 J. Schilling */
+/* @(#)uname.c	1.2 11/08/16 Copyright 2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)uname.c	1.1 11/08/04 Copyright 2011 J. Schilling";
+	"@(#)uname.c	1.2 11/08/16 Copyright 2011 J. Schilling";
 #endif
 /*
  *	uname() replacement in case it does not exist
@@ -33,7 +33,11 @@ static	UConst char sccsid[] =
 #include <schily/windows.h>
 #undef	gethostname
 
-typedef BOOL (WINAPI *LPFN_ISWOW64PROCESS) (HANDLE, PBOOL);
+/*
+ * cystyle believes BOOL is a function name and does not like:
+ * typedef BOOL (WINAPI *LPFN_ISWOW64PROCESS) (HANDLE, PBOOL);
+ */
+typedef BOOL(WINAPI *LPFN_ISWOW64PROCESS) (HANDLE, PBOOL);
 
 LOCAL BOOL
 iswow64()
@@ -48,7 +52,7 @@ iswow64()
 			GetProcAddress(GetModuleHandle(TEXT("kernel32")),
 			"IsWow64Process");
 
-	if(IsWow64Processp) {
+	if (IsWow64Processp) {
 		if (!IsWow64Processp(GetCurrentProcess(), &IsWow64))
 			return (FALSE);
 	}

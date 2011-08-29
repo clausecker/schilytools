@@ -1,8 +1,8 @@
-/* @(#)sccslog.c	1.32 11/05/18 Copyright 1997-2011 J. Schilling */
+/* @(#)sccslog.c	1.33 11/08/21 Copyright 1997-2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)sccslog.c	1.32 11/05/18 Copyright 1997-2011 J. Schilling";
+	"@(#)sccslog.c	1.33 11/08/21 Copyright 1997-2011 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1997-2011 J. Schilling
@@ -55,6 +55,7 @@ int		listsize;
 
 char		*Cwd;
 char		*SccsPath = "";
+BOOL		extended = FALSE;
 
 LOCAL	int	xxcmp		__PR((const void *vp1, const void *vp2));
 LOCAL	char *	mapuser		__PR((char *name));
@@ -176,6 +177,7 @@ usage(exitcode)
 	fprintf(stderr, "	-aa	Print all deltas with different times separately.\n");
 	fprintf(stderr, "	-Cdir	Base dir for printed filenames.\n");
 	fprintf(stderr, "	-p subdir	Define SCCS subdir.\n");
+	fprintf(stderr, "	-x	Include all comment, even SCCSv6 metadata.\n");
 	exit(exitcode);
 }
 
@@ -186,7 +188,7 @@ main(ac, av)
 {
 	int	cac;
 	char	* const *cav;
-	char	*opts = "help,V,version,a+,C*,p*";
+	char	*opts = "help,V,version,a+,x,C*,p*";
 	BOOL	help = FALSE;
 	BOOL	pversion = FALSE;
 	int	nopooling = 0;
@@ -200,7 +202,7 @@ main(ac, av)
 
 	if (getallargs(&cac, &cav, opts,
 			&help, &pversion, &pversion,
-			&nopooling,
+			&nopooling, &extended,
 			&Cwd, &SccsPath) < 0) {
 		errmsgno(EX_BAD, "Bad flag: %s.\n", cav[0]);
 		usage(EX_BAD);
@@ -432,6 +434,8 @@ dofile(name)
 			list[listsize].file = pname;
 		}
 		if (buf[1] == 'c') {
+			if (buf[2] == '_' && !extended)
+				continue;
 			if (list[listsize].comment == NULL) {
 				list[listsize].comment = strdup(&buf[3]);
 			} else {

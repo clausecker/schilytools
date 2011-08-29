@@ -1,8 +1,8 @@
-/* @(#)mkgmtime.c	1.1 11/06/04 Copyright 2011 J. Schilling */
+/* @(#)mkgmtime.c	1.4 11/08/28 Copyright 2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)mkgmtime.c	1.1 11/06/04 Copyright 2011 J. Schilling";
+	"@(#)mkgmtime.c	1.4 11/08/28 Copyright 2011 J. Schilling";
 #endif
 /*
  *	mkgmtime() is a complement to mktime()
@@ -27,7 +27,6 @@ static	UConst char sccsid[] =
 #include <schily/errno.h>
 #include <schily/schily.h>
 
-LOCAL	int	mosize		__PR((int y, int t));
 EXPORT	Llong	mklgmtime	__PR((struct tm *tp));
 EXPORT	time_t	mkgmtime	__PR((struct tm *tp));
 
@@ -35,6 +34,7 @@ EXPORT	time_t	mkgmtime	__PR((struct tm *tp));
  * The Gregorian leap year formula
  */
 #define	dysize(A) (((A)%4)? 365 : (((A)%100) == 0 && ((A)%400)) ? 365 : 366)
+#define	isleap(A) (((A)%4)? 0   : (((A)%100) == 0 && ((A)%400)) ? 0   : 1)
 /*
  * Return the number of leap years since 0 AD assuming that the Gregorian
  * calendar applies to all years.
@@ -50,25 +50,13 @@ EXPORT	time_t	mkgmtime	__PR((struct tm *tp));
  */
 #define	DAYS_SINCE_70(Y) (YRDAYS((Y)-1) - YRDAYS(1970-1))
 
-LOCAL	int dmsize[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
-
-LOCAL int
-mosize(y, t)
-int y, t;
-{
-
-	if (t == 2 && dysize(y) == 366)
-		return (29);
-	return (dmsize[t-1]);
-}
+LOCAL	int dmbeg[12] = {0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334};
 
 EXPORT Llong
 mklgmtime(tp)
 	struct tm	*tp;
 {
-	Llong	tim = (time_t)0L;
-	int	y = tp->tm_year + 1900;
-	int	t;
+	register Llong	tim;
 
 	if (tp->tm_mon >= 12) {
 		tp->tm_year += tp->tm_mon / 12;
@@ -85,11 +73,18 @@ mklgmtime(tp)
 			tp->tm_mon = 0;
 		}
 	}
-	t = tp->tm_mon + 1;
 
-	tim = DAYS_SINCE_70(y);
-	while (--t)
-		tim += mosize(y, t);
+	{
+		register int	y = tp->tm_year + 1900;
+		register int	t = tp->tm_mon;
+
+		tim = DAYS_SINCE_70(y);
+
+		if (t >= 2 && isleap(y))	/* March or later */
+			tim += 1;		/* Add 29.2.	  */
+		tim += dmbeg[t];
+	}
+
 	tim += tp->tm_mday - 1;
 	tim *= 24;
 	tim += tp->tm_hour;

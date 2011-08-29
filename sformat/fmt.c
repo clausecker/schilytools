@@ -1,13 +1,13 @@
-/* @(#)fmt.c	1.92 09/07/11 Copyright 1986-1991, 93-97, 2000-2009 J. Schilling */
+/* @(#)fmt.c	1.94 11/08/14 Copyright 1986-1991, 93-97, 2000-2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)fmt.c	1.92 09/07/11 Copyright 1986-1991, 93-97, 2000-2009 J. Schilling";
+	"@(#)fmt.c	1.94 11/08/14 Copyright 1986-1991, 93-97, 2000-2011 J. Schilling";
 #endif
 /*
  *	Format & check/repair SCSI disks
  *
- *	Copyright (c) 1986-1991, 93-97, 2000-2009 J. Schilling
+ *	Copyright (c) 1986-1991, 93-97, 2000-2011 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -336,7 +336,7 @@ main(ac, av)
 		xusage(0);
 	if (prvers) {
 		printf("sformat %s (%s-%s-%s)\n\n", fmt_version, HOST_CPU, HOST_VENDOR, HOST_OS);
-		printf("Copyright (C) 1986-1991, 93-97, 2000-2009 Jörg Schilling\n");
+		printf("Copyright (C) 1986-1991, 93-97, 2000-2011 Jörg Schilling\n");
 		printf("This is free software; see the source for copying conditions.  There is NO\n");
 		printf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
 		exit(0);
@@ -491,8 +491,6 @@ main(ac, av)
 			exit(EX_BAD);
 		}
 	}
-	if (thistime && thistime < starttime.tv_sec)
-		alarm(2);
 
 /* XXX schon vor scg__open()! */
 /*	if (scgp->scsibus < 0)*/

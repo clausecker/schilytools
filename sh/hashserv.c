@@ -34,13 +34,13 @@
 #include "defs.h"
 
 /*
- * This file contains modifications Copyright 2008-2009 J. Schilling
+ * This file contains modifications Copyright 2008-2011 J. Schilling
  *
- * @(#)hashserv.c	1.9 09/11/01 2008-2009 J. Schilling
+ * @(#)hashserv.c	1.10 11/08/13 2008-2011 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)hashserv.c	1.9 09/11/01 2008-2009 J. Schilling";
+	"@(#)hashserv.c	1.10 11/08/13 2008-2011 J. Schilling";
 #endif
 
 /*
@@ -499,7 +499,6 @@ chk_access(name, mode, regflag)
 		euid = geteuid();
 		flag = 1;
 	}
-	ftype = statb.st_mode & S_IFMT;
 	if (stat((char *)name, &statb) == 0) {
 		ftype = statb.st_mode & S_IFMT;
 		if(mode == S_IEXEC && regflag && ftype != S_IFREG)

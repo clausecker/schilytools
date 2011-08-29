@@ -1,4 +1,4 @@
-.\" @(#)sccslog.1	1.8 11/05/18 Copyr 1997-2007 J. Schilling
+.\" @(#)sccslog.1	1.9 11/08/21 Copyr 1997-2007 J. Schilling
 .\" Manual page for sccslog
 .\"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -13,7 +13,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sccslog 1 "2011/05/18" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH sccslog 1 "2011/08/21" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 sccslog \- create a changelog from SCCS history files
 .SH SYNOPSIS
@@ -63,6 +63,14 @@ Tell
 to use 
 .I subdir
 when dealing with file names.
+.TP
+.B \-x
+Print all comment lines, even those lines that start with
+.B ^Ac_ 
+and thus are no real comment but represent SCCS v6 metadata
+that has been wrapped as comment to survive modifications by SCCS v4 programs.
+Such wrapped data is file specific and will prevent to find more files with
+the same delta comment.
 .TP
 .B \-help
 Prints a short summary of the 

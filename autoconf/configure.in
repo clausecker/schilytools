@@ -1,6 +1,6 @@
-dnl @(#)configure.in	1.235 11/08/03 Copyright 1998-2011 J. Schilling
+dnl @(#)configure.in	1.239 11/08/14 Copyright 1998-2011 J. Schilling
 dnl Process this file with autoconf to produce a configure script.
-AC_REVISION(1.235)dnl
+AC_REVISION(1.239)dnl
 
 dnl AC_INIT(xconfig.h.in)
 AC_INIT(config.guess)
@@ -64,6 +64,7 @@ dnl check whether select() needs sys/socket.h (BeOS)
 AC_HEADER_SELECT2
 AC_CHECK_HEADERS(assert.h)
 AC_CHECK_HEADERS(stdio.h varargs.h stdarg.h stdlib.h stddef.h string.h strings.h unistd.h fcntl.h io.h sys/file.h)
+AC_CHECK_HEADERS(conio.h)
 AC_CHECK_HEADERS(getopt.h)
 AC_CHECK_HEADERS(limits.h)
 AC_CHECK_HEADERS(a.out.h aouthdr.h elf.h)
@@ -77,6 +78,7 @@ AC_CHECK_HEADERS(sys/syscall.h)
 AC_CHECK_HEADERS(mach/machine.h)
 AC_CHECK_HEADERS(mntent.h sys/mntent.h sys/mnttab.h sys/mount.h)
 AC_CHECK_HEADERS(sys/fork.h vfork.h wait.h sys/wait.h sys/resource.h procfs.h sys/procfs.h libproc.h)
+AC_CHECK_HEADERS(ulimit.h)
 AC_CHECK_HEADERS(process.h)
 AC_CHECK_HEADERS(sys/utsname.h sys/priocntl.h sys/rtpriocntl.h sys/procset.h)
 AC_CHECK_HEADERS(sys/mtio.h sys/tape.h sys/mman.h linux/pg.h camlib.h)
@@ -182,6 +184,114 @@ AC_CHECK_TYPE(u_char, unsigned char)
 AC_CHECK_TYPE(u_short, unsigned short)
 AC_CHECK_TYPE(u_int, unsigned int)
 AC_CHECK_TYPE(u_long, unsigned long)
+
+AC_INCL_CHECK_TYPE(
+#ifdef	HAVE_INTTYPES_H
+[#include <inttypes.h>
+#endif
+#ifdef	HAVE_STDINT_H
+#include <stdint.h>
+#endif
+], int8_t, Int8_t)
+
+AC_INCL_CHECK_TYPE(
+#ifdef	HAVE_INTTYPES_H
+[#include <inttypes.h>
+#endif
+#ifdef	HAVE_STDINT_H
+#include <stdint.h>
+#endif
+], int16_t, Int16_t)
+
+AC_INCL_CHECK_TYPE(
+#ifdef	HAVE_INTTYPES_H
+[#include <inttypes.h>
+#endif
+#ifdef	HAVE_STDINT_H
+#include <stdint.h>
+#endif
+], int32_t, Int32_t)
+
+AC_INCL_CHECK_TYPE(
+#ifdef	HAVE_INTTYPES_H
+[#include <inttypes.h>
+#endif
+#ifdef	HAVE_STDINT_H
+#include <stdint.h>
+#endif
+], int64_t, Int64_t)
+
+AC_INCL_CHECK_TYPE(
+#ifdef	HAVE_INTTYPES_H
+[#include <inttypes.h>
+#endif
+#ifdef	HAVE_STDINT_H
+#include <stdint.h>
+#endif
+], intmax_t, Intmax_t)
+
+AC_INCL_CHECK_TYPE(
+#ifdef	HAVE_INTTYPES_H
+[#include <inttypes.h>
+#endif
+#ifdef	HAVE_STDINT_H
+#include <stdint.h>
+#endif
+], intptr_t, Intptr_t)
+
+AC_INCL_CHECK_TYPE(
+#ifdef	HAVE_INTTYPES_H
+[#include <inttypes.h>
+#endif
+#ifdef	HAVE_STDINT_H
+#include <stdint.h>
+#endif
+], uint8_t, UInt8_t)
+
+AC_INCL_CHECK_TYPE(
+#ifdef	HAVE_INTTYPES_H
+[#include <inttypes.h>
+#endif
+#ifdef	HAVE_STDINT_H
+#include <stdint.h>
+#endif
+], uint16_t, UInt16_t)
+
+AC_INCL_CHECK_TYPE(
+#ifdef	HAVE_INTTYPES_H
+[#include <inttypes.h>
+#endif
+#ifdef	HAVE_STDINT_H
+#include <stdint.h>
+#endif
+], uint32_t, UInt32_t)
+
+AC_INCL_CHECK_TYPE(
+#ifdef	HAVE_INTTYPES_H
+[#include <inttypes.h>
+#endif
+#ifdef	HAVE_STDINT_H
+#include <stdint.h>
+#endif
+], uint64_t, UInt64_t)
+
+AC_INCL_CHECK_TYPE(
+#ifdef	HAVE_INTTYPES_H
+[#include <inttypes.h>
+#endif
+#ifdef	HAVE_STDINT_H
+#include <stdint.h>
+#endif
+], uintmax_t, UIntmax_t)
+
+AC_INCL_CHECK_TYPE(
+#ifdef	HAVE_INTTYPES_H
+[#include <inttypes.h>
+#endif
+#ifdef	HAVE_STDINT_H
+#include <stdint.h>
+#endif
+], uintptr_t, UIntptr_t)
 
 AC_INCL_CHECK_TYPE(
 #ifdef	HAVE_WCHAR_H
@@ -336,6 +446,7 @@ AC_CHECK_FUNCS(getpwnam getpwent getpwuid setpwent endpwent)
 AC_CHECK_FUNCS(getgrnam getgrent getgrgid setgrent endgrent)
 dnl			getspwnam() on HP-UX is in libsec.a
 AC_CHECK_FUNCS(getspnam getspwnam)
+AC_CHECK_FUNCS(getlogin)
 AC_CHECK_FUNCS(sync fsync fork forkx vforkx forkall forkallx wait wait4 waitid waitpid getrusage getrlimit setrlimit ulimit)
 AC_CHECK_FUNCS(execl execle execlp execv execve execvp)
 AC_CHECK_FUNCS(spawnl spawnle spawnlp spawnlpe)
@@ -381,7 +492,7 @@ AC_CHECK_FUNCS(pipe _pipe)
 AC_CHECK_FUNCS(popen pclose _popen _pclose)
 AC_CHECK_FUNCS(strsignal str2sig sig2str)
 AC_CHECK_FUNCS(kill killpg)
-AC_CHECK_FUNCS(signal sigrelse sigprocmask sigsetmask sigset sigaltstack)
+AC_CHECK_FUNCS(signal sighold sigrelse sigignore sigpause sigprocmask sigsetmask sigset sigaltstack sigblock)
 AC_CHECK_FUNCS(alarm sleep usleep yield)
 dnl tcgetattr and tcsetattr are a inline functions in termios.h on Android
 AC_CHECK_DFUNC([

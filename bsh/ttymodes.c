@@ -1,15 +1,15 @@
-/* @(#)ttymodes.c	1.31 09/07/11 Copyright 1986,1995-2009 J. Schilling */
+/* @(#)ttymodes.c	1.33 11/08/13 Copyright 1986,1995-2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)ttymodes.c	1.31 09/07/11 Copyright 1986,1995-2009 J. Schilling";
+	"@(#)ttymodes.c	1.33 11/08/13 Copyright 1986,1995-2011 J. Schilling";
 #endif
 /*
  *	ttymodes.c
  *
  *	Terminal handling for bsh
  *
- *	Copyright (c) 1986,1995-2009 J. Schilling
+ *	Copyright (c) 1986,1995-2011 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -25,7 +25,11 @@ static	UConst char sccsid[] =
 
 #include <schily/stdio.h>
 #include <schily/unistd.h>
+#define	putch	dos_putch	/* Avoid DOS/curses putch() type clash */
+#define	ungetch	dos_ungetch	/* Avoid DOS/curses ungetch() type clash */
 #include <schily/termios.h>
+#undef	putch			/* Restore our old value */
+#undef	ungetch			/* Restore our old value */
 
 #include "bsh.h"
 
@@ -66,9 +70,11 @@ LOCAL	int	disc	= NTTYDISC;
 
 #	else	/* USE_V7_TTY */
 
+#ifdef	USE_TERMIOS
 LOCAL	struct termios	ins	= {0};
 LOCAL	struct termios	app	= {0};
 LOCAL	struct termios	old	= {0};
+#endif
 
 #	endif	/* USE_V7_TTY */
 
@@ -217,6 +223,7 @@ get_tty_modes(f)
 		ioctl(fdown(f), TIOCGLTC, (char *)&oldl);
 #		endif
 #else	/* USE_V7_TTY */
+#ifdef	USE_TERMIOS
 #	ifdef	TCSANOW
 		tcgetattr(fdown(f), &old);
 #	else
@@ -237,6 +244,7 @@ get_tty_modes(f)
 		app.c_iflag &= ~(BRKINT|INLCR|ICRNL);
 		app.c_oflag |= (OPOST);
 		app.c_lflag &= ~(ISIG|ICANON|ECHO);
+#endif	/* USE_TERMIOS */
 #endif	/* USE_V7_TTY */
 		if (!tty_init) {
 			init_tty_modes();
@@ -284,6 +292,7 @@ init_tty_modes()
 #	endif
 	movebytes((char *)&inst, (char *)&appt, sizeof (inst));
 #else
+#ifdef	USE_TERMIOS
 	movebytes((char *)&old, (char *)&app, sizeof (old));
 	movebytes((char *)&old, (char *)&ins, sizeof (old));
 
@@ -299,6 +308,7 @@ init_tty_modes()
 	app.c_lflag &= ~(ISIG|ICANON|ECHO);
 	app.c_cc[VMIN] = 1;
 	app.c_cc[VTIME] = 0;
+#endif	/* USE_TERMIOS */
 #endif	/* USE_V7_TTY */
 }
 
@@ -340,6 +350,7 @@ set_tty_modes(f, mode)
 #			endif
 			break;
 #else
+#ifdef	USE_TERMIOS
 #	ifdef	TCSANOW
 
 	case	OLD_MODE:
@@ -363,6 +374,7 @@ set_tty_modes(f, mode)
 			ioctl(fno, TCSETSW, (char *)&ins);
 			break;
 #endif
+#endif	/* USE_TERMIOS */
 #endif	/* USE_V7_TTY */
 	}
 }

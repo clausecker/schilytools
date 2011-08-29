@@ -234,7 +234,7 @@ dodir (fn, fs, ts, rel)
     char basesym[MAXPATHLEN + 1];
     struct stat sb, sc;
     int n_dirs;
-    int symlen;
+    int symlen = -1;
     int basesymlen = -1;
     char *ocurdir;
 

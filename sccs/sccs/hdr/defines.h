@@ -28,12 +28,12 @@
 /*
  * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)defines.h	1.45 11/08/07 J. Schilling
+ * @(#)defines.h	1.49 11/08/27 J. Schilling
  */
 #ifndef	_HDR_DEFINES_H
 #define	_HDR_DEFINES_H
 #if defined(sun)
-#pragma ident "@(#)defines.h 1.45 11/08/07 J. Schilling"
+#pragma ident "@(#)defines.h 1.49 11/08/27 J. Schilling"
 #endif
 /*
  * @(#)defines.h 1.21 06/12/12
@@ -159,6 +159,7 @@ extern time_t	Y1969;
 # define EXCLUDE	'x'	/* ^Ax list of exclude serial numbers	    */
 # define IGNORE		'g'	/* ^Ag list of ignore serial numbers	    */
 # define MRNUM		'm'	/* ^Am list of mr-numbers		    */
+# define SIDEXTENS	'S'	/* ^AS SID specific extensions V6	    */
 # define COMMENTS	'c'	/* ^Ac a sccs comment line		    */
 # define EDELTAB	'e'	/* ^Ae the end of a delta table		    */
 
@@ -205,6 +206,9 @@ time_t	Y1969;			/* sync with lib/comobj/src/tzset.c   */
 # define EXTENSFLAG	'x'	/* ^Af x enables sccs e'x'tensions	    */
 # define EXPANDFLAG	'y'	/* ^Af y list of sccs keywords to be exp.   */
 
+# define NAMEDFLAG	'F'	/* ^AF	the begin of a named flag line V6   */
+# define GLOBALEXTENS	'G'	/* ^AG	the begin of a global ext. line V6  */
+
 # define BUSERTXT	't'	/* ^At sccs file specific comment start	    */
 # define EUSERTXT	'T'	/* ^AT sccs file specific comment end	    */
 
@@ -212,7 +216,7 @@ time_t	Y1969;			/* sync with lib/comobj/src/tzset.c   */
 # define DEL		'D'	/* ^AD release Delete block start	    */
 # define END		'E'	/* ^AE release Insert/Delete block end	    */
 
-# define NONL		'N'	/* ^AN escaped text line with no newline    */
+# define NONL		'N'	/* ^AN escaped text line with no newline V6 */
 
 # define MINR		1		/* minimum release number */
 # define MAXR		9999		/* maximum release number */
@@ -232,6 +236,30 @@ time_t	Y1969;			/* sync with lib/comobj/src/tzset.c   */
 /*
 	SCCS Internal Structures.
 */
+
+/*
+ * Definitions for date+time
+ */
+typedef struct dtime {
+	time_t	dt_sec;		/* Seconds since Jan 1 1970 GMT		*/
+	int	dt_nsec;	/* Nanoseconds (must be positive)	*/
+	int	dt_zone;	/* Timezone (seconds east to GMT)	*/
+} dtime_t;
+
+#define	DT_NO_ZONE	1	/* Impossible timezone - no zone found	*/
+#define	DT_MIN_ZONE	(-89940) /* Minimum zone (-24:59)		*/
+#define	DT_MAX_ZONE	93540	/* Minimum zone (+25:59)		*/
+
+/*
+ * String space needed for various date formats:
+ *
+ *	DT_STRSIZE	Classical SCCS date format
+ *	DT_LSTRSIZE	Long date format with 4-digit year
+ *	DT_ZSTRSIZE	Long date format with nanoseconds and time zone
+ */
+#define	DT_STRSIZE	18	/* "11/08/18 10:54:30"			*/
+#define	DT_LSTRSIZE	20	/* "2011/08/18 10:54:30"		*/
+#define	DT_ZSTRSIZE	35	/* "2011/08/18 10:54:30.123456789+0200"	*/
 
 struct apply {
 	char	a_inline;	/* in the line of normally applied deltas */
@@ -281,7 +309,7 @@ struct	deltab {
 	struct	sid	d_sid;
 	int	d_serial;
 	int	d_pred;
-	time_t	d_datetime;
+	dtime_t	d_dtime;
 	char	d_pgmr[LOGSIZE];
 	char	d_type;
 };
@@ -343,6 +371,8 @@ struct packet {
 	int	p_chash;	/* current (input) hash */
 	int	p_uchash;	/* current unsigned (input) hash */
 	int	p_nhash;	/* new (output) hash */
+	int	p_ghash;	/* current gfile hash */
+	int	p_glines;	/* number of lines in current gfile */
 	int	p_glnno;	/* line number of current gfile line */
 	int	p_slnno;	/* line number of current input line */
 	char	p_wrttn;	/* written flag (!0 = written) */
@@ -421,6 +451,7 @@ extern	void	error	__PR((const char *));
 
 extern	char*	auxf	__PR((char *, int));
 extern	void	sinit	__PR((struct packet *, char *, int));
+extern	char	*checkmagic __PR((struct packet *, char *));
 extern	void	setup	__PR((struct packet *, int));
 extern	void	finduser __PR((struct packet *));
 extern	void	permiss	__PR((struct packet *));
@@ -428,8 +459,10 @@ extern	char*	sid_ab	__PR((char *, struct sid *));
 extern	char*	sid_ba	__PR((struct sid *, char *));
 extern	char*	omit_sid __PR((char *));
 extern	int	date_ab	__PR((char *, time_t *, int flags));
+extern	int	date_abz __PR((char *, dtime_t *, int flags));
 extern	char*	date_ba	__PR((time_t *, char *, int flags));
 extern	char*	date_bal __PR((time_t *, char *, int flags));
+extern	char*	date_bazl __PR((dtime_t *, char *, int flags));
 extern	char	del_ab	__PR((char *, struct deltab *, struct packet *));
 extern	char*	del_ba	__PR((struct deltab *, char *, int flags));
 extern	void	stats_ab __PR((struct packet *, struct stats *));
@@ -458,6 +491,7 @@ extern	void	putline	__PR((struct packet *, char *));
 extern	void	putchr	__PR((struct packet *, int c));
 extern	void	putctl	__PR((struct packet *));
 extern	void	putctlnnl __PR((struct packet *));
+extern	void	putmagic __PR((struct packet *, char *));
 extern	char*	logname	__PR((void));
 extern	int	mystrptime __PR((char *, struct tm *, int));
 extern	char*	savecmt	__PR((char *));
@@ -479,7 +513,15 @@ extern	void	get_Del_Date_time __PR((char *, struct deltab *, struct packet *, st
 extern	char*	stalloc	__PR((unsigned int));
 extern	int	mosize	__PR((int y, int t));
 extern	int	gN	__PR((char *str, char **next, int num, int *digits, int *chars));
+extern	int	gNp	__PR((char *str, char **next, int num, int *digits, int *chars));
+extern	int	gns	__PR((char *str, char **next));
+extern	int	gtz	__PR((char *str, char **next));
 extern	void	xtzset	__PR((void));
+extern	void	dtime	__PR((dtime_t *));
+extern	void	time2dt	__PR((dtime_t *, time_t, int));
+extern	time_t	gmtoff	__PR((time_t));
+extern	int		ssum __PR((char *, int));
+extern	unsigned int	usum __PR((char *, int));
 
 /*
  Declares for external functions in lib/mpwlib

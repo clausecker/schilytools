@@ -1,13 +1,13 @@
-/* @(#)ttymodes.c	1.24 09/07/09 Copyright 1984-2009 J. Schilling */
+/* @(#)ttymodes.c	1.25 11/08/11 Copyright 1984-2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)ttymodes.c	1.24 09/07/09 Copyright 1984-2009 J. Schilling";
+	"@(#)ttymodes.c	1.25 11/08/11 Copyright 1984-2011 J. Schilling";
 #endif
 /*
  *	Terminal driver tty mode handling
  *
- *	Copyright (c) 1984-2009 J. Schilling
+ *	Copyright (c) 1984-2011 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -43,8 +43,10 @@ LOCAL	int		lbit;
 
 #else	/* USE_V7_TTY */
 
+#ifdef	USE_TERMIOS
 LOCAL	struct termios	old;
 LOCAL	struct termios	tty;
+#endif
 
 #endif	/* USE_V7_TTY */
 #endif
@@ -95,6 +97,7 @@ get_modes(wp)
 
 #	else	/* USE_V7_TTY */
 
+#	ifdef	USE_TERMIOS
 #		ifdef	TCSANOW
 		tcgetattr(STDIN_FILENO, &old);
 		ospeed = (short)cfgetospeed(&old);
@@ -121,6 +124,7 @@ get_modes(wp)
 #else
 		UPPERCASE = (old.c_iflag & IUCLC) != 0;
 #endif
+#	endif	/* USE_TERMIOS */
 #	endif	/* USE_V7_TTY */
 #endif
 #endif /* tos */
@@ -166,6 +170,7 @@ set_modes()
 
 #	else	/* USE_V7_TTY */
 
+#	ifdef	USE_TERMIOS
 	movebytes((char *) &old, (char *) &tty, sizeof (struct termios));
 	tty.c_iflag |= (IXON|IGNBRK);
 	tty.c_iflag &= ~(BRKINT|INLCR|ICRNL);
@@ -213,7 +218,7 @@ set_modes()
 #endif
 	tty.c_cc[VMIN] = 1;
 	tty.c_cc[VTIME] = 0;
-
+#	endif	/* USE_TERMIOS */
 #	endif	/* USE_V7_TTY */
 #endif
 #endif	/* tos */
@@ -236,12 +241,13 @@ set_ttymodes()
 		ioctl(STDIN_FILENO, TIOCSLTC, &ttyl);
 #	else	/* USE_V7_TTY */
 
+#	ifdef	USE_TERMIOS
 #		ifdef	TCSANOW
 		tcsetattr(STDIN_FILENO, TCSADRAIN, &tty);
 #		else
 		ioctl(STDIN_FILENO, TCSETSW, &tty);
 #		endif
-
+#	endif	/* USE_TERMIOS */
 #	endif	/* USE_V7_TTY */
 #endif
 #endif	/* tos */
@@ -265,12 +271,13 @@ set_oldmodes()
 		ioctl(STDIN_FILENO, TIOCSLTC, &oldl);
 #	else	/* USE_V7_TTY */
 
+#	ifdef	USE_TERMIOS
 #		ifdef	TCSANOW
 		tcsetattr(STDIN_FILENO, TCSADRAIN, &old);
 #		else
 		ioctl(STDIN_FILENO, TCSETSW, &old);
 #		endif
-
+#	endif	/* USE_TERMIOS */
 #	endif	/* USE_V7_TTY */
 #endif
 #endif	/* tos */

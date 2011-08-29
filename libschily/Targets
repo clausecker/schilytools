@@ -1,4 +1,4 @@
-# @(#)Targets	1.28 11/08/05 Copyright 1995 J. Schilling
+# @(#)Targets	1.30 11/08/14 Copyright 1995 J. Schilling
 
 CFILES_STDIO=	cvmod.c dat.c fcons.c fdown.c fdup.c \
 		ffileread.c ffilewrite.c \
@@ -18,6 +18,7 @@ CFILES_STDIO=	cvmod.c dat.c fcons.c fdown.c fdup.c \
 
 CFILES_REST=	astoi.c astoll.c astoull.c basename.c breakline.c \
 		checkerr.c comerr.c fcomerr.c \
+		chown.c \
 		cmpbytes.c cmpmbytes.c cmpnullbytes.c \
 		dirent.c dirname.c \
 		eaccess.c error.c \
@@ -27,7 +28,9 @@ CFILES_REST=	astoi.c astoll.c astoull.c basename.c breakline.c \
 		fstream.c \
 		getargs.c getav0.c geterrno.c getexecpath.c getfp.c \
 		getgrent.c \
+		getdtablesize.c \
 		getdomainname.c gethostid.c gethostname.c getpagesize.c \
+		getlogin.c \
 		getnum.c getxnum.c \
 		gettnum.c getxtnum.c \
 		getperm.c \
@@ -38,7 +41,7 @@ CFILES_REST=	astoi.c astoll.c astoull.c basename.c breakline.c \
 		jsprintf.c jssnprintf.c jssprintf.c \
 		kill.c \
 		match.c matchl.c matchw.c matchwl.c movebytes.c \
-		mkgmtime.c \
+		mkgmtime.c mkstemp.c \
 		mem.c jmem.c fjmem.c \
 		permtostr.c \
 		raisecond.c rename.c \

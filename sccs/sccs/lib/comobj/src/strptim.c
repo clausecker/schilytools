@@ -27,10 +27,10 @@
 /*
  * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)strptim.c	1.10 11/05/27 J. Schilling
+ * @(#)strptim.c	1.12 11/08/26 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)strptim.c 1.10 11/05/27 J. Schilling"
+#pragma ident "@(#)strptim.c 1.12 11/08/26 J. Schilling"
 #endif
 /*
  * @(#)strptim.c 1.7 06/12/12
@@ -43,9 +43,15 @@
 #include <defines.h>
 
 /*
+ * Convert a datetime string to struct tm.
+ * The conversion is similar to strptime(p, "%y/%m/%d %H:%M:%S", tp).
+ *
  * We assume that p looks like: "91/04/13 23:23:46" if val = 1
+ * We assume that p looks like: "910413232346" if val = 0
+ *
+ * If val == 0, we are converting cutoff times from command line.
+ * If val == 1, we are converting delta table entries for prs(1).
  */
-
 int
 mystrptime(p, t, val)
 	char		*p;
@@ -53,6 +59,8 @@ mystrptime(p, t, val)
 	int		val;
 {
 	int	y, dn, cn, warn = 0;
+	int	ns = 0;
+	int	tz = DT_NO_ZONE;
 #if defined(BUG_1205145) || defined(GMT_TIME)
 	time_t	gtime;
 #endif
@@ -68,7 +76,7 @@ mystrptime(p, t, val)
 	if (val) {
 		NONBLANK(p);
 
-		t->tm_year=gN(p, &p, 4, &dn, &cn);
+		t->tm_year=gNp(p, &p, 4, &dn, &cn);
 		if(t->tm_year<0) return(-1);
 		if((dn!=2 && dn!=4) || cn!=dn || *p!='/') warn=1;
 		if(dn<=2) {
@@ -83,28 +91,34 @@ mystrptime(p, t, val)
 		}
 		y = t->tm_year + 1900;		/* For Gregorian leap year */
 
-		t->tm_mon=gN(p, &p, 2, &dn, &cn);
+		t->tm_mon=gNp(p, &p, 2, &dn, &cn);
 		if(t->tm_mon<1 || t->tm_mon>12) return(-1);
 		if(dn!=2 || cn!=dn+1 || *p!='/') warn=1;
 
-		t->tm_mday=gN(p, &p, 2, &dn, &cn);
+		t->tm_mday=gNp(p, &p, 2, &dn, &cn);
 		if(t->tm_mday<1 || t->tm_mday>mosize(y,t->tm_mon)) return(-1);
 		if(dn!=2 || cn!=dn+1) warn=1;
 		t->tm_mon -= 1;			/* tm_mon is 0..11 */
 
 		NONBLANK(p);
 
-		t->tm_hour=gN(p, &p, 2, &dn, &cn);
+		t->tm_hour=gNp(p, &p, 2, &dn, &cn);
 		if(t->tm_hour<0 || t->tm_hour>23) return(-1);
 		if(dn!=2 || cn!=dn || *p!=':') warn=1;
 
-		t->tm_min=gN(p, &p, 2, &dn, &cn);
+		t->tm_min=gNp(p, &p, 2, &dn, &cn);
 		if(t->tm_min<0 || t->tm_min>59) return(-1);
 		if(dn!=2 || cn!=dn+1 || *p!=':') warn=1;
 
-		t->tm_sec=gN(p, &p, 2, &dn, &cn);
+		t->tm_sec=gNp(p, &p, 2, &dn, &cn);
 		if(t->tm_sec<0 || t->tm_sec>59) return(-1);
 		if(dn!=2 || cn!=dn+1) warn=1;
+
+		if (*p == '.')
+			ns = gns(p, &p);
+		if (*p == '+' || *p == '-')
+			tz = gtz(p, &p);
+
 #if defined(BUG_1205145) || defined(GMT_TIME)
 		gtime = mktime(t);		/* local time -> GMT time_t */
 		if (gtime == -1) return(-1);
@@ -114,7 +128,7 @@ mystrptime(p, t, val)
 		char *sl = strchr(p, '/');
 
 		if (sl && sl - p == 4) {	/* Permit 4-digit cutoff year */
-			t->tm_year = gN(p, &p, 4, &dn, &cn);
+			t->tm_year = gNp(p, &p, 4, &dn, &cn);
 			if (dn != 4 || *p != '/')
 				return (-1);
 			p++;			/* Skip '/'		*/

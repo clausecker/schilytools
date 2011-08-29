@@ -1,11 +1,11 @@
-/* @(#)rand_rw.c	1.25 09/07/11 Copyright 1993-2009 J. Schilling */
+/* @(#)rand_rw.c	1.26 11/08/13 Copyright 1993-2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)rand_rw.c	1.25 09/07/11 Copyright 1993-2009 J. Schilling";
+	"@(#)rand_rw.c	1.26 11/08/13 Copyright 1993-2011 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1993-2009 J. Schilling
+ *	Copyright (c) 1993-2011 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -36,6 +36,7 @@ static	UConst char sccsid[] =
 #include "fmt.h"
 #include "rand_rw.h"
 
+#undef	min
 #define	min(a, b)	((a) < (b) ? (a) : (b))
 #define	MAXBAD		(127)
 

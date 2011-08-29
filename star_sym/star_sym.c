@@ -1,14 +1,14 @@
-/* @(#)star_sym.c	1.13 10/08/23 Copyright 2005-2010 J. Schilling */
+/* @(#)star_sym.c	1.14 11/08/14 Copyright 2005-2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)star_sym.c	1.13 10/08/23 Copyright 2005-2010 J. Schilling";
+	"@(#)star_sym.c	1.14 11/08/14 Copyright 2005-2011 J. Schilling";
 #endif
 /*
  *	Read in the star inode data base and write a human
  *	readable version.
  *
- *	Copyright (c) 2005-2010 J. Schilling
+ *	Copyright (c) 2005-2011 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -34,6 +34,10 @@ static	UConst char sccsid[] =
 #include <schily/schily.h>
 #include <schily/maxpath.h>
 #include "starsubs.h"
+
+#ifndef	HAVE_LSTAT
+#define	lstat	stat
+#endif
 
 struct star_stats	xstats;		/* for printing statistics	*/
 

@@ -1,4 +1,4 @@
-/* @(#)xconfig.h.in	1.219 11/08/03 Copyright 1998-2011 J. Schilling */
+/* @(#)xconfig.h.in	1.223 11/08/14 Copyright 1998-2011 J. Schilling */
 /*
  *	Dynamic autoconf C-include code.
  *	Do not edit, this file has been created automatically.
@@ -34,6 +34,7 @@
 #undef HAVE_ELF_H	/* if elf.h is present. This is an ELF system */
 #undef HAVE_FCNTL_H	/* to access, O_XXX constants for open(), otherwise use sys/file.h */
 #undef HAVE_IO_H	/* to access setmode()... from WIN-DOS, OS/2 and similar */
+#undef HAVE_CONIO_H	/* to access getch()... from WIN-DOS, OS/2 and similar */
 #undef HAVE_SYS_FILE_H	/* to use O_XXX constants for open() and flock() defs */
 #undef HAVE_INTTYPES_H	/* to use UNIX-98 inttypes.h */
 #undef HAVE_STDINT_H	/* to use SUSv3 stdint.h */
@@ -77,6 +78,7 @@
 #undef HAVE_SYS_MOUNT_H		/* if sys/mount.h is present */
 #undef HAVE_WAIT_H		/* to use wait.h for prototypes and union wait */
 #undef HAVE_SYS_WAIT_H		/* else use sys/wait.h */
+#undef HAVE_ULIMIT_H		/* to use ulimit() as fallback for getrlimit()  */
 #undef HAVE_PROCESS_H		/* to use process.h for spawn*() and cwait() */
 #undef HAVE_SYS_RESOURCE_H	/* to use sys/resource.h for rlimit() and wait3() */
 #undef HAVE_PROCFS_H		/* to use procfs.h instead of sys/procfs.h (Solaris forces profcs-2) */
@@ -300,6 +302,7 @@
 #undef HAVE_ENDGRENT		/* endgrent() in libc */
 #undef HAVE_GETSPNAM		/* getspnam() in libc (SVR4 compliant) */
 #undef HAVE_GETSPWNAM		/* getspwnam() in libsec.a (HP-UX) */
+#undef HAVE_GETLOGIN		/* getlogin() in libc */
 #undef HAVE_SYNC		/* sync() is present in libc */
 #undef HAVE_FSYNC		/* fsync() is present in libc */
 #undef HAVE_TCGETATTR		/* tcgetattr() is present in libc */
@@ -456,11 +459,15 @@
 #undef HAVE_KILL		/* kill() is present in libc */
 #undef HAVE_KILLPG		/* killpg() is present in libc */
 #undef HAVE_SIGNAL		/* signal() is present in libc */
+#undef HAVE_SIGHOLD		/* sighold() is present in libc */
 #undef HAVE_SIGRELSE		/* sigrelse() is present in libc */
+#undef HAVE_SIGIGNORE		/* sigignore() is present in libc */
+#undef HAVE_SIGPAUSE		/* sigpause() is present in libc */
 #undef HAVE_SIGPROCMASK		/* sigprocmask() is present in libc (POSIX) */
 #undef HAVE_SIGSETMASK		/* sigsetmask() is present in libc (BSD) */
 #undef HAVE_SIGSET		/* sigset() is present in libc (POSIX) */
 #undef HAVE_SIGALTSTACK		/* sigaltstack() is present in libc (POSIX) */
+#undef HAVE_SIGBLOCK		/* sigblock() is present in libc (BSD) */
 #undef HAVE_SYS_SIGLIST		/* char *sys_siglist[] is present in libc */
 #undef HAVE_ALARM		/* alarm() is present in libc */
 #undef HAVE_SLEEP		/* sleep() is present in libc */
@@ -619,6 +626,7 @@
 /*
  * Misc OS stuff
  */
+#ifndef	_MSC_VER		/* Dirty hack, better use C program not test */
 #undef HAVE__DEV_TTY		/* /dev/tty present */
 #undef HAVE__DEV_NULL		/* /dev/null present */
 #undef HAVE__DEV_ZERO		/* /dev/zero present */
@@ -628,6 +636,7 @@
 #undef HAVE__DEV_FD_0		/* /dev/fd/0 present */
 #undef HAVE__DEV_FD_1		/* /dev/fd/1 present */
 #undef HAVE__DEV_FD_2		/* /dev/fd/2 present */
+#endif
 
 /*
  * Misc OS programs
@@ -831,6 +840,21 @@
 
 #undef	HAVE_TYPE_INTMAX_T	/* if <stdint.h> defines intmax_t */
 #undef	HAVE_TYPE_UINTMAX_T	/* if <stdint.h> defines uintmax_t */
+
+#undef int8_t			/* To be used if int8_t is not present */
+#undef int16_t			/* To be used if int16_t is not present */
+#undef int32_t			/* To be used if int32_t is not present */
+#if	defined(HAVE_LONGLONG) || defined(HAVE___INT64)
+#undef int64_t			/* To be used if int64_t is not present */
+#endif
+#undef intmax_t			/* To be used if intmax_t is not present */
+#undef uint8_t			/* To be used if uint8_t is not present */
+#undef uint16_t			/* To be used if uint16_t is not present */
+#undef uint32_t			/* To be used if uint32_t is not present */
+#if	defined(HAVE_LONGLONG) || defined(HAVE___INT64)
+#undef uint64_t			/* To be used if uint64_t is not present */
+#endif
+#undef uintmax_t		/* To be used if uintmax_t is not present */
 
 #undef	HAVE_TYPE_GREG_T	/* if <sys/frame.h> defines greg_t */
 

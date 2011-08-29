@@ -27,10 +27,10 @@
 /*
  * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)getline.c	1.7 11/08/01 J. Schilling
+ * @(#)getline.c	1.13 11/08/27 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)getline.c 1.7 11/08/01 J. Schilling"
+#pragma ident "@(#)getline.c 1.13 11/08/27 J. Schilling"
 #endif
 /*
  * @(#)getline.c 1.10 06/12/12
@@ -43,42 +43,57 @@
 #include	<defines.h>
 
 /*
-	Routine to read a line into the packet.  The main reason for
-	it is to make sure that pkt->p_wrttn gets turned off,
-	and to increment pkt->p_slnno.
-*/
+ *	Routine to read a line into the packet.  The main reason for
+ *	it is to make sure that pkt->p_wrttn gets turned off,
+ *	and to increment pkt->p_slnno.
+ */
 
 char *
 getline(pkt)
 register struct packet *pkt;
 {
-	char	buf[DEF_LINE_SIZE];
 	int	eof;
-	register size_t nread = 0;
 	register size_t used = 0;
-	register signed char *p;
-	register unsigned char *u_p;
+	register size_t line_size;
+	register char	*line;
 
-	if(pkt->p_wrttn==0)
-		putline(pkt,(char *) 0);
+	if (pkt->p_wrttn == 0)
+		putline(pkt, (char *) 0);
 
+	line_size = pkt->p_line_size;
+	if (line_size == 0) {
+		line_size = DEF_LINE_SIZE;
+		pkt->p_line = (char *) malloc(line_size);
+		if (pkt->p_line == NULL)
+			fatal(gettext("OUT OF SPACE (ut9)"));
+	}
 	/* read until EOF or newline encountered */
+	line = pkt->p_line;
+	line[0] = '\0';
 	do {
-		if (!(eof = (fgets(buf, sizeof(buf), pkt->p_iop) == NULL))) {
-			nread = strlen(buf);
+		line[line_size - 1] = '\t';	/* arbitrary non-zero char */
+		line[line_size - 2] = ' ';	/* arbitrary non-newline char */
+		if (!(eof = (fgets(line+used,
+				    line_size-used,
+				    pkt->p_iop) == NULL))) {
 
-			if ((used + nread) >=  pkt->p_line_size) {
-				pkt->p_line_size += sizeof(buf);
-				pkt->p_line = (char*) realloc(pkt->p_line, pkt->p_line_size);
-				if (pkt->p_line == NULL) {
-					fatal(gettext("OUT OF SPACE (ut9)"));
-				}
+			if (line[line_size - 1] != '\0' ||
+			    line[line_size - 2] == '\n')
+				break;
+
+			used = line_size - 1;
+
+			line_size += DEF_LINE_SIZE;
+			line = (char *) realloc(line, line_size);
+			if (line == NULL) {
+				fatal(gettext("OUT OF SPACE (ut9)"));
 			}
-
-			strcpy(pkt->p_line + used, buf);
-			used += nread;
 		}
-	} while (!eof && (pkt->p_line[used-1] != '\n'));
+	} while (!eof);
+	used += strlen(&line[used]);
+	pkt->p_line = line;
+	pkt->p_line_size = line_size;
+	pkt->p_line_length = used;
 
 	/* check end of file condition */
 	if (eof && (used == 0)) {
@@ -89,8 +104,8 @@ register struct packet *pkt;
 		}
 		if (!pkt->p_chkeof)
 			fatal(gettext("premature eof (co5)"));
-		if ((pkt->do_chksum && (pkt->p_chash ^ pkt->p_ihash)&0xFFFF) ) 
-		    if(pkt->do_chksum && (pkt->p_uchash ^ pkt->p_ihash)&0xFFFF) 
+		if ((pkt->do_chksum && (pkt->p_chash ^ pkt->p_ihash) & 0xFFFF))
+		    if (pkt->do_chksum && (pkt->p_uchash ^ pkt->p_ihash) & 0xFFFF)
 			fatal(gettext("Corrupted file (co6)"));
 		if (pkt->p_reopen) {
 			fseek(pkt->p_iop, (off_t)0, SEEK_SET);
@@ -103,18 +118,40 @@ register struct packet *pkt;
 			pkt->p_keep = 0;
 			pkt->do_chksum = 0;
 		}
-		return NULL;
+		return (NULL);
 	}
 
 	pkt->p_wrttn = 0;
 	pkt->p_slnno++;
-	pkt->p_line_length = used;
 
 	/* update check sum */
-	for (p = (signed char *)pkt->p_line,u_p = (unsigned char *)pkt->p_line; *p; ) {
-		pkt->p_chash += *p++;
-		pkt->p_uchash += *u_p++;
+	{
+		register signed char	*p;
+		register int		c;
+		register int		ch = 0;
+		register unsigned	uch = 0;
+		register int		len = used;
+
+#define	DO8(a)	a; a; a; a; a; a; a; a;
+
+		for (p = (signed char *)pkt->p_line; len >= 8; len -= 8) {
+			DO8(c = *p++; ch += c; uch += (unsigned char)c);
+		}
+
+		switch (len) {
+
+		case 7:	c = *p++; ch += c; uch += (unsigned char)c;
+		case 6:	c = *p++; ch += c; uch += (unsigned char)c;
+		case 5:	c = *p++; ch += c; uch += (unsigned char)c;
+		case 4:	c = *p++; ch += c; uch += (unsigned char)c;
+		case 3:	c = *p++; ch += c; uch += (unsigned char)c;
+		case 2:	c = *p++; ch += c; uch += (unsigned char)c;
+		case 1:	c = *p++; ch += c; uch += (unsigned char)c;
+		}
+
+		pkt->p_chash += ch;
+		pkt->p_uchash += uch;
 	}
 
-	return pkt->p_line;
+	return (pkt->p_line);
 }

@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sccsfile.4	1.15 11/08/07 portions Copyright 2007-2011 J. Schilling */
+.\" @(#)sccsfile.4	1.18 11/08/24 portions Copyright 2007-2011 J. Schilling */
 .\" CDDL HEADER START
 .\"
 .\" The contents of this file are subject to the terms of the
@@ -21,7 +21,7 @@
 .\" Copyright (c) 2002, Sun Microsystems, Inc. All Rights Reserved.
 .\" Copyright 1989 AT&T
 .\"  Copyright 2007-2011 J. Schilling
-.TH sccsfile 4 "2011/08/07" "SunOS 5.11" "File Formats"
+.TH sccsfile 4 "2011/08/24" "SunOS 5.11" "File Formats"
 .SH NAME
 sccsfile \- format of an SCCS history file
 .SH DESCRIPTION
@@ -51,6 +51,20 @@ Definitions of internal keywords.
 .sp
 .ne 3
 .TP
+.I v6 flags
+Optional further internal definitions.
+.B "SCCS v6
+only.
+.sp
+.ne 3
+.TP
+.I v6 metadata
+Optional global metadata.
+.B "SCCS v6
+only.
+.sp
+.ne 3
+.TP
 .I comments
 An arbitrary descriptive information block about the file.
 .sp
@@ -71,7 +85,7 @@ This document describes the
 history file format that has been introduced in February 1977 as well
 as the
 .B SCCS v6
-enhancements that have been introduced in 2011.
+enhancements that have been introduced in summer 2011.
 
 .SS Conventions
 
@@ -126,7 +140,51 @@ The
 provides a 16 bit
 .I magic number
 of (octal) 064001 in PDP-byteorder and 000550 in Motorola-byteorder ("\e001\e150").
+.br
+.ne 5
+.SS SCCS v6 Checksum
+.LP
+SCCS v6 introduces a modified checksum line:
+.LP
+.in +2
+.nf
+^AhV6,sum=\fIddddd\fR
+.fi
+.in -2
+.LP
+The checksum line was changed in order to prevent historic SCCS
+implementations from accidentally ignoring project-related (project-global)
+locks. It permits future versions to decide on different checksum
+algorithms without a need to introduce a new history file format.
+.LP
+In SCCS v6, the
+.B ^Ah
+magic is not directly followed by the checksum but by the letter
+.B V
+that is followed by the SCCS version number. The version number is followed by
+a comma and the checksum algorithm name. The string
+.B sum
+is interpreted as the SCCS v4 checksum method. The SCCS v4 checksum entry must
+directly follow the SCCS version number.
+.LP
+Further checksums may be added in the future, e.g.:
+.LP
+.in +2
+.nf
+^AhV6,sum=\fIddddd\fR,md5=\fIhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh\fR
+.fi
+.in -2
+.LP
+but the
+.B sum=
+entry is mandatory. SCCS v6 currently does not implement 
+checksum algorithms other than 
+.BR sum .
+Other entries are currently ignored when reading and silently discarded when
+copying or modifying files.
 
+.br
+.ne 5
 .SS Delta Table
 
 .LP
@@ -166,10 +224,10 @@ and removed:
 the SCCS ID
 .RB ( SID )
 of the delta, the date and
-time of creation of the delta, the user-name corresponding to the real
-user ID at the time the delta was created, and the serial numbers of
-the delta and its predecessor, respectively. The year is either represented by
-a two digit year in the range 69..99 for 1969..1999 or 00..68 for 2000..2068
+time of creation of the delta as local time, the user-name corresponding to the
+real user ID at the time the delta was created, and the serial numbers
+of the delta and its predecessor, respectively. The year is either represented
+by a two digit year in the range 69..99 for 1969..1999 or 00..68 for 2000..2068
 or by a four digit year number. Year numbers before 1969 are currently not
 supported.
 .LP
@@ -192,6 +250,74 @@ The
 .B ^Ae
 line ends the delta table entry.
 
+.br
+.ne 8
+.SS SCCS v6 Delta Table
+.LP
+SCCS v6 uses an enhanced delta table:
+.LP
+.in +2
+.nf
+^As \fIinserted\|\fR/\fIdeleted\fR/\fIunchanged\fR
+^Ad \fItype  sid  yr\fR/\fImo\fR/\fIda hr\fR:\fImi\fR:\fIse\fR[.\fIss\fR]+-\fIhhmm\fR \fIusername \e
+serial-number predecessor-sn\fR
+^Ai \fIinclude-list\fR
+^Ax \fIexclude-list\fR
+^Ag \fIignored-list\fR
+^Am \fImr-number\fR
+\&...
+^AS \fIsid-specific metadata\fR
+\&...
+^Ac \fIcomments\fR ...
+\&...
+^Ae 
+.fi
+.in -2
+.sp
+.LP
+The second line
+.RB ( ^Ad )
+must have a four digit year number,
+may add sub-second time stamp granularity and must have a time zone offset.
+.LP
+Optional sub-second time stamp granularity is introduced by a dot
+.RB ` . '
+and adds one to nine decimal digits that represent a fraction of a second
+up to nanosecond granularity. This number must be positive.
+.LP
+The time zone offset starts with a 
+.RB ` + '
+or a
+.RB ` - ',
+the value
+.B 0000
+starts with a
+.RB ` + ',
+negative values start with a
+.RB ` - '.
+Positive values are east to GMT.
+The first two decimal digits represent the hour part of the GMT offset, the last
+two decimal digits represent the minute part of the GMT offset. A granularity
+less than a minute cannot be represented.
+.LP
+The date and time part represents local time as in SCCS v4 entries.
+.LP
+The extended SCCS delta entry
+.RB ( ^Ad )
+and the SCCS SID specific metadata
+.RB ( ^AS )
+is not accepted by historic SCCS implementations.
+When converting a SCCS v6 history file back to a SCCS v4 history file,
+these entries are converted into special comment at the beginning of the
+comment section. While converting,
+.B ^Ad
+is turned into
+.B ^Ac_d
+and
+.B ^AS
+is turned into
+.BR ^Ac_S .
+
 .SS User Names
 
 .LP
@@ -205,7 +331,8 @@ An empty list allows anyone to make a delta.
 
 .LP
 Flags are keywords that are used internally (see 
-\fBsccs-admin\fR(1) for more information on their use).  Each flag line takes the form:
+\fBsccs-admin\fR(1) for more information on their use). 
+Each flag line takes the form:
 
 .LP
 .RS
@@ -213,6 +340,11 @@ Flags are keywords that are used internally (see
 .B flag
 .I optional text
 .RE
+.LP
+Flags may be selected from the set of 26 lower case characters in the range
+.RB ` a '..` z '.
+Historical SCCS implementations will dump core in case a
+character outside the specified range appears as flag character.
 
 .LP
 The following flags are defined in order of appearance:
@@ -363,6 +495,49 @@ extension that does not exist in historic
 .B sccs 
 implementations. 
 
+.br
+.ne 6
+.SS SCCS v6 Flags
+.LP
+Scccs v6 flags are additional keywords that are used internally (see 
+\fBsccs-admin\fR(1) for more information on their use).
+Each flag line takes the form:
+.LP
+.RS
+ ^AF
+.B flag
+.I optional text
+.RE
+.LP
+No SCCS v6 flags are currently defined.
+.LP
+Historical SCCS implementations do not complain about SCCS v6 flags when
+reading SCCS history files and retain SCCS v6 flags when modifying history files.
+This is why SCCS v6 flags may be kept unmodified when converting a SCCS v6
+history file back to a SCCS v4 history file.
+
+.br
+.ne 6
+.SS SCCS v6 Metadata
+.LP
+Scccs v6 metadata is additional global metadata that is used internally (see 
+\fBsccs-admin\fR(1) for more information on it's use).
+Each metadata line takes the form:
+.LP
+.RS
+ ^AG
+.B keyword
+.I optional text
+.RE
+.LP
+No SCCS v6 metadata is currently defined.
+.LP
+Historical SCCS implementations do not complain about SCCS v6 metadata when
+reading SCCS history files and retain SCCS v6 metadata when modifying history files.
+This is why SCCS v6 metadata may be kept unmodified when converting a SCCS v6
+history file back to a SCCS v4 history file.
+
+
 .SS Comments
 
 .LP
@@ -423,19 +598,29 @@ without a need to add another quote.
 .ne 5
 .SH SEE ALSO
 .LP
-\fBsccs-admin\fR(1), 
-\fBsccs-cdc\fR(1), 
-\fBsccs-comb\fR(1), 
-\fBsccs-delta\fR(1), 
-\fBsccs-get\fR(1), 
-\fBsccs-help\fR(1), 
-\fBsccs-prs\fR(1), 
-\fBsccs-prt\fR(1), 
-\fBsccs-rmdel\fR(1), 
-\fBsccs-sact\fR(1), 
-\fBsccs-sccsdiff\fR(1), 
-\fBsccs-unget\fR(1), 
-\fBsccs-val\fR(1), 
-\fBsccs\fR(1), 
-\fBsccslog\fR(1), 
-\fBwhat\fR(1)
+.BR sccs (1),
+.BR sccs-admin (1),
+.BR sccs-cdc (1),
+.BR sccs-comb (1)
+.BR sccs-delta (1),
+.BR sccs-get (1),
+.BR sccs-help (1),
+.BR sccs-prs (1),
+.BR sccs-prt (1),
+.BR sccs-rmdel (1),
+.BR sccs-sact (1),
+.BR sccs-sccsdiff (1),
+.BR sccs-unget (1),
+.BR sccs-val (1),
+.BR sccscvt (1),
+.BR sccslog (1),
+.BR bdiff (1), 
+.BR diff (1), 
+.BR what (1).
+
+.SH BUGS
+.LP
+SCCS v4 uses local time without a timezone offset. If a delta is created less
+than an hour after switching from DST to non-DST, it may look as if the clock
+is going backwards.
+SCCS v6 fixes this problem by introducing a timezone offset.

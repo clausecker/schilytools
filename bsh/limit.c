@@ -1,13 +1,13 @@
-/* @(#)limit.c	1.36 11/07/16 Copyright 1987-2009 J. Schilling */
+/* @(#)limit.c	1.38 11/08/13 Copyright 1987-2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)limit.c	1.36 11/07/16 Copyright 1987-2009 J. Schilling";
+	"@(#)limit.c	1.38 11/08/13 Copyright 1987-2011 J. Schilling";
 #endif
 /*
  *	Resource usage routines
  *
- *	Copyright (c) 1987-2009 J. Schilling
+ *	Copyright (c) 1987-2011 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -342,6 +342,8 @@ setrlimit(which, limp)
 	case RLIMIT_FSIZE:
 #ifdef	HAVE_ULIMIT
 			return (ulimit(2, limp->rlim_cur/512));
+#else
+			break;
 #endif
 	}
 	seterrno(EINVAL);

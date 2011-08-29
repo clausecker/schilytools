@@ -1,8 +1,8 @@
-/* @(#)io.c	1.36 09/07/13 Copyright 1984-2009 J. Schilling */
+/* @(#)io.c	1.37 11/08/13 Copyright 1984-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)io.c	1.36 09/07/13 Copyright 1984-2009 J. Schilling";
+	"@(#)io.c	1.37 11/08/13 Copyright 1984-2009 J. Schilling";
 #endif
 /*
  *	Low level routines for Input from keyboard and output to screen.
@@ -54,6 +54,7 @@ static	UConst char sccsid[] =
 #include "terminal.h"
 #include <schily/setjmp.h>
 #include <schily/jmpdefs.h>
+#include <schily/termios.h>		/* For WIN-DOS test and USE_GETCH */
 #include <schily/errno.h>
 
 #define	RECOVERBUFSIZE	512
@@ -231,6 +232,9 @@ getnextc(wp)
 			interrupted = FALSE;
 			c = intrchar;
 		} else {
+#ifdef	USE_GETCH
+			c = getch();	/* DOS console input */
+#else
 /*#define	USE_GETCHAR*/
 #ifdef	USE_GETCHAR
 			/*
@@ -256,6 +260,7 @@ getnextc(wp)
 			else
 				c = cc;
 #endif
+#endif	/* USE_GETCH */
 		}
 		*protp++ = (Uchar) c;
 		if (wp->modflg - pmodflg >= PROTMARGIN || protp >= &protbuf[PROTBUFSIZE])

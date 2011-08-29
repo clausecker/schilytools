@@ -1,0 +1,154 @@
+.\" @(#)sccscvt.1	1.3 11/08/29 Copyright 2011 J. Schilling
+.\" Manual page for sccscvt
+.\"
+.if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
+.if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
+.if t .ds u \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'u
+.if t .ds A \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'A
+.if t .ds O \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'O
+.if t .ds U \v'-0.77m'\h'0.30n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.75n'U
+.if t .ds s \\(*b
+.if t .ds S SS
+.if n .ds a ae
+.if n .ds o oe
+.if n .ds u ue
+.if n .ds s sz
+.TH sccscvt 1 "2011/08/29" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.SH NAME
+sccscvt \- convert history files between SCCS v4 and SCCS v6
+.SH SYNOPSIS
+.B
+sccscvt
+.B "[ options ]"
+.I file1 .. filen
+.SH DESCRIPTION
+.B Sccscvt
+converts
+.B SCCS v4
+history files (introduced in February 1977) into
+.B SCCS v6
+history files (introduced in August 2011) and vice versa.
+.LP
+The first line, containing the SCCS magic number and the checksum is converted to the
+format that is appropriate. The time format in the delta table is converted by either
+removing the SCCS v6 extensions or by adding time zone information by assuming that all
+time stamps are from the local time zone. When converting from SCCS v6 to SCCs v4, the
+enhanced time stamp data is retained as the first delta comment line in a delta block.
+.LP
+SID specific SCCS v6 enhancements are converted into special delta comment to prevent
+information loss when converting to SCCS v4.
+.LP
+The SCCS v6 enhancements that are between the SCCS v4 flags indicated by
+.B ^Af
+and the SCCS comment block that is bracketed between
+.B ^At
+and
+.B ^AT
+are untouched as these enhancements are not flagged by historic SCCS versions
+and retained by historic SCCS versions when a history file is modified.
+.LP
+If a file argument refers to a directory, the directory is scanned
+for file names that start with ``s.'' and examines all these files.
+. \" .SH RETURNS
+. \" .SH ERRORS
+.SH OPTIONS
+.LP
+.TP
+.B \-d
+When converting from SCCS v6 to SCCS v4,
+discard the extended SCCS v6 meta data instead of converting it into special degenerated
+delta comments.
+.TP
+.B \-k
+.TP
+.B \-keep
+Keep the original history file as
+.BI o. file\fR.
+When this option is missing, the original file is replaced by the converted file.
+.TP
+.B \-V4
+Convert a
+.B SCCS v6
+history file into a
+.B SCCS v4
+history file.
+.TP
+.B \-V6
+Convert a
+.B SCCS v4
+history file into a
+.B SCCS v6
+history file.
+.TP
+.B \-help
+Prints a short summary of the 
+.B sccscvt
+options and exists.
+.TP
+.B \-V
+.TP
+.B \-version
+Prints the
+.B sccscvt
+version number string and exists.
+.\" .SH EXAMPLES
+.SH FILES
+.sp
+.ne 2
+.TP
+.BI s. file
+history file
+.sp
+.ne 2
+.TP
+.BI o. file
+saved original version of the history file
+.sp
+.ne 2
+.TP
+.BI x. file
+temporary copy of the
+.BR s. file;
+renamed to the
+.BR s. file
+after completion.
+
+.sp
+.ne 2
+.TP
+.BI z. file
+temporary lock file contains the binary process id in host byte order
+followed by the host name
+.SH "SEE ALSO"
+.LP
+.BR sccs (1),
+.BR sccs-admin (1),
+.BR sccs-cdc (1),
+.BR sccs-comb (1)
+.BR sccs-delta (1),
+.BR sccs-get (1),
+.BR sccs-help (1),
+.BR sccs-prs (1),
+.BR sccs-prt (1),
+.BR sccs-rmdel (1),
+.BR sccs-sact (1),
+.BR sccs-sccsdiff (1),
+.BR sccs-unget (1),
+.BR sccs-val (1),
+.BR sccscvt (1),
+.BR sccslog (1),
+.BR bdiff (1), 
+.BR diff (1), 
+.BR what (1),
+.BR sccsfile (4),
+.BR attributes (5),
+.BR environ (5),
+.BR standards (5).
+
+.SH DIAGNOSTICS
+.SH NOTES
+If a SCCS history file is converted from SCCS v4 to SCCS v6 and there is no
+retained SCCS v6 timestamp information in the delta comment, it may be a good
+idea to manually correct time zone information manually.
+.SH BUGS
+.SH AUTHOR

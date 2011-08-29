@@ -1,8 +1,8 @@
-/* @(#)ved.c	1.75 11/08/03 Copyright 1984, 85, 86, 88, 89, 97, 2000-2011 J. Schilling */
+/* @(#)ved.c	1.76 11/08/11 Copyright 1984, 85, 86, 88, 89, 97, 2000-2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)ved.c	1.75 11/08/03 Copyright 1984, 85, 86, 88, 89, 97, 2000-2011 J. Schilling";
+	"@(#)ved.c	1.76 11/08/11 Copyright 1984, 85, 86, 88, 89, 97, 2000-2011 J. Schilling";
 #endif
 /*
  *	VED Visual EDitor
@@ -408,8 +408,8 @@ handlesignal()
 
 /*
  * Signal handler for signals that kill us.
+ * Used by SIGHUP & SIGTERM.
  */
-#ifdef	SIGHUP
 /* ARGSUSED */
 LOCAL void
 hupintr(sig)
@@ -418,9 +418,8 @@ hupintr(sig)
 	set_oldmodes();
 	tmpcleanup(&rootwin, FALSE);	/* XXX -> (ewin_t *)0 ??? */
 
-	exit(SIGHUP);
+	exit(sig);
 }
-#endif
 
 /*
  * Catch signals while ved is in startup.

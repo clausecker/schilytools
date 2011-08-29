@@ -397,6 +397,29 @@ Compiling the project to allow debugging with dbx/gdb:
 		make clean
 		make COPTX=-g LDOPTX=-g
 
+	If your debugger does not like optimized binaries, call something
+	like:
+
+		 make "COPTX=-g -xO0" LDOPTX=-g
+	or
+		 make "COPTX=-g -O0" LDOPTX=-g
+
+	depending on the option system of your C-compiler
+
+
+Compiling the project to allow performance monitoring with gprof from BSD:
+
+	If you like to compile for performance monitoriing with gprof,
+	call:
+
+		make clean
+		make COPTX=-xpg LDOPTX=-xpg LINKMODE=profiled
+
+	or
+		make COPTX=-pg LDOPTX=-pg LINKMODE=profiled
+
+	depending on the option system of your C-compiler
+
 
 Creting Blastwave packages:
 
@@ -428,6 +451,112 @@ Creting Blastwave packages:
 	/usr/lib/makewhatis /opt/schily/man or to call 
 
 		man -F <man-page-name>
+
+
+Compiling in a cross compilation environment:
+
+	The Schily autoconf system has been enhanced to support cross
+	compilation. Schily autoconf is based on GNU autoconf-2.13 and
+	GNU autoconf does not support cross compilation because it needs
+	to run scripts on the target system for some of the tests.
+
+	The "configure" script that is delivered with the Schily makefile
+	system runs more than 770 tests and aprox 70 of them need to be 
+	run on the target system.
+
+	The Schily autoconf system now supports a method to run these ~70
+	tests natively on a target system. You either need a machine with
+	remote login features or you need an emulator with a method to
+	copy files into the emulated system and to run binaries on the
+	emulated system as e.g. the Android emulator.
+
+	We currently deliver three scripts for "remote" execution of
+	programs on the target system:
+
+	runrmt_ssh		runs the commands remove via ssh
+	runrmt_rsh		runs the commands remove via rsh
+	runrmt_android		runs the commands remove via the debug bridge
+
+	If you need to remotely run programs on a system that is not
+	supported by one of there three scripts, you need to modify one
+	of them to match your needs.
+
+	To enable Cross Compilation use the following environment variables:
+
+	CONFIG_RMTCALL=		Set up to point to a script that does
+				the remote execution, e.g.:
+
+				CONFIG_RMTCALL=`pwd`/conf/runrmt_ssh
+
+	CONFIG_RMTHOST=		Set up to point to your remote host, e.g.:
+
+				CONFIG_RMTHOST=hostname 
+				or
+				CONFIG_RMTHOST=user@hostname
+
+				use a dummy if you like to use something
+				like to the Android emulator.
+
+	CONFIG_RMTDEBUG=	Set to something non-null in order to 
+				let the remote execution script mark
+				remote comands. This will result in
+				configure messages like:
+
+				checking bits in minor device number... REMOTE 8
+
+				If you cannot run commands on the target
+				platform, you may set:
+
+				CONFIG_RMTDEBUG=true
+				CONFIG_RMTCALL=:
+
+				carefully watch for the "REMOTE" flagged test
+				output and later manually edit the file:
+
+				incs/<arch-dir>/xconfig.h
+
+				Do not forget to manually edit the files:
+
+				incs/<arch-dir>/align.h
+				and
+				incs/<arch-dir>/avoffset.h
+
+	Note that smake includes automake features that automatically
+	retrieve system ID information. For this reason, you need to overwrite 
+	related macros from the command line if you like to do a
+	cross compilation.
+
+	Related make macros:
+
+	K_ARCH=			# (sun4v) Kernel ARCH filled from uname -m / arch -k
+	M_ARCH=			# (sun4)  Machine filled from arch
+	P_ARCH=			# (sparc) CPU ARCH filled from uname -p / mach
+	OSNAME=			# sunos, linux, ....
+	OSREL=			# 5.11
+	OSVERSION=		# snv_130
+	CCOM=			# generic compiler name (e.g. "gcc")
+	CC_COM=			# compiler to call (name + basic args)
+
+	ARCH=			overwrites M_ARCH and P_ARCH
+
+	It is usually suffucient to set ARCH and OSNAME.
+
+	In order to use a cross compiler environment instead of a native compiler,
+	set the make macro CC_COM to something different than "cc".
+
+	If you are on Linux and like to compile for Android, do the following:
+
+	1) 	set up CC acording to the instructions from the cross compiler
+		tool chain
+
+	2)	set environment variables CONFIG_RMTCALL / CONFIG_RMTHOST, e.g.:
+		setenv CONFIG_RMTCALL `pwd`/conf/runrmt_android
+		setenv CONFIG_RMTHOST NONE
+
+	3)	call smake:
+
+		smake ARCH=armv5 OSNAME=linux CCOM=gcc "CC_COM=$CC"
+	
 
 
 Author:
