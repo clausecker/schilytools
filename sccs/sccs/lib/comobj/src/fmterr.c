@@ -25,12 +25,12 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2009 J. Schilling
+ * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)fmterr.c	1.5 09/11/08 J. Schilling
+ * @(#)fmterr.c	1.6 11/09/02 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)fmterr.c 1.5 09/11/08 J. Schilling"
+#pragma ident "@(#)fmterr.c 1.6 11/09/02 J. Schilling"
 #endif
 /*
  * @(#)fmterr.c 1.5 06/12/12
@@ -52,6 +52,12 @@ register struct packet *pkt;
 	if (pkt->p_iop)
 		(void) fclose(pkt->p_iop);
 	pkt->p_iop = NULL;
-	sprintf(SccsError, gettext("format error at line %d (co4)"), pkt->p_slnno);
+	if (pkt->p_file[0] != '\0')
+		sprintf(SccsError, gettext("%s: format error at line %d (co4)"),
+			pkt->p_file,
+			pkt->p_slnno);
+	else
+		sprintf(SccsError, gettext("format error at line %d (co4)"),
+			pkt->p_slnno);
 	fatal(SccsError);
 }

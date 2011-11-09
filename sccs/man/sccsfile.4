@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sccsfile.4	1.18 11/08/24 portions Copyright 2007-2011 J. Schilling */
+.\" @(#)sccsfile.4	1.23 11/11/01 Copyright 2007-2011 J. Schilling */
 .\" CDDL HEADER START
 .\"
 .\" The contents of this file are subject to the terms of the
@@ -21,7 +21,7 @@
 .\" Copyright (c) 2002, Sun Microsystems, Inc. All Rights Reserved.
 .\" Copyright 1989 AT&T
 .\"  Copyright 2007-2011 J. Schilling
-.TH sccsfile 4 "2011/08/24" "SunOS 5.11" "File Formats"
+.TH sccsfile 4 "2011/11/01" "SunOS 5.11" "File Formats"
 .SH NAME
 sccsfile \- format of an SCCS history file
 .SH DESCRIPTION
@@ -283,7 +283,7 @@ may add sub-second time stamp granularity and must have a time zone offset.
 Optional sub-second time stamp granularity is introduced by a dot
 .RB ` . '
 and adds one to nine decimal digits that represent a fraction of a second
-up to nanosecond granularity. This number must be positive.
+up to nanosecond granularity. This number must be non-negative.
 .LP
 The time zone offset starts with a 
 .RB ` + '
@@ -302,7 +302,61 @@ less than a minute cannot be represented.
 .LP
 The date and time part represents local time as in SCCS v4 entries.
 .LP
-The extended SCCS delta entry
+The entry
+.B ^AS
+introduces a SID specific SCCS v6 extension.
+SID specific extension lines are in name/value format and take the form:
+.LP
+.RS
+ ^AS
+.B name
+.I optional value text
+.RE
+.br
+.ne 8
+.LP
+The following
+.B name
+parameters are defined:
+.LP
+.RS
+.br
+.ne 5
+.TP 10
+.BI p " path
+Record the current path of the
+.B g-file
+relatively to the project's file set home directory. A
+.B path
+entry only appears in case a rename has been applied to the file.
+.sp
+The
+.B project set home
+is a directory that holds a directory
+.B .sccs
+for project specific SCCS metadata. The location of this directory 
+.B .sccs
+is searched for by
+scanning the filesystem towards the root directory starting from the
+current working directory. All files that belong to a project must be
+below the project's file set home directory.
+.sp
+See also the description for the same keyword in the section for 
+global meta data, where the the initial file name is recorded.
+.TP 10
+.BI s " nnnnn
+A SID specific additional checksum.
+The value of the checksum is the low 16 bits from the unsigned
+sum of all characters in the SID specific file content as retrieved by
+.B `get -e'
+(without keyword expansion).
+If the file is archived UU-encoded (see 
+.B `e'
+flag), the checksum is computed on the UU-encoded text and not
+on the original file.
+.RE
+.LP
+The data format in the extended SCCS delta entry
 .RB ( ^Ad )
 and the SCCS SID specific metadata
 .RB ( ^AS )
@@ -356,6 +410,12 @@ Defines the replacement for the \fB%\&Y%\fR ID keyword.
 .TP
 \fB\fB^Af v\fR \fIprogram-name\fR\fR
 Controls prompting for MR numbers in addition to comments. If the optional text is present, it defines an MR number validity checking program.
+.sp
+The
+.B v
+flag and the
+.B z
+flag are mutually exclusive.
 .ne 3
 .TP
 \fB\fB^Af i\fR [\fIvalue\fR]
@@ -430,6 +490,23 @@ Defines the replacement for the \fB%\&Q%\fR ID keyword.
 \fB\fB^Af e\fR \fB0\fR|\fB1\fR\fR
 The \fBe\fR flag indicates whether a source file is encoded or not. A \fB1\fR indicates that the file is encoded. Source files need to be encoded when they contain control characters, or when they do not end with a NEWLINE. The \fBe\fR flag
 allows files that contain binary data to be checked in.
+.ne 3
+.TP
+.BI "^Af z " application
+The name of an
+.B application
+for the
+.B CMF
+enhancements.
+.B CMF
+enhancements are currently undocumented and it is not known
+how they are expected to work.
+.sp
+The
+.B v
+flag and the
+.B z
+flag are mutually exclusive.
 .ne 3
 .TP
 .BI "^Af s " nnn
@@ -529,8 +606,50 @@ Each metadata line takes the form:
 .B keyword
 .I optional text
 .RE
+.br
+.ne 8
 .LP
-No SCCS v6 metadata is currently defined.
+The following
+.B keywords
+are defined:
+.LP
+.RS
+.br
+.ne 6
+.TP 10
+.BI p " path
+Record the initial path of the
+.B g-file
+relatively to the project's file set home directory. Once set up, this name
+must never change.
+.sp
+See also the description for the project set home in the documentation for the
+same keyword in the section for SID specific meta data of the delta table.
+In case of a rename, the new file name is recorded in in the SID specific
+meta data of the delta table.
+.br
+.ne 6
+.TP
+.BI r " random
+A unified pseudo random number that is used to help to identify single files
+across renames during the lifetime of the sccs history.
+.sp
+The pseudo random number is a hexadecimal string that represents the
+microseconds since 2004\ Jan\ 10\ 13:37:04\ UTC when initially creating the
+sccs history file. Including microseconds gives sufficient randomness
+to make clashes rare.
+.sp
+With a 32 bit signed
+.BR time_t ,
+52 bits in the pseudo random number are sufficient.
+With a 64 bit pseudo random number, more than 500000 years are covered.
+.RE
+.LP
+The
+.B random
+metadata is mandatory for SCCS v6 history files. The initial path tag may be
+recorded later but before the changeset file is created.
+The value for this metadata tags must not change.
 .LP
 Historical SCCS implementations do not complain about SCCS v6 metadata when
 reading SCCS history files and retain SCCS v6 metadata when modifying history files.

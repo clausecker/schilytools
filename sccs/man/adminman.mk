@@ -1,4 +1,4 @@
-#ident @(#)adminman.mk	1.1 07/02/10 
+#ident @(#)adminman.mk	1.2 11/10/12 
 ###########################################################################
 # Sample makefile for installing manual pages
 ###########################################################################
@@ -12,6 +12,8 @@ TARGETMAN=	admin
 MANSECT=	$(MANSECT_CMD)
 MANSUFFIX=	$(MANSUFF_CMD)
 MANFILE=	admin.1
+
+admin.1.html: sccs-admin.1
 
 ###########################################################################
 include		$(SRCROOT)/$(RULESDIR)/rules.man

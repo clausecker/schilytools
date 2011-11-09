@@ -47,7 +47,7 @@ docommand n6 "${prs} -r3.1 -d:I: $s" 0 "3.1\n" IGNORE
 # the sequence number of this delta must be 2, and the type must be 'D',
 # that is, a normal delta.
 docommand n7 "${prs} -r2.1 '-d:C:|:DI:|:DP:|:DS:|:DT:' $s" 0 \
-  'AUTO NULL DELTA\n||1|2|D\n' IGNORE
+  'AUTO NULL DELTA\n|//|1|2|D\n' IGNORE
 
 ###
 ### Cleanup and exit.

@@ -1,0 +1,22 @@
+CSWstar: bad-rpath-entry $ORIGIN/../lib opt/csw/opt/csw/bin/smt
+CSWstar: bad-rpath-entry $ORIGIN/../lib opt/csw/opt/csw/bin/star
+CSWstar: bad-rpath-entry $ORIGIN/../lib opt/csw/opt/csw/bin/star_sym
+CSWstar: bad-rpath-entry $ORIGIN/../lib opt/csw/opt/csw/bin/tartest
+CSWstar: bad-rpath-entry $ORIGIN/../lib opt/csw/opt/csw/sbin/rmt
+CSWstar: disallowed-path opt/csw/bin
+CSWstar: disallowed-path opt/csw/sbin
+CSWstar: disallowed-path opt/csw/share
+CSWstar: disallowed-path opt/csw/share/doc
+CSWstar: disallowed-path opt/csw/share/man
+CSWstar: file-with-bad-content /export/home reloc/share/doc/rmt/default-rmt.sample
+CSWstar: file-with-bad-content /usr/share reloc/share/doc/star/testscripts/ustar-all-filetypes.tar
+CSWstar: file-with-bad-content /usr/share reloc/share/doc/star/testscripts/ustar-all-quicktest.tar
+CSWstar: pkginfo-opencsw-repository-missing
+CSWstar: pkgmap-question-mark-perms-in-opt-csw /opt/csw/bin
+CSWstar: pkgmap-question-mark-perms-in-opt-csw /opt/csw/sbin
+CSWstar: pkgmap-question-mark-perms-in-opt-csw /opt/csw/share
+CSWstar: pkgmap-question-mark-perms-in-opt-csw /opt/csw/share/doc
+CSWstar: pkgmap-question-mark-perms-in-opt-csw /opt/csw/share/man
+CSWstar: pkgmap-question-mark-perms-in-opt-csw /opt/csw/share/man/man1
+CSWstar: pkgmap-question-mark-perms-in-opt-csw /opt/csw/share/man/man4
+CSWstar: surplus-dependency SUNWcsr

@@ -27,10 +27,10 @@
 /*
  * Copyright 2006-2011 J. Schilling
  *
- * @(#)chkid.c	1.6 11/05/22 J. Schilling
+ * @(#)chkid.c	1.7 11/10/13 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)chkid.c 1.6 11/05/22 J. Schilling"
+#pragma ident "@(#)chkid.c 1.7 11/10/13 J. Schilling"
 #endif
 /*
  * @(#)chkid.c 1.5 06/12/12
@@ -54,9 +54,9 @@ chkid(line, idstr, sflags)
 	register char	*p;
 		int	expand_XIDs;
 		char	*list_expand_IDs;
-	extern	int	Did_id;
+		int	Did_id = 0;
 
-	if (Did_id || (lp = strchr(line, '%')) == NULL)
+	if ((lp = strchr(line, '%')) == NULL)
 		return (Did_id);
 
 	if (idstr && idstr[0] != '\0' && (lp = strchr(idstr, '%')) == NULL)
@@ -80,11 +80,11 @@ chkid(line, idstr, sflags)
 			case 'I': case 'L': case 'M': case 'P':
 			case 'Q': case 'R': case 'S': case 'T':
 			case 'U': case 'W': case 'Y': case 'Z':
-				Did_id++;
+				Did_id = 1;
 				break;
 			case 'd': case 'e': case 'g': case 'h':
 				if (expand_XIDs)
-					Did_id++;
+					Did_id = 1;
 				break;
 			default:
 				break;
@@ -99,7 +99,7 @@ chkid(line, idstr, sflags)
 	lp = line;
 	while ((lp = strchr(lp, *p)) != NULL)
 		if (!(strncmp(lp, p, strlen(p))))
-			return (Did_id++);
+			return (++Did_id);
 		else
 			++lp;
 	return (Did_id);

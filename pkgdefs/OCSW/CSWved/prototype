@@ -1,0 +1,26 @@
+i pkginfo
+i depend
+#i copyright
+i checkpkg_override
+d none share/doc/ved 0755 root bin
+f none share/doc/ved/license=$pkgbase/copyright 0444 root bin
+d none bin ? ? ?
+f none bin/ved 0755 root bin
+s none bin/ved-e=ved
+s none bin/ved-w=ved
+d none sbin ? ? ?
+d none lib ? ? ?
+d none share ? ? ?
+d none share/man ? ? ?
+d none share/man/man1 ? ? ?
+f none share/man/man1/ved.1 0444 root bin
+f none share/man/man1/ved-e.1 0444 root bin
+f none share/man/man1/ved-w.1 0444 root bin
+d none share/man/help 0755 root bin
+f none share/man/help/ved.help 0444 root bin
+d none share/doc ? ? ?
+d none share/doc/ved 0755 root bin
+f none share/doc/ved/vedsheet.tr 0644 root bin
+f none share/doc/ved/vedsheet.ps 0644 root bin
+#f none share/doc/ved/match.ps 0644 root bin
+f none share/doc/ved/dotfiles.tar.bz2 0644 root bin

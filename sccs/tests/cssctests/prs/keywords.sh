@@ -38,7 +38,7 @@ expands_to X1l :L:      "1\n"
 expands_to X1b :B:      "\n"
 expands_to X1s :S:      "\n"
 expands_to X2  :BF:     "no\n"
-expands_to X3  :DI:     "\n"
+expands_to X3  :DI:     "//\n"
 expands_to X4  :DL:     "00000/00000/00000\n"
 expands_to X5  :DT:     "D\n"
 expands_to X7  :J:      "no\n"
@@ -118,11 +118,11 @@ expands_to K13 ':LK:'   '1\n'
 expands_to K14 ':Q:'   'QFLAG\n'
 
 
-expands_to K15 ':DI:'   '/2 1\n'
+expands_to K15 ':DI:'   '/2 1/\n'
 
 sid=1.6
 
-expands_to K16 ':DI:'   '3/2 1\n'
+expands_to K16 ':DI:'   '3/2 1/\n'
 
 ## 
 ## 

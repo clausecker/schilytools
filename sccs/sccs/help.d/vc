@@ -18,6 +18,10 @@
 *
 * CDDL HEADER END
 *
+* This file contains modifications Copyright 2006-2011 J. Schilling
+*
+* @(#)vc	1.3 11/10/13 J. Schilling 
+*
 * @(#)vc 1.2 06/12/12
 *
 *#ident	"@(#)sccs:help.d/vc"
@@ -46,15 +50,16 @@ The named keyword has been redeclared
 on the indicated line.
 -6
 "out of space"
-A maximum of 40 keywords per invocation of vc are allowed.
-This limit has been exceeded.
+Too many keywords have been found.
+The maximum number of keywords per invocation of vc depends
+on the available memory.
 -7
 "unmatched `:' on line ..."
 On the given line there is no control character
 to indicate the end of the keyword name. 
--8
-"keyword name too long on line ..."
-On the indicated line a keyword name exceeds nine characters.
+* -8
+* "keyword name too long on line ..."
+* On the indicated line a keyword name exceeds nine characters.
 -9
 "invalid keyword name on line ..."
 On the indicated line the keyword name does not
@@ -83,7 +88,7 @@ The user has put an `err' statement on the given line.
 -16
 "out of space [line ...]"
 The indicated line requires too many replacements.
-Currently, only 32 replacements per line are allowed.
+The number of possible replacements depends on the available memory.
 -17
 "syntax on line ..."
 The equal sign has been left out of an `asg' statement,
@@ -101,3 +106,7 @@ There is something strange about the indicated line.
 "`...' never assigned a value"
 The given keyword name was never used in an assignment statement.
 This is only a warning.
+-21
+"line too long"
+A line in the input was too long.
+The maximum line length depends on the available memory.

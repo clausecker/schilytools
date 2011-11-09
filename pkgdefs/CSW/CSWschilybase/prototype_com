@@ -93,7 +93,6 @@ f none share/man/man3/rmtg2mtg.3 0444 root bin
 d none share/man/man4 ? ? ?
 f none share/man/man4/makefiles.4 0444 root bin
 f none share/man/man4/makerules.4 0444 root bin
-s none man=share/man
 d none include ? ? ?
 d none include/schily 0755 root bin
 f none include/schily/align.h 0444 root bin

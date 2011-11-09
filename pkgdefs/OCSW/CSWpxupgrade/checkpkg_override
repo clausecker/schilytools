@@ -1,0 +1,11 @@
+CSWpxupgrade: bad-rpath-entry $ORIGIN/../lib opt/csw/opt/csw/bin/pxupgrade
+CSWpxupgrade: disallowed-path opt/csw/bin
+CSWpxupgrade: disallowed-path opt/csw/share
+CSWpxupgrade: disallowed-path opt/csw/share/doc
+CSWpxupgrade: disallowed-path opt/csw/share/man
+CSWpxupgrade: pkginfo-opencsw-repository-missing
+CSWpxupgrade: pkgmap-question-mark-perms-in-opt-csw /opt/csw/bin
+CSWpxupgrade: pkgmap-question-mark-perms-in-opt-csw /opt/csw/share
+CSWpxupgrade: pkgmap-question-mark-perms-in-opt-csw /opt/csw/share/man
+CSWpxupgrade: pkgmap-question-mark-perms-in-opt-csw /opt/csw/share/man/man1
+CSWpxupgrade: surplus-dependency CSWschilybase

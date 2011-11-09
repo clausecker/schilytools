@@ -27,10 +27,10 @@
 /*
  * This file contains modifications Copyright 2009 J. Schilling
  *
- * @(#)getser.c	1.3 09/11/08 J. Schilling
+ * @(#)getser.c	1.4 11/10/15 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)getser.c 1.3 09/11/08 J. Schilling"
+#pragma ident "@(#)getser.c 1.4 11/10/15 J. Schilling"
 #endif
 /*
  * @(#)getser.c 1.7 06/12/12
@@ -50,11 +50,10 @@ register struct packet *pkt;
 	register struct idel *rdp;
 	int n, ser, def;
 	char *p;
-	extern char *Sflags[];
 
 	def = 0;
 	if (pkt->p_reqsid.s_rel == 0) {
-		if ((p = Sflags[DEFTFLAG - 'a']) != NULL)
+		if ((p = pkt->p_sflags[DEFTFLAG - 'a']) != NULL)
 			chksid(sid_ab(p, &pkt->p_reqsid), &pkt->p_reqsid);
 		else {
 			pkt->p_reqsid.s_rel = MAX;

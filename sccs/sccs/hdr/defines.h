@@ -1,4 +1,3 @@
-
 /*
  * CDDL HEADER START
  *
@@ -26,14 +25,14 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2011 J. Schilling
+ * Copyright 2006-2011 J. Schilling
  *
- * @(#)defines.h	1.49 11/08/27 J. Schilling
+ * @(#)defines.h	1.67 11/11/01 J. Schilling
  */
 #ifndef	_HDR_DEFINES_H
 #define	_HDR_DEFINES_H
 #if defined(sun)
-#pragma ident "@(#)defines.h 1.49 11/08/27 J. Schilling"
+#pragma ident "@(#)defines.h 1.67 11/11/01 J. Schilling"
 #endif
 /*
  * @(#)defines.h 1.21 06/12/12
@@ -61,6 +60,15 @@
 # undef		abs
 # include	<fatal.h>
 # include	<schily/time.h>
+
+#ifdef	HAVE_LONG_LONG
+typedef	unsigned long long urand_t;
+#else
+typedef struct urand {
+	unsigned int	high;
+	unsigned int	low;
+} urand_t;
+#endif
 
 #ifdef	HAVE_VAR_TIMEZONE
 #ifndef	HAVE_VAR_TIMEZONE_DEF		/* IRIX has extern time_t timezone */
@@ -106,7 +114,8 @@ extern char *optarg;
 #define	MAXPATHLEN	PATH_MAX
 #endif
 
-#if	defined(NEED_PRINTF_J) && !defined(HAVE_PRINTF_J)
+#if	(!defined(HAVE_SNPRINTF) && !defined(NO_SNPRINTF)) || \
+	defined(NEED_PRINTF_J) && !defined(HAVE_PRINTF_J)
 #define	NEED_SCHILY_PRINT	/* We need defines for js_snprintf() */
 #endif
 
@@ -117,9 +126,7 @@ extern char *optarg;
 #ifdef	NEED_SCHILY_PRINT
 #define	SCHILY_PRINT
 #endif
-#define	error	__js_error__		/* SCCS error differs from schily.h */
 #include	<schily/schily.h>
-#undef	error				/* SCCS only uses the SCCS error() */
 
 /*
  * SCCS was written in 1972. It supports 2 digit year strings from 1969..2068.
@@ -135,9 +142,11 @@ extern char *optarg;
 #define	_Y2038		0x47800000	/* Jan 6th 2008 for tests */
 #endif
 #define	_Y1969		(-31536000)	/* Jan 1  1969 00:00:00 GMT */
-extern time_t	Y2069;
-extern time_t	Y2038;
-extern time_t	Y1969;
+
+extern time_t	Y2069;			/* defined in lib/comobj/src/xtzset.c */
+extern time_t	Y2038;			/* defined in lib/comobj/src/xtzset.c */
+extern time_t	Y1969;			/* defined in lib/comobj/src/xtzset.c */
+
 #if SIZEOF_TIME_T == 4			/* a 32 bit program: */
 #define	MAX_TIME	(time_t)_YM2038	/* max positive long */
 #else					/* a 64 bit or larger program: */
@@ -173,19 +182,12 @@ extern time_t	Y1969;
 #define	LOWER(c)	((c) >= 'a' && (c) <= 'z')
 #define	UPPER(c)	((c) >= 'A' && (c) <= 'Z')
 #define	ALPHA(c)	(LOWER(c) || UPPER(c))
-#define	fdx(c)	((c)-'a')	/* Flag array index (e.g. for Sflags)	    */
+#define	fdx(c)	((c)-'a')	/* Flag array index (e.g. for p_sflags)	    */
 
-#if	defined(IS_MACOS_X)
 /*
- * Quick and dirty hack to work around a bug in the Mac OS X linker
+ * Definition kept in lib to work around a bug in the Mac OS X linker
  */
-char	*Sflags[NFLAGS];	/* sync with lib/comobj/src/permiss.c */
-char	SCOx;			/* sync with lib/comobj/src/permiss.c */
-char	saveid[50];		/* sync with lib/comobj/src/logname.c */
-time_t	Y2069;			/* sync with lib/comobj/src/tzset.c   */
-time_t	Y2038;			/* sync with lib/comobj/src/tzset.c   */
-time_t	Y1969;			/* sync with lib/comobj/src/tzset.c   */
-#endif
+extern	char	saveid[50];	/* defined in lib/comobj/src/logname.c */
 
 # define FLAG		'f'	/* ^Af	the begin of a flag line	    */
 # define NULLFLAG	'n'	/* ^Af n create null deltas for skipped rel */
@@ -234,6 +236,16 @@ time_t	Y1969;			/* sync with lib/comobj/src/tzset.c   */
 # define SCCS_CREAT_ATTEMPTS	4       /* maximum number of create attempts  */
 
 /*
+ * The third argument for the function flushto() controls whether the data
+ * is only read or whether is is copied. FLUSH_COPY copies all lines including
+ * the matching final line. FLUSH_COPY_UNTIL does not copy the matching final
+ * line.
+ */
+# define FLUSH_COPY		0	/* Copy all read lines until match */
+# define FLUSH_NOCOPY		1	/* Skip all read lines until match */
+# define FLUSH_COPY_UNTIL	2	/* Copy read lines until before match */
+
+/*
 	SCCS Internal Structures.
 */
 
@@ -261,6 +273,10 @@ typedef struct dtime {
 #define	DT_LSTRSIZE	20	/* "2011/08/18 10:54:30"		*/
 #define	DT_ZSTRSIZE	35	/* "2011/08/18 10:54:30.123456789+0200"	*/
 
+/*
+ * An array of struct apply[maxser+1] is allocated by dodelt() and assigned to
+ * pkt->p_apply
+ */
 struct apply {
 	char	a_inline;	/* in the line of normally applied deltas */
 	char	a_code;		/* APPLY, NOAPPLY or SX_EMPTY */
@@ -321,6 +337,10 @@ struct	ixg {
 	int	i_ser[1];
 };
 
+/*
+ * An array of struct idel[maxser+1] is allocated by dodelt() and assigned to
+ * pkt->p_idel
+ */
 struct	idel {
 	struct	sid	i_sid;
 	struct	ixg	*i_ixg;
@@ -362,6 +382,7 @@ struct packet {
 	struct	sid p_reqsid;	/* requested SID, then new SID */
 	struct	sid p_gotsid;	/* gotten SID */
 	struct	sid p_inssid;	/* SID which inserted current line */
+	char	*p_sflags[NFLAGS]; /* SCCS s.file flags */
 	char	p_verbose;	/* verbose flags (see #define's below) */
 	char	p_upd;		/* update flag (!0 = update mode) */
 	char	p_flags;	/* general flags see below */
@@ -370,6 +391,8 @@ struct packet {
 	int	p_ihash;	/* initial (input) hash */
 	int	p_chash;	/* current (input) hash */
 	int	p_uchash;	/* current unsigned (input) hash */
+	int	p_clhash;	/* current (input) line hash */
+	int	p_uclhash;	/* current unsigned (input) line hash */
 	int	p_nhash;	/* new (output) hash */
 	int	p_ghash;	/* current gfile hash */
 	int	p_glines;	/* number of lines in current gfile */
@@ -377,12 +400,17 @@ struct packet {
 	int	p_slnno;	/* line number of current input line */
 	char	p_wrttn;	/* written flag (!0 = written) */
 	char	p_keep;		/* keep switch for readmod() */
+	char	p_encoding;	/* encoding flags for data */
+	char	p_xcreate;	/* output file created, first line written */
+	uint16_t *p_hash;	/* ptr to array of checksums */
 	struct	apply *p_apply;	/* ptr to apply array */
 	struct	queue *p_q;	/* ptr to control queue */
 	FILE	*p_iop;		/* input file */
+	FILE	*p_xiop;	/* output file */
 #ifndef	HAVE_SETVBUF
 	char	p_buf[BUFSIZ];	/* input file buffer */
 #endif
+	char	*p_linebase;	/* base addr of malloc()ed line */
 	char	*p_lineptr;	/* begin of line past escape process */
 	char	*p_line;	/* buffer for getline() */
 	size_t	p_line_length;	/* actual line length for getline() */
@@ -399,6 +427,22 @@ struct packet {
 	int	p_reopen;	/* reopen flag used by getline on eof */
 	int	p_ixuser;	/* HADI | HADX (in get) */
 	int	do_chksum;	/* for getline(), 1 = do check sum */
+	/*
+	 * Global meta data
+	 */
+	char	*p_init_path;	/* Initial path relative to project set home */
+	urand_t	p_rand;		/* Unified random number for file */
+	/*
+	 * Various other s-file specific data
+	 */
+	void	(*p_enter) __PR((struct packet *pkt, int ch, int n, struct sid *sidp));
+	void	(*p_escdodelt) __PR((struct packet *pkt));
+	void	(*p_fredck) __PR((struct packet *pkt));
+	char	p_cdid_mrs;	/* for cdc to check MRs */
+	char	p_did_id;	/* whether a keyword was found */
+	char	p_first_cmt;	/* first comment encountered */
+	char	p_first_esc;	/* cdc, first time */
+	char    p_pgmr[LOGSIZE]; /* for rmdel & chghist (rmchg) */
 };
 
 /*
@@ -409,9 +453,21 @@ struct packet {
  * If we set the flag, we need to carefully compensate the systematic error
  * introduced by this hack.
  */
-#define	PF_GMT	1		/* Use GMT conversion			  */
-#define	PF_V6	2		/* Support SCCS V6 features		  */
-#define	PF_NONL	4		/* This line has no newline		  */
+#define	PF_GMT		1	/* Use GMT conversion			  */
+#define	PF_V6		2	/* Support SCCS V6 features		  */
+#define	PF_V6TAGS	4	/* SCCS V6 features found in hist file	  */
+#define	PF_NONL		8	/* This line has no newline		  */
+#define	PF_SCOX		0x10	/* SCO eXecutable flag found s.file	  */
+
+/*
+ * Encoding flags (p_encoding)
+ *
+ * The uuencoding takes place before the interleaved delta is created,
+ * the gzip compression takes place on the interleaved delta block.
+ */
+#define	EF_TEXT		0	/* Pure text in interleaved delta	  */
+#define	EF_UUENCODE	1	/* UUencoded binary in interleaved delta  */
+#define	EF_GZIP		4	/* Gzipped interleaved delta		  */
 
 /*
  * Flags to collect reasons for non-Text files also used in p_props
@@ -442,8 +498,15 @@ struct	pfile	{
 extern	char*	gf	__PR((char *));
 extern	int	sweep	__PR((int, char *, char *, int, int, int, char **, char *, char **, int (*)(char *, int, char **), int (*)(char **, char **, int)));
 extern	int	cmrcheck __PR((char *, char *));
-extern	int	deltack __PR((char [], char *, char *, char *));
-extern	void	error	__PR((const char *));
+extern	int	deltack __PR((char [], char *, char *, char *, char *[]));
+extern	void	cmrerror __PR((const char *));
+
+/*
+ * Declares for external variables in lib/comobj
+ */
+extern	char	*Comments;
+extern	char	*Mrs;
+extern	int	Domrs;
 
 /*
  Declares for external functions in lib/comobj
@@ -457,6 +520,9 @@ extern	void	finduser __PR((struct packet *));
 extern	void	permiss	__PR((struct packet *));
 extern	char*	sid_ab	__PR((char *, struct sid *));
 extern	char*	sid_ba	__PR((struct sid *, char *));
+extern	void	sidext_ab __PR((struct packet *, struct deltab *, char *));
+extern	void	sidext_v4compat_ab __PR((struct packet *, struct deltab *));
+extern	void	sidext_ba __PR((struct packet *, struct deltab *));
 extern	char*	omit_sid __PR((char *));
 extern	int	date_ab	__PR((char *, time_t *, int flags));
 extern	int	date_abz __PR((char *, dtime_t *, int flags));
@@ -478,6 +544,7 @@ extern	void	dolist	__PR((struct packet *, char *, int));
 extern	void	dohist	__PR((char *));
 extern	void	doie	__PR((struct packet *, char *, char *, char *));
 extern	void	doflags	__PR((struct packet *));
+extern	void	dometa	__PR((struct packet *));
 extern	struct idel *dodelt __PR((struct packet *, struct stats *, struct sid *, int));
 extern	void	do_file __PR((char *, void (*func)(char *), int, int));
 extern	void	fmterr	__PR((struct packet *));
@@ -492,11 +559,12 @@ extern	void	putchr	__PR((struct packet *, int c));
 extern	void	putctl	__PR((struct packet *));
 extern	void	putctlnnl __PR((struct packet *));
 extern	void	putmagic __PR((struct packet *, char *));
+extern	void	putmeta	__PR((struct packet *));
 extern	char*	logname	__PR((void));
 extern	int	mystrptime __PR((char *, struct tm *, int));
 extern	char*	savecmt	__PR((char *));
 extern	void	mrfixup	__PR((void));
-extern	void	xrm	__PR((void));
+extern	void	xrm	__PR((struct packet *));
 extern	void	flushto	__PR((struct packet *, int, int));
 extern	void	flushline __PR((struct packet *, struct stats *));
 extern	int 	chkid	__PR((char *, char *, char *[]));
@@ -524,6 +592,15 @@ extern	int		ssum __PR((char *, int));
 extern	unsigned int	usum __PR((char *, int));
 
 /*
+ * Declares for external variables in lib/mpwlib
+ */
+extern	char	SccsError[MAXERRORLEN];
+extern	char    *setrhome; 
+extern	char    *setahome; 
+extern	char    *cwdprefix; 
+extern	int     homedist; 
+
+/*
  Declares for external functions in lib/mpwlib
 */
 
@@ -531,7 +608,7 @@ extern	int	any	__PR((int, char *));
 #ifdef	HAVE_STRCHR
 #define	any(c, s)	strchr(s, c)
 #endif
-extern	char	*abspath __PR((char *));
+extern	char	*fixpath __PR((char *));
 extern	char	*sname	__PR((char *));
 extern	char	*cat	__PR((char *dest, ...));
 extern	char	*dname	__PR((char *));
@@ -544,6 +621,7 @@ extern	char	*zero	__PR((char *, int));
 extern	void	*fmalloc __PR((unsigned));
 extern	void	ffree	__PR((void *));
 extern	void	ffreeall __PR((void));
+extern	int	efatal	__PR((char *));
 extern	int	fatal	__PR((char *));
 extern	int	lockit	__PR((char *, int, pid_t, char *));
 extern	int	unlockit __PR((char *, pid_t, char *));
@@ -562,6 +640,8 @@ extern	int	check_permission_SccsDir __PR((char *));
 extern  char*	get_Sccs_Comments __PR((void));
 extern	int	userexit __PR((int code));
 extern	void	*zrealloc __PR((void *ptr, size_t amt));
+extern	int	urandom	__PR((urand_t *urp));
+extern	int	sethome	__PR((void));
 
 #ifdef	DBG_MALLOC
 extern	void	*dbg_fmalloc __PR((unsigned, char *, int));
@@ -575,12 +655,10 @@ extern	void	*dbg_fmalloc __PR((unsigned, char *, int));
 #endif
 
 /*
- * Exported from vaious programs in /usr/ccs/bin
+ * Setup a callback for fatal() from libmpw
  */
-extern	void    clean_up __PR((void));
-extern	void	escdodelt __PR((struct packet *pkt));
-extern	void	fredck	__PR((struct packet *pkt));
-extern	void	enter	__PR((struct packet *pkt, int ch, int n, struct sid *sidp));
+extern	void	set_clean_up	__PR((void (*f)(void)));
+
 
 # define RESPSIZE	1024
 # define NVARGS		64
@@ -625,6 +703,19 @@ static inline int xfclose(f)
 	return (ret);
 }
 #define	fclose(f)	xfclose(f)
+#endif
+
+#if !defined(HAVE_MEMSET) && !defined(memset)
+#define	memset(s, c, n)		fillbytes(s, n, c)
+#endif
+#if !defined(HAVE_MEMCHR) && !defined(memchr)
+#define	memchr(s, c, n)		findbytes(s, n, c)
+#endif
+#if !defined(HAVE_MEMCPY) && !defined(memcpy)
+#define	memcpy(s1, s2, n)	movebytes(s2, s1, n)
+#endif
+#if !defined(HAVE_MEMMOVE) && !defined(memmove)
+#define	memmove(s1, s2, n)	movebytes(s2, s1, n)
 #endif
 
 #endif	/* _HDR_DEFINES_H */

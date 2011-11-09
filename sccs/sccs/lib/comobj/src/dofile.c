@@ -25,12 +25,12 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2011 J. Schilling
+ * Copyright 2006-2011 J. Schilling
  *
- * @(#)dofile.c	1.9 11/07/04 J. Schilling
+ * @(#)dofile.c	1.10 11/10/13 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)dofile.c 1.9 11/07/04 J. Schilling"
+#pragma ident "@(#)dofile.c 1.10 11/10/13 J. Schilling"
 #endif
 /*
  * @(#)dofile.c 1.12 06/12/12
@@ -65,6 +65,9 @@ int need_sdot;		/* Skip non s. files */
 	DIR	*dirf;
 	struct dirent *dir[2];
 
+	had_standinp = 0;
+	had_dir = 0;
+
 	if ((p[0] == '-' ) && (!p[1])) {
 		/* this is make sure that the arguements starting with
 		** a hyphen are handled as regular files and stdin
@@ -79,6 +82,7 @@ int need_sdot;		/* Skip non s. files */
 			if (l >= 0 && ibuf[l] == '\n')
 				ibuf[l] = '\0';
 
+			had_dir = 0;
 			if (exists(ibuf) && (Statbuf.st_mode & S_IFMT) == S_IFDIR) {
 				had_dir = 1;
 				Ffile = ibuf;

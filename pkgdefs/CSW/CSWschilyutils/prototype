@@ -65,4 +65,3 @@ f none share/man/man8/sformat.8 0444 root bin
 d none share/doc ? ? ?
 d none share/doc/schilyutils 0755 root bin
 f none share/doc/schilyutils/dotfiles.tar.bz2 0644 root bin
-s none man=share/man

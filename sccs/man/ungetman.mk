@@ -1,4 +1,4 @@
-#ident @(#)ungetman.mk	1.1 07/02/10 
+#ident @(#)ungetman.mk	1.2 11/10/12 
 ###########################################################################
 # Sample makefile for installing manual pages
 ###########################################################################
@@ -12,6 +12,8 @@ TARGETMAN=	unget
 MANSECT=	$(MANSECT_CMD)
 MANSUFFIX=	$(MANSUFF_CMD)
 MANFILE=	unget.1
+
+unget.1.html: sccs-unget.1
 
 ###########################################################################
 include		$(SRCROOT)/$(RULESDIR)/rules.man

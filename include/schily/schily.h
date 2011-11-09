@@ -1,4 +1,4 @@
-/* @(#)schily.h	1.98 11/08/03 Copyright 1985-2011 J. Schilling */
+/* @(#)schily.h	1.103 11/11/08 Copyright 1985-2011 J. Schilling */
 /*
  *	Definitions for libschily
  *
@@ -165,6 +165,10 @@ extern	int	js_fspawnl __PR((FILE *, FILE *, FILE *, const char *, ...));
 extern	int	js_fspawnv_nowait __PR((FILE *, FILE *, FILE *,
 					const char *, int, char *const*));
 extern	int	js_fgetline __PR((FILE *, char *, int));
+#ifdef	FOUND_SIZE_T
+extern	ssize_t	fgetaline __PR((FILE *, char **, size_t *));
+extern	ssize_t	getaline __PR((char **, size_t *));
+#endif
 extern	int	fgetstr __PR((FILE *, char *, int));
 extern	int	file_getraise __PR((FILE *));
 extern	void	file_raise __PR((FILE *, int));
@@ -213,6 +217,39 @@ extern	int	spawnv_nowait __PR((FILE *, FILE *, FILE *,
 					const char *, int, char *const*));
 #endif	/* __never_def__ */
 #endif	/* EOF */
+
+#ifdef	FOUND_SIZE_T
+extern	char	*abspath __PR((const char *relp, char *absp, size_t asize));
+extern	char	*absnpath __PR((const char *relp, char *absp, size_t asize));
+#ifndef	HAVE_RESOLVEPATH
+extern	int	resolvepath __PR((const char *__path, char *__buf, size_t __bufsiz));
+#endif
+extern	int	resolvenpath __PR((const char *__path, char *__buf, size_t __bufsiz));
+#endif
+
+#ifdef	_SCHILY_TYPES_H
+extern	int	mkdirs __PR((char *, mode_t));
+extern	int	makedirs __PR((char *, mode_t, int __striplast));
+#endif
+
+extern	int	lxchdir	__PR((char *));
+#ifdef	HAVE_FCHDIR
+#define	fdsetname(fd, name)
+#define	fdclosename(fd)
+#else
+extern	int	fdsetname __PR((int fd, const char *name));
+extern	int	fdclosename __PR((int fd));
+#endif
+
+struct save_wd {
+	int	fd;
+	char	*name;
+};
+
+extern int	savewd	__PR((struct save_wd *sp));
+extern void	closewd	__PR((struct save_wd *sp));
+extern int	restorewd __PR((struct save_wd *sp));
+
 
 #ifdef	_SCHILY_UTYPES_H
 typedef struct gnmult {
@@ -410,6 +447,7 @@ extern	int	qftofs __PR((char *, long double, int, int));
 /*PRINTFLIKE2*/
 extern	int	js_fprintf	__PR((FILE *, const char *, ...))
 							__printflike__(2, 3);
+#endif	/* EOF */
 /*PRINTFLIKE1*/
 extern	int	js_printf	__PR((const char *, ...)) __printflike__(1, 2);
 #ifdef	FOUND_SIZE_T
@@ -420,7 +458,6 @@ extern	int	js_snprintf	__PR((char *, size_t, const char *, ...))
 /*PRINTFLIKE2*/
 extern	int	js_sprintf	__PR((char *, const char *, ...))
 							__printflike__(2, 3);
-#endif	/* EOF */
 
 #ifdef	FOUND_SIZE_T
 extern	void	swabbytes	__PR((void *, ssize_t));

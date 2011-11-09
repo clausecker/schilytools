@@ -1,4 +1,8 @@
-h62219
+h11959
+s 00003/00003/00127
+d D 1.2 11/10/21 23:07:39 joerg 2 1
+c prs -d:DI: Tests sind nun POSIX konform
+e
 s 00130/00000/00000
 d D 1.1 10/04/29 02:05:14 joerg 1 0
 c date and time created 10/04/29 02:05:14 by joerg
@@ -50,7 +54,12 @@ expands_to X1l :L:      "1\n"
 expands_to X1b :B:      "\n"
 expands_to X1s :S:      "\n"
 expands_to X2  :BF:     "no\n"
+D 2
 expands_to X3  :DI:     "\n"
+E 2
+I 2
+expands_to X3  :DI:     "//\n"
+E 2
 expands_to X4  :DL:     "00000/00000/00000\n"
 expands_to X5  :DT:     "D\n"
 expands_to X7  :J:      "no\n"
@@ -130,11 +139,21 @@ expands_to K13 ':LK:'   '1\n'
 expands_to K14 ':Q:'   'QFLAG\n'
 
 
+D 2
 expands_to K15 ':DI:'   '/2 1\n'
+E 2
+I 2
+expands_to K15 ':DI:'   '/2 1/\n'
+E 2
 
 sid=1.6
 
+D 2
 expands_to K16 ':DI:'   '3/2 1\n'
+E 2
+I 2
+expands_to K16 ':DI:'   '3/2 1/\n'
+E 2
 
 ## 
 ## 

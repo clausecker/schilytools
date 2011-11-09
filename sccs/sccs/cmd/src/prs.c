@@ -25,12 +25,12 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2011 J. Schilling
+ * Copyright 2006-2011 J. Schilling
  *
- * @(#)prs.c	1.31 11/08/21 J. Schilling
+ * @(#)prs.c	1.39 11/10/21 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)prs.c 1.31 11/08/21 J. Schilling"
+#pragma ident "@(#)prs.c 1.39 11/10/21 J. Schilling"
 #endif
 /*
  * @(#)prs.c 1.33 06/12/12
@@ -75,10 +75,6 @@
 # include	<schily/vfork.h>
 # include	<schily/sysexits.h>
 
-struct stat Statbuf;
-char Null[1];
-char SccsError[MAXERRORLEN];
-
 #if	defined(PROTOTYPES) && defined(INS_BASE)
 static char	Getpgmp[]   =   NOGETTEXT(INS_BASE "/ccs/bin/" "get");
 #endif
@@ -97,18 +93,19 @@ static char	*Deltatime;
 static char	tempskel[]   =   NOGETTEXT("/tmp/prXXXXXX");	/* used to generate temp
 						   file names
 						*/
-struct	sid	sid;
+static struct	sid	sid;
 
 static char	untmp[32], uttmp[32], cmtmp[32];
-static char	mrtmp[32], bdtmp[32];
+static char	mrtmp[32], sxtmp[32], bdtmp[32];
 static FILE	*UNiop;
 static FILE	*UTiop;
 static FILE	*CMiop;
 static FILE	*MRiop;
+static FILE	*SXiop;
 static FILE	*BDiop;
 static char	line[BUFSIZ];
 static int	num_files;
-static int	HAD_CM, HAD_MR, HAD_FD, HAD_BD, HAD_UN;
+static int	HAD_CM, HAD_MR, HAD_SX, HAD_FD, HAD_BD, HAD_UN;
 static char	dt_line[BUFSIZ];
 static char	*dataspec = &defline[0];
 static char	iline[BUFSIZ], xline[BUFSIZ], gline[BUFSIZ];
@@ -117,7 +114,7 @@ static struct	tm	*Dtime;
 static struct tm 	Date_time;
 static struct tm 	Del_Date_time;
 
-	void    clean_up __PR((void));
+static void	clean_up __PR((void));
 
 	int	main __PR((int argc, char **argv));
 static void	process __PR((char *file));
@@ -140,6 +137,7 @@ static void	idsetup __PR((struct sid *gsid, struct packet *pkt, struct deltab *d
 static void	idsetup __PR((struct sid *gsid, struct packet *pkt, time_t *bdate));
 #endif
 static void	putmr __PR((char *cp));
+static void	putsx __PR((char *cp));
 static void	putcom __PR((char *cp));
 static void	read_to __PR((int ch, struct packet *pkt));
 static void	printflags __PR((void));
@@ -181,6 +179,7 @@ char *argv[];
 	Set flags for 'fatal' to issue message, call clean-up
 	routine, and terminate processing.
 	*/
+	set_clean_up(clean_up);
 	Fflags = FTLMSG | FTLCLN | FTLEXIT;
 
 	/*
@@ -385,7 +384,7 @@ register	char	*file;
 	else read_to(EUSERNAM,&gpkt);
 
 	/*
-	store flags (if any) into global array called 'Sflags'
+	store flags (if any) into array called 'gpkt.p_sflags'
 	*/
 
 	doflags(&gpkt);
@@ -525,6 +524,8 @@ register struct packet *pkt;
 			MRiop = maket(mrtmp);
 		if (HAD_CM)
 			CMiop = maket(cmtmp);
+		if (HAD_SX)
+			SXiop = maket(sxtmp);
 		/*
 		Read rest of delta entry. 
 		*/
@@ -546,6 +547,10 @@ register struct packet *pkt;
 					if (HAD_MR)
 						putmr(n);
 					continue;
+				case SIDEXTENS:
+					if (HAD_SX)
+						putsx(n);
+					continue;
 				case COMMENTS:
 					if (HAD_CM)
 						putcom(n);
@@ -564,12 +569,18 @@ register struct packet *pkt;
 							fclose(CMiop);
 						CMiop = NULL;
 					}
+					if (HAD_SX) {
+						if (SXiop)
+							fclose(SXiop);
+						SXiop = NULL;
+					}
 					scanspec(dataspec,&dt,&stats);
 					/*
 					remove temp files for MRs and comments
 					*/
 					unlink(mrtmp);
 					unlink(cmtmp);
+					unlink(sxtmp);
 					break;
 				default:
 					fmterr(pkt);
@@ -589,7 +600,6 @@ register struct packet *pkt;
  * immediately.
 */
 
-extern	char	*Sflags[];
 static	char	Zkywd[5]   =   "@(#)";
 
 static void
@@ -664,7 +674,7 @@ struct	stats	*statp;
 				printf("%s",Qsect);
 				break;
 			case 'J':	/* joint edit flag */
-				if (Sflags[JOINTFLAG - 'a'])
+				if (gpkt.p_sflags[JOINTFLAG - 'a'])
 					printf(gettext("yes"));
 				else printf(gettext("no"));
 				break;
@@ -760,11 +770,23 @@ struct	stats	*statp;
 				printf("%d",dtp->d_pred);
 				break;
 			case 256*'I'+'D':	/* :DI: Deltas included,excluded,ignored */
+#ifdef	ATT_BUG
+				/*
+				 * This has been introduced around 1984.
+				 */
 				printf("%s",iline);
 				if (length(xline))
 					printf("/%s",xline);
 				if (length(gline))
 					printf("/%s",gline);
+#else
+				/*
+				 * This is the POSIX compliant behavior.
+				 */
+				printf("%s",iline);
+				printf("/%s",xline);
+				printf("/%s",gline);
+#endif
 				break;
 			case 256*'n'+'D':	/* :Dn: Deltas included */
 				printf("%s",iline);
@@ -776,7 +798,7 @@ struct	stats	*statp;
 				printf("%s",gline);
 				break;
 			case 256*'K'+'L':	/* :LK: locked releases */
-				if ((k = Sflags[LOCKFLAG - 'a']) != NULL)
+				if ((k = gpkt.p_sflags[LOCKFLAG - 'a']) != NULL)
 					printf("%s",k);
 				else printf(gettext("none"));
 				break;
@@ -785,13 +807,17 @@ struct	stats	*statp;
 					printfile(mrtmp);
 				break;
 			case 256*'C'+'M':  /* :MC: cmf flag yes or no */
-				if(Sflags[CMFFLAG - 'a'])
+				if (gpkt.p_sflags[CMFFLAG - 'a'])
 					printf(gettext("yes"));
 				else
 					printf(gettext("no"));
 				break;
+			case 256*'X'+'S':	/* :SX: SID Extensions */
+				if (exists(sxtmp))
+					printfile(sxtmp);
+				break;
 			case 256*'C'+'A':  /* :AC: cmf application field */
-				if((k = Sflags[CMFFLAG - 'a']) == NULL)
+				if ((k = gpkt.p_sflags[CMFFLAG - 'a']) == NULL)
 					printf(gettext("none"));
 				else
 					printf("%s",k);
@@ -801,42 +827,42 @@ struct	stats	*statp;
 					printfile(untmp);
 				break;
 			case 256*'F'+'M':	/* :MF: MR validation flag */
-				if (Sflags[VALFLAG - 'a'])
+				if (gpkt.p_sflags[VALFLAG - 'a'])
 					printf(gettext("yes"));
 				else printf(gettext("no"));
 				break;
 			case 256*'P'+'M':	/* :MP: MR validation program */
-				if ((k = Sflags[VALFLAG - 'a']) == NULL)
+				if ((k = gpkt.p_sflags[VALFLAG - 'a']) == NULL)
 					printf(gettext("none"));
 				else printf("%s",k);
 				break;
 			case 256*'F'+'K':	/* :KF: Keyword err/warn flag */
-				if (Sflags[IDFLAG - 'a'])
+				if (gpkt.p_sflags[IDFLAG - 'a'])
 					printf(gettext("yes"));
 				else printf(gettext("no"));
 				break;
 			case 256*'F'+'B':	/* :BF: Branch flag */
-				if (Sflags[BRCHFLAG - 'a'])
+				if (gpkt.p_sflags[BRCHFLAG - 'a'])
 					printf(gettext("yes"));
 				else printf(gettext("no"));
 				break;
 			case 256*'B'+'F':	/* :FB: Floor Boundry */
-				if ((k = Sflags[FLORFLAG - 'a']) != NULL)
+				if ((k =gpkt.p_sflags[FLORFLAG - 'a']) != NULL)
 					printf("%s",k);
 				else printf(gettext("none"));
 				break;
 			case 256*'B'+'C':	/* :CB: Ceiling Boundry */
-				if ((k = Sflags[CEILFLAG - 'a']) != NULL)
+				if ((k = gpkt.p_sflags[CEILFLAG - 'a']) != NULL)
 					printf("%s",k);
 				else printf(gettext("none"));
 				break;
 			case 256*'s'+'D':	/* :Ds: Default SID */
-				if ((k = Sflags[DEFTFLAG - 'a']) != NULL)
+				if ((k = gpkt.p_sflags[DEFTFLAG - 'a']) != NULL)
 					printf("%s",k);
 				else printf(gettext("none"));
 				break;
 			case 256*'D'+'N':	/* :ND: Null delta */
-				if (Sflags[NULLFLAG - 'a'])
+				if (gpkt.p_sflags[NULLFLAG - 'a'])
 					printf(gettext("yes"));
 				else printf(gettext("no"));
 				break;
@@ -940,16 +966,17 @@ struct	stats	*statp;
  * 'process' that are used for data keyword substitution
 */
 
-void
+static void
 clean_up()
 {
 	if (gpkt.p_iop) {	/* if SCCS file is open, close it */
 		fclose(gpkt.p_iop);
 		gpkt.p_iop = NULL;
 	}
-	xrm();		      /* remove the 'packet' used for this SCCS file */
+	xrm(&gpkt);	      /* remove the 'packet' used for this SCCS file */
 	unlink(mrtmp);		/* remove all temporary files from /tmp */
 	unlink(cmtmp);		/*			"		*/
+	unlink(sxtmp);		/*			"		*/
 	unlink(untmp);		/*			"		*/
 	unlink(uttmp);		/*			"		*/
 	unlink(bdtmp);		/*			"		*/
@@ -1071,6 +1098,7 @@ register struct packet *pkt;
 				case EXCLUDE:
 				case IGNORE:
 				case MRNUM:
+				case SIDEXTENS:
 				case COMMENTS:
 					continue;
 				default:
@@ -1410,12 +1438,12 @@ time_t	*bdate;
 #if !(defined(BUG_1205145) || defined(GMT_TIME))
 	Dtime = localtime(bdate);
 #endif
-	if ((p = Sflags[MODFLAG - 'a']) != NULL)
+	if ((p = pkt->p_sflags[MODFLAG - 'a']) != NULL)
 		copy(p,Mod);
 	else sprintf(Mod,"%s",auxf(pkt->p_file,'g'));
-	if ((Type = Sflags[TYPEFLAG - 'a']) == NULL)
+	if ((Type = pkt->p_sflags[TYPEFLAG - 'a']) == NULL)
 		Type = Null;
-	if ((Qsect = Sflags[QSECTFLAG - 'a']) == NULL)
+	if ((Qsect = pkt->p_sflags[QSECTFLAG - 'a']) == NULL)
 		Qsect = Null;
 }
 
@@ -1441,6 +1469,31 @@ register char	*cp;
 
 	if (fputs(cp,MRiop) == EOF) {
 		xmsg(mrtmp, NOGETTEXT("putmr"));
+	}
+}
+
+
+/*
+ * This procedure places any SID extensions that are found in the delta table
+ * entry * into the temporary file created for that express purpose
+ * (/tmp/prXXXXXX).
+ */
+static void
+putsx(cp)
+register char	*cp;
+{
+
+	cp += 3;
+
+	if (!(*cp) || (*cp == '\n')) {
+		if (SXiop)
+			fclose(SXiop);
+		SXiop = NULL;
+		return;
+	}
+
+	if (fputs(cp, SXiop) == EOF) {
+		xmsg(sxtmp, NOGETTEXT("putsx"));
 	}
 }
 
@@ -1492,53 +1545,58 @@ static void
 printflags()
 {
 	register	char	*k;
+	register	char	**sflags = gpkt.p_sflags;
 
-	if (Sflags[BRCHFLAG - 'a'])	/* check for 'branch' flag */
+	if (sflags[BRCHFLAG - 'a'])			/* check for 'branch' flag */
 		printf(gettext("branch\n"));
-	if ((k = (Sflags[CEILFLAG - 'a'])) != NULL)	/* check for 'ceiling flag */
+	if ((k = (sflags[CEILFLAG - 'a'])) != NULL)	/* check for 'ceiling flag */
 		printf(gettext("ceiling\t%s\n"), k);
-	if ((k = (Sflags[DEFTFLAG - 'a'])) != NULL)  /* check for 'default SID' flag */
+	if ((k = (sflags[DEFTFLAG - 'a'])) != NULL)	/* check for 'default SID' flag */
 		printf(gettext("default SID\t%s\n"), k);
-	if ((k = (Sflags[ENCODEFLAG - 'a'])) != NULL) {	/* check for 'encoded' flag */
+	if ((k = (sflags[ENCODEFLAG - 'a'])) != NULL) {	/* check for 'encoded' flag */
+		int	i;
+
+		NONBLANK(k);
+		k = satoi(k, &i);
 		/*
 		 * The semantics of this flag are unusual: report its
 		 * existence only if an operand with value '1' is present.
 		 * Yes, the test below is sloppy...
 		 */
-		if (*k == '1')
+		if (*k == '\0' && (i & EF_UUENCODE))
 			printf(gettext("encoded\n"));
 	}
-	if ((k = (Sflags[FLORFLAG - 'a'])) != NULL)	/* check for 'floor' flag */
+	if ((k = (sflags[FLORFLAG - 'a'])) != NULL)	/* check for 'floor' flag */
 		printf(gettext("floor\t%s\n"), k);
-	if (Sflags[IDFLAG - 'a'])	/* check for 'id err/warn' flag */
+	if (sflags[IDFLAG - 'a'])			/* check for 'id err/warn' flag */
 		printf(gettext("id keywd err/warn\n"));
-	if (Sflags[JOINTFLAG - 'a'])	/* check for joint edit flag */
+	if (sflags[JOINTFLAG - 'a'])			/* check for joint edit flag */
 		printf(gettext("joint edit\n"));
-	if ((k = (Sflags[LOCKFLAG - 'a'])) != NULL)	/* check for 'lock' flag */
+	if ((k = (sflags[LOCKFLAG - 'a'])) != NULL)	/* check for 'lock' flag */
 		printf(gettext("locked releases\t%s\n"), k);
-	if ((k = (Sflags[MODFLAG - 'a'])) != NULL)	/* check for 'module' flag */
+	if ((k = (sflags[MODFLAG - 'a'])) != NULL)	/* check for 'module' flag */
 		printf(gettext("module\t%s\n"), k);
-	if (Sflags[NULLFLAG - 'a'])	/* check for 'null delta' flag */
+	if (sflags[NULLFLAG - 'a'])			/* check for 'null delta' flag */
 		printf(gettext("null delta\n"));
-	if ((k = (Sflags[QSECTFLAG - 'a'])) != NULL)	/* check for 'qsect' flag */
+	if ((k = (sflags[QSECTFLAG - 'a'])) != NULL)	/* check for 'qsect' flag */
 		printf(gettext("csect name\t%s\n"), k);
-	if ((k = (Sflags[TYPEFLAG - 'a'])) != NULL)	/* check for 'type' flag */
+	if ((k = (sflags[TYPEFLAG - 'a'])) != NULL)	/* check for 'type' flag */
 		printf(gettext("type\t%s\n"), k);
-	if (Sflags[VALFLAG - 'a']) {	/* check for 'MR valid' flag */
+	if (sflags[VALFLAG - 'a']) {			/* check for 'MR valid' flag */
 		printf(gettext("validate MRs\t"));
 		/*
 		check for MR validating program
 		(optional)
 		*/
-		if ((k = (Sflags[VALFLAG - 'a'])) != NULL)
+		if ((k = (sflags[VALFLAG - 'a'])) != NULL)
 			printf("%s\n",k);
 		else putchar('\n');
 	}
-	if ((k = (Sflags[SCANFLAG - 'a'])) != NULL)	/* check for 'keywd scan lines' flag */
+	if ((k = (sflags[SCANFLAG - 'a'])) != NULL)	/* check for 'keywd scan lines' flag */
 		printf(gettext("keywd scan lines\t%s\n"), k);
-	if ((k = (Sflags[EXTENSFLAG - 'a'])) != NULL)	/* check for 'extensions' flag */
+	if ((k = (sflags[EXTENSFLAG - 'a'])) != NULL)	/* check for 'extensions' flag */
 		printf(gettext("extensions\t%s\n"), k);
-	if ((k = (Sflags[EXPANDFLAG - 'a'])) != NULL)	/* check for 'expand keywds' flag */
+	if ((k = (sflags[EXPANDFLAG - 'a'])) != NULL)	/* check for 'expand keywds' flag */
 		printf(gettext("expand keywds\t%s\n"), k);
 	return;
 }
@@ -1557,6 +1615,8 @@ register char *p;
 		HAD_CM = 1;
 	if (sccs_index(p,NOGETTEXT(":MR:")) != -1)	/* check for MR keyword */
 		HAD_MR = 1;
+	if (sccs_index(p,NOGETTEXT(":SX:")) != -1)	/* check for SX keyword */
+		HAD_SX = 1;
 	if (sccs_index(p,NOGETTEXT(":UN:")) != -1)	/* check for User name keyword */
 		HAD_UN = 1;
 	if (sccs_index(p,NOGETTEXT(":FD:")) != -1)	/* check for descriptive text kyword */

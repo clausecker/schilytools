@@ -1,8 +1,8 @@
-/* @(#)walk.c	1.43 11/07/10 Copyright 2004-2011 J. Schilling */
+/* @(#)walk.c	1.44 11/10/19 Copyright 2004-2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)walk.c	1.43 11/07/10 Copyright 2004-2011 J. Schilling";
+	"@(#)walk.c	1.44 11/10/19 Copyright 2004-2011 J. Schilling";
 #endif
 /*
  *	Walk a directory tree
@@ -542,7 +542,7 @@ walkgethome(state)
 #ifdef	HAVE_FCHDIR
 	if (varp->Home >= 0)
 		close(varp->Home);
-	if ((varp->Home = open(".", O_RDONLY|O_NDELAY)) < 0) {
+	if ((varp->Home = open(".", O_SEARCH|O_NDELAY)) < 0) {
 		err = geterrno();
 		state->flags |= WALK_WF_NOCWD;
 		if ((state->walkflags & WALK_NOMSG) == 0)

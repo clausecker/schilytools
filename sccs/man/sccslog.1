@@ -1,4 +1,4 @@
-.\" @(#)sccslog.1	1.9 11/08/21 Copyr 1997-2007 J. Schilling
+.\" @(#)sccslog.1	1.10 11/09/09 Copyr 1997-2007 J. Schilling
 .\" Manual page for sccslog
 .\"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -13,7 +13,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sccslog 1 "2011/08/21" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH sccslog 1 "2011/09/09" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 sccslog \- create a changelog from SCCS history files
 .SH SYNOPSIS
@@ -39,7 +39,7 @@ as one log table entry in case the related delta time for the files differs
 no more than one day. With 
 .BR \-a ,
 .B sccslog
-collects only those deltas that have been created witing 60 seconds.
+collects only those deltas that have been created within 60 seconds.
 .TP
 .B \-aa
 With 

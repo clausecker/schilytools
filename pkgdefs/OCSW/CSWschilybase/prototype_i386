@@ -1,0 +1,5 @@
+!include prototype_com
+d none include/schily/i386-sunos5-cc 2755 root bin
+f none include/schily/i386-sunos5-cc/xconfig.h 0444 root bin
+f none include/schily/i386-sunos5-cc/align.h 0444 root bin
+f none include/schily/i386-sunos5-cc/avoffset.h 0444 root bin

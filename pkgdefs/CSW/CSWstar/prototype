@@ -82,4 +82,3 @@ f none share/doc/star/README.posix-2001 0644 root bin
 #f none share/doc/star/README.solaris 0644 root bin
 #f none share/doc/star/README.sunos 0644 root bin
 f none share/doc/star/STARvsGNUTAR 0644 root bin
-s none man=share/man

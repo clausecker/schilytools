@@ -1,4 +1,4 @@
-#ident @(#)Makefile	1.50 10/12/19 Copyr 1995-2008 J. Schilling
+#ident @(#)Makefile	1.52 11/09/14 Copyr 1995-2011 J. Schilling
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -19,6 +19,7 @@ CPPOPTS +=	-DFIFO
 CPPOPTS +=	-DAUINFO
 CPPOPTS +=	-DHAVE_LIB_EDC_ECC
 CPPOPTS +=	-DCLONE_WRITE
+CPPOPTS +=	-DVENDOR_CMDS
 CPPOPTS +=	-DUSE_LARGEFILES
 CPPOPTS +=	-DSCHILY_PRINT
 CPPOPTS +=	-DINS_BASE=\"${INS_BASE}\"

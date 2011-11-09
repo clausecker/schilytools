@@ -70,6 +70,9 @@ static	UConst char sccsid[] =
 #include <schily/unistd.h>
 #include <schily/utypes.h>
 #include <schily/align.h>
+#ifdef	XADEBUG
+#include <schily/string.h>
+#endif
 
 #ifndef	NO_USER_MALLOC
 #undef	malloc
@@ -257,6 +260,8 @@ LOCAL	SPACE	*init		__PR((void));
 EXPORT	void	free		__PR((void *t));
 LOCAL	BOOL	frext		__PR((size_t size));
 #ifdef	XADEBUG
+LOCAL	void	dbg_stat	__PR((void));
+LOCAL	void	dbg_enter	__PR((int dtype, size_t size, char *file, int line));
 EXPORT	void	*dbg_malloc	__PR((size_t size, char *file, int line));
 EXPORT	void	*dbg_calloc	__PR((size_t nelem, size_t elsize, char *file, int line));
 EXPORT	void	*dbg_realloc	__PR((void *t, size_t size, char *file, int line));
@@ -527,11 +532,13 @@ char	*dbg_type[4] = {
 	"calloc",
 	"reallloc"
 };
+
+#define	MS_WHICH_SIZE	100
 typedef struct mstat {
 	int	ms_type;
 	int	ms_calls;
 	size_t	ms_size;
-	char	ms_which[100];
+	char	ms_which[MS_WHICH_SIZE];
 } mstat_t;
 #define	DBG_NENT	512
 mstat_t mstat[DBG_NENT];
@@ -562,13 +569,13 @@ dbg_enter(dtype, size, file, line)
 	char	*file;
 	int	line;
 {
-	char	which[100];
+	char	which[MS_WHICH_SIZE];
 	int	i;
-static	int	init;
+static	int	einit;
 
-	if (!init) {
+	if (!einit) {
 		atexit(dbg_stat);
-		init++;
+		einit++;
 	}
 
 	snprintf(which, sizeof (which), "%s line %d", file, line);

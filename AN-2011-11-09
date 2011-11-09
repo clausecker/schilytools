@@ -1,0 +1,350 @@
+New features with AN-2011-11-09:
+
+This is the first localization step for the schily source consolidation. Many
+programs now (hopefully) call gettext() for all strings that need localization.
+
+-	The next step will include dgettext() calls for the libraries and the
+	missing programs
+
+-	The following step will include the extracted strings
+
+-	The last step will include German translations and install support
+	for the resulting binary message object files.
+
+----------> Please test and report compilation problems! <---------
+
+***** NOTE: As mentioned since 2004, frontends to the tools should *****
+*****		call all programs in the "C" locale		   *****
+*****		by e.g. calling: LC_ALL=C cdrecord ....		   *****
+*****		unless these frontends support localized strings   *****
+*****		used by the cdrtools with NLS support.		   *****
+
+-	libschily::comerr() now maps exit codes that would fold to '0' to
+	EX_CLASH which is -64
+
+-	libschily::gettimeofday() now maps to time() in case that there
+	is neither a system gettimeofday() nor GetSystemTimeAsFileTime()
+
+-	libschily/mkgmtime.c is now faster then previous release.
+	Make it also correct when tm_month < 0 or > 11.
+
+-	libschily now includes strstr() and wcsstr() for platforms where it is
+	missing.
+
+-	New files libschily/mkdirs.c and libschily/resolvepath.c
+
+-	libschily::abspath() is now based on resolvepath() and thus more correct
+	in case symlinks are part of the path.
+
+-	New libschily::fgetaline() and libschily::getaline() implement the
+	functionality of the POSIX violating "getline()" from POSIX.1-2008.
+
+-	libfind/walk.c now uses POSIX.1-2008 O_SEARCH to open directories.
+
+-	include/schily/sigset.h added new macros: blocked_sigs(),
+	block_sigs()
+
+-	patch(1) now avoids to exit(0) in case that the number of failures
+	is dividable by 256.
+
+-	patch(1) now also installs as /usr/ccs/bin/sccspatch
+
+-	patch(1) now uses mkdirs() from libschily instead of an own
+	implementation.
+
+-	Some cleanup in bsh/alloc.c
+
+-	readcd(1): Better algorithm for -edc-corr
+
+-	cdrecord man page corrected some small typos in the EXAMPLES section.
+
+-	star/longnames.c adds more workarounds against wrong buffer overflow
+	aborts from gcc.
+
+-	star/extract.c now uses access(name, F_OK) instead of access(name, 0)
+
+-	The SCCS val program no longer limits command line args to 50 files
+
+-	SCCS val now includes a new option -h to check SID specific checksums
+	from SCCS v6
+
+-	SCCS sccscvt new program to convert between SCCS v4 and SCCS v6 history
+	file format.
+
+-	SCCS sccslog now understands the enhanced time format from the 
+	SCCS v6 history file format.
+
+-	The "sccs" command now also supports "sccs cvt" for the command "sccscvt"
+
+-	The SEE ALSO section of most man pages has been reworked
+
+-	SCCS admin now computes a checksum for the file content when called
+	as admin -ifile s.file.
+
+-	SCCS admin now prints full path names in warnings when a file does not
+	end in a newline or includes a line that starts qith ^A in V6 mode.
+
+-	A POSIX compliance bug that also caused a deviation from all known
+	SCCS documentation ever published for prs(1) has been fixed:
+
+		prs -d:DI: s.file
+
+	Now prints again "//" in the standard case.
+	The related bug most likely has been introduced by AT&T around 1984
+	by replacing:
+
+		printf("%s",iline); 
+		putchar('/'); 
+		printf("%s",xline); 
+		putchar('/'); 
+		printf("%s",gline); 
+	with:
+		printf("%s",iline);
+		if (length(xline))
+			printf("/%s",xline);
+		if (length(gline))
+			printf("/%s",gline);
+
+	The related bug has been discussed in the POSIX standard committee
+	and the decision was to require the documented old behavior.
+
+-	The automated testing scripts related to the bug mentioned above
+	have been fixed to require/accept the correct POSIX compliant behavior.
+	Note that SCCS fom Sun/Orcale as found on Solaris as well as GNU CSSC
+	will no longer pass the tests.
+
+-	SCCS delta no longer reads the new file two times before adding the delta.
+
+-	SCCS delta is now more correct when checking whether a file includes
+	SCCS keywords to expand.
+
+-	SCCS delta now computes a checksum for the new SID specific content of 
+	the file.
+
+-	New SCCS SID specific history file extension "^AS ..."
+
+-	New error code "co27" allows to distinguish a general chescksum error from
+	a SID specific checksum error.
+
+-	SCCS prs -d supports :SX: to print SID specific history file extension
+
+-	SCCS prt now prints SID specific history file extensions
+
+-	SCCS val now does not print a format error message when
+	SID specific history file extensions are seen in a SCCS v6 history file
+
+-	libcomobj/date_ab.c now uses a specialized and speed up version of gN()
+	for date_ab().
+
+-	libcomobj/getline.c now uses a completely new algorithm to compute
+	the checksum with better performance.
+
+-	libcomobj/putline.c now tries to avoid to compute the checksum
+	when in copy mode.
+
+-	libcomobj/sidext_ab.c and libcomobj/sidext_ba.c new files to deal with
+	SID specific extensions.
+
+-	libcomobj/dometa.c and libcomobj/putmeta.c new files to deal with
+	SCCS v6 extensions (such as preparing to permit file renames).
+
+-	mpwlib::fixpath() now contains a warning against the limited
+	features.
+
+-	mpwlib::efatal() new function printf errno information in addition
+
+-	mpwlib/sethome.c new file with code to discover the project set home
+	directory.
+
+-	mpwlib/urandom.c new file with code that creates meta data to be used
+	in order to allow file renames.
+
+
+SCCS-5.05 is now 20% faster than SCCS-5.03.
+
+SCCS-5.05 is 2.5x faster than Sun SCCS and consumes 4.7x less CPU time than Sun SCCS.
+SCCS-5.05 is 6x faster than RCS-5.8 and consumes 7x less CPU time than RCS-5.8.
+	  For RCS files > 256 kB, add factor of 2x to CPU times when you use RCS-5.8.
+
+-	SCCS help now includes one line help for all options
+
+-	The SCCS sccsfile.4 man page now mentions the new SID specific checksum.
+
+-	The SCCS rmdel command now implements a new option -d to fully
+	discard the delta that is going to be removed. By default, the file
+	delta is removed but the related meta data from the delta is kept in
+	the delta table.
+
+-	The SCCS convert program (sccs cvt) now correctly removes the SID
+	specific extensions (like SID specific checksums) from the history
+	file if called with "-V4 -d".
+
+-	SCCS help now gives a better message when calling "sccs help" with no 
+	parameters
+
+-	SCCS help now includes one line help for all options for all SCCS commands
+
+-	The SCCS help command now gives an sccs command overview if you
+	call: "sccs help" and enter an empty line (hit RETURN) when it
+	asks: "Enter the message number or SCCS command name:"
+
+-	New program "rcs2sccs" to convert RCS history files into SCCS history
+	files. This program has been originally written by someone called
+	"kenc". It was enhanced for robustness, to support dates past 1999
+	and it now supports binary files also.
+
+-	New SCCS subcommand "istext" allows to check whether a file may
+	be archived as pure text file or whether encoding is needed.
+
+-	The SCCS convert program (sccs cvt) now correctly converts time stamps
+	from different timezones.
+
+	For converting RCS timestamps (in GMT format) that have been converted
+	into SCCS via the script "rcs2sccs" and that still are relative to GMT
+	call the following:
+
+		sccs rcs2sccs
+		TZ=GMT sccs cvt -V6 SCCS
+		sccs cvt -V4 -d SCCS
+
+	This results in SCCS v4 history files, that are in local time.
+
+	-	The first command converts all RCS history files into a SCCS v4
+		history file under the assumption that local time is GMT
+
+	-	The second command converts all SCCS v4 history files in SCCS/
+		into SCCS v6 history file
+
+-	SCCS sact now supports a -s option to suppress the error meesage in
+	case a file is not under SCCS control.
+
+-	The command "sccs fix" now supports to forward the -d option to the
+	SCCS rmdel command.
+
+-	The command "sccs unedit" now supports a -o option to get the 
+	unedited file under the timestamp that is the timestamp of the delta.
+
+-	A new command "sccs editor" was implemented to allow to automatically
+	call "sccs edit" from a hook when calling the preferred editor. This
+	permits to edit SCCS controlled files in an apparent transparent way.
+
+	If your preferred editor is "ved", call:
+
+	SCCS_EDITOR=ved
+	export SCCS_EDITOR
+	alias ved='sccs editor'
+
+	Then call: ved file
+
+-	Mention the -C option in the manpages for get(1) and delta(1)
+
+-	SCCS admin now supports to automatically rename the original file
+	to ,file (as with "sccs create") when doing bulk enters via admin -N
+
+-	The SCCS admin command now always uses resolvepath() as there now is
+	a portable user space implementaion in libschily and we no longer
+	depend on the availability of the Solaris syscall resolvepath().
+
+This new version of SCCS implements new fundamental basic features and
+meta data that is needed in order to implement changesets. The new SCCS v6
+specific metadata tags "urandom" and "path" allow futute SCCS versions to deal
+with renames and with removing of files. To check the new feature:
+
+	-	create a .sccs directory in the project set home directory.
+	-	In a directory below call admin -V6 s.xx
+	-	Check the content for s.xx
+
+-	The CSW packaging definitions in the schily makefilesystem was 
+	enhanced to permit referencing files in the package definition directory
+
+-	The SCCS delta command now correctly locks the s.file _before_ opening
+	it and thus prevents that the s.file may be replaced in a way that 
+	results in a possible lost delta.
+
+-	A previous limitation in SCCS vc(1) to a length of max 9 characters
+	for keywords has been removed.
+
+-	A previous limitation in SCCS vc(1) to max 40 keywords has been removed.
+
+-	A previous limitation in SCCS vc(1) to a line length of max 1024 characters
+	has been removed.
+
+-	The central library function auxf() that computes derived file names
+	from a s.filename has been rewritten to become safe against buffer 
+	overflows.
+
+-	The handling of programmer names in the delta table has been made safe
+	against buffer overflows.
+
+-	The SCCS help text for error "co2" now also mentions the SCCS v6 file
+	header
+
+-	The SCCS default help no longer gives a complete "sccs" subcommand list
+	but a subcommand overview.
+
+-	The SCCS sccsfile man page now mentions the undocumented "z" flag
+	in the s.file.
+
+-	The libraries comobj/cassi/mpwlib have been restructured to allow
+	shared libaries on Mac OS X with it's limited dynamic linker.
+
+	-	In future, these libraries will be pooled to a single "libsccs"
+		in order to work around the problems from the Mac OS dynamic
+		linker that is unable to support full C semantics and thus does
+		not support to link a library against calling entities.
+
+	-	Shared variable definitions have been moved from the programs
+		to the libs as the Mac OS dynamic linker is unable to link
+		program variable to be usable from a dynamic library.
+
+	-	s. file specific shared variables have been moved to
+		struct packet whereever possible.
+
+	-	s. file specific shared variables have been moved into
+		struct packet to make the library reentrant.
+
+	-	The global "clean up" callback function for fatal() that is used
+		with global context is installed via set_clean_up(function).
+
+	-	Callback functions that are used with s. file specific context
+		are now function pointers in struct packet.
+
+	The pooling of libcomobj, libcassi and libmpw to a new library "libsccs"
+	will be delayed to the time when the library interface is stable enough
+	for SCCS v6. After that time, libsccs can be made a dynamic library.
+
+The Mac OS X static linker is too silly to link in .o files from static libs
+if only a variable is referenced. The elegant workaround for this bug (using
+common variables) triggers a different bug in the dynamic linker from Mac OS
+that is unable to link common variables. This forces us to introduce funcs
+that need to be called from central places to enforce to link in the vars.
+
+
+-	The function libcassi::error() was renamed to cmrerror() in order to avoid
+	a name conflict with the older error() function from libschily.
+
+-	For operating systems with no mem*() functions, these functions are now
+	mapped to *bytes() functions from libschily.
+
+-	libschily::gettimeofday() now maps to time() in case that there
+	is neither a system gettimeofday() nor GetSystemTimeAsFileTime()
+
+-	libschily now includes an emulation for openat().
+
+-	include/schily/fcntl.h now includes O_SEARCH for POSIX.1-2008 compliance.
+
+
+
+
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.isdn.cs.tu-berlin.de, js@cs.tu-berlin.de
+	joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

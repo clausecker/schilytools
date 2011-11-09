@@ -25,12 +25,12 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2011 J. Schilling
+ * Copyright 2006-2011 J. Schilling
  *
- * @(#)rmchg.c	1.28 11/07/04 J. Schilling
+ * @(#)rmchg.c	1.36 11/10/15 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)rmchg.c 1.28 11/07/04 J. Schilling"
+#pragma ident "@(#)rmchg.c 1.36 11/10/15 J. Schilling"
 #endif
 /*
  * @(#)rmchg.c 1.19 06/12/12
@@ -82,36 +82,29 @@
 # define COPY 0
 # define NOCOPY 1
 
-struct stat Statbuf;
-char Null[1];
-char SccsError[MAXERRORLEN];
-
-struct sid sid;
+static struct sid sid;
 static int num_files;
 static char D_type;
 static char 	*Sidhold;
-char	*Mrs;
-char	*Comments;
 static char	*Darg[NVARGS];
 static char	*testcmr[25];
 static char	*Earg[NVARGS];
 static char	*NVarg[NVARGS];
-extern char *Sflags[];
 static int D_serial;
 static struct utsname un;
 static char *uuname;
 
 	int	main __PR((int argc, char **argv));
 static void	rmchg __PR((char *file));
-	void	escdodelt __PR((struct packet *pkt));
+static	void	escdodelt __PR((struct packet *pkt));
 static int	esccmfdelt __PR((struct packet *pkt));
-	void	fredck	__PR((struct packet *pkt));
+static void	fredck	__PR((struct packet *pkt));
 static int	verif __PR((char **test, struct packet *pkt));
-static int	msg __PR((char *app, char *name, char *cmrs, char *stats, char *sids, char *fred));
+static int	msg __PR((char *app, char *name, char *cmrs, char *stats, char *sids, char *fred, char *sflags[NFLAGS]));
 static int	testfred __PR((char *cmr, char *fredfile));
 static void	split_mrs __PR((void));
 static void	putmrs __PR((struct packet *pkt));
-	void    clean_up __PR((void));
+static void	clean_up __PR((void));
 static void	rdpfile __PR((struct packet *pkt, struct sid *sp));
 static void	ckmrs __PR((struct packet *pkt, char *p));
 static void	put_delmrs __PR((struct packet *pkt));
@@ -151,6 +144,7 @@ char *argv[];
 	Set flags for 'fatal' to issue message, call clean-up
 	routine, and terminate processing.
 	*/
+	set_clean_up(clean_up);
 	Fflags = FTLMSG | FTLCLN | FTLEXIT;
 
 	current_optind = 1;
@@ -173,7 +167,7 @@ char *argv[];
 			}
 			no_arg = 0;
 			i = current_optind;
-		        c = getopt(argc, argv, "-r:m:y:zqV(version)");
+		        c = getopt(argc, argv, "-r:m:y:dzqV(version)");
 
 				/* this takes care of options given after
 				** file names.
@@ -202,6 +196,8 @@ char *argv[];
 				Sidhold=p;
 				chksid(sid_ab(p,&sid),&sid);
 				break;
+			case 'd':	/* rmdel -d -> fully discard delta */
+				break;
 			case 'm':	/* MR entry */
 				Mrs = p;
 				repl(Mrs,'\n',' ');
@@ -228,7 +224,9 @@ char *argv[];
 				break;
 
 			case 'V':		/* version */
-				printf("rmchg %s-SCCS version %s %s (%s-%s-%s)\n",
+				p = sname(argv[0]);
+				printf("%s %s-SCCS version %s %s (%s-%s-%s)\n",
+					equal(p, "cdc") ? "cdc": "rmdel",
 					PROVIDER,
 					VERSION,
 					VDATE,
@@ -236,7 +234,13 @@ char *argv[];
 				exit(EX_OK);
 
 			default:
-				fatal(gettext("Usage: rmdel [ -r SID ] s.filename ..."));
+				p = sname(argv[0]);
+				if (equal(p,"cdc"))
+					fatal(gettext(
+					"Usage: cdc -r SID [-mmr-list] [-y [comment]] s.filename ..."));
+				else
+					fatal(gettext(
+					"Usage: rmdel -r SID s.filename ..."));
 			}
 
 			/*
@@ -262,12 +266,15 @@ char *argv[];
 
 	if (*(p = sname(argv[0])) == 'n')
 		p++;
-	if (equal(p,NOGETTEXT("rmdel")))
+	if (equal(p,NOGETTEXT("rmdel"))) {
 		D_type = 'R';		/* invoked as 'rmdel' */
-	else if (equal(p,"cdc"))
+		if (HADD)
+			D_type = '\0';	/* invoked as 'rmdel -d' */
+	} else if (equal(p,"cdc")) {
 		D_type = 'D';		/* invoked as 'cdc' */
-	else
+	} else {
 		fatal(gettext("bad invocation (rc10)"));
+	}
 	if (! logname())
 		fatal(gettext("User ID not in password file (cm9)"));
 
@@ -306,7 +313,6 @@ char *argv[];
 
 static struct packet gpkt;	/* see file s.h */
 static char line[BUFSIZ];
-int Domrs;
 
 static void
 rmchg(file)
@@ -319,7 +325,6 @@ char *file;
 	char *p, *cp;
 	int keep;
 	int found;
-	extern char Pgmr[LOGSIZE];
 	int fowner, downer, user;
 
 	if (setjmp(Fjmp))	/* set up to return here from 'fatal' */
@@ -345,6 +350,12 @@ char *file;
 	}
 
 	/*
+	 * Init and check for validity of file name but do not open the file.
+	 * This prevents us from potentially damaging files with lockit().
+	 */
+	sinit(&gpkt, file, 0);
+
+	/*
 	Lock out any other user who may be trying to process
 	the same file.
 	*/
@@ -355,6 +366,8 @@ char *file;
 
 	sinit(&gpkt,file,1);	/* initialize packet and open s-file */
 
+	gpkt.p_escdodelt = escdodelt;
+	gpkt.p_fredck = fredck;
 	/*
 	Flag for 'putline' routine to tell it to open x-file
 	and allow writing on it.
@@ -416,9 +429,9 @@ char *file;
 		downer = Statbuf.st_uid;
 	user = getuid();
 	if (user != fowner && user != downer)
-		if (!equal(Pgmr,logname())) {
+		if (!equal(gpkt.p_pgmr, logname())) {
 			sprintf(SccsError, gettext("you are neither owner nor '%s' (rc4)"),
-				Pgmr);
+				gpkt.p_pgmr);
 			fatal(SccsError);
 		}
 
@@ -427,7 +440,7 @@ char *file;
 	'leaf' delta, and if ok,
 	process the body.
 	*/
-	if (D_type == 'R') {
+	if (D_type == 'R' || D_type == '\0') {
 		struct idel *ptr;
 		for (n = maxser(&gpkt); n > D_serial; n--) {
 			ptr = &gpkt.p_idel[n];
@@ -487,7 +500,7 @@ char *file;
 		Check MRs if not CASSI file.
 		*/
 		if ((Mrs != NULL) && (*Mrs != '\0')) {
-			if ((p = Sflags[VALFLAG - 'a']) == NULL)
+			if ((p = gpkt.p_sflags[VALFLAG - 'a']) == NULL)
 				fatal(gettext("MRs not allowed (rc6)"));
 			if (*p && valmrs(&gpkt,p))
 				fatal(gettext("invalid MRs (rc7)"));
@@ -507,8 +520,8 @@ char *file;
 	/* if z flag on and -fz exists on the sccs s.file 
 		verify the deleted cmrs and send message
 	*/
-	if((HADZ && !Sflags[CMFFLAG - 'a']) ||
-		(!(HADZ) && Sflags[CMFFLAG - 'a']))
+	if((HADZ && !gpkt.p_sflags[CMFFLAG - 'a']) ||
+		(!(HADZ) && gpkt.p_sflags[CMFFLAG - 'a']))
 		{
 			fatal(gettext("invalid use of 'z' flag \n CASSI incompatablity\n"));
 		}
@@ -538,14 +551,11 @@ char *file;
 	clean_up();
 }
 
-void
+static void
 escdodelt(pkt)
 struct packet *pkt;
 {
 	static int first_time = 1;
-	extern int First_esc;
-	extern int First_cmt;
-	extern int CDid_mrs;
 	char	*p;
 	extern time_t Timenow;
 
@@ -571,8 +581,8 @@ struct packet *pkt;
 		split_mrs();
 		first_time = 0;
 	}
-	if (D_type == 'D' && First_esc) {	/* cdc, first time */
-		First_esc = 0;
+	if (D_type == 'D' && pkt->p_first_esc) { /* cdc, first time */
+		pkt->p_first_esc = 0;
 		if ((Mrs != NULL) && (*Mrs != '\0')) {
 			/*
 			 * if adding MRs then put out the new list
@@ -580,7 +590,7 @@ struct packet *pkt;
 			*/
 
 			putmrs(pkt);
-			CDid_mrs = 1;	/* indicate that some MRs were read */
+			pkt->p_cdid_mrs = 1;	/* indicate that some MRs were read */
 		}
 	}
 
@@ -590,7 +600,7 @@ struct packet *pkt;
 			p++;
 		if (*(p - 2) == DELIVER)
 			fatal(gettext("delta specified has delivered MR (rc9)"));
-		if (!CDid_mrs)	/* if no MRs list from `dohist' then return */
+		if (!pkt->p_cdid_mrs)	/* if no MRs list from `dohist' then return */
 			return;
 		else
 			/*
@@ -600,8 +610,8 @@ struct packet *pkt;
 			ckmrs(pkt,pkt->p_line);
 	}
 	else if (D_type == 'D') {		/* this line is a comment */
-		if (First_cmt) {		/* first comment encountered */
-			First_cmt = 0;
+		if (pkt->p_first_cmt) {		/* first comment encountered */
+			pkt->p_first_cmt = 0;
 			/*
 			 * if comments were read by `dohist' then
 			 * put them out.
@@ -734,7 +744,7 @@ struct packet *pkt;
 		}
 /*the fredchk routine verifies that the cmrs for the delta are all editableor
 *		 degenerate  before changing the delta*/
-void
+static void
 fredck(pkt)
 struct packet *pkt;
 {
@@ -764,7 +774,7 @@ struct packet *pkt;
 	char *fred;
 	int i;
 	/* get the fred file name*/
-	if(!(fred=(char *)gf(Sflags[CMFFLAG - 'a'])))
+	if (!(fred=(char *)gf(pkt->p_sflags[CMFFLAG - 'a'])))
 		fatal(gettext("No fred file found- see sccs administrator"));
 	/* check validity of values in test */
 	for(i=0;test[i];i++)
@@ -780,16 +790,16 @@ struct packet *pkt;
 	/* write the messages for the valid cmrs */
 	for(i=0;test[i];i++)
 		{
-			msg(Sflags[CMFFLAG - 'a'],pkt->p_file,test[i],"nc",Sidhold,fred);
+			msg(pkt->p_sflags[CMFFLAG - 'a'],pkt->p_file,test[i],"nc",Sidhold,fred, pkt->p_sflags);
 		}
 	return(1);
 }
 
 /*the  msg subroutine creates the command line to go to the mr subsystem*/
 static int
-msg(app,name,cmrs,stats,sids,fred)
+msg(app, name, cmrs, stats, sids, fred, sflags)
 	char *app,*name,*cmrs,*stats,*sids,*fred;
-
+	char *sflags[NFLAGS];
 	{
  	FILE *fd;
 	 char pname[FILESIZE],*ptr,holdfred[100],dir[100],path[FILESIZE];
@@ -798,7 +808,7 @@ msg(app,name,cmrs,stats,sids,fred)
 	 char *k;
 	
 	/*if -fm its value is made the file name */
-	if((k=Sflags[MODFLAG -'a']) != NULL)
+	if ((k = sflags[MODFLAG -'a']) != NULL)
 	{
 		name = k;
 	}
@@ -902,14 +912,14 @@ struct packet *pkt;
 	}
 }
 
-void
+static void
 clean_up()
 {
 	if(gpkt.p_iop) {
 		fclose(gpkt.p_iop);
 		gpkt.p_iop = NULL;
 	}
-	xrm();
+	xrm(&gpkt);
 	if (gpkt.p_file[0]) {
 		if (exists(auxf(gpkt.p_file,'x')))
 			xunlink(auxf(gpkt.p_file,'x'));

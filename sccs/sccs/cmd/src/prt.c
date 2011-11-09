@@ -25,12 +25,12 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2011 J. Schilling
+ * Copyright 2006-2011 J. Schilling
  *
- * @(#)prt.c	1.24 11/07/04 J. Schilling
+ * @(#)prt.c	1.29 11/10/08 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)prt.c 1.24 11/07/04 J. Schilling"
+#pragma ident "@(#)prt.c 1.29 11/10/08 J. Schilling"
 #endif
 /*
  * @(#)prt.c 1.22 06/12/12
@@ -69,8 +69,6 @@
 # define NOEOF	0
 # define BLANK(p)	while (!(*p == '\0' || *p == ' ' || *p == '\t')) p++;
 
-char SccsError[MAXERRORLEN];
-struct stat Statbuf;
 static FILE *iptr;
 static char *line = NULL;
 static size_t line_size = 0;
@@ -457,6 +455,11 @@ char *file;
 						printit(file,gettext("MRs:\t"),p);
 					break;
 
+				case SIDEXTENS:
+					if (!HADS)
+						printit(file, gettext("SIDext:\t"), p);
+					break;
+
 				case COMMENTS:
 					if (!HADS)
 						printit(file,"",p);
@@ -506,16 +509,19 @@ char *file;
 			 * different semantics than the other binary-
 			 * valued flags.
 			 */
-			if (*p == 'e') {
+			if (*p == ENCODEFLAG) {
 				/*
 				 * Look for operand value; print description
 				 * only if the operand value exists and is '1'.
 				 */
 				if (*++p) {
+					int	i;
+
 					NONBLANK(p);
-					if (*p == '1')
+					p = satoi(p, &i);
+					if (*p == '\n' && (i & EF_UUENCODE))
 						printf("\t%s\n",
-							flagdesc['e' - 'a']);
+						    flagdesc[ENCODEFLAG - 'a']);
 				}
 			} else if (*p - 'a' < 0 || *p - 'a' >= NFLAGS) {
 				printf("\tUnknown flag '%c'\t", *p);
@@ -682,10 +688,4 @@ register char *str, *cp;
 	}
 
 	printf("%s%s",str,cp);
-}
-
-/* for fatal() */
-void
-clean_up()
-{
 }

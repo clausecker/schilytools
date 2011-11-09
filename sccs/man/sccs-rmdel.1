@@ -19,13 +19,13 @@
 .\" CDDL HEADER END
 .\" Copyright (c) 1999, Sun Microsystems, Inc.
 .\" Copyright 2007-2011 J. Schilling
-.TH sccs-rmdel 1 "2011/08/24" "SunOS 5.11" "User Commands"
+.TH sccs-rmdel 1 "2011/09/07" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs-rmdel, rmdel \- remove a delta from an SCCS file
 .SH SYNOPSIS
 .LP
 .nf
-\fB/usr/ccs/bin/rmdel\fR \fB-r\fR\fIsid\fR \fIs.filename\fR...
+\fB/usr/ccs/bin/rmdel\fR [\fB\-d\fP] \fB\-r\fR\fIsid\fR \fIs.filename\fR...
 .fi
 
 .SH DESCRIPTION
@@ -47,13 +47,26 @@ line.
 
 .LP
 The following option is supported:
-.sp
 
 .sp
 .ne 2
 .TP 7
-\fB\fB-r\fR\fIsid\fR\fR
-Remove the version corresponding to the indicated \fBSID\fR (delta).
+.B \-d
+Fully discard the delta.
+By default only the file content for the related
+.B SID
+is removed and the delta table entry is changed to the new type
+.BR `R' .
+When in discard mode, the delta tyble entry is also completely discarded.
+
+.sp
+.ne 2
+.TP 7
+.BI \-r sid
+Remove the version corresponding to the indicated 
+.B SID
+(delta).
+This option is mandatory.
 
 .ne 3
 .TP

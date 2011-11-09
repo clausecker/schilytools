@@ -18,10 +18,10 @@
 *
 * CDDL HEADER END
 *
-* @(#)va 1.2 11/04/30
+* @(#)va 1.3 11/10/12
 *
 *	Messages for the val command.
 *
--1
-"too many files"
-You may supply a maximum of 50 files to val.
+* -1
+* "too many files"
+* You may supply a maximum of 50 files to val.

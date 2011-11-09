@@ -1,0 +1,15 @@
+CSWved: bad-rpath-entry $ORIGIN/../lib opt/csw/opt/csw/bin/ved
+CSWved: disallowed-path opt/csw/bin
+CSWved: disallowed-path opt/csw/lib
+CSWved: disallowed-path opt/csw/sbin
+CSWved: disallowed-path opt/csw/share
+CSWved: disallowed-path opt/csw/share/doc
+CSWved: disallowed-path opt/csw/share/man
+CSWved: pkginfo-opencsw-repository-missing
+CSWved: pkgmap-question-mark-perms-in-opt-csw /opt/csw/bin
+CSWved: pkgmap-question-mark-perms-in-opt-csw /opt/csw/lib
+CSWved: pkgmap-question-mark-perms-in-opt-csw /opt/csw/sbin
+CSWved: pkgmap-question-mark-perms-in-opt-csw /opt/csw/share
+CSWved: pkgmap-question-mark-perms-in-opt-csw /opt/csw/share/doc
+CSWved: pkgmap-question-mark-perms-in-opt-csw /opt/csw/share/man
+CSWved: pkgmap-question-mark-perms-in-opt-csw /opt/csw/share/man/man1

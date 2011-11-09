@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sccs-admin.1	1.22 11/08/24 portions Copyright 2007-2011 J. Schilling */
+.\" @(#)sccs-admin.1	1.24 11/09/18 Copyright 2007-2011 J. Schilling */
 .\" CDDL HEADER START
 .\"
 .\" The contents of this file are subject to the terms of the
@@ -19,7 +19,7 @@
 .\"
 .\" CDDL HEADER END
 .\"  Copyright (c) 2002, Sun Microsystems, Inc. All Rights Reserved.
-.TH sccs-admin 1 "2011/08/24" "SunOS 5.11" "User Commands"
+.TH sccs-admin 1 "2011/09/18" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs-admin, admin \- create and administer SCCS history files
 .SH SYNOPSIS
@@ -359,6 +359,21 @@ A typical value for
 is
 .BR SCCS .
 .PP
+If
+.I bulk-spec
+starts with a
+.BR `,' ,
+.BR admin (1)
+renames the g-file from where the SCCS history file was initialized from
+to
+.B ,name
+similar to what happens with
+.BR sccs create .
+It is recommended to let
+.BR admin (1)
+rename the original file as tis file usually contains unexpanded keywords and as
+this file usually is writable.
+.PP
 In order to overcome the limited number of
 .BR exec (2)
 arguments, it is recommended to use `\fB\(mi\fR\&'
@@ -489,7 +504,28 @@ example% \fBfind usr/src -type f | sccs admin -NSCCS -\fR
 .sp
 
 .LP
-\fBExample 4 \fREntering all files in a directory with auto-initialization
+\fBExample 4 \fRMass entering files with auto-initialization
+.sp
+.LP
+In the following example, all files in the usr/src tree will be put under SCCS
+and the SCCS history files will be put into SCCS sub directories. Each original
+.I file
+will be renamed to
+.I ,file
+after the
+.I file
+has been successfully put under SCCS control:
+
+.sp
+.in +2
+.nf
+example% \fBfind usr/src -type f | sccs admin -N,SCCS -\fR
+.fi
+.in -2
+.sp
+
+.LP
+\fBExample 5 \fREntering all files in a directory with auto-initialization
 .sp
 .LP
 In the following example, all files in the current directory will be put under SCCS

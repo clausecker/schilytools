@@ -25,12 +25,12 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2011 J. Schilling
+ * Copyright 2006-2011 J. Schilling
  *
- * @(#)get.c	1.44 11/08/21 J. Schilling
+ * @(#)get.c	1.54 11/10/15 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)get.c 1.44 11/08/21 J. Schilling"
+#pragma ident "@(#)get.c 1.54 11/10/15 J. Schilling"
 #endif
 /*
  * @(#)get.c 1.59 06/12/12
@@ -73,12 +73,7 @@
  * retrieved).
  */
 
-struct stat Statbuf;
-char Null[1];
-char SccsError[MAXERRORLEN];
-
-struct sid sid;
-int	Did_id;
+static struct sid sid;
 
 static struct packet gpkt;
 static unsigned	Ser;
@@ -105,10 +100,8 @@ static char	cmr[CMRLIMIT];
 static int	cmri = 0;
 /* End of insertion */
 
-	void    clean_up __PR((void));
-	void	escdodelt __PR((struct packet *pkt));
-	void	fredck	__PR((struct packet *pkt));
-	void	enter	__PR((struct packet *pkt, int ch, int n, struct sid *sidp));
+static	void    clean_up __PR((void));
+static	void	enter	__PR((struct packet *pkt, int ch, int n, struct sid *sidp));
 
 	int	main __PR((int argc, char **argv));
 static void	get __PR((char *file));
@@ -121,7 +114,7 @@ static char *	_trans __PR((char *tp, char *str, char *rest));
 static int	readcopy __PR((char *name, char *tp));
 static void	prfx __PR((struct packet *pkt));
 static void	wrtpfile __PR((struct packet *pkt, char *inc, char *exc));
-static int	cmrinsert __PR((void));
+static int	cmrinsert __PR((struct packet *pkt));
 
 int
 main(argc,argv)
@@ -153,6 +146,7 @@ register char *argv[];
 
 	tzset();	/* Set up timezome related vars */
 
+	set_clean_up(clean_up);
 	Fflags = FTLEXIT | FTLMSG | FTLCLN;
 	current_optind = 1;
 	optind = 1;
@@ -342,9 +336,6 @@ register char *argv[];
 	return (Fcnt ? 1 : 0);
 }
 
-extern char *Sflags[];
-extern char SCOx;
-
 static void
 get(file)
 char *file;
@@ -392,6 +383,7 @@ char *file;
 	gpkt.p_stdout  = (HADP||lfile) ? stderr : stdout;
 	gpkt.p_cutoff = cutoff;
 	gpkt.p_lfile = lfile;
+	gpkt.p_enter = enter;
 	if ((gpkt.p_flags & PF_V6) == 0) {
 		gpkt.p_flags |= PF_GMT;
 	} else if (cutoffstr != NULL) {
@@ -414,13 +406,13 @@ char *file;
 		fmterr(&gpkt);
 	finduser(&gpkt);
 	doflags(&gpkt);
-	if ((p = Sflags[SCANFLAG - 'a']) == NULL) {
+	if ((p = gpkt.p_sflags[SCANFLAG - 'a']) == NULL) {
 		num_ID_lines = 0;
 	} else {
 		num_ID_lines = atoi(p);
 	}
 	expand_IDs = 0;
-	if ((list_expand_IDs = Sflags[EXPANDFLAG - 'a']) != NULL) {
+	if ((list_expand_IDs = gpkt.p_sflags[EXPANDFLAG - 'a']) != NULL) {
 		if (*list_expand_IDs) {
 			/*
 			 * The old Sun based code did break with get -k in case
@@ -452,7 +444,7 @@ char *file;
 	}
 	doie(&gpkt,ilist,elist,(char *) 0);
 	setup(&gpkt,(int) ser);
-	if ((Type = Sflags[TYPEFLAG - 'a']) == NULL)
+	if ((Type = gpkt.p_sflags[TYPEFLAG - 'a']) == NULL)
 		Type = Null;
 	if (!(HADP || HADG)) {
 		if (exists(gfile) && (S_IWRITE & Statbuf.st_mode)) {
@@ -468,7 +460,7 @@ char *file;
 	if (HADE) {
 		if (HADC || gpkt.p_reqsid.s_rel == 0)
 			gpkt.p_reqsid = gpkt.p_gotsid;
-		newsid(&gpkt,Sflags[BRCHFLAG - 'a'] && HADB);
+		newsid(&gpkt, gpkt.p_sflags[BRCHFLAG - 'a'] && HADB);
 		permiss(&gpkt);
 		wrtpfile(&gpkt,ilist,elist);
 	}
@@ -488,7 +480,7 @@ char *file;
 		flushto(&gpkt,EUSERTXT,1);
 		idsetup(&gpkt);
 		gpkt.p_chkeof = 1;
-		Did_id = 0;
+		gpkt.p_did_id = 0;
 		/*
 		call `xcreate' which deletes the old `g-file' and
 		creates a new one except if the `p' keyletter is set in
@@ -512,7 +504,7 @@ char *file;
 				 * unlink()/create() chain.
 				 */
 				if ((exists(gpkt.p_file) && (S_IEXEC & Statbuf.st_mode)) ||
-				    SCOx) {
+				    (gpkt.p_flags & PF_SCOX)) {
 					gpkt.p_gout = xfcreat(Gfile,HADK ? 
 						((mode_t)0755) : ((mode_t)0555));
 				} else {
@@ -528,8 +520,8 @@ char *file;
 #endif
 			}
 		}
-		if (Sflags[ENCODEFLAG - 'a'] &&
-		    (strcmp(Sflags[ENCODEFLAG - 'a'],"1") == 0)) {
+		gpkt.p_ghash = 0;		/* Reset ghash */
+		if (gpkt.p_encoding & EF_UUENCODE) {
 			while (readmod(&gpkt)) {
 				decode(gpkt.p_line,gpkt.p_gout);
 			}
@@ -543,6 +535,10 @@ char *file;
 					xmsg(gfile, NOGETTEXT("get"));
 			}
 		}
+		if ((gpkt.p_flags & (PF_V6 | PF_V6TAGS)) && gpkt.p_hash)
+			if (gpkt.p_hash[ser] != (gpkt.p_ghash & 0xFFFF))
+				fatal(gettext("corrupted file version (co27)"));
+			
 		if (gpkt.p_gout) {
 			if (fflush(gpkt.p_gout) == EOF)
 				xmsg(gfile, NOGETTEXT("get"));
@@ -569,11 +565,11 @@ char *file;
 		      fprintf(gpkt.p_stdout,gettext("%d lines\n"),gpkt.p_glnno);
 #endif
 		}		
-		if (!Did_id && !HADK && !HADQ &&
-		    (!Sflags[EXPANDFLAG - 'a'] ||
-		    *(Sflags[EXPANDFLAG - 'a']))) {
-		   if (Sflags[IDFLAG - 'a']) {
-		      if (!(*Sflags[IDFLAG - 'a'])) {
+		if (!gpkt.p_did_id && !HADK && !HADQ &&
+		    (!gpkt.p_sflags[EXPANDFLAG - 'a'] ||
+		    *(gpkt.p_sflags[EXPANDFLAG - 'a']))) {
+		   if (gpkt.p_sflags[IDFLAG - 'a']) {
+		      if (!(*gpkt.p_sflags[IDFLAG - 'a'])) {
 		         fatal(gettext("no id keywords (cm6)"));
 		      } else {
 			 fatal(gettext("invalid id keywords (cm10)"));
@@ -629,7 +625,7 @@ unlock:
 	ffreeall();
 }
 
-void
+static void
 enter(pkt,ch,n,sidp)
 struct packet *pkt;
 char ch;
@@ -844,11 +840,11 @@ register struct packet *pkt;
 	makgdate(Chgdate,Gchgdate);
 	makgdatel(Chgdatel,Gchgdatel);
 	sid_ba(&pkt->p_gotsid,Sid);
-	if ((p = Sflags[MODFLAG - 'a']) != NULL)
+	if ((p = pkt->p_sflags[MODFLAG - 'a']) != NULL)
 		copy(p,Mod);
 	else
 		copy(auxf(gpkt.p_file,'g'), Mod);
-	if ((Qsect = Sflags[QSECTFLAG - 'a']) == NULL)
+	if ((Qsect = pkt->p_sflags[QSECTFLAG - 'a']) == NULL)
 		Qsect = Null;
 }
 
@@ -963,6 +959,7 @@ char line[];
 	int recursive = 0;
 	int expand_XIDs;
 	char *expand_ID;
+	register char **sflags = pkt->p_sflags;
 		
 	cnt_ID_lines++;
 	if (HADK) {
@@ -981,12 +978,12 @@ char line[];
 			return(line);
 		}
 	}
-	expand_XIDs = Sflags[EXTENSFLAG - 'a'] != NULL || list_expand_IDs != NULL;
+	expand_XIDs = sflags[EXTENSFLAG - 'a'] != NULL || list_expand_IDs != NULL;
 	tp = tline;
 	for (lp=line; *lp != 0; lp++) {
-		if ((!Did_id) && (Sflags['i'-'a']) &&
-		    (!(strncmp(Sflags['i'-'a'],lp,strlen(Sflags['i'-'a'])))))
-				++Did_id;
+		if ((!pkt->p_did_id) && (sflags[IDFLAG - 'a']) &&
+		    (!(strncmp(sflags[IDFLAG-'a'],lp,strlen(sflags[IDFLAG-'a'])))))
+				pkt->p_did_id = 1;
 		if (lp[0] == '%' && lp[1] != 0 && lp[2] == '%') {
 			expand_ID = ++lp;
 			if (!HADK && expand_IDs && (list_expand_IDs != NULL)) {
@@ -1132,8 +1129,8 @@ char line[];
 				tp = trans(tp,str);
 				continue;
 			}
-			if (!(Sflags['i'-'a']))
-				++Did_id;
+			if (!(sflags[IDFLAG - 'a']))
+				pkt->p_did_id = 1;
 			lp++;
 		} else if (strncmp(lp, "%sccs.include.", 14) == 0) {
 			register char *p;
@@ -1259,7 +1256,7 @@ register struct packet *pkt;
 	}
 }
 
-void
+static void
 clean_up()
 {
 	/*
@@ -1303,6 +1300,7 @@ char *inc, *exc;
 	struct pfile pf;
 	extern time_t Timenow;
 	int fd;
+	char **sflags = pkt->p_sflags;
 
 	if ((user=logname()) == NULL)
 	   fatal(gettext("User ID not in password file (cm9)"));
@@ -1321,7 +1319,7 @@ char *inc, *exc;
 			if (fputs(line, out) == EOF)
 			   xmsg(pfile, NOGETTEXT("wrtpfile"));
 			pf_ab(line,&pf,0);
-			if (!(Sflags[JOINTFLAG - 'a'])) {
+			if (!(sflags[JOINTFLAG - 'a'])) {
 				if ((pf.pf_gsid.s_rel == pkt->p_gotsid.s_rel &&
      				   pf.pf_gsid.s_lev == pkt->p_gotsid.s_lev &&
 				   pf.pf_gsid.s_br == pkt->p_gotsid.s_br &&
@@ -1371,7 +1369,7 @@ char *inc, *exc;
 	if (exc)
 		if (fprintf(out," -x%s",exc) == EOF)
 			xmsg(pfile, NOGETTEXT("wrtpfile"));
-	if (cmrinsert () > 0)	/* if there are CMRS and they are okay */
+	if (cmrinsert(pkt) > 0)	/* if there are CMRS and they are okay */
 		if (fprintf (out, " -z%s", cmr) == EOF)
 			xmsg(pfile, NOGETTEXT("wrtpfile"));
 	if (fprintf(out, "\n") == EOF)
@@ -1394,26 +1392,11 @@ char *inc, *exc;
 	}
 }
 
-/* Null routine to satisfy external reference from dodelt() */
-/*ARGSUSED*/
-void
-escdodelt(pkt)
-	struct packet *pkt;
-{
-}
-
-/* NULL routine to satisfy external reference from dodelt() */
-/*ARGSUSED*/
-void
-fredck(pkt)
-	struct packet *pkt;
-{
-}
-
 /* cmrinsert -- insert CMR numbers in the p.file. */
 
 static int
-cmrinsert ()
+cmrinsert(pkt)
+register struct packet *pkt;
 {
 	char holdcmr[CMRLIMIT];
 	char tcmr[CMRLIMIT];
@@ -1421,7 +1404,7 @@ cmrinsert ()
 	int bad;
 	int isvalid;
 
-	if (Sflags[CMFFLAG - 'a'] == 0)	{ /* CMFFLAG was not set. */
+	if (pkt->p_sflags[CMFFLAG - 'a'] == 0)	{ /* CMFFLAG was not set. */
 		return (0);
 	}
 	if (HADP && !HADZ) { /* no CMFFLAG and no place to prompt. */
@@ -1449,7 +1432,7 @@ retry:
 	strlcpy(tcmr, cmr, sizeof (tcmr));
 	while ((p=strrchr(tcmr,',')) != NULL) {
 		++p;
-		if (cmrcheck(p,Sflags[CMFFLAG - 'a'])) {
+		if (cmrcheck(p, pkt->p_sflags[CMFFLAG - 'a'])) {
 			++bad;
 		} else {
 			++isvalid;
@@ -1459,7 +1442,7 @@ retry:
 		*(--p) = '\0';
 	}
 	if (*tcmr) {
-		if (cmrcheck(tcmr,Sflags[CMFFLAG - 'a'])) {
+		if (cmrcheck(tcmr, pkt->p_sflags[CMFFLAG - 'a'])) {
 			++bad;
 		} else {
 			++isvalid;

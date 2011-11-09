@@ -1,4 +1,4 @@
-#ident "@(#)rules1.top	1.44 11/06/23 "
+#ident "@(#)rules1.top	1.45 11/09/18 "
 ###########################################################################
 # Written 1996 by J. Schilling
 ###########################################################################
@@ -315,7 +315,7 @@ OINCSDIR=	$(SRCROOTSL)incs/$(OARCH)
 # - clean, clobber, distclean, relink, rmtarget	: rules.clr
 # - rel						: rules.rel
 # - install, ibins				: rules.ins
-# - html, htmlx					: rules.htm & sub.htm
+# - html, htmlx, htmlxn				: rules.htm & sub.htm
 # - tarpkg tarpkg1 tarpkg2			: rules.sps
 # - depend, rmdep				: rules.dep
 # - config					: rules.cnf
@@ -338,7 +338,7 @@ ALLTARGETS=	all lint clean clobber distclean ibins depend rmdep \
 		$(INSTALLTARGETS) $(MANTARGETS) $(PKGTARGETS)
 
 INSTALLTARGETS=	install
-MANTARGETS=	html htmlx
+MANTARGETS=	html htmlx htmlxn
 PKGTARGETS=	tarpkg tarpkg1 tarpkg2
 
 .PHONY:	$(ALLTARGETS) .help tinfo shell

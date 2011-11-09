@@ -1,8 +1,8 @@
-/* @(#)drv_dvd.c	1.163 10/12/19 Copyright 1998-2010 J. Schilling */
+/* @(#)drv_dvd.c	1.165 11/09/14 Copyright 1998-2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)drv_dvd.c	1.163 10/12/19 Copyright 1998-2010 J. Schilling";
+	"@(#)drv_dvd.c	1.165 11/09/14 Copyright 1998-2011 J. Schilling";
 #endif
 /*
  *	DVD-R device implementation for
@@ -32,7 +32,7 @@ static	UConst char sccsid[] =
  *			2		print disk info & write parameters
  *			3		print log pages & dvd structure
  *
- *	Copyright (c) 1998-2010 J. Schilling
+ *	Copyright (c) 1998-2011 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -478,6 +478,7 @@ extern	char	*buf;
 
 	if (lverbose > 2)
 		print_logpages(scgp);
+
 
 	if (dsp->ds_type == DST_UNKNOWN) {
 		profile = get_curprofile(scgp);

@@ -1,0 +1,70 @@
+i pkginfo
+i depend
+#i copyright
+i checkpkg_override
+d none share/doc/schilyutils 0755 root bin
+f none share/doc/schilyutils/license=$pkgbase/copyright 0444 root bin
+d none bin ? ? ?
+f none bin/bsh 0755 root bin
+s none bin/pfbsh=bsh
+f none bin/sh 0755 root bin
+s none bin/pfsh=sh
+s none bin/bosh=sh
+s none bin/jsh=sh
+f none bin/btcflash 0755 root bin
+f none bin/calc 0755 root bin
+f none bin/calltree 0755 root bin
+f none bin/change 0755 root bin
+f none bin/compare 0755 root bin
+f none bin/copy 0755 root bin
+f none bin/count 0755 root bin
+f none bin/hdump 0755 root bin
+f none bin/lndir 0755 root bin
+f none bin/match 0755 root bin
+f none bin/p 0755 root bin
+f none bin/sdd 4711 root bin
+f none bin/sfind 0755 root bin
+f none bin/sformat 0755 root bin
+f none bin/sgrow 0755 root bin
+f none bin/label 0755 root bin
+f none bin/termcap 0755 root bin
+f none bin/translit 0755 root bin
+f none bin/udiff 0755 root bin
+d none sbin ? ? ?
+f none sbin/mountcd 0755 root bin
+d none share ? ? ?
+d none share/man ? ? ?
+d none share/man/de ? ? ?
+d none share/man/de/man1 ? ? ?
+f none share/man/de/man1/sdd.1 0444 root bin
+d none share/man/man3 ? ? ?
+d none share/man/man1 ? ? ?
+f none share/man/man1/bosh.1 0444 root bin
+f none share/man/man1/bsh.1 0444 root bin
+f none share/man/man1/sh.1 0444 root bin
+f none share/man/man1/btcflash.1 0444 root bin
+f none share/man/man1/calc.1 0444 root bin
+f none share/man/man1/calltree.1 0444 root bin
+f none share/man/man1/change.1 0444 root bin
+f none share/man/man1/compare.1 0444 root bin
+f none share/man/man1/copy.1 0444 root bin
+f none share/man/man1/count.1 0444 root bin
+f none share/man/man1/hdump.1 0444 root bin
+f none share/man/man1/jsh.1 0444 root bin
+f none share/man/man1/label.1 0444 root bin
+f none share/man/man1/lndir.1 0444 root bin
+f none share/man/man1/match.1 0444 root bin
+f none share/man/man1/mountcd.1 0444 root bin
+f none share/man/man1/p.1 0444 root bin
+f none share/man/man1/pfbsh.1 0444 root bin
+f none share/man/man1/pfsh.1 0444 root bin
+f none share/man/man1/sdd.1 0444 root bin
+f none share/man/man1/sfind.1 0444 root bin
+f none share/man/man1/termcap.1 0444 root bin
+f none share/man/man1/translit.1 0444 root bin
+f none share/man/man1/udiff.1 0444 root bin
+d none share/man/man8 ? ? ?
+f none share/man/man8/sformat.8 0444 root bin
+d none share/doc ? ? ?
+d none share/doc/schilyutils 0755 root bin
+f none share/doc/schilyutils/dotfiles.tar.bz2 0644 root bin

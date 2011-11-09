@@ -1,13 +1,13 @@
-/* @(#)readcd.c	1.113 10/12/19 Copyright 1987, 1995-2010 J. Schilling */
+/* @(#)readcd.c	1.114 11/09/14 Copyright 1987, 1995-2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)readcd.c	1.113 10/12/19 Copyright 1987, 1995-2010 J. Schilling";
+	"@(#)readcd.c	1.114 11/09/14 Copyright 1987, 1995-2011 J. Schilling";
 #endif
 /*
  *	Skeleton for the use of the scg genearal SCSI - driver
  *
- *	Copyright (c) 1987, 1995-2010 J. Schilling
+ *	Copyright (c) 1987, 1995-2011 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -394,7 +394,7 @@ main(ac, av)
 	if (help)
 		usage(0);
 	if (pversion) {
-		printf(_("readcd %s (%s-%s-%s) Copyright (C) 1987, 1995-2010 %s\n"),
+		printf(_("readcd %s (%s-%s-%s) Copyright (C) 1987, 1995-2011 %s\n"),
 								cdr_version,
 								HOST_CPU, HOST_VENDOR, HOST_OS,
 								_("Joerg Schilling"));
@@ -1633,6 +1633,7 @@ fread_2352(scgp, rp, bp, addr, cnt)
  * -ledc_ecc_dec read variant:	read CD-DA sectors (2352 bytes) and output
  *				corrected CD-ROM sectors (2048 bytes).
  */
+int edc_OK = 0;
 LOCAL int
 fread_2048(scgp, rp, bp, addr, cnt)
 	SCSI	*scgp;
@@ -1650,6 +1651,7 @@ fread_2048(scgp, rp, bp, addr, cnt)
 	BOOL	OK = TRUE;
 
 	rp->secsize = rp->isecsize;
+	fillbytes(bp, rp->secsize * cnt, '\0');
 	ret = fread_2352(scgp, rp, bp, addr, cnt);
 	rp->secsize = secsize;
 
@@ -1658,11 +1660,17 @@ fread_2048(scgp, rp, bp, addr, cnt)
 	to = bp;
 	p = bp;
 	while (i < cnt) {
-		if (!crc_check((unsigned char *)p, MODE_1)) {
-			do_decode_L2((unsigned char *)p, MODE_1, FALSE, 0);
-			if (!crc_check((unsigned char *)p, MODE_1))
-				OK = FALSE;
-/*			error("defect? %d: %d\n", crc_check((unsigned char *)p, MODE_1), addr+i);*/
+		int	ret;
+		int	crc;
+
+		crc = crc_check((unsigned char *)p, MODE_1);
+		ret = do_decode_L2((unsigned char *)p, MODE_1, FALSE, 0);
+
+		if (ret < 0)
+			OK = FALSE;
+		if (crc == 0 && ret == 0) {
+			edc_OK++;
+			error("Corrected: total %d Block %d\n", edc_OK, addr+i);
 		}
 		move2048(from, to);
 		from += 2352;
@@ -3116,4 +3124,6 @@ print_bad()
 	error(_("The following %d sector(s) could not be read correctly:\n"), nbad);
 	for (i = 0; i < nbad; i++)
 		error("%ld\n", badsecs[i]);
+	if (edc_corr)
+		error(_("Corrected by EDC: %d\n"), edc_OK);
 }

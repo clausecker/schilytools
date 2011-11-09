@@ -1,4 +1,4 @@
-/* @(#)standard.h	1.38 10/08/24 Copyright 1985-2010 J. Schilling */
+/* @(#)standard.h	1.39 11/09/05 Copyright 1985-2010 J. Schilling */
 /*
  *	standard definitions
  *
@@ -54,9 +54,13 @@ extern "C" {
 #endif
 
 /*
- *	Program exit codes
+ *	Program exit codes used with comerr(), comexit() and similar.
+ *
+ *	Exit codes between -2 and -63 are currently available to flag
+ *	program specific error conditions.
  */
-#define	EX_BAD			(-1)
+#define	EX_BAD			(-1)	/* Default error exit code	    */
+#define	EX_CLASH		(-64)	/* Exit code used with exit clashes */
 
 /*
  *	standard storage class definitions

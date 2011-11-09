@@ -1,7 +1,7 @@
-/* %Z%%M%	%I% %E% Copyright 1997-2011 J. Schilling */
+/* @(#)scsi-aix.c	1.39 11/09/13 Copyright 1997-2011 J. Schilling */
 #ifndef lint
 static	char __sccsid[] =
-	"%Z%%M%	%I% %E% Copyright 1997-2011 J. Schilling";
+	"@(#)scsi-aix.c	1.39 11/09/13 Copyright 1997-2011 J. Schilling";
 #endif
 /*
  *	Interface for the AIX generic SCSI implementation.
@@ -56,7 +56,7 @@ static	char __sccsid[] =
  *	Choose your name instead of "schily" and make clear that the version
  *	string is related to a modified source.
  */
-LOCAL	char	_scg_trans_version[] = "%M%-%I%";	/* The version for this transport*/
+LOCAL	char	_scg_trans_version[] = "scsi-aix.c-1.39";	/* The version for this transport*/
 
 
 #define	MAX_SCG		16	/* Max # of SCSI controllers */
@@ -323,6 +323,19 @@ scgo_fileno(scgp, busno, tgt, tlun)
 	if (scgp->local == NULL)
 		return (-1);
 
+	if (scglocal(scgp)->transp != TR_UNKNONW) {
+		int	obusno	= scg_scsibus(scgp);
+		int	otgt	= scg_target(scgp);
+
+		/*
+		 * Try to remember old transport type if possible
+		 */
+		if (obusno >= 0 && otgt >= 0) {
+			scglocal(scgp)->trtypes[obusno][otgt] =
+							scglocal(scgp)->transp;
+		}
+	}
+
 	scglocal(scgp)->transp = scglocal(scgp)->trtypes[busno][tgt];
 
 	return ((int)scglocal(scgp)->scgfiles[busno][tgt][tlun]);
@@ -387,16 +400,12 @@ sciocmd_to_idepassthru(req, ide_req, sp)
 {
 	fillbytes(ide_req, sizeof (*ide_req), '\0');
 
-#ifdef	III
 	if (sp->size > 65535) {		/* Too large for IDE */
 		sp->ux_errno = errno = EINVAL;
 		return (-1);
 	} else {
 		ide_req->buffsize = (ushort)sp->size;
 	}
-#else
-	ide_req->buffsize = (ushort)sp->size;
-#endif
 
 	if (sp->flags & SCG_RECV_DATA) {
 		ide_req->flags |= ATA_LBA_MODE | IDE_PASSTHRU_READ;
@@ -449,8 +458,9 @@ do_ioctl(scgp, req, sp)
 		}
 
 		/* Last try IDEPASSTHRU */
-		if ((sciocmd_to_idepassthru(req, &ide_req, sp) >= 0) &&
-		    ((ret = ioctl(scgp->fd, IDEPASSTHRU, &ide_req)) >= 0)) {
+		if (sciocmd_to_idepassthru(req, &ide_req, sp) < 0) /* Bad size */
+			return (-1);
+		if ((ret = ioctl(scgp->fd, IDEPASSTHRU, &ide_req)) >= 0) {
 			scglocal(scgp)->transp = TR_IDEPASSTHRU;
 			return (ret);
 		}
@@ -530,7 +540,6 @@ do_scg_cmd(scgp, sp)
 
 	movebytes(&sp->cdb, req.scsi_cdb, 12);
 	errno = 0;
-/*	ret = ioctl(scgp->fd, DKIOCMD, &req);*/
 	ret = do_ioctl(scgp, &req, sp);
 
 	if (scgp->debug > 0) {

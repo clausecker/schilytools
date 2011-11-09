@@ -1,4 +1,4 @@
-#ident @(#)Makefile	1.5 11/08/24 
+#ident @(#)Makefile	1.6 11/09/30 
 ###########################################################################
 # Sample makefile for installing manual pages
 ###########################################################################
@@ -19,6 +19,7 @@ XMK_FILE=	adminman.mk bdiffman.mk cdcman.mk combman.mk deltaman.mk \
 		sccscvtman.mk \
 		sccsdiffman.mk sccsfileman.mk sccsman.mk ungetman.mk \
 		sccslogman.mk valman.mk whatman.mk \
+		sccs-rcs2sccsman.mk rcs2sccsman.mk \
 		vcman.mk
 
 ###########################################################################

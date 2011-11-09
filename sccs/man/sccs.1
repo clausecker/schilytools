@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sccs.1	4.16 11/08/24 portions Copyright 2007-2011 J. Schilling */
+.\" @(#)sccs.1	4.20 11/09/30 Copyright 2007-2011 J. Schilling */
 .\" 
 .\" CDDL HEADER START
 .\"
@@ -20,7 +20,7 @@
 .\"
 .\" CDDL HEADER END
 .\"  Copyright (c) 2007, Sun Microsystems, Inc.  All Rights Reserved.
-.TH sccs 1 "2011/08/24" "SunOS 5.11" "User Commands"
+.TH sccs 1 "2011/09/30" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs \- front end for the Source Code Control System (SCCS)
 .SH SYNOPSIS
@@ -161,6 +161,12 @@ Equivalent to ``get \-e''.
 .br
 .ne 5
 .TP
+.B editor
+Edit a file whether or not it is controlled by SCCS.
+Retrieves a version for editing before, if needed.
+.br
+.ne 5
+.TP
 .B delget
 Perform a delta on the named files
 and then get new versions.
@@ -269,6 +275,12 @@ flag is given
 then only files being edited by you
 (or the named user)
 are listed.
+.br
+.ne 5
+.TP
+.B istext
+Checks whether the files are pure text files or whether they need
+to be encoded.
 .br
 .ne 5
 .TP
@@ -727,6 +739,40 @@ subcommand is basically equivalent to ``get -e''.
 .sp
 .ne 5
 .TP
+\fB\fBeditor\fR\fR
+.sp .6
+Edit a file whether or not is is controlled by SCCS.
+If a file is controlled by SCCS and currently not checked out for editing,
+the file is checked out for editing first and then edited.
+If the file is not under control of SCCS, the editor is called directly.
+.sp
+The
+.B SCCS_EDITOR
+or
+.B EDITOR
+environment variable must be set appropriately in order to call a custom editor.
+.sp
+A way to hide the fact that files need to checked out for editing first,
+is to set
+.B SCCS_EDITOR
+and then alias the editor, e.g.:
+.sp
+   SCCS_EDITOR=ved
+   alias ved='sccs editor'
+.sp
+Note that in order to minimize the side effects of calling the alias
+.RB ` "ved *" ',
+.B sccs editor
+will call
+.BR unget (1)
+or
+.B sccs unedit
+on all files that have not been modified by the edit session and that 
+have not been checked out for editing before.
+
+.sp
+.ne 5
+.TP
 \fB\fBenter\fR\fR
 .sp .6
 Similar to \fBcreate\fR, but omits the final `\fBsccs get\fR'. This can be used if an `\fBsccs edit\fR' is to be performed immediately after the history file is initialized.
@@ -735,14 +781,26 @@ Similar to \fBcreate\fR, but omits the final `\fBsccs get\fR'. This can be used 
 .ne 5
 .SS "/usr/bin/sccs"
 .TP
-\fBfix\fR \fB-r\fR\fIsid\fR
+.BI "fix \-r" sid " \fR[\fB\-d\fR]
 .SS "/usr/xpg4/bin/sccs"
 .ne 2
 .TP
-\fB\fBfix\fR \fB-r\fR \fIsid\fR | \fB-r\fR\fIsid\fR\fR
+\fB\fBfix\fR [\fB\-d\fR] \fB-r\fR \fIsid\fR | \fB-r\fR\fIsid\fR\fR
 .sp .6
 Revise a (leaf) delta.  Remove the indicated delta from the \fBSCCS\fR history, but leave a working copy of the current version in the directory. This is useful for incorporating trivial updates for which no audit record is needed, or for revising the delta commentary. \fBfix\fR must be followed by a \fB-r\fR option, to specify the \fBSID\fR of the delta to remove. The indicated delta must be the most recent (leaf) delta in its branch. Use \fBfix\fR with caution since it does not leave an audit trail of differences (although
 the previous commentary is retained within the history file).
+.br
+.ne 2
+.RS
+.TP
+.B \-d
+Fully discard the delta. 
+By default only the file content for the related 
+.B SID 
+is removed and the delta table entry is changed to the new type 
+.BR `R' . 
+When in discard mode, the delta tyble entry is also completely discarded. 
+.RE
 
 .sp
 .ne 5
@@ -843,6 +901,28 @@ Ignore branches.
 List only files checked out by you. When \fIusername\fR is specified, list only files checked out by that user. For \fB/usr/xpg4/bin/sccs\fR, the \fB-U\fR option is equivalent to \fB-u\fR <\fIcurrent_user\fR>.
 .RE
 
+.sp
+.ne 5
+.TP
+.BR "istext " "[\fB\-s\fP] [\fB\-V4 \fP| \fB\-V6\fP]
+.sp .6
+Checks whether the files are pure text files or whether they need
+to be encoded.
+.RS
+.TP
+.B \-s
+Be silent. If all file are pure text, the exit code is 0.
+.TP
+.B \-V4
+Check with SCCS v4 rules.
+A file is not pure text if it contains one or more null characters,
+if a line starts with \e001 (^A) or if the file does not end with
+a newline character.
+.TP
+.B \-V6
+Check with SCCS v6 rules.
+A file is not pure text if it contains one or more null characters.
+.RE
 .sp
 .ne 5
 .TP
@@ -1007,12 +1087,22 @@ List only files checked out to you.  When \fIusername\fR is specified, list only
 .sp
 .ne 5
 .TP
-\fB\fBunedit\fR\fR
+\fB\fBunedit\fR\fR [\fB\-o\fR]
 .sp .6
 "Undo" the last \fBedit\fR or `\fBget\fR \fB-e\fR', and return the working copy to its previous condition. \fBunedit\fR backs out all pending changes made since the file was checked out.
 It should be used with extreme caution,
 since any changes you made since the get
 will be irretrievably lost.
+.br
+.ne 2
+.RS
+.TP
+.B \-o
+Retrieves the file under the original time instead of the current time
+with the final
+.B get
+command.
+.RE
 
 .sp
 .ne 5
@@ -1248,19 +1338,37 @@ new delta 1.3
 .SH ENVIRONMENT VARIABLES
 .LP
 See \fBenviron\fR(5) for descriptions of the following environment variables that affect the execution of \fBsccs\fR: \fBLANG\fR, \fBLC_ALL\fR, \fBLC_CTYPE\fR, \fBLC_MESSAGES\fR, and \fBNLSPATH\fR.
-.sp
-.ne 2
-.mk
-.na
-\fB\fBPROJECTDIR\fR\fR
-.ad
-.RS 14n
-.rt  
+.br
+.ne 3
+.TP 14
+.B PROJECTDIR
 If contains an absolute path name (beginning with a slash), \fBsccs\fR searches for \fBSCCS\fR history files in the directory given by that variable.
 .sp
 If \fBPROJECTDIR\fR does not begin with a slash, it is taken as the name of a user, and \fBsccs\fR searches the \fBsrc\fR or \fBsource\fR subdirectory of that user's home directory for history files. If such a directory is found, it is used.
 Otherwise, the value is used as a relative path name.
-.RE
+.br
+.ne 3
+.TP 14
+.B SCCS_EDITOR
+The editor to call with the
+.B sccs editor
+command.
+.br
+.ne 3
+.TP 14
+.B EDITOR
+The editor to call with the
+.B sccs editor
+command in case
+.B SCCS_EDITOR
+is not set.
+If neither
+.B SCCS_EDITOR
+nor
+.B EDITOR
+is set,
+.BR vi (1)
+is called as editor.
 
 .SH EXIT STATUS
 .LP

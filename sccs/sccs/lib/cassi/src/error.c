@@ -25,12 +25,12 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2009 J. Schilling
+ * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)error.c	1.5 09/11/08 J. Schilling
+ * @(#)error.c	1.6 11/10/10 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)error.c 1.5 09/11/08 J. Schilling"
+#pragma ident "@(#)error.c 1.6 11/10/10 J. Schilling"
 #endif
 /*
  * @(#)error.c 1.2 06/12/12
@@ -43,8 +43,8 @@
 
 #include <defines.h>
 
-void error(dummy)	
+void cmrerror(dummy)
 	const char *dummy;
-	{
-	 printf("%s\n",dummy);
-	}
+{
+	printf("%s\n",dummy);
+}

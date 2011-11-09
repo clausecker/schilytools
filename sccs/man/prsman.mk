@@ -1,4 +1,4 @@
-#ident @(#)prsman.mk	1.1 07/02/10 
+#ident @(#)prsman.mk	1.2 11/10/12 
 ###########################################################################
 # Sample makefile for installing manual pages
 ###########################################################################
@@ -12,6 +12,8 @@ TARGETMAN=	prs
 MANSECT=	$(MANSECT_CMD)
 MANSUFFIX=	$(MANSUFF_CMD)
 MANFILE=	prs.1
+
+prs.1.html: sccs-prs.1
 
 ###########################################################################
 include		$(SRCROOT)/$(RULESDIR)/rules.man

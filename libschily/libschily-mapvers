@@ -1,4 +1,4 @@
-# /* @(#)libschily-mapvers	1.28 11/07/29 Copyright 2005-2011 J. Schilling */
+# /* @(#)libschily-mapvers	1.31 11/11/08 Copyright 2005-2011 J. Schilling */
 #include <schily/mconfig.h>
 
 SCHILY_1.5 {
@@ -49,6 +49,9 @@ global:
 	get_progpath;
 	getexecpath;
 
+	fgetaline;
+	getaline;
+
 	js_fgetline;
 	js_getline;
 
@@ -69,6 +72,14 @@ global:
 
 	mkgmtime;
 	mklgmtime;
+	mkdirs;
+	makedirs;
+	abspath;
+	absnpath;
+#ifndef	HAVE_RESOLVEPATH
+	resolvepath;
+#endif
+	resolvenpath;
 
 #if	!defined(HAVE_FNMATCH)
 	fnmatch;

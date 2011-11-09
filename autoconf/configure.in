@@ -1,6 +1,6 @@
-dnl @(#)configure.in	1.239 11/08/14 Copyright 1998-2011 J. Schilling
+dnl @(#)configure.in	1.241 11/10/22 Copyright 1998-2011 J. Schilling
 dnl Process this file with autoconf to produce a configure script.
-AC_REVISION(1.239)dnl
+AC_REVISION(1.241)dnl
 
 dnl AC_INIT(xconfig.h.in)
 AC_INIT(config.guess)
@@ -334,6 +334,15 @@ AC_CHECK_SIZEOF(size_t)
 AC_CHECK_SIZEOF(ssize_t)
 AC_CHECK_SIZEOF(ptrdiff_t)
 
+AC_CHECK_SIZEOF(mode_t)
+AC_CHECK_SIZEOF(uid_t)
+AC_CHECK_SIZEOF(gid_t)
+AC_CHECK_SIZEOF(pid_t)
+
+AC_CHECK_SIZEOF(dev_t)
+AC_CHECK_SIZEOF(major_t)
+AC_CHECK_SIZEOF(minor_t)
+
 dnl This call must be past AC_CHECK_SIZEOF(long int)
 AC_CHECK_SIZE_TIME_T
 AC_CHECK_SIZE_WCHAR
@@ -513,12 +522,12 @@ AC_CHECK_DFUNCS([
 #ifdef	HAVE_STRING_H
 #include <string.h>
 #endif
-], strcat strncat strcmp strncmp strcpy strlcat strlcpy strncpy strdup strndup strlen strnlen strchr strrchr)
+], strcat strncat strcmp strncmp strcpy strlcat strlcpy strncpy strdup strndup strlen strnlen strchr strrchr strstr)
 AC_CHECK_DFUNCS([
 #ifdef	HAVE_WCHAR_H
 #include <wchar.h>
 #endif
-], wcscat wcsncat wcscmp wcsncmp wcscpy wcslcat wcslcpy wcsncpy wcsdup wcsndup wcslen wcsnlen wcschr wcsrchr)
+], wcscat wcsncat wcscmp wcsncmp wcscpy wcslcat wcslcpy wcsncpy wcsdup wcsndup wcslen wcsnlen wcschr wcsrchr wcsstr)
 
 AC_CHECK_FUNCS(wcwidth wcswidth wctype iswctype)
 AC_CHECK_FUNCS(basename dirname)

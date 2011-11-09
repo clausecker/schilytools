@@ -1,8 +1,8 @@
-/* @(#)patch.c	1.18 11/05/22 2011 J. Schilling */
+/* @(#)patch.c	1.20 11/09/06 2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)patch.c	1.18 11/05/22 2011 J. Schilling";
+	"@(#)patch.c	1.20 11/09/06 2011 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1984-1988 Larry Wall
@@ -361,6 +361,12 @@ _("%d out of %d hunks failed--saving rejects to %s\n"),
 		}
 		set_signals(1);
 	}
+	/*
+	 * Avoid to create a resulting virtual exit code of "0" in case of an
+	 * unfortunate failure counter.
+	 */
+	if (failtotal % 256 == 0)
+		failtotal--;
 	my_exit(failtotal);
 	/* NOTREACHED */
 	return (failtotal);
@@ -418,7 +424,7 @@ init_defaults()
 			s = Argv[0];
 		else
 			s++;
-		if (!strEQ(s, "opatch"))
+		if (!strEQ(s, "opatch") && !strEQ(s, "sccspatch"))
 			do_posix = TRUE;
 	}
 	if (getenv("POSIXLY_CORRECT") != Nullch) {

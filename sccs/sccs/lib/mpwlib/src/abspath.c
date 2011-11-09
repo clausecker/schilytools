@@ -27,10 +27,10 @@
 /*
  * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)abspath.c	1.5 09/11/08 J. Schilling
+ * @(#)abspath.c	1.7 11/11/08 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)abspath.c 1.5 09/11/08 J. Schilling"
+#pragma ident "@(#)abspath.c 1.7 11/11/08 J. Schilling"
 #endif
 /*
  * @(#)abspath.c 1.4 06/12/12
@@ -43,11 +43,19 @@
 
 #include <defines.h>
 
-	char *abspath	__PR((char *p));
+	char *fixpath	__PR((char *p));
 static	void push	__PR((char **chrptr, char **stktop));
 static	char pop	__PR((char **stktop));
 
-char *abspath(p)
+/*
+ * fixpath() (formerly abspath() from AT&T) is buggy: it
+ * is unable to remove "./" at the beginning and it
+ * returns -1 leaving a corrupted path buffer in case
+ * it contained too many "/../" entries.
+ *
+ * better use resolvepath().
+ */
+char *fixpath(p)
 char *p;
 {
 int state;

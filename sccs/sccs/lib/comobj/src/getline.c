@@ -27,10 +27,10 @@
 /*
  * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)getline.c	1.13 11/08/27 J. Schilling
+ * @(#)getline.c	1.15 11/09/14 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)getline.c 1.13 11/08/27 J. Schilling"
+#pragma ident "@(#)getline.c 1.15 11/09/14 J. Schilling"
 #endif
 /*
  * @(#)getline.c 1.10 06/12/12
@@ -92,6 +92,7 @@ register struct packet *pkt;
 	} while (!eof);
 	used += strlen(&line[used]);
 	pkt->p_line = line;
+	pkt->p_linebase = line;
 	pkt->p_line_size = line_size;
 	pkt->p_line_length = used;
 
@@ -108,7 +109,7 @@ register struct packet *pkt;
 		    if (pkt->do_chksum && (pkt->p_uchash ^ pkt->p_ihash) & 0xFFFF)
 			fatal(gettext("Corrupted file (co6)"));
 		if (pkt->p_reopen) {
-			fseek(pkt->p_iop, (off_t)0, SEEK_SET);
+			rewind(pkt->p_iop);
 			pkt->p_reopen = 0;
 			pkt->p_slnno = 0;
 			pkt->p_ihash = 0;
@@ -149,6 +150,8 @@ register struct packet *pkt;
 		case 1:	c = *p++; ch += c; uch += (unsigned char)c;
 		}
 
+		pkt->p_clhash = ch;
+		pkt->p_uclhash = uch;
 		pkt->p_chash += ch;
 		pkt->p_uchash += uch;
 	}

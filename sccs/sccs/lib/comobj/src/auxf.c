@@ -25,12 +25,12 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2009 J. Schilling
+ * Copyright 2009-2011 J. Schilling
  *
- * @(#)auxf.c	1.3 09/11/08 J. Schilling
+ * @(#)auxf.c	1.4 11/10/05 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)auxf.c 1.3 09/11/08 J. Schilling"
+#pragma ident "@(#)auxf.c 1.4 11/10/05 J. Schilling"
 #endif
 /*
  * @(#)auxf.c 1.5 06/12/12
@@ -71,25 +71,31 @@ register char ch;
 
 	case 0:
 	case 'g':
-			copy(&snp[2], auxfile);
+			strlcpy(auxfile, &snp[2], sizeof (auxfile));
 			break;
 	case 'A':
-			copy("g.", auxfile);
-			strcat(auxfile, &snp[2]);
+			strlcpy(auxfile, "g.", sizeof (auxfile));
+			strlcat(auxfile, &snp[2], sizeof (auxfile));
 			break;
 	case 'l':
-			copy(snp, auxfile);
+			strlcpy(auxfile, snp, sizeof (auxfile));
 			auxfile[0] = 'l';
 			break;
 	case 'G':
-			copy(sfile, auxfile);
-			auxfile[snp-sfile] = '\0';
-			strcat(auxfile, "g.");
-			strcat(auxfile, snp);
+			strlcpy(auxfile, sfile, sizeof (auxfile));
+			if ((snp-sfile) >= sizeof (auxfile))
+				auxfile[0] = '\0';
+			else
+				auxfile[snp-sfile] = '\0';
+			strlcat(auxfile, "g.", sizeof (auxfile));
+			strlcat(auxfile, snp, sizeof (auxfile));
 			break;
 	default:
-			copy(sfile, auxfile);
-			auxfile[snp-sfile] = ch;
+			strlcpy(auxfile, sfile, sizeof (auxfile));
+			if ((snp-sfile) >= sizeof (auxfile))
+				auxfile[0] = '\0';
+			else
+				auxfile[snp-sfile] = ch;
 	}
 	return(auxfile);
 }

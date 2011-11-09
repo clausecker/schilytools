@@ -19,7 +19,7 @@
 .\" CDDL HEADER END
 .\" Copyright (c) 1999, Sun Microsystems, Inc. All Rights Reserved
 .\" Copyright 2007-2011 J. Schilling
-.TH sccs-delta 1 "2011/08/24" "SunOS 5.11" "User Commands"
+.TH sccs-delta 1 "2011/09/08" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs-delta, delta \- make a delta to an SCCS file
 .SH SYNOPSIS
@@ -117,6 +117,17 @@ results if the specified \fBSID\fR is ambiguous, or if one is required but not s
 .TP
 \fB\fB-y\fR[\fIcomment\fR]\fR
 Supply a comment for the delta table (version log). A null comment is accepted, and produces an empty commentary in the log. If \fB-y\fR is not specified and the standard input is a terminal, \fBdelta\fR prompts with `\fBcomments?\fR'. An unescaped NEWLINE terminates the comment.
+.ne 3
+.TP
+.BI \-C dir
+Specify the base directory for the
+.B g-file
+relative to the current working directory.
+By default, the
+.B g-file
+is searched for in the current directory (independent from
+the location of the 
+.BI s. file\fR.
 .ne 3
 .TP
 .B \-V

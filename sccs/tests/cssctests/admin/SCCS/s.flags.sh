@@ -1,4 +1,8 @@
-h41758
+h51892
+s 00001/00001/00115
+d D 1.2 11/10/21 23:07:38 joerg 2 1
+c prs -d:DI: Tests sind nun POSIX konform
+e
 s 00116/00000/00000
 d D 1.1 11/04/30 19:50:22 joerg 1 0
 c date and time created 11/04/30 19:50:22 by joerg
@@ -106,7 +110,12 @@ docommand b11 "${prs} -r2.1 -d:I: $s" 0 "2.1\n" IGNORE
 # the sequence number of this delta must be 2, and the type must be 'D',
 # that is, a normal delta.
 docommand b12 "${vg_prs} -r2.1 '-d:C:|:DI:|:DP:|:DS:|:DT:' $s" 0 \
+D 2
   'AUTO NULL DELTA\n||1|2|D\n' IGNORE
+E 2
+I 2
+  'AUTO NULL DELTA\n|//|1|2|D\n' IGNORE
+E 2
 
 
 ###

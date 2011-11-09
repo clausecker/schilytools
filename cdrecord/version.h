@@ -1,6 +1,6 @@
-/* @(#)version.h	1.60 11/06/05 Copyright 2007-2010 J. Schilling */
+/* @(#)version.h	1.61 11/09/13 Copyright 2007-2010 J. Schilling */
 
 /*
  * The version for cdrtools programs
  */
-#define	VERSION	"3.01a05"
+#define	VERSION	"3.01a06"

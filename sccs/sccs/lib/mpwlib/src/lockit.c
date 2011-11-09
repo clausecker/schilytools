@@ -27,10 +27,10 @@
 /*
  * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)lockit.c	1.10 11/08/02 J. Schilling
+ * @(#)lockit.c	1.12 11/09/21 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)lockit.c 1.10 11/08/02 J. Schilling"
+#pragma ident "@(#)lockit.c 1.12 11/09/21 J. Schilling"
 #endif
 /*
  * @(#)lockit.c 1.20 06/12/12
@@ -80,15 +80,16 @@ static int onelock __PR((pid_t pid, char *uuname, char *lockfile));
 
 int
 lockit(lockfile, count, pid, uuname)
-char	*lockfile;
-int	count;
-pid_t	pid;
-char	*uuname;
+	char	*lockfile;		/* The z.file path (e.g. SCCS/z.foo) */
+	int	count;			/* # of retries to get lock (e.g. 4) */
+	pid_t	pid;			/* The pid of the holding process.   */
+	char	*uuname;		/* The hostname for this machine.    */
 {  
 	int	fd;
 	pid_t	opid;
 	char	ouuname[nodenamelength];
 	long	ltime, omtime;
+#ifdef	needed
 	char	uniqfilename[PATH_MAX+48];
 	char	tempfile[PATH_MAX];
 	int	uniq_nmbr;
@@ -104,6 +105,12 @@ char	*uuname;
 	      uniq_nmbr&0xffffffff);
 	   uniqfilename[PATH_MAX-1] = '\0';
 	}
+	/*
+	 * Former SCCS implementations later renamed this file to the lock file
+	 * using link() and unlink(), but we like to live without link().
+	 * We here only check whether we are able to create a file in the
+	 * desired directory.
+	 */
 	fd = open(uniqfilename, O_WRONLY|O_CREAT|O_BINARY, 0666);
         if (fd < 0) {
 	   return(-1);
@@ -111,20 +118,26 @@ char	*uuname;
 	   (void)close(fd);
 	   (void)unlink(uniqfilename);
 	}
+#endif
 	for (++count; --count; (void)sleep(10)) {
 		if (onelock(pid, uuname, lockfile) == 0)
 		   return(0);
+		if (errno == EACCES)
+		   return(-1);
 		if (!exists(lockfile))
 		   continue;
 		omtime = Statbuf.st_mtime;
 		if ((fd = open(lockfile, O_RDONLY|O_BINARY)) < 0)
 		   continue;
-		opid = pid;
+		opid = pid;		/* In case file is empty */
 		ouuname[0] = '\0';
 		(void)read(fd, (char *)&opid, sizeof(opid));
 		(void)read(fd, ouuname, nodenamelength);
 		(void)close(fd);
-		/* check for pid */
+		/*
+		 * If lockfile is from this host, check for pid.
+		 * If lockfile is empty, ouuname and uuname are not equal.
+		 */
 		if (equal(ouuname, uuname)) {
 		   if (kill((int) opid,0) == -1 && errno == ESRCH) {
 		      if ((exists(lockfile)) &&
@@ -134,6 +147,11 @@ char	*uuname;
 		      }
 		   }
 		}
+		/*
+		 * Lock file is empty, hold by other host or hold by an
+		 * existing process on this host.
+		 * Wait in case that file is younger than 60 seconds.
+		 */
 		if ((ltime = time((time_t *)0) - Statbuf.st_mtime) < 60L) {
 		   if (ltime >= 0 && ltime < 60) {
 		      (void) sleep((unsigned) (60 - ltime));
@@ -141,6 +159,12 @@ char	*uuname;
 		      (void) sleep(60);
 		   }
 		}
+		/*
+		 * Lock file is at least 60 seconds old.
+		 * If lock file is still empty and did not change, we may
+		 * remove it as we check for long delays between creation
+		 * and writing the content in onelock().
+		 */
 		if (exists(lockfile) &&
 		    Statbuf.st_size == 0 && omtime == Statbuf.st_mtime)
 			(void) unlink(lockfile);
@@ -182,19 +206,21 @@ char	*lockfile;
 	char	lock[sizeof (pid_t) + nodenamelength];
 	char	*p;
 	int	i;
+	time_t	otime;
 
 	/*
 	 * Copy pid and nodename together and write it in a single write() call
 	 * to make sure we are not interrupted with a partially written lock
 	 * file.
-	 * The original implementation wrote into the file under a temporary
-	 * name and the linked it to lockname, but not all platforms support
+	 * A previous implementation wrote into the file under a temporary
+	 * name and then linked it to lockname, but not all platforms support
 	 * hard links.
 	 */
 	for (i = 0, p = (char *)&pid; i < sizeof (pid_t); i++)
 		lock[i] = *p++;
 	strncpy(&lock[sizeof (pid_t)], uuname, nodenamelength);
 
+	otime = time((time_t *)0);
 	if ((fd = open(lockfile, O_WRONLY|O_CREAT|O_EXCL|O_DSYNC|O_BINARY, 0444)) >= 0) {
 		if (write(fd, lock, sizeof (lock)) != sizeof (lock)) {
 			(void)close(fd);
@@ -202,6 +228,15 @@ char	*lockfile;
 			return (xmsg(lockfile, NOGETTEXT("lockit")));
 		}
 		close(fd);
+		/*
+		 * In case of a long sleep, check whether the current lock file
+		 * is ours or whether it has been replaced by a faster process.
+		 * If the current lock file is not from us, allow to try again
+		 * to create the lock.
+		 */
+		if ((time((time_t *)0) - otime) > 2)
+			if (!mylock(lockfile, pid, uuname))
+				return (-1);
 		return (0);
 	}
 	if ((errno == ENFILE) || (errno == EACCES) || (errno == EEXIST)) {

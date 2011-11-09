@@ -1,4 +1,4 @@
-#ident @(#)Makefile	1.15 07/02/03 
+#ident @(#)Makefile	1.16 11/09/14 
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -11,7 +11,7 @@ CPPOPTS +=	-DUSE_LARGEFILES
 CPPOPTS +=	-DNO_COMPAT '-DDEFAULTS_PATH="$(INS_BASE)/lib/defaults.smk"'
 CPPOPTS +=	-DSCHILY_PRINT
 CFILES=		make.c archconf.c readfile.c parse.c update.c rules.c memory.c
-HFILES=		make.h
+HFILES=		make.h job.h
 LIBS=		-lschily
 XMK_FILE=	Makefile.def Makefile.man
 

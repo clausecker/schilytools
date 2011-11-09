@@ -27,10 +27,10 @@
 /*
  * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)dohist.c	1.8 11/06/19 J. Schilling
+ * @(#)dohist.c	1.9 11/10/15 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)dohist.c 1.8 11/06/19 J. Schilling"
+#pragma ident "@(#)dohist.c 1.9 11/10/15 J. Schilling"
 #endif
 /*
  * @(#)dohist.c 1.7 06/12/12
@@ -219,14 +219,13 @@ valmrs(pkt,pgm)
 struct packet *pkt;
 char *pgm;
 {
-	extern char *Sflags[];
 	register int i;
 	int st;
 	register char *p;
 
 	Varg[0] = pgm;
 	Varg[1] = auxf(pkt->p_file,'g');
-	if ((p = Sflags[TYPEFLAG - 'a']) != NULL)
+	if ((p = pkt->p_sflags[TYPEFLAG - 'a']) != NULL)
 		Varg[2] = p;
 	else
 		Varg[2] = Null;

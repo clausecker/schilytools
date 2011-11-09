@@ -27,10 +27,10 @@
 /*
  * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)fatal.c	1.7 11/04/22 J. Schilling
+ * @(#)fatal.c	1.10 11/10/30 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)fatal.c 1.7 11/04/22 J. Schilling"
+#pragma ident "@(#)fatal.c 1.10 11/10/30 J. Schilling"
 #endif
 /*
  * @(#)fatal.c 1.8 06/12/12
@@ -100,6 +100,10 @@ int	(*Ffunc) __PR((char *));
 jmp_buf	Fjmp;
 char    *nsedelim = (char *) 0;
 
+	void	set_clean_up	__PR((void (*f)(void)));
+static	void	dummy_clean_up	__PR((void));
+	void	(*f_clean_up) __PR((void)) = dummy_clean_up;
+
 /* default value for NSE delimiter (currently correct, if NSE ever
  * changes implementation it will have to pass new delimiter as
  * value for -q option)
@@ -109,9 +113,60 @@ char    *nsedelim = (char *) 0;
 static  int     delimlen = 0;
 
 int
+efatal(msg)
+char *msg;
+{
+	int	errsav = errno;
+	char	*errstr = NULL;
+
+	if (Fflags & FTLMSG) {
+#ifdef	SCHILY_BUILD
+		errstr = get_progname();
+#else
+#ifdef	HAVE_GETPROGNAME
+		errstr = (char *)getprogname() 
+#endif
+#endif
+		if (errstr) {
+			write(2, errstr, length(errstr));
+			write(2, ": ", 2);
+		}
+
+		errno = 0;
+		errstr = NULL;
+#ifdef	SCHILY_BUILD
+		errstr = errmsgstr(errsav);
+#else
+#ifdef	HAVE_STRERROR
+		errstr = strerror(errsav);
+		if (errno)
+			errstr = NULL;
+#endif
+#endif
+		if (errstr) {
+			write(2, errstr, length(errstr));
+			write(2, ". ", 2);
+		}
+	}
+	return (fatal(msg));
+}
+
+int
 fatal(msg)
 char *msg;
 {
+#if	defined(IS_MACOS_X)
+/*
+ * The Mac OS X static linker is too silly to link in .o files from static libs
+ * if only a variable is referenced. The elegant workaround for this bug (using
+ * common variables) triggers a different bug in the dynamic linker from Mac OS
+ * that is unable to link common variables. This forces us to introduce funcs
+ * that need to be called from central places to enforce to link in the vars.
+ */
+extern	void __mpw __PR((void));
+
+	__mpw();
+#endif
 	++Fcnt;
 	if (Fflags & FTLMSG) {
 		write(2,gettext("ERROR"),5);
@@ -125,7 +180,7 @@ char *msg;
 		(void) write(2,"\n",1);
 	}
 	if (Fflags & FTLCLN)
-		clean_up();
+		(*f_clean_up)();
 	if (Fflags & FTLFUNC)
 		(*Ffunc)(msg);
 	switch (Fflags & FTLACT) {
@@ -221,3 +276,14 @@ check_permission_SccsDir(path)
 
 }
 
+static void
+dummy_clean_up()
+{
+}
+
+void
+set_clean_up(f)
+	void (*f) __PR((void));
+{
+	f_clean_up = f;
+}

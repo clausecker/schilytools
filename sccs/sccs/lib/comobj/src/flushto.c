@@ -25,12 +25,12 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2009 J. Schilling
+ * Copyright 2006-2009 J. Schilling
  *
- * @(#)flushto.c	1.5 09/11/08 J. Schilling
+ * @(#)flushto.c	1.6 11/11/01 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)flushto.c 1.5 09/11/08 J. Schilling"
+#pragma ident "@(#)flushto.c 1.6 11/11/01 J. Schilling"
 #endif
 /*
  * @(#)flushto.c 1.3 06/12/12
@@ -43,18 +43,23 @@
 # include	<defines.h>
 
 void
-flushto(pkt,ch,put)
-register struct packet *pkt;
-register char ch;
-int put;
+flushto(pkt, ch, put)
+	register struct packet	*pkt;
+	register char		ch;
+	int			put;
 {
 	register char *p;
 
 	while ((p = getline(pkt)) != NULL && !(*p++ == CTLCHAR && *p == ch))
-		pkt->p_wrttn = (char) put;
+		pkt->p_wrttn = (char) (put & 1);
 
 	if (p == NULL)
 		fmterr(pkt);
 
-	putline(pkt,(char *) 0);
+	if (put == FLUSH_COPY_UNTIL) {	/* Do not copy matching line */
+		pkt->p_wrttn = (char) 1; /* Prevent writing by default */
+		return;
+	}
+
+	putline(pkt, (char *) 0);
 }

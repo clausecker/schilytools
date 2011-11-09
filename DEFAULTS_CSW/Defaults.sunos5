@@ -41,14 +41,14 @@ SUNPROCOPTOPT=	-O -xspace -xildoff $(XARCH_GEN)
 DEFINCDIRS=	$(SRCROOT)/include
 LDPATH=		-L/opt/schily/lib
 #RUNPATH=	-R$(INS_BASE)/lib -R/opt/schily/lib -R$(OLIBSDIR)
-RUNPATH=	-R'$$ORIGIN/../lib' -R/opt/schily/lib
+RUNPATH=	-R'$$ORIGIN/../lib' -R/opt/csw/lib
 
 ###########################################################################
 #
 # Installation config stuff
 #
 ###########################################################################
-INS_BASE=	/opt/schily
+INS_BASE=	/opt/csw
 INS_KBASE=	/
 INS_RBASE=	/
 #INS_BASE=	/tmp/schily

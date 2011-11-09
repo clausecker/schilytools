@@ -27,10 +27,10 @@
 /*
  * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)help.c	1.6 09/11/08 J. Schilling
+ * @(#)help.c	1.7 11/11/01 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)help.c 1.6 09/11/08 J. Schilling"
+#pragma ident "@(#)help.c 1.7 11/11/01 J. Schilling"
 #endif
 /*
  * @(#)help.c 1.6 06/12/12
@@ -40,6 +40,7 @@
 #pragma ident	"@(#)help.c"
 #pragma ident	"@(#)sccs:cmd/help.c"
 #endif
+#define	NO_SNPRINTF
 #include	<defines.h>
 #include	<i18n.h>
 

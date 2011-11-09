@@ -27,10 +27,10 @@
 /*
  * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)rdmod.c	1.7 11/08/07 J. Schilling
+ * @(#)rdmod.c	1.8 11/09/02 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)rdmod.c 1.7 11/08/07 J. Schilling"
+#pragma ident "@(#)rdmod.c 1.8 11/09/02 J. Schilling"
 #endif
 /*
  * @(#)rdmod.c 1.11 06/12/12
@@ -50,16 +50,19 @@ struct packet *pkt;
 {
 	char *p;
 	int ser, iord, oldixmsg;
+	unsigned int	lhash;
 	struct apply *ap;
 
 	pkt->p_flags &= ~PF_NONL;
 	oldixmsg = pkt->p_ixmsg;
 	while (getline(pkt) != NULL) {
+	   lhash = pkt->p_uclhash;
 	   p = pkt->p_lineptr = pkt->p_line;
 	   if (*p++ != CTLCHAR) {
 found_esc:
 	      if (pkt->p_keep == YES) {
  		 pkt->p_glnno++;
+		 pkt->p_ghash += lhash;
 		 if (pkt->p_verbose) {
 		    if (pkt->p_ixmsg && oldixmsg == 0) {
 		       fprintf(pkt->p_stdout,
@@ -79,9 +82,11 @@ found_esc:
 	      iord = *p++;
 	      if (iord == CTLCHAR) {	/* "^A^Atext\n" -> "^Atext\n"	*/
 		 pkt->p_lineptr++;
+		 lhash -= CTLCHAR;
 		 goto found_esc;
 	      } else if (iord == NONL) { /* "^ANtext\n" -> "text"	*/
 		 pkt->p_lineptr += 2;
+		 lhash -= CTLCHAR + 'N' + '\n';
 		 /*
 		  * We cannot kill the newline here because of getline()'s auto
 		  * copy mode. Just flag the missing newline for our users.

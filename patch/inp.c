@@ -1,8 +1,8 @@
-/* @(#)inp.c	1.11 11/05/22 2011 J. Schilling */
+/* @(#)inp.c	1.12 11/11/07 2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)inp.c	1.11 11/05/22 2011 J. Schilling";
+	"@(#)inp.c	1.12 11/11/07 2011 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1986, 1988 Larry Wall
@@ -87,7 +87,9 @@ plan_a(filename)
 	if (ok_to_create_file && stat(filename, &file_stat) < 0) {
 		if (verbose)
 			say(_("(Creating file %s...)\n"), filename);
-		makedirs(filename, TRUE);
+		makedirs(filename, S_IRUSR|S_IWUSR|S_IXUSR|
+				S_IRGRP|S_IWGRP|S_IXGRP|
+				S_IROTH|S_IWOTH|S_IXOTH, TRUE);
 		close(creat(filename, 0666));
 	}
 	if (stat(filename, &file_stat) < 0) {

@@ -27,10 +27,10 @@
 /*
  * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)newsid.c	1.5 09/11/08 J. Schilling
+ * @(#)newsid.c	1.6 11/10/15 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)newsid.c 1.5 09/11/08 J. Schilling"
+#pragma ident "@(#)newsid.c 1.6 11/10/15 J. Schilling"
 #endif
 /*
  * @(#)newsid.c 1.7 06/12/12
@@ -109,8 +109,6 @@ int branch;
 		fatal(gettext("bad SID calculated in newsid()"));
 }
 
-extern char *Sflags[];
-
 static int
 in_pfile(sp,pkt)
 struct	sid	*sp;
@@ -121,7 +119,7 @@ struct	packet	*pkt;
 	char	*p;
 	FILE	*in;
 
-	if (Sflags[JOINTFLAG - 'a']) {
+	if (pkt->p_sflags[JOINTFLAG - 'a']) {
 		if (exists(auxf(pkt->p_file,'p'))) {
 			in = xfopen(auxf(pkt->p_file,'p'), O_RDONLY|O_BINARY);
 			while ((p = fgets(line,sizeof(line),in)) != NULL) {

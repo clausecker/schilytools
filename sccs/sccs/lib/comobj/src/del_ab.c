@@ -25,12 +25,12 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2011 J. Schilling
+ * Copyright 2011 J. Schilling
  *
- * @(#)del_ab.c	1.5 11/08/21 J. Schilling
+ * @(#)del_ab.c	1.7 11/10/07 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)del_ab.c 1.5 11/08/21 J. Schilling"
+#pragma ident "@(#)del_ab.c 1.7 11/10/07 J. Schilling"
 #endif
 /*
  * @(#)del_ab.c 1.7 06/12/12
@@ -49,6 +49,7 @@ register struct deltab *dt;
 struct packet *pkt;
 {
 	int n;
+	int n2;
 	extern char *Datep;
 
 	if (*p++ != CTLCHAR)
@@ -71,10 +72,11 @@ struct packet *pkt;
 	}
 	p = Datep;
 	NONBLANK(p);
-	if ((n = sccs_index(p," ")) < 0)
+	if ((n2 = n = sccs_index(p," ")) < 0)
 		fmterr(pkt);
-	strncpy(dt->d_pgmr,p,(unsigned) n);
-	dt->d_pgmr[n] = 0;
+	if (++n2 > sizeof (dt->d_pgmr))
+		n2 = sizeof (dt->d_pgmr);
+	strlcpy(dt->d_pgmr, p, (unsigned) n2);
 	p += n + 1;
 	NONBLANK(p);
 	p = satoi(p,&dt->d_serial);

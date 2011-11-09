@@ -1,4 +1,4 @@
-#ident @(#)cdcman.mk	1.1 07/02/10 
+#ident @(#)cdcman.mk	1.2 11/10/12 
 ###########################################################################
 # Sample makefile for installing manual pages
 ###########################################################################
@@ -12,6 +12,8 @@ TARGETMAN=	cdc
 MANSECT=	$(MANSECT_CMD)
 MANSUFFIX=	$(MANSUFF_CMD)
 MANFILE=	cdc.1
+
+cdc.1.html: sccs-cdc.1
 
 ###########################################################################
 include		$(SRCROOT)/$(RULESDIR)/rules.man

@@ -1,8 +1,8 @@
-/* @(#)longnames.c	1.54 11/06/14 Copyright 1993, 1995, 2001-2011 J. Schilling */
+/* @(#)longnames.c	1.56 11/09/05 Copyright 1993, 1995, 2001-2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)longnames.c	1.54 11/06/14 Copyright 1993, 1995, 2001-2011 J. Schilling";
+	"@(#)longnames.c	1.56 11/09/05 Copyright 1993, 1995, 2001-2011 J. Schilling";
 #endif
 /*
  *	Handle filenames that cannot fit into a single
@@ -196,16 +196,17 @@ name_to_tcb(info, ptb)
 	 * Do actual splitting based on split name pointer 'np'.
 	 */
 	if (add)
-		strcatl(ptb->dbuf.t_name, &np[1], "/", (char *)NULL);
+		strcatl(ptb->ndbuf.t_name, &np[1], "/", (char *)NULL);
 	else
-		strcpy(ptb->dbuf.t_name, &np[1]);
+		strcpy(ptb->ndbuf.t_name, &np[1]);
 	strncpy(ptb->dbuf.t_prefix, name, np - name);
 	info->f_flags |= F_SPLIT_NAME;
 	return (TRUE);
 }
 
 /*
- * This function is only called by tcb_to_info().
+ * This function is only called by tcb_to_info() with
+ * dbuf.t_name[100], dbuf.t_linkname[100] and dbuf.t_prefix[155] set to '\0'.
  * If we ever decide to call it from somewhere else check if the linkname
  * kludge for 100 char linknames does not make problems.
  */
@@ -228,7 +229,7 @@ tcb_to_name(ptb, info)
 		 * Our caller has set ptb->dbuf.t_linkname[NAMSIZ] to '\0'
 		 * if the link name len is exactly 100 chars.
 		 */
-		strcpy(info->f_lname, ptb->dbuf.t_linkname);
+		strcpy(info->f_lname, ptb->ndbuf.t_linkname);
 	}
 
 	/*
@@ -243,11 +244,11 @@ tcb_to_name(ptb, info)
 		return;
 
 	if (props.pr_nflags & PR_POSIX_SPLIT) {
-		strcatl(info->f_name, ptb->dbuf.t_prefix,
-					*ptb->dbuf.t_prefix?"/":"",
-					ptb->dbuf.t_name, (char *)NULL);
+		strcatl(info->f_name, ptb->ndbuf.t_prefix,
+					*ptb->ndbuf.t_prefix?"/":"",
+					ptb->ndbuf.t_name, (char *)NULL);
 	} else {
-		strcpy(info->f_name, ptb->dbuf.t_name);
+		strcpy(info->f_name, ptb->ndbuf.t_name);
 	}
 }
 

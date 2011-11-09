@@ -25,12 +25,12 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2011 J. Schilling
+ * Copyright 2006-2011 J. Schilling
  *
- * @(#)admin.c	1.61 11/08/29 J. Schilling
+ * @(#)admin.c	1.74 11/11/08 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)admin.c 1.61 11/08/29 J. Schilling"
+#pragma ident "@(#)admin.c 1.74 11/11/08 J. Schilling"
 #endif
 /*
  * @(#)admin.c 1.39 06/12/12
@@ -100,22 +100,11 @@ should appear exactly as they do in the msgid string:
 # define COPY 0
 # define NOCOPY 1
 
-struct stat Statbuf;
-
-char	Null[1];
-char	SccsError[MAXERRORLEN];
-char	*Comments, *Mrs;
-
-int	Did_id;
-int	Domrs;
-
-extern FILE *Xiop;
-extern char *Sflags[];
-
 static char	stdin_file_buf [20];
 static char	*ifile, *tfile;
 static char	*dir_name;
 static time_t	ifile_mtime;
+static int	Ncomma = 0;
 static int	Nsdot = 1;
 static int	Nsubd;
 static char	*Nprefix;
@@ -139,14 +128,15 @@ static int	asub, esub;
 static int	check_id;
 static struct	utsname	un;
 static char	*uuname;
-static int 	Encoded = 0;
+static int 	Encoded = EF_TEXT;	/* Default encoding is '0' */
 static off_t	Encodeflag_offset;	/* offset in file where encoded flag is stored */
+static off_t	Checksum_offset;	/* offset in file where g-file hash is stored */
 
 	int	main __PR((int argc, char **argv));
 static	void	admin __PR((char *afile));
 static	int	fgetchk __PR((FILE *inptr, char *file, struct packet *pkt, int fflag));
 static	void	warnctl __PR((char *file, off_t nline));
-	void	clean_up __PR((void));
+static	void	clean_up __PR((void));
 static	void	cmt_ba __PR((register struct deltab *dt, char *str, int flags));
 static	void	putmrs __PR((struct packet *pkt));
 static	char *	adjust __PR((char *line));
@@ -161,8 +151,6 @@ static	char *	bulkprepare __PR((char *afile));
 extern int	org_ihash;
 extern int	org_chash;
 extern int	org_uchash;
-
-extern char	saveid[];
 
 int
 main(argc,argv)
@@ -198,10 +186,14 @@ char *argv[];
 
 	tzset();	/* Set up timezome related vars */
 
+#ifdef	SCHILY_BUILD
+	save_args(argc, argv);
+#endif
 	/*
 	Set flags for 'fatal' to issue message, call clean-up
 	routine and terminate processing.
 	*/
+	set_clean_up(clean_up);
 	Fflags = FTLMSG | FTLCLN | FTLEXIT;
 
 	testklt = 1;
@@ -526,9 +518,10 @@ char *argv[];
 					exit(EX_OK);
 				}
 				if (p[1] == '\0') {
-					if (p[0] == '4')
+					if (p[0] == '4') {
+						versflag = 4;
 						break;
-					if (p[0] == '6') {
+					} else if (p[0] == '6') {
 						versflag = 6;
 						break;
 					}
@@ -565,6 +558,10 @@ char *argv[];
 
 	if (HADUCN) {
 		HADI = HADN = 1;
+		if (*Nparm == ',') {
+			Ncomma = 1;
+			Nparm++;
+		}
 		Nsdot = sccsfile(Nparm);
 		if (Nsdot) {				/* Nparm ends in s. */
 			if (strlen(sname(Nparm)) > 2)
@@ -596,6 +593,11 @@ char *argv[];
 		fatal(gettext("USER ID not in password file (cm9)"));
 
 	setsig();
+
+	errno = 0;
+	i = sethome();
+	if (i < 0)
+		efatal(gettext("cannot get project home directory (cm11)"));
 
 	/*
 	Change flags for 'fatal' so that it will return to this
@@ -647,7 +649,6 @@ char	*afile;
 	char	*lval;
 	char	f;		/* character holder for flag character */
 	char	line[BUFSIZ];
-	int	i;		/* used in forking procedure */
 	int	ck_it;		/* used for lockflag checking */
 	off_t	offset;
 	int     thash;
@@ -714,13 +715,15 @@ char	*afile;
 		fatal(SccsError);
 	}
 	if (HADH) {
+		pid_t	pid;
+
 		/*
 		   fork here so 'admin' can execute 'val' to
 		   check for a corrupted file.
 		*/
-		if ((i = vfork()) < 0)
+		if ((pid = vfork()) < 0)
 			fatal(gettext("cannot fork, try again"));
-		if (i == 0) {		/* child */
+		if (pid == 0) {		/* child */
 			/*
 			   perform 'val' with appropriate keyletters
 			*/
@@ -803,6 +806,27 @@ char	*afile;
 		}
 
 		sinit(&gpkt,afile,0);	/* and init pkt */
+
+		/*
+		 * Initialize global meta data
+		 */
+		if (versflag == 6 && setrhome != NULL &&
+		    afile[0] != '/' &&
+		    !(afile[0] == '.' && afile[1] == '.' && afile[2] == '/') &&
+		    !strstr(afile, "/../")) {
+			char	*p;
+
+			sprintf(line, "%s%s%s%s%s",
+				homedist > 0 ? cwdprefix:"",
+				homedist > 0 ? "/": "",
+				dir_name, *dir_name ? "/":"",
+				auxf(afile, 'g'));
+			p = fmalloc(size(line));
+			strcpy(p, line);
+			gpkt.p_init_path = p;
+		}
+		if (versflag == 6)
+			urandom(&gpkt.p_rand);
 	}
 
 	if (!HADH)
@@ -896,6 +920,10 @@ char	*afile;
 			if (z && valmrs(&gpkt,z))
 				fatal(gettext("invalid MRs (de9)"));
 			putmrs(&gpkt);
+		}
+		if (gpkt.p_flags & PF_V6) {
+			Checksum_offset = ftell(gpkt.p_xiop);
+			sidext_ba(&gpkt, &dt);	/* Will not write "dt" entry. */
 		}
 
 		/*
@@ -991,7 +1019,7 @@ char	*afile;
 	store them. Check to see if the flag read is one that
 	should be deleted.
 	*/
-	if (!HADN)
+	if (!HADN) {
 		while (((cp = getline(&gpkt)) != NULL) &&
 				(*cp++ == CTLCHAR && *cp++ == FLAG)) {
 
@@ -1036,6 +1064,14 @@ char	*afile;
 					while (*q)	/* find and */
 						q++;	/* zero newline */
 					*--q = '\0';	/* character */
+					if (k == ENCODEFLAG - 'a') {
+						int	i;
+
+						NONBLANK(cp);
+						cp = satoi(cp, &i);
+						if (*cp == '\n')
+							gpkt.p_encoding = i;
+					}
 				}
 			}
 			if (rm_flag[k]) {
@@ -1051,7 +1087,7 @@ char	*afile;
 				else had_flag[k] = 0;
 			}
 		}
-
+	}
 
 	/*
 	Write out flags.
@@ -1063,6 +1099,8 @@ char	*afile;
 	}
 	for (k = 0; k < NFLAGS; k++)
 		if (had_flag[k]) {
+			int	i;		/* for flag string cleanup */
+
 			if (flag_p[k] || lval ) {
 				if (('a' + k) == LOCKFLAG && had_flag[k] == 1) {
 					if ((flag_p[k] && *flag_p[k] == 'a') || (lval && *lval == 'a'))
@@ -1120,11 +1158,13 @@ char	*afile;
 			non-ASCII characters we can flag it as encoded
 			by setting the value to 1.
 		 	*/
-			Encodeflag_offset = ftell(Xiop);
-			sprintf(line,"%c%c %c 0\n",
-				CTLCHAR,FLAG,ENCODEFLAG);
+			Encodeflag_offset = ftell(gpkt.p_xiop);
+			sprintf(line,"%c%c %c %d\n",
+				CTLCHAR, FLAG, ENCODEFLAG, Encoded);
 			putline(&gpkt,line);
 		}
+		putmeta(&gpkt);
+
 		/*
 		Beginning of descriptive (user) text.
 		*/
@@ -1178,7 +1218,7 @@ char	*afile;
 		putline(&gpkt,line);
 
 		if (HADB)
-			Encoded=1;
+			Encoded |= EF_UUENCODE;
 		if (HADI) {		/* get body */
 
 			/*
@@ -1192,7 +1232,7 @@ char	*afile;
 			Set indicator that tells whether there
 			were any keywords to 'no'.
 			*/
-			Did_id = 0;
+			gpkt.p_did_id = 0;
 			if (ifile) {
 			   if (*ifile) {
 				/* from a file */
@@ -1251,7 +1291,7 @@ char	*afile;
                            file.  Then won't have to start all over.  Also
                            save the hash value up to this point.
 			 */
-			offset = ftell(Xiop);
+			offset = ftell(gpkt.p_xiop);
 			thash = gpkt.p_nhash;
 
 			/*
@@ -1268,14 +1308,14 @@ char	*afile;
 			if (!HADB) {
 			   stats.s_ins = fgetchk(iptr, ifile, &gpkt, 1);
 			   if (stats.s_ins == -1 ) {
-			      Encoded = 1;
+				Encoded |= EF_UUENCODE;
 			   } else {
-			      Encoded = 0;
+				Encoded &= ~EF_UUENCODE;	/* Keep EF_GZIP */
 			   }
 			} else {
-			   Encoded = 1;
+				Encoded |= EF_UUENCODE;
 			}
-			if (Encoded) {
+			if (Encoded & EF_UUENCODE) {
 			   /* non-ascii characters in file, encode them */
 			   iptr = code(iptr, afile, offset, thash, &gpkt);
 			   stats.s_ins = fgetchk(iptr, ifile, &gpkt, 0);
@@ -1291,7 +1331,7 @@ char	*afile;
 			 * NSE mode...or warnings have been disabled via an
 			 * empty 'y' flag value.
 			 */
-			if (!Did_id && !HADQ &&
+			if (!gpkt.p_did_id && !HADQ &&
 			    (!flag_p[EXPANDFLAG - 'a'] ||
 			    *(flag_p[EXPANDFLAG - 'a']))) {
 				if (had_flag[IDFLAG - 'a']) {
@@ -1305,7 +1345,7 @@ char	*afile;
 			}
 
 			check_id = 0;
-			Did_id = 0;
+			gpkt.p_did_id = 0;
 		}
 
 		/*
@@ -1313,8 +1353,17 @@ char	*afile;
 		*/
 		sprintf(line,"%c%c %d\n",CTLCHAR,END,1);
 		putline(&gpkt,line);
-	}
-	else {
+		if (gpkt.p_flags & PF_V6 && gpkt.p_ghash != 0) {
+			fseek(gpkt.p_xiop, Checksum_offset, SEEK_SET);
+			fprintf(gpkt.p_xiop, "%c%c s %5.5d\n",
+				CTLCHAR, SIDEXTENS, gpkt.p_ghash);
+			gpkt.p_nhash -= 5 * '0';
+			sprintf(line, "%5.5d", gpkt.p_ghash);
+			q = (signed char *) line;
+			while (*q)
+				gpkt.p_nhash += *q++;
+		}
+	} else {
 		/*
 		Indicate that EOF at this point is ok, and
 		flush rest of (old) s-file to x-file.
@@ -1327,7 +1376,7 @@ char	*afile;
 	   the hash value
 	 */
 	
-	if (Encoded)
+	if (Encoded & EF_UUENCODE)
 	{
 		strcpy(line,"0");
 		q = (signed char *) line;
@@ -1337,9 +1386,9 @@ char	*afile;
 		q = (signed char *) line;
 		while (*q)
 			gpkt.p_nhash += *q++;
-		fseek(Xiop, Encodeflag_offset, SEEK_SET);
-		fprintf(Xiop,"%c%c %c 1\n",
-			CTLCHAR, FLAG, ENCODEFLAG);
+		fseek(gpkt.p_xiop, Encodeflag_offset, SEEK_SET);
+		fprintf(gpkt.p_xiop,"%c%c %c %d\n",
+			CTLCHAR, FLAG, ENCODEFLAG, Encoded);
 	}
 
 	/*
@@ -1361,7 +1410,19 @@ char	*afile;
 			chmod(gpkt.p_file, sbuf.st_mode);
 			chown(gpkt.p_file,sbuf.st_uid, sbuf.st_gid);
 		}
-		xrm();
+		if (HADI && *ifile && Ncomma) {
+			char cfile[FILESIZE];
+			register char *snp;
+
+			snp = sname(ifile);
+
+			strlcpy(cfile, ifile, sizeof (cfile));
+			cfile[snp-ifile] = '\0';
+			strlcat(cfile, ",", sizeof (cfile));
+			if (strlcat(cfile, snp, sizeof (cfile)) < sizeof (cfile))
+				rename(ifile, cfile);
+		}
+		xrm(&gpkt);
 		uname(&un);
 		uuname = un.nodename;
 		unlockit(auxf(afile,'z'),getpid(),uuname);
@@ -1369,8 +1430,14 @@ char	*afile;
 
 	if (HADI)
 		unlink(auxf(gpkt.p_file,'e'));
-	if (from_stdin)
+	if (from_stdin) {
 		unlink(stdin_file_buf);
+		stdin_file_buf[0] = '\0';
+	}
+	if (gpkt.p_init_path) {
+		ffree(gpkt.p_init_path);
+		gpkt.p_init_path = NULL;
+	}
 }
 
 static int
@@ -1396,7 +1463,7 @@ struct	packet	*pkt;		/* struct paket for output	*/
 #endif
 	off_t	ibase = 0;	/* Ifile off from last read operation	*/
 	off_t	ioff = 0;	/* Ifile offset past last newline	*/
-	off_t	soff = ftell(Xiop); /* Ofile (s. file) base offset	*/
+	off_t	soff = ftell(pkt->p_xiop); /* Ofile (s. file) base offset */
 	unsigned int sum = 0;
 
 	/*
@@ -1475,8 +1542,9 @@ struct	packet	*pkt;		/* struct paket for output	*/
 		line[idx] = '\0';
 		putline(pkt, lastline);
 
-		if (check_id && Did_id == 0) {
-			(void)chkid(line, flag_p['i'-'a'], flag_p);
+		if (check_id && pkt->p_did_id == 0) {
+			pkt->p_did_id =
+				chkid(line, flag_p[IDFLAG - 'a'], flag_p);
 		}
 		ibase += idx;
 	}
@@ -1524,8 +1592,9 @@ struct	packet	*pkt;		/* struct paket for output	*/
 		 }
 	      }
 	   }   
-	   if (check_id && Did_id == 0) {
-	      (void)chkid(line, flag_p['i'-'a'], flag_p);
+	   if (check_id && pkt->p_did_id == 0) {
+		pkt->p_did_id =
+			chkid(line, flag_p[IDFLAG - 'a'], flag_p);
 	   }
 	   putline(pkt, line);
 	   (void)memset(line, '\377', sizeof (line));
@@ -1543,12 +1612,12 @@ struct	packet	*pkt;		/* struct paket for output	*/
 #endif
 		if (fflag && (pkt->p_flags & PF_V6)) {
 			fseek(inptr, ioff, SEEK_SET);
-			fseek(Xiop, ioff + soff, SEEK_SET);
+			fseek(pkt->p_xiop, ioff + soff, SEEK_SET);
 
 			putctlnnl(pkt);
 			while ((idx =
 			    fread(line, 1, sizeof (line) - 1, inptr)) > 0) {
-				if (fwrite(line, 1, idx, Xiop) <= 0)
+				if (fwrite(line, 1, idx, pkt->p_xiop) <= 0)
 					FAILPUT;
 			}
 			putchr(pkt, '\n');
@@ -1585,13 +1654,13 @@ warnctl(file, nline)
 		file, (intmax_t)nline);
 }
  
-void
+static void
 clean_up()
 {
-	xrm();
-	if (Xiop) {
-		fclose(Xiop);
-		Xiop = NULL;
+	xrm(&gpkt);
+	if (gpkt.p_xiop) {
+		fclose(gpkt.p_xiop);
+		gpkt.p_xiop = NULL;
 	}
 	if(gpkt.p_file[0]) {
 		unlink(auxf(gpkt.p_file,'x'));
@@ -1599,6 +1668,10 @@ clean_up()
 			unlink(auxf(gpkt.p_file,'e'));
 		if (HADN)
 			unlink(gpkt.p_file);
+	}
+	if (gpkt.p_init_path) {
+		ffree(gpkt.p_init_path);
+		gpkt.p_init_path = NULL;
 	}
 	if (!HADH) {
 		uname(&un);
@@ -1808,7 +1881,7 @@ struct packet *pktp;
 	 * the end of sccs header info and before gfile contents
 	 */
 	putline(pktp,0);
-	fseek(Xiop, offset, SEEK_SET);
+	fseek(pktp->p_xiop, offset, SEEK_SET);
 	pktp->p_nhash = thash;
 
 	return (iptr);
@@ -1843,7 +1916,7 @@ static char	Nhold[MAXPATHLEN];
 
 #ifdef	HAVE_FCHDIR
 	if (dfd < 0) {
-		dfd = open(".", 0);		/* on failure use full path */
+		dfd = open(".", O_SEARCH);	/* on failure use full path */
 	} else {
 		if (fchdir(dfd) < 0)
 			xmsg(".",NOGETTEXT("admin"));
@@ -1867,11 +1940,20 @@ static char	Nhold[MAXPATHLEN];
 			Dir[0] = '\0';
 		} else if (*afile == '/' && &afile[1] == sn) {
 			copy("/", Dir);
-		} else {
+		} else {			/* Get dir part from afile */
 			size_t	len = sn - afile;
 			if (len > sizeof (Dir))
 				len = sizeof (Dir);
 			strlcpy(Dir, afile, len); /* replace last '/' by '\0' */
+			/*
+			 * We need a path free of symlink components.
+			 * resolvepath() is available as syscall on Solaris,
+			 * or as user space implementation in libschily.
+			 */
+			if ((len = resolvepath(Dir, Dir, sizeof (Dir))) == -1)
+				efatal(gettext("path conversion error (cm12)"));
+			else if (len >= sizeof (Dir))
+				fatal(gettext("resolved path too long (cm11)"));
 		}
 		if (Dir[0] != '\0' && (dfd < 0 || chdir(Dir) < 0)) {
 			cat(Nhold, Dir, *Dir?"/":"", Nprefix, sn, (char *)0);
@@ -1880,8 +1962,11 @@ static char	Nhold[MAXPATHLEN];
 			cat(Nhold, Nprefix, sn, (char *)0); /* use short name */
 			ifile = sn;
 			dir_name = Dir;
+			if (dir_name[0] == '.' && dir_name[1] == '/')
+				dir_name += 2;
 		}
 		afile = Nhold;			/* Use computed s.file name */
+
 	} else {				/* afile is s.file name */
 		char	*np;
 		size_t	plen = strlen(Nprefix);
@@ -1899,13 +1984,23 @@ static char	Nhold[MAXPATHLEN];
 		if (np > afile) {
 			np[-1] = '\0';
 			if (dfd >= 0) {
+				int	len;
+
 				if (afile[0] == '\0')
 					copy("/", Dir);
 				else
 					copy(afile, Dir);
+
+				if ((len = resolvepath(Dir, Dir, sizeof (Dir))) == -1)
+					efatal(gettext("path conversion error (cm12)"));
+				else if (len >= sizeof (Dir))
+					fatal(gettext("resolved path too long (cm11)"));
+
 				if (chdir(Dir) < 0)
 					fatal("Chdir");
 				dir_name = Dir;
+				if (dir_name[0] == '.' && dir_name[1] == '/')
+					dir_name += 2;
 				afile = np;
 				copy(auxf(np,'g'), Nhold);
 			} else {

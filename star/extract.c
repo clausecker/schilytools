@@ -1,8 +1,8 @@
-/* @(#)extract.c	1.139 11/04/08 Copyright 1985-2011 J. Schilling */
+/* @(#)extract.c	1.140 11/11/07 Copyright 1985-2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)extract.c	1.139 11/04/08 Copyright 1985-2011 J. Schilling";
+	"@(#)extract.c	1.140 11/11/07 Copyright 1985-2011 J. Schilling";
 #endif
 /*
  *	extract files from archive
@@ -731,7 +731,7 @@ create_dirs(name)
 		return (TRUE);
 	}
 	*dp = '\0';
-	if (access(name, 0) < 0) {
+	if (access(name, F_OK) < 0) {
 		if (_create_dirs(name)) {
 			*dp = '/';
 			return (TRUE);

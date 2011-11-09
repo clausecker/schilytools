@@ -1,8 +1,8 @@
-/* @(#)util.c	1.20 11/08/15 2011 J. Schilling */
+/* @(#)util.c	1.21 11/11/07 2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)util.c	1.20 11/08/15 2011 J. Schilling";
+	"@(#)util.c	1.21 11/11/07 2011 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1986 Larry Wall
@@ -377,10 +377,17 @@ ignore_signals()
 
 /* Make sure we'll have the directories to create a file. */
 
-void
-makedirs(filename, striplast)
+#ifndef	_SCHILY_SCHILY_H
+#ifdef	PROTOTYPES
+int
+makedirs(char *filename, mode_t mode, bool striplast)
+#else
+int
+makedirs(filename, mode, striplast)
 	char *filename;
+	mode_t mode;
 	bool striplast;
+#endif
 {
 	char tmpbuf[256];
 	char *s = tmpbuf;
@@ -402,13 +409,15 @@ makedirs(filename, striplast)
 	if (striplast)
 		dirvp--;
 	if (dirvp < 0)
-		return;
+		return (0);
 #if 1
 	for (i = 0; i <= dirvp; i++) {
-		mkdir(tmpbuf,
+		mkdir(tmpbuf, mode);
+#if 0
 			S_IRUSR|S_IWUSR|S_IXUSR
 			|S_IRGRP|S_IWGRP|S_IXGRP
 			|S_IROTH|S_IWOTH|S_IXOTH);
+#endif
 		*dirv[i] = '/';
 	}
 #else
@@ -422,7 +431,9 @@ makedirs(filename, striplast)
 	}
 	system(buf);
 #endif
+	return (0);
 }
+#endif	/* _SCHILY_SCHILY_H */
 
 /* Make filenames more reasonable. */
 

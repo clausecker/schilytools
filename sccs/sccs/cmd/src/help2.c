@@ -25,12 +25,12 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2011 J. Schilling
+ * Copyright 2006-2011 J. Schilling
  *
- * @(#)help2.c	1.9 11/08/05 J. Schilling
+ * @(#)help2.c	1.14 11/10/17 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)help2.c 1.9 11/08/05 J. Schilling"
+#pragma ident "@(#)help2.c 1.14 11/10/17 J. Schilling"
 #endif
 /*
  * @(#)help2.c 1.10 06/12/12
@@ -113,9 +113,7 @@ static char helpdir[] = NOGETTEXT(INS_BASE "/ccs/lib/help/locale/");
 static char helpdir[] = NOGETTEXT("/usr/ccs/lib/help/locale/");
 #endif
 
-char	SccsError[MAXERRORLEN];
 static char	hfile[256];
-struct	stat	Statbuf;
 static FILE	*iop;
 static char	line [MAXLINE+1];
 static char   *locale = NULL; /* User's locale. */
@@ -127,9 +125,9 @@ static int	lochelp __PR((char *ky, char *fi, size_t fisize));
 
 
 int
-main(argc,argv)
-int argc;
-char *argv[];
+main(argc, argv)
+	int	argc;
+	char	*argv[];
 {
 	register int i;
 	int numerrs=0;
@@ -192,12 +190,17 @@ char *argv[];
 		locale = default_locale;
 	}
 
-	if (argc == 1)
-		numerrs += findprt(ask());
-	else
+	if (argc == 1) {
+		char	*he = ask();
+		if (*he == '\0') {
+			numerrs += findprt("intro");
+		} else {
+			numerrs += findprt(he);
+		}
+	} else {
 		for (i = 1; i < argc; i++)
 			numerrs += findprt(argv[i]);
-
+	}
 	return ((numerrs == (argc-1)) ? 1 : 0);
 }
 
@@ -207,6 +210,7 @@ findprt(p)
 char *p;		/* "p" is user specified error code. */
 {
 	register char *q;
+	register char *q2 = NULL;
 	char key[150];
 
 	if ((int) size(p) > 50) 
@@ -217,18 +221,26 @@ char *p;		/* "p" is user specified error code. */
 	while (*q && !numeric(*q))
 		q++;
 
+	if (*q != '\0') {		/* first char alpha, then numeric */
+		q2 = q;			/* check whether alpha follows	  */
+		while (*q2 && numeric(*q2))	/* the numeric part	  */
+			q2++;
+		if (*q2 == '\0')
+			q2 = NULL;
+		
+	}
+
 	if (*q == '\0') {		/* all alphabetics */
 		strlcpy(key, p, sizeof (key));
 		sprintf(hfile,"%s%s%s",helpdir,locale,NOGETTEXT("/cmds"));
 		if (!exists(hfile))     
 			sprintf(hfile,"%s%s%s",helpdir,locale,dftfile);
-	}
-	else
-		if (q == p) {		/* first char numeric */
+
+	} else if (q == p) {		/* first char numeric */
 			strlcpy(key, p, sizeof (key));
 			sprintf(hfile,"%s%s%s",helpdir,locale,dftfile);
-		}
-	else {				/* first char alpha, then numeric */
+
+	} else {				/* first char alpha, then numeric */
 		strlcpy(key, p, sizeof (key));	/* key used as temporary */
 		*(key + (q - p)) = '\0';
 		if(!lochelp(key, hfile, sizeof (hfile))) 
@@ -238,6 +250,11 @@ char *p;		/* "p" is user specified error code. */
 			cat(hfile,hfile,NOGETTEXT("/"),locale,
 			   NOGETTEXT("/"),key, (char *)0);
 		strlcpy(key, q, sizeof (key));
+
+		if (!exists(hfile) && q2) {	/* "rcs2sccs" found?	*/
+			strlcpy(key, p, sizeof (key));
+			sprintf(hfile,"%s%s%s",helpdir,locale,NOGETTEXT("/cmds"));
+		}
 		if (!exists(hfile)) {
 			strlcpy(key, p, sizeof (key));
 			sprintf(hfile,"%s%s%s",helpdir,locale,dftfile);
@@ -263,15 +280,15 @@ char *p;		/* "p" is user specified error code. */
 		return(1);
 	}
 
-	printf("\n%s:\n",p);
+	printf("\n%s:\n", p);
 
-	while (fgets(line,sizeof(line)-1,iop) != NULL && line[0] == '-')
+	while (fgets(line, sizeof (line)-1, iop) != NULL && line[0] == '-')
 		;
 
 	do {
 		if (line[0] != '*')
-			printf("%s",line);
-	} while (fgets(line,sizeof(line)-1,iop) != NULL && line[0] != '-');
+			printf("%s", line);
+	} while (fgets(line, sizeof (line)-1, iop) != NULL && line[0] != '-');
 
 	fclose(iop);
 	return(0);
@@ -285,8 +302,8 @@ ask()
 	iop = stdin;
 
 	printf(gettext("Enter the message number or SCCS command name: "));
-	fgets(resp,51,iop);
-	return(repl(resp,'\n','\0'));
+	fgets(resp, sizeof (resp), iop);
+	return (repl(resp, '\n', '\0'));
 }
 
 
@@ -322,10 +339,4 @@ lochelp(ky, fi, fisize)
 	}
 	fclose(fp);
 	return(0); /* no entry found */
-}
-
-/* for fatal() */
-void
-clean_up()
-{
 }

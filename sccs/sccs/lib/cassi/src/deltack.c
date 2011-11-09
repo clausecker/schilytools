@@ -27,10 +27,10 @@
 /*
  * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)deltack.c	1.11 11/05/01 J. Schilling
+ * @(#)deltack.c	1.15 11/10/21 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)deltack.c 1.11 11/05/01 J. Schilling"
+#pragma ident "@(#)deltack.c 1.15 11/10/21 J. Schilling"
 #endif
 /*
  * @(#)deltack.c 1.8 06/12/12
@@ -52,11 +52,10 @@
 #define MAXLENCMR 12
 static char errorlog[FILESIZE];		 /* log cmts errors here */
 static FILE *efd;
-extern char	saveid[];
 
-	int	deltack __PR((char *pfile, char *mrs, char *nsid, char *apl));
-static int	promdelt __PR((char *cmrs, char *statp, char *type, char *fred));
-static int	msg __PR((char *syst, char *name, char *cmrs, char *stats, char *types, char *sids, char *fred));
+	int	deltack __PR((char *pfile, char *mrs, char *nsid, char *apl, char *sflags[NFLAGS]));
+static int	promdelt __PR((char *cmrs, char *statp, char *type, char *fred, char *sflags[NFLAGS]));
+static int	msg __PR((char *syst, char *name, char *cmrs, char *stats, char *types, char *sids, char *fred, char *sflags[NFLAGS]));
 static int	verif __PR((char *cmr, char *fred));
 static int	getinfo __PR((char **freddy, char *sys));
 static char *	xgets	__PR((char *buf, size_t len));
@@ -69,12 +68,13 @@ static char *	xgets	__PR((char *buf, size_t len));
 */
 
 int
-deltack(pfile,mrs,nsid,apl)
+deltack(pfile, mrs, nsid, apl, sflags)
 	char pfile[];	/* the pfile name */
 
 	char *mrs;		/* list of mrs from pfile */
 	char *nsid;		/* sid id */
 	char *apl;		/* application from the file */
+	char *sflags[NFLAGS];
 	{
 	 static char type[10],sthold[10];
 	 char hold[302],*h,*fred;
@@ -82,19 +82,19 @@ deltack(pfile,mrs,nsid,apl)
 	/*check for the existance of the p.file*/
 	if(!pfile)
 		{
-		 error(gettext("Pfile non existant at deltack "));
+		 cmrerror(gettext("Pfile non existant at deltack "));
 		 return(0);
 		}
 	/*if no application serious error */
 	if(!apl)
 		{
-		 error (gettext("no application found with -fz flag"));
+		 cmrerror (gettext("no application found with -fz flag"));
 		 return(0);
 		}
 	/*check for and retrieve FRED given the application name*/
 	if(!getinfo(&fred,apl))
 		{
-		 error(NOGETTEXT("no FRED file or system name in admin directory "));
+		 cmrerror(NOGETTEXT("no FRED file or system name in admin directory "));
 		 return(0);
 		}
 	strlcpy(errorlog, fred, sizeof (errorlog));
@@ -107,20 +107,19 @@ deltack(pfile,mrs,nsid,apl)
 			 (void) fclose(efd);
 			 efd = NULL;
 			}
-		 error(gettext("CMRs not on P.file -serious inconsistancy"));
+		 cmrerror(gettext("CMRs not on P.file -serious inconsistancy"));
 		 return(0);
 		}
-	 if(!promdelt(mrs,sthold,type,fred))
-		{
-		 return(0);
-		}
+	if (!promdelt(mrs, sthold, type, fred, sflags)) {
+		return(0);
+	}
 	/*now build the chpost line  */
 	(void) strlcpy(hold, mrs, sizeof (hold));
 	h=strtok(hold,",\0");
-	(void) msg(apl,pfile,h,sthold,type,nsid,fred);
+	(void) msg(apl, pfile, h, sthold, type, nsid, fred, sflags);
 	while((h=strtok(0,",\0 ")) != NULL)
 		{
-		 (void) msg(apl,pfile,h,sthold,type,nsid,fred);
+		 (void) msg(apl, pfile,h, sthold, type, nsid, fred, sflags);
 		}
 	return(1);
 	}
@@ -135,10 +134,10 @@ deltack(pfile,mrs,nsid,apl)
 */
 
 static int
-promdelt(cmrs,statp,type,fred)
-char *cmrs,*statp,*type,*fred;
+promdelt(cmrs, statp, type, fred, sflags)
+	char *cmrs,*statp,*type,*fred;
+	char	*sflags[NFLAGS];
 {
-	 extern char * Sflags[];
 	 static char hold[300],nold[300], *cmrlist[MAXLIST2 + 1];
 	 char answ[100];
 	 int i,j,numcmrs,fdflag=0,eqflag=0,badflag=0;
@@ -190,8 +189,8 @@ char *cmrs,*statp,*type,*fred;
 			(void) fatal(gettext("no CMR's left, delta forbidden\n"));
 		}
 		(void) strcpy(statp,"sd");
-		if (Sflags[TYPEFLAG - 'a'])
-			strcpy(type,Sflags[TYPEFLAG - 'a']);
+		if (sflags[TYPEFLAG - 'a'])
+			strcpy(type, sflags[TYPEFLAG - 'a']);
 		else
 			strcpy(type,NOGETTEXT("sw"));
 			/* rebuild cmr comma separated list*/
@@ -317,8 +316,8 @@ char *cmrs,*statp,*type,*fred;
 		}
 		/*here ends the cmr loop */
 		/*set type to proper value*/
-		if ( Sflags[TYPEFLAG - 'a'])
-			strcpy(type,Sflags[TYPEFLAG - 'a']);
+		if (sflags[TYPEFLAG - 'a'])
+			strcpy(type, sflags[TYPEFLAG - 'a']);
 		else
 			strcpy(type,NOGETTEXT("sw"));
 		/*set status*/
@@ -341,19 +340,18 @@ char *cmrs,*statp,*type,*fred;
 *
 */
 static int
-msg(syst,name,cmrs,stats,types,sids,fred)
+msg(syst, name, cmrs, stats, types, sids, fred, sflags)
 	char *syst,*name,*cmrs,*stats,*types,*sids,*fred;
+	char	*sflags[NFLAGS];
 	{
 	 FILE *fd;
-	 extern char *Sflags[];
 	 char *k;
 	 char pname[FILESIZE],*ptr,holdfred[100],dir[100],path[FILESIZE];
 	 struct stat stbuf;
 	 int noexist = 0;
 	
 	/* if -fm flag contains a value substitute a the value for name */
-	 if((k=Sflags[MODFLAG - 'a']) != NULL)
-	 {
+	 if ((k = sflags[MODFLAG - 'a']) != NULL) {
 		name = k;
 	 }
 	 if(*name != '/') /* not full path name */
@@ -366,7 +364,7 @@ msg(syst,name,cmrs,stats,types,sids,fred)
 		{
 		 strlcpy(pname, name, sizeof (pname));
 		}
-	(void) abspath(pname);				/* get rid of . and .. */
+	(void) fixpath(pname);				/* get rid of . and .. */
 /******** the net is replaced by psudonet ******
 *	  sprintf(holdit,"netq %s chpost  %s q %s %s MID=%s MFS=%s q q",syst,cmrs,pname,types,sids,stats); 
 *	 system(holdit);

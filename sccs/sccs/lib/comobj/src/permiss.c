@@ -25,12 +25,12 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2011 J. Schilling
+ * Copyright 2006-2011 J. Schilling
  *
- * @(#)permiss.c	1.12 11/06/29 J. Schilling
+ * @(#)permiss.c	1.18 11/10/15 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)permiss.c 1.12 11/06/29 J. Schilling"
+#pragma ident "@(#)permiss.c 1.18 11/10/15 J. Schilling"
 #endif
 /*
  * @(#)permiss.c 1.9 06/12/12
@@ -42,7 +42,7 @@
 #endif
 # define	NEED_PRINTF_J		/* Need defines for js_snprintf()? */
 # include	<defines.h>
-# include       <i18n.h>
+# include	<i18n.h>
 
 # define	BLANK(l)	while (!(*l == '\0' || *l == ' ' || *l == '\t')) l++;
 
@@ -57,20 +57,19 @@ register struct packet *pkt;
 	char groupid[32];
 	int none;
 	int ok_user;
-	extern char saveid[];
 
 	none = 1;
-#if 0
-	user = logname();
-#else
+
+	if (saveid[0] == '\0')
+		(void) logname();
 	user = saveid;
-#endif
+
 	snprintf(groupid, sizeof (groupid), "%ju", (UIntmax_t)getgid());
 	while ((p = getline(pkt)) != NULL && *p != CTLCHAR) {
 		none = 0;
 		ok_user = 1;
-		repl(p,'\n','\0');	/* this is done for equal test below */
-		if(*p == '!') {
+		repl(p, '\n', '\0');	/* this is done for equal test below */
+		if (*p == '!') {
 			++p;
 			ok_user = 0;
 			}
@@ -85,19 +84,16 @@ register struct packet *pkt;
 		fmterr(pkt);
 }
 
-
-char	*Sflags[NFLAGS];	/* sync with hdr/defines.h */
-char	SCOx;			/* sync with hdr/defines.h */
-
 void
 doflags(pkt)
 struct packet *pkt;
 {
 	register char *p;
 	register int k;
+	register char **sflags = pkt->p_sflags;
 
 	for (k = 0; k < NFLAGS; k++)
-		Sflags[k] = 0;
+		sflags[k] = 0;
 	while ((p = getline(pkt)) != NULL && *p++ == CTLCHAR && *p++ == FLAG) {
 		NONBLANK(p);
 		k = *p++ - 'a';
@@ -116,11 +112,21 @@ struct packet *pkt;
 			continue;
 		}
 		NONBLANK(p);
-		Sflags[k] = fmalloc(size(p));
-		copy(p,Sflags[k]);
-		for (p = Sflags[k]; *p++ != '\n'; )
+		sflags[k] = fmalloc(size(p));
+		copy(p, sflags[k]);
+		for (p = sflags[k]; *p++ != '\n'; )
 			;
 		*--p = 0;
+	}
+
+	p =  sflags[ENCODEFLAG-'a'];
+	if (p != NULL) {
+		int	i;
+
+		NONBLANK(p);
+		p = satoi(p, &i);
+		if (*p == '\0')
+			pkt->p_encoding = i;
 	}
 
 	/*
@@ -130,12 +136,12 @@ struct packet *pkt;
 	 * We don't need the SCO SCCS meaning as a simple chmod +x SCCS/s.file
 	 * is sufficient.
 	 */
-	p =  Sflags[EXTENSFLAG-'a'];
+	p =  sflags[EXTENSFLAG-'a'];
 	if (p == NULL)			/* 'x' flag not set */
 		return;
 	NONBLANK(p);
 	if (*p == '\0')
-		SCOx++;
+		pkt->p_flags |= PF_SCOX;
 	for (k = 0; *p; ) {
 		char	*p2;
 
@@ -147,8 +153,8 @@ struct packet *pkt;
 		p = p2;
 	}
 	if (k == 0) {
-		ffree(Sflags[EXTENSFLAG-'a']);
-		Sflags[EXTENSFLAG-'a'] = NULL;
+		ffree(sflags[EXTENSFLAG-'a']);
+		sflags[EXTENSFLAG-'a'] = NULL;
 	}
 }
 
@@ -158,11 +164,12 @@ register struct packet *pkt;
 {
 	register char *p;
 	register int n;
+	register char **sflags = pkt->p_sflags;
 	extern char SccsError[];
 
 	if (!pkt->p_user)
 		fatal(gettext("not authorized to make deltas (co14)"));
-	if ((p = Sflags[FLORFLAG - 'a']) != NULL) {
+	if ((p = sflags[FLORFLAG - 'a']) != NULL) {
 		if (((unsigned)pkt->p_reqsid.s_rel) < (n = patoi(p))) {
 			sprintf(SccsError, gettext("release %d < %d floor (co15)"),
 				pkt->p_reqsid.s_rel,
@@ -170,7 +177,7 @@ register struct packet *pkt;
 			fatal(SccsError);
 		}
 	}
-	if ((p = Sflags[CEILFLAG - 'a']) != NULL) {
+	if ((p = sflags[CEILFLAG - 'a']) != NULL) {
 		if (((unsigned)pkt->p_reqsid.s_rel) > (n = patoi(p))) {
 			sprintf(SccsError,gettext("release %d > %d ceiling (co16)"),
 				pkt->p_reqsid.s_rel,
@@ -182,7 +189,7 @@ register struct packet *pkt;
 	check to see if the file or any particular release is
 	locked against editing. (Only if the `l' flag is set)
 	*/
-	if ((p = Sflags[LOCKFLAG - 'a']) != NULL)
+	if ((p = sflags[LOCKFLAG - 'a']) != NULL)
 		ck_lock(p,pkt);
 }
 
@@ -192,8 +199,9 @@ register struct packet *pkt;
  * Multiply  space needed for C locale by 3.  This should be adequate
  * for the longest localized strings.  The length is
  * strlen("SCCS file locked against editing (co23)") * 3 + 1)
+ * or strlen("release `%d' locked against editing (co23)") with %d max = 9999
  */
-static char l_str[121];	
+static char l_str[131];	
 
 static void
 ck_lock(p,pkt)
@@ -212,7 +220,8 @@ register struct packet *pkt;
 		++p;
 		if (l_rel == pkt->p_gotsid.s_rel || l_rel == pkt->p_reqsid.s_rel) {
 			locked++;
-			sprintf(l_str, gettext("release `%d' locked against editing (co23)"),
+			snprintf(l_str, sizeof (l_str),
+				gettext("release `%d' locked against editing (co23)"),
 				l_rel);
 			break;
 		}

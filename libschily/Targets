@@ -1,8 +1,8 @@
-# @(#)Targets	1.30 11/08/14 Copyright 1995 J. Schilling
+# @(#)Targets	1.35 11/11/08 Copyright 1995 J. Schilling
 
 CFILES_STDIO=	cvmod.c dat.c fcons.c fdown.c fdup.c \
 		ffileread.c ffilewrite.c \
-		fgetline.c fgetstr.c file_getraise.c file_raise.c \
+		fgetaline.c fgetline.c fgetstr.c file_getraise.c file_raise.c \
 		fileclose.c fileluopen.c fileopen.c filemopen.c \
 		filepos.c fileread.c filereopen.c fileseek.c filesize.c \
 		filestat.c filewrite.c flag.c flush.c fpipe.c \
@@ -16,12 +16,13 @@ CFILES_STDIO=	cvmod.c dat.c fcons.c fdown.c fdup.c \
 # Otherwise getfp.o would be made as dependency of avoffset
 #
 
-CFILES_REST=	astoi.c astoll.c astoull.c basename.c breakline.c \
+CFILES_REST=	abspath.c astoi.c astoll.c astoull.c basename.c breakline.c \
 		checkerr.c comerr.c fcomerr.c \
 		chown.c \
 		cmpbytes.c cmpmbytes.c cmpnullbytes.c \
 		dirent.c dirname.c \
 		eaccess.c error.c \
+		fchdir.c \
 		fconv.c fexec.c fillbytes.c \
 		findinpath.c \
 		findbytes.c findline.c fnmatch.c format.c \
@@ -40,25 +41,29 @@ CFILES_REST=	astoi.c astoll.c astoull.c basename.c breakline.c \
 		handlecond.c \
 		jsprintf.c jssnprintf.c jssprintf.c \
 		kill.c \
+		lxchdir.c \
 		match.c matchl.c matchw.c matchwl.c movebytes.c \
-		mkgmtime.c mkstemp.c \
+		mkdirs.c mkgmtime.c mkstemp.c \
 		mem.c jmem.c fjmem.c \
+		openat.c \
 		permtostr.c \
-		raisecond.c rename.c \
-		saveargs.c \
+		procnameat.c \
+		raisecond.c rename.c resolvepath.c \
+		saveargs.c savewd.c \
 		searchinpath.c serrmsg.c seterrno.c setfp.c \
 		sleep.c \
 		snprintf.c \
 		spawn.c \
 		strcat.c strcatl.c strchr.c strcmp.c strcpy.c \
 		strdup.c streql.c strlen.c strlcat.c strlcpy.c strncat.c strncmp.c \
-		strncpy.c strndup.c strnlen.c strrchr.c \
+		strncpy.c strndup.c strnlen.c strrchr.c strstr.c \
 		swabbytes.c \
 		timegm.c \
 		uid.c uname.c usleep.c \
 		wcscat.c wcscatl.c wcschr.c wcscmp.c wcscpy.c \
 		wcsdup.c wcseql.c wcslen.c wcslcat.c wcslcpy.c wcsncat.c wcsncmp.c \
-		wcsncpy.c wcsndup.c wcsnlen.c wcsrchr.c \
+		wcsncpy.c wcsndup.c wcsnlen.c wcsrchr.c wcsstr.c \
+		wdabort.c \
 		zerobytes.c
 
 #
@@ -71,3 +76,5 @@ CFILES_REST=	astoi.c astoll.c astoull.c basename.c breakline.c \
 # that do not provide snprintf()
 
 CFILES=		$(CFILES_STDIO) $(CFILES_REST)
+
+HFILES=		at-defs.h

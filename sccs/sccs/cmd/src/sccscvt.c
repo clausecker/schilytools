@@ -1,8 +1,8 @@
-/* @(#)sccscvt.c	1.2 11/08/29 Copyright 2011 J. Schilling */
+/* @(#)sccscvt.c	1.12 11/10/13 Copyright 2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)sccscvt.c	1.2 11/08/29 Copyright 2011 J. Schilling";
+	"@(#)sccscvt.c	1.12 11/10/13 Copyright 2011 J. Schilling";
 #endif
 /*
  *	Convert a SCCS v4 history file to a SCCS v6 file and vice versa.
@@ -39,10 +39,9 @@ LOCAL	void	dodir		__PR((char *name));
 LOCAL	void	convert		__PR((char *file));
 LOCAL	void	cvtdelt2v4	__PR((struct packet *pkt));
 LOCAL	void	cvtdelt2v6	__PR((struct packet *pkt));
-EXPORT	void    clean_up	__PR((void));
-
-EXPORT	struct stat	Statbuf;
-EXPORT	char		SccsError[MAXERRORLEN];
+LOCAL	void	get_setup	__PR((char *file));
+LOCAL	int	get_hash	__PR((int ser));
+LOCAL	void	clean_up	__PR((void));
 
 LOCAL	struct utsname	un;
 LOCAL	char		*uuname;
@@ -51,8 +50,6 @@ LOCAL	struct packet	gpkt;
 LOCAL	BOOL	dov6	= -1;
 LOCAL	BOOL	keepold;
 LOCAL	BOOL	discardv6;
-
-extern FILE	*Xiop;
 
 LOCAL void
 usage(exitcode)
@@ -102,6 +99,7 @@ main(ac, av)
 
 	tzset();	/* Set up timezome related vars */
 
+	set_clean_up(clean_up);
 	Fflags = FTLEXIT | FTLMSG | FTLCLN;
 
 	cac = --ac;
@@ -199,8 +197,28 @@ convert(file)
 	if (setjmp(Fjmp))
 		return;
 
+	if (!sccsfile(file)) {
+		errmsgno(EX_BAD, _("%s: not an SCCS file (co1).\n"), file);
+		return;
+	}
+
 	/*
-	 * Open s. file and check whether it is a SCCS file.
+	 * Init and check for validity of file name but do not open the file.
+	 * This prevents us from potentially damaging files with lockit().
+	 */
+	sinit(&gpkt, file, 0);
+
+	/*
+	 * Obtain a lock on the SCCS history file.
+	 */
+	uname(&un);
+	uuname = un.nodename;
+	if (lockit(auxf(gpkt.p_file, 'z'),
+	    SCCS_LOCK_ATTEMPTS, getpid(), uuname))
+		fatal(_("cannot create lock file (cm4)"));
+
+	/*
+	 * Open s. file.
 	 */
 	sinit(&gpkt, file, 1);
 	if (dov6) {
@@ -224,17 +242,8 @@ convert(file)
 			}
 			return;
 		}
-		gpkt.p_flags &= ~PF_V6;
+		gpkt.p_flags &= ~PF_V6;	/* Make sure initial chksum is V4 */
 	}
-
-	/*
-	 * As we found a SCCS history file, we may now obtain a lock.
-	 */
-	uname(&un);
-	uuname = un.nodename;
-	if (lockit(auxf(gpkt.p_file, 'z'),
-	    SCCS_LOCK_ATTEMPTS, getpid(), uuname))
-		fatal(_("cannot create lock file (cm4)"));
 
 	/*
 	 * Write a magic in the expected new format.
@@ -242,6 +251,8 @@ convert(file)
 	gpkt.p_upd = 1;
 	putmagic(&gpkt, "00000");
 	gpkt.p_wrttn = 1;
+
+	get_setup(file);		/* Read delta table for get_hash() */
 
 	/*
 	 * The main conversion work happens here.
@@ -270,6 +281,8 @@ convert(file)
 	/*
 	 * Write checksum.
 	 */
+	if (!dov6)
+		gpkt.p_flags &= ~PF_V6;
 	sprintf(hash, "%5.5d", gpkt.p_nhash&0xFFFF);
 	putmagic(&gpkt, hash);
 
@@ -277,7 +290,7 @@ convert(file)
 	 * Make sure the data is stable in the file on disk.
 	 */
 	xf = auxf(gpkt.p_file, 'x');
-	if (fflush(Xiop) == EOF)
+	if (fflush(gpkt.p_xiop) == EOF)
 		xmsg(xf, NOGETTEXT("convert"));
 
 	/*
@@ -285,12 +298,12 @@ convert(file)
 	 * delayed failure information from NFS.
 	 */
 #ifdef	HAVE_FSYNC
-	if (fsync(fileno(Xiop)) < 0)
+	if (fsync(fileno(gpkt.p_xiop)) < 0)
 		xmsg(xf, NOGETTEXT("convert"));
 #endif
-	if (fclose(Xiop) == EOF)
+	if (fclose(gpkt.p_xiop) == EOF)
 		xmsg(xf, NOGETTEXT("flushline"));
-	Xiop = NULL;
+	gpkt.p_xiop = NULL;
 
 	stat(gpkt.p_file, &sbuf);
 	if (keepold)
@@ -316,6 +329,11 @@ cvtdelt2v4(pkt)
 	char		line[BUFSIZ];
 	struct deltab	dt;
 
+	/*
+	 * We need to permit to read and evaluate SCCS v6 time stamps.
+	 */
+	pkt->p_flags |= PF_V6;
+
 	line[0] = '\0';
 	while (getline(pkt) != NULL) {
 		if (pkt->p_line[0] != CTLCHAR)
@@ -328,7 +346,7 @@ cvtdelt2v4(pkt)
 			 * old line as wrapped degenerated comment.
 			 */
 			del_ab(pkt->p_line, &dt, pkt);
-			del_ba(&dt, line, pkt->p_flags);
+			del_ba(&dt, line, pkt->p_flags & ~PF_V6);
 			putline(pkt, line);
 			line[0] = '\0';
 			pkt->p_wrttn = 1;
@@ -349,8 +367,10 @@ cvtdelt2v4(pkt)
 			continue;
 
 		case SIDEXTENS:
-			if (discardv6)
+			if (discardv6) {
+				pkt->p_wrttn = 1;
 				continue;
+			}
 			/*
 			 * Keep SCCS v6 extensions as degenerated comment.
 			 *
@@ -365,8 +385,6 @@ cvtdelt2v4(pkt)
 			continue;
 
 		case COMMENTS:
-			if (discardv6)
-				continue;
 			/*
 			 * If not yet flushed, flush delta line.
 			 */
@@ -399,6 +417,7 @@ cvtdelt2v6(pkt)
 	char		*lines[MAX_DELT_LINES];
 	int		nlines = 0;
 	int		i;
+	int		commentstate = 0;
 	BOOL		incomment = FALSE;
 	BOOL		needthis = FALSE;
 	struct deltab	dt;
@@ -416,6 +435,7 @@ cvtdelt2v6(pkt)
 			 * look for old saved SCCS v6 content in degenerated
 			 * comment first.
 			 */
+			commentstate = 0;
 			incomment = FALSE;
 			del_ab(pkt->p_line, &dt, pkt);
 			if (dt.d_dtime.dt_zone != DT_NO_ZONE)
@@ -441,15 +461,16 @@ cvtdelt2v6(pkt)
 				pkt->p_wrttn = 1;
 			}
 			/*
-			 * If we created a degenerated comment, then the first
-			 * line is a saved v6 delta line.
+			 * If _we_ previously created a degenerated comment,
+			 * then the first line is a saved v6 delta line.
+			 * The first degenerated comment must be of type 'd'
+			 * and the second degenerated comment must be of
+			 * type 'S s'.
 			 */
 			if ((pkt->p_line[1] == COMMENTS) &&
 			    (pkt->p_line[2] == '_') &&
-			    (pkt->p_line[3] == 'd') &&
+			    (pkt->p_line[3] == BDELTAB) &&
 			    (pkt->p_line[4] == ' ')) {
-				char	c = pkt->p_line[2];
-
 				pkt->p_line[2] = CTLCHAR;
 				del_ab(&pkt->p_line[2], &dt2, pkt);
 				if (dt2.d_dtime.dt_zone != DT_NO_ZONE) {
@@ -461,6 +482,7 @@ cvtdelt2v6(pkt)
 					dt.d_dtime.dt_zone =
 						gmtoff(dt.d_dtime.dt_sec);
 				}
+				commentstate = 1;
 				needthis = FALSE;
 			} else {
 				dt.d_dtime.dt_zone =
@@ -478,6 +500,30 @@ cvtdelt2v6(pkt)
 				free(lines[i]);
 			}
 			nlines = 0;
+
+			if (commentstate == 1) {
+				pkt->p_wrttn = 1;
+				getline(pkt);
+				if ((pkt->p_line[1] == COMMENTS) &&
+				    (pkt->p_line[2] == '_') &&
+				    (pkt->p_line[3] == SIDEXTENS) &&
+				    (pkt->p_line[4] == ' ') &&
+				    (pkt->p_line[5] == 's')) {
+					commentstate = 2;
+				} else if ((pkt->p_line[1] == COMMENTS) &&
+				    (pkt->p_line[2] == '_')) {
+					commentstate = 3;
+				} else {
+					needthis = TRUE;
+				}
+			}
+			if (commentstate != 2 && dt.d_type == 'D') {
+				pkt->p_ghash = get_hash(dt.d_serial);
+				sidext_ba(pkt, &dt);
+			}
+			if (commentstate >= 2)
+				goto dcomment;
+
 			/*
 			 * If the first delta comment was not a degenerated
 			 * comment from us, write it back unmodified.
@@ -494,6 +540,7 @@ cvtdelt2v6(pkt)
 			 * Convert v6 extensions saved as degenerated comment
 			 * back to v6 extensions.
 			 */
+		dcomment:
 			if ((pkt->p_line[1] == COMMENTS) &&
 			    (pkt->p_line[2] == '_') &&
 			    (pkt->p_line[3] == SIDEXTENS)) {
@@ -529,7 +576,61 @@ cvtdelt2v6(pkt)
 	}
 }
 
-EXPORT void
+LOCAL struct packet pk2;
+LOCAL off_t	get_off;
+LOCAL int	slnno;
+
+LOCAL void
+get_setup(file)
+	char	*file;
+{
+	struct stats stats;
+
+	sinit(&pk2, file, 1);
+
+	pk2.p_stdout = stderr;
+	pk2.p_reopen = 1;
+	pk2.p_cutoff = MAX_TIME;
+
+	if ((pk2.p_flags & PF_V6) == 0) 
+		pk2.p_flags |= PF_GMT; 
+
+	if (dodelt(&pk2, &stats, (struct sid *) 0, 0) == 0)
+		fmterr(&pk2);
+	flushto(&pk2, EUSERTXT, NOCOPY);
+	get_off = ftell(pk2.p_iop);
+	slnno = pk2.p_slnno;
+}
+
+LOCAL int
+get_hash(ser)
+	int	ser;
+{
+	int	max_ser = maxser(&pk2);
+
+	if (ser > max_ser)
+		return (-1);
+
+	fseek(pk2.p_iop, get_off, SEEK_SET);
+	pk2.p_slnno = slnno;
+
+	pk2.p_reopen = 1;
+	pk2.p_chkeof = 1;
+	pk2.p_gotsid = pk2.p_idel[ser].i_sid;
+	pk2.p_reqsid = pk2.p_gotsid;
+
+	zero((char *) pk2.p_apply, (max_ser+1)*sizeof(*pk2.p_apply));
+	setup(&pk2, ser);
+
+	pk2.p_ghash = 0;
+	while (readmod(&pk2))
+		;
+	return (pk2.p_ghash & 0xFFFF);
+}
+
+
+
+LOCAL void
 clean_up()
 {
 	uname(&un);
@@ -539,12 +640,16 @@ clean_up()
 			fclose(gpkt.p_iop);
 			gpkt.p_iop = NULL;
 		}
-		if (Xiop) {
-			fclose(Xiop);
-			Xiop = NULL;
+		if (gpkt.p_xiop) {
+			fclose(gpkt.p_xiop);
+			gpkt.p_xiop = NULL;
 			unlink(auxf(gpkt.p_file, 'x'));
 		}
-		xrm();
+		if (pk2.p_iop) {
+			fclose(pk2.p_iop);
+			pk2.p_iop = NULL;
+		}
+		xrm(&gpkt);
 		ffreeall();
 		unlockit(auxf(gpkt.p_file, 'z'), getpid(), uuname);
 	}

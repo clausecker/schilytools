@@ -1,23 +1,13 @@
-/* @(#)sccslog.c	1.33 11/08/21 Copyright 1997-2011 J. Schilling */
+/* @(#)sccslog.c	1.35 11/10/07 Copyright 1997-2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)sccslog.c	1.33 11/08/21 Copyright 1997-2011 J. Schilling";
+	"@(#)sccslog.c	1.35 11/10/07 Copyright 1997-2011 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1997-2011 J. Schilling
  */
-/*
- * The contents of this file are subject to the terms of the
- * Common Development and Distribution License, Version 1.0 only
- * (the "License").  You may not use this file except in compliance
- * with the License.
- *
- * See the file CDDL.Schily.txt in this distribution for details.
- *
- * When distributing Covered Code, include this CDDL HEADER in each
- * file and include the License file CDDL.Schily.txt from this distribution.
- */
+/*@@C@@*/
 
 #include <schily/stdio.h>
 #include <schily/stdlib.h>
@@ -39,6 +29,7 @@ static	UConst char sccsid[] =
 struct xx {
 	time_t	time;
 	Llong	ltime;
+	int	gmtoff;
 	struct tm tm;
 	char	*user;
 	char	*file;
@@ -49,13 +40,13 @@ struct xx {
 
 #define	PRINTED	0x01
 
-struct	xx	*list;
-int		listmax;
-int		listsize;
+LOCAL	struct	xx	*list;
+LOCAL	int		listmax;
+LOCAL	int		listsize;
 
-char		*Cwd;
-char		*SccsPath = "";
-BOOL		extended = FALSE;
+LOCAL	char		*Cwd;
+LOCAL	char		*SccsPath = "";
+LOCAL	BOOL		extended = FALSE;
 
 LOCAL	int	xxcmp		__PR((const void *vp1, const void *vp2));
 LOCAL	char *	mapuser		__PR((char *name));
@@ -65,6 +56,10 @@ LOCAL	void	dodir		__PR((char *name));
 LOCAL	void	dofile		__PR((char *name));
 LOCAL	int	fgetline	__PR((FILE *, char *, int));
 
+/*
+ * XXX With SCCS v6 local time + GMT off, we should not compare struct tm
+ * XXX but time_t or better Llong ltime.
+ */
 LOCAL int
 xxcmp(vp1, vp2)
 	const void	*vp1;
@@ -239,6 +234,9 @@ main(ac, av)
 		if (list[i].flags & PRINTED)
 			continue;
 
+		/*
+		 * XXX Should we implement a variant with local time +GMT off?
+		 */
 		printf("%.20s%d %s\n",
 			ctime(&list[i].time), list[i].tm.tm_year + 1900,
 			mapuser(list[i].user));
@@ -372,20 +370,38 @@ dofile(name)
 			char	user[256];
 			time_t	t;
 			Llong	lt;
+			int	gmtoff;
 			char	*p = &buf[4];
 
-			len = sscanf(p, "%s %d/%d/%d %d:%d:%d %s",
+			len = sscanf(p, "%s %d/%d/%d %d:%d:%d%d %s",
+				vers,
+				&tm.tm_year, &tm.tm_mon, &tm.tm_mday,
+				&tm.tm_hour, &tm.tm_min, &tm.tm_sec,
+				&gmtoff,
+				user);
+			if (len == 9) {
+				int hours = gmtoff / 100;
+				int mins  = gmtoff % 100;
+
+				gmtoff = hours * 3600 + mins * 60;
+			} else {
+				gmtoff = 1;
+			}
+			if (len < 9)
+				len = sscanf(p, "%s %d/%d/%d %d:%d:%d %s",
 				vers,
 				&tm.tm_year, &tm.tm_mon, &tm.tm_mday,
 				&tm.tm_hour, &tm.tm_min, &tm.tm_sec,
 				user);
-			if (len != 8) {
+			if (len < 8) {
 				errmsgno(EX_BAD,
 					"Cannot scan date '%s' from '%s'.\n",
 				p, name);
 			}
 
-			if (tm.tm_year >= 0 && tm.tm_year < 69)
+			if (tm.tm_year >= 100)
+				tm.tm_year -= 1900;
+			else if (tm.tm_year >= 0 && tm.tm_year < 69)
 				tm.tm_year += 100;
 			tm.tm_isdst = -1;		/* let mktime() do it */
 			tm.tm_mon -= 1;
@@ -394,11 +410,23 @@ dofile(name)
 			    sizeof (t) < sizeof (lt)) {
 
 				tm.tm_year -= 56;	/* 2 * 4 * 7 */
-				lt = t = mktime(&tm);
+				if (len >= 9) {
+					lt = t = mkgmtime(&tm);
+					lt -= gmtoff;
+					t -= gmtoff;
+				} else {
+					lt = t = mktime(&tm);
+				}
 				tm.tm_year += 56;
 				lt += 1767225600;	/* 56 years */
 			} else {
-				lt = t = mktime(&tm);
+				if (len >= 9) {
+					lt = t = mkgmtime(&tm);
+					lt -= gmtoff;
+					t -= gmtoff;
+				} else {
+					lt = t = mktime(&tm);
+				}
 			}
 			if (geterrno() != 0) {
 				comerr("Cannot convert date '%s' from '%s'.\n",
@@ -426,6 +454,7 @@ dofile(name)
 				comerr("No memory.\n");
 			list[listsize].time = t;
 			list[listsize].ltime = lt;
+			list[listsize].gmtoff = gmtoff;
 			list[listsize].tm   = tm;
 			list[listsize].user = strdup(user);
 			list[listsize].vers = strdup(vers);

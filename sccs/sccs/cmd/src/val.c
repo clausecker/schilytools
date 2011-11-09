@@ -25,12 +25,12 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2011 J. Schilling
+ * Copyright 2006-2011 J. Schilling
  *
- * @(#)val.c	1.28 11/08/22 J. Schilling
+ * @(#)val.c	1.35 11/10/13 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)val.c 1.28 11/08/22 J. Schilling"
+#pragma ident "@(#)val.c 1.35 11/10/13 J. Schilling"
 #endif
 /*
  * @(#)val.c 1.22 06/12/12
@@ -66,8 +66,8 @@
 # define	FALSE		0
 # define	BLANK(l)	while (!(*l == '\0' || *l == ' ' || *l == '\t')) l++;
 
-struct stat Statbuf;
-char	SccsError[MAXERRORLEN];
+#define	COPY	0
+#define	NOCOPY	1
 
 static int	silent;		/* be silent, report only in exit code */
 static int	debug;		/* print debug messages */
@@ -116,6 +116,9 @@ static int	chk_ix __PR((struct queue *new, struct queue *head));
 static int	do_delt __PR((struct packet *pkt, int goods, char *d_sid));
 static int	getstats __PR((struct packet *pkt));
 static char *	getastat __PR((char *p, int  *ip));
+static void	get_setup	__PR((char *file));
+static void	get_close	__PR((void));
+static int	get_hashtest	__PR((int ser));
 
 
 /* This is the main program that determines whether the command line
@@ -217,10 +220,11 @@ char	*argv[];
 	register int	j;
 	register int	line_sw;
 	register char   *p;
+	register int	i;
 
 	int	num_files;
 
-	char	*filelist[50];
+	char	**filelist = NULL;
 	char	*savelinep;
 	int 	c;
 
@@ -257,7 +261,7 @@ char	*argv[];
 			   }
 			}
 			j = current_optind;
-		        c = getopt(argc, argv, "-r:sm:y:TV(version)");
+		        c = getopt(argc, argv, "-r:sm:y:hTV(version)");
 
 				/* this takes care of options given after
 				** file names.
@@ -279,6 +283,8 @@ char	*argv[];
 			}
 			p = optarg;
 			switch (c) {
+				case 'h':
+					break;
 				case 's':
 					silent = TRUE;
 					break;
@@ -306,9 +312,11 @@ char	*argv[];
 
 				default:
 					Fflags &= ~FTLEXIT;
-					fatal(gettext("Usage: val [ -s ] [ -m name ] [ -r SID ] [ -y type ] s.filename..."));
-					if (debug)
-						printf(gettext("Uknown option '%c'.\n"), c);
+					fatal(gettext("Usage: val [ -h ] [ -s ] [ -m name ] [ -r SID ] [ -T ] [ -y type ] s.filename..."));
+					if (debug) {
+						printf(gettext("Uknown option '%c'.\n"),
+							optopt?optopt:c);
+					}
 					inline_err |= UNKDUP_ERR;
 					if (inpstd)
 					   report(inline_err,savelinep,"");
@@ -333,9 +341,8 @@ char	*argv[];
 
 	for(j=1; j<argc; j++){
 		if(argv[j]) {
-			if (num_files >= 50)
-				fatal(gettext("too many files (va1)"));
-			filelist[num_files] = argv[j];
+			if (filelist == NULL)
+				filelist = &argv[j];
 		        num_files++;
 		}
 	}
@@ -363,16 +370,24 @@ char	*argv[];
 	/*
 	loop through 'validate' for each file on command line.
 	*/
-	for (j = 0; j < num_files; j++) {
+	for (i = 0, j = 0; j < num_files; j++) {
+		while (filelist[i+j] == NULL) {
+			i++;
+			if ((i+j+1) >= argc)
+				break;
+		}
+		if (filelist[i+j] == NULL)
+			break;
+
 		/*
 		read a file from 'filelist' and place into 'path'.
 		*/
-		if (size(filelist[j]) > FILESIZE) {
+		if (size(filelist[i+j]) > FILESIZE) {
 			extern char *Ffile;
-			Ffile = filelist[j];
+			Ffile = filelist[i+j];
 			fatal(gettext("too long (co7)"));
 		}
-		strlcpy(path, filelist[j], sizeof (path));
+		strlcpy(path, filelist[i+j], sizeof (path));
 		if (!inpstd) {
 			do_file(path, do_validate, 1, 1);
 			continue;
@@ -459,8 +474,14 @@ char	*c_name;
 		}
 		else {
 			/*
-			get old file checksum count
-			*/
+			 * Read delta table for get_hashtest()
+			 */
+			if (gpkt.p_flags & PF_V6 && HADUCS)
+				get_setup(c_path);
+
+			/*
+			 * get old file checksum count
+			 */
 			satoi(l,&gpkt.p_ihash);
 			gpkt.p_chash = 0;
 			gpkt.p_uchash = 0;
@@ -478,6 +499,7 @@ char	*c_name;
 			if (do_delt(&gpkt,goods,c_sid)) {
 				fclose(gpkt.p_iop);
 				gpkt.p_iop = NULL;
+				get_close();		/* for SID checksums */
 				if (debug)
 					printf(gettext(
 					"%s%s: invalid delta table at line %d\n"),
@@ -512,6 +534,7 @@ char	*c_name;
 				if (*(--l) != BUSERTXT) {
 					fclose(gpkt.p_iop);
 					gpkt.p_iop = NULL;
+					get_close();	/* for SID checksums */
 					if (debug)
 						printf(gettext(
 						"%s%s: flag section error at line %d\n"),
@@ -563,6 +586,7 @@ char	*c_name;
 		}
 	fclose(gpkt.p_iop);	/* close file pointer */
 	gpkt.p_iop = NULL;
+	get_close();		/* for SID checksums */
 	}
 	return;		/* return to 'process' function */
 }
@@ -1058,6 +1082,13 @@ register char *d_sid;
 			if (equal(d_sid,del.osid) && del.type == 'D')
 				goods++;
 		}
+		if (gpkt.p_flags & PF_V6 &&
+		    HADUCS && del.type == 'D') {
+			int	ser;
+
+			satoi(del.serial, &ser);
+			get_hashtest(ser);
+		}
 		while ((l = get_line(pkt)) != NULL)
 			if (pkt->p_line[0] != CTLCHAR)
 				break;
@@ -1071,6 +1102,9 @@ register char *d_sid;
 				case EXCLUDE:
 				case IGNORE:
 					continue;
+				case SIDEXTENS:
+					if (pkt->p_flags & PF_V6)
+						continue;
 				default:
 					return(1);
 				}
@@ -1167,8 +1201,96 @@ getastat(p, ip)
 	return (p);
 }
 
-/* for fatal() */
-void
-clean_up()
+LOCAL struct packet pk2;
+LOCAL off_t	get_off;
+LOCAL int	slnno;
+
+LOCAL void
+get_setup(file)
+	char	*file;
 {
+	struct stats stats;
+
+	sinit(&pk2, file, 1);
+
+	pk2.do_chksum = 0;
+	pk2.p_stdout = stderr;
+	pk2.p_reopen = 1;
+	pk2.p_cutoff = MAX_TIME;
+
+	if ((pk2.p_flags & PF_V6) == 0) 
+		pk2.p_flags |= PF_GMT; 
+
+	if (dodelt(&pk2, &stats, (struct sid *) 0, 0) == 0)
+		fmterr(&pk2);
+	flushto(&pk2, EUSERTXT, NOCOPY);
+	get_off = ftell(pk2.p_iop);
+	slnno = pk2.p_slnno;
+
+	if (pk2.p_hash == NULL) {
+		if (debug)
+			printf(gettext(
+			"%s%s: SID checksums missing\n"),
+					"    ", pk2.p_file);
+	   	infile_err |= CORRUPT_ERR;
+	}
+}
+
+LOCAL void
+get_close()
+{
+	if (pk2.p_iop) {
+		fclose(pk2.p_iop);
+		pk2.p_iop = NULL;
+	}
+	xrm(&gpkt);
+	ffreeall();
+}
+
+LOCAL int
+get_hashtest(ser)
+	int	ser;
+{
+	int	max_ser = maxser(&pk2);
+
+	if (ser > max_ser)
+		return (-1);
+
+	if (pk2.p_hash == NULL)
+		return (-1);
+
+	fseek(pk2.p_iop, get_off, SEEK_SET);
+	pk2.p_slnno = slnno;
+
+	pk2.p_reopen = 1;
+	pk2.p_chkeof = 1;
+	pk2.p_gotsid = pk2.p_idel[ser].i_sid;
+	pk2.p_reqsid = pk2.p_gotsid;
+
+	zero((char *) pk2.p_apply, (max_ser+1)*sizeof(*pk2.p_apply));
+	setup(&pk2, ser);
+
+	pk2.p_ghash = 0;
+	while (readmod(&pk2))
+		;
+
+	if (pk2.p_hash == NULL)
+		return (0);
+
+	if (pk2.p_hash[ser] != (pk2.p_ghash & 0xFFFF)) {
+		if (debug) {
+			char	str[32];
+
+			sid_ba(&pk2.p_gotsid, str);
+			printf(gettext(
+			"%s%s: SID %s: invalid checksum %d, expected %d\n"),
+					"    ", pk2.p_file,
+					str,
+					pk2.p_ghash & 0xFFFF,
+					pk2.p_hash[ser]);
+		}
+	   	infile_err |= CORRUPT_ERR;
+		return (0);
+	}
+	return (1);
 }

@@ -27,10 +27,10 @@
 /*
  * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)dolist.c	1.6 09/11/08 J. Schilling
+ * @(#)dolist.c	1.7 11/10/10 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)dolist.c 1.6 09/11/08 J. Schilling"
+#pragma ident "@(#)dolist.c 1.7 11/10/10 J. Schilling"
 #endif
 /*
  * @(#)dolist.c 1.5 06/12/12
@@ -53,6 +53,9 @@ char ch;
 {
 	struct sid lowsid, highsid, sid;
 	int n;
+	void    (*f_enter) __PR((struct packet *_pkt, int _ch, int _n, struct sid *sidp));
+
+	f_enter	= pkt->p_enter;
 
 	while (*list) {
 		list = getasid(list,&lowsid);
@@ -74,13 +77,13 @@ char ch;
 				   if (sid.s_rel < highsid.s_rel) {
 				      for (; (n = sidtoser(&sid,pkt)) != 0;
 					   sid.s_lev++)
-					 enter(pkt,ch,n,&sid);
+					 (*f_enter)(pkt,ch,n,&sid);
 				   } else { /* == */
 				      for (;
 				           (sid.s_lev <= highsid.s_lev) && 
 				           (n = sidtoser(&sid,pkt));
 					   sid.s_lev++ )
-					 enter(pkt,ch,n,&sid);
+					 (*f_enter)(pkt,ch,n,&sid);
 				   }	 
 				}
 			}
@@ -94,12 +97,12 @@ char ch;
 				     (lowsid.s_seq <= highsid.s_seq) &&
 				     (n = sidtoser(&lowsid,pkt));
 				     lowsid.s_seq++ )
-				   enter(pkt,ch,n,&lowsid);
+				   (*f_enter)(pkt,ch,n,&lowsid);
 			}
 		}
 		else {
 			if ((n = sidtoser(&lowsid,pkt)) != 0)
-				enter(pkt,ch,n,&lowsid);
+				(*f_enter)(pkt,ch,n,&lowsid);
 		}
 		if (*list == ',')
 			++list;

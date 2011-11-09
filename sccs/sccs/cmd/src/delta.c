@@ -25,12 +25,12 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2011 J. Schilling
+ * Copyright 2006-2011 J. Schilling
  *
- * @(#)delta.c	1.44 11/08/28 J. Schilling
+ * @(#)delta.c	1.56 11/10/15 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)delta.c 1.44 11/08/28 J. Schilling"
+#pragma ident "@(#)delta.c 1.56 11/10/15 J. Schilling"
 #endif
 /*
  * @(#)delta.c 1.40 06/12/12
@@ -54,10 +54,6 @@
 # include	<ccstypes.h>
 # include	<schily/sysexits.h>
 # include	<schily/resource.h>
-
-struct stat Statbuf;
-char Null[1];
-char SccsError[MAXERRORLEN];
 
 # define	LENMR	60
 
@@ -91,16 +87,10 @@ static char	*Cwd = "";
 static	time_t	gfile_mtime;
 static	time_t	cutoff = MAX_TIME;
 
-struct sid sid;
-char	*Comments,*Mrs;
-int	Domrs;
-int	Did_id;
+static struct sid sid;
 
-extern FILE	*Xiop;
-extern int	Xcreate;
-
-	void    clean_up __PR((void));
-	void	enter	__PR((struct packet *pkt, int ch, int n, struct sid *sidp));
+static	void    clean_up __PR((void));
+static	void	enter	__PR((struct packet *pkt, int ch, int n, struct sid *sidp));
 
 	int	main __PR((int argc, char **argv));
 static void	delta __PR((char *file));
@@ -124,7 +114,6 @@ static void	warnctl __PR((char *file, off_t nline));
 extern int	org_ihash;
 extern int	org_chash;
 extern int	org_uchash;
-extern char	saveid[];
 
 int
 main(argc,argv)
@@ -157,6 +146,7 @@ register char *argv[];
 
 	tzset();	/* Set up timezome related vars */
 
+	set_clean_up(clean_up);
 	Fflags = FTLEXIT | FTLMSG | FTLCLN;
 
 	current_optind = 1;
@@ -309,10 +299,10 @@ char *file;
 {
 	static int first = 1;
 	int n, linenum;
+	int	ghash;
 	char type;
 	register int ser;
 	extern char had_dir, had_standinp;
-	extern char *Sflags[];
 	char nsid[50];
 	char dfilename[FILESIZE];
 	char gfilename[FILESIZE];
@@ -332,17 +322,26 @@ char *file;
 	Gin = NULL;
 	if (setjmp(Fjmp))
 		return;
+
+	/*
+	 * Init and check for validity of file name but do not open the file.
+	 * This prevents us from potentially damaging files with lockit().
+	 */
+	sinit(&gpkt, file, 0);
+
+	uname(&un);
+	uuname = un.nodename;
+	if (lockit(auxf(gpkt.p_file,'z'),SCCS_LOCK_ATTEMPTS,getpid(),uuname))
+		fatal(gettext("cannot create lock file (cm4)"));
+
 	sinit(&gpkt,file,1);
+	gpkt.p_enter = enter;
 	if ((gpkt.p_flags & PF_V6) == 0)
 		gpkt.p_flags |= PF_GMT;
 	if (first) {
 		first = 0;
 		dohist(file);
 	}
-	uname(&un);
-	uuname = un.nodename;
-	if (lockit(auxf(gpkt.p_file,'z'),SCCS_LOCK_ATTEMPTS,getpid(),uuname))
-		fatal(gettext("cannot create lock file (cm4)"));
 	gpkt.p_reopen = 1;
 	gpkt.p_stdout = stdout;
 	cat(gfilename,Cwd,auxf(gpkt.p_file,'g'), (char *)0);
@@ -417,7 +416,7 @@ char *file;
 	/* if encode flag is set, encode the g-file before diffing it
 	 * with the s.file
 	 */
-	if (Sflags[ENCODEFLAG - 'a'] && (strcmp(Sflags[ENCODEFLAG - 'a'],"1") == 0)) {
+	if (gpkt.p_encoding & EF_UUENCODE) {
 		efp = xfcreat(auxf(gpkt.p_file,'e'),0644);
 #ifdef	USE_SETVBUF
 		setvbuf(efp, NULL, _IOFBF, VBUF_SIZE);
@@ -454,28 +453,38 @@ char *file;
 	orig = gpkt.p_glnno;
 	gpkt.p_glnno = 0;
 	gpkt.p_verbose = (HADS) ? 0 : 1;
- 	Did_id = number_of_lines = size_of_file = 0;
+	gpkt.p_did_id = 0;
+ 	number_of_lines = size_of_file = 0;
 
-	if (Sflags[EXPANDFLAG - 'a'] && *(Sflags[EXPANDFLAG - 'a']) == '\0') {
-		Did_id++;		/* No need to scan for keywds */
+	gpkt.p_ghash = 0;	/* Reset ghash from previous readmod() calls */
+
+	if (gpkt.p_sflags[EXPANDFLAG - 'a'] &&
+	    *(gpkt.p_sflags[EXPANDFLAG - 'a']) == '\0') {
+		gpkt.p_did_id = 1;	/* No need to scan for keywds */
 	}
-	if ((Sflags[ENCODEFLAG - 'a'] == NULL) ||
-	    (strcmp(Sflags[ENCODEFLAG - 'a'],"0") == 0)) {
+	if ((gpkt.p_encoding & EF_UUENCODE) == 0) {
 		fgetchk(gfilename, &gpkt);
 		number_of_lines = gpkt.p_glines;
 	} else {
 	 	while (fgets(line,sizeof(line),Gin) != NULL) {
- 			if (line[strlen(line)-1] == '\n') {
+			register int	len = strlen(line);
+			register char	**sflags = gpkt.p_sflags;
+
+			gpkt.p_ghash += usum(line, len);
+ 			if (line[len-1] == '\n') {
  	   			number_of_lines++;
 			}
-			if (Did_id == 0) {
-				chkid(line,Sflags['i'-'a'], Sflags);
+			if (gpkt.p_did_id == 0) {
+				gpkt.p_did_id = chkid(line,
+							sflags[IDFLAG - 'a'],
+							sflags);
 			}
 		}
 	}
- 	if (stat(gfilename, &Statbuf) == 0) {
- 	   size_of_file = Statbuf.st_size;
- 	}
+	gpkt.p_ghash &= 0xFFFF;
+	if (stat(gfilename, &Statbuf) == 0) {
+		size_of_file = Statbuf.st_size;
+	}
 	if (Gin)
 		fclose(Gin);
 	Gin = NULL;
@@ -493,11 +502,11 @@ char *file;
  	   }
  	}
 
-	if (!Did_id && !HADQ &&
-	    (!Sflags[EXPANDFLAG - 'a'] ||
-	    *(Sflags[EXPANDFLAG - 'a']))) {
-		if (Sflags[IDFLAG - 'a']) {
-			if(!(*Sflags[IDFLAG - 'a']))
+	if (!gpkt.p_did_id && !HADQ &&
+	    (!gpkt.p_sflags[EXPANDFLAG - 'a'] ||
+	    *(gpkt.p_sflags[EXPANDFLAG - 'a']))) {
+		if (gpkt.p_sflags[IDFLAG - 'a']) {
+			if(!(*gpkt.p_sflags[IDFLAG - 'a']))
 				fatal(gettext("no id keywords (cm6)"));
 			else
 				fatal(gettext("invalid id keywords (cm10)"));
@@ -514,6 +523,7 @@ char *file;
 	*/
 	difflim = 24000;
 	diffloop = 0;
+	ghash = gpkt.p_ghash;		/* Save ghash value */
 	/*CONSTCOND*/
 	while (1) {
 		inserted = deleted = 0;
@@ -522,6 +532,7 @@ char *file;
 		gpkt.p_wrttn = 1;
 		getline(&gpkt);
 		gpkt.p_wrttn = 1;
+		gpkt.p_ghash = ghash;	/* ghash may be destroyed in loop */
         	if (HADF) {
                 	newser = mkdelt(&gpkt, &gpkt.p_reqsid, &gpkt.p_gotsid, 
 				diffloop, orig);
@@ -531,7 +542,7 @@ char *file;
         	}
 		diffloop = 1;
 		flushto(&gpkt,EUSERTXT,0);
-		if (Sflags[ENCODEFLAG - 'a'] && (strcmp(Sflags[ENCODEFLAG - 'a'],"1") == 0))
+		if (gpkt.p_encoding & EF_UUENCODE)
 			Diffin = dodiff(auxf(gpkt.p_file,'e'),dfilename,difflim);
 		else
 			Diffin = dodiff(gfilename, dfilename, difflim);
@@ -578,10 +589,10 @@ char *file;
 					gettext("'%s' failed, re-trying, segmentation = %d (de13)\n"),
  					BDiffpgm,
 					difflim);
-				if (Xiop)
-					fclose(Xiop);	/* set up */
-				Xiop = 0;		/* for new x-file */
-				Xcreate = 0;
+				if (gpkt.p_xiop)
+					fclose(gpkt.p_xiop); /* set up */
+				gpkt.p_xiop = 0;	/* for new x-file */
+				gpkt.p_xcreate = 0;
 				/*
 				Re-open s-file.
 				*/
@@ -617,8 +628,7 @@ command, to check the differences found between two files.
 			break;			/* exit while loop */
 		}
 	}
-	if (Sflags[ENCODEFLAG - 'a'] && 
-	    (strcmp(Sflags[ENCODEFLAG - 'a'],"1") == 0)) {
+	if (gpkt.p_encoding & EF_UUENCODE) {
 		unlink(auxf(gpkt.p_file,'e'));
 	}
 	unlink(dfilename);
@@ -674,7 +684,6 @@ int orig_nlines;
 	struct deltab dt;
 	char str[BUFSIZ];
 	int newser;
-	extern char *Sflags[];
 	register char *p;
 	int ser_inc, opred, nulldel;
 
@@ -693,7 +702,7 @@ int orig_nlines;
 	releases are being skipped) and set
 	'nulldel' indicator appropriately.
 	*/
-	if (Sflags[NULLFLAG - 'a'] && (sp->s_rel > osp->s_rel + 1) &&
+	if (pkt->p_sflags[NULLFLAG - 'a'] && (sp->s_rel > osp->s_rel + 1) &&
 			!sp->s_br && !sp->s_seq &&
 			!osp->s_br && !osp->s_seq)
 		nulldel = 1;
@@ -740,29 +749,32 @@ int orig_nlines;
 	if (glist)
 		mkixg(pkt,IGNRUSER,IGNORE);
 	if (Mrs) {
-		if ((p = Sflags[VALFLAG - 'a']) == NULL)
+		if ((p = pkt->p_sflags[VALFLAG - 'a']) == NULL)
 			fatal(gettext("MRs not allowed (de8)"));
 		if (*p && !diffloop && valmrs(pkt,p))
 			fatal(gettext("invalid MRs (de9)"));
 		putmrs(pkt);
-	}
-	else if (Sflags[VALFLAG - 'a'] && !HADQ)
+	} else if (pkt->p_sflags[VALFLAG - 'a'] && !HADQ) {
 		fatal(gettext("MRs required (de10)"));
+	}
 /*
 *
 * CMF enhancement
 *
 */
-	if(Sflags[CMFFLAG - 'a']) {
+	if (pkt->p_sflags[CMFFLAG - 'a']) {
 		if (Mrs) {
-			 error(gettext("input CMR's ignored"));
+			 cmrerror(gettext("input CMR's ignored"));
 			 Mrs = NOGETTEXT("");
 		}
-		if(!deltack(pkt->p_file,Cmrs,Nsid,Sflags[CMFFLAG - 'a'])) {
+		if (!deltack(pkt->p_file,Cmrs,Nsid, pkt->p_sflags[CMFFLAG - 'a'], pkt->p_sflags)) {
 			 fatal(gettext("Delta denied due to CMR difficulties"));
 		}
 		putcmrs(pkt); /* this routine puts cmrs on the out put file */
 	}
+	if (pkt->p_flags & PF_V6)
+		sidext_ba(pkt, &dt);
+
 	sprintf(str, NOGETTEXT("%c%c "), CTLCHAR, COMMENTS);
 	putline(pkt,str);
 	{
@@ -1074,15 +1086,13 @@ int	linenum, n, ser;
  	char	str[BUFSIZ];
  	int 	first;
 	int	nonl = 0;
-	extern char *Sflags[];
 
 	/*
 	 * We only count newlines and thus need to add one to number_of_lines
 	 * to get the same view as bdiff/diff.
 	 */
 	if ((pkt->p_props & CK_NONL) && (linenum + n) >= (number_of_lines+1)) {
-		if ((Sflags[ENCODEFLAG - 'a'] == NULL) ||
-		    (strcmp(Sflags[ENCODEFLAG - 'a'],"0") == 0)) {
+		if ((pkt->p_encoding & EF_UUENCODE) == 0) {
 			nonl++;
 		}
 	}
@@ -1204,7 +1214,7 @@ int	n;
 	return (r);
 }
 
-void
+static void
 enter(pkt,ch,n,sidp)
 struct packet *pkt;
 char ch;
@@ -1244,21 +1254,7 @@ struct sid *sidp;
 		}
 }
 
-/*ARGSUSED*/
-void
-escdodelt(pkt)			/* dummy routine for dodelt() */
-	struct packet *pkt;
-{
-}
-
-/*ARGSUSED*/
-void
-fredck(pkt)			/*dummy routine for dodelt()*/
-	struct packet *pkt;
-{
-}
-
-void
+static void
 clean_up()
 {
 	uname(&un);
@@ -1268,9 +1264,9 @@ clean_up()
 			fclose(gpkt.p_iop);
 			gpkt.p_iop = NULL;
 		}
-		if (Xiop) {
-			fclose(Xiop);
-			Xiop = NULL;
+		if (gpkt.p_xiop) {
+			fclose(gpkt.p_xiop);
+			gpkt.p_xiop = NULL;
 			unlink(auxf(gpkt.p_file,'x'));
 		}
 		if(Gin) {
@@ -1279,7 +1275,7 @@ clean_up()
 		}
 		unlink(auxf(gpkt.p_file,'d'));
 		unlink(auxf(gpkt.p_file,'q'));
-		xrm();
+		xrm(&gpkt);
 		ffreeall();
 		uname(&un);
 		uuname = un.nodename;
@@ -1308,7 +1304,6 @@ struct	packet	*pkt;
 	char	chkflags = 0;
 	char	lastchar;
 	unsigned int sum = 0;
-	extern char *Sflags[];
 
 	inptr = xfopen(file, O_RDONLY|O_BINARY);
 #ifdef	USE_SETVBUF
@@ -1374,8 +1369,9 @@ struct	packet	*pkt;
 			}
 		}
 		line[idx] = '\0';
-		if (Did_id == 0) {
-			chkid(line, Sflags['i'-'a'], Sflags);
+		if (pkt->p_did_id == 0) {
+			pkt->p_did_id =
+				chkid(line, pkt->p_sflags[IDFLAG - 'a'], pkt->p_sflags);
 		}
 	}
 #else	/* !RECORD_IO */
@@ -1414,8 +1410,9 @@ struct	packet	*pkt;
 		 }
 	      }
 	   }   
-	   if (Did_id == 0) {
-		chkid(line, Sflags['i'-'a'], Sflags);
+	   if (pkt->p_did_id == 0) {
+		pkt->p_did_id =
+			chkid(line, pkt->p_sflags[IDFLAG - 'a'], pkt->p_sflags);
 	   }
 	   (void)memset(line, '\377', sizeof (line));
 	}

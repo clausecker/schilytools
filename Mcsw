@@ -1,4 +1,4 @@
-#ident @(#)Mcsw	1.3 09/04/04 
+#ident @(#)Mcsw	1.4 11/09/28 
 ###########################################################################
 deftgt:
 SRCROOT=	.
@@ -14,13 +14,14 @@ PROJECTNAME=	CSWschily-10.06.2006
 TARGET_AR=	opt-schily-0.99
 INS_BASE=	/opt/csw
 COPTX="-DSEEK_DATA=3 -DSEEK_HOLE=4 -D_PC_MIN_HOLE_SIZE=21 -DNO_DOIT -DNO_DEFAULTS_PATH"
+PKG_TYPE=CSW
 
 deftgt:
 	$(MAKE) -f Mcsw INS_BASE=$(INS_BASE) COPTX=$(COPTX)		all
 	$(MAKE) -f Mcsw INS_BASE=$(INS_BASE) COPTX=$(COPTX)		all
 	#$(MAKE) -f Mcsw INS_BASE=/	     COPTX=$(COPTX)		pkg1
 	$(MAKE) -f Mcsw INS_BASE=$(INS_BASE) COPTX=$(COPTX)		pkg1
-	fakeroot '$(MAKE) -f Mcsw INS_BASE=$(INS_BASE) COPTX=$(COPTX)	package PKGTYPE=CSW'
+	fakeroot '$(MAKE) -f Mcsw INS_BASE=$(INS_BASE) COPTX=$(COPTX)	package PKGTYPE=$(PKG_TYPE)'
 
 STRIPLIST=      ./$(INS_BASE)/*bin/* ./$(INS_BASE)/ccs/bin/*
 STRIPXLIST=      ./$(INS_BASE)/lib/*.so.*

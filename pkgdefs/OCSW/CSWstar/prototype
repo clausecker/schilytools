@@ -1,0 +1,87 @@
+i pkginfo
+i depend
+#i copyright
+i checkpkg_override
+d none share/doc/star 0755 root bin
+f none share/doc/star/license=$pkgbase/copyright 0444 root bin
+d none bin ? ? ?
+f none bin/star 4711 root bin
+s none bin/ustar=star
+s none bin/gnutar=star
+s none bin/scpio=star
+s none bin/spax=star
+s none bin/suntar=star
+s none bin/tar=star
+f none bin/star_sym 0755 root bin
+f none bin/smt 0755 root bin
+s none bin/mt=smt
+f none bin/tartest 0755 root bin
+d none sbin ? ? ?
+f none sbin/rmt 0755 root bin
+d none share ? ? ?
+d none share/man ? ? ?
+d none share/man/man1 ? ? ?
+f none share/man/man1/mt.1 0444 root bin
+f none share/man/man1/smt.1 0444 root bin
+f none share/man/man1/star.1 0444 root bin
+f none share/man/man1/star_sym.1 0444 root bin
+f none share/man/man1/gnutar.1 0444 root bin
+f none share/man/man1/scpio.1 0444 root bin
+f none share/man/man1/spax.1 0444 root bin
+f none share/man/man1/suntar.1 0444 root bin
+f none share/man/man1/rmt.1 0444 root bin
+f none share/man/man1/tartest.1 0444 root bin
+f none share/man/man1/ustar.1 0444 root bin
+d none share/man/man4 ? ? ?
+f none share/man/man4/star.4 0444 root bin
+d none share/doc ? ? ?
+d none share/doc/rmt 0755 root bin
+f none share/doc/rmt/default-rmt.sample 0644 root bin
+d none share/doc/star 0755 root bin
+d none share/doc/star/testscripts 0755 root bin
+f none share/doc/star/testscripts/00INDEX 0644 root bin
+f none share/doc/star/testscripts/100char_longlink.tar 0644 root bin
+f none share/doc/star/testscripts/100char_longlink.tar-non-compliant 0644 root bin
+f none share/doc/star/testscripts/README.create-and-remove 0644 root bin
+f none share/doc/star/testscripts/README.gtarfail 0644 root bin
+f none share/doc/star/testscripts/README.largefiles 0644 root bin
+f none share/doc/star/testscripts/README.longnames 0644 root bin
+f none share/doc/star/testscripts/README.paxbug 0644 root bin
+f none share/doc/star/testscripts/README.quicktest 0644 root bin
+f none share/doc/star/testscripts/create-and-remove.tar 0644 root bin
+f none share/doc/star/testscripts/dirloop.tar 0644 root bin
+f none share/doc/star/testscripts/g-hdr.pax.gz 0644 root bin
+f none share/doc/star/testscripts/gtarfail.tar 0644 root bin
+f none share/doc/star/testscripts/gtarfail2.tar 0644 root bin
+f none share/doc/star/testscripts/long.ustar.gz 0644 root bin
+f none share/doc/star/testscripts/mk 0755 root bin
+f none share/doc/star/testscripts/mk2 0755 root bin
+f none share/doc/star/testscripts/not_a_tar_file 0644 root bin
+f none share/doc/star/testscripts/not_a_tar_file2 0644 root bin
+f none share/doc/star/testscripts/old-file.tar 0644 root bin
+f none share/doc/star/testscripts/remove.tar 0644 root bin
+f none share/doc/star/testscripts/pax-big-10g.tar.bz2 0644 root bin
+f none share/doc/star/testscripts/quicktest.filelist 0644 root bin
+f none share/doc/star/testscripts/tartest-quicktest.out 0644 root bin
+f none share/doc/star/testscripts/typescript 0644 root bin
+f none share/doc/star/testscripts/ustar-all-filetypes.tar 0644 root bin
+f none share/doc/star/testscripts/ustar-all-quicktest-past-contig.tar 0644 root bin
+f none share/doc/star/testscripts/ustar-all-quicktest.tar 0644 root bin
+f none share/doc/star/testscripts/ustar-all-quicktest.tar-without-cont-file 0644 root bin
+f none share/doc/star/testscripts/ustar-bad-filetypes.tar 0644 root bin
+f none share/doc/star/testscripts/ustar-bad-signedsum.tar 0644 root bin
+f none share/doc/star/testscripts/ustar-big-2g.tar.bz2 0644 root bin
+f none share/doc/star/testscripts/ustar-big-8g.tar.bz2 0644 root bin
+f none share/doc/star/README 0644 root bin
+f none share/doc/star/README.ACL 0644 root bin
+#f none share/doc/star/README.SSPM 0644 root bin
+#f none share/doc/star/README.compile 0644 root bin
+f none share/doc/star/README.crash 0644 root bin
+f none share/doc/star/README.largefiles 0644 root bin
+f none share/doc/star/README.mtio 0644 root bin
+f none share/doc/star/README.otherbugs 0644 root bin
+f none share/doc/star/README.pattern 0644 root bin
+f none share/doc/star/README.posix-2001 0644 root bin
+#f none share/doc/star/README.solaris 0644 root bin
+#f none share/doc/star/README.sunos 0644 root bin
+f none share/doc/star/STARvsGNUTAR 0644 root bin

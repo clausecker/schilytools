@@ -1,4 +1,4 @@
-/* @(#)xconfig.h.in	1.223 11/08/14 Copyright 1998-2011 J. Schilling */
+/* @(#)xconfig.h.in	1.226 11/10/22 Copyright 1998-2011 J. Schilling */
 /*
  *	Dynamic autoconf C-include code.
  *	Do not edit, this file has been created automatically.
@@ -441,6 +441,7 @@
 #undef HAVE_STRNLEN		/* strnlen() is present in libc */
 #undef HAVE_STRCHR		/* strchr() is present in libc */
 #undef HAVE_STRRCHR		/* strrchr() is present in libc */
+#undef HAVE_STRSTR		/* strstr() is present in libc */
 #undef HAVE_STRCASECMP		/* strcasecmp() is present in libc */
 #undef HAVE_BASENAME		/* basename() is present in libc */
 #undef HAVE_DIRNAME		/* dirname() is present in libc */
@@ -521,6 +522,7 @@
 #undef HAVE_WCSNLEN		/* wcsnlen() is present in libc */
 #undef HAVE_WCSCHR		/* wcschr() is present in libc */
 #undef HAVE_WCSRCHR		/* wcsrchr() is present in libc */
+#undef HAVE_WCSSTR		/* wcsstr() is present in libc */
 #undef HAVE_WCWIDTH		/* wcwidth() is present in libc */
 #undef HAVE_WCSWIDTH		/* wcswidth() is present in libc */
 #undef HAVE_WCTYPE		/* wctype() is present in libc */
@@ -808,6 +810,25 @@
 #undef SIZEOF_SIZE_T
 #undef SIZEOF_SSIZE_T
 #undef SIZEOF_PTRDIFF_T
+
+#undef SIZEOF_MODE_T
+#undef SIZEOF_UID_T
+#undef SIZEOF_GID_T
+#undef SIZEOF_PID_T
+
+/*
+ * If sizeof (mode_t) is < sizeof (int) and used with va_arg(),
+ * GCC4 will abort the code. So we need to use the promoted size.
+ */
+#if	SIZEOF_MODE_T < SIZEOF_INT
+#define	PROMOTED_MODE_T	int
+#else
+#define	PROMOTED_MODE_T	mode_t
+#endif
+
+#undef SIZEOF_DEV_T
+#undef SIZEOF_MAJOR_T
+#undef SIZEOF_MINOR_T
 
 #undef SIZEOF_TIME_T
 #undef SIZEOF_WCHAR		/* sizeof (L'a')	*/

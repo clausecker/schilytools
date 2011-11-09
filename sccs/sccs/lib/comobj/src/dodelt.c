@@ -25,12 +25,12 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2011 J. Schilling
+ * Copyright 2006-2011 J. Schilling
  *
- * @(#)dodelt.c	1.9 11/08/21 J. Schilling
+ * @(#)dodelt.c	1.17 11/10/13 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)dodelt.c 1.9 11/08/21 J. Schilling"
+#pragma ident "@(#)dodelt.c 1.17 11/10/13 J. Schilling"
 #endif
 /*
  * @(#)dodelt.c 1.8 06/12/12
@@ -50,11 +50,6 @@ static void	doixg	__PR((char *,struct ixg **));
 
 time_t	Timenow;
 
-char	Pgmr[LOGSIZE];	/* for rmdel & chghist (rmchg) */
-int	First_esc;
-int	First_cmt;
-int	CDid_mrs;		/* for chghist to check MRs */
-
 struct idel *
 dodelt(pkt,statp,sidp,type)
 register struct packet *pkt;
@@ -62,10 +57,11 @@ struct stats *statp;
 struct sid *sidp;
 char type;
 {
-	char *c;
+	char *c = NULL;
 	struct deltab dt;
 	register struct idel *rdp = NULL;
 	int n, founddel;
+	int	lhash;
 	register char *p;
 	time_t	TN;
 
@@ -77,6 +73,7 @@ char type;
 	if (pkt->p_flags & PF_GMT)
 		TN += gmtoff(Timenow);
 	stats_ab(pkt,statp);
+	lhash = pkt->p_clhash;
 	while (getadel(pkt,&dt) == BDELTAB) {
 		if (pkt->p_idel == 0) {
 			if (TN < dt.d_dtime.dt_sec)
@@ -93,19 +90,48 @@ char type;
 		}
 		if (dt.d_type == 'D') {
 			if (sidp && eqsid(&dt.d_sid,sidp)) {
-				copy(dt.d_pgmr,Pgmr);	/* for rmchg */
+				copy(dt.d_pgmr, pkt->p_pgmr);	/* for rmchg */
 				zero((char *) sidp,sizeof(*sidp));
 				founddel = 1;
-				First_esc = 1;
-				First_cmt = 1;
-				CDid_mrs = 0;
+				pkt->p_first_esc = 1;
+				pkt->p_first_cmt = 1;
+				pkt->p_cdid_mrs = 0;
 				for (p = pkt->p_line; *p && *p != 'D'; p++)
 					;
-				if (*p)
+				if (*p) {
+					/*
+					 * Also correct saved line hash, used
+					 * for putline() optimization.
+					 */
+					pkt->p_clhash -= 'D';
+					pkt->p_uclhash -= 'D';
+					pkt->p_clhash += type;
+					pkt->p_uclhash += type;
 					*p = type;
+				}
+				if (type == 0) {
+					/*
+					 * Go back before last stats line. The
+					 * value 21 is the lenght of any stats
+					 * line. Never change this length.
+					 */
+					pkt->p_nhash -= lhash;
+					fseek(pkt->p_xiop, (off_t)-21, SEEK_CUR);
+					/*
+					 * Skip this delta table entry.
+					 */
+					pkt->p_wrttn = 1;
+					while ((c = getline(pkt)) != NULL) {
+						pkt->p_wrttn = 1;
+						if (pkt->p_line[0] != CTLCHAR)
+							break;
+						if (pkt->p_line[1] == EDELTAB)
+							break;
+					}
+				}
 			}
 			else
-				First_esc = founddel = First_cmt = 0;
+				pkt->p_first_esc = pkt->p_first_cmt = founddel = 0;
 			pkt->p_maxr = max(pkt->p_maxr,dt.d_sid.s_rel);
 			rdp = &pkt->p_idel[dt.d_serial];
 			rdp->i_sid.s_rel = dt.d_sid.s_rel;
@@ -114,6 +140,8 @@ char type;
 			rdp->i_sid.s_seq = dt.d_sid.s_seq;
 			rdp->i_pred = dt.d_pred;
 			rdp->i_datetime = dt.d_dtime.dt_sec;
+			if (founddel && type == 0)	/* Already skipped */
+				goto nextdelta;
 		}
 		while ((c = getline(pkt)) != NULL)
 			if (pkt->p_line[0] != CTLCHAR)
@@ -123,16 +151,24 @@ char type;
 				case EDELTAB:
 					break;
 				case COMMENTS:
+					if (pkt->p_line[2] == '_')
+						sidext_v4compat_ab(pkt, &dt);
 				case MRNUM:
 					if (founddel)
 					{
-						escdodelt(pkt);
+						(*pkt->p_escdodelt)(pkt);
 						if(type == 'R' && HADZ && pkt->p_line[1] == MRNUM )
 						{
-							fredck(pkt);
+							(*pkt->p_fredck)(pkt);
 						}
 					}
 				continue;
+
+				case SIDEXTENS:
+					if (pkt->p_flags & PF_V6) {
+						sidext_ab(pkt, &dt, &pkt->p_line[2]);
+						continue;
+					}
 				default:
 					fmterr(pkt);
 				/*FALLTHRU*/
@@ -146,10 +182,12 @@ char type;
 				}
 				break;
 			}
+	nextdelta:
 		if (c == NULL || pkt->p_line[0] != CTLCHAR || getline(pkt) == NULL)
 			fmterr(pkt);
 		if (pkt->p_line[0] != CTLCHAR || pkt->p_line[1] != STATS)
 			break;
+		lhash = pkt->p_clhash;
 	}
 	return(pkt->p_idel);
 }

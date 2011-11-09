@@ -25,12 +25,12 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2011 J. Schilling
+ * Copyright 2006-2011 J. Schilling
  *
- * @(#)unget.c	1.17 11/07/04 J. Schilling
+ * @(#)unget.c	1.22 11/10/11 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)unget.c 1.17 11/07/04 J. Schilling"
+#pragma ident "@(#)unget.c 1.22 11/10/11 J. Schilling"
 #endif
 /*
  * @(#)unget.c 1.24 06/12/12
@@ -68,20 +68,17 @@ extern	char had_dir, had_standinp;
 
 static int	num_files;
 static int	cmd;
-static long	Szqfile;
+static off_t	Szqfile;
 static char	Pfilename[FILESIZE];
 static struct packet	gpkt;
 static struct sid	sid;
 static struct utsname 	un;
 static char *uuname;
 
-struct stat	Statbuf;
-char	SccsError[MAXERRORLEN];
-
 	int	main	__PR((int argc, char **argv));
 static void	unget	__PR((char *file));
 static struct	pfile *edpfile __PR((struct packet *pkt, struct sid *sp));
-	void    clean_up __PR((void));
+static void	clean_up __PR((void));
 static void	catpfile __PR((struct packet *pkt));
 
 int
@@ -119,6 +116,7 @@ char *argv[];
 
 	tzset();	/* Set up timezome related vars */
 
+	set_clean_up(clean_up);
 	Fflags = FTLEXIT | FTLMSG | FTLCLN;
 
 	current_optind = 1;
@@ -234,7 +232,6 @@ char *argv[];
 	*/
 	if (equal(sname(argv[0]),NOGETTEXT("sact"))) {
 		cmd = 1;
-		HADS = 0;
 	}
 
 	setsig();
@@ -259,8 +256,10 @@ char *file;
 	if (setjmp(Fjmp))
 		return;
 
-	/*	Initialize packet, but do not open SCCS file.
-	*/
+	/*
+	 * Initialize packet, but do not open SCCS file.
+	 * As we do not open the file, we may obtain the lock later.
+	 */
 	sinit(&gpkt,file,0);
 	gpkt.p_stdout = stdout;
 	gpkt.p_verbose = (HADS) ? 0 : 1;
@@ -374,7 +373,7 @@ struct sid *sp;
 /* clean_up() only called from fatal().
 */
 
-void
+static void
 clean_up()
 {
 	/*	Lockfile and q-file only removed if lockfile
@@ -399,7 +398,12 @@ struct packet *pkt;
 	if(!(in = fopen(auxf(pkt->p_file,'p'), NOGETTEXT("rb")))) {
 	   if (gpkt.p_verbose && (num_files > 1 || had_dir || had_standinp))
 	      fprintf(stderr,"\n%s:\n",gpkt.p_file);
-	   fatal(gettext("No outstanding deltas"));
+	   if (cmd == 1 && HADS) {
+		clean_up();
+		exit(1);
+	   } else {
+		fatal(gettext("No outstanding deltas"));
+	   }
 	} else {
 	   if (gpkt.p_verbose && (num_files > 1 || had_dir || had_standinp))
 		fprintf(gpkt.p_stdout,"\n%s:\n",gpkt.p_file);

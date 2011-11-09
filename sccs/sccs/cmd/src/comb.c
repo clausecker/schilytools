@@ -27,10 +27,10 @@
 /*
  * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)comb.c	1.15 11/07/04 J. Schilling
+ * @(#)comb.c	1.21 11/10/15 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)comb.c 1.15 11/07/04 J. Schilling"
+#pragma ident "@(#)comb.c 1.21 11/10/15 J. Schilling"
 #endif
 /*
  * @(#)comb.c 1.15 06/12/12
@@ -46,10 +46,7 @@
 # include       <i18n.h>
 # include	<schily/sysexits.h>
 
-struct stat Statbuf;
-char SccsError[MAXERRORLEN];
-
-struct sid sid;
+static struct sid sid;
 
 static struct packet gpkt;
 static int	num_files;
@@ -61,10 +58,8 @@ static int	*Cvec;
 static int	Cnt;
 static FILE	*iop;
 
-	void    clean_up __PR((void));
-	void	escdodelt __PR((struct packet *pkt));
-	void	fredck	__PR((struct packet *pkt));
-	void	enter	__PR((struct packet *pkt, int ch, int n, struct sid *sidp));
+static	void    clean_up __PR((void));
+static	void	enter	__PR((struct packet *pkt, int ch, int n, struct sid *sidp));
 
 	int	main __PR((int argc, char **argv));
 static void	comb __PR((char *file));
@@ -103,6 +98,7 @@ register char *argv[];
 
 	tzset();	/* Set up timezome related vars */
 
+	set_clean_up(clean_up);
 	Fflags = FTLEXIT | FTLMSG | FTLCLN;
 
 	current_optind = 1;
@@ -226,7 +222,6 @@ char *file;
 	int succnt;
 	struct sid *sp;
 	extern char had_dir, had_standinp;
-	extern char *Sflags[];
 	struct stats stats;
 
 	if (setjmp(Fjmp))
@@ -234,6 +229,7 @@ char *file;
 	sinit(&gpkt, file, 1);
 	gpkt.p_verbose = -1;
 	gpkt.p_stdout = stderr;
+	gpkt.p_enter = enter;
 	if (gpkt.p_verbose && (num_files > 1 || had_dir || had_standinp))
 		fprintf(gpkt.p_stdout,"\n%s:\n",gpkt.p_file);
 	if (exists(auxf(gpkt.p_file, 'p')))
@@ -296,7 +292,7 @@ char *file;
 	fprintf(iop,"trap \"rm -f COMB$$ comb$$ s.COMB$$; exit 2\" 1 2 3 15\n");
 	sp = prtget(rdp, Cvec[0], iop, gpkt.p_file);
 	sid_ba(sp,rarg);
-	if ((Val_ptr = Sflags[VALFLAG - 'a']) == NULL)
+	if ((Val_ptr = gpkt.p_sflags[VALFLAG - 'a']) == NULL)
 		Val_ptr = Blank;
 	fprintf(iop, "v=`prs -r%s -d:MR: %s`\n", rarg, gpkt.p_file);
 	fprintf(iop, "if test \"$v\"\n");
@@ -355,8 +351,8 @@ char *file;
 	fprintf(iop, "prs -e %s >>comb$$\n", gpkt.p_file);
 	fprintf(iop, "admin -tcomb$$ s.COMB$$\\\n");
 	for (i = 0; i < NFLAGS; i++)
-		if ((p = Sflags[i]) != NULL)
-		   if ( i != ('e'-'a') )
+		if ((p = gpkt.p_sflags[i]) != NULL)
+		   if ( i != (ENCODEFLAG-'a') )
 			fprintf(iop, " -f%c%s\\\n", i + 'a', p);
 	fprintf(iop, "\n");
 	fprintf(iop, "sed -n '/^%c%c$/,/^%c%c$/p' %s >comb$$\n",
@@ -377,7 +373,7 @@ char *file;
 	if (!HADS) {
 		fprintf(iop, "rm -f %s\n", gpkt.p_file);
 		fprintf(iop, "mv s.COMB$$ %s\n", gpkt.p_file);
-		if (!Sflags[VALFLAG - 'a'])
+		if (!gpkt.p_sflags[VALFLAG - 'a'])
 			fprintf(iop, "admin -dv %s\n", gpkt.p_file);
 	} else {
 		fprintf(iop, "set `ls -st s.COMB$$ %s`\n",gpkt.p_file);
@@ -388,7 +384,7 @@ char *file;
 }
 
 /*ARGSUSED*/
-void
+static void
 enter(pkt,ch,n,sidp)
 struct packet *pkt;
 char ch;
@@ -442,22 +438,8 @@ int i;
 	return(i);
 }
 
-void
+static void
 clean_up()
 {
 	ffreeall();
-}
-
-/*ARGSUSED*/
-void
-escdodelt(pkt)			/* dummy for dodelt() */
-	struct packet *pkt;
-{
-}
-
-/*ARGSUSED*/
-void
-fredck(pkt)			/*dummy for dodelt() */
-	struct packet *pkt;
-{
 }

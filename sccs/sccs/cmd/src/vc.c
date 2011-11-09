@@ -25,12 +25,12 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2007 J. Schilling
+ * Copyright 2006-2011 J. Schilling
  *
- * @(#)vc.c	1.6 09/11/08 J. Schilling
+ * @(#)vc.c	1.12 11/10/13 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)vc.c 1.6 09/11/08 J. Schilling"
+#pragma ident "@(#)vc.c 1.12 11/10/13 J. Schilling"
 #endif
 /*
  * @(#)vc.c 1.6 06/12/12
@@ -41,17 +41,6 @@
 #pragma ident	"@(#)sccs:cmd/vc.c"
 #endif
 # include	<defines.h>
-
-
-/*
- * The symbol table size is set to a limit of forty keywords per input
- * file.  Should this limit be changed it should also be changed in the
- * Help file.
- */
-
-# define SYMSIZE 40
-# define PARMSIZE 10
-# define NSLOTS 32
 
 # define USD  1
 # define DCL 2
@@ -65,17 +54,16 @@
 # define TRUE 1
 # define FALSE 0
 
-char SccsError[MAXERRORLEN];
-
 static char	Ctlchar = ':';
 
 struct	symtab	{
 	int	usage;
-	char	name[PARMSIZE];
+	char	*name;
 	char	*value;
 	int	lenval;
 };
-static struct	symtab	Sym[SYMSIZE];
+static struct	symtab	*Sym;
+static int	symsize;
 
 
 static char 	*sptr;
@@ -124,10 +112,11 @@ static void	numck __PR((char *nptr));
 static char *	replace __PR((char *ptr));
 static int	lookup __PR((char *lname));
 static int	putin __PR((char *pname, char *pvalue));
-static void	chksize __PR((char *s));
 static char *	findch __PR((char *astr, int match));
 static char *	ecopy __PR((char *s1, char *s2));
 static char *	findstr __PR((char *astr, char *pat));
+static char *	fgetl __PR((char **linep, size_t *sizep, FILE *f));
+
 /*
  * The main program reads a line of text and sends it to be processed
  * if it is a version control statement. If it is a line of text and
@@ -141,7 +130,8 @@ char *argv[];
 {
 	register  char *lineptr, *p;
 	register int i;
-	char line[1024];
+	char *line = NULL;
+	size_t linesize = 0;
 	extern int Fflags;
 
 	Fflags = FTLCLN | FTLMSG | FTLEXIT;
@@ -168,7 +158,7 @@ char *argv[];
 			asgfunc(p);
 		}
 	}
-	while (fgets(line,sizeof(line),stdin) != NULL) {
+	while (fgetl(&line, &linesize, stdin) != NULL) {
 		lineptr = line;
 		Lineno++;
 
@@ -231,7 +221,7 @@ char *argv[];
 			}
 		}
 	}
-	for(i = 0; Sym[i].usage != 0 && i<SYMSIZE; i++) {
+	for(i = 0; i < symsize && Sym[i].usage != 0; i++) {
 		if ((Sym[i].usage&USD) == 0 && !Silent)
 			fprintf(stderr,"`%s' never used (vc2)\n",Sym[i].name);
 		if ((Sym[i].usage&DCL) == 0 && !Silent)
@@ -275,7 +265,6 @@ register char *aptr;
 	}
 	*aptr++ = '\0';
 	avalue = getid(aptr);
-	chksize(aname);
 	putin(aname, avalue);
 }
 
@@ -300,7 +289,6 @@ register char *dptr;
 		name = dptr;
 		dptr = findch(dptr,',');
 		*dptr++ = '\0';
-		chksize(name);
 		if (Sym[i = lookup(name)].usage&DCL) {
 			sprintf(SccsError,"`%s' declared twice on line %d (vc5)", 
 				name, Lineno);
@@ -594,15 +582,19 @@ register char *nptr;
  * the begining of the new line.
  */
 
-# define INCR(int) if (++int==NSLOTS) { \
-		sprintf(SccsError,"out of space [line %d] (vc16)",Lineno); \
-		fatal(SccsError); }
+# define INCR(int) if (++int == nslots) { \
+		nslots += 32; \
+		if ((slots = realloc(slots, nslots * sizeof (slots[0]))) == NULL) { \
+			sprintf(SccsError,"out of space [line %d] (vc16)",Lineno); \
+			fatal(SccsError); } \
+		}
 
 static char *
 replace(ptr)
 char *ptr;
 {
-	char *slots[NSLOTS];
+	char **slots = NULL;
+	int nslots = 0;
 	int i,j,newlen;
 	register char *s, *t, *p;
 
@@ -626,7 +618,10 @@ char *ptr;
 	}
 	INCR(i);
 	slots[i] = p;
-	if (i==0) return(ptr);
+	if (i == 0) {
+		free(slots);
+		return (ptr);
+	}
 	newlen = 0;
 	for (j=0; j<=i; j++)
 		newlen += (size(slots[j])-1);
@@ -634,6 +629,7 @@ char *ptr;
 	for (j=0; j<=i; j++)
 		t = ecopy(slots[j],t);
 	Linend = t;
+	free(slots);
 	return(Repflag);
 }
 
@@ -661,17 +657,21 @@ char *lname;
 		fatal(SccsError);
 	}
 
-	for(i =0; Sym[i].usage != 0 && i<SYMSIZE; i++)
+	for (i = 0; i < symsize && Sym[i].usage != 0; i++)
 		if (equal(lname, Sym[i].name)) return(i);
-	s = &Sym[i];
-	if (s->usage == 0) {
-		copy(lname,s->name);
-		copy("",(s->value = fmalloc((unsigned int) (s->lenval = 1))));
-		return(i);
+	if (i >= symsize) {
+		symsize += 64;
+		Sym = realloc(Sym, symsize * sizeof (Sym[0]));
+		if (Sym == NULL) {
+			fatal("out of space (vc6)");
+			/*NOTREACHED*/
+		}
+		memset(&Sym[i], '\0', (symsize-i) * sizeof (Sym[0]));
 	}
-	fatal("out of space (vc6)");
-	/*NOTREACHED*/
-	return (0);	/* fake for gcc */
+	s = &Sym[i];
+	copy(lname, (s->name = fmalloc(size(lname))));
+	copy("",(s->value = fmalloc((unsigned int) (s->lenval = 1))));
+	return(i);
 }
 
 
@@ -696,17 +696,6 @@ char *pvalue;
 	s->usage |= ASG;
 	return(i);
 }
-
-static void
-chksize(s)
-char *s;
-{
-	if (size(s) > PARMSIZE) {
-		sprintf(SccsError,"keyword name too long on line %d (vc8)",Lineno);
-		fatal(SccsError);
-	}
-}
-
 
 static char *
 findch(astr,match)
@@ -764,8 +753,52 @@ char *astr, *pat;
 	return(s);
 }
 
-/* for fatal() */
-void
-clean_up()
+#define	DEF_LINE_SIZE	128
+
+static char *
+fgetl(linep, sizep, f)
+	char	**linep;
+	size_t	*sizep;
+	FILE	*f;
 {
+	int	eof;
+	register size_t used = 0;
+	register size_t line_size;
+	register char	*line;
+
+	line_size = *sizep;
+	line = *linep;
+	if (line_size == 0) {
+		line_size = DEF_LINE_SIZE;
+		line = (char *) malloc(line_size);
+		if (line == NULL)
+			fatal(gettext("line too long (vc21)"));
+	}
+	/* read until EOF or newline encountered */
+	line[0] = '\0';
+	do {
+		line[line_size - 1] = '\t';	/* arbitrary non-zero char */
+		line[line_size - 2] = ' ';	/* arbitrary non-newline char */
+		if (!(eof = (fgets(line+used,
+				    line_size-used,
+				    f) == NULL))) {
+
+			if (line[line_size - 1] != '\0' ||
+			    line[line_size - 2] == '\n')
+				break;
+
+			used = line_size - 1;
+
+			line_size += DEF_LINE_SIZE;
+			line = (char *) realloc(line, line_size);
+			if (line == NULL)
+				fatal(gettext("line too long (vc21)"));
+		}
+	} while (!eof);
+	used += strlen(&line[used]);
+	*linep = line;
+	*sizep = line_size;
+	if (eof && (used == 0))
+		return (NULL);
+	return (line);
 }

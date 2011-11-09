@@ -27,10 +27,10 @@
 /*
  * This file contains modifications Copyright 2006-2009 J. Schilling
  *
- * @(#)setsig.c	1.7 11/08/03 J. Schilling
+ * @(#)setsig.c	1.8 11/10/08 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)setsig.c 1.7 11/08/03 J. Schilling"
+#pragma ident "@(#)setsig.c 1.8 11/10/08 J. Schilling"
 #endif
 /*
  * @(#)setsig.c 1.8 06/12/12
@@ -64,6 +64,7 @@
 	(after calling clean_up, but before calling userexit).
 */
 
+extern	void	(*f_clean_up) __PR((void));
 
 static char	*Mesg[ONSIG]={
 	0,
@@ -126,7 +127,7 @@ int sig;
 	}
 	else
 		signal(sig, SIG_IGN);
-	clean_up();
+	(*f_clean_up)();
 	if(open(NOGETTEXT("dump.core"), O_RDONLY|O_BINARY) > 0) {
 #ifdef	SIGIOT
 		signal(SIGIOT, SIG_DFL);

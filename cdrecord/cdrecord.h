@@ -1,4 +1,4 @@
-/* @(#)cdrecord.h	1.201 10/01/31 Copyright 1995-2010 J. Schilling */
+/* @(#)cdrecord.h	1.202 11/09/14 Copyright 1995-2010 J. Schilling */
 /*
  *	Definitions for cdrecord
  *
@@ -1214,3 +1214,8 @@ extern	int	parsecue	__PR((char *cuefname, track_t trackp[]));
 #ifdef	EOF	/* stdio.h has been included */
 extern	void	fparsecue	__PR((FILE *f, track_t trackp[]));
 #endif
+
+/*
+ * vendor.c
+ */
+

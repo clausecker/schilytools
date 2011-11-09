@@ -27,10 +27,10 @@
 /*
  * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)sinit.c	1.8 11/08/22 J. Schilling
+ * @(#)sinit.c	1.11 11/10/15 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)sinit.c 1.8 11/08/22 J. Schilling"
+#pragma ident "@(#)sinit.c 1.11 11/10/15 J. Schilling"
 #endif
 /*
  * @(#)sinit.c 1.7 06/12/12
@@ -41,6 +41,10 @@
 #pragma ident	"@(#)sccs:lib/comobj/sinit.c"
 #endif
 # include	<defines.h>
+
+static	void	dummy_enter	__PR((struct packet *pkt, int ch, int n, struct sid *sidp));
+static	void	dummy_escdodelt	__PR((struct packet *pkt));
+static	void	dummy_fredck	__PR((struct packet *pkt));
 
 /*
 	Does initialization for sccs files and packet.
@@ -54,6 +58,18 @@ int openflag;
 {
 	register char *p;
 
+#if	defined(IS_MACOS_X)
+/*
+ * The Mac OS X static linker is too silly to link in .o files from static libs
+ * if only a variable is referenced. The elegant workaround for this bug (using
+ * common variables) triggers a different bug in the dynamic linker from Mac OS
+ * that is unable to link common variables. This forces us to introduce funcs
+ * that need to be called from central places to enforce to link in the vars.
+ */
+extern	void __comobj __PR((void));
+
+	__comobj();
+#endif
 	zero((char *)pkt, sizeof(*pkt));
 	if (size(file) > FILESIZE)
 		fatal(gettext("too long (co7)"));
@@ -83,6 +99,10 @@ int openflag;
 	}
 	pkt->p_chash = 0;
 	pkt->p_uchash = 0;
+
+	pkt->p_enter = dummy_enter;
+	pkt->p_escdodelt = dummy_escdodelt;
+	pkt->p_fredck = dummy_fredck;
 }
 
 char *
@@ -110,4 +130,34 @@ checkmagic(pkt, p)
 	if ((pkt->p_flags & PF_V6) && *p == ',')
 		return (&p[-5]);
 	return (NULL);
+}
+
+/*ARGSUSED*/
+static void
+dummy_enter(pkt, ch, n, sidp)
+	struct packet *pkt;
+	char		ch;
+	int		n;
+	struct sid	*sidp;
+{
+}
+
+/*
+ * Null routine to satisfy external reference from dodelt()
+ */
+/*ARGSUSED*/
+static void
+dummy_escdodelt(pkt)
+	struct packet *pkt;
+{
+}
+
+/*
+ * NULL routine to satisfy external reference from dodelt()
+ */
+/*ARGSUSED*/
+static void
+dummy_fredck(pkt)
+	struct packet *pkt;
+{
 }

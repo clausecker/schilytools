@@ -1,8 +1,8 @@
-/* @(#)gettimeofday.c	1.7 11/08/02 Copyright 2007-2011 J. Schilling */
+/* @(#)gettimeofday.c	1.8 11/10/16 Copyright 2007-2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)gettimeofday.c	1.7 11/08/02 Copyright 2007-2011 J. Schilling";
+	"@(#)gettimeofday.c	1.8 11/10/16 Copyright 2007-2011 J. Schilling";
 #endif
 /*
  *	Emulate gettimeofday where it does not exist
@@ -21,7 +21,8 @@ static	UConst char sccsid[] =
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#if	!defined(HAVE_GETTIMEOFDAY) && (defined(_MSC_VER) || defined(__MINGW32__))
+#if	!defined(HAVE_GETTIMEOFDAY)
+#if	(defined(_MSC_VER) || defined(__MINGW32__))
 #include <schily/windows.h>
 #include <schily/time.h>
 #include <schily/utypes.h>
@@ -56,4 +57,29 @@ gettimeofday(tp, dummy)
 
 	return (0);
 }
+#else	/* (defined(_MSC_VER) || defined(__MINGW32__)) */
+
+#ifdef	HAVE_TIME
+#include <schily/time.h>
+#include <schily/standard.h>
+
+EXPORT int
+gettimeofday(tp, dummy)
+	struct timeval	*tp;
+	void		*dummy;		/* tzp is unspecified by POSIX */
+{
+	time_t	t;
+
+	if (tp == 0)
+		return (0);
+
+	(void) time(&t);
+	tp->tv_sec  = t;
+	tp->tv_usec = 0;
+
+	return (0);
+}
 #endif
+
+#endif	/* (defined(_MSC_VER) || defined(__MINGW32__)) */
+#endif	/* !defined(HAVE_GETTIMEOFDAY) */

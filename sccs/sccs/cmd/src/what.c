@@ -27,10 +27,10 @@
 /*
  * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)what.c	1.12 11/05/17 J. Schilling
+ * @(#)what.c	1.13 11/10/08 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)what.c 1.12 11/05/17 J. Schilling"
+#pragma ident "@(#)what.c 1.13 11/10/08 J. Schilling"
 #endif
 /*
  * @(#)what.c 1.11 06/12/12
@@ -198,10 +198,4 @@ register char *pat;
 	else if (c != EOF)
 		ungetc(c, iop);
 	return(FALSE);
-}
-
-/* for fatal() */
-void
-clean_up()
-{
 }

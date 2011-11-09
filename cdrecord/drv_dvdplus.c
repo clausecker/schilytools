@@ -1,11 +1,11 @@
-/* @(#)drv_dvdplus.c	1.62 10/12/19 Copyright 2003-2010 J. Schilling */
+/* @(#)drv_dvdplus.c	1.64 11/09/14 Copyright 2003-2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)drv_dvdplus.c	1.62 10/12/19 Copyright 2003-2010 J. Schilling";
+	"@(#)drv_dvdplus.c	1.64 11/09/14 Copyright 2003-2011 J. Schilling";
 #endif
 /*
- *	Copyright (c) 2003-2010 J. Schilling
+ *	Copyright (c) 2003-2011 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -583,6 +583,7 @@ extern	char	*buf;
 
 /*	if (lverbose > 2)*/
 /*		print_logpages(scgp);*/
+
 
 	if (dsp->ds_type == DST_UNKNOWN) {
 		profile = get_curprofile(scgp);

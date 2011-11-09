@@ -21,4 +21,3 @@ f none share/doc/ved/vedsheet.tr 0644 root bin
 f none share/doc/ved/vedsheet.ps 0644 root bin
 #f none share/doc/ved/match.ps 0644 root bin
 f none share/doc/ved/dotfiles.tar.bz2 0644 root bin
-s none man=share/man

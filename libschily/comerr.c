@@ -1,8 +1,8 @@
-/* @(#)comerr.c	1.35 09/07/10 Copyright 1985-1989, 1995-2009 J. Schilling */
+/* @(#)comerr.c	1.38 11/09/13 Copyright 1985-1989, 1995-2011 J. Schilling */
 /*
  *	Routines for printing command errors
  *
- *	Copyright (c) 1985-1989, 1995-2009 J. Schilling
+ *	Copyright (c) 1985-1989, 1995-2011 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -211,10 +211,14 @@ EXPORT void
 comexit(err)
 	int	err;
 {
+	int	exmod = err % 256;
+
 	while (exfuncs) {
 		(*exfuncs->func)(err, exfuncs->arg);
 		exfuncs = exfuncs->next;
 	}
+	if (err != exmod && exmod <= 0 && exmod >= EX_CLASH)
+		err = EX_CLASH;
 	exit(err);
 	/* NOTREACHED */
 }

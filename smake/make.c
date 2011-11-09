@@ -1,8 +1,8 @@
-/* %Z%%M%	%I% %E% Copyright 1985, 87, 88, 91, 1995-2011 J. Schilling */
+/* @(#)make.c	1.182 11/09/14 Copyright 1985, 87, 88, 91, 1995-2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"%Z%%M%	%I% %E% Copyright 1985, 87, 88, 91, 1995-2011 J. Schilling";
+	"@(#)make.c	1.182 11/09/14 Copyright 1985, 87, 88, 91, 1995-2011 J. Schilling";
 #endif
 /*
  *	Make program
@@ -2110,6 +2110,9 @@ gftime(file)
 	char	this_time[32];
 	char	cur_time[32];
 
+	/*
+	 * XXX should we cache the file times?
+	 */
 /*#define	nonono__*/
 #ifdef	nonono__
 {

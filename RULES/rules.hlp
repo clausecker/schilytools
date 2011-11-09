@@ -1,4 +1,4 @@
-#ident "@(#)rules.hlp	1.15 09/07/10 "
+#ident "@(#)rules.hlp	1.16 11/09/18 "
 ###########################################################################
 # Written 1996 by J. Schilling
 ###########################################################################
@@ -25,7 +25,7 @@
 # - clean, clobber, distclean, relink, rmtarget	: rules.clr
 # - rel						: rules.rel
 # - install, ibins				: rules.ins
-# - html, htmlx					: rules.htm & sub.htm
+# - html, htmlx, htmlxn				: rules.htm & sub.htm
 # - tarpkg, tarpkg1 tarpkg2			: rules.sps
 # - depend, rmdep				: rules.dep
 # - config					: rules.cnf
@@ -50,6 +50,7 @@
 	@echo "	ibins		install the default target to local dir 'bins'"
 	@echo "	html		create html vesions from the manual pages"
 	@echo "	htmlx		create enhanced html vesions from the manual pages"
+	@echo "	htmlxn		create enhanced html vesions from the manual pages if needed"
 	@echo "	tarpkg		create an installable tar packet -> tarpkg1 + parpkg2"
 	@echo "	tarpkg1		helps to create an installable tar packet - install stage"
 	@echo "	tarpkg2		installable tar packet - tar -c stage"

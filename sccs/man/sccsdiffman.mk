@@ -1,4 +1,4 @@
-#ident @(#)sccsdiffman.mk	1.1 07/02/10 
+#ident @(#)sccsdiffman.mk	1.2 11/10/12 
 ###########################################################################
 # Sample makefile for installing manual pages
 ###########################################################################
@@ -12,6 +12,8 @@ TARGETMAN=	sccsdiff
 MANSECT=	$(MANSECT_CMD)
 MANSUFFIX=	$(MANSUFF_CMD)
 MANFILE=	sccsdiff.1
+
+sccsdiff.1.html: sccs-sccsdiff.1
 
 ###########################################################################
 include		$(SRCROOT)/$(RULESDIR)/rules.man

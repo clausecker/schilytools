@@ -19,7 +19,7 @@
 .\" CDDL HEADER END
 .\" Copyright (c) 1999, Sun Microsystems, Inc. All Rights Reserved
 .\" Copyright 2007-2011 J. Schilling
-.TH sccs-get 1 "2011/08/24" "SunOS 5.11" "User Commands"
+.TH sccs-get 1 "2011/09/08" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs-get, get \- retrieve a version of an SCCS file
 .SH SYNOPSIS
@@ -219,6 +219,17 @@ Suppresses all output normally written on the standard output. However, fatal er
 .TP
 \fB\fB-t\fR\fR
 Retrieves the most recently created (top) delta in a given release (for example: \fB-r1\fR).
+.ne 3
+.TP
+.BI \-C dir
+Specify the base directory for the
+.B g-file
+relative to the current working directory.
+By default, the
+.B g-file
+is created in the current directory (independent from
+the location of the 
+.BI s. file\fR.
 .ne 3
 .TP
 .B \-V

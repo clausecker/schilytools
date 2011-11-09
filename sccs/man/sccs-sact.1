@@ -19,81 +19,67 @@
 .\" CDDL HEADER END
 .\" Copyright (c) 1999, Sun Microsystems, Inc.
 .\" Copyright 2007-2011 J. Schilling
-.TH sccs-sact 1 "2011/08/24" "SunOS 5.11" "User Commands"
+.TH sccs-sact 1 "2011/09/18" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs-sact, sact \- show editing activity status of an SCCS file
 .SH SYNOPSIS
 .LP
 .nf
-\fB/usr/ccs/bin/sact\fR \fIs.filename\fR...
+\fB/usr/ccs/bin/sact\fR [\fB\-s\fR] \fIs.filename\fR...
 .fi
 
 .SH DESCRIPTION
-
 .LP
-The \fBsact\fR utility informs the user of any \fBSCCS\fR files that are checked out for editing.
-.sp
-
+The
+.B sact
+utility informs the user of any
+.B SCCS
+files that are checked out for editing.
 .LP
-The output for each named file consists of five fields separated by \fBSPACE\fR characters.
-.sp
-
-.sp
+The output for each named file consists of five fields separated by
+.B SPACE
+characters.
 .RS +4
 .TP
 .ie t \(bu
 .el o
 \fBSID\fR of a delta that currently exists in the \fBSCCS\fR file, to which changes will be made to make the new delta
-.sp
-
 .RE
-
-.sp
 .RS +4
 .TP
 .ie t \(bu
 .el o
 \fBSID\fR for the new delta to be created
-.sp
-
 .RE
-
-.sp
 .RS +4
 .TP
 .ie t \(bu
 .el o
 Username of the person who has the file checked out for editing.
-.sp
-
 .RE
-
-.sp
 .RS +4
 .TP
 .ie t \(bu
 .el o
 Date that the version was checked out.
-.sp
-
 .RE
-
-.sp
 .RS +4
 .TP
 .ie t \(bu
 .el o
 Time that the version was checked out.
-.sp
-
 .RE
-
 .LP
 If a directory name is used in place of the \fIs.filename\fR argument, the \fBsact\fR command applies to all \fBs.\fRfiles in that directory. Unreadable \fBs.\fRfiles produce an error; processing continues with the next file (if any). The use of `\fB\(mi\fR' as the \fIs.filename\fR argument indicates that the names of files are to be read from the standard input, one \fBs.\fRfile per
 line.
-.sp
-
 .SH OPTIONS
+.br
+.ne 2
+.TP
+.B \-s
+Suppresses the error message when a file is not currently edited.
+.br
+.ne 2
 .TP
 .B \-V
 Prints the
@@ -101,22 +87,15 @@ Prints the
 version number string and exists.
 
 .SH ENVIRONMENT VARIABLES
-
 .LP
 See 
 \fBenviron\fR(5) for descriptions of the following environment variables that affect the execution of \fBsact\fR: LANG, LC_ALL, LC_CTYPE, LC_MESSAGES, and NLSPATH.
-.sp
-
 .SH ATTRIBUTES
-
 .LP
 See 
-\fBattributes\fR(5) for descriptions of the following attributes:
-.sp
-
+.BR attributes (5)
+for descriptions of the following attributes:
 .LP
-
-.sp
 .TS
 tab() box;
 cw(2.75i) |cw(2.75i) 

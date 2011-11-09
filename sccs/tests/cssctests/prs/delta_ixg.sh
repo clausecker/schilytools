@@ -36,20 +36,20 @@ NO_STDERR=IGNORE
 docommand n1 "${prs} -d':I: :Dn:' -r1.1 s.delta_ixg" 0 "1.1 \n"      "${NO_STDERR}"
 docommand x1 "${prs} -d':I: :Dx:' -r1.1 s.delta_ixg" 0 "1.1 \n"      "${NO_STDERR}"
 docommand g1 "${prs} -d':I: :Dg:' -r1.1 s.delta_ixg" 0 "1.1 \n"      "${NO_STDERR}"
-docommand I1 "${prs} -d':I: :DI:' -r1.1 s.delta_ixg" 0 "1.1 \n"      "${NO_STDERR}"
+docommand I1 "${prs} -d':I: :DI:' -r1.1 s.delta_ixg" 0 "1.1 //\n"    "${NO_STDERR}"
 
 # Simple example: ignores (--g).
 # Delta 1.5 (seq 5) ignores 1.3 (seq 3).
 docommand n5 "${prs} -d':I: :Dn:' -r1.5 s.delta_ixg" 0 "1.5 \n"      "${NO_STDERR}"
 docommand x5 "${prs} -d':I: :Dx:' -r1.5 s.delta_ixg" 0 "1.5 \n"      "${NO_STDERR}"
 docommand g5 "${prs} -d':I: :Dg:' -r1.5 s.delta_ixg" 0 "1.5 3\n"     "${NO_STDERR}"
-docommand I5 "${prs} -d':I: :DI:' -r1.5 s.delta_ixg" 0 "1.5 /3\n"    "${NO_STDERR}"
+docommand I5 "${prs} -d':I: :DI:' -r1.5 s.delta_ixg" 0 "1.5 //3\n"   "${NO_STDERR}"
 
 # Exclude (-x-): 1.2.1.1 (seq 10) excludes 1.1 (seq 1)
 docommand n10 "${prs} -d':I: :Dn:' -r1.2.1.1 s.delta_ixg" 0 "1.2.1.1 \n"      "${NO_STDERR}"
 docommand x10 "${prs} -d':I: :Dx:' -r1.2.1.1 s.delta_ixg" 0 "1.2.1.1 1\n"     "${NO_STDERR}"
 docommand g10 "${prs} -d':I: :Dg:' -r1.2.1.1 s.delta_ixg" 0 "1.2.1.1 \n"      "${NO_STDERR}"
-docommand I10 "${prs} -d':I: :DI:' -r1.2.1.1 s.delta_ixg" 0 "1.2.1.1 /1\n"    "${NO_STDERR}"
+docommand I10 "${prs} -d':I: :DI:' -r1.2.1.1 s.delta_ixg" 0 "1.2.1.1 /1/\n"   "${NO_STDERR}"
 
 # -xg    1.1.1.2 (seq 11) excludes 1.2 (seq 2) and ignores 1.1 (seq 1)
 docommand n11 "${prs} -d':I: :Dn:' -r1.1.1.2 s.delta_ixg" 0 "1.1.1.2 \n"      "${NO_STDERR}"
@@ -61,20 +61,20 @@ docommand I11 "${prs} -d':I: :DI:' -r1.1.1.2 s.delta_ixg" 0 "1.1.1.2 /2/1\n"  "$
 docommand n7 "${prs} -d':I: :Dn:' -r1.1.1.1 s.delta_ixg" 0 "1.1.1.1 2\n"      "${NO_STDERR}"
 docommand x7 "${prs} -d':I: :Dx:' -r1.1.1.1 s.delta_ixg" 0 "1.1.1.1 \n"       "${NO_STDERR}"
 docommand g7 "${prs} -d':I: :Dg:' -r1.1.1.1 s.delta_ixg" 0 "1.1.1.1 \n"       "${NO_STDERR}"
-docommand I7 "${prs} -d':I: :DI:' -r1.1.1.1 s.delta_ixg" 0 "1.1.1.1 2\n"      "${NO_STDERR}"
+docommand I7 "${prs} -d':I: :DI:' -r1.1.1.1 s.delta_ixg" 0 "1.1.1.1 2//\n"    "${NO_STDERR}"
 
 
 # i-g    1.3.1.1 (seq 9) includes 1.4 (seq 4) and ignores 1.2 (seq 2)
 docommand n9 "${prs} -d':I: :Dn:' -r1.3.1.1 s.delta_ixg" 0 "1.3.1.1 4\n"      "${NO_STDERR}"
 docommand x9 "${prs} -d':I: :Dx:' -r1.3.1.1 s.delta_ixg" 0 "1.3.1.1 \n"       "${NO_STDERR}"
 docommand g9 "${prs} -d':I: :Dg:' -r1.3.1.1 s.delta_ixg" 0 "1.3.1.1 2\n"      "${NO_STDERR}"
-docommand I9 "${prs} -d':I: :DI:' -r1.3.1.1 s.delta_ixg" 0 "1.3.1.1 4/2\n"    "${NO_STDERR}"
+docommand I9 "${prs} -d':I: :DI:' -r1.3.1.1 s.delta_ixg" 0 "1.3.1.1 4//2\n"   "${NO_STDERR}"
 
 # ix-    1.2.2.1 (seq 12) includes 1.3 (seq 3) and excludes 1.1 (seq 1)
 docommand n12 "${prs} -d':I: :Dn:' -r1.2.2.1 s.delta_ixg" 0 "1.2.2.1 3\n"     "${NO_STDERR}"
 docommand x12 "${prs} -d':I: :Dx:' -r1.2.2.1 s.delta_ixg" 0 "1.2.2.1 1\n"     "${NO_STDERR}"
 docommand g12 "${prs} -d':I: :Dg:' -r1.2.2.1 s.delta_ixg" 0 "1.2.2.1 \n"      "${NO_STDERR}"
-docommand I12 "${prs} -d':I: :DI:' -r1.2.2.1 s.delta_ixg" 0 "1.2.2.1 3/1\n"   "${NO_STDERR}"
+docommand I12 "${prs} -d':I: :DI:' -r1.2.2.1 s.delta_ixg" 0 "1.2.2.1 3/1/\n"  "${NO_STDERR}"
 
 
 # All of them (ixg)

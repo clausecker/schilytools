@@ -25,12 +25,12 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2011 J. Schilling
+ * Copyright 2006-2011 J. Schilling
  *
- * @(#)putline.c	1.13 11/08/22 J. Schilling
+ * @(#)putline.c	1.15 11/10/13 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)putline.c 1.13 11/08/22 J. Schilling"
+#pragma ident "@(#)putline.c 1.15 11/10/13 J. Schilling"
 #endif
 /*
  * @(#)putline.c 1.13 06/12/12
@@ -56,8 +56,6 @@
 #define MAX_LINES	99999	/* Max # of lines that can fit in the */
 				/* stats field.  Larger #s will overflow */
 				/* and corrupt the file */
-int	Xcreate;
-FILE	*Xiop;
 
 static const int signed_chksum = 1;
 
@@ -66,10 +64,10 @@ putchr(pkt, c)
 register struct packet *pkt;
 	int		c;
 {
-	if (Xiop) {
-		if (fprintf(Xiop,"%c", c) == EOF)
+	if (pkt->p_xiop) {
+		if (fprintf(pkt->p_xiop, "%c", c) == EOF)
 			FAILPUT;
-		if (Xcreate)
+		if (pkt->p_xcreate)
 			pkt->p_nhash += c;
 	}
 }
@@ -104,7 +102,7 @@ char *newline;
 
 	if(pkt->p_upd == 0) return;
 
-	if(!Xcreate) {
+	if (!pkt->p_xcreate) {
 		/*
 		 * Stash away gid and uid from the stat,
 		 * as Xfcreat will trash Statbuf.
@@ -119,11 +117,11 @@ char *newline;
 		uid = Statbuf.st_uid;
 		*/
 		xf = auxf(pkt->p_file,'x');
-		Xiop = xfcreat(xf,Statbuf.st_mode);
+		pkt->p_xiop = xfcreat(xf, Statbuf.st_mode);
 #ifdef	USE_SETVBUF
-		setvbuf(Xiop, NULL, _IOFBF, VBUF_SIZE);
+		setvbuf(pkt->p_xiop, NULL, _IOFBF, VBUF_SIZE);
 #else
-		setbuf(Xiop, obf);
+		setbuf(pkt->p_xiop, obf);
 #endif
      /* commenting it out as it doesn't do anything useful and creates problems
 	 in networked environment where some platforms allow chown for non root
@@ -149,22 +147,41 @@ char *newline;
 		}
 	}
 	if (p) {
-		if(fputs((const char *)p,Xiop)==EOF)
+		if(fputs((const char *)p, pkt->p_xiop)==EOF)
 			FAILPUT;
-		if (Xcreate) {
-			register int	hash = 0;
-
-			if(signed_chksum) {
-				while (*p)
-					hash += *p++;
+		if (pkt->p_xcreate) {
+			if (newline) {
+				register int	hash = 0;
+	
+				if(signed_chksum) {
+					while (*p)
+						hash += *p++;
+				} else {
+					while (*p)
+						hash += *u_p++;
+				}
+				pkt->p_nhash += hash;
 			} else {
-				while (*p)
-					hash += *u_p++;
+#ifdef	ALLOW_MODIFIED_LINE
+				if(signed_chksum)
+					pkt->p_nhash += ssum((char *)p,
+							    pkt->p_line_length);
+				else
+					pkt->p_nhash += usum((char *)p,
+							    pkt->p_line_length);
+#else
+				/*
+				 * Use hash from getline()
+				 */
+				if(signed_chksum)
+					pkt->p_nhash += pkt->p_clhash;
+				else
+					pkt->p_nhash += pkt->p_uclhash;
+#endif
 			}
-			pkt->p_nhash += hash;
 		}
 	}
-	Xcreate = 1;
+	pkt->p_xcreate = 1;
 }
 int org_ihash;
 int org_chash;
@@ -184,7 +201,7 @@ register struct stats *stats;
 	if (pkt->p_upd == 0)
 		return;
 	putline(pkt,(char *) 0);
-	rewind(Xiop);
+	rewind(pkt->p_xiop);
 	if (stats) {
 		if (stats->s_ins > MAX_LINES) {
 			stats->s_ins = MAX_LINES;
@@ -223,8 +240,8 @@ register struct stats *stats;
 		*p = '0';
 	putmagic(pkt, hash);
 	if (stats)
-		fprintf(Xiop,"%c%c %s/%s/%s\n",CTLCHAR,STATS,ins,del,unc);
-	if (fflush(Xiop) == EOF)
+		fprintf(pkt->p_xiop, "%c%c %s/%s/%s\n",CTLCHAR,STATS,ins,del,unc);
+	if (fflush(pkt->p_xiop) == EOF)
 		xmsg(xf, NOGETTEXT("flushline")); 
 
 	/*
@@ -232,12 +249,12 @@ register struct stats *stats;
 	 * delayed failure information from NFS.
 	 */
 #ifdef	HAVE_FSYNC
-	 if (fsync(fileno(Xiop)) < 0)
+	 if (fsync(fileno(pkt->p_xiop)) < 0)
 		xmsg(xf, NOGETTEXT("flushline"));
 #endif
-	if (fclose(Xiop) == EOF)
+	if (fclose(pkt->p_xiop) == EOF)
 		xmsg(xf, NOGETTEXT("flushline"));
-	Xiop = NULL;
+	pkt->p_xiop = NULL;
 }
 
 /*
@@ -249,15 +266,14 @@ register struct packet	*pkt;
 		char	*hash;
 {
 	char	line[128];
-extern	FILE	*Xiop;
 
 	snprintf(line, sizeof (line), "%c%c%s%s\n", CTLCHAR, HEAD,
 		(pkt->p_flags & PF_V6) ? "V6,sum=" : "",
 		hash);
 
-	if (Xiop) {
-		rewind(Xiop);
-		if(fputs(line, Xiop) == EOF)
+	if (pkt->p_xiop) {
+		rewind(pkt->p_xiop);
+		if(fputs(line, pkt->p_xiop) == EOF)
 			FAILPUT;
 		return;
 	}
@@ -265,10 +281,11 @@ extern	FILE	*Xiop;
 }
 
 void
-xrm()
+xrm(pkt)
+	register struct packet	*pkt;
 {
-	if (Xiop)
-		(void) fclose(Xiop);
-	Xiop = 0;
-	Xcreate = 0;
+	if (pkt->p_xiop)
+		(void) fclose(pkt->p_xiop);
+	pkt->p_xiop = 0;
+	pkt->p_xcreate = 0;
 }
