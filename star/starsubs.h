@@ -1,8 +1,8 @@
-/* @(#)starsubs.h	1.113 11/04/12 Copyright 1996-2011 J. Schilling */
+/* @(#)starsubs.h	1.114 12/01/01 Copyright 1996-2012 J. Schilling */
 /*
  *	Prototypes for star subroutines
  *
- *	Copyright (c) 1996-2011 J. Schilling
+ *	Copyright (c) 1996-2012 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -210,6 +210,7 @@ extern	void	fifo_owake	__PR((int amount));
 extern	void	fifo_oflush	__PR((void));
 extern	int	fifo_owait	__PR((int amount));
 extern	void	fifo_iwake	__PR((int amt));
+extern	void	fifo_reelwake	__PR((void));
 extern	void	fifo_resume	__PR((void));
 extern	void	fifo_sync	__PR((int size));
 extern	int	fifo_errno	__PR((void));

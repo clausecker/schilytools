@@ -1,8 +1,8 @@
-/* @(#)fifo.c	1.76 11/07/10 Copyright 1989, 1994-2011 J. Schilling */
+/* @(#)fifo.c	1.77 12/01/01 Copyright 1989, 1994-2012 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)fifo.c	1.76 11/07/10 Copyright 1989, 1994-2011 J. Schilling";
+	"@(#)fifo.c	1.77 12/01/01 Copyright 1989, 1994-2012 J. Schilling";
 #endif
 /*
  *	A "fifo" that uses shared memory between two processes
@@ -17,8 +17,9 @@ static	UConst char sccsid[] =
  *		S	fifo_resume() wake up put side after reading first blk
  *		n	fifo_chitape() wake up put side to start wrt Tape chng
  *		N	fifo_chotape()	wake up get side if mp->oblocked == TRUE
+ *		R	fifo_reelwake() wake up put side if mp->reelwait == TRUE
  *
- *	Copyright (c) 1989, 1994-2011 J. Schilling
+ *	Copyright (c) 1989, 1994-2012 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -125,6 +126,7 @@ EXPORT	void	fifo_owake	__PR((int amount));
 EXPORT	void	fifo_oflush	__PR((void));
 EXPORT	int	fifo_owait	__PR((int amount));
 EXPORT	void	fifo_iwake	__PR((int amt));
+EXPORT	void	fifo_reelwake	__PR((void));
 EXPORT	void	fifo_resume	__PR((void));
 EXPORT	void	fifo_sync	__PR((int size));
 EXPORT	void	fifo_chitape	__PR((void));
@@ -383,15 +385,15 @@ runfifo(ac, av)
 			mp->obs = mp->size;
 
 			copy_create(ac, av);
-		} else if (cflag) {
+		} else if (cflag) {	/* In create mode .... */
 			mp->ibs = mp->size;
 			mp->obs = bs;
-			do_out();
+			do_out();	/* Write archive in background */
 		} else {
 			mp->flags |= FIFO_IWAIT;
 			mp->ibs = bs;
 			mp->obs = mp->size;
-			do_in();
+			do_in();	/* Extract mode: read archive in bg. */
 		}
 #ifdef	USE_OS2SHM
 		DosFreeMem(buf);
@@ -536,6 +538,11 @@ fifo_iwait(amount)
 	register int	cnt;
 	register m_head *rmp = mp;
 
+	if (rmp->chreel) {	/* Block FIFO to allow to change reel */
+		EDEBUG(("C"));
+		rmp->reelwait = TRUE;
+		sputwait(rmp);
+	}
 	if (rmp->flags & FIFO_MEOF) {
 		EDEBUG(("E"));
 		cnt = sputwait(rmp);
@@ -735,6 +742,21 @@ fifo_iwake(amt)
 		rmp->iblocked = FALSE;
 		EDEBUG(("s"));
 		sputwakeup(rmp, 's');
+	}
+}
+
+/*
+ * Wake up the put side in case it is wating on rmp->reelwait
+ */
+EXPORT void
+fifo_reelwake()
+{
+	register m_head *rmp = mp;
+
+	if (rmp->reelwait) {
+		rmp->reelwait = FALSE;
+		EDEBUG(("R"));
+		sputwakeup(rmp, 'R');
 	}
 }
 

@@ -27,10 +27,10 @@
 /*
  * Copyright 2006-2011 J. Schilling
  *
- * @(#)get.c	1.54 11/10/15 J. Schilling
+ * @(#)get.c	1.55 11/11/13 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)get.c 1.54 11/10/15 J. Schilling"
+#pragma ident "@(#)get.c 1.55 11/11/13 J. Schilling"
 #endif
 /*
  * @(#)get.c 1.59 06/12/12
@@ -368,7 +368,7 @@ char *file;
 		uname(&un);
 		uuname = un.nodename;
 		if (lockit(auxf(file,'z'),10, getpid(),uuname))
-			fatal(gettext("cannot create lock file (cm4)"));
+			efatal(gettext("cannot create lock file (cm4)"));
 	}
 	/*
 	Open SCCS file and initialize packet
@@ -1075,7 +1075,7 @@ char line[];
 						hold_size = new_hold_size;
 						hold = (char *)malloc(hold_size);
 						if (hold == NULL) {
-							fatal(gettext("OUT OF SPACE (ut9)"));
+							efatal(gettext("OUT OF SPACE (ut9)"));
 						}
 					}
 					strcpy(hold,Whatstr);
@@ -1094,13 +1094,13 @@ char line[];
 				copy(pkt->p_file,Dir);
 				dname(Dir);
 				if (getcwd(Olddir,sizeof(Olddir)) == NULL)
-				   fatal(gettext("getcwd() failed (ge20)"));
+				   efatal(gettext("getcwd() failed (ge20)"));
 				if (chdir(Dir) != 0)
-				   fatal(gettext("cannot change directory (ge21)"));
+				   efatal(gettext("cannot change directory (ge21)"));
 			  	if (getcwd(Pname,sizeof(Pname)) == NULL)
-				   fatal(gettext("getcwd() failed (ge20)"));
+				   efatal(gettext("getcwd() failed (ge20)"));
 				if (chdir(Olddir) != 0)
-				   fatal(gettext("cannot change directory (ge21)"));
+				   efatal(gettext("cannot change directory (ge21)"));
 				tp = trans(tp,Pname);
 				tp = trans(tp,"/");
 				tp = trans(tp,(sname(pkt->p_file)));
@@ -1165,7 +1165,7 @@ register char *tp, *str, *rest;
 		tline_size = new_size + strlen(rest) + DEF_LINE_SIZE;
 		tline = (char*) realloc(tline, tline_size);
 		if (tline == NULL) {
-			fatal(gettext("OUT OF SPACE (ut9)"));
+			efatal(gettext("OUT OF SPACE (ut9)"));
 		}
 		tp = tline + filled_size;
 	}
@@ -1228,7 +1228,7 @@ readcopy(name, tp)
 		tline_size = new_size + DEF_LINE_SIZE;
 		tline = (char*) realloc(tline, tline_size);
 		if (tline == NULL) {
-			fatal(gettext("OUT OF SPACE (ut9)"));
+			efatal(gettext("OUT OF SPACE (ut9)"));
 		}
 		tp = tline + filled_size;
 	}
@@ -1305,7 +1305,7 @@ char *inc, *exc;
 	if ((user=logname()) == NULL)
 	   fatal(gettext("User ID not in password file (cm9)"));
 	if ((fd=open(auxf(pkt->p_file,'q'),O_WRONLY|O_CREAT|O_EXCL|O_BINARY,0444)) < 0) {
-	   fatal(gettext("cannot create lock file (cm4)"));
+	   efatal(gettext("cannot create lock file (cm4)"));
 	}
 #ifdef	HAVE_FCHMOD
 	fchmod(fd, (mode_t)0644);

@@ -1,6 +1,6 @@
-dnl @(#)configure.in	1.241 11/10/22 Copyright 1998-2011 J. Schilling
+dnl @(#)configure.in	1.243 11/11/22 Copyright 1998-2011 J. Schilling
 dnl Process this file with autoconf to produce a configure script.
-AC_REVISION(1.241)dnl
+AC_REVISION(1.243)dnl
 
 dnl AC_INIT(xconfig.h.in)
 AC_INIT(config.guess)
@@ -486,6 +486,7 @@ AC_CHECK_FUNCS(rand drand48)
 AC_CHECK_FUNCS(strtol strtoll strtoul strtoull strtod)
 AC_CHECK_FUNCS(setpriority DosSetPriority)
 AC_CHECK_FUNCS(DosAllocSharedMem)
+AC_CHECK_FUNCS(getdelim)
 AC_CHECK_FUNCS(seekdir fdopendir)
 dnl These are POSIX.1 functions (syscalls on Solaris)
 AC_CHECK_FUNCS(openat fstatat fchownat futimesat renameat unlinkat)
@@ -516,7 +517,7 @@ AC_CHECK_DFUNC([
 ], tcsetattr)
 AC_CHECK_FUNCS(tcgetpgrp tcsetpgrp)
 AC_CHECK_FUNCS(getenv putenv setenv unsetenv)
-AC_CHECK_FUNCS(snprintf strcasecmp)
+AC_CHECK_FUNCS(snprintf strcasecmp strncasecmp)
 
 AC_CHECK_DFUNCS([
 #ifdef	HAVE_STRING_H

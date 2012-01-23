@@ -1,8 +1,8 @@
-/* @(#)string.h	1.11 10/08/23 Copyright 1996-2010 J. Schilling */
+/* @(#)string.h	1.12 11/11/24 Copyright 1996-2011 J. Schilling */
 /*
  *	Definitions for strings
  *
- *	Copyright (c) 1996-2010 J. Schilling
+ *	Copyright (c) 1996-2011 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -21,6 +21,10 @@
 
 #ifndef	_SCHILY_MCONFIG_H
 #include <schily/mconfig.h>
+#endif
+
+#ifndef	_SCHILY_TYPES_H
+#include <schily/types.h>		/* Try to get size_t */
 #endif
 
 /*
@@ -93,7 +97,7 @@ extern int strlen	__PR((const char *));
 extern void *memccpy	__PR((void *, const void *, int, int));
 
 extern int strcasecmp	__PR((const char *, const char *));
-extern int strncasecmp	__PR((const char *, const char *, int));
+extern int strncasecmp	__PR((const char *, const char *, size_t));
 
 #ifdef	__cplusplus
 }

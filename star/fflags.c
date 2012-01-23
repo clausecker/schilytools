@@ -1,13 +1,13 @@
-/* @(#)fflags.c	1.24 10/08/23 Copyright 2001-2010 J. Schilling */
+/* @(#)fflags.c	1.25 11/12/12 Copyright 2001-2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)fflags.c	1.24 10/08/23 Copyright 2001-2010 J. Schilling";
+	"@(#)fflags.c	1.25 11/12/12 Copyright 2001-2011 J. Schilling";
 #endif
 /*
  *	Routines to handle extended file flags
  *
- *	Copyright (c) 2001-2010 J. Schilling
+ *	Copyright (c) 2001-2011 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -184,6 +184,11 @@ set_fflags(info)
 }
 
 
+/*
+ * UF_* flags are flags settable by any user, defied by *BSD
+ * SF_* flags are *BSD flags settable obly be the super user
+ * EXT_* flags are Linux specific.
+ */
 LOCAL struct {
 	char	*name;
 	Ulong	flag;

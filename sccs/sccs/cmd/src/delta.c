@@ -27,10 +27,10 @@
 /*
  * Copyright 2006-2011 J. Schilling
  *
- * @(#)delta.c	1.56 11/10/15 J. Schilling
+ * @(#)delta.c	1.57 11/11/13 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)delta.c 1.56 11/10/15 J. Schilling"
+#pragma ident "@(#)delta.c 1.57 11/11/13 J. Schilling"
 #endif
 /*
  * @(#)delta.c 1.40 06/12/12
@@ -332,7 +332,7 @@ char *file;
 	uname(&un);
 	uuname = un.nodename;
 	if (lockit(auxf(gpkt.p_file,'z'),SCCS_LOCK_ATTEMPTS,getpid(),uuname))
-		fatal(gettext("cannot create lock file (cm4)"));
+		efatal(gettext("cannot create lock file (cm4)"));
 
 	sinit(&gpkt,file,1);
 	gpkt.p_enter = enter;
@@ -883,7 +883,7 @@ struct sid *sp;
 	in = xfopen(auxf(pkt->p_file,'p'), O_RDONLY|O_BINARY);
 	outname = auxf(pkt->p_file, 'q');
 	if ((fd=open(outname, O_WRONLY|O_CREAT|O_EXCL|O_BINARY, 0444)) < 0) {
-	   fatal(gettext("cannot create lock file (cm4)"));
+	   efatal(gettext("cannot create lock file (cm4)"));
 	}
 #ifdef	HAVE_FCHMOD
 	fchmod(fd, (mode_t)0644);
@@ -969,9 +969,12 @@ int difflim;
 
 	xpipe(pfd);
 	if ((i = vfork()) < 0) {
+		int	errsav = errno;
+
 		close(pfd[0]);
 		close(pfd[1]);
-		fatal(gettext("cannot fork, try again (de11)"));
+		errno = errsav;
+		efatal(gettext("cannot fork, try again (de11)"));
 	}
 	else if (i == 0) {
 #ifdef	set_child_standard_fds

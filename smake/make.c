@@ -1,8 +1,8 @@
-/* @(#)make.c	1.182 11/09/14 Copyright 1985, 87, 88, 91, 1995-2011 J. Schilling */
+/* @(#)make.c	1.183 11/11/29 Copyright 1985, 87, 88, 91, 1995-2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)make.c	1.182 11/09/14 Copyright 1985, 87, 88, 91, 1995-2011 J. Schilling";
+	"@(#)make.c	1.183 11/11/29 Copyright 1985, 87, 88, 91, 1995-2011 J. Schilling";
 #endif
 /*
  *	Make program
@@ -1962,13 +1962,17 @@ copy_file(from, objname)
 		if ((fout = creat(objname, 0666)) < 0)
 			errmsg("Can't create '%s'.\n", objname);
 		else {
-			while ((cnt = read(fin, gbuf, gbufsize)) > 0)
+			while ((cnt = read(fin, gbuf, gbufsize)) > 0) {
 				if (write(fout, gbuf, cnt) != cnt) {
 					errmsg("Write error on '%s'.\n",
 								objname);
-					cnt = -1;
-					break;
+					close(fout);
+					close(fin);
+					return (-1);
 				}
+			}
+			if (cnt < 0)
+				errmsg("Read error on '%s'.\n", from);
 			close(fout);
 		}
 		close(fin);
@@ -1991,8 +1995,19 @@ copy_file(from, objname)
 		if ((fout = fileopen(objname, "wtcub")) == 0)
 			errmsg("Can't create '%s'.\n", objname);
 		else {
-			while ((cnt = fileread(fin, gbuf, gbufsize)) > 0)
-				filewrite(fout, gbuf, cnt);
+			file_raise(fin, FALSE);
+			file_raise(fout, FALSE);
+			while ((cnt = fileread(fin, gbuf, gbufsize)) > 0) {
+				if (filewrite(fout, gbuf, cnt) < 0) {
+					errmsg("Write error on '%s'.\n",
+								objname);
+					fclose(fout);
+					fclose(fin);
+					return (-1);
+				}
+			}
+			if (cnt < 0)
+				errmsg("Read error on '%s'.\n", from);
 			fclose(fout);
 		}
 		fclose(fin);
@@ -2035,6 +2050,7 @@ again:
 	if (Nflag)
 		return (TRUE);
 	if ((f = fileopen(objname, "rwcub")) != (FILE *)NULL) {
+		file_raise(f, FALSE);
 #ifdef	HAVE_UTIME
 		utime(objname, NULL);
 #else

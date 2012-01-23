@@ -1,4 +1,4 @@
-#ident @(#)Targets	1.15 11/08/02 
+#ident @(#)Targets	1.16 12/01/22 
 
 X_MK_LIST=	\
 		align.mk alloca.mk archdefs.mk assert.mk avoffset.mk \
@@ -10,7 +10,7 @@ X_MK_LIST=	\
 		getargs.mk getcwd.mk grp.mk \
 		hostname.mk \
 		iconv.mk idcache.mk in.mk inet.mk io.mk ioctl.mk ipc.mk \
-		intcvt.mk \
+		intcvt.mk inttypes.mk \
 		jmpdefs.mk \
 		libgen.mk libport.mk librmt.mk limits.mk locale.mk \
 		math.mk maxpath.mk mconfig.mk \
@@ -23,7 +23,7 @@ X_MK_LIST=	\
 		setjmp.mk sha1.mk sha2.mk shcall.mk \
 		siconv.mk shadow.mk \
 		sigblk.mk signal.mk sigset.mk socket.mk standard.mk stat.mk \
-		stdio.mk \
+		stdint.mk stdio.mk \
 		stdlib.mk stkframe.mk string.mk \
 		sysexits.mk syslog.mk systeminfo.mk \
 		termcap.mk termios.mk time.mk times.mk \

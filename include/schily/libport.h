@@ -1,4 +1,4 @@
-/* @(#)libport.h	1.32 11/10/22 Copyright 1995-2011 J. Schilling */
+/* @(#)libport.h	1.33 11/11/24 Copyright 1995-2011 J. Schilling */
 /*
  *	Copyright (c) 1995-2011 J. Schilling
  */
@@ -62,6 +62,15 @@ extern	int		getpagesize	__PR((void));
 #endif
 #ifndef	HAVE_USLEEP
 extern	int		usleep		__PR((int usec));
+#endif
+
+#ifndef	HAVE_STRCASECMP
+extern	int		strcasecmp	__PR((const char *, const char *));
+#endif
+#ifdef	FOUND_SIZE_T
+#ifndef	HAVE_STRCASECMP
+extern 	int		strncasecmp	__PR((const char *, const char *, size_t));
+#endif
 #endif
 
 #ifndef	HAVE_STRCAT

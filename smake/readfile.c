@@ -1,14 +1,14 @@
-/* @(#)readfile.c	1.59 09/10/22 Copyright 1985-2009 J. Schilling */
+/* @(#)readfile.c	1.60 11/11/29 Copyright 1985-2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)readfile.c	1.59 09/10/22 Copyright 1985-2009 J. Schilling";
+	"@(#)readfile.c	1.60 11/11/29 Copyright 1985-2011 J. Schilling";
 #endif
 /*
  *	Make program
  *	File/string reading routines
  *
- *	Copyright (c) 1985 by J. Schilling
+ *	Copyright (c) 1985-2011 by J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -80,11 +80,16 @@ LOCAL	char	*rd_buffer	= rdbuf;	/* a pointer to start of buf */
 LOCAL int
 fillrdbuf()
 {
+	ssize_t	ret;
+
 	if (mfp == (FILE *) NULL)	/* EOF while reading from a string. */
 		return (EOF);
 	readbfp = rd_buffer;
 	readbfstart = rd_buffer;	/* used for better error reporting */
-	readbfend = rd_buffer + fileread(mfp, rd_buffer, RDBUF_SIZE);
+	ret = fileread(mfp, rd_buffer, RDBUF_SIZE);
+	if (ret < 0)
+		comerr("Read error on '%s'.\n", mfname);
+	readbfend = rd_buffer + ret;;
 	if (readbfp >= readbfend)
 		return (EOF);
 	return ((int) *readbfp++);
@@ -236,6 +241,7 @@ readfile(name, must_exist)
 		if ((mfp = fileopen(name, "ru")) == (FILE *)NULL && must_exist)
 			comerr("Can not open '%s'.\n", name);
 	}
+	file_raise(mfp, FALSE);
 	mfname = name;
 	readbfp = readbfend;		/* Force immediate call of fillrdbuf.*/
 	firstc = mypeekc();
@@ -292,6 +298,12 @@ doinclude(name, must_exist)
 	name = substitute(name, NullObj, 0, 0);
 	name = strsave(name);
 
+	/*
+	 * Try to make "name". Do not fail if this does not succeed.
+	 * We just decide on how to continue based on o->o_date is != 0.
+	 * If o->o_date == and must_exist == TRUE, we trigger the 
+	 * .INCLUDE_FAILED: action.
+	 */
 	xmake(name, FALSE);
 	default_tgt = st;
 
@@ -316,6 +328,10 @@ doinclude(name, must_exist)
 		error("doinclude(%s, %d)= date: %s level: %d\n",
 			name, must_exist, prtime(o->o_date), o->o_level);
 
+	/*
+	 * "name" does not exist and could not be made.
+	 * If must_exist == TRUE, trigger the .INCLUDE_FAILED: action.
+	 */
 	if (must_exist && o->o_date == 0 && IncludeFailed) {
 		list_t	l;
 
@@ -328,6 +344,11 @@ doinclude(name, must_exist)
 		o->o_date = gftime(name);	/* Check if file is present */
 	}
 
+	/*
+	 * If "name" exists of could be made my a specific rule or the
+	 * fall back rule .INCLUDE_FAILED:, parse the content of the file
+	 * to be included.
+	 */
 	if (must_exist || o->o_date != 0) {
 		char	includename[TYPICAL_NAMEMAX];
 		char	*iname;

@@ -27,10 +27,10 @@
 /*
  * Copyright 2006-2011 J. Schilling
  *
- * @(#)admin.c	1.74 11/11/08 J. Schilling
+ * @(#)admin.c	1.76 11/11/13 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)admin.c 1.74 11/11/08 J. Schilling"
+#pragma ident "@(#)admin.c 1.76 11/11/13 J. Schilling"
 #endif
 /*
  * @(#)admin.c 1.39 06/12/12
@@ -97,8 +97,6 @@ should appear exactly as they do in the msgid string:
 */
 
 # define MAXNAMES 9
-# define COPY 0
-# define NOCOPY 1
 
 static char	stdin_file_buf [20];
 static char	*ifile, *tfile;
@@ -683,7 +681,7 @@ char	*afile;
 	if (HADI)
 		HADN = 1;
 	if (HADI || HADN) {
-			if (VFLAG && had_flag[CMFFLAG - 'a'])
+		if (VFLAG && had_flag[CMFFLAG - 'a'])
 			fatal(gettext("Can't have two verification routines."));
 
 		if (HADM && !VFLAG && !had_flag[CMFFLAG - 'a'])
@@ -722,7 +720,7 @@ char	*afile;
 		   check for a corrupted file.
 		*/
 		if ((pid = vfork()) < 0)
-			fatal(gettext("cannot fork, try again"));
+			efatal(gettext("cannot fork, try again"));
 		if (pid == 0) {		/* child */
 			/*
 			   perform 'val' with appropriate keyletters
@@ -736,7 +734,7 @@ char	*afile;
 #ifdef	HAVE_VFORK
 			Fflags |= FTLVFORK;
 #endif
-			fatal(SccsError);
+			efatal(SccsError);
 		}
 		else {
 			wait(&status);	   /* wait on status from 'execlp' */
@@ -753,7 +751,7 @@ char	*afile;
 	uname(&un);
 	uuname = un.nodename;
 	if (!HADH && lockit(copy(auxf(afile,'z'),Zhold),SCCS_LOCK_ATTEMPTS,getpid(),uuname))
-		fatal(gettext("cannot create lock file (cm4)"));
+		efatal(gettext("cannot create lock file (cm4)"));
 
 	if (fexists) { /* modifying */
 		int	cklen = 8;
@@ -961,7 +959,7 @@ char	*afile;
 		For old file, copy to x-file until user-name section
 		is found.
 		*/
-		flushto(&gpkt,BUSERNAM,COPY);
+		flushto(&gpkt, BUSERNAM, FLUSH_COPY);
 
 	/*
 	Write user-names to be added to list of those
@@ -1012,7 +1010,7 @@ char	*afile;
 		user-names section is found.
 		*/
 		if (!HADE)
-			flushto(&gpkt,EUSERNAM,COPY);
+			flushto(&gpkt, EUSERNAM, FLUSH_COPY);
 
 	/*
 	For old file, read flags and their values (if any), and
@@ -1200,7 +1198,7 @@ char	*afile;
 		commentary. (i.e., don't copy it to x-file.)
 		*/
 		if (!HADN)
-			flushto(&gpkt,EUSERTXT,NOCOPY);
+			flushto(&gpkt, EUSERTXT, FLUSH_NOCOPY);
 	}
 
 	if (HADN) {		/*   N E W  F I L E   */
@@ -1997,7 +1995,7 @@ static char	Nhold[MAXPATHLEN];
 					fatal(gettext("resolved path too long (cm11)"));
 
 				if (chdir(Dir) < 0)
-					fatal("Chdir");
+					efatal("Chdir");
 				dir_name = Dir;
 				if (dir_name[0] == '.' && dir_name[1] == '/')
 					dir_name += 2;

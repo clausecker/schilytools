@@ -48,6 +48,7 @@
 ./psmake/eaccess.c
 ./psmake/error.c
 ./psmake/fcons.c
+./psmake/file_raise.c
 ./psmake/fileopen.c
 ./psmake/fileread.c
 ./psmake/fileseek.c
@@ -70,6 +71,7 @@
 ./psmake/include/schily/getargs.h
 ./psmake/include/schily/getcwd.h
 ./psmake/include/schily/hostname.h
+./psmake/include/schily/io.h
 ./psmake/include/schily/libport.h
 ./psmake/include/schily/limits.h
 ./psmake/include/schily/maxpath.h
@@ -98,6 +100,8 @@
 ./psmake/include/schily/xconfig.h
 ./psmake/include/schily/xmconfig.h
 ./psmake/install-sh
+./psmake/job.c
+./psmake/job.h
 ./psmake/jsprintf.c
 ./psmake/jssnprintf.c
 ./psmake/make.c
@@ -206,6 +210,12 @@
 ./RULES/i386-darwin-gcc.rul
 ./RULES/i386-darwin-gcc32.rul
 ./RULES/i386-darwin-gcc64.rul
+./RULES/x86_64-darwin-cc.rul
+./RULES/x86_64-darwin-cc32.rul
+./RULES/x86_64-darwin-cc64.rul
+./RULES/x86_64-darwin-gcc.rul
+./RULES/x86_64-darwin-gcc32.rul
+./RULES/x86_64-darwin-gcc64.rul
 ./RULES/i386-dragonfly-cc.rul
 ./RULES/i386-dragonfly-gcc.rul
 ./RULES/i386-linux-cc.rul
@@ -343,8 +353,12 @@
 ./RULES/sparc-netbsd-gcc.rul
 ./RULES/sparc-nextstep-cc.rul
 ./RULES/sparc-nextstep-gcc.rul
+./RULES/amd64-freebsd-cc.rul
+./RULES/amd64-freebsd-gcc.rul
 ./RULES/sparc64-freebsd-cc.rul
 ./RULES/sparc64-freebsd-gcc.rul
+./RULES/amd64-openbsd-cc.rul
+./RULES/amd64-openbsd-gcc.rul
 ./RULES/sparc64-linux-cc.rul
 ./RULES/sparc64-linux-gcc.rul
 ./RULES/sparc64-linux-gcc32.rul

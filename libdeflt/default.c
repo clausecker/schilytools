@@ -1,11 +1,11 @@
-/* @(#)default.c	1.8 09/07/11 Copyright 1997-2009 J. Schilling */
+/* @(#)default.c	1.9 11/11/28 Copyright 1997-2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)default.c	1.8 09/07/11 Copyright 1997-2009 J. Schilling";
+	"@(#)default.c	1.9 11/11/28 Copyright 1997-2011 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1997-2009 J. Schilling
+ *	Copyright (c) 1997-2011 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -22,15 +22,20 @@ static	UConst char sccsid[] =
 #include <schily/standard.h>
 #include <schily/stdio.h>
 #include <schily/string.h>
+#include <schily/types.h>	/* For strncasecmp  size_t */
+#include <schily/unistd.h>
 #include <schily/deflts.h>
 
 #define	MAXLINE	512
 
 static	FILE	*dfltfile	= (FILE *)NULL;
+static	const char *dfltsect	= NULL;
+static	int	dfltflags	= DC_STD;
 
 EXPORT	int	defltopen	__PR((const char *name));
 EXPORT	int	defltclose	__PR((void));
-EXPORT	void	defltfirst	__PR((void));
+EXPORT	int	defltsect	__PR((const char *name));
+EXPORT	int	defltfirst	__PR((void));
 EXPORT	char	*defltread	__PR((const char *name));
 EXPORT	char	*defltnext	__PR((const char *name));
 EXPORT	int	defltcntl	__PR((int cmd, int flags));
@@ -51,6 +56,9 @@ defltopen(name)
 	if ((dfltfile = fopen(name, "r")) == (FILE *)NULL) {
 		return (-1);
 	}
+	dfltflags = DC_STD;
+	dfltsect  = NULL;
+
 	return (0);
 }
 
@@ -67,13 +75,64 @@ defltclose()
 	return (0);
 }
 
-EXPORT void
+EXPORT int
+defltsect(name)
+	const char	*name;
+{
+	size_t	len;
+
+	if (name == NULL) {
+		dfltsect = NULL;
+		return (0);
+	}
+	if (*name != '[')
+		return (-1);
+
+	len = strlen(name);
+	if (len >= MAXLINE)
+		return (-1);
+	if (len < 3 || name[len-1] != ']')
+		return (-1);
+
+	dfltsect = name;
+	return (0);
+}
+
+EXPORT int
 defltfirst()
 {
 	if (dfltfile == (FILE *)NULL) {
-		return;
+		return (-1);
 	}
 	rewind(dfltfile);
+	if (dfltsect) {
+		register int	len;
+		register int	sectlen;
+			char	buf[MAXLINE];
+
+		sectlen = strlen(dfltsect);
+		while (fgets(buf, sizeof (buf), dfltfile)) {
+			len = strlen(buf);
+			if (buf[len-1] == '\n') {
+				buf[len-1] = 0;
+			} else {
+				continue;
+			}
+			if (buf[0] != '[')
+				continue;
+			if (dfltflags & DC_CASE) {
+				if (strncmp(dfltsect, buf, sectlen) == 0) {
+					return (0);
+				}
+			} else {
+				if (strncasecmp(dfltsect, buf, sectlen) == 0) {
+					return (0);
+				}
+			}
+		}
+		return (-1);
+	}
+	return (0);
 }
 
 EXPORT char *
@@ -83,7 +142,7 @@ defltread(name)
 	if (dfltfile == (FILE *)NULL) {
 		return ((char *)NULL);
 	}
-	rewind(dfltfile);
+	defltfirst();
 	return (defltnext(name));
 }
 
@@ -107,8 +166,22 @@ defltnext(name)
 		} else {
 			return ((char *)NULL);
 		}
-		if (strncmp(name, buf, namelen) == 0) {
-			return (&buf[namelen]);
+		/*
+		 * Check for end of current section. Seek to the end of file to
+		 * prevent other calls to defltnext() return unexpected data.
+		 */
+		if (dfltsect != NULL && buf[0] == '[') {
+			fseek(dfltfile, (off_t)0, SEEK_END);
+			return ((char *)NULL);
+		}
+		if (dfltflags & DC_CASE) {
+			if (strncmp(name, buf, namelen) == 0) {
+				return (&buf[namelen]);
+			}
+		} else {
+			if (strncasecmp(name, buf, namelen) == 0) {
+				return (&buf[namelen]);
+			}
 		}
 	}
 	return ((char *)NULL);
@@ -119,7 +192,9 @@ defltcntl(cmd, flags)
 	int	cmd;
 	int	flags;
 {
-	int  oldflags = 0;
+	int  oldflags = dfltflags;
+
+	dfltflags = flags;
 
 	return (oldflags);
 }

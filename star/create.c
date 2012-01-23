@@ -1,8 +1,8 @@
-/* @(#)create.c	1.131 11/04/08 Copyright 1985, 1995, 2001-2011 J. Schilling */
+/* @(#)create.c	1.132 11/12/03 Copyright 1985, 1995, 2001-2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)create.c	1.131 11/04/08 Copyright 1985, 1995, 2001-2011 J. Schilling";
+	"@(#)create.c	1.132 11/12/03 Copyright 1985, 1995, 2001-2011 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1985, 1995, 2001-2011 J. Schilling
@@ -392,8 +392,12 @@ _fileopen(name, smode)
 	if (!_cvmod(smode, &omode, &flag))
 		return (-1);
 
-	if ((ret = _openfd(name, omode)) < 0)
+retry:
+	if ((ret = _openfd(name, omode)) < 0) {
+		if (geterrno() == EINTR)
+			goto retry;
 		return (-1);
+	}
 
 	return (ret);
 }

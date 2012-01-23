@@ -27,10 +27,10 @@
 /*
  * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)lockit.c	1.12 11/09/21 J. Schilling
+ * @(#)lockit.c	1.13 11/11/13 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)lockit.c 1.12 11/09/21 J. Schilling"
+#pragma ident "@(#)lockit.c 1.13 11/11/13 J. Schilling"
 #endif
 /*
  * @(#)lockit.c 1.20 06/12/12
@@ -168,8 +168,8 @@ lockit(lockfile, count, pid, uuname)
 		if (exists(lockfile) &&
 		    Statbuf.st_size == 0 && omtime == Statbuf.st_mtime)
 			(void) unlink(lockfile);
-		continue;
 	}
+	errno = EEXIST;	/* We failed due to exhausted retry count */
 	return(-1);
 }
 

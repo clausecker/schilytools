@@ -27,10 +27,10 @@
 /*
  * Copyright 2006-2011 J. Schilling
  *
- * @(#)rmchg.c	1.36 11/10/15 J. Schilling
+ * @(#)rmchg.c	1.38 11/11/13 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)rmchg.c 1.36 11/10/15 J. Schilling"
+#pragma ident "@(#)rmchg.c 1.38 11/11/13 J. Schilling"
 #endif
 /*
  * @(#)rmchg.c 1.19 06/12/12
@@ -78,9 +78,6 @@
 	then all cmrs for the delta are checked against fred, if there are any
 	non editable cmrs then the change is rejected.
 */
-
-# define COPY 0
-# define NOCOPY 1
 
 static struct sid sid;
 static int num_files;
@@ -362,7 +359,7 @@ char *file;
 	uname(&un);
 	uuname = un.nodename;
 	if (lockit(auxf(file,'z'),SCCS_LOCK_ATTEMPTS,getpid(),uuname))
-		fatal(gettext("cannot create lock file (cm4)"));
+		efatal(gettext("cannot create lock file (cm4)"));
 
 	sinit(&gpkt,file,1);	/* initialize packet and open s-file */
 
@@ -457,7 +454,7 @@ char *file;
 		if (exists(auxf(gpkt.p_file,'p')))
 			rdpfile(&gpkt,&sid);
 
-		flushto(&gpkt,EUSERTXT,COPY);
+		flushto(&gpkt, EUSERTXT, FLUSH_COPY);
 
 		keep = YES;
 		found = NO;
@@ -815,7 +812,7 @@ msg(app, name, cmrs, stats, sids, fred, sflags)
 	if( *name != '/' )   /* NOT full path name */
 	{
 		if(getcwd(path,sizeof(path)) == NULL)
-                 	fatal(gettext("getcwd() failed (ge20)"));
+                 	efatal(gettext("getcwd() failed (ge20)"));
 		cat(pname,path,"/",name, (char *)0);
 	}
 	else
@@ -832,7 +829,7 @@ msg(app, name, cmrs, stats, sids, fred, sflags)
 		noexist = 1; /*new termLOG */
 	if(!(fd=fopen(holdfred, NOGETTEXT("ab"))))
 		{
-			fatal(gettext("CASSI msg not writable \n"));
+			efatal(gettext("CASSI msg not writable \n"));
 			return(0);
 		}
 	fprintf(fd,"%s chpost %s q %s sw MID=%s MFS=%s MPA=%s q q\n",app,cmrs,pname,sids,stats,logname());

@@ -1,4 +1,4 @@
-# @(#)Targets	1.35 11/11/08 Copyright 1995 J. Schilling
+# @(#)Targets	1.37 11/11/24 Copyright 1995 J. Schilling
 
 CFILES_STDIO=	cvmod.c dat.c fcons.c fdown.c fdup.c \
 		ffileread.c ffilewrite.c \
@@ -20,7 +20,7 @@ CFILES_REST=	abspath.c astoi.c astoll.c astoull.c basename.c breakline.c \
 		checkerr.c comerr.c fcomerr.c \
 		chown.c \
 		cmpbytes.c cmpmbytes.c cmpnullbytes.c \
-		dirent.c dirname.c \
+		dirent.c dirname.c diropen.c \
 		eaccess.c error.c \
 		fchdir.c \
 		fconv.c fexec.c fillbytes.c \
@@ -54,6 +54,7 @@ CFILES_REST=	abspath.c astoi.c astoll.c astoull.c basename.c breakline.c \
 		sleep.c \
 		snprintf.c \
 		spawn.c \
+		strcasecmp.c strncasecmp.c strcasemap.c \
 		strcat.c strcatl.c strchr.c strcmp.c strcpy.c \
 		strdup.c streql.c strlen.c strlcat.c strlcpy.c strncat.c strncmp.c \
 		strncpy.c strndup.c strnlen.c strrchr.c strstr.c \

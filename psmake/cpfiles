@@ -1,5 +1,5 @@
 #!/bin/sh
-# @(#)cpfiles	1.21 11/08/05 Copyright 1999 J. Schilling
+# @(#)cpfiles	1.23 11/12/16 Copyright 1999 J. Schilling
 
 cp='cp -p'
 smake=smake
@@ -28,6 +28,7 @@ if [ ! -d include/schily ]; then
 fi
 
 $cp ${incsrc}/${smake}/archconf.c	archconf.c
+$cp ${incsrc}/${smake}/job.c		job.c
 $cp ${incsrc}/${smake}/job.h		job.h
 $cp ${incsrc}/${smake}/make.c		make.c
 $cp ${incsrc}/${smake}/make.h		make.h
@@ -120,6 +121,7 @@ $cp ${incsrc}/${lib}/jsprintf.c		jsprintf.c
 $cp ${incsrc}/${lib}/jssnprintf.c		jssnprintf.c
 $cp ${incsrc}/${lib}/stdio/cvmod.c	cvmod.c
 $cp ${incsrc}/${lib}/stdio/fcons.c	fcons.c
+$cp ${incsrc}/${lib}/stdio/file_raise.c	file_raise.c
 $cp ${incsrc}/${lib}/stdio/fileopen.c	fileopen.c
 $cp ${incsrc}/${lib}/stdio/dat.c		dat.c
 $cp ${incsrc}/${lib}/stdio/fileread.c	fileread.c

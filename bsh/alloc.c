@@ -1,11 +1,11 @@
-/* %Z%%M%	%I% %E% Copyright 1985,1988,1991,1995-2009 J. Schilling */
+/* @(#)alloc.c	1.53 11/11/14 Copyright 1985,1988,1991,1995-2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"%Z%%M%	%I% %E% Copyright 1985,1988,1991,1995-2009 J. Schilling";
+	"@(#)alloc.c	1.53 11/11/14 Copyright 1985,1988,1991,1995-2011 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1985,1988,1991,1995-2009 J. Schilling
+ *	Copyright (c) 1985,1988,1991,1995-2011 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

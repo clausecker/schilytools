@@ -1,8 +1,8 @@
-/* @(#)edit.c	1.12 10/10/02 Copyright 2006-2010 J. Schilling */
+/* @(#)edit.c	1.13 11/11/23 Copyright 2006-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)edit.c	1.12 10/10/02 Copyright 2006-2010 J. Schilling";
+	"@(#)edit.c	1.13 11/11/23 Copyright 2006-2010 J. Schilling";
 #endif
 /*
  *	Copyright (c) 2006-2010 J. Schilling
@@ -59,7 +59,7 @@ extern	int	delim;
 extern	int	prompt;
 extern	char	*inithome;
 
-#ifndef	LIB
+#ifndef	LIB_SHEDIT
 int
 main(ac, av, ev)
 	int	ac;
@@ -113,7 +113,7 @@ egetc()
 	return (fsgetc(rawstrm));
 }
 
-#ifndef	LIB
+#ifndef	LIB_SHEDIT
 editloop()
 {
 	int	c;

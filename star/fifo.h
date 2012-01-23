@@ -1,9 +1,9 @@
-/* @(#)fifo.h	1.30 07/10/20 Copyright 1989-2007 J. Schilling */
+/* @(#)fifo.h	1.31 12/01/01 Copyright 1989-2012 J. Schilling */
 /*
  *	Definitions for a "fifo" that uses
  *	shared memory between two processes
  *
- *	Copyright (c) 1989-2007 J. Schilling
+ *	Copyright (c) 1989-2012 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -44,6 +44,9 @@
 #undef	FIFO			/* We cannot have a FIFO on this platform */
 #endif
 
+/*
+ * Statistics data that needs to be in shared memory
+ */
 typedef	struct	{
 	BOOL	reading;	/* true if currently reading from tape	    */
 	int	swapflg;	/* -1: init, 0: FALSE, 1: TRUE		    */
@@ -63,6 +66,9 @@ typedef	struct	{
 	off_t	old_off;	/* The off for the last block wrte	    */
 } m_stats;
 
+/*
+ * Shared data used to control the FIFO
+ */
 typedef struct {
 	char	*putptr;	/* put pointer within shared memory	    */
 	char	*getptr;	/* get pointer within shared memory	    */
@@ -76,6 +82,10 @@ typedef struct {
 	unsigned long	ocnt;	/* output count (incremented on each get)   */
 	char	iblocked;	/* input  (put side) is blocked		    */
 	char	oblocked;	/* output (get side) is blocked		    */
+	char	m1;		/* Semaphore claimed by newvolhdr()	    */
+	char	m2;		/* Semaphore claimed by cr_file()	    */
+	char	chreel;		/* Semaphore claimed by startvol()	    */
+	char	reelwait;	/* input  (put side) is blocked on "chreel" */
 	int	hiw;		/* highwater mark			    */
 	int	low;		/* lowwater mark			    */
 	int	flags;		/* fifo flags				    */
@@ -112,44 +122,44 @@ typedef struct {
 #define	FIFO_I_CHREEL	0x400	/* change input tape reel if fifo gets empty */
 #define	FIFO_O_CHREEL	0x800	/* change output tape reel if fifo gets empty */
 
-#define	FIFO_M1		0x1000	/* Semaphore claimed by newvolhdr()	*/
-#define	FIFO_M2		0x2000	/* Semaphore claimed by cr_file()	*/
-
 #ifdef	FIFO
 /*
  * Critical section handling for multi volume support.
  *
  * This code is used to protect access to stat->cur_size & stat->cur_off
- * when preparing the multi volume header.
+ * when preparing the multi volume header. Calling blocking code from
+ * within a critical section is not permitted. For this reason, and because
+ * this only may block when a media change is done, the delay time is not
+ * important or critical.
  */
 extern	BOOL	use_fifo;
 
 #define	fifo_enter_critical()	if (use_fifo) { \
 				extern  m_head  *mp;		\
 								\
-				while (mp->flags & FIFO_M1)	\
+				while (mp->m1)			\
 					usleep(100000);		\
-				mp->flags |= FIFO_M2;		\
+				mp->m2 = TRUE;			\
 			}
 
 #define	fifo_leave_critical()	if (use_fifo) { \
 				extern  m_head  *mp;		\
 								\
-				mp->flags &= ~FIFO_M2;		\
+				mp->m2 = FALSE;			\
 			}
 
 #define	fifo_lock_critical()	if (use_fifo) { \
 				extern  m_head  *mp;		\
 								\
-				mp->flags |= FIFO_M1;		\
-				while (mp->flags & FIFO_M2)	\
+				mp->m1 = TRUE;			\
+				while (mp->m2)			\
 					usleep(100000);		\
 			}
 
 #define	fifo_unlock_critical()	if (use_fifo) { \
 				extern  m_head  *mp;		\
 								\
-				mp->flags &= ~FIFO_M1;		\
+				mp->m1 = FALSE;			\
 			}
 #else
 #define	fifo_enter_critical()

@@ -27,10 +27,10 @@
 /*
  * Copyright 2006-2011 J. Schilling
  *
- * @(#)prs.c	1.39 11/10/21 J. Schilling
+ * @(#)prs.c	1.40 11/11/13 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)prs.c 1.39 11/10/21 J. Schilling"
+#pragma ident "@(#)prs.c 1.40 11/11/13 J. Schilling"
 #endif
 /*
  * @(#)prs.c 1.33 06/12/12
@@ -881,13 +881,13 @@ struct	stats	*statp;
 				copy(gpkt.p_file,Dir);
 				dname(Dir);
 				if(getcwd(Olddir,sizeof(Olddir)) == NULL)
-					fatal(gettext("getcwd() failed (prs2)"));
+					efatal(gettext("getcwd() failed (prs2)"));
 				if(chdir(Dir) != 0)
-					fatal(gettext("cannot change directory (prs3)"));
+					efatal(gettext("cannot change directory (prs3)"));
 				if( getcwd(Pname,sizeof(Pname)) == NULL )
-					fatal(gettext("getcwd() failed (prs2)"));
+					efatal(gettext("getcwd() failed (prs2)"));
 				if(chdir(Olddir) != 0)
-					fatal(gettext("cannot change directory (prs3)"));
+					efatal(gettext("cannot change directory (prs3)"));
 				printf("%s/",Pname);
 				printf("%s",sname(gpkt.p_file));
 				break;
@@ -1314,7 +1314,7 @@ struct packet *pkt;
 	print out gotten body :GB:
 	*/
 	if ((i = vfork()) < 0)
-		fatal(gettext("cannot fork, try again"));
+		efatal(gettext("cannot fork, try again"));
 	if (i == 0) {
 		/*
 		perform 'get' and redirect output
@@ -1329,7 +1329,7 @@ struct packet *pkt;
 #ifdef	HAVE_VFORK
 		Fflags |= FTLVFORK;
 #endif
-		fatal(SccsError);
+		efatal(SccsError);
 	}
 	else {
 		wait(&status);

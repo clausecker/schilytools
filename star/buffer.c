@@ -1,13 +1,13 @@
-/* @(#)buffer.c	1.163 11/08/14 Copyright 1985, 1995, 2001-2011 J. Schilling */
+/* @(#)buffer.c	1.164 12/01/01 Copyright 1985, 1995, 2001-2012 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)buffer.c	1.163 11/08/14 Copyright 1985, 1995, 2001-2011 J. Schilling";
+	"@(#)buffer.c	1.164 12/01/01 Copyright 1985, 1995, 2001-2012 J. Schilling";
 #endif
 /*
  *	Buffer handling routines
  *
- *	Copyright (c) 1985, 1995, 2001-2011 J. Schilling
+ *	Copyright (c) 1985, 1995, 2001-2012 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -591,6 +591,7 @@ startvol(buf, amount)
 	long	xcnt = 0;
 	BOOL	ofifo = use_fifo;
 static	BOOL	active = FALSE;	/* If TRUE: We are already in a media change */
+extern	m_head	*mp;
 
 	if (amount <= 0)
 		return (amount);
@@ -601,6 +602,19 @@ static	BOOL	active = FALSE;	/* If TRUE: We are already in a media change */
 		"Panic: trying to write more than bs (%d > %d)!\n",
 		amount, bigsize);
 	}
+	mp->chreel = TRUE;
+#ifdef	FIFO
+	if (use_fifo) {
+		/*
+		 * Make sure the put side of the FIFO is waiting either on
+		 * mp->iblocked (because the FIFO is full) or on mp->reelwait
+		 * before temporary disabling the FIFO during media change.
+		 */
+		while (mp->iblocked == FALSE && mp->reelwait == FALSE) {
+			usleep(100000);
+		}
+	}
+#endif
 	active = TRUE;
 
 	/*
@@ -636,6 +650,12 @@ static	BOOL	active = FALSE;	/* If TRUE: We are already in a media change */
 	bigcnt = ocnt;
 	use_fifo = ofifo;
 	active = FALSE;
+	mp->chreel = FALSE;
+#ifdef	FIFO
+	if (use_fifo) {
+		fifo_reelwake();
+	}
+#endif
 	return (xcnt);		/* Return the amount taken from orig. buffer */
 }
 
@@ -1221,6 +1241,12 @@ writetape(buf, amount)
 		 * We do the tape change not at the point when we write less
 		 * than a tape block (this may happen on pipes too) but after
 		 * we got a true EOF condition.
+		 */
+		return (-2);
+	}
+	if (multivol && (err == ENXIO)) {
+		/*
+		 * EOF condition on disk devices
 		 */
 		return (-2);
 	}

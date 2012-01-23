@@ -27,10 +27,10 @@
 /*
  * Copyright 2006-2011 J. Schilling
  *
- * @(#)val.c	1.35 11/10/13 J. Schilling
+ * @(#)val.c	1.37 11/11/13 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)val.c 1.35 11/10/13 J. Schilling"
+#pragma ident "@(#)val.c 1.37 11/11/13 J. Schilling"
 #endif
 /*
  * @(#)val.c 1.22 06/12/12
@@ -65,9 +65,6 @@
 # define	TRUE		1
 # define	FALSE		0
 # define	BLANK(l)	while (!(*l == '\0' || *l == ' ' || *l == '\t')) l++;
-
-#define	COPY	0
-#define	NOCOPY	1
 
 static int	silent;		/* be silent, report only in exit code */
 static int	debug;		/* print debug messages */
@@ -817,7 +814,7 @@ register struct packet *pkt;
 				pkt->p_line_size += sizeof(buf);
 				pkt->p_line = (char*) realloc(pkt->p_line, pkt->p_line_size);
 				if (pkt->p_line == NULL) {
-					fatal(gettext("OUT OF SPACE (ut9)"));
+					efatal(gettext("OUT OF SPACE (ut9)"));
 				}
 			}
 
@@ -1223,7 +1220,7 @@ get_setup(file)
 
 	if (dodelt(&pk2, &stats, (struct sid *) 0, 0) == 0)
 		fmterr(&pk2);
-	flushto(&pk2, EUSERTXT, NOCOPY);
+	flushto(&pk2, EUSERTXT, FLUSH_NOCOPY);
 	get_off = ftell(pk2.p_iop);
 	slnno = pk2.p_slnno;
 

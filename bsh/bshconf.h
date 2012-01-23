@@ -1,4 +1,4 @@
-/* @(#)bshconf.h	1.17 11/08/14 Copyright 1991-2011 J. Schilling */
+/* @(#)bshconf.h	1.18 11/11/23 Copyright 1991-2011 J. Schilling */
 /*
  *	Copyright (c) 1991-2011 J. Schilling
  */
@@ -136,4 +136,8 @@ typedef	int	sigret;
 
 #ifndef	DO_PFEXEC
 #undef	EXECATTR_FILENAME
+#endif
+
+#ifdef	LIB_SHEDIT
+#define	freetree	shell_freetree
 #endif

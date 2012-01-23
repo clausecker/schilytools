@@ -1,7 +1,8 @@
 #!/bin/sh
-# @(#)rmlinks	1.18 11/08/05 Copyright 1999 J. Schilling
+# @(#)rmlinks	1.20 11/12/16 Copyright 1999 J. Schilling
 
 rm -f archconf.c
+rm -f job.c
 rm -f job.h
 rm -f make.c
 rm -f make.h
@@ -94,6 +95,7 @@ rm -f rename.c
 rm -f searchinpath.c
 rm -f cvmod.c
 rm -f fcons.c
+rm -f file_raise.c
 rm -f fileopen.c
 rm -f dat.c
 rm -f fileread.c

@@ -1,8 +1,8 @@
-/* @(#)deflts.h	1.8 06/10/10 Copyright 1997 J. Schilling */
+/* @(#)deflts.h	1.9 11/11/24 Copyright 1997-2011 J. Schilling */
 /*
  *	Definitions for reading program defaults.
  *
- *	Copyright (c) 1997 J. Schilling
+ *	Copyright (c) 1997-2011 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -57,7 +57,8 @@ extern "C" {
 
 extern	int	defltopen	__PR((const char *name));
 extern	int	defltclose	__PR((void));
-extern	void	defltfirst	__PR((void));
+extern	int	defltsect	__PR((const char *name));
+extern	int	defltfirst	__PR((void));
 extern	char	*defltread	__PR((const char *name));
 extern	char	*defltnext	__PR((const char *name));
 extern	int	defltcntl	__PR((int cmd, int flags));

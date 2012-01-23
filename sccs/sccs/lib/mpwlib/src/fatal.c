@@ -27,10 +27,10 @@
 /*
  * This file contains modifications Copyright 2006-2011 J. Schilling
  *
- * @(#)fatal.c	1.10 11/10/30 J. Schilling
+ * @(#)fatal.c	1.11 11/11/13 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)fatal.c 1.10 11/10/30 J. Schilling"
+#pragma ident "@(#)fatal.c 1.11 11/11/13 J. Schilling"
 #endif
 /*
  * @(#)fatal.c 1.8 06/12/12
@@ -143,7 +143,7 @@ char *msg;
 			errstr = NULL;
 #endif
 #endif
-		if (errstr) {
+		if (errsav != 0 && errstr != NULL) {
 			write(2, errstr, length(errstr));
 			write(2, ". ", 2);
 		}

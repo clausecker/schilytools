@@ -1,6 +1,6 @@
 #!/bin/sh
 ###########################################################################
-#ident "@(#)MKLINKS	1.91 11/08/04 "
+#ident "@(#)MKLINKS	1.94 11/12/16 "
 ###########################################################################
 # Written 1996-2011 by J. Schilling
 ###########################################################################
@@ -126,6 +126,8 @@ $symlink	i386-at386-gnu-cc.rul	i686-at386-gnu-cc.rul
 $symlink	i386-at386-gnu-gcc.rul	i686-at386-gnu-gcc.rul
 $symlink	i386-freebsd-cc.rul	sparc64-freebsd-cc.rul
 $symlink	i386-freebsd-gcc.rul	sparc64-freebsd-gcc.rul
+$symlink	i386-freebsd-cc.rul	amd64-freebsd-cc.rul
+$symlink	i386-freebsd-gcc.rul	amd64-freebsd-gcc.rul
 $symlink	i386-freebsd-cc.rul	i386-dragonfly-cc.rul
 $symlink	i386-freebsd-gcc.rul	i386-dragonfly-gcc.rul
 $symlink	i386-freebsd-cc.rul	x86_64-dragonfly-cc.rul
@@ -142,6 +144,8 @@ $symlink	i386-netbsd-cc.rul	amiga-netbsd-cc.rul
 $symlink	i386-netbsd-gcc.rul	amiga-netbsd-gcc.rul
 $symlink	i386-netbsd-cc.rul	macppc-netbsd-cc.rul
 $symlink	i386-netbsd-gcc.rul	macppc-netbsd-gcc.rul
+$symlink	i386-openbsd-cc.rul	amd64-openbsd-cc.rul
+$symlink	i386-openbsd-gcc.rul	amd64-openbsd-gcc.rul
 $symlink	i386-bsd-os-cc.rul	sparc-bsd-os-cc.rul
 $symlink	i386-bsd-os-gcc.rul	sparc-bsd-os-gcc.rul
 $symlink	i386-bsd-os3-cc.rul	sparc-bsd-os3-cc.rul
@@ -241,6 +245,12 @@ $symlink	power-macintosh-darwin-cc64.rul	i386-darwin-cc64.rul
 $symlink	power-macintosh-darwin-gcc64.rul	i386-darwin-gcc64.rul
 $symlink	power-macintosh-darwin-cc32.rul	i386-darwin-cc32.rul
 $symlink	power-macintosh-darwin-gcc32.rul	i386-darwin-gcc32.rul
+$symlink	power-macintosh-darwin-cc.rul	x86_64-darwin-cc.rul
+$symlink	power-macintosh-darwin-gcc.rul	x86_64-darwin-gcc.rul
+$symlink	power-macintosh-darwin-cc64.rul	x86_64-darwin-cc64.rul
+$symlink	power-macintosh-darwin-gcc64.rul	x86_64-darwin-gcc64.rul
+$symlink	power-macintosh-darwin-cc32.rul	x86_64-darwin-cc32.rul
+$symlink	power-macintosh-darwin-gcc32.rul	x86_64-darwin-gcc32.rul
 $symlink	sun4-sunos4-cc.rul	sun4c-sunos4-cc.rul
 $symlink	sun4-sunos4-gcc.rul	sun4c-sunos4-gcc.rul
 $symlink	sun4-sunos5-cc.rul	sun4c-sunos5-cc.rul

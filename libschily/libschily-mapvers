@@ -1,4 +1,4 @@
-# /* @(#)libschily-mapvers	1.31 11/11/08 Copyright 2005-2011 J. Schilling */
+# /* @(#)libschily-mapvers	1.33 11/11/24 Copyright 2005-2011 J. Schilling */
 #include <schily/mconfig.h>
 
 SCHILY_1.5 {
@@ -49,6 +49,10 @@ global:
 	get_progpath;
 	getexecpath;
 
+	diropen;
+	dirrdopen;
+	dirclose;
+
 	fgetaline;
 	getaline;
 
@@ -95,6 +99,14 @@ global:
 #endif
 	cmpmbytes;
 	zerobytes;
+
+#ifndef	HAVE_STRCASECMP
+	strcasecmp;
+#endif
+#ifndef	HAVE_STRNCASECMP
+	strncasecmp;
+#endif
+
 } SCHILY_1.4;
 
 SCHILY_1.4 {

@@ -1,5 +1,5 @@
 '\" t
-. \" @(#)star.4	1.19 11/01/20 Copyr 2003-2008 J. Schilling
+. \" @(#)star.4	1.20 11/12/12 Copyr 2003-2011 J. Schilling
 . \" star archive formats
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -14,7 +14,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH STAR 4L "11/01/20" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH STAR 4L "11/12/12" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 star \- tape archive file format
 .SH DESCRIPTION
@@ -51,7 +51,8 @@ operations. Each record of
 blocks is written with a single
 .BR write (2)
 operation.
-On magnetic tapes, this results in a single tape record.
+On magnetic tapes, this results in a single tape record in case the tape drive is in
+.BR "variable length record mode" .
 .PP
 The header block is defined in star.h as follows:
 .nf
@@ -262,7 +263,7 @@ and
 .I name
 need to be concatenated by using the
 .IR prefix ,
-followed a slash character followed by the
+followed by a slash character followed by the
 .I name
 field.
 If a null character appears in
@@ -287,6 +288,7 @@ contain null terminated character strings.
 The version field contains the string \fB"00"\fP
 without a trailing zero. It cannot be set to different values as POSIX.1-1988
 did not specify a way to handle different version strings.
+.PP
 The
 .I typeflag
 field contains a single character.
@@ -316,14 +318,14 @@ the number. This results in 7 base 256 digits in 8 character fields and in
 11 base 256 digits in 12 character fields.
 All base 256 numbers are two's complement numbers. A base 256 number in a
 8 character field may hold 56 bits, a base 256 number in a 12 character
-field may hold 88 bits. This may extended to 64 bits for 8 character fields
+field may hold 88 bits. This may be extended to 63 bits for 8 character fields
 and to 95 bits for 12 character fields. For a negative number the first
 character currently is set to a value of 255 (all 8 bits are set).
 The rightmost character in a 8 or 12 character field contains the least
 significant base 256 number.
 Recent GNU tar versions implement the same extension.
 .PP
-While the POSIX standard makes obvious that the fields
+While the POSIX standard makes it obvious that the fields
 .IR "mode" , " uid" , " gid" ,
 .IR " size", " chksum" ,
 .I devmajor
@@ -352,11 +354,15 @@ is followed by file data, then the amount of data that follows is computed by
 .PP
 The
 .I mtime
-filed contains the number of seconds since Jan 1st 1970 00:00 UTC
+field contains the number of seconds since Jan 1st 1970 00:00 UTC
 as retrived via 
 .BR stat (2)
 in 
 .IR st_mtime .
+If the
+.I mtime
+fiels is assumed to be a signed 33 bit number, the latest representable time
+is 2106 Feb  7 06:28:15 GMT.
 .PP
 The
 .I chksum
@@ -373,7 +379,11 @@ field specifies the type of the file that is archived. If a specific
 .B tar
 implementation does not include support for a specific typeflag value,
 this implementation will extract the unknown file types as if they were
-plain files.
+plain files. For this reason, the
+.I size
+field for any file type except directories, hard links, symbolic links,
+character special, block specials and FIFOs
+must always follow the rules for plain files.
 .TP
 .B '0' REGTYPE
 A regular file.
@@ -564,7 +574,10 @@ No file data follows this header.
 .B 'K'
 A long link name.
 .B Star
-is able to read and write this type of header. With the
+is able to read and write this type of header with the
+.BR star ", " xstar " and " gnutar
+formats.
+With the
 .BR xustar " and " exustar
 formats,
 .B star
@@ -577,7 +590,10 @@ the trailing null byte. The link name is in the data that follows the header.
 .B 'L'
 A long file name.
 .B Star
-is able to read and write this type of header. With the
+is able to read and write this type of header with the
+.BR star ", " xstar " and " gnutar
+formats.
+With the
 .BR xustar " and " exustar
 formats,
 .B star
@@ -598,7 +614,7 @@ This allows to start extracting multi volume archives with a volume
 number greater than one.
 It is used by GNU tar to verify multi volume continuation volumes.
 Other fields in the GNU multi volume continuation header are a result of
-a GNU tar miss conception and cannot be used.
+a GNU tar miss conception and cannot be used in a reliable tar implementation.
 If the
 .I size
 field is non zero the data following the header is skipped by
@@ -634,8 +650,10 @@ With GNU tar, up to 4 sparse hole descriptors fit into the sparse header.
 Additional hole descriptors are not needed if the file has less than 4 holes.
 With GNU tar, the size field breaks general
 .I tar
-header rules and is meaningless because the size of the sparse hole
-descriptors does not count.
+header rules in case more than 4 sparse hole descriptors are used
+and is meaningless because the size of the additional sparse hole
+descriptors used by GNU tar does not count and cannot be determined before
+parsing all sparse hole descriptors.
 .TP
 .B 'V'
 A volume header.
@@ -716,7 +734,9 @@ If the value field is of zero length, it deletes any header field of the same
 name that is in effect from the same extended header or from a previous global
 header.
 .PP
-Null characters do not delimit any value. The value is only limited by its
+Null characters do not delimit any value. The data used for
+.I value 
+is only limited by its
 implicit length.
 .SH "EXTENDED TAR (PAX) HEADER KEYWORDS
 POSIX.1-2001 extended
@@ -733,8 +753,71 @@ currently supports a nanosecond granularity.
 .TP
 .B charset
 The name of the character set used to encode the data in the following file(s).
+.RS
+.PP
+The following values are supported for
+.BR charset :
+.TP 25
+.B "ISO-IR 646 1990
+SO/IEC 646:1990
+.TP
+.B "ISO-IR 8859 1 1998
+ISO/IEC 8859-1:1998
+.TP
+.B "ISO-IR 8859 2 1998
+ISO/IEC 8859-2:1998
+.TP
+.B "ISO-IR 8859 3 1998
+ISO/IEC 8859-3:1998
+.TP
+.B "ISO-IR 8859 4 1998
+ISO/IEC 8859-4:1998
+.TP
+.B "ISO-IR 8859 5 1998
+ISO/IEC 8859-5:1998
+.TP
+.B "ISO-IR 8859 6 1998
+ISO/IEC 8859-6:1998
+.TP
+.B "ISO-IR 8859 7 1998
+ISO/IEC 8859-7:1998
+.TP
+.B "ISO-IR 8859 8 1998
+ISO/IEC 8859-8:1998
+.TP
+.B "ISO-IR 8859 9 1998
+ISO/IEC 8859-9:1998
+.TP
+.B "ISO-IR 8859 10 1998
+ISO/IEC 8859-10:1998
+.TP
+.B "ISO-IR 8859 11 1998
+ISO/IEC 8859-11:1998
+.TP
+.B "ISO-IR 8859 12 1998
+ISO/IEC 8859-12:1998
+.TP
+.B "ISO-IR 8859 13 1998
+ISO/IEC 8859-13:1998
+.TP
+.B "ISO-IR 8859 14 1998
+ISO/IEC 8859-14:1998
+.TP
+.B "ISO-IR 8859 15 1998
+ISO/IEC 8859-15:1998
+.TP
+.B "ISO-IR 10646 2000
+ISO/IEC 10646:2000
+.TP
+.B "ISO-IR 10646 2000 UTF-8"
+ISO/IEC 10646, UTF-8 encoding
+.TP
+.B BINARY
+None
+.PP
 This keyword is currently ignored by
 .BR star .
+.RE
 .TP
 .B comment
 Any number of characters that  should be treated as comment.
@@ -756,6 +839,28 @@ This field is used if the group ID of a file is greater than 2097151 (octal 7777
 .B gname
 The group name of the following file(s) coded in UTF-8 if the group name does not
 fit into 32 characters or cannot be expressed in 7-Bit ASCII.
+.TP
+.B hdrcharset
+The name of the character set used to encode the data for the
+.BR gname ,
+.BR linkpath ,
+.BR path " and
+.B uname
+fields in the POSIX.1-2001 extended header records.
+.RS
+.PP
+The following values are supported for
+.BR hdrcharset :
+.TP 25
+.B "ISO-IR 10646 2000 UTF-8"
+ISO/IEC 10646, UTF-8 encoding
+.TP
+.B BINARY
+None
+.PP
+This keyword is currently ignored by
+.BR star .
+.RE
 .TP
 .B linkpath
 The name of the 
@@ -833,6 +938,9 @@ and
 of a file, respectively.
 The access control lists are stored in the short text form as defined in
 .BR "POSIX 1003.1e draft standard 17" .
+.sp
+Note that the POSIX 1003.1e draft has been withdrawn in 1997 but some 
+operating systems still support it with some filesystems.
 .sp
 To each named user 
 .B ACL
@@ -1034,9 +1142,10 @@ compact complete directory information to the beginning of
 the archive, the flag character may contain values different
 from ^A.
 .B Star
-implementations up to
-.B star-1.5
-do not include this feature.
+implementations at least up to
+.B star-1.5.1
+do not use the feature to tag entries and use the default
+entry \e001 (^A) for all files.
 Tar implementations that like to read archives that use the
 .B SCHILY.dir
 keyword, shall not rely on values other than \e000 (^@) or \e001 (^A).
@@ -1048,11 +1157,95 @@ mode.
 .TP
 .B SCHILY.fflags
 A textual version of the BSD or Linux extended file flags.
-As this tag has not yet been documented, please look into the
-.B star
-source, file
-.B fflags.c
-for more information.
+.sp
+The following flags are defined by star:
+.RS
+.TP 15
+.B arch
+set the archived flag (super-user only).
+.TP
+archived
+Alias for
+.BR arch .
+.TP
+.B nodump
+set the nodump flag (owner or super-user).
+.TP
+.B opaque
+set the opaque flag (owner or super-user).
+.TP
+.B sappnd
+set the system append-only flag (super-user only).
+.TP
+sappend
+Alias for
+.BR sappnd .
+.TP
+.B schg
+set the system immutable flag (super-user only).
+.TP
+schange
+Alias for
+.BR schg .
+.TP
+simmutable
+Alias for
+.BR schg .
+.TP
+.B sunlnk
+set the system undeletable flag (super-user only).
+.TP
+sunlink
+Alias for
+.BR sunlnk .
+.TP
+.B uappnd
+set the user append-only flag (owner or super-user).
+.TP
+uappend
+Alias for
+.BR uappnd .
+.TP
+.B uchg
+set the user immutable flag (owner or super-user).
+.TP
+uchange
+Alias for
+.BR uchg .
+.TP
+uimmutable
+Alias for
+.BR uchg .
+.TP
+.B uunlnk
+set the user undeletable flag (owner or super-user).
+.TP
+uunlink
+Alias for
+.BR uunlnk .
+.br
+.ne 4
+.LP
+The following flags are only available on Linux:
+.TP 15
+.B compress
+Set the Linux ext3 journal data flag (owner or super-user).
+.TP
+.B journal-data
+Set the Linux ext3 journal data flag (super-user only).
+.TP
+.B noatime
+Set the Linux ext3 no access time flag (owner or super-user).
+.TP
+.B secdel
+Set the Linux ext3 secure deletion (purge before delete) flag (owner or super-user).
+.TP
+.B sync
+Set the Linux ext3 sync flag (owner or super-user).
+.TP
+.B undel
+Set the Linux ext3 "allow unrm" flag (owner or super-user).
+.RE
 .TP
 .B SCHILY.filetype
 A textual version of the real file type of the file.
@@ -1151,6 +1344,10 @@ This keyword is used with multi volume continuation headers.
 Multi volume continuation headers are used to allow to start reading
 a multi volume archive past the first volume.
 .sp
+.B SCHILY.offset
+specifies the byte offset within a file that was split across volumes
+as a result of a multi volume media change operation.
+.sp
 The value is an unsigned int.
 An implementation should be able to handle at least 64 bit unsigned values.
 .TP
@@ -1169,6 +1366,14 @@ keyword is needed, it must be past any
 keyword in case a
 .B size
 keyword is also present.
+.sp
+As sparse files allocate less space on tape than a regular file and as a
+continued file that started on a previous volume only holds parts of the
+file, the
+.B SCHILY.realsize
+keyword holds a bigger number than the
+.B size
+keyword.
 .sp
 The value is an unsigned int.
 An implementation should be able to handle at least 64 bit unsigned values.
@@ -1231,6 +1436,19 @@ are the same names that are used in the
 .B star
 command line options to set up a specific archive type.
 .sp
+The following values may currently appear in a global extended header:
+.RS
+.TP 15
+.B xustar
+\&'xstar' format without "tar" signature at header offset 508.
+.TP
+.B exustar
+\&'xustar' format variant that always includes x-headers and g-headers.
+.LP
+A complete tar implementation must be prepared to handle all archives names
+as documented in
+.BR star (1).
+.LP
 In order to allow archive type recognition from this keyword,
 the minimum tape block size must be 2x512 bytes (1024 bytes)
 and the 
@@ -1240,6 +1458,7 @@ first
 .B "'g'lobal pax
 header. Then the first tape block may be scanned to recognize
 the archive type.
+.RE
 .TP
 .B SCHILY.release
 The textual version of the
@@ -1249,6 +1468,10 @@ version string and the platform name where this
 has been compiled.
 The same text appears when calling
 .IR "star -version" .
+.sp
+Other implementations may use a version string that does not start with
+the text
+.BR star .
 .TP
 .B SCHILY.volhdr.blockoff
 This keyword is used for multi volume archives.
@@ -1269,11 +1492,15 @@ unsigned values.
 .TP
 .B SCHILY.volhdr.cwd
 This keyword is used in dump mode.
-It is only used to contain the real backup working directory if the 
+It is only emitted in case the
 .B "fs\-name=
-option of star is used to overwrite the
+option of star was used to overwrite the
 .B SCHILY.volhdr.filesys
-value. 
+value.
+If
+.B SCHILY.volhdr.cwd
+is present, it contains the real backup working directory.
+.sp
 Overwriting
 .B SCHILY.volhdr.filesys
 is needed when backups are run on file system snapshots rather
@@ -1309,7 +1536,8 @@ The value is an unsigned int with a valid range between 0 and at least 100.
 .TP
 .B SCHILY.volhdr.dumptype
 This keyword is used in dump mode.
-If the dump is a complete dump of a file system, then the argument
+If the dump is a complete dump of a file system
+(i.e. no files are excluded via command line), then the argument
 is the text
 .BR full ,
 else the argument is the text
@@ -1357,8 +1585,8 @@ The value is an unsigned int with a valid range between 0 and at least 100.
 This keyword is used for multi volume archives and may be used
 to verify the volume size on read back.
 It represents the tape size expressed in 512 byte units.
-If this keyword is set in multi volume mode, the size of the tape
-is not autodetected but set from a command line option.
+This keyword is set in multi volume mode if the size of the tape
+was not autodetected but set from a command line option.
 .sp
 The value is an unsigned int with a valid range between 1 and
 infinity. An implementation should be able to handle at least 64 bit

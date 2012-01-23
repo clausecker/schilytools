@@ -1,8 +1,8 @@
-/* @(#)extract.c	1.140 11/11/07 Copyright 1985-2011 J. Schilling */
+/* @(#)extract.c	1.141 11/12/03 Copyright 1985-2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)extract.c	1.140 11/11/07 Copyright 1985-2011 J. Schilling";
+	"@(#)extract.c	1.141 11/12/03 Copyright 1985-2011 J. Schilling";
 #endif
 /*
  *	extract files from archive
@@ -1382,10 +1382,16 @@ copy_file(from, to, do_symlink, eflags)
 		return (-2);
 	}
 
+rretry:
 	if ((fin = fileopen(from, "rub")) == 0) {
+		if (geterrno() == EINTR)
+			goto rretry;
 		errmsg("Cannot open '%s'.\n", from);
 	} else {
+wretry:
 		if ((fout = fileopen(to, "wtcub")) == 0) {
+			if (geterrno() == EINTR)
+				goto wretry;
 #ifdef	__really__
 			errmsg("Cannot create '%s'.\n", to);
 #endif
@@ -1568,7 +1574,13 @@ file_open(info, name)
 	FINFO	*info;
 	char	*name;
 {
-	return (filemopen(name, "wctub", osmode(info->f_mode) & mode_mask));
+	FILE	*f;
+
+	while ((f = filemopen(name, "wctub",
+				osmode(info->f_mode) & mode_mask)) == NULL &&
+				geterrno() == EINTR)
+		;
+	return (f);
 }
 
 /*

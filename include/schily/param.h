@@ -1,4 +1,4 @@
-/* @(#)param.h	1.6 11/08/13 Copyright 2006-2011 J. Schilling */
+/* @(#)param.h	1.7 12/01/22 Copyright 2006-2011 J. Schilling */
 /*
  *	Abstraction from sys/param.h
  *
@@ -63,6 +63,14 @@
 #else
 #define	HZ	100
 #endif
+#endif
+
+/*
+ * Do we need to define _XOPEN_SOURCE to get NZERO?
+ * On Linux, it is needed but on Linux NZERO is 20.
+ */
+#ifndef	NZERO		/* for nice(2) */
+#define	NZERO	20
 #endif
 
 #endif	/* _SCHILY_PARAM_H */

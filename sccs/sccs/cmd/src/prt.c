@@ -27,10 +27,10 @@
 /*
  * Copyright 2006-2011 J. Schilling
  *
- * @(#)prt.c	1.29 11/10/08 J. Schilling
+ * @(#)prt.c	1.30 11/11/13 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)prt.c 1.29 11/10/08 J. Schilling"
+#pragma ident "@(#)prt.c 1.30 11/11/13 J. Schilling"
 #endif
 /*
  * @(#)prt.c 1.22 06/12/12
@@ -642,7 +642,7 @@ register int eof;
 			line_size += sizeof(buf);
 			line = (char*) realloc(line, line_size);
 			if (line == NULL) {
-				fatal(gettext("OUT OF SPACE (ut9)"));
+				efatal(gettext("OUT OF SPACE (ut9)"));
 			}
 		}
 

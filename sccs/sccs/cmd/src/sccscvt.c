@@ -1,8 +1,8 @@
-/* @(#)sccscvt.c	1.12 11/10/13 Copyright 2011 J. Schilling */
+/* @(#)sccscvt.c	1.14 11/11/13 Copyright 2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)sccscvt.c	1.12 11/10/13 Copyright 2011 J. Schilling";
+	"@(#)sccscvt.c	1.14 11/11/13 Copyright 2011 J. Schilling";
 #endif
 /*
  *	Convert a SCCS v4 history file to a SCCS v6 file and vice versa.
@@ -29,9 +29,6 @@ static	UConst char sccsid[] =
 #include <had.h>
 #include <i18n.h>
 #include <schily/utsname.h>
-
-#define	COPY	0
-#define	NOCOPY	1
 
 LOCAL	void	usage		__PR((int exitcode));
 EXPORT	int	main		__PR((int ac, char *av[]));
@@ -215,7 +212,7 @@ convert(file)
 	uuname = un.nodename;
 	if (lockit(auxf(gpkt.p_file, 'z'),
 	    SCCS_LOCK_ATTEMPTS, getpid(), uuname))
-		fatal(_("cannot create lock file (cm4)"));
+		efatal(_("cannot create lock file (cm4)"));
 
 	/*
 	 * Open s. file.
@@ -268,7 +265,7 @@ convert(file)
 	 * v6 flags, v6 extensions and
 	 * descruptive user text.
 	 */
-	flushto(&gpkt, EUSERTXT, COPY);
+	flushto(&gpkt, EUSERTXT, FLUSH_COPY);
 
 	/*
 	 * Copy interleaved delta block.
@@ -597,7 +594,7 @@ get_setup(file)
 
 	if (dodelt(&pk2, &stats, (struct sid *) 0, 0) == 0)
 		fmterr(&pk2);
-	flushto(&pk2, EUSERTXT, NOCOPY);
+	flushto(&pk2, EUSERTXT, FLUSH_NOCOPY);
 	get_off = ftell(pk2.p_iop);
 	slnno = pk2.p_slnno;
 }

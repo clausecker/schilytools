@@ -1,4 +1,4 @@
-#ident "@(#)Makefile	1.13 10/10/07 "
+#ident "@(#)Makefile	1.14 11/11/23 "
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -21,7 +21,7 @@ CPPOPTS +=	-DFAST_MALLOC		# malloc() without freechecking
 CPPOPTS +=	-DTESTMAIL		# Do mail file checking
 
 CPPOPTS	+=	-DBOURNE
-CPPOPTS	+=	-DLIB
+CPPOPTS	+=	-DLIB_SHEDIT
 CPPOPTS	+=	-Iinclude
 #CPPOPTS +=	-DNO_LOCALE		# Don't use setlocale()
 #CPPOPTS +=	-DNO_WCHAR		# Don't use wide chars

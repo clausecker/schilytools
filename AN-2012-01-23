@@ -1,0 +1,119 @@
+New features with AN-2011-11-99:
+
+This is the first localization step for the schily source consolidation. Many
+programs now (hopefully) call gettext() for all strings that need localization.
+
+-	The next step will include dgettext() calls for the libraries and the
+	missing programs
+
+-	The following step will include the extracted strings
+
+-	The last step will include German translations and install support
+	for the resulting binary message object files.
+
+----------> Please test and report compilation problems! <---------
+
+***** NOTE: As mentioned since 2004, frontends to the tools should *****
+*****		call all programs in the "C" locale		   *****
+*****		by e.g. calling: LC_ALL=C cdrecord ....		   *****
+*****		unless these frontends support localized strings   *****
+*****		used by the cdrtools with NLS support.		   *****
+
+-	Schily.Copyright file updated
+
+-	Added links for:
+
+	amd64-freebsd-cc.rul
+	amd64-freebsd-gcc.rul
+
+	amd64-openbsd-cc.rul
+	amd64-openbsd-gcc.rul
+
+	x86_64-darwin-cc.rul
+	x86_64-darwin-gcc.rul
+	x86_64-darwin-cc64.rul
+	x86_64-darwin-gcc64.rul
+	x86_64-darwin-cc32.rul
+	x86_64-darwin-gcc32.rul
+
+-	RULES/rules.loc now makes $(PTARGET) to depend on $(ARCHDIR) to 
+	support make -j 2
+
+-	New include files include/schily/inttypes.h and include/schily/stdint.h
+
+-	The script conf/makeinc is no longer confused by OpenBSD
+	that has man.7 and mandoc.7 and both match on man*
+
+
+-	A workaround for a bug in llvm-gcc-4.2 has been introduced in
+	inc/avoffset.c. The llvm-gcc-4.2 bug caused an endless loop at an
+	unexpected place.
+
+-	New autoconf tests for getdelim() and strncasecmp()
+
+-	New functions strcasecmp() and strncasecmp() for libschily.
+
+-	New functions diropen() dirrdopen() dirclose() for libschily.
+	These functions are needed in order to emulate fchdir() on platforms
+	that do not support fchdir().
+
+-	The function defltcntl() in libdeflt is now working and allows to
+	select a case insensitive mode.
+
+-	New function defltsect() in libdeflt allows to create sub-sections
+	in configuration files. These subsections need to be named:
+	"[section-name]" and the '[' must be at the beginning of a line.
+
+-	Added a workaround fot a auto-dependency creation bug in the HP-UX
+	c-compiler that resulted in wrong dependency files for all files
+	in libshcily/stdio/ and for these files prevented an automated
+	recompilation in case that an include file was changed.
+
+-	smake::job.c is now delivered.
+
+-	smake no longer core dumps on read errors for makefiles but disables
+	the software signal "file_read_err" and catches the error.
+
+-	The files cpfiles, lnfiles, rmfiles and MAKE-sh have been 
+	enhanced by file_raise.c that is needed for the change above.
+
+-	Fixed a typo in the smake man page
+
+-	Some of the SCCS error messages are now enhanced by errno related
+	text to make debugging easier. This in special includes messages
+	related to lock-file creation.
+
+-	SCCSv6 now creates at least 13 bytes of hexadecimal urandom data
+	for new files. This results in a constant string length until year 2146.
+
+-	Added a first version of the changeset.4 man page for SCCSv6
+
+-	rename the bsh derived freetree() function in libshedit to
+	shell_freetree() in order to avoid name conflicts with the Bourne Shell
+	freetree() function.
+
+-	Try to make star immune against signals that appear while opening a 
+	file from a network filesystem.
+
+-	Let the star FIFO better handle the media change operation at the end of
+	a tape volume in multi volume create mode.
+
+-	Allow star to auto-detect the "EOF" condition on a raw disk when writing
+	in multi volume create mode. ENXIO has been added as an alias for EFBIG
+	and ENOSPC.
+
+-	The star.4 manpage was enhanced.
+
+-	star_sym.c now uses O_SEARCH for opening directories.
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.isdn.cs.tu-berlin.de, js@cs.tu-berlin.de
+	joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

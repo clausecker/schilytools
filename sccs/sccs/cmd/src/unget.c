@@ -27,10 +27,10 @@
 /*
  * Copyright 2006-2011 J. Schilling
  *
- * @(#)unget.c	1.22 11/10/11 J. Schilling
+ * @(#)unget.c	1.23 11/11/13 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)unget.c 1.22 11/10/11 J. Schilling"
+#pragma ident "@(#)unget.c 1.23 11/11/13 J. Schilling"
 #endif
 /*
  * @(#)unget.c 1.24 06/12/12
@@ -276,7 +276,7 @@ char *file;
 	uname(&un);
 	uuname = un.nodename;
 	if (lockit(auxf(gpkt.p_file,'z'),SCCS_LOCK_ATTEMPTS, getpid(),uuname))
-		fatal(gettext("cannot create lock file (cm4)"));
+		efatal(gettext("cannot create lock file (cm4)"));
 	pp = edpfile(&gpkt,&sid);
 	if (gpkt.p_verbose) {
 		sid_ba(&pp->pf_nsid,str);

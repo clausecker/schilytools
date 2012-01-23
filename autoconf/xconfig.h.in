@@ -1,4 +1,4 @@
-/* @(#)xconfig.h.in	1.226 11/10/22 Copyright 1998-2011 J. Schilling */
+/* @(#)xconfig.h.in	1.228 11/11/22 Copyright 1998-2011 J. Schilling */
 /*
  *	Dynamic autoconf C-include code.
  *	Do not edit, this file has been created automatically.
@@ -233,6 +233,7 @@
 #undef HAVE_FCNTL_LOCKF		/* file locking via fcntl() is present in libc */
 #undef HAVE_FCHDIR		/* fchdir() is present in libc */
 #undef HAVE_FDOPENDIR		/* fdopendir() is present in libc */
+#undef HAVE_GETDELIM		/* getdelim() is present in libc */
 #undef HAVE_OPENAT		/* openat() is present in libc */
 #undef HAVE_ATTROPEN		/* attropen() is present in libc */
 #undef HAVE_FSTATAT		/* fstatat() is present in libc */
@@ -443,6 +444,7 @@
 #undef HAVE_STRRCHR		/* strrchr() is present in libc */
 #undef HAVE_STRSTR		/* strstr() is present in libc */
 #undef HAVE_STRCASECMP		/* strcasecmp() is present in libc */
+#undef HAVE_STRNCASECMP		/* strncasecmp() is present in libc */
 #undef HAVE_BASENAME		/* basename() is present in libc */
 #undef HAVE_DIRNAME		/* dirname() is present in libc */
 #undef HAVE_PATHCONF		/* pathconf() is present in libc */

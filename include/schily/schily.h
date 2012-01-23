@@ -1,4 +1,4 @@
-/* @(#)schily.h	1.103 11/11/08 Copyright 1985-2011 J. Schilling */
+/* @(#)schily.h	1.104 11/11/15 Copyright 1985-2011 J. Schilling */
 /*
  *	Definitions for libschily
  *
@@ -234,12 +234,15 @@ extern	int	makedirs __PR((char *, mode_t, int __striplast));
 
 extern	int	lxchdir	__PR((char *));
 #ifdef	HAVE_FCHDIR
-#define	fdsetname(fd, name)
-#define	fdclosename(fd)
+#define	fdsetname(fd, name)	(0)
+#define	fdclosename(fd)		(0)
 #else
 extern	int	fdsetname __PR((int fd, const char *name));
 extern	int	fdclosename __PR((int fd));
 #endif
+extern	int	diropen __PR((const char *));
+extern	int	dirrdopen __PR((const char *));
+extern	int	dirclose __PR((int));
 
 struct save_wd {
 	int	fd;
