@@ -1,5 +1,5 @@
 #!/bin/sh
-# @(#)rmlinks	1.20 11/12/16 Copyright 1999 J. Schilling
+# @(#)rmlinks	1.21 12/02/05 Copyright 1999-2012 J. Schilling
 
 rm -f archconf.c
 rm -f job.c
@@ -20,6 +20,7 @@ rm -f include/schily/fcntl.h
 rm -f include/schily/getargs.h
 rm -f include/schily/getcwd.h
 rm -f include/schily/hostname.h
+rm -f include/schily/inttypes.h
 rm -f include/schily/io.h
 rm -f include/schily/libport.h
 rm -f include/schily/limits.h
@@ -32,6 +33,7 @@ rm -f include/schily/sigblk.h
 rm -f include/schily/signal.h
 rm -f include/schily/standard.h
 rm -f include/schily/stat.h
+rm -f include/schily/stdint.h
 rm -f include/schily/stdio.h
 rm -f include/schily/stdlib.h
 rm -f include/schily/stkframe.h

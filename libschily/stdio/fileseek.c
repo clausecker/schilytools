@@ -1,6 +1,6 @@
-/* @(#)fileseek.c	1.14 10/11/06 Copyright 1986, 1996-2010 J. Schilling */
+/* @(#)fileseek.c	1.15 12/02/26 Copyright 1986, 1996-2012 J. Schilling */
 /*
- *	Copyright (c) 1986, 1996-2010 J. Schilling
+ *	Copyright (c) 1986, 1996-2012 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -32,7 +32,8 @@ fileseek(f, pos)
 
 	down(f);
 	ret = fseek(f, pos, SEEK_SET);
-	if (ret < 0 && !(my_flag(f) & _JS_IONORAISE))
+	if (ret < 0 && !(my_flag(f) & _JS_IONORAISE) &&
+	    !(_io_glflag & _JS_IONORAISE))
 		raisecond(_seekerr, 0L);
 	return (ret);
 }

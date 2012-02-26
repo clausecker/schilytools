@@ -1,5 +1,5 @@
 #!/bin/sh
-# @(#)lnfiles	1.23 11/12/16 Copyright 1999 J. Schilling
+# @(#)lnfiles	1.24 12/02/05 Copyright 1999-2012 J. Schilling
 
 cp='ln -s'
 smake=smake
@@ -46,6 +46,7 @@ $cp ${incsrc}/../../include/schily/fcntl.h		include/schily/fcntl.h
 $cp ${incsrc}/../../include/schily/getargs.h	include/schily/getargs.h
 $cp ${incsrc}/../../include/schily/getcwd.h		include/schily/getcwd.h
 $cp ${incsrc}/../../include/schily/hostname.h		include/schily/hostname.h
+$cp ${incsrc}/../../include/schily/inttypes.h	include/schily/inttypes.h
 $cp ${incsrc}/../../include/schily/io.h		include/schily/io.h
 $cp ${incsrc}/../../include/schily/libport.h	include/schily/libport.h
 $cp ${incsrc}/../../include/schily/limits.h	include/schily/limits.h
@@ -58,6 +59,7 @@ $cp ${incsrc}/../../include/schily/sigblk.h		include/schily/sigblk.h
 $cp ${incsrc}/../../include/schily/signal.h		include/schily/signal.h
 $cp ${incsrc}/../../include/schily/standard.h	include/schily/standard.h
 $cp ${incsrc}/../../include/schily/stat.h		include/schily/stat.h
+$cp ${incsrc}/../../include/schily/stdint.h		include/schily/stdint.h
 $cp ${incsrc}/../../include/schily/stdio.h		include/schily/stdio.h
 $cp ${incsrc}/../../include/schily/stdlib.h		include/schily/stdlib.h
 $cp ${incsrc}/../../include/schily/stkframe.h		include/schily/stkframe.h

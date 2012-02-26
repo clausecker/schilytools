@@ -1,0 +1,44 @@
+New features with AN-2012-02-26:
+
+This is the first localization step for the schily source consolidation. Many
+programs now (hopefully) call gettext() for all strings that need localization.
+
+-	The next step will include dgettext() calls for the libraries and the
+	missing programs
+
+-	The following step will include the extracted strings
+
+-	The last step will include German translations and install support
+	for the resulting binary message object files.
+
+----------> Please test and report compilation problems! <---------
+
+***** NOTE: As mentioned since 2004, frontends to the tools should *****
+*****		call all programs in the "C" locale		   *****
+*****		by e.g. calling: LC_ALL=C cdrecord ....		   *****
+*****		unless these frontends support localized strings   *****
+*****		used by the cdrtools with NLS support.		   *****
+
+-	The files cpfiles, lnfiles, rmfiles and MAKE-sh have been 
+	enhanced by schily/inttypes.h and schily/stdint.h
+
+-	star/restore.c now gives different error messages for two similar
+	problems caused from different locations in the source.
+
+-	The file Schily.Copyright has been updated to reflect recent 
+	Copyright dates.
+
+-	file_raise(NULL, FALSE) now also affects files that have been
+	opened before the file_raise() call.
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.isdn.cs.tu-berlin.de, js@cs.tu-berlin.de
+	joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

@@ -1,15 +1,15 @@
-/* @(#)restore.c	1.64 11/08/14 Copyright 2003-2011 J. Schilling */
+/* @(#)restore.c	1.65 12/02/05 Copyright 2003-2012 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)restore.c	1.64 11/08/14 Copyright 2003-2011 J. Schilling";
+	"@(#)restore.c	1.65 12/02/05 Copyright 2003-2012 J. Schilling";
 #endif
 /*
  *	Data base management for incremental restores
  *	needed to detect and execute rename() and unlink()
  *	operations between two incremental dumps.
  *
- *	Copyright (c) 2003-2011 J. Schilling
+ *	Copyright (c) 2003-2012 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -490,7 +490,7 @@ sym_addrec(info)
 	if (imp == NULL) {
 		sym_dump();
 		comerrno(EX_BAD,
-			"Panic: cannot add node '%s'.\n",
+			"Panic: cannot add node '%s' in sym_addrec().\n",
 			info->f_name);
 	}
 
@@ -571,7 +571,7 @@ sym_addstat(info, imp)
 	if (imp == NULL) {
 		sym_dump();
 		comerrno(EX_BAD,
-			"Panic: cannot add node '%s'.\n",
+			"Panic: cannot add node '%s' in sym_addstat().\n",
 			info->f_name);
 	}
 	if (imp->i_oino == 0) {

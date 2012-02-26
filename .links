@@ -71,6 +71,7 @@
 ./psmake/include/schily/getargs.h
 ./psmake/include/schily/getcwd.h
 ./psmake/include/schily/hostname.h
+./psmake/include/schily/inttypes.h
 ./psmake/include/schily/io.h
 ./psmake/include/schily/libport.h
 ./psmake/include/schily/limits.h
@@ -83,6 +84,7 @@
 ./psmake/include/schily/signal.h
 ./psmake/include/schily/standard.h
 ./psmake/include/schily/stat.h
+./psmake/include/schily/stdint.h
 ./psmake/include/schily/stdio.h
 ./psmake/include/schily/stdlib.h
 ./psmake/include/schily/stkframe.h

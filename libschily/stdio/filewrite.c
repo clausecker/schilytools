@@ -1,6 +1,6 @@
-/* @(#)filewrite.c	1.17 09/06/30 Copyright 1986, 1995-2009 J. Schilling */
+/* @(#)filewrite.c	1.18 12/02/26 Copyright 1986, 1995-2012 J. Schilling */
 /*
- *	Copyright (c) 1986, 1995-2009 J. Schilling
+ *	Copyright (c) 1986, 1995-2012 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -60,8 +60,8 @@ filewrite(f, vbuf, len)
 	}
 	if (!ferror(f))
 		return (cnt);
-	if (!(my_flag(f) & _JS_IONORAISE))
-	raisecond(_writeerr, 0L);
+	if (!(my_flag(f) & _JS_IONORAISE) && !(_io_glflag & _JS_IONORAISE))
+		raisecond(_writeerr, 0L);
 	return (-1);
 }
 
@@ -84,8 +84,8 @@ filewrite(f, vbuf, len)
 
 	if (!ferror(f))
 		return (cnt);
-	if (!(my_flag(f) & _JS_IONORAISE))
-	raisecond(_writeerr, 0L);
+	if (!(my_flag(f) & _JS_IONORAISE) && !(_io_glflag & _JS_IONORAISE))
+		raisecond(_writeerr, 0L);
 	return (-1);
 }
 

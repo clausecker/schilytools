@@ -1,6 +1,6 @@
-/* @(#)fileread.c	1.16 09/06/30 Copyright 1986, 1995-2009 J. Schilling */
+/* @(#)fileread.c	1.17 12/02/26 Copyright 1986, 1995-2012 J. Schilling */
 /*
- *	Copyright (c) 1986, 1995-2009 J. Schilling
+ *	Copyright (c) 1986, 1995-2012 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -59,7 +59,7 @@ fileread(f, buf, len)
 	}
 	if (!ferror(f))
 		return (cnt);
-	if (!(my_flag(f) & _JS_IONORAISE))
+	if (!(my_flag(f) & _JS_IONORAISE) && !(_io_glflag & _JS_IONORAISE))
 		raisecond(_readerr, 0L);
 	return (-1);
 }
@@ -82,7 +82,7 @@ fileread(f, buf, len)
 
 	if (!ferror(f))
 		return (cnt);
-	if (!(my_flag(f) & _JS_IONORAISE))
+	if (!(my_flag(f) & _JS_IONORAISE) && !(_io_glflag & _JS_IONORAISE))
 		raisecond(_readerr, 0L);
 	return (-1);
 }
