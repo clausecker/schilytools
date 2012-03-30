@@ -34,13 +34,13 @@
 #include "defs.h"
 
 /*
- * This file contains modifications Copyright 2008-2009 J. Schilling
+ * This file contains modifications Copyright 2008-2012 J. Schilling
  *
- * @(#)io.c	1.13 09/11/01 2008-2009 J. Schilling
+ * @(#)io.c	1.15 12/03/29 2008-2012 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)io.c	1.13 09/11/01 2008-2009 J. Schilling";
+	"@(#)io.c	1.15 12/03/29 2008-2012 J. Schilling";
 #endif
 
 /*
@@ -206,12 +206,12 @@ renamef(f1, f2)
 	int	fs;
 
 	if (f1 != f2) {
-		fs = fcntl(f2, 1, 0);
+		fs = fcntl(f2, F_GETFD, 0);
 		close(f2);
-		fcntl(f1, 0, f2);
+		fcntl(f1, F_DUPFD, f2);
 		close(f1);
 		if (fs == 1)
-			fcntl(f2, 2, 1);
+			fcntl(f2, F_SETFD, FD_CLOEXEC);
 		if (f2 == 0)
 			ioset |= 1;
 	}
@@ -326,7 +326,7 @@ copy(ioparg)
 					pc = readw(c);
 					while (*pc) {
 						if (clinep >= brkend)
-							growstak(clinep);
+							clinep = growstak(clinep);
 						*clinep++ = *pc++;
 					}
 					c = readwc();
@@ -341,7 +341,7 @@ copy(ioparg)
 					pc = readw(c);
 					while (*pc) {
 						if (clinep >= brkend)
-							growstak(clinep);
+							clinep = growstak(clinep);
 						*clinep++ = *pc++;
 					}
 					if (c == '\\') {
@@ -351,12 +351,12 @@ copy(ioparg)
 						if (*pc) {
 							while (*pc) {
 								if (clinep >= brkend)
-									growstak(clinep);
+									clinep = growstak(clinep);
 								*clinep++ = *pc++;
 							}
 						} else {
 							if (clinep >= brkend)
-								growstak(clinep);
+								clinep = growstak(clinep);
 							*clinep++ = *pc;
 						}
 						/* END CSTYLED */
@@ -366,7 +366,7 @@ copy(ioparg)
 			}
 
 			if (clinep >= brkend)
-				growstak(clinep);
+				clinep = growstak(clinep);
 			*clinep = 0;
 			if (eof || eq(cline, ends)) {
 				if ((i = cline - start) > 0)
@@ -374,7 +374,7 @@ copy(ioparg)
 				break;
 			} else {
 				if (clinep >= brkend)
-					growstak(clinep);
+					clinep = growstak(clinep);
 				*clinep++ = NL;
 			}
 

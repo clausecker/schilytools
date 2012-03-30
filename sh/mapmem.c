@@ -32,14 +32,14 @@
  */
 
 /*
- * This file contains modifications Copyright 2008-2009 J. Schilling
+ * This file contains modifications Copyright 2008-2012 J. Schilling
  *
- * @(#)mapmem.c	1.7 09/07/11 2008-2009 J. Schilling
+ * @(#)mapmem.c	1.8 12/03/23 2008-2012 J. Schilling
  */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)mapmem.c	1.7 09/07/11 2008-2009 J. Schilling";
+	"@(#)mapmem.c	1.8 12/03/23 2008-2012 J. Schilling";
 #endif
 
 
@@ -169,6 +169,7 @@ found:
 #else
 		if ((f = open("/dev/zero", O_RDWR)) < 0)
 			return (0);
+		fcntl(f, F_SETFD, FD_CLOEXEC);
 		page = (struct page *)mmap(0, mmap_sizeparm(totpage),
 			PROT_READ|PROT_WRITE, MAP_PRIVATE, f, 0);
 		if (f >= 0)

@@ -32,9 +32,9 @@
 #endif
 
 /*
- * This file contains modifications Copyright 2008-2009 J. Schilling
+ * This file contains modifications Copyright 2008-2012 J. Schilling
  *
- * @(#)sh_policy.h	1.5 09/11/01 2008-2009 J. Schilling
+ * @(#)sh_policy.h	1.6 12/03/14 2008-2012 J. Schilling
  */
 
 #ifdef	__cplusplus
@@ -61,6 +61,7 @@ extern "C" {
 #define	ERR_PATH	"resolved pathname too large"
 #define	ERR_PROFILE	"not in profile"
 #define	ERR_REALPATH	"can't get real path"
+#define	ERR_SET_PFEXEC	"can't setpflags(PRIV_PFEXEC)"
 
 #define	NOATTRS	0	/* command in profile but w'out attributes */
 
@@ -71,6 +72,7 @@ extern "C" {
  * Shell Policy Interface Functions
  */
 extern void secpolicy_init	__PR((void));
+extern void secpolicy_end	__PR((void));
 extern int secpolicy_pfexec	__PR((const char *, char **, const char **));
 extern void secpolicy_print	__PR((int, const char *));
 

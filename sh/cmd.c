@@ -34,13 +34,13 @@
 #include "defs.h"
 
 /*
- * This file contains modifications Copyright 2008-2009 J. Schilling
+ * This file contains modifications Copyright 2008-2012 J. Schilling
  *
- * @(#)cmd.c	1.13 09/11/01 2008-2009 J. Schilling
+ * @(#)cmd.c	1.15 12/03/19 2008-2012 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)cmd.c	1.13 09/11/01 2008-2009 J. Schilling";
+	"@(#)cmd.c	1.15 12/03/19 2008-2012 J. Schilling";
 #endif
 
 /*
@@ -413,6 +413,14 @@ item(flag)
 				if (skipwc() != ')')
 					synbad();
 
+				/*
+				 * We increase fndef before calling getstor(),
+				 * so that getstor() uses malloc to allocate
+				 * memory instead of stack. This is necessary
+				 * since fndnod will be hung on np->namenv,
+				 * which persists over command executions.
+				 */
+				fndef++;
 				f = (struct fndnod *)getstor(sizeof(struct fndnod));
 				r = (struct trenod *)f;
 
@@ -421,8 +429,8 @@ item(flag)
 					f->fndnam = make(wdarg->argval);
 				else
 					f->fndnam = wdarg->argval;
+				f->fndref = 0;
 				reserv++;
-				fndef++;
 				skipnl();
 				f->fndval = (struct trenod *)item(0);
 				fndef--;

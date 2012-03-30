@@ -34,13 +34,13 @@
 #include "defs.h"
 
 /*
- * This file contains modifications Copyright 2008-2009 J. Schilling
+ * This file contains modifications Copyright 2008-2012 J. Schilling
  *
- * @(#)bltin.c	1.11 09/11/01 2008-2009 J. Schilling
+ * @(#)bltin.c	1.12 12/03/13 2008-2012 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)bltin.c	1.11 09/11/01 2008-2009 J. Schilling";
+	"@(#)bltin.c	1.12 12/03/13 2008-2012 J. Schilling";
 #endif
 
 /*
@@ -493,6 +493,12 @@ struct trenod *t;
 #ifdef	INTERACTIVE
 	case SYSHISTORY:
 		bhist();
+		break;
+#endif
+
+#ifdef	DO_SYSALLOC
+	case SYSALLOC:
+		chkmem();
 		break;
 #endif
 

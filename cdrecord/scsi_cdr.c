@@ -1,14 +1,14 @@
-/* @(#)scsi_cdr.c	1.159 10/12/19 Copyright 1995-2010 J. Schilling */
+/* @(#)scsi_cdr.c	1.160 12/03/16 Copyright 1995-2012 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)scsi_cdr.c	1.159 10/12/19 Copyright 1995-2010 J. Schilling";
+	"@(#)scsi_cdr.c	1.160 12/03/16 Copyright 1995-2012 J. Schilling";
 #endif
 /*
  *	SCSI command functions for cdrecord
  *	covering pre-MMC standard functions up to MMC-2
  *
- *	Copyright (c) 1995-2010 J. Schilling
+ *	Copyright (c) 1995-2012 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -2282,18 +2282,18 @@ getdev(scgp, print)
 		printf("\n");
 	}
 
-	strncpy(vendor_info, inq->vendor_info, sizeof (inq->vendor_info));
-	strncpy(prod_ident, inq->prod_ident, sizeof (inq->prod_ident));
-	strncpy(prod_revision, inq->prod_revision, sizeof (inq->prod_revision));
+	strncpy(vendor_info, inq->inq_vendor_info, sizeof (inq->inq_vendor_info));
+	strncpy(prod_ident, inq->inq_prod_ident, sizeof (inq->inq_prod_ident));
+	strncpy(prod_revision, inq->inq_prod_revision, sizeof (inq->inq_prod_revision));
 
-	vendor_info[sizeof (inq->vendor_info)] = '\0';
-	prod_ident[sizeof (inq->prod_ident)] = '\0';
-	prod_revision[sizeof (inq->prod_revision)] = '\0';
+	vendor_info[sizeof (inq->inq_vendor_info)] = '\0';
+	prod_ident[sizeof (inq->inq_prod_ident)] = '\0';
+	prod_revision[sizeof (inq->inq_prod_revision)] = '\0';
 
 	switch (inq->type) {
 
 	case INQ_DASD:
-		if (inq->add_len == 0 && inq->vendor_info[0] != '\0') {
+		if (inq->add_len == 0 && inq->inq_vendor_info[0] != '\0') {
 			Uchar	*p;
 			/*
 			 * NT-4.0 creates fake inquiry data for IDE disks.
@@ -2304,8 +2304,8 @@ getdev(scgp, print)
 			if (inq_len >= 36)
 				inq->add_len = 31;
 
-			for (p = (Uchar *)&inq->vendor_info[0];
-					p < (Uchar *)&inq->prod_revision[4];
+			for (p = (Uchar *)&inq->inq_vendor_info[0];
+					p < (Uchar *)&inq->inq_prod_revision[4];
 									p++) {
 				if (*p < 0x20 || *p > 0x7E) {
 					inq->add_len = 0;
@@ -2316,26 +2316,31 @@ getdev(scgp, print)
 		if (inq->add_len == 0) {
 			if (scgp->dev == DEV_UNKNOWN && got_inquiry) {
 				scgp->dev = DEV_ACB5500;
-				strcpy(inq->vendor_info,
-					"ADAPTEC ACB-5500        FAKE");
+				strncpy(inq->inq_info_space,
+					"ADAPTEC ACB-5500        FAKE",
+					sizeof (inq->inq_info_space));
 
 			} else switch (scgp->dev) {
 
 			case DEV_ACB40X0:
-				strcpy(inq->vendor_info,
-					"ADAPTEC ACB-40X0        FAKE");
+				strncpy(inq->inq_info_space,
+					"ADAPTEC ACB-40X0        FAKE",
+					sizeof (inq->inq_info_space));
 				break;
 			case DEV_ACB4000:
-				strcpy(inq->vendor_info,
-					"ADAPTEC ACB-4000        FAKE");
+				strncpy(inq->inq_info_space,
+					"ADAPTEC ACB-4000        FAKE",
+					sizeof (inq->inq_info_space));
 				break;
 			case DEV_ACB4010:
-				strcpy(inq->vendor_info,
-					"ADAPTEC ACB-4010        FAKE");
+				strncpy(inq->inq_info_space,
+					"ADAPTEC ACB-4010        FAKE",
+					sizeof (inq->inq_info_space));
 				break;
 			case DEV_ACB4070:
-				strcpy(inq->vendor_info,
-					"ADAPTEC ACB-4070        FAKE");
+				strncpy(inq->inq_info_space,
+					"ADAPTEC ACB-4070        FAKE",
+					sizeof (inq->inq_info_space));
 				break;
 			}
 		} else if (inq->add_len < 31) {
@@ -2365,14 +2370,16 @@ getdev(scgp, print)
 
 	case INQ_SEQD:
 		if (scgp->dev == DEV_SC4000) {
-			strcpy(inq->vendor_info,
-				"SYSGEN  SC4000          FAKE");
+			strncpy(inq->inq_info_space,
+				"SYSGEN  SC4000          FAKE",
+					sizeof (inq->inq_info_space));
 		} else if (inq->add_len == 0 &&
 					inq->removable &&
 						inq->ansi_version == 1) {
 			scgp->dev = DEV_MT02;
-			strcpy(inq->vendor_info,
-				"EMULEX  MT02            FAKE");
+			strncpy(inq->inq_info_space,
+				"EMULEX  MT02            FAKE",
+					sizeof (inq->inq_info_space));
 		}
 		break;
 
@@ -2623,12 +2630,12 @@ printinq(scgp, f)
 		fprintf(f, "\n");
 	}
 	if (inq->add_len >= 31 ||
-			inq->vendor_info[0] ||
-			inq->prod_ident[0] ||
-			inq->prod_revision[0]) {
-		fprintf(f, _("Vendor_info    : '%.8s'\n"), inq->vendor_info);
-		fprintf(f, _("Identifikation : '%.16s'\n"), inq->prod_ident);
-		fprintf(f, _("Revision       : '%.4s'\n"), inq->prod_revision);
+			inq->inq_vendor_info[0] ||
+			inq->inq_prod_ident[0] ||
+			inq->inq_prod_revision[0]) {
+		fprintf(f, _("Vendor_info    : '%.8s'\n"), inq->inq_vendor_info);
+		fprintf(f, _("Identifikation : '%.16s'\n"), inq->inq_prod_ident);
+		fprintf(f, _("Revision       : '%.4s'\n"), inq->inq_prod_revision);
 	}
 }
 

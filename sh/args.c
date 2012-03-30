@@ -33,15 +33,16 @@
 #endif
 
 #include "defs.h"
+#include "version.h"
 
 /*
- * This file contains modifications Copyright 2008-2009 J. Schilling
+ * This file contains modifications Copyright 2008-2012 J. Schilling
  *
- * @(#)args.c	1.15 09/11/01 2008-2009 J. Schilling
+ * @(#)args.c	1.18 12/03/21 2008-2012 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)args.c	1.15 09/11/01 2008-2009 J. Schilling";
+	"@(#)args.c	1.18 12/03/21 2008-2012 J. Schilling";
 #endif
 
 /*
@@ -50,6 +51,7 @@ static	UConst char sccsid[] =
 
 #include	"sh_policy.h"
 
+static	void		prversion	__PR((void));
 	int		options		__PR((int argc, unsigned char **argv));
 	void		setargs		__PR((unsigned char *argi[]));
 static void		freedolh	__PR((void));
@@ -68,7 +70,7 @@ static struct dolnod *globdolh;
 static unsigned char **globdolv;
 static int globdolc;
 
-unsigned char	flagadr[17];
+unsigned char	flagadr[18];
 
 unsigned char	flagchar[] =
 {
@@ -88,6 +90,7 @@ unsigned char	flagchar[] =
 	'm',
 	'p',
 	'P',
+	'V',
 	 0
 };
 
@@ -109,11 +112,38 @@ long	flagval[]  =
 	monitorflg,
 	privflg,
 	pfshflg,
+	versflg,
 	  0
 };
 
 /* ========	option handling	======== */
 
+static void
+prversion()
+{
+	char	vbuf[BUFFERSIZE];
+
+	snprintf(vbuf, sizeof (vbuf),
+			"sh (Schily Bourne Shell) version %s %s (%s-%s-%s)\n",
+			VERSION_DATE, VERSION_STR,
+			HOST_CPU, HOST_VENDOR, HOST_OS);
+	prs((unsigned char *)vbuf);
+	if (dolv == NULL) {
+		/*
+		 * We have been called as a result of a sh command line flag.
+		 * Print the version information and exit.
+		 */
+		prs((unsigned char *)"\n");
+		prs((unsigned char *)"Copyright (C) 1984-1989 AT&T\n");
+		prs((unsigned char *)"Copyright (C) 1989-2009 Sun Microsystems\n");
+#ifdef	INTERACTIVE
+		prs((unsigned char *)"Copyright (C) 1982-2012 Joerg Schilling\n");
+#else
+		prs((unsigned char *)"Copyright (C) 1998-2012 Joerg Schilling\n");
+#endif
+		exitsh(0);
+	}
+}
 
 int
 options(argc, argv)
@@ -130,14 +160,21 @@ options(argc, argv)
 
 	if (argc > 1 && *argp[1] == '-')
 	{
+		cp = argp[1];
+		/*
+		 * Allow "--version" by mapping it to "-V".
+		 */
+		if ((strcmp((char *)&cp[1], "version") == 0) ||
+		    (cp[1] == '-' && strcmp((char *)&cp[2], "version") == 0)) {
+			cp = (unsigned char *)"-V";
+		}
+
 		/*
 		 * if first argument is "--" then options are not
 		 * to be changed. Fix for problems getting 
 		 * $1 starting with a "-"
 		 */
-
-		cp = argp[1];
-		if (cp[1] == '-')
+		else if (cp[1] == '-')
 		{
 			argp[1] = argp[0];
 			argc--;
@@ -178,6 +215,10 @@ options(argc, argv)
 					if (flags & pfshflg)
 						secpolicy_init();
 #endif
+					if (flags & versflg) {
+						flags &= ~versflg;
+						prversion();
+					}
 				}
 			}
 			else if (wc == 'c' && argc > 2 && comdiv == 0)
@@ -217,6 +258,10 @@ options(argc, argv)
 				flags &= ~(flagval[flagc-flagchar]);
 				if (wc == 'e')
 					eflag = 0;
+#ifdef	EXECATTR_FILENAME
+				if ((flagval[flagc-flagchar]) & pfshflg)
+					secpolicy_end();
+#endif
 			}
 			cp += len;
 		}

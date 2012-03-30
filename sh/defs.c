@@ -31,16 +31,16 @@
 #endif
 
 /*
- * This file contains modifications Copyright 2008-2009 J. Schilling
+ * This file contains modifications Copyright 2008-2012 J. Schilling
  *
- * @(#)defs.c	1.7 09/12/31 2008-2009 J. Schilling
+ * @(#)defs.c	1.8 12/03/24 2008-2012 J. Schilling
  */
 #ifdef	SCHILY_BUILD
 #include <schily/mconfig.h>
 #endif
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)defs.c	1.7 09/12/31 2008-2009 J. Schilling";
+	"@(#)defs.c	1.8 12/03/24 2008-2012 J. Schilling";
 #endif
 
 /*
@@ -131,8 +131,11 @@ int				ucb_builtins;
 
 /* The following stuff is from stak.h	*/
 
-unsigned char 			*stakbas;
-unsigned char			*staktop;
-unsigned char			*stakbot = 0;
-struct blk			*stakbsy;
-unsigned char 			*brkend;
+/*
+ * staktop = stakbot + local stak size
+ */
+unsigned char 			*stakbas;	/* New stack base after addblok() */
+unsigned char			*staktop;	/* Points behind local stak */
+unsigned char			*stakbot = 0;	/* Bottom addr for local stak */
+struct blk			*stakbsy;	/* Busy elements from addblok() */
+unsigned char 			*brkend;	/* The first invalid address */

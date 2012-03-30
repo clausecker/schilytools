@@ -1,13 +1,13 @@
-/* @(#)interface.c	1.73 10/12/19 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2006-2010 J. Schilling */
+/* @(#)interface.c	1.74 12/02/29 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2006-2012 J. Schilling */
 #include "config.h"
 #ifndef lint
 static	UConst char sccsid[] =
-"@(#)interface.c	1.73 10/12/19 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2006-2010 J. Schilling";
+"@(#)interface.c	1.74 12/02/29 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2006-2012 J. Schilling";
 
 #endif
 /*
  * Copyright (C) 1994-1997 Heiko Eissfeldt heiko@colossus.escape.de
- * Copyright (c) 2006-2010 J. Schilling
+ * Copyright (c) 2006-2012 J. Schilling
  *
  * Interface module for cdrom drive access
  *
@@ -103,6 +103,9 @@ int trackindex_disp = 0;
 EXPORT	void	priv_init	__PR((void));
 EXPORT	void	priv_on		__PR((void));
 EXPORT	void	priv_off	__PR((void));
+#ifdef	PRIV_PFEXEC
+EXPORT	void	do_pfexec	__PR((int ac, char *av[]));
+#endif
 
 void	(*EnableCdda)	__PR((SCSI *, int Switch, unsigned uSectorsize));
 unsigned (*doReadToc)	__PR((SCSI *scgp));
@@ -1243,6 +1246,91 @@ priv_off()
 #endif
 }
 
+#ifdef	PRIV_PFEXEC
+/*
+ * If PRIV_PFEXEC is defined, we have an in-kernel pfexec() that allows
+ * suid-root less installation and let cdda2wav gain the needed additional
+ * privileges even without a wrapper script.
+ */
+EXPORT void
+do_pfexec(ac, av)
+	int	ac;
+	char	*av[];
+{
+	priv_set_t	*pset;
+	int		oflag;
+	char		*av0;
+
+	/*
+	 * Avoid looping over execv().
+	 * Return if we see our modified argv[0].
+	 * If the first character of the last name component is a '+',
+	 * just leave it as it is. If it is an uppercase character, we assume
+	 * that it was a translated lowercace character from our execv().
+	 */
+	av0 = strrchr(av[0], '/');
+	if (av0 == NULL)
+		av0 = av[0];
+	else
+		av0++;
+	if (*av0 == '+')
+		return;
+	if (*av0 >= 'A' && *av0 <= 'Z') {
+		*av0 = *av0 + 'a' - 'A';
+		return;
+	}
+
+	/*
+	 * Check for the current privileges.
+	 * Silently abort attempting to gain more privileges
+	 * in case any error occurs.
+	 */
+	pset = priv_allocset();
+	if (pset == NULL)
+		return;
+	if (getppriv(PRIV_EFFECTIVE, pset) < 0)
+		return;
+
+	/*
+	 * If we already have the needed privileges, we are done.
+	 */
+	if (priv_ismember(pset, PRIV_FILE_DAC_READ) &&
+	    priv_ismember(pset, PRIV_SYS_DEVICES) &&
+	    priv_ismember(pset, PRIV_PROC_PRIOCNTL) &&
+	    priv_ismember(pset, PRIV_NET_PRIVADDR)) {
+		priv_freeset(pset);
+		return;
+	}
+	priv_freeset(pset);
+
+	oflag = getpflags(PRIV_PFEXEC);
+	if (oflag < 0)		/* Pre kernel-pfexec system? */
+		return;
+	if (oflag == 0) {	/* Kernel pfexec flag not yet set? */
+		/*
+		 * Set kernel pfexec flag.
+		 * Return if this doesn't work for some reason.
+		 */
+		if (setpflags(PRIV_PFEXEC, 1) != 0) {
+			return;
+		}
+	}
+	/*
+	 * Modify argv[0] to mark that we did already call execv().
+	 * This is done in order to avoid infinite execv() loops caused by
+	 * a missconfigured security system in /etc/security.
+	 *
+	 * In the usual case (a lowercase letter in the firsh character of the
+	 * last pathname component), convert it to an uppercase character.
+	 * Otherwise overwrite this character by a '+' sign.
+	 */
+	if (*av0 >= 'a' && *av0 <= 'z')
+		*av0 = *av0 - 'a' + 'A';
+	else
+		*av0 = '+';
+	execv(getexecname(), av);
+}
+#endif
 
 #include <schily/time.h>
 #ifdef	HAVE_POLL

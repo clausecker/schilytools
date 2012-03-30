@@ -1,8 +1,8 @@
-/* @(#)dirent.c	1.2 11/08/16 Copyright 2011 J. Schilling */
+/* @(#)dirent.c	1.3 12/03/20 Copyright 2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)dirent.c	1.2 11/08/16 Copyright 2011 J. Schilling";
+	"@(#)dirent.c	1.3 12/03/20 Copyright 2011 J. Schilling";
 #endif
 /*
  *	Copyright (c) 2011 J. Schilling
@@ -73,7 +73,7 @@ opendir(dname)
 		return ((DIR *)0);
 	}
 
-	dp = malloc(sizeof (*dp) + len + 2);	/* Add 2 for "/*" */
+	dp = malloc(sizeof (*dp) + len + 2);	/* Add 2 for "/ *" */
 	if (dp == NULL) {
 		seterrno(ENOMEM);
 		return ((DIR *)0);

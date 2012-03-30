@@ -34,13 +34,13 @@
 #include "defs.h"
 
 /*
- * This file contains modifications Copyright 2008-2009 J. Schilling
+ * This file contains modifications Copyright 2008-2012 J. Schilling
  *
- * @(#)expand.c	1.10 09/11/01 2008-2009 J. Schilling
+ * @(#)expand.c	1.11 12/03/29 2008-2012 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)expand.c	1.10 09/11/01 2008-2009 J. Schilling";
+	"@(#)expand.c	1.11 12/03/29 2008-2012 J. Schilling";
 #endif
 
 /*
@@ -240,7 +240,7 @@ addg(as1, as2, as3, as4)
 	if (as4) {
 		while ((c = *s1++) != '\0') {
 			if (s2 >= brkend)
-				growstak(s2);
+				s2 = growstak(s2);
 			*s2++ = c;
 		}
 		/*
@@ -249,7 +249,7 @@ addg(as1, as2, as3, as4)
 		 */
 		if (as4 + 1 == s1) {
 			if (s2 >= brkend)
-				growstak(s2);
+				s2 = growstak(s2);
 			*s2++ = '/';
 		}
 	}
@@ -263,7 +263,7 @@ addg(as1, as2, as3, as4)
 			wc = (unsigned char)*s1;
 		}
 		if (s2 >= brkend)
-			growstak(s2);
+			s2 = growstak(s2);
 
 		if (wc == 0) {
 			*s2 = *s1++;
@@ -273,27 +273,27 @@ addg(as1, as2, as3, as4)
 		if (wc == '\\') {
 			*s2++ = '\\';
 			if (s2 >= brkend)
-				growstak(s2);
+				s2 = growstak(s2);
 			*s2++ = '\\';
 			s1++;
 			continue;
 		}
-		if ((s2 + len) >= brkend)
-			growstak(s2 + len);
+		if ((s2 + len) >= brkend) {
+			s2 = growstak(s2 + len);
+			s2 -= len;
+		}
 		memcpy(s2, s1, len);
 		s2 += len;
 		s1 += len;
 	}
 	if ((s1 = as3) != NULL) {
 		if (s2 >= brkend)
-			growstak(s2);
+			s2 = growstak(s2);
 		*s2++ = '/';
-		do
-		{
+		do {
 			if (s2 >= brkend)
-				growstak(s2);
-		}
-		while ((*s2++ = *++s1) != '\0');
+				s2 = growstak(s2);
+		} while ((*s2++ = *++s1) != '\0');
 	}
 	makearg((struct argnod *)endstak(s2));
 }

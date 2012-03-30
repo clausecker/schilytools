@@ -32,16 +32,16 @@
 #endif
 
 /*
- * This file contains modifications Copyright 2008-2009 J. Schilling
+ * This file contains modifications Copyright 2008-2012 J. Schilling
  *
- * @(#)print.c	1.13 09/11/01 2008-2009 J. Schilling
+ * @(#)print.c	1.15 12/03/29 2008-2012 J. Schilling
  */
 #ifdef	SCHILY_BUILD
 #include <schily/mconfig.h>
 #endif
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)print.c	1.13 09/11/01 2008-2009 J. Schilling";
+	"@(#)print.c	1.15 12/03/29 2008-2012 J. Schilling";
 #endif
 
 /*
@@ -425,12 +425,13 @@ setb(fd)
 
 	if ((ofd = buffd) == -1) {
 		if (bufp+bindex+1 >= brkend) {
-			growstak(bufp+bindex+1);
+			bufp = growstak(bufp+bindex+1);
+			bufp -= bindex + 1;
 		}
 		if (bufp[bindex-1]) {
 			bufp[bindex++] = 0;
 		}
-		endstak(bufp+bindex);
+		bufp = endstak(bufp+bindex);
 	} else {
 		flushb();
 	}

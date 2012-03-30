@@ -1,8 +1,8 @@
-/* @(#)scsireg.h	1.34 10/05/16 Copyright 1987-2010 J. Schilling */
+/* @(#)scsireg.h	1.35 12/03/16 Copyright 1987-2011 J. Schilling */
 /*
  *	usefull definitions for dealing with CCS SCSI - devices
  *
- *	Copyright (c) 1987-2010 J. Schilling
+ *	Copyright (c) 1987-2012 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -65,13 +65,19 @@ struct	scsi_inquiry {
 	Ucbit	wbus32		: 1;
 	Ucbit	reladr		: 1;	/*  7 */
 
-	char	vendor_info[8];		/*  8 */
-	char	prod_ident[16];		/* 16 */
-	char	prod_revision[4];	/* 32 */
+	union {
+
+		struct {
+		char	vendor_info[8];		/*  8 */
+		char	prod_ident[16];		/* 16 */
+		char	prod_revision[4];	/* 32 */
 #ifdef	comment
-	char	vendor_uniq[20];	/* 36 */
-	char	reserved[40];		/* 56 */
+		char	vendor_uniq[20];	/* 36 */
+		char	reserved[40];		/* 56 */
 #endif
+		} vi;
+		char	vi_space[8+16+4];
+	} vu;
 };					/* 96 */
 
 #else					/* Motorola byteorder */
@@ -103,21 +109,34 @@ struct	scsi_inquiry {
 	Ucbit	res7_2		: 1;
 	Ucbit	cmdque		: 1;
 	Ucbit	softreset	: 1;
-	char	vendor_info[8];		/*  8 */
-	char	prod_ident[16];		/* 16 */
-	char	prod_revision[4];	/* 32 */
+
+	union {
+
+		struct {
+		char	vendor_info[8];		/*  8 */
+		char	prod_ident[16];		/* 16 */
+		char	prod_revision[4];	/* 32 */
 #ifdef	comment
-	char	vendor_uniq[20];	/* 36 */
-	char	reserved[40];		/* 56 */
+		char	vendor_uniq[20];	/* 36 */
+		char	reserved[40];		/* 56 */
 #endif
+		} vi;
+		char	vi_space[8+16+4];
+	} vu;
 };					/* 96 */
 #endif
 
 #ifdef	__SCG_COMPAT__
-#define	info		vendor_info
-#define	ident		prod_ident
-#define	revision	prod_revision
+#define	info		inq_vendor_info
+#define	ident		inq_prod_ident
+#define	revision	inq_prod_revision
 #endif
+
+#define	inq_vendor_info		vu.vi.vendor_info
+#define	inq_prod_ident		vu.vi.prod_ident
+#define	inq_prod_revision	vu.vi.prod_revision
+
+#define	inq_info_space		vu.vi_space
 
 /* Peripheral Device Qualifier */
 

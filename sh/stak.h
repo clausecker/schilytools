@@ -32,9 +32,9 @@
 #endif
 
 /*
- * This file contains modifications Copyright 2008-2009 J. Schilling
+ * This file contains modifications Copyright 2008-2012 J. Schilling
  *
- * @(#)stak.h	1.5 09/11/01 2008-2009 J. Schilling
+ * @(#)stak.h	1.7 12/03/27 2008-2012 J. Schilling
  */
 
 /*
@@ -100,7 +100,7 @@ extern unsigned char		*memcpystak __PR((unsigned char *, unsigned char *, int));
 extern unsigned char		*getstak __PR((Intptr_t));
 
 /* Grow the data segment to include a given location */
-extern void		growstak __PR((unsigned char *));
+extern unsigned char		*growstak __PR((unsigned char *));
 
 /* A chain of ptrs of stack blocks that
  * have become covered by heap allocation.

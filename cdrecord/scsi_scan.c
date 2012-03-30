@@ -1,15 +1,15 @@
-/* @(#)scsi_scan.c	1.35 10/12/19 Copyright 1997-2010 J. Schilling */
+/* @(#)scsi_scan.c	1.36 12/03/16 Copyright 1997-2012 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)scsi_scan.c	1.35 10/12/19 Copyright 1997-2010 J. Schilling";
+	"@(#)scsi_scan.c	1.36 12/03/16 Copyright 1997-2012 J. Schilling";
 #endif
 /*
  *	Scan SCSI Bus.
  *	Stolen from sformat. Need a more general form to
  *	re-use it in sformat too.
  *
- *	Copyright (c) 1997-2010 J. Schilling
+ *	Copyright (c) 1997-2012 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -53,9 +53,9 @@ print_product(f, ip)
 	FILE			*f;
 	struct	scsi_inquiry	*ip;
 {
-	fprintf(f, "'%.8s' ", ip->vendor_info);
-	fprintf(f, "'%.16s' ", ip->prod_ident);
-	fprintf(f, "'%.4s' ", ip->prod_revision);
+	fprintf(f, "'%.8s' ", ip->inq_vendor_info);
+	fprintf(f, "'%.16s' ", ip->inq_prod_ident);
+	fprintf(f, "'%.4s' ", ip->inq_prod_revision);
 	if (ip->add_len < 31) {
 		fprintf(f, "NON CCS ");
 	}

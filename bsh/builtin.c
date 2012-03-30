@@ -1,13 +1,13 @@
-/* @(#)builtin.c	1.73 11/07/16 Copyright 1988-2011 J. Schilling */
+/* @(#)builtin.c	1.74 12/03/14 Copyright 1988-2012 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)builtin.c	1.73 11/07/16 Copyright 1988-2011 J. Schilling";
+	"@(#)builtin.c	1.74 12/03/14 Copyright 1988-20112 J. Schilling";
 #endif
 /*
  *	Builtin commands
  *
- *	Copyright (c) 1985-2011 J. Schilling
+ *	Copyright (c) 1985-2012 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -415,6 +415,8 @@ bsetcmd(vp, std, flag)
 		pfshell = seta.pfshell;
 		if (pfshell)
 			pfinit();
+		else
+			pfend();
 	}
 
 	if (ret != FLAGDELIM && ac == 1)

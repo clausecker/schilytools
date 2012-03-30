@@ -35,9 +35,9 @@
 #endif
 
 /*
- * This file contains modifications Copyright 2008-2011 J. Schilling
+ * This file contains modifications Copyright 2008-2012 J. Schilling
  *
- * @(#)defs.h	1.26 11/08/03 2008-2011 J. Schilling
+ * @(#)defs.h	1.31 12/03/27 2008-2012 J. Schilling
  */
 
 #ifdef	__cplusplus
@@ -50,12 +50,12 @@ extern "C" {
 
 /* execute flags */
 #define		XEC_EXECED	01
-#define			XEC_LINKED	02
+#define		XEC_LINKED	02
 #define		XEC_NOSTOP	04
 
 /* endjobs flags */
-#define			JOB_STOPPED	01
-#define			JOB_RUNNING	02
+#define		JOB_STOPPED	01
+#define		JOB_RUNNING	02
 
 /* error exits from various parts of shell */
 #define		ERROR		1
@@ -68,21 +68,21 @@ extern "C" {
 #define		FPOU		0x0200
 #define		FAMP		0x0400
 #define		COMMSK		0x00F0
-#define			CNTMSK		0x000F
+#define		CNTMSK		0x000F
 
 #define		TCOM		0x0000
 #define		TPAR		0x0010
 #define		TFIL		0x0020
 #define		TLST		0x0030
-#define		TIF			0x0040
-#define		TWH			0x0050
-#define		TUN			0x0060
-#define		TSW			0x0070
+#define		TIF		0x0040
+#define		TWH		0x0050
+#define		TUN		0x0060
+#define		TSW		0x0070
 #define		TAND		0x0080
 #define		TORF		0x0090
 #define		TFORK		0x00A0
 #define		TFOR		0x00B0
-#define			TFND		0x00C0
+#define		TFND		0x00C0
 
 /* execute table */
 #define		SYSSET		1
@@ -108,7 +108,7 @@ extern "C" {
 #define		SYSXPORT	15
 #define		SYSNULL 	16
 #define		SYSREAD 	17
-#define			SYSTST		18
+#define		SYSTST		18
 
 #ifndef RES	/*	exclude umask code	*/
 #define		SYSUMASK 	20
@@ -116,13 +116,13 @@ extern "C" {
 #endif
 
 #define		SYSECHO		22
-#define			SYSHASH		23
-#define			SYSPWD		24
+#define		SYSHASH		23
+#define		SYSPWD		24
 #define		SYSRETURN	25
-#define			SYSUNS		26
-#define			SYSMEM		27
-#define			SYSTYPE  	28
-#define			SYSGETOPT	29
+#define		SYSUNS		26
+#define		SYSMEM		27
+#define		SYSTYPE  	28
+#define		SYSGETOPT	29
 #define		SYSJOBS		30
 #define		SYSFGBG		31
 #define		SYSKILL		32
@@ -130,6 +130,7 @@ extern "C" {
 #define		SYSSTOP		34
 
 #define		SYSHISTORY	35
+#define		SYSALLOC	36
 
 /* used for input and output of shell */
 #define		INIO 		19
@@ -310,6 +311,16 @@ extern char 		*optarg;
 #define	free	sh_free
 #endif
 
+#ifdef	BLOK_DEBUG
+#ifndef	DO_SYSALLOC
+#define	DO_SYSALLOC
+#endif
+#endif
+
+#ifdef	NO_INTERACTIVE
+#undef	INTERACTIVE
+#endif
+
 #ifdef	SCHILY_BUILD
 #ifdef	__STDC__
 extern	void	*alloc		__PR((size_t));
@@ -339,6 +350,9 @@ extern	struct dolnod *	useargs		__PR((void));
  * blok.c
  */
 extern	void	addblok		__PR((unsigned int));
+#ifdef	DO_SYSALLOC
+extern	void	chkmem		__PR((void));
+#endif
 
 /*
  * bltin.c
@@ -391,6 +405,7 @@ extern	void 	init_sigval	 __PR((void));
  * func.c
  */
 extern	void	freefunc	__PR((struct namnod  *n));
+extern	void	freetree	__PR((struct trenod  *n));
 extern	void	prcmd		__PR((struct trenod *t));
 extern	void	prf		__PR((struct trenod *t));
 
@@ -453,6 +468,7 @@ extern	void	syswait		__PR((int argc, char *argv[]));
 extern	void	sysstop		__PR((int argc, char *argv[]));
 extern	void	syskill		__PR((int argc, char *argv[]));
 extern	void	syssusp		__PR((int argc, char *argv[]));
+extern	void	hupforegnd	__PR((void));
 
 /*
  * macro.c
@@ -559,7 +575,7 @@ extern	unsigned char *setbrk	__PR((int));
  */
 extern	unsigned char *getstak		__PR((Intptr_t asize));
 extern	unsigned char *locstak		__PR((void));
-extern	void		growstak	__PR((unsigned char *newtop));
+extern	unsigned char *growstak		__PR((unsigned char *newtop));
 extern	unsigned char *savstak		__PR((void));
 extern	unsigned char *endstak		__PR((unsigned char *argp));
 extern	void		tdystak		__PR((unsigned char *x));
@@ -787,6 +803,7 @@ extern const char			devnull[];
 #define			forcexit	010000000
 #define			jcoff		020000000
 #define			pfshflg		040000000
+#define			versflg		0100000000
 
 extern long				flags;
 extern int				rwait;	/* flags read waiting */

@@ -34,13 +34,13 @@
 #include "defs.h"
 
 /*
- * This file contains modifications Copyright 2008-2009 J. Schilling
+ * This file contains modifications Copyright 2008-2012 J. Schilling
  *
- * @(#)name.c	1.14 09/11/01 2008-2009 J. Schilling
+ * @(#)name.c	1.16 12/03/19 2008-2012 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)name.c	1.14 09/11/01 2008-2009 J. Schilling";
+	"@(#)name.c	1.16 12/03/19 2008-2012 J. Schilling";
 #endif
 
 /*
@@ -608,9 +608,12 @@ printnam(n)
 
 	if (n->namflg & N_FUNCTN)
 	{
+		struct fndnod *f = fndptr(n->namenv);
+
 		prs_buff(n->namid);
 		prs_buff((unsigned char *)"(){\n");
-		prf((struct trenod *)n->namenv);
+		if (f != NULL)
+			prf((struct trenod *)f->fndval);
 		prs_buff((unsigned char *)"\n}\n");
 	}
 	else if ((s = n->namval) != NULL)

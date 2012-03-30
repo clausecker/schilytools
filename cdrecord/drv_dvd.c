@@ -1,8 +1,8 @@
-/* @(#)drv_dvd.c	1.165 11/09/14 Copyright 1998-2011 J. Schilling */
+/* @(#)drv_dvd.c	1.166 12/03/16 Copyright 1998-2012 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)drv_dvd.c	1.165 11/09/14 Copyright 1998-2011 J. Schilling";
+	"@(#)drv_dvd.c	1.166 12/03/16 Copyright 1998-2012 J. Schilling";
 #endif
 /*
  *	DVD-R device implementation for
@@ -32,7 +32,7 @@ static	UConst char sccsid[] =
  *			2		print disk info & write parameters
  *			3		print log pages & dvd structure
  *
- *	Copyright (c) 1998-2011 J. Schilling
+ *	Copyright (c) 1998-2012 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -316,9 +316,9 @@ attach_dvd(scgp, dp)
 	dp->cdr_flags &= ~(CDR_TAO);
 
 	if (scgp->inq != NULL) {
-		if (strbeg("PIONEER", scgp->inq->vendor_info)) {
-			if (strbeg("DVD-RW  DVR-103", scgp->inq->prod_ident) ||
-			    strbeg("DVD-R DVD-R7322", scgp->inq->prod_ident)) {
+		if (strbeg("PIONEER", scgp->inq->inq_vendor_info)) {
+			if (strbeg("DVD-RW  DVR-103", scgp->inq->inq_prod_ident) ||
+			    strbeg("DVD-R DVD-R7322", scgp->inq->inq_prod_ident)) {
 				mp->BUF = 1;
 			}
 		}

@@ -1,13 +1,13 @@
-/* @(#)cdrecord.c	1.401 11/08/02 Copyright 1995-2011 J. Schilling */
+/* @(#)cdrecord.c	1.402 12/02/29 Copyright 1995-2012 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)cdrecord.c	1.401 11/08/02 Copyright 1995-2011 J. Schilling";
+	"@(#)cdrecord.c	1.402 12/02/29 Copyright 1995-2012 J. Schilling";
 #endif
 /*
  *	Record data on a CD/CVD-Recorder
  *
- *	Copyright (c) 1995-2011 J. Schilling
+ *	Copyright (c) 1995-2012 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -257,6 +257,9 @@ LOCAL	void	print_wrmodes	__PR((cdr_t *dp));
 LOCAL	BOOL	check_wrmode	__PR((cdr_t *dp, UInt32_t wmode, int tflags));
 LOCAL	void	set_wrmode	__PR((cdr_t *dp, UInt32_t wmode, int tflags));
 LOCAL	void	linuxcheck	__PR((void));
+#ifdef	PRIV_PFEXEC
+LOCAL	void	do_pfexec	__PR((int ac, char *av[]));
+#endif
 #ifdef	TR_DEBUG
 EXPORT	void	prtrack		__PR((track_t *trackp));
 #endif
@@ -297,6 +300,9 @@ main(ac, av)
 #ifdef __EMX__
 	/* This gives wildcard expansion with Non-Posix shells with EMX */
 	_wildcard(&ac, &av);
+#endif
+#ifdef	PRIV_PFEXEC
+	do_pfexec(ac, av);		/* Try to gain additional privs	*/
 #endif
 	save_args(ac, av);
 	oeuid = geteuid();		/* Remember saved set uid	*/
@@ -398,7 +404,7 @@ main(ac, av)
 #	define	CLONE_TITLE	""
 #endif
 	if ((flags & F_MSINFO) == 0 || lverbose || flags & F_VERSION) {
-		printf(_("Cdrecord%s%s%s %s (%s-%s-%s) Copyright (C) 1995-2011 %s\n"),
+		printf(_("Cdrecord%s%s%s %s (%s-%s-%s) Copyright (C) 1995-2012 %s\n"),
 								PRODVD_TITLE,
 								PROBD_TITLE,
 								CLONE_TITLE,
@@ -4501,7 +4507,7 @@ load_media(scgp, dp, doexit)
 	scgp->silent--;
 	err = geterrno();
 	if (code < 0 && (err == EPERM || err == EACCES)) {
-		linuxcheck();	/* For version 1.401 of cdrecord.c */
+		linuxcheck();	/* For version 1.402 of cdrecord.c */
 		scg_openerr("");
 	}
 
@@ -5396,7 +5402,7 @@ set_wrmode(dp, wmode, tflags)
 }
 
 /*
- * I am sorry that even for version 1.401 of cdrecord.c, I am forced to do
+ * I am sorry that even for version 1.402 of cdrecord.c, I am forced to do
  * things like this, but defective versions of cdrecord cause a lot of
  * work load to me.
  *
@@ -5413,7 +5419,7 @@ set_wrmode(dp, wmode, tflags)
 #endif
 
 LOCAL void
-linuxcheck()				/* For version 1.401 of cdrecord.c */
+linuxcheck()				/* For version 1.402 of cdrecord.c */
 {
 #if	defined(linux) || defined(__linux) || defined(__linux__)
 #ifdef	HAVE_UNAME
@@ -5435,6 +5441,93 @@ linuxcheck()				/* For version 1.401 of cdrecord.c */
 #endif
 #endif
 }
+
+#ifdef	PRIV_PFEXEC
+/*
+ * If PRIV_PFEXEC is defined, we have an in-kernel pfexec() that allows
+ * suid-root less installation and let cdrecord gain the needed additional
+ * privileges even without a wrapper script.
+ */
+LOCAL void
+do_pfexec(ac, av)
+	int	ac;
+	char	*av[];
+{
+	priv_set_t	*pset;
+	int		oflag;
+	char		*av0;
+
+	/*
+	 * Avoid looping over execv().
+	 * Return if we see our modified argv[0].
+	 * If the first character of the last name component is a '+',
+	 * just leave it as it is. If it is an uppercase character, we assume
+	 * that it was a translated lowercace character from our execv().
+	 */
+	av0 = strrchr(av[0], '/');
+	if (av0 == NULL)
+		av0 = av[0];
+	else
+		av0++;
+	if (*av0 == '+')
+		return;
+	if (*av0 >= 'A' && *av0 <= 'Z') {
+		*av0 = *av0 + 'a' - 'A';
+		return;
+	}
+
+	/*
+	 * Check for the current privileges.
+	 * Silently abort attempting to gain more privileges
+	 * in case any error occurs.
+	 */
+	pset = priv_allocset();
+	if (pset == NULL)
+		return;
+	if (getppriv(PRIV_EFFECTIVE, pset) < 0)
+		return;
+
+	/*
+	 * If we already have the needed privileges, we are done.
+	 */
+	if (priv_ismember(pset, PRIV_FILE_DAC_READ) &&
+	    priv_ismember(pset, PRIV_SYS_DEVICES) &&
+	    priv_ismember(pset, PRIV_PROC_LOCK_MEMORY) &&
+	    priv_ismember(pset, PRIV_PROC_PRIOCNTL) &&
+	    priv_ismember(pset, PRIV_NET_PRIVADDR)) {
+		priv_freeset(pset);
+		return;
+	}
+	priv_freeset(pset);
+
+	oflag = getpflags(PRIV_PFEXEC);
+	if (oflag < 0)		/* Pre kernel-pfexec system? */
+		return;
+	if (oflag == 0) {	/* Kernel pfexec flag not yet set? */
+		/*
+		 * Set kernel pfexec flag.
+		 * Return if this doesn't work for some reason.
+		 */
+		if (setpflags(PRIV_PFEXEC, 1) != 0) {
+			return;
+		}
+	}
+	/*
+	 * Modify argv[0] to mark that we did already call execv().
+	 * This is done in order to avoid infinite execv() loops caused by
+	 * a missconfigured security system in /etc/security.
+	 *
+	 * In the usual case (a lowercase letter in the firsh character of the
+	 * last pathname component), convert it to an uppercase character.
+	 * Otherwise overwrite this character by a '+' sign.
+	 */
+	if (*av0 >= 'a' && *av0 <= 'z')
+		*av0 = *av0 - 'a' + 'A';
+	else
+		*av0 = '+';
+	execv(getexecname(), av);
+}
+#endif
 
 #ifdef	TR_DEBUG
 EXPORT void

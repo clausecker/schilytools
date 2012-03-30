@@ -1,13 +1,13 @@
-/* @(#)pfexec.c	1.7 09/07/11 Copyright 2009 J. Schilling */
+/* @(#)pfexec.c	1.9 12/03/15 Copyright 2012 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)pfexec.c	1.7 09/07/11 Copyright 2009 J. Schilling";
+	"@(#)pfexec.c	1.9 12/03/15 Copyright 2012 J. Schilling";
 #endif
 /*
  *	Profile support for /usr/bin/pfexec
  *
- *	Copyright (c) 2009 J. Schilling
+ *	Copyright (c) 2012 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -24,6 +24,7 @@ static	UConst char sccsid[] =
 #include <schily/stdio.h>
 #include <schily/dirent.h>
 #include <schily/maxpath.h>
+#include <schily/priv.h>
 #include "bsh.h"
 #include "str.h"
 #include "strsubs.h"
@@ -35,6 +36,7 @@ static	UConst char sccsid[] =
 LOCAL	char	*uname;
 
 EXPORT	void	pfinit		__PR((void));
+EXPORT	void	pfend		__PR((void));
 LOCAL	int	pfrpath		__PR((char *pname, char *rpath));
 LOCAL	char **	pfnewargv	__PR((char *av[], char *rpath));
 EXPORT	int	pfexec		__PR((char **path, char *name, FILE *in, FILE *out, FILE *err, char **av, char **env));
@@ -44,10 +46,7 @@ EXPORT	int	pfexec		__PR((char **path, char *name, FILE *in, FILE *out, FILE *err
 EXPORT void
 pfinit()
 {
-	if (uname != NULL) {
-		free(uname);
-		uname = NULL;
-	}
+	pfend();
 
 	uname = getuname(getuid());
 	if (uname && uname[0] >= '0' && uname[0] <= '9') {
@@ -55,6 +54,37 @@ pfinit()
 		free(uname);
 		uname = NULL;
 	}
+
+#ifdef	PRIV_PFEXEC
+	/*
+	 * With in-kernel pfexec, turn in-kernel pfexec on.
+	 */
+	if (getpflags(PRIV_PFEXEC) == 0) {
+		if (setpflags(PRIV_PFEXEC, 1) != 0)
+			berror("Cannot setpflags(PRIV_PFEXEC). %s.",
+				errstr(geterrno()));
+	}
+#endif
+}
+
+EXPORT void
+pfend()
+{
+	if (uname != NULL) {
+		free(uname);
+		uname = NULL;
+	}
+
+#ifdef	PRIV_PFEXEC
+	/*
+	 * With in-kernel pfexec, turn in-kernel pfexec off.
+	 */
+	if (getpflags(PRIV_PFEXEC) == 1) {
+		if (setpflags(PRIV_PFEXEC, 0) != 0)
+			berror("Cannot setpflags(PRIV_PFEXEC). %s.",
+				errstr(geterrno()));
+	}
+#endif
 }
 
 LOCAL int
@@ -119,6 +149,13 @@ pfexec(path, name, in, out, err, av, env)
 	char		**pfav;
 	execattr_t	*exec;
 
+#ifdef	PRIV_PFEXEC
+	/*
+	 * With in-kernel pfexec, just do noting in user space.
+	 */
+	if (getpflags(PRIV_PFEXEC) == 1)
+		return (NOATTRS);		/* Need to call exec() later */
+#endif
 	if (uname == NULL)
 		return (NOATTRS);		/* Need to call exec() later */
 
@@ -162,6 +199,11 @@ EXPORT	void	pfinit		__PR((void));
 
 EXPORT void
 pfinit()
+{
+}
+
+EXPORT void
+pfend()
 {
 }
 #endif	/* EXECATTR_FILENAME */

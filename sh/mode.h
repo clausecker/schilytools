@@ -33,9 +33,9 @@
 #define	_MODE_H
 
 /*
- * This file contains modifications Copyright 2008-2009 J. Schilling
+ * This file contains modifications Copyright 2008-2012 J. Schilling
  *
- * @(#)mode.h	1.6 09/11/01 2008-2009 J. Schilling
+ * @(#)mode.h	1.8 12/03/19 2008-2012 J. Schilling
  */
 
 /*
@@ -92,10 +92,12 @@ struct blk
 #ifdef	SIZEOF_DOUBLE
 
 #if SIZEOF_CHAR_P < SIZEOF_DOUBLE
+#define	HAVE_BLK_PAD
 	char		pad[ALIGNSIZ - sizeof (struct blk *)];
 #endif
 
 #else
+#define	HAVE_BLK_PAD
 	/*
 	 * Workaround for non-dynamic configurration in Solaris ON
 	 */
@@ -202,6 +204,7 @@ struct fndnod
 	int 	fndtyp;
 	unsigned char	*fndnam;
 	struct trenod	*fndval;
+	int	fndref;
 };
 
 struct ifnod

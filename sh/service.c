@@ -34,13 +34,13 @@
 #include "defs.h"
 
 /*
- * This file contains modifications Copyright 2008-2009 J. Schilling
+ * This file contains modifications Copyright 2008-2012 J. Schilling
  *
- * @(#)service.c	1.15 09/11/01 2008-2009 J. Schilling
+ * @(#)service.c	1.17 12/03/29 2008-2012 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)service.c	1.15 09/11/01 2008-2009 J. Schilling";
+	"@(#)service.c	1.17 12/03/29 2008-20012 J. Schilling";
 #endif
 
 /*
@@ -183,7 +183,8 @@ getpath(s)
 			newpath = locstak();
 			(void) memcpystak(newpath, path, pathlen);
 			newpath[pathlen] = ':';
-			endstak(newpath + pathlen + 1);
+			newpath = endstak(newpath + pathlen + 1);
+			newpath -= pathlen + 1;
 			return (newpath);
 		} else
 			return (cpystak(path));
@@ -218,24 +219,22 @@ catpath(path, name)
 
 	while (*scanp && *scanp != COLON) {
 		if (argp >= brkend)
-			growstak(argp);
+			argp = growstak(argp);
 		*argp++ = *scanp++;
 	}
 	if (scanp != path) {
 		if (argp >= brkend)
-			growstak(argp);
+			argp = growstak(argp);
 		*argp++ = '/';
 	}
 	if (*scanp == COLON)
 		scanp++;
 	path = (*scanp ? scanp : 0);
 	scanp = name;
-	do
-	{
+	do {
 		if (argp >= brkend)
-			growstak(argp);
-	}
-	while ((*argp++ = *scanp++) != '\0');
+			argp = growstak(argp);
+	} while ((*argp++ = *scanp++) != '\0');
 	return (path);
 }
 
@@ -416,7 +415,7 @@ trim(at)
 			}
 
 			if (wc != '\\') {
-				memcpy(last, current, len);
+				memmove(last, current, len);
 				last += len;
 				current += len;
 				continue;
@@ -433,7 +432,7 @@ trim(at)
 					current++;
 					continue;
 				}
-				memcpy(last, current, len);
+				memmove(last, current, len);
 				last += len;
 				current += len;
 			} else
@@ -469,7 +468,7 @@ unsigned char	*at;
 			}
 
 			if (wc != '\\') {
-				memcpy(last, current, len);
+				memmove(last, current, len);
 				last += len; current += len;
 				continue;
 			}
@@ -495,7 +494,7 @@ unsigned char	*at;
 				current++;
 				continue;
 			}
-			memcpy(last, current, len);
+			memmove(last, current, len);
 			last += len; current += len;
 		}
 		*last = 0;
@@ -626,7 +625,7 @@ unsigned char	*s;
 
 			if (c == '\\') { /* skip over quoted characters */
 				if (argp >= brkend)
-					growstak(argp);
+					argp = growstak(argp);
 				*argp++ = c;
 				s++;
 				/* get rest of multibyte character */
@@ -637,11 +636,11 @@ unsigned char	*s;
 					clength = 1;
 				}
 				if (argp >= brkend)
-					growstak(argp);
+					argp = growstak(argp);
 				*argp++ = *s++;
 				while (--clength > 0) {
 					if (argp >= brkend)
-						growstak(argp);
+						argp = growstak(argp);
 					*argp++ = *s++;
 				}
 				continue;
@@ -654,12 +653,12 @@ unsigned char	*s;
 			}
 
 			if (argp >= brkend)
-				growstak(argp);
+				argp = growstak(argp);
 			*argp++ = c;
 			s++;
 			while (--clength > 0) {
 				if (argp >= brkend)
-					growstak(argp);
+					argp = growstak(argp);
 				*argp++ = *s++;
 			}
 		}

@@ -35,13 +35,13 @@
 #include "defs.h"
 
 /*
- * This file contains modifications Copyright 2008-2009 J. Schilling
+ * This file contains modifications Copyright 2008-2012 J. Schilling
  *
- * @(#)echo.c	1.8 09/11/01 2008-2009 J. Schilling
+ * @(#)echo.c	1.9 12/03/12 2008-2012 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)echo.c	1.8 09/11/01 2008-2009 J. Schilling";
+	"@(#)echo.c	1.9 12/03/12 2008-2012 J. Schilling";
 #endif
 
 /*
@@ -81,7 +81,8 @@ unsigned char **argv;
 #endif /* _iBCS2 */
 
 		nflg = 0;
-		if (argc > 1 && argv[1][0] == '-' && argv[1][1] == 'n') {
+		if (argc > 1 && argv[1][0] == '-' &&
+		    argv[1][1] == 'n' && argv[1][2] == '\0') {
 			nflg++;
 			argc--;
 			argv++;
@@ -109,7 +110,7 @@ unsigned char **argv;
 #ifdef  _iBCS2
 		if (do_sysv3) {
 			if (argc > 1 && argv[1][0] == '-' &&
-					argv[1][1] == 'n') {
+			    argv[1][1] == 'n' && argv[1][2] == '\0') {
 				nflg++;
 				/* Step past the -n */
 				argc--;
@@ -163,7 +164,7 @@ unsigned char **argv;
 					case '0':
 						j = wd = 0;
 						while ((*++cp >= '0' &&
-						*cp <= '7') && j++ < 3) {
+						    *cp <= '7') && j++ < 3) {
 							wd <<= 3;
 							wd |= (*cp - '0');
 						}

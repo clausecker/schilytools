@@ -1,8 +1,8 @@
-/* @(#)cdda2wav.c	1.138 11/08/03 Copyright 1993-2004 Heiko Eissfeldt, Copyright 2004-2011 J. Schilling */
+/* @(#)cdda2wav.c	1.139 12/02/29 Copyright 1993-2004 Heiko Eissfeldt, Copyright 2004-2012 J. Schilling */
 #include "config.h"
 #ifndef lint
 static	UConst char sccsid[] =
-"@(#)cdda2wav.c	1.138 11/08/03 Copyright 1993-2004 Heiko Eissfeldt, Copyright 2004-2011 J. Schilling";
+"@(#)cdda2wav.c	1.139 12/02/29 Copyright 1993-2004 Heiko Eissfeldt, Copyright 2004-2012 J. Schilling";
 
 #endif
 #undef	DEBUG_BUFFER_ADDRESSES
@@ -26,7 +26,7 @@ static	UConst char sccsid[] =
  */
 /*
  * Copright 1993-2004	(C) Heiko Eissfeldt
- * Copright 2004-2011	(C) J. Schilling
+ * Copright 2004-2012	(C) J. Schilling
  *
  * last changes:
  *   18.12.93 - first version,	OK
@@ -85,6 +85,7 @@ static	UConst char sccsid[] =
 #include <schily/maxpath.h>
 #include <schily/btorder.h>
 #include <schily/io.h>		/* for setmode() prototype */
+#include <schily/priv.h>	/* To get PRIV_PFEXEC definition */
 
 #include <scg/scsitransp.h>
 
@@ -2801,6 +2802,9 @@ static char		*user_sound_device = "";
 
 	int_name = DEF_INTERFACE;
 	audio_type = AUDIOTYPE;
+#ifdef	PRIV_PFEXEC
+	do_pfexec(argc, argv);		/* Try to gain additional privs	*/
+#endif
 	save_args(argc, argv);
 
 #if	defined(USE_NLS)
@@ -2970,7 +2974,7 @@ static char		*user_sound_device = "";
 		/*
 		 * Make the version string similar for all cdrtools programs.
 		 */
-		printf(_("cdda2wav %s (%s-%s-%s) Copyright (C) 1993-2004 %s (C) 2004-2011 %s\n"),
+		printf(_("cdda2wav %s (%s-%s-%s) Copyright (C) 1993-2004 %s (C) 2004-2012 %s\n"),
 					VERSION,
 					HOST_CPU, HOST_VENDOR, HOST_OS,
 					_("Heiko Eissfeldt"),

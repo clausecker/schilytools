@@ -33,22 +33,26 @@
 #include "defs.h"
 
 /*
- * This file contains modifications Copyright 2008-2009 J. Schilling
+ * This file contains modifications Copyright 2008-2012 J. Schilling
  *
- * @(#)stak.c	1.11 09/11/01 2008-2009 J. Schilling
+ * @(#)stak.c	1.14 12/03/27 2008-2012 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)stak.c	1.11 09/11/01 2008-2009 J. Schilling";
+	"@(#)stak.c	1.14 12/03/27 2008-2012 J. Schilling";
 #endif
 
 /*
  * UNIX shell
  */
 
+/*
+ * Global variables stakbas, staktop, stakbot, stakbsy, brkend see defs.c
+ */
+
 	unsigned char *getstak		__PR((Intptr_t asize));
 	unsigned char *locstak		__PR((void));
-	void		growstak	__PR((unsigned char *newtop));
+	unsigned char *growstak		__PR((unsigned char *newtop));
 	unsigned char *savstak		__PR((void));
 	unsigned char *endstak		__PR((unsigned char *argp));
 	void		tdystak		__PR((unsigned char *x));
@@ -59,6 +63,11 @@ static	UConst char sccsid[] =
 
 /* ========	storage allocation	======== */
 
+/*
+ * Turn the current "local" stak into a malloc()ed chunk
+ * and start a new local stak by modifying stakbot and staktop.
+ * Return the old local stak chunk base address.
+ */
 unsigned char *
 getstak(asize)			/* allocate requested stack */
 Intptr_t	asize;
@@ -91,19 +100,28 @@ locstak()
 	return(stakbot);
 }
 
-void
+/*
+ * Grow the current local use stak top.
+ */
+unsigned char *
 growstak(newtop)
 unsigned char	*newtop;
 {
 	UIntptr_t	incr;
+	UIntptr_t	newoff = newtop - stakbot;
 
 	incr = (UIntptr_t)round(newtop - brkend + 1, BYTESPERWORD);
 	if (brkincr > incr)
 		incr = brkincr;
 	if (setbrk(incr) == (unsigned char *)-1)
 		error(nospace);
+
+	return (stakbot + newoff);	/* New value for newtop */
 }
 
+/*
+ * Return an address to be used by tdystak later.
+ */
 unsigned char *
 savstak()
 {
@@ -111,6 +129,11 @@ savstak()
 	return(stakbot);
 }
 
+/*
+ * Make the current growing stack a semi-permanent item and 
+ * generate a new tiny growing stack.
+ * Return the "permanent" address of the old stack item.
+ */
 unsigned char *
 endstak(argp)				/* tidy up after `locstak' */
 	unsigned char	*argp;
@@ -118,7 +141,7 @@ endstak(argp)				/* tidy up after `locstak' */
 	unsigned char	*oldstak;
 
 	if (argp >= brkend)
-		growstak(argp);
+		argp = growstak(argp);
 	*argp++ = 0;
 	oldstak = stakbot;
 	stakbot = staktop = (unsigned char *)round(argp, BYTESPERWORD);
@@ -143,6 +166,9 @@ tdystak(x)				/* try to bring stack back to x */
 	rmtemp((struct ionod *)x);	/* XXX cheat */
 }
 
+/*
+ * Reduce the growing-stack size if possible
+ */
 void
 stakchk()
 {
@@ -150,6 +176,10 @@ stakchk()
 		setbrk(-BRKINCR);
 }
 
+/*
+ * Copy the string in "x" to the stack and make it semi-permanent.
+ * The current local stack is assumed to be empty.
+ */
 unsigned char *
 cpystak(x)
 unsigned char	*x;
@@ -157,6 +187,13 @@ unsigned char	*x;
 	return(endstak(movstrstak(x, locstak())));
 }
 
+/*
+ * Append the string in "a" to the string pointed to by "b".
+ * "b" must be on the current local stack.
+ * Return the address of the nul character at the end of the new string.
+ *
+ * The stack is kept growable.
+ */
 unsigned char *
 movstrstak(a, b)
 	unsigned char	*a;
@@ -165,15 +202,20 @@ movstrstak(a, b)
 	do
 	{
 		if (b >= brkend)
-			growstak(b);
+			b = growstak(b);
 	}
 	while ((*b++ = *a++) != '\0');
 	return(--b);
 }
 
 /*
- * Copy s2 to s1, always copy n bytes.
- * Return s1
+ * Append the string in "s2" to the string pointed to by "s1".
+ * "s1" must be on the current local stack.
+ * Always copy n bytes from s2 to s1.
+ * Return "old value" of s1,
+ * taking care of that s1 may have been relocated by growstak().
+ *
+ * The stack is kept growable.
  */
 unsigned char *
 memcpystak(s1, s2, n)
@@ -181,12 +223,12 @@ memcpystak(s1, s2, n)
 	unsigned char	*s2;
 	int		n;
 {
-	unsigned char *os1 = s1;
+	int amt = n > 0 ? n : 0;
 
 	while (--n >= 0) {
 		if (s1 >= brkend)
-			growstak(s1);
+			s1 = growstak(s1);
 		*s1++ = *s2++;
 	}
-	return (os1);
+	return (s1 - amt);
 }

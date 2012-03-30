@@ -34,13 +34,13 @@
 #include "defs.h"
 
 /*
- * This file contains modifications Copyright 2008-2011 J. Schilling
+ * This file contains modifications Copyright 2008-2012 J. Schilling
  *
- * @(#)jobs.c	1.19 11/07/19 2008-2011 J. Schilling
+ * @(#)jobs.c	1.21 12/03/29 2008-2012 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)jobs.c	1.19 11/07/19 2008-2011 J. Schilling";
+	"@(#)jobs.c	1.21 12/03/29 2008-2012 J. Schilling";
 #endif
 
 /*
@@ -524,7 +524,8 @@ restartjob(jp, fg)
 {
 	if (jp != jobcur) {
 		struct job *t;
-		for (t = jobcur; t->j_curp != jp; t = t->j_curp);
+		for (t = jobcur; t->j_curp != jp; t = t->j_curp)
+			;
 		t->j_curp = jp->j_curp;
 		jp->j_curp = jobcur;
 		jobcur = jp;
@@ -931,14 +932,14 @@ err:
 			}
 			while (*cp) {
 				if (bp >= brkend)
-					growstak(bp);
+					bp = growstak(bp);
 				*bp++ = *cp++;
 			}
 			if (bp >= brkend)
-				growstak(bp);
+				bp = growstak(bp);
 			*bp++ = SPACE;
 		}
-		endstak(bp);
+		savebp = endstak(bp);
 		execexp(savebp, (Intptr_t)0);
 		return;
 	}
@@ -984,11 +985,11 @@ sysfgbg(argc, argv)
 				break;
 		}
 		restartjob(jp, fg);
+	} else {
+		do {
+			restartjob(str2job(cmdp, *argv, 1), fg);
+		} while (*++argv);
 	}
-
-	else do
-		restartjob(str2job(cmdp, *argv, 1), fg);
-	while (*++argv);
 
 }
 
@@ -1178,4 +1179,25 @@ syssusp(argc, argv)
 	if (argc != 1)
 		failed((unsigned char *)argv[0], badopt);
 	sigv(argv[0], SIGSTOP, "0");
+}
+
+void
+hupforegnd()
+{
+	struct job *jp;
+	sigset_t set, oset;
+
+	/*
+	 * add SIGCHLD to mask
+	 */
+	sigemptyset(&set);
+	sigaddset(&set, SIGCHLD);
+	sigprocmask(SIG_BLOCK, &set, &oset);
+	for (jp = joblst; jp != NULL; jp = jp->j_nxtp) {
+		if (jp->j_flag & J_FOREGND) {
+			(void) kill(jp->j_pid, SIGHUP);
+			break;
+		}
+	}
+	sigprocmask(SIG_SETMASK, &oset, 0);
 }

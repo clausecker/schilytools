@@ -34,13 +34,13 @@
 #include "defs.h"
 
 /*
- * This file contains modifications Copyright 2008-2009 J. Schilling
+ * This file contains modifications Copyright 2008-2012 J. Schilling
  *
- * @(#)msg.c	1.6 09/11/01 2008-2009 J. Schilling
+ * @(#)msg.c	1.7 12/03/13 2008-2012 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)msg.c	1.6 09/11/01 2008-2009 J. Schilling";
+	"@(#)msg.c	1.7 12/03/13 2008-2012 J. Schilling";
 #endif
 
 /*
@@ -208,6 +208,9 @@ const struct sysnod commands[] =
 
 #ifndef RES
 	{ "[",		SYSTST },
+#endif
+#ifdef	DO_SYSALLOC
+	{ "alloc",	SYSALLOC },
 #endif
 	{ "bg",		SYSFGBG },
 	{ "break",	SYSBREAK },

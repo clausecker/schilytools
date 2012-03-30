@@ -1,8 +1,8 @@
-/* @(#)bsh.h	1.56 11/07/16 Copyright 1985-2010 J. Schilling */
+/* @(#)bsh.h	1.57 12/03/14 Copyright 1985-2012 J. Schilling */
 /*
  *	Bsh general definitions
  *
- *	Copyright (c) 1985-2010 J. Schilling
+ *	Copyright (c) 1985-2012 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -413,4 +413,5 @@ extern	int	wait3	__PR((WAIT_T *status, int options, struct rusage *rusage));
  * pfexec.c
  */
 extern	void	pfinit		__PR((void));
+extern	void	pfend		__PR((void));
 extern	int	pfexec		__PR((char **path, char *name, FILE *in, FILE *out, FILE *err, char **av, char **env));

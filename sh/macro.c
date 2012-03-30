@@ -33,13 +33,13 @@
 #include "defs.h"
 
 /*
- * This file contains modifications Copyright 2008-2009 J. Schilling
+ * This file contains modifications Copyright 2008-2012 J. Schilling
  *
- * @(#)macro.c	1.11 09/11/01 2008-2009 J. Schilling
+ * @(#)macro.c	1.12 12/03/20 2008-2012 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)macro.c	1.11 09/11/01 2008-2009 J. Schilling";
+	"@(#)macro.c	1.12 12/03/20 2008-2012 J. Schilling";
 #endif
 
 /*
@@ -269,8 +269,16 @@ retry:
 					dolg = 1;
 					c = '1';
 				}
+				/*
+				 * Double cast is needed to work around a
+				 * GCC bug.
+				 */
 				c -= '0';
-				v = ((c == 0) ? cmdadr : ((int)c <= dolc) ? dolv[c] : (unsigned char *)(dolg = 0));
+				v = ((c == 0) ?
+					cmdadr :
+					((int)c <= dolc) ?
+					dolv[c] :
+					(unsigned char *)(Intptr_t)(dolg = 0));
 			}
 			else if (c == '$')
 				v = pidadr;

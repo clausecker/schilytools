@@ -1,13 +1,13 @@
-/* @(#)diskfmt.c	1.27 11/08/15 Copyright 1988-2011 J. Schilling */
+/* @(#)diskfmt.c	1.28 12/03/16 Copyright 1988-2012 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)diskfmt.c	1.27 11/08/15 Copyright 1988-2011 J. Schilling";
+	"@(#)diskfmt.c	1.28 12/03/16 Copyright 1988-2012 J. Schilling";
 #endif
 /*
  *	Format SCSI disks
  *
- *	Copyright (c) 1988-2011 J. Schilling
+ *	Copyright (c) 1988-2012 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -220,7 +220,7 @@ Adaptec4000(scgp)
 	if (dp->formatted > 0)	/* Sonst sind die Werte sinnlos */
 		get_acb4000defaults(scgp, dp);
 
-	get_ext_diskdata(scgp, scgp->inq->vendor_info, dp);
+	get_ext_diskdata(scgp, scgp->inq->inq_vendor_info, dp);
 
 	if (!autoformat) {	/* XXX */
 		read_primary_label(scgp, dp);
@@ -353,7 +353,7 @@ Emulex_MD21(scgp)
 		printf("int_cyl: %ld lncyl: %ld\n", dp->int_cyl,
 			dp->lncyl);
 
-	get_ext_diskdata(scgp, scgp->inq->vendor_info, dp);
+	get_ext_diskdata(scgp, scgp->inq->inq_vendor_info, dp);
 /*printf("XXX: disk_type: %s flags: %X\n", dp->disk_type, dp->flags);*/
 
 
@@ -376,7 +376,7 @@ Emulex_MD21(scgp)
 		alt_disk.formatted = dp->formatted;
 		defmodes = odefmodes;
 
-		get_ext_diskdata(scgp, scgp->inq->vendor_info, &alt_disk);
+		get_ext_diskdata(scgp, scgp->inq->inq_vendor_info, &alt_disk);
 		alt_disk.capacity = dp->capacity;
 		alt_disk.cur_capacity = dp->cur_capacity;
 		if (alt_disk.disk_type)
@@ -532,7 +532,7 @@ get_Emulex_defaults(scgp, dp)
 		dp->tpz	= 1;
 	if (dp->atrk < 0 && dp->nhead > 0)
 		dp->atrk	= 2 * dp->nhead;
-	if (strindex("EMULEX", scgp->inq->vendor_info))
+	if (strindex("EMULEX", scgp->inq->inq_vendor_info))
 		dp->int_cyl = 3;
 	else if (dp->int_cyl < 0)
 		dp->int_cyl = 0;

@@ -1,15 +1,15 @@
-/* @(#)drv_mmc.c	1.199 10/12/19 Copyright 1997-2010 J. Schilling */
+/* @(#)drv_mmc.c	1.200 12/03/16 Copyright 1997-2012 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)drv_mmc.c	1.199 10/12/19 Copyright 1997-2010 J. Schilling";
+	"@(#)drv_mmc.c	1.200 12/03/16 Copyright 1997-2012 J. Schilling";
 #endif
 /*
  *	CDR device implementation for
  *	SCSI-3/mmc conforming drives
  *	e.g. Yamaha CDR-400, Ricoh MP6200
  *
- *	Copyright (c) 1997-2010 J. Schilling
+ *	Copyright (c) 1997-2012 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -580,8 +580,8 @@ identify_mmc(scgp, dp, ip)
 	/*
 	 * First handle exceptions....
 	 */
-	if (strncmp(ip->vendor_info, "SONY", 4) == 0 &&
-	    strncmp(ip->prod_ident, "CD-R   CDU928E", 14) == 0) {
+	if (strncmp(ip->inq_vendor_info, "SONY", 4) == 0 &&
+	    strncmp(ip->inq_prod_ident, "CD-R   CDU928E", 14) == 0) {
 		return (&cdr_mmc_sony);
 	}
 
@@ -2861,7 +2861,7 @@ mmc_isplextor(scgp)
 	SCSI	*scgp;
 {
 	if (scgp->inq != NULL &&
-			strncmp(scgp->inq->vendor_info, "PLEXTOR", 7) == 0) {
+			strncmp(scgp->inq->inq_vendor_info, "PLEXTOR", 7) == 0) {
 		return (TRUE);
 	}
 	return (FALSE);
@@ -2872,7 +2872,7 @@ mmc_isyamaha(scgp)
 	SCSI	*scgp;
 {
 	if (scgp->inq != NULL &&
-			strncmp(scgp->inq->vendor_info, "YAMAHA", 6) == 0) {
+			strncmp(scgp->inq->inq_vendor_info, "YAMAHA", 6) == 0) {
 		return (TRUE);
 	}
 	return (FALSE);

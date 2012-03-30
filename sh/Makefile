@@ -1,4 +1,4 @@
-#ident "@(#)Makefile	1.16 10/05/12 "
+#ident "@(#)Makefile	1.19 12/03/23 "
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -11,17 +11,8 @@ TARGET=		sh
 SYMLINKS=	pfsh			# Profile Bourne Shell
 SYMLINKS +=	bosh			# Bo urne Shell
 SYMLINKS +=	jsh			# Job control Bourne Shell
-#CPPOPTS +=	-DBSH			# Tell the code that we compile for bsh
-#CPPOPTS +=	-DUSE_LARGEFILES	# Allow Large Files (> 2 GB)
-#CPPOPTS +=	-DINTERACTIVE		# Include command line history editor
-#CPPOPTS +=	-DDO_SUID		# Include code for 'suid' builtin
-#CPPOPTS +=	-DJOBCONTROL		# Include Job Control management
-#CPPOPTS +=	-DVFORK			# Use vfork() if possible
-#CPPOPTS +=	-DOLD_PWORD		# Use old "word" tokenizer
-#CPPOPTS +=	-DFAST_MALLOC		# malloc() without freechecking
-					# and without bound checks
+
 ##CPPOPTS +=	-DNO_USER_MALLOC	# Do not use our own malloc()
-#CPPOPTS +=	-DTESTMAIL		# Do mail file checking
 
 CPPOPTS +=	-DBOURNE_SHELL		# Tell the code that we compile for sh
 CPPOPTS +=	-DUSE_LARGEFILES	# Allow Large Files (> 2 GB)
@@ -31,10 +22,15 @@ CPPOPTS +=	-DUSE_NLS
 
 CPPOPTS +=	-D_iBCS2 				# SCO echo compat
 CPPOPTS +=	-DTEXT_DOMAIN='"SUNW_OST_OSCMD"'	# gettext()
-CPPOPTS +=	-D_TS_ERRNO 				# ????
+CPPOPTS +=	-D_TS_ERRNO 				# Enable multi-threaded errno
 CPPOPTS +=	-DACCT					# Shell Accounting
+#CPPOPTS +=	RES			# "Research" include "login", disable others
 
-CPPOPTS +=	-DINTERACTIVE
+CPPOPTS +=	-DDO_SYSALLOC		# Include the "alloc" debug builtin
+#CPPOPTS +=	-DBLOK_DEBUG		# Include debug code for blok.c
+
+
+CPPOPTS +=	-DINTERACTIVE		# Include command line history editor
 
 CFILES=		args.c blok.c bltin.c cmd.c ctype.c defs.c echo.c error.c \
 		expand.c fault.c func.c hash.c hashserv.c io.c jobs.c macro.c \
@@ -43,7 +39,7 @@ CFILES=		args.c blok.c bltin.c cmd.c ctype.c defs.c echo.c error.c \
 		signames.c gmatch.c mapmem.c
 
 HFILES=		brkincr.h ctype.h defs.h dup.h hash.h mac.h mode.h name.h \
-		sh_policy.h stak.h sym.h timeout.h
+		sh_policy.h stak.h sym.h timeout.h version.h
 
 #LIBS=		-lunos
 #OOOLIBS=		-lxtermcap -lschily $(LIB_CRYPT)

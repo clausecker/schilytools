@@ -1,13 +1,13 @@
-/* @(#)fmt.c	1.94 11/08/14 Copyright 1986-1991, 93-97, 2000-2011 J. Schilling */
+/* @(#)fmt.c	1.95 12/03/16 Copyright 1986-1991, 93-97, 2000-2012 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)fmt.c	1.94 11/08/14 Copyright 1986-1991, 93-97, 2000-2011 J. Schilling";
+	"@(#)fmt.c	1.95 12/03/16 Copyright 1986-1991, 93-97, 2000-2012 J. Schilling";
 #endif
 /*
  *	Format & check/repair SCSI disks
  *
- *	Copyright (c) 1986-1991, 93-97, 2000-2011 J. Schilling
+ *	Copyright (c) 1986-1991, 93-97, 2000-2012 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -336,7 +336,7 @@ main(ac, av)
 		xusage(0);
 	if (prvers) {
 		printf("sformat %s (%s-%s-%s)\n\n", fmt_version, HOST_CPU, HOST_VENDOR, HOST_OS);
-		printf("Copyright (C) 1986-1991, 93-97, 2000-2011 Jörg Schilling\n");
+		printf("Copyright (C) 1986-1991, 93-97, 2000-2012 Jörg Schilling\n");
 		printf("This is free software; see the source for copying conditions.  There is NO\n");
 		printf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
 		exit(0);
@@ -516,9 +516,9 @@ LOCAL void
 print_product(ip)
 	struct	scsi_inquiry *ip;
 {
-	printf("'%.8s' ", ip->vendor_info);
-	printf("'%.16s' ", ip->prod_ident);
-	printf("'%.4s' ", ip->prod_revision);
+	printf("'%.8s' ", ip->inq_vendor_info);
+	printf("'%.16s' ", ip->inq_prod_ident);
+	printf("'%.4s' ", ip->inq_prod_revision);
 	if (ip->add_len < 31) {
 		printf("NON CCS ");
 	}
@@ -780,7 +780,7 @@ format_one(scgp)
 		reassign_one(scgp);
 		/* NOTREACHED */
 	} else if (translate_blk) {
-		if (strindex("EMULEX", scgp->inq->vendor_info))
+		if (strindex("EMULEX", scgp->inq->inq_vendor_info))
 			read_sector_header(scgp);
 		else
 			translate_lba(scgp);
@@ -994,47 +994,52 @@ getdev(scgp, print)
 		if (inq->add_len == 0) {
 			if (scgp->dev == DEV_UNKNOWN && got_inquiry) {
 				scgp->dev = DEV_ACB5500;
-				strcpy(inq->vendor_info,
-					"ADAPTEC ACB-5500        FAKE");
+				strncpy(inq->inq_info_space,
+					"ADAPTEC ACB-5500        FAKE",
+					sizeof (inq->inq_info_space));
 
 			} else switch (scgp->dev) {
 
 			case DEV_ACB40X0:
-				strcpy(inq->vendor_info,
-					"ADAPTEC ACB-40X0        FAKE");
+				strncpy(inq->inq_info_space,
+					"ADAPTEC ACB-40X0        FAKE",
+					sizeof (inq->inq_info_space));
 				break;
 			case DEV_ACB4000:
-				strcpy(inq->vendor_info,
-					"ADAPTEC ACB-4000        FAKE");
+				strncpy(inq->inq_info_space,
+					"ADAPTEC ACB-4000        FAKE",
+					sizeof (inq->inq_info_space));
 				break;
 			case DEV_ACB4010:
-				strcpy(inq->vendor_info,
-					"ADAPTEC ACB-4010        FAKE");
+				strncpy(inq->inq_info_space,
+					"ADAPTEC ACB-4010        FAKE",
+					sizeof (inq->inq_info_space));
 				break;
 			case DEV_ACB4070:
-				strcpy(inq->vendor_info,
-					"ADAPTEC ACB-4070        FAKE");
+				strncpy(inq->inq_info_space,
+					"ADAPTEC ACB-4070        FAKE",
+					sizeof (inq->inq_info_space));
 				break;
 			}
 		} else if (inq->add_len < 31) {
 			scgp->dev = DEV_NON_CCS_DSK;
 
-		} else if (strindex("EMULEX", inq->vendor_info)) {
-			if (strindex("MD21", inq->prod_ident))
+		} else if (strindex("EMULEX", inq->inq_vendor_info)) {
+			if (strindex("MD21", inq->inq_prod_ident))
 				scgp->dev = DEV_MD21;
-			if (strindex("MD23", inq->prod_ident))
+			if (strindex("MD23", inq->inq_prod_ident))
 				scgp->dev = DEV_MD23;
 			else
 				scgp->dev = DEV_CCS_GENDISK;
-		} else if (strindex("ADAPTEC", inq->vendor_info)) {
-			if (strindex("ACB-4520", inq->prod_ident))
+		} else if (strindex("ADAPTEC", inq->inq_vendor_info)) {
+			if (strindex("ACB-4520", inq->inq_prod_ident))
 				scgp->dev = DEV_ACB4520A;
-			if (strindex("ACB-4525", inq->prod_ident))
+			if (strindex("ACB-4525", inq->inq_prod_ident))
 				scgp->dev = DEV_ACB4525;
 			else
 				scgp->dev = DEV_CCS_GENDISK;
-		} else if (strindex("SONY", inq->vendor_info) &&
-					strindex("SMO-C501", inq->prod_ident)) {
+		} else if (strindex("SONY", inq->inq_vendor_info) &&
+					strindex("SMO-C501", inq->inq_prod_ident)) {
 			scgp->dev = DEV_SONY_SMO;
 		} else {
 			scgp->dev = DEV_CCS_GENDISK;
@@ -1043,25 +1048,27 @@ getdev(scgp, print)
 
 	case INQ_SEQD:
 		if (scgp->dev == DEV_SC4000) {
-			strcpy(inq->vendor_info,
-				"SYSGEN  SC4000          FAKE");
+			strncpy(inq->inq_info_space,
+				"SYSGEN  SC4000          FAKE",
+					sizeof (inq->inq_info_space));
 		} else if (inq->add_len == 0 &&
 					inq->removable &&
 						inq->ansi_version == 1) {
 			scgp->dev = DEV_MT02;
-			strcpy(inq->vendor_info,
-				"EMULEX  MT02            FAKE");
+			strncpy(inq->inq_info_space,
+				"EMULEX  MT02            FAKE",
+					sizeof (inq->inq_info_space));
 		}
 		break;
 
 	case INQ_OPTD:
-		if (strindex("RXT-800S", inq->prod_ident))
+		if (strindex("RXT-800S", inq->inq_prod_ident))
 			scgp->dev = DEV_RXT800S;
 		break;
 
 	case INQ_PROCD:
-		if (strindex("BERTHOLD", inq->vendor_info)) {
-			if (strindex("", inq->prod_ident))
+		if (strindex("BERTHOLD", inq->inq_vendor_info)) {
+			if (strindex("", inq->inq_prod_ident))
 				scgp->dev = DEV_HRSCAN;
 		}
 		break;
@@ -1095,12 +1102,12 @@ getdev(scgp, print)
 		printf("\n");
 	}
 	if (inq->add_len >= 31 ||
-			inq->vendor_info[0] ||
-			inq->prod_ident[0] ||
-			inq->prod_revision[0]) {
-		printf("Vendor_info    : '%.8s'\n", inq->vendor_info);
-		printf("Identifikation : '%.16s'\n", inq->prod_ident);
-		printf("Revision       : '%.4s'\n", inq->prod_revision);
+			inq->inq_vendor_info[0] ||
+			inq->inq_prod_ident[0] ||
+			inq->inq_prod_revision[0]) {
+		printf("Vendor_info    : '%.8s'\n", inq->inq_vendor_info);
+		printf("Identifikation : '%.16s'\n", inq->inq_prod_ident);
+		printf("Revision       : '%.4s'\n", inq->inq_prod_revision);
 	}
 }
 

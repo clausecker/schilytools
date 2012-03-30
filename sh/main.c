@@ -34,13 +34,13 @@
 #include "defs.h"
 
 /*
- * This file contains modifications Copyright 2008-2011 J. Schilling
+ * This file contains modifications Copyright 2008-2012 J. Schilling
  *
- * @(#)main.c	1.14 11/08/03 2008-2011 J. Schilling
+ * @(#)main.c	1.15 12/03/23 2008-2012 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)main.c	1.14 11/08/03 2008-2011 J. Schilling";
+	"@(#)main.c	1.15 12/03/23 2008-2012 J. Schilling";
 #endif
 
 /*
@@ -132,7 +132,7 @@ main(c, v, e)
 	 */
 
 	if (stakbot == 0) {
-	addblok((unsigned)0);
+		addblok((unsigned)0);
 	}
 
 	/*
@@ -543,10 +543,10 @@ Ldup(fa, fb)
 	if (fa >= 0) {
 		if (fa != fb) {
 			close(fb);
-			fcntl(fa, 0, fb); /* normal dup */
+			fcntl(fa, F_DUPFD, fb); /* normal dup */
 			close(fa);
 		}
-		fcntl(fb, 2, 1);	/* autoclose for fb */
+		fcntl(fb, F_SETFD, FD_CLOEXEC);	/* autoclose for fb */
 	}
 
 #endif

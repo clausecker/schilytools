@@ -1,0 +1,112 @@
+New features with AN-2012-03-30:
+
+This is the first localization step for the schily source consolidation. Many
+programs now (hopefully) call gettext() for all strings that need localization.
+
+-	The next step will include dgettext() calls for the libraries and the
+	missing programs
+
+-	The following step will include the extracted strings
+
+-	The last step will include German translations and install support
+	for the resulting binary message object files.
+
+----------> Please test and report compilation problems! <---------
+
+***** NOTE: As mentioned since 2004, frontends to the tools should *****
+*****		call all programs in the "C" locale		   *****
+*****		by e.g. calling: LC_ALL=C cdrecord ....		   *****
+*****		unless these frontends support localized strings   *****
+*****		used by the cdrtools with NLS support.		   *****
+
+-	The file COPYING has been reworded to be more obvious with
+	explaining work limits.
+
+-	conf/runrmt_android has been enhanced to better deal with the
+	"runrmt -r file-to-test" calling variant.
+
+-	cdrecord/cdda2wav/readcd have been converted to be able to run
+	completely root-less and suid-root-less and with no script that calls
+	pfexec(1). This works on OpenSolaris ONNV_140 or later because the
+	functionality of pfexec(1) has been integrated into the kernel.
+
+	To enable this feature. edit the file /etc/security/exec_attr and add:
+
+	Basic Solaris User:solaris:cmd:::/usr/bin/cdrecord:privs=file_dac_read,sys_devices,proc_lock_memory,proc_priocntl,net_privaddr
+	Basic Solaris User:solaris:cmd:::/usr/bin/cdda2wav:privs=file_dac_read,sys_devices,proc_priocntl,net_privaddr
+	Basic Solaris User:solaris:cmd:::/usr/bin/readcd:privs=file_dac_read,sys_devices,net_privaddr
+	or
+	Basic Solaris User:solaris:cmd:::/opt/schily/bin/cdrecord:privs=file_dac_read,sys_devices,proc_lock_memory,proc_priocntl,net_privaddr
+	Basic Solaris User:solaris:cmd:::/opt/schily/bin/cdda2wav:privs=file_dac_read,sys_devices,proc_priocntl,net_privaddr
+	Basic Solaris User:solaris:cmd:::/opt/schily/bin/readcd:privs=file_dac_read,sys_devices,net_privaddr
+
+	depending on where you install cdrecord.
+	No special shell is needed anymore.
+
+-	Bumped to cdrtools-3.01a07
+
+-	Bourne Shell: 6568535 shell process running on remote session keeps alive even if a terminal window is closed.
+
+-	Bourne Shell: 6879678 bourne shell echo built-in misinterprets arguments beginning with -n if /usr/ucb is before /usr/bin
+
+-	Bourne Shell: sh/word.c has been reordered to avoid calling the history
+	editor (that calls malloc()) while a string is build on the "stack".
+
+-	Bourne Shell: New builtin command "alloc" allows to manually check the
+	storage for corruption.
+
+-	Bourne Shell: New funktion fill_pat() allows better storage checking.
+
+-	Bourne Shell: CPPOPTS in Makefile reordered
+
+-	Bourne Shell: CPPOPT "RES" in Makefile documented
+
+-	Bourne Shell: 6776989 Custom backup script core dumping in Bourne shell /usr/bin/sh but not in Korn shell
+	"struct fndnod" now uses a new reference-counter "int fndref" for functions instead of "t->tretyp & COMMSK" (4 Bit)
+	freetree() is no longer static, as it is not also used in xec.c 
+	(struct namnod *)->namenv is now "struct fndnod *" and no longer "(struct fndnod *)->fndval"
+	defs.h indented for "command tree" definitions
+
+-	Bourne Shell now contains the latest useful enhancements of "sh" on OpenSolaris
+	which are from: ONNV Build 144 Mon Jun 28 10:51:27 2010 +0530
+
+-	Bourne Shell: work around a warning from GCC when compiling in 64 bit mode
+
+-	Bourne Shell: -version/--version/-V is now supported
+
+-	Bourne Shell: All fcntl() calls now use abstract definitions instead
+	of just number arguments.
+
+-	Bourne Shell: mark the fd for mmap() mapmep.c "Close on EXEC"
+	Note: this only happens on OS that use mepmem.c and that do not
+	support to map anomymous memory without a fd to "/dev/zero".
+
+-	Bourne Shell: Some forgotten calls to memcpy() in service.c have been
+	converted to memmove() as they deal with overlapping memory.
+
+-	Bourne Shell: Support for in-kernel pfexec from Solaris-11-Build-140
+	or later added
+
+-	bsh: Support for in-kernel pfexec from Solaris-11-Build-140
+	or later added
+
+-	Bourne Shell: growstak() now returns a value to prepare the shell to 
+	be converted to use malloc() instead of sbrk()
+
+-	Bourne Shell: several dozen places now correctly call growstak() and endstak()
+	to deal with relocated memory.
+
+-	struct scsi_inquiry is now using a union around the vendor ID strings in
+	order to avoid incorrect buffer overflow warnings from GCC-4.x
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.isdn.cs.tu-berlin.de, js@cs.tu-berlin.de
+	joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

@@ -34,13 +34,13 @@
 #include "defs.h"
 
 /*
- * This file contains modifications Copyright 2008-2011 J. Schilling
+ * This file contains modifications Copyright 2008-2012 J. Schilling
  *
- * @(#)fault.c	1.13 11/08/03 2008-2011 J. Schilling
+ * @(#)fault.c	1.14 12/03/12 2008-2012 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)fault.c	1.13 11/08/03 2008-2011 J. Schilling";
+	"@(#)fault.c	1.14 12/03/12 2008-2012 J. Schilling";
 #endif
 
 /*
@@ -261,6 +261,14 @@ done(sig)
 	(void) endjobs(0);
 	if (sig) {
 		sigset_t set;
+
+		/*
+		 * If the signal is SIGHUP, then it should be delivered
+		 * to the process group leader of the foreground job.
+		 */
+		if (sig == SIGHUP)
+			hupforegnd();
+
 		sigemptyset(&set);
 		sigaddset(&set, sig);
 		sigprocmask(SIG_UNBLOCK, &set, 0);
@@ -389,8 +397,7 @@ oldsigs()
 	unsigned char	*t;
 
 	i = MAXTRAP;
-	while (i--)
-	{
+	while (i--) {
 		t = trapcom[i];
 		if (t == 0 || *t)
 			clrsig(i);
@@ -410,13 +417,10 @@ chktrap()
 	unsigned char	*t;
 
 	trapnote &= ~TRAPSET;
-	while (--i)
-	{
-		if (trapflg[i] & TRAPSET)
-		{
+	while (--i) {
+		if (trapflg[i] & TRAPSET) {
 			trapflg[i] &= ~TRAPSET;
-			if ((t = trapcom[i]) != NULL)
-			{
+			if ((t = trapcom[i]) != NULL) {
 				int	savxit = exitval;
 				execexp(t, (Intptr_t)0);
 				exitval = savxit;

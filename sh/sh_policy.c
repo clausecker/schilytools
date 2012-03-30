@@ -32,16 +32,16 @@
 #endif
 
 /*
- * This file contains modifications Copyright 2008-2009 J. Schilling
+ * This file contains modifications Copyright 2008-2012 J. Schilling
  *
- * @(#)sh_policy.c	1.11 09/11/01 2008-2009 J. Schilling
+ * @(#)sh_policy.c	1.13 12/03/14 2008-2012 J. Schilling
  */
 #ifdef	SCHILY_BUILD
 #include <schily/mconfig.h>
 #endif
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)sh_policy.c	1.11 09/11/01 2008-2009 J. Schilling";
+	"@(#)sh_policy.c	1.13 12/03/14 2008-2012 J. Schilling";
 #endif
 
 #ifdef	SCHILY_BUILD
@@ -53,6 +53,7 @@ static	UConst char sccsid[] =
 #include <schily/errno.h>
 #include <schily/unistd.h>
 #include <schily/stdlib.h>
+#include <schily/priv.h>
 #include "sh_policy.h"
 #else
 #include <sys/param.h>
@@ -63,6 +64,7 @@ static	UConst char sccsid[] =
 #include <errno.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <priv.h>
 #include "sh_policy.h"
 #endif
 
@@ -71,6 +73,7 @@ static	UConst char sccsid[] =
 static char *username;
 
 	void	secpolicy_init		__PR((void));
+	void	secpolicy_end		__PR((void));
 static char **	secpolicy_set_argv	__PR((char **arg_v));
 static int	secpolicy_getrealpath	__PR((const char *cmd, char *cmd_realpath));
 	int	secpolicy_pfexec	__PR((const char *command, char **arg_v, const char **xecenv));
@@ -84,10 +87,7 @@ secpolicy_init(void)
 	uid_t		ruid;
 	struct passwd	*passwd_ent;
 
-	if (username != NULL) {
-		free(username);
-		username = NULL;
-	}
+	secpolicy_end();
 
 	ruid = getuid();
 
@@ -96,8 +96,37 @@ secpolicy_init(void)
 	} else if ((username = strdup(passwd_ent->pw_name)) == NULL) {
 		secpolicy_print(SECPOLICY_ERROR, ERR_MEM);
 	}
+
+#ifdef	PRIV_PFEXEC
+	/*
+	 * With in-kernel pfexec, turn in-kernel pfexec on.
+	 */
+	if (getpflags(PRIV_PFEXEC) == 0) {
+		if (setpflags(PRIV_PFEXEC, 1) != 0)
+			secpolicy_print(SECPOLICY_ERROR, ERR_SET_PFEXEC);
+	}
+#endif
 }
 
+void
+secpolicy_end(void)
+{
+
+	if (username != NULL) {
+		free(username);
+		username = NULL;
+	}
+
+#ifdef	PRIV_PFEXEC
+	/*
+	 * With in-kernel pfexec, turn in-kernel pfexec off.
+	 */
+	if (getpflags(PRIV_PFEXEC) == 1) {
+		if (setpflags(PRIV_PFEXEC, 0) != 0)
+			secpolicy_print(SECPOLICY_ERROR, ERR_SET_PFEXEC);
+	}
+#endif
+}
 
 /*
  * stuff pfexec full path at the begining of the argument vector
@@ -108,14 +137,14 @@ secpolicy_init(void)
 static char **
 secpolicy_set_argv(char **arg_v)
 {
-	register int	i, j;
+	register int	i;
 	register int	pfarg_c = 0;
 	char		**pfarg_v = (char **)NULL;
 
 	if (*arg_v == NULL) {
 		return (pfarg_v);
 	}
-	for (i = 0; arg_v[i] != 0; i++) {
+	for (i = 0; arg_v[i] != NULL; i++) {
 		pfarg_c++;
 	}
 	pfarg_c++;	/* for PFEXEC */
@@ -124,10 +153,10 @@ secpolicy_set_argv(char **arg_v)
 		return (pfarg_v);
 	}
 	pfarg_v[0] = (char *)PFEXEC;
-	for (i = 0, j = 1; arg_v[i] != 0; i++, j++) {
-		pfarg_v[j] = arg_v[i];
+	for (i = 0; arg_v[i] != NULL; i++) {
+		pfarg_v[i+1] = arg_v[i];
 	}
-	pfarg_v[j] = NULL;
+	pfarg_v[i+1] = NULL;
 
 	return (pfarg_v);
 }
@@ -188,6 +217,15 @@ secpolicy_pfexec(const char *command, char **arg_v, const char **xecenv)
 	char		**pfarg_v = (char **)NULL;
 	char		cmd_realpath[MAXPATHLEN + 1];
 	execattr_t	*exec;
+
+#ifdef	PRIV_PFEXEC
+	/*
+	 * With in-kernel pfexec, just do noting in user space.
+	 */
+	if (getpflags(PRIV_PFEXEC) == 1) {
+		return (status);
+	}
+#endif
 
 	if ((status = secpolicy_getrealpath(command, cmd_realpath)) != 0) {
 		return (status);

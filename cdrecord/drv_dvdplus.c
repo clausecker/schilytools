@@ -1,11 +1,11 @@
-/* @(#)drv_dvdplus.c	1.64 11/09/14 Copyright 2003-2011 J. Schilling */
+/* @(#)drv_dvdplus.c	1.65 12/03/16 Copyright 2003-2012 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)drv_dvdplus.c	1.64 11/09/14 Copyright 2003-2011 J. Schilling";
+	"@(#)drv_dvdplus.c	1.65 12/03/16 Copyright 2003-2012 J. Schilling";
 #endif
 /*
- *	Copyright (c) 2003-2011 J. Schilling
+ *	Copyright (c) 2003-2012 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -422,9 +422,9 @@ attach_dvdplus(scgp, dp)
 	dp->cdr_flags &= ~(CDR_TAO);
 
 	if (scgp->inq != NULL) {
-		if (strbeg("PIONEER", scgp->inq->vendor_info)) {
-			if (strbeg("DVD-RW  DVR-103", scgp->inq->prod_ident) ||
-			    strbeg("DVD-R DVD-R7322", scgp->inq->prod_ident)) {
+		if (strbeg("PIONEER", scgp->inq->inq_vendor_info)) {
+			if (strbeg("DVD-RW  DVR-103", scgp->inq->inq_prod_ident) ||
+			    strbeg("DVD-R DVD-R7322", scgp->inq->inq_prod_ident)) {
 				mp->BUF = 1;
 			}
 		}
@@ -1499,14 +1499,14 @@ dvdplus_ricohbased(scgp)
 	if (scgp->inq == NULL)
 		return (FALSE);
 
-	if (strncmp(scgp->inq->vendor_info, "RICOH", 5) == 0) {
-		if (strbeg("DVD+RW MP5120", scgp->inq->prod_ident) ||
-		    strbeg("DVD+RW MP5125", scgp->inq->prod_ident))
+	if (strncmp(scgp->inq->inq_vendor_info, "RICOH", 5) == 0) {
+		if (strbeg("DVD+RW MP5120", scgp->inq->inq_prod_ident) ||
+		    strbeg("DVD+RW MP5125", scgp->inq->inq_prod_ident))
 			return (TRUE);
 	}
-	if (strncmp(scgp->inq->vendor_info, "HP", 2) == 0) {
-		if (strbeg("DVD Writer 100j", scgp->inq->prod_ident) ||
-		    strbeg("DVD Writer 200j", scgp->inq->prod_ident))
+	if (strncmp(scgp->inq->inq_vendor_info, "HP", 2) == 0) {
+		if (strbeg("DVD Writer 100j", scgp->inq->inq_prod_ident) ||
+		    strbeg("DVD Writer 200j", scgp->inq->inq_prod_ident))
 			return (TRUE);
 	}
 	return (FALSE);

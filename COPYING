@@ -1,3 +1,6 @@
+# @(#)COPYING	1.14 12/02/26 Copyright 2007-2012 J. Schilling
+
+
 The software in this directory tree is free software and uses
 licenses that are aproved be the OpenSource Initative
 
@@ -6,8 +9,9 @@ licenses that are aproved be the OpenSource Initative
 You may of course copy and redistribute sources and derived binaries
 from this software.
 
-Not all sub-projects in this directory tree use the same license. Here is a
-list of sub-directories and it's related licenses:
+Not all sub-projects in this directory tree use the same license. Each named
+sub-directory holds an own independent "work" with respect to the Copyright
+law. Here is a list of sub-directories (works) and it's related licenses:
 
 autoconf/
 	The Schily Autoconf program (GPL)
@@ -106,7 +110,7 @@ match/
 mkisofs/
 	A ISO-9660/Rock-Ridge/Joliet/HFS/UDF filesystem formatter (GPL)
 	Note: uses libscg
-	See special GPL compatibility note below
+	See special GPL compatibility notes below
 mdigest/
 	Message digest hash program (CDDL)
 mountcd/
@@ -187,12 +191,25 @@ find . -type f -exec grep -l 'GNU General Public' {} +
 To find a list of LGPL licensed files, type:
 find . -type f -exec grep -l 'GNU Lesser General' {} +
 
+
+GPL compatibility notes:
+
 No non-GPL source is based on or derived from GPL code.
 
+The terms and conditions of the GPL only cover a GPLd work but do not
+extend to other works that have been published under a different license.
+
+Linking a GPL'd work with another work does not create a "derived work"
+but a "collective work". In case of a collective work, the GPL is very
+obvious with only requiring the GPLd parts to be covered by the terms 
+and conditions of the GPL. The GPL however requires the other parts to
+be delivered with the GPLd parts in order to permit to rebuild the binary.
+
+
 Note: In case of statical linking, the resulting "mkisofs binary" is a 
-combination of several projects under different licenses. If you combine code
-from different licenses, you need to honor the legal implication from the 
-included GPL code and the other code.
+combination of several separate projects (works) under different licenses.
+If you combine code from different licenses, you need to honor the legal
+implications from the included GPL code and the other code.
 
 If you just publish the complete original cdrtools source, you honor the GPL.
 If you like to create a separate mkisofs package, be careful to verify that

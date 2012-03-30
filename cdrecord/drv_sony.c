@@ -1,14 +1,14 @@
-/* @(#)drv_sony.c	1.88 10/12/19 Copyright 1997-2010 J. Schilling */
+/* @(#)drv_sony.c	1.89 12/03/16 Copyright 1997-2012 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)drv_sony.c	1.88 10/12/19 Copyright 1997-2010 J. Schilling";
+	"@(#)drv_sony.c	1.89 12/03/16 Copyright 1997-2012 J. Schilling";
 #endif
 /*
  *	CDR device implementation for
  *	Sony
  *
- *	Copyright (c) 1997-2010 J. Schilling
+ *	Copyright (c) 1997-2012 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -1340,7 +1340,7 @@ sony_attach(scgp, dp)
 	cdr_t	*dp;
 {
 	if (scgp->inq != NULL) {
-		if (strbeg("CD-R   CDU94", scgp->inq->prod_ident)) {
+		if (strbeg("CD-R   CDU94", scgp->inq->inq_prod_ident)) {
 			dp->cdr_speeddef = 4;
 		}
 	}

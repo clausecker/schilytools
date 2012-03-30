@@ -35,13 +35,13 @@
 #include "defs.h"
 
 /*
- * This file contains modifications Copyright 2008-2009 J. Schilling
+ * This file contains modifications Copyright 2008-2012 J. Schilling
  *
- * @(#)word.c	1.16 09/11/01 2008-2009 J. Schilling
+ * @(#)word.c	1.18 12/03/29 2008-2012 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)word.c	1.16 09/11/01 2008-2009 J. Schilling";
+	"@(#)word.c	1.18 12/03/29 2008-2012 J. Schilling";
 #endif
 
 /*
@@ -73,15 +73,19 @@ int
 word()
 {
 	unsigned int	c, d, cc;
-	struct argnod	*arg = (struct argnod *)locstak();
-	unsigned char	*argp = arg->argval;
-	unsigned char	*oldargp;
 	int		alpha = 1;
 	unsigned char *pc;
 
 	wdnum = 0;
 	wdset = 0;
 
+	/*
+	 * We first call readwc() in order to make sure that the history editor
+	 * was called already and malloc() will not be called while we are
+	 * working on a "local stack". We asume that after readwc() was called,
+	 * no further edit related malloc() call will happen and it is safe to
+	 * call locstak() to create a local stack.
+	 */
 	while (1)
 	{
 		while (c = nextwc(), space(c))		/* skipc() */
@@ -99,11 +103,15 @@ word()
 	}
 	if (!eofmeta(c))
 	{
+		struct argnod	*arg = (struct argnod *)locstak();
+		unsigned char	*argp = arg->argval;
+
 		do
 		{
 			if (c == LITERAL)
 			{
-				oldargp = argp;
+				unsigned char	*oldargp = argp;
+
 				while ((c = readwc()) && c != LITERAL){
 					/*
 					 * quote each character within
@@ -111,14 +119,14 @@ word()
 					 */
 					pc = readw(c);
 					if (argp >= brkend)
-						growstak(argp);
+						argp = growstak(argp);
 					*argp++='\\';
 				/* Pick up rest of multibyte character */
 					if (c == NL)
 						chkpr();
 					while ((c = *pc++) != 0) {
 						if (argp >= brkend)
-							growstak(argp);
+							argp = growstak(argp);
 						*argp++ = (unsigned char)c;
 					}
 				}
@@ -128,10 +136,10 @@ word()
 				 * in macro.c if necessary
 				 */
 					if (argp >= brkend)
-						growstak(argp);
+						argp = growstak(argp);
 					*argp++ = '"';
 					if (argp >= brkend)
-						growstak(argp);
+						argp = growstak(argp);
 					*argp++ = '"';
 				}
 			}
@@ -139,26 +147,26 @@ word()
 			{
 				if (c == 0) {
 					if (argp >= brkend)
-						growstak(argp);
+						argp = growstak(argp);
 					*argp++ = 0;
 				} else {
 					pc = readw(c);
 					while (*pc) {
 						if (argp >= brkend)
-							growstak(argp);
+							argp = growstak(argp);
 						*argp++ = *pc++;
 					}
 				}
 				if (c == '\\') {
 					if ((cc = readwc()) == 0) {
 						if (argp >= brkend)
-							growstak(argp);
+							argp = growstak(argp);
 						*argp++ = 0;
 					} else {
 						pc = readw(cc);
 						while (*pc) {
 							if (argp >= brkend)
-								growstak(argp);
+								argp = growstak(argp);
 							*argp++ = *pc++;
 						}
 					}
@@ -174,13 +182,13 @@ word()
 					{
 						if ((c = nextwc()) == 0) {
 							if (argp >= brkend)
-								growstak(argp);
+								argp = growstak(argp);
 							*argp++ = 0;
 						} else {
 							pc = readw(c);
 							while (*pc) {
 								if (argp >= brkend)
-									growstak(argp);
+									argp = growstak(argp);
 								*argp++ = *pc++;
 							}
 						}
@@ -195,13 +203,13 @@ word()
 						if (c == '\\') {
 							if ((cc = readwc()) == 0) {
 								if (argp >= brkend)
-									growstak(argp);
+									argp = growstak(argp);
 								*argp++ = 0;
 							} else {
 								pc = readw(cc);
 								while (*pc) {
 									if (argp >= brkend)
-										growstak(argp);
+										argp = growstak(argp);
 									*argp++ = *pc++;
 								}
 							}
@@ -210,7 +218,7 @@ word()
 				}
 			}
 		} while ((c = nextwc(), !eofmeta(c)));
-		argp = endstak(argp);
+		arg = (struct argnod *)endstak(argp);
 		if (!letter(arg->argval[0]))
 			wdset = 0;
 

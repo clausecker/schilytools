@@ -1,13 +1,13 @@
-/* @(#)readcd.c	1.114 11/09/14 Copyright 1987, 1995-2011 J. Schilling */
+/* @(#)readcd.c	1.116 12/03/16 Copyright 1987, 1995-2012 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)readcd.c	1.114 11/09/14 Copyright 1987, 1995-2011 J. Schilling";
+	"@(#)readcd.c	1.116 12/03/16 Copyright 1987, 1995-2012 J. Schilling";
 #endif
 /*
  *	Skeleton for the use of the scg genearal SCSI - driver
  *
- *	Copyright (c) 1987, 1995-2011 J. Schilling
+ *	Copyright (c) 1987, 1995-2012 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -122,6 +122,9 @@ LOCAL	int	nec_end_scan		__PR((SCSI* scgp));
 LOCAL	int	nec_scan_one_interval	__PR((SCSI* scgp, cxerror_t *pe, long addr, void *p));
 LOCAL	int	plextor_scan_one_interval __PR((SCSI* scgp, cxerror_t *pe, long addr, void *p));
 LOCAL	int	plextor_scan_one_dvd_interval __PR((SCSI* scgp, cxerror_t *pe, long addr, void *p));
+#ifdef	PRIV_PFEXEC
+LOCAL	void	do_pfexec		__PR((int ac, char *av[]));
+#endif
 
 
 /*
@@ -346,6 +349,9 @@ main(ac, av)
 	char	*filename = NULL;
 	char	*sectors = NULL;
 
+#ifdef	PRIV_PFEXEC
+	do_pfexec(ac, av);		/* Try to gain additional privs	*/
+#endif
 	save_args(ac, av);
 
 #if	defined(USE_NLS)
@@ -394,7 +400,7 @@ main(ac, av)
 	if (help)
 		usage(0);
 	if (pversion) {
-		printf(_("readcd %s (%s-%s-%s) Copyright (C) 1987, 1995-2011 %s\n"),
+		printf(_("readcd %s (%s-%s-%s) Copyright (C) 1987, 1995-2012 %s\n"),
 								cdr_version,
 								HOST_CPU, HOST_VENDOR, HOST_OS,
 								_("Joerg Schilling"));
@@ -2531,7 +2537,7 @@ mmc_isplextor(scgp)
 	SCSI	*scgp;
 {
 	if (scgp->inq != NULL &&
-			strncmp(scgp->inq->vendor_info, "PLEXTOR", 7) == 0) {
+			strncmp(scgp->inq->inq_vendor_info, "PLEXTOR", 7) == 0) {
 		return (TRUE);
 	}
 	return (FALSE);
@@ -3127,3 +3133,88 @@ print_bad()
 	if (edc_corr)
 		error(_("Corrected by EDC: %d\n"), edc_OK);
 }
+
+#ifdef	PRIV_PFEXEC
+/*
+ * If PRIV_PFEXEC is defined, we have an in-kernel pfexec() that allows
+ * suid-root less installation and let readcd gain the needed additional
+ * privileges even without a wrapper script.
+ */
+LOCAL void
+do_pfexec(ac, av)
+	int	ac;
+	char	*av[];
+{
+	priv_set_t	*pset;
+	int		oflag;
+	char		*av0;
+
+	/*
+	 * Avoid looping over execv().
+	 * Return if we see our modified argv[0].
+	 * If the first character of the last name component is a '+',
+	 * just leave it as it is. If it is an uppercase character, we assume
+	 * that it was a translated lowercace character from our execv().
+	 */
+	av0 = strrchr(av[0], '/');
+	if (av0 == NULL)
+		av0 = av[0];
+	else
+		av0++;
+	if (*av0 == '+')
+		return;
+	if (*av0 >= 'A' && *av0 <= 'Z') {
+		*av0 = *av0 + 'a' - 'A';
+		return;
+	}
+
+	/*
+	 * Check for the current privileges.
+	 * Silently abort attempting to gain more privileges
+	 * in case any error occurs.
+	 */
+	pset = priv_allocset();
+	if (pset == NULL)
+		return;
+	if (getppriv(PRIV_EFFECTIVE, pset) < 0)
+		return;
+
+	/*
+	 * If we already have the needed privileges, we are done.
+	 */
+	if (priv_ismember(pset, PRIV_FILE_DAC_READ) &&
+	    priv_ismember(pset, PRIV_SYS_DEVICES) &&
+	    priv_ismember(pset, PRIV_NET_PRIVADDR)) {
+		priv_freeset(pset);
+		return;
+	}
+	priv_freeset(pset);
+
+	oflag = getpflags(PRIV_PFEXEC);
+	if (oflag < 0)		/* Pre kernel-pfexec system? */
+		return;
+	if (oflag == 0) {	/* Kernel pfexec flag not yet set? */
+		/*
+		 * Set kernel pfexec flag.
+		 * Return if this doesn't work for some reason.
+		 */
+		if (setpflags(PRIV_PFEXEC, 1) != 0) {
+			return;
+		}
+	}
+	/*
+	 * Modify argv[0] to mark that we did already call execv().
+	 * This is done in order to avoid infinite execv() loops caused by
+	 * a missconfigured security system in /etc/security.
+	 *
+	 * In the usual case (a lowercase letter in the firsh character of the
+	 * last pathname component), convert it to an uppercase character.
+	 * Otherwise overwrite this character by a '+' sign.
+	 */
+	if (*av0 >= 'a' && *av0 <= 'z')
+		*av0 = *av0 - 'a' + 'A';
+	else
+		*av0 = '+';
+	execv(getexecname(), av);
+}
+#endif

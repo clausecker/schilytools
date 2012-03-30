@@ -34,13 +34,13 @@
 #include "defs.h"
 
 /*
- * This file contains modifications Copyright 2008-2009 J. Schilling
+ * This file contains modifications Copyright 2008-2012 J. Schilling
  *
- * @(#)blok.c	1.11 09/11/01 2008-2009 J. Schilling
+ * @(#)blok.c	1.13 12/03/29 2008-2012 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)blok.c	1.11 09/11/01 2008-2009 J. Schilling";
+	"@(#)blok.c	1.13 12/03/29 2008-2012 J. Schilling";
 #endif
 
 /*
@@ -77,6 +77,22 @@ static	size_t blklen	__PR((char *q));
 	void *calloc	__PR((size_t nelem, size_t elsize));
 	void cfree	__PR((void *t));
 
+#ifdef BLOK_DEBUG
+/*
+ * If BLOK_DEBUG is defined, the following testing will be performed:
+ * - chkbptr() checks the linkage of blocks by following links.
+ *   Note that this makes shell really slow.
+ * - fill_pat() fills the memory block with pattern like umem does.
+ *   The pattern used to fill the memory area is defined below.
+ */
+#define	PAT_MAGIC	0xfeedface
+#define	PAT_INIT	0xbaddcafe
+#define	PAT_FREE	0xdeadbeef
+
+static void	fill_pat	__PR((struct blk *, UInt32_t));
+static void	chkbptr		__PR((struct blk *));
+#endif
+
 #ifdef __STDC__
 void *
 #else
@@ -85,32 +101,31 @@ char *
 alloc(nbytes)
 	size_t nbytes;
 {
-	unsigned rbytes = round(nbytes + ALIGNSIZ, ALIGNSIZ);
+	size_t rbytes = round(nbytes + ALIGNSIZ, ALIGNSIZ);
 
 	if (stakbot == 0) {
-		addblok((unsigned)0);
+		addblok((unsigned int)0);
 	}
 
-	for (;;)
-	{
+	for (;;) {
 		int	c = 0;
 		struct blk *p = blokp;
 		struct blk *q;
 
-		do
-		{
-			if (!busy(p))
-			{
+		do {
+			if (!busy(p)) {
 				while (!busy(q = p->word))
 					p->word = q->word;
-				if ((char *)q - (char *)p >= rbytes)
-				{
+				if ((char *)q - (char *)p >= rbytes) {
 					blokp = (struct blk *)
 							((char *)p + rbytes);
 					if (q > blokp)
 						blokp->word = p->word;
 					p->word = (struct blk *)
 							(Rcheat(blokp) | BUSY);
+#ifdef BLOK_DEBUG
+					fill_pat(p, PAT_INIT);
+#endif
 					return ((char *)(p + 1));
 				}
 			}
@@ -140,7 +155,7 @@ unsigned int reqd;
 		struct blk *blokstak;
 
 		if (staktop >= brkend)
-			growstak(staktop);
+			staktop = growstak(staktop);
 		pushstak(0);
 		rndstak = (unsigned char *)round(staktop, ALIGNSIZ);
 		blokstak = (struct blk *)(stakbas) - 1;
@@ -174,16 +189,20 @@ unsigned int reqd;
 		unsigned char *stakadr = (unsigned char *)
 							(bloktop + 2);
 		unsigned char *sp = stakadr;
+
 		if ((reqd = (staktop-stakbot)) != 0) {
-			if (stakadr + reqd >= brkend)
-				growstak(stakadr + reqd);
+			if (stakadr + reqd >= brkend) {
+				stakadr = growstak(stakadr + reqd);
+				stakadr -= reqd;
+			}
+			sp = stakadr;
 			while (reqd-- > 0)
 				*sp++ = *stakbot++;
 			sp--;
 		}
 		staktop = sp;
 		if (staktop >= brkend)
-			growstak(staktop);
+			staktop = growstak(staktop);
 		stakbas = stakbot = stakadr;
 	}
 }
@@ -196,19 +215,36 @@ free(ap)
 
 	if ((p = (struct blk *)ap) && p < bloktop && p > (struct blk *)brkbegin)
 	{
-#ifdef DEBUG
+#ifdef BLOK_DEBUG
 		chkbptr(p);
 #endif
 		--p;
 		p->word = (struct blk *)(Rcheat(p->word) & ~BUSY);
+#ifdef BLOK_DEBUG
+		fill_pat(p, PAT_FREE);
+#endif
 	}
 
 
 }
 
 
-#ifdef DEBUG
+#ifdef BLOK_DEBUG
 
+static void
+fill_pat(struct blk *ptr, uint32_t pat)
+{
+	uint32_t *ui, *eui;
+
+#ifdef	HAVE_BLK_PAD
+	*(uint32_t *)ptr->pad = PAT_MAGIC;
+#endif
+	eui = (uint32_t *)(Rcheat(ptr->word) & ~BUSY);
+	for (ui = (uint32_t *)(ptr + 1); ui < eui; ui++)
+		*ui = pat;
+}
+
+static void
 chkbptr(ptr)
 	struct blk *ptr;
 {
@@ -217,15 +253,14 @@ chkbptr(ptr)
 	struct blk *q;
 	int	us = 0, un = 0;
 
-	for (;;)
-	{
+	for (;;) {
 		q = (struct blk *)(Rcheat(p->word) & ~BUSY);
 
 		if (p+1 == ptr)
 			exf++;
 
 		if (q < (struct blk *)brkbegin || q > bloktop)
-			abort(3);
+			abort();
 
 		if (p == bloktop)
 			break;
@@ -236,15 +271,19 @@ chkbptr(ptr)
 			un += q - p;
 
 		if (p >= q)
-			abort(4);
+			abort();
 
 		p = q;
 	}
 	if (exf == 0)
-		abort(1);
+		abort();
 }
 
+#endif
 
+#ifdef	DO_SYSALLOC
+
+void
 chkmem()
 {
 	struct blk *p = (struct blk *)brkbegin;
@@ -255,7 +294,7 @@ chkmem()
 		q = (struct blk *)(Rcheat(p->word) & ~BUSY);
 
 		if (q < (struct blk *)brkbegin || q > bloktop)
-			abort(3);
+			abort();
 
 		if (p == bloktop)
 			break;
@@ -266,19 +305,18 @@ chkmem()
 			un += q - p;
 
 		if (p >= q)
-			abort(4);
+			abort();
 
 		p = q;
 	}
 
-	prs("un/used/avail ");
+	prs((unsigned char *)"un/used/avail ");
 	prn(un);
 	blank();
 	prn(us);
 	blank();
-	prn((char *)bloktop - brkbegin - (un + us));
+	prn(((char *)bloktop - (char *)brkbegin) - (un + us));
 	newline();
-
 }
 
 #endif

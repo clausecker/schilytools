@@ -35,13 +35,13 @@
 #include "defs.h"
 
 /*
- * This file contains modifications Copyright 2008-2009 J. Schilling
+ * This file contains modifications Copyright 2008-2012 J. Schilling
  *
- * @(#)func.c	1.7 09/11/01 2008-2009 J. Schilling
+ * @(#)func.c	1.9 12/03/19 2008-2012 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)func.c	1.7 09/11/01 2008-2009 J. Schilling";
+	"@(#)func.c	1.9 12/03/19 2008-2012 J. Schilling";
 #endif
 
 /*
@@ -49,7 +49,7 @@ static	UConst char sccsid[] =
  */
 
 	void	freefunc	__PR((struct namnod  *n));
-static void	freetree	__PR((struct trenod *));
+	void	freetree	__PR((struct trenod *));
 static void	free_arg	__PR((struct argnod *));
 static void	freeio		__PR((struct ionod *));
 static void	freereg		__PR((struct regnod *));
@@ -67,28 +67,29 @@ freefunc(n)
 	freetree((struct trenod *)(n->namenv));
 }
 
-static void
+void
 freetree(t)
 	struct trenod	*t;
 {
 	if (t)
 	{
-		int type;
-
-		if (t->tretyp & CNTMSK)
-		{
-			t->tretyp--;
-			return;
-		}
+		int type = t->tretyp & COMMSK;
 
 		type = t->tretyp & COMMSK;
 
 		switch (type)
 		{
-			case TFND:
-				free(fndptr(t)->fndnam);
-				freetree(fndptr(t)->fndval);
+			case TFND: {
+				struct fndnod *f = fndptr(t);
+
+				if (f->fndref > 0) {
+					f->fndref--;
+					return;
+				}
+				free(f->fndnam);
+				freetree(f->fndval);
 				break;
+			}
 
 			case TCOM:
 				freeio(comptr(t)->comio);

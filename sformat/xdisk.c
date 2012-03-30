@@ -1,13 +1,13 @@
-/* @(#)xdisk.c	1.32 09/07/11 Copyright 1991-2009 J. Schilling */
+/* @(#)xdisk.c	1.33 12/03/16 Copyright 1991-2012 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)xdisk.c	1.32 09/07/11 Copyright 1991-2009 J. Schilling";
+	"@(#)xdisk.c	1.33 12/03/16 Copyright 1991-2012 J. Schilling";
 #endif
 /*
  *	Routines to handle external disk definitions
  *
- *	Copyright (c) 1991-2009 J. Schilling
+ *	Copyright (c) 1991-2012 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -852,7 +852,7 @@ copy_vendor_info(s, ip)
 	char			*s;
 	struct scsi_inquiry	*ip;
 {
-	sprintf(s, "CURRENT %.28s", ip->vendor_info);
+	sprintf(s, "CURRENT %.28s", ip->inq_vendor_info);
 }
 
 EXPORT void
@@ -864,7 +864,7 @@ prdisk(f, dp, ip)
 	int	neednl = 0;
 
 	fprintf(f, "disk_type = \"%s\"\n", dp->disk_type);
-	fprintf(f, "\tinquiry = \"%.28s\" :\n", ip->vendor_info);
+	fprintf(f, "\tinquiry = \"%.28s\" :\n", ip->inq_vendor_info);
 	if (dp->bridge_controller > 0)
 		fprintf(f, "\tbridge_controller = TRUE :\n");
 #ifdef	nono

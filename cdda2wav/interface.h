@@ -1,8 +1,8 @@
-/* @(#)interface.h	1.23 09/04/19 Copyright 1998-2001 Heiko Eissfeldt, Copyright 2005-2009 J. Schilling */
+/* @(#)interface.h	1.24 12/02/29 Copyright 1998-2001 Heiko Eissfeldt, Copyright 2005-2012 J. Schilling */
 
 /*
  * Copyright (C) by Heiko Eissfeldt
- * Copyright (c) 2005-2008 J. Schilling
+ * Copyright (c) 2005-2012 J. Schilling
  *
  * header file interface.h for cdda2wav
  */
@@ -140,6 +140,9 @@ extern	int	Toshiba3401	__PR((void));
 extern	void	priv_init	__PR((void));
 extern	void	priv_on		__PR((void));
 extern	void	priv_off	__PR((void));
+#ifdef	PRIV_PFEXEC
+extern	void	do_pfexec	__PR((int ac, char *av[]));
+#endif
 
 extern int	poll_in			__PR((void));
 

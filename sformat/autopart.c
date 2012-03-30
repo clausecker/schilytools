@@ -1,13 +1,13 @@
-/* @(#)autopart.c	1.25 09/07/13 Copyright 1995-2009 J. Schilling */
+/* @(#)autopart.c	1.26 12/03/16 Copyright 1995-2012 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)autopart.c	1.25 09/07/13 Copyright 1995-2009 J. Schilling";
+	"@(#)autopart.c	1.26 12/03/16 Copyright 1995-2012 J. Schilling";
 #endif
 /*
  *	Automatic genation of partition tables
  *
- *	Copyright (c) 1995-2009 J. Schilling
+ *	Copyright (c) 1995-2012 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -144,15 +144,15 @@ get_part_defaults(scgp, dp, lp)
 	 * Create ascilabel from vendor_info & prod_ident,
 	 * skip multiple blanks.
 	 */
-	strncpy(lp->dkl_asciilabel, scgp->inq->vendor_info, sizeof (scgp->inq->vendor_info));
-	p = &lp->dkl_asciilabel[sizeof (scgp->inq->vendor_info)-1];
+	strncpy(lp->dkl_asciilabel, scgp->inq->inq_vendor_info, sizeof (scgp->inq->inq_vendor_info));
+	p = &lp->dkl_asciilabel[sizeof (scgp->inq->inq_vendor_info)-1];
 	while (*p == ' ' && p > lp->dkl_asciilabel)
 		p--;
 	if (p > lp->dkl_asciilabel)
 		p += 2;
 
-	strncpy(p, scgp->inq->prod_ident, sizeof (scgp->inq->prod_ident));
-	p[sizeof (scgp->inq->prod_ident)] = '\0';
+	strncpy(p, scgp->inq->inq_prod_ident, sizeof (scgp->inq->inq_prod_ident));
+	p[sizeof (scgp->inq->inq_prod_ident)] = '\0';
 
 	if ((p = strchr(p, ' ')) != NULL)
 		*p = '\0';
