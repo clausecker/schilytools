@@ -36,11 +36,11 @@
 /*
  * This file contains modifications Copyright 2008-2012 J. Schilling
  *
- * @(#)main.c	1.15 12/03/23 2008-2012 J. Schilling
+ * @(#)main.c	1.16 12/04/02 2008-2012 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)main.c	1.15 12/03/23 2008-2012 J. Schilling";
+	"@(#)main.c	1.16 12/04/02 2008-2012 J. Schilling";
 #endif
 
 /*
@@ -527,6 +527,9 @@ settmp()
 	}
 }
 
+/*
+ * dup file descriptor fa to fb, close fa and set fb to close-on-exec
+ */
 static void
 Ldup(fa, fb)
 	int	fa;

@@ -1,4 +1,4 @@
-#ident "@(#)Makefile	1.19 12/03/23 "
+#ident "@(#)Makefile	1.20 12/04/05 "
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -27,16 +27,16 @@ CPPOPTS +=	-DACCT					# Shell Accounting
 #CPPOPTS +=	RES			# "Research" include "login", disable others
 
 CPPOPTS +=	-DDO_SYSALLOC		# Include the "alloc" debug builtin
-#CPPOPTS +=	-DBLOK_DEBUG		# Include debug code for blok.c
+#CPPOPTS +=	-DSTAK_DEBUG		# Include debug code for stak.c
 
 
 CPPOPTS +=	-DINTERACTIVE		# Include command line history editor
 
-CFILES=		args.c blok.c bltin.c cmd.c ctype.c defs.c echo.c error.c \
+CFILES=		args.c bltin.c cmd.c ctype.c defs.c echo.c error.c \
 		expand.c fault.c func.c hash.c hashserv.c io.c jobs.c macro.c \
-		main.c msg.c name.c print.c pwd.c service.c setbrk.c \
+		main.c msg.c name.c print.c pwd.c service.c \
 		sh_policy.c stak.c string.c test.c ulimit.c word.c xec.c \
-		signames.c gmatch.c mapmem.c
+		signames.c gmatch.c
 
 HFILES=		brkincr.h ctype.h defs.h dup.h hash.h mac.h mode.h name.h \
 		sh_policy.h stak.h sym.h timeout.h version.h

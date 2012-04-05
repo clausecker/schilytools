@@ -36,11 +36,11 @@
 /*
  * This file contains modifications Copyright 2008-2012 J. Schilling
  *
- * @(#)bltin.c	1.12 12/03/13 2008-2012 J. Schilling
+ * @(#)bltin.c	1.13 12/04/03 2008-2012 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)bltin.c	1.12 12/03/13 2008-2012 J. Schilling";
+	"@(#)bltin.c	1.13 12/04/03 2008-2012 J. Schilling";
 #endif
 
 /*
@@ -214,10 +214,10 @@ struct trenod *t;
 				dir = cdpath;
 				cdpath = catpath(cdpath,a1);
 			}
-			while ((f = (chdir((const char *) curstak()) < 0)) &&
+			while ((f = chdir((const char *) curstak())) < 0 &&
 			    cdpath);
 
-			if (f) {
+			if (f < 0) {
 				switch(errno) {
 #ifdef	EMULTIHOP						
 						case EMULTIHOP:

@@ -36,11 +36,11 @@
 /*
  * This file contains modifications Copyright 2008-2012 J. Schilling
  *
- * @(#)expand.c	1.11 12/03/29 2008-2012 J. Schilling
+ * @(#)expand.c	1.12 12/04/03 2008-2012 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)expand.c	1.11 12/03/29 2008-2012 J. Schilling";
+	"@(#)expand.c	1.12 12/04/03 2008-2012 J. Schilling";
 #endif
 
 /*
@@ -189,7 +189,7 @@ expand(as, rcnt)
 			}
 		} while (*rs++);
 
-		while ((e = readdir(dirf)) && (trapnote & SIGSET) == 0) {
+		while ((e = readdir(dirf)) != 0 && (trapnote & SIGSET) == 0) {
 			if (e->d_name[0] == '.' && *cs != '.')
 				continue;
 

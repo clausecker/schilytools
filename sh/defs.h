@@ -37,7 +37,7 @@
 /*
  * This file contains modifications Copyright 2008-2012 J. Schilling
  *
- * @(#)defs.h	1.31 12/03/27 2008-2012 J. Schilling
+ * @(#)defs.h	1.33 12/04/04 2008-2012 J. Schilling
  */
 
 #ifdef	__cplusplus
@@ -137,7 +137,7 @@ extern "C" {
 
 /* io nodes */
 #define		USERIO		10
-#define		IOUFD		15
+#define		IOUFD		15	/* mask for UNIX file descriptor number */
 #define		IODOC		0x0010
 #define		IOPUT		0x0020
 #define		IOAPP		0x0040
@@ -154,15 +154,7 @@ extern "C" {
 #ifdef	SCHILY_BUILD
 #include	<schily/mconfig.h>
 #include	<schily/unistd.h>
-#define	malloc	__m_nothing__
-#define	realloc	__r_nothing__
-#define	calloc	__c_nothing__
-#define	free	__f_nothing__
-#include	<schily/stdlib.h>
-#undef malloc
-#undef realloc
-#undef calloc
-#undef free
+#include	<schily/stdlib.h>	/* malloc()/free()... */
 #include	<schily/limits.h>
 #include	<schily/maxpath.h>
 #include	<schily/signal.h>
@@ -285,53 +277,15 @@ extern int		opterr;
 extern int 		_sp;
 extern char 		*optarg;
 
-
-/* use sh-private versions of memory allocation routines */
-
-#if	defined(linux) && defined(BOURNE_SHELL)
-#define	USE_MAPMALLOC
-#endif
-#ifdef	NO_MAPMALLOC
-#undef	USE_MAPMALLOC
-#endif
-
-#ifndef	USE_MAPMALLOC
-#define		alloc 		malloc
-#else
-/*
- * On Linux, the locale setup functions from libc cause the shell to dump
- * core in malloc(). This problem may be circumvented if we supply a
- * mmap() based malloc() for libc that does not allow libc to influence
- * the memory from the shell.
- */
-#define	alloc	sh_malloc
-#define	malloc	sh_malloc
-#define	realloc	sh_realloc
-#define	calloc	sh_calloc
-#define	free	sh_free
-#endif
-
-#ifdef	BLOK_DEBUG
+#ifdef	STAK_DEBUG
 #ifndef	DO_SYSALLOC
 #define	DO_SYSALLOC
 #endif
-#endif
+#endif	/* !STAK_DEBUG */
 
 #ifdef	NO_INTERACTIVE
 #undef	INTERACTIVE
 #endif
-
-#ifdef	SCHILY_BUILD
-#ifdef	__STDC__
-extern	void	*alloc		__PR((size_t));
-extern	void	*realloc	__PR((void *, size_t));
-#else
-extern	char	*alloc();
-extern	char	*realloc();
-#endif
-#endif
-extern	void	free		__PR((void *ap));
-
 
 /* Function prototypes */
 
@@ -573,6 +527,10 @@ extern	unsigned char *setbrk	__PR((int));
 /*
  * stak.c
  */
+#define	free	shfree
+
+extern	void		*alloc		__PR((size_t));
+extern	void		free		__PR((void *ap));
 extern	unsigned char *getstak		__PR((Intptr_t asize));
 extern	unsigned char *locstak		__PR((void));
 extern	unsigned char *growstak		__PR((unsigned char *newtop));
@@ -580,9 +538,9 @@ extern	unsigned char *savstak		__PR((void));
 extern	unsigned char *endstak		__PR((unsigned char *argp));
 extern	void		tdystak		__PR((unsigned char *x));
 extern	void		stakchk		__PR((void));
+extern	unsigned char *cpystak		__PR((unsigned char *));
 extern	unsigned char *movstrstak	__PR((unsigned char *a, unsigned char *b));
 extern	unsigned char *memcpystak	__PR((unsigned char *s1, unsigned char *s2, int n));
-
 
 
 /*

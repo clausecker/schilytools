@@ -38,13 +38,13 @@
 #include	"defs.h"
 
 /*
- * This file contains modifications Copyright 2008-2009 J. Schilling
+ * This file contains modifications Copyright 2008-2012 J. Schilling
  *
- * @(#)string.c	1.11 09/11/01 2008-2009 J. Schilling
+ * @(#)string.c	1.12 12/04/02 2008-2012 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)string.c	1.11 09/11/01 2008-2009 J. Schilling";
+	"@(#)string.c	1.12 12/04/02 2008-2012 J. Schilling";
 #endif
 
 /* ========	general purpose string handling ======== */
@@ -57,6 +57,9 @@ int		cf	__PR((unsigned char *s1, unsigned char *s2));
 int		length	__PR((unsigned char *as));
 unsigned char *movstrn	__PR((unsigned char *a, unsigned char *b, int n));
 
+/*
+ * strcpy with arguments reversed and a more useful return value
+ */
 unsigned char *
 movstr(a, b)
 	unsigned char	*a;
@@ -66,6 +69,9 @@ movstr(a, b)
 	return(--b);
 }
 
+/*
+ * simpler form of strchr with arguments reversed
+ */
 int
 any(c, s)
 	wchar_t		c;
@@ -118,6 +124,9 @@ cf(s1, s2)
 	return(*--s1 - *s2);
 }
 
+/*
+ * return size of as, including terminating NUL
+ */
 int length(as)
 unsigned char	*as;
 {

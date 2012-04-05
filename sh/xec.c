@@ -36,11 +36,11 @@
 /*
  * This file contains modifications Copyright 2008-2012 J. Schilling
  *
- * @(#)xec.c	1.15 12/03/19 2008-2012 J. Schilling
+ * @(#)xec.c	1.17 12/04/03 2008-2012 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)xec.c	1.15 12/03/19 2008-2012 J. Schilling";
+	"@(#)xec.c	1.17 12/04/03 2008-2012 J. Schilling";
 #endif
 
 /*
@@ -82,7 +82,7 @@ int *pf1, *pf2;
 	if (!errorflg)
 		flags &= ~errflg;
 
-	if ((t = argt) && execbrk == 0) {
+	if ((t = argt) != 0 && execbrk == 0) {
 		int treeflgs;
 		unsigned char **com = NULL;
 		int type;
@@ -243,6 +243,7 @@ int *pf1, *pf2;
 				}
 
 			}
+			/* FALLTHROUGH */
 
 		case TFORK:
 		{

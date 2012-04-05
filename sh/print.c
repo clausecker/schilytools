@@ -34,14 +34,14 @@
 /*
  * This file contains modifications Copyright 2008-2012 J. Schilling
  *
- * @(#)print.c	1.15 12/03/29 2008-2012 J. Schilling
+ * @(#)print.c	1.16 12/04/02 2008-2012 J. Schilling
  */
 #ifdef	SCHILY_BUILD
 #include <schily/mconfig.h>
 #endif
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)print.c	1.15 12/03/29 2008-2012 J. Schilling";
+	"@(#)print.c	1.16 12/04/02 2008-2012 J. Schilling";
 #endif
 
 /*
@@ -66,7 +66,7 @@ static	UConst char sccsid[] =
 
 #define		BUFLEN		256
 
-unsigned char numbuf[21];
+unsigned char numbuf[21];	/* big enough for 64 bits */
 
 static unsigned char buffer[BUFLEN];
 static unsigned char *bufp = buffer;
@@ -162,12 +162,12 @@ prwc(c)
 
 void
 prt(t)
-	long	t;
+	long	t;	/* t is time in clock ticks, not seconds */
 {
 	int hr, min, sec;
 	int _hz = HZ;
 
-	t += _hz / 2;
+	t += _hz / 2;	/* round to nearest second */
 	t /= _hz;
 	sec = t % 60;
 	t /= 60;

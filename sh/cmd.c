@@ -36,11 +36,11 @@
 /*
  * This file contains modifications Copyright 2008-2012 J. Schilling
  *
- * @(#)cmd.c	1.15 12/03/19 2008-2012 J. Schilling
+ * @(#)cmd.c	1.17 12/04/03 2008-2012 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)cmd.c	1.15 12/03/19 2008-2012 J. Schilling";
+	"@(#)cmd.c	1.17 12/04/03 2008-2012 J. Schilling";
 #endif
 
 /*
@@ -148,6 +148,7 @@ cmd(sym, flg)
 			i = makefork(FAMP, i);
 		else
 			synbad();
+		/* FALLTHROUGH */
 
 	case ';':
 		if ((e = cmd(sym, flg | MTFLG)) != NULL)
@@ -159,6 +160,7 @@ cmd(sym, flg)
 	case EOFSYM:
 		if (sym == NL)
 			break;
+		/* FALLTHROUGH */
 
 	default:
 		if (sym)
@@ -180,7 +182,7 @@ list(flg)
 	struct trenod *r;
 	int		b;
 	r = term(flg);
-	while (r && ((b = (wdval == ANDFSYM)) || wdval == ORFSYM))
+	while (r && ((b = (wdval == ANDFSYM)) != 0 || wdval == ORFSYM))
 		r = makelist((b ? TAND : TORF), r, term(NLFLG));
 	return(r);
 }
@@ -201,7 +203,11 @@ term(flg)
 		skipnl();
 	else
 		word();
-	if ((t = item(TRUE)) && (wdval == '^' || wdval == '|'))
+
+	/*
+	 * ^ is a relic from the days of UPPER CASE ONLY tty model 33s
+	 */
+	if ((t = item(TRUE)) != 0 && (wdval == '^' || wdval == '|'))
 	{
 		struct trenod	*left;
 		struct trenod	*right;

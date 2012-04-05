@@ -1,0 +1,54 @@
+New features with AN-2012-04-05:
+
+This is the first localization step for the schily source consolidation. Many
+programs now (hopefully) call gettext() for all strings that need localization.
+
+-	The next step will include dgettext() calls for the libraries and the
+	missing programs
+
+-	The following step will include the extracted strings
+
+-	The last step will include German translations and install support
+	for the resulting binary message object files.
+
+----------> Please test and report compilation problems! <---------
+
+***** NOTE: As mentioned since 2004, frontends to the tools should *****
+*****		call all programs in the "C" locale		   *****
+*****		by e.g. calling: LC_ALL=C cdrecord ....		   *****
+*****		unless these frontends support localized strings   *****
+*****		used by the cdrtools with NLS support.		   *****
+
+-	Bourne Shell: Some comments from Geoff Collyer have been added
+
+-	Bourne Shell: Some lint fixes have been applied
+
+-	Bourne Shell: The memory management has been converted from sbrk()
+	to malloc() based on the basic ideas from Geoff Collyer to convert
+	the Bourne Shell to use malloc() only.
+	See: http://www.collyer.net/who/geoff/sh.tour.ps and
+	http://www.collyer.net/who/geoff/
+
+	The code had to be rewritten to match the changes from the SVr4
+	Bourne Shell as the original idea from Geoff Collyer was designed
+	for the UNIX V7 Bourne Shell from 1977.
+
+	The integration has been done with friendly permission from
+	Geoff Collyer.
+
+The Bourne Shell is in a beta phase as a result from these changes.
+Please test the new Bourne Shell and report any problems. The new Bourne Shell
+now should be highly portable as all other programs in this suite.
+
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.isdn.cs.tu-berlin.de, js@cs.tu-berlin.de
+	joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

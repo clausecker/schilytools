@@ -35,7 +35,7 @@
 /*
  * This file contains modifications Copyright 2008-2012 J. Schilling
  *
- * @(#)mode.h	1.8 12/03/19 2008-2012 J. Schilling
+ * @(#)mode.h	1.9 12/04/05 2008-2012 J. Schilling
  */
 
 /*
@@ -99,7 +99,7 @@ struct blk
 #else
 #define	HAVE_BLK_PAD
 	/*
-	 * Workaround for non-dynamic configurration in Solaris ON
+	 * Workaround for non-dynamic configuration in Solaris ON
 	 */
 	char		pad[ALIGNSIZ - sizeof (struct blk *) <= 0 ?
 				ALIGNSIZ : ALIGNSIZ - sizeof (struct blk *)];

@@ -36,11 +36,11 @@
 /*
  * This file contains modifications Copyright 2008-2012 J. Schilling
  *
- * @(#)service.c	1.17 12/03/29 2008-2012 J. Schilling
+ * @(#)service.c	1.18 12/04/02 2008-2012 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)service.c	1.17 12/03/29 2008-20012 J. Schilling";
+	"@(#)service.c	1.18 12/04/02 2008-20012 J. Schilling";
 #endif
 
 /*
@@ -384,6 +384,8 @@ execs(ap, t)
 
 	default:
 		xecmsg = badexec;
+		/* FALLTHROUGH */
+
 	case ENOENT:
 		return (prefix);
 	}
