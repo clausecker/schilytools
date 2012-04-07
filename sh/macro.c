@@ -35,11 +35,11 @@
 /*
  * This file contains modifications Copyright 2008-2012 J. Schilling
  *
- * @(#)macro.c	1.12 12/03/20 2008-2012 J. Schilling
+ * @(#)macro.c	1.13 12/04/07 2008-2012 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)macro.c	1.12 12/03/20 2008-2012 J. Schilling";
+	"@(#)macro.c	1.13 12/04/07 2008-2012 J. Schilling";
 #endif
 
 /*
@@ -396,6 +396,7 @@ retry:
 					{
 						int strlngth = staktop - stakbot;
 						unsigned char *savptr = fixstak();
+						struct ionod *iosav = iotemp;
 						unsigned char *newargp;
 					/*
 					 * copy word onto stack, trim it, and then
@@ -430,7 +431,7 @@ retry:
 						}
 						newargp = fixstak();
 						assign(n, newargp);
-						tdystak(savptr);
+						tdystak(savptr, iosav);
 						(void) memcpystak(stakbot, savptr, strlngth);
 						staktop = stakbot + strlngth;
 					}
@@ -515,6 +516,7 @@ comsubst(trimflag)
 	int strlngth = staktop - stakbot;
 	unsigned char *oldstaktop;
 	unsigned char *savptr = fixstak();
+	struct ionod *iosav = iotemp;
 	unsigned char	*pc;
 
 	usestak();
@@ -566,7 +568,7 @@ comsubst(trimflag)
 		close(pv[OTPIPE]);
 		savpipe = -1;
 	}
-	tdystak(savptr);
+	tdystak(savptr, iosav);
 	(void) memcpystak(stakbot, savptr, strlngth);
 	oldstaktop = staktop = stakbot + strlngth;
 	while ((d = readwc()) != '\0') {

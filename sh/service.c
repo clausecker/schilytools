@@ -36,11 +36,11 @@
 /*
  * This file contains modifications Copyright 2008-2012 J. Schilling
  *
- * @(#)service.c	1.18 12/04/02 2008-2012 J. Schilling
+ * @(#)service.c	1.19 12/04/07 2008-2012 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)service.c	1.18 12/04/02 2008-20012 J. Schilling";
+	"@(#)service.c	1.19 12/04/07 2008-20012 J. Schilling";
 #endif
 
 /*
@@ -299,6 +299,7 @@ execs(ap, t)
 	unsigned char	*p, *prefix;
 #ifdef	EXECATTR_FILENAME
 	unsigned char	*savptr;
+	struct ionod	*iosav;
 #endif
 
 	prefix = catpath(ap, t[0]);
@@ -313,6 +314,7 @@ execs(ap, t)
 		 * will clobber it.
 		 */
 		savptr = endstak(p + strlen((const char *)p) + 1);
+		iosav = iotemp;
 
 		pfstatus = secpolicy_pfexec((const char *)p,
 		    (char **)t, (const char **)xecenv);
@@ -321,7 +323,7 @@ execs(ap, t)
 			errno = pfstatus;
 		}
 
-		tdystak(savptr);
+		tdystak(savptr, iosav);
 	}
 #endif
 

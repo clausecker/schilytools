@@ -36,11 +36,11 @@
 /*
  * This file contains modifications Copyright 2008-2012 J. Schilling
  *
- * @(#)xec.c	1.17 12/04/03 2008-2012 J. Schilling
+ * @(#)xec.c	1.18 12/04/07 2008-2012 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)xec.c	1.17 12/04/03 2008-2012 J. Schilling";
+	"@(#)xec.c	1.18 12/04/07 2008-2012 J. Schilling";
 #endif
 
 /*
@@ -77,6 +77,7 @@ int *pf1, *pf2;
 	 */
 	struct trenod	*t;
 	unsigned char		*sav = savstak();
+	struct ionod		*iosav = iotemp;
 
 	sigchk();
 	if (!errorflg)
@@ -518,7 +519,7 @@ int *pf1, *pf2;
 		exitset();
 	}
 	sigchk();
-	tdystak(sav);
+	tdystak(sav, iosav);
 	flags |= eflag;
 	return(exitval);
 }

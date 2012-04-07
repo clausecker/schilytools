@@ -36,11 +36,11 @@
 /*
  * This file contains modifications Copyright 2008-2012 J. Schilling
  *
- * @(#)main.c	1.16 12/04/02 2008-2012 J. Schilling
+ * @(#)main.c	1.17 12/04/07 2008-2012 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)main.c	1.16 12/04/02 2008-2012 J. Schilling";
+	"@(#)main.c	1.17 12/04/07 2008-2012 J. Schilling";
 #endif
 
 /*
@@ -434,7 +434,7 @@ exfile(prof)
 	 * command loop
 	 */
 	for (;;) {
-		tdystak(0);
+		tdystak(0, 0);
 		stakchk();	/* may reduce sbrk */
 		exitset();
 

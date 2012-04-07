@@ -37,7 +37,7 @@
 /*
  * This file contains modifications Copyright 2008-2012 J. Schilling
  *
- * @(#)defs.h	1.33 12/04/04 2008-2012 J. Schilling
+ * @(#)defs.h	1.34 12/04/07 2008-2012 J. Schilling
  */
 
 #ifdef	__cplusplus
@@ -536,7 +536,7 @@ extern	unsigned char *locstak		__PR((void));
 extern	unsigned char *growstak		__PR((unsigned char *newtop));
 extern	unsigned char *savstak		__PR((void));
 extern	unsigned char *endstak		__PR((unsigned char *argp));
-extern	void		tdystak		__PR((unsigned char *x));
+extern	void		tdystak		__PR((unsigned char *x, struct ionod *iosav));
 extern	void		stakchk		__PR((void));
 extern	unsigned char *cpystak		__PR((unsigned char *));
 extern	unsigned char *movstrstak	__PR((unsigned char *a, unsigned char *b));

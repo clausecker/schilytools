@@ -34,13 +34,13 @@
 #include "defs.h"
 
 /*
- * This file contains modifications Copyright 2008-2009 J. Schilling
+ * This file contains modifications Copyright 2008-2012 J. Schilling
  *
- * @(#)error.c	1.7 09/11/01 2008-2009 J. Schilling
+ * @(#)error.c	1.8 12/04/08 2008-2012 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)error.c	1.7 09/11/01 2008-2009 J. Schilling";
+	"@(#)error.c	1.8 12/04/08 2008-2012 J. Schilling";
 #endif
 
 /*
@@ -139,11 +139,20 @@ exitsh(xno)
 	}
 }
 
+/*
+ * Previous sbrk() based versions of the Bourne Shell fed this function
+ * with an aproximate address from the stak and used: 
+ * "while (iotemp > base)".
+ *
+ * This version of the shell is fed by the previous real value of "iotemp"
+ * and for this reason we may safely use "while (iotemp != base)" and no
+ * longer depend on memory order.
+ */
 void
 rmtemp(base)
 	struct ionod	*base;
 {
-	while (iotemp > base) {
+	while (iotemp != base) {
 		unlink(iotemp->ioname);
 		free(iotemp->iolink);
 		iotemp = iotemp->iolst;

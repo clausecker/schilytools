@@ -41,7 +41,7 @@
 /*
  *	Copyright Geoff Collyer 1999-2005
  *
- * @(#)stak.c	2.2 12/04/05 Copyright 2010-2012 J. Schilling
+ * @(#)stak.c	2.3 12/04/07 Copyright 2010-2012 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -57,7 +57,7 @@
 
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)stak.c	2.2 12/04/05 Copyright 2010-2012 J. Schilling";
+	"@(#)stak.c	2.3 12/04/07 Copyright 2010-2012 J. Schilling";
 #endif
 
 
@@ -154,7 +154,7 @@ static void	prln		__PR((long));
 	unsigned char *locstak	__PR((void));
 	unsigned char *savstak	__PR((void));
 	unsigned char *endstak	__PR((unsigned char *argp));
-	void	tdystak		__PR((unsigned char *sav));
+	void	tdystak		__PR((unsigned char *sav, struct ionod *iosav));
 static void	debugsav	__PR((unsigned char *sav));
 	void	stakchk		__PR((void));
 static	unsigned char *__growstak __PR((int incr));
@@ -361,11 +361,11 @@ endstak(argp)
  * (an old copy of iotemp, which may be zero).
  */
 void
-tdystak(sav)
+tdystak(sav, iosav)
 	unsigned char	*sav;
+	struct ionod	*iosav;
 {
 	Stackblk	*blk = (Stackblk *)NIL;
-	struct ionod	*iosav = (struct ionod *)NIL;
 
 	rmtemp(iosav);			/* pop temp files */
 
