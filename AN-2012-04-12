@@ -1,0 +1,96 @@
+New features with AN-2012-04-12:
+
+This is the first localization step for the schily source consolidation. Many
+programs now (hopefully) call gettext() for all strings that need localization.
+
+-	The next step will include dgettext() calls for the libraries and the
+	missing programs
+
+-	The following step will include the extracted strings
+
+-	The last step will include German translations and install support
+	for the resulting binary message object files.
+
+----------> Please test and report compilation problems! <---------
+
+***** NOTE: As mentioned since 2004, frontends to the tools should *****
+*****		call all programs in the "C" locale		   *****
+*****		by e.g. calling: LC_ALL=C cdrecord ....		   *****
+*****		unless these frontends support localized strings   *****
+*****		used by the cdrtools with NLS support.		   *****
+
+-	autoconf/configure no longer gets confused by the directory
+	"conftest.dSYM" that is created on Mac OS X with cc -g.
+	Previous versions might have assumed that the executable suffix
+	is ":dSYM" and failed as a result of this wrong assumption.
+
+-	Bourne Shell: Some lint fixes have been applied
+
+-	Bourne Shell: gmatch() now supports multi byte characters.
+			This is needed to support sh case statements on
+			platforms without gmatch().
+
+-	Bourne Shell: A fix in macro.c was needed after the conversion
+	from sbrk() -> malloc() in order to deal with the Linux/Cygwin malloc().
+
+		: ${NAME=value}
+
+	works again as expected even on Linux and Cygwin.
+
+
+-	Bourne Shell: AIX and Mac OS X also define WNOWAIT but fail (like
+	Linux does) if the flag is used. So work around this problem on 
+	AIX and Mac OS X as well.
+
+-	Bourne Shell: the history editor now correctly exits on a EOF
+	condition (or after typing ^D) even if the OS uses unsigned chars by
+	default (e.g. AIX).
+
+-	The Bourne Shell's man page now mentions the -m option for set(1)
+	that was present since SVr4 as well as the new set(1) option -P
+	that allows to turn sh(1) into pfsh(1).
+
+-	The Bourne Shell now has been verified to work correctly on:
+
+	-	Solaris (SunOS-5.x)
+
+	-	SunOS-4.x
+
+	-	FreeBSD-8.2
+
+	-	HP-UX-10.x
+
+	-	AIX-6.1
+
+	-	Linux
+
+	-	Cygwin
+
+	This was done by running "configure" from this tarball with our Bourne
+	Shell. On Cygwin, our Bourne Shell results in 1/3 better performance
+	than seen with bash.
+
+	The Bourne Shell no longer is in beta state, as it now compiles and works
+	on all major platforms.
+
+-	bsh/signames.c now also supports numbers as parameter instead of simply
+	signal names. This is needed to support the Bourne Shell signal handling
+	on old systems (like Mac OS X) that do not support str2sig().
+
+-	smake now links against $(LIB_INTL) as libschily/mem.c needs gettext()
+	The missing $(LIB_INTL) caused smake compilation to fail to link on Cygwin,
+
+-	libmdigest no longer tries to use #pragma waek on Cygwin as Cygwin 
+	incorrectly handles weak symbols - making them local symbols only.
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.isdn.cs.tu-berlin.de, js@cs.tu-berlin.de
+	joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

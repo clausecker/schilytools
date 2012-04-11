@@ -37,11 +37,11 @@
 /*
  * This file contains modifications Copyright 2008-2012 J. Schilling
  *
- * @(#)word.c	1.18 12/03/29 2008-2012 J. Schilling
+ * @(#)word.c	1.19 12/04/10 2008-2012 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)word.c	1.18 12/03/29 2008-2012 J. Schilling";
+	"@(#)word.c	1.19 12/04/10 2008-2012 J. Schilling";
 #endif
 
 /*
@@ -509,9 +509,11 @@ xread(f, buf, n)
 {
 	if (f == 0 && isatty(f)) {
 		extern	int	delim;
+			int	c;
 
-		*buf = egetc();
-		if (*buf == -1 && delim == -1) {	/* EOF */
+		c = egetc();
+		*buf = c;
+		if (c == -1 && delim == -1) {	/* EOF */
 			bsh_treset();
 			return (0);
 		}

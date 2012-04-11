@@ -1,4 +1,4 @@
-#ident @(#)Makefile	1.17 11/11/14 
+#ident @(#)Makefile	1.18 12/04/10 
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -13,7 +13,10 @@ CPPOPTS +=	-DSCHILY_PRINT
 CFILES=		make.c archconf.c readfile.c parse.c update.c rules.c \
 		job.c memory.c
 HFILES=		make.h job.h
-LIBS=		-lschily
+#
+# $(LIB_INTL) is needed because libschily/mem.c needs it.
+#
+LIBS=		-lschily $(LIB_INTL)
 XMK_FILE=	Makefile.def Makefile.man
 
 ###########################################################################

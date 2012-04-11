@@ -1,4 +1,4 @@
-dnl @(#)acspecific.m4	1.15 11/07/15 Copyright 1998-2011 J. Schilling
+dnl @(#)acspecific.m4	1.16 12/04/09 Copyright 1998-2011 J. Schilling
 dnl
 dnl Macros that test for specific features.
 dnl This file is part of Autoconf.
@@ -2776,6 +2776,7 @@ else
     for file in conftest.*; do
       case $file in
       *.c | *.o | *.obj) ;;
+      *.dSYM) ;;	# Ignore strange directory found on Mac OS X with cc -g
       *) ac_cv_exeext=`echo $file | sed -e s/conftest//` ;;
       esac
     done

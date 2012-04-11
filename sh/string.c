@@ -40,11 +40,11 @@
 /*
  * This file contains modifications Copyright 2008-2012 J. Schilling
  *
- * @(#)string.c	1.12 12/04/02 2008-2012 J. Schilling
+ * @(#)string.c	1.13 12/04/08 2008-2012 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)string.c	1.12 12/04/02 2008-2012 J. Schilling";
+	"@(#)string.c	1.13 12/04/08 2008-2012 J. Schilling";
 #endif
 
 /* ========	general purpose string handling ======== */
@@ -111,6 +111,7 @@ unsigned char *c, *s;
 			return(TRUE);
 		s += n;
 	}
+	/* NOTREACHED */
 }
 
 int

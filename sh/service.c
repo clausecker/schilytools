@@ -36,11 +36,11 @@
 /*
  * This file contains modifications Copyright 2008-2012 J. Schilling
  *
- * @(#)service.c	1.19 12/04/07 2008-2012 J. Schilling
+ * @(#)service.c	1.20 12/04/08 2008-2012 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)service.c	1.19 12/04/07 2008-20012 J. Schilling";
+	"@(#)service.c	1.20 12/04/08 2008-20012 J. Schilling";
 #endif
 
 /*
@@ -157,6 +157,7 @@ unsigned char	*s;
 		else
 			return (sname);
 	}
+	/* NOTREACHED */
 }
 
 unsigned char *

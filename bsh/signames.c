@@ -1,14 +1,14 @@
-/* @(#)signames.c	1.6 09/07/11 Copyright 1998-2009 J. Schilling */
+/* @(#)signames.c	1.7 12/04/08 Copyright 1998-2012 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)signames.c	1.6 09/07/11 Copyright 1998-2009 J. Schilling";
+	"@(#)signames.c	1.7 12/04/08 Copyright 1998-2012 J. Schilling";
 #endif
 /*
  *	Handle signal names for systems that don't have
  *	strsignal()/str2sig()/sig2str()
  *
- *	Copyright (c) 1998-2009 J. Schilling
+ *	Copyright (c) 1998-2012 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -26,6 +26,7 @@ static	UConst char sccsid[] =
 #include <schily/string.h>
 #include <schily/standard.h>
 #include <schily/signal.h>
+#include <schily/schily.h>
 
 #if	!(defined(HAVE_STRSIGNAL) && defined(HAVE_STR2SIG) && defined(HAVE_SIG2STR))
 
@@ -247,6 +248,20 @@ str2sig(s, sigp)
 {
 	register	int	i;
 
+	if (*s >= '0' && *s <= '9') {
+		int	val;
+
+		if (*astoi(s, &val) != '\0')
+			return (-1);
+
+		for (i = 0; signames[i].signame; i++) {
+			if (signames[i].signo == val) {
+				*sigp = val;
+				return (0);
+			}
+		}
+		return (-1);
+	}
 	for (i = 0; signames[i].signame; i++) {
 		if (strcmp(s, signames[i].signame) == 0) {
 			*sigp = signames[i].signo;

@@ -1,13 +1,13 @@
-/* @(#)sha2.c	1.3 09/08/11 2009 J. Schilling */
+/* @(#)sha2.c	1.4 12/04/10 2009-2012 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)sha2.c	1.3 09/08/11 2009 J. Schilling";
+	"@(#)sha2.c	1.4 12/04/10 2009-2012 J. Schilling";
 #endif
 /*
  * SHA2 hash code taken from OpenBSD
  *
- * Portions Copyright (c) 2009 J. Schilling
+ * Portions Copyright (c) 2009-2012 J. Schilling
  */
 
 /*	$OpenBSD: sha2.c,v 1.13 2009/04/15 00:55:52 djm Exp $	*/
@@ -963,7 +963,12 @@ SHA384Init(context)
 	context->bitcount[0] = context->bitcount[1] = 0;
 }
 
-#ifdef	HAVE_PRAGMA_WEAK
+/*
+ * The Cygwin compile environment incorrectly implements #pragma weak.
+ * The weak symbols are only defined as local symbols making it impossible
+ * to use them from outside the scope of this source file.
+ */
+#if defined(HAVE_PRAGMA_WEAK) && !defined(__CYGWIN32__)
 #pragma weak SHA384Transform = SHA512Transform
 #pragma weak SHA384Update = SHA512Update
 #pragma weak SHA384Pad = SHA512Pad

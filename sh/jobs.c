@@ -36,11 +36,11 @@
 /*
  * This file contains modifications Copyright 2008-2012 J. Schilling
  *
- * @(#)jobs.c	1.21 12/03/29 2008-2012 J. Schilling
+ * @(#)jobs.c	1.23 12/04/10 2008-2012 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)jobs.c	1.21 12/03/29 2008-2012 J. Schilling";
+	"@(#)jobs.c	1.23 12/04/10 2008-2012 J. Schilling";
 #endif
 
 /*
@@ -73,9 +73,9 @@ static	UConst char sccsid[] =
 #ifndef	WNOWAIT
 #define	WNOWAIT		0
 #endif
-#ifdef	linux
+#if defined(linux) || defined(IS_MACOS_X) || defined(_IBMR2) || defined(_AIX)
 /*
- * Linux returns EINVAL if WNOWAIT is used
+ * AIX, Linux and Mac OS X return EINVAL if WNOWAIT is used
  */
 #undef	WNOWAIT
 #define	WNOWAIT		0

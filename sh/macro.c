@@ -35,11 +35,11 @@
 /*
  * This file contains modifications Copyright 2008-2012 J. Schilling
  *
- * @(#)macro.c	1.13 12/04/07 2008-2012 J. Schilling
+ * @(#)macro.c	1.14 12/04/11 2008-2012 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)macro.c	1.13 12/04/07 2008-2012 J. Schilling";
+	"@(#)macro.c	1.14 12/04/11 2008-2012 J. Schilling";
 #endif
 
 /*
@@ -398,6 +398,14 @@ retry:
 						unsigned char *savptr = fixstak();
 						struct ionod *iosav = iotemp;
 						unsigned char *newargp;
+
+						/*
+						 * The malloc()-based stak.c
+						 * will relocate the last item
+						 * if we call fixstak();
+						 */
+						argp = savptr;
+
 					/*
 					 * copy word onto stack, trim it, and then
 					 * do assignment 
