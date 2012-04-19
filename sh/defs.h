@@ -37,7 +37,7 @@
 /*
  * This file contains modifications Copyright 2008-2012 J. Schilling
  *
- * @(#)defs.h	1.34 12/04/07 2008-2012 J. Schilling
+ * @(#)defs.h	1.35 12/04/15 2008-2012 J. Schilling
  */
 
 #ifdef	__cplusplus
@@ -577,6 +577,11 @@ extern	int	test		__PR((int argn, unsigned char *com[]));
 extern	void	sysulimit	__PR((int argc, char **argv));
 
 /*
+ * umask.c
+ */
+extern	void	sysumask	__PR((int argc, char **argv));
+
+/*
  * word.c
  */
 extern	int		word	__PR((void));
@@ -884,6 +889,7 @@ extern const char				noarg[];
 
 extern const char				btest[];
 extern const char				badop[];
+extern const char				badumask[];
 
 /*	fork constant	*/
 

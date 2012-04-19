@@ -36,11 +36,11 @@
 /*
  * This file contains modifications Copyright 2008-2012 J. Schilling
  *
- * @(#)msg.c	1.7 12/03/13 2008-2012 J. Schilling
+ * @(#)msg.c	1.9 12/04/17 2008-2012 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)msg.c	1.7 12/03/13 2008-2012 J. Schilling";
+	"@(#)msg.c	1.9 12/04/17 2008-2012 J. Schilling";
 #endif
 
 /*
@@ -110,7 +110,7 @@ const char	ambiguous[]	= "ambiguous";
 const char	usage[]		= "usage";
 const char	nojc[]		= "no job control";
 const char	stopuse[]	= "stop id ...";
-const char	ulimuse[]	= "ulimit [ -HSacdfnstv ] [ limit ]";
+const char	ulimuse[]	= "ulimit [ -HSacdflmnstuv ] [ limit ]";
 const char	killuse[]	= "kill [ [ -sig ] id ... | -l ]";
 const char	jobsuse[]	= "jobs [ [ -l | -p ] [ id ... ] | -x cmd ]";
 const char	nosuchjob[]	= "no such job";
@@ -133,6 +133,8 @@ const char	noarg[]		= "argument expected";
  */
 const char	btest[]		= "test";
 const char	badop[]		= "unknown operator ";
+const char	badumask[]	= "bad umask";
+
 /*
  * built in names
  */

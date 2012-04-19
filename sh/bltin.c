@@ -36,11 +36,11 @@
 /*
  * This file contains modifications Copyright 2008-2012 J. Schilling
  *
- * @(#)bltin.c	1.13 12/04/03 2008-2012 J. Schilling
+ * @(#)bltin.c	1.15 12/04/17 2008-2012 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)bltin.c	1.13 12/04/03 2008-2012 J. Schilling";
+	"@(#)bltin.c	1.15 12/04/17 2008-2012 J. Schilling";
 #endif
 
 /*
@@ -123,7 +123,6 @@ struct trenod *t;
 		break;
 
 	case SYSNULL:
-		t->treio = 0;
 		break;
 
 	case SYSCONT:
@@ -352,35 +351,14 @@ struct trenod *t;
 			execexp(a1, (Intptr_t)&argv[2]);
 		break;
 
-#ifndef RES	
+#ifndef RES
 	case SYSULIMIT:
 		sysulimit(argc, (char **)argv);
 		break;
 			
 	case SYSUMASK:
-		if (a1)
-		{ 
-			int c;
-			mode_t i;
-
-			i = 0;
-			while ((c = *a1++) >= '0' && c <= '7')
-				i = (i << 3) + c - '0';
-			umask(i);
-		}
-		else
-		{
-			mode_t i;
-			int j;
-
-			umask(i = umask(0));
-			prc_buff('0');
-			for (j = 6; j >= 0; j -= 3)
-				prc_buff(((i >> j) & 07) +'0');
-			prc_buff(NL);
-		}
+		sysumask(argc, (char **)argv);
 		break;
-
 #endif
 
 	case SYSTST:

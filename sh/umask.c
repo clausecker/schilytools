@@ -1,13 +1,14 @@
-/* @(#)getperm.c	1.5 12/04/15 Copyright 2004-2009 J. Schilling */
+/* @(#)umask.c	1.1 12/04/15 Copyright 2004-2012 J. Schilling */
 #include <schily/mconfig.h>
-#ifndef lint
+#ifndef RES
 static	UConst char sccsid[] =
-	"@(#)getperm.c	1.5 12/04/15 Copyright 2004-2009 J. Schilling";
-#endif
+	"@(#)umask.c	1.1 12/04/15 Copyright 2004-2012 J. Schilling";
 /*
  *	Parser for chmod(1)/find(1)-perm, ....
+ *	The code has been taken from libschily/getperm.c and adopted to
+ *	avoid stdio for the Bourne Shell.
  *
- *	Copyright (c) 2004-2009 J. Schilling
+ *	Copyright (c) 2004-2012 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -21,19 +22,26 @@ static	UConst char sccsid[] =
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#include <schily/stdio.h>
-#include <schily/stat.h>
-#include <schily/utypes.h>
-#include <schily/standard.h>
-#include <schily/schily.h>
+#include "defs.h"
 
-#include <schily/nlsdefs.h>
+#define	LOCAL	static
 
-EXPORT	int	getperm		__PR((FILE *f, char *perm, char *opname, mode_t *modep, int smode, int flag));
-LOCAL	char	*getsperm	__PR((FILE *f, char *p, mode_t *mp, int smode, int flag));
+/*
+ * getperm() flags:
+ */
+#define	GP_NOX		0	/* This is not a dir and 'X' is not valid */
+#define	GP_DOX		1	/* 'X' perm character is valid		  */
+#define	GP_XERR		2	/* 'X' perm characters are invalid	  */
+#define	GP_FPERM	4	/* TRUE if we implement find -perm	  */
+
+LOCAL	int	getperm		__PR((char *perm, mode_t *modep, int smode, int flag));
+LOCAL	char	*getsperm	__PR((char *p, mode_t *mp, int smode, int isX));
 LOCAL	mode_t	iswho		__PR((int c));
 LOCAL	int	isop		__PR((int c));
 LOCAL	mode_t	isperm		__PR((int c, int isX));
+LOCAL	int	mval		__PR((mode_t m));
+LOCAL	void	promask		__PR((void));
+	void	sysumask	__PR((int argc, char **argv));
 
 /*
  * This is the mode bit translation code stolen from star...
@@ -67,8 +75,9 @@ LOCAL	mode_t	isperm		__PR((int c, int isX));
 
 #ifdef	HAVE_POSIX_MODE_BITS	/* st_mode bits are equal to TAR mode bits */
 #define	OSMODE(xmode)	    (xmode)
+#define	TARMODE(xmode)	    (xmode)
 #else
-#define	OSMODE(xmode)	    ((xmode & TSUID   ? S_ISUID : 0)  \
+#define	OSMODE(xmode)	    ((xmode  & TSUID   ? S_ISUID : 0) \
 			    | (xmode & TSGID   ? S_ISGID : 0) \
 			    | (xmode & TSVTX   ? S_ISVTX : 0) \
 			    | (xmode & TUREAD  ? S_IRUSR : 0) \
@@ -80,79 +89,67 @@ LOCAL	mode_t	isperm		__PR((int c, int isX));
 			    | (xmode & TOREAD  ? S_IROTH : 0) \
 			    | (xmode & TOWRITE ? S_IWOTH : 0) \
 			    | (xmode & TOEXEC  ? S_IXOTH : 0))
+
+#define	TARMODE(xmode)	    ((xmode  & S_ISUID ? TSUID   : 0) \
+			    | (xmode & S_ISGID ? TSGID   : 0) \
+			    | (xmode & S_ISVTX ? TSVTX   : 0) \
+			    | (xmode & S_IRUSR ? TUREAD  : 0) \
+			    | (xmode & S_IWUSR ? TUWRITE : 0) \
+			    | (xmode & S_IXUSR ? TUEXEC  : 0) \
+			    | (xmode & S_IRGRP ? TGREAD  : 0) \
+			    | (xmode & S_IWGRP ? TGWRITE : 0) \
+			    | (xmode & S_IXGRP ? TGEXEC  : 0) \
+			    | (xmode & S_IROTH ? TOREAD  : 0) \
+			    | (xmode & S_IWOTH ? TOWRITE : 0) \
+			    | (xmode & S_IXOTH ? TOEXEC  : 0))
 #endif
 
-EXPORT int
-getperm(f, perm, opname, modep, smode, flag)
-	FILE	*f;			/* FILE * to print error messages to */
+LOCAL int
+getperm(perm, modep, smode, flag)
 	char	*perm;			/* Perm string to parse		    */
-	char	*opname;		/* find(1) operator name / NULL	    */
 	mode_t	*modep;			/* The mode result		    */
 	int	smode;			/* The start mode for the computation */
 	int	flag;			/* Flags, see getperm() flag defs */
 {
 	char	*p;
+#ifdef	DO_OCTAL
 	Llong	ll;
 	mode_t	mm;
+#endif
 
 	p = perm;
 	if ((flag & GP_FPERM) && *p == '-')
 		p++;
 
+#ifdef	DO_OCTAL
 	if (*p >= '0' && *p <= '7') {
 		p = astollb(p, &ll, 8);
 		if (*p) {
-			if (f) {
-				if (opname) {
-					ferrmsgno(f, EX_BAD,
-					gettext("Non octal character '%c' in '-%s %s'.\n"),
-					*p, opname, perm);
-				} else {
-					ferrmsgno(f, EX_BAD,
-					gettext("Non octal character '%c' in '%s'.\n"),
-					*p, perm);
-				}
-			}
 			return (-1);
 		}
 		mm = ll & TALLMODES;
 		*modep = OSMODE(mm);
 		return (0);
 	}
-	p = getsperm(f, p, modep, smode, flag);
+#endif
+	flag &= ~GP_FPERM;
+	if (flag & GP_XERR)
+		flag = -1;
+	p = getsperm(p, modep, smode, flag);
 	if (p && *p != '\0') {
-		if (f) {
-			if (opname) {
-				ferrmsgno(f, EX_BAD,
-				gettext("Bad perm character '%c' found in '-%s %s'.\n"),
-					*p, opname, perm);
-			} else {
-				ferrmsgno(f, EX_BAD,
-				gettext("Bad perm character '%c' found in '%s'.\n"),
-					*p, perm);
-			}
-		}
 		return (-1);
 	}
-#ifdef	PERM_DEBUG
-	error("GETPERM (%c) %4.4lo\n", perm, (long)*modep);
-#endif
 	return (0);
 }
 
 LOCAL char *
-getsperm(f, p, mp, smode, flag)
-	FILE	*f;
+getsperm(p, mp, smode, isX)
 	char	*p;		/* The perm input string		*/
 	mode_t	*mp;		/* To set the mode			*/
 	int	smode;		/* The start mode for the computation	*/
-	int	flag;		/* Flags, see getperm() flag defs	*/
+	int	isX;		/* -1: Ignore X, 0: no dir/X 1: X OK	*/
 {
-#ifdef	OLD
-	mode_t	permval = 0;	/* POSIX start value for "find" */
-#else
 	mode_t	permval = smode;	/* POSIX start value for "find" */
-#endif
 	mode_t	who;
 	mode_t	m;
 	int	op;
@@ -160,56 +157,35 @@ getsperm(f, p, mp, smode, flag)
 	mode_t	pm;
 
 nextclause:
-#ifdef	PERM_DEBUG
-	error("getsperm(%s)\n", p);
-#endif
 	who = 0;
 	while ((m = iswho(*p)) != 0) {
 		p++;
 		who |= m;
 	}
 	if (who == 0) {
-		mode_t	mask;
+#ifndef	BOURNE_SHELL
+		mode_t	mask = umask(0);
 
-		if (flag & GP_UMASK) {
-			who = (S_ISUID|S_ISGID|S_ISVTX|S_IRWXU|S_IRWXG|S_IRWXO);
-		} else {
-			umask(mask = umask(0));
-			who = ~mask;
-			who &= (S_ISUID|S_ISGID|S_ISVTX|S_IRWXU|S_IRWXG|S_IRWXO);
-		}
-	}
-#ifdef	PERM_DEBUG
-	error("WHO %4.4lo\n", (long)who);
-	error("getsperm(--->%s)\n", p);
+		umask(mask);
+		who = ~mask;
+		who &= (S_ISUID|S_ISGID|S_ISVTX|S_IRWXU|S_IRWXG|S_IRWXO);
+#else
+		who = (S_ISUID|S_ISGID|S_ISVTX|S_IRWXU|S_IRWXG|S_IRWXO);
 #endif
+	}
 
 nextop:
 	if ((op = isop(*p)) != '\0')
 		p++;
-#ifdef	PERM_DEBUG
-	error("op '%c'\n", op);
-	error("getsperm(--->%s)\n", p);
-#endif
 	if (op == 0) {
-		if (f) {
-			ferrmsgno(f, EX_BAD, gettext("Missing -perm op.\n"));
-		}
 		return (p);
 	}
 
-	flag &= ~(GP_FPERM|GP_UMASK);
-	if (flag & GP_XERR)
-		flag = -1;
 	perms = 0;
-	while ((pm = isperm(*p, flag)) != (mode_t)-1) {
+	while ((pm = isperm(*p, isX)) != (mode_t)-1) {
 		p++;
 		perms |= pm;
 	}
-#ifdef	PERM_DEBUG
-	error("PERM %4.4lo\n", (long)perms);
-	error("START PERMVAL %4.4lo\n", (long)permval);
-#endif
 	if ((perms == 0) && (*p == 'u' || *p == 'g' || *p == 'o')) {
 		mode_t	what = 0;
 
@@ -240,9 +216,6 @@ nextop:
 			perms |= (who & (S_IXUSR|S_IXGRP|S_IXOTH));
 		p++;
 	}
-#ifdef	PERM_DEBUG
-	error("getsperm(--->%s)\n", p);
-#endif
 	switch (op) {
 
 	case '=':
@@ -256,9 +229,6 @@ nextop:
 		permval &= ~(who & perms);
 		break;
 	}
-#ifdef	PERM_DEBUG
-	error("END PERMVAL %4.4lo\n", (long)permval);
-#endif
 	if (isop(*p))
 		goto nextop;
 	if (*p == ',') {
@@ -332,3 +302,106 @@ isperm(c, isX)
 		return ((mode_t)-1);
 	}
 }
+
+static char *umodtab[] =
+{"", "x", "w", "wx", "r", "rx", "rw", "rwx"};
+
+#ifdef	PROTOTYPES
+LOCAL int
+mval(mode_t m)
+#else
+LOCAL int
+mval(m)
+	mode_t	m;
+#endif
+{
+	int	ret = 0;
+
+	if (m & (S_IRUSR|S_IRGRP|S_IROTH))
+		ret |= 4;
+	if (m & (S_IWUSR|S_IWGRP|S_IWOTH))
+		ret |= 2;
+	if (m & (S_IXUSR|S_IXGRP|S_IXOTH))
+		ret |= 1;
+
+	return (ret);
+}
+
+LOCAL void
+promask()
+{
+	mode_t	i;
+	int	j;
+
+	umask(i = umask(0));
+	i = TARMODE(i);
+	prc_buff('0');
+	for (j = 6; j >= 0; j -= 3)
+		prc_buff(((i >> j) & 07) +'0');
+	prc_buff(NL);
+}
+
+void
+sysumask(argc, argv)
+	int	argc;
+	char	**argv;
+{
+	char	*a1 = argv[1];
+
+	if (argc == 2 && eq(a1, "-S")) {
+		mode_t	m;
+
+		umask(m = umask(0));
+		m = ~m;
+
+		prs_buff((unsigned char *)"u=");
+		prs_buff((unsigned char *)umodtab[mval(m & S_IRWXU)]);
+		prs_buff((unsigned char *)",g=");
+		prs_buff((unsigned char *)umodtab[mval(m & S_IRWXG)]);
+		prs_buff((unsigned char *)",o=");
+		prs_buff((unsigned char *)umodtab[mval(m & S_IRWXO)]);
+		prc_buff(NL);
+	} else if (a1) {
+		int	c;
+		mode_t	i;
+
+		/*
+		 * POSIX requires "umask -r" to fail.
+		 * Must use "umask -- -r" to set this mode.
+		 */
+		if (a1[0] == '-') {
+			if (a1[1] == '-' && a1[2] == '\0') {	/* found -- */
+				if (argc <= 2) {		/* umask -- */
+					promask();
+					return;
+				}
+				argv++;
+				a1 = argv[1];
+			} else {
+				/*
+				 * This is a "bad option".
+				 */
+				failed((unsigned char *)&badumask[4], badumask);
+			}
+		}
+		i = 0;
+		while ((c = *a1++) >= '0' && c <= '7')
+			i = (i << 3) + c - '0';
+
+		if (c == '\0') {	/* Fully octal arg */
+			umask(OSMODE(i));
+			return;
+		}
+
+		umask(i = umask(0));
+		i = ~i;
+		if (getperm(argv[1], &i, i, GP_NOX)) {
+			failed((unsigned char *)&badumask[4], badumask);
+		}
+		umask(~i);
+	} else {
+		promask();
+	}
+}
+
+#endif /* RES */

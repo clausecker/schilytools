@@ -1,4 +1,4 @@
-#ident "@(#)Makefile	1.20 12/04/05 "
+#ident "@(#)Makefile	1.22 12/04/17  Copyright (c) 2006-2012 J. Schilling"
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -28,6 +28,7 @@ CPPOPTS +=	-DACCT					# Shell Accounting
 
 CPPOPTS +=	-DDO_SYSALLOC		# Include the "alloc" debug builtin
 #CPPOPTS +=	-DSTAK_DEBUG		# Include debug code for stak.c
+#CPPOPTS +=	-DARGS_RIGHT_TO_LEFT	# Evaluate var2=val2 var1=val1 left to right
 
 
 CPPOPTS +=	-DINTERACTIVE		# Include command line history editor
@@ -36,7 +37,7 @@ CFILES=		args.c bltin.c cmd.c ctype.c defs.c echo.c error.c \
 		expand.c fault.c func.c hash.c hashserv.c io.c jobs.c macro.c \
 		main.c msg.c name.c print.c pwd.c service.c \
 		sh_policy.c stak.c string.c test.c ulimit.c word.c xec.c \
-		signames.c gmatch.c
+		signames.c gmatch.c umask.c
 
 HFILES=		brkincr.h ctype.h defs.h dup.h hash.h mac.h mode.h name.h \
 		sh_policy.h stak.h sym.h timeout.h version.h

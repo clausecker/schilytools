@@ -36,11 +36,11 @@
 /*
  * This file contains modifications Copyright 2008-2012 J. Schilling
  *
- * @(#)name.c	1.16 12/03/19 2008-2012 J. Schilling
+ * @(#)name.c	1.18 12/04/17 2008-2012 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)name.c	1.16 12/03/19 2008-2012 J. Schilling";
+	"@(#)name.c	1.18 12/04/17 2008-2012 J. Schilling";
 #endif
 
 /*
@@ -361,11 +361,23 @@ readvar(names)
 	struct fileblk *f = &fb;
 	unsigned char	c[MULTI_BYTE_MAX+1];
 	int	rc = 0;
-	struct namnod *n = lookup(*names++);	/* done now to avoid storage mess */
-	unsigned char	*rel = (unsigned char *)relstak();
+	struct namnod	*n;
+	unsigned char	*rel;
 	unsigned char *oldstak;
 	unsigned char *pc, *rest;
 	int		d;
+	unsigned int	(*nextwchar)__PR((void));
+
+	if (eq(*names, "-r")) {
+		if (*++names == NULL)
+			failed(names[-2], mssgargn);
+		nextwchar = readwc;
+	} else {
+		nextwchar = nextwc;
+	}
+
+	n = lookup(*names++);		/* done now to avoid storage mess */
+	rel = (unsigned char *)relstak();
 
 	push(f);
 	initf(dup(0));
@@ -395,7 +407,7 @@ readvar(names)
 	 */
 	for (;;) 
 	{
-		d = nextwc();
+		d = nextwchar();
 		if(eolchar(d))
 			break;
 		rest = readw(d);
@@ -413,6 +425,8 @@ readvar(names)
 			if (staktop >= brkend)
 				growstak(staktop);
 			zerostak();
+			if (flags & exportflg)
+				n->namflg |= N_EXPORT;
 			assign(n, absstak(rel));
 			setstak(rel);
 			if (*names)
@@ -425,7 +439,7 @@ readvar(names)
 			}
 			else		/* strip imbedded IFS characters */
 				while(1) {
-					d = nextwc();
+					d = nextwchar();
 					if(eolchar(d))
 						break;
 					rest = readw(d);
@@ -437,7 +451,7 @@ readvar(names)
 		}
 		else
 		{
-			if(d == '\\') {
+			if (d == '\\' && nextwchar == nextwc) {
 				d = readwc();
 				rest = readw(d);
 				while ((d = *rest++) != '\0') {
@@ -458,7 +472,7 @@ readvar(names)
 				if(!anys(c, ifsnod.namval))
 					oldstak = staktop;
 			}
-			d = nextwc();
+			d = nextwchar();
 
 			if (eolchar(d))
 				staktop = oldstak;
@@ -472,6 +486,8 @@ readvar(names)
 	}
 	while (n)
 	{
+		if (flags & exportflg)
+			n->namflg |= N_EXPORT;
 		assign(n, (unsigned char *)nullstr);
 		if (*names)
 			n = lookup(*names++);

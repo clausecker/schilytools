@@ -36,11 +36,11 @@
 /*
  * This file contains modifications Copyright 2008-2012 J. Schilling
  *
- * @(#)cmd.c	1.17 12/04/03 2008-2012 J. Schilling
+ * @(#)cmd.c	1.18 12/04/17 2008-2012 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)cmd.c	1.17 12/04/03 2008-2012 J. Schilling";
+	"@(#)cmd.c	1.18 12/04/17 2008-2012 J. Schilling";
 #endif
 
 /*
@@ -406,6 +406,9 @@ item(flag)
 			struct argnod *argp;
 			struct argnod **argtail;
 			struct argnod **argset = 0;
+#ifndef	ARGS_RIGHT_TO_LEFT
+			struct argnod **argstail = (struct argnod **)&argset;
+#endif
 			int	keywd = 1;
 			unsigned char	*com;
 
@@ -474,8 +477,14 @@ item(flag)
 					argp = wdarg;
 					if (wdset && keywd)
 					{
+#ifdef	ARGS_RIGHT_TO_LEFT		/* old order: var2=val2 var1=val1 */
 						argp->argnxt = (struct argnod *)argset;
 						argset = (struct argnod **)argp;
+#else
+						argp->argnxt = (struct argnod *)0;
+						*argstail = argp;
+						argstail = &argp->argnxt;
+#endif
 					}
 					else
 					{

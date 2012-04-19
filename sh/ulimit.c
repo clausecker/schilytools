@@ -34,13 +34,13 @@
 #include "defs.h"
 
 /*
- * This file contains modifications Copyright 2008-2009 J. Schilling
+ * This file contains modifications Copyright 2008-2012 J. Schilling
  *
- * @(#)ulimit.c	1.10 09/11/01 2008-2009 J. Schilling
+ * @(#)ulimit.c	1.11 12/04/17 2008-2012 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)ulimit.c	1.10 09/11/01 2008-2009 J. Schilling";
+	"@(#)ulimit.c	1.11 12/04/17 2008-2012 J. Schilling";
 #endif
 
 /*
@@ -78,11 +78,17 @@ static struct rlimtab {
 #ifdef	RLIMIT_CORE
 {	RLIMIT_CORE,	"coredump",	"blocks",	512,	},
 #endif
+#ifdef	RLIMIT_MEMLOCK
+{	RLIMIT_MEMLOCK,	"memlock",	"kbytes",	1024	},
+#endif
 #ifdef	RLIMIT_RSS
 {	RLIMIT_RSS,	"memoryuse",	"kbytes",	1024,	},
 #endif
 #ifdef	RLIMIT_NOFILE
 {	RLIMIT_NOFILE,	"nofiles",	"descriptors",	1,	},
+#endif
+#ifdef	RLIMIT_NPROC
+{	RLIMIT_NPROC,	"processes",	"count",	1	},
 #endif
 #ifdef	RLIMIT_VMEM
 {	RLIMIT_VMEM,	"memory",	"kbytes",	1024,	},
@@ -123,7 +129,7 @@ sysulimit(argc, argv)
 	soft = 0;
 	cnt = 0;
 
-	while ((c = getopt(argc, argv, "HSacdfnstv")) != -1) {
+	while ((c = getopt(argc, argv, "HSacdflmnstuv")) != -1) {
 		switch (c) {
 		case 'S':
 			soft++;
@@ -154,6 +160,16 @@ sysulimit(argc, argv)
 			res = RLIMIT_FSIZE;
 #endif
 			break;
+		case 'l':
+#ifdef	RLIMIT_MEMLOCK
+			res = RLIMIT_MEMLOCK;
+#endif
+			break;
+		case 'm':
+#ifdef	RLIMIT_RSS
+			res = RLIMIT_RSS;
+#endif
+			break;
 		case 'n':
 #ifdef	RLIMIT_NOFILE
 			res = RLIMIT_NOFILE;
@@ -167,6 +183,11 @@ sysulimit(argc, argv)
 		case 't':
 #ifdef	RLIMIT_CPU
 			res = RLIMIT_CPU;
+#endif
+			break;
+		case 'u':
+#ifdef	RLIMIT_NPROC
+			res = RLIMIT_NPROC;
 #endif
 			break;
 		case 'v':

@@ -1,4 +1,4 @@
-/* @(#)schily.h	1.104 11/11/15 Copyright 1985-2011 J. Schilling */
+/* @(#)schily.h	1.106 12/04/15 Copyright 1985-2012 J. Schilling */
 /*
  *	Definitions for libschily
  *
@@ -18,7 +18,7 @@
  *	include ctype.h past schily/schily.h as OpenBSD does not follow POSIX
  *	and defines EOF in ctype.h
  *
- *	Copyright (c) 1985-2011 J. Schilling
+ *	Copyright (c) 1985-2012 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -290,6 +290,7 @@ extern	time_t		mkgmtime	__PR((struct tm *));
 #define	GP_DOX		1	/* 'X' perm character is valid		  */
 #define	GP_XERR		2	/* 'X' perm characters are invalid	  */
 #define	GP_FPERM	4	/* TRUE if we implement find -perm	  */
+#define	GP_UMASK	8	/* TRUE if we implement umask		  */
 
 extern	int	getperm	__PR((FILE *f, char *perm, char *opname, \
 				mode_t *modep, int smode, int flag));

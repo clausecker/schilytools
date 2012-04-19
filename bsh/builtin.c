@@ -1,8 +1,8 @@
-/* @(#)builtin.c	1.74 12/03/14 Copyright 1988-2012 J. Schilling */
+/* @(#)builtin.c	1.75 12/04/15 Copyright 1988-2012 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)builtin.c	1.74 12/03/14 Copyright 1988-20112 J. Schilling";
+	"@(#)builtin.c	1.75 12/04/15 Copyright 1988-20112 J. Schilling";
 #endif
 /*
  *	Builtin commands
@@ -1098,7 +1098,8 @@ bumask(vp, std, flag)
 		return;
 	}
 ok:
-	if (getperm(std[2], av[0], NULL, &newmask, ~getcmask(), GP_NOX)) {
+	if (getperm(std[2], av[0], NULL, &newmask, ~getcmask(),
+							GP_UMASK|GP_NOX)) {
 		fprintf(std[2], "Improper mask\n");
 		ex_status = 1;
 		return;

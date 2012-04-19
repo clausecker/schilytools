@@ -1,0 +1,100 @@
+New features with AN-2012-04-19:
+
+This is the first localization step for the schily source consolidation. Many
+programs now (hopefully) call gettext() for all strings that need localization.
+
+-	The next step will include dgettext() calls for the libraries and the
+	missing programs
+
+-	The following step will include the extracted strings
+
+-	The last step will include German translations and install support
+	for the resulting binary message object files.
+
+----------> Please test and report compilation problems! <---------
+
+***** NOTE: As mentioned since 2004, frontends to the tools should *****
+*****		call all programs in the "C" locale		   *****
+*****		by e.g. calling: LC_ALL=C cdrecord ....		   *****
+*****		unless these frontends support localized strings   *****
+*****		used by the cdrtools with NLS support.		   *****
+
+-	libschily/getperm.c now supports a new flag GP_UMASK in order to
+	support "umask +w" in a POSIX correct way.
+
+-	bsh now uses GP_UMASK for the getperm() flag in the builtin
+	umask command.
+
+-	Bourne Shell: umask now supports the POSIX "-S" option to print
+	the current umask in a symbolic form.
+
+-	Bourne Shell: umask now supports a chmod(1) like symbolic mode
+	to set umask. This is fully POSIX compliant, so beware:
+
+	"umask -r", "umask -w", ... are intentionally forbidden.
+
+	Use "umask -- -r", ... instead.
+
+	The output of umask -S is suitable for setting a new umask.
+
+-	Bourne Shell: The builtin read command now supports the
+	POSIX option -r to treat read backslash characters non-special.
+
+-	Bourne Shell: Fixed a bug: With set -a, "read VAR" now also
+	auto-exports VAR as expected.
+
+-	Bourne Shell: The option -version has been documented.
+
+-	Bourne Shell: The ulimit builtin command now supports the options:
+	-l, -m, -u for better compatibility with *BSD and Linux. These
+	options have been taken from ksh93.
+
+-	Bourne Shell: The parser has been changed to evaluate variable/macro
+	assignments (e.g. var2=val2 var1=val1) from left to right. Previous
+	versions did this from right to left, causing "foo=`echo $bar` bar=text"
+	to set foo=test even though people might asume that foo is left empty.
+
+	If you have problems with this change, recompile sh with:
+
+		smake COPTX=-DARGS_RIGHT_TO_LEFT
+
+	and report your problem.
+
+-	Bourne Shell: The SVR4.0 colon (null command) redirection bug that
+	caused sh only to create xxx.1 with:
+
+		for i in 1 2; do
+			: > xxx.$i
+		done
+
+	has been fixed.
+
+-	Bourne Shell: The man page now contains a documentation for
+	the builtin commands "getopts", "read" and "test".
+
+-	Bourne Shell: The man page now contains a first (still incomplete)
+	documentation for the command history editor.
+
+-	Bourne Shell: The FILES section in the man page was rewritten.
+
+-	Bourne Shell: The special variable section in the man page now mentions
+	the variables: HISTORY, SAVEHISTORY, IGNOREEOF, TERM, TERMCAP, TERMPATH
+	that are used by the history editor.
+
+-	Bourne Shell: The special variable section in the man page now mentions
+	the variables: OPTARG and OPTIND
+
+-	Bourne Shell: The automatic variable section in the man page now mentions
+	$n ($1 ...), $0, $* and $@
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.isdn.cs.tu-berlin.de, js@cs.tu-berlin.de
+	joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.
