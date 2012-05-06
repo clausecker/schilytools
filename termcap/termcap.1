@@ -1,4 +1,4 @@
-. \" @(#)termcap.1	1.8 11/07/26 Copyright 2008 J. Schilling
+. \" @(#)termcap.1	1.12 12/05/06 Copyright 2008 J. Schilling
 . \"  Manual page for termcap
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -13,7 +13,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH TERMCAP 1L "11/07/26" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH TERMCAP 1L "2012/05/06" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 termcap \- a termcap compiler
 .SH SYNOPSIS
@@ -85,6 +85,12 @@ with many termcap entries and produce compiled output in standard order
 on 
 .BR stdout .
 This option is used in order to recompile a whole set of termcap entries.
+.sp
+To make the recompiling as smooth as possible,
+.B \-inorder
+is assumed by default. Use
+.B \-noinorder
+if you like to add further processing by hand.
 .TP
 .B \-inorder
 Output all capabilities in the standard order. First the boolean
@@ -92,6 +98,12 @@ capabilities, then the numeric capabilities and at last the string
 capabilities. Without
 .BR \-inorder ,
 the obsolete capabilities are printed last.
+.sp
+The option
+.B \-inorder
+is assumed by default if the
+.BI if= name
+option has been specified.
 .TP
 .B \-gnugoto
 Allow the GNU tgoto() format extensions %C and %m.
@@ -99,6 +111,13 @@ Allow the GNU tgoto() format extensions %C and %m.
 .B \-nodisabled
 Do not output disabled termcap entries. A comment with a warning for this
 entry is still printed in the output.
+.TP
+.B \-noinorder
+Output all capabilities in the standard order, but print
+obsoleted capabilities, unknown capabilities and disabled capabilities
+in a separate block before any
+.B tc=
+entry.
 .TP
 .B \-nounknown
 Do not output unknown termcap entries. A comment with a warning for this
@@ -113,13 +132,41 @@ syntax to termcap syntax. For this purpose, currently null characters
 are converted to 
 .BR \e200 .
 In addition, the escape sequences
+.BR \ea ,
 .BR \ee ,
 .BR \e: ,
 .BR \e, ,
 .B \es
 and
 .B \el
-are mapped to ESCAPE, ':', ',', ' ' and LINEFEED.
+are mapped to BEL, ESCAPE, ':', ',', ' ' and LINEFEED.
+.TP
+.B \-s
+Output commands to set and export
+.B TERM
+and
+.BR TERMCAP .
+This can be done with
+.sp
+.B "  eval `tset -s ...`
+.sp
+to bring the terminal information into the environment of shells that
+do not support
+.B termcap 
+internally as e.g.
+.B sh
+(recent Bourne Shell versions) and
+.B bsh
+already do.
+Doing so makes 
+.B termcap 
+based programs start up faster.
+If the
+.B SHELL
+environment variable ends with
+.BR csh ,
+C shell commands are created, otherwise Bourne
+shell commands are created.
 .TP
 .B \-tc
 Follow
@@ -139,7 +186,7 @@ option is used together with
 .BI if= filename
 and 
 .BR termcap (1)
-is in compile mode, the output will increase noticably in size as all
+is in compile mode, the output will increase noticeably in size as all
 .B termcap
 entries for all terminals will be fully expanded. This also removes all
 hints to similar terminals in the output.
@@ -199,6 +246,11 @@ The system's terminal capabilities database.
 .TP
 .B ~/.termcap
 The private terminal capabilities database.
+.SH "SEE ALSO
+.BR sh (1),
+.BR bsh (1),
+.BR tset (1B),
+.BR termcap (4).
 
 .SH MESSAGES
 .PP
@@ -310,7 +362,7 @@ entries is intended to cancel entries from capabilities imported via the
 feature. 
 .sp
 Carefully check every such problem in the source whether it was introduced
-intentionally (e.g. in order to temporarily disable a feeature) or whether
+intentionally (e.g. in order to temporarily disable a feature) or whether
 it was introduced by accident.
 .TP
 .B "# NOTICE(name). NULL char (fixed) in entry ('ent') at..."
@@ -345,7 +397,7 @@ Carefully check every such problem in the source and manually correct it.
 A character quoted with "\e" was found but the character is not in the list
 of quotes documented by
 .BR termcap .
-As the character was from the list "\ee", "\e:", "\e,", "\es", "\el"
+As the character was from the list "\ea", "\ee", "\e:", "\e,", "\es", "\el"
 it is assumed that the problem was caused by a bad conversion from a
 .B terminfo
 entry.
@@ -356,7 +408,7 @@ Carefully check every such problem in the source and manually correct it if need
 A character quoted with "\e" was found but the character is not in the list
 of quotes documented by
 .BR termcap .
-As the character was neither from the list "\ee", "\e:", "\e,", "\es", "\el"
+As the character was neither from the list "\ea", "\ee", "\e:", "\e,", "\es", "\el"
 it is assumed that the problem was caused by a bad manual edit.
 .sp
 Carefully check every such problem in the source and manually correct it.
@@ -366,7 +418,7 @@ Carefully check every such problem in the source and manually correct it.
 Termcap databases that have been created from a terminfo database often are full
 of noncompliances that prevent successful parsing by termcap-compliant software.
 The fact that terminfo permits "\e:" is the cause for the majority of all problems
-that cannot be automatically resolved.
+but fortunately can be automatically resolved.
 .PP
 There is a non-compliance between older and newer
 .B termcap

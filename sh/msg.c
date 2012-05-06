@@ -36,11 +36,11 @@
 /*
  * This file contains modifications Copyright 2008-2012 J. Schilling
  *
- * @(#)msg.c	1.9 12/04/17 2008-2012 J. Schilling
+ * @(#)msg.c	1.12 12/04/25 2008-2012 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)msg.c	1.9 12/04/17 2008-2012 J. Schilling";
+	"@(#)msg.c	1.12 12/04/25 2008-2012 J. Schilling";
 #endif
 
 /*
@@ -109,6 +109,7 @@ const char	running[]	= "Running";
 const char	ambiguous[]	= "ambiguous";
 const char	usage[]		= "usage";
 const char	nojc[]		= "no job control";
+const char	repuse[]	= "repeat [-c count] [-d delay] cmd [args]";
 const char	stopuse[]	= "stop id ...";
 const char	ulimuse[]	= "ulimit [ -HSacdflmnstuv ] [ limit ]";
 const char	killuse[]	= "kill [ [ -sig ] id ... | -l ]";
@@ -146,6 +147,8 @@ const char	ifsname[]	= "IFS";
 const char	ps1name[]	= "PS1";
 const char	ps2name[]	= "PS2";
 const char	mchkname[]	= "MAILCHECK";
+const char	opwdname[]  	= "OLDPWD";
+const char	pwdname[]  	= "PWD";
 const char	acctname[]  	= "SHACCT";
 const char	mailpname[]	= "MAILPATH";
 
@@ -234,6 +237,11 @@ const struct sysnod commands[] =
 	{ "kill",	SYSKILL },
 #ifdef RES
 	{ "login",	SYSLOGIN },
+#endif
+#ifdef	INTERACTIVE
+	{ "map",	SYSMAP },
+#endif
+#ifdef RES
 	{ "newgrp",	SYSLOGIN },
 #else
 	{ "newgrp",	SYSNEWGRP },
@@ -242,7 +250,11 @@ const struct sysnod commands[] =
 	{ "pwd",	SYSPWD },
 	{ "read",	SYSREAD	},
 	{ "readonly",	SYSRDONLY },
+	{ "repeat",	SYSREPEAT },
 	{ "return",	SYSRETURN },
+#ifdef	INTERACTIVE
+	{ "savehistory", SYSSAVEHIST },
+#endif
 	{ "set",	SYSSET	},
 	{ "shift",	SYSSHFT	},
 	{ "stop",	SYSSTOP	},

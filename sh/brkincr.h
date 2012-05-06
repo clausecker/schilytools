@@ -27,9 +27,9 @@
 #pragma ident	"@(#)brkincr.h	1.7	05/06/08 SMI"	/* SVr4.0 1.5	*/
 #endif
 /*
- * This file contains modifications Copyright 2009 J. Schilling
- * @(#)brkincr.h	1.3 09/11/08 2009 J. Schilling
+ * This file contains modifications Copyright 2009-2012 J. Schilling
+ * @(#)brkincr.h	1.4 12/04/22 2009-2012 J. Schilling
  */
 /*	3.0 SID #	1.1	*/
-#define BRKINCR 01000
-#define BRKMAX 04000
+#define	BRKINCR	01000
+#define	BRKMAX	04000

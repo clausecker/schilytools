@@ -1,4 +1,4 @@
-/* @(#)bsh.h	1.57 12/03/14 Copyright 1985-2012 J. Schilling */
+/* @(#)bsh.h	1.58 12/04/26 Copyright 1985-2012 J. Schilling */
 /*
  *	Bsh general definitions
  *
@@ -110,6 +110,7 @@ typedef struct Tnode {
 #define	ENV	0x40000		/* use builtin "env" for name=value */
 #define	DIDFORK	0x80000		/* did fork already */
 #define	NOVFORK	0x100000	/* do not vfork(), use shfork() instead */
+#define	IGNENV	0x200000	/* this is a command from env -i ... */
 
 /*
  * Global data
@@ -200,7 +201,7 @@ extern	Argvec*	scan		__PR((Tnode *cmd));
 /*
  * sys.c
  */
-extern	void	start		__PR((Argvec * vp, FILE ** std));
+extern	void	start		__PR((Argvec * vp, FILE ** std, int flag));
 extern	pid_t	shfork		__PR((int flag));
 extern	void	pset		__PR((pid_t child, int flag));
 extern	void	block_sigs	__PR((void));

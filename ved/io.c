@@ -1,13 +1,13 @@
-/* @(#)io.c	1.37 11/08/13 Copyright 1984-2009 J. Schilling */
+/* @(#)io.c	1.38 12/04/24 Copyright 1984-2012 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)io.c	1.37 11/08/13 Copyright 1984-2009 J. Schilling";
+	"@(#)io.c	1.38 12/04/24 Copyright 1984-2012 J. Schilling";
 #endif
 /*
  *	Low level routines for Input from keyboard and output to screen.
  *
- *	Copyright (c) 1984-2009 J. Schilling
+ *	Copyright (c) 1984-2012 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

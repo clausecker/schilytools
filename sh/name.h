@@ -24,15 +24,15 @@
 
 
 #if defined(sun)
-#pragma ident	"@(#)name.h	1.7	05/06/08 SMI"	/* SVr4.0 1.7.1.1	*/
+#pragma ident	"@(#)name.h	1.7	05/06/08 SMI"	/* SVr4.0 1.7.1.1 */
 #endif
 
 #ifndef	_NAME_H
 #define	_NAME_H
 
 /*
- * This file contains modifications Copyright 2009 J. Schilling
- * @(#)name.h	1.4 09/12/31 2009 J. Schilling
+ * This file contains modifications Copyright 2009-2012 J. Schilling
+ * @(#)name.h	1.5 12/04/22 2009-2012 J. Schilling
  */
 /*
  *	UNIX shell
@@ -40,12 +40,12 @@
 
 
 #define	N_ENVCHG 0020
-#define N_RDONLY 0010
-#define N_EXPORT 0004
-#define N_ENVNAM 0002
-#define N_FUNCTN 0001
+#define	N_RDONLY 0010
+#define	N_EXPORT 0004
+#define	N_ENVNAM 0002
+#define	N_FUNCTN 0001
 
-#define N_DEFAULT 0
+#define	N_DEFAULT 0
 
 struct namnod
 {

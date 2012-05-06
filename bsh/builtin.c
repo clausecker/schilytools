@@ -1,8 +1,8 @@
-/* @(#)builtin.c	1.75 12/04/15 Copyright 1988-2012 J. Schilling */
+/* @(#)builtin.c	1.77 12/04/26 Copyright 1988-2012 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)builtin.c	1.75 12/04/15 Copyright 1988-20112 J. Schilling";
+	"@(#)builtin.c	1.77 12/04/26 Copyright 1988-2012 J. Schilling";
 #endif
 /*
  *	Builtin commands
@@ -493,6 +493,10 @@ bmap(vp, std, flag)
 #ifdef	INTERACTIVE
 	if (vp->av_ac == 1)
 		list_map(std[1]);
+	else if (vp->av_ac == 2 && streql(vp->av_av[1], "-r"))
+		remap();
+	else if (vp->av_ac == 3 && streql(vp->av_av[1], "-u"))
+		del_map(vp->av_av[2]);
 	else if (vp->av_ac != 3 && vp->av_ac != 4)
 		wrong_args(vp, std);
 	else if (!add_map(vp->av_av[1], vp->av_av[2], vp->av_av[3])) {
@@ -669,7 +673,7 @@ volatile int	cstat;
 		for (i = 0; i < ac; i++) {
 			nvp->av_av[i] = vp->av_av[i + (len-ac) + 1];
 		}
-		cstat = execcmd(nvp, std, flag);
+		cstat = execcmd(nvp, std, flag | (iflag ? IGNENV : 0));
 		if (ex_status)
 			_exit(ex_status);
 		_exit(cstat);

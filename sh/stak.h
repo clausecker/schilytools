@@ -34,14 +34,15 @@
 /*
  * This file contains modifications Copyright 2008-2012 J. Schilling
  *
- * @(#)stak.h	1.7 12/03/27 2008-2012 J. Schilling
+ * @(#)stak.h	1.8 12/04/22 2008-2012 J. Schilling
  */
 
 /*
  *	UNIX shell
  */
 
-/* To use stack as temporary workspace across
+/*
+ * To use stack as temporary workspace across
  * possible storage allocation (eg name lookup)
  * a) get ptr from `relstak'
  * b) can now use `pushstak'
@@ -50,51 +51,61 @@
  */
 #define		relstak()	(staktop-stakbot)
 #define		absstak(x)	(stakbot+Rcheat(x))
-#define		setstak(x)	(staktop=absstak(x))
-#define		pushstak(c)	(*staktop++=(c))
-#define		zerostak()	(*staktop=0)
+#define		setstak(x)	(staktop = absstak(x))
+#define		pushstak(c)	(*staktop++ = (c))
+#define		zerostak()	(*staktop = 0)
 
-/* Used to address an item left on the top of
+/*
+ * Used to address an item left on the top of
  * the stack (very temporary)
  */
 #define		curstak()	(staktop)
 
-/* `usestak' before `pushstak' then `fixstak'
+/*
+ * `usestak' before `pushstak' then `fixstak'
  * These routines are safe against heap
  * being allocated.
  */
-#define		usestak()	{locstak();}
+#define		usestak()	{locstak(); }
 
-/* for local use only since it hands
+/*
+ * for local use only since it hands
  * out a real address for the stack top
  */
 extern unsigned char		*locstak __PR((void));
 
-/* Will allocate the item being used and return its
+/*
+ * Will allocate the item being used and return its
  * address (safe now).
  */
 #define		fixstak()	endstak(staktop)
 
-/* For use after `locstak' to hand back
+/*
+ * For use after `locstak' to hand back
  * new stack top and then allocate item
  */
 extern unsigned char		*endstak __PR((unsigned char *));
 
-/* Copy a string onto the stack and
+/*
+ * Copy a string onto the stack and
  * allocate the space.
  */
 extern unsigned char		*cpystak __PR((unsigned char *));
 
-/* Copy a string onto the stack, checking for stack overflow
+/*
+ * Copy a string onto the stack, checking for stack overflow
  * as the copy is done.  Same calling sequence as "movstr".
  */
-extern unsigned char		*movstrstak __PR((unsigned char *, unsigned char *));
+extern unsigned char		*movstrstak __PR((unsigned char *,
+						unsigned char *));
 
-/* Move bytes onto the stack, checking for stack overflow
+/*
+ * Move bytes onto the stack, checking for stack overflow
  * as the copy is done.  Same calling sequence as the C
  * library routine "memcpy".
  */
-extern unsigned char		*memcpystak __PR((unsigned char *, unsigned char *, int));
+extern unsigned char		*memcpystak __PR((unsigned char *,
+						unsigned char *, int));
 
 /* Allocate given ammount of stack space */
 extern unsigned char		*getstak __PR((Intptr_t));
@@ -102,7 +113,8 @@ extern unsigned char		*getstak __PR((Intptr_t));
 /* Grow the data segment to include a given location */
 extern unsigned char		*growstak __PR((unsigned char *));
 
-/* A chain of ptrs of stack blocks that
+/*
+ * A chain of ptrs of stack blocks that
  * have become covered by heap allocation.
  * `tdystak' will return them to the heap.
  */

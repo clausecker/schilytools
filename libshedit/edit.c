@@ -1,11 +1,11 @@
-/* @(#)edit.c	1.13 11/11/23 Copyright 2006-2010 J. Schilling */
+/* @(#)edit.c	1.14 12/04/22 Copyright 2006-2012 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)edit.c	1.13 11/11/23 Copyright 2006-2010 J. Schilling";
+	"@(#)edit.c	1.14 12/04/22 Copyright 2006-2012 J. Schilling";
 #endif
 /*
- *	Copyright (c) 2006-2010 J. Schilling
+ *	Copyright (c) 2006-2012 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -35,6 +35,7 @@ LOCAL	int	readchar	__PR((fstream *fsp));
 EXPORT	int	egetc		__PR((void));
 EXPORT	void	bsh_treset	__PR((void));
 EXPORT	void	bhist		__PR((void));
+EXPORT	void	bshist		__PR((int **ctlcpp));
 
 /*
  * Set up file from where the inout should be read,
@@ -286,4 +287,14 @@ EXPORT void
 bhist()
 {
 	put_history(gstd[1], TRUE);
+}
+
+EXPORT void
+bshist(ctlcpp)
+	int	**ctlcpp;
+{
+	if (ctlcpp)
+		*ctlcpp = &ctlc;
+	ctlc = 0;
+	save_history(1);
 }

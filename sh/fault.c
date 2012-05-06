@@ -36,11 +36,11 @@
 /*
  * This file contains modifications Copyright 2008-2012 J. Schilling
  *
- * @(#)fault.c	1.14 12/03/12 2008-2012 J. Schilling
+ * @(#)fault.c	1.15 12/04/22 2008-2012 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)fault.c	1.14 12/03/12 2008-2012 J. Schilling";
+	"@(#)fault.c	1.15 12/04/22 2008-2012 J. Schilling";
 #endif
 
 /*
@@ -82,6 +82,14 @@ static	UConst char sccsid[] =
 #include	<errno.h>
 #include	<string.h>
 #endif
+
+/*
+ * intrptr is a pointer to an integer that is incremented whenever
+ * a SIGINT is received and handled. This is used to inform additional
+ * "builtin" commands about an interrupt, e.g. the builtins from the
+ * Comand History Editor.
+ */
+	int	*intrptr;
 
 static	void (*psig0_func) __PR((int)) = SIG_ERR;	/* previous signal handler for signal 0 */
 static	char sigsegv_stack[SIGSTKSZ];
@@ -285,6 +293,12 @@ fault(sig)
 	int flag = 0;
 
 	switch (sig) {
+#ifdef	SIGINT
+		case SIGINT:
+			if (intrptr)
+				*intrptr++;
+			break;
+#endif
 #ifdef	SIGALRM
 		case SIGALRM:
 			if (sleeping)

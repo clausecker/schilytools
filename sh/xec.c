@@ -36,11 +36,11 @@
 /*
  * This file contains modifications Copyright 2008-2012 J. Schilling
  *
- * @(#)xec.c	1.18 12/04/07 2008-2012 J. Schilling
+ * @(#)xec.c	1.19 12/04/25 2008-2012 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)xec.c	1.18 12/04/07 2008-2012 J. Schilling";
+	"@(#)xec.c	1.19 12/04/25 2008-2012 J. Schilling";
 #endif
 
 /*
@@ -321,9 +321,9 @@ int *pf1, *pf2;
 						freejobs();
 					}
 					chktrap();
-					break;
+					break;		/* From case TFORK: */
 				}
-				mypid = getpid();
+				mypid = getpid();	/* This is the child */
 			}
 
 			/*
@@ -346,9 +346,12 @@ int *pf1, *pf2;
 #ifdef ACCT
 			suspacct();
 #endif
-			settmp();
-			oldsigs();
+			settmp();			/* /tmp/sh<pid> */
+			oldsigs();			/* Calls clrsig/free */
 
+			/*
+			 * Job control: pgrp / TTY-signal handling
+			 */
 			if (!(treeflgs & FPOU))
 				makejob(monitor, !(treeflgs & FAMP));
 

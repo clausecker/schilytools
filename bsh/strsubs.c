@@ -1,13 +1,13 @@
-/* @(#)strsubs.c	1.23 09/07/11 Copyright 1985-2009 J. Schilling */
+/* @(#)strsubs.c	1.24 12/04/22 Copyright 1985-2012 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)strsubs.c	1.23 09/07/11 Copyright 1985-2009 J. Schilling";
+	"@(#)strsubs.c	1.24 12/04/22 Copyright 1985-2012 J. Schilling";
 #endif
 /*
  *	Useful string functions
  *
- *	Copyright (c) 1985-2009 J. Schilling
+ *	Copyright (c) 1985-2012 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -289,7 +289,7 @@ pretty_string(s)
 		}
 		if (*s & 0x80)
 			*s1++ = '~';
-		if (*s & 0x60) {
+		if (*s != 127 && *s & 0x60) {
 			*s1++ = *s++ & 0x7F;
 		} else {
 			*s1++ = '^';

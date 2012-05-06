@@ -35,13 +35,13 @@
 #include "defs.h"
 
 /*
- * This file contains modifications Copyright 2008-2009 J. Schilling
+ * This file contains modifications Copyright 2008-2012 J. Schilling
  *
- * @(#)pwd.c	1.9 09/11/01 2008-2009 J. Schilling
+ * @(#)pwd.c	1.10 12/04/25 2008-2012 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)pwd.c	1.9 09/11/01 2008-2009 J. Schilling";
+	"@(#)pwd.c	1.10 12/04/25 2008-2012 J. Schilling";
 #endif
 
 /* 
@@ -72,6 +72,7 @@ static	void	cwd2		__PR((void));
 	unsigned char *cwdget	__PR((void));
 	void	cwdprint	__PR((void));
 static void	rmslash		__PR((unsigned char *string));
+static void	cwdnod		__PR((void));
 
 #ifdef __STDC__
 extern const char	longpwd[];
@@ -259,6 +260,10 @@ cwd2()
 	return;
 }
 
+/*
+ * Get the current working directory.
+ * Mark didpwd that we have a real value.
+ */
 unsigned char *
 cwdget()
 {
@@ -268,13 +273,14 @@ cwdget()
 			*cwdname = 0;
 		didpwd = TRUE;
 	} 
+	cwdnod();
 	return (cwdname);
 }
 
 /*
  *	Print the current working directory.
+ *	Used by the "pwd" builtin.
  */
-
 void
 cwdprint()
 {
@@ -296,6 +302,7 @@ cwdprint()
 	}
 
 	prc_buff(NL);
+	cwdnod();
 	return;
 }
 
@@ -330,4 +337,19 @@ rmslash(string)
 		*pstring = '\0';
 	}
 	return;
+}
+
+/*
+ * Update PWD= node
+ */
+static void
+cwdnod()
+{
+	extern struct namnod pwdnod;
+
+	if (pwdnod.namval != cwdname)
+		free(pwdnod.namval);
+	if (pwdnod.namenv != cwdname)
+		free(pwdnod.namenv);
+	pwdnod.namval = pwdnod.namenv = cwdname;
 }

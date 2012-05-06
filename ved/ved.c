@@ -1,13 +1,13 @@
-/* @(#)ved.c	1.76 11/08/11 Copyright 1984, 85, 86, 88, 89, 97, 2000-2011 J. Schilling */
+/* @(#)ved.c	1.77 12/04/24 Copyright 1984, 85, 86, 88, 89, 97, 2000-2012 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)ved.c	1.76 11/08/11 Copyright 1984, 85, 86, 88, 89, 97, 2000-2011 J. Schilling";
+	"@(#)ved.c	1.77 12/04/24 Copyright 1984, 85, 86, 88, 89, 97, 2000-2012 J. Schilling";
 #endif
 /*
  *	VED Visual EDitor
  *
- *	Copyright (c) 1984, 85, 86, 88, 89, 97, 2000-2011 J. Schilling
+ *	Copyright (c) 1984, 85, 86, 88, 89, 97, 2000-2012 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -42,7 +42,7 @@ static	UConst char sccsid[] =
 #include <schily/signal.h>
 #include <schily/sigblk.h>
 
-EXPORT	char	ved_version[] = "1.7a07";
+EXPORT	char	ved_version[] = "1.7a08";
 EXPORT	int	mflag;		/* if > 0 : take characters from macro	    */
 EXPORT	int	ReadOnly;	/* if > 0 : do not allow to write back mods */
 
@@ -158,7 +158,7 @@ main(ac, av)
 		usage(0);
 	if (prvers) {
 		printf("ved %s (%s-%s-%s)\n\n", ved_version, HOST_CPU, HOST_VENDOR, HOST_OS);
-		printf("Copyright (C) 1984, 85, 86, 88, 89, 97, 2000-2011 Jörg Schilling\n");
+		printf("Copyright (C) 1984, 85, 86, 88, 89, 97, 2000-2012 Jörg Schilling\n");
 		printf("This is free software; see the source for copying conditions.  There is NO\n");
 		printf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
 		exit(0);

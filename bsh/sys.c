@@ -1,11 +1,11 @@
-/* @(#)sys.c	1.73 11/08/13 Copyright 1986-2011 J. Schilling */
+/* @(#)sys.c	1.74 12/04/26 Copyright 1986-2012 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)sys.c	1.73 11/08/13 Copyright 1986-2011 J. Schilling";
+	"@(#)sys.c	1.74 12/04/26 Copyright 1986-2012 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1986-2011 J. Schilling
+ *	Copyright (c) 1986-2012 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -82,7 +82,7 @@ extern	int	ex_status;
 extern	int	do_status;
 extern	int	firstsh;
 
-EXPORT	void	start		__PR((Argvec * vp, FILE ** std));
+EXPORT	void	start		__PR((Argvec * vp, FILE ** std, int flag));
 EXPORT	pid_t	shfork		__PR((int flag));
 EXPORT	void	pset		__PR((pid_t child, int flag));
 EXPORT	void	block_sigs	__PR((void));
@@ -98,9 +98,10 @@ LOCAL	BOOL	is_binary	__PR((char *name));
 EXPORT	char	*_findinpath	__PR((char *name, int mode, BOOL plain_file));
 
 EXPORT void
-start(vp, std)
+start(vp, std, flag)
 	Argvec	*vp;
 	FILE	*std[];
+	int	flag;
 {
 	register int	i = 0;
 		char	*path = NULL;
@@ -122,7 +123,8 @@ start(vp, std)
 	fputc('\n', stderr);
 	fflush(stderr);
 #endif
-	update_cwd();	/* Er koennte sie veraendert haben */
+	if ((flag & IGNENV) == 0)
+		update_cwd();	/* Er koennte sie veraendert haben */
 #ifdef	EXECATTR_FILENAME
 	if (pfshell) {
 		i = pfexec(&path, vp->av_av[0], std[0], std[1], std[2], vp->av_av, evarray);

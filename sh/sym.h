@@ -27,8 +27,8 @@
 #pragma ident	"@(#)sym.h	1.8	05/06/08 SMI"	/* SVr4.0 1.6	*/
 #endif
 /*
- * This file contains modifications Copyright 2009 J. Schilling
- * @(#)sym.h	1.3 09/11/08 2009 J. Schilling
+ * This file contains modifications Copyright 2009-2012 J. Schilling
+ * @(#)sym.h	1.4 12/04/22 2009-2012 J. Schilling
  */
 /*
  *	UNIX shell
@@ -36,43 +36,43 @@
 
 
 /* symbols for parsing */
-#define DOSYM	0405
-#define FISYM	0420
-#define EFSYM	0422
-#define ELSYM	0421
-#define INSYM	0412
-#define BRSYM	0406
-#define KTSYM	0450
-#define THSYM	0444
-#define ODSYM	0441
-#define ESSYM	0442
-#define IFSYM	0436
-#define FORSYM	0435
-#define WHSYM	0433
-#define UNSYM	0427
-#define CASYM	0417
+#define	DOSYM	0405
+#define	FISYM	0420
+#define	EFSYM	0422
+#define	ELSYM	0421
+#define	INSYM	0412
+#define	BRSYM	0406
+#define	KTSYM	0450
+#define	THSYM	0444
+#define	ODSYM	0441
+#define	ESSYM	0442
+#define	IFSYM	0436
+#define	FORSYM	0435
+#define	WHSYM	0433
+#define	UNSYM	0427
+#define	CASYM	0417
 
-#define SYMREP	04000
-#define ECSYM	(SYMREP|';')
-#define ANDFSYM	(SYMREP|'&')
-#define ORFSYM	(SYMREP|'|')
-#define APPSYM	(SYMREP|'>')
-#define DOCSYM	(SYMREP|'<')
-#define EOFSYM	02000
-#define SYMFLG	0400
+#define	SYMREP	04000
+#define	ECSYM	(SYMREP|';')
+#define	ANDFSYM	(SYMREP|'&')
+#define	ORFSYM	(SYMREP|'|')
+#define	APPSYM	(SYMREP|'>')
+#define	DOCSYM	(SYMREP|'<')
+#define	EOFSYM	02000
+#define	SYMFLG	0400
 
 /* arg to `cmd' */
-#define NLFLG	1
-#define MTFLG	2
+#define	NLFLG	1
+#define	MTFLG	2
 
 /* for peekc */
-#define MARK	0x80000000
+#define	MARK	0x80000000
 
 /* odd chars */
-#define DQUOTE	'"'
-#define SQUOTE	'`'
-#define LITERAL	'\''
-#define DOLLAR	'$'
-#define ESCAPE	'\\'
-#define BRACE	'{'
-#define COMCHAR '#'
+#define	DQUOTE	'"'
+#define	SQUOTE	'`'
+#define	LITERAL	'\''
+#define	DOLLAR	'$'
+#define	ESCAPE	'\\'
+#define	BRACE	'{'
+#define	COMCHAR '#'

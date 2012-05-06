@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sh.1	1.19 12/04/19 Copyr 2012 J. Schilling
+.\" @(#)sh.1	1.22 12/05/06 Copyr 2012 J. Schilling
 .\" Copyright 1989 AT&T
 .\" Copyright (c) 2008, Sun Microsystems, Inc. All Rights Reserved.
 .\" Portions Copyright (c) 1992, X/Open Company Limited All Rights Reserved
@@ -40,7 +40,7 @@
 .\" information: Portions Copyright [yyyy] [name of copyright owner]
 .\"
 .\" CDDL HEADER END
-.TH sh 1 "2012/04/19" "Schily Bourne Shell" "User Commands"
+.TH sh 1 "2012/05/06" "Schily Bourne Shell" "User Commands"
 .SH NAME
 sh, jsh \- standard and job control shell and command interpreter
 .SH SYNOPSIS
@@ -689,6 +689,26 @@ Secondary prompt string, by default " > \|".
 .ne 2
 .mk
 .na
+\fB\fBPWD\fR\fR
+.ad
+.RS 13n
+.rt
+The present working directory set by the
+.B cd
+command.
+For efficiency,
+.B PWD
+is not set before the first
+.B cd
+or
+.B pwd
+command.
+.RE
+
+.sp
+.ne 2
+.mk
+.na
 \fB\fBIFS\fR\fR
 .ad
 .RS 13n
@@ -773,6 +793,11 @@ If it holds a precompiled entry that does not match the
 environment, the termcap database is parsed as if the
 .B TERMCAP 
 environment is not set.
+.B TERMCAP
+is automatically exported after filling it with a precompiled
+entry to speed up
+.B termcap
+based applications.
 .B TERMCAP
 is only supported if
 .B sh
@@ -1041,7 +1066,11 @@ entire \fIlist\fR, then each \fIpipeline\fR within the \fIlist\fR, then each
 \fIcommand\fR.
 .sp
 .LP
-If a command is followed by \fB&\fR, the default standard input for the
+If a command is followed by
+.B & 
+and job control (see
+.BR "set -m" )
+is not active, the default standard input for the
 command is the empty file, \fB/dev/null\fR. Otherwise, the environment for
 the execution of a command contains the file descriptors of the invoking
 shell as modified by input/output specifications.
@@ -1703,6 +1732,76 @@ Equivalent to `\fBexec\fR \fBlogin\fR \fIargument\fR.\|.\|.\|.' See
 .RE
 
 .sp
+.ne 8
+.mk
+.na
+.B map
+.br
+.B map \-r
+.br
+\fBmap \fImap_from map_to\fR [ \fIcomment\fR ]
+.br
+\fBmap \-u \fImap_from\fR
+.ad
+.sp .6
+.RS 4n
+Handle history editor input mapping.
+Input mapping in the history editor is automatically managed via
+.B TERMCAP
+for the cursor keys and via manual maps in the file
+.BR $HOME/.bshmap .
+The
+.B map
+command is only supported if
+.B sh
+was compiled with support for history editing.
+.LP
+If the
+.B map
+command is called without arguments, it prints the current input mapping.
+.LP
+If
+.B map
+is called with
+.BR \-r ,
+all current mappings are removed and the default mapping is reloaded from
+.B TERMCAP
+and
+.BR $HOME/.bshmap .
+Call
+.B map \-r
+after changing
+.BR TERM ,
+.B TERMCAP
+or
+.B TERMPATH
+or when a change was made in the file
+.BR $HOME/.bshmap .
+.LP
+It
+.B map
+is called with two or three arguments, a new mapping is set up.
+The parameters
+.I map_from
+and
+.I map_to
+may need quoting to be correctly passed to the mapping engine.
+.LP
+Call
+.BI "map \-u" " map_from
+to unmap an existing mapping.
+The parameter
+.I map_from
+needs quoting for both the input mapper and the shell
+to be correctly passed to the mapping engine.
+.LP
+For more information and for escape sequences known by the mapper
+see the section
+.B "History Editing Input Mappings
+below.
+.RE
+
+.sp
 .ne 2
 .mk
 .na
@@ -1774,6 +1873,36 @@ given, a list of all \fBreadonly\fR names is printed.
 .ne 2
 .mk
 .na
+\fB\fBrepeat\fR [ \fB\-c \fIcount\fR ]\fR [ \fB\-d \fIdelay\fR ]\fR \fIcommand\fR [ \fIargs\fR ]
+.ad
+.sp .6
+.RS 4n
+The command
+.I command
+is executed repeatedly as if it was called via
+.BR eval .
+If the 
+.B \-c
+option is present,
+.I command
+is repeated
+.I count
+times, otherwise execution is repeated forever.
+If the 
+.B \-d
+option is present,
+.B sh
+waits
+.I delay
+seconds before
+.I command
+is executed again, otherwise there is no delay between executions.
+.RE
+
+.sp
+.ne 2
+.mk
+.na
 \fB\fBreturn\fR [ \fIn\fR ]\fR
 .ad
 .sp .6
@@ -1781,6 +1910,18 @@ given, a list of all \fBreadonly\fR names is printed.
 Causes a function to exit with the return value specified by \fIn\fR. If
 \fIn\fR is omitted, the return status is that of the last command
 executed.
+.RE
+
+.sp
+.ne 2
+.mk
+.na
+.B savehistory
+.ad
+.sp .6
+.RS 4n
+Save the current history in the file
+.BR $HOME/.history .
 .RE
 
 .sp
@@ -2874,6 +3015,14 @@ The previous search string is kept and may be edited.
 To enter a new search string, first type
 .BR ^U .
 .TP
+.B ESC- p
+Search backwards in the history.
+Clear the old search pattern first.
+.TP
+.B ESC- n
+Search forwards in the history.
+Clear the old search pattern first.
+.TP
 .B ESC- CR
 Return to the history line that was in use before the last search command.
 .LP
@@ -2891,9 +3040,262 @@ The command line editor remembers the cursor position for each command line
 in the history during the lifetime of the shell process.
 .SS "History Editing Input Mappings"
 .LP
-The command line editor reads the file
+The command line history editor maps input from the terminal into mapped text
+before it is interpreted by the editor. If a match is found on the input
+from the terminal, the related input text is directly replaced by it's
+replacement string.
+A mapping may be prevented by typing the map quote character which is the
+.B nul
+character
+.RB ( ^@ ),
+directly before the matching text is entered.
+.LP
+At startup (directly before the first shell command prompt is shown),
+the command line history editor first tries to initialize the
+terminal setup using the variables
+.BR HOME ,
+.BR TERM ,
+.B TERMCAP
+and
+.BR TERMPATH .
+Then it tries to read the file
 .B $HOME/.bshmap
-at startup to retrieve additional mappings.
+to retrieve additional mappings.
+.LP
+If
+.B TERM
+is not set, the mapper establishes standard mappings for the cursor keys
+assuming an ANSI-compatible terminal.
+.LP
+Each line in the file
+.B $HOME/.bshmap
+has the following structure:
+.LP
+  \fImap_from\fB:\fImap_to\fR:\fIcomment\fR
+.LP
+.I map_from
+is the string that is going to be replaced in the input,
+.I map_to
+is the string replacement and
+.I comment
+is optional comment that is not used for mapping itself.
+If both
+.I map_from
+and
+.I map_to
+are empty, the related line is ignored by the mapper, so a line may contain:
+.LP
+  ::\fIcomment\fR
+.LP
+The maximum length of
+.I map_from
+is 16 characters,
+the maximum length of
+.I map_to
+is 128 characters.
+Each entry takes exactly one line in the file.
+A
+.B nul character
+in either
+.I map_from
+or
+.I map_to
+is currently not supported.
+.LP
+Control characters may be written using the same escape sequences as permitted
+with
+.BR TERMCAP .
+.LP
+The builtin
+.B map
+command may be used to enter additional maps at runtime.
+.LP
+As the
+.B nul character
+is the quote character of the mapper, enter two
+.B nul characters
+to get one
+.B nul character
+in the edit input.
+To enter a mapped string (such as cursor key output), first enter the
+quote character of the command line history editor
+.RB ( ^ ),
+then enter 
+.B nul character
+and finally the otherwise mapped text.
+
+.SS Termcap
+.LP
+The 
+.B termcap 
+data base is used to make the command history editor independent
+from the terminal capabilities. Cursor key output is retrieved from
+the data base and mapped to the cursor movement commands of the
+history editor.
+.LP
+.ne 5
+The following variables are used by
+.BR termcap:
+.TP 10
+.B HOME
+To find the private files like
+.BR $HOME/.termcap .
+.TP
+.B TERM
+A name representing the type of the current terminal.
+.TP
+.B
+TERMCAP
+This environment variable holds either a precompiled
+.B termcap
+entry or the pathname to be used to find a
+.BR "termcap database file" .
+If it holds a precompiled entry that does not match the
+.B TERM
+environment, the termcap database is parsed as if the
+.B TERMCAP
+environment is not set.
+See section
+.B Parameter Substitution
+above for more information.
+.TP
+.B TERMPATH
+If
+.B TERMCAP
+is empty or not set, then the
+.B TERMPATH
+environment is
+scanned for pathnames of files that contain a
+.B termcap
+database. It holds a list of filenames separated by
+colons or spaces (i.e., ":" or " ").
+See section
+.B Parameter Substitution
+above for more information.
+.LP
+.ne 6
+The following escape sequences are understood by the
+.B termcap
+implementation used by
+.BR sh :
+.TP 8
+.B \e\e
+The literal character
+.BR \e .
+.PD 0
+.TP
+.B \eE
+The
+.B ESC
+character (ASCII
+.BR 033 ).
+.TP
+.B \ee
+The
+.B ESC
+character (ASCII
+.BR 033 ).
+.TP
+.B \e^
+The literal character
+.BR ^ .
+.TP
+.B \e:
+The literal character
+.BR : .
+.TP
+.B \e,
+The literal character
+.BR , .
+.TP
+.B \eb
+The
+.B BACKSPACE
+character (ASCII
+.BR 010 ).
+.TP
+.B \ef
+The
+.B FORMFEED
+character (ASCII
+.BR 014 ).
+.TP
+.B \el
+The
+.B LINEFEED
+character (ASCII
+.BR 012 ).
+.TP
+.B \en
+The
+.B NEWLINE
+character (ASCII
+.BR 012 ).
+.TP
+.B \er
+The
+.B CR
+character (ASCII
+.BR 015 ).
+.TP
+.B \es
+The
+.B SPACE
+character (ASCII
+.BR 040 ).
+.TP
+.B \et
+The
+.B TAB
+character (ASCII
+.BR 007 ).
+.TP
+.B \ev
+The
+.B VERTICAL TAB
+character (ASCII
+.BR 013 ).
+.TP
+.BI ^ c
+Maps to
+.BI control( c )
+for any appropriate
+.BR c .
+.TP
+.B ^?
+The
+.B DEL
+character (ASCII
+.BR 0177 ).
+.TP
+.BI \e nnn
+Maps to a character with the octal representation
+.I nnn
+with 1..3 octal digits.
+.TP
+.B \e0
+Maps to ASCII
+.BR 0200 .
+.TP
+.B ^@
+Maps to ASCII
+.BR 00 .
+.PD
+.LP
+Mapping 
+.B \e0
+to ASCII
+.B 0200
+is required by the
+.B termcap
+documentation.
+A real
+.B nul character
+created from
+.RB ( ^@ )
+is currently neither supported by the upper layers of
+.BR termcap ,
+nor by the upper layers of the mapper.
 
 .SS "Large File Behavior"
 .LP
@@ -3024,6 +3426,7 @@ CSIEnabled
 .BR su (1M),
 .BR swap (1M),
 .BR sysdef (1M),
+.BR termcap (1),
 .BR dup (2),
 .BR exec (2),
 .BR fork (2),

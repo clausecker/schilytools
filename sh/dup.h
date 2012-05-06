@@ -27,11 +27,11 @@
 #pragma ident	"@(#)dup.h	1.7	05/06/08 SMI"	/* SVr4.0 1.6	*/
 #endif
 /*
- * This file contains modifications Copyright 2009 J. Schilling
- * @(#)dup.h	1.3 09/11/08 2009 J. Schilling
+ * This file contains modifications Copyright 2009-2012 J. Schilling
+ * @(#)dup.h	1.4 12/04/22 2009-2012 J. Schilling
  */
 /*
  *	UNIX shell
  */
 
-#define DUPFLG 0100
+#define	DUPFLG	0100

@@ -1,4 +1,4 @@
-#ident "@(#)Makefile	1.22 12/04/17  Copyright (c) 2006-2012 J. Schilling"
+#ident "@(#)Makefile	1.23 12/04/20  Copyright (c) 2006-2012 J. Schilling"
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -29,6 +29,8 @@ CPPOPTS +=	-DACCT					# Shell Accounting
 CPPOPTS +=	-DDO_SYSALLOC		# Include the "alloc" debug builtin
 #CPPOPTS +=	-DSTAK_DEBUG		# Include debug code for stak.c
 #CPPOPTS +=	-DARGS_RIGHT_TO_LEFT	# Evaluate var2=val2 var1=val1 left to right
+#CPPOPTS +=	-DMY_GMATCH		# Enforce to use our local gmatch()
+					# instead if the gmatch() from -lgen
 
 
 CPPOPTS +=	-DINTERACTIVE		# Include command line history editor

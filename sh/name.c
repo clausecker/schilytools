@@ -36,11 +36,11 @@
 /*
  * This file contains modifications Copyright 2008-2012 J. Schilling
  *
- * @(#)name.c	1.18 12/04/17 2008-2012 J. Schilling
+ * @(#)name.c	1.19 12/04/25 2008-2012 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)name.c	1.18 12/04/17 2008-2012 J. Schilling";
+	"@(#)name.c	1.19 12/04/25 2008-2012 J. Schilling";
 #endif
 
 /*
@@ -87,64 +87,76 @@ static	int	isastream	__PR((int fd));
 	void	ev_insert	__PR((char *name));
 #endif
 
-struct namnod ps2nod =
+struct namnod ps2nod =			/* PS2= */
 {
 	(struct namnod *)NIL,
 	&acctnod,
 	(unsigned char *)ps2name
 };
-struct namnod cdpnod = 
+struct namnod cdpnod = 			/* CDPATH= */
 {
 	(struct namnod *)NIL,
 	(struct namnod *)NIL,
 	(unsigned char *)cdpname
 };
-struct namnod pathnod =
+struct namnod pathnod =			/* PATH= */
 {
 	&mailpnod,
 	(struct namnod *)NIL,
 	(unsigned char *)pathname
 };
-struct namnod ifsnod =
+struct namnod ifsnod =			/* IFS= */
 {
 	&homenod,
 	&mailnod,
 	(unsigned char *)ifsname
 };
-struct namnod ps1nod =
+struct namnod ps1nod =			/* PS1= */
 {
 	&pathnod,
 	&ps2nod,
 	(unsigned char *)ps1name
 };
-struct namnod homenod =
+struct namnod homenod =			/* HOME= */
 {
 	&cdpnod,
 	(struct namnod *)NIL,
 	(unsigned char *)homename
 };
-struct namnod mailnod =
+struct namnod mailnod =			/* MAIL= */
 {
 	(struct namnod *)NIL,
 	(struct namnod *)NIL,
 	(unsigned char *)mailname
 };
-struct namnod mchknod =
+struct namnod mchknod =			/* MAILCHECK= */
 {
 	&ifsnod,
 	&ps1nod,
 	(unsigned char *)mchkname
 };
-struct namnod acctnod =
+struct namnod pwdnod =			/* PWD= */
 {
 	(struct namnod *)NIL,
+	(struct namnod *)NIL,
+	(unsigned char *)pwdname,
+};
+struct namnod opwdnod =			/* OLDPWD= */
+{
+	(struct namnod *)NIL,
+	(struct namnod *)NIL,
+	(unsigned char *)opwdname,
+};
+struct namnod acctnod =			/* SHACCT= */
+{
+	&pwdnod,
 	(struct namnod *)NIL,
 	(unsigned char *)acctname
 };
-struct namnod mailpnod =
+struct namnod mailpnod =		/* MAILPATH= */
 {
 	(struct namnod *)NIL,
-	(struct namnod *)NIL,
+	&opwdnod,
 	(unsigned char *)mailpname
 };
 

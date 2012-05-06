@@ -34,13 +34,13 @@
 #include "defs.h"
 
 /*
- * This file contains modifications Copyright 2008-2011 J. Schilling
+ * This file contains modifications Copyright 2008-2012 J. Schilling
  *
- * @(#)hashserv.c	1.10 11/08/13 2008-2011 J. Schilling
+ * @(#)hashserv.c	1.11 12/04/20 2008-2012 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)hashserv.c	1.10 11/08/13 2008-2011 J. Schilling";
+	"@(#)hashserv.c	1.11 12/04/20 2008-2012 J. Schilling";
 #endif
 
 /*
@@ -366,11 +366,13 @@ what_is_path(name)
 			case FUNCTION:
 			{
 				struct namnod *n = lookup(name);
+				struct fndnod *f = fndptr(n->namenv);
 
 				prs_buff(_gettext(" is a function\n"));
 				prs_buff(name);
 				prs_buff((unsigned char *)"(){\n");
-				prf((struct trenod *)n->namenv);
+				if (f != NULL)
+					prf((struct trenod *)f->fndval);
 				prs_buff((unsigned char *)"\n}\n");
 				return (0);
 			}

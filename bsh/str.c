@@ -1,8 +1,8 @@
-/* @(#)str.c	1.22 09/07/11 Copyright 1986-2009 J. Schilling */
+/* @(#)str.c	1.23 12/04/24 Copyright 1986-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)str.c	1.22 09/07/11 Copyright 1986-2009 J. Schilling";
+	"@(#)str.c	1.23 12/04/24 Copyright 1986-2009 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1986-2009 J. Schilling
@@ -201,7 +201,10 @@ char	uglob[]		= "args";
 char	ukill[]		= "[-l][-sig] pid1 ... pidn";
 char	uulimit[]	= "[[resource] [[curlimit] [maxlimit]]]";
 char	ulogin[]	= "[username]";
-char	umap[]		= "[fromstr tostr [comment]]";
+char	umap[]		= "[fromstr [tostr [comment]]]\n\
+Options:\n\
+	-r	reload mappings\n\
+	-u	unmap fromstr";
 char	upgrp[]		= "[pid]";
 char	upopd[]		= "[offsdet]";
 char	upushd[]	= "[directory|offset]";

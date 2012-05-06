@@ -1,8 +1,8 @@
-/* @(#)cap.c	1.42 11/07/26 Copyright 2000-2011 J. Schilling */
+/* @(#)cap.c	1.46 12/05/06 Copyright 2000-2012 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)cap.c	1.42 11/07/26 Copyright 2000-2011 J. Schilling";
+	"@(#)cap.c	1.46 12/05/06 Copyright 2000-2012 J. Schilling";
 #endif
 /*
  *	termcap		a TERMCAP compiler
@@ -14,7 +14,7 @@ static	UConst char sccsid[] =
  *	order and recode all strings with the same escape notation.
  *	This is needed in to compare two entries and it makes life easier.
  *
- *	Copyright (c) 2000-2011 J. Schilling
+ *	Copyright (c) 2000-2012 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -101,8 +101,8 @@ LOCAL	char *	checkgoto	__PR((char *tname, char *ent, char *cm, int col, int line
 LOCAL	char *	checkquote	__PR((char *tname, char *s));
 LOCAL	char *	quote		__PR((char *s));
 LOCAL	char *	requote		__PR((char *s));
-LOCAL	void	compile_ent	__PR((char *tname, BOOL	do_tc));
-LOCAL	void	read_names	__PR((char *fname, BOOL	do_tc));
+LOCAL	void	compile_ent	__PR((char *tname, BOOL	do_tc, BOOL obsolete_last));
+LOCAL	void	read_names	__PR((char *fname, BOOL	do_tc, BOOL obsolete_last));
 
 /*
  * Initialize the tc_flags struct member in "caplist".
@@ -289,6 +289,7 @@ usage(ex)
 	error("-version	print version number\n");
 	error("-dumplist	dump internal capability list\n");
 	error("-inorder	print caps in order, else print outdated caps last\n");
+	error("-noinorder	switch off -inorder, print unknown and outdated caps last\n");
 	error("-dooctal	prefer '\\003' before '^C' when creating escaped strings\n");
 	error("-docaret	prefer '^M' before '\\r' when creating escaped strings\n");
 	error("if=name		input file for termcap compiling\n");
@@ -296,8 +297,10 @@ usage(ex)
 	error("-nodisabled	do not output disabled termcap entries\n");
 	error("-nounknown	do not output unkonwn termcap entries\n");
 	error("-nowarn		do not warn about problems that could be fixed\n");
+	error("-s		Output commands to set and export TERM and TERMCAP.\n");
 	error("-tc		follow tc= entries and generate cumulative output\n");
 	error("-v		increase verbosity level\n");
+	error("With if= name, -inorder is default\n");
 	exit(ex);
 }
 
@@ -320,6 +323,8 @@ main(ac, av)
 	BOOL	prvers = FALSE;
 	BOOL	dodump = FALSE;
 	BOOL	inorder = FALSE;
+	BOOL	noinorder = FALSE;
+	BOOL	sflag = FALSE;
 	int	verbose = 0;
 	BOOL	do_tc = FALSE;
 	char	*infile = NULL;
@@ -338,9 +343,11 @@ main(ac, av)
 	cac = ac;
 	cav = av;
 	cac--, cav++;
-	if (getallargs(&cac, &cav, "help,version,dumplist,inorder,v+,tc,if*,nodisabled,nounknown,nowarn,dooctal,docaret,gnugoto",
+	if (getallargs(&cac, &cav, "help,version,dumplist,inorder,noinorder,v+,s,tc,if*,nodisabled,nounknown,nowarn,dooctal,docaret,gnugoto",
 				&help, &prvers,
-				&dodump, &inorder, &verbose,
+				&dodump, &inorder, &noinorder,
+				&verbose,
+				&sflag,
 				&do_tc,
 				&infile,
 				&nodisabled, &nounknown,
@@ -352,8 +359,8 @@ main(ac, av)
 	if (help)
 		usage(0);
 	if (prvers) {
-		printf("termcap %s (%s-%s-%s)\n\n", "1.42", HOST_CPU, HOST_VENDOR, HOST_OS);
-		printf("Copyright (C) 2000-2011 Jörg Schilling\n");
+		printf("termcap %s (%s-%s-%s)\n\n", "1.46", HOST_CPU, HOST_VENDOR, HOST_OS);
+		printf("Copyright (C) 2000-2012 Jörg Schilling\n");
 		printf("This is free software; see the source for copying conditions.  There is NO\n");
 		printf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
 		exit(0);
@@ -363,6 +370,11 @@ main(ac, av)
 		dumplist();
 		exit(0);
 	}
+
+	if (infile)
+		inorder = TRUE;
+	if (noinorder)
+		inorder = FALSE;
 
 
 	if (tcap && *tcap != '/')
@@ -377,18 +389,55 @@ main(ac, av)
 			*tname = '\0';
 		snprintf(env, sizeof (env), "TERMPATH=%s", infile);
 		putenv(env);
-		read_names(infile, do_tc);
+		read_names(infile, do_tc, !inorder);
 		exit(0);
 	}
 
 	/*
 	 * Check existence & unstripped Termcap len
+	 *
+	 * TCF_NO_TC	Don't follow tc= entries
+	 * TCF_NO_SIZE	Don't get actual ttysize (li#/co#)
+	 * TCF_NO_STRIP	Don't strip down termcap buffer
+	 *
+	 * If called with the -s option, this is the only place where we
+	 * retrieve the termcap entry, so use the default settings in this case.
 	 */
-	tcsetflags((do_tc?0:TCF_NO_TC)|TCF_NO_SIZE|TCF_NO_STRIP);
+	if (!sflag)
+		tcsetflags((do_tc?0:TCF_NO_TC)|TCF_NO_SIZE|TCF_NO_STRIP);
 	if (tgetent(NULL, tname) != 1)
 		comerr("no term '%s' found\n", tname);
 	tbuf = tcgetbuf();
 	fullen = strlen(tbuf);
+
+	if (sflag) {
+		char	*p = getenv("SHELL");
+		int	is_csh = FALSE;
+
+		if (p) {
+			int	len = strlen(p);
+
+			if (len >= 3 && streql(&p[len-3], "csh"))
+				is_csh = TRUE;
+		}
+		if (is_csh) {
+			/*
+			 * csh
+			 */
+			printf("set noglob;\n");
+			printf("setenv TERM %s;\n", tname);
+			printf("setenv TERMCAP '%s';\n", tbuf);
+			printf("unset noglob;\n");
+		} else {
+			/*
+			 * Bourne Shell and compatible
+			 */
+			printf("export TERMCAP TERM;\n");
+			printf("TERM=%s;\n", tname);
+			printf("TERMCAP='%s';\n", tbuf);
+		}
+		exit(0);
+	}
 
 	/*
 	 * Get Stripped len
@@ -596,6 +645,11 @@ checkbad(tname, unknown, disabled)
 			continue;
 		}
 		if (p[1] == ':') {
+			if (p[0] == '\t' ||	/* This is an indented line */
+			    p[0] == ' ') {	/* also ignore single space */
+				p = tskip(p);
+				continue;
+			}
 			printf("# NOTICE(%s). Short entry (':%c:') removed\n",
 				tname, p[0]);
 			if (!out_tty)
@@ -608,11 +662,17 @@ checkbad(tname, unknown, disabled)
 		if (p[2] != ':' && p[2] != '@' && p[2] != '#' && p[2] != '=') {
 			p2 = tskip(p);
 			if (p[0] == ' ' || p[0] == '\t') {
-				printf("# BAD(%s). Skipping blank entry: '%.*s'\n",
-							tname, (int)(p2 - p - 1), p);
+				printf("# BAD(%s). Skipping %sblank entry: '%.*s'\n",
+							tname,
+							(p[1] == ' ' || p[1] == '\t')?
+							"":"partially ",
+							(int)(p2 - p - 1), p);
 				if (!out_tty)
-				error("BAD(%s). Skipping blank entry: '%.*s'\n",
-							tname, (int)(p2 - p - 1), p);
+				error("BAD(%s). Skipping %sblank entry: '%.*s'\n",
+							tname,
+							(p[1] == ' ' || p[1] == '\t')?
+							"":"partially ",
+							(int)(p2 - p - 1), p);
 				p = tskip(p);
 				continue;
 			}
@@ -651,6 +711,17 @@ checkbad(tname, unknown, disabled)
 			if (!out_tty)
 			error("BAD(%s). Illegal entry (3rd char '%c' for '%c%c%c'): '%.*s'\n",
 					tname, p[2], p[0], p[1], p[2], (int)(p2 - p - 1), p);
+			p = tskip(p);
+			continue;
+		}
+		if ((p[0] == ' ' || p[0] == '\t') &&
+		    (p[1] == ' ' || p[1] == '\t')) {
+			p2 = tskip(p);
+			printf("# BAD(%s). Skipping blank entry: '%.*s'\n",
+						tname, (int)(p2 - p - 1), p);
+			if (!out_tty)
+			error("BAD(%s). Skipping blank entry: '%.*s'\n",
+							tname, (int)(p2 - p - 1), p);
 			p = tskip(p);
 			continue;
 		}
@@ -776,9 +847,9 @@ checkbad(tname, unknown, disabled)
 	}
 }
 
-LOCAL int	itotype[5] = { 0, C_BOOL, C_INT, C_STRING, 0 };
+LOCAL int	itotype[6] = { 0, C_BOOL, C_INT, C_STRING, 0, C_TC|C_STRING };
 #ifdef	DEBUG
-LOCAL char	*itoname[5] = { "0", "C_BOOL", "C_INT", "C_STRING", "C_TC" };
+LOCAL char	*itoname[6] = { "0", "C_BOOL", "C_INT", "C_STRING", "C_UNKNOWN", "C_TC" };
 #endif
 
 LOCAL void
@@ -808,14 +879,18 @@ BOOL	didobsolete = FALSE;
 		i = p - tbuf;
 	else
 		i = strlen(tbuf);
-	printf("%.*s:", i, tbuf);
+	printf("%.*s:", i, tbuf);	/* Print Terminal name/label */
 	llen = i + 1;
 
 	sbp = stbuf;
 	flags = 0;
 	p2 = tbuf;
 
-	for (j = obsolete_last ? -1:1; j != 0 && j <= 4; j++)
+	/*
+	 * If obsolete_last is FALSE, then this loop goes from j=1..5,
+	 * else, there is only one loop with j=-1 as the loop stops with j==0.
+	 */
+	for (j = obsolete_last ? -1:1; j != 0 && j <= 5; j++)
 	for (i = 0; i < ncaps; i++) {
 #ifdef	DEBUG
 		flush();
@@ -831,16 +906,65 @@ BOOL	didobsolete = FALSE;
 			continue;
 
 		/*
+		 * Print unknown entries in order at the end of the respective
+		 * block. Do not mark inline them and requote the strings.
+		 */
+		if (j >= 1 && j <= 3 && i == ncaps -1) {
+			char	*px = unknown;
+			int	t = itotype[j];
+			char	*val;
+
+			while (*px) {
+				pe = px;
+				px = tskip(pe);
+
+				if (t == C_BOOL) {
+					if (pe[2] != ':' && pe[2] != '@')
+						continue;
+				} else if (t == C_INT) {
+					if (pe[2] != '#')
+						continue;
+				} else {
+					if (pe[2] != '=')
+						continue;
+					val = requote(&pe[3]);
+				}
+				p = pe;
+				curlen = px - pe;
+				if (p[2] == '=')
+					curlen = strlen(val) + 4;
+				if (curlen <= 0)
+					break;
+				if (flags != t) {
+					printf("\\\n\t:");
+					llen = 9;
+					flags = t;
+				}
+				if ((llen > 9) && ((llen + curlen) >= 79)) {
+					printf("\\\n\t:");
+					llen = 9 + curlen;
+				} else {
+					llen += curlen;
+				}
+				if (p[2] == '=')
+					printf("%.2s=%.*s:", p, curlen, val);
+				else
+					printf("%.*s", curlen, p);
+			}
+		}
+		/*
 		 * If j < 0, sort order is order from caplist array
 		 * and thus obsolete entries appear past non obsolete entries.
 		 *
 		 * If j > 0, sort order is BOOL -> INT -> STRING
 		 */
-		if (j > 0 && (caplist[i].tc_flags & (C_BOOL|C_INT|C_STRING)) != itotype[j])
+		if (j > 0 && (caplist[i].tc_flags & (C_BOOL|C_INT|C_STRING|C_TC)) != itotype[j])
 			continue;
 
 		if ((caplist[i].tc_flags & (C_BOOL|C_INT|C_STRING)) == 0) {
 			if (streql(caplist[i].tc_var, "unknown")) {
+				if (j > 0)	/* Printed in order before */
+					continue;
 				if (unknown[0] == '\0')
 					continue;
 				if (nounknown)
@@ -849,7 +973,7 @@ BOOL	didobsolete = FALSE;
 				if (llen > 9 || flags == 0)
 					printf("\\\n\t:");
 				printf("%s%s", "..UNKNOWN:\\\n\t:", unknown);
-				llen = 9;
+				llen = 99;
 			} else {
 				if (disabled[0] == '\0')
 					continue;
@@ -859,7 +983,7 @@ BOOL	didobsolete = FALSE;
 				if (llen > 9 || flags == 0)
 					printf("\\\n\t:");
 				printf("%s%s", "..DISABLED:\\\n\t:", disabled);
-				llen = 9;
+				llen = 99;
 			}
 			continue;
 		}
@@ -1297,6 +1421,7 @@ static			char	out[TBUF];
 				}
 				/*
 				 * Terminfo quotes not in termcap:
+				 * \a	->	'^G'
 				 * \e	->	'^['
 				 * \:	->	':'
 				 * \,	->	','
@@ -1309,12 +1434,12 @@ static			char	out[TBUF];
 					int	pos = (char *)&ep[-1] - s;
 
 					len = p2 - s - (*p2?1:0);
-					if (!nowarn && strchr("e:,sl", c)) {
+					if (!nowarn) {
 					printf("# NOTICE(%s). Badly quoted char '\\%c' %sin ('%s') at abs position %d in '%.*s'\n",
-							tname, c, strchr("e:,sl", c)?"(fixed) ":"", nm, pos, len, s);
+							tname, c, strchr("ae:,sl", c)?"(fixed) ":"", nm, pos, len, s);
 					if (!out_tty)
 					error("NOTICE(%s). Badly quoted char '\\%c' %sin ('%s') at abs position %d in '%.*s'\n",
-							tname, c, strchr("e:,sl", c)?"(fixed) ":"", nm, pos, len, s);
+							tname, c, strchr("ae:,sl", c)?"(fixed) ":"", nm, pos, len, s);
 					}
 				}
 			}
@@ -1342,8 +1467,8 @@ static	char	out[TBUF];
 			*p2++ = '\\';
 			*p2++ = '\\';
 		} else if (c == '^') {	/* ^ -> \^ */
-				*p2++ = '\\';
-				*p2++ = '^';
+			*p2++ = '\\';
+			*p2++ = '^';
 		} else if (!docaret && c == '\r') {	/* CR -> \r */
 			*p2++ = '\\';
 			*p2++ = 'r';
@@ -1377,6 +1502,7 @@ static	char	out[TBUF];
 }
 
 /*
+ *   A number of escape sequences are  provided  in  the  string-
  *   valued capabilities for easy encoding of characters there:
  *
  *        \E   maps to ESC
@@ -1414,14 +1540,15 @@ requote(s)
 }
 
 LOCAL void
-compile_ent(tname, do_tc)
+compile_ent(tname, do_tc, obsolete_last)
 	char	*tname;
 	BOOL	do_tc;
+	BOOL	obsolete_last;
 {
 	char	unknown[TBUF];	/* Buffer fuer "unknown" Entries */
 	char	disabled[TBUF];	/* Buffer fuer :..xx: Entries */
 
-	tcsetflags((do_tc?0:TCF_NO_TC)|TCF_NO_SIZE);
+	tcsetflags((do_tc?0:TCF_NO_TC)|TCF_NO_SIZE|TCF_NO_STRIP);
 	if (tgetent(NULL, tname) != 1)
 		return;
 /*	tbuf = tcgetbuf();*/
@@ -1434,7 +1561,7 @@ compile_ent(tname, do_tc)
 /*printf("string length: %d\n", slen);*/
 
 	checkbad(tname, unknown, disabled);
-	outcap(tname, unknown, disabled, FALSE);
+	outcap(tname, unknown, disabled, obsolete_last);
 }
 
 
@@ -1443,9 +1570,10 @@ compile_ent(tname, do_tc)
 #define	TINC	1
 
 LOCAL void
-read_names(fname, do_tc)
+read_names(fname, do_tc, obsolete_last)
 	char	*fname;
 	BOOL	do_tc;
+	BOOL	obsolete_last;
 {
 			char	nbuf[TMAX];
 			char	rdbuf[TRDBUF];
@@ -1529,12 +1657,18 @@ read_names(fname, do_tc)
 				strncpy(name, tbuf, amt);
 				nbuf[amt] = '\0';
 /*				printf("name: %s'\n", name);*/
-				compile_ent(name, do_tc);
+				compile_ent(name, do_tc, obsolete_last);
 				tcsetflags(TCF_NO_TC|TCF_NO_SIZE);
 			} else {
+				/*
+				 * This line is not a termcap entry
+				 */
 				printf("%s\n", tbuf);
 			}
 		} else {
+			/*
+			 * This line is comment
+			 */
 			printf("%s\n", tbuf);
 		}
 		ep = bp;

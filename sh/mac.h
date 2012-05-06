@@ -28,9 +28,9 @@
 #endif
 
 /*
- * This file contains modifications Copyright 2008-2009 J. Schilling
+ * This file contains modifications Copyright 2008-2012 J. Schilling
  *
- * @(#)mac.h	1.6 09/12/31 2008-2009 J. Schilling
+ * @(#)mac.h	1.7 12/04/22 2008-2012 J. Schilling
  */
 
 /*
@@ -38,26 +38,25 @@
  */
 
 #undef	TRUE	/* may be defined from sys/types.h */
-#define TRUE	(-1)
+#define	TRUE	(-1)
 #undef	FALSE
-#define FALSE	0
-#define LOBYTE	0377
-#define QUOTE	0200
+#define	FALSE	0
+#define	LOBYTE	0377
+#define	QUOTE	0200
 
 #undef	EOF	/* may be defined from stdio.h */
-#define EOF	0
-#define NL	'\n'
-#define SPACE	' '
-#define LQ	'`'
-#define RQ	'\''
-#define MINUS	'-'
-#define COLON	':'
-#define TAB	'\t'
+#define	EOF	0
+#define	NL	'\n'
+#define	SPACE	' '
+#define	LQ	'`'
+#define	RQ	'\''
+#define	MINUS	'-'
+#define	COLON	':'
+#define	TAB	'\t'
 
 #undef	MAX		/* may be defined from sys/param.h */
-#define MAX(a,b)	((a)>(b)?(a):(b))
+#define	MAX(a, b)	((a) > (b)?(a):(b))
 
-#define blank()		prc(SPACE)
+#define	blank()		prc(SPACE)
 #define	tab()		prc(TAB)
-#define newline()	prc(NL)
-
+#define	newline()	prc(NL)

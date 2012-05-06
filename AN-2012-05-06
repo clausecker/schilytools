@@ -1,0 +1,121 @@
+New features with AN-2012-05-06:
+
+This is the first localization step for the schily source consolidation. Many
+programs now (hopefully) call gettext() for all strings that need localization.
+
+-	The next step will include dgettext() calls for the libraries and the
+	missing programs
+
+-	The following step will include the extracted strings
+
+-	The last step will include German translations and install support
+	for the resulting binary message object files.
+
+----------> Please test and report compilation problems! <---------
+
+***** NOTE: As mentioned since 2004, frontends to the tools should *****
+*****		call all programs in the "C" locale		   *****
+*****		by e.g. calling: LC_ALL=C cdrecord ....		   *****
+*****		unless these frontends support localized strings   *****
+*****		used by the cdrtools with NLS support.		   *****
+
+-	libxtermcap: MAXLOOP 32 -> 64 because Dickey Termcap File needs 63
+	New function e_tcname() prints terminal name
+	tchktc() no longer prints "Bad termcap entry" if entry is empty
+	\? as alias for \177
+
+	-	\a is now recognised as Terminfo specific quoting.
+
+-	The termcap(1) program:
+
+	-	\a is now recognised as Terminfo specific quoting.
+
+	-	Fixed many comment strings in the interncal capabilities table
+
+	-	..DISABLED, ..OBSOLETE, ..UNKNOWN are now always before
+		tc= entries in the output.
+
+	-	By default, unknown capabilities are now at the end of their
+		respective block (BOOL, INT, STRING) when in compile mode.
+		Before, they have been at eht end of all capabilities
+		with a ..UNKNOWN marker.
+
+	-	unknown capabilities are now requoted when inorder
+		output is in effect.
+
+	-	New option -noinorder to switch to the previous behavior.
+
+	-	New option -s makes termcap behave similar to tset(1)
+
+	At the same time, hundreds of bugs in the Dickey termcap file
+	have been fixed. It seems that Mr. Dickey now uses our termcap
+	program to verify the content of the file for correctness.
+
+
+-	Bourne Shell: A bug introduced by AT&T with SVr3 (when making the
+	Shell 8-bit clean in 1986), that causes:
+
+		var=none;echo ${var-'$'}
+
+	to abort with "bad substitution" instead of just printing "none"
+	has been fixed.
+
+-	A bug introduced by Sun while trying to fix Sun bug 6776989 was fixed.
+
+		f(){}; type f
+
+	did print:
+		f() {f() { }}
+
+-	Bourne Shell: smake COPTX=-DMY_GMATCH now enforces to use our local
+	gmatch.c instead of linking gmatch() against -lgen.
+
+	This help to check whether the OS specific gmatch() implementation
+	is bug free. Please report if your OS gmatch() is buggy.
+
+-	In December 2006, when the command history editor from bsh has been
+	added to the Bourne Shell, only the "history" command was added as a
+	builtin. Now, more builtin commands from bsh have been added to the
+	Bourne Shell:
+
+	-	savehistory	Save the current history in $HOME/.history
+
+	-	map		Handle input mappings. This command first
+				appeared in bsh in April 1986
+
+-	The man page of the Bourne Shell now contains a mostly complete
+	description of the history editor.
+
+-	Bourne Shell: a new "repeat" command similar to the repeat command
+	in bsh has been implemented as Bourne Shell builtin.
+
+-	Bourne Shell: the variable PWD= is now supported with the cd and pwd
+	builtin commands.
+
+-	Bourne Shell: the initial date for the sbrk()-free stak.c
+	implementation from Geoff Collyer has been corrected from
+	1999 to 1987 with help from Henry Spencer.
+
+-	The bsh map command now correctly displays DEL as ^? instead of ^_
+
+-	The bsh map command now also accepts options -u and -r as the
+	Bourne Shell
+
+-	The builtin env command from bsh now correctly implements the -i
+	option and no longer sets up CWD= before callong the new command.
+
+-	map.c (used by sh, bsh and ved) now has better defaults for
+	cursor mappings.
+
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.isdn.cs.tu-berlin.de, js@cs.tu-berlin.de
+	joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

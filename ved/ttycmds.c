@@ -1,13 +1,13 @@
-/* @(#)ttycmds.c	1.25 09/07/09 Copyright 1984-2009 J. Schilling */
+/* @(#)ttycmds.c	1.26 12/05/06 Copyright 1984-2012 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)ttycmds.c	1.25 09/07/09 Copyright 1984-2009 J. Schilling";
+	"@(#)ttycmds.c	1.26 12/05/06 Copyright 1984-2012 J. Schilling";
 #endif
 /*
  *	Lower layer support routines for terminal.c
  *
- *	Copyright (c) 1984-2009 J. Schilling
+ *	Copyright (c) 1984-2012 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -127,6 +127,8 @@ char	*IP;		/* Insert pad after using IM and EI	*/
 char	*KD;		/* Keypad down arrow			*/
 char	*KE;		/* Keypad end transmit mode		*/
 char	*KH;		/* Keypad home key			*/
+char	*KEK;		/* Keypad end key			*/
+char	*KDK;		/* Keypad delete key			*/
 char	*KL;		/* Keypad left arrow			*/
 char	*KR;		/* Keypad right arrow			*/
 char	*KS;		/* Keypad start transmit mode		*/
@@ -197,6 +199,7 @@ LOCAL	char	**tstrs[] = {
 			&VB, &VS, &VE, &AL_PARM, &DL_PARM, &UP_PARM,
 			&DOWN_PARM, &LEFT_PARM, &RIGHT_PARM, &DC_PARM,
 			&IC_PARM, &SF_PARM, &SR_PARM,
+			&KEK, &KDK,
 		};
 
 LOCAL	char	**tfkeys[] = {
@@ -765,7 +768,7 @@ gettc()
 	/*
 	 * Parse string capabilities.
 	 */
-	np = "albcbtcdceclcmcrcsdcdldmdoedeihoicimipkdkekhklkrkskullmamdmendnlpcrcscsesfsosrtatetiucueupusvbvsveALDLUPDOLERIDCICSFSR";
+	np = "albcbtcdceclcmcrcsdcdldmdoedeihoicimipkdkekhklkrkskullmamdmendnlpcrcscsesfsosrtatetiucueupusvbvsveALDLUPDOLERIDCICSFSR@7kD";
 	sp = tstrs;
 	do {
 		*(*sp++) = tgetstr(np, &sbp);

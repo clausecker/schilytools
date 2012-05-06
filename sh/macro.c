@@ -35,11 +35,11 @@
 /*
  * This file contains modifications Copyright 2008-2012 J. Schilling
  *
- * @(#)macro.c	1.14 12/04/11 2008-2012 J. Schilling
+ * @(#)macro.c	1.15 12/04/20 2008-2012 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)macro.c	1.14 12/04/11 2008-2012 J. Schilling";
+	"@(#)macro.c	1.15 12/04/20 2008-2012 J. Schilling";
 #endif
 
 /*
@@ -191,20 +191,30 @@ skipto(endch)
 			break;
 
 		case DOLLAR:
-			if (readwc() == BRACE)
+			if ((c = readwc()) == BRACE)
 				skipto('}');
+			else if (c == SQUOTE || c == DQUOTE)
+				skipto(c);
+			else if (c == 0)
+				goto out;
+			break;
+
+		case ESCAPE:
+			if (!(c = readwc()))
+				goto out;
 		}
 	}
+out:
 	if (c != endch)
 		error(badsub);
 }
 
 #ifdef	PROTOTYPES
-static
-int getch(unsigned char endch, int trimflag)
+static int
+getch(unsigned char endch, int trimflag)
 #else
-static
-int getch(endch, trimflag)
+static int
+getch(endch, trimflag)
 unsigned char	endch;
 int trimflag; /* flag to check if an argument is going to be trimmed, here document
 		 output is never trimmed

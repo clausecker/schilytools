@@ -36,11 +36,11 @@
 /*
  * This file contains modifications Copyright 2008-2012 J. Schilling
  *
- * @(#)bltin.c	1.15 12/04/17 2008-2012 J. Schilling
+ * @(#)bltin.c	1.18 12/04/25 2008-2012 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)bltin.c	1.15 12/04/17 2008-2012 J. Schilling";
+	"@(#)bltin.c	1.18 12/04/25 2008-2012 J. Schilling";
 #endif
 
 /*
@@ -252,6 +252,8 @@ struct trenod *t;
 				{
 					prs_buff(cwdget());
 					prc_buff(NL);
+				} else {
+					(void) cwdget();
 				}
 			}
 			zapcd();
@@ -349,6 +351,56 @@ struct trenod *t;
 	case SYSEVAL:
 		if (a1)
 			execexp(a1, (Intptr_t)&argv[2]);
+		break;
+
+	case SYSREPEAT:
+		if (a1) {
+			extern int opterr, optind;
+			int	savopterr;
+			int	savoptind;
+			int	savsp;
+			char	*savoptarg;
+			int	c;
+			int	delay = 0;
+			int	count = -1;
+
+			savoptind = optind;
+			savopterr = opterr;
+			savsp = _sp;
+			savoptarg = optarg;
+			optind = 1;
+			_sp = 1;
+			opterr = 0;
+
+			while ((c = getopt(argc, (char **)argv,
+						"c:(count)d:(delay)")) != -1) {
+				switch (c) {
+				case 'c':
+					count = stoi((unsigned char *)optarg);
+					break;
+				case 'd':
+					delay = stoi((unsigned char *)optarg);
+					break;
+				case '?':
+					gfailure((unsigned char *)usage, repuse);
+					goto err;
+				}
+			}
+			while (count != 0) {
+				execexp(argv[optind], (Intptr_t)&argv[optind+1]);
+				if (delay > 0)
+					sh_sleep(delay);
+				if (count > 0)
+					count--;
+			}
+err:
+			optind = savoptind;
+			opterr = savopterr;
+			_sp = savsp;
+			optarg = savoptarg;
+		} else {
+			gfailure((unsigned char *)usage, repuse);
+		}
 		break;
 
 #ifndef RES
@@ -471,6 +523,35 @@ struct trenod *t;
 #ifdef	INTERACTIVE
 	case SYSHISTORY:
 		bhist();
+		break;
+
+	case SYSSAVEHIST:
+		bshist(&intrptr);
+		break;
+
+	case SYSMAP:
+		{
+			int	f = 1;
+
+			if (argc == 1) {
+				list_map(&f);
+			} else if (argc == 2 && eq(argv[1], "-r")) {
+				remap();
+			} else if (argc == 3 && eq(argv[1], "-u")) {
+				del_map((char *)argv[2]);
+			} else if (argc == 3 || argc == 4) {
+				if (!add_map((char *)argv[1], (char *)argv[2], (char *)argv[3])) {
+					prs(argv[1]);
+					prs((unsigned char *)": ");
+					prs((unsigned char *)"already defined\n");
+					error("bad map");
+				}
+			} else if (argc > 4) {
+				error(arglist);
+			} else {
+				error(mssgargn);
+			}
+		}
 		break;
 #endif
 

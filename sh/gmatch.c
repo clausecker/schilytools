@@ -1,12 +1,15 @@
-/* @(#)gmatch.c	1.7 12/04/10 2008-2012 J. Schilling */
+/* @(#)gmatch.c	1.8 12/04/20 2008-2012 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)gmatch.c	1.7 12/04/10 2008-2012 J. Schilling";
+	"@(#)gmatch.c	1.8 12/04/20 2008-2012 J. Schilling";
 #endif
 
 #include <schily/mconfig.h>
 
+#ifdef	MY_GMATCH			/* #define to enforce this gmatch() */
+#undef	HAVE_GMATCH			/* instead of gmatch() from -lgen   */
+#endif
 #ifndef	HAVE_GMATCH
 
 #include	<schily/limits.h>	/* MB_LEN_MAX */
@@ -20,8 +23,8 @@ static	UConst char sccsid[] =
  *
  * Match a pattern as in sh(1).
  *
- * This version is under BSD license. 
- * Originally written by Andrzej Bialecki <abial@FreeBSD.org> 
+ * This version is under BSD license.
+ * Originally written by Andrzej Bialecki <abial@FreeBSD.org>
  * Rewritten for multi-byte support by J. Schilling
  */
 

@@ -39,9 +39,9 @@
 #include "defs.h"
 
 /*
- *	Copyright Geoff Collyer 1999-2005
+ *				Copyright Geoff Collyer 1987-2005
  *
- * @(#)stak.c	2.3 12/04/07 Copyright 2010-2012 J. Schilling
+ * @(#)stak.c	2.5 12/04/25	Copyright 2010-2012 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -57,7 +57,7 @@
 
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)stak.c	2.3 12/04/07 Copyright 2010-2012 J. Schilling";
+	"@(#)stak.c	2.5 12/04/25 Copyright 2010-2012 J. Schilling";
 #endif
 
 
@@ -72,12 +72,14 @@ static	UConst char sccsid[] =
 #undef	BRKINCR
 #define	BRKINCR 1024
 
+#define	UC		(unsigned char *)
+
 #ifdef	STAK_DEBUG
-#define	TPRS(s)		do { if (Tracemem) prs((unsigned char *)s); } while (0)
+#define	TPRS(s)		do { if (Tracemem) prs(UC s); } while (0)
 #define	TPRN(n)		do { if (Tracemem) prln(n); } while (0)
 #define	TPRNN(n)	do { if (Tracemem) prnln(n); } while (0)
 
-#define	STPRS(s)	do { if (Stackdebug) prs((unsigned char *)s); } while (0)
+#define	STPRS(s)	do { if (Stackdebug) prs(UC s); } while (0)
 #define	STPRN(n)	do { if (Stackdebug) prln(n); } while (0)
 #define	STPRNN(n)	do { if (Stackdebug) prnln(n); } while (0)
 #else
@@ -163,8 +165,10 @@ static	unsigned char *__growstak __PR((int incr));
 	void	*alloc		__PR((size_t size));
 	void	shfree		__PR((void *ap));
 	unsigned char *cpystak	__PR((unsigned char *newstak));
-	unsigned char *movstrstak	__PR((unsigned char *a, unsigned char *b));
-	unsigned char *memcpystak	__PR((unsigned char *s1, unsigned char *s2, int n));
+	unsigned char *movstrstak	__PR((unsigned char *a,
+						unsigned char *b));
+	unsigned char *memcpystak	__PR((unsigned char *s1,
+						unsigned char *s2, int n));
 
 static void *
 xmalloc(size)
@@ -194,7 +198,8 @@ tossgrowing()				/* free the growing stack */
 
 		/* verify magic before freeing */
 		if (stk.topitem->h.magic != STMAGICNUM) {
-			prs((unsigned char *)"tossgrowing: stk.topitem->h.magic ");
+			prs((unsigned char *)
+					"tossgrowing: stk.topitem->h.magic ");
 			prln((long)stk.topitem->h.magic);
 			prs((unsigned char *)"\n");
 			error("tossgrowing: bad magic on stack");
@@ -490,7 +495,8 @@ __growstak(incr)			/* grow the growing stack by incr */
 		/*
 		 * get realloc to grow the stack to match the stack top
 		 */
-		if ((oldbsy = realloc(oldbsy, (unsigned)staklen)) == (unsigned char *)NIL)
+		if ((oldbsy = realloc(oldbsy, (unsigned)staklen)) ==
+							(unsigned char *)NIL)
 			error(nostack);
 	TPRS("now @ ");
 	TPRN((long)oldbsy);
@@ -631,7 +637,7 @@ chkmem()
 }
 #endif
 
-/*--------------------------------------------------------------------------*/
+/* -------------------------------------------------------------------------- */
 /*
  * The code below has been taken from the historical stak.c
  *
@@ -654,7 +660,7 @@ unsigned char *
 cpystak(x)
 unsigned char	*x;
 {
-	return(endstak(movstrstak(x, locstak())));
+	return (endstak(movstrstak(x, locstak())));
 }
 
 /*

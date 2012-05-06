@@ -1,13 +1,13 @@
-/* @(#)map.c	1.29 09/07/11 Copyright 1986-2009 J. Schilling */
+/* @(#)map.c	1.31 12/05/06 Copyright 1986-2012 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)map.c	1.29 09/07/11 Copyright 1986-2009 J. Schilling";
+	"@(#)map.c	1.31 12/05/06 Copyright 1986-2012 J. Schilling";
 #endif
 /*
  *	The map package for BSH & VED
  *
- *	Copyright (c) 1986-2009 J. Schilling
+ *	Copyright (c) 1986-2012 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -407,6 +407,8 @@ _add_map(mn, ms, comment)
 	tn->m_next = (smap_t *) NULL;
 
 	if (++maptab[*mn] > 254) {		/* Too many Entrys */
+		if (tn->m_comment)
+			free(tn->m_comment);
 		free((char *) tn);
 		maptab[*mn]--;
 		return (FALSE);
@@ -436,6 +438,8 @@ _add_map(mn, ms, comment)
 			/*
 			 * Map is already defined
 			 */
+			if (tn->m_comment)
+				free(tn->m_comment);
 			free((char *) tn);
 			maptab[*mn]--;
 			return (FALSE);
@@ -517,7 +521,11 @@ list_map(wp)
 
 	for (np = first_map; np; np = np->m_next) {
 #ifdef	BSH
+#ifdef	LIB_SHEDIT
+		if (*f == STDOUT_FILENO && isatty(*f)) {
+#else
 		if (f == stdout) {
+#endif
 			printf("%-16s ", pretty_string(UC np->m_from));
 			printf("%-16s", pretty_string(UC np->m_to));
 		} else {
@@ -597,12 +605,30 @@ init_cursor_maps()
 	extern char	*KR;
 	extern char	*KL;
 
-	if (KU) _add_map(UC KU, UC "", "Cursor up");
-	if (KD) _add_map(UC KD, UC "", "Cursor down");
-	if (KR) _add_map(UC KR, UC "", "Cursor forward");
-	if (KL) _add_map(UC KL, UC "", "Cursor left");
-/*	if (kB) _add_map(UC kB, UC "", "Cursor leftmost);*/
-/*	if (kE)	_add_map(UC kE, UC "", "Corsor rightmost");*/
+	if (KU) {
+		_add_map(UC KU, UC "", "Cursor up");
+	} else {
+		_add_map(UC "\33OA", UC "", "Cursor up");
+		_add_map(UC "\33[A", UC "", "Cursor up");
+	}
+	if (KD) {
+		_add_map(UC KD, UC "", "Cursor down");
+	} else {
+		_add_map(UC "\33OB", UC "", "Cursor down");
+		_add_map(UC "\33[B", UC "", "Cursor down");
+	}
+	if (KR) {
+		_add_map(UC KR, UC "", "Cursor forward");
+	} else {
+		_add_map(UC "\33OC", UC "", "Cursor forward");
+		_add_map(UC "\33[C", UC "", "Cursor forward");
+	}
+	if (KL) {
+		_add_map(UC KL, UC "", "Cursor left");
+	} else {
+		_add_map(UC "\33OD", UC "", "Cursor left");
+		_add_map(UC "\33[D", UC "", "Cursor left");
+	}
 }
 
 LOCAL struct fk_maps {
@@ -632,7 +658,7 @@ LOCAL struct fk_maps {
 	{ "kD", UC "\177",	"Delete char" },
 	{ "kE", UC "",	"Delete to eol" },
 /*	{ "kF", UC "\004",	"scroll down" },*/
-	{ "kH", UC "",	"Go to eol" },
+	{ "@7", UC "",	"Go to eol" },
 	{ "kh", UC "",	"Go to sol" },
 	{ "kL", UC "",	"Delete line" },
 	{ "kN", UC "n",	"Page down"},
@@ -679,6 +705,20 @@ init_fk_maps()
 		if (mp->fk_map) {
 			p = tgetstr(mp->fk_tc, tty_entry());
 /*error("tc: '%s' map: '%s' %X\r\n", mp->fk_tc, p, *tty_entry());*/
+			if (p == NULL) {
+				if (mp->fk_tc[0] == 'k' &&
+				    mp->fk_tc[1] == 'h') {
+					p = "\33[7~";
+				}
+				if (mp->fk_tc[0] == '@' &&
+				    mp->fk_tc[1] == '7') {
+					p = "\33[8~";
+				}
+				if (mp->fk_tc[0] == 'k' &&
+				    mp->fk_tc[1] == 'D') {
+					p = "\33[3~";
+				}
+			}
 			if (p)
 				_add_map(UC p, mp->fk_map, mp->fk_comment);
 		}
@@ -705,7 +745,7 @@ pretty_string(s)
 		}
 		if (*s & 0x80)
 			*s1++ = '~';
-		if (*s & 0x60) {
+		if (*s != 127 && *s & 0x60) {
 			*s1++ = *s++ & 0x7F;
 		} else {
 			*s1++ = '^';
@@ -730,8 +770,9 @@ init_cursor_maps()
 		char	*kd;
 		char	*kr;
 		char	*kl;
-		char	*kB;
-		char	*kE;
+		char	*kh;
+		char	*ke;
+		char	*kD;
 		char	*tname;
 		char	**esav;
 	extern	char	**environ;
@@ -749,19 +790,76 @@ init_cursor_maps()
 	if ((tname = getcurenv(termname)) != NULL &&
 					tgetent(NULL, tname) == 1) {
 		ev_insert(concat(termcapname, eql, tcgetbuf(), (char *)NULL));
-		ku = tgetstr("ku", &sbp);		/* Corsor up */
-		kd = tgetstr("kd", &sbp);		/* Corsor down */
-		kr = tgetstr("kr", &sbp);		/* Corsor forward */
-		kl = tgetstr("kl", &sbp);		/* Corsor left */
-		kB = tgetstr("kB", &sbp);		/* Corsor leftmost */
-		kE = tgetstr("kE", &sbp);		/* Corsor rightmost */
-		if (ku) _add_map(UC ku, UC "", "Corsor up");
-		if (kd) _add_map(UC kd, UC "", "Corsor down");
-		if (kr) _add_map(UC kr, UC "", "Corsor forward");
-		if (kl) _add_map(UC kl, UC "", "Corsor left");
-		if (kB) _add_map(UC kB, UC "", "Corsor leftmost");
-		if (kE)	_add_map(UC kE, UC "", "Corsor rightmost");
+		ku = tgetstr("ku", &sbp);		/* Cursor up */
+		kd = tgetstr("kd", &sbp);		/* Cursor down */
+		kr = tgetstr("kr", &sbp);		/* Cursor forward */
+		kl = tgetstr("kl", &sbp);		/* Cursor left */
+		kh = tgetstr("kh", &sbp);		/* Cursor -> Home */
+		ke = tgetstr("@7", &sbp);		/* Cursor -> End */
+		kD = tgetstr("kD", &sbp);		/* Delete Character */
+
+		if (ku) {
+			_add_map(UC ku, UC "", "Cursor up");
+		} else {
+			_add_map(UC "\33OA", UC "", "Cursor up");
+			_add_map(UC "\33[A", UC "", "Cursor up");
+		}
+		if (kd) {
+			_add_map(UC kd, UC "", "Cursor down");
+		} else {
+			_add_map(UC "\33OB", UC "", "Cursor down");
+			_add_map(UC "\33[B", UC "", "Cursor down");
+		}
+		if (kr) {
+			_add_map(UC kr, UC "", "Cursor forward");
+		} else {
+			_add_map(UC "\33OC", UC "", "Cursor forward");
+			_add_map(UC "\33[C", UC "", "Cursor forward");
+		}
+		if (kl) {
+			_add_map(UC kl, UC "", "Cursor left");
+		} else {
+			_add_map(UC "\33OD", UC "", "Cursor left");
+			_add_map(UC "\33[D", UC "", "Cursor left");
+		}
+
+		if (kh)
+			_add_map(UC kh, UC "", "Cursor Home");
+		else
+			_add_map(UC "\33[7~", UC "", "Cursor Home");
+		if (ke)
+			_add_map(UC ke, UC "", "Cursor End");
+		else
+			_add_map(UC "\33[8~", UC "", "Cursor End");
+		if (kD)
+			_add_map(UC kD, UC "\177", "Delete Char");
+		else
+			_add_map(UC "\33[3~", UC "\177", "Delete Char");
+	} else {
+		/*
+		 * ANSI Cursor mapping in "edit mode".
+		 */
+		_add_map(UC "\33OA", UC "", "Cursor up");
+		_add_map(UC "\33OB", UC "", "Cursor down");
+		_add_map(UC "\33OC", UC "", "Cursor forward");
+		_add_map(UC "\33OD", UC "", "Cursor left");
+		/*
+		 * ANSI Cursor mapping in "default mode".
+		 */
+		_add_map(UC "\33[A", UC "", "Cursor up");
+		_add_map(UC "\33[B", UC "", "Cursor down");
+		_add_map(UC "\33[C", UC "", "Cursor forward");
+		_add_map(UC "\33[D", UC "", "Cursor left");
+
+		/*
+		 * PC keyboard keys "Del", "Pos1", "End"
+		 */
+		_add_map(UC "\33[7~", UC "", "Cursor Home");
+		_add_map(UC "\33[8~", UC "", "Cursor End");
+		_add_map(UC "\33[3~", UC "\177", "Delete Char");
 	}
+	_add_map(UC "\33n", UC "\33", "Search down after clearing previous search");
+	_add_map(UC "\33p", UC "\33", "Search up after clearing previous search");
 	environ = esav;
 }
 #endif

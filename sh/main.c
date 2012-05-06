@@ -36,11 +36,11 @@
 /*
  * This file contains modifications Copyright 2008-2012 J. Schilling
  *
- * @(#)main.c	1.17 12/04/07 2008-2012 J. Schilling
+ * @(#)main.c	1.18 12/04/25 2008-2012 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)main.c	1.17 12/04/07 2008-2012 J. Schilling";
+	"@(#)main.c	1.18 12/04/25 2008-2012 J. Schilling";
 #endif
 
 /*
@@ -511,7 +511,7 @@ settmp()
 	int len;
 	serial = 0;
 	/*
-	 * Should better use %ju and cast ti maxint_t,
+	 * Should better use %ju and cast to maxint_t,
 	 * but then we need to call js_snprintf() for portability.
 	 */
 	if ((len = snprintf((char *)tmpout, TMPOUTSZ, "/tmp/sh%lu",

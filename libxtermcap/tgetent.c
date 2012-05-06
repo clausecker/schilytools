@@ -1,13 +1,13 @@
-/* @(#)tgetent.c	1.35 10/10/13 Copyright 1986-2010 J. Schilling */
+/* @(#)tgetent.c	1.37 12/05/06 Copyright 1986-2012 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)tgetent.c	1.35 10/10/13 Copyright 1986-2010 J. Schilling";
+	"@(#)tgetent.c	1.37 12/05/06 Copyright 1986-2012 J. Schilling";
 #endif
 /*
  *	Access routines for TERMCAP database.
  *
- *	Copyright (c) 1986-2010 J. Schilling
+ *	Copyright (c) 1986-2012 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -55,7 +55,8 @@ static	UConst char sccsid[] =
 #define	TRDBUF		8192	/* Size for read(2) buffer		*/
 #endif
 #define	TMAX		1024	/* Historical termcap buffer size	*/
-#define	MAXLOOP		32	/* Max loop count for tc= directive	*/
+#define	MAXLOOP		64	/* Max loop count for tc= directive	*/
+				/* A tc= nesting of 63 has been seen.	*/
 #define	TSIZE_SPACE	14	/* Space needed for: "li#xxx:co#yyy:"	*/
 
 LOCAL	char	_Eterm[]	= "TERM";
@@ -67,7 +68,7 @@ LOCAL	char	_tc[]		= "tc";
 				 * Additional terminfo quotes
 				 * "e^[" "::" ",," "s " "l\n"
 				 */
-LOCAL	char	_quotetab[]	= "E^^\\\\e::,,s l\nn\nr\rt\tb\bf\fv\v";
+LOCAL	char	_quotetab[]	= "E^^\\\\e::,,s l\nn\nr\rt\ta\ab\bf\fv\v";
 
 LOCAL	char	_etoolong[]	= "Termcap entry too long\n";
 LOCAL	char	_ebad[]		= "Bad termcap entry\n";
@@ -83,7 +84,7 @@ LOCAL	int	loopcount = 0;
 EXPORT	int	tgetent		__PR((char *bp, char *name));
 EXPORT	int	tcsetflags	__PR((int flags));
 EXPORT	char	*tcgetbuf	__PR((void));
-LOCAL	int	tchktc		__PR((void));
+LOCAL	int	tchktc		__PR((char *name));
 LOCAL	BOOL	tmatch		__PR((char *name));
 LOCAL	char	*tskip		__PR((char *ep));
 LOCAL	char	*tfind		__PR((char *ep, char *ent));
@@ -100,6 +101,7 @@ LOCAL	void	tstrip		__PR((void));
 LOCAL	char	*tmalloc	__PR((int size));
 LOCAL	char	*trealloc	__PR((char *p, int size));
 LOCAL	void	ovstrcpy	__PR((char *p2, char *p1));
+LOCAL	void	e_tcname	__PR((char *name));
 
 EXPORT int
 tgetent(bp, name)
@@ -185,6 +187,7 @@ setpath:
 									count);
 						} else {
 							tbuf = NULL;
+							e_tcname(name);
 							write(STDERR_FILENO,
 							_etoolong,
 							sizeof (_etoolong) - 1);
@@ -271,6 +274,7 @@ nextfile:
 					goto out;
 				}
 			}
+			e_tcname(name);
 			write(STDERR_FILENO, _etoolong, sizeof (_etoolong) - 1);
 		} else {
 			*ep++ = c;
@@ -284,7 +288,7 @@ nextfile:
 		ep = bp;
 	}
 out:
-	count = tchktc();
+	count = tchktc(name);
 	bp = tbuf;
 	if (tbufmalloc) {
 		if (count <= 0) {
@@ -339,11 +343,12 @@ tcgetbuf()
 }
 
 LOCAL int
-tchktc()
+tchktc(name)
+	char	*name;
 {
 	register	char	*ep;
 	register	char	*np;
-	register	char	*name;
+	register	char	*tcname;
 			char	tcbuf[TMAX];
 			char	*otbuf = tbuf;
 			int	otbufsize = tbufsize;
@@ -356,8 +361,19 @@ tchktc()
 		return (0);
 
 	ep = tbuf + strlen(tbuf) - 2;
-	while (*--ep != ':') {
-		if (ep < tbuf) {
+	while (ep > tbuf && *--ep != ':') {
+		if (ep <= tbuf) {
+			/*
+			 * There was no colon in tbuf...tbuf + strlen(tbuf) - 3,
+			 * so there cannot be any valid capability in tbuf.
+			 * First check for a valid but empty termcap entry,
+			 * such as: "tname:"
+			 */
+			ep = tbuf + strlen(tbuf) - 1;
+			if (ep > tbuf && *ep == ':') {
+				return (1);	/* Success */
+			}
+			e_tcname(name);
 			write(STDERR_FILENO, _ebad, sizeof (_ebad) - 1);
 			return (0);
 		}
@@ -368,26 +384,28 @@ tchktc()
 
 	ep = tfind(tbuf, _tc);
 	if (ep == NULL || *ep != '=') {
+		e_tcname(name);
 		write(STDERR_FILENO, _ebad, sizeof (_ebad) - 1);
 		return (0);
 	}
 	ep -= 2;				/* Correct for propper append*/
 	strncpy(tcbuf, &ep[2], sizeof (tcbuf));
-	name = tcbuf;
-	name[sizeof (tcbuf)-1] = '\0';
+	tcname = tcbuf;
+	tcname[sizeof (tcbuf)-1] = '\0';
 
 	do {
-		name++;
-		for (np = name; *np; np++)
+		tcname++;
+		for (np = tcname; *np; np++)
 			if (*np == ':')
 				break;
 		*np = '\0';
 		if (++loopcount > MAXLOOP) {
+			e_tcname(name);
 			write(STDERR_FILENO, _eloop, sizeof (_eloop) - 1);
 			return (0);
 		}
 		tbufmalloc = FALSE;		/* Do not free buffer now! */
-		ret = tgetent(NULL, name);
+		ret = tgetent(NULL, tcname);
 		*np = ':';
 		xtbuf = tbuf;
 		needfree = tbufmalloc;
@@ -417,6 +435,7 @@ tchktc()
 					return (0);
 				}
 			} else {
+				e_tcname(name);
 				write(STDERR_FILENO, _etoolong,
 							sizeof (_etoolong) - 1);
 				ret = tbufsize - 1 - (ep - otbuf);
@@ -430,7 +449,7 @@ tchktc()
 		if (needfree && xtbuf != NULL)
 			free(xtbuf);
 
-	} while ((name = tfind(name, _tc)) != NULL && *name == '=');
+	} while ((tcname = tfind(tcname, _tc)) != NULL && *tcname == '=');
 out:
 #if	defined(TIOCGSIZE) || defined(TIOCGWINSZ)
 	if ((tflags & TCF_NO_SIZE) == 0)
@@ -635,7 +654,10 @@ tdecode(pp, array)
 
 	for (; (c = *ep++) && c != ':'; *bp++ = c) {
 		if (c == '^') {
-			c = *ep++ & 0x1f;
+			if (*ep == '?')
+				c = *ep++ | 0x40;
+			else
+				c = *ep++ & 0x1f;
 		} else if (c == '\\') {
 			c = *ep++;
 			if (isoctal(c)) {
@@ -871,3 +893,10 @@ ovstrcpy(p2, p1)
 		;
 }
 
+LOCAL void
+e_tcname(name)
+	char	*name;
+{
+	write(STDERR_FILENO, name, strlen(name));
+	write(STDERR_FILENO, ": ", 2);
+}

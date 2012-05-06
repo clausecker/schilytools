@@ -37,7 +37,7 @@
 /*
  * This file contains modifications Copyright 2008-2012 J. Schilling
  *
- * @(#)defs.h	1.35 12/04/15 2008-2012 J. Schilling
+ * @(#)defs.h	1.39 12/04/25 2008-2012 J. Schilling
  */
 
 #ifdef	__cplusplus
@@ -130,14 +130,18 @@ extern "C" {
 #define		SYSSTOP		34
 
 #define		SYSHISTORY	35
-#define		SYSALLOC	36
+#define		SYSSAVEHIST	36
+#define		SYSMAP		37
+#define		SYSREPEAT	38
+
+#define		SYSALLOC	39
 
 /* used for input and output of shell */
 #define		INIO 		19
 
 /* io nodes */
 #define		USERIO		10
-#define		IOUFD		15	/* mask for UNIX file descriptor number */
+#define		IOUFD		15	/* mask for UNIX file descriptor # */
 #define		IODOC		0x0010
 #define		IOPUT		0x0020
 #define		IOAPP		0x0040
@@ -297,7 +301,8 @@ extern	void		setargs		__PR((unsigned char *argi[]));
 extern	struct dolnod *	freeargs	__PR((struct dolnod *blk));
 extern	void		clearup		__PR((void));
 extern	struct dolnod *	savargs		__PR((int funcnt));
-extern	void 		restorargs	__PR((struct dolnod *olddolh, int funcnt));
+extern	void 		restorargs	__PR((struct dolnod *olddolh,
+							int funcnt));
 extern	struct dolnod *	useargs		__PR((void));
 
 /*
@@ -311,7 +316,8 @@ extern	void	chkmem		__PR((void));
 /*
  * bltin.c
  */
-extern	void	builtin		__PR((int type, int argc, unsigned char **argv, struct trenod *t));
+extern	void	builtin		__PR((int type, int argc, unsigned char **argv,
+							struct trenod *t));
 
 /*
  * cmd.c
@@ -329,8 +335,11 @@ extern	int	echo		__PR((int argc, unsigned char **argv));
  * error.c
  */
 extern	void	error		__PR((const char *s)) __NORETURN;
-extern	void	failed_real	__PR((unsigned char *s1, const char *s2, unsigned char *s3)) __NORETURN;
-extern	void	failure_real	__PR((unsigned char *s1, const char *s2, int gflag));
+extern	void	failed_real	__PR((unsigned char *s1,
+						const char *s2,
+						unsigned char *s3)) __NORETURN;
+extern	void	failure_real	__PR((unsigned char *s1,
+						const char *s2, int gflag));
 extern	void	exitsh		__PR((int xno)) __NORETURN;
 extern	void	rmtemp		__PR((struct ionod *base));
 extern	void	rmfunctmp	__PR((void));
@@ -374,7 +383,8 @@ extern	int	gmatch		__PR((const char *, const char *));
 /*
  * hashserv.c
  */
-extern	short	pathlook	__PR((unsigned char *com, int flg, struct argnod *arg));
+extern	short	pathlook	__PR((unsigned char *com, int flg,
+						struct argnod *arg));
 extern	void	zaphash		__PR((void));
 extern	void	zapcd		__PR((void));
 extern	void	hashpr		__PR((void));
@@ -383,7 +393,8 @@ extern	void	hash_func	__PR((unsigned char *name));
 extern	void	func_unhash	__PR((unsigned char *name));
 extern	short	hash_cmd	__PR((unsigned char *name));
 extern	int	what_is_path	__PR((unsigned char *name));
-extern	int	chk_access	__PR((unsigned char *name, mode_t mode, int regflag));
+extern	int	chk_access	__PR((unsigned char *name,
+						mode_t mode, int regflag));
 
 /*
  * io.c
@@ -412,7 +423,8 @@ extern	void	freejobs	__PR((void));
 extern	void	startjobs	__PR((void));
 extern	int	endjobs		__PR((int check_if));
 extern	void	deallocjob	__PR((void));
-extern	void	allocjob	__PR((char *_cmd, unsigned char *cwd, int monitor));
+extern	void	allocjob	__PR((char *_cmd, unsigned char *cwd,
+							int monitor));
 extern	void	clearjobs	__PR((void));
 extern	void	makejob		__PR((int monitor, int fg));
 extern	void	postjob		__PR((pid_t pid, int fg));
@@ -437,7 +449,7 @@ extern	void	chkpr		__PR((void));
 extern	void	settmp		__PR((void));
 extern	void	chkmail		__PR((void));
 extern	void	setmail		__PR((unsigned char *));
-#define	setmode		set_imode	/* Conflicts with FreeBSD libc function */
+#define	setmode		set_imode	/* Conflicts w. FreeBSD libc function */
 extern	void	setmode		__PR((int prof));
 extern	void	secpolicy_print __PR((int level, const char *msg));
 
@@ -446,7 +458,9 @@ extern	void	secpolicy_print __PR((int level, const char *msg));
 /*
  * name.c
  */
-extern	int	syslook		__PR((unsigned char *w, const struct sysnod syswds[], int n));
+extern	int	syslook		__PR((unsigned char *w,
+						const struct sysnod syswds[],
+						int n));
 extern	void	setlist		__PR((struct argnod *arg, int xp));
 extern	void	replace		__PR((unsigned char **a, unsigned char *v));
 extern	void	dfault		__PR((struct namnod *n, unsigned char *v));
@@ -504,8 +518,10 @@ extern	void	cwdprint	__PR((void));
 extern	short		initio	__PR((struct ionod *iop, int save));
 extern	unsigned char *simple	__PR((unsigned char *s));
 extern	unsigned char *getpath	__PR((unsigned char *s));
-extern	int		pathopen __PR((unsigned char *path, unsigned char *name));
-extern	unsigned char *catpath	__PR((unsigned char *path, unsigned char *name));
+extern	int		pathopen __PR((unsigned char *path,
+						unsigned char *name));
+extern	unsigned char *catpath	__PR((unsigned char *path,
+						unsigned char *name));
 extern	unsigned char *nextpath	__PR((unsigned char *path));
 extern	void		execa	__PR((unsigned char *at[], short pos));
 extern	void		trim	__PR((unsigned char *at));
@@ -536,11 +552,15 @@ extern	unsigned char *locstak		__PR((void));
 extern	unsigned char *growstak		__PR((unsigned char *newtop));
 extern	unsigned char *savstak		__PR((void));
 extern	unsigned char *endstak		__PR((unsigned char *argp));
-extern	void		tdystak		__PR((unsigned char *x, struct ionod *iosav));
+extern	void		tdystak		__PR((unsigned char *x,
+							struct ionod *iosav));
 extern	void		stakchk		__PR((void));
 extern	unsigned char *cpystak		__PR((unsigned char *));
-extern	unsigned char *movstrstak	__PR((unsigned char *a, unsigned char *b));
-extern	unsigned char *memcpystak	__PR((unsigned char *s1, unsigned char *s2, int n));
+extern	unsigned char *movstrstak	__PR((unsigned char *a,
+							unsigned char *b));
+extern	unsigned char *memcpystak	__PR((unsigned char *s1,
+							unsigned char *s2,
+							int n));
 
 
 /*
@@ -551,7 +571,8 @@ extern	int		any	__PR((wchar_t c, unsigned char *s));
 extern	int		anys	__PR((unsigned char *c, unsigned char *s));
 extern	int		cf	__PR((unsigned char *s1, unsigned char *s2));
 extern	int		length	__PR((unsigned char *as));
-extern	unsigned char *movstrn	__PR((unsigned char *a, unsigned char *b, int n));
+extern	unsigned char *movstrn	__PR((unsigned char *a,
+						unsigned char *b, int n));
 
 /*
  * signames.c
@@ -593,7 +614,9 @@ extern	unsigned int	readwc	__PR((void));
 /*
  * xec.c
  */
-extern	int	execute		__PR((struct trenod *argt, int xflags, int errorflg, int *pf1, int *pf2));
+extern	int	execute		__PR((struct trenod *argt, int xflags,
+						int errorflg,
+						int *pf1, int *pf2));
 extern	void	execexp		__PR((unsigned char *s, Intptr_t f));
 
 /*
@@ -602,15 +625,21 @@ extern	void	execexp		__PR((unsigned char *s, Intptr_t f));
 extern	int	egetc		__PR((void));
 extern	void	bsh_treset	__PR((void));
 extern	void	bhist		__PR((void));
+extern	void	bshist		__PR((int **intrpp));
+extern	void	remap		__PR((void));
+extern	void	list_map	__PR((int *f));
+extern	int	del_map		__PR((char *from));
+extern	int	add_map		__PR((char *from, char *to, char *comment));
 
-#define		attrib(n, f)		(n->namflg |= f)
-#define		round(a, b)		(((Intptr_t)(((char *)(a)+b)-1))&~((b)-1))
-#define		closepipe(x)		(close(x[INPIPE]), close(x[OTPIPE]))
-#define		eq(a, b)		(cf((unsigned char *)(a), (unsigned char *)(b)) == 0)
+#define		_cf(a, b)	cf((unsigned char *)(a), (unsigned char *)(b))
+#define		attrib(n, f)	(n->namflg |= f)
+#define		round(a, b)	(((Intptr_t)(((char *)(a)+b)-1))&~((b)-1))
+#define		closepipe(x)	(close(x[INPIPE]), close(x[OTPIPE]))
+#define		eq(a, b)	(_cf(a, b) == 0)
 #undef		max
-#define		max(a, b)		((a) > (b)?(a):(b))
+#define		max(a, b)	((a) > (b)?(a):(b))
 #define		assert(x)
-#define		_gettext(s)		(unsigned char *)gettext(s)
+#define		_gettext(s)	(unsigned char *)gettext(s)
 
 /*
  * macros using failed_real(). Only s2 is gettext'd with both functions.
@@ -715,6 +744,8 @@ extern const char				ifsname[];
 extern const char				ps1name[];
 extern const char				ps2name[];
 extern const char				mchkname[];
+extern const char				opwdname[];
+extern const char				pwdname[];
 extern const char				acctname[];
 extern const char				mailpname[];
 
@@ -813,6 +844,9 @@ extern int				breakcnt;
 extern int				funcnt;
 extern int				tried_to_exit;
 
+/* fault */
+extern int				*intrptr;
+
 /* messages */
 extern const char				mailmsg[];
 extern const char				coredump[];
@@ -871,6 +905,7 @@ extern const char				usage[];
 extern const char				nojc[];
 extern const char				killuse[];
 extern const char				jobsuse[];
+extern const char				repuse[];
 extern const char				stopuse[];
 extern const char				ulimuse[];
 extern const char				nocurjob[];
@@ -940,21 +975,21 @@ unsigned char *readw	__PR((wchar_t));
 #endif
 
 #if	defined(HAVE_GETPGID) || defined(HAVE_SETPGID)
-#	define	POSIXJOBS
+#define	POSIXJOBS
 #endif
 
 #if	!defined(HAVE_GETPGID) && defined(HAVE_BSD_GETPGRP)
-#	define	getpgid	getpgrp
-#	define	getsid	getpgrp
+#define	getpgid	getpgrp
+#define	getsid	getpgrp
 #endif
 #if	!defined(HAVE_GETSID) && defined(HAVE_BSD_GETPGRP)
-#	define	getsid	getpgrp
+#define	getsid	getpgrp
 #endif
 #if	!defined(HAVE_SETPGID) && defined(HAVE_BSD_SETPGRP)
-#	define	setpgid	setpgrp
+#define	setpgid	setpgrp
 #endif
 #if	!defined(HAVE_SETSID) && defined(HAVE_BSD_GETPGRP)
-#	define	setsid	setpgrp(getpid())
+#define	setsid	setpgrp(getpid())
 #endif
 
 #if	!defined(HAVE_GETPGID) && !defined(HAVE_BSD_GETPGRP)
@@ -992,11 +1027,11 @@ unsigned char *readw	__PR((wchar_t));
  *	getpgrp(void)		-> ????
  *	setpgrp(pid, pgid)	-> set pgid of pid
  */
-#	define	getpgid(a)	getpgrp()
+#define	getpgid(a)	getpgrp()
 #endif
 
 #if	!defined(HAVE_GETSID) && !defined(HAVE_BSD_GETPGRP)
-#	define	getsid	getpgid
+#define	getsid	getpgid
 #endif
 
 

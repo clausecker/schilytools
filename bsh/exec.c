@@ -1,13 +1,13 @@
-/* @(#)exec.c	1.61 10/10/02 Copyright 1985-2010 J. Schilling */
+/* @(#)exec.c	1.62 12/04/26 Copyright 1985-2012 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)exec.c	1.61 10/10/02 Copyright 1985-2010 J. Schilling";
+	"@(#)exec.c	1.62 12/04/26 Copyright 1985-2012 J. Schilling";
 #endif
 /*
  *	bsh command interpreter - Execution of parsed Tree
  *
- *	Copyright (c) 1985-2010 J. Schilling
+ *	Copyright (c) 1985-2012 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -504,7 +504,7 @@ execcmd(vp, std, flag)
 /*			berror("closefiles2(%d)", toclose);*/
 			if (!didfork && (flag & LOPRI))
 				lower_my_pri();
-			start(vp, std);
+			start(vp, std, flag);
 		} else {			/* The Vather */
 			/*
 			 * Wait non interruptable.
