@@ -34,13 +34,13 @@
 #include "defs.h"
 
 /*
- * This file contains modifications Copyright 2008-2011 J. Schilling
+ * This file contains modifications Copyright 2008-2012 J. Schilling
  *
- * @(#)test.c	1.12 11/08/04 2008-2011 J. Schilling
+ * @(#)test.c	1.13 12/05/11 2008-2012 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)test.c	1.12 11/08/04 2008-2011 J. Schilling";
+	"@(#)test.c	1.13 12/05/11 2008-2012 J. Schilling";
 #endif
 
 
@@ -91,15 +91,15 @@ test(argn, com)
 	ac = argn;
 	av = com;
 	ap = 1;
-	if (eq(com[0],"["))
+	if (eq(com[0], "["))
 	{
 		if (!eq(com[--ac], "]"))
 			failed((unsigned char *)"test", nobracket);
 	}
 	com[ac] = 0;
 	if (ac <= 1)
-		return(1);
-	return(exp() ? 0 : 1);
+		return (1);
+	return (exp() ? 0 : 1);
 }
 
 static unsigned char *
@@ -111,11 +111,11 @@ nxtarg(mt)
 		if (mt)
 		{
 			ap++;
-			return(0);
+			return (0);
 		}
 		failed((unsigned char *)"test", noarg);
 	}
-	return(av[ap++]);
+	return (av[ap++]);
 }
 
 static int
@@ -129,13 +129,13 @@ exp()
 	if (p2 != 0)
 	{
 		if (eq(p2, "-o"))
-			return(p1 | exp());
+			return (p1 | exp());
 
 		/* if (!eq(p2, ")"))
 			failed((unsigned char *)"test", synmsg); */
 	}
 	ap--;
-	return(p1);
+	return (p1);
 }
 
 static int
@@ -148,18 +148,18 @@ e1()
 	p2 = nxtarg(1);
 
 	if ((p2 != 0) && eq(p2, "-a"))
-		return(p1 & e1());
+		return (p1 & e1());
 	ap--;
-	return(p1);
+	return (p1);
 }
 
 static int
 e2()
 {
 	if (eq(nxtarg(0), "!"))
-		return(!e3());
+		return (!e3());
 	ap--;
-	return(e3());
+	return (e3());
 }
 
 static int
@@ -176,76 +176,76 @@ e3()
 		p1 = exp();
 		if (!eq(nxtarg(0), ")"))
 			failed((unsigned char *)"test", noparen);
-		return(p1);
+		return (p1);
 	}
 	p2 = nxtarg(1);
 	ap--;
 	if ((p2 == 0) || (!eq(p2, "=") && !eq(p2, "!=")))
 	{
 		if (eq(a, "-r"))
-			return(chk_access(nxtarg(0), S_IREAD, 0) == 0);
+			return (chk_access(nxtarg(0), S_IREAD, 0) == 0);
 		if (eq(a, "-w"))
-			return(chk_access(nxtarg(0), S_IWRITE, 0) == 0);
+			return (chk_access(nxtarg(0), S_IWRITE, 0) == 0);
 		if (eq(a, "-x"))
-			return(chk_access(nxtarg(0), S_IEXEC, 0) == 0);
+			return (chk_access(nxtarg(0), S_IEXEC, 0) == 0);
 		if (eq(a, "-d"))
-			return(filtyp(nxtarg(0), S_IFDIR));
+			return (filtyp(nxtarg(0), S_IFDIR));
 		if (eq(a, "-c"))
-			return(filtyp(nxtarg(0), S_IFCHR));
+			return (filtyp(nxtarg(0), S_IFCHR));
 		if (eq(a, "-b"))
-			return(filtyp(nxtarg(0), S_IFBLK));
+			return (filtyp(nxtarg(0), S_IFBLK));
 		if (eq(a, "-f")) {
 			if (ucb_builtins) {
 				struct stat statb;
-			
-				return(stat((char *)nxtarg(0), &statb) >= 0 &&
+
+				return (stat((char *)nxtarg(0), &statb) >= 0 &&
 					(statb.st_mode & S_IFMT) != S_IFDIR);
 			}
 			else
-				return(filtyp(nxtarg(0), S_IFREG));
+				return (filtyp(nxtarg(0), S_IFREG));
 		}
 		if (eq(a, "-u"))
-			return(ftype(nxtarg(0), S_ISUID));
+			return (ftype(nxtarg(0), S_ISUID));
 		if (eq(a, "-g"))
-			return(ftype(nxtarg(0), S_ISGID));
+			return (ftype(nxtarg(0), S_ISGID));
 		if (eq(a, "-k"))
-			return(ftype(nxtarg(0), S_ISVTX));
+			return (ftype(nxtarg(0), S_ISVTX));
 		if (eq(a, "-p"))
-			return(filtyp(nxtarg(0), S_IFIFO));
+			return (filtyp(nxtarg(0), S_IFIFO));
 		if (eq(a, "-h") || eq(a, "-L"))
-			return(filtyp(nxtarg(0), S_IFLNK));
-   		if (eq(a, "-s"))
-			return(fsizep(nxtarg(0)));
+			return (filtyp(nxtarg(0), S_IFLNK));
+		if (eq(a, "-s"))
+			return (fsizep(nxtarg(0)));
 		if (eq(a, "-t"))
 		{
 			if (ap >= ac)		/* no args */
-				return(isatty(1));
+				return (isatty(1));
 			else if (eq((a = nxtarg(0)), "-a") || eq(a, "-o"))
 			{
 				ap--;
-				return(isatty(1));
+				return (isatty(1));
 			}
 			else
-				return(isatty(atoi((char *)a)));
+				return (isatty(atoi((char *)a)));
 		}
 		if (eq(a, "-n"))
-			return(!eq(nxtarg(0), ""));
+			return (!eq(nxtarg(0), ""));
 		if (eq(a, "-z"))
-			return(eq(nxtarg(0), ""));
+			return (eq(nxtarg(0), ""));
 	}
 
 	p2 = nxtarg(1);
 	if (p2 == 0)
-		return(!eq(a, ""));
+		return (!eq(a, ""));
 	if (eq(p2, "-a") || eq(p2, "-o"))
 	{
 		ap--;
-		return(!eq(a, ""));
+		return (!eq(a, ""));
 	}
 	if (eq(p2, "="))
-		return(eq(nxtarg(0), a));
+		return (eq(nxtarg(0), a));
 	if (eq(p2, "!="))
-		return(!eq(nxtarg(0), a));
+		return (!eq(nxtarg(0), a));
 #ifdef	HAVE_STRTOLL
 	ll_1 = strtoll((char *)a, NULL, 10);
 	ll_2 = strtoll((char *)nxtarg(0), NULL, 10);
@@ -280,10 +280,10 @@ ftype(f, field)
 	struct stat statb;
 
 	if (stat((char *)f, &statb) < 0)
-		return(0);
+		return (0);
 	if ((statb.st_mode & field) == field)
-		return(1);
-	return(0);
+		return (1);
+	return (0);
 }
 
 static int
@@ -295,11 +295,11 @@ filtyp(f, field)
 	int (*statf) __PR((const char *_nm, struct stat *_fs)) = (field == S_IFLNK) ? lstat : stat;
 
 	if ((*statf)((char *)f, &statb) < 0)
-		return(0);
+		return (0);
 	if ((statb.st_mode & S_IFMT) == field)
-		return(1);
+		return (1);
 	else
-		return(0);
+		return (0);
 }
 
 
@@ -310,6 +310,6 @@ fsizep(f)
 	struct stat statb;
 
 	if (stat((char *)f, &statb) < 0)
-		return(0);
-	return(statb.st_size > 0);
+		return (0);
+	return (statb.st_size > 0);
 }

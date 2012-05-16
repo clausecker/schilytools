@@ -36,11 +36,11 @@
 /*
  * This file contains modifications Copyright 2008-2012 J. Schilling
  *
- * @(#)io.c	1.15 12/03/29 2008-2012 J. Schilling
+ * @(#)io.c	1.16 12/05/11 2008-2012 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)io.c	1.15 12/03/29 2008-2012 J. Schilling";
+	"@(#)io.c	1.16 12/05/11 2008-2012 J. Schilling";
 #endif
 
 /*
@@ -461,7 +461,7 @@ void
 restore(last)
 	int	last;
 {
-	int 	i;
+	int	i;
 	int	dupfd;
 
 	for (i = topfd - 1; i >= last; i--) {

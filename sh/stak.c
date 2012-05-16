@@ -41,7 +41,7 @@
 /*
  *				Copyright Geoff Collyer 1987-2005
  *
- * @(#)stak.c	2.5 12/04/25	Copyright 2010-2012 J. Schilling
+ * @(#)stak.c	2.7 12/05/15	Copyright 2010-2012 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -57,7 +57,7 @@
 
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)stak.c	2.5 12/04/25 Copyright 2010-2012 J. Schilling";
+	"@(#)stak.c	2.7 12/05/15 Copyright 2010-2012 J. Schilling";
 #endif
 
 
@@ -83,6 +83,9 @@ static	UConst char sccsid[] =
 #define	STPRN(n)	do { if (Stackdebug) prln(n); } while (0)
 #define	STPRNN(n)	do { if (Stackdebug) prnln(n); } while (0)
 #else
+
+#define	debugsav(a)
+
 #define	TPRS(s)
 #define	TPRN(n)
 #define	TPRNN(n)
@@ -92,11 +95,19 @@ static	UConst char sccsid[] =
 #define	STPRNN(n)
 #endif
 
+#ifndef	TRACEMEM
+#define	TRACEMEM	0
+#endif
+#ifndef	STACKDEBUG
+#define	STACKDEBUG	0
+#endif
+
 enum {
-	Tracemem = 0,
-	Stackdebug = 0,
+	Tracemem = TRACEMEM,
+	Stackdebug = STACKDEBUG,
 
 	STMAGICNUM = 0x1235,		/* stak item magic */
+	STNMAGICNUM = 0x1237,		/* stak null item magic */
 	HPMAGICNUM = 0x4276,		/* heap item magic */
 };
 
@@ -157,7 +168,10 @@ static void	prln		__PR((long));
 	unsigned char *savstak	__PR((void));
 	unsigned char *endstak	__PR((unsigned char *argp));
 	void	tdystak		__PR((unsigned char *sav, struct ionod *iosav));
+#ifdef	STAK_DEBUG
+	void	*debugstak	__PR((void));
 static void	debugsav	__PR((unsigned char *sav));
+#endif
 	void	stakchk		__PR((void));
 static	unsigned char *__growstak __PR((int incr));
 	unsigned char *growstak	__PR((unsigned char *newtop));
@@ -197,7 +211,8 @@ tossgrowing()				/* free the growing stack */
 		Stackblk *nextitem;
 
 		/* verify magic before freeing */
-		if (stk.topitem->h.magic != STMAGICNUM) {
+		if (stk.topitem->h.magic != STMAGICNUM &&
+		    stk.topitem->h.magic != STNMAGICNUM) {
 			prs((unsigned char *)
 					"tossgrowing: stk.topitem->h.magic ");
 			prln((long)stk.topitem->h.magic);
@@ -272,9 +287,6 @@ getstak(asize)
 	int		staklen;
 	unsigned char	*nstk;
 
-	/*
-	 * +1 is because stakend points at the last byte of the growing stack
-	 */
 	staklen = stakend - stk.base;	/* # of usable bytes */
 
 	TPRS("getstak(");
@@ -333,14 +345,23 @@ locstak()
 unsigned char *
 savstak()
 {
+	unsigned char	*ostk;
+	Stackblk	*blk;
+
 	assert(staktop == stakbot);	/* assert empty stack */
-	return (getstak(1));
+	ostk = getstak(1);
+	blk = (Stackblk *)(ostk - sizeof (Stackblkhdr));
+	blk->h.magic = STNMAGICNUM;	/* Mark as null stak item */
+	return (ostk);
 }
 
 /*
  * tidy up after `locstak'.
  * make the current growing stack a semi-permanent item and
  * generate a new tiny growing stack.
+ * As currently all endstak()/tdystak() pairs in the shell leave a non-zero
+ * block on the current growing stack, we did not create code to set
+ * blk->h.magic = STNMAGICNUM in case of an empty block.
  */
 unsigned char *
 endstak(argp)
@@ -379,7 +400,8 @@ tdystak(sav, iosav)
 	if (sav == 0) {
 		/* EMPTY */
 		STPRS("tdystak(0)\n");
-	} else if (blk->h.magic == STMAGICNUM) {
+	} else if (blk->h.magic == STMAGICNUM ||
+		blk->h.magic == STNMAGICNUM) {
 		/* EMPTY */
 		STPRS("tdystak(data ptr: ");
 		STPRN((long)sav);
@@ -399,10 +421,44 @@ tdystak(sav, iosav)
 		debugsav(sav);
 		tossgrowing();		/* toss the stack top */
 	}
+	/*
+	 * This is not the default call tdystak(0, 0) from main.c
+	 * If the stak top "blk" was retrieved via savstak(), it is
+	 * a null item that needs to be freed as well.
+	 * If the stak top was retrieved via fixstak()/endstak()
+	 * it usually contains data from the previous environment and
+	 * thus must not be freed.
+	 */
+	if (blk && stk.topitem == blk &&
+	    blk->h.magic == STNMAGICNUM)
+		tossgrowing();		/* toss the stack top */
+
 	debugsav(sav);
 	STPRS("tdystak: done popping\n");
 	grostalloc();			/* new growing stack */
 	STPRS("tdystak: exit\n");
+}
+
+#ifdef	STAK_DEBUG
+void *
+debugstak()
+{
+	Stack	s;
+	int	i = 0;
+
+	s.topitem = stk.topitem;
+
+	while (s.topitem) {
+		prs((unsigned char *)"Topitem: ");
+		prln((long)s.topitem);
+		prs((unsigned char *)"\n");
+		i++;
+		s.topitem = s.topitem->h.word;
+	}
+	prs((unsigned char *)"Number of topitems: ");
+	prn(i);
+	prs((unsigned char *)"\n");
+	return (stk.topitem);
 }
 
 static void
@@ -425,6 +481,7 @@ debugsav(sav)
 		STPRS("\n");
 	}
 }
+#endif
 
 /*
  * Reduce the growing-stack size if possible
@@ -491,13 +548,14 @@ __growstak(incr)			/* grow the growing stack by incr */
 		memcpy(new, oldbsy, staklen);
 		free(oldbsy);
 		oldbsy = new;
-	} else
+	} else {
 		/*
 		 * get realloc to grow the stack to match the stack top
 		 */
 		if ((oldbsy = realloc(oldbsy, (unsigned)staklen)) ==
 							(unsigned char *)NIL)
 			error(nostack);
+	}
 	TPRS("now @ ");
 	TPRN((long)oldbsy);
 	TPRS(" of ");
@@ -618,7 +676,8 @@ shfree(ap)
 		blk->h.magic = 0;	/* erase magic */
 		free(blk);
 #ifdef	FREE_DEBUG
-	} else if (blk->h.magic == STMAGICNUM) {
+	} else if (blk->h.magic == STMAGICNUM ||
+		blk->h.magic == STNMAGICNUM) {
 		prs((unsigned char *)"free(");
 		prln((long)ap);
 		prs((unsigned char *)"): arg is from stak.\n");

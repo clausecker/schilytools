@@ -36,11 +36,11 @@
 /*
  * This file contains modifications Copyright 2008-2012 J. Schilling
  *
- * @(#)bltin.c	1.18 12/04/25 2008-2012 J. Schilling
+ * @(#)bltin.c	1.25 12/05/13 2008-2012 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)bltin.c	1.18 12/04/25 2008-2012 J. Schilling";
+	"@(#)bltin.c	1.25 12/05/13 2008-2012 J. Schilling";
 #endif
 
 /*
@@ -56,7 +56,8 @@ static	UConst char sccsid[] =
 #include	<sys/stat.h>
 #include	<sys/times.h>
 
-	void	builtin	__PR((int type, int argc, unsigned char **argv, struct trenod *t));
+	void	builtin	__PR((int type, int argc, unsigned char **argv,
+							struct trenod *t));
 
 void
 builtin(type, argc, argv, t)
@@ -67,8 +68,9 @@ struct trenod *t;
 {
 	short fdindex = initio(t->treio, (type != SYSEXEC));
 	unsigned char *a1 = argv[1];
+	struct argnod *np = NULL;
 
-	switch (type)		
+	switch (type)
 	{
 
 	case SYSSUSP:
@@ -108,6 +110,10 @@ struct trenod *t;
 			struct tms tms;
 
 			times(&tms);
+			prt(tms.tms_utime);
+			prc_buff(SPACE);
+			prt(tms.tms_stime);
+			prc_buff(NL);
 			prt(tms.tms_cutime);
 			prc_buff(SPACE);
 			prt(tms.tms_cstime);
@@ -116,7 +122,7 @@ struct trenod *t;
 		break;
 
 	case SYSEXIT:
-		if ( tried_to_exit++ || endjobs(JOB_STOPPED) ){
+		if (tried_to_exit++ || endjobs(JOB_STOPPED)) {
 			flags |= forcexit;	/* force exit */
 			exitsh(a1 ? stoi(a1) : retval);
 		}
@@ -188,78 +194,155 @@ struct trenod *t;
 #endif
 			execa(argv, -1);
 			done(0);
+			/* NOTREACHED */
 		}
 
 #endif
 
+	case SYSPOPD:
+		/* FALLTHROUGH */
+	case SYSPUSHD:
+		init_dirs();
+		if (a1 && a1[0] == '-') {
+			if (a1[1] == '-' && a1[2] == '\0') {	/* "--" */
+				a1 = argv[2];
+			} else if (type == SYSPUSHD && a1[1] == '\0') {
+				extern struct namnod opwdnod;
+
+				a1 = opwdnod.namval;
+				if (a1 == NULL || *a1 == '\0') {
+					free(np);
+					failed(a1, baddir);
+					break;
+				}
+			} else {
+				int	off = stoi(&a1[1]);
+
+				if (!(np = pop_dir(off))) {
+					failed(a1, badoff);
+					break;
+				}
+				a1 = np->argval;
+			}
+		} else if (type == SYSPOPD) {
+			struct argnod *dnp = pop_dir(0);
+
+			/*
+			 * init_dirs() grants pop_dir(0) != NULL
+			 */
+			if (dnp->argnxt == NULL) {
+				error(emptystack);
+				break;
+			}
+			a1 = dnp->argnxt->argval;
+			free(dnp);
+		}
+		/* FALLTHROUGH */
 	case SYSCD:
-		if (flags & rshflg)
+		if (type == SYSCD && a1 && a1[0] == '-') {
+			if (a1[1] == '-' && a1[2] == '\0') {	/* "--" */
+				a1 = argv[2];
+			} else if (a1[1] == '\0') {
+				extern struct namnod opwdnod;
+
+				a1 = opwdnod.namval;
+				if (a1 == NULL || *a1 == '\0') {
+					free(np);
+					failed(a1, baddir);
+					break;
+				}
+			}
+		}
+		/*
+		 * A restricted Shell does not allow "cd" at all.
+		 */
+		if (flags & rshflg) {
+			free(np);
 			failed(argv[0], restricted);
-		else if ((a1 && *a1) || (a1 == 0 && (a1 = homenod.namval)))
-		{
+		} else if ((a1 && *a1) || (a1 == 0 && (a1 = homenod.namval))) {
 			unsigned char *cdpath;
 			unsigned char *dir;
 			int f;
 
+			/*
+			 * Make sure that cwdname[] is set to be able to track
+			 * the previous working directory in OLDPWD.
+			 */
+			cwdset();
+
 			if ((cdpath = cdpnod.namval) == 0 ||
-			     *a1 == '/' ||
-			     cf(a1, (unsigned char *)".") == 0 ||
-			     cf(a1, (unsigned char *)"..") == 0 ||
-			     (*a1 == '.' && (*(a1+1) == '/' || (*(a1+1) == '.' && *(a1+2) == '/'))))
+			    *a1 == '/' ||
+			    cf(a1, (unsigned char *)".") == 0 ||
+			    cf(a1, (unsigned char *)"..") == 0 ||
+			    (*a1 == '.' && (*(a1+1) == '/' || (*(a1+1) == '.' && *(a1+2) == '/'))))
 				cdpath = (unsigned char *)nullstr;
 
 			do
 			{
 				dir = cdpath;
-				cdpath = catpath(cdpath,a1);
+				cdpath = catpath(cdpath, a1);
 			}
 			while ((f = chdir((const char *) curstak())) < 0 &&
 			    cdpath);
 
+			free(np);
 			if (f < 0) {
-				switch(errno) {
-#ifdef	EMULTIHOP						
-						case EMULTIHOP:
-							failed(a1, emultihop);
-							break;
+				switch (errno) {
+#ifdef	EMULTIHOP
+				case EMULTIHOP:
+					failed(a1, emultihop);
+					break;
 #endif
-						case ENOTDIR:
-							failed(a1, enotdir);
-							break;
-						case ENOENT:
-							failed(a1, enoent);
-							break;
-						case EACCES:
-							failed(a1, eacces);
-							break;
+				case ENOTDIR:
+					failed(a1, enotdir);
+					break;
+				case ENOENT:
+					failed(a1, enoent);
+					break;
+				case EACCES:
+					failed(a1, eacces);
+					break;
 #ifdef	ENOLINK
-						case ENOLINK:
-							failed(a1, enolink);
-							break;
+				case ENOLINK:
+					failed(a1, enolink);
+					break;
 #endif
-						default: 
-						failed(a1, baddir);
-						break;
-						}
+				default:
+					failed(a1, baddir);
+					break;
+				}
 			}
-			else 
+			else
 			{
-				cwd(curstak());
+				unsigned char	*wd;
+
+				cwd(curstak());		/* Canonic from stak */
+				wd = cwdget();		/* Get reliable cwd  */
+				if (type != SYSPUSHD)
+					free(pop_dir(0));
+				push_dir(wd);		/* Update dir stack  */
+				if (pr_dirs(1))		/* If already printed */
+					wd = NULL;	/* don't do it again */
 				if (cf((unsigned char *)nullstr, dir) &&
 				    *dir != ':' &&
-					any('/', curstak()) &&
-					flags & prompt)
-				{
-					prs_buff(cwdget());
-					prc_buff(NL);
-				} else {
-					(void) cwdget();
+				    any('/', curstak()) &&
+				    flags & prompt) {
+					if (wd) {	/* Not yet printed */
+						prs_buff(wd);
+						prc_buff(NL);
+					}
 				}
 			}
 			zapcd();
 		}
-		else 
+		else
 		{
+			free(np);
+			/*
+			 * cd "" is not permitted,
+			 * cd	 without parameter is cd $HOME
+			 * but $HOME was not set.
+			 */
 			if (a1)
 				error(nulldir);
 			else
@@ -281,7 +364,7 @@ struct trenod *t;
 			}
 			else
 				dolv += places;
-		}			
+		}
 
 		break;
 
@@ -290,8 +373,8 @@ struct trenod *t;
 		break;
 
 	case SYSREAD:
-		if(argc < 2)
-			failed(argv[0],mssgargn);
+		if (argc < 2)
+			failed(argv[0], mssgargn);
 		rwait = 1;
 		exitval = readvar(&argv[1]);
 		rwait = 0;
@@ -305,8 +388,7 @@ struct trenod *t;
 			cnt = options(argc, argv);
 			if (cnt > 1)
 				setargs(argv + argc - cnt);
-		}
-		else if (comptr(t)->comset == 0)
+		} else if (comptr(t)->comset == 0)
 		{
 			/*
 			 * scan name chain and print
@@ -329,7 +411,7 @@ struct trenod *t;
 
 	case SYSXPORT:
 		{
-			struct namnod 	*n;
+			struct namnod	*n;
 
 			exitval = 0;
 			if (a1)
@@ -387,7 +469,12 @@ struct trenod *t;
 				}
 			}
 			while (count != 0) {
+				unsigned char		*sav = savstak();
+				struct ionod		*iosav = iotemp;
+
 				execexp(argv[optind], (Intptr_t)&argv[optind+1]);
+				tdystak(sav, iosav);
+
 				if (delay > 0)
 					sh_sleep(delay);
 				if (count > 0)
@@ -407,7 +494,7 @@ err:
 	case SYSULIMIT:
 		sysulimit(argc, (char **)argv);
 		break;
-			
+
 	case SYSUMASK:
 		sysumask(argc, (char **)argv);
 		break;
@@ -447,6 +534,11 @@ err:
 
 		break;
 
+	case SYSDIRS:
+		exitval = 0;
+		pr_dirs(0);
+		break;
+
 	case SYSPWD:
 		{
 			exitval = 0;
@@ -461,7 +553,7 @@ err:
 		execbrk = 1;
 		exitval = (a1 ? stoi(a1) : retval);
 		break;
-	
+
 	case SYSTYPE:
 		exitval = 0;
 		if (a1)
@@ -487,20 +579,20 @@ err:
 		extern unsigned char numbuf[];
 		unsigned char *varnam = argv[2];
 		unsigned char c[2];
-		if(argc < 3) {
-			failure(argv[0],mssgargn);
+		if (argc < 3) {
+			failure(argv[0], mssgargn);
 			break;
 		}
 		exitval = 0;
 		n = lookup((unsigned char *)"OPTIND");
 		optind = stoi(n->namval);
-		if(argc > 3) {
+		if (argc > 3) {
 			argv[2] = dolv[0];
 			getoptval = getopt(argc-2, (char **)&argv[2], (char *)argv[1]);
 		}
 		else
 			getoptval = getopt(dolc+1, (char **)dolv, (char *)argv[1]);
-		if(getoptval == -1) {
+		if (getoptval == -1) {
 			itos(optind);
 			assign(n, numbuf);
 			n = lookup(varnam);
@@ -511,8 +603,8 @@ err:
 		argv[2] = varnam;
 		itos(optind);
 		assign(n, numbuf);
-		c[0] = getoptval;
-		c[1] = 0;
+		c[0] = (char) getoptval;
+		c[1] = '\0';
 		n = lookup(varnam);
 		assign(n, c);
 		n = lookup((unsigned char *)"OPTARG");

@@ -36,11 +36,11 @@
 /*
  * This file contains modifications Copyright 2008-2012 J. Schilling
  *
- * @(#)hashserv.c	1.11 12/04/20 2008-2012 J. Schilling
+ * @(#)hashserv.c	1.13 12/05/12 2008-2012 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)hashserv.c	1.11 12/04/20 2008-2012 J. Schilling";
+	"@(#)hashserv.c	1.13 12/05/12 2008-2012 J. Schilling";
 #endif
 
 /*
@@ -95,7 +95,7 @@ pathlook(com, flg, arg)
 	hentry.data = 0;
 
 	if (any('/', name))
-		return(COMMAND);
+		return (COMMAND);
 
 	h = hfind(name);
 
@@ -106,11 +106,11 @@ pathlook(com, flg, arg)
 		{
 			if (flg)
 				h->hits++;
-			return(h->data);
+			return (h->data);
 		}
 
 		if (arg && (pathset = argpath(arg)))
-			return(PATH_COMMAND);
+			return (PATH_COMMAND);
 
 		if ((h->data & DOT_COMMAND) == DOT_COMMAND)
 		{
@@ -127,7 +127,7 @@ pathlook(com, flg, arg)
 		{
 			if (flg)
 				h->hits++;
-			return(h->data);
+			return (h->data);
 		}
 
 		h->data = 0;
@@ -142,7 +142,7 @@ pathlook(com, flg, arg)
 	else
 	{
 		if (arg && (pathset = argpath(arg)))
-			return(PATH_COMMAND);
+			return (PATH_COMMAND);
 pathsrch:
 			count = findpath(name, oldpath);
 	}
@@ -171,11 +171,11 @@ pathsrch:
 
 		h->hits = flg;
 		h->cost += cost;
-		return(h->data);
+		return (h->data);
 	}
-	else 
+	else
 	{
-		return(-count);
+		return (-count);
 	}
 }
 
@@ -194,7 +194,7 @@ zaphash()
 	relcmd.next = 0;
 }
 
-void 
+void
 zapcd()
 {
 	ENTRY *ptr = relcmd.next;
@@ -296,7 +296,7 @@ void
 func_unhash(name)
 	unsigned char	*name;
 {
-	ENTRY 	*h;
+	ENTRY	*h;
 	int i;
 
 	h = hfind(name);
@@ -317,18 +317,18 @@ hash_cmd(name)
 	ENTRY	*h;
 
 	if (any('/', name))
-		return(COMMAND);
+		return (COMMAND);
 
 	h = hfind(name);
 
 	if (h)
 	{
 		if (h->data & (BUILTIN | FUNCTION))
-			return(h->data);
+			return (h->data);
 		else if ((h->data & REL_COMMAND) == REL_COMMAND)
 		{ /* unlink h from relative command list */
 			ENTRY *ptr = &relcmd;
-			while(ptr-> next != h)
+			while (ptr-> next != h)
 				ptr = ptr->next;
 			ptr->next = h->next;
 		}
@@ -393,8 +393,9 @@ what_is_path(name)
 						hashval = hashdata(hash);
 				}
 			}
+			/* FALLTHROUGH */
 
-			case COMMAND:					
+			case COMMAND:
 				prs_buff(_gettext(" is hashed ("));
 				pr_path(name, hashval);
 				prs_buff((unsigned char *)")\n");
@@ -427,12 +428,12 @@ findpath(name, oldpath)
 	unsigned char	*name;
 	int		oldpath;
 {
-	unsigned char 	*path;
+	unsigned char	*path;
 	int	count = 1;
 
 	unsigned char	*p;
 	int	ok = 1;
-	int 	e_code = 1;
+	int	e_code = 1;
 
 	cost = 0;
 	path = getpath(name);
@@ -450,11 +451,11 @@ findpath(name, oldpath)
 			cost = 1;
 
 			if ((ok = chk_access(p, S_IEXEC, 1)) == 0)
-				return(dotpath);
+				return (dotpath);
 			else
-				return(oldpath);
+				return (oldpath);
 		}
-		else 
+		else
 			count = dotpath;
 	}
 
@@ -472,14 +473,14 @@ findpath(name, oldpath)
 		count++;
 	}
 
-	return(ok ? -e_code : count);
+	return (ok ? -e_code : count);
 }
 
 /*
  * Determine if file given by name is accessible with permissions
  * given by mode.
- * Regflag argument non-zero means not to consider 
- * a non-regular file as executable. 
+ * Regflag argument non-zero means not to consider
+ * a non-regular file as executable.
  */
 #ifdef	PROTOTYPES
 int
@@ -491,38 +492,40 @@ chk_access(name, mode, regflag)
 	mode_t		mode;
 	int		regflag;
 #endif
-{	
+{
 	static int flag;
-	static uid_t euid; 
+	static uid_t euid;
 	struct stat statb;
 	mode_t ftype;
-	
-	if(flag == 0) {
+
+	if (flag == 0) {
 		euid = geteuid();
 		flag = 1;
 	}
 	if (stat((char *)name, &statb) == 0) {
 		ftype = statb.st_mode & S_IFMT;
-		if(mode == S_IEXEC && regflag && ftype != S_IFREG)
-			return(2);
+		if (mode == S_IEXEC && regflag && ftype != S_IFREG)
+			return (2);
 #ifdef	HAVE_ACCESS_E_OK
-		if(access((char *)name, 010|(mode>>6)) == 0) {
+		if (access((char *)name, 010|(mode>>6)) == 0) {
 #else
-		if(access((char *)name, (mode>>6)) == 0) {
+		if (access((char *)name, (mode>>6)) == 0) {
 #endif
-			if(euid == 0) {
+			if (euid == 0) {
 				if (ftype != S_IFREG || mode != S_IEXEC)
-					return(0);
-		    		/* root can execute file as long as it has execute 
-			   	permission for someone */
+					return (0);
+				/*
+				 * root can execute file as long as it has
+				 * execute permission for someone
+				 */
 				if (statb.st_mode & (S_IEXEC|(S_IEXEC>>3)|(S_IEXEC>>6)))
-					return(0);
-				return(3);
+					return (0);
+				return (3);
 			}
-			return(0);
+			return (0);
 		}
 	}
-	return(errno == EACCES ? 3 : 1);
+	return (errno == EACCES ? 3 : 1);
 }
 
 static void
@@ -546,7 +549,7 @@ static int
 argpath(arg)
 	struct argnod	*arg;
 {
-	unsigned char 	*s;
+	unsigned char	*s;
 	unsigned char	*start;
 
 	while (arg)
@@ -554,7 +557,7 @@ argpath(arg)
 		s = arg->argval;
 		start = s;
 
-		if (letter(*s))		
+		if (letter(*s))
 		{
 			while (alphanum(*s))
 				s++;
@@ -566,7 +569,7 @@ argpath(arg)
 				if (eq(start, pathname))
 				{
 					*s = '=';
-					return(1);
+					return (1);
 				}
 				else
 					*s = '=';
@@ -575,5 +578,5 @@ argpath(arg)
 		arg = arg->argnxt;
 	}
 
-	return(0);
+	return (0);
 }

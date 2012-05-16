@@ -36,11 +36,11 @@
 /*
  * This file contains modifications Copyright 2008-2012 J. Schilling
  *
- * @(#)jobs.c	1.23 12/04/10 2008-2012 J. Schilling
+ * @(#)jobs.c	1.25 12/05/12 2008-2012 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)jobs.c	1.23 12/04/10 2008-2012 J. Schilling";
+	"@(#)jobs.c	1.25 12/05/12 2008-2012 J. Schilling";
 #endif
 
 /*
@@ -125,14 +125,14 @@ struct job
 #define	PR_DFL		(PR_CUR|PR_JID|PR_STAT|PR_CMD) /* default options */
 #define	PR_LONG		(PR_DFL|PR_PGID|PR_PWD)	/* long options */
 
-static struct termios 	mystty;	 /* default termio settings		 */
-static int 		eofflg,
+static struct termios	mystty;	 /* default termio settings		 */
+static int		eofflg,
 			jobcnt,	 /* number of active jobs		 */
 			jobdone, /* number of active but finished jobs	 */
 			jobnote; /* jobs requiring notification		 */
 static pid_t		svpgid,	 /* saved process group ID		 */
 			svtgid;	 /* saved foreground process group ID	 */
-static struct job 	*jobcur, /* active jobs listed in currency order */
+static struct job	*jobcur, /* active jobs listed in currency order */
 			**nextjob,
 			*thisjob,
 			*joblst; /* active jobs listed in job ID order	 */
@@ -202,7 +202,8 @@ pgid2job(pgid)
 	struct job *jp;
 
 	for (jp = joblst; jp != 0 && jp->j_pid != pgid; jp = jp->j_nxtp)
-		continue;
+		/* LINTED */
+		;
 
 	return (jp);
 }
@@ -225,7 +226,8 @@ str2job(cmdp, job, mustbejob)
 	} else if (*job >= '0' && *job <= '9') {
 		i = stoi((unsigned char *)job);
 		for (jp = joblst; jp && jp->j_jid != i; jp = jp->j_nxtp)
-			continue;
+			/* LINTED */
+			;
 	} else if (*job == '?') {
 		int j;
 		char *p;
@@ -272,10 +274,12 @@ freejob(jp)
 	struct job **cjp;
 
 	for (njp = &joblst; *njp != jp; njp = &(*njp)->j_nxtp)
-		continue;
+		/* LINTED */
+		;
 
 	for (cjp = &jobcur; *cjp != jp; cjp = &(*cjp)->j_curp)
-		continue;
+		/* LINTED */
+		;
 
 	*njp = jp->j_nxtp;
 	*cjp = jp->j_curp;
@@ -310,6 +314,7 @@ collect_fg_job()
 	 * or it fails due to no waitable children.
 	 */
 
+	/* CONSTCOND */
 	while (1) {
 		errno = 0;
 		pid = waitpid(jp->j_pid, &exstat, 0);
@@ -525,6 +530,7 @@ restartjob(jp, fg)
 	if (jp != jobcur) {
 		struct job *t;
 		for (t = jobcur; t->j_curp != jp; t = t->j_curp)
+			/* LINTED */
 			;
 		t->j_curp = jp->j_curp;
 		jp->j_curp = jobcur;
@@ -963,6 +969,7 @@ err:
 /*
  * the builtin "fg" and "bg" commands
  */
+/* ARGSUSED */
 void
 sysfgbg(argc, argv)
 	int	argc;

@@ -37,11 +37,11 @@
 /*
  * This file contains modifications Copyright 2008-2012 J. Schilling
  *
- * @(#)word.c	1.19 12/04/10 2008-2012 J. Schilling
+ * @(#)word.c	1.21 12/05/12 2008-2012 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)word.c	1.19 12/04/10 2008-2012 J. Schilling";
+	"@(#)word.c	1.21 12/05/12 2008-2012 J. Schilling";
 #endif
 
 /*
@@ -86,14 +86,18 @@ word()
 	 * no further edit related malloc() call will happen and it is safe to
 	 * call locstak() to create a local stack.
 	 */
+	/* CONSTCOND */
 	while (1)
 	{
 		while (c = nextwc(), space(c))		/* skipc() */
+			/* LINTED */
 			;
 
 		if (c == COMCHAR)
 		{
-			while ((c = readwc()) != NL && c != EOF);
+			while ((c = readwc()) != NL && c != EOF)
+				/* LINTED */
+				;
 			peekc = c;
 		}
 		else
@@ -112,7 +116,7 @@ word()
 			{
 				unsigned char	*oldargp = argp;
 
-				while ((c = readwc()) && c != LITERAL){
+				while ((c = readwc()) != '\0' && c != LITERAL) {
 					/*
 					 * quote each character within
 					 * single quotes
@@ -120,7 +124,7 @@ word()
 					pc = readw(c);
 					if (argp >= brkend)
 						argp = growstak(argp);
-					*argp++='\\';
+					*argp++ = '\\';
 				/* Pick up rest of multibyte character */
 					if (c == NL)
 						chkpr();
@@ -229,7 +233,7 @@ word()
 		{
 			word();
 			wdnum = d - '0';
-		}else{ /* check for reserved words */
+		} else { /* check for reserved words */
 			if (reserv == FALSE ||
 			    (wdval = syslook(arg->argval,
 					reserved, no_reserved)) == 0) {
@@ -238,7 +242,7 @@ word()
 			/* set arg for reserved words too */
 			wdarg = arg;
 		}
-	}else if (dipchar(c)){
+	} else if (dipchar(c)) {
 		if ((d = nextwc()) == c)
 		{
 			wdval = c | SYMREP;
@@ -272,16 +276,19 @@ word()
 	return (wdval);
 }
 
-unsigned int skipwc()
+unsigned int
+skipwc()
 {
 	unsigned int c;
 
 	while (c = nextwc(), space(c))
+		/* LINTED */
 		;
 	return (c);
 }
 
-unsigned int nextwc()
+unsigned int
+nextwc()
 {
 	unsigned int	c, d;
 
@@ -296,8 +303,9 @@ retry:
 	return (d);
 }
 
-unsigned char *readw(d)
-wchar_t	d;
+unsigned char *
+readw(d)
+	wchar_t	d;
 {
 	static unsigned char c[MULTI_BYTE_MAX + 1];
 	int clength;
@@ -399,7 +407,7 @@ retry:
 			c = (unsigned char)*f->fnxt;
 			mlen = 1;
 		}
-		
+
 		f->fnxt += mlen;
 		f->nxtoff += mlen;
 		if (flags & readpr && standin->fstak == 0)
@@ -409,13 +417,13 @@ retry:
 		return (c);
 	}
 
-	if (f->feof || f->fdes < 0){
+	if (f->feof || f->fdes < 0) {
 		c = EOF;
 		f->feof++;
 		return (c);
 	}
 
-	if (readb(f, f->fsiz, 0) <= 0){
+	if (readb(f, f->fsiz, 0) <= 0) {
 		if (f->fdes != input || !isatty(input)) {
 			close(f->fdes);
 			f->fdes = -1;
@@ -454,7 +462,7 @@ readb(f, toread, rest)
 			return (rest);
 		}
 	}
-		
+
 retry:
 	do {
 		if (trapnote & SIGSET) {

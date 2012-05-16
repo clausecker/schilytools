@@ -37,14 +37,14 @@
 /*
  * This file contains modifications Copyright 2008-2012 J. Schilling
  *
- * @(#)pwd.c	1.10 12/04/25 2008-2012 J. Schilling
+ * @(#)pwd.c	1.14 12/05/12 2008-2012 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)pwd.c	1.10 12/04/25 2008-2012 J. Schilling";
+	"@(#)pwd.c	1.14 12/05/12 2008-2012 J. Schilling";
 #endif
 
-/* 
+/*
  *	UNIX shell
  */
 #ifdef	SCHILY_BUILD
@@ -65,13 +65,14 @@ static	UConst char sccsid[] =
 #define	NULL	0
 #endif
 #define	SLASH	'/'
-#define PARTLY	2
+#define	PARTLY	2
 
 	void	cwd		__PR((unsigned char *dir));
 static	void	cwd2		__PR((void));
 	unsigned char *cwdget	__PR((void));
 	void	cwdprint	__PR((void));
 static void	rmslash		__PR((unsigned char *string));
+static void	ocwdnod		__PR((void));
 static void	cwdnod		__PR((void));
 
 #ifdef __STDC__
@@ -80,16 +81,25 @@ extern const char	longpwd[];
 extern char	longpwd[];
 #endif
 
+unsigned char *ocwdname;
 unsigned char cwdname[PATH_MAX+1];
 
-static int 	didpwd = FALSE;
+static int	didpwd = FALSE;
 
+/*
+ * Try to update cwdname.
+ * Incorrect values will be detected by cwd2().
+ */
 void
 cwd(dir)
 	unsigned char	*dir;
 {
 	unsigned char *pcwd;
 	unsigned char *pdir;
+
+	/* Update OLDPWD= to point to previous dir */
+
+	ocwdnod();
 
 	/* First remove extra /'s */
 
@@ -98,24 +108,24 @@ cwd(dir)
 	/* Now remove any .'s */
 
 	pdir = dir;
-	if(*dir == SLASH)
+	if (*dir == SLASH)
 		pdir++;
-	while(*pdir) 			/* remove /./ by itself */
+	while (*pdir)			/* remove /./ by itself */
 	{
-		if((*pdir==DOT) && (*(pdir+1)==SLASH))
+		if ((*pdir == DOT) && (*(pdir+1) == SLASH))
 		{
 			movstr(pdir+2, pdir);
 			continue;
 		}
 		pdir++;
-		while ((*pdir) && (*pdir != SLASH)) 
+		while ((*pdir) && (*pdir != SLASH))
 			pdir++;
-		if (*pdir) 
+		if (*pdir)
 			pdir++;
 	}
 	/* take care of trailing /. */
-	if(*(--pdir)==DOT && pdir > dir && *(--pdir)==SLASH) {
-		if(pdir > dir) {
+	if (*(--pdir) == DOT && pdir > dir && *(--pdir) == SLASH) {
+		if (pdir > dir) {
 			*pdir = '\0';
 		} else {
 			*(pdir+1) = '\0';
@@ -129,13 +139,13 @@ cwd(dir)
 
 	/* Now that the dir is canonicalized, process it */
 
-	if(*dir == DOT && *(dir+1) == '\0')
+	if (*dir == DOT && *(dir+1) == '\0')
 	{
 		return;
 	}
 
 
-	if(*dir==SLASH)
+	if (*dir == SLASH)
 	{
 		/* Absolute path */
 
@@ -147,53 +157,54 @@ cwd(dir)
 	{
 		/* Relative path */
 
-		if (didpwd == FALSE) 
+		if (didpwd == FALSE)
 			return;
-		didpwd = PARTLY;	
+		didpwd = PARTLY;
 		pcwd = cwdname + length(cwdname) - 1;
-		if(pcwd != cwdname+1)
+		if (pcwd != cwdname+1)
 			*pcwd++ = SLASH;
 	}
-	while(*dir)
+	while (*dir)
 	{
-		if(*dir==DOT && 
-		   *(dir+1)==DOT &&
+		if (*dir == DOT &&
+		   *(dir+1) == DOT &&
 		   (*(dir+2) == SLASH || *(dir+2) == '\0'))
 		{
 			/* Parent directory, so backup one */
 
-			if( pcwd > cwdname+2 )
+			if (pcwd > cwdname+2)
 				--pcwd;
-			while(*(--pcwd) != SLASH)
+			while (*(--pcwd) != SLASH)
+				/* LINTED */
 				;
 			pcwd++;
 			dir += 2;
-			if(*dir==SLASH)
+			if (*dir == SLASH)
 			{
 				dir++;
 			}
 			continue;
 		}
-	 	if (pcwd >= &cwdname[PATH_MAX+1])
+		if (pcwd >= &cwdname[PATH_MAX+1])
 		{
-			didpwd=FALSE;
+			didpwd = FALSE;
 			return;
 		}
 		*pcwd++ = *dir++;
-		while((*dir) && (*dir != SLASH))
-		{  
-	 		if (pcwd >= &cwdname[PATH_MAX+1])
+		while ((*dir) && (*dir != SLASH))
+		{
+			if (pcwd >= &cwdname[PATH_MAX+1])
 			{
-				didpwd=FALSE;
+				didpwd = FALSE;
 				return;
 			}
 			*pcwd++ = *dir++;
-		} 
-		if (*dir) 
+		}
+		if (*dir)
 		{
-	 		if (pcwd >= &cwdname[PATH_MAX+1])
+			if (pcwd >= &cwdname[PATH_MAX+1])
 			{
-				didpwd=FALSE;
+				didpwd = FALSE;
 				return;
 			}
 			*pcwd++ = *dir++;
@@ -201,21 +212,24 @@ cwd(dir)
 	}
 	if (pcwd >= &cwdname[PATH_MAX+1])
 	{
-		didpwd=FALSE;
+		didpwd = FALSE;
 		return;
 	}
 	*pcwd = '\0';
 
 	--pcwd;
-	if(pcwd>cwdname && *pcwd==SLASH)
+	if (pcwd > cwdname && *pcwd == SLASH)
 	{
 		/* Remove trailing / */
 
 		*pcwd = '\0';
 	}
-	return;
 }
 
+/*
+ * Verify that "cwdname" is identical to "."
+ * Set didpwd = FALSE in case of problems.
+ */
 static void
 cwd2()
 {
@@ -223,27 +237,29 @@ cwd2()
 	unsigned char *pcwd;
 	/* check if there are any symbolic links in pathname */
 
-	if(didpwd == FALSE)
+	if (didpwd == FALSE)
 		return;
 	pcwd = cwdname + 1;
-	if(didpwd == PARTLY) {
+	if (didpwd == PARTLY) {
 		while (*pcwd)
 		{
 			char c;
-			while((c = *pcwd++) != SLASH && c != '\0');
+			while ((c = *pcwd++) != SLASH && c != '\0')
+				/* LINTED */
+				;
 			*--pcwd = '\0';
 			if (lstat((char *)cwdname, &stat1) == -1
-		    	|| (stat1.st_mode & S_IFMT) == S_IFLNK) {
+			|| (stat1.st_mode & S_IFMT) == S_IFLNK) {
 				didpwd = FALSE;
 				*pcwd = c;
 				return;
 			}
 			*pcwd = c;
-			if(c)
+			if (c)
 				pcwd++;
 		}
 		didpwd = TRUE;
-	} else 
+	} else
 		if (stat((char *)cwdname, &stat1) == -1) {
 			didpwd = FALSE;
 			return;
@@ -257,7 +273,6 @@ cwd2()
 	    || stat1.st_dev != stat2.st_dev
 	    || stat1.st_ino != stat2.st_ino)
 		didpwd = FALSE;
-	return;
 }
 
 /*
@@ -272,8 +287,20 @@ cwdget()
 		if (getcwd((char *)cwdname, PATH_MAX+1) == NULL)
 			*cwdname = 0;
 		didpwd = TRUE;
-	} 
+
+	}
 	cwdnod();
+	return (cwdname);
+}
+
+/*
+ * Set cwdname (call cwdget()) if needed.
+ */
+unsigned char *
+cwdset()
+{
+	if (cwdname[0] == '\0')
+		cwdget();
 	return (cwdname);
 }
 
@@ -303,7 +330,6 @@ cwdprint()
 
 	prc_buff(NL);
 	cwdnod();
-	return;
 }
 
 /*
@@ -317,9 +343,9 @@ rmslash(string)
 	unsigned char *pstring;
 
 	pstring = string;
-	while(*pstring)
+	while (*pstring)
 	{
-		if(*pstring==SLASH && *(pstring+1)==SLASH)
+		if (*pstring == SLASH && *(pstring+1) == SLASH)
 		{
 			/* Remove repeated SLASH's */
 
@@ -330,13 +356,32 @@ rmslash(string)
 	}
 
 	--pstring;
-	if(pstring>string && *pstring==SLASH)
+	if (pstring > string && *pstring == SLASH)
 	{
 		/* Remove trailing / */
 
 		*pstring = '\0';
 	}
-	return;
+}
+
+/*
+ * Update OLDPWD= node
+ */
+static void
+ocwdnod()
+{
+	extern struct namnod opwdnod;
+
+	if (opwdnod.namval != ocwdname)
+		free(opwdnod.namval);
+	if (opwdnod.namenv != ocwdname)
+		free(opwdnod.namenv);
+	free(ocwdname);
+	if (cwdname[0] != '\0')
+		ocwdname = make(cwdname);
+	else
+		ocwdname = NULL;		/* Makes OLDPWD= disappear */
+	opwdnod.namval = opwdnod.namenv = ocwdname;
 }
 
 /*
@@ -352,4 +397,74 @@ cwdnod()
 	if (pwdnod.namenv != cwdname)
 		free(pwdnod.namenv);
 	pwdnod.namval = pwdnod.namenv = cwdname;
+}
+
+static	struct argnod *dirs;
+
+struct argnod *
+push_dir(name)
+	unsigned char	*name;
+{
+	struct argnod	*ret;
+
+	ret = (struct argnod *)alloc(length(name) + BYTESPERWORD);
+	movstr(name, ret->argval);
+	ret->argnxt = dirs;
+	dirs = ret;
+	return (ret);
+}
+
+struct argnod *
+pop_dir(offset)
+	int	offset;
+{
+	int		i = 0;
+	struct argnod	*d = dirs;
+	struct argnod	*prev = dirs;
+
+	while (d && i++ != offset) {
+		prev = d;
+		d = d->argnxt;
+	}
+	if (!d)
+		return (NULL);
+	if (prev == d)		/* d == dirs */
+		dirs = d->argnxt;
+	else
+		prev->argnxt = d->argnxt;
+	return (d);
+}
+
+void
+init_dirs()
+{
+	if (dirs)
+		return;
+	cwdset();
+	push_dir(cwdname);
+}
+
+int
+pr_dirs(minlen)
+	int	minlen;
+{
+	struct argnod	*d;
+
+	if (!dirs)
+		init_dirs();
+
+	d = dirs;
+	if (d->argnxt == NULL) {
+		if (minlen == 0)
+			cwdprint();
+		return (minlen == 0);
+	}
+	while (d) {
+		prs_buff(d->argval);
+		d = d->argnxt;
+		if (d)
+			prc_buff(' ');
+	}
+	prc_buff(NL);
+	return (dirs->argnxt != NULL);
 }

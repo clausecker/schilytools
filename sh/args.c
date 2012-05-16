@@ -38,11 +38,11 @@
 /*
  * This file contains modifications Copyright 2008-2012 J. Schilling
  *
- * @(#)args.c	1.18 12/03/21 2008-2012 J. Schilling
+ * @(#)args.c	1.19 12/05/11 2008-2012 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)args.c	1.18 12/03/21 2008-2012 J. Schilling";
+	"@(#)args.c	1.19 12/05/11 2008-2012 J. Schilling";
 #endif
 
 /*
@@ -60,7 +60,7 @@ static struct dolnod *	copyargs	__PR((unsigned char *[], int));
 static	struct dolnod *	clean_args	__PR((struct dolnod *blk));
 	void		clearup		__PR((void));
 	struct dolnod *	savargs		__PR((int funcntp));
-	void 		restorargs	__PR((struct dolnod *olddolh, int funcntp));
+	void		restorargs	__PR((struct dolnod *olddolh, int funcntp));
 	struct dolnod *	useargs		__PR((void));
 
 static struct dolnod *dolh;
@@ -75,15 +75,15 @@ unsigned char	flagadr[18];
 unsigned char	flagchar[] =
 {
 	'x',
-	'n', 
-	'v', 
-	't', 
-	STDFLG, 
-	'i', 
-	'e', 
-	'r', 
-	'k', 
-	'u', 
+	'n',
+	'v',
+	't',
+	STDFLG,
+	'i',
+	'e',
+	'r',
+	'k',
+	'u',
 	'h',
 	'f',
 	'a',
@@ -96,16 +96,16 @@ unsigned char	flagchar[] =
 
 long	flagval[]  =
 {
-	execpr,	
-	noexec,	
-	readpr,	
-	oneflg,	
-	stdflg,	
-	intflg,	
-	errflg,	
-	rshflg,	
-	keyflg,	
-	setflg,	
+	execpr,
+	noexec,
+	readpr,
+	oneflg,
+	stdflg,
+	intflg,
+	errflg,
+	rshflg,
+	keyflg,
+	setflg,
 	hashflg,
 	nofngflg,
 	exportflg,
@@ -171,14 +171,14 @@ options(argc, argv)
 
 		/*
 		 * if first argument is "--" then options are not
-		 * to be changed. Fix for problems getting 
+		 * to be changed. Fix for problems getting
 		 * $1 starting with a "-"
 		 */
 		else if (cp[1] == '-')
 		{
 			argp[1] = argp[0];
 			argc--;
-			return(argc);
+			return (argc);
 		}
 		if (cp[1] == '\0')
 			flags &= ~(execpr|readpr);
@@ -194,7 +194,7 @@ options(argc, argv)
 				(void) mbtowc(NULL, NULL, 0);
 				len = 1;
 				wc = (unsigned char)*cp;
-				failed(argv[1],badopt);
+				failed(argv[1], badopt);
 			}
 			cp += len;
 
@@ -229,7 +229,7 @@ options(argc, argv)
 				argc--;
 			}
 			else
-				failed(argv[1],badopt);
+				failed(argv[1], badopt);
 		}
 		argp[1] = argp[0];
 		argc--;
@@ -284,7 +284,7 @@ options(argc, argv)
 		}
 	}
 	*flagp = 0;
-	return(argc);
+	return (argc);
 }
 
 /*
@@ -343,12 +343,12 @@ freeargs(blk)
 		if (argblk == dolh)
 		{
 			if (cnt == 1)
-				return(argr);
+				return (argr);
 			else
-				return(argblk);
+				return (argblk);
 		}
 		else
-		{			
+		{
 			if (cnt == 0)
 			{
 				for (argp = argblk->dolarg; *argp != (unsigned char *)ENDARGS; argp++)
@@ -358,7 +358,7 @@ freeargs(blk)
 			}
 		}
 	}
-	return(argr);
+	return (argr);
 }
 
 static struct dolnod *
@@ -372,13 +372,13 @@ copyargs(from, n)
 
 	np -> dolnxt = 0;
 	np->doluse = 1;	/* use count */
-	pp = np->dolarg = (unsigned char **)alloc((n+1)*sizeof(char *));
+	pp = np->dolarg = (unsigned char **)alloc((n+1)*sizeof (char *));
 	dolv = pp;
-	
+
 	while (n--)
 		*pp++ = make(*fp++);
 	*pp++ = ENDARGS;
-	return(np);
+	return (np);
 }
 
 
@@ -404,7 +404,7 @@ clean_args(blk)
 			free(argblk);
 		}
 	}
-	return(argr);
+	return (argr);
 }
 
 void
@@ -413,11 +413,11 @@ clearup()
 	/*
 	 * force `for' $* lists to go away
 	 */
-	if(globdolv) 
+	if (globdolv)
 		dolv = globdolv;
-	if(globdolc)
+	if (globdolc)
 		dolc = globdolc;
-	if(globdolh)
+	if (globdolh)
 		dolh = globdolh;
 	globdolv = 0;
 	globdolc = 0;
@@ -436,8 +436,8 @@ clearup()
 	 * Clean up pipe file descriptor
 	 * from command substitution
 	 */
-	
-	if(savpipe != -1) {
+
+	if (savpipe != -1) {
 		close(savpipe);
 		savpipe = -1;
 	}
@@ -451,10 +451,10 @@ clearup()
 }
 
 /*
- * Save positiional parameters before outermost function invocation 
- * in case we are interrupted. 
+ * Save positiional parameters before outermost function invocation
+ * in case we are interrupted.
  * Increment use count for current positional parameters so that they aren't thrown
- * away. 
+ * away.
  */
 
 struct dolnod *
@@ -467,10 +467,10 @@ int funcntp;
 		globdolc = dolc;
 	}
 	useargs();
-	return(dolh);
+	return (dolh);
 }
 
-/* After function invocation, free positional parameters, 
+/* After function invocation, free positional parameters,
  * restore old positional parameters, and restore
  * use count.
  */
@@ -480,18 +480,18 @@ restorargs(olddolh, funcntp)
 struct dolnod *olddolh;
 int funcntp;
 {
-	if(argfor != olddolh)
+	if (argfor != olddolh)
 		while ((argfor = clean_args(argfor)) != olddolh && argfor)
 			/* LINTED */
 			;
-	if(!argfor)
+	if (!argfor)
 		return;
 	freedolh();
 	dolh = olddolh;
-	if(dolh)
+	if (dolh)
 		dolh -> doluse++; /* increment use count so arguments aren't freed */
 	argfor = freeargs(dolh);
-	if(funcntp == 1) { 
+	if (funcntp == 1) {
 		globdolh = 0;
 		globdolv = 0;
 		globdolc = 0;
@@ -509,5 +509,5 @@ useargs()
 			argfor = dolh;
 		}
 	}
-	return(dolh);
+	return (dolh);
 }

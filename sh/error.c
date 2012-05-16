@@ -36,11 +36,11 @@
 /*
  * This file contains modifications Copyright 2008-2012 J. Schilling
  *
- * @(#)error.c	1.8 12/04/08 2008-2012 J. Schilling
+ * @(#)error.c	1.9 12/05/11 2008-2012 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)error.c	1.8 12/04/08 2008-2012 J. Schilling";
+	"@(#)error.c	1.9 12/05/11 2008-2012 J. Schilling";
 #endif
 
 /*
@@ -51,8 +51,10 @@ static	UConst char sccsid[] =
 /* ========	error handling	======== */
 
 	void error	__PR((const char *s));
-static void failed_body	__PR((unsigned char *s1, const char *s2, unsigned char *s3, int gflag));
-	void failed_real __PR((unsigned char *s1, const char *s2, unsigned char *s3));
+static void failed_body	__PR((unsigned char *s1, const char *s2,
+				unsigned char *s3, int gflag));
+	void failed_real __PR((unsigned char *s1, const char *s2,
+				unsigned char *s3));
 	void failure_real __PR((unsigned char *s1, const char *s2, int gflag));
 	void exitsh	__PR((int xno));
 	void rmtemp	__PR((struct ionod *base));
@@ -141,7 +143,7 @@ exitsh(xno)
 
 /*
  * Previous sbrk() based versions of the Bourne Shell fed this function
- * with an aproximate address from the stak and used: 
+ * with an aproximate address from the stak and used:
  * "while (iotemp > base)".
  *
  * This version of the shell is fed by the previous real value of "iotemp"

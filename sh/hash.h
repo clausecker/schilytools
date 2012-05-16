@@ -40,9 +40,9 @@
 #endif
 
 /*
- * This file contains modifications Copyright 2008-2009 J. Schilling
+ * This file contains modifications Copyright 2008-2012 J. Schilling
  *
- * @(#)hash.h	1.5 09/11/01 2008-2009 J. Schilling
+ * @(#)hash.h	1.6 12/05/11 2008-2012 J. Schilling
  */
 
 /*
@@ -55,13 +55,13 @@ extern "C" {
 #define		HASHZAP		0x03FF
 #define		CDMARK		0x8000
 
-#define		NOTFOUND		0x0000
-#define		BUILTIN			0x0100
-#define		FUNCTION		0x0200
-#define		COMMAND			0x0400
-#define		REL_COMMAND		0x0800
+#define		NOTFOUND	0x0000
+#define		BUILTIN		0x0100
+#define		FUNCTION	0x0200
+#define		COMMAND		0x0400
+#define		REL_COMMAND	0x0800
 #define		PATH_COMMAND	0x1000
-#define		DOT_COMMAND		0x8800	/* CDMARK | REL_COMMAND */
+#define		DOT_COMMAND	0x8800	/* CDMARK | REL_COMMAND */
 
 #define		hashtype(x)	(x & 0x1F00)
 #define		hashdata(x)	(x & 0x00FF)
@@ -70,9 +70,9 @@ extern "C" {
 typedef struct entry
 {
 	unsigned char	*key;
-	short	data;
+	short		data;
 	unsigned char	hits;
-	unsigned char 	cost;
+	unsigned char	cost;
 	struct entry	*next;
 } ENTRY;
 

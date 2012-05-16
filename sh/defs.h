@@ -37,7 +37,7 @@
 /*
  * This file contains modifications Copyright 2008-2012 J. Schilling
  *
- * @(#)defs.h	1.39 12/04/25 2008-2012 J. Schilling
+ * @(#)defs.h	1.42 12/05/11 2008-2012 J. Schilling
  */
 
 #ifdef	__cplusplus
@@ -97,17 +97,17 @@ extern "C" {
 
 #define		SYSTRAP		5
 #define		SYSEXIT		6
-#define		SYSSHFT 	7
+#define		SYSSHFT		7
 #define		SYSWAIT		8
-#define		SYSCONT 	9
+#define		SYSCONT		9
 #define		SYSBREAK	10
-#define		SYSEVAL 	11
+#define		SYSEVAL		11
 #define		SYSDOT		12
-#define		SYSRDONLY 	13
-#define		SYSTIMES 	14
+#define		SYSRDONLY	13
+#define		SYSTIMES	14
 #define		SYSXPORT	15
-#define		SYSNULL 	16
-#define		SYSREAD 	17
+#define		SYSNULL		16
+#define		SYSREAD		17
 #define		SYSTST		18
 
 #ifndef RES	/*	exclude umask code	*/
@@ -134,7 +134,11 @@ extern "C" {
 #define		SYSMAP		37
 #define		SYSREPEAT	38
 
-#define		SYSALLOC	39
+#define		SYSDIRS		39
+#define		SYSPOPD		40
+#define		SYSPUSHD	41
+
+#define		SYSALLOC	42
 
 /* used for input and output of shell */
 #define		INIO 		19
@@ -509,7 +513,12 @@ extern	void	prs_cntl	__PR((unsigned char *s));
  */
 extern	void	cwd		__PR((unsigned char *dir));
 extern	unsigned char *cwdget	__PR((void));
+extern	unsigned char *cwdset	__PR((void));
 extern	void	cwdprint	__PR((void));
+extern	struct argnod *push_dir	__PR((unsigned char *name));
+extern	struct argnod *pop_dir	__PR((int offset));
+extern	void	init_dirs	__PR((void));
+extern	int	pr_dirs		__PR((int minlen));
 
 
 /*
@@ -851,6 +860,7 @@ extern int				*intrptr;
 extern const char				mailmsg[];
 extern const char				coredump[];
 extern const char				badopt[];
+extern const char				emptystack[];
 extern const char				badparam[];
 extern const char				unset[];
 extern const char				badsub[];
@@ -859,6 +869,7 @@ extern const char				nostack[];
 extern const char				notfound[];
 extern const char				badtrap[];
 extern const char				baddir[];
+extern const char				badoff[];
 extern const char				badshift[];
 extern const char				restricted[];
 extern const char				execpmsg[];

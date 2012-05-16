@@ -36,11 +36,11 @@
 /*
  * This file contains modifications Copyright 2008-2012 J. Schilling
  *
- * @(#)xec.c	1.19 12/04/25 2008-2012 J. Schilling
+ * @(#)xec.c	1.21 12/05/12 2008-2012 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)xec.c	1.19 12/04/25 2008-2012 J. Schilling";
+	"@(#)xec.c	1.21 12/05/12 2008-2012 J. Schilling";
 #endif
 
 /*
@@ -147,7 +147,7 @@ int *pf1, *pf2;
 				int	argn;
 				struct argnod	*schain = gchain;
 				struct ionod	*io = t->treio;
-				short 	cmdhash = 0;
+				short	cmdhash = 0;
 				short	comtype = 0;
 
 				exitval = 0;
@@ -195,7 +195,7 @@ int *pf1, *pf2;
 					}
 
 					else if (comtype == BUILTIN) {
-						builtin(hashdata(cmdhash),argn,com,t);
+						builtin(hashdata(cmdhash), argn, com, t);
 						freejobs();
 						break;
 					}
@@ -269,7 +269,7 @@ int *pf1, *pf2;
 						save_fd = setb(-1);
 						savebot = stakbot;
 						prcmd(t);
-						(void)setb(save_fd);
+						(void) setb(save_fd);
 						allocjob((char *)savebot, cwdget(), monitor);
 					} else
 						allocjob("", (unsigned char *)"", 0);
@@ -317,7 +317,7 @@ int *pf1, *pf2;
 					if (treeflgs & FPIN)
 						closepipe(pf1);
 					if (!(treeflgs&FPOU)) {
-						postjob(parent,!(treeflgs&FAMP));
+						postjob(parent, !(treeflgs&FAMP));
 						freejobs();
 					}
 					chktrap();
@@ -386,6 +386,7 @@ int *pf1, *pf2;
 				execa(com, pos);
 			}
 			done(0);
+			/* NOTREACHED */
 		}
 
 		case TPAR:
@@ -394,6 +395,7 @@ int *pf1, *pf2;
 			clearjobs();
 			execute(parptr(t)->partre, xflags, errorflg, no_pipe, no_pipe);
 			done(0);
+			/* NOTREACHED */
 
 		case TFIL:
 			{
@@ -454,7 +456,7 @@ int *pf1, *pf2;
 						execbrk = (--breakcnt != 0);
 
 				loopcnt--;
-				if(argsav)
+				if (argsav)
 					argfor = (struct dolnod *)freeargs(argsav);
 			}
 			break;
@@ -524,7 +526,7 @@ int *pf1, *pf2;
 	sigchk();
 	tdystak(sav, iosav);
 	flags |= eflag;
-	return(exitval);
+	return (exitval);
 }
 
 void
@@ -550,11 +552,11 @@ static void
 execprint(com)
 	unsigned char	**com;
 {
-	int 	argn = 0;
+	int	argn = 0;
 	unsigned char	*s;
 
 	prs(_gettext(execpmsg));
-	while(com[argn] != ENDARGS)
+	while (com[argn] != ENDARGS)
 	{
 		s = com[argn++];
 		write(output, s, length(s) - 1);

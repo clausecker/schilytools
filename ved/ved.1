@@ -1,5 +1,5 @@
 '\" t
-.\" @(#)ved.1	1.12 10/05/13 Copyright 1984-2010 J. Schilling
+.\" @(#)ved.1	1.13 12/05/07 Copyright 1984-2010 J. Schilling
 . \"  Manual page for ved
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -14,7 +14,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH VED 1L "10/05/13" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH VED 1L "12/05/07" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 ved \- visual editor (screen-oriented)
 .SH SYNOPSIS
@@ -75,7 +75,7 @@ and
 calling
 .B ved\-w
 is the same as calling
-.B ved \-w\fR.
+.B ved maxlinelen=78\fR.
 
 .SH OPTIONS
 .TP
@@ -179,7 +179,9 @@ The wrap margin is counted from the end of a terminal line.
 Set max line length for autowrap to #.
 The behaviour is similar to the 
 .I wrapmargin=
-option but ved does not count the maximum linelength from 
+option but ved does not use the maximum linelength from the 
+current screen width but the fixed length
+.IR # .
 .TP
 .BR \-R ", " \-Recover
 Recover Session from specified filename.

@@ -36,11 +36,11 @@
 /*
  * This file contains modifications Copyright 2008-2012 J. Schilling
  *
- * @(#)fault.c	1.15 12/04/22 2008-2012 J. Schilling
+ * @(#)fault.c	1.17 12/05/12 2008-2012 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)fault.c	1.15 12/04/22 2008-2012 J. Schilling";
+	"@(#)fault.c	1.17 12/05/12 2008-2012 J. Schilling";
 #endif
 
 /*
@@ -94,7 +94,7 @@ static	UConst char sccsid[] =
 static	void (*psig0_func) __PR((int)) = SIG_ERR;	/* previous signal handler for signal 0 */
 static	char sigsegv_stack[SIGSTKSZ];
 
-static int 	ignoring	__PR((int i));
+static int	ignoring	__PR((int i));
 static void	clrsig		__PR((int i));
 	void	done		__PR((int sig));
 static void	fault		__PR((int sig));
@@ -123,12 +123,12 @@ static BOOL trapflg[MAXTRAP] =
 	0,	/* float pt. exp */
 	0,	/* kill */
 #ifdef	__never__ /* For portability, we cannot asume > 9 signals */
-	0, 	/* bus error */
+	0,	/* bus error */
 	0,	/* memory faults */
 	0,	/* bad sys call */
 	0,	/* bad pipe call */
 	0,	/* alarm */
-	0, 	/* software termination */
+	0,	/* software termination */
 	0,	/* unassigned */
 	0,	/* unassigned */
 	0,	/* death of child */
@@ -145,9 +145,9 @@ static BOOL trapflg[MAXTRAP] =
 	0,	/* profiling timer expired */
 	0,	/* exceeded cpu limit */
 	0,	/* exceeded file size limit */
-	0, 	/* process's lwps are blocked */
+	0,	/* process's lwps are blocked */
 	0,	/* special signal used by thread library */
-	0, 	/* check point freeze */
+	0,	/* check point freeze */
 	0,	/* check point thaw */
 #endif
 };
@@ -156,7 +156,7 @@ static void (*(
 sigval[MAXTRAP])) __PR((int)) =
 {
 	0,
-	done, 	/* hangup */
+	done,	/* hangup */
 	fault,	/* interrupt */
 	fault,	/* quit */
 	done,	/* illegal instr */
@@ -166,9 +166,9 @@ sigval[MAXTRAP])) __PR((int)) =
 	done,	/* floating pt. exp */
 	0,	/* kill */
 #ifdef	__never__ /* For portability, we cannot asume > 9 signals */
-	done, 	/* bus error */
+	done,	/* bus error */
 	sigsegv,	/* memory faults */
-	done, 	/* bad sys call */
+	done,	/* bad sys call */
 	done,	/* bad pipe call */
 	done,	/* alarm */
 	fault,	/* software termination */
@@ -188,9 +188,9 @@ sigval[MAXTRAP])) __PR((int)) =
 	done,	/* profiling timer expired */
 	done,	/* exceeded cpu limit */
 	done,	/* exceeded file size limit */
-	0, 	/* process's lwps are blocked */
+	0,	/* process's lwps are blocked */
 	0,	/* special signal used by thread library */
-	0, 	/* check point freeze */
+	0,	/* check point freeze */
 	0,	/* check point thaw */
 #endif
 };
@@ -296,7 +296,7 @@ fault(sig)
 #ifdef	SIGINT
 		case SIGINT:
 			if (intrptr)
-				*intrptr++;
+				(*intrptr)++;
 			break;
 #endif
 #ifdef	SIGALRM
@@ -328,7 +328,7 @@ handle(sig, func)
 
 	if (func == SIG_IGN && (trapflg[sig] & SIGIGN))
 		return (0);
-	
+
 	/*
 	 * Ensure that sigaction is only called with valid signal numbers,
 	 * we can get random values back for oact.sa_handler if the signal
@@ -559,6 +559,7 @@ sh_sleep(ticks)
 #endif
 }
 
+/* ARGSUSED */
 static void
 sigsegv(sig, sip, uap)
 	int		sig;
@@ -612,7 +613,7 @@ set_sigval(sig, fun)
 		sigval[sig] = fun;
 }
 
-void 
+void
 init_sigval()
 {
 #ifdef	SIGHUP

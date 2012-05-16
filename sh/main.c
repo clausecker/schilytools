@@ -36,11 +36,11 @@
 /*
  * This file contains modifications Copyright 2008-2012 J. Schilling
  *
- * @(#)main.c	1.18 12/04/25 2008-2012 J. Schilling
+ * @(#)main.c	1.19 12/05/11 2008-2012 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)main.c	1.18 12/04/25 2008-2012 J. Schilling";
+	"@(#)main.c	1.19 12/05/11 2008-2012 J. Schilling";
 #endif
 
 /*
@@ -401,7 +401,7 @@ exfile(prof)
 	int	prof;
 {
 	time_t	mailtime = 0;	/* Must not be a register variable */
-	time_t 	curtime = 0;
+	time_t	curtime = 0;
 
 	/*
 	 * move input
@@ -558,7 +558,7 @@ Ldup(fa, fb)
 void
 chkmail()
 {
-	unsigned char 	*s = mailp;
+	unsigned char	*s = mailp;
 	unsigned char	*save;
 
 	long	*ptr = mod_time;
@@ -615,7 +615,7 @@ setmail(mailpath)
 	unsigned char	*mailpath;
 {
 	unsigned char	*s = mailpath;
-	int 		cnt = 1;
+	int		cnt = 1;
 
 	long	*ptr;
 

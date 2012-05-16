@@ -36,11 +36,11 @@
 /*
  * This file contains modifications Copyright 2008-2012 J. Schilling
  *
- * @(#)expand.c	1.12 12/04/03 2008-2012 J. Schilling
+ * @(#)expand.c	1.14 12/05/12 2008-2012 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)expand.c	1.12 12/04/03 2008-2012 J. Schilling";
+	"@(#)expand.c	1.14 12/05/12 2008-2012 J. Schilling";
 #endif
 
 /*
@@ -77,7 +77,7 @@ expand(as, rcnt)
 	DIR	*dirf;
 	BOOL	dir = 0;
 	unsigned char	*rescan = 0;
-	unsigned char 	*slashsav = 0;
+	unsigned char	*slashsav = 0;
 	unsigned char	*s, *cs;
 	unsigned char *s2 = 0;
 	struct argnod	*schain = gchain;
@@ -125,7 +125,7 @@ expand(as, rcnt)
 			case ']':
 				if (open == 0)
 					continue;
-
+				/* FALLTHROUGH */
 			case '?':
 			case '*':
 				if (rcnt > slash)
@@ -140,6 +140,7 @@ expand(as, rcnt)
 				continue;
 			}
 			break;
+			/* CONSTCOND */
 		} while (TRUE);
 	}
 
@@ -241,7 +242,7 @@ addg(as1, as2, as3, as4)
 		while ((c = *s1++) != '\0') {
 			if (s2 >= brkend)
 				s2 = growstak(s2);
-			*s2++ = c;
+			*s2++ = (char) c;
 		}
 		/*
 		 * Restore first slash before the first metacharacter

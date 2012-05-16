@@ -33,14 +33,14 @@
 /*
  * This file contains modifications Copyright 2008-2012 J. Schilling
  *
- * @(#)defs.c	1.8 12/03/24 2008-2012 J. Schilling
+ * @(#)defs.c	1.9 12/05/11 2008-2012 J. Schilling
  */
 #ifdef	SCHILY_BUILD
 #include <schily/mconfig.h>
 #endif
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)defs.c	1.8 12/03/24 2008-2012 J. Schilling";
+	"@(#)defs.c	1.9 12/05/11 2008-2012 J. Schilling";
 #endif
 
 /*
@@ -49,13 +49,13 @@ static	UConst char sccsid[] =
 
 #ifdef	SCHILY_BUILD
 #include		<schily/mconfig.h>
-#include 		<setjmp.h>
+#include		<setjmp.h>
 #include		"mode.h"
 #include		"name.h"
 #include		<schily/param.h>
 #include		"defs.h"
 #else
-#include 		<setjmp.h>
+#include		<setjmp.h>
 #include		"mode.h"
 #include		"name.h"
 #include		<sys/param.h>
@@ -94,11 +94,11 @@ unsigned char			*pidadr;
 unsigned char			*cmdadr;
 
 /* transput */
-int 			tmpout_offset;
-unsigned int 		serial;
-int	 		peekc;
+int			tmpout_offset;
+unsigned int		serial;
+int			peekc;
 int			peekn;
-unsigned char 			*comdiv;
+unsigned char			*comdiv;
 long			flags;
 int				rwait;	/* flags read waiting */
 
@@ -115,7 +115,7 @@ int				retval;
 BOOL			execbrk;
 int				loopcnt;
 int				breakcnt;
-int 			funcnt;
+int			funcnt;
 int				eflag;
 /*
  * The following flag is set if you try to exit with stopped jobs.
@@ -134,8 +134,8 @@ int				ucb_builtins;
 /*
  * staktop = stakbot + local stak size
  */
-unsigned char 			*stakbas;	/* New stack base after addblok() */
+unsigned char			*stakbas;	/* New stack base after addblok() */
 unsigned char			*staktop;	/* Points behind local stak */
 unsigned char			*stakbot = 0;	/* Bottom addr for local stak */
 struct blk			*stakbsy;	/* Busy elements from addblok() */
-unsigned char 			*brkend;	/* The first invalid address */
+unsigned char			*brkend;	/* The first invalid address */

@@ -37,11 +37,11 @@
 /*
  * This file contains modifications Copyright 2008-2012 J. Schilling
  *
- * @(#)func.c	1.9 12/03/19 2008-2012 J. Schilling
+ * @(#)func.c	1.11 12/05/11 2008-2012 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)func.c	1.9 12/03/19 2008-2012 J. Schilling";
+	"@(#)func.c	1.11 12/05/11 2008-2012 J. Schilling";
 #endif
 
 /*
@@ -155,7 +155,7 @@ static void
 free_arg(argp)
 	struct argnod	*argp;
 {
-	struct argnod 	*sav;
+	struct argnod	*sav;
 
 	while (argp)
 	{
@@ -192,7 +192,7 @@ freeio(iop)
 
 				while (fiop->iolst != iop)
 					fiop = fiop->iolst;
-	
+
 				fiop->iolst = iop->iolst;
 			}
 		}
@@ -208,7 +208,7 @@ static void
 freereg(regp)
 	struct regnod	*regp;
 {
-	struct regnod 	*sav;
+	struct regnod	*sav;
 
 	while (regp)
 	{
@@ -264,8 +264,7 @@ prf(t)
 
 		type = t->tretyp & COMMSK;
 
-		switch(type)
-		{
+		switch (type) {
 			case TFND:
 			{
 				struct fndnod *f = (struct fndnod *)t;
@@ -328,7 +327,7 @@ prf(t)
 			case TFOR:
 				{
 					struct argnod	*arg;
-					struct fornod 	*f = (struct fornod *)t;
+					struct fornod	*f = (struct fornod *)t;
 
 					prs_buff((unsigned char *)"for ");
 					prs_buff(f->fornam);
@@ -338,7 +337,7 @@ prf(t)
 						arg = f->forlst->comarg;
 						prs_buff((unsigned char *)" in");
 
-						while(arg != ENDARGS)
+						while (arg != ENDARGS)
 						{
 							prc_buff(SPACE);
 							prs_buff(arg->argval);
@@ -396,13 +395,14 @@ prf(t)
 
 			case TSW:
 				{
-					struct regnod 	*swl;
+					struct regnod	*swl;
 
 					prs_buff((unsigned char *)"case ");
 					prs_buff(swptr(t)->swarg);
+					prs_buff((unsigned char *)" in ");
 
 					swl = swptr(t)->swlst;
-					while(swl)
+					while (swl)
 					{
 						struct argnod	*arg = swl->regptr;
 
@@ -412,7 +412,7 @@ prf(t)
 							arg = arg->argnxt;
 						}
 
-						while(arg)
+						while (arg)
 						{
 							prs_buff((unsigned char *)" | ");
 							prs_buff(arg->argval);
@@ -426,8 +426,8 @@ prf(t)
 					}
 				}
 				break;
-			} 
-		} 
+			}
+		}
 
 	sigchk();
 }
@@ -439,7 +439,7 @@ prarg(argp)
 	while (argp)
 	{
 		prs_buff(argp->argval);
-		argp=argp->argnxt;
+		argp = argp->argnxt;
 		if (argp)
 			prc_buff(SPACE);
 	}

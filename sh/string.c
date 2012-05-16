@@ -40,11 +40,11 @@
 /*
  * This file contains modifications Copyright 2008-2012 J. Schilling
  *
- * @(#)string.c	1.13 12/04/08 2008-2012 J. Schilling
+ * @(#)string.c	1.15 12/05/12 2008-2012 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)string.c	1.13 12/04/08 2008-2012 J. Schilling";
+	"@(#)string.c	1.15 12/05/12 2008-2012 J. Schilling";
 #endif
 
 /* ========	general purpose string handling ======== */
@@ -65,8 +65,10 @@ movstr(a, b)
 	unsigned char	*a;
 	unsigned char	*b;
 {
-	while ((*b++ = *a++) != '\0');
-	return(--b);
+	while ((*b++ = *a++) != '\0')
+		/* LINTED */
+		;
+	return (--b);
 }
 
 /*
@@ -82,33 +84,36 @@ any(c, s)
 	while ((d = *s++) != 0)
 	{
 		if (d == c)
-			return(TRUE);
+			return (TRUE);
 	}
-	return(FALSE);
+	return (FALSE);
 }
 
-int anys(c, s)
-unsigned char *c, *s;
+int
+anys(c, s)
+	unsigned char	*c;
+	unsigned char	*s;
 {
 	wchar_t f, e;
 	wchar_t d;
 	int n;
 
 	(void) mbtowc(NULL, NULL, 0);
-	if((n = mbtowc(&f, (char *)c, MULTI_BYTE_MAX)) <= 0) {
+	if ((n = mbtowc(&f, (char *)c, MULTI_BYTE_MAX)) <= 0) {
 		(void) mbtowc(NULL, NULL, 0);
-		return(FALSE);
+		return (FALSE);
 	}
 	d = f;
-	while(1) {
-		if((n = mbtowc(&e, (char *)s, MULTI_BYTE_MAX)) <= 0) {
+	/* CONSTCOND */
+	while (1) {
+		if ((n = mbtowc(&e, (char *)s, MULTI_BYTE_MAX)) <= 0) {
 			(void) mbtowc(NULL, NULL, 0);
-			return(FALSE);
+			return (FALSE);
 		}
 		if (e == 0)
 			return (FALSE);
-		if(d == e)
-			return(TRUE);
+		if (d == e)
+			return (TRUE);
 		s += n;
 	}
 	/* NOTREACHED */
@@ -121,21 +126,24 @@ cf(s1, s2)
 {
 	while (*s1++ == *s2)
 		if (*s2++ == 0)
-			return(0);
-	return(*--s1 - *s2);
+			return (0);
+	return (*--s1 - *s2);
 }
 
 /*
  * return size of as, including terminating NUL
  */
-int length(as)
-unsigned char	*as;
+int
+length(as)
+	unsigned char	*as;
 {
 	unsigned char	*s;
 
 	if ((s = as) != 0)
-		while (*s++);
-	return(s - as);
+		while (*s++)
+			/* LINTED */
+			;
+	return (s - as);
 }
 
 unsigned char *
@@ -147,5 +155,5 @@ movstrn(a, b, n)
 	while ((n-- > 0) && *a)
 		*b++ = *a++;
 
-	return(b);
+	return (b);
 }

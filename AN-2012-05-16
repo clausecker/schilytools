@@ -1,0 +1,63 @@
+New features with AN-2012-05-16:
+
+This is the first localization step for the schily source consolidation. Many
+programs now (hopefully) call gettext() for all strings that need localization.
+
+-	The next step will include dgettext() calls for the libraries and the
+	missing programs
+
+-	The following step will include the extracted strings
+
+-	The last step will include German translations and install support
+	for the resulting binary message object files.
+
+----------> Please test and report compilation problems! <---------
+
+***** NOTE: As mentioned since 2004, frontends to the tools should *****
+*****		call all programs in the "C" locale		   *****
+*****		by e.g. calling: LC_ALL=C cdrecord ....		   *****
+*****		unless these frontends support localized strings   *****
+*****		used by the cdrtools with NLS support.		   *****
+
+-	The ved man page now correctly mentions the behavior of "ved-w"
+
+-	The Bourne Shell man page has been corrected in the command section.
+	The junk (and incorrect indentation) introduced by Sun (while 
+	converting from man macros to sgml via Framemaker) has been removed.
+
+-	The Bourne Shell builtin command "type" now correclty lists
+	functions with case statements. There was a 30 year old bug
+	that caused "in" not to be printed. 
+
+-	A new shell variable OLDPWD= is managed by the shell
+
+-	The Bourne Shell now supports "cd -" to chdir to the previous
+	directory.
+
+-	The commands pushd/popd/dirs are now implemented in the Bourne Shell
+	the same way as implemented in 1985 in the bsh(1).
+
+-	The built-in times(1) command in the Bourne Shell now produces
+	POSIX compliant output.
+
+-	Many lint warnings have been fixed in the Bourne Shell
+
+-	Removed a memory leak caused by the new repeat builtin command
+	in the Bourne Shell
+
+-	Bourne Shell: Fixed a memory leak in the new stak.c code from
+	Geoff Collyer that could be seen with the new "repeat" built-in
+	command.
+
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.isdn.cs.tu-berlin.de, js@cs.tu-berlin.de
+	joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

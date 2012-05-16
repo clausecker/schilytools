@@ -36,11 +36,11 @@
 /*
  * This file contains modifications Copyright 2008-2012 J. Schilling
  *
- * @(#)cmd.c	1.18 12/04/17 2008-2012 J. Schilling
+ * @(#)cmd.c	1.20 12/05/12 2008-2012 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)cmd.c	1.18 12/04/17 2008-2012 J. Schilling";
+	"@(#)cmd.c	1.20 12/05/12 2008-2012 J. Schilling";
 #endif
 
 /*
@@ -72,9 +72,9 @@ getstor(asize)
 	int asize;
 {
 	if (fndef)
-		return((unsigned char *)alloc(asize));
+		return ((unsigned char *)alloc(asize));
 	else
-		return(getstak((Intptr_t)asize));
+		return (getstak((Intptr_t)asize));
 }
 
 
@@ -90,11 +90,11 @@ makefork(flgs, i)
 {
 	struct forknod *t;
 
-	t = (struct forknod *)getstor(sizeof(struct forknod));
+	t = (struct forknod *)getstor(sizeof (struct forknod));
 	t->forktyp = flgs|TFORK;
 	t->forktre = i;
 	t->forkio = 0;
-	return((struct trenod *)t);
+	return ((struct trenod *)t);
 }
 
 static struct trenod *
@@ -108,12 +108,12 @@ makelist(type, i, r)
 		synbad();
 	else
 	{
-		t = (struct lstnod *)getstor(sizeof(struct lstnod));
+		t = (struct lstnod *)getstor(sizeof (struct lstnod));
 		t->lsttyp = type;
 		t->lstlef = i;
 		t->lstrit = r;
 	}
-	return((struct trenod *)t);
+	return ((struct trenod *)t);
 }
 
 /*
@@ -166,7 +166,7 @@ cmd(sym, flg)
 		if (sym)
 			chksym(sym);
 	}
-	return(i);
+	return (i);
 }
 
 /*
@@ -184,7 +184,7 @@ list(flg)
 	r = term(flg);
 	while (r && ((b = (wdval == ANDFSYM)) != 0 || wdval == ORFSYM))
 		r = makelist((b ? TAND : TORF), r, term(NLFLG));
-	return(r);
+	return (r);
 }
 
 /*
@@ -214,10 +214,10 @@ term(flg)
 
 		left = makefork(FPOU, t);
 		right = makefork(FPIN, term(NLFLG));
-		return(makefork(0, makelist(TFIL, left, right)));
+		return (makefork(0, makelist(TFIL, left, right)));
 	}
 	else
-		return(t);
+		return (t);
 }
 
 
@@ -227,7 +227,7 @@ int	esym;
 {
 	skipnl();
 	if (wdval == esym)
-		return(0);
+		return (0);
 	else
 	{
 		struct regnod *r =
@@ -239,7 +239,7 @@ int	esym;
 		{
 			if (fndef)
 			{
-				argp= wdarg;
+				argp = wdarg;
 				wdarg = (struct argnod *)alloc(length(argp->argval) + BYTESPERWORD);
 				movstr(argp->argval, wdarg->argval);
 			}
@@ -248,7 +248,7 @@ int	esym;
 			r->regptr = wdarg;
 
 			/* 'in' is not a reserved word in this case */
-			if (wdval == INSYM){
+			if (wdval == INSYM) {
 				wdval = 0;
 			}
 			if (wdval || (word() != ')' && wdval != '|'))
@@ -266,7 +266,7 @@ int	esym;
 			chksym(esym);
 			r->regnxt = 0;
 		}
-		return(r);
+		return (r);
 	}
 }
 
@@ -301,8 +301,8 @@ item(flag)
 	case CASYM:
 		{
 			struct swnod *t;
-			
-			t = (struct swnod *)getstor(sizeof(struct swnod));
+
+			t = (struct swnod *)getstor(sizeof (struct swnod));
 			r = (struct trenod *)t;
 
 			chkword();
@@ -322,7 +322,7 @@ item(flag)
 			int	w;
 			struct ifnod *t;
 
-			t = (struct ifnod *)getstor(sizeof(struct ifnod));
+			t = (struct ifnod *)getstor(sizeof (struct ifnod));
 			r = (struct trenod *)t;
 
 			t->iftyp = TIF;
@@ -330,7 +330,7 @@ item(flag)
 			t->thtre = cmd(ELSYM | FISYM | EFSYM, NLFLG);
 			t->eltre = ((w = wdval) == ELSYM ? cmd(FISYM, NLFLG) : (w == EFSYM ? (wdval = IFSYM, item(0)) : 0));
 			if (w == EFSYM)
-				return(r);
+				return (r);
 			break;
 		}
 
@@ -338,7 +338,7 @@ item(flag)
 		{
 			struct fornod *t;
 
-			t = (struct fornod *)getstor(sizeof(struct fornod));
+			t = (struct fornod *)getstor(sizeof (struct fornod));
 			r = (struct trenod *)t;
 
 			t->fortyp = TFOR;
@@ -372,7 +372,7 @@ item(flag)
 		{
 			struct whnod *t;
 
-			t = (struct whnod *)getstor(sizeof(struct whnod));	
+			t = (struct whnod *)getstor(sizeof (struct whnod));
 			r = (struct trenod *)t;
 
 			t->whtyp = (wdval == WHSYM ? TWH : TUN);
@@ -389,7 +389,7 @@ item(flag)
 		{
 			struct parnod *p;
 
-			p = (struct parnod *)getstor(sizeof(struct parnod));
+			p = (struct parnod *)getstor(sizeof (struct parnod));
 			p->partre = cmd(')', NLFLG);
 			p->partyp = TPAR;
 			r = makefork(0, (struct trenod *)p);
@@ -398,7 +398,8 @@ item(flag)
 
 	default:
 		if (io == 0)
-			return(0);
+			return (0);
+		/* FALLTHROUGH */
 
 	case 0:
 		{
@@ -430,7 +431,7 @@ item(flag)
 				 * which persists over command executions.
 				 */
 				fndef++;
-				f = (struct fndnod *)getstor(sizeof(struct fndnod));
+				f = (struct fndnod *)getstor(sizeof (struct fndnod));
 				r = (struct trenod *)f;
 
 				f->fndtyp = TFND;
@@ -446,7 +447,7 @@ item(flag)
 
 				if (iotemp != saveio)
 				{
-					struct ionod 	*ioptr = iotemp;
+					struct ionod	*ioptr = iotemp;
 
 					while (ioptr->iolst != saveio)
 						ioptr = ioptr->iolst;
@@ -455,11 +456,11 @@ item(flag)
 					fiotemp = iotemp;
 					iotemp = saveio;
 				}
-				return(r);
+				return (r);
 			}
 			else
 			{
-				t = (struct comnod *)getstor(sizeof(struct comnod));
+				t = (struct comnod *)getstor(sizeof (struct comnod));
 				r = (struct trenod *)t;
 
 				t->comio = io; /*initial io chain*/
@@ -497,13 +498,13 @@ item(flag)
 					{
 						if (io)
 						{
-							while(io->ionxt)
+							while (io->ionxt)
 								io = io->ionxt;
 							io->ionxt = inout((struct ionod *)0);
 						}
 						else
 							t->comio = io = inout((struct ionod *)0);
- 					}
+					}
 				}
 
 				t->comtyp = TCOM;
@@ -520,7 +521,7 @@ item(flag)
 					}
 				}
 
-				return(r);
+				return (r);
 			}
 		}
 
@@ -529,10 +530,10 @@ item(flag)
 	word();
 	if ((io = inout(io)) != NULL)
 	{
-		r = makefork(0,r);
+		r = makefork(0, r);
 		r->treio = io;
 	}
-	return(r);
+	return (r);
 }
 
 
@@ -541,7 +542,7 @@ skipnl()
 {
 	while ((reserv++, word() == NL))
 		chkpr();
-	return(wdval);
+	return (wdval);
 }
 
 static struct ionod *
@@ -569,6 +570,7 @@ inout(lastio)
 			iof |= IOAPP;
 			break;
 		}
+		/* FALLTHROUGH */
 
 	case '<':
 		if ((c = nextwc()) == '&')
@@ -580,11 +582,11 @@ inout(lastio)
 		break;
 
 	default:
-		return(lastio);
+		return (lastio);
 	}
 
 	chkword();
-	iop = (struct ionod *)getstor(sizeof(struct ionod));
+	iop = (struct ionod *)getstor(sizeof (struct ionod));
 
 	if (fndef)
 		iop->ioname = (char *) make(wdarg->argval);
@@ -600,7 +602,7 @@ inout(lastio)
 	}
 	word();
 	iop->ionxt = inout(lastio);
-	return(iop);
+	return (iop);
 }
 
 static void

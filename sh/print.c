@@ -34,14 +34,14 @@
 /*
  * This file contains modifications Copyright 2008-2012 J. Schilling
  *
- * @(#)print.c	1.16 12/04/02 2008-2012 J. Schilling
+ * @(#)print.c	1.17 12/05/12 2008-2012 J. Schilling
  */
 #ifdef	SCHILY_BUILD
 #include <schily/mconfig.h>
 #endif
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)print.c	1.16 12/04/02 2008-2012 J. Schilling";
+	"@(#)print.c	1.17 12/05/12 2008-2012 J. Schilling";
 #endif
 
 /*
@@ -164,9 +164,14 @@ void
 prt(t)
 	long	t;	/* t is time in clock ticks, not seconds */
 {
-	int hr, min, sec;
+	int hr, min, sec, frac;
 	int _hz = HZ;
 
+	frac = t % _hz;
+	if (_hz > 1000)
+		frac %= 1000;
+	else
+		frac *= 1000 / _hz;
 	t += _hz / 2;	/* round to nearest second */
 	t /= _hz;
 	sec = t % 60;
@@ -181,6 +186,9 @@ prt(t)
 	prn_buff(min);
 	prc_buff('m');
 	prn_buff(sec);
+	prc_buff('.');
+	itos(frac+1000);
+	prs_buff(numbuf+1);
 	prc_buff('s');
 }
 

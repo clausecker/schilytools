@@ -36,11 +36,11 @@
 /*
  * This file contains modifications Copyright 2008-2012 J. Schilling
  *
- * @(#)name.c	1.19 12/04/25 2008-2012 J. Schilling
+ * @(#)name.c	1.21 12/05/12 2008-2012 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)name.c	1.19 12/04/25 2008-2012 J. Schilling";
+	"@(#)name.c	1.21 12/05/12 2008-2012 J. Schilling";
 #endif
 
 /*
@@ -93,7 +93,7 @@ struct namnod ps2nod =			/* PS2= */
 	&acctnod,
 	(unsigned char *)ps2name
 };
-struct namnod cdpnod = 			/* CDPATH= */
+struct namnod cdpnod =			/* CDPATH= */
 {
 	(struct namnod *)NIL,
 	(struct namnod *)NIL,
@@ -177,7 +177,7 @@ syslook(w, syswds, n)
 	int	cond;
 
 	if (w == 0 || *w == 0)
-		return(0);
+		return (0);
 
 	low = 0;
 	high = n - 1;
@@ -191,9 +191,9 @@ syslook(w, syswds, n)
 		else if (cond > 0)
 			low = mid + 1;
 		else
-			return(syswds[mid].sysval);
+			return (syswds[mid].sysval);
 	}
-	return(0);
+	return (0);
 }
 
 void
@@ -285,7 +285,7 @@ assign(n, v)
 
 	else if (flags & rshflg)
 	{
-		if (n == &pathnod || eq(n->namid,"SHELL"))
+		if (n == &pathnod || eq(n->namid, "SHELL"))
 			failed(n->namid, restricted);
 	}
 #endif
@@ -327,23 +327,21 @@ set_builtins_path()
 {
 	unsigned char *path;
 
-        ucb_builtins = 0;
-        path = getpath((unsigned char *)"");
-        while (path && *path)
-        {
-                if (patheq(path, "/usr/ucb"))
-                {
-                        ucb_builtins++;
-                        break;
-                }
-                else if (patheq(path, "/usr/bin"))
-                        break;
-                else if (patheq(path, "/bin"))
-                        break;
-                else if (patheq(path, "/usr/5bin"))
-                        break;
-                path = nextpath(path);
-        }
+	ucb_builtins = 0;
+	path = getpath((unsigned char *)"");
+	while (path && *path) {
+		if (patheq(path, "/usr/ucb")) {
+			ucb_builtins++;
+			break;
+		}
+		else if (patheq(path, "/usr/bin"))
+			break;
+		else if (patheq(path, "/bin"))
+			break;
+		else if (patheq(path, "/usr/5bin"))
+			break;
+		path = nextpath(path);
+	}
 }
 
 static int
@@ -351,18 +349,17 @@ patheq(component, dir)
 	unsigned char	*component;
 	char		*dir;
 {
-	unsigned char   c;
+	unsigned char	c;
 
-        for (;;)
-        {
-                c = *component++;
-                if (c == COLON)
-                        c = '\0';       /* end of component of path */
+	for (;;) {
+		c = *component++;
+		if (c == COLON)
+			c = '\0';	/* end of component of path */
 		if (c != *dir++)
 			return (0);
-                if (c == '\0')
-                        return(1);
-        }
+		if (c == '\0')
+			return (1);
+	}
 }
 
 int
@@ -417,15 +414,17 @@ readvar(names)
 	/*
 	 * strip leading IFS characters
 	 */
-	for (;;) 
+	for (;;)
 	{
 		d = nextwchar();
-		if(eolchar(d))
+		if (eolchar(d))
 			break;
 		rest = readw(d);
 		pc = c;
-		while ((*pc++ = *rest++) != '\0');
-		if(!anys(c, ifsnod.namval))
+		while ((*pc++ = *rest++) != '\0')
+			/* LINTED */
+			;
+		if (!anys(c, ifsnod.namval))
 			break;
 	}
 
@@ -450,14 +449,17 @@ readvar(names)
 				break;
 			}
 			else		/* strip imbedded IFS characters */
-				while(1) {
+				/* CONSTCOND */
+				while (1) {
 					d = nextwchar();
-					if(eolchar(d))
+					if (eolchar(d))
 						break;
 					rest = readw(d);
 					pc = c;
-					while ((*pc++ = *rest++) != '\0');
-					if(!anys(c, ifsnod.namval))
+					while ((*pc++ = *rest++) != '\0')
+						/* LINTED */
+						;
+					if (!anys(c, ifsnod.namval))
 						break;
 				}
 		}
@@ -478,21 +480,23 @@ readvar(names)
 				pc = c;
 				while ((d = *pc++) != '\0') {
 					if (staktop >= brkend)
-						growstak(staktop); 
+						growstak(staktop);
 					pushstak(d);
 				}
-				if(!anys(c, ifsnod.namval))
+				if (!anys(c, ifsnod.namval))
 					oldstak = staktop;
 			}
 			d = nextwchar();
 
 			if (eolchar(d))
 				staktop = oldstak;
-			else 
+			else
 			{
 				rest = readw(d);
 				pc = c;
-				while ((*pc++ = *rest++) != '\0');
+				while ((*pc++ = *rest++) != '\0')
+					/* LINTED */
+					;
 			}
 		}
 	}
@@ -522,7 +526,7 @@ readvar(names)
 		lseek(0, (off_t)(f->nxtoff - f->endoff), SEEK_CUR);
 
 	pop();
-	return(rc);
+	return (rc);
 }
 
 void
@@ -543,10 +547,10 @@ unsigned char	*v;
 	if (v)
 	{
 		movstr(v, p = (unsigned char *)alloc(length(v)));
-		return(p);
+		return (p);
 	}
 	else
-		return(0);
+		return (0);
 }
 
 
@@ -564,7 +568,7 @@ lookup(nam)
 	while (nscan)
 	{
 		if ((LR = cf(nam, nscan->namid)) == 0)
-			return(nscan);
+			return (nscan);
 
 		else if (LR < 0)
 			prev = &(nscan->namlft);
@@ -575,14 +579,14 @@ lookup(nam)
 	/*
 	 * add name node
 	 */
-	nscan = (struct namnod *)alloc(sizeof *nscan);
+	nscan = (struct namnod *)alloc(sizeof (*nscan));
 	nscan->namlft = nscan->namrgt = (struct namnod *)NIL;
 	nscan->namid = make(nam);
 	nscan->namval = 0;
 	nscan->namflg = N_DEFAULT;
 	nscan->namenv = 0;
 
-	return(*prev = nscan);
+	return (*prev = nscan);
 }
 
 static BOOL
@@ -592,16 +596,16 @@ unsigned char	*nam;
 	unsigned char *cp = nam;
 
 	if (!letter(*cp))
-		return(FALSE);
+		return (FALSE);
 	else
 	{
 		while (*++cp)
 		{
 			if (!alphanum(*cp))
-				return(FALSE);
+				return (FALSE);
 		}
 	}
-	return(TRUE);
+	return (TRUE);
 }
 
 static void (*namfn) __PR((struct namnod *n));
@@ -705,7 +709,7 @@ static void
 pushnam(n)
 	struct namnod	*n;
 {
-	int 	flg = n->namflg;
+	int	flg = n->namflg;
 	unsigned char	*p;
 	unsigned char	*namval;
 
@@ -745,7 +749,7 @@ local_setenv()
 	argnam = er = (unsigned char **)getstak((Intptr_t)namec * BYTESPERWORD + BYTESPERWORD);
 	namscan(pushnam);
 	*argnam++ = 0;
-	return(er);
+	return (er);
 }
 
 struct namnod *
@@ -756,17 +760,17 @@ findnam(nam)
 	int		LR;
 
 	if (!chkid(nam))
-		return(0);
+		return (0);
 	while (nscan)
 	{
 		if ((LR = cf(nam, nscan->namid)) == 0)
-			return(nscan);
+			return (nscan);
 		else if (LR < 0)
 			nscan = nscan->namlft;
 		else
 			nscan = nscan->namrgt;
 	}
-	return(0); 
+	return (0);
 }
 
 void
@@ -774,7 +778,7 @@ unset_name(name)
 	unsigned char	*name;
 {
 	struct namnod	*n;
-	unsigned char 	call_dolocale = 0;
+	unsigned char	call_dolocale = 0;
 
 	if ((n = findnam(name)) != NULL)
 	{
@@ -870,7 +874,7 @@ dolocale(nm)
 #endif
 
 	/*
-	 * Take advantage of fact that names of these vars all start 
+	 * Take advantage of fact that names of these vars all start
 	 * with 'L' to avoid unnecessary work.
 	 * Do locale processing only if /usr is mounted.
 	 */
@@ -883,12 +887,12 @@ dolocale(nm)
 	 * setlocale() has all the smarts built into it, but
 	 * it works by examining the environment.  Unfortunately,
 	 * when you set an environment variable, the shell does
-	 * not modify its own environment; it just remembers that the 
-	 * variable needs to be exported to any children.  We hack around 
-	 * this by consing up a fake environment for the use of setlocale() 
+	 * not modify its own environment; it just remembers that the
+	 * variable needs to be exported to any children.  We hack around
+	 * this by consing up a fake environment for the use of setlocale()
 	 * and substituting it for the real env before calling setlocale().
 	 */
-	
+
 	/*
 	 * Build the fake environment.
 	 * Look up the value of each of the special environment
@@ -904,7 +908,7 @@ dolocale(nm)
 
 			fake_env[fe++] = p = alloc(length((unsigned char *)
 							    localevar[lv])
-					       + length(n->namval) + 2);
+						+ length(n->namval) + 2);
 			/* copy name */
 			q = localevar[lv];
 			while (*q)
@@ -913,14 +917,14 @@ dolocale(nm)
 			*p++ = '=';
 
 			/* copy value */
-			q = (char*)(n->namval);
+			q = (char *)(n->namval);
 			while (*q)
 				*p++ = *q++;
 			*p++ = '\0';
 		}
 	}
 	fake_env[fe] = (char *)0;
-	
+
 	/*
 	 * Switch fake env for real and call setlocale().
 	 */

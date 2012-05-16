@@ -36,11 +36,11 @@
 /*
  * This file contains modifications Copyright 2008-2012 J. Schilling
  *
- * @(#)service.c	1.20 12/04/08 2008-2012 J. Schilling
+ * @(#)service.c	1.22 12/05/12 2008-2012 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)service.c	1.20 12/04/08 2008-20012 J. Schilling";
+	"@(#)service.c	1.22 12/05/12 2008-20012 J. Schilling";
 #endif
 
 /*
@@ -66,7 +66,7 @@ static unsigned char *execs	__PR((unsigned char *ap, unsigned char *t[]));
 	unsigned char *mactrim	__PR((unsigned char *at));
 	unsigned char **scan	__PR((int argn));
 static void		gsort	__PR((unsigned char *from[], unsigned char * to[]));
-	int 		getarg	__PR((struct comnod *ac));
+	int		getarg	__PR((struct comnod *ac));
 static int		split	__PR((unsigned char *s));
 
 extern short topfd;
@@ -150,9 +150,11 @@ unsigned char	*s;
 	unsigned char	*sname;
 
 	sname = s;
+	/* CONSTCOND */
 	while (1) {
 		if (any('/', sname))
 			while (*sname++ != '/')
+				/* LINTED */
 				;
 		else
 			return (sname);
@@ -286,6 +288,7 @@ execa(at, pos)
 			path = getpath(*t);
 		}
 		while ((path = execs(path, t)) != NULL)
+			/* LINTED */
 			;
 		failed(*t, xecmsg);
 	}
@@ -355,34 +358,42 @@ execs(ap, t)
 
 		setargs(t);
 		longjmp(subshell, 1);
+		/* NOTREACHED */
 
 	case ENOMEM:
 		failed(p, toobig);
+		/* NOTREACHED */
 
 	case E2BIG:
 		failed(p, arglist);
+		/* NOTREACHED */
 
 	case ETXTBSY:
 		failed(p, txtbsy);
+		/* NOTREACHED */
 
 #ifdef	ELIBACC
 	case ELIBACC:
 		failed(p, libacc);
+		/* NOTREACHED */
 #endif
 
 #ifdef	ELIBBAD
 	case ELIBBAD:
 		failed(p, libbad);
+		/* NOTREACHED */
 #endif
 
 #ifdef	ELIBSCN
 	case ELIBSCN:
 		failed(p, libscn);
+		/* NOTREACHED */
 #endif
 
 #ifdef	ELIBMAX
 	case ELIBMAX:
 		failed(p, libmax);
+		/* NOTREACHED */
 #endif
 
 	default:
@@ -401,7 +412,7 @@ trim(at)
 	unsigned char	*at;
 {
 	unsigned char	*last;
-	unsigned char 	*current;
+	unsigned char	*current;
 	unsigned char	c;
 	int	len;
 	wchar_t	wc;
@@ -454,7 +465,7 @@ trims(at)
 unsigned char	*at;
 {
 	unsigned char	*last;
-	unsigned char 	*current;
+	unsigned char	*current;
 	unsigned char	c;
 	int	len;
 	wchar_t	wc;
@@ -480,7 +491,7 @@ unsigned char	*at;
 
 			/* remove \ and quoted nulls */
 			current++;
-			if (!(c = *current)) {
+			if ((c = *current) == '\0') {
 				current++;
 				continue;
 			}
@@ -554,6 +565,7 @@ unsigned char	*from[], *to[];
 	if ((n = to - from) <= 1)
 		return;
 	for (j = 1; j <= n; j *= 2)
+		/* LINTED */
 		;
 	for (m = 2 * j - 1; m /= 2; )
 	{
@@ -631,7 +643,7 @@ unsigned char	*s;
 			if (c == '\\') { /* skip over quoted characters */
 				if (argp >= brkend)
 					argp = growstak(argp);
-				*argp++ = c;
+				*argp++ = (char) c;
 				s++;
 				/* get rest of multibyte character */
 				if ((clength = mbtowc(&wc, (char *)s,
@@ -699,7 +711,7 @@ unsigned char	*s;
 #ifdef ACCT
 #include	<sys/types.h>
 #include	<sys/acct.h>
-#include 	<sys/times.h>
+#include	<sys/times.h>
 
 #ifdef	AHZV1		/* Newer FreeBSD versions */
 struct acctv1 sabuf;

@@ -36,11 +36,11 @@
 /*
  * This file contains modifications Copyright 2008-2012 J. Schilling
  *
- * @(#)msg.c	1.12 12/04/25 2008-2012 J. Schilling
+ * @(#)msg.c	1.16 12/05/11 2008-2012 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)msg.c	1.12 12/04/25 2008-2012 J. Schilling";
+	"@(#)msg.c	1.16 12/05/11 2008-2012 J. Schilling";
 #endif
 
 /*
@@ -53,7 +53,7 @@ static	UConst char sccsid[] =
  * error messages
  */
 #ifndef __STDC__
-#define const 
+#define	const
 #endif
 
 const char	badopt[]	= "bad option(s)";
@@ -83,18 +83,20 @@ const char	notfound[]	= "not found";
 const char	badfile[]	= "bad file number";
 const char	badshift[]	= "cannot shift";
 const char	baddir[]	= "bad directory";
+const char	badoff[]	= "bad offset";
+const char	emptystack[]	= "stack empty";
 const char	badtrap[]	= "bad trap";
 const char	wtfailed[]	= "is read only";
 const char	notid[]		= "is not an identifier";
-const char 	badulimit[]	= "exceeds allowable limit";
-const char	badreturn[] 	= "cannot return when not in function";
-const char	badexport[] 	= "cannot export functions";
-const char	badunset[] 	= "cannot unset";
+const char	badulimit[]	= "exceeds allowable limit";
+const char	badreturn[]	= "cannot return when not in function";
+const char	badexport[]	= "cannot export functions";
+const char	badunset[]	= "cannot unset";
 const char	nohome[]	= "no home directory";
-const char 	badperm[]	= "execute permission denied";
+const char	badperm[]	= "execute permission denied";
 const char	longpwd[]	= "sh error: pwd too long";
 const char	mssgargn[]	= "missing arguments";
-const char	libacc[] 	= "can't access a needed shared library";
+const char	libacc[]	= "can't access a needed shared library";
 const char	libbad[]	= "accessing a corrupted shared library";
 const char	libscn[]	= ".lib section in a.out corrupted";
 const char	libmax[]	= "attempting to link in too many libs";
@@ -147,9 +149,9 @@ const char	ifsname[]	= "IFS";
 const char	ps1name[]	= "PS1";
 const char	ps2name[]	= "PS2";
 const char	mchkname[]	= "MAILCHECK";
-const char	opwdname[]  	= "OLDPWD";
-const char	pwdname[]  	= "PWD";
-const char	acctname[]  	= "SHACCT";
+const char	opwdname[]	= "OLDPWD";
+const char	pwdname[]	= "PWD";
+const char	acctname[]	= "SHACCT";
 const char	mailpname[]	= "MAILPATH";
 
 /*
@@ -161,7 +163,7 @@ const char	defpath[]	= "/usr/bin:";
 const char	colon[]		= ": ";
 const char	minus[]		= "-";
 const char	endoffile[]	= "end of file";
-const char	unexpected[] 	= " unexpected";
+const char	unexpected[]	= " unexpected";
 const char	atline[]	= " at line ";
 const char	devnull[]	= "/dev/null";
 const char	execpmsg[]	= "+ ";
@@ -200,16 +202,18 @@ const struct sysnod reserved[] =
 	{ "}",		KTSYM	}
 };
 
-const int no_reserved = sizeof(reserved)/sizeof(struct sysnod);
+const int no_reserved = sizeof (reserved)/sizeof (struct sysnod);
 
 const char	export[] = "export";
 const char	readonly[] = "readonly";
 
-
+/*
+ * Built-ins marked with "S" are POSIX special built-in utilities.
+ */
 const struct sysnod commands[] =
 {
-	{ ".",		SYSDOT	},
-	{ ":",		SYSNULL	},
+	{ ".",		SYSDOT	},	/* S */
+	{ ":",		SYSNULL	},	/* S */
 
 #ifndef RES
 	{ "[",		SYSTST },
@@ -218,21 +222,22 @@ const struct sysnod commands[] =
 	{ "alloc",	SYSALLOC },
 #endif
 	{ "bg",		SYSFGBG },
-	{ "break",	SYSBREAK },
+	{ "break",	SYSBREAK },	/* S */
 	{ "cd",		SYSCD	},
 	{ "chdir",	SYSCD	},
-	{ "continue",	SYSCONT	},
+	{ "continue",	SYSCONT	},	/* S */
+	{ "dirs",	SYSDIRS },
 	{ "echo",	SYSECHO },
-	{ "eval",	SYSEVAL	},
-	{ "exec",	SYSEXEC	},
-	{ "exit",	SYSEXIT	},
-	{ "export",	SYSXPORT },
+	{ "eval",	SYSEVAL	},	/* S */
+	{ "exec",	SYSEXEC	},	/* S */
+	{ "exit",	SYSEXIT	},	/* S */
+	{ "export",	SYSXPORT },	/* S */
 	{ "fg",		SYSFGBG },
 	{ "getopts",	SYSGETOPT },
+	{ "hash",	SYSHASH	},
 #ifdef	INTERACTIVE
 	{ "history",	SYSHISTORY },
 #endif
-	{ "hash",	SYSHASH	},
 	{ "jobs",	SYSJOBS },
 	{ "kill",	SYSKILL },
 #ifdef RES
@@ -247,32 +252,33 @@ const struct sysnod commands[] =
 	{ "newgrp",	SYSNEWGRP },
 #endif
 
+	{ "popd",	SYSPOPD },
+	{ "pushd",	SYSPUSHD },
 	{ "pwd",	SYSPWD },
 	{ "read",	SYSREAD	},
-	{ "readonly",	SYSRDONLY },
+	{ "readonly",	SYSRDONLY },	/* S */
 	{ "repeat",	SYSREPEAT },
-	{ "return",	SYSRETURN },
+	{ "return",	SYSRETURN },	/* S */
 #ifdef	INTERACTIVE
 	{ "savehistory", SYSSAVEHIST },
 #endif
-	{ "set",	SYSSET	},
-	{ "shift",	SYSSHFT	},
+	{ "set",	SYSSET	},	/* S */
+	{ "shift",	SYSSHFT	},	/* S */
 	{ "stop",	SYSSTOP	},
 	{ "suspend",	SYSSUSP},
 	{ "test",	SYSTST },
-	{ "times",	SYSTIMES },
-	{ "trap",	SYSTRAP	},
+	{ "times",	SYSTIMES },	/* S */
+	{ "trap",	SYSTRAP	},	/* S */
 	{ "type",	SYSTYPE },
 
 
-#ifndef RES		
+#ifndef RES
 	{ "ulimit",	SYSULIMIT },
 	{ "umask",	SYSUMASK },
 #endif
 
-	{ "unset", 	SYSUNS },
+	{ "unset",	SYSUNS },	/* S */
 	{ "wait",	SYSWAIT	}
 };
 
-const int no_commands = sizeof(commands)/sizeof(struct sysnod);
-
+const int no_commands = sizeof (commands)/sizeof (struct sysnod);
