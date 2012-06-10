@@ -37,7 +37,7 @@
 /*
  * This file contains modifications Copyright 2008-2012 J. Schilling
  *
- * @(#)defs.h	1.42 12/05/11 2008-2012 J. Schilling
+ * @(#)defs.h	1.45 12/06/10 2008-2012 J. Schilling
  */
 
 #ifdef	__cplusplus
@@ -138,7 +138,11 @@ extern "C" {
 #define		SYSPOPD		40
 #define		SYSPUSHD	41
 
-#define		SYSALLOC	42
+#define		SYSDOSH		42
+#define		SYSALIAS	43
+#define		SYSUNALIAS	44
+
+#define		SYSALLOC	45
 
 /* used for input and output of shell */
 #define		INIO 		19
@@ -253,6 +257,8 @@ extern "C" {
 #define	HAVE_TCSETPGRP
 
 #endif	/* ! SCHILY_BUILD */
+
+#define	UC	(unsigned char *)
 
 #ifndef	__NORETURN
 #define	__NORETURN
@@ -612,6 +618,12 @@ extern	void	sysulimit	__PR((int argc, char **argv));
 extern	void	sysumask	__PR((int argc, char **argv));
 
 /*
+ * alias.c
+ */
+extern	void	sysalias	__PR((int argc, unsigned char **argv));
+extern	void	sysunalias	__PR((int argc, unsigned char **argv));
+
+/*
  * word.c
  */
 extern	int		word	__PR((void));
@@ -719,6 +731,10 @@ extern const char				stdprompt[];
 extern const char				supprompt[];
 extern const char				profile[];
 extern const char				sysprofile[];
+extern const char				rcfile[];
+extern const char				sysrcfile[];
+extern const char				globalname[];
+extern const char				localname[];
 
 /* locale testing */
 extern const char			localedir[];
@@ -727,6 +743,7 @@ extern int				localedir_exists;
 /* built in names */
 extern struct namnod	fngnod;
 extern struct namnod	cdpnod;
+extern struct namnod	envnod;
 extern struct namnod	ifsnod;
 extern struct namnod	homenod;
 extern struct namnod	mailnod;
@@ -749,6 +766,7 @@ extern const char				mailname[];
 extern const char				homename[];
 extern const char				pathname[];
 extern const char				cdpname[];
+extern const char				envname[];
 extern const char				ifsname[];
 extern const char				ps1name[];
 extern const char				ps2name[];
@@ -807,6 +825,8 @@ extern const char			devnull[];
 #define			jcoff		020000000
 #define			pfshflg		040000000
 #define			versflg		0100000000
+#define			globalaliasflg	0200000000
+#define			localaliasflg	0400000000
 
 extern long				flags;
 extern int				rwait;	/* flags read waiting */
@@ -855,6 +875,7 @@ extern int				tried_to_exit;
 
 /* fault */
 extern int				*intrptr;
+extern int				intrcnt;
 
 /* messages */
 extern const char				mailmsg[];
@@ -896,6 +917,7 @@ extern const char				badunset[];
 extern const char				nohome[];
 extern const char				badperm[];
 extern const char				mssgargn[];
+extern const char				toomanyargs[];
 extern const char				libacc[];
 extern const char				libbad[];
 extern const char				libscn[];
@@ -903,6 +925,7 @@ extern const char				libmax[];
 extern const char				emultihop[];
 extern const char				nulldir[];
 extern const char				enotdir[];
+extern const char				eisdir[];
 extern const char				enoent[];
 extern const char				eacces[];
 extern const char				enolink[];
@@ -916,6 +939,8 @@ extern const char				usage[];
 extern const char				nojc[];
 extern const char				killuse[];
 extern const char				jobsuse[];
+extern const char				aliasuse[];
+extern const char				unaliasuse[];
 extern const char				repuse[];
 extern const char				stopuse[];
 extern const char				ulimuse[];

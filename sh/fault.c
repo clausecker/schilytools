@@ -36,11 +36,11 @@
 /*
  * This file contains modifications Copyright 2008-2012 J. Schilling
  *
- * @(#)fault.c	1.17 12/05/12 2008-2012 J. Schilling
+ * @(#)fault.c	1.18 12/06/10 2008-2012 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)fault.c	1.17 12/05/12 2008-2012 J. Schilling";
+	"@(#)fault.c	1.18 12/06/10 2008-2012 J. Schilling";
 #endif
 
 /*
@@ -90,6 +90,7 @@ static	UConst char sccsid[] =
  * Comand History Editor.
  */
 	int	*intrptr;
+	int	intrcnt;
 
 static	void (*psig0_func) __PR((int)) = SIG_ERR;	/* previous signal handler for signal 0 */
 static	char sigsegv_stack[SIGSTKSZ];
@@ -297,6 +298,7 @@ fault(sig)
 		case SIGINT:
 			if (intrptr)
 				(*intrptr)++;
+			intrcnt++;
 			break;
 #endif
 #ifdef	SIGALRM

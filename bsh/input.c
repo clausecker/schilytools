@@ -1,13 +1,13 @@
-/* @(#)input.c	1.30 09/07/11 Copyright 1985-2009 J. Schilling */
+/* @(#)input.c	1.32 12/06/03 Copyright 1985-2012 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)input.c	1.30 09/07/11 Copyright 1985-2009 J. Schilling";
+	"@(#)input.c	1.32 12/06/03 Copyright 1985-2012 J. Schilling";
 #endif
 /*
  *	bsh command interpreter - Input handling & Alias/Macro Expansion
  *
- *	Copyright (c) 1985-2009 J. Schilling
+ *	Copyright (c) 1985-2012 J. Schilling
  *
  *	Exported functions:
  *		setinput(f)	replaces the current input file
@@ -86,7 +86,8 @@ extern pid_t	lastbackgrnd;
 LOCAL fstream	*instrm = (fstream *) NULL;	/* Alias expanded input fstream */
 LOCAL fstream	*rawstrm = (fstream *) NULL;	/* Unexpanded input fstream */
 LOCAL int	qlevel = 0;			/* Current quoting level */
-LOCAL BOOL	balias = FALSE;			/* Begin aliases allowed? */
+LOCAL int	balias = 0;			/* Begin aliases allowed? */
+LOCAL void	*seen;				/* List of seen aliases */
 
 LOCAL	int	fillbuf		__PR((int c, char *wbuf, fstream *is));
 LOCAL	int	readchar	__PR((fstream *fsp));
@@ -282,7 +283,9 @@ begina(beg)
 	fprintf(stderr, "balias = %d\n", beg);
 	fflush(stderr);
 #endif
-	balias = beg;
+	if (!beg && balias)
+		seen = 0;
+	balias = beg?AB_BEGIN:0;
 }
 
 /*
@@ -329,8 +332,8 @@ input_expand(os, is)
 			 * Could be a word, so try alias expansion
 			 */
 			c = fillbuf(c, buf, is);
-			if ((val = ab_value(LOCAL_AB, buf, balias)) == NULL)
-				val = ab_value(GLOBAL_AB, buf, balias);
+			if ((val = ab_value(LOCAL_AB, buf, &seen, balias)) == NULL)
+				val = ab_value(GLOBAL_AB, buf, &seen, balias);
 #ifdef DEBUG
 			fprintf(stderr, "expanding '%s': ", buf);
 			fflush(stderr);

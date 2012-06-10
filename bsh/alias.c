@@ -1,8 +1,8 @@
-/* @(#)alias.c	1.15 09/07/28 Copyright 1986-2009 J. Schilling */
+/* @(#)alias.c	1.16 12/06/10 Copyright 1986-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)alias.c	1.15 09/07/28 Copyright 1986-2009 J. Schilling";
+	"@(#)alias.c	1.16 12/06/10 Copyright 1986-2009 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1986-2009 J. Schilling
@@ -99,5 +99,5 @@ bunalias(vp, std, flag)
 		wrong_args(vp, std);
 		return;
 	}
-	ab_delete(dolocal?LOCAL_AB:GLOBAL_AB, av[0]);
+	ab_delete(dolocal?LOCAL_AB:GLOBAL_AB, av[0], 0);
 }

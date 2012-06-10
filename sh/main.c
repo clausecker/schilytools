@@ -36,11 +36,11 @@
 /*
  * This file contains modifications Copyright 2008-2012 J. Schilling
  *
- * @(#)main.c	1.19 12/05/11 2008-2012 J. Schilling
+ * @(#)main.c	1.20 12/06/10 2008-2012 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)main.c	1.19 12/05/11 2008-2012 J. Schilling";
+	"@(#)main.c	1.20 12/06/10 2008-2012 J. Schilling";
 #endif
 
 /*
@@ -56,6 +56,7 @@ static	UConst char sccsid[] =
 #include	<schily/wait.h>
 #include	"dup.h"
 #include	"sh_policy.h"
+#include	"abbrev.h"
 #undef	feof
 #else
 #include	"sym.h"
@@ -68,6 +69,7 @@ static	UConst char sccsid[] =
 #include	<sys/wait.h>
 #include	"dup.h"
 #include	"sh_policy.h"
+#include	"abbrev.h"
 #endif
 
 #ifdef RES
@@ -272,6 +274,12 @@ main(c, v, e)
 	 */
 	if (setjmp(subshell)) {
 		freejobs();
+		/*
+		 * Shell scripts start with empty alias definitions.
+		 * Turn off all aliases and disable persistent aliases.
+		 */
+		ab_use(GLOBAL_AB, NULL);
+		ab_use(LOCAL_AB, NULL);
 		flags |= subsh;
 	}
 
@@ -326,7 +334,7 @@ main(c, v, e)
 #endif
 			/* user profile */
 
-			if ((input = pathopen(homenod.namval,
+			if ((input = pathopen(homenod.namval?homenod.namval:UC "",
 					(unsigned char *)profile)) >= 0) {
 				exfile(rflag);
 				flags &= ~ttyflg;
@@ -341,11 +349,60 @@ main(c, v, e)
 			}
 			flags |= rshflg;
 		}
+		if ((flags & stdflg) && (flags & oneflg) == 0 && comdiv == 0) {
+			/*
+			 * This is an interactive shell, mark it as interactive.
+			 */
+			if ((flags & intflg) == 0) {
+				if ((flags & rshflg) == 0) {
+					while (*flagc)
+						flagc++;
+					*flagc++ = 'i';
+					*flagc = '\0';
+				}
+				flags |= intflg;
+			}
+		}
+		if ((flags & intflg) && (flags & privflg) == 0) {
+			unsigned char	*env = envnod.namval;
+			BOOL		dosysrc = TRUE;
+
+			if (env == NULL)
+				envnod.namval = env = UC rcfile;
+			env = make(macro(env));
+
+			if (env[0] == '/' && env[1] == '.' && env[2] == '/')
+				dosysrc = FALSE;
+			else if (env[0] == '.' && env[1] == '/')
+				dosysrc = FALSE;
+
+			/* system rcfile */
+			if (dosysrc &&
+			    (input = pathopen((unsigned char *)nullstr,
+					(unsigned char *)sysrcfile)) >= 0)
+				exfile(rflag);		/* file exists */
+
+			/* user rcfile */
+			if ((input = pathopen((unsigned char *)nullstr,
+					env)) >= 0) {
+				exfile(rflag);
+				flags &= ~ttyflg;
+			}
+			free(env);
+
+			if ((flags & globalaliasflg) && homenod.namval) {
+				catpath(homenod.namval, UC globalname);
+				ab_use(GLOBAL_AB, (char *)make(curstak()));
+			}
+			if (flags & localaliasflg) {
+				ab_use(LOCAL_AB, (char *)localname);
+			}
+		}
 
 		/*
 		 * open input file if specified
 		 */
-		if (comdiv) {
+		if (comdiv) {		/* comdiv is -c arg */
 			estabf(comdiv);
 			input = -1;
 		}
@@ -434,6 +491,7 @@ exfile(prof)
 	 * command loop
 	 */
 	for (;;) {
+		intrcnt = 0;	/* Reset interrupt counter */
 		tdystak(0, 0);
 		stakchk();	/* may reduce sbrk */
 		exitset();

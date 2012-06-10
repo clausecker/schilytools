@@ -36,11 +36,11 @@
 /*
  * This file contains modifications Copyright 2008-2012 J. Schilling
  *
- * @(#)cmd.c	1.20 12/05/12 2008-2012 J. Schilling
+ * @(#)cmd.c	1.21 12/06/10 2008-2012 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)cmd.c	1.20 12/05/12 2008-2012 J. Schilling";
+	"@(#)cmd.c	1.21 12/06/10 2008-2012 J. Schilling";
 #endif
 
 /*
@@ -64,6 +64,7 @@ static	void	chksym		__PR((int sym));
 static	void	prsym		__PR((int sym));
 static	void	synbad		__PR((void));
 
+BOOL	abegin;
 
 /* ======== storage allocation for functions ======== */
 
@@ -129,6 +130,7 @@ cmd(sym, flg)
 	int		flg;
 {
 	struct trenod *i, *e;
+
 	i = list(flg);
 	if (wdval == NL)
 	{
@@ -198,6 +200,7 @@ term(flg)
 {
 	struct trenod *t;
 
+	abegin = TRUE;
 	reserv++;
 	if (flg & NLFLG)
 		skipnl();
@@ -296,6 +299,7 @@ item(flag)
 		io = inout((struct ionod *)0);
 	else
 		io = 0;
+	abegin = FALSE;
 	switch (wdval)
 	{
 	case CASYM:
@@ -552,6 +556,7 @@ inout(lastio)
 	int	iof;
 	struct ionod *iop;
 	unsigned int	c;
+	BOOL	obegin = abegin;
 
 	iof = wdnum;
 	switch (wdval)
@@ -585,7 +590,9 @@ inout(lastio)
 		return (lastio);
 	}
 
+	abegin = FALSE;
 	chkword();
+	abegin = obegin;
 	iop = (struct ionod *)getstor(sizeof (struct ionod));
 
 	if (fndef)

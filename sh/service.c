@@ -36,20 +36,27 @@
 /*
  * This file contains modifications Copyright 2008-2012 J. Schilling
  *
- * @(#)service.c	1.22 12/05/12 2008-2012 J. Schilling
+ * @(#)service.c	1.23 12/06/05 2008-2012 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)service.c	1.22 12/05/12 2008-20012 J. Schilling";
+	"@(#)service.c	1.23 12/06/05 2008-20012 J. Schilling";
 #endif
 
 /*
  * UNIX shell
  */
-
+#ifdef	SCHILY_BUILD
+#include	<schily/types.h>
+#include	<schily/stat.h>
+#include	<schily/errno.h>
+#include	<schily/fcntl.h>
+#include	"sh_policy.h"
+#else
 #include	<errno.h>
 #include	<fcntl.h>
 #include	"sh_policy.h"
+#endif
 
 #define	ARGMK	01
 
@@ -202,10 +209,22 @@ pathopen(path, name)
 {
 	int	f;
 
-	do
-	{
-		path = catpath(path, name);
-	} while ((f = open((char *)curstak(), 0)) < 0 && path);
+	do {
+		do {
+			path = catpath(path, name);
+		} while ((f = open((char *)curstak(), 0)) < 0 && path);
+		if (f >= 0) {
+			struct stat sb;
+
+			if (fstat(f, &sb) < 0 || S_ISDIR(sb.st_mode)) {
+				close(f);
+				f = -1;
+#ifdef	EISDIR
+				errno = EISDIR;
+#endif
+			}
+		}
+	} while (f < 0 && path);
 	return (f);
 }
 

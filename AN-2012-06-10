@@ -1,0 +1,105 @@
+New features with AN-2012-06-10:
+
+This is the first localization step for the schily source consolidation. Many
+programs now (hopefully) call gettext() for all strings that need localization.
+
+-	The next step will include dgettext() calls for the libraries and the
+	missing programs
+
+-	The following step will include the extracted strings
+
+-	The last step will include German translations and install support
+	for the resulting binary message object files.
+
+----------> Please test and report compilation problems! <---------
+
+***** NOTE: As mentioned since 2004, frontends to the tools should *****
+*****		call all programs in the "C" locale		   *****
+*****		by e.g. calling: LC_ALL=C cdrecord ....		   *****
+*****		unless these frontends support localized strings   *****
+*****		used by the cdrtools with NLS support.		   *****
+
+-	The alias implementation in the bsh has been enhanced to allow
+	to use the same code for the Bourne Shell also.
+
+-	The bsh now also support a new "dosh" command that is compatible
+	to the new "dosh" command in the Bourne Shell.
+
+-	The Bourne Shell man page now mentions for the option -c that the 
+	next argument after the commend-string is $0
+
+-	A new Bourne Shell built-in command "dosh" was added. This command
+	behaves similar to sh -c 'command', but does not launch a new shell.
+	This command helps to allow to define more powerful aliases.
+
+-	The Bourne Shell now automatically sets the -i option in case it
+	detects an interactive shell. This makes it easier to check whether
+	in an interactive shell or not.
+
+-	The Bourne Shell no longer tries to read directories when a directory
+	name was used when a script name is expected.
+
+-	The Bourne Shell now supports POSIX "set -o ..." and "set +o ...".
+	This was needed in order to permit new options that do not have
+	a single character equivalent.
+
+-	The environment variable ENV is now supported as defined in the
+	POSIX standard. 
+
+-	The Bourne Shell now reads the scripts /etc/sh.shrc and $HOME/.shrc
+	when it is launched as interactive shell. The content of the
+	enviroment variable ENV allows to control this behavior:
+
+	-	If ENV is defined at startup, it's content is evaluated
+		and then used as the file name instead of the default
+		$HOME/.shrc
+
+	-	If ENV (after evaluation) starts with "/./" or "./", 
+		the system start up script /etc/sh.shrc is not called.
+		This ic for compatibility with ksh93.
+
+-	The Bourne Shell now supports aliases.
+
+	-	Basic alias support includes transient aliases as defined
+		by POSIX.
+
+	-	Enhanced alias support includes persistent aliases.
+		As this is in conflict with some of the rules for aliases
+		from POSIX, this feature needs to be explicitely turned on.
+		This is usually done in the file /etc/sh.shrc or $HOME/.shrc
+
+	-	Enhanced alias support includes support for persistent
+		directory local aliases.
+		As this is in conflict with some of the rules for aliases
+		from POSIX, this feature needs to be explicitely turned on.
+		This is usually done in the file /etc/sh.shrc or $HOME/.shrc
+
+	-	Switching on support for persistent global aliases is done
+		by calling "set -o globalaliases".
+
+	-	Switching on support for persistent local aliases is done
+		by calling "set -o localiases".
+
+
+-	A new command "alias" in the Bourne Shell allows to set up or list
+	aliases. As the Bourne Shell supports advanced aliases, the alias
+	command implements many options that are not part of the POSIX
+	standard.
+
+-	A new command "unalias" in the Bourne Shell allows to remove
+	aliases. As the Bourne Shell supports advanced aliases, the unalias
+	command implements many options that are not part of the POSIX
+	standard.
+
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.isdn.cs.tu-berlin.de, js@cs.tu-berlin.de
+	joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

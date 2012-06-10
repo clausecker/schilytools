@@ -36,11 +36,11 @@
 /*
  * This file contains modifications Copyright 2008-2012 J. Schilling
  *
- * @(#)msg.c	1.16 12/05/11 2008-2012 J. Schilling
+ * @(#)msg.c	1.18 12/06/10 2008-2012 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)msg.c	1.16 12/05/11 2008-2012 J. Schilling";
+	"@(#)msg.c	1.18 12/06/10 2008-2012 J. Schilling";
 #endif
 
 /*
@@ -96,6 +96,7 @@ const char	nohome[]	= "no home directory";
 const char	badperm[]	= "execute permission denied";
 const char	longpwd[]	= "sh error: pwd too long";
 const char	mssgargn[]	= "missing arguments";
+const char	toomanyargs[]	= "too many arguments";
 const char	libacc[]	= "can't access a needed shared library";
 const char	libbad[]	= "accessing a corrupted shared library";
 const char	libscn[]	= ".lib section in a.out corrupted";
@@ -103,6 +104,7 @@ const char	libmax[]	= "attempting to link in too many libs";
 const char	emultihop[]	= "Multihop attempted";
 const char	nulldir[]	= "null directory";
 const char	enotdir[]	= "not a directory";
+const char	eisdir[]	= "is a directory";
 const char	enoent[]	= "does not exist";
 const char	eacces[]	= "permission denied";
 const char	enolink[]	= "remote link inactive";
@@ -111,6 +113,8 @@ const char	running[]	= "Running";
 const char	ambiguous[]	= "ambiguous";
 const char	usage[]		= "usage";
 const char	nojc[]		= "no job control";
+const char	aliasuse[]	= "alias [-a] [-e] [-g] [-l] [-p] [-r] [--raw] [name[=value]...]";
+const char	unaliasuse[]	= "unalias [-a] [-g] [-l] [-p] [name...]";
 const char	repuse[]	= "repeat [-c count] [-d delay] cmd [args]";
 const char	stopuse[]	= "stop id ...";
 const char	ulimuse[]	= "ulimit [ -HSacdflmnstuv ] [ limit ]";
@@ -143,6 +147,7 @@ const char	badumask[]	= "bad umask";
  */
 const char	pathname[]	= "PATH";
 const char	cdpname[]	= "CDPATH";
+const char	envname[]	= "ENV";
 const char	homename[]	= "HOME";
 const char	mailname[]	= "MAIL";
 const char	ifsname[]	= "IFS";
@@ -172,6 +177,10 @@ const char	stdprompt[]	= "$ ";
 const char	supprompt[]	= "# ";
 const char	profile[]	= ".profile";
 const char	sysprofile[]	= "/etc/profile";
+const char	rcfile[]	= "$HOME/.shrc";
+const char	sysrcfile[]	= "/etc/sh.shrc";
+const char	globalname[]	= ".globals";
+const char	localname[]	= ".locals";
 
 /*
  * locale testing
@@ -218,6 +227,7 @@ const struct sysnod commands[] =
 #ifndef RES
 	{ "[",		SYSTST },
 #endif
+	{ "alias",	SYSALIAS },
 #ifdef	DO_SYSALLOC
 	{ "alloc",	SYSALLOC },
 #endif
@@ -227,6 +237,7 @@ const struct sysnod commands[] =
 	{ "chdir",	SYSCD	},
 	{ "continue",	SYSCONT	},	/* S */
 	{ "dirs",	SYSDIRS },
+	{ "dosh",	SYSDOSH },
 	{ "echo",	SYSECHO },
 	{ "eval",	SYSEVAL	},	/* S */
 	{ "exec",	SYSEXEC	},	/* S */
@@ -276,6 +287,7 @@ const struct sysnod commands[] =
 	{ "ulimit",	SYSULIMIT },
 	{ "umask",	SYSUMASK },
 #endif
+	{ "unalias",	SYSUNALIAS },
 
 	{ "unset",	SYSUNS },	/* S */
 	{ "wait",	SYSWAIT	}

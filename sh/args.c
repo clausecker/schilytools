@@ -33,16 +33,17 @@
 #endif
 
 #include "defs.h"
+#include "abbrev.h"
 #include "version.h"
 
 /*
  * This file contains modifications Copyright 2008-2012 J. Schilling
  *
- * @(#)args.c	1.19 12/05/11 2008-2012 J. Schilling
+ * @(#)args.c	1.21 12/06/10 2008-2012 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)args.c	1.19 12/05/11 2008-2012 J. Schilling";
+	"@(#)args.c	1.21 12/06/10 2008-2012 J. Schilling";
 #endif
 
 /*
@@ -62,6 +63,7 @@ static	struct dolnod *	clean_args	__PR((struct dolnod *blk));
 	struct dolnod *	savargs		__PR((int funcntp));
 	void		restorargs	__PR((struct dolnod *olddolh, int funcntp));
 	struct dolnod *	useargs		__PR((void));
+static	void		listopts	__PR((int parse));
 
 static struct dolnod *dolh;
 
@@ -70,7 +72,7 @@ static struct dolnod *globdolh;
 static unsigned char **globdolv;
 static int globdolc;
 
-unsigned char	flagadr[18];
+unsigned char	flagadr[20];
 
 unsigned char	flagchar[] =
 {
@@ -91,6 +93,32 @@ unsigned char	flagchar[] =
 	'p',
 	'P',
 	'V',
+	 0,
+	 0,
+	 0
+};
+
+char	*flagname[] =
+{
+	"xtrace",		/* -x POSIX */
+	"noexec",		/* -n POSIX */
+	"verbose",		/* -v POSIX */
+	"onecmd",		/* -t bash name */
+	"stdin",		/* -s Schily name */
+	"interactive",		/* -i ksh93 name */
+	"errexit",		/* -e POSIX */
+	"restricted",		/* -r ksh93 name */
+	"keyword",		/* -k bash/ksh93 name */
+	"nounset",		/* -u POSIX */
+	"hashall",		/* -h bash name (ksh93 uses "trackall") */
+	"noglob",		/* -f POSIX */
+	"allexport",		/* -a POSIX */
+	"monitor",		/* -m POSIX */
+	"privileged",		/* -p ksh93: only if really privileged */
+	"pfsh",			/* -P Schily Bourne Shell */
+	"version",		/* -V Schily Bourne Shell */
+	"globalaliases",
+	"localaliases",
 	 0
 };
 
@@ -113,6 +141,8 @@ long	flagval[]  =
 	privflg,
 	pfshflg,
 	versflg,
+	globalaliasflg,
+	localaliasflg,
 	  0
 };
 
@@ -198,12 +228,37 @@ options(argc, argv)
 			}
 			cp += len;
 
-			flagc = flagchar;
-			while (*flagc && wc != *flagc)
-				flagc++;
+			if (wc == 'o') {
+				int	dolistopts = argc <= 2 ||
+						argp[2][0] == '-' ||
+						argp[2][0] == '+';
+
+				if (dolistopts) {
+					listopts(0);
+					continue;
+				}
+				for (flagc = flagchar; flagname[flagc-flagchar]; flagc++) {
+					if (eq(argp[2], flagname[flagc-flagchar])) {
+						argp[1] = argp[0];
+						argp++;
+						argc--;
+						wc = *flagc;
+						break;
+					}
+				}
+				if (wc != *flagc) {
+					if (argc > 2)
+						failed(argp[2], badopt);
+					continue;
+				}
+			} else {
+				flagc = flagchar;
+				while (*flagc && wc != *flagc)
+					flagc++;
+			}
 			if (wc == *flagc)
 			{
-				if (eq(argv[0], "set") && any(wc, (unsigned char *)"sicrp"))
+				if (eq(argv[0], "set") && wc && any(wc, (unsigned char *)"sicrp"))
 					failed(argv[1], badopt);
 				else
 				{
@@ -218,6 +273,13 @@ options(argc, argv)
 					if (flags & versflg) {
 						flags &= ~versflg;
 						prversion();
+					}
+					if (flags & globalaliasflg) {
+						catpath(homenod.namval, UC globalname);
+						ab_use(GLOBAL_AB, (char *)make(curstak()));
+					}
+					if (flags & localaliasflg) {
+						ab_use(LOCAL_AB, (char *)localname);
 					}
 				}
 			}
@@ -246,24 +308,58 @@ options(argc, argv)
 				cp++;
 				continue;
 			}
+			cp += len;
 
-			flagc = flagchar;
-			while (*flagc && wc != *flagc)
-				flagc++;
+			if (wc == 'o') {
+				int	dolistopts = argc <= 2 ||
+						argp[2][0] == '-' ||
+						argp[2][0] == '+';
+
+				if (dolistopts) {
+					listopts(1);
+					continue;
+				}
+				for (flagc = flagchar; flagname[flagc-flagchar]; flagc++) {
+					if (eq(argp[2], flagname[flagc-flagchar])) {
+						argp[1] = argp[0];
+						argp++;
+						argc--;
+						wc = *flagc;
+						break;
+					}
+				}
+				if (wc != *flagc) {
+					if (argc > 2)
+						failed(argp[2], badopt);
+					continue;
+				}
+			} else {
+				flagc = flagchar;
+				while (*flagc && wc != *flagc)
+					flagc++;
+			}
 			/*
 			 * step through flags
 			 */
-			if (!any(wc, (unsigned char *)"sicrp") && wc == *flagc) {
+			if (wc == 0 ||
+			    (!any(wc, (unsigned char *)"sicrp") && wc == *flagc)) {
 							/* LINTED */
-				flags &= ~(flagval[flagc-flagchar]);
+				int nflag = flagval[flagc-flagchar];
+
+				flags &= ~nflag;
 				if (wc == 'e')
 					eflag = 0;
 #ifdef	EXECATTR_FILENAME
-				if ((flagval[flagc-flagchar]) & pfshflg)
+				if (nflag & pfshflg)
 					secpolicy_end();
 #endif
+				if (nflag & globalaliasflg) {
+					ab_use(GLOBAL_AB, NULL);
+				}
+				if (nflag & localaliasflg) {
+					ab_use(LOCAL_AB, NULL);
+				}
 			}
-			cp += len;
 		}
 		argp[1] = argp[0];
 		argc--;
@@ -510,4 +606,39 @@ useargs()
 		}
 	}
 	return (dolh);
+}
+
+static void
+listopts(parse)
+	int	parse;
+{
+	unsigned char *flagc;
+	int		len;
+
+	for (flagc = flagchar; flagname[flagc-flagchar]; flagc++) {
+		if (*flagc == 'V')
+			continue;
+		if (parse) {
+			if (any(*flagc, (unsigned char *)"sicrp"))
+				continue;
+			prs_buff(UC "set ");
+			prs_buff(UC (flags &
+				flagval[flagc-flagchar] ?
+				"-":"+"));
+			prs_buff(UC "o ");
+		}
+		prs_buff(UC flagname[flagc-flagchar]);
+		if (parse) {
+			prc_buff(NL);
+			continue;
+		}
+		len = length(UC flagname[flagc-flagchar]);
+		while (++len <= 16)
+			prc_buff(SPACE);
+		prc_buff(TAB);
+		prs_buff(UC (flags &
+			flagval[flagc-flagchar] ?
+			"on":"off"));
+		prc_buff(NL);
+	}
 }

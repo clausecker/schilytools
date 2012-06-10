@@ -1,8 +1,8 @@
-/* @(#)builtin.c	1.77 12/04/26 Copyright 1988-2012 J. Schilling */
+/* @(#)builtin.c	1.80 12/06/03 Copyright 1988-2012 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)builtin.c	1.77 12/04/26 Copyright 1988-2012 J. Schilling";
+	"@(#)builtin.c	1.80 12/06/03 Copyright 1988-2012 J. Schilling";
 #endif
 /*
  *	Builtin commands
@@ -565,11 +565,27 @@ bdo(vp, std, flag)
 			FILE	*std[];
 			int	flag;
 {
-	int sac = vac;			/* save old args */
-	char **sav = vav;
+	int	sac = vac;			/* save old args */
+	char	**sav = vav;
+	BOOL	isdosh;
 
-	vac = vp->av_ac - 1;		/* set new args */
-	vav = &vp->av_av[1];
+	isdosh = streql(vp->av_av[0], "dosh");
+
+	if (isdosh) {
+		/*
+		 * dosh command_string [command_name [[args]]
+		 */
+		if (vp->av_ac <= 1)
+			return;
+		vac = vp->av_ac - 2;		/* set new args */
+		vav = &vp->av_av[2];
+	} else {
+		/*
+		 * do command_string [args]
+		 */
+		vac = vp->av_ac - 1;		/* set new args */
+		vav = &vp->av_av[1];
+	}
 #ifdef DEBUGX
 	printf("        bdo: executing '%s'\n", vp->av_av[1]); flush();
 #endif
@@ -1615,9 +1631,9 @@ btype(vp, std, flag)
 
 	for (i = 1; i < ac && !ctlc; i++) {
 		fprintf(output, "%s ", av[i]);
-		if ((val = ab_value(LOCAL_AB, av[i], TRUE)) != NULL) {
+		if ((val = ab_value(LOCAL_AB, av[i], NULL, AB_BEGIN)) != NULL) {
 			fprintf(output, "is a local alias to '%s'\n", val);
-		} else if ((val = ab_value(GLOBAL_AB, av[i], TRUE)) != NULL) {
+		} else if ((val = ab_value(GLOBAL_AB, av[i], NULL, AB_BEGIN)) != NULL) {
 			fprintf(output, "is a global alias to '%s'\n", val);
 		} else if (blook(av[i], bitab, n_builtin) != (btab *) NULL) {
 			fprintf(output, "is a shell builtin\n");

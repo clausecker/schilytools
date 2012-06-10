@@ -1,11 +1,11 @@
-/* @(#)btab.c	1.17 09/07/11 Copyright 1986-2009 J. Schilling */
+/* @(#)btab.c	1.19 12/06/02 Copyright 1986-2012 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)btab.c	1.17 09/07/11 Copyright 1986-2009 J. Schilling";
+	"@(#)btab.c	1.19 12/06/02 Copyright 1986-2012 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1986-2009 J. Schilling
+ *	Copyright (c) 1986-2012 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -45,6 +45,7 @@ btab bitab[] = {
 	{	"cwd",		0,	bcd,		ucd	},
 	{	"dirs",		1,	bdirs,		nullstr	},
 	{	"do",		0,	bdo,		udo	},
+	{	"dosh",		0,	bdo,		udo	},
 	{	"echo",		0,	becho,		uecho	},
 	{	"else",		0,	bnallo,		NULL	},
 	{	"end",		0,	bnallo,		NULL	},

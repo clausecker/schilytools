@@ -1,4 +1,4 @@
-#ident "@(#)Makefile	1.23 12/04/20  Copyright (c) 2006-2012 J. Schilling"
+#ident "@(#)Makefile	1.25 12/06/10  Copyright (c) 2006-2012 J. Schilling"
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -35,13 +35,13 @@ CPPOPTS +=	-DDO_SYSALLOC		# Include the "alloc" debug builtin
 
 CPPOPTS +=	-DINTERACTIVE		# Include command line history editor
 
-CFILES=		args.c bltin.c cmd.c ctype.c defs.c echo.c error.c \
+CFILES=		abbrev.c args.c bltin.c cmd.c ctype.c defs.c echo.c error.c \
 		expand.c fault.c func.c hash.c hashserv.c io.c jobs.c macro.c \
 		main.c msg.c name.c print.c pwd.c service.c \
 		sh_policy.c stak.c string.c test.c ulimit.c word.c xec.c \
-		signames.c gmatch.c umask.c
+		signames.c gmatch.c umask.c alias.c
 
-HFILES=		brkincr.h ctype.h defs.h dup.h hash.h mac.h mode.h name.h \
+HFILES=		abbrev.h brkincr.h ctype.h defs.h dup.h hash.h mac.h mode.h name.h \
 		sh_policy.h stak.h sym.h timeout.h version.h
 
 #LIBS=		-lunos
@@ -55,9 +55,9 @@ LIBS=		$(LIB_GEN) $(LIB_SECDB) -lshelledit -lxtermcap -lgetopt -lschily \
 #LIBS=		-lgen -lsecdb 
 XMK_FILE=	Makefile.man bosh.mk1 jsh.mk1 pfsh.mk1
 
-signames.c:
+signames.c abbrev.c abbrev.h:
 	@echo "	==> MAKING SYMLINKS in ." && sh ./MKLINKS
-$(ALLTARGETS): signames.c
+$(ALLTARGETS): signames.c abbrev.c abbrev.h
 
 ###########################################################################
 include		$(SRCROOT)/$(RULESDIR)/rules.cmd

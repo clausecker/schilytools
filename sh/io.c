@@ -36,11 +36,11 @@
 /*
  * This file contains modifications Copyright 2008-2012 J. Schilling
  *
- * @(#)io.c	1.16 12/05/11 2008-2012 J. Schilling
+ * @(#)io.c	1.17 12/06/05 2008-2012 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)io.c	1.16 12/05/11 2008-2012 J. Schilling";
+	"@(#)io.c	1.17 12/06/05 2008-2012 J. Schilling";
 #endif
 
 /*
@@ -179,8 +179,16 @@ chkopen(idf, mode)
 	if ((rc = open((char *)idf, mode, 0666)) < 0) {
 		failed(idf, badopen);
 		/* NOTREACHED */
-	} else
+	} else {
+		struct stat sb;
+
+		if (fstat(rc, &sb) < 0 || S_ISDIR(sb.st_mode)) {
+			close(rc);
+			failed(idf, eisdir);
+			/* NOTREACHED */
+		}
 		return (rc);
+	}
 
 	return (-1);		/* Not reached, but keeps GCC happy */
 }

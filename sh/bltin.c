@@ -36,11 +36,11 @@
 /*
  * This file contains modifications Copyright 2008-2012 J. Schilling
  *
- * @(#)bltin.c	1.25 12/05/13 2008-2012 J. Schilling
+ * @(#)bltin.c	1.27 12/06/10 2008-2012 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)bltin.c	1.25 12/05/13 2008-2012 J. Schilling";
+	"@(#)bltin.c	1.27 12/06/10 2008-2012 J. Schilling";
 #endif
 
 /*
@@ -52,6 +52,7 @@ static	UConst char sccsid[] =
 #include	<errno.h>
 #include	"sym.h"
 #include	"hash.h"
+#include	"abbrev.h"
 #include	<sys/types.h>
 #include	<sys/stat.h>
 #include	<sys/times.h>
@@ -332,6 +333,9 @@ struct trenod *t;
 						prc_buff(NL);
 					}
 				}
+				if (flags & localaliasflg) {
+					ab_use(LOCAL_AB, (char *)localname);
+				}
 			}
 			zapcd();
 		}
@@ -433,6 +437,32 @@ struct trenod *t;
 	case SYSEVAL:
 		if (a1)
 			execexp(a1, (Intptr_t)&argv[2]);
+		break;
+
+	case SYSDOSH:
+		if (a1 == NULL) {
+			break;
+		} else {
+			struct dolnod	*olddolh;
+			unsigned char	**olddolv = dolv;
+			int		olddolc = dolc;
+			struct ionod	*io = t->treio;
+			short		idx;
+
+			/*
+			 * save current positional parameters
+			 */
+			olddolh = (struct dolnod *)savargs(funcnt);
+			funcnt++;
+			setargs(&argv[2]);
+			idx = initio(io, 1);
+			execexp(a1, (Intptr_t)0);
+			restore(idx);
+			(void) restorargs(olddolh, funcnt);
+			dolv = olddolv;
+			dolc = olddolc;
+			funcnt--;
+		}
 		break;
 
 	case SYSREPEAT:
@@ -619,6 +649,8 @@ err:
 
 	case SYSSAVEHIST:
 		bshist(&intrptr);
+		if (intrptr)
+			*intrptr = 0;
 		break;
 
 	case SYSMAP:
@@ -652,6 +684,13 @@ err:
 		chkmem();
 		break;
 #endif
+
+	case SYSALIAS:
+		sysalias(argc, argv);
+		break;
+	case SYSUNALIAS:
+		sysunalias(argc, argv);
+		break;
 
 	default:
 		prs_buff(_gettext("unknown builtin\n"));

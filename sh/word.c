@@ -37,11 +37,11 @@
 /*
  * This file contains modifications Copyright 2008-2012 J. Schilling
  *
- * @(#)word.c	1.21 12/05/12 2008-2012 J. Schilling
+ * @(#)word.c	1.23 12/06/10 2008-2012 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)word.c	1.21 12/05/12 2008-2012 J. Schilling";
+	"@(#)word.c	1.23 12/06/10 2008-2012 J. Schilling";
 #endif
 
 /*
@@ -49,6 +49,7 @@ static	UConst char sccsid[] =
  */
 
 #include	"sym.h"
+#include	"abbrev.h"
 #ifdef	SCHILY_BUILD
 #include	<schily/errno.h>
 #include	<schily/fcntl.h>
@@ -69,6 +70,9 @@ static	int		xread	__PR((int f, char *buf, int n));
 
 /* ========	character handling for command lines	======== */
 
+static	void	*seen;	/* Structure to track recursive alias calls */
+
+int lev;
 int
 word()
 {
@@ -78,6 +82,7 @@ word()
 
 	wdnum = 0;
 	wdset = 0;
+lev++;
 
 	/*
 	 * We first call readwc() in order to make sure that the history editor
@@ -93,7 +98,7 @@ word()
 			/* LINTED */
 			;
 
-		if (c == COMCHAR)
+		if (c == COMCHAR)			/* Skip comment */
 		{
 			while ((c = readwc()) != NL && c != EOF)
 				/* LINTED */
@@ -273,6 +278,38 @@ word()
 		}
 	}
 	reserv = FALSE;
+
+	/*
+	 * Aliases only expand on plain words and
+	 * not when in an eval(1) call.
+	 */
+	if (wdval == 0 && standin->feval == 0) { 
+			char	*val; 
+		extern	BOOL	abegin;
+			int	aflags = abegin?AB_BEGIN:0;
+
+	        if ((val = ab_value(LOCAL_AB, (char *)wdarg->argval,
+					&seen, aflags)) == NULL)
+	            val = ab_value(GLOBAL_AB, (char *)wdarg->argval,
+					&seen, aflags);
+
+	        if (val) {
+			struct filehdr *fb = alloc(sizeof (struct filehdr));
+
+			if (peekn &&
+			    (peekn & 0x7fffffff) == standin->fnxt[-1]) {
+				peekn = 0;
+				standin->fnxt--;
+				standin->nxtoff--;
+			}
+			push((struct fileblk *)fb);	/* Push tmp filehdr */
+			estabf(UC val);			/* Install value    */
+			standin->fdes = -2;		/* Make it auto-pop */
+			return (word());		/* Parse replacement */
+		}
+	}
+	seen = NULL;
+
 	return (wdval);
 }
 
@@ -418,6 +455,12 @@ retry:
 	}
 
 	if (f->feof || f->fdes < 0) {
+		if (f->fdes == -2) {	/* Auto-pop() fileblk to remove */
+			pop();
+			free(f);
+			f = standin;
+			goto retry;
+		}
 		c = EOF;
 		f->feof++;
 		return (c);

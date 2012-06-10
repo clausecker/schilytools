@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sh.1	1.26 12/05/10 Copyr 2012 J. Schilling
+.\" @(#)sh.1	1.30 12/06/10 Copyr 2012 J. Schilling
 .\" Copyright 1989 AT&T
 .\" Copyright (c) 2008, Sun Microsystems, Inc. All Rights Reserved.
 .\" Portions Copyright (c) 1992, X/Open Company Limited All Rights Reserved
@@ -40,7 +40,7 @@
 .\" information: Portions Copyright [yyyy] [name of copyright owner]
 .\"
 .\" CDDL HEADER END
-.TH sh 1 "2012/05/10" "Schily Bourne Shell" "User Commands"
+.TH sh 1 "2012/06/10" "Schily Bourne Shell" "User Commands"
 .SH NAME
 sh, jsh \- standard and job control shell and command interpreter
 .SH SYNOPSIS
@@ -87,6 +87,13 @@ commands are initially read from
 .B /etc/profile and from
 .BR $HOME/.profile,
 if such files exist.
+Next, for interactive shells, commands are read from
+.B /etc/sh.shrc
+and from the file with a name that results from doing
+.B Parameter Substitution
+on the environment variable
+.B ENV
+if the file exists.
 Thereafter, commands are read as described below, which is also the case
 when the shell is invoked as
 .BR /usr/bin/sh .
@@ -110,6 +117,8 @@ If the
 .B -c
 option is present commands are read from
 .IR string .
+The remaining arguments become positional parameters starting at
+.BR $0 .
 .br
 .ne 5
 .TP
@@ -294,6 +303,56 @@ when not quoted:
 .LP
 A word beginning with \fB#\fR causes that word and all the following
 characters up to a newline to be ignored.
+.SS "Alias Substitution"
+.LP
+After a token has been recognized, but before applying the grammatical rules,
+a resulting word that is identified as the command name of a simple command
+is examined whether it is an unquoted valid alias name.
+A valid alias name is replaced by the value of the alias.
+The shell prevents infinite alias loops by not expanding the same alias name more
+than once for the same word.
+.LP
+Alias expansion is performed when the commands are read, not when they are executed.
+.LP
+Aliases can be used to redefine
+.B built-in
+commands but cannot be used to redefine the reserved words listed in the
+.B Commands
+section. Aliases can be created and listed with the
+.B alias
+command and removed with the
+.B unalias
+command.
+.LP
+.B POSIX
+compliant temporary
+.B alias
+definitions are not inherited by separate invocations of the shell or
+when interpreting scripts.
+.LP
+The Bourne Shell implements enhanced alias features beyond the POSIX
+alias definition. Enhanced alias features are disabled by default. 
+They need to be turned on (see
+.B set
+command below) to make them operational.
+The following additional alias features are available:
+.TP
+.B persistent aliases
+If turned on by
+.BR "set -o globalaliases" ,
+persistent global aliases are automatically loaded by all interactive shells.
+.TP
+.B local aliases
+If turned on by
+.BR "set -o localaliases" ,
+persistent local aliases are automatically loaded by all interactive shells
+as a result of the 
+.B cd
+command.
+Local aliases are specific to the current working directory. The local
+aliases definitions from the previous working directory are automatically
+disabled when the working directory is changed to a different directory.
+Local aliases have higher precedence than global aliases.
 .SS "Command Substitution"
 .sp
 .LP
@@ -530,6 +589,35 @@ is not set, it defaults to
 .RS 13n
 .rt
 The search path for the \fBcd\fR command.
+.RE
+
+.sp
+.ne 3
+.mk
+.na
+\fB\fBENV\fR\fR
+.ad
+.RS 13n
+.rt
+This variable is used when and only when an interactive shell is invoked.
+It is subject to
+.B Parameter Substitution
+by the shell, and the resulting value is used as the pathname of a script
+that is executed when the shell is invoked.
+This file is typically used to define function definitions and
+transient alias definitions or to turn on persistent alias features
+or jobcontrol.
+The default value is
+.BR $HOME/.shrc .
+If the result of the
+.B Parameter Substitution
+starts with
+.B /./
+or
+.B ./
+the file
+.B /etc/sh.shrc
+is not executed.
 .RE
 
 .sp
@@ -1351,6 +1439,164 @@ builtin below.
 .ne 3
 .mk
 .na
+.B "alias \fR[\fI options \fR] [\fIalias-name\fR[\fR=\fIvalue\fR]...]
+.ad
+.sp .6
+.RS 4n
+The
+.B alias
+command creates, redefines or lists existing alias definitions.
+An alias definition provides a string value that replaces a command name
+when it is encountered on the command line.
+.sp
+The
+.B alias
+command in the Bourne Shell supports temporary aliases (POSIX aliases)
+that affect only the current execution environment as well as
+persistent aliases that affect all interactive shells that are called after a 
+persistent alias definition was entered or modified.
+.sp
+An argument in the form
+.I alias-name
+causes
+.B alias
+to list the related alias on stdout.
+An argument in the form
+.IR alias-name = value
+causes
+.B alias
+to define or redefine an alias or to push an alias definition on top of an old one.
+If no argument was given,
+.B alias
+lists all current alias definitions.
+.sp
+Alias definitions must be written with appropriate quoting.
+.sp
+When operating on temporary aliases (i.e. when neither 
+.B \-g
+nor
+.B \-l
+have been specified), the
+.B alias
+command always pushes new definitions on top of older ones.
+This makes such alias definitions temporary in the 
+global aliases name space by default, as required by the POSIX standard.
+The following options may be used to modify operation:
+.TP
+.B \-a
+Define an alias definition that is expanded on all arguments of a command line and
+not only for command names. Use with care.
+.TP
+.B \-e
+List the everlasting version of the persistent alias definitions instead of
+listing the currently active definitions that may have been pushed on top
+of the persistent definitions.
+.TP
+.B \-g
+Define or list persistent global aliases that are stored in the file
+.B $HOME/.globals
+and read by interactive shells.
+When defining an alias with
+.B \-g
+in effect,
+.B alias
+by default modifies the current top level definition for global aliases.
+If there was no push operation before on the related alias,
+the current definition is made persistent by writing the definitions to
+.BR $HOME/.globals .
+The option
+.B \-g
+is not permitted if persistent global aliases are disabled (see
+.B set
+command below).
+.TP
+.B \-l
+Define or list persistent directory local aliases that are stored in the file
+.B .locals
+in the current directory and read by interactive shells.
+When defining an alias with
+.B \-l
+in effect,
+.B alias
+by default modifies the current top level definition for local aliases.
+If there was no push operation before on the related alias,
+the current definition is made persistent by writing the definitions to
+.B .locals
+in the current directory.
+The option
+.B \-l
+is not permitted if persistent local aliases are disabled (see
+.B set
+command below).
+.TP
+.B \-p
+When defining or redefining aliases,
+enforce a push operation even if the option
+.B \-g
+or
+.B \-l
+has been specified.
+In push mode, the new alias definition is pushed temporarily on
+top of existing definitions instead of modifying the current
+definition.
+.sp
+When listing aliases, this option implements compatibility to bash/ksh93
+and outputs aliases in a form that can be used as input to the shell
+to recreate the current aliases.
+With
+.B \-p
+in effect in list mode, the persistent definition and all pushed definitions
+are listed; otherwise only the current active definitions are listed.
+.TP
+.B \-r
+Reload persistent aliases after removing all current aliases.
+If persistent aliases are disabled, the effect is the same as with
+calling
+.BR "unalias \-a" .
+No arguments are allowed with this option.
+.TP
+.B \-\-raw
+Output the listing in the raw format that is used in the persistent
+definition files
+.B $HOME/.globals
+and
+.BR .locals .
+This increases readability as the quoting needed for defining an alias
+with the
+.B alias
+command is omitted.
+.LP
+Aliases are often used together with the
+.B dosh
+builtin in order to run small parameterized shell scripts.
+.RE
+
+.sp
+.ne 3
+.mk
+.na
+\fB\fBalloc\fR\fR
+.ad
+.sp .6
+.RS 4n
+In case
+.B sh
+has been compiled with storage debugging support, the
+.B alloc
+command prints information about the curren state of the storage
+subsystem; otherwise
+.B alloc
+is a dummy command.
+The
+.B alloc
+command was not supported in older versions of
+.BR sh .
+.RE
+
+.sp
+.ne 3
+.mk
+.na
 \fB\fBbg\fR [\fB%\fR\fIjobid .\|.\|.\fR]\fR
 .ad
 .sp .6
@@ -1447,6 +1693,56 @@ and the
 command.
 If there is no directory stack, the result is the same as with calling
 .BR pwd .
+The
+.B dirs
+command was not supported in older versions of
+.BR sh .
+.RE
+
+.sp
+.ne 3
+.mk
+.na
+.BI dosh " command_string \fR[[\fI command_name \fR] [\fI args \fR]]
+.ad
+.sp .6
+.RS 4n
+The
+.B dosh
+command executes commands from
+.I command_string
+with new positional parameters as if the commands in
+.I command_string
+were read from a shell script.
+If the optional parameter
+.I command_name
+is present, it replaces the positional parameter
+.BR $0 .
+Additional arguments are set up as positional parameters for the commands in
+.IR command_string ,
+starting with
+.BR $1 .
+The
+.B dosh
+command thus behaves like
+.BI "sh -c" " command_string\fR,
+but does not launch a new shell.
+Calling
+.B return
+returns from
+.I command_string
+as if returning from a function.
+Calling
+.B exit
+does not exit the shell but returns from the 
+.IR command_string .
+The
+.B dosh
+command is often used together with aliases.
+The
+.B dosh
+command was not supported in older versions of
+.BR sh .
 .RE
 
 .sp
@@ -1714,6 +2010,10 @@ The
 command is only supported if
 .B sh
 was compiled with support for history editing.
+The
+.B history
+command was not supported in older versions of
+.BR sh .
 .RE
 
 .sp
@@ -1838,6 +2138,10 @@ For more information and for escape sequences known by the mapper
 see the section
 .B "History Editing Input Mappings
 below.
+The
+.B map
+command was not supported in older versions of
+.BR sh .
 .RE
 
 .sp
@@ -1883,6 +2187,10 @@ See
 .B dirs
 for an explanation of
 .IR offset .
+The
+.B popd
+command was not supported in older versions of
+.BR sh .
 .RE
 
 .sp
@@ -1915,6 +2223,10 @@ See
 .B dirs
 for an explanation of
 .IR offset .
+The
+.B pushd
+command was not supported in older versions of
+.BR sh .
 .RE
 
 .sp
@@ -2003,6 +2315,10 @@ waits
 seconds before
 .I command
 is executed again, otherwise there is no delay between executions.
+The
+.B repeat
+command was not supported in older versions of
+.BR sh .
 .RE
 
 .sp
@@ -2028,6 +2344,10 @@ executed.
 .RS 4n
 Save the current history in the file
 .BR $HOME/.history .
+The
+.B savehistory
+command was not supported in older versions of
+.BR sh .
 .RE
 
 .sp
@@ -2133,6 +2453,121 @@ leave this shell.
 .RS 6n
 .rt
 Exit after reading and executing one command.
+.RE
+
+.sp
+.ne 3
+.mk
+.na
+\fB\-o\fR [\fIoption\fR]
+.ad
+.RS 6n
+.rt
+.sp
+If
+.I option
+is not specified, list the current option setting to stdout;
+when invoked with
+.B +o
+instead of 
+.BR \-o ,
+the output is written in a format that is suitable to reinput to the
+shell to restore the current setting. 
+When invoked with
+.B +o
+and with
+.I option
+argument, the related option is cleared.
+The
+.B +o
+option may be repeated to enable or disable multiple options. 
+The value of
+.I option
+must be one of the following:
+.TP 15
+.PD 0
+.B allexport
+Equivalent to
+.BR \-a .
+.TP
+.B errexit
+Equivalent to
+.BR \-e .
+.TP
+.B globalaliases
+Enables/disables persistent global aliases that are read from the file
+.BR $HOME/.globals .
+Changing the state for this option first removes all current global aliases.
+If the new state is
+.BR on ,
+the persistent global aliases are loaded.
+.TP
+.B hashall
+Equivalent to
+.BR \-h .
+.TP
+.B interactive
+Equivalent to
+.BR \-i .
+.TP
+.B keyword
+Equivalent to
+.BR \-k .
+.TP
+.B localaliases
+Enables/disables persistent directory local aliases that are read from the file
+.B .locals
+in the current directory.
+Local aliases are specific to the current working directory.
+Changing the state for this option first removes all current local aliases.
+If the new state is
+.BR on ,
+the persistent local aliases are loaded from the current directory.
+.TP
+.B monitor
+Equivalent to
+.BR \-m .
+.TP
+.B noexec
+Equivalent to
+.BR \-n .
+.TP
+.B noglob
+Equivalent to
+.BR \-f .
+.TP
+.B nounset
+Equivalent to
+.BR \-u .
+.TP
+.B onecmd
+Equivalent to
+.BR \-t .
+.TP
+.B pfsh
+Equivalent to
+.BR \-P .
+.TP
+.B privileged
+Equivalent to
+.BR \-p .
+.TP
+.B restricted
+Equivalent to
+.BR \-r .
+.TP
+.B stdin
+Equivalent to
+.BR \-s .
+.TP
+.B verbose
+Equivalent to
+.BR \-v .
+.TP
+.B xtrace
+Equivalent to
+.BR \-x .
+.PD
 .RE
 
 .sp
@@ -2763,6 +3198,94 @@ command.
 .LP
 The symbolic mode was not supported in older versions of
 .BR sh .
+.RE
+
+.sp
+.ne 3
+.mk
+.na
+.B "unalias \fR[\fI options \fR] [\fIalias-name\fR...]
+.ad
+.sp .6
+.RS 4n
+The
+.B unalias
+command removes existing alias definitions.
+.sp
+The
+.B unalias
+command in the Bourne Shell supports temporary aliases (POSIX aliases)
+that affect only the current execution environment as well as
+persistent aliases that affect all interactive shells that are called after a 
+persistent alias definition was entered or modified.
+.sp
+.sp
+When operating on temporary aliases (i.e. when neither 
+.B \-g
+nor
+.B \-l
+have been specified), all alias definitions for a specified
+.I alias-name
+are popped from the existing global definitions. No alias definition for the
+specified
+.I alias-name
+remains active, but the file with persistent alias definitions is not touched.
+This makes
+.B unalias
+compatible to the POSIX standard and able to support persistent aliases at the
+same time.
+The following options may be used to modify operation:
+.TP
+.B \-a
+Remove all alias definitions from the current shell execution environment.
+No arguments are permitted with this option.
+As the persistent definitions are not touched, the persistent aliases
+may be restored by calling
+.BR "alias -r" .
+.TP
+.B \-g
+Pop a single alias definition for
+.I alias-name
+from the global aliases.
+If the related alias definition is the last for
+.I alias-name
+(use
+.BI "alias \-p \-g" " alias-name
+to verify), remove it from the persistent global aliases that are stored
+in the file
+.B $HOME/.globals
+and read by interactive shells.
+.TP
+.B \-l
+Pop a single alias definition for
+.I alias-name
+from the local aliases.
+If the related alias definition is the last for
+.I alias-name
+(use
+.BI "alias \-p \-l" " alias-name
+to verify), remove it from the persistent local aliases that are stored
+in the file
+.B .locals
+in the current directory and read by interactive shells.
+.TP
+.B \-p
+When removing aliases,
+enforce a
+.B pop all
+operation even if the option
+.B \-g
+or
+.B \-l
+has been specified.
+In
+.B pop all
+mode, all alias definitions for a specified
+.I alias-name
+are popped from the existing definitions. No alias definition for the
+specified
+.I alias-name
+remains active, but the file with persistent alias definitions is not touched.
 .RE
 
 .sp
@@ -3449,9 +3972,23 @@ The system initialization file, executed for login shells.
 .br
 .ne 3
 .TP
+.B /etc/sh.shrc
+The system wide startup file, executed for interactive shells.
+.br
+.ne 3
+.TP
 .B $HOME/.profile
 The personal initialization file, executed for login shells after
 .BR /etc/profile .
+.br
+.ne 3
+.TP
+.B $HOME/.shrc
+The personal initialization file, executed after
+.BR /etc/sh.shrc ,
+for interactive shells when
+.B ENV
+is not set.
 .br
 .ne 3
 .TP
@@ -3479,10 +4016,22 @@ File with the saved the history after logout.
 .br
 .ne 3
 .TP
+.B $HOME/.globals
+File with persistent global alias definitions.
+.br
+.ne 3
+.TP
+.B .locals
+File with persistent directory local alias definitions.
+.br
+.ne 3
+.TP
 .B /tmp/sh*
 Used as temporary files for
 .B here documents
 (<< redirection).
+.br
+.ne 3
 .TP
 .B /dev/null
 NULL device used as stdin for non job-control background jobs.

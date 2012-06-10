@@ -1,8 +1,8 @@
-/* @(#)hashcmd.c	1.28 12/04/26 Copyright 1986-2012 J. Schilling */
+/* @(#)hashcmd.c	1.29 12/06/03 Copyright 1986-2012 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)hashcmd.c	1.28 12/04/26 Copyright 1986-2012 J. Schilling";
+	"@(#)hashcmd.c	1.29 12/06/03 Copyright 1986-2012 J. Schilling";
 #endif
 /*
  *	bsh - Commands dealing with #<letter> commands
@@ -77,7 +77,7 @@ hashcmd(std)
 		unquote();
 		return;
 	} else if (cmd == 'b') {
-		bflg++;
+		bflg = AB_BEGIN;
 	}
 
 	if (cmd == '!') {
@@ -96,7 +96,7 @@ hashcmd(std)
 				break;
 			case 'b':
 				if (cmd == 'p') {
-					bflg++;
+					bflg = AB_BEGIN;
 					break;
 				}
 				goto err;
@@ -112,7 +112,7 @@ hashcmd(std)
 				break;
 			case 'h':
 				if (cmd == 'l') {
-					histflg++;
+					histflg = AB_HISTORY;
 					break;
 				}
 			default:
@@ -156,7 +156,7 @@ hashcmd(std)
 			do {
 				if (name == NULL)
 					break;
-				ab_delete(tab, name);
+				ab_delete(tab, name, AB_NOFLAG);
 				free(name);
 				skipwhite();
 			} while ((name = pstring(spaces, 0)) != NULL);

@@ -408,6 +408,8 @@
 ./scgskeleton/misc.c
 ./scgskeleton/scsi_cdr.c
 ./scgskeleton/scsi_scan.c
+./sh/abbrev.c
+./sh/abbrev.h
 ./sh/signames.c
 ./star_sym/dumpdate.c
 ./star_sym/restore.c

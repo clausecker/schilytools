@@ -36,11 +36,11 @@
 /*
  * This file contains modifications Copyright 2008-2012 J. Schilling
  *
- * @(#)name.c	1.21 12/05/12 2008-2012 J. Schilling
+ * @(#)name.c	1.22 12/06/10 2008-2012 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)name.c	1.21 12/05/12 2008-2012 J. Schilling";
+	"@(#)name.c	1.22 12/06/10 2008-2012 J. Schilling";
 #endif
 
 /*
@@ -93,10 +93,16 @@ struct namnod ps2nod =			/* PS2= */
 	&acctnod,
 	(unsigned char *)ps2name
 };
-struct namnod cdpnod =			/* CDPATH= */
+struct namnod envnod =			/* ENV= */
 {
 	(struct namnod *)NIL,
 	(struct namnod *)NIL,
+	(unsigned char *)envname
+};
+struct namnod cdpnod =			/* CDPATH= */
+{
+	(struct namnod *)NIL,
+	&envnod,
 	(unsigned char *)cdpname
 };
 struct namnod pathnod =			/* PATH= */

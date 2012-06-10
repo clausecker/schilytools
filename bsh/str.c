@@ -1,11 +1,11 @@
-/* @(#)str.c	1.23 12/04/24 Copyright 1986-2009 J. Schilling */
+/* @(#)str.c	1.24 12/06/02 Copyright 1986-2012 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)str.c	1.23 12/04/24 Copyright 1986-2009 J. Schilling";
+	"@(#)str.c	1.24 12/06/02 Copyright 1986-2012 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1986-2009 J. Schilling
+ *	Copyright (c) 1986-2012 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
