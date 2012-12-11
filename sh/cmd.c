@@ -36,11 +36,11 @@
 /*
  * This file contains modifications Copyright 2008-2012 J. Schilling
  *
- * @(#)cmd.c	1.21 12/06/10 2008-2012 J. Schilling
+ * @(#)cmd.c	1.22 12/07/02 2008-2012 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)cmd.c	1.21 12/06/10 2008-2012 J. Schilling";
+	"@(#)cmd.c	1.22 12/07/02 2008-2012 J. Schilling";
 #endif
 
 /*
@@ -365,7 +365,8 @@ item(flag)
 				if (wdval == NL)
 					chkpr();
 				skipnl();
-			}
+			} else if (wdval == ';')
+				skipnl();
 			chksym(DOSYM | BRSYM);
 			t->fortre = cmd(wdval == DOSYM ? ODSYM : KTSYM, NLFLG);
 			break;

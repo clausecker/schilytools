@@ -1,9 +1,9 @@
-/* @(#)archdefs.h	1.9 11/08/05 Copyright 2006-2011 J. Schilling */
+/* @(#)archdefs.h	1.10 12/12/03 Copyright 2006-2012 J. Schilling */
 /*
  *	Processor, instruction set and OS architecture specific defines.
  *	The information is fetched from compiler predefinitions only.
  *
- *	Copyright (c) 2006-2011 J. Schilling
+ *	Copyright (c) 2006-2012 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -212,6 +212,22 @@
 #endif	/* __hppa	*/
 
 #endif	/* HP-UX */
+
+/*
+ * Linux specific defines
+ */
+#if	defined(__linux)
+
+#if	defined(__arm__)
+#ifdef	__GNUC__
+#ifdef	__ARM_ARCH_5TE__
+#define	__LINUX_ARMV5TEJL_GCC32
+#define	__JS_ARCH_DEFINED
+#endif
+#endif
+#endif	/* __arm__	*/
+
+#endif	/* Linux */
 
 /*
  * MS-WIN specific defines

@@ -1,7 +1,7 @@
-/* @(#)scsi-syllable.c	1.1 09/02/01 Copyright 1998-2009 J. Schilling, 2005 Kristian Van Der Vliet */
+/* @(#)scsi-syllable.c	1.2 12/12/02 Copyright 1998-2012 J. Schilling, 2005 Kristian Van Der Vliet */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)scsi-syllable.c	1.1 09/02/01 Copyright 1998-2009 J. Schilling, 2005 Kristian Van Der Vliet";
+	"@(#)scsi-syllable.c	1.2 12/12/02 Copyright 1998-2012 J. Schilling, 2005 Kristian Van Der Vliet";
 #endif
 /*
  *	Interface for the Syllable "SCSI" implementation.
@@ -20,7 +20,7 @@ static	char sccsid[] =
  *	Choose your name instead of "schily" and make clear that the version
  *	string is related to a modified source.
  *
- *	Copyright (c) 1998-2009 J. Schilling
+ *	Copyright (c) 1998-2012 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -49,15 +49,20 @@ static	char sccsid[] =
  *	Choose your name instead of "schily" and make clear that the version
  *	string is related to a modified source.
  */
-LOCAL	char	_scg_trans_version[] = "scsi-syllable.c-1.1"; /* The version for this transport */
+LOCAL	char	_scg_trans_version[] = "scsi-syllable.c-1.2"; /* The version for this transport */
 
 #include <schily/stdlib.h>
 #include <schily/stdio.h>
 #include <schily/string.h>
 #include <schily/unistd.h>
 #include <schily/stat.h>
+#ifdef	__PYRO__		/* Pyro */
+#include <pyro/types.h>
+#include <pyro/cdrom.h>
+#else				/* Syllable and AtheOS */
 #include <atheos/types.h>
 #include <atheos/cdrom.h>
+#endif
 
 #define	MAX_SCG		16	/* Max # of SCSI controllers */
 

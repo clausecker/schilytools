@@ -1,13 +1,13 @@
-/* @(#)gettimeofday.c	1.8 11/10/16 Copyright 2007-2011 J. Schilling */
+/* @(#)gettimeofday.c	1.9 12/11/29 Copyright 2007-2012 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)gettimeofday.c	1.8 11/10/16 Copyright 2007-2011 J. Schilling";
+	"@(#)gettimeofday.c	1.9 12/11/29 Copyright 2007-2012 J. Schilling";
 #endif
 /*
  *	Emulate gettimeofday where it does not exist
  *
- *	Copyright (c) 2007-2011 J. Schilling
+ *	Copyright (c) 2007-2012 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -52,8 +52,12 @@ gettimeofday(tp, dummy)
 	T <<= 32;
 	T  += ft.dwLowDateTime;
 
-	tp->tv_sec  = T / MS_FTIME_SECS - MS_FTIME_ADD;
-	tp->tv_usec = (T % MS_FTIME_SECS) / 10;
+	/*
+	 * Cast to avoid a loss of data warning
+	 * MSVC uses long instead of time_t for tv_sec
+	 */
+	tp->tv_sec  = (long) (T / MS_FTIME_SECS - MS_FTIME_ADD);
+	tp->tv_usec = (long) (T % MS_FTIME_SECS) / 10;
 
 	return (0);
 }

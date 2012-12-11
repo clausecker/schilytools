@@ -1,7 +1,7 @@
 '\" t
 .\" To print, first run through tbl
 .\" -*- nroff -*-
-.\" @(#)mkisofs.8	1.145 11/06/05 joerg
+.\" @(#)mkisofs.8	1.146 12/12/02 joerg
 .\"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
 .if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
@@ -15,7 +15,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH MKISOFS 8 "2011/06/05" "Version 3.0"
+.TH MKISOFS 8 "2012/12/02" "Version 3.0"
 .SH NAME
 mkisofs \- create an hybrid ISO-9660/JOLIET/HFS/UDF filesystem-image with optional Rock Ridge attributes.
 .SH SYNOPSIS
@@ -710,6 +710,14 @@ boot image.
 Specifies that the boot image used to create "El Torito" bootable CDs is
 a hard disk image. The hard disk image must begin with a master boot
 record that contains a single partition.
+.TP
+.BI \-ignore\-error
+Ignore errors.
+.B mkisofs
+by default aborts on several errors, such as read errors. With this option in effect,
+.B mkisofs
+tries to continue.
+Use with care.
 .TP
 .BI \-no\-emul\-boot
 Specifies that the boot image used to create "El Torito" bootable CDs is
@@ -3332,7 +3340,7 @@ J\*org Schilling wrote the SCSI transport library and its adaptation layer to
 and newer parts (starting from 1997) of the utility.
 J\*org Schilling is the primary maintainer since 1999, this makes
 .B mkisofs
-Copyright (C) 1997-2010 J\*org Schilling.
+Copyright (C) 1997-2012 J\*org Schilling.
 .PP
 HFS hybrid code Copyright (C) James Pearson 1997 .\|.\|. 2001.
 .sp

@@ -1,4 +1,4 @@
-#ident @(#)shlschily.mk	1.7 07/07/01 
+#ident @(#)shlschily.mk	1.8 12/08/14 
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -14,7 +14,7 @@ CPPOPTS +=	-Istdio
 CPPOPTS +=	-DUSE_SCANSTACK	# Try to scan stack frames
 CPPOPTS +=	-DPORT_ONLY	# Add missing funcs line snprintf for porting
 include		Targets
-LIBS=		-lc
+LIBS=		$(LIB_INTL) -lc	# Now needs gettext()
 
 ###########################################################################
 include		$(SRCROOT)/$(RULESDIR)/rules.shl

@@ -1,0 +1,103 @@
+New features with AN-2012-12-11:
+
+This is the first localization step for the schily source consolidation. Many
+programs now (hopefully) call gettext() for all strings that need localization.
+
+-	The next step will include dgettext() calls for the libraries and the
+	missing programs
+
+-	The following step will include the extracted strings
+
+-	The last step will include German translations and install support
+	for the resulting binary message object files.
+
+----------> Please test and report compilation problems! <---------
+
+***** NOTE: As mentioned since 2004, frontends to the tools should *****
+*****		call all programs in the "C" locale		   *****
+*****		by e.g. calling: LC_ALL=C cdrecord ....		   *****
+*****		unless these frontends support localized strings   *****
+*****		used by the cdrtools with NLS support.		   *****
+
+-	The Bourne Shell now also supports:
+
+		for i; do ... done
+	and
+		for i;
+		do
+			....
+		done
+
+	For orthogonality with "for i in list; do ... done".
+	This is a result from a recent POSIX (SUS issue 7) discussion.
+
+	See http://www.in-ulm.de/~mascheck/various/bourne_args/
+	and http://austingroupbugs.net/view.php?id=581
+	as background information.
+
+-	The man page for the Bourne Shell has been manually fixed to avoid the
+	cruft inserted by Sun as a result from a troff -> SGML -> troff
+	conversion.
+
+-	cpp now defines __BUILTIN_VA_ARG_INCR like the Sun cpp does since
+	SunOS-4.0
+
+-	Introduce a dependency for man page subdiretories to allow syncing 
+	parallel make calls.
+
+-	Try to support Debian with FreeBSD kernel
+
+-	Support for Pyro (a Syllable clone) was added.
+	Thanks to Flemming H. Sørensen
+
+-	Better support for Win32 sockets when using cl.exe
+
+-	Avoid problems with the non-standard prototypes for link() unlink()
+	read() and write() from cl.exe
+
+-	Add support for semi-static (preconfigured) include files for Android:
+	include/schily/armv5tejl-linux-gcc/xconfig.h
+
+-	New include files include/schily/err_*.h are used to encapsulate
+	#error CPP statements that would otherwise always prevent compilation
+	with K&R compilers.
+
+
+-	Libschily is now linked against $(LIB_INTL) when a shared libschily
+	is created.
+
+-	Avoid warnings from cl.exe for libschily/gettimeofday.c
+
+-	Some CSTYLE changes
+
+-	While introducing the new option -modification-date to mkisofs, we did
+	accidently remove the code to set up the creation date in te PVD.
+	Now creation date again contains correct data.
+
+
+-	Cdrtools have been bumped to 3.01a09
+
+	-	Note that compared to 3.01a09, a bug with DVD-Video has been fixed.
+
+-	Better handling of CLONE AREAs with cdda2wav on newer Haiku versions.
+
+-	Avoid a 32 bit integer overflow in mkisofs while computing sector
+	addresses for Rock Ridge CE entries.
+
+-	A mkisofs compile bug with QNX was corrected
+
+-	A new option -ignore-error alows to continue on some errors in all 
+	programs from the mkisofs suite.
+
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.isdn.cs.tu-berlin.de, js@cs.tu-berlin.de
+	joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

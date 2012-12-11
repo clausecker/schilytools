@@ -1,6 +1,6 @@
 #!/bin/sh
 ###########################################################################
-#ident "@(#)MKLINKS	1.94 11/12/16 "
+#ident "@(#)MKLINKS	1.95 12/08/14 "
 ###########################################################################
 # Written 1996-2011 by J. Schilling
 ###########################################################################
@@ -203,7 +203,21 @@ $symlink	i586-linux-suncc.rul	i486-linux-suncc.rul
 $symlink	i586-linux-suncc.rul	i386-linux-suncc.rul
 $symlink	i586-linux-suncc.rul	x86_64-linux-suncc.rul
 $symlink	i586-linux-suncc64.rul	i686-linux-suncc64.rul
-$symlink	i586-linux-suncc64.rul	x86_64-linux-suncc64.rul	
+$symlink	i586-linux-suncc64.rul	x86_64-linux-suncc64.rul
+$symlink	i586-linux-cc.rul	i386-gnu-kfreebsd-cc.rul
+$symlink	i586-linux-gcc.rul	i386-gnu-kfreebsd-gcc.rul
+$symlink	i586-linux-cc.rul	i486-gnu-kfreebsd-cc.rul
+$symlink	i586-linux-gcc.rul	i486-gnu-kfreebsd-gcc.rul
+$symlink	i586-linux-cc.rul	i586-gnu-kfreebsd-cc.rul
+$symlink	i586-linux-gcc.rul	i586-gnu-kfreebsd-gcc.rul
+$symlink	i586-linux-cc.rul	i686-gnu-kfreebsd-cc.rul
+$symlink	i586-linux-gcc.rul	i686-gnu-kfreebsd-gcc.rul
+$symlink	i586-linux-cc.rul	amd64-gnu-kfreebsd-cc.rul
+$symlink	i586-linux-gcc.rul	amd64-gnu-kfreebsd-gcc.rul
+$symlink	i586-linux-gcc32.rul	amd64-gnu-kfreebsd-gcc32.rul
+$symlink	i586-linux-cc.rul	x86_64-gnu-kfreebsd-cc.rul
+$symlink	i586-linux-gcc.rul	x86_64-gnu-kfreebsd-gcc.rul
+$symlink	i586-linux-gcc32.rul	x86_64-gnu-kfreebsd-gcc32.rul
 #$symlink	os-cygwin32_nt.id	os-cygwin_95-4.0.id
 #$symlink	os-cygwin32_nt.id	os-cygwin_98-4.0.id
 #$symlink	os-cygwin32_nt.id	os-cygwin_98-4.10.id

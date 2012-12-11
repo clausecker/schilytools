@@ -1,8 +1,8 @@
-/* @(#)dump.c	1.38 11/08/13 joerg */
+/* @(#)dump.c	1.39 12/12/02 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)dump.c	1.38 11/08/13 joerg";
+	"@(#)dump.c	1.39 12/12/02 joerg";
 #endif
 /*
  * File dump.c - dump a file/device both in hex and in ASCII.
@@ -10,7 +10,7 @@ static	UConst char sccsid[] =
  * Written by Eric Youngdale (1993).
  *
  * Copyright 1993 Yggdrasil Computing, Incorporated
- * Copyright (c) 1999-2011 J. Schilling
+ * Copyright (c) 1999-2012 J. Schilling
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2
@@ -56,6 +56,7 @@ static	UConst char sccsid[] =
 
 #define	infile	in_image
 EXPORT	FILE		*infile = NULL;
+EXPORT	BOOL		ignerr = FALSE;
 LOCAL	off_t		file_addr;
 LOCAL	off_t		sec_addr = (off_t)-1;
 LOCAL	Uchar		sector[2048];
@@ -245,6 +246,7 @@ usage(excode)
 	error(_("Options:\n"));
 	error(_("\t-help, -h	Print this help\n"));
 	error(_("\t-version	Print version info and exit\n"));
+	error(_("\t-inore-error	Ignore errors\n"));
 	error(_("\t-i filename	Filename to read ISO-9660 image from\n"));
 	error(_("\tdev=target	SCSI target to use as CD/DVD-Recorder\n"));
 	error(_("\nIf neither -i nor dev= are speficied, <image> is needed.\n"));
@@ -258,7 +260,7 @@ main(argc, argv)
 {
 	int	cac;
 	char	* const *cav;
-	char	*opts = "help,h,version,i*,dev*";
+	char	*opts = "help,h,version,ignore-error,i*,dev*";
 	BOOL	help = FALSE;
 	BOOL	prvers = FALSE;
 	char	*filename = NULL;
@@ -292,7 +294,7 @@ main(argc, argv)
 
 	cac = argc - 1;
 	cav = argv + 1;
-	if (getallargs(&cac, &cav, opts, &help, &help, &prvers,
+	if (getallargs(&cac, &cav, opts, &help, &help, &prvers, &ignerr,
 			&filename, &sdevname) < 0) {
 		errmsgno(EX_BAD, _("Bad Option: '%s'\n"), cav[0]);
 		usage(EX_BAD);
@@ -300,7 +302,7 @@ main(argc, argv)
 	if (help)
 		usage(0);
 	if (prvers) {
-		printf(_("devdump %s (%s-%s-%s) Copyright (C) 1993-1999 %s (C) 1999-2009 %s\n"),
+		printf(_("devdump %s (%s-%s-%s) Copyright (C) 1993-1999 %s (C) 1999-2012 %s\n"),
 					VERSION,
 					HOST_CPU, HOST_VENDOR, HOST_OS,
 					_("Eric Youngdale"),

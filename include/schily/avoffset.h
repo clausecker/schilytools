@@ -1,8 +1,8 @@
-/* @(#)avoffset.h	1.9 10/08/27 Copyright 1995-2010 J. Schilling */
+/* @(#)avoffset.h	1.10 12/12/03 Copyright 1995-2012 J. Schilling */
 /*
  *	Platform dependent definitions for stack scanning.
  *
- *	Copyright (c) 1995-2010 J. Schilling
+ *	Copyright (c) 1995-2012 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -116,7 +116,14 @@
 #endif
 
 #ifndef	__JS_ARCH_AVOFFSET_INCL
+/*
+ * #error will not work for all compilers (e.g. sunos4)
+ * The following line will abort compilation on all compilers
+ * if none of the above is defined. And that's  what we want.
+ */
 Error unconfigured architecture
+
+#include <schily/err_arch.h>	/* Avoid "unknown directive" with K&R */
 #endif
 
 #endif	/* SCHILY_BUILD */

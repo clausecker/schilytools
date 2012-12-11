@@ -1,7 +1,7 @@
-/* @(#)scsi-aix.c	1.39 11/09/13 Copyright 1997-2011 J. Schilling */
+/* @(#)scsi-aix.c	1.40 12/12/02 Copyright 1997-2012 J. Schilling */
 #ifndef lint
 static	char __sccsid[] =
-	"@(#)scsi-aix.c	1.39 11/09/13 Copyright 1997-2011 J. Schilling";
+	"@(#)scsi-aix.c	1.40 12/12/02 Copyright 1997-2012 J. Schilling";
 #endif
 /*
  *	Interface for the AIX generic SCSI implementation.
@@ -15,7 +15,7 @@ static	char __sccsid[] =
  *	Choose your name instead of "schily" and make clear that the version
  *	string is related to a modified source.
  *
- *	Copyright (c) 1997-2011 J. Schilling
+ *	Copyright (c) 1997-2012 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -56,7 +56,7 @@ static	char __sccsid[] =
  *	Choose your name instead of "schily" and make clear that the version
  *	string is related to a modified source.
  */
-LOCAL	char	_scg_trans_version[] = "scsi-aix.c-1.39";	/* The version for this transport*/
+LOCAL	char	_scg_trans_version[] = "scsi-aix.c-1.40";	/* The version for this transport*/
 
 
 #define	MAX_SCG		16	/* Max # of SCSI controllers */
@@ -554,7 +554,7 @@ do_scg_cmd(scgp, sp)
 		js_fprintf((FILE *)scgp->errfile, "q_tag_msg:       0x%X\n", req.q_tag_msg);
 		js_fprintf((FILE *)scgp->errfile, "flags:           0X%X\n", req.flags);
 
-		switch(scglocal(scgp)->transp) {
+		switch (scglocal(scgp)->transp) {
 		case TR_UNKNONW:
 			js_fprintf((FILE *)scgp->errfile, "using ioctl: Unknown\n");
 			break;

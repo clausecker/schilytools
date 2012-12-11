@@ -1,8 +1,8 @@
-/* @(#)diropen.c	1.1 11/11/15 Copyright 2011 J. Schilling */
+/* @(#)diropen.c	1.2 12/12/02 Copyright 2011-2012 J. Schilling */
 /*
  *	open a directory and call fdsetname() if needed
  *
- *	Copyright (c) 2011 J. Schilling
+ *	Copyright (c) 2011-2012 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -84,4 +84,3 @@ dirclose(f)
 #endif
 	return (close(f));
 }
-

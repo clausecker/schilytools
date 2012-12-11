@@ -1,13 +1,13 @@
-/* @(#)sha1.c	1.2 09/08/01 2009 J. Schilling */
+/* @(#)sha1.c	1.3 12/12/02 2009-2012 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)sha1.c	1.2 09/08/01 2009 J. Schilling";
+	"@(#)sha1.c	1.3 12/12/02 2009-2012 J. Schilling";
 #endif
 /*
  * SHA1 hash code taken from OpenBSD
  *
- * Portions Copyright (c) 2009 J. Schilling
+ * Portions Copyright (c) 2009-2012 J. Schilling
  */
 
 /*	$OpenBSD: sha1.c,v 1.21 2008/07/29 19:32:50 miod Exp $	*/
@@ -82,6 +82,7 @@ static void do_R4(UInt32_t *a, UInt32_t *b, UInt32_t *c, UInt32_t *d, UInt32_t *
 #define	nR3(v, w, x, y, z, i)	R3(*v, *w, *x, *y, *z, i)
 #define	nR4(v, w, x, y, z, i)	R4(*v, *w, *x, *y, *z, i)
 
+/* BEGIN CSTYLED */
 static void
 do_R01(UInt32_t *a, UInt32_t *b, UInt32_t *c, UInt32_t *d, UInt32_t *e, CHAR64LONG16 *block)
 {
@@ -121,6 +122,7 @@ do_R4(UInt32_t *a, UInt32_t *b, UInt32_t *c, UInt32_t *d, UInt32_t *e, CHAR64LON
     nR4(d,e,a,b,c,72); nR4(c,d,e,a,b,73); nR4(b,c,d,e,a,74); nR4(a,b,c,d,e,75);
     nR4(e,a,b,c,d,76); nR4(d,e,a,b,c,77); nR4(c,d,e,a,b,78); nR4(b,c,d,e,a,79);
 }
+/* END CSTYLED */
 #endif
 
 /*
@@ -150,6 +152,7 @@ SHA1Transform(state, buffer)
 	do_R3(&a, &b, &c, &d, &e, block);
 	do_R4(&a, &b, &c, &d, &e, block);
 #else
+	/* BEGIN CSTYLED */
 	/* 4 rounds of 20 operations each. Loop unrolled. */
 	R0(a,b,c,d,e, 0); R0(e,a,b,c,d, 1); R0(d,e,a,b,c, 2); R0(c,d,e,a,b, 3);
 	R0(b,c,d,e,a, 4); R0(a,b,c,d,e, 5); R0(e,a,b,c,d, 6); R0(d,e,a,b,c, 7);
@@ -171,6 +174,7 @@ SHA1Transform(state, buffer)
 	R4(c,d,e,a,b,68); R4(b,c,d,e,a,69); R4(a,b,c,d,e,70); R4(e,a,b,c,d,71);
 	R4(d,e,a,b,c,72); R4(c,d,e,a,b,73); R4(b,c,d,e,a,74); R4(a,b,c,d,e,75);
 	R4(e,a,b,c,d,76); R4(d,e,a,b,c,77); R4(c,d,e,a,b,78); R4(b,c,d,e,a,79);
+	/* END CSTYLED */
 #endif
 
 	/* Add the working vars back into context.state[] */

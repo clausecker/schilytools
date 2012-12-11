@@ -1,8 +1,8 @@
-/* @(#)sndconfig.c	1.39 11/08/09 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2011 J. Schilling */
+/* @(#)sndconfig.c	1.40 12/12/02 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2012 J. Schilling */
 #include "config.h"
 #ifndef lint
 static	UConst char sccsid[] =
-"@(#)sndconfig.c	1.39 11/08/09 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2011 J. Schilling";
+"@(#)sndconfig.c	1.40 12/12/02 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2012 J. Schilling";
 #endif
 
 /*
@@ -162,10 +162,10 @@ static void CALLBACK waveOutProc(hwo, uMsg, dwInstance, dwParam1, dwParam2)
 	if (uMsg == WOM_DONE) {
 		if (wavehdrinuse) {
 			wavehdrinuse--;
-			SetEvent(waveOutEvent); 
-		} 
+			SetEvent(waveOutEvent);
+		}
 	}
-} 
+}
 
 #   endif /* defined CYGWIN */
 #endif /* defined ECHO_TO_SOUNDCARD */

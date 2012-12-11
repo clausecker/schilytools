@@ -1,4 +1,4 @@
-/* @(#)mkdirs.c	1.1 11/11/08 Copyright 2011 J. Schilling */
+/* @(#)mkdirs.c	1.2 12/12/02 Copyright 2011-2012 J. Schilling */
 /*
  *	mkdirs() is the equivalent to "mkdir -p path"
  *	makedirs() allows to create missing direcories before a final
@@ -6,7 +6,7 @@
  *
  *	"name" must be a modifyable string.
  *
- *	Copyright (c) 2011 J. Schilling
+ *	Copyright (c) 2011-2012 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -116,7 +116,6 @@ errout:
 		*ls = '/';
 		if (err)
 			seterrno(err);
-		
 	}
 	return (ret);
 }

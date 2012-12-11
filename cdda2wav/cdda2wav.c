@@ -1,8 +1,8 @@
-/* @(#)cdda2wav.c	1.139 12/02/29 Copyright 1993-2004 Heiko Eissfeldt, Copyright 2004-2012 J. Schilling */
+/* @(#)cdda2wav.c	1.140 12/09/23 Copyright 1993-2004 Heiko Eissfeldt, Copyright 2004-2012 J. Schilling */
 #include "config.h"
 #ifndef lint
 static	UConst char sccsid[] =
-"@(#)cdda2wav.c	1.139 12/02/29 Copyright 1993-2004 Heiko Eissfeldt, Copyright 2004-2012 J. Schilling";
+"@(#)cdda2wav.c	1.140 12/09/23 Copyright 1993-2004 Heiko Eissfeldt, Copyright 2004-2012 J. Schilling";
 
 #endif
 #undef	DEBUG_BUFFER_ADDRESSES
@@ -4099,7 +4099,7 @@ Rate   Divider      Rate   Divider      Rate   Divider      Rate   Divider\n\
 		 * propagate back and forth. The existing mapping has to be
 		 * deleted and replaced by an clone without copy on write
 		 * semantics.
-		 * This is done with clone_area(...,B_CLONE_ADDRESS,...).
+		 * This is done with clone_area(..., B_ANY_ADDRESS,...).
 		 * Thanks to file support.c from the postgreSQL project.
 		 */
 		area_info inf;
@@ -4129,7 +4129,7 @@ Rate   Divider      Rate   Divider      Rate   Divider      Rate   Divider\n\
 				}
 				/* clone the parent mapping without cow. */
 				if (B_OK > clone_area("shm_child",
-				    &area_address, B_CLONE_ADDRESS,
+				    &area_address, B_ANY_ADDRESS,
 				    B_READ_AREA | B_WRITE_AREA, area_parent)) {
 					errmsgno(EX_BAD,
 						_("clone_area failed\n"));

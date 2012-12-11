@@ -1,10 +1,20 @@
-/* @(#)stdint.h	1.35 12/01/22 Copyright 1997-2012 J. Schilling */
+/* @(#)stdint.h	1.36 12/12/03 Copyright 1997-2012 J. Schilling */
 /*
  *	Abstraction from stdint.h
  *
  *	Copyright (c) 1997-2012 J. Schilling
  */
-/*@@C@@*/
+/*
+ * The contents of this file are subject to the terms of the
+ * Common Development and Distribution License, Version 1.0 only
+ * (the "License").  You may not use this file except in compliance
+ * with the License.
+ *
+ * See the file CDDL.Schily.txt in this distribution for details.
+ *
+ * When distributing Covered Code, include this CDDL HEADER in each
+ * file and include the License file CDDL.Schily.txt from this distribution.
+ */
 
 #ifndef	_SCHILY_STDINT_H
 #define	_SCHILY_STDINT_H
@@ -240,6 +250,8 @@ extern "C" {
  * if the above is true. And that's what we want.
  */
 error  Sizeof char is not equal 1
+
+#include <schily/err_char.h>	/* Avoid "unknown directive" with K&R */
 #endif
 
 #if	defined(__STDC__) || defined(CHAR_IS_UNSIGNED)
@@ -252,6 +264,8 @@ error  Sizeof char is not equal 1
 	typedef	short			Int16_t;
 #else
 	error		No int16_t found
+
+#include <schily/err_type.h>	/* Avoid "unknown directive" with K&R */
 #endif
 
 #if SIZEOF_INT == 4
@@ -262,6 +276,8 @@ error  Sizeof char is not equal 1
 #endif
 #else
 	error		No int32_t found
+
+#include <schily/err_type.h>	/* Avoid "unknown directive" with K&R */
 #endif
 
 #if SIZEOF_LONG_INT == 8
@@ -294,6 +310,8 @@ error  Sizeof char is not equal 1
 	typedef		Llong		Intptr_t;
 #else
 	error		No intptr_t found
+
+#include <schily/err_type.h>	/* Avoid "unknown directive" with K&R */
 #endif
 #endif
 #endif
@@ -304,6 +322,8 @@ typedef	unsigned char		UInt8_t;
 	typedef	unsigned short		UInt16_t;
 #else
 	error		No uint16_t found
+
+#include <schily/err_type.h>	/* Avoid "unknown directive" with K&R */
 #endif
 
 #if SIZEOF_UNSIGNED_INT == 4
@@ -314,6 +334,8 @@ typedef	unsigned char		UInt8_t;
 #endif
 #else
 	error		No int32_t found
+
+#include <schily/err_type.h>	/* Avoid "unknown directive" with K&R */
 #endif
 
 #if SIZEOF_UNSIGNED_LONG_INT == 8
@@ -349,6 +371,8 @@ typedef	unsigned char		UInt8_t;
 	typedef		ULlong		UIntptr_t;
 #else
 	error		No uintptr_t found
+
+#include <schily/err_type.h>	/* Avoid "unknown directive" with K&R */
 #endif
 #endif
 #endif

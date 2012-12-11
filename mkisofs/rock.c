@@ -1,8 +1,8 @@
-/* @(#)rock.c	1.65 11/06/05 joerg */
+/* @(#)rock.c	1.66 12/12/02 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)rock.c	1.65 11/06/05 joerg";
+	"@(#)rock.c	1.66 12/12/02 joerg";
 #endif
 /*
  * File rock.c - generate RRIP  records for iso9660 filesystems.
@@ -10,7 +10,7 @@ static	UConst char sccsid[] =
  * Written by Eric Youngdale (1993).
  *
  * Copyright 1993 Yggdrasil Computing, Incorporated
- * Copyright (c) 1999,2000-2010 J. Schilling
+ * Copyright (c) 1999,2000-2012 J. Schilling
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -737,7 +737,10 @@ generate_xa_rr_attributes(whole_name, name,
 		iso9660_date((char *)&Rock[ipnt], lstatbuf->st_ftime);
 		ipnt += 7;
 	} else {
-		iso9660_ldate((char *)&Rock[ipnt], lstatbuf->st_ftime);
+		/*
+		 * XXX Do we have nanoseconds on QNX?
+		 */
+		iso9660_ldate((char *)&Rock[ipnt], lstatbuf->st_ftime, 0, -100);
 		ipnt += 17;
 	}
 #endif

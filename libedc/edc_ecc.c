@@ -1,13 +1,13 @@
-/* @(#)edc_ecc.c	1.29 10/05/24 Copyright 1998-2010 Heiko Eissfeldt, Joerg Schilling */
+/* @(#)edc_ecc.c	1.30 12/12/02 Copyright 1998-2012 Heiko Eissfeldt, Joerg Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)edc_ecc.c	1.29 10/05/24 Copyright 1998-2010 Heiko Eissfeldt, Joerg Schilling";
+	"@(#)edc_ecc.c	1.30 12/12/02 Copyright 1998-2012 Heiko Eissfeldt, Joerg Schilling";
 #endif
 
 /*
  * Copyright 1998-2002,2008 by Heiko Eissfeldt
- * Copyright 2002-2010 by Joerg Schilling
+ * Copyright 2002-2012 by Joerg Schilling
  *
  * This file contains protected intellectual property.
  *
@@ -58,8 +58,8 @@ static int do_decode_L1	__PR((unsigned char in[(L1_RAW+L1_Q+L1_P)*FRAMES_PER_SEC
 
 #include "scramble_table"
 
-#define	DO4(a)	a;a;a;a;
-#define	DO13(a)	a;a;a;a;a;a;a;a;a;a;a;a;a;
+#define	DO4(a)	a; a; a; a;
+#define	DO13(a)	a; a; a; a; a; a; a; a; a; a; a; a; a;
 
 /*
  * Scrambles 2352 - 12 = 2340 bytes
@@ -744,7 +744,8 @@ do_encode_sub(in, out, delay1, permute)
 {
 	int i;
 
-	if (in == out) return -1;
+	if (in == out)
+		return (-1);
 
 	for (i = 0; i < PACKETS_PER_SUBCHANNELFRAME; i++) {
 		int j;
@@ -797,7 +798,8 @@ do_decode_sub(in, out, delay1, permute)
 {
 	int i;
 
-	if (in == out) return -1;
+	if (in == out)
+		return (-1);
 
 	for (i = 0; i < PACKETS_PER_SUBCHANNELFRAME; i++) {
 		int j;

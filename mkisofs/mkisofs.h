@@ -1,11 +1,11 @@
-/* @(#)mkisofs.h	1.144 11/06/05 joerg */
+/* @(#)mkisofs.h	1.145 12/12/02 joerg */
 /*
  * Header file mkisofs.h - assorted structure definitions and typecasts.
  *
  * Written by Eric Youngdale (1993).
  *
  * Copyright 1993 Yggdrasil Computing, Incorporated
- * Copyright (c) 1999,2000-2010 J. Schilling
+ * Copyright (c) 1999,2000-2012 J. Schilling
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -526,6 +526,7 @@ extern void gen_prepboot_label __PR((unsigned char *));
 /* multi.c */
 
 extern FILE	*in_image;
+extern BOOL	ignerr;
 extern int open_merge_image __PR((char *path));
 extern int close_merge_image __PR((void));
 extern struct iso_directory_record *

@@ -1,8 +1,8 @@
-/* @(#)write.c	1.135 11/06/05 joerg */
+/* @(#)write.c	1.137 12/12/02 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)write.c	1.135 11/06/05 joerg";
+	"@(#)write.c	1.137 12/12/02 joerg";
 #endif
 /*
  * Program write.c - dump memory  structures to  file for iso9660 filesystem.
@@ -10,7 +10,7 @@ static	UConst char sccsid[] =
  * Written by Eric Youngdale (1993).
  *
  * Copyright 1993 Yggdrasil Computing, Incorporated
- * Copyright (c) 1999-2010 J. Schilling
+ * Copyright (c) 1999-2012 J. Schilling
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -1524,9 +1524,8 @@ generate_one_directory(dpnt, outfile)
 
 		ce_index = 0;
 
-		/* Absolute byte address of CE entries for this directory */
+		/* Absolute sector address of CE entries for this directory */
 		ce_address = last_extent_written + (total_size >> 11);
-		ce_address = ce_address << 11;
 	}
 	s_entry = dpnt->contents;
 	while (s_entry) {
@@ -1602,9 +1601,10 @@ generate_one_directory(dpnt, outfile)
 							ce_index = ISO_ROUND_UP(ce_index);
 						}
 						set_733((char *)pnt + 4,
-							(ce_address + ce_index) >> 11);
+							ce_address + (ce_index >> 11));
 						set_733((char *)pnt + 12,
-							(ce_address + ce_index) & (SECTOR_SIZE - 1));
+							ce_index & (SECTOR_SIZE - 1));
+
 
 
 						/*
@@ -2082,6 +2082,7 @@ extern	ldate		modification_date;
 		modification_date.l_usec * 1000,
 		modification_date.l_gmtoff);
 
+	memcpy(vol_desc.creation_date, iso_time, 17);
 	memcpy(vol_desc.expiration_date, "0000000000000000", 17);
 	memcpy(vol_desc.effective_date, iso_time, 17);
 

@@ -1,8 +1,8 @@
-/* @(#)eltorito.c	1.50 11/06/04 joerg */
+/* @(#)eltorito.c	1.51 12/12/02 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)eltorito.c	1.50 11/06/04 joerg";
+	"@(#)eltorito.c	1.51 12/12/02 joerg";
 
 #endif
 /*
@@ -12,7 +12,7 @@ static	UConst char sccsid[] =
  *  Written by Michael Fulbright <msf@redhat.com> (1996).
  *
  * Copyright 1996 RedHat Software, Incorporated
- * Copyright (c) 1999-2010 J. Schilling
+ * Copyright (c) 1999-2012 J. Schilling
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -391,7 +391,7 @@ fill_boot_shdr(boot_shdr_entry, arch)
 	struct eltorito_sectionheader_entry	*boot_shdr_entry;
 	int					arch;
 {
-	memset(boot_shdr_entry, 0, sizeof(struct eltorito_sectionheader_entry));
+	memset(boot_shdr_entry, 0, sizeof (struct eltorito_sectionheader_entry));
 	boot_shdr_entry->header_id[0] = EL_TORITO_SHDR_ID_SHDR;
 	boot_shdr_entry->platform_id[0] = arch;
 }

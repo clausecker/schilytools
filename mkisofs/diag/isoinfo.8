@@ -1,5 +1,5 @@
 .\"
-.\" @(#)isoinfo.8	1.11 10/11/24 joerg
+.\" @(#)isoinfo.8	1.12 12/12/02 joerg
 .\"
 .\" -*- nroff -*-
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -14,7 +14,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH ISOINFO 8 "10/11/24" "Version 3.0"
+.TH ISOINFO 8 "12/12/02" "Version 3.0"
 .SH NAME
 devdump, isoinfo, isovfy, isodump \- Utility programs for dumping and verifying iso9660
 images.
@@ -132,6 +132,13 @@ The options
 and 
 .BI dev= target
 are mutual exclusive.
+.TP
+.BI \-ignore\-error
+Ignore errors.
+The commands
+by default aborts on several errors, such as read errors. With this option in effect,
+the commands try to continue.
+Use with care.
 .TP
 .BI dev= target
 Sets the SCSI target for the drive, see notes above.

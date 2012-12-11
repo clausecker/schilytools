@@ -1,27 +1,34 @@
 '\" te
-.\" @(#)sh.1	1.30 12/06/10 Copyr 2012 J. Schilling
+.\" @(#)sh.1	1.34 12/07/03 Copyr 2012 J. Schilling
 .\" Copyright 1989 AT&T
 .\" Copyright (c) 2008, Sun Microsystems, Inc. All Rights Reserved.
 .\" Portions Copyright (c) 1992, X/Open Company Limited All Rights Reserved
+.\"
 .\" Sun Microsystems, Inc. gratefully acknowledges The Open Group for
 .\" permission to reproduce portions of its copyrighted documentation.
-.\" Original documentation from The Open Group can be obtained online at
-.\" http://www.opengroup.org/bookstore/.
+.\" Original documentation from The Open Group can be obtained online
+.\" at http://www.opengroup.org/bookstore/.
+.\"
 .\" The Institute of Electrical and Electronics Engineers and The Open Group,
 .\" have given us permission to reprint portions of their documentation.
-.\" In the following statement, the phrase "this text" refers to portions of
-.\" the system documentation. Portions of this text are reprinted and
-.\" reproduced in electronic form in the Sun OS Reference Manual, from
-.\" IEEE Std 1003.1, 2004 Edition, Standard for Information Technology --
-.\" Portable Operating System Interface (POSIX),
-.\" The Open Group Base Specifications Issue 6, Copyright (C) 2001-2004
-.\" by the Institute of Electrical and Electronics Engineers, Inc and
-.\" The Open Group. In the event of any discrepancy between these versions
-.\" and the original IEEE and The Open Group Standard, the original IEEE
-.\" and The Open Group Standard is the referee document. The original
-.\" Standard can be obtained online at
+.\"
+.\" In the following statement, the phrase "this text" refers to portions
+.\" of the system documentation.
+.\"
+.\" Portions of this text are reprinted and reproduced in electronic form in
+.\" the Sun OS Reference Manual, from IEEE Std 1003.1, 2004 Edition, Standard
+.\" for Information Technology -- Portable Operating System Interface (POSIX),
+.\" The Open Group Base Specifications Issue 6, Copyright (C) 2001-2004 by the
+.\" Institute of Electrical and Electronics Engineers, Inc and The Open Group.
+.\" In the event of any discrepancy between these versions and the original
+.\" IEEE and The Open Group Standard, the original IEEE and The Open Group
+.\" Standard is the referee document.
+.\"
+.\" The original Standard can be obtained online at
 .\" http://www.opengroup.org/unix/online.html.
-.\"  This notice shall appear on any product containing this material.
+.\"
+.\" This notice shall appear on any product containing this material.
+.\"
 .\" CDDL HEADER START
 .\"
 .\" The contents of this file are subject to the terms of the
@@ -40,40 +47,63 @@
 .\" information: Portions Copyright [yyyy] [name of copyright owner]
 .\"
 .\" CDDL HEADER END
-.TH sh 1 "2012/06/10" "Schily Bourne Shell" "User Commands"
+.TH sh 1 "2012/07/03" "Schily Bourne Shell" "User Commands"
 .SH NAME
 sh, jsh \- standard and job control shell and command interpreter
 .SH SYNOPSIS
 .LP
 .nf
-\fB/usr/bin/sh\fR   [\fB-acefhikmnprstuvxP\fR] [\fIargument\fR]...
+\fB/usr/bin/sh\fR   [\fB\-acefhikmnprstuvxP\fR] [\fIargument\fR]...
 .fi
 
 .LP
 .nf
-\fB/usr/bin/jsh\fR  [\fB-acefhikmnprstuvxP\fR] [\fIargument\fR]...
+\fB/usr/bin/jsh\fR  [\fB\-acefhikmnprstuvxP\fR] [\fIargument\fR]...
 .fi
 
 .SH DESCRIPTION
 .sp
 .LP
-The \fB/usr/bin/sh\fR utility is a command programming language that
+The
+.B /usr/bin/sh
+utility is a command programming language that
 executes commands read from a terminal or a file.
 .sp
 .LP
-The \fBjsh\fR utility is an interface to the shell that provides all of the
-functionality of \fBsh\fR and enables job control (see \fBJob Control\fR
+The
+.B jsh
+utility is an interface to the shell that provides all of the
+functionality of
+.B sh
+and enables job control (see
+.B Job Control
 section below).
 .sp
 .LP
-Arguments to the shell are listed in the \fBInvocation\fR section below.
+Arguments to the shell are listed in the
+.B Invocation
+section below.
 .SS "Definitions"
 .sp
 .LP
-A \fIblank\fR is a tab or a space. A \fIname\fR is a sequence of
-\fBASCII\fR letters, digits, or underscores, beginning with a letter or an
-underscore. A \fIparameter\fR is a name, a digit, or any of the characters
-\fB*\fR, \fB@\fR, \fB#\fR, \fB?\fR, \fB\(mi\fR, \fB$\fR, and \fB!\fR.
+A
+.I blank
+is a tab or a space. A
+.I name
+is a sequence of
+.B ASCII
+letters, digits, or underscores, beginning with a letter or an
+underscore. A
+.I parameter
+is a name, a digit, or any of the characters
+.BR * ,
+.BR @ ,
+.BR # ,
+.BR ? ,
+.BR \(mi ,
+.BR $ ,
+and
+.BR ! .
 
 .SS "Invocation"
 .sp
@@ -114,7 +144,7 @@ positional parameters to that command file:
 .TP 12
 .BI \-c " string"
 If the
-.B -c
+.B \-c
 option is present commands are read from
 .IR string .
 The remaining arguments become positional parameters starting at
@@ -132,8 +162,9 @@ In this case,
 TERMINATE is ignored (so that
 .B kill 0
 does not kill an interactive
-shell) and INTERRUPT is caught and ignored (so that \fBwait\fR is
-interruptible). In all cases, QUIT is ignored by the shell.
+shell) and INTERRUPT is caught and ignored (so that
+.B wait
+is interruptible). In all cases, QUIT is ignored by the shell.
 .br
 .ne 3
 .TP
@@ -180,128 +211,316 @@ command below.
 .SS "Commands"
 .sp
 .LP
-A \fIsimple-command\fR is a sequence of non-blank \fIword\fRs separated by
-\fIblank\fRs. The first \fIword\fR specifies the name of the command to be
-executed. Except as specified below, the remaining \fIword\fRs are passed as
+A
+.I simple-command
+is a sequence of non-blank
+.IR word s
+separated by
+.IR blank s.
+The first
+.I word
+specifies the name of the command to be
+executed. Except as specified below, the remaining
+.IR word s
+are passed as
 arguments to the invoked command. The command name is passed as argument 0
-(see \fBexec\fR(2)). The \fIvalue\fR of a \fIsimple-command\fR is its exit
+(see
+.BR exec (2)).
+The
+.I value
+of a
+.I simple-command
+is its exit
 status if it terminates normally, or (octal) \fB200\fR+\fIstatus\fR if it
-terminates abnormally. See \fBsignal.h\fR(3HEAD) for a list of status
-values.
+terminates abnormally. See
+.BR signal.h (3HEAD)
+for a list of status values.
 .sp
 .LP
-A \fIpipeline\fR is a sequence of one or more \fIcommand\fRs separated by
-\fB|\fR. The standard output of each \fIcommand\fR but the last is connected
-by a \fBpipe\fR(2) to the standard input of the next \fIcommand\fR. Each
-\fIcommand\fR is run as a separate process. The shell waits for the last
-\fIcommand\fR to terminate. The exit status of a \fIpipeline\fR is the exit
-status of the last command in the \fIpipeline\fR.
+A
+.I pipeline
+is a sequence of one or more
+.IR command s
+separated by
+.BR | .
+The standard output of each
+.I command
+but the last is connected by a
+.BR pipe (2)
+to the standard input of the next
+.IR command .
+Each
+.I command
+is run as a separate process. The shell waits for the last
+.I command
+to terminate. The exit status of a
+.I pipeline
+is the exit status of the last command in the
+.IR pipeline .
 .sp
 .LP
-A \fIlist\fR is a sequence of one or more \fIpipeline\fRs separated by
-\fB;\fR, \fB&\fR, \fB&&\fR, or \fB|\||\fR, and optionally terminated by
-\fB;\fR or \fB&\fR\&. Of these four symbols, \fB;\fR and \fB&\fR have equal
-precedence, which is lower than that of \fB&&\fR and \fB|\||\fR. The symbols
-\fB&&\fR and \fB|\||\fR also have equal precedence. A semicolon (\fB;\fR)
-causes sequential execution of the preceding \fIpipeline\fR, that is, the
-shell waits for the \fIpipeline\fR to finish before executing any commands
-following the semicolon. An ampersand (\fB&\fR) causes asynchronous
-execution of the preceding pipeline, that is, the shell does \fBnot\fR wait
-for that pipeline to finish. The symbol \fB&&\fR (\|\fB|\||\fR) causes the
-\fIlist\fR following it to be executed only if the preceding pipeline
+A
+.I list
+is a sequence of one or more
+.IR pipeline s
+separated by
+.BR ; ,
+.BR & ,
+.BR && ,
+or
+.BR |\|| ,
+and optionally terminated by
+.B ;
+or
+.BR & \&.
+Of these four symbols,
+.B ;
+and
+.B &
+have equal precedence, which is lower than that of
+.B &&
+and
+.BR |\|| .
+The symbols
+.B &&
+and
+.B |\||
+also have equal precedence. A semicolon
+.RB ( ; )
+causes sequential execution of the preceding
+.IR pipeline ,
+that is, the shell waits for the
+.I pipeline
+to finish before executing any commands
+following the semicolon. An ampersand
+.RB  ( & )
+causes asynchronous
+execution of the preceding pipeline, that is, the shell does
+.B not
+wait for that pipeline to finish. The symbol
+.B &&
+.RB ( \||\|| )
+causes the
+.I list
+following it to be executed only if the preceding pipeline
 returns a zero (non-zero) exit status. An arbitrary number of newlines can
-appear in a \fIlist\fR, instead of semicolons, to delimit commands.
+appear in a
+.IR list ,
+instead of semicolons, to delimit commands.
 .sp
 .LP
-A \fIcommand\fR is either a \fIsimple-command\fR or one of the following.
+A
+.I command
+is either a
+.I simple-command
+or one of the following.
 Unless otherwise stated, the value returned by a command is that of the last
-\fIsimple-command\fR executed in the command.
+.I simple-command
+executed in the command.
 .sp
 .ne 3
 .HP
-\fB\fBfor\fR \fIname\fR [ \fBin\fR \fIword\fR .\|.\|. ] \fBdo\fR \fIlist\fR
-\fBdone\fR\fR
+.B for
+.I name
+[
+.B in
+.I word
+\&.\|.\|. ]
+.B do
+.I list
+.B done
 .br
-Each time a \fBfor\fR command is executed, \fIname\fR is set to the next
-\fIword\fR taken from the \fBin\fR \fIword\fR list. If \fBin\fR \fIword\fR
-\&.\|.\|. is omitted, then the \fBfor\fR command executes the \fBdo\fR
-\fIlist\fR once for each positional parameter that is set (see \fBParameter
-Substitution\fR section below). Execution ends when there are no more words
+Each time a
+.B for
+command is executed,
+.I name
+is set to the next
+.I word
+taken from the
+.B in
+.I word
+list. If
+.B in
+.I word
+\&.\|.\|. is omitted, then the
+.B for
+command executes the
+.B do
+.I list
+once for each positional parameter that is set (see
+.B Parameter Substitution
+section below). Execution ends when there are no more words
 in the list.
 .br
 .ne 3
 .HP
-\fB\fBcase\fR \fIword\fR \fBin\fR [ \fIpattern\fR [ | \fIpattern\fR ]
-\fB)\fR \fIlist\fR \fB;\|;\fR ] .\|.\|.  \fBesac\fR\fR
+.B case
+.I word
+.B in
+[
+.I pattern
+[ |
+.I pattern
+]
+.B )
+.I list
+.B ;\|;
+] .\|.\|.
+.B esac
 .br
-A \fBcase\fR command executes the \fIlist\fR associated with the first
-\fIpattern\fR that matches \fIword\fR. The form of the patterns is the same
-as that used for file-name generation (see \fBFile Name Generation\fR
+A
+.B case
+command executes the
+.I list
+associated with the first
+.I pattern
+that matches
+.IR word .
+The form of the patterns is the same
+as that used for file-name generation (see
+.B File Name Generation
 section), except that a slash, a leading dot, or a dot immediately following
 a slash need not be matched explicitly.
 .br
 .ne 3
 .HP
-\fBif\fR \fIlist\fR \fBthen\fR \fIlist\fR [ \fBelif\fR \fIlist\fR \fB
-then\fR \fIlist\fR ] .\|.\|. [ \fBelse\fR \fIlist\fR ] \fBfi\fR
+.B if
+.I list
+.B then
+.I list
+[
+.B elif
+.I list
+.B then
+.I list
+] .\|.\|. [
+.B else
+.I list
+]
+.B fi
 .br
-The \fIlist\fR following \fBif\fR is executed and, if it returns a zero
-exit status, the \fIlist\fR following the first \fBthen\fR is executed.
-Otherwise, the \fIlist\fR following \fBelif\fR is executed and, if its value
-is zero, the \fIlist\fR following the next \fBthen\fR is executed. Failing
-that, the \fBelse\fR \fIlist\fR is executed. If no \fBelse\fR \fIlist\fR or
-\fBthen\fR \fIlist\fR is executed, then the \fBif\fR command returns a zero
-exit status.
+The
+.I list
+following
+.B if
+is executed and, if it returns a zero
+exit status, the
+.I list
+following the first
+.B then
+is executed.
+Otherwise, the
+.I list
+following
+.B elif
+is executed and, if its value is zero, the
+.I list
+following the next
+.B then
+is executed. Failing that, the
+.B else
+.I list
+is executed. If no
+.B else
+.I list
+or
+.B then
+.I list
+is executed, then the
+.B if
+command returns a zero exit status.
 .br
 .ne 3
 .HP
-\fB\fBwhile\fR \fIlist\fR \fBdo\fR \fIlist\fR \fBdone\fR\fR
+.B while
+.I list
+.B do
+.I list
+.B done
 .PD 0
 .HP
-\fB\fBuntil\fR \fIlist\fR \fBdo\fR \fIlist\fR \fBdone\fR\fR
+.B until
+.I list
+.B do
+.I list
+.B done
 .br
 .PD
-A \fBwhile\fR command repeatedly executes the \fBwhile\fR \fIlist\fR and,
-if the exit status of the last command in the list is zero, executes the
-\fBdo\fR \fIlist\fR; otherwise the loop terminates. If no commands in the
-\fBdo\fR \fIlist\fR are executed, then the \fBwhile\fR command returns a
-zero exit status; \fBuntil\fR can be used in place of \fBwhile\fR to negate
-the loop termination test.
+A
+.B while
+command repeatedly executes the
+.B while
+.I list
+and, if the exit status of the last command in the list is zero, executes the
+.B do
+.IR list ;
+otherwise the loop terminates. If no commands in the
+.B do
+.I list
+are executed, then the
+.B while
+command returns a zero exit status;
+.B until
+can be used in place of
+.B while
+to negate the loop termination test.
 .br
 .ne 3
 .HP
-\fB\fB(\fR\fIlist\fR\fB)\fR\fR
+.BI ( list )
 .br
-Execute \fIlist\fR in a sub-shell.
+Execute
+.I list
+in a sub-shell.
 .br
 .ne 3
 .HP
-\fB\fB{\fR \fIlist\fR\fB;}\fR\fR
+.BI { " list" ;}
 .br
-\fIlist\fR is executed in the current (that is, parent) shell. The \fB{\fR
+.I list
+is executed in the current (that is, parent) shell. The
+.B {
 must be followed by a space.
 .br
 .ne 3
 .HP
-\fB\fIname\fR \fB(\|) {\fR \fIlist\fR\fB;}\fR\fR
+.I name
+.B (\|) {
+.IB list ;}
 .br
-Define a function which is referenced by \fIname\fR. The body of the
-function is the \fIlist\fR of commands between \fB{\fR and \fB}\fR. The
-\fB{\fR must be followed by a space. Execution of functions is described
-below (see \fBExecution\fR section). The \fB{\fR and \fB}\fR are unnecessary
-if the body of the function is a \fIcommand\fR as defined above, under
-\fBCommands\fR.
+Define a function which is referenced by
+.IR name .
+The body of the function is the
+.I list
+of commands between
+.B {
+and
+.BR } .
+The
+.B {
+must be followed by a space. Execution of functions is described below (see
+.B Execution
+section). The
+.B {
+and
+.B }
+are unnecessary 
+if the body of the function is a
+.I command
+as defined above, under
+.BR Commands .
 .LP
 The following words are only recognized as the first word of a command and
 when not quoted:
 .sp
 .LP
-\fBif  then  else  elif  fi  case  esac  for  while  until  do  done  {
-}\fR
+.B "if  then  else  elif  fi  case  esac  for  while  until  do  done  { }
 .SS "Comments Lines"
 .sp
 .LP
-A word beginning with \fB#\fR causes that word and all the following
+A word beginning with
+.B #
+causes that word and all the following
 characters up to a newline to be ignored.
 .SS "Alias Substitution"
 .LP
@@ -339,12 +558,12 @@ The following additional alias features are available:
 .TP
 .B persistent aliases
 If turned on by
-.BR "set -o globalaliases" ,
+.BR "set \-o globalaliases" ,
 persistent global aliases are automatically loaded by all interactive shells.
 .TP
 .B local aliases
 If turned on by
-.BR "set -o localaliases" ,
+.BR "set \-o localaliases" ,
 persistent local aliases are automatically loaded by all interactive shells
 as a result of the 
 .B cd
@@ -357,130 +576,166 @@ Local aliases have higher precedence than global aliases.
 .sp
 .LP
 The shell reads commands from the string between two grave accents
-(\fB``\fR) and the standard output from these commands can be used as all or
+.RB ( `` )
+and the standard output from these commands can be used as all or
 part of a word. Trailing newlines from the standard output are removed.
 .sp
 .LP
 No interpretation is done on the string before the string is read, except
-to remove backslashes (\fB\e\fR) used to escape other characters.
-Backslashes can be used to escape a grave accent (\fB`\fR) or another
-backslash (\fB\e\fR) and are removed before the command string is read.
+to remove backslashes
+.RB ( \e )
+used to escape other characters.
+Backslashes can be used to escape a grave accent
+.RB ( ` )
+or another backslash
+.RB ( \e )
+and are removed before the command string is read.
 Escaping grave accents allows nested command substitution. If the command
-substitution lies within a pair of double quotes (\fB" .\|.\|.\|` .\|.\|.\|`
-\&.\|.\|.\| "\fR), a backslash used to escape a double quote (\fB\e"\fR) is
+substitution lies within a pair of double quotes
+(\fB" .\|.\|.\|` .\|.\|.\|` \&.\|.\|.\| "\fR), 
+a backslash used to escape a double quote (\fB\e"\fR) is
 removed. Otherwise, it is left intact.
 .sp
 .LP
-If a backslash is used to escape a newline character (\fB\enewline\fR),
+If a backslash is used to escape a newline character
+.RB ( \enewline ),
 both the backslash and the newline are removed (see the later section on
-\fBQuoting\fR). In addition, backslashes used to escape dollar signs
-(\fB\e$\fR) are removed. Since no parameter substitution is done on the
+.BR Quoting ).
+In addition, backslashes used to escape dollar signs
+.RB ( \e$ )
+are removed. Since no parameter substitution is done on the
 command string before it is read, inserting a backslash to escape a dollar
-sign has no effect. Backslashes that precede characters other than \fB\e\fR,
-\fB`\fR, \fB"\fR, \fBnewline\fR, and \fB$\fR are left intact when the
-command string is read.
+sign has no effect. Backslashes that precede characters other than
+.BR \e ,
+.BR ` ,
+\fB"\fR,
+.BR newline ,
+and
+.B $
+are left intact when the command string is read.
 .SS "Parameter Substitution"
 .sp
 .LP
-The character \fB$\fR is used to introduce substitutable \fIparameter\fRs.
+The character
+.B $
+is used to introduce substitutable
+.IR parameter s.
 There are two types of parameters, positional and keyword. If
-\fIparameter\fR is a digit, it is a positional parameter. Positional
-parameters can be assigned values by \fBset\fR. Keyword parameters (also
+.I parameter
+is a digit, it is a positional parameter. Positional
+parameters can be assigned values by
+.BR set .
+Keyword parameters (also
 known as variables) can be assigned values by writing:
 .sp
 .LP
-\fIname\fR\fB=\fR\fIvalue\fR [ \fIname\fR\fB=\fR\fIvalue\fR ] .\|.\|.
+.IB name = value
+[
+.IB name = value
+] .\|.\|.
 .sp
 .LP
 The evaluation of the assignments is done from the left to the right in this shell.
 .LP
-Pattern-matching is not performed on \fIvalue\fR. There cannot be a
-function and a variable with the same \fIname\fR.
-.sp
+Pattern-matching is not performed on
+.IR value .
+There cannot be a function and a variable with the same
+.IR name .
+.br
 .ne 3
-.mk
-.na
-\fB\fB${\fR\fIparameter\fR\fB}\fR\fR
-.ad
-.RS 25n
-.rt
+.TP 25n
+.BI ${ parameter }
 The value, if any, of the parameter is substituted. The braces are required
-only when \fIparameter\fR is followed by a letter, digit, or underscore that
-is not to be interpreted as part of its name. If \fIparameter\fR is \fB*\fR
-or \fB@\fR, all the positional parameters, starting with \fB$1\fR, are
-substituted (separated by spaces). Parameter \fB$0\fR is set from argument
-zero when the shell is invoked.
-.RE
+only when
+.I parameter
+is followed by a letter, digit, or underscore that
+is not to be interpreted as part of its name. If
+.I parameter
+is
+.B *
+or
+.BR @ ,
+all the positional parameters, starting with
+.BR $1 ,
+are substituted (separated by spaces). Parameter
+.B $0
+is set from argument zero when the shell is invoked.
 
-.sp
+.br
 .ne 3
-.mk
-.na
-\fB\fB${\fR\fIparameter\fR\fB:\(mi\fR\fIword\fR\fB}\fR\fR
-.ad
-.RS 25n
-.rt
-Use Default Values. If \fIparameter\fR is unset or null, the expansion of
-\fIword\fR is substituted; otherwise, the value of \fIparameter\fR is
-substituted.
-.RE
+.TP
+.BI ${ parameter :\(mi word  }
+Use Default Values. If
+.I parameter
+is unset or null, the expansion of
+.I word
+is substituted; otherwise, the value of
+.I parameter
+is substituted.
 
-.sp
+.br
 .ne 3
-.mk
-.na
-\fB\fB${\fR\fIparameter\fR\fB:=\fR\fIword\fR\fB}\fR\fR
-.ad
-.RS 25n
-.rt
-Assign Default Values. If \fIparameter\fR is unset or null, the expansion
-of \fIword\fR is assigned to \fIparameter\fR. In all cases, the final value
-of \fIparameter\fR is substituted. Only variables, not positional parameters
+.TP
+.BI ${ parameter := word }
+Assign Default Values. If
+.I parameter
+is unset or null, the expansion of
+.I word
+is assigned to
+.IR parameter .
+In all cases, the final value of
+.I parameter
+is substituted. Only variables, not positional parameters
 or special parameters, can be assigned in this way.
-.RE
 
-.sp
+.br
 .ne 3
-.mk
-.na
-\fB\fB${\fR\fIparameter\fR\fB:?\fR\fIword\fR\fB}\fR\fR
-.ad
-.RS 25n
-.rt
-If \fIparameter\fR is set and is non-null, substitute its value; otherwise,
-print \fIword\fR and exit from the shell. If \fIword\fR is omitted, the
-message "parameter null or not set" is printed.
-.RE
+.TP
+.BI ${ parameter  :? word }
+If
+.I parameter
+is set and is non-null, substitute its value; otherwise, print
+.I word
+and exit from the shell. If
+.I word
+is omitted, the message "parameter null or not set" is printed.
 
-.sp
+.br
 .ne 3
-.mk
-.na
-\fB\fB${\fR\fIparameter\fR\fB:+\fR\fIword\fR\fB}\fR\fR
-.ad
-.RS 25n
-.rt
-If \fIparameter\fR is set and is non-null, substitute \fIword\fR; otherwise
-substitute nothing.
-.RE
+.TP
+.BI ${ parameter :+ word }
+If
+.I parameter
+is set and is non-null, substitute
+.IR word ;
+otherwise substitute nothing.
 
 .sp
 .LP
-In the above, \fIword\fR is not evaluated unless it is to be used as the
-substituted string, so that, in the following example, \fBpwd\fR is executed
-only if \fBd\fR is not set or is null:
+In the above,
+.I word
+is not evaluated unless it is to be used as the
+substituted string, so that, in the following example,
+.B pwd
+is executed only if
+.B d
+is not set or is null:
 .sp
 .in +2
 .nf
-\fBecho  ${d:\(mi`pwd`}\fR
+.B "echo  ${d:\(mi`pwd`}
 .fi
 .in -2
 .sp
 
 .sp
 .LP
-If the colon (\fB:\fR) is omitted from the above expressions, the shell
-only checks whether \fIparameter\fR is set or not.
+If the colon
+.RB ( : )
+is omitted from the above expressions, the shell
+only checks whether
+.I parameter
+is set or not.
 .sp
 .LP
 The following parameters are automatically set by the shell.
@@ -533,7 +788,9 @@ arguments.
 .ne 3
 .TP
 .B \(mi
-Flags supplied to the shell on invocation or by the \fBset\fR command.
+Flags supplied to the shell on invocation or by the
+.B set
+command.
 .br
 .ne 3
 .TP
@@ -552,53 +809,41 @@ The process number of the last background command invoked.
 .LP
 The following parameters are used by the shell. The parameters in this
 section are also referred to as environment variables.
-.sp
+.br
 .ne 3
-.mk
-.na
-\fB\fBHOME\fR\fR
-.ad
-.RS 13n
-.rt
-The default argument (home directory) for the \fBcd\fR command, set to the
-user's login directory by \fBlogin\fR(1) from the password file (see
-\fBpasswd\fR(4)).
-.RE
+.TP 13n
+.B HOME
+The default argument (home directory) for the
+.B cd
+command, set to the user's login directory by
+.BR login (1)
+from the password file (see
+.BR passwd (4)).
 
-.sp
+.br
 .ne 3
-.mk
-.na
-\fB\fBPATH\fR\fR
-.ad
-.RS 13n
-.rt
-The search path for commands (see \fBExecution\fR section below).
+.TP
+.B PATH
+The search path for commands (see
+.B Execution
+section below).
 If
 .B PATH
 is not set, it defaults to
 .BR /usr/bin: .
-.RE
 
-.sp
+.br
 .ne 3
-.mk
-.na
-\fB\fBCDPATH\fR\fR
-.ad
-.RS 13n
-.rt
-The search path for the \fBcd\fR command.
-.RE
+.TP
+.B CDPATH
+The search path for the
+.B cd
+command.
 
-.sp
+.br
 .ne 3
-.mk
-.na
-\fB\fBENV\fR\fR
-.ad
-.RS 13n
-.rt
+.TP
+.B ENV
 This variable is used when and only when an interactive shell is invoked.
 It is subject to
 .B Parameter Substitution
@@ -618,16 +863,11 @@ or
 the file
 .B /etc/sh.shrc
 is not executed.
-.RE
 
-.sp
+.br
 .ne 3
-.mk
-.na
-\fB\fBIGNOREEOF\fR\fR
-.ad
-.RS 13n
-.rt
+.TP
+.B IGNOREEOF
 If set to
 .BR on ,
 the shell will not exit if a
@@ -638,73 +878,57 @@ The default is not to ignore EOF.
 is only supported if
 .B sh
 was compiled with support for history editing.
-.RE
 
-.sp
+.br
 .ne 3
-.mk
-.na
-\fB\fBHISTORY\fR\fR
-.ad
-.RS 13n
-.rt
+.TP
+.B HISTORY
 The maximum number of lines to keep in the command history editor.
 The default is to keep 100 lines of command history.
 .B HISTORY
 is only supported if
 .B sh
 was compiled with support for history editing.
-.RE
 
-.sp
+.br
 .ne 3
-.mk
-.na
-\fB\fBMAIL\fR\fR
-.ad
-.RS 13n
-.rt
-If this parameter is set to the name of a mail file \fIand\fR the
-\fBMAILPATH\fR parameter is not set, the shell informs the user of the
+.TP
+.B MAIL
+If this parameter is set to the name of a mail file
+.I and
+the
+.B MAILPATH
+parameter is not set, the shell informs the user of the
 arrival of mail in the specified file.
-.RE
 
-.sp
+.br
 .ne 3
-.mk
-.na
-\fB\fBMAILCHECK\fR\fR
-.ad
-.RS 13n
-.rt
+.TP
+.B MAILCHECK
 This parameter specifies how often (in seconds) the shell checks for the
-arrival of mail in the files specified by the \fBMAILPATH\fR or \fBMAIL\fR
-parameters. The default value is \fB600\fR seconds (10 minutes). If set to
+arrival of mail in the files specified by the
+.B MAILPATH
+or
+.B MAIL
+parameters. The default value is
+.B 600
+seconds (10 minutes). If set to
 0, the shell checks before each prompt.
-.RE
 
-.sp
+.br
 .ne 3
-.mk
-.na
-\fB\fBMAILPATH\fR\fR
-.ad
-.RS 13n
-.rt
+.TP
+.B MAILPATH
 A colon-separated list of file names. If this parameter is set, the shell
 informs the user of the arrival of mail in any of the specified files. Each
 file name can be followed by % and a message that is e printed when the
-modification time changes. The default message is, \fByou have mail\fR.
-.RE
+modification time changes. The default message is,
+.BR "you have mail" .
 
-.sp
+.br
 .ne 3
-.mk
-.na
-\fB\fBOLDPWD\fR\fR
-.ad
-.RS 13n
-.rt
+.TP
+.B OLDPWD
 The previous working directory, set by the
 .BR cd ,
 the
@@ -719,64 +943,39 @@ is not set before the first
 or 
 .B popd
 command.
-.RE
 
-.sp
+.br
 .ne 3
-.mk
-.na
-\fB\fBOPTARG\fR\fR
-.ad
-.RS 13n
-.rt
+.TP
+.B OPTARG
 This variable is used by
 .B getopts
 to store the argument if an option is using arguments.
-.RE
 
-.sp
+.br
 .ne 3
-.mk
-.na
-\fB\fBOPTIND\fR\fR
-.ad
-.RS 13n
-.rt
+.TP
+.B OPTIND
 This variable is used by
 .B getopts
 as the index of the next argument to be processed.
-.RE
 
-.sp
+.br
 .ne 3
-.mk
-.na
-\fB\fBPS1\fR\fR
-.ad
-.RS 13n
-.rt
+.TP
+.B PS1
 Primary prompt string, by default " $ \|".
-.RE
 
-.sp
+.br
 .ne 3
-.mk
-.na
-\fB\fBPS2\fR\fR
-.ad
-.RS 13n
-.rt
+.TP
+.B PS2
 Secondary prompt string, by default " > \|".
-.RE
 
-.sp
+.br
 .ne 3
-.mk
-.na
-\fB\fBPWD\fR\fR
-.ad
-.RS 13n
-.rt
+.TP
+.B PWD
 The present working directory set by the
 .BR cd ,
 the
@@ -802,28 +1001,24 @@ or
 .B cd .
 before depending on the content of
 .BR PWD .
-.RE
 
-.sp
+.br
 .ne 3
-.mk
-.na
-\fB\fBIFS\fR\fR
-.ad
-.RS 13n
-.rt
-Internal field separators, normally \fBspace\fR, \fBtab\fR, and
-\fBnewline\fR (see \fBBlank Interpretation\fR section).
-.RE
+.TP
+.B IFS
+Internal field separators, normally
+.BR space ,
+.BR tab ,
+and
+.B newline
+(see
+.B Blank Interpretation
+section).
 
-.sp
+.br
 .ne 3
-.mk
-.na
-\fB\fBSAVEHISTORY\fR\fR
-.ad
-.RS 13n
-.rt
+.TP
+.B SAVEHISTORY
 If set to
 .BR on ,
 the current history is saved in the file
@@ -834,57 +1029,38 @@ The default is not to save the history.
 is only supported if
 .B sh
 was compiled with support for history editing.
-.RE
 
-.sp
+.br
 .ne 3
-.mk
-.na
-\fB\fBSHACCT\fR\fR
-.ad
-.RS 13n
-.rt
+.TP
+.B SHACCT
 If this parameter is set to the name of a file writable by the user, the
 shell writes an accounting record in the file for each shell procedure
 executed.
-.RE
 
-.sp
+.br
 .ne 3
-.mk
-.na
-\fB\fBSHELL\fR\fR
-.ad
-.RS 13n
-.rt
-When the shell is invoked, it scans the environment (see \fBEnvironment\fR
+.TP
+.B SHELL
+When the shell is invoked, it scans the environment (see
+.B Environment
 section below) for this name.
-.RE
 
-.sp
+.br
 .ne 3
-.mk
-.na
-\fB\fBTERM\fR\fR
-.ad
-.RS 13n
-.rt
+.TP
+.B TERM
 Used to determine the name of the terminal type.
 If this variable is unset or null, an unspecified default terminal type is used.
 .B TERM
 is only supported if
 .B sh
 was compiled with support for history editing.
-.RE
 
-.sp
+.br
 .ne 3
-.mk
-.na
-\fB\fBTERMCAP\fR\fR
-.ad
-.RS 13n
-.rt
+.TP
+.B TERMCAP
 This variable holds either a precompiled termcap entry
 or the pathname to be used to find a termcap database file.
 If it holds a precompiled entry that does not match the
@@ -901,16 +1077,11 @@ based applications.
 is only supported if
 .B sh
 was compiled with support for history editing.
-.RE
 
-.sp
+.br
 .ne 3
-.mk
-.na
-\fB\fBTERMPATH\fR\fR
-.ad
-.RS 13n
-.rt
+.TP
+.B TERMPATH
 If 
 .B TERMCAP
 is empty or not set, then the
@@ -935,11 +1106,12 @@ environment is prepended to the name.
 is only supported if
 .B sh
 was compiled with support for history editing.
-.RE
 
 .sp
 .LP
-See \fBenviron\fR(5) for descriptions of the following environment
+See
+.BR environ (5)
+for descriptions of the following environment
 variables that affect the execution of
 .BR sh :
 .BR LANG ,
@@ -967,10 +1139,14 @@ are set by
 .sp
 .LP
 After parameter and command substitution, the results of substitution are
-scanned for internal field separator characters (those found in \fBIFS\fR)
+scanned for internal field separator characters (those found in
+.BR IFS )
 and split into distinct arguments where such characters are found. Explicit
-null arguments (\fB""\fR or \fB\&''\fR) are retained. Implicit null
-arguments (those resulting from \fIparameter\fRs that have no values) are
+null arguments
+(\fB""\fR or \fB\&''\fR)
+are retained. Implicit null arguments (those resulting from
+.IR parameter s
+that have no values) are
 removed.
 .LP
 The
@@ -991,90 +1167,105 @@ executes the `echo' command with the argument `foo'.
 .LP
 A command's input and output can be redirected using a special notation
 interpreted by the shell. The following can appear anywhere in a
-\fIsimple-command\fR or can precede or follow a \fIcommand\fR and are
-\fBnot\fR passed on as arguments to the invoked command. \fBNote:\fR
-Parameter and command substitution occurs before \fIword\fR or \fIdigit\fR
+.I simple-command
+or can precede or follow a
+.I command
+and are
+.B not
+passed on as arguments to the invoked command.
+.B Note:
+Parameter and command substitution occurs before
+.I word
+or
+.I digit
 is used.
-.sp
+.br
 .ne 3
-.mk
-.na
-\fB\fB<\fR\fIword\fR\fR
-.ad
-.RS 16n
-.rt
-Use file \fIword\fR as standard input (file descriptor 0).
-.RE
+.TP 16n
+.BI < word
+Use file
+.I word
+as standard input (file descriptor 0).
 
-.sp
+.br
 .ne 3
-.mk
-.na
-\fB\fB>\fR\fIword\fR\fR
-.ad
-.RS 16n
-.rt
-Use file \fIword\fR as standard output (file descriptor 1). If the file
+.TP
+.BI > word
+Use file
+.I word
+as standard output (file descriptor 1). If the file
 does not exist, it is created; otherwise, it is truncated to zero length.
-.RE
 
-.sp
+.br
 .ne 3
-.mk
-.na
-\fB\fB>>\fR\fIword\fR\fR
-.ad
-.RS 16n
-.rt
-Use file \fIword\fR as standard output. If the file exists, output is
-appended to it by first seeking to the \fBEOF\fR. Otherwise, the file is
+.TP
+.BI >> word
+Use file
+.I word
+as standard output. If the file exists, output is
+appended to it by first seeking to the
+.BR EOF .
+Otherwise, the file is
 created.
-.RE
 
-.sp
+.br
 .ne 3
-.mk
-.na
-\fB\fB<\|>\fR\fIword\fR\fR
-.ad
-.RS 16n
-.rt
-Open file \fIword\fR for reading and writing as standard input.
-.RE
+.TP
+.BI <\|> word
+Open file
+.I word
+for reading and writing as standard input.
 
-.sp
+.br
 .ne 3
-.mk
-.na
-\fB\fB<<\fR[\fB\(mi\fR]\fIword\fR\fR
-.ad
-.RS 16n
-.rt
-After parameter and command substitution is done on \fIword\fR, the shell
+.TP
+.BI <<\fR[\fB\(mi\fR] word
+After parameter and command substitution is done on
+.IR word ,
+the shell
 input is read up to the first line that literally matches the resulting
-\fIword\fR, or to an \fBEOF\fR. If, however, the hyphen (\fB\(mi\fR) is
-appended to \fB<<\fR:
+.IR word ,
+or to an
+.BR EOF .
+If, however, the hyphen
+.RB ( \(mi )
+is appended to
+.BR << :
+.RS 16n
 .RS +4
 .TP
 1.
-leading tabs are stripped from \fIword\fR before the shell input is read
-(but after parameter and command substitution is done on \fIword\fR);
+leading tabs are stripped from
+.I word
+before the shell input is read
+(but after parameter and command substitution is done on
+.IR word );
 .RE
 .RS +4
 .TP
 2.
 leading tabs are stripped from the shell input as it is read and before
-each line is compared with \fIword\fR; and
+each line is compared with
+.IR word ;
+and
 .RE
 .RS +4
 .TP
 3.
 shell input is read up to the first line that literally matches the
-resulting \fIword\fR, or to an \fBEOF\fR.
+resulting
+.IR word ,
+or to an
+.BR EOF .
 .RE
-If any character of \fIword\fR is quoted (see \fBQuoting\fR section later),
+If any character of 
+.I word
+is quoted (see
+.B Quoting
+section later),
 no additional processing is done to the shell input. If no characters of
-\fIword\fR are quoted:
+.I word
+are quoted:
 .RS +4
 .TP
 1.
@@ -1083,50 +1274,53 @@ parameter and command substitution occurs;
 .RS +4
 .TP
 2.
-(escaped) \fB\enewline\fRs are removed; and
+(escaped)
+.BR \enewline s
+are removed; and
 .RE
 .RS +4
 .TP
 3.
-\fB\e\fR must be used to quote the characters \fB\e\fR, \fB$\fR, and
-\fB`\fR.
+.B \e
+must be used to quote the characters
+.BR \e ,
+.BR $ ,
+and
+.BR ` .
 .RE
 The resulting document becomes the standard input.
 .RE
 
-.sp
+.br
 .ne 3
-.mk
-.na
-\fB\fB<&\fR\fIdigit\fR\fR
-.ad
-.RS 16n
-.rt
-Use the file associated with file descriptor \fIdigit\fR as standard input.
-Similarly for the standard output using \fB>&\fR\fIdigit\fR.
-.RE
+.TP
+.BI <& digit
+Use the file associated with file descriptor
+.I digit
+as standard input.
+Similarly for the standard output using
+.BI >& digit\fR.
 
-.sp
+.br
 .ne 3
-.mk
-.na
-\fB\fB<&\(mi\fR\fR
-.ad
-.RS 16n
-.rt
+.TP
+.B  <&\(mi
 The standard input is closed. Similarly for the standard output using
-\fB>&\(mi\fR.
-.RE
+.BR >&\(mi .
 
 .sp
 .LP
 If any of the above is preceded by a digit, the file descriptor which is
 associated with the file is that specified by the digit (instead of the
-default \fB0\fR or \fB1\fR). For example:
+default
+.B 0
+or
+.BR 1 ).
+For example:
 .sp
 .in +2
 .nf
-\fB\&... 2>&1\fR
+.B \&... 2>&1
 .fi
 .in -2
 .sp
@@ -1142,82 +1336,107 @@ evaluates redirections left-to-right. For example:
 .sp
 .in +2
 .nf
-\fB\&... 1>\fIxxx\fR 2>&1\fR
+.BI "\&... 1>" "xxx\fR 2>&1"
 .fi
 .in -2
 .sp
 
 .sp
 .LP
-first associates file descriptor 1 with file \fIxxx\fR. It associates file
+first associates file descriptor 1 with file
+.IR xxx .
+It associates file
 descriptor 2 with the file associated with file descriptor 1 (that is,
-\fIxxx\fR). If the order of redirections were reversed, file descriptor 2
+.IR xxx ).
+If the order of redirections were reversed, file descriptor 2
 would be associated with the terminal (assuming file descriptor 1 had been)
-and file descriptor 1 would be associated with file \fIxxx\fR.
+and file descriptor 1 would be associated with file
+.IR xxx .
 .sp
 .LP
-Using the terminology introduced on the first page, under \fBCommands\fR,
-if a \fIcommand\fR is composed of several \fIsimple commands\fR, redirection
-is evaluated for the entire \fIcommand\fR before it is evaluated for each
-\fIsimple command\fR. That is, the shell evaluates redirection for the
-entire \fIlist\fR, then each \fIpipeline\fR within the \fIlist\fR, then each
-\fIcommand\fR within each \fIpipeline\fR, then each \fIlist\fR within each
-\fIcommand\fR.
+Using the terminology introduced on the first page, under
+.BR Commands ,
+if a
+.I command
+is composed of several
+.IR "simple commands" ,
+redirection is evaluated for the entire
+.I command
+before it is evaluated for each
+.IR "simple command" .
+That is, the shell evaluates redirection for the entire
+.IR list ,
+then each
+.I pipeline
+within the
+.IR list ,
+then each
+.I command
+within each
+.IR pipeline ,
+then each
+.I list
+within each
+.IR command .
 .sp
 .LP
 If a command is followed by
 .B & 
 and job control (see
-.BR "set -m" )
+.BR "set \-m" )
 is not active, the default standard input for the
-command is the empty file, \fB/dev/null\fR. Otherwise, the environment for
+command is the empty file,
+.BR /dev/null .
+Otherwise, the environment for
 the execution of a command contains the file descriptors of the invoking
 shell as modified by input/output specifications.
 .SS "File Name Generation"
 .sp
 .LP
-Before a command is executed, each command \fIword\fR is scanned for the
-characters \fB*\fR, \fB?\fR, and \fB[\fR. If one of these characters appears
-the word is regarded as a \fIpattern\fR. The word is replaced with
+Before a command is executed, each command
+.I word
+is scanned for the characters
+.BR * ,
+.BR ? ,
+and
+.BR [ .
+If one of these characters appears
+the word is regarded as a
+.IR pattern .
+The word is replaced with
 alphabetically sorted file names that match the pattern. If no file name is
 found that matches the pattern, the word is left unchanged. The character
-\fB\&.\fR at the start of a file name or immediately following a \fB/\fR, as
-well as the character \fB/\fR itself, must be matched explicitly.
-.sp
+.B \&.
+at the start of a file name or immediately following a
+.BR / ,
+as well as the character
+.B /
+itself, must be matched explicitly.
+.br
 .ne 3
-.mk
-.na
-\fB\fB*\fR\fR
-.ad
-.RS 13n
-.rt
+.TP 13n
+.B *
 Matches any string, including the null string.
-.RE
 
-.sp
+.br
 .ne 3
-.mk
-.na
-\fB\fB?\fR\fR
-.ad
-.RS 13n
-.rt
+.TP
+.B ?
 Matches any single character.
-.RE
 
-.sp
+.br
 .ne 3
-.mk
-.na
-\fB\fB[\fR.\|.\|.\fB]\fR\fR
-.ad
-.RS 13n
-.rt
+.TP
+.BR [ .\|.\|. ]
 Matches any one of the enclosed characters. A pair of characters separated
-by \fB\(mi\fR matches any character lexically between the pair, inclusive.
-If the first character following the opening \fB[\fR is a \fB!\fR, any
-character not enclosed is matched.
-.RE
+by
+.B \(mi
+matches any character lexically between the pair, inclusive.
+If the first character following the opening
+.B [
+is a
+.BR ! ,
+any character not enclosed is matched.
 
 .sp
 .LP
@@ -1230,20 +1449,26 @@ The following characters have a special meaning to the shell and cause
 termination of a word unless quoted:
 .sp
 .LP
-\fB;  &  (  )  |  ^  <  >  newline  space  tab\fR
+.B ";  &  (  )  |  ^  <  >  newline  space  tab
 .sp
 .LP
-A character can be \fIquoted\fR (that is, made to stand for itself) by
-preceding it with a backslash (\fB\e\fR) or inserting it between a pair of
+A character can be
+.I quoted
+(that is, made to stand for itself) by
+preceding it with a backslash
+.RB ( \e )
+or inserting it between a pair of
 quote marks (\fB\|'\|'\fR or \fB""\fR). During processing, the shell can
 quote certain characters to prevent them from taking on a special meaning.
 Backslashes used to quote a single character are removed from the word
-before the command is executed. The pair \fB\enewline\fR is removed from a
-word before command and parameter substitution.
+before the command is executed. The pair
+.B \enewline
+is removed from a word before command and parameter substitution.
 .sp
 .LP
 All characters enclosed between a pair of single quote marks
-(\fB\|'\|'\fR), except a single quote, are quoted by the shell. Backslash
+.RB ( \|'\|' ),
+except a single quote, are quoted by the shell. Backslash
 has no special meaning inside a pair of single quotes. A single quote can be
 quoted inside a pair of double quote marks (for example, \fB"\|'"\fR), but a
 single quote can not be quoted inside a pair of single quotes.
@@ -1251,47 +1476,82 @@ single quote can not be quoted inside a pair of single quotes.
 .LP
 Inside a pair of double quote marks (\fB""\fR), parameter and command
 substitution occurs and the shell quotes the results to avoid blank
-interpretation and file name generation. If \fB$*\fR is within a pair of
+interpretation and file name generation. If
+.B $*
+is within a pair of
 double quotes, the positional parameters are substituted and quoted,
 separated by quoted spaces (\fB"$1 \|$2\fR \|.\|.\|.\fB"\fR). However, if
-\fB$@\fR is within a pair of double quotes, the positional parameters are
+.B $@
+is within a pair of double quotes, the positional parameters are
 substituted and quoted, separated by unquoted spaces (\fB"$1"\|"$2"\fR \|
-\&.\|.\|. ). \fB\e\fR quotes the characters \fB\e\fR, \fB`\fR, \fB,\fR
-(comma), and \fB$\fR. The pair \fB\enewline\fR is removed before parameter
+\&.\|.\|. ).
+.B \e
+quotes the characters
+.BR \e ,
+.BR ` ,
+.B ,
+(comma), and
+.BR $ .
+The pair
+.B \enewline
+is removed before parameter
 and command substitution. If a backslash precedes characters other than
-\fB\e\fR, \fB`\fR, \fB,\fR (comma), \fB$\fR, and newline, then the backslash
+.BR \e ,
+.BR ` ,
+.B ,
+(comma),
+.BR $ ,
+and newline, then the backslash
 itself is quoted by the shell.
 .SS "Prompting"
 .sp
 .LP
-When used interactively, the shell prompts with the value of \fBPS1\fR
+When used interactively, the shell prompts with the value of
+.B PS1
 before reading a command. If at any time a newline is typed and further
 input is needed to complete a command, the secondary prompt (that is, the
-value of \fBPS2\fR) is issued.
+value of
+.BR PS2 )
+is issued.
 .SS "Environment"
 .sp
 .LP
-The \fIenvironment\fR (see \fBenviron\fR(5)) is a list of name-value pairs
+The
+.I environment
+(see
+.BR environ (5))
+is a list of name-value pairs
 that is passed to an executed program in the same way as a normal argument
 list. The shell interacts with the environment in several ways. On
 invocation, the shell scans the environment and creates a parameter for each
 name found, giving it the corresponding value. If the user modifies the
 value of any of these parameters or creates new parameters, none of these
-affects the environment unless the \fBexport\fR command is used to bind the
-shell's parameter to the environment (see also \fBset\fR \fB-a\fR). A
-parameter can be removed from the environment with the \fBunset\fR command.
+affects the environment unless the
+.B export
+command is used to bind the
+shell's parameter to the environment (see also
+.BR "set \-a" ).
+A parameter can be removed from the environment with the
+.B unset
+command.
 The environment seen by any executed command is thus composed of any
 unmodified name-value pairs originally inherited by the shell, minus any
-pairs removed by \fBunset\fR, plus any modifications or additions, all of
-which must be noted in \fBexport\fR commands.
+pairs removed by
+.BR unset ,
+plus any modifications or additions, all of
+which must be noted in
+.B export
+commands.
 .sp
 .LP
-The environment for any \fIsimple-command\fR can be augmented by prefixing
+The environment for any
+.I simple-command
+can be augmented by prefixing
 it with one or more assignments to parameters. Thus:
 .sp
 .in +2
 .nf
-\fBTERM=450  \fIcommand\fR\fR
+.BI TERM=450 " command
 .fi
 .in -2
 .sp
@@ -1302,32 +1562,45 @@ and
 .sp
 .in +2
 .nf
-\fB(export TERM; TERM=450;   \fIcommand\fB)\fR
+.BI "(export TERM; TERM=450;"  " command" )
 .fi
 .in -2
 .sp
 
 .sp
 .LP
-are equivalent as far as the execution of \fIcommand\fR is concerned if
-\fIcommand\fR is not a Special Command. If \fIcommand\fR is a Special
-Command, then
+are equivalent as far as the execution of
+.I command
+is concerned if
+.I command
+is not a Special Command. If
+.I command
+is a Special Command, then
 .sp
 .in +2
 .nf
-\fBTERM=450   \fIcommand\fR\fR
+.BI TERM=450  " command
 .fi
 .in -2
 .sp
 
 .sp
 .LP
-modifies the \fBTERM\fR variable in the current shell.
+modifies the
+.B TERM
+variable in the current shell.
 .sp
 .LP
-If the \fB-k\fR flag is set, \fIall\fR keyword arguments are placed in the
+If the
+.B \-k
+flag is set,
+.I all
+keyword arguments are placed in the
 environment, even if they occur after the command name. The following
-example first prints \fBa=b c\fR and \fBc\fR:
+example first prints
+.B "a=b c
+and
+.BR c :
 .sp
 .in +2
 .nf
@@ -1347,10 +1620,18 @@ c\fR
 .SS "Signals"
 .sp
 .LP
-The \fBINTERRUPT\fR and \fBQUIT\fR signals for an invoked command are
-ignored if the command is followed by \fB&\fR\&. Otherwise, signals have the
+The
+.B INTERRUPT
+and
+.B QUIT
+signals for an invoked command are
+ignored if the command is followed by
+.BR & \&.
+Otherwise, signals have the
 values inherited by the shell from its parent, with the exception of signal
-11 (but see also the \fBtrap\fR command below).
+11 (but see also the
+.B trap
+command below).
 .SS "Execution"
 .sp
 .LP
@@ -1360,89 +1641,94 @@ generation listed above are carried out. If the command name matches the
 name of a defined function, the function is executed in the shell process
 (note how this differs from the execution of shell script files, which
 require a sub-shell for invocation). If the command name does not match the
-name of a defined function, but matches one of the \fBSpecial Commands\fR
+name of a defined function, but matches one of the
+.B Special Commands
 listed below, it is executed in the shell process.
 .sp
 .LP
-The positional parameters \fB$1\fR, \fB$2\fR, .\|.\|. are set to the
-arguments of the function. If the command name matches neither a \fBSpecial
-Command\fR nor the name of a defined function, a new process is created and
-an attempt is made to execute the command via \fBexec\fR(2).
+The positional parameters
+.BR $1 ,
+.BR $2 ,
+\&.\|.\|. are set to the
+arguments of the function. If the command name matches neither a
+.B Special Command
+nor the name of a defined function, a new process is created and
+an attempt is made to execute the command via
+.BR exec (2).
 .sp
 .LP
-The shell parameter \fBPATH\fR defines the search path for the directory
+The shell parameter
+.B PATH
+defines the search path for the directory
 containing the command. Alternative directory names are separated by a colon
-(\fB:\fR). The default path is
+.RB ( : ).
+The default path is
 .BR /usr/bin: .
 The current directory is
 specified by a null path name, which can appear immediately after the equal
 sign, between two colon delimiters anywhere in the path list, or at the end
-of the path list. If the command name contains a \fB/\fR the search path is
+of the path list. If the command name contains a
+.B /
+the search path is
 not used. Otherwise, each directory in the path is searched for an
 executable file. If the file has execute permission but is not an
-\fBa.out\fR file, it is assumed to be a file containing shell commands. A
+.B a.out
+file, it is assumed to be a file containing shell commands. A
 sub-shell is spawned to read it. A parenthesized command is also executed in
 a sub-shell.
 .sp
 .LP
 The location in the search path where a command was found is remembered by
-the shell (to help avoid unnecessary \fIexec\fRs later). If the command was
+the shell (to help avoid unnecessary
+.IR exec s
+later). If the command was
 found in a relative directory, its location must be re-determined whenever
 the current directory changes. The shell forgets all remembered locations
-whenever the \fBPATH\fR variable is changed or the \fBhash\fR \fB-r\fR
+whenever the
+.B PATH
+variable is changed or the
+.B hash \-r
 command is executed (see below).
 .SS "Special Commands"
 .sp
 .LP
 Input/output redirection is now permitted for these commands. File
 descriptor 1 is the default output location. When Job Control is enabled,
-additional \fBSpecial Commands\fR are added to the shell's environment (see
-\fBJob Control\fR section below).
-.sp
+additional
+.B Special Commands
+are added to the shell's environment (see
+.B Job Control
+section below).
+.br
 .ne 3
-.mk
-.na
-\fB\fB:\fR\fR
-.ad
+.TP 4n
+.B :
 .sp .6
-.RS 4n
 No effect; the command does nothing. A zero exit code is returned.
-.RE
 
-.sp
+.br
 .ne 3
-.mk
-.na
-\fB\fB\&.\|\fR \fIfilename\fR\fR
-.ad
-.sp .6
-.RS 4n
+.TP
+.BI \&. " filename
+.sp
 Read and execute commands from \fIfilename\fR and return. The search path
 specified by \fBPATH\fR is used to find the directory containing
-\fIfilename\fR.
-.RE
+.IR filename .
 
-.sp
+.br
 .ne 3
-.mk
-.na
+.TP
 \fB\fB[\fR\fR [\fIexpr\fR] ]
-.ad
 .sp .6
-.RS 4n
 See
 .B test
 builtin below.
-.RE
 
-.sp
+.br
 .ne 3
-.mk
-.na
+.TP
 .B "alias \fR[\fI options \fR] [\fIalias-name\fR[\fR=\fIvalue\fR]...]
-.ad
 .sp .6
-.RS 4n
 The
 .B alias
 command creates, redefines or lists existing alias definitions.
@@ -1482,6 +1768,7 @@ command always pushes new definitions on top of older ones.
 This makes such alias definitions temporary in the 
 global aliases name space by default, as required by the POSIX standard.
 The following options may be used to modify operation:
+.RS
 .TP
 .B \-a
 Define an alias definition that is expanded on all arguments of a command line and
@@ -1571,14 +1858,11 @@ Aliases are often used together with the
 builtin in order to run small parameterized shell scripts.
 .RE
 
-.sp
+.br
 .ne 3
-.mk
-.na
-\fB\fBalloc\fR\fR
-.ad
+.TP
+.B alloc
 .sp .6
-.RS 4n
 In case
 .B sh
 has been compiled with storage debugging support, the
@@ -1591,96 +1875,114 @@ The
 .B alloc
 command was not supported in older versions of
 .BR sh .
-.RE
 
-.sp
+.br
 .ne 3
-.mk
-.na
+.TP
 \fB\fBbg\fR [\fB%\fR\fIjobid .\|.\|.\fR]\fR
-.ad
 .sp .6
-.RS 4n
-When Job Control is enabled, the \fBbg\fR command is added to the user's
+When Job Control is enabled, the
+.B bg
+command is added to the user's
 environment to manipulate jobs. Resumes the execution of a stopped job in
-the background. If \fB%\fR\fIjobid\fR is omitted the current job is assumed.
-(See \fBJob Control\fR section below for more detail.)
-.RE
+the background. If
+.BI % jobid
+is omitted the current job is assumed.
+(See
+.B Job Control
+section below for more detail.)
 
-.sp
+.br
 .ne 3
-.mk
-.na
+.TP
 \fB\fBbreak\fR [ \fIn\fR ]\fR
-.ad
 .sp .6
-.RS 4n
-Exit from the enclosing \fBfor\fR or \fBwhile\fR loop, if any. If \fIn\fR
-is specified, break \fIn\fR levels.
-.RE
+Exit from the enclosing
+.B for
+or
+.B while
+loop, if any. If
+.I n
+is specified, break
+.I n
+levels.
 
-.sp
+.br
 .ne 3
-.mk
-.na
+.TP
 \fB\fBcd\fR [ \fIargument\fR ]\fR
-.ad
 .sp .6
-.RS 4n
-Change the current directory to \fIargument\fR. The shell parameter
-\fBHOME\fR is the default \fIargument\fR. The shell parameter \fBCDPATH\fR
-defines the search path for the directory containing \fIargument\fR.
-Alternative directory names are separated by a colon (\fB:\fR). The default
-path is \fB<null>\fR (specifying the current directory). \fBNote:\fR The
-current directory is specified by a null path name, which can appear
+Change the current directory to
+.IR argument .
+The shell parameter
+.B HOME
+is the default
+.IR argument .
+The shell parameter
+.B CDPATH
+defines the search path for the directory containing
+.IR argument .
+Alternative directory names are separated by a colon
+.RB ( : ).
+The default path is
+.B <null>
+(specifying the current directory).
+.B Note:
+The current directory is specified by a null path name, which can appear
 immediately after the equal sign or between the colon delimiters anywhere
-else in the path list. If \fIargument\fR begins with a \fB/\fR the search
+else in the path list. If
+.I argument
+begins with a
+.B /
+the search
 path is not used. Otherwise, each directory in the path is searched for
-\fIargument\fR.
+.IR argument .
 .sp
 The previous working directory is kept in the shell parameter
 .BR OLDPWD ,
 the new working directory is kept in the shell parameter
 .BR PWD .
 The top of the directory stack is replaced by the new working directory.
-.RE
 
-.sp
+.br
 .ne 3
-.mk
-.na
+.TP
 \fB\fBchdir\fR [ \fIdir\fR ]\fR
-.ad
 .sp .6
-.RS 4n
-\fBchdir\fR changes the shell's working directory to directory \fIdir\fR.
+.B chdir
+changes the shell's working directory to directory
+.IR dir .
 If no argument is given, change to the home directory of the user. If
-\fIdir\fR is a relative pathname not found in the current directory, check
-for it in those directories listed in the \fBCDPATH\fR variable. If
-\fIdir\fR is the name of a shell variable whose value starts with a \fB/\fR,
+.I dir
+is a relative pathname not found in the current directory, check
+for it in those directories listed in the
+.B CDPATH
+variable. If
+.I dir
+is the name of a shell variable whose value starts with a
+.BR / ,
 change to the directory named by that value.
-.RE
 
-.sp
+.br
 .ne 3
-.mk
-.na
+.TP
 \fB\fBcontinue\fR [ \fIn\fR ]\fR
-.ad
 .sp .6
-.RS 4n
-Resume the next iteration of the enclosing \fBfor\fR or \fBwhile\fR loop.
-If \fIn\fR is specified, resume at the \fIn\fR-th enclosing loop.
-.RE
+Resume the next iteration of the enclosing
+.B for
+or
+.B while
+loop. If
+.I n
+is specified, resume at the
+.IR n -th
+enclosing loop.
 
-.sp
+.br
 .ne 3
-.mk
-.na
+.TP
 .B dirs
-.ad
 .sp .6
-.RS 4n
 Print the content of the directory stack.
 The top of the stack is the leftmost element which has the logical offset
 .BR 0 .
@@ -1697,16 +1999,12 @@ The
 .B dirs
 command was not supported in older versions of
 .BR sh .
-.RE
 
-.sp
+.br
 .ne 3
-.mk
-.na
+.TP
 .BI dosh " command_string \fR[[\fI command_name \fR] [\fI args \fR]]
-.ad
 .sp .6
-.RS 4n
 The
 .B dosh
 command executes commands from
@@ -1725,7 +2023,7 @@ starting with
 The
 .B dosh
 command thus behaves like
-.BI "sh -c" " command_string\fR,
+.BI "sh \-c" " command_string\fR,
 but does not launch a new shell.
 Calling
 .B return
@@ -1743,19 +2041,18 @@ The
 .B dosh
 command was not supported in older versions of
 .BR sh .
-.RE
 
-.sp
+.br
 .ne 3
-.mk
-.na
+.TP
 \fB\fBecho\fR [ \fIarguments\fR .\|.\|. ]\fR
-.ad
 .sp .6
-.RS 4n
-The words in \fIarguments\fR are written to the shell's standard output,
-separated by space characters. See \fBecho\fR(1) for fuller usage and
-description.
+The words in
+.I arguments
+are written to the shell's standard output,
+separated by space characters. See
+.BR echo (1)
+for fuller usage and description.
 .sp
 .ne 4
 If
@@ -1779,6 +2076,7 @@ argument is also interpreted, but
 escape sequences are processed as usual.
 .sp
 The following character sequences are recognized within any of the arguments:
+.RS
 .TP
 .B \ea
 Alert character.
@@ -1819,86 +2117,84 @@ code is the 1-, 2- or 3-digit octal number representing that character.
 .PD
 .RE
 
-.sp
+.br
 .ne 3
-.mk
-.na
+.TP
 \fB\fBeval\fR [ \fIargument\fR .\|.\|. ]\fR
-.ad
 .sp .6
-.RS 4n
 The arguments are read as input to the shell and the resulting command(s)
 executed.
-.RE
 
-.sp
+.br
 .ne 3
-.mk
-.na
+.TP
 \fB\fBexec\fR [ \fIargument\fR .\|.\|. ]\fR
-.ad
 .sp .6
-.RS 4n
 The command specified by the arguments is executed in place of this shell
 without creating a new process. Input/output arguments can appear and, if no
 other arguments are given, cause the shell input/output to be modified.
-.RE
 
-.sp
+.br
 .ne 3
-.mk
-.na
+.TP
 \fB\fBexit\fR [ \fIn\fR ]\fR
-.ad
 .sp .6
-.RS 4n
 Causes the calling shell or shell script to exit with the exit status
-specified by \fIn\fR. If \fIn\fR is omitted the exit status is that of the
-last command executed (an \fBEOF\fR also causes the shell to exit.)
-.RE
+specified by
+.IR n .
+If
+.I n
+is omitted the exit status is that of the
+last command executed (an
+.B EOF
+also causes the shell to exit.)
 
-.sp
+.br
 .ne 3
-.mk
-.na
+.TP
 \fB\fBexport\fR [ \fIname\fR .\|.\|. ]\fR
-.ad
 .sp .6
-.RS 4n
-The given \fIname\fRs are marked for automatic export to the
-\fIenvironment\fR of subsequently executed commands. If no arguments are
+The given
+.IR name s
+are marked for automatic export to the
+.I environment
+of subsequently executed commands. If no arguments are
 given, variable names that have been marked for export during the current
 shell's execution are listed. (Variable names exported from a parent shell
 are listed only if they have been exported again during the current shell's
-execution.) Function names are \fBnot\fR exported.
-.RE
+execution.) Function names are
+.B not
+exported.
 
-.sp
+.br
 .ne 3
-.mk
-.na
+.TP
 \fB\fBfg\fR [\fB%\fR\fIjobid .\|.\|.\fR]\fR
-.ad
 .sp .6
-.RS 4n
-When Job Control is enabled, the \fBfg\fR command is added to the user's
+When Job Control is enabled, the
+.B fg
+command is added to the user's
 environment to manipulate jobs. This command resumes the execution of a
 stopped job in the foreground and also moves an executing background job
-into the foreground. If \fB%\fR\fIjobid\fR is omitted, the current job is
-assumed. (See \fBJob Control\fR section below for more detail.)
-.RE
+into the foreground. If
+.BI % jobid
+is omitted, the current job is
+assumed. (See
+.B Job Control
+section below for more detail.)
 
-.sp
+.br
 .ne 3
-.mk
-.na
+.TP
 \fB\fBgetopts \fIoptstring name\fR\fR [\fIarg\fR...]
-.ad
 .sp .6
-.RS 4n
 Use in shell scripts to support command syntax standards (see
-\fBIntro\fR(1)). This command parses positional parameters and checks for
-legal options. See \fBgetoptcvt\fR(1) for usage and description.
+.BR Intro (1)).
+This command parses positional parameters and checks for
+legal options. See
+.BR getoptcvt (1)
+for usage and description.
+.RS
 .LP
 The
 .B getopts
@@ -1964,46 +2260,51 @@ You must enclose each long option equivalent in parentheses, as follows:
   getopts "f:(file)(input-file)o:(output-file)"
 .LP
 In the above example, both
-.B --file
+.B \-\-file
 and
-.B --input-file
+.B \-\-input\-file
 are the equivalent of
-.BR -f ,
+.BR \-f ,
 and
-.B --output-file
+.B \-\-output\-file
 is the equivalent of
-.BR -o .
+.BR \-o .
 .RE
 
-.sp
+.br
 .ne 3
-.mk
-.na
-\fB\fBhash\fR [ \fB-r\fR ] [ \fIname\fR .\|.\|. ]\fR
-.ad
+.TP
+\fB\fBhash\fR [ \fB\-r\fR ] [ \fIname\fR .\|.\|. ]\fR
 .sp .6
-.RS 4n
-For each \fIname\fR, the location in the search path of the command
-specified by \fIname\fR is determined and remembered by the shell. The
-\fB-r\fR option causes the shell to forget all remembered locations. If no
+For each
+.IR name ,
+the location in the search path of the command specified by
+.I name
+is determined and remembered by the shell. The
+.B \-r
+option causes the shell to forget all remembered locations. If no
 arguments are given, information about remembered commands is presented.
-\fIHits\fR is the number of times a command has been invoked by the shell
-process. \fICost\fR is a measure of the work required to locate a command in
+.I Hits
+is the number of times a command has been invoked by the shell
+process.
+.I Cost
+is a measure of the work required to locate a command in
 the search path. If a command is found in a "relative" directory in the
 search path, after changing to that directory, the stored location of that
 command is recalculated. Commands for which this are done are indicated by
-an asterisk (\fB*\fR) adjacent to the \fIhits\fR information. \fICost\fR is
-incremented when the recalculation is done.
-.RE
+an asterisk
+.RB ( * )
+adjacent to the
+.I hits
+information.
+.I Cost
+is incremented when the recalculation is done.
 
-.sp
-.ne 3
-.mk
-.na
+.br
+.ne 4
+.TP
 .B history
-.ad
 .sp .6
-.RS 4n
 Print the current command history.
 The
 .B history
@@ -2014,76 +2315,84 @@ The
 .B history
 command was not supported in older versions of
 .BR sh .
-.RE
 
-.sp
-.ne 3
-.mk
-.na
-\fB\fBjobs\fR [\fB\fR\fB-p\fR\fB|\fR\fB-l\fR] [\fB%\fR\fIjobid ...\fR]\fR
-.ad
 .br
-.na
-\fB\fBjobs\fR \fB-x\fR \fIcommand\fR [\fIarguments\fR]\fR
-.ad
+.ne 3
+.TP
+\fB\fBjobs\fR [\fB\fR\fB\-p\fR\fB|\fR\fB\-l\fR] [\fB%\fR\fIjobid ...\fR]\fR
+.PD 0
+.TP
+\fB\fBjobs\fR \fB\-x\fR \fIcommand\fR [\fIarguments\fR]\fR
+.PD
 .sp .6
-.RS 4n
 Reports all jobs that are stopped or executing in the background. If
-\fB%\fR\fIjobid\fR is omitted, all jobs that are stopped or running in the
-background are reported. (See \fBJob Control\fR section below for more
-detail.)
-.RE
+.BI % jobid
+is omitted, all jobs that are stopped or running in the
+background are reported. (See
+.B Job Control
+section below for more detail.)
 
-.sp
-.ne 3
-.mk
-.na
-\fB\fBkill\fR [ \fB-\fR\fIsig\fR ] \fB%\fR\fIjob\fR .\|.\|.\fR
-.ad
 .br
-.na
-\fB\fBkill\fR \fB-l\fR\fR
-.ad
+.ne 3
+.TP
+\fB\fBkill\fR [ \fB\-\fR\fIsig\fR ] \fB%\fR\fIjob\fR .\|.\|.\fR
+.PD 0
+.TP
+\fB\fBkill\fR \fB\-l\fR\fR
+.PD
 .sp .6
-.RS 4n
-Sends either the \fBTERM\fR (terminate) signal or the specified signal to
+Sends either the
+.B TERM
+(terminate) signal or the specified signal to
 the specified jobs or processes. Signals are either given by number or by
-names (as given in \fBsignal.h\fR(3HEAD) stripped of the prefix "SIG" with
-the exception that \fBSIGCHD\fR is named \fBCHLD\fR). If the signal being
-sent is \fBTERM\fR (terminate) or \fBHUP\fR (hangup), then the job or
-process is sent a \fBCONT\fR (continue) signal if it is stopped. The
-argument \fIjob\fR can be the process id of a process that is not a member
-of one of the active jobs. See \fBJob Control\fR section below for a
-description of the format of \fIjob\fR. In the second form, \fBkill\fR
-\fB-l\fR, the signal numbers and names are listed. (See \fBkill\fR(1)).
-.RE
+names (as given in
+.BR signal.h (3HEAD)
+stripped of the prefix "SIG" with the exception that
+.B SIGCHD
+is named
+.BR CHLD ).
+If the signal being sent is
+.B TERM
+(terminate) or
+.B HUP
+(hangup), then the job or
+process is sent a
+.B CONT
+(continue) signal if it is stopped. The
+argument
+.I job
+can be the process id of a process that is not a member
+of one of the active jobs. See
+.B Job Control
+section below for a description of the format of
+.IR job .
+In the second form,
+.BR "kill \-l" ,
+the signal numbers and names are listed. (See
+.BR kill (1)).
 
-.sp
+.br
 .ne 3
-.mk
-.na
+.TP
 \fB\fBlogin\fR [ \fIargument\fR .\|.\|. ]\fR
-.ad
 .sp .6
-.RS 4n
 Equivalent to `\fBexec\fR \fBlogin\fR \fIargument\fR.\|.\|.\|.' See
-\fBlogin\fR(1) for usage and description.
-.RE
+.BR login (1)
+for usage and description.
 
-.sp
+.br
 .ne 8
-.mk
-.na
+.TP
 .B map
-.br
+.PD 0
+.TP
 .B map \-r
-.br
+.TP
 \fBmap \fImap_from map_to\fR [ \fIcomment\fR ]
-.br
+.TP
 \fBmap \-u \fImap_from\fR
-.ad
+.PD
 .sp .6
-.RS 4n
 Handle history editor input mapping.
 Input mapping in the history editor is automatically managed via
 .B TERMCAP
@@ -2094,6 +2403,7 @@ The
 command is only supported if
 .B sh
 was compiled with support for history editing.
+.RS
 .LP
 If the
 .B map
@@ -2144,26 +2454,22 @@ command was not supported in older versions of
 .BR sh .
 .RE
 
-.sp
+.br
 .ne 3
-.mk
-.na
+.TP
 \fB\fBnewgrp\fR [ \fIargument\fR ]\fR
-.ad
 .sp .6
-.RS 4n
-Equivalent to \fBexec\fR \fBnewgrp\fR \fIargument\fR. See \fBnewgrp\fR(1)
+Equivalent to
+.BI "exec newgrp " argument\fR.
+See
+.BR newgrp (1)
 for usage and description.
-.RE
 
-.sp
+.br
 .ne 3
-.mk
-.na
+.TP
 \fB\fBpopd\fR [ \fI\-offset\fR ]\fR
-.ad
 .sp .6
-.RS 4n
 Calling
 .B popd
 without argument removes the current top directory stack element
@@ -2191,18 +2497,16 @@ The
 .B popd
 command was not supported in older versions of
 .BR sh .
-.RE
 
-.sp
-.ne 3
-.mk
-.na
-\fB\fBpushd\fR [ \fIname\fR ]\fR
 .br
+.ne 3
+.TP
+\fB\fBpushd\fR [ \fIname\fR ]\fR
+.PD 0
+.TP
 \fB\fBpushd\fR [ \fI\-offset\fR ]\fR
-.ad
+.PD
 .sp .6
-.RS 4n
 The
 .B pushd
 command is similar to the
@@ -2227,39 +2531,47 @@ The
 .B pushd
 command was not supported in older versions of
 .BR sh .
-.RE
 
-.sp
+.br
 .ne 3
-.mk
-.na
+.TP
 \fB\fBpwd\fR\fR
-.ad
 .sp .6
-.RS 4n
-Print the current working directory. See \fBpwd\fR(1) for usage and
-description.
+Print the current working directory. See
+.BR pwd (1)
+for usage and description.
 The current working directory is kept in the shell parameter
 .BR PWD .
-.RE
 
-.sp
+.br
 .ne 3
-.mk
-.na
+.TP
 \fB\fBread\fR [ \fB\-r\fR ] \fIname\fR .\|.\|.\fR
-.ad
 .sp .6
-.RS 4n
 One line is read from the standard input and, using the internal field
-separator, \fBIFS\fR (normally space or tab), to delimit word boundaries,
-the first word is assigned to the first \fIname\fR, the second word to the
-second \fIname\fR, and so forth, with leftover words assigned to the last
-\fIname\fR. Lines can be continued using \fB\enewline\fR\&. Characters other
-than \fBnewline\fR can be quoted by preceding them with a backslash. These
-backslashes are removed before words are assigned to \fInames\fR, and no
-interpretation is done on the character that follows the backslash. The
-return code is \fB0\fR, unless an \fBEOF\fR is encountered.
+separator,
+.B IFS
+(normally space or tab), to delimit word boundaries,
+the first word is assigned to the first
+.IR name ,
+the second word to the second
+.IR name ,
+and so forth, with leftover words assigned to the last
+.IR name .
+Lines can be continued using
+.BR \enewline \&.
+Characters other than
+.B newline
+can be quoted by preceding them with a backslash. These
+backslashes are removed before words are assigned to
+.IR names ,
+and no interpretation is done on the character that follows the backslash. The
+return code is
+.BR 0 ,
+unless an
+.B EOF
+is encountered.
+.RS
 .TP
 .B \-r
 Do not treat a
@@ -2274,27 +2586,27 @@ was not supported in older versions of
 .BR sh .
 .RE
 
-.sp
+.br
 .ne 3
-.mk
-.na
+.TP
 \fB\fBreadonly\fR [ \fIname\fR .\|.\|. ]\fR
-.ad
 .sp .6
-.RS 4n
-The given \fIname\fRs are marked \fBreadonly\fR and the values of the these
-\fIname\fRs can not be changed by subsequent assignment. If no arguments are
-given, a list of all \fBreadonly\fR names is printed.
-.RE
+The given
+.IR name s
+are marked
+.B readonly
+and the values of the these
+.IR name s
+can not be changed by subsequent assignment. If no arguments are
+given, a list of all
+.B readonly
+names is printed.
 
-.sp
+.br
 .ne 3
-.mk
-.na
+.TP
 \fB\fBrepeat\fR [ \fB\-c \fIcount\fR ]\fR [ \fB\-d \fIdelay\fR ]\fR \fIcommand\fR [ \fIargs\fR ]
-.ad
 .sp .6
-.RS 4n
 The command
 .I command
 is executed repeatedly as if it was called via
@@ -2319,121 +2631,79 @@ The
 .B repeat
 command was not supported in older versions of
 .BR sh .
-.RE
 
-.sp
+.br
 .ne 3
-.mk
-.na
+.TP
 \fB\fBreturn\fR [ \fIn\fR ]\fR
-.ad
 .sp .6
-.RS 4n
-Causes a function to exit with the return value specified by \fIn\fR. If
-\fIn\fR is omitted, the return status is that of the last command
+Causes a function to exit with the return value specified by
+.IR n .
+If
+.I n
+is omitted, the return status is that of the last command
 executed.
-.RE
 
-.sp
+.br
 .ne 3
-.mk
-.na
+.TP
 .B savehistory
-.ad
 .sp .6
-.RS 4n
 Save the current history in the file
 .BR $HOME/.history .
 The
 .B savehistory
 command was not supported in older versions of
 .BR sh .
-.RE
 
-.sp
+.br
 .ne 3
-.mk
-.na
-\fB\fBset\fR [ \fB-aefhkmntuvxP\fR [ \fIargument\fR .\|.\|. ] ]\fR
-.ad
+.TP
+\fB\fBset\fR [ \fB\-aefhkmntuvxP\fR [ \fIargument\fR .\|.\|. ] ]\fR
 .sp .6
-.RS 4n
-.sp
+.RS
+.br
 .ne 3
-.mk
-.na
-\fB\fB-a\fR\fR
-.ad
-.RS 6n
-.rt
+.TP 6n
+.B \-a
 Mark variables which are modified or created for export.
-.RE
 
-.sp
+.br
 .ne 3
-.mk
-.na
-\fB\fB-e\fR\fR
-.ad
-.RS 6n
-.rt
+.TP
+.B \-e
 Exit immediately if a command exits with a non-zero exit status.
-.RE
 
-.sp
+.br
 .ne 3
-.mk
-.na
-\fB\fB-f\fR\fR
-.ad
-.RS 6n
-.rt
+.TP
+.B \-f
 Disable file name generation.
-.RE
 
-.sp
+.br
 .ne 3
-.mk
-.na
-\fB\fB-h\fR\fR
-.ad
-.RS 6n
-.rt
+.TP
+.B \-h
 Locate and remember function commands as functions are defined (function
 commands are normally located when the function is executed).
-.RE
 
-.sp
+.br
 .ne 3
-.mk
-.na
-\fB\fB-k\fR\fR
-.ad
-.RS 6n
-.rt
+.TP
+.B \-k
 All keyword arguments are placed in the environment for a command, not just
 those that precede the command name.
-.RE
 
-.sp
+.br
 .ne 3
-.mk
-.na
-\fB\fB-m\fR\fR
-.ad
-.RS 6n
-.rt
+.TP
+.B \-m
 Switch job control mode on.
-.RE
 
-.sp
+.br
 .ne 3
-.mk
-.na
-\fB\fB-n\fR\fR
-.ad
-.RS 6n
-.rt
+.TP
+.B \-n
 Read commands but do not execute them.
 Note that this cannot be undone as after setting
 .BR \-n ,
@@ -2442,28 +2712,17 @@ Setting
 .B \-n
 in an interactive shell removes the ability to
 leave this shell.
-.RE
 
-.sp
+.br
 .ne 3
-.mk
-.na
-\fB\fB-t\fR\fR
-.ad
-.RS 6n
-.rt
+.TP
+.B \-t
 Exit after reading and executing one command.
-.RE
 
-.sp
+.br
 .ne 3
-.mk
-.na
+.TP
 \fB\-o\fR [\fIoption\fR]
-.ad
-.RS 6n
-.rt
-.sp
 If
 .I option
 is not specified, list the current option setting to stdout;
@@ -2484,6 +2743,7 @@ option may be repeated to enable or disable multiple options.
 The value of
 .I option
 must be one of the following:
+.RS
 .TP 15
 .PD 0
 .B allexport
@@ -2570,48 +2830,28 @@ Equivalent to
 .PD
 .RE
 
-.sp
+.br
 .ne 3
-.mk
-.na
-\fB\fB-u\fR\fR
-.ad
-.RS 6n
-.rt
+.TP
+.B \-u
 Treat unset variables as an error when substituting.
-.RE
 
-.sp
+.br
 .ne 3
-.mk
-.na
-\fB\fB-v\fR\fR
-.ad
-.RS 6n
-.rt
+.TP
+.B \-v
 Print shell input lines as they are read.
-.RE
 
-.sp
+.br
 .ne 3
-.mk
-.na
-\fB\fB-x\fR\fR
-.ad
-.RS 6n
-.rt
+.TP
+.B \-x
 Print commands and their arguments as they are executed.
-.RE
 
-.sp
+.br
 .ne 5
-.ne 3
-.mk
-.na
-\fB\fB-P\fR\fR
-.ad
-.RS 6n
-.rt
+.TP
+.B \-P
 Switch profile mode on.
 In this mode, the shell runs privilleged programs automatically in
 privilleged mode.
@@ -2623,88 +2863,79 @@ The option
 .B \-P
 was not supported in older versions of
 .BR sh .
-.RE
 
-.sp
+.br
 .ne 3
-.mk
-.na
-\fB\fB-\fR\fR
-.ad
-.RS 6n
-.rt
+.TP
+.B \-
 Clear the
 .B \-v
 and
 .B \-x
 option.
-.RE
 
-.sp
+.br
 .ne 3
-.mk
-.na
+.TP
 \fB\-\-\fR
-.ad
-.RS 6n
-.rt
 Stop option processing.
 Further parameters are handled as normal args even when they start with a
-.BR - .
-.RE
-
-Using \fB+\fR rather than \fB\(mi\fR causes these flags to be turned off.
+.BR \- .
+.LP
+Using
+.B +
+rather than
+.B \(mi
+causes these flags to be turned off.
 These flags can also be used upon invocation of the shell. The current set
-of flags can be found in \fB$\(mi\fR. The remaining arguments are positional
-parameters and are assigned, in order, to \fB$1\fR, \fB$2\fR, .\|.\|. If no
-arguments are given, the values of all names are printed.
+of flags can be found in
+.BR $\(mi .
+The remaining arguments are positional
+parameters and are assigned, in order, to
+.BR $1 ,
+.BR $2 ,
+\&.\|.\|. If no arguments are given, the values of all names are printed.
 .RE
 
-.sp
+.br
 .ne 3
-.mk
-.na
+.TP
 \fB\fBshift\fR [ \fIn\fR ]\fR
-.ad
 .sp .6
-.RS 4n
-The positional parameters from \fB$\fR\fIn\fR\fB+1\fR .\|.\|. are renamed
-\fB$1\fR .\|.\|. . If \fIn\fR is not given, it is assumed to be 1.
-.RE
+The positional parameters from
+.BI $ n +1
+\&.\|.\|. are renamed
+.B $1
+\&.\|.\|. . If
+.I n
+is not given, it is assumed to be 1.
 
-.sp
+.br
 .ne 3
-.mk
-.na
+.TP
 \fB\fBstop\fR \fIpid .\|.\|.\fR\fR
-.ad
 .sp .6
-.RS 4n
-Halt execution of the process number \fIpid\fR. (see \fBps\fR(1)).
-.RE
+Halt execution of the process number
+.IR pid .
+(see
+.BR ps (1)).
 
-.sp
+.br
 .ne 3
-.mk
-.na
-\fB\fBsuspend\fR\fR
-.ad
+.TP
+.B suspend
 .sp .6
-.RS 4n
 Stops the execution of the current shell (but not if it is the login
 shell).
-.RE
 
-.sp
+.br
 .ne 3
-.mk
-.na
+.TP
 .BI test " [expr]
-.ad
 .sp .6
-.RS 4n
-Evaluate conditional expressions. See \fBtest\fR(1) for usage and
-description. If the value of the expression 
+Evaluate conditional expressions. See
+.BR test (1)
+for usage and description. If the value of the expression 
 .IR expr ,
 is
 .B true
@@ -2717,6 +2948,7 @@ returns a non zero exit status if there are no arguments.
 .sp
 The following primaries are used to evaluate a
 .IR condition:
+.RS
 .br
 .ne 3
 .TP 10
@@ -3005,86 +3237,106 @@ binary primary is left associative.
 .PD
 .RE
 
-.sp
+.br
 .ne 3
-.mk
-.na
-\fB\fBtimes\fR\fR
-.ad
+.TP
+.B times
 .sp .6
-.RS 4n
 Print the accumulated user and system times for processes run from the
 shell.
-.RE
 
-.sp
+.br
 .ne 3
-.mk
-.na
+.TP
 \fB\fBtrap\fR [ \fIargument\fR \fIn\fR [ \fIn2\fR .\|.\|. ]]\fR
-.ad
 .sp .6
-.RS 4n
-The command \fIargument\fR is to be read and executed when the shell
-receives numeric or symbolic signal(s) (\fIn\fR). (\fBNote:\fR
-\fIargument\fR is scanned once when the trap is set and once when the trap
+The command
+.I argument
+is to be read and executed when the shell
+receives numeric or symbolic signal(s)
+.RI ( n ).
+.RB ( Note:
+.I argument
+is scanned once when the trap is set and once when the trap
 is taken.) Trap commands are executed in order of signal number or
 corresponding symbolic names. Any attempt to set a trap on a signal that was
 ignored on entry to the current shell is ineffective. An attempt to trap on
-signal 11 (memory fault) produces an error. If \fIargument\fR is absent, all
-trap(s) \fIn\fR are reset to their original values. If \fIargument\fR is the
+signal 11 (memory fault) produces an error. If
+.I argument
+is absent, all trap(s)
+.I n 
+are reset to their original values. If
+.I argument
+is the
 null string, this signal is ignored by the shell and by the commands it
-invokes. If \fIn\fR is 0, the command \fIargument\fR is executed on exit
-from the shell. The \fBtrap\fR command with no arguments prints a list of
+invokes. If
+.I n
+is 0, the command
+.I argument
+is executed on exit
+from the shell. The
+.B trap
+command with no arguments prints a list of
 commands associated with each signal number.
-.RE
 
-.sp
-.ne 3
-.mk
-.na
-\fB\fBtype\fR [ \fIname\fR .\|.\|. ]\fR
-.ad
-.sp .6
-.RS 4n
-For each \fIname\fR, indicate how it would be interpreted if used as a
-command name.
-.RE
-
-.sp
-.ne 3
-.mk
-.na
-\fB\fBulimit\fR [ [\fB-HS\fR] [\fB-a\fR | \fB-cdflmnstuv\fR] ]\fR
-.ad
 .br
-.na
-\fB\fBulimit\fR [ [\fB-HS\fR]
-[\fB-c\fR|\fB-d\fR|\fB-f\fR|\fB-l\fR|\fB-m\fR|\fB-n\fR|\fB-s\fR|\fB-t\fR|\fB-u\fR|\fB-v\fR] ]
-\fBlimit\fR\fR
-.ad
+.ne 4
+.TP
+\fB\fBtype\fR [ \fIname\fR .\|.\|. ]\fR
 .sp .6
-.RS 4n
-\fBulimit\fR prints or sets hard or soft resource limits. These limits are
-described in \fBgetrlimit\fR(2).
+For each
+.IR name ,
+indicate how it would be interpreted if used as a command name.
+
+.br
+.ne 3
+.TP
+\fB\fBulimit\fR [ [\fB\-HS\fR] [\fB\-a\fR | \fB\-cdflmnstuv\fR] ]\fR
+.PD 0
+.TP
+\fB\fBulimit\fR [ [\fB\-HS\fR] [\fB\-c\fR|\fB\-d\fR|\fB\-f\fR|\fB\-l\fR|\fB\-m\fR|\fB\-n\fR|\fB\-s\fR|\fB\-t\fR|\fB\-u\fR|\fB\-v\fR] ] \fBlimit\fR\fR
+.PD
+.sp .6
+.B ulimit
+prints or sets hard or soft resource limits. These limits are
+described in
+.BR getrlimit (2).
 .sp
-If \fIlimit\fR is not present, \fBulimit\fR prints the specified limits.
-Any number of limits can be printed at one time. The \fB-a\fR option prints
-all limits.
+If
+.I limit
+is not present,
+.B ulimit
+prints the specified limits.
+Any number of limits can be printed at one time. The
+.B \-a
+option prints all limits.
 .sp
-If \fIlimit\fR is present, \fBulimit\fR sets the specified limit to
-\fIlimit\fR. The string \fBunlimited\fR requests that the current limit, if
+If
+.I limit
+is present,
+.B ulimit
+sets the specified limit to
+.IR limit .
+The string
+.B unlimited
+requests that the current limit, if
 any, be removed. Any user can set a soft limit to any value less than or
 equal to the hard limit. Any user can lower a hard limit. Only a user
 with appropriate privileges can raise or remove a hard limit. See
-\fBgetrlimit\fR(2).
+.BR getrlimit (2).
 .sp
-The \fB-H\fR option specifies a hard limit. The \fB-S\fR option specifies a
-soft limit. If neither option is specified, \fBulimit\fR sets both limits
-and print the soft limit.
+The
+.B \-H
+option specifies a hard limit. The
+.B \-S
+option specifies a
+soft limit. If neither option is specified,
+.B ulimit
+sets both limits and print the soft limit.
 .sp
 The following options specify the resource whose limits are to be printed
 or set. If no option is specified, the file size limit is printed or set.
+.RS
 .br
 .ne 3
 .TP
@@ -3138,30 +3390,34 @@ maximum size of virtual memory (in kbytes)
 .LP
 Not all resources are supported on all platforms.
 .LP
-Run the \fBsysdef\fR(1M) command to obtain the maximum possible limits for
+Run the
+.BR sysdef (1M)
+command to obtain the maximum possible limits for
 your system. The values reported are in hexadecimal, but can be translated
-into decimal numbers using the \fBbc\fR(1) utility. See \fBswap\fR(1M).)
+into decimal numbers using the
+.BR bc (1)
+utility. See
+.BR swap (1M).)
 .sp
-As an example of \fBulimit\fR, to limit the size of a core file dump to 0
+As an example of
+.BR ulimit ,
+to limit the size of a core file dump to 0
 Megabytes, type the following:
 .sp
 .in +2
 .nf
-\fBulimit -c 0\fR
+\fBulimit \-c 0\fR
 .fi
 .in -2
 .sp
 
 .RE
 
-.sp
+.br
 .ne 3
-.mk
-.na
-\fB\fBumask\fR [ \fI-S\fR ] [ \fImask\fR ]
-.ad
+.TP
+\fB\fBumask\fR [ \fI\-S\fR ] [ \fImask\fR ]
 .sp .6
-.RS 4n
 The user file-creation mask is set to
 .I mask
 (see
@@ -3189,6 +3445,7 @@ Do not use a symbolic
 or
 .B \-S
 in Bourne Shell scripts that should be portable to older revisions.
+.RS
 .TP
 .B \-S
 Print the current file-creation mask in symbolic form.
@@ -3200,14 +3457,11 @@ The symbolic mode was not supported in older versions of
 .BR sh .
 .RE
 
-.sp
+.br
 .ne 3
-.mk
-.na
+.TP
 .B "unalias \fR[\fI options \fR] [\fIalias-name\fR...]
-.ad
 .sp .6
-.RS 4n
 The
 .B unalias
 command removes existing alias definitions.
@@ -3235,13 +3489,14 @@ This makes
 compatible to the POSIX standard and able to support persistent aliases at the
 same time.
 The following options may be used to modify operation:
+.RS
 .TP
 .B \-a
 Remove all alias definitions from the current shell execution environment.
 No arguments are permitted with this option.
 As the persistent definitions are not touched, the persistent aliases
 may be restored by calling
-.BR "alias -r" .
+.BR "alias \-r" .
 .TP
 .B \-g
 Pop a single alias definition for
@@ -3288,44 +3543,53 @@ specified
 remains active, but the file with persistent alias definitions is not touched.
 .RE
 
-.sp
+.br
 .ne 3
-.mk
-.na
+.TP
 \fB\fBunset\fR [ \fIname\fR .\|.\|. ]\fR
-.ad
 .sp .6
-.RS 4n
-For each \fIname\fR, remove the corresponding variable or function value. The
-variables \fBPATH\fR, \fBPS1\fR, \fBPS2\fR, \fBMAILCHECK\fR, and \fBIFS\fR
+For each
+.IR name ,
+remove the corresponding variable or function value. The variables
+.BR PATH ,
+.BR PS1 ,
+.BR PS2 ,
+.BR MAILCHECK ,
+and
+.B IFS
 cannot be unset.
-.RE
 
-.sp
+.br
 .ne 3
-.mk
-.na
+.TP
 \fB\fBwait\fR [ \fIn\fR ]\fR
-.ad
 .sp .6
-.RS 4n
-Wait for your background process whose process id is \fIn\fR and report its
-termination status. If \fIn\fR is omitted, all your shell's currently active
+Wait for your background process whose process id is
+.I n
+and report its
+termination status. If
+.I n
+is omitted, all your shell's currently active
 background processes are waited for and the return code is zero.
-.RE
 
 .SS "Job Control (jsh)"
 .sp
 .LP
-When the shell is invoked as \fBjsh\fR, Job Control is enabled in addition
-to all of the functionality described previously for \fBsh\fR. Typically,
+When the shell is invoked as
+.BR jsh ,
+Job Control is enabled in addition
+to all of the functionality described previously for
+.BR sh .
+Typically,
 Job Control is enabled for the interactive shell only. Non-interactive
 shells typically do not benefit from the added functionality of Job
 Control.
 .sp
 .LP
 With Job Control enabled, every command or pipeline the user enters at the
-terminal is called a \fIjob\fR. All jobs exist in one of the following
+terminal is called a
+.IR job .
+All jobs exist in one of the following
 states: foreground, background, or stopped. These terms are defined as
 follows:
 .RS +4
@@ -3338,224 +3602,193 @@ terminal.
 .TP
 2.
 A job in the background is denied read access and has conditional write
-access to the controlling terminal (see \fBstty\fR(1)).
+access to the controlling terminal (see
+.BR stty (1)).
 .RE
 .RS +4
 .TP
 3.
 A stopped job is a job that has been placed in a suspended state, usually
-as a result of a \fBSIGTSTP\fR signal (see \fBsignal.h\fR(3HEAD)).
+as a result of a
+.B SIGTSTP
+signal (see
+.BR signal.h (3HEAD)).
 .RE
 .sp
 .LP
 Every job that the shell starts is assigned a positive integer, called a
-\fIjob number\fR which is tracked by the shell and is used as an identifier
+.I job number
+which is tracked by the shell and is used as an identifier
 to indicate a specific job. Additionally, the shell keeps track of the
-\fIcurrent\fR and \fIprevious\fR jobs. The \fIcurrent job\fR is the most
-recent job to be started or restarted. The \fIprevious job\fR is the first
-non-current job.
+.I current
+and
+.I previous
+jobs. The
+.I current job
+is the most recent job to be started or restarted. The
+.I previous job
+is the first non-current job.
 .sp
 .LP
 The acceptable syntax for a Job Identifier is of the form:
 .sp
 .LP
-\fB%\fR\fIjobid\fR
+.BI % jobid
 .sp
 .LP
-where \fIjobid\fR can be specified in any of the following formats:
-.sp
+where
+.I jobid
+can be specified in any of the following formats:
+.br
 .ne 3
-.mk
-.na
+.TP 13n
 \fB\fB%\fR or \fB+\fR\fR
-.ad
-.RS 13n
-.rt
 For the current job.
-.RE
 
-.sp
+.br
 .ne 3
-.mk
-.na
+.TP
 \fB\fB\(mi\fR\fR
-.ad
-.RS 13n
-.rt
 For the previous job.
-.RE
 
-.sp
+.br
 .ne 3
-.mk
-.na
+.TP
 \fB\fB?\fR\fI<string>\fR\fR
-.ad
-.RS 13n
-.rt
 Specify the job for which the command line uniquely contains
-\fIstring\fR.
-.RE
+.IR string .
 
-.sp
+.br
 .ne 3
-.mk
-.na
-\fB\fIn\fR\fR
-.ad
-.RS 13n
-.rt
-For job number \fIn\fR.
-.RE
+.TP
+.I n
+For job number
+.IR n .
 
-.sp
+.br
 .ne 3
-.mk
-.na
-\fB\fIpref\fR\fR
-.ad
-.RS 13n
-.rt
-Where \fIpref\fR is a unique prefix of the command name. For example, if
-the command \fBls\fR \fB-l\fR \fIname\fR were running in the background, it
-could be referred to as \fB%ls\fR. \fIpref\fR cannot contain blanks unless
-it is quoted.
-.RE
+.TP
+.I pref
+Where
+.I pref
+is a unique prefix of the command name. For example, if
+the command
+.BI "ls \-l" " name
+were running in the background, it
+could be referred to as
+.BR %ls .
+.I pref
+cannot contain blanks unless it is quoted.
 
 .sp
 .LP
 When Job Control is enabled, the following commands are added to the user's
 environment to manipulate jobs:
-.sp
-.ne 3
-.mk
-.na
-\fB\fBbg\fR [\fB%\fR\fIjobid .\|.\|.\fR]\fR
-.ad
-.sp .6
-.RS 4n
-Resumes the execution of a stopped job in the background. If
-\fB%\fR\fIjobid\fR is omitted the current job is assumed.
-.RE
-
-.sp
-.ne 3
-.mk
-.na
-\fB\fBfg\fR [\fB%\fR\fIjobid .\|.\|.\fR]\fR
-.ad
-.sp .6
-.RS 4n
-Resumes the execution of a stopped job in the foreground, also moves an
-executing background job into the foreground. If \fB%\fR\fIjobid\fR is
-omitted the current job is assumed.
-.RE
-
-.sp
-.ne 3
-.mk
-.na
-\fB\fBjobs\fR [\fB-p\fR|\fB-l\fR] [\fB%\fR\fIjobid .\|.\|.\fR]\fR
-.ad
 .br
-.na
-\fB\fBjobs\fR \fB-x\fR \fBcommand\fR [\fIarguments\fR]\fR
-.ad
+.ne 3
+.TP 4n
+\fB\fBbg\fR [\fB%\fR\fIjobid .\|.\|.\fR]\fR
 .sp .6
-.RS 4n
+Resumes the execution of a stopped job in the background. If
+.BI % jobid
+is omitted the current job is assumed.
+
+.br
+.ne 3
+.TP
+\fB\fBfg\fR [\fB%\fR\fIjobid .\|.\|.\fR]\fR
+.sp .6
+Resumes the execution of a stopped job in the foreground, also moves an
+executing background job into the foreground. If
+.BI % jobid
+is omitted the current job is assumed.
+
+.br
+.ne 3
+.TP
+\fB\fBjobs\fR [\fB\-p\fR|\fB\-l\fR] [\fB%\fR\fIjobid .\|.\|.\fR]\fR
+.PD 0
+.TP
+\fB\fBjobs\fR \fB\-x\fR \fBcommand\fR [\fIarguments\fR]\fR
+.PD
+.sp .6
 Reports all jobs that are stopped or executing in the background. If
-\fB%\fR\fIjobid\fR is omitted, all jobs that are stopped or running in the
+.BI % jobid
+is omitted, all jobs that are stopped or running in the
 background is reported. The following options modify/enhance the output of
-\fBjobs\fR: 
-.sp
+.BR jobs :
+.RS
+.br
 .ne 3
-.mk
-.na
-\fB\fB-l\fR\fR
-.ad
-.RS 6n
-.rt
+.TP 6n
+.B \-l
 Report the process group ID and working directory of the jobs.
-.RE
 
-.sp
+.br
 .ne 3
-.mk
-.na
-\fB\fB-p\fR\fR
-.ad
-.RS 6n
-.rt
+.TP
+.B \-p
 Report only the process group ID of the jobs.
-.RE
 
-.sp
+.br
 .ne 3
-.mk
-.na
-\fB\fB-x\fR\fR
-.ad
-.RS 6n
-.rt
-Replace any \fIjobid\fR found in \fIcommand\fR or \fIarguments\fR with the
+.TP
+.B \-x
+Replace any
+.I jobid
+found in
+.I command
+or
+.I arguments
+with the
 corresponding process group ID, and then execute \fIcommand\fR passing it
-\fIarguments\fR.
+.IR arguments .
 .RE
 
-.RE
-
-.sp
+.br
 .ne 3
-.mk
-.na
-\fB\fBkill\fR [ \fB-signal\fR ] \fB%\fR\fIjobid\fR\fR
-.ad
+.TP
+\fB\fBkill\fR [ \fB\-signal\fR ] \fB%\fR\fIjobid\fR\fR
 .sp .6
-.RS 4n
-Builtin version of \fBkill\fR to provide the functionality of the
-\fBkill\fR command for processes identified with a \fIjobid\fR.
-.RE
+Builtin version of
+.B kill
+to provide the functionality of the
+.B kill
+command for processes identified with a
+.IR jobid .
 
-.sp
+.br
 .ne 3
-.mk
-.na
+.TP
 \fB\fBstop\fR \fB%\fR\fIjobid .\|.\|.\fR\fR
-.ad
 .sp .6
-.RS 4n
 Stops the execution of a background job(s).
-.RE
 
-.sp
+.br
 .ne 3
-.mk
-.na
-\fB\fBsuspend\fR\fR
-.ad
+.TP
+.B suspend
 .sp .6
-.RS 4n
 Stops the execution of the current shell (but not if it is the login
 shell).
-.RE
 
-.sp
+.br
 .ne 3
-.mk
-.na
+.TP
 \fB\fBwait\fR [\fB%\fR\fIjobid .\|.\|.\fR]\fR
-.ad
 .sp .6
-.RS 4n
-\fBwait\fR builtin accepts a job identifier. If \fB%\fR\fIjobid\fR is
-omitted \fBwait\fR behaves as described above under \fBSpecial
-Commands\fR.
-.RE
+.B wait
+builtin accepts a job identifier. If
+.BI % jobid
+is omitted
+.B wait
+behaves as described above under
+.BR "Special Commands" .
 
 .SS "Command History Editing"
 .LP
 If compiled with
-.BR -DINTERACTIVE ,
+.BR \-DINTERACTIVE ,
 the
 .B Bourne Shell
 includes a command line history and a command line editor.
@@ -3938,29 +4171,38 @@ nor by the upper layers of the mapper.
 The
 .B Bourne Shell
 is large file aware.
-See \fBlargefile\fR(5) for an extended description of the behavior of \fBsh\fR and
-\fBjsh\fR when encountering files greater than or equal to 2 Gbyte ( 2^31
-bytes).
+See
+.BR largefile (5)
+for an extended description of the behavior of
+.B sh
+and
+.B jsh
+when encountering files greater than or equal to 2 Gbyte ( 2^31 bytes).
 .SH EXIT STATUS
 .sp
 .LP
 Errors detected by the shell, such as syntax errors, cause the shell to
 return a non-zero exit status. If the shell is being used non-interactively
 execution of the shell file is abandoned. Otherwise, the shell returns the
-exit status of the last command executed (see also the \fBexit\fR command
-above).
+exit status of the last command executed (see also the
+.B exit
+command above).
 .SS "jsh Only"
 .sp
 .LP
-If the shell is invoked as \fBjsh\fR and an attempt is made to exit the
+If the shell is invoked as
+.B jsh
+and an attempt is made to exit the
 shell while there are stopped jobs, the shell issues one warning:
 .sp
 .LP
-\fBThere are stopped jobs.\fR
+.B There are stopped jobs.
 .sp
 .LP
 This is the only message. If another exit attempt is made, and there are
-still stopped jobs they are sent a \fBSIGHUP\fR signal from the kernel and
+still stopped jobs they are sent a
+.B SIGHUP
+signal from the kernel and
 the shell is exited.
 .SH FILES
 .PD 0
@@ -4044,7 +4286,9 @@ The location of the restricted Bourne Shell binary.
 .SH ATTRIBUTES
 .sp
 .LP
-See \fBattributes\fR(5) for descriptions of the following attributes:
+See
+.BR attributes (5)
+for descriptions of the following attributes:
 .SS "/usr/bin/sh, /usr/bin/jsh"
 .sp
 
@@ -4107,7 +4351,11 @@ CSIEnabled
 .SH WARNINGS
 .sp
 .LP
-The use of \fBsetuid\fR shell scripts is \fBstrongly\fR discouraged.
+The use of
+.B setuid
+shell scripts is
+.B strongly
+discouraged.
 .SH NOTES
 .LP
 For compatibility with the
@@ -4119,15 +4367,23 @@ as pipeline separator.
 Do not use in new scripts.
 .LP
 Words used for filenames in input/output redirection are not interpreted
-for filename generation (see \fBFile Name Generation\fR section above). For
-example, \fBcat file1 >a*\fR createsa file named \fBa*\fR.
+for filename generation (see
+.B File Name Generation
+section above). For example,
+.B cat file1 >a*
+creates a file named
+.BR a* .
 .sp
 .LP
 Because commands in pipelines are run as separate processes, variables set
 in a pipeline have no effect on the parent shell.
 .sp
 .LP
-If the input or the output of a \fBwhile\fR or \fBuntil\fR loop is
+If the input or the output of a
+.B while
+or
+.B until
+loop is
 redirected, the commands in the loop are run in a sub-shell, and variables
 set or changed there have no effect on the parent process:
 .sp
@@ -4146,7 +4402,8 @@ set or changed there have no effect on the parent process:
 
 .sp
 .LP
-In these cases, the input or output can be redirected by using \fBexec\fR,
+In these cases, the input or output can be redirected by using
+.BR exec ,
 as in the following example:
 .sp
 .in +2
@@ -4174,7 +4431,9 @@ as in the following example:
 .sp
 .LP
 If you get the error message, "\fBcannot fork, too many processes\fR", try
-using the \fBwait\fR(1) command to clean up your background processes. If
+using the
+.BR wait (1)
+command to clean up your background processes. If
 this doesn't help, the system process table is probably full or you have too
 many active foreground processes. There is a limit to the number of process
 ids associated with your login, and to the number the system can keep track
@@ -4186,13 +4445,23 @@ Only the last process in a pipeline can be waited for.
 .LP
 If a command is executed, and a command with the same name is installed in
 a directory in the search path before the directory where the original
-command was found, the shell continues to \fBexec\fR the original command.
-Use the \fBhash\fR command to correct this situation.
+command was found, the shell continues to
+.B exec
+the original command.
+Use the
+.B hash
+command to correct this situation.
 .sp
 .LP
-The Bourne shell has a limitation on the effective \fBUID\fR for a process.
-If this \fBUID\fR is less than 100 (and not equal to the real UID of the
-process), then the \fBUID\fR is reset to the real UID of the process.
+The Bourne shell has a limitation on the effective
+.B UID
+for a process.
+If this
+.B UID
+is less than 100 (and not equal to the real UID of the
+process), then the
+.B UID
+is reset to the real UID of the process.
 .sp
 .LP
 If not in 

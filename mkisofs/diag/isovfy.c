@@ -1,8 +1,8 @@
-/* @(#)isovfy.c	1.44 10/12/19 joerg */
+/* @(#)isovfy.c	1.45 12/12/02 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)isovfy.c	1.44 10/12/19 joerg";
+	"@(#)isovfy.c	1.45 12/12/02 joerg";
 #endif
 /*
  * File isovfy.c - verify consistency of iso9660 filesystem.
@@ -11,7 +11,7 @@ static	UConst char sccsid[] =
  * Written by Eric Youngdale (1993).
  *
  * Copyright 1993 Yggdrasil Computing, Incorporated
- * Copyright (c) 1999-2010 J. Schilling
+ * Copyright (c) 1999-2012 J. Schilling
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2
@@ -71,6 +71,7 @@ static	UConst char sccsid[] =
 
 #define	infile	in_image
 FILE *infile = NULL;
+BOOL ignerr = FALSE;
 int blocksize;
 
 #define	PAGE	sizeof (buffer)
@@ -660,6 +661,7 @@ usage(excode)
 	error(_("Options:\n"));
 	error(_("\t-help, -h	Print this help\n"));
 	error(_("\t-version	Print version info and exit\n"));
+	error(_("\t-inore-error	Ignore errors\n"));
 	error(_("\t-i filename	Filename to read ISO-9660 image from\n"));
 	error(_("\tdev=target	SCSI target to use as CD/DVD-Recorder\n"));
 	error(_("\nIf neither -i nor dev= are speficied, <image> is needed.\n"));
@@ -673,7 +675,7 @@ main(argc, argv)
 {
 	int	cac;
 	char	* const *cav;
-	char	*opts = "help,h,version,i*,dev*";
+	char	*opts = "help,h,version,ignore-error,i*,dev*";
 	BOOL	help = FALSE;
 	BOOL	prvers = FALSE;
 	char	*filename = NULL;
@@ -711,7 +713,7 @@ main(argc, argv)
 
 	cac = argc - 1;
 	cav = argv + 1;
-	if (getallargs(&cac, &cav, opts, &help, &help, &prvers,
+	if (getallargs(&cac, &cav, opts, &help, &help, &prvers, &ignerr,
 			&filename, &sdevname) < 0) {
 		errmsgno(EX_BAD, _("Bad Option: '%s'\n"), cav[0]);
 		usage(EX_BAD);
@@ -719,7 +721,7 @@ main(argc, argv)
 	if (help)
 		usage(0);
 	if (prvers) {
-		printf(_("isovfy %s (%s-%s-%s) Copyright (C) 1993-1999 %s (C) 1999-2010 %s\n"),
+		printf(_("isovfy %s (%s-%s-%s) Copyright (C) 1993-1999 %s (C) 1999-2012 %s\n"),
 					VERSION,
 					HOST_CPU, HOST_VENDOR, HOST_OS,
 					_("Eric Youngdale"),

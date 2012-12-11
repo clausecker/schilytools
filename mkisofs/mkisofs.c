@@ -1,8 +1,8 @@
-/* @(#)mkisofs.c	1.264 11/06/05 joerg */
+/* @(#)mkisofs.c	1.266 12/12/02 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)mkisofs.c	1.264 11/06/05 joerg";
+	"@(#)mkisofs.c	1.266 12/12/02 joerg";
 #endif
 /*
  * Program mkisofs.c - generate iso9660 filesystem  based upon directory
@@ -11,7 +11,7 @@ static	UConst char sccsid[] =
  * Written by Eric Youngdale (1993).
  *
  * Copyright 1993 Yggdrasil Computing, Incorporated
- * Copyright (c) 1997-2010 J. Schilling
+ * Copyright (c) 1997-2012 J. Schilling
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -482,7 +482,7 @@ get_boot_platid(opt_arg)
 {
 	long	val;
 	char	*ptr;
-	
+
 	use_eltorito++;
 	if (streql(opt_arg, "x86")) {
 		val = EL_TORITO_ARCH_x86;
@@ -601,7 +601,7 @@ strntoi(p, n, ip)
 		i += c - '0';
 	}
 	*ip = i;
-	
+
 	return (p);
 }
 
@@ -643,7 +643,7 @@ parse_date(arg, tp)
 			ldate_error(oarg);
 		if ((p - arg) == 2) {
 			if (tp->tm_year < 69)
-				tp->tm_year += 100; 
+				tp->tm_year += 100;
 		} else {
 			tp->tm_year -= 1900;
 		}
@@ -1013,6 +1013,8 @@ LOCAL const struct mki_option mki_options[] =
 	__("\1FILE\1Set Copyright filename")},
 	{{"debug+", &debug },
 	__("Set debug flag")},
+	{{"ignore-error", &ignerr },
+	__("Ignore errors")},
 	{{"b& ,eltorito-boot&", NULL, (getpargfun)get_boot_image },
 	__("\1FILE\1Set El Torito boot image name")},
 	{{"eltorito-alt-boot~", NULL, (getpargfun)new_boot_entry },
@@ -1722,7 +1724,7 @@ usage(excode)
  * minutes, and is what you add to GMT to get the localtime.  The U.S.
  * is always at a negative offset, from -5h to -8h (can vary a little
  * with DST,  I guess).  The Linux iso9660 filesystem has had the sign
- * of this wrong for ages (mkisofs had it wrong too for the longest time).
+ * of this wrong for ages (mkisofs had it wrong too until February 1997).
  */
 EXPORT int
 iso9660_date(result, crtime)
@@ -1758,6 +1760,10 @@ iso9660_date(result, crtime)
 /*
  * Fill in date in the iso9660 long format
  * This takes 17 bytes and supports year 0 .. 9999 with 10ms granularity
+ * If iso9660_ldate() is called with gmtoff set to -100, the gmtoffset for
+ * the related time is computed via localtime(). For the modification
+ * date in the PVD, the date and the GMT offset may be defined via the
+ * -modification-date command line option.
  */
 EXPORT int
 iso9660_ldate(result, crtime, nsec, gmtoff)
@@ -1976,7 +1982,7 @@ args_ok:
 	if (help)
 		usage(0);
 	if (pversion) {
-		printf(_("mkisofs %s (%s-%s-%s) Copyright (C) 1993-1997 %s (C) 1997-2010 %s\n"),
+		printf(_("mkisofs %s (%s-%s-%s) Copyright (C) 1993-1997 %s (C) 1997-2012 %s\n"),
 			version_string,
 			HOST_CPU, HOST_VENDOR, HOST_OS,
 			_("Eric Youngdale"),

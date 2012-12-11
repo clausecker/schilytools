@@ -1,8 +1,8 @@
-/* @(#)props.c	1.55 10/08/23 Copyright 1994-2010 J. Schilling */
+/* @(#)props.c	1.56 12/12/04 Copyright 1994-2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)props.c	1.55 10/08/23 Copyright 1994-2010 J. Schilling";
+	"@(#)props.c	1.56 12/12/04 Copyright 1994-2011 J. Schilling";
 #endif
 /*
  *	Set up properties for different archive types
@@ -17,7 +17,7 @@ static	UConst char sccsid[] =
  *	pr_flags/pr_nflags or the fields pr_xftypetab[]/pr_typeflagtab[]
  *	take care of possible problems due to this fact.
  *
- *	Copyright (c) 1994-2010 J. Schilling
+ *	Copyright (c) 1994-2011 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -277,7 +277,7 @@ setprops(htype)
 			movebytes(xttar_tab, props.pr_xftypetab, sizeof (props.pr_xftypetab));
 
 		/*
-		 * Old BSD tar does no know about file types bejond "012" but
+		 * Old BSD tar does no know about file types beyond "012" but
 		 * the USTAR basic format has been designed to be compatible
 		 * with the old tar format.
 		 * OLD UNIX V7 tar does not know anything but plain files and

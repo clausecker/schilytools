@@ -1,7 +1,7 @@
-/* @(#)scsi-wnt.c	1.48 11/08/02 Copyright 1998-2011 J. Schilling, A.L. Faber, J.A. Key */
+/* @(#)scsi-wnt.c	1.49 12/12/02 Copyright 1998-2012 J. Schilling, A.L. Faber, J.A. Key */
 #ifndef lint
 static	char __sccsid[] =
-	"@(#)scsi-wnt.c	1.48 11/08/02 Copyright 1998-2011 J. Schilling, A.L. Faber, J.A. Key";
+	"@(#)scsi-wnt.c	1.49 12/12/02 Copyright 1998-2012 J. Schilling, A.L. Faber, J.A. Key";
 #endif
 /*
  *	Interface for the Win32 ASPI library.
@@ -14,7 +14,7 @@ static	char __sccsid[] =
  *	Choose your name instead of "schily" and make clear that the version
  *	string is related to a modified source.
  *
- *	Copyright (c) 1998-2011 J. Schilling
+ *	Copyright (c) 1998-2012 J. Schilling
  *	Copyright (c) 1999 A.L. Faber for the first implementation
  *			   of this interface.
  *	TODO:
@@ -69,8 +69,8 @@ static	char __sccsid[] =
  *	Choose your name instead of "schily" and make clear that the version
  *	string is related to a modified source.
  */
-LOCAL	char	_scg_trans_version[] = "scsi-wnt.c-1.48";	/* The version for this transport*/
-LOCAL	char	_scg_itrans_version[] = "SPTI-scsi-wnt.c-1.48";	/* The version for SPTI */
+LOCAL	char	_scg_trans_version[] = "scsi-wnt.c-1.49";	/* The version for this transport*/
+LOCAL	char	_scg_itrans_version[] = "SPTI-scsi-wnt.c-1.49";	/* The version for SPTI */
 
 /*
  * Local defines and constants
@@ -282,7 +282,8 @@ InitSCSIPT(void)
 		for (i = NUM_FLOPPY_DRIVES; i < NUM_MAX_NTSCSI_DRIVES; i++)
 			if (sptiglobal.drive[i].bUsed)
 				for (j = 0; j < sptihamax; j++) {
-					if (sptihasortarr[j] == ((sptiglobal.drive[i].PortNumber<<8) | sptiglobal.drive[i].PathId)) {
+					if (sptihasortarr[j] ==
+					    ((sptiglobal.drive[i].PortNumber<<8) | sptiglobal.drive[i].PathId)) {
 						sptiglobal.drive[i].ha = j;
 						break;
 					}
@@ -569,7 +570,11 @@ GetDriveInformation(BYTE i, DRIVE *pDrive)
 		pDrive->driveLetter	= i;
 		pDrive->hDevice		= INVALID_HANDLE_VALUE;
 
-	} else if (GetLastError() == 50) { /* support USB/FIREWIRE devices where this call is not supported assign drive letter as device ID */
+	} else if (GetLastError() == 50) {
+		/*
+		 * support USB/FIREWIRE devices where this call is not supported
+		 * assign drive letter as device ID
+		 */
 		pDrive->bUsed = TRUE;
 		pDrive->ha = i;
 		pDrive->PortNumber = i+64; /* hopefully no conflict with other PortNumber */
@@ -1150,7 +1155,7 @@ DebugScsiSend(scgp, s, bDisplayBuffer)
 	}
 	js_fprintf((FILE *)scgp->errfile, "\n");
 
-	/*
+#ifdef	__MORE_DEBUG__
 	if (bDisplayBuffer != 0 && s->SRB_BufLen >= 8) {
 
 		js_fprintf((FILE *)scgp->errfile, "s->SRB_BufPointer   =");
@@ -1160,7 +1165,8 @@ DebugScsiSend(scgp, s, bDisplayBuffer)
 		}
 		js_fprintf((FILE *)scgp->errfile, "\n");
 	}
-*/
+#endif	/* __MORE_DEBUG__ */
+
 	js_fprintf((FILE *)scgp->errfile, "Debug done\n");
 }
 #endif

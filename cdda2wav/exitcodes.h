@@ -1,4 +1,4 @@
-/* @(#)exitcodes.h	1.2 06/05/13 Copyright 2002 Heiko Eissfeldt */
+/* @(#)exitcodes.h	1.3 12/12/02 Copyright 2002 Heiko Eissfeldt */
 /*
  * header file for system wide exit codes.
  */
@@ -17,23 +17,23 @@
 #ifndef	_EXITCODES_H
 #define	_EXITCODES_H
 
-#define NO_ERROR	0
-#define SYNTAX_ERROR	1
-#define PERM_ERROR	2
-#define READ_ERROR	3
-#define WRITE_ERROR	4
-#define SOUND_ERROR	5
-#define STAT_ERROR	6
-#define SIGPIPE_ERROR	7
-#define SETSIG_ERROR	8
-#define SHMMEM_ERROR	9
-#define NOMEM_ERROR	10
-#define MEDIA_ERROR	11
-#define DEVICEOPEN_ERROR	12
-#define RACE_ERROR	13
-#define DEVICE_ERROR	14
-#define INTERNAL_ERROR	15
-#define SEMAPHORE_ERROR	16
-#define SETUPSCSI_ERROR	17
-#define PIPE_ERROR	18
+#define	NO_ERROR	0
+#define	SYNTAX_ERROR	1
+#define	PERM_ERROR	2
+#define	READ_ERROR	3
+#define	WRITE_ERROR	4
+#define	SOUND_ERROR	5
+#define	STAT_ERROR	6
+#define	SIGPIPE_ERROR	7
+#define	SETSIG_ERROR	8
+#define	SHMMEM_ERROR	9
+#define	NOMEM_ERROR	10
+#define	MEDIA_ERROR	11
+#define	DEVICEOPEN_ERROR	12
+#define	RACE_ERROR	13
+#define	DEVICE_ERROR	14
+#define	INTERNAL_ERROR	15
+#define	SEMAPHORE_ERROR	16
+#define	SETUPSCSI_ERROR	17
+#define	PIPE_ERROR	18
 #endif

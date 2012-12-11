@@ -1,13 +1,13 @@
-/* @(#)dvd_file.c	1.12 10/12/19 joerg */
+/* %Z%%M%	%I% %E% joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)dvd_file.c	1.12 10/12/19 joerg";
+	"%Z%%M%	%I% %E% joerg";
 #endif
 /*
  * DVD_VIDEO code
  *  Copyright (c) 2002 Olaf Beck - olaf_sc@yahoo.com
- *  Copyright (c) 2002-2010 Jörg Schilling <schilling@fokus.gmd.de>
+ *  Copyright (c) 2002-2012 Jörg Schilling <schilling@fokus.gmd.de>
  */
 /*
  * This program is free software; you can redistribute it and/or modify

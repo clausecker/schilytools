@@ -1,7 +1,8 @@
-/* @(#)cpp.c	1.25 11/08/03 2010-2011 J. Schilling */
+/* @(#)cpp.c	1.28 12/08/08 2010-2012 J. Schilling */
+#include <schily/mconfig.h>
 #ifndef lint
-static	char sccsid[] =
-	"@(#)cpp.c	1.25 11/08/03 2010-2011 J. Schilling";
+static	UConst char sccsid[] =
+	"@(#)cpp.c	1.28 12/08/08 2010-2012 J. Schilling";
 #endif
 /*
  * C command
@@ -12,7 +13,7 @@ static	char sccsid[] =
  * This implementation is based on the UNIX 32V release from 1978
  * with permission from Caldera Inc.
  *
- * Copyright (c) 2010-2011 J. Schilling
+ * Copyright (c) 2010-2012 J. Schilling
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -1489,6 +1490,12 @@ main(argc,argv)
 # if mc68000
 	varloc=stsym ("mc68000");
 # endif
+# if mc68010
+	varloc=stsym ("mc68010");
+# endif
+# if mc68020
+	varloc=stsym ("mc68020");
+# endif
 # if __ppc__
 	varloc=stsym ("__ppc__");
 # endif
@@ -1497,6 +1504,20 @@ main(argc,argv)
 # endif
 # if __arm__
 	varloc=stsym ("__arm__");
+# endif
+/*
+ * This is defined on Sun systems starting with SunOS-4.0.
+ * As GCC does not define __BUILTIN_VA_ARG_INCR, we need
+ * to define it by our own. To make things simple, asume that
+ * nobody still likes to compile this on SunOS-3.5 or older.
+ */
+# ifdef sun
+# ifndef __BUILTIN_VA_ARG_INCR
+# define __BUILTIN_VA_ARG_INCR	1
+# endif
+# endif
+# ifdef __BUILTIN_VA_ARG_INCR
+	varloc=stsym ("__BUILTIN_VA_ARG_INCR");
 # endif
 	}
 	ulnloc=stsym ("__LINE__");

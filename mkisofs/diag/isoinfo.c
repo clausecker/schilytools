@@ -1,8 +1,8 @@
-/* @(#)isoinfo.c	1.86 11/08/13 joerg */
+/* @(#)isoinfo.c	1.87 12/12/02 joerg */
 #include <schily/mconfig.h>
 #ifndef	lint
 static	UConst char sccsid[] =
-	"@(#)isoinfo.c	1.86 11/08/13 joerg";
+	"@(#)isoinfo.c	1.87 12/12/02 joerg";
 #endif
 /*
  * File isodump.c - dump iso9660 directory information.
@@ -11,7 +11,7 @@ static	UConst char sccsid[] =
  * Written by Eric Youngdale (1993).
  *
  * Copyright 1993 Yggdrasil Computing, Incorporated
- * Copyright (c) 1999-2011 J. Schilling
+ * Copyright (c) 1999-2012 J. Schilling
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2
@@ -123,6 +123,7 @@ static	UConst char sccsid[] =
 
 #define	infile	in_image
 EXPORT FILE	*infile = NULL;
+EXPORT BOOL	ignerr = FALSE;
 LOCAL int	use_rock = 0;
 LOCAL int	use_joliet = 0;
 LOCAL int	do_listing = 0;
@@ -1005,6 +1006,7 @@ usage(excode)
 	error(_("\t-help,-h	Print this help\n"));
 	error(_("\t-version	Print version info and exit\n"));
 	error(_("\t-debug		Print additional debug info\n"));
+	error(_("\t-inore-error	Ignore errors\n"));
 	error(_("\t-d		Print information from the primary volume descriptor\n"));
 	error(_("\t-f		Generate output similar to 'find .  -print'\n"));
 #ifdef	USE_FIND
@@ -1052,7 +1054,7 @@ main(argc, argv)
 	struct eltorito_boot_descriptor bpd;
 	struct iso_directory_record * idr;
 	char	*charset = NULL;
-	char	*opts = "help,h,version,debug,d,p,i*,dev*,J,R,l,x*,find~,f,s,N#l,T#l,j*";
+	char	*opts = "help,h,version,debug,ignore-error,d,p,i*,dev*,J,R,l,x*,find~,f,s,N#l,T#l,j*";
 	BOOL	help = FALSE;
 	BOOL	prvers = FALSE;
 	BOOL	found_eltorito = FALSE;
@@ -1082,7 +1084,7 @@ main(argc, argv)
 	cac = argc - 1;
 	cav = argv + 1;
 	if (getallargs(&cac, &cav, opts,
-				&help, &help, &prvers, &debug,
+				&help, &help, &prvers, &debug, &ignerr,
 				&do_pvd, &do_pathtab,
 				&filename, &sdevname,
 				&use_joliet, &use_rock,
@@ -1098,7 +1100,7 @@ main(argc, argv)
 	if (help)
 		usage(0);
 	if (prvers) {
-		printf(_("isoinfo %s (%s-%s-%s) Copyright (C) 1993-1999 %s (C) 1999-2011 %s\n"),
+		printf(_("isoinfo %s (%s-%s-%s) Copyright (C) 1993-1999 %s (C) 1999-2012 %s\n"),
 					VERSION,
 					HOST_CPU, HOST_VENDOR, HOST_OS,
 					_("Eric Youngdale"),

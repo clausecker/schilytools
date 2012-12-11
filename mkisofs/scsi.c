@@ -1,11 +1,11 @@
-/* @(#)scsi.c	1.34 10/12/19 Copyright 1997-2010 J. Schilling */
+/* @(#)scsi.c	1.35 12/12/02 Copyright 1997-2012 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)scsi.c	1.34 10/12/19 Copyright 1997-2010 J. Schilling";
+	"@(#)scsi.c	1.35 12/12/02 Copyright 1997-2012 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1997-2010 J. Schilling
+ *	Copyright (c) 1997-2012 J. Schilling
  */
 /*
  * This program is free software; you can redistribute it and/or modify
@@ -111,6 +111,13 @@ readsecs(startsecno, buffer, sectorcount)
 	}
 	if ((amt = read(f, buffer, (sectorcount * SECTOR_SIZE)))
 			!= (sectorcount * SECTOR_SIZE)) {
+		if (ignerr) {
+			if (amt < 0)
+				amt = 0;
+			fillbytes(&((char *)buffer)[amt],
+					(sectorcount * SECTOR_SIZE) - amt, '\0');
+			return (sectorcount * SECTOR_SIZE);	/* Should we cheat here too? */
+		}
 		if (amt < 0)
 			comerr(_("Read error on old image\n"));
 		comerrno(EX_BAD, _("Short read on old image\n")); /* < secnt aber > 0 */

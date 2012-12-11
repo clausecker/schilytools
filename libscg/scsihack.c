@@ -1,7 +1,7 @@
-/* @(#)scsihack.c	1.57 11/08/02 Copyright 1997,2000-2011 J. Schilling */
+/* @(#)scsihack.c	1.59 12/12/02 Copyright 1997,2000-2012 J. Schilling */
 #ifndef lint
 static	char _sccsid[] =
-	"@(#)scsihack.c	1.57 11/08/02 Copyright 1997,2000-2011 J. Schilling";
+	"@(#)scsihack.c	1.59 12/12/02 Copyright 1997,2000-2012 J. Schilling";
 #endif
 /*
  *	Interface for other generic SCSI implementations.
@@ -24,7 +24,7 @@ static	char _sccsid[] =
  *	If your version has been integrated into the main steam release,
  *	the return value will be set to "schily".
  *
- *	Copyright (c) 1997,2000-2011 J. Schilling
+ *	Copyright (c) 1997,2000-2012 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -126,8 +126,8 @@ EXPORT scg_ops_t scg_std_ops = {
 #ifdef	USE_PG_ONLY
 #include "scsi-linux-pg.c"
 #else
-#if (defined(HAVE_SCSI_SCSI_H) || defined(HAVE_LINUX_SCSI_H)) &&\
-    (defined(HAVE_SCSI_SG_H) || defined(HAVE_LINUX_SG_H))
+#if (defined(HAVE_SCSI_SCSI_H) || defined(HAVE_LINUX_SCSI_H)) && \
+	(defined(HAVE_SCSI_SG_H) || defined(HAVE_LINUX_SG_H))
 #include "scsi-linux-sg.c"
 #else
 #undef	SCSI_IMPL		/* We have no SCSI for this Linux variant */
@@ -262,8 +262,8 @@ EXPORT scg_ops_t scg_std_ops = {
 #include "scsi-atari.c"
 #endif
 
-#ifdef	__SYLLABLE__		/* We have a SCSI implementation for Syllable */
-#define	SCSI_IMPL
+#if	defined(__SYLLABLE__) || defined(__PYRO__)
+#define	SCSI_IMPL		/* We have a SCSI implementation for Syllable and Pyro */
 #include "scsi-syllable.c"
 #endif
 
@@ -357,7 +357,7 @@ EXPORT scg_ops_t scg_dummy_ops = {
  *	Choose your name instead of "schily" and make clear that the version
  *	string is related to a modified source.
  */
-LOCAL	char	_scg_trans_dversion[] = "scsihack.c-1.57";	/* The version for this transport*/
+LOCAL	char	_scg_trans_dversion[] = "scsihack.c-1.59";	/* The version for this transport*/
 
 /*
  * Return version information for the low level SCSI transport code.

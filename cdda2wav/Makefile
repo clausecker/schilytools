@@ -1,4 +1,4 @@
-#ident @(#)Makefile	1.27 10/12/19 
+#ident @(#)Makefile	1.28 12/12/02 
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -33,11 +33,12 @@ CFILES=		cdda2wav.c interface.c semshm.c resample.c \
 		scsi_cdr.c cd_misc.c ioctl.c base64.c \
 		parse.c
 HFILES=		cdda2wav.h interface.h semshm.h global.h resample.h \
+		exitcodes.h \
 		scsi_scan.h \
 		mytype.h toc.h wav.h sun.h raw.h setuid.h ringbuff.h \
 		config.h saveargs.h sndfile.h aiff.h aifc.h \
 		sndconfig.h scsi_cmds.h lowlevel.h byteorder.h mycdrom.h \
-		base64.h mmsystem.h cd_text.c cd_extra.c \
+		base64.h mmsystem.h cd_text.c cd_extra.c ioctl.h \
 		parse.h version.h
 
 LIBS=		-lscgcmd -lrscg -lscg $(LIB_VOLMGT) -lparanoia -lcdrdeflt -ldeflt -lmdigest -lschily $(SCSILIB) $(EXTRALIB) $(LIB_SOCKET) $(LIB_INTL)

@@ -1,4 +1,4 @@
-#ident "@(#)rules.man	1.5 10/05/14 "
+#ident "@(#)rules.man	1.6 12/01/23 "
 ###########################################################################
 # Written 1997 by J. Schilling
 ###########################################################################
@@ -46,7 +46,7 @@ INSMODEI=	$(__INSMODEI:$(_UNIQ)%=%)
 
 all:		$(ARCHDIR) $(PTARGET)
 
-$(PTARGET):	$(SRCFILE)
+$(PTARGET):	$(ARCHDIR) $(SRCFILE)
 		$(LOCALIZE) $(SRCFILE) $@
 
 $(ARCHDIR):

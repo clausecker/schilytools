@@ -1,15 +1,15 @@
-/* @(#)multi.c	1.96 10/12/19 joerg */
+/* @(#)multi.c	1.97 12/12/02 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)multi.c	1.96 10/12/19 joerg";
+	"@(#)multi.c	1.97 12/12/02 joerg";
 #endif
 /*
  * File multi.c - scan existing iso9660 image and merge into
  * iso9660 filesystem.  Used for multisession support.
  *
  * Written by Eric Youngdale (1996).
- * Copyright (c) 1999-2010 J. Schilling
+ * Copyright (c) 1999-2012 J. Schilling
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -86,6 +86,7 @@ LOCAL	int	merge_old_directory_into_tree __PR((struct directory_entry *,
 LOCAL	void	check_rr_relocation __PR((struct directory_entry *de));
 
 FILE	*in_image = NULL;
+BOOL	ignerr = FALSE;
 int	su_version = -1;
 int	rr_version = -1;
 int	aa_version = -1;

@@ -1,8 +1,8 @@
-/* @(#)btorder.h	1.21 10/08/24 Copyright 1996-2010 J. Schilling */
+/* @(#)btorder.h	1.22 12/12/03 Copyright 1996-2012 J. Schilling */
 /*
  *	Definitions for Bit and Byte ordering
  *
- *	Copyright (c) 1996-2010 J. Schilling
+ *	Copyright (c) 1996-2012 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -56,9 +56,11 @@ extern "C" {
 /*
  * #error will not work for all compilers (e.g. sunos4)
  * The following line will abort compilation on all compilers
- * if none of the above is defines. And that's  what we want.
+ * if none of the above is defined. And that's  what we want.
  */
 error  Only one of _BIT_FIELDS_LTOH or _BIT_FIELDS_HTOL may be defined
+
+#include <schily/err_bit.h>	/* Avoid "unknown directive" with K&R */
 #endif
 
 
