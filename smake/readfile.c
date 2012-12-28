@@ -1,14 +1,14 @@
-/* @(#)readfile.c	1.60 11/11/29 Copyright 1985-2011 J. Schilling */
+/* @(#)readfile.c	1.61 12/12/20 Copyright 1985-2012 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)readfile.c	1.60 11/11/29 Copyright 1985-2011 J. Schilling";
+	"@(#)readfile.c	1.61 12/12/20 Copyright 1985-2012 J. Schilling";
 #endif
 /*
  *	Make program
  *	File/string reading routines
  *
- *	Copyright (c) 1985-2011 by J. Schilling
+ *	Copyright (c) 1985-2012 by J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -89,7 +89,7 @@ fillrdbuf()
 	ret = fileread(mfp, rd_buffer, RDBUF_SIZE);
 	if (ret < 0)
 		comerr("Read error on '%s'.\n", mfname);
-	readbfend = rd_buffer + ret;;
+	readbfend = rd_buffer + ret;
 	if (readbfp >= readbfend)
 		return (EOF);
 	return ((int) *readbfp++);
@@ -301,7 +301,7 @@ doinclude(name, must_exist)
 	/*
 	 * Try to make "name". Do not fail if this does not succeed.
 	 * We just decide on how to continue based on o->o_date is != 0.
-	 * If o->o_date == and must_exist == TRUE, we trigger the 
+	 * If o->o_date == and must_exist == TRUE, we trigger the
 	 * .INCLUDE_FAILED: action.
 	 */
 	xmake(name, FALSE);

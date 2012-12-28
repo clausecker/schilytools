@@ -1,5 +1,5 @@
 #!/bin/sh
-#ident "@(#)MAKE-sh	1.15 11/12/16 "
+#ident "@(#)MAKE-sh	1.16 12/12/20 "
 ###############################################################################
 #
 # The shell variables CFLAGS & LDFLAGS may be used to pass additional flags
@@ -239,4 +239,4 @@ $CC $OPT $CF $CFLAGS -c $INCLUDE $DEFINES   fileread.c
 $CC $OPT $CF $CFLAGS -c $INCLUDE $DEFINES   fileseek.c
 $CC $OPT $CF $CFLAGS -c $INCLUDE $DEFINES   niread.c
 $CC $OPT $CF $CFLAGS -c $INCLUDE $DEFINES   niwrite.c
-$CC $LF $LDFLAGS -o smake make.$o readfile.$o parse.$o update.$o rules.$o archconf.$o memory.$o  astoi.$o astoll.$o comerr.$o error.$o eaccess.$o format.$o getexecpath.$o jsprintf.$o jssnprintf.$o saveargs.$o seterrno.$o strcatl.$o strlcpy.$o strncpy.$o streql.$o getargs.$o geterrno.$o movebytes.$o fillbytes.$o raisecond.$o rename.$o searchinpath.$o file_raise.$o fileopen.$o fcons.$o cvmod.$o flag.$o dat.$o filewrite.$o fileread.$o fileseek.$o niread.$o niwrite.$o
+$CC $LF $LDFLAGS -o smake make.$o readfile.$o parse.$o update.$o rules.$o archconf.$o job.$o memory.$o  astoi.$o astoll.$o comerr.$o error.$o eaccess.$o format.$o getexecpath.$o jsprintf.$o jssnprintf.$o saveargs.$o seterrno.$o strcatl.$o strlcpy.$o strncpy.$o streql.$o getargs.$o geterrno.$o movebytes.$o fillbytes.$o raisecond.$o rename.$o searchinpath.$o file_raise.$o fileopen.$o fcons.$o cvmod.$o flag.$o dat.$o filewrite.$o fileread.$o fileseek.$o niread.$o niwrite.$o

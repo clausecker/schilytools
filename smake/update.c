@@ -1,14 +1,14 @@
-/* @(#)update.c	1.121 11/08/04 Copyright 1985, 88, 91, 1995-2011 J. Schilling */
+/* @(#)update.c	1.122 12/12/20 Copyright 1985, 88, 91, 1995-2012 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)update.c	1.121 11/08/04 Copyright 1985, 88, 91, 1995-2011 J. Schilling";
+	"@(#)update.c	1.122 12/12/20 Copyright 1985, 88, 91, 1995-2012 J. Schilling";
 #endif
 /*
  *	Make program
  *	Macro handling / Dependency Update
  *
- *	Copyright (c) 1985, 88, 91, 1995-2011 by J. Schilling
+ *	Copyright (c) 1985, 88, 91, 1995-2012 by J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -2434,7 +2434,11 @@ default_cmd(obj, depname, deptime, deplevel, must_exist, dlev)
 		if (Tflag) {
 			if (!isphony(obj) && !touch_file(obj->o_name))
 				goto badtime;
-		} else for (cp = cmd; cp; cp = cp->c_next) {
+		}
+		/*
+		 * Sun make only calls '+' command with -t when in POSIX mode.
+		 */
+		for (cp = cmd; cp; cp = cp->c_next) {
 			if (docmd(substitute(cp->c_line, obj, source, suffix), obj)) {
 				goto badtime;
 			}
@@ -2600,7 +2604,11 @@ make(obj, must_exist, dlev)
 
 				return (obj->o_date);
 			}
-		} else for (cmd = obj->o_cmd; cmd; cmd = cmd->c_next) {
+		}
+		/*
+		 * Sun make only calls '+' command with -t when in POSIX mode.
+		 */
+		for (cmd = obj->o_cmd; cmd; cmd = cmd->c_next) {
 			if (docmd(substitute(cmd->c_line, obj, (obj_t *)NULL, (char *)NULL),
 									obj)) {
 

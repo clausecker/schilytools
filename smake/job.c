@@ -1,11 +1,11 @@
-/* @(#)job.c	1.2 11/11/14 Copyright 2009-2011 J. Schilling */
+/* @(#)job.c	1.3 12/12/20 Copyright 2009-2012 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)job.c	1.2 11/11/14 Copyright 2009-2011 J. Schilling";
+	"@(#)job.c	1.3 12/12/20 Copyright 2009-2012 J. Schilling";
 #endif
 /*
- *	Copyright (c) 2009-2011 J. Schilling
+ *	Copyright (c) 2009-2012 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -19,9 +19,9 @@ static	UConst char sccsid[] =
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
+#include <schily/schily.h>
 #include "make.h"
 #include "job.h"
-#include <schily/schily.h>
 
 job *
 newjob()

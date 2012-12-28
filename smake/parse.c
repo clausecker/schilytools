@@ -1,14 +1,14 @@
-/* @(#)parse.c	1.107 10/10/06 Copyright 1985-2010 J. Schilling */
+/* @(#)parse.c	1.108 12/12/20 Copyright 1985-2012 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)parse.c	1.107 10/10/06 Copyright 1985-2010 J. Schilling";
+	"@(#)parse.c	1.108 12/12/20 Copyright 1985-2012 J. Schilling";
 #endif
 /*
  *	Make program
  *	Parsing routines
  *
- *	Copyright (c) 1985-2010 by J. Schilling
+ *	Copyright (c) 1985-2012 by J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -1521,7 +1521,7 @@ is_suffix_rule(obj)
 	for (l = Suffixes; l; l = l->l_next) {
 		suffix = l->l_obj->o_name;
 		rlen = strlen(suffix);
-		if (strncmp(obj->o_name, suffix, rlen) == 0)	{ 
+		if (strncmp(obj->o_name, suffix, rlen) == 0) {
 			rp = &obj->o_name[rlen];
 
 			if (*rp == '\0')	/* Single Suffix Rule */

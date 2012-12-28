@@ -1,14 +1,14 @@
-/* @(#)memory.c	1.21 09/10/16 Copyright 1985-2009 J. Schilling */
+/* @(#)memory.c	1.22 12/12/20 Copyright 1985-2012 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)memory.c	1.21 09/10/16 Copyright 1985-2009 J. Schilling";
+	"@(#)memory.c	1.22 12/12/20 Copyright 1985-2012 J. Schilling";
 #endif
 /*
  *	Make program
  *	Memory allocation routines
  *
- *	Copyright (c) 1985-2009 by J. Schilling
+ *	Copyright (c) 1985-2012 by J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -35,6 +35,7 @@ EXPORT	char	*gbufend;
 EXPORT	int	gbufsize;
 
 EXPORT	void	*___realloc	__PR((void *ptr, size_t size, char *msg));
+EXPORT	void	*___malloc	__PR((size_t size, char *msg));
 LOCAL	char	*checkalloc	__PR((unsigned int size));
 #ifdef	DEBUG
 EXPORT	void	prmem		__PR((void));
@@ -66,6 +67,27 @@ ___realloc(ptr, size, msg)
 		ret = realloc(ptr, size);
 	if (ret == NULL) {
 		comerr("Cannot realloc memory for %s.\n", msg);
+		/* NOTREACHED */
+	}
+#ifdef	DEBUG
+	if (heapanfang == 0)
+		heapanfang = ret;
+	if (heapende < (ret + size))
+		heapende = ret + size;
+#endif
+	return (ret);
+}
+
+EXPORT void *
+___malloc(size, msg)
+	size_t	size;
+	char	*msg;
+{
+	void	*ret;
+
+	ret = malloc(size);
+	if (ret == NULL) {
+		comerr("Cannot malloc memory for %s.\n", msg);
 		/* NOTREACHED */
 	}
 #ifdef	DEBUG

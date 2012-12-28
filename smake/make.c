@@ -1,13 +1,13 @@
-/* @(#)make.c	1.183 11/11/29 Copyright 1985, 87, 88, 91, 1995-2011 J. Schilling */
+/* @(#)make.c	1.185 12/12/20 Copyright 1985, 87, 88, 91, 1995-2012 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)make.c	1.183 11/11/29 Copyright 1985, 87, 88, 91, 1995-2011 J. Schilling";
+	"@(#)make.c	1.185 12/12/20 Copyright 1985, 87, 88, 91, 1995-2012 J. Schilling";
 #endif
 /*
  *	Make program
  *
- *	Copyright (c) 1985, 87, 88, 91, 1995-2011 by J. Schilling
+ *	Copyright (c) 1985, 87, 88, 91, 1995-2012 by J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -43,7 +43,7 @@ static	UConst char sccsid[] =
 
 #include "make.h"
 
-char	make_version[] = "1.2.1";
+char	make_version[] = "1.2.2";
 
 #ifdef	NO_DEFAULTS_PATH
 #undef	DEFAULTS_PATH
@@ -255,6 +255,7 @@ usage(exitcode)
 	error("	-q	Question mode. Exit code is 0 if target is up to date.\n");
 	error("	-r	Turn off internal rules.\n");
 	error("	-s	Be silent.\n");
+	error("	-S	Undo the effect of the -k option, terminate on target erros.\n");
 	error("	-t	Touch Objects instead of executing defined commands.\n");
 	error("	-w	Don't print warning Messages.\n");
 	error("	-W	Print extra (debug) warning Messages.\n");
@@ -936,7 +937,7 @@ main(ac, av)
 	if (help)
 		usage(0);
 	if (pversion) {
-		printf("Smake release %s (%s-%s-%s) Copyright (C) 1985, 87, 88, 91, 1995-2011 Jörg Schilling\n",
+		printf("Smake release %s (%s-%s-%s) Copyright (C) 1985, 87, 88, 91, 1995-2012 Jörg Schilling\n",
 				make_version,
 				HOST_CPU, HOST_VENDOR, HOST_OS);
 		exit(0);
@@ -961,6 +962,9 @@ main(ac, av)
 	if (Qflag) {
 		Sflag = TRUE;
 		Nflag = TRUE;
+	}
+	if (Tflag && !Nflag) {
+		Nflag = -1;	/* Hack for touch_file() */
 	}
 	if (Stopflag) {
 		Kflag = FALSE;
@@ -1580,6 +1584,37 @@ EXPORT	int	cmd_wait	__PR((job *jobp));
 pid_t	lpid;
 #endif
 
+#ifdef	__needed__
+EXPORT BOOL
+cmd_prefix(cmd, pfx)
+	register char	*cmd;
+	register int	pfx;
+{
+	register char	c;
+
+	while ((c = *cmd++) != '\0') {
+		if (c != '@' && c != '-' && c != '+' && c != '?' && c != '!')
+			break;
+		if (c == pfx)
+			return (TRUE);
+	}
+	return (FALSE);
+}
+
+EXPORT BOOL
+cmdlist_prefix(cmd, pfx)
+	register cmd_t	*cmd;
+	register int	pfx;
+{
+	while (cmd) {
+		if (cmd_prefix(cmd->c_line, pfx))
+			return (TRUE);
+		cmd = cmd->c_next;
+	}
+	return (FALSE);
+}
+#endif /* __needed__ */
+
 /*
  * Execute or print a command line.
  * Return exit code from command line.
@@ -1615,10 +1650,10 @@ docmd(cmd, obj)
 			foundplus = TRUE;
 		}
 		if (*cmd == '?') {
-			/* EMPTY */ ;		/* XXX To be defined !!! */
+			/* EMPTY */;		/* XXX To be defined !!! */
 		}
 		if (*cmd == '!') {
-			/* EMPTY */ ;		/* XXX To be defined !!! */
+			/* EMPTY */;		/* XXX To be defined !!! */
 		}
 	}
 	if (foundplus)
@@ -2047,8 +2082,11 @@ again:
 #endif
 	if (!Sflag)
 		printf("%stouch %s\n", posixmode?"\t":"...", objname);
-	if (Nflag)
+	if (Nflag > 0)
 		return (TRUE);
+	/*
+	 * No touch if make was called with -n.
+	 */
 	if ((f = fileopen(objname, "rwcub")) != (FILE *)NULL) {
 		file_raise(f, FALSE);
 #ifdef	HAVE_UTIME
@@ -2544,4 +2582,3 @@ ovstrcpy(p2, p1)
 	while ((*p2++ = *p1++) != '\0')
 		;
 }
-

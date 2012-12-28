@@ -1,7 +1,7 @@
-/* @(#)make.h	1.92 10/10/06 Copyright 1985, 87, 91, 1995-2010 J. Schilling */
+/* @(#)make.h	1.94 12/12/20 Copyright 1985, 87, 91, 1995-2012 J. Schilling */
 /*
  *	Definitions for make.
- *	Copyright (c) 1985, 87, 91, 1995-2010 by J. Schilling
+ *	Copyright (c) 1985, 87, 91, 1995-2012 by J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -169,6 +169,8 @@ extern	void	setup_dotvars	__PR((void));
 extern	char	*searchtype	__PR((int mode));
 extern	void	doexport	__PR((char *));
 extern	void	dounexport	__PR((char *));
+extern	BOOL	cmd_prefix	__PR((char *cmd, int pfx));
+extern	BOOL	cmdlist_prefix	__PR((cmd_t *cmd, int pfx));
 extern	int	docmd		__PR((char * cmd, obj_t * obj));
 extern	BOOL	move_tgt	__PR((obj_t * from));
 extern	BOOL	touch_file	__PR((char * name));
@@ -238,6 +240,8 @@ extern	BOOL	xmake		__PR((char * name, BOOL  must_exist));
  */
 #undef	___realloc
 extern	void	*___realloc	__PR((void *ptr, size_t size, char *msg));
+#undef	___malloc
+extern	void	*___malloc	__PR((size_t size, char *msg));
 #ifdef	DEBUG
 extern	void	prmem		__PR((void));
 #endif

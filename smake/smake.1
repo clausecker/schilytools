@@ -1,4 +1,4 @@
-. \" @(#)smake.1	1.39 11/12/03 Copyright 1985-2009 J. Schilling
+. \" @(#)smake.1	1.40 12/12/20 Copyright 1985-2012 J. Schilling
 . \"  Manual page for smake
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -13,7 +13,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH SMAKE 1 "11/12/03" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH SMAKE 1 "12/12/20" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 smake \- maintain, update, and regenerate programs
 .SH SYNOPSIS
@@ -125,9 +125,6 @@ If a command line contains the macro
 or
 .B "${MAKE}"
 this command line is executed even if there is no plus sign ('+').
-This is the opposite to the
-.B \-s
-option.
 .TP
 .B \-p
 Print the complete set of macro and target definitions on standard output.
@@ -159,7 +156,9 @@ without dependencies inside a makefile.
 .B \-t
 Touch objects instead of executing the defined commands.
 This brings a target up to date by simply setting the modification
-time of the targets.
+time of the targets instead of performing the their rules.
+.B Warning:
+This can be dangerous when files are maintained by more than one person.
 Targets that do not have a command associated are not touched.
 The command lines that are associated with a target are not executed.
 Lines with a plus sign ('+') will be executed in any case.
@@ -2229,14 +2228,10 @@ implementation like
 .B SCCS
 retrieval is not yet implemented.
 .PP
-A '+' character does not cancel the
-.B \-t
-option, the commands are not executed.
-.PP
 A command line that contains the macro
 .B "$(MAKE)"
 is always executed, even when in POSIX mode.
-This is conflict with the POSIX standard since POSIX.1-2008.
+This is an itended conflict with the POSIX standard since POSIX.1-2008.
 .PP
 Built in library handling is not yet implemented.
 .PP

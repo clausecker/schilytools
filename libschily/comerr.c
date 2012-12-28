@@ -1,8 +1,8 @@
-/* @(#)comerr.c	1.38 11/09/13 Copyright 1985-1989, 1995-2011 J. Schilling */
+/* @(#)comerr.c	1.40 12/12/20 Copyright 1985-1989, 1995-2012 J. Schilling */
 /*
  *	Routines for printing command errors
  *
- *	Copyright (c) 1985-1989, 1995-2011 J. Schilling
+ *	Copyright (c) 1985-1989, 1995-2012 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -217,6 +217,28 @@ comexit(err)
 		(*exfuncs->func)(err, exfuncs->arg);
 		exfuncs = exfuncs->next;
 	}
+	/*
+	 * On a recent POSIX System that supports waitid(), siginfo.si_status
+	 * holds the exit(2) value as an int. So if waitid() is used to wait
+	 * for the process, we do not have problems from folded exit codes.
+	 * All other wait*() functions fold the exit code by masking it
+	 * with 0377.
+	 *
+	 * Exit codes used with comerr*()/comexit() are frequently errno values
+	 * that have been in the range 0..31 with UNIX.V5 in the mid 1970s and
+	 * that now are in the range 0..151 on Solaris. These values do not
+	 * cause problems from folding to 8 bits, but "sysexits.h" contains
+	 * definitions in the range 64..79 that cause (even unfolded) clashes
+	 * with errno values.
+	 *
+	 * To avoid clashes with errno values, "schily/standard.h" defines
+	 * EX_BAD (-1) as default error exit code and
+	 * EX_CLASH (-64) as marker for clashes.
+	 * Exit codes in the range -2..-63 (254..193 seen as unsigned two's
+	 * complement) are available as software specific exit codes.
+	 * We map all other negative exit codes to EX_CLASH if they would fold
+	 * to -2..-63.
+	 */
 	if (err != exmod && exmod <= 0 && exmod >= EX_CLASH)
 		err = EX_CLASH;
 	exit(err);
