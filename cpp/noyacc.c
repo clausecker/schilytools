@@ -1,7 +1,7 @@
-/* @(#)noyacc.c	1.1 10/09/21 Copyright 2010 J. Schilling */
+/* @(#)noyacc.c	1.2 13/01/04 Copyright 2010-2013 J. Schilling */
 #ifndef lint
-static	char sccsid[] =
-	"@(#)noyacc.c	1.1 10/09/21 Copyright 2010 J. Schilling";
+static	char ny_sccsid[] =
+	"@(#)noyacc.c	1.2 13/01/04 Copyright 2010-2013 J. Schilling";
 #endif
 /*
  * Copyright (c) 2010 J. Schilling
@@ -36,6 +36,7 @@ static	char sccsid[] =
 
 #include "cpp.h"
 
+#ifdef	NO_PRE_YACC
 int
 yyparse()
 {
@@ -44,3 +45,6 @@ yyparse()
 	exit(1);
 	return (-1);
 }
+#else
+#include "cpypre.c"
+#endif

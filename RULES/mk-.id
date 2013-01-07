@@ -1,4 +1,4 @@
-#ident "@(#)mk-.id	1.17 11/06/23 "
+#ident "@(#)mk-.id	1.18 12/12/29 "
 ###########################################################################
 # Written 1996 by J. Schilling
 ###########################################################################
@@ -21,6 +21,10 @@
 
 MAKEPROG=	make		# Sun make
 WAIT=		.WAIT		# Sun make notation to wait for parallel targets
+
+SPACE=		$(_UNIQ:$(_UNIQ)%= )
+PRE_NUMBER=	pre\#
+NUMBER_SIGN=	$(PRE_NUMBER:pre\%=%)
 
 ###########################################################################
 #

@@ -1,5 +1,5 @@
 #!/bin/sh
-# @(#)cpfiles	1.24 12/02/05 Copyright 1999-2012 J. Schilling
+# @(#)cpfiles	1.25 13/01/04 Copyright 1999-2013 J. Schilling
 
 cp='cp -p'
 smake=smake
@@ -130,5 +130,6 @@ $cp ${incsrc}/${lib}/stdio/fileread.c	fileread.c
 $cp ${incsrc}/${lib}/stdio/fileseek.c	fileseek.c
 $cp ${incsrc}/${lib}/stdio/filewrite.c	filewrite.c
 $cp ${incsrc}/${lib}/stdio/flag.c		flag.c
+$cp ${incsrc}/${lib}/stdio/flush.c		flush.c
 $cp ${incsrc}/${lib}/stdio/niread.c	niread.c
 $cp ${incsrc}/${lib}/stdio/niwrite.c	niwrite.c

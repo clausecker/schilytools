@@ -1,5 +1,5 @@
 #!/bin/sh
-# @(#)rmlinks	1.21 12/02/05 Copyright 1999-2012 J. Schilling
+# @(#)rmlinks	1.22 13/01/04 Copyright 1999-2013 J. Schilling
 
 rm -f archconf.c
 rm -f job.c
@@ -104,5 +104,6 @@ rm -f fileread.c
 rm -f fileseek.c
 rm -f filewrite.c
 rm -f flag.c
+rm -f flush.c
 rm -f niread.c
 rm -f niwrite.c

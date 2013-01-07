@@ -1,4 +1,4 @@
-. \" @(#)smake.1	1.40 12/12/20 Copyright 1985-2012 J. Schilling
+. \" @(#)smake.1	1.41 12/12/29 Copyright 1985-2012 J. Schilling
 . \"  Manual page for smake
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -13,7 +13,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH SMAKE 1 "12/12/20" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH SMAKE 1 "12/12/29" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 smake \- maintain, update, and regenerate programs
 .SH SYNOPSIS
@@ -468,18 +468,20 @@ new line is found.
 
 .SS "Command Execution
 .PP
-Command lines associated with rules are sequentially executed line by line.
-All commands are executed by the standard shell
-.RB ( /bin/sh ),
-they may use all constructs that
-are permitted for a POSIX shell as long as the local shell supports them.
+Command lines associated with rules are sequentially executed line by line
+in an own process or shell.
+All commands may use constructs supported by the standard shell
+.RB ( /bin/sh ).
+POSIX shell constructs are permitted
+as long as the local shell supports them.
 Command lines may have prefixes that are interpreted by 
 .B smake
-before the rest of the command line is passed to the shell.
+before the rest of the command line is executed or passed to the shell.
 All characters from the list below that immediately follow the TAB character
 are interpreted by
 .BR smake .
-The first character that is not from the list below is the first character
+The first non-blank
+character that is not from the list below is the first character
 passed to the shell.
 The following
 prefixes are implemented:
@@ -513,6 +515,45 @@ Reserved for future use (currently ignored).
 .TP
 .B !
 Reserved for future use (currently ignored).
+.PP
+Typical UNIX systems are fast with calling the shell.
+Some operating systems (like e.g. win32) however are slow with creating
+processes. As calling a command via the shell results in 
+creating an additional process, command execution via the shell causes 
+unneeded overhead for simple commands.
+To speed up command execution, 
+.B smake
+tries to avoid calling commands via the shell when no shell meta character
+appears on the commandline.
+As commandlines used in makefiles frequently look like:
+.PP
+.RI	@echo " message; " "cc .\&.\&.
+.PP
+.B smake
+avoids to call a shell in such cases by executing simple 
+.B echo
+commands inline in case they are at the beginning of a command.
+A simple
+.B echo
+command is a command without I/O redirection and without shell variable expansion.
+.PP
+If the environment
+.B FORCE_SHELL
+is present or the special target
+.B \&.FORCE_SHELL:
+has been defined, 
+.B smake
+does not try to optimize command execution and calls all commands via the shell.
+If the
+.B SHELL 
+special macro is used to define an alternate shell that is based on a different
+set of shell meta characters than the meta characters used by the POSIX shell:
+.sp
+	\fB# | = ^ ( ) ; & < > * ? [ ] : $ ` ' " \e \en\fR
+.sp
+it is recommended to define the special target
+.B \&.FORCE_SHELL:
+in addition.
 
 
 .SS "Target rules
@@ -954,6 +995,12 @@ target after all targets have been processed.
 The
 .B \&.FAILED
 target may not have a dependency list.
+.TP
+.B \&.FORCE_SHELL:
+If this special target is present,
+.B smake
+executes all commands via the shell instead of trying to optimize command
+execution for simple commands.
 .TP
 .B \&.GET_POSIX:
 Reserved for future use.
@@ -1959,6 +2006,15 @@ environment) into make macros.
 The following environment variables affect the behavior of 
 .BR smake .
 .TP 12
+.B FORCE_SHELL
+If the 
+.B FORCE_SHELL
+environment is present,
+.B smake
+behaves as if the special target
+.B \&.FORCE_SHELL:
+appeared in a makefile.
+.TP
 .B LANG
 Sets up a default value for internationalization variables that are unset or NULL:
 .TP

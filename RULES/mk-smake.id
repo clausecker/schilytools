@@ -1,4 +1,4 @@
-#ident "@(#)mk-smake.id	1.9 11/06/23 "
+#ident "@(#)mk-smake.id	1.10 12/12/29 "
 ###########################################################################
 # Written 1996 by J. Schilling
 ###########################################################################
@@ -28,6 +28,9 @@ include		$(SRCROOT)/$(RULESDIR)/$(SET_ENV)
 
 MAKEPROG=	$(MAKE_NAME)
 WAIT=			# smake-1.2.1 does not yet wait for parallel targets
+
+SPACE=		$(_UNIQ:$(_UNIQ)%= )
+#NUMBER_SIGN=	NUMBER_SIGN is defined internally by smake
 
 ###########################################################################
 #

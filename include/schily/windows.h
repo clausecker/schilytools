@@ -1,8 +1,8 @@
-/* @(#)windows.h	1.1 11/08/02 Copyright 2011 J. Schilling */
+/* @(#)windows.h	1.2 13/01/07 Copyright 2011-2013 J. Schilling */
 /*
  *	Definitions for windows.h
  *
- *	Copyright (c) 2011 J. Schilling
+ *	Copyright (c) 2011-2013 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -32,6 +32,32 @@
 #undef	u_int
 #undef	u_long
 #endif
+
+#if defined(__CYGWIN32__) || defined(__CYGWIN__)
+
+/*
+ * Cygwin-1.7.17 (Autumn 2012) makes life hard as it prevents to rename
+ * the Cygwin BOOL definition. Note that we have our own BOOL definition
+ * in schily/standard.h that exists since 1982 which happened before Microsoft
+ * introduced their BOOL.
+ *
+ * Previous Cygwin versions have been compatible to the original MS include
+ * files and allowed to rename the BOOL from windows.h (windef.h) by just using
+ * #define BOOL WBOOL before #include <windows.h>.
+ *
+ * Recent Cygwin version are unfriendly to us and prevent this.
+ * We now need a two level #define to redirect the BOOL from windows.h to the
+ * Cygwin specific WINBOOL typedef.
+ *
+ * If we do not include schily/standard.h with newer Cygwin, we cannot get
+ * working typedefs for "PBOOL" and "LPBOOL".
+ */
+#include <schily/standard.h>	/* Get our BOOL typedef */
+
+#define	_NO_BOOL_TYPEDEF	/* Avoid 2nd BOOL typedef on Cygwin-1.7.17 */
+	
+#define	WBOOL	WINBOOL		/* Cygwin-1.7.17 prevents to avoid BOOL */
+#endif	/* defined(__CYGWIN32__) || defined(__CYGWIN__) */
 
 #define	BOOL	WBOOL		/* This is the Win BOOL		*/
 #define	format	__ms_format	/* Avoid format parameter hides global ... */

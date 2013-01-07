@@ -1,11 +1,11 @@
-/* @(#)alias.c	1.1 12/06/10 Copyright 1986-2012 J. Schilling */
+/* @(#)alias.c	1.2 13/01/05 Copyright 1986-2013 J. Schilling */
 #include <schily/mconfig.h>
 static	UConst char sccsid[] =
-	"@(#)alias.c	1.1 12/06/10 Copyright 1986-2012 J. Schilling";
+	"@(#)alias.c	1.2 13/01/05 Copyright 1986-2013 J. Schilling";
 /*
  *	The built-in commands "alias" and "unalias".
  *
- *	Copyright (c) 1986-2012 J. Schilling
+ *	Copyright (c) 1986-2013 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -22,6 +22,7 @@ static	UConst char sccsid[] =
 #include "defs.h"
 #include "abbrev.h"
 
+#undef	tab
 #define	LOCAL	static
 
 void

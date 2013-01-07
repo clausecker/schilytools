@@ -1,4 +1,4 @@
-/* @(#)make.h	1.94 12/12/20 Copyright 1985, 87, 91, 1995-2012 J. Schilling */
+/* @(#)make.h	1.95 12/12/22 Copyright 1985, 87, 91, 1995-2012 J. Schilling */
 /*
  *	Definitions for make.
  *	Copyright (c) 1985, 87, 91, 1995-2012 by J. Schilling
@@ -222,7 +222,7 @@ extern	void	prtree		__PR((void));
  * update.c
  */
 extern	void	initchars	__PR((void));
-extern	char	*filename	__PR((char * name));
+extern	char	*filename	__PR((const char * name));
 extern	BOOL	isprecious	__PR((obj_t * obj));
 extern	BOOL	isphony		__PR((obj_t * obj));
 extern	list_t	*list_nth	__PR((list_t * list, int n));

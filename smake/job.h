@@ -1,4 +1,4 @@
-/* @(#)job.h	1.1 09/09/19 Copyright 2009 J. Schilling */
+/* @(#)job.h	1.2 12/12/29 Copyright 2009-2012 J. Schilling */
 
 #include <schily/types.h>
 
@@ -17,6 +17,7 @@ struct job {
 /*
  * Definitions for j_flags
  */
-#define	J_SILENT	0x001
-#define	J_NOERROR	0x002
-#define	J_NOWAIT	0x100
+#define	J_SILENT	0x001	/* '@' or -s forwarded to cmd_wait()	*/
+#define	J_NOERROR	0x002	/* '-' or -i forwarded to cmd_wait()	*/
+#define	J_MYECHO	0x004	/* "echo ..." at cmd start handled in make  */
+#define	J_NOWAIT	0x100	/* Exit code known, no wait() in cmd_wait() */

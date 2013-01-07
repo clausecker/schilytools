@@ -1,13 +1,13 @@
-/* @(#)make.c	1.185 12/12/20 Copyright 1985, 87, 88, 91, 1995-2012 J. Schilling */
+/* @(#)make.c	1.188 13/01/04 Copyright 1985, 87, 88, 91, 1995-2013 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)make.c	1.185 12/12/20 Copyright 1985, 87, 88, 91, 1995-2012 J. Schilling";
+	"@(#)make.c	1.188 13/01/04 Copyright 1985, 87, 88, 91, 1995-2013 J. Schilling";
 #endif
 /*
  *	Make program
  *
- *	Copyright (c) 1985, 87, 88, 91, 1995-2012 by J. Schilling
+ *	Copyright (c) 1985, 87, 88, 91, 1995-2013 by J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -80,6 +80,11 @@ LOCAL	void	setmakeflags	__PR((void));
 LOCAL	char	*stripmacros	__PR((char *macbase, char *new));
 LOCAL	void	setmakeenv	__PR((char *envbase, char *envp));
 EXPORT	int	docmd		__PR((char * cmd, obj_t * obj));
+LOCAL	BOOL	has_meta	__PR((const char *s));
+LOCAL	char	*doecho		__PR((char *s, BOOL));
+LOCAL	void	doexec		__PR((const char *shpath, const char *shell,
+				    const char *shellflag, const char *cmd,
+				    BOOL force_shell));
 EXPORT	BOOL	move_tgt	__PR((obj_t * from));
 LOCAL	int	copy_file	__PR((char * from, char * objname));
 EXPORT	BOOL	touch_file	__PR((char * name));
@@ -619,8 +624,11 @@ setup_SHELL()
 #undef	BOSH_PATH
 #endif
 
-#if (defined(BIN_SHELL_CE_IS_BROKEN) || defined(SHELL_CE_IS_BROKEN)) && \
+#if (defined(BIN_SHELL_CE_IS_BROKEN) || \
+	defined(SHELL_CE_IS_BROKEN) || \
+	defined(USE_BOSH)) && \
 	defined(BOSH_PATH)
+
 	shell = BOSH_PATH;			/* Broken sh but bosh present */
 #else	/* !SHELL_CE_IS_BROKEN */
 #ifdef	__DJGPP__
@@ -877,6 +885,11 @@ read_environ()
 			continue;
 		if (strncmp(ev, "SHELL=", 6) == 0)
 			continue;	/* Never import SHELL */
+		if (strncmp(ev, "FORCE_SHELL=", 12) == 0) {
+			obj_t	*obj = objlook(".FORCE_SHELL", TRUE);
+			if (obj->o_type == 0)
+				obj->o_type = COLON;
+		}
 		*p = '\0';
 		define_var(ev, &p[1]);
 		*p = EQUAL;
@@ -937,7 +950,7 @@ main(ac, av)
 	if (help)
 		usage(0);
 	if (pversion) {
-		printf("Smake release %s (%s-%s-%s) Copyright (C) 1985, 87, 88, 91, 1995-2012 Jörg Schilling\n",
+		printf("Smake release %s (%s-%s-%s) Copyright (C) 1985, 87, 88, 91, 1995-2013 Jörg Schilling\n",
 				make_version,
 				HOST_CPU, HOST_VENDOR, HOST_OS);
 		exit(0);
@@ -1593,6 +1606,8 @@ cmd_prefix(cmd, pfx)
 	register char	c;
 
 	while ((c = *cmd++) != '\0') {
+		if (c == ' ' || c == '\t') /* Permit spaces as other makes */
+			continue;
 		if (c != '@' && c != '-' && c != '+' && c != '?' && c != '!')
 			break;
 		if (c == pfx)
@@ -1624,11 +1639,11 @@ docmd(cmd, obj)
 	register char	*cmd;
 	obj_t		*obj;
 {
-	int	code;
 	int	Silent = Sflag;
 	int	NoError = Iflag;
 	int	NoExec = Nflag;
 	BOOL	foundplus = FALSE;
+	BOOL	myecho = FALSE;
 	job	*jobp = NULL;
 
 	while (iswhite(*cmd))
@@ -1637,24 +1652,33 @@ docmd(cmd, obj)
  * '-' Ignore error, '@' Silent, '+' Always execute
  * '?' No command dependency checking, '!' Force command dependency checking
  */
-	for (code = 0; code < 5 &&
-	    (*cmd == '@' || *cmd == '-' || *cmd == '+' ||
-			*cmd == '?' || *cmd == '!');
-							code++, cmd++) {
-		if (*cmd == '@')
+	for (; *cmd; cmd++) {
+		if (*cmd == '@') {
 			Silent = TRUE;
-		if (*cmd == '-')
+		} else if (*cmd == '-') {
 			NoError = TRUE;
-		if (*cmd == '+') {
+		} else if (*cmd == '+') {
 			NoExec = FALSE;
 			foundplus = TRUE;
-		}
-		if (*cmd == '?') {
+		} else if (*cmd == '?') {
 			/* EMPTY */;		/* XXX To be defined !!! */
-		}
-		if (*cmd == '!') {
+		} else if (*cmd == '!') {
 			/* EMPTY */;		/* XXX To be defined !!! */
+		} else if (*cmd == ' ' || *cmd == '\t') {
+			continue;		/* Permit spaces in prefix */
+		} else {
+			break;			/* Not a command flag char */
 		}
+	}
+	/*
+	 * Check whether we have a leading simple echo command that we may
+	 * inline in order to optimize command execution.
+	 */
+	if (strncmp(cmd, "echo", 4) == 0 &&
+	    (cmd[4] == ' ' || cmd[4] == '\t')) {
+		char *p = doecho(cmd, FALSE);
+		if (p != cmd)
+			myecho = TRUE;
 	}
 	if (foundplus)
 		Silent = FALSE;
@@ -1681,6 +1705,8 @@ docmd(cmd, obj)
 		jobp->j_flags |= J_SILENT;
 	if (NoError)
 		jobp->j_flags |= J_NOERROR;
+	if (myecho)
+		jobp->j_flags |= J_MYECHO;
 	jobp->j_cmd = cmd;
 	jobp->j_obj = obj;
 	curjobs++;
@@ -1707,6 +1733,22 @@ cmd_run(jobp)
 	char	*shell = NULL;
 	char	*shellflag;
 	char	*cmd = jobp->j_cmd;
+	BOOL	force_shell;
+
+	force_shell = objlook(".FORCE_SHELL", FALSE) != NULL;
+	if (force_shell)
+		jobp->j_flags &= ~J_MYECHO;
+
+	if (jobp->j_flags & J_MYECHO) {
+		flush();
+		cmd = doecho(cmd, TRUE);
+		flush();
+		if (*cmd == '\0') {	/* Command was completely inlined */
+			jobp->j_flags |= J_NOWAIT;
+			jobp->j_excode = 0;
+			return;
+		}
+	}
 
 	shellflag = get_var(NoError ? "MAKE_SHELL_IFLAG":"MAKE_SHELL_FLAG");
 	if (shellflag == NULL || *shellflag == '\0') {
@@ -1725,7 +1767,7 @@ cmd_run(jobp)
 
 #if	!defined(USE_SYSTEM) &&			/* XXX else system() ??? */ \
 	(((defined(HAVE_FORK) || defined(HAVE_VFORK)) && \
-		defined HAVE_EXECL) || defined(JOS))
+		defined HAVE_EXECL && defined HAVE_EXECVP) || defined(JOS))
 
 #if defined(__EMX__) || defined(__DJGPP__) || defined(__MINGW32__) || defined(_MSC_VER)
 
@@ -1776,9 +1818,11 @@ cmd_run(jobp)
 		 * MAKE_SHELL_IFLAG/MAKE_SHELL_FLAG which by default behaves
 		 * like UNIX with /bin/sh -ce 'cmd'.
 		 */
-		execl(shell, filename(shell), shellflag,
-							cmd, (char *)NULL);
-		comerr("Can't exec %s.\n", shell);
+		doexec(shell, filename(shell), shellflag, cmd, force_shell);
+		/* NOTREACHED */
+		/*
+		 * The error message is in doxec().
+		 */
 	}
 #endif	/* ! __EMX__ && ! __DJGPP__ && ! __MINGW32__ */
 
@@ -1865,25 +1909,206 @@ nowait:
 	return (Exit);
 }
 
-#ifdef	__needed__
 /*
  * Check for Shell meta characters
+ *
+ * Compiler calls frequently contain '=' in agruments but this still
+ * do not need a shell. We thus made the check clever enough to detect
+ * local environment settings like "NAME=value cmd ..."
  */
+LOCAL char *shell_meta = "#|^();&<>*?[]:$`'\"\\\n";
+
 LOCAL BOOL
 has_meta(s)
-	register char	*s;
+	register const char	*s;
 {
 	register char	c;
-	register char	*smeta = "#|=^();&<>*?[]:$`'\"\\\n";
+	register int	firstword = TRUE;
+	register char	*smeta = shell_meta;
 
+	while (*s == ' ' || *s == '\t')
+		s++;
 	while ((c = *s++) != '\0') {
 		if (strchr(smeta, c)) {
+			return (TRUE);
+		}
+		/*
+		 * At this point, we checked already against '\\' and ';',
+		 * so the following code can be simple.
+		 */
+		if (c == ' ') {
+			firstword = FALSE;
+		} else if (c == '=' && firstword) {
 			return (TRUE);
 		}
 	}
 	return (FALSE);
 }
-#endif
+
+/*
+ * Our inline implementation for the /bin/echo command.
+ * We need to implement the behavior of the command line parser and the
+ * behavior of the echo command here.
+ * Return a pointer past the first echo command if we can use our inline
+ * version.
+ * Return a pointer to the original command line if this echo command must
+ * be executed by the shell, because there is I/O redirection or a shell
+ * variable insside the echo arguments.
+ */
+LOCAL char *
+doecho(s, print)
+	register char	*s;
+		BOOL	print;
+{
+	char	*old = s;
+	BOOL	singleq = FALSE;
+	BOOL	doubleq = FALSE;
+	BOOL	nextarg = FALSE;
+
+	s += 4;		/* strlen("echo") */
+	while (*s == ' ' || *s == '\t')
+		s++;
+	for (; *s != '\0'; s++) {
+		switch (*s) {
+		case '"':
+			if (!singleq && !doubleq)
+				doubleq = TRUE;
+			else if (doubleq)
+				doubleq = FALSE;
+			break;
+		case '\'':
+			if (!singleq && !doubleq)
+				singleq = TRUE;
+			else if (singleq)
+				singleq = FALSE;
+			break;
+		case ' ':
+		case '\t':
+			if (singleq || doubleq)
+				goto normal;
+			nextarg = TRUE;
+			break;
+		case '\\':
+			if (singleq)
+				goto normal;
+			if (doubleq) {
+				if (s[1] == '\\' || s[1] == '"')
+					s++;
+				goto normal;
+			}
+			if (*++s == '\0')
+				goto out;
+			goto normal;
+		default:
+			if (!singleq && !doubleq &&
+			    strchr(shell_meta,  *s)) {
+				return (old);
+			} else if (doubleq && *s == '$') {
+				return (old);
+			}
+		normal:
+			if (nextarg) {
+				if (print)
+					printf(" ");
+				nextarg = FALSE;
+			}
+			if (print) {
+				register char c = *s;
+
+				if (c == '\\' && s[1] != '\0') {
+					c = *++s;
+					switch (c) {
+					case 'a': c = '\a'; break;
+					case 'b': c = '\b'; break;
+					case 'c': print = FALSE; goto ndone;
+					case 'f': c = '\f'; break;
+					case 'n': c = '\n'; break;
+					case 'r': c = '\r'; break;
+					case 't': c = '\t'; break;
+					case 'v': c = '\v'; break;
+					case '\\': break;
+					case '0': {	int i = 3;
+							int v = 0;
+
+							while (*++s >= '0' &&
+								*s <= '7' &&
+								--i >= 0) {
+								v *= 8;
+								v += *s - '0';
+							}
+							--s;
+							c = v;
+							break;
+						}
+					default: printf("\\"); break;
+					}
+				}
+				printf("%c", c);
+			}
+		ndone:
+			break;
+		case ';':
+			/*
+			 * Point past the ';' after the echo command
+			 * and skip the following white space.
+			 */
+			while (*s == ';' || *s == ' ' || *s == '\t')
+				s++;
+			goto out;
+		}
+	}
+out:
+	if (print)
+		printf("\n");
+	return (s);
+}
+
+/*
+ * Call a command via the shell.
+ * If the command line does not contain shell specifix meta characters,
+ * call the command directly for efficiency.
+ */
+LOCAL void
+doexec(shpath, shell, shellflag, cmd, force_shell)
+	const char	*shpath;
+	const char	*shell;
+	const char	*shellflag;
+	const char	*cmd;
+	BOOL		force_shell;
+{
+#define	MAXCMD	NAMEMAX		/* Currently 512 for pdp11, 4096 for others */
+
+	if (!force_shell &&
+	    strlen(cmd) <= MAXCMD && !has_meta(cmd)) {	/* Simple, no shell */
+		char	buf[MAXCMD+1];
+		char	*args[MAXCMD/2+1];	/* No malloc, we use vfork() */
+		char	*bp;
+		char	**ap;
+
+		strcpy(buf, cmd);
+		for (bp = buf, ap = args; *bp; bp++, ap++) {
+			while (*bp == ' ' || *bp == '\t')
+				bp++;
+			*ap = bp;
+			while (*bp != '\0' && *bp != ' ' && *bp != '\t')
+				bp++;
+			if (*bp == '\0') {	/* End of cmd line	*/
+				if (**ap)	/* Only increment if	*/
+					ap++;	/* arg not empty ("").	*/
+				break;
+			}
+			*bp = '\0';
+		}
+		*ap = NULL;
+		execvp(args[0], args);
+		comerr("Can't exec %s.\n", args[0]);
+		/* NOTREACHED */
+	} else {				/* Complex cmd, use shell */
+		execl(shpath, shell, shellflag, cmd, (char *)NULL);
+		comerr("Can't exec %s.\n", shpath);
+		/* NOTREACHED */
+	}
+}
 
 #ifdef	tos
 #		include "osbind.h"

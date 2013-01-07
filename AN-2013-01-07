@@ -1,0 +1,104 @@
+New features with AN-2013-01-07:
+
+This is the first localization step for the schily source consolidation. Many
+programs now (hopefully) call gettext() for all strings that need localization.
+
+-	The next step will include dgettext() calls for the libraries and the
+	missing programs
+
+-	The following step will include the extracted strings
+
+-	The last step will include German translations and install support
+	for the resulting binary message object files.
+
+----------> Please test and report compilation problems! <---------
+
+***** NOTE: As mentioned since 2004, frontends to the tools should *****
+*****		call all programs in the "C" locale		   *****
+*****		by e.g. calling: LC_ALL=C cdrecord ....		   *****
+*****		unless these frontends support localized strings   *****
+*****		used by the cdrtools with NLS support.		   *****
+
+-	smake now optimizes command execution and no longer passes simple
+	commands to the shell. On UNIX, this speeds up execution by just
+	one percent, but on slow systems like Win32, this results in a
+	bigger performance win (aprox. 25% of the total wall clock time
+	on a Cygwin system).
+
+-	Commands that start with a simple "echo" command have the echo
+	command executed inline by smake. This helps to avoid to call the
+	shell for typical commands in the schily makefilesystem.
+
+-	Added a symlink to libschily/stdio/flush.c to get flush() for "echo"
+	into the bootstrap "psmake".
+
+-	If the remaining commandline does not contain shell meta characters,
+	the command is called via execlp() instead of the shell.
+
+-	If the environment FORCE_SHELL is present or the Makefile contains
+	the special target .FORCE_SHELL:, smake always calls commands via
+	the shell.
+
+-	For newer Cygwin versions, we need  an own PACKED definition in
+	libscg/scg/aspi-win32.h
+
+-	Try to work around an imprudent change in the file windef.h from
+	Cygwin-1.7.17 (Autumn 2012) related to the type BOOL that makes 
+	windefs.h from the recent Cygwin no longer compatible to the 
+	original file from Microsoft.
+
+	Thanks to Alain Hoang, Thomas Plank and others for reporting and
+	help with getting a fix for the two problems named above
+
+
+-	The make program specific configuration files for the Schily Makefilesystem
+	RULES/mk-.id (for SunPro make), RULES/mk-smake.id RULES/mk-gmake.id
+	now include definitions for the macros:
+
+	SPACE		A single space character (' ')
+	NUMBER_SIGN	The ASCII number sing ('#')
+
+	Note that the POSIX standard otherwise requires the make program 
+	to be unable to have the '#' appear in non-comment sections of
+	Makefiles.
+
+-	The smake program now may be compiled to enforce "bosh" (our portable
+	Bourne Shell) as the default SHELL.
+
+	This fixes some bugs with signal handling on bash based systems
+	and increases performace e.g. on Cygwin.
+
+	compile using "smake COPTX=-DUSE_BOSH" to enable this feature.
+	Note that you need to have a working bosh installed on your system
+	before "configure" was run. So if you like to swith to that
+	new feature, first compile/install all programs from this source
+	bundle, then call "./.clean" and compile again.
+
+-	If you have a working (recent) bosh on your system, you may call:
+
+	PATH="/opt/schily/bin:$PATH" CONFIG_SHELL=/opt/schily/bin/sh smake
+
+	to enforce "bosh" instead of /bin/sh for executing "configure"
+	If /bin/sh is e.g. bash, this speeds up the "configure" performance
+	by aprox. 30% on Cygwin.
+
+
+-	cpp now includes a yacc'd version of cpy.y in cpp/cpypre.c
+	that allows to have a full blown cpp even on platforms that do not
+	include the "yacc" command.
+
+-	Make the Bourne shell compile again with a K&R compiler.
+	The new files alias.c and abbrev.c introduced some inconsisties
+	with K&R C.
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.isdn.cs.tu-berlin.de, js@cs.tu-berlin.de
+	joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

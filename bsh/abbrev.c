@@ -1,13 +1,13 @@
-/* @(#)abbrev.c	1.45 12/06/10 Copyright 1985-2012 J. Schilling */
+/* @(#)abbrev.c	1.47 13/01/05 Copyright 1985-2013 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)abbrev.c	1.45 12/06/10 Copyright 1985-2012 J. Schilling";
+	"@(#)abbrev.c	1.47 13/01/05 Copyright 1985-2013 J. Schilling";
 #endif
 /*
  *	Abbreviation symbol handling
  *
- *	Copyright (c) 1985-2012 J. Schilling
+ *	Copyright (c) 1985-2013 J. Schilling
  *
  *	.global & .local alias abbreviations are handled here
  *
@@ -72,10 +72,12 @@ static	UConst char sccsid[] =
 #ifdef	BOURNE_SHELL
 
 #include "defs.h"
+#undef	tab
 #define	LOCAL	static
 #define	EXPORT
 #include "abbrev.h"
 #include <schily/fcntl.h>
+#include <schily/stat.h>
 
 LOCAL	char	sn_badtab[]	= "bad_astab_number";
 LOCAL	char	sn_no_mem[]	= "no_memory";
@@ -83,6 +85,7 @@ LOCAL	char	sn_badfile[]	= "bad_sym_file";
 
 #define	fileopen(n, m)	open(n, m, 0666)
 #define	fileread	read
+#define	filestat	fstat
 #define	fclose		close
 #define	fflush(f)
 #define	filesize	ab_fsize
@@ -98,14 +101,14 @@ LOCAL	char	sn_badfile[]	= "bad_sym_file";
 
 #else
 #include <schily/stdio.h>
-#include "bsh.h"
-#include "abbrev.h"
-#include "str.h"
-#include "strsubs.h"
 #include <schily/string.h>
 #include <schily/stdlib.h>
 #include <schily/time.h>
 #include <schily/stat.h>
+#include "bsh.h"
+#include "abbrev.h"
+#include "str.h"
+#include "strsubs.h"
 #include <schily/patmatch.h>
 
 #define	open_failed(f)	(f == (FILE *)0)
@@ -556,6 +559,7 @@ ab_read(tab, fname)
 	register abtab_t *ap = _ab_down(tab);
 		off_t	fsize;
 	register int	beg;
+		struct stat sb;
 
 	/*
 	 * Make sure that ap->at_fname is NULL to avoid writing back to the
@@ -569,6 +573,12 @@ ab_read(tab, fname)
 	if (open_failed(f)) {
 		ap->at_blk = NULL;
 		return;
+	}
+	if (filestat(f, &sb) >= 0) {
+		if (geteuid() != sb.st_uid) {
+			fclose(f);
+			return;
+		}
 	}
 	fsize = filesize(f);
 	ap->at_mtime = ab_filemtime(fname);
@@ -929,7 +939,9 @@ _ab_pr(np, f, aflags)
 		FILE_p		f;
 		int		aflags;
 {
+#ifdef	BOURNE_SHELL
 	int	len;
+#endif
 
 	if (np->ab_value == NULL)
 		return;

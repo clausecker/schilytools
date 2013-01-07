@@ -1,8 +1,8 @@
-/* @(#)update.c	1.122 12/12/20 Copyright 1985, 88, 91, 1995-2012 J. Schilling */
+/* @(#)update.c	1.123 12/12/22 Copyright 1985, 88, 91, 1995-2012 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)update.c	1.122 12/12/20 Copyright 1985, 88, 91, 1995-2012 J. Schilling";
+	"@(#)update.c	1.123 12/12/22 Copyright 1985, 88, 91, 1995-2012 J. Schilling";
 #endif
 /*
  *	Make program
@@ -47,7 +47,7 @@ EXPORT BOOL	found_make;		/* Did we expand the $(MAKE) macro?  */
 #define	rule_type(t)	((t) & ~RTYPE_NEEDFREE)
 
 EXPORT	void	initchars	__PR((void));
-EXPORT	char	*filename	__PR((char * name));
+EXPORT	char	*filename	__PR((const char * name));
 LOCAL	void	copy_dir	__PR((char * name, char *dir, size_t dsize));
 LOCAL	char	*get_suffix	__PR((char *name, char *suffix));
 LOCAL	void	copy_base	__PR((char *name, char *dir, size_t dsize, char *suffix));
@@ -124,14 +124,14 @@ initchars()
  */
 EXPORT char *
 filename(name)
-	register char	*name;
+	register const char	*name;
 {
-	register char	*fname;
+	register const char	*fname;
 
 	for (fname = name; *name; )
 		if (*name++ == SLASH)
 			fname = name;
-	return (fname);
+	return ((char *)fname);
 }
 
 /*
