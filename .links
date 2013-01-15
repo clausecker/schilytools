@@ -55,6 +55,7 @@
 ./psmake/filewrite.c
 ./psmake/fillbytes.c
 ./psmake/flag.c
+./psmake/flush.c
 ./psmake/format.c
 ./psmake/getargs.c
 ./psmake/geterrno.c

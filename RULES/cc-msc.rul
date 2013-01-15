@@ -1,6 +1,6 @@
-#ident "@(#)cc-msc.rul	1.20 11/08/05 "
+#ident "@(#)cc-msc.rul	1.21 13/01/09 "
 ###########################################################################
-# Written 2006 by J. Schilling
+# Written 2006-2013 by J. Schilling
 ###########################################################################
 #
 # Platform dependent MACROS for CYGWIN32_NT using MSVC
@@ -64,15 +64,17 @@ LNDYNLIB=	@
 FLOAT_OPTIONS=	
 
 CC_COM=		cl.exe
+CC++_COM=	$(CC_COM)
+
 CC=		@echo "	==> COMPILING \"$@\""; $(CC_COM) -nologo
-CC++ =		@echo "	==> COMPILING \"$@\""; $(CC_COM) -nologo
+CC++ =		@echo "	==> COMPILING \"$@\""; $(CC++_COM) -nologo
 OUTPUT_OPTION=	-Fo$(O:%=%/)$@
 CC_OUTPUT_FILTER= | tail -n +2	# Filter cl.exe filename echo
 LD_OUTPUT_OPTION= -Fe$@
 LDCC=		@echo "	==> LINKING \"$@\""; $(CC_COM) -nologo
-LDCC++ =	@echo "	==> LINKING \"$@\""; $(CC_COM) -nologo
+LDCC++ =	@echo "	==> LINKING \"$@\""; $(CC++_COM) -nologo
 DYNLD=		@echo "	==> LINKING dynamic library \"$@\""; $(CC_COM) -nologo
-DYNLDC++ =	@echo "	==> LINKING dynamic library \"$@\""; $(CC_COM) -nologo
+DYNLDC++ =	@echo "	==> LINKING dynamic library \"$@\""; $(CC++_COM) -nologo
 DYNLD.o=	$(DYNLD) `$(LORDER) $(POFILES) | $(TSORT)` $(LDFLAGS) -out:$@ $(LDLIBS)
 
 RANLIB=		@echo "	==> RANDOMIZING ARCHIVE \"$@\""; true

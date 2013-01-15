@@ -1,6 +1,6 @@
-#ident "@(#)cc-sco_os.rul	1.10 11/07/16 "
+#ident "@(#)cc-sco_os.rul	1.11 13/01/09 "
 ###########################################################################
-# Written 1999 by J. Schilling/Santa Cruz Operation
+# Written 1999-2013 by J. Schilling/Santa Cruz Operation
 ###########################################################################
 #
 # Platform dependent MACROS for SCO OpenServer 5 cc
@@ -52,6 +52,8 @@ LNDYNLIB=	@$(RM) $(RM_FORCE) $(PTARGET_BASE).so; $(SYMLINK) $(TARGET) $(PTARGET_
 FLOAT_OPTIONS=	
 
 CC_COM=		cc
+CC++_COM=	echo "C++ not yet supported"; exit -1; :
+
 CC=		@echo "	==> COMPILING \"$@\""; $(CC_COM)
 LDCC=		@echo "	==> LINKING \"$@\""; $(CC_COM)
 DYNLD=		@echo "	==> LINKING dynamic library \"$@\""; $(CC_COM)
@@ -63,13 +65,8 @@ MKDEP_OUT=
 MKDIR=		$(MKDIR_SH)
 INSMKDIR=	$(INSMKDIR_SH)
 
-#CC++ =		@echo "	==> COMPILING \"$@\""; CC
-#LDCC++ =	@echo "	==> LINKING \"$@\""; CC
-#DYNLDC++ =	@echo "	==> LINKING dynamic library \"$@\""; CC
-#MKC++DEP=	@echo "	==> MAKING DEPENDENCIES \"$@\""; $(RMDEP); CC -xM
-#MKC++DEP_OUT=
-CC++ =		@echo "	==> COMPILING \"$@\""; echo "C++ not yet supported"; exit -1
-LDCC++ =	@echo "	==> LINKING \"$@\""; echo "C++ not yet supported"; exit -1
-DYNLDC++ =	@echo "	==> LINKING dynamic library \"$@\""; echo "C++ not yet supported"; exit -1
-MKC++DEP=	@echo "	==> MAKING DEPENDENCIES \"$@\""; $(RMDEP); echo "C++ not yet supported"; exit -1
+CC++ =		@echo "	==> COMPILING \"$@\""; $(CC++_COM)
+LDCC++ =	@echo "	==> LINKING \"$@\""; $(CC++_COM)
+DYNLDC++ =	@echo "	==> LINKING dynamic library \"$@\""; $(CC++_COM)
+MKC++DEP=	@echo "	==> MAKING DEPENDENCIES \"$@\""; $(RMDEP); $(CC++_COM) # mkdep-sco.sh?
 MKC++DEP_OUT=

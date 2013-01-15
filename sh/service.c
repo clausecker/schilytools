@@ -34,13 +34,13 @@
 #include "defs.h"
 
 /*
- * This file contains modifications Copyright 2008-2012 J. Schilling
+ * This file contains modifications Copyright 2008-2013 J. Schilling
  *
- * @(#)service.c	1.23 12/06/05 2008-2012 J. Schilling
+ * @(#)service.c	1.24 13/01/14 2008-2013 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)service.c	1.23 12/06/05 2008-20012 J. Schilling";
+	"@(#)service.c	1.24 13/01/14 2008-20013 J. Schilling";
 #endif
 
 /*
@@ -191,10 +191,14 @@ getpath(s)
 		if (pathlen > 2 && path[pathlen - 1] == ':' &&
 				path[pathlen - 2] != ':') {
 			newpath = locstak();
-			(void) memcpystak(newpath, path, pathlen);
+			newpath = memcpystak(newpath, path, pathlen);
+			if (&newpath[pathlen+1] >= brkend) {
+				newpath = growstak(&newpath[pathlen+1]);
+				newpath -= pathlen + 1;
+			}
+
 			newpath[pathlen] = ':';
 			newpath = endstak(newpath + pathlen + 1);
-			newpath -= pathlen + 1;
 			return (newpath);
 		} else
 			return (cpystak(path));

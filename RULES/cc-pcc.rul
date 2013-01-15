@@ -1,6 +1,6 @@
-#ident "@(#)cc-pcc.rul	1.2 11/07/16 "
+#ident "@(#)cc-pcc.rul	1.3 13/01/09 "
 ###########################################################################
-# Written 2010 by J. Schilling
+# Written 2010-2013 by J. Schilling
 ###########################################################################
 #
 # Platform independent MACROS for PCC
@@ -55,15 +55,17 @@ LNDYNLIB=	@$(RM) $(RM_FORCE) $(PTARGET_BASE).so; $(SYMLINK) $(TARGET) $(PTARGET_
 FLOAT_OPTIONS=	
 
 CC_COM=		pcc
+CC++_COM=	p++
+
 CC=		@echo "	==> COMPILING \"$@\""; $(CC_COM)
-CC++ =		@echo "	==> COMPILING \"$@\""; p++
+CC++ =		@echo "	==> COMPILING \"$@\""; $(CC++_COM)
 LDCC=		@echo "	==> LINKING \"$@\""; $(CC_COM)
-LDCC++ =	@echo "	==> LINKING \"$@\""; p++
+LDCC++ =	@echo "	==> LINKING \"$@\""; $(CC++_COM)
 DYNLD=		@echo "	==> LINKING dynamic library \"$@\""; $(CC_COM)
-DYNLDC++ =	@echo "	==> LINKING dynamic library \"$@\""; p++
+DYNLDC++ =	@echo "	==> LINKING dynamic library \"$@\""; $(CC++_COM)
 
 RMDEP=		:
 MKDEP=		@echo "	==> MAKING DEPENDENCIES \"$@\""; $(RMDEP); $(CC_COM) -M
 MKDEP_OUT=
-MKC++DEP=	@echo "	==> MAKING DEPENDENCIES \"$@\""; $(RMDEP); p++ -M
+MKC++DEP=	@echo "	==> MAKING DEPENDENCIES \"$@\""; $(RMDEP); $(CC++_COM) -M
 MKC++DEP_OUT=

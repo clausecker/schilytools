@@ -1,6 +1,6 @@
-#ident "@(#)cc-apollo.rul	1.9 10/05/15 "
+#ident "@(#)cc-apollo.rul	1.10 13/01/09 "
 ###########################################################################
-# Written 2001-2006 by J. Schilling
+# Written 2001-2013 by J. Schilling
 ###########################################################################
 #
 # Platform dependent MACROS for DomainOS (sys5.3, 10.4.1) cc
@@ -55,6 +55,8 @@ FLOAT_OPTIONS=
 
 #CC_COM=	cc -A systype,bsd4.3
 CC_COM=		/bsd4.3/bin/cc
+CC++_COM=	echo "C++ not yet supported"; exit -1
+
 CC=		@echo "	==> COMPILING \"$@\""; $(CC_COM)
 LDCC=		@echo "	==> LINKING \"$@\""; $(CC_COM)
 DYNLD=		@echo "	==> LINKING dynamic library \"$@\""; $(CC_COM)
@@ -67,13 +69,8 @@ MKDEP_OUT=
 MKDIR=		$(MKDIR_SH)
 INSMKDIR=	$(INSMKDIR_SH)
 
-#CC++ =		@echo "	==> COMPILING \"$@\""; CC
-#LDCC++ =	@echo "	==> LINKING \"$@\""; CC
-#DYNLDC++ =	@echo "	==> LINKING dynamic library \"$@\""; CC
-#MKC++DEP=	@echo "	==> MAKING DEPENDENCIES \"$@\""; $(RMDEP); CC -xM
-#MKC++DEP_OUT=
-CC++ =		@echo "	==> COMPILING \"$@\""; echo "C++ not yet supported"; exit -1
-LDCC++ =	@echo "	==> LINKING \"$@\""; echo "C++ not yet supported"; exit -1
-DYNLDC++ =	@echo "	==> LINKING dynamic library \"$@\""; echo "C++ not yet supported"; exit -1
-MKC++DEP=	@echo "	==> MAKING DEPENDENCIES \"$@\""; $(RMDEP); echo "C++ not yet supported"; exit -1
+CC++ =		@echo "	==> COMPILING \"$@\""; $(CC++_COM)
+LDCC++ =	@echo "	==> LINKING \"$@\""; $(CC++_COM)
+DYNLDC++ =	@echo "	==> LINKING dynamic library \"$@\""; $(CC++_COM)
+MKC++DEP=	@echo "	==> MAKING DEPENDENCIES \"$@\""; $(RMDEP); $(CC++_COM) # makedepend?
 MKC++DEP_OUT=

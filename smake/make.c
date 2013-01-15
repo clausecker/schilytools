@@ -1,8 +1,8 @@
-/* @(#)make.c	1.188 13/01/04 Copyright 1985, 87, 88, 91, 1995-2013 J. Schilling */
+/* @(#)make.c	1.189 13/01/10 Copyright 1985, 87, 88, 91, 1995-2013 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)make.c	1.188 13/01/04 Copyright 1985, 87, 88, 91, 1995-2013 J. Schilling";
+	"@(#)make.c	1.189 13/01/10 Copyright 1985, 87, 88, 91, 1995-2013 J. Schilling";
 #endif
 /*
  *	Make program
@@ -1739,8 +1739,8 @@ cmd_run(jobp)
 	if (force_shell)
 		jobp->j_flags &= ~J_MYECHO;
 
+	flush();			/* Flush stdout before running cmd */
 	if (jobp->j_flags & J_MYECHO) {
-		flush();
 		cmd = doecho(cmd, TRUE);
 		flush();
 		if (*cmd == '\0') {	/* Command was completely inlined */
@@ -1748,6 +1748,11 @@ cmd_run(jobp)
 			jobp->j_excode = 0;
 			return;
 		}
+	}
+	if (*cmd == '\0') {		/* Skip empty command */
+		jobp->j_flags |= J_NOWAIT;
+		jobp->j_excode = 0;
+		return;
 	}
 
 	shellflag = get_var(NoError ? "MAKE_SHELL_IFLAG":"MAKE_SHELL_FLAG");
@@ -2084,6 +2089,7 @@ doexec(shpath, shell, shellflag, cmd, force_shell)
 		char	*args[MAXCMD/2+1];	/* No malloc, we use vfork() */
 		char	*bp;
 		char	**ap;
+		int	err;
 
 		strcpy(buf, cmd);
 		for (bp = buf, ap = args; *bp; bp++, ap++) {
@@ -2100,8 +2106,12 @@ doexec(shpath, shell, shellflag, cmd, force_shell)
 			*bp = '\0';
 		}
 		*ap = NULL;
+		if (args[0] == NULL)		/* Empty command?	*/
+			_exit(0);		/* Just signal success	*/
 		execvp(args[0], args);
-		comerr("Can't exec %s.\n", args[0]);
+		err = geterrno();
+		errmsg("Can't exec %s.\n", args[0]);
+		_exit(err);
 		/* NOTREACHED */
 	} else {				/* Complex cmd, use shell */
 		execl(shpath, shell, shellflag, cmd, (char *)NULL);

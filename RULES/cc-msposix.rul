@@ -1,6 +1,6 @@
-#ident "@(#)cc-msposix.rul	1.18 07/05/08 "
+#ident "@(#)cc-msposix.rul	1.19 13/01/09 "
 ###########################################################################
-# Written 2006-2007 by J. Schilling
+# Written 2006-2013 by J. Schilling
 ###########################################################################
 #
 # Platform dependent MACROS for INTERIX using MSVC in POSIX c89 mode
@@ -61,6 +61,8 @@ LNDYNLIB=	@
 FLOAT_OPTIONS=	
 
 CC_COM=		cc
+CC++_COM=	$(CC_COM)
+
 CC=		@echo "	==> COMPILING \"$@\""; $(CC_COM)
 CC++ =		@echo "	==> COMPILING \"$@\""; $(CC_COM)
 #OUTPUT_OPTION=	-Fo$(O:%=%/)$@

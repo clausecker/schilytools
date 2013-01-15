@@ -41,7 +41,7 @@
 /*
  *				Copyright Geoff Collyer 1987-2005
  *
- * @(#)stak.c	2.7 12/05/15	Copyright 2010-2012 J. Schilling
+ * @(#)stak.c	2.8 13/01/14	Copyright 2010-2013 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -57,7 +57,7 @@
 
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)stak.c	2.7 12/05/15 Copyright 2010-2012 J. Schilling";
+	"@(#)stak.c	2.8 13/01/14 Copyright 2010-2013 J. Schilling";
 #endif
 
 
@@ -183,7 +183,10 @@ static	unsigned char *__growstak __PR((int incr));
 						unsigned char *b));
 	unsigned char *memcpystak	__PR((unsigned char *s1,
 						unsigned char *s2, int n));
-
+/*
+ * Call malloc() and keep track of stklow / stkhigh to be able to skip
+ * unallocated space in shfree():
+ */
 static void *
 xmalloc(size)
 	size_t	size;
@@ -279,6 +282,7 @@ grostalloc()				/* allocate growing stack */
  * allocate requested stack.
  * movstrstak() assumes that getstak just realloc's the growing stack,
  * so we must do just that.  Grump.
+ * Return new address of stak base.
  */
 unsigned char *
 getstak(asize)
@@ -324,6 +328,7 @@ prln(l)
 /*
  * set up stack for local use (i.e. make it big).
  * should be followed by `endstak'
+ * Return new address of stak base.
  */
 unsigned char *
 locstak()
@@ -341,6 +346,7 @@ locstak()
  * return an address to be used by tdystak later,
  * so it must be returned by getstak because it may not be
  * a part of the growing stack, which is subject to moving.
+ * Return new address of stak base.
  */
 unsigned char *
 savstak()
@@ -359,6 +365,8 @@ savstak()
  * tidy up after `locstak'.
  * make the current growing stack a semi-permanent item and
  * generate a new tiny growing stack.
+ * Return new address of stak base.
+ *
  * As currently all endstak()/tdystak() pairs in the shell leave a non-zero
  * block on the current growing stack, we did not create code to set
  * blk->h.magic = STNMAGICNUM in case of an empty block.
@@ -367,10 +375,13 @@ unsigned char *
 endstak(argp)
 	unsigned char	*argp;
 {
-	unsigned char *ostk;
+	unsigned char	*ostk;
+	UIntptr_t	argoff = argp - stakbot;
 
-	if (argp >= stakend)
+	if (argp >= stakend) {			/* Space for null byte */
 		__growstak(argp - stakend);
+		argp = stakbot + argoff;
+	}
 	*argp++ = 0;				/* terminate the string */
 	TPRS("endstak calling __growstak(");
 	TPRNN(-(stakend - argp));
@@ -497,7 +508,7 @@ stakchk()
 	}
 }
 
-static unsigned char *			/* new address of grown stak */
+static unsigned char *			/* new address of grown stak base */
 __growstak(incr)			/* grow the growing stack by incr */
 	int		incr;
 {
@@ -581,6 +592,10 @@ __growstak(incr)			/* grow the growing stack by incr */
 	return (stk.base);			/* addr of 1st usable byte */
 }
 
+/*
+ * Grow stak so "newtop" becomes part of the valid stak.
+ * Return new corrected address for "newtop".
+ */
 unsigned char *
 growstak(newtop)
 	unsigned char	*newtop;
@@ -590,7 +605,7 @@ growstak(newtop)
 
 	incr = (UIntptr_t)round(newtop - brkend + 1, BYTESPERWORD);
 	if (brkincr > incr)
-		incr = brkincr;
+		incr = brkincr;		/* Grow at least by brkincr */
 	__growstak(incr);
 
 	return (stakbot + newoff);	/* New value for newtop */
@@ -700,7 +715,7 @@ chkmem()
 /*
  * The code below has been taken from the historical stak.c
  *
- * Copyright 2008-2012 J. Schilling
+ * Copyright 2008-2013 J. Schilling
  */
 
 /*
@@ -714,6 +729,7 @@ chkmem()
 /*
  * Copy the string in "x" to the stack and make it semi-permanent.
  * The current local stack is assumed to be empty.
+ * Return new address of stak base.
  */
 unsigned char *
 cpystak(x)

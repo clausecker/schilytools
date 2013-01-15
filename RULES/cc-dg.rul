@@ -1,6 +1,6 @@
-#ident "@(#)cc-dg.rul	1.8 11/07/16 "
+#ident "@(#)cc-dg.rul	1.9 13/01/09 "
 ###########################################################################
-# Written 1996-2006 by J. Schilling
+# Written 1996-2013 by J. Schilling
 ###########################################################################
 #
 # Platform dependent MACROS for DGUX cc
@@ -51,6 +51,8 @@ LNDYNLIB=	@$(RM) $(RM_FORCE) $(PTARGET_BASE).so; $(SYMLINK) $(TARGET) $(PTARGET_
 FLOAT_OPTIONS=	
 
 CC_COM=		cc
+CC++_COM=	echo "C++ not yet supported"; exit -1; :
+
 CC=		@echo "	==> COMPILING \"$@\""; $(CC_COM)
 LDCC=		@echo "	==> LINKING \"$@\""; $(CC_COM)
 DYNLD=		@echo "	==> LINKING dynamic library \"$@\""; $(CC_COM)
@@ -60,13 +62,8 @@ RMDEP=		:
 MKDEP=		@echo "	==> MAKING DEPENDENCIES \"$@\""; $(RMDEP); $(CC_COM) -xM
 MKDEP_OUT=
 
-#CC++ =		@echo "	==> COMPILING \"$@\""; CC
-#LDCC++ =	@echo "	==> LINKING \"$@\""; CC
-#DYNLDC++ =	@echo "	==> LINKING dynamic library \"$@\""; CC
-#MKC++DEP=	@echo "	==> MAKING DEPENDENCIES \"$@\""; $(RMDEP); CC -xM
-#MKC++DEP_OUT=
-CC++ =		@echo "	==> COMPILING \"$@\""; echo "C++ not yet supported"; exit -1
-LDCC++ =	@echo "	==> LINKING \"$@\""; echo "C++ not yet supported"; exit -1
-DYNLDC++ =	@echo "	==> LINKING dynamic library \"$@\""; echo "C++ not yet supported"; exit -1
-MKC++DEP=	@echo "	==> MAKING DEPENDENCIES \"$@\""; $(RMDEP); echo "C++ not yet supported"; exit -1
+CC++ =		@echo "	==> COMPILING \"$@\""; $(CC++_COM)
+LDCC++ =	@echo "	==> LINKING \"$@\""; $(CC++_COM)
+DYNLDC++ =	@echo "	==> LINKING dynamic library \"$@\""; $(CC++_COM)
+MKC++DEP=	@echo "	==> MAKING DEPENDENCIES \"$@\""; $(RMDEP); $(CC++_COM) -xM
 MKC++DEP_OUT=
