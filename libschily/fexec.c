@@ -1,8 +1,8 @@
-/* @(#)fexec.c	1.48 11/07/10 Copyright 1985, 1995-2010 J. Schilling */
+/* @(#)fexec.c	1.49 13/01/27 Copyright 1985, 1995-2013 J. Schilling */
 /*
  *	Execute a program with stdio redirection
  *
- *	Copyright (c) 1985, 1995-2010 J. Schilling
+ *	Copyright (c) 1985, 1995-2013 J. Schilling
  *
  *	This is an interface that exists in the public since 1982.
  *	The POSIX.1-2008 standard did ignore POSIX rules not to
@@ -93,6 +93,9 @@ EXPORT	int	fexecve __PR((const char *, FILE *, FILE *, FILE *,
 #undef	js_fexecle
 #undef	__DO__FEXEC__
 
+/*
+ * Use ac == -1 together with a NULL terminated arg vector.
+ */
 EXPORT int
 fexecv(name, in, out, err, ac, av)
 	const char *name;
@@ -100,7 +103,8 @@ fexecv(name, in, out, err, ac, av)
 	int ac;
 	char *av[];
 {
-	av[ac] = NULL;			/*  force list to be null terminated */
+	if (ac >= 0)
+		av[ac] = NULL;		/*  force list to be null terminated */
 	return (js_fexecve(name, in, out, err, av, environ));
 }
 
@@ -274,6 +278,9 @@ const	char	**pav;
 }
 
 #ifndef	__DO__FEXEC__
+/*
+ * Use ac == -1 together with a NULL terminated arg vector.
+ */
 EXPORT int
 js_fexecv(name, in, out, err, ac, av)
 	const char *name;
@@ -281,7 +288,8 @@ js_fexecv(name, in, out, err, ac, av)
 	int ac;
 	char *av[];
 {
-	av[ac] = NULL;			/*  force list to be null terminated */
+	if (ac >= 0)
+		av[ac] = NULL;		/*  force list to be null terminated */
 	return (js_fexecve(name, in, out, err, av, environ));
 }
 

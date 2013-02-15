@@ -1,13 +1,13 @@
-/* @(#)xattr.c	1.13 09/07/11 Copyright 2003-2009 J. Schilling */
+/* @(#)xattr.c	1.14 13/01/15 Copyright 2003-2013 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)xattr.c	1.13 09/07/11 Copyright 2003-2009 J. Schilling";
+	"@(#)xattr.c	1.14 13/01/15 Copyright 2003-2013 J. Schilling";
 #endif
 /*
  *	Handle Extended File Attributes on Linux
  *
- *	Copyright (c) 2003-2009 J. Schilling
+ *	Copyright (c) 2003-2013 J. Schilling
  *	Thanks to Anreas Grünbacher <agruen@suse.de> for the
  *	first implemenation.
  */
@@ -88,7 +88,7 @@ get_xattr(info)
 	info->f_xflags &= ~XF_XATTR;
 	info->f_xattr = NULL;
 
-	list_len = llistxattr(info->f_name, NULL, 0);
+	list_len = llistxattr(info->f_sname, NULL, 0);
 	if (list_len < 0) {
 		if (!errhidden(E_GETXATTR, info->f_name)) {
 			if (!errwarnonly(E_GETXATTR, info->f_name))
@@ -101,7 +101,7 @@ get_xattr(info)
 		return (FALSE);
 	}
 	alist = ___malloc(list_len+2, "extended attribute");
-	list_len = llistxattr(info->f_name, alist, list_len);
+	list_len = llistxattr(info->f_sname, alist, list_len);
 	if (list_len < 0) {
 		if (!errhidden(E_GETXATTR, info->f_name)) {
 			if (!errwarnonly(E_GETXATTR, info->f_name))
@@ -146,7 +146,7 @@ get_xattr(info)
 		static_xattr[i].value = NULL;
 		strcpy(static_xattr[i].name, lp);
 
-		len = lgetxattr(info->f_name, lp, NULL, 0);
+		len = lgetxattr(info->f_sname, lp, NULL, 0);
 		if (len < 0) {
 			if (!errhidden(E_GETXATTR, info->f_name)) {
 				if (!errwarnonly(E_GETXATTR, info->f_name))
@@ -160,7 +160,7 @@ get_xattr(info)
 		}
 		static_xattr[i].value_len = len;
 		static_xattr[i].value = ___malloc(len, "extended attribute");
-		len = lgetxattr(info->f_name, lp, static_xattr[i].value, len);
+		len = lgetxattr(info->f_sname, lp, static_xattr[i].value, len);
 		if (len < 0) {
 			if (!errhidden(E_GETXATTR, info->f_name)) {
 				if (!errwarnonly(E_GETXATTR, info->f_name))

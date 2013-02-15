@@ -1,8 +1,8 @@
-/* @(#)tree.c	1.124 10/12/19 joerg */
+/* @(#)tree.c	1.128 13/02/12 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)tree.c	1.124 10/12/19 joerg";
+	"@(#)tree.c	1.128 13/02/12 joerg";
 #endif
 /*
  * File tree.c - scan directory  tree and build memory structures for iso9660
@@ -11,7 +11,7 @@ static	UConst char sccsid[] =
  * Written by Eric Youngdale (1993).
  *
  * Copyright 1993 Yggdrasil Computing, Incorporated
- * Copyright (c) 1999,2000-2010 J. Schilling
+ * Copyright (c) 1999,2000-2013 J. Schilling
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -1142,7 +1142,7 @@ scan_directory_tree(this_dir, path, de)
 	struct directory_entry	*de;
 {
 	DIR		*current_dir;
-	char		whole_path[PATH_MAX];
+	char		whole_path[2*PATH_MAX];	/* Avoid stat buffer overflow */
 	struct dirent	*d_entry;
 	struct directory *parent;
 	int		dflag;
@@ -2309,9 +2309,16 @@ insert_file_entry(this_dir, whole_path, short_name, statp, have_rsrc)
 	}
 #ifdef UDF
 	/* set some info used for udf */
-	s_entry->mode = statbuf.st_mode;
-	s_entry->uid = statbuf.st_uid;
-	s_entry->gid = statbuf.st_gid;
+	s_entry->mode = lstatbuf.st_mode;
+	s_entry->rdev = lstatbuf.st_rdev;
+	s_entry->uid = lstatbuf.st_uid;
+	s_entry->gid = lstatbuf.st_gid;
+	s_entry->atime.tv_sec = lstatbuf.st_atime;
+	s_entry->atime.tv_nsec = stat_ansecs(&lstatbuf);
+	s_entry->mtime.tv_sec = lstatbuf.st_mtime;
+	s_entry->mtime.tv_nsec = stat_mnsecs(&lstatbuf);
+	s_entry->ctime.tv_sec = lstatbuf.st_ctime;
+	s_entry->ctime.tv_nsec = stat_cnsecs(&lstatbuf);
 #endif
 
 #ifdef	USE_LARGEFILES
@@ -2744,6 +2751,12 @@ find_or_create_directory(parent, path, de, flag)
 		de->mode = fstatbuf.st_mode;
 		de->uid =  fstatbuf.st_uid;
 		de->gid =  fstatbuf.st_gid;
+		de->atime.tv_sec = fstatbuf.st_atime;
+		de->atime.tv_nsec = stat_ansecs(&fstatbuf);
+		de->mtime.tv_sec = fstatbuf.st_mtime;
+		de->mtime.tv_nsec = stat_mnsecs(&fstatbuf);
+		de->ctime.tv_sec = fstatbuf.st_ctime;
+		de->ctime.tv_nsec = stat_cnsecs(&fstatbuf);
 #endif
 		iso9660_date(de->isorec.date, fstatbuf.st_mtime);
 	}
@@ -2936,10 +2949,10 @@ search_tree_file(node, filename)
 EXPORT void
 init_fstatbuf()
 {
-	time_t	current_time;
+	struct timeval	current_time;
 
 	if (fstatbuf.st_ctime == 0) {
-		time(&current_time);
+		gettimeofday(&current_time, NULL);
 		if (rationalize_uid)
 			fstatbuf.st_uid = uid_to_use;
 		else
@@ -2948,8 +2961,13 @@ init_fstatbuf()
 			fstatbuf.st_gid = gid_to_use;
 		else
 			fstatbuf.st_gid = getgid();
-		fstatbuf.st_ctime = current_time;
-		fstatbuf.st_mtime = current_time;
-		fstatbuf.st_atime = current_time;
+
+		current_time.tv_usec *= 1000;
+		fstatbuf.st_ctime = current_time.tv_sec;
+		stat_set_ansecs(&fstatbuf, current_time.tv_usec);
+		fstatbuf.st_mtime = current_time.tv_sec;
+		stat_set_mnsecs(&fstatbuf, current_time.tv_usec);
+		fstatbuf.st_atime = current_time.tv_sec;
+		stat_set_cnsecs(&fstatbuf, current_time.tv_usec);
 	}
 }

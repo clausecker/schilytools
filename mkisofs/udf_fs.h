@@ -1,10 +1,10 @@
-/* @(#)udf_fs.h	1.3 07/06/24 Copyright 2001-2007 J. Schilling */
+/* @(#)udf_fs.h	1.6 13/02/12 Copyright 2001-2013 J. Schilling */
 /*
  * udf_fs.h - UDF structure definitions for mkisofs
  *
  * Written by Ben Rudiak-Gould (2001).
  *
- * Copyright 2001-2007 J. Schilling.
+ * Copyright 2001-2013 J. Schilling.
  */
 /*
  * This program is free software; you can redistribute it and/or modify
@@ -18,7 +18,7 @@
  *
  * You should have received a copy of the GNU General Public License along with
  * this program; see the file COPYING.  If not, write to the Free Software
- * Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ * Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
 #ifndef	_UDF_FS_H
@@ -346,11 +346,25 @@ typedef struct udf_icbtag_ {			/* TR/71 3.5.2 */
 /*20*/
 } udf_icbtag;
 
+/*
+ * File types
+ */
+#define	UDF_ICBTAG_FILETYPE_UNSPEC	0
+#define	UDF_ICBTAG_FILETYPE_UNALL_SPACE	1
+#define	UDF_ICBTAG_FILETYPE_PART_INTEG	2
+#define	UDF_ICBTAG_FILETYPE_INDIRECT	3
 #define	UDF_ICBTAG_FILETYPE_DIRECTORY	4	/* ECMA-167 4/14.6.6 */
-#define	UDF_ICBTAG_FILETYPE_BYTESEQ	5
-#define	UDF_ICBTAG_FILETYPE_EA	8
+#define	UDF_ICBTAG_FILETYPE_BYTESEQ	5	/* FILE */
+#define	UDF_ICBTAG_FILETYPE_BLOCK_DEV	6
+#define	UDF_ICBTAG_FILETYPE_CHAR_DEV	7
+#define	UDF_ICBTAG_FILETYPE_EA		8	/* Extended attributes */
+#define	UDF_ICBTAG_FILETYPE_FIFO	9
+#define	UDF_ICBTAG_FILETYPE_C_ISSOCK	10
+#define	UDF_ICBTAG_FILETYPE_T_ENTRY	11	/* Terminal entry */
 #define	UDF_ICBTAG_FILETYPE_SYMLINK	12
-#define	UDF_ICBTAG_FILETYPE_STREAMDIR 13
+#define	UDF_ICBTAG_FILETYPE_STREAMDIR	13
+					/* 14..247	Reserved */
+					/* 248..255	Subject to agreement */
 
 #define	UDF_ICBTAG_FLAG_MASK_AD_TYPE	7	/* TR/71 3.5.3 */
 #define	UDF_ICBTAG_FLAG_SHORT_AD	0
@@ -383,6 +397,20 @@ typedef struct udf_ext_attribute_common_ {	/* TR/71 3.6.{2,3} */
 /*48*/	udf_Uint16	header_checksum;
 /*50*/
 } udf_ext_attribute_common;
+
+typedef struct udf_ext_attribute_dev_spec_ {	/* ECMA-167 4/14.10.7 */
+/* 0*/	udf_Uint32	attribute_type;		/* = 12 */
+/* 4*/	udf_Uint8	attribute_subtype;	/* = 1 */
+/* 5*/	udf_zerobyte	reserved[3];
+/* 8*/	udf_Uint32	attribute_length;	/* = 24 */
+/*12*/	udf_Uint32	impl_use_length;	/* = 0 */
+/*16*/	udf_Uint32	dev_major;		/* major(st_rdev) */
+/*20*/	udf_Uint32	dev_minor;		/* minor(st_rdev) */
+#ifdef	__needed__
+/*24*/	udf_Uint8	impl_use[0];
+#endif
+/*24*/
+} udf_ext_attribute_dev_spec;
 
 typedef struct udf_ext_attribute_free_ea_space_ {	/* TR/71 3.6.{2,3} */
 /* 0*/	udf_Uint32	attribute_type;		/* = 2048 */
@@ -589,6 +617,7 @@ typedef struct udf_file_entry_ {		/* TR/71 3.5.1 */
 /*316*/
 #else
 	udf_ext_attribute_header_desc	ext_attribute_header;
+	udf_ext_attribute_dev_spec	ext_attribute_dev_spec;
 	udf_ext_attribute_free_ea_space	ext_attribute_free_ea_space;
 	udf_ext_attribute_dvd_cgms_info	ext_attribute_dvd_cgms_info;
 	udf_ext_attribute_file_macfinderinfo	ext_attribute_macfinderinfo;

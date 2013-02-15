@@ -1,18 +1,18 @@
-/* @(#)defaults.h	1.24 09/07/05 joerg */
+/* @(#)defaults.h	1.25 13/02/14 joerg */
 /*
  * Header file defaults.h - assorted default values for character strings in
  * the volume descriptor.
  *
- * Copyright (c) 1999-2009 J. Schilling
+ * Copyright (c) 1999-2013 J. Schilling
  */
 
 #define	PREPARER_DEFAULT 	NULL
 #define	PUBLISHER_DEFAULT	NULL
 #ifndef	APPID_DEFAULT
 #ifdef	APPLE_HYB
-#define	APPID_DEFAULT 		"MKISOFS ISO 9660/HFS FILESYSTEM BUILDER (C) 1993 E.YOUNGDALE (C) 1997 J.PEARSON/J.SCHILLING"
+#define	APPID_DEFAULT 		"MKISOFS ISO9660/HFS/UDF FILESYSTEM BUILDER (C) 1993 E.YOUNGDALE (C) 1997 J.PEARSON/J.SCHILLING"
 #else
-#define	APPID_DEFAULT 		"MKISOFS ISO 9660 FILESYSTEM BUILDER (C) 1993 E.YOUNGDALE (C) 1997 J.PEARSON/J.SCHILLING"
+#define	APPID_DEFAULT 		"MKISOFS ISO9660/UDF FILESYSTEM BUILDER (C) 1993 E.YOUNGDALE (C) 1997 J.PEARSON/J.SCHILLING"
 #endif /* APPLE_HYB */
 #endif
 #define	COPYRIGHT_DEFAULT 	NULL

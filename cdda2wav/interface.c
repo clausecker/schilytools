@@ -1,13 +1,13 @@
-/* @(#)interface.c	1.74 12/02/29 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2006-2012 J. Schilling */
+/* @(#)interface.c	1.75 13/01/17 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2006-2013 J. Schilling */
 #include "config.h"
 #ifndef lint
 static	UConst char sccsid[] =
-"@(#)interface.c	1.74 12/02/29 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2006-2012 J. Schilling";
+"@(#)interface.c	1.75 13/01/17 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2006-2013 J. Schilling";
 
 #endif
 /*
  * Copyright (C) 1994-1997 Heiko Eissfeldt heiko@colossus.escape.de
- * Copyright (c) 2006-2012 J. Schilling
+ * Copyright (c) 2006-2013 J. Schilling
  *
  * Interface module for cdrom drive access
  *
@@ -478,9 +478,16 @@ lost_toshibas:
 	if (interface == GENERIC_SCSI) {
 		scgp->silent++;
 		while (!wait_unit_ready(scgp, 60)) {
+			int	c;
+
 			fprintf(outfp,
 			_("load cdrom please and press enter"));
-			getchar();
+			while ((c = getchar()) != '\n') {
+				if (c == EOF)
+					break;
+			}
+			if (c == EOF)
+				exit(DEVICE_ERROR);
 		}
 		scgp->silent--;
 	}

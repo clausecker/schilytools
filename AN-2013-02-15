@@ -1,0 +1,103 @@
+New features with AN-2013-02-15:
+
+This is the first localization step for the schily source consolidation. Many
+programs now (hopefully) call gettext() for all strings that need localization.
+
+-	The next step will include dgettext() calls for the libraries and the
+	missing programs
+
+-	The following step will include the extracted strings
+
+-	The last step will include German translations and install support
+	for the resulting binary message object files.
+
+----------> Please test and report compilation problems! <---------
+
+***** NOTE: As mentioned since 2004, frontends to the tools should *****
+*****		call all programs in the "C" locale		   *****
+*****		by e.g. calling: LC_ALL=C cdrecord ....		   *****
+*****		unless these frontends support localized strings   *****
+*****		used by the cdrtools with NLS support.		   *****
+
+-	Fixed a problem in star with "star --xattr -find relative_path ..."
+	Thanks to Philip Spencer <pspencer@fields.utoronto.ca> for the patch.
+
+-	cdda2wav now only prints "load cdrom please and press enter" once
+	per line and does not repeat the text for garbage characters that
+	have been in stdin. Thanks to Phi Tran from Oracle for reporting.
+
+-	mkisofs now reserves more space for the file names to avoid a
+	path buffer overrun
+
+-	Fixed a bug in mkisofs that caused to put more than one UDF direcory
+	entry for a file in case that the file is a ISO-0660 multi-segment file.
+
+-	Fixed a bug in mkisofs that caused the wrong start sector address to
+	be used for UDF in case that the file is a ISO-9660 multi-segment file
+	and the -sort option was used.
+
+-	avoid a GCC warning when compiling readcd.c
+
+-	libschily::fexecv() now allows to use the parameter "ac" with the
+	value -1 to indicate that the arg count is to be determined by the
+	NULL pointer at the end of the arg list.
+
+-	smake bumped to version 1.2.3
+
+-	avoid a false GCC warning when compiling the termcap program
+
+-	The man page sccsfile.4 has been rewritten to make it easier to
+	understand.
+
+-	include/schily/stat.h now contains macros to set the nanoseconds
+	in timestamps in a OS independent way
+
+-	cdrtools bumped to version 3.01a12
+
+cdrtools changes since 3.01a12:
+
+-	mkisofs now identifies itdelf by default (inside the APPID string)
+	as being UDF capable.
+
+-	mkisofs now sets link count and "unique id" == inode number for files.
+	Note that this may still not result in useful hardlinked files on all
+	platforms as e.g. Solaris and Linux ignore the UDF unique ID and rather
+	use the location of the file_entry as inode number. This will never
+	return the same number for different filenames that point to the
+	same file data and thus prevents hard linked files from being visible.
+
+	This is however not a Solaris problem, the problem is rather in the
+	UDF standard that does not require the unique id to be in a 32 bit
+	range as long as the media size is = 8 TB. Note that 32 bit UNIX
+	programs cannot access files with an inode number that cannot be
+	expressed as 32 bit number, so inode numbers that do not fit into
+	32 bits may cause problems. Ths only way to work around this problem
+	would be to enance the Solaris and Linux UDF filesystem module to
+	recognize whether a filesystem has been created by mkisofs that grants
+	useful inode numbers. The same is already done for ISO-9660.
+
+-	mkisofs now supports additional file types with UDF:
+
+	-	named pipes
+	-	sockets
+	-	character devices
+	-	block devices
+
+-	mkisofs now supports all three UNIX times with microsecond granularity in UDF
+
+-	mkisofs now sets correct user/group/permission for symlinks in UDF
+
+-	mkisofs now supports S_ISUID, S_ISGID, S_ISVTX (set uid, set gid, sticky) in UDF
+
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.isdn.cs.tu-berlin.de, js@cs.tu-berlin.de
+	joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

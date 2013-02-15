@@ -1,8 +1,8 @@
-/* @(#)inode.c	1.15 10/12/19 Copyright 2006-2010 J. Schilling */
+/* @(#)inode.c	1.16 13/02/14 Copyright 2006-2013 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)inode.c	1.15 10/12/19 Copyright 2006-2010 J. Schilling";
+	"@(#)inode.c	1.16 13/02/14 Copyright 2006-2013 J. Schilling";
 #endif
 /*
  *	Inode and link count handling for ISO-9660/RR
@@ -14,7 +14,7 @@ static	UConst char sccsid[] =
  *	of asigning the related number to the "extent" field in the ISO
  *	directory record.
  *
- *	Copyright (c) 2006-2010 J. Schilling
+ *	Copyright (c) 2006-2013 J. Schilling
  */
 /*
  * This program is free software; you can redistribute it and/or modify
@@ -28,7 +28,7 @@ static	UConst char sccsid[] =
  *
  * You should have received a copy of the GNU General Public License along with
  * this program; see the file COPYING.  If not, write to the Free Software
- * Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ * Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
 #include "mkisofs.h"
@@ -60,13 +60,19 @@ do_inode(dpnt)
 	if (correct_inodes)
 		assign_inodes(root);
 
+#ifdef	UDF
+	if (!use_RockRidge && !use_udf)
+		return;
+#else
 	if (!use_RockRidge)
 		return;
-	if (!cache_inodes)
+#endif
+	if (!cache_inodes)		/* Never FALSE if correct_inodes TRUE */
 		return;
 
 	compute_linkcount(dpnt);
-	assign_linkcount(dpnt);
+	if (use_RockRidge)		/* If we have Rock Ridge extensions, */
+		assign_linkcount(dpnt);	/* reassign computed linkcount in RR */
 
 	if (null_inodes < last_extent)
 		comerrno(EX_BAD, _("Inode number overflow, too many files in file system.\n"));

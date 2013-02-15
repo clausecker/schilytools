@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sccsfile.4	1.23 11/11/01 Copyright 2007-2011 J. Schilling */
+.\" @(#)sccsfile.4	1.25 13/02/05 Copyright 2007-2013 J. Schilling */
 .\" CDDL HEADER START
 .\"
 .\" The contents of this file are subject to the terms of the
@@ -20,19 +20,28 @@
 .\" CDDL HEADER END
 .\" Copyright (c) 2002, Sun Microsystems, Inc. All Rights Reserved.
 .\" Copyright 1989 AT&T
-.\"  Copyright 2007-2011 J. Schilling
-.TH sccsfile 4 "2011/11/01" "SunOS 5.11" "File Formats"
+.\"  Copyright 2007-2013 J. Schilling
+.TH sccsfile 4 "2013/02/05" "SunOS 5.11" "File Formats"
 .SH NAME
 sccsfile \- format of an SCCS history file
 .SH DESCRIPTION
 
 .LP
-An SCCS file is an \fBASCII\fR file consisting of six logical parts:
+An SCCS file is an \fBASCII\fR file consisting of
+six logical parts
+.RB ( "SCCS v4"
+.IR checksum , " delta table" , " usernames" ,
+.IR flags , " comments" , " body" )
+or eight logical parts
+.RB ( "SCCS v6"
+.IR checksum , " delta table" , " usernames" ,
+.IR "v4 flags" , " v6 flags" , " v6 metadata" ,
+.IR " comments" , " body" ):
 .sp
 .ne 3
 .TP 12
 .I checksum
-Character count used for error detection.
+Character sum computed on the rest of the file, used for error detection.
 .sp
 .ne 3
 .TP
@@ -47,7 +56,8 @@ Login names and/or group IDs of users who may add deltas.
 .ne 3
 .TP
 .I flags
-Definitions of internal keywords.
+Definitions of internal keywords and configuration for user defined behavior
+.RB ( "SCCS v4" ).
 .sp
 .ne 3
 .TP
@@ -85,8 +95,10 @@ This document describes the
 history file format that has been introduced in February 1977 as well
 as the
 .B SCCS v6
-enhancements that have been introduced in summer 2011.
+enhancements that have been introduced in September 2011.
 
+.br
+.ne 5
 .SS Conventions
 
 .LP
@@ -113,9 +125,12 @@ and
 number components may be any non negative number representable by a
 signed 32 bit integer.
 .LP
-The usable range is however limited by the available virtual memory.
+The usable range on a specific machine
+is however limited by the available virtual memory.
 This implementation needs virtual memory that is 
 approx. 100 times the highest serial number from the file.
+If a SCCS history file contains one million deltas, this implementation
+needs 100 MBytes of virtual memory to process the deltas.
 
 .br
 .ne 5
@@ -144,7 +159,7 @@ of (octal) 064001 in PDP-byteorder and 000550 in Motorola-byteorder ("\e001\e150
 .ne 5
 .SS SCCS v6 Checksum
 .LP
-SCCS v6 introduces a modified checksum line:
+SCCS v6 introduces a different checksum line:
 .LP
 .in +2
 .nf
@@ -209,6 +224,12 @@ predecessor-sn\fR
 .sp
 
 .LP
+The lines with the entry type
+.BR ^As , " ^Ad"
+and
+.B ^Ae
+are mandatory.
+.LP
 The first line
 .RB ( ^As )
 contains the number of lines inserted/deleted/unchanged respectively.
@@ -230,6 +251,7 @@ of the delta and its predecessor, respectively. The year is either represented
 by a two digit year in the range 69..99 for 1969..1999 or 00..68 for 2000..2068
 or by a four digit year number. Year numbers before 1969 are currently not
 supported.
+Older SCCS versions may not be able to understand four digit year numbers.
 .LP
 The
 .BR ^Ai ,
@@ -248,7 +270,7 @@ lines contain comments associated with the delta.
 .LP
 The
 .B ^Ae
-line ends the delta table entry.
+line ends the current delta table entry.
 
 .br
 .ne 8
@@ -299,12 +321,26 @@ Positive values are east to GMT.
 The first two decimal digits represent the hour part of the GMT offset, the last
 two decimal digits represent the minute part of the GMT offset. A granularity
 less than a minute cannot be represented.
+.br
+.ne 5
 .LP
 The date and time part represents local time as in SCCS v4 entries.
+The time stamp:
 .LP
-The entry
+.in +2
+.nf
+2012/02/01 13:00:00+0100
+.fi
+.in -2
+.LP
+represents 2012, the first of February 12:00 GMT which is 13:00 MET.
+
+.LP
+The
 .B ^AS
-introduces a SID specific SCCS v6 extension.
+lines introduce SID specific
+.B SCCS v6
+extensions.
 SID specific extension lines are in name/value format and take the form:
 .LP
 .RS
@@ -328,7 +364,8 @@ Record the current path of the
 .B g-file
 relatively to the project's file set home directory. A
 .B path
-entry only appears in case a rename has been applied to the file.
+entry only appears in case this is the initial SID
+or in case a rename has been applied to the file.
 .sp
 The
 .B project set home
@@ -337,7 +374,7 @@ is a directory that holds a directory
 for project specific SCCS metadata. The location of this directory 
 .B .sccs
 is searched for by
-scanning the filesystem towards the root directory starting from the
+scanning the filesystem towards the root directory, starting from the
 current working directory. All files that belong to a project must be
 below the project's file set home directory.
 .sp
@@ -372,6 +409,8 @@ and
 is turned into
 .BR ^Ac_S .
 
+.br
+.ne 5
 .SS User Names
 
 .LP
@@ -381,6 +420,8 @@ and
 .BR ^AU .
 An empty list allows anyone to make a delta.
 
+.br
+.ne 5
 .SS Flags
 
 .LP
@@ -521,7 +562,11 @@ implementations.
 .ne 3
 .TP
 .BR "^Af x SCHILY" | 0
-Enable 
+If the value of the
+.B `x'
+flag is set to
+.BR `SCHILY' ,
+enable 
 .B sccs
 extensions that are not implemented in classical 
 .B sccs
@@ -541,7 +586,7 @@ extension that does not exist in historic
 .B sccs 
 implementations. 
 .sp
-This version of SCCS implements compatibility support for a SCO SCCS
+This version of SCCS implements read only compatibility support for a SCO SCCS
 extension that sets the executable bit in the file permissions of a
 gotten file if the
 .BR x -flag
@@ -551,6 +596,10 @@ does not allow to set this variant of the
 in the history file.
 If you like to get executable files from SCCS, set the executable
 bit in the file permissions of the history file.
+.sp
+If this version of SCCS is used to create the history file and the executable
+bit was set in the original file, SCCS automatically sets the executable bit
+in the history file and thus retains the executable bit in the gotten file.
 
 .ne 5
 .TP
@@ -631,7 +680,9 @@ meta data of the delta table.
 .ne 6
 .TP
 .BI r " random
-A unified pseudo random number that is used to help to identify single files
+A unified pseudo random number (see also
+.BR changeset (4))
+that is used to help to identify single files
 across renames during the lifetime of the sccs history.
 .sp
 The pseudo random number is a hexadecimal string that represents the
@@ -643,6 +694,10 @@ With a 32 bit signed
 .BR time_t ,
 52 bits in the pseudo random number are sufficient.
 With a 64 bit pseudo random number, more than 500000 years are covered.
+.sp
+The minimal length for the pseudo random
+number is thirteen hexadecimal characters. This allows to have a unique
+length for this number until 2146 Sep 27 13:30:51 GMT.
 .RE
 .LP
 The
@@ -657,11 +712,15 @@ This is why SCCS v6 metadata may be kept unmodified when converting a SCCS v6
 history file back to a SCCS v4 history file.
 
 
+.br
+.ne 5
 .SS Comments
 
 .LP
 Arbitrary text surrounded by the bracketing lines \fB^At\fR and \fB^AT\fR. The comments section typically will contain a description of the file's purpose.
 
+.br
+.ne 5
 .SS Body
 
 .LP
@@ -689,6 +748,8 @@ represented by:
 .LP
 respectively. The digit string is the serial number corresponding to the delta for the control line.
 
+.br
+.ne 5
 .SS "SCCS v6 Body escape extensions"
 .LP
 There are two additional types of text lines with a control character at the
@@ -735,11 +796,13 @@ without a need to add another quote.
 .BR sccslog (1),
 .BR bdiff (1), 
 .BR diff (1), 
-.BR what (1).
+.BR what (1),
+.BR changeset (4).
+.\".BR sccsfile (4).
 
 .SH BUGS
 .LP
 SCCS v4 uses local time without a timezone offset. If a delta is created less
 than an hour after switching from DST to non-DST, it may look as if the clock
 is going backwards.
-SCCS v6 fixes this problem by introducing a timezone offset.
+SCCS v6 fixes this problem by introducing a mandatory timezone offset.

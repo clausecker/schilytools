@@ -1,13 +1,13 @@
-/* @(#)readcd.c	1.116 12/03/16 Copyright 1987, 1995-2012 J. Schilling */
+/* @(#)readcd.c	1.117 13/02/01 Copyright 1987, 1995-2013 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)readcd.c	1.116 12/03/16 Copyright 1987, 1995-2012 J. Schilling";
+	"@(#)readcd.c	1.117 13/02/01 Copyright 1987, 1995-2013 J. Schilling";
 #endif
 /*
  *	Skeleton for the use of the scg genearal SCSI - driver
  *
- *	Copyright (c) 1987, 1995-2012 J. Schilling
+ *	Copyright (c) 1987, 1995-2013 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -400,7 +400,7 @@ main(ac, av)
 	if (help)
 		usage(0);
 	if (pversion) {
-		printf(_("readcd %s (%s-%s-%s) Copyright (C) 1987, 1995-2012 %s\n"),
+		printf(_("readcd %s (%s-%s-%s) Copyright (C) 1987, 1995-2013 %s\n"),
 								cdr_version,
 								HOST_CPU, HOST_VENDOR, HOST_OS,
 								_("Joerg Schilling"));
@@ -1666,7 +1666,6 @@ fread_2048(scgp, rp, bp, addr, cnt)
 	to = bp;
 	p = bp;
 	while (i < cnt) {
-		int	ret;
 		int	crc;
 
 		crc = crc_check((unsigned char *)p, MODE_1);
@@ -1676,7 +1675,7 @@ fread_2048(scgp, rp, bp, addr, cnt)
 			OK = FALSE;
 		if (crc == 0 && ret == 0) {
 			edc_OK++;
-			error("Corrected: total %d Block %d\n", edc_OK, addr+i);
+			error("Corrected: total %d Block %ld\n", edc_OK, addr+i);
 		}
 		move2048(from, to);
 		from += 2352;

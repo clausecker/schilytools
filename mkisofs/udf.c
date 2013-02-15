@@ -1,15 +1,15 @@
-/* @(#)udf.c	1.35 10/12/19 Copyright 2001-2010 J. Schilling */
+/* @(#)udf.c	1.41 13/02/15 Copyright 2001-2013 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)udf.c	1.35 10/12/19 Copyright 2001-2010 J. Schilling";
+	"@(#)udf.c	1.41 13/02/15 Copyright 2001-2013 J. Schilling";
 #endif
 /*
  * udf.c - UDF support for mkisofs
  *
  * Written by Ben Rudiak-Gould (2001).
  *
- * Copyright 2001-2010 J. Schilling.
+ * Copyright 2001-2013 J. Schilling.
  */
 /*
  * This program is free software; you can redistribute it and/or modify
@@ -23,11 +23,24 @@ static	UConst char sccsid[] =
  *
  * You should have received a copy of the GNU General Public License along with
  * this program; see the file COPYING.  If not, write to the Free Software
- * Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ * Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
 /*
  * Some remaining issues:
+ *
+ * - The following functions create directory entries with 2 or
+ *   more AllocationDescriptors:
+ *
+ *	set_file_entry()
+ *	set_macvolume_filed_entry()
+ *	set_attr_file_entry()
+ *	set_filed_entry()
+ *
+ *   To support files > 236 GB, we need to be able to deal with a list
+ *   of direcoty entries that span more than one sector.
+ *
+ * - The link count may be wrong if -hide-udf is used.
  *
  * - Do not forget to edit joliet.c and remove the VIDEO_TS lines after
  *   we did implement a decent own file name handling for UDF.
@@ -75,6 +88,7 @@ static	UConst char sccsid[] =
 
 #include "mkisofs.h"
 #include <schily/time.h>
+#include <schily/device.h>
 #include <schily/schily.h>
 #include <schily/errno.h>
 
@@ -112,6 +126,7 @@ static unsigned volume_set_id[2];
 /**************** SIZE ****************/
 
 LOCAL unsigned long getperms __PR((mode_t mode));
+LOCAL unsigned long getflags __PR((mode_t mode));
 LOCAL unsigned int directory_size __PR((struct directory *dpnt));
 LOCAL void	assign_udf_directory_addresses __PR((struct directory *dpnt));
 LOCAL void	assign_udf_file_entry_addresses __PR((struct directory *dpnt));
@@ -136,6 +151,7 @@ LOCAL void	set_dstring __PR((udf_dstring *dst, char *src, int n));
 LOCAL void	set_charspec __PR((udf_charspec *dst));
 LOCAL void	set_impl_ident __PR((udf_EntityID *ent));
 LOCAL void	set_tag __PR((udf_tag *t, unsigned int tid, UInt32_t lba, int crc_length));
+LOCAL void	set_timestamp_from_timespec __PR((udf_timestamp	*ts, timesp *tsp));
 LOCAL void	set_timestamp_from_iso_date __PR((udf_timestamp *ts, const char *iso_date_raw));
 LOCAL void	set_timestamp_from_time_t __PR((udf_timestamp *ts, time_t t));
 LOCAL void	set_anchor_volume_desc_pointer __PR((unsigned char *buf, UInt32_t lba));
@@ -150,22 +166,22 @@ LOCAL void	set_logical_vol_integrity_desc __PR((unsigned char *buf, UInt32_t lba
 LOCAL void	set_file_set_desc __PR((unsigned char *buf, UInt32_t rba));
 LOCAL int	set_file_ident_desc __PR((unsigned char *, UInt32_t, char *, int, UInt32_t, unsigned));
 LOCAL void	set_file_entry __PR((unsigned char *buf, UInt32_t rba, UInt32_t file_rba,
-			off_t length, const char *iso_date, int is_directory,
+			off_t length, int is_directory,
 			unsigned link_count, unsigned unique_id, hfsdirent *hfs_ent,
-			unsigned long res_log_block, mode_t fmode, uid_t fuid, gid_t fgid));
+			unsigned long res_log_block, struct directory_entry *de));
 LOCAL void	udf_size_panic	__PR((int n));
 LOCAL void	set_macvolume_filed_entry __PR((unsigned char *buf, UInt32_t rba, UInt32_t file_rba,
-			unsigned length, const char *iso_date, int is_directory,
+			unsigned length, int is_directory,
 			unsigned link_count, unsigned unique_id, hfsdirent *hfs_ent,
-			mode_t fmode, uid_t fuid, gid_t fgid));
+			struct directory_entry *de));
 LOCAL void	set_attr_file_entry __PR((unsigned char *buf, unsigned rba, unsigned file_rba,
-			off_t length, const char *iso_date, int is_directory,
+			off_t length, int is_directory,
 			unsigned link_count, unsigned unique_id, hfsdirent *hfs_ent,
-			mode_t fmode, uid_t fuid, gid_t	fgid));
+			struct directory_entry *de));
 LOCAL void	set_filed_entry __PR((unsigned char *buf, unsigned rba, unsigned file_rba,
-			unsigned length, const char *iso_date, int is_directory,
+			unsigned length, int is_directory,
 			unsigned link_count, unsigned unique_id, hfsdirent *hfs_ent,
-			mode_t fmode, uid_t fuid, gid_t fgid));
+			struct directory_entry *de));
 LOCAL unsigned int directory_link_count __PR((struct directory *dpnt));
 LOCAL void	write_one_udf_directory __PR((struct directory *dpnt, FILE *outfile));
 LOCAL void	write_udf_directories __PR((struct directory *dpnt, FILE *outfile));
@@ -247,6 +263,30 @@ getperms(mode)
 	return (m);
 }
 
+/*
+ * get UNIX special modes: S_ISUID, S_ISGID, S_ISVTX
+ * The result is not stored in the UDF permisson but in the flags.
+ */
+LOCAL unsigned long
+#ifdef	PROTOTYPES
+getflags(mode_t mode)
+#else
+getflags(mode)
+	mode_t	mode;
+#endif
+{
+	long f = 0;
+
+	if (mode & S_ISUID)
+		f |= UDF_ICBTAG_FLAG_SETUID;
+	if (mode & S_ISGID)
+		f |= UDF_ICBTAG_FLAG_SETGID;
+	if (mode & S_ISVTX)
+		f |= UDF_ICBTAG_FLAG_STICKY;
+
+	return (f);
+}
+
 LOCAL unsigned
 directory_size(dpnt)
 	struct directory	*dpnt;
@@ -294,6 +334,8 @@ assign_udf_file_entry_addresses(dpnt)
 	if (!(dpnt->dir_flags & INHIBIT_UDF_ENTRY)) {
 		struct directory_entry *de;
 		for (de = dpnt->jcontents; de; de = de->jnext) {
+			if (de->de_flags & INHIBIT_UDF_ENTRY)
+				continue;
 			if (!(de->de_flags & RELOCATED_DIRECTORY) &&
 			    !(de->isorec.flags[0] & ISO_DIRECTORY)) {
 				de->udf_file_entry_sector = last_extent++;
@@ -588,6 +630,27 @@ set_tag(t, tid, lba, crc_length)
 }
 
 LOCAL void
+set_timestamp_from_timespec(ts, tsp)
+	udf_timestamp	*ts;
+	timesp		*tsp;
+{
+	struct tm	*tmp = gmtime(&tsp->tv_sec);
+	int		usec = tsp->tv_nsec / 1000;
+
+	set16(&ts->type_and_time_zone, 4096);	/* "Local time" == GMT */
+	set16(&ts->year, 1900 + tmp->tm_year);
+	set8(&ts->month, tmp->tm_mon + 1);
+	set8(&ts->day, tmp->tm_mday);
+	set8(&ts->hour, tmp->tm_hour);
+	set8(&ts->minute, tmp->tm_min);
+	set8(&ts->second, tmp->tm_sec);
+	set8(&ts->centiseconds, usec / 10000);
+	usec %= 10000;
+	set8(&ts->hundreds_of_microseconds, usec / 100);
+	set8(&ts->microseconds, usec % 100);
+}
+
+LOCAL void
 set_timestamp_from_iso_date(ts, iso_date_raw)
 	udf_timestamp	*ts;
 	const char	*iso_date_raw;
@@ -862,34 +925,28 @@ set_file_entry(unsigned char *buf,
 	UInt32_t rba,
 	UInt32_t file_rba,
 	off_t length,
-	const char *iso_date,
 	int is_directory,
 	unsigned link_count,
 	unsigned unique_id,
 
 	hfsdirent *hfs_ent,
 	unsigned long res_log_block,
-	mode_t	fmode,
-	uid_t	fuid,
-	gid_t	fgid)
+	struct directory_entry *de)
 #else
-set_file_entry(buf, rba, file_rba, length, iso_date, is_directory, link_count,
+set_file_entry(buf, rba, file_rba, length, is_directory, link_count,
 		unique_id, hfs_ent,
-		res_log_block, fmode, fuid, fgid)
+		res_log_block, de)
 	unsigned char	*buf;
 	UInt32_t	rba;
 	UInt32_t	file_rba;
 	off_t		length;
-	const char	*iso_date;
 	int		is_directory;
 	unsigned	link_count;
 	unsigned	unique_id;
 
 	hfsdirent	*hfs_ent;
 	unsigned long	res_log_block;
-	mode_t		fmode;
-	uid_t		fuid;
-	gid_t		fgid;
+	struct directory_entry *de;
 #endif
 {
 	udf_short_ad	*allocation_desc;
@@ -906,10 +963,46 @@ set_file_entry(buf, rba, file_rba, length, iso_date, is_directory, link_count,
 	set16(&fe->icb_tag.strategy_type, 4);
 	/*set16(&fe->icb_tag.strategy_parameter, 0);*/
 	set16(&fe->icb_tag.maximum_number_of_entries, 1);
-	if (S_ISLNK(fmode)) {
-		set8(&fe->icb_tag.file_type, UDF_ICBTAG_FILETYPE_SYMLINK);
-	} else
+
+	switch (de->mode & S_IFMT) {
+
+#ifdef	S_IFIFO
+	case S_IFIFO:
+		set8(&fe->icb_tag.file_type, UDF_ICBTAG_FILETYPE_FIFO);
+		break;
+#endif
+
+#ifdef	S_IFCHR
+	case S_IFCHR:
+		set8(&fe->icb_tag.file_type, UDF_ICBTAG_FILETYPE_CHAR_DEV);
+		break;
+#endif
+
+#ifdef	S_IFBLK
+	case S_IFBLK:
+		set8(&fe->icb_tag.file_type, UDF_ICBTAG_FILETYPE_BLOCK_DEV);
+		break;
+#endif
+
+	case S_IFREG:
+			/* FALLTHROUGH */
+	default:
 		set8(&fe->icb_tag.file_type, UDF_ICBTAG_FILETYPE_BYTESEQ);
+		break;
+
+#ifdef	S_IFLNK
+	case S_IFLNK:
+		set8(&fe->icb_tag.file_type, UDF_ICBTAG_FILETYPE_SYMLINK);
+		break;
+#endif
+
+#ifdef	S_IFSOCK
+	case S_IFSOCK:
+		set8(&fe->icb_tag.file_type, UDF_ICBTAG_FILETYPE_C_ISSOCK);
+		break;
+#endif
+	}
+
 	/*fe->icb_tag.parent_icb_location;*/
 	/* UDF_ICBTAG_FLAG_SYSTEM shall be set for MS-DOS, OS/2, Win95 and WinNT as of UDF260 3.3.2.1 */
 	flags = UDF_ICBTAG_FLAG_NONRELOCATABLE | UDF_ICBTAG_FLAG_ARCHIVE | UDF_ICBTAG_FLAG_CONTIGUOUS;
@@ -920,17 +1013,18 @@ set_file_entry(buf, rba, file_rba, length, iso_date, is_directory, link_count,
 			flags |= UDF_ICBTAG_FLAG_SYSTEM;
 		}
 	}
+	flags |= getflags(de->mode);		/* S_ISUID, S_ISGID, S_ISVTX */
 	set16(&fe->icb_tag.flags, flags);
 
-	set32(&fe->permissions, getperms(fmode));
+	set32(&fe->permissions, getperms(de->mode));
 	if (rationalize_uid)
 		set32(&fe->uid, uid_to_use);
 	else
-		set32(&fe->uid, fuid);
+		set32(&fe->uid, de->uid);
 	if (rationalize_gid)
 		set32(&fe->gid, gid_to_use);
 	else
-		set32(&fe->gid, fgid);
+		set32(&fe->gid, de->gid);
 
 
 	set16(&fe->file_link_count, link_count);
@@ -939,11 +1033,11 @@ set_file_entry(buf, rba, file_rba, length, iso_date, is_directory, link_count,
 	/*fe->record_length;*/
 	set64(&fe->info_length, length);
 	set64(&fe->logical_blocks_recorded, ISO_BLOCKS(length));
-	if (iso_date) {
-		set_timestamp_from_iso_date(&fe->access_time, iso_date);
-		fe->modification_time = fe->access_time;
-		fe->attribute_time = fe->access_time;
-	}
+
+	set_timestamp_from_timespec(&fe->access_time, &de->atime);
+	set_timestamp_from_timespec(&fe->modification_time, &de->mtime);
+	set_timestamp_from_timespec(&fe->attribute_time, &de->ctime);
+
 	set32(&fe->checkpoint, 1);
 
 	if (res_log_block) {
@@ -957,15 +1051,29 @@ set_file_entry(buf, rba, file_rba, length, iso_date, is_directory, link_count,
 
 	/* write mac finderinfos etc. required for directories and files */
 	set32(&fe->length_of_ext_attributes, sizeof (udf_ext_attribute_header_desc) +
+		sizeof (udf_ext_attribute_dev_spec) +
 		sizeof (udf_ext_attribute_free_ea_space) + sizeof (udf_ext_attribute_dvd_cgms_info) +
 		sizeof (udf_ext_attribute_file_macfinderinfo));
 
 	set32(&fe->ext_attribute_header.impl_attributes_location, sizeof (udf_ext_attribute_header_desc));
 	set32(&fe->ext_attribute_header.application_attributes_location, sizeof (udf_ext_attribute_header_desc) +
+		sizeof (udf_ext_attribute_dev_spec) +
 		sizeof (udf_ext_attribute_free_ea_space) + sizeof (udf_ext_attribute_dvd_cgms_info) +
 		sizeof (udf_ext_attribute_file_macfinderinfo));
 	set_tag(&fe->ext_attribute_header.desc_tag, UDF_TAGID_EXT_ATTRIBUTE_HEADER_DESC, rba,
 		sizeof (udf_ext_attribute_header_desc));
+
+	set32(&fe->ext_attribute_dev_spec.attribute_type, 12);
+	set8(&fe->ext_attribute_dev_spec.attribute_subtype, 1);
+	set32(&fe->ext_attribute_dev_spec.attribute_length, 24);
+	set32(&fe->ext_attribute_dev_spec.impl_use_length, 0);
+	if (S_ISCHR(de->mode) || S_ISBLK(de->mode)) {
+		set32(&fe->ext_attribute_dev_spec.dev_major, major(de->rdev));
+		set32(&fe->ext_attribute_dev_spec.dev_minor, minor(de->rdev));
+	} else {
+		set32(&fe->ext_attribute_dev_spec.dev_major, 0);
+		set32(&fe->ext_attribute_dev_spec.dev_minor, 0);
+	}
 
 	set32(&fe->ext_attribute_free_ea_space.attribute_type, SECTOR_SIZE);
 	set8(&fe->ext_attribute_free_ea_space.attribute_subtype, 1);
@@ -1097,29 +1205,23 @@ set_macvolume_filed_entry(unsigned char *buf,
 	UInt32_t rba,
 	UInt32_t file_rba,
 	unsigned length,
-	const char *iso_date,
 	int is_directory,
 	unsigned link_count,
 	unsigned unique_id,
 	hfsdirent *hfs_ent,
-	mode_t	fmode,
-	uid_t	fuid,
-	gid_t	fgid
+	struct directory_entry	*de
 )
 #else
-set_macvolume_filed_entry(buf, rba, file_rba, length, iso_date, is_directory, link_count, unique_id, hfs_ent, fmode, fuid, fgid)
+set_macvolume_filed_entry(buf, rba, file_rba, length, is_directory, link_count, unique_id, hfs_ent, de)
 	unsigned char	*buf;
 	UInt32_t	rba;
 	UInt32_t	file_rba;
 	unsigned	length;
-	const char	*iso_date;
 	int		is_directory;
 	unsigned	link_count;
 	unsigned	unique_id;
 	hfsdirent	*hfs_ent;
-	mode_t		fmode;
-	uid_t		fuid;
-	gid_t		fgid;
+	struct directory_entry	*de;
 #endif
 {
 	udf_short_ad	*allocation_desc;
@@ -1147,17 +1249,18 @@ set_macvolume_filed_entry(buf, rba, file_rba, length, iso_date, is_directory, li
 			flags |= UDF_ICBTAG_FLAG_SYSTEM;
 		}
 	}
+	flags |= getflags(de->mode);		/* S_ISUID, S_ISGID, S_ISVTX */
 	set16(&fe->icb_tag.flags, flags);
 
-	set32(&fe->permissions, getperms(fmode));
+	set32(&fe->permissions, getperms(de->mode));
 	if (rationalize_uid)
 		set32(&fe->uid, uid_to_use);
 	else
-		set32(&fe->uid, fuid);
+		set32(&fe->uid, de->uid);
 	if (rationalize_gid)
 		set32(&fe->gid, gid_to_use);
 	else
-		set32(&fe->gid, fgid);
+		set32(&fe->gid, de->gid);
 
 	set16(&fe->file_link_count, link_count);
 	/*fe->record_format;*/
@@ -1165,11 +1268,11 @@ set_macvolume_filed_entry(buf, rba, file_rba, length, iso_date, is_directory, li
 	/*fe->record_length;*/
 	set64(&fe->info_length, length);
 	set64(&fe->logical_blocks_recorded, ISO_BLOCKS(length));
-	if (iso_date) {
-		set_timestamp_from_iso_date(&fe->access_time, iso_date);
-		fe->modification_time = fe->access_time;
-		fe->attribute_time = fe->access_time;
-	}
+
+	set_timestamp_from_timespec(&fe->access_time, &de->atime);
+	set_timestamp_from_timespec(&fe->modification_time, &de->mtime);
+	set_timestamp_from_timespec(&fe->attribute_time, &de->ctime);
+
 	set32(&fe->checkpoint, 1);
 	/*fe->ext_attribute_icb;*/
 	set_impl_ident(&fe->impl_ident);
@@ -1296,28 +1399,23 @@ set_attr_file_entry(unsigned char *buf,
 	unsigned rba,
 	unsigned file_rba,
 	off_t length,
-	const char *iso_date,
 	int is_directory,
 	unsigned link_count,
 	unsigned unique_id,
 	hfsdirent *hfs_ent,
-	mode_t	fmode,
-	uid_t	fuid,
-	gid_t	fgid)
+	struct directory_entry	*de
+)
 #else
-set_attr_file_entry(buf, rba, file_rba, length, iso_date, is_directory, link_count, unique_id, hfs_ent, fmode, fuid, fgid)
+set_attr_file_entry(buf, rba, file_rba, length, is_directory, link_count, unique_id, hfs_ent, de)
 	unsigned char *buf;
 	unsigned rba;
 	unsigned file_rba;
 	off_t length;
-	const char *iso_date;
 	int is_directory;
 	unsigned link_count;
 	unsigned unique_id;
 	hfsdirent *hfs_ent;
-	mode_t	fmode;
-	uid_t	fuid;
-	gid_t	fgid;
+	struct directory_entry	*de;
 #endif
 {
 	udf_short_ad	*allocation_desc;
@@ -1342,17 +1440,18 @@ set_attr_file_entry(buf, rba, file_rba, length, iso_date, is_directory, link_cou
 			flags |= UDF_ICBTAG_FLAG_SYSTEM;
 		}
 	}
+	flags |= getflags(de->mode);		/* S_ISUID, S_ISGID, S_ISVTX */
 	set16(&fe->icb_tag.flags, flags);
 
-	set32(&fe->permissions, getperms(fmode));
+	set32(&fe->permissions, getperms(de->mode));
 	if (rationalize_uid)
 		set32(&fe->uid, uid_to_use);
 	else
-		set32(&fe->uid, fuid);
+		set32(&fe->uid, de->uid);
 	if (rationalize_gid)
 		set32(&fe->gid, gid_to_use);
 	else
-		set32(&fe->gid, fgid);
+		set32(&fe->gid, de->gid);
 
 
 	set16(&fe->file_link_count, link_count);
@@ -1365,11 +1464,11 @@ set_attr_file_entry(buf, rba, file_rba, length, iso_date, is_directory, link_cou
 		length += 2048 - (length % 2048);
 	set64(&fe->info_length, length);
 	set64(&fe->logical_blocks_recorded, ISO_BLOCKS(length));
-	if (iso_date) {
-		set_timestamp_from_iso_date(&fe->access_time, iso_date);
-		fe->modification_time = fe->access_time;
-		fe->attribute_time = fe->access_time;
-	}
+
+	set_timestamp_from_timespec(&fe->access_time, &de->atime);
+	set_timestamp_from_timespec(&fe->modification_time, &de->mtime);
+	set_timestamp_from_timespec(&fe->attribute_time, &de->ctime);
+
 	set32(&fe->checkpoint, 1);
 	/*fe->ext_attribute_icb;*/
 	set_impl_ident(&fe->impl_ident);
@@ -1412,28 +1511,22 @@ set_filed_entry(unsigned char *buf,
 	unsigned rba,
 	unsigned file_rba,
 	unsigned length,
-	const char *iso_date,
 	int is_directory,
 	unsigned link_count,
 	unsigned unique_id,
 	hfsdirent *hfs_ent,
-	mode_t	fmode,
-	uid_t	fuid,
-	gid_t	fgid)
+	struct directory_entry	*de)
 #else
-set_filed_entry(buf, rba, file_rba, length, iso_date, is_directory, link_count, unique_id, hfs_ent, fmode, fuid, fgid)
+set_filed_entry(buf, rba, file_rba, length, is_directory, link_count, unique_id, hfs_ent, de)
 	unsigned char *buf;
 	unsigned rba;
 	unsigned file_rba;
 	unsigned length;
-	const char *iso_date;
 	int is_directory;
 	unsigned link_count;
 	unsigned unique_id;
 	hfsdirent *hfs_ent;
-	mode_t	fmode;
-	uid_t	fuid;
-	gid_t	fgid;
+	struct directory_entry	*de;
 #endif
 {
 	udf_short_ad	*allocation_desc;
@@ -1461,17 +1554,18 @@ set_filed_entry(buf, rba, file_rba, length, iso_date, is_directory, link_count, 
 			flags |= UDF_ICBTAG_FLAG_SYSTEM;
 		}
 	}
+	flags |= getflags(de->mode);		/* S_ISUID, S_ISGID, S_ISVTX */
 	set16(&fe->icb_tag.flags, flags);
 
-	set32(&fe->permissions, getperms(fmode));
+	set32(&fe->permissions, getperms(de->mode));
 	if (rationalize_uid)
 		set32(&fe->uid, uid_to_use);
 	else
-		set32(&fe->uid, fuid);
+		set32(&fe->uid, de->uid);
 	if (rationalize_gid)
 		set32(&fe->gid, gid_to_use);
 	else
-		set32(&fe->gid, fgid);
+		set32(&fe->gid, de->gid);
 
 
 	set16(&fe->file_link_count, link_count);
@@ -1480,11 +1574,11 @@ set_filed_entry(buf, rba, file_rba, length, iso_date, is_directory, link_count, 
 	/*fe->record_length;*/
 	set64(&fe->info_length, length);
 	set64(&fe->logical_blocks_recorded, ISO_BLOCKS(length));
-	if (iso_date) {
-		set_timestamp_from_iso_date(&fe->access_time, iso_date);
-		fe->modification_time = fe->access_time;
-		fe->attribute_time = fe->access_time;
-	}
+
+	set_timestamp_from_timespec(&fe->access_time, &de->atime);
+	set_timestamp_from_timespec(&fe->modification_time, &de->mtime);
+	set_timestamp_from_timespec(&fe->attribute_time, &de->ctime);
+
 	set32(&fe->checkpoint, 1);
 	/*fe->ext_attribute_icb;*/
 	set_impl_ident(&fe->impl_ident);
@@ -1654,7 +1748,6 @@ write_one_udf_directory(dpnt, outfile)
 			last_extent_written - lba_udf_partition_start,
 			last_extent_written+1 - lba_udf_partition_start,
 			directory_size(dpnt),
-			dpnt->self->isorec.date,
 			1,	/* is_directory */
 			directory_link_count(dpnt),
 			(dpnt == root) ? 0 : dpnt->self->udf_file_entry_sector,
@@ -1663,9 +1756,7 @@ write_one_udf_directory(dpnt, outfile)
 #else
 			NULL,
 #endif
-			dpnt->self->mode,
-			dpnt->self->uid,
-			dpnt->self->gid);
+			dpnt->self);
 	} else {
 #endif
 		set_filed_entry(
@@ -1673,7 +1764,6 @@ write_one_udf_directory(dpnt, outfile)
 			last_extent_written - lba_udf_partition_start,
 			last_extent_written+1 - lba_udf_partition_start,
 			directory_size(dpnt),
-			dpnt->self->isorec.date,
 			1,	/* is_directory */
 			directory_link_count(dpnt),
 			(dpnt == root) ? 0 : dpnt->self->udf_file_entry_sector,
@@ -1682,9 +1772,7 @@ write_one_udf_directory(dpnt, outfile)
 #else
 			NULL,
 #endif
-			dpnt->self->mode,
-			dpnt->self->uid,
-			dpnt->self->gid);
+			dpnt->self);
 #ifdef INSERTMACRESFORK
 	}
 #endif
@@ -1777,15 +1865,21 @@ write_udf_file_entries(dpnt, outfile)
 	struct directory	*dpnt;
 	FILE			*outfile;
 {
-	Uchar buf[SECTOR_SIZE];
-	unsigned long	logical_block = 0;
-	off_t		attr_size = 0;
+	Uchar			buf[SECTOR_SIZE];
+	unsigned long		logical_block = 0;
+	off_t			attr_size = 0;
+	struct file_hash 	*s_hash;
+	nlink_t			nlink;
+	unsigned int		file_id;
+
 
 	memset(buf, 0, SECTOR_SIZE);
 
 	if (!(dpnt->dir_flags & INHIBIT_UDF_ENTRY)) {
 		struct directory_entry *de;
 		for (de = dpnt->jcontents; de; de = de->jnext) {
+			if (de->de_flags & INHIBIT_UDF_ENTRY)
+				continue;
 			if (!(de->de_flags & RELOCATED_DIRECTORY) &&
 			    !(de->isorec.flags[0] & ISO_DIRECTORY)) {
 #ifdef INSERTMACRESFORK
@@ -1795,16 +1889,23 @@ write_udf_file_entries(dpnt, outfile)
 					logical_block = 0;
 				}
 #endif
+				if (correct_inodes &&
+				    (s_hash = find_hash(de->dev, de->inode)) != NULL) {
+					nlink = s_hash->nlink;
+					file_id = s_hash->starting_block;
+				} else {
+					nlink = 1;
+					file_id = de->udf_file_entry_sector;
+				}
 				memset(buf, 0, SECTOR_SIZE);
 				set_file_entry(
 					buf,
 					(last_extent_written++) - lba_udf_partition_start,
-					get_733(de->isorec.extent) - lba_udf_partition_start,
+					de->starting_block - lba_udf_partition_start,
 					de->size,
-					de->isorec.date,
 					0,	/* is_directory */
-					1,	/* link_count */
-					de->udf_file_entry_sector,
+					nlink,	/* link_count */
+					file_id,
 #ifdef APPLE_HYB
 					de->hfs_ent,
 #else
@@ -1815,14 +1916,11 @@ write_udf_file_entries(dpnt, outfile)
 #else
 					0,
 #endif
-					de->mode,
-					de->uid,
-					de->gid);
+					de);
 				xfwrite(buf, SECTOR_SIZE, 1, outfile, 0, FALSE);
 
 #ifdef INSERTMACRESFORK
 				if (de->assoc) {
-
 					if (ISO_ROUND_UP(de->assoc->size) <
 					    ISO_ROUND_UP(de->assoc->size + sizeof (udf_ext_attribute_common))) {
 						attr_size = sizeof (udf_ext_attribute_common);
@@ -1832,9 +1930,8 @@ write_udf_file_entries(dpnt, outfile)
 					set_attr_file_entry(
 						buf,
 						(last_extent_written++) - lba_udf_partition_start,
-						get_733(de->assoc->isorec.extent) - lba_udf_partition_start,
+						de->assoc->starting_block - lba_udf_partition_start,
 						de->assoc->size + SECTOR_SIZE + attr_size,
-						de->isorec.date,
 						0,
 						0,
 						de->udf_file_entry_sector,
@@ -1843,9 +1940,7 @@ write_udf_file_entries(dpnt, outfile)
 #else
 						NULL,
 #endif
-						de->mode,
-						de->uid,
-						de->gid);
+						de);
 					xfwrite(buf, SECTOR_SIZE, 1, outfile, 0, FALSE);
 				}
 #endif

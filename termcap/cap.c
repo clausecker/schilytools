@@ -1,8 +1,8 @@
-/* @(#)cap.c	1.46 12/05/06 Copyright 2000-2012 J. Schilling */
+/* @(#)cap.c	1.47 13/02/01 Copyright 2000-2013 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)cap.c	1.46 12/05/06 Copyright 2000-2012 J. Schilling";
+	"@(#)cap.c	1.47 13/02/01 Copyright 2000-2013 J. Schilling";
 #endif
 /*
  *	termcap		a TERMCAP compiler
@@ -14,7 +14,7 @@ static	UConst char sccsid[] =
  *	order and recode all strings with the same escape notation.
  *	This is needed in to compare two entries and it makes life easier.
  *
- *	Copyright (c) 2000-2012 J. Schilling
+ *	Copyright (c) 2000-2013 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -359,8 +359,8 @@ main(ac, av)
 	if (help)
 		usage(0);
 	if (prvers) {
-		printf("termcap %s (%s-%s-%s)\n\n", "1.46", HOST_CPU, HOST_VENDOR, HOST_OS);
-		printf("Copyright (C) 2000-2012 Jörg Schilling\n");
+		printf("termcap %s (%s-%s-%s)\n\n", "1.47", HOST_CPU, HOST_VENDOR, HOST_OS);
+		printf("Copyright (C) 2000-2013 Jörg Schilling\n");
 		printf("This is free software; see the source for copying conditions.  There is NO\n");
 		printf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
 		exit(0);
@@ -912,7 +912,7 @@ BOOL	didobsolete = FALSE;
 		if (j >= 1 && j <= 3 && i == ncaps -1) {
 			char	*px = unknown;
 			int	t = itotype[j];
-			char	*val;
+			char	*val = NULL;	/* Keep GCC happy */
 
 			while (*px) {
 				pe = px;

@@ -1,11 +1,11 @@
-/* @(#)mkisofs.h	1.145 12/12/02 joerg */
+/* @(#)mkisofs.h	1.147 13/02/12 joerg */
 /*
  * Header file mkisofs.h - assorted structure definitions and typecasts.
  *
  * Written by Eric Youngdale (1993).
  *
  * Copyright 1993 Yggdrasil Computing, Incorporated
- * Copyright (c) 1999,2000-2012 J. Schilling
+ * Copyright (c) 1999,2000-2013 J. Schilling
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -90,6 +90,15 @@ struct hfs_info {
 
 #endif	/* APPLE_HYB */
 
+/*
+ * Our version of "struct timespec".
+ * Currently only used with UDF.
+ */
+typedef struct timesp {
+	time_t	tv_sec;
+	Int32_t	tv_nsec;
+} timesp;
+
 struct directory_entry {
 	struct directory_entry *next;
 	struct directory_entry *jnext;
@@ -108,8 +117,12 @@ struct directory_entry {
 	unsigned int	de_flags;
 #ifdef UDF
 	mode_t	mode;	/* used for udf */
+	dev_t	rdev;	/* used for udf devices */
 	uid_t	uid;	/* used for udf */
 	gid_t	gid;	/* used for udf */
+	timesp	atime;	/* timespec for atime */
+	timesp	mtime;	/* timespec for mtime */
+	timesp	ctime;	/* timespec for ctime */
 #endif
 	ino_t		inode;		/* Used in the hash table */
 	dev_t		dev;		/* Used in the hash table */

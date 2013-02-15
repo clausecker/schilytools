@@ -1,4 +1,4 @@
-#ident @(#)Makefile	1.42 10/12/19 
+#ident @(#)Makefile	1.43 13/02/14 
 ###########################################################################
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 2
@@ -11,7 +11,7 @@
 #
 # You should have received a copy of the GNU General Public License along with
 # this program; see the file COPYING.  If not, write to the Free Software
-# Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+# Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -38,7 +38,7 @@ CPPOPTS +=	-I../libscgcmd
 CPPOPTS +=	-I../libhfs_iso
 CPPOPTS +=	-I../libcdrdeflt
 CPPOPTS	+=	-DUSE_SCG \
-		'-DAPPID_DEFAULT="MKISOFS ISO 9660/HFS FILESYSTEM BUILDER & CDRECORD CD-R/DVD CREATOR (C) 1993 E.YOUNGDALE (C) 1997 J.PEARSON/J.SCHILLING"'
+		'-DAPPID_DEFAULT="MKISOFS ISO9660/HFS/UDF FILESYSTEM BUILDER & CDRECORD CD/DVD/BluRay CREATOR (C) 1993 E.YOUNGDALE (C) 1997 J.PEARSON/J.SCHILLING"'
 CPPOPTS +=	-DSCHILY_PRINT
 CPPOPTS +=	-DUSE_NLS
 CPPOPTS +=	-DUSE_ICONV
