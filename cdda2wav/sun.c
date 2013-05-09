@@ -1,13 +1,13 @@
-/* @(#)sun.c	1.14 10/01/12 Copyright 1998,1999 Heiko Eissfeldt, Copyright 2006-2010 J. Schilling */
+/* @(#)sun.c	1.15 13/04/28 Copyright 1998,1999 Heiko Eissfeldt, Copyright 2006-2013 J. Schilling */
 #include "config.h"
 #ifndef lint
 static	UConst char sccsid[] =
-"@(#)sun.c	1.14 10/01/12 Copyright 1998,1999 Heiko Eissfeldt, Copyright 2006-2010 J. Schilling";
+"@(#)sun.c	1.15 13/04/28 Copyright 1998,1999 Heiko Eissfeldt, Copyright 2006-2013 J. Schilling";
 
 #endif
 /*
  * Copyright (C) by Heiko Eissfeldt
- * Copyright (c) 2006-2010 J. Schilling
+ * Copyright (c) 2006-2013 J. Schilling
  *
  *  definitions for sun pcm output
  */
@@ -61,12 +61,12 @@ InitSound(audio, channels, rate, nBitsPerSample, expected_bytes)
 	long	nBitsPerSample;
 	Ulong	expected_bytes;
 {
-	Ulong	format = nBitsPerSample > 8 ? 0x03 : 0x02;
+	Ulong	hdr_format = nBitsPerSample > 8 ? 0x03 : 0x02;
 
 	sunHdr.magic		= cpu_to_le32(UINT4_C(0x646e732e));
 	sunHdr.data_location	= cpu_to_be32(0x20);
 	sunHdr.size		= cpu_to_be32(expected_bytes);
-	sunHdr.format		= cpu_to_be32(format);
+	sunHdr.format		= cpu_to_be32(hdr_format);
 	sunHdr.sample_rate	= cpu_to_be32(rate);
 	sunHdr.channelcount	= cpu_to_be32(channels);
 

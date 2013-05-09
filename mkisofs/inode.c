@@ -1,8 +1,8 @@
-/* @(#)inode.c	1.16 13/02/14 Copyright 2006-2013 J. Schilling */
+/* @(#)inode.c	1.17 13/04/24 Copyright 2006-2013 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)inode.c	1.16 13/02/14 Copyright 2006-2013 J. Schilling";
+	"@(#)inode.c	1.17 13/04/24 Copyright 2006-2013 J. Schilling";
 #endif
 /*
  *	Inode and link count handling for ISO-9660/RR
@@ -143,9 +143,14 @@ assign_inodes(dpnt)
 			 */
 			if (s_entry->size != 0)
 				continue;
+#ifdef	UDF
 			if ((s_entry->de_flags & IS_SYMLINK) != 0 &&
 			    create_udfsymlinks)
 				continue;
+#else
+			if ((s_entry->de_flags & IS_SYMLINK) != 0)
+				continue;
+#endif
 
 			if (s_entry->isorec.flags[0] & ISO_DIRECTORY)
 				continue;
@@ -226,8 +231,12 @@ compute_linkcount(dpnt)
 				 * With UDF symlinks, the starting_block is a
 				 * valid inode number.
 				 */
+#ifdef	UDF
 				if ((s_entry->de_flags & IS_SYMLINK) != 0 &&
 				    create_udfsymlinks) {
+#else
+				if ((s_entry->de_flags & IS_SYMLINK) != 0) {
+#endif
 					s_entry->inode = s_entry->starting_block;
 				} else {
 					s_entry->inode = null_inodes--;	/* Only used for caching */

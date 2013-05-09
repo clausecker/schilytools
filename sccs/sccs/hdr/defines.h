@@ -25,14 +25,14 @@
  * Use is subject to license terms.
  */
 /*
- * Copyright 2006-2011 J. Schilling
+ * Copyright 2006-2013 J. Schilling
  *
- * @(#)defines.h	1.67 11/11/01 J. Schilling
+ * @(#)defines.h	1.70 13/04/30 J. Schilling
  */
 #ifndef	_HDR_DEFINES_H
 #define	_HDR_DEFINES_H
 #if defined(sun)
-#pragma ident "@(#)defines.h 1.67 11/11/01 J. Schilling"
+#pragma ident "@(#)defines.h 1.70 13/04/30 J. Schilling"
 #endif
 /*
  * @(#)defines.h 1.21 06/12/12
@@ -51,6 +51,7 @@
 # include	<schily/fcntl.h>
 # include	<schily/stdio.h>
 # include	<schily/stdlib.h>
+# include	<schily/varargs.h>	/* needed for the vfprintf() prototype */
 # include	<schily/unistd.h>
 # include	<schily/string.h>
 # include	<schily/standard.h>	/* define signed */
@@ -80,17 +81,11 @@ long	timezone;
 #endif
 #define	tzset		xtzset
 
-#if SIZEOF_TIME_T == 4
-
-#define	mktime		xmktime
-#define	localtime	xlocaltime
-#define	gmtime		xgmtime
-
-extern time_t	xmktime		__PR((struct tm *));
-extern struct tm *xlocaltime	__PR((time_t *));
-extern struct tm *xgmtime	__PR((time_t *));
-#endif
-
+/*
+ * Note that the #define above will rename the struct timeb member "timezone"
+ * to "xtimezone" as well as the name of the variable.
+ */
+# include	<schily/timeb.h>
 
 extern int optind, opterr, optopt;
 extern char *optarg;
@@ -127,6 +122,17 @@ extern char *optarg;
 #define	SCHILY_PRINT
 #endif
 #include	<schily/schily.h>
+
+#if SIZEOF_TIME_T == 4
+
+#define	mktime		xmktime
+#define	localtime	xlocaltime
+#define	gmtime		xgmtime
+
+extern time_t	xmktime		__PR((struct tm *));
+extern struct tm *xlocaltime	__PR((time_t *));
+extern struct tm *xgmtime	__PR((time_t *));
+#endif
 
 /*
  * SCCS was written in 1972. It supports 2 digit year strings from 1969..2068.

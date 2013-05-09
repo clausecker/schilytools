@@ -1,13 +1,13 @@
-/* @(#)copy.c	1.48 10/12/19 Copyright 1984, 86-90, 95-97, 99, 2000-2010 J. Schilling */
+/* @(#)copy.c	1.49 13/04/28 Copyright 1984, 86-90, 95-97, 99, 2000-2013 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)copy.c	1.48 10/12/19 Copyright 1984, 86-90, 95-97, 99, 2000-2010 J. Schilling";
+	"@(#)copy.c	1.49 13/04/28 Copyright 1984, 86-90, 95-97, 99, 2000-2013 J. Schilling";
 #endif
 /*
  *	copy files ...
  *
- *	Copyright (c) 1984, 86-90, 95-97, 99, 2000-2010 J. Schilling
+ *	Copyright (c) 1984, 86-90, 95-97, 99, 2000-2013 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -45,15 +45,17 @@ static	UConst char sccsid[] =
 #include <schily/standard.h>
 #include <schily/utypes.h>
 #include <schily/varargs.h>
-#include <schily/schily.h>
 #include <schily/errno.h>
 #include <schily/param.h>	/* DEV_BSIZE */
 #include <schily/stat.h>
+#include <schily/time.h>
+#include <schily/utime.h>
 #include <schily/fcntl.h>
 #include <schily/string.h>
 #include <schily/maxpath.h>
 #include <schily/libport.h>
 #include <schily/nlsdefs.h>
+#include <schily/schily.h>
 
 		/* Probably only needed for Mark Williams C */
 #ifndef	EEXIST
@@ -298,8 +300,8 @@ main(ac, av)
 		usage(0);
 	if (prversion) {
 		/* CSTYLED */
-		printf(_("Copy release %s (%s-%s-%s) Copyright (C) 1984, 86-90, 95-97, 99, 2000-2010 %s\n"),
-				"1.48",
+		printf(_("Copy release %s (%s-%s-%s) Copyright (C) 1984, 86-90, 95-97, 99, 2000-2013 %s\n"),
+				"1.49",
 				HOST_CPU, HOST_VENDOR, HOST_OS,
 				_("Joerg Schilling"));
 		exit(0);
@@ -842,9 +844,6 @@ mygetline(pstr, str, len)
 		}
 	}
 }
-
-#include <schily/time.h>
-#include <schily/utime.h>
 
 LOCAL int
 xutimes(name, sp)

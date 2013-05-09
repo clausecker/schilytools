@@ -1,8 +1,8 @@
-/* @(#)data.c	1.8 09/07/11 joerg */
+/* @(#)data.c	1.9 13/04/30 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)data.c	1.8 09/07/11 joerg";
+	"@(#)data.c	1.9 13/04/30 joerg";
 #endif
 /*
  * hfsutils - tools for reading and writing Macintosh HFS volumes
@@ -334,12 +334,12 @@ void calctzdiff()
 unsigned long d_tomtime(secs)
 	unsigned long	secs;
 {
-  time_t utime = secs;
+  time_t uxtime = secs;
 
   if (tzdiff == TZNONE)
     calctzdiff();
 
-  return utime + tzdiff + MUTDIFF;
+  return uxtime + tzdiff + MUTDIFF;
 }
 
 /*
@@ -349,12 +349,12 @@ unsigned long d_tomtime(secs)
 unsigned long d_toutime(secs)
 	unsigned long	secs;
 {
-  time_t utime = secs;
+  time_t uxtime = secs;
 
   if (tzdiff == TZNONE)
     calctzdiff();
 
-  return utime - MUTDIFF - tzdiff;
+  return uxtime - MUTDIFF - tzdiff;
 }
 
 #ifdef APPLE_HYB
@@ -365,12 +365,12 @@ unsigned long d_toutime(secs)
 unsigned long d_dtoutime(secs)
 	long		secs;
 {
-  time_t utime = secs;
+  time_t uxtime = secs;
 
   if (tzdiff == TZNONE)
     calctzdiff();
 
-  return utime + DUTDIFF - tzdiff;
+  return uxtime + DUTDIFF - tzdiff;
 }
 #endif /* APPLE_HYB */
 

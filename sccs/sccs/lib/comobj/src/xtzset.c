@@ -11,10 +11,10 @@
  */
 /*
  *
- * @(#)xtzset.c	1.5 11/05/29  Copyright 2006-2011 J. Schilling
+ * @(#)xtzset.c	1.6 13/04/29  Copyright 2006-2013 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)xtzset.c 1.5 11/05/29 J. Schilling"
+#pragma ident "@(#)xtzset.c 1.6 13/04/29 J. Schilling"
 #endif
 
 #if defined(sun)
@@ -22,9 +22,6 @@
 #pragma ident	"@(#)sccs:lib/comobj/xtzset.c"
 #endif
 # include	<defines.h>
-#ifdef	HAVE_FTIME
-#include <sys/timeb.h>
-#endif
 
 time_t	Y2069;
 time_t	Y2038;

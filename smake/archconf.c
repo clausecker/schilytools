@@ -1,14 +1,14 @@
-/* @(#)archconf.c	1.28 11/08/04 Copyright 1996-2011 J. Schilling */
+/* @(#)archconf.c	1.29 13/04/28 Copyright 1996-2013 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)archconf.c	1.28 11/08/04 Copyright 1996-2011 J. Schilling";
+	"@(#)archconf.c	1.29 13/04/28 Copyright 1996-2013 J. Schilling";
 #endif
 /*
  *	Make program
  *	Architecture autoconfiguration support
  *
- *	Copyright (c) 1996-2011 by J. Schilling
+ *	Copyright (c) 1996-2013 by J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -26,6 +26,12 @@ static	UConst char sccsid[] =
 #include <schily/standard.h>
 #include <schily/unistd.h>
 #include <schily/string.h>
+#include <schily/ctype.h>
+
+#include <schily/hostname.h>
+#include <schily/utsname.h>
+#include <schily/systeminfo.h>
+
 #include <schily/schily.h>
 #include "make.h"
 
@@ -73,8 +79,6 @@ setup_arch()
  * NeXT Step has sys/utsname but not uname()
  */
 #if	defined(HAVE_UNAME) || defined(__MINGW32__) || defined(_MSC_VER)
-#include <schily/utsname.h>
-
 /*
  * This is the interface to the syscall uname(2).
  * Note that the system call is done directly and not by calling the uname
@@ -146,8 +150,6 @@ do_uname()
 #endif
 
 #ifdef	HAVE_SYS_SYSTEMINFO_H
-#include <schily/systeminfo.h>
-
 /*
  * sysinfo(2) is the preferred way to request architecture information.
  * Unfortunately, it is only present on SVr4 compliant systems.
@@ -502,8 +504,6 @@ do_archheuristics()
  * '\\' in '-' wandeln.
  * ' ' in '-' wandeln.
  */
-#include <schily/ctype.h>
-
 LOCAL void
 archcvt(p)
 	register char	*p;

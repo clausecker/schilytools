@@ -1,8 +1,8 @@
-/* @(#)cdda2wav.c	1.141 13/01/17 Copyright 1993-2004 Heiko Eissfeldt, Copyright 2004-2013 J. Schilling */
+/* @(#)cdda2wav.c	1.143 13/04/28 Copyright 1993-2004 Heiko Eissfeldt, Copyright 2004-2013 J. Schilling */
 #include "config.h"
 #ifndef lint
 static	UConst char sccsid[] =
-"@(#)cdda2wav.c	1.141 13/01/17 Copyright 1993-2004 Heiko Eissfeldt, Copyright 2004-2013 J. Schilling";
+"@(#)cdda2wav.c	1.143 13/04/28 Copyright 1993-2004 Heiko Eissfeldt, Copyright 2004-2013 J. Schilling";
 
 #endif
 #undef	DEBUG_BUFFER_ADDRESSES
@@ -69,7 +69,6 @@ static	UConst char sccsid[] =
 #include <schily/standard.h>
 #include <schily/stdlib.h>
 #include <schily/string.h>
-#include <schily/schily.h>
 #include <schily/nlsdefs.h>
 #include <schily/signal.h>
 #include <schily/math.h>
@@ -86,6 +85,7 @@ static	UConst char sccsid[] =
 #include <schily/btorder.h>
 #include <schily/io.h>		/* for setmode() prototype */
 #include <schily/priv.h>	/* To get PRIV_PFEXEC definition */
+#include <schily/schily.h>
 
 #include <scg/scsitransp.h>
 
@@ -2802,8 +2802,17 @@ static char		*user_sound_device = "";
 
 	int_name = DEF_INTERFACE;
 	audio_type = AUDIOTYPE;
-#ifdef	PRIV_PFEXEC
-	do_pfexec(argc, argv);		/* Try to gain additional privs	*/
+
+#ifdef	HAVE_SOLARIS_PPRIV
+	/*
+	 * Try to gain additional privs on Solaris
+	 */
+	do_pfexec(argc, argv,
+		PRIV_FILE_DAC_READ,
+		PRIV_SYS_DEVICES,
+		PRIV_PROC_PRIOCNTL,
+		PRIV_NET_PRIVADDR,
+		NULL);
 #endif
 	save_args(argc, argv);
 

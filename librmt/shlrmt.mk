@@ -1,4 +1,4 @@
-#ident @(#)shlrmt.mk	1.5 10/08/01 
+#ident @(#)shlrmt.mk	1.6 13/04/22 
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -14,7 +14,10 @@ CPPOPTS +=	-DUSE_REMOTE
 CPPOPTS +=	-DUSE_RCMD_RSH
 CPPOPTS +=	-DUSE_LARGEFILES
 include		Targets
-LIBS=		-lschily $(LIB_SOCKET) -lc
+#
+# LIB_CAP is needed for Linux capability support in librscg.
+#
+LIBS=		-lschily $(LIB_SOCKET) $(LIB_CAP) -lc
 
 ###########################################################################
 include		$(SRCROOT)/$(RULESDIR)/rules.shl

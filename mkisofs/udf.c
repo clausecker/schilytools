@@ -1,8 +1,8 @@
-/* @(#)udf.c	1.41 13/02/15 Copyright 2001-2013 J. Schilling */
+/* @(#)udf.c	1.42 13/04/24 Copyright 2001-2013 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)udf.c	1.41 13/02/15 Copyright 2001-2013 J. Schilling";
+	"@(#)udf.c	1.42 13/04/24 Copyright 2001-2013 J. Schilling";
 #endif
 /*
  * udf.c - UDF support for mkisofs
@@ -84,9 +84,8 @@ static	UConst char sccsid[] =
  *   mechanism to handle this case. I don't know if it's worth the trouble.
  */
 
-#ifdef UDF
-
 #include "mkisofs.h"
+#ifdef UDF
 #include <schily/time.h>
 #include <schily/device.h>
 #include <schily/schily.h>

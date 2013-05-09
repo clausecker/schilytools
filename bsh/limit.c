@@ -1,13 +1,13 @@
-/* @(#)limit.c	1.38 11/08/13 Copyright 1987-2011 J. Schilling */
+/* @(#)limit.c	1.39 13/04/25 Copyright 1987-2013 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)limit.c	1.38 11/08/13 Copyright 1987-2011 J. Schilling";
+	"@(#)limit.c	1.39 13/04/25 Copyright 1987-2013 J. Schilling";
 #endif
 /*
  *	Resource usage routines
  *
- *	Copyright (c) 1987-2011 J. Schilling
+ *	Copyright (c) 1987-2013 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -29,13 +29,13 @@ static	UConst char sccsid[] =
 
 #include <schily/stdio.h>
 #include <schily/utypes.h>
-#include "bsh.h"
-#include "str.h"
-#include "strsubs.h"
 #include <schily/unistd.h>
 #include <schily/fcntl.h>
 #include <schily/time.h>
 #include <schily/resource.h>
+#include "bsh.h"
+#include "str.h"
+#include "strsubs.h"
 
 
 #	ifndef	HAVE_GETRLIMIT

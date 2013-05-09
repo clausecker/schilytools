@@ -1,8 +1,8 @@
-/* @(#)tree.c	1.128 13/02/12 joerg */
+/* @(#)tree.c	1.129 13/04/24 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)tree.c	1.128 13/02/12 joerg";
+	"@(#)tree.c	1.129 13/04/24 joerg";
 #endif
 /*
  * File tree.c - scan directory  tree and build memory structures for iso9660
@@ -1517,6 +1517,7 @@ insert_file_entry(this_dir, whole_path, short_name, statp, have_rsrc)
 				status = 0;
 				STAT_INODE(statbuf) = UNCACHED_INODE;
 				statbuf.st_dev = UNCACHED_DEVICE;
+#ifdef UDF
 				if (create_udfsymlinks) {
 					char symlinkcontents[2048];
 					off_t size = sizeof (symlinkcontents);
@@ -1531,10 +1532,13 @@ insert_file_entry(this_dir, whole_path, short_name, statp, have_rsrc)
 						statbuf.st_mode = lstatbuf.st_mode;
 					}
 				} else {
+#endif
 					statbuf.st_size = (off_t)0;
 					statbuf.st_mode =
 						(statbuf.st_mode & ~S_IFMT) | S_IFREG;
+#ifdef UDF
 				}
+#endif
 			} else {
 				if (follow_links) {
 					/* XXX errno may be wrong! */
@@ -2034,7 +2038,11 @@ insert_file_entry(this_dir, whole_path, short_name, statp, have_rsrc)
 		if (S_ISCHR(lstatbuf.st_mode) || S_ISBLK(lstatbuf.st_mode) ||
 			S_ISFIFO(lstatbuf.st_mode) ||
 				S_ISSOCK(lstatbuf.st_mode) ||
+#ifdef	UDF
 				(S_ISLNK(lstatbuf.st_mode) && !create_udfsymlinks)) {
+#else
+				FALSE) {
+#endif
 			s_entry->size = (off_t)0;
 			statbuf.st_size = (off_t)0;
 		} else {

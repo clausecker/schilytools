@@ -31,16 +31,17 @@
 #pragma ident	"@(#)ulimit.c	1.14	06/06/16 SMI"
 #endif
 
-#include "defs.h"
-
 /*
- * This file contains modifications Copyright 2008-2012 J. Schilling
+ * This file contains modifications Copyright 2008-2013 J. Schilling
  *
- * @(#)ulimit.c	1.11 12/04/17 2008-2012 J. Schilling
+ * @(#)ulimit.c	1.12 13/04/26 2008-2013 J. Schilling
  */
+#ifdef	SCHILY_BUILD
+#include <schily/mconfig.h>
+#endif
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)ulimit.c	1.11 12/04/17 2008-2012 J. Schilling";
+	"@(#)ulimit.c	1.12 13/04/26 2008-2013 J. Schilling";
 #endif
 
 /*
@@ -56,6 +57,7 @@ static	UConst char sccsid[] =
 #include <stdlib.h>
 #endif
 
+#include "defs.h"
 
 static struct rlimtab {
 	int	value;

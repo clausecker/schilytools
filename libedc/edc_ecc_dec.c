@@ -1,8 +1,8 @@
-/* @(#)edc_ecc_dec.c	1.12 10/05/24 Copyright 1998-2001 Heiko Eissfeldt, Copyright 2006-2010 J. Schilling */
+/* @(#)edc_ecc_dec.c	1.13 13/04/28 Copyright 1998-2001 Heiko Eissfeldt, Copyright 2006-2013 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)edc_ecc_dec.c	1.12 10/05/24 Copyright 1998-2001 Heiko Eissfeldt, Copyright 2006-2010 J. Schilling";
+	"@(#)edc_ecc_dec.c	1.13 13/04/28 Copyright 1998-2001 Heiko Eissfeldt, Copyright 2006-2013 J. Schilling";
 #endif
 
 /*
@@ -11,7 +11,7 @@ static	UConst char sccsid[] =
  * reed-solomon encoder / decoder for compact discs.
  *
  * Copyright 1998-2001 by Heiko Eissfeldt
- * Copyright 2006-2010 by Joerg Schilling
+ * Copyright 2006-2013 by Joerg Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -38,6 +38,7 @@ static	UConst char sccsid[] =
 #include "edc.h"
 
 #ifndef	HAVE_MEMMOVE
+#include <schily/libport.h>	/* Define missing prototypes */
 /*#define	memmove(dst, src, size)		movebytes((src), (dst), (size))*/
 #define	memmove(d, s, n)	bcopy((s), (d), (n))
 #endif

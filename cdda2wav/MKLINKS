@@ -1,6 +1,6 @@
 #!/bin/sh
 ###########################################################################
-#ident "@(#)MKLINKS	1.6 11/08/04 "
+#ident "@(#)MKLINKS	1.7 13/04/21 "
 ###########################################################################
 # Written 2008-2011 by J. Schilling
 ###########################################################################
@@ -34,6 +34,7 @@ fi
 $symlink ../cdrecord/cd_misc.c		.
 $symlink ../cdrecord/scsi_cdr.c		.
 $symlink ../cdrecord/scsi_scan.c	.
+$symlink ../cdrecord/priv.c		.
 
 $symlink ../autoconf/acgeneral.m4	.
 $symlink ../autoconf/aclocal.m4		.

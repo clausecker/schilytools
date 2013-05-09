@@ -1,8 +1,8 @@
-/* @(#)cdrecord.h	1.202 11/09/14 Copyright 1995-2010 J. Schilling */
+/* @(#)cdrecord.h	1.203 13/04/21 Copyright 1995-2013 J. Schilling */
 /*
  *	Definitions for cdrecord
  *
- *	Copyright (c) 1995-2010 J. Schilling
+ *	Copyright (c) 1995-2013 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -1219,3 +1219,18 @@ extern	void	fparsecue	__PR((FILE *f, track_t trackp[]));
  * vendor.c
  */
 
+/*
+ * priv.c
+ */
+#ifdef	CDDA2WAV
+extern	void	priv_init	__PR((void));
+extern	void	priv_on		__PR((void));
+extern	void	priv_off	__PR((void));
+#endif
+#if	defined(CDRECORD) || defined(READCD)
+extern	void	priv_drop	__PR((void));
+extern	BOOL	priv_have_priv	__PR((void));
+#endif
+#ifdef	HAVE_SOLARIS_PPRIV
+extern	void	do_pfexec	__PR((int ac, char *av[], ...));
+#endif

@@ -1,4 +1,4 @@
-# @(#)rules.cnf.in	1.24 10/10/01 Copyright 1998-2009 J. Schilling
+# @(#)rules.cnf.in	1.25 13/04/17 Copyright 1998-2013 J. Schilling
 
 EXEEXT= @EXEEXT@
 XEXEEXT= @XEXEEXT@
@@ -32,3 +32,4 @@ LIB_PTHREAD = @lib_pthread@
 LIB_RT = @lib_rt@
 LIB_DL= @lib_dl@
 LIB_DIR= @lib_dir@
+LIB_CAP= @lib_cap@

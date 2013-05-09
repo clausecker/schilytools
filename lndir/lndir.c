@@ -93,6 +93,7 @@ in this Software without prior written authorization from The Open Group.
 #define MAXPATHLEN MAXPATHNAME
 #endif
 #include <schily/varargs.h>
+#include <schily/libport.h>	/* Define missing prototypes */
 
 #ifndef	HAVE_LSTAT
 #define	lstat	stat

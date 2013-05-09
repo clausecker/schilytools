@@ -1,8 +1,8 @@
 #define	USE_REMOTE
-/* @(#)scsi-remote.c	1.33 09/08/24 Copyright 1990,2000-2009 J. Schilling */
+/* @(#)scsi-remote.c	1.34 13/04/21 Copyright 1990,2000-2013 J. Schilling */
 #ifndef lint
 static	char __sccsid[] =
-	"@(#)scsi-remote.c	1.33 09/08/24 Copyright 1990,2000-2009 J. Schilling";
+	"@(#)scsi-remote.c	1.34 13/04/21 Copyright 1990,2000-2013 J. Schilling";
 #endif
 /*
  *	Remote SCSI user level command transport routines
@@ -13,7 +13,7 @@ static	char __sccsid[] =
  *	Choose your name instead of "schily" and make clear that the version
  *	string is related to a modified source.
  *
- *	Copyright (c) 1990,2000-2009 J. Schilling
+ *	Copyright (c) 1990,2000-2013 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -81,7 +81,7 @@ static	char __sccsid[] =
 #if	defined(IS_CYGWIN) || defined(__MINGW32__)
 #define	privport_ok()	(1)
 #else
-#ifdef	HAVE_SOLARIS_PPRIV
+#if	defined(HAVE_SOLARIS_PPRIV) || defined(HAVE_LINUX_CAPS)
 #define	privport_ok()	ppriv_ok()
 #else
 #define	privport_ok()	(geteuid() == 0)
@@ -100,7 +100,7 @@ static	char __sccsid[] =
 /*extern	BOOL	debug;*/
 LOCAL	BOOL	debug = 1;
 
-LOCAL	char	_scg_trans_version[] = "remote-1.33";	/* The version for remote SCSI	*/
+LOCAL	char	_scg_trans_version[] = "remote-1.34";	/* The version for remote SCSI	*/
 LOCAL	char	_scg_auth_schily[]	= "schily";	/* The author for this module	*/
 
 LOCAL	int	scgo_rsend		__PR((SCSI *scgp));
@@ -154,7 +154,7 @@ LOCAL	int	_rcmdrsh		__PR((char **ahost, int inport,
 						const char *remuser,
 						const char *cmd,
 						const char *rsh));
-#ifdef	HAVE_SOLARIS_PPRIV
+#if	defined(HAVE_SOLARIS_PPRIV) || defined(HAVE_LINUX_CAPS)
 LOCAL	BOOL	ppriv_ok		__PR((void));
 #endif
 #endif
@@ -1213,6 +1213,22 @@ ppriv_ok()
 
 	return (net_privaddr);
 }
+#else	/* HAVE_SOLARIS_PPRIV */
+
+#ifdef	HAVE_LINUX_CAPS
+LOCAL BOOL
+ppriv_ok()
+{
+	cap_t			cset;
+	cap_flag_value_t	val = CAP_CLEAR;
+
+	cset = cap_get_proc();
+
+	cap_get_flag(cset, CAP_NET_BIND_SERVICE, CAP_EFFECTIVE, &val);
+	return (val == CAP_SET);
+}
+#endif	/* HAVE_LINUX_CAPS */
+
 #endif	/* HAVE_SOLARIS_PPRIV */
 
 #endif	/* USE_RCMD_RSH */

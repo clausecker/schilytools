@@ -1,8 +1,8 @@
-/* @(#)readcd.c	1.117 13/02/01 Copyright 1987, 1995-2013 J. Schilling */
+/* @(#)readcd.c	1.118 13/04/21 Copyright 1987, 1995-2013 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)readcd.c	1.117 13/02/01 Copyright 1987, 1995-2013 J. Schilling";
+	"@(#)readcd.c	1.118 13/04/21 Copyright 1987, 1995-2013 J. Schilling";
 #endif
 /*
  *	Skeleton for the use of the scg genearal SCSI - driver
@@ -122,9 +122,6 @@ LOCAL	int	nec_end_scan		__PR((SCSI* scgp));
 LOCAL	int	nec_scan_one_interval	__PR((SCSI* scgp, cxerror_t *pe, long addr, void *p));
 LOCAL	int	plextor_scan_one_interval __PR((SCSI* scgp, cxerror_t *pe, long addr, void *p));
 LOCAL	int	plextor_scan_one_dvd_interval __PR((SCSI* scgp, cxerror_t *pe, long addr, void *p));
-#ifdef	PRIV_PFEXEC
-LOCAL	void	do_pfexec		__PR((int ac, char *av[]));
-#endif
 
 
 /*
@@ -349,8 +346,15 @@ main(ac, av)
 	char	*filename = NULL;
 	char	*sectors = NULL;
 
-#ifdef	PRIV_PFEXEC
-	do_pfexec(ac, av);		/* Try to gain additional privs	*/
+#ifdef	HAVE_SOLARIS_PPRIV
+	/*
+	 * Try to gain additional privs on Solaris
+	 */
+	do_pfexec(ac, av,
+		PRIV_FILE_DAC_READ,
+		PRIV_SYS_DEVICES,
+		PRIV_NET_PRIVADDR,
+		NULL);
 #endif
 	save_args(ac, av);
 
@@ -518,6 +522,15 @@ main(ac, av)
 	priv_set(PRIV_OFF, PRIV_INHERITABLE,
 		PRIV_FILE_DAC_READ, PRIV_NET_PRIVADDR, PRIV_SYS_DEVICES, NULL);
 #endif
+	is_suid = priv_have_priv();
+	/*
+	 * Drop privs we do not need anymore.
+	 * We no longer need:
+	 *	file_dac_read,net_privaddr
+	 * We still need:
+	 *	sys_devices
+	 */
+	priv_drop();
 	/*
 	 * This is only for OS that do not support fine grained privs.
 	 */
@@ -3132,88 +3145,3 @@ print_bad()
 	if (edc_corr)
 		error(_("Corrected by EDC: %d\n"), edc_OK);
 }
-
-#ifdef	PRIV_PFEXEC
-/*
- * If PRIV_PFEXEC is defined, we have an in-kernel pfexec() that allows
- * suid-root less installation and let readcd gain the needed additional
- * privileges even without a wrapper script.
- */
-LOCAL void
-do_pfexec(ac, av)
-	int	ac;
-	char	*av[];
-{
-	priv_set_t	*pset;
-	int		oflag;
-	char		*av0;
-
-	/*
-	 * Avoid looping over execv().
-	 * Return if we see our modified argv[0].
-	 * If the first character of the last name component is a '+',
-	 * just leave it as it is. If it is an uppercase character, we assume
-	 * that it was a translated lowercace character from our execv().
-	 */
-	av0 = strrchr(av[0], '/');
-	if (av0 == NULL)
-		av0 = av[0];
-	else
-		av0++;
-	if (*av0 == '+')
-		return;
-	if (*av0 >= 'A' && *av0 <= 'Z') {
-		*av0 = *av0 + 'a' - 'A';
-		return;
-	}
-
-	/*
-	 * Check for the current privileges.
-	 * Silently abort attempting to gain more privileges
-	 * in case any error occurs.
-	 */
-	pset = priv_allocset();
-	if (pset == NULL)
-		return;
-	if (getppriv(PRIV_EFFECTIVE, pset) < 0)
-		return;
-
-	/*
-	 * If we already have the needed privileges, we are done.
-	 */
-	if (priv_ismember(pset, PRIV_FILE_DAC_READ) &&
-	    priv_ismember(pset, PRIV_SYS_DEVICES) &&
-	    priv_ismember(pset, PRIV_NET_PRIVADDR)) {
-		priv_freeset(pset);
-		return;
-	}
-	priv_freeset(pset);
-
-	oflag = getpflags(PRIV_PFEXEC);
-	if (oflag < 0)		/* Pre kernel-pfexec system? */
-		return;
-	if (oflag == 0) {	/* Kernel pfexec flag not yet set? */
-		/*
-		 * Set kernel pfexec flag.
-		 * Return if this doesn't work for some reason.
-		 */
-		if (setpflags(PRIV_PFEXEC, 1) != 0) {
-			return;
-		}
-	}
-	/*
-	 * Modify argv[0] to mark that we did already call execv().
-	 * This is done in order to avoid infinite execv() loops caused by
-	 * a missconfigured security system in /etc/security.
-	 *
-	 * In the usual case (a lowercase letter in the firsh character of the
-	 * last pathname component), convert it to an uppercase character.
-	 * Otherwise overwrite this character by a '+' sign.
-	 */
-	if (*av0 >= 'a' && *av0 <= 'z')
-		*av0 = *av0 - 'a' + 'A';
-	else
-		*av0 = '+';
-	execv(getexecname(), av);
-}
-#endif

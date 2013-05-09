@@ -1,10 +1,10 @@
-/* @(#)resource.h	1.8 10/08/24 Copyright 1995-2010 J. Schilling */
+/* @(#)resource.h	1.9 13/04/30 Copyright 1995-2013 J. Schilling */
 /*
  *	Abstraction from resource limits
  *
  *	Missing parts for wait3() taken from SunOS
  *
- *	Copyright (c) 1995-2010 J. Schilling
+ *	Copyright (c) 1995-2013 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -33,7 +33,10 @@
  * Get definitions from system include files
  */
 #ifdef	HAVE_SYS_RESOURCE_H
+#ifndef	_INCL_SYS_RESOURCE_H
 #include <sys/resource.h>
+#define	_INCL_SYS_RESOURCE_H
+#endif
 #endif
 
 #ifdef	__cplusplus

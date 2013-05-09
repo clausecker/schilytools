@@ -1,6 +1,6 @@
-/* @(#)fetchdir.h	1.6 10/08/27 Copyright 2002-2010 J. Schilling */
+/* @(#)fetchdir.h	1.7 13/04/24 Copyright 2002-2013 J. Schilling */
 /*
- *	Copyright (c) 2002-2010 J. Schilling
+ *	Copyright (c) 2002-2013 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -27,7 +27,7 @@ extern "C" {
 
 extern	char	*fetchdir	__PR((char *dir, int *entp, int *lenp,
 					ino_t **inop));
-extern	char	*dfetchdir	__PR((DIR *dir, char *dirname, int *entp,
+extern	char	*dfetchdir	__PR((DIR *dir, char *__dirname, int *entp,
 					int *lenp, ino_t **inop));
 extern	int	fdircomp	__PR((const void *p1, const void *p2));
 extern	char	**sortdir	__PR((char *dir, int *entp));

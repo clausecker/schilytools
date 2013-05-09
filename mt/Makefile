@@ -1,4 +1,4 @@
-#ident @(#)Makefile	1.8 11/04/16 
+#ident @(#)Makefile	1.9 13/04/21 
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -13,7 +13,10 @@ CPPOPTS +=	-DSCHILY_PRINT
 
 CFILES=		mt.c
 #HFILES=
-LIBS=		-lrmt -lschily $(LIB_SOCKET)
+#
+# LIB_CAP is needed for Linux capability support in librmt.
+#
+LIBS=		-lrmt -lschily $(LIB_SOCKET) $(LIB_CAP)
 XMK_FILE=	Makefile.man mt.mk1
 
 ###########################################################################

@@ -1,7 +1,7 @@
-/* @(#)make.h	1.95 12/12/22 Copyright 1985, 87, 91, 1995-2012 J. Schilling */
+/* @(#)make.h	1.96 13/03/26 Copyright 1985, 87, 91, 1995-2013 J. Schilling */
 /*
  *	Definitions for make.
- *	Copyright (c) 1985, 87, 91, 1995-2012 by J. Schilling
+ *	Copyright (c) 1985, 87, 91, 1995-2013 by J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -169,9 +169,6 @@ extern	void	setup_dotvars	__PR((void));
 extern	char	*searchtype	__PR((int mode));
 extern	void	doexport	__PR((char *));
 extern	void	dounexport	__PR((char *));
-extern	BOOL	cmd_prefix	__PR((char *cmd, int pfx));
-extern	BOOL	cmdlist_prefix	__PR((cmd_t *cmd, int pfx));
-extern	int	docmd		__PR((char * cmd, obj_t * obj));
 extern	BOOL	move_tgt	__PR((obj_t * from));
 extern	BOOL	touch_file	__PR((char * name));
 extern	date_t	gftime		__PR((char * file));
@@ -256,10 +253,12 @@ extern	char	*growgbuf	__PR((char *p));
 /*
  * Command line options.
  */
+extern	BOOL	Iflag;		/* -i Ignore command errors		*/
 extern	BOOL	Kflag;		/* Continue on unrelated targets	*/
 extern	BOOL	NSflag;		/* Ignore no Source on dependency	*/
 extern	BOOL	Sflag;		/* Do not print command lines on exec.	*/
 extern	BOOL	Tflag;		/* Touch files instead of make.		*/
+extern	BOOL	Nflag;		/* -n Only show what to do		*/
 extern	BOOL	Qflag;		/* If up to date exit (0)		*/
 extern	int	Debug;		/* Print reson for rebuild		*/
 extern	int	XDebug;		/* Print extended debug info		*/
@@ -289,6 +288,7 @@ extern	obj_t	*Deflt;		/* .DEFAULT: command to execute if no rule  */
 extern	obj_t	*Precious;	/* .PRECIOUS: list of targets not to remove */
 extern	obj_t	*Phony;		/* .PHONY: list of false targets, no check  */
 extern	obj_t	*default_tgt;	/* Current or Default target		    */
+extern	obj_t	*curtarget;	/* current target of actually running cmd   */
 extern	date_t	curtime;	/* current fime				    */
 extern	date_t	newtime;	/* Special time newer than all	XXX	    */
 extern	char	*gbuf;		/* Global growable buffer		    */

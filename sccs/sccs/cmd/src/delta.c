@@ -25,12 +25,12 @@
  * Use is subject to license terms.
  */
 /*
- * Copyright 2006-2011 J. Schilling
+ * Copyright 2006-2013 J. Schilling
  *
- * @(#)delta.c	1.57 11/11/13 J. Schilling
+ * @(#)delta.c	1.58 13/04/30 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)delta.c 1.57 11/11/13 J. Schilling"
+#pragma ident "@(#)delta.c 1.58 13/04/30 J. Schilling"
 #endif
 /*
  * @(#)delta.c 1.40 06/12/12
@@ -42,6 +42,7 @@
 #endif
 
 # define	NEED_PRINTF_J		/* Need defines for js_snprintf()? */
+# include	<schily/resource.h>
 # include	<defines.h>
 # include	<version.h>
 # include	<had.h>
@@ -53,7 +54,6 @@
 # include	<schily/vfork.h>
 # include	<ccstypes.h>
 # include	<schily/sysexits.h>
-# include	<schily/resource.h>
 
 # define	LENMR	60
 

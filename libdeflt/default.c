@@ -1,11 +1,11 @@
-/* @(#)default.c	1.9 11/11/28 Copyright 1997-2011 J. Schilling */
+/* @(#)default.c	1.10 13/04/25 Copyright 1997-2013 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)default.c	1.9 11/11/28 Copyright 1997-2011 J. Schilling";
+	"@(#)default.c	1.10 13/04/25 Copyright 1997-2013 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1997-2011 J. Schilling
+ *	Copyright (c) 1997-2013 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -25,6 +25,7 @@ static	UConst char sccsid[] =
 #include <schily/types.h>	/* For strncasecmp  size_t */
 #include <schily/unistd.h>
 #include <schily/deflts.h>
+#include <schily/libport.h>	/* Define missing prototypes */
 
 #define	MAXLINE	512
 

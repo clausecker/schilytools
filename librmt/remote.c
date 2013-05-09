@@ -1,14 +1,14 @@
 /*#define	NO_LIBSCHILY*/
-/* @(#)remote.c	1.75 10/08/23 Copyright 1990-2010 J. Schilling */
+/* @(#)remote.c	1.76 13/04/21 Copyright 1990-2013 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)remote.c	1.75 10/08/23 Copyright 1990-2010 J. Schilling";
+	"@(#)remote.c	1.76 13/04/21 Copyright 1990-2013 J. Schilling";
 #endif
 /*
  *	Remote tape client interface code
  *
- *	Copyright (c) 1990-2010 J. Schilling
+ *	Copyright (c) 1990-2013 J. Schilling
  *
  *	TOTO:
  *		Signal handler for SIGPIPE
@@ -70,7 +70,7 @@ static	UConst char sccsid[] =
 #if	defined(IS_CYGWIN) || defined(__MINGW32__)
 #define	privport_ok()	(1)
 #else
-#ifdef	HAVE_SOLARIS_PPRIV
+#if	defined(HAVE_SOLARIS_PPRIV) || defined(HAVE_LINUX_CAPS)
 #define	privport_ok()	ppriv_ok()
 #else
 #define	privport_ok()	(geteuid() == 0)
@@ -230,7 +230,7 @@ LOCAL	int	_rcmdrsh		__PR((char **ahost, int inport,
 						const char *remuser,
 						const char *cmd,
 						const char *rsh));
-#ifdef	HAVE_SOLARIS_PPRIV
+#if	defined(HAVE_SOLARIS_PPRIV) || defined(HAVE_LINUX_CAPS)
 LOCAL	BOOL	ppriv_ok		__PR((void));
 #endif
 #endif
@@ -1620,6 +1620,22 @@ ppriv_ok()
 
 	return (net_privaddr);
 }
+#else	/* HAVE_SOLARIS_PPRIV */
+
+#ifdef	HAVE_LINUX_CAPS
+LOCAL BOOL
+ppriv_ok()
+{
+	cap_t			cset;
+	cap_flag_value_t	val = CAP_CLEAR;
+
+	cset = cap_get_proc();
+
+	cap_get_flag(cset, CAP_NET_BIND_SERVICE, CAP_EFFECTIVE, &val);
+	return (val == CAP_SET);
+}
+#endif	/* HAVE_LINUX_CAPS */
+
 #endif	/* HAVE_SOLARIS_PPRIV */
 
 #endif	/* USE_RCMD_RSH */

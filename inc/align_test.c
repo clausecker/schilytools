@@ -1,13 +1,13 @@
-/* @(#)align_test.c	1.29 10/08/26 Copyright 1995-2010 J. Schilling */
+/* @(#)align_test.c	1.30 13/04/25 Copyright 1995-2013 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef	lint
 static	UConst char sccsid[] =
-	"@(#)align_test.c	1.29 10/08/26 Copyright 1995-2010 J. Schilling";
+	"@(#)align_test.c	1.30 13/04/25 Copyright 1995-2013 J. Schilling";
 #endif
 /*
  *	Generate machine dependant align.h
  *
- *	Copyright (c) 1995-2010 J. Schilling
+ *	Copyright (c) 1995-2013 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -23,8 +23,9 @@ static	UConst char sccsid[] =
 
 #include <schily/stdio.h>
 #include <schily/standard.h>
-#undef	NO_LONGLONG	/* Make sure that Llong wil be long long */
+#undef	NO_LONGLONG	/* Make sure that Llong will be long long */
 #include <schily/utypes.h>
+#include <schily/libport.h>	/* Define missing prototypes */
 
 /*
  * Be very careful here as MSVC does not implement long long but rather __int64

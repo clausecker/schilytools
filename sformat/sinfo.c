@@ -1,11 +1,11 @@
-/* @(#)sinfo.c	1.38 09/07/11 Copyright 1988-2009 J. Schilling */
+/* @(#)sinfo.c	1.39 13/04/30 Copyright 1988-2013 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)sinfo.c	1.38 09/07/11 Copyright 1988-2009 J. Schilling";
+	"@(#)sinfo.c	1.39 13/04/30 Copyright 1988-2013 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1988-2009 J. Schilling
+ *	Copyright (c) 1988-2013 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -26,8 +26,8 @@ static	UConst char sccsid[] =
 #include <schily/stdlib.h>
 #include <schily/string.h>
 #include <schily/time.h>
-#include <schily/schily.h>
 #include <schily/hostname.h>
+#include <schily/schily.h>
 
 /*#include <scg/scgcmd.h>*/
 

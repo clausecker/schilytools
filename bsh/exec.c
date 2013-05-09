@@ -1,13 +1,13 @@
-/* @(#)exec.c	1.62 12/04/26 Copyright 1985-2012 J. Schilling */
+/* @(#)exec.c	1.63 13/04/25 Copyright 1985-2013 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)exec.c	1.62 12/04/26 Copyright 1985-2012 J. Schilling";
+	"@(#)exec.c	1.63 13/04/25 Copyright 1985-2013 J. Schilling";
 #endif
 /*
  *	bsh command interpreter - Execution of parsed Tree
  *
- *	Copyright (c) 1985-2012 J. Schilling
+ *	Copyright (c) 1985-2013 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -23,10 +23,6 @@ static	UConst char sccsid[] =
 
 #include <schily/stdio.h>
 #include <schily/signal.h>
-#include "bsh.h"
-#include "node.h"
-#include "str.h"
-#include "strsubs.h"
 #include <schily/string.h>
 #include <schily/unistd.h>
 #include <schily/stdlib.h>
@@ -34,6 +30,10 @@ static	UConst char sccsid[] =
 #include <schily/resource.h>
 #define	VMS_VFORK_OK
 #include <schily/vfork.h>
+#include "bsh.h"
+#include "node.h"
+#include "str.h"
+#include "strsubs.h"
 
 /*#define	EXDEBUG*/
 #ifdef	EXDEBUG

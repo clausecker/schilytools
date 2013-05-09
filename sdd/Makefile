@@ -1,4 +1,4 @@
-#ident @(#)Makefile	1.13 09/06/23 
+#ident @(#)Makefile	1.14 13/04/21 
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -14,7 +14,10 @@ CPPOPTS +=	-DSCHILY_PRINT
 CFILES=		sdd.c
 HFILES=		
 #LIBS=		-lunos
-LIBS=		-lmdigest -lrmt -lschily $(LIB_SOCKET)
+#
+# LIB_CAP is needed for Linux capability support in librmt.
+#
+LIBS=		-lmdigest -lrmt -lschily $(LIB_SOCKET) $(LIB_CAP)
 XMK_FILE=	Makefile.man
 
 ###########################################################################

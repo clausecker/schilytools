@@ -1,8 +1,8 @@
-/* @(#)abbrev.c	1.47 13/01/05 Copyright 1985-2013 J. Schilling */
+/* @(#)abbrev.c	1.48 13/05/01 Copyright 1985-2013 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)abbrev.c	1.47 13/01/05 Copyright 1985-2013 J. Schilling";
+	"@(#)abbrev.c	1.48 13/05/01 Copyright 1985-2013 J. Schilling";
 #endif
 /*
  *	Abbreviation symbol handling
@@ -83,11 +83,18 @@ LOCAL	char	sn_badtab[]	= "bad_astab_number";
 LOCAL	char	sn_no_mem[]	= "no_memory";
 LOCAL	char	sn_badfile[]	= "bad_sym_file";
 
+/*
+ * The Bourne shell does not use stdio, so we need to redefine some functions.
+ * Be sure to first #undef things that might be #define'd in schily/schily.h.
+ */
+#undef	fileopen
 #define	fileopen(n, m)	open(n, m, 0666)
 #define	fileread	read
+#undef	filestat
 #define	filestat	fstat
 #define	fclose		close
 #define	fflush(f)
+#undef	filesize
 #define	filesize	ab_fsize
 #define	open_failed(f)	(f < 0)
 

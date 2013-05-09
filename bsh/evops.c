@@ -1,13 +1,13 @@
-/* @(#)evops.c	1.36 11/07/18 Copyright 1984-2009 J. Schilling */
+/* @(#)evops.c	1.37 13/04/25 Copyright 1984-2013 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)evops.c	1.36 11/07/18 Copyright 1984-2009 J. Schilling";
+	"@(#)evops.c	1.37 13/04/25 Copyright 1984-2013 J. Schilling";
 #endif
 /*
  *	bsh environment section
  *
- *	Copyright (c) 1984-2009 J. Schilling
+ *	Copyright (c) 1984-2013 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -23,9 +23,6 @@ static	UConst char sccsid[] =
 
 #include <schily/stdio.h>
 #include <schily/param.h>	/* Include various defs needed with some OS */
-#include "bsh.h"
-#include "str.h"
-#include "strsubs.h"
 #include <schily/unistd.h>
 #include <schily/stdlib.h>
 #include <schily/string.h>
@@ -34,6 +31,9 @@ static	UConst char sccsid[] =
 #include <schily/hostname.h>
 #include <schily/utsname.h>
 #include <schily/locale.h>
+#include "bsh.h"
+#include "str.h"
+#include "strsubs.h"
 
 
 #define	EVAINC	5

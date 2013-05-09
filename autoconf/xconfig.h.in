@@ -1,9 +1,9 @@
-/* @(#)xconfig.h.in	1.228 11/11/22 Copyright 1998-2011 J. Schilling */
+/* @(#)xconfig.h.in	1.229 13/04/17 Copyright 1998-2013 J. Schilling */
 /*
  *	Dynamic autoconf C-include code.
  *	Do not edit, this file has been created automatically.
  *
- *	Copyright (c) 1998-2011 J. Schilling
+ *	Copyright (c) 1998-2013 J. Schilling
  *
  *	The layout for this file is controlled by "configure".
  *	Switch off cstyle(1) checks for now.
@@ -144,6 +144,7 @@
 #undef HAVE_LINUX_TYPES_H	/* if we may include linux/types.h */
 #undef HAVE_LINUX_GFP_H		/* if we may include linux/gfp.h */
 #undef HAVE_ASM_TYPES_H		/* if we may include asm/types.h */
+#undef HAVE_SYS_CAPABILITY_H	/* if we may include sys/capability.h */
 #undef HAVE_SYS_BSDTTY_H	/* if we have sys/bsdtty.h on HP-UX for TIOCGPGRP */
 #undef HAVE_OS_H		/* if we have the BeOS kernel definitions in OS.h */
 #undef HAVE_OS2_H		/* if we have the OS/2 definitions in os2.h */
@@ -599,6 +600,16 @@
 #undef HAVE_SCHED_YIELD		/* sched_yield() is present in librt */
 #undef HAVE_NANOSLEEP		/* nanosleep() is present in librt */
 
+/*
+ * The POSIX.1e draft has been withdrawn in 1997.
+ * Linux started to implement this outdated concept in 1997.
+ */
+#undef HAVE_CAP_GET_PROC	/* cap_get_proc() is present in libcap */
+#undef HAVE_CAP_SET_PROC	/* cap_set_proc() is present in libcap */
+#undef HAVE_CAP_SET_FLAG	/* cap_set_flag() is present in libcap */
+#undef HAVE_CAP_CLEAR_FLAG	/* cap_clear_flag() is present in libcap */
+
+
 #undef HAVE_DIRFD		/* dirfd() is present in libc */
 #undef HAVE_ISWPRINT		/* iswprint() is present in libc */
 #undef HAVE_MBSINIT		/* mbsinit() is present in libc */
@@ -640,6 +651,7 @@
 #undef HAVE__DEV_FD_0		/* /dev/fd/0 present */
 #undef HAVE__DEV_FD_1		/* /dev/fd/1 present */
 #undef HAVE__DEV_FD_2		/* /dev/fd/2 present */
+#undef HAVE__USR_SRC_LINUX_INCLUDE	/* /usr/src/linux/include present */
 #endif
 
 /*

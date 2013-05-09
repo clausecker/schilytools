@@ -1,4 +1,4 @@
-#ident @(#)Makefile	1.17 10/12/19 
+#ident @(#)Makefile	1.18 13/04/21 
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -23,8 +23,10 @@ CFILES=		skel.c \
 		misc.c
 
 #HFILES=		cdrecord.h iodefs.h scsi_scan.h scsimmc.h
-
-LIBS=		-lscgcmd -lrscg -lscg $(LIB_VOLMGT) -lcdrdeflt -ldeflt -lschily $(SCSILIB) $(LIB_SOCKET) $(LIB_INTL)
+#
+# LIB_CAP is needed for Linux capability support in librscg.
+#
+LIBS=		-lscgcmd -lrscg -lscg $(LIB_VOLMGT) -lcdrdeflt -ldeflt -lschily $(SCSILIB) $(LIB_SOCKET) $(LIB_INTL) $(LIB_CAP)
 XMK_FILE=	Makefile.man
 
 cd_misc.c scsi_cdr.c scsi_scan.c io.c misc.c:

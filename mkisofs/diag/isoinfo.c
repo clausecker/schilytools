@@ -1,8 +1,8 @@
-/* @(#)isoinfo.c	1.87 12/12/02 joerg */
+/* @(#)isoinfo.c	1.88 13/04/28 joerg */
 #include <schily/mconfig.h>
 #ifndef	lint
 static	UConst char sccsid[] =
-	"@(#)isoinfo.c	1.87 12/12/02 joerg";
+	"@(#)isoinfo.c	1.88 13/04/28 joerg";
 #endif
 /*
  * File isodump.c - dump iso9660 directory information.
@@ -11,7 +11,7 @@ static	UConst char sccsid[] =
  * Written by Eric Youngdale (1993).
  *
  * Copyright 1993 Yggdrasil Computing, Incorporated
- * Copyright (c) 1999-2012 J. Schilling
+ * Copyright (c) 1999-2013 J. Schilling
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2
@@ -48,13 +48,14 @@ static	UConst char sccsid[] =
 #include <schily/standard.h>
 #include <schily/signal.h>
 #include <schily/stat.h>
+#include <schily/time.h>
 #include <schily/fcntl.h>
-#include <schily/schily.h>
 #include <schily/nlsdefs.h>
 #include <schily/getargs.h>
 #include <schily/nlsdefs.h>
 #include <schily/ctype.h>
 #include <schily/errno.h>
+#include <schily/schily.h>
 
 #include "../iso9660.h"
 #include "../rock.h"
@@ -1100,7 +1101,7 @@ main(argc, argv)
 	if (help)
 		usage(0);
 	if (prvers) {
-		printf(_("isoinfo %s (%s-%s-%s) Copyright (C) 1993-1999 %s (C) 1999-2012 %s\n"),
+		printf(_("isoinfo %s (%s-%s-%s) Copyright (C) 1993-1999 %s (C) 1999-2013 %s\n"),
 					VERSION,
 					HOST_CPU, HOST_VENDOR, HOST_OS,
 					_("Eric Youngdale"),
@@ -1854,7 +1855,6 @@ find_stat(rootname, idr, extent)
 	int	len;
 static	char	*n = 0;
 static	int	nlen = 0;
-extern	struct WALK walkstate;
 
 	if (name_buf[0] == '.' && name_buf[1] == '.' && name_buf[2] == '\0')
 		if (find_node)

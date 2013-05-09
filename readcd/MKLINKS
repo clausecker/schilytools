@@ -1,6 +1,6 @@
 #!/bin/sh
 ###########################################################################
-#ident "@(#)MKLINKS	1.5 11/08/04 "
+#ident "@(#)MKLINKS	1.6 13/04/21 "
 ###########################################################################
 # Written 2008-2011 by J. Schilling
 ###########################################################################
@@ -37,3 +37,4 @@ $symlink ../cdrecord/movesect.c		.
 $symlink ../cdrecord/scsi_cdr.c		.
 $symlink ../cdrecord/scsi_mmc.c		.
 $symlink ../cdrecord/scsi_scan.c	.
+$symlink ../cdrecord/priv.c		.

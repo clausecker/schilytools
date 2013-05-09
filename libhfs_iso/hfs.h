@@ -1,4 +1,4 @@
-/* @(#)hfs.h	1.5 06/09/13 joerg */
+/* @(#)hfs.h	1.6 13/04/28 joerg */
 /*
  * hfsutils - tools for reading and writing Macintosh HFS volumes
  * Copyright (C) 1996, 1997 Robert Leslie
@@ -20,6 +20,7 @@
 
 #include <schily/time.h>
 #include <schily/standard.h>
+#include <schily/libport.h>	/* Define missing prototypes */
 
 #ifdef APPLE_HYB
 #include "hybrid.h"

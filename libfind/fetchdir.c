@@ -1,13 +1,13 @@
-/* @(#)fetchdir.c	1.27 09/07/11 Copyright 2002-2009 J. Schilling */
+/* @(#)fetchdir.c	1.28 13/04/28 Copyright 2002-2013 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)fetchdir.c	1.27 09/07/11 Copyright 2002-2009 J. Schilling";
+	"@(#)fetchdir.c	1.28 13/04/28 Copyright 2002-2013 J. Schilling";
 #endif
 /*
  *	Blocked directory handling.
  *
- *	Copyright (c) 2002-2009 J. Schilling
+ *	Copyright (c) 2002-2013 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -38,7 +38,7 @@ static	UConst char sccsid[] =
 #endif
 
 EXPORT	char	*fetchdir	__PR((char *dir, int *entp, int *lenp, ino_t **inop));
-EXPORT	char	*dfetchdir	__PR((DIR *dir, char *dirname, int *entp, int *lenp, ino_t **inop));
+EXPORT	char	*dfetchdir	__PR((DIR *dir, char *dir_name, int *entp, int *lenp, ino_t **inop));
 
 EXPORT char *
 fetchdir(dir, entp, lenp, inop)
@@ -66,9 +66,9 @@ fetchdir(dir, entp, lenp, inop)
  * The end of the returned string contains two additional null character.
  */
 EXPORT char *
-dfetchdir(d, dirname, entp, lenp, inop)
+dfetchdir(d, dir_name, entp, lenp, inop)
 	DIR	*d;
-	char	*dirname;		/* The name of the directory	  */
+	char	*dir_name;		/* The name of the directory	  */
 	int	*entp;			/* Pointer to # of entries found  */
 	int	*lenp;			/* Pointer to len of returned str */
 	ino_t	**inop;
@@ -121,9 +121,9 @@ dfetchdir(d, dirname, entp, lenp, inop)
 			 * Do not care about speed, this should be a rare
 			 * exception.
 			 */
-			if (dirname != NULL) {
+			if (dir_name != NULL) {
 				snprintf(sname, sizeof (sname), "%s/%s",
-								dirname, name);
+								dir_name, name);
 				sbuf.st_ino = (ino_t)0;
 				lstat(sname, &sbuf);
 				ino[nents] = sbuf.st_ino;

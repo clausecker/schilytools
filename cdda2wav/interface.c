@@ -1,8 +1,8 @@
-/* @(#)interface.c	1.75 13/01/17 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2006-2013 J. Schilling */
+/* @(#)interface.c	1.77 13/04/29 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2006-2013 J. Schilling */
 #include "config.h"
 #ifndef lint
 static	UConst char sccsid[] =
-"@(#)interface.c	1.75 13/01/17 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2006-2013 J. Schilling";
+"@(#)interface.c	1.77 13/04/29 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2006-2013 J. Schilling";
 
 #endif
 /*
@@ -54,11 +54,13 @@ static	UConst char sccsid[] =
 #include <schily/signal.h>
 #include <schily/fcntl.h>
 #include <schily/assert.h>
-#include <schily/schily.h>
 #include <schily/nlsdefs.h>
 #include <schily/device.h>
 #include <schily/ioctl.h>
 #include <schily/stat.h>
+#include <schily/time.h>
+#include <schily/poll.h>
+#include <schily/schily.h>
 
 
 #include "mycdrom.h"
@@ -99,13 +101,6 @@ static	UConst char sccsid[] =
 unsigned interface;
 
 int trackindex_disp = 0;
-
-EXPORT	void	priv_init	__PR((void));
-EXPORT	void	priv_on		__PR((void));
-EXPORT	void	priv_off	__PR((void));
-#ifdef	PRIV_PFEXEC
-EXPORT	void	do_pfexec	__PR((int ac, char *av[]));
-#endif
 
 void	(*EnableCdda)	__PR((SCSI *, int Switch, unsigned uSectorsize));
 unsigned (*doReadToc)	__PR((SCSI *scgp));
@@ -1202,147 +1197,6 @@ SetupInterface()
 		_scgp->verbose = global.scsi_verbose;
 	}
 }
-
-#include <schily/priv.h>
-
-EXPORT void
-priv_init()
-{
-#ifdef	HAVE_PRIV_SET
-	/*
-	 * Give up privs we do not need anymore.
-	 * We no longer need:
-	 *	file_dac_read,sys_devices,proc_priocntl,net_privaddr
-	 */
-	priv_set(PRIV_OFF, PRIV_EFFECTIVE,
-		PRIV_FILE_DAC_READ, PRIV_PROC_PRIOCNTL,
-		PRIV_NET_PRIVADDR, NULL);
-	priv_set(PRIV_OFF, PRIV_INHERITABLE,
-		PRIV_FILE_DAC_READ, PRIV_PROC_PRIOCNTL,
-		PRIV_NET_PRIVADDR, PRIV_SYS_DEVICES, NULL);
-#endif
-}
-
-EXPORT void
-priv_on()
-{
-#ifdef	HAVE_PRIV_SET
-	/*
-	 * Get back privs we may need now.
-	 * We need:
-	 *	file_dac_read,sys_devices,proc_priocntl,net_privaddr
-	 */
-	priv_set(PRIV_ON, PRIV_EFFECTIVE,
-		PRIV_FILE_DAC_READ, PRIV_PROC_PRIOCNTL,
-		PRIV_NET_PRIVADDR, NULL);
-#endif
-}
-
-EXPORT void
-priv_off()
-{
-#ifdef	HAVE_PRIV_SET
-	/*
-	 * Give up privs we do not need anymore.
-	 * We no longer need:
-	 *	file_dac_read,sys_devices,proc_priocntl,net_privaddr
-	 */
-	priv_set(PRIV_OFF, PRIV_EFFECTIVE,
-		PRIV_FILE_DAC_READ, PRIV_PROC_PRIOCNTL,
-		PRIV_NET_PRIVADDR, NULL);
-#endif
-}
-
-#ifdef	PRIV_PFEXEC
-/*
- * If PRIV_PFEXEC is defined, we have an in-kernel pfexec() that allows
- * suid-root less installation and let cdda2wav gain the needed additional
- * privileges even without a wrapper script.
- */
-EXPORT void
-do_pfexec(ac, av)
-	int	ac;
-	char	*av[];
-{
-	priv_set_t	*pset;
-	int		oflag;
-	char		*av0;
-
-	/*
-	 * Avoid looping over execv().
-	 * Return if we see our modified argv[0].
-	 * If the first character of the last name component is a '+',
-	 * just leave it as it is. If it is an uppercase character, we assume
-	 * that it was a translated lowercace character from our execv().
-	 */
-	av0 = strrchr(av[0], '/');
-	if (av0 == NULL)
-		av0 = av[0];
-	else
-		av0++;
-	if (*av0 == '+')
-		return;
-	if (*av0 >= 'A' && *av0 <= 'Z') {
-		*av0 = *av0 + 'a' - 'A';
-		return;
-	}
-
-	/*
-	 * Check for the current privileges.
-	 * Silently abort attempting to gain more privileges
-	 * in case any error occurs.
-	 */
-	pset = priv_allocset();
-	if (pset == NULL)
-		return;
-	if (getppriv(PRIV_EFFECTIVE, pset) < 0)
-		return;
-
-	/*
-	 * If we already have the needed privileges, we are done.
-	 */
-	if (priv_ismember(pset, PRIV_FILE_DAC_READ) &&
-	    priv_ismember(pset, PRIV_SYS_DEVICES) &&
-	    priv_ismember(pset, PRIV_PROC_PRIOCNTL) &&
-	    priv_ismember(pset, PRIV_NET_PRIVADDR)) {
-		priv_freeset(pset);
-		return;
-	}
-	priv_freeset(pset);
-
-	oflag = getpflags(PRIV_PFEXEC);
-	if (oflag < 0)		/* Pre kernel-pfexec system? */
-		return;
-	if (oflag == 0) {	/* Kernel pfexec flag not yet set? */
-		/*
-		 * Set kernel pfexec flag.
-		 * Return if this doesn't work for some reason.
-		 */
-		if (setpflags(PRIV_PFEXEC, 1) != 0) {
-			return;
-		}
-	}
-	/*
-	 * Modify argv[0] to mark that we did already call execv().
-	 * This is done in order to avoid infinite execv() loops caused by
-	 * a missconfigured security system in /etc/security.
-	 *
-	 * In the usual case (a lowercase letter in the firsh character of the
-	 * last pathname component), convert it to an uppercase character.
-	 * Otherwise overwrite this character by a '+' sign.
-	 */
-	if (*av0 >= 'a' && *av0 <= 'z')
-		*av0 = *av0 - 'a' + 'A';
-	else
-		*av0 = '+';
-	execv(getexecname(), av);
-}
-#endif
-
-#include <schily/time.h>
-#ifdef	HAVE_POLL
-#include <poll.h>
-#endif
 
 EXPORT int
 poll_in()

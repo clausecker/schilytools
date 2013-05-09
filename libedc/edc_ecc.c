@@ -1,13 +1,13 @@
-/* @(#)edc_ecc.c	1.30 12/12/02 Copyright 1998-2012 Heiko Eissfeldt, Joerg Schilling */
+/* @(#)edc_ecc.c	1.31 13/04/28 Copyright 1998-2013 Heiko Eissfeldt, Joerg Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)edc_ecc.c	1.30 12/12/02 Copyright 1998-2012 Heiko Eissfeldt, Joerg Schilling";
+	"@(#)edc_ecc.c	1.31 13/04/28 Copyright 1998-2013 Heiko Eissfeldt, Joerg Schilling";
 #endif
 
 /*
  * Copyright 1998-2002,2008 by Heiko Eissfeldt
- * Copyright 2002-2012 by Joerg Schilling
+ * Copyright 2002-2013 by Joerg Schilling
  *
  * This file contains protected intellectual property.
  *
@@ -34,6 +34,7 @@ static	UConst char sccsid[] =
 #include "ecc.h"
 
 #ifndef	HAVE_MEMMOVE
+#include <schily/libport.h>	/* Define missing prototypes */
 /*#define	memmove(dst, src, size)		movebytes((src), (dst), (size))*/
 #define	memmove(d, s, n)	bcopy((s), (d), (n))
 #endif

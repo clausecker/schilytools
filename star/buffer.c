@@ -1,13 +1,13 @@
-/* @(#)buffer.c	1.164 12/01/01 Copyright 1985, 1995, 2001-2012 J. Schilling */
+/* @(#)buffer.c	1.165 13/04/29 Copyright 1985, 1995, 2001-2013 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)buffer.c	1.164 12/01/01 Copyright 1985, 1995, 2001-2012 J. Schilling";
+	"@(#)buffer.c	1.165 13/04/29 Copyright 1985, 1995, 2001-2013 J. Schilling";
 #endif
 /*
  *	Buffer handling routines
  *
- *	Copyright (c) 1985, 1995, 2001-2012 J. Schilling
+ *	Copyright (c) 1985, 1995, 2001-2013 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -40,7 +40,6 @@ static	UConst char sccsid[] =
 #include <schily/stdio.h>
 #include <schily/stdlib.h>
 #include <schily/unistd.h>
-#include <schily/libport.h>	/* getpagesize() */
 #include <schily/fcntl.h>
 #include <schily/ioctl.h>
 #include <schily/varargs.h>
@@ -51,12 +50,13 @@ static	UConst char sccsid[] =
 #include "fifo.h"
 #include <schily/string.h>
 #include <schily/wait.h>
-#include <schily/schily.h>
 #include <schily/mtio.h>
 #include <schily/librmt.h>
+#include <schily/schily.h>
 #include "starsubs.h"
 
 #include <schily/io.h>		/* for setmode() prototype */
+#include <schily/libport.h>	/* getpagesize() */
 
 long	bigcnt	= 0;
 int	bigsize	= 0;		/* Tape block size (may shrink < bigbsize) */

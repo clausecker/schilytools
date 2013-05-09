@@ -1,4 +1,4 @@
-#ident @(#)Makefile	1.24 10/05/13 
+#ident @(#)Makefile	1.25 13/04/21 
 ###########################################################################
 #include		$(MAKE_M_ARCH).def
 SRCROOT=	..
@@ -48,7 +48,10 @@ HFILES=		star.h starsubs.h dirtime.h xtab.h xutimes.h \
 
 #LIBS=		-lunos
 #LIBS=		-lschily -lc /usr/local/lib/gcc-gnulib
-LIBS=		-ldeflt -lrmt -lfind -lschily $(LIB_ACL) $(LIB_ATTR) $(LIB_SOCKET) $(LIB_INTL)
+#
+# LIB_CAP is needed for Linux capability support in librmt.
+#
+LIBS=		-ldeflt -lrmt -lfind -lschily $(LIB_ACL) $(LIB_ATTR) $(LIB_SOCKET) $(LIB_INTL) $(LIB_CAP)
 #
 #	Wenn -lfind, dann auch  $(LIB_INTL)
 #

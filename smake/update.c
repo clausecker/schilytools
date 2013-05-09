@@ -1,14 +1,14 @@
-/* @(#)update.c	1.123 12/12/22 Copyright 1985, 88, 91, 1995-2012 J. Schilling */
+/* @(#)update.c	1.125 13/04/28 Copyright 1985, 88, 91, 1995-2013 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)update.c	1.123 12/12/22 Copyright 1985, 88, 91, 1995-2012 J. Schilling";
+	"@(#)update.c	1.125 13/04/28 Copyright 1985, 88, 91, 1995-2013 J. Schilling";
 #endif
 /*
  *	Make program
  *	Macro handling / Dependency Update
  *
- *	Copyright (c) 1985, 88, 91, 1995-2012 by J. Schilling
+ *	Copyright (c) 1985, 88, 91, 1995-2013 by J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -31,6 +31,7 @@ static	UConst char sccsid[] =
 #include <schily/schily.h>
 #include <schily/libport.h>
 #include "make.h"
+#include "job.h"
 
 EXPORT obj_t	*default_tgt;		/* Current 'make' arg or default tgt */
 EXPORT BOOL	found_make;		/* Did we expand the $(MAKE) macro?  */
@@ -554,28 +555,28 @@ build_path(level, name, namelen, path, psize)
 	size_t	psize;
 {
 	list_t *lp;
-	char	*dirname = (char *)NULL;
+	char	*dir_name = (char *)NULL;
 	register int n = level;
 
 	if (n <= 1) {
 		if (level == OBJLEVEL) {
-			dirname = ObjDir;
+			dir_name = ObjDir;
 			namelen += slashlen + ObjDirlen;
 		}
 	} else if (level != MAXLEVEL) {
 		if ((lp = list_nth(SearchList, n - 2)) == (list_t *)NULL)
 			return ((char *)NULL);
-		dirname = lp->l_obj->o_name;
+		dir_name = lp->l_obj->o_name;
 		namelen += slashlen + lp->l_obj->o_namelen;
 	}
-	if (dirname == (char *)NULL)
+	if (dir_name == (char *)NULL)
 		return (name);
 
 	if (namelen >= psize) {
 		psize = namelen + 1;
 		path = ___realloc(NULL, psize, "build path name");
 	}
-	n = snprintf(path, psize, "%s%s%s", dirname, slash, name);
+	n = snprintf(path, psize, "%s%s%s", dir_name, slash, name);
 	if (n >= psize)
 		etoolong("build path name", name);
 

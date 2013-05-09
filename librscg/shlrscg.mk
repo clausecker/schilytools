@@ -1,4 +1,4 @@
-#ident @(#)shlrscg.mk	1.4 08/08/03 
+#ident @(#)shlrscg.mk	1.5 13/04/22 
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -17,7 +17,10 @@ CPPOPTS +=	-DSCHILY_PRINT
 
 #include		Targets
 CFILES=		scsi-remote.c
-LIBS=		-lscg -lschily -lc
+#
+# LIB_CAP is needed for Linux capability support in librscg.
+#
+LIBS=		-lscg -lschily $(LIB_SOCKET) $(LIB_CAP) -lc
 
 ###########################################################################
 include		$(SRCROOT)/$(RULESDIR)/rules.shl

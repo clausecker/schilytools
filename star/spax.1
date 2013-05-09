@@ -1,5 +1,5 @@
 '\" t
-. \" @(#)spax.1	1.11 10/08/01 Copyr 2004-2010 J. Schilling
+. \" @(#)spax.1	1.12 13/04/16 Copyr 2004-2013 J. Schilling
 . \" Copyright (C) 2001-2004 by the Institute of Electrical and Electronics Engineers, Inc and The Open Group.
 . \" Manual page for spax
 . \"
@@ -30,7 +30,7 @@
 .ce
 .B \\$1
 ..
-.TH SPAX 1L "10/08/01" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH SPAX 1L "13/04/16" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 pax \- portable archive interchange
 .SH SYNOPSIS
@@ -282,6 +282,9 @@ except that the order of presentation of the
 and
 .B \-s
 options is significant.
+See also the
+.B "OTHER OPTIONS"
+section.
 .PP
 The following options shall be supported:
 .TP
@@ -3246,7 +3249,7 @@ existing files). As stated, it prevents any overwriting, even if
 the target file is older than the source. This version adds more
 granularity of options to solve this problem by introducing the 
 .BI "\-o invalid=" option
-\-specifically the UTF-8 action. (Note that an
+\- specifically the UTF-8 action. (Note that an
 existing file that is named with a UTF-8 encoding is still subject
 to overwriting in this case. The 
 .B \-k 
@@ -4206,15 +4209,30 @@ field.
 End of quoted text from the POSIX.1-2001 standard.
 . \" .SH RETURNS
 . \" .SH ERRORS
-.SH OPTIONS
+.SH "OTHER OPTIONS
 The following 
 .I "other options
-are implemented as extension to the POSIX standard:
+are implemented as extension to the POSIX standard.
+Note that some other
+non-POSIX options are mentioned in
+.I \-help
+and 
+.I \-xhelp
+output - these are also supported in
+.BR spax (1)
+and are described in the
+.BR star (1)
+manual page.
 .TP
 .B \-help
 Prints a summary of the most important options for
 .BR spax (1)
 and exits.
+.TP
+.B \-do\-statistics
+Print statistic messages at the end of a
+.BR spax (1)
+run.
 .TP
 .B \-xhelp
 Prints a summary of the less important options for

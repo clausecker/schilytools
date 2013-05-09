@@ -1,7 +1,7 @@
 '\" t
 .\" To print, first run through tbl
 .\" -*- nroff -*-
-.\" @(#)mkisofs.8	1.146 12/12/02 joerg
+.\" @(#)mkisofs.8	1.147 13/03/28 joerg
 .\"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
 .if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
@@ -15,7 +15,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH MKISOFS 8 "2012/12/02" "Version 3.0"
+.TH MKISOFS 8 "2013/03/28" "Version 3.0"
 .SH NAME
 mkisofs \- create an hybrid ISO-9660/JOLIET/HFS/UDF filesystem-image with optional Rock Ridge attributes.
 .SH SYNOPSIS
@@ -874,7 +874,15 @@ Increment debug value by one.
 .BI \-dir\-mode " mode
 Overrides the mode of directories used to create the image to
 .IR mode .
-Specifying this option automatically enables Rock Ridge extensions.
+See
+.B \-new\-dir\-mode
+on how to specify a different
+.I mode
+that is used for directories that do not exist
+in the tree specified by the source-path.
+Specifying the
+.B \-dir\-mode
+option automatically enables Rock Ridge extensions.
 .TP
 .B \-dvd\-video
 Generate DVD-Video compliant UDF file system. This is done by sorting the
@@ -1402,7 +1410,9 @@ Use with caution.
 .TP
 .BI \-new\-dir\-mode " mode
 Mode to use when creating new directories in the iso fs image.  The default
-mode is 0555.
+mode in the absence of a
+.B \-dir\-mode
+option is 0555.
 .TP
 .B \-nobak
 .TP

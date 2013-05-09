@@ -1,4 +1,4 @@
-#ident @(#)Makefile	1.28 12/12/02 
+#ident @(#)Makefile	1.29 13/04/21 
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -7,9 +7,9 @@ LCONFIG_DEP=	install-sh
 
 ###########################################################################
 all:
-all clean depend config install: install-sh scsi_scan.c scsi_cdr.c
+all clean depend config install: install-sh scsi_scan.c scsi_cdr.c priv.c
 
-install-sh scsi_scan.c scsi_cdr.c cd_misc.c:
+install-sh scsi_scan.c scsi_cdr.c cd_misc.c priv.c:
 	@echo "	==> MAKING SYMLINKS in ." && sh ./MKLINKS
 ###########################################################################
 
@@ -22,6 +22,7 @@ INSMODE=	4711
 INSUSR=		root
 CPPOPTS +=	-I../libcdrdeflt
 CPPOPTS +=	-DFIFO -I../libscg -I../libparanoia -I../cdrecord $(CDDA2WAVDEFS)
+CPPOPTS +=	-DCDDA2WAV	# Signal that we compile cdda2wav
 CPPOPTS +=	-DSCHILY_PRINT
 CPPOPTS +=	-DINS_BASE=\"${INS_BASE}\"
 CPPOPTS +=	-DTEXT_DOMAIN=\"SCHILY_cdrtools\"
@@ -31,7 +32,7 @@ CFILES=		cdda2wav.c interface.c semshm.c resample.c \
 		toc.c wav.c sun.c raw.c setuid.c ringbuff.c \
 		sndconfig.c scsi_cmds.c aiff.c aifc.c \
 		scsi_cdr.c cd_misc.c ioctl.c base64.c \
-		parse.c
+		parse.c priv.c
 HFILES=		cdda2wav.h interface.h semshm.h global.h resample.h \
 		exitcodes.h \
 		scsi_scan.h \
@@ -41,7 +42,10 @@ HFILES=		cdda2wav.h interface.h semshm.h global.h resample.h \
 		base64.h mmsystem.h cd_text.c cd_extra.c ioctl.h \
 		parse.h version.h
 
-LIBS=		-lscgcmd -lrscg -lscg $(LIB_VOLMGT) -lparanoia -lcdrdeflt -ldeflt -lmdigest -lschily $(SCSILIB) $(EXTRALIB) $(LIB_SOCKET) $(LIB_INTL)
+#
+# LIB_CAP is needed for Linux capability support in librscg.
+#
+LIBS=		-lscgcmd -lrscg -lscg $(LIB_VOLMGT) -lparanoia -lcdrdeflt -ldeflt -lmdigest -lschily $(SCSILIB) $(EXTRALIB) $(LIB_SOCKET) $(LIB_INTL) $(LIB_CAP)
 XMK_FILE=	Makefile.man Makefile.rd cdda2ogg.mk cdda2mp3.mk
 # cdda2ogg.mk1 fehlt noch für make rel
 

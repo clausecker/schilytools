@@ -14,6 +14,7 @@
 ./cdda2wav/config.guess
 ./cdda2wav/config.sub
 ./cdda2wav/install-sh
+./cdda2wav/priv.c
 ./cdda2wav/scsi_cdr.c
 ./cdda2wav/scsi_scan.c
 ./label/check_part.c
@@ -132,6 +133,7 @@
 ./readcd/cd_misc.c
 ./readcd/misc.c
 ./readcd/movesect.c
+./readcd/priv.c
 ./readcd/scsi_cdr.c
 ./readcd/scsi_mmc.c
 ./readcd/scsi_scan.c

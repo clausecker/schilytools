@@ -1,8 +1,8 @@
-/* @(#)fifo.c	1.77 12/01/01 Copyright 1989, 1994-2012 J. Schilling */
+/* @(#)fifo.c	1.78 13/04/29 Copyright 1989, 1994-2013 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)fifo.c	1.77 12/01/01 Copyright 1989, 1994-2012 J. Schilling";
+	"@(#)fifo.c	1.78 13/04/29 Copyright 1989, 1994-2013 J. Schilling";
 #endif
 /*
  *	A "fifo" that uses shared memory between two processes
@@ -19,7 +19,7 @@ static	UConst char sccsid[] =
  *		N	fifo_chotape()	wake up get side if mp->oblocked == TRUE
  *		R	fifo_reelwake() wake up put side if mp->reelwait == TRUE
  *
- *	Copyright (c) 1989, 1994-2012 J. Schilling
+ *	Copyright (c) 1989, 1994-2013 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -36,14 +36,9 @@ static	UConst char sccsid[] =
 #include <schily/stdio.h>
 #include <schily/stdlib.h>
 #include <schily/unistd.h>	/* includes <sys/types.h> */
-#include <schily/libport.h>	/* getpagesize() */
 #include <schily/fcntl.h>
 #include <schily/standard.h>
 #include <schily/errno.h>
-#include "star.h"
-#include "fifo.h"	/* #undef FIFO may happen here */
-#include <schily/schily.h>
-#include "starsubs.h"
 
 #ifdef	FIFO
 
@@ -53,6 +48,11 @@ static	UConst char sccsid[] =
 #if defined(HAVE_SMMAP) && defined(USE_MMAP)
 #include <schily/mman.h>
 #endif
+#include "star.h"
+#include "starsubs.h"
+#include "fifo.h"	/* #undef FIFO may happen here */
+#include <schily/schily.h>
+#include <schily/libport.h>	/* getpagesize() */
 
 #ifndef	HAVE_SMMAP
 #	undef	USE_MMAP

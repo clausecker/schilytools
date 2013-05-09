@@ -1,8 +1,8 @@
-/* @(#)fnmatch.c	8.17 10/10/10 2005-2010 J. Schilling from 8.2 (Berkeley) */
+/* @(#)fnmatch.c	8.18 13/04/25 2005-2013 J. Schilling from 8.2 (Berkeley) */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)fnmatch.c	8.17 10/10/10 2005-2010 J. Schilling from 8.2 (Berkeley)";
+	"@(#)fnmatch.c	8.18 13/04/25 2005-2013 J. Schilling from 8.2 (Berkeley)";
 #endif
 /*
  * Copyright (c) 1989, 1993, 1994
@@ -37,7 +37,7 @@ static	UConst char sccsid[] =
  */
 
 #if defined(LIBC_SCCS) && !defined(lint)
-static UConst char sccsid[] = "@(#)fnmatch.c	8.17 (Berkeley) 10/10/10";
+static UConst char sccsid[] = "@(#)fnmatch.c	8.18 (Berkeley) 04/25/13";
 #endif /* LIBC_SCCS and not lint */
 /* "FBSD src/lib/libc/gen/fnmatch.c,v 1.19 2010/04/16 22:29:24 jilles Exp $" */
 
@@ -63,6 +63,7 @@ static UConst char sccsid[] = "@(#)fnmatch.c	8.17 (Berkeley) 10/10/10";
 #include <schily/string.h>
 #include <schily/wchar.h>
 #include <schily/wctype.h>
+#include <schily/libport.h>	/* Define missing prototypes */
 
 #define	EOS	'\0'
 

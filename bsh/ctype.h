@@ -1,6 +1,6 @@
-/* @(#)ctype.h	1.7 09/05/24 Copyright 1986-2009 J. Schilling */
+/* @(#)ctype.h	1.8 13/05/01 Copyright 1986-2013 J. Schilling */
 /*
- *	Copyright (c) 1986-2009 J. Schilling
+ *	Copyright (c) 1986-2013 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -35,6 +35,18 @@
 
 /*#ifndef lint*/
 extern unsigned char	_ctype_a[];
+
+/*
+ * On HP-UX, /usr/include/limits.h pulls in /usr/include/ctype.h
+ * This happens before we are pulled in and causes redefine warnings.
+ * So we #define REDEFINE_CTYPE in case we did not pull in
+ * /usr/include/ctype.h by our own will by using e.g. schily/ctype.h
+ */
+#if	!defined(_SCHILY_CTYPE_H) && !defined(_SCHILY_WCTYPE_H)
+#ifndef	REDEFINE_CTYPE
+#define	REDEFINE_CTYPE
+#endif
+#endif
 
 /*
  * Argument to the following macros must be an int,

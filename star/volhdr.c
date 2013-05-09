@@ -1,13 +1,13 @@
-/* @(#)volhdr.c	1.34 09/07/11 Copyright 1994, 2003-2009 J. Schilling */
+/* @(#)volhdr.c	1.35 13/04/29 Copyright 1994, 2003-2013 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)volhdr.c	1.34 09/07/11 Copyright 1994, 2003-2009 J. Schilling";
+	"@(#)volhdr.c	1.35 13/04/29 Copyright 1994, 2003-2013 J. Schilling";
 #endif
 /*
  *	Volume header related routines.
  *
- *	Copyright (c) 1994, 2003-2009 J. Schilling
+ *	Copyright (c) 1994, 2003-2013 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -25,6 +25,7 @@ static	UConst char sccsid[] =
 #include <schily/stdio.h>
 #include <schily/stdlib.h>
 #include <schily/unistd.h>
+#include <schily/hostname.h>
 #include "star.h"
 #include "props.h"
 #include "table.h"

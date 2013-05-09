@@ -1,12 +1,12 @@
-/* @(#)toc.c	1.97 10/12/19 Copyright 1998-2003 Heiko Eissfeldt, Copyright 2004-2010 J. Schilling */
+/* @(#)toc.c	1.98 13/04/28 Copyright 1998-2003 Heiko Eissfeldt, Copyright 2004-2013 J. Schilling */
 #include "config.h"
 #ifndef lint
 static	UConst char sccsid[] =
-"@(#)toc.c	1.97 10/12/19 Copyright 1998-2003 Heiko Eissfeldt, Copyright 2004-2010 J. Schilling";
+"@(#)toc.c	1.98 13/04/28 Copyright 1998-2003 Heiko Eissfeldt, Copyright 2004-2013 J. Schilling";
 #endif
 /*
  * CDDA2WAV (C) Heiko Eissfeldt heiko@hexco.de
- * Copyright (c) 2004-2010 J. Schilling
+ * Copyright (c) 2004-2013 J. Schilling
  *
  * The CDDB routines are compatible to cddbd (C) Ti Kan and Steve Scherf
  */
@@ -34,20 +34,23 @@ static	UConst char sccsid[] =
 #include <schily/errno.h>
 #include <schily/fcntl.h>
 #include <schily/varargs.h>
-#include <schily/schily.h>
 #include <schily/nlsdefs.h>
 #include <schily/hostname.h>
 #include <schily/ioctl.h>
 #include <schily/sha1.h>
 
-#define	CD_TEXT
-#define	CD_EXTRA
-#undef	DEBUG_XTRA
-#undef	DEBUG_CDTEXT
-#undef	DEBUG_CDDBP
-
-
 #include <scg/scsitransp.h>
+
+/* tcp stuff */
+/* fix OS/2 compilation */
+#ifdef	__EMX__
+#define	gethostid	nogethostid
+#endif
+
+#include <schily/socket.h>
+#undef gethostid
+#include <schily/in.h>
+#include <schily/netdb.h>
 
 #include "mytype.h"
 #include "byteorder.h"
@@ -60,24 +63,14 @@ static	UConst char sccsid[] =
 #include "ringbuff.h"
 #include "version.h"
 
-int Get_Mins __PR((unsigned long p_track));
-int Get_Secs __PR((unsigned long p_track));
-int Get_Frames __PR((unsigned long p_track));
-int Get_Flags __PR((unsigned long p_track));
-int Get_SCMS __PR((unsigned long p_track));
+#include <schily/schily.h>
 
+#define	CD_TEXT
+#define	CD_EXTRA
+#undef	DEBUG_XTRA
+#undef	DEBUG_CDTEXT
+#undef	DEBUG_CDDBP
 
-#if	defined	USE_REMOTE
-/* tcp stuff */
-/* fix OS/2 compilation */
-#ifdef	__EMX__
-#define	gethostid	nogethostid
-#endif
-#include <schily/socket.h>
-#undef gethostid
-#include <schily/in.h>
-#include <schily/netdb.h>
-#endif
 
 int have_CD_text;
 int have_multisession;
@@ -85,6 +78,12 @@ int have_CD_extra;
 int have_CDDB;
 
 struct iterator;
+
+int Get_Mins __PR((unsigned long p_track));
+int Get_Secs __PR((unsigned long p_track));
+int Get_Frames __PR((unsigned long p_track));
+int Get_Flags __PR((unsigned long p_track));
+int Get_SCMS __PR((unsigned long p_track));
 
 LOCAL void UpdateTrackData	__PR((int p_num));
 LOCAL void UpdateIndexData	__PR((int p_num));

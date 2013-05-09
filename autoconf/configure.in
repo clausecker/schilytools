@@ -1,6 +1,6 @@
-dnl @(#)configure.in	1.243 11/11/22 Copyright 1998-2011 J. Schilling
+dnl @(#)configure.in	1.244 13/04/17 Copyright 1998-2013 J. Schilling
 dnl Process this file with autoconf to produce a configure script.
-AC_REVISION(1.243)dnl
+AC_REVISION(1.244)dnl
 
 dnl AC_INIT(xconfig.h.in)
 AC_INIT(config.guess)
@@ -98,6 +98,7 @@ AC_CHECK_HEADERS(sys/bsdtty.h)
 dnl Check for Linux kernel definitions
 AC_CHECK_HEADERS(scsi/scsi.h scsi/sg.h linux/scsi.h linux.sg.h)
 AC_CHECK_HEADERS(linux/types.h linux/gfp.h asm/types.h)
+AC_CHECK_HEADERS(sys/capability.h)
 dnl Check for BeOS kernel definitions (e.g. B_PAGE_SIZE)
 AC_CHECK_HEADERS(OS.h)
 dnl needed for newer OS/2 versions of EMX
@@ -817,10 +818,17 @@ AC_CHECK_FUNCS(sched_yield)
 AC_CHECK_FUNCS(nanosleep)
 LIBS="$ac_save_LIBS"
 
+AC_CHECK_LIB(cap, cap_get_proc, lib_cap="-lcap")
+ac_save_LIBS="$LIBS"
+LIBS="$LIBS $lib_cap"
+AC_CHECK_FUNCS(cap_get_proc cap_set_proc cap_set_flag cap_clear_flag)
+LIBS="$ac_save_LIBS"
+
 dnl Misc OS checks.
 AC_CHECK_FILES(/dev/tty /dev/null /dev/zero)
 AC_CHECK_FILES(/dev/stdin /dev/stdout /dev/stderr)
 AC_CHECK_FILES(/dev/fd/0 /dev/fd/1 /dev/fd/2)
+AC_CHECK_FILES(/usr/src/linux/include)
 
 dnl Checks for OS madness.
 UNAME=`uname || true`
@@ -856,6 +864,7 @@ fi
 if test .$ac_cv_broken_src_linux_ext2_fs_h = .yes; then
 	may_linux_src_include=no
 fi
+if test .$ac_cv_file__usr_src_linux_include = .yes; then # only warn if there is /usr/src/linux/include
 if test .$may_linux_src_include = .no; then
 	echo
 	echo "Warning: *** /usr/src/linux/include contains broken include files ***"
@@ -863,6 +872,8 @@ if test .$may_linux_src_include = .no; then
 	echo "Warning: This may result in the inability to use recent Linux kernel interfaces" 
 	echo
 fi
+fi
+if test .$ac_cv_header_ext2fs_ext2_fs_h = .no; then # only if there is no <ext2fs/ext2_fs.h>
 if test .$ac_cv_usable_linux_ext2_fs_h = .no; then
 	echo
 	echo "Warning: *** linux/ext2_fs.h is not usable at all ***"
@@ -871,6 +882,7 @@ if test .$ac_cv_usable_linux_ext2_fs_h = .no; then
 	echo
 	sleep 10
 fi
+fi	# <ext2fs/ext2_fs.h> was missing
 fi	# Linux only tests
 
 AC_SUBST(may_linux_src_include)
@@ -896,5 +908,6 @@ AC_SUBST(lib_pthread)
 AC_SUBST(lib_rt)
 AC_SUBST(lib_dl)
 AC_SUBST(lib_dir)
+AC_SUBST(lib_cap)
 
 AC_OUTPUT(rules.cnf)

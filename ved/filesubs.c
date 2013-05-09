@@ -1,13 +1,13 @@
-/* @(#)filesubs.c	1.63 09/07/09 Copyright 1984-2009 J. Schilling */
+/* @(#)filesubs.c	1.64 13/04/29 Copyright 1984-2013 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)filesubs.c	1.63 09/07/09 Copyright 1984-2009 J. Schilling";
+	"@(#)filesubs.c	1.64 13/04/29 Copyright 1984-2013 J. Schilling";
 #endif
 /*
  *	Commands that deal with non i/o file subroutines
  *
- *	Copyright (c) 1984-2009 J. Schilling
+ *	Copyright (c) 1984-2013 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -21,10 +21,10 @@ static	UConst char sccsid[] =
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#include "ved.h"
 #include <schily/unistd.h>
 #include <schily/fcntl.h>
 #include <schily/errno.h>
+#include "ved.h"
 
 EXPORT	void	lockfile	__PR((ewin_t *wp, char *filename));
 EXPORT	void	writelockmsg	__PR((ewin_t *wp));

@@ -1,4 +1,4 @@
-#ident @(#)Makefile	1.52 11/09/14 Copyr 1995-2011 J. Schilling
+#ident @(#)Makefile	1.53 13/04/21 Copyr 1995-2013 J. Schilling
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -12,6 +12,7 @@ INSUSR=		root
 CPPOPTS +=	-I../libscg
 CPPOPTS +=	-I../libedc
 CPPOPTS +=	-I../libcdrdeflt
+CPPOPTS +=	-DCDRECORD	# Signal that we compile cdrecord
 CPPOPTS +=	-DDVD_MULTI
 CPPOPTS +=	-DDRV_DVD
 CPPOPTS +=	-DDRV_BD
@@ -40,7 +41,7 @@ CFILES=		cdrecord.c \
 		vendor.c \
 		scsi_scan.c scsi_cdr.c scsi_cdr_mmc4.c scsi_mmc.c scsi_mmc4.c \
 		scsilog.c \
-		misc.c crc16.c xio.c
+		misc.c crc16.c xio.c priv.c
 HFILES=		cdrecord.h iso9660.h auheader.h cdtext.h \
 		crc16.h movesect.h mmcvendor.h scsi_scan.h \
 		scsimmc.h \
@@ -50,7 +51,10 @@ HFILES=		cdrecord.h iso9660.h auheader.h cdtext.h \
 HFILES_TAG=	../include/scg/scgio.h ../include/scg/scsidefs.h \
 		../include/scg/scsireg.h ../include/scg/scsitransp.h
 #LIBS=		-lschily $(LIB_SOCKET)
-LIBS=		-lscgcmd -lrscg -lscg $(LIB_VOLMGT) -ledc_ecc -lcdrdeflt -ldeflt -lschily $(SCSILIB) $(LIB_SOCKET) $(LIB_INTL)
+#
+# LIB_CAP is needed for Linux capability support in librscg.
+#
+LIBS=		-lscgcmd -lrscg -lscg $(LIB_VOLMGT) -ledc_ecc -lcdrdeflt -ldeflt -lschily $(SCSILIB) $(LIB_SOCKET) $(LIB_INTL) $(LIB_CAP)
 XMK_FILE=	Makefile.man Makefile.dfl Makefile.doc
 
 

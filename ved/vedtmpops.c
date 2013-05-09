@@ -1,13 +1,13 @@
-/* @(#)vedtmpops.c	1.32 09/07/09 Copyright 1988, 1993-2009 J. Schilling */
+/* @(#)vedtmpops.c	1.33 13/04/28 Copyright 1988, 1993-2013 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)vedtmpops.c	1.32 09/07/09 Copyright 1988, 1993-2009 J. Schilling";
+	"@(#)vedtmpops.c	1.33 13/04/28 Copyright 1988, 1993-2013 J. Schilling";
 #endif
 /*
  *	Routines that deal with reading/writing of .vedtmp files
  *
- *	Copyright (c) 1988, 1993-2009 J. Schilling
+ *	Copyright (c) 1988, 1993-2013 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -51,8 +51,8 @@ static	UConst char sccsid[] =
  * line with a filename is number one.
  */
 
-#include "ved.h"
 #include <schily/time.h>
+#include "ved.h"
 
 /*extern	time_t	gftime		__PR((char *file));*/
 /*

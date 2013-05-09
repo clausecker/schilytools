@@ -1,6 +1,9 @@
-/* @(#)libport.h	1.33 11/11/24 Copyright 1995-2011 J. Schilling */
+/* @(#)libport.h	1.36 13/05/01 Copyright 1995-2013 J. Schilling */
 /*
- *	Copyright (c) 1995-2011 J. Schilling
+ *	Prototypes for POSIX standard functions that may be missing on the
+ *	local platform and thus are implemented inside libschily.
+ *
+ *	Copyright (c) 1995-2013 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -33,7 +36,7 @@
 extern "C" {
 #endif
 
-#if	defined(_INCL_SYS_TYPES_H) || defined(_INCL_TYPES_) || defined(size_t)
+#if	defined(_INCL_SYS_TYPES_H) || defined(_INCL_TYPES_H) || defined(size_t)
 #	ifndef	FOUND_SIZE_T
 #	define	FOUND_SIZE_T
 #	endif
@@ -54,6 +57,18 @@ extern "C" {
 /* #undef	HAVE_USLEEP */
 #endif
 
+#ifdef	FOUND_SIZE_T
+/*
+ * We currently cannot define this here because there IXIX has a definition
+ * than violates the standard.
+ */
+#ifndef	HAVE_SNPRINTF
+/*PRINTFLIKE3*/
+extern	int	snprintf __PR((char *, size_t, const char *, ...))
+					__printflike__(3, 4);
+#endif
+#endif
+
 #ifndef	HAVE_GETHOSTID
 extern	long		gethostid	__PR((void));
 #endif
@@ -68,7 +83,7 @@ extern	int		usleep		__PR((int usec));
 extern	int		strcasecmp	__PR((const char *, const char *));
 #endif
 #ifdef	FOUND_SIZE_T
-#ifndef	HAVE_STRCASECMP
+#ifndef	HAVE_STRNCASECMP
 extern 	int		strncasecmp	__PR((const char *, const char *, size_t));
 #endif
 #endif
@@ -278,6 +293,23 @@ extern	int		fchdir __PR((int fd));
 #ifndef	HAVE_OPENAT
 extern	int		openat __PR((int fd, const char *name, int oflag, ...));
 #endif
+
+
+#ifndef	HAVE_GETTIMEOFDAY
+#ifdef	_SCHILY_TIME_H
+extern	int		gettimeofday __PR((struct timeval *__tp, void *__tzp));
+#endif
+#endif
+
+
+#ifdef	__SUNOS4
+/*
+ * Define prototypes for POSIX standard functions that are missing on SunOS-4.x
+ * to make compilation smooth.
+ */
+#include <schily/sunos4_proto.h>
+
+#endif	/* __SUNOS4 */
 
 #ifdef	__cplusplus
 }

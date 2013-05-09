@@ -1,8 +1,8 @@
-/* @(#)unistd.h	1.25 12/11/13 Copyright 1996-2012 J. Schilling */
+/* @(#)unistd.h	1.26 13/04/24 Copyright 1996-2013 J. Schilling */
 /*
  *	Definitions for unix system interface
  *
- *	Copyright (c) 1996-2012 J. Schilling
+ *	Copyright (c) 1996-2013 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -28,6 +28,13 @@
  */
 #ifndef	_SCHILY_TYPES_H
 #include <schily/types.h>
+#endif
+
+/*
+ * inttypes.h grants things like Intptr_t to be typedef'd.
+ */
+#ifndef	_SCHILY_INTTYPES_H
+#include <schily/inttypes.h>
 #endif
 
 #ifdef	HAVE_UNISTD_H

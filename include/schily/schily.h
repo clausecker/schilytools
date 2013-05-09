@@ -1,4 +1,4 @@
-/* @(#)schily.h	1.106 12/04/15 Copyright 1985-2012 J. Schilling */
+/* @(#)schily.h	1.108 13/05/01 Copyright 1985-2013 J. Schilling */
 /*
  *	Definitions for libschily
  *
@@ -18,7 +18,7 @@
  *	include ctype.h past schily/schily.h as OpenBSD does not follow POSIX
  *	and defines EOF in ctype.h
  *
- *	Copyright (c) 1985-2012 J. Schilling
+ *	Copyright (c) 1985-2013 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -50,12 +50,12 @@
 extern "C" {
 #endif
 
-#if	defined(_INCL_SYS_TYPES_H) || defined(_INCL_TYPES_) || defined(off_t)
+#if	defined(_INCL_SYS_TYPES_H) || defined(_INCL_TYPES_H) || defined(off_t)
 #	ifndef	FOUND_OFF_T
 #	define	FOUND_OFF_T
 #	endif
 #endif
-#if	defined(_INCL_SYS_TYPES_H) || defined(_INCL_TYPES_) || defined(size_t)
+#if	defined(_INCL_SYS_TYPES_H) || defined(_INCL_TYPES_H) || defined(size_t)
 #	ifndef	FOUND_SIZE_T
 #	define	FOUND_SIZE_T
 #	endif
@@ -409,17 +409,6 @@ extern	void	setfp __PR((void * const *));
 extern	int	wait_chld __PR((int));		/* for fspawnv_nowait() */
 extern	int	geterrno __PR((void));
 extern	void	raisecond __PR((const char *, long));
-#ifdef	FOUND_SIZE_T
-/*
- * We currently cannot define this here because there IXIX has a definition
- * than violates the standard.
- */
-#ifndef	HAVE_SNPRINTF
-/*PRINTFLIKE3*/
-extern	int	snprintf __PR((char *, size_t, const char *, ...))
-					__printflike__(3, 4);
-#endif
-#endif
 #ifdef	__never__
 /*
  * sprintf() may be declared incorrectly somewhere else

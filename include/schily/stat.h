@@ -1,4 +1,4 @@
-/* @(#)stat.h	1.17 13/02/12 Copyright 1998-2013 J. Schilling */
+/* @(#)stat.h	1.18 13/03/19 Copyright 1998-2013 J. Schilling */
 /*
  *	Definitions for stat() file mode
  *
@@ -284,19 +284,25 @@
  */
 #if	defined(HAVE_ST_ATIMENSEC)
 
+/*
+ * Found e.g. on NetBSD and OpenBSD.
+ */
 #define	stat_ansecs(s)		((s)->st_atimensec)
 #define	stat_mnsecs(s)		((s)->st_mtimensec)
 #define	stat_cnsecs(s)		((s)->st_ctimensec)
 
 #define	stat_set_ansecs(s, n)	((s)->st_atimensec = n)
 #define	stat_set_mnsecs(s, n)	((s)->st_mtimensec = n)
-#define	stat_set_cnsecs(s. n)	((s)->st_ctimensec = n)
+#define	stat_set_cnsecs(s, n)	((s)->st_ctimensec = n)
 
 #define	_FOUND_STAT_NSECS_
 #endif
 
 #if	defined(HAVE_ST_ATIME_N)
 
+/*
+ * Found e.g. on AIX.
+ */
 #define	stat_ansecs(s)		((s)->st_atime_n)
 #define	stat_mnsecs(s)		((s)->st_mtime_n)
 #define	stat_cnsecs(s)		((s)->st_ctime_n)
@@ -310,6 +316,9 @@
 
 #if	defined(HAVE_ST__TIM) && !defined(_FOUND_STAT_NSECS_)
 
+/*
+ * Found e.g. on UnixWare.
+ */
 #define	stat_ansecs(s)		((s)->st_atim.st__tim.tv_nsec)
 #define	stat_mnsecs(s)		((s)->st_mtim.st__tim.tv_nsec)
 #define	stat_cnsecs(s)		((s)->st_ctim.st__tim.tv_nsec)
@@ -323,6 +332,9 @@
 
 #if	defined(HAVE_ST_NSEC) && !defined(_FOUND_STAT_NSECS_)
 
+/*
+ * Found e.g. on SunOS-5.x and IRIX.
+ */
 #define	stat_ansecs(s)		((s)->st_atim.tv_nsec)
 #define	stat_mnsecs(s)		((s)->st_mtim.tv_nsec)
 #define	stat_cnsecs(s)		((s)->st_ctim.tv_nsec)
@@ -336,6 +348,9 @@
 
 #if	defined(HAVE_ST_ATIMESPEC) && !defined(_FOUND_STAT_NSECS_)
 
+/*
+ * Found e.g. on FreeBSD and Mac OS X.
+ */
 #define	stat_ansecs(s)		((s)->st_atimespec.tv_nsec)
 #define	stat_mnsecs(s)		((s)->st_mtimespec.tv_nsec)
 #define	stat_cnsecs(s)		((s)->st_ctimespec.tv_nsec)
@@ -353,6 +368,9 @@
  */
 #if	defined(HAVE_ST_SPARE1) && !defined(_FOUND_STAT_NSECS_)
 
+/*
+ * Found e.g. on SunOS-4.x and HP-UX.
+ */
 #define	stat_ansecs(s)		((s)->st_spare1 * 1000)
 #define	stat_mnsecs(s)		((s)->st_spare2 * 1000)
 #define	stat_cnsecs(s)		((s)->st_spare3 * 1000)

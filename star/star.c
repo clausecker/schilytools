@@ -1,8 +1,8 @@
-/* @(#)star.c	1.339 13/01/09 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2013 J. Schilling */
+/* @(#)star.c	1.340 13/04/16 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2013 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)star.c	1.339 13/01/09 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2013 J. Schilling";
+	"@(#)star.c	1.340 13/04/16 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2013 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1985, 88-90, 92-96, 98, 99, 2000-2013 J. Schilling
@@ -1066,7 +1066,7 @@ usage(ret)
 	error("\t-l\t\tdo not print a message if not all links are dumped\n");
 	error("\t-h,-L\t\tfollow symbolic links as if they were files\n");
 	error("\t-pax-L\t\tfollow symbolic links as if they were files (PAX style)\n");
-	error("\t-pax-H\t\tfollow cmdline symbolic links as if they were files (PAX style)\n");
+	error("\t-pax-H\t\tfollow symbolic links from cmdline as if they were files (PAX style)\n");
 	error("\t-D\t\tdo not descend directories\n");
 	error("\t-M,-xdev\tdo not descend mounting points\n");
 	error("\t-w\t\tdo interactive creation/extraction/renaming\n");
@@ -1124,7 +1124,7 @@ xusage(ret)
 	error("\t-no-xheader\tdo not read or write extended headers regardless of format\n");
 	error("\t-meta\t\tuse inode metadata only (omit file content)\n");
 	error("\t-xmeta\t\textract meta files\n");
-	error("\t-dupmeta\tuse inode metadata in dump mode if only ctime is newer\n");
+	error("\t-dumpmeta\tuse inode metadata in dump mode if only ctime is newer\n");
 	error("\t-keep-old-files,-k\tkeep existing files\n");
 	error("\t-refresh-old-files\trefresh existing files, don't create new files\n");
 	error("\t-refresh\trefresh existing files, don't create new files\n");

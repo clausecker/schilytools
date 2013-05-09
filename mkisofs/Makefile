@@ -1,4 +1,4 @@
-#ident @(#)Makefile	1.43 13/02/14 
+#ident @(#)Makefile	1.45 13/04/24 
 ###########################################################################
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 2
@@ -24,10 +24,6 @@ SYMLINKS=	mkhybrid
 CPPOPTS +=	-DUSE_FIND
 #CPPOPTS +=	-DADD_FILES
 CPPOPTS +=	-DUSE_LARGEFILES
-#
-# Comment out if you do not like to ignore deep directories
-# when Rock Ridge is not in use
-CPPOPTS +=	-DABORT_DEEP_ISO_ONLY
 CPPOPTS +=	-DAPPLE_HFS_HYB
 CPPOPTS +=	-DAPPLE_HYB
 CPPOPTS +=	-DUDF
@@ -56,10 +52,13 @@ HFILES=		apple.h bootinfo.h defaults.h diskmbr.h \
 		mkisofs.h sunlabel.h udf.h udf_fs.h vms.h \
 		ifo_read.h dvd_file.h dvd_reader.h bswap.h ifo_types.h
 
+#
+# LIB_CAP is needed for Linux capability support in librscg.
+#
 LIBS=		-lhfs -lfile -lsiconv -lscgcmd -lrscg -lscg $(LIB_VOLMGT) -lcdrdeflt -ldeflt \
 		-lfind -lschily \
 		$(LIB_ACL_TEST) $(SCSILIB) $(LIB_SOCKET) \
-		$(LIB_ICONV) $(LIB_INTL)
+		$(LIB_ICONV) $(LIB_INTL) $(LIB_CAP)
 
 XMK_FILE=	Makefile.man hybridman.mk Makefile.doc
 

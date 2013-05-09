@@ -1,4 +1,4 @@
-/* @(#)standard.h	1.39 11/09/05 Copyright 1985-2010 J. Schilling */
+/* @(#)standard.h	1.40 13/05/01 Copyright 1985-2013 J. Schilling */
 /*
  *	standard definitions
  *
@@ -11,7 +11,7 @@
  *
  *	If you need stdio.h, you must include it before standard.h
  *
- *	Copyright (c) 1985-2010 J. Schilling
+ *	Copyright (c) 1985-2013 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -103,12 +103,12 @@ typedef int BOOL;
 #	endif
 #endif
 
-#if	defined(_INCL_SYS_TYPES_H) || defined(_INCL_TYPES_) || defined(off_t)
+#if	defined(_INCL_SYS_TYPES_H) || defined(_INCL_TYPES_H) || defined(off_t)
 #	ifndef	FOUND_OFF_T
 #	define	FOUND_OFF_T
 #	endif
 #endif
-#if	defined(_INCL_SYS_TYPES_H) || defined(_INCL_TYPES_) || defined(size_t)
+#if	defined(_INCL_SYS_TYPES_H) || defined(_INCL_TYPES_H) || defined(size_t)
 #	ifndef	FOUND_SIZE_T
 #	define	FOUND_SIZE_T
 #	endif

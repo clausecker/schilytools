@@ -35,9 +35,9 @@
 #endif
 
 /*
- * This file contains modifications Copyright 2008-2012 J. Schilling
+ * This file contains modifications Copyright 2008-2013 J. Schilling
  *
- * @(#)defs.h	1.45 12/06/10 2008-2012 J. Schilling
+ * @(#)defs.h	1.47 13/05/01 2008-2013 J. Schilling
  */
 
 #ifdef	__cplusplus
@@ -175,9 +175,6 @@ extern "C" {
 #include	<schily/time.h>
 #include	<schily/string.h>
 #undef	index
-#define	eaccess	__no_eaccess__
-#include	<schily/libport.h>
-#undef	eaccess
 
 /* locale support */
 #include	"ctype.h"
@@ -1070,6 +1067,7 @@ unsigned char *readw	__PR((wchar_t));
 #define	getsid	getpgid
 #endif
 
+#ifdef	SCHILY_BUILD
 
 #if !defined(HAVE_MEMSET) && !defined(memset)
 #define	memset(s, c, n)		fillbytes(s, n, c)
@@ -1083,6 +1081,32 @@ unsigned char *readw	__PR((wchar_t));
 #if !defined(HAVE_MEMMOVE) && !defined(memmove)
 #define	memmove(s1, s2, n)	movebytes(s2, s1, c)
 #endif
+
+/*
+ * <schily/libport.h> is needed for various stuff that may be missing on the
+ * current platform and that is implemented in libschily for portability.
+ * If we are missing memset(), memchr(), memcpy() or memmove(), we use the
+ * *bytes() functions from libschily that have prototypes in <schily/schily.h>.
+ * There are several historic name conflicts in libschily and the Bourne Shell
+ * that we need to take care of.
+ */
+#define	BOOL	JS_BOOL			/* Bourne Shell uses other BOOL size */
+#undef	peekc				/* First remove AIX cludge	*/
+#define	peekc	js_peekc		/* The Bourne Shell has int peekc */
+#define	error	js_error		/* Bourne Shell has own error()	*/
+#define	flush	js_flush		/* Bourne Shell has own flush()	*/ 
+#define	getperm	js_getperm		/* Bourne Shell modified getperm() */
+#define	eaccess	__no_eaccess__		/* libgen.h / -lgen contain eaccess() */
+#include	<schily/schily.h>	/* Includes <schily/libport.h>	*/
+#undef	eaccess				/* No longer needed		*/
+#undef	BOOL				/* Back to BOOL from Bourne Shell */
+#undef	peekc				/* Remove schily/schily.h cludge */
+#define	peekc	peekc_			/* AIX has a hidden peekc() in libc */
+#undef	error				/* Reestablish Bourne Shell error() */
+#undef	flush				/* Reestablish Bourne Shell flush() */
+#undef	getperm				/* Reestablish Bourne Shell getperm() */
+
+#endif	/* SCHILY_BUILD */
 
 #ifdef	__cplusplus
 }

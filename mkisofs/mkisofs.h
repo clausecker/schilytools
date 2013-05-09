@@ -1,4 +1,4 @@
-/* @(#)mkisofs.h	1.147 13/02/12 joerg */
+/* @(#)mkisofs.h	1.148 13/04/25 joerg */
 /*
  * Header file mkisofs.h - assorted structure definitions and typecasts.
  *
@@ -26,6 +26,8 @@
 
 #include <schily/mconfig.h>	/* Must be before stdio.h for LARGEFILE support */
 #include <schily/stdio.h>
+#include <schily/types.h>
+#include <schily/time.h>
 #include <schily/stat.h>
 #include <schily/stdlib.h>
 #include <schily/unistd.h>	/* Needed for for LARGEFILE support */
@@ -33,8 +35,9 @@
 #include <schily/dirent.h>
 #include <schily/utypes.h>
 #include <schily/standard.h>
-#include <schily/libport.h>
 #include <schily/nlsdefs.h>
+#include <schily/ctype.h>
+#include <schily/libport.h>	/* Define missing prototypes */
 #include "scsi.h"
 
 #ifdef	DVD_VIDEO

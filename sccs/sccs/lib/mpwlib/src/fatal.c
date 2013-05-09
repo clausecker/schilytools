@@ -25,12 +25,12 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2011 J. Schilling
+ * This file contains modifications Copyright 2006-2013 J. Schilling
  *
- * @(#)fatal.c	1.11 11/11/13 J. Schilling
+ * @(#)fatal.c	1.12 13/04/28 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)fatal.c 1.11 11/11/13 J. Schilling"
+#pragma ident "@(#)fatal.c 1.12 13/04/28 J. Schilling"
 #endif
 /*
  * @(#)fatal.c 1.8 06/12/12
@@ -259,13 +259,13 @@ check_permission_SccsDir(path)
 	char	*path;
 {
 	int  desc;
-	char dirname[MAXPATHLEN];
+	char dir_name[MAXPATHLEN];
 
-	strlcpy(dirname, sname(path), sizeof (dirname));
-	strlcat(dirname, "/.", sizeof (dirname));
-	if ((desc = open(dirname, O_RDONLY|O_BINARY)) < 0) {
+	strlcpy(dir_name, sname(path), sizeof (dir_name));
+	strlcat(dir_name, "/.", sizeof (dir_name));
+	if ((desc = open(dir_name, O_RDONLY|O_BINARY)) < 0) {
 		if (errno == EACCES) {
-			fprintf(stderr, gettext("%s: Permission denied\n"), dname(dirname));
+			fprintf(stderr, gettext("%s: Permission denied\n"), dname(dir_name));
 			++Fcnt;
 			return (0);
 		}
