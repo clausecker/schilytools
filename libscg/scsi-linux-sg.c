@@ -1,7 +1,7 @@
-/* @(#)scsi-linux-sg.c	1.95 10/05/24 Copyright 1997-2010 J. Schilling */
+/* @(#)scsi-linux-sg.c	1.96 13/05/28 Copyright 1997-2013 J. Schilling */
 #ifndef lint
 static	char __sccsid[] =
-	"@(#)scsi-linux-sg.c	1.95 10/05/24 Copyright 1997-2010 J. Schilling";
+	"@(#)scsi-linux-sg.c	1.96 13/05/28 Copyright 1997-2013 J. Schilling";
 #endif
 /*
  *	Interface for Linux generic SCSI implementation (sg).
@@ -39,7 +39,7 @@ static	char __sccsid[] =
  *	Choose your name instead of "schily" and make clear that the version
  *	string is related to a modified source.
  *
- *	Copyright (c) 1997-2010 J. Schilling
+ *	Copyright (c) 1997-2013 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -127,7 +127,7 @@ static	char __sccsid[] =
  *	Choose your name instead of "schily" and make clear that the version
  *	string is related to a modified source.
  */
-LOCAL	char	_scg_trans_version[] = "scsi-linux-sg.c-1.95";	/* The version for this transport*/
+LOCAL	char	_scg_trans_version[] = "scsi-linux-sg.c-1.96";	/* The version for this transport*/
 
 #ifndef	SCSI_IOCTL_GET_BUS_NUMBER
 #define	SCSI_IOCTL_GET_BUS_NUMBER 0x5386
@@ -1395,8 +1395,8 @@ again:
 	if (ret < 0) {
 		sp->ux_errno = geterrno();
 		/*
-		 * Check if SCSI command cound not be send at all.
-		 * Linux usually returns EINVAL for an unknoen ioctl.
+		 * Check if SCSI command could not be send at all.
+		 * Linux usually returns EINVAL for an unknown ioctl.
 		 * In case somebody from the Linux kernel team learns that the
 		 * corect errno would be ENOTTY, we check for this errno too.
 		 */

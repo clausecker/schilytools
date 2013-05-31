@@ -1,7 +1,7 @@
-/* @(#)scsi-linux-ata.c	1.15 09/09/07 Copyright 2002-2009 J. Schilling */
+/* @(#)scsi-linux-ata.c	1.16 13/05/28 Copyright 2002-2013 J. Schilling */
 #ifndef lint
 static	char ata_sccsid[] =
-	"@(#)scsi-linux-ata.c	1.15 09/09/07 Copyright 2002-2009 J. Schilling";
+	"@(#)scsi-linux-ata.c	1.16 13/05/28 Copyright 2002-2013 J. Schilling";
 #endif
 /*
  *	Interface for Linux generic SCSI implementation (sg).
@@ -18,7 +18,7 @@ static	char ata_sccsid[] =
  *	Choose your name instead of "schily" and make clear that the version
  *	string is related to a modified source.
  *
- *	Copyright (c) 2002 J. Schilling
+ *	Copyright (c) 2002-2013 J. Schilling
  *
  *	Thanks to Alexander Kern <alex.kern@gmx.de> for the idea and first
  *	code fragments for supporting the CDROM_SEND_PACKET ioctl() from
@@ -52,7 +52,7 @@ static	char ata_sccsid[] =
 
 #ifdef	USE_ATAPI
 
-LOCAL	char	_scg_atrans_version[] = "scsi-linux-ata.c-1.15";	/* The version for ATAPI transport*/
+LOCAL	char	_scg_atrans_version[] = "scsi-linux-ata.c-1.16";	/* The version for ATAPI transport*/
 
 LOCAL	char *	scgo_aversion	__PR((SCSI *scgp, int what));
 LOCAL	int	scgo_ahelp	__PR((SCSI *scgp, FILE *f));
@@ -1153,6 +1153,9 @@ again:
 		case ENXIO:
 			p = "ENXIO";
 			break;
+		case EPERM:
+			p = "EPERM";
+			break;
 		case EACCES:
 			p = "EACCES";
 			break;
@@ -1174,8 +1177,8 @@ again:
 #endif	/* DEBUG */
 	if (ret < 0) {
 		/*
-		 * Check if SCSI command cound not be send at all.
-		 * Linux usually returns EINVAL for an unknoen ioctl.
+		 * Check if SCSI command could not be send at all.
+		 * Linux usually returns EINVAL for an unknown ioctl.
 		 * In case somebody from the Linux kernel team learns that the
 		 * corect errno would be ENOTTY, we check for this errno too.
 		 */
@@ -1197,7 +1200,9 @@ again:
 			 */
 			return (-1);
 		}
-		if (sp->ux_errno == ENXIO || sp->ux_errno == EACCES) {
+		if (sp->ux_errno == ENXIO ||
+		    sp->ux_errno == EPERM ||
+		    sp->ux_errno == EACCES) {
 			return (-1);
 		}
 	} else if (ret == 0) {

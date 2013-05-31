@@ -1,8 +1,8 @@
-/* @(#)scsitransp.h	1.56 07/07/07 Copyright 1995-2007 J. Schilling */
+/* @(#)scsitransp.h	1.57 13/05/28 Copyright 1995-2013 J. Schilling */
 /*
  *	Definitions for commands that use functions from scsitransp.c
  *
- *	Copyright (c) 1995-2007 J. Schilling
+ *	Copyright (c) 1995-2013 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -99,7 +99,8 @@ struct scg_scsi {
 /*
  * Flags for struct SCSI:
  */
-#define	SCGF_PERM_EXIT	0x01	/* Exit on permission problems */
+#define	SCGF_PERM_EXIT	0x01		/* Exit on permission problems */
+#define	SCGF_PERM_PRINT	0x02		/* Print msg on permission problems */
 
 /*
  * Drive specific flags for struct SCSI:

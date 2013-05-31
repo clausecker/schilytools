@@ -1,8 +1,8 @@
-/* @(#)inputc.c	1.65 11/08/13 Copyright 1982, 1984-2011 J. Schilling */
+/* @(#)inputc.c	1.66 13/05/28 Copyright 1982, 1984-2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)inputc.c	1.65 11/08/13 Copyright 1982, 1984-2011 J. Schilling";
+	"@(#)inputc.c	1.66 13/05/28 Copyright 1982, 1984-2011 J. Schilling";
 #endif
 /*
  *	inputc.c
@@ -53,6 +53,7 @@ static	UConst char sccsid[] =
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
+#define	NO_SCHILY_STDIO_H	/* Try to avoid to #include schily/stdio.h */
 #include <schily/string.h>
 #include <schily/stdlib.h>
 #include <schily/fcntl.h>
@@ -60,6 +61,7 @@ static	UConst char sccsid[] =
 #include <schily/wchar.h>	/* wchar_t		*/
 #include <schily/wctype.h>	/* For iswprint()	*/
 #include <schily/patmatch.h>	/* Past wchar.h to enable patchwmatch() */
+#undef	NO_SCHILY_STDIO_H
 #include <schily/stdio.h>	/* Past wchar.h to allow to redefine stdin */
 #define	putch	dos_putch	/* Avoid DOS/curses putch() type clash */
 #define	ungetch	dos_ungetch	/* Avoid DOS/curses ungetch() type clash */

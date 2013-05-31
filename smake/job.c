@@ -1,8 +1,8 @@
-/* @(#)job.c	1.4 13/03/26 Copyright 1985, 87, 88, 91, 1995-2013 J. Schilling */
+/* @(#)job.c	1.5 13/05/13 Copyright 1985, 87, 88, 91, 1995-2013 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)job.c	1.4 13/03/26 Copyright 1985, 87, 88, 91, 1995-2013 J. Schilling";
+	"@(#)job.c	1.5 13/05/13 Copyright 1985, 87, 88, 91, 1995-2013 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1985, 87, 88, 91, 1995-2013 by J. Schilling
@@ -417,14 +417,6 @@ cmd_run(jobp)
 	}
 #endif	/* ! __EMX__ && ! __DJGPP__ && ! __MINGW32__ */
 
-
-#if	defined(__linux__) || defined(__linux) || \
-	defined(SHELL_IS_BASH) || defined(BIN_SHELL_IS_BASH)
-	/*
-	 * Needed to handle the Linux bash signal bug.
-	 */
-	lpid = pid;
-#endif
 	jobp->j_pid = pid;
 
 #else	/* Use system() */

@@ -34,13 +34,13 @@
 #include "defs.h"
 
 /*
- * This file contains modifications Copyright 2008-2012 J. Schilling
+ * This file contains modifications Copyright 2008-2013 J. Schilling
  *
- * @(#)fault.c	1.18 12/06/10 2008-2012 J. Schilling
+ * @(#)fault.c	1.19 13/05/14 2008-2013 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)fault.c	1.18 12/06/10 2008-2012 J. Schilling";
+	"@(#)fault.c	1.19 13/05/14 2008-2013 J. Schilling";
 #endif
 
 /*
@@ -93,7 +93,9 @@ static	UConst char sccsid[] =
 	int	intrcnt;
 
 static	void (*psig0_func) __PR((int)) = SIG_ERR;	/* previous signal handler for signal 0 */
+#if defined(HAVE_STACK_T) && defined(HAVE_SIGALTSTACK)
 static	char sigsegv_stack[SIGSTKSZ];
+#endif
 
 static int	ignoring	__PR((int i));
 static void	clrsig		__PR((int i));
@@ -367,7 +369,9 @@ void
 stdsigs()
 {
 	int	i;
+#if defined(HAVE_STACK_T) && defined(HAVE_SIGALTSTACK)
 	stack_t	ss;
+#endif
 #ifdef	SIGRTMIN
 	int rtmin = (int)SIGRTMIN;
 	int rtmax = (int)SIGRTMAX;

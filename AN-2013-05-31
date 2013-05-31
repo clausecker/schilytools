@@ -1,0 +1,89 @@
+mNew features with AN-2013-05-31:
+
+This is the first localization step for the schily source consolidation. Many
+programs now (hopefully) call gettext() for all strings that need localization.
+
+-	The next step will include dgettext() calls for the libraries and the
+	missing programs
+
+-	The following step will include the extracted strings
+
+-	The last step will include German translations and install support
+	for the resulting binary message object files.
+
+----------> Please test and report compilation problems! <---------
+
+***** NOTE: As mentioned since 2004, frontends to the tools should *****
+*****		call all programs in the "C" locale		   *****
+*****		by e.g. calling: LC_ALL=C cdrecord ....		   *****
+*****		unless these frontends support localized strings   *****
+*****		used by the cdrtools with NLS support.		   *****
+
+-	Updated README.compile:
+
+	Some typo patches from Jan Engelhardt <jengelh@inai.de>
+
+	Documented the "LINKMODE=" macro to explain how to create dynamically
+	linked bynaries.
+
+-	include/schily/archconf.h now defines __SUNOS5 for easier coding
+
+-	include/schily/priv.h now defines platform independent fine grained privileges
+
+-	include/schily/stdio.h now implements #ifndef NO_SCHILY_STDIO_H to
+	avoid including stdio.h from wchar.h
+
+-	{libshelledit!bsh}/inputc.c now defines NO_SCHILY_STDIO_H
+
+-	Fixed a bug in smake/job.c (a leftover variable "lpid" that 
+	was formerly used systems that come with bash == /bin/sh)
+
+-	Fixed a bug in the diff man page that was a result from a defective
+	troff->sgml->troff conversion done by Sun.
+
+-	Fixed a bug in the sccs man page (superflous " in some text 
+	added By Sun)
+
+-	Some files with repositioned #ifdefs to avoid unused variable definitions
+	Files: libscg/scsi-sun.c cdda2wav/sndconfig.c sh/fault.c
+
+-	Repositioned #ifdefs to avoid unused variable definitions in
+	libscg/scsi-sun.c
+
+-	libscg/scsi-linux-ata.c now aborts early if errno == EPERM. This now
+	makes it behave like libscg/scsi-linux-sg.c
+
+-	A new scg flag SCGF_PERM_PRINT tells libscg to print a more verbose error
+	in case that a SCSI comand was aborted with errno == EPERM.
+
+-	Allow cdrecord to compile without Linux libcap using "smake COPTX=-DNO_LINUX_CAPS LIB_CAP="
+
+-	Cdrecord now checks whether there are sufficient fine grained privileges.
+
+-	Cdrecord now uses the new flag SCGF_PERM_PRINT to get better warnings if the
+	permissions granted by the OS are not sufficient.
+
+-	Repositioned #ifdefs to avoid unused variable definitions in
+	cdda2wav/sndconfig.c
+
+-	Cdda2wav now checks whether there are sufficient fine grained privileges.
+
+-	Readcd now checks whether there are sufficient fine grained privileges.
+
+-	Work around a bug in sys/param.h FreeBSD-9.1, that #define's __FreeBSD_kernel__
+	instead of #define __FreeBSD_kernel__ 9 that would be needed for Debian
+	k-FreeBSD compatibility.
+	The bug affects cdda2wav/mycdrom.h
+
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.isdn.cs.tu-berlin.de, js@cs.tu-berlin.de
+	joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

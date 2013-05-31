@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)diff.1	1.4 11/09/18 Copyright 2011 J. Schilling */
+.\" @(#)diff.1	1.5 13/05/12 Copyright 2011 J. Schilling */
 .\" CDDL HEADER START
 .\"
 .\" The contents of this file are subject to the terms of the
@@ -39,7 +39,7 @@
 .\"  Standard is the referee document. The original Standard can be obtained
 .\"  online at http://www.opengroup.org/unix/online.html.
 .\"  This notice shall appear on any product containing this material.
-.TH diff 1 "2011/09/18" "SunOS 5.11" "User Commands"
+.TH diff 1 "2013/05/12" "SunOS 5.11" "User Commands"
 .SH NAME
 diff \- compare two files
 .SH SYNOPSIS
@@ -172,7 +172,7 @@ Produces a script of only \fBa\fR, \fBc\fR, and \fBd\fR commands for the editor 
 .sp
 .in +2
 .nf
-(shift; cat $*; echo a\'1,$p') | ed \(mi $1
+(shift; cat $*; echo '1,$p') | ed \(mi $1
 .fi
 .in -2
 .sp

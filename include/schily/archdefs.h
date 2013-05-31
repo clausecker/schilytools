@@ -1,4 +1,4 @@
-/* @(#)archdefs.h	1.11 13/04/24 Copyright 2006-2013 J. Schilling */
+/* @(#)archdefs.h	1.12 13/05/28 Copyright 2006-2013 J. Schilling */
 /*
  *	Processor, instruction set and OS architecture specific defines.
  *	The information is fetched from compiler predefinitions only.
@@ -150,6 +150,8 @@
  * SunOS 5 specific defines
  */
 #if	defined(__sun) && defined(__SVR4)
+
+#define	__SUNOS5
 
 #if	defined(__sparc)
 #ifdef	__GNUC__

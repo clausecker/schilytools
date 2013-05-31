@@ -1,8 +1,8 @@
-/* @(#)stdio.h	1.3 11/08/03 Copyright 2009-2011 J. Schilling */
+/* @(#)stdio.h	1.4 13/05/28 Copyright 2009-2013 J. Schilling */
 /*
  *	Abstraction from stdio.h
  *
- *	Copyright (c) 2009-2011 J. Schilling
+ *	Copyright (c) 2009-2013 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -16,6 +16,7 @@
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
+#ifndef NO_SCHILY_STDIO_H
 #ifndef _SCHILY_STDIO_H
 #define	_SCHILY_STDIO_H
 
@@ -63,3 +64,4 @@
 #endif
 
 #endif	/* _SCHILY_STDIO_H */
+#endif	/* NO_SCHILY_STDIO_H */

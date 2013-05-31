@@ -1,8 +1,8 @@
-/* @(#)cdda2wav.c	1.143 13/04/28 Copyright 1993-2004 Heiko Eissfeldt, Copyright 2004-2013 J. Schilling */
+/* @(#)cdda2wav.c	1.145 13/05/30 Copyright 1993-2004 Heiko Eissfeldt, Copyright 2004-2013 J. Schilling */
 #include "config.h"
 #ifndef lint
 static	UConst char sccsid[] =
-"@(#)cdda2wav.c	1.143 13/04/28 Copyright 1993-2004 Heiko Eissfeldt, Copyright 2004-2013 J. Schilling";
+"@(#)cdda2wav.c	1.145 13/05/30 Copyright 1993-2004 Heiko Eissfeldt, Copyright 2004-2013 J. Schilling";
 
 #endif
 #undef	DEBUG_BUFFER_ADDRESSES
@@ -172,6 +172,7 @@ LOCAL	void	prdefaults		__PR((FILE *f));
 LOCAL	void	init_globals		__PR((void));
 LOCAL	int	is_fifo			__PR((char * filename));
 LOCAL	const char *get_audiotype	__PR((void));
+LOCAL	void	priv_warn		__PR((const char *what, const char *msg));
 
 
 /*
@@ -3394,6 +3395,33 @@ Rate   Divider      Rate   Divider      Rate   Divider      Rate   Divider\n\
 	}
 }	/* End of getargs() local vars */
 
+	/*
+	 * The following scg_open() call needs more privileges, so we check for
+	 * sufficient privileges here.
+	 * The check has been introduced as some Linux distributions miss the
+	 * skills to perceive the necessity for the needed privileges. So we
+	 * warn which features are impaired by actually missing privileges.
+	 */
+	if (!priv_eff_priv(SCHILY_PRIV_FILE_DAC_READ))
+		priv_warn("file read", "You will not be able to open all needed devices.");
+#ifndef	__SUNOS5
+	/*
+	 * Due to a design bug in the Solaris USCSI ioctl, we don't need
+	 * PRIV_FILE_DAC_WRITE to send SCSI commands and most installations
+	 * pribably don't grant PRIV_FILE_DAC_WRITE. Once we need /dev/scg*,
+	 * we would need to test for PRIV_FILE_DAC_WRITE also.
+	 */
+	if (!priv_eff_priv(SCHILY_PRIV_FILE_DAC_WRITE))
+		priv_warn("file write", "You will not be able to open all needed devices.");
+#endif
+	if (!priv_eff_priv(SCHILY_PRIV_SYS_DEVICES))
+		priv_warn("device",
+		    "You may not be able to send all needed SCSI commands, this my cause various unexplainable problems.");
+	if (!priv_eff_priv(SCHILY_PRIV_PROC_PRIOCNTL))
+		priv_warn("priocntl", "You may get jitter.");
+	if (!priv_eff_priv(SCHILY_PRIV_NET_PRIVADDR))
+		priv_warn("network", "You will not be able to do remote SCSI.");
+
 #define	SETSIGHAND(PROC, SIG, SIGNAME) if (signal(SIG, PROC) == SIG_ERR) \
 	{ errmsg(_("Cannot set signal %s handler.\n"), SIGNAME); exit(SETSIG_ERROR); }
 #ifdef	SIGINT
@@ -4212,3 +4240,12 @@ Rate   Divider      Rate   Divider      Rate   Divider      Rate   Divider\n\
 
 	return (0);
 }
+
+LOCAL void
+priv_warn(what, msg)
+	const char	*what;
+	const char	*msg;
+{
+	errmsgno(EX_BAD, "Insufficient '%s' privileges. %s\n", what, msg);
+}
+

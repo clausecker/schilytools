@@ -1,8 +1,8 @@
-/* @(#)priv.c	1.1 13/04/21 Copyright 2006-2013 J. Schilling */
+/* @(#)priv.c	1.3 13/05/28 Copyright 2006-2013 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)priv.c	1.1 13/04/21 Copyright 2006-2013 J. Schilling";
+	"@(#)priv.c	1.3 13/05/28 Copyright 2006-2013 J. Schilling";
 #endif
 /*
  *	Cdrecord support functions to support fine grained privileges.
@@ -39,8 +39,16 @@ EXPORT	void	priv_off	__PR((void));
 #endif
 #if	defined(CDRECORD) || defined(READCD)
 EXPORT	void	priv_drop	__PR((void));
-EXPORT	BOOL	priv_have_priv	__PR((void));
+EXPORT	BOOL	priv_from_priv	__PR((void));
 #endif
+EXPORT	BOOL	priv_eff_priv	__PR((int pname));
+#ifdef	HAVE_SOLARIS_PPRIV
+LOCAL	BOOL	priv_eff	__PR((const char *pname));
+#endif
+#ifdef	HAVE_LINUX_CAPS
+LOCAL	BOOL	priv_eff	__PR((int pname));
+#endif
+
 #ifdef	HAVE_SOLARIS_PPRIV
 EXPORT	void	do_pfexec	__PR((int ac, char *av[], ...));
 #endif
@@ -266,7 +274,7 @@ priv_drop()
  * Return TRUE if we have privileges that are not from a suid-root operation.
  */
 EXPORT BOOL
-priv_have_priv()
+priv_from_priv()
 {
 #ifdef	HAVE_PRIV_SET
 	return (priv_ineffect(PRIV_FILE_DAC_READ) &&
@@ -294,6 +302,88 @@ priv_have_priv()
 }
 #endif	/* defined(CDRECORD) || defined(READCD) */
 
+/*
+ * An attempt to implement an abstraction layer to detect fine grained
+ * privileges. This is not implemented in an efficient way (there are multiple
+ * syscalls to fetch the privileges from the kernel) but a few milliseconds
+ * should not count.
+ */
+EXPORT BOOL
+priv_eff_priv(pname)
+	int	pname;
+{
+#if	!defined(HAVE_SETEUID) || !defined(HAVE_GETEUID)
+	return (TRUE);
+#else
+#ifdef	HAVE_SOLARIS_PPRIV
+#define	DID_PRIV
+	switch (pname) {
+
+	case SCHILY_PRIV_FILE_DAC_READ:
+		return (priv_eff(PRIV_FILE_DAC_READ));
+	case SCHILY_PRIV_FILE_DAC_WRITE:
+		return (priv_eff(PRIV_FILE_DAC_WRITE));
+	case SCHILY_PRIV_SYS_DEVICES:
+		return (priv_eff(PRIV_SYS_DEVICES));
+	case SCHILY_PRIV_PROC_LOCK_MEMORY:
+		return (priv_eff(PRIV_PROC_LOCK_MEMORY));
+	case SCHILY_PRIV_PROC_PRIOCNTL:
+		return (priv_eff(PRIV_PROC_PRIOCNTL));
+	case SCHILY_PRIV_NET_PRIVADDR:
+		return (priv_eff(PRIV_NET_PRIVADDR));
+	}
+#endif
+#ifdef	HAVE_LINUX_CAPS
+#define	DID_PRIV
+	switch (pname) {
+
+	case SCHILY_PRIV_FILE_DAC_READ:
+		return (priv_eff(CAP_DAC_READ_SEARCH) || priv_eff(CAP_DAC_OVERRIDE));
+	case SCHILY_PRIV_FILE_DAC_WRITE:
+		return (priv_eff(CAP_DAC_OVERRIDE));
+	case SCHILY_PRIV_SYS_DEVICES:
+		return (priv_eff(CAP_SYS_RAWIO) && priv_eff(CAP_SYS_ADMIN));
+	case SCHILY_PRIV_PROC_LOCK_MEMORY:
+		return (priv_eff(CAP_IPC_LOCK) && priv_eff(CAP_SYS_RESOURCE));
+	case SCHILY_PRIV_PROC_PRIOCNTL:
+		return (priv_eff(CAP_SYS_NICE));
+	case SCHILY_PRIV_NET_PRIVADDR:
+		return (priv_eff(CAP_NET_BIND_SERVICE));
+	}
+#endif
+
+#ifndef	DID_PRIV
+	if (geteuid() == 0)
+		return (TRUE);
+#endif
+	return (FALSE);
+#endif
+}
+
+#ifdef	HAVE_SOLARIS_PPRIV
+LOCAL BOOL
+priv_eff(pname)
+	const char	*pname;
+{
+	return (priv_ineffect(pname));
+}
+#endif
+
+#ifdef	HAVE_LINUX_CAPS
+LOCAL BOOL
+priv_eff(pname)
+	int		pname;
+{
+	cap_t			cset;
+	cap_flag_value_t	val = CAP_CLEAR;
+
+	cset = cap_get_proc();
+	cap_get_flag(cset, pname, CAP_EFFECTIVE, &val);
+	if (val == CAP_CLEAR)
+		return (FALSE);
+	return (TRUE);
+}
+#endif
 
 #ifdef	HAVE_SOLARIS_PPRIV
 #include <schily/varargs.h>

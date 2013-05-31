@@ -1,7 +1,7 @@
-/* @(#)scsitransp.c	1.98 09/09/07 Copyright 1988,1995,2000-2009 J. Schilling */
+/* @(#)scsitransp.c	1.99 13/05/28 Copyright 1988,1995,2000-2013 J. Schilling */
 /*#ifndef lint*/
 static	char sccsid[] =
-	"@(#)scsitransp.c	1.98 09/09/07 Copyright 1988,1995,2000-2009 J. Schilling";
+	"@(#)scsitransp.c	1.99 13/05/28 Copyright 1988,1995,2000-2013 J. Schilling";
 /*#endif*/
 /*
  *	SCSI user level command transport routines (generic part).
@@ -12,7 +12,7 @@ static	char sccsid[] =
  *	Choose your name instead of "schily" and make clear that the version
  *	string is related to a modified source.
  *
- *	Copyright (c) 1988,1995,2000-2009 J. Schilling
+ *	Copyright (c) 1988,1995,2000-2013 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -415,17 +415,6 @@ scg_cmd(scgp)
 	scgp->running = FALSE;
 	__scg_times(scgp);
 	if (ret < 0) {
-		/*
-		 * Old /dev/scg versions will not allow to access targets > 7.
-		 * Include a workaround to make this non fatal.
-		 */
-		if (scg_target(scgp) < 8 || geterrno() != EINVAL) {
-			int	err = geterrno();
-
-			errmsgno(err, "Cannot send SCSI cmd via ioctl.\n");
-			if (scgp->flags & SCGF_PERM_EXIT)
-				comexit(err);
-		}
 		if (scmd->ux_errno == 0)
 			scmd->ux_errno = geterrno();
 		if (scmd->error == SCG_NO_ERROR)
@@ -433,6 +422,36 @@ scg_cmd(scgp)
 		if (scgp->debug > 0) {
 			errmsg("ret < 0 errno: %d ux_errno: %d error: %d\n",
 					geterrno(), scmd->ux_errno, scmd->error);
+		}
+		if (scmd->ux_errno == EPERM && scgp->flags & SCGF_PERM_PRINT) {
+			char	errbuf[SCSI_ERRSTR_SIZE];
+			int	amt;
+
+			amt = scg__sprinterr(scgp, errbuf, sizeof (errbuf));
+			if (amt > 0) {
+				FILE	*f = scgp->errfile;
+
+				if (f == NULL)
+					f = stderr;
+				filewrite(f, errbuf, amt);
+				ferrmsgno(f, scmd->ux_errno,
+					"Cannot send SCSI cmd via ioctl.\n");
+				fflush(f);
+			}
+		}
+		/*
+		 * Old /dev/scg versions will not allow to access targets > 7.
+		 * Include a workaround to make this non fatal.
+		 */
+		if (scg_target(scgp) < 8 || scmd->ux_errno != EINVAL) {
+
+			if (scmd->ux_errno != EPERM ||
+			    (scgp->flags & SCGF_PERM_PRINT) == 0) {
+				errmsgno(scmd->ux_errno,
+					"Cannot send SCSI cmd via ioctl.\n");
+			}
+			if (scgp->flags & SCGF_PERM_EXIT)
+				comexit(scmd->ux_errno);
 		}
 	}
 

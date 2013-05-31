@@ -1,8 +1,8 @@
-/* @(#)sndconfig.c	1.40 12/12/02 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2012 J. Schilling */
+/* @(#)sndconfig.c	1.41 13/05/14 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2013 J. Schilling */
 #include "config.h"
 #ifndef lint
 static	UConst char sccsid[] =
-"@(#)sndconfig.c	1.40 12/12/02 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2012 J. Schilling";
+"@(#)sndconfig.c	1.41 13/05/14 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2013 J. Schilling";
 #endif
 
 /*
@@ -303,9 +303,9 @@ init_soundcard(rate, bits)
 			errmsg(_("Cannot open '%s'.\n"), snd_device);
 			global.echo = 0;
 		} else {
+#   if	defined(AUDIO_INITINFO) && defined(AUDIO_ENCODING_LINEAR)
 			audio_info_t	info;
 
-#   if	defined(AUDIO_INITINFO) && defined(AUDIO_ENCODING_LINEAR)
 			AUDIO_INITINFO(&info);
 			info.play.sample_rate = rate;
 			info.play.channels = global.channels;

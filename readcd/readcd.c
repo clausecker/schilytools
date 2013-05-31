@@ -1,8 +1,8 @@
-/* @(#)readcd.c	1.118 13/04/21 Copyright 1987, 1995-2013 J. Schilling */
+/* @(#)readcd.c	1.121 13/05/30 Copyright 1987, 1995-2013 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)readcd.c	1.118 13/04/21 Copyright 1987, 1995-2013 J. Schilling";
+	"@(#)readcd.c	1.121 13/05/30 Copyright 1987, 1995-2013 J. Schilling";
 #endif
 /*
  *	Skeleton for the use of the scg genearal SCSI - driver
@@ -227,6 +227,7 @@ LOCAL	void	qpto96		__PR((Uchar *sub, Uchar *subq, int dop));
 LOCAL	void	ovtime		__PR((SCSI *scgp));
 LOCAL	void	add_bad		__PR((long addr));
 LOCAL	void	print_bad	__PR((void));
+LOCAL	void	priv_warn	__PR((const char *what, const char *msg));
 
 struct timeval	starttime;
 struct timeval	stoptime;
@@ -447,6 +448,32 @@ main(ac, av)
 		cac--;
 		cav++;
 	}
+
+	/*
+	 * The following scg_open() call needs more privileges, so we check for
+	 * sufficient privileges here.
+	 * The check has been introduced as some Linux distributions miss the
+	 * skills to perceive the necessity for the needed privileges. So we
+	 * warn which features are impaired by actually missing privileges.
+	 */
+	if (!priv_eff_priv(SCHILY_PRIV_FILE_DAC_READ))
+		priv_warn("file read", "You will not be able to open all needed devices.");
+#ifndef	__SUNOS5
+	/*
+	 * Due to a design bug in the Solaris USCSI ioctl, we don't need
+	 * PRIV_FILE_DAC_WRITE to send SCSI commands and most installations
+	 * pribably don't grant PRIV_FILE_DAC_WRITE. Once we need /dev/scg*,
+	 * we would need to test for PRIV_FILE_DAC_WRITE also.
+	 */
+	if (!priv_eff_priv(SCHILY_PRIV_FILE_DAC_WRITE))
+		priv_warn("file write", "You will not be able to open all needed devices.");
+#endif
+	if (!priv_eff_priv(SCHILY_PRIV_SYS_DEVICES))
+		priv_warn("device",
+		    "You may not be able to send all needed SCSI commands, this my cause various unexplainable problems.");
+	if (!priv_eff_priv(SCHILY_PRIV_NET_PRIVADDR))
+		priv_warn("network", "You will not be able to do remote SCSI.");
+
 /*error("dev: '%s'\n", dev);*/
 	if (!scanbus)
 		cdr_defaults(&dev, NULL, NULL, &Sbufsize, NULL);
@@ -505,24 +532,10 @@ main(ac, av)
 	if ((Sbuf = scg_getbuf(scgp, Sbufsize)) == NULL)
 		comerr(_("Cannot get SCSI I/O buffer.\n"));
 
-#ifdef	HAVE_PRIV_SET
-	is_suid = priv_ineffect(PRIV_FILE_DAC_READ) &&
-		    !priv_ineffect(PRIV_PROC_SETID);
 	/*
-	 * Give up privs we do not need anymore.
-	 * We no longer need:
-	 *	file_dac_read,net_privaddr
-	 * We still need:
-	 *	sys_devices
+	 * Did we get our privs from suid?
 	 */
-	priv_set(PRIV_OFF, PRIV_EFFECTIVE,
-		PRIV_FILE_DAC_READ, PRIV_NET_PRIVADDR, NULL);
-	priv_set(PRIV_OFF, PRIV_PERMITTED,
-		PRIV_FILE_DAC_READ, PRIV_NET_PRIVADDR, NULL);
-	priv_set(PRIV_OFF, PRIV_INHERITABLE,
-		PRIV_FILE_DAC_READ, PRIV_NET_PRIVADDR, PRIV_SYS_DEVICES, NULL);
-#endif
-	is_suid = priv_have_priv();
+	is_suid = priv_from_priv();
 	/*
 	 * Drop privs we do not need anymore.
 	 * We no longer need:
@@ -3144,4 +3157,12 @@ print_bad()
 		error("%ld\n", badsecs[i]);
 	if (edc_corr)
 		error(_("Corrected by EDC: %d\n"), edc_OK);
+}
+
+LOCAL void
+priv_warn(what, msg)
+	const char	*what;
+	const char	*msg;
+{
+	errmsgno(EX_BAD, "Insufficient '%s' privileges. %s\n", what, msg);
 }

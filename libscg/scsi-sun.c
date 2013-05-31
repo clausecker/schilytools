@@ -1,7 +1,7 @@
-/* @(#)scsi-sun.c	1.89 08/03/27 Copyright 1988,1995,2000-2008 J. Schilling */
+/* @(#)scsi-sun.c	1.90 13/05/14 Copyright 1988,1995,2000-2013 J. Schilling */
 #ifndef lint
 static	char __sccsid[] =
-	"@(#)scsi-sun.c	1.89 08/03/27 Copyright 1988,1995,2000-2008 J. Schilling";
+	"@(#)scsi-sun.c	1.90 13/05/14 Copyright 1988,1995,2000-2013 J. Schilling";
 #endif
 /*
  *	SCSI user level command transport routines for
@@ -13,7 +13,7 @@ static	char __sccsid[] =
  *	Choose your name instead of "schily" and make clear that the version
  *	string is related to a modified source.
  *
- *	Copyright (c) 1988,1995,2000-2008 J. Schilling
+ *	Copyright (c) 1988,1995,2000-2013 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -64,10 +64,10 @@ static	char __sccsid[] =
 #	define	USE_USCSI
 #endif
 
-LOCAL	char	_scg_trans_version[] = "scg-1.89";	/* The version for /dev/scg	*/
-LOCAL	char	_scg_utrans_version[] = "uscsi-1.89";	/* The version for USCSI	*/
-
+LOCAL	char	_scg_trans_version[] = "scg-1.90";	/* The version for /dev/scg	*/
 #ifdef	USE_USCSI
+LOCAL	char	_scg_utrans_version[] = "uscsi-1.90";	/* The version for USCSI	*/
+
 LOCAL	int	scgo_uhelp	__PR((SCSI *scgp, FILE *f));
 LOCAL	int	scgo_uopen	__PR((SCSI *scgp, char *device));
 LOCAL	int	scgo_volopen	__PR((SCSI *scgp, char *devname));

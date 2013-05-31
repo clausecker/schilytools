@@ -48,19 +48,19 @@ Short overview for those who don't read manuals:
 	Do not use 'mc' to extract the tar file!
 	All mc versions before 4.0.14 cannot extract symbolic links correctly.
 
-	The versions of WinZip that support tar archives cannot be used too.
+	The versions of WinZip that support tar archives cannot be used either.
 	The reason is that they don't support symbolic links.
 	Star and Gnutar do support symbolic links even on win32 systems.
 	To support symbolic links on win32, you need to link with the
 	Cygwin32 POSIX library.
 
-	To unpack an archive use:
+	To unpack an archive, use:
 
 		gzip -d < some-arch.tar.gz | tar -xpf -
 
 	Replace 'star' by the actual archive name.
 
-	If your Platform does not support hard links or symbolic links, you
+	If your platform does not support hard links or symbolic links, you
 	first need to compile "star" and then call:
 
 		star -xpz -copy-links < some-arch.tar.gz
@@ -106,8 +106,8 @@ Finding Compilation Results:
 
 	To allow this, all binaries and results of a 'compilation' in any form
 	are placed in sub-directories. This includes automatically generated
-	include files. Results in general will be placed into
-	a directory named OBJ/<arch-name>/ in the current projects
+	include files. Results will in general be placed into
+	a directory named OBJ/<arch-name>/ in the current project's
 	leaf directory, libraries will be placed into a directory called
 	libs/<arch-name>/ that is located in the source tree root directory.
 
@@ -165,12 +165,13 @@ Using a different installation directory:
 	or
 		gmake INS_BASE=/usr/local install
 
-	If you make program doesn't propagate make macros (e.g. SunPRO make) call:
+	If your make program doesn't propagate make macros (e.g. SunPRO make),
+	call:
 
 		env INS_BASE=/usr/local make -e install
 
 	Note that INS_BASE=/usr/local needs to be specified for every operation
-	that compiles or links programs as the path is stored inside the
+	that compiles or links programs, as the path is stored inside the
 	binaries.
 
 	The location for the root specific configuratin files is controlled
@@ -183,6 +184,41 @@ Using a different installation directory:
 
 		smake clean
 		smake INS_BASE=/usr/local INS_RBASE=/usr/local
+
+
+Setting up a different Link mode:
+
+	The following link modes are available:
+
+		static		statical linking as in historical UNIX
+
+		dynamic		dynamic linking as introduced by SunOS
+				in 1987, Microsoft's DLLs, ...
+				The knowledge on how to achieve this for
+				a particular platform is hidden in the
+				makefile system.
+
+		profiled	Linking against profiled libraries.
+				Profiled libraries are prepared for the
+				use with "gprof" (introduced by BSD in the
+				late 1970s).
+
+	The makefile system sets up a default linkmode in the patform
+	related defaults file (typically in the file DEFAULTS/Defaults.<platform>)
+	in the projects root directory. This is done with the entry:
+
+		DEFLINKMODE=   <linkmode>
+
+	A different linkmode may be selected at compile/link time by e.g. calling:
+
+		smake LINKMODE=dynamic
+
+	If there are already existing binaries, call:
+
+		smake relink LINKMODE=dynamic
+
+	instead.
+
 
 Compiling in a different ELF RUNPATH:
 
@@ -199,14 +235,14 @@ Compiling in a different ELF RUNPATH:
 
 Using a different man path prefix:
 
-	Man Pages are by default installed under:
+	Manual pages are by default installed under:
 
 	$(INS_BASE)/$(MANBASE)/man
 	and MANBASE=share
 
 	If you like a different prefix for man pages, call:
 
-		smake DEFMANBASE=soething install
+		smake DEFMANBASE=something install
 
 	to install man pages into $(INS_BASE)/something/man/*
 
@@ -255,13 +291,13 @@ Setting different default directory permissions for install directories:
 
 		smake DEFINSUMASK=002 install
 
-Using a different C-compiler:
+Using a different C compiler:
 
 	If the configured default compiler is not present on the current machine,
-	the makefilesystem will try an automatic fallback to GCC. For this reason
-	in most cases you will not need to manually select a compiler.
+	the makefilesystem will try an automatic fallback to GCC. For this reason,
+	in most cases, you will not need to manually select a compiler.
 
-	The default C-compiler can be modified in the files in the
+	The default C compiler can be modified in the files in the
 	DEFAULT directory. If you want to have a different compiler
 	for one compilation, call:
 
@@ -340,14 +376,14 @@ Hints for compilation:
 		export MAKEPROG
 		exec gmake "$@"
 
-	and call 'Gmake' instead of gmake. On Linux there is no gmake, 'make'
+	and call 'Gmake' instead of gmake. On Linux, there is no gmake, 'make'
 	on Linux is really a gmake.
 
 	'Gmake' and 'Gmake.linux' are part of this distribution.
 
 	Some versions of gmake are very buggy. There are e.g. versions of gmake
 	on some architectures that will not correctly recognize the default
-	target. In this case call 'make all' or ../Gmake all'.
+	target. In this case, call 'make all' or '../Gmake all'.
 
 	Note that pseudo error messages from gmake similar to:
 
@@ -355,7 +391,7 @@ Hints for compilation:
 	../RULES/rules.cnf:58: ../incs/sparc-sunos5-cc/Inull: No such file or directory
 	../RULES/rules.cnf:59: ../incs/sparc-sunos5-cc/rules.cnf: No such file or directory
 
-	Are a result of a bug un GNU make. The make file system itself is
+	are a result of a bug in GNU make. The make file system itself is
 	correct (as you could prove by using smake).
 	If your gmake version still has this bug, send a bug report to:
 
@@ -377,8 +413,8 @@ Compiling the project using engineering defaults:
 
 	The defaults found in the directory DEFAULTS are configured to
 	give minimum warnings. This is made because many people will
-	be irritated by warning messages and because the GNU c-compiler
-	will give warnings for perfectly correct and portable c-code.
+	be irritated by warning messages and because the GNU C compiler
+	will give warnings for perfectly correct and portable C code.
 
 	If you want to port code to new platforms or do engineering
 	on the code, you should use the alternate set of defaults found
@@ -404,7 +440,7 @@ Compiling the project to allow debugging with dbx/gdb:
 	or
 		 make "COPTX=-g -O0" LDOPTX=-g
 
-	depending on the option system of your C-compiler
+	depending on the option system of your C compiler.
 
 
 Compiling the project to allow performance monitoring with gprof from BSD:
@@ -418,17 +454,17 @@ Compiling the project to allow performance monitoring with gprof from BSD:
 	or
 		make COPTX=-pg LDOPTX=-pg LINKMODE=profiled
 
-	depending on the option system of your C-compiler
+	depending on the option system of your C compiler.
 
 
-Creting Blastwave packages:
+Creating Blastwave packages:
 
 	Call:
 		.clean
 		smake -f Mcsw
 
 	You need the program "fakeroot" and will find the results
-	in packages/<arch-dir>
+	in packages/<arch-dir>.
 
 	Note that a single program source tree will allow you to create
 	packages like CSWstar but not the packages CSWschilybase and

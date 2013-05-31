@@ -1,4 +1,4 @@
-/* @(#)mycdrom.h	1.14 07/07/28 Copyright 1998,1999 Heiko Eissfeldt, Copyright 2005-2006 J. Schilling */
+/* %Z%%M%	%I% %E% Copyright 1998,1999 Heiko Eissfeldt, Copyright 2005-2013 J. Schilling */
 
 /*
  * The contents of this file are subject to the terms of the
@@ -17,8 +17,17 @@
 #else
 # if defined HAVE_SYS_CDIO_H
 #  include <sys/cdio.h>
-#  if (defined(__FreeBSD__) || defined(__FreeBSD_kernel__)) && \
-			(__FreeBSD__ >= 2 || __FreeBSD_kernel__ > 2)
+/*
+ * Work around a bug in FreeBSD-9.1
+ * FreeBSD-9.1 has an incompatible #define __FreeBSD_kernel__
+ * in sys/param.h that is in conflict with Debian k-FreeBSD.
+ */
+#  ifdef __FreeBSD__
+#  undef	__FreeBSD_kernel__
+#  define	__FreeBSD_kernel__	1
+#  endif
+#  if ((defined(__FreeBSD__) && (__FreeBSD__ >= 2)) || \
+	(defined(__FreeBSD_kernel__) && (__FreeBSD_kernel__ > 2)))
 #   include <osreldate.h>
 #  endif
 #  if defined HAVE_SYS_CDRIO_H	/* Was: if __FreeBSD_version >= 400014 */

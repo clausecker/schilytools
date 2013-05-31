@@ -1,4 +1,4 @@
-/* @(#)cdrecord.h	1.203 13/04/21 Copyright 1995-2013 J. Schilling */
+/* @(#)cdrecord.h	1.205 13/05/28 Copyright 1995-2013 J. Schilling */
 /*
  *	Definitions for cdrecord
  *
@@ -1229,8 +1229,9 @@ extern	void	priv_off	__PR((void));
 #endif
 #if	defined(CDRECORD) || defined(READCD)
 extern	void	priv_drop	__PR((void));
-extern	BOOL	priv_have_priv	__PR((void));
+extern	BOOL	priv_from_priv	__PR((void));
 #endif
+extern	BOOL	priv_eff_priv	__PR((int pname));
 #ifdef	HAVE_SOLARIS_PPRIV
 extern	void	do_pfexec	__PR((int ac, char *av[], ...));
 #endif

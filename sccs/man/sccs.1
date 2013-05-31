@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sccs.1	4.21 13/02/17 Copyright 2007-2011 J. Schilling */
+.\" @(#)sccs.1	4.23 13/05/12 Copyright 2007-2011 J. Schilling */
 .\" 
 .\" CDDL HEADER START
 .\"
@@ -20,7 +20,7 @@
 .\"
 .\" CDDL HEADER END
 .\"  Copyright (c) 2007, Sun Microsystems, Inc.  All Rights Reserved.
-.TH sccs 1 "2013/02/17" "SunOS 5.11" "User Commands"
+.TH sccs 1 "2013/05/12" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs \- front end for the Source Code Control System (SCCS)
 .SH SYNOPSIS
@@ -536,8 +536,9 @@ than merely annotating the existing commentary.
 Specify the \fBSCCS\fR delta \fBID\fR (\fBSID\fR) to which the change notation is to be added. The \fBSID\fR for a given delta is a number, in Dewey decimal format, composed of two or four fields: the \fIrelease\fR and \fIlevel\fR fields, and for branch deltas, the \fIbranch\fR and \fIsequence\fR fields.  For instance, the \fBSID\fR for the initial delta is normally \fB1.1\fR.
 
 .ne 2
-.TP
-\fB\fB-y\fR"[\fIcomment\fR]"\fR
+.HP
+.B \-y\c
+.RI [ comment ]
 .sp .6
 Specify the comment with which to annotate the delta commentary. If \fB-y\fR is omitted, \fBsccs\fR prompts for a comment. A null \fIcomment\fR results in an empty annotation.
 .RE

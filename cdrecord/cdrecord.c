@@ -1,8 +1,8 @@
-/* @(#)cdrecord.c	1.403 13/04/21 Copyright 1995-2013 J. Schilling */
+/* @(#)cdrecord.c	1.407 13/05/30 Copyright 1995-2013 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)cdrecord.c	1.403 13/04/21 Copyright 1995-2013 J. Schilling";
+	"@(#)cdrecord.c	1.407 13/05/30 Copyright 1995-2013 J. Schilling";
 #endif
 /*
  *	Record data on a CD/CVD-Recorder
@@ -257,6 +257,7 @@ LOCAL	void	print_wrmodes	__PR((cdr_t *dp));
 LOCAL	BOOL	check_wrmode	__PR((cdr_t *dp, UInt32_t wmode, int tflags));
 LOCAL	void	set_wrmode	__PR((cdr_t *dp, UInt32_t wmode, int tflags));
 LOCAL	void	linuxcheck	__PR((void));
+LOCAL	void	priv_warn	__PR((const char *what, const char *msg));
 #ifdef	TR_DEBUG
 EXPORT	void	prtrack		__PR((track_t *trackp));
 #endif
@@ -303,12 +304,15 @@ main(ac, av)
 	 * Try to gain additional privs on Solaris
 	 */
 	do_pfexec(ac, av,
-		PRIV_FILE_DAC_READ,
-		PRIV_SYS_DEVICES,
-		PRIV_PROC_LOCK_MEMORY,
-		PRIV_PROC_PRIOCNTL,
-		PRIV_NET_PRIVADDR,
+		PRIV_FILE_DAC_READ,	/* to open /dev/ nodes for USCSICMD */
+		PRIV_SYS_DEVICES,	/* to issue USCSICMD ioctl */
+		PRIV_PROC_LOCK_MEMORY,	/* to grant realtime writes to CD-R */
+		PRIV_PROC_PRIOCNTL,	/* to grant realtime writes to CD-R */
+		PRIV_NET_PRIVADDR,	/* to access remote writer via RSCSI */
 		NULL);
+	/*
+	 * Starting from here, we potentially have more privileges.
+	 */
 #endif
 	save_args(ac, av);
 	oeuid = geteuid();		/* Remember saved set uid	*/
@@ -515,6 +519,35 @@ main(ac, av)
 		exit(0);
 	}
 	/*
+	 * The following scg_open() call needs more privileges, so we check for
+	 * sufficient privileges here.
+	 * The check has been introduced as some Linux distributions miss the
+	 * skills to perceive the necessity for the needed privileges. So we
+	 * warn which features are impaired by actually missing privileges.
+	 */
+	if (!priv_eff_priv(SCHILY_PRIV_FILE_DAC_READ))
+		priv_warn("file read", "You will not be able to open all needed devices.");
+#ifndef	__SUNOS5
+	/*
+	 * Due to a design bug in the Solaris USCSI ioctl, we don't need
+	 * PRIV_FILE_DAC_WRITE to send SCSI commands and most installations
+	 * pribably don't grant PRIV_FILE_DAC_WRITE. Once we need /dev/scg*,
+	 * we would need to test for PRIV_FILE_DAC_WRITE also.
+	 */
+	if (!priv_eff_priv(SCHILY_PRIV_FILE_DAC_WRITE))
+		priv_warn("file write", "You will not be able to open all needed devices.");
+#endif
+	if (!priv_eff_priv(SCHILY_PRIV_SYS_DEVICES))
+		priv_warn("device",
+		    "You may not be able to send all needed SCSI commands, this my cause various unexplainable problems.");
+	if (!priv_eff_priv(SCHILY_PRIV_PROC_LOCK_MEMORY))
+		priv_warn("memlock", "You may get buffer underruns.");
+	if (!priv_eff_priv(SCHILY_PRIV_PROC_PRIOCNTL))
+		priv_warn("priocntl", "You may get buffer underruns.");
+	if (!priv_eff_priv(SCHILY_PRIV_NET_PRIVADDR))
+		priv_warn("network", "You will not be able to do remote SCSI.");
+
+	/*
 	 * XXX scg_open() needs root privilleges.
 	 */
 	if ((scgp = scg_open(dev, errstr, sizeof (errstr),
@@ -522,27 +555,7 @@ main(ac, av)
 			scg_openerr(errstr);
 			/* NOTREACHED */
 	}
-#ifdef	HAVE_PRIV_SET
-#ifdef	PRIVILEGES_DEBUG	/* PRIV_DEBUG is defined in <sys/priv.h> */
-	error("file_dac_read: %d\n", priv_ineffect(PRIV_FILE_DAC_READ));
-#endif
-	/*
-	 * Give up privs we do not need anymore.
-	 * We no longer need:
-	 *	file_dac_read,proc_lock_memory,proc_priocntl,net_privaddr
-	 * We still need:
-	 *	sys_devices
-	 */
-	priv_set(PRIV_OFF, PRIV_EFFECTIVE,
-		PRIV_FILE_DAC_READ, PRIV_PROC_LOCK_MEMORY,
-		PRIV_PROC_PRIOCNTL, PRIV_NET_PRIVADDR, NULL);
-	priv_set(PRIV_OFF, PRIV_PERMITTED,
-		PRIV_FILE_DAC_READ, PRIV_PROC_LOCK_MEMORY,
-		PRIV_PROC_PRIOCNTL, PRIV_NET_PRIVADDR, NULL);
-	priv_set(PRIV_OFF, PRIV_INHERITABLE,
-		PRIV_FILE_DAC_READ, PRIV_PROC_LOCK_MEMORY,
-		PRIV_PROC_PRIOCNTL, PRIV_NET_PRIVADDR, PRIV_SYS_DEVICES, NULL);
-#endif
+
 	/*
 	 * Drop privs we do not need anymore.
 	 * We no longer need:
@@ -577,6 +590,7 @@ main(ac, av)
 	 * XXX this function calls raisepri() to lower the priority slightly.
 	 */
 	scg_settimeout(scgp, timeout);
+	scgp->flags |= SCGF_PERM_PRINT;
 	scgp->verbose = scsi_verbose;
 	scgp->silent = silent;
 	scgp->debug = debug;
@@ -1174,7 +1188,7 @@ main(ac, av)
 		 * priority handling: we need to be root even to lower
 		 * our priority.
 		 * Note that we need to find a more general way that works
-		 * even on OS that do not support getreuid() which is *BSD
+		 * even on OS that do not support setreuid() which is *BSD
 		 * and SUSv3 only.
 		 */
 		if (oeuid != getuid()) {
@@ -3243,7 +3257,8 @@ opentracks(trackp)
 			tp->tracksecs += tp->padsecs;
 
 		if (debug) {
-			printf(_("File: '%s' itracksize: %lld isecsize: %d tracktype: %d = %s sectype: %X = %s dbtype: %s flags %X\n"),
+			printf(_(
+			    "File: '%s' itracksize: %lld isecsize: %d tracktype: %d = %s sectype: %X = %s dbtype: %s flags %X\n"),
 				tp->filename, (Llong)tp->itracksize,
 				tp->isecsize,
 				tp->tracktype & TOC_MASK, toc2name[tp->tracktype & TOC_MASK],
@@ -4521,7 +4536,7 @@ load_media(scgp, dp, doexit)
 	scgp->silent--;
 	err = geterrno();
 	if (code < 0 && (err == EPERM || err == EACCES)) {
-		linuxcheck();	/* For version 1.403 of cdrecord.c */
+		linuxcheck();	/* For version 1.407 of cdrecord.c */
 		scg_openerr("");
 	}
 
@@ -5416,7 +5431,7 @@ set_wrmode(dp, wmode, tflags)
 }
 
 /*
- * I am sorry that even for version 1.403 of cdrecord.c, I am forced to do
+ * I am sorry that even for version 1.407 of cdrecord.c, I am forced to do
  * things like this, but defective versions of cdrecord cause a lot of
  * work load to me.
  *
@@ -5433,7 +5448,7 @@ set_wrmode(dp, wmode, tflags)
 #endif
 
 LOCAL void
-linuxcheck()				/* For version 1.403 of cdrecord.c */
+linuxcheck()				/* For version 1.407 of cdrecord.c */
 {
 #if	defined(linux) || defined(__linux) || defined(__linux__)
 #ifdef	HAVE_UNAME
@@ -5454,6 +5469,14 @@ linuxcheck()				/* For version 1.403 of cdrecord.c */
 	}
 #endif
 #endif
+}
+
+LOCAL void
+priv_warn(what, msg)
+	const char	*what;
+	const char	*msg;
+{
+	errmsgno(EX_BAD, "Insufficient '%s' privileges. %s\n", what, msg);
 }
 
 #ifdef	TR_DEBUG
