@@ -1,4 +1,4 @@
-/* %Z%%M%	%I% %E% Copyright 1998,1999 Heiko Eissfeldt, Copyright 2005-2013 J. Schilling */
+/* @(#)mycdrom.h	1.15 13/06/01 Copyright 1998,1999 Heiko Eissfeldt, Copyright 2005-2013 J. Schilling */
 
 /*
  * The contents of this file are subject to the terms of the

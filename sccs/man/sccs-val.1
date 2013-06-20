@@ -2,13 +2,13 @@
 .\" CDDL HEADER START
 .\"
 .\" The contents of this file are subject to the terms of the
-.\" Common Development and Distribution License (the "License").  
-.\" You may not use this file except in compliance with the License.
+.\" Common Development and Distribution License ("CDDL"), version 1.0.
+.\" You may only use this file in accordance with the terms of version
+.\" 1.0 of the CDDL.
 .\"
-.\" You can obtain a copy of the license at usr/src/OPENSOLARIS.LICENSE
-.\" or http://www.opensolaris.org/os/licensing.
-.\" See the License for the specific language governing permissions
-.\" and limitations under the License.
+.\" A full copy of the text of the CDDL should have accompanied this
+.\" source.  A copy of the CDDL is also available via the Internet at
+.\" http://www.opensource.org/licenses/cddl1.txt
 .\"
 .\" When distributing Covered Code, include this CDDL HEADER in each
 .\" file and include the License file at usr/src/OPENSOLARIS.LICENSE.
@@ -18,34 +18,63 @@
 .\"
 .\" CDDL HEADER END
 .\" Copyright (c) 2002, Sun Microsystems, Inc. All Rights Reserved
-.\" Copyright 2007-2011 J. Schilling
-.TH sccs-val 1 "2011/10/12" "SunOS 5.11" "User Commands"
+.\" Copyright 2007-2013 J. Schilling
+.TH sccs-val 1 "2013/06/16" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs-val, val \- validate an SCCS file
 .SH SYNOPSIS
 .LP
 .nf
-\fB/usr/ccs/bin/val\fR \fB-\fR
+.BR /usr/ccs/bin/val " -
 .fi
 .LP
 .nf
-\fB/usr/ccs/bin/val\fR [\fB-T\fR] [\fB-s\fR] [\fB-m\fR \fIname\fR] [\fB-r\fR\fIsid\fR] [\fB-y\fR \fItype\fR] \fIs.filename\fR...
+.B /usr/ccs/bin/val \c
+.RB [ -T "] [" -s\c
+.RB "] [" "-m \c
+.I name\c
+.RB "] [" -r\c
+.I sid\c
+.RB "] [" "-y \c
+.IR type "] " s.filename ...
 .fi
 
 .SH DESCRIPTION
 .LP
-The \fBval\fR utility determines if the specified \fBs.\fRfiles meet the characteristics specified by the indicated arguments.
+The
+.B val
+utility determines if the specified
+.BR s. files
+meet the characteristics specified by the indicated arguments.
 .LP
-\fBval\fR has a special argument, `\fB\(mi\fR', which reads the standard input until the end-of-file condition is detected. Each line read is independently processed as if it were a command line argument list.
+.B val
+has a special argument,
+.RB ` \(mi ',
+which reads the standard input until the end-of-file condition is detected.
+Each line read is independently processed as if it were a command line
+argument list.
 .LP
-If a directory name is used in place of the \fIs.filename\fR command line argument,
+If a directory name is used in place of the
+.I s.filename
+command line argument,
 the
 .B val
-command applies to all \fBs.\fRfiles in that directory. Unreadable \fBs.\fRfiles produce an error; processing continues with the next file (if any).
+command applies to all
+.BR s. files
+in that directory. Unreadable
+.BR s. files
+produce an error; processing continues with the next file (if any).
 .LP
-\fBval\fR generates diagnostic messages on the standard output for each command line and file processed and also returns a single 8\(mibit code upon exit as described below.
+.B val
+generates diagnostic messages on the standard output for each command line
+and file processed and also returns a single 8\(mibit code upon exit
+as described below.
 .LP
-The 8-bit code returned by \fBval\fR is a disjunction of the possible errors, that is, it can be interpreted as a bit string where (moving from left to right) the bits set are interpreted as follows:
+The 8-bit code returned by
+.B val
+is a disjunction of the possible errors, that is, it can be interpreted
+as a bit string where (moving from left to right) the bits set are
+interpreted as follows:
 .LP
 .in +2
 .nf
@@ -60,7 +89,12 @@ bit 7 (value   1) = mismatch between %\&M% and -m argument
 .fi
 .in -2
 .LP
-\fBval\fR can process two or more files on a given command line, and in turn can process multiple command lines (when reading the standard input). In these cases, an aggregate code is returned which is the logical \fBOR\fR of the codes generated for each command line and file processed.
+.B val
+can process two or more files on a given command line, and in turn can
+process multiple command lines (when reading the standard input).
+In these cases, an aggregate code is returned which is the logical
+.B OR
+of the codes generated for each command line and file processed.
 
 .SH OPTIONS
 .LP
@@ -83,14 +117,16 @@ Compares
 .I name
 with the 
 .B "%\&M%"
-ID keyword in the \fBs.\fRfile.
+ID keyword in the
+.BR s. file.
 .br
 .ne 2
 .TP
 .BI \-r sid
 Checks to see if the indicated
 .B SID
-is ambiguous, invalid, or absent from the \fBs.\fRfile.
+is ambiguous, invalid, or absent from the
+.BR s. file.
 .br
 .ne 2
 .TP 9
@@ -139,12 +175,17 @@ version number string and exists.
 .SH ENVIRONMENT VARIABLES
 .LP
 See 
-\fBenviron\fR(5) for descriptions of the following environment variables that affect the execution of \fBval\fR: LANG, LC_ALL, LC_CTYPE, LC_MESSAGES, and NLSPATH.
+.BR environ (5)
+for descriptions of the following environment variables that affect the
+execution of
+.BR val :
+LANG, LC_ALL, LC_CTYPE, LC_MESSAGES, and NLSPATH.
 
 .SH ATTRIBUTES
 .LP
 See 
-\fBattributes\fR(5) for descriptions of the following attributes:
+.BR attributes (5)
+for descriptions of the following attributes:
 .LP
 .TS
 tab() box;
@@ -163,7 +204,7 @@ Interface StabilityStandard
 .BR sccs (1),
 .BR sccs-admin (1),
 .BR sccs-cdc (1),
-.BR sccs-comb (1)
+.BR sccs-comb (1),
 .BR sccs-delta (1),
 .BR sccs-get (1),
 .BR sccs-help (1),
@@ -178,6 +219,7 @@ Interface StabilityStandard
 .BR bdiff (1), 
 .BR diff (1), 
 .BR what (1),
+.BR changeset (4),
 .BR sccsfile (4),
 .BR attributes (5),
 .BR environ (5),
@@ -186,7 +228,7 @@ Interface StabilityStandard
 .SH DIAGNOSTICS
 
 .LP
-Use the SCCS \fBhelp\fR command for explanations (see 
-\fBsccs-help\fR(1)).
-.sp
-
+Use the SCCS
+.B help
+command for explanations (see 
+.BR sccs-help (1)).

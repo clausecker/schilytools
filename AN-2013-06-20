@@ -1,0 +1,76 @@
+mNew features with AN-2013-06-20:
+
+This is the first localization step for the schily source consolidation. Many
+programs now (hopefully) call gettext() for all strings that need localization.
+
+-	The next step will include dgettext() calls for the libraries and the
+	missing programs
+
+-	The following step will include the extracted strings
+
+-	The last step will include German translations and install support
+	for the resulting binary message object files.
+
+----------> Please test and report compilation problems! <---------
+
+***** NOTE: As mentioned since 2004, frontends to the tools should *****
+*****		call all programs in the "C" locale		   *****
+*****		by e.g. calling: LC_ALL=C cdrecord ....		   *****
+*****		unless these frontends support localized strings   *****
+*****		used by the cdrtools with NLS support.		   *****
+
+-	Cdrtools bumped to version 3.01a15
+
+-	Cdda2wav now works around a bug in sys/param.h FreeBSD-9.1, that 
+	#define's __FreeBSD_kernel__
+	instead of #define __FreeBSD_kernel__ 9 that would be needed for Debian
+	k-FreeBSD compatibility.
+	The bug affects cdda2wav/mycdrom.h
+
+-	The builtins alias/unalias in bsh now behave the same as in the 
+	Bourne Shell
+
+-	Bourne Shell man page converted to CDDL-V1.0 only
+
+-	Sccs man pages converted to CDDL-V1.0 only
+
+	The original OpenSolaris code did clearly refer to CDDL version 1.0
+	only. Sun later removed this "1.0 only" and then Oracle stopped
+	distributing OpenSolaris as OpenSource project. In order to prevent
+	harm that could happen if Oracle did publish a CDDL-1.x or CDDL-2.x,
+	we need to restrict usage to CDDL-1.0 again.
+
+-	bdiff.1 man page converted to again follow the man(5) rules.
+
+-	diff.1 man page converted to again follow the man(5) rules.
+
+-	sccs-help.1 man page converted to again follow the man(5) rules.
+
+-	sccs-val.1 man page converted to again follow the man(5) rules.
+
+-	sccsfile.4 man page converted to again follow the man(5) rules.
+
+-	what.1 man page converted to again follow the man(5) rules.
+
+-	Most man pages in sccs/man now mention changeset(4) in the SEE ALSO
+	section.
+
+-	The SCCS keyword expansion for "Mocsw" has been limited to 
+	prevent expansion of date '+%Y%m%d%H%M%S'
+
+-	Mocsw now sets link mode to -Bdirect for recent OpenCSW rules
+
+-	pkgdefs/OCSW/*/checkpkg_override modified to match current OpenCSW
+	rules.
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.isdn.cs.tu-berlin.de, js@cs.tu-berlin.de
+	joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

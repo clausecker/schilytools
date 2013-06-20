@@ -1,7 +1,7 @@
-/* @(#)alias.c	1.2 13/01/05 Copyright 1986-2013 J. Schilling */
+/* @(#)alias.c	1.3 13/06/03 Copyright 1986-2013 J. Schilling */
 #include <schily/mconfig.h>
 static	UConst char sccsid[] =
-	"@(#)alias.c	1.2 13/01/05 Copyright 1986-2013 J. Schilling";
+	"@(#)alias.c	1.3 13/06/03 Copyright 1986-2013 J. Schilling";
 /*
  *	The built-in commands "alias" and "unalias".
  *
@@ -37,18 +37,18 @@ extern int opterr, optind;
 	char	*savoptarg = optarg;
 	int	c;
 	int	ret = 1;
-	int	badflag = 0;
-	int	allflag = 0;
-	int	persist = 0;
-	int	doglobal = 0;
-	int	dolocal = 0;
-	int	pflag = 0;
-	int	doreload = 0;
-	int	doraw = 0;
+	int	badflag = 0;	/* -g/-l with {local!global}aliases disabled */
+	int	allflag = 0;	/* -a non-begin type alias (#a) */
+	int	persist = 0;	/* -e persistent (everlasing) macros */
+	int	doglobal = 0;	/* -g persistent global aliases */
+	int	dolocal = 0;	/* -l persistent local aliases */
+	int	pflag = 0;	/* -p push or list parsable */
+	int	doreload = 0;	/* -r reload from persistent definitions */
+	int	doraw = 0;	/* -R/-raw list in raw mode */
 	abidx_t	tab;
-	int	aflags = 0;
-	int	lflags = 0;
-	int	pflags = 0;
+	int	aflags = 0;	/* All (non-begin) type alias */
+	int	lflags = 0;	/* List flags */
+	int	pflags = 0;	/* List parseable flags */
 	unsigned char	*a1;
 	unsigned char	o[3];
 
@@ -118,10 +118,12 @@ err:
 	lflags = (persist?AB_PERSIST:0) |
 			(doraw?0:AB_POSIX) |
 			(pflag?AB_PARSE|AB_ALL:0);
-	if (pflag && dolocal)
-		pflags |= AB_PLOCAL;
-	else if ((flags & globalaliasflg) != 0)
-		pflags |= AB_PGLOBAL;
+	if (pflag) {
+		if (dolocal)
+			pflags |= AB_PLOCAL;
+		else if ((flags & globalaliasflg) != 0)
+			pflags |= AB_PGLOBAL;
+	}
 	if (doreload) {
 		char	*fname;
 
@@ -166,11 +168,12 @@ extern int opterr, optind;
 	char	*savoptarg = optarg;
 	int	c;
 	int	ret = 1;
-	int	badflag = 0;
-	int	allflag = 0;
-	int	doglobal = 0;
-	int	dolocal = 0;
-	int	pflag = 0;
+	int	badflag = 0;	/* -g/-l with {local!global}aliases disabled */
+	int	allflag = 0;	/* -a remove all aliases */
+	int	doglobal = 0;	/* -g persistent global aliases */
+	int	dolocal = 0;	/* -l persistent local aliases */
+	int	pflag = 0;	/* -p pop all (non-persistent) */
+
 	abidx_t	tab;
 	unsigned char	*a1;
 	unsigned char	o[3];

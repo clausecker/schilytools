@@ -1,4 +1,4 @@
-CSWsmake: bad-rpath-entry $ORIGIN/../lib opt/csw/opt/csw/bin/smake
+CSWsmake: bad-rpath-entry $ORIGIN/../lib opt/csw/bin/smake
 CSWsmake: disallowed-path opt/csw/bin
 CSWsmake: disallowed-path opt/csw/lib
 CSWsmake: disallowed-path opt/csw/share

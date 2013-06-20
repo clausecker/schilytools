@@ -1,4 +1,4 @@
-CSWved: bad-rpath-entry $ORIGIN/../lib opt/csw/opt/csw/bin/ved
+CSWved: bad-rpath-entry $ORIGIN/../lib opt/csw/bin/ved
 CSWved: disallowed-path opt/csw/bin
 CSWved: disallowed-path opt/csw/lib
 CSWved: disallowed-path opt/csw/sbin

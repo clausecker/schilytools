@@ -1,15 +1,15 @@
-CSWcdrtools: bad-rpath-entry $ORIGIN/../lib opt/csw/opt/csw/bin/cdda2wav
-CSWcdrtools: bad-rpath-entry $ORIGIN/../lib opt/csw/opt/csw/bin/cdrecord
-CSWcdrtools: bad-rpath-entry $ORIGIN/../lib opt/csw/opt/csw/bin/devdump
-CSWcdrtools: bad-rpath-entry $ORIGIN/../lib opt/csw/opt/csw/bin/isodebug
-CSWcdrtools: bad-rpath-entry $ORIGIN/../lib opt/csw/opt/csw/bin/isodump
-CSWcdrtools: bad-rpath-entry $ORIGIN/../lib opt/csw/opt/csw/bin/isoinfo
-CSWcdrtools: bad-rpath-entry $ORIGIN/../lib opt/csw/opt/csw/bin/isovfy
-CSWcdrtools: bad-rpath-entry $ORIGIN/../lib opt/csw/opt/csw/bin/mkisofs
-CSWcdrtools: bad-rpath-entry $ORIGIN/../lib opt/csw/opt/csw/bin/readcd
-CSWcdrtools: bad-rpath-entry $ORIGIN/../lib opt/csw/opt/csw/bin/scgcheck
-CSWcdrtools: bad-rpath-entry $ORIGIN/../lib opt/csw/opt/csw/bin/scgskeleton
-CSWcdrtools: bad-rpath-entry $ORIGIN/../lib opt/csw/opt/csw/sbin/rscsi
+CSWcdrtools: bad-rpath-entry $ORIGIN/../lib opt/csw/bin/cdda2wav
+CSWcdrtools: bad-rpath-entry $ORIGIN/../lib opt/csw/bin/cdrecord
+CSWcdrtools: bad-rpath-entry $ORIGIN/../lib opt/csw/bin/devdump
+CSWcdrtools: bad-rpath-entry $ORIGIN/../lib opt/csw/bin/isodebug
+CSWcdrtools: bad-rpath-entry $ORIGIN/../lib opt/csw/bin/isodump
+CSWcdrtools: bad-rpath-entry $ORIGIN/../lib opt/csw/bin/isoinfo
+CSWcdrtools: bad-rpath-entry $ORIGIN/../lib opt/csw/bin/isovfy
+CSWcdrtools: bad-rpath-entry $ORIGIN/../lib opt/csw/bin/mkisofs
+CSWcdrtools: bad-rpath-entry $ORIGIN/../lib opt/csw/bin/readcd
+CSWcdrtools: bad-rpath-entry $ORIGIN/../lib opt/csw/bin/scgcheck
+CSWcdrtools: bad-rpath-entry $ORIGIN/../lib opt/csw/bin/scgskeleton
+CSWcdrtools: bad-rpath-entry $ORIGIN/../lib opt/csw/sbin/rscsi
 CSWcdrtools: disallowed-path opt/csw/bin
 CSWcdrtools: disallowed-path opt/csw/sbin
 CSWcdrtools: disallowed-path opt/csw/share

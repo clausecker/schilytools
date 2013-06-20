@@ -1,15 +1,15 @@
 '\" te
-.\" @(#)sccsfile.4	1.25 13/02/05 Copyright 2007-2013 J. Schilling */
+.\" @(#)sccsfile.4	1.28 13/06/15 Copyright 2007-2013 J. Schilling */
 .\" CDDL HEADER START
 .\"
 .\" The contents of this file are subject to the terms of the
-.\" Common Development and Distribution License (the "License").  
-.\" You may not use this file except in compliance with the License.
+.\" Common Development and Distribution License ("CDDL"), version 1.0.
+.\" You may only use this file in accordance with the terms of version
+.\" 1.0 of the CDDL.
 .\"
-.\" You can obtain a copy of the license at usr/src/OPENSOLARIS.LICENSE
-.\" or http://www.opensolaris.org/os/licensing.
-.\" See the License for the specific language governing permissions
-.\" and limitations under the License.
+.\" A full copy of the text of the CDDL should have accompanied this
+.\" source.  A copy of the CDDL is also available via the Internet at
+.\" http://www.opensource.org/licenses/cddl1.txt
 .\"
 .\" When distributing Covered Code, include this CDDL HEADER in each
 .\" file and include the License file at usr/src/OPENSOLARIS.LICENSE.
@@ -21,14 +21,15 @@
 .\" Copyright (c) 2002, Sun Microsystems, Inc. All Rights Reserved.
 .\" Copyright 1989 AT&T
 .\"  Copyright 2007-2013 J. Schilling
-.TH sccsfile 4 "2013/02/05" "SunOS 5.11" "File Formats"
+.TH sccsfile 4 "2013/06/15" "SunOS 5.11" "File Formats"
 .SH NAME
 sccsfile \- format of an SCCS history file
 .SH DESCRIPTION
 
 .LP
-An SCCS file is an \fBASCII\fR file consisting of
-six logical parts
+An SCCS file is an
+.B ASCII
+file consisting of six logical parts
 .RB ( "SCCS v4"
 .IR checksum , " delta table" , " usernames" ,
 .IR flags , " comments" , " body" )
@@ -142,19 +143,21 @@ The checksum is the first line of an SCCS file. The form of the line is:
 .LP
 .in +2
 .nf
-^Ah\fIddddd\fR
+.RI ^Ah ddddd
 .fi
 .in -2
 
 .LP
-The value of the checksum is the low 16 bits from the signed sum of all characters,
-except those contained in the first line.
-When reading files, values computed as the unsigned sum of all characters are accepted too.
+The value of the checksum is the low 16 bits from the signed sum of all
+characters, except those contained in the first line.
+When reading files, values computed as the unsigned sum of all characters
+are accepted too.
 The
 .B ^Ah
 provides a 16 bit
 .I magic number
-of (octal) 064001 in PDP-byteorder and 000550 in Motorola-byteorder ("\e001\e150").
+of (octal) 064001 in PDP-byteorder and 000550 in Motorola-byteorder
+("\e001\e150").
 .br
 .ne 5
 .SS SCCS v6 Checksum
@@ -245,12 +248,12 @@ and removed:
 the SCCS ID
 .RB ( SID )
 of the delta, the date and
-time of creation of the delta as local time, the user-name corresponding to the
-real user ID at the time the delta was created, and the serial numbers
+time of creation of the delta as local time, the user-name corresponding to
+the real user ID at the time the delta was created, and the serial numbers
 of the delta and its predecessor, respectively. The year is either represented
-by a two digit year in the range 69..99 for 1969..1999 or 00..68 for 2000..2068
-or by a four digit year number. Year numbers before 1969 are currently not
-supported.
+by a two digit year in the range 69..99 for 1969..1999 or 00..68 for
+2000..2068 or by a four digit year number. Year numbers before 1969 are
+currently not supported.
 Older SCCS versions may not be able to understand four digit year numbers.
 .LP
 The
@@ -318,9 +321,9 @@ starts with a
 negative values start with a
 .RB ` - '.
 Positive values are east to GMT.
-The first two decimal digits represent the hour part of the GMT offset, the last
-two decimal digits represent the minute part of the GMT offset. A granularity
-less than a minute cannot be represented.
+The first two decimal digits represent the hour part of the GMT offset, the
+last two decimal digits represent the minute part of the GMT offset. A
+granularity less than a minute cannot be represented.
 .br
 .ne 5
 .LP
@@ -385,7 +388,7 @@ global meta data, where the the initial file name is recorded.
 A SID specific additional checksum.
 The value of the checksum is the low 16 bits from the unsigned
 sum of all characters in the SID specific file content as retrieved by
-.B `get -e'
+.B `get \-e'
 (without keyword expansion).
 If the file is archived UU-encoded (see 
 .B `e'
@@ -414,7 +417,9 @@ is turned into
 .SS User Names
 
 .LP
-The list of user-names and/or numerical group IDs of users who may add deltas to the file, separated by NEWLINE characters. The lines containing these login names and/or numerical group IDs are surrounded by the bracketing lines
+The list of user-names and/or numerical group IDs of users who may add deltas
+to the file, separated by NEWLINE characters. The lines containing these
+login names and/or numerical group IDs are surrounded by the bracketing lines
 .B ^Au
 and
 .BR ^AU .
@@ -426,7 +431,8 @@ An empty list allows anyone to make a delta.
 
 .LP
 Flags are keywords that are used internally (see 
-\fBsccs-admin\fR(1) for more information on their use). 
+.BR sccs-admin (1)
+for more information on their use). 
 Each flag line takes the form:
 
 .LP
@@ -446,11 +452,14 @@ The following flags are defined in order of appearance:
 .ne 3
 .TP 24
 \fB\fB^Af t\fR \fItype-of-program\fR\fR
-Defines the replacement for the \fB%\&Y%\fR ID keyword.
+Defines the replacement for the
+.B %\&Y%
+ID keyword.
 .ne 3
 .TP
 \fB\fB^Af v\fR \fIprogram-name\fR\fR
-Controls prompting for MR numbers in addition to comments. If the optional text is present, it defines an MR number validity checking program.
+Controls prompting for MR numbers in addition to comments. If the optional
+text is present, it defines an MR number validity checking program.
 .sp
 The
 .B v
@@ -487,27 +496,47 @@ extension.
 .ne 3
 .TP
 \fB\fB^Af b\fR \fR
-Indicates that the \fB-b\fR option may be used with the SCCS \fBget\fR command to create a branch in the delta tree.
+Indicates that the
+.B \-b
+option may be used with the SCCS
+.B get
+command to create a branch in the delta tree.
 .ne 3
 .TP
 \fB\fB^Af m\fR \fImodule-name\fR\fR
-Defines the first choice for the replacement text of the \fB%\&M%\fR ID keyword.
+Defines the first choice for the replacement text of the
+.B %\&M%
+ID keyword.
 .ne 3
 .TP
 \fB\fB^Af f\fR \fIfloor\fR\fR
-Defines the "floor" release, that is, the release below which no deltas may be added.
+Defines the "floor" release, that is, the release below which no deltas
+may be added.
 .ne 3
 .TP
 \fB\fB^Af c\fR \fIceiling\fR\fR
-Defines the "ceiling" release, that is, the release above which no deltas may be added.
+Defines the "ceiling" release, that is, the release above which no deltas
+may be added.
 .ne 3
 .TP
 \fB\fB^Af d\fR \fIdefault-sid\fR\fR
-The \fBd\fR flag defines the default SID to be used when none is specified on an SCCS \fBget\fR command.
+The
+.B d
+flag defines the default SID to be used when none is specified on an SCCS
+.B get
+command.
 .ne 3
 .TP
 \fB\fB^Af n\fR \fR
-The \fBn\fR flag enables the SCCS \fBdelta\fR command to insert a "null" delta (a delta that applies \fIno\fR changes) in those releases that are skipped when a delta is made in a \fInew\fR release (for example,
+The
+.B n
+flag enables the SCCS
+.B delta
+command to insert a "null" delta (a delta that applies
+.I no
+changes) in those releases that are skipped when a delta is made in a
+.I new
+release (for example,
 when delta 5.1 is made after delta 2.7, releases 3 and 4 are skipped).
 .ne 3
 .TP
@@ -517,7 +546,8 @@ Enables concurrent
 calls for editing on the same base
 .B SID
 of an SCCS file.
-This allows multiple concurrent updates to take place on the same version of the SCCS file.
+This allows multiple concurrent updates to take place on the same version
+of the SCCS file.
 .ne 3
 .TP
 \fB\fB^Af l\fR \fIlock-releases\fR\fR
@@ -525,12 +555,21 @@ Defines a list of releases that are locked against editing.
 .ne 3
 .TP
 \fB\fB^Af q\fR \fIuser-defined\fR\fR
-Defines the replacement for the \fB%\&Q%\fR ID keyword.
+Defines the replacement for the
+.B %\&Q%
+ID keyword.
 .ne 3
 .TP
 \fB\fB^Af e\fR \fB0\fR|\fB1\fR\fR
-The \fBe\fR flag indicates whether a source file is encoded or not. A \fB1\fR indicates that the file is encoded. Source files need to be encoded when they contain control characters, or when they do not end with a NEWLINE. The \fBe\fR flag
-allows files that contain binary data to be checked in.
+The
+.B e
+flag indicates whether a source file is encoded or not. A
+.B 1
+indicates that the file is encoded.
+Source files need to be encoded when they contain control characters,
+or when they do not end with a NEWLINE. The
+.B e
+flag allows files that contain binary data to be checked in.
 .ne 3
 .TP
 .BI "^Af z " application
@@ -612,8 +651,12 @@ If the flag is present but the list is empty, no keyword is expanded
 and no
 .RB `  "No id keywords" '
 message is generated.
-The value `\fB*\fP' controls the 
-expansion of the \fB%\&sccs.include.\fIfilename\fB\&%\fR keyword.
+The value
+.RB `  * '
+controls the 
+expansion of the
+.BI %\&sccs.include. filename \&%
+keyword.
 .sp
 This flag is a
 .BR \s-1SUN\s+1 / SCHILY
@@ -626,7 +669,8 @@ implementations.
 .SS SCCS v6 Flags
 .LP
 Scccs v6 flags are additional keywords that are used internally (see 
-\fBsccs-admin\fR(1) for more information on their use).
+.BR sccs-admin (1)
+for more information on their use).
 Each flag line takes the form:
 .LP
 .RS
@@ -638,7 +682,8 @@ Each flag line takes the form:
 No SCCS v6 flags are currently defined.
 .LP
 Historical SCCS implementations do not complain about SCCS v6 flags when
-reading SCCS history files and retain SCCS v6 flags when modifying history files.
+reading SCCS history files and retain SCCS v6 flags when modifying
+history files.
 This is why SCCS v6 flags may be kept unmodified when converting a SCCS v6
 history file back to a SCCS v4 history file.
 
@@ -647,7 +692,8 @@ history file back to a SCCS v4 history file.
 .SS SCCS v6 Metadata
 .LP
 Scccs v6 metadata is additional global metadata that is used internally (see 
-\fBsccs-admin\fR(1) for more information on it's use).
+.BR sccs-admin (1)
+for more information on it's use).
 Each metadata line takes the form:
 .LP
 .RS
@@ -707,7 +753,8 @@ recorded later but before the changeset file is created.
 The value for this metadata tags must not change.
 .LP
 Historical SCCS implementations do not complain about SCCS v6 metadata when
-reading SCCS history files and retain SCCS v6 metadata when modifying history files.
+reading SCCS history files and retain SCCS v6 metadata when modifying
+history files.
 This is why SCCS v6 metadata may be kept unmodified when converting a SCCS v6
 history file back to a SCCS v4 history file.
 
@@ -717,7 +764,12 @@ history file back to a SCCS v4 history file.
 .SS Comments
 
 .LP
-Arbitrary text surrounded by the bracketing lines \fB^At\fR and \fB^AT\fR. The comments section typically will contain a description of the file's purpose.
+Arbitrary text surrounded by the bracketing lines
+.B ^At
+and
+.BR ^AT .
+The comments section typically will contain a description of 
+the file's purpose.
 
 .br
 .ne 5
@@ -746,7 +798,9 @@ represented by:
 .in -2
 
 .LP
-respectively. The digit string is the serial number corresponding to the delta for the control line.
+respectively.
+The digit string is the serial number corresponding to the delta for
+the control line.
 
 .br
 .ne 5
@@ -781,7 +835,7 @@ without a need to add another quote.
 .BR sccs (1),
 .BR sccs-admin (1),
 .BR sccs-cdc (1),
-.BR sccs-comb (1)
+.BR sccs-comb (1),
 .BR sccs-delta (1),
 .BR sccs-get (1),
 .BR sccs-help (1),

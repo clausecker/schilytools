@@ -1,8 +1,8 @@
-/* @(#)abbrev.c	1.48 13/05/01 Copyright 1985-2013 J. Schilling */
+/* @(#)abbrev.c	1.49 13/06/03 Copyright 1985-2013 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)abbrev.c	1.48 13/05/01 Copyright 1985-2013 J. Schilling";
+	"@(#)abbrev.c	1.49 13/06/03 Copyright 1985-2013 J. Schilling";
 #endif
 /*
  *	Abbreviation symbol handling
@@ -1026,11 +1026,11 @@ _ab_prposix(np, f, aflags)
 	else
 		prs_buff(UC "'\n");
 #else
-	fprintf(f, "%s='", np->ab_name);
+	fprintf(f, "'%s=", np->ab_name);
 	{	char *p = np->ab_value;
 		while (*p) {
 			if (*p == '\'')
-				fprintf(f, "'\\'");
+				fprintf(f, "\\");
 			fputc(*p++, f);
 		}
 	}

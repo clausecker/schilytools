@@ -15,11 +15,3 @@ TARGET=		stdint.h
 include		$(SRCROOT)/$(RULESDIR)/rules.aux
 ###########################################################################
 
-IFDEF=	-UJOSxx
-
-XRELFILES=	stdint.h stdint.mk
-
-###########################################################################
-include		$(SRCROOT)/$(RULESDIR)/rules.rel
-###########################################################################
-MAKE_LICENSE=MKCDDL

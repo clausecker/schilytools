@@ -21,12 +21,3 @@ include		$(SRCROOT)/$(RULESDIR)/rules.cmd
 count:	$(CFILES) $(HFILES)
 	count $r1
 
-IFDEF=	-UJOS 
-
-XRELFILES=	Makefile Makefile.man mdigest.1
-
-###########################################################################
-include		$(SRCROOT)/$(RULESDIR)/rules.rel
-###########################################################################
-
-MAKE_LICENSE=MKCDDL

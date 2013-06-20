@@ -1,4 +1,4 @@
-#ident @(#)Makefile	1.7 11/12/09 
+#ident @(#)Makefile	1.8 13/06/18 
 ###########################################################################
 # Sample makefile for installing manual pages
 ###########################################################################
@@ -26,4 +26,5 @@ XMK_FILE=	adminman.mk bdiffman.mk cdcman.mk changesetman.mk \
 ###########################################################################
 include		$(SRCROOT)/$(RULESDIR)/sub.htm
 include		$(SRCROOT)/$(RULESDIR)/rules.ins
+include		$(SRCROOT)/$(RULESDIR)/rules.hlp
 ###########################################################################

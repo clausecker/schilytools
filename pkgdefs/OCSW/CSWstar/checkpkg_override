@@ -1,8 +1,8 @@
-CSWstar: bad-rpath-entry $ORIGIN/../lib opt/csw/opt/csw/bin/smt
-CSWstar: bad-rpath-entry $ORIGIN/../lib opt/csw/opt/csw/bin/star
-CSWstar: bad-rpath-entry $ORIGIN/../lib opt/csw/opt/csw/bin/star_sym
-CSWstar: bad-rpath-entry $ORIGIN/../lib opt/csw/opt/csw/bin/tartest
-CSWstar: bad-rpath-entry $ORIGIN/../lib opt/csw/opt/csw/sbin/rmt
+CSWstar: bad-rpath-entry $ORIGIN/../lib opt/csw/bin/smt
+CSWstar: bad-rpath-entry $ORIGIN/../lib opt/csw/bin/star
+CSWstar: bad-rpath-entry $ORIGIN/../lib opt/csw/bin/star_sym
+CSWstar: bad-rpath-entry $ORIGIN/../lib opt/csw/bin/tartest
+CSWstar: bad-rpath-entry $ORIGIN/../lib opt/csw/sbin/rmt
 CSWstar: disallowed-path opt/csw/bin
 CSWstar: disallowed-path opt/csw/sbin
 CSWstar: disallowed-path opt/csw/share
@@ -19,4 +19,8 @@ CSWstar: pkgmap-question-mark-perms-in-opt-csw /opt/csw/share/doc
 CSWstar: pkgmap-question-mark-perms-in-opt-csw /opt/csw/share/man
 CSWstar: pkgmap-question-mark-perms-in-opt-csw /opt/csw/share/man/man1
 CSWstar: pkgmap-question-mark-perms-in-opt-csw /opt/csw/share/man/man4
+CSWstar: surplus-dependency SUNWcsl
 CSWstar: surplus-dependency SUNWcsr
+CSWstar: dependency-on-nonexistent-package SUNWcsl
+CSWstar: dependency-on-nonexistent-package SUNWcsr
+CSWstar: soname-unused libsec.so.1 is needed by /opt/csw/bin/star but never used

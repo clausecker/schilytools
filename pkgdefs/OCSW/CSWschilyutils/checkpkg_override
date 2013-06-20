@@ -1,25 +1,25 @@
-CSWschilyutils: bad-rpath-entry $ORIGIN/../lib opt/csw/opt/csw/bin/bsh
-CSWschilyutils: bad-rpath-entry $ORIGIN/../lib opt/csw/opt/csw/bin/btcflash
-CSWschilyutils: bad-rpath-entry $ORIGIN/../lib opt/csw/opt/csw/bin/calc
-CSWschilyutils: bad-rpath-entry $ORIGIN/../lib opt/csw/opt/csw/bin/calltree
-CSWschilyutils: bad-rpath-entry $ORIGIN/../lib opt/csw/opt/csw/bin/change
-CSWschilyutils: bad-rpath-entry $ORIGIN/../lib opt/csw/opt/csw/bin/compare
-CSWschilyutils: bad-rpath-entry $ORIGIN/../lib opt/csw/opt/csw/bin/copy
-CSWschilyutils: bad-rpath-entry $ORIGIN/../lib opt/csw/opt/csw/bin/count
-CSWschilyutils: bad-rpath-entry $ORIGIN/../lib opt/csw/opt/csw/bin/hdump
-CSWschilyutils: bad-rpath-entry $ORIGIN/../lib opt/csw/opt/csw/bin/label
-CSWschilyutils: bad-rpath-entry $ORIGIN/../lib opt/csw/opt/csw/bin/lndir
-CSWschilyutils: bad-rpath-entry $ORIGIN/../lib opt/csw/opt/csw/bin/match
-CSWschilyutils: bad-rpath-entry $ORIGIN/../lib opt/csw/opt/csw/bin/p
-CSWschilyutils: bad-rpath-entry $ORIGIN/../lib opt/csw/opt/csw/bin/sdd
-CSWschilyutils: bad-rpath-entry $ORIGIN/../lib opt/csw/opt/csw/bin/sfind
-CSWschilyutils: bad-rpath-entry $ORIGIN/../lib opt/csw/opt/csw/bin/sformat
-CSWschilyutils: bad-rpath-entry $ORIGIN/../lib opt/csw/opt/csw/bin/sgrow
-CSWschilyutils: bad-rpath-entry $ORIGIN/../lib opt/csw/opt/csw/bin/sh
-CSWschilyutils: bad-rpath-entry $ORIGIN/../lib opt/csw/opt/csw/bin/termcap
-CSWschilyutils: bad-rpath-entry $ORIGIN/../lib opt/csw/opt/csw/bin/translit
-CSWschilyutils: bad-rpath-entry $ORIGIN/../lib opt/csw/opt/csw/bin/udiff
-CSWschilyutils: bad-rpath-entry $ORIGIN/../lib opt/csw/opt/csw/sbin/mountcd
+CSWschilyutils: bad-rpath-entry $ORIGIN/../lib opt/csw/bin/bsh
+CSWschilyutils: bad-rpath-entry $ORIGIN/../lib opt/csw/bin/btcflash
+CSWschilyutils: bad-rpath-entry $ORIGIN/../lib opt/csw/bin/calc
+CSWschilyutils: bad-rpath-entry $ORIGIN/../lib opt/csw/bin/calltree
+CSWschilyutils: bad-rpath-entry $ORIGIN/../lib opt/csw/bin/change
+CSWschilyutils: bad-rpath-entry $ORIGIN/../lib opt/csw/bin/compare
+CSWschilyutils: bad-rpath-entry $ORIGIN/../lib opt/csw/bin/copy
+CSWschilyutils: bad-rpath-entry $ORIGIN/../lib opt/csw/bin/count
+CSWschilyutils: bad-rpath-entry $ORIGIN/../lib opt/csw/bin/hdump
+CSWschilyutils: bad-rpath-entry $ORIGIN/../lib opt/csw/bin/label
+CSWschilyutils: bad-rpath-entry $ORIGIN/../lib opt/csw/bin/lndir
+CSWschilyutils: bad-rpath-entry $ORIGIN/../lib opt/csw/bin/match
+CSWschilyutils: bad-rpath-entry $ORIGIN/../lib opt/csw/bin/p
+CSWschilyutils: bad-rpath-entry $ORIGIN/../lib opt/csw/bin/sdd
+CSWschilyutils: bad-rpath-entry $ORIGIN/../lib opt/csw/bin/sfind
+CSWschilyutils: bad-rpath-entry $ORIGIN/../lib opt/csw/bin/sformat
+CSWschilyutils: bad-rpath-entry $ORIGIN/../lib opt/csw/bin/sgrow
+CSWschilyutils: bad-rpath-entry $ORIGIN/../lib opt/csw/bin/sh
+CSWschilyutils: bad-rpath-entry $ORIGIN/../lib opt/csw/bin/termcap
+CSWschilyutils: bad-rpath-entry $ORIGIN/../lib opt/csw/bin/translit
+CSWschilyutils: bad-rpath-entry $ORIGIN/../lib opt/csw/bin/udiff
+CSWschilyutils: bad-rpath-entry $ORIGIN/../lib opt/csw/sbin/mountcd
 CSWschilyutils: disallowed-path opt/csw/bin
 CSWschilyutils: disallowed-path opt/csw/sbin
 CSWschilyutils: disallowed-path opt/csw/share
@@ -36,3 +36,4 @@ CSWschilyutils: pkgmap-question-mark-perms-in-opt-csw /opt/csw/share/man/de/man1
 CSWschilyutils: pkgmap-question-mark-perms-in-opt-csw /opt/csw/share/man/man1
 CSWschilyutils: pkgmap-question-mark-perms-in-opt-csw /opt/csw/share/man/man3
 CSWschilyutils: pkgmap-question-mark-perms-in-opt-csw /opt/csw/share/man/man8
+CSWschilyutils: soname-unused libelf.so.1 is needed by /opt/csw/bin/sformat but never used

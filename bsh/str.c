@@ -1,11 +1,11 @@
-/* @(#)str.c	1.24 12/06/02 Copyright 1986-2012 J. Schilling */
+/* @(#)str.c	1.26 13/06/03 Copyright 1986-2013 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)str.c	1.24 12/06/02 Copyright 1986-2012 J. Schilling";
+	"@(#)str.c	1.26 13/06/03 Copyright 1986-2013 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1986-2012 J. Schilling
+ *	Copyright (c) 1986-2013 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -179,11 +179,19 @@ Options:\n\
 
 char	ualias[]	= "[name[=value]...]\n\
 Options:\n\
-	-l	Use local aliases.\n\
-	-reload	Reload aliases from file.";
+	-a	Define a non-begin alias.\n\
+	-e	List the everlasting version of the persistent alias.\n\
+	-g	Define or list persistent global aliases.\n\
+	-l	Define or list persistent local aliases.\n\
+	-p	Push alias or list in parable form.\n\
+	-reload	Reload aliases from file.\n\
+	-R/-raw	Output listing in raw format.";
 char	uunalias[]	= "[name...]\n\
 Options:\n\
-	-l	Use local aliases.";
+	-a	Remove all alias definitions.\n\
+	-g	Pop a single global alias definition.\n\
+	-l	Pop a single local alias definition.\n\
+	-p	Pop all on named alias definition.";
 char	uexpr[]		= "name = expr";
 char	ufg[]		= "[job ...]";
 char	ubrack[]	= "expr ]";

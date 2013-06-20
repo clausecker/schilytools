@@ -15,11 +15,3 @@ TARGET=		inttypes.h
 include		$(SRCROOT)/$(RULESDIR)/rules.aux
 ###########################################################################
 
-IFDEF=	-UJOSxx
-
-XRELFILES=	inttypes.h inttypes.mk
-
-###########################################################################
-include		$(SRCROOT)/$(RULESDIR)/rules.rel
-###########################################################################
-MAKE_LICENSE=MKCDDL
