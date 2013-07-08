@@ -7,7 +7,8 @@
  * with the License.
  *
  * You can obtain a copy of the license at usr/src/OPENSOLARIS.LICENSE
- * or http://www.opensolaris.org/os/licensing.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  * See the License for the specific language governing permissions
  * and limitations under the License.
  *
@@ -35,13 +36,13 @@
 #include "defs.h"
 
 /*
- * This file contains modifications Copyright 2008-2012 J. Schilling
+ * This file contains modifications Copyright 2008-2013 J. Schilling
  *
- * @(#)word.c	1.23 12/06/10 2008-2012 J. Schilling
+ * @(#)word.c	1.24 13/07/07 2008-2013 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)word.c	1.23 12/06/10 2008-2012 J. Schilling";
+	"@(#)word.c	1.24 13/07/07 2008-2013 J. Schilling";
 #endif
 
 /*
@@ -285,8 +286,8 @@ lev++;
 	 */
 	if (wdval == 0 && standin->feval == 0) { 
 			char	*val; 
-		extern	BOOL	abegin;
-			int	aflags = abegin?AB_BEGIN:0;
+		extern	int	abegin;
+			int	aflags = abegin > 0 ? AB_BEGIN:0;
 
 	        if ((val = ab_value(LOCAL_AB, (char *)wdarg->argval,
 					&seen, aflags)) == NULL)
@@ -295,6 +296,14 @@ lev++;
 
 	        if (val) {
 			struct filehdr *fb = alloc(sizeof (struct filehdr));
+
+			if (abegin > 0) {
+				size_t	len = strlen(val);
+
+				if (len > 0 &&
+				    (val[len-1] == ' ' || val[len-1] == '\t'))
+					abegin++;
+			}
 
 			if (peekn &&
 			    (peekn & 0x7fffffff) == standin->fnxt[-1]) {

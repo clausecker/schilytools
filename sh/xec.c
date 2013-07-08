@@ -2,11 +2,13 @@
  * CDDL HEADER START
  *
  * The contents of this file are subject to the terms of the
- * Common Development and Distribution License (the "License").
- * You may not use this file except in compliance with the License.
+ * Common Development and Distribution License, Version 1.0 only
+ * (the "License").  You may not use this file except in compliance
+ * with the License.
  *
  * You can obtain a copy of the license at usr/src/OPENSOLARIS.LICENSE
- * or http://www.opensolaris.org/os/licensing.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  * See the License for the specific language governing permissions
  * and limitations under the License.
  *
@@ -34,13 +36,13 @@
 #include "defs.h"
 
 /*
- * This file contains modifications Copyright 2008-2012 J. Schilling
+ * This file contains modifications Copyright 2008-2013 J. Schilling
  *
- * @(#)xec.c	1.21 12/05/12 2008-2012 J. Schilling
+ * @(#)xec.c	1.22 13/07/04 2008-2013 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)xec.c	1.21 12/05/12 2008-2012 J. Schilling";
+	"@(#)xec.c	1.22 13/07/04 2008-2013 J. Schilling";
 #endif
 
 /*
@@ -265,12 +267,11 @@ int *pf1, *pf2;
 					  == (monitorflg|jcflg));
 					if (monitor) {
 						int save_fd;
-						unsigned char *savebot;
+
 						save_fd = setb(-1);
-						savebot = stakbot;
 						prcmd(t);
+						allocjob((char *)stakbot, cwdget(), monitor);
 						(void) setb(save_fd);
-						allocjob((char *)savebot, cwdget(), monitor);
 					} else
 						allocjob("", (unsigned char *)"", 0);
 

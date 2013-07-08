@@ -2,11 +2,13 @@
  * CDDL HEADER START
  *
  * The contents of this file are subject to the terms of the
- * Common Development and Distribution License (the "License").
- * You may not use this file except in compliance with the License.
+ * Common Development and Distribution License, Version 1.0 only
+ * (the "License").  You may not use this file except in compliance
+ * with the License.
  *
  * You can obtain a copy of the license at usr/src/OPENSOLARIS.LICENSE
- * or http://www.opensolaris.org/os/licensing.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  * See the License for the specific language governing permissions
  * and limitations under the License.
  *
@@ -34,13 +36,13 @@
 #include "defs.h"
 
 /*
- * This file contains modifications Copyright 2008-2012 J. Schilling
+ * This file contains modifications Copyright 2008-2013 J. Schilling
  *
- * @(#)cmd.c	1.22 12/07/02 2008-2012 J. Schilling
+ * @(#)cmd.c	1.23 13/07/07 2008-2013 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)cmd.c	1.22 12/07/02 2008-2012 J. Schilling";
+	"@(#)cmd.c	1.23 13/07/07 2008-2013 J. Schilling";
 #endif
 
 /*
@@ -64,7 +66,7 @@ static	void	chksym		__PR((int sym));
 static	void	prsym		__PR((int sym));
 static	void	synbad		__PR((void));
 
-BOOL	abegin;
+int	abegin;
 
 /* ======== storage allocation for functions ======== */
 
@@ -200,7 +202,7 @@ term(flg)
 {
 	struct trenod *t;
 
-	abegin = TRUE;
+	abegin = 1;
 	reserv++;
 	if (flg & NLFLG)
 		skipnl();
@@ -299,7 +301,7 @@ item(flag)
 		io = inout((struct ionod *)0);
 	else
 		io = 0;
-	abegin = FALSE;
+	abegin--;
 	switch (wdval)
 	{
 	case CASYM:
@@ -465,6 +467,8 @@ item(flag)
 			}
 			else
 			{
+				int envbeg = 0;
+
 				t = (struct comnod *)getstor(sizeof (struct comnod));
 				r = (struct trenod *)t;
 
@@ -483,6 +487,16 @@ item(flag)
 					argp = wdarg;
 					if (wdset && keywd)
 					{
+						/*
+						 * Revert the effect of abegin--
+						 * at the begin of this function
+						 * in case that we are in a list
+						 * of env= definitions.
+						 */
+						if (abegin == 0) {
+							abegin++;
+							envbeg++;
+						}
 #ifdef	ARGS_RIGHT_TO_LEFT		/* old order: var2=val2 var1=val1 */
 						argp->argnxt = (struct argnod *)argset;
 						argset = (struct argnod **)argp;
@@ -494,6 +508,14 @@ item(flag)
 					}
 					else
 					{
+						/*
+						 * If we had env= definitions,
+						 * make sure to decrement abegin
+						 * To disable begin alias
+						 * expansions.
+						 */
+						if (abegin > 0 && envbeg)
+							abegin--;
 						*argtail = argp;
 						argtail = &(argp->argnxt);
 						keywd = flags & keyflg;
@@ -557,7 +579,7 @@ inout(lastio)
 	int	iof;
 	struct ionod *iop;
 	unsigned int	c;
-	BOOL	obegin = abegin;
+	int	obegin = abegin;
 
 	iof = wdnum;
 	switch (wdval)
@@ -591,7 +613,7 @@ inout(lastio)
 		return (lastio);
 	}
 
-	abegin = FALSE;
+	abegin = 0;
 	chkword();
 	abegin = obegin;
 	iop = (struct ionod *)getstor(sizeof (struct ionod));

@@ -2,11 +2,13 @@
  * CDDL HEADER START
  *
  * The contents of this file are subject to the terms of the
- * Common Development and Distribution License (the "License").
- * You may not use this file except in compliance with the License.
+ * Common Development and Distribution License, Version 1.0 only
+ * (the "License").  You may not use this file except in compliance
+ * with the License.
  *
  * You can obtain a copy of the license at usr/src/OPENSOLARIS.LICENSE
- * or http://www.opensolaris.org/os/licensing.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  * See the License for the specific language governing permissions
  * and limitations under the License.
  *
@@ -34,13 +36,13 @@
 #include "defs.h"
 
 /*
- * This file contains modifications Copyright 2008-2012 J. Schilling
+ * This file contains modifications Copyright 2008-2013 J. Schilling
  *
- * @(#)bltin.c	1.27 12/06/10 2008-2012 J. Schilling
+ * @(#)bltin.c	1.28 13/07/04 2008-2013 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)bltin.c	1.27 12/06/10 2008-2012 J. Schilling";
+	"@(#)bltin.c	1.28 13/07/04 2008-2013 J. Schilling";
 #endif
 
 /*
@@ -589,8 +591,28 @@ err:
 		if (a1)
 		{
 			/* return success only if all names are found */
-			while (*++argv)
+			while (*++argv) {
+				char *val;
+
+				if ((val = ab_value(LOCAL_AB,
+							(char *)*argv, NULL,
+							AB_BEGIN)) != NULL) {
+					prs_buff(*argv);
+					prs_buff(_gettext(" is a local alias for '"));
+					prs_buff((unsigned char *)val);
+					prs_buff((unsigned char *)"'\n");
+					continue;
+				} else if ((val = ab_value(GLOBAL_AB,
+							(char *)*argv, NULL,
+							AB_BEGIN)) != NULL) {
+					prs_buff(*argv);
+					prs_buff(_gettext(" is a global alias for '"));
+					prs_buff((unsigned char *)val);
+					prs_buff((unsigned char *)"'\n");
+					continue;
+				}
 				exitval |= what_is_path(*argv);
+			}
 		}
 		break;
 

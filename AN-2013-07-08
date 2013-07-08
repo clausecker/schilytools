@@ -1,0 +1,80 @@
+mNew features with AN-2013-07-08:
+
+This is the first localization step for the schily source consolidation. Many
+programs now (hopefully) call gettext() for all strings that need localization.
+
+-	The next step will include dgettext() calls for the libraries and the
+	missing programs
+
+-	The following step will include the extracted strings
+
+-	The last step will include German translations and install support
+	for the resulting binary message object files.
+
+----------> Please test and report compilation problems! <---------
+
+***** NOTE: As mentioned since 2004, frontends to the tools should *****
+*****		call all programs in the "C" locale		   *****
+*****		by e.g. calling: LC_ALL=C cdrecord ....		   *****
+*****		unless these frontends support localized strings   *****
+*****		used by the cdrtools with NLS support.		   *****
+
+-	ved: a bug in the swap buffer handling was fixed. The bug could
+	cause data corruption in the second file if two files are edited,
+	more then 80 KB from the beginning of the first file was deleted
+	and then a change to the second file was initiated.
+
+-	ved: executing a macro that makes use of paste buffer file name
+	expansion did result in a null byte in the resulting shell command
+	that was accepted by all shells except bash.
+
+-	Libparanoia: memset() call in i_silence_match() now uses the 
+	correct size instead of sizeof (avec).
+
+-	Libparanoia: memset() call in i_silence_match() now uses the
+	correct size instead of sizeof (avec).
+	Thanks to a hint from Andrew Dudman <ajdudman@sbcglobal.net>
+
+-	Libparanoia: Use dynamic arrays instead of alloca()/malloc() 
+	if available.
+
+-	Bourne Shell: brkincr.h removed - no longer needed sincs ehe
+	Bourne Shell was converted from sbrk() to malloc().
+
+-	Bourne Shell: allocjob() is no longer called with out of
+	context data that was freed before.
+	This was not a problem on systems with malloc() derived from
+	historic UNIX implementations nor a problem on older sbrk()
+	based Bourne Shells
+	Thanks to a hint from Steffen Daode Nurpmeso <sdaoden@gmail.com>
+	who discovere the problem on FreeBSD
+
+-	Bourne Shell: freejobs() no longer follows a linked list using
+	out of context data that was freed before.
+	This was not a problem on systems with malloc() derived from
+	historic UNIX implementations nor a problem on older sbrk()
+	based Bourne Shells
+	Thanks to a hint from Steffen Daode Nurpmeso <sdaoden@gmail.com> 
+	who discovere the problem on FreeBSD 
+
+-	Bourne Shell: The "type" builtin now knows about aliases
+
+-	Bourne Shell: make COPTX=-DNO_SIGSEGV now allows to compile
+	a shell that  does not catch SIGSEGV and thus allows to debug
+	memory problems.
+
+-	Bourne Shell: aliases now support begin alis expansion for the
+	next word if alias expanded before ends in a space character.
+
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.isdn.cs.tu-berlin.de, js@cs.tu-berlin.de
+	joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

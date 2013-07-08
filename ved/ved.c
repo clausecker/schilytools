@@ -1,13 +1,13 @@
-/* @(#)ved.c	1.77 12/04/24 Copyright 1984, 85, 86, 88, 89, 97, 2000-2012 J. Schilling */
+/* @(#)ved.c	1.78 13/06/25 Copyright 1984, 85, 86, 88, 89, 97, 2000-2013 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)ved.c	1.77 12/04/24 Copyright 1984, 85, 86, 88, 89, 97, 2000-2012 J. Schilling";
+	"@(#)ved.c	1.78 13/06/25 Copyright 1984, 85, 86, 88, 89, 97, 2000-2013 J. Schilling";
 #endif
 /*
  *	VED Visual EDitor
  *
- *	Copyright (c) 1984, 85, 86, 88, 89, 97, 2000-2012 J. Schilling
+ *	Copyright (c) 1984, 85, 86, 88, 89, 97, 2000-2013 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -16,6 +16,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -42,7 +44,7 @@ static	UConst char sccsid[] =
 #include <schily/signal.h>
 #include <schily/sigblk.h>
 
-EXPORT	char	ved_version[] = "1.7a08";
+EXPORT	char	ved_version[] = "1.7a09";
 EXPORT	int	mflag;		/* if > 0 : take characters from macro	    */
 EXPORT	int	ReadOnly;	/* if > 0 : do not allow to write back mods */
 
@@ -158,7 +160,7 @@ main(ac, av)
 		usage(0);
 	if (prvers) {
 		printf("ved %s (%s-%s-%s)\n\n", ved_version, HOST_CPU, HOST_VENDOR, HOST_OS);
-		printf("Copyright (C) 1984, 85, 86, 88, 89, 97, 2000-2012 Jörg Schilling\n");
+		printf("Copyright (C) 1984, 85, 86, 88, 89, 97, 2000-2013 Jörg Schilling\n");
 		printf("This is free software; see the source for copying conditions.  There is NO\n");
 		printf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
 		exit(0);

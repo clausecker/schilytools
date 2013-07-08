@@ -1,14 +1,14 @@
-/* @(#)storage.c	1.52 10/12/19 Copyright 1984-2010 J. Schilling */
+/* @(#)storage.c	1.53 13/06/25 Copyright 1984-2013 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)storage.c	1.52 10/12/19 Copyright 1984-2010 J. Schilling";
+	"@(#)storage.c	1.53 13/06/25 Copyright 1984-2013 J. Schilling";
 #endif
 /*
  *	Storage management based on the paged virtual memory
  *	provided by buffer.c
  *
- *	Copyright (c) 1984-2010 J. Schilling
+ *	Copyright (c) 1984-2013 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -17,6 +17,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -116,6 +118,7 @@ insert(wp, str, size)
 		return;
 
 	movegap(wp, wp->dot);
+	readybuffer(wp, wp_gaplink(wp));	/* Make sure buffer is incore */
 
 #ifdef	FASTPOS
 	if (wp->winlink && wp->dot <= wp->winoff)
@@ -175,7 +178,7 @@ delete(wp, size)
 	if (n <= 0)
 		return;
 
-	movegap(wp, wp->dot);
+	movegap(wp, wp->dot);		/* No need to have the buffer incore */
 
 	while (n > 0) {
 		if ((next = wp_gaplink(wp)->next) == NULL)	/* Paranoia */
@@ -234,7 +237,7 @@ rubout(wp, size)
 	if (n <= 0)
 		return;
 
-	movegap(wp, wp->dot);
+	movegap(wp, wp->dot);		/* No need to have the buffer incore */
 
 	while (n > 0) {
 		if (! wp_gaplink(wp)->next)	/* Paranoia */
@@ -760,6 +763,10 @@ retractline(wp, begin, str, size)
  * If the new gap position is at the end of the buffer, we are done.
  * If not, we must split the buffer at the new gap position.
  * When we are done, the gap is at the end if the current buffer.
+ *
+ * Note that there is no grant that the new buffer at the gap is always ready
+ * and incore when movegap() returns. This is in special true if the gap is
+ * already at the right position (see first return).
  */
 LOCAL void
 movegap(wp, pos)

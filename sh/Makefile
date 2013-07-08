@@ -1,4 +1,4 @@
-#ident "@(#)Makefile	1.25 12/06/10  Copyright (c) 2006-2012 J. Schilling"
+#ident "@(#)Makefile	1.26 13/07/04  Copyright (c) 2006-2013 J. Schilling"
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -41,7 +41,7 @@ CFILES=		abbrev.c args.c bltin.c cmd.c ctype.c defs.c echo.c error.c \
 		sh_policy.c stak.c string.c test.c ulimit.c word.c xec.c \
 		signames.c gmatch.c umask.c alias.c
 
-HFILES=		abbrev.h brkincr.h ctype.h defs.h dup.h hash.h mac.h mode.h name.h \
+HFILES=		abbrev.h ctype.h defs.h dup.h hash.h mac.h mode.h name.h \
 		sh_policy.h stak.h sym.h timeout.h version.h
 
 #LIBS=		-lunos

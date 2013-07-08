@@ -1,14 +1,14 @@
-/* @(#)paranoia.c	1.42 09/07/11 J. Schilling from cdparanoia-III-alpha9.8 */
+/* @(#)paranoia.c	1.44 13/07/03 J. Schilling from cdparanoia-III-alpha9.8 */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-"@(#)paranoia.c	1.42 09/07/11 J. Schilling from cdparanoia-III-alpha9.8";
+"@(#)paranoia.c	1.44 13/07/03 J. Schilling from cdparanoia-III-alpha9.8";
 
 #endif
 /*
  * CopyPolicy: GNU Lesser General Public License v2.1 applies
  * Copyright (C) 1997-2001,2008 by Monty (xiphmont@mit.edu)
- * Copyright (C) 2002-2009 by J. Schilling
+ * Copyright (C) 2002-2013 by J. Schilling
  *
  * Toplevel file for the paranoia abstraction over the cdda lib
  *
@@ -1244,17 +1244,22 @@ i_silence_match(root, v, callback)
 		 * XXX dynarrays are not needed here.
 		 */
 		long		addto = fb(v) + MIN_SILENCE_BOUNDARY - re(root);
-/*		Int16_t		avec[addto];*/
+#ifdef	HAVE_DYN_ARRAYS
+		Int16_t		avec[addto];
+#else
 #ifdef	HAVE_ALLOCA
 		Int16_t		*avec = alloca(addto * sizeof (Int16_t));
 #else
 		Int16_t		*avec = _pmalloc(addto * sizeof (Int16_t));
 #endif
+#endif
 
-		memset(avec, 0, sizeof (avec));
+		memset(avec, 0, addto * sizeof (Int16_t));
 		c_append(rc(root), avec, addto);
+#ifndef	HAVE_DYN_ARRAYS
 #ifndef	HAVE_ALLOCA
 		_pfree(avec);
+#endif
 #endif
 	}
 

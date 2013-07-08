@@ -1,13 +1,13 @@
-/* @(#)execcmds.c	1.44 09/07/13 Copyright 1984-1986, 1995-2009 J. Schilling */
+/* @(#)execcmds.c	1.45 13/06/20 Copyright 1984-1986, 1995-2013 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)execcmds.c	1.44 09/07/13 Copyright 1984-1986, 1995-2009 J. Schilling";
+	"@(#)execcmds.c	1.45 13/06/20 Copyright 1984-1986, 1995-2013 J. Schilling";
 #endif
 /*
  *	Commands that deal with execution of shell commands from ved
  *
- *	Copyright (c) 1984-1986, 1995-2009 J. Schilling
+ *	Copyright (c) 1984-1986, 1995-2013 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -16,6 +16,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -140,9 +142,11 @@ execcmd(wp, nextc)
 		}
 		/* FALLTHROUGH */
 	default:
-		putc(c, f);
-		continue;
-
+		if (c != '\0') {
+			putc(c, f);
+			continue;
+		}
+		/* FALLTHROUGH */
 	case '\0':
 		doexec(wp, f);
 		return;

@@ -1,13 +1,13 @@
-/* @(#)buffer.c	1.30 09/07/09 Copyright 1984-2009 J. Schilling */
+/* @(#)buffer.c	1.31 13/06/25 Copyright 1984-2013 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)buffer.c	1.30 09/07/09 Copyright 1984-2009 J. Schilling";
+	"@(#)buffer.c	1.31 13/06/25 Copyright 1984-2013 J. Schilling";
 #endif
 /*
  *	Virtual storage (buffer) management.
  *
- *	Copyright (c) 1984-2009 J. Schilling
+ *	Copyright (c) 1984-2013 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -16,6 +16,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -180,7 +182,10 @@ getheader(wp)
 
 	while (--i > 0) {
 		hp = hp->next;
+		hp->buf = hp->cont = NULL;
 		hp->fpos = swapfend;
+		hp->size = 0;
+		hp->flags = 0;
 		hp->next = &hp[1];
 		swapfend += BUFFERSIZE;
 	}
@@ -209,12 +214,14 @@ getbuffer(wp)
 			raisecond("Incore buffer lost", 0);
 		}
 		if (releasebuffer(wp, linkp)) {
+			buf = linkp->buf;
+			linkp->buf = linkp->cont = NULL;
 			linkp->flags &= ~INMEMORY;
 			buf_remruhead(linkp);
 #ifdef	DEBUG
 	cdbg("getbuffer() = %p", (void *)linkp->buf);
 #endif
-			return (linkp->buf);
+			return (buf);
 		}
 	}
 	if ((buf = (Uchar *) malloc(BUFFERSIZE * sizeof (char))) == 0) {
@@ -321,7 +328,7 @@ bufreadin(wp, linkp)
 #endif
 
 /*
- * Make a header ready to use
+ * Make the buffer for a header ready to use
  * by swapping in the data from the swap file if needed.
  * Make it the most recently used one.
  */
@@ -338,7 +345,12 @@ readybuffer(wp, linkp)
 		writecons("read");
 #endif
 		linkp->cont = linkp->buf = getbuffer(wp);
-		bufswapin(wp, linkp);
+		if (linkp->flags & INVALID) {
+			linkp->flags &= ~INVALID;
+			linkp->flags |= INMEMORY;
+		} else {
+			bufswapin(wp, linkp);
+		}
 	}
 	buf_mruhead(linkp);
 }
@@ -441,6 +453,7 @@ deletebuffer(wp, linkp)
 		 */
 		if (linkp->flags & INMEMORY) {
 			free(linkp->buf);
+			linkp->buf = linkp->cont = NULL;
 			numbuffers--;
 		}
 		/*
