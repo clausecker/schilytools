@@ -2,14 +2,13 @@
  * CDDL HEADER START
  *
  * The contents of this file are subject to the terms of the
- * Common Development and Distribution License, Version 1.0 only
- * (the "License").  You may not use this file except in compliance
- * with the License.
+ * Common Development and Distribution License ("CDDL"), version 1.0.
+ * You may only use this file in accordance with the terms of version
+ * 1.0 of the CDDL.
  *
- * You can obtain a copy of the license at usr/src/OPENSOLARIS.LICENSE
- * or http://www.opensolaris.org/os/licensing.
- * See the License for the specific language governing permissions
- * and limitations under the License.
+ * A full copy of the text of the CDDL should have accompanied this
+ * source.  A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file at usr/src/OPENSOLARIS.LICENSE.
@@ -37,12 +36,12 @@
  * contributors.
  */
 /*
- * This file contains modifications Copyright 2006-2011 J. Schilling
+ * This file contains modifications Copyright 2006-2013 J. Schilling
  *
- * @(#)diff.c	1.37 11/08/13 J. Schilling
+ * @(#)diff.c	1.39 13/07/22 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)diff.c 1.37 11/08/13 J. Schilling"
+#pragma ident "@(#)diff.c 1.39 13/07/22 J. Schilling"
 #endif
 
 #if defined(sun)
@@ -1065,7 +1064,12 @@ change(a, b, c, d)
 								LC_TIME);
 			}
 			(void) cftime(time_buf, dcmsg, &stb1.st_mtime);
-			if ((p = strchr(time_buf, '.')) != NULL) {
+			/*
+			 * Be careful here: in the German locale, the string
+			 * contains "So. " for "Sonntag".
+			 */
+			if ((p = strchr(time_buf, '.')) != NULL &&
+			    p[1] == '0') {
 				long	ns = stat_mnsecs(&stb1);
 				if (ns < 0)
 					ns = 0;
@@ -1079,7 +1083,12 @@ change(a, b, c, d)
 				(void) printf("*** %s	%s\n", input_file1,
 				    time_buf);
 			(void) cftime(time_buf, dcmsg, &stb2.st_mtime);
-			if ((p = strchr(time_buf, '.')) != NULL) {
+			/*
+			 * Be careful here: in the German locale, the string
+			 * contains "So. " for "Sonntag".
+			 */
+			if ((p = strchr(time_buf, '.')) != NULL &&
+			    p[1] == '0') {
 				long	ns = stat_mnsecs(&stb2);
 				if (ns < 0)
 					ns = 0;

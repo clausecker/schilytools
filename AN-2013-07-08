@@ -63,7 +63,7 @@ programs now (hopefully) call gettext() for all strings that need localization.
 	a shell that  does not catch SIGSEGV and thus allows to debug
 	memory problems.
 
--	Bourne Shell: aliases now support begin alis expansion for the
+-	Bourne Shell: aliases now support begin alias expansion for the
 	next word if alias expanded before ends in a space character.
 
 

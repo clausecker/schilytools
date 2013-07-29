@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sh.1	1.35 13/06/06 Copyright 2012-2013 J. Schilling
+.\" @(#)sh.1	1.36 13/07/28 Copyright 2012-2013 J. Schilling
 .\" Copyright 1989 AT&T
 .\" Copyright (c) 2008, Sun Microsystems, Inc. All Rights Reserved.
 .\" Portions Copyright (c) 1992, X/Open Company Limited All Rights Reserved
@@ -47,7 +47,7 @@
 .\" information: Portions Copyright [yyyy] [name of copyright owner]
 .\"
 .\" CDDL HEADER END
-.TH sh 1 "2013/06/06" "Schily Bourne Shell" "User Commands"
+.TH sh 1 "2013/07/28" "Schily Bourne Shell" "User Commands"
 .SH NAME
 sh, jsh \- standard and job control shell and command interpreter
 .SH SYNOPSIS
@@ -2764,6 +2764,16 @@ must be one of the following:
 .B allexport
 Equivalent to
 .BR \-a .
+.TP
+.BI aliasowner= name
+Set an alternate trusted owner for the files
+.B $HOME/.globals
+and
+.BR .locals .
+By default, the shell ignores alias files if they are not
+owned by the current shell user. This option allows to set up
+an alternate file owner that is accepted. Setting the alternate
+owner to the empty string disables the feature.
 .TP
 .B errexit
 Equivalent to

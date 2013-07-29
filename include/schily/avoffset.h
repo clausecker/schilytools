@@ -1,8 +1,8 @@
-/* @(#)avoffset.h	1.10 12/12/03 Copyright 1995-2012 J. Schilling */
+/* @(#)avoffset.h	1.12 13/07/23 Copyright 1995-2013 J. Schilling */
 /*
  *	Platform dependent definitions for stack scanning.
  *
- *	Copyright (c) 1995-2012 J. Schilling
+ *	Copyright (c) 1995-2013 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -11,6 +11,8 @@
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -102,6 +104,27 @@
 #endif
 #ifdef	__HPUX_HPPA_GCC64
 #include <schily/hppa-hp-ux-gcc64/avoffset.h>
+#define	__JS_ARCH_CONF_INCL
+#endif
+
+#ifdef	__LINUX_ARMV6L_GCC32
+#include <schily/armv6l-linux-gcc/avoffset.h>
+#define	__JS_ARCH_CONF_INCL
+#endif
+#ifdef	__LINUX_ARMV5L_GCC32
+#include <schily/armv6l-linux-gcc/avoffset.h>
+#define	__JS_ARCH_CONF_INCL
+#endif
+#ifdef	__LINUX_ARMV5TEJL_GCC32
+#include <schily/armv5tejl-linux-gcc/avoffset.h>
+#define	__JS_ARCH_CONF_INCL
+#endif
+#ifdef	__LINUX_I386_GCC32
+#include <schily/i686-linux-gcc/avoffset.h>
+#define	__JS_ARCH_CONF_INCL
+#endif
+#ifdef	__LINUX_amd64_GCC64
+#include <schily/x86_64-linux-gcc/avoffsetg.h>
 #define	__JS_ARCH_CONF_INCL
 #endif
 

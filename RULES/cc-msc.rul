@@ -1,4 +1,4 @@
-#ident "@(#)cc-msc.rul	1.21 13/01/09 "
+#ident "@(#)cc-msc.rul	1.23 13/07/23 "
 ###########################################################################
 # Written 2006-2013 by J. Schilling
 ###########################################################################
@@ -14,6 +14,8 @@
 # with the License.
 #
 # See the file CDDL.Schily.txt in this distribution for details.
+# A copy of the CDDL is also available via the Internet at
+# http://www.opensource.org/licenses/cddl1.txt
 #
 # When distributing Covered Code, include this CDDL HEADER in each
 # file and include the License file CDDL.Schily.txt from this distribution.
@@ -63,10 +65,20 @@ LNDYNLIB=	@
 
 FLOAT_OPTIONS=	
 
-CC_COM=		cl.exe
-CC++_COM=	$(CC_COM)
+__CC_COM=	$(_UNIQ)$(CC)
+___CC_COM=	$(__CC_COM:$(_UNIQ)=$(CC_COM_DEF))
+CC_COM=		$(___CC_COM:$(_UNIQ)%=%)
 
-CC=		@echo "	==> COMPILING \"$@\""; $(CC_COM) -nologo
+__CC++_COM=	$(_UNIQ)$(CCC)
+___CC++_COM=	$(__CC++_COM:$(_UNIQ)=$(CC++_COM_DEF))
+CC++_COM=	$(___CC++_COM:$(_UNIQ)%=%)
+
+CC_COM_DEF=	cl.exe
+CC++_COM_DEF=	$(CC_COM_DEF)
+CC=		$(CC_COM_DEF)
+CCC=		$(CC++_COM_DEF)
+
+CCCC=		@echo "	==> COMPILING \"$@\""; $(CC_COM) -nologo
 CC++ =		@echo "	==> COMPILING \"$@\""; $(CC++_COM) -nologo
 OUTPUT_OPTION=	-Fo$(O:%=%/)$@
 CC_OUTPUT_FILTER= | tail -n +2	# Filter cl.exe filename echo

@@ -1,4 +1,4 @@
-/* @(#)archdefs.h	1.12 13/05/28 Copyright 2006-2013 J. Schilling */
+/* @(#)archdefs.h	1.14 13/07/23 Copyright 2006-2013 J. Schilling */
 /*
  *	Processor, instruction set and OS architecture specific defines.
  *	The information is fetched from compiler predefinitions only.
@@ -12,6 +12,8 @@
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -230,8 +232,33 @@
 #define	__LINUX_ARMV5TEJL_GCC32
 #define	__JS_ARCH_DEFINED
 #endif
+#ifndef	__JS_ARCH_DEFINED
+#ifdef	__ARM_ARCH_6__
+#define	__LINUX_ARMV6L_GCC32
+#define	__JS_ARCH_DEFINED
 #endif
+#endif
+#ifndef	__JS_ARCH_DEFINED
+#ifdef	__ARM_ARCH_5__
+#define	__LINUX_ARMV5L_GCC32
+#define	__JS_ARCH_DEFINED
+#endif
+#endif
+#endif	/* __GNUC__	*/
 #endif	/* __arm__	*/
+
+#if	defined(__i386__) || defined(i386)
+#ifdef	__GNUC__
+#define	__LINUX_I386_GCC32
+#define	__JS_ARCH_DEFINED
+#endif
+#endif	/* __i386__	*/
+#if	defined(__amd64__) || defined(__amd64)
+#ifdef	__GNUC__
+#define	__LINUX_amd64_GCC64
+#define	__JS_ARCH_DEFINED
+#endif
+#endif	/* __amd64__	*/
 
 #endif	/* Linux */
 

@@ -1,8 +1,8 @@
-/* @(#)abbrev.c	1.49 13/06/03 Copyright 1985-2013 J. Schilling */
+/* @(#)abbrev.c	1.50 13/07/28 Copyright 1985-2013 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)abbrev.c	1.49 13/06/03 Copyright 1985-2013 J. Schilling";
+	"@(#)abbrev.c	1.50 13/07/28 Copyright 1985-2013 J. Schilling";
 #endif
 /*
  *	Abbreviation symbol handling
@@ -12,6 +12,12 @@ static	UConst char sccsid[] =
  *	.global & .local alias abbreviations are handled here
  *
  *	Exported functions:
+ *		ab_getaltowner(tab)		Get alternate file owner that
+ *						is trusted
+ *		ab_getaltoname(tab)		Get name of alternate file
+ *						owner that is trusted
+ *		ab_setaltowner(tab, uname)	Set alternate file owner that
+ *						is trusted
  *		ab_read(tab, fname)		Read new abbrev table from fname
  *		ab_use(tab, fname)		Use new abbrev table from fname
  * 		ab_close(tab)			Shut down abbrev table
@@ -64,6 +70,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -78,6 +86,7 @@ static	UConst char sccsid[] =
 #include "abbrev.h"
 #include <schily/fcntl.h>
 #include <schily/stat.h>
+#include <schily/pwd.h>
 
 LOCAL	char	sn_badtab[]	= "bad_astab_number";
 LOCAL	char	sn_no_mem[]	= "no_memory";
@@ -112,6 +121,7 @@ LOCAL	char	sn_badfile[]	= "bad_sym_file";
 #include <schily/stdlib.h>
 #include <schily/time.h>
 #include <schily/stat.h>
+#include <schily/pwd.h>
 #include "bsh.h"
 #include "abbrev.h"
 #include "str.h"
@@ -161,9 +171,11 @@ typedef struct abtab {
 	char	*at_blk;		/* start of monolitic malloc()	 */
 	char	*at_blkend;		/* end of monolitic malloc()	 */
 	time_t	at_mtime;		/* our time stamp for at_fname	 */
+	uid_t	at_altowner;		/* alternate permitted file owner */
 } abtab_t;
 
-LOCAL	abtab_t	ab_tabs[ABTABS]	= { {0, 0, 0, 0, 0}};
+LOCAL	abtab_t	ab_tabs[ABTABS]	= {	{0, 0, 0, 0, 0, (uid_t)-1}, 
+					{0, 0, 0, 0, 0, (uid_t)-1}};
 
 LOCAL	abtab_t	*_ab_down	__PR((abidx_t tab));
 LOCAL	abent_t	*_ab_lookup	__PR((abtab_t *ap, char *name, BOOL new));
@@ -552,6 +564,70 @@ ab_filemtime(fname)
 }
 
 /*
+ * Get alternate file owner that is trusted in addition to the current
+ * shell user.
+ */
+EXPORT uid_t
+ab_getaltowner(tab)
+	abidx_t	tab;
+{
+	register abtab_t *ap = _ab_down(tab);
+
+	return (ap->at_altowner);
+}
+
+EXPORT char *
+ab_getaltoname(tab)
+	abidx_t	tab;
+{
+	register abtab_t *ap = _ab_down(tab);
+	register struct passwd *pw;
+static	char oname[12];
+
+	pw = getpwuid(ap->at_altowner);
+	endpwent();
+	if (pw)
+		return (pw->pw_name);
+	oname[0] = '\0';
+	js_snprintf(oname, sizeof (oname),
+		"%d", ap->at_altowner);
+	return (oname);
+}
+
+/*
+ * Set alternate file owner that is trusted in addition to the current
+ * shell user.
+ */
+EXPORT void
+ab_setaltowner(tab, uname)
+	abidx_t	tab;
+	char	*uname;
+{
+	register abtab_t *ap = _ab_down(tab);
+	register struct passwd *pw;
+	register char	*p = uname;
+
+	if (*uname == '\0') {
+		ap->at_altowner = (uid_t)-1;
+		return;
+	}
+	pw = getpwnam(uname);
+	endpwent();
+
+	if (pw) {
+		ap->at_altowner = pw->pw_uid;
+		return;
+	}
+	while (*p) {
+		if (*p < '0')
+			return;
+		if (*p++ > '9')
+			return;
+	}
+	ap->at_altowner = atoi(uname);
+}
+
+/*
  * Read file 'fname' and build a new abbreviation/alias replacement table
  */
 EXPORT void
@@ -582,7 +658,9 @@ ab_read(tab, fname)
 		return;
 	}
 	if (filestat(f, &sb) >= 0) {
-		if (geteuid() != sb.st_uid) {
+		if (geteuid() != sb.st_uid &&
+		    (ap->at_altowner == (uid_t)-1 ||
+		    ap->at_altowner != sb.st_uid)) {
 			fclose(f);
 			return;
 		}

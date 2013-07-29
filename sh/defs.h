@@ -39,7 +39,7 @@
 /*
  * This file contains modifications Copyright 2008-2013 J. Schilling
  *
- * @(#)defs.h	1.48 13/07/04 2008-2013 J. Schilling
+ * @(#)defs.h	1.49 13/07/28 2008-2013 J. Schilling
  */
 
 #ifdef	__cplusplus
@@ -826,6 +826,7 @@ extern const char			devnull[];
 #define			versflg		0100000000
 #define			globalaliasflg	0200000000
 #define			localaliasflg	0400000000
+#define			aliasownerflg	01000000000
 
 extern long				flags;
 extern int				rwait;	/* flags read waiting */

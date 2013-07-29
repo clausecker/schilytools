@@ -1,6 +1,6 @@
-#ident @(#)rules.cmd	1.13 10/05/13 
+#ident @(#)rules.cmd	1.14 13/07/22 
 ###########################################################################
-# Written 1996 by J. Schilling
+# Written 1996-2013 by J. Schilling
 ###########################################################################
 #
 # Rules for user level commands (usually found in .../bin)
@@ -14,6 +14,8 @@
 # with the License.
 #
 # See the file CDDL.Schily.txt in this distribution for details.
+# A copy of the CDDL is also available via the Internet at
+# http://www.opensource.org/licenses/cddl1.txt
 #
 # When distributing Covered Code, include this CDDL HEADER in each
 # file and include the License file CDDL.Schily.txt from this distribution.
@@ -41,7 +43,6 @@ all:		$(PTARGET)
 
 $(PTARGET):	$(OFILES) $(SRCLIBS)
 		$(LDCC) $(_LD_OUTPUT_OPTION) $(POFILES) $(LDFLAGS) $(LDLIBS)
-#		$(CC) -o $@ $(OFILES) $(LDPATH) $(RUNPATH) $(SRCLIBS) $(LIBS)
 
 ###########################################################################
 include		$(SRCROOT)/$(RULESDIR)/sub.htm

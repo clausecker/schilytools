@@ -1,4 +1,4 @@
-/* @(#)hostname.h	1.19 13/04/29 Copyright 1995-2013 J. Schilling */
+/* @(#)hostname.h	1.20 13/07/08 Copyright 1995-2013 J. Schilling */
 /*
  *	This file has been separated from libport.h in order to avoid
  *	to include netdb.h in case gethostname() is not needed.
@@ -12,6 +12,8 @@
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -41,8 +43,9 @@
 #ifndef HOST_NAME_MAX
 #if	defined(HAVE_NETDB_H) && !defined(HOST_NOT_FOUND) && \
 				!defined(_INCL_NETDB_H)
-#include <netdb.h>		/* #defines MAXHOSTNAMELEN */
-#define	_INCL_NETDB_H
+#ifndef	_SCHILY_NETDB_H
+#include <schily/netdb.h>	/* #defines MAXHOSTNAMELEN */
+#endif
 #endif
 #ifdef	MAXHOSTNAMELEN
 #define	HOST_NAME_MAX	MAXHOSTNAMELEN

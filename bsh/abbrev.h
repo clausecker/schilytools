@@ -1,6 +1,6 @@
-/* @(#)abbrev.h	1.17 12/06/10 Copyright 1985-2012 J. Schilling */
+/* @(#)abbrev.h	1.18 13/07/28 Copyright 1985-2013 J. Schilling */
 /*
- *	Copyright (c) 1985-2012 J. Schilling
+ *	Copyright (c) 1985-2013 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -9,6 +9,8 @@
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -44,6 +46,9 @@ typedef int abidx_t;
 #define	AB_PGLOBAL	512	/* Add "-g" with output from AB_PARSE	*/
 #define	AB_PLOCAL	1024	/* Add "-l" with output from AB_PARSE	*/
 
+extern	uid_t	ab_getaltowner	__PR((abidx_t tab));
+extern	char	*ab_getaltoname	__PR((abidx_t tab));
+extern	void	ab_setaltowner	__PR((abidx_t tab, char *uname));
 extern	void	ab_read		__PR((abidx_t tab, char *fname));
 extern	void	ab_sname	__PR((abidx_t tab, char *fname));
 extern	char	*ab_gname	__PR((abidx_t tab));

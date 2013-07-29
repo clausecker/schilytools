@@ -1,6 +1,6 @@
-#ident "@(#)power-macintosh-rhapsody-cc.rul	1.11 07/05/09 "
+#ident "@(#)power-macintosh-rhapsody-cc.rul	1.13 13/07/22 "
 ###########################################################################
-# Written 1996 by J. Schilling
+# Written 1996-2013 by J. Schilling
 ###########################################################################
 #
 # Platform dependent MACROS for NeXT Step 4.x (Apple Rhapsody) PPC (GCC)
@@ -14,6 +14,8 @@
 # with the License.
 #
 # See the file CDDL.Schily.txt in this distribution for details.
+# A copy of the CDDL is also available via the Internet at
+# http://www.opensource.org/licenses/cddl1.txt
 #
 # When distributing Covered Code, include this CDDL HEADER in each
 # file and include the License file CDDL.Schily.txt from this distribution.
@@ -21,6 +23,7 @@
 include $(SRCROOT)/$(RULESDIR)/rules.prg
 ###########################################################################
 include $(SRCROOT)/$(RULESDIR)/cc-gcc.rul
+CC_COM_DEF=	cc
 
 OSDEFS +=
 
@@ -53,10 +56,3 @@ RANLIB=		@echo "	==> RANDOMIZING ARCHIVE \"$@\""; ranlib
 #
 LORDER=		echo
 TSORT=		cat
-
-####
-# XXX Better use something like CC=cc
-####
-CC=		@echo "	==> COMPILING \"$@\""; cc
-LDCC=		@echo "	==> LINKING \"$@\""; cc
-MKDEP=		@echo "	==> MAKING DEPENDENCIES \"$@\""; $(RMDEP); cc -M

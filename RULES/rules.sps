@@ -1,6 +1,6 @@
-#ident "@(#)rules.sps	1.13 07/05/06 "
+#ident "@(#)rules.sps	1.14 13/07/22 "
 ###########################################################################
-# Written 2005 by J. Schilling
+# Written 2005-2013 by J. Schilling
 ###########################################################################
 #
 # Rules for wrapping around other make systems
@@ -14,6 +14,8 @@
 # with the License.
 #
 # See the file CDDL.Schily.txt in this distribution for details.
+# A copy of the CDDL is also available via the Internet at
+# http://www.opensource.org/licenses/cddl1.txt
 #
 # When distributing Covered Code, include this CDDL HEADER in each
 # file and include the License file CDDL.Schily.txt from this distribution.
@@ -50,9 +52,9 @@ install: all
 _HCC_COM=	$(OARCH:%-gcc=gcc)
 HCC_COM=	$(_HCC_COM:%-cc=cc)
 
-_CC_COM=	$(_UNIQ)$(CC_COM)
-__CC_COM=	$(_CC_COM:$(_UNIQ)=$(HCC_COM))
-XCC_COM=	$(__CC_COM:$(_UNIQ)%=%)
+_XCC_COM=	$(_UNIQ)$(CC_COM)
+__XCC_COM=	$(_XCC_COM:$(_UNIQ)=$(HCC_COM))
+XCC_COM=	$(__XCC_COM:$(_UNIQ)%=%)
 
 _CONF_SCRIPT=	$(_UNIQ)$(CONF_SCRIPT)
 __CONF_SCRIPT=	$(_CONF_SCRIPT:$(_UNIQ)=configure)

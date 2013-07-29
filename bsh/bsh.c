@@ -1,13 +1,13 @@
-/* @(#)bsh.c	1.68 12/03/14 Copyright 1984,1985,1988,1989,1991,1994-2012 J. Schilling */
+/* @(#)bsh.c	1.69 13/07/29 Copyright 1984,1985,1988,1989,1991,1994-2013 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)bsh.c	1.68 12/03/14 Copyright 1982,1984,1985,1988,1989,1991,1994-2012 J. Schilling";
+	"@(#)bsh.c	1.69 13/07/29 Copyright 1982,1984,1985,1988,1989,1991,1994-2013 J. Schilling";
 #endif
 /*
  *	bsh command interpreter - main Program
  *
- *	Copyright (c) 1982,1984,1985,1988,1989,1991,1994-2012 J. Schilling
+ *	Copyright (c) 1982,1984,1985,1988,1989,1991,1994-2013 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -16,6 +16,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -825,7 +827,8 @@ gargs(ac, av, opts, no_i2flg, no_gaflg, no_laflg)
 	BOOL	be_fast = FALSE;
 	BOOL	be_xfast = FALSE;
 	BOOL	prversion = FALSE;
-/*	char	bshopts[]	= "v,V,i,c,e,h,2,g,l,n,s,t,f,F,o,q,help,version";*/
+	char	*aliasowner = NULL;
+/*	char	bshopts[]	= "v,V,i,c,e,h,2,g,l,n,s,t,f,F,o,q,alias-owner*,help,version";*/
 
 	av++;
 	ac--;
@@ -846,6 +849,7 @@ gargs(ac, av, opts, no_i2flg, no_gaflg, no_laflg)
 			&be_xfast,
 			&no_closeflg,
 			&qflg,		/* Undoc' d .. don't ignore SIGQUIT */
+			&aliasowner,
 			&hflg, &prversion) < 0) {
 		if (av[0][0] != '-') {	/* Be careful, cmd args may have '=' */
 			batch = ac+1;
@@ -868,7 +872,7 @@ gargs(ac, av, opts, no_i2flg, no_gaflg, no_laflg)
 		extern	int	mVERSION;
 
 		printf("bsh %d.%02d (%s-%s-%s)\n\n", MVERSION, mVERSION, HOST_CPU, HOST_VENDOR, HOST_OS);
-		printf("Copyright (C) 1982, 1984, 1985, 1988-1989, 1991, 1994-2012 Jörg Schilling\n");
+		printf("Copyright (C) 1982, 1984, 1985, 1988-1989, 1991, 1994-2013 Jörg Schilling\n");
 		printf("This is free software; see the source for copying conditions.  There is NO\n");
 		printf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
 		exit(0);
@@ -879,6 +883,10 @@ gargs(ac, av, opts, no_i2flg, no_gaflg, no_laflg)
 		(*no_i2flg)++, no_histflg++, (*no_gaflg)++, (*no_laflg)++;
 	if (cflg && streql(fbasename(initav0), commandname))
 		(*no_i2flg)++;
+	if (aliasowner) {
+		ab_setaltowner(GLOBAL_AB, aliasowner);
+		ab_setaltowner(LOCAL_AB, aliasowner);
+	}
 }
 
 EXPORT void

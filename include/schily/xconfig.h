@@ -1,8 +1,8 @@
-/* @(#)xconfig.h	1.11 12/12/03 Copyright 1995-2012 J. Schilling */
+/* @(#)xconfig.h	1.13 13/07/23 Copyright 1995-2013 J. Schilling */
 /*
  *	This file either includes the dynamic or manual autoconf stuff.
  *
- *	Copyright (c) 1995-2012 J. Schilling
+ *	Copyright (c) 1995-2013 J. Schilling
  *
  *	This file is included from <schily/mconfig.h> and usually
  *	includes $(SRCROOT)/incs/$(OARCH)/xconfig.h via
@@ -19,6 +19,8 @@
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -119,8 +121,24 @@
 #define	__JS_ARCH_CONF_INCL
 #endif
 
+#ifdef	__LINUX_ARMV6L_GCC32
+#include <schily/armv6l-linux-gcc/xconfig.h>
+#define	__JS_ARCH_CONF_INCL
+#endif
+#ifdef	__LINUX_ARMV5L_GCC32
+#include <schily/armv6l-linux-gcc/xconfig.h>
+#define	__JS_ARCH_CONF_INCL
+#endif
 #ifdef	__LINUX_ARMV5TEJL_GCC32
 #include <schily/armv5tejl-linux-gcc/xconfig.h>
+#define	__JS_ARCH_CONF_INCL
+#endif
+#ifdef	__LINUX_I386_GCC32
+#include <schily/i686-linux-gcc/xconfig.h>
+#define	__JS_ARCH_CONF_INCL
+#endif
+#ifdef	__LINUX_amd64_GCC64
+#include <schily/x86_64-linux-gcc/xconfig.h>
 #define	__JS_ARCH_CONF_INCL
 #endif
 

@@ -1,4 +1,4 @@
-#ident "@(#)Makefile	1.16 13/01/04 "
+#ident "@(#)Makefile	1.17 13/07/14 "
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -17,7 +17,8 @@ CPPOPTS +=	-DSUN_SAYLINE		# Add enter/leave note to # line
 CPPOPTS +=	-DUSE_LARGEFILES
 #CPPOPTS +=	-DSCHILY_PRINT
 
-__CPY.C=	$(_UNIQ)$(YACC)
+___CPY.C=	$(_UNIQ)$(YACC)
+__CPY.C=	$(___CPY.C:%-y=%)	# Sometimes $(YACC) is bison -y
 _CPY.C=		$(__CPY.C:$(_UNIQ)noyacc=noyacc.c)
 CPY.C=		$(_CPY.C:$(_UNIQ)%=cpy.c)
 

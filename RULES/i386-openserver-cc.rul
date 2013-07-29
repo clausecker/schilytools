@@ -1,4 +1,4 @@
-#ident "@(#)i386-openserver-cc.rul	1.4 07/05/08 "
+#ident "@(#)i386-openserver-cc.rul	1.5 13/07/21 "
 ###########################################################################
 # Written 1999 by J. Schilling/Santa Cruz Operation
 ###########################################################################
@@ -29,11 +29,6 @@ KDEFINES=	-DKERNEL -D_KERNEL
 LIB_SOCKET=	-lsocket -lnsl -ldl
 LIB_MATH=	-lm
 LIB_KVM=	
-
-CC=		@echo "	==> COMPILING \"$@\""; cc
-LDCC=		@echo "	==> LINKING \"$@\""; cc
-DYNLD=		@echo "	==> LINKING dynamic library \"$@\""; cc
-RANLIB=		@echo "	==> RANDOMIZING ARCHIVE \"$@\""; true
 
 LORDER=		echo
 TSORT=		cat

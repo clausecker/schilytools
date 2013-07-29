@@ -1,4 +1,4 @@
-#ident "@(#)cc-apollo.rul	1.10 13/01/09 "
+#ident "@(#)cc-apollo.rul	1.12 13/07/23 "
 ###########################################################################
 # Written 2001-2013 by J. Schilling
 ###########################################################################
@@ -14,6 +14,8 @@
 # with the License.
 #
 # See the file CDDL.Schily.txt in this distribution for details.
+# A copy of the CDDL is also available via the Internet at
+# http://www.opensource.org/licenses/cddl1.txt
 #
 # When distributing Covered Code, include this CDDL HEADER in each
 # file and include the License file CDDL.Schily.txt from this distribution.
@@ -53,11 +55,21 @@ LNDYNLIB=	@$(RM) $(RM_FORCE) $(PTARGET_BASE).so; $(SYMLINK) $(TARGET) $(PTARGET_
 
 FLOAT_OPTIONS=	
 
-#CC_COM=	cc -A systype,bsd4.3
-CC_COM=		/bsd4.3/bin/cc
-CC++_COM=	echo "C++ not yet supported"; exit -1
+__CC_COM=	$(_UNIQ)$(CC)
+___CC_COM=	$(__CC_COM:$(_UNIQ)=$(CC_COM_DEF))
+CC_COM=		$(___CC_COM:$(_UNIQ)%=%)
 
-CC=		@echo "	==> COMPILING \"$@\""; $(CC_COM)
+__CC++_COM=	$(_UNIQ)$(CCC)
+___CC++_COM=	$(__CC++_COM:$(_UNIQ)=$(CC++_COM_DEF))
+CC++_COM=	$(___CC++_COM:$(_UNIQ)%=%)
+
+#CC_COM=	cc -A systype,bsd4.3
+CC_COM_DEF=	/bsd4.3/bin/cc
+CC++_COM_DEF=	echo "C++ not yet supported"; exit -1; :
+CC=		$(CC_COM_DEF)
+CCC=		$(CC++_COM_DEF)
+
+CCCC=		@echo "	==> COMPILING \"$@\""; $(CC_COM)
 LDCC=		@echo "	==> LINKING \"$@\""; $(CC_COM)
 DYNLD=		@echo "	==> LINKING dynamic library \"$@\""; $(CC_COM)
 RANLIB=		@echo "	==> RANDOMIZING ARCHIVE \"$@\""; true

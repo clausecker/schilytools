@@ -1,4 +1,4 @@
-#ident "@(#)i586-linux-suncc64.rul	1.5 13/01/09 "
+#ident "@(#)i586-linux-suncc64.rul	1.6 13/07/22 "
 ###########################################################################
 # Written 2007-2013 by J. Schilling
 ###########################################################################
@@ -14,6 +14,8 @@
 # with the License.
 #
 # See the file CDDL.Schily.txt in this distribution for details.
+# A copy of the CDDL is also available via the Internet at
+# http://www.opensource.org/licenses/cddl1.txt
 #
 # When distributing Covered Code, include this CDDL HEADER in each
 # file and include the License file CDDL.Schily.txt from this distribution.
@@ -21,8 +23,8 @@
 include $(SRCROOT)/$(RULESDIR)/rules.prg
 ###########################################################################
 include $(SRCROOT)/$(RULESDIR)/cc-sunpro64.rul
-CC_COM=		suncc
-CC++_COM=	sunCC
+CC_COM_DEF=	suncc
+CC++_COM_DEF=	sunCC
 
 #
 # LINUX_SRC_INCLUDE is defined in DEFAULTS/Defaults.linux

@@ -1,0 +1,77 @@
+mNew features with AN-2013-07-29:
+
+This is the first localization step for the schily source consolidation. Many
+programs now (hopefully) call gettext() for all strings that need localization.
+
+-	The next step will include dgettext() calls for the libraries and the
+	missing programs
+
+-	The following step will include the extracted strings
+
+-	The last step will include German translations and install support
+	for the resulting binary message object files.
+
+----------> Please test and report compilation problems! <---------
+
+***** NOTE: As mentioned since 2004, frontends to the tools should *****
+*****		call all programs in the "C" locale		   *****
+*****		by e.g. calling: LC_ALL=C cdrecord ....		   *****
+*****		unless these frontends support localized strings   *****
+*****		used by the cdrtools with NLS support.		   *****
+
+-	The Schily Makefilesystem no longer uses CC= for internal tasks.
+	People who now set $CC to a different value will fail in a similar
+	way as they would fail with other build systems.
+
+-	Allow "static" compilation (a compilation that does not use the
+	dynamic defines from the Schily Makefilesystem) on Linux x86 
+
+-	Make sure that all schily include files except the primary wrappers
+	include schily/*.h instead of including the system include files directly.
+
+-	Added automatic support for ARMv5 and ARMv6. This makes compilation
+	on the RaspberryPI also possible with the non-automake aware gmake.
+
+-	Allow "static" compilation (a compilation that does not use the
+	dynamic defines from the Schily Makefilesystem) on Linux ARMv6 (which
+	is used by RaspberryPI).
+
+-	The Bourne Shell now implements a new option -o aliasowner=name
+	that allows to tell the shell that an additional owner is safe for
+	alias files "$HOME/.globals" and ".locals". This allows to implement
+	"su" aliases that start a shell that loads the aliases of the calling
+	user.
+
+-	bsh implements the same enhancement as the Bourne shell using
+	the option -alias-owner name
+
+-	cpp/Makefile was changed in order not to fail when $(YACC) is not
+	a single word but "binson -y".
+
+	Thanks to Antonio Olivares <olivares14031@gmail.com> for reporting.
+
+-	Cdrtools bumped to 3.01a16
+
+-	Star (spax) no longer extracts files with the original UID/GID if
+	run by root unless the option -po or -pe was in use. Thanks to
+	a hint from Pavel Raiskup <praiskup@redhat.com>
+
+-	SCCS: sccs diffs now uses "get -o" to extract the old version of the
+	file in order to be able to get correct time stamps with "diff -c"
+	or "diff -u".
+
+-	SCCS: diff no longer writes nanosecond values in the middle of
+	a "diff -c" timestamp when in German locale.
+
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.isdn.cs.tu-berlin.de, js@cs.tu-berlin.de
+	joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

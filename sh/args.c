@@ -39,11 +39,11 @@
 /*
  * This file contains modifications Copyright 2008-2013 J. Schilling
  *
- * @(#)args.c	1.22 13/01/14 2008-2013 J. Schilling
+ * @(#)args.c	1.24 13/07/29 2008-2013 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)args.c	1.22 13/01/14 2008-2013 J. Schilling";
+	"@(#)args.c	1.24 13/07/29 2008-2013 J. Schilling";
 #endif
 
 /*
@@ -63,6 +63,7 @@ static	struct dolnod *	clean_args	__PR((struct dolnod *blk));
 	struct dolnod *	savargs		__PR((int funcntp));
 	void		restorargs	__PR((struct dolnod *olddolh, int funcntp));
 	struct dolnod *	useargs		__PR((void));
+static	void		listaliasowner	__PR((int parse, int flagidx));
 static	void		listopts	__PR((int parse));
 
 static struct dolnod *dolh;
@@ -95,6 +96,7 @@ unsigned char	flagchar[] =
 	'V',
 	 0,
 	 0,
+	 0,
 	 0
 };
 
@@ -119,6 +121,7 @@ char	*flagname[] =
 	"version",		/* -V Schily Bourne Shell */
 	"globalaliases",
 	"localaliases",
+	"aliasowner",
 	 0
 };
 
@@ -143,6 +146,7 @@ long	flagval[]  =
 	versflg,
 	globalaliasflg,
 	localaliasflg,
+	aliasownerflg,
 	  0
 };
 
@@ -237,15 +241,28 @@ options(argc, argv)
 					listopts(0);
 					continue;
 				}
+				unsigned char *argarg = UC strchr((char *)argp[2], '=');
+
+				if (argarg != NULL)
+					*argarg = '\0';
 				for (flagc = flagchar; flagname[flagc-flagchar]; flagc++) {
 					if (eq(argp[2], flagname[flagc-flagchar])) {
 						argp[1] = argp[0];
 						argp++;
 						argc--;
 						wc = *flagc;
+						if (flagval[flagc-flagchar] & aliasownerflg) {
+							char *owner = (char *)argarg;
+							if (owner == NULL)
+								owner = "";
+							ab_setaltowner(GLOBAL_AB, owner);
+							ab_setaltowner(LOCAL_AB, owner);
+						}
 						break;
 					}
 				}
+				if (argarg != NULL)
+					*argarg = '=';
 				if (wc != *flagc) {
 					if (argc > 2)
 						failed(argp[2], badopt);
@@ -358,6 +375,10 @@ options(argc, argv)
 				}
 				if (nflag & localaliasflg) {
 					ab_use(LOCAL_AB, NULL);
+				}
+				if (nflag & aliasownerflg) {
+					ab_setaltowner(GLOBAL_AB, "");
+					ab_setaltowner(LOCAL_AB, "");
 				}
 			}
 		}
@@ -609,6 +630,31 @@ useargs()
 }
 
 static void
+listaliasowner(parse, flagidx)
+	int	parse;
+	int	flagidx;
+{
+	uid_t	altuid = ab_getaltowner(GLOBAL_AB);
+
+	if (parse) {
+		prs_buff(UC "set ");
+		if (altuid == (uid_t)-1)
+			prs_buff(UC "+o ");
+		else
+			prs_buff(UC "-o ");
+	}
+	prs_buff(UC flagname[flagidx]);
+	if (parse) {
+		prc_buff(NL);
+		return;
+	}
+	prs_buff(UC "=");
+	if (altuid != (uid_t)-1)
+		prs_buff(UC ab_getaltoname(GLOBAL_AB));
+	prc_buff(NL);
+}
+
+static void
 listopts(parse)
 	int	parse;
 {
@@ -618,6 +664,10 @@ listopts(parse)
 	for (flagc = flagchar; flagname[flagc-flagchar]; flagc++) {
 		if (*flagc == 'V')
 			continue;
+		if (flagval[flagc-flagchar] == aliasownerflg) {
+			listaliasowner(parse, flagc-flagchar);
+			continue;
+		}
 		if (parse) {
 			if (any(*flagc, (unsigned char *)"sicrp"))
 				continue;

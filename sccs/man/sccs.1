@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sccs.1	4.26 13/06/16 Copyright 2007-2013 J. Schilling
+.\" @(#)sccs.1	4.27 13/07/21 Copyright 2007-2013 J. Schilling
 .\" 
 .\" CDDL HEADER START
 .\"
@@ -20,7 +20,7 @@
 .\"
 .\" CDDL HEADER END
 .\"  Copyright (c) 2007, Sun Microsystems, Inc.  All Rights Reserved.
-.TH sccs 1 "2013/06/16" "SunOS 5.11" "User Commands"
+.TH sccs 1 "2013/07/21" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs \- front end for the Source Code Control System (SCCS)
 .SH SYNOPSIS
@@ -955,6 +955,16 @@ is equivalent to
 .BI -r sid
 .sp .6
 Use the version corresponding to the indicated delta for comparison.
+.LP
+The
+.B SCHILY
+version of SCCS calls
+.RB ` "get -o" '
+to retrieve the old version of the file in order to be able to get
+correct time stamps when e.g. the
+.B \-u
+flag is passed to
+.BR diff (1).
 .RE
 
 .sp
@@ -1076,7 +1086,7 @@ When in discard mode, the delta tyble entry is also completely discarded.
 .ne 5
 .SS "/usr/bin/sccs"
 .HP
-.BR get " [" -ekmps "] [" -G\c
+.BR get " [" -ekmops "] [" -G\c
 .IR newname "] [\c
 .BI -c date-time\c
 .RB "] [" -r [\c
@@ -1084,7 +1094,7 @@ When in discard mode, the delta tyble entry is also completely discarded.
 .SS "/usr/xpg4/bin/sccs"
 .ne 2
 .HP
-.BR get " [" -ekmps "] [" -G
+.BR get " [" -ekmops "] [" -G
 .I newname
 |
 .BI -G newname\c
@@ -1159,6 +1169,13 @@ keywords are unexpanded.
 Precede each line with the
 .B SID
 of the delta in which it was added.
+
+.ne 2
+.TP
+.B -o
+.sp .6
+Retrieves the file under the original time of
+the requested version.
 
 .ne 2
 .TP

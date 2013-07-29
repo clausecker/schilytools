@@ -1,8 +1,8 @@
-/* @(#)str.c	1.26 13/06/03 Copyright 1986-2013 J. Schilling */
+/* @(#)str.c	1.27 13/07/29 Copyright 1986-2013 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)str.c	1.26 13/06/03 Copyright 1986-2013 J. Schilling";
+	"@(#)str.c	1.27 13/07/29 Copyright 1986-2013 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1986-2013 J. Schilling
@@ -14,6 +14,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -29,7 +31,7 @@ bsh V%d.%02d (%s-%s-%s)\n\n\
 	By J. Schilling\n\
 	bsh -> best shell\n";
 
-char	bshopts[]	= "v,V,i,c,e,h,2,g,l,n,s,t,f,F,o,q,help,version";
+char	bshopts[]	= "v,V,i,c,e,h,2,g,l,n,s,t,f,F,o,q,alias-owner*,help,version";
 
 char	sysinitname[]	= "/etc/initbsh";
 char	sysrinitname[]	= "/etc/initrbsh";
