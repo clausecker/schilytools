@@ -35,13 +35,13 @@
 #include "defs.h"
 
 /*
- * This file contains modifications Copyright 2008-2012 J. Schilling
+ * This file contains modifications Copyright 2008-2013 J. Schilling
  *
- * @(#)func.c	1.11 12/05/11 2008-2012 J. Schilling
+ * @(#)func.c	1.13 13/09/24 2008-2013 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)func.c	1.11 12/05/11 2008-2012 J. Schilling";
+	"@(#)func.c	1.13 13/09/24 2008-2013 J. Schilling";
 #endif
 
 /*
@@ -270,11 +270,11 @@ prf(t)
 				struct fndnod *f = (struct fndnod *)t;
 
 				prs_buff(f->fndnam);
-				prs_buff((unsigned char *)"(){");
+				prs_buff(UC "(){");
 				prbgnlst();
 				prf(f->fndval);
 				prbgnlst();
-				prs_buff((unsigned char *)"}");
+				prs_buff(UC "}");
 				break;
 			}
 
@@ -291,18 +291,18 @@ prf(t)
 				prf(forkptr(t)->forktre);
 				prio(forkptr(t)->forkio);
 				if (forkptr(t)->forktyp & FAMP)
-					prs_buff((unsigned char *)" &");
+					prs_buff(UC " &");
 				break;
 
 			case TPAR:
-				prs_buff((unsigned char *)"(");
+				prs_buff(UC "(");
 				prf(parptr(t)->partre);
-				prs_buff((unsigned char *)")");
+				prs_buff(UC ")");
 				break;
 
 			case TFIL:
 				prf(lstptr(t)->lstlef);
-				prs_buff((unsigned char *)" | ");
+				prs_buff(UC " | ");
 				prf(lstptr(t)->lstrit);
 				break;
 
@@ -314,13 +314,13 @@ prf(t)
 
 			case TAND:
 				prf(lstptr(t)->lstlef);
-				prs_buff((unsigned char *)" && ");
+				prs_buff(UC " && ");
 				prf(lstptr(t)->lstrit);
 				break;
 
 			case TORF:
 				prf(lstptr(t)->lstlef);
-				prs_buff((unsigned char *)" || ");
+				prs_buff(UC " || ");
 				prf(lstptr(t)->lstrit);
 				break;
 
@@ -329,13 +329,13 @@ prf(t)
 					struct argnod	*arg;
 					struct fornod	*f = (struct fornod *)t;
 
-					prs_buff((unsigned char *)"for ");
+					prs_buff(UC "for ");
 					prs_buff(f->fornam);
 
 					if (f->forlst)
 					{
 						arg = f->forlst->comarg;
-						prs_buff((unsigned char *)" in");
+						prs_buff(UC " in");
 
 						while (arg != ENDARGS)
 						{
@@ -346,50 +346,50 @@ prf(t)
 					}
 
 					prendlst();
-					prs_buff((unsigned char *)"do");
+					prs_buff(UC "do");
 					prbgnlst();
 					prf(f->fortre);
 					prendlst();
-					prs_buff((unsigned char *)"done");
+					prs_buff(UC "done");
 				}
 				break;
 
 			case TWH:
 			case TUN:
 				if (type == TWH)
-					prs_buff((unsigned char *)"while ");
+					prs_buff(UC "while ");
 				else
-					prs_buff((unsigned char *)"until ");
+					prs_buff(UC "until ");
 				prf(whptr(t)->whtre);
 				prendlst();
-				prs_buff((unsigned char *)"do");
+				prs_buff(UC "do");
 				prbgnlst();
 				prf(whptr(t)->dotre);
 				prendlst();
-				prs_buff((unsigned char *)"done");
+				prs_buff(UC "done");
 				break;
 
 			case TIF:
 			{
 				struct ifnod *f = (struct ifnod *)t;
 
-				prs_buff((unsigned char *)"if ");
+				prs_buff(UC "if ");
 				prf(f->iftre);
 				prendlst();
-				prs_buff((unsigned char *)"then");
+				prs_buff(UC "then");
 				prendlst();
 				prf(f->thtre);
 
 				if (f->eltre)
 				{
 					prendlst();
-					prs_buff((unsigned char *)"else");
+					prs_buff(UC "else");
 					prendlst();
 					prf(f->eltre);
 				}
 
 				prendlst();
-				prs_buff((unsigned char *)"fi");
+				prs_buff(UC "fi");
 				break;
 			}
 
@@ -397,15 +397,16 @@ prf(t)
 				{
 					struct regnod	*swl;
 
-					prs_buff((unsigned char *)"case ");
+					prs_buff(UC "case ");
 					prs_buff(swptr(t)->swarg);
-					prs_buff((unsigned char *)" in ");
+					prs_buff(UC " in ");
 
 					swl = swptr(t)->swlst;
 					while (swl)
 					{
-						struct argnod	*arg = swl->regptr;
+						struct argnod	*arg;
 
+						arg = swl->regptr;
 						if (arg)
 						{
 							prs_buff(arg->argval);
@@ -414,14 +415,14 @@ prf(t)
 
 						while (arg)
 						{
-							prs_buff((unsigned char *)" | ");
+							prs_buff(UC " | ");
 							prs_buff(arg->argval);
 							arg = arg->argnxt;
 						}
 
-						prs_buff((unsigned char *)")");
+						prs_buff(UC ")");
 						prf(swl->regcom);
-						prs_buff((unsigned char *)";;");
+						prs_buff(UC ";;");
 						swl = swl->regnxt;
 					}
 				}
@@ -464,19 +465,18 @@ prio(iop)
 			prn_buff(iof & IOUFD);
 
 			if (iof & IODOC)
-				prs_buff((unsigned char *)"<<");
+				prs_buff(UC "<<");
 			else if (iof & IOMOV)
 			{
 				if (iof & IOPUT)
-					prs_buff((unsigned char *)">&");
+					prs_buff(UC ">&");
 				else
-					prs_buff((unsigned char *)"<&");
+					prs_buff(UC "<&");
 
-			}
-			else if ((iof & IOPUT) == 0)
+			} else if ((iof & IOPUT) == 0)
 				prc_buff('<');
 			else if (iof & IOAPP)
-				prs_buff((unsigned char *)">>");
+				prs_buff(UC ">>");
 			else
 				prc_buff('>');
 

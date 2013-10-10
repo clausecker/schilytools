@@ -1,4 +1,4 @@
-/* @(#)xconfig.h.in	1.229 13/04/17 Copyright 1998-2013 J. Schilling */
+/* @(#)xconfig.h.in	1.231 13/09/30 Copyright 1998-2013 J. Schilling */
 /*
  *	Dynamic autoconf C-include code.
  *	Do not edit, this file has been created automatically.
@@ -216,6 +216,7 @@
 #undef HAVE_EACCESS		/* eaccess() is present in libc */
 #undef HAVE_EUIDACCESS		/* euidaccess() is present in libc */
 #undef HAVE_ACCESS_E_OK		/* access() implements E_OK (010) for effective UIDs */
+#undef HAVE_CRYPT_IN_LIBC	/* whether crypt() is in libc (needs no -lcrypt) */
 #undef HAVE_CRYPT		/* crypt() is present in libc or libcrypt */
 #undef HAVE_STRERROR		/* strerror() is present in libc */
 #undef HAVE_MEMCHR		/* memchr() is present in libc */
@@ -412,6 +413,7 @@
 #undef HAVE_ISNAND		/* isnand() is present in libc/ieeefp.h (SVr4) */
 #undef HAVE_RAND		/* rand() is present in libc */
 #undef HAVE_DRAND48		/* drand48() is present in libc */
+#undef HAVE_ICONV_IN_LIBC	/* whether iconv() is in libc (needs no -liconv) */
 #undef HAVE_ICONV		/* iconv() is present in libiconv */
 #undef HAVE_ICONV_OPEN		/* iconv_open() is present in libiconv */
 #undef HAVE_ICONV_CLOSE		/* iconv_close() is present in libiconc */
@@ -537,6 +539,7 @@
 #undef HAVE_FFLAGSTOSTR		/* fflagstostr() is present in libc */
 #undef HAVE_STRTOFFLAGS		/* strtofflags() is present in libc */
 
+#undef HAVE_GETTEXT_IN_LIBC	/* whether gettext() is in libc (needs no -lintl) */
 #undef HAVE_GETTEXT		/* gettext() is present in -lintl */
 #undef HAVE_SETLOCALE		/* setlocale() is present in libc */
 #undef HAVE_LOCALECONV		/* localeconv() is present in libc */
@@ -568,6 +571,8 @@
 #undef HAVE_CREATE_AREA		/* create_area() is present in libc */
 #undef HAVE_DELETE_AREA		/* delete_area() is present in libc */
 
+#undef HAVE_RES_INIT_IN_LIBC	/* whether res_init() is in libc (needs no -lresolv) */
+
 #undef HAVE_DLOPEN_IN_LIBC	/* whether dlopen() is in libc (needs no -ldl) */
 #undef HAVE_DLOPEN		/* dlopen() is present in libc */
 #undef HAVE_DLCLOSE		/* dlclose() is present in libc */
@@ -590,6 +595,7 @@
 #undef HAVE_PTHREAD_COND_WAIT	/* pthread_cond_wait() is present in libpthread */
 #undef HAVE_PTHREAD_SPIN_LOCK	/* pthread_spin_lock() is present in libpthread */
 
+#undef HAVE_CLOCK_GETTIME_IN_LIBC /* whether clock_gettime() is in libc (needs no -lrt) */
 #undef HAVE_CLOCK_GETTIME	/* clock_gettime() is present in librt */
 #undef HAVE_CLOCK_SETTIME	/* clock_settime() is present in librt */
 #undef HAVE_CLOCK_GETRES	/* clock_getres() is present in librt */
@@ -752,6 +758,7 @@
 #undef HAVE_MTGET_BF		/* if struct mtget contains mt_bf (optimum blocking factor) */
 #undef HAVE_STRUCT_TIMEVAL	/* have struct timeval in time.h or sys/time.h */
 #undef HAVE_STRUCT_TIMEZONE	/* have struct timezone in time.h or sys/time.h */
+#undef HAVE_STRUCT_TIMESPEC	/* have struct timespec in time.h or sys/time.h */
 #undef HAVE_STRUCT_RUSAGE	/* have struct rusage in sys/resource.h */
 #undef HAVE_SI_UTIME		/* if struct siginfo contains si_utime */
 #undef HAVE_UNION_SEMUN		/* have an illegal definition for union semun in sys/sem.h */

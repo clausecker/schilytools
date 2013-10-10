@@ -38,11 +38,11 @@
 /*
  * This file contains modifications Copyright 2008-2013 J. Schilling
  *
- * @(#)cmd.c	1.23 13/07/07 2008-2013 J. Schilling
+ * @(#)cmd.c	1.26 13/09/25 2008-2013 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)cmd.c	1.23 13/07/07 2008-2013 J. Schilling";
+	"@(#)cmd.c	1.26 13/09/25 2008-2013 J. Schilling";
 #endif
 
 /*
@@ -53,7 +53,8 @@ static	UConst char sccsid[] =
 
 static	unsigned char *getstor	__PR((int asize));
 	struct trenod *makefork	__PR((int flgs, struct trenod *i));
-static struct trenod *makelist	__PR((int type, struct trenod *i, struct trenod *r));
+static struct trenod *makelist	__PR((int type, struct trenod *i,
+						struct trenod *r));
 	struct trenod *cmd	__PR((int sym, int flg));
 static	struct trenod *list	__PR((int flg));
 static	struct trenod *term	__PR((int flg));
@@ -81,7 +82,7 @@ getstor(asize)
 }
 
 
-/* ========	command line decoding	========*/
+/* ========	command line decoding	======== */
 
 
 
@@ -141,8 +142,7 @@ cmd(sym, flg)
 			wdval = ';';
 			chkpr();
 		}
-	}
-	else if (i == 0 && (flg & MTFLG) == 0)
+	} else if (i == 0 && (flg & MTFLG) == 0)
 		synbad();
 
 	switch (wdval)
@@ -245,7 +245,9 @@ int	esym;
 			if (fndef)
 			{
 				argp = wdarg;
-				wdarg = (struct argnod *)alloc(length(argp->argval) + BYTESPERWORD);
+				wdarg = (struct argnod *)
+						alloc(length(argp->argval) +
+								BYTESPERWORD);
 				movstr(argp->argval, wdarg->argval);
 			}
 
@@ -334,7 +336,10 @@ item(flag)
 			t->iftyp = TIF;
 			t->iftre = cmd(THSYM, NLFLG);
 			t->thtre = cmd(ELSYM | FISYM | EFSYM, NLFLG);
-			t->eltre = ((w = wdval) == ELSYM ? cmd(FISYM, NLFLG) : (w == EFSYM ? (wdval = IFSYM, item(0)) : 0));
+			t->eltre = ((w = wdval) == ELSYM ?
+					cmd(FISYM, NLFLG) :
+						(w == EFSYM ?
+						(wdval = IFSYM, item(0)) : 0));
 			if (w == EFSYM)
 				return (r);
 			break;
@@ -438,7 +443,8 @@ item(flag)
 				 * which persists over command executions.
 				 */
 				fndef++;
-				f = (struct fndnod *)getstor(sizeof (struct fndnod));
+				f = (struct fndnod *)
+					getstor(sizeof (struct fndnod));
 				r = (struct trenod *)f;
 
 				f->fndtyp = TFND;
@@ -469,10 +475,11 @@ item(flag)
 			{
 				int envbeg = 0;
 
-				t = (struct comnod *)getstor(sizeof (struct comnod));
+				t = (struct comnod *)
+					getstor(sizeof (struct comnod));
 				r = (struct trenod *)t;
 
-				t->comio = io; /*initial io chain*/
+				t->comio = io; /* initial io chain */
 				argtail = &(t->comarg);
 
 				while (wdval == 0)
@@ -480,8 +487,11 @@ item(flag)
 					if (fndef)
 					{
 						argp = wdarg;
-						wdarg = (struct argnod *)alloc(length(argp->argval) + BYTESPERWORD);
-						movstr(argp->argval, wdarg->argval);
+						wdarg = (struct argnod *)
+						    alloc(length(argp->argval) +
+								BYTESPERWORD);
+						movstr(argp->argval,
+								wdarg->argval);
 					}
 
 					argp = wdarg;
@@ -498,10 +508,12 @@ item(flag)
 							envbeg++;
 						}
 #ifdef	ARGS_RIGHT_TO_LEFT		/* old order: var2=val2 var1=val1 */
-						argp->argnxt = (struct argnod *)argset;
+						argp->argnxt =
+							(struct argnod *)argset;
 						argset = (struct argnod **)argp;
 #else
-						argp->argnxt = (struct argnod *)0;
+						argp->argnxt =
+							(struct argnod *)0;
 						*argstail = argp;
 						argstail = &argp->argnxt;
 #endif
@@ -523,14 +535,15 @@ item(flag)
 					word();
 					if (flag)
 					{
-						if (io)
-						{
+						if (io) {
 							while (io->ionxt)
 								io = io->ionxt;
-							io->ionxt = inout((struct ionod *)0);
+							io->ionxt = inout(
+							    (struct ionod *)0);
+						} else {
+							t->comio = io = inout(
+							    (struct ionod *)0);
 						}
-						else
-							t->comio = io = inout((struct ionod *)0);
 					}
 				}
 
@@ -538,13 +551,14 @@ item(flag)
 				t->comset = (struct argnod *)argset;
 				*argtail = 0;
 
-				if (nohash == 0 && (fndef == 0 || (flags & hashflg)))
-				{
-					if (t->comarg)
-					{
+				if (nohash == 0 &&
+				    (fndef == 0 || (flags & hashflg))) {
+					if (t->comarg) {
 						com = t->comarg->argval;
-						if (*com && *com != DOLLAR)
-							pathlook(com, 0, t->comset);
+						if (*com && *com != DOLLAR) {
+							pathlook(com, 0,
+								t->comset);
+						}
 					}
 				}
 
@@ -619,9 +633,9 @@ inout(lastio)
 	iop = (struct ionod *)getstor(sizeof (struct ionod));
 
 	if (fndef)
-		iop->ioname = (char *) make(wdarg->argval);
+		iop->ioname = (char *)make(wdarg->argval);
 	else
-		iop->ioname = (char *) (wdarg->argval);
+		iop->ioname = (char *)(wdarg->argval);
 
 	iop->iolink = 0;
 	iop->iofile = iof;
@@ -656,18 +670,15 @@ static void
 prsym(sym)
 int sym;
 {
-	if (sym & SYMFLG)
-	{
+	if (sym & SYMFLG) {
 		const struct sysnod *sp = reserved;
 
 		while (sp->sysval && sp->sysval != sym)
 			sp++;
 		prs((unsigned char *)sp->sysnam);
-	}
-	else if (sym == EOFSYM)
+	} else if (sym == EOFSYM) {
 		prs(_gettext(endoffile));
-	else
-	{
+	} else {
 		if (sym & SYMREP)
 			prc(sym);
 		if (sym == NL)
@@ -682,8 +693,7 @@ synbad()
 {
 	prp();
 	prs(_gettext(synmsg));
-	if ((flags & ttyflg) == 0)
-	{
+	if ((flags & ttyflg) == 0) {
 		prs(_gettext(atline));
 		prn(standin->flin);
 	}

@@ -41,7 +41,7 @@
 /*
  *				Copyright Geoff Collyer 1987-2005
  *
- * @(#)stak.c	2.8 13/01/14	Copyright 2010-2013 J. Schilling
+ * @(#)stak.c	2.9 13/09/25	Copyright 2010-2013 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -57,7 +57,7 @@
 
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)stak.c	2.8 13/01/14 Copyright 2010-2013 J. Schilling";
+	"@(#)stak.c	2.9 13/09/25 Copyright 2010-2013 J. Schilling";
 #endif
 
 
@@ -508,8 +508,12 @@ stakchk()
 	}
 }
 
-static unsigned char *			/* new address of grown stak base */
-__growstak(incr)			/* grow the growing stack by incr */
+/*
+ * Return new address of grown stak base,
+ * grow the growing stack by "incr".
+ */
+static unsigned char *
+__growstak(incr)
 	int		incr;
 {
 	int		staklen;

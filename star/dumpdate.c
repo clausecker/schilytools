@@ -1,11 +1,11 @@
-/* @(#)dumpdate.c	1.24 11/08/03 Copyright 2003-2011 J. Schilling */
+/* @(#)dumpdate.c	1.25 13/10/05 Copyright 2003-2013 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)dumpdate.c	1.24 11/08/03 Copyright 2003-2011 J. Schilling";
+	"@(#)dumpdate.c	1.25 13/10/05 Copyright 2003-2013 J. Schilling";
 #endif
 /*
- *	Copyright (c) 2003-2011 J. Schilling
+ *	Copyright (c) 2003-2013 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -14,6 +14,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -79,20 +81,20 @@ EXPORT	void	initdumpdates	__PR((char *fname, BOOL doupdate));
 LOCAL	void	readdumpdates	__PR((FILE *f, char *fname));
 EXPORT	void	writedumpdates	__PR((char *fname, const char *filesys,
 							int level, int dflags,
-							struct timeval *date));
+							struct timespec *date));
 LOCAL	void	outentry	__PR((FILE *f, char *name, int level, int dflags,
-							struct timeval *date));
-EXPORT	char	*dumpdate	__PR((struct timeval *date));
+							struct timespec *date));
+EXPORT	char	*dumpdate	__PR((struct timespec *date));
 LOCAL	char	*skipwht	__PR((char *p));
 LOCAL	BOOL	getentry	__PR((char *line, char *fname));
-EXPORT	BOOL	getdumptime	__PR((char *p, struct timeval *tvp));
+EXPORT	BOOL	getdumptime	__PR((char *p, struct timespec *tvp));
 EXPORT	dumpd_t *checkdumpdates	__PR((const char *name, int level, int dflags));
 LOCAL	dumpd_t *_checkdumpdates __PR((const char *name, int level, int dflags));
 EXPORT	void	adddumpdates	__PR((const char *name, int level, int dflags,
-							struct timeval *date,
+							struct timespec *date,
 								BOOL useold));
 LOCAL	dumpd_t *newdumpdates	__PR((const char *name, int level, int dflags,
-							struct timeval *date));
+							struct timespec *date));
 LOCAL	dumpd_t	*freedumpdates	__PR((dumpd_t *dp));
 
 EXPORT void
@@ -147,7 +149,7 @@ writedumpdates(fname, filesys, level, dflags, date)
 	const char	*filesys;
 	int		level;
 	int		dflags;
-	struct timeval	*date;
+	struct timespec	*date;
 {
 	FILE	*f;
 	dumpd_t	*dp;
@@ -197,7 +199,7 @@ outentry(f, name, level, dflags, date)
 	char		*name;
 	int		level;
 	int		dflags;
-	struct timeval	*date;
+	struct timespec	*date;
 {
 	int	len;
 	time_t	t = date->tv_sec; /* FreeBSD/MacOS X -> broken tv_sec/time_t */
@@ -211,20 +213,20 @@ outentry(f, name, level, dflags, date)
 	if (len < 1)
 		len = 1;
 
-	fprintf(f, "%s\t%*s%2d%s %10lld.%6.6lld %s",
+	fprintf(f, "%s\t%*s%2d%s %10lld.%9.9lld %s",
 		name,
 		len,
 		"",
 		level,
 		(dflags & DD_PARTIAL) ? "P":"",
 		(Llong)date->tv_sec,
-		(Llong)date->tv_usec,
+		(Llong)date->tv_nsec,
 		ctime(&t));
 }
 
 EXPORT char *
 dumpdate(date)
-	struct timeval	*date;
+	struct timespec	*date;
 {
 	char	*p;
 	time_t	t = date->tv_sec; /* FreeBSD/MacOS X -> broken tv_sec/time_t */
@@ -254,7 +256,7 @@ getentry(line, fname)
 	char	*p;
 	int	level;
 	int	dflags = 0;
-	struct timeval	tdate;
+	struct timespec	tdate;
 
 	p = line;
 	do {
@@ -288,10 +290,10 @@ getentry(line, fname)
 EXPORT BOOL
 getdumptime(p, tvp)
 	char		*p;
-	struct timeval	*tvp;
+	struct timespec	*tvp;
 {
 	Llong		date;
-	Llong		dfrac;
+	Llong		dfrac = 0;
 
 	p = astollb(p, &date, 10);
 	if (*p == '.') {
@@ -310,11 +312,11 @@ getdumptime(p, tvp)
 			l = p - s;
 			p = p2;
 		}
-		while (l < 6) {		/* Convert to usecs */
+		while (l < 9) {		/* Convert to nsecs */
 			dfrac  *= 10;
 			l++;
 		}
-		while (l > 6) {		/* Convert to usecs */
+		while (l > 9) {		/* Convert to nsecs */
 			dfrac  /= 10;
 			l--;
 		}
@@ -324,7 +326,7 @@ getdumptime(p, tvp)
 		return (FALSE);
 	}
 	tvp->tv_sec = date;
-	tvp->tv_usec = dfrac;
+	tvp->tv_nsec = dfrac;
 	return (TRUE);
 }
 
@@ -390,7 +392,7 @@ adddumpdates(name, level, dflags, date, useold)
 	const char	*name;
 	int		level;
 	int		dflags;
-	struct timeval	*date;
+	struct timespec	*date;
 	BOOL		useold;
 {
 	dumpd_t	*dp = dumpdates;
@@ -423,7 +425,7 @@ newdumpdates(name, level, dflags, date)
 	const char	*name;
 	int		level;
 	int		dflags;
-	struct timeval	*date;
+	struct timespec	*date;
 {
 	dumpd_t	*dp;
 

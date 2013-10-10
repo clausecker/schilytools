@@ -1,8 +1,8 @@
-/* @(#)bsh.h	1.58 12/04/26 Copyright 1985-2012 J. Schilling */
+/* @(#)bsh.h	1.59 13/09/25 Copyright 1985-2013 J. Schilling */
 /*
  *	Bsh general definitions
  *
- *	Copyright (c) 1985-2012 J. Schilling
+ *	Copyright (c) 1985-2013 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -11,6 +11,8 @@
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -19,7 +21,7 @@
 #include <schily/mconfig.h>
 #include <schily/ccomdefs.h>
 #include <schily/stdlib.h>
-#include <schily/unistd.h>	/* Include sys/types.h to make off_t available */
+#include <schily/unistd.h>	/* Include sys/types.h for off_t */
 #include <schily/string.h>
 #include <schily/standard.h>
 #include <schily/schily.h>
@@ -31,12 +33,6 @@
 
 
 #define	F_NULL	(int (*) ()) 0
-
-/*
- *	comment this out to use old history-mechanism
- *	without line-editing features
- */
-/*#define	INTERACTIVE*/
 
 #define	TEST			/* include test code */
 
@@ -134,7 +130,7 @@ extern FILE	*gstd[];	/* The global stdio Argvec (std{in!out!err} */
 extern FILE	*cmdfp;		/* File pointer to the current shell script */
 extern int	ex_status;	/* The global exit status ($?)		    */
 extern char	**evarray;	/* The environment array managed by us	    */
-extern char	*prompts[];	/* A list of prompts used by the input editor*/
+extern char	*prompts[];	/* A list of prompts used by the input editor */
 extern FILE	*protfile;	/* File pointer used for the cmd protocol   */
 #ifdef	VFORK
 extern	char	*Vlist;		/* To free things allocated by vfork() child */
@@ -150,9 +146,12 @@ extern	char	**Vav;		/* To free things allocated by vfork() child */
  */
 extern	sigret	intr		__PR((int sig));
 extern	int	main		__PR((int ac, char **av, char **ev));
-extern	BOOL	dofile		__PR((char *s, int tab, int flag, FILE **std, BOOL  jump));
-extern	void	doopen		__PR((FILE *fd, char *s, int tab, int flag, FILE **std, BOOL  jump));
-extern	void	process		__PR((FILE *f, int flag, FILE **std, BOOL  jump));
+extern	BOOL	dofile		__PR((char *s, int tab, int flag,
+						FILE **std, BOOL  jump));
+extern	void	doopen		__PR((FILE *fd, char *s, int tab, int flag,
+						FILE **std, BOOL  jump));
+extern	void	process		__PR((FILE *f, int flag,
+						FILE **std, BOOL  jump));
 extern	int	berror		__PR((const char *s, ...)) __printflike__(1, 2);
 extern	char	*errstr		__PR((int err));
 extern	void	close_other_files	__PR((FILE **std));
@@ -207,7 +206,9 @@ extern	void	pset		__PR((pid_t child, int flag));
 extern	void	block_sigs	__PR((void));
 extern	void	unblock_sigs	__PR((void));
 extern	int	ewait		__PR((pid_t child, int flag));
-extern	int	fexec		__PR((char **path, char *name, FILE *in, FILE *out, FILE *err, char **av, char **env));
+extern	int	fexec		__PR((char **path, char *name,
+						FILE *in, FILE *out, FILE *err,
+						char **av, char **env));
 extern	char	*_findinpath	__PR((char *name, int mode, BOOL plain_file));
 
 /*
@@ -288,9 +289,12 @@ extern	void	setstime	__PR((void));
 #ifdef	RUSAGE_SELF
 extern	void	getpruself	__PR((struct rusage *prusage));
 extern	void	getpruchld	__PR((struct rusage *prusage));
-extern	void	prtimes		__PR((FILE **std, struct rusage *prusage));
-extern	void	rusagesub	__PR((struct rusage *pru1, struct rusage *pru2));
-extern	void	rusageadd	__PR((struct rusage *pru1, struct rusage *pru2));
+extern	void	prtimes		__PR((FILE **std,
+					struct rusage *prusage));
+extern	void	rusagesub	__PR((struct rusage *pru1,
+					struct rusage *pru2));
+extern	void	rusageadd	__PR((struct rusage *pru1,
+					struct rusage *pru2));
 #endif
 
 /*
@@ -309,7 +313,8 @@ extern	void	init_input	__PR((void));
 extern	int	getnextc	__PR((void));
 extern	int	nextc		__PR((void));
 extern	void	space		__PR((int n));
-extern	void	append_line	__PR((char *linep, unsigned int len, unsigned int pos));
+extern	void	append_line	__PR((char *linep, unsigned int len,
+							unsigned int pos));
 extern	char	*match_hist	__PR((char *pattern));
 extern	char	*make_line	__PR((int (*f)(FILE *), FILE *arg));
 extern	char	*get_line	__PR((int n, FILE *f));
@@ -369,17 +374,14 @@ extern	BOOL	ev_set_locked	__PR((char *val));
 /*
  * alloc.c
  */
-/*extern	void	free		__PR((void *t));*/
 extern	void	*Jfree		__PR((void *t, void *chain));
-#ifdef	FOUND_SIZE_T
-/*extern	char	*malloc		__PR((size_t size));*/
-/*extern	char	*realloc 	__PR((void *t, size_t size));*/
-/*extern	char	*alloc		__PR((size_t, char *filler));*/
-#endif
 #ifdef	D_MALLOC
-extern	void	*dbg_malloc		__PR((size_t size, char *file, int line));
-extern	void	*dbg_calloc		__PR((size_t nelem, size_t elsize, char *file, int line));
-extern	void	*dbg_realloc		__PR((void *t, size_t size, char *file, int line));
+extern	void	*dbg_malloc		__PR((size_t size,
+							char *file, int line));
+extern	void	*dbg_calloc		__PR((size_t nelem, size_t elsize,
+							char *file, int line));
+extern	void	*dbg_realloc		__PR((void *t, size_t size,
+							char *file, int line));
 #define	malloc(s)			dbg_malloc(s, __FILE__, __LINE__)
 #define	calloc(n, s)			dbg_calloc(n, s, __FILE__, __LINE__)
 #define	realloc(t, s)			dbg_realloc(t, s, __FILE__, __LINE__)
@@ -404,7 +406,8 @@ extern	void	*get_heapend	__PR((void));
 #ifdef	RUSAGE_SELF
 #ifdef	_SCHILY_WAIT_H			/* Needed for WAIT_T */
 
-extern	int	wait3	__PR((WAIT_T *status, int options, struct rusage *rusage));
+extern	int	wait3	__PR((WAIT_T *status, int options,
+						struct rusage *rusage));
 #endif
 #endif
 #endif
@@ -415,4 +418,6 @@ extern	int	wait3	__PR((WAIT_T *status, int options, struct rusage *rusage));
  */
 extern	void	pfinit		__PR((void));
 extern	void	pfend		__PR((void));
-extern	int	pfexec		__PR((char **path, char *name, FILE *in, FILE *out, FILE *err, char **av, char **env));
+extern	int	pfexec		__PR((char **path, char *name,
+						FILE *in, FILE *out, FILE *err,
+						char **av, char **env));

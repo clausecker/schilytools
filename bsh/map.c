@@ -1,13 +1,13 @@
-/* @(#)map.c	1.31 12/05/06 Copyright 1986-2012 J. Schilling */
+/* @(#)map.c	1.32 13/09/25 Copyright 1986-2013 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)map.c	1.31 12/05/06 Copyright 1986-2012 J. Schilling";
+	"@(#)map.c	1.32 13/09/25 Copyright 1986-2013 J. Schilling";
 #endif
 /*
  *	The map package for BSH & VED
  *
- *	Copyright (c) 1986-2012 J. Schilling
+ *	Copyright (c) 1986-2013 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -16,6 +16,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -50,12 +52,12 @@ static	UConst char sccsid[] =
 #include <schily/stdio.h>
 
 #ifdef	BSH
-#	include "bsh.h"
-#	include "str.h"
-#	include "strsubs.h"
+#include "bsh.h"
+#include "str.h"
+#include "strsubs.h"
 #else
-#	include <schily/standard.h>
-#	include "ved.h"
+#include <schily/standard.h>
+#include "ved.h"
 #endif
 
 #include <schily/stdlib.h>
@@ -66,8 +68,8 @@ static	UConst char sccsid[] =
 #include <schily/errno.h>
 
 #ifndef	BSH
-#	define	INTERACTIVE
-#	define	strbeg(x, y)	(strstr((y), (x)) == (y))
+#define	INTERACTIVE
+#define	strbeg(x, y)	(strstr((y), (x)) == (y))
 
 char	slash[] = "/";
 char	mapname[] = ".vedmap";
@@ -75,11 +77,11 @@ char	for_read[] = "rb";
 /*
  * Use non-interruptable version
  */
-#	define	getnextc	nigetnextc
+#define	getnextc	nigetnextc
 
 #else
-#	define	Uchar	unsigned char
-#	define	UC	(unsigned char *)
+#define	Uchar	unsigned char
+#define	UC	(unsigned char *)
 #endif
 
 #ifdef	INTERACTIVE
@@ -129,7 +131,7 @@ EXPORT	BOOL	del_map		__PR((char *from));
 LOCAL	BOOL	_add_map	__PR((Uchar *mn, Uchar *ms, char *comment));
 LOCAL	BOOL	_del_map	__PR((char *mn));
 #ifdef	BSH
-EXPORT	void	list_map	__PR((FILE * f));
+EXPORT	void	list_map	__PR((FILE *f));
 LOCAL	char	*get_map	__PR((int c));
 #else
 EXPORT	void	list_map	__PR((ewin_t *wp));
@@ -138,7 +140,7 @@ LOCAL	char	*get_map	__PR((ewin_t *wp, int c));
 LOCAL	void	init_cursor_maps __PR((void));
 #ifndef	BSH
 EXPORT	void	init_fk_maps	__PR((void));
-LOCAL	char	*pretty_string	__PR((Uchar* s));
+LOCAL	char	*pretty_string	__PR((Uchar *s));
 #endif
 
 /*
@@ -250,8 +252,7 @@ map_init()
 	mp_init = FALSE;
 	init_mapstream();
 	init_cursor_maps();
-/*	init_fk_maps();*/
-	if ((f = fileopen(mapfname, for_read)) == (FILE *) NULL) {
+	if ((f = fileopen(mapfname, for_read)) == (FILE *)NULL) {
 		if (geterrno() == ENOENT)
 			return;
 #ifdef	BSH
@@ -269,8 +270,9 @@ map_init()
 			continue;
 		if (!add_map(ap[0], ap[1], ap[2])) {
 			/*EMPTY*/
-			/*
-error("'%s' already defined.", pretty_string(ap[0])) */
+#ifdef	DEBUG_ALREADY
+error("'%s' already defined.", pretty_string(ap[0]))
+#endif
 			;
 		}
 	}
@@ -392,11 +394,11 @@ _add_map(mn, ms, comment)
 	/*
 	 * First create and init new map node.
 	 */
-	tn = (smap_t *) malloc(sizeof (*tn));
+	tn = (smap_t *)malloc(sizeof (*tn));
 	if (tn == (smap_t *)NULL)
 		return (FALSE);
-	*movebytes((char *) mn, (char *) tn->m_from, M_NAMELEN) = '\0';
-	*movebytes((char *) ms, (char *) tn->m_to, M_STRINGLEN) = '\0';
+	*movebytes((char *)mn, (char *)tn->m_from, M_NAMELEN) = '\0';
+	*movebytes((char *)ms, (char *)tn->m_to, M_STRINGLEN) = '\0';
 	if (comment) {
 		tn->m_comment = malloc(strlen(comment)+1);
 		if (tn->m_comment)
@@ -404,17 +406,17 @@ _add_map(mn, ms, comment)
 	} else {
 		tn->m_comment = NULL;
 	}
-	tn->m_next = (smap_t *) NULL;
+	tn->m_next = (smap_t *)NULL;
 
 	if (++maptab[*mn] > 254) {		/* Too many Entrys */
 		if (tn->m_comment)
 			free(tn->m_comment);
-		free((char *) tn);
+		free((char *)tn);
 		maptab[*mn]--;
 		return (FALSE);
 	}
 
-	if (first_map == (smap_t *) NULL) {
+	if (first_map == (smap_t *)NULL) {
 		first_map = tn;
 		return (TRUE);
 	}
@@ -424,7 +426,7 @@ _add_map(mn, ms, comment)
 	 */
 	np = last = first_map;
 	for (; ; np = np->m_next) {
-		if (np == (smap_t *) NULL) {
+		if (np == (smap_t *)NULL) {
 			/*
 			 * Append to end of list
 			 */
@@ -440,7 +442,7 @@ _add_map(mn, ms, comment)
 			 */
 			if (tn->m_comment)
 				free(tn->m_comment);
-			free((char *) tn);
+			free((char *)tn);
 			maptab[*mn]--;
 			return (FALSE);
 		}
@@ -478,17 +480,20 @@ _del_map(mn)
 
 	if (streql(mn, np->m_from)) {
 		first_map = np->m_next;
-		free((char *) np);
+		free((char *)np);
 		return (TRUE);
 	}
 	for (; ; np = np->m_next) {
-		if (np->m_next == (smap_t *) NULL) {
+		if (np->m_next == (smap_t *)NULL) {
 #ifdef	BSH
 			berror("'%s' not found", mn);
 			ex_status = 1;
 #else
-/*			writeerr(wp, "'%s' not found", mn);*/
+#ifdef	__use_writerr_on_not_found__
+			writeerr(wp, "'%s' not found", mn);
+#else
 			error("'%s' not found", mn);
+#endif
 #endif
 			return (FALSE);
 		}
@@ -497,7 +502,7 @@ _del_map(mn)
 			np->m_next = np->m_next->m_next;
 			if (np->m_comment)
 				free(np->m_comment);
-			free((char *) tn);
+			free((char *)tn);
 			maptab[(Uchar) *mn]--;
 			return (TRUE);
 		}
@@ -564,30 +569,42 @@ get_map(wp, c)
 	register	char	*cp;
 	register	char	*name;
 
-/*writeerr("getm %d", c);*/
+#ifndef	BSH
+#ifdef	GETMAP_DEBUG
+writeerr("getm %d", c);
+#endif
+#endif
 	cp = name = m_from;
 	*cp++ = c;
 	tn = first_map;
 	for (i = 0; i < M_NAMELEN; i++) {
 		*cp = '\0';
 		for (; ; tn = tn->m_next) {
-			if (tn == (smap_t *) NULL) {
+			if (tn == (smap_t *)NULL) {
 				pushmap(&name[1], cp - &name[1]);
 				return (NULL);
 			}
-/*cdbg("name '%s' from '%s' %d", name, pretty_string(tn->m_from), cp - name);*/
+#ifdef	GETMAP_DEBUG
+cdbg("name '%s' from '%s' %d", name, pretty_string(tn->m_from), cp - name);
+#endif
 			if (strcmp(name, tn->m_from) == 0)
 				return (tn->m_to);
 			if (cmpbytes(name, tn->m_from, cp-name) >= (cp-name))
 				break;
 		}
-/*cdbg("mapgetc()");*/
+#ifdef	GETMAP_DEBUG
+cdbg("mapgetc()");
+#endif
 #ifdef	BSH
 		*cp++ = mapgetc();	/* XXX EOF ??? */
 #else
 		*cp++ = mapgetc(wp);	/* XXX EOF ??? */
 #endif
-/*writeerr("mapg %d", cp[-1]);*/
+#ifndef	BSH
+#ifdef	GETMAP_DEBUG
+writeerr("mapg %d", cp[-1]);
+#endif
+#endif
 	}
 	return (NULL); /* XXX NOTREACHED ??? */
 }
@@ -646,9 +663,10 @@ LOCAL struct fk_maps {
 	{ "k7", UC "", "Paste        (F7)" },
 	{ "k8", UC "", "Change buffer(F8)" },
 	{ "k9", UC "", "Search down  (F9)" },
-
-/*	{ "k;", UC "^Z", "Re search    (F10)" },*/
+#ifdef	__coment__
+	{ "k;", UC "^Z", "Re search    (F10)" },
 /* XXX Real ^Z replaced by ^ Z to allow compilation on DOS/WNT */
+#endif
 	{ "k;", UC "\032", "Re search    (F10)" },
 
 	{ "F1", UC "", "Get from     (F11)" },
@@ -657,13 +675,11 @@ LOCAL struct fk_maps {
 	{ "kA", UC "",	"Insert line" },
 	{ "kD", UC "\177",	"Delete char" },
 	{ "kE", UC "",	"Delete to eol" },
-/*	{ "kF", UC "\004",	"scroll down" },*/
 	{ "@7", UC "",	"Go to eol" },
 	{ "kh", UC "",	"Go to sol" },
 	{ "kL", UC "",	"Delete line" },
 	{ "kN", UC "n",	"Page down"},
 	{ "kP", UC "p",	"Page up"},
-/*	{ "kR", UC "\025",	"scroll up"},*/
 				/* \015 was ^M before Mac OS X */
 	{ "kS",	UC "999999\015",	"Delete to end of screen" },
 
@@ -704,7 +720,9 @@ init_fk_maps()
 	for (mp = fk_maps; mp->fk_tc; mp++) {
 		if (mp->fk_map) {
 			p = tgetstr(mp->fk_tc, tty_entry());
-/*error("tc: '%s' map: '%s' %X\r\n", mp->fk_tc, p, *tty_entry());*/
+#ifdef	INIT_FP_MAPS_DEBUG
+error("tc: '%s' map: '%s' %X\r\n", mp->fk_tc, p, *tty_entry());
+#endif
 			if (p == NULL) {
 				if (mp->fk_tc[0] == 'k' &&
 				    mp->fk_tc[1] == 'h') {
@@ -858,8 +876,10 @@ init_cursor_maps()
 		_add_map(UC "\33[8~", UC "", "Cursor End");
 		_add_map(UC "\33[3~", UC "\177", "Delete Char");
 	}
-	_add_map(UC "\33n", UC "\33", "Search down after clearing previous search");
-	_add_map(UC "\33p", UC "\33", "Search up after clearing previous search");
+	_add_map(UC "\33n", UC "\33",
+				"Search down after clearing previous search");
+	_add_map(UC "\33p", UC "\33",
+				"Search up after clearing previous search");
 	environ = esav;
 }
 #endif

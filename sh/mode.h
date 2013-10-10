@@ -2,11 +2,13 @@
  * CDDL HEADER START
  *
  * The contents of this file are subject to the terms of the
- * Common Development and Distribution License (the "License").
- * You may not use this file except in compliance with the License.
+ * Common Development and Distribution License, Version 1.0 only
+ * (the "License").  You may not use this file except in compliance
+ * with the License.
  *
  * You can obtain a copy of the license at usr/src/OPENSOLARIS.LICENSE
- * or http://www.opensolaris.org/os/licensing.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  * See the License for the specific language governing permissions
  * and limitations under the License.
  *
@@ -33,15 +35,15 @@
 #define	_MODE_H
 
 /*
- * This file contains modifications Copyright 2008-2012 J. Schilling
+ * This file contains modifications Copyright 2008-2013 J. Schilling
  *
- * @(#)mode.h	1.9 12/04/05 2008-2012 J. Schilling
+ * @(#)mode.h	1.12 13/09/24 2008-2013 J. Schilling
  */
 
 /*
  *	UNIX shell
  */
-#ifdef	SCHILY_BUILD
+#ifdef	SCHILY_INCLUDES
 #include <schily/unistd.h>
 #include <schily/utypes.h>
 #else
@@ -84,27 +86,6 @@ typedef union
 	char	*_bytptr;
 } address;
 
-
-/* heap storage */
-struct blk
-{
-	struct blk	*word;
-#ifdef	SIZEOF_DOUBLE
-
-#if SIZEOF_CHAR_P < SIZEOF_DOUBLE
-#define	HAVE_BLK_PAD
-	char		pad[ALIGNSIZ - sizeof (struct blk *)];
-#endif
-
-#else
-#define	HAVE_BLK_PAD
-	/*
-	 * Workaround for non-dynamic configuration in Solaris ON
-	 */
-	char		pad[ALIGNSIZ - sizeof (struct blk *) <= 0 ?
-				ALIGNSIZ : ALIGNSIZ - sizeof (struct blk *)];
-#endif
-};
 
 /*
  * largefile converson hack note.

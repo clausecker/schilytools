@@ -38,17 +38,17 @@
 /*
  * This file contains modifications Copyright 2008-2013 J. Schilling
  *
- * @(#)fault.c	1.21 13/07/07 2008-2013 J. Schilling
+ * @(#)fault.c	1.23 13/09/24 2008-2013 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)fault.c	1.21 13/07/07 2008-2013 J. Schilling";
+	"@(#)fault.c	1.23 13/09/24 2008-2013 J. Schilling";
 #endif
 
 /*
  * UNIX shell
  */
-#ifdef	SCHILY_BUILD
+#ifdef	SCHILY_INCLUDES
 #ifdef	HAVE_SYS_PROCSET_H
 #include	<sys/procset.h>
 #endif
@@ -94,7 +94,11 @@ static	UConst char sccsid[] =
 	int	*intrptr;
 	int	intrcnt;
 
-static	void (*psig0_func) __PR((int)) = SIG_ERR;	/* previous signal handler for signal 0 */
+/*
+ * previous signal handler for signal 0
+ */
+static	void (*psig0_func) __PR((int)) = SIG_ERR;
+
 #if defined(HAVE_STACK_T) && defined(HAVE_SIGALTSTACK)
 static	char sigsegv_stack[SIGSTKSZ];
 #endif
@@ -109,7 +113,8 @@ static void	fault		__PR((int sig));
 	void	chktrap		__PR((void));
 	void	systrap		__PR((int argc, char **argv));
 	void	sh_sleep	__PR((unsigned int ticks));
-static void	sigsegv		__PR((int sig, siginfo_t *sip, ucontext_t *uap));
+static void	sigsegv		__PR((int sig, siginfo_t *sip,
+						ucontext_t *uap));
 static void	set_sigval	__PR((int sig, void (*fun)(int)));
 	void	init_sigval	__PR((void));
 
@@ -505,7 +510,8 @@ systrap(argc, argv)
 				    !ignoring(sig)) {
 					handle(sig, fault);
 					trapflg[sig] |= SIGMOD;
-					replace(&trapcom[sig], (unsigned char *)a1);
+					replace(&trapcom[sig],
+						(unsigned char *)a1);
 				}
 			} else if (handle(sig, SIG_IGN)) {
 				/*
@@ -652,7 +658,9 @@ init_sigval()
 	set_sigval(SIGFPE, done);
 #endif
 #ifdef	SIGKILL
-/*	set_sigval(SIGKILL, 0);*/
+#ifdef	__set_nullsig__
+	set_sigval(SIGKILL, 0);
+#endif
 #endif
 #ifdef	SIGBUS
 	set_sigval(SIGBUS, done);
@@ -681,13 +689,17 @@ init_sigval()
 	set_sigval(SIGUSR2, done);
 #endif
 #ifdef	SIGCHLD
-/*	set_sigval(SIGCHLD, 0);*/
+#ifdef	__set_nullsig__
+	set_sigval(SIGCHLD, 0);
+#endif
 #endif
 #ifdef	SIGPWR
 	set_sigval(SIGPWR, done);
 #endif
 #ifdef	SIGWINCH
-/*	set_sigval(SIGWINCH, 0);*/
+#ifdef	__set_nullsig__
+	set_sigval(SIGWINCH, 0);
+#endif
 #endif
 #ifdef	SIGURG
 	set_sigval(SIGURG, done);
@@ -696,19 +708,29 @@ init_sigval()
 	set_sigval(SIGPOLL, done);
 #endif
 #ifdef	SIGSTOP
-/*	set_sigval(SIGSTOP, 0);*/
+#ifdef	__set_nullsig__
+	set_sigval(SIGSTOP, 0);
+#endif
 #endif
 #ifdef	SIGTSTP
-/*	set_sigval(SIGTSTP, 0);*/
+#ifdef	__set_nullsig__
+	set_sigval(SIGTSTP, 0);
+#endif
 #endif
 #ifdef	SIGCONT
-/*	set_sigval(SIGCONT, 0);*/
+#ifdef	__set_nullsig__
+	set_sigval(SIGCONT, 0);
+#endif
 #endif
 #ifdef	SIGTTIN
-/*	set_sigval(SIGTTIN, 0);*/
+#ifdef	__set_nullsig__
+	set_sigval(SIGTTIN, 0);
+#endif
 #endif
 #ifdef	SIGTTOU
-/*	set_sigval(SIGTTOU, 0);*/
+#ifdef	__set_nullsig__
+	set_sigval(SIGTTOU, 0);
+#endif
 #endif
 #ifdef	SIGVTALRM
 	set_sigval(SIGVTALRM, done);

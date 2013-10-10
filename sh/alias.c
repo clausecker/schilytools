@@ -1,7 +1,7 @@
-/* @(#)alias.c	1.3 13/06/03 Copyright 1986-2013 J. Schilling */
+/* @(#)alias.c	1.4 13/09/24 Copyright 1986-2013 J. Schilling */
 #include <schily/mconfig.h>
 static	UConst char sccsid[] =
-	"@(#)alias.c	1.3 13/06/03 Copyright 1986-2013 J. Schilling";
+	"@(#)alias.c	1.4 13/09/24 Copyright 1986-2013 J. Schilling";
 /*
  *	The built-in commands "alias" and "unalias".
  *
@@ -14,6 +14,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -146,10 +148,15 @@ err:
 		val = UC strchr((char *)a1, '=');
 		if (val) {
 			*val++ = '\0';
-			if (pflag || (doglobal == 0 && dolocal == 0))
-				ab_push(tab, (char *)make(a1), (char *)make(val), aflags);
-			else
-				ab_insert(tab, (char *)make(a1), (char *)make(val), aflags);
+			if (pflag || (doglobal == 0 && dolocal == 0)) {
+				ab_push(tab,
+					(char *)make(a1), (char *)make(val),
+					aflags);
+			} else {
+				ab_insert(tab,
+					(char *)make(a1), (char *)make(val),
+					aflags);
+			}
 		} else {
 			ab_list(tab, (char *)a1, 1, lflags | pflags);
 		}

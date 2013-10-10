@@ -1,14 +1,14 @@
-/* @(#)xheader.c	1.85 11/08/03 Copyright 2001-2011 J. Schilling */
+/* @(#)xheader.c	1.86 13/10/05 Copyright 2001-2013 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)xheader.c	1.85 11/08/03 Copyright 2001-2011 J. Schilling";
+	"@(#)xheader.c	1.86 13/10/05 Copyright 2001-2013 J. Schilling";
 #endif
 /*
  *	Handling routines to read/write, parse/create
  *	POSIX.1-2001 extended archive headers
  *
- *	Copyright (c) 2001-2011 J. Schilling
+ *	Copyright (c) 2001-2013 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -17,6 +17,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -1377,7 +1379,7 @@ get_xtime(keyword, arg, len, secp, nsecp)
 	long	*nsecp;
 {
 #ifdef	__use_default_time__
-extern struct	timeval	ddate;
+extern struct	timespec	ddate;
 #endif
 	Llong	ll;
 	long	l;

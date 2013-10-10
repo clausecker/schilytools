@@ -1,11 +1,11 @@
-/* @(#)tgoto.c	1.10 09/07/11 Copyright 1986-2009 J. Schilling */
+/* @(#)tgoto.c	1.12 13/09/19 Copyright 1986-2013 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)tgoto.c	1.10 09/07/11 Copyright 1986-2009 J. Schilling";
+	"@(#)tgoto.c	1.12 13/09/19 Copyright 1986-2013 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1986-2009 J. Schilling
+ *	Copyright (c) 1986-2013 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -14,6 +14,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -23,7 +25,7 @@ static	UConst char sccsid[] =
 #include <schily/string.h>
 #include <schily/termcap.h>
 
-EXPORT	char *	tgoto	__PR((char *CM, int col, int line));
+EXPORT	char	*tgoto	__PR((char *CM, int col, int line));
 
 /*
  * Define exported variables.
@@ -150,8 +152,8 @@ badfmt:
 			*op++ = val;
 			goto nextparam;
 
-		case '>':		/* %>xy if val > x add y	*/
-					/* This is from BSD (chng state)*/
+		case '>':		/* %>xy if val > x add y	 */
+					/* This is from BSD (chng state) */
 
 			if (val > *p++)
 				val += *p++;
@@ -159,39 +161,39 @@ badfmt:
 				p++;
 			continue;
 
-		case 'B':		/* convert to BCD char coding	*/
-					/* This is from BSD (chng state)*/
+		case 'B':		/* convert to BCD char coding	 */
+					/* This is from BSD (chng state) */
 
 			val += 6 * (val / 10);
 			continue;
 
-		case 'D':		/* weird Delta Data conversion	*/
-					/* This is from BSD (chng state)*/
+		case 'D':		/* weird Delta Data conversion	 */
+					/* This is from BSD (chng state) */
 
 			val -= 2 * (val % 16);
 			continue;
 
-		case 'i':		/* increment row/col by one	*/
-					/* This is from BSD (chng state)*/
+		case 'i':		/* increment row/col by one	 */
+					/* This is from BSD (chng state) */
 			col++;
 			line++;
 			val++;
 			continue;
 
-		case 'm':		/* xor both parameters by 0177	*/
-					/* This is from GNU (chng state)*/
+		case 'm':		/* xor both parameters by 0177	 */
+					/* This is from GNU (chng state) */
 			col ^= 0177;
 			line ^= 0177;
 			goto setval;
 
-		case 'n':		/* xor both parameters by 0140	*/
-					/* This is from BSD (chng state)*/
+		case 'n':		/* xor both parameters by 0140	 */
+					/* This is from BSD (chng state) */
 			col ^= 0140;
 			line ^= 0140;
 			goto setval;
 
-		case 'r':		/* reverse row/col		*/
-					/* This is from BSD (chng state)*/
+		case 'r':		/* reverse row/col		 */
+					/* This is from BSD (chng state) */
 			usecol = 1;
 			goto setval;
 

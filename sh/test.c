@@ -2,11 +2,13 @@
  * CDDL HEADER START
  *
  * The contents of this file are subject to the terms of the
- * Common Development and Distribution License (the "License").
- * You may not use this file except in compliance with the License.
+ * Common Development and Distribution License, Version 1.0 only
+ * (the "License").  You may not use this file except in compliance
+ * with the License.
  *
  * You can obtain a copy of the license at usr/src/OPENSOLARIS.LICENSE
- * or http://www.opensolaris.org/os/licensing.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  * See the License for the specific language governing permissions
  * and limitations under the License.
  *
@@ -34,13 +36,13 @@
 #include "defs.h"
 
 /*
- * This file contains modifications Copyright 2008-2012 J. Schilling
+ * This file contains modifications Copyright 2008-2013 J. Schilling
  *
- * @(#)test.c	1.13 12/05/11 2008-2012 J. Schilling
+ * @(#)test.c	1.17 13/09/24 2008-2013 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)test.c	1.13 12/05/11 2008-2012 J. Schilling";
+	"@(#)test.c	1.17 13/09/24 2008-2013 J. Schilling";
 #endif
 
 
@@ -49,7 +51,7 @@ static	UConst char sccsid[] =
  *      [ expression ]
  */
 
-#ifdef	SCHILY_BUILD
+#ifdef	SCHILY_INCLUDES
 #include	<schily/types.h>
 #include	<schily/stat.h>
 #else
@@ -126,13 +128,14 @@ exp()
 
 	p1 = e1();
 	p2 = nxtarg(1);
-	if (p2 != 0)
-	{
+	if (p2 != 0) {
 		if (eq(p2, "-o"))
 			return (p1 | exp());
 
-		/* if (!eq(p2, ")"))
-			failed((unsigned char *)"test", synmsg); */
+#ifdef	__nono__
+		if (!eq(p2, ")"))
+			failed((unsigned char *)"test", synmsg);
+#endif
 	}
 	ap--;
 	return (p1);
@@ -171,8 +174,7 @@ e3()
 	Intmax_t		ll_1, ll_2;
 
 	a = nxtarg(0);
-	if (eq(a, "("))
-	{
+	if (eq(a, "(")) {
 		p1 = exp();
 		if (!eq(nxtarg(0), ")"))
 			failed((unsigned char *)"test", noparen);
@@ -180,8 +182,7 @@ e3()
 	}
 	p2 = nxtarg(1);
 	ap--;
-	if ((p2 == 0) || (!eq(p2, "=") && !eq(p2, "!=")))
-	{
+	if ((p2 == 0) || (!eq(p2, "=") && !eq(p2, "!="))) {
 		if (eq(a, "-r"))
 			return (chk_access(nxtarg(0), S_IREAD, 0) == 0);
 		if (eq(a, "-w"))
@@ -216,16 +217,13 @@ e3()
 			return (filtyp(nxtarg(0), S_IFLNK));
 		if (eq(a, "-s"))
 			return (fsizep(nxtarg(0)));
-		if (eq(a, "-t"))
-		{
+		if (eq(a, "-t")) {
 			if (ap >= ac)		/* no args */
 				return (isatty(1));
-			else if (eq((a = nxtarg(0)), "-a") || eq(a, "-o"))
-			{
+			else if (eq((a = nxtarg(0)), "-a") || eq(a, "-o")) {
 				ap--;
 				return (isatty(1));
-			}
-			else
+			} else
 				return (isatty(atoi((char *)a)));
 		}
 		if (eq(a, "-n"))
@@ -237,8 +235,7 @@ e3()
 	p2 = nxtarg(1);
 	if (p2 == 0)
 		return (!eq(a, ""));
-	if (eq(p2, "-a") || eq(p2, "-o"))
-	{
+	if (eq(p2, "-a") || eq(p2, "-o")) {
 		ap--;
 		return (!eq(a, ""));
 	}
@@ -292,7 +289,8 @@ filtyp(f, field)
 	int		field;
 {
 	struct stat statb;
-	int (*statf) __PR((const char *_nm, struct stat *_fs)) = (field == S_IFLNK) ? lstat : stat;
+	int (*statf) __PR((const char *_nm, struct stat *_fs)) =
+					(field == S_IFLNK) ? lstat : stat;
 
 	if ((*statf)((char *)f, &statb) < 0)
 		return (0);

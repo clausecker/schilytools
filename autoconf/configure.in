@@ -1,6 +1,6 @@
-dnl @(#)configure.in	1.244 13/04/17 Copyright 1998-2013 J. Schilling
+dnl @(#)configure.in	1.246 13/09/30 Copyright 1998-2013 J. Schilling
 dnl Process this file with autoconf to produce a configure script.
-AC_REVISION(1.244)dnl
+AC_REVISION(1.246)dnl
 
 dnl AC_INIT(xconfig.h.in)
 AC_INIT(config.guess)
@@ -356,6 +356,7 @@ AC_HEADER_FILE__FLAGS
 AC_HEADER_FILE__IO_BUF_BASE
 AC_STRUCT_TIMEVAL
 AC_STRUCT_TIMEZONE
+AC_STRUCT_TIMESPEC
 AC_STRUCT_MTGET_TYPE
 AC_STRUCT_MTGET_MODEL
 AC_STRUCT_MTGET_DSREG
@@ -682,6 +683,9 @@ ac_save_LIBS="$LIBS"
 AC_CHECK_LIB(c, res_init, lib_resolv="",
   [AC_CHECK_LIB(resolv, res_init, lib_resolv="-lresolv")])
 LIBS="$ac_save_LIBS"
+if test ."$lib_resolv" = .""; then
+	AC_DEFINE(HAVE_RESOLV_IN_LIBC)
+fi
 
 dnl Check for largefile support
 dnl Do this last to make sure that no large file definition
@@ -704,6 +708,9 @@ dnl AC_CHECK_LIB(crypt, crypt, lib_crypt="-lcrypt")
 
 AC_CHECK_LIB(c, crypt, lib_crypt="",
   [AC_CHECK_LIB(crypt, crypt, lib_crypt="-lcrypt")])
+if test ."$lib_crypt" = .""; then
+	AC_DEFINE(HAVE_CRYPT_IN_LIBC)
+fi
 
 ac_save_LIBS="$LIBS"
 LIBS="$LIBS $lib_crypt"
@@ -712,6 +719,9 @@ LIBS="$ac_save_LIBS"
 
 AC_CHECK_ILIB([#include <libintl.h>], c, gettext, lib_intl="",
   [AC_CHECK_ILIB([#include <libintl.h>], intl, gettext, lib_intl="-lintl")])
+if test ."$lib_intl" = .""; then
+	AC_DEFINE(HAVE_GETTEXT_IN_LIBC)
+fi
 
 ac_save_LIBS="$LIBS"
 LIBS="$LIBS $lib_intl"
@@ -720,6 +730,9 @@ LIBS="$ac_save_LIBS"
 
 AC_CHECK_ILIB([#include <iconv.h>], c, iconv_open, lib_iconv="",
     [AC_CHECK_ILIB([#include <iconv.h>], iconv, iconv_open, lib_iconv="-liconv")])
+if test ."$lib_iconv" = .""; then
+	AC_DEFINE(HAVE_ICONV_IN_LIBC)
+fi
 
 ac_save_LIBS="$LIBS"
 LIBS="$LIBS $lib_iconv"
@@ -809,6 +822,9 @@ LIBS="$ac_save_LIBS"
 AC_CHECK_LIB(c, clock_gettime, lib_rt="",
   [AC_CHECK_LIB(rt, clock_gettime, lib_rt="-lrt",
   [AC_CHECK_LIB(posix4, clock_gettime, lib_rt="-lposix4")])])
+if test ."$lib_rt" = .""; then
+	AC_DEFINE(HAVE_CLOCK_GETTIME_IN_LIBC)
+fi
 
 ac_save_LIBS="$LIBS"
 LIBS="$LIBS $lib_rt"

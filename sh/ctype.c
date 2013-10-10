@@ -24,7 +24,7 @@
 
 
 #if defined(sun)
-#pragma ident	"@(#)ctype.c	1.7	05/06/08 SMI"	/* SVr4.0 1.9.1.1	*/
+#pragma ident	"@(#)ctype.c	1.7	05/06/08 SMI"	/* SVr4.0 1.9.1.1 */
 #endif
 
 #include "defs.h"
@@ -32,11 +32,11 @@
 /*
  * This file contains modifications Copyright 2009-2012 J. Schilling
  *
- * @(#)ctype.c	1.4 12/05/11 2009-2012 J. Schilling
+ * @(#)ctype.c	1.5 13/09/25 2009-2012 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)ctype.c	1.4 12/05/11 2009-2012 J. Schilling";
+	"@(#)ctype.c	1.5 13/09/25 2009-2012 J. Schilling";
 #endif
 
 /*

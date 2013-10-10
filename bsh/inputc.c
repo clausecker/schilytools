@@ -1,8 +1,8 @@
-/* @(#)inputc.c	1.66 13/05/28 Copyright 1982, 1984-2011 J. Schilling */
+/* @(#)inputc.c	1.68 13/09/25 Copyright 1982, 1984-2013 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)inputc.c	1.66 13/05/28 Copyright 1982, 1984-2011 J. Schilling";
+	"@(#)inputc.c	1.68 13/09/25 Copyright 1982, 1984-2013 J. Schilling";
 #endif
 /*
  *	inputc.c
@@ -20,7 +20,7 @@ static	UConst char sccsid[] =
  *	in 1982 and 1983. This prototype only contained the editor and called
  *	shell commands via system().
  *
- *	Copyright (c) 1982, 1984-2011 J. Schilling
+ *	Copyright (c) 1982, 1984-2013 J. Schilling
  *	This version was first coded August 1984 and rewritten 01/22/85
  *
  *	Exported functions:
@@ -30,11 +30,13 @@ static	UConst char sccsid[] =
  *		init_input()	Init editor data structures
  *		getnextc()	Noninterruptable getc() -> export to map.c
  *		nextc()		Read mapped input from map.c (Input to inputc.c)
- *		_nextwc()	Read mapped wide char input from map.c (Input to inputc.c)
+ *		_nextwc()	Read mapped wide char input from map.c (Input
+ *				to inputc.c)
  *		space()		Output n spaces
  *		append_line()	Append a line into history (for hashcmd.c #lh)
  *		match_hist()	Return matched history line for csh: !line
- *		make_line()	Read a line from a file anr return allocated string
+ *		make_line()	Read a line from a file anr return allocated
+ *				string
  *		get_line()	-> Write Prompt, then return edited line
  *		put_history()	Put out history to FILE *
  *		save_history()	Save the history to ~/.history
@@ -48,6 +50,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -79,7 +83,6 @@ static	UConst char sccsid[] =
 #endif	/* USE_WCHAR */
 #undef	toint		/* Atari MiNT has this nonstandard definition */
 
-/*#define	XDEBUG*/
 #ifdef	XDEBUG		/* eXpand Debug */
 #define	DO_DEBUG
 #else
@@ -187,7 +190,8 @@ LOCAL	int	linediff	__PR((wchar_t *a, wchar_t *e));
 LOCAL	void	backspace	__PR((int n));
 EXPORT	void	space		__PR((int n));
 LOCAL	void	delete		__PR((wchar_t *p));
-LOCAL	wchar_t	*clearword	__PR((wchar_t *lp, wchar_t *cp, unsigned int	*lenp));
+LOCAL	wchar_t	*clearword	__PR((wchar_t *lp, wchar_t *cp,
+						unsigned int *lenp));
 LOCAL	void	clearline	__PR((wchar_t *lp, wchar_t *cp));
 LOCAL	void	ins_char	__PR((wchar_t *cp, int c));
 LOCAL	wchar_t	*ins_word	__PR((wchar_t *cp, wchar_t *s));
@@ -197,34 +201,45 @@ LOCAL	HISTPTR	mktmp		__PR((void));
 LOCAL	HISTPTR	hold_line	__PR((HISTPTR p));
 LOCAL	void	unhold_line	__PR((HISTPTR p, HISTPTR op));
 LOCAL	HISTPTR	remove_line	__PR((HISTPTR p));
-EXPORT	void	append_line	__PR((char *linep, unsigned int len, unsigned int pos));
-EXPORT	void	append_wline	__PR((wchar_t *linep, unsigned int len, unsigned int pos));
+EXPORT	void	append_line	__PR((char *linep, unsigned int len,
+						unsigned int pos));
+EXPORT	void	append_wline	__PR((wchar_t *linep, unsigned int len,
+						unsigned int pos));
 LOCAL	void	append_hline	__PR((wchar_t *linep, unsigned int len));
 LOCAL	void	move_to_end	__PR((HISTPTR p));
 LOCAL	void	stripout	__PR((void));
-LOCAL	HISTPTR match_input	__PR((HISTPTR cur_line, HISTPTR tmp_line, BOOL up));
+LOCAL	HISTPTR match_input	__PR((HISTPTR cur_line, HISTPTR tmp_line,
+						BOOL up));
 EXPORT	char	*match_hist	__PR((char *pattern));
-LOCAL	HISTPTR match		__PR((HISTPTR cur_line, wchar_t *pattern, BOOL up));
+LOCAL	HISTPTR match		__PR((HISTPTR cur_line, wchar_t *pattern,
+						BOOL up));
 LOCAL	int	edit_line	__PR((HISTPTR cur_line));
 LOCAL	void	redisp		__PR((wchar_t *lp, wchar_t *cp));
-LOCAL	wchar_t	*insert		__PR((wchar_t *cp, wchar_t *s, unsigned int *lenp));
-LOCAL	wchar_t	*undo_del	__PR((wchar_t *lp, wchar_t *cp, unsigned int *lenp));
+LOCAL	wchar_t	*insert		__PR((wchar_t *cp, wchar_t *s,
+						unsigned int *lenp));
+LOCAL	wchar_t	*undo_del	__PR((wchar_t *lp, wchar_t *cp,
+						unsigned int *lenp));
 LOCAL	char	*strwchr	__PR((char *s, wchar_t c));
 LOCAL	wchar_t	*xpwcs		__PR((wchar_t *cp));
-LOCAL	wchar_t	*xp_files	__PR((wchar_t *lp, wchar_t *cp, BOOL show, int *multip));
-LOCAL	wchar_t	*exp_files	__PR((wchar_t **lpp, wchar_t *cp, unsigned int *lenp, unsigned int *maxlenp, int *multip));
+LOCAL	wchar_t	*xp_files	__PR((wchar_t *lp, wchar_t *cp, BOOL show,
+						int *multip));
+LOCAL	wchar_t	*exp_files	__PR((wchar_t **lpp, wchar_t *cp,
+						unsigned int *lenp,
+						unsigned int *maxlenp,
+						int *multip));
 LOCAL	void	show_files	__PR((wchar_t *lp, wchar_t *cp));
 LOCAL	int	get_request	__PR((void));
-LOCAL	wchar_t	*esc_process	__PR((int xc, wchar_t *lp, wchar_t *cp, unsigned int *lenp));
+LOCAL	wchar_t	*esc_process	__PR((int xc, wchar_t *lp, wchar_t *cp,
+						unsigned int *lenp));
 LOCAL	wchar_t	*sget_line	__PR((void));
 LOCAL	wchar_t	*iget_line	__PR((void));
-EXPORT	char	*make_line	__PR((int (*f)(FILE *), FILE * arg));
-LOCAL	char	*fread_line	__PR((FILE * f));
-EXPORT	char	*get_line	__PR((int n, FILE * f));
-EXPORT	void	put_history	__PR((FILE * f, int intrflg));
+EXPORT	char	*make_line	__PR((int (*f)(FILE *), FILE *arg));
+LOCAL	char	*fread_line	__PR((FILE *f));
+EXPORT	char	*get_line	__PR((int n, FILE *f));
+EXPORT	void	put_history	__PR((FILE *f, int intrflg));
 EXPORT	void	save_history	__PR((int intrflg));
 EXPORT	void	read_init_history	__PR((void));
-EXPORT	void	readhistory	__PR((FILE * f));
+EXPORT	void	readhistory	__PR((FILE *f));
 LOCAL	void	term_init	__PR((void));
 LOCAL	void	tty_init	__PR((void));
 LOCAL	void	tty_term	__PR((void));
@@ -269,7 +284,8 @@ makewstr(s)
 			wchar_t	*tmp;
 	register	wchar_t	*s1;
 
-	if ((tmp = malloc((size_t) ((wcslen(s)+1)) * sizeof (wchar_t))) == NULL) {
+	if ((tmp = malloc((size_t)((wcslen(s)+1)) * sizeof (wchar_t))) ==
+	    NULL) {
 		raisecond("makewstr", (long)NULL);
 		return (0);
 	}
@@ -277,7 +293,8 @@ makewstr(s)
 	return (tmp);
 }
 
-LOCAL wchar_t *towcs	__PR((wchar_t *wbuf, size_t bsize, char *s, ssize_t len));
+LOCAL wchar_t *towcs	__PR((wchar_t *wbuf, size_t bsize, char *s,
+							ssize_t len));
 LOCAL wchar_t *
 towcs(wbuf, bsize, s, len)
 	wchar_t	*wbuf;
@@ -331,7 +348,8 @@ towcs(wbuf, bsize, s, len)
 	return (wbuf);
 }
 
-LOCAL char *tombs	__PR((char *cbuf, size_t bsize, wchar_t *ws, ssize_t wlen));
+LOCAL char *tombs	__PR((char *cbuf, size_t bsize, wchar_t *ws,
+						ssize_t wlen));
 LOCAL char *
 tombs(cbuf, bsize, ws, wlen)
 	char	*cbuf;
@@ -477,7 +495,8 @@ again:
 			goto again;
 	}
 
-#if	defined(F_GETFL) && defined(O_NONBLOCK) && (defined(EAGAIN) || defined(EWOULDBLOCK))
+#if	defined(F_GETFL) && defined(O_NONBLOCK) && \
+	(defined(EAGAIN) || defined(EWOULDBLOCK))
 #ifndef	EWOULDBLOCK			/* Not present on DJGPP */
 #define	EWOULDBLOCK	EAGAIN
 #endif
@@ -604,7 +623,7 @@ prettyp(c, b)
 	register int	c;
 	register BUF	*b;
 {
-	if (iswprint(c) /*|| c == '\n'*/) {
+	if (iswprint(c) /* || c == '\n' */) {
 		pch(c, b);
 		return;
 	}
@@ -704,9 +723,9 @@ LOCAL int
 chlen(c)
 	register int	c;
 {
-	if (iswprint(c) /*|| c == '\n'*/) {
+	if (iswprint(c) /* || c == '\n' */) {
 #ifdef	HAVE_WCWIDTH
-		return  (wcwidth(c));
+		return (wcwidth(c));
 #else
 		return (1);
 #endif
@@ -925,7 +944,7 @@ new_line(lp, old, new)
 	np = malloc(new * sizeof (*lp));
 	if (np == NULL)
 		return (np);
-	movebytes(lp, np, (int)old);		/* make_line hat kein NULL Byte ! */
+	movebytes(lp, np, (int)old);	/* make_line hat kein NULL Byte ! */
 	free(lp);
 	return (np);
 }
@@ -942,7 +961,7 @@ free_line(p)
 {
 	p->h_flags = 0;
 	free(p->h_line);
-	free((char *) p);
+	free((char *)p);
 }
 
 /*
@@ -1039,7 +1058,7 @@ remove_line(p)
 		 * Only free it if not claimed by a temporary pointer.
 		 */
 		free(p->h_line);
-		free((char *) p);
+		free((char *)p);
 	}
 	if (lp)
 		lp->h_next = np;
@@ -1185,14 +1204,11 @@ move_to_end(p)
 }
 
 
-/*---------------------------------------------------------------------------
-|
-| Stripout entfernt alle Zeilen, die den gleichen Inhalt wie die lezte Zeile
-| haben. Stripout wird aufgerufen, nachdem die aktuell editierte Zeile die
-| lezte Zeile geworden ist.
-|
-+---------------------------------------------------------------------------*/
-
+/*
+ * Stripout entfernt alle Zeilen, die den gleichen Inhalt wie die lezte Zeile
+ * haben. Stripout wird aufgerufen, nachdem die aktuell editierte Zeile die
+ * lezte Zeile geworden ist.
+ */
 LOCAL void
 stripout()
 {
@@ -1328,8 +1344,8 @@ match(cur_line, pattern, up)
 					hp = hp->h_next;
 			}
 		}
-		free((char *) aux);
-		free((char *) state);
+		free((char *)aux);
+		free((char *)state);
 	}
 	if (!hp) {
 		if (!alt)
@@ -1655,8 +1671,8 @@ LOCAL char wschars[] = " \t<>%|;()&"; /* Chars that are word separators */
  */
 LOCAL wchar_t *
 xp_files(lp, cp, show, multip)
-	register wchar_t	*lp;	/* Begin of current line		*/
-	register wchar_t	*cp;	/* Current cursor position		*/
+	register wchar_t	*lp;	/* Begin of current line	*/
+	register wchar_t	*cp;	/* Current cursor position	*/
 		BOOL	show;	/* Show list of multi-results		*/
 		int	*multip; /* Found mult results in non show mode */
 {
@@ -1678,7 +1694,9 @@ xp_files(lp, cp, show, multip)
 	 * This depends on the character that is currently under the cursor.
 	 */
 	if (*cp != '\0' && !strwchr(wschars, *cp)) {
-/*		beep();*/
+#ifdef	__do_beep_when_in_word__
+		beep();
+#endif
 		return (0);
 	}
 	if (show) {
@@ -1728,7 +1746,9 @@ again:
 	np = expand(ns);
 	free(ns);
 	if (np == NULL) {
-/*		beep();*/
+#ifdef	__do_beep_when_expand_to_null__
+		beep();
+#endif
 		return (0);
 	}
 
@@ -1752,7 +1772,7 @@ again:
 	if (p2)				/* If we found a slash		    */
 		xlen = p2 - wp + 1;	/* start right to slash		    */
 	p2 = NULL;
-	for (l1 = np; l1 != (Tnode *) NULL; l1 = l1->tn_right.tn_node) {
+	for (l1 = np; l1 != (Tnode *)NULL; l1 = l1->tn_right.tn_node) {
 		if (l1->tn_right.tn_node == NULL) {
 			/*
 			 * Last in list for max. differences to
@@ -1809,7 +1829,9 @@ again:
 			 * Nothing to add.
 			 */
 			p2 = NULL;
-/*			beep();*/
+#ifdef	__do_beep_when_nothing_to_add__
+			beep();
+#endif
 			if (multip)
 				*multip = multi;
 		}
@@ -2020,7 +2042,7 @@ sget_line()
 	}
 	lp = tmp_line->h_line;
 	append_hline(lp, tmp_line->h_len);
-	free((char *) tmp_line);
+	free((char *)tmp_line);
 	return (lp);
 }
 
@@ -2040,7 +2062,7 @@ iget_line()
 	register HISTPTR	tmp_line;			/* empty tmp */
 	register HISTPTR	save_line;
 	register HISTPTR	etmp_line = (HISTPTR) NULL;	/* tmp copy */
-	register HISTPTR	orig_line = (HISTPTR) NULL;	/* tmp original */
+	register HISTPTR	orig_line = (HISTPTR) NULL;	/* tmp orig */
 
 	save_line = cur_line = tmp_line = mktmp();
 	lp = cur_line->h_line;
@@ -2162,7 +2184,7 @@ make_line(f, arg)
 			if (c == EOF)
 				delim = EOF;
 			else
-				delim = '\n'; /*XXX ??? \205 ???*/
+				delim = '\n'; /* XXX ??? \205 ??? */
 			*p = 0;
 			return (lp);
 		}
@@ -2348,7 +2370,7 @@ readhistory(f)
 		fprintf(stderr, "appending: %s\r\n", s);
 #endif
 		len = strlen(s);
-		append_line(s, (unsigned) len+1, len);
+		append_line(s, (unsigned)len+1, len);
 	}
 }
 

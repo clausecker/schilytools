@@ -1,4 +1,4 @@
-. \" @(#)star.1	1.167 13/04/16 Copyr 1982-2013 J. Schilling
+. \" @(#)star.1	1.169 13/10/07 Copyr 1982-2013 J. Schilling
 . \"  Manual Seite fuer star
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -13,7 +13,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH STAR 1 "13/04/16" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH STAR 1 "13/10/07" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 star \- unique standard tape archiver
 .SH SYNOPSIS
@@ -3604,6 +3604,14 @@ See also
 .B \-p
 option.
 .TP
+.B \-uncond\-rename
+When in interactive restore mode or when the
+.B \-s
+option was specified, unconditionally ask for a new name or apply a substitution.
+This happens even when the current path name would be skipped otherwise
+because the file in the archive is not
+newer than the file with the original name on disk.
+.TP
 .B \-v
 Increment verbose level by one.
 This normally results in more output during operation.
@@ -3747,6 +3755,10 @@ will refer to the old method.
 The method used with
 .B \-xattr\-linux
 may go away in the future.
+.TP
+.B \-xcopy
+An alias for
+.B \-copy \-sparse \-acl
 .TP
 .BI xdebug= "#, " xd= #
 Set extended debug level to #.

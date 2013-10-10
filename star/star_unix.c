@@ -1,14 +1,14 @@
-/* @(#)star_unix.c	1.100 11/04/09 Copyright 1985, 1995, 2001-2011 J. Schilling */
+/* @(#)star_unix.c	1.102 13/10/03 Copyright 1985, 1995, 2001-2013 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)star_unix.c	1.100 11/04/09 Copyright 1985, 1995, 2001-2011 J. Schilling";
+	"@(#)star_unix.c	1.102 13/10/03 Copyright 1985, 1995, 2001-2013 J. Schilling";
 #endif
 /*
  *	Stat / mode / owner routines for unix like
  *	operating systems
  *
- *	Copyright (c) 1985, 1995, 2001-2011 J. Schilling
+ *	Copyright (c) 1985, 1995, 2001-2013 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -17,6 +17,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -34,6 +36,7 @@ static	UConst char sccsid[] =
 #include <schily/standard.h>
 #include <schily/unistd.h>
 #include <schily/dirent.h>
+#include <schily/fcntl.h>	/* For AT_FDCWD */
 #include <schily/stat.h>
 #include <schily/device.h>
 #include <schily/schily.h>
@@ -674,7 +677,16 @@ setmodes(info)
 			}
 		}
 	}
+#ifdef	HAVE_UTIMENSAT
+	/*
+	 * utimensat() is able to set the time stamps on symlinks, if called
+	 * with the AT_SYMLINK_NOFOLLOW flag, so we include symlinks in the
+	 * list of file types that cause sutimes() to be called.
+	 */
+	if (!nomtime && !is_dir(info)) {
+#else
 	if (!nomtime && !is_dir(info) && !asymlink) {
+#endif
 		if (sutimes(info->f_name, info) < 0 && !didutimes)
 			if (!errhidden(E_SETTIME, info->f_name)) {
 				if (!errwarnonly(E_SETTIME, info->f_name))
@@ -687,33 +699,33 @@ setmodes(info)
 	}
 }
 
-EXPORT	int	xutimes		__PR((char *name, struct timeval *tp));
+EXPORT	int	xutimes		__PR((char *name, struct timespec *tp));
 
 LOCAL int
 sutimes(name, info)
 	char	*name;
 	FINFO	*info;
 {
-	struct  timeval curtime;
-	struct	timeval tp[3];
+	struct  timespec curtime;
+	struct	timespec tp[3];
 
 	if (noatime) {
-		gettimeofday(&curtime, 0);
+		getnstimeofday(&curtime);
 		tp[0].tv_sec = curtime.tv_sec;
-		tp[0].tv_usec = curtime.tv_usec;
+		tp[0].tv_nsec = curtime.tv_nsec;
 	} else {
 		tp[0].tv_sec = info->f_atime;
-		tp[0].tv_usec = info->f_ansec/1000;
+		tp[0].tv_nsec = info->f_ansec;
 	}
 
 	tp[1].tv_sec = info->f_mtime;
-	tp[1].tv_usec = info->f_mnsec/1000;
+	tp[1].tv_nsec = info->f_mnsec;
 #ifdef	SET_CTIME
 	tp[2].tv_sec = info->f_ctime;
-	tp[2].tv_usec = info->f_cnsec/1000;
+	tp[2].tv_nsec = info->f_cnsec;
 #else
 	tp[2].tv_sec = 0;
-	tp[2].tv_usec = 0;
+	tp[2].tv_nsec = 0;
 #endif
 	return (xutimes(name, tp));
 }
@@ -723,19 +735,23 @@ snulltimes(name, info)
 	char	*name;
 	FINFO	*info;
 {
-	struct	timeval tp[3];
+	struct	timespec tp[3];
 
 	fillbytes((char *)tp, sizeof (tp), '\0');
 	return (xutimes(name, tp));
 }
 
+/*
+ * Extended utimes function.
+ * This is what we use in star as the default.
+ */
 EXPORT int
 xutimes(name, tp)
 	char	*name;
-	struct	timeval tp[3];
+	struct	timespec tp[3];
 {
-	struct  timeval curtime;
-	struct  timeval pasttime;
+	struct  timespec curtime;
+	struct  timespec pasttime;
 	extern int Ctime;
 	int	ret;
 	int	errsav;
@@ -746,21 +762,32 @@ xutimes(name, tp)
 
 #ifdef	SET_CTIME
 	if (Ctime) {
-		gettimeofday(&curtime, 0);
-		settimeofday(&tp[2], 0);
+		getnstimeofday(&curtime);
+		setnstimeofday(&tp[2]);
 	}
 #endif
-	ret = utimes(name, tp);
+#ifdef	HAVE_UTIMENSAT
+	ret = utimensat(AT_FDCWD, name, tp, AT_SYMLINK_NOFOLLOW);
+#else
+	{ struct timeval tv[2];
+
+		tv[0].tv_sec  = tp[0].tv_sec;
+		tv[0].tv_usec = tp[0].tv_nsec/1000;
+		tv[1].tv_sec  = tp[1].tv_sec;
+		tv[1].tv_usec = tp[1].tv_nsec/1000;
+		ret = utimes(name, tv);
+	}
+#endif
 	errsav = geterrno();
 
 #ifdef	SET_CTIME
 	if (Ctime) {
-		gettimeofday(&pasttime, 0);
-		timersub(&pasttime, &tp[2]);
-		timeradd(&curtime, &pasttime);
-		settimeofday(&curtime, 0);
+		getnstimeofday(&pasttime);
+		timespecsub(&pasttime, &tp[2]);
+		timespecadd(&curtime, &pasttime);
+		setnstimeofday(&curtime);
 #ifdef	SET_CTIME_DEBUG
-		error("pasttime: %d.%6.6d\n", pasttime.tv_sec, pasttime.tv_usec);
+		error("pasttime: %d.%9.9d\n", pasttime.tv_sec, pasttime.tv_nsec);
 #endif
 	}
 #endif
@@ -774,9 +801,9 @@ sxsymlink(name, info)
 	FINFO	*info;
 {
 #ifdef	HAVE_SYMLINK
-	struct	timeval tp[3];
-	struct  timeval curtime;
-	struct  timeval pasttime;
+	struct	timespec tp[3];
+	struct  timespec curtime;
+	struct  timespec pasttime;
 	char	*linkname;
 	extern int Ctime;
 	int	ret;
@@ -786,20 +813,20 @@ sxsymlink(name, info)
 #endif
 
 	tp[0].tv_sec = info->f_atime;
-	tp[0].tv_usec = info->f_ansec/1000;
+	tp[0].tv_nsec = info->f_ansec;
 
 	tp[1].tv_sec = info->f_mtime;
-	tp[1].tv_usec = info->f_mnsec/1000;
+	tp[1].tv_nsec = info->f_mnsec;
 #ifdef	SET_CTIME
 	tp[2].tv_sec = info->f_ctime;
-	tp[2].tv_usec = info->f_cnsec/1000;
+	tp[2].tv_nsec = info->f_cnsec;
 #endif
 	linkname = info->f_lname;
 
 #ifdef	SET_CTIME
 	if (Ctime) {
-		gettimeofday(&curtime, 0);
-		settimeofday(&tp[2], 0);
+		getnstimeofday(&curtime);
+		setnstimeofday(&tp[2]);
 	}
 #endif
 
@@ -823,16 +850,12 @@ sxsymlink(name, info)
 
 #ifdef	SET_CTIME
 	if (Ctime) {
-		gettimeofday(&pasttime, 0);
-		/* XXX Hack: f_ctime.tv_usec ist immer 0! */
-		curtime.tv_usec += pasttime.tv_usec;
-		if (curtime.tv_usec > 1000000) {
-			curtime.tv_sec += 1;
-			curtime.tv_usec -= 1000000;
-		}
-		settimeofday(&curtime, 0);
+		getnstimeofday(&pasttime);
+		timespecsub(&pasttime, &tp[2]);
+		timespecadd(&curtime, &pasttime);
+		setnstimeofday(&curtime);
 #ifdef	SET_CTIME_DEBUG
-		error("pasttime.usec: %d\n", pasttime.tv_usec);
+		error("pasttime: %d.%9.9d\n", pasttime.tv_sec, pasttime.tv_nsec);
 #endif
 	}
 #endif
@@ -879,6 +902,10 @@ rs_acctime(fd, info)
 #include <schily/utime.h>
 #undef	utimes
 
+/*
+ * This is an attempt to emulate utimes() using the historic utime() call.
+ * As utimes() only supports microseconds, we use struct timeval as parameter.
+ */
 EXPORT int
 utimes(name, tp)
 	char		*name;

@@ -1,6 +1,6 @@
-/* @(#)fprint.c	1.1 07/12/26 Copyright 1985, 1989, 1995-2007 J. Schilling */
+/* @(#)fprint.c	1.2 13/09/25 Copyright 1985, 1989, 1995-2013 J. Schilling */
 /*
- *	Copyright (c) 1985, 1989, 1995-2007 J. Schilling
+ *	Copyright (c) 1985, 1989, 1995-2013 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -9,6 +9,8 @@
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -35,8 +37,8 @@ typedef struct {
 
 LOCAL	void	_bflush	__PR((BUF));
 LOCAL	void	_bput	__PR((char, long));
-EXPORT	int	fprintf	__PR((FILE *, const char *, ...))	__printflike__(2, 3);
-EXPORT	int	printf	__PR((const char *, ...))		__printflike__(1, 2);
+EXPORT	int	fprintf	__PR((FILE *, const char *, ...)) __printflike__(2, 3);
+EXPORT	int	printf	__PR((const char *, ...))	  __printflike__(1, 2);
 
 LOCAL void
 _bflush(bp)
@@ -126,7 +128,7 @@ fprintf(file, form, va_alist)
 		_bflush(&bb);
 	return (bb.count);
 }
-/*--------------------------------------------------------------------------*/
+/* -------------------------------------------------------------------------- */
 
 EXPORT	int sprintf __PR((char *, const char *, ...));
 
@@ -138,7 +140,7 @@ static void _cput(c, ba)
 	long	ba;
 #endif
 {
-	*(*(char **) ba)++ = c;
+	*(*(char **)ba)++ = c;
 }
 
 /* VARARGS2 */

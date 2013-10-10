@@ -1,4 +1,4 @@
-/* @(#)avoffset.h	1.12 13/07/23 Copyright 1995-2013 J. Schilling */
+/* @(#)avoffset.h	1.13 13/08/26 Copyright 1995-2013 J. Schilling */
 /*
  *	Platform dependent definitions for stack scanning.
  *
@@ -124,7 +124,7 @@
 #define	__JS_ARCH_CONF_INCL
 #endif
 #ifdef	__LINUX_amd64_GCC64
-#include <schily/x86_64-linux-gcc/avoffsetg.h>
+#include <schily/x86_64-linux-gcc/avoffset.h>
 #define	__JS_ARCH_CONF_INCL
 #endif
 

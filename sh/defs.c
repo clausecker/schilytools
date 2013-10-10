@@ -31,23 +31,23 @@
 #endif
 
 /*
- * This file contains modifications Copyright 2008-2012 J. Schilling
+ * This file contains modifications Copyright 2008-2013 J. Schilling
  *
- * @(#)defs.c	1.9 12/05/11 2008-2012 J. Schilling
+ * @(#)defs.c	1.11 13/09/24 2008-2013 J. Schilling
  */
-#ifdef	SCHILY_BUILD
+#ifdef	SCHILY_INCLUDES
 #include <schily/mconfig.h>
 #endif
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)defs.c	1.9 12/05/11 2008-2012 J. Schilling";
+	"@(#)defs.c	1.11 13/09/24 2008-2013 J. Schilling";
 #endif
 
 /*
  *	UNIX shell
  */
 
-#ifdef	SCHILY_BUILD
+#ifdef	SCHILY_INCLUDES
 #include		<schily/mconfig.h>
 #include		<setjmp.h>
 #include		"mode.h"
@@ -59,6 +59,7 @@ static	UConst char sccsid[] =
 #include		"mode.h"
 #include		"name.h"
 #include		<sys/param.h>
+#include		"defs.h"
 #endif
 #ifndef NOFILE
 #define	NOFILE 20
@@ -134,8 +135,7 @@ int				ucb_builtins;
 /*
  * staktop = stakbot + local stak size
  */
-unsigned char			*stakbas;	/* New stack base after addblok() */
+unsigned char			*stakbas;	/* Stack base after addblok() */
 unsigned char			*staktop;	/* Points behind local stak */
 unsigned char			*stakbot = 0;	/* Bottom addr for local stak */
-struct blk			*stakbsy;	/* Busy elements from addblok() */
 unsigned char			*brkend;	/* The first invalid address */

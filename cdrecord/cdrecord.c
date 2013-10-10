@@ -1,8 +1,8 @@
-/* @(#)cdrecord.c	1.407 13/05/30 Copyright 1995-2013 J. Schilling */
+/* @(#)cdrecord.c	1.409 13/09/23 Copyright 1995-2013 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)cdrecord.c	1.407 13/05/30 Copyright 1995-2013 J. Schilling";
+	"@(#)cdrecord.c	1.409 13/09/23 Copyright 1995-2013 J. Schilling";
 #endif
 /*
  *	Record data on a CD/CVD-Recorder
@@ -16,6 +16,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -531,7 +533,7 @@ main(ac, av)
 	/*
 	 * Due to a design bug in the Solaris USCSI ioctl, we don't need
 	 * PRIV_FILE_DAC_WRITE to send SCSI commands and most installations
-	 * pribably don't grant PRIV_FILE_DAC_WRITE. Once we need /dev/scg*,
+	 * probably don't grant PRIV_FILE_DAC_WRITE. Once we need /dev/scg*,
 	 * we would need to test for PRIV_FILE_DAC_WRITE also.
 	 */
 	if (!priv_eff_priv(SCHILY_PRIV_FILE_DAC_WRITE))
@@ -4536,7 +4538,7 @@ load_media(scgp, dp, doexit)
 	scgp->silent--;
 	err = geterrno();
 	if (code < 0 && (err == EPERM || err == EACCES)) {
-		linuxcheck();	/* For version 1.407 of cdrecord.c */
+		linuxcheck();	/* For version 1.409 of cdrecord.c */
 		scg_openerr("");
 	}
 
@@ -5024,7 +5026,7 @@ rt_raisepri(pri)
 
 #else	/* _POSIX_PRIORITY_SCHEDULING */
 
-#if defined(__CYGWIN32__) || defined(__MINGW32__) || defined(_MSC_VER)
+#if defined(__CYGWIN32__) || defined(__CYGWIN__) || defined(__MINGW32__) || defined(_MSC_VER)
 /*
  * Win32 specific priority settings.
  */
@@ -5080,7 +5082,7 @@ rt_raisepri(pri)
 	return (-1);
 }
 
-#endif	/* __CYGWIN32__ || __MINGW32__ */
+#endif	/* __CYGWIN32__ || __CYGWIN__ || __MINGW32__ */
 
 #endif	/* _POSIX_PRIORITY_SCHEDULING */
 
@@ -5431,7 +5433,7 @@ set_wrmode(dp, wmode, tflags)
 }
 
 /*
- * I am sorry that even for version 1.407 of cdrecord.c, I am forced to do
+ * I am sorry that even for version 1.409 of cdrecord.c, I am forced to do
  * things like this, but defective versions of cdrecord cause a lot of
  * work load to me.
  *
@@ -5448,7 +5450,7 @@ set_wrmode(dp, wmode, tflags)
 #endif
 
 LOCAL void
-linuxcheck()				/* For version 1.407 of cdrecord.c */
+linuxcheck()				/* For version 1.409 of cdrecord.c */
 {
 #if	defined(linux) || defined(__linux) || defined(__linux__)
 #ifdef	HAVE_UNAME

@@ -38,11 +38,11 @@
 /*
  * This file contains modifications Copyright 2008-2013 J. Schilling
  *
- * @(#)bltin.c	1.28 13/07/04 2008-2013 J. Schilling
+ * @(#)bltin.c	1.31 13/09/24 2008-2013 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)bltin.c	1.28 13/07/04 2008-2013 J. Schilling";
+	"@(#)bltin.c	1.31 13/09/24 2008-2013 J. Schilling";
 #endif
 
 /*
@@ -50,6 +50,10 @@ static	UConst char sccsid[] =
  * UNIX shell
  *
  */
+
+#ifdef	INTERACTIVE
+#include	<schily/shedit.h>
+#endif
 
 #include	<errno.h>
 #include	"sym.h"
@@ -275,10 +279,11 @@ struct trenod *t;
 
 			if ((cdpath = cdpnod.namval) == 0 ||
 			    *a1 == '/' ||
-			    cf(a1, (unsigned char *)".") == 0 ||
-			    cf(a1, (unsigned char *)"..") == 0 ||
-			    (*a1 == '.' && (*(a1+1) == '/' || (*(a1+1) == '.' && *(a1+2) == '/'))))
-				cdpath = (unsigned char *)nullstr;
+			    cf(a1, UC ".") == 0 ||
+			    cf(a1, UC "..") == 0 ||
+			    (*a1 == '.' && (*(a1+1) == '/' ||
+			    (*(a1+1) == '.' && *(a1+2) == '/'))))
+				cdpath = UC nullstr;
 
 			do
 			{
@@ -326,7 +331,7 @@ struct trenod *t;
 				push_dir(wd);		/* Update dir stack  */
 				if (pr_dirs(1))		/* If already printed */
 					wd = NULL;	/* don't do it again */
-				if (cf((unsigned char *)nullstr, dir) &&
+				if (cf(UC nullstr, dir) &&
 				    *dir != ':' &&
 				    any('/', curstak()) &&
 				    flags & prompt) {
@@ -490,13 +495,13 @@ struct trenod *t;
 						"c:(count)d:(delay)")) != -1) {
 				switch (c) {
 				case 'c':
-					count = stoi((unsigned char *)optarg);
+					count = stoi(UC optarg);
 					break;
 				case 'd':
-					delay = stoi((unsigned char *)optarg);
+					delay = stoi(UC optarg);
 					break;
 				case '?':
-					gfailure((unsigned char *)usage, repuse);
+					gfailure(UC usage, repuse);
 					goto err;
 				}
 			}
@@ -504,7 +509,8 @@ struct trenod *t;
 				unsigned char		*sav = savstak();
 				struct ionod		*iosav = iotemp;
 
-				execexp(argv[optind], (Intptr_t)&argv[optind+1]);
+				execexp(argv[optind],
+					(Intptr_t)&argv[optind+1]);
 				tdystak(sav, iosav);
 
 				if (delay > 0)
@@ -518,7 +524,7 @@ err:
 			_sp = savsp;
 			optarg = savoptarg;
 		} else {
-			gfailure((unsigned char *)usage, repuse);
+			gfailure(UC usage, repuse);
 		}
 		break;
 
@@ -556,8 +562,10 @@ err:
 			{
 				while (*++argv)
 				{
-					if (hashtype(hash_cmd(*argv)) == NOTFOUND)
+					if (hashtype(hash_cmd(*argv)) ==
+							NOTFOUND) {
 						failed(*argv, notfound);
+					}
 				}
 			}
 		}
@@ -598,17 +606,19 @@ err:
 							(char *)*argv, NULL,
 							AB_BEGIN)) != NULL) {
 					prs_buff(*argv);
-					prs_buff(_gettext(" is a local alias for '"));
-					prs_buff((unsigned char *)val);
-					prs_buff((unsigned char *)"'\n");
+					prs_buff(_gettext(
+						" is a local alias for '"));
+					prs_buff(UC val);
+					prs_buff(UC "'\n");
 					continue;
 				} else if ((val = ab_value(GLOBAL_AB,
 							(char *)*argv, NULL,
 							AB_BEGIN)) != NULL) {
 					prs_buff(*argv);
-					prs_buff(_gettext(" is a global alias for '"));
-					prs_buff((unsigned char *)val);
-					prs_buff((unsigned char *)"'\n");
+					prs_buff(_gettext(
+						" is a global alias for '"));
+					prs_buff(UC val);
+					prs_buff(UC "'\n");
 					continue;
 				}
 				exitval |= what_is_path(*argv);
@@ -636,41 +646,43 @@ err:
 			break;
 		}
 		exitval = 0;
-		n = lookup((unsigned char *)"OPTIND");
+		n = lookup(UC "OPTIND");
 		optind = stoi(n->namval);
 		if (argc > 3) {
 			argv[2] = dolv[0];
-			getoptval = getopt(argc-2, (char **)&argv[2], (char *)argv[1]);
+			getoptval = getopt(argc-2,
+					(char **)&argv[2], (char *)argv[1]);
+		} else {
+			getoptval = getopt(dolc+1,
+					(char **)dolv, (char *)argv[1]);
 		}
-		else
-			getoptval = getopt(dolc+1, (char **)dolv, (char *)argv[1]);
 		if (getoptval == -1) {
 			itos(optind);
 			assign(n, numbuf);
 			n = lookup(varnam);
-			assign(n, (unsigned char *)nullstr);
+			assign(n, UC nullstr);
 			exitval = 1;
 			break;
 		}
 		argv[2] = varnam;
 		itos(optind);
 		assign(n, numbuf);
-		c[0] = (char) getoptval;
+		c[0] = (char)getoptval;
 		c[1] = '\0';
 		n = lookup(varnam);
 		assign(n, c);
-		n = lookup((unsigned char *)"OPTARG");
-		assign(n, (unsigned char *)optarg);
+		n = lookup(UC "OPTARG");
+		assign(n, UC optarg);
 		}
 		break;
 
 #ifdef	INTERACTIVE
 	case SYSHISTORY:
-		bhist();
+		shedit_bhist();
 		break;
 
 	case SYSSAVEHIST:
-		bshist(&intrptr);
+		shedit_bshist(&intrptr);
 		if (intrptr)
 			*intrptr = 0;
 		break;
@@ -680,16 +692,18 @@ err:
 			int	f = 1;
 
 			if (argc == 1) {
-				list_map(&f);
+				shedit_list_map(&f);
 			} else if (argc == 2 && eq(argv[1], "-r")) {
-				remap();
+				shedit_remap();
 			} else if (argc == 3 && eq(argv[1], "-u")) {
-				del_map((char *)argv[2]);
+				shedit_del_map((char *)argv[2]);
 			} else if (argc == 3 || argc == 4) {
-				if (!add_map((char *)argv[1], (char *)argv[2], (char *)argv[3])) {
+				if (!shedit_add_map((char *)argv[1],
+						(char *)argv[2],
+						(char *)argv[3])) {
 					prs(argv[1]);
-					prs((unsigned char *)": ");
-					prs((unsigned char *)"already defined\n");
+					prs(UC ": ");
+					prs(UC "already defined\n");
 					error("bad map");
 				}
 			} else if (argc > 4) {

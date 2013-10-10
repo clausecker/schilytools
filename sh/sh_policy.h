@@ -32,16 +32,16 @@
 #endif
 
 /*
- * This file contains modifications Copyright 2008-2012 J. Schilling
+ * This file contains modifications Copyright 2008-2013 J. Schilling
  *
- * @(#)sh_policy.h	1.6 12/03/14 2008-2012 J. Schilling
+ * @(#)sh_policy.h	1.7 13/09/20 2008-2013 J. Schilling
  */
 
 #ifdef	__cplusplus
 extern "C" {
 #endif
 
-#ifdef	SCHILY_BUILD
+#ifdef	SCHILY_INCLUDES
 #include <schily/mconfig.h>
 #ifdef	HAVE_EXEC_ATTR_H
 #include <exec_attr.h>

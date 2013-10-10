@@ -1,15 +1,15 @@
-/* @(#)restore.c	1.65 12/02/05 Copyright 2003-2012 J. Schilling */
+/* @(#)restore.c	1.66 13/10/05 Copyright 2003-2013 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)restore.c	1.65 12/02/05 Copyright 2003-2012 J. Schilling";
+	"@(#)restore.c	1.66 13/10/05 Copyright 2003-2013 J. Schilling";
 #endif
 /*
  *	Data base management for incremental restores
  *	needed to detect and execute rename() and unlink()
  *	operations between two incremental dumps.
  *
- *	Copyright (c) 2003-2012 J. Schilling
+ *	Copyright (c) 2003-2013 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -18,6 +18,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -1805,13 +1807,13 @@ writeheader(f)
 	fprintf(f, "%s%c\n", dt_name(grip->dumptype), 0);
 	fprintf(f, "%d%c\n", grip->dumplevel, 0);
 	fprintf(f, "%d%c\n", grip->reflevel, 0);
-	fprintf(f, "%10lld.%6.6lld%c\n",
+	fprintf(f, "%10lld.%9.9lld%c\n",
 		(Llong)grip->dumpdate.tv_sec,
-		(Llong)grip->dumpdate.tv_usec,
+		(Llong)grip->dumpdate.tv_nsec,
 		0);
-	fprintf(f, "%10lld.%6.6lld%c\n",
+	fprintf(f, "%10lld.%9.9lld%c\n",
 		(Llong)grip->refdate.tv_sec,
-		(Llong)grip->refdate.tv_usec,
+		(Llong)grip->refdate.tv_nsec,
 		0);
 }
 

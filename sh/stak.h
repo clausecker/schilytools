@@ -32,9 +32,9 @@
 #endif
 
 /*
- * This file contains modifications Copyright 2008-2012 J. Schilling
+ * This file contains modifications Copyright 2008-2013 J. Schilling
  *
- * @(#)stak.h	1.8 12/04/22 2008-2012 J. Schilling
+ * @(#)stak.h	1.9 13/09/24 2008-2013 J. Schilling
  */
 
 /*
@@ -112,13 +112,6 @@ extern unsigned char		*getstak __PR((Intptr_t));
 
 /* Grow the data segment to include a given location */
 extern unsigned char		*growstak __PR((unsigned char *));
-
-/*
- * A chain of ptrs of stack blocks that
- * have become covered by heap allocation.
- * `tdystak' will return them to the heap.
- */
-extern struct blk	*stakbsy;
 
 /* Base of the entire stack */
 extern unsigned char		*stakbas;

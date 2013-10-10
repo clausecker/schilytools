@@ -1,8 +1,8 @@
-/* @(#)dat.c	1.1 10/10/02 Copyright 2006-200 J. Schilling */
+/* @(#)dat.c	1.3 13/09/20 Copyright 2006-2013 J. Schilling */
 /*
  *	Global data
  *
- *	Copyright (c) 2006-2010 J. Schilling
+ *	Copyright (c) 2006-2013 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -11,6 +11,8 @@
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -36,3 +38,6 @@ int	prflg = 1;
 int	prompt;
 char	*prompts[2] = { "prompt1 > ", "prompt2 > " };
 char	*inithome = ".";
+
+char	*(*__get_env)	__PR((char *name));
+void	(*__put_env)	__PR((char *name));

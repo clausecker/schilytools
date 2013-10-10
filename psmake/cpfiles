@@ -1,5 +1,5 @@
 #!/bin/sh
-# @(#)cpfiles	1.25 13/01/04 Copyright 1999-2013 J. Schilling
+# @(#)cpfiles	1.26 13/08/26 Copyright 1999-2013 J. Schilling
 
 cp='cp -p'
 smake=smake
@@ -40,8 +40,12 @@ $cp ${incsrc}/${smake}/update.c		update.c
 $cp ${incsrc}/include/schily/archdefs.h	include/schily/archdefs.h
 $cp ${incsrc}/include/schily/ccomdefs.h	include/schily/ccomdefs.h
 $cp ${incsrc}/include/schily/ctype.h	include/schily/ctype.h
+$cp ${incsrc}/include/schily/dbgmalloc.h	include/schily/dbgmalloc.h
 $cp ${incsrc}/include/schily/dirent.h	include/schily/dirent.h
 $cp ${incsrc}/include/schily/dlfcn.h	include/schily/dlfcn.h
+$cp ${incsrc}/include/schily/err_arch.h	include/schily/err_arch.h
+$cp ${incsrc}/include/schily/err_char.h	include/schily/err_char.h
+$cp ${incsrc}/include/schily/err_type.h	include/schily/err_type.h
 $cp ${incsrc}/include/schily/fcntl.h	include/schily/fcntl.h
 $cp ${incsrc}/include/schily/getargs.h	include/schily/getargs.h
 $cp ${incsrc}/include/schily/getcwd.h	include/schily/getcwd.h
@@ -52,6 +56,7 @@ $cp ${incsrc}/include/schily/libport.h	include/schily/libport.h
 $cp ${incsrc}/include/schily/limits.h	include/schily/limits.h
 $cp ${incsrc}/include/schily/maxpath.h	include/schily/maxpath.h
 $cp ${incsrc}/include/schily/mconfig.h	include/schily/mconfig.h
+$cp ${incsrc}/include/schily/netdb.h	include/schily/netdb.h
 $cp ${incsrc}/include/schily/xconfig.h	include/schily/xconfig.h
 $cp ${incsrc}/include/schily/xmconfig.h	include/schily/xmconfig.h
 $cp ${incsrc}/include/schily/prototyp.h	include/schily/prototyp.h
@@ -64,6 +69,7 @@ $cp ${incsrc}/include/schily/stdio.h	include/schily/stdio.h
 $cp ${incsrc}/include/schily/stdlib.h	include/schily/stdlib.h
 $cp ${incsrc}/include/schily/stkframe.h	include/schily/stkframe.h
 $cp ${incsrc}/include/schily/string.h	include/schily/string.h
+$cp ${incsrc}/include/schily/sunos4_proto.h	include/schily/sunos4_proto.h
 $cp ${incsrc}/include/schily/systeminfo.h	include/schily/systeminfo.h
 $cp ${incsrc}/include/schily/time.h		include/schily/time.h
 $cp ${incsrc}/include/schily/unistd.h	include/schily/unistd.h

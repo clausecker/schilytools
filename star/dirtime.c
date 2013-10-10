@@ -1,11 +1,11 @@
-/* @(#)dirtime.c	1.28 10/08/23 Copyright 1988-2010 J. Schilling */
+/* @(#)dirtime.c	1.30 13/10/04 Copyright 1988-2013 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)dirtime.c	1.28 10/08/23 Copyright 1988-2010 J. Schilling";
+	"@(#)dirtime.c	1.30 13/10/04 Copyright 1988-2013 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1988-2010 J. Schilling
+ *	Copyright (c) 1988-2013 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -14,6 +14,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -27,7 +29,7 @@ static	UConst char sccsid[] =
  * A string will be sufficient for the names of the directory stack because
  * all directories in a tree have a common prefix.  A counter for each
  * occurence of a slash '/' is the index into the array of times for the
- * directory stack. Directories with unknown times have atime.tv_usec == -1.
+ * directory stack. Directories with unknown times have atime.tv_nsec == -1.
  *
  * If the order of the files on tape is not in an order that find(1) will
  * produce, this algorithm is not guaranteed to work. This is the case with
@@ -65,14 +67,14 @@ extern	BOOL	debug;
 LOCAL	char dirstack[PATH_MAX];
 #ifdef	SET_CTIME
 #define	NT	3
-LOCAL	struct timeval dtimes[NTIMES][NT];
-LOCAL	struct timeval dottimes[NT] = { {-1, -1}, {-1, -1}, {-1, -1}};
+LOCAL	struct timespec dtimes[NTIMES][NT];
+LOCAL	struct timespec dottimes[NT] = { {-1, -1}, {-1, -1}, {-1, -1}};
 #else
 #define	NT	2
-LOCAL	struct timeval dtimes[NTIMES][NT];
-LOCAL	struct timeval dottimes[NT] = { -1, -1, -1, -1};
+LOCAL	struct timespec dtimes[NTIMES][NT];
+LOCAL	struct timespec dottimes[NT] = { -1, -1, -1, -1};
 #endif
-LOCAL	struct timeval badtime = { -1, -1};
+LOCAL	struct timespec badtime = { -1, -1};
 
 LOCAL	mode_t	dmodes[NTIMES];
 LOCAL	mode_t	dotmodes = _BAD_MODE;
@@ -80,9 +82,9 @@ LOCAL	mode_t	dotmodes = _BAD_MODE;
 EXPORT	void	sdirtimes	__PR((char *name, FINFO *info,
 						BOOL do_times, BOOL do_mode));
 EXPORT	void	sdirmode	__PR((char *name, mode_t mode));
-EXPORT	void	dirtimes	__PR((char *name, struct timeval *tp, mode_t mode));
+EXPORT	void	dirtimes	__PR((char *name, struct timespec *tp, mode_t mode));
 LOCAL	void	flushdirstack	__PR((char *, int));
-LOCAL	void	setdirtime	__PR((char *, struct timeval *));
+LOCAL	void	setdirtime	__PR((char *, struct timespec *));
 
 EXPORT void
 sdirtimes(name, info, do_times, do_mode)
@@ -91,18 +93,18 @@ sdirtimes(name, info, do_times, do_mode)
 	BOOL	do_times;
 	BOOL	do_mode;
 {
-	struct timeval	tp[NT];
+	struct timespec	tp[NT];
 	mode_t		mode = _BAD_MODE;
 
 	if (do_times) {
 		tp[0].tv_sec = info->f_atime;
-		tp[0].tv_usec = info->f_ansec/1000;
+		tp[0].tv_nsec = info->f_ansec;
 
 		tp[1].tv_sec = info->f_mtime;
-		tp[1].tv_usec = info->f_mnsec/1000;
+		tp[1].tv_nsec = info->f_mnsec;
 #ifdef	SET_CTIME
 		tp[2].tv_sec = info->f_ctime;
-		tp[2].tv_usec = info->f_cnsec/1000;
+		tp[2].tv_nsec = info->f_cnsec;
 #endif
 	} else {
 		tp[0] = badtime;
@@ -126,7 +128,7 @@ sdirmode(name, mode)
 	mode_t	mode;
 #endif
 {
-	struct timeval	tp[NT];
+	struct timespec	tp[NT];
 
 	tp[0] = badtime;
 	tp[1] = badtime;
@@ -138,11 +140,11 @@ sdirmode(name, mode)
 
 EXPORT void
 #ifdef	PROTOTYPES
-dirtimes(char *name, struct timeval tp[NT], mode_t mode)
+dirtimes(char *name, struct timespec tp[NT], mode_t mode)
 #else
 dirtimes(name, tp, mode)
 	char		*name;
-	struct timeval	tp[NT];
+	struct timespec	tp[NT];
 	mode_t		mode;
 #endif
 {
@@ -157,7 +159,7 @@ dirtimes(name, tp, mode)
 			EDBG(("setmode: '.' to 0%o\n", dotmodes));
 			setdirmodes(".", dotmodes);
 		}
-		if (dottimes[0].tv_usec != badtime.tv_usec)
+		if (dottimes[0].tv_nsec != badtime.tv_nsec)
 			setdirtime(".", dottimes);
 		flushdirstack(dp, -1);
 		return;
@@ -250,7 +252,7 @@ flushdirstack(dp, depth)
 			EDBG(("depth: %d setmode: '/' to 0%o\n", depth, dmodes[depth]));
 			setdirmodes("/", dmodes[depth]);
 		}
-		if (dtimes[depth][0].tv_usec != badtime.tv_usec) {
+		if (dtimes[depth][0].tv_nsec != badtime.tv_nsec) {
 			EDBG(("depth: %d ", depth));
 			setdirtime("/", dtimes[depth]);
 		}
@@ -265,7 +267,7 @@ flushdirstack(dp, depth)
 				EDBG(("depth: %d setmode: '%s' to 0%o\n", depth, dirstack, dmodes[depth]));
 				setdirmodes(dirstack, dmodes[depth]);
 			}
-			if (dtimes[depth][0].tv_usec != badtime.tv_usec) {
+			if (dtimes[depth][0].tv_nsec != badtime.tv_nsec) {
 				EDBG(("depth: %d ", depth));
 				setdirtime(dirstack, dtimes[depth]);
 			}
@@ -277,14 +279,10 @@ flushdirstack(dp, depth)
 LOCAL void
 setdirtime(name, tp)
 	char	*name;
-	struct timeval	tp[NT];
+	struct timespec	tp[NT];
 {
 	EDBG(("settime: '%s' to %s", name, ctime(&tp[1].tv_sec)));
-#ifdef	SET_CTIME
 	if (xutimes(name, tp) < 0) {
-#else
-	if (utimes(name, tp) < 0) {
-#endif
 		if (!errhidden(E_SETTIME, name)) {
 			if (!errwarnonly(E_SETTIME, name))
 				xstats.s_settime++;

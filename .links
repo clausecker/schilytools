@@ -66,8 +66,12 @@
 ./psmake/include/schily/avoffset.h
 ./psmake/include/schily/ccomdefs.h
 ./psmake/include/schily/ctype.h
+./psmake/include/schily/dbgmalloc.h
 ./psmake/include/schily/dirent.h
 ./psmake/include/schily/dlfcn.h
+./psmake/include/schily/err_arch.h
+./psmake/include/schily/err_char.h
+./psmake/include/schily/err_type.h
 ./psmake/include/schily/errno.h
 ./psmake/include/schily/fcntl.h
 ./psmake/include/schily/getargs.h
@@ -79,6 +83,7 @@
 ./psmake/include/schily/limits.h
 ./psmake/include/schily/maxpath.h
 ./psmake/include/schily/mconfig.h
+./psmake/include/schily/netdb.h
 ./psmake/include/schily/param.h
 ./psmake/include/schily/prototyp.h
 ./psmake/include/schily/schily.h
@@ -91,6 +96,7 @@
 ./psmake/include/schily/stdlib.h
 ./psmake/include/schily/stkframe.h
 ./psmake/include/schily/string.h
+./psmake/include/schily/sunos4_proto.h
 ./psmake/include/schily/systeminfo.h
 ./psmake/include/schily/time.h
 ./psmake/include/schily/types.h
@@ -194,10 +200,14 @@
 ./RULES/aranym-freemint-gcc.rul
 ./RULES/armv4l-linux-cc.rul
 ./RULES/armv4l-linux-gcc.rul
+./RULES/armv5l-linux-cc.rul
+./RULES/armv5l-linux-gcc.rul
 ./RULES/armv5teb-linux-cc.rul
 ./RULES/armv5teb-linux-gcc.rul
 ./RULES/armv5tejl-linux-cc.rul
 ./RULES/armv5tejl-linux-gcc.rul
+./RULES/armv6l-linux-cc.rul
+./RULES/armv6l-linux-gcc.rul
 ./RULES/atariclone-freemint-gcc.rul
 ./RULES/atariste-freemint-gcc.rul
 ./RULES/ataritt-freemint-gcc.rul
@@ -336,6 +346,8 @@
 ./RULES/power-macintosh-mac-os10-gcc.rul
 ./RULES/ppc-linux-cc.rul
 ./RULES/ppc-linux-gcc.rul
+./RULES/ppc64-linux-cc.rul
+./RULES/ppc64-linux-gcc.rul
 ./RULES/r-build.dep
 ./RULES/r-build.obj
 ./RULES/r-build.tag

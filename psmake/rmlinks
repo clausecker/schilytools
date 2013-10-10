@@ -1,5 +1,5 @@
 #!/bin/sh
-# @(#)rmlinks	1.22 13/01/04 Copyright 1999-2013 J. Schilling
+# @(#)rmlinks	1.23 13/08/26 Copyright 1999-2013 J. Schilling
 
 rm -f archconf.c
 rm -f job.c
@@ -14,8 +14,12 @@ rm -f update.c
 rm -f include/schily/archdefs.h
 rm -f include/schily/ccomdefs.h
 rm -f include/schily/ctype.h
+rm -f include/schily/dbgmalloc.h
 rm -f include/schily/dirent.h
 rm -f include/schily/dlfcn.h
+rm -f include/schily/err_arch.h
+rm -f include/schily/err_char.h
+rm -f include/schily/err_type.h
 rm -f include/schily/fcntl.h
 rm -f include/schily/getargs.h
 rm -f include/schily/getcwd.h
@@ -26,6 +30,7 @@ rm -f include/schily/libport.h
 rm -f include/schily/limits.h
 rm -f include/schily/maxpath.h
 rm -f include/schily/mconfig.h
+rm -f include/schily/netdb.h
 rm -f include/schily/xconfig.h
 rm -f include/schily/xmconfig.h
 rm -f include/schily/prototyp.h
@@ -38,6 +43,7 @@ rm -f include/schily/stdio.h
 rm -f include/schily/stdlib.h
 rm -f include/schily/stkframe.h
 rm -f include/schily/string.h
+rm -f include/schily/sunos4_proto.h
 rm -f include/schily/systeminfo.h
 rm -f include/schily/time.h
 rm -f include/schily/unistd.h

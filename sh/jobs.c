@@ -38,18 +38,18 @@
 /*
  * This file contains modifications Copyright 2008-2013 J. Schilling
  *
- * @(#)jobs.c	1.27 13/07/07 2008-2013 J. Schilling
+ * @(#)jobs.c	1.30 13/09/26 2008-2013 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)jobs.c	1.27 13/07/07 2008-2013 J. Schilling";
+	"@(#)jobs.c	1.30 13/09/26 2008-2013 J. Schilling";
 #endif
 
 /*
  * Job control for UNIX Shell
  */
 
-#ifdef	SCHILY_BUILD
+#ifdef	SCHILY_INCLUDES
 #include	<schily/termios.h>
 #include	<schily/types.h>
 #include	<schily/wait.h>
@@ -148,7 +148,8 @@ static struct job *pgid2job	__PR((pid_t pgid));
 static struct job *str2job	__PR((char *cmdp, char *job, int mustbejob));
 static void	freejob		__PR((struct job *jp));
 	void	collect_fg_job	__PR((void));
-static int	statjob		__PR((struct job *jp, int exstat, int fg, int rc));
+static int	statjob		__PR((struct job *jp,
+					int exstat, int fg, int rc));
 static void	collectjobs	__PR((int wnohang));
 	void	freejobs	__PR((void));
 static void	waitjob		__PR((struct job *jp));
@@ -158,7 +159,8 @@ static void	printjob	__PR((struct job *jp, int propts));
 	void	startjobs	__PR((void));
 	int	endjobs		__PR((int check_if));
 	void	deallocjob	__PR((void));
-	void	allocjob	__PR((char *cmdp, unsigned char *cwdp, int monitor));
+	void	allocjob	__PR((char *cmdp,
+					unsigned char *cwdp, int monitor));
 	void	clearjobs	__PR((void));
 	void	makejob		__PR((int monitor, int fg));
 	void	postjob		__PR((pid_t pid, int fg));
@@ -255,8 +257,10 @@ str2job(cmdp, job, mustbejob)
 			if (njp->j_jid == 0)
 				continue;
 			if (strncmp(job, njp->j_cmd, i) == 0) {
-				if (jp != 0)
-					failed((unsigned char *)cmdp, ambiguous);
+				if (jp != 0) {
+					failed((unsigned char *)cmdp,
+							ambiguous);
+				}
 				jp = njp;
 			}
 		}
@@ -942,12 +946,10 @@ err:
 				cp = (char *)numbuf;
 			}
 			while (*cp) {
-				if (bp >= brkend)
-					bp = growstak(bp);
+				GROWSTAK(bp);
 				*bp++ = *cp++;
 			}
-			if (bp >= brkend)
-				bp = growstak(bp);
+			GROWSTAK(bp);
 			*bp++ = SPACE;
 		}
 		savebp = endstak(bp);
@@ -1098,10 +1100,13 @@ sigv(cmdp, sig, args)
 				break;
 
 			default:
-				if (pgrp)
-					failure((unsigned char *)cmdp, nosuchpgid);
-				else
-					failure((unsigned char *)cmdp, nosuchpid);
+				if (pgrp) {
+					failure((unsigned char *)cmdp,
+							nosuchpgid);
+				} else {
+					failure((unsigned char *)cmdp,
+							nosuchpid);
+				}
 				break;
 		}
 

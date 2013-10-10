@@ -2,11 +2,13 @@
  * CDDL HEADER START
  *
  * The contents of this file are subject to the terms of the
- * Common Development and Distribution License (the "License").
- * You may not use this file except in compliance with the License.
+ * Common Development and Distribution License, Version 1.0 only
+ * (the "License").  You may not use this file except in compliance
+ * with the License.
  *
  * You can obtain a copy of the license at usr/src/OPENSOLARIS.LICENSE
- * or http://www.opensolaris.org/os/licensing.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  * See the License for the specific language governing permissions
  * and limitations under the License.
  *
@@ -34,13 +36,13 @@
 #include "defs.h"
 
 /*
- * This file contains modifications Copyright 2008-2012 J. Schilling
+ * This file contains modifications Copyright 2008-2013 J. Schilling
  *
- * @(#)hashserv.c	1.13 12/05/12 2008-2012 J. Schilling
+ * @(#)hashserv.c	1.16 13/09/24 2008-2013 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)hashserv.c	1.13 12/05/12 2008-2012 J. Schilling";
+	"@(#)hashserv.c	1.16 13/09/24 2008-2013 J. Schilling";
 #endif
 
 /*
@@ -59,7 +61,8 @@ static int	dotpath;
 static int	multrel;
 static struct entry	relcmd;
 
-	short	pathlook	__PR((unsigned char *com, int flg, struct argnod *arg));
+	short	pathlook	__PR((unsigned char *com,
+					int flg, struct argnod *arg));
 static void	zapentry	__PR((ENTRY *h));
 	void	zaphash		__PR((void));
 	void	zapcd		__PR((void));
@@ -71,7 +74,8 @@ static void	hashout		__PR((ENTRY *h));
 	short	hash_cmd	__PR((unsigned char *name));
 	int	what_is_path	__PR((unsigned char *name));
 static	int	findpath	__PR((unsigned char *name, int oldpath));
-	int	chk_access	__PR((unsigned char *name, mode_t mode, int regflag));
+	int	chk_access	__PR((unsigned char *name,
+					mode_t mode, int regflag));
 static void	pr_path		__PR((unsigned char *name, int count));
 static int	argpath		__PR((struct argnod *arg));
 
@@ -199,8 +203,7 @@ zapcd()
 {
 	ENTRY *ptr = relcmd.next;
 
-	while (ptr)
-	{
+	while (ptr) {
 		ptr->data |= CDMARK;
 		ptr = ptr->next;
 	}
@@ -250,8 +253,7 @@ set_dotpath()
 	dotpath = 10000;
 	path = getpath((unsigned char *)"");
 
-	while (path && *path)
-	{
+	while (path && *path) {
 		if (*path == '/')
 			cnt++;
 		else
@@ -383,10 +385,12 @@ what_is_path(name)
 
 				if ((h->data & DOT_COMMAND) == DOT_COMMAND)
 				{
-					hash = pathlook(name, 0, (struct argnod *)0);
+					hash = pathlook(name,
+							0, (struct argnod *)0);
 					if (hashtype(hash) == NOTFOUND)
 					{
-						prs_buff(_gettext(" not found\n"));
+						prs_buff(_gettext(
+							" not found\n"));
 						return (1);
 					}
 					else
@@ -518,8 +522,10 @@ chk_access(name, mode, regflag)
 				 * root can execute file as long as it has
 				 * execute permission for someone
 				 */
-				if (statb.st_mode & (S_IEXEC|(S_IEXEC>>3)|(S_IEXEC>>6)))
+				if (statb.st_mode &
+				    (S_IEXEC|(S_IEXEC>>3)|(S_IEXEC>>6))) {
 					return (0);
+				}
 				return (3);
 			}
 			return (0);

@@ -1,6 +1,6 @@
-/* @(#)bshconf.h	1.18 11/11/23 Copyright 1991-2011 J. Schilling */
+/* @(#)bshconf.h	1.20 13/09/25 Copyright 1991-2013 J. Schilling */
 /*
- *	Copyright (c) 1991-2011 J. Schilling
+ *	Copyright (c) 1991-2013 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -9,12 +9,12 @@
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
-
-/*#define	SHORT_NAMES*/
 
 #ifdef	RETSIGTYPE	/* From schily/mconfig.h */
 
@@ -37,27 +37,27 @@ typedef	int	sigret;
 
 
 #if	defined(HAVE_GETPGID) || defined(HAVE_SETPGID)
-#	define	POSIXJOBS
+#define	POSIXJOBS
 #endif
 
 #if	!defined(HAVE_GETPGID) && defined(HAVE_BSD_GETPGRP)
-#	define	getpgid	getpgrp
+#define	getpgid	getpgrp
 #endif
 
 #if	!defined(HAVE_GETSID) && defined(HAVE_BSD_GETPGRP)
-#	define	getsid	getpgrp
+#define	getsid	getpgrp
 #else
 #if	!defined(HAVE_GETSID) && !defined(HAVE_BSD_GETPGRP)
-#	define	getsid	getpgid
+#define	getsid	getpgid
 #endif
 #endif
 
 #if	!defined(HAVE_SETPGID) && defined(HAVE_BSD_SETPGRP)
-#	define	setpgid	setpgrp
+#define	setpgid	setpgrp
 #endif
 
 #if	!defined(HAVE_SETSID) && defined(HAVE_BSD_GETPGRP)
-#	define	setsid	setpgrp(getpid())
+#define	setsid	setpgrp(getpid())
 #endif
 
 #if	!defined(HAVE_GETPGID) && !defined(HAVE_BSD_GETPGRP)
@@ -95,15 +95,17 @@ typedef	int	sigret;
  *	getpgrp(void)		-> ????
  *	setpgrp(pid, pgid)	-> set pgid of pid
  */
-#	define	getpgid(a)	getpgrp()
+#define	getpgid(a)	getpgrp()
 #endif
 
-#if	!defined(HAVE_GETPGID) && !defined(HAVE_BSD_GETPGRP) && !defined(HAVE_GETPGRP)
+#if	!defined(HAVE_GETPGID) && !defined(HAVE_BSD_GETPGRP) && \
+	!defined(HAVE_GETPGRP)
 #undef	getpgid
 #define	getpgid(a)		getpid()
 #endif
 
-#if	!defined(HAVE_SETPGID) && !defined(HAVE_BSD_SETPGRP) && !defined(HAVE_SETPGRP)
+#if	!defined(HAVE_SETPGID) && !defined(HAVE_BSD_SETPGRP) && \
+	!defined(HAVE_SETPGRP)
 #undef	setpgid
 #define	setpgid(pid, pgid)	(0)
 #endif
@@ -120,12 +122,12 @@ typedef	int	sigret;
 #define	__USE_BSD_SIGNAL	/* needed for Linux */
 #endif
 
-#ifdef	__CYGWIN32__
-#	undef	DO_SUID
+#if	defined(__CYGWIN32__) || defined(__CYGWIN__)
+#undef	DO_SUID
 #endif
 
 #ifndef	HAVE_CRYPT
-#	undef	DO_SUID
+#undef	DO_SUID
 #endif
 
 #ifdef	DO_PFEXEC

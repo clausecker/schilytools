@@ -1,13 +1,13 @@
-/* @(#)terminal.c	1.42 11/07/14 Copyright 1984-2011 J. Schilling */
+/* @(#)terminal.c	1.43 13/07/30 Copyright 1984-2013 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)terminal.c	1.42 11/07/14 Copyright 1984-2011 J. Schilling";
+	"@(#)terminal.c	1.43 13/07/30 Copyright 1984-2013 J. Schilling";
 #endif
 /*
  *	Upper layer support routines for TERMCAP
  *
- *	Copyright (c) 1984-2011 J. Schilling
+ *	Copyright (c) 1984-2013 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -16,6 +16,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -145,7 +147,7 @@ winch(signo)
 	if (lines == 0 || cols == 0 || lines > 999 || cols > 999)
 		return;
 
-#ifdef	__CYGWIN32__
+#if	defined(__CYGWIN32__) || defined(__CYGWIN__)
 	cols--;		/* Either a ioctl() or a window bug */
 #endif
 	rootwin.psize = lines - 1;
@@ -192,7 +194,7 @@ t_start(wp)
 	if (b_auto_right_margin) /* XXX */
 		wp->llen--;
 #endif
-#ifdef	__CYGWIN32__
+#if	defined(__CYGWIN32__) || defined(__CYGWIN__)
 	wp->llen--;	/* Either a ioctl() or a window bug */
 #endif
 

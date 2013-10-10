@@ -2,11 +2,13 @@
  * CDDL HEADER START
  *
  * The contents of this file are subject to the terms of the
- * Common Development and Distribution License (the "License").
- * You may not use this file except in compliance with the License.
+ * Common Development and Distribution License, Version 1.0 only
+ * (the "License").  You may not use this file except in compliance
+ * with the License.
  *
  * You can obtain a copy of the license at usr/src/OPENSOLARIS.LICENSE
- * or http://www.opensolaris.org/os/licensing.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  * See the License for the specific language governing permissions
  * and limitations under the License.
  *
@@ -35,19 +37,19 @@
 #include "defs.h"
 
 /*
- * This file contains modifications Copyright 2008-2012 J. Schilling
+ * This file contains modifications Copyright 2008-2013 J. Schilling
  *
- * @(#)pwd.c	1.14 12/05/12 2008-2012 J. Schilling
+ * @(#)pwd.c	1.17 13/09/22 2008-2013 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)pwd.c	1.14 12/05/12 2008-2012 J. Schilling";
+	"@(#)pwd.c	1.17 13/09/22 2008-2013 J. Schilling";
 #endif
 
 /*
  *	UNIX shell
  */
-#ifdef	SCHILY_BUILD
+#ifdef	SCHILY_INCLUDES
 #include	<schily/errno.h>
 #include	<schily/types.h>
 #include	<schily/stat.h>
@@ -167,8 +169,8 @@ cwd(dir)
 	while (*dir)
 	{
 		if (*dir == DOT &&
-		   *(dir+1) == DOT &&
-		   (*(dir+2) == SLASH || *(dir+2) == '\0'))
+		    *(dir+1) == DOT &&
+		    (*(dir+2) == SLASH || *(dir+2) == '\0'))
 		{
 			/* Parent directory, so backup one */
 
@@ -241,15 +243,14 @@ cwd2()
 		return;
 	pcwd = cwdname + 1;
 	if (didpwd == PARTLY) {
-		while (*pcwd)
-		{
+		while (*pcwd) {
 			char c;
 			while ((c = *pcwd++) != SLASH && c != '\0')
 				/* LINTED */
 				;
 			*--pcwd = '\0';
-			if (lstat((char *)cwdname, &stat1) == -1
-			|| (stat1.st_mode & S_IFMT) == S_IFLNK) {
+			if (lstat((char *)cwdname, &stat1) == -1 ||
+			    (stat1.st_mode & S_IFMT) == S_IFLNK) {
 				didpwd = FALSE;
 				*pcwd = c;
 				return;
@@ -269,9 +270,9 @@ cwd2()
 	 * consist of symbolic links with ".."
 	 */
 
-	if (stat(".", &stat2) == -1
-	    || stat1.st_dev != stat2.st_dev
-	    || stat1.st_ino != stat2.st_ino)
+	if (stat(".", &stat2) == -1 ||
+	    stat1.st_dev != stat2.st_dev ||
+	    stat1.st_ino != stat2.st_ino)
 		didpwd = FALSE;
 }
 
@@ -325,7 +326,7 @@ cwdprint()
 	}
 
 	for (cp = cwdname; *cp; cp++) {
-	  prc_buff(*cp);
+		prc_buff(*cp);
 	}
 
 	prc_buff(NL);

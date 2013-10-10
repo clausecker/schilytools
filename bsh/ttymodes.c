@@ -1,15 +1,15 @@
-/* @(#)ttymodes.c	1.33 11/08/13 Copyright 1986,1995-2011 J. Schilling */
+/* @(#)ttymodes.c	1.34 13/09/25 Copyright 1986,1995-2013 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)ttymodes.c	1.33 11/08/13 Copyright 1986,1995-2011 J. Schilling";
+	"@(#)ttymodes.c	1.34 13/09/25 Copyright 1986,1995-2013 J. Schilling";
 #endif
 /*
  *	ttymodes.c
  *
  *	Terminal handling for bsh
  *
- *	Copyright (c) 1986,1995-2011 J. Schilling
+ *	Copyright (c) 1986,1995-2013 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -18,6 +18,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -49,7 +51,7 @@ LOCAL	BOOL	cmdmodes	= FALSE;
 
 LOCAL	BOOL	tty_init	= FALSE;
 
-#	ifdef	USE_V7_TTY
+#ifdef	USE_V7_TTY
 
 LOCAL	struct sgttyb	ins	= {0};
 LOCAL	struct sgttyb	app	= {0};
@@ -68,7 +70,7 @@ LOCAL	int	olddisc	= -1;
 LOCAL	int	disc	= NTTYDISC;
 #endif	/* NTTYDISC */
 
-#	else	/* USE_V7_TTY */
+#else	/* !USE_V7_TTY */
 
 #ifdef	USE_TERMIOS
 LOCAL	struct termios	ins	= {0};
@@ -76,7 +78,7 @@ LOCAL	struct termios	app	= {0};
 LOCAL	struct termios	old	= {0};
 #endif
 
-#	endif	/* USE_V7_TTY */
+#endif	/* !USE_V7_TTY */
 
 #ifdef	JOBCONTROL
 LOCAL	pid_t	oldpgrp	= 0;
@@ -85,14 +87,14 @@ LOCAL	pid_t	oldpgrp	= 0;
 EXPORT	void	reset_line_disc		__PR((void));
 EXPORT	void	reset_tty_pgrp		__PR((void));
 EXPORT	void	reset_tty_modes		__PR((void));
-EXPORT	void	set_append_modes	__PR((FILE * f));
-EXPORT	void	set_insert_modes	__PR((FILE * f));
+EXPORT	void	set_append_modes	__PR((FILE *f));
+EXPORT	void	set_insert_modes	__PR((FILE *f));
 #ifdef	JOBCONTROL
 LOCAL	void	init_tty_pgrp		__PR((void));
 #endif
-EXPORT	void	get_tty_modes		__PR((FILE * f));
+EXPORT	void	get_tty_modes		__PR((FILE *f));
 LOCAL	void	init_tty_modes		__PR((void));
-LOCAL	void	set_tty_modes		__PR((FILE * f, int mode));
+LOCAL	void	set_tty_modes		__PR((FILE *f, int mode));
 EXPORT	pid_t	tty_getpgrp		__PR((int f));
 EXPORT	int	tty_setpgrp		__PR((int f, pid_t pgrp));
 
@@ -103,7 +105,7 @@ reset_line_disc()
 	FILE	*f;
 
 	if ((f = getinfile()) && olddisc != NTTYDISC)
-		ioctl(fdown(f), TIOCSETD, (char *) &olddisc);
+		ioctl(fdown(f), TIOCSETD, (char *)&olddisc);
 
 #endif	/* defined(USE_V7_TTY) && defined(NTTYDISC) */
 }
@@ -203,7 +205,7 @@ get_tty_modes(f)
 {
 	if (!cmdmodes) {
 #ifdef	USE_V7_TTY
-		ioctl(fdown(f), TIOCGETP, (char *) &old);
+		ioctl(fdown(f), TIOCGETP, (char *)&old);
 		ins.sg_ispeed = old.sg_ispeed;
 		ins.sg_ospeed = old.sg_ospeed;
 		app.sg_ispeed = old.sg_ispeed;
@@ -219,16 +221,16 @@ get_tty_modes(f)
 		inst.t_stopc	= oldt.t_stopc;
 		appt.t_startc	= oldt.t_startc;
 		appt.t_stopc	= oldt.t_stopc;
-#		ifdef	TIOCSLTC
+#ifdef	TIOCSLTC
 		ioctl(fdown(f), TIOCGLTC, (char *)&oldl);
-#		endif
-#else	/* USE_V7_TTY */
+#endif
+#else	/* !USE_V7_TTY */
 #ifdef	USE_TERMIOS
-#	ifdef	TCSANOW
+#ifdef	TCSANOW
 		tcgetattr(fdown(f), &old);
-#	else
+#else
 		ioctl(fdown(f), TCGETS, (char *)&old);
-#	endif
+#endif
 
 		app.c_iflag = ins.c_iflag = old.c_iflag;
 		app.c_oflag = ins.c_oflag = old.c_oflag;
@@ -245,7 +247,7 @@ get_tty_modes(f)
 		app.c_oflag |= (OPOST);
 		app.c_lflag &= ~(ISIG|ICANON|ECHO);
 #endif	/* USE_TERMIOS */
-#endif	/* USE_V7_TTY */
+#endif	/* !USE_V7_TTY */
 		if (!tty_init) {
 			init_tty_modes();
 #ifdef	JOBCONTROL
@@ -261,8 +263,8 @@ LOCAL void
 init_tty_modes()
 {
 #ifdef	USE_V7_TTY
-	movebytes((char *) &old, (char *) &app, sizeof (old));
-	movebytes((char *) &old, (char *) &ins, sizeof (old));
+	movebytes((char *)&old, (char *)&app, sizeof (old));
+	movebytes((char *)&old, (char *)&ins, sizeof (old));
 	ins.sg_erase	= -1;
 	ins.sg_kill	= -1;
 	app.sg_erase	= -1;
@@ -281,7 +283,7 @@ init_tty_modes()
 #endif
 	inst.t_eofc	= -1;
 	inst.t_brkc	= -1;
-#	ifdef	TIOCSLTC
+#ifdef	TIOCSLTC
 	insl.t_suspc	= -1;
 	insl.t_dsuspc	= -1;
 	insl.t_rprntc	= -1;
@@ -289,7 +291,7 @@ init_tty_modes()
 	insl.t_werasc	= -1;
 	insl.t_lnextc	= -1;
 	movebytes((char *)&insl, (char *)&appl, sizeof (insl));
-#	endif
+#endif
 	movebytes((char *)&inst, (char *)&appt, sizeof (inst));
 #else
 #ifdef	USE_TERMIOS
@@ -331,27 +333,27 @@ set_tty_modes(f, mode)
 	case	OLD_MODE:
 			ioctl(fno, TIOCSETN, (char *)&old);
 			ioctl(fno, TIOCSETC, (char *)&oldt);
-#			ifdef	TIOCSLTC
+#ifdef	TIOCSLTC
 				ioctl(fno, TIOCSLTC, (char *)&oldl);
-#			endif
+#endif
 			break;
 	case	APP_MODE:
 			ioctl(fno, TIOCSETN, (char *)&app);
 			ioctl(fno, TIOCSETC, (char *)&appt);
-#			ifdef	TIOCSLTC
+#ifdef	TIOCSLTC
 				ioctl(fno, TIOCSLTC, (char *)&appl);
-#			endif
+#endif
 			break;
 	case	INS_MODE:
 			ioctl(fno, TIOCSETN, (char *)&ins);
 			ioctl(fno, TIOCSETC, (char *)&inst);
-#			ifdef	TIOCSLTC
+#ifdef	TIOCSLTC
 				ioctl(fno, TIOCSLTC, (char *)&insl);
-#			endif
+#endif
 			break;
 #else
 #ifdef	USE_TERMIOS
-#	ifdef	TCSANOW
+#ifdef	TCSANOW
 
 	case	OLD_MODE:
 			tcsetattr(fno, TCSADRAIN, &old);
@@ -362,7 +364,7 @@ set_tty_modes(f, mode)
 	case	INS_MODE:
 			tcsetattr(fno, TCSADRAIN, &ins);
 			break;
-#	else
+#else	/* !TCSANOW */
 
 	case	OLD_MODE:
 			ioctl(fno, TCSETSW, (char *)&old);
@@ -373,7 +375,7 @@ set_tty_modes(f, mode)
 	case	INS_MODE:
 			ioctl(fno, TCSETSW, (char *)&ins);
 			break;
-#endif
+#endif	/* !TCSANOW */
 #endif	/* USE_TERMIOS */
 #endif	/* USE_V7_TTY */
 	}
@@ -420,7 +422,7 @@ tty_setpgrp(f, pgrp)
 	return (tcsetpgrp(f, pgrp));
 #else
 #ifdef	TIOCSPGRP
-	return (ioctl(f, TIOCSPGRP, (char *) &pgrp));
+	return (ioctl(f, TIOCSPGRP, (char *)&pgrp));
 #else
 	return (0);
 #endif
@@ -447,4 +449,3 @@ tty_setpgrp(f, pgrp)
 	return (0);
 }
 #endif
-

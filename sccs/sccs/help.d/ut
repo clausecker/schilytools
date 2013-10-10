@@ -37,7 +37,8 @@ can be accepted.
 If this error recurs, report it to your local UNIX support group.
 -4
 "`...' nonexistent"
-The file and/or a directory in the pathname does not exist.  Check for typos.
+The file and/or a directory in the pathname does not exist.
+Check for the existence of the `SCCS' directory.  Check for typos.
 -5
 "`...' unreadable"
 The file probably exists, but the effective user doesn't have read permission.

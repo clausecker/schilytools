@@ -2,11 +2,13 @@
  * CDDL HEADER START
  *
  * The contents of this file are subject to the terms of the
- * Common Development and Distribution License (the "License").
- * You may not use this file except in compliance with the License.
+ * Common Development and Distribution License, Version 1.0 only
+ * (the "License").  You may not use this file except in compliance
+ * with the License.
  *
  * You can obtain a copy of the license at usr/src/OPENSOLARIS.LICENSE
- * or http://www.opensolaris.org/os/licensing.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  * See the License for the specific language governing permissions
  * and limitations under the License.
  *
@@ -34,19 +36,19 @@
 #include "defs.h"
 
 /*
- * This file contains modifications Copyright 2008-2012 J. Schilling
+ * This file contains modifications Copyright 2008-2013 J. Schilling
  *
- * @(#)io.c	1.17 12/06/05 2008-2012 J. Schilling
+ * @(#)io.c	1.20 13/09/25 2008-2013 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)io.c	1.17 12/06/05 2008-2012 J. Schilling";
+	"@(#)io.c	1.20 13/09/25 2008-2013 J. Schilling";
 #endif
 
 /*
  * UNIX shell
  */
-#ifdef	SCHILY_BUILD
+#ifdef	SCHILY_INCLUDES
 #include	"dup.h"
 #include	<schily/fcntl.h>
 #include	<schily/types.h>
@@ -333,8 +335,7 @@ copy(ioparg)
 				while (!eolchar(c)) {
 					pc = readw(c);
 					while (*pc) {
-						if (clinep >= brkend)
-							clinep = growstak(clinep);
+						GROWSTAK(clinep);
 						*clinep++ = *pc++;
 					}
 					c = readwc();
@@ -348,8 +349,7 @@ copy(ioparg)
 				while (!eolchar(c)) {
 					pc = readw(c);
 					while (*pc) {
-						if (clinep >= brkend)
-							clinep = growstak(clinep);
+						GROWSTAK(clinep);
 						*clinep++ = *pc++;
 					}
 					if (c == '\\') {
@@ -358,13 +358,11 @@ copy(ioparg)
 						/* BEGIN CSTYLED */
 						if (*pc) {
 							while (*pc) {
-								if (clinep >= brkend)
-									clinep = growstak(clinep);
+								GROWSTAK(clinep);
 								*clinep++ = *pc++;
 							}
 						} else {
-							if (clinep >= brkend)
-								clinep = growstak(clinep);
+							GROWSTAK(clinep);
 							*clinep++ = *pc;
 						}
 						/* END CSTYLED */
@@ -373,16 +371,14 @@ copy(ioparg)
 				}
 			}
 
-			if (clinep >= brkend)
-				clinep = growstak(clinep);
+			GROWSTAK(clinep);
 			*clinep = 0;
 			if (eof || eq(cline, ends)) {
 				if ((i = cline - start) > 0)
 					write(fd, start, i);
 				break;
 			} else {
-				if (clinep >= brkend)
-					clinep = growstak(clinep);
+				GROWSTAK(clinep);
 				*clinep++ = NL;
 			}
 

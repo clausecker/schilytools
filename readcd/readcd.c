@@ -1,8 +1,8 @@
-/* @(#)readcd.c	1.121 13/05/30 Copyright 1987, 1995-2013 J. Schilling */
+/* @(#)readcd.c	1.122 13/09/23 Copyright 1987, 1995-2013 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)readcd.c	1.121 13/05/30 Copyright 1987, 1995-2013 J. Schilling";
+	"@(#)readcd.c	1.122 13/09/23 Copyright 1987, 1995-2013 J. Schilling";
 #endif
 /*
  *	Skeleton for the use of the scg genearal SCSI - driver
@@ -16,6 +16,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -462,7 +464,7 @@ main(ac, av)
 	/*
 	 * Due to a design bug in the Solaris USCSI ioctl, we don't need
 	 * PRIV_FILE_DAC_WRITE to send SCSI commands and most installations
-	 * pribably don't grant PRIV_FILE_DAC_WRITE. Once we need /dev/scg*,
+	 * probably don't grant PRIV_FILE_DAC_WRITE. Once we need /dev/scg*,
 	 * we would need to test for PRIV_FILE_DAC_WRITE also.
 	 */
 	if (!priv_eff_priv(SCHILY_PRIV_FILE_DAC_WRITE))

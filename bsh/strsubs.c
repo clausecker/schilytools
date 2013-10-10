@@ -1,13 +1,13 @@
-/* @(#)strsubs.c	1.24 12/04/22 Copyright 1985-2012 J. Schilling */
+/* @(#)strsubs.c	1.25 13/09/25 Copyright 1985-2013 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)strsubs.c	1.24 12/04/22 Copyright 1985-2012 J. Schilling";
+	"@(#)strsubs.c	1.25 13/09/25 Copyright 1985-2013 J. Schilling";
 #endif
 /*
  *	Useful string functions
  *
- *	Copyright (c) 1985-2012 J. Schilling
+ *	Copyright (c) 1985-2013 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -16,6 +16,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -48,7 +50,7 @@ makestr(s)
 			char	*tmp;
 	register	char	*s1;
 
-	if ((tmp = malloc((size_t) strlen(s)+1)) == NULL) {
+	if ((tmp = malloc((size_t)strlen(s)+1)) == NULL) {
 		raisecond("makestr", (long)NULL);
 		return (0);
 	}
@@ -262,7 +264,7 @@ quote_string(s, spec)
 
 	if (str)
 		free(str);
-	s1 = str = malloc(2 * (size_t) strlen(s) + 1);
+	s1 = str = malloc(2 * (size_t)strlen(s) + 1);
 	while (*s) {
 		if (strchr(spec, *s))
 			*s1++ = '\\';

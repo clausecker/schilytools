@@ -1,9 +1,9 @@
-/* @(#)stdio.h	1.6 11/08/04 Copyright 2006-2011 J. Schilling */
+/* @(#)stdio.h	1.9 13/09/25 Copyright 2006-2013 J. Schilling */
 /*
  *	Defines to make FILE * -> int *, used to allow
  *	the Bourne shell to use functions that expect stdio.
  *
- *	Copyright (c) 2006-2011 J. Schilling
+ *	Copyright (c) 2006-2013 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -12,6 +12,8 @@
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -20,7 +22,7 @@
 #ifndef	_STDIO_H
 #define	_STDIO_H
 
-#define _FILE_DEFINED	/* Prevent MSC from redefining FILE in wchar.h */
+#define	_FILE_DEFINED	/* Prevent MSC from redefining FILE in wchar.h */
 
 #undef	FILE
 #define	FILE	int
@@ -77,6 +79,17 @@ extern	int	putc	__PR((int c, FILE *f));
 
 #define	expand	bsh_expand
 #define	nullstr	bsh_nullstr
-#define	prompt	bsh_prompt
+
+#define	prompts		shedit_prompts
+#define	prompt		shedit_prompt
+#define	delim		shedit_delim
+#define	chghistory	shedit_chghistory
+#define	remap		shedit_remap
+#define	list_map	shedit_list_map
+#define	add_map		shedit_add_map
+#define	del_map		shedit_del_map
+
+#define	ev_insert	shell_putenv
+#define	getcurenv	shell_getenv
 
 #endif /* _STDIO_H */

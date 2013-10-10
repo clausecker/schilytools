@@ -1,8 +1,8 @@
-/* @(#)abbrev.c	1.50 13/07/28 Copyright 1985-2013 J. Schilling */
+/* @(#)abbrev.c	1.53 13/09/26 Copyright 1985-2013 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)abbrev.c	1.50 13/07/28 Copyright 1985-2013 J. Schilling";
+	"@(#)abbrev.c	1.53 13/09/26 Copyright 1985-2013 J. Schilling";
 #endif
 /*
  *	Abbreviation symbol handling
@@ -174,7 +174,7 @@ typedef struct abtab {
 	uid_t	at_altowner;		/* alternate permitted file owner */
 } abtab_t;
 
-LOCAL	abtab_t	ab_tabs[ABTABS]	= {	{0, 0, 0, 0, 0, (uid_t)-1}, 
+LOCAL	abtab_t	ab_tabs[ABTABS]	= {	{0, 0, 0, 0, 0, (uid_t)-1},
 					{0, 0, 0, 0, 0, (uid_t)-1}};
 
 LOCAL	abtab_t	*_ab_down	__PR((abidx_t tab));
@@ -589,8 +589,18 @@ static	char oname[12];
 	if (pw)
 		return (pw->pw_name);
 	oname[0] = '\0';
+
+#if	defined(BOURNE_SHELL) && defined(HAVE_SNPRINTF)
+	/*
+	 * Try to avoid js_snprintf() in the Bourne Shell
+	 * to allow to lazyload libschily
+	 */
+	snprintf(oname, sizeof (oname),
+		"%d", ap->at_altowner);
+#else
 	js_snprintf(oname, sizeof (oname),
 		"%d", ap->at_altowner);
+#endif
 	return (oname);
 }
 
@@ -671,7 +681,7 @@ ab_read(tab, fname)
 	berror("ab_read(%d, %s)-> %d %.24s", tab, fname,
 			ap->at_mtime, ctime(&ap->at_mtime));
 #endif
-	if ((ap->at_blk = malloc((size_t) fsize)) == NULL) {
+	if ((ap->at_blk = malloc((size_t)fsize)) == NULL) {
 		raisecond(sn_no_mem, (long)"ab_read");
 		fclose(f);
 		return;
@@ -1137,7 +1147,7 @@ _ab_phist(np, f, aflags)
 		unsigned int	len;
 
 		js_snprintf(buf, sizeof (buf),
-				"#%s%c %-8s %s\n",
+				"#%s%c %-8s %s",
 				np->ab_push ? "p":"",
 				np->ab_flags & ABF_BEGIN ? 'b':'a',
 				np->ab_name, np->ab_value);

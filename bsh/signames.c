@@ -1,14 +1,14 @@
-/* @(#)signames.c	1.7 12/04/08 Copyright 1998-2012 J. Schilling */
+/* @(#)signames.c	1.8 13/09/24 Copyright 1998-2013 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)signames.c	1.7 12/04/08 Copyright 1998-2012 J. Schilling";
+	"@(#)signames.c	1.8 13/09/24 Copyright 1998-2013 J. Schilling";
 #endif
 /*
  *	Handle signal names for systems that don't have
  *	strsignal()/str2sig()/sig2str()
  *
- *	Copyright (c) 1998-2012 J. Schilling
+ *	Copyright (c) 1998-2013 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -17,6 +17,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -28,7 +30,8 @@ static	UConst char sccsid[] =
 #include <schily/signal.h>
 #include <schily/schily.h>
 
-#if	!(defined(HAVE_STRSIGNAL) && defined(HAVE_STR2SIG) && defined(HAVE_SIG2STR))
+#if	!(defined(HAVE_STRSIGNAL) && defined(HAVE_STR2SIG) && \
+		defined(HAVE_SIG2STR))
 
 #ifndef	HAVE_STRSIGNAL
 EXPORT	char	*strsignal	__PR((int sig));
@@ -290,4 +293,4 @@ sig2str(sig, s)
 }
 #endif
 
-#endif	/* !(defined(HAVE_STRSIGNAL) && defined(HAVE_STR2SIG) && defined(HAVE_SIG2STR)) */
+#endif	/* ! (HAVE_STRSIGNAL && HAVE_STR2SIG && HAVE_SIG2STR) */

@@ -1,4 +1,4 @@
-/* @(#)schily.h	1.108 13/05/01 Copyright 1985-2013 J. Schilling */
+/* @(#)schily.h	1.109 13/09/30 Copyright 1985-2013 J. Schilling */
 /*
  *	Definitions for libschily
  *
@@ -27,6 +27,8 @@
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -274,6 +276,10 @@ extern	int	gettnum	__PR((char *arg, time_t *valp));
 #endif
 
 #ifdef	_SCHILY_TIME_H
+
+extern	int		getnstimeofday	__PR((struct timespec *__tp));
+extern	int		setnstimeofday	__PR((struct timespec *__tp));
+
 #ifdef	_SCHILY_UTYPES_H
 extern	Llong		mklgmtime	__PR((struct tm *));
 #endif

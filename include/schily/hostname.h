@@ -1,4 +1,4 @@
-/* @(#)hostname.h	1.20 13/07/08 Copyright 1995-2013 J. Schilling */
+/* @(#)hostname.h	1.21 13/09/14 Copyright 1995-2013 J. Schilling */
 /*
  *	This file has been separated from libport.h in order to avoid
  *	to include netdb.h in case gethostname() is not needed.
@@ -84,8 +84,8 @@ extern	int		getdomainname	__PR((char *name, int namelen));
  * Define prototypes for POSIX standard functions that are missing on SunOS-4.x
  * to make compilation smooth.
  */
-extern  int             gethostname     __PR((char *name, int namelen));
-extern  int             getdomainname   __PR((char *name, int namelen));
+extern	int		gethostname	__PR((char *name, int namelen));
+extern	int		getdomainname	__PR((char *name, int namelen));
 #endif	/* __SUNOS4 */
 
 #ifdef	__cplusplus

@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sh.1	1.36 13/07/28 Copyright 2012-2013 J. Schilling
+.\" @(#)sh.1	1.37 13/09/26 Copyright 2012-2013 J. Schilling
 .\" Copyright 1989 AT&T
 .\" Copyright (c) 2008, Sun Microsystems, Inc. All Rights Reserved.
 .\" Portions Copyright (c) 1992, X/Open Company Limited All Rights Reserved
@@ -47,7 +47,7 @@
 .\" information: Portions Copyright [yyyy] [name of copyright owner]
 .\"
 .\" CDDL HEADER END
-.TH sh 1 "2013/07/28" "Schily Bourne Shell" "User Commands"
+.TH sh 1 "2013/09/26" "Schily Bourne Shell" "User Commands"
 .SH NAME
 sh, jsh \- standard and job control shell and command interpreter
 .SH SYNOPSIS
@@ -2912,8 +2912,19 @@ Using
 rather than
 .B \(mi
 causes these flags to be turned off.
-These flags can also be used upon invocation of the shell. The current set
-of flags can be found in
+These flags can also be used upon invocation of the shell.
+The flags
+.BR \-c ,
+.BR \-i ,
+.BR \-p ,
+.B \-r
+and
+.B \-s
+can only be set upon invocation of the shell, they cannot be modified
+using the
+.B set
+command. 
+The current set of flags can be found in
 .BR $\(mi .
 The remaining arguments are positional
 parameters and are assigned, in order, to

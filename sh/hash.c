@@ -35,21 +35,21 @@
 #include "defs.h"
 
 /*
- * This file contains modifications Copyright 2008-2012 J. Schilling
+ * This file contains modifications Copyright 2008-2013 J. Schilling
  *
- * @(#)hash.c	1.10 12/05/11 2008-2012 J. Schilling
+ * @(#)hash.c	1.12 13/09/24 2008-2013 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)hash.c	1.10 12/05/11 2008-2012 J. Schilling";
+	"@(#)hash.c	1.12 13/09/24 2008-2013 J. Schilling";
 #endif
 
 #include	"hash.h"
 
 #define	STRCMP(A, B)	(cf(A, B) != 0)
-#define	FACTOR			035761254233	/* Magic multiplication factor */
-#define	TABLENGTH		64		/* must be multiple of 2 */
-#define	LOG2LEN			6		/* log2 of TABLENGTH */
+#define	FACTOR		035761254233	/* Magic multiplication factor */
+#define	TABLENGTH	64		/* must be multiple of 2 */
+#define	LOG2LEN		6		/* log2 of TABLENGTH */
 
 /*
  *  NOTE: The following algorithm only works on machines where
@@ -58,7 +58,7 @@ static	UConst char sccsid[] =
  *  the result.  It is adapted from Knuth, Volume 3, section 6.4.
  */
 
-#define	hash(str)		(int)(((unsigned)(crunch(str) * FACTOR)) >> shift)
+#define	hash(str)	(int)(((unsigned)(crunch(str) * FACTOR)) >> shift)
 
 struct node
 {
@@ -83,20 +83,18 @@ static unsigned int crunch	__PR((unsigned char *));
 void
 hcreate()
 {
-	unsigned char c = (unsigned char)~0;			/* A byte full of 1's */
+	unsigned char c = (unsigned char)~0;	/* A byte full of 1's */
 	int j;
 
 	table = (struct node **)alloc(TABLENGTH * sizeof (struct node *));
 
-	for (j = 0; j < TABLENGTH; ++j)
-	{
+	for (j = 0; j < TABLENGTH; ++j) {
 		table[j] = 0;
 	}
 
 	bitsper = 0;
 
-	while (c)
-	{
+	while (c) {
 		c = (unsigned int)c >> 1;
 		bitsper++;
 	}
@@ -184,7 +182,7 @@ crunch(key)
 	unsigned int	sum = 0;
 	int s;
 
-	for (s = 0; *key; s++)				/* Simply add up the bytes */
+	for (s = 0; *key; s++)			/* Simply add up the bytes */
 		sum += *key++;
 
 	return (sum + s);

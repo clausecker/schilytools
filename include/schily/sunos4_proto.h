@@ -1,4 +1,4 @@
-/* @(#)sunos4_proto.h	1.2 13/05/09 Copyright 2013 J. Schilling */
+/* @(#)sunos4_proto.h	1.3 13/09/14 Copyright 2013 J. Schilling */
 /*
  *	Prototypes for POSIX standard functions that are missing on SunOS-4.x.
  *
@@ -11,6 +11,8 @@
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -55,8 +57,8 @@ extern	int		poll __PR((struct pollfd __fds[], unsigned long __nfds, int __timeou
  * schily/hostname.h
  */
 #ifdef	_SCHILY_HOSTNAME_H
-extern  int             gethostname     __PR((char *name, int namelen));
-extern  int             getdomainname   __PR((char *name, int namelen));
+extern	int		gethostname	__PR((char *name, int namelen));
+extern	int		getdomainname	__PR((char *name, int namelen));
 #endif
 
 /*
@@ -105,7 +107,7 @@ extern	int		printf __PR((const char * __format, ...));
 /*PRINTFLIKE3*/
 extern	int		snprintf __PR((char * __s, size_t __n,
 					const char * __format, /* args*/ ...))
-		                                        __printflike__(3, 4);
+							__printflike__(3, 4);
 #endif
 
 /*
@@ -196,7 +198,7 @@ extern	int		socket __PR((int __domain, int __type, int __protocol));
 extern	int		getsockopt __PR((int __s, int __level, int __optname, void *__optval,
 					int *__optlen));
 extern	int		setsockopt __PR((int __s, int __level, int __optname, const void *__optval,
-				         int __optlen));
+					int __optlen));
 extern	int		getpeername __PR((int __s, struct sockaddr *__name, socklen_t *__namelen));
 extern	int		socketpair __PR((int __domain, int __type, int __protocol, int __sv[2]));
 #endif
@@ -220,8 +222,8 @@ extern	int		gettimeofday __PR((struct timeval *__tp, void *__tzp));
 extern	int		settimeofday __PR((struct timeval *__tp, void *__tzp));
 extern	int		utimes __PR((const char *__path, const struct timeval __times[2]));
 extern	int		select __PR((int __nfds, fd_set * __readfds, fd_set * __writefds,
-					         fd_set * __errorfds,
-					         struct timeval * __timeout));
+						fd_set * __errorfds,
+						struct timeval * __timeout));
 
 #endif
 

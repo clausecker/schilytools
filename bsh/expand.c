@@ -1,13 +1,13 @@
-/* @(#)expand.c	1.43 11/08/04 Copyright 1985-2009 J. Schilling */
+/* @(#)expand.c	1.44 13/09/25 Copyright 1985-2013 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)expand.c	1.43 11/08/04 Copyright 1985-2009 J. Schilling";
+	"@(#)expand.c	1.44 13/09/25 Copyright 1985-2013 J. Schilling";
 #endif
 /*
  *	Expand a pattern (do shell name globbing)
  *
- *	Copyright (c) 1985-2009 J. Schilling
+ *	Copyright (c) 1985-2013 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -16,6 +16,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -30,7 +32,6 @@ static	UConst char sccsid[] =
 #include <schily/stdlib.h>
 #include <schily/dirent.h>
 #include <schily/patmatch.h>
-/*#define	DEBUG*/
 
 #ifdef	DEBUG
 #define	EDEBUG(a)	printf a
@@ -231,7 +232,6 @@ xsort(from, to)
 		for (j = 0; j < k; j++) {
 			for (i = j; i >= 0; i -= m) {
 				register char **fromi;
-/*#define	cmplocal*/
 #ifdef	cmplocal
 				register char	*s1;
 				register char	*s2;
@@ -307,12 +307,13 @@ exp(n, i, l)
 	 */
 	EDEBUG(("patlen: %d pattern: '%.*s'\n", patlen, patlen, dp));
 
-	aux = malloc((size_t) patlen*(sizeof (int)));
-	state = malloc((size_t) (patlen+1)*(sizeof (int)));
-	if ((alt = patcompile((unsigned char *)dp, patlen, aux)) == 0 && patlen != 0) {
+	aux = malloc((size_t)patlen*(sizeof (int)));
+	state = malloc((size_t)(patlen+1)*(sizeof (int)));
+	if ((alt = patcompile((unsigned char *)dp, patlen, aux)) == 0 &&
+	    patlen != 0) {
 		EDEBUG(("Bad pattern\n"));
-		free((char *) aux);
-		free((char *) state);
+		free((char *)aux);
+		free((char *)state);
 		return (l1);
 	}
 
@@ -341,7 +342,8 @@ exp(n, i, l)
 			(unsigned char *)dent->d_name, 0, namlen, alt, state);
 
 #ifdef	DEBUG
-		if (tmp != NULL || (dent->d_name[0] == dp[0] && patlen == namlen))
+		if (tmp != NULL || (dent->d_name[0] == dp[0] &&
+		    patlen == namlen))
 			EDEBUG(("match? '%s' end: '%s'\n", dent->d_name, tmp));
 #endif
 		/*
@@ -371,8 +373,8 @@ exp(n, i, l)
 	closedir(dirp);
 cannot:
 	free(dir);
-	free((char *) aux);
-	free((char *) state);
+	free((char *)aux);
+	free((char *)state);
 
 	if (rescan > 0) {
 		for (alt = rescan; --alt >= 0; ) {

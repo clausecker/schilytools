@@ -2,11 +2,13 @@
  * CDDL HEADER START
  *
  * The contents of this file are subject to the terms of the
- * Common Development and Distribution License (the "License").
- * You may not use this file except in compliance with the License.
+ * Common Development and Distribution License, Version 1.0 only
+ * (the "License").  You may not use this file except in compliance
+ * with the License.
  *
  * You can obtain a copy of the license at usr/src/OPENSOLARIS.LICENSE
- * or http://www.opensolaris.org/os/licensing.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  * See the License for the specific language governing permissions
  * and limitations under the License.
  *
@@ -34,13 +36,13 @@
 #include "defs.h"
 
 /*
- * This file contains modifications Copyright 2008-2012 J. Schilling
+ * This file contains modifications Copyright 2008-2013 J. Schilling
  *
- * @(#)msg.c	1.18 12/06/10 2008-2012 J. Schilling
+ * @(#)msg.c	1.20 13/09/24 2008-2013 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)msg.c	1.18 12/06/10 2008-2012 J. Schilling";
+	"@(#)msg.c	1.20 13/09/24 2008-2013 J. Schilling";
 #endif
 
 /*
@@ -113,7 +115,8 @@ const char	running[]	= "Running";
 const char	ambiguous[]	= "ambiguous";
 const char	usage[]		= "usage";
 const char	nojc[]		= "no job control";
-const char	aliasuse[]	= "alias [-a] [-e] [-g] [-l] [-p] [-r] [--raw] [name[=value]...]";
+const char	aliasuse[]	=
+		"alias [-a] [-e] [-g] [-l] [-p] [-r] [--raw] [name[=value]...]";
 const char	unaliasuse[]	= "unalias [-a] [-g] [-l] [-p] [name...]";
 const char	repuse[]	= "repeat [-c count] [-d delay] cmd [args]";
 const char	stopuse[]	= "stop id ...";

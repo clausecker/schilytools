@@ -1,4 +1,4 @@
-/* @(#)stdio.h	1.4 13/05/28 Copyright 2009-2013 J. Schilling */
+/* @(#)stdio.h	1.5 13/09/14 Copyright 2009-2013 J. Schilling */
 /*
  *	Abstraction from stdio.h
  *
@@ -11,14 +11,16 @@
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#ifndef NO_SCHILY_STDIO_H
 #ifndef _SCHILY_STDIO_H
 #define	_SCHILY_STDIO_H
+#ifndef NO_SCHILY_STDIO_H
 
 #ifndef	_SCHILY_MCONFIG_H
 #include <schily/mconfig.h>
@@ -63,5 +65,5 @@
 #define	pclose(fp)	_pclose(fp)
 #endif
 
-#endif	/* _SCHILY_STDIO_H */
 #endif	/* NO_SCHILY_STDIO_H */
+#endif	/* _SCHILY_STDIO_H */

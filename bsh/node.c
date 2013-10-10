@@ -1,13 +1,13 @@
-/* @(#)node.c	1.26 10/10/02 Copyright 1985-2010 J. Schilling */
+/* @(#)node.c	1.27 13/09/25 Copyright 1985-2013 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)node.c	1.26 10/10/02 Copyright 1985-2010 J. Schilling";
+	"@(#)node.c	1.27 13/09/25 Copyright 1985-2013 J. Schilling";
 #endif
 /*
  *	Node handling routines
  *
- *	Copyright (c) 1985-2010 J. Schilling
+ *	Copyright (c) 1985-2013 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -16,6 +16,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -28,15 +30,15 @@ static	UConst char sccsid[] =
 #include "strsubs.h"
 #include <schily/stdlib.h>
 
-EXPORT	Tnode*	allocnode	__PR((long type, Tnode * lp, Tnode * rp));
-EXPORT	void	freetree	__PR((Tnode * np));
+EXPORT	Tnode*	allocnode	__PR((long type, Tnode *lp, Tnode *rp));
+EXPORT	void	freetree	__PR((Tnode *np));
 EXPORT	Argvec*	allocvec	__PR((int len));
-EXPORT	void	freevec		__PR((Argvec * vp));
-EXPORT	int	listlen		__PR((Tnode * lp));
-EXPORT	void	printtree	__PR((FILE * f, Tnode * cmd));
-EXPORT	void	printio		__PR((FILE * f, Tnode * cmd));
-EXPORT	void	_printio	__PR((FILE * f, long type));
-EXPORT	void	printstring	__PR((FILE * f, Tnode * cmd));
+EXPORT	void	freevec		__PR((Argvec *vp));
+EXPORT	int	listlen		__PR((Tnode *lp));
+EXPORT	void	printtree	__PR((FILE *f, Tnode *cmd));
+EXPORT	void	printio		__PR((FILE *f, Tnode *cmd));
+EXPORT	void	_printio	__PR((FILE *f, long type));
+EXPORT	void	printstring	__PR((FILE *f, Tnode *cmd));
 
 EXPORT Tnode *
 allocnode(type, lp, rp)
@@ -53,7 +55,7 @@ allocnode(type, lp, rp)
 	} else {
 		berror("%s", sn_no_mem);
 #ifdef	needed
-		if (0) {	/* XXX ist das ueberhaupt ein Tnode* ??*/
+		if (0) {	/* XXX ist das ueberhaupt ein Tnode* ?? */
 			if (xntype(type) == STRING || xntype(type) == LSTRING)
 				free(lp);
 			else
@@ -68,7 +70,7 @@ allocnode(type, lp, rp)
 				 */
 		}
 #endif
-		freetree(rp); 	/* XXX ist das ueberhaupt ein Tnode* ??*/
+		freetree(rp); 	/* XXX ist das ueberhaupt ein Tnode* ?? */
 				/*
 				 * XXX rp sollte eigentlich immer
 				 * ein Tnode sein.
@@ -114,7 +116,7 @@ freetree(np)
 						ntype(np), np->tn_left.tn_str);
 		}
 		freetree(np->tn_right.tn_node);
-		free((char *) np);
+		free((char *)np);
 	}
 }
 
@@ -152,7 +154,7 @@ freevec(vp)
 
 	for (t = vp->av_av; *t != NULL; t++)
 		free(*t);
-	free((char *) vp);
+	free((char *)vp);
 }
 
 EXPORT int
@@ -212,11 +214,9 @@ printtree(f, cmd)
 		case ODUP:	/* >& */
 			printio(f, cmd);
 			fprintf(f, " ");
-/*			printstring(f, cmd);*/
 			break;
 		case STRING:
 		case LSTRING:
-/*			fprintf(f, "%s ", cmd->tn_left.tn_str);*/
 			printstring(f, cmd);
 			break;
 		}
@@ -260,7 +260,9 @@ printstring(f, cmd)
 		FILE	*f;
 	register Tnode	*cmd;
 {
-/*error("qtype %lX '%s\n", quotetype(cmd), cmd->tn_left.tn_str);*/
+#ifdef	NODE_DEBUG
+	error("qtype %lX '%s\n", quotetype(cmd), cmd->tn_left.tn_str);
+#endif
 	switch ((int)quotetype(cmd)) {
 
 	case NOQUOTE:

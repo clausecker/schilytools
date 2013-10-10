@@ -1,14 +1,14 @@
-/* @(#)longnames.c	1.56 11/09/05 Copyright 1993, 1995, 2001-2011 J. Schilling */
+/* @(#)longnames.c	1.57 13/10/09 Copyright 1993, 1995, 2001-2013 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)longnames.c	1.56 11/09/05 Copyright 1993, 1995, 2001-2011 J. Schilling";
+	"@(#)longnames.c	1.57 13/10/09 Copyright 1993, 1995, 2001-2013 J. Schilling";
 #endif
 /*
  *	Handle filenames that cannot fit into a single
  *	string of 100 charecters
  *
- *	Copyright (c) 1993, 1995, 2001-2011 J. Schilling
+ *	Copyright (c) 1993, 1995, 2001-2013 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -17,6 +17,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -101,7 +103,17 @@ error("low: %d:%s high: %d:'%c',%s\n",
 	while (--high >= low)
 		if (*high == '/')
 			break;
-	if (high < low) {
+	/*
+	 * We cannot split if we did either find no '/' (high < low), or if
+	 * there is no name past the '/' we found (this is when a name ends
+	 * on a '/' and there is no way to split off a suffix with a length
+	 * that is <= 100 chars.
+	 * Star and gtar would be happy with a zero length suffix, but
+	 * traditional tar implementations ignore their own logical EOF
+	 * definition that requires two blocks full of zeroes and stop on
+	 * a null character at dbuf.t_name[0] already.
+	 */
+	if (high < low || high[1] == '\0') {
 		if ((props.pr_nflags & PR_LONG_NAMES) == 0) {
 			if (!errhidden(E_NAMETOOLONG, name)) {
 				if (!errwarnonly(E_NAMETOOLONG, name))

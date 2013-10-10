@@ -1,4 +1,4 @@
-/* @(#)windows.h	1.2 13/01/07 Copyright 2011-2013 J. Schilling */
+/* @(#)windows.h	1.3 13/09/14 Copyright 2011-2013 J. Schilling */
 /*
  *	Definitions for windows.h
  *
@@ -11,6 +11,8 @@
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -27,10 +29,12 @@
 #ifndef	_INCL_WINDOWS_H
 
 #ifdef	_MSC_VER	/* configure believes they are missing */
+/* BEGIN CSTYLED */
 #undef	u_char
 #undef	u_short
 #undef	u_int
 #undef	u_long
+/* END CSTYLED */
 #endif
 
 #if defined(__CYGWIN32__) || defined(__CYGWIN__)
@@ -55,7 +59,7 @@
 #include <schily/standard.h>	/* Get our BOOL typedef */
 
 #define	_NO_BOOL_TYPEDEF	/* Avoid 2nd BOOL typedef on Cygwin-1.7.17 */
-	
+
 #define	WBOOL	WINBOOL		/* Cygwin-1.7.17 prevents to avoid BOOL */
 #endif	/* defined(__CYGWIN32__) || defined(__CYGWIN__) */
 

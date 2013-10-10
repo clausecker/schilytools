@@ -1,13 +1,13 @@
-/* @(#)idops.c	1.39 09/08/07 Copyright 1985-2009 J. Schilling */
+/* @(#)idops.c	1.40 13/07/30 Copyright 1985-2013 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)idops.c	1.39 09/08/07 Copyright 1985-2009 J. Schilling";
+	"@(#)idops.c	1.40 13/07/30 Copyright 1985-2013 J. Schilling";
 #endif
 /*
  *	uid und gid Routinen
  *
- *	Copyright (c) 1985-2009 J. Schilling
+ *	Copyright (c) 1985-2013 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -16,13 +16,15 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
 #include <schily/mconfig.h>
-#ifndef	__CYGWIN32__
+#if	!defined(__CYGWIN32__) && !defined(__CYGWIN__)
 #include <schily/stdio.h>
 #include <schily/signal.h>
 #include <schily/pwd.h>
@@ -312,7 +314,7 @@ readpw(std, passwd, size)
 #else
 	char	*p;
 
-	p = getpass("Passdord:");
+	p = getpass("Password:");
 	if (p == NULL)
 		return (-1);
 	strcpy(passwd, p);
@@ -326,4 +328,4 @@ readpw(std, passwd, size)
 
 #endif
 
-#endif	/* __CYGWIN32__ */
+#endif	/* !__CYGWIN32__ && !__CYGWIN__ */

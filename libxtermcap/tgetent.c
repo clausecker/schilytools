@@ -1,13 +1,13 @@
-/* @(#)tgetent.c	1.37 12/05/06 Copyright 1986-2012 J. Schilling */
+/* @(#)tgetent.c	1.39 13/09/19 Copyright 1986-2013 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)tgetent.c	1.37 12/05/06 Copyright 1986-2012 J. Schilling";
+	"@(#)tgetent.c	1.39 13/09/19 Copyright 1986-2013 J. Schilling";
 #endif
 /*
  *	Access routines for TERMCAP database.
  *
- *	Copyright (c) 1986-2012 J. Schilling
+ *	Copyright (c) 1986-2013 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -16,6 +16,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -25,8 +27,8 @@ static	UConst char sccsid[] =
  * XXX Non POSIX imports from libschily: geterrno()
  */
 #ifdef	BSH
-#	include <schily/stdio.h>
-#	include "bsh.h"
+#include <schily/stdio.h>
+#include "bsh.h"
 #endif
 
 #include <schily/standard.h>
@@ -43,10 +45,10 @@ static	UConst char sccsid[] =
 #include <schily/termcap.h>
 
 #ifdef	NO_LIBSCHILY
-#	define	geterrno()	(errno)
+#define	geterrno()	(errno)
 #endif
 #ifdef	BSH
-#	define	getenv		getcurenv
+#define	getenv		getcurenv
 #endif
 
 #ifdef	pdp11
@@ -388,7 +390,7 @@ tchktc(name)
 		write(STDERR_FILENO, _ebad, sizeof (_ebad) - 1);
 		return (0);
 	}
-	ep -= 2;				/* Correct for propper append*/
+	ep -= 2;				/* Correct for propper append */
 	strncpy(tcbuf, &ep[2], sizeof (tcbuf));
 	tcname = tcbuf;
 	tcname[sizeof (tcbuf)-1] = '\0';
@@ -426,7 +428,8 @@ tchktc(name)
 		if (ret >= (unsigned)(tbufsize-1)) {
 			if (tbufmalloc) {
 				tbufsize = ret;
-				if ((otbuf = trealloc(otbuf, tbufsize)) != NULL) {
+				if ((otbuf =
+				    trealloc(otbuf, tbufsize)) != NULL) {
 					ep = otbuf + (ep - tbuf);
 					tbuf = otbuf;
 				} else {
@@ -534,7 +537,7 @@ tfind(ep, ent)
 			continue;
 		return (ep);
 	}
-	return ((char *) NULL);
+	return ((char *)NULL);
 }
 
 /*
@@ -617,7 +620,7 @@ tgetstr(ent, array)
 	for (;;) {
 		ep = tfind(ep, ent);
 		if (!ep || *ep == '@')
-			return ((char *) NULL);
+			return ((char *)NULL);
 		if (*ep == '=') {
 			ep = tdecode(++ep, array);
 			if (ep == buf) {
@@ -658,23 +661,27 @@ tdecode(pp, array)
 				c = *ep++ | 0x40;
 			else
 				c = *ep++ & 0x1f;
-		} else if (c == '\\') {
-			c = *ep++;
-			if (isoctal(c)) {
-				for (c -= '0', i = 3; --i > 0 && isoctal(*ep); ) {
-					c <<= 3;
-					c |= *ep++ - '0';
-				}
-				/*
-				 * Terminfo maps NULL chars to 0200
-				 */
-				if (c == '\0')
-					c = '\200';
-			} else for (tp = (Uchar *)_quotetab; *tp; tp++) {
-				if (*tp++ == c) {
-					c = *tp;
-					break;
-				}
+		} else if (c != '\\') {
+			continue;
+		}
+		/*
+		 * Handle the \xxx and \C escape sequences here:
+		 */
+		c = *ep++;
+		if (isoctal(c)) {
+			for (c -= '0', i = 3; --i > 0 && isoctal(*ep); ) {
+				c <<= 3;
+				c |= *ep++ - '0';
+			}
+			/*
+			 * Terminfo maps NULL chars to 0200
+			 */
+			if (c == '\0')
+				c = '\200';
+		} else for (tp = (Uchar *)_quotetab; *tp; tp++) {
+			if (*tp++ == c) {
+				c = *tp;
+				break;
 			}
 		}
 	}

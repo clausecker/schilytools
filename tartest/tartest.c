@@ -1,11 +1,11 @@
-/* @(#)tartest.c	1.18 11/07/15 Copyright 2002-2011 J. Schilling */
+/* @(#)tartest.c	1.19 13/10/09 Copyright 2002-2013 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)tartest.c	1.18 11/07/15 Copyright 2002-2011 J. Schilling";
+	"@(#)tartest.c	1.19 13/10/09 Copyright 2002-2013 J. Schilling";
 #endif
 /*
- *	Copyright (c) 2002-2011 J. Schilling
+ *	Copyright (c) 2002-2013 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -14,6 +14,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -83,9 +85,9 @@ main(ac, av)
 	if (help)
 		usage(0);
 
-	printf("tartest %s (%s-%s-%s)\n\n", "1.18",
+	printf("tartest %s (%s-%s-%s)\n\n", "1.19",
 					HOST_CPU, HOST_VENDOR, HOST_OS);
-	printf("Copyright (C) 2002 Jörg Schilling\n");
+	printf("Copyright (C) 2002-2013 Jörg Schilling\n");
 	printf("This is free software; see the source for copying conditions.  There is NO\n");
 	printf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
 	if (prversion)
@@ -151,7 +153,8 @@ doit(f)
 			}
 			printf("Found 2nd EOF block at %lld\n", blockno);
 			return (ret);
-		} if (checks != hsum) {
+		}
+		if (checks != hsum) {
 			printf("Bad Checksum %0llo != %0llo at block %lld\n",
 							checks, hsum, blockno);
 			signedcksum = TRUE;
@@ -254,6 +257,10 @@ checkhdr(ptb)
 	int	errs = 0;
 	Ullong	ll;
 
+	if (ptb->ustar_dbuf.t_name[  0] == '\0') {
+		printf("Warning: t_name[  0] is a null character.\n");
+		errs++;
+	}
 	if (ptb->ustar_dbuf.t_name[  0] != '\0' &&
 	    ptb->ustar_dbuf.t_name[ 99] != '\0' &&
 	    /* LINTED */

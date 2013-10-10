@@ -2,11 +2,13 @@
  * CDDL HEADER START
  *
  * The contents of this file are subject to the terms of the
- * Common Development and Distribution License (the "License").
- * You may not use this file except in compliance with the License.
+ * Common Development and Distribution License, Version 1.0 only
+ * (the "License").  You may not use this file except in compliance
+ * with the License.
  *
  * You can obtain a copy of the license at usr/src/OPENSOLARIS.LICENSE
- * or http://www.opensolaris.org/os/licensing.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  * See the License for the specific language governing permissions
  * and limitations under the License.
  *
@@ -34,24 +36,24 @@
 /*
  * This file contains modifications Copyright 2008-2013 J. Schilling
  *
- * @(#)ulimit.c	1.12 13/04/26 2008-2013 J. Schilling
+ * @(#)ulimit.c	1.15 13/09/24 2008-2013 J. Schilling
  */
-#ifdef	SCHILY_BUILD
+#ifdef	SCHILY_INCLUDES
 #include <schily/mconfig.h>
 #endif
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)ulimit.c	1.12 13/04/26 2008-2013 J. Schilling";
+	"@(#)ulimit.c	1.15 13/09/24 2008-2013 J. Schilling";
 #endif
 
 /*
  * ulimit builtin
  */
 
-#ifdef	SCHILY_BUILD
+#ifdef	SCHILY_INCLUDES
 #include <schily/time.h>
 #include <schily/resource.h>
-#define	rlim_t	Intmax_t		/* XXX may go away with <schily/resource.h> */
+#define	rlim_t	Intmax_t	/* XXX may go away with <schily/resource.h> */
 #else
 #include <sys/resource.h>
 #include <stdlib.h>

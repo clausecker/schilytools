@@ -32,19 +32,19 @@
 #endif
 
 /*
- * This file contains modifications Copyright 2008-2012 J. Schilling
+ * This file contains modifications Copyright 2008-2013 J. Schilling
  *
- * @(#)sh_policy.c	1.13 12/03/14 2008-2012 J. Schilling
+ * @(#)sh_policy.c	1.15 13/09/24 2008-2013 J. Schilling
  */
-#ifdef	SCHILY_BUILD
+#ifdef	SCHILY_INCLUDES
 #include <schily/mconfig.h>
 #endif
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)sh_policy.c	1.13 12/03/14 2008-2012 J. Schilling";
+	"@(#)sh_policy.c	1.15 13/09/24 2008-2013 J. Schilling";
 #endif
 
-#ifdef	SCHILY_BUILD
+#ifdef	SCHILY_INCLUDES
 #include <schily/mconfig.h>
 #include <schily/param.h>
 #include <grp.h>
@@ -75,8 +75,11 @@ static char *username;
 	void	secpolicy_init		__PR((void));
 	void	secpolicy_end		__PR((void));
 static char **	secpolicy_set_argv	__PR((char **arg_v));
-static int	secpolicy_getrealpath	__PR((const char *cmd, char *cmd_realpath));
-	int	secpolicy_pfexec	__PR((const char *command, char **arg_v, const char **xecenv));
+static int	secpolicy_getrealpath	__PR((const char *cmd,
+						char *cmd_realpath));
+	int	secpolicy_pfexec	__PR((const char *command,
+						char **arg_v,
+						const char **xecenv));
 
 /*
  * get the ruid and passwd name

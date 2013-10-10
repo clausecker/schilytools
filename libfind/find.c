@@ -1,14 +1,14 @@
 /*#define	PLUS_DEBUG*/
-/* @(#)find.c	1.96 11/07/16 Copyright 2004-2011 J. Schilling */
+/* @(#)find.c	1.97 13/09/23 Copyright 2004-2013 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)find.c	1.96 11/07/16 Copyright 2004-2011 J. Schilling";
+	"@(#)find.c	1.97 13/09/23 Copyright 2004-2013 J. Schilling";
 #endif
 /*
  *	Another find implementation...
  *
- *	Copyright (c) 2004-2011 J. Schilling
+ *	Copyright (c) 2004-2013 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -17,6 +17,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -1477,6 +1479,7 @@ find_expr(f, ff, fs, state, t)
 				closedir(d);
 				return (FALSE);
 			}
+			closedir(d);
 			return (TRUE);
 		}
 		return (FALSE);

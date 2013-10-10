@@ -2,11 +2,13 @@
  * CDDL HEADER START
  *
  * The contents of this file are subject to the terms of the
- * Common Development and Distribution License (the "License").
- * You may not use this file except in compliance with the License.
+ * Common Development and Distribution License, Version 1.0 only
+ * (the "License").  You may not use this file except in compliance
+ * with the License.
  *
  * You can obtain a copy of the license at usr/src/OPENSOLARIS.LICENSE
- * or http://www.opensolaris.org/os/licensing.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  * See the License for the specific language governing permissions
  * and limitations under the License.
  *
@@ -34,19 +36,19 @@
 #include "defs.h"
 
 /*
- * This file contains modifications Copyright 2008-2012 J. Schilling
+ * This file contains modifications Copyright 2008-2013 J. Schilling
  *
- * @(#)main.c	1.20 12/06/10 2008-2012 J. Schilling
+ * @(#)main.c	1.26 13/09/24 2008-2013 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)main.c	1.20 12/06/10 2008-2012 J. Schilling";
+	"@(#)main.c	1.26 13/09/24 2008-2013 J. Schilling";
 #endif
 
 /*
  * UNIX shell
  */
-#ifdef	SCHILY_BUILD
+#ifdef	SCHILY_INCLUDES
 #include	"sym.h"
 #include	"hash.h"
 #include	"timeout.h"
@@ -54,6 +56,9 @@ static	UConst char sccsid[] =
 #include	<schily/stat.h>
 #include	<schily/fcntl.h>
 #include	<schily/wait.h>
+#ifdef	INTERACTIVE
+#include	<schily/shedit.h>
+#endif
 #include	"dup.h"
 #include	"sh_policy.h"
 #include	"abbrev.h"
@@ -186,7 +191,10 @@ main(c, v, e)
 	 * pfsh or -pfsh
 	 */
 #ifdef	EXECATTR_FILENAME
-	if (c > 0 && (eq("pfsh", simple((unsigned char *)*v)) || eq("-pfsh", simple((unsigned char *)*v)))) {
+	if (c > 0 && (eq("pfsh", simple((unsigned char *)*v)) ||
+	    eq("-pfsh", simple((unsigned char *)*v)) ||
+	    eq("pfbosh", simple((unsigned char *)*v)) ||
+	    eq("-pfbosh", simple((unsigned char *)*v)))) {
 		flags |= pfshflg;
 		secpolicy_init();
 	}
@@ -199,7 +207,8 @@ main(c, v, e)
 	 *  is rsh
 	 */
 	if ((n = findnam((unsigned char *)"SHELL")) != NULL) {
-		if (eq("rsh", simple(n->namval)))
+		if (eq("rsh", simple(n->namval)) ||
+		    eq("rbosh", simple(n->namval)))
 			rsflag = 0;
 	}
 
@@ -210,12 +219,18 @@ main(c, v, e)
 
 #ifndef RES
 
-	if (c > 0 && (eq("rsh", simple((unsigned char *)*v)) || eq("-rsh", simple((unsigned char *)*v))))
+	if (c > 0 && (eq("rsh", simple((unsigned char *)*v)) ||
+	    eq("-rsh", simple((unsigned char *)*v)) ||
+	    eq("rbosh", simple((unsigned char *)*v)) ||
+	    eq("-rbosh", simple((unsigned char *)*v))))
 		rflag = 0;
 
 #endif
 
-	if (eq("jsh", simple((unsigned char *)*v)) || eq("-jsh", simple((unsigned char *)*v)))
+	if (eq("jsh", simple((unsigned char *)*v)) ||
+	    eq("-jsh", simple((unsigned char *)*v)) ||
+	    eq("jbosh", simple((unsigned char *)*v)) ||
+	    eq("-jbosh", simple((unsigned char *)*v)))
 		flags |= monitorflg;
 
 	hcreate();
@@ -334,7 +349,8 @@ main(c, v, e)
 #endif
 			/* user profile */
 
-			if ((input = pathopen(homenod.namval?homenod.namval:UC "",
+			if ((input = pathopen(homenod.namval?
+					homenod.namval:UC "",
 					(unsigned char *)profile)) >= 0) {
 				exfile(rflag);
 				flags &= ~ttyflg;
@@ -512,11 +528,19 @@ exfile(prof)
 				chktrap();
 
 #ifdef	INTERACTIVE
-			{ extern int bsh_prompt;
-			extern	char  *prompts[];
-			bsh_prompt = 0;
+			/*
+			 * Make sure not to use variables from a shared
+			 * library. This will not work on Mac OS X and
+			 * on Solaris, it will pull in libshedit even
+			 * when linked with -zlazyload.
+			 * This is why we set up the prompt in libshedit
+			 * indirectly here.
+			 */
+#define	EDIT_RPOMPTS	2
+			{ char *prompts[EDIT_RPOMPTS];
 			prompts[0] = (char *)ps1nod.namval;
 			prompts[1] = (char *)ps2nod.namval;
+			shedit_setprompts(0, EDIT_RPOMPTS, prompts);
 			}
 #else
 			prs(ps1nod.namval);
@@ -710,7 +734,8 @@ setmode(prof)
 	    isatty(input)))
 
 	{
-		dfault(&ps1nod, (unsigned char *)(geteuid() ? stdprompt : supprompt));
+		dfault(&ps1nod, (unsigned char *)(geteuid() ?
+						stdprompt : supprompt));
 		dfault(&ps2nod, (unsigned char *)readmsg);
 		flags |= ttyflg | prompt;
 		if (mailpnod.namflg != N_DEFAULT)

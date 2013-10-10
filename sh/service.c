@@ -2,11 +2,13 @@
  * CDDL HEADER START
  *
  * The contents of this file are subject to the terms of the
- * Common Development and Distribution License (the "License").
- * You may not use this file except in compliance with the License.
+ * Common Development and Distribution License, Version 1.0 only
+ * (the "License").  You may not use this file except in compliance
+ * with the License.
  *
  * You can obtain a copy of the license at usr/src/OPENSOLARIS.LICENSE
- * or http://www.opensolaris.org/os/licensing.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  * See the License for the specific language governing permissions
  * and limitations under the License.
  *
@@ -36,17 +38,17 @@
 /*
  * This file contains modifications Copyright 2008-2013 J. Schilling
  *
- * @(#)service.c	1.24 13/01/14 2008-2013 J. Schilling
+ * @(#)service.c	1.29 13/09/26 2008-2013 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)service.c	1.24 13/01/14 2008-20013 J. Schilling";
+	"@(#)service.c	1.29 13/09/26 2008-20013 J. Schilling";
 #endif
 
 /*
  * UNIX shell
  */
-#ifdef	SCHILY_BUILD
+#ifdef	SCHILY_INCLUDES
 #include	<schily/types.h>
 #include	<schily/stat.h>
 #include	<schily/errno.h>
@@ -63,8 +65,10 @@ static	UConst char sccsid[] =
 	short		initio	__PR((struct ionod *iop, int save));
 	unsigned char *simple	__PR((unsigned char *s));
 	unsigned char *getpath	__PR((unsigned char *s));
-	int		pathopen __PR((unsigned char *path, unsigned char *name));
-	unsigned char *catpath	__PR((unsigned char *path, unsigned char *name));
+	int		pathopen __PR((unsigned char *path,
+						unsigned char *name));
+	unsigned char *catpath	__PR((unsigned char *path,
+						unsigned char *name));
 	unsigned char *nextpath	__PR((unsigned char *path));
 	void		execa	__PR((unsigned char *at[], short pos));
 static unsigned char *execs	__PR((unsigned char *ap, unsigned char *t[]));
@@ -72,7 +76,8 @@ static unsigned char *execs	__PR((unsigned char *ap, unsigned char *t[]));
 	void		trims	__PR((unsigned char *at));
 	unsigned char *mactrim	__PR((unsigned char *at));
 	unsigned char **scan	__PR((int argn));
-static void		gsort	__PR((unsigned char *from[], unsigned char * to[]));
+static void		gsort	__PR((unsigned char *from[],
+						unsigned char *to[]));
 	int		getarg	__PR((struct comnod *ac));
 static int		split	__PR((unsigned char *s));
 
@@ -244,13 +249,11 @@ catpath(path, name)
 	unsigned char	*argp = locstak();
 
 	while (*scanp && *scanp != COLON) {
-		if (argp >= brkend)
-			argp = growstak(argp);
+		GROWSTAK(argp);
 		*argp++ = *scanp++;
 	}
 	if (scanp != path) {
-		if (argp >= brkend)
-			argp = growstak(argp);
+		GROWSTAK(argp);
 		*argp++ = '/';
 	}
 	if (*scanp == COLON)
@@ -258,8 +261,7 @@ catpath(path, name)
 	path = (*scanp ? scanp : 0);
 	scanp = name;
 	do {
-		if (argp >= brkend)
-			argp = growstak(argp);
+		GROWSTAK(argp);
 	} while ((*argp++ = *scanp++) != '\0');
 	return (path);
 }
@@ -558,7 +560,8 @@ int	argn;
 			(struct argnod *)(Rcheat(gchain) & ~ARGMK);
 	unsigned char **comargn, **comargm;
 
-	comargn = (unsigned char **)getstak((Intptr_t)BYTESPERWORD * argn + BYTESPERWORD);
+	comargn = (unsigned char **)getstak((Intptr_t)BYTESPERWORD * argn +
+							BYTESPERWORD);
 	comargm = comargn += argn;
 	*comargn = ENDARGS;
 	while (argp)
@@ -664,9 +667,8 @@ unsigned char	*s;
 			}
 
 			if (c == '\\') { /* skip over quoted characters */
-				if (argp >= brkend)
-					argp = growstak(argp);
-				*argp++ = (char) c;
+				GROWSTAK(argp);
+				*argp++ = (char)c;
 				s++;
 				/* get rest of multibyte character */
 				if ((clength = mbtowc(&wc, (char *)s,
@@ -675,12 +677,10 @@ unsigned char	*s;
 					wc = (unsigned char)*s;
 					clength = 1;
 				}
-				if (argp >= brkend)
-					argp = growstak(argp);
+				GROWSTAK(argp);
 				*argp++ = *s++;
 				while (--clength > 0) {
-					if (argp >= brkend)
-						argp = growstak(argp);
+					GROWSTAK(argp);
 					*argp++ = *s++;
 				}
 				continue;
@@ -692,13 +692,11 @@ unsigned char	*s;
 				break;
 			}
 
-			if (argp >= brkend)
-				argp = growstak(argp);
+			GROWSTAK(argp);
 			*argp++ = c;
 			s++;
 			while (--clength > 0) {
-				if (argp >= brkend)
-					argp = growstak(argp);
+				GROWSTAK(argp);
 				*argp++ = *s++;
 			}
 		}
@@ -769,7 +767,8 @@ preacct(cmdadrp)
 		before = times(&buffer);
 		sabuf.ac_uid = getuid();
 		sabuf.ac_gid = getgid();
-		movstrn(simple(cmdadrp), (unsigned char *)sabuf.ac_comm, sizeof (sabuf.ac_comm));
+		movstrn(simple(cmdadrp), (unsigned char *)sabuf.ac_comm,
+			sizeof (sabuf.ac_comm));
 		shaccton = 1;
 	}
 }

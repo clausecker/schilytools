@@ -1,8 +1,8 @@
-/* @(#)volhdr.c	1.35 13/04/29 Copyright 1994, 2003-2013 J. Schilling */
+/* @(#)volhdr.c	1.36 13/10/05 Copyright 1994, 2003-2013 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)volhdr.c	1.35 13/04/29 Copyright 1994, 2003-2013 J. Schilling";
+	"@(#)volhdr.c	1.36 13/10/05 Copyright 1994, 2003-2013 J. Schilling";
 #endif
 /*
  *	Volume header related routines.
@@ -16,6 +16,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -46,7 +48,7 @@ extern	int	verbose;
 extern	Ullong	tsize;
 extern	BOOL	ghdr;
 
-extern struct timeval	ddate;			/* The current dump date	*/
+extern struct timespec	ddate;			/* The current dump date	*/
 
 extern	m_stats	*stats;
 
@@ -124,7 +126,7 @@ extern	int	nblocks;
 	gip->reflevel	= -1;
 	gip->dumpdate	= ddate;
 	gip->refdate.tv_sec  = 0;
-	gip->refdate.tv_usec = 0;
+	gip->refdate.tv_nsec = 0;
 	gip->volno	= 1;
 	gip->tapesize	= tsize;
 	gip->blockoff	= 0;
@@ -171,9 +173,9 @@ grinit()
 	grip->dumplevel	= 0;
 	grip->reflevel	= 0;
 	grip->dumpdate.tv_sec  = 0;
-	grip->dumpdate.tv_usec = 0;
+	grip->dumpdate.tv_nsec = 0;
 	grip->refdate.tv_sec   = 0;
-	grip->refdate.tv_usec  = 0;
+	grip->refdate.tv_nsec  = 0;
 	grip->volno	= 0;
 	grip->tapesize	= 0;
 	grip->blockoff	= 0;
@@ -317,15 +319,15 @@ griprint(gp)
 		fprintf(f, "Reflevel    %d\n", gp->reflevel);
 
 	if (gp->gflags & GF_DUMPDATE) {
-		fprintf(f, "Dumpdate    %lld.%6.6lld (%s)\n",
+		fprintf(f, "Dumpdate    %lld.%9.9lld (%s)\n",
 			(Llong)gp->dumpdate.tv_sec,
-			(Llong)gp->dumpdate.tv_usec,
+			(Llong)gp->dumpdate.tv_nsec,
 			dumpdate(&gp->dumpdate));
 	}
 	if (gp->gflags & GF_REFDATE) {
-		fprintf(f, "Refdate     %lld.%6.6lld (%s)\n",
+		fprintf(f, "Refdate     %lld.%9.9lld (%s)\n",
 			(Llong)gp->refdate.tv_sec,
-			(Llong)gp->refdate.tv_usec,
+			(Llong)gp->refdate.tv_nsec,
 			dumpdate(&gp->refdate));
 	}
 	if (gp->gflags & GF_VOLNO)
@@ -429,7 +431,7 @@ vrfy_gvolhdr(buf, amt, volno, skipp)
 		return (TRUE);
 
 	if ((gip->dumpdate.tv_sec != grip->dumpdate.tv_sec) ||
-	    (gip->dumpdate.tv_usec != grip->dumpdate.tv_usec)) {
+	    (gip->dumpdate.tv_nsec != grip->dumpdate.tv_nsec)) {
 		errmsgno(EX_BAD,
 			"Dump date %s does not match expected",
 					dumpdate(&grip->dumpdate));
@@ -594,9 +596,9 @@ put_gvolhdr(name)
 	if (gip->reflevel >= 0)
 		gen_number("SCHILY.volhdr.reflevel", gip->reflevel);
 
-	gen_xtime("SCHILY.volhdr.dumpdate", gip->dumpdate.tv_sec, gip->dumpdate.tv_usec * 1000);
+	gen_xtime("SCHILY.volhdr.dumpdate", gip->dumpdate.tv_sec, gip->dumpdate.tv_nsec);
 	if (gip->refdate.tv_sec)
-		gen_xtime("SCHILY.volhdr.refdate", gip->refdate.tv_sec, gip->refdate.tv_usec * 1000);
+		gen_xtime("SCHILY.volhdr.refdate", gip->refdate.tv_sec, gip->refdate.tv_nsec);
 
 	if (gip->volno > 0)
 		gen_number("SCHILY.volhdr.volno", gip->volno);
@@ -655,7 +657,7 @@ put_svolhdr(name)
 	finfo.f_xftype = XT_VOLHDR;
 	finfo.f_rxftype = XT_VOLHDR;
 	finfo.f_mtime = ddate.tv_sec;
-	finfo.f_mnsec = ddate.tv_usec*1000;
+	finfo.f_mnsec = ddate.tv_nsec;
 	finfo.f_atime = gip->volno;
 	finfo.f_ansec = 0;
 	finfo.f_tcb = &tb;
@@ -871,13 +873,13 @@ get_dumpdate(info, keyword, klen, arg, len)
 	if (len == 0) {
 		grip->gflags &= ~GF_DUMPDATE;
 		grip->dumpdate.tv_sec  = 0;
-		grip->dumpdate.tv_usec = 0;
+		grip->dumpdate.tv_nsec = 0;
 		return;
 	}
 	if (get_xtime(keyword, arg, len, &t, &nsec)) {
 		grip->gflags |= GF_DUMPDATE;
 		grip->dumpdate.tv_sec  = t;
-		grip->dumpdate.tv_usec = nsec/1000;
+		grip->dumpdate.tv_nsec = nsec;
 	}
 }
 
@@ -896,13 +898,13 @@ get_refdate(info, keyword, klen, arg, len)
 	if (len == 0) {
 		grip->gflags &= ~GF_REFDATE;
 		grip->refdate.tv_sec  = 0;
-		grip->refdate.tv_usec = 0;
+		grip->refdate.tv_nsec = 0;
 		return;
 	}
 	if (get_xtime(keyword, arg, len, &t, &nsec)) {
 		grip->gflags |= GF_REFDATE;
 		grip->refdate.tv_sec  = t;
-		grip->refdate.tv_usec = nsec/1000;
+		grip->refdate.tv_nsec = nsec;
 	}
 }
 

@@ -1,4 +1,4 @@
-#ident "@(#)Makefile	1.26 13/07/04  Copyright (c) 2006-2013 J. Schilling"
+#ident "@(#)Makefile	1.27 13/09/20  Copyright (c) 2006-2013 J. Schilling"
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -14,6 +14,7 @@ SYMLINKS +=	jsh			# Job control Bourne Shell
 
 ##CPPOPTS +=	-DNO_USER_MALLOC	# Do not use our own malloc()
 
+CPPOPTS +=	-DSCHILY_INCLUDES	# Tell the code to use schily include files
 CPPOPTS +=	-DBOURNE_SHELL		# Tell the code that we compile for sh
 CPPOPTS +=	-DUSE_LARGEFILES	# Allow Large Files (> 2 GB)
 CPPOPTS +=	-DUSE_NLS

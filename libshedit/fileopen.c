@@ -1,6 +1,6 @@
-/* @(#)fileopen.c	1.1 06/12/11 Copyright 1986, 1995-2006 J. Schilling */
+/* @(#)fileopen.c	1.2 13/09/25 Copyright 1986, 1995-2013 J. Schilling */
 /*
- *	Copyright (c) 1986, 1995-2006 J. Schilling
+ *	Copyright (c) 1986, 1995-2013 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -9,6 +9,8 @@
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -27,10 +29,10 @@ fileopen(name, mode)
 	FILE	*f;
 
 	if (!_cvmod(mode, &omode, &flag))
-		return ((FILE *) NULL);
+		return ((FILE *)NULL);
 
 	if ((ret = _openfd(name, omode)) < 0)
-		return ((FILE *) NULL);
+		return ((FILE *)NULL);
 
 	if ((f = malloc(sizeof (FILE))) == NULL) {
 		close(ret);
@@ -48,4 +50,3 @@ fclose(f)
 	free(f);
 	return (ret);
 }
-

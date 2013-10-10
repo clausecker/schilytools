@@ -1,10 +1,10 @@
-/* @(#)time.h	1.18 07/04/25 Copyright 1996-2007 J. Schilling */
+/* @(#)time.h	1.20 13/10/01 Copyright 1996-2013 J. Schilling */
 /*
  *	Generic header for users of time(), gettimeofday() ...
  *
  *	It includes definitions for time_t, struct timeval, ...
  *
- *	Copyright (c) 1996-2007 J. Schilling
+ *	Copyright (c) 1996-2013 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -13,6 +13,8 @@
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -81,6 +83,15 @@ struct timezone {
 };
 #endif
 
+#ifndef	HAVE_STRUCT_TIMESPEC
+
+struct timespec {
+	time_t	tv_sec;
+	long	tv_nsec;
+};
+#endif
+
+
 #undef	timerclear
 #define	timerclear(tvp)		(tvp)->tv_sec = (tvp)->tv_usec = 0
 
@@ -113,6 +124,37 @@ struct timezone {
 					(tvp1)->tv_sec += (tvp2)->tv_sec; \
 					(tvp1)->tv_usec += (tvp2)->tv_usec; \
 					timerfix1(tvp1); timerfix2(tvp1); \
+				} while (0)
+
+
+#undef	timespecclear
+#define	timespecclear(tsp)	(tsp)->tv_sec = (tsp)->tv_nsec = 0
+
+#undef	timespecfix
+#define	timespecfix1(tsp)	while ((tsp)->tv_nsec < 0) {		\
+					(tsp)->tv_sec--;		\
+					(tsp)->tv_nsec += 1000000000;	\
+				}
+
+#define	timespecfix2(tsp)	while ((tsp)->tv_nsec > 1000000000) {	\
+					(tsp)->tv_sec++;		\
+					(tsp)->tv_nsec -= 1000000000;	\
+				}
+
+#define	timespecfix(tsp)	do { timespecfix1(tsp); timespecfix2(tsp); } while (0)
+
+#undef	timespecsub
+#define	timespecsub(tsp1, tsp2)	do {					\
+					(tsp1)->tv_sec -= (tsp2)->tv_sec; \
+					(tsp1)->tv_nsec -= (tsp2)->tv_nsec; \
+					timespecfix1(tsp1); timespecfix2(tsp1); \
+				} while (0)
+
+#undef	timespecadd
+#define	timespecadd(tsp1, tsp2)	do {					\
+					(tsp1)->tv_sec += (tsp2)->tv_sec; \
+					(tsp1)->tv_nsec += (tsp2)->tv_nsec; \
+					timespecfix1(tsp1); timespecfix2(tsp1); \
 				} while (0)
 
 #ifdef	__cplusplus

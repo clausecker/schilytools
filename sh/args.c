@@ -39,11 +39,11 @@
 /*
  * This file contains modifications Copyright 2008-2013 J. Schilling
  *
- * @(#)args.c	1.24 13/07/29 2008-2013 J. Schilling
+ * @(#)args.c	1.28 13/09/26 2008-2013 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)args.c	1.24 13/07/29 2008-2013 J. Schilling";
+	"@(#)args.c	1.28 13/09/26 2008-2013 J. Schilling";
 #endif
 
 /*
@@ -56,13 +56,14 @@ static	void		prversion	__PR((void));
 	int		options		__PR((int argc, unsigned char **argv));
 	void		setargs		__PR((unsigned char *argi[]));
 static void		freedolh	__PR((void));
-	struct dolnod *	freeargs	__PR((struct dolnod *blk));
-static struct dolnod *	copyargs	__PR((unsigned char *[], int));
-static	struct dolnod *	clean_args	__PR((struct dolnod *blk));
+	struct dolnod	*freeargs	__PR((struct dolnod *blk));
+static struct dolnod	*copyargs	__PR((unsigned char *[], int));
+static	struct dolnod	*clean_args	__PR((struct dolnod *blk));
 	void		clearup		__PR((void));
-	struct dolnod *	savargs		__PR((int funcntp));
-	void		restorargs	__PR((struct dolnod *olddolh, int funcntp));
-	struct dolnod *	useargs		__PR((void));
+	struct dolnod	*savargs	__PR((int funcntp));
+	void		restorargs	__PR((struct dolnod *olddolh,
+							int funcntp));
+	struct dolnod	*useargs	__PR((void));
 static	void		listaliasowner	__PR((int parse, int flagidx));
 static	void		listopts	__PR((int parse));
 
@@ -94,10 +95,10 @@ unsigned char	flagchar[] =
 	'p',
 	'P',
 	'V',
-	 0,
-	 0,
-	 0,
-	 0
+	0,
+	0,
+	0,
+	0
 };
 
 char	*flagname[] =
@@ -122,7 +123,7 @@ char	*flagname[] =
 	"globalaliases",
 	"localaliases",
 	"aliasowner",
-	 0
+	0
 };
 
 long	flagval[]  =
@@ -147,7 +148,7 @@ long	flagval[]  =
 	globalaliasflg,
 	localaliasflg,
 	aliasownerflg,
-	  0
+	0
 };
 
 /* ========	option handling	======== */
@@ -161,19 +162,19 @@ prversion()
 			"sh (Schily Bourne Shell) version %s %s (%s-%s-%s)\n",
 			VERSION_DATE, VERSION_STR,
 			HOST_CPU, HOST_VENDOR, HOST_OS);
-	prs((unsigned char *)vbuf);
+	prs(UC vbuf);
 	if (dolv == NULL) {
 		/*
 		 * We have been called as a result of a sh command line flag.
 		 * Print the version information and exit.
 		 */
-		prs((unsigned char *)"\n");
-		prs((unsigned char *)"Copyright (C) 1984-1989 AT&T\n");
-		prs((unsigned char *)"Copyright (C) 1989-2009 Sun Microsystems\n");
+		prs(UC "\n");
+		prs(UC "Copyright (C) 1984-1989 AT&T\n");
+		prs(UC "Copyright (C) 1989-2009 Sun Microsystems\n");
 #ifdef	INTERACTIVE
-		prs((unsigned char *)"Copyright (C) 1982-2013 Joerg Schilling\n");
+		prs(UC "Copyright (C) 1982-2013 Joerg Schilling\n");
 #else
-		prs((unsigned char *)"Copyright (C) 1998-2013 Joerg Schilling\n");
+		prs(UC "Copyright (C) 1998-2013 Joerg Schilling\n");
 #endif
 		exitsh(0);
 	}
@@ -200,7 +201,7 @@ options(argc, argv)
 		 */
 		if ((strcmp((char *)&cp[1], "version") == 0) ||
 		    (cp[1] == '-' && strcmp((char *)&cp[2], "version") == 0)) {
-			cp = (unsigned char *)"-V";
+			cp = UC "-V";
 		}
 
 		/*
@@ -241,22 +242,31 @@ options(argc, argv)
 					listopts(0);
 					continue;
 				}
-				unsigned char *argarg = UC strchr((char *)argp[2], '=');
+				unsigned char *argarg =
+						UC strchr((char *)argp[2], '=');
 
 				if (argarg != NULL)
 					*argarg = '\0';
-				for (flagc = flagchar; flagname[flagc-flagchar]; flagc++) {
-					if (eq(argp[2], flagname[flagc-flagchar])) {
+				for (flagc = flagchar;
+				    flagname[flagc-flagchar]; flagc++) {
+					if (eq(argp[2],
+					    flagname[flagc-flagchar])) {
 						argp[1] = argp[0];
 						argp++;
 						argc--;
 						wc = *flagc;
-						if (flagval[flagc-flagchar] & aliasownerflg) {
-							char *owner = (char *)argarg;
+						if (flagval[flagc-flagchar] &
+						    aliasownerflg) {
+							char *owner;
+
+							owner = (char *)
+								    &argarg[1];
 							if (owner == NULL)
 								owner = "";
-							ab_setaltowner(GLOBAL_AB, owner);
-							ab_setaltowner(LOCAL_AB, owner);
+							ab_setaltowner(
+							    GLOBAL_AB, owner);
+							ab_setaltowner(
+							    LOCAL_AB, owner);
 						}
 						break;
 					}
@@ -275,10 +285,10 @@ options(argc, argv)
 			}
 			if (wc == *flagc)
 			{
-				if (eq(argv[0], "set") && wc && any(wc, (unsigned char *)"sicrp"))
+				if (eq(argv[0], "set") &&
+				    wc && any(wc, UC "sicrp")) {
 					failed(argv[1], badopt);
-				else
-				{
+				} else {
 							/* LINTED */
 					flags |= flagval[flagc-flagchar];
 					if (flags & errflg)
@@ -292,29 +302,30 @@ options(argc, argv)
 						prversion();
 					}
 					if (flags & globalaliasflg) {
-						catpath(homenod.namval, UC globalname);
-						ab_use(GLOBAL_AB, (char *)make(curstak()));
+						catpath(homenod.namval,
+						    UC globalname);
+						ab_use(GLOBAL_AB,
+						    (char *)make(curstak()));
 					}
 					if (flags & localaliasflg) {
-						ab_use(LOCAL_AB, (char *)localname);
+						ab_use(LOCAL_AB,
+							(char *)localname);
 					}
 				}
-			}
-			else if (wc == 'c' && argc > 2 && comdiv == 0)
-			{
+			} else if (wc == 'c' && argc > 2 && comdiv == 0) {
 				comdiv = argp[2];
 				argp[1] = argp[0];
 				argp++;
 				argc--;
-			}
-			else
+			} else {
 				failed(argv[1], badopt);
+			}
 		}
 		argp[1] = argp[0];
 		argc--;
-	}
-	else if (argc > 1 && *argp[1] == '+')	/* unset flags x, k, t, n, v, e, u */
-	{
+	} else if (argc > 1 &&
+		    *argp[1] == '+')	{ /* unset flags x, k, t, n, v, e, u */
+
 		(void) mbtowc(NULL, NULL, 0);
 		cp = argp[1];
 		cp++;
@@ -336,8 +347,10 @@ options(argc, argv)
 					listopts(1);
 					continue;
 				}
-				for (flagc = flagchar; flagname[flagc-flagchar]; flagc++) {
-					if (eq(argp[2], flagname[flagc-flagchar])) {
+				for (flagc = flagchar;
+				    flagname[flagc-flagchar]; flagc++) {
+					if (eq(argp[2],
+					    flagname[flagc-flagchar])) {
 						argp[1] = argp[0];
 						argp++;
 						argc--;
@@ -359,7 +372,7 @@ options(argc, argv)
 			 * step through flags
 			 */
 			if (wc == 0 ||
-			    (!any(wc, (unsigned char *)"sicrp") && wc == *flagc)) {
+			    (!any(wc, UC "sicrp") && wc == *flagc)) {
 							/* LINTED */
 				int nflag = flagval[flagc-flagchar];
 
@@ -414,7 +427,7 @@ setargs(argi)
 	unsigned char **argp = argi;	/* count args */
 	int argn = 0;
 
-	while (*argp++ != (unsigned char *)ENDARGS)
+	while (*argp++ != UC ENDARGS)
 		argn++;
 	/*
 	 * free old ones unless on for loop chain
@@ -431,11 +444,9 @@ freedolh()
 	unsigned char **argp;
 	struct dolnod *argblk;
 
-	if ((argblk = dolh) != NULL)
-	{
-		if ((--argblk->doluse) == 0)
-		{
-			for (argp = argblk->dolarg; *argp != (unsigned char *)ENDARGS; argp++)
+	if ((argblk = dolh) != NULL) {
+		if ((--argblk->doluse) == 0) {
+			for (argp = argblk->dolarg; *argp != UC ENDARGS; argp++)
 				free(*argp);
 			free(argblk->dolarg);
 			free(argblk);
@@ -452,24 +463,21 @@ freeargs(blk)
 	struct dolnod *argblk;
 	int cnt;
 
-	if ((argblk = blk) != NULL)
-	{
+	if ((argblk = blk) != NULL) {
 		argr = argblk->dolnxt;
 		cnt  = --argblk->doluse;
 
-		if (argblk == dolh)
-		{
+		if (argblk == dolh) {
 			if (cnt == 1)
 				return (argr);
 			else
 				return (argblk);
-		}
-		else
-		{
-			if (cnt == 0)
-			{
-				for (argp = argblk->dolarg; *argp != (unsigned char *)ENDARGS; argp++)
+		} else {
+			if (cnt == 0) {
+				for (argp = argblk->dolarg;
+				    *argp != UC ENDARGS; argp++) {
 					free(*argp);
+				}
 				free(argblk->dolarg);
 				free(argblk);
 			}
@@ -515,7 +523,7 @@ clean_args(blk)
 			argblk->doluse = 1;
 		else
 		{
-			for (argp = argblk->dolarg; *argp != (unsigned char *)ENDARGS; argp++)
+			for (argp = argblk->dolarg; *argp != UC ENDARGS; argp++)
 				free(*argp);
 			free(argblk->dolarg);
 			free(argblk);
@@ -561,7 +569,7 @@ clearup()
 
 	/*
 	 * clean up tmp files
-	*/
+	 */
 	while (poptemp())
 		/* LINTED */
 		;
@@ -570,8 +578,8 @@ clearup()
 /*
  * Save positiional parameters before outermost function invocation
  * in case we are interrupted.
- * Increment use count for current positional parameters so that they aren't thrown
- * away.
+ * Increment use count for current positional parameters so that they aren't
+ * thrown away.
  */
 
 struct dolnod *
@@ -587,7 +595,8 @@ int funcntp;
 	return (dolh);
 }
 
-/* After function invocation, free positional parameters,
+/*
+ * After function invocation, free positional parameters,
  * restore old positional parameters, and restore
  * use count.
  */
@@ -605,8 +614,12 @@ int funcntp;
 		return;
 	freedolh();
 	dolh = olddolh;
+
+	/*
+	 * increment use count so arguments aren't freed
+	 */
 	if (dolh)
-		dolh -> doluse++; /* increment use count so arguments aren't freed */
+		dolh -> doluse++;
 	argfor = freeargs(dolh);
 	if (funcntp == 1) {
 		globdolh = 0;
@@ -618,10 +631,8 @@ int funcntp;
 struct dolnod *
 useargs()
 {
-	if (dolh)
-	{
-		if (dolh->doluse++ == 1)
-		{
+	if (dolh) {
+		if (dolh->doluse++ == 1) {
 			dolh->dolnxt = argfor;
 			argfor = dolh;
 		}
@@ -644,7 +655,7 @@ listaliasowner(parse, flagidx)
 			prs_buff(UC "-o ");
 	}
 	prs_buff(UC flagname[flagidx]);
-	if (parse) {
+	if (altuid == (uid_t)-1 && parse) {
 		prc_buff(NL);
 		return;
 	}
@@ -669,10 +680,10 @@ listopts(parse)
 			continue;
 		}
 		if (parse) {
-			if (any(*flagc, (unsigned char *)"sicrp"))
-				continue;
+			if (any(*flagc, UC "sicrp"))	/* Unsettable?    */
+				continue;		/* so do not list */
 			prs_buff(UC "set ");
-			prs_buff(UC (flags &
+			prs_buff(UC(flags &
 				flagval[flagc-flagchar] ?
 				"-":"+"));
 			prs_buff(UC "o ");
@@ -686,7 +697,7 @@ listopts(parse)
 		while (++len <= 16)
 			prc_buff(SPACE);
 		prc_buff(TAB);
-		prs_buff(UC (flags &
+		prs_buff(UC(flags &
 			flagval[flagc-flagchar] ?
 			"on":"off"));
 		prc_buff(NL);

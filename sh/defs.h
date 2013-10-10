@@ -39,7 +39,7 @@
 /*
  * This file contains modifications Copyright 2008-2013 J. Schilling
  *
- * @(#)defs.h	1.49 13/07/28 2008-2013 J. Schilling
+ * @(#)defs.h	1.56 13/09/25 2008-2013 J. Schilling
  */
 
 #ifdef	__cplusplus
@@ -66,25 +66,25 @@ extern "C" {
 #define		SIGFLG		0200
 
 /* command tree */
-#define		FPIN		0x0100
-#define		FPOU		0x0200
-#define		FAMP		0x0400
-#define		COMMSK		0x00F0
-#define		CNTMSK		0x000F
+#define		FPIN		0x0100	/* PIPE from stdin		*/
+#define		FPOU		0x0200	/* PIPE to stdout		*/
+#define		FAMP		0x0400	/* Forked because of "cmd &"	*/
+#define		COMMSK		0x00F0	/* Node type mask, see below	*/
+#define		CNTMSK		0x000F	/* Count mask - no longer used	*/
 
-#define		TCOM		0x0000
-#define		TPAR		0x0010
-#define		TFIL		0x0020
-#define		TLST		0x0030
-#define		TIF		0x0040
-#define		TWH		0x0050
-#define		TUN		0x0060
-#define		TSW		0x0070
-#define		TAND		0x0080
-#define		TORF		0x0090
-#define		TFORK		0x00A0
-#define		TFOR		0x00B0
-#define		TFND		0x00C0
+#define		TCOM		0x0000	/* some kind of command node 	*/
+#define		TPAR		0x0010	/* "()" parentized cmd node	*/
+#define		TFIL		0x0020	/* PIPE "|" filter node		*/
+#define		TLST		0x0030	/* ";" separated command list	*/
+#define		TIF		0x0040	/* if ... then ... node		*/
+#define		TWH		0x0050	/* "while" loop node		*/
+#define		TUN		0x0060	/* "until" loop node		*/
+#define		TSW		0x0070	/* "case command node		*/
+#define		TAND		0x0080	/* "&&" command node		*/
+#define		TORF		0x0090	/* "||" command node		*/
+#define		TFORK		0x00A0	/* node running forked cmd	*/
+#define		TFOR		0x00B0	/* for ... do .. done node	*/
+#define		TFND		0x00C0	/* function definition node	*/
 
 /* execute table */
 #define		SYSSET		1
@@ -165,7 +165,7 @@ extern "C" {
 /* arg list terminator */
 #define		ENDARGS		0
 
-#ifdef	SCHILY_BUILD
+#ifdef	SCHILY_INCLUDES
 #include	<schily/mconfig.h>
 #include	<schily/unistd.h>
 #include	<schily/stdlib.h>	/* malloc()/free()... */
@@ -194,7 +194,7 @@ extern "C" {
 #undef	ACCT
 #endif
 
-#else	/* SCHILY_BUILD */
+#else	/* SCHILY_INCLUDES */
 
 #include	<unistd.h>
 #include 	"mac.h"
@@ -227,7 +227,7 @@ extern "C" {
 
 /*
  * This is a static configuration for SunOS-5.11.
- * For other platforms, use the dynamic SCHILY_BUILD environment.
+ * For other platforms, use the dynamic SCHILY_INCLUDES environment.
  */
 #define	HAVE_LIBGEN_H
 #define	HAVE_GMATCH
@@ -255,7 +255,7 @@ extern "C" {
 #define	HAVE_TCGETPGRP
 #define	HAVE_TCSETPGRP
 
-#endif	/* ! SCHILY_BUILD */
+#endif	/* ! SCHILY_INCLUDES */
 
 #define	UC	(unsigned char *)
 
@@ -307,12 +307,12 @@ extern char 		*optarg;
  */
 extern	int		options		__PR((int argc, unsigned char **argv));
 extern	void		setargs		__PR((unsigned char *argi[]));
-extern	struct dolnod *	freeargs	__PR((struct dolnod *blk));
+extern	struct dolnod	*freeargs	__PR((struct dolnod *blk));
 extern	void		clearup		__PR((void));
-extern	struct dolnod *	savargs		__PR((int funcnt));
+extern	struct dolnod	*savargs	__PR((int funcnt));
 extern	void 		restorargs	__PR((struct dolnod *olddolh,
 							int funcnt));
-extern	struct dolnod *	useargs		__PR((void));
+extern	struct dolnod	*useargs	__PR((void));
 
 /*
  * blok.c
@@ -476,8 +476,8 @@ extern	void	dfault		__PR((struct namnod *n, unsigned char *v));
 extern	void	assign		__PR((struct namnod *n, unsigned char *v));
 extern	int	readvar		__PR((unsigned char **names));
 extern	void	assnum		__PR((unsigned char **p, long i));
-extern	unsigned char *	make	__PR((unsigned char *v));
-extern	struct namnod *	lookup	__PR((unsigned char *nam));
+extern	unsigned char *make	__PR((unsigned char *v));
+extern	struct namnod *lookup	__PR((unsigned char *nam));
 extern	void	namscan		__PR((void (*fn)(struct namnod *n)));
 extern	void	printnam	__PR((struct namnod *n));
 extern	void	printro		__PR((struct namnod *n));
@@ -486,6 +486,10 @@ extern	void	setup_env	__PR((void));
 extern	unsigned char **local_setenv __PR((void));
 extern	struct namnod *findnam	__PR((unsigned char *nam));
 extern	void	unset_name	__PR((unsigned char *name));
+#ifdef INTERACTIVE
+extern	char	*getcurenv	__PR((char *name));
+extern	void	ev_insert	__PR((char *name));
+#endif
 
 /*
  * print.c
@@ -559,6 +563,11 @@ extern	unsigned char *setbrk	__PR((int));
  */
 #define	free	shfree
 
+#define	GROWSTAK(a)	if ((a) >= brkend) \
+				(a) = growstak(a);
+#define	GROWSTAKTOP()	if (staktop >= brkend) \
+				(void) growstak(staktop);
+
 extern	void		*alloc		__PR((size_t));
 extern	void		free		__PR((void *ap));
 extern	unsigned char *getstak		__PR((Intptr_t asize));
@@ -628,7 +637,7 @@ extern	void	sysunalias	__PR((int argc, unsigned char **argv));
 extern	int		word	__PR((void));
 extern	unsigned int	skipwc	__PR((void));
 extern	unsigned int	nextwc	__PR((void));
-extern	unsigned char *	readw	__PR((wchar_t d));
+extern	unsigned char	*readw	__PR((wchar_t d));
 extern	unsigned int	readwc	__PR((void));
 
 /*
@@ -639,17 +648,6 @@ extern	int	execute		__PR((struct trenod *argt, int xflags,
 						int *pf1, int *pf2));
 extern	void	execexp		__PR((unsigned char *s, Intptr_t f));
 
-/*
- * libshedit
- */
-extern	int	egetc		__PR((void));
-extern	void	bsh_treset	__PR((void));
-extern	void	bhist		__PR((void));
-extern	void	bshist		__PR((int **intrpp));
-extern	void	remap		__PR((void));
-extern	void	list_map	__PR((int *f));
-extern	int	del_map		__PR((char *from));
-extern	int	add_map		__PR((char *from, char *to, char *comment));
 
 #define		_cf(a, b)	cf((unsigned char *)(a), (unsigned char *)(b))
 #define		attrib(n, f)	(n->namflg |= f)
@@ -1069,7 +1067,7 @@ unsigned char *readw	__PR((wchar_t));
 #define	getsid	getpgid
 #endif
 
-#ifdef	SCHILY_BUILD
+#ifdef	SCHILY_INCLUDES
 
 #if !defined(HAVE_MEMSET) && !defined(memset)
 #define	memset(s, c, n)		fillbytes(s, n, c)
@@ -1096,7 +1094,7 @@ unsigned char *readw	__PR((wchar_t));
 #undef	peekc				/* First remove AIX cludge	*/
 #define	peekc	js_peekc		/* The Bourne Shell has int peekc */
 #define	error	js_error		/* Bourne Shell has own error()	*/
-#define	flush	js_flush		/* Bourne Shell has own flush()	*/ 
+#define	flush	js_flush		/* Bourne Shell has own flush()	*/
 #define	getperm	js_getperm		/* Bourne Shell modified getperm() */
 #define	eaccess	__no_eaccess__		/* libgen.h / -lgen contain eaccess() */
 #include	<schily/schily.h>	/* Includes <schily/libport.h>	*/
@@ -1108,7 +1106,7 @@ unsigned char *readw	__PR((wchar_t));
 #undef	flush				/* Reestablish Bourne Shell flush() */
 #undef	getperm				/* Reestablish Bourne Shell getperm() */
 
-#endif	/* SCHILY_BUILD */
+#endif	/* SCHILY_INCLUDES */
 
 #ifdef	__cplusplus
 }

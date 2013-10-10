@@ -1,8 +1,11 @@
-# /* @(#)libschily-mapvers	1.33 11/11/24 Copyright 2005-2011 J. Schilling */
+# /* @(#)libschily-mapvers	1.36 13/10/06 Copyright 2005-2013 J. Schilling */
 #include <schily/mconfig.h>
 
 SCHILY_1.5 {
 global:
+	getnstimeofday;
+	setnstimeofday;
+
 #ifndef	HAVE_GETUID
 	getuid;
 #endif

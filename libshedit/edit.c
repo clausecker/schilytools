@@ -1,11 +1,11 @@
-/* @(#)edit.c	1.14 12/04/22 Copyright 2006-2012 J. Schilling */
+/* @(#)edit.c	1.18 13/09/25 Copyright 2006-2013 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)edit.c	1.14 12/04/22 Copyright 2006-2012 J. Schilling";
+	"@(#)edit.c	1.18 13/09/25 Copyright 2006-2013 J. Schilling";
 #endif
 /*
- *	Copyright (c) 2006-2012 J. Schilling
+ *	Copyright (c) 2006-2013 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -14,6 +14,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -26,16 +28,18 @@ static	UConst char sccsid[] =
 #include "bsh.h"
 #include "strsubs.h"
 #include <schily/fstream.h>
+#include <schily/shedit.h>
 
-LOCAL fstream	*instrm = (fstream *) NULL;	/* Alias expanded input stream */
+LOCAL fstream	*instrm = (fstream *) NULL;	/* Aliasexpanded input stream */
 LOCAL fstream	*rawstrm = (fstream *) NULL;	/* Unexpanded input stream */
 
 LOCAL	void	einit		__PR((void));
 LOCAL	int	readchar	__PR((fstream *fsp));
-EXPORT	int	egetc		__PR((void));
-EXPORT	void	bsh_treset	__PR((void));
-EXPORT	void	bhist		__PR((void));
-EXPORT	void	bshist		__PR((int **ctlcpp));
+EXPORT	int	shedit_egetc	__PR((void));
+EXPORT	int	shedit_getdelim	__PR((void));
+EXPORT	void	shedit_treset	__PR((void));
+EXPORT	void	shedit_bhist	__PR((void));
+EXPORT	void	shedit_bshist	__PR((int **ctlcpp));
 
 /*
  * Set up file from where the inout should be read,
@@ -46,12 +50,14 @@ setinput(f)
 	FILE	*f;
 {
 	if (rawstrm == (fstream *) NULL)
-		rawstrm = mkfstream(f, (fstr_fun)0, readchar, (fstr_efun)berror);
+		rawstrm = mkfstream(f,
+				(fstr_fun)0, readchar, (fstr_efun)berror);
 	else
 		f = fssetfile(rawstrm, f);
 
 	if (instrm == (fstream *) NULL)			/* Pfusch in sgetc */
-		instrm = mkfstream((FILE *) rawstrm, NULL, (fstr_rfun)0, (fstr_efun)berror);
+		instrm = mkfstream((FILE *)rawstrm,
+				NULL, (fstr_rfun)0, (fstr_efun)berror);
 	return (f);
 }
 
@@ -83,7 +89,6 @@ einit()
 	gstd[2] = stderr;
 	evarray = environ;
 
-/*	p = getcurenv(homename);*/
 	p = getcurenv("HOME");
 	if (p)
 		inithome = p;
@@ -107,11 +112,17 @@ readchar(fsp)
 }
 
 EXPORT int
-egetc()
+shedit_egetc()
 {
 	if (!__init)
 		einit();
 	return (fsgetc(rawstrm));
+}
+
+EXPORT int
+shedit_getdelim()
+{
+	return (delim);
 }
 
 #ifndef	LIB_SHEDIT
@@ -120,7 +131,7 @@ editloop()
 	int	c;
 	int	i = 0;
 
-	while (c = egetc()) {
+	while (c = shedit_egetc()) {
 		printf("%c %o\n", c, c);
 		if (c == '\r' || c == '\n') {
 			printf("prompt %d\n", prompt);
@@ -194,7 +205,6 @@ errstr(err)
 	char	*estr;
 
 	if (silent_error(err)) {
-/*		return (nullstr);*/
 		return ("");
 	} else {
 		estr = errmsgstr(err);
@@ -256,13 +266,9 @@ int	sflg = 1;
 						/* see if its a top level */
 						/* run final file */
 #ifdef	INTERACTIVE
-/*		if (!no_histflg && ev_eql(savehistname, on))*/
 		if (ev_eql("SAVEHISTORY", "on"))
 			save_history(FALSE);
 #endif
-/*		if (firstsh)*/
-/*			dofile(concat(inithome, slash, finalname, (char *)NULL),*/
-/*							GTAB, gstd, TRUE);*/
 	}
 
 #ifdef	INTERACTIVE
@@ -274,7 +280,7 @@ int	sflg = 1;
 }
 
 EXPORT void
-bsh_treset()
+shedit_treset()
 {
 	if (ev_eql("SAVEHISTORY", "on"))
 		save_history(FALSE);
@@ -284,17 +290,72 @@ bsh_treset()
 }
 
 EXPORT void
-bhist()
+shedit_bhist()
 {
 	put_history(gstd[1], TRUE);
 }
 
 EXPORT void
-bshist(ctlcpp)
+shedit_bshist(ctlcpp)
 	int	**ctlcpp;
 {
 	if (ctlcpp)
 		*ctlcpp = &ctlc;
 	ctlc = 0;
 	save_history(1);
+}
+
+EXPORT char *
+shell_getenv(name)
+	char	*name;
+{
+	extern	char	*(*__get_env)	__PR((char *__name));
+
+	if (__get_env != NULL)
+		return (__get_env(name));
+	return (getenv(name));
+}
+
+EXPORT void
+shell_putenv(name)
+	char	*name;
+{
+	extern	void	(*__put_env)	__PR((char *__name));
+
+	if (__put_env != NULL)
+		__put_env(name);
+	else
+		putenv(name);
+}
+
+EXPORT void
+shedit_getenv(genv)
+	char	*(*genv) __PR((char *name));
+{
+	extern	char	*(*__get_env)	__PR((char *__name));
+
+	__get_env = genv;
+}
+
+EXPORT void
+shedit_putenv(penv)
+	void	(*penv) __PR((char *name));
+{
+	extern	void	(*__put_env)	__PR((char *__name));
+
+	__put_env = penv;
+}
+
+EXPORT void
+shedit_setprompts(promptidx, nprompts, newprompts)
+	int	promptidx;
+	int	nprompts;
+	char	*newprompts[];
+{
+	int	i;
+
+	prompt = promptidx;
+
+	for (i = 0; i < nprompts; i++)
+		prompts[i] = newprompts[i];
 }

@@ -1,8 +1,8 @@
-/* @(#)vedtmpops.c	1.33 13/04/28 Copyright 1988, 1993-2013 J. Schilling */
+/* @(#)vedtmpops.c	1.34 13/07/27 Copyright 1988, 1993-2013 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)vedtmpops.c	1.33 13/04/28 Copyright 1988, 1993-2013 J. Schilling";
+	"@(#)vedtmpops.c	1.34 13/07/27 Copyright 1988, 1993-2013 J. Schilling";
 #endif
 /*
  *	Routines that deal with reading/writing of .vedtmp files
@@ -16,6 +16,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -257,7 +259,7 @@ read_vedtmp(wp, buf, len, idxp, ctimep, inedit)
 		return (-1);
 
 	fsize = filesize(f);
-	if (!inedit && fsize > 8192) {
+	if (!inedit && fsize > 16384) {
 		errmsgno(EX_BAD, "WARNING: %s file size is %lld bytes.\n",
 						tmpname, (Llong)fsize);
 #ifdef	WARN_SLEEP

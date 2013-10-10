@@ -38,11 +38,11 @@
 /*
  * This file contains modifications Copyright 2008-2013 J. Schilling
  *
- * @(#)word.c	1.24 13/07/07 2008-2013 J. Schilling
+ * @(#)word.c	1.30 13/09/25 2008-2013 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)word.c	1.24 13/07/07 2008-2013 J. Schilling";
+	"@(#)word.c	1.30 13/09/25 2008-2013 J. Schilling";
 #endif
 
 /*
@@ -51,9 +51,12 @@ static	UConst char sccsid[] =
 
 #include	"sym.h"
 #include	"abbrev.h"
-#ifdef	SCHILY_BUILD
+#ifdef	SCHILY_INCLUDES
 #include	<schily/errno.h>
 #include	<schily/fcntl.h>
+#ifdef	INTERACTIVE
+#include	<schily/shedit.h>
+#endif
 #else
 #include	<errno.h>
 #include	<fcntl.h>
@@ -62,7 +65,7 @@ static	UConst char sccsid[] =
 	int		word	__PR((void));
 	unsigned int	skipwc	__PR((void));
 	unsigned int	nextwc	__PR((void));
-	unsigned char *	readw	__PR((wchar_t d));
+	unsigned char	*readw	__PR((wchar_t d));
 	unsigned int	readwc	__PR((void));
 static int		readb	__PR((struct fileblk *, int, int));
 #ifdef	INTERACTIVE
@@ -93,8 +96,7 @@ lev++;
 	 * call locstak() to create a local stack.
 	 */
 	/* CONSTCOND */
-	while (1)
-	{
+	while (1) {
 		while (c = nextwc(), space(c))		/* skipc() */
 			/* LINTED */
 			;
@@ -111,15 +113,13 @@ lev++;
 			break;	/* out of comment - white space loop */
 		}
 	}
-	if (!eofmeta(c))
-	{
+	if (!eofmeta(c)) {
 		struct argnod	*arg = (struct argnod *)locstak();
 		unsigned char	*argp = arg->argval;
 
 		do
 		{
-			if (c == LITERAL)
-			{
+			if (c == LITERAL) {
 				unsigned char	*oldargp = argp;
 
 				while ((c = readwc()) != '\0' && c != LITERAL) {
@@ -128,15 +128,13 @@ lev++;
 					 * single quotes
 					 */
 					pc = readw(c);
-					if (argp >= brkend)
-						argp = growstak(argp);
+					GROWSTAK(argp);
 					*argp++ = '\\';
 				/* Pick up rest of multibyte character */
 					if (c == NL)
 						chkpr();
 					while ((c = *pc++) != 0) {
-						if (argp >= brkend)
-							argp = growstak(argp);
+						GROWSTAK(argp);
 						*argp++ = (unsigned char)c;
 					}
 				}
@@ -145,38 +143,32 @@ lev++;
 				 * Word will be represented by quoted null
 				 * in macro.c if necessary
 				 */
-					if (argp >= brkend)
-						argp = growstak(argp);
+					GROWSTAK(argp);
 					*argp++ = '"';
-					if (argp >= brkend)
-						argp = growstak(argp);
+					GROWSTAK(argp);
 					*argp++ = '"';
 				}
 			}
 			else
 			{
 				if (c == 0) {
-					if (argp >= brkend)
-						argp = growstak(argp);
+					GROWSTAK(argp);
 					*argp++ = 0;
 				} else {
 					pc = readw(c);
 					while (*pc) {
-						if (argp >= brkend)
-							argp = growstak(argp);
+						GROWSTAK(argp);
 						*argp++ = *pc++;
 					}
 				}
 				if (c == '\\') {
 					if ((cc = readwc()) == 0) {
-						if (argp >= brkend)
-							argp = growstak(argp);
+						GROWSTAK(argp);
 						*argp++ = 0;
 					} else {
 						pc = readw(cc);
 						while (*pc) {
-							if (argp >= brkend)
-								argp = growstak(argp);
+							GROWSTAK(argp);
 							*argp++ = *pc++;
 						}
 					}
@@ -185,20 +177,16 @@ lev++;
 					wdset |= alpha;
 				if (!alphanum(c))
 					alpha = 0;
-				if (qotchar(c))
-				{
+				if (qotchar(c)) {
 					d = c;
-					for (;;)
-					{
+					for (;;) {
 						if ((c = nextwc()) == 0) {
-							if (argp >= brkend)
-								argp = growstak(argp);
+							GROWSTAK(argp);
 							*argp++ = 0;
 						} else {
 							pc = readw(c);
 							while (*pc) {
-								if (argp >= brkend)
-									argp = growstak(argp);
+								GROWSTAK(argp);
 								*argp++ = *pc++;
 							}
 						}
@@ -210,18 +198,19 @@ lev++;
 						 * don't interpret quoted
 						 * characters
 						 */
-						if (c == '\\') {
-							if ((cc = readwc()) == 0) {
-								if (argp >= brkend)
-									argp = growstak(argp);
-								*argp++ = 0;
-							} else {
-								pc = readw(cc);
-								while (*pc) {
-									if (argp >= brkend)
-										argp = growstak(argp);
-									*argp++ = *pc++;
-								}
+						if (c != '\\')
+							continue;
+						/*
+						 * This is the quoted character:
+						 */
+						if ((cc = readwc()) == 0) {
+							GROWSTAK(argp);
+							*argp++ = 0;
+						} else {
+							pc = readw(cc);
+							while (*pc) {
+								GROWSTAK(argp);
+								*argp++ = *pc++;
 							}
 						}
 					}
@@ -235,8 +224,7 @@ lev++;
 		peekn = c | MARK;
 		if (arg->argval[1] == 0 &&
 		    (d = arg->argval[0], digit(d)) &&
-		    (c == '>' || c == '<'))
-		{
+		    (c == '>' || c == '<')) {
 			word();
 			wdnum = d - '0';
 		} else { /* check for reserved words */
@@ -249,11 +237,9 @@ lev++;
 			wdarg = arg;
 		}
 	} else if (dipchar(c)) {
-		if ((d = nextwc()) == c)
-		{
+		if ((d = nextwc()) == c) {
 			wdval = c | SYMREP;
-			if (c == '<')
-			{
+			if (c == '<') {
 				if ((d = nextwc()) == '-')
 					wdnum |= IOSTRIP;
 				else
@@ -270,8 +256,7 @@ lev++;
 	{
 		if ((wdval = c) == EOF)
 			wdval = EOFSYM;
-		if (iopend && eolchar(c))
-		{
+		if (iopend && eolchar(c)) {
 			struct ionod *tmp_iopend;
 			tmp_iopend = iopend;
 			iopend = 0;
@@ -284,17 +269,17 @@ lev++;
 	 * Aliases only expand on plain words and
 	 * not when in an eval(1) call.
 	 */
-	if (wdval == 0 && standin->feval == 0) { 
-			char	*val; 
+	if (wdval == 0 && standin->feval == 0) {
+			char	*val;
 		extern	int	abegin;
 			int	aflags = abegin > 0 ? AB_BEGIN:0;
 
-	        if ((val = ab_value(LOCAL_AB, (char *)wdarg->argval,
+		if ((val = ab_value(LOCAL_AB, (char *)wdarg->argval,
 					&seen, aflags)) == NULL)
-	            val = ab_value(GLOBAL_AB, (char *)wdarg->argval,
+			val = ab_value(GLOBAL_AB, (char *)wdarg->argval,
 					&seen, aflags);
 
-	        if (val) {
+		if (val) {
 			struct filehdr *fb = alloc(sizeof (struct filehdr));
 
 			if (abegin > 0) {
@@ -429,8 +414,8 @@ retry:
 			if ((rest = f->fend - f->fnxt) < i) {
 				/*
 				 * not enough bytes available
-				 * f->fsiz could be BUFFERSIZE or 1
-				 * since mbmax is enough smaller than BUFFERSIZE,
+				 * f->fsiz could be BUFFERSIZE or 1 since
+				 * mbmax is enough smaller than BUFFERSIZE,
 				 * this loop won't overrun the f->fbuf buffer.
 				 */
 				len = readb(f,
@@ -526,9 +511,11 @@ retry:
 			clearup();
 		}
 #ifdef	INTERACTIVE
-	} while ((len = xread(f->fdes, (char *)f->fbuf + rest, toread)) < 0 && trapnote);
+	} while ((len = xread(f->fdes,
+			    (char *)f->fbuf + rest, toread)) < 0 && trapnote);
 #else
-	} while ((len = read(f->fdes, (char *)f->fbuf + rest, toread)) < 0 && trapnote);
+	} while ((len = read(f->fdes,
+			    (char *)f->fbuf + rest, toread)) < 0 && trapnote);
 #endif
 
 	/*
@@ -568,13 +555,18 @@ xread(f, buf, n)
 	int	n;
 {
 	if (f == 0 && isatty(f)) {
-		extern	int	delim;
+		static	int	init = 0;
 			int	c;
 
-		c = egetc();
+		if (!init) {
+			init = 1;
+			shedit_getenv(getcurenv);
+			shedit_putenv(ev_insert);
+		}
+		c = shedit_egetc();
 		*buf = c;
-		if (c == -1 && delim == -1) {	/* EOF */
-			bsh_treset();
+		if (c == -1 && shedit_getdelim() == -1) {	/* EOF */
+			shedit_treset();
 			return (0);
 		}
 		return (1);

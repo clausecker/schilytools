@@ -1,8 +1,8 @@
-/* @(#)sndconfig.c	1.41 13/05/14 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2013 J. Schilling */
+/* @(#)sndconfig.c	1.42 13/07/30 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2013 J. Schilling */
 #include "config.h"
 #ifndef lint
 static	UConst char sccsid[] =
-"@(#)sndconfig.c	1.41 13/05/14 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2013 J. Schilling";
+"@(#)sndconfig.c	1.42 13/07/30 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2013 J. Schilling";
 #endif
 
 /*
@@ -15,6 +15,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -59,7 +61,7 @@ static	UConst char sccsid[] =
 #include "sndconfig.h"
 
 #ifdef	ECHO_TO_SOUNDCARD
-#   if defined(__CYGWIN32__) || defined(__MINGW32__) || defined(_MSC_VER)
+#   if defined(__CYGWIN32__) || defined(__CYGWIN__) || defined(__MINGW32__) || defined(_MSC_VER)
 #	include <schily/windows.h>
 #	include "mmsystem.h"
 #   endif
@@ -96,7 +98,7 @@ set_snd_device(devicename)
 	return (0);
 }
 
-#   if	defined(__CYGWIN32__) || defined(__MINGW32__) || defined(_MSC_VER)
+#   if	defined(__CYGWIN32__) || defined(__CYGWIN__) || defined(__MINGW32__) || defined(_MSC_VER)
 static HWAVEOUT	DeviceID;
 #	define	WAVEHDRS	3
 static WAVEHDR	wavehdr[WAVEHDRS];
@@ -328,7 +330,7 @@ init_soundcard(rate, bits)
 #   endif
 		}
 #  else /* SUN audio */
-#   if defined(__CYGWIN32__) || defined(__MINGW32__) || defined(_MSC_VER)
+#   if defined(__CYGWIN32__) || defined(__CYGWIN__) || defined(__MINGW32__) || defined(_MSC_VER)
 		/*
 		 * Windows sound info
 		 */
@@ -574,7 +576,7 @@ CloseHandle(waveOutEvent);
 int
 open_snd_device()
 {
-#if	defined ECHO_TO_SOUNDCARD && !defined __CYGWIN32__ && !defined __MINGW32__ && !defined __EMX__
+#if	defined ECHO_TO_SOUNDCARD && !defined __CYGWIN32__ && !defined __CYGWIN__ && !defined __MINGW32__ && !defined __EMX__
 #if	defined(F_GETFL) && defined(F_SETFL) && defined(O_NONBLOCK)
 	int	fl;
 #endif
@@ -597,7 +599,7 @@ open_snd_device()
 
 	return (global.soundcard_fd < 0);
 
-#else	/* defined ECHO_TO_SOUNDCARD && !defined __CYGWIN32__ && !defined __MINGW32__ && !defined __EMX__ */
+#else	/* defined ECHO_TO_SOUNDCARD && !defined __CYGWIN32__ && !defined __CYGWIN32__ && !defined __MINGW32__ && !defined __EMX__ */
 	return (0);
 #endif
 }
@@ -609,7 +611,7 @@ close_snd_device()
 	return (0);
 #else
 
-# if	defined(__CYGWIN32__) || defined(__MINGW32__) || defined(_MSC_VER)
+# if	defined(__CYGWIN32__) || defined(__CYGWIN__) || defined(__MINGW32__) || defined(_MSC_VER)
 	waveOutReset(0);
 CloseHandle(waveOutEvent);
 	return (waveOutClose(DeviceID));
@@ -644,7 +646,7 @@ write_snd_device(buffer, todo)
 {
 	int	result = 0;
 #ifdef	ECHO_TO_SOUNDCARD
-#if	defined(__CYGWIN32__) || defined(__MINGW32__) || defined(_MSC_VER)
+#if	defined(__CYGWIN32__) || defined(__CYGWIN__) || defined(__MINGW32__) || defined(_MSC_VER)
 	MMRESULT	mmres;
 
 	wavehdr[lastwav].dwBufferLength = todo;

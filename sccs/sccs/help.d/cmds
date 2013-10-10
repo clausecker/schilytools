@@ -23,7 +23,7 @@
 *
 * Copyright 2006-2011 J. Schilling
 *
-* @(#)cmds	1.25 11/10/17 J. Schilling 
+* @(#)cmds	1.26 13/08/07 J. Schilling 
 *
 * @(#)cmds 1.3 06/12/12
 *
@@ -126,7 +126,7 @@ options:
 	-b	Force encoding of binary data as uuencoded data
 	-dflag	Delete indicated flag from SCCS file	
 	-eid	Erase user name of numerical group id from permitted users
-	-fflag value Set indicated flag in SCCS file
+	-fflag	value Set indicated flag in SCCS file
 	-h	Check the structure of an existing SCCS file
 	-ifile	Initialize history with text from file
 	-mMR	Supply MR-number

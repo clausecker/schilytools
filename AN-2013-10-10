@@ -1,0 +1,187 @@
+New features with AN-2013-10-10:
+
+This is the first localization step for the schily source consolidation. Many
+programs now (hopefully) call gettext() for all strings that need localization.
+
+-	The next step will include dgettext() calls for the libraries and the
+	missing programs
+
+-	The following step will include the extracted strings
+
+-	The last step will include German translations and install support
+	for the resulting binary message object files.
+
+----------> Please test and report compilation problems! <---------
+
+***** NOTE: As mentioned since 2004, frontends to the tools should *****
+*****		call all programs in the "C" locale		   *****
+*****		by e.g. calling: LC_ALL=C cdrecord ....		   *****
+*****		unless these frontends support localized strings   *****
+*****		used by the cdrtools with NLS support.		   *****
+
+-	Many sources have been modified to deal __CYGWIN32__ like __CYGWIN__
+	This is neded as newer Cygwin versions that run in 64 Bit mode
+	do no longer define __CYGWIN32__ but __CYGWIN__
+
+-	Fixed the scripts "cpfiles", "lnfiles" and "rmfiles" from the
+	bootstrap section of "smake".
+
+-	Added rules for non-automake enabled make programs (like gmake)
+	for: ppc64-linux-cc.rul and ppc64-linux-gcc.rul
+
+-	Added new OS version ID rules for various WIN-DOS versions:
+
+	os-interix-nt-6.0.id
+	os-interix-nt-6.1.id
+	os-cygwin_nt-6.2-wow64.id
+	os-cygwin_nt-6.2.id
+	os-cygwin_nt-6.3-wow64.id
+	os-cygwin_nt-6.3.id
+
+
+-	Various Cstyle changes in the include/schily directory.
+
+-	New include file: include/schily/shedit.h
+
+-	Added defltsect() to the list of exported functions for the 
+	shared library version of libdeflt.
+
+-	Fixed a filedesrciptor leak in libfind that hits when using
+	-empty on empty directories.
+
+-	Cdrecord: Typo correction in a comment
+
+-	Cdda2wav: Typo correction in a comment
+
+-	Readcd: Typo correction in a comment
+
+-	Added automatic support for ARMv5 and ARMv6. This makes compilation
+	on the RaspberryPI also possible with the non-automake aware gmake.
+
+-	Allow "static" compilation (a compilation that does not use the
+	dynamic defines from the Schily Makefilesystem) on Linux ARMv6 (which
+	is used by RaspberryPI).
+
+-	"defltsect" was added as exported global function to libdeflt.
+
+-	libfind now calls closedir() with -empty even on empty directories.
+
+-	New autoconf test on whether <time.h> includes struct timespec
+
+-	New autoconf tests check whether some functions (such as clock_gettime())
+	are in libc or need a separate library
+
+-	New: struct timespec in schily/time.h is granted to exist on all
+	platforms
+
+-	New functions getnstimeofday() and setnstimeofday() have been
+	added to libschily.
+
+-	Star now supports to extract time stamps with nanosecond granularity
+	on platforms that support utimensat().
+
+-	Star now also supports to extract time stamps for symlinks using
+	utimensat(AT_FDCWD, name, tp, AT_SYMLINK_NOFOLLOW).
+
+	Note that star could (on some platforms) also permit to set the 
+	file permission for symlinks using fchmodat() but this is already
+	done using umask() since a long time and the only platform that
+	is known to support different permissions on symlinks seems to be
+	HP-UX.
+	On a recent Solaris, you will not be able to set the file
+	permissions for symlinks.
+
+-	Star was converted to be completely timespec based. This offers 
+	nanosecond granularity for all times on platforms that support
+	a nanosecond clock.
+
+-	Star now may be told to modify the path name (in case of -s/o/n/ or
+	interactive change -w) before the time stamp is compared to
+	existing files in the filesystem. This is done by using the new option
+	-uncond-rename
+
+-	Star no longer creates non-conforming archives when calling:
+
+		star -c H=ustar dirname-with_101-chars/ > archive
+
+	instead of:
+
+		star -c H=ustar dirname-with_101-chars > archive
+
+	Star now rejects to create archives with an empty t_name field.
+
+-	"tartest" now warns about non-standard compliance if the
+	t_name field is empty but the rest of the tar header contains
+	data.
+
+-	New include file include/schily/shedit.h
+
+-	Ved now starts to warn about long .vedtmp.* files if the size
+	is > 16384. Before it warned if the size is > 8192.
+
+-	Fixed the SYNOPSIS line for the man page sccslog.1
+
+-	"sccs help ut4" now reminds of a probably missing SCCS
+	directory.
+
+-	Many Cstyle changes in bsh. Note that the related files are also
+	used by the Bourne Shell and we want it to match the Cstyle of
+	OpenSolaris.
+
+-	bsh/abbrev.c now avoids js_snprintf() to allow the Bourne Shell
+	to be created with lazy library loading, so "bosh" will not load
+	libschily if it is only interpreting shell scripts but not running
+	in interactive mode.
+
+-	libshedit was restructured to support dynamic linking on Mac OS X
+	by avoiding to link against variables (unsupported by the dump
+	Apple linker).
+
+-	libshedit was restructured to permit lazy library loading, so 
+	"bosh" will not load lishedit nor libxtermcap when not in interactive
+	mode.
+
+-	All exported funtion names from libshedit now start with 'shedit_'-
+
+-	Cstyle changes in libshedit to permit integration into OpenSolaris
+
+-	_Many_ Cstyle Changes to the Bourne Shell. It was not following
+	the style rules for OpenSolaris even though it has been taken
+	from OpenSolaris ;-)
+
+-	The Bourne Shell now works when calling: set -o aliasowner=joerg
+	or "bosh -o aliasowner=joerg" in order to e.g. allow to use the 
+	persistent aliases for user joerg when running bosh as root.
+
+-	The Bourne Shell now correctly lists the alias ownwer when
+	calling "set +o"
+
+-	The Bourne Shell now also recognises special argv[0] when
+	passes: "jbosh", "-jbosh", "pfbosh", "-pfbosh", "rbosh", "-rbosh"
+
+-	The Burne Shell now allows to switch from using system include files 
+	to portable schily include files via:
+
+		-DSCHILY_INCLUDES
+
+-	An now unneeded data structture "struct blk" was removed from the
+	Bourne Shell.
+	This could have been done when we switched from sbrk() to malloc()
+	already.
+
+-	Document in the man page pf the Bourne Shell that the options
+	-c/-i/-p/-r/-s may only be set at start from command line but
+	not later in interactive mode.
+
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.isdn.cs.tu-berlin.de, js@cs.tu-berlin.de
+	joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

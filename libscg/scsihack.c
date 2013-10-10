@@ -1,7 +1,7 @@
-/* @(#)scsihack.c	1.59 12/12/02 Copyright 1997,2000-2012 J. Schilling */
+/* @(#)scsihack.c	1.60 13/07/30 Copyright 1997,2000-2013 J. Schilling */
 #ifndef lint
 static	char _sccsid[] =
-	"@(#)scsihack.c	1.59 12/12/02 Copyright 1997,2000-2012 J. Schilling";
+	"@(#)scsihack.c	1.60 13/07/30 Copyright 1997,2000-2013 J. Schilling";
 #endif
 /*
  *	Interface for other generic SCSI implementations.
@@ -24,7 +24,7 @@ static	char _sccsid[] =
  *	If your version has been integrated into the main steam release,
  *	the return value will be set to "schily".
  *
- *	Copyright (c) 1997,2000-2012 J. Schilling
+ *	Copyright (c) 1997,2000-2013 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -33,6 +33,8 @@ static	char _sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * The following exceptions apply:
  * CDDL §3.6 needs to be replaced by: "You may create a Larger Work by
@@ -232,7 +234,7 @@ EXPORT scg_ops_t scg_std_ops = {
 #include "scsi-beos.c"
 #endif
 
-#if defined(__CYGWIN32__) || defined(__MINGW32__) || defined(_MSC_VER)
+#if defined(__CYGWIN32__) || defined(__CYGWIN__) || defined(__MINGW32__) || defined(_MSC_VER)
 #define	SCSI_IMPL		/* Yep, we support WNT and W9? */
 #include "scsi-wnt.c"
 #endif
@@ -357,7 +359,7 @@ EXPORT scg_ops_t scg_dummy_ops = {
  *	Choose your name instead of "schily" and make clear that the version
  *	string is related to a modified source.
  */
-LOCAL	char	_scg_trans_dversion[] = "scsihack.c-1.59";	/* The version for this transport*/
+LOCAL	char	_scg_trans_dversion[] = "scsihack.c-1.60";	/* The version for this transport*/
 
 /*
  * Return version information for the low level SCSI transport code.

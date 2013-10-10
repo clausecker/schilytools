@@ -1,7 +1,7 @@
-/* @(#)scsi-wnt.c	1.49 12/12/02 Copyright 1998-2012 J. Schilling, A.L. Faber, J.A. Key */
+/* @(#)scsi-wnt.c	1.50 13/07/30 Copyright 1998-2013 J. Schilling, A.L. Faber, J.A. Key */
 #ifndef lint
 static	char __sccsid[] =
-	"@(#)scsi-wnt.c	1.49 12/12/02 Copyright 1998-2012 J. Schilling, A.L. Faber, J.A. Key";
+	"@(#)scsi-wnt.c	1.50 13/07/30 Copyright 1998-2013 J. Schilling, A.L. Faber, J.A. Key";
 #endif
 /*
  *	Interface for the Win32 ASPI library.
@@ -14,7 +14,7 @@ static	char __sccsid[] =
  *	Choose your name instead of "schily" and make clear that the version
  *	string is related to a modified source.
  *
- *	Copyright (c) 1998-2012 J. Schilling
+ *	Copyright (c) 1998-2013 J. Schilling
  *	Copyright (c) 1999 A.L. Faber for the first implementation
  *			   of this interface.
  *	TODO:
@@ -29,6 +29,8 @@ static	char __sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * The following exceptions apply:
  * CDDL §3.6 needs to be replaced by: "You may create a Larger Work by
@@ -58,7 +60,7 @@ static	char __sccsid[] =
 #include <scg/aspi-win32.h>
 #include <scg/spti-wnt.h>
 
-#ifdef	__CYGWIN32__		/* Use dlopen()			*/
+#if	defined(__CYGWIN32__) || defined(__CYGWIN__)	/* Use dlopen()	*/
 #include <dlfcn.h>
 #endif
 
@@ -69,8 +71,8 @@ static	char __sccsid[] =
  *	Choose your name instead of "schily" and make clear that the version
  *	string is related to a modified source.
  */
-LOCAL	char	_scg_trans_version[] = "scsi-wnt.c-1.49";	/* The version for this transport*/
-LOCAL	char	_scg_itrans_version[] = "SPTI-scsi-wnt.c-1.49";	/* The version for SPTI */
+LOCAL	char	_scg_trans_version[] = "scsi-wnt.c-1.50";	/* The version for this transport*/
+LOCAL	char	_scg_itrans_version[] = "SPTI-scsi-wnt.c-1.50";	/* The version for SPTI */
 
 /*
  * Local defines and constants
@@ -1550,7 +1552,7 @@ LOCAL BOOL
 load_aspi(scgp)
 	SCSI	*scgp;
 {
-#ifdef	__CYGWIN32__
+#if	defined(__CYGWIN32__) || defined(__CYGWIN__)
 	hAspiLib = dlopen("WNASPI32", RTLD_NOW);
 #else
 	hAspiLib = LoadLibrary("WNASPI32");
@@ -1569,7 +1571,7 @@ load_aspi(scgp)
 	 * Get a pointer to GetASPI32SupportInfo function
 	 * and a pointer to SendASPI32Command function
 	 */
-#ifdef	__CYGWIN32__
+#if	defined(__CYGWIN32__) || defined(__CYGWIN__)
 	pfnGetASPI32SupportInfo = (DWORD(*)(void))dlsym(hAspiLib, "GetASPI32SupportInfo");
 	pfnSendASPI32Command = (DWORD(*)(LPSRB))dlsym(hAspiLib, "SendASPI32Command");
 #else
@@ -1588,7 +1590,7 @@ load_aspi(scgp)
 	 * If we start to use them, we need to check whether the founctions
 	 * could be found in the ASPI library that just has been loaded.
 	 */
-#ifdef	__CYGWIN32__
+#if	defined(__CYGWIN32__) || defined(__CYGWIN__)
 	pfnGetASPI32Buffer = (BOOL(*)(PASPI32BUFF))dlsym(hAspiLib, "GetASPI32Buffer");
 	pfnFreeASPI32Buffer = (BOOL(*)(PASPI32BUFF))dlsym(hAspiLib, "FreeASPI32Buffer");
 	pfnTranslateASPI32Address = (BOOL(*)(PDWORD, PDWORD))dlsym(hAspiLib, "TranslateASPI32Address");
@@ -1634,7 +1636,7 @@ close_driver()
 		/*
 		 * Free ASPI library, we do not need it any longer
 		 */
-#ifdef	__CYGWIN32__
+#if	defined(__CYGWIN32__) || defined(__CYGWIN__)
 		dlclose(hAspiLib);
 #else
 		FreeLibrary(hAspiLib);

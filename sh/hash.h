@@ -31,7 +31,7 @@
 #ifndef	_HASH_H
 #define	_HASH_H
 
-#ifdef	SCHILY_BUILD
+#ifdef	SCHILY_INCLUDES
 #include <schily/mconfig.h>
 #endif
 
@@ -40,9 +40,9 @@
 #endif
 
 /*
- * This file contains modifications Copyright 2008-2012 J. Schilling
+ * This file contains modifications Copyright 2008-2013 J. Schilling
  *
- * @(#)hash.h	1.6 12/05/11 2008-2012 J. Schilling
+ * @(#)hash.h	1.7 13/09/20 2008-2013 J. Schilling
  */
 
 /*

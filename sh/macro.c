@@ -2,11 +2,13 @@
  * CDDL HEADER START
  *
  * The contents of this file are subject to the terms of the
- * Common Development and Distribution License (the "License").
- * You may not use this file except in compliance with the License.
+ * Common Development and Distribution License, Version 1.0 only
+ * (the "License").  You may not use this file except in compliance
+ * with the License.
  *
  * You can obtain a copy of the license at usr/src/OPENSOLARIS.LICENSE
- * or http://www.opensolaris.org/os/licensing.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  * See the License for the specific language governing permissions
  * and limitations under the License.
  *
@@ -33,20 +35,20 @@
 #include "defs.h"
 
 /*
- * This file contains modifications Copyright 2008-2012 J. Schilling
+ * This file contains modifications Copyright 2008-2013 J. Schilling
  *
- * @(#)macro.c	1.17 12/05/12 2008-2012 J. Schilling
+ * @(#)macro.c	1.21 13/09/25 2008-2013 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)macro.c	1.17 12/05/12 2008-2012 J. Schilling";
+	"@(#)macro.c	1.21 13/09/25 2008-2013 J. Schilling";
 #endif
 
 /*
  * UNIX shell
  */
 
-#ifdef	SCHILY_BUILD
+#ifdef	SCHILY_INCLUDES
 #include	"sym.h"
 #include	<schily/wait.h>
 #else
@@ -83,82 +85,74 @@ copyto(endch, trimflag)
 	while ((c = getch(endch, trimflag)) != endch && c)
 		if (quote) {
 			if (c == '\\') { /* don't interpret next character */
-				if (staktop >= brkend)
-					growstak(staktop);
+				GROWSTAKTOP();
 				pushstak(c);
 				d = readwc();
-				if (!escchar(d)) { /* both \ and following
-						     character are quoted if next
-						     character is not $, `, ", or \*/
-					if (staktop >= brkend)
-						growstak(staktop);
+				if (!escchar(d)) {
+					/*
+					 * both \ and following
+					 * character are quoted if next
+					 * character is not $, `, ", or \
+					 */
+					GROWSTAKTOP();
 					pushstak('\\');
-					if (staktop >= brkend)
-						growstak(staktop);
+					GROWSTAKTOP();
 					pushstak('\\');
 					pc = readw(d);
 					/* push entire multibyte char */
 					while (*pc) {
-						if (staktop >= brkend)
-							growstak(staktop);
+						GROWSTAKTOP();
 						pushstak(*pc++);
 					}
 				} else {
 					pc = readw(d);
-					/* d might be NULL */
-					/* Evenif d is NULL, we have to save it */
+					/*
+					 * d might be NULL
+					 * Evenif d is NULL, we have to save it
+					 */
 					if (*pc) {
 						while (*pc) {
-							if (staktop >= brkend)
-								growstak(staktop);
+							GROWSTAKTOP();
 							pushstak(*pc++);
 						}
 					} else {
-						if (staktop >= brkend)
-							growstak(staktop);
+						GROWSTAKTOP();
 						pushstak(*pc);
 					}
 				}
-			} else { /* push escapes onto stack to quote characters */
+			} else { /* push escapes onto stack to quote chars */
 				pc = readw(c);
-				if (staktop >= brkend)
-					growstak(staktop);
+				GROWSTAKTOP();
 				pushstak('\\');
 				while (*pc) {
-					if (staktop >= brkend)
-						growstak(staktop);
+					GROWSTAKTOP();
 					pushstak(*pc++);
 				}
 			}
 		} else if (c == '\\') {
 			c = readwc(); /* get character to be escaped */
-			if (staktop >= brkend)
-				growstak(staktop);
+			GROWSTAKTOP();
 			pushstak('\\');
 			pc = readw(c);
 			/* c might be NULL */
 			/* Evenif c is NULL, we have to save it */
 			if (*pc) {
 				while (*pc) {
-					if (staktop >= brkend)
-						growstak(staktop);
+					GROWSTAKTOP();
 					pushstak(*pc++);
 				}
 			} else {
-				if (staktop >= brkend)
-					growstak(staktop);
+				GROWSTAKTOP();
 				pushstak(*pc);
 			}
 		} else {
 			pc = readw(c);
 			while (*pc) {
-				if (staktop >= brkend)
-					growstak(staktop);
+				GROWSTAKTOP();
 				pushstak(*pc++);
 			}
 		}
-	if (staktop >= brkend)
-		growstak(staktop);
+	GROWSTAKTOP();
 	zerostak();
 	if (c != endch)
 		error(badsub);
@@ -216,14 +210,18 @@ getch(unsigned char endch, int trimflag)
 static int
 getch(endch, trimflag)
 unsigned char	endch;
-int trimflag; /* flag to check if an argument is going to be trimmed, here document
-		 output is never trimmed
-	 */
+/*
+ * flag to check if an argument is going to be trimmed, here document
+ * output is never trimmed
+ */
+int trimflag;
 #endif
 {
 	unsigned int	d;
-	int atflag = 0;  /* flag to check if $@ has already been seen within double
-		        quotes */
+	/*
+	 * atflag to check if $@ has already been seen within double quotes
+	 */
+	int atflag = 0;
 retry:
 	d = readwc();
 	if (!subchar(d))
@@ -250,13 +248,11 @@ retry:
 				argp = (unsigned char *)relstak();
 				while (alphanum(c))
 				{
-					if (staktop >= brkend)
-						growstak(staktop);
+					GROWSTAKTOP();
 					pushstak(c);
 					c = readwc();
 				}
-				if (staktop >= brkend)
-					growstak(staktop);
+				GROWSTAKTOP();
 				zerostak();
 				n = lookup(absstak(argp));
 				setstak(argp);
@@ -265,9 +261,7 @@ retry:
 				v = n->namval;
 				id = (unsigned char *)n->namid;
 				peekc = c | MARK;
-			}
-			else if (digchar(c))
-			{
+			} else if (digchar(c)) {
 				*id = c;
 				idb[1] = 0;
 				if (astchar(c))
@@ -289,22 +283,17 @@ retry:
 					((int)c <= dolc) ?
 					dolv[c] :
 					(unsigned char *)(Intptr_t)(dolg = 0));
-			}
-			else if (c == '$')
+			} else if (c == '$')
 				v = pidadr;
 			else if (c == '!')
 				v = pcsadr;
-			else if (c == '#')
-			{
+			else if (c == '#') {
 				itos(dolc);
 				v = numbuf;
-			}
-			else if (c == '?')
-			{
+			} else if (c == '?') {
 				itos(retval);
 				v = numbuf;
-			}
-			else if (c == '-')
+			} else if (c == '-')
 				v = flagadr;
 			else if (bra)
 				error(badsub);
@@ -326,7 +315,8 @@ retry:
 				if (c != '}')
 				{
 					argp = (unsigned char *)relstak();
-					if ((v == 0 || (nulflg && *v == 0)) ^ (setchar(c)))
+					if ((v == 0 ||
+					    (nulflg && *v == 0)) ^ (setchar(c)))
 						copyto('}', trimflag);
 					else
 						skipto('}');
@@ -347,63 +337,56 @@ retry:
 					for (;;)
 					{
 						if (*v == 0 && quote) {
-							if (staktop >= brkend)
-								growstak(staktop);
+							GROWSTAKTOP();
 							pushstak('\\');
-							if (staktop >= brkend)
-								growstak(staktop);
+							GROWSTAKTOP();
 							pushstak('\0');
 						} else {
 							while ((c = *v) != '\0') {
-								wchar_t		wc;
+								wchar_t	wc;
 								int	clength;
 								if ((clength = mbtowc(&wc, (char *)v, MB_LEN_MAX)) <= 0) {
 									(void) mbtowc(NULL, NULL, 0);
 									clength = 1;
 								}
 								if (quote || (c == '\\' && trimflag)) {
-									if (staktop >= brkend)
-										growstak(staktop);
+									GROWSTAKTOP();
 									pushstak('\\');
 								}
 								while (clength-- > 0) {
-									if (staktop >= brkend)
-										growstak(staktop);
+									GROWSTAKTOP();
 									pushstak(*v++);
 								}
 							}
 						}
 
-						if (dolg == 0 || (++dolg > dolc))
+						if (dolg == 0 ||
+						    (++dolg > dolc))
 							break;
 						else /* $* and $@ expansion */
 						{
 							v = dolv[dolg];
-							if (*id == '*' && quote) {
-/* push quoted space so that " $* " will not be broken into separate arguments */
-								if (staktop >= brkend)
-									growstak(staktop);
+							if (*id == '*' &&
+							    quote) {
+/*
+ * push quoted space so that " $* " will not be broken into separate arguments
+ */
+								GROWSTAKTOP();
 								pushstak('\\');
 							}
-							if (staktop >= brkend)
-								growstak(staktop);
+							GROWSTAKTOP();
 							pushstak(' ');
 						}
 					}
 				}
-			}
-			else if (argp)
-			{
+			} else if (argp) {
 				if (c == '?') {
 					if (trimflag)
 						trim(argp);
 					failed(id, *argp ? (const char *)argp :
 					    badparam);
-				}
-				else if (c == '=')
-				{
-					if (n)
-					{
+				} else if (c == '=') {
+					if (n) {
 						int strlngth = staktop - stakbot;
 						unsigned char *savptr = fixstak();
 						struct ionod *iosav = iotemp;
@@ -417,8 +400,8 @@ retry:
 						argp = savptr;
 
 					/*
-					 * copy word onto stack, trim it, and then
-					 * do assignment
+					 * copy word onto stack, trim it, and
+					 * then do assignment
 					 */
 						usestak();
 						(void) mbtowc(NULL, NULL, 0);
@@ -430,7 +413,8 @@ retry:
 								(void) mbtowc(NULL, NULL, 0);
 								len = 1;
 							}
-							if (c == '\\' && trimflag) {
+							if (c == '\\' &&
+							    trimflag) {
 								argp++;
 								if (*argp == 0) {
 									argp++;
@@ -442,8 +426,7 @@ retry:
 								}
 							}
 							while (len-- > 0) {
-								if (staktop >= brkend)
-									growstak(staktop);
+								GROWSTAKTOP();
 								pushstak(*argp++);
 							}
 						}
@@ -456,23 +439,18 @@ retry:
 					else
 						error(badsub);
 				}
-			}
-			else if (flags & setflg)
+			} else if (flags & setflg)
 				failed(id, unset);
 			goto retry;
 		}
 		else
 			peekc = c | MARK;
-	}
-	else if (d == endch)
+	} else if (d == endch)
 		return (d);
-	else if (d == SQUOTE)
-	{
+	else if (d == SQUOTE) {
 		comsubst(trimflag);
 		goto retry;
-	}
-	else if (d == DQUOTE && trimflag)
-	{
+	} else if (d == DQUOTE && trimflag) {
 		if (!quote) {
 			atflag = 0;
 			quoted++;
@@ -504,11 +482,9 @@ unsigned char	*as;
 	copyto(0, 1);
 	pop();
 	if (quoted && (stakbot == staktop)) {
-		if (staktop >= brkend)
-			growstak(staktop);
+		GROWSTAKTOP();
 		pushstak('\\');
-		if (staktop >= brkend)
-			growstak(staktop);
+		GROWSTAKTOP();
 		pushstak('\0');
 /*
  * above is the fix for *'.c' bug
@@ -542,10 +518,12 @@ comsubst(trimflag)
 		if (d == '\\') {
 			d = readwc();
 			if (!escchar(d) || (d == '"' && !quote)) {
-		/* trim quotes for `, \, or " if command substitution is within
-		   double quotes */
-				if (staktop >= brkend)
-					growstak(staktop);
+				/*
+				 * trim quotes for `, \, or " if
+				 * command substitution is within
+				 * double quotes
+				 */
+				GROWSTAKTOP();
 				pushstak('\\');
 			}
 		}
@@ -553,13 +531,11 @@ comsubst(trimflag)
 		/* d might be NULL */
 		if (*pc) {
 			while (*pc) {
-				if (staktop >= brkend)
-					growstak(staktop);
+				GROWSTAKTOP();
 				pushstak(*pc++);
 			}
 		} else {
-			if (staktop >= brkend)
-				growstak(staktop);
+			GROWSTAKTOP();
 			pushstak(*pc);
 		}
 	}
@@ -592,24 +568,22 @@ comsubst(trimflag)
 	while ((d = readwc()) != '\0') {
 		if (quote || (d == '\\' && trimflag)) {
 			unsigned char *rest;
-			/* quote output from command subst. if within double
-			   quotes or backslash part of output */
+			/*
+			 * quote output from command subst. if within double
+			 * quotes or backslash part of output
+			 */
 			rest = readw(d);
-			if (staktop >= brkend)
-				growstak(staktop);
+			GROWSTAKTOP();
 			pushstak('\\');
 			while ((d = *rest++) != '\0') {
 			/* Pick up all of multibyte character */
-				if (staktop >= brkend)
-					growstak(staktop);
+				GROWSTAKTOP();
 				pushstak(d);
 			}
-		}
-		else {
+		} else {
 			pc = readw(d);
 			while (*pc) {
-				if (staktop >= brkend)
-					growstak(staktop);
+				GROWSTAKTOP();
 				pushstak(*pc++);
 			}
 		}
@@ -664,15 +638,17 @@ subst(in, ot)
 	/*
 	 * DQUOTE used to stop it from quoting
 	 */
-	while ((c = (getch(DQUOTE, 0))) != '\0') /* read characters from here document
-							and interpret them */
-	{
+	while ((c = (getch(DQUOTE, 0))) != '\0') {
+		/*
+		 * read characters from here document and interpret them
+		 */
 		if (c == '\\') {
-			c = readwc(); /* check if character in here document is
-					escaped */
+			c = readwc();
+			/*
+			 * check if character in here document is escaped
+			 */
 			if (!escchar(c) || c == '"') {
-				if (staktop >= brkend)
-					growstak(staktop);
+				GROWSTAKTOP();
 				pushstak('\\');
 			}
 		}
@@ -680,13 +656,11 @@ subst(in, ot)
 		/* c might be NULL */
 		if (*pc) {
 			while (*pc) {
-				if (staktop >= brkend)
-					growstak(staktop);
+				GROWSTAKTOP();
 				pushstak(*pc++);
 			}
 		} else {
-			if (staktop >= brkend)
-				growstak(staktop);
+			GROWSTAKTOP();
 			pushstak(*pc);
 		}
 		if (--count == 0)

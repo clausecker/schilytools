@@ -2,11 +2,13 @@
  * CDDL HEADER START
  *
  * The contents of this file are subject to the terms of the
- * Common Development and Distribution License (the "License").
- * You may not use this file except in compliance with the License.
+ * Common Development and Distribution License, Version 1.0 only
+ * (the "License").  You may not use this file except in compliance
+ * with the License.
  *
  * You can obtain a copy of the license at usr/src/OPENSOLARIS.LICENSE
- * or http://www.opensolaris.org/os/licensing.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  * See the License for the specific language governing permissions
  * and limitations under the License.
  *
@@ -34,26 +36,30 @@
 #include "defs.h"
 
 /*
- * This file contains modifications Copyright 2008-2012 J. Schilling
+ * This file contains modifications Copyright 2008-2013 J. Schilling
  *
- * @(#)name.c	1.22 12/06/10 2008-2012 J. Schilling
+ * @(#)name.c	1.28 13/09/26 2008-2013 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)name.c	1.22 12/06/10 2008-2012 J. Schilling";
+	"@(#)name.c	1.28 13/09/26 2008-2013 J. Schilling";
 #endif
 
 /*
  * UNIX shell
  */
 
+#ifdef INTERACTIVE
+#include	<schily/shedit.h>
+#endif
 #ifdef	HAVE_STROPTS_H
 #include	<stropts.h>
 #endif
 
 extern int	mailchk;
 
-	int	syslook		__PR((unsigned char *w, const struct sysnod syswds[], int n));
+	int	syslook		__PR((unsigned char *w,
+					const struct sysnod syswds[], int n));
 	void	setlist		__PR((struct argnod *arg, int xp));
 static void	setname		__PR((unsigned char *, int));
 	void	replace		__PR((unsigned char **a, unsigned char *v));
@@ -63,8 +69,8 @@ static void	set_builtins_path	__PR((void));
 static int	patheq		__PR((unsigned char *component, char *dir));
 	int	readvar		__PR((unsigned char **names));
 	void	assnum		__PR((unsigned char **p, long i));
-unsigned char *	make		__PR((unsigned char *v));
-struct namnod *	lookup		__PR((unsigned char *nam));
+unsigned char	*make		__PR((unsigned char *v));
+struct namnod	*lookup		__PR((unsigned char *nam));
 static	BOOL	chkid		__PR((unsigned char *nam));
 	void	namscan		__PR((void (*fn)(struct namnod *n)));
 static void	namwalk		__PR((struct namnod *));
@@ -323,8 +329,10 @@ assign(n, v)
 
 	if (flags & prompt)
 	{
-		if ((n == &mailpnod) || (n == &mailnod && mailpnod.namflg == N_DEFAULT))
+		if ((n == &mailpnod) ||
+		    (n == &mailnod && mailpnod.namflg == N_DEFAULT)) {
 			setmail(n->namval);
+		}
 	}
 }
 
@@ -339,8 +347,7 @@ set_builtins_path()
 		if (patheq(path, "/usr/ucb")) {
 			ucb_builtins++;
 			break;
-		}
-		else if (patheq(path, "/usr/bin"))
+		} else if (patheq(path, "/usr/bin"))
 			break;
 		else if (patheq(path, "/bin"))
 			break;
@@ -439,8 +446,7 @@ readvar(names)
 	{
 		if ((*names && anys(c, ifsnod.namval)) || eolchar(d))
 		{
-			if (staktop >= brkend)
-				growstak(staktop);
+			GROWSTAKTOP();
 			zerostak();
 			if (flags & exportflg)
 				n->namflg |= N_EXPORT;
@@ -450,11 +456,9 @@ readvar(names)
 				n = lookup(*names++);
 			else
 				n = 0;
-			if (eolchar(d))
-			{
+			if (eolchar(d)) {
 				break;
-			}
-			else		/* strip imbedded IFS characters */
+			} else		/* strip imbedded IFS characters */
 				/* CONSTCOND */
 				while (1) {
 					d = nextwchar();
@@ -475,8 +479,7 @@ readvar(names)
 				d = readwc();
 				rest = readw(d);
 				while ((d = *rest++) != '\0') {
-					if (staktop >= brkend)
-						growstak(staktop);
+					GROWSTAKTOP();
 					pushstak(d);
 				}
 				oldstak = staktop;
@@ -485,8 +488,7 @@ readvar(names)
 			{
 				pc = c;
 				while ((d = *pc++) != '\0') {
-					if (staktop >= brkend)
-						growstak(staktop);
+					GROWSTAKTOP();
 					pushstak(d);
 				}
 				if (!anys(c, ifsnod.namval))
@@ -644,8 +646,7 @@ printnam(n)
 
 	sigchk();
 
-	if (n->namflg & N_FUNCTN)
-	{
+	if (n->namflg & N_FUNCTN) {
 		struct fndnod *f = fndptr(n->namenv);
 
 		prs_buff(n->namid);
@@ -653,9 +654,7 @@ printnam(n)
 		if (f != NULL)
 			prf((struct trenod *)f->fndval);
 		prs_buff((unsigned char *)"\n}\n");
-	}
-	else if ((s = n->namval) != NULL)
-	{
+	} else if ((s = n->namval) != NULL) {
 		prs_buff(n->namid);
 		prc_buff('=');
 		prs_buff(s);
@@ -740,7 +739,8 @@ pushnam(n)
 		p = movstrstak(n->namid, staktop);
 		p = movstrstak((unsigned char *)"=", p);
 		p = movstrstak(namval, p);
-		*argnam++ = getstak((Intptr_t)(p + 1 - (unsigned char *)(stakbot)));
+		*argnam++ =
+			getstak((Intptr_t)(p + 1 - (unsigned char *)(stakbot)));
 	}
 }
 
@@ -752,7 +752,8 @@ local_setenv()
 	namec = 0;
 	namscan(countnam);
 
-	argnam = er = (unsigned char **)getstak((Intptr_t)namec * BYTESPERWORD + BYTESPERWORD);
+	argnam = er = (unsigned char **)getstak((Intptr_t)namec * BYTESPERWORD +
+								BYTESPERWORD);
 	namscan(pushnam);
 	*argnam++ = 0;
 	return (er);
@@ -871,11 +872,16 @@ dolocale(nm)
 	int i;
 
 #ifdef INTERACTIVE
-	if ((*nm == 'H') && eq(nm, "HISTORY")) {
+	/*
+	 * Only set history size in libshedit if we are
+	 * in interactive mode. This allows to avoid  to
+	 * load libshedit when interpreting shell scripts.
+	 */
+	if ((flags & prompt) &&
+	    (*nm == 'H') && eq(nm, "HISTORY")) {
 			char	*hv = getcurenv(nm);
-		extern	void    chghistory __PR((char *cp));
 
-		chghistory(hv ? hv:"0");
+		shedit_chghistory(hv ? hv:"0");
 	}
 #endif
 

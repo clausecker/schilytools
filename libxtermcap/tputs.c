@@ -1,11 +1,11 @@
-/* @(#)tputs.c	1.9 09/07/11 Copyright 1986-2009 J. Schilling */
+/* @(#)tputs.c	1.10 13/09/19 Copyright 1986-2013 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)tputs.c	1.9 09/07/11 Copyright 1986-2009 J. Schilling";
+	"@(#)tputs.c	1.10 13/09/19 Copyright 1986-2013 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1986-2009 J. Schilling
+ *	Copyright (c) 1986-2013 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -14,6 +14,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -97,7 +99,7 @@ tputs(sp, affcnt, outc)
 		cp++;
 		delay *= affcnt;
 	}
-	while (*cp) {		/* Now outout the string		*/
+	while (*cp) {		/* Now output the string		*/
 		(*outc)(*cp++);
 	}
 

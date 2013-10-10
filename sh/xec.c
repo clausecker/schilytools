@@ -38,11 +38,11 @@
 /*
  * This file contains modifications Copyright 2008-2013 J. Schilling
  *
- * @(#)xec.c	1.22 13/07/04 2008-2013 J. Schilling
+ * @(#)xec.c	1.25 13/09/22 2008-2013 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)xec.c	1.22 13/07/04 2008-2013 J. Schilling";
+	"@(#)xec.c	1.25 13/09/22 2008-2013 J. Schilling";
 #endif
 
 /*
@@ -59,7 +59,9 @@ static	UConst char sccsid[] =
 
 pid_t parent;
 
-	int	execute		__PR((struct trenod *argt, int xflags, int errorflg, int *pf1, int *pf2));
+	int	execute		__PR((struct trenod *argt,
+					int xflags, int errorflg,
+					int *pf1, int *pf2));
 	void	execexp		__PR((unsigned char *s, Intptr_t f));
 static	void	execprint	__PR((unsigned char **));
 
@@ -161,9 +163,11 @@ int *pf1, *pf2;
 				gchain = schain;
 
 				if (argn != 0)
-					cmdhash = pathlook(com[0], 1, comptr(t)->comset);
+					cmdhash = pathlook(com[0],
+							1, comptr(t)->comset);
 
-				if (argn == 0 || (comtype = hashtype(cmdhash)) == BUILTIN) {
+				if (argn == 0 ||
+				    (comtype = hashtype(cmdhash)) == BUILTIN) {
 					setlist(comptr(t)->comset, 0);
 				}
 
@@ -174,8 +178,7 @@ int *pf1, *pf2;
 					if (flags & execpr)
 						execprint(com);
 
-					if (comtype == NOTFOUND)
-					{
+					if (comtype == NOTFOUND) {
 						pos = hashdata(cmdhash);
 						if (pos == 1)
 							failure(*com, notfound);
@@ -184,25 +187,17 @@ int *pf1, *pf2;
 						else
 							failure(*com, badperm);
 						break;
-					}
-
-					else if (comtype == PATH_COMMAND)
-					{
+					} else if (comtype == PATH_COMMAND) {
 						pos = -1;
-					}
-
-					else if (comtype & (COMMAND | REL_COMMAND))
-					{
+					} else if (comtype &
+						    (COMMAND | REL_COMMAND)) {
 						pos = hashdata(cmdhash);
-					}
-
-					else if (comtype == BUILTIN) {
-						builtin(hashdata(cmdhash), argn, com, t);
+					} else if (comtype == BUILTIN) {
+						builtin(hashdata(cmdhash),
+								argn, com, t);
 						freejobs();
 						break;
-					}
-					else if (comtype == FUNCTION)
-					{
+					} else if (comtype == FUNCTION) {
 						struct dolnod *olddolh;
 						struct namnod *n;
 						struct fndnod *f;
@@ -215,7 +210,8 @@ int *pf1, *pf2;
 						if (f == NULL)
 							break;
 					/* save current positional parameters */
-						olddolh = (struct dolnod *)savargs(funcnt);
+						olddolh = (struct dolnod *)
+								savargs(funcnt);
 						f->fndref++;
 						funcnt++;
 						idx = initio(io, 1);
@@ -224,7 +220,8 @@ int *pf1, *pf2;
 						    errorflg, pf1, pf2);
 						execbrk = 0;
 						restore(idx);
-						(void) restorargs(olddolh, funcnt);
+						(void) restorargs(olddolh,
+								funcnt);
 						dolv = olddolv;
 						dolc = olddolc;
 						funcnt--;
@@ -238,9 +235,7 @@ int *pf1, *pf2;
 
 						break;
 					}
-				}
-				else if (t->treio == 0)
-				{
+				} else if (t->treio == 0) {
 					chktrap();
 					break;
 				}
@@ -262,19 +257,21 @@ int *pf1, *pf2;
 
 				if (!(treeflgs&FPOU))
 				{
-					monitor = (!(xflags & XEC_NOSTOP)
-					  && (flags&(monitorflg|jcflg|jcoff))
-					  == (monitorflg|jcflg));
+					monitor = (!(xflags & XEC_NOSTOP) &&
+					    (flags&(monitorflg|jcflg|jcoff))
+					    == (monitorflg|jcflg));
 					if (monitor) {
 						int save_fd;
 
 						save_fd = setb(-1);
 						prcmd(t);
-						allocjob((char *)stakbot, cwdget(), monitor);
+						allocjob((char *)stakbot,
+							cwdget(), monitor);
 						(void) setb(save_fd);
-					} else
-						allocjob("", (unsigned char *)"", 0);
-
+					} else {
+						allocjob("",
+							(unsigned char *)"", 0);
+					}
 				}
 
 				if (treeflgs & (FPOU|FAMP)) {
@@ -318,7 +315,8 @@ int *pf1, *pf2;
 					if (treeflgs & FPIN)
 						closepipe(pf1);
 					if (!(treeflgs&FPOU)) {
-						postjob(parent, !(treeflgs&FAMP));
+						postjob(parent,
+							!(treeflgs&FAMP));
 						freejobs();
 					}
 					chktrap();
@@ -376,10 +374,11 @@ int *pf1, *pf2;
 			 */
 			initio(t->treio, 0);
 
-			if (type == TFORK)
-				execute(forkptr(t)->forktre, xflags | XEC_EXECED, errorflg, no_pipe, no_pipe);
-			else if (com != NULL && com[0] != ENDARGS)
-			{
+			if (type == TFORK) {
+				execute(forkptr(t)->forktre,
+					xflags | XEC_EXECED,
+					errorflg, no_pipe, no_pipe);
+			} else if (com != NULL && com[0] != ENDARGS) {
 				eflag = 0;
 				setlist(comptr(t)->comset, N_EXPORT);
 				rmtemp(0);
@@ -394,7 +393,9 @@ int *pf1, *pf2;
 			/* Forked process is subshell:  may want job control */
 			flags &= ~jcoff;
 			clearjobs();
-			execute(parptr(t)->partre, xflags, errorflg, no_pipe, no_pipe);
+			execute(parptr(t)->partre,
+				xflags, errorflg,
+				no_pipe, no_pipe);
 			done(0);
 			/* NOTREACHED */
 
@@ -403,26 +404,39 @@ int *pf1, *pf2;
 				int pv[2];
 
 				chkpipe(pv);
-				if (execute(lstptr(t)->lstlef, xflags & XEC_NOSTOP, errorflg, pf1, pv) == 0)
-					execute(lstptr(t)->lstrit, xflags, errorflg, pv, pf2);
-				else
+				if (execute(lstptr(t)->lstlef,
+				    xflags & XEC_NOSTOP, errorflg,
+				    pf1, pv) == 0) {
+					execute(lstptr(t)->lstrit,
+						xflags, errorflg,
+						pv, pf2);
+				} else {
 					closepipe(pv);
+				}
 			}
 			break;
 
 		case TLST:
-			execute(lstptr(t)->lstlef, xflags&XEC_NOSTOP, errorflg, no_pipe, no_pipe);
-			/* Update errorflg if set -e is invoked in the sub-sh*/
-			execute(lstptr(t)->lstrit, xflags, (errorflg | (eflag & errflg)), no_pipe, no_pipe);
+			execute(lstptr(t)->lstlef,
+				xflags&XEC_NOSTOP, errorflg,
+				no_pipe, no_pipe);
+			/* Update errorflg if set -e is invoked in the sub-sh */
+			execute(lstptr(t)->lstrit,
+				xflags, (errorflg | (eflag & errflg)),
+				no_pipe, no_pipe);
 			break;
 
 		case TAND:
 		case TORF:
 		{
 			int xval;
-			xval = execute(lstptr(t)->lstlef, XEC_NOSTOP, 0, no_pipe, no_pipe);
+			xval = execute(lstptr(t)->lstlef,
+					XEC_NOSTOP, 0,
+					no_pipe, no_pipe);
 			if ((xval == 0) == (type == TAND))
-				execute(lstptr(t)->lstrit, xflags|XEC_NOSTOP, errorflg, no_pipe, no_pipe);
+				execute(lstptr(t)->lstrit,
+					xflags|XEC_NOSTOP, errorflg,
+					no_pipe, no_pipe);
 			break;
 		}
 
@@ -449,7 +463,9 @@ int *pf1, *pf2;
 				while (*args != ENDARGS && execbrk == 0)
 				{
 					assign(n, *args++);
-					execute(forptr(t)->fortre, XEC_NOSTOP, errorflg, no_pipe, no_pipe);
+					execute(forptr(t)->fortre,
+						XEC_NOSTOP, errorflg,
+						no_pipe, no_pipe);
 					if (breakcnt < 0)
 						execbrk = (++breakcnt != 0);
 				}
@@ -458,7 +474,8 @@ int *pf1, *pf2;
 
 				loopcnt--;
 				if (argsav)
-					argfor = (struct dolnod *)freeargs(argsav);
+					argfor = (struct dolnod *)
+							freeargs(argsav);
 			}
 			break;
 
@@ -469,10 +486,12 @@ int *pf1, *pf2;
 
 				loopcnt++;
 				while (execbrk == 0 && (execute(whptr(t)->whtre,
-				    XEC_NOSTOP, 0, no_pipe, no_pipe) == 0) == (type == TWH) &&
-				    (flags&noexec) == 0)
-{
-					i = execute(whptr(t)->dotre, XEC_NOSTOP, errorflg, no_pipe, no_pipe);
+				    XEC_NOSTOP, 0,
+				    no_pipe, no_pipe) == 0) == (type == TWH) &&
+				    (flags&noexec) == 0) {
+					i = execute(whptr(t)->dotre,
+						XEC_NOSTOP, errorflg,
+						no_pipe, no_pipe);
 					if (breakcnt < 0)
 						execbrk = (++breakcnt != 0);
 				}
@@ -485,12 +504,20 @@ int *pf1, *pf2;
 			break;
 
 		case TIF:
-			if (execute(ifptr(t)->iftre, XEC_NOSTOP, 0, no_pipe, no_pipe) == 0)
-				execute(ifptr(t)->thtre, xflags|XEC_NOSTOP, errorflg, no_pipe, no_pipe);
-			else if (ifptr(t)->eltre)
-				execute(ifptr(t)->eltre, xflags|XEC_NOSTOP, errorflg, no_pipe, no_pipe);
-			else
-				exitval = 0;	/* force zero exit for if-then-fi */
+			if (execute(ifptr(t)->iftre,
+			    XEC_NOSTOP, 0,
+			    no_pipe, no_pipe) == 0) {
+				execute(ifptr(t)->thtre,
+					xflags|XEC_NOSTOP, errorflg,
+					no_pipe, no_pipe);
+			} else if (ifptr(t)->eltre) {
+				execute(ifptr(t)->eltre,
+					xflags|XEC_NOSTOP, errorflg,
+					no_pipe, no_pipe);
+			} else {
+				/* force zero exit for if-then-fi */
+				exitval = 0;
+			}
 			break;
 
 		case TSW:
@@ -499,17 +526,20 @@ int *pf1, *pf2;
 				struct regnod *regp;
 
 				regp = swptr(t)->swlst;
-				while (regp)
-				{
+				while (regp) {
 					struct argnod *rex = regp->regptr;
 
-					while (rex)
-					{
+					while (rex) {
 						unsigned char	*s;
 
-						if (gmatch((char *)r, (char *)(s = macro(rex->argval))) || (trim(s), eq(r, s)))
-						{
-							execute(regp->regcom, XEC_NOSTOP, errorflg, no_pipe, no_pipe);
+						if (gmatch((char *)r, (char *)
+						    (s = macro(rex->argval))) ||
+						    (trim(s), eq(r, s))) {
+							execute(regp->regcom,
+								XEC_NOSTOP,
+								errorflg,
+								no_pipe,
+								no_pipe);
 							regp = 0;
 							break;
 						}
@@ -542,10 +572,10 @@ execexp(s, f)
 	{
 		estabf(s);
 		fb.feval = (unsigned char **)(f);
-	}
-	else if (f >= 0)
+	} else if (f >= 0)
 		initf(f);
-	execute(cmd(NL, NLFLG | MTFLG), 0, (int)(flags & errflg), no_pipe, no_pipe);
+	execute(cmd(NL, NLFLG | MTFLG),
+		0, (int)(flags & errflg), no_pipe, no_pipe);
 	pop();
 }
 

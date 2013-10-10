@@ -1,8 +1,8 @@
-/* @(#)copy.c	1.49 13/04/28 Copyright 1984, 86-90, 95-97, 99, 2000-2013 J. Schilling */
+/* @(#)copy.c	1.50 13/07/30 Copyright 1984, 86-90, 95-97, 99, 2000-2013 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)copy.c	1.49 13/04/28 Copyright 1984, 86-90, 95-97, 99, 2000-2013 J. Schilling";
+	"@(#)copy.c	1.50 13/07/30 Copyright 1984, 86-90, 95-97, 99, 2000-2013 J. Schilling";
 #endif
 /*
  *	copy files ...
@@ -16,6 +16,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -301,7 +303,7 @@ main(ac, av)
 	if (prversion) {
 		/* CSTYLED */
 		printf(_("Copy release %s (%s-%s-%s) Copyright (C) 1984, 86-90, 95-97, 99, 2000-2013 %s\n"),
-				"1.49",
+				"1.50",
 				HOST_CPU, HOST_VENDOR, HOST_OS,
 				_("Joerg Schilling"));
 		exit(0);
@@ -887,7 +889,7 @@ doremove(name)
 		if (err == EACCES)
 			goto cannot;
 
-#if	defined(__CYGWIN32__)
+#if	defined(__CYGWIN32__) || defined(__CYGWIN__)
 		if (err == ENOTEMPTY) {
 			/*
 			 * Cygwin returns ENOTEMPTY if 'name'

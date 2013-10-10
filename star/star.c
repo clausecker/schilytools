@@ -1,8 +1,8 @@
-/* @(#)star.c	1.340 13/04/16 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2013 J. Schilling */
+/* @(#)star.c	1.343 13/10/07 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2013 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)star.c	1.340 13/04/16 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2013 J. Schilling";
+	"@(#)star.c	1.343 13/10/07 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2013 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1985, 88-90, 92-96, 98, 99, 2000-2013 J. Schilling
@@ -14,6 +14,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -104,7 +106,7 @@ LOCAL	void	docompat	__PR((int *pac, char *const **pav));
 #define	QIC_525_TSIZE	1025000		/* 512500 kBytes */
 #define	TSIZE(s)	((s)*TBLOCK)
 
-char	strvers[] = "1.5.2";		/* The pure version string	*/
+char	strvers[] = "1.5.3a01";		/* The pure version string	*/
 char	*vers;				/* the full version string	*/
 
 struct star_stats	xstats;		/* for printing statistics	*/
@@ -152,7 +154,7 @@ uid_t	dir_uid = _BAD_UID;		/* -dir-owner			*/
 gid_t	dir_gid = _BAD_GID;		/* -dir-group			*/
 uid_t	my_uid;				/* Current euid			*/
 dev_t	curfs = NODEV;			/* Current st_dev for -M option	*/
-struct timeval	ddate;			/* The current dump date	*/
+struct timespec	ddate;			/* The current dump date	*/
 time_t	sixmonth;			/* 6 months before limit (ls)	*/
 time_t	now;				/* now limit (ls)		*/
 /*
@@ -227,6 +229,7 @@ BOOL	partial	  = FALSE;		/* -P write partial last record	*/
 BOOL	nospec	  = FALSE;		/* -S no special files		*/
 int	Fflag	  = 0;			/* -F,-FF,... no SCCS/RCS/...	*/
 BOOL	uncond	  = FALSE;		/* -U unconditional extract	*/
+BOOL	uncond_rename = FALSE;		/* -uncond-rename - ask always	*/
 BOOL	xdir	  = FALSE;		/* -xdir uncond. dir extract	*/
 BOOL	xdot	  = FALSE;		/* -xdot uncond '.' dir extract	*/
 BOOL	keep_old  = FALSE;		/* -k do not overwrite files	*/
@@ -254,7 +257,7 @@ BOOL	nullout   = FALSE;		/* -onull - simulation write	*/
 BOOL	prinodes  = FALSE;		/* -prinodes print ino # w. -tv */
 
 Ullong	maxsize	  = 0;			/* max file size for create	*/
-struct timeval	Newer = {0, 0};		/* Time stamp to compare with	*/
+struct timespec	Newer = {0, 0};		/* Time stamp to compare with	*/
 Ullong	tsize	  = 0;			/* Max tape size in tar blocks	*/
 long	diffopts  = 0L;			/* diffopts= bit mask		*/
 BOOL	nowarn	  = FALSE;		/* -nowarn has been specified	*/
@@ -326,7 +329,7 @@ GINFO	*grip = &_grinfo;		/* Global read info pointer	*/
  * werden wird bei Falschschreibung von -fifo evt. eine Datei angelegt wird.
  */
 /* BEGIN CSTYLED */
-char	_opts[] = "C*,find~,help,xhelp,version,debug,xdebug#,xd#,bsdchdir,pax-ls,level#,tardumps*,wtardumps,time,no_statistics,no-statistics,cpio-statistics,fifostats,numeric,v+,block-number,tpath,c,u,r,x,t,copy,n,diff,diffopts&,H&,artype&,print-artype,fs-name*,force_hole,force-hole,sparse,to_stdout,to-stdout,wready,force_remove,force-remove,ask_remove,ask-remove,remove_first,remove-first,remove_recursive,remove-recursive,keep-nonempty-dirs,install,nullout,onull,fifo,no_fifo,no-fifo,shm,fs&,VOLHDR*,list*,pkglist*,multivol,new-volume-script*,force-local,restore,force-restore,file&,f&,T,Z,z,bz,j,lzo,7z,xz,lzip,compress-program*,bs&,blocks&,b&,B,pattern&,pat&,i,d,m,o,nochown,pax-p&,a,atime,p,no-p,dirmode,l,h,L,pax-L~,pax-H~,pax-P~,D,dodesc,M,xdev,w,pax-i,I,X&,exclude-from&,O,signed_checksum,signed-checksum,P,S,F+,U,xdir,xdot,k,keep_old_files,keep-old-files,refresh_old_files,refresh-old-files,refresh,/,..,secure-links,no-dirslash,not,V,match-tree,pax-match,pax-n,pax-c,notarg,maxsize&,newer*,ctime,nodump,tsize&,qic24,qic120,qic150,qic250,qic525,nowarn,newest_file,newest-file,newest,hpdev,modebits,copylinks,copyhardlinks,copysymlinks,copydlinks,hardlinks,symlinks,link-data,acl,xattr,xattr-linux,xfflags,link-dirs,dumpdate*,dump,cumulative,dump-cumulative,meta,dumpmeta,xmeta,silent,lowmem,no-xheader,no-fsync,read0,errctl&,e,data-change-warn,prinodes,dir-owner*,dir-group*,umask*,s&,?";
+char	_opts[] = "C*,find~,help,xhelp,version,debug,xdebug#,xd#,bsdchdir,pax-ls,level#,tardumps*,wtardumps,time,no_statistics,no-statistics,cpio-statistics,fifostats,numeric,v+,block-number,tpath,c,u,r,x,t,copy,xcopy,n,diff,diffopts&,H&,artype&,print-artype,fs-name*,force_hole,force-hole,sparse,to_stdout,to-stdout,wready,force_remove,force-remove,ask_remove,ask-remove,remove_first,remove-first,remove_recursive,remove-recursive,keep-nonempty-dirs,install,nullout,onull,fifo,no_fifo,no-fifo,shm,fs&,VOLHDR*,list*,pkglist*,multivol,new-volume-script*,force-local,restore,force-restore,file&,f&,T,Z,z,bz,j,lzo,7z,xz,lzip,compress-program*,bs&,blocks&,b&,B,pattern&,pat&,i,d,m,o,nochown,pax-p&,a,atime,p,no-p,dirmode,l,h,L,pax-L~,pax-H~,pax-P~,D,dodesc,M,xdev,w,pax-i,I,X&,exclude-from&,O,signed_checksum,signed-checksum,P,S,F+,U,uncond-rename,xdir,xdot,k,keep_old_files,keep-old-files,refresh_old_files,refresh-old-files,refresh,/,..,secure-links,no-dirslash,not,V,match-tree,pax-match,pax-n,pax-c,notarg,maxsize&,newer*,ctime,nodump,tsize&,qic24,qic120,qic150,qic250,qic525,nowarn,newest_file,newest-file,newest,hpdev,modebits,copylinks,copyhardlinks,copysymlinks,copydlinks,hardlinks,symlinks,link-data,acl,xattr,xattr-linux,xfflags,link-dirs,dumpdate*,dump,cumulative,dump-cumulative,meta,dumpmeta,xmeta,silent,lowmem,no-xheader,no-fsync,read0,errctl&,e,data-change-warn,prinodes,dir-owner*,dir-group*,umask*,s&,?";
 /* END CSTYLED */
 char	*opts = _opts;
 #else
@@ -425,7 +428,7 @@ main(ac, av)
 	if (dir_flags && (!tflag || copyflag))
 		wdir = dogetwdir();
 
-	gettimeofday(&ddate, 0);
+	getnstimeofday(&ddate);
 	now	 = ddate.tv_sec + 60;
 	sixmonth = ddate.tv_sec - 6L*30L*24L*60L*60L;
 #ifdef	USE_FIND
@@ -819,10 +822,10 @@ init_ddate(name)
 	FINFO	ddinfo;
 
 	if (!_getinfo(name, &ddinfo))
-		comerr("Cannot star '%s'.\n", name);
+		comerr("Cannot stat '%s'.\n", name);
 
 	ddate.tv_sec  = ddinfo.f_mtime;
-	ddate.tv_usec = ddinfo.f_mnsec / 1000;
+	ddate.tv_nsec = ddinfo.f_mnsec;
 }
 
 EXPORT void
@@ -1025,6 +1028,7 @@ usage(ret)
 	error("\t-help\t\tprint this help\n");
 	error("\t-xhelp\t\tprint extended help\n");
 	error("\t-version\tprint version information and exit\n");
+	error("\t-xcopy\t\talias for -copy -sparse -acl\n");
 	error("\tblocks=#,b=#\tset blocking factor to #x512 Bytes (default 20)\n");
 	error("\tfile=nm,f=nm\tuse 'nm' as tape instead of stdin/stdout\n");
 	error("\t-T\t\tuse $TAPE as tape instead of stdin/stdout\n");
@@ -1076,6 +1080,7 @@ usage(ret)
 	error("\t-S\t\tdo not store/create special files\n");
 	error("\t-F,-FF,-FFF,...\tdo not store/create SCCS/RCS, core and object files\n");
 	error("\t-U\t\trestore files unconditionally\n");
+	error("\t-uncond-rename\twith interactive restore unconditionally ask for name\n");
 	exit(ret);
 	/* NOTREACHED */
 }
@@ -1285,6 +1290,7 @@ gargs(ac, av)
 	BOOL	help	 = FALSE;
 	BOOL	xhelp	 = FALSE;
 	BOOL	prvers	 = FALSE;
+	BOOL	xcopy	 = FALSE;
 	BOOL	oldtar	 = FALSE;
 	BOOL	no_fifo	 = FALSE;
 	BOOL	usetape	 = FALSE;
@@ -1305,7 +1311,7 @@ signed	char	archive	 = -1;		/* On IRIX, we have unsigned chars by default */
 BOOL	Ointeractive	 = FALSE;
 
 /* BEGIN CSTYLED */
-/*char	_opts[] = "C*,find~,help,xhelp,version,debug,xdebug#,xd#,bsdchdir,pax-ls,level#,tardumps*,wtardumps,time,no_statistics,no-statistics,cpio-statistics,fifostats,numeric,v+,block-number,tpath,c,u,r,x,t,copy,n,diff,diffopts&,H&,artype&,print-artype,fs-name*,force_hole,force-hole,sparse,to_stdout,to-stdout,wready,force_remove,force-remove,ask_remove,ask-remove,remove_first,remove-first,remove_recursive,remove-recursive,keep-nonempty-dirs,install,nullout,onull,fifo,no_fifo,no-fifo,shm,fs&,VOLHDR*,list*,pkglist*,multivol,new-volume-script*,force-local,restore,force-restore,file&,f&,T,Z,z,bz,j,lzo,7z,xz,lzip,compress-program*,bs&,blocks&,b&,B,pattern&,pat&,i,d,m,o,nochown,pax-p&,a,atime,p,no-p,dirmode,l,h,L,pax-L~,pax-H~,pax-P~,D,dodesc,M,xdev,w,pax-i,I,X&,exclude-from&,O,signed_checksum,signed-checksum,P,S,F+,U,xdir,xdot,k,keep_old_files,keep-old-files,refresh_old_files,refresh-old-files,refresh,/,..,secure-links,no-dirslash,not,V,match-tree,pax-match,pax-n,pax-c,notarg,maxsize&,newer*,ctime,nodump,tsize&,qic24,qic120,qic150,qic250,qic525,nowarn,newest_file,newest-file,newest,hpdev,modebits,copylinks,copyhardlinks,copysymlinks,copydlinks,hardlinks,symlinks,link-data,acl,xattr,xattr-linux,xfflags,link-dirs,dumpdate*,dump,cumulative,dump-cumulative,meta,dumpmeta,xmeta,silent,lowmem,no-xheader,no-fsync,read0,errctl&,e,data-change-warn,prinodes,dir-owner*,dir-group*,umask*,s&,?";*/
+/*char	_opts[] = "C*,find~,help,xhelp,version,debug,xdebug#,xd#,bsdchdir,pax-ls,level#,tardumps*,wtardumps,time,no_statistics,no-statistics,cpio-statistics,fifostats,numeric,v+,block-number,tpath,c,u,r,x,t,copy,xcopy,n,diff,diffopts&,H&,artype&,print-artype,fs-name*,force_hole,force-hole,sparse,to_stdout,to-stdout,wready,force_remove,force-remove,ask_remove,ask-remove,remove_first,remove-first,remove_recursive,remove-recursive,keep-nonempty-dirs,install,nullout,onull,fifo,no_fifo,no-fifo,shm,fs&,VOLHDR*,list*,pkglist*,multivol,new-volume-script*,force-local,restore,force-restore,file&,f&,T,Z,z,bz,j,lzo,7z,xz,lzip,compress-program*,bs&,blocks&,b&,B,pattern&,pat&,i,d,m,o,nochown,pax-p&,a,atime,p,no-p,dirmode,l,h,L,pax-L~,pax-H~,pax-P~,D,dodesc,M,xdev,w,pax-i,I,X&,exclude-from&,O,signed_checksum,signed-checksum,P,S,F+,U,uncond-rename,xdir,xdot,k,keep_old_files,keep-old-files,refresh_old_files,refresh-old-files,refresh,/,..,secure-links,no-dirslash,not,V,match-tree,pax-match,pax-n,pax-c,notarg,maxsize&,newer*,ctime,nodump,tsize&,qic24,qic120,qic150,qic250,qic525,nowarn,newest_file,newest-file,newest,hpdev,modebits,copylinks,copyhardlinks,copysymlinks,copydlinks,hardlinks,symlinks,link-data,acl,xattr,xattr-linux,xfflags,link-dirs,dumpdate*,dump,cumulative,dump-cumulative,meta,dumpmeta,xmeta,silent,lowmem,no-xheader,no-fsync,read0,errctl&,e,data-change-warn,prinodes,dir-owner*,dir-group*,umask*,s&,?";*/
 /* END CSTYLED */
 
 #ifdef	STAR_FAT
@@ -1372,7 +1378,7 @@ BOOL	Ointeractive	 = FALSE;
 				&rflag,
 				&xflag,
 				&tflag,
-				&copyflag,
+				&copyflag, &xcopy,
 				&nflag,
 				&diff_flag, add_diffopt, &diffopts,
 				gethdr, &chdrtype, gethdr, &chdrtype,
@@ -1433,7 +1439,8 @@ BOOL	Ointeractive	 = FALSE;
 				&oldtar, &signedcksum, &signedcksum,
 				&partial,
 				&nospec, &Fflag,
-				&uncond, &xdir, &xdot,
+				&uncond, &uncond_rename,
+				&xdir, &xdot,
 				&keep_old, &keep_old, &keep_old,
 				&refresh_old, &refresh_old, &refresh_old,
 				&abs_path, &allow_dotdot, &secure_links,
@@ -1481,6 +1488,12 @@ BOOL	Ointeractive	 = FALSE;
 
 	if (Ointeractive) {
 		comerrno(EX_BAD, "Option -I is obsolete and will get a different meaning in next release, use -w instead.\n");
+	}
+	if (xcopy) {
+		copyflag = TRUE;
+		sparse	 = TRUE;
+		doacl	 = TRUE;
+		xdot	 = TRUE;
 	}
 	if (tsize == 0) {
 		if (qic24)  tsize = QIC_24_TSIZE;
@@ -2467,7 +2480,7 @@ getstamp()
 	follow = ofollow;
 
 	Newer.tv_sec = finfo.f_mtime;
-	Newer.tv_usec = finfo.f_mnsec / 1000;
+	Newer.tv_nsec = finfo.f_mnsec;
 }
 
 LOCAL void
