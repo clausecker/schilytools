@@ -1,8 +1,8 @@
-/* @(#)intcvt.h	1.7 10/08/27 Copyright 1986-2010 J. Schilling */
+/* @(#)intcvt.h	1.8 13/10/26 Copyright 1986-2013 J. Schilling */
 /*
  *	Definitions for conversion to/from integer data types of various size.
  *
- *	Copyright (c) 1986-2010 J. Schilling
+ *	Copyright (c) 1986-2013 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -11,6 +11,8 @@
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -21,6 +23,9 @@
 
 #ifndef _SCHILY_MCONFIG_H
 #include <schily/mconfig.h>
+#endif
+#ifndef _SCHILY_UTYPES_H
+#include <schily/utypes.h>
 #endif
 
 #define	i_to_2_byte(a, i)	(((Uchar *)(a))[0] = ((i) >> 8) & 0xFF,\

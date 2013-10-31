@@ -1,4 +1,4 @@
-# @(#)Targets	1.39 13/09/30 Copyright 1995 J. Schilling
+# @(#)Targets	1.41 13/10/30 Copyright 1995 J. Schilling
 
 CFILES_STDIO=	cvmod.c dat.c fcons.c fdown.c fdup.c \
 		ffileread.c ffilewrite.c \
@@ -23,10 +23,11 @@ CFILES_REST=	abspath.c astoi.c astoll.c astoull.c basename.c breakline.c \
 		dirent.c dirname.c diropen.c \
 		eaccess.c error.c \
 		fchdir.c \
-		fconv.c fexec.c fillbytes.c \
+		fchownat.c fconv.c fdopendir.c fexec.c fillbytes.c \
 		findinpath.c \
 		findbytes.c findline.c fnmatch.c format.c \
-		fstream.c \
+		fstatat.c fstream.c \
+		futimens.c futimesat.c \
 		getargs.c getav0.c geterrno.c getexecpath.c getfp.c \
 		getgrent.c \
 		getdtablesize.c \
@@ -41,14 +42,16 @@ CFILES_REST=	abspath.c astoi.c astoll.c astoull.c basename.c breakline.c \
 		handlecond.c \
 		jsprintf.c jssnprintf.c jssprintf.c \
 		kill.c \
+		linkat.c lutimens.c \
 		lxchdir.c \
 		match.c matchl.c matchw.c matchwl.c movebytes.c \
-		mkdirs.c mkgmtime.c mkstemp.c \
+		mkdirat.c mkdirs.c mkfifo.c mkfifoat.c mkgmtime.c mknodat.c \
+		mkstemp.c \
 		mem.c jmem.c fjmem.c \
 		openat.c \
 		permtostr.c \
 		procnameat.c \
-		raisecond.c rename.c resolvepath.c \
+		raisecond.c readlinkat.c rename.c renameat.c resolvepath.c \
 		saveargs.c savewd.c \
 		searchinpath.c serrmsg.c seterrno.c setfp.c \
 		setnstimeofday.c \
@@ -60,8 +63,9 @@ CFILES_REST=	abspath.c astoi.c astoll.c astoull.c basename.c breakline.c \
 		strdup.c streql.c strlen.c strlcat.c strlcpy.c strncat.c strncmp.c \
 		strncpy.c strndup.c strnlen.c strrchr.c strstr.c \
 		swabbytes.c \
+		symlinkat.c \
 		timegm.c \
-		uid.c uname.c usleep.c \
+		uid.c unlinkat.c uname.c usleep.c utimens.c utimensat.c \
 		wcscat.c wcscatl.c wcschr.c wcscmp.c wcscpy.c \
 		wcsdup.c wcseql.c wcslen.c wcslcat.c wcslcpy.c wcsncat.c wcsncmp.c \
 		wcsncpy.c wcsndup.c wcsnlen.c wcsrchr.c wcsstr.c \

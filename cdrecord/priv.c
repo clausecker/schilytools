@@ -1,8 +1,8 @@
-/* @(#)priv.c	1.3 13/05/28 Copyright 2006-2013 J. Schilling */
+/* @(#)priv.c	1.4 13/10/12 Copyright 2006-2013 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)priv.c	1.3 13/05/28 Copyright 2006-2013 J. Schilling";
+	"@(#)priv.c	1.4 13/10/12 Copyright 2006-2013 J. Schilling";
 #endif
 /*
  *	Cdrecord support functions to support fine grained privileges.
@@ -16,6 +16,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -77,7 +79,7 @@ EXPORT	void	do_pfexec	__PR((int ac, char *av[], ...));
  *	CAP_IPC_LOCK		only to call mlockall()
  *	CAP_SYS_RAWIO		during whole runtime: for SCSI commands
  *	CAP_SYS_ADMIN		during whole runtime: for SCSI commands
- *	CAP_SYS_NICE		only to call sched_*() ans setpriority()
+ *	CAP_SYS_NICE		only to call sched_*() and setpriority()
  *	CAP_SYS_RESOURCE	only to support mlockall()
  *
  * Use:
@@ -109,16 +111,15 @@ priv_init()
 #else
 #ifdef	HAVE_LINUX_CAPS
 	/*
-	 * Give up privs we do not need anymore.
+	 * Give up privs we do not need for the moment.
 	 * We no longer need:
-	 *	cap_dac_override,cap_net_bind_service,cap_sys_nice,cap_sys_resource
+	 *	cap_dac_override,cap_net_bind_service,cap_sys_nice
 	 */
 	cap_t		cset;
 	cap_value_t	caplist[] = {
 					CAP_DAC_OVERRIDE,
 					CAP_NET_BIND_SERVICE,
 					CAP_SYS_NICE,
-					CAP_SYS_RESOURCE,
 					CAP_SYS_RAWIO,		/* Keep as CAP_EFFECTIVE */
 					CAP_SYS_ADMIN		/* Keep as CAP_EFFECTIVE */
 				};
@@ -128,7 +129,7 @@ priv_init()
 	cap_set_flag(cset, CAP_EFFECTIVE, NCAPS-2, caplist, CAP_CLEAR);
 	cap_set_flag(cset, CAP_INHERITABLE, NCAPS, caplist, CAP_CLEAR);
 	if (cap_set_proc(cset) < 0)
-		errmsg("Cannot set process capabilities.\n");
+		errmsg("Cannot set initial process capabilities.\n");
 #endif	/* HAVE_LINUX_CAPS */
 #endif	/* HAVE_PRIV_SET */
 }
@@ -153,22 +154,20 @@ priv_on()
 	/*
 	 * Get back privs we may need now.
 	 * We need:
-	 *	cap_dac_override,cap_net_bind_service,cap_sys_nice,cap_sys_resource
+	 *	cap_dac_override,cap_net_bind_service,cap_sys_nice
 	 */
 	cap_t		cset;
 	cap_value_t	caplist[] = {
 					CAP_DAC_OVERRIDE,
 					CAP_NET_BIND_SERVICE,
-					CAP_SYS_NICE,
-					CAP_SYS_RESOURCE
+					CAP_SYS_NICE
 				};
 
 	cset = cap_get_proc();
 
 	cap_set_flag(cset, CAP_EFFECTIVE, NCAPS, caplist, CAP_SET);
-	cap_set_flag(cset, CAP_INHERITABLE, NCAPS, caplist, CAP_SET);
 	if (cap_set_proc(cset) < 0)
-		errmsg("Cannot set process capabilities.\n");
+		errmsg("Cannot regain process capabilities.\n");
 #endif	/* HAVE_LINUX_CAPS */
 #endif	/* HAVE_PRIV_SET */
 }
@@ -181,7 +180,7 @@ priv_off()
 {
 #ifdef	HAVE_PRIV_SET
 	/*
-	 * Give up privs we do not need anymore.
+	 * Give up privs we do not need at the moment.
 	 * We no longer need:
 	 *	file_dac_read,sys_devices,proc_priocntl,net_privaddr
 	 */
@@ -193,22 +192,20 @@ priv_off()
 	/*
 	 * Give up privs we do not need anymore.
 	 * We no longer need:
-	 *	cap_dac_override,cap_net_bind_service,cap_sys_nice,cap_sys_resource
+	 *	cap_dac_override,cap_net_bind_service,cap_sys_nice
 	 */
 	cap_t		cset;
 	cap_value_t	caplist[] = {
 					CAP_DAC_OVERRIDE,
 					CAP_NET_BIND_SERVICE,
-					CAP_SYS_NICE,
-					CAP_SYS_RESOURCE
+					CAP_SYS_NICE
 				};
 
 	cset = cap_get_proc();
 
 	cap_set_flag(cset, CAP_EFFECTIVE, NCAPS, caplist, CAP_CLEAR);
-	cap_set_flag(cset, CAP_INHERITABLE, NCAPS, caplist, CAP_CLEAR);
 	if (cap_set_proc(cset) < 0)
-		errmsg("Cannot set process capabilities.\n");
+		errmsg("Cannot deactivate process capabilities.\n");
 #endif	/* HAVE_LINUX_CAPS */
 #endif	/* HAVE_PRIV_SET */
 }
@@ -265,7 +262,7 @@ priv_drop()
 	cap_set_flag(cset, CAP_INHERITABLE, NCAPS, caplist, CAP_CLEAR);
 	cap_set_flag(cset, CAP_PERMITTED, NCAPS, caplist, CAP_CLEAR);
 	if (cap_set_proc(cset) < 0)
-		errmsg("Cannot set process capabilities.\n");
+		errmsg("Cannot drop process capabilities.\n");
 #endif	/* HAVE_LINUX_CAPS */
 #endif	/* HAVE_PRIV_SET */
 }

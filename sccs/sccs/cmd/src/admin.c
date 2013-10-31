@@ -25,12 +25,12 @@
  * Use is subject to license terms.
  */
 /*
- * Copyright 2006-2011 J. Schilling
+ * Copyright 2006-2013 J. Schilling
  *
- * @(#)admin.c	1.76 11/11/13 J. Schilling
+ * @(#)admin.c	1.77 13/10/31 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)admin.c 1.76 11/11/13 J. Schilling"
+#pragma ident "@(#)admin.c 1.77 13/10/31 J. Schilling"
 #endif
 /*
  * @(#)admin.c 1.39 06/12/12
@@ -101,7 +101,7 @@ should appear exactly as they do in the msgid string:
 static char	stdin_file_buf [20];
 static char	*ifile, *tfile;
 static char	*dir_name;
-static time_t	ifile_mtime;
+static struct timespec	ifile_mtime;
 static int	Ncomma = 0;
 static int	Nsdot = 1;
 static int	Nsubd;
@@ -257,7 +257,8 @@ char *argv[];
 				   if ((Statbuf.st_mode & S_IFMT) == S_IFDIR) {
 					direrror(ifile, c);
 				   } else {
-					ifile_mtime = Statbuf.st_mtime;
+					ifile_mtime.tv_sec = Statbuf.st_mtime;
+					ifile_mtime.tv_nsec = stat_mnsecs(&Statbuf);
 				   }
 				}
 				break;
@@ -887,13 +888,15 @@ char	*afile;
 			 dt.d_sid.s_br = dt.d_sid.s_seq = 0;
 			}
 		dtime(&dt.d_dtime);		/* get time and date */
-                if (HADN && HADI && (HADO || HADQ) && (ifile_mtime != 0)) {
+                if (HADN && HADI && (HADO || HADQ) &&
+		    (ifile_mtime.tv_sec != 0)) {
                         /*
 			 * When specifying -o (oroginal date) and
 			 * for NSE when putting existing file under sccs the
                          * delta time is the mtime of the clear file.
                          */
-			time2dt(&dt.d_dtime, ifile_mtime, 0);
+			time2dt(&dt.d_dtime,
+				ifile_mtime.tv_sec, ifile_mtime.tv_nsec);
                 }
 
 		copy(logname(),dt.d_pgmr);	/* get user's name */
@@ -1929,7 +1932,8 @@ static char	Nhold[MAXPATHLEN];
 			if ((Statbuf.st_mode & S_IFMT) == S_IFDIR) {
 				direrror(afile, 'i');
 			} else {
-				ifile_mtime = Statbuf.st_mtime;
+				ifile_mtime.tv_sec = Statbuf.st_mtime;
+				ifile_mtime.tv_nsec = stat_mnsecs(&Statbuf);
 			}
 		} else {
 			xmsg(afile,NOGETTEXT("admin"));
@@ -2014,7 +2018,8 @@ static char	Nhold[MAXPATHLEN];
 			if ((Statbuf.st_mode & S_IFMT) == S_IFDIR) {
 				direrror(ifile, 'i');
 			} else {
-				ifile_mtime = Statbuf.st_mtime;
+				ifile_mtime.tv_sec = Statbuf.st_mtime;
+				ifile_mtime.tv_nsec = stat_mnsecs(&Statbuf);
 			}
 		} else {
 			xmsg(afile,NOGETTEXT("admin"));

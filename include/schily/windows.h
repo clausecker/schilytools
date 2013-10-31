@@ -1,4 +1,4 @@
-/* @(#)windows.h	1.3 13/09/14 Copyright 2011-2013 J. Schilling */
+/* @(#)windows.h	1.4 13/10/26 Copyright 2011-2013 J. Schilling */
 /*
  *	Definitions for windows.h
  *
@@ -28,7 +28,10 @@
 #ifdef	HAVE_WINDOWS_H
 #ifndef	_INCL_WINDOWS_H
 
-#ifdef	_MSC_VER	/* configure believes they are missing */
+/*
+ * configure believes they are missing and #define's them:
+ */
+#if defined(_MSC_VER) || defined(__MINGW32__)
 /* BEGIN CSTYLED */
 #undef	u_char
 #undef	u_short
@@ -62,6 +65,7 @@
 
 #define	WBOOL	WINBOOL		/* Cygwin-1.7.17 prevents to avoid BOOL */
 #endif	/* defined(__CYGWIN32__) || defined(__CYGWIN__) */
+
 
 #define	BOOL	WBOOL		/* This is the Win BOOL		*/
 #define	format	__ms_format	/* Avoid format parameter hides global ... */

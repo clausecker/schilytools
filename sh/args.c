@@ -39,11 +39,11 @@
 /*
  * This file contains modifications Copyright 2008-2013 J. Schilling
  *
- * @(#)args.c	1.28 13/09/26 2008-2013 J. Schilling
+ * @(#)args.c	1.29 13/10/28 2008-2013 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)args.c	1.28 13/09/26 2008-2013 J. Schilling";
+	"@(#)args.c	1.29 13/10/28 2008-2013 J. Schilling";
 #endif
 
 /*
@@ -234,6 +234,7 @@ options(argc, argv)
 			cp += len;
 
 			if (wc == 'o') {
+				unsigned char *argarg;
 				int	dolistopts = argc <= 2 ||
 						argp[2][0] == '-' ||
 						argp[2][0] == '+';
@@ -242,9 +243,7 @@ options(argc, argv)
 					listopts(0);
 					continue;
 				}
-				unsigned char *argarg =
-						UC strchr((char *)argp[2], '=');
-
+				argarg = UC strchr((char *)argp[2], '=');
 				if (argarg != NULL)
 					*argarg = '\0';
 				for (flagc = flagchar;

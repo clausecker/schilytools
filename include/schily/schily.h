@@ -1,4 +1,4 @@
-/* @(#)schily.h	1.109 13/09/30 Copyright 1985-2013 J. Schilling */
+/* @(#)schily.h	1.111 13/10/30 Copyright 1985-2013 J. Schilling */
 /*
  *	Definitions for libschily
  *
@@ -220,13 +220,25 @@ extern	int	spawnv_nowait __PR((FILE *, FILE *, FILE *,
 #endif	/* __never_def__ */
 #endif	/* EOF */
 
+/*
+ * Flags for absfpath() and resolvefpath():
+ */
+#define	RSPF_EXIST		0x01	/* All path components must exist    */
+#define	RSPF_NOFOLLOW_LAST	0x02	/* Don't follow link in last pathcomp */
+
 #ifdef	FOUND_SIZE_T
 extern	char	*abspath __PR((const char *relp, char *absp, size_t asize));
 extern	char	*absnpath __PR((const char *relp, char *absp, size_t asize));
+extern	char	*absfpath __PR((const char *relp, char *absp, size_t asize,
+				int __flags));
 #ifndef	HAVE_RESOLVEPATH
-extern	int	resolvepath __PR((const char *__path, char *__buf, size_t __bufsiz));
+extern	int	resolvepath __PR((const char *__path,
+				char *__buf, size_t __bufsiz));
 #endif
-extern	int	resolvenpath __PR((const char *__path, char *__buf, size_t __bufsiz));
+extern	int	resolvenpath __PR((const char *__path,
+				char *__buf, size_t __bufsiz));
+extern	int	resolvefpath __PR((const char *__path,
+				char *__buf, size_t __bufsiz, int __flags));
 #endif
 
 #ifdef	_SCHILY_TYPES_H

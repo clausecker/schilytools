@@ -107,6 +107,7 @@
 ./psmake/include/schily/varargs.h
 ./psmake/include/schily/vfork.h
 ./psmake/include/schily/wait.h
+./psmake/include/schily/windows.h
 ./psmake/include/schily/xconfig.h
 ./psmake/include/schily/xmconfig.h
 ./psmake/install-sh
@@ -134,6 +135,7 @@
 ./psmake/streql.c
 ./psmake/strlcpy.c
 ./psmake/strncpy.c
+./psmake/uname.c
 ./psmake/update.c
 ./psmake/xconfig.h.in
 ./readcd/cd_misc.c

@@ -1,4 +1,4 @@
-/* @(#)libport.h	1.36 13/05/01 Copyright 1995-2013 J. Schilling */
+/* @(#)libport.h	1.40 13/10/30 Copyright 1995-2013 J. Schilling */
 /*
  *	Prototypes for POSIX standard functions that may be missing on the
  *	local platform and thus are implemented inside libschily.
@@ -12,6 +12,8 @@
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -84,7 +86,8 @@ extern	int		strcasecmp	__PR((const char *, const char *));
 #endif
 #ifdef	FOUND_SIZE_T
 #ifndef	HAVE_STRNCASECMP
-extern 	int		strncasecmp	__PR((const char *, const char *, size_t));
+extern 	int		strncasecmp	__PR((const char *, const char *,
+						size_t));
 #endif
 #endif
 
@@ -196,7 +199,8 @@ extern	wchar_t		*wcsrchr	__PR((const wchar_t *s1, wchar_t c));
 #endif
 
 #ifndef	HAVE_WCSSTR
-extern	wchar_t		*wcsstr		__PR((const wchar_t *s1, const wchar_t *s2));
+extern	wchar_t		*wcsstr		__PR((const wchar_t *s1,
+							const wchar_t *s2));
 #endif
 #endif	/* _SCHILY_WCHAR_H */
 
@@ -301,6 +305,80 @@ extern	int		gettimeofday __PR((struct timeval *__tp, void *__tzp));
 #endif
 #endif
 
+#ifndef	HAVE_FCHOWNAT
+extern	int		fchownat __PR((int fd, const char *name,
+					uid_t owner, gid_t group, int flag));
+
+#ifndef	HAVE_FDOPENDIR
+#ifdef _SCHILY_DIRENT_H
+extern	DIR		*fdopendir __PR((int fd));
+#endif
+#endif
+
+#endif
+#ifdef	_SCHILY_STAT_H
+#ifndef	HAVE_FSTATAT
+extern	int		fstatat __PR((int fd, const char *name,
+					struct stat *sbuf, int flag));
+#endif
+#endif	/* _SCHILY_STAT_H */
+#ifdef	_SCHILY_TIME_H
+#ifndef	HAVE_FUTIMENS
+extern	int		futimens __PR((int fd,
+					const struct timespec __times[2]));
+#endif
+#ifndef	HAVE_FUTIMESAT
+extern	int		futimesat __PR((int fd, const char *name,
+					const struct timeval __times[2]));
+#endif
+#ifndef	HAVE_LUTIMENS
+extern	int		lutimens __PR((const char *name,
+					const struct timespec __times[2]));
+#endif
+#endif	/* _SCHILY_TIME_H */
+#ifndef	HAVE_LINKAT
+extern	int		linkat __PR((int fd1, const char *name1,
+					int fd2, const char *name2, int flag));
+#endif
+#ifndef	HAVE_MKDIRAT
+extern	int		mkdirat __PR((int fd, const char *name, mode_t mode));
+#endif
+#ifndef	HAVE_MKFIFO
+extern	int		mkfifo __PR((const char *name, mode_t mode));
+#endif
+#ifndef	HAVE_MKFIFOAT
+extern	int		mkfifoat __PR((int fd, const char *name, mode_t mode));
+#endif
+#ifndef	HAVE_MKNODAT
+extern	int		mknodat __PR((int fd, const char *name,
+					mode_t mode, dev_t dev));
+#endif
+#ifndef	HAVE_READLINKAT
+extern	ssize_t		readlinkat __PR((int fd, const char *name,
+					char *lbuf, size_t lbufsize));
+#endif
+#ifndef	HAVE_RENAMEAT
+extern	int		renameat __PR((int oldfd, const char *old,
+					int newfd, const char *new));
+#endif
+#ifndef	HAVE_SYMLINKAT
+extern	int		symlinkat __PR((const char *content,
+					int fd, const char *name));
+#endif
+#ifndef	HAVE_UNLINKAT
+extern	int		unlinkat __PR((int fd, const char *name, int flag));
+#endif
+#ifdef	_SCHILY_TIME_H
+#ifndef	HAVE_UTIMENS
+extern	int		utimens __PR((const char *name,
+					const struct timespec __times[2]));
+#endif
+#ifndef	HAVE_UTIMENSAT
+extern	int		utimensat __PR((int fd, const char *name,
+					const struct timespec __times[2],
+					int flag));
+#endif
+#endif	/* _SCHILY_TIME_H */
 
 #ifdef	__SUNOS4
 /*

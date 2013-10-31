@@ -1,0 +1,105 @@
+New features with AN-2013-10-31:
+
+This is the first localization step for the schily source consolidation. Many
+programs now (hopefully) call gettext() for all strings that need localization.
+
+-	The next step will include dgettext() calls for the libraries and the
+	missing programs
+
+-	The following step will include the extracted strings
+
+-	The last step will include German translations and install support
+	for the resulting binary message object files.
+
+----------> Please test and report compilation problems! <---------
+
+***** NOTE: As mentioned since 2004, frontends to the tools should *****
+*****		call all programs in the "C" locale		   *****
+*****		by e.g. calling: LC_ALL=C cdrecord ....		   *****
+*****		unless these frontends support localized strings   *****
+*****		used by the cdrtools with NLS support.		   *****
+
+-	Add forgotten include/schily/err_type.h
+
+-	New autoconf test for issetugid()
+
+-	New autoconf test for utimens() / lutimens() 
+
+-	Fixed autoconf typo HAVE_MKNODKAT -> HAVE_MKNODAT
+
+-	include/schily/intcvt.h is now self contained.
+
+-	Added uname.c and include/schily/windows.h to the files that need
+	to be copied for the smake bootstrap compilation "psmake".
+	Thanks to Wolfram Schmid <info@w-data.de>
+
+	Fixed the scripts "cpfiles", "lnfiles" and "rmfiles" from the
+	bootstrap section of "smake".
+
+	Added uname.c to the list of files to be compiled.
+
+-	include/schily/windows.h now includes the same type workaround
+	for MINGW32 as fir the Microsoft C compiler, as there are the same
+	autoconf detection problems.
+
+-	Fixed fine grained privilege handling for cdda2wav on Linux.
+	Thanks for Daniel Pielmeier from Gentoo for reporting and testing.
+
+-	Bumped cdrtools to version 3.01a18
+
+-	New files for libschily:
+
+	at-base.c	generic implementation for *at() functions.
+	fchownat.c	fchownat()
+	fdopendir.c	fdopendir()
+	fstatat.c	fstatat()
+	futimens.c	futimens()
+	futimesat.c	futimesat() Solaris specific old for utimensat()
+	lutimens.c	lutimens()
+	linkat.c	linkat()
+	mkdirat.c	mkdirat()
+	mkfifo.c	mkfifo()
+	mkfifoat.c	mkfifoat()
+	mknodat.c	mknodat()
+	readlinkat.c	readlinkat()
+	renameat.c	renameat()
+	symlinkat.c	symlinkat()
+	unlinkat.c	unlinkat()
+	utimens.c	utimens()
+	utimensat.c	utimensat()
+	at-base.c	The base code for all single fd *at() functions.
+	at-base2.c	The base code for all double fd *at() functions.
+
+	contain emulations for system interfaces introduced in summer 2001 by Sun
+	and with POSIX.1-2008.
+
+-	New functions in libschily:
+
+	absfpath()
+	resolvefpath()
+
+	allow to better control the behavior using flags.
+
+-	The linker map file for libschily now adds some forgotten functions.
+
+-	Star reordered sparse file detection and now files that contain more
+	than DEV_BSIZE data but no st_blocks will be treated correctcly in case
+	that the OS also supports lseek(SEEK_HOLE.
+
+-	SCCS now is able to add nanosecond time stamps in SCCS V6 history files.
+
+-	SCCS admin is now able to add nanosecond V6 timestamps with admin -o -i
+
+-	Remove an unwanted C99-ism from args.c from the Bourne Shell
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.isdn.cs.tu-berlin.de, js@cs.tu-berlin.de
+	joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

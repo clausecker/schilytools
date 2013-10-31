@@ -1,5 +1,5 @@
 #!/bin/sh
-# @(#)rmlinks	1.23 13/08/26 Copyright 1999-2013 J. Schilling
+# @(#)rmlinks	1.24 13/10/24 Copyright 1999-2013 J. Schilling
 
 rm -f archconf.c
 rm -f job.c
@@ -55,6 +55,7 @@ rm -f include/schily/param.h
 rm -f include/schily/varargs.h
 rm -f include/schily/vfork.h
 rm -f include/schily/wait.h
+rm -f include/schily/windows.h
 rm -f include/schily/schily.h
 rm -f include/schily/errno.h
 rm -f include/schily/align.h
@@ -101,6 +102,7 @@ rm -f movebytes.c
 rm -f raisecond.c
 rm -f rename.c
 rm -f searchinpath.c
+rm -f uname.c
 rm -f cvmod.c
 rm -f fcons.c
 rm -f file_raise.c

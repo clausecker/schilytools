@@ -1,8 +1,8 @@
-/* @(#)prototyp.h	1.15 10/08/24 Copyright 1995-2010 J. Schilling */
+/* @(#)prototyp.h	1.16 13/10/22 Copyright 1995-2013 J. Schilling */
 /*
  *	Definitions for dealing with ANSI / KR C-Compilers
  *
- *	Copyright (c) 1995-2010 J. Schilling
+ *	Copyright (c) 1995-2013 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -11,18 +11,20 @@
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
 /*
- * <schily/mconfig.h> includes <schily/prototype.h>
+ * <schily/mconfig.h> includes <schily/prototyp.h>
  * To be correct, we need to include <schily/mconfig.h> before we test
  * for _SCHILY_PROTOTYP_H
  *
  * In order to keep the silly Solaris hdrchk(1) quiet, we are forced to
- * have the _SCHILY_PROTOTYP_H first in <schily/prototype.h>.
+ * have the _SCHILY_PROTOTYP_H first in <schily/prototyp.h>.
  * To keep hdrchk(1) quiet and be correct, we need to introduce a second
  * guard _SCHILY_PROTOTYP_X_H.
  */

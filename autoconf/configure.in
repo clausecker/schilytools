@@ -1,6 +1,6 @@
-dnl @(#)configure.in	1.246 13/09/30 Copyright 1998-2013 J. Schilling
+dnl @(#)configure.in	1.248 13/10/26 Copyright 1998-2013 J. Schilling
 dnl Process this file with autoconf to produce a configure script.
-AC_REVISION(1.246)dnl
+AC_REVISION(1.248)dnl
 
 dnl AC_INIT(xconfig.h.in)
 AC_INIT(config.guess)
@@ -472,6 +472,7 @@ AC_CHECK_FUNCS(ftime tzset mktime gmtime localtime timegm timelocal)
 AC_CHECK_FUNCS(ctime cftime ascftime strftime)
 AC_CHECK_FUNCS(poll select isastream)
 AC_CHECK_FUNCS(chown fchown lchown chmod fchmod lchmod times utime utimes futimes lutimes)
+AC_CHECK_FUNCS(utimens lutimens)
 AC_CHECK_FUNCS(futimens utimensat)
 AC_CHECK_FUNCS(ioctl fcntl)
 dnl AC_CHECK_FUNCS(ecvt fcvt gcvt)
@@ -542,6 +543,7 @@ AC_CHECK_FUNCS(chflags fchflags fflagstostr strtofflags)
 AC_CHECK_FUNCS(fnmatch)
 AC_CHECK_FUNCS(truncate ftruncate)
 AC_CHECK_FUNCS(getppriv setppriv priv_set)
+AC_CHECK_FUNCS(issetugid)
 AC_CHECK_FUNCS(getroles privbit_set)
 AC_CHECK_FUNCS(setlocale localeconv nl_langinfo)
 AC_CHECK_FUNCS(setbuf setvbuf)

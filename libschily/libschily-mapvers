@@ -1,5 +1,73 @@
-# /* @(#)libschily-mapvers	1.36 13/10/06 Copyright 2005-2013 J. Schilling */
+# /* @(#)libschily-mapvers	1.38 13/10/30 Copyright 2005-2013 J. Schilling */
 #include <schily/mconfig.h>
+
+SCHILY_1.6 {
+global:
+	absfpath;
+	resolvefpath;
+	closewd;
+	fdsetname;
+	fdclosename;
+	lxchdir;
+	qftoes;
+	qftofs;
+	restorewd;
+	savewd;
+#ifndef	HAVE_FCHDIR
+	fchdir;
+#endif
+#ifndef	HAVE_FCHOWNAT
+	fchownat;
+#endif
+#ifndef	HAVE_FDOPENDIR
+	fdopendir;
+#endif
+#ifndef	HAVE_FSTATAT
+	fstatat;
+#endif
+#ifndef	HAVE_FUTIMENS
+	futimens;
+#endif
+#ifndef	HAVE_FUTIMESAT
+	futimesat;
+#endif
+#ifndef	HAVE_LUTIMENS
+	lutimens;
+#endif
+#ifndef	HAVE_LINKAT
+	linkat;
+#endif
+#ifndef	HAVE_MKDIRAT
+	mkdirat;
+#endif
+#ifndef	HAVE_MKFIFO
+	mkfifo;
+#endif
+#ifndef	HAVE_MKFIFOAT
+	mkfifoat;
+#endif
+#ifndef	HAVE_MKNODAT
+	mknodat;
+#endif
+#ifndef	HAVE_READLINKAT
+	readlinkat;
+#endif
+#ifndef	HAVE_RENAMEAT
+	renameat;
+#endif
+#ifndef	HAVE_SYMLINKAT
+	symlinkat;
+#endif
+#ifndef	HAVE_UNLINKAT
+	unlinkat;
+#endif
+#ifndef	HAVE_UTIMENS
+	utimens;
+#endif
+#ifndef	HAVE_UTIMENSAT
+	utimensat;
+#endif
+} SCHILY_1.5;
 
 SCHILY_1.5 {
 global:

@@ -1,8 +1,8 @@
-/* @(#)abspath.c	1.3 11/11/08 Copyright 2011 J. Schilling */
+/* @(#)abspath.c	1.5 13/10/30 Copyright 2011-2013 J. Schilling */
 /*
  *	Compute the absolute path for a relative path name
  *
- *	Copyright (c) 2011 J. Schilling
+ *	Copyright (c) 2011-2013 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -11,6 +11,8 @@
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -29,8 +31,6 @@ EXPORT	char	*absnpath	__PR((const char *relp, char *absp, size_t asize));
 LOCAL	char	*pathabs	__PR((const char *relp, char *absp, size_t asize, int flags));
 LOCAL	void	ashorten	__PR((char *name));
 
-#define	AF_EXIST	0x01	/* All path components must exist */
-
 /*
  * Expands a relative pathname to a full (absolute) pathname.
  */
@@ -40,7 +40,7 @@ abspath(relp, absp, asize)
 			char	*absp;
 			size_t	asize;
 {
-	return (pathabs(relp, absp, asize, AF_EXIST));
+	return (pathabs(relp, absp, asize, RSPF_EXIST));
 }
 
 /*
@@ -58,6 +58,20 @@ absnpath(relp, absp, asize)
 
 /*
  * Expands a relative pathname to a full (absolute) pathname.
+ * The behavior may be controlled via flags.
+ */
+EXPORT char *
+absfpath(relp, absp, asize, flags)
+		const	char	*relp;
+			char	*absp;
+			size_t	asize;
+			int	flags;
+{
+	return (pathabs(relp, absp, asize, flags));
+}
+
+/*
+ * Expands a relative pathname to a full (absolute) pathname.
  */
 LOCAL char *
 pathabs(relp, absp, asize, flags)
@@ -70,10 +84,7 @@ pathabs(relp, absp, asize, flags)
 	register	char	*full;
 			int	ret;
 
-	if (flags & AF_EXIST)
-		ret = resolvepath(relp, absp, asize);
-	else
-		ret = resolvenpath(relp, absp, asize);
+	ret = resolvefpath(relp, absp, asize, flags);
 	if (ret < 0)
 		return (NULL);			/* errno set by resolvepath() */
 	if (ret >= asize) {

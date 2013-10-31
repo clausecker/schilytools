@@ -1,9 +1,9 @@
-/* @(#)resolvepath.c	1.3 11/11/08 Copyright 2011 J. Schilling */
+/* @(#)resolvepath.c	1.4 13/10/29 Copyright 2011-2013 J. Schilling */
 /*
  *	resolvepath() removes "./" and non-leading "/.." path components.
  *	It tries to do the same as the Solaris syscall with the same name.
  *
- *	Copyright (c) 2011 J. Schilling
+ *	Copyright (c) 2011-2013 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -12,6 +12,8 @@
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -36,8 +38,6 @@ LOCAL	int	pathresolve	__PR((const char *path, const char *p,
 					size_t bufsiz, int flags));
 LOCAL	int	shorten		__PR((char *path));
 
-#define	RF_EXIST	0x01	/* All path components must exist */
-
 #ifndef	HAVE_RESOLVEPATH
 EXPORT int
 resolvepath(path, buf, bufsiz)
@@ -45,7 +45,7 @@ resolvepath(path, buf, bufsiz)
 			char	*buf;
 			size_t	bufsiz;
 {
-	return (pathresolve(path, path, buf, buf, bufsiz, RF_EXIST));
+	return (pathresolve(path, path, buf, buf, bufsiz, RSPF_EXIST));
 }
 #endif
 
@@ -56,6 +56,19 @@ resolvenpath(path, buf, bufsiz)
 			size_t	bufsiz;
 {
 	return (pathresolve(path, path, buf, buf, bufsiz, 0));
+}
+
+/*
+ * The behavior may be controlled via flags.
+ */
+EXPORT int
+resolvefpath(path, buf, bufsiz, flags)
+	register const char	*path;
+			char	*buf;
+			size_t	bufsiz;
+			int	flags;
+{
+	return (pathresolve(path, path, buf, buf, bufsiz, flags));
 }
 
 
@@ -161,11 +174,15 @@ register 	char	*e;
 		strlcpy(b, p, len);
 		p += len - 1;
 		if (lstat(buf, &sb) < 0) {
-			if (flags & RF_EXIST)
+			if (flags & RSPF_EXIST)
 				return (-1);
 			sb.st_mode = S_IFREG;
 		}
-		if (S_ISLNK(sb.st_mode)) {
+		if (e == NULL && (flags & RSPF_NOFOLLOW_LAST) &&
+		    S_ISLNK(sb.st_mode)) {
+			b += len - 1;
+			break;
+		} else if (S_ISLNK(sb.st_mode)) {
 			char	lname[PATH_MAX+1];
 
 			len = readlink(buf, lname, sizeof (lname));

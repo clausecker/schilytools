@@ -1,5 +1,5 @@
 #!/bin/sh
-# @(#)lnfiles	1.26 13/08/26 Copyright 1999-2013 J. Schilling
+# @(#)lnfiles	1.27 13/10/24 Copyright 1999-2013 J. Schilling
 
 cp='ln -s'
 smake=smake
@@ -81,6 +81,7 @@ $cp ${incsrc}/../../include/schily/param.h		include/schily/param.h
 $cp ${incsrc}/../../include/schily/varargs.h	include/schily/varargs.h
 $cp ${incsrc}/../../include/schily/vfork.h		include/schily/vfork.h
 $cp ${incsrc}/../../include/schily/wait.h		include/schily/wait.h
+$cp ${incsrc}/../../include/schily/windows.h		include/schily/windows.h
 $cp ${incsrc}/../../include/schily/schily.h		include/schily/schily.h
 $cp ${incsrc}/../../include/schily/errno.h		include/schily/errno.h
 $cp ${incsrc}/../../include/schily/align.h		include/schily/align.h
@@ -127,6 +128,7 @@ $cp ${incsrc}/${lib}/rename.c		rename.c
 $cp ${incsrc}/${lib}/searchinpath.c	searchinpath.c
 $cp ${incsrc}/${lib}/jsprintf.c	jsprintf.c
 $cp ${incsrc}/${lib}/jssnprintf.c	jssnprintf.c
+$cp ${incsrc}/${lib}/uname.c		uname.c
 $cp ${incsrc}/${lib}/stdio/cvmod.c	cvmod.c
 $cp ${incsrc}/${lib}/stdio/fcons.c	fcons.c
 $cp ${incsrc}/${lib}/stdio/file_raise.c	file_raise.c

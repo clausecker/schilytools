@@ -25,14 +25,14 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2008-2011 J. Schilling
+ * This file contains modifications Copyright 2008-2013 J. Schilling
  *
- * @(#)date_bal.c	1.8 11/08/24 J. Schilling
+ * @(#)date_bal.c	1.9 13/10/31 J. Schilling
  *
  * From Sun: @(#)sccs:lib/comobj/date_ba.c @(#)date_ba.c 1.5 06/12/12
  */
 #if defined(sun)
-#pragma ident "@(#)date_bal.c 1.8 11/08/24 J. Schilling"
+#pragma ident "@(#)date_bal.c 1.9 13/10/31 J. Schilling"
 #endif
 # include	<defines.h>
 
@@ -65,6 +65,7 @@ int	flags;
 	register struct tm *lcltm;
 	register char	*p;
 		int	zone = bdt->dt_zone;
+		int	nsec = bdt->dt_nsec;
 
 #if defined(BUG_1205145) || defined(GMT_TIME)
 	lcltm = gmtime(&bdt->dt_sec);
@@ -90,6 +91,23 @@ int	flags;
 	DO2(p,lcltm->tm_hour,':');
 	DO2(p,lcltm->tm_min,':');
 	DO2(p,lcltm->tm_sec,0);
+	if (nsec > 0 && nsec < 1000000000) {
+		char	*psave;
+		int	n = 10;
+
+		if (nsec % 1000 == 0) {
+			nsec /= 1000;
+			n = 7;
+		}
+		*--p = '.';
+		psave = p += n;
+		*p = '\0';
+		while (--n > 0) {
+			*--p = '0' + (nsec % 10);
+			nsec /= 10;
+		}
+		p = ++psave;
+	}
 	if (zone != DT_NO_ZONE) {
 		register int	z = zone / 60;	/* seconds -> minutes */
 		register int	n;

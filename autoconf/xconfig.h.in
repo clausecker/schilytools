@@ -1,4 +1,4 @@
-/* @(#)xconfig.h.in	1.231 13/09/30 Copyright 1998-2013 J. Schilling */
+/* @(#)xconfig.h.in	1.233 13/10/26 Copyright 1998-2013 J. Schilling */
 /*
  *	Dynamic autoconf C-include code.
  *	Do not edit, this file has been created automatically.
@@ -66,6 +66,9 @@
 #undef HAVE_UTIMES		/* to use BSD utimes() and sys/time.h */
 #undef HAVE_FUTIMES		/* to use BSD futimes() and sys/time.h */
 #undef HAVE_LUTIMES		/* to use BSD lutimes() and sys/time.h */
+#undef HAVE_UTIMENS		/* to use BSD utimens() and sys/time.h */
+#undef HAVE_FUTIMENS		/* to use BSD futimens() and sys/time.h */
+#undef HAVE_LUTIMENS		/* to use BSD lutimens() and sys/time.h */
 #undef HAVE_UTIME_H		/* to use utime.h for the utimbuf structure declaration, else declare struct utimbuf yourself */
 #undef HAVE_SYS_UTIME_H		/* to use sys/utime.h if utime.h does not exist */
 #undef HAVE_SYS_IOCTL_H		/* if sys/ioctl.h is present */
@@ -255,10 +258,9 @@
 #undef HAVE_FCHMODAT		/* fchmodat() is present in libc */
 #undef HAVE_LINKAT		/* inkat() is present in libc */
 #undef HAVE_MKFIFOAT		/* mkfifoat() is present in libc */
-#undef HAVE_MKNODKAT		/* mknodat() is present in libc */
+#undef HAVE_MKNODAT		/* mknodat() is present in libc */
 #undef HAVE_READLINKAT		/* readlinkat() is present in libc */
 #undef HAVE_SYMLINKAT		/* symlinkat() is present in libc */
-#undef HAVE_FUTIMENS		/* futimens() is present in libc */
 #undef HAVE_UTIMENSAT		/* utimensat() is present in libc */
 #undef HAVE_IOCTL		/* ioctl() is present in libc */
 #undef HAVE_FCNTL		/* fcntl() is present in libc */
@@ -557,6 +559,7 @@
 #undef HAVE_GETPPRIV		/* getppriv() is present in libc */
 #undef HAVE_SETPPRIV		/* setppriv() is present in libc */
 #undef HAVE_PRIV_SET		/* priv_set() is present in libc */
+#undef HAVE_ISSETUGID		/* issetugid() is present in libc */
 #undef HAVE_GETROLES		/* getroles() is present in libc (AIX) */
 #undef HAVE_PRIVBIT_SET		/* privbit_set() is present in libc (AIX) */
 

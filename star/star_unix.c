@@ -1,8 +1,8 @@
-/* @(#)star_unix.c	1.102 13/10/03 Copyright 1985, 1995, 2001-2013 J. Schilling */
+/* @(#)star_unix.c	1.103 13/10/30 Copyright 1985, 1995, 2001-2013 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)star_unix.c	1.102 13/10/03 Copyright 1985, 1995, 2001-2013 J. Schilling";
+	"@(#)star_unix.c	1.103 13/10/30 Copyright 1985, 1995, 2001-2013 J. Schilling";
 #endif
 /*
  *	Stat / mode / owner routines for unix like
@@ -38,6 +38,7 @@ static	UConst char sccsid[] =
 #include <schily/dirent.h>
 #include <schily/fcntl.h>	/* For AT_FDCWD */
 #include <schily/stat.h>
+#include <schily/param.h>	/* For DEV_BSIZE */
 #include <schily/device.h>
 #include <schily/schily.h>
 #include "dirtime.h"
@@ -434,6 +435,9 @@ again:
 	}
 
 #ifdef	HAVE_ST_BLOCKS
+/*
+ * The blocking factor for st_blocks is DEV_BSIZE fro sys/param.h
+ */
 #if	defined(hpux) || defined(__hpux)
 	if (info->f_size > (sp->st_blocks * 1024 + 1024)) {
 #else
@@ -443,10 +447,17 @@ again:
 
 		/*
 		 * Some filesystems do not allocate disk space for files that
-		 * file consist of one hole and no written data.
+		 * consist of one hole and no written data.
 		 * If we are on a platform that does not support to read hole
 		 * lists for sparse files, this allows to avoid wasting time
 		 * reading through the whole file.
+		 *
+		 * In October 2013, it turned out that at least NetAPP stores
+		 * files up to 64 bytes in the inode and then returns
+		 * sp->st_blocks == 0 for a non sparse file. We only come here
+		 * if the file size is > DEV_BSIZE in hope that noone will 
+		 * implement a filesystem that hides larger amount of data 
+		 * without supporting SEEK_HOLE.
 		 */
 		if ((info->f_size > 0) && (sp->st_blocks == 0))
 			info->f_flags |= F_ALL_HOLE;
