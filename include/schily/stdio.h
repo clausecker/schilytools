@@ -1,4 +1,4 @@
-/* @(#)stdio.h	1.5 13/09/14 Copyright 2009-2013 J. Schilling */
+/* @(#)stdio.h	1.6 13/11/06 Copyright 2009-2013 J. Schilling */
 /*
  *	Abstraction from stdio.h
  *
@@ -19,8 +19,8 @@
  */
 
 #ifndef _SCHILY_STDIO_H
-#define	_SCHILY_STDIO_H
 #ifndef NO_SCHILY_STDIO_H
+#define	_SCHILY_STDIO_H
 
 #ifndef	_SCHILY_MCONFIG_H
 #include <schily/mconfig.h>

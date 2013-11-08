@@ -2,11 +2,13 @@
  * CDDL HEADER START
  *
  * The contents of this file are subject to the terms of the
- * Common Development and Distribution License (the "License").
- * You may not use this file except in compliance with the License.
+ * Common Development and Distribution License ("CDDL"), version 1.0.
+ * You may only use this file in accordance with the terms of version
+ * 1.0 of the CDDL.
  *
- * You can obtain a copy of the license at usr/src/OPENSOLARIS.LICENSE
- * or http://www.opensolaris.org/os/licensing.
+ * A full copy of the text of the CDDL should have accompanied this
+ * source.  A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  * See the License for the specific language governing permissions
  * and limitations under the License.
  *
@@ -25,12 +27,12 @@
  * Use is subject to license terms.
  */
 /*
- * Copyright 2006-2011 J. Schilling
+ * Copyright 2006-2013 J. Schilling
  *
- * @(#)rmchg.c	1.38 11/11/13 J. Schilling
+ * @(#)rmchg.c	1.39 13/10/31 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)rmchg.c 1.38 11/11/13 J. Schilling"
+#pragma ident "@(#)rmchg.c 1.39 13/10/31 J. Schilling"
 #endif
 /*
  * @(#)rmchg.c 1.19 06/12/12
@@ -554,7 +556,7 @@ struct packet *pkt;
 {
 	static int first_time = 1;
 	char	*p;
-	extern time_t Timenow;
+	extern dtime_t Timenow;
 
 	static short int doneesc;
 	/* the CMF -z option is on and MR numb being processed*/
@@ -645,11 +647,11 @@ struct packet *pkt;
 				 * For this reason, we are free to switch to a
 				 * 4-digit year for the initial comment.
 				 */
-				if ((Timenow < Y1969) ||
-				    (Timenow >= Y2038))			/* comment only */
-					date_bal(&Timenow,line, 0);	/* 4 digit year */
+				if ((Timenow.dt_sec < Y1969) ||
+				    (Timenow.dt_sec >= Y2038))			/* comment only */
+					date_bal(&Timenow.dt_sec, line, 0);	/* 4 digit year */
 				else
-					date_ba(&Timenow,line, 0);	/* 2 digit year */
+					date_ba(&Timenow.dt_sec, line, 0);	/* 2 digit year */
 				putline(pkt,line);
 				sprintf(line," %s\n",logname());
 				putline(pkt,line);

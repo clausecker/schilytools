@@ -1,8 +1,8 @@
-/* @(#)tgetent.c	1.39 13/09/19 Copyright 1986-2013 J. Schilling */
+/* @(#)tgetent.c	1.40 13/11/07 Copyright 1986-2013 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)tgetent.c	1.39 13/09/19 Copyright 1986-2013 J. Schilling";
+	"@(#)tgetent.c	1.40 13/11/07 Copyright 1986-2013 J. Schilling";
 #endif
 /*
  *	Access routines for TERMCAP database.
@@ -661,6 +661,7 @@ tdecode(pp, array)
 				c = *ep++ | 0x40;
 			else
 				c = *ep++ & 0x1f;
+			continue;
 		} else if (c != '\\') {
 			continue;
 		}

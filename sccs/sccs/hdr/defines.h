@@ -2,11 +2,13 @@
  * CDDL HEADER START
  *
  * The contents of this file are subject to the terms of the
- * Common Development and Distribution License (the "License").
- * You may not use this file except in compliance with the License.
+ * Common Development and Distribution License ("CDDL"), version 1.0.
+ * You may only use this file in accordance with the terms of version
+ * 1.0 of the CDDL.
  *
- * You can obtain a copy of the license at usr/src/OPENSOLARIS.LICENSE
- * or http://www.opensolaris.org/os/licensing.
+ * A full copy of the text of the CDDL should have accompanied this
+ * source.  A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  * See the License for the specific language governing permissions
  * and limitations under the License.
  *
@@ -27,12 +29,12 @@
 /*
  * Copyright 2006-2013 J. Schilling
  *
- * @(#)defines.h	1.70 13/04/30 J. Schilling
+ * @(#)defines.h	1.71 13/10/31 J. Schilling
  */
 #ifndef	_HDR_DEFINES_H
 #define	_HDR_DEFINES_H
 #if defined(sun)
-#pragma ident "@(#)defines.h 1.70 13/04/30 J. Schilling"
+#pragma ident "@(#)defines.h 1.71 13/10/31 J. Schilling"
 #endif
 /*
  * @(#)defines.h 1.21 06/12/12
@@ -351,7 +353,7 @@ struct	idel {
 	struct	sid	i_sid;
 	struct	ixg	*i_ixg;
 	int	i_pred;
-	time_t	i_datetime;
+	struct timespec	i_datetime;
 };
 
 # define maxser(pkt)	((pkt)->p_idel->i_pred)

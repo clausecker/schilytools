@@ -1,4 +1,4 @@
-#ident "@(#)Defaults.sunos4	1.4 08/12/26 "
+#ident "@(#)Defaults.sunos4	1.5 13/11/04 "
 ###########################################################################
 #
 # global definitions for SunOS Systems
@@ -29,6 +29,7 @@ DEFLINKMODE=	static
 CWARNOPTS=
 
 DEFINCDIRS=	$(SRCROOT)/include
+DEFOSINCDIRS=
 LDPATH=		-L/opt/schily/lib
 #RUNPATH=	-R$(INS_BASE)/lib -R/opt/schily/lib -R$(OLIBSDIR)	Will not work on SunOS
 

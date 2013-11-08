@@ -1,6 +1,6 @@
-dnl @(#)configure.in	1.248 13/10/26 Copyright 1998-2013 J. Schilling
+dnl @(#)configure.in	1.250 13/11/04 Copyright 1998-2013 J. Schilling
 dnl Process this file with autoconf to produce a configure script.
-AC_REVISION(1.248)dnl
+AC_REVISION(1.250)dnl
 
 dnl AC_INIT(xconfig.h.in)
 AC_INIT(config.guess)
@@ -70,7 +70,7 @@ AC_CHECK_HEADERS(limits.h)
 AC_CHECK_HEADERS(a.out.h aouthdr.h elf.h)
 AC_CHECK_HEADERS(sysexits.h)
 AC_CHECK_HEADERS(malloc.h sgtty.h termios.h termio.h)
-AC_CHECK_HEADERS(pwd.h grp.h sys/acl.h acllib.h acl/libacl.h)
+AC_CHECK_HEADERS(pwd.h grp.h sys/acl.h aclutils.h acllib.h acl/libacl.h)
 AC_CHECK_HEADERS(signal.h siginfo.h sys/siginfo.h ucontext.h)
 AC_CHECK_HEADERS(shadow.h syslog.h)
 AC_CHECK_HEADERS(sys/time.h sys/times.h utime.h sys/utime.h sys/ioctl.h sys/filio.h sys/param.h sys/systeminfo.h sys/sysctl.h)
@@ -771,11 +771,16 @@ if test "$ac_cv_header_sys_acl_h" = yes; then
   AC_CHECK_FUNCS(acl_get_entry)
   LIBS="$ac_save_LIBS"
 
-  AC_CHECKING(for Solaris Access Control List support)
+  AC_CHECKING(for Solaris UFS Access Control List support)
   AC_CHECK_LIB(sec, acltotext, lib_acl="-lsec")
   ac_save_LIBS="$LIBS"
   LIBS="$LIBS $lib_acl"
   AC_CHECK_FUNCS(acl facl aclfromtext acltotext)
+
+  AC_CHECKING(for NFSv4 Access Control List support)
+  dnl These functions support NFSv4 ACLs
+  dnl Do not check for acl_free because of a name clash with the withdrawn POSIX draft
+  AC_CHECK_FUNCS(acl_get acl_set facl_get facl_set acl_fromtext acl_totext)
   LIBS="$ac_save_LIBS"
 
   dnl On Solaris, there is no need for lib_acl_test as acl(2) is in -libc

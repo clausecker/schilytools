@@ -1,0 +1,85 @@
+New features with AN-2013-11-08:
+
+This is the first localization step for the schily source consolidation. Many
+programs now (hopefully) call gettext() for all strings that need localization.
+
+-	The next step will include dgettext() calls for the libraries and the
+	missing programs
+
+-	The following step will include the extracted strings
+
+-	The last step will include German translations and install support
+	for the resulting binary message object files.
+
+----------> Please test and report compilation problems! <---------
+
+***** NOTE: As mentioned since 2004, frontends to the tools should *****
+*****		call all programs in the "C" locale		   *****
+*****		by e.g. calling: LC_ALL=C cdrecord ....		   *****
+*****		unless these frontends support localized strings   *****
+*****		used by the cdrtools with NLS support.		   *****
+
+-	ACL entries no longer have arbitrary length limits in star.
+
+-	Star now includes support for NFSv4 ACLs on Solaris.
+	FreeBSD and Linux will follow once these platforms did agree
+	on a uniform ACL library interface for NVSv4 support.
+
+	Please note that the two changes mentioned above resulted in major
+	code rearrangements and may even cause star to fail on Linux and
+	FreeBSD with the withdrawn POSIX.1e draft ACLs. Please test and
+	report.
+
+-	The rules in the Schily Makefilesystem have been restructured in order
+	to allow to avoid problems on platforms like FreeBSD and Mac OS X:
+
+	FreeBSD and Mac OS X banned the not-free-enough (because GPLd)
+	software to /usr/local, forcing us to add -I/usr/local/include
+	and -L/usr/local/lib. Unfortunately, /usr/local/include frequently
+	carries a _very_ outdated and thus wrong copy of "cdda_paranoia.h"
+	which is more than 10 years old and definitely incompatible with
+	dynamic linking on Mac OS X. This defective copy was first in the
+	search path and prevented compilation. 
+
+	We now have a new macro: DEFOSINCDIRS= that grants to add include
+	directories to the end of the search PATH to allow us to find the
+	correct "cdda_paranoia.h" first.
+
+	Please test and report in case of problems.
+
+-	gmake and SunPro make include COMPILE.c with wrong content in their
+	built-in rules. We now clear this macro un RULES/rules.top. It is
+	still possible to provice a modified version from command line
+	or from the environment.
+
+-	include/schily/stdio.h was reordered, as it prevented compilation
+	of the "bsh" on Linux. This was a problem recently introduced,
+	when we added #ifndef NO_SCHILY_STDIO_H
+
+-	A new autoconf test was added to detect the presence of NFSv4 ACL
+	support on Solaris inside libsec.
+
+-	Fixed a bug with libxtermcap::tdecode() that was introduced
+	with release 2013-10-10 whilt trying to reduce line length via
+	resturcturing. This resulted in all ^x esacapes in termcap
+	entries to be expanded to '\0'.
+
+-	The SCCS commands "sccs", "get" and "delta" now support to store
+	and retrieve files with nanosecond timestamps when using the
+	SCCS V6 archive format.
+
+	This is based on the recently introduced *at() syscall emulations
+	in libschily. Please report problems from platforms that do not
+	provide native *at() interfaces.
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.isdn.cs.tu-berlin.de, js@cs.tu-berlin.de
+	joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

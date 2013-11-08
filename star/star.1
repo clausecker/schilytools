@@ -1,4 +1,4 @@
-. \" @(#)star.1	1.169 13/10/07 Copyr 1982-2013 J. Schilling
+. \" @(#)star.1	1.170 13/11/08 Copyr 1982-2013 J. Schilling
 . \"  Manual Seite fuer star
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -13,7 +13,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH STAR 1 "13/10/07" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH STAR 1 "13/11/08" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 star \- unique standard tape archiver
 .SH SYNOPSIS
@@ -569,6 +569,12 @@ option has been specified,
 assumes that the
 .B \-p
 option has been specified too.
+.sp
+Star currently supports the withdrawn POSIX.1e ACLs and NFSv4 ACLs.
+To check which ACL flavors are supported on the current platform, call
+.BR "star \-version" .
+Whether POSIX.1e ACLs can be converted into NFSv4 ACLs depends on the local
+ACL support library.
 .TP
 .BI artype= headertype
 Generate a tape archive in

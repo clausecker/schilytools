@@ -1,8 +1,8 @@
-/* @(#)props.c	1.56 12/12/04 Copyright 1994-2011 J. Schilling */
+/* @(#)props.c	1.57 13/11/03 Copyright 1994-2013 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)props.c	1.56 12/12/04 Copyright 1994-2011 J. Schilling";
+	"@(#)props.c	1.57 13/11/03 Copyright 1994-2013 J. Schilling";
 #endif
 /*
  *	Set up properties for different archive types
@@ -17,7 +17,7 @@ static	UConst char sccsid[] =
  *	pr_flags/pr_nflags or the fields pr_xftypetab[]/pr_typeflagtab[]
  *	take care of possible problems due to this fact.
  *
- *	Copyright (c) 1994-2011 J. Schilling
+ *	Copyright (c) 1994-2013 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -26,6 +26,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -100,7 +102,7 @@ setprops(htype)
 		props.pr_xhmask = 0;
 		if (H_TYPE(htype) == H_XUSTAR || H_TYPE(htype) == H_EXUSTAR) {
 			props.pr_flags |= (PR_XHDR|PR_VU_XHDR);
-			props.pr_xhmask = ~0;
+			props.pr_xhmask = ~0;	/* xustar/exustar supp. all */
 		}
 		if (H_TYPE(htype) == H_EXUSTAR) {
 			props.pr_flags |= PR_LINK_DATA;

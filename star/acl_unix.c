@@ -1,22 +1,39 @@
-/* @(#)acl_unix.c	1.41 10/08/23 Copyright 2001-2010 J. Schilling */
+/* @(#)acl_unix.c	1.44 13/11/08 Copyright 2001-2013 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)acl_unix.c	1.41 10/08/23 Copyright 2001-2010 J. Schilling";
+	"@(#)acl_unix.c	1.44 13/11/08 Copyright 2001-2013 J. Schilling";
 #endif
 /*
  *	ACL get and set routines for unix like operating systems.
  *
- *	Copyright (c) 2001-2010 J. Schilling
+ *	Copyright (c) 2001-2013 J. Schilling
  *
- *	This implementation currently supports POSIX.1e and Solaris ACLs.
- *	Thanks to Andreas Gruenbacher <ag@bestbits.at> for the first POSIX ACL
- *	implementation.
+ *	There are currently two basic flavors of ACLs:
+ *
+ *	Flavor 1: UFS/POSIX draft
+ *
+ *	The Solaric UFS ACLs that have been developed between 1990 and 1994.
+ *	These ACLs have been made available as extensions to NFSv2 and NFSv3.
+ *	A related POSIX.1e draft has been devloped between 1995 and 1997
+ *	and withdrawn in October 1997.
+ *
+ *	This implementation currently supports Solaris UFS ACLs and the
+ *	withdrawn POSIX.1e draft that is available on Free BSD, Linux and some
+ *	other platforms since aprox. year 2000, using a common text format.
+ *	Thanks to Andreas Gruenbacher <ag@bestbits.at> for the first
+ *	implementation that supports the withdrawn POSIX draft ACLs.
  *
  *	As True64 does not like ACL "mask" entries and this version of the
- * 	ACL code does not generate "mask" entries on True64, ACl support for
+ * 	ACL code does not generate "mask" entries on True64, ACL support for
  *	True64 is currently broken. You cannot read back archives created
  *	on true64.
+ *
+ *	Flavor 2: NFSv4
+ *
+ *	The NTFS ACLs that have been standardized as NFSv4 ACLs with
+ *	NFSv4 in year 2000. NFSv4 ACLs are the native ACLs on ZFS,
+ *	NTFS, NFSv4 and CIFS.
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -25,6 +42,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -34,6 +53,10 @@ static	UConst char sccsid[] =
 #include <schily/mconfig.h>
 #ifdef	USE_ACL
 
+/*
+ * We may support UFS ACLs on UnixWare if we have the source for
+ * libsec from Solaris present.
+ */
 #ifdef	OWN_ACLTEXT
 #if	defined(UNIXWARE) && defined(HAVE_ACL)
 #	define	HAVE_SUN_ACL
@@ -68,11 +91,20 @@ static	UConst char sccsid[] =
 #include <schily/idcache.h>
 #include "starsubs.h"
 #include "checkerr.h"
+#include "pathname.h"
 
 #ifdef	USE_ACL
 
 #ifdef	HAVE_SYS_ACL_H
 #	include <sys/acl.h>
+#endif
+#ifdef	HAVE_NFSV4_ACL
+#ifdef	HAVE_ACLUTILS_H
+#	include <aclutils.h>
+#else
+extern	char	*acl_strerror	__PR((int));
+extern	int	acl_type	__PR((acl_t *));
+#endif
 #endif
 
 /*
@@ -105,39 +137,71 @@ extern	BOOL	numeric;
  * XXX Note that in 'dirmode' dir ACLs get hosed because getinfo() is
  * XXX called for the directory before the directrory content is written
  * XXX and the directory itself is archived after the dir content.
+ *
+ * Solaris allows a maximum of 1024 ACL entries (for both POSIX and NFSv4)
+ * Win-DOS allows a maximum of ~1820 ACL entries based on internal ACL size 65k
+ *
+ * A POSIX draft ACL text entry is max: "group::r--:#," (12+name+id)
+ * which is 12 + 32 + 12 == 56 Bytes.
+ * A NFSv4 ACL text entry is max: "group::r-------------:f------:allow:#,"
+ * (38+name+id) which is 38 + 32 + 12 == 82 Bytes.
+ *
+ * We thus need to be prepared to have 56 kB of POSIX draft ACL text and
+ * to have up to 82..146 kB of NFSv4 ACL text.
  */
-LOCAL char acl_access_text[PATH_MAX+1];
-LOCAL char acl_default_text[PATH_MAX+1];
+LOCAL	pathstore_t	acl_access_text;
+LOCAL	pathstore_t	acl_default_text;
+#ifdef	HAVE_NFSV4_ACL
+LOCAL	pathstore_t	acl_ace_text;
+#endif
 
+/*
+ * The following three functions are implemented for any ACL support
+ * but with different content.
+ */
 EXPORT	void	opt_acl		__PR((void));
 EXPORT	BOOL	get_acls	__PR((FINFO *info));
 EXPORT	void	set_acls	__PR((FINFO *info));
 
+/*
+ * Functions specific to the withdrawn POSIX.1e draft
+ */
 #ifdef	HAVE_POSIX_ACL
-LOCAL	BOOL	acl_to_info	__PR((char *name, int type, char *acltext));
-LOCAL	BOOL	acl_add_ids	__PR((char *name, char *infotext, char *acltext));
+LOCAL	BOOL	acl_to_info	__PR((char *name, int type, pathstore_t *acltext));
+LOCAL	BOOL	acl_add_ids	__PR((char *name, pathstore_t *infopath, char *acltext));
 #endif
 
+/*
+ * Functions specific to the UFS ACL implementation
+ */
 #ifdef	HAVE_SUN_ACL
+#ifndef	HAVE_NFSV4_ACL
+LOCAL	BOOL	get_ufs_acl	__PR((FINFO *info, aclent_t **aclpp, int *aclcountp));
+#endif
 LOCAL	char	*acl_add_ids	__PR((char *dst, char *from, char *end, int *sizep));
 #endif
 
+/*
+ * The following functions exist in one single implementation that operates
+ * on the data archived by star for UFS ACLs and the withdrawn POSIX.1e draft.
+ */
 LOCAL	char	*base_acl	__PR((mode_t mode));
-LOCAL	void	acl_check_ids	__PR((char *acltext, char *infotext));
+LOCAL	void	acl_check_ids	__PR((char *acltext, char *infotext, BOOL is_nfsv4));
 
 
-#ifdef HAVE_POSIX_ACL
+#ifdef HAVE_POSIX_ACL	/* The withdrawn POSIX.1e draft */
 
 #define	DID_OPT_ACL
 EXPORT void
 opt_acl()
 {
-	printf(" acl");
+	printf(" acl-POSIX.1e-draft");
 }
 
 /*
  * Get the access control list for a file and convert it into the format
  * used by star.
+ * This is the implementation specific variant to the withdrawn POSIX.1e draft.
  */
 EXPORT BOOL
 get_acls(info)
@@ -145,6 +209,7 @@ get_acls(info)
 {
 	info->f_acl_access = NULL;
 	info->f_acl_default = NULL;
+	info->f_acl_ace = NULL;
 
 	/*
 	 * Symlinks don't have ACLs
@@ -152,34 +217,39 @@ get_acls(info)
 	if (is_symlink(info))
 		return (TRUE);
 
-	if (!acl_to_info(info->f_sname, ACL_TYPE_ACCESS, acl_access_text))
+	if (!acl_to_info(info->f_sname, ACL_TYPE_ACCESS, &acl_access_text))
 		return (FALSE);
-	if (*acl_access_text != '\0') {
+	if (*acl_access_text.ps_path != '\0') {
 		info->f_xflags |= XF_ACL_ACCESS;
-		info->f_acl_access = acl_access_text;
+		info->f_acl_access = acl_access_text.ps_path;
 	}
 	if (!is_dir(info))
 		return (TRUE);
-	if (!acl_to_info(info->f_sname, ACL_TYPE_DEFAULT, acl_default_text))
+	if (!acl_to_info(info->f_sname, ACL_TYPE_DEFAULT, &acl_default_text))
 		return (FALSE);
-	if (*acl_default_text != '\0') {
+	if (*acl_default_text.ps_path != '\0') {
 		info->f_xflags |= XF_ACL_DEFAULT;
-		info->f_acl_default = acl_default_text;
+		info->f_acl_default = acl_default_text.ps_path;
 	}
 	return (TRUE);
 }
 
+/*
+ * This is specific to the withdrawn POSIX.1e draft.
+ */
 LOCAL BOOL
 acl_to_info(name, type, acltext)
-	char	*name;
-	int	type;
-	char	*acltext;
+	char		*name;
+	int		type;
+	pathstore_t	*acltext;
 {
 	acl_t	acl;
 	char	*text, *c;
 	int entries = 1;
 
-	acltext[0] = '\0';
+	if (acltext->ps_size == 0)
+		init_pspace(PS_EXIT, acltext);
+	acltext->ps_path[0] = '\0';
 	if ((acl = acl_get_file(name, type)) == NULL) {
 		register int err = geterrno();
 #ifdef	ENOTSUP
@@ -252,6 +322,10 @@ acl_to_info(name, type, acltext)
 	}
 	if ((entries > 3) || /* > 4 on Solaris? */
 	    (type == ACL_TYPE_DEFAULT && entries >= 3)) {
+		if ((entries * 56) > acltext->ps_size)
+			grow_pspace(PS_EXIT, acltext, entries * 56 + 2);
+		if (acltext->ps_size < 2)
+			return (FALSE);
 		if (!acl_add_ids(name, acltext, text)) {
 			acl_free((acl_t)text);
 			return (FALSE);
@@ -268,30 +342,36 @@ acl_to_info(name, type, acltext)
 	return (TRUE);
 }
 
+/*
+ * This is specific to the withdrawn POSIX.1e draft.
+ */
 LOCAL BOOL
-acl_add_ids(name, infotext, acltext)
-	char	*name;
-	char	*infotext;
-	char	*acltext;
+acl_add_ids(name, infopath, acltext)
+	char		*name;
+	pathstore_t	*infopath;
+	char		*acltext;
 {
-	int	size = PATH_MAX;
-	int	len;
+	int	size = infopath->ps_size - 2;
+	char	*infotext = infopath->ps_path;
+	ssize_t	len;
 	char	*token;
 	uid_t	uid;
 	gid_t	gid;
 
 	/*
 	 * Add final nul to guarantee that the string is nul terminated.
+	 * infopath->ps_size is granted to be at least 2 when we come here.
 	 */
-	infotext[PATH_MAX] = '\0';
+	infotext[size] = '\0';
 
 	token = strtok(acltext, ",\n\r");
 	while (token) {
-		strncpy(infotext, token, size);
-		infotext += strlen(token);
-		size -= strlen(token);
+		strlcpy(infotext, token, size);
+		len = strlen(token);
+		infotext += len;
+		size -= len;
 		if (size < 0)
-			size = 0;
+			break;
 
 		if (strncmp(token, "user:", 5) == 0 &&
 		    strchr(":,\n\r", token[5]) == NULL) {
@@ -330,13 +410,14 @@ acl_add_ids(name, infotext, acltext)
 		}
 		if (size > 0) {
 			*infotext++ = ',';
+			*infotext = '\0';	/* Always null terminate */
 			size--;
 		}
 
 		token = strtok(NULL, ",\n\r");
 	}
 	if (size >= 0) {
-		*(--infotext) = '\0';
+		*(--infotext) = '\0';		/* Remove tailing ',' */
 	} else {
 		if (!errhidden(E_BADACL, name)) {
 			if (!errwarnonly(E_BADACL, name))
@@ -353,28 +434,43 @@ acl_add_ids(name, infotext, acltext)
 
 /*
  * Use ACL info from archive to set access control list for the file if needed.
+ * This is the implementation specific variant to the withdrawn POSIX.1e draft.
  */
 EXPORT void
 set_acls(info)
 	register FINFO	*info;
 {
-	char	acltext[PATH_MAX+1];
-	acl_t	acl;
+	char		acltext[PATH_MAX+1];
+	pathstore_t	aclps;
+	acl_t		acl;
 
+	aclps.ps_path = acltext;
+	aclps.ps_size = PATH_MAX;
 	if (info->f_xflags & XF_ACL_ACCESS) {
-		acl_check_ids(acltext, info->f_acl_access);
+		ssize_t	len = strlen(info->f_acl_access) + 2;
+
+		if (len > aclps.ps_size) {
+			aclps.ps_path = NULL;
+			aclps.ps_size = 0;
+			grow_pspace(PS_EXIT, &aclps, len);
+			if (aclps.ps_size <= len) {
+				free_pspace(&aclps);
+				return;
+			}
+		}
+		acl_check_ids(aclps.ps_path, info->f_acl_access, FALSE);
 	} else {
 		/*
 		 * We may need to delete an inherited ACL.
 		 */
-		strcpy(acltext,  base_acl(info->f_mode));
+		strcpy(aclps.ps_path,  base_acl(info->f_mode));
 	}
-	if ((acl = acl_from_text(acltext)) == NULL) {
+	if ((acl = acl_from_text(aclps.ps_path)) == NULL) {
 		if (!errhidden(E_BADACL, info->f_name)) {
 			if (!errwarnonly(E_BADACL, info->f_name))
 				xstats.s_badacl++;
 			errmsg("Cannot convert ACL '%s' to internal format for '%s'.\n",
-					acltext, info->f_name);
+					aclps.ps_path, info->f_name);
 			(void) errabort(E_BADACL, info->f_name, TRUE);
 		}
 	} else {
@@ -386,7 +482,7 @@ set_acls(info)
 				if (!errwarnonly(E_SETACL, info->f_name))
 					xstats.s_setacl++;
 				errmsg("Cannot set ACL '%s' for '%s'.\n",
-					acltext, info->f_name);
+					aclps.ps_path, info->f_name);
 				(void) errabort(E_SETACL, info->f_name, TRUE);
 			}
 
@@ -402,13 +498,29 @@ set_acls(info)
 	/*
 	 * Only directories can have Default ACLs
 	 */
-	if (!is_dir(info))
+	if (!is_dir(info)) {
+		if (aclps.ps_path != acltext)
+			free_pspace(&aclps);
 		return;
+	}
 
 	if (info->f_xflags & XF_ACL_DEFAULT) {
-		acl_check_ids(acltext, info->f_acl_default);
+		ssize_t	len = strlen(info->f_acl_access) + 2;
+
+		if (len > aclps.ps_size) {
+			if (aclps.ps_path == acltext) {
+				aclps.ps_path = NULL;
+				aclps.ps_size = 0;
+			}
+			grow_pspace(PS_EXIT, &aclps, len);
+			if (aclps.ps_size <= len) {
+				free_pspace(&aclps);
+				return;
+			}
+		}
+		acl_check_ids(aclps.ps_path, info->f_acl_default, FALSE);
 	} else {
-		acltext[0] = '\0';
+		aclps.ps_path[0] = '\0';
 #ifdef	HAVE_ACL_DELETE_DEF_FILE
 		/*
 		 * FreeBSD does not like acl_from_text("")
@@ -425,15 +537,17 @@ set_acls(info)
 				(void) errabort(E_SETACL, info->f_name, TRUE);
 			}
 		}
+		if (aclps.ps_path != acltext)
+			free_pspace(&aclps);
 		return;
 #endif
 	}
-	if ((acl = acl_from_text(acltext)) == NULL) {
+	if ((acl = acl_from_text(aclps.ps_path)) == NULL) {
 		if (!errhidden(E_BADACL, info->f_name)) {
 			if (!errwarnonly(E_BADACL, info->f_name))
 				xstats.s_badacl++;
 			errmsg("Cannot convert default ACL '%s' to internal format for '%s'.\n",
-					acltext, info->f_name);
+					aclps.ps_path, info->f_name);
 			(void) errabort(E_BADACL, info->f_name, TRUE);
 		}
 	} else {
@@ -445,35 +559,47 @@ set_acls(info)
 				if (!errwarnonly(E_SETACL, info->f_name))
 					xstats.s_setacl++;
 				errmsg("Cannot set default ACL '%s' for '%s'.\n",
-					acltext, info->f_name);
+					aclps.ps_path, info->f_name);
 				(void) errabort(E_SETACL, info->f_name, TRUE);
 			}
 		}
 		acl_free(acl);
 	}
+	if (aclps.ps_path != acltext)
+		free_pspace(&aclps);
 }
 
-#endif  /* HAVE_POSIX_ACL */
+#endif  /* HAVE_POSIX_ACL The withdrawn POSIX.1e draft */
 
-#ifdef	HAVE_SUN_ACL	/* Solaris */
+#ifdef	HAVE_SUN_ACL	/* The UFS ACL implementation */
 
 #define	DID_OPT_ACL
 EXPORT void
 opt_acl()
 {
-	printf(" acl");
+	printf(" acl-POSIX.1e-draft");
+#ifdef	HAVE_NFSV4_ACL
+	printf(" acl-NFSv4");
+#endif
 }
 
 /*
  * Get the access control list for a file and convert it into the format
  * used by star.
+ * This is the implementation specific variant to Solaris UFS ACLs
+ * and Solaris NFSV4 ACLs.
  */
 EXPORT BOOL
 get_acls(info)
 	register FINFO	*info;
 {
+#ifdef	HAVE_NFSV4_ACL
+		int		acltype;
+		acl_t		*aclp;
+#else
 		int		aclcount;
 		aclent_t	*aclp;
+#endif
 	register char		*acltext;
 	register char		*ap;
 	register char		*dp;
@@ -484,6 +610,7 @@ get_acls(info)
 
 	info->f_acl_access = NULL;
 	info->f_acl_default = NULL;
+	info->f_acl_ace = NULL;
 
 	/*
 	 * Symlinks don't have ACLs
@@ -491,6 +618,148 @@ get_acls(info)
 	if (is_symlink(info))
 		return (TRUE);
 
+#ifdef	HAVE_NFSV4_ACL
+	if (acl_get(info->f_name, ACL_NO_TRIVIAL, &aclp) < 0) {
+		if (!errhidden(E_GETACL, info->f_name)) {
+			if (!errwarnonly(E_GETACL, info->f_name))
+				xstats.s_getaclerrs++;
+			errmsg("Cannot get ACL entries for '%s'.\n",
+							info->f_name);
+			(void) errabort(E_GETACL, info->f_name, TRUE);
+		}
+		return (FALSE);
+	}
+	if (aclp == NULL)		/* Only trivial ACL entries */
+		return (TRUE);
+
+	acltype = acl_type(aclp);
+	seterrno(0);
+	acltext = acl_totext(aclp, acltype == ACE_T?
+			ACL_COMPACT_FMT | ACL_APPEND_ID | ACL_SID_FMT : 0);
+	acl_free(aclp);
+#else
+	if (!get_ufs_acl(info, &aclp, &aclcount))
+		return (FALSE);
+	if (aclp == NULL)		/* Only trivial ACL entries */
+		return (TRUE);
+
+	seterrno(0);
+	acltext = acltotext(aclp, aclcount);
+	free(aclp);
+#endif
+
+	if (acltext == NULL) {
+		if (geterrno() == 0)
+			seterrno(EX_BAD);
+		if (!errhidden(E_BADACL, info->f_name)) {
+			if (!errwarnonly(E_BADACL, info->f_name))
+				xstats.s_badacl++;
+			errmsg("Cannot convert ACL entries to text for '%s'.\n",
+								info->f_name);
+			(void) errabort(E_BADACL, info->f_name, TRUE);
+		}
+		return (FALSE);
+	}
+#ifdef	ACL_DEBUG
+	error("acltext '%s'\n", acltext);
+#endif
+
+#ifdef	HAVE_NFSV4_ACL
+	if (acltype == ACE_T) {
+		if (strcpy_pspace(PS_EXIT, &acl_ace_text, acltext) < 0) {
+			free(acltext);
+			return (FALSE);
+		}
+		free(acltext);
+		info->f_xflags |= XF_ACL_ACE;
+		info->f_acl_ace = acl_ace_text.ps_path;
+		return (TRUE);
+	}
+#endif
+
+	/*
+	 * Estimate the ACl text size after adding IDs.
+	 * The minimal UFS ACL entry length is 10 bytes.
+	 * If we add the numerical ID string, this would become 22 bytes.
+	 */
+	asize = strlen(acltext);
+	asize = (asize+9)/10 * 22 + 2;
+
+	grow_pspace(PS_EXIT, &acl_access_text, asize);
+	grow_pspace(PS_EXIT, &acl_default_text, asize);
+	ap = acl_access_text.ps_path;
+	dp = acl_default_text.ps_path;
+	asize = acl_access_text.ps_size;
+	dsize = acl_default_text.ps_size;
+
+	for (cp = acltext; *cp; cp = ep) {
+		if (*cp == ',')
+			cp++;
+		ep = strchr(cp, ',');
+		if (ep == NULL)
+			ep = strchr(cp, '\0');
+
+		if (*cp == 'd' && strncmp(cp, "default", 7) == 0) {
+			cp += 7;
+			dp = acl_add_ids(dp, cp, ep, &dsize);
+			if (dp == NULL)
+				break;
+		} else {
+			ap = acl_add_ids(ap, cp, ep, &asize);
+			if (ap == NULL)
+				break;
+		}
+	}
+	free(acltext);
+
+	if (ap == NULL || dp == NULL) {
+		acl_access_text.ps_path[0] = '\0';
+		acl_default_text.ps_path[0] = '\0';
+		if (!errhidden(E_BADACL, info->f_name)) {
+			if (!errwarnonly(E_BADACL, info->f_name))
+				xstats.s_badacl++;
+			errmsgno(EX_BAD, "Cannot convert ACL entries (string too long) for '%s'.\n",
+							info->f_name);
+			(void) errabort(E_BADACL, info->f_name, TRUE);
+		}
+		return (FALSE);
+	}
+
+	if (ap > acl_access_text.ps_path && ap[-1] == ',')
+		--ap;
+	*ap = '\0';
+	if (dp > acl_default_text.ps_path && dp[-1] == ',')
+		--dp;
+	*dp = '\0';
+
+	if (*acl_access_text.ps_path != '\0') {
+		info->f_xflags |= XF_ACL_ACCESS;
+		info->f_acl_access = acl_access_text.ps_path;
+	}
+	if (*acl_default_text.ps_path != '\0') {
+		info->f_xflags |= XF_ACL_DEFAULT;
+		info->f_acl_default = acl_default_text.ps_path;
+	}
+
+#ifdef	ACL_DEBUG
+error("access:  '%s'\n", acl_access_text.ps_path);
+error("default: '%s'\n", acl_default_text.ps_path);
+#endif
+
+	return (TRUE);
+}
+
+#ifndef	HAVE_NFSV4_ACL
+LOCAL BOOL
+get_ufs_acl(info, aclpp, aclcountp)
+	register FINFO	*info;
+		aclent_t	**aclpp;
+		int		*aclcountp;
+{
+		int		aclcount;
+		aclent_t	*aclp;
+
+	*aclpp = NULL;
 #ifdef	HAVE_ST_ACLCNT
 	aclcount = info->f_aclcnt;	/* UnixWare */
 #else
@@ -540,88 +809,16 @@ get_acls(info)
 		}
 		return (FALSE);
 	}
-	seterrno(0);
-	acltext = acltotext(aclp, aclcount);
-	free(aclp);
-	if (acltext == NULL) {
-		if (geterrno() == 0)
-			seterrno(EX_BAD);
-		if (!errhidden(E_BADACL, info->f_name)) {
-			if (!errwarnonly(E_BADACL, info->f_name))
-				xstats.s_badacl++;
-			errmsg("Cannot convert ACL entries to text for '%s'.\n",
-								info->f_name);
-			(void) errabort(E_BADACL, info->f_name, TRUE);
-		}
-		return (FALSE);
-	}
-#ifdef	ACL_DEBUG
-	error("acltext '%s'\n", acltext);
-#endif
-
-	ap = acl_access_text;
-	dp = acl_default_text;
-	asize = PATH_MAX;
-	dsize = PATH_MAX;
-
-	for (cp = acltext; *cp; cp = ep) {
-		if (*cp == ',')
-			cp++;
-		ep = strchr(cp, ',');
-		if (ep == NULL)
-			ep = strchr(cp, '\0');
-
-		if (*cp == 'd' && strncmp(cp, "default", 7) == 0) {
-			cp += 7;
-			dp = acl_add_ids(dp, cp, ep, &dsize);
-			if (dp == NULL)
-				break;
-		} else {
-			ap = acl_add_ids(ap, cp, ep, &asize);
-			if (ap == NULL)
-				break;
-		}
-	}
-	if (ap == NULL || dp == NULL) {
-		acl_access_text[0] = '\0';
-		acl_default_text[0] = '\0';
-		if (!errhidden(E_BADACL, info->f_name)) {
-			if (!errwarnonly(E_BADACL, info->f_name))
-				xstats.s_badacl++;
-			errmsgno(EX_BAD, "Cannot convert ACL entries (string too long) for '%s'.\n",
-							info->f_name);
-			(void) errabort(E_BADACL, info->f_name, TRUE);
-		}
-		return (FALSE);
-	}
-
-	if (ap > acl_access_text && ap[-1] == ',')
-		--ap;
-	*ap = '\0';
-	if (dp > acl_default_text && dp[-1] == ',')
-		--dp;
-	*dp = '\0';
-
-	if (*acl_access_text != '\0') {
-		info->f_xflags |= XF_ACL_ACCESS;
-		info->f_acl_access = acl_access_text;
-	}
-	if (*acl_default_text != '\0') {
-		info->f_xflags |= XF_ACL_DEFAULT;
-		info->f_acl_default = acl_default_text;
-	}
-
-#ifdef	ACL_DEBUG
-error("access:  '%s'\n", acl_access_text);
-error("default: '%s'\n", acl_default_text);
-#endif
-
+	*aclpp = aclp;
+	*aclcountp = aclcount;
 	return (TRUE);
 }
+#endif	/* HAVE_NFSV4_ACL */
 
 /*
- * Convert Solaris ACL text into POSIX ACL text and add numerical user/group
- * ids.
+ * Convert Solaris UFS ACL text into POSIX draft ACL text and add numerical
+ * user/group ids.
+ * This is specific to Solaris UFS ACLs.
  *
  * Solaris uses only one colon in the ACL text format for "other" and "mask".
  * Solaris ACL text is:	"user::rwx,group::rwx,mask:rwx,other:rwx"
@@ -749,32 +946,92 @@ acl_add_ids(dst, from, end, sizep)
 /*
  * Convert ACL info from archive into Sun's format and set access control list
  * for the file if needed.
+ * This is the implementation specific variant to Solaris UFS ACLs
+ * and Solaris NFSV4 ACLs.
  */
 EXPORT void
 set_acls(info)
 	register FINFO	*info;
 {
+#ifdef	HAVE_NFSV4_ACL
+	int		err;
+	acl_t		*aclp;
+#else
 	int		aclcount;
 	aclent_t	*aclp;
-	char		acltext[PATH_MAX+1];
+#endif
 	char		aclbuf[8192];
+	pathstore_t	aclps;
 	BOOL		no_acl = FALSE;
+
+	aclps.ps_path = aclbuf;
+	aclps.ps_size = sizeof (aclbuf) -2;
 
 	aclbuf[0] = '\0';
 	if (info->f_xflags & XF_ACL_ACCESS) {
-		acl_check_ids(aclbuf, info->f_acl_access);
+		ssize_t	len = strlen(info->f_acl_access) + 2;
+
+		if (len > aclps.ps_size) {
+			aclps.ps_path = NULL;
+			aclps.ps_size = 0;
+			grow_pspace(PS_EXIT, &aclps, len);
+			if (aclps.ps_size <= len) {
+				free_pspace(&aclps);
+				return;
+			}
+			aclps.ps_path[0] = '\0';
+		}
+		acl_check_ids(aclps.ps_path, info->f_acl_access, FALSE);
 	}
 	if (info->f_xflags & XF_ACL_DEFAULT) {
-		register char *cp;
-		register char *dp;
-		register char *ep;
+			char		acltext[PATH_MAX+1];
+			pathstore_t	acldps;
+		register char	*cp;
+		register char	*dp;
+		register char	*ep;
+			ssize_t	dlen;
 
-		acl_check_ids(acltext, info->f_acl_default);
+		/* count fields */
+		for (dlen = 1, cp = info->f_acl_default; *cp != '\0'; cp++) {
+			if (*cp == ',')
+				dlen++;
+		}
+		dlen = dlen * 7;			/* strlen("default") */
+		dlen += cp - info->f_acl_default;	/* +strlen(acldeflt) */
+		dlen += 2;				/* Nul */
+		acldps.ps_path = acltext;
+		acldps.ps_size = sizeof (acltext);
+		if (dlen > acldps.ps_size) {
+			acldps.ps_path = NULL;
+			acldps.ps_size = 0;
+			grow_pspace(PS_EXIT, &acldps, dlen);
+			if (acldps.ps_size <= dlen) {
+				free_pspace(&acldps);
+				return;
+			}
+		}
+		acl_check_ids(acldps.ps_path, info->f_acl_default, FALSE);
 
-		dp = aclbuf + strlen(aclbuf);
-		if (dp > aclbuf)
+		aclps.ps_tail = strlen(aclps.ps_path);
+		if ((aclps.ps_tail + dlen) > aclps.ps_size) {
+			char	*op = aclps.ps_path;
+
+			if (aclps.ps_path == acltext) {
+				aclps.ps_path = NULL;
+				aclps.ps_size = 0;
+			}
+			grow_pspace(PS_EXIT, &aclps, aclps.ps_tail + dlen);
+			if (aclps.ps_size <= dlen) {
+				free_pspace(&aclps);
+				return;
+			}
+			if (op == aclbuf)
+				strcpy(aclps.ps_path, aclbuf);
+		}
+		dp = aclps.ps_path + aclps.ps_tail;
+		if (dp > aclps.ps_path)
 			*dp++ = ',';
-		for (cp = acltext; *cp; cp = ep) {
+		for (cp = acldps.ps_path; *cp; cp = ep) {
 			/*
 			 * XXX Eigentlich muesste man hier bei den Eintraegen
 			 * XXX "mask" und "other" jeweils ein ':' beseitigten
@@ -796,29 +1053,98 @@ set_acls(info)
 			dp += ep - cp + 1;
 		}
 	}
+	if (info->f_xflags & XF_ACL_ACE) {
+		ssize_t	len = strlen(info->f_acl_access) + 2;
+
+		if (aclps.ps_path[0] != '\0' && !errhidden(E_BADACL, info->f_name)) {
+			if (!errwarnonly(E_BADACL, info->f_name))
+				xstats.s_badacl++;
+			errmsgno(EX_BAD,
+			"Both POSIX draft ACL '%s' and NFSv4 ACL %s present for '%s'.\n",
+				aclps.ps_path,
+				info->f_acl_access,
+				info->f_name);
+			(void) errabort(E_BADACL, info->f_name, TRUE);
+		}
+		if (aclps.ps_path != aclbuf)
+			free_pspace(&aclps);
+		aclps.ps_path = aclbuf;
+		aclps.ps_size = sizeof (aclbuf) -2;
+		if (len > aclps.ps_size) {
+			aclps.ps_path = NULL;
+			aclps.ps_size = 0;
+			grow_pspace(PS_EXIT, &aclps, len);
+			if (aclps.ps_size <= len) {
+				free_pspace(&aclps);
+				return;
+			}
+		}
+		acl_check_ids(aclps.ps_path, info->f_acl_ace, TRUE);
+	}
 #ifdef	ACL_DEBUG
-	error("aclbuf: '%s'\n", aclbuf);
+	error("aclbuf: '%s'\n", aclps.ps_path);
 #endif
 
-	if (aclbuf[0] == '\0') {
+	if (aclps.ps_path[0] == '\0') {
 		/*
 		 * We may need to delete an inherited ACL.
 		 */
-		strcpy(aclbuf, base_acl(info->f_mode));
+		strcpy(aclps.ps_path, base_acl(info->f_mode));
 		no_acl = TRUE;
-	} else if (streql(aclbuf, base_acl(info->f_mode))) {
+	} else if (streql(aclps.ps_path, base_acl(info->f_mode))) {
 		no_acl = TRUE;
 	}
 
+#ifdef	HAVE_NFSV4_ACL
+	if ((err = acl_fromtext(aclps.ps_path, &aclp)) != 0) {
+		if (!errhidden(E_BADACL, info->f_name)) {
+			if (!errwarnonly(E_BADACL, info->f_name))
+				xstats.s_badacl++;
+			errmsgno(EX_BAD,
+			"%s. Cannot convert ACL '%s' to internal format for '%s'.\n",
+				acl_strerror(err),
+				aclps.ps_path, info->f_name);
+			(void) errabort(E_BADACL, info->f_name, TRUE);
+		}
+	} else {
+		if (acl_set(info->f_name, aclp) < 0) {
+			BOOL	no_error = FALSE;
+
+			if (no_acl) {
+				acl_t	*xaclp;
+
+				/*
+				 * This should catch the ENOSYS case which
+				 * happens e.g. if the target is a socket.
+				 */
+				if (acl_get(info->f_name,
+					    ACL_NO_TRIVIAL, &xaclp) >= 0) {
+					if (xaclp == NULL)
+						no_error = TRUE;
+					else
+						acl_free(xaclp);
+				}
+			}
+			if (!no_error && !errhidden(E_SETACL, info->f_name)) {
+				if (!errwarnonly(E_SETACL, info->f_name))
+				errmsg("Cannot set ACL '%s' for '%s'.\n",
+					aclps.ps_path, info->f_name);
+					xstats.s_setacl++;
+				(void) errabort(E_SETACL, info->f_name, TRUE);
+			}
+		}
+		free(aclp);
+	} 
+#else
 	seterrno(0);
-	if ((aclp = aclfromtext(aclbuf, &aclcount)) == NULL) {
+	if ((aclp = aclfromtext(aclps.ps_path, &aclcount)) == NULL) {
 		if (geterrno() == 0)
 			seterrno(EX_BAD);
 		if (!errhidden(E_BADACL, info->f_name)) {
 			if (!errwarnonly(E_BADACL, info->f_name))
 				xstats.s_badacl++;
 			errmsg("Cannot convert ACL '%s' to internal format for '%s'.\n",
-				aclbuf, info->f_name);
+				aclps.ps_path, info->f_name);
 			(void) errabort(E_BADACL, info->f_name, TRUE);
 		}
 	} else {
@@ -841,16 +1167,20 @@ set_acls(info)
 			if (!no_error && !errhidden(E_SETACL, info->f_name)) {
 				if (!errwarnonly(E_SETACL, info->f_name))
 				errmsg("Cannot set ACL '%s' for '%s'.\n",
-					aclbuf, info->f_name);
+					aclps.ps_path, info->f_name);
 					xstats.s_setacl++;
 				(void) errabort(E_SETACL, info->f_name, TRUE);
 			}
 		}
 		free(aclp);
 	}
+#endif
+
+	if (aclps.ps_path != aclbuf)
+		free_pspace(&aclps);
 }
 
-#endif	/* HAVE_SUN_ACL Solaris */
+#endif	/* HAVE_SUN_ACL The UFS ACL implementation */
 
 /*
  * Convert UNIX standard mode bits into base ACL
@@ -879,7 +1209,7 @@ base_acl(mode)
 }
 
 /*
- * If we are in -numeric mode, we replace the user and groups names by the
+ * If we are in -numeric mode, we replace the user and group names by the
  * user and group numbers from our internal format.
  *
  * If we are in non numeric mode, we check whether a user name or group name
@@ -888,11 +1218,12 @@ base_acl(mode)
  * is not known, then we replace the name by the numeric value.
  */
 LOCAL void
-acl_check_ids(acltext, infotext)
+acl_check_ids(acltext, infotext, is_nfsv4)
 	char	*acltext;
 	char	*infotext;
+	BOOL	is_nfsv4;
 {
-	char	entry_buffer[PATH_MAX];
+	char	entry_buffer[PATH_MAX];		/* A single entry */
 	char	*token = strtok(infotext, ",");
 
 	if (!token)
@@ -912,6 +1243,7 @@ acl_check_ids(acltext, infotext)
 		    strchr(":,", token[5]) == NULL) {
 			char *username = &token[5], *c = username;
 			char *perms, *auid;
+			char *flags, *type;
 			uid_t	udummy;
 			/* uidname does not check for NULL! */
 
@@ -945,6 +1277,22 @@ acl_check_ids(acltext, infotext)
 			if (*c)
 				*c++ = '\0';
 
+			if (is_nfsv4) {
+				/* inheritance flags */
+				flags = c;
+				while (strchr(":,", *c) == NULL)
+					c++;
+				if (*c)
+					*c++ = '\0';
+
+				/* access type */
+				type = c;
+				while (strchr(":,", *c) == NULL)
+					c++;
+				if (*c)
+					*c++ = '\0';
+			}
+
 			/* identifier */
 			auid = c;
 			while (strchr(":,", *c) == NULL)
@@ -961,14 +1309,22 @@ acl_check_ids(acltext, infotext)
 			if (*auid && (numeric ||
 			    !ic_uidname(username, strlen(username)+1, &udummy)))
 				username = auid;
-			js_snprintf(entry_buffer, PATH_MAX, "user:%s:%s",
-				username, perms);
+			if (is_nfsv4) {
+				js_snprintf(entry_buffer, PATH_MAX,
+					"user:%s:%s:%s:%s",
+					username, perms, flags, type);
+			} else {
+				js_snprintf(entry_buffer, PATH_MAX,
+					"user:%s:%s",
+					username, perms);
+			}
 			token = entry_buffer;
 
 		} else if (strncmp(token, "group:", 6) == 0 &&
 		    strchr(",", token[6]) == NULL) {
 			char *groupname = &token[6], *c = groupname;
 			char *perms, *agid;
+			char *flags, *type;
 			gid_t	gdummy;
 			/* gidname does not check for NULL! */
 
@@ -1002,6 +1358,22 @@ acl_check_ids(acltext, infotext)
 			if (*c)
 				*c++ = '\0';
 
+			if (is_nfsv4) {
+				/* inheritance flags */
+				flags = c;
+				while (strchr(":,", *c) == NULL)
+					c++;
+				if (*c)
+					*c++ = '\0';
+
+				/* access type */
+				type = c;
+				while (strchr(":,", *c) == NULL)
+					c++;
+				if (*c)
+					*c++ = '\0';
+			}
+
 			/* identifier */
 			agid = c;
 			while (strchr(":,", *c) == NULL)
@@ -1018,8 +1390,15 @@ acl_check_ids(acltext, infotext)
 			if (*agid && (numeric ||
 			    !ic_gidname(groupname, strlen(groupname)+1, &gdummy)))
 				groupname = agid;
-			js_snprintf(entry_buffer, PATH_MAX, "group:%s:%s",
-				groupname, perms);
+			if (is_nfsv4) {
+				js_snprintf(entry_buffer, PATH_MAX,
+					"group:%s:%s:%s:%s",
+					groupname, perms, flags, type);
+			} else {
+				js_snprintf(entry_buffer, PATH_MAX,
+					"group:%s:%s",
+					groupname, perms);
+			}
 			token = entry_buffer;
 		}
 		if (*token != '\0') {

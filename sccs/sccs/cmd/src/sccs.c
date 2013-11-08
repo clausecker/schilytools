@@ -25,10 +25,10 @@
 /*
  * Copyright 2006-2013 J. Schilling
  *
- * @(#)sccs.c	1.61 13/07/22 J. Schilling
+ * @(#)sccs.c	1.62 13/11/01 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)sccs.c 1.61 13/07/22 J. Schilling"
+#pragma ident "@(#)sccs.c 1.62 13/11/01 J. Schilling"
 #endif
 /*
  * @(#)sccs.c 1.85 06/12/12
@@ -65,7 +65,6 @@ extern char *getenv();
 # include	<schily/schily.h>
 #undef	comgetline
 # include	<schily/pwd.h>
-# include	<schily/utime.h>
 
 static  char **diffs_np, **diffs_ap;
 
@@ -1724,10 +1723,10 @@ command(argv, forkflag, arg0)
 
 	  case EDITOR: {	/* get -e + call $EDITOR */
 		struct fs {
-			char		*name;
-			struct stat	statb;
-			time_t		mtime;
-			int		nogfile;
+			char		*name;	/* file name to edit	    */
+			struct stat	statb;	/* stat() after "sccs edit" */
+			struct timespec	mtime;	/* mtime before "sccs edit" */
+			int		nogfile; /* miss. before "sccs edit" */
 		};
 		struct fs	_fs[16];
 		struct fs	*fs = _fs;
@@ -1773,18 +1772,23 @@ command(argv, forkflag, arg0)
 				rs = fs;
 			}
 			fs[fsidx].nogfile = 0;
-			fs[fsidx].mtime = (time_t)0;
-			if (!exists(*np))
+			fs[fsidx].mtime.tv_sec = (time_t)0;
+			fs[fsidx].mtime.tv_nsec = 0;
+			if (!exists(*np)) {
 				fs[fsidx].nogfile = 1;
-			else
-				fs[fsidx].mtime = Statbuf.st_mtime;
-
+			} else {
+				fs[fsidx].mtime.tv_sec = Statbuf.st_mtime;
+				fs[fsidx].mtime.tv_nsec = stat_mnsecs(&Statbuf);
+			}
 			xp[0] = *np;
 			xp[1] = NULL;
 			rval = command(xp, FORCE_FORK, "edit");
 			if (rval != 0)			/* Checkout problem */
 				continue;		/* so ignore	    */
 
+			/*
+			 * Save unedited state from after sccs edit *np
+			 */
 			fs[fsidx].name = *np;
 			if (stat(*np, &fs[fsidx].statb) == -1)
 				continue;
@@ -1813,16 +1817,16 @@ command(argv, forkflag, arg0)
 			if (fs[i].nogfile) {
 				rval = command(xp, TRUE, "unget -s");
 			} else {
-#ifdef	HAVE_UTIME
-				struct utimbuf	ut;
-#endif
-				rval = command(xp, TRUE, "unedit");
-#ifdef	HAVE_UTIME
-				ut.actime = statb.st_atime;
-                                ut.modtime = fs[i].mtime;
+				struct timespec	ts[2];
 
-				utime(fs[i].name, &ut);
-#endif
+				rval = command(xp, TRUE, "unedit");
+
+				ts[0].tv_sec = statb.st_atime;
+				ts[0].tv_nsec = stat_ansecs(&statb);
+				ts[1].tv_sec = fs[i].mtime.tv_sec;
+				ts[1].tv_nsec = fs[i].mtime.tv_nsec;
+
+				utimensat(AT_FDCWD, fs[i].name, ts, 0);
 			}
 		}
 		if (rs)

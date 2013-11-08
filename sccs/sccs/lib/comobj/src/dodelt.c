@@ -2,11 +2,13 @@
  * CDDL HEADER START
  *
  * The contents of this file are subject to the terms of the
- * Common Development and Distribution License (the "License").
- * You may not use this file except in compliance with the License.
+ * Common Development and Distribution License ("CDDL"), version 1.0.
+ * You may only use this file in accordance with the terms of version
+ * 1.0 of the CDDL.
  *
- * You can obtain a copy of the license at usr/src/OPENSOLARIS.LICENSE
- * or http://www.opensolaris.org/os/licensing.
+ * A full copy of the text of the CDDL should have accompanied this
+ * source.  A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  * See the License for the specific language governing permissions
  * and limitations under the License.
  *
@@ -25,12 +27,12 @@
  * Use is subject to license terms.
  */
 /*
- * Copyright 2006-2011 J. Schilling
+ * Copyright 2006-2013 J. Schilling
  *
- * @(#)dodelt.c	1.17 11/10/13 J. Schilling
+ * @(#)dodelt.c	1.19 13/10/31 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)dodelt.c 1.17 11/10/13 J. Schilling"
+#pragma ident "@(#)dodelt.c 1.19 13/10/31 J. Schilling"
 #endif
 /*
  * @(#)dodelt.c 1.8 06/12/12
@@ -48,7 +50,7 @@
 static char	getadel	__PR((struct packet *,struct deltab *));
 static void	doixg	__PR((char *,struct ixg **));
 
-time_t	Timenow;
+dtime_t	Timenow;
 
 struct idel *
 dodelt(pkt,statp,sidp,type)
@@ -68,10 +70,10 @@ char type;
 	pkt->p_idel = 0;
 	founddel = 0;
 
-	(void) time(&Timenow);
-	TN = Timenow;
+	dtime(&Timenow);
+	TN = Timenow.dt_sec;
 	if (pkt->p_flags & PF_GMT)
-		TN += gmtoff(Timenow);
+		TN += Timenow.dt_zone;
 	stats_ab(pkt,statp);
 	lhash = pkt->p_clhash;
 	while (getadel(pkt,&dt) == BDELTAB) {
@@ -139,7 +141,8 @@ char type;
 			rdp->i_sid.s_br = dt.d_sid.s_br;
 			rdp->i_sid.s_seq = dt.d_sid.s_seq;
 			rdp->i_pred = dt.d_pred;
-			rdp->i_datetime = dt.d_dtime.dt_sec;
+			rdp->i_datetime.tv_sec = dt.d_dtime.dt_sec;
+			rdp->i_datetime.tv_nsec = dt.d_dtime.dt_nsec;
 			if (founddel && type == 0)	/* Already skipped */
 				goto nextdelta;
 		}

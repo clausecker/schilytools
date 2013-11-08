@@ -1,4 +1,4 @@
-/* @(#)star.h	1.126 13/10/05 Copyright 1985, 1995-2013 J. Schilling */
+/* @(#)star.h	1.127 13/11/05 Copyright 1985, 1995-2013 J. Schilling */
 /*
  *	Copyright (c) 1985, 1995-2013 J. Schilling
  */
@@ -633,8 +633,9 @@ typedef	struct	{
 #ifdef	HAVE_ST_ACLCNT
 	int	f_aclcnt;
 #endif
-	char	*f_acl_access;	/* POSIX Access Control List		  */
-	char	*f_acl_default;	/* POSIX Default ACL			  */
+	char	*f_acl_access;	/* POSIX Draft Access Control List	  */
+	char	*f_acl_default;	/* POSIX Draft Default ACL		  */
+	char	*f_acl_ace;	/* NFSv4 Access Control List		  */
 #endif
 #ifdef USE_XATTR
 	star_xattr_t *f_xattr;	/* Extended File Attributes		  */
@@ -689,14 +690,15 @@ typedef	struct	{
 #define	XF_DEVMAJOR	0x1000	/* Major bei Geräten			  */
 #define	XF_DEVMINOR	0x2000	/* Major bei Geräten			  */
 
-#define	XF_ACL_ACCESS	0x4000	/* POSIX Access Control List		  */
-#define	XF_ACL_DEFAULT	0x8000	/* POSIX Default ACL			  */
+#define	XF_ACL_ACCESS	0x04000	/* POSIX Draft Access Control List	  */
+#define	XF_ACL_DEFAULT	0x08000	/* POSIX Draft Default ACL		  */
+#define	XF_ACL_ACE	0x10000	/* NFSv4 Access Control List		  */
 
-#define	XF_FFLAGS	0x10000	/* File flags				  */
+#define	XF_FFLAGS	0x20000	/* File flags				  */
 				/* Echte Dateigröße (f_size)		  */
-#define	XF_REALSIZE	0x20000	/* Dateigröße wenn > 8 GB		  */
-#define	XF_OFFSET	0x40000	/* Multi Volume Offset			  */
-#define	XF_XATTR	0x80000	/* Extended Attributes			  */
+#define	XF_REALSIZE	0x40000	/* Dateigröße wenn > 8 GB		  */
+#define	XF_OFFSET	0x80000	/* Multi Volume Offset			  */
+#define	XF_XATTR	0x100000 /* Extended Attributes			  */
 
 #define	XF_NOTIME    0x10000000	/* Keine extended Zeiten		  */
 

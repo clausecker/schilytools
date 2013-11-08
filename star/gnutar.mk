@@ -1,4 +1,4 @@
-#ident @(#)gnutar.mk	1.16 09/03/26 
+#ident @(#)gnutar.mk	1.17 13/11/07 
 ###########################################################################
 #include		$(MAKE_M_ARCH).def
 SRCROOT=	..
@@ -30,11 +30,11 @@ CFILES=		gnutar.c header.c cpiohdr.c xheader.c xattr.c \
 		subst.c volhdr.c \
 		chdir.c match.c defaults.c dumpdate.c \
 		fifo.c device.c checkerr.c \
-		findinfo.c
+		findinfo.c pathname.c
 HFILES=		star.h starsubs.h dirtime.h xtab.h xutimes.h \
 		movearch.h table.h props.h fifo.h diff.h \
-		checkerr.h dumpdate.h bitstring.h
-LIBS=		-ldeflt -lrmt -lfind -lschily $(LIB_ACL) $(LIB_ATTR) $(LIB_SOCKET) $(LIB_INTL)
+		checkerr.h dumpdate.h bitstring.h pathname.h
+LIBS=		-ldeflt -lrmt -lfind -lschily $(LIB_ACL) $(LIB_ATTR) $(LIB_SOCKET) $(LIB_INTL) $(LIB_CAP)
 XMK_FILE=	gnutarman.mk
 
 ###########################################################################

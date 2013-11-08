@@ -1,4 +1,4 @@
-#ident "@(#)Defaults.cygwin32_nt	1.5 08/12/26 "
+#ident "@(#)Defaults.cygwin32_nt	1.6 13/11/04 "
 ###########################################################################
 #
 # global definitions for Cygnus GCC for WINNT Systems
@@ -29,6 +29,7 @@ DEFLINKMODE=	static
 CWARNOPTS=
 
 DEFINCDIRS=	$(SRCROOT)/include
+DEFOSINCDIRS=
 #LDPATH=		-L/opt/schily/lib
 LDPATH=
 #RUNPATH=	-R$(INS_BASE)/lib -R/opt/schily/lib -R$(OLIBSDIR)

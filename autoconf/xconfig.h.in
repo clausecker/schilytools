@@ -1,4 +1,4 @@
-/* @(#)xconfig.h.in	1.233 13/10/26 Copyright 1998-2013 J. Schilling */
+/* @(#)xconfig.h.in	1.235 13/11/04 Copyright 1998-2013 J. Schilling */
 /*
  *	Dynamic autoconf C-include code.
  *	Do not edit, this file has been created automatically.
@@ -54,6 +54,7 @@
 #undef HAVE_SYS_SIGINFO_H /* if sys/siginfo.h exists */
 #undef HAVE_UCONTEXT_H	/* if ucontext.h exists */
 #undef HAVE_SYS_ACL_H	/* to use <sys/acl.h> for ACL definitions */
+#undef HAVE_ACLUTILS_H	/* to use <aclutils.h> for NFSv4 ACL extensions */
 #undef HAVE_ACLLIB_H	/* if HP-UX <acllib.h> is present */
 #undef HAVE_ACL_LIBACL_H /* if Linux <acl/libacl.h> is present */
 #undef HAVE_SHADOW_H	/* if shadow.h exists */
@@ -969,7 +970,7 @@
 
 #ifdef USE_ACL			/* Enable/disable ACL support */
 /*
- * POSIX ACL support
+ * The withdrawn POSIX.1e ACL draft support
  */
 #undef HAVE_ACL_GET_FILE	/* acl_get_file() function */
 #undef HAVE_ACL_SET_FILE	/* acl_set_file() function */
@@ -983,11 +984,11 @@
 #if defined(HAVE_ACL_GET_FILE) && defined(HAVE_ACL_SET_FILE) && \
     defined(HAVE_ACL_FROM_TEXT) && defined(HAVE_ACL_TO_TEXT) && \
     defined(HAVE_ACL_FREE)
-#	define	HAVE_POSIX_ACL	1 /* POSIX ACL's present */
+#	define	HAVE_POSIX_ACL	1 /* Withdrawn POSIX draft ACL's present */
 #endif
 
 /*
- * Sun ACL support.
+ * Sun UFS ACL support.
  * Note: unfortunately, HP-UX has an (undocumented) acl() function in libc.
  */
 #undef HAVE_ACL			/* acl() function */
@@ -995,9 +996,28 @@
 #undef HAVE_ACLFROMTEXT		/* aclfromtext() function */
 #undef HAVE_ACLTOTEXT		/* acltotext() function */
 
+/*
+ * NFSv4 ACL support.
+ * Note: There is an unfortunate name clash for acl_free() with the
+ *	 withdrawn POSIX.1e draft. We correct this below.
+ */
+#undef HAVE_ACL_GET		/* acl_get() function */
+#undef HAVE_ACL_SET		/* acl_set() function */
+#undef HAVE_FACL_GET		/* facl_get() function */
+#undef HAVE_FACL_SET		/* facl_set() function */
+#undef HAVE_ACL_FROMTEXT	/* acl_fromtext() function */
+#undef HAVE_ACL_TOTEXT		/* acl_totext() function */
+
 #if defined(HAVE_ACL) && defined(HAVE_FACL) && \
     defined(HAVE_ACLFROMTEXT) && defined(HAVE_ACLTOTEXT)
-#	define	HAVE_SUN_ACL	1 /* Sun ACL's present */
+#	define	HAVE_SUN_ACL	1 /* Sun UFS ACL's present */
+#endif
+
+#if defined(HAVE_ACL_GET) && defined(HAVE_ACL_SET) && \
+    defined(HAVE_FACL_GET) && defined(HAVE_FACL_SET) && \
+    defined(HAVE_ACL_FROMTEXT) && defined(HAVE_ACL_TOTEXT)
+#	define	HAVE_ACL_FREE	1 /* acl_fre() function */
+#	define	HAVE_NFSV4_ACL	1 /* NFSv4 ACL's present */
 #endif
 
 /*
@@ -1027,7 +1047,7 @@
  * As HP-UX differs too much from other implementations, HAVE_HP_ACL is not
  * included in HAVE_ANY_ACL.
  */
-#if defined(HAVE_POSIX_ACL) || defined(HAVE_SUN_ACL)
+#if defined(HAVE_POSIX_ACL) || defined(HAVE_SUN_ACL) || defined(HAVE_NFSV4_ACL)
 #	define	HAVE_ANY_ACL	1 /* Any ACL implementation present */
 #endif
 

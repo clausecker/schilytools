@@ -1,4 +1,4 @@
-#ident @(#)cc-sony.rul	1.10 13/07/23 
+#ident @(#)cc-sony.rul	1.11 13/11/04 
 ###########################################################################
 # Written 1996-2013 by J. Schilling
 ###########################################################################
@@ -21,11 +21,11 @@
 # file and include the License file CDDL.Schily.txt from this distribution.
 ###########################################################################
 
-CPPFLAGS=	-DSCHILY_BUILD $(CPPOPTS) $(CPPOPTX)
+CPPFLAGS=	-DSCHILY_BUILD $(CPPOPTS) $(CPPOPTX) $(OSINCDIRS) $(OSDEFS) $(OSDEFSX)
 CFLAGS=		$(COPTS) $(CWARNOPTS) $(COPTOPT) $(SONYCOPTOPT) $(COPTX)
 C++FLAGS=	$(C++OPTS) $(C++WARNOPTS) $(C++OPTOPT) $(SONYC++OPTOPT) $(C++OPTX)
 
-CPPOPTS=	-I$(ARCHDIR) -I$(OINCSDIR) $(INCDIRS:%=-I%) $(INCDIRSX:%=-I%) $(OSDEFS)
+CPPOPTS=	-I$(ARCHDIR) -I$(OINCSDIR) $(INCDIRS:%=-I%) $(INCDIRSX:%=-I%)
 COPTS=
 CWOPTS=		-fullwarn
 COPTOPT=	-O

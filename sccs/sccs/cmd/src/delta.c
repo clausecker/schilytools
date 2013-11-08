@@ -2,11 +2,13 @@
  * CDDL HEADER START
  *
  * The contents of this file are subject to the terms of the
- * Common Development and Distribution License (the "License").
- * You may not use this file except in compliance with the License.
+ * Common Development and Distribution License ("CDDL"), version 1.0.
+ * You may only use this file in accordance with the terms of version
+ * 1.0 of the CDDL.
  *
- * You can obtain a copy of the license at usr/src/OPENSOLARIS.LICENSE
- * or http://www.opensolaris.org/os/licensing.
+ * A full copy of the text of the CDDL should have accompanied this
+ * source.  A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  * See the License for the specific language governing permissions
  * and limitations under the License.
  *
@@ -27,10 +29,10 @@
 /*
  * Copyright 2006-2013 J. Schilling
  *
- * @(#)delta.c	1.58 13/04/30 J. Schilling
+ * @(#)delta.c	1.60 13/10/31 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)delta.c 1.58 13/04/30 J. Schilling"
+#pragma ident "@(#)delta.c 1.60 13/10/31 J. Schilling"
 #endif
 /*
  * @(#)delta.c 1.40 06/12/12
@@ -680,7 +682,7 @@ struct sid *sp, *osp;
 int diffloop;
 int orig_nlines;
 {
-	extern time_t Timenow;
+	extern dtime_t Timenow;
 	struct deltab dt;
 	char str[BUFSIZ];
 	int newser;
@@ -728,7 +730,11 @@ int orig_nlines;
 	else
 		dt.d_pred = opred;
 
+#ifdef	NO_NANOSECS
 	time2dt(&dt.d_dtime, Timenow, 0); /* Timenow was set by dodelt() */
+#else
+	dt.d_dtime = Timenow;		/* Timenow was set by dodelt() */
+#endif
 
         /* Since the NSE always preserves the clear file after delta and
          * makes it read only (no get is required since keywords are not
@@ -1229,7 +1235,7 @@ struct sid *sidp;
 
 	sid_ba(sidp,str);
 	ap = &pkt->p_apply[n];
-	if (pkt->p_cutoff > pkt->p_idel[n].i_datetime)
+	if (pkt->p_cutoff > pkt->p_idel[n].i_datetime.tv_sec)
 		switch(ap->a_code) {
 	
 		case SX_EMPTY:

@@ -1,4 +1,4 @@
-#ident "@(#)Defaults.gnu	1.5 09/06/04 "
+#ident "@(#)Defaults.gnu	1.6 13/11/04 "
 ###########################################################################
 #
 # global definitions for GNU (hurd) Systems
@@ -28,7 +28,8 @@ DEFLINKMODE=	static
 ###########################################################################
 #CWARNOPTS=
 
-DEFINCDIRS=	$(SRCROOT)/include /usr/src/linux/include
+DEFINCDIRS=	$(SRCROOT)/include
+DEFOSINCDIRS=	/usr/src/linux/include
 LDPATH=		-L/opt/schily/lib
 #RUNPATH=	-R$(INS_BASE)/lib -R/opt/schily/lib -R$(OLIBSDIR)
 RUNPATH=	-R$(INS_BASE)/lib -R/opt/schily/lib

@@ -1,4 +1,4 @@
-#ident "@(#)cc-sco_os.rul	1.13 13/07/23 "
+#ident "@(#)cc-sco_os.rul	1.14 13/11/04 "
 ###########################################################################
 # Written 1999-2013 by J. Schilling/Santa Cruz Operation
 ###########################################################################
@@ -21,11 +21,11 @@
 # file and include the License file CDDL.Schily.txt from this distribution.
 ###########################################################################
 
-CPPFLAGS=	-DSCHILY_BUILD $(CPPOPTS) $(CPPOPTX)
+CPPFLAGS=	-DSCHILY_BUILD $(CPPOPTS) $(CPPOPTX) $(OSINCDIRS) $(OSDEFS) $(OSDEFSX)
 CFLAGS=		$(COPTS) $(CWARNOPTS) $(COPTOPT) $(SCO_OSCOPTOPT) $(COPTX)
 C++FLAGS=	$(C++OPTS) $(C++WARNOPTS) $(C++OPTOPT) $(SCO_OSC++OPTOPT) $(C++OPTX)
 
-CPPOPTS=	-I$(ARCHDIR) -I$(OINCSDIR) $(INCDIRS:%=-I%) $(INCDIRSX:%=-I%) $(OSDEFS)
+CPPOPTS=	-I$(ARCHDIR) -I$(OINCSDIR) $(INCDIRS:%=-I%) $(INCDIRSX:%=-I%)
 COPTS=		-belf
 CWOPTS=		-w3
 COPTOPT=	-O

@@ -1,4 +1,4 @@
-#ident "@(#)i386-bsd-os-gcc.rul	1.14 07/05/09 "
+#ident "@(#)i386-bsd-os-gcc.rul	1.15 13/11/04 "
 ###########################################################################
 # Written 1998 by J. Schilling
 ###########################################################################
@@ -14,6 +14,8 @@
 # with the License.
 #
 # See the file CDDL.Schily.txt in this distribution for details.
+# A copy of the CDDL is also available via the Internet at
+# http://www.opensource.org/licenses/cddl1.txt
 #
 # When distributing Covered Code, include this CDDL HEADER in each
 # file and include the License file CDDL.Schily.txt from this distribution.
@@ -23,7 +25,7 @@ include $(SRCROOT)/$(RULESDIR)/rules.prg
 include $(SRCROOT)/$(RULESDIR)/cc-gcc.rul
 
 OSDEFS +=
-CPPOPTS=	-I$(ARCHDIR) -I$(OINCSDIR) $(INCDIRS:%=-I%) -I/sys $(INCDIRSX:%=-I%) $(OSDEFS)
+CPPOPTS=	-I$(ARCHDIR) -I$(OINCSDIR) $(INCDIRS:%=-I%) -I/sys $(INCDIRSX:%=-I%)
 
 KDEFINES=	-DKERNEL -D_KERNEL
 

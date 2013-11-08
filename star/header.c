@@ -1,14 +1,14 @@
-/* @(#)header.c	1.148 11/04/12 Copyright 1985, 1994-2011 J. Schilling */
+/* @(#)header.c	1.149 13/11/03 Copyright 1985, 1994-2013 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)header.c	1.148 11/04/12 Copyright 1985, 1994-2011 J. Schilling";
+	"@(#)header.c	1.149 13/11/03 Copyright 1985, 1994-2013 J. Schilling";
 #endif
 /*
  *	Handling routines to read/write, parse/create
  *	archive headers
  *
- *	Copyright (c) 1985, 1994-2011 J. Schilling
+ *	Copyright (c) 1985, 1994-2013 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -17,6 +17,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -87,7 +89,7 @@ LOCAL	htab_t	htab[] = {
  */
 LOCAL	char	*cnames[] = {
 	"unknown",		/*  0 C_NONE	*/
-	"pack",			/*  1 C_PACL	*/
+	"pack",			/*  1 C_PACK	*/
 	"gzip",			/*  2 C_GZIP	*/
 	"lzw",			/*  3 C_LZW	*/
 	"freeze",		/*  4 C_FREEZE	*/

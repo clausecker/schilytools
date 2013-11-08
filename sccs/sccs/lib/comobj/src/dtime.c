@@ -5,15 +5,17 @@
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 /*
- * @(#)dtime.c	1.1 11/08/21 Copyright 2006-2011 J. Schilling
+ * @(#)dtime.c	1.2 13/10/31 Copyright 2006-2013 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)dtime.c 1.1 11/08/21 J. Schilling"
+#pragma ident "@(#)dtime.c 1.2 13/10/31 J. Schilling"
 #endif
 
 #if defined(sun)
@@ -26,9 +28,18 @@ void
 dtime(dt)
 	dtime_t	*dt;
 {
+#ifdef	NO_NANOSECS
 	time(&dt->dt_sec);
 	dt->dt_nsec = 0;
 	dt->dt_zone = gmtoff(dt->dt_sec);
+#else
+	struct timespec	ts;
+
+	getnstimeofday(&ts);
+	dt->dt_sec = ts.tv_sec;
+	dt->dt_nsec = ts.tv_nsec;
+	dt->dt_zone = gmtoff(dt->dt_sec);
+#endif
 }
 
 void

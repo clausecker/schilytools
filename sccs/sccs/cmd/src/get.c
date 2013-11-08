@@ -2,11 +2,13 @@
  * CDDL HEADER START
  *
  * The contents of this file are subject to the terms of the
- * Common Development and Distribution License (the "License").
- * You may not use this file except in compliance with the License.
+ * Common Development and Distribution License ("CDDL"), version 1.0.
+ * You may only use this file in accordance with the terms of version
+ * 1.0 of the CDDL.
  *
- * You can obtain a copy of the license at usr/src/OPENSOLARIS.LICENSE
- * or http://www.opensolaris.org/os/licensing.
+ * A full copy of the text of the CDDL should have accompanied this
+ * source.  A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  * See the License for the specific language governing permissions
  * and limitations under the License.
  *
@@ -25,12 +27,12 @@
  * Use is subject to license terms.
  */
 /*
- * Copyright 2006-2011 J. Schilling
+ * Copyright 2006-2013 J. Schilling
  *
- * @(#)get.c	1.55 11/11/13 J. Schilling
+ * @(#)get.c	1.56 13/11/01 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)get.c 1.55 11/11/13 J. Schilling"
+#pragma ident "@(#)get.c 1.56 13/11/01 J. Schilling"
 #endif
 /*
  * @(#)get.c 1.59 06/12/12
@@ -46,7 +48,6 @@
 #include	<had.h>
 #include	<i18n.h>
 #include	<schily/utsname.h>
-#include	<schily/utime.h>
 #include	<ccstypes.h>
 #include	<schily/limits.h>
 #include	<schily/sysexits.h>
@@ -582,30 +583,30 @@ char *file;
 		}
 		if (Gfile[0] != '\0' && exists(Gfile) ) {
 			rename(Gfile, gfile);
-#ifdef	HAVE_UTIME
 			if (HADO) {
 				struct tm	tm;
-				struct utimbuf	ut;
+				struct timespec	ts[2];
 				unsigned int	gser;
-				extern time_t	Timenow;
+				extern dtime_t	Timenow;
 
 				gser = sidtoser(&gpkt.p_gotsid, &gpkt);
 
-				ut.actime = Timenow;
-				ut.modtime = gpkt.p_idel[gser].i_datetime;
+				ts[0].tv_sec = Timenow.dt_sec;
+				ts[0].tv_nsec = Timenow.dt_nsec;
+				ts[1].tv_sec = gpkt.p_idel[gser].i_datetime.tv_sec;
+				ts[1].tv_nsec = gpkt.p_idel[gser].i_datetime.tv_nsec;
 				/*
 				 * If we did cheat while scanning the delta
 				 * table and converted the time stamps assuming
 				 * GMT. Fix the resulting error here.
 				 */
 				if (gpkt.p_flags & PF_GMT) {
-					tm = *gmtime(&ut.modtime);
+					tm = *gmtime(&ts[1].tv_sec);
 					tm.tm_isdst = -1;
-					ut.modtime = mktime(&tm);
+					ts[1].tv_sec = mktime(&tm);
 				}
-				utime(gfile, &ut);
+				utimensat(AT_FDCWD, gfile, ts, 0);
 			}
-#endif
 		}
 		setuid(holduid);
 		setgid(holdgid);
@@ -805,12 +806,12 @@ static void
 idsetup(pkt)
 register struct packet *pkt;
 {
-	extern time_t Timenow;
+	extern dtime_t Timenow;
 	register int n;
 	register char *p;
 
-	date_ba(&Timenow,Curdate, 0);
-	date_bal(&Timenow,Curdatel, 0);
+	date_ba(&Timenow.dt_sec, Curdate, 0);
+	date_bal(&Timenow.dt_sec, Curdatel, 0);
 	Curdatel[10] = 0;
 	Curtime = &Curdate[9];
 	Curdate[8] = 0;
@@ -820,8 +821,8 @@ register struct packet *pkt;
 		if (pkt->p_apply[n].a_code == APPLY)
 			break;
 	if (n) {
-		date_ba(&pkt->p_idel[n].i_datetime, Chgdate, pkt->p_flags);
-		date_bal(&pkt->p_idel[n].i_datetime, Chgdatel, pkt->p_flags);
+		date_ba(&pkt->p_idel[n].i_datetime.tv_sec, Chgdate, pkt->p_flags);
+		date_bal(&pkt->p_idel[n].i_datetime.tv_sec, Chgdatel, pkt->p_flags);
 	} else {
 #ifdef XPG4
 		FILE	*xf;
@@ -1298,7 +1299,7 @@ char *inc, *exc;
 	char *user, *pfile;
 	FILE *in, *out;
 	struct pfile pf;
-	extern time_t Timenow;
+	extern dtime_t Timenow;
 	int fd;
 	char **sflags = pkt->p_sflags;
 
@@ -1353,14 +1354,14 @@ char *inc, *exc;
 	 * which is outside the year range specified by POSIX.
 	 */
 #if SIZEOF_TIME_T == 4
-	if (Timenow < Y1969)
+	if (Timenow.dt_sec < Y1969)
 #else
-	if ((Timenow < Y1969) ||
-	    (Timenow >= Y2069))
+	if ((Timenow.dt_sec < Y1969) ||
+	    (Timenow.dt_sec >= Y2069))
 #endif
-		date_bal(&Timenow,line, 0);	/* 4 digit year */
+		date_bal(&Timenow.dt_sec, line, 0);	/* 4 digit year */
 	else
-		date_ba(&Timenow,line, 0);	/* 2 digit year */
+		date_ba(&Timenow.dt_sec, line, 0);	/* 2 digit year */
 	if (fprintf(out,"%s %s %s %s",str1,str2,user,line) == EOF)
 		xmsg(pfile, NOGETTEXT("wrtpfile"));
 	if (inc)

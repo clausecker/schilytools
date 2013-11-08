@@ -1,4 +1,4 @@
-#ident "@(#)Defaults.openvms	1.1 09/10/31 "
+#ident "@(#)Defaults.openvms	1.2 13/11/04 "
 ###########################################################################
 #
 # global definitions for OpenVMS
@@ -29,6 +29,7 @@ DEFLINKMODE=	static
 CWARNOPTS=
 
 DEFINCDIRS=	$(SRCROOT)/include
+DEFOSINCDIRS=
 LDPATH=		-L/opt/schily/lib
 #RUNPATH=	-R$(INS_BASE)/lib -R/opt/schily/lib -R$(OLIBSDIR)
 RUNPATH=	-R$(INS_BASE)/lib -R/opt/schily/lib

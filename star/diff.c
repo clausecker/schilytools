@@ -1,14 +1,14 @@
-/* @(#)diff.c	1.87 10/08/23 Copyright 1993-2010 J. Schilling */
+/* @(#)diff.c	1.88 13/11/05 Copyright 1993-2013 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)diff.c	1.87 10/08/23 Copyright 1993-2010 J. Schilling";
+	"@(#)diff.c	1.88 13/11/05 Copyright 1993-2013 J. Schilling";
 #endif
 /*
  *	List differences between a (tape) archive and
  *	the filesystem
  *
- *	Copyright (c) 1993-2010 J. Schilling
+ *	Copyright (c) 1993-2013 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -17,6 +17,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -442,6 +444,13 @@ diff_tcb(info)
 			diffs |= D_ACL;
 		} else if ((info->f_xflags & XF_ACL_DEFAULT) != 0) {
 			if (strcmp(info->f_acl_default, finfo.f_acl_default))
+				diffs |= D_ACL;
+		}
+		if ((info->f_xflags & XF_ACL_ACE) !=
+		    (finfo.f_xflags & XF_ACL_ACE)) {
+			diffs |= D_ACL;
+		} else if ((info->f_xflags & XF_ACL_ACE) != 0) {
+			if (strcmp(info->f_acl_ace, finfo.f_acl_ace))
 				diffs |= D_ACL;
 		}
 	}

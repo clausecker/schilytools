@@ -1,4 +1,4 @@
-#ident "@(#)cc-openvms.rul	1.7 13/07/23 "
+#ident "@(#)cc-openvms.rul	1.8 13/11/04 "
 ###########################################################################
 # Written 1998-2013 by J. Schilling
 ###########################################################################
@@ -21,11 +21,11 @@
 # file and include the License file CDDL.Schily.txt from this distribution.
 ###########################################################################
 
-CPPFLAGS=	-DSCHILY_BUILD $(CPPOPTS) $(CPPOPTX)
+CPPFLAGS=	-DSCHILY_BUILD $(CPPOPTS) $(CPPOPTX) $(OSINCDIRS) $(OSDEFS) $(OSDEFSX)
 CFLAGS=		$(COPTS) $(CWARNOPTS) $(COPTOPT) $(DECCOPTOPT) $(COPTX)
 C++FLAGS=	$(C++OPTS) $(C++WARNOPTS) $(C++OPTOPT) $(DECC++OPTOPT) $(C++OPTX)
 
-CPPOPTS=	-I$(ARCHDIR) -I$(OINCSDIR) $(INCDIRS:%=-I%) $(INCDIRSX:%=-I%) $(OSDEFS)
+CPPOPTS=	-I$(ARCHDIR) -I$(OINCSDIR) $(INCDIRS:%=-I%) $(INCDIRSX:%=-I%)
 COPTS=
 CWOPTS=		-verbose
 COPTOPT=	-O

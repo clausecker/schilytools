@@ -1,8 +1,8 @@
-/* @(#)star.c	1.343 13/10/07 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2013 J. Schilling */
+/* @(#)star.c	1.344 13/11/05 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2013 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)star.c	1.343 13/10/07 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2013 J. Schilling";
+	"@(#)star.c	1.344 13/11/05 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2013 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1985, 88-90, 92-96, 98, 99, 2000-2013 J. Schilling
@@ -106,7 +106,7 @@ LOCAL	void	docompat	__PR((int *pac, char *const **pav));
 #define	QIC_525_TSIZE	1025000		/* 512500 kBytes */
 #define	TSIZE(s)	((s)*TBLOCK)
 
-char	strvers[] = "1.5.3a01";		/* The pure version string	*/
+char	strvers[] = "1.5.3a02";		/* The pure version string	*/
 char	*vers;				/* the full version string	*/
 
 struct star_stats	xstats;		/* for printing statistics	*/
@@ -1984,7 +1984,7 @@ star_verifyopts()
 		/*
 		 * Check properties for archive format.
 		 */
-		if ((props.pr_xhmask & (XF_ACL_ACCESS|XF_ACL_DEFAULT)) == 0) {
+		if ((props.pr_xhmask & (XF_ACL_ACCESS|XF_ACL_DEFAULT|XF_ACL_ACE)) == 0) {
 			errmsgno(EX_BAD,
 				"Archive format '%s' does not support -acl.\n",
 							hdr_name(chdrtype));

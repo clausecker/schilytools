@@ -1,4 +1,4 @@
-#ident @(#)rules.cnf	1.14 13/07/22 
+#ident @(#)rules.cnf	1.15 13/11/04 
 ###########################################################################
 # Written 1998-2013 by J. Schilling
 ###########################################################################
@@ -59,10 +59,11 @@ $(OINCSDIR)/rules.cnf $(OINCSDIR)/xconfig.h: $(OINCSDIR)/Inull \
 	$(RUL_CONF)
 
 ###########################################################################
+OS_DEFS=	$(OSINCDIRS) $(OSDEFS) $(OSDEFSX)
 RUL_CONF=	@echo "	==> CONFIGURING RULES \"$@\""; $(RM_F) $@; \
 		cd $(OINCSDIR); \
 		CONFIG_NOFAIL=TRUE CC="$(XCC_COM)" CFLAGS="$(CFLAGS)" \
-		CXXFLAGS="$(C++FLAGS)" CPPFLAGS="$(OSDEFS)" \
+		CXXFLAGS="$(C++FLAGS)" CPPFLAGS="$(OS_DEFS)" \
 		LDFLAGS="$(LDOPTS)" sh ../../autoconf/configure $(CONFFLAGS)
 ###########################################################################
 include $(OINCSDIR)/Inull

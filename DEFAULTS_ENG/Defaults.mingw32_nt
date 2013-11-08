@@ -1,4 +1,4 @@
-#ident "@(#)Defaults.mingw32_nt	1.4 08/12/26 "
+#ident "@(#)Defaults.mingw32_nt	1.5 13/11/04 "
 ###########################################################################
 #
 # global definitions for Win32/Mingw32 systems
@@ -29,6 +29,7 @@ DEFLINKMODE=	static
 #CWARNOPTS=
 
 DEFINCDIRS=	$(SRCROOT)/include
+DEFOSINCDIRS=
 #LDPATH=		-L/opt/schily/lib
 LDPATH=
 #RUNPATH=	-R$(INS_BASE)/lib -R/opt/schily/lib -R$(OLIBSDIR)

@@ -1,4 +1,4 @@
-#ident "@(#)cc-gcc64.rul	1.15 13/07/23 "
+#ident "@(#)cc-gcc64.rul	1.16 13/11/04 "
 ###########################################################################
 # Written 1996-2013 by J. Schilling
 ###########################################################################
@@ -23,11 +23,11 @@
 
 GCC_OPT64=	-m64
 
-CPPFLAGS=	-DSCHILY_BUILD $(CPPOPTS) $(CPPOPTX)
+CPPFLAGS=	-DSCHILY_BUILD $(CPPOPTS) $(CPPOPTX) $(OSINCDIRS) $(OSDEFS) $(OSDEFSX)
 CFLAGS=		$(COPTS) $(CWARNOPTS) $(COPTOPT) $(GCCOPTOPT) $(COPTX)
 C++FLAGS=	$(C++OPTS) $(C++WARNOPTS) $(C++OPTOPT) $(G++OPTOPT) $(C++OPTX)
 
-CPPOPTS=	-I$(ARCHDIR) -I$(OINCSDIR) $(INCDIRS:%=-I%) $(INCDIRSX:%=-I%) $(OSDEFS)
+CPPOPTS=	-I$(ARCHDIR) -I$(OINCSDIR) $(INCDIRS:%=-I%) $(INCDIRSX:%=-I%)
 COPTS=		$(GCC_OPT64)
 #		-Wtraditional now causes more pain than it helps 
 CWOPTS=		-Wall -Wtraditional

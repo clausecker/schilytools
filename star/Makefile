@@ -1,4 +1,4 @@
-#ident @(#)Makefile	1.25 13/04/21 
+#ident @(#)Makefile	1.26 13/11/05 
 ###########################################################################
 #include		$(MAKE_M_ARCH).def
 SRCROOT=	..
@@ -40,11 +40,11 @@ CFILES=		star_fat.c header.c cpiohdr.c xheader.c xattr.c \
 		chdir.c match.c defaults.c dumpdate.c \
 		fifo.c device.c checkerr.c \
 		\
-		findinfo.c
+		findinfo.c pathname.c
 
 HFILES=		star.h starsubs.h dirtime.h xtab.h xutimes.h \
 		movearch.h table.h props.h fifo.h diff.h restore.h \
-		checkerr.h dumpdate.h bitstring.h
+		checkerr.h dumpdate.h bitstring.h pathname.h
 
 #LIBS=		-lunos
 #LIBS=		-lschily -lc /usr/local/lib/gcc-gnulib
