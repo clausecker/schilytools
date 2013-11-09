@@ -1,8 +1,8 @@
-/* @(#)acl_unix.c	1.44 13/11/08 Copyright 2001-2013 J. Schilling */
+/* @(#)acl_unix.c	1.45 13/11/09 Copyright 2001-2013 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)acl_unix.c	1.44 13/11/08 Copyright 2001-2013 J. Schilling";
+	"@(#)acl_unix.c	1.45 13/11/09 Copyright 2001-2013 J. Schilling";
 #endif
 /*
  *	ACL get and set routines for unix like operating systems.
@@ -1054,7 +1054,7 @@ set_acls(info)
 		}
 	}
 	if (info->f_xflags & XF_ACL_ACE) {
-		ssize_t	len = strlen(info->f_acl_access) + 2;
+		ssize_t	len = strlen(info->f_acl_ace) + 2;
 
 		if (aclps.ps_path[0] != '\0' && !errhidden(E_BADACL, info->f_name)) {
 			if (!errwarnonly(E_BADACL, info->f_name))
