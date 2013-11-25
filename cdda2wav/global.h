@@ -1,4 +1,4 @@
-/* @(#)global.h	1.33 10/01/24 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2010 J. Schilling */
+/* @(#)global.h	1.35 13/11/19 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2013 J. Schilling */
 /*
  * Global Variables
  */
@@ -9,6 +9,8 @@
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -57,6 +59,22 @@ typedef struct global {
 	int			scsi_debug;		/* SCSI debug level */
 	int			scsi_kdebug;		/* SCSI kernel debug level */
 	int			scanbus;		/* -scanbus option */
+
+	uid_t			uid;
+	uid_t			euid;
+	BOOL			issetuid;
+	long			sector_offset;
+	long			start_sector;
+	unsigned long		endtrack;
+	BOOL			alltracks;
+	BOOL			maxtrack;
+	int			cd_index;
+	int			littleendian;
+	double			rectime;
+	double			int_part;
+	char			*user_sound_device;
+	int			moreargs;
+
 	int			multiname;		/* multiple file names given */
 	int			sh_bits;		/* sh_bits: sample bit shift */
 	int			Remainder;

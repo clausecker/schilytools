@@ -1,8 +1,8 @@
-/* @(#)interface.c	1.77 13/04/29 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2006-2013 J. Schilling */
+/* @(#)interface.c	1.78 13/11/19 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2006-2013 J. Schilling */
 #include "config.h"
 #ifndef lint
 static	UConst char sccsid[] =
-"@(#)interface.c	1.77 13/04/29 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2006-2013 J. Schilling";
+"@(#)interface.c	1.78 13/11/19 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2006-2013 J. Schilling";
 
 #endif
 /*
@@ -36,6 +36,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -653,7 +655,8 @@ OpenCdRom(pdev_name)
 
 		needroot(0);
 		needgroup(0);
-		priv_on();
+		if (global.issetuid || global.uid != 0)
+			priv_on();
 		/*
 		 * Call scg_remote() to force loading the remote SCSI transport
 		 * library code that is located in librscg instead of the dummy
@@ -699,7 +702,8 @@ OpenCdRom(pdev_name)
 		 * mlockall(MCL_FUTURE).
 		 */
 		init_scsibuf(scgp, global.bufsize);
-		priv_off();
+		if (global.issetuid || global.uid != 0)
+			priv_off();
 		dontneedgroup();
 		dontneedroot();
 
@@ -780,7 +784,8 @@ scg_openerr(errstr)
 			geteuid() ?
 				_(" Make sure you are root."):"");
 
-	priv_off();
+	if (global.issetuid || global.uid != 0)
+		priv_off();
 	dontneedgroup();
 	dontneedroot();
 #if defined(sun) || defined(__sun)

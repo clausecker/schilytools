@@ -1,8 +1,8 @@
-/* @(#)acl_unix.c	1.45 13/11/09 Copyright 2001-2013 J. Schilling */
+/* @(#)acl_unix.c	1.48 13/11/21 Copyright 2001-2013 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)acl_unix.c	1.45 13/11/09 Copyright 2001-2013 J. Schilling";
+	"@(#)acl_unix.c	1.48 13/11/21 Copyright 2001-2013 J. Schilling";
 #endif
 /*
  *	ACL get and set routines for unix like operating systems.
@@ -573,6 +573,13 @@ set_acls(info)
 
 #ifdef	HAVE_SUN_ACL	/* The UFS ACL implementation */
 
+#ifndef	ACL_IS_DIR	/* We did not include sys/acl_impl.h */
+#define	ACE_T	1
+#endif
+#ifndef	ACL_SID_FMT	/* Solaris 10 has no support for this */
+#define	ACL_SID_FMT	0
+#endif
+
 #define	DID_OPT_ACL
 EXPORT void
 opt_acl()
@@ -636,7 +643,7 @@ get_acls(info)
 	seterrno(0);
 	acltext = acl_totext(aclp, acltype == ACE_T?
 			ACL_COMPACT_FMT | ACL_APPEND_ID | ACL_SID_FMT : 0);
-	acl_free(aclp);
+	acl_free(aclp);			/* acl_t * needs acl_free() */
 #else
 	if (!get_ufs_acl(info, &aclp, &aclcount))
 		return (FALSE);
@@ -645,7 +652,7 @@ get_acls(info)
 
 	seterrno(0);
 	acltext = acltotext(aclp, aclcount);
-	free(aclp);
+	free(aclp);			/* aclent_t * needs free() */
 #endif
 
 	if (acltext == NULL) {
@@ -1068,6 +1075,7 @@ set_acls(info)
 		}
 		if (aclps.ps_path != aclbuf)
 			free_pspace(&aclps);
+#ifdef	HAVE_NFSV4_ACL
 		aclps.ps_path = aclbuf;
 		aclps.ps_size = sizeof (aclbuf) -2;
 		if (len > aclps.ps_size) {
@@ -1080,6 +1088,17 @@ set_acls(info)
 			}
 		}
 		acl_check_ids(aclps.ps_path, info->f_acl_ace, TRUE);
+#else
+		if (!errhidden(E_BADACL, info->f_name)) {
+			if (!errwarnonly(E_BADACL, info->f_name))
+				xstats.s_badacl++;
+			errmsgno(EX_BAD,
+			"Cannot set NFSv4 ACLs for '%s' on this platform.\n",
+				info->f_name);
+			(void) errabort(E_BADACL, info->f_name, TRUE);
+		}
+		return;
+#endif
 	}
 #ifdef	ACL_DEBUG
 	error("aclbuf: '%s'\n", aclps.ps_path);
@@ -1133,7 +1152,7 @@ set_acls(info)
 				(void) errabort(E_SETACL, info->f_name, TRUE);
 			}
 		}
-		free(aclp);
+		acl_free(aclp);	/* acl_t * needs acl_free() */
 	} 
 #else
 	seterrno(0);
@@ -1172,7 +1191,7 @@ set_acls(info)
 				(void) errabort(E_SETACL, info->f_name, TRUE);
 			}
 		}
-		free(aclp);
+		free(aclp);	/* aclent_t * needs free() */
 	}
 #endif
 

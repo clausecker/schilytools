@@ -1,8 +1,8 @@
-/* @(#)cdrecord.c	1.409 13/09/23 Copyright 1995-2013 J. Schilling */
+/* @(#)cdrecord.c	1.410 13/11/19 Copyright 1995-2013 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)cdrecord.c	1.409 13/09/23 Copyright 1995-2013 J. Schilling";
+	"@(#)cdrecord.c	1.410 13/11/19 Copyright 1995-2013 J. Schilling";
 #endif
 /*
  *	Record data on a CD/CVD-Recorder
@@ -170,6 +170,8 @@ LOCAL	int	didintr;
 EXPORT	char	*driveropts;
 LOCAL	char	*cuefilename;
 LOCAL	uid_t	oeuid = (uid_t)-1;
+LOCAL	uid_t	ouid = (uid_t)-1;
+LOCAL	BOOL	issetuid = FALSE;
 LOCAL	char	*isobuf;	/* Buffer for doing -isosize on stdin	  */
 LOCAL	int	isobsize;	/* The amount of remaining data in isobuf */
 LOCAL	int	isoboff;	/* The current "read" offset in isobuf	  */
@@ -317,7 +319,26 @@ main(ac, av)
 	 */
 #endif
 	save_args(ac, av);
+	/*
+	 * At this point, we should have the needed privileges, either because:
+	 *
+	 *	1)	We have been called by a privileged user (eg. root)
+	 *	2)	This is a suid-root process
+	 *	3)	This is a process that did call pfexec to gain privs
+	 *	4)	This is a process that has been called via pfexec
+	 *	5)	This is a process that gained privs via fcaps
+	 *
+	 * Case (1) is the only case where whe should not give up privileges
+	 * because people would not expect it and because there will be no
+	 * privilege escalation in this process.
+	 */
 	oeuid = geteuid();		/* Remember saved set uid	*/
+	ouid = getuid();		/* Remember uid			*/
+#ifdef	HAVE_ISSETUGID
+	issetuid = issetugid();
+#else
+	issetuid = oeuid != ouid;
+#endif
 
 #if	defined(USE_NLS)
 	(void) setlocale(LC_ALL, "");
@@ -564,8 +585,14 @@ main(ac, av)
 	 *	file_dac_read,proc_lock_memory,proc_priocntl,net_privaddr
 	 * We still need:
 	 *	sys_devices
+	 *
+	 * If this is a suid-root process or if the real uid of
+	 * this process is not root, we may have gained privileges
+	 * from suid-root or pfexec and need to manage privileges in
+	 * order to prevent privilege escalations for the user.
 	 */
-	priv_drop();
+	if (issetuid || ouid != 0)
+		priv_drop();
 	/*
 	 * This is only for OS that do not support fine grained privs.
 	 *
@@ -4538,7 +4565,7 @@ load_media(scgp, dp, doexit)
 	scgp->silent--;
 	err = geterrno();
 	if (code < 0 && (err == EPERM || err == EACCES)) {
-		linuxcheck();	/* For version 1.409 of cdrecord.c */
+		linuxcheck();	/* For version 1.410 of cdrecord.c */
 		scg_openerr("");
 	}
 
@@ -5433,7 +5460,7 @@ set_wrmode(dp, wmode, tflags)
 }
 
 /*
- * I am sorry that even for version 1.409 of cdrecord.c, I am forced to do
+ * I am sorry that even for version 1.410 of cdrecord.c, I am forced to do
  * things like this, but defective versions of cdrecord cause a lot of
  * work load to me.
  *
@@ -5450,7 +5477,7 @@ set_wrmode(dp, wmode, tflags)
 #endif
 
 LOCAL void
-linuxcheck()				/* For version 1.409 of cdrecord.c */
+linuxcheck()				/* For version 1.410 of cdrecord.c */
 {
 #if	defined(linux) || defined(__linux) || defined(__linux__)
 #ifdef	HAVE_UNAME

@@ -1,9 +1,9 @@
 /*#define	PLUS_DEBUG*/
-/* @(#)find.c	1.97 13/09/23 Copyright 2004-2013 J. Schilling */
+/* @(#)find.c	1.98 13/11/19 Copyright 2004-2013 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)find.c	1.97 13/09/23 Copyright 2004-2013 J. Schilling";
+	"@(#)find.c	1.98 13/11/19 Copyright 2004-2013 J. Schilling";
 #endif
 /*
  *	Another find implementation...
@@ -848,9 +848,14 @@ parseprim(fap)
 		n->this = (char *)nextarg(fap, n);
 		switch (*(n->this)) {
 
+		/*
+		 * 'b'lock, 'c'har, 'd'ir, 'D'oor,
+		 * 'e'ventcount, 'f'ile, 'l'ink, 'p'ipe,
+		 * 'P'ort event, 's'ocket
+		 */
 		case 'b': case 'c': case 'd': case 'D':
 		case 'e': case 'f': case 'l': case 'p':
-		case 's':
+		case 'P': case 's':
 			if ((n->this)[1] == '\0') {
 				nexttoken(fap);
 				fap->jmp = ojmp; /* Restore old jump target */

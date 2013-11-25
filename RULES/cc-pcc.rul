@@ -1,4 +1,4 @@
-#ident "@(#)cc-pcc.rul	1.6 13/11/04 "
+#ident "@(#)cc-pcc.rul	1.7 13/11/13 "
 ###########################################################################
 # Written 2010-2013 by J. Schilling
 ###########################################################################
@@ -21,7 +21,7 @@
 # file and include the License file CDDL.Schily.txt from this distribution.
 ###########################################################################
 
-CPPFLAGS=	-DSCHILY_BUILD $(CPPOPTS) $(CPPOPTX) $(OSINCDIRS) $(OSDEFS) $(OSDEFSX)
+CPPFLAGS=	-DSCHILY_BUILD $(CPPOPTS) $(CPPOPTX) $(OSINCDIRS:%=-I%) $(OSDEFS) $(OSDEFSX)
 CFLAGS=		$(COPTS) $(CWARNOPTS) $(COPTOPT) $(GCCOPTOPT) $(COPTX)
 C++FLAGS=	$(C++OPTS) $(C++WARNOPTS) $(C++OPTOPT) $(G++OPTOPT) $(C++OPTX)
 

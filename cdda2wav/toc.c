@@ -1,8 +1,8 @@
-/* @(#)toc.c	1.98 13/04/28 Copyright 1998-2003 Heiko Eissfeldt, Copyright 2004-2013 J. Schilling */
+/* @(#)toc.c	1.99 13/11/18 Copyright 1998-2003 Heiko Eissfeldt, Copyright 2004-2013 J. Schilling */
 #include "config.h"
 #ifndef lint
 static	UConst char sccsid[] =
-"@(#)toc.c	1.98 13/04/28 Copyright 1998-2003 Heiko Eissfeldt, Copyright 2004-2013 J. Schilling";
+"@(#)toc.c	1.99 13/11/18 Copyright 1998-2003 Heiko Eissfeldt, Copyright 2004-2013 J. Schilling";
 #endif
 /*
  * CDDA2WAV (C) Heiko Eissfeldt heiko@hexco.de
@@ -17,6 +17,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -1282,9 +1284,12 @@ handle_userchoice(p, size)
 
 	/*
 	 * get user response.
+	 * Some OS seem to misshandle stderr and make it buffered, so we
+	 * call fflush(outfp) here.
 	 */
 	do {
 		fprintf(outfp, _("please choose one (0-%u): "), nr);
+		fflush(outfp);
 		if (scanf("%u", &user_choice) != 1)
 			user_choice = nr;
 	} while (user_choice > nr);

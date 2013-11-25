@@ -1,4 +1,4 @@
-#ident "@(#)cc-sunpro64.rul	1.16 13/07/23 "
+#ident "@(#)cc-sunpro64.rul	1.18 13/11/13 "
 ###########################################################################
 # Written 1996-2013 by J. Schilling
 ###########################################################################
@@ -21,7 +21,7 @@
 # file and include the License file CDDL.Schily.txt from this distribution.
 ###########################################################################
 
-CPPFLAGS=	-DSCHILY_BUILD $(CPPOPTS) $(CPPOPTX)
+CPPFLAGS=	-DSCHILY_BUILD $(CPPOPTS) $(CPPOPTX) $(OSINCDIRS:%=-I%) $(OSDEFS) $(OSDEFSX)
 CFLAGS=		$(COPTS) $(CWARNOPTS) $(COPTOPT) $(SUNPROCOPTOPT) $(COPTX)
 C++FLAGS=	$(C++OPTS) $(C++WARNOPTS) $(C++OPTOPT) $(SUNPROC++OPTOPT) $(C++OPTX)
 
@@ -33,7 +33,7 @@ SUNPROCOPT64=	$(__SUNPROCOPT64:$(_UNIQ)%=%)
 
 XARCH_GEN=	$(SUNPROCOPT64)
 
-CPPOPTS=	-I$(ARCHDIR) -I$(OINCSDIR) $(INCDIRS:%=-I%) $(INCDIRSX:%=-I%) $(OSDEFS)
+CPPOPTS=	-I$(ARCHDIR) -I$(OINCSDIR) $(INCDIRS:%=-I%) $(INCDIRSX:%=-I%)
 COPTS=		-Xa $(SUNPROCOPT64)
 CWOPTS=		-v
 COPTOPT=	-O

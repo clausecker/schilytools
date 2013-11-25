@@ -1,4 +1,4 @@
-#ident "@(#)cc-msposix.rul	1.22 13/11/04 "
+#ident "@(#)cc-msposix.rul	1.23 13/11/13 "
 ###########################################################################
 # Written 2006-2013 by J. Schilling
 ###########################################################################
@@ -21,7 +21,7 @@
 # file and include the License file CDDL.Schily.txt from this distribution.
 ###########################################################################
 
-CPPFLAGS=	-DSCHILY_BUILD $(CPPOPTS) $(CPPOPTX) $(OSINCDIRS) $(OSDEFS) $(OSDEFSX)
+CPPFLAGS=	-DSCHILY_BUILD $(CPPOPTS) $(CPPOPTX) $(OSINCDIRS:%=-I%) $(OSDEFS) $(OSDEFSX)
 CFLAGS=		$(COPTS) $(CWARNOPTS) $(COPTOPT) $(MSCOPTOPT) $(COPTX)
 C++FLAGS=	$(C++OPTS) $(C++WARNOPTS) $(C++OPTOPT) $(MSC++OPTOPT) $(C++OPTX)
 

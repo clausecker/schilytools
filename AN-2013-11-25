@@ -1,0 +1,80 @@
+New features with AN-2013-11-25:
+
+This is the first localization step for the schily source consolidation. Many
+programs now (hopefully) call gettext() for all strings that need localization.
+
+-	The next step will include dgettext() calls for the libraries and the
+	missing programs
+
+-	The following step will include the extracted strings
+
+-	The last step will include German translations and install support
+	for the resulting binary message object files.
+
+----------> Please test and report compilation problems! <---------
+
+***** NOTE: As mentioned since 2004, frontends to the tools should *****
+*****		call all programs in the "C" locale		   *****
+*****		by e.g. calling: LC_ALL=C cdrecord ....		   *****
+*****		unless these frontends support localized strings   *****
+*****		used by the cdrtools with NLS support.		   *****
+
+-	configure now also checks for NFSv4 ACL related library extensions
+	from FreeBSD
+
+-	include/schily/stdio.h now finally works to compile libshedit on
+	Linux _and_ to pass the program "hdrchk" from OpenSolaris.
+
+-	libschily/strstr.c and libschily/wcsstr.c now include a 
+	CDDL License hint
+
+-	A typo in the use of the new macro: $(OSINCDIRS)
+	was fixed in order to make things compile again on FreeBSD.
+	Now using $(OSINCDIRS:%=-I%) instead of $(OSINCDIRS)
+
+-	Star now gives a warning when comppiled on an old version of
+	Solaris (that does not support NFSv4 ACLs) when NFSv4 ACLs
+	are seen in extract mode.
+
+-	Star now correctly frees the NFSv4 ACL structure delivered from
+	calling acl_fromtext(path, &aclp), using acl_free() instead
+	of just calling free().
+
+-	Star now compiles on Solaris 10 that missed important include
+	files for NFSv4 ACLs. Thanks to Dennis Clarke for reporting.
+
+-	Cddda2wav now flushes stderr before asking for a specific cddb
+	entry index. It seems that on Linux stderr may not be unbuffered
+	as expected.
+
+-	Cdda2wav moved the option parsing code into a separate function
+	gargs().
+
+-	Cdrecord/Cdda2wav/Readcd: trying to avoid to confuse users
+	on Solaris and Linux where a fine grained privilege implementation
+	exists. Before, fine grained privileges have been given up after
+	initializing the program and this may result in a root user that
+	is treated as a normal user that cannot write into directories 
+	without global write permission. The named programs now no longer
+	give up privileges in case they have been called with the needed
+	privileges already and thus the programs cannot be used for
+	privilege escalations anymore.
+
+-	Libfind now allows to check for -type P (Solaris event port).
+	A missing "case 'P':" was added to the parser.
+
+-	Cdrtools bumped to 3.01a19
+
+
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.isdn.cs.tu-berlin.de, js@cs.tu-berlin.de
+	joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

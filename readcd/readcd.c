@@ -1,8 +1,8 @@
-/* @(#)readcd.c	1.122 13/09/23 Copyright 1987, 1995-2013 J. Schilling */
+/* @(#)readcd.c	1.123 13/11/19 Copyright 1987, 1995-2013 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)readcd.c	1.122 13/09/23 Copyright 1987, 1995-2013 J. Schilling";
+	"@(#)readcd.c	1.123 13/11/19 Copyright 1987, 1995-2013 J. Schilling";
 #endif
 /*
  *	Skeleton for the use of the scg genearal SCSI - driver
@@ -539,18 +539,24 @@ main(ac, av)
 	 */
 	is_suid = priv_from_priv();
 	/*
+	 * This is only for OS that do not support fine grained privs.
+	 */
+	if (!is_suid) {
+#ifdef	HAVE_ISSETUGID
+		is_suid = issetugid();
+#else
+		is_suid = geteuid() != getuid();
+#endif
+	}
+	/*
 	 * Drop privs we do not need anymore.
 	 * We no longer need:
 	 *	file_dac_read,net_privaddr
 	 * We still need:
 	 *	sys_devices
 	 */
-	priv_drop();
-	/*
-	 * This is only for OS that do not support fine grained privs.
-	 */
-	if (!is_suid)
-		is_suid = geteuid() != getuid();
+	if (is_suid || getuid() != 0)
+		priv_drop();
 	/*
 	 * We don't need root privilleges anymore.
 	 */

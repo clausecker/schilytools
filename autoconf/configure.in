@@ -1,6 +1,6 @@
-dnl @(#)configure.in	1.250 13/11/04 Copyright 1998-2013 J. Schilling
+dnl @(#)configure.in	1.251 13/11/13 Copyright 1998-2013 J. Schilling
 dnl Process this file with autoconf to produce a configure script.
-AC_REVISION(1.250)dnl
+AC_REVISION(1.251)dnl
 
 dnl AC_INIT(xconfig.h.in)
 AC_INIT(config.guess)
@@ -535,7 +535,7 @@ AC_CHECK_DFUNCS([
 
 AC_CHECK_FUNCS(wcwidth wcswidth wctype iswctype)
 AC_CHECK_FUNCS(basename dirname)
-AC_CHECK_FUNCS(pathconf fpathconf)
+AC_CHECK_FUNCS(pathconf fpathconf lpathconf)
 AC_CHECK_FUNCS(malloc calloc valloc realloc memalign posix_memalign)
 AC_CHECK_FUNCS(madvise)
 AC_CHECK_FUNCS(mktemp mkstemp)
@@ -769,6 +769,7 @@ if test "$ac_cv_header_sys_acl_h" = yes; then
   AC_CHECK_FUNCS(acl_get_file acl_set_file acl_from_text acl_to_text acl_free acl_delete_def_file)
   AC_CHECK_FUNCS(acl_extended_file)
   AC_CHECK_FUNCS(acl_get_entry)
+  AC_CHECK_FUNCS(acl_to_text_np acl_get_brand_np acl_is_trivial_np acl_strip_np)
   LIBS="$ac_save_LIBS"
 
   AC_CHECKING(for Solaris UFS Access Control List support)
