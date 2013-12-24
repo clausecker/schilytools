@@ -1,11 +1,11 @@
-/* @(#)drv_bd.c	1.20 10/12/19 Copyright 2007-2010 J. Schilling */
+/* @(#)drv_bd.c	1.21 13/12/10 Copyright 2007-2013 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)drv_bd.c	1.20 10/12/19 Copyright 2007-2010 J. Schilling";
+	"@(#)drv_bd.c	1.21 13/12/10 Copyright 2007-2013 J. Schilling";
 #endif
 /*
- *	Copyright (c) 2007-2010 J. Schilling
+ *	Copyright (c) 2007-2013 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -14,6 +14,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -55,6 +57,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -1746,7 +1750,7 @@ print_bd_info(scgp)
 	int	i;
 
 	if (lverbose > 2)
-		printf(_("Enterning BD info....\n"));
+		printf(_("Entering BD info....\n"));
 	/*
 	 * The ACARD TECH AEC-7720 ATAPI<->SCSI adaptor
 	 * chokes if we try to transfer odd byte counts (rounds up to

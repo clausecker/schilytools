@@ -1,6 +1,6 @@
 #!/bin/sh
 ###########################################################################
-#ident "@(#)MKLINKS	1.97 13/08/11 "
+#ident "@(#)MKLINKS	1.98 13/12/13 "
 ###########################################################################
 # Written 1996-2013 by J. Schilling
 ###########################################################################
@@ -196,6 +196,8 @@ $symlink	i586-linux-cc.rul	armv5tejl-linux-cc.rul
 $symlink	i586-linux-gcc.rul	armv5tejl-linux-gcc.rul
 $symlink	i586-linux-cc.rul	armv6l-linux-cc.rul
 $symlink	i586-linux-gcc.rul	armv6l-linux-gcc.rul
+$symlink	i586-linux-cc.rul	armv7l-linux-cc.rul
+$symlink	i586-linux-gcc.rul	armv7l-linux-gcc.rul
 $symlink	i586-linux-cc.rul	sh3-linux-cc.rul
 $symlink	i586-linux-gcc.rul	sh3-linux-gcc.rul
 $symlink	i586-linux-cc.rul	sh4-linux-cc.rul

@@ -1,14 +1,14 @@
-/* @(#)p_block.c	1.28 09/07/11 J. Schilling from cdparanoia-III-alpha9.8 */
+/* @(#)p_block.c	1.29 13/12/22 J. Schilling from cdparanoia-III-alpha9.8 */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-"@(#)p_block.c	1.28 09/07/11 J. Schilling from cdparanoia-III-alpha9.8";
+"@(#)p_block.c	1.29 13/12/22 J. Schilling from cdparanoia-III-alpha9.8";
 
 #endif
 /*
  * CopyPolicy: GNU Lesser General Public License v2.1 applies
  * Copyright (C) 1997-2001,2008 by Monty (xiphmont@mit.edu)
- * Copyright (C) 2002-2009 by J. Schilling
+ * Copyright (C) 2002-2013 by J. Schilling
  */
 #include <schily/stdlib.h>
 #include <schily/standard.h>
@@ -578,7 +578,9 @@ paranoia_init(d, nsectors,
 				vp_v_fragment_destructor_func);
 
 	p->nsectors  = nsectors;
-	p->readahead = 150;
+	p->sectsize  = CD_FRAMESIZE_RAW;
+	p->sectwords  = CD_FRAMESIZE_RAW/2;
+	p->readahead = CD_READAHEAD;
 	p->sortcache = sort_alloc(p->readahead * CD_FRAMEWORDS);
 	p->d = d;
 	p->mindynoverlap = MIN_SECTOR_EPSILON;

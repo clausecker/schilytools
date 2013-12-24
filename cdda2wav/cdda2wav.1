@@ -1,5 +1,5 @@
 '\" t
-.\" @(#)cdda2wav.1	1.57 11/01/23 Copyright 1998,1999,2000 Heiko Eissfeldt, Copyright 2004-2010 J. Schilling
+.\" @(#)cdda2wav.1	1.58 13/12/24 Copyright 1998,1999,2000 Heiko Eissfeldt, Copyright 2004-2013 J. Schilling
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
 .if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
 .if t .ds u \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'u
@@ -66,7 +66,11 @@ by default writes
 files.
 To extract all audio tracks with quality verification, it is recommended to call:
 .PP
-.B "cdda2wav -vall cddb=0 -paranoia -B"
+.B "cdda2wav -vall cddb=0 speed=4 -paranoia paraopts=proof -B"
+.PP
+For hints on how to specify better parameters manually, see the
+.B paraopts=
+description below.
 .SS "Device naming"
 Most users do not need to care about device naming.
 If no
@@ -373,10 +377,25 @@ In
 mode, the latency time 
 for the  
 .B \-interactive 
-mode is increased to typically 5..10 seconds. This is due to the
+mode and with a read ahead buffer size of 150..300 sectors,
+is increased to typically 5..10 seconds. This is due to the
 .B paranoia
 code reading everything at least twice and having to empty the
 cache RAM of the CD-ROM drive.
+.sp
+The size of the read ahead area must be larger than the size of the
+RAM of the drive in order to allow
+.B libparanoia
+to empty the cache RAM in the drive.
+As the size of the read ahead area in former times was a constant compiled
+into the
+.B libparanoia
+code, the extract quality with using libparanoia was no longer sufficient
+with drives built after year 2000. See
+.B readahead=
+parameter to the
+.B paraopts=
+option below.
 .sp
 .ne 10
 If the
@@ -397,8 +416,74 @@ edge	Number of jitters between sectors detected
 drop	Number of dropped bytes fixed
 dup	Number of duplicate bytes fixed
 drift	Number of drifts detected
+c2	Number of sectors with C2 errors
+reads	Number of readahead blocks read and percentage to track size
 overlap	Number of dynamic overlap size raises
 .TE
+.RS
+.LP
+The quality indicators in detail:
+.TP
+.B rderr
+The number of failed low level read requests.
+Each read appears for
+.B sectors\-per\-request
+sectors.
+The
+.B sectors\-per\-request
+size is typically less than the read ahead size.
+.TP
+.B skip
+The number of sectors that have been skipped because the read error retry
+count was exhausted and no successful read was possible.
+.TP
+.B atom
+The number of jitters that have been detected inside sectors.
+This should never happen, but whenever a non-correctable C2 error occurs,
+the drive could lose streaming.
+Increasing the read ahead buffer size may reduce the results from atom
+errors.
+.TP
+.B edge
+The number of jitters that have been detected at the edges of sectors.
+This could be caused by sector positioning errors.
+Increasing the read ahead buffer size may reduce the results from edge
+errors.
+.TP
+.B drop
+The number of dropped samples.
+This could be caused by sector positioning errors.
+Increasing the read ahead buffer size may reduce the results from edge
+errors.
+.TP
+.B dup
+Duplicated samples could be caused by sector positioning errors like dripped samples.
+Increasing the read ahead buffer size may reduce the results from edge
+errors.
+.TP
+.B drift
+This is the amount of drifts detected when checking the overlap area.
+.TP
+.B c2
+The number of sectors with C2 errors seen when reading the last track.
+As the paranoia code tends to read bad parts of the disk many times, this
+number usually is above the number that would appear when the disk is just
+read once in a linear way.
+Use
+.B paraopts=disable,c2check
+to see a number that represents the state of the medium.
+.TP
+.B reads
+The number of read ahead blocks read for the last track by the upper layer
+and the percentage of the amount of data read compared to the size of the track.
+This percentage is typically 200% because the paranoia code reads all data
+at least twice. If there is a lot of overlap and a lof of read problems, this
+percentage raises.
+.TP
+.B overlap
+The number the overlap size has been raised. This happens when the overlap
+size is below the maximum overlap size and errors in the overlap area are detected.
+.RE
 .br
 .ne 15
 .TP
@@ -414,11 +499,145 @@ help	lists all paranoia options.
 disable	disables paranoia mode. Libparanoia is still being used
 no-verify	switches verify off, and static overlap on
 retries=amount	set the number of maximum retries per sector
-overlap=amount	set the number of sectors used for statical paranoia overlap
-minoverlap=amt	set the min. number of sectors for dynamic paranoia overlap
-maxoverlap=amt	set the max. number of sectors for dynamic paranoia overlap
-proof	set maxoverlap=\fIsectors\-per\-request\fP-1,retries=200
+readahead=amount	set the number of sectors to use for the read ahead buffer
+overlap=amount	set the number of sectors used for static overlap
+minoverlap=amt	set the min. number of sectors for dynamic overlap
+maxoverlap=amt	set the max. number of sectors for dynamic overlap
+c2check	check C2 pointers from drive to rate quality
+proof	set minoverlap=20,retries=200,readahead=600,c2check
 .TE
+.RS
+.LP
+The
+.B paraopts=
+parameters in detail:
+.TP
+.B disable
+The paranoia corrections are disabled, but the data is still directed
+through the code from
+.BR libparanoia .
+This allows to switch on C2 error detection and to check the C2 error
+statistics for a CD.
+.TP
+.B no\-verify
+This switches off the verification of the data integrity in the overlap
+area and turns off dynamic overlap control in favor of a static overlap
+value.
+.TP
+.BI retries= amount
+Set the maximum number of read retries per sector in case of hard read
+errors. The default value for this parameter is
+.BR 20 .
+This is the same value as used by the old
+.BR cdparanoia (1)
+command.
+.TP
+.BI readahead= amount
+Set the number of sectors to use for the read ahead buffer. 
+Except when at the end of the medium,
+.B libparanoia
+never requests less than this amount of data from the low level
+I/O code.
+The size of the read ahead buffer is usually bigger than the 
+maximum size for a single DMA in the system. For this reason,
+.B libparanoia
+calls several read operations in order to fill the read ahead buffer.
+The default value used by
+.B cdda2wav
+is 400, which is more than the 150 sectors that
+.BR cdparanoia (1)
+uses but still a compromise for not requiring too much memory.
+.sp
+It is recommended to use a read ahead buffer size that is not less than
+the RAM size in the CD-ROM drive. If the drive has more than 1MB of RAM,
+use 425 sectors per MB of RAM in the drive.
+.sp
+Note that as long as the
+.B readahead=
+value is too small, the extract quality varies a lot with the value in use.
+The value used by 
+.BR cdparanoia (1)
+may cause an extract quality below what
+.B cdda2wav
+delivers without
+.BR libparanoia .
+.TP
+.BI overlap= amount
+Set the number of sectors used for static overlap. This switches dynamic
+overlap off.
+It is recommended not to use static overlapping. To get a larger
+overlapping, better use a higher
+.B minoverlap=
+value.
+.TP
+.BI minoverlap= amount
+Set the minimum number of sectors for dynamic overlap.
+The default value used by
+.B cdda2wav
+is
+.BR 0.5 ,
+this is more than the default used by
+.BR cdparanoia (1)
+which is 0.1.
+.sp
+For old drives that do not support accurate streaming, it is not
+recommended to specify a
+.B minoverlap=
+value greater or equal to the maximal DMA size.
+.sp
+For best results on other drives, it is recommended to use a
+.B minoverlap=
+value that is not less than half of the readahead size.
+.sp
+The extract quality varies a lot with the
+.B minoverlap=
+value, but increasing the value also increases the extract
+time.
+.TP
+.BI maxoverlap= amount
+Set the maximum number of sectors for dynamic overlap.
+If
+.B maxoverlap=
+was not specified and a large
+.B minoverlap=
+value was specified, this results in a quasi static overlapping.
+The default value used by
+.B cda2wav
+is
+.BR 32 .
+.TP
+.B c2check
+Turn on C2 error checking.
+For now, this just results in printing C2 error statistics.
+.br
+.ne 5
+.TP
+.B proof
+This option is a macro for better extract parameters than used by default.
+The macro
+.B proof
+expands to:
+.sp
+.B "    paraopts=minoverlap=\fIsectors\-per\-request\fP-1,\e
+.br
+.B "        retries=200,readahead=600,c2check
+.sp
+If
+.I sectors\-per\-request\f\-1
+is more than 20, 20 is used as minimal overlap value.
+.sp
+The parameters used by
+.B proof
+are still not the best and there is no best parameter set for all cases.
+A larger value for the read ahead buffer size may e.g be too large for
+the available RAM in the system and the best value for the minimal overlap
+depends on whether the drive supports exact streaming.
+It is recommended to run experiments with larger values for the parameters
+.B minoverlap=
+and
+.B readahead=
+to get the best results for a specific platform.
+.RE
 .br
 .TP
 .B \-q
@@ -1462,7 +1681,7 @@ D-13353 Berlin
 Germany
 .fi
 .SH DATE
-12 Jan 2010
+2013/12/24
 .br
 .ne 7
 .SH "INTERFACE STABILITY

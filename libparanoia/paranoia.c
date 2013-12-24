@@ -1,8 +1,8 @@
-/* @(#)paranoia.c	1.44 13/07/03 J. Schilling from cdparanoia-III-alpha9.8 */
+/* @(#)paranoia.c	1.46 13/12/24 J. Schilling from cdparanoia-III-alpha9.8 */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-"@(#)paranoia.c	1.44 13/07/03 J. Schilling from cdparanoia-III-alpha9.8";
+"@(#)paranoia.c	1.46 13/12/24 J. Schilling from cdparanoia-III-alpha9.8";
 
 #endif
 /*
@@ -98,6 +98,13 @@ typedef struct sync_result {
 	long		end;
 } sync_result;
 
+struct c2errs {
+	long	c2errs;		/* # of reads with C2 errors */
+	long	c2bytes;	/* # of bytes with C2 errors */
+	long	c2secs;		/* # of sectorss with C2 errors */
+	long	c2maxerrs;	/* Max. # of C2 errors per sector */
+};
+
 LOCAL	inline long	re		__PR((root_block * root));
 LOCAL	inline long	rb		__PR((root_block * root));
 LOCAL	inline long	rs		__PR((root_block * root));
@@ -145,6 +152,9 @@ LOCAL	void	verify_skip_case	__PR((cdrom_paranoia * p, void (*callback) (long, in
 EXPORT	void	paranoia_free		__PR((cdrom_paranoia * p));
 EXPORT	void	paranoia_modeset	__PR((cdrom_paranoia * p, int enable));
 EXPORT	long	paranoia_seek		__PR((cdrom_paranoia * p, long seek, int mode));
+LOCAL	void	c2_audiocopy		__PR((void *to, void *from, int nsectors));
+LOCAL	int	bits			__PR((int c));
+LOCAL	void	c2_errcopy		__PR((void *to, void *from, int nsectors, struct c2errs *errp));
 c_block		*i_read_c_block		__PR((cdrom_paranoia * p, long beginword, long endword,
 						void (*callback) (long, int)));
 EXPORT	Int16_t	*paranoia_read		__PR((cdrom_paranoia * p, void (*callback) (long, int)));
@@ -152,7 +162,10 @@ EXPORT	Int16_t	*paranoia_read_limited	__PR((cdrom_paranoia * p, void (*callback)
 						int max_retries));
 EXPORT	void	paranoia_overlapset	__PR((cdrom_paranoia * p, long overlap));
 
-
+/*
+ * Return end offset of current block.
+ * End offset counts in multiples of samples (16 bits).
+ */
 LOCAL inline long
 re(root)
 	root_block	*root;
@@ -164,6 +177,10 @@ re(root)
 	return (ce(root->vector));
 }
 
+/*
+ * Return begin offset of current block.
+ * Begin offset counts in multiples of samples (16 bits).
+ */
 LOCAL inline long
 rb(root)
 	root_block	*root;
@@ -175,6 +192,10 @@ rb(root)
 	return (cb(root->vector));
 }
 
+/*
+ * Return size of current block.
+ * Size counts in multiples of samples (16 bits).
+ */
 LOCAL inline long
 rs(root)
 	root_block	*root;
@@ -186,6 +207,9 @@ rs(root)
 	return (cs(root->vector));
 }
 
+/*
+ * Return data vector from current block.
+ */
 LOCAL inline Int16_t *
 rv(root)
 	root_block	*root;
@@ -213,6 +237,7 @@ rv(root)
 #define	FLAGS_EDGE	0x1	/**< first/last N words of frame	   */
 #define	FLAGS_UNREAD	0x2	/**< unread, hence missing and unmatchable */
 #define	FLAGS_VERIFIED	0x4	/**< block read and verified		   */
+#define	FLAGS_C2	0x8	/**< sample with C2 error		   */
 
 /*
  * matching and analysis code
@@ -2595,6 +2620,37 @@ paranoia_modeset(p, enable)
 	int		enable;
 {
 	p->enable = enable;
+	if (enable & PARANOIA_MODE_C2CHECK) {
+		p->sectsize = CD_C2SIZE_RAW;
+		p->sectwords = CD_C2SIZE_RAW/2;
+	} else {
+		p->sectsize = CD_FRAMESIZE_RAW;
+		p->sectwords = CD_FRAMESIZE_RAW/2;
+	}
+}
+
+EXPORT int
+paranoia_modeget(p)
+	cdrom_paranoia	*p;
+{
+	return (p->enable);
+}
+
+EXPORT void
+paranoia_set_readahead(p, readahead)
+	cdrom_paranoia	*p;
+	int		readahead;
+{
+	p->readahead = readahead;
+	sort_free(p->sortcache);
+	p->sortcache = sort_alloc(p->readahead * CD_FRAMEWORDS);
+}
+
+EXPORT int
+paranoia_get_readahead(p)
+	cdrom_paranoia	*p;
+{
+	return (p->readahead);
 }
 
 EXPORT long
@@ -2637,6 +2693,101 @@ paranoia_seek(p, seek, mode)
 	p->current_firstsector = sector;
 
 	return (ret);
+}
+
+LOCAL void
+c2_audiocopy(to, from, nsectors)
+	void	*to;
+	void	*from;
+	int	nsectors;
+{
+	char	*tocp = to;
+	char	*fromcp = from;
+
+	while (--nsectors >= 0) {
+		memmove(tocp, fromcp, CD_FRAMESIZE_RAW);
+		tocp += CD_FRAMESIZE_RAW;
+		fromcp += CD_C2SIZE_RAW;
+	}
+}
+
+/*
+ * Stolen from readcd(1)
+ */
+LOCAL int
+bits(c)
+	int	c;
+{
+	int	n = 0;
+
+	if (c & 0x01)
+		n++;
+	if (c & 0x02)
+		n++;
+	if (c & 0x04)
+		n++;
+	if (c & 0x08)
+		n++;
+	if (c & 0x10)
+		n++;
+	if (c & 0x20)
+		n++;
+	if (c & 0x40)
+		n++;
+	if (c & 0x80)
+		n++;
+	return (n);
+}
+
+LOCAL void
+c2_errcopy(to, from, nsectors, errp)
+	void	*to;
+	void	*from;
+	int	nsectors;
+	struct c2errs *errp;
+{
+	char	dummy[CD_C2PTR_RAW * 4];
+	char	*tocp = to;
+	char	*fromcp = from;
+	int	errs = 0;
+	UInt8_t *ep;
+	UInt8_t e;
+	int	i;
+
+	errp->c2errs = 0;
+	errp->c2bytes = 0;
+	errp->c2secs = 0;
+	errp->c2maxerrs = 0;
+
+	while (--nsectors >= 0) {
+		if (to == NULL)
+			tocp = dummy;
+		ep = (UInt8_t *)(fromcp + CD_FRAMESIZE_RAW);
+		for (i = CD_C2PTR_RAW; --i >= 0; tocp += 4) {
+			if ((e = *ep++) != 0) {
+				if (e & 0xC0)
+					tocp[0] |= FLAGS_C2;
+				if (e & 0x30)
+					tocp[1] |= FLAGS_C2;
+				if (e & 0x0C)
+					tocp[2] |= FLAGS_C2;
+				if (e & 0x03)
+					tocp[3] |= FLAGS_C2;
+				errs += bits(e);
+			}
+		}
+		if (errs > 0) {
+			errp->c2bytes += errs;
+			errp->c2secs++;
+			if (errs > errp->c2maxerrs)
+				errp->c2maxerrs = errs;
+			errs = 0;
+		}
+
+		fromcp += CD_C2SIZE_RAW;
+	}
+	if (errp->c2secs > 0)
+		errp->c2errs++;
 }
 
 /*
@@ -2777,8 +2928,8 @@ static	int		pagesize = -1;
 		if (pagesize < 0)
 			pagesize = 4096;	/* Just a guess */
 	}
-	reduce = pagesize / CD_FRAMESIZE_RAW;
-	bufbase = _pmalloc(totaltoread * CD_FRAMESIZE_RAW + pagesize);
+	reduce = pagesize / p->sectsize;
+	bufbase = _pmalloc(totaltoread * p->sectsize + pagesize);
 	buffer = (Int16_t *)valign(bufbase, pagesize);
 	sofar = 0;
 	firstread = -1;
@@ -2821,6 +2972,7 @@ static	int		pagesize = -1;
 			secread = sectatonce - reduce;
 
 		if (secread > 0) {
+			struct c2errs	c2errs;
 
 			if (firstread < 0)
 				firstread = adjread;
@@ -2844,7 +2996,7 @@ static	int		pagesize = -1;
 			 * cases, you take what part of the read you know is good, and
 			 * you get substantially better performance. --Monty
 			 */
-			if ((thisread = p->d_read(p->d, buffer + sofar * CD_FRAMEWORDS, adjread,
+			if ((thisread = p->d_read(p->d, buffer + sofar * p->sectwords, adjread,
 						secread)) < secread) {
 
 				if (thisread < 0)
@@ -2891,13 +3043,28 @@ static	int		pagesize = -1;
 				for (i = -MIN_WORDS_OVERLAP / 2; i < MIN_WORDS_OVERLAP / 2; i++)
 					flags[sofar * CD_FRAMEWORDS + i] |= FLAGS_EDGE;
 			}
+			if (flags && p->enable & PARANOIA_MODE_C2CHECK) {
+				c2_errcopy(flags + sofar * CD_FRAMEWORDS,
+					buffer + sofar * p->sectwords, thisread, &c2errs);
+			}
 			p->lastread = adjread + secread;
 
 			if (adjread + secread - 1 == p->current_lastsector)
 				new->lastsector = -1;
 
-			if (callback)
+			if (callback) {
+				(*callback) (thisread, PARANOIA_CB_SECS);
+				if (c2errs.c2errs > 0)
+					(*callback) (adjread * CD_FRAMEWORDS, PARANOIA_CB_C2ERR);
+				if (c2errs.c2bytes > 0)
+					(*callback) (c2errs.c2bytes, PARANOIA_CB_C2BYTES);
+				if (c2errs.c2secs > 0)
+					(*callback) (c2errs.c2secs, PARANOIA_CB_C2SECS);
+				if (c2errs.c2maxerrs > 0)
+					(*callback) (c2errs.c2maxerrs, PARANOIA_CB_C2MAXERRS);
+
 				(*callback) ((adjread + secread - 1) * CD_FRAMEWORDS, PARANOIA_CB_READ);
+			}
 
 			sofar += secread;
 			readat = adjread + secread;
@@ -2924,7 +3091,11 @@ static	int		pagesize = -1;
 	 */
 	if (anyflag) {
 		new->vector = _pmalloc(totaltoread * CD_FRAMESIZE_RAW);
-		memcpy(new->vector, buffer, totaltoread * CD_FRAMESIZE_RAW);
+		if (p->enable & PARANOIA_MODE_C2CHECK) {
+			c2_audiocopy(new->vector, buffer, totaltoread);
+		} else {
+			memcpy(new->vector, buffer, totaltoread * CD_FRAMESIZE_RAW);
+		}
 		_pfree(bufbase);
 
 		new->begin = firstread * CD_FRAMEWORDS - p->dyndrift;

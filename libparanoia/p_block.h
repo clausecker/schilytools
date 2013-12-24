@@ -1,8 +1,8 @@
-/* @(#)p_block.h	1.19 11/08/03 J. Schilling from cdparanoia-III-alpha9.8 */
+/* @(#)p_block.h	1.20 13/12/22 J. Schilling from cdparanoia-III-alpha9.8 */
 /*
  * CopyPolicy: GNU Lesser General Public License v2.1 applies
  * Copyright (C) 1997-2001 by Monty (xiphmont@mit.edu)
- * Copyright (C) 2002-2011 by J. Schilling
+ * Copyright (C) 2002-2013 by J. Schilling
  */
 
 #ifndef	_P_BLOCK_H
@@ -58,8 +58,8 @@ extern linked_list	*copy_list	__PR((linked_list * list));	/* shallow; doesn't co
 typedef struct c_block {
 	/* The buffer */
 	Int16_t		*vector;
-	long		begin;
-	long		size;
+	long		begin;	/* Begin diskoff, multiples of 16bit samples */
+	long		size;	/* Size, multiples of 16bit samples */
 
 	/* auxiliary support structures */
 	unsigned char 	*flags;
@@ -151,6 +151,8 @@ typedef struct cdrom_paranoia {
 	int	(*d_track_audiop) __PR((void *d, int track));	/* -> int Is audiotrack */
 
 	int		nsectors;	/* # of sectors that fit into DMA buf */
+	int		sectsize;	/* size of a sector, 2353 or 2646 bytes */
+	int		sectwords;	/* words in a sector, 2353/2 or 2646/2 */
 
 	root_block	root;		/* verified/reconstructed cached data */
 	linked_list	*cache;		/* our data as read from the cdrom */
@@ -163,7 +165,7 @@ typedef struct cdrom_paranoia {
 	int		jitter;
 	long		lastread;
 
-	int		enable;
+	int		enable;		/* modes from paranoia_modeset() */
 	long		cursor;
 	long		current_lastsector;
 	long		current_firstsector;

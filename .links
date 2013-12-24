@@ -210,6 +210,8 @@
 ./RULES/armv5tejl-linux-gcc.rul
 ./RULES/armv6l-linux-cc.rul
 ./RULES/armv6l-linux-gcc.rul
+./RULES/armv7l-linux-cc.rul
+./RULES/armv7l-linux-gcc.rul
 ./RULES/atariclone-freemint-gcc.rul
 ./RULES/atariste-freemint-gcc.rul
 ./RULES/ataritt-freemint-gcc.rul

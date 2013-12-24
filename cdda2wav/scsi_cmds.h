@@ -1,4 +1,4 @@
-/* @(#)scsi_cmds.h	1.17 09/01/23 Copyright 1998,1999 Heiko Eissfeldt, Copyright 2004-2009 J. Schilling */
+/* @(#)scsi_cmds.h	1.18 13/12/24 Copyright 1998,1999 Heiko Eissfeldt, Copyright 2004-2013 J. Schilling */
 /*
  * header file for scsi_cmds.c
  */
@@ -9,6 +9,8 @@
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -43,10 +45,16 @@ extern	subq_chnl *ReadStandardSub	__PR((SCSI *scgp, unsigned lSector));
 extern	int	ReadCddaMMC12		__PR((SCSI *scgp, UINT4 *p,
 						unsigned lSector,
 						unsigned SectorBurstVal));
+extern	int	ReadCddaMMC12_C2	__PR((SCSI *scgp, UINT4 *p,
+						unsigned lSector,
+						unsigned SectorBurstVal));
 extern	int	ReadCdda12Matsushita	__PR((SCSI *scgp, UINT4 *p,
 						unsigned lSector,
 						unsigned SectorBurstVal));
 extern	int	ReadCdda12		__PR((SCSI *scgp, UINT4 *p,
+						unsigned lSector,
+						unsigned SecorBurstVal));
+extern	int	ReadCdda12_C2		__PR((SCSI *scgp, UINT4 *p,
 						unsigned lSector,
 						unsigned SecorBurstVal));
 extern	int	ReadCdda10		__PR((SCSI *scgp, UINT4 *p,
@@ -59,6 +67,9 @@ extern	int	ReadStandardData	__PR((SCSI *scgp, UINT4 *p,
 						unsigned lSector,
 						unsigned SctorBurstVal));
 extern	int	ReadCddaFallbackMMC	__PR((SCSI *scgp, UINT4 *p,
+						unsigned lSector,
+						unsigned SctorBurstVal));
+extern	int	ReadCddaFallbackMMC_C2	__PR((SCSI *scgp, UINT4 *p,
 						unsigned lSector,
 						unsigned SctorBurstVal));
 extern	int	ReadCddaSubSony		__PR((SCSI *scgp, UINT4 *p,

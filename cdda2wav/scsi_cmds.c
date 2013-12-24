@@ -1,8 +1,8 @@
-/* @(#)scsi_cmds.c	1.52 10/12/19 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2004-2010 J. Schilling */
+/* @(#)scsi_cmds.c	1.53 13/12/24 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2004-2013 J. Schilling */
 #include "config.h"
 #ifndef lint
 static	UConst char sccsid[] =
-"@(#)scsi_cmds.c	1.52 10/12/19 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2004-2010 J. Schilling";
+"@(#)scsi_cmds.c	1.53 13/12/24 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2004-2013 J. Schilling";
 #endif
 /*
  * file for all SCSI commands
@@ -15,6 +15,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -1423,6 +1425,50 @@ ReadCdda12(scgp, p, lSector, SectorBurstVal)
  * Read max. SectorBurst of cdda sectors to buffer
  * via vendor-specific ReadCdda(12) command
  */
+int
+ReadCdda12_C2(scgp, p, lSector, SectorBurstVal)
+	SCSI		*scgp;
+	UINT4		*p;
+	unsigned	lSector;
+	unsigned	SectorBurstVal;
+{
+	register struct	scg_cmd	*scmd = scgp->scmd;
+
+	fillbytes((caddr_t)scmd, sizeof (*scmd), '\0');
+	scmd->addr = (caddr_t)p;
+	scmd->size = SectorBurstVal*CD_FRAMESIZE_RAWER;
+	scmd->flags = SCG_RECV_DATA|SCG_DISRE_ENA;
+	scmd->cdb_len = SC_G5_CDBLEN;
+	scmd->sense_len = CCS_SENSE_LEN;
+	scmd->cdb.g5_cdb.cmd = 0xd8;		/* read audio command */
+	scmd->cdb.g5_cdb.lun = scg_lun(scgp);
+	scmd->cdb.g5_cdb.res |= (accepts_fua_bit == 1 ? 1 << 2 : 0);
+	scmd->cdb.g5_cdb.res10 = 0x04;		/* With C2 errors */
+	g5_cdbaddr(&scmd->cdb.g5_cdb, lSector);
+	g5_cdblen(&scmd->cdb.g5_cdb, SectorBurstVal);
+
+	if (scgp->verbose)
+		fprintf(stderr, _("\nReadSony12 CDDA C2..."));
+
+	scgp->cmdname = "Read12 C2";
+
+	if (scg_cmd(scgp) < 0) {
+		scgp->silent++;
+		unit_ready(scgp);
+		scgp->silent--;
+		return (0);
+	}
+
+	/*
+	 * has all or something been read?
+	 */
+	return (SectorBurstVal - scg_getresid(scgp)/CD_FRAMESIZE_RAW);
+}
+
+/*
+ * Read max. SectorBurst of cdda sectors to buffer
+ * via vendor-specific ReadCdda(12) command
+ */
 /*
  * It uses a 12 Byte CDB with 0xd4 as opcode, the start sector is coded as
  * normal and the number of sectors is coded in Byte 8 and 9 (begining with 0).
@@ -1508,6 +1554,53 @@ ReadCddaMMC12(scgp, p, lSector, SectorBurstVal)
 	return (SectorBurstVal - scg_getresid(scgp)/CD_FRAMESIZE_RAW);
 }
 
+/*
+ * Read max. SectorBurst of cdda sectors to buffer
+ * via MMC standard READ CD command
+ */
+int
+ReadCddaMMC12_C2(scgp, p, lSector, SectorBurstVal)
+	SCSI		*scgp;
+	UINT4		*p;
+	unsigned	lSector;
+	unsigned	SectorBurstVal;
+{
+	register struct	scg_cmd	*scmd;
+
+	scmd = scgp->scmd;
+
+	fillbytes((caddr_t)scmd, sizeof (*scmd), '\0');
+	scmd->addr = (caddr_t)p;
+	scmd->size = SectorBurstVal*CD_FRAMESIZE_RAWER;
+	scmd->flags = SCG_RECV_DATA|SCG_DISRE_ENA;
+	scmd->cdb_len = SC_G5_CDBLEN;
+	scmd->sense_len = CCS_SENSE_LEN;
+	scmd->cdb.g5_cdb.cmd = 0xbe;		/* read cd command */
+	scmd->cdb.g5_cdb.lun = scg_lun(scgp);
+	scmd->cdb.g5_cdb.res = 1 << 1; /* expected sector type field CDDA */
+	g5_cdbaddr(&scmd->cdb.g5_cdb, lSector);
+	g5x_cdblen(&scmd->cdb.g5_cdb, SectorBurstVal);
+	scmd->cdb.g5_cdb.count[3] = 1 << 4;	/* User data */
+	scmd->cdb.g5_cdb.count[3] |= 1 << 1;	/* C2 */
+
+	if (scgp->verbose)
+		fprintf(stderr, _("\nReadMMC12 CDDA C2..."));
+
+	scgp->cmdname = "ReadCD MMC 12 C2";
+
+	if (scg_cmd(scgp) < 0) {
+		scgp->silent++;
+		unit_ready(scgp);
+		scgp->silent--;
+		return (0);
+	}
+
+	/*
+	 * has all or something been read?
+	 */
+	return (SectorBurstVal - scg_getresid(scgp)/CD_FRAMESIZE_RAW);
+}
+
 int
 ReadCddaFallbackMMC(scgp, p, lSector, SectorBurstVal)
 	SCSI		*scgp;
@@ -1537,9 +1630,37 @@ static int	ReadCdda12_unknown = 0;
 	return (retval);
 }
 
+int
+ReadCddaFallbackMMC_C2(scgp, p, lSector, SectorBurstVal)
+	SCSI		*scgp;
+	UINT4		*p;
+	unsigned	lSector;
+	unsigned	SectorBurstVal;
+{
+static int	ReadCdda12_C2_unknown = 0;
+	int	retval = -999;
+
+	scgp->silent++;
+	if (ReadCdda12_C2_unknown ||
+	    ((retval = ReadCdda12_C2(scgp, p, lSector, SectorBurstVal)) <= 0)) {
+		/*
+		 * if the command is not available, use the regular
+		 * MMC ReadCd
+		 */
+		if (retval <= 0 && scg_sense_key(scgp) == 0x05) {
+			ReadCdda12_C2_unknown = 1;
+		}
+		scgp->silent--;
+		ReadCdRom_C2 = ReadCddaMMC12_C2;
+		return (ReadCddaMMC12_C2(scgp, p, lSector, SectorBurstVal));
+	}
+	scgp->silent--;
+	return (retval);
+}
+
 /*
  * Read the Sub-Q-Channel to SubQbuffer. This is the method for
- * drives that do not support subchannel parameters.
+ * drives thp->sectsizeat do not support subchannel parameters.
  */
 #ifdef	PROTOTYPES
 static subq_chnl *

@@ -1,4 +1,4 @@
-/* @(#)global.h	1.35 13/11/19 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2013 J. Schilling */
+/* @(#)global.h	1.36 13/12/24 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2013 J. Schilling */
 /*
  * Global Variables
  */
@@ -141,6 +141,7 @@ typedef struct global {
 
 	int			paranoia_selected;
 	long			paranoia_flags;
+	int			paranoia_mode;
 #ifdef	USE_PARANOIA
 	cdrom_paranoia  	*cdp;
 
@@ -149,7 +150,9 @@ typedef struct global {
 		Ucbit	disable_extra_paranoia:1;
 		Ucbit	disable_scratch_detect:1;
 		Ucbit	disable_scratch_repair:1;
+		Ucbit	enable_c2_check:1;
 		int	retries;
+		int	readahead;
 		int	overlap;
 		int	mindynoverlap;
 		int	maxdynoverlap;

@@ -1,8 +1,8 @@
-/* @(#)cdda2wav.c	1.150 13/11/19 Copyright 1993-2004 Heiko Eissfeldt, Copyright 2004-2013 J. Schilling */
+/* @(#)cdda2wav.c	1.152 13/12/24 Copyright 1993-2004 Heiko Eissfeldt, Copyright 2004-2013 J. Schilling */
 #include "config.h"
 #ifndef lint
 static	UConst char sccsid[] =
-"@(#)cdda2wav.c	1.150 13/11/19 Copyright 1993-2004 Heiko Eissfeldt, Copyright 2004-2013 J. Schilling";
+"@(#)cdda2wav.c	1.152 13/12/24 Copyright 1993-2004 Heiko Eissfeldt, Copyright 2004-2013 J. Schilling";
 
 #endif
 #undef	DEBUG_BUFFER_ADDRESSES
@@ -1341,12 +1341,15 @@ init_globals()
 	global.just_the_toc = 0;
 	global.paranoia_selected = 0;
 	global.paranoia_flags = 0;
+	global.paranoia_mode = 0;
 #ifdef	USE_PARANOIA
 	global.paranoia_parms.disable_paranoia =
 	global.paranoia_parms.disable_extra_paranoia =
 	global.paranoia_parms.disable_scratch_detect =
-	global.paranoia_parms.disable_scratch_repair = 0;
+	global.paranoia_parms.disable_scratch_repair =
+	global.paranoia_parms.enable_c2_check = 0;
 	global.paranoia_parms.retries = 20;
+	global.paranoia_parms.readahead = -1;
 	global.paranoia_parms.overlap = -1;
 	global.paranoia_parms.mindynoverlap = -1;
 	global.paranoia_parms.maxdynoverlap = -1;
@@ -1674,9 +1677,15 @@ LOCAL struct paranoia_statistics
 	int	rip_smile_level;
 	unsigned verifies;
 	unsigned reads;
+	unsigned sectors;
 	unsigned fixup_edges;
 	unsigned fixup_atoms;
 	unsigned readerrs;
+	unsigned c2errs;
+	unsigned c2bytes;
+	unsigned c2secs;
+	unsigned c2maxerrs;
+	unsigned c2badsecs;
 	unsigned skips;
 	unsigned overlaps;
 	unsigned scratchs;
@@ -1686,9 +1695,9 @@ LOCAL struct paranoia_statistics
 }	*para_stat;
 
 
-LOCAL void paranoia_reset __PR((void));
+LOCAL void paranoia_statreset __PR((void));
 LOCAL void
-paranoia_reset()
+paranoia_statreset()
 {
 	para_stat->c_sector = 0;
 	para_stat->v_sector = 0;
@@ -1704,7 +1713,13 @@ paranoia_reset()
 	para_stat->rip_smile_level = 0;
 	para_stat->verifies = 0;
 	para_stat->reads = 0;
+	para_stat->sectors = 0;
 	para_stat->readerrs = 0;
+	para_stat->c2errs = 0;
+	para_stat->c2bytes = 0;
+	para_stat->c2secs = 0;
+	para_stat->c2maxerrs = 0;
+	para_stat->c2badsecs = 0;
 	para_stat->fixup_edges = 0;
 	para_stat->fixup_atoms = 0;
 	para_stat->fixup_droppeds = 0;
@@ -1729,12 +1744,14 @@ paranoia_callback(inpos, function)
 		case	-2:
 			para_stat->v_sector = inpos / CD_FRAMEWORDS;
 			return;
+
 		case	-1:
 			para_stat->last_heartbeatstate = 8;
 			para_stat->heartbeat = '*';
 			para_stat->slevel = 0;
 			para_stat->v_sector = inpos / CD_FRAMEWORDS;
-		break;
+			break;
+
 		case	PARANOIA_CB_VERIFY:
 			if (para_stat->stimeout >= 30) {
 				if (para_stat->curoverlap > CD_FRAMEWORDS) {
@@ -1744,13 +1761,19 @@ paranoia_callback(inpos, function)
 				}
 			}
 			para_stat->verifies++;
-		break;
+			break;
+
 		case	PARANOIA_CB_READ:
 			if (inpos / CD_FRAMEWORDS > para_stat->c_sector) {
 				para_stat->c_sector = inpos / CD_FRAMEWORDS;
 			}
 			para_stat->reads++;
-		break;
+			break;
+
+		case	PARANOIA_CB_SECS:
+			para_stat->sectors += inpos;
+			break;
+
 		case	PARANOIA_CB_FIXUP_EDGE:
 			if (para_stat->stimeout >= 5) {
 				if (para_stat->curoverlap > CD_FRAMEWORDS) {
@@ -1760,21 +1783,45 @@ paranoia_callback(inpos, function)
 				}
 			}
 			para_stat->fixup_edges++;
-		break;
+			break;
+
 		case	PARANOIA_CB_FIXUP_ATOM:
 			if (para_stat->slevel < 3 || para_stat->stimeout > 5) {
 				para_stat->slevel = 3;
 			}
 			para_stat->fixup_atoms++;
-		break;
+			break;
+
 		case	PARANOIA_CB_READERR:
 			para_stat->slevel = 6;
 			para_stat->readerrs++;
-		break;
+			break;
+
+		case	PARANOIA_CB_C2ERR:
+			para_stat->slevel = 3;
+			para_stat->c2errs++;
+			break;
+
+		case	PARANOIA_CB_C2BYTES:
+			para_stat->c2bytes += inpos;
+			break;
+
+		case	PARANOIA_CB_C2SECS:
+			para_stat->c2secs += inpos;
+			break;
+
+		case	PARANOIA_CB_C2MAXERRS:
+			if (inpos > para_stat->c2maxerrs)
+				para_stat->c2maxerrs = inpos;
+			if (inpos > 100)
+				 para_stat->c2badsecs++;
+			break;
+
 		case	PARANOIA_CB_SKIP:
 			para_stat->slevel = 8;
 			para_stat->skips++;
-		break;
+			break;
+
 		case	PARANOIA_CB_OVERLAP:
 			para_stat->curoverlap = inpos;
 			if (inpos > para_stat->maxoverlap)
@@ -1782,25 +1829,29 @@ paranoia_callback(inpos, function)
 			if (inpos < para_stat->minoverlap)
 				para_stat->minoverlap = inpos;
 			para_stat->overlaps++;
-		break;
+			break;
+
 		case	PARANOIA_CB_SCRATCH:
 			para_stat->slevel = 7;
 			para_stat->scratchs++;
-		break;
+			break;
+
 		case	PARANOIA_CB_DRIFT:
 			if (para_stat->slevel < 4 || para_stat->stimeout > 5) {
 				para_stat->slevel = 4;
 			}
 			para_stat->drifts++;
-		break;
+			break;
+
 		case	PARANOIA_CB_FIXUP_DROPPED:
 			para_stat->slevel = 5;
 			para_stat->fixup_droppeds++;
-		break;
+			break;
+
 		case	PARANOIA_CB_FIXUP_DUPED:
 			para_stat->slevel = 5;
 			para_stat->fixup_dupeds++;
-		break;
+			break;
 	}
 
 	gettimeofday(&thistime, NULL);
@@ -2262,9 +2313,15 @@ do_write(p)
 			if (global.verbose) {
 #ifdef	USE_PARANOIA
 				double	f;
+				double fc2 = 0.0;
+
+				if (global.paranoia_mode & PARANOIA_MODE_C2CHECK)
+					fc2 =  para_stat->c2secs * 100.0 /
+						(para_stat->sectors * 1.0);
 #endif
 				print_percentage(&oper, current_offset);
 				fputc(' ', outfp);
+
 #ifndef	THOMAS_SCHAU_MAL
 				if ((unsigned long)left_in_track > InSamples) {
 					fputs(_(" incomplete"), outfp);
@@ -2288,9 +2345,9 @@ do_write(p)
 						para_stat->fixup_dupeds +
 						para_stat->drifts;
 				f = (100.0 * oper) /
-				(((double)global.nSamplesDoneInTrack)/588.0);
+				(para_stat->sectors * 1.0);
 
-				if (para_stat->readerrs) {
+				if (para_stat->readerrs || para_stat->c2badsecs) {
 					fprintf(outfp,
 						_(" with audible hard errors"));
 				} else if ((para_stat->skips) > 0) {
@@ -2301,9 +2358,9 @@ do_write(p)
 					oper = f;
 
 					fprintf(outfp, _(" with "));
-					if (oper < 2)
+					if (oper < 4)
 						fprintf(outfp, _("minor"));
-					else if (oper < 10)
+					else if (oper < 16)
 						fprintf(outfp, _("medium"));
 					else if (oper < 67)
 						fprintf(outfp,
@@ -2318,9 +2375,21 @@ do_write(p)
 				} else {
 					fprintf(outfp, _(" successfully"));
 				}
+				if (f >= 0.1 || fc2 > 0.1) {
+					fprintf(outfp, " (");
+				}
 				if (f >= 0.1) {
 					fprintf(outfp,
-					_(" (%.1f%% problem sectors)"), f);
+						_("%.1f%% problem sectors"), f);
+				}
+				if (fc2 >= 0.1) {
+					if (f >= 0.1)
+						fprintf(outfp, ", ");
+					fprintf(outfp,
+						_("%.2f%% c2 sectors"), fc2);
+				}
+				if (f >= 0.1 || fc2 > 0.1) {
+					fprintf(outfp, ")");
 				}
 #else
 				fprintf(outfp, _(" successfully"));
@@ -2346,7 +2415,7 @@ do_write(p)
 					if (para_stat->minoverlap == 0x7FFFFFFF)
 						para_stat->minoverlap = 0;
 					fprintf(outfp,
-						_("  %u rderr, %u skip, %u atom, %u edge, %u drop, %u dup, %u drift\n"),
+						_("  %u rderr, %u skip, %u atom, %u edge, %u drop, %u dup, %u drift"),
 						para_stat->readerrs,
 						para_stat->skips,
 						para_stat->fixup_atoms,
@@ -2354,16 +2423,35 @@ do_write(p)
 						para_stat->fixup_droppeds,
 						para_stat->fixup_dupeds,
 						para_stat->drifts);
+					if (global.paranoia_mode & PARANOIA_MODE_C2CHECK) {
+						fprintf(outfp,
+							_(", %u %u c2\n"), para_stat->c2errs, para_stat->c2secs);
+#ifdef	PARANOIA_DEBUG
+						fprintf(outfp,
+							", %u c2b", para_stat->c2bytes);
+						fprintf(outfp,
+							", %u c2s", para_stat->c2secs);
+						fprintf(outfp,
+							", %u c2m", para_stat->c2maxerrs);
+						fprintf(outfp,
+							", %u c2B\n", para_stat->c2badsecs);
+#endif
+					} else {
+						fprintf(outfp, "\n");
+					}
 					oper = 200;	/* force new output */
 					print_percentage(&oper, current_offset);
 					fprintf(outfp,
-						_("  %u overlap(%.4g .. %.4g)\n"),
+						_("  %u reads(%.1f%%) %u overlap(%.4g .. %.4g)\n"),
+						para_stat->reads,
+						para_stat->sectors*1.0 /
+						(global.nSamplesDoneInTrack/588.0/100.0),
 						para_stat->overlaps,
 						(float)para_stat->minoverlap /
 						    (2352.0/2.0),
 						(float)para_stat->maxoverlap /
 						    (2352.0/2.0));
-					paranoia_reset();
+					paranoia_statreset();
 				}
 #endif
 			}
@@ -2623,10 +2711,12 @@ paranoia_usage()
 	disable		disables paranoia mode. Paranoia is still being used.\n\
 	no-verify	switches verify off, and overlap on.\n\
 	retries=amount	set the number of maximum retries per sector.\n\
-	overlap=amount	set the number of sectors used for statical paranoia overlap.\n\
-	minoverlap=amt	set the min. number of sectors used for dynamic paranoia overlap.\n\
-	maxoverlap=amt	set the max. number of sectors used for dynamic paranoia overlap.\n\
-	proof		shortcut for minoverlap=sectors-per-request-1,retries=200.\n\
+	readahead=amount set the number of sectors to use for the read ahead buffer.\n\
+	overlap=amount	set the number of sectors used for statical overlap.\n\
+	minoverlap=amt	set the min. number of sectors used for dynamic overlap.\n\
+	maxoverlap=amt	set the max. number of sectors used for dynamic overlap.\n\
+	c2check		check C2 pointers from drive to rate quality.\n\
+	proof		shortcut for minoverlap=20,retries=200,readahead=600,c2check.\n\
 "),
 		stderr);
 	/* END CSTYLED */
@@ -2746,6 +2836,14 @@ handle_paranoia_opts(optstr, flagp)
 			if (rets >= 0) {
 				global.paranoia_parms.retries = rets;
 			}
+		} else if (strncmp(optstr, "readahead=", min(10, optlen)) == 0) {
+			char *eqp = strchr(optstr, '=');
+			int   readahead;
+
+			astoi(eqp+1, &readahead);
+			if (readahead >= 0) {
+				global.paranoia_parms.readahead = readahead;
+			}
 		} else if (strncmp(optstr, "overlap=", min(8, optlen)) == 0) {
 			char *eqp = strchr(optstr, '=');
 			int   rets;
@@ -2776,6 +2874,8 @@ handle_paranoia_opts(optstr, flagp)
 			global.paranoia_parms.disable_extra_paranoia = 1;
 		} else if (strncmp(optstr, "disable", optlen) == 0) {
 			global.paranoia_parms.disable_paranoia = 1;
+		} else if (strncmp(optstr, "c2check", optlen) == 0) {
+			global.paranoia_parms.enable_c2_check = 1;
 		} else if (strncmp(optstr, "help", optlen) == 0) {
 			paranoia_usage();
 			exit(NO_ERROR);
@@ -2783,6 +2883,8 @@ handle_paranoia_opts(optstr, flagp)
 			*flagp = 1;
 			global.paranoia_parms.mindynoverlap = -1;
 			global.paranoia_parms.retries = 200;
+			global.paranoia_parms.readahead = 600;
+			global.paranoia_parms.enable_c2_check = 1;
 		} else {
 			errmsgno(EX_BAD, _("Unknown option '%s'.\n"), optstr);
 			paranoia_usage();
@@ -3578,38 +3680,6 @@ main(argc, argv)
 	if (global.paranoia_selected) {
 		long paranoia_mode;
 
-		global.cdp = paranoia_init(get_scsi_p(), global.nsectors,
-				cdda_read,
-				cdda_disc_firstsector, cdda_disc_lastsector,
-				cdda_tracks,
-				cdda_track_firstsector, cdda_track_lastsector,
-				cdda_sector_gettrack, cdda_track_audiop);
-
-		if (global.paranoia_parms.overlap >= 0) {
-			int	overlap = global.paranoia_parms.overlap;
-
-			if (overlap > global.nsectors - 1)
-				overlap = global.nsectors - 1;
-			paranoia_overlapset(global.cdp, overlap);
-		}
-		/*
-		 * Implement the shortcut "paraopts=proof"
-		 */
-		if ((global.paranoia_flags & 1) &&
-		    global.paranoia_parms.mindynoverlap < 0) {
-			global.paranoia_parms.mindynoverlap = global.nsectors - 1;
-		}
-		/*
-		 * Default to a  minimum of dynamic overlapping == 0.5 sectors.
-		 * If we don't do this, we get the default from libparanoia
-		 * which is approx. 0.1.
-		 */
-		if (global.paranoia_parms.mindynoverlap < 0)
-			paranoia_dynoverlapset(global.cdp, CD_FRAMEWORDS/2, -1);
-		paranoia_dynoverlapset(global.cdp,
-			global.paranoia_parms.mindynoverlap * CD_FRAMEWORDS,
-			global.paranoia_parms.maxdynoverlap * CD_FRAMEWORDS);
-
 		paranoia_mode = PARANOIA_MODE_FULL ^ PARANOIA_MODE_NEVERSKIP;
 
 		if (global.paranoia_parms.disable_paranoia) {
@@ -3627,12 +3697,69 @@ main(argc, argv)
 		if (global.paranoia_parms.disable_scratch_repair) {
 			paranoia_mode &= ~PARANOIA_MODE_REPAIR;
 		}
+		if (global.paranoia_parms.enable_c2_check) {
+			if (ReadCddaFallbackMMC_C2 == NULL) {
+				if (global.verbose)
+					fprintf(outfp, _("c2check not supported by drive.\n"));
+			} else {
+				if (global.verbose)
+					fprintf(outfp, _("using c2check in to verify reads.\n"));
+				paranoia_mode |= PARANOIA_MODE_C2CHECK;
+			}
+		}
+
+		global.cdp = paranoia_init(get_scsi_p(), global.nsectors,
+				(paranoia_mode & PARANOIA_MODE_C2CHECK) ?
+				cdda_read_c2 : cdda_read,
+				cdda_disc_firstsector, cdda_disc_lastsector,
+				cdda_tracks,
+				cdda_track_firstsector, cdda_track_lastsector,
+				cdda_sector_gettrack, cdda_track_audiop);
+
+		if (global.paranoia_parms.overlap >= 0) {
+			int	overlap = global.paranoia_parms.overlap;
+
+			if (overlap > global.nsectors - 1)
+				overlap = global.nsectors - 1;
+			paranoia_overlapset(global.cdp, overlap);
+		}
+		/*
+		 * Implement the shortcut "paraopts=proof"
+		 */
+		if ((global.paranoia_flags & 1) &&
+		    global.paranoia_parms.mindynoverlap < 0) {
+			if (global.nsectors > 20)
+				global.paranoia_parms.mindynoverlap = 20;
+			else
+				global.paranoia_parms.mindynoverlap = global.nsectors - 1;
+		}
+		/*
+		 * Default to a  minimum of dynamic overlapping == 0.5 sectors.
+		 * If we don't do this, we get the default from libparanoia
+		 * which is approx. 0.1.
+		 */
+		if (global.paranoia_parms.mindynoverlap < 0)
+			paranoia_dynoverlapset(global.cdp, CD_FRAMEWORDS/2, -1);
+		paranoia_dynoverlapset(global.cdp,
+			global.paranoia_parms.mindynoverlap * CD_FRAMEWORDS,
+			global.paranoia_parms.maxdynoverlap * CD_FRAMEWORDS);
 
 		paranoia_modeset(global.cdp, paranoia_mode);
+		global.paranoia_mode = paranoia_mode;
+
+		if (global.paranoia_parms.readahead < 0) {
+			global.paranoia_parms.readahead = paranoia_get_readahead(global.cdp);
+			if (global.paranoia_parms.readahead < 400) {
+				global.paranoia_parms.readahead = 400;
+				paranoia_set_readahead(global.cdp, 400);
+			}
+		} else {
+			paranoia_set_readahead(global.cdp, global.paranoia_parms.readahead);
+		}
 		if (global.verbose)
 			fprintf(outfp, _("using lib paranoia for reading.\n"));
 		paranoia_seek(global.cdp, lSector, SEEK_SET);
-		paranoia_reset();
+		paranoia_statreset();
 	}
 #endif
 #if defined(HAVE_FORK_AND_SHAREDMEM)

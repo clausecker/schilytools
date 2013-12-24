@@ -1,4 +1,11 @@
-# /* @(#)libparanoia-mapvers        1.1 10/10/02 Copyright 2005-2010 J. Schilling */
+# /* @(#)libparanoia-mapvers        1.2 13/12/22 Copyright 2005-2010 J. Schilling */
+
+SCHILY_1.1 {
+global:
+	paranoia_modeget;
+	paranoia_set_readahead;
+	paranoia_get_readahead;
+} SCHILY_1.0;
 
 SCHILY_1.0 {
 global:

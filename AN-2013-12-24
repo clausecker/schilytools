@@ -1,0 +1,81 @@
+New features with AN-2013-12-24:
+
+This is the first localization step for the schily source consolidation. Many
+programs now (hopefully) call gettext() for all strings that need localization.
+
+-	The next step will include dgettext() calls for the libraries and the
+	missing programs
+
+-	The following step will include the extracted strings
+
+-	The last step will include German translations and install support
+	for the resulting binary message object files.
+
+----------> Please test and report compilation problems! <---------
+
+***** NOTE: As mentioned since 2004, frontends to the tools should *****
+*****		call all programs in the "C" locale		   *****
+*****		by e.g. calling: LC_ALL=C cdrecord ....		   *****
+*****		unless these frontends support localized strings   *****
+*****		used by the cdrtools with NLS support.		   *****
+
+-	libschily::format.c (printf) now supports length modifiers
+	like h hh l ll t z for the %n format.
+
+-	libschily::format.c has been restructured for parsing the
+	field width parameters in a way that would allow to later
+	introduce support for %n$
+
+-	cdda2wav now prints the number of read operations per track when
+	in paranoia mode
+
+-	cdda2wav now prints the read overhead (in percent) per track when
+	in paranoia mode
+
+-	cdda2wav adds a new paraopts= mode: "c2check" to run libparanoia
+	in C2 mode.
+
+-	libparanoia now implements the first stage in C2 error pointer
+	support: it now is able to deal with input data that contains
+	C2 pointers and it implements new callbacks to report C2
+	statistics back to the caller.
+
+-	cdda2wav did get a major overhoul for libparanoia that may
+	make the extract quality better up to a factor of 100x:
+
+	A new suboption "readahead=" for paraopts= allows to modify
+	the read ahead buffer size to make it large ebough for the amount
+	of RAM in modern drives.
+
+	The interpratation of "problem sectors" was changed to better deal
+	with the fact that in case of bad areas, the libparanoia code
+	tends to do repeated reads in those bad areas. The computaion
+	of the percentage of bad sectors now takes care of reread sectors.
+	Repeated reads still increase the value but no longer in a
+	quadratical way.
+
+-	Better documentation for the libparanoia interface in cdda2wav
+	allows to better understand how it works and how modifying 
+	parameters could influence the extract quality.
+
+-	Fixed some typos in cdrecord
+
+-	Fixed a typo in the mkisofs man page (had \-max\-ISO-9660\-filenames
+	instead of \-max\-iso9660\-filenames)
+
+
+-	New Schily Makefiles rules for armv7l-linux
+
+
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.isdn.cs.tu-berlin.de, js@cs.tu-berlin.de
+	joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

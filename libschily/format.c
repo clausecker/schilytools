@@ -1,4 +1,4 @@
-/* @(#)format.c	1.51 10/10/23 Copyright 1985-2010 J. Schilling */
+/* @(#)format.c	1.54 13/12/24 Copyright 1985-2013 J. Schilling */
 /*
  *	format
  *	common code for printf fprintf & sprintf
@@ -6,7 +6,7 @@
  *	allows recursive printf with "%r", used in:
  *	error, comerr, comerrno, errmsg, errmsgno and the like
  *
- *	Copyright (c) 1985-2010 J. Schilling
+ *	Copyright (c) 1985-2013 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -15,6 +15,8 @@
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -45,6 +47,19 @@ extern	char	*gcvt __PR((double, int, char *));
 
 #ifdef	NO_LONGLONG
 #undef	USE_LONGLONG
+#endif
+
+/*
+ * We may need to decide whether we should check whether all
+ * flags occur according to the standard which is either directly past:
+ * "%" or directly past "%n$". 
+ *
+ * This however may make printf() slower in some cases.
+ */
+#ifdef	USE_CHECKFLAG
+#define	CHECKFLAG()	if (fa.flags & GOTSTAR) goto flagerror
+#else
+#define	CHECKFLAG()
 #endif
 
 #ifdef	NO_USER_XCVT
@@ -117,6 +132,9 @@ typedef struct f_args {
 #define	PLUSFLG		2	/* '+' flag */
 #define	SPACEFLG	4	/* ' ' flag */
 #define	HASHFLG		8	/* '#' flag */
+#define	APOFLG		16	/* '\'' flag */
+#define	GOTDOT		32	/* '.' found */
+#define	GOTSTAR		64	/* '*' found */
 
 LOCAL	void	prnum  __PR((Ulong, unsigned, f_args *));
 LOCAL	void	prdnum __PR((Ulong, f_args *));
@@ -165,6 +183,7 @@ format(fun, farg, fmt, args)
 	register char mode;
 	register char c;
 	int count;
+	int num;
 	int i;
 	short sh;
 	const char *str;
@@ -209,18 +228,28 @@ format(fun, farg, fmt, args)
 		unsflag = FALSE;
 		type = '\0';
 		mode = '\0';
+		/*
+		 * %<flags>f.s<length-mod><conversion-spec>
+		 * %<flags>*.*<length-mod><conversion-spec>
+		 * %n$<flags>f.s<length-mod><conversion-spec>
+		 * %n$<flags>*n$.*n$<length-mod><conversion-spec>
+		 */
 	newflag:
 		switch (*(++fmt)) {
 
 		case '+':
+			CHECKFLAG();
 			fa.flags |= PLUSFLG;
 			goto newflag;
 
 		case '-':
+			CHECKFLAG();
 			fa.minusflag++;
+			fa.flags |= MINUSFLG;
 			goto newflag;
 
 		case ' ':
+			CHECKFLAG();
 			/*
 			 * If the space and the + flag are present,
 			 * the space flag will be ignored.
@@ -229,46 +258,73 @@ format(fun, farg, fmt, args)
 			goto newflag;
 
 		case '#':
+			CHECKFLAG();
 			fa.flags |= HASHFLG;
+			goto newflag;
+
+		case '\'':
+			CHECKFLAG();
+			fa.flags |= APOFLG;
+			goto newflag;
+
+		case '.':
+			fa.flags |= GOTDOT;
+			fa.signific = 0;
+			goto newflag;
+
+		case '*':
+			fa.flags |= GOTSTAR;
+			fmt++;
+			if (!(fa.flags & GOTDOT)) {
+				fa.fldwidth = va_arg(args, int);
+				/*
+				 * A negative fieldwith is a minus flag with a
+				 * positive fieldwidth.
+				 */
+				if (fa.fldwidth < 0) {
+					fa.fldwidth = -fa.fldwidth;
+					fa.minusflag = 1;
+				}
+			} else {
+				/*
+				 * A negative significance (precision) is taken
+				 * as if the precision and '.' were omitted.
+				 */
+				fa.signific = va_arg(args, int);
+				if (fa.signific < 0)
+					fa.signific = -1;
+			}
 			goto newflag;
 
 		case '0':
 			/*
-			 * '0' is a flag.
+			 * '0' may be a flag.
 			 */
-			fa.fillc = '0';
+			if (!(fa.flags & (GOTDOT | GOTSTAR | MINUSFLG)))
+				fa.fillc = '0';
+			/* FALLTHRU */
+		case '1': case '2': case '3': case '4':
+		case '5': case '6': case '7': case '8': case '9':
+			num = *fmt++ - '0';
+			while (c = *fmt, is_dig(c)) {
+				num *= 10;
+				num += c - '0';
+				fmt++;
+			}
+			fmt--;			/* backup to last digit */
+			if (!(fa.flags & GOTDOT))
+				fa.fldwidth = num;
+			else
+				fa.signific = num;
 			goto newflag;
+
+#ifdef	USE_CHECKFLAG
+		flagerror:
+			fmt = ++sfmt;		/* Don't print '%'   */
+			continue;
+#endif
 		}
-		if (*fmt == '*') {
-			fmt++;
-			fa.fldwidth = va_arg(args, int);
-			/*
-			 * A negative fieldwith is a minus flag with a
-			 * positive fieldwidth.
-			 */
-			if (fa.fldwidth < 0) {
-				fa.fldwidth = -fa.fldwidth;
-				fa.minusflag = 1;
-			}
-		} else while (c = *fmt, is_dig(c)) {
-			fa.fldwidth *= 10;
-			fa.fldwidth += c - '0';
-			fmt++;
-		}
-		if (*fmt == '.') {
-			fmt++;
-			fa.signific = 0;
-			if (*fmt == '*') {
-				fmt++;
-				fa.signific = va_arg(args, int);
-				if (fa.signific < 0)
-					fa.signific = 0;
-			} else while (c = *fmt, is_dig(c)) {
-				fa.signific *= 10;
-				fa.signific += c - '0';
-				fmt++;
-			}
-		}
+
 		if (strchr("UCSIL", *fmt)) {
 			/*
 			 * Enhancements to K&R and ANSI:
@@ -374,7 +430,7 @@ error sizeof (ptrdiff_t) is unknown
 		 */
 
 		getmode:
-			if (!strchr("udioxX", *(++fmt))) {
+			if (!strchr("udioxXn", *(++fmt))) {
 				/*
 				 * %hhd -> char in decimal
 				 */
@@ -390,8 +446,10 @@ error sizeof (ptrdiff_t) is unknown
 #endif
 				fmt--;
 				mode = 'D';
-			} else {
+			} else {		/* One of "udioxXn": */
 				mode = *fmt;
+				if (mode == 'n')
+					goto gotn;
 				if (mode != 'x')
 					mode = to_cap(mode);
 				if (mode == 'U')
@@ -551,13 +609,44 @@ error sizeof (ptrdiff_t) is unknown
 			count += format(fun, farg, rfmt, __va_arg_list(args));
 			continue;
 
+		gotn:
 		case 'n':
-			{
+			switch (type) {
+
+			case 'C': {
+				signed char *cp = va_arg(args, signed char *);
+
+				*cp = count;
+				}
+				continue;
+			case 'H': {
+				short	*sp = va_arg(args, short *);
+
+				*sp = count;
+				}
+				continue;
+			case 'L': {
+				long	*lp = va_arg(args, long *);
+
+				*lp = count;
+				}
+				continue;
+#ifdef	USE_LONGLONG
+			case 'J':		/* For now Intmax_t is Llong */
+			case 'Q': {
+				Llong *qp = va_arg(args, Llong *);
+
+				*qp = count;
+				}
+				continue;
+#endif
+			default: {
 				int	*ip = va_arg(args, int *);
 
 				*ip = count;
+				}
+				continue;
 			}
-			continue;
 
 		default:			/* Unknown '%' format */
 			sfmt++;			/* Dont't print '%'   */

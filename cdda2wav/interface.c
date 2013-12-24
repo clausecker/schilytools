@@ -1,8 +1,8 @@
-/* @(#)interface.c	1.78 13/11/19 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2006-2013 J. Schilling */
+/* @(#)interface.c	1.79 13/12/24 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2006-2013 J. Schilling */
 #include "config.h"
 #ifndef lint
 static	UConst char sccsid[] =
-"@(#)interface.c	1.78 13/11/19 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2006-2013 J. Schilling";
+"@(#)interface.c	1.79 13/12/24 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2006-2013 J. Schilling";
 
 #endif
 /*
@@ -110,6 +110,8 @@ void	(*ReadTocText)	__PR((SCSI *scgp));
 unsigned (*ReadLastAudio) __PR((SCSI *scgp));
 int	(*ReadCdRom)	__PR((SCSI *scgp, UINT4 *p, unsigned lSector,
 						unsigned SectorBurstVal));
+int	(*ReadCdRom_C2)	__PR((SCSI *scgp, UINT4 *p, unsigned lSector,
+						unsigned SectorBurstVal));
 int	(*ReadCdRomData) __PR((SCSI *scgp, unsigned char *p, unsigned lSector,
 						unsigned SectorBurstVal));
 int	(*ReadCdRomSub)	__PR((SCSI *scgp, UINT4 *p, unsigned lSector,
@@ -127,6 +129,8 @@ void	(*trash_cache)	__PR((UINT4 *p, unsigned lSector,
 #if	defined USE_PARANOIA
 long	cdda_read	__PR((void *d, void * buffer, long beginsector,
 						long sectors));
+long	cdda_read_c2	__PR((void *d, void * buffer, long beginsector,
+						long sectors));
 
 long
 cdda_read(d, buffer, beginsector, sectors)
@@ -136,6 +140,17 @@ cdda_read(d, buffer, beginsector, sectors)
 	long	sectors;
 {
 	long	ret = ReadCdRom(d, buffer, beginsector, sectors);
+	return (ret);
+}
+
+long
+cdda_read_c2(d, buffer, beginsector, sectors)
+	void	*d;
+	void	*buffer;
+	long	beginsector;
+	long	sectors;
+{
+	long	ret = ReadCdRom_C2(d, buffer, beginsector, sectors);
 	return (ret);
 }
 #endif
@@ -360,6 +375,7 @@ lost_toshibas:
 			else
 				global.overlap = 1;
 			ReadCdRom = ReadCddaFallbackMMC;
+			ReadCdRom_C2 = ReadCddaFallbackMMC_C2;
 			ReadCdRomSub = ReadCddaSubSony;
 			ReadLastAudio = ReadFirstSessionTOCMMC;
 			SelectSpeed = SpeedSelectSCSIMMC;
@@ -692,6 +708,12 @@ OpenCdRom(pdev_name)
 		    (unsigned)global.bufsize/CD_FRAMESIZE_RAW) {
 			global.nsectors = global.bufsize/CD_FRAMESIZE_RAW;
 		}
+#ifdef	USE_PARANOIA
+		if (global.paranoia_parms.enable_c2_check && global.nsectors >
+		    (unsigned)global.bufsize/CD_FRAMESIZE_RAWER) {
+			global.nsectors = global.bufsize/CD_FRAMESIZE_RAWER;
+		}
+#endif
 		if (global.overlap >= global.nsectors)
 			global.overlap = global.nsectors-1;
 

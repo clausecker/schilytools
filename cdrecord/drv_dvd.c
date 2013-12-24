@@ -1,8 +1,8 @@
-/* @(#)drv_dvd.c	1.166 12/03/16 Copyright 1998-2012 J. Schilling */
+/* @(#)drv_dvd.c	1.167 13/12/10 Copyright 1998-2013 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)drv_dvd.c	1.166 12/03/16 Copyright 1998-2012 J. Schilling";
+	"@(#)drv_dvd.c	1.167 13/12/10 Copyright 1998-2013 J. Schilling";
 #endif
 /*
  *	DVD-R device implementation for
@@ -32,7 +32,7 @@ static	UConst char sccsid[] =
  *			2		print disk info & write parameters
  *			3		print log pages & dvd structure
  *
- *	Copyright (c) 1998-2012 J. Schilling
+ *	Copyright (c) 1998-2013 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -41,6 +41,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -1847,7 +1849,7 @@ print_dvd_info(scgp)
 	int	i;
 
 	if (lverbose > 2)
-		printf(_("Enterning DVD info....\n"));
+		printf(_("Entering DVD info....\n"));
 	/*
 	 * The ACARD TECH AEC-7720 ATAPI<->SCSI adaptor
 	 * chokes if we try to transfer odd byte counts (rounds up to

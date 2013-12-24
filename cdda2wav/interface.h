@@ -1,4 +1,4 @@
-/* @(#)interface.h	1.25 13/04/21 Copyright 1998-2001 Heiko Eissfeldt, Copyright 2005-2013 J. Schilling */
+/* @(#)interface.h	1.26 13/12/24 Copyright 1998-2001 Heiko Eissfeldt, Copyright 2005-2013 J. Schilling */
 
 /*
  * Copyright (C) by Heiko Eissfeldt
@@ -13,6 +13,8 @@
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -111,6 +113,8 @@ extern	void	(*ReadTocText)	__PR((SCSI *scgp));
 extern	unsigned (*ReadLastAudio) __PR((SCSI *scgp));
 extern	int	(*ReadCdRom)	__PR((SCSI *scgp, UINT4 *p, unsigned lSector,
 						unsigned SectorBurstVal));
+extern	int	(*ReadCdRom_C2)	__PR((SCSI *scgp, UINT4 *p, unsigned lSector,
+						unsigned SectorBurstVal));
 extern	int	(*ReadCdRomSub)	__PR((SCSI *scgp, UINT4 *p, unsigned lSector,
 						unsigned SectorBurstVal));
 extern	int	(*ReadCdRomData) __PR((SCSI *scgp, unsigned char *p,
@@ -147,6 +151,7 @@ extern int	poll_in			__PR((void));
 extern long	cdda_disc_firstsector	__PR((void *d));		/* -> long sector */
 extern long	cdda_disc_lastsector	__PR((void *d));		/* -> long sector */
 extern long	cdda_read		__PR((void *d, void *buffer, long beginsector, long sectors));	/* -> long sectors */
+extern long	cdda_read_c2		__PR((void *d, void *buffer, long beginsector, long sectors));	/* -> long sectors */
 extern int	cdda_sector_gettrack	__PR((void *d, long sector));	/* -> int trackno */
 extern int	cdda_track_audiop	__PR((void *d, int track));	/* -> int Is audiotrack */
 extern long	cdda_track_firstsector	__PR((void *d, int track));	/* -> long sector */
