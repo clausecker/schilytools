@@ -202,12 +202,16 @@
 ./RULES/aranym-freemint-gcc.rul
 ./RULES/armv4l-linux-cc.rul
 ./RULES/armv4l-linux-gcc.rul
+./RULES/armv4tl-linux-cc.rul
+./RULES/armv4tl-linux-gcc.rul
 ./RULES/armv5l-linux-cc.rul
 ./RULES/armv5l-linux-gcc.rul
 ./RULES/armv5teb-linux-cc.rul
 ./RULES/armv5teb-linux-gcc.rul
 ./RULES/armv5tejl-linux-cc.rul
 ./RULES/armv5tejl-linux-gcc.rul
+./RULES/armv5tel-linux-cc.rul
+./RULES/armv5tel-linux-gcc.rul
 ./RULES/armv6l-linux-cc.rul
 ./RULES/armv6l-linux-gcc.rul
 ./RULES/armv7l-linux-cc.rul
@@ -358,6 +362,8 @@
 ./RULES/r-gmake.obj
 ./RULES/s390-linux-cc.rul
 ./RULES/s390-linux-gcc.rul
+./RULES/s390x-linux-cc.rul
+./RULES/s390x-linux-gcc.rul
 ./RULES/sh3-linux-cc.rul
 ./RULES/sh3-linux-gcc.rul
 ./RULES/sh4-linux-cc.rul

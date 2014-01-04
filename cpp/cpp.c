@@ -1,8 +1,8 @@
-/* @(#)cpp.c	1.28 12/08/08 2010-2012 J. Schilling */
+/* @(#)cpp.c	1.29 14/01/01 2010-2014 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)cpp.c	1.28 12/08/08 2010-2012 J. Schilling";
+	"@(#)cpp.c	1.29 14/01/01 2010-2014 J. Schilling";
 #endif
 /*
  * C command
@@ -13,7 +13,7 @@ static	UConst char sccsid[] =
  * This implementation is based on the UNIX 32V release from 1978
  * with permission from Caldera Inc.
  *
- * Copyright (c) 2010-2012 J. Schilling
+ * Copyright (c) 2010-2014 J. Schilling
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -1427,6 +1427,7 @@ main(argc,argv)
 	for (i=sizeof(macbit)/sizeof(macbit[0]); --i>=0; ) macbit[i]=0;
 
 	if (! nopredef) {
+		varloc = 0;
 # if unix
 	ysysloc=stsym("unix");
 # endif
@@ -1505,6 +1506,51 @@ main(argc,argv)
 # if __arm__
 	varloc=stsym ("__arm__");
 # endif
+
+#ifdef	__hp9000s200
+	varloc=stsym ("__hp9000s200");
+#endif
+#ifdef	__hp9000s300
+	varloc=stsym ("__hp9000s300");
+#endif
+#ifdef	__hp9000s400
+	varloc=stsym ("__hp9000s400");
+#endif
+#ifdef	__hp9000s500
+	varloc=stsym ("__hp9000s500");
+#endif
+#ifdef	__hp9000s600
+	varloc=stsym ("__hp9000s600");
+#endif
+#ifdef	__hp9000s700
+	varloc=stsym ("__hp9000s700");
+#endif
+#ifdef	__hp9000s800
+	varloc=stsym ("__hp9000s800");
+#endif
+#ifdef	hppa
+	varloc=stsym ("hppa");
+#endif
+#ifdef	__hppa
+	varloc=stsym ("__hppa");
+#endif
+#ifdef	hpux
+	varloc=stsym ("hpux");
+#endif
+#ifdef	__hpux
+	varloc=stsym ("__hpux");
+#endif
+#ifdef	HFS
+	varloc=stsym ("HFS");	/* HP-UX only? */
+#endif
+#ifdef	PWB
+	varloc=stsym ("PWB");	/* HP-UX only? */
+#endif
+#ifdef	_PWB
+	varloc=stsym ("_PWB");	/* HP-UX only? */
+#endif
+
+
 /*
  * This is defined on Sun systems starting with SunOS-4.0.
  * As GCC does not define __BUILTIN_VA_ARG_INCR, we need

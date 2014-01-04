@@ -1,13 +1,13 @@
-/* @(#)cdrecord.c	1.410 13/11/19 Copyright 1995-2013 J. Schilling */
+/* @(#)cdrecord.c	1.411 14/01/03 Copyright 1995-2014 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)cdrecord.c	1.410 13/11/19 Copyright 1995-2013 J. Schilling";
+	"@(#)cdrecord.c	1.411 14/01/03 Copyright 1995-2014 J. Schilling";
 #endif
 /*
  *	Record data on a CD/CVD-Recorder
  *
- *	Copyright (c) 1995-2013 J. Schilling
+ *	Copyright (c) 1995-2014 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -437,7 +437,7 @@ main(ac, av)
 #	define	CLONE_TITLE	""
 #endif
 	if ((flags & F_MSINFO) == 0 || lverbose || flags & F_VERSION) {
-		printf(_("Cdrecord%s%s%s %s (%s-%s-%s) Copyright (C) 1995-2013 %s\n"),
+		printf(_("Cdrecord%s%s%s %s (%s-%s-%s) Copyright (C) 1995-2014 %s\n"),
 								PRODVD_TITLE,
 								PROBD_TITLE,
 								CLONE_TITLE,
@@ -4565,7 +4565,7 @@ load_media(scgp, dp, doexit)
 	scgp->silent--;
 	err = geterrno();
 	if (code < 0 && (err == EPERM || err == EACCES)) {
-		linuxcheck();	/* For version 1.410 of cdrecord.c */
+		linuxcheck();	/* For version 1.411 of cdrecord.c */
 		scg_openerr("");
 	}
 
@@ -5460,7 +5460,7 @@ set_wrmode(dp, wmode, tflags)
 }
 
 /*
- * I am sorry that even for version 1.410 of cdrecord.c, I am forced to do
+ * I am sorry that even for version 1.411 of cdrecord.c, I am forced to do
  * things like this, but defective versions of cdrecord cause a lot of
  * work load to me.
  *
@@ -5477,7 +5477,7 @@ set_wrmode(dp, wmode, tflags)
 #endif
 
 LOCAL void
-linuxcheck()				/* For version 1.410 of cdrecord.c */
+linuxcheck()				/* For version 1.411 of cdrecord.c */
 {
 #if	defined(linux) || defined(__linux) || defined(__linux__)
 #ifdef	HAVE_UNAME

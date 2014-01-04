@@ -1,4 +1,4 @@
-/* @(#)exitcodes.h	1.3 12/12/02 Copyright 2002 Heiko Eissfeldt */
+/* @(#)exitcodes.h	1.4 14/01/01 Copyright 2002 Heiko Eissfeldt, Copyright 2006-2014 J. Schilling */
 /*
  * header file for system wide exit codes.
  */
@@ -9,6 +9,8 @@
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -17,6 +19,7 @@
 #ifndef	_EXITCODES_H
 #define	_EXITCODES_H
 
+#undef	NO_ERROR		/* #define on MinGW not similar enough */
 #define	NO_ERROR	0
 #define	SYNTAX_ERROR	1
 #define	PERM_ERROR	2

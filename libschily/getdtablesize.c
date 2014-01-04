@@ -1,6 +1,6 @@
-/* @(#)getdtablesize.c	1.1 11/08/14 Copyright 2011 J. Schilling */
+/* @(#)getdtablesize.c	1.2 13/12/26 Copyright 2011-2013 J. Schilling */
 /*
- *	Copyright (c) 2011 J. Schilling
+ *	Copyright (c) 2011-2013 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -9,6 +9,8 @@
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -30,7 +32,7 @@ getdtablesize()
 	getrlimit(RLIMIT_NOFILE, &rlim);
 	return (rlim.rlim_cur);
 #else	/* RLIMIT_NOFILE */
-#ifdef	_MSC_VER
+#if defined(_MSC_VER) || defined(__MINGW32__)
 	return (2048);
 #else
 #ifdef	OPEN_MAX

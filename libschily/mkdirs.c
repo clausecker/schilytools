@@ -1,4 +1,4 @@
-/* @(#)mkdirs.c	1.2 12/12/02 Copyright 2011-2012 J. Schilling */
+/* @(#)mkdirs.c	1.4 14/01/02 Copyright 2011-2014 J. Schilling */
 /*
  *	mkdirs() is the equivalent to "mkdir -p path"
  *	makedirs() allows to create missing direcories before a final
@@ -6,7 +6,7 @@
  *
  *	"name" must be a modifyable string.
  *
- *	Copyright (c) 2011-2012 J. Schilling
+ *	Copyright (c) 2011-2014 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -15,6 +15,8 @@
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -36,6 +38,10 @@
 #define	is_enoent(err)	((err) == ENOENT || (err) == EMISSDIR)
 #else
 #define	is_enoent(err)	((err) == ENOENT)
+#endif
+
+#ifdef	__MINGW32__
+#define	mkdir(a, b)	mkdir(a)
 #endif
 
 EXPORT	BOOL	makedirs	__PR((char *name, mode_t mode, int striplast));

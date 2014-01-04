@@ -1,7 +1,21 @@
 '\" t
 .\" To print, first run through tbl
 .\" -*- nroff -*-
-.\" @(#)mkisofs.8	1.148 13/12/01 joerg
+.\" @(#)mkisofs.8	1.149 14/01/01 Copyright 1997-2014 J. Schilling
+.\"
+.\" This program is free software; you can redistribute it and/or modify
+.\" it under the terms of the GNU General Public License version 2
+.\" as published by the Free Software Foundation.
+.\"
+.\" This program is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public License along with
+.\" this program; see the file COPYING.  If not, write to the Free Software
+.\" Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+.\"
 .\"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
 .if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
@@ -15,7 +29,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH MKISOFS 8 "2013/12/01" "Version 3.0"
+.TH MKISOFS 8 "2014/01/01" "Version 3.0"
 .SH NAME
 mkisofs \- create an hybrid ISO-9660/JOLIET/HFS/UDF filesystem-image with optional Rock Ridge attributes.
 .SH SYNOPSIS
@@ -1023,7 +1037,7 @@ but may have other effects in future.
 .B \-graft\-points
 Allow to use graft points for filenames. If this option is used, all filenames
 are checked for graft points. The filename is divided at the first unescaped
-equal sign. All occurrences of '\\\\' and '=' characters must be escaped with '\\\\'
+equal sign. All occurrences of '\e\e' and '=' characters must be escaped with '\e\e'
 if 
 .I \-graft\-points
 has been specified.
@@ -2684,10 +2698,10 @@ l l l l .
 0/string/GIF8/8BIM GIFf  GIF image
 0/beshort/0xffd8/8BIM JPEG  image data
 0/string/SIT!/SIT! SIT!  StuffIt Archive
-0/string/\\037\\235/LZIV ZIVU  standard unix compress
-0/string/\\037\\213/GNUz ZIVU  gzip compressed data
+0/string/\e037\e235/LZIV ZIVU  standard unix compress
+0/string/\e037\e213/GNUz ZIVU  gzip compressed data
 0/string/%!/ASPS TEXT  Postscript
-0/string/\\004%!/ASPS TEXT  PC Postscript with a ^D to start
+0/string/\e004%!/ASPS TEXT  PC Postscript with a ^D to start
 4/string/moov/txtt MooV  QuickTime movie file (moov)
 4/string/mdat/txtt MooV  QuickTime movie file (mdat)
 .TE
@@ -3016,10 +3030,10 @@ to see Level 2 filenames...
 To give a HFS CD a custom icon, make sure the root (top level) folder includes
 a standard Macintosh volume icon file. To give a volume a custom icon on
 a Macintosh, an icon has to be pasted over the volume's icon in the "Get Info"
-box of the volume. This creates an invisible file called 'Icon\\r' ('\\r' is
+box of the volume. This creates an invisible file called 'Icon\er' ('\er' is
 the 'carriage return' character) in the root folder.
 .P
-A custom folder icon is very similar - an invisible file called 'Icon\\r'
+A custom folder icon is very similar - an invisible file called 'Icon\er'
 exits in the folder itself.
 .P
 Probably the easiest way to create a custom icon that mkisofs can use, is to
@@ -3051,7 +3065,7 @@ by using something like:
 	mkisofs \-\-macbin \-o output source_dir icon_dir
 .PP
 The procedure for creating/using custom folder icons is very similar - paste
-an icon to folder's "Get Info" box and transfer the resulting 'Icon\\r'
+an icon to folder's "Get Info" box and transfer the resulting 'Icon\er'
 file to the relevant directory in the mkisofs source tree.
 .PP
 You may want to hide the icon files from the ISO-9660 and Joliet trees.
@@ -3266,9 +3280,9 @@ call:
 To write a tar archive directly to a CD that will later contain a simple
 ISO-9660 filesystem with the tar archive call:
 .PP
-% star \-c . | mkisofs \-stream\-media\-size 333000 | \\
+% star \-c . | mkisofs \-stream\-media\-size 333000 | \e
 .br
-cdrecord dev=b,t,l \-dao tsize=333000s \-
+        cdrecord dev=b,t,l \-dao tsize=333000s \-
 .PP
 To create a HFS hybrid CD with the Joliet and Rock Ridge extensions of
 the source directory
@@ -3300,7 +3314,7 @@ Files in all the known Apple/Unix format
 are decoded and any other files are given CREATOR and TYPE based on their
 magic number given in the file "magic":
 .PP
-% mkisofs \-o cd.iso \-apple \-magic magic \-probe \\
+% mkisofs \-o cd.iso \-apple \-magic magic \-probe \e
 .br
         cd_dir another_dir
 .PP
@@ -3320,15 +3334,15 @@ on the
 CD along with the three README files - but only one will be seen from
 each of the three filesystems:
 .PP
-% mkisofs \-o cd.iso \-hfs \-J \-r \-graft\-points \\
+% mkisofs \-o cd.iso \-hfs \-J \-r \-graft\-points \e
 .br
-        \-hide README.hfs \-hide README.joliet \\
+        \-hide README.hfs \-hide README.joliet \e
 .br
-        \-hide\-joliet README.hfs \-hide\-joliet README.unix \\
+        \-hide\-joliet README.hfs \-hide\-joliet README.unix \e
 .br
-        \-hide\-hfs README.joliet \-hide\-hfs README.unix \\
+        \-hide\-hfs README.joliet \-hide\-hfs README.unix \e
 .br
-        README=README.hfs README=README.joliet \\
+        README=README.hfs README=README.joliet \e
 .br
         README=README.unix cd_dir
 .PP
@@ -3350,7 +3364,7 @@ J\*org Schilling wrote the SCSI transport library and its adaptation layer to
 and newer parts (starting from 1997) of the utility.
 J\*org Schilling is the primary maintainer since 1999, this makes
 .B mkisofs
-Copyright (C) 1997-2012 J\*org Schilling.
+Copyright (C) 1997-2014 J\*org Schilling.
 .PP
 HFS hybrid code Copyright (C) James Pearson 1997 .\|.\|. 2001.
 .sp

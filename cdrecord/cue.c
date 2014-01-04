@@ -1,13 +1,13 @@
-/* @(#)cue.c	1.56 10/12/19 Copyright 2001-2010 J. Schilling */
+/* @(#)cue.c	1.57 13/12/21 Copyright 2001-2013 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)cue.c	1.56 10/12/19 Copyright 2001-2010 J. Schilling";
+	"@(#)cue.c	1.57 13/12/21 Copyright 2001-2013 J. Schilling";
 #endif
 /*
  *	Cue sheet parser
  *
- *	Copyright (c) 2001-2010 J. Schilling
+ *	Copyright (c) 2001-2013 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -16,6 +16,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -170,15 +172,15 @@ typedef struct keyw {
 
 
 LOCAL keyw_t	keywords[] = {
-	{ "ARRANGER",	K_ARRANGER },
+	{ "ARRANGER",	K_ARRANGER },	/* Not supported by CDR-WIN	*/
 	{ "CATALOG",	K_MCN },
 	{ "CDTEXTFILE",	K_TEXTFILE },
-	{ "COMPOSER",	K_COMPOSER },
+	{ "COMPOSER",	K_COMPOSER },	/* Not supported by CDR-WIN	*/
 	{ "FILE",	K_FILE },
 	{ "FLAGS",	K_FLAGS },
 	{ "INDEX",	K_INDEX },
 	{ "ISRC",	K_ISRC },
-	{ "MESSAGE",	K_MESSAGE },
+	{ "MESSAGE",	K_MESSAGE },	/* Not supported by CDR-WIN	*/
 	{ "PERFORMER",	K_PERFORMER },
 	{ "POSTGAP",	K_POSTGAP },
 	{ "PREGAP",	K_PREGAP },
@@ -216,8 +218,8 @@ LOCAL keyw_t	filetypes[] = {
 	{ "AIFF",	K_AIFF },
 	{ "WAVE",	K_WAVE },
 	{ "MP3",	K_MP3 },
-	{ "AU",		K_AU },
-	{ "OGG",	K_OGG },
+	{ "AU",		K_AU },		/* Not supported by CDR-WIN	*/
+	{ "OGG",	K_OGG },	/* Not supported by CDR-WIN	*/
 	{ NULL,		0 },
 };
 

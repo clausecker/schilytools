@@ -1,4 +1,4 @@
-/* @(#)interface.h	1.26 13/12/24 Copyright 1998-2001 Heiko Eissfeldt, Copyright 2005-2013 J. Schilling */
+/* @(#)interface.h	1.27 13/12/26 Copyright 1998-2001 Heiko Eissfeldt, Copyright 2005-2013 J. Schilling */
 
 /*
  * Copyright (C) by Heiko Eissfeldt
@@ -33,6 +33,13 @@
 #endif
 
 #define	CD_FRAMESAMPLES		(CD_FRAMESIZE_RAW / 4)
+
+/*
+ * NOTE: windows.h defines interface as an alias for struct, this
+ *	 is used by COM/OLE2, I guess it is class on C++
+ *	 We man need to #undef 'interface'
+ */
+#undef interface
 
 extern unsigned interface;
 

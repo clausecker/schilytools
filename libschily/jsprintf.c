@@ -1,6 +1,6 @@
-/* @(#)jsprintf.c	1.17 09/06/30 Copyright 1985, 1995-2009 J. Schilling */
+/* @(#)jsprintf.c	1.18 14/01/03 Copyright 1985, 1995-2014 J. Schilling */
 /*
- *	Copyright (c) 1985, 1995-2009 J. Schilling
+ *	Copyright (c) 1985, 1995-2014 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -9,6 +9,8 @@
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -20,6 +22,79 @@
 #include <schily/varargs.h>
 #include <schily/standard.h>
 #include <schily/schily.h>
+
+#if	defined(__SVR4) && defined(__sun)
+#ifndef	USE_FPRFORMAT
+#define	USE_FPRFORMAT
+#endif
+#endif
+
+#ifdef	NO_FPRFORMAT
+#undef	USE_FPRFORMAT
+#endif
+
+#ifdef	USE_FPRFORMAT
+/*
+ * This is the speed-optimized version that currently only has been tested
+ * on Solaris.
+ * It is based on fprformat() instead of format() and is faster than the
+ * the format() based standard implementation, in case that putc() or
+ * putc_unlocked() is a macro.
+ */
+
+/* VARARGS1 */
+#ifdef	PROTOTYPES
+EXPORT int
+js_printf(const char *form, ...)
+#else
+EXPORT int
+js_printf(form, va_alist)
+	char	*form;
+	va_dcl
+#endif
+{
+	va_list	args;
+	int	ret;
+
+#ifdef	PROTOTYPES
+	va_start(args, form);
+#else
+	va_start(args);
+#endif
+	ret = fprformat((long)stdout, form, args);
+	va_end(args);
+	return (ret);
+}
+
+/* VARARGS2 */
+#ifdef	PROTOTYPES
+EXPORT int
+js_fprintf(FILE *file, const char *form, ...)
+#else
+EXPORT int
+js_fprintf(file, form, va_alist)
+	FILE	*file;
+	char	*form;
+	va_dcl
+#endif
+{
+	va_list	args;
+	int	ret;
+
+#ifdef	PROTOTYPES
+	va_start(args, form);
+#else
+	va_start(args);
+#endif
+	ret = fprformat((long)file, form, args);
+	va_end(args);
+	return (ret);
+}
+
+#else	/* !USE_FPRFORMAT */
+/*
+ * This is the portable standard implementation that works anywhere.
+ */
 
 #define	BFSIZ	256
 
@@ -124,3 +199,4 @@ js_fprintf(file, form, va_alist)
 		_bflush(&bb);
 	return (bb.count);
 }
+#endif

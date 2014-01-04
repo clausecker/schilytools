@@ -1,9 +1,9 @@
-/* @(#)xconfig.h.in	1.236 13/11/13 Copyright 1998-2013 J. Schilling */
+/* @(#)xconfig.h.in	1.238 14/01/01 Copyright 1998-2014 J. Schilling */
 /*
  *	Dynamic autoconf C-include code.
  *	Do not edit, this file has been created automatically.
  *
- *	Copyright (c) 1998-2013 J. Schilling
+ *	Copyright (c) 1998-2014 J. Schilling
  *
  *	The layout for this file is controlled by "configure".
  *	Switch off cstyle(1) checks for now.
@@ -412,6 +412,13 @@
 #undef HAVE_ISNAN		/* isnan() is present in libc */
 #undef HAVE_C99_ISINF		/* isinf() is present in math.h/libc */
 #undef HAVE_C99_ISNAN		/* isnan() is present in math.h/libc */
+#undef HAVE_GETC_UNLOCKED	/* getc_unlocked() is present in libc */
+#undef HAVE_GETCHAR_UNLOCKED	/* getchar_unlocked() is present in libc */
+#undef HAVE_PUTC_UNLOCKED	/* putc_unlocked() is present in libc */
+#undef HAVE_PUTCHAR_UNLOCKED	/* putchar_unlocked() is present in libc */
+#undef HAVE_FLOCKFILE		/* flockfile() is present in libc */
+#undef HAVE_FUNLOCKFILE		/* funlockfile() is present in libc */
+#undef HAVE_FTRYLOCKFILE	/* ftrylockfile() is present in libc */
 #undef HAVE_FINITE		/* finite() is present in libc/ieeefp.h (SVr4) */
 #undef HAVE_ISNAND		/* isnand() is present in libc/ieeefp.h (SVr4) */
 #undef HAVE_RAND		/* rand() is present in libc */
@@ -652,7 +659,8 @@
 /*
  * Misc OS stuff
  */
-#ifndef	_MSC_VER		/* Dirty hack, better use C program not test */
+				/* Dirty hack, better use C program not test */
+#if !defined(_MSC_VER) && !defined(__MINGW32__)
 #undef HAVE__DEV_TTY		/* /dev/tty present */
 #undef HAVE__DEV_NULL		/* /dev/null present */
 #undef HAVE__DEV_ZERO		/* /dev/zero present */

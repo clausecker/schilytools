@@ -1,4 +1,4 @@
-/* @(#)schily.h	1.111 13/10/30 Copyright 1985-2013 J. Schilling */
+/* @(#)schily.h	1.113 14/01/02 Copyright 1985-2014 J. Schilling */
 /*
  *	Definitions for libschily
  *
@@ -18,7 +18,7 @@
  *	include ctype.h past schily/schily.h as OpenBSD does not follow POSIX
  *	and defines EOF in ctype.h
  *
- *	Copyright (c) 1985-2013 J. Schilling
+ *	Copyright (c) 1985-2014 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -327,7 +327,11 @@ extern	int	on_comerr __PR((void (*fun)(int, void *), void *arg));
 /*PRINTFLIKE1*/
 extern	void	comerr __PR((const char *, ...)) __printflike__(1, 2);
 /*PRINTFLIKE2*/
+extern	void	xcomerr	 __PR((int, const char *, ...)) __printflike__(2, 3);
+/*PRINTFLIKE2*/
 extern	void	comerrno __PR((int, const char *, ...)) __printflike__(2, 3);
+/*PRINTFLIKE3*/
+extern	void	xcomerrno __PR((int, int, const char *, ...)) __printflike__(3, 4);
 /*PRINTFLIKE1*/
 extern	int	errmsg __PR((const char *, ...)) __printflike__(1, 2);
 /*PRINTFLIKE2*/
@@ -348,8 +352,14 @@ extern	char	*errmsgstr __PR((int));
 extern	void	fcomerr		__PR((FILE *, const char *, ...))
 					__printflike__(2, 3);
 /*PRINTFLIKE3*/
+extern	void	fxcomerr	__PR((FILE *, int, const char *, ...))
+					__printflike__(3, 4);
+/*PRINTFLIKE3*/
 extern	void	fcomerrno	__PR((FILE *, int, const char *, ...))
 					__printflike__(3, 4);
+/*PRINTFLIKE4*/
+extern	void	fxcomerrno	__PR((FILE *, int, int, const char *, ...))
+					__printflike__(4, 5);
 /*PRINTFLIKE2*/
 extern	int	ferrmsg		__PR((FILE *, const char *, ...))
 					__printflike__(2, 3);
@@ -357,8 +367,12 @@ extern	int	ferrmsg		__PR((FILE *, const char *, ...))
 extern	int	ferrmsgno	__PR((FILE *, int, const char *, ...))
 					__printflike__(3, 4);
 #ifdef	_SCHILY_VARARGS_H
+#define	COMERR_RETURN	0
+#define	COMERR_EXIT	1
+#define	COMERR_EXCODE	2
 /*PRINTFLIKE4*/
-extern	int	_comerr		__PR((FILE *, int, int, const char *, va_list));
+extern	int	_comerr		__PR((FILE *, int, int, int,
+						const char *, va_list));
 #endif
 #endif
 
@@ -443,8 +457,10 @@ extern	int	wcseql __PR((const wchar_t *, const wchar_t *));
 #ifdef	va_arg
 extern	int	format __PR((void (*)(char, long), long, const char *,
 							va_list));
+extern	int	fprformat __PR((long, const char *, va_list));
 #else
 extern	int	format __PR((void (*)(char, long), long, const char *, void *));
+extern	int	fprformat __PR((long, const char *, void *));
 #endif
 
 extern	int	ftoes __PR((char *, double, int, int));

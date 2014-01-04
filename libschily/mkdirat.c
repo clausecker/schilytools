@@ -1,4 +1,4 @@
-/* @(#)mkdirat.c	1.2 13/10/30 Copyright 2013 J. Schilling */
+/* @(#)mkdirat.c	1.3 13/12/26 Copyright 2013 J. Schilling */
 /*
  *	Emulate the behavior of mkdirat(int fd, const char *name, mode_t mode)
  *
@@ -43,7 +43,11 @@
 #define	KR_DECL		mode_t mode;
 /* CSTYLED */
 #define	KR_ARGS		, mode
+#if defined(_MSC_VER) || defined(__MINGW32__)
+#define	FUNC_CALL(n)	mkdir(n)
+#else
 #define	FUNC_CALL(n)	mkdir(n, mode)
+#endif
 #define	FLAG_CHECK()
 #define	FUNC_NAME	mkdirat
 #define	FUNC_RESULT	int

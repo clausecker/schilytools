@@ -1,0 +1,107 @@
+New features with AN-2014-01-04:
+
+This is the first localization step for the schily source consolidation. Many
+programs now (hopefully) call gettext() for all strings that need localization.
+
+-	The next step will include dgettext() calls for the libraries and the
+	missing programs
+
+-	The following step will include the extracted strings
+
+-	The last step will include German translations and install support
+	for the resulting binary message object files.
+
+----------> Please test and report compilation problems! <---------
+
+***** NOTE: As mentioned since 2004, frontends to the tools should *****
+*****		call all programs in the "C" locale		   *****
+*****		by e.g. calling: LC_ALL=C cdrecord ....		   *****
+*****		unless these frontends support localized strings   *****
+*****		used by the cdrtools with NLS support.		   *****
+
+-	Define DEV_NULL in include/schily/mconfig.h to address the missing
+	/dev/null on DOS
+
+-	New autoconf tests for:
+	getc_unlocked getchar_unlocked putc_unlocked putchar_unlocked
+	flockfile funlockfile ftrylockfile
+
+-	Symlinks for 
+	armv4tl-linux-cc.rul s390x-linux-cc.rul armv5tel-linux-cc.rul
+	new, to support non-automake aware make programs such as gmake.
+
+-	Do not define a gethostname() prototype in schily/hostname.h
+	for MinGW, as MinGW as a wrong prototype is in the non-standard
+	file winsock.h
+
+-	include/schily/stdio.h now implements code that partially unhides
+	the FILE * data structures from the 64 bit Solaris libc.
+	This allows to implement a getc_unlocked() macro even for 64 bit
+	Solaris as done by libc, so libschily is able to achieve similar
+	stdio I/O performance, which is needed to be able to implement
+	a printf() in libschily that is faster than printf() from libc.
+
+-	New functions xcomerr(), xcomerrno(), fxcomerr(), fxcomerrno()
+	in libschily allow error message and exit with an exit value
+	that differs from errno.
+
+-	a bug in libschily/format.c that caused %.*s to be printed
+	incorrectly has been fixed.
+
+-	libschily/format.c has been redesigned to allow the code to be
+	reused for fprformat() via #include.
+
+-	libschily/fprformat.c
+	New function fprformat() in libschily is implementing the same
+	direct interface as doprnt() from libc and thus allows to implement
+	printf() faster than the printf() from libc on Solaris.
+
+-	libschily/jsprintf.c
+	For Solaris, jsprintf() now is implemented based on fprformat().
+	This allows printf() from libschily to be aprox. 33% faster than
+	printf() from libc on Solaris and aprox. 2x as fast as jsprintf()
+	in libschily has been before. This gives another performance boost
+	for printf() bound programs like hdump/od that is used as a OSS
+	replacement for the closed source od(1) on OpenSolaris. This
+	now makes the OSS od(1) on OpenSolaris typically 5x faster then
+	the closed source version.
+
+-	libschily/getdtablesize.c now treats MinGW the same as when compiling
+	on Win-DOS using cl.exe.
+
+-	libschily/mkdirat.c and libschily/mkdirs.c now take care of the fact
+	that MinGW has a non standard compliant mkdir()
+
+-	libschily/mkfifoat.c fixed a type from, cut/paste the file from mkdirat.c
+
+-	cdrecord/cue.c now has a better comment related to cdrtools specific
+	CUE enhancements.
+
+-	Fixed a typo in cdrecord.dfl
+
+-	Avoid a redefined xxx warning for cdda2wav/exitcodes.h
+
+-	Added a #undef interface to cdda2wav/interface.h to make sure that
+	the #define interface from windows.h does not cause problems even
+	when using MinGW
+
+-	mkisofs/mkisofs.8 fixed illegal troff sequence "\\" to "\e"
+
+-	Try to avoid a direct string "/dev/null" in mkisofs.c to allow
+	it to work on Win-DOS without POSIX layer.
+
+-	readcd -c2scan now also prints the percentage of sectors with C2 errors.
+
+-	added new HP-UX specific #defines to cpp
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.isdn.cs.tu-berlin.de, js@cs.tu-berlin.de
+	joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

@@ -1,8 +1,8 @@
-/* @(#)mkisofs.c	1.269 13/04/24 joerg */
+/* @(#)mkisofs.c	1.270 14/01/03 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)mkisofs.c	1.269 13/04/24 joerg";
+	"@(#)mkisofs.c	1.270 14/01/03 joerg";
 #endif
 /*
  * Program mkisofs.c - generate iso9660 filesystem  based upon directory
@@ -11,7 +11,7 @@ static	UConst char sccsid[] =
  * Written by Eric Youngdale (1993).
  *
  * Copyright 1993 Yggdrasil Computing, Incorporated
- * Copyright (c) 1997-2013 J. Schilling
+ * Copyright (c) 1997-2014 J. Schilling
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -1982,7 +1982,7 @@ args_ok:
 	if (help)
 		usage(0);
 	if (pversion) {
-		printf(_("mkisofs %s (%s-%s-%s) Copyright (C) 1993-1997 %s (C) 1997-2013 %s\n"),
+		printf(_("mkisofs %s (%s-%s-%s) Copyright (C) 1993-1997 %s (C) 1997-2014 %s\n"),
 			version_string,
 			HOST_CPU, HOST_VENDOR, HOST_OS,
 			_("Eric Youngdale"),
@@ -2078,7 +2078,7 @@ args_ok:
 		check_session++;
 		check_oldnames++;
 		merge_image = check_image;
-		outfile = "/dev/null";
+		outfile = DEV_NULL;
 		/*
 		 * cdrecord_data is handled specially in multi.c
 		 * as we cannot write to all strings.
@@ -3140,7 +3140,7 @@ path_done:
 
 	/* OK, ready to write the file.  Open it up, and generate the thing. */
 	if (print_size) {
-		discimage = fopen("/dev/null", "wb");
+		discimage = fopen(DEV_NULL, "wb");
 		if (!discimage) {
 			comerr(_("Unable to open /dev/null\n"));
 		}

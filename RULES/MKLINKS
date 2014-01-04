@@ -1,6 +1,6 @@
 #!/bin/sh
 ###########################################################################
-#ident "@(#)MKLINKS	1.98 13/12/13 "
+#ident "@(#)MKLINKS	1.99 14/01/03 "
 ###########################################################################
 # Written 1996-2013 by J. Schilling
 ###########################################################################
@@ -172,6 +172,8 @@ $symlink	i586-linux-cc.rul	m68k-linux-cc.rul
 $symlink	i586-linux-gcc.rul	m68k-linux-gcc.rul
 $symlink	i586-linux-cc.rul	armv4l-linux-cc.rul
 $symlink	i586-linux-gcc.rul	armv4l-linux-gcc.rul
+$symlink	i586-linux-cc.rul	armv4tl-linux-cc.rul
+$symlink	i586-linux-gcc.rul	armv4tl-linux-gcc.rul
 $symlink	i586-linux-cc.rul	mips-linux-cc.rul
 $symlink	i586-linux-gcc.rul	mips-linux-gcc.rul
 $symlink	i586-linux-cc.rul	mipsel-linux-cc.rul
@@ -180,6 +182,8 @@ $symlink	i586-linux-cc.rul	mips64-linux-cc.rul
 $symlink	i586-linux-gcc.rul	mips64-linux-gcc.rul
 $symlink	i586-linux-cc.rul	s390-linux-cc.rul
 $symlink	i586-linux-gcc.rul	s390-linux-gcc.rul
+$symlink	i586-linux-cc.rul	s390x-linux-cc.rul
+$symlink	i586-linux-gcc.rul	s390x-linux-gcc.rul
 $symlink	i586-linux-cc.rul	parisc-linux-cc.rul
 $symlink	i586-linux-gcc.rul	parisc-linux-gcc.rul
 $symlink	i586-linux-cc.rul	parisc64-linux-cc.rul
@@ -194,6 +198,8 @@ $symlink	i586-linux-cc.rul	armv5teb-linux-cc.rul
 $symlink	i586-linux-gcc.rul	armv5teb-linux-gcc.rul
 $symlink	i586-linux-cc.rul	armv5tejl-linux-cc.rul
 $symlink	i586-linux-gcc.rul	armv5tejl-linux-gcc.rul
+$symlink	i586-linux-cc.rul	armv5tel-linux-cc.rul
+$symlink	i586-linux-gcc.rul	armv5tel-linux-gcc.rul
 $symlink	i586-linux-cc.rul	armv6l-linux-cc.rul
 $symlink	i586-linux-gcc.rul	armv6l-linux-gcc.rul
 $symlink	i586-linux-cc.rul	armv7l-linux-cc.rul

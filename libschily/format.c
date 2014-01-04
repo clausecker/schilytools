@@ -1,4 +1,4 @@
-/* @(#)format.c	1.54 13/12/24 Copyright 1985-2013 J. Schilling */
+/* @(#)format.c	1.56 14/01/02 Copyright 1985-2014 J. Schilling */
 /*
  *	format
  *	common code for printf fprintf & sprintf
@@ -6,7 +6,7 @@
  *	allows recursive printf with "%r", used in:
  *	error, comerr, comerrno, errmsg, errmsgno and the like
  *
- *	Copyright (c) 1985-2013 J. Schilling
+ *	Copyright (c) 1985-2014 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -52,7 +52,7 @@ extern	char	*gcvt __PR((double, int, char *));
 /*
  * We may need to decide whether we should check whether all
  * flags occur according to the standard which is either directly past:
- * "%" or directly past "%n$". 
+ * "%" or directly past "%n$".
  *
  * This however may make printf() slower in some cases.
  */
@@ -155,17 +155,27 @@ LOCAL	int	prstring __PR((const char *, f_args *));
 LOCAL	void	dbg_print __PR((char *fmt, int a, int b, int c, int d, int e, int f, int g, int h, int i));
 #endif
 
+#ifndef	FORMAT_FUNC_NAME
+#define	FORMAT_FUNC_NAME	format
+#define	FORMAT_FUNC_PARM
+
+#define	FORMAT_FUNC_PROTO_DECL	void (*fun)(char, long),
+#define	FORMAT_FUNC_KR_DECL	register void (*fun)();
+#define	FORMAT_FUNC_KR_ARGS	fun,
+
+#define	ofun(c, fp)		(*fun)(c, fp)
+#endif
 
 #ifdef	PROTOTYPES
 EXPORT int
-format(void (*fun)(char, long),
+FORMAT_FUNC_NAME(FORMAT_FUNC_PROTO_DECL
 			long farg,
 			const char *fmt,
 			va_list args)
 #else
 EXPORT int
-format(fun, farg, fmt, args)
-	register void	(*fun)();
+FORMAT_FUNC_NAME(FORMAT_FUNC_KR_ARGS farg, fmt, args)
+	FORMAT_FUNC_KR_DECL
 	register long	farg;
 	register char	*fmt;
 	va_list		args;
@@ -195,7 +205,9 @@ format(fun, farg, fmt, args)
 	char *rfmt;
 	f_args	fa;
 
+#ifdef	FORMAT_FUNC_PARM
 	fa.outf = fun;
+#endif
 	fa.farg = farg;
 	count = 0;
 	/*
@@ -207,7 +219,7 @@ format(fun, farg, fmt, args)
 		while (c != '%') {
 			if (c == '\0')
 				return (count);
-			(*fun)(c, farg);
+			ofun(c, farg);
 			c = *(++fmt);
 			count++;
 		}
@@ -274,7 +286,6 @@ format(fun, farg, fmt, args)
 
 		case '*':
 			fa.flags |= GOTSTAR;
-			fmt++;
 			if (!(fa.flags & GOTDOT)) {
 				fa.fldwidth = va_arg(args, int);
 				/*
@@ -606,7 +617,8 @@ error sizeof (ptrdiff_t) is unknown
 			 * It would be nice to have something like
 			 * __va_arg_list() in stdarg.h
 			 */
-			count += format(fun, farg, rfmt, __va_arg_list(args));
+			count += FORMAT_FUNC_NAME(FORMAT_FUNC_KR_ARGS
+					farg, rfmt, __va_arg_list(args));
 			continue;
 
 		gotn:
@@ -652,12 +664,12 @@ error sizeof (ptrdiff_t) is unknown
 			sfmt++;			/* Dont't print '%'   */
 			count += fmt - sfmt;
 			while (sfmt < fmt)
-				(*fun)(*(sfmt++), farg);
+				ofun(*(sfmt++), farg);
 			if (*fmt == '\0') {
 				fmt--;
 				continue;
 			} else {
-				(*fun)(*fmt, farg);
+				ofun(*fmt, farg);
 				count++;
 				continue;
 			}
@@ -1032,7 +1044,9 @@ prbuf(s, fa)
 	register int diff;
 	register int rfillc;
 	register long arg			= fa->farg;
+#ifdef	FORMAT_FUNC_PARM
 	register void (*fun) __PR((char, long))	= fa->outf;
+#endif
 	register int count;
 	register int lzero = 0;
 
@@ -1050,28 +1064,28 @@ prbuf(s, fa)
 
 	if (fa->prefixlen && fa->fillc != ' ') {
 		while (*fa->prefix != '\0')
-			(*fun)(*fa->prefix++, arg);
+			ofun(*fa->prefix++, arg);
 	}
 	if (!fa->minusflag) {
 		rfillc = fa->fillc;
 		while (--diff >= 0)
-			(*fun)(rfillc, arg);
+			ofun(rfillc, arg);
 	}
 	if (fa->prefixlen && fa->fillc == ' ') {
 		while (*fa->prefix != '\0')
-			(*fun)(*fa->prefix++, arg);
+			ofun(*fa->prefix++, arg);
 	}
 	if (lzero > 0) {
 		rfillc = '0';
 		while (--lzero >= 0)
-			(*fun)(rfillc, arg);
+			ofun(rfillc, arg);
 	}
 	while (*s != '\0')
-		(*fun)(*s++, arg);
+		ofun(*s++, arg);
 	if (fa->minusflag) {
 		rfillc = ' ';
 		while (--diff >= 0)
-			(*fun)(rfillc, arg);
+			ofun(rfillc, arg);
 	}
 	return (count);
 }
@@ -1096,7 +1110,9 @@ prc(c, fa)
 	register int diff;
 	register int rfillc;
 	register long arg			= fa->farg;
+#ifdef	FORMAT_FUNC_PARM
 	register void (*fun) __PR((char, long))	= fa->outf;
+#endif
 	register int count;
 
 	count = 1;
@@ -1107,13 +1123,13 @@ prc(c, fa)
 	if (!fa->minusflag) {
 		rfillc = fa->fillc;
 		while (--diff >= 0)
-			(*fun)(rfillc, arg);
+			ofun(rfillc, arg);
 	}
-	(*fun)(c, arg);
+	ofun(c, arg);
 	if (fa->minusflag) {
 		rfillc = ' ';
 		while (--diff >= 0)
-			(*fun)(rfillc, arg);
+			ofun(rfillc, arg);
 	}
 	return (count);
 }

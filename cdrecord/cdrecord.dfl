@@ -1,4 +1,4 @@
-#ident @(#)cdrecord.dfl	1.7 08/12/30 Copyr 1998 J. Schilling
+#ident @(#)cdrecord.dfl	1.8 14/01/03 Copyr 1998-2014 J. Schilling
 #
 # This file is /etc/default/cdrecord
 # It contains defaults that are used if no command line option
@@ -46,7 +46,7 @@
 #
 # Call cdrecord -scanbus to find the right "device name" for your
 # drive. Then set up a list entry with an arbitraty logical name,
-# followed by the SCSI device name if the drive. If speed or fifosize
+# followed by the SCSI device name of the drive. If speed or fifosize
 # should stay with the defaults, insert a -1. If you do not need to
 # set driveropts, use an empty string. The transfer size entry may be omitted.
 # It is recommended to set "burnfree".

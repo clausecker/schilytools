@@ -1,6 +1,6 @@
-dnl @(#)configure.in	1.251 13/11/13 Copyright 1998-2013 J. Schilling
+dnl @(#)configure.in	1.252 14/01/01 Copyright 1998-2014 J. Schilling
 dnl Process this file with autoconf to produce a configure script.
-AC_REVISION(1.251)dnl
+AC_REVISION(1.252)dnl
 
 dnl AC_INIT(xconfig.h.in)
 AC_INIT(config.guess)
@@ -485,6 +485,8 @@ AC_CHECK_FUNCS(_ldecvt_r _ldfcvt_r _ldgcvt_r)
 AC_CHECK_FUNCS(econvert fconvert gconvert)
 AC_CHECK_FUNCS(qeconvert qfconvert qgconvert)
 AC_CHECK_FUNCS(isinf isnan)
+AC_CHECK_FUNCS(getc_unlocked getchar_unlocked putc_unlocked putchar_unlocked)
+AC_CHECK_FUNCS(flockfile funlockfile ftrylockfile)
 AC_CHECK_FUNCS(rand drand48)
 AC_CHECK_FUNCS(strtol strtoll strtoul strtoull strtod)
 AC_CHECK_FUNCS(setpriority DosSetPriority)

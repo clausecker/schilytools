@@ -1,4 +1,4 @@
-/* @(#)mkfifoat.c	1.2 13/10/30 Copyright 2013 J. Schilling */
+/* @(#)mkfifoat.c	1.3 13/12/26 Copyright 2013 J. Schilling */
 /*
  *	Emulate the behavior of mkfifoat(int fd, const char *name, mode_t mode)
  *
@@ -43,7 +43,7 @@
 #define	KR_DECL		mode_t mode;
 /* CSTYLED */
 #define	KR_ARGS		, mode
-#define	FUNC_CALL(n)	mkdir(n, mode)
+#define	FUNC_CALL(n)	mkfifo(n, mode)
 #define	FLAG_CHECK()
 #define	FUNC_NAME	mkfifoat
 #define	FUNC_RESULT	int

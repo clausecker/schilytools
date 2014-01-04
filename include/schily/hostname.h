@@ -1,9 +1,9 @@
-/* @(#)hostname.h	1.21 13/09/14 Copyright 1995-2013 J. Schilling */
+/* @(#)hostname.h	1.22 14/01/01 Copyright 1995-2014 J. Schilling */
 /*
  *	This file has been separated from libport.h in order to avoid
  *	to include netdb.h in case gethostname() is not needed.
  *
- *	Copyright (c) 1995-2013 J. Schilling
+ *	Copyright (c) 1995-2014 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -72,8 +72,18 @@
 extern "C" {
 #endif
 
+/*
+ * The gethostname() prototype from Win-DOS are in the wrong include files
+ * (winsock*.h instead of unistd.h) and they are in conflict with the standard.
+ * Because the prototype is in the wrong file and the function is not in libc,
+ * configure will believe gethostname() is missing.
+ * We cannot define our own correct prototype, but this is not a problem as the
+ * return type is int.
+ */
+#if !defined(__MINGW32__)
 #ifndef	HAVE_GETHOSTNAME
 extern	int		gethostname	__PR((char *name, int namelen));
+#endif
 #endif
 #ifndef	HAVE_GETDOMAINNAME
 extern	int		getdomainname	__PR((char *name, int namelen));
