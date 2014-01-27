@@ -1,8 +1,8 @@
-/* @(#)sic_nls.c	1.17 10/12/20 Copyright 2007-2010 J. Schilling */
+/* @(#)sic_nls.c	1.18 14/01/15 Copyright 2007-2014 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)sic_nls.c	1.17 10/12/20 Copyright 2007-2010 J. Schilling";
+	"@(#)sic_nls.c	1.18 14/01/15 Copyright 2007-2014 J. Schilling";
 #endif
 /*
  * This code reads translation files in the format used by
@@ -12,7 +12,7 @@ static	UConst char sccsid[] =
  * from single byte character sets to unicode.
  * We use this code on systems that do not provide the iconv() function.
  *
- * Copyright 2007-2010 J. Schilling
+ * Copyright 2007-2014 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -21,6 +21,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -286,13 +288,9 @@ pfopen(name)
 {
 	char	path[1024];
 	char	*p;
-	FILE	*f;
-
-	if ((f = fopen(name, "r")) != NULL)
-		return (f);
 
 	if (strchr(name, '/'))
-		return ((FILE *)NULL);
+		return (fopen(name, "r"));
 
 	if (ins_base == NULL)
 		(void) sic_base();

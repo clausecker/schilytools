@@ -1,21 +1,8 @@
 '\" t
 .\" To print, first run through tbl
 .\" -*- nroff -*-
-.\" @(#)mkisofs.8	1.149 14/01/01 Copyright 1997-2014 J. Schilling
-.\"
-.\" This program is free software; you can redistribute it and/or modify
-.\" it under the terms of the GNU General Public License version 2
-.\" as published by the Free Software Foundation.
-.\"
-.\" This program is distributed in the hope that it will be useful,
-.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
-.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-.\" GNU General Public License for more details.
-.\"
-.\" You should have received a copy of the GNU General Public License along with
-.\" this program; see the file COPYING.  If not, write to the Free Software
-.\" Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
-.\"
+.\" @(#)mkisofs.8	1.151 14/01/22 Copyright 1997-2014 J. Schilling
+.\"@@C@@
 .\"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
 .if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
@@ -29,7 +16,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH MKISOFS 8 "2014/01/01" "Version 3.0"
+.TH MKISOFS 8 "2014/01/22" "Version 3.0"
 .SH NAME
 mkisofs \- create an hybrid ISO-9660/JOLIET/HFS/UDF filesystem-image with optional Rock Ridge attributes.
 .SH SYNOPSIS
@@ -2382,7 +2369,8 @@ is used by Microsoft with Win32.
 This coding is similar to 
 .B UTF-16
 with the disadvantage that it only supports
-a 16 bit subset of all codes and that 16-bit characters are not compliant with
+a 16 bit subset (except when surrogates are used) of all codes
+and that 16-bit characters are not compliant with
 the POSIX filesystem interface.
 .PP
 Modern UNIX operating systems may use
@@ -2391,13 +2379,13 @@ coding for filenames. This coding allows to use the complete Unicode code set.
 Each 32-bit character is represented by one or more 8-bit characters.
 If a character is coded in
 .B ISO-8859-1
-(used in Central Europe and North America) is maps 1:1 to a 
+(used in Central Europe and North America) it maps 1:1 to a 
 .BR UTF-32 " or " UTF-16 "
 coded Unicode character.
 If a character is coded in
 .B "7-Bit ASCII
 (used in USA and other countries with limited character set)
-is maps 1:1 to a 
+it maps 1:1 to a 
 .BR UTF-32 ", " UTF-16 " or " UTF-8
 coded Unicode character.
 Character codes that cannot be represented as a single byte in UTF-8
@@ -2416,7 +2404,7 @@ interface.
 For all non
 .B UTF-8
 coded operating systems, the actual character
-that each byte represents depends on the
+that each byte represents, depends on the
 .I character set
 or
 .I codepage
@@ -2495,8 +2483,13 @@ given with the
 .I \-input\-charset
 option. Defaults to the input HFS character set.
 .PP
-There are a number of character sets built in to
-.IR mkisofs .
+The
+.B default
+character set is built into
+.BR mkisofs .
+A number of further character sets are read in from the filesystem by
+.I mkisofs
+from a directory relatively to the install path.
 To get a listing, use
 .B "mkisofs \-input\-charset help.
 .PP
@@ -2519,9 +2512,9 @@ If using non
 .BR iconv (1)
 based character sets,
 additional character sets can be read from file for any of the character
-set options by giving a filename as the argument to the options. The given
-file will only be read if its name does not match one of the built in
-character sets.
+set options by giving a filename as the argument to the options. A given
+character set will be read from a file whenever the supplied name contains
+a '/'.
 .PP
 The format of the character set files is the same as the mapping files
 available from http://www.unicode.org/Public/MAPPINGS The format of these
@@ -3556,6 +3549,7 @@ been fully tested.
 .SH "SEE ALSO
 .BR cdrecord (1),
 .BR mkzftree (1),
+.BR sfind (1),
 .BR magic (5),
 .BR apple_driver (8).
 

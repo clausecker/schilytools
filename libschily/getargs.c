@@ -1,12 +1,12 @@
-/* @(#)getargs.c	2.65 10/11/06 Copyright 1985, 1988, 1994-2010 J. Schilling */
+/* @(#)getargs.c	2.66 14/01/19 Copyright 1985, 1988, 1994-2014 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)getargs.c	2.65 10/11/06 Copyright 1985, 1988, 1994-2010 J. Schilling";
+	"@(#)getargs.c	2.66 14/01/19 Copyright 1985, 1988, 1994-2014 J. Schilling";
 #endif
 #define	NEW
 /*
- *	Copyright (c) 1985, 1988, 1994-2010 J. Schilling
+ *	Copyright (c) 1985, 1988, 1994-2014 J. Schilling
  *
  *	1.3.88	 Start implementation of release 2
  */
@@ -49,6 +49,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -1130,6 +1132,7 @@ again:
 						rsf[i].fmt = '~';
 						rsf[i].type = '~';
 						rsf[i].curfun = curarg;
+						rsf[i].curfun = (void *)curfun;
 						if ((flags & (SETARGS|ARGVECTOR)) == SETARGS)
 							curarg = va_arg(args, void *);
 					} else {

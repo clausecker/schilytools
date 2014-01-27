@@ -1,12 +1,12 @@
-/* @(#)apple.c	1.43 10/12/19 joerg, Copyright 1997, 1998, 1999, 2000 James Pearson, Copyright 2000-2010 J. Schilling */
+/* @(#)apple.c	1.44 14/01/19 joerg, Copyright 1997, 1998, 1999, 2000 James Pearson, Copyright 2000-2014 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)apple.c	1.43 10/12/19 joerg, Copyright 1997, 1998, 1999, 2000 James Pearson, Copyright 2000-2010 J. Schilling";
+	"@(#)apple.c	1.44 14/01/19 joerg, Copyright 1997, 1998, 1999, 2000 James Pearson, Copyright 2000-2014 J. Schilling";
 #endif
 /*
  *      Copyright (c) 1997, 1998, 1999, 2000 James Pearson
- *	Copyright (c) 2000-2010 J. Schilling
+ *	Copyright (c) 2000-2014 J. Schilling
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -2749,7 +2749,7 @@ hfs_init(name, fdflags, hfs_select)
 
 	/* initialise magic file */
 	if (magic_file && init_magic(magic_file) != 0)
-		perr("unable to open magic file");
+		comerr("Unable to open magic file '%s'.\n", magic_file);
 
 	/* set defaults */
 	map_num = last_ent = 0;
@@ -2788,7 +2788,7 @@ hfs_init(name, fdflags, hfs_select)
 		return;
 	}
 	if ((fp = fopen(name, "r")) == NULL)
-		perr("unable to open mapping file");
+		comerr("Unable to open mapping file '%s'.\n", name);
 
 	map = (afpmap **) e_malloc(NUMMAP * sizeof (afpmap *));
 
@@ -2805,7 +2805,7 @@ hfs_init(name, fdflags, hfs_select)
 			count += NUMMAP;
 			map = (afpmap **)realloc(map, count * sizeof (afpmap *));
 			if (map == NULL)
-				perr("not enough memory");
+				perr("not enough memory for mapping file");
 		}
 		/* allocate memory for this entry */
 		amap = (afpmap *) e_malloc(sizeof (afpmap));
@@ -2855,7 +2855,7 @@ hfs_init(name, fdflags, hfs_select)
 	if (map_num != count) {
 		map = (afpmap **) realloc(map, map_num * sizeof (afpmap *));
 		if (map == NULL)
-			perr("not enough memory");
+			perr("not enough memory for mapping file");
 	}
 }
 

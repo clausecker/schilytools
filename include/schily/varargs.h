@@ -1,4 +1,4 @@
-/* @(#)varargs.h	1.7 10/08/27 Copyright 1998-2010 J. Schilling */
+/* @(#)varargs.h	1.8 14/01/06 Copyright 1998-2014 J. Schilling */
 /*
  *	Generic header for users of var args ...
  *
@@ -9,7 +9,7 @@
  *	The __va_arg_list() macro is needed to fetch a va_list type argument
  *	from a va_list. This is needed to implement a recursive "%r" printf.
  *
- *	Copyright (c) 1998-2010 J. Schilling
+ *	Copyright (c) 1998-2014 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -18,6 +18,8 @@
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -28,6 +30,10 @@
 
 #ifndef	_SCHILY_MCONFIG_H
 #include <schily/mconfig.h>
+#endif
+
+#ifdef	__cplusplus
+extern "C" {
 #endif
 
 #ifdef	PROTOTYPES
@@ -115,6 +121,20 @@
 #	define	__va_arg_list(list)	va_arg(list, void *)
 #else
 #	define	__va_arg_list(list)	va_arg(list, va_list)
+#endif
+
+/*
+ * This structure allows to work around the C limitation that a variable of
+ * type array cannot appear at the left side of an assignement operator.
+ * By putting va_list inside a struture, the assignement will work even in case
+ * that va_list is an array2.
+ */
+typedef struct {
+	va_list	ap;
+} va_lists_t;
+
+#ifdef	__cplusplus
+}
 #endif
 
 #endif	/* _SCHILY_VARARGS_H */

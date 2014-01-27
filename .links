@@ -356,6 +356,8 @@
 ./RULES/ppc-linux-gcc.rul
 ./RULES/ppc64-linux-cc.rul
 ./RULES/ppc64-linux-gcc.rul
+./RULES/ppc64le-linux-cc.rul
+./RULES/ppc64le-linux-gcc.rul
 ./RULES/r-build.dep
 ./RULES/r-build.obj
 ./RULES/r-build.tag

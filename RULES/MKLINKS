@@ -1,10 +1,10 @@
 #!/bin/sh
 ###########################################################################
-#ident "@(#)MKLINKS	1.99 14/01/03 "
+#ident "@(#)MKLINKS	1.101 14/01/06 "
 ###########################################################################
-# Written 1996-2013 by J. Schilling
+# Written 1996-2014 by J. Schilling
 ###########################################################################
-# Copyright (c) 1996-2013 J. Schilling
+# Copyright (c) 1996-2014 J. Schilling
 ###########################################################################
 # The contents of this file are subject to the terms of the
 # Common Development and Distribution License, Version 1.0 only
@@ -168,6 +168,8 @@ $symlink	i586-linux-cc.rul	ppc-linux-cc.rul
 $symlink	i586-linux-gcc.rul	ppc-linux-gcc.rul
 $symlink	i586-linux-cc.rul	ppc64-linux-cc.rul
 $symlink	i586-linux-gcc.rul	ppc64-linux-gcc.rul
+$symlink	i586-linux-cc.rul	ppc64le-linux-cc.rul
+$symlink	i586-linux-gcc.rul	ppc64le-linux-gcc.rul
 $symlink	i586-linux-cc.rul	m68k-linux-cc.rul
 $symlink	i586-linux-gcc.rul	m68k-linux-gcc.rul
 $symlink	i586-linux-cc.rul	armv4l-linux-cc.rul

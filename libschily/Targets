@@ -1,4 +1,4 @@
-# @(#)Targets	1.43 14/01/02 Copyright 1995-2014 J. Schilling
+# @(#)Targets	1.44 14/01/06 Copyright 1995-2014 J. Schilling
 
 CFILES_STDIO=	cvmod.c dat.c fcons.c fdown.c fdup.c \
 		ffileread.c ffilewrite.c \
@@ -60,16 +60,16 @@ CFILES_REST=	abspath.c astoi.c astoll.c astoull.c basename.c breakline.c \
 		snprintf.c \
 		spawn.c \
 		strcasecmp.c strncasecmp.c strcasemap.c \
-		strcat.c strcatl.c strchr.c strcmp.c strcpy.c \
+		strcat.c strcatl.c strchr.c strcmp.c strcpy.c strcspn.c \
 		strdup.c streql.c strlen.c strlcat.c strlcpy.c strncat.c strncmp.c \
-		strncpy.c strndup.c strnlen.c strrchr.c strstr.c \
+		strncpy.c strndup.c strnlen.c strrchr.c strspn.c strstr.c \
 		swabbytes.c \
 		symlinkat.c \
 		timegm.c \
 		uid.c unlinkat.c uname.c usleep.c utimens.c utimensat.c \
-		wcscat.c wcscatl.c wcschr.c wcscmp.c wcscpy.c \
+		wcscat.c wcscatl.c wcschr.c wcscmp.c wcscpy.c wcscspn.c \
 		wcsdup.c wcseql.c wcslen.c wcslcat.c wcslcpy.c wcsncat.c wcsncmp.c \
-		wcsncpy.c wcsndup.c wcsnlen.c wcsrchr.c wcsstr.c \
+		wcsncpy.c wcsndup.c wcsnlen.c wcsrchr.c wcsspn.c wcsstr.c \
 		wdabort.c \
 		zerobytes.c
 

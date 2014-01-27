@@ -1,0 +1,106 @@
+New features with AN-2014-01-27:
+
+This is the first localization step for the schily source consolidation. Many
+programs now (hopefully) call gettext() for all strings that need localization.
+
+-	The next step will include dgettext() calls for the libraries and the
+	missing programs
+
+-	The following step will include the extracted strings
+
+-	The last step will include German translations and install support
+	for the resulting binary message object files.
+
+----------> Please test and report compilation problems! <---------
+
+***** NOTE: As mentioned since 2004, frontends to the tools should *****
+*****		call all programs in the "C" locale		   *****
+*****		by e.g. calling: LC_ALL=C cdrecord ....		   *****
+*****		unless these frontends support localized strings   *****
+*****		used by the cdrtools with NLS support.		   *****
+
+-	psmake (the bootstrap smake compile environment) again compiles
+	on Solaris (and probably others). This has been achieved by using
+
+		-DNO_FPRFORMAT -DNO_NL_ARGS
+
+	to deactivate recent enhancements in printf()
+
+-	include/schily/varargs.h now includes a new type va_lists_t
+	that is a structure that covers va_list.
+
+-	include/schily/getargs.h now has comment for the arguments and
+	return code of the getargs() callback functions.
+
+-	The schily makefilesystem now includes a new symlink
+	ppc64le-linux-cc.rul for non-automake aware make implementations
+	such as gmake.
+
+-	New autoconf tests for strspn() strcspn() wcsspn() wcscspn()
+
+-	libschily now implements strspn() strcspn() wcsspn() wcscspn()
+
+-	libschily/format.c (the low level printf() implementation) now
+	implements support for %n$ argument repositioning for the
+	case that "n" is 1..30, or if larger points to an int type arg.
+
+-	libschily/fprformat.c fixed a bug that would prevent to use
+	stdio macros with newer OpenSolaris versions, making printf()
+	not as fast as expected.
+
+-	libschily/getargs.c no longer dumps core when boolean flags are
+	combined into a single string and one or more of these flags
+	trigger a callback function.
+
+-	libsiconf/sic_nls.c: sic_open() no longer tries to open all
+	characterset names as files in the current directory but only
+	if the name contains a slash. Thanks to a report from
+	Vladimir Marek <Vladimir.Marek@oracle.com>
+
+-	star no longer archives all files as sparse file when using 
+
+		star -c -sparse -force-hole
+
+	but only those files that include at least one aligned block
+	of 512 zeroed bytes.
+
+-	cdrtools bumped to Version 3.01a22
+
+-	Better error messages in mkisofs/apple.c
+
+-	mkisofs now inplements a new option -legacy that allows to get back the
+	options -H/-L/-P that have been deprecated in 2002 and disabled in 2006
+	in the definition from the 1990s.
+	If you like to use this feature, write a wrapper shell script that calls:
+
+		mkisofs -legacy "$@"
+
+	Note that -H/-L/-P have been disabled in 2006 and mkisofs will soon
+	introduce -H/-L/-P with a POSIX compatible definition as announced since
+	2002. So take care to convert your scripts to call:
+
+		-map			for the old definition of -H 
+					(-H valid between 2000 and 2002)
+		-allow-leading-dots	for the old definition of -L
+					(-L valid between 1995 and 2002)
+		-publisher		for the old definition of -P
+					(-P valid between 1993 and 2002)
+
+-	The mkisofs man page now correctly documents the new behavior from libsiconv
+
+-	The mkisofs man page now mentions sfind(1) as a man page to read 
+	about the interface if the -find option.
+	
+
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.isdn.cs.tu-berlin.de, js@cs.tu-berlin.de
+	joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

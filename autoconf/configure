@@ -1,6 +1,6 @@
 #! /bin/sh
 
-# From configure.in 1.252
+# From configure.in 1.253
 
 
 
@@ -16444,7 +16444,7 @@ fi
 done
 
 
-for ac_func in strcat strncat strcmp strncmp strcpy strlcat strlcpy strncpy strdup strndup strlen strnlen strchr strrchr strstr
+for ac_func in strcat strncat strcmp strncmp strcpy strlcat strlcpy strncpy strdup strndup strlen strnlen strchr strrchr strstr strspn strcspn
 do
 echo $ac_n "checking if $ac_func is defined or function""... $ac_c" 1>&6
 echo "configure:16451: checking if $ac_func is defined or function" >&5
@@ -16489,7 +16489,7 @@ EOF
 fi
 done
 
-for ac_func in wcscat wcsncat wcscmp wcsncmp wcscpy wcslcat wcslcpy wcsncpy wcsdup wcsndup wcslen wcsnlen wcschr wcsrchr wcsstr
+for ac_func in wcscat wcsncat wcscmp wcsncmp wcscpy wcslcat wcslcpy wcsncpy wcsdup wcsndup wcslen wcsnlen wcschr wcsrchr wcsstr wcsspn wcscspn
 do
 echo $ac_n "checking if $ac_func is defined or function""... $ac_c" 1>&6
 echo "configure:16496: checking if $ac_func is defined or function" >&5

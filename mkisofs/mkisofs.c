@@ -1,8 +1,8 @@
-/* @(#)mkisofs.c	1.270 14/01/03 joerg */
+/* @(#)mkisofs.c	1.271 14/01/19 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)mkisofs.c	1.270 14/01/03 joerg";
+	"@(#)mkisofs.c	1.271 14/01/19 joerg";
 #endif
 /*
  * Program mkisofs.c - generate iso9660 filesystem  based upon directory
@@ -126,6 +126,7 @@ int	jlen = JMAX;	/* maximum Joliet file name length */
 int	verbose = 1;
 int	debug = 0;
 int	gui = 0;
+BOOL	legacy = FALSE;		/* Implement legacy support for historic CLI */
 int	all_files = 1;		/* New default is to include all files */
 BOOL	Hflag = FALSE;		/* Follow links on cmdline (-H)	*/
 BOOL	follow_links = FALSE;	/* Follow all links (-L)	*/
@@ -352,6 +353,7 @@ LOCAL	int	getfind		__PR((char *arg, long *valp,
 LOCAL	int	getH		__PR((const char *arg, void *valp, int *pac, char *const **pav, const char *opt));
 LOCAL	int	getL		__PR((const char *arg, void *valp, int *pac, char *const **pav, const char *opt));
 LOCAL	int	getP		__PR((const char *arg, void *valp, int *pac, char *const **pav, const char *opt));
+LOCAL	int	dolegacy	__PR((const char *arg, void *valp, int *pac, char *const **pav, const char *opt));
 
 LOCAL	int	get_boot_image	__PR((char *opt_arg));
 LOCAL	int	get_hd_boot	__PR((char *opt_arg));
@@ -896,7 +898,7 @@ getfind(arg, valp, pac, pav)
 
 /* ARGSUSED */
 LOCAL int
-getH(arg, valp, pac, pav, opt)	/* Follow symlinks encounterd on cmdline */
+getH(arg, valp, pac, pav, opt)	/* Follow symlinks encountered on cmdline */
 	const char	*arg;
 	void		*valp;
 	int		*pac;
@@ -904,6 +906,18 @@ getH(arg, valp, pac, pav, opt)	/* Follow symlinks encounterd on cmdline */
 	const char	*opt;
 {
 /*error("getH\n");*/
+	if (opt[0] == '-' && opt[1] == 'H' && opt[2] == '\0') {
+#ifdef	APPLE_HYB
+		if (legacy) {
+			errmsgno(EX_BAD, _("The option '-H' is deprecated since 2002.\n"));
+			errmsgno(EX_BAD, _("The option '-H' was disabled in 2006.\n"));
+			errmsgno(EX_BAD, _("Use '-map' instead of '-H' as documented instead of using the legacy mode.\n"));
+			afpfile = (char *)arg;
+			return (1);
+		}
+#endif
+		return (BADFLAG);	/* POSIX -H is not yet active */
+	}
 	follow_links = FALSE;
 	Hflag = TRUE;
 #ifdef	USE_FIND
@@ -922,6 +936,16 @@ getL(arg, valp, pac, pav, opt)	/* Follow all symlinks */
 	const char	*opt;
 {
 /*error("getL\n");*/
+	if (opt[0] == '-' && opt[1] == 'L' && opt[2] == '\0') {
+		if (legacy) {
+			errmsgno(EX_BAD, _("The option '-L' is deprecated since 2002.\n"));
+			errmsgno(EX_BAD, _("The option '-L' was disabled in 2006.\n"));
+			errmsgno(EX_BAD, _("Use '-allow-leading-dots' instead of '-L' as documented instead of using the legacy mode.\n"));
+			allow_leading_dots = TRUE;
+			return (1);
+		}
+		return (BADFLAG);	/* POSIX -L is not yet active */
+	}
 	follow_links = TRUE;
 	Hflag = FALSE;
 #ifdef	USE_FIND
@@ -940,11 +964,42 @@ getP(arg, valp, pac, pav, opt)	/* Do not follow symlinks */
 	const char	*opt;
 {
 /*error("getP\n");*/
+	if (opt[0] == '-' && opt[1] == 'P' && opt[2] == '\0') {
+		if (legacy) {
+			errmsgno(EX_BAD, _("The option '-P' is deprecated since 2002.\n"));
+			errmsgno(EX_BAD, _("The option '-P' was disabled in 2006.\n"));
+			errmsgno(EX_BAD, _("Use '-publisher' instead of '-P' as documented instead of using the legacy mode.\n"));
+			publisher = (char *)arg;
+			return (1);
+		}
+		return (BADFLAG);	/* POSIX -P is not yet active */
+	}
 	follow_links = FALSE;
 	Hflag = FALSE;
 #ifdef	USE_FIND
 	*(int *)valp &= ~(WALK_ARGFOLLOW | WALK_ALLFOLLOW);
 #endif
+	return (1);
+}
+
+LOCAL struct ga_flags *gl_flags;
+/* ARGSUSED */
+LOCAL int
+dolegacy(arg, valp, pac, pav, opt)	/* Follow symlinks encountered on cmdline */
+	const char	*arg;
+	void		*valp;
+	int		*pac;
+	char	*const	**pav;
+	const char	*opt;
+{
+	legacy = TRUE;
+#ifdef	APPLE_HYB
+	gl_flags[2].ga_format = "H&";	/* Apple Hybrid "-map" */
+#endif
+#ifdef	OPT_L_HAS_ARG			/* never ;-) */
+	gl_flags[4].ga_format = "L&";	/* -allow-leading-dots */
+#endif
+	gl_flags[6].ga_format = "P&";	/* -publisher */
 	return (1);
 }
 
@@ -970,6 +1025,7 @@ struct mki_option {
 	const char	*doc;
 };
 
+
 LOCAL int	save_pname = 0;
 
 LOCAL const struct mki_option mki_options[] =
@@ -978,18 +1034,49 @@ LOCAL const struct mki_option mki_options[] =
 	{{"find~", NULL, (getpargfun)getfind },
 	__("\1file... [find expr.]\1Option separator: Use find command line to the right")},
 #endif
+	/*
+	 * The options -H/-L/-P did have different meaning in old releases of
+	 * mkisofs. In October 2002, mkisofs introduced a warning that the
+	 * short options -H/-L/-P should not be used with the old meaning
+	 * anymore. The long options should be used instead. The options
+	 * -H/-L/-P previously have been associated with the following long
+	 * options:
+	 *
+	 *	-H	-map				2000..2002
+	 *	-L	-allow-leading-dots		1995..2002
+	 *	-P	-publisher			1993..2002
+	 *
+	 * Since December 2006, the short options -H/-L/-P have been disabled
+	 * for their old meaning.
+	 *
+	 * Warning: for the -legacy mode, the entries for -H/-L/-P need to stay
+	 * at their current index in mki_options[] or dolegacy() needs to be
+	 * changed to fit the modification.
+	 */
 	{{"posix-H~", &walkflags, getH },
 	__("Follow symbolic links encountered on command line")},
-/*	{{"H~", &walkflags, getH },*/
-/*	NULL},*/
+	{{"H~", &walkflags, getH },
+#ifdef	LATER
+	NULL},
+#else
+	__("\2")},
+#endif
 	{{"posix-L~", &walkflags, getL },
 	__("Follow all symbolic links")},
-/*	{{"L~", &walkflags, getL },*/
-/*	NULL},*/
+	{{"L~", &walkflags, getL },
+#ifdef	LATER
+	NULL},
+#else
+	__("\2")},
+#endif
 	{{"posix-P~", &walkflags, getP },
 	__("Do not follow symbolic links (default)")},
-/*	{{"P~", &walkflags, getP },*/
-/*	NULL},*/
+	{{"P~", &walkflags, getP },
+#ifdef	LATER
+	NULL},
+#else
+	__("\2")},
+#endif
 
 	{{"abstract*", &abstract },
 	__("\1FILE\1Set Abstract filename")},
@@ -1334,6 +1421,8 @@ LOCAL const struct mki_option mki_options[] =
 	{{"no-hfs~", NULL, (getpargfun)hfs_nohfs },
 	__("Do not create ISO9660/HFS hybrid")},
 #endif	/* APPLE_HYB */
+	{{"legacy~", NULL, dolegacy },
+	__("\2")},
 };
 
 #define	OPTION_COUNT (sizeof mki_options / sizeof (mki_options[0]))
@@ -1946,6 +2035,7 @@ main(argc, argv)
 			++il;
 		}
 		flags[il].ga_format = NULL;
+		gl_flags = flags;
 	}
 	time(&begun);
 	gettimeofday(&tv_begun, NULL);

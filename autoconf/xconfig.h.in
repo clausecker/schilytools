@@ -1,4 +1,4 @@
-/* @(#)xconfig.h.in	1.238 14/01/01 Copyright 1998-2014 J. Schilling */
+/* @(#)xconfig.h.in	1.239 14/01/06 Copyright 1998-2014 J. Schilling */
 /*
  *	Dynamic autoconf C-include code.
  *	Do not edit, this file has been created automatically.
@@ -456,6 +456,8 @@
 #undef HAVE_STRCHR		/* strchr() is present in libc */
 #undef HAVE_STRRCHR		/* strrchr() is present in libc */
 #undef HAVE_STRSTR		/* strstr() is present in libc */
+#undef HAVE_STRSPN		/* strspn() is present in libc */
+#undef HAVE_STRCSPN		/* strcspn() is present in libc */
 #undef HAVE_STRCASECMP		/* strcasecmp() is present in libc */
 #undef HAVE_STRNCASECMP		/* strncasecmp() is present in libc */
 #undef HAVE_BASENAME		/* basename() is present in libc */
@@ -539,6 +541,8 @@
 #undef HAVE_WCSCHR		/* wcschr() is present in libc */
 #undef HAVE_WCSRCHR		/* wcsrchr() is present in libc */
 #undef HAVE_WCSSTR		/* wcsstr() is present in libc */
+#undef HAVE_WCSSPN		/* wcsspn() is present in libc */
+#undef HAVE_WCSCSPN		/* wcscspn() is present in libc */
 #undef HAVE_WCWIDTH		/* wcwidth() is present in libc */
 #undef HAVE_WCSWIDTH		/* wcswidth() is present in libc */
 #undef HAVE_WCTYPE		/* wctype() is present in libc */

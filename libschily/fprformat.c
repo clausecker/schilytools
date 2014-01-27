@@ -1,4 +1,4 @@
-/* @(#)fprformat.c	1.2 14/01/02 Copyright 2013-2014 J. Schilling */
+/* @(#)fprformat.c	1.3 14/01/05 Copyright 2013-2014 J. Schilling */
 /*
  *	fprformat
  *	common code for printf fprintf & sprintf
@@ -35,11 +35,10 @@
 #endif
 #include <schily/standard.h>
 #include <schily/utypes.h>
-#include <schily/schily.h>
-
 #define	__EXTENSIONS__		/* Enable putc_unlocked() macro on Solaris */
 #define	FAST_GETC_PUTC		/* Enable stdio extensions in schily/stdio.h */
 #include <schily/stdio.h>
+#include <schily/schily.h>	/* Must be past stdio.h */
 
 #define	FORMAT_FUNC_NAME	fprformat
 #define	FORMAT_FUNC_PROTO_DECL

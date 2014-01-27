@@ -1,13 +1,13 @@
-/* @(#)hole.c	1.62 13/10/30 Copyright 1993-2013 J. Schilling */
+/* @(#)hole.c	1.63 14/01/16 Copyright 1993-2014 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)hole.c	1.62 13/10/30 Copyright 1993-2013 J. Schilling";
+	"@(#)hole.c	1.63 14/01/16 Copyright 1993-2014 J. Schilling";
 #endif
 /*
  *	Handle files with holes (sparse files)
  *
- *	Copyright (c) 1993-2013 J. Schilling
+ *	Copyright (c) 1993-2014 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -70,6 +70,7 @@ extern	char	*bigptr;
 extern	BOOL	debug;
 extern	BOOL	force_hole;
 extern	BOOL	nullout;
+extern	BOOL	silent;
 
 /*
  * XXX If we have really big files, there could in theory be more than
@@ -794,7 +795,7 @@ mk_sp_list(fp, info, spp)
 	 * files up to 64 bytes in the inode and then returns
 	 * sp->st_blocks == 0 for a non sparse file. We now moved this decision
 	 * past the check for a working SEEK_HOLE in hope that noone will
-	 * implement a filesystem that hides more than DEV_BSIZE without 
+	 * implement a filesystem that hides more than DEV_BSIZE without
 	 * supporting SEEK_HOLE.
 	 */
 	if (info->f_flags & F_ALL_HOLE) {
@@ -1170,6 +1171,27 @@ put_sparse(fp, info)
 		return;
 	}
 	rsize = info->f_rsize;
+
+	/*
+	 * If -force-hole was specified and the file is not sparse, only write
+	 * it as sparse to the archive if the amount of all-zero data is at
+	 * least TBLOCK bytes.
+	 */
+	if (force_hole && ((info->f_flags & F_SPARSE) == 0)) {
+		if (info->f_size - rsize < TBLOCK) {
+			info->f_rsize = info->f_size;
+			put_tcb(info->f_tcb, info);
+			vprint(info);
+			/*
+			 * At this point, we found a file with no zeroed
+			 * region of at least TBLOCK size.
+			 */
+			put_file(fp, info);
+			return;
+		} else if (!silent) {
+			error("Treating '%s' as sparse\n", info->f_name);
+		}
+	}
 
 	EDEBUG(("rsize: %lld\n", (Llong)rsize));
 

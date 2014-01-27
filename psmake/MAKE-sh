@@ -1,5 +1,5 @@
 #!/bin/sh
-#ident "@(#)MAKE-sh	1.18 13/10/24 "
+#ident "@(#)MAKE-sh	1.19 14/01/15 "
 ###############################################################################
 #
 # The shell variables CFLAGS & LDFLAGS may be used to pass additional flags
@@ -110,7 +110,17 @@ CC=${CC-cc}
 CF=
 LF=
 INCLUDE="-Iinclude -I."
-DEFINES="-DSCHILY_BUILD -DNO_FLOATINGPOINT -DNO_SCANSTACK -DNO_USG_STDIO"
+#
+# Defines:
+#
+#	-DSCHILY_BUILD		Use autoconf results from -I.
+#	-DNO_FLOATINGPOINT	Do not include floating point in printf()
+#	-DNO_FPRFORMAT		No printf() speedup for selected architectures
+#	-DNO_NL_ARGS		No %n$ argument reordering in printf()
+#	-DNO_SCANSTACK		Do not try to scan stack for special args
+#	-DNO_USG_STDIO		Do not try to use stdio speedup for USG
+#
+DEFINES="-DSCHILY_BUILD -DNO_FLOATINGPOINT -DNO_FPRFORMAT -DNO_NL_ARGS -DNO_SCANSTACK -DNO_USG_STDIO"
 o=o
 
 if [ $ENV_CC = none ]; then

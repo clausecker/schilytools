@@ -1,11 +1,11 @@
-/* @(#)create.c	1.133 13/10/05 Copyright 1985, 1995, 2001-2013 J. Schilling */
+/* @(#)create.c	1.134 14/01/16 Copyright 1985, 1995, 2001-2014 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)create.c	1.133 13/10/05 Copyright 1985, 1995, 2001-2013 J. Schilling";
+	"@(#)create.c	1.134 14/01/16 Copyright 1985, 1995, 2001-2014 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1985, 1995, 2001-2013 J. Schilling
+ *	Copyright (c) 1985, 1995, 2001-2014 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -710,10 +710,10 @@ createi(sname, name, namlen, info, last)
 		} else if (do_sparse && force_hole) {
 			/*
 			 * Treat all files as sparse when -force-hole
-			 * option is given.
+			 * option is given. Files that do not contain
+			 * any zeroed region will however still be
+			 * archived as plain files by put_sparse().
 			 */
-			if (!silent)
-				error("Treating '%s' as sparse\n", info->f_name);
 			put_sparse(&fd, info);
 		} else {
 			put_tcb(ptb, info);
