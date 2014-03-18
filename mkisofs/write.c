@@ -1,8 +1,8 @@
-/* @(#)write.c	1.137 12/12/02 joerg */
+/* @(#)write.c	1.138 14/02/11 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)write.c	1.137 12/12/02 joerg";
+	"@(#)write.c	1.138 14/02/11 joerg";
 #endif
 /*
  * Program write.c - dump memory  structures to  file for iso9660 filesystem.
@@ -10,7 +10,7 @@ static	UConst char sccsid[] =
  * Written by Eric Youngdale (1993).
  *
  * Copyright 1993 Yggdrasil Computing, Incorporated
- * Copyright (c) 1999-2012 J. Schilling
+ * Copyright (c) 1999-2014 J. Schilling
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -54,7 +54,7 @@ static	UConst char sccsid[] =
 #define	SIZEOF_UDF_EXT_ATTRIBUTE_COMMON	50
 
 /* Max number of sectors we will write at  one time */
-#define	NSECT 16
+#define	NSECT	32
 
 #define	INSERTMACRESFORK 1
 
@@ -374,7 +374,11 @@ write_one_file(filename, size, outfile)
 	 * As we do not need to call write_one_file() recursively
 	 * we make buffer static.
 	 */
+#ifdef	__BEOS__
 static	char		buffer[SECTOR_SIZE * NSECT];
+#else
+	char		buffer[SECTOR_SIZE * NSECT];
+#endif
 	FILE		*infile;
 	off_t		remain;
 	int	use;
@@ -419,10 +423,15 @@ static	char		buffer[SECTOR_SIZE * NSECT];
 						/* boundary */
 		memset(buffer, 0, use);
 		seterrno(0);
-		if (infile)
+		if (infile) {
+#ifdef VMS
 			amt = fread(buffer, 1, use, infile);
-		else
+#else
+			amt = ffileread(infile, buffer, use);
+#endif
+		} else {
 			amt = use;
+		}
 		if (amt < use && amt != remain) {
 			/*
 			 * Note that mkisofs is not star and no 100% archiver.

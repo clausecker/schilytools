@@ -603,6 +603,6 @@ D-13353 Berlin
 Germany
 
 Email: 	joerg@schily.isdn.cs.tu-berlin.de, js@cs.tu-berlin.de
-	joerg.schilling@fokus.fraunhufer.de
+	joerg.schilling@fokus.fraunhofer.de
 
 Please mail bugs and suggestions to me.

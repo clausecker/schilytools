@@ -1,8 +1,8 @@
-/* @(#)tree.c	1.129 13/04/24 joerg */
+/* @(#)tree.c	1.130 14/02/17 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)tree.c	1.129 13/04/24 joerg";
+	"@(#)tree.c	1.130 14/02/17 joerg";
 #endif
 /*
  * File tree.c - scan directory  tree and build memory structures for iso9660
@@ -1641,7 +1641,7 @@ insert_file_entry(this_dir, whole_path, short_name, statp, have_rsrc)
 #else
 		errno = EFBIG;
 #endif
-		errmsg(_("File %s is too large for current mkisofs settings - ignoring\n"),
+		errmsg(_("File %s is too large for current mkisofs settings (-iso-level 3 or more required) - ignoring\n"),
 			whole_path);
 		return (0);
 	}

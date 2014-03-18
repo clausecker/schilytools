@@ -1,11 +1,11 @@
-/* @(#)usleep.c	1.23 11/08/02 Copyright 1995-2011 J. Schilling */
+/* @(#)usleep.c	1.24 14/03/03 Copyright 1995-2014 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)usleep.c	1.23 11/08/02 Copyright 1995-20011 J. Schilling";
+	"@(#)usleep.c	1.24 14/03/03 Copyright 1995-20014 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1995-2011 J. Schilling
+ *	Copyright (c) 1995-2014 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -14,6 +14,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -57,7 +59,7 @@ EXPORT	int	usleep		__PR((int usec));
 #undef HAVE_USLEEP
 #endif
 
-#if	!defined(HAVE_USLEEP) && !defined(_MSC_VER)
+#if	!defined(HAVE_USLEEP)
 
 EXPORT int
 usleep(usec)
@@ -118,6 +120,10 @@ usleep(usec)
 	nanosleep(&ts, 0);
 #endif
 
+#if	(defined(_MSC_VER) || defined(__MINGW32__)) && !defined(HAVE_USLEEP)
+#define	HAVE_USLEEP
+	Sleep(usec/1000);
+#endif
 
 #if	!defined(HAVE_USLEEP)
 #define	HAVE_USLEEP

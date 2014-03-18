@@ -1,13 +1,13 @@
-/* @(#)sleep.c	1.5 11/08/02 Copyright 2007-2011 J. Schilling */
+/* @(#)sleep.c	1.6 14/03/03 Copyright 2007-2014 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)sleep.c	1.5 11/08/02 Copyright 2007-2011 J. Schilling";
+	"@(#)sleep.c	1.6 14/03/03 Copyright 2007-2014 J. Schilling";
 #endif
 /*
  *	Emulate sleep where it does not exist
  *
- *	Copyright (c) 2007-2011 J. Schilling
+ *	Copyright (c) 2007-2014 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -16,12 +16,14 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#if	!defined(HAVE_SLEEP) && defined(_MSC_VER)
+#if	!defined(HAVE_SLEEP) && (defined(_MSC_VER) || defined(__MINGW32__))
 #include <schily/windows.h>
 #include <schily/standard.h>
 

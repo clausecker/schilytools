@@ -1,0 +1,74 @@
+New features with AN-2014-03-18:
+
+This is the first localization step for the schily source consolidation. Many
+programs now (hopefully) call gettext() for all strings that need localization.
+
+-	The next step will include dgettext() calls for the libraries and the
+	missing programs
+
+-	The following step will include the extracted strings
+
+-	The last step will include German translations and install support
+	for the resulting binary message object files.
+
+----------> Please test and report compilation problems! <---------
+
+***** NOTE: As mentioned since 2004, frontends to the tools should *****
+*****		call all programs in the "C" locale		   *****
+*****		by e.g. calling: LC_ALL=C cdrecord ....		   *****
+*****		unless these frontends support localized strings   *****
+*****		used by the cdrtools with NLS support.		   *****
+
+-	Typo fix in README.compile for the mail address.
+	Thanks to Dennis Clarke for the catch!
+
+-	Cdrtools have been bumped to version 3.01a23
+
+-	Cdda2wav no longer includes the new paranoia mode "c2check" in the macro
+	"proof". This has been done because of a report from Géraud Meyer <graud@gmx.com>
+	that gives hints that the drive:
+	Type: ROM, Vendor 'TSSTcorp' Model 'CDDVDW SH-222AB ' Revision 'SB00' MMC+CDDA
+	does not handle hidden tracks when "c2check" is active.
+
+-	mkisofs was slightly modified to reduce CPU time requirements.
+	It now reads/writes in 64kBytes chunks instead of stdio buffer
+	size which is typically 8 kB.
+
+-	Fixed a typo in the mkisofs man page.
+	Thanks to a hint from Donald R Laster Jr from Slackware.
+
+-	Mkisofs now in addition prints "-iso-level 3 or more required"
+	in case that a large file was skipped because of the current mkisofs settings.
+
+	Thanks to a hint from Donald R Laster Jr from Slackware.
+
+-	The timediff function in cdrecord now in addition prints the time
+	diff in hours : minutes : seconds . thausands of a second.
+
+	Thanks to a hint from Donald R Laster Jr from Slackware.
+
+-	A problem in isoinfo has been fixed.
+	This problem caused "isoinfo -R -find -ls" to print Jan 1 1970 timestamps
+	in case that Rock Ridge was not present.
+
+-	star -c list=filename 
+	Now skips empty lines instead of stopping processing as if EOF was seen
+	on "filename".
+
+-	The Bourne Shell man page is now a bit closer to man(5) standards.
+
+-	libschily/sleep.c and libschily/usleep.c have been modified to work
+	with MinGW.
+
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.isdn.cs.tu-berlin.de, js@cs.tu-berlin.de
+	joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

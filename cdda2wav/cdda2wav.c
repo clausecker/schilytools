@@ -1,8 +1,8 @@
-/* @(#)cdda2wav.c	1.153 14/01/03 Copyright 1993-2004 Heiko Eissfeldt, Copyright 2004-2014 J. Schilling */
+/* @(#)cdda2wav.c	1.154 14/03/03 Copyright 1993-2004 Heiko Eissfeldt, Copyright 2004-2014 J. Schilling */
 #include "config.h"
 #ifndef lint
 static	UConst char sccsid[] =
-"@(#)cdda2wav.c	1.153 14/01/03 Copyright 1993-2004 Heiko Eissfeldt, Copyright 2004-2014 J. Schilling";
+"@(#)cdda2wav.c	1.154 14/03/03 Copyright 1993-2004 Heiko Eissfeldt, Copyright 2004-2014 J. Schilling";
 
 #endif
 #undef	DEBUG_BUFFER_ADDRESSES
@@ -2716,7 +2716,7 @@ paranoia_usage()
 	minoverlap=amt	set the min. number of sectors used for dynamic overlap.\n\
 	maxoverlap=amt	set the max. number of sectors used for dynamic overlap.\n\
 	c2check		check C2 pointers from drive to rate quality.\n\
-	proof		shortcut for minoverlap=20,retries=200,readahead=600,c2check.\n\
+	proof		shortcut for minoverlap=20,retries=200,readahead=600.\n\
 "),
 		stderr);
 	/* END CSTYLED */
@@ -2884,7 +2884,13 @@ handle_paranoia_opts(optstr, flagp)
 			global.paranoia_parms.mindynoverlap = -1;
 			global.paranoia_parms.retries = 200;
 			global.paranoia_parms.readahead = 600;
+#ifdef	__should_we__
+			/*
+			 * c2check may cause some drives to become unable
+			 * to read hidden tracks.
+			 */
 			global.paranoia_parms.enable_c2_check = 1;
+#endif
 		} else {
 			errmsgno(EX_BAD, _("Unknown option '%s'.\n"), optstr);
 			paranoia_usage();

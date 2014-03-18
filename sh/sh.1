@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sh.1	1.37 13/09/26 Copyright 2012-2013 J. Schilling
+.\" @(#)sh.1	1.39 14/02/08 Copyright 2012-2014 J. Schilling
 .\" Copyright 1989 AT&T
 .\" Copyright (c) 2008, Sun Microsystems, Inc. All Rights Reserved.
 .\" Portions Copyright (c) 1992, X/Open Company Limited All Rights Reserved
@@ -47,7 +47,7 @@
 .\" information: Portions Copyright [yyyy] [name of copyright owner]
 .\"
 .\" CDDL HEADER END
-.TH sh 1 "2013/09/26" "Schily Bourne Shell" "User Commands"
+.TH sh 1 "2014/02/08" "Schily Bourne Shell" "User Commands"
 .SH NAME
 sh, jsh \- standard and job control shell and command interpreter
 .SH SYNOPSIS
@@ -510,7 +510,7 @@ section). The
 .B {
 and
 .B }
-are unnecessary 
+are unnecessary
 if the body of the function is a
 .I command
 as defined above, under
@@ -556,7 +556,7 @@ definitions are not inherited by separate invocations of the shell or
 when interpreting scripts.
 .LP
 The Bourne Shell implements enhanced alias features beyond the POSIX
-alias definition. Enhanced alias features are disabled by default. 
+alias definition. Enhanced alias features are disabled by default.
 They need to be turned on (see
 .B set
 command below) to make them operational.
@@ -571,7 +571,7 @@ persistent global aliases are automatically loaded by all interactive shells.
 If turned on by
 .BR "set \-o localaliases" ,
 persistent local aliases are automatically loaded by all interactive shells
-as a result of the 
+as a result of the
 .B cd
 command.
 Local aliases are specific to the current working directory. The local
@@ -769,7 +769,7 @@ is in the range from 1 to
 Parameter
 .B $0
 is set from argument zero when the shell is invoked.
-If running a script, 
+If running a script,
 .B $0
 is the name of the script.
 .br
@@ -788,7 +788,7 @@ all positional parameters separated by spaces.
 All positional parameters starting from
 .BR $1 .
 \fB"$@"\fR
-expands to 
+expands to
 .B $#
 arguments.
 .br
@@ -947,7 +947,7 @@ command.
 is not set before the first
 .BR cd ,
 .B pushd
-or 
+or
 .B popd
 command.
 
@@ -1073,7 +1073,7 @@ or the pathname to be used to find a termcap database file.
 If it holds a precompiled entry that does not match the
 .B TERM
 environment, the termcap database is parsed as if the
-.B TERMCAP 
+.B TERMCAP
 environment is not set.
 .B TERMCAP
 is automatically exported after filling it with a precompiled
@@ -1089,7 +1089,7 @@ was compiled with support for history editing.
 .ne 3
 .TP
 .B TERMPATH
-If 
+If
 .B TERMCAP
 is empty or not set, then the
 .B TERMPATH
@@ -1097,16 +1097,16 @@ environment is scanned for pathnames of files that contain a
 .B termcap
 database.
 It holds a list of filenames separated by colons or spaces (i.e.,  ":" or " ").
-If the 
+If the
 .B TERMPATH
 symbol is not set, the files
 .B $HOME/.termcap
 and
 .B /etc/termcap
 are scanned in that order.
-If a pathname in 
+If a pathname in
 .B TERMPATH
-does not start with a slash ("/"), then the 
+does not start with a slash ("/"), then the
 .B HOME
 environment is prepended to the name.
 .B TERMPATH
@@ -1129,7 +1129,7 @@ and
 .sp
 .LP
 The shell gives default values to
-.BR PATH , 
+.BR PATH ,
 .BR PS1 ,
 .BR PS2 ,
 .BR MAILCHECK ,
@@ -1160,7 +1160,7 @@ removed.
 The
 .B IFS
 parameter is applied to any unquoted word. Thus.
-.RS 
+.RS
 .sp
 .nf
 .B IFS=X
@@ -1266,7 +1266,7 @@ resulting
 or to an
 .BR EOF .
 .RE
-If any character of 
+If any character of
 .I word
 is quoted (see
 .B Quoting
@@ -1389,7 +1389,7 @@ within each
 .sp
 .LP
 If a command is followed by
-.B & 
+.B &
 and job control (see
 .BR "set \-m" )
 is not active, the default standard input for the
@@ -1754,7 +1754,7 @@ The
 .B alias
 command in the Bourne Shell supports temporary aliases (POSIX aliases)
 that affect only the current execution environment as well as
-persistent aliases that affect all interactive shells that are called after a 
+persistent aliases that affect all interactive shells that are called after a
 persistent alias definition was entered or modified.
 .sp
 An argument in the form
@@ -1773,14 +1773,14 @@ lists all current alias definitions.
 .sp
 Alias definitions must be written with appropriate quoting.
 .sp
-When operating on temporary aliases (i.e. when neither 
+When operating on temporary aliases (i.e. when neither
 .B \-g
 nor
 .B \-l
 have been specified), the
 .B alias
 command always pushes new definitions on top of older ones.
-This makes such alias definitions temporary in the 
+This makes such alias definitions temporary in the
 global aliases name space by default, as required by the POSIX standard.
 The following options may be used to modify operation:
 .RS
@@ -2047,7 +2047,7 @@ returns from
 as if returning from a function.
 Calling
 .B exit
-does not exit the shell but returns from the 
+does not exit the shell but returns from the
 .IR command_string .
 The
 .B dosh
@@ -2495,7 +2495,7 @@ Calling
 .B popd
 with an
 .I offset
-argument removes the current the top directory stack element 
+argument removes the current the top directory stack element
 from the directory stack, them removes the directory stack element
 named by
 .I offset
@@ -2626,14 +2626,14 @@ The command
 .I command
 is executed repeatedly as if it was called via
 .BR eval .
-If the 
+If the
 .B \-c
 option is present,
 .I command
 is repeated
 .I count
 times, otherwise execution is repeated forever.
-If the 
+If the
 .B \-d
 option is present,
 .B sh
@@ -2743,10 +2743,10 @@ If
 is not specified, list the current option setting to stdout;
 when invoked with
 .B +o
-instead of 
+instead of
 .BR \-o ,
 the output is written in a format that is suitable to reinput to the
-shell to restore the current setting. 
+shell to restore the current setting.
 When invoked with
 .B +o
 and with
@@ -2754,7 +2754,7 @@ and with
 argument, the related option is cleared.
 The
 .B +o
-option may be repeated to enable or disable multiple options. 
+option may be repeated to enable or disable multiple options.
 The value of
 .I option
 must be one of the following:
@@ -2923,7 +2923,7 @@ and
 can only be set upon invocation of the shell, they cannot be modified
 using the
 .B set
-command. 
+command.
 The current set of flags can be found in
 .BR $\(mi .
 The remaining arguments are positional
@@ -2971,7 +2971,7 @@ shell).
 .sp .6
 Evaluate conditional expressions. See
 .BR test (1)
-for usage and description. If the value of the expression 
+for usage and description. If the value of the expression
 .IR expr ,
 is
 .B true
@@ -3008,7 +3008,7 @@ exists and is a character special file.
 .BI \-d " file
 .B True
 if
-.I file 
+.I file
 exists and is a directory.
 .br
 .ne 3
@@ -3030,7 +3030,7 @@ environment variable, then
 .B test
 returns
 .B true
-if file exists and is 
+if file exists and is
 .RB ( not-a-directory ).
 .br
 .ne 3
@@ -3300,7 +3300,7 @@ ignored on entry to the current shell is ineffective. An attempt to trap on
 signal 11 (memory fault) produces an error. If
 .I argument
 is absent, all trap(s)
-.I n 
+.I n
 are reset to their original values. If
 .I argument
 is the
@@ -3506,11 +3506,11 @@ The
 .B unalias
 command in the Bourne Shell supports temporary aliases (POSIX aliases)
 that affect only the current execution environment as well as
-persistent aliases that affect all interactive shells that are called after a 
+persistent aliases that affect all interactive shells that are called after a
 persistent alias definition was entered or modified.
 .sp
 .sp
-When operating on temporary aliases (i.e. when neither 
+When operating on temporary aliases (i.e. when neither
 .B \-g
 nor
 .B \-l
@@ -3678,19 +3678,19 @@ can be specified in any of the following formats:
 .br
 .ne 3
 .TP 13n
-\fB%\fR or \fB+\fR
+.BR "% " or " +"
 For the current job.
 
 .br
 .ne 3
 .TP
-\fB\(mi\fR
+.B \(mi
 For the previous job.
 
 .br
 .ne 3
 .TP
-\fB?\fI<string>\fR
+.BI ? <string>
 Specify the job for which the command line uniquely contains
 .IR string .
 
@@ -3881,7 +3881,7 @@ Finish current line and execute it.
 .TP
 .B TAB
 Do file name completion for the word to the left side of the cursor.
-If more than one file matches the current partial filename, a 
+If more than one file matches the current partial filename, a
 .B BEEP
 is generated.
 Typing a second
@@ -4027,14 +4027,14 @@ in the edit input.
 To enter a mapped string (such as cursor key output), first enter the
 quote character of the command line history editor
 .RB ( ^ ),
-then enter 
+then enter
 .B nul character
 and finally the otherwise mapped text.
 
 .SS Termcap
 .LP
-The 
-.B termcap 
+The
+.B termcap
 data base is used to make the command history editor independent
 from the terminal capabilities. Cursor key output is retrieved from
 the data base and mapped to the cursor movement commands of the
@@ -4189,7 +4189,7 @@ Maps to ASCII
 .BR 00 .
 .PD
 .LP
-Mapping 
+Mapping
 .B \e0
 to ASCII
 .B 0200
@@ -4503,7 +4503,7 @@ process), then the
 is reset to the real UID of the process.
 .sp
 .LP
-If not in 
+If not in
 .B job control
 mode, the shell implements both foreground and background jobs in the same
 process group and they all receive the same signals, which can
@@ -4516,7 +4516,7 @@ in an interactive environment.
 There is only one namespace for both functions and parameters.
 A function definition will delete a parameter with the same name and vice-versa.
 .LP
-Parameter assignments that precede a special command affect the shell itself. 
+Parameter assignments that precede a special command affect the shell itself.
 Parameter assignments that precede the call of a function are ignored.
 .LP
 When the shell executes a shell script that attempts to execute a

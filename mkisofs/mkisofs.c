@@ -1,8 +1,8 @@
-/* @(#)mkisofs.c	1.271 14/01/19 joerg */
+/* @(#)mkisofs.c	1.272 14/02/11 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)mkisofs.c	1.271 14/01/19 joerg";
+	"@(#)mkisofs.c	1.272 14/02/11 joerg";
 #endif
 /*
  * Program mkisofs.c - generate iso9660 filesystem  based upon directory
@@ -3244,6 +3244,9 @@ path_done:
 		discimage = stdout;
 		setmode(fileno(stdout), O_BINARY);
 	}
+#ifdef	HAVE_SETVBUF
+	setvbuf(discimage, NULL, _IOFBF, 64*1024);
+#endif
 
 	/* Now assign addresses on the disc for the path table. */
 

@@ -1,8 +1,8 @@
-/* @(#)create.c	1.134 14/01/16 Copyright 1985, 1995, 2001-2014 J. Schilling */
+/* @(#)create.c	1.135 14/02/05 Copyright 1985, 1995, 2001-2014 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)create.c	1.134 14/01/16 Copyright 1985, 1995, 2001-2014 J. Schilling";
+	"@(#)create.c	1.135 14/02/05 Copyright 1985, 1995, 2001-2014 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1985, 1995, 2001-2014 J. Schilling
@@ -749,7 +749,7 @@ createlist()
 	 */
 	name = ___malloc(nsize, "name buffer");
 
-	for (nlen = 1; nlen > 0; ) {
+	for (nlen = 1; nlen >= 0; ) {
 		if ((nlen = readnull ? ngetline(listf, name, nsize) :
 					fgetline(listf, name, nsize)) < 0)
 			break;

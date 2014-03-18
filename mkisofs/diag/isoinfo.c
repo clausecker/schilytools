@@ -1,8 +1,8 @@
-/* @(#)isoinfo.c	1.88 13/04/28 joerg */
+/* @(#)isoinfo.c	1.89 14/03/03 joerg */
 #include <schily/mconfig.h>
 #ifndef	lint
 static	UConst char sccsid[] =
-	"@(#)isoinfo.c	1.88 13/04/28 joerg";
+	"@(#)isoinfo.c	1.89 14/03/03 joerg";
 #endif
 /*
  * File isodump.c - dump iso9660 directory information.
@@ -11,7 +11,7 @@ static	UConst char sccsid[] =
  * Written by Eric Youngdale (1993).
  *
  * Copyright 1993 Yggdrasil Computing, Incorporated
- * Copyright (c) 1999-2013 J. Schilling
+ * Copyright (c) 1999-2014 J. Schilling
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2
@@ -480,9 +480,6 @@ parse_rr(pnt, len, cont_flag)
 			unsigned char *p = &pnt[5];
 
 			flag2 |= RR_FLAG_TF;					/* Time stamp */
-			fstat_buf.st_atime =
-			fstat_buf.st_mtime =
-			fstat_buf.st_ctime = iso9660_time(date_buf, FALSE);
 			longfmt = (pnt[4] & 0x80) != 0;
 			if (longfmt)
 				size = 17;
@@ -927,6 +924,17 @@ parse_dir(rootname, extent, len)
 				}
 			}
 			memcpy(date_buf, idr->date, 9);
+			/*
+			 * Always first set up time stamps and file modes from
+			 * ISO-9660. This is used as a fallback in case that
+			 * there is no related Rock Ridge based data.
+			 */
+			fstat_buf.st_atime =
+			fstat_buf.st_mtime =
+			fstat_buf.st_ctime = iso9660_time(date_buf, FALSE);
+			fstat_buf.st_mode |= S_IRUSR|S_IXUSR |
+				    S_IRGRP|S_IXGRP |
+				    S_IROTH|S_IXOTH;
 			if (use_rock)
 				dump_rr(idr);
 			if ((idr->flags[0] & 2) != 0 &&
@@ -1101,7 +1109,7 @@ main(argc, argv)
 	if (help)
 		usage(0);
 	if (prvers) {
-		printf(_("isoinfo %s (%s-%s-%s) Copyright (C) 1993-1999 %s (C) 1999-2013 %s\n"),
+		printf(_("isoinfo %s (%s-%s-%s) Copyright (C) 1993-1999 %s (C) 1999-2014 %s\n"),
 					VERSION,
 					HOST_CPU, HOST_VENDOR, HOST_OS,
 					_("Eric Youngdale"),
@@ -1875,12 +1883,6 @@ static	int	nlen = 0;
 	if (name_buf[0] == '.' && name_buf[1] == '\0')
 		n[rlen] = '\0';
 
-	if (!use_rock) {
-		fstat_buf.st_mtime = iso9660_time(date_buf, FALSE);
-		fstat_buf.st_mode |= S_IRUSR|S_IXUSR |
-				    S_IRGRP|S_IXGRP |
-				    S_IROTH|S_IXOTH;
-	}
 #ifdef	HAVE_ST_BLKSIZE
 	fstat_buf.st_blksize = 0;
 #endif
