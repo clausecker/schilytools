@@ -1,4 +1,4 @@
-#ident "@(#)rules.top	1.21 13/11/04 "
+#ident "@(#)rules.top	1.22 14/03/31 "
 ###########################################################################
 # Written 1996 by J. Schilling
 ###########################################################################
@@ -41,6 +41,8 @@ DUMMY_LNK=	$(_DUMMY_LNK:./%=%)
 $(DUMMY_LNK):
 	@echo "	==> MAKING SYMLINKS in $(SRCROOT)/$(RULESDIR)/" && \
 			cd $(SRCROOT)/$(RULESDIR) && sh ./MKLINKS
+	@echo "	==> MAKING SYMLINKS in $(SRCROOT)/TEMPLATES/" && \
+			cd $(SRCROOT)/TEMPLATES && sh ./MKLINKS
 
 include 	$(DUMMY_LNK)
 

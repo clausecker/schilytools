@@ -1,4 +1,4 @@
-# @(#)rules.cnf.in	1.25 13/04/17 Copyright 1998-2013 J. Schilling
+# @(#)rules.cnf.in	1.28 14/04/02 Copyright 1998-2014 J. Schilling
 
 EXEEXT= @EXEEXT@
 XEXEEXT= @XEXEEXT@
@@ -23,6 +23,10 @@ LIB_RESOLV= @lib_resolv@
 LIB_CRYPT= @lib_crypt@
 LIB_INTL= @lib_intl@
 LIB_ICONV= @lib_iconv@
+LIB_EXPAT= @lib_expat@
+LIB_PCSC= @lib_pcsc@
+LIB_CRYPTO= @lib_crypto@
+LIB_SSL= @lib_ssl@
 LIB_ACL= @lib_acl@		# Full (test/set) ACL users like star
 LIB_ACL_TEST= @lib_acl_test@	# Test only ACL users like libfind
 LIB_ATTR = @lib_attr@

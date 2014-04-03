@@ -1,8 +1,8 @@
-/* @(#)cpp.c	1.29 14/01/01 2010-2014 J. Schilling */
+/* @(#)cpp.c	1.30 14/04/01 2010-2014 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)cpp.c	1.29 14/01/01 2010-2014 J. Schilling";
+	"@(#)cpp.c	1.30 14/04/01 2010-2014 J. Schilling";
 #endif
 /*
  * C command
@@ -679,7 +679,12 @@ unfill(p) register char *p; {
 		*savch++='\0';
 	}
 	instack[mactop]=np; op=pend-BUFFERSIZ; if (op<p) op=p;
-	for (;;) {while ((*np++= *op++) != '\0'); if (eob(op)) break;} /* out with old */
+	for (;;) {				/* out with old */
+		while ((*np++= *op++) != '\0')
+			;
+		if (eob(op))
+			break;
+	}
 	endbuf[mactop++]=np;	/* mark end of saved text */
 	np=pbuf+BUFFERSIZ; op=pend-BUFFERSIZ; pend=np; if (op<p) op=p;
 	while (outptr<op) *--np= *--op; /* slide over new */
@@ -747,9 +752,14 @@ doincl(p) register char *p; {
 			filok=1; fin=fins[++ifno]; break;
 		}
 	}
-	if (filok==0) pperror("Can't find include file %s",filname);
-	else {
-		lineno[ifno]=1; fnames[ifno]=cp=nfil; while (*cp++); savch=cp;
+	if (filok==0) {
+		pperror("Can't find include file %s",filname);
+	} else {
+		lineno[ifno]=1;
+		fnames[ifno]=cp=nfil;
+		while (*cp++)
+			;
+		savch=cp;
 		dirnams[ifno]=dirs[0]=trmdir(copy(nfil));
 		sayline(ENTERINCLUDE);
 		if (hflag)
@@ -1219,9 +1229,15 @@ subst(p,sp) register char *p; struct symtab *sp; {
 STATIC char *
 trmdir(s) register char *s; {
 	register char *p = s;
-	while (*p++); --p; while (p>s && *--p!='/');
+
+	while (*p++)
+		;
+	--p;
+	while (p>s && *--p!='/')
+		;
 # if unix
-	if (p==s) *p++='.';
+	if (p==s)
+		*p++='.';
 # endif
 	*p='\0';
 	return(s);

@@ -1,4 +1,4 @@
-/* @(#)fgetaline.c	1.2 14/01/02 Copyright 2011-2014 J. Schilling */
+/* @(#)fgetaline.c	1.3 14/03/27 Copyright 2011-2014 J. Schilling */
 /*
  *	Copyright (c) 2011-2014 J. Schilling
  *
@@ -35,6 +35,12 @@ fgetaline(f, bufp, lenp)
 #ifdef	HAVE_GETDELIM
 	return (getdelim(bufp, lenp, '\n', f));
 #else
+	/*
+	 * WARNING: fgets() cannot signal that the read line-buffer
+	 * WARNING: has embedded nul bytes. We cannot distinguish
+	 * WARNING: read nul bytes from the inserted nul past '\n'
+	 * WARNING: without knowing file positions before and after.
+	 */
 	int	eof;
 	register size_t used = 0;
 	register size_t line_size;

@@ -1,9 +1,11 @@
-#ident %W% %E% %Q%
+#ident @(#)Makefile.shl	1.2 14/04/03 
 ###########################################################################
 # Sample makefile for shared libraries
 ###########################################################################
 SRCROOT=	../..
 RULESDIR=	RULES
+SUBARCHDIR=		/pic
+INVERSE_SUBARCHDIR=	../
 include		$(SRCROOT)/$(RULESDIR)/rules.top
 ###########################################################################
 

@@ -1,6 +1,6 @@
-#ident "@(#)cc-msc.rul	1.25 13/11/13 "
+#ident "@(#)cc-msc.rul	1.26 14/04/03 "
 ###########################################################################
-# Written 2006-2013 by J. Schilling
+# Written 2006-2014 by J. Schilling
 ###########################################################################
 #
 # Platform dependent MACROS for CYGWIN32_NT using MSVC
@@ -53,8 +53,10 @@ SHL_SUFFIX=	.dll
 LIBS_PATH=	-L$(OLIBSDIR)
 LIBS_PATH_STATIC= -L$(OLIBSDIR_STATIC) 
 
+WIN_LIBS=	$(WIN32_LIBS)
+
 LDFLAGS=	$(LDOPTS) $(LDOPTX)
-LDLIBS=		$(LIBS:-l%=%.lib) $(LIBX:-l%=%.lib)
+LDLIBS=		$(LIBS:-l%=%.lib) $(LIBX:-l%=%.lib) $(WIN_LIBS:-l%=%.lib)
 
 #LDOPTS=		$(LIBS_PATH) $(LDPATH) $(RUNPATH)
 #LDOPTS=		-link $(LIBS_PATH) $(LDPATH)

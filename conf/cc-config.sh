@@ -1,7 +1,7 @@
 #!/bin/sh
-# @(#)cc-config.sh	1.8 07/02/13 Copyright 2002 J. Schilling
+# @(#)cc-config.sh	1.9 14/03/24 Copyright 2002-2014 J. Schilling
 ###########################################################################
-# Written 2002 by J. Schilling
+# Written 2002-2014 by J. Schilling
 ###########################################################################
 # Configuration script called to verify system default C-compiler.
 # It tries to fall back to GCC if the system default could not be found.
@@ -12,6 +12,8 @@
 # with the License.
 #
 # See the file CDDL.Schily.txt in this distribution for details.
+# A copy of the CDDL is also available via the Internet at
+# http://www.opensource.org/licenses/cddl1.txt
 #
 # When distributing Covered Code, include this CDDL HEADER in each
 # file and include the License file CDDL.Schily.txt from this distribution.
@@ -47,6 +49,7 @@ CC=$1
 ARG_CC=$1
 DEF_CC=$2
 PLATFORM_FILE=$3
+CC_FOUND=FALSE
 ${echo} "Trying to find $CC"
 
 #
@@ -89,52 +92,66 @@ fi
 #
 eval "$CC > /dev/null 2>&1" 2> /dev/null
 if [ $? = 0 ]; then
+	CC_FOUND=TRUE
+else
+	#
+	# Now try to run the default C-compiler and check whether it creates
+	# any output (usually an error message).
+	#
+	# This test will fail if the shell does redirect the error message
+	# "cc: not found". All shells I tested (except ksh) send this message to
+	# the stderr stream the shell itself is attached to and only redirects
+	# the output from the command. As there may no output if there is no
+	# binary, this proves the existence of the default compiler.
+	#
+	ccout=`eval "$CC 2>&1" 2>/dev/null`
+	ret=$?
+
+	nf=`echo "$ccout" | grep 'not found' `
+	if [ $ret = 127 -a -n "$nf" ]; then
+		#
+		# ksh redirects even the error message from the shell, but we
+		# see that there is no executable because the exit code is 127
+		# we detect "command not found" if exit code is 127 and
+		# the message contains 'not found'
+		#
+		ccout=""
+	fi
+
+	if [ -n "$ccout" ]; then
+		CC_FOUND=TRUE
+	fi
+fi
+
+
+if [ $CC_FOUND = TRUE ]; then
 	${echo} "Found $CC"
-	if [  ".$CC" = ".$DEF_CC" ]; then
-		${echo} "Creating empty '$PLATFORM_FILE', using $DEF_CC as default compiler"
-		if [ ${echo} = echo ]; then
-			:> $PLATFORM_FILE
-		else
-			echo "$DEF_CC"
+
+	#
+	# Call $CC and try to find out whether it might be "gcc" or "clang".
+	#
+	CC_V=`eval "$CC -v > /dev/null" 2>&1`
+	GCC_V=`echo "$CC_V" | grep -i gcc-version `
+	CLANG_V=`echo "$CC_V" | grep -i clang `
+
+	if [ ".$GCC_V" != . ]; then
+		if eval "gcc -v 2> /dev/null" 2>/dev/null; then
+			CC="gcc"
 		fi
-	else
-		${echo} "Making $CC the default compiler in '$PLATFORM_FILE'"
-		if [ ${echo} = echo ]; then
-			:> $PLATFORM_FILE
-			echo DEFCCOM=$CC > $PLATFORM_FILE
-		else
-			echo "$CC"
+	elif [ ".$CLANG_V" != . ]; then
+		if eval "clang -v 2> /dev/null" 2>/dev/null; then
+			CC="clang"
 		fi
 	fi
-	exit
-fi
-
-#
-# Now try to run the default C-compiler and check whether it creates
-# any output (usually an error message).
-#
-# This test will fail if the shell does redirect the error message
-# "cc: not found". All shells I tested (except ksh) send this message to
-# the stderr stream the shell itself is attached to and only redirects the
-# output from the command. As there may no output if there is no binary,
-# this proves the existence of the default compiler.
-#
-ccout=`eval "$CC 2>&1" 2>/dev/null`
-ret=$?
-
-nf=`echo "$ccout" | grep 'not found' `
-if [ $ret = 127 -a -n "$nf" ]; then
 	#
-	# ksh redirects even the error message from the shell, but we
-	# see that there is no executable because the exit code is 127
-	# we detect "command not found" if exit code is 127 and
-	# the message contains 'not found'
+	# Check whether "cc" or "gcc" are emulated by another compiler
 	#
-	ccout=""
-fi
+	if [ ".$ARG_CC" = .cc -o ".$ARG_CC" = .gcc ]; then
+		if [ "$CC" != "$ARG_CC" ]; then
+			${echo} "$ARG_CC is $CC"
+		fi
+	fi
 
-if [ -n "$ccout" ]; then
-	${echo} "Found $CC"
 	if [  ".$CC" = ".$DEF_CC" ]; then
 		${echo} "Creating empty '$PLATFORM_FILE', using $DEF_CC as default compiler"
 		if [ ${echo} = echo ]; then
@@ -188,6 +205,31 @@ if [ ".$CC" = ".$ARG_CC" ]; then
 	XCC=gcc
 	${echo} 'Trying to find GCC'
 	eval "gcc -v" 2> /dev/null && CC=gcc
+fi
+
+#
+# Call $CC and try to find out whether it might be "gcc" or "clang".
+#
+CC_V=`eval "$CC -v > /dev/null" 2>&1`
+GCC_V=`echo "$CC_V" | grep -i gcc-version `
+CLANG_V=`echo "$CC_V" | grep -i clang `
+
+if [ ".$GCC_V" != . ]; then
+	if eval "gcc -v 2> /dev/null" 2>/dev/null; then
+		CC="gcc"
+	fi
+elif [ ".$CLANG_V" != . ]; then
+	if eval "clang -v 2> /dev/null" 2>/dev/null; then
+		CC="clang"
+	fi
+fi
+#
+# Check whether "cc" or "gcc" are emulated by another compiler
+#
+if [ ".$ARG_CC" = .cc -o ".$ARG_CC" = .gcc ]; then
+	if [ "$CC" != "$ARG_CC" ]; then
+		${echo} "$ARG_CC is $CC"
+	fi
 fi
 
 if [ ".$CC" = ".$DEF_CC" ]; then

@@ -25,12 +25,12 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2009 J. Schilling
+ * This file contains modifications Copyright 2006-2014 J. Schilling
  *
- * @(#)xcreat.c	1.6 09/11/08 J. Schilling
+ * @(#)xcreat.c	1.7 14/03/31 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)xcreat.c 1.6 09/11/08 J. Schilling"
+#pragma ident "@(#)xcreat.c 1.7 14/03/31 J. Schilling"
 #endif
 /*
  * @(#)xcreat.c 1.8 06/12/12
@@ -51,10 +51,15 @@
 	Returns file descriptor on success,
 	fatal() on failure.
 */
+#ifdef  PROTOTYPES
+int
+xcreat(char *name, mode_t mode)
+#else
 int
 xcreat(name,mode)
 char *name;
 mode_t mode;
+#endif
 {
 	register int fd;
 	char d[FILESIZE];

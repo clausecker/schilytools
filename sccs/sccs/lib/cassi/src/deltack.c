@@ -25,12 +25,12 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2011 J. Schilling
+ * This file contains modifications Copyright 2006-2014 J. Schilling
  *
- * @(#)deltack.c	1.15 11/10/21 J. Schilling
+ * @(#)deltack.c	1.16 14/03/31 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)deltack.c 1.15 11/10/21 J. Schilling"
+#pragma ident "@(#)deltack.c 1.16 14/03/31 J. Schilling"
 #endif
 /*
  * @(#)deltack.c 1.8 06/12/12
@@ -476,8 +476,8 @@ xgets(buf, len)
 
 	if (fgets(buf, len, stdin) == NULL)
 		return (NULL);
-	l = strlen(buf) - 1;
-	if (l >= 0 && buf[l] == '\n')
-		buf[l] = '\0';
+	l = strlen(buf);
+	if (l > 0 && buf[l-1] == '\n')
+		buf[l-1] = '\0';
 	return (buf);
 }

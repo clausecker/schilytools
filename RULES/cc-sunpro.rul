@@ -1,6 +1,6 @@
-#ident "@(#)cc-sunpro.rul	1.15 13/11/13 "
+#ident "@(#)cc-sunpro.rul	1.16 14/03/28 "
 ###########################################################################
-# Written 1996-2013 by J. Schilling
+# Written 1996-2014 by J. Schilling
 ###########################################################################
 #
 # Platform dependent MACROS for SunPro (Studio) cc
@@ -25,20 +25,33 @@ CPPFLAGS=	-DSCHILY_BUILD $(CPPOPTS) $(CPPOPTX) $(OSINCDIRS:%=-I%) $(OSDEFS) $(OS
 CFLAGS=		$(COPTS) $(CWARNOPTS) $(COPTOPT) $(SUNPROCOPTOPT) $(COPTX)
 C++FLAGS=	$(C++OPTS) $(C++WARNOPTS) $(C++OPTOPT) $(SUNPROC++OPTOPT) $(C++OPTX)
 
-
 LINTFLAGS=	-Nlevel=4 
 
-XARCH_GEN__=	$(_UNIQ)$(XARCH_GEN_)
-XARCH_GEN___=	$(XARCH_GEN__:$(_UNIQ)=-xarch=generic)
-XARCH_GEN=	$(XARCH_GEN___:$(_UNIQ)%=%)
+_SUNPROCOPT=	$(_UNIQ)$(XARCH_GEN_)
+__SUNPROCOPT=	$(_SUNPROCOPT:$(_UNIQ)=-xarch=generic)
+SUNPROCOPT=	$(__SUNPROCOPT:$(_UNIQ)%=%)
+
+SUN_CC32_OPT=	$(SUN_CC64_OPT:-m64=-m32)
+
+_SUNPROCOPT32=	$(_UNIQ)$(SUN_CC32_OPT)
+__SUNPROCOPT32=	$(_SUNPROCOPT32:$(_UNIQ)=-xarch=generic)
+SUNPROCOPT32=	$(__SUNPROCOPT32:$(_UNIQ)%=%)
+
+_SUNPROCOPT64=	$(_UNIQ)$(SUN_CC64_OPT)
+__SUNPROCOPT64=	$(_SUNPROCOPT64:$(_UNIQ)=-xarch=generic64)
+SUNPROCOPT64=	$(__SUNPROCOPT64:$(_UNIQ)%=%)
+
+C_ARCH_=	$(C_ARCH:suncc%=%)
+SUNPROCOPTXX=	$(SUNPROCOPT$(C_ARCH_:cc%=%))
+XARCH_GEN=	$(SUNPROCOPTXX)
 
 CPPOPTS=	-I$(ARCHDIR) -I$(OINCSDIR) $(INCDIRS:%=-I%) $(INCDIRSX:%=-I%)
-COPTS=		-Xa
+COPTS=		-Xa $(SUNPROCOPTXX)
 CWOPTS=		-v
 COPTOPT=	-O
 COPTDYN=	-Kpic
 COPTGPROF=	-xpg
-C++OPTS=
+C++OPTS=	$(SUNPROCOPTXX)
 C++WOPTS=	
 C++OPTOPT=	-O
 C++OPTDYN=	-Kpic
@@ -79,15 +92,15 @@ CC++_COM_DEF=	CC
 CC=		$(CC_COM_DEF)
 CCC=		$(CC++_COM_DEF)
 
-CCCC=		@echo "	==> COMPILING \"$@\""; $(CC_COM)
-CC++ =		@echo "	==> COMPILING \"$@\""; $(CC++_COM)
-LDCC=		@echo "	==> LINKING \"$@\""; $(CC_COM)
-LDCC++ =	@echo "	==> LINKING \"$@\""; $(CC++_COM)
-DYNLD=		@echo "	==> LINKING dynamic library \"$@\""; $(CC_COM)
-DYNLDC++ =	@echo "	==> LINKING dynamic library \"$@\""; $(CC++_COM)
+CCCC=		@echo "	==> COMPILING \"$@\""; $(CC_COM) $(SUNPROCOPTXX)
+CC++ =		@echo "	==> COMPILING \"$@\""; $(CC++_COM) $(SUNPROCOPTXX)
+LDCC=		@echo "	==> LINKING \"$@\""; $(CC_COM) $(SUNPROCOPTXX)
+LDCC++ =	@echo "	==> LINKING \"$@\""; $(CC++_COM) $(SUNPROCOPTXX)
+DYNLD=		@echo "	==> LINKING dynamic library \"$@\""; $(CC_COM) $(SUNPROCOPTXX)
+DYNLDC++ =	@echo "	==> LINKING dynamic library \"$@\""; $(CC++_COM) $(SUNPROCOPTXX)
 
 RMDEP=		:
-MKDEP=		@echo "	==> MAKING DEPENDENCIES \"$@\""; $(RMDEP); $(CC_COM) -xM
+MKDEP=		@echo "	==> MAKING DEPENDENCIES \"$@\""; $(RMDEP); $(CC_COM) -xM $(SUNPROCOPTXX)
 MKDEP_OUT=
-MKC++DEP=	@echo "	==> MAKING DEPENDENCIES \"$@\""; $(RMDEP); $(CC++_COM) -xM
+MKC++DEP=	@echo "	==> MAKING DEPENDENCIES \"$@\""; $(RMDEP); $(CC++_COM) -xM $(SUNPROCOPTXX)
 MKC++DEP_OUT=

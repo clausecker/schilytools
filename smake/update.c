@@ -1,14 +1,14 @@
-/* @(#)update.c	1.125 13/04/28 Copyright 1985, 88, 91, 1995-2013 J. Schilling */
+/* @(#)update.c	1.126 14/03/25 Copyright 1985, 88, 91, 1995-2014 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)update.c	1.125 13/04/28 Copyright 1985, 88, 91, 1995-2013 J. Schilling";
+	"@(#)update.c	1.126 14/03/25 Copyright 1985, 88, 91, 1995-2014 J. Schilling";
 #endif
 /*
  *	Make program
  *	Macro handling / Dependency Update
  *
- *	Copyright (c) 1985, 88, 91, 1995-2013 by J. Schilling
+ *	Copyright (c) 1985, 88, 91, 1995-2014 by J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -17,6 +17,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -1125,9 +1127,19 @@ exp_var(end, cmd, obj, source, suffix, depends)
 	register int	nestlevel = 0;
 		BOOL	funccall = FALSE;
 
-/*error("end: %c cmd: %.50s\n", end, cmd);*/
+/*error("exp_var(end: '%c' cmd: '%.50s') [beg: '%c']\n", end, cmd, beg);*/
 	pat[0] = '\0';
-	while ((ch = *s) != '\0' && ch != ':' && !white(ch)) {
+	while ((ch = *s) != '\0') {
+		if (nestlevel == 0) {
+			/*
+			 * Only stop looking for the end of the macro name in
+			 * case we are at the initial nestlevel. Collect as
+			 * much as possible for a recursive macro name
+			 * expansion below.
+			 */
+			if (ch == ':' || white(ch))
+				break;
+		}
 		if (ch == beg)
 			nestlevel++;
 		if (ch == end)
@@ -1164,7 +1176,7 @@ exp_var(end, cmd, obj, source, suffix, depends)
 /*		return (cmd);*/
 	}
 
-	if (*s == ':' || *s == ' ') {
+	if (*s == ':' || white(*s)) {
 		rname = pat;
 		if (funccall) {
 			while (*s && white(*s))
@@ -1172,6 +1184,7 @@ exp_var(end, cmd, obj, source, suffix, depends)
 		} else {
 			s++;
 		}
+		nestlevel = 0;			/* Paranoia */
 		while ((ch = *s) != '\0') {
 			if (ch == beg)
 				nestlevel++;

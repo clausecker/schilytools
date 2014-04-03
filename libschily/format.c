@@ -1,4 +1,4 @@
-/* @(#)format.c	1.57 14/01/15 Copyright 1985-2014 J. Schilling */
+/* @(#)format.c	1.58 14/03/31 Copyright 1985-2014 J. Schilling */
 /*
  *	format
  *	common code for printf fprintf & sprintf
@@ -1580,7 +1580,9 @@ error sizeof (ptrdiff_t) is unknown
 			(void) va_arg(fargs.ap, double);
 			break;
 		case AT_LONG_DOUBLE:
+#ifdef	HAVE_LONGDOUBLE
 			(void) va_arg(fargs.ap, long double);
+#endif
 			break;
 		case AT_VOID_PTR:
 			(void) va_arg(fargs.ap, void *);

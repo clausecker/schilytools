@@ -1,6 +1,6 @@
 #!/bin/sh
 ###########################################################################
-#ident "@(#)MKLINKS	1.101 14/01/06 "
+#ident "@(#)MKLINKS	1.115 14/04/02 "
 ###########################################################################
 # Written 1996-2014 by J. Schilling
 ###########################################################################
@@ -41,6 +41,28 @@ fi
 
 $symlink	ldummy.cnf		ldummy.lnk
 $symlink	mk-.id			mk-make.id
+#
+$symlink	mk-smake.id		mk-build.id
+$symlink	r-smake.dep		r-build.dep
+$symlink	r-smake.obj		r-build.obj
+$symlink	r-smake.tag		r-build.tag
+$symlink	r-make.obj		r-gmake.obj
+
+$symlink	cc-clang.rul		cc-clang32.rul
+$symlink	cc-clang.rul		cc-clang64.rul
+$symlink	cc-gcc.rul		cc-gcc32.rul
+$symlink	cc-gcc.rul		cc-gcc64.rul
+$symlink	cc-sunpro.rul		cc-sunpro32.rul
+$symlink	cc-sunpro.rul		cc-sunpro64.rul
+
+if [ -r r-make.c4x ]; then
+	$symlink	r-make.c4x		r-gmake.c4x
+	$symlink	r-make.c4x-dep		r-gmake.c4x-dep
+	$symlink	r-smake.c4x		r-build.c4x
+	$symlink	r-smake.c4x-dep		r-build.c4x-dep
+fi
+
+$symlink	9000-725-hp-ux-cc.rul	9000-725-hp-ux-cc64.rul
 $symlink	9000-725-hp-ux-cc.rul	9000-710-hp-ux-cc.rul
 $symlink	9000-725-hp-ux-cc.rul	9000-712-hp-ux-cc.rul
 $symlink	9000-725-hp-ux-cc.rul	9000-715-hp-ux-cc.rul
@@ -96,6 +118,8 @@ $symlink	hppa-nextstep-cc.rul	i386-nextstep-gcc.rul
 $symlink	hppa-nextstep-cc.rul	m68k-nextstep-gcc.rul
 $symlink	hppa-nextstep-cc.rul	sparc-nextstep-gcc.rul
 $symlink	os-irix.id		os-irix64.id
+$symlink	ip22-irix-cc.rul	ip22-irix-cc64.rul
+#$symlink	ip22-irix-gcc.rul	ip22-irix-gcc64.rul does not work because of GCC_OPT64= -mabi=64
 $symlink	ip22-irix-cc.rul	ip17-irix-cc.rul
 $symlink	ip22-irix-cc.rul	ip20-irix-cc.rul
 $symlink	ip22-irix-cc.rul	ip27-irix-cc.rul
@@ -127,6 +151,8 @@ $symlink	ip22-irix-gcc64.rul	ip35-irix-gcc64.rul
 $symlink	i386-at386-gnu-cc.rul	i686-at386-gnu-cc.rul
 $symlink	i386-at386-gnu-gcc.rul	i686-at386-gnu-gcc.rul
 $symlink	i386-freebsd-cc.rul	sparc64-freebsd-cc.rul
+$symlink	i386-freebsd-clang.rul	i386-freebsd-clang32.rul
+$symlink	i386-freebsd-clang.rul	i386-freebsd-clang64.rul
 $symlink	i386-freebsd-gcc.rul	sparc64-freebsd-gcc.rul
 $symlink	i386-freebsd-cc.rul	amd64-freebsd-cc.rul
 $symlink	i386-freebsd-gcc.rul	amd64-freebsd-gcc.rul
@@ -153,6 +179,8 @@ $symlink	i386-bsd-os-gcc.rul	sparc-bsd-os-gcc.rul
 $symlink	i386-bsd-os3-cc.rul	sparc-bsd-os3-cc.rul
 $symlink	i386-bsd-os3-gcc.rul	sparc-bsd-os3-gcc.rul
 $symlink	i586-linux-cc.rul	i386-linux-cc.rul
+$symlink	i586-linux-clang.rul	i586-linux-clang32.rul
+$symlink	i586-linux-clang.rul	i586-linux-clang64.rul
 $symlink	i586-linux-cc.rul	i486-linux-cc.rul
 $symlink	i586-linux-cc.rul	i686-linux-cc.rul
 $symlink	i586-linux-gcc.rul	i386-linux-gcc.rul
@@ -216,6 +244,8 @@ $symlink	i586-linux-gcc32.rul	x86_64-linux-gcc32.rul
 $symlink	i586-linux-gcc32.rul	sparc64-linux-gcc32.rul
 $symlink	i586-linux-gcc32.rul	mips64-linux-gcc32.rul
 $symlink	i586-linux-gcc32.rul	parisc64-linux-gcc32.rul
+$symlink	i586-linux-suncc.rul	i586-linux-suncc32.rul
+$symlink	i586-linux-suncc.rul	i586-linux-suncc64.rul
 $symlink	i586-linux-suncc.rul	i686-linux-suncc.rul
 $symlink	i586-linux-suncc.rul	i486-linux-suncc.rul
 $symlink	i586-linux-suncc.rul	i386-linux-suncc.rul
@@ -245,6 +275,8 @@ $symlink	i586-linux-gcc32.rul	x86_64-gnu-kfreebsd-gcc32.rul
 #$symlink	os-cygwin32_nt.id	os-cygwin_nt-5.1.id
 $symlink	os-cygwin_95-4.0.id	os-cygwin_98-4.0.id
 $symlink	os-unixware.id		os-openunix.id
+$symlink	i486-cygwin32_nt-cc.rul	i486-cygwin32_nt-cc64.rul
+$symlink	i486-cygwin32_nt-gcc.rul	i486-cygwin32_nt-gcc64.rul
 $symlink	i486-cygwin32_nt-cc.rul	i386-cygwin32_nt-cc.rul
 $symlink	i486-cygwin32_nt-cc.rul	i586-cygwin32_nt-cc.rul
 $symlink	i486-cygwin32_nt-cc.rul	i686-cygwin32_nt-cc.rul
@@ -271,6 +303,10 @@ $symlink	i486-cygwin32_nt-gcc64.rul	i686-cygwin32_wow64-gcc64.rul
 $symlink	i486-cygwin32_nt-gcc64.rul	i786-cygwin32_wow64-gcc64.rul
 $symlink	power-macintosh-rhapsody-cc.rul	power-macintosh-mac-os10-cc.rul
 $symlink	power-macintosh-rhapsody-gcc.rul	power-macintosh-mac-os10-gcc.rul
+$symlink	power-macintosh-darwin-cc.rul	power-macintosh-darwin-cc32.rul
+$symlink	power-macintosh-darwin-cc.rul	power-macintosh-darwin-cc64.rul
+$symlink	power-macintosh-darwin-gcc.rul	power-macintosh-darwin-gcc32.rul
+$symlink	power-macintosh-darwin-gcc.rul	power-macintosh-darwin-gcc64.rul
 $symlink	power-macintosh-darwin-cc.rul	i386-darwin-cc.rul
 $symlink	power-macintosh-darwin-gcc.rul	i386-darwin-gcc.rul
 $symlink	power-macintosh-darwin-cc64.rul	i386-darwin-cc64.rul
@@ -283,6 +319,23 @@ $symlink	power-macintosh-darwin-cc64.rul	x86_64-darwin-cc64.rul
 $symlink	power-macintosh-darwin-gcc64.rul	x86_64-darwin-gcc64.rul
 $symlink	power-macintosh-darwin-cc32.rul	x86_64-darwin-cc32.rul
 $symlink	power-macintosh-darwin-gcc32.rul	x86_64-darwin-gcc32.rul
+$symlink	i386-darwin-clang.rul	i386-darwin-clang32.rul
+$symlink	i386-darwin-clang.rul	i386-darwin-clang64.rul
+$symlink	i386-darwin-clang.rul	x86_64-darwin-clang.rul
+$symlink	i386-darwin-clang32.rul	x86_64-darwin-clang32.rul
+$symlink	i386-darwin-clang64.rul	x86_64-darwin-clang64.rul
+$symlink	i86pc-sunos5-cc.rul	i86pc-sunos5-cc32.rul
+$symlink	i86pc-sunos5-cc.rul	i86pc-sunos5-cc64.rul
+$symlink	i86pc-sunos5-clang.rul	i86pc-sunos5-clang32.rul
+$symlink	i86pc-sunos5-clang.rul	i86pc-sunos5-clang64.rul
+$symlink	i86pc-sunos5-gcc.rul	i86pc-sunos5-gcc32.rul
+$symlink	i86pc-sunos5-gcc.rul	i86pc-sunos5-gcc64.rul
+$symlink	sun4-sunos5-cc.rul	sun4-sunos5-cc32.rul
+$symlink	sun4-sunos5-cc.rul	sun4-sunos5-cc64.rul
+$symlink	sun4-sunos5-clang.rul	sun4-sunos5-clang32.rul
+$symlink	sun4-sunos5-clang.rul	sun4-sunos5-clang64.rul
+$symlink	sun4-sunos5-gcc.rul	sun4-sunos5-gcc32.rul
+$symlink	sun4-sunos5-gcc.rul	sun4-sunos5-gcc64.rul
 $symlink	sun4-sunos4-cc.rul	sun4c-sunos4-cc.rul
 $symlink	sun4-sunos4-gcc.rul	sun4c-sunos4-gcc.rul
 $symlink	sun4-sunos5-cc.rul	sun4c-sunos5-cc.rul
@@ -334,16 +387,3 @@ $symlink	bepc-beos-gcc.rul	bemac-beos-gcc.rul
 $symlink	bepc-haiku-cc.rul	bemac-haiku-cc.rul
 $symlink	bepc-haiku-gcc.rul	bemac-haiku-gcc.rul
 $symlink	alpha-openvms-cc.rul	alphaserver_ds20_500_mhz-openvms-cc.rul
-#
-$symlink	mk-smake.id		mk-build.id
-$symlink	r-smake.dep		r-build.dep
-$symlink	r-smake.obj		r-build.obj
-$symlink	r-smake.tag		r-build.tag
-$symlink	r-make.obj		r-gmake.obj
-
-if [ -r r-make.c4x ]; then
-	$symlink	r-make.c4x		r-gmake.c4x
-	$symlink	r-make.c4x-dep		r-gmake.c4x-dep
-	$symlink	r-smake.c4x		r-build.c4x
-	$symlink	r-smake.c4x-dep		r-build.c4x-dep
-fi

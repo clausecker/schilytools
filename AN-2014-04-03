@@ -1,0 +1,205 @@
+New features with AN-2014-04-03:
+
+This is the first localization step for the schily source consolidation. Many
+programs now (hopefully) call gettext() for all strings that need localization.
+
+-	The next step will include dgettext() calls for the libraries and the
+	missing programs
+
+-	The following step will include the extracted strings
+
+-	The last step will include German translations and install support
+	for the resulting binary message object files.
+
+----------> Please test and report compilation problems! <---------
+
+***** NOTE: As mentioned since 2004, frontends to the tools should *****
+*****		call all programs in the "C" locale		   *****
+*****		by e.g. calling: LC_ALL=C cdrecord ....		   *****
+*****		unless these frontends support localized strings   *****
+*****		used by the cdrtools with NLS support.		   *****
+
+		*** WARNING        ***
+		*** Need new smake ***
+
+	*** Due to the fact that 2014-03-99 introduced to use new macro
+	*** expansions and a related bug fix in smake, you need a new smake
+	*** to compile this source. To ensure this, call:
+
+	cd ./psmake
+	./MAKE-all
+	cd ..
+	psmake/smake
+	psmake/smake install
+
+
+-	Fixed a bug in smake that caused $(CLANG_OPT$(C_ARCH:clang%=%))
+	not to be expanded but aborted with:
+		smake: Missing ')' in macro call 'C_ARCH'
+
+	This happened because searching for a ':' did not honor the
+	macro nesting level.
+
+-	libschily/format.c fixed to compile again with K&R C that does
+	not support "long double".
+
+-	Fixed the autoconf test for #pragma weak, so it will not
+	believe that "clang" supports #pragma weak in a compatible way.
+	This is needed in order to compile libmdigest/sha2.c using clang.
+
+-	New autoconf tests added for:
+
+	libexpat
+	libpcsclite / winscard.lib
+	libcrypto / libeay32.lib
+	libssl / ssleay32.lib
+
+-	New autoconf test for expat.h
+
+-	The makefile system added the INVERSE_SUBARCHDIR= to allow local
+	autoconfiguration for shared libraries.
+
+-	RULES/rules.top now also calls MKLINKS in the directory TEMPLATES
+
+-	New compiler configuration files:
+
+	RULES/cc-clang.rul
+	RULES/cc-clang32.rul
+	RULES/cc-clang64.rul
+
+-	The Mac OS X related rules now support a new macro:
+
+	LDFRAMEWORKS=
+
+	that allows to add Apple specific libraries.
+
+-	Added a new WIN32_LIBS= macro for Win-DOS specific libraries.
+	These libraries have to be specified in the portable -lfoo
+	format for "libfoo" and also work when compiling for MinGW32.
+	When cl.exe is used, -lfoo is converted to foo.lib.
+
+-	New configuration files:
+
+	RULES/i386-darwin-clang.rul
+	RULES/i386-darwin-clang32.rul
+	RULES/i386-darwin-clang64.rul
+
+-	New configuration files:
+
+	RULES/i386-freebsd-clang.rul
+	RULES/i586-linux-clang.rul
+	RULES/i86pc-sunos5-clang.rul
+	RULES/sun4-sunos5-clang.rul
+
+	Note that these files have not been tested yet.
+
+-	RULES/cc-sunpro.rul now also includes rules for
+	RULES/cc-sunpro32.rul and
+	RULES/cc-sunpro64.rul
+
+-	RULES/cc-gcc.rul now also includes rules for
+	RULES/cc-gcc32.rul and
+	RULES/cc-gcc64.rul
+
+-	RULES/cc-sunpro32.rul added for orthogonality
+
+-	RULES/cc-sunpro32.rul and
+	RULES/cc-sunpro64.rul are symlinks to RULES/cc-sunpro.rul
+	and RULES/cc-sunpro.rul uses a macro to include
+	cc-sunpro.rul
+	cc-sunpro32.rul
+	cc-sunpro64.rul
+	as needed
+
+-	RULES/i86pc-sunos5-cc.rul now also includes rules for
+	RULES/i86pc-sunos5-cc32.rul and
+	RULES/i86pc-sunos5-cc64.rul
+
+-	RULES/i86pc-sunos5-gcc.rul now also includes rules for
+	RULES/i86pc-sunos5-gcc32.rul and
+	RULES/i86pc-sunos5-gcc64.rul
+
+-	RULES/sun4-sunos5-cc.rul now also includes rules for
+	RULES/sun4-sunos5-cc32.rul and
+	RULES/sun4-sunos5-cc64.rul
+
+-	RULES/sun4-sunos5-gcc.rul now also includes rules for
+	RULES/sun4-sunos5-gcc32.rul and
+	RULES/sun4-sunos5-gcc64.rul
+
+-	RULES/i586-linux-suncc.rul now also includes rules for
+	RULES/i586-linux-suncc32.rul and
+	RULES/i586-linux-suncc64.rul
+
+-	RULES/9000-725-hp-ux-cc.rul now also includes rules for
+	RULES/9000-725-hp-ux-cc32.rul and
+	RULES/9000-725-hp-ux-cc64.rul
+
+-	RULES/i486-cygwin32_nt-cc.rul now also includes rules for
+	RULES/i486-cygwin32_nt-cc32.rul and
+	RULES/i486-cygwin32_nt-cc64.rul
+
+-	RULES/i486-cygwin32_nt-gcc.rul now also includes rules for
+	RULES/i486-cygwin32_nt-gcc32.rul and
+	RULES/i486-cygwin32_nt-gcc64.rul
+
+-	RULES/ip22-irix-cc.rul now also includes rules for
+	RULES/ip22-irix-cc64.rul
+
+-	RULES/ip22-irix-gcc.rul now also includes rules for
+	RULES/ip22-irix-gcc64.rul
+
+-	RULES/power-macintosh-darwin-cc.rul now also includes rules for
+	RULES/power-macintosh-darwin-cc32.rul and
+	RULES/power-macintosh-darwin-cc64.rul
+
+-	RULES/power-macintosh-darwin-gcc.rul now also includes rules for
+	RULES/power-macintosh-darwin-gcc32.rul and
+	RULES/power-macintosh-darwin-gcc64.rul
+
+-	conf/makeinc now knows that a compiler name may not follow
+	the "cc*" text rule. This helps to support "clang".
+
+-	conf/cc-config.sh has been enhanced to detect whether 
+	"cc" or "gcc" are emulated via "clang".
+
+-	New files in TEMPLATES/ related to "clang"
+
+-	TEMPLATES/ now includes config files for gcc32 and gcc64
+
+-	TEMPLATES/ now includes config files for clang, clang32 and clang64
+
+-	Add comment to DEFAULTS_CSW/sparc-cc.defs
+
+-	No longer use fgets() for fgetaline(), fgetline() and fgetstr() 
+	as fgets() cannot deal with embedded '\0' chars before the '\n'.
+
+-	Star got some cstyle changes.
+
+-	Try to avoid some clang warnings with star.
+
+-	Some smaller changes in SCCS to avoid warnings from clang.
+
+-	Two fixes in SCCS libraries from a clang warning that
+	have been introduced to take care of the fact that size_t, 
+	the strlen() return is unsigned.
+
+-	A change in bsh and SCCS fixes a problem from the different 
+	propagation rules in Ansi C for mode_t function parameters
+	that may be short int.
+
+-	Some small fixes in cpp/cpp.c to prevent clang warnings.
+
+-	hdump now calls printf("%s", samefmt) instead of printf(samefmt)
+	
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.isdn.cs.tu-berlin.de, js@cs.tu-berlin.de
+	joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

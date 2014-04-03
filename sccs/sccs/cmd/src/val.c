@@ -25,12 +25,12 @@
  * Use is subject to license terms.
  */
 /*
- * Copyright 2006-2011 J. Schilling
+ * Copyright 2006-2014 J. Schilling
  *
- * @(#)val.c	1.37 11/11/13 J. Schilling
+ * @(#)val.c	1.38 14/03/31 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)val.c 1.37 11/11/13 J. Schilling"
+#pragma ident "@(#)val.c 1.38 14/03/31 J. Schilling"
 #endif
 /*
  * @(#)val.c 1.22 06/12/12
@@ -263,7 +263,7 @@ char	*argv[];
 				/* this takes care of options given after
 				** file names.
 				*/
-			if((c == EOF)) {
+			if (c == EOF) {
 			   if (optind < argc) {
 				/* if it's due to -- then break; */
 			       if(argv[j][0] == '-' &&

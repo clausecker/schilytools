@@ -25,12 +25,12 @@
  * Use is subject to license terms.
  */
 /*
- * Copyright 2006-2011 J. Schilling
+ * Copyright 2006-2014 J. Schilling
  *
- * @(#)dofile.c	1.10 11/10/13 J. Schilling
+ * @(#)dofile.c	1.11 14/03/31 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)dofile.c 1.10 11/10/13 J. Schilling"
+#pragma ident "@(#)dofile.c 1.11 14/03/31 J. Schilling"
 #endif
 /*
  * @(#)dofile.c 1.12 06/12/12
@@ -78,9 +78,9 @@ int need_sdot;		/* Skip non s. files */
 		while (fgets(ibuf, sizeof (ibuf), stdin) != NULL) {
 			size_t	l;
 
-			l = strlen(ibuf) - 1;
-			if (l >= 0 && ibuf[l] == '\n')
-				ibuf[l] = '\0';
+			l = strlen(ibuf);
+			if (l > 0 && ibuf[l-1] == '\n')
+				ibuf[l-1] = '\0';
 
 			had_dir = 0;
 			if (exists(ibuf) && (Statbuf.st_mode & S_IFMT) == S_IFDIR) {

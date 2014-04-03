@@ -1,14 +1,14 @@
-/* @(#)star_unix.c	1.103 13/10/30 Copyright 1985, 1995, 2001-2013 J. Schilling */
+/* @(#)star_unix.c	1.104 14/03/31 Copyright 1985, 1995, 2001-2014 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)star_unix.c	1.103 13/10/30 Copyright 1985, 1995, 2001-2013 J. Schilling";
+	"@(#)star_unix.c	1.104 14/03/31 Copyright 1985, 1995, 2001-2014 J. Schilling";
 #endif
 /*
  *	Stat / mode / owner routines for unix like
  *	operating systems
  *
- *	Copyright (c) 1985, 1995, 2001-2013 J. Schilling
+ *	Copyright (c) 1985, 1995, 2001-2014 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -455,8 +455,8 @@ again:
 		 * In October 2013, it turned out that at least NetAPP stores
 		 * files up to 64 bytes in the inode and then returns
 		 * sp->st_blocks == 0 for a non sparse file. We only come here
-		 * if the file size is > DEV_BSIZE in hope that noone will 
-		 * implement a filesystem that hides larger amount of data 
+		 * if the file size is > DEV_BSIZE in hope that noone will
+		 * implement a filesystem that hides larger amount of data
 		 * without supporting SEEK_HOLE.
 		 */
 		if ((info->f_size > 0) && (sp->st_blocks == 0))

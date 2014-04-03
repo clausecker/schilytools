@@ -1,9 +1,9 @@
-#ident "@(#)power-macintosh-darwin-cc64.rul	1.7 13/07/22 "
+#ident "@(#)i586-linux-clang.rul	1.1 14/04/02 "
 ###########################################################################
-# Written 1996-2013 by J. Schilling
+# Written 1996-2014 by J. Schilling
 ###########################################################################
 #
-# Platform dependent MACROS for Darwin-1.2 ff. (Apple MacOS X) PPC (GCC)
+# Platform dependent MACROS for Linux using Clang
 #
 ###########################################################################
 # Copyright (c) J. Schilling
@@ -22,42 +22,30 @@
 ###########################################################################
 include $(SRCROOT)/$(RULESDIR)/rules.prg
 ###########################################################################
-include $(SRCROOT)/$(RULESDIR)/cc-gcc64.rul
-CC_COM_DEF=	cc
+include $(SRCROOT)/$(RULESDIR)/cc-$(C_ARCH).rul
 
+#
+# LINUX_SRC_INCLUDE is defined in DEFAULTS/Defaults.linux
+#
+INCDIRSX +=	$(LINUX_SRC_INCLUDE)
 OSDEFS +=
 
 KDEFINES=	-DKERNEL -D_KERNEL
 
-COPTDYN=	-fPIC
-C++OPTDYN=	-fPIC
-
 LIB_PREFIX=	lib
 LIB_SUFFIX=	.a
-SHL_SUFFIX=	.dylib
+SHL_SUFFIX=	.so.1.0
 
-LIB_SOCKET=
+LIB_SOCKET=	
 LIB_MATH=	-lm
 LIB_KVM=	
 
 #LDOPTS=		$(LIBS_PATH) $(LDPATH) $(RUNPATH:-R%=-Wl,-R%)
-LDOPTS=		$(LIBS_PATH) $(LDPATH) -framework IOKit -framework CoreFoundation
-LDOPTDYN=	-install_name $(INSBASE)/lib/$(TARGET)
-LDLIBDYN=	-lgcc_s.1
-LNDYNLIB=	@
-
-DYNLD=		@echo "	==> LINKING dynamic library \"$@\""; libtool -dynamic
-DYNLDC++ =	@echo "	==> LINKING dynamic library \"$@\""; libtool -dynamic
-RANLIB=		@echo "	==> RANDOMIZING ARCHIVE \"$@\""; ranlib
-
 #
-# lorder seems not to work on some versions because Apple installed
-# a broken /bin/sh that is not POSIX cimpliant an will not
-# be able to run the /usr/bin/lorder script. The error messages are:
-#	type: not found
-#	type: not found
-#	lorder: nm: not found
-# ... disable it
+# Uncomment the next line in case you are on an old Linux version that
+# does not support the -R linker flag.
 #
+#LDOPTS=		$(LIBS_PATH) $(LDPATH)
+
 LORDER=		echo
 TSORT=		cat

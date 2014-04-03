@@ -1,13 +1,13 @@
-/* @(#)acl_unix.c	1.48 13/11/21 Copyright 2001-2013 J. Schilling */
+/* @(#)acl_unix.c	1.49 14/03/31 Copyright 2001-2014 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)acl_unix.c	1.48 13/11/21 Copyright 2001-2013 J. Schilling";
+	"@(#)acl_unix.c	1.49 14/03/31 Copyright 2001-2014 J. Schilling";
 #endif
 /*
  *	ACL get and set routines for unix like operating systems.
  *
- *	Copyright (c) 2001-2013 J. Schilling
+ *	Copyright (c) 2001-2014 J. Schilling
  *
  *	There are currently two basic flavors of ACLs:
  *
@@ -1153,7 +1153,7 @@ set_acls(info)
 			}
 		}
 		acl_free(aclp);	/* acl_t * needs acl_free() */
-	} 
+	}
 #else
 	seterrno(0);
 	if ((aclp = aclfromtext(aclps.ps_path, &aclcount)) == NULL) {

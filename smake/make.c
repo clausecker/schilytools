@@ -1,13 +1,13 @@
-/* @(#)make.c	1.192 13/03/26 Copyright 1985, 87, 88, 91, 1995-2013 J. Schilling */
+/* @(#)make.c	1.193 14/03/25 Copyright 1985, 87, 88, 91, 1995-2014 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)make.c	1.192 13/03/26 Copyright 1985, 87, 88, 91, 1995-2013 J. Schilling";
+	"@(#)make.c	1.193 14/03/25 Copyright 1985, 87, 88, 91, 1995-2014 J. Schilling";
 #endif
 /*
  *	Make program
  *
- *	Copyright (c) 1985, 87, 88, 91, 1995-2013 by J. Schilling
+ *	Copyright (c) 1985, 87, 88, 91, 1995-2014 by J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -16,6 +16,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -825,7 +827,7 @@ main(ac, av)
 	if (help)
 		usage(0);
 	if (pversion) {
-		printf("Smake release %s (%s-%s-%s) Copyright (C) 1985, 87, 88, 91, 1995-2013 Jörg Schilling\n",
+		printf("Smake release %s (%s-%s-%s) Copyright (C) 1985, 87, 88, 91, 1995-2014 Jörg Schilling\n",
 				make_version,
 				HOST_CPU, HOST_VENDOR, HOST_OS);
 		exit(0);

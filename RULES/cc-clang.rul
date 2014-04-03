@@ -1,9 +1,9 @@
-#ident "@(#)cc-gcc64.rul	1.17 13/11/13 "
+#ident "@(#)cc-clang.rul	1.1 14/03/25 "
 ###########################################################################
-# Written 1996-2013 by J. Schilling
+# Written 1996-2014 by J. Schilling
 ###########################################################################
 #
-# Platform independent MACROS for GCC
+# Platform independent MACROS for Clang
 #
 ###########################################################################
 # Copyright (c) J. Schilling
@@ -21,14 +21,17 @@
 # file and include the License file CDDL.Schily.txt from this distribution.
 ###########################################################################
 
-GCC_OPT64=	-m64
+CLANG_OPT=
+CLANG_OPT32=	-m32
+CLANG_OPT64=	-m64
+CLANG_OPTXX=	$(CLANG_OPT$(C_ARCH:clang%=%))
 
 CPPFLAGS=	-DSCHILY_BUILD $(CPPOPTS) $(CPPOPTX) $(OSINCDIRS:%=-I%) $(OSDEFS) $(OSDEFSX)
-CFLAGS=		$(COPTS) $(CWARNOPTS) $(COPTOPT) $(GCCOPTOPT) $(COPTX)
+CFLAGS=		$(COPTS) $(CWARNOPTS) $(COPTOPT) $(CLANGOPTOPT) $(COPTX)
 C++FLAGS=	$(C++OPTS) $(C++WARNOPTS) $(C++OPTOPT) $(G++OPTOPT) $(C++OPTX)
 
 CPPOPTS=	-I$(ARCHDIR) -I$(OINCSDIR) $(INCDIRS:%=-I%) $(INCDIRSX:%=-I%)
-COPTS=		$(GCC_OPT64)
+COPTS=		$(CLANG_OPTXX)
 #		-Wtraditional now causes more pain than it helps 
 CWOPTS=		-Wall -Wtraditional
 CWOPTS=		-Wall -Wno-unknown-pragmas \
@@ -36,7 +39,7 @@ CWOPTS=		-Wall -Wno-unknown-pragmas \
 COPTOPT=	-O
 COPTDYN=	-fpic
 COPTGPROF=	-pg
-C++OPTS=	$(GCC_OPT64)
+C++OPTS=	$(CLANG_OPTXX)
 C++WOPTS=	$(CWOPTS)
 C++OPTOPT=	$(COPTOPT)
 C++OPTDYN=	-fpic
@@ -66,20 +69,20 @@ __CC++_COM=	$(_UNIQ)$(CCC)
 ___CC++_COM=	$(__CC++_COM:$(_UNIQ)=$(CC++_COM_DEF))
 CC++_COM=	$(___CC++_COM:$(_UNIQ)%=%)
 
-CC_COM_DEF=	gcc
-CC++_COM_DEF=	g++
+CC_COM_DEF=	clang
+CC++_COM_DEF=	clang++
 CC=		$(CC_COM_DEF)
 CCC=		$(CC++_COM_DEF)
 
-CCCC=		@echo "	==> COMPILING \"$@\""; $(CC_COM) $(GCC_OPT64)
-CC++ =		@echo "	==> COMPILING \"$@\""; $(CC++_COM) $(GCC_OPT64)
-LDCC=		@echo "	==> LINKING \"$@\""; $(CC_COM) $(GCC_OPT64)
-LDCC++ =	@echo "	==> LINKING \"$@\""; $(CC++_COM) $(GCC_OPT64)
-DYNLD=		@echo "	==> LINKING dynamic library \"$@\""; $(CC_COM) $(GCC_OPT64)
-DYNLDC++ =	@echo "	==> LINKING dynamic library \"$@\""; $(CC++_COM) $(GCC_OPT64)
+CCCC=		@echo "	==> COMPILING \"$@\""; $(CC_COM) $(CLANG_OPTXX)
+CC++ =		@echo "	==> COMPILING \"$@\""; $(CC++_COM) $(CLANG_OPTXX)
+LDCC=		@echo "	==> LINKING \"$@\""; $(CC_COM) $(CLANG_OPTXX)
+LDCC++ =	@echo "	==> LINKING \"$@\""; $(CC++_COM) $(CLANG_OPTXX)
+DYNLD=		@echo "	==> LINKING dynamic library \"$@\""; $(CC_COM) $(CLANG_OPTXX)
+DYNLDC++ =	@echo "	==> LINKING dynamic library \"$@\""; $(CC++_COM) $(CLANG_OPTXX)
 
 RMDEP=		:
-MKDEP=		@echo "	==> MAKING DEPENDENCIES \"$@\""; $(RMDEP); $(CC_COM) $(GCC_OPT64) -M
+MKDEP=		@echo "	==> MAKING DEPENDENCIES \"$@\""; $(RMDEP); $(CC_COM) $(CLANG_OPTXX) -M
 MKDEP_OUT=
-MKC++DEP=	@echo "	==> MAKING DEPENDENCIES \"$@\""; $(RMDEP); $(CC++_COM) $(GCC_OPT64) -M
+MKC++DEP=	@echo "	==> MAKING DEPENDENCIES \"$@\""; $(RMDEP); $(CC++_COM) $(CLANG_OPTXX) -M
 MKC++DEP_OUT=

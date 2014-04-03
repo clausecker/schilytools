@@ -25,10 +25,10 @@
 /*
  * Copyright 2006-2013 J. Schilling
  *
- * @(#)sccs.c	1.62 13/11/01 J. Schilling
+ * @(#)sccs.c	1.63 14/03/31 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)sccs.c 1.62 13/11/01 J. Schilling"
+#pragma ident "@(#)sccs.c 1.63 14/03/31 J. Schilling"
 #endif
 /*
  * @(#)sccs.c 1.85 06/12/12
@@ -1569,8 +1569,8 @@ command(argv, forkflag, arg0)
 		{
 			char *cp;
 
-			if (strcmp(*np, "-o") == 0) { /* Keep get -ooption */
-				*np++;
+			if (strcmp(*np, "-o") == 0) { /* Keep get -o option */
+				np++;
 				continue;
 			}	
 			cp = makefile(*argv, SccsDir);

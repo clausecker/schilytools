@@ -1,14 +1,14 @@
-/* @(#)xheader.c	1.88 13/11/07 Copyright 2001-2013 J. Schilling */
+/* @(#)xheader.c	1.89 14/03/31 Copyright 2001-2014 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)xheader.c	1.88 13/11/07 Copyright 2001-2013 J. Schilling";
+	"@(#)xheader.c	1.89 14/03/31 Copyright 2001-2014 J. Schilling";
 #endif
 /*
  *	Handling routines to read/write, parse/create
  *	POSIX.1-2001 extended archive headers
  *
- *	Copyright (c) 2001-2013 J. Schilling
+ *	Copyright (c) 2001-2014 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -146,7 +146,8 @@ LOCAL	Uchar	dtab[] = "0123456789";
 					(val) = (val) / (unsigned)10;	      \
 				} while ((val) > 0)
 
-#define	scopy(to, from)		while ((*(to)++ = *(from)++) != '\0');
+#define	scopy(to, from)		while ((*(to)++ = *(from)++) != '\0')	\
+					;
 
 
 LOCAL	char	*xbuf;	/* Space used to prepare I/O from/to extended headers */

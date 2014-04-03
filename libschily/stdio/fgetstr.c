@@ -1,6 +1,6 @@
-/* @(#)fgetstr.c	1.10 11/08/09 Copyright 1986, 1996-2011 J. Schilling */
+/* @(#)fgetstr.c	1.11 14/03/27 Copyright 1986, 1996-2014 J. Schilling */
 /*
- *	Copyright (c) 1986, 1996-2011 J. Schilling
+ *	Copyright (c) 1986, 1996-2014 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -9,6 +9,8 @@
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -19,9 +21,11 @@
 /*
  * XXX should we check if HAVE_USG_STDIO is defined and
  * XXX use something line memccpy to speed things up ???
+ * XXX On Solaris 64 bits, we may use #define FAST_GETC_PUTC
+ * XXX and getc_unlocked()
  */
 
-#if !defined(getc)
+#if !defined(getc) && defined(USE_FGETS_FOR_FGETSTR)
 #include <schily/string.h>
 
 EXPORT int

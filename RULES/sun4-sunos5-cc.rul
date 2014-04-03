@@ -1,4 +1,4 @@
-#ident "@(#)sun4-sunos5-cc.rul	1.12 10/10/02 "
+#ident "@(#)sun4-sunos5-cc.rul	1.13 14/04/01 "
 ###########################################################################
 # Written 1996 by J. Schilling
 ###########################################################################
@@ -14,13 +14,15 @@
 # with the License.
 #
 # See the file CDDL.Schily.txt in this distribution for details.
+# A copy of the CDDL is also available via the Internet at
+# http://www.opensource.org/licenses/cddl1.txt
 #
 # When distributing Covered Code, include this CDDL HEADER in each
 # file and include the License file CDDL.Schily.txt from this distribution.
 ###########################################################################
 include $(SRCROOT)/$(RULESDIR)/rules.prg
 ###########################################################################
-include $(SRCROOT)/$(RULESDIR)/cc-sunpro.rul
+include $(SRCROOT)/$(RULESDIR)/cc-$(C_ARCH:cc%=sunpro%).rul
 
 OSDEFS +=	-D__SVR4 -DSVR4
 

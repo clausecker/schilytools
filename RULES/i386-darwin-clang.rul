@@ -1,9 +1,9 @@
-#ident "@(#)i586-linux-suncc64.rul	1.6 13/07/22 "
+#ident "@(#)i386-darwin-clang.rul	1.2 14/04/02 "
 ###########################################################################
-# Written 2007-2013 by J. Schilling
+# Written 1996-2014 by J. Schilling
 ###########################################################################
 #
-# Platform dependent MACROS for Linux using Sun Studio
+# Platform dependent MACROS for Darwin-1.2 ff. (Apple MacOS X) x86 (CLANG)
 #
 ###########################################################################
 # Copyright (c) J. Schilling
@@ -22,34 +22,41 @@
 ###########################################################################
 include $(SRCROOT)/$(RULESDIR)/rules.prg
 ###########################################################################
-include $(SRCROOT)/$(RULESDIR)/cc-sunpro64.rul
-CC_COM_DEF=	suncc
-CC++_COM_DEF=	sunCC
+include $(SRCROOT)/$(RULESDIR)/cc-$(C_ARCH).rul
 
-#
-# LINUX_SRC_INCLUDE is defined in DEFAULTS/Defaults.linux
-#
-INCDIRSX +=	$(LINUX_SRC_INCLUDE)
 OSDEFS +=
 
 KDEFINES=	-DKERNEL -D_KERNEL
 
+COPTDYN=	-fPIC
+C++OPTDYN=	-fPIC
+
 LIB_PREFIX=	lib
 LIB_SUFFIX=	.a
-SHL_SUFFIX=	.so.1.0
+SHL_SUFFIX=	.dylib
 
-LIB_SOCKET=	
+LIB_SOCKET=
 LIB_MATH=	-lm
 LIB_KVM=	
 
 #LDOPTS=		$(LIBS_PATH) $(LDPATH) $(RUNPATH:-R%=-Wl,-R%)
-#
-# Uncomment the next line in case you are on an old Linux version that
-# does not support the -R linker flag.
-#
-#LDOPTS=		$(LIBS_PATH) $(LDPATH)
+LDFRAMEWORKS=	-framework IOKit -framework CoreFoundation
+LDOPTS=		$(LIBS_PATH) $(LDPATH) $(LDFRAMEWORKS)
+LDOPTDYN=	-install_name $(INSBASE)/lib/$(TARGET)
+LNDYNLIB=	@
 
-LDOPTDYN=	-dy -G -Wl,-shared -Wl,-soname,$(TARGET)
+DYNLD=		@echo "	==> LINKING dynamic library \"$@\""; libtool -dynamic
+DYNLDC++ =	@echo "	==> LINKING dynamic library \"$@\""; libtool -dynamic
+RANLIB=		@echo "	==> RANDOMIZING ARCHIVE \"$@\""; ranlib
 
+#
+# lorder seems not to work on some versions because Apple installed
+# a broken /bin/sh that is not POSIX cimpliant an will not
+# be able to run the /usr/bin/lorder script. The error messages are:
+#	type: not found
+#	type: not found
+#	lorder: nm: not found
+# ... disable it
+#
 LORDER=		echo
 TSORT=		cat

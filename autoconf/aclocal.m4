@@ -1,4 +1,4 @@
-dnl @(#)aclocal.m4	1.100 13/09/30 Copyright 1998-2011 J. Schilling
+dnl @(#)aclocal.m4	1.101 14/03/24 Copyright 1998-2014 J. Schilling
 
 dnl Set VARIABLE to VALUE in C-string form, verbatim, or 1.
 dnl AC_DEFINE_STRING(VARIABLE [, VALUE])
@@ -3141,7 +3141,8 @@ dnl Checks if the compiler allows #pragma weak
 dnl Defines HAVE_PRAGMA_WEAK on success.
 AC_DEFUN([AC_PRAGMA_WEAK],
 [AC_CACHE_CHECK([if compiler allows pragma weak], ac_cv_pragma_weak,
-                [AC_TRY_LINK([#pragma weak test2 = test1
+                [AC_TRY_LINK([extern int test2();
+#pragma weak test2 = test1
 int test1() {return 0;}],
 [return test2();],
                 [ac_cv_pragma_weak=yes],

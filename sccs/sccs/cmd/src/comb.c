@@ -25,12 +25,12 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2011 J. Schilling
+ * This file contains modifications Copyright 2006-2014 J. Schilling
  *
- * @(#)comb.c	1.21 11/10/15 J. Schilling
+ * @(#)comb.c	1.22 14/03/31 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)comb.c 1.21 11/10/15 J. Schilling"
+#pragma ident "@(#)comb.c 1.22 14/03/31 J. Schilling"
 #endif
 /*
  * @(#)comb.c 1.15 06/12/12
@@ -120,7 +120,7 @@ register char *argv[];
 				/* this takes care of options given after
 				** file names.
 				*/
-			if((c == EOF)) {
+			if (c == EOF) {
 			   if (optind < argc) {
 				/* if it's due to -- then break; */
 			       if(argv[i][0] == '-' &&

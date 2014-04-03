@@ -1,4 +1,4 @@
-/* @(#)xconfig.h.in	1.239 14/01/06 Copyright 1998-2014 J. Schilling */
+/* @(#)xconfig.h.in	1.243 14/04/02 Copyright 1998-2014 J. Schilling */
 /*
  *	Dynamic autoconf C-include code.
  *	Do not edit, this file has been created automatically.
@@ -183,8 +183,10 @@
 #undef HAVE_REGEXPR_H		/* if we may include regexpr.h */
 
 #undef HAVE_DLFCN_H		/* if we may include dlfcn.h */
-#undef HAVE_LINK_H		/* if we may include linh.h */
+#undef HAVE_LINK_H		/* if we may include link.h */
 #undef HAVE_DL_H		/* if we may include dl.h */
+
+#undef HAVE_EXPAT_H		/* if we may include expat.h */
 
 /*
  * Convert to SCHILY name
@@ -559,6 +561,18 @@
 #undef HAVE_SETLOCALE		/* setlocale() is present in libc */
 #undef HAVE_LOCALECONV		/* localeconv() is present in libc */
 #undef HAVE_NL_LANGINFO		/* nl_langinfo() is present in libc */
+
+#undef HAVE_EXPAT_IN_LIBC	/* whether XML_Parse() is in libc (needs no -lexpat) */
+#undef HAVE_XML_PARSE		/* whether XML_Parse() libc or -lexpat */
+
+#undef HAVE_PCSC_IN_LIBC	/* whether SCardEstablishContext() is in libc (needs no -lpcsclite) */
+#undef HAVE_SCARDESTABLISHCONTEXT	/* whether SCardEstablishContext() libc or -lpcsclite */
+
+#undef HAVE_CRYPTO_IN_LIBC	/* whether CRYPTO_free() is in libc (needs no -lcrypto) */
+#undef HAVE_CRYPTO_FREE		/* whether CRYPTO_free() libc or -lcrypto */
+
+#undef HAVE_SSL_IN_LIBC		/* whether SSL_free() is in libc (needs no -lssl) */
+#undef HAVE_SSL_FREE		/* whether SSL_free() libc or -lssl */
 
 #undef HAVE_SETBUF		/* setbuf() is present in libc */
 #undef HAVE_SETVBUF		/* setvbuf() is present in libc */

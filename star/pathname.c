@@ -1,11 +1,11 @@
-/* @(#)pathname.c	1.2 13/11/07 Copyright 2004-2013 J. Schilling */
+/* @(#)pathname.c	1.3 14/03/31 Copyright 2004-2014 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)pathname.c	1.2 13/11/07 Copyright 2004-2013 J. Schilling";
+	"@(#)pathname.c	1.3 14/03/31 Copyright 2004-2014 J. Schilling";
 #endif
 /*
- *	Copyright (c) 2004-2013 J. Schilling
+ *	Copyright (c) 2004-2014 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -101,7 +101,7 @@ set_pspace(f, pathp, amt)
 	} else if (f == PS_STDERR) {
 		f = stderr;
 	}
- 
+
 	nsize = (amt + PS_INCR - 1) / PS_INCR * PS_INCR;
 	new = __fjrealloc(f, pathp->ps_path, nsize, "path buffer", jmp);
 	if (new == NULL)

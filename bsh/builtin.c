@@ -1,13 +1,13 @@
-/* @(#)builtin.c	1.81 13/09/25 Copyright 1988-2013 J. Schilling */
+/* @(#)builtin.c	1.82 14/03/31 Copyright 1988-2014 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)builtin.c	1.81 13/09/25 Copyright 1988-2013 J. Schilling";
+	"@(#)builtin.c	1.82 14/03/31 Copyright 1988-2014 J. Schilling";
 #endif
 /*
  *	Builtin commands
  *
- *	Copyright (c) 1985-2013 J. Schilling
+ *	Copyright (c) 1985-2014 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -1216,9 +1216,15 @@ static char *modtab[] =
 static char *umodtab[] =
 {"", "x", "w", "wx", "r", "rx", "rw", "rwx"};
 
+
+#ifdef	PROTOTYPES
+LOCAL int
+mval(mode_t m)
+#else
 LOCAL int
 mval(m)
 	mode_t	m;
+#endif
 {
 	int	ret = 0;
 
