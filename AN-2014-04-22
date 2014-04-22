@@ -1,0 +1,191 @@
+New features with AN-2014-04-22:
+
+This is the first localization step for the schily source consolidation. Many
+programs now (hopefully) call gettext() for all strings that need localization.
+
+-	The next step will include dgettext() calls for the libraries and the
+	missing programs
+
+-	The following step will include the extracted strings
+
+-	The last step will include German translations and install support
+	for the resulting binary message object files.
+
+----------> Please test and report compilation problems! <---------
+
+***** NOTE: As mentioned since 2004, frontends to the tools should *****
+*****		call all programs in the "C" locale		   *****
+*****		by e.g. calling: LC_ALL=C cdrecord ....		   *****
+*****		unless these frontends support localized strings   *****
+*****		used by the cdrtools with NLS support.		   *****
+
+		*** WARNING        ***
+		*** Need new smake ***
+
+	*** Due to the fact that 2014-04-03 introduced to use new macro
+	*** expansions and a related bug fix in smake, you need a new smake
+	*** to compile this source. To ensure this, call:
+
+	cd ./psmake
+	./MAKE-all
+	cd ..
+	psmake/smake
+	psmake/smake install
+
+
+-	i86pc-sunos5-clang.rul now contains a working set of options
+	to create shared libraries using clang.
+
+-	New symlink RULES/x86_64-linux-clang.rul to support non
+	automake-enabled make programs like gmake.
+
+-	~/.termcap has been updated in ved/dotfiles.tar.bz2 to match the
+	~/.termcap file in bsh/dotfiles.tar.bz2
+
+-	ved/map.c updated to the same version that is used by bsh
+
+-	libschily/fstream.c now supports local flags (for the caller)
+	and pushable streams to keep blocks of pushed text atomically.
+
+-	Fixed a typo in the online help from bsh::alias
+
+-	bsh now correctly handles begin aliases even when they appear after
+	a leading I/O directive.
+
+-	bsh now handles begin aliases that end in space or TAB and re-enables
+	begin aliases for the text that is read after the alias replacement
+	text has been consumed.
+
+-	bsh now correctly handles "$@" as "$1" "$2" ...
+
+-	.globals in bsh/dotfiles.tar.bz2 has been updated to match the new alias
+	rules that are common to the bsh and the Bourne Shell
+
+-	bsh now also sets PWD= when changing a directory. Previously, only CWD=
+	was updated, but Bourne Shell compatibility needs PWD=
+
+-	The previous bsh option -o has been renamed to "-noclose".
+
+-	bsh now supports the option -o in a way that is compatible to ksh and the
+	Bourne Shell
+
+-	bsh now supports the option -o aliasowner=user as the Bourne Shell does.
+	This allows to set up a common su alias for both bsh and sh:
+
+		alias 'su=su $SHELL -o aliasowner=$LOGNAME'
+
+	to let the root shell use the aliases from the user that called su.
+
+-	A bug in the Bourne Shell that could cause the shell to die when calling
+	"set -o aliasowner" has been fixed.
+
+-	The Bourne now correctly handles begin aliases that end in space or TAB
+	and re-enables begin aliases for the text that is read after the alias
+	replacement text has been consumed.
+
+-	The Bourne Shell now correctly disables the "interactive" state while
+	reading the files /etc/sh.shrc and $HOME/.shrc
+	This is needed to have the right number of prompts when the history
+	editor is disabled.
+
+-	Add several new #ifdef's to the Bourne Shell to better tailor enhancements.
+
+-	A "new" variant of the Bourne Shell is available under the name "osh".
+	This version of the Bourne Shell is still highly portable as it includes
+	the conversion from sbrk() to malloc(), but it has been compiled in a way
+	that does not include the Schily enhancements.
+
+	-	The history editor and the commands: history / map / savehistory
+		are disabled.
+		The editor is enabled with -DINTERACTIVE
+
+	-	The alias support and the commands: alias / unalias
+		are disabled.
+		Aliases are anabled with -DDO_SYSALIAS
+
+	-	Parsing commands like:
+
+			var2=val2 var1=val1 command....
+
+		is done in the unexpected reversed order for var2=val2 var1=val1
+		like on SVr4 and SunOS.
+		Historic behavior is enabled with -DARGS_RIGHT_TO_LEFT
+
+	-	The builtin command: alloc
+		is not enabled.
+		The alloc builtin is enabled with -DDO_SYSALLOC
+
+	-	The rcfiles /etc/sh.shrc and $HOME/.shrc
+		are not read. This also disables the special
+		meaning of the ENV= environment.
+		The shell rcfiles are enabled with -DDO_SHRCFILES
+
+	-	The builtin command: repeat
+		is not enabled.
+		The repeat builtin is enabled with -DDO_SYSREPEAT
+
+	-	The builtin command: dosh
+		is not enabled.
+		The dosh builtin is enabled with -DDO_SYSDOSH
+
+	-	The builtin commands: pushd / popd / dirs and cd -
+		are not enabled.
+		The environment variable OLDPWD= is also disabled.
+		These builtins are enabled with -DDO_SYSPUSHD
+
+	-	The support for the option -r in the builtin "read"
+		is not enabled.
+		Support for read -r is enabled with -DDO_READ_R
+
+	-	The support for the option -o in the builtin "set"
+		is not enabled.
+		Support for set -o is enabled with -DDO_SET_O
+
+	-	The support for the option -S in the builtin "umask"
+		is not enabled.
+		Support for umask -S is enabled with -DDO_UMASK_S
+
+	-	The support for the POSIX "for i; do ... done" with
+		semicolon is not enabled.
+		Support for for i; do ... is enabled with -DDO_POSIX_FOR
+
+	-	The bugfix for set -a; read VAR is not included and
+		environment variables defined by read are not exported.
+		Support for read -a; read VAR is enabled with -DDO_READ_ALLEXPORT
+
+	The following enhanced features of this Bourne Shell variant are 
+	not disabled in the old shell mode:
+
+		-version/--version/-V	is always available
+
+		pfexec			implemented in the safe Schily variant
+					instead of the problematic Sun variant.
+
+		ulimit			still also implements the -l -m -u
+					options
+
+		The SVR4.0 colon (null command) redirection bug is
+		always fixed
+
+		The var=none;echo ${var-'$'} SVr3 bug is always fixed
+
+		The "type" command with functions with case statements always
+		prints correct code.
+
+		The "times" output format is always POSIXly correct.
+
+		Reading/execcuting shell scripts never tries to catch a
+		directory with the name of the expected script.
+
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.isdn.cs.tu-berlin.de, js@cs.tu-berlin.de
+	joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

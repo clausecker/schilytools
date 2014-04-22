@@ -1,4 +1,4 @@
-#ident "@(#)i86pc-sunos5-clang.rul	1.1 14/04/02 "
+#ident "@(#)i86pc-sunos5-clang.rul	1.2 14/04/07 "
 ###########################################################################
 # Written 1996-2014 by J. Schilling
 ###########################################################################
@@ -41,6 +41,7 @@ MAPVERS=	$(_MAPVERS) # This enables to use mapfiles
 # We should use -Wl,-ztext here, but gcc does not create fully compliant
 # object files.
 #
-LDOPTDYN=	-dy -G -h $(TARGET) $(PMAPVERS:%=-Wl,-M%) -ldl
+#LDOPTDYN=	-dy -G -h $(TARGET) $(PMAPVERS:%=-Wl,-M%) -ldl
+LDOPTDYN=	-Wl,-dy -Wl,-G -Wl,-h$(TARGET) $(PMAPVERS:%=-Wl,-M%) -ldl
 
 ARFLAGS=	crs

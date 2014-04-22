@@ -1,4 +1,4 @@
-# /* @(#)libschily-mapvers	1.41 14/01/02 Copyright 2005-2014 J. Schilling */
+# /* @(#)libschily-mapvers	1.42 14/04/14 Copyright 2005-2014 J. Schilling */
 #include <schily/mconfig.h>
 
 SCHILY_1.6 {
@@ -72,6 +72,10 @@ global:
 	xcomerr;
 	xcomerrno;
 	fprformat;
+
+	fspush;
+	fspop;
+	fspushed;
 } SCHILY_1.5;
 
 SCHILY_1.5 {

@@ -1,14 +1,14 @@
-int mVERSION = 12;
+int mVERSION = 13;
 int MVERSION = 6;
 
-/* @(#)version.c	1.17 10/04/26 Copyright 1985-2010 J. Schilling */
+/* @(#)version.c	1.18 14/04/15 Copyright 1985-2014 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)version.c	1.17 10/04/26 Copyright 1985-2010 J. Schilling";
+	"@(#)version.c	1.18 14/04/15 Copyright 1985-2014 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1985-2010 J. Schilling
+ *	Copyright (c) 1985-2014 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -17,6 +17,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.

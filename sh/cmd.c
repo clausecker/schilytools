@@ -36,13 +36,13 @@
 #include "defs.h"
 
 /*
- * This file contains modifications Copyright 2008-2013 J. Schilling
+ * This file contains modifications Copyright 2008-2014 J. Schilling
  *
- * @(#)cmd.c	1.26 13/09/25 2008-2013 J. Schilling
+ * @(#)cmd.c	1.27 14/04/20 2008-2014 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)cmd.c	1.26 13/09/25 2008-2013 J. Schilling";
+	"@(#)cmd.c	1.27 14/04/20 2008-2014 J. Schilling";
 #endif
 
 /*
@@ -372,8 +372,11 @@ item(flag)
 				if (wdval == NL)
 					chkpr();
 				skipnl();
-			} else if (wdval == ';')
+#ifdef	DO_POSIX_FOR
+			} else if (wdval == ';') {
 				skipnl();
+#endif
+			}
 			chksym(DOSYM | BRSYM);
 			t->fortre = cmd(wdval == DOSYM ? ODSYM : KTSYM, NLFLG);
 			break;

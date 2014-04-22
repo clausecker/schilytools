@@ -1,14 +1,14 @@
-/* @(#)umask.c	1.2 13/09/24 Copyright 2004-2012 J. Schilling */
+/* @(#)umask.c	1.3 14/04/19 Copyright 2004-2014 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef RES
 static	UConst char sccsid[] =
-	"@(#)umask.c	1.2 13/09/24 Copyright 2004-2012 J. Schilling";
+	"@(#)umask.c	1.3 14/04/19 Copyright 2004-2014 J. Schilling";
 /*
  *	Parser for chmod(1)/find(1)-perm, ....
  *	The code has been taken from libschily/getperm.c and adopted to
  *	avoid stdio for the Bourne Shell.
  *
- *	Copyright (c) 2004-2012 J. Schilling
+ *	Copyright (c) 2004-2014 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -36,6 +36,7 @@ static	UConst char sccsid[] =
 #define	GP_XERR		2	/* 'X' perm characters are invalid	  */
 #define	GP_FPERM	4	/* TRUE if we implement find -perm	  */
 
+#ifdef	DO_UMASK_S
 LOCAL	int	getperm		__PR((char *perm, mode_t *modep,
 							int smode, int flag));
 LOCAL	char	*getsperm	__PR((char *p, mode_t *mp, int smode, int isX));
@@ -43,6 +44,7 @@ LOCAL	mode_t	iswho		__PR((int c));
 LOCAL	int	isop		__PR((int c));
 LOCAL	mode_t	isperm		__PR((int c, int isX));
 LOCAL	int	mval		__PR((mode_t m));
+#endif
 LOCAL	void	promask		__PR((void));
 	void	sysumask	__PR((int argc, char **argv));
 
@@ -107,6 +109,7 @@ LOCAL	void	promask		__PR((void));
 			    | (xmode & S_IXOTH ? TOEXEC  : 0))
 #endif
 
+#ifdef	DO_UMASK_S
 LOCAL int
 getperm(perm, modep, smode, flag)
 	char	*perm;			/* Perm string to parse		    */
@@ -329,6 +332,7 @@ mval(m)
 
 	return (ret);
 }
+#endif	/* DO_UMASK_S */
 
 LOCAL void
 promask()
@@ -351,6 +355,7 @@ sysumask(argc, argv)
 {
 	char	*a1 = argv[1];
 
+#ifdef	DO_UMASK_S
 	if (argc == 2 && eq(a1, "-S")) {
 		mode_t	m;
 
@@ -405,6 +410,20 @@ sysumask(argc, argv)
 	} else {
 		promask();
 	}
+#else
+	if (a1) {
+		int	c;
+		mode_t	i;
+
+		i = 0;
+		while ((c = *a1++) >= '0' && c <= '7')
+			i = (i << 3) + c - '0';
+
+		umask(OSMODE(i));
+	} else {
+		promask();
+	}
+#endif
 }
 
 #endif /* RES */

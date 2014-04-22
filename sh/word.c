@@ -36,13 +36,13 @@
 #include "defs.h"
 
 /*
- * This file contains modifications Copyright 2008-2013 J. Schilling
+ * This file contains modifications Copyright 2008-2014 J. Schilling
  *
- * @(#)word.c	1.30 13/09/25 2008-2013 J. Schilling
+ * @(#)word.c	1.32 14/04/17 2008-2014 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)word.c	1.30 13/09/25 2008-2013 J. Schilling";
+	"@(#)word.c	1.32 14/04/17 2008-2014 J. Schilling";
 #endif
 
 /*
@@ -50,7 +50,9 @@ static	UConst char sccsid[] =
  */
 
 #include	"sym.h"
+#ifdef	DO_SYSALIAS
 #include	"abbrev.h"
+#endif
 #ifdef	SCHILY_INCLUDES
 #include	<schily/errno.h>
 #include	<schily/fcntl.h>
@@ -265,6 +267,7 @@ lev++;
 	}
 	reserv = FALSE;
 
+#ifdef	DO_SYSALIAS
 	/*
 	 * Aliases only expand on plain words and
 	 * not when in an eval(1) call.
@@ -282,14 +285,6 @@ lev++;
 		if (val) {
 			struct filehdr *fb = alloc(sizeof (struct filehdr));
 
-			if (abegin > 0) {
-				size_t	len = strlen(val);
-
-				if (len > 0 &&
-				    (val[len-1] == ' ' || val[len-1] == '\t'))
-					abegin++;
-			}
-
 			if (peekn &&
 			    (peekn & 0x7fffffff) == standin->fnxt[-1]) {
 				peekn = 0;
@@ -299,11 +294,20 @@ lev++;
 			push((struct fileblk *)fb);	/* Push tmp filehdr */
 			estabf(UC val);			/* Install value    */
 			standin->fdes = -2;		/* Make it auto-pop */
+
+			if (abegin > 0) {		/* Was a begin alias */
+				size_t	len = strlen(val);
+
+				if (len > 0 &&
+				    (val[len-1] == ' ' || val[len-1] == '\t'))
+					standin->fdes = -3; /* begin alias */
+			}
+
 			return (word());		/* Parse replacement */
 		}
 	}
 	seen = NULL;
-
+#endif
 	return (wdval);
 }
 
@@ -449,7 +453,11 @@ retry:
 	}
 
 	if (f->feof || f->fdes < 0) {
-		if (f->fdes == -2) {	/* Auto-pop() fileblk to remove */
+		if (f->fdes <= -2) {	/* Auto-pop() fileblk to remove */
+		extern	int	abegin;
+
+			if (f->fdes == -3) /* Continue with begin alias */
+				abegin++;
 			pop();
 			free(f);
 			f = standin;

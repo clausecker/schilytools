@@ -37,9 +37,9 @@
 #endif
 
 /*
- * This file contains modifications Copyright 2008-2013 J. Schilling
+ * This file contains modifications Copyright 2008-2014 J. Schilling
  *
- * @(#)defs.h	1.56 13/09/25 2008-2013 J. Schilling
+ * @(#)defs.h	1.57 14/04/17 2008-2014 J. Schilling
  */
 
 #ifdef	__cplusplus
@@ -628,8 +628,10 @@ extern	void	sysumask	__PR((int argc, char **argv));
 /*
  * alias.c
  */
+#ifdef	DO_SYSALIAS
 extern	void	sysalias	__PR((int argc, unsigned char **argv));
 extern	void	sysunalias	__PR((int argc, unsigned char **argv));
+#endif
 
 /*
  * word.c

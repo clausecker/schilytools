@@ -36,13 +36,13 @@
 #include "defs.h"
 
 /*
- * This file contains modifications Copyright 2008-2013 J. Schilling
+ * This file contains modifications Copyright 2008-2014 J. Schilling
  *
- * @(#)name.c	1.28 13/09/26 2008-2013 J. Schilling
+ * @(#)name.c	1.30 14/04/20 2008-2014 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)name.c	1.28 13/09/26 2008-2013 J. Schilling";
+	"@(#)name.c	1.30 14/04/20 2008-2014 J. Schilling";
 #endif
 
 /*
@@ -390,6 +390,7 @@ readvar(names)
 	int		d;
 	unsigned int	(*nextwchar)__PR((void));
 
+#ifdef	DO_READ_R
 	if (eq(*names, "-r")) {
 		if (*++names == NULL)
 			failed(names[-2], mssgargn);
@@ -397,6 +398,9 @@ readvar(names)
 	} else {
 		nextwchar = nextwc;
 	}
+#else
+	nextwchar = nextwc;
+#endif
 
 	n = lookup(*names++);		/* done now to avoid storage mess */
 	rel = (unsigned char *)relstak();
@@ -448,8 +452,10 @@ readvar(names)
 		{
 			GROWSTAKTOP();
 			zerostak();
+#ifdef	DO_READ_ALLEXPORT
 			if (flags & exportflg)
 				n->namflg |= N_EXPORT;
+#endif
 			assign(n, absstak(rel));
 			setstak(rel);
 			if (*names)
@@ -510,8 +516,10 @@ readvar(names)
 	}
 	while (n)
 	{
+#ifdef	DO_READ_ALLEXPORT
 		if (flags & exportflg)
 			n->namflg |= N_EXPORT;
+#endif
 		assign(n, (unsigned char *)nullstr);
 		if (*names)
 			n = lookup(*names++);

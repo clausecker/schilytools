@@ -1,11 +1,11 @@
-/* @(#)str.c	1.27 13/07/29 Copyright 1986-2013 J. Schilling */
+/* @(#)str.c	1.30 14/04/21 Copyright 1986-2014 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)str.c	1.27 13/07/29 Copyright 1986-2013 J. Schilling";
+	"@(#)str.c	1.30 14/04/21 Copyright 1986-2014 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1986-2013 J. Schilling
+ *	Copyright (c) 1986-2014 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -31,7 +31,7 @@ bsh V%d.%02d (%s-%s-%s)\n\n\
 	By J. Schilling\n\
 	bsh -> best shell\n";
 
-char	bshopts[]	= "v,V,i,c,e,h,2,g,l,n,s,t,f,F,o,q,alias-owner*,help,version";
+char	bshopts[]	= "v,V,i,c,e,h,2,g,l,n,s,t,f,F,o&,q,alias-owner*,noclose,help,version";
 
 char	sysinitname[]	= "/etc/initbsh";
 char	sysrinitname[]	= "/etc/initrbsh";
@@ -80,6 +80,7 @@ char	pathname[]	= "PATH";
 char	termname[]	= "TERM";
 char	termcapname[]	= "TERMCAP";
 char	cwdname[]	= "CWD";
+char	pwdname[]	= "PWD";	/* ksh calls it present working dir */
 char	cdpathname[]	= "CDPATH";
 char	username[]	= "USER";
 char	Elogname[]	= "LOGNAME";
@@ -177,7 +178,7 @@ Options:\n\
 	-l	Don't use .locals file.\n\
 	-f	(fast) same as -2h.\n\
 	-F	(extra fast) same as -2hgl.\n\
-	-o	Don't close nostd files on exec.";
+	-noclose Don't close nostd files on exec.";
 
 char	ualias[]	= "[name[=value]...]\n\
 Options:\n\
@@ -185,7 +186,7 @@ Options:\n\
 	-e	List the everlasting version of the persistent alias.\n\
 	-g	Define or list persistent global aliases.\n\
 	-l	Define or list persistent local aliases.\n\
-	-p	Push alias or list in parable form.\n\
+	-p	Push alias or list in parsable form.\n\
 	-reload	Reload aliases from file.\n\
 	-R/-raw	Output listing in raw format.";
 char	uunalias[]	= "[name...]\n\

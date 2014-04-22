@@ -1,13 +1,13 @@
-/* @(#)fstream.c	1.28 10/08/23 Copyright 1985-2010 J. Schilling */
+/* @(#)fstream.c	1.31 14/04/14 Copyright 1985-2014 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)fstream.c	1.28 10/08/23 Copyright 1985-2010 J. Schilling";
+	"@(#)fstream.c	1.31 14/04/14 Copyright 1985-2014 J. Schilling";
 #endif
 /*
  *	Stream filter module
  *
- *	Copyright (c) 1985-2010 J. Schilling
+ *	Copyright (c) 1985-2014 J. Schilling
  *
  *	Exported functions:
  *		mkfstream(f, fun, rfun, efun)	Construct new fstream
@@ -24,6 +24,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -39,6 +41,9 @@ static	UConst char sccsid[] =
 
 EXPORT	fstream *mkfstream	__PR((FILE *f, fstr_fun sfun, fstr_rfun rfun,
 					fstr_efun efun));
+EXPORT	fstream *fspush		__PR((fstream *fsp, fstr_efun efun));
+EXPORT	fstream *fspop		__PR((fstream *fsp));
+EXPORT	fstream *fspushed	__PR((fstream *fsp));
 EXPORT	void	fsclose		__PR((fstream *fsp));
 EXPORT	FILE	*fssetfile	__PR((fstream *fsp, FILE *f));
 EXPORT	int	fsgetc		__PR((fstream *fsp));
@@ -48,6 +53,9 @@ LOCAL	void	s_ccpy		__PR((CHAR *ts, unsigned char *ss));
 LOCAL	void	s_scpy		__PR((CHAR *ts, CHAR *ss));
 LOCAL	void	s_scat		__PR((CHAR *ts, CHAR *ss));
 
+/*
+ * Set up a new stream
+ */
 EXPORT fstream *
 mkfstream(f, sfun, rfun, efun)
 	FILE		*f;	/* The "file" parameter may be a fstream * */
@@ -65,11 +73,63 @@ mkfstream(f, sfun, rfun, efun)
 	fsp->fstr_bp = fsp->fstr_buf = fsp->fstr_sbuf;
 	*fsp->fstr_bp  = '\0';
 	fsp->fstr_file = f;
+	fsp->fstr_flags = 0;
+	fsp->fstr_pushed = (fstream *)0;
 	fsp->fstr_func = sfun;
 	fsp->fstr_rfunc = rfun;
 	return (fsp);
 }
 
+/*
+ * Push a new stream
+ */
+EXPORT fstream *
+fspush(fsp, efun)
+	fstream		*fsp;
+	fstr_efun	efun;	/* The error function used by this func	   */
+{
+	fstream	*new = mkfstream((FILE *)0, (fstr_fun)0, (fstr_rfun)0, efun);
+
+	if (new == (fstream *)NULL)
+		return (new);
+
+	new->fstr_pushed = fsp->fstr_pushed;
+	fsp->fstr_pushed = new;
+	return (new);
+}
+
+/*
+ * Pop a stream
+ */
+EXPORT fstream *
+fspop(fsp)
+	fstream		*fsp;
+{
+	fstream	*prev = fsp->fstr_pushed;
+
+	if (prev == (fstream *)NULL)
+		return (prev);
+
+	fsp->fstr_pushed = prev->fstr_pushed;
+	fsclose(prev);
+
+	return (fsp);
+}
+
+/*
+ * Return pushed stream
+ */
+EXPORT fstream *
+fspushed(fsp)
+	fstream		*fsp;
+{
+	return (fsp->fstr_pushed);
+}
+
+/*
+ * close the stream
+ * Do not close the file fsp->fstr_file!
+ */
 EXPORT void
 fsclose(fsp)
 	fstream	*fsp;
@@ -79,6 +139,9 @@ fsclose(fsp)
 	free((char *)fsp);
 }
 
+/*
+ * Change the FILE * member of the stream.
+ */
 EXPORT FILE *
 fssetfile(fsp, f)
 	register fstream	*fsp;
@@ -90,19 +153,36 @@ fssetfile(fsp, f)
 	return (tmp);
 }
 
+/*
+ * get nect character from stream
+ */
 EXPORT int
 fsgetc(fsp)
 	register fstream	*fsp;
 {
+	/*
+	 * If there are pushed streams, refer to the top of pushed streams.
+	 */
+	if (fsp->fstr_pushed != NULL)
+		fsp = fsp->fstr_pushed;
+	/*
+	 * If our buffer is non-empty, "read" from the buffer.
+	 */
 	while (*fsp->fstr_bp == '\0') {			/* buffer is empty  */
 		if (fsp->fstr_func != (fstr_fun)0) {	/* call function    */
+			/*
+			 * We have a filter function, so call it.
+			 */
 			if ((*fsp->fstr_func)(fsp, fsp->fstr_file) == EOF)
 				return (EOF);
 		} else if (fsp->fstr_file == (FILE *)NULL) { /* no file	    */
+			/*
+			 * If we have no input, return EOF.
+			 */
 			return (EOF);
 		} else {				/* read from FILE   */
 #ifdef DEBUG
-			printf("character from file at %06x\n", fsp->fstr_file);
+			printf("read character from file at %06x\n", fsp->fstr_file);
 #endif
 			if (fsp->fstr_rfunc != (fstr_rfun)0)
 				return ((*fsp->fstr_rfunc)(fsp));
@@ -115,6 +195,9 @@ fsgetc(fsp)
 	return (*fsp->fstr_bp++);			/* char from buffer  */
 }
 
+/*
+ * Push a null terminated string on the stream
+ */
 EXPORT void
 fspushstr(fsp, ss)
 	register fstream *fsp;
@@ -124,6 +207,12 @@ fspushstr(fsp, ss)
 		CHAR	*ts;
 		CHAR	tbuf[STR_SBUF_SIZE + 1];
 	unsigned	len;
+
+	/*
+	 * If there are pushed streams, refer to the top of pushed streams.
+	 */
+	if (fsp->fstr_pushed != NULL)
+		fsp = fsp->fstr_pushed;
 
 	for (tp = fsp->fstr_bp; *tp; tp++);	/* Wide char strlen() */
 	len = tp - fsp->fstr_bp + strlen(ss);
@@ -159,6 +248,9 @@ fspushstr(fsp, ss)
 	}
 }
 
+/*
+ * Push a character on the stream
+ */
 EXPORT void
 fspushcha(fsp, c)
 	fstream	*fsp;

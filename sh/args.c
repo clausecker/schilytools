@@ -29,21 +29,23 @@
 /*	  All Rights Reserved  	*/
 
 #if defined(sun)
-#pragma ident	"@(#)args.c	1.11	05/09/13 SMI"
+#pragma ident	"@(#)args.c	1.11	05/09/14 SMI"
 #endif
 
 #include "defs.h"
+#ifdef	DO_SYSALIAS
 #include "abbrev.h"
+#endif
 #include "version.h"
 
 /*
- * This file contains modifications Copyright 2008-2013 J. Schilling
+ * This file contains modifications Copyright 2008-2014 J. Schilling
  *
- * @(#)args.c	1.29 13/10/28 2008-2013 J. Schilling
+ * @(#)args.c	1.33 14/04/21 2008-2014 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)args.c	1.29 13/10/28 2008-2013 J. Schilling";
+	"@(#)args.c	1.33 14/04/21 2008-2014 J. Schilling";
 #endif
 
 /*
@@ -101,6 +103,7 @@ unsigned char	flagchar[] =
 	0
 };
 
+#ifdef	DO_SET_O
 char	*flagname[] =
 {
 	"xtrace",		/* -x POSIX */
@@ -125,6 +128,7 @@ char	*flagname[] =
 	"aliasowner",
 	0
 };
+#endif
 
 long	flagval[]  =
 {
@@ -172,9 +176,9 @@ prversion()
 		prs(UC "Copyright (C) 1984-1989 AT&T\n");
 		prs(UC "Copyright (C) 1989-2009 Sun Microsystems\n");
 #ifdef	INTERACTIVE
-		prs(UC "Copyright (C) 1982-2013 Joerg Schilling\n");
+		prs(UC "Copyright (C) 1982-2014 Joerg Schilling\n");
 #else
-		prs(UC "Copyright (C) 1998-2013 Joerg Schilling\n");
+		prs(UC "Copyright (C) 1998-2014 Joerg Schilling\n");
 #endif
 		exitsh(0);
 	}
@@ -233,6 +237,7 @@ options(argc, argv)
 			}
 			cp += len;
 
+#ifdef	DO_SET_O
 			if (wc == 'o') {
 				unsigned char *argarg;
 				int	dolistopts = argc <= 2 ||
@@ -254,19 +259,22 @@ options(argc, argv)
 						argp++;
 						argc--;
 						wc = *flagc;
+#ifdef	DO_SYSALIAS
 						if (flagval[flagc-flagchar] &
 						    aliasownerflg) {
 							char *owner;
 
-							owner = (char *)
+							if (argarg != NULL)
+								owner = (char *)
 								    &argarg[1];
-							if (owner == NULL)
+							else
 								owner = "";
 							ab_setaltowner(
 							    GLOBAL_AB, owner);
 							ab_setaltowner(
 							    LOCAL_AB, owner);
 						}
+#endif
 						break;
 					}
 				}
@@ -278,6 +286,9 @@ options(argc, argv)
 					continue;
 				}
 			} else {
+#else	/* !DO_SET_O */
+			{
+#endif
 				flagc = flagchar;
 				while (*flagc && wc != *flagc)
 					flagc++;
@@ -300,6 +311,7 @@ options(argc, argv)
 						flags &= ~versflg;
 						prversion();
 					}
+#ifdef	DO_SYSALIAS
 					if (flags & globalaliasflg) {
 						catpath(homenod.namval,
 						    UC globalname);
@@ -310,6 +322,7 @@ options(argc, argv)
 						ab_use(LOCAL_AB,
 							(char *)localname);
 					}
+#endif
 				}
 			} else if (wc == 'c' && argc > 2 && comdiv == 0) {
 				comdiv = argp[2];
@@ -337,6 +350,7 @@ options(argc, argv)
 			}
 			cp += len;
 
+#ifdef	DO_SET_O
 			if (wc == 'o') {
 				int	dolistopts = argc <= 2 ||
 						argp[2][0] == '-' ||
@@ -363,6 +377,9 @@ options(argc, argv)
 					continue;
 				}
 			} else {
+#else	/* !DO_SET_O */
+			{
+#endif
 				flagc = flagchar;
 				while (*flagc && wc != *flagc)
 					flagc++;
@@ -382,6 +399,7 @@ options(argc, argv)
 				if (nflag & pfshflg)
 					secpolicy_end();
 #endif
+#ifdef	DO_SYSALIAS
 				if (nflag & globalaliasflg) {
 					ab_use(GLOBAL_AB, NULL);
 				}
@@ -392,6 +410,7 @@ options(argc, argv)
 					ab_setaltowner(GLOBAL_AB, "");
 					ab_setaltowner(LOCAL_AB, "");
 				}
+#endif
 			}
 		}
 		argp[1] = argp[0];
@@ -639,6 +658,8 @@ useargs()
 	return (dolh);
 }
 
+#ifdef	DO_SET_O
+#ifdef	DO_SYSALIAS
 static void
 listaliasowner(parse, flagidx)
 	int	parse;
@@ -663,6 +684,7 @@ listaliasowner(parse, flagidx)
 		prs_buff(UC ab_getaltoname(GLOBAL_AB));
 	prc_buff(NL);
 }
+#endif
 
 static void
 listopts(parse)
@@ -674,10 +696,12 @@ listopts(parse)
 	for (flagc = flagchar; flagname[flagc-flagchar]; flagc++) {
 		if (*flagc == 'V')
 			continue;
+#ifdef	DO_SYSALIAS
 		if (flagval[flagc-flagchar] == aliasownerflg) {
 			listaliasowner(parse, flagc-flagchar);
 			continue;
 		}
+#endif
 		if (parse) {
 			if (any(*flagc, UC "sicrp"))	/* Unsettable?    */
 				continue;		/* so do not list */
@@ -702,3 +726,4 @@ listopts(parse)
 		prc_buff(NL);
 	}
 }
+#endif	/* DO_SET_O */

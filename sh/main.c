@@ -36,13 +36,13 @@
 #include "defs.h"
 
 /*
- * This file contains modifications Copyright 2008-2013 J. Schilling
+ * This file contains modifications Copyright 2008-2014 J. Schilling
  *
- * @(#)main.c	1.26 13/09/24 2008-2013 J. Schilling
+ * @(#)main.c	1.29 14/04/18 2008-2014 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)main.c	1.26 13/09/24 2008-2013 J. Schilling";
+	"@(#)main.c	1.29 14/04/18 2008-2014 J. Schilling";
 #endif
 
 /*
@@ -61,7 +61,9 @@ static	UConst char sccsid[] =
 #endif
 #include	"dup.h"
 #include	"sh_policy.h"
+#ifdef	DO_SYSALIAS
 #include	"abbrev.h"
+#endif
 #undef	feof
 #else
 #include	"sym.h"
@@ -74,7 +76,9 @@ static	UConst char sccsid[] =
 #include	<sys/wait.h>
 #include	"dup.h"
 #include	"sh_policy.h"
+#ifdef	DO_SYSALIAS
 #include	"abbrev.h"
+#endif
 #endif
 
 #ifdef RES
@@ -289,12 +293,14 @@ main(c, v, e)
 	 */
 	if (setjmp(subshell)) {
 		freejobs();
+#ifdef	DO_SYSALIAS
 		/*
 		 * Shell scripts start with empty alias definitions.
 		 * Turn off all aliases and disable persistent aliases.
 		 */
 		ab_use(GLOBAL_AB, NULL);
 		ab_use(LOCAL_AB, NULL);
+#endif
 		flags |= subsh;
 	}
 
@@ -380,6 +386,7 @@ main(c, v, e)
 			}
 		}
 		if ((flags & intflg) && (flags & privflg) == 0) {
+#ifdef	DO_SHRCFILES
 			unsigned char	*env = envnod.namval;
 			BOOL		dosysrc = TRUE;
 
@@ -392,6 +399,7 @@ main(c, v, e)
 			else if (env[0] == '.' && env[1] == '/')
 				dosysrc = FALSE;
 
+			flags &= ~intflg;	/* rcfiles: non-interactive */
 			/* system rcfile */
 			if (dosysrc &&
 			    (input = pathopen((unsigned char *)nullstr,
@@ -404,8 +412,10 @@ main(c, v, e)
 				exfile(rflag);
 				flags &= ~ttyflg;
 			}
+			flags |= intflg;	/* restore interactive */
 			free(env);
-
+#endif
+#ifdef	DO_SYSALIAS
 			if ((flags & globalaliasflg) && homenod.namval) {
 				catpath(homenod.namval, UC globalname);
 				ab_use(GLOBAL_AB, (char *)make(curstak()));
@@ -413,6 +423,7 @@ main(c, v, e)
 			if (flags & localaliasflg) {
 				ab_use(LOCAL_AB, (char *)localname);
 			}
+#endif
 		}
 
 		/*

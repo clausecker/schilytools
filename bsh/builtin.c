@@ -1,8 +1,8 @@
-/* @(#)builtin.c	1.82 14/03/31 Copyright 1988-2014 J. Schilling */
+/* @(#)builtin.c	1.83 14/04/21 Copyright 1988-2014 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)builtin.c	1.82 14/03/31 Copyright 1988-2014 J. Schilling";
+	"@(#)builtin.c	1.83 14/04/21 Copyright 1988-2014 J. Schilling";
 #endif
 /*
  *	Builtin commands
@@ -308,6 +308,7 @@ bdummy(vp, std, flag)
 
 struct seta {
 	int	pfshell;
+	char	*aliasowner;
 	int	olist;
 };
 
@@ -333,7 +334,13 @@ do_oset(arg, valp, pac, pav, opt)
 		((struct seta *)valp)->olist = TRUE;
 		return (1);
 	}
-	if (streql(arg, "profile")) {
+	if (streql(arg, "aliasowner")) {
+		((struct seta *)valp)->aliasowner = "";
+		return (1);
+	} else if (strncmp(arg, "aliasowner=", 11) == 0) {
+		((struct seta *)valp)->aliasowner = (char *)&arg[11];
+		return (1);
+	} else if (streql(arg, "profile")) {
 		((struct seta *)valp)->pfshell = TRUE;
 		return (1);
 	}
@@ -362,7 +369,10 @@ do_ounset(arg, valp, pac, pav, opt)
 		((struct seta *)valp)->olist = TRUE;
 		return (1);
 	}
-	if (streql(arg, "profile")) {
+	if (streql(arg, "aliasowner")) {
+		((struct seta *)valp)->aliasowner = "";
+		return (1);
+	} else if (streql(arg, "profile")) {
 		((struct seta *)valp)->pfshell = FALSE;
 		return (1);
 	}
@@ -388,6 +398,7 @@ bsetcmd(vp, std, flag)
 		return;
 	}
 	seta.pfshell	= pfshell;
+	seta.aliasowner	= NULL;
 	seta.olist	= FALSE;
 
 	ac = vp->av_ac - 1;	/* set values */
@@ -400,7 +411,7 @@ bsetcmd(vp, std, flag)
 	/*
 	 * The Korn Shell implements a really strange syntax.
 	 * set -o uses an optional argument which is hard to parse with a
-	 * standardized optio parser.
+	 * standardized option parser.
 	 */
 	if (ret == BADFLAG && ac == 1 && seta.olist >= 0 &&
 	    ((av[0][0] == '-' || av[0][0] == '+') && av[0][1] == 'o' && av[0][2] == '\0')) {
@@ -413,6 +424,10 @@ bsetcmd(vp, std, flag)
 		return;
 	}
 
+	if (seta.aliasowner != NULL) {
+		ab_setaltowner(GLOBAL_AB, seta.aliasowner);
+		ab_setaltowner(LOCAL_AB, seta.aliasowner);
+	}
 	if (seta.pfshell != pfshell) {
 		pfshell = seta.pfshell;
 		if (pfshell)
@@ -427,8 +442,15 @@ bsetcmd(vp, std, flag)
 		wrong_args(vp, std);
 
 	if (seta.olist) {
+		uid_t	altuid = ab_getaltowner(GLOBAL_AB);
+		char	*altuname = "";
+
+		if (altuid != (uid_t)-1) 
+			altuname = ab_getaltoname(GLOBAL_AB);
+
 		fprintf(std[1], "Current option settings\n");
 		fprintf(std[1], "profile		%s\n", pfshell ? "on" : "off");
+		fprintf(std[1], "aliasowner=%s\n", altuname);
 	}
 }
 

@@ -1,4 +1,4 @@
-/* @(#)version.h	1.7 13/01/14 Copyright 2012-2013 J. Schilling */
+/* @(#)version.h	1.8 14/04/15 Copyright 2012-2014 J. Schilling */
 
 /*
  * The version for the Bourne Shell
@@ -10,10 +10,12 @@
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#define	VERSION_DATE	"2013/01/14"
+#define	VERSION_DATE	"2014/04/15"
 #define	VERSION_STR	"a+"

@@ -36,13 +36,13 @@
 #include "defs.h"
 
 /*
- * This file contains modifications Copyright 2008-2013 J. Schilling
+ * This file contains modifications Copyright 2008-2014 J. Schilling
  *
- * @(#)msg.c	1.20 13/09/24 2008-2013 J. Schilling
+ * @(#)msg.c	1.25 14/04/20 2008-2014 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)msg.c	1.20 13/09/24 2008-2013 J. Schilling";
+	"@(#)msg.c	1.25 14/04/20 2008-2014 J. Schilling";
 #endif
 
 /*
@@ -115,10 +115,14 @@ const char	running[]	= "Running";
 const char	ambiguous[]	= "ambiguous";
 const char	usage[]		= "usage";
 const char	nojc[]		= "no job control";
+#ifdef	DO_SYSALIAS
 const char	aliasuse[]	=
 		"alias [-a] [-e] [-g] [-l] [-p] [-r] [--raw] [name[=value]...]";
 const char	unaliasuse[]	= "unalias [-a] [-g] [-l] [-p] [name...]";
+#endif
+#ifdef	DO_SYSREPEAT
 const char	repuse[]	= "repeat [-c count] [-d delay] cmd [args]";
+#endif
 const char	stopuse[]	= "stop id ...";
 const char	ulimuse[]	= "ulimit [ -HSacdflmnstuv ] [ limit ]";
 const char	killuse[]	= "kill [ [ -sig ] id ... | -l ]";
@@ -180,8 +184,10 @@ const char	stdprompt[]	= "$ ";
 const char	supprompt[]	= "# ";
 const char	profile[]	= ".profile";
 const char	sysprofile[]	= "/etc/profile";
+#ifdef	DO_SHRCFILES
 const char	rcfile[]	= "$HOME/.shrc";
 const char	sysrcfile[]	= "/etc/sh.shrc";
+#endif
 const char	globalname[]	= ".globals";
 const char	localname[]	= ".locals";
 
@@ -230,7 +236,9 @@ const struct sysnod commands[] =
 #ifndef RES
 	{ "[",		SYSTST },
 #endif
+#ifdef	DO_SYSALIAS
 	{ "alias",	SYSALIAS },
+#endif
 #ifdef	DO_SYSALLOC
 	{ "alloc",	SYSALLOC },
 #endif
@@ -239,8 +247,12 @@ const struct sysnod commands[] =
 	{ "cd",		SYSCD	},
 	{ "chdir",	SYSCD	},
 	{ "continue",	SYSCONT	},	/* S */
+#ifdef	DO_SYSPUSHD
 	{ "dirs",	SYSDIRS },
+#endif
+#ifdef	DO_SYSDOSH
 	{ "dosh",	SYSDOSH },
+#endif
 	{ "echo",	SYSECHO },
 	{ "eval",	SYSEVAL	},	/* S */
 	{ "exec",	SYSEXEC	},	/* S */
@@ -266,12 +278,16 @@ const struct sysnod commands[] =
 	{ "newgrp",	SYSNEWGRP },
 #endif
 
+#ifdef	DO_SYSPUSHD
 	{ "popd",	SYSPOPD },
 	{ "pushd",	SYSPUSHD },
+#endif
 	{ "pwd",	SYSPWD },
 	{ "read",	SYSREAD	},
 	{ "readonly",	SYSRDONLY },	/* S */
+#ifdef	DO_SYSREPEAT
 	{ "repeat",	SYSREPEAT },
+#endif
 	{ "return",	SYSRETURN },	/* S */
 #ifdef	INTERACTIVE
 	{ "savehistory", SYSSAVEHIST },
@@ -290,7 +306,9 @@ const struct sysnod commands[] =
 	{ "ulimit",	SYSULIMIT },
 	{ "umask",	SYSUMASK },
 #endif
+#ifdef	DO_SYSALIAS
 	{ "unalias",	SYSUNALIAS },
+#endif
 
 	{ "unset",	SYSUNS },	/* S */
 	{ "wait",	SYSWAIT	}

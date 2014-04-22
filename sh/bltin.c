@@ -36,13 +36,13 @@
 #include "defs.h"
 
 /*
- * This file contains modifications Copyright 2008-2013 J. Schilling
+ * This file contains modifications Copyright 2008-2014 J. Schilling
  *
- * @(#)bltin.c	1.31 13/09/24 2008-2013 J. Schilling
+ * @(#)bltin.c	1.35 14/04/20 2008-2014 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)bltin.c	1.31 13/09/24 2008-2013 J. Schilling";
+	"@(#)bltin.c	1.35 14/04/20 2008-2014 J. Schilling";
 #endif
 
 /*
@@ -58,7 +58,9 @@ static	UConst char sccsid[] =
 #include	<errno.h>
 #include	"sym.h"
 #include	"hash.h"
+#ifdef	DO_SYSALIAS
 #include	"abbrev.h"
+#endif
 #include	<sys/types.h>
 #include	<sys/stat.h>
 #include	<sys/times.h>
@@ -206,6 +208,7 @@ struct trenod *t;
 
 #endif
 
+#ifdef	DO_SYSPUSHD
 	case SYSPOPD:
 		/* FALLTHROUGH */
 	case SYSPUSHD:
@@ -244,8 +247,14 @@ struct trenod *t;
 			a1 = dnp->argnxt->argval;
 			free(dnp);
 		}
+#endif	/* DO_SYSPUSHD */
+
 		/* FALLTHROUGH */
 	case SYSCD:
+#ifdef	DO_SYSPUSHD
+		/*
+		 * Enable cd - & cd -- ... only with DO_SYSPUSHD
+		 */
 		if (type == SYSCD && a1 && a1[0] == '-') {
 			if (a1[1] == '-' && a1[2] == '\0') {	/* "--" */
 				a1 = argv[2];
@@ -260,6 +269,7 @@ struct trenod *t;
 				}
 			}
 		}
+#endif
 		/*
 		 * A restricted Shell does not allow "cd" at all.
 		 */
@@ -326,11 +336,13 @@ struct trenod *t;
 
 				cwd(curstak());		/* Canonic from stak */
 				wd = cwdget();		/* Get reliable cwd  */
+#ifdef	DO_SYSPUSHD
 				if (type != SYSPUSHD)
 					free(pop_dir(0));
 				push_dir(wd);		/* Update dir stack  */
 				if (pr_dirs(1))		/* If already printed */
 					wd = NULL;	/* don't do it again */
+#endif
 				if (cf(UC nullstr, dir) &&
 				    *dir != ':' &&
 				    any('/', curstak()) &&
@@ -340,9 +352,11 @@ struct trenod *t;
 						prc_buff(NL);
 					}
 				}
+#ifdef	DO_SYSALIAS
 				if (flags & localaliasflg) {
 					ab_use(LOCAL_AB, (char *)localname);
 				}
+#endif
 			}
 			zapcd();
 		}
@@ -446,6 +460,7 @@ struct trenod *t;
 			execexp(a1, (Intptr_t)&argv[2]);
 		break;
 
+#ifdef	DO_SYSDOSH
 	case SYSDOSH:
 		if (a1 == NULL) {
 			break;
@@ -471,7 +486,9 @@ struct trenod *t;
 			funcnt--;
 		}
 		break;
+#endif
 
+#ifdef	DO_SYSREPEAT
 	case SYSREPEAT:
 		if (a1) {
 			extern int opterr, optind;
@@ -527,6 +544,7 @@ err:
 			gfailure(UC usage, repuse);
 		}
 		break;
+#endif
 
 #ifndef RES
 	case SYSULIMIT:
@@ -574,10 +592,12 @@ err:
 
 		break;
 
+#ifdef	DO_SYSPUSHD
 	case SYSDIRS:
 		exitval = 0;
 		pr_dirs(0);
 		break;
+#endif
 
 	case SYSPWD:
 		{
@@ -602,6 +622,7 @@ err:
 			while (*++argv) {
 				char *val;
 
+#ifdef	DO_SYSALIAS
 				if ((val = ab_value(LOCAL_AB,
 							(char *)*argv, NULL,
 							AB_BEGIN)) != NULL) {
@@ -621,6 +642,7 @@ err:
 					prs_buff(UC "'\n");
 					continue;
 				}
+#endif
 				exitval |= what_is_path(*argv);
 			}
 		}
@@ -721,12 +743,14 @@ err:
 		break;
 #endif
 
+#ifdef	DO_SYSALIAS
 	case SYSALIAS:
 		sysalias(argc, argv);
 		break;
 	case SYSUNALIAS:
 		sysunalias(argc, argv);
 		break;
+#endif
 
 	default:
 		prs_buff(_gettext("unknown builtin\n"));

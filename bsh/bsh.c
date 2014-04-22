@@ -1,13 +1,13 @@
-/* @(#)bsh.c	1.69 13/07/29 Copyright 1984,1985,1988,1989,1991,1994-2013 J. Schilling */
+/* @(#)bsh.c	1.71 14/04/21 Copyright 1984,1985,1988,1989,1991,1994-2014 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)bsh.c	1.69 13/07/29 Copyright 1982,1984,1985,1988,1989,1991,1994-2013 J. Schilling";
+	"@(#)bsh.c	1.71 14/04/21 Copyright 1982,1984,1985,1988,1989,1991,1994-2014 J. Schilling";
 #endif
 /*
  *	bsh command interpreter - main Program
  *
- *	Copyright (c) 1982,1984,1985,1988,1989,1991,1994-2013 J. Schilling
+ *	Copyright (c) 1982,1984,1985,1988,1989,1991,1994-2014 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -39,6 +39,7 @@ static	UConst char sccsid[] =
 #include <schily/unistd.h>
 #include <schily/string.h>
 #include <schily/fcntl.h>
+#include <schily/getargs.h>
 #include <schily/locale.h>
 
 #ifdef	SIGUSR1
@@ -139,6 +140,7 @@ EXPORT	char	*getuname	__PR((int uid));
 EXPORT	char	*getpwdir	__PR((char *name));
 EXPORT	char	*mypwhome	__PR((void));
 EXPORT	char	*myhome		__PR((void));
+LOCAL	int	get_oopt	__PR((const char *arg, void *valp, int *pac, char *const **pav, const char *opt));
 LOCAL	void	gargs		__PR((int ac, char *const* av, char *opts, int *no_i2flg, int *no_gaflg, int *no_laflg));
 EXPORT	void	exitbsh		__PR((int excode));
 LOCAL	void	bshusage	__PR((int flag, char *name, char *s));
@@ -816,6 +818,38 @@ myhome()
 	return (makestr(my_home));
 }
 
+/* ARGSUSED */
+LOCAL int
+get_oopt(arg, valp, pac, pav, opt)
+	const char	*arg;
+	void		*valp;
+	int		*pac;
+	char	*const	**pav;
+	const char	 *opt;
+{
+	if (arg[0] == '-' || arg[0] == '+') {
+		/*
+		 * Strange Korn Shell rules:
+		 * If next arg is an option, -o was called without parameter.
+		 */
+		if (arg == &opt[2])		/* arg concatenated with -o */
+			return (BADFLAG);
+		(*pav)--;
+		(*pac)++;
+		return (1);
+	}
+	if (streql(arg, "aliasowner")) {
+		ab_setaltowner(GLOBAL_AB, "");
+		ab_setaltowner(LOCAL_AB, "");
+		return (1);
+	} else if (strncmp(arg, "aliasowner=", 11) == 0) {
+		ab_setaltowner(GLOBAL_AB, (char *)&arg[11]);
+		ab_setaltowner(LOCAL_AB, (char *)&arg[11]);
+		return (1);
+	}
+	return (BADFLAG);
+}
+
 LOCAL void
 gargs(ac, av, opts, no_i2flg, no_gaflg, no_laflg)
 	int	ac;
@@ -828,7 +862,7 @@ gargs(ac, av, opts, no_i2flg, no_gaflg, no_laflg)
 	BOOL	be_xfast = FALSE;
 	BOOL	prversion = FALSE;
 	char	*aliasowner = NULL;
-/*	char	bshopts[]	= "v,V,i,c,e,h,2,g,l,n,s,t,f,F,o,q,alias-owner*,help,version";*/
+/*	char	bshopts[]	= "v,V,i,c,e,h,2,g,l,n,s,t,f,F,o&,q,alias-owner*,noclose,help,version";*/
 
 	av++;
 	ac--;
@@ -847,9 +881,10 @@ gargs(ac, av, opts, no_i2flg, no_gaflg, no_laflg)
 			&tflg,
 			&be_fast,
 			&be_xfast,
-			&no_closeflg,
+			get_oopt, NULL,
 			&qflg,		/* Undoc' d .. don't ignore SIGQUIT */
 			&aliasowner,
+			&no_closeflg,
 			&hflg, &prversion) < 0) {
 		if (av[0][0] != '-') {	/* Be careful, cmd args may have '=' */
 			batch = ac+1;
@@ -872,7 +907,7 @@ gargs(ac, av, opts, no_i2flg, no_gaflg, no_laflg)
 		extern	int	mVERSION;
 
 		printf("bsh %d.%02d (%s-%s-%s)\n\n", MVERSION, mVERSION, HOST_CPU, HOST_VENDOR, HOST_OS);
-		printf("Copyright (C) 1982, 1984, 1985, 1988-1989, 1991, 1994-2013 Jörg Schilling\n");
+		printf("Copyright (C) 1982, 1984, 1985, 1988-1989, 1991, 1994-2014 Jörg Schilling\n");
 		printf("This is free software; see the source for copying conditions.  There is NO\n");
 		printf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
 		exit(0);

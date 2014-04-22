@@ -1,6 +1,6 @@
-/* @(#)str.h	1.14 09/05/17 Copyright 1986-2009 J. Schilling */
+/* @(#)str.h	1.15 14/04/21 Copyright 1986-2014 J. Schilling */
 /*
- *	Copyright (c) 1986-2009 J. Schilling
+ *	Copyright (c) 1986-2014 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -9,6 +9,8 @@
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -60,6 +62,7 @@ extern	char	pathname[];
 extern	char	termname[];
 extern	char	termcapname[];
 extern	char	cwdname[];
+extern	char	pwdname[];
 extern	char	cdpathname[];
 extern	char	username[];
 extern	char	Elogname[];

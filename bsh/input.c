@@ -1,13 +1,13 @@
-/* @(#)input.c	1.32 12/06/03 Copyright 1985-2012 J. Schilling */
+/* @(#)input.c	1.35 14/04/14 Copyright 1985-2014 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)input.c	1.32 12/06/03 Copyright 1985-2012 J. Schilling";
+	"@(#)input.c	1.35 14/04/14 Copyright 1985-2014 J. Schilling";
 #endif
 /*
  *	bsh command interpreter - Input handling & Alias/Macro Expansion
  *
- *	Copyright (c) 1985-2012 J. Schilling
+ *	Copyright (c) 1985-2014 J. Schilling
  *
  *	Exported functions:
  *		setinput(f)	replaces the current input file
@@ -53,6 +53,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -86,7 +88,9 @@ extern pid_t	lastbackgrnd;
 LOCAL fstream	*instrm = (fstream *) NULL;	/* Alias expanded input fstream */
 LOCAL fstream	*rawstrm = (fstream *) NULL;	/* Unexpanded input fstream */
 LOCAL int	qlevel = 0;			/* Current quoting level */
-LOCAL int	balias = 0;			/* Begin aliases allowed? */
+LOCAL int	dqlevel = 0;			/* Current double quoting level */
+LOCAL int	begalias = 0;			/* Begin aliases allowed? */
+LOCAL int	nextbegin = 0;			/* Begin aliases on next word */
 LOCAL void	*seen;				/* List of seen aliases */
 
 LOCAL	int	fillbuf		__PR((int c, char *wbuf, fstream *is));
@@ -101,7 +105,10 @@ EXPORT	void	pushline	__PR((char *s));
 EXPORT	void	quote		__PR((void));
 EXPORT	void	unquote		__PR((void));
 EXPORT	int	quoting		__PR((void));
-EXPORT	void	begina		__PR((BOOL beg));
+EXPORT	void	dquote		__PR((void));
+EXPORT	void	undquote	__PR((void));
+EXPORT	int	dquoting	__PR((void));
+EXPORT	int	begina		__PR((BOOL beg));
 LOCAL	int	input_expand	__PR((fstream * os, fstream * is));
 
 LOCAL int
@@ -273,20 +280,79 @@ quoting()
 }
 
 /*
- * Set Begin Alias expansion flag
+ * Increase double quoting level by one
  */
 EXPORT void
+dquote()
+{
+#ifdef DEBUG
+	fprintf(stderr, "DQUOTE\n");
+	fflush(stderr);
+#endif
+	dqlevel++;
+}
+
+/*
+ * Decrease double quoting level by one
+ */
+EXPORT void
+undquote()
+{
+#ifdef DEBUG
+	fprintf(stderr, "UNDQUOTE\n");
+	fflush(stderr);
+#endif
+	dqlevel--;
+}
+
+EXPORT int
+dquoting()
+{
+	return (dqlevel);
+}
+
+/*
+ * Set Begin Alias expansion flag based on parameter
+ */
+EXPORT int
 begina(beg)
 	BOOL	beg;
 {
+	int	obegalias = begalias;
+
 #ifdef DEBUG
-	fprintf(stderr, "balias = %d\n", beg);
+	fprintf(stderr, "begalias = %d\n", beg);
 	fflush(stderr);
 #endif
-	if (!beg && balias)
-		seen = 0;
-	balias = beg?AB_BEGIN:0;
+	begalias = beg?AB_BEGIN:0;
+
+	return (obegalias != 0);
 }
+
+/*
+ * Get the current state for Begin Alias expansion
+ */
+EXPORT int
+getbegina()
+{
+	return (begalias != 0);
+}
+
+/*
+ * Set Begin Alias expansion flag based on whether the alias
+ * layer previously detected an alias that ends in white space.
+ */
+EXPORT int
+setbegina()
+{
+	int	obegalias = begalias;
+
+	begina(nextbegin);
+	nextbegin = 0;
+
+	return (obegalias != 0);
+}
+
 
 /*
  * Apply macro expansion on Input while copying data from 'is' to 'os'
@@ -308,8 +374,21 @@ input_expand(os, is)
 	for (;;) {
 		c = fsgetc(is);
 		if (c == EOF) {
+			fstream	*pushed;
+			if ((pushed = fspushed(is)) != NULL) {
+				/*
+				 * If we had a pushed begin alias that ends in
+				 * a space or a TAB, re-enable begin aliases.
+				 */
+				if (pushed->fstr_flags & 1)
+					begina(TRUE);
+				fspop(is);
+				continue;
+			}
+			seen = 0;
 			return (EOF);
-		} else if (c == '\\') {
+		}
+		if (c == '\\') {
 			c = fsgetc(is);
 			if (c != '\n' || qlevel) {
 				fspushcha(os, c);
@@ -332,8 +411,8 @@ input_expand(os, is)
 			 * Could be a word, so try alias expansion
 			 */
 			c = fillbuf(c, buf, is);
-			if ((val = ab_value(LOCAL_AB, buf, &seen, balias)) == NULL)
-				val = ab_value(GLOBAL_AB, buf, &seen, balias);
+			if ((val = ab_value(LOCAL_AB, buf, &seen, begalias)) == NULL)
+				val = ab_value(GLOBAL_AB, buf, &seen, begalias);
 #ifdef DEBUG
 			fprintf(stderr, "expanding '%s': ", buf);
 			fflush(stderr);
@@ -345,12 +424,38 @@ input_expand(os, is)
 #endif
 			if (val != NULL) {
 				if (--loopcnt >= 0) {
-					fspushstr(is, val);
+					fstream	*pushed = 0;
+
+					/*
+					 * If a begin alias was expanded and the
+					 * new text ends in a space or tab, the
+					 * next word will be a begin alias too.
+					 */
+					if (begalias != 0) {
+						int len = strlen(val);
+
+						if (len > 0 &&
+						    (val[len-1] == ' ' ||
+						    val[len-1] == '\t')) {
+							pushed = fspush(is,
+							    (fstr_efun)berror);
+						}
+					}
+					if (pushed) {
+						pushed->fstr_flags |= 1;
+						fspushstr(pushed, val);
+					} else {
+						fspushstr(is, val);
+					}
 				} else {
 					syntax("Alias loop on '%s'.", buf);
 					break;
 				}
 			} else {
+				/*
+				 * No replacement text found, so just push
+				 * the original text.
+				 */
 				fspushstr(os, buf);
 				begina(FALSE);
 				break;
@@ -415,23 +520,24 @@ input_expand(os, is)
 			vectype = 0;
 			if (c == '*') {
 				/*
-				 * We need to implement:
 				 * "$*" -> "$1 $2 ..."
 				 */
 				for (c = vac; c > 1; ) {
 					fspushstr(os, vav[--c]);
-					fspushstr(os, " ");
+					if (c > 1)
+						fspushstr(os, " ");
 					begina(FALSE);
 				}
 				break;
 			} else if (c == '@') {
 				/*
-				 * We need to implement:
 				 * "$@" -> "$1" "$2" ...
 				 */
 				for (c = vac; c > 1; ) {
 					fspushstr(os, vav[--c]);
-					fspushstr(os, " ");
+					if (c > 1)
+						fspushstr(os, dqlevel > 0?
+								"\" \"":" ");
 					begina(FALSE);
 				}
 				break;
@@ -451,9 +557,14 @@ input_expand(os, is)
 			}
 			fspushcha(is, c);
 			if (vectype == 'r') {
+				/*
+				 * "$r2" -> "$2" "$3" ...
+				 */
 				for (c = vac; c > itmp; ) {
 					fspushstr(os, vav[--c]);
-					fspushstr(os, " ");
+					if (c > itmp)
+						fspushstr(os, dqlevel > 0?
+								"\" \"":" ");
 					begina(FALSE);
 				}
 				break;
@@ -470,5 +581,6 @@ input_expand(os, is)
 			break;
 		}
 	}
+	seen = 0;
 	return (0);
 }

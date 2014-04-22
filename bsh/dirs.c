@@ -1,13 +1,13 @@
-/* @(#)dirs.c	1.27 10/07/28 Copyright 1984-2009 J. Schilling */
+/* @(#)dirs.c	1.29 14/04/21 Copyright 1984-2014 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)dirs.c	1.27 10/07/28 Copyright 1984-2009 J. Schilling";
+	"@(#)dirs.c	1.29 14/04/21 Copyright 1984-2014 J. Schilling";
 #endif
 /*
  *	Directory routines
  *
- *	Copyright (c) 1984-2009 J. Schilling
+ *	Copyright (c) 1984-2014 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -16,6 +16,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -128,13 +130,21 @@ update_cwd()
 	if (dirs == NULL)	/* ist am Anfang nicht initialisiert !! */
 		return;
 
-	dir = getcurenv(cwdname);
 	curr_wd = dirs->tn_left.tn_str;
 
-	if (dir != NULL && streql(dir, curr_wd))
-		return;
+	/*
+	 * ev_ins() (ohne is_locked), wir wollen es immer aendern.
+	 */
+	dir = getcurenv(cwdname);
+	if (dir == NULL || !streql(dir, curr_wd))
+		ev_ins(concat(cwdname, eql, curr_wd, (char *)NULL));
 
-	ev_ins(concat(cwdname, eql, curr_wd, (char *)NULL)); /* ohne is_locked */
+	/*
+	 * sh / ksh compat
+	 */
+	dir = getcurenv(pwdname);
+	if (dir == NULL || !streql(dir, curr_wd))
+		ev_ins(concat(pwdname, eql, curr_wd, (char *)NULL));
 }
 
 /*

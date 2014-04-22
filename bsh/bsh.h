@@ -1,8 +1,8 @@
-/* @(#)bsh.h	1.59 13/09/25 Copyright 1985-2013 J. Schilling */
+/* @(#)bsh.h	1.61 14/04/14 Copyright 1985-2014 J. Schilling */
 /*
  *	Bsh general definitions
  *
- *	Copyright (c) 1985-2013 J. Schilling
+ *	Copyright (c) 1985-2014 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -276,7 +276,12 @@ extern	void	pushline	__PR((char *s));
 extern	void	quote		__PR((void));
 extern	void	unquote		__PR((void));
 extern	int	quoting		__PR((void));
-extern	void	begina		__PR((int flg));
+extern	void	dquote		__PR((void));
+extern	void	undquote	__PR((void));
+extern	int	dquoting	__PR((void));
+extern	int	begina		__PR((int flg));
+extern	int	getbegina	__PR((void));
+extern	int	setbegina	__PR((void));
 
 /*
  * limit.c

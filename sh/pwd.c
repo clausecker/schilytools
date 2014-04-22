@@ -37,13 +37,13 @@
 #include "defs.h"
 
 /*
- * This file contains modifications Copyright 2008-2013 J. Schilling
+ * This file contains modifications Copyright 2008-2014 J. Schilling
  *
- * @(#)pwd.c	1.17 13/09/22 2008-2013 J. Schilling
+ * @(#)pwd.c	1.18 14/04/20 2008-2014 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)pwd.c	1.17 13/09/22 2008-2013 J. Schilling";
+	"@(#)pwd.c	1.18 14/04/20 2008-2014 J. Schilling";
 #endif
 
 /*
@@ -371,6 +371,7 @@ rmslash(string)
 static void
 ocwdnod()
 {
+#ifdef	DO_SYSPUSHD
 	extern struct namnod opwdnod;
 
 	if (opwdnod.namval != ocwdname)
@@ -383,6 +384,7 @@ ocwdnod()
 	else
 		ocwdname = NULL;		/* Makes OLDPWD= disappear */
 	opwdnod.namval = opwdnod.namenv = ocwdname;
+#endif
 }
 
 /*
@@ -400,6 +402,7 @@ cwdnod()
 	pwdnod.namval = pwdnod.namenv = cwdname;
 }
 
+#ifdef	DO_SYSPUSHD
 static	struct argnod *dirs;
 
 struct argnod *
@@ -469,3 +472,4 @@ pr_dirs(minlen)
 	prc_buff(NL);
 	return (dirs->argnxt != NULL);
 }
+#endif	/* DO_SYSPUSHD */

@@ -1,13 +1,13 @@
-/* @(#)parse.c	1.32 09/07/28 Copyright 1985-2009 J. Schilling */
+/* @(#)parse.c	1.34 14/04/14 Copyright 1985-2014 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)parse.c	1.32 09/07/28 Copyright 1985-2009 J. Schilling";
+	"@(#)parse.c	1.34 14/04/14 Copyright 1985-214 J. Schilling";
 #endif
 /*
  *	bsh command interpreter - Command Line Parser
  *
- *	Copyright (c) 1985-2009 J. Schilling
+ *	Copyright (c) 1985-2014 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -16,6 +16,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -173,6 +175,14 @@ Printtype(f, cmd)
 		}
 }
 
+/*
+ * The top level funtion of the command line parser.
+ * This function is not recursively called from lower levels of the parser.
+ *
+ * Note that skipwhite() stops after reading the first non-white character
+ * and thus triggers alias expansions. The begin alias expansion state needs
+ * to have the right value for the following word.
+ */
 Tnode *
 cmdline(flag, std, buildcmd)
 	int	flag;
@@ -190,7 +200,7 @@ cmdline(flag, std, buildcmd)
 	nextch();
 	skipwhite();		/* Skip all initial whitespace */
 	cmd = (Tnode *) NULL;
-#ifdef INTERACTIVE
+#ifdef INTERACTIVE		/* Using command line history editor */
 	if (delim == '#')
 		hashcmd(std);
 	else if (delim != '!' || !phist(flag, std))
@@ -262,6 +272,7 @@ pcmdlist()
 	register Tnode	*np;
 	register long	type;
 
+	begina(TRUE);				/* New cmd gets begin aliases */
 	np = pcond();
 	type = delim;
 	if (type == '&' || type == ';') {
@@ -357,6 +368,14 @@ pcmd()
 		return ((Tnode *) NULL);
 	}
 	ip = piolist((Tnode *) NULL);	/* Parse leading I/O directives */
+	if (ip == NULL) {
+		/*
+		 * If no leading I/O directives have been found, alias
+		 * expansion was already triggered from within piolist().
+		 * We thus need to disable begin alias expansion here.
+		 */
+		begina(FALSE);
+	}
 	if (delim == '(') {
 		need_par++;
 		begina(TRUE);
@@ -394,11 +413,12 @@ pcmd()
 				ap->tn_right.tn_node = ep;
 			}
 			isav0 = FALSE;
+			setbegina();		/* Begin alias on next word? */
 			ap = ap->tn_right.tn_node;
 			ip = piolist(ip);
 		}
 		np = allocnode(CMD, atmp.tn_right.tn_node, ip);
-		begina(TRUE);
+		begina(TRUE);			/* Begin alias for next cmd */
 	}
 	return (np);
 }
@@ -425,6 +445,8 @@ pword()
 		q = delim;
 		if (q == '\'')
 			quote();
+		else if (q == '"')
+			dquote();
 		nextch();
 	}
 	s = pstring(special, q);
@@ -434,10 +456,12 @@ pword()
 		if (q == '\'') {
 			unquote();
 			type = SQUOTE;
-		} else if (q == '"')
+		} else if (q == '"') {
+			undquote();
 			type = DQUOTE;
-		else
+		} else {
 			type = BQUOTE;
+		}
 		need(q);
 	}
 	begina(FALSE);
@@ -756,6 +780,7 @@ piolist(list)
 LOCAL Tnode *
 pio()
 {
+		int obegin = getbegina();	/* Remember alias state */
 	register long	mode = (long) skipwhite();
 	register Tnode	*ip  = (Tnode *) NULL;
 		int	fd = -1;
@@ -795,7 +820,9 @@ pio()
 			else if (mode == OUTAPP)
 				mode = ERRAPP;
 		}
+		begina(FALSE);		/* No begin aliases for file names */
 		ip = pword();
+		begina(obegin);		/* Restore old alias expansion state */
 		if (ip == (Tnode *) NULL) {
 			if (mode == DOCIN) {	/* << */
 				syntax("%s", emissiodelim);
