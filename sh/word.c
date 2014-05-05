@@ -38,11 +38,11 @@
 /*
  * This file contains modifications Copyright 2008-2014 J. Schilling
  *
- * @(#)word.c	1.32 14/04/17 2008-2014 J. Schilling
+ * @(#)word.c	1.33 14/04/24 2008-2014 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)word.c	1.32 14/04/17 2008-2014 J. Schilling";
+	"@(#)word.c	1.33 14/04/24 2008-2014 J. Schilling";
 #endif
 
 /*
@@ -76,7 +76,9 @@ static	int		xread	__PR((int f, char *buf, int n));
 
 /* ========	character handling for command lines	======== */
 
+#ifdef	DO_SYSALIAS
 static	void	*seen;	/* Structure to track recursive alias calls */
+#endif
 
 int lev;
 int

@@ -1,9 +1,9 @@
-/* @(#)libport.h	1.40 13/10/30 Copyright 1995-2013 J. Schilling */
+/* @(#)libport.h	1.42 14/05/04 Copyright 1995-2014 J. Schilling */
 /*
  *	Prototypes for POSIX standard functions that may be missing on the
  *	local platform and thus are implemented inside libschily.
  *
- *	Copyright (c) 1995-2013 J. Schilling
+ *	Copyright (c) 1995-2014 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -305,9 +305,18 @@ extern	int		gettimeofday __PR((struct timeval *__tp, void *__tzp));
 #endif
 #endif
 
+#ifndef	HAVE_FCHMODAT
+extern	int		fchmodat __PR((int fd, const char *name,
+					mode_t mode, int flag));
+#endif
+#ifndef	HAVE_LCHMOD
+extern	int		lchmod __PR((const char *name, mode_t mode));
+#endif
+
 #ifndef	HAVE_FCHOWNAT
 extern	int		fchownat __PR((int fd, const char *name,
 					uid_t owner, gid_t group, int flag));
+#endif
 
 #ifndef	HAVE_FDOPENDIR
 #ifdef _SCHILY_DIRENT_H
@@ -315,7 +324,6 @@ extern	DIR		*fdopendir __PR((int fd));
 #endif
 #endif
 
-#endif
 #ifdef	_SCHILY_STAT_H
 #ifndef	HAVE_FSTATAT
 extern	int		fstatat __PR((int fd, const char *name,

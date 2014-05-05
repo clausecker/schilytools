@@ -1,5 +1,5 @@
 .\"
-.\" @(#)isoinfo.8	1.12 12/12/02 joerg
+.\" @(#)isoinfo.8	1.14 14/05/04 joerg
 .\"
 .\" -*- nroff -*-
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -14,7 +14,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH ISOINFO 8 "12/12/02" "Version 3.0"
+.TH ISOINFO 8 "14/05/04" "Version 3.0"
 .SH NAME
 devdump, isoinfo, isovfy, isodump \- Utility programs for dumping and verifying iso9660
 images.
@@ -198,6 +198,39 @@ You should not use the
 image with the
 .B -l
 option.
+.sp
+The numbers in square brackets are the starting sector number as decimal
+number (based on 2048 bytes per sector) and the iso9660 directory flags
+as hexadecimal number as follows:
+.RS
+.TP
+.B 0x00
+A plain file (not really a flag).
+.TP
+.B 0x01
+Hide the file name from directory listings.
+.TP
+.B 0x02
+A directory.
+.TP
+.B 0x04
+An accociated file (e.g. an Apple resource fork).
+.TP
+.B 0x08
+Record format in extended attributes is used.
+.TP
+.B 0x10
+No read/execute permission in extended attributes.
+.TP
+.B 0x20
+reserved
+.TP
+.B 0x40
+reserved
+.TP
+.B 0x80
+Not the final entry of a multi extent file.
+.RE
 .TP
 .B \-N sector
 Quick hack to help examine single session disc files that are to be written to
@@ -212,6 +245,9 @@ Print path table information.
 Extract information from Rock Ridge extensions (if present) for permissions,
 file names and ownerships.
 .TP
+.B \-s
+Print file size infos in multiples of sector size (2048 bytes).
+.TP
 .B \-J
 Extract information from Joliet extensions (if present) for file names.
 .TP
@@ -225,8 +261,33 @@ Quick hack to help examine multi-session images that have already been burned
 to a multi-session disc. The sector number specified is the sector number for
 the start of the session we wish to display.
 .TP
+.B \-X
+Extract files from the image and put them into the filesystem.
+If the
+.B \-find
+option is not used, all files are extracted.
+.sp
+The
+.B isoinfo
+program supports to extract all files, even multi extent
+files (files > 4 GB).
+.sp
+Before extracting files using the
+.B \-X
+option, it is recommended to change the current directory
+to an empty directory in order to prevent to clobber existing files.
+.TP
 .B \-x pathname
 Extract specified file to stdout.
+The
+.B pathname
+needs to start with a shlash ('/') and in case of iso9660 names, must match 
+the full pathname of the file inluding the version number (usually ';1').
+If the option
+.B \-R
+has been specified and the filesystem carries Rock Ridge attributes, the
+.B pathname
+must match the full Rock Ridge pathname of the file.
 .SH AUTHOR
 The author of the original sources (1993 .\|.\|. 1998) is
 Eric Youngdale <ericy@gnu.ai.mit.edu> or <eric@andante.jic.com> is to blame

@@ -1,9 +1,9 @@
-/* @(#)futimens.c	1.2 13/10/30 Copyright 2013 J. Schilling */
+/* @(#)futimens.c	1.3 14/05/01 Copyright 2013-2014 J. Schilling */
 /*
  *	Emulate the behavior of futimens(int fd,
  *					const struct timespec times[2])
  *
- *	Copyright (c) 2013 J. Schilling
+ *	Copyright (c) 2013-2014 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -35,10 +35,13 @@ futimens(fd, times)
 	int			fd;
 	const struct timespec	times[2];
 {
-#ifdef	HAVE_UTIMENSAT
+#if defined(HAVE_UTIMENSAT) && defined(sun)
+	/*
+	 * The support for path == NULL is Sun specific.
+	 */
 	return (utimensat(fd, NULL, times, 0));
 #else
-#ifdef	HAVE_FUTIMESAT
+#ifdef	HAVE_FUTIMESAT		/* Sun specific */
 	struct timeval tv[2];
 
 	if (times == NULL)
@@ -49,7 +52,7 @@ futimens(fd, times)
 	tv[1].tv_usec = times[1].tv_nsec/1000;
 	return (futimesat(fd, NULL, tv));
 #else
-#ifdef	HAVE_FUTIMES
+#ifdef	HAVE_FUTIMES		/* BSD specific */
 	struct timeval tv[2];
 
 	if (times == NULL)
@@ -72,4 +75,4 @@ futimens(fd, times)
 #endif
 }
 
-#endif	/* HAVE_UTIMENS */
+#endif	/* HAVE_FUTIMENS */

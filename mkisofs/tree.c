@@ -1,8 +1,8 @@
-/* @(#)tree.c	1.130 14/02/17 joerg */
+/* @(#)tree.c	1.131 14/05/03 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)tree.c	1.130 14/02/17 joerg";
+	"@(#)tree.c	1.131 14/05/03 joerg";
 #endif
 /*
  * File tree.c - scan directory  tree and build memory structures for iso9660
@@ -11,7 +11,7 @@ static	UConst char sccsid[] =
  * Written by Eric Youngdale (1993).
  *
  * Copyright 1993 Yggdrasil Computing, Incorporated
- * Copyright (c) 1999,2000-2013 J. Schilling
+ * Copyright (c) 1999,2000-2014 J. Schilling
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -2330,6 +2330,10 @@ insert_file_entry(this_dir, whole_path, short_name, statp, have_rsrc)
 #endif
 
 #ifdef	USE_LARGEFILES
+#ifndef	MAX_EXTENT
+	/*
+	 * Allow to #define MAX_EXTENT from outside for debug purposes.
+	 */
 #ifdef	PROTOTYPES
 #define	LARGE_EXTENT	((off_t)0xFFFFF800UL)
 #define	MAX_EXTENT	((off_t)0xFFFFFFFEUL)
@@ -2337,6 +2341,9 @@ insert_file_entry(this_dir, whole_path, short_name, statp, have_rsrc)
 #define	LARGE_EXTENT	((off_t)0xFFFFF800L)
 #define	MAX_EXTENT	((off_t)0xFFFFFFFEL)
 #endif
+#else	/* MAX_EXTENT */
+#define	LARGE_EXTENT	MAX_EXTENT & ~(off_t)2047L
+#endif	/* !MAX_EXTENT */
 	/*
 	 * Break up files greater than (4GB -2) into multiple extents.
 	 * The original entry, with ->size untouched, remains for UDF.

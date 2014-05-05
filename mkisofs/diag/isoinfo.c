@@ -1,8 +1,8 @@
-/* @(#)isoinfo.c	1.89 14/03/03 joerg */
+/* @(#)isoinfo.c	1.92 14/05/04 joerg */
 #include <schily/mconfig.h>
 #ifndef	lint
 static	UConst char sccsid[] =
-	"@(#)isoinfo.c	1.89 14/03/03 joerg";
+	"@(#)isoinfo.c	1.92 14/05/04 joerg";
 #endif
 /*
  * File isodump.c - dump iso9660 directory information.
@@ -48,8 +48,10 @@ static	UConst char sccsid[] =
 #include <schily/standard.h>
 #include <schily/signal.h>
 #include <schily/stat.h>
+#include <schily/device.h>
 #include <schily/time.h>
 #include <schily/fcntl.h>
+#include <schily/intcvt.h>
 #include <schily/nlsdefs.h>
 #include <schily/getargs.h>
 #include <schily/nlsdefs.h>
@@ -122,6 +124,8 @@ static	UConst char sccsid[] =
 #define	ISO_ROUND_UP(X)	(((X) + (SECTOR_SIZE - 1)) & ~(SECTOR_SIZE - 1))
 #define	ISO_BLOCKS(X)	(((X) / SECTOR_SIZE) + (((X)%SECTOR_SIZE)?1:0))
 
+#define	GET_UBYTE(a)	a_to_u_byte(a)
+
 #define	infile	in_image
 EXPORT FILE	*infile = NULL;
 EXPORT BOOL	ignerr = FALSE;
@@ -139,11 +143,13 @@ LOCAL int	do_pathtab = 0;
 LOCAL int	do_pvd = 0;
 LOCAL BOOL	debug = FALSE;
 LOCAL char	*xtract = 0;
+LOCAL BOOL	Xtract = FALSE;
 LOCAL char	er_id[256];
 LOCAL int	su_version = 0;
 LOCAL int	rr_version = 0;
 LOCAL int	aa_version = 0;
 LOCAL int	ucs_level = 0;
+LOCAL BOOL	iso9660_inodes = FALSE;
 
 #ifdef	USE_FIND
 LOCAL findn_t	*find_node;		/* syntaxtree from find_parse()	*/
@@ -192,10 +198,16 @@ LOCAL	int	parse_rr	__PR((unsigned char * pnt, int len,
 LOCAL	void	find_rr		__PR((struct iso_directory_record * idr,
 					Uchar **pntp, int *lenp));
 LOCAL	int	dump_rr		__PR((struct iso_directory_record * idr));
-LOCAL	void	dump_stat	__PR((char *rootname,
+LOCAL	BOOL	dump_stat	__PR((char *rootname,
 					struct iso_directory_record * idr,
+					char *fname,
 					int extent));
-LOCAL	void	extract_file	__PR((struct iso_directory_record * idr));
+LOCAL	void	extract		__PR((char *rootname,
+					struct iso_directory_record * idr,
+					char *fname));
+LOCAL	void	extract_file	__PR((int f,
+					struct iso_directory_record * idr,
+					char *fname));
 LOCAL	void	parse_dir	__PR((char * rootname, int extent, int len));
 LOCAL	void	usage		__PR((int excode));
 EXPORT	int	main		__PR((int argc, char *argv[]));
@@ -206,12 +218,14 @@ LOCAL	char	*arch_name	__PR((int val));
 LOCAL	char	*boot_name	__PR((int val));
 LOCAL	char	*bootmedia_name	__PR((int val));
 LOCAL	int	time_cvt	__PR((unsigned char *dp, int len));
-LOCAL	time_t	iso9660_time	__PR((unsigned char *date, BOOL longfmt));
+LOCAL	time_t	iso9660_time	__PR((unsigned char *date, int *hsecp,
+					BOOL longfmt));
 #ifdef	USE_FIND
 LOCAL	int	getfind		__PR((char *arg, long *valp,
 					int *pac, char *const **pav));
 LOCAL	BOOL	find_stat	__PR((char *rootname,
 					struct iso_directory_record * idr,
+					char *fname,
 					int extent));
 #endif
 
@@ -445,7 +459,8 @@ parse_rr(pnt, len, cont_flag)
 	int slen;
 	int xlen;
 	int ncount;
-	int extent;
+	int cl_extent;
+	int pl_extent;
 	int cont_extent, cont_offset, cont_size;
 	int flag1, flag2;
 	unsigned char *pnts;
@@ -477,6 +492,7 @@ parse_rr(pnt, len, cont_flag)
 		if (strncmp((char *)pnt, "TF", 2) == 0) {
 			BOOL	longfmt;
 			int	size = 7;
+			int	hsec;
 			unsigned char *p = &pnt[5];
 
 			flag2 |= RR_FLAG_TF;					/* Time stamp */
@@ -487,23 +503,34 @@ parse_rr(pnt, len, cont_flag)
 				p += size;
 			}
 			if (pnt[4] & 0x02) {
-				fstat_buf.st_mtime = iso9660_time(p, longfmt);
+				fstat_buf.st_mtime = iso9660_time(p,
+							&hsec, longfmt);
+				hsec *= 10000000;
+				stat_set_mnsecs(&fstat_buf, hsec);
 				p += size;
 			}
 			if (pnt[4] & 0x04) {
-				fstat_buf.st_atime = iso9660_time(p, longfmt);
+				fstat_buf.st_atime = iso9660_time(p,
+							&hsec, longfmt);
+				hsec *= 10000000;
+				stat_set_ansecs(&fstat_buf, hsec);
 				p += size;
 			}
 			if (pnt[4] & 0x08) {
-				fstat_buf.st_ctime = iso9660_time(p, longfmt);
+				fstat_buf.st_ctime = iso9660_time(p,
+							&hsec, longfmt);
+				hsec *= 10000000;
+				stat_set_cnsecs(&fstat_buf, hsec);
 				p += size;
 			}
 		}
+		if (strncmp((char *)pnt, "SF", 2) == 0) flag2 |= RR_FLAG_SF;	/* Sparse File */
+
 		if (strncmp((char *)pnt, "SP", 2) == 0) {
 			flag2 |= RR_FLAG_SP;					/* SUSP record */
 			su_version = pnt[3] & 0xff;
 		}
-		if (strncmp((char *)pnt, "AA", 2) == 0) {
+		if (strncmp((char *)pnt, "AA", 2) == 0) {			/* Neither SUSP nor RR */
 			flag2 |= RR_FLAG_AA;					/* Apple Signature record */
 			aa_version = pnt[3] & 0xff;
 		}
@@ -518,9 +545,15 @@ parse_rr(pnt, len, cont_flag)
 			fstat_buf.st_nlink = isonum_733(pnt+12);
 			fstat_buf.st_uid = isonum_733(pnt+20);
 			fstat_buf.st_gid = isonum_733(pnt+28);
-			fstat_buf.st_ino = 0;
-			if ((pnt[2] & 0xFF) >= 44)
+			if ((pnt[2] & 0xFF) >= 44)				/* Check for RR 1.12 */
 				fstat_buf.st_ino = (UInt32_t)isonum_733(pnt+36);
+		}
+
+		if (strncmp((char *)pnt, "PN", 2) == 0) {			/* POSIX device number */
+			dev_t	devmajor = isonum_733(pnt+4);
+			dev_t	devminor = isonum_733(pnt+12);
+
+			fstat_buf.st_rdev = makedev(devmajor, devminor);
 		}
 
 		if (strncmp((char *)pnt, "NM", 2) == 0) {		/* Alternate Name */
@@ -543,8 +576,11 @@ parse_rr(pnt, len, cont_flag)
 			break;
 		}
 
-		if (strncmp((char *)pnt, "PL", 2) == 0 || strncmp((char *)pnt, "CL", 2) == 0) {
-			extent = isonum_733(pnt+4);
+		if (strncmp((char *)pnt, "CL", 2) == 0) {
+			cl_extent = isonum_733(pnt+4);			/* Child link location */
+		}
+		if (strncmp((char *)pnt, "PL", 2) == 0) {
+			pl_extent = isonum_733(pnt+4);			/* Parent link location */
 		}
 
 		if (strncmp((char *)pnt, "SL", 2) == 0) {		/* Symlink */
@@ -683,10 +719,15 @@ LOCAL char		*months[12] = {"Jan", "Feb", "Mar", "Apr",
 				"May", "Jun", "Jul",
 				"Aug", "Sep", "Oct", "Nov", "Dec"};
 
-LOCAL void
-dump_stat(rootname, idr, extent)
+/*
+ * Return TRUE if this file was "selected" either based on find rules
+ * or for all files if there was no find rule.
+ */
+LOCAL BOOL
+dump_stat(rootname, idr, fname, extent)
 	char	*rootname;
 	struct iso_directory_record *idr;
+	char	*fname;
 	int	extent;
 {
 	int	i;
@@ -694,11 +735,13 @@ dump_stat(rootname, idr, extent)
 	char	outline[100];
 
 	if (do_find) {
-		if (!find_stat(rootname, idr, extent))
-			return;
+		if (!find_stat(rootname, idr, fname, extent))
+			return (FALSE);
 		if (!do_listing || find_print)
-			return;
-	}
+			return (TRUE);
+	} else if (!do_listing)
+		return (TRUE);
+
 	memset(outline, ' ', sizeof (outline));
 
 	if (fstat_buf.st_ino != 0)
@@ -777,16 +820,146 @@ dump_stat(rootname, idr, extent)
 	}
 	outline[off] = 0;
 	printf("%s %s %s\n", outline, name_buf, xname);
+	return (TRUE);
 }
 
 LOCAL void
-extract_file(idr)
-	struct iso_directory_record *idr;
+extract(rootname, idr, fname)
+	char				*rootname;
+	struct iso_directory_record	*idr;
+	char				*fname;
+{
+	int		f;
+	struct timespec	times[2];
+static	BOOL		isfirst = TRUE;
+
+	if ((idr->flags[0] & 2) != 0 &&
+	    (idr->name_len[0] == 1 &&
+	    (idr->name[0] == 0 || idr->name[0] == 1))) {
+		/*
+		 * Catch all "." and ".." entries here.
+		 */
+		if (idr->name[0] == 1)	/* Skip "/.." */
+			return;
+		if (rootname[0] == '/' && rootname[1] == '\0')
+			fname = "/.";
+	}
+	if (*fname == '/')
+		fname++;
+	makedirs(fname, S_IRUSR|S_IWUSR|S_IXUSR|
+			S_IRGRP|S_IWGRP|S_IXGRP|
+			S_IROTH|S_IWOTH|S_IXOTH, TRUE);
+
+	switch (fstat_buf.st_mode & S_IFMT) {
+
+	default:
+			errmsgno(EX_BAD,
+				"Unsupported file type %0lo for '%s'.\n",
+				(unsigned long)fstat_buf.st_mode & S_IFMT,
+				fname);
+			return;
+		
+
+	case S_IFDIR:
+			if (mkdir(fname, fstat_buf.st_mode) < 0 &&
+			    geterrno() != EEXIST)
+				errmsg("Cannot make directory '%s'.\n", fname);
+			goto setmode;
+
+#ifdef	S_IFBLK
+	case S_IFBLK:
+			if (mknod(fname, fstat_buf.st_mode, fstat_buf.st_rdev) < 0)
+				errmsg("Cannot make block device '%s'.\n", fname);
+			goto setmode;
+#endif
+#ifdef	S_IFCHR
+	case S_IFCHR:
+			if (mknod(fname, fstat_buf.st_mode, fstat_buf.st_rdev) < 0)
+				errmsg("Cannot make character device '%s'.\n", fname);
+			goto setmode;
+#endif
+#ifdef	S_IFIFO
+	case S_IFIFO:
+			if (mkfifo(fname, fstat_buf.st_mode) < 0)
+				errmsg("Cannot make fifo '%s'.\n", fname);
+			goto setmode;
+#endif
+#ifdef	S_IFSOCK
+	case S_IFSOCK:
+			if (mknod(fname, fstat_buf.st_mode, 0) < 0)
+				errmsg("Cannot make socket '%s'.\n", fname);
+			goto setmode;
+#endif
+#ifdef	S_IFLNK
+	case S_IFLNK:
+			if (symlink(&xname[3], fname) < 0)
+				errmsg("Cannot make symlink '%s'.\n", fname);
+			goto setmode;
+#endif
+		
+	case S_IFREG:	break;
+	}
+
+	makedirs(fname, S_IRUSR|S_IWUSR|S_IXUSR|
+			S_IRGRP|S_IWGRP|S_IXGRP|
+			S_IROTH|S_IWOTH|S_IXOTH, TRUE);
+	if (isfirst)
+		f = open(fname, O_WRONLY|O_CREAT|O_TRUNC, 0600);
+	else
+		f = open(fname, O_WRONLY|O_CREAT, 0600);
+	if (f < 0) {
+		errmsg("Cannot create '%s'.\n", fname);
+		return;
+	}
+	lseek(f, 0, SEEK_END);
+	extract_file(f, idr, fname);
+	if ((idr->flags[0] & ISO_MULTIEXTENT) == 0) {
+#ifdef	HAVE_FCHMOD
+		fchmod(f, fstat_buf.st_mode);
+#else
+		fchmodat(AT_FDCWD, fname, fstat_buf.st_mode, 0);
+#endif
+#ifdef	HAVE_FCHOWN
+		fchown(f, fstat_buf.st_uid, fstat_buf.st_gid);
+#else
+		fchownat(AT_FDCWD, fname, fstat_buf.st_uid, fstat_buf.st_gid, 0);
+#endif
+		times[0].tv_sec = fstat_buf.st_atime;
+		times[0].tv_nsec = stat_ansecs(&fstat_buf);
+		times[1].tv_sec = fstat_buf.st_mtime;
+		times[1].tv_nsec = stat_mnsecs(&fstat_buf);
+#if defined(HAVE_FUTIMESAT) || defined(HAVE_FUTIMES) || defined(HAVE_FUTIMENS)
+		futimens(f, times);
+#else
+		utimensat(AT_FDCWD, fname, times, 0);
+#endif
+		isfirst = TRUE;		/* Next call is for a new file */
+	} else {
+		isfirst = FALSE;	/* Next call is a continuation */
+	}
+	close(f);
+	return;
+setmode:
+	fchmodat(AT_FDCWD, fname, fstat_buf.st_mode, AT_SYMLINK_NOFOLLOW);
+	fchownat(AT_FDCWD, fname, fstat_buf.st_uid, fstat_buf.st_gid, AT_SYMLINK_NOFOLLOW);
+	times[0].tv_sec = fstat_buf.st_atime;
+	times[0].tv_nsec = stat_ansecs(&fstat_buf);
+	times[1].tv_sec = fstat_buf.st_mtime;
+	times[1].tv_nsec = stat_mnsecs(&fstat_buf);
+	utimensat(AT_FDCWD, fname, times, AT_SYMLINK_NOFOLLOW);
+}
+
+LOCAL void
+extract_file(f, idr, fname)
+	int				f;
+	struct iso_directory_record	*idr;
+	char				*fname;
 {
 	int		extent, len, tlen;
 	unsigned char	buff[20480];
 
-	setmode(fileno(stdout), O_BINARY);
+	if (f == STDOUT_FILENO)
+		setmode(fileno(stdout), O_BINARY);
 
 	extent = isonum_733((unsigned char *)idr->extent);
 	len = isonum_733((unsigned char *)idr->size);
@@ -801,7 +974,8 @@ extract_file(idr)
 #endif
 		len -= tlen;
 		extent += ISO_BLOCKS(tlen);
-		write(STDOUT_FILENO, buff, tlen);
+		if (write(f, buff, tlen) != tlen)
+			errmsg("Write error on '%s'.\n", fname);
 	}
 }
 
@@ -811,18 +985,25 @@ parse_dir(rootname, extent, len)
 	int	extent;
 	int	len;
 {
-	char		testname[PATH_MAX+1];
 	struct todo 	*td;
 	int		i;
 	struct iso_directory_record * idr;
+	struct iso_directory_record	didr;
+	struct stat			dstat;
 	unsigned char	uc;
 	unsigned char	flags = 0;
 	Llong		size = 0;
 	int		sextent = 0;
+	int	rlen;
+	int	blen;
+static	char	*n = 0;
+static	int	nlen = 0;
 
 
 	if (do_listing && (!do_find || !find_print))
 		printf(_("\nDirectory listing of %s\n"), rootname);
+
+	rlen = strlen(rootname);
 
 	while (len > 0) {
 #ifdef	USE_SCG
@@ -931,16 +1112,47 @@ parse_dir(rootname, extent, len)
 			 */
 			fstat_buf.st_atime =
 			fstat_buf.st_mtime =
-			fstat_buf.st_ctime = iso9660_time(date_buf, FALSE);
+			fstat_buf.st_ctime = iso9660_time(date_buf, NULL, FALSE);
 			fstat_buf.st_mode |= S_IRUSR|S_IXUSR |
 				    S_IRGRP|S_IXGRP |
 				    S_IROTH|S_IXOTH;
+			fstat_buf.st_nlink = 1;
+			fstat_buf.st_ino = 0;
+			fstat_buf.st_uid = 0;
+			fstat_buf.st_gid = 0;
+			if (iso9660_inodes) {
+				fstat_buf.st_ino = (unsigned long)
+				    isonum_733((unsigned char *)idr->extent);
+			}
 			if (use_rock)
 				dump_rr(idr);
+			if (Xtract &&
+			    (idr->flags[0] & 2) != 0 &&
+			    idr->name_len[0] == 1 &&
+			    idr->name[0] == 0) {
+				/*
+				 * The '.' entry.
+				 */
+				didr = *idr;
+				dstat = fstat_buf;
+			}
+			blen = strlen(name_buf);
+
+			blen = rlen + blen + 1;
+			if (nlen < blen) {
+				n = ___realloc(n, blen, _("find_stat name"));
+				nlen = blen;
+			}
+			strcatl(n, rootname, name_buf, (char *)0);
+			if (name_buf[0] == '.' && name_buf[1] == '\0')
+				n[rlen] = '\0';
+
 			if ((idr->flags[0] & 2) != 0 &&
 			    (idr->name_len[0] != 1 ||
 			    (idr->name[0] != 0 && idr->name[0] != 1))) {
 				/*
+				 * This is a plain directory (neither "xxx/."
+				 * nor "xxx/..").
 				 * Add this directory to the todo list.
 				 */
 				td = todo_idr;
@@ -961,25 +1173,49 @@ parse_dir(rootname, extent, len)
 				strcat(td->name, name_buf);
 				strcat(td->name, "/");
 			} else {
-				strcpy(testname, rootname);
-				strcat(testname, name_buf);
-				if (xtract && strcmp(xtract, testname) == 0) {
-					extract_file(idr);
+				if (xtract && strcmp(xtract, n) == 0) {
+					extract_file(STDOUT_FILENO, idr, "stdout");
 				}
 			}
 			if (do_f &&
 			    (idr->name_len[0] != 1 ||
 			    (idr->name[0] != 0 && idr->name[0] != 1))) {
-				strcpy(testname, rootname);
-				strcat(testname, name_buf);
-				printf("%s\n", testname);
+				printf("%s\n", n);
 			}
-			if (do_listing || do_find) {
+			if (do_listing || Xtract || do_find) {
+				/*
+				 * In case if a multi-extent file, remember the
+				 * start extent number.
+				 */
 				if ((idr->flags[0] & ISO_MULTIEXTENT) && size == 0)
 					sextent = isonum_733((unsigned char *)idr->extent);
+
 				if (debug ||
 				    ((idr->flags[0] & ISO_MULTIEXTENT) == 0 && size == 0)) {
-					dump_stat(rootname, idr, isonum_733((unsigned char *)idr->extent));
+					if (dump_stat(rootname, idr, n,
+							isonum_733((unsigned char *)idr->extent))) {
+						if (Xtract) {
+							if ((idr->flags[0] & 2) != 0 &&
+							    idr->name_len[0] != 1 &&
+							    idr->name[0] != 1) {
+								char *p = n;
+								if (*p == '/')
+									p++;
+								makedirs(p,
+									S_IRUSR|S_IWUSR|S_IXUSR|
+									S_IRGRP|S_IWGRP|S_IXGRP|
+									S_IROTH|S_IWOTH|S_IXOTH,
+									FALSE);
+							} else {
+								extract(rootname, idr, n);
+							}
+						}
+					}
+				} else if (Xtract && find_stat(rootname, idr, n, sextent)) {
+					/*
+					 * Extract all multi extent files here...
+					 */
+					extract(rootname, idr, n);
 				}
 				size += fstat_buf.st_size;
 				if ((flags & ISO_MULTIEXTENT) &&
@@ -987,7 +1223,7 @@ parse_dir(rootname, extent, len)
 					fstat_buf.st_size = size;
 					if (!debug)
 						idr->flags[0] |= ISO_MULTIEXTENT;
-					dump_stat(rootname, idr, sextent);
+					dump_stat(rootname, idr, n, sextent);
 					if (!debug)
 						idr->flags[0] &= ~ISO_MULTIEXTENT;
 				}
@@ -997,6 +1233,16 @@ parse_dir(rootname, extent, len)
 			}
 			i += buffer[i];
 			if (i > 2048 - offsetof(struct iso_directory_record, name[0])) break;
+		}
+	}
+	if (Xtract) {
+		char *nm = strrchr(rootname, '/');
+
+		if (nm != rootname)
+			nm++;
+		if (find_stat(rootname, &didr, nm, 0)) {
+			fstat_buf = dstat;
+			extract(rootname, &didr, rootname);
 		}
 	}
 }
@@ -1031,6 +1277,7 @@ usage(excode)
 	error(_("\t-T sector	Sector number where actual session starts on CD\n"));
 	error(_("\t-i filename	Filename to read ISO-9660 image from\n"));
 	error(_("\tdev=target	SCSI target to use as CD/DVD-Recorder\n"));
+	error(_("\t-X		Extract all matching files to the filesystem\n"));
 	error(_("\t-x pathname	Extract specified file to stdout\n"));
 	exit(excode);
 }
@@ -1063,11 +1310,13 @@ main(argc, argv)
 	struct eltorito_boot_descriptor bpd;
 	struct iso_directory_record * idr;
 	char	*charset = NULL;
-	char	*opts = "help,h,version,debug,ignore-error,d,p,i*,dev*,J,R,l,x*,find~,f,s,N#l,T#l,j*";
+	char	*opts = "help,h,version,debug,ignore-error,d,p,i*,dev*,J,R,l,x*,X,find~,f,s,N#l,T#l,j*";
 	BOOL	help = FALSE;
 	BOOL	prvers = FALSE;
 	BOOL	found_eltorito = FALSE;
 	int	bootcat_offset = 0;
+	int	voldesc_sum = 0;
+	char	*cp;
 
 
 	save_args(argc, argv);
@@ -1098,7 +1347,7 @@ main(argc, argv)
 				&filename, &sdevname,
 				&use_joliet, &use_rock,
 				&do_listing,
-				&xtract,
+				&xtract, &Xtract,
 				getfind, NULL,
 				&do_f, &do_sectors,
 				&sector_offset, &toc_offset,
@@ -1302,7 +1551,44 @@ setcharset:
 	read(fileno(infile), &ipd, sizeof (ipd));
 #endif
 	idr = (struct iso_directory_record *)ipd.root_directory_record;
+	for (c = 0, cp = (char *)&ipd; c < 2048; c++)
+		voldesc_sum += *cp++ & 0xFF;
+	if (GET_UBYTE(ipd.type) == ISO_VD_PRIMARY) {
+		c = 17;
+		do {
+#ifdef	USE_SCG
+			readsecs(c + toc_offset, &jpd, ISO_BLOCKS(sizeof (jpd)));
+#else
+			lseek(fileno(infile), ((off_t)(c + toc_offset)) <<11, SEEK_SET);
+			read(fileno(infile), &jpd, sizeof (jpd));
+#endif
+		} while (++c < 32 && GET_UBYTE(jpd.type) != ISO_VD_END);
+		if (GET_UBYTE(jpd.type) == ISO_VD_END) do {
+#ifdef	USE_SCG
+			readsecs(c + toc_offset, &jpd, ISO_BLOCKS(sizeof (jpd)));
+#else
+			lseek(fileno(infile), ((off_t)(c + toc_offset)) <<11, SEEK_SET);
+			read(fileno(infile), &jpd, sizeof (jpd));
+#endif
+			cp = (char *)&jpd;
+			if (strncmp(cp, "MKI ", 4) == 0) {
+				int	sum;
 
+				sum  = cp[2045] & 0xFF;
+				sum *= 256;
+				sum += cp[2046] & 0xFF;
+				sum *= 256;
+				sum += cp[2047] & 0xFF;
+				if (sum == voldesc_sum)
+					iso9660_inodes = TRUE;
+				break;
+			}
+		} while (++c < 48);
+	}
+
+	/*
+	 * Read '.' entry for the root directory.
+	 */
 	extent = isonum_733((unsigned char *)idr->extent);
 #ifdef	USE_SCG
 	readsecs(extent - sector_offset, buffer, ISO_BLOCKS(sizeof (buffer)));
@@ -1784,8 +2070,9 @@ time_cvt(dp, len)
 }
 
 LOCAL time_t
-iso9660_time(date, longfmt)
+iso9660_time(date, hsecp, longfmt)
 	unsigned char	*date;
+	int		*hsecp;
 	BOOL		longfmt;
 {
 	time_t	t;
@@ -1818,6 +2105,8 @@ iso9660_time(date, longfmt)
 		hsec = 0;
 		gmtoff = ((char *)date)[6];
 	}
+	if (hsecp)
+		*hsecp = hsec;
 	/*
 	 * The original algorithm did win a Fortan contest in early times.
 	 * It computes days relative to September 19th 1989.
@@ -1853,35 +2142,23 @@ getfind(arg, valp, pac, pav)
  * Called from dump_stat()
  */
 LOCAL BOOL
-find_stat(rootname, idr, extent)
+find_stat(rootname, idr, fname, extent)
 	char	*rootname;
 	struct iso_directory_record *idr;
+	char	*fname;
 	int	extent;
 {
 	BOOL	ret;
 	int	rlen;
-	int	len;
-static	char	*n = 0;
-static	int	nlen = 0;
 
 	if (name_buf[0] == '.' && name_buf[1] == '.' && name_buf[2] == '\0')
 		if (find_node)
 			return (FALSE);
 
-	if (find_node == NULL)
-		return (TRUE);
+	if (find_node == NULL)	/* No find(1) rules */
+		return (TRUE);	/* so pass everything */
 
 	rlen = strlen(rootname);
-	len = strlen(name_buf);
-
-	len = rlen + len + 1;
-	if (nlen < len) {
-		n = ___realloc(n, len, _("find_stat name"));
-		nlen = len;
-	}
-	strcatl(n, rootname, name_buf, (char *)0);
-	if (name_buf[0] == '.' && name_buf[1] == '\0')
-		n[rlen] = '\0';
 
 #ifdef	HAVE_ST_BLKSIZE
 	fstat_buf.st_blksize = 0;
@@ -1898,7 +2175,7 @@ static	int	nlen = 0;
 		walkstate.pflags |= PF_HAS_XATTR;
 #endif
 
-	ret = find_expr(n, &n[rlen], &fstat_buf, &walkstate, find_node);
+	ret = find_expr(fname, &fname[rlen], &fstat_buf, &walkstate, find_node);
 	if (!ret)
 		return (ret);
 	return (ret);

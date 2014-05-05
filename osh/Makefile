@@ -1,4 +1,4 @@
-#ident "%W% %E% %Q% Copyright (c) 2006-2014 J. Schilling"
+#ident "@(#)Makefile	1.39 14/04/22  Copyright (c) 2006-2014 J. Schilling"
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES

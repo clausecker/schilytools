@@ -41,11 +41,11 @@
 /*
  * This file contains modifications Copyright 2008-2014 J. Schilling
  *
- * @(#)args.c	1.33 14/04/21 2008-2014 J. Schilling
+ * @(#)args.c	1.34 14/04/24 2008-2014 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)args.c	1.33 14/04/21 2008-2014 J. Schilling";
+	"@(#)args.c	1.34 14/04/24 2008-2014 J. Schilling";
 #endif
 
 /*
@@ -66,8 +66,12 @@ static	struct dolnod	*clean_args	__PR((struct dolnod *blk));
 	void		restorargs	__PR((struct dolnod *olddolh,
 							int funcntp));
 	struct dolnod	*useargs	__PR((void));
+#if defined(DO_SET_O) && defined(DO_SYSALIAS)
 static	void		listaliasowner	__PR((int parse, int flagidx));
+#endif
+#ifdef	DO_SET_O
 static	void		listopts	__PR((int parse));
+#endif
 
 static struct dolnod *dolh;
 

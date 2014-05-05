@@ -1,5 +1,5 @@
 #! /bin/sh
-# @(#)config.guess	1.15 09/10/31 Copyright 1999-2009 J. Schilling
+# @(#)config.guess	1.16 14/04/24 Copyright 1999-2014 J. Schilling
 #
 # Attempt to guess a canonical system name.
 #   Copyright (C) 1992, 93, 94, 95, 96, 97, 1998 Free Software Foundation, Inc.
@@ -854,6 +854,9 @@ EOF
 	exit 0 ;;
     "i386":"Darwin":*)
 	echo i386-apple-macosx${UNAME_RELEASE}
+	exit 0 ;;
+    "x86_64":"Darwin":*)
+	echo x86_64-apple-macosx${UNAME_RELEASE}
 	exit 0 ;;
     "x86":"Darwin":*)
 	echo i386-apple-macosx${UNAME_RELEASE}

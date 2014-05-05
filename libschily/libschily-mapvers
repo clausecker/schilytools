@@ -1,4 +1,4 @@
-# /* @(#)libschily-mapvers	1.42 14/04/14 Copyright 2005-2014 J. Schilling */
+# /* @(#)libschily-mapvers	1.43 14/05/01 Copyright 2005-2014 J. Schilling */
 #include <schily/mconfig.h>
 
 SCHILY_1.6 {
@@ -13,8 +13,14 @@ global:
 	qftofs;
 	restorewd;
 	savewd;
+#ifndef	HAVE_LCHMOD
+	lchmod;
+#endif
 #ifndef	HAVE_FCHDIR
 	fchdir;
+#endif
+#ifndef	HAVE_FCHMODAT
+	fchmodat;
 #endif
 #ifndef	HAVE_FCHOWNAT
 	fchownat;

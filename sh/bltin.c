@@ -38,11 +38,11 @@
 /*
  * This file contains modifications Copyright 2008-2014 J. Schilling
  *
- * @(#)bltin.c	1.35 14/04/20 2008-2014 J. Schilling
+ * @(#)bltin.c	1.36 14/04/24 2008-2014 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)bltin.c	1.35 14/04/20 2008-2014 J. Schilling";
+	"@(#)bltin.c	1.36 14/04/24 2008-2014 J. Schilling";
 #endif
 
 /*
@@ -620,9 +620,9 @@ err:
 		{
 			/* return success only if all names are found */
 			while (*++argv) {
+#ifdef	DO_SYSALIAS
 				char *val;
 
-#ifdef	DO_SYSALIAS
 				if ((val = ab_value(LOCAL_AB,
 							(char *)*argv, NULL,
 							AB_BEGIN)) != NULL) {
