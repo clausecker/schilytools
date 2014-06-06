@@ -38,11 +38,11 @@
 /*
  * This file contains modifications Copyright 2008-2014 J. Schilling
  *
- * @(#)name.c	1.30 14/04/20 2008-2014 J. Schilling
+ * @(#)name.c	1.31 14/06/05 2008-2014 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)name.c	1.30 14/04/20 2008-2014 J. Schilling";
+	"@(#)name.c	1.31 14/06/05 2008-2014 J. Schilling";
 #endif
 
 /*
@@ -80,7 +80,7 @@ static void	namwalk		__PR((struct namnod *));
 	void	setup_env	__PR((void));
 static void	countnam	__PR((struct namnod *n));
 static void	pushnam		__PR((struct namnod *n));
-	unsigned char **local_setenv __PR((void));
+	unsigned char **local_setenv __PR((int flg));
 	struct namnod *findnam	__PR((unsigned char *nam));
 	void	unset_name	__PR((unsigned char *name));
 static void	dolocale	__PR((char *nm));
@@ -625,6 +625,7 @@ unsigned char	*nam;
 }
 
 static void (*namfn) __PR((struct namnod *n));
+static int    namflg;
 
 void
 namscan(fn)
@@ -735,8 +736,10 @@ pushnam(n)
 			n->namenv = 0;
 			if (n->namval) {
 				/* Release for re-use */
-				free(n->namval);
-				n->namval = (unsigned char *)NIL;
+				if (!(namflg & ENV_NOFREE)) {
+					free(n->namval);
+					n->namval = (unsigned char *)NIL;
+				}
 			}
 		}
 		namval = n->namenv;
@@ -753,7 +756,8 @@ pushnam(n)
 }
 
 unsigned char **
-local_setenv()
+local_setenv(flg)
+	int	flg;
 {
 	unsigned char	**er;
 
@@ -762,7 +766,9 @@ local_setenv()
 
 	argnam = er = (unsigned char **)getstak((Intptr_t)namec * BYTESPERWORD +
 								BYTESPERWORD);
+	namflg = flg;
 	namscan(pushnam);
+	namflg = 0;
 	*argnam++ = 0;
 	return (er);
 }

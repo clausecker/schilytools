@@ -1,4 +1,4 @@
-/* @(#)xconfig.h.in	1.243 14/04/02 Copyright 1998-2014 J. Schilling */
+/* @(#)xconfig.h.in	1.244 14/05/15 Copyright 1998-2014 J. Schilling */
 /*
  *	Dynamic autoconf C-include code.
  *	Do not edit, this file has been created automatically.
@@ -612,7 +612,7 @@
 #undef HAVE_SHL_LOAD		/* shl_load() is present in libc */
 #undef HAVE_SHL_UNLOAD		/* shl_unload() is present in libc */
 #undef HAVE_SHL_GETHANDLE	/* shl_gethandle() is present in libc */
-#undef HAVE_LOADLOBRARY		/* LoadLibrary() as present in libc */
+#undef HAVE_LOADLIBRARY		/* LoadLibrary() as present in libc */
 #undef HAVE_FREELIBRARY		/* FreeLibrary() is present in libc */
 #undef HAVE_GETPROCADDRESS	/* GetProcAddress() is present in libc */
 

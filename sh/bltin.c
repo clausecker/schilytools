@@ -38,11 +38,11 @@
 /*
  * This file contains modifications Copyright 2008-2014 J. Schilling
  *
- * @(#)bltin.c	1.36 14/04/24 2008-2014 J. Schilling
+ * @(#)bltin.c	1.40 14/06/05 2008-2014 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)bltin.c	1.36 14/04/24 2008-2014 J. Schilling";
+	"@(#)bltin.c	1.40 14/06/05 2008-2014 J. Schilling";
 #endif
 
 /*
@@ -182,8 +182,8 @@ struct trenod *t;
 	case SYSLOGIN:
 		if (!endjobs(JOB_STOPPED|JOB_RUNNING))
 			break;
-		oldsigs();
-		execa(argv, -1);
+		oldsigs(TRUE);
+		execa(argv, -1, FALSE);
 		done(0);
 #else
 
@@ -195,13 +195,13 @@ struct trenod *t;
 		else
 		{
 			flags |= forcexit; /* bad exec will terminate shell */
-			oldsigs();
+			oldsigs(TRUE);
 			rmtemp(0);
 			rmfunctmp();
 #ifdef ACCT
 			doacct();
 #endif
-			execa(argv, -1);
+			execa(argv, -1, FALSE);
 			done(0);
 			/* NOTREACHED */
 		}
@@ -499,6 +499,7 @@ struct trenod *t;
 			int	c;
 			int	delay = 0;
 			int	count = -1;
+			int	err = 0;
 
 			savoptind = optind;
 			savopterr = opterr;
@@ -519,9 +520,16 @@ struct trenod *t;
 					break;
 				case '?':
 					gfailure(UC usage, repuse);
-					goto err;
+					err = 1;
 				}
 			}
+			optind = savoptind;
+			opterr = savopterr;
+			_sp = savsp;
+			optarg = savoptarg;
+			if (err)
+				break;
+
 			while (count != 0) {
 				unsigned char		*sav = savstak();
 				struct ionod		*iosav = iotemp;
@@ -534,12 +542,9 @@ struct trenod *t;
 					sh_sleep(delay);
 				if (count > 0)
 					count--;
+				if (trapnote & SIGSET)
+					break;
 			}
-err:
-			optind = savoptind;
-			opterr = savopterr;
-			_sp = savsp;
-			optarg = savoptarg;
 		} else {
 			gfailure(UC usage, repuse);
 		}
@@ -705,8 +710,8 @@ err:
 
 	case SYSSAVEHIST:
 		shedit_bshist(&intrptr);
-		if (intrptr)
-			*intrptr = 0;
+		if (intrptr)		/* Was set by shedit_bshist()?	*/
+			intrptr = 0;	/* Disable intrptr for now	*/
 		break;
 
 	case SYSMAP:
@@ -749,6 +754,14 @@ err:
 		break;
 	case SYSUNALIAS:
 		sysunalias(argc, argv);
+		break;
+#endif
+
+#ifdef	DO_SYSTRUE
+	case SYSTRUE:
+		break;
+	case SYSFALSE:
+		exitval = 1;
 		break;
 #endif
 

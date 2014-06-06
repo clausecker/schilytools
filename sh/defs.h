@@ -39,7 +39,7 @@
 /*
  * This file contains modifications Copyright 2008-2014 J. Schilling
  *
- * @(#)defs.h	1.57 14/04/17 2008-2014 J. Schilling
+ * @(#)defs.h	1.59 14/06/06 2008-2014 J. Schilling
  */
 
 #ifdef	__cplusplus
@@ -58,6 +58,9 @@ extern "C" {
 /* endjobs flags */
 #define		JOB_STOPPED	01
 #define		JOB_RUNNING	02
+
+/* Environ flags */
+#define		ENV_NOFREE	01
 
 /* error exits from various parts of shell */
 #define		ERROR		1
@@ -144,7 +147,10 @@ extern "C" {
 #define		SYSALIAS	43
 #define		SYSUNALIAS	44
 
-#define		SYSALLOC	45
+#define		SYSTRUE		45
+#define		SYSFALSE	46
+
+#define		SYSALLOC	47
 
 /* used for input and output of shell */
 #define		INIO 		19
@@ -300,6 +306,10 @@ extern char 		*optarg;
 #undef	INTERACTIVE
 #endif
 
+#ifdef	NO_VFORK
+#undef	HAVE_VFORK
+#endif
+
 /* Function prototypes */
 
 /*
@@ -366,7 +376,10 @@ extern	void	makearg		__PR((struct argnod *));
 extern	void	done		__PR((int sig)) __NORETURN;
 extern	int	handle		__PR((int sig, sigtype func));
 extern	void	stdsigs		__PR((void));
-extern	void	oldsigs		__PR((void));
+extern	void	oldsigs		__PR((int dofree));
+#ifdef	HAVE_VFORK
+extern	void	restoresigs	__PR((void));
+#endif
 extern	void	chktrap		__PR((void));
 extern	void	systrap		__PR((int argc, char **argv));
 extern	void	sh_sleep	__PR((unsigned int ticks));
@@ -483,7 +496,7 @@ extern	void	printnam	__PR((struct namnod *n));
 extern	void	printro		__PR((struct namnod *n));
 extern	void	printexp	__PR((struct namnod *n));
 extern	void	setup_env	__PR((void));
-extern	unsigned char **local_setenv __PR((void));
+extern	unsigned char **local_setenv __PR((int flg));
 extern	struct namnod *findnam	__PR((unsigned char *nam));
 extern	void	unset_name	__PR((unsigned char *name));
 #ifdef INTERACTIVE
@@ -541,7 +554,7 @@ extern	int		pathopen __PR((unsigned char *path,
 extern	unsigned char *catpath	__PR((unsigned char *path,
 						unsigned char *name));
 extern	unsigned char *nextpath	__PR((unsigned char *path));
-extern	void		execa	__PR((unsigned char *at[], short pos));
+extern	void		execa	__PR((unsigned char *at[], short pos, int isvfork));
 extern	void		trim	__PR((unsigned char *at));
 extern	void		trims	__PR((unsigned char *at));
 extern	unsigned char *mactrim	__PR((unsigned char *at));
@@ -815,6 +828,7 @@ extern const char			devnull[];
 #define			readpr		010000
 #define			keyflg		020000
 #define			hashflg		040000
+#define			vforked		0100000
 #define			nofngflg	0200000
 #define			exportflg	0400000
 #define			monitorflg	01000000
@@ -829,6 +843,7 @@ extern const char			devnull[];
 #define			aliasownerflg	01000000000
 
 extern long				flags;
+extern int				exflag;	/* Use _exit(), not exit() */
 extern int				rwait;	/* flags read waiting */
 
 /* error exits from various parts of shell */

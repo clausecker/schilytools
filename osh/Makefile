@@ -1,4 +1,4 @@
-#ident "@(#)Makefile	1.39 14/04/22  Copyright (c) 2006-2014 J. Schilling"
+#ident "@(#)Makefile	1.41 14/06/05  Copyright (c) 2006-2014 J. Schilling"
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -20,6 +20,7 @@ CPPOPTS +=	-DUSE_LARGEFILES	# Allow Large Files (> 2 GB)
 CPPOPTS +=	-DUSE_NLS		# Enable NLS support in include/schily/*.h
 #CPPOPTS +=	-DNO_LOCALE		# Don't use setlocale()
 #CPPOPTS +=	-DNO_WCHAR		# Don't use wide chars
+CPPOPTS +=	-DNO_VFORK		# Don't use vfork()
 
 CPPOPTS +=	-D_iBCS2 				# SCO echo compat
 CPPOPTS +=	-DTEXT_DOMAIN='"SUNW_OST_OSCMD"'	# gettext()
@@ -32,6 +33,7 @@ CPPOPTS +=	-DACCT					# Shell Accounting
 #CPPOPTS +=	-DDO_SYSALLOC		# Include the "alloc" debug builtin
 #CPPOPTS +=	-DDO_SYSREPEAT		# Include the "repeat" builtin
 #CPPOPTS +=	-DDO_SYSDOSH		# Include the "dosh" builtin
+#CPPOPTS +=	-DDO_SYSTRUE		# Include true / false builtin
 #CPPOPTS +=	-DDO_SYSPUSHD		# Include pushd / popd / dirs builtin && cd -
 #CPPOPTS +=	-DDO_READ_R		# Include support for read -r
 #CPPOPTS +=	-DDO_SET_O		# Include support for set -o

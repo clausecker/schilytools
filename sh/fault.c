@@ -36,13 +36,13 @@
 #include "defs.h"
 
 /*
- * This file contains modifications Copyright 2008-2013 J. Schilling
+ * This file contains modifications Copyright 2008-2014 J. Schilling
  *
- * @(#)fault.c	1.23 13/09/24 2008-2013 J. Schilling
+ * @(#)fault.c	1.24 14/06/05 2008-2014 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)fault.c	1.23 13/09/24 2008-2013 J. Schilling";
+	"@(#)fault.c	1.24 14/06/05 2008-2014 J. Schilling";
 #endif
 
 /*
@@ -95,6 +95,11 @@ static	UConst char sccsid[] =
 	int	intrcnt;
 
 /*
+ * Whether to use _exit() because we did call vfork()
+ */
+	int	exflag;
+
+/*
  * previous signal handler for signal 0
  */
 static	void (*psig0_func) __PR((int)) = SIG_ERR;
@@ -104,12 +109,15 @@ static	char sigsegv_stack[SIGSTKSZ];
 #endif
 
 static int	ignoring	__PR((int i));
-static void	clrsig		__PR((int i));
+static void	clrsig		__PR((int i, int dofree));
 	void	done		__PR((int sig));
 static void	fault		__PR((int sig));
 	int	handle		__PR((int sig, sigtype func));
 	void	stdsigs		__PR((void));
-	void	oldsigs		__PR((void));
+	void	oldsigs		__PR((int dofree));
+#ifdef	HAVE_VFORK
+	void	restoresigs	__PR((void));
+#endif
 	void	chktrap		__PR((void));
 	void	systrap		__PR((int argc, char **argv));
 	void	sh_sleep	__PR((unsigned int ticks));
@@ -221,10 +229,11 @@ ignoring(i)
 }
 
 static void
-clrsig(i)
-int	i;
+clrsig(i, dofree)
+	int	i;
+	int	dofree;
 {
-	if (trapcom[i] != 0) {
+	if (dofree && trapcom[i] != 0) {
 		free(trapcom[i]);
 		trapcom[i] = 0;
 	}
@@ -293,6 +302,8 @@ done(sig)
 		handle(sig, SIG_DFL);
 		kill(mypid, sig);
 	}
+	if (exflag)
+		_exit(exitval);
 	exit(exitval);
 }
 
@@ -417,21 +428,63 @@ stdsigs()
 	}
 }
 
+/*
+ * This function is called just before execve() is called.
+ * It resets the signal handlers to their defaults if the
+ * signals that are either not set (trapcom[i] == NULL) or
+ * set to catch the signal ((trapcom[i][0] != '\0'). Note
+ * that clrsig() only affects signals that have the SIGMOD
+ * flag set in trapflg[i].
+ */
 void
-oldsigs()
+oldsigs(dofree)
+	int	dofree;
 {
 	int	i;
+	int	f;
 	unsigned char	*t;
 
 	i = MAXTRAP;
 	while (i--) {
 		t = trapcom[i];
+		f = trapflg[i];
 		if (t == 0 || *t)
-			clrsig(i);
-		trapflg[i] = 0;
+			clrsig(i, dofree);
+		if (dofree)
+			trapflg[i] = 0;
+		else
+			trapflg[i] = f;		/* Remember for restoresigs */
 	}
-	trapnote = 0;
+	if (dofree)
+		trapnote = 0;
 }
+
+#ifdef	HAVE_VFORK
+void
+restoresigs()
+{
+	int	i;
+	int	f;
+	unsigned char	*t;
+
+	i = MAXTRAP;
+	while (i--) {
+		t = trapcom[i];
+		f = trapflg[i];
+		if ((f & SIGMOD) == 0)		/* If not modified before */
+			continue;		/* skip this signal	  */
+		if (t) {
+			if (*t)
+				handle(i, fault);
+			else
+				handle(i, SIG_IGN);
+		} else {
+			handle(i, sigval[i]);
+		}
+		trapflg[i] = f;
+	}
+}
+#endif
 
 /*
  * check for traps
@@ -499,7 +552,7 @@ systrap(argc, argv)
 				 * to its default disposition
 				 *
 				 */
-				clrsig(sig);
+				clrsig(sig, TRUE);
 			} else if (*a1) {
 				/*
 				 * set the action associated with the signal

@@ -38,11 +38,11 @@
 /*
  * This file contains modifications Copyright 2008-2014 J. Schilling
  *
- * @(#)msg.c	1.25 14/04/20 2008-2014 J. Schilling
+ * @(#)msg.c	1.26 14/05/25 2008-2014 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)msg.c	1.25 14/04/20 2008-2014 J. Schilling";
+	"@(#)msg.c	1.26 14/05/25 2008-2014 J. Schilling";
 #endif
 
 /*
@@ -258,6 +258,9 @@ const struct sysnod commands[] =
 	{ "exec",	SYSEXEC	},	/* S */
 	{ "exit",	SYSEXIT	},	/* S */
 	{ "export",	SYSXPORT },	/* S */
+#ifdef	DO_SYSTRUE
+	{ "false",	SYSFALSE },
+#endif
 	{ "fg",		SYSFGBG },
 	{ "getopts",	SYSGETOPT },
 	{ "hash",	SYSHASH	},
@@ -299,6 +302,9 @@ const struct sysnod commands[] =
 	{ "test",	SYSTST },
 	{ "times",	SYSTIMES },	/* S */
 	{ "trap",	SYSTRAP	},	/* S */
+#ifdef	DO_SYSTRUE
+	{ "true",	SYSTRUE },
+#endif
 	{ "type",	SYSTYPE },
 
 

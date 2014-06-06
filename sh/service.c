@@ -36,13 +36,13 @@
 #include "defs.h"
 
 /*
- * This file contains modifications Copyright 2008-2013 J. Schilling
+ * This file contains modifications Copyright 2008-2014 J. Schilling
  *
- * @(#)service.c	1.29 13/09/26 2008-2013 J. Schilling
+ * @(#)service.c	1.30 14/06/05 2008-2014 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)service.c	1.29 13/09/26 2008-20013 J. Schilling";
+	"@(#)service.c	1.30 14/06/05 2008-20014 J. Schilling";
 #endif
 
 /*
@@ -70,8 +70,10 @@ static	UConst char sccsid[] =
 	unsigned char *catpath	__PR((unsigned char *path,
 						unsigned char *name));
 	unsigned char *nextpath	__PR((unsigned char *path));
-	void		execa	__PR((unsigned char *at[], short pos));
-static unsigned char *execs	__PR((unsigned char *ap, unsigned char *t[]));
+	void		execa	__PR((unsigned char *at[], short pos,
+						int isvfork));
+static unsigned char *execs	__PR((unsigned char *ap, unsigned char *t[],
+						int isvfork));
 	void		trim	__PR((unsigned char *at));
 	void		trims	__PR((unsigned char *at));
 	unsigned char *mactrim	__PR((unsigned char *at));
@@ -286,12 +288,13 @@ static unsigned char	**xecenv;
 
 #ifdef	PROTOTYPES
 void
-execa(unsigned char *at[], short pos)
+execa(unsigned char *at[], short pos, int isvfork)
 #else
 void
-execa(at, pos)
+execa(at, pos, isvfork)
 	unsigned char	*at[];
 	short		pos;
+	int		isvfork;
 #endif
 {
 	unsigned char	*path;
@@ -301,7 +304,7 @@ execa(at, pos)
 	if ((flags & noexec) == 0) {
 		xecmsg = notfound;
 		path = getpath(*t);
-		xecenv = local_setenv();
+		xecenv = local_setenv(isvfork?ENV_NOFREE:0);
 
 		if (pos > 0) {
 			cnt = 1;
@@ -309,10 +312,10 @@ execa(at, pos)
 				++cnt;
 				path = nextpath(path);
 			}
-			execs(path, t);
+			execs(path, t, isvfork);
 			path = getpath(*t);
 		}
-		while ((path = execs(path, t)) != NULL)
+		while ((path = execs(path, t, isvfork)) != NULL)
 			/* LINTED */
 			;
 		failed(*t, xecmsg);
@@ -320,11 +323,13 @@ execa(at, pos)
 }
 
 static unsigned char *
-execs(ap, t)
+execs(ap, t, isvfork)
 	unsigned char	*ap;
 	unsigned char	*t[];
+	int		isvfork;
 {
 	int		pfstatus = NOATTRS;
+	int		oexflag = exflag;
 	unsigned char	*p, *prefix;
 #ifdef	EXECATTR_FILENAME
 	unsigned char	*savptr;
@@ -361,8 +366,14 @@ execs(ap, t)
 		    (char *const *)xecenv);
 	}
 
+	if (isvfork)
+		exflag = TRUE;	/* Call _exit() instead of exit() */
 	switch (errno) {
 	case ENOEXEC:		/* could be a shell script */
+		if (isvfork) {
+			exflag = 2;
+			_exit(126);
+		}
 		funcnt = 0;
 		flags = 0;
 		*flagadr = 0;
@@ -376,6 +387,7 @@ execs(ap, t)
 #ifdef ACCT
 		preacct(p);	/* reset accounting */
 #endif
+		exflag = oexflag;
 
 		/*
 		 * set up new args

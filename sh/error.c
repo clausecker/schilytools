@@ -36,13 +36,13 @@
 #include "defs.h"
 
 /*
- * This file contains modifications Copyright 2008-2013 J. Schilling
+ * This file contains modifications Copyright 2008-2014 J. Schilling
  *
- * @(#)error.c	1.10 13/09/22 2008-2013 J. Schilling
+ * @(#)error.c	1.11 14/06/01 2008-2014 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)error.c	1.10 13/09/22 2008-2013 J. Schilling";
+	"@(#)error.c	1.11 14/06/01 2008-2014 J. Schilling";
 #endif
 
 /*
@@ -156,7 +156,7 @@ void
 rmtemp(base)
 	struct ionod	*base;
 {
-	while (iotemp != base) {
+	while (iotemp && iotemp != base) {
 		unlink(iotemp->ioname);
 		free(iotemp->iolink);
 		iotemp = iotemp->iolst;

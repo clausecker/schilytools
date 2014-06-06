@@ -240,6 +240,9 @@
 ./RULES/alpha-netbsd-gcc.rul
 ./RULES/alphaserver_ds20_500_mhz-openvms-cc.rul
 ./RULES/amd64-freebsd-cc.rul
+./RULES/amd64-freebsd-clang64.rul
+./RULES/amd64-freebsd-clang32.rul
+./RULES/amd64-freebsd-clang.rul
 ./RULES/amd64-freebsd-gcc.rul
 ./RULES/amd64-gnu-kfreebsd-cc.rul
 ./RULES/amd64-gnu-kfreebsd-gcc.rul

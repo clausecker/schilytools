@@ -1,6 +1,6 @@
-/* @(#)mkstemp.c	1.1 11/08/14 Copyright 2011 J. Schilling */
+/* @(#)mkstemp.c	1.2 14/05/15 Copyright 2011-2014 J. Schilling */
 /*
- *	Copyright (c) 2011 J. Schilling
+ *	Copyright (c) 2011-2014 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -9,6 +9,8 @@
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -20,6 +22,7 @@
 #include <schily/types.h>
 #include <schily/fcntl.h>
 #include <schily/stat.h>
+#include <schily/errno.h>
 
 #ifndef	HAVE_MKSTEMP
 EXPORT int

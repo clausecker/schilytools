@@ -1,4 +1,4 @@
-/* @(#)libport.h	1.42 14/05/04 Copyright 1995-2014 J. Schilling */
+/* @(#)libport.h	1.43 14/05/11 Copyright 1995-2014 J. Schilling */
 /*
  *	Prototypes for POSIX standard functions that may be missing on the
  *	local platform and thus are implemented inside libschily.
@@ -305,6 +305,10 @@ extern	int		gettimeofday __PR((struct timeval *__tp, void *__tzp));
 #endif
 #endif
 
+#ifndef	HAVE_FACCESSAT
+extern	int		faccessat __PR((int fd, const char *name,
+					int amode, int flag));
+#endif
 #ifndef	HAVE_FCHMODAT
 extern	int		fchmodat __PR((int fd, const char *name,
 					mode_t mode, int flag));

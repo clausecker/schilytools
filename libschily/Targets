@@ -1,4 +1,4 @@
-# @(#)Targets	1.45 14/05/01 Copyright 1995-2014 J. Schilling
+# @(#)Targets	1.48 14/06/03 Copyright 1995-2014 J. Schilling
 
 CFILES_STDIO=	cvmod.c dat.c fcons.c fdown.c fdup.c \
 		ffileread.c ffilewrite.c \
@@ -21,8 +21,9 @@ CFILES_REST=	abspath.c astoi.c astoll.c astoull.c basename.c breakline.c \
 		chown.c \
 		cmpbytes.c cmpmbytes.c cmpnullbytes.c \
 		dirent.c dirname.c diropen.c \
+		dlfcn.c \
 		eaccess.c error.c \
-		fchdir.c \
+		faccessat.c fchdir.c \
 		fchmodat.c fchownat.c fconv.c fdopendir.c fexec.c fillbytes.c \
 		findinpath.c \
 		findbytes.c findline.c fnmatch.c format.c \
@@ -43,7 +44,7 @@ CFILES_REST=	abspath.c astoi.c astoll.c astoull.c basename.c breakline.c \
 		handlecond.c \
 		jsprintf.c jssnprintf.c jssprintf.c \
 		kill.c \
-		linkat.c lutimens.c \
+		lchmod.c linkat.c lutimens.c \
 		lxchdir.c \
 		match.c matchl.c matchw.c matchwl.c movebytes.c \
 		mkdirat.c mkdirs.c mkfifo.c mkfifoat.c mkgmtime.c mknodat.c \

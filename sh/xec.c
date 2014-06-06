@@ -36,13 +36,13 @@
 #include "defs.h"
 
 /*
- * This file contains modifications Copyright 2008-2013 J. Schilling
+ * This file contains modifications Copyright 2008-2014 J. Schilling
  *
- * @(#)xec.c	1.25 13/09/22 2008-2013 J. Schilling
+ * @(#)xec.c	1.26 14/06/05 2008-2014 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)xec.c	1.25 13/09/22 2008-2013 J. Schilling";
+	"@(#)xec.c	1.26 14/06/05 2008-2014 J. Schilling";
 #endif
 
 /*
@@ -51,11 +51,17 @@ static	UConst char sccsid[] =
  *
  */
 
-#include	<errno.h>
 #include	"sym.h"
 #include	"hash.h"
+#ifdef	SCHILY_INCLUDES
+#include	<schily/times.h>
+#include	<schily/vfork.h>
+#include	<schily/errno.h>
+#else
 #include	<sys/types.h>
 #include	<sys/times.h>
+#include	<errno.h>
+#endif
 
 pid_t parent;
 
@@ -247,6 +253,14 @@ int *pf1, *pf2;
 		{
 			int monitor = 0;
 			int linked = 0;
+			int isvfork = 0;
+#ifdef	HAVE_VFORK
+			int oflags = flags;
+			int oserial = serial;
+			pid_t opid = mypid;
+			struct ionod *ofiot = fiotemp;
+			struct ionod *oiot = iotemp;
+#endif
 
 			exitval = 0;
 
@@ -278,8 +292,31 @@ int *pf1, *pf2;
 					link_iodocs(iotemp);
 					linked = 1;
 				}
-
+#ifdef	HAVE_VFORK
+				else if (type == TCOM) {
+					if (com != NULL && com[0] != ENDARGS &&
+					    !(flags & vforked)) {
+						isvfork = TRUE;
+						flags |= vforked;
+						/*
+						 * exflag does not need to be
+						 * set here already as done()
+						 * only calls exit()
+						 * if (flags & subsh) is set.
+						 */
+					}
+					/*
+					 * Cygwin has no real vfork() as it runs
+					 * parent and child simultaneously. This
+					 * is the last chance to save things
+					 * that would be clobbered by vfork().
+					 */
+				}
+script:
+				while ((parent = isvfork?vfork():fork()) == -1)
+#else
 				while ((parent = fork()) == -1)
+#endif
 				{
 				/*
 				 * FORKLIM is the max period between forks -
@@ -310,6 +347,10 @@ int *pf1, *pf2;
 				}
 
 				if (parent) {
+					/*
+					 * XXX Do we need to call restoresigs()
+					 * XXX here too on Solaris?
+					 */
 					if (monitor)
 						setpgid(parent, 0);
 					if (treeflgs & FPIN)
@@ -319,6 +360,33 @@ int *pf1, *pf2;
 							!(treeflgs&FAMP));
 						freejobs();
 					}
+#ifdef	HAVE_VFORK
+					if (isvfork) {
+						/*
+						 * Restore evereything that was
+						 * overwritten by the vforked
+						 * child. As Cygwin does not
+						 * have a real vfork() (see
+						 * above), we need to make sure
+						 * the child did start up before
+						 * we restore global variables.
+						 */
+						mypid = opid;
+						flags = oflags;
+						settmp();
+						serial = oserial;
+						isvfork = 0;
+						fiotemp = ofiot;
+						iotemp = oiot;
+						restoresigs();
+						if (exflag == 2) {
+							exflag = 0;
+							goto script;
+						} else {
+							exflag = 0;
+						}
+					}
+#endif
 					chktrap();
 					break;		/* From case TFORK: */
 				}
@@ -346,7 +414,7 @@ int *pf1, *pf2;
 			suspacct();
 #endif
 			settmp();			/* /tmp/sh<pid> */
-			oldsigs();			/* Calls clrsig/free */
+			oldsigs(!isvfork);		/* Calls clrsig/free */
 
 			/*
 			 * Job control: pgrp / TTY-signal handling
@@ -381,9 +449,14 @@ int *pf1, *pf2;
 			} else if (com != NULL && com[0] != ENDARGS) {
 				eflag = 0;
 				setlist(comptr(t)->comset, N_EXPORT);
-				rmtemp(0);
+#ifdef	HAVE_VFORK
+				if (isvfork)
+					rmtemp(oiot);
+				else
+#endif
+					rmtemp(0);
 				clearjobs();
-				execa(com, pos);
+				execa(com, pos, isvfork);
 			}
 			done(0);
 			/* NOTREACHED */
