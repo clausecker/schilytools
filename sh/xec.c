@@ -38,11 +38,11 @@
 /*
  * This file contains modifications Copyright 2008-2014 J. Schilling
  *
- * @(#)xec.c	1.26 14/06/05 2008-2014 J. Schilling
+ * @(#)xec.c	1.30 14/06/11 2008-2014 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)xec.c	1.26 14/06/05 2008-2014 J. Schilling";
+	"@(#)xec.c	1.30 14/06/11 2008-2014 J. Schilling";
 #endif
 
 /*
@@ -104,7 +104,7 @@ int *pf1, *pf2;
 
 		switch (type)
 		{
-		case TFND:
+		case TFND:		/* function definition */
 			{
 				struct fndnod	*f = fndptr(t);
 				struct namnod	*n = lookup(f->fndnam);
@@ -151,7 +151,7 @@ int *pf1, *pf2;
 				break;
 			}
 
-		case TCOM:
+		case TCOM:		/* some kind of command */
 			{
 				unsigned char	*a1;
 				int	argn;
@@ -249,7 +249,7 @@ int *pf1, *pf2;
 			}
 			/* FALLTHROUGH */
 
-		case TFORK:
+		case TFORK:		/* running forked cmd */
 		{
 			int monitor = 0;
 			int linked = 0;
@@ -258,6 +258,7 @@ int *pf1, *pf2;
 			int oflags = flags;
 			int oserial = serial;
 			pid_t opid = mypid;
+			pid_t opgid = mypgid;
 			struct ionod *ofiot = fiotemp;
 			struct ionod *oiot = iotemp;
 #endif
@@ -351,6 +352,19 @@ script:
 					 * XXX Do we need to call restoresigs()
 					 * XXX here too on Solaris?
 					 */
+#ifdef	HAVE_VFORK
+					if (isvfork) {
+						/*
+						 * Needed by the jobcontrol
+						 * called from postjob().
+						 * So we need to restore these
+						 * variables immediately.
+						 */
+						mypid = opid;
+						mypgid = opgid;
+						flags = oflags;
+					}
+#endif
 					if (monitor)
 						setpgid(parent, 0);
 					if (treeflgs & FPIN)
@@ -372,6 +386,7 @@ script:
 						 * we restore global variables.
 						 */
 						mypid = opid;
+						mypgid = opgid;
 						flags = oflags;
 						settmp();
 						serial = oserial;
@@ -454,17 +469,23 @@ script:
 					rmtemp(oiot);
 				else
 #endif
+				{
 					rmtemp(0);
-				clearjobs();
+					clearjobs();
+				}
 				execa(com, pos, isvfork);
 			}
 			done(0);
 			/* NOTREACHED */
 		}
 
-		case TPAR:
-			/* Forked process is subshell:  may want job control */
-			flags &= ~jcoff;
+		case TPAR:		/* "()" parentized cmd */
+			/*
+			 * Forked process is subshell:  may want job control
+			 * but not for left hand sides of of a pipeline.
+			 */
+			if ((xflags & XEC_LINKED) == 0)
+				flags &= ~jcoff;
 			clearjobs();
 			execute(parptr(t)->partre,
 				xflags, errorflg,
@@ -472,7 +493,7 @@ script:
 			done(0);
 			/* NOTREACHED */
 
-		case TFIL:
+		case TFIL:		/* PIPE "|" filter */
 			{
 				int pv[2];
 
@@ -489,7 +510,7 @@ script:
 			}
 			break;
 
-		case TLST:
+		case TLST:		/* ";" separated command list */
 			execute(lstptr(t)->lstlef,
 				xflags&XEC_NOSTOP, errorflg,
 				no_pipe, no_pipe);
@@ -499,8 +520,8 @@ script:
 				no_pipe, no_pipe);
 			break;
 
-		case TAND:
-		case TORF:
+		case TAND:		/* "&&" command */
+		case TORF:		/* "||" command */
 		{
 			int xval;
 			xval = execute(lstptr(t)->lstlef,
@@ -513,7 +534,7 @@ script:
 			break;
 		}
 
-		case TFOR:
+		case TFOR:		/* for ... do .. done */
 			{
 				struct namnod *n = lookup(forptr(t)->fornam);
 				unsigned char	**args;
@@ -552,8 +573,8 @@ script:
 			}
 			break;
 
-		case TWH:
-		case TUN:
+		case TWH:		/* "while" loop */
+		case TUN:		/* "until" loop */
 			{
 				int	i = 0;
 
@@ -576,7 +597,7 @@ script:
 			}
 			break;
 
-		case TIF:
+		case TIF:		/* if ... then ... */
 			if (execute(ifptr(t)->iftre,
 			    XEC_NOSTOP, 0,
 			    no_pipe, no_pipe) == 0) {
@@ -593,7 +614,7 @@ script:
 			}
 			break;
 
-		case TSW:
+		case TSW:		/* "case command */
 			{
 				unsigned char	*r = mactrim(swptr(t)->swarg);
 				struct regnod *regp;

@@ -39,7 +39,7 @@
 /*
  * This file contains modifications Copyright 2008-2014 J. Schilling
  *
- * @(#)defs.h	1.59 14/06/06 2008-2014 J. Schilling
+ * @(#)defs.h	1.60 14/06/11 2008-2014 J. Schilling
  */
 
 #ifdef	__cplusplus
@@ -51,9 +51,9 @@ extern "C" {
  */
 
 /* execute flags */
-#define		XEC_EXECED	01
-#define		XEC_LINKED	02
-#define		XEC_NOSTOP	04
+#define		XEC_EXECED	01	/* Forked cmd with recursive execute */
+#define		XEC_LINKED	02	/* Forked lhs of "|" or "&"	    */
+#define		XEC_NOSTOP	04	/* Do no jobcontrol for this cmd    */
 
 /* endjobs flags */
 #define		JOB_STOPPED	01
