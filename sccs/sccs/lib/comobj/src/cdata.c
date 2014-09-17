@@ -10,10 +10,10 @@
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 /*
- * @(#)cdata.c	1.3 11/10/15 Copyright 2011 J. Schilling
+ * @(#)cdata.c	1.4 14/08/09 Copyright 2011-2014 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)cdata.c 1.3 11/10/15 J. Schilling"
+#pragma ident "@(#)cdata.c 1.4 14/08/09 J. Schilling"
 #endif
 
 #if defined(sun)
@@ -22,10 +22,11 @@
 #endif
 #include	<defines.h>
 
-char	*Comments;
-char	*Mrs;
+char	*sccs_insbase;	/* The install base if set by main program */
+char	*Comments;	/* Comments from command line arg */
+char	*Mrs;		/* MR numbers from command line arg */
 
-int	Domrs;
+int	Domrs;		/* The 'v' flag was found */
 
 #if	defined(IS_MACOS_X)
 /*
@@ -42,3 +43,10 @@ __comobj()
 {
 }
 #endif
+
+EXPORT void
+sccs_setinsbase(base)
+	char	*base;
+{
+	sccs_insbase = base;
+}

@@ -29,10 +29,10 @@
 /*
  * Copyright 2006-2014 J. Schilling
  *
- * @(#)admin.c	1.79 14/03/31 J. Schilling
+ * @(#)admin.c	1.83 14/08/13 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)admin.c 1.79 14/03/31 J. Schilling"
+#pragma ident "@(#)admin.c 1.83 14/08/13 J. Schilling"
 #endif
 /*
  * @(#)admin.c 1.39 06/12/12
@@ -171,7 +171,9 @@ char *argv[];
 	 */
 	setlocale(LC_ALL, NOGETTEXT(""));
 	
-	/* 
+	sccs_setinsbase(INS_BASE);
+
+	/*
 	 * Set directory to search for general l10n SCCS messages.
 	 */
 #ifdef	PROTOTYPES
@@ -195,6 +197,10 @@ char *argv[];
 	*/
 	set_clean_up(clean_up);
 	Fflags = FTLMSG | FTLCLN | FTLEXIT;
+#ifdef	SCCS_FATALHELP
+	Fflags |= FTLFUNC;
+	Ffunc = sccsfatalhelp;
+#endif
 
 	testklt = 1;
 
@@ -547,6 +553,12 @@ char *argv[];
 			    (had[LOWER(c)? c-'a' : NLOWER+c-'A']++ && testklt++))
 				fatal(gettext("key letter twice (cm2)"));
 	}
+#ifdef	SCCS_V6_ENV
+	if (versflag != 6) {
+		if (getenv("SCCS_V6"))
+			versflag = 6;
+	}
+#endif
 
 	for(i=1; i<argc; i++){
 		if(argv[i]) {
@@ -773,10 +785,6 @@ char	*afile;
 			gpkt.p_line[cklen]   = '\000';
 		}
 	}
-
-
-	
-
 	else {
 		if ((int) strlen(sname(afile)) > MAXNAMLEN) {
 			sprintf(SccsError, gettext("file name is greater than %d characters"),
@@ -811,23 +819,10 @@ char	*afile;
 		/*
 		 * Initialize global meta data
 		 */
-		if (versflag == 6 && setrhome != NULL &&
-		    afile[0] != '/' &&
-		    !(afile[0] == '.' && afile[1] == '.' && afile[2] == '/') &&
-		    !strstr(afile, "/../")) {
-			char	*p;
-
-			sprintf(line, "%s%s%s%s%s",
-				homedist > 0 ? cwdprefix:"",
-				homedist > 0 ? "/": "",
-				dir_name, *dir_name ? "/":"",
-				auxf(afile, 'g'));
-			p = fmalloc(size(line));
-			strcpy(p, line);
-			gpkt.p_init_path = p;
-		}
-		if (versflag == 6)
+		if (versflag == 6) {
+			set_init_path(&gpkt, afile, dir_name);
 			urandom(&gpkt.p_rand);
+		}
 	}
 
 	if (!HADH)
@@ -893,7 +888,7 @@ char	*afile;
                 if (HADN && HADI && (HADO || HADQ) &&
 		    (ifile_mtime.tv_sec != 0)) {
                         /*
-			 * When specifying -o (oroginal date) and
+			 * When specifying -o (original date) and
 			 * for NSE when putting existing file under sccs the
                          * delta time is the mtime of the clear file.
                          */
@@ -1008,14 +1003,14 @@ char	*afile;
 		*/
 		sprintf(line,CTLSTR,CTLCHAR,EUSERNAM);
 		putline(&gpkt,line);
-	}
-	else
+	} else {
 		/*
 		For old file, copy to x-file until end of
 		user-names section is found.
 		*/
 		if (!HADE)
 			flushto(&gpkt, EUSERNAM, FLUSH_COPY);
+	}
 
 	/*
 	For old file, read flags and their values (if any), and
@@ -1100,7 +1095,7 @@ char	*afile;
 		if (had_flag[VALFLAG - 'a'] && !rm_flag[VALFLAG - 'a'])
 			fatal (gettext("Can't use -fz with -fv."));
 	}
-	for (k = 0; k < NFLAGS; k++)
+	for (k = 0; k < NFLAGS; k++) {
 		if (had_flag[k]) {
 			int	i;		/* for flag string cleanup */
 
@@ -1151,6 +1146,7 @@ char	*afile;
 				}
 			}
 		}
+	}
 
 	if (HADN) {
 		if (HADI || HADB) {
@@ -1166,6 +1162,10 @@ char	*afile;
 				CTLCHAR, FLAG, ENCODEFLAG, Encoded);
 			putline(&gpkt,line);
 		}
+		/*
+		 * Writing out SCCS v6 flags belongs here.
+		 */
+
 		putmeta(&gpkt);
 
 		/*
@@ -1173,14 +1173,38 @@ char	*afile;
 		*/
 		sprintf(line,CTLSTR,CTLCHAR,BUSERTXT);
 		putline(&gpkt,line);
-	}
-	else
+	} else {
 		/*
-		Write out BUSERTXT record which was read in
-		above loop that processes flags.
-		*/
+		 * Check where the above loop that processes flags stopped:
+		 */
 		gpkt.p_wrttn = 0;
-		putline(&gpkt,(char *) 0);
+		/*
+		 * Copy over SCCS v6 flags.
+		 */
+		while (gpkt.p_line_length > 1 &&
+			    gpkt.p_line[0] == CTLCHAR &&
+			    gpkt.p_line[1] == NAMEDFLAG) {
+			getline(&gpkt);
+		}
+
+		/*
+		 * Copy over SCCS v6 global metadata.
+		 */
+		while (gpkt.p_line_length > 1 &&
+			    gpkt.p_line[0] == CTLCHAR &&
+			    gpkt.p_line[1] == GLOBALEXTENS) {
+			getline(&gpkt);
+		}
+
+		/*
+		 * Write out everything until the BUSERTXT record.
+		 * This includes possible future extensions.
+		 */
+		if (gpkt.p_line[0] == CTLCHAR && gpkt.p_line[1] == BUSERTXT)
+			putline(&gpkt,(char *) 0);
+		else
+			flushto(&gpkt, BUSERTXT, FLUSH_COPY);
+	}
 
 	/*
 	Get user description, copy to x-file.
@@ -1195,6 +1219,12 @@ char	*afile;
 			(void)fgetchk(iptr, tfile, &gpkt, 0);
 			fclose(iptr);
 			iptr = NULL;
+			/*
+			 * fgetchk() did set p_ghash and in case that the
+			 * file has zero size or -n is used, p_ghash may never
+			 * be set up again. So we need to clear it here.
+			 */
+			gpkt.p_ghash = 0;
 		   }
 		}
 

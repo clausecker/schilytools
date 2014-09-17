@@ -5,6 +5,9 @@
 # Import common functions & definitions.
 . ../common/test-common
 
+# Import function which tells us if we're testing CSSC, or something else.
+. ../common/real-thing
+
 s=s.new.txt
 remove foo new.txt [xzs].new.txt [xzs].1 [xzs].2 command.log
 
@@ -22,9 +25,16 @@ remove prs.$s
 ${vg_prs} $s | sed -ne '/^COMMENTS:$/,/^.*$/ p' > prs.$s || fail prs failed.
 test `wc -l < prs.$s` -eq 2 || fail wrong comment format.
 test `head -1 prs.$s` = "COMMENTS:" || fail Comment doesn\'t start COMMENTS:
-tail -1 prs.$s | egrep \
+if $TESTING_SCCS_V6
+then
+ tail -1 prs.$s | egrep \
+ '^date and time created [0-9][0-9][0-9][0-9]/[0-1][0-9]/[0-3][0-9] [0-2][0-9]:[0-5][0-9]:[0-5][0-9].* by ' >/dev/null\
+    || fail "default message format error."
+else
+ tail -1 prs.$s | egrep \
  '^date and time created [0-9][0-9]/[0-1][0-9]/[0-3][0-9] [0-2][0-9]:[0-5][0-9]:[0-5][0-9] by ' >/dev/null\
     || fail "default message format error."
+fi
 echo passed
 remove $s prs.$s 
 

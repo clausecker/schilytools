@@ -1,4 +1,4 @@
-#ident @(#)prs.mk	1.4 08/01/02 
+#ident @(#)prs.mk	1.5 14/08/09 
 ###########################################################################
 # Sample makefile for general application programs
 ###########################################################################
@@ -17,6 +17,7 @@ CPPOPTS +=	-I../../../sgs/inc/common
 CPPOPTS +=	-I../../hdr
 CPPOPTS +=	-DUSE_NLS
 CPPOPTS +=	-DINS_BASE=\"${INS_BASE}\"
+CPPOPTS +=	-DSCCS_FATALHELP		# auto call to help
 
 CFILES=		prs.c
 

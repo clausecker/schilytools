@@ -1,8 +1,8 @@
-/* @(#)inputc.c	1.68 13/09/25 Copyright 1982, 1984-2013 J. Schilling */
+/* @(#)inputc.c	1.69 14/06/29 Copyright 1982, 1984-2014 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)inputc.c	1.68 13/09/25 Copyright 1982, 1984-2013 J. Schilling";
+	"@(#)inputc.c	1.69 14/06/29 Copyright 1982, 1984-2014 J. Schilling";
 #endif
 /*
  *	inputc.c
@@ -20,7 +20,7 @@ static	UConst char sccsid[] =
  *	in 1982 and 1983. This prototype only contained the editor and called
  *	shell commands via system().
  *
- *	Copyright (c) 1982, 1984-2013 J. Schilling
+ *	Copyright (c) 1982, 1984-2014 J. Schilling
  *	This version was first coded August 1984 and rewritten 01/22/85
  *
  *	Exported functions:
@@ -730,8 +730,8 @@ chlen(c)
 		return (1);
 #endif
 	}
-	if (c > 0xFF)
-		return (11);
+	if (c > 0xFF)		/* UNICODE	*/
+		return (11);	/* "'%10.10X"	*/
 	if (c & 0x80)
 		return (2 + !iswprint(c&0177));
 	return (2);

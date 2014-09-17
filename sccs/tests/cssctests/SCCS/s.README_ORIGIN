@@ -1,4 +1,16 @@
-h09919
+h59216
+s 00002/00000/00117
+d D 1.4 14/09/15 22:46:51 joerg 4 3
+c get/excl_ig_2.sh SCCSv6 delta -g Bug Warnung neu
+e
+s 00035/00001/00082
+d D 1.3 14/08/26 22:11:28 joerg 3 2
+c Erweiterungen fuer SCCSv6 Tests
+e
+s 00014/00006/00069
+d D 1.2 14/08/13 00:00:44 joerg 2 1
+c Schreibfehler und bessere Beschreibung
+e
 s 00075/00000/00000
 d D 1.1 11/05/27 18:48:17 joerg 1 0
 c date and time created 11/05/27 18:48:17 by joerg
@@ -10,9 +22,22 @@
 T
 I 1
 The files in this directory (except for the directory "common") are
+D 2
 taken from the CSSC project. The files below this directory contain mors
 that 1100 tests written by James Youngman. We introduced a few modifications:
+E 2
+I 2
+taken from the CSSC project. The files below this directory contain more
+that 1100 tests written by James Youngman. We thank James Youngman
+for providing this nice test case base that is also very useful for our
+official SCCS code.
+E 2
 
+I 2
+This code has been taken from CSSC-1.3.1, we introduced the following
+modifications:
+
+E 2
 -	$TESTING_CSSC			was originally set to "true" for
 					CSSC and to "false" for other
 					software.
@@ -42,12 +67,21 @@ that 1100 tests written by James Youngman. We introduced a few modifications:
 -	admin/y-flag.sh			This script calles "test -e ..."
 					but the -e option to test(1) may not
 					be available with the Bourne Shell.
+I 2
+					For this reason, we replaced "test -e"
+					by "test -r"
+E 2
 
 
 -	Test "fa11" from binary/auto.sh	tries to grant that a file with the
 					content "x\000y\n" to cause SCCS to
 					initialize a history file that is
+D 2
 					unencoded. This is wrong. Leaving this
+E 2
+I 2
+					un-encoded. This is wrong. Leaving this
+E 2
 					test as it has been would cause the
 					test suite to require the existence
 					of a CSSC-specific bug.
@@ -59,7 +93,12 @@ that 1100 tests written by James Youngman. We introduced a few modifications:
 					A new test "fa12" has been introduced
 					that tests whether a fle with the
 					content "x\001y\n" will result in an
+D 2
 					unencoded history file.
+E 2
+I 2
+					un-encoded history file.
+E 2
 
 -	binary/seeking.sh		contained a direct call to:
 					if ( ${admin} -V 2>&1 ; echo umsp )  | grep CSSC >/dev/null
@@ -79,9 +118,61 @@ that 1100 tests written by James Youngman. We introduced a few modifications:
 					enabled by $TESTING_REAL_SCCS, the
 					original test is run if
 					$TESTING_REAL_CSSC is set.
+D 3
 					
+E 3
 
+I 3
+Past 2011, we added the following modifications in August 2014:
+
+-	$TESTING_SCCS_V6		This variable has been added in order
+					to deal with different behavior of
+					SCCS in case that SCCSv6 history files
+					are used.
+
+-	Test c3 in admin/admin-hz.sh	This test intentionally destroys the
+					SCCS checsum in line 1 of the history
+					file. The original code also destroys
+					the V6 header and results in "V3"
+					instead of "V6". The new code reverts
+					this accidental effect.
+
+-	Text C2 in admin/comment.sh	This tests checks the date/time format
+					in the delta table. As the SCCSv6
+					history format always uses a 4-digit
+					year format, the test needs to check
+					a different format whether in v4 or v6
+					mode.
+
+-	binary/auto.sh			Several tests are related to auto-uu-
+					encoding of files in case that there
+					is content that is unsupported by
+					SCCSv4. As SCCSv6 treats everything as
+					test files as long as there is no NUL
+					character present, these tests need
+					to be different for SCCSv6 history
+					files.
+
+-	binary/seeking.sh		This script contains more corner
+					cases for text vs. binary files that
+					behave different vor SCCS v4 and v6.
+
+I 4
+-	get/excl_ig_2.sh		Warns on a SCCSv6 bug with delta -gsid
+E 4
+
+I 4
+
+E 4
+E 3
+D 2
 If you are interested in the test suite below this directory, please have a look
 at the original code from CSSC written by James Youngman.
+E 2
+I 2
+If you are interested in the original version of the test suite below this
+directory, please have a look at the original code from CSSC written by
+James Youngman.
+E 2
 
 E 1

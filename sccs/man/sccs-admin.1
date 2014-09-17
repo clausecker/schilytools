@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sccs-admin.1	1.27 13/06/16 Copyright 2007-2013 J. Schilling
+.\" @(#)sccs-admin.1	1.35 14/09/15 Copyright 2007-2014 J. Schilling
 .\" CDDL HEADER START
 .\"
 .\" The contents of this file are subject to the terms of the
@@ -19,17 +19,55 @@
 .\"
 .\" CDDL HEADER END
 .\"  Copyright (c) 2002, Sun Microsystems, Inc. All Rights Reserved.
-.TH sccs-admin 1 "2013/06/16" "SunOS 5.11" "User Commands"
+.if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
+.if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
+.if t .ds u \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'u
+.if t .ds A \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'A
+.if t .ds O \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'O
+.if t .ds U \v'-0.77m'\h'0.30n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.75n'U
+.if t .ds s \\(*b
+.if t .ds S SS
+.if n .ds a ae
+.if n .ds o oe
+.if n .ds u ue
+.if n .ds s sz
+.TH sccs-admin 1 "2014/09/15" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs-admin, admin \- create and administer SCCS history files
 .SH SYNOPSIS
 .LP
-.nf
-\fB/usr/ccs/bin/admin\fR [\fB-bhnoz\fR] [\fB-a\fR \fIusername\fR | \fIgroupid\fR]... 
-    [\fB-d\fR \fIflag\fR] ... [\fB-e\fR \fIusername\fR | \fIgroupid\fR]... 
-    [\fB-f\fR \fIflag\fR [\fIvalue\fR]] ... [\fB-i\fR [\fIfilename \fR]] [\fB-m\fR \fImr-list\fR] 
-    [\fB-r\fR\fIrelease\fR] [\fB-t\fR [\fIdescription-file\fR]] [\fB-y\fR [\fIcomment\fR]] \fIs.filename\fR...
-.fi
+.LP
+.B /usr/ccs/bin/admin
+.RB [ -bhnoz ]
+.RB [ -a\c
+.IR " username " | " groupid" ]...
+.br
+.RB "    [" -d\c
+.IR " flag" "] ... \c
+.RB [ -e\c
+.IR " username " | " groupid\c
+]...
+.br
+.RB "    [" -f\c
+.IR " flag" [ value "]] ... \c
+.RB [ -i [\c
+.IR "filename" ]]
+.RB [ -m
+.IR mr-list ]
+.br
+.RB "    [" -q\c
+.RI [ nsedelim ]]
+.br
+.RB "    [" -r\c
+.IR release "] \c
+.RB [ -t [\c
+.IR description-file ]]
+.RB [ -y [\c
+.IR comment ]]
+.br
+.RB "    [" -N\c
+.IR bulk-spec ]
+.IR s.filename ...
 
 .SH DESCRIPTION
 .sp
@@ -170,7 +208,7 @@ Creates empty releases when releases are skipped. These null (empty) deltas serv
 .ne 3
 .TP
 \fB\fBq\fR\fIvalue\fR\fR
-Supplies a  \fIvalue\fR to which the \fB\fR keyword is to expand when a read-only version is retrieved with the SCCS \fBget\fR command.
+Supplies a \fIvalue\fR to which the \fB\fR keyword is to expand when a read-only version is retrieved with the SCCS \fBget\fR command.
 .sp
 .ne 3
 .TP
@@ -193,6 +231,12 @@ Supplies a value for the module type to which the \fB\fR keyword is to expand.
 \fB\fBv\fR[\fIprogram\fR]\fR
 Specifies a validation \fIprogram\fR for the \fBMR\fR numbers associated with a new delta. The optional \fIprogram\fR specifies the name of an \fBMR\fR number validity checking \fIprogram\fR. If this flag is set when creating an SCCS file, the \fB-m\fR option must also be used,
 in which case the list of \fBMR\fRs may be empty.
+.sp
+The
+.B v
+flag and the
+.B z
+flag are mutually exclusive.
 .sp
 .ne 3
 .TP
@@ -255,8 +299,32 @@ This flag is a
 .BR \s-1SUN\s+1 / SCHILY
 extension that does not exist in historic
 .B sccs 
-implementations. 
+implementations.
+.br
+.ne 4
+.TP
+.BI z application
+The name of an application for the
+.B CMF
+enhancements.
+.B CMF
+enhancements are currently undocumented and it is
+not known how they are expected to work.
+.sp
+The
+.B v
+flag and the
+.B z
+flag are mutually exclusive.
+.sp
+This flag is a
+.B \s-1SUN\s+1
+extension that does not exist in historic
+.B sccs 
+implementations.
+
 .RE
+
 .sp
 .ne 3
 .TP
@@ -400,11 +468,40 @@ Creates a new SCCS history file.
 Use the original time of the existing file for the delta time
 when creating a new
 .BR s. file.
+In NSE mode, this is the default behavior.
 .sp
 This option is a
 .B SCHILY
 extension that does not exist in historic
 .B sccs
+implementations.
+.sp
+.ne 3
+.TP
+.BI -q\fR[ nsedelim\fR]
+Enable
+.B NSE
+mode.
+If
+.B NSE
+mode is enabled, several
+.B NSE
+related extensions may be used.
+In this release, the value of
+.I nsedelim
+is ignored.
+.sp
+In NSE mode,
+.B admin
+behaves as if the
+.B \-o
+option was specified and never issues a warning about missing
+.BR "id keyword" s.
+.sp
+This option is an undocumented
+.B \s-1SUN\s+1
+extension that does not exist in historic
+.B sccs 
 implementations.
 .sp
 .ne 3
@@ -415,7 +512,7 @@ Specifies the release for the initial delta. \fB-r\fR may be used only in conjun
 .ne 3
 .TP
 \fB\fB-t\fR\fB[\fR\fIdescription-file\fR\fB]\fR\fR
-Inserts descriptive text from the file \fIdescription-file\fR. When  \fB-t\fR is used in conjunction with \fB-n\fR, or \fB-i\fR to initialize a new s.file, the \fIdescription-file\fR must be supplied. When modifying the description for an existing file: a \fB-t\fR option without
+Inserts descriptive text from the file \fIdescription-file\fR. When \fB-t\fR is used in conjunction with \fB-n\fR, or \fB-i\fR to initialize a new s.file, the \fIdescription-file\fR must be supplied. When modifying the description for an existing file: a \fB-t\fR option without
 a \fIdescription-file\fR removes the descriptive text, if any; a \fB-t\fR option with a \fIdescription-file\fR replaces the existing text.
 .sp
 .ne 3
@@ -542,32 +639,56 @@ example% \fBsccs admin -NSCCS .\fR
 .SH ENVIRONMENT VARIABLES
 .sp
 .LP
-See \fBenviron\fR(5) for descriptions of the following environment variables that affect the execution of \fBalias\fR and \fBunalias\fR: \fBLANG\fR, \fBLC_ALL\fR, \fBLC_CTYPE\fR, \fBLC_MESSAGES\fR, and \fBNLSPATH\fR.
+See
+.BR environ (5)
+for descriptions of the following environment variables that affect the
+execution of
+.BR admin (1):
+.BR LANG ,
+.BR LC_ALL ,
+.BR LC_COLLATE ,
+.BR LC_CTYPE ,
+.BR LC_MESSAGES ,
+and
+.BR NLSPATH .
+.br
+.ne 4
+.TP
+.B SCCS_NO_HELP
+If set,
+.BR admin (1)
+will not automatically call
+.BR help (1)
+with the SCCS error code in order to print a more helpful
+error message. Scripts that depend on the exact error messages
+of SCCS commands should set the environment variable
+.B SCCS_NO_HELP
+and set
+.BR LC_ALL=C .
+.br
+.ne 4
+.TP
+.B SCCS_V6
+If set,
+.BR admin (1)
+by default creates new history files with 
+.B SCCS v6
+encoding.
+
 .SH EXIT STATUS
 .sp
 .LP
 The following exit values are returned:
 .sp
 .ne 2
-.mk
-.na
-\fB\fB0\fR\fR
-.ad
-.RS 5n
-.rt  
+.TP 5
+.B 0
 Successful completion.
-.RE
-
 .sp
 .ne 2
-.mk
-.na
-\fB\fB1\fR\fR
-.ad
-.RS 5n
-.rt  
+.TP
+.B 1
 An error occurred.
-.RE
 
 .SH FILES
 .sp
@@ -582,7 +703,9 @@ in case of an encoded history file
 .ne 2
 .TP
 .BI s. file
-history file
+.B SCCS
+history file, see
+.BR sccsfile (4).
 
 .sp
 .ne 2
@@ -670,3 +793,28 @@ If it should be necessary to patch an SCCS file for any reason, the mode may be 
 .sp
 .LP
 \fBadmin\fR uses a temporary lock file, starting with the `\fBz.\fR' prefix, to prevent simultaneous updates to the \fBs.\fRfile. See \fBsccs-get\fR(1) for further information about the `\fBz.\fRfile'.
+
+.SH AUTHORS
+The
+.B SCCS
+suite was origininally written by Marc J. Rochkind at Bell Labs in 1972.
+Release 4.0 of
+.BR SCCS ,
+introducing new versions of the programs
+.BR admin (1),
+.BR get (1),
+.BR prt (1),
+and
+.BR delta (1)
+was published on February 18, 1977; it introduced the new text based
+.B SCCS\ v4
+history file format (previous
+.B SCCS
+releases used a binary history file format).
+The
+.B SCCS
+suite
+was later maintained by various people at AT&T and Sun Microsystems.
+Since 2006, the
+.B SCCS
+suite is maintained by J\*org Schilling.

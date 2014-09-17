@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)vc.1	1.5 13/06/11 Copyright 2011-2013 J. Schilling
+.\" @(#)vc.1	1.6 14/08/10 Copyright 2011-2014 J. Schilling
 .\"
 .\" CDDL HEADER START
 .\"
@@ -21,7 +21,7 @@
 .\" CDDL HEADER END
 .\" Copyright 1989 AT&T
 .\" Copyright (c) 1990, Sun Microsystems, Inc.  All Rights Reserved
-.TH vc 1 "2013/06/11" "SunOS 5.11" "User Commands"
+.TH vc 1 "2014/08/10" "SunOS 5.11" "User Commands"
 .SH NAME
 vc \- version control
 .SH SYNOPSIS
@@ -430,6 +430,50 @@ Print \fImessage\fR followed by:
 on the diagnostic output.
 \fBvc\fR halts execution, and returns an exit code of \fB1\fR.
 .RE
+
+.SH ENVIRONMENT VARIABLES
+.sp
+.LP
+See
+.BR environ (5)
+for descriptions of the following environment variables that affect the
+execution of
+.BR vc (1):
+.BR LANG ,
+.BR LC_ALL ,
+.BR LC_CTYPE ,
+.BR LC_MESSAGES ,
+and
+.BR NLSPATH .
+.br
+.ne 4
+.TP
+.B SCCS_NO_HELP
+If set,
+.BR vc (1)
+will not automatically call
+.BR help (1)
+with the SCCS error code in order to print a more helpful
+error message. Scripts that depend on the exact error messages
+of SCCS commands should set the environment variable
+.B SCCS_NO_HELP
+and set
+.BR LC_ALL=C .
+
+.SH EXIT STATUS
+.sp
+.LP
+The following exit values are returned:
+.sp
+.ne 2
+.TP 5
+.B 0
+Successful completion.
+.sp
+.ne 2
+.TP
+.B 1
+An error occurred.
 
 .SH ATTRIBUTES
 .sp

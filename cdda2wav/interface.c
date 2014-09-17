@@ -1,13 +1,13 @@
-/* @(#)interface.c	1.79 13/12/24 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2006-2013 J. Schilling */
+/* @(#)interface.c	1.80 14/08/17 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2006-2014 J. Schilling */
 #include "config.h"
 #ifndef lint
 static	UConst char sccsid[] =
-"@(#)interface.c	1.79 13/12/24 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2006-2013 J. Schilling";
+"@(#)interface.c	1.80 14/08/17 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2006-2014 J. Schilling";
 
 #endif
 /*
  * Copyright (C) 1994-1997 Heiko Eissfeldt heiko@colossus.escape.de
- * Copyright (c) 2006-2013 J. Schilling
+ * Copyright (c) 2006-2014 J. Schilling
  *
  * Interface module for cdrom drive access
  *
@@ -495,6 +495,7 @@ lost_toshibas:
 
 			fprintf(outfp,
 			_("load cdrom please and press enter"));
+			fflush(outfp);
 			while ((c = getchar()) != '\n') {
 				if (c == EOF)
 					break;

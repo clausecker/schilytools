@@ -22,7 +22,9 @@ docommand c2 "${vg_admin} -h $s" 0 "" ""
 
 # Now, create a copy with a changed checksum, but no other 
 # differences.
-docommand c3 " (sed -e '1y/0123456789/9876453210/' <$s >$s2) " 0 "" ""
+# If we are testing SCCS v6, we need to repair the V6 header
+# as the first sed command replaces V6 by V3.
+docommand c3 " (sed -e '1y/0123456789/9876453210/' <$s | sed -e '1s/V3/V6/' >$s2) " 0 "" ""
 
 # Check that we think that the checksum of the file is wrong.
 docommand c4 "${vg_admin} -h $s2" 1 "" "IGNORE"

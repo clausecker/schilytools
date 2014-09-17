@@ -1,4 +1,4 @@
-.\" @(#)sccscvt.1	1.6 13/06/16 Copyright 2011-2013 J. Schilling
+.\" @(#)sccscvt.1	1.9 14/09/15 Copyright 2011-2014 J. Schilling
 .\" Manual page for sccscvt
 .\"
 .\" The contents of this file are subject to the terms of the
@@ -25,7 +25,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sccscvt 1 "2013/06/16" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH sccscvt 1 "2014/09/15" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 sccscvt \- convert history files between SCCS v4 and SCCS v6
 .SH SYNOPSIS
@@ -104,6 +104,56 @@ Prints the
 .B sccscvt
 version number string and exists.
 .\" .SH EXAMPLES
+
+.SH ENVIRONMENT VARIABLES
+.sp
+.LP
+See
+.BR environ (5)
+for descriptions of the following environment variables that affect the
+execution of
+.BR sccscvt (1):
+.BR LANG ,
+.BR LC_ALL ,
+.BR LC_CTYPE ,
+.BR LC_MESSAGES ,
+and
+.BR NLSPATH .
+.br
+.ne 4
+.TP
+.B SCCS_NO_HELP
+If set,
+.BR sccscvt (1)
+will not automatically call
+.BR help (1)
+with the SCCS error code in order to print a more helpful
+error message. Scripts that depend on the exact error messages
+of SCCS commands should set the environment variable
+.B SCCS_NO_HELP
+and set
+.BR LC_ALL=C .
+
+.SH EXIT STATUS
+.sp
+.LP
+The following exit values are returned:
+.sp
+.ne 2
+.TP 5
+.B 0
+Successful completion.
+.sp
+.ne 2
+.TP
+.B 1
+An error occurred.
+.sp
+.ne 2
+.TP
+.B -1
+A wrong option or parameter was specified.
+
 .SH FILES
 .sp
 .ne 2
@@ -162,6 +212,9 @@ followed by the host name
 .SH NOTES
 If a SCCS history file is converted from SCCS v4 to SCCS v6 and there is no
 retained SCCS v6 timestamp information in the delta comment, it may be a good
-idea to manually correct time zone information manually.
+idea to manually correct time zone information.
 .SH BUGS
 .SH AUTHOR
+.BR sccscvt (1)
+was origininally written by J\*org Schilling in 2011 and is still
+maintained by J\*org Schilling.

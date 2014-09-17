@@ -27,10 +27,10 @@
 /*
  * Copyright 2006-2014 J. Schilling
  *
- * @(#)unget.c	1.24 14/03/31 J. Schilling
+ * @(#)unget.c	1.25 14/08/09 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)unget.c 1.24 14/03/31 J. Schilling"
+#pragma ident "@(#)unget.c 1.25 14/08/09 J. Schilling"
 #endif
 /*
  * @(#)unget.c 1.24 06/12/12
@@ -101,7 +101,9 @@ char *argv[];
 	 */
 	setlocale(LC_ALL, NOGETTEXT(""));
 	
-	/* 
+	sccs_setinsbase(INS_BASE);
+
+	/*
 	 * Set directory to search for general l10n SCCS messages.
 	 */
 #ifdef	PROTOTYPES
@@ -118,6 +120,10 @@ char *argv[];
 
 	set_clean_up(clean_up);
 	Fflags = FTLEXIT | FTLMSG | FTLCLN;
+#ifdef	SCCS_FATALHELP
+	Fflags |= FTLFUNC;
+	Ffunc = sccsfatalhelp;
+#endif
 
 	current_optind = 1;
 	optind = 1;

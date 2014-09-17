@@ -1,4 +1,8 @@
-h31707
+h01467
+s 00012/00002/00121
+d D 1.4 14/08/26 20:19:40 joerg 4 3
+c ascii/binary Unterschiede bei SCCSv4 <-> SCCSv6 beruecksichtigen
+e
 s 00001/00001/00122
 d D 1.3 11/06/18 16:06:36 joerg 3 2
 c x=z.$g -> x=x.$g
@@ -119,7 +123,17 @@ then
 test_ascii a1 "foo\n" 
 test_ascii a2 "foo\nbar\n" 
 test_ascii a3 ""                        # an empty input file should be OK.
+D 4
 test_bin   b4 "\001\n"                  # line starts with control-a
+E 4
+I 4
+if $TESTING_SCCS_V6
+then
+  test_ascii b4 "\001\n"                # line starts with control-a
+else
+  test_bin   b4 "\001\n"                # line starts with control-a
+fi
+E 4
 test_ascii a5 "x\001\n"                 # line contains ^A but doesnt start with it.
 
 adminflags=-b
@@ -132,7 +146,17 @@ adminflags=
 if $TESTING_CSSC
 then
     ## Real SCCS fails on these inputs:-
+D 4
     test_bin   fb10 "foo"               # no newline at end of file.
+E 4
+I 4
+    if $TESTING_SCCS_V6
+    then
+      test_ascii fb10 "foo"             # no newline at end of file.
+    else
+      test_bin   fb10 "foo"             # no newline at end of file.
+    fi
+E 4
 D 2
     test_ascii fa11 "x\000y\n"          # ASCII NUL.
 E 2

@@ -27,12 +27,12 @@
  * Use is subject to license terms.
  */
 /*
- * Copyright 2006-2013 J. Schilling
+ * Copyright 2006-2014 J. Schilling
  *
- * @(#)get.c	1.56 13/11/01 J. Schilling
+ * @(#)get.c	1.59 14/08/21 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)get.c 1.56 13/11/01 J. Schilling"
+#pragma ident "@(#)get.c 1.59 14/08/21 J. Schilling"
 #endif
 /*
  * @(#)get.c 1.59 06/12/12
@@ -133,7 +133,10 @@ register char *argv[];
 	 * Set locale for all categories.
 	 */
 	setlocale(LC_ALL, NOGETTEXT(""));
-	/* 
+
+	sccs_setinsbase(INS_BASE);
+
+	/*
 	 * Set directory to search for general l10n SCCS messages.
 	 */
 #ifdef	PROTOTYPES
@@ -149,6 +152,10 @@ register char *argv[];
 
 	set_clean_up(clean_up);
 	Fflags = FTLEXIT | FTLMSG | FTLCLN;
+#ifdef	SCCS_FATALHELP
+	Fflags |= FTLFUNC;
+	Ffunc = sccsfatalhelp;
+#endif
 	current_optind = 1;
 	optind = 1;
 	opterr = 0;
@@ -170,7 +177,7 @@ register char *argv[];
 			}
 			no_arg = 0;
 			i = current_optind;
-		        c = getopt(argc, argv, "-r:c:ebi:x:kl:Lpsmnogta:G:w:zqdC:V(version)");
+		        c = getopt(argc, argv, "-r:c:ebi:x:kl:Lpsmnogta:G:w:zqdC:FV(version)");
 				/* this takes care of options given after
 				** file names.
 				*/
@@ -273,6 +280,7 @@ register char *argv[];
 			case 's':
 			case 't':
 			case 'd':
+			case 'F':
 				if (p) {
 				   sprintf(SccsError,
 				     gettext("value after %c arg (cm8)"), 
@@ -302,7 +310,7 @@ register char *argv[];
 				exit(EX_OK);
 
 			default:
-			   fatal(gettext("Usage: get [-begkmLopst] [-l[p]] [-asequence] [-cdate-time] [-Gg-file] [-isid-list] [-rsid] [-xsid-list] file ..."));
+			   fatal(gettext("Usage: get [-beFgkmLopst] [-l[p]] [-asequence] [-cdate-time] [-Gg-file] [-isid-list] [-rsid] [-xsid-list] file ..."));
 			
 			}
 
@@ -536,9 +544,16 @@ char *file;
 					xmsg(gfile, NOGETTEXT("get"));
 			}
 		}
-		if ((gpkt.p_flags & (PF_V6 | PF_V6TAGS)) && gpkt.p_hash)
-			if (gpkt.p_hash[ser] != (gpkt.p_ghash & 0xFFFF))
+		if ((gpkt.p_flags & (PF_V6 | PF_V6TAGS)) && gpkt.p_hash) {
+			/*
+			 * SCCS v6 is able to check against SID specific
+			 * checksums, but this will not work in case that
+			 * we use include or exclude lists.
+			 */
+			if (gpkt.p_hash[ser] != (gpkt.p_ghash & 0xFFFF) &&
+			    elist == NULL && ilist == NULL && !HADUCF)
 				fatal(gettext("corrupted file version (co27)"));
+		}
 			
 		if (gpkt.p_gout) {
 			if (fflush(gpkt.p_gout) == EOF)

@@ -1,4 +1,4 @@
-#ident "@(#)sccscvt.mk	1.1 11/08/25 "
+#ident "@(#)sccscvt.mk	1.2 14/08/09 "
 ###########################################################################
 # Sample makefile for general application programs
 ###########################################################################
@@ -17,6 +17,7 @@ CPPOPTS +=	-I../../../sgs/inc/common
 CPPOPTS +=	-I../../hdr
 CPPOPTS +=	-DUSE_NLS
 CPPOPTS +=	-DINS_BASE=\"${INS_BASE}\"
+CPPOPTS +=	-DSCCS_FATALHELP		# auto call to help
 
 CFILES=		sccscvt.c
 

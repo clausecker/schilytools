@@ -1,4 +1,4 @@
-.\" @(#)sccslog.1	1.14 13/08/07 Copyr 1997-2013 J. Schilling
+.\" @(#)sccslog.1	1.16 14/09/15 Copyr 1997-2014 J. Schilling
 .\" Manual page for sccslog
 .\"
 .\" The contents of this file are subject to the terms of the
@@ -25,7 +25,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sccslog 1 "2013/08/07" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH sccslog 1 "2014/09/15" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 sccslog \- create a changelog from SCCS history files
 .SH SYNOPSIS
@@ -100,7 +100,7 @@ version number string and exists.
 To creates a changelog for all SCCS history files in directory SCCS call:
 .IP
 .B "sccslog SCCS/s.*"
-.SH ENVIRONMENT
+.SH ENVIRONMENT VARIABLES
 None.
 .SH FILES
 .TP
@@ -137,3 +137,6 @@ ronnie  Ronnie Nowhere <ronnie@nowhere.com>
 .SH NOTES
 .SH BUGS
 .SH AUTHOR
+.BR sccslog (1)
+was origininally written by J\*org Schilling in 1997 and is still
+maintained by J\*org Schilling.

@@ -1,4 +1,4 @@
-/* @(#)version.h	1.19 13/11/01 Copyright 2007-2013 J. Schilling */
+/* @(#)version.h	1.21 14/08/05 Copyright 2007-2014 J. Schilling */
 
 /*
  * The version for sccs programs
@@ -9,11 +9,11 @@
 #include <schily/mconfig.h>
 
 #ifndef	VERSION
-#define	VERSION	"5.05"
+#define	VERSION	"5.06"
 #endif
 
 #ifndef	VDATE
-#define	VDATE	"2013/11/01"
+#define	VDATE	"2014/08/05"
 #endif
 
 #ifdef	SCHILY_BUILD

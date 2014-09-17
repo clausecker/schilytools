@@ -27,14 +27,14 @@
  * Use is subject to license terms.
  */
 /*
- * Copyright 2006-2013 J. Schilling
+ * Copyright 2006-2014 J. Schilling
  *
- * @(#)defines.h	1.71 13/10/31 J. Schilling
+ * @(#)defines.h	1.76 14/08/09 J. Schilling
  */
 #ifndef	_HDR_DEFINES_H
 #define	_HDR_DEFINES_H
 #if defined(sun)
-#pragma ident "@(#)defines.h 1.71 13/10/31 J. Schilling"
+#pragma ident "@(#)defines.h 1.76 14/08/09 J. Schilling"
 #endif
 /*
  * @(#)defines.h 1.21 06/12/12
@@ -109,6 +109,10 @@ extern char *optarg;
 
 #ifndef	MAXPATHLEN
 #define	MAXPATHLEN	PATH_MAX
+#endif
+
+#ifdef	NO_SCCS_FATALHELP
+#undef	SCCS_FATALHELP
 #endif
 
 #if	(!defined(HAVE_SNPRINTF) && !defined(NO_SNPRINTF)) || \
@@ -512,6 +516,7 @@ extern	void	cmrerror __PR((const char *));
 /*
  * Declares for external variables in lib/comobj
  */
+extern	char	*sccs_insbase;
 extern	char	*Comments;
 extern	char	*Mrs;
 extern	int	Domrs;
@@ -598,6 +603,10 @@ extern	void	time2dt	__PR((dtime_t *, time_t, int));
 extern	time_t	gmtoff	__PR((time_t));
 extern	int		ssum __PR((char *, int));
 extern	unsigned int	usum __PR((char *, int));
+extern  void	set_init_path __PR((struct packet *, char *file, char *dir));
+extern	void	sccs_setinsbase __PR((char *));
+extern	int	sccsfatalhelp __PR((char *));
+extern	int	sccshelp __PR((FILE *, char *));
 
 /*
  * Declares for external variables in lib/mpwlib
@@ -649,6 +658,8 @@ extern  char*	get_Sccs_Comments __PR((void));
 extern	int	userexit __PR((int code));
 extern	void	*zrealloc __PR((void *ptr, size_t amt));
 extern	int	urandom	__PR((urand_t *urp));
+extern	void	tv2urand __PR((struct timeval *tvp, urand_t *urp));
+extern	void	urand2tv __PR((urand_t *urp, struct timeval *tvp));
 extern	int	sethome	__PR((void));
 
 #ifdef	DBG_MALLOC

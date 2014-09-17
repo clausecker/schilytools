@@ -27,10 +27,10 @@
 /*
  * Copyright 2006-2014 J. Schilling
  *
- * @(#)val.c	1.38 14/03/31 J. Schilling
+ * @(#)val.c	1.41 14/08/17 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)val.c 1.38 14/03/31 J. Schilling"
+#pragma ident "@(#)val.c 1.41 14/08/17 J. Schilling"
 #endif
 /*
  * @(#)val.c 1.22 06/12/12
@@ -137,7 +137,9 @@ char	*argv[];
 	 */
 	setlocale(LC_ALL, NOGETTEXT(""));
 	
-	/* 
+	sccs_setinsbase(INS_BASE);
+
+	/*
 	 * Set directory to search for general l10n SCCS messages.
 	 */
 #ifdef	PROTOTYPES
@@ -157,7 +159,10 @@ char	*argv[];
 	routine and terminate processing.
 	*/
 	Fflags = FTLMSG | FTLCLN | FTLEXIT;
-
+#ifdef	SCCS_FATALHELP
+	Fflags |= FTLFUNC;
+	Ffunc = sccsfatalhelp;
+#endif
 
 	ret_code = 0;
 	if (argc == 2 && argv[1][0] == '-' && !(argv[1][1])) {
@@ -473,7 +478,7 @@ char	*c_name;
 			/*
 			 * Read delta table for get_hashtest()
 			 */
-			if (gpkt.p_flags & PF_V6 && HADUCS)
+			if (gpkt.p_flags & PF_V6 && HADH)
 				get_setup(c_path);
 
 			/*
@@ -528,7 +533,23 @@ char	*c_name;
 							goodn++;
 					}
 				}
-				if (*(--l) != BUSERTXT) {
+
+				/*
+				 * If there are SCCS v6 flags or SCCS v6 global
+				 * meta data, we need to skip this data here.
+				 */
+				if (gpkt.p_line != NULL &&
+				    gpkt.p_line[0] == CTLCHAR &&
+				    gpkt.p_line[1] != BUSERTXT)
+					read_to(BUSERTXT,&gpkt);
+
+				/*
+				 * If we did not find the mandatory begin of
+				 * the user comment area, the file is corrupt.
+				 */
+				if (gpkt.p_line != NULL &&
+				    gpkt.p_line[0] == CTLCHAR &&
+				    gpkt.p_line[1] != BUSERTXT) {
 					fclose(gpkt.p_iop);
 					gpkt.p_iop = NULL;
 					get_close();	/* for SID checksums */
@@ -1080,7 +1101,7 @@ register char *d_sid;
 				goods++;
 		}
 		if (gpkt.p_flags & PF_V6 &&
-		    HADUCS && del.type == 'D') {
+		    HADH && del.type == 'D') {
 			int	ser;
 
 			satoi(del.serial, &ser);

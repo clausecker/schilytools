@@ -27,12 +27,12 @@
  * Use is subject to license terms.
  */
 /*
- * Copyright 2006-2013 J. Schilling
+ * Copyright 2006-2014 J. Schilling
  *
- * @(#)delta.c	1.60 13/10/31 J. Schilling
+ * @(#)delta.c	1.61 14/08/09 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)delta.c 1.60 13/10/31 J. Schilling"
+#pragma ident "@(#)delta.c 1.61 14/08/09 J. Schilling"
 #endif
 /*
  * @(#)delta.c 1.40 06/12/12
@@ -133,7 +133,9 @@ register char *argv[];
 	 */
 	setlocale(LC_ALL, "");
 	
-	/* 
+	sccs_setinsbase(INS_BASE);
+
+	/*
 	 * Set directory to search for general l10n SCCS messages.
 	 */
 #ifdef	PROTOTYPES
@@ -150,6 +152,10 @@ register char *argv[];
 
 	set_clean_up(clean_up);
 	Fflags = FTLEXIT | FTLMSG | FTLCLN;
+#ifdef	SCCS_FATALHELP
+	Fflags |= FTLFUNC;
+	Ffunc = sccsfatalhelp;
+#endif
 
 	current_optind = 1;
 	optind = 1;

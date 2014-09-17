@@ -1,0 +1,272 @@
+New features with AN-2014-09-17:
+
+This is the first localization step for the schily source consolidation. Many
+programs now (hopefully) call gettext() for all strings that need localization.
+
+-	The next step will include dgettext() calls for the libraries and the
+	missing programs
+
+-	The following step will include the extracted strings
+
+-	The last step will include German translations and install support
+	for the resulting binary message object files.
+
+----------> Please test and report compilation problems! <---------
+
+***** NOTE: As mentioned since 2004, frontends to the tools should *****
+*****		call all programs in the "C" locale		   *****
+*****		by e.g. calling: LC_ALL=C cdrecord ....		   *****
+*****		unless these frontends support localized strings   *****
+*****		used by the cdrtools with NLS support.		   *****
+
+		*** WARNING        ***
+		*** Need new smake ***
+
+	*** Due to the fact that schily-tools 2014-04-03 introduced to use new macro
+	*** expansions and a related bug fix in smake, you need a new smake
+	*** to compile this source. To ensure this, call:
+
+	cd ./psmake
+	./MAKE-all
+	cd ..
+	psmake/smake
+	psmake/smake install
+
+
+	WARNING: the new version of the isoinfo program makes use of the 
+		*at() series of functions that have been introduced by Sun
+		in August 2001 and added to POSIX.1-2008. For older platforms,
+		libschily now includes emulations for these functions but
+		these emulations have not yet been tested thouroughly.
+		Please report problems!
+
+	The new smake version mentioned above is smake-1.2.4
+
+
+-	include/schily/unistd.h now extends some exceptions to work around
+	problems with the MS C-compiler to MinGW32.
+
+-	Fixed a bug in mkisofs: -eltorito-platform Mac no longer uses the
+	constant EL_TORITO_ARCH_PPC but EL_TORITO_ARCH_MAC as expected.
+	Thanks to Ady <ady-sf@hotmail.com> for reporting.
+
+-	Fixed an option parsing bug in mkisofs that was a result from
+	option names that are beginning substrings of others. Mkisofs did
+	try to fix this in 2006, but it seems that one option was missed
+	in 2006. Now -hide-hfs was fixed, thanks to: 
+
+-	Flush stderr before a question in cdda2wav. This is a workaround
+	for a Linux libc bug (stderr must be unbuffered acording to the
+	standard).
+
+-	The builtin type(1) from bsh now uses an exit code of 1 in case that
+	a parameter is not related to an existing executable object.
+
+-	sccs/man/sccsfile.4 better wording
+
+-	sccs/man/sccsfile.4 man page now mentiones which sccs programs
+	write or modify s.files.
+
+-	sccs/man/changeset.4 enhanced content
+
+-	sccs/man/* Now mention AUTHORS
+
+-	sccs/man/*.1 The SYNOPSIS section of all man pages was converted
+	to conform to man(5) style rules.
+
+-	sccs/man/*.1 now mention the option -q that enables NSE specific
+	extensions. The NSE extensions in SCCS are still partially present
+	but have been undocumented until now.
+
+-	sccs/man/*.1 now mention the option -z that enables CMF specific
+	extensions for MR number handling. The CMF extensions in SCCS are
+	still partially present but have been undocumented until now.
+
+-	sccs/man/*.1 now correctly document options that do not allow a
+	space between the option letter and the argument.
+
+-	sccs/man/*.1 mentioning the new environment variable:
+	SCCS_NO_HELP that switches off automated sccs help output for
+	error messages that obviously contain a SCCS error code covered
+	by "sccs help <code>".
+
+-	sccs/man/sccs-admin.1 mentioning the new environment variable:
+	SCCS_V6 that causes SCCSv6 history files to be created by default.
+
+-	sccs/man/sccs-admin.1 now mentionns the 'z' flag that was
+	introduced by Sun for the CMF extensions from NSE.
+
+-	sccs/man/sccs-delta.1 better documentation for the -g option.
+
+-	sccs/man/sccs-delta.1 now mentions a bug with SCCSv6 and delta -g 
+
+-	sccs/man/sccs-delta.1 now documents the NSE specific options -f / -h
+
+-	sccs/man/sccs-get.1 now documents the format of the p.file.
+
+-	sccs/man/sccs-get.1 now documents the Sun specific option
+	-w<%W%-string>
+
+-	sccs/man/sccs-prs.1 now documents the CMF specific keyword extensions
+
+-	sccs/sccs/hdr/defines.h was enhanced due to lib comobj changes
+
+-	sethome.c (a new file for SCCSv6 changeset support) was moved from
+	mpwlib to comobj as mpwlib is the former libPW (Programmers Workbench)
+	from AT&T that is not related to SCCS but contains code of general
+	interest. Lib comobj on the other side is the generic SCCS support
+	library.
+
+-	The code to create the initial path for a file for the SCCSv6 meta data
+	was moved from admin.c to lib comobj/src/setinitpath.c.
+
+-	A bug in SCCS mpwlib/src/urandom.c was fixed. The bug caused all	
+	microsecond values from gettimeofday() to be replaced by a random value
+	in case gettimeofday() did never deliver tv_usec == 0 before. As this
+	was done using an uninitialized random generator, the values have
+	always been taken from the same set and thus havebeen predictable.
+
+-	mpwlib/src/urandom.c now always implements and exports the functions:
+	tv2urand() and urand2tv() to allow to convert urandom values back
+	to timevals (based on the epoche "2004 Jan 10 13:37:04 UTC") and 
+	vice versa.
+
+-	A bug in admin.c that caused admin(1) to corrupt SCCSv6 history files
+	in case that the -t option was used has been fixed.
+
+-	A bug in admin.c that caused admin(1) partially write a wrong SID
+	specific checksum in SCCSv6 history files when an empty file was
+	created has been fixed.
+
+-	The SCCS admin program now by default creates SCCSv6 history files
+	in case that the environment variable "SCCS_V6" is present.
+
+-	The SCCS get program now implements a new option -F that enforces to
+	retrieve a g-file even if there was a SCCSv6 SID specific checksum
+	missmatch.
+
+-	The SCCS get program now disables to check the SID specific SCCSv6
+	checksum in case that the -i or -x option habe been used.
+
+-	The SCCS prs program now correctly reads SCCSv6 history files
+	even in case that the keyword :FD: was used.
+
+-	The SCCS val program now correctly reads SCCSv6 history files
+	even in case that the options -y / -m have been used.
+
+-	The SCCS val program had a bug that was caused by a forgotten change
+	from the test version to the final version and offered to check
+	SCCSv6 SID specific checksums with -h, but internally expected an
+	option -S. This is now coherent and -h works.
+
+-	All SCCS programs now by default try to analyze the error messages
+	and when an error message ends in a parenthesized SCCS error mesage,
+	the SCCS help code is executed as library version. If this behavior
+	is not desired, the user should put SCCS_NO_HELP into his environment.
+
+-	The SCCS help command moved the relevant code into libcomobj and now
+	uses the same library version of the code as all other SCCS programs
+	use to write the new extended error messages.
+
+-	The SCCS help output for "sccs_subcmds" and basic sub-commands (intro)
+	now delivers the subcommands in alphabetic order.
+
+-	The SCCS help output for "delta" now documents the
+	NSE specific options -f / -h
+
+-	The SCCS help output for "get" now mentions -F
+
+-	The SCCS help output for "get" now mentions the Sun Option -w%W%-string
+
+-	The SCCS help output for "val" now mentions -h
+
+-	The SCCS help output for "prs "now mentions the CMF specific
+	keyword extensions
+
+-	The SCCS help output now mentions the option -V for all apropriate
+	programs
+
+-	The SCCS help output now mentions the option -q (NSE) for all apropriate
+	programs
+
+-	The SCCS help output now mentions the option -z that enables CMF specific
+	extensions for MR number handling.
+
+-	The command "sccs enter/create ..." now accepts the -V6 flag to
+	enforce to create a SCCS v6 history file.
+
+-	tests/bin/echo_nnl has been rewritten to allow sh -ce ". echo_nnl"
+	to work (do not test $? but the command result directly).
+
+-	sccs/tests/README was updated
+
+-	sccs/tests/sccstests/common/real-thing now checks whether the
+	SCCS implementation under test supports the SCCS V6 history format
+	and sets TESTING_SCCS_V6=true on success.
+
+-	sccs/tests/Makefile has been rewritten to allow to check SCCS in
+	V4 and V6 mode.
+
+-	sccs/tests/sccstests/binary/basic.sh now also supports SCCS V6
+
+-	Mention in sccs/tests/cssctests/README that this is the original
+	README from the imported unit tests from the CSSC project.
+
+-	sccs/tests/cssctests/README_ORIGIN now mentions that the tests
+	in cssctests are bases on CSSC version 1.3.1
+
+Important note: The program delta(1) is currently buggy with respect to a
+		SCCS v6 history file when "delta -g<sid-list> s.file" is
+		called. This is because the SID specific checksum is computed
+		from the current file content, but "delta -g..." tells
+		get(1) to extract something different than what we checked in.
+
+The following modifications have been applied to the test suite in the
+directory sccs/tests/cssctests/ in order to support SCCS_v6 as well:
+
+-	$TESTING_SCCS_V6		This variable has been added in order
+					to deal with different behavior of
+					SCCS in case that SCCSv6 history files
+					are used.
+
+-	Test c3 in admin/admin-hz.sh	This test intentionally destroys the
+					SCCS checsum in line 1 of the history
+					file. The original code also destroys
+					the V6 header and results in "V3"
+					instead of "V6". The new code reverts
+					this accidental effect.
+
+-	Text C2 in admin/comment.sh	This tests checks the date/time format
+					in the delta table. As the SCCSv6
+					history format always uses a 4-digit
+					year format, the test needs to check
+					a different format whether in v4 or v6
+					mode.
+
+-	binary/auto.sh			Several tests are related to auto-uu-
+					encoding of files in case that there
+					is content that is unsupported by
+					SCCSv4. As SCCSv6 treats everything as
+					test files as long as there is no NUL
+					character present, these tests need
+					to be different for SCCSv6 history
+					files.
+
+-	binary/seeking.sh		This script contains more corner
+					cases for text vs. binary files that
+					behave different vor SCCS v4 and v6.
+
+-	get/excl_ig_2.sh		Warns on a SCCSv6 bug with delta -gsid
+
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.net, js@cs.tu-berlin.de
+	joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

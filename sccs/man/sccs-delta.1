@@ -1,4 +1,5 @@
 '\" te
+.\" @(#)sccs-delta.1	1.27 14/09/15 Copyright 2007-2014 J. Schilling
 .\" CDDL HEADER START
 .\"
 .\" The contents of this file are subject to the terms of the
@@ -18,17 +19,47 @@
 .\"
 .\" CDDL HEADER END
 .\" Copyright (c) 1999, Sun Microsystems, Inc. All Rights Reserved
-.\" Copyright 2007-2013 J. Schilling
-.TH sccs-delta 1 "2013/06/16" "SunOS 5.11" "User Commands"
+.if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
+.if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
+.if t .ds u \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'u
+.if t .ds A \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'A
+.if t .ds O \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'O
+.if t .ds U \v'-0.77m'\h'0.30n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.75n'U
+.if t .ds s \\(*b
+.if t .ds S SS
+.if n .ds a ae
+.if n .ds o oe
+.if n .ds u ue
+.if n .ds s sz
+.TH sccs-delta 1 "2014/09/15" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs-delta, delta \- make a delta to an SCCS file
 .SH SYNOPSIS
 .LP
-.nf
-\fB/usr/ccs/bin/delta\fR [\fB-dnops\fR] [\fB-g\fR \fIsid-list\fR | \fB-g\fR\fIsid-list\fR] 
-    [\fB-m\fR \fImr-list\fR | \fB-m\fR\fImr-list\fR] [\fB-r\fR \fIsid\fR | \fB-r\fR\fIsid\fR] 
-    [\fB-y\fR [\fIcomment\fR]] \fI s.filename\fR...
-.fi
+.B /usr/ccs/bin/delta
+.RB [ -dfhnopsz ]
+.RB [ -g
+.I sid-list
+|
+.BI -g sid-list\c
+]
+.br
+.RB "    [" -m
+.I mr-list
+|
+.BI -m mr-list\c
+]
+.RB [ -q\c
+.RI [ nsedelim "]] \c
+.RB [ -r
+.I sid
+|
+.BI  -r sid\c
+]
+.br
+.RB "    [" -y
+.RI [ comment ]]
+.IR s.filename ...
 
 .SH DESCRIPTION
 
@@ -57,7 +88,7 @@ The following options are supported:
 .sp
 .ne 2
 .TP 26
-\fB\fB-d\fR\fR
+.B -d
 Use command 
 \fBdiff\fR(1) instead of 
 \fBbdiff\fR(1). Returns exit status
@@ -65,19 +96,77 @@ Use command
 instead of
 .B 1
 if the
-.I s.filename
+.BI s. filename
 argument is not specified.
 .sp
 .ne 2
 .TP
-\fB\fB-n\fR\fR
+.B -f
+In NSE mode, this option allows to enforce a delta even when no
+.BI p. file
+exists.
+The new SID is assigned using the same rules as with
+.BR "get -e" .
+.sp
+This option is an undocumented
+.B \s-1SUN\s+1
+extension that does not exist in historic
+.B sccs 
+implementations.
+.sp
+.ne 2
+.TP
+.B -h
+In NSE mode, this option allows to use
+.BR diffh (1)
+for large files.
+.sp
+This option is currently defunct.
+.sp
+This option is an undocumented
+.B \s-1SUN\s+1
+extension that does not exist in historic
+.B sccs 
+implementations.
+.sp
+.ne 2
+.TP
+.B -n
 Retain the edited \fBg\fR-file, which is normally removed at the completion of processing.
 .sp
 .ne 2
 .TP
-\fB\fB-p\fR\fR
+.B -p
 Display line-by-line differences (in 
 \fBdiff\fR(1) format) on the standard output.
+.sp
+.ne 3
+.TP
+.BI -q\fR[ nsedelim\fR]
+Enable
+.B NSE
+mode.
+If
+.B NSE
+mode is enabled, several
+.B NSE
+related extensions may be used.
+In this release, the value of
+.I nsedelim
+is ignored.
+.sp
+In NSE mode,
+.B delta
+behaves as if the
+.B \-o
+option was specified and never issues a warning about missing
+.BR "id keyword" s.
+.sp
+This option is an undocumented
+.B \s-1SUN\s+1
+extension that does not exist in historic
+.B sccs 
+implementations.
 .sp
 .ne 2
 .TP
@@ -87,20 +176,61 @@ Silent.  Do not display warning or confirmation messages.  Do not suppress error
 .ne 2
 .TP
 \fB\fB-g\fR \fIsid-list\fR | \fB-g\fR\fIsid-list\fR\fR
-Specify a list of deltas to omit when the file is accessed at the \fBSCCS\fR version \fBID\fR (\fBSID\fR) created by this delta. \fIsid-list\fR is a comma-separated list of \fBSID\fRs. To specify a range of deltas, use a `\fB\(mi\fR' separator instead of a comma, between two \fBSID\fRs in the list.
+Specify a list of deltas to omit when the file is accessed at the
+.B SCCS
+version
+.B ID
+.RB ( SID )
+created by this delta.
+This causes the file to be checked out later to differ
+from the checked in file unless
+.RB ` "get -i\c
+.IR sid-list '
+with the same
+.I sid-list
+is specified during checkout.
+.I sid-list
+is a comma-separated list of
+.IR SID s.
+To specify a range of deltas, use a
+.RB ` \(mi '
+separator instead of a comma, between two
+.BR SID s
+in the list.
 .sp
 .ne 2
 .TP
 \fB\fB-m\fR \fImr-list\fR | \fB-m\fR\fImr-list\fR\fR
-If the SCCS file has the \fBv\fR flag set (see 
-\fBsccs-admin\fR(1)), you must supply one or more Modification Request (MR) numbers for the new delta. When specifying more than one MR number on the command line, \fImr-list\fR takes the form of a quoted, space-separated list. If \fB-m\fR is not used and the standard input is a terminal, \fBdelta\fR prompts with \fBMRs?\fR for the list (before issuing the \fBcomments?\fR prompt). If the \fBv\fR flag in the \fBs.\fRfile has a value, it is taken to be the name of a program to validate the MR numbers. If that validation program returns a non-zero exit status, \fBdelta\fR terminates
-without checking in the changes.
+If the SCCS file has the
+.B v
+flag set (see 
+.BR sccs-admin (1)),
+you must supply one or more Modification Request (MR) numbers for the
+new delta. When specifying more than one MR number on the command line,
+.I mr-list
+takes the form of a quoted, space-separated list. If
+.B \-m
+is not used and the standard input is a terminal,
+.B delta
+prompts with
+.RB ` MRs? " '
+for the list (before issuing the
+.RB ` comments? " '
+prompt). If the
+.B v
+flag in the
+.BR s. file
+has a value, it is taken to be the name of a program to validate the
+MR numbers. If that validation program returns a non-zero exit status,
+.B delta
+terminates without checking in the changes.
 .sp
 .ne 3
 .TP
 .B \-o
 Use the original time of the edited file for the delta time
 when applying the delta.
+In NSE mode this is the default behavior.
 .sp
 This option is a
 .B SCHILY
@@ -116,8 +246,25 @@ results if the specified \fBSID\fR is ambiguous, or if one is required but not s
 .ne 2
 .TP
 \fB\fB-y\fR[\fIcomment\fR]\fR
-Supply a comment for the delta table (version log). A null comment is accepted, and produces an empty commentary in the log. If \fB-y\fR is not specified and the standard input is a terminal, \fBdelta\fR prompts with `\fBcomments?\fR'. An unescaped NEWLINE terminates the comment.
+Supply a comment for the delta table (version log). A null comment is accepted,
+and produces an empty commentary in the log. If
+.B \-y
+is not specified and the standard input is a terminal,
+.B delta
+prompts with
+.RB ` comments? " '.
+An unescaped NEWLINE terminates the comment.
 .ne 3
+.TP
+.B \-z
+.ne 3
+Enable CMF extensions for MR number handling.
+.sp
+This option is an undocumented
+.B \s-1SUN\s+1
+extension that does not exist in historic
+.B sccs 
+implementations.
 .TP
 .BI \-C dir
 Specify the base directory for the
@@ -136,56 +283,85 @@ Prints the
 version number string and exists.
 
 .SH ENVIRONMENT VARIABLES
-
-.LP
-See 
-\fBenviron\fR(5) for descriptions of the following environment variables that affect the execution of \fBdelta\fR: LANG, LC_ALL, LC_COLLATE, LC_CTYPE, LC_MESSAGES, and NLSPATH.
 .sp
+.LP
+See
+.BR environ (5)
+for descriptions of the following environment variables that affect the
+execution of
+.BR delta (1):
+.BR LANG ,
+.BR LC_ALL ,
+.BR LC_COLLATE ,
+.BR LC_CTYPE ,
+.BR LC_MESSAGES ,
+and
+.BR NLSPATH .
+.br
+.ne 4
+.TP
+.B SCCS_NO_HELP
+If set,
+.BR delta (1)
+will not automatically call
+.BR help (1)
+with the SCCS error code in order to print a more helpful
+error message. Scripts that depend on the exact error messages
+of SCCS commands should set the environment variable
+.B SCCS_NO_HELP
+and set
+.BR LC_ALL=C .
+
+.br
+.ne 6
+.SH STDOUT
+.sp
+.LP
+If the
+.B \-s
+option was not specified,
+.B delta
+prints statistics about file activities in the following format:
+.sp
+.RS
+.I new-sid
+.br
+.I nn
+inserted
+.br
+.I nn
+deleted
+.br
+.I nn
+unchanged
+.br
+.RE
 
 .SH EXIT STATUS
-
+.sp
 .LP
 The following exit values are returned:
 .sp
-
-.sp
 .ne 2
-.mk
-.na
-\fB\fB0\fR\fR
-.ad
-.RS 3n
-.rt  
+.TP 5
+.B 0
 Successful completion.
 .sp
-
-.RE
-
+.ne 2
+.TP
+.B 1
+An error occurred and the
+.B \-d
+option had not been specified.
 .sp
 .ne 2
-.mk
-.na
-\fB\fB1\fR\fR
-.ad
-.RS 3n
-.rt  
-An error occurred and the \fB-d\fR option had not been specified.
-.sp
-
-.RE
-
-.sp
-.ne 2
-.mk
-.na
-\fB\fB2\fR\fR
-.ad
-.RS 3n
-.rt  
-An error occurred, the \fB-d\fR option had been specified, and the \fIs.filename\fR argument was not specified.
-.sp
-
-.RE
+.TP
+.B 2
+An error occurred, the
+.B \-d
+option had been specified, and the
+.I s.filename
+argument was not specified.
 
 .SH FILES
 
@@ -210,7 +386,11 @@ in case of an encoded history file
 .ne 2
 .TP
 .BI p. file
-permission (lock) file for checked-out versions
+permission (lock) file for checked-out versions.
+See
+.BR sccs-get (1)
+for a description of the layout of the
+.BR p. file.
 
 .sp
 .ne 2
@@ -227,7 +407,8 @@ after completion
 .TP
 .BI s. file
 .B SCCS
-history file
+history file, see
+.BR sccsfile (4).
 
 .sp
 .ne 2
@@ -304,5 +485,74 @@ Use the \fBSCCS\fR \fBhelp\fR command for explanations (see
 .SH WARNINGS
 
 .LP
-Lines beginning with an \fBASCII SOH\fR character (binary 001) cannot be placed in the \fBSCCS\fR file unless the \fBSOH\fR is escaped. This character has special meaning to \fBSCCS\fR (see 
-\fBsccsfile\fR(4)) and produces an error.
+Lines beginning with an
+.B ASCII SOH
+character (binary 001) cannot be placed in the
+.B SCCS
+file if the 
+.B SCCS 
+v4 history file format is used, unless the
+.B SOH
+is escaped. This character has special meaning to
+.B SCCS
+(see 
+.BR sccsfile (4))
+and produces an error in
+.B SCCS
+v4 mode.
+.B SCCS
+v6 automatically esacapes such characters and thus allows
+to use
+.B ASCII SOH
+at any place in a file.
+
+.SH BUGS
+The program
+.BR delta (1)
+is currently buggy while adding the SID specific checksum when a
+.B SCCS\ v6
+history file is used with the command
+.RB ` "delta -g\c"
+.I sid-list
+.BI s. file\c
+\&'.
+This is because the SID specific checksum is computed
+from the current
+.I file
+content, but
+.RB ` "delta -g..." '
+tells
+.BR get (1)
+to extract something different than what we checked in.
+As
+.BR get (1)
+computes the checksum with the excluded SIDs, while
+.BR delta (1)
+computed the checksum with included SIDs,
+it will encounter
+a checksum misscompare.
+
+.SH AUTHORS
+The
+.B SCCS
+suite was origininally written by Marc J. Rochkind at Bell Labs in 1972.
+Release 4.0 of
+.BR SCCS ,
+introducing new versions of the programs
+.BR admin (1),
+.BR get (1),
+.BR prt (1),
+and
+.BR delta (1)
+was published on February 18, 1977; it introduced the new text based
+.B SCCS\ v4
+history file format (previous
+.B SCCS
+releases used a binary history file format).
+The
+.B SCCS
+suite
+was later maintained by various people at AT&T and Sun Microsystems.
+Since 2006, the
+.B SCCS
+suite is maintained by J\*org Schilling.

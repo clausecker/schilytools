@@ -1,4 +1,8 @@
-h58261
+h16234
+s 00003/00001/00055
+d D 1.2 14/08/26 20:06:34 joerg 2 1
+c Zerstoerung der Checksumme hatte auch "V6" -> "V3" gewandelt
+e
 s 00056/00000/00000
 d D 1.1 10/04/29 02:05:14 joerg 1 0
 c date and time created 10/04/29 02:05:14 by joerg
@@ -6,7 +10,7 @@
 u
 U
 f e 0
-f y 
+f y
 t
 T
 I 1
@@ -34,7 +38,14 @@ docommand c2 "${vg_admin} -h $s" 0 "" ""
 
 # Now, create a copy with a changed checksum, but no other 
 # differences.
+D 2
 docommand c3 " (sed -e '1y/0123456789/9876453210/' <$s >$s2) " 0 "" ""
+E 2
+I 2
+# If we are testing SCCS v6, we need to repair the V6 header
+# as the first sed command replaces V6 by V3.
+docommand c3 " (sed -e '1y/0123456789/9876453210/' <$s | sed -e '1s/V3/V6/' >$s2) " 0 "" ""
+E 2
 
 # Check that we think that the checksum of the file is wrong.
 docommand c4 "${vg_admin} -h $s2" 1 "" "IGNORE"

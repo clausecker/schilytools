@@ -25,12 +25,12 @@
  * Use is subject to license terms.
  */
 /*
- * Copyright 2006-2011 J. Schilling
+ * Copyright 2006-2014 J. Schilling
  *
- * @(#)vc.c	1.12 11/10/13 J. Schilling
+ * @(#)vc.c	1.13 14/08/09 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)vc.c 1.12 11/10/13 J. Schilling"
+#pragma ident "@(#)vc.c 1.13 14/08/09 J. Schilling"
 #endif
 /*
  * @(#)vc.c 1.6 06/12/12
@@ -134,7 +134,13 @@ char *argv[];
 	size_t linesize = 0;
 	extern int Fflags;
 
+	sccs_setinsbase(INS_BASE);
+
 	Fflags = FTLCLN | FTLMSG | FTLEXIT;
+#ifdef	SCCS_FATALHELP
+	Fflags |= FTLFUNC;
+	Ffunc = sccsfatalhelp;
+#endif
 	setsig();
 	for(i = 1; i< argc; i++) {
 		p = argv[i];

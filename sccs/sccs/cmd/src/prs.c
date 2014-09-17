@@ -27,10 +27,10 @@
 /*
  * Copyright 2006-2014 J. Schilling
  *
- * @(#)prs.c	1.41 14/03/31 J. Schilling
+ * @(#)prs.c	1.43 14/08/13 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)prs.c 1.41 14/03/31 J. Schilling"
+#pragma ident "@(#)prs.c 1.43 14/08/13 J. Schilling"
 #endif
 /*
  * @(#)prs.c 1.33 06/12/12
@@ -160,7 +160,9 @@ char *argv[];
 	 */
 	setlocale(LC_ALL, NOGETTEXT(""));
 
-	/* 
+	sccs_setinsbase(INS_BASE);
+
+	/*
 	 * Set directory to search for general l10n SCCS messages.
 	 */
 #ifdef	PROTOTYPES
@@ -181,6 +183,10 @@ char *argv[];
 	*/
 	set_clean_up(clean_up);
 	Fflags = FTLMSG | FTLCLN | FTLEXIT;
+#ifdef	SCCS_FATALHELP
+	Fflags |= FTLFUNC;
+	Ffunc = sccsfatalhelp;
+#endif
 
 	/*
 	The following loop processes keyletters and arguments.
@@ -388,6 +394,14 @@ register	char	*file;
 	*/
 
 	doflags(&gpkt);
+
+	/*
+	 * If there are SCCS v6 flags or SCCS v6 global meta data,
+	 * we need to skip this here.
+	 */
+	if (gpkt.p_line != NULL &&
+	    gpkt.p_line[0] == CTLCHAR && gpkt.p_line[1] != BUSERTXT)
+		read_to(BUSERTXT,&gpkt);
 
 	/*
 	create auxiliary file for the User Text section

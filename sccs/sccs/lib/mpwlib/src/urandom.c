@@ -25,10 +25,10 @@
  *	scalar type will be unable to work past 2038 Jan 19 03:14:07 GMT.
  *	For this reason, it is sufficient to support 52 bits for such systems.
  *
- * @(#)urandom.c	1.1 11/10/29 Copyright 2011 J. Schilling
+ * @(#)urandom.c	1.2 14/08/02 Copyright 2011-2014 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)urandom.c	1.1 11/10/29 Copyright 2011 J. Schilling"
+#pragma ident "@(#)urandom.c	1.2 14/08/02 Copyright 2011-2014 J. Schilling"
 #endif
 
 #if defined(sun)
@@ -38,10 +38,6 @@
 #include	<defines.h>
 
 LOCAL void	rtime	__PR((struct timeval *tvp));
-#ifndef	HAVE_LONG_LONG
-LOCAL void	tv2urand __PR((struct timeval *tvp, urand_t *urp));
-LOCAL void	urand2tv __PR((urand_t *urp, struct timeval *tvp));
-#endif
 
 LOCAL struct timeval	otv;
 
@@ -64,7 +60,7 @@ urandom(urp)
 		timerfix(&tv);
 	}
 	otv = tv;
-	tv.tv_sec -= 0x40000000;
+	tv.tv_sec -= 0x40000000;	/* 2004 Jan 10 13:37:04 UTC */
 #ifdef	HAVE_LONG_LONG
 	*urp = tv.tv_sec * 1000000LL + tv.tv_usec;
 #else
@@ -75,6 +71,12 @@ urandom(urp)
 
 LOCAL	int	have_usec;
 
+/*
+ * Retrieve "random" time.
+ * This is the current time including microseconds.
+ * If there are no microseconds on the current platform,
+ * we insert random bits instead.
+ */
 LOCAL void
 rtime(tvp)
 	struct timeval	*tvp;
@@ -84,10 +86,14 @@ rtime(tvp)
 	unsigned int	u;
 
 	gettimeofday(tvp, 0);
-	if (have_usec > 0)
+	if (have_usec > 0)		/* We know we have usecs */
 		return;
+	if (tvp->tv_usec != 0) {	/* Usec != 0 on first call */
+		have_usec = 1;
+		return;
+	}
 
-	if (tvp->tv_usec == 0 && have_usec == 0) {
+	if (have_usec == 0) {		/* First call with tv_usec == 0 */
 		for (i = 0; i < 1000; i++) {
 			gettimeofday(&tv2, 0);
 			if (tvp->tv_usec != tv2.tv_usec)
@@ -108,16 +114,22 @@ rtime(tvp)
 	tvp->tv_usec = rand() % 1000000;
 }
 
-#ifndef	HAVE_LONG_LONG
 /*
- * The next two funtions work correclty for an unsigned int up to 52 bits.
+ * Even is case that there is no long long support on a system,
+ * the next two funtions work correclty for an unsigned int up to 52 bits.
  * This is sufficient for any date before 2038 Jan 19 03:14:08 GMT.
+ *
+ * The struct timeval for these two functions is not based on
+ * 1970 Jan 1 00:00:00 UTC, but based on 2004 Jan 10 13:37:04 UTC.
  */
-LOCAL void
+EXPORT void
 tv2urand(tvp, urp)
 	struct timeval	*tvp;
 	urand_t		*urp;
 {
+#ifdef	HAVE_LONG_LONG
+	*urp = tvp->tv_sec * 1000000LL + tvp->tv_usec;
+#else
 	unsigned int	low;
 	unsigned int	high;
 	unsigned int	u;
@@ -145,13 +157,18 @@ tv2urand(tvp, urp)
 
 	urp->low = low;
 	urp->high = high;
+#endif
 }
 
-LOCAL void
+EXPORT void
 urand2tv(urp, tvp)
 	urand_t		*urp;
 	struct timeval	*tvp;
 {
+#ifdef	HAVE_LONG_LONG
+	tvp->tv_sec  = *urp / 1000000LL;
+	tvp->tv_usec = *urp % 1000000LL;
+#else
 	unsigned int	low;
 	unsigned int	high;
 	unsigned int	u;
@@ -192,5 +209,5 @@ urand2tv(urp, tvp)
 
 	tvp->tv_sec = u2;
 	tvp->tv_usec = high;
-}
 #endif
+}

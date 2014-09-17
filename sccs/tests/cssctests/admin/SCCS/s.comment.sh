@@ -1,4 +1,8 @@
-h14274
+h50924
+s 00011/00001/00075
+d D 1.4 14/08/26 20:11:31 joerg 4 3
+c Anpassung an erweitertes Datumsformat von SCCSv6
+e
 s 00001/00001/00075
 d D 1.3 11/10/21 23:07:38 joerg 3 2
 c prs -d:DI: Tests sind nun POSIX konform
@@ -25,6 +29,11 @@
 # Import common functions & definitions.
 . ../common/test-common
 
+I 4
+# Import function which tells us if we're testing CSSC, or something else.
+. ../common/real-thing
+
+E 4
 s=s.new.txt
 remove foo new.txt [xzs].new.txt [xzs].1 [xzs].2 command.log
 
@@ -47,9 +56,23 @@ ${vg_prs} $s | sed -ne '/^COMMENTS:$/,/^.*$/ p' > prs.$s || fail prs failed.
 E 2
 test `wc -l < prs.$s` -eq 2 || fail wrong comment format.
 test `head -1 prs.$s` = "COMMENTS:" || fail Comment doesn\'t start COMMENTS:
+D 4
 tail -1 prs.$s | egrep \
+E 4
+I 4
+if $TESTING_SCCS_V6
+then
+ tail -1 prs.$s | egrep \
+ '^date and time created [0-9][0-9][0-9][0-9]/[0-1][0-9]/[0-3][0-9] [0-2][0-9]:[0-5][0-9]:[0-5][0-9].* by ' >/dev/null\
+    || fail "default message format error."
+else
+ tail -1 prs.$s | egrep \
+E 4
  '^date and time created [0-9][0-9]/[0-1][0-9]/[0-3][0-9] [0-2][0-9]:[0-5][0-9]:[0-5][0-9] by ' >/dev/null\
     || fail "default message format error."
+I 4
+fi
+E 4
 echo passed
 remove $s prs.$s 
 

@@ -25,12 +25,12 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2011 J. Schilling
+ * This file contains modifications Copyright 2006-2014 J. Schilling
  *
- * @(#)lockit.c	1.13 11/11/13 J. Schilling
+ * @(#)lockit.c	1.14 14/08/09 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)lockit.c 1.13 11/11/13 J. Schilling"
+#pragma ident "@(#)lockit.c 1.14 14/08/09 J. Schilling"
 #endif
 /*
  * @(#)lockit.c 1.20 06/12/12
@@ -182,6 +182,13 @@ char	*uuname;
 	int	fd, n;
 	pid_t	opid;
 	char	ouuname[nodenamelength];
+
+	/*
+	 * Do nothing if just called from a clean up handler that does
+	 * not yet have a lockfile name.
+	 */
+	if (lockfile[0] == '\0')
+	   return (-1);
 
 	if ((fd = open(lockfile, O_RDONLY|O_BINARY)) < 0) {
 	   return(-1);

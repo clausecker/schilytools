@@ -94,7 +94,12 @@ then
 test_ascii a1 "foo\n" 
 test_ascii a2 "foo\nbar\n" 
 test_ascii a3 ""                        # an empty input file should be OK.
-test_bin   b4 "\001\n"                  # line starts with control-a
+if $TESTING_SCCS_V6
+then
+  test_ascii b4 "\001\n"                # line starts with control-a
+else
+  test_bin   b4 "\001\n"                # line starts with control-a
+fi
 test_ascii a5 "x\001\n"                 # line contains ^A but doesnt start with it.
 
 adminflags=-b
@@ -107,7 +112,12 @@ adminflags=
 if $TESTING_CSSC
 then
     ## Real SCCS fails on these inputs:-
-    test_bin   fb10 "foo"               # no newline at end of file.
+    if $TESTING_SCCS_V6
+    then
+      test_ascii fb10 "foo"             # no newline at end of file.
+    else
+      test_bin   fb10 "foo"             # no newline at end of file.
+    fi
     test_bin   fa11 "x\000y\n"          # ASCII NUL.
     test_ascii fa12 "x\001y\n"          # ASCII SOH.
 else

@@ -1,5 +1,5 @@
 '\" t
-.\" @(#)changeset.4	1.3 13/06/15 Copyright 2011-2013 J. Schilling 
+.\" @(#)changeset.4	1.4 14/08/04 Copyright 2011-2014 J. Schilling 
 .\"
 .\" The contents of this file are subject to the terms of the
 .\" Common Development and Distribution License, Version 1.0 only
@@ -25,7 +25,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH changeset 4 "2013/06/15" "J\*org Schilling" "File Formats"
+.TH changeset 4 "2014/08/04" "J\*org Schilling" "File Formats"
 .SH NAME
 changeset \- format of an SCCS changeset file
 .SH DESCRIPTION
@@ -35,14 +35,18 @@ An SCCS
 file is an
 .B ASCII
 file consisting of a list of entries
-that describe the state of a project set under control of SCCSv6 or later.
+that describe the state of a project-set under control of SCCSv6 or later.
 .LP
 The
 .B changeset
 file itself is under control of SCCS.
 SCCS works directly on the 
 .BR s. changeset
-file, there is no need to check out the related file content.
+file.
+There is no need to check out the related file content, as the deltas
+can be consructed without explicitely running the 
+.BR diff (1)
+program.
 
 .SS Conventions
 .LP
@@ -119,10 +123,10 @@ See
 .BR sccsfile (4)
 for a detailed description of the unified pseudo random number.
 .sp
-The minimal length for the pseudo random number is
-thirteen hexadecimal characters.
-This allows to have a unique length for this number
-until 2146 Sep 27 13:30:51 GMT.
+The minimal length for the pseudo random
+number is thirteen hexadecimal characters. If the number could be represented
+with less digits, it is left filled with zeroes. This allows to have a unique
+length for this number until 2146 Sep 27 13:30:51 GMT.
 .br
 .ne 5
 .TP
@@ -174,7 +178,7 @@ The configured e-mail address for the
 .ne 5
 .TP
 .B path length
-A decimal number representing the number bytes in the path name not
+A decimal number representing the number of bytes in the path name not
 including the final newline character.
 .br
 .ne 5
@@ -184,6 +188,10 @@ The path name of the related file after the commit has been applied.
 The path name holds a relative path as seen from the
 .B project set home
 directory.
+As the path name is the last member in the lines of a changeset file,
+it may contain the
+.B vertical line
+character (ASCII 0x7C).
 .RE
 .LP
 A typical entry in the

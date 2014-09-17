@@ -14,10 +14,10 @@
  *
  *	Search for $SET_HOME/.sccs
  *
- * @(#)sethome.c	1.1 11/10/30 Copyright 2011 J. Schilling
+ * @(#)sethome.c	1.3 14/08/05 Copyright 2011-2014 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)sethome.c	1.1 11/10/30 Copyright 2011 J. Schilling"
+#pragma ident "@(#)sethome.c	1.3 14/08/05 Copyright 2011-2014 J. Schilling"
 #endif
 
 #if defined(sun)
@@ -26,10 +26,14 @@
 #endif
 #include	<defines.h>
 
-char	*setrhome;
-char	*setahome;
-char	*cwdprefix;
-int	homedist;
+/*
+ * If it is not possible to retrieve "setahome", it may be a NULL pointer.
+ * The variables "setrhome" and "cwdprefix" are always set from sethome().
+ */
+char	*setrhome;	/* Relative path to the project set home directory */
+char	*setahome;	/* Absolute path to the project set home directory */
+char	*cwdprefix;	/* Prefix from project set home directory to cwd */
+int	homedist;	/* The # of directories to the project set home dir */
 
 LOCAL	int	searchabs	__PR((char *path));
 LOCAL	int	dorel		__PR((char *bp, size_t len));

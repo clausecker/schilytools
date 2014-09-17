@@ -25,12 +25,12 @@
  * Use is subject to license terms.
  */
 /*
- * Copyright 2006-2013 J. Schilling
+ * Copyright 2006-2014 J. Schilling
  *
- * @(#)prt.c	1.31 14/03/31 J. Schilling
+ * @(#)prt.c	1.33 14/08/09 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)prt.c 1.31 14/03/31 J. Schilling"
+#pragma ident "@(#)prt.c 1.33 14/08/09 J. Schilling"
 #endif
 /*
  * @(#)prt.c 1.22 06/12/12
@@ -141,7 +141,9 @@ char *argv[];
 	 */
 	setlocale(LC_ALL, NOGETTEXT(""));
 	
-	/* 
+	sccs_setinsbase(INS_BASE);
+
+	/*
 	 * Set directory to search for general l10n SCCS messages.
 	 */
 #ifdef	PROTOTYPES
@@ -161,6 +163,10 @@ char *argv[];
 	routine, and terminate processing.
 	*/
 	Fflags = FTLMSG | FTLCLN | FTLEXIT;
+#ifdef	SCCS_FATALHELP
+	Fflags |= FTLFUNC;
+	Ffunc = sccsfatalhelp;
+#endif
 
 	testklt = 1;
 

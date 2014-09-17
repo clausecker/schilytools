@@ -27,10 +27,10 @@
 /*
  * This file contains modifications Copyright 2006-2014 J. Schilling
  *
- * @(#)what.c	1.14 14/03/31 J. Schilling
+ * @(#)what.c	1.15 14/08/09 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)what.c 1.14 14/03/31 J. Schilling"
+#pragma ident "@(#)what.c 1.15 14/08/09 J. Schilling"
 #endif
 /*
  * @(#)what.c 1.11 06/12/12
@@ -75,7 +75,9 @@ register char **argv;
 	 */
 	setlocale(LC_ALL, NOGETTEXT(""));
 	
-	/* 
+	sccs_setinsbase(INS_BASE);
+
+	/*
 	 * Set directory to search for general l10n SCCS messages.
 	 */
 #ifdef	PROTOTYPES

@@ -1,8 +1,8 @@
-/* @(#)builtin.c	1.83 14/04/21 Copyright 1988-2014 J. Schilling */
+/* @(#)builtin.c	1.84 14/06/29 Copyright 1988-2014 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)builtin.c	1.83 14/04/21 Copyright 1988-2014 J. Schilling";
+	"@(#)builtin.c	1.84 14/06/29 Copyright 1988-2014 J. Schilling";
 #endif
 /*
  *	Builtin commands
@@ -1675,6 +1675,7 @@ btype(vp, std, flag)
 			val = NULL;
 		} else {
 			fprintf(output, "not found\n");
+			ex_status = 1;
 		}
 	}
 }

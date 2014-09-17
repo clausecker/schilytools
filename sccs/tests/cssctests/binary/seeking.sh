@@ -86,6 +86,32 @@ fi
 rm -f $s
 }
 
+# test_ascii: 
+#
+# As for test_bin, but the resulting SCCS file must NOT be encoded.
+# 
+test_ascii() {
+label=$1
+echo_nonl ${label}...
+shift
+
+rm -f infile $s
+echo_nonl "$@" > infile
+if ${vg_admin} -iinfile ${adminflags} $s >/dev/null 2>&1
+then
+    if ( ${prt} -f $s 2>/dev/null ; echo foo ) | grep encoded >/dev/null 2>&1
+    then
+        bad $label input produced an encoded s-file and should not have.
+    else
+        good
+    fi
+else
+    bad $label ${vg_admin} returned exit status $?.
+fi
+rm -f infile $s
+}
+
+
 g=testfile
 s=s.$g
 z=z.$g
@@ -131,15 +157,30 @@ adminflags=
 
 
 # Now try various nearly-text files.
-test_bin s2 ctrl-A-file
+if $TESTING_SCCS_V6
+then
+	test_ascii s2 ctrl-A-file
+else
+	test_bin s2 ctrl-A-file
+fi
 
 # Create a file which we only discover needs encoding after
 # we have read loads of it.
 remove infile ; cat long-text-file ctrl-A-file > infile
-test_bin s3 infile
+if $TESTING_SCCS_V6
+then
+	test_ascii s3 infile
+else
+	test_bin s3 infile
+fi
 
 # Another long file but binary because it lacks a newline at the end.
-test_bin s4 ctrl-A-end
+if $TESTING_SCCS_V6
+then
+	test_ascii s4 ctrl-A-end
+else
+	test_bin s4 ctrl-A-end
+fi
 
 use_stdin=true
 
@@ -153,20 +194,47 @@ then
     # Do the tests that SCCS does not pass.
     use_stdin=false
     
-    test_bin s5 no-newline		# Real SCCS fails this one.
+	if $TESTING_SCCS_V6
+	then
+	    test_ascii s5 no-newline	# Real SCCS fails this one.
+	else
+	    test_bin s5 no-newline	# Real SCCS fails this one.
+	fi
     
     remove infile ; cat long-text-file no-newline > infile
-    test_bin s6 infile
+	if $TESTING_SCCS_V6
+	then
+	    test_ascii s6 infile
+	else
+	    test_bin s6 infile
+	fi
 
     use_stdin=true
-    test_bin i1 ctrl-A-file
-    test_bin i2 infile
+	if $TESTING_SCCS_V6
+	then
+	    test_ascii i1 ctrl-A-file
+	    test_ascii i2 infile
+	else
+	    test_bin i1 ctrl-A-file
+	    test_bin i2 infile
+	fi
     remove infile ; cat long-text-file ctrl-A-file > infile
-    test_bin i3 ctrl-A-end
-    test_bin i4 no-newline
+	if $TESTING_SCCS_V6
+	then
+	    test_ascii i3 ctrl-A-end
+	    test_ascii i4 no-newline
+	else
+	    test_bin i3 ctrl-A-end
+	    test_bin i4 no-newline
+	fi
 
     remove infile ; cat long-text-file no-newline > infile
-    test_bin i5 infile
+	if $TESTING_SCCS_V6
+	then
+	    test_ascii i5 infile
+	else
+	    test_bin i5 infile
+	fi
 else
     echo "Not running tests on CSSC; Some tests have been been omitted"
 fi

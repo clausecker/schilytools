@@ -23,12 +23,12 @@
  * Use is subject to license terms.
  */
 /*
- * Copyright 2006-2013 J. Schilling
+ * Copyright 2006-2014 J. Schilling
  *
- * @(#)sccs.c	1.63 14/03/31 J. Schilling
+ * @(#)sccs.c	1.66 14/08/12 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)sccs.c 1.63 14/03/31 J. Schilling"
+#pragma ident "@(#)sccs.c 1.66 14/08/12 J. Schilling"
 #endif
 /*
  * @(#)sccs.c 1.85 06/12/12
@@ -369,7 +369,7 @@ static struct sccsprog SccsProg[] =
 	   "get:ixrc -e -b/delta: -s -n -ybranch-place-holder/get:pl -e -t -g" },
 	{ "enter",	ENTER,	NO_SDOT,		NULL },
 	{ "create",	CMACRO,	NO_SDOT,
-	   "enter:abdfmortyz/get:ixbeskcl -t" },
+	   "enter:abdfmortyzV/get:ixbeskcl -t" },
 	{ NULL,		-1,	0,			NULL }
 };
 
@@ -466,7 +466,9 @@ main(argc, argv)
 	 */
 	setlocale(LC_ALL, NOGETTEXT(""));
 	
- 	/* 
+	sccs_setinsbase(INS_BASE);
+
+ 	/*
  	 * Set directory to search for general l10n SCCS messages.
  	 */
 #ifdef	PROTOTYPES
@@ -486,6 +488,10 @@ main(argc, argv)
 #endif
 
 	Fflags = FTLEXIT | FTLMSG | FTLCLN;
+#ifdef	SCCS_FATALHELP
+	Fflags |= FTLFUNC;
+	Ffunc = sccsfatalhelp;
+#endif
 
 # ifndef SCCSDIR
 	/* Pull "SccsDir" out of the environment variable         */

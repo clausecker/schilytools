@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sccs.1	4.27 13/07/21 Copyright 2007-2013 J. Schilling
+.\" @(#)sccs.1	4.30 14/09/15 Copyright 2007-2014 J. Schilling
 .\" 
 .\" CDDL HEADER START
 .\"
@@ -20,7 +20,19 @@
 .\"
 .\" CDDL HEADER END
 .\"  Copyright (c) 2007, Sun Microsystems, Inc.  All Rights Reserved.
-.TH sccs 1 "2013/07/21" "SunOS 5.11" "User Commands"
+.if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
+.if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
+.if t .ds u \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'u
+.if t .ds A \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'A
+.if t .ds O \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'O
+.if t .ds U \v'-0.77m'\h'0.30n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.75n'U
+.if t .ds s \\(*b
+.if t .ds S SS
+.if n .ds a ae
+.if n .ds o oe
+.if n .ds u ue
+.if n .ds s sz
+.TH sccs 1 "2014/09/15" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs \- front end for the Source Code Control System (SCCS)
 .SH SYNOPSIS
@@ -1846,9 +1858,9 @@ new delta 1.3
 .LP
 See
 .BR environ (5)
-for descriptions of the following environment variables that affect
-the execution of
-.BR sccs :
+for descriptions of the following environment variables that affect the
+execution of
+.BR sccs (1):
 .BR LANG ,
 .BR LC_ALL ,
 .BR LC_CTYPE ,
@@ -1884,7 +1896,7 @@ The editor to call with the
 .B sccs editor
 command.
 .br
-.ne 3
+.ne 4
 .TP 14
 .B EDITOR
 The editor to call with the
@@ -1899,6 +1911,20 @@ nor
 is set,
 .BR vi (1)
 is called as editor.
+.br
+.ne 4
+.TP
+.B SCCS_NO_HELP
+If set,
+.BR sccs (1)
+will not automatically call
+.BR help (1)
+with the SCCS error code in order to print a more helpful
+error message. Scripts that depend on the exact error messages
+of SCCS commands should set the environment variable
+.B SCCS_NO_HELP
+and set
+.BR LC_ALL=C .
 
 .SH EXIT STATUS
 .LP
@@ -1952,7 +1978,11 @@ program
 .ne 2
 .TP
 .BI SCCS/p. file
-permissions (lock) file for checked-out versions
+permissions (lock) file for checked-out versions.
+See
+.BR sccs-get (1)
+for a description of the layout of the
+.BR p. file.
 
 .sp
 .ne 2
@@ -2051,3 +2081,9 @@ Interface StabilityStandard
 .BR attributes (5),
 .BR environ (5),
 .BR standards (5).
+
+.SH AUTHORS
+.BR sccs (1)
+was origininally written by Eric Allman at UCB in 1980. It was later
+maintained by various people at AT&T and Sun Microsystems.
+Since 2006, it is maintained by J\*org Schilling.

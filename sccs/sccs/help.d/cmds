@@ -21,9 +21,9 @@
 * Copyright 1991 Sun Microsystems, Inc. All rights reserved.
 * Use is subject to license terms.
 *
-* Copyright 2006-2011 J. Schilling
+* Copyright 2006-2014 J. Schilling
 *
-* @(#)cmds	1.26 13/08/07 J. Schilling 
+* @(#)cmds	1.39 14/09/04 J. Schilling 
 *
 * @(#)cmds 1.3 06/12/12
 *
@@ -31,27 +31,33 @@
 *	Synopsis of SCCS commands
 *
 -delta
-	delta [-r<SID>] [-s] [-n] [-o] [-g<list>] [-m<mrlist>] [-y<comment>]
-		[-d] [-p] [-Cdir] file ...
+	delta [-r<SID>] [-s] [-n] [-o] [-g<list>] [-m<mrlist>] [-q[nsedelim]]
+		[-y<comment>]
+		[-d] [-f] [-h] [-p] [-z] [-Cdir] file ...
 
 	Make a delta to an SCCS file
 
 options:
 	-d	Use diff(1) instead of bdiff(1)
+	-f	In NSE mode, enforce a delta even when no p.file exists
+	-h	In NSE mode, allow diffh for large files (currently defunct)
 	-mMR	Supply MR-number
 	-n	Retain the edited g-file
 	-o	Use original time of edited file to apply delta
 	-p	Display the differences in diff(1) format on stdout
+	-qnsed	Enable NSE mode. The parameter "nsed" is ignored.
 	-s	Be silent
 	-gSID	Specify deltas to omit
 	-rSID	Supply SCCS ID
 	-ycmt	Supply delta comment
+	-z	Enable CMF extensions for MR numbers
 	-Cdir	Working directory for g-file
+	-V	Print version number
 
 -get
 	get [-r<SID>] [-c<cutoff>] [-i<list>] [-x<list>] [-a<seq no.>] [-Cdir]
-	    [-k] [-e] [-l<p>] [-L]
-	    [-p] [-m] [-n] [-o] [-s] [-b] [-g] [-t] file ...
+	    [-k] [-e] [-F] [-l<p>] [-L] [-q[nsedelim]] [-w<%W%-replacement>]
+	    [-p] [-m] [-n] [-o] [-s] [-b] [-g] [-t] [-z<cmr>] file ...
 
 	Retrieve a version of an SCCS file
 
@@ -61,6 +67,7 @@ options:
 	-cdate	Retrieve version based on cutoff-time
 	-d	Do not print the number of gotten lines
 	-e	Retrieve version for editing
+	-F	Force to get g-file even when there is a SID checksum error
 	-g	Get SCCS version ID without retrieving version itself
 	-Gname	Use name as name for retrieved g-file
 	-iSID	Specify deltas to include
@@ -71,13 +78,17 @@ options:
 	-n	Precede each line with %M% ID and TAB
 	-o	Retrieve file under original time
 	-p	Writes the retrieved version to stdout
+	-qnsed	Enable NSE mode. The parameter "nsed" is ignored.
 	-s	Be silent
 	-t	Retrieve most recent (top) delta to a given release
+	-w	Redefine the expansion for the %W% keyword
 	-xSID	Specify deltas to exclude
 	-rSID	Supply SCCS ID
+	-zcmr	Append MR number to CMR list for CMF extensions
 	-C	Working directory for g-file
+	-V	Print version number
 
-	(do 'help get_kywds' for description of recognized ID keywords)
+	(do 'help get_kywds'  for a description of recognized ID keywords)
 
 -get_kywds
 
@@ -107,7 +118,7 @@ Keyword       Type
  %S%          SID Sequence component
  %T%          Current time: hh:mm:ss
  %U%          Time newest applied delta was created: hh:mm:ss
- %W%          Shorthand notation for an ID line with %Z%%M%  %I%
+ %W%          Shorthand notation for an ID line with %Z%%M%  %I% or get -w arg
  %Y%          Module type: value of the t flag in the s.file
  %Z%          4-character string: `@(#)'
 
@@ -116,7 +127,7 @@ Keyword       Type
 -admin
      admin [-n] [-i<name>] [-r<rel>] [-t<name>] [-f<add-flag<flag-val>>] ...
            [-d<del-flag>] ... [-a<add-login>] ... [-e<erase-login>] ...
-           [-m<mrlist>] [-N[bulk-spec]] [-y<comment>]
+           [-m<mrlist>] [-N[bulk-spec]] [-q[nsedelim]] [-y<comment>]
            [-b] [-h] [-o] [-z] file ...
 
 	Create and administer SCCS history files
@@ -126,13 +137,14 @@ options:
 	-b	Force encoding of binary data as uuencoded data
 	-dflag	Delete indicated flag from SCCS file	
 	-eid	Erase user name of numerical group id from permitted users
-	-fflag	value Set indicated flag in SCCS file
+	-fflag	Add indicated flag in SCCS file
 	-h	Check the structure of an existing SCCS file
 	-ifile	Initialize history with text from file
 	-mMR	Supply MR-number
 	-Nspec	Create a bulk of SCCS history files and initialize them
 	-n	Create a new SCCS history file
 	-o	Use original time of edited file to apply to initial delta
+	-qnsed	Enable NSE mode. The parameter "nsed" is ignored.
 	-rSID	Supply SCCS ID
 	-tfile	Insert descriptive text from file
 	-ycmt	Supply initial delta comment
@@ -153,6 +165,7 @@ options:
 
 options:
 	-s	Stop after first occurrence of SCCS pattern
+	-V	Print version number
 -comb
 	comb [-o] [-s] [-p<SID>] [-c<list>] file ...
 
@@ -163,6 +176,7 @@ options:
 	-o	May decrease the size of the reconstructed history file
 	-pSID	The SID of the oldest delta to be preserved
 	-s	Generate scripts to gather statistics rather than combining deltas
+	-V	Print version number
 -cvt
 	cvt [-d] [-k] -V4/-V6 file ...
 
@@ -171,6 +185,7 @@ options:
 options:
 	-d	Discard additional meta data when converting to SCCS v4
 	-k	Keep original history file as o.file
+	-V	Print version number
 	-V4	Convert a SCCS v6 file to a SCCS v4 file
 	-V6	Convert a SCCS v4 file to a SCCS v6 file
 -bdiff
@@ -181,22 +196,28 @@ options:
 options:
 	-s	Be silent
 -cdc
-	cdc -rSID [-m<mrlist>] [-y<comment>] file ...
+	cdc -rSID [-m<mrlist>] [-q[nsedelim]] [-y<comment>] [-z] file ...
 
 	Change the delta commentary of an SCCS delta
 
 options:
 	-mMR	Supply MR-number
+	-qnsed	Enable NSE mode. The parameter "nsed" is ignored.
 	-rSID	Supply SCCS ID
 	-ycmt	Supply delta comment
+	-z	Enable CMF extensions for MR numbers
+	-V	Print version number
 -rmdel
-	rmdel -rSID [-d] file ...
+	rmdel -rSID [-d] [-q[nsedelim]] [-z] file ...
 
 	Remove a delta from an SCCS file
 
 options:
 	-d	Fully discard the delta
+	-qnsed	Enable NSE mode. The parameter "nsed" is ignored.
 	-rSID	Supply SCCS ID
+	-z	Enable CMF extensions for MR numbers
+	-V	Print version number
 -log
 	log [-a|-aa] [-Cdir] [-p<subdir>] [-x] file...
 
@@ -208,6 +229,7 @@ options:
 	-Cdir	Use dir as base directory for printed names
 	-pdir	Use dir as subdirectory for SCCS files
 	-x	Print all comment (do not exclude comment that starts with ^Ac_)
+	-V	Print version number
 -sccsdiff
 	sccsdiff -rSID1 -rSID2 [-p] [-q] [<diff-flags>] sccsfile ...
 
@@ -217,6 +239,7 @@ options:
 	-rSID1	Supply SCCS ID#1
 	-rSID2	Supply SCCS ID#2
 	-p	Pipe output through pr(1)
+	-V	Print version number
 -stuck
 
 The SCCS help facility provides limited
@@ -230,6 +253,7 @@ argument to help.
 
 Other help parameters to get an overview:
 
+    help intro
     help sccs_subcmds
     help get_kywds
     help prs_kywds
@@ -253,16 +277,18 @@ read-only.
 
 -val
 	val -
-	val [-T] [-s] [-r<SID>] [-m<name>] [-y<type>] file ...
+	val [-T] [-h] [-s] [-r<SID>] [-m<name>] [-y<type>] file ...
 
 	Validate an SCCS file
 
 options:
+	-h	Check SID specific checksums in SCCS v6 history files.
 	-mname	Compare name with %M% keyword in s.file
 	-rSID	Supply SCCS ID
 	-s	Be silent
 	-T	Print extra debug (trace) messages)
 	-ytype	Compare type with %Y% keyword in s.file
+	-V	Print version number
 -vc
 	vc [-a] [-t] [-c<char>] [-s] [keyword=value ... keyword=value]
 
@@ -274,7 +300,8 @@ options:
 	-s	Be silent
 	-t	All characters from the beginning of a line up to a TAB are ignored
 -prs
-	prs [-d<dataspec>] [-r<SID>] [-c<cutoff>] [-e] [-l] [-a] file ...
+	prs [-d<dataspec>] [-r<SID>] [-c<cutoff>] [-e] [-l] [-a]
+		[-q[nsedelim]] file ...
 
 	Display selected portions of an SCCS history
 
@@ -284,8 +311,11 @@ options:
 	-dspec	Produce report based on keywords in spec
 	-e	Include all deltas earlier than and including specified by -r or -c
 	-l	Include all deltas later than and including specified by -r or -c
+	-qnsed	Enable NSE mode. The parameter "nsed" is ignored.
+	-rSID	Supply SCCS ID
+	-V	Print version number
 
-	(do 'help prs_kywds' for description of recognized data keywords)
+	(do 'help prs_kywds'  for a description of recognized data keywords)
 
 -prs_kywds
 
@@ -324,7 +354,9 @@ Keyword       Data Item            Section           Type           Type
  :Dx:   Deltas excluded               "          :DS: :DS: ...       S
  :Dg:   Deltas ignored                "          :DS: :DS: ...       S
  :MR:   MR numbers                    "              text            M
+ :MC:   CMF valid flag                "            yes or no         S
  :SX:   SID specific extensions       "              text            M
+ :AC:   CMF valid pgm.                "              text            S
   :C:   Comments                      "              text            M
  :UN:   User names               User Names          text            M
  :FL:   Flag List                   Flags    desc of all flags set   M
@@ -372,6 +404,7 @@ options:
 	-t	Print descriptive text from s.file
 	-u	Print user names and/or numerical group ids
 	-ySID	Exclude delta table entries prior to specified SID
+	-V	Print version number
 -sact
 	sact [-s] file ...
 
@@ -379,30 +412,35 @@ options:
 
 options:
 	-s	Be silent
+	-V	Print version number
 -unget
-	unget [-r<SID>] [-n] [-s] file...
+	unget [-r<SID>] [-n] [-q[nsedelim]] [-s] file...
 
 	Undo a previous get of an SCCS file
 
 options:
 	-n	Retains retrieved version
+	-qnsed	Enable NSE mode. The parameter "nsed" is ignored.
 	-rSID	When multiple versions are checked out, unget specified SID
 	-s	Suppress to display SID
+	-V	Print version number
 
 -intro
       sccs [-R] [-T] [-r] [-d<rdir>] [-p<sdir>] subcommand [opt ...] [file ...]
 
 basic sub-commands:
 	sccs admin	create or administer SCCS history files
-	sccs get	retrieve a version of an SCCS file
-	sccs help	print help for SCCS commands and error messages
-	scca log	create a changelog using SCCS delta comments
-	sccs edit	get files for editing
 	sccs delget	do a delta followed by a get
 	sccs diffs	compare edited file with a version of an SCCS file
+	sccs edit	get files for editing
+	sccs get	retrieve a version of an SCCS file
+	sccs help	print help for SCCS commands and error messages
+	sccs log	create a changelog using SCCS delta comments
 	
 	(do 'help sccs'         for a full list of sccs options)
 	(do 'help sccs_subcmds' for a full list of sccs subcommands)
+	(do 'help get_kywds'    for a description of recognized ID keywords)
+	(do 'help prs_kywds'    for a description of recognized data keywords)
 -sccs
 	sccs [-R] [-T] [-r] [-d<rdir>] [-p<sdir>]
 		subcommand [option ...] [file ...]
@@ -414,44 +452,45 @@ options:
 	-r		Run sccs with the real user ID of the caller
 	-R		Run sccs in recursive mode via libfind.
 	-T		Trace mode. Print extra debug messages.
+	-V		Print version number
 
 	(do 'help sccs_subcmds' for a full list of sccs subcommands)
 
 -sccs_subcmds
 	sccs admin	create or administer SCCS history files
+	sccs branch	create a branch on an SCCS file
 	sccs cdc	change the delta commentary of an SCCS delta
+	sccs check	same as "info" but no putput if nothing is edited
+	sccs clean	remove files that can be regenerated from the s-file
 	sccs comb	combine SCCS deltas
+	sccs create	same as "enter" but followed by "get"
 	sccs cvt	convert SCCS history format between SCCS v4 and SCCS v6
+	sccs deledit	do a delta followed by an edit
+	sccs delget	do a delta followed by a get
 	sccs delta	make a delta to an SCCS file
-	sccs get	retrieve a version of an SCCS file
-	sccs help	print help for SCCS commands and error messages
-	scca log	create a changelog using SCCS delta comments
-	sccs prs	display selected portions of an SCCS history
-	sccs prt	display delta table information from an SCCS file
-	sccs rmdel	remove a delta from an SCCS file
-	sccs sact	editing activity status of an SCCS file
-	sccs val	validate an SCCS file
-	sccs what	extract SCCS version information from a file
-	sccs sccsdiff	compare two versions of an SCCS file
+	sccs diffs	compare edited file with a version of an SCCS file
 	sccs edit	get files for editing
 	sccs editor	call $EDITOR after calling "get -e file" if needed
-	sccs delget	do a delta followed by a get
-	sccs deledit	do a delta followed by an edit
+	sccs enter	create a new SCCS file from file content
 	sccs fix	remove a delta and reedit it
-	sccs clean	remove files that can be regenerated from the s-file
+	sccs get	retrieve a version of an SCCS file
+	sccs help	print help for SCCS commands and error messages
 	sccs info	give a list of all files being edited
-	sccs check	same as "info" but no putput if nothing is edited
+	sccs istext	check whether a file needs to be encoded
+	sccs ldiffs	compare edited file using local diff program from OS
+	sccs log	create a changelog using SCCS delta comments
+	sccs print	print the history and copmlete content of an SCCS file
+	sccs prs	display selected portions of an SCCS history
+	sccs prt	display delta table information from an SCCS file
+	sccs rcs2sccs	convert RCS history files into SCCS history files
+	sccs rmdel	remove a delta from an SCCS file
+	sccs sact	editing activity status of an SCCS file
+	sccs sccsdiff	compare two versions of an SCCS file
 	sccs tell	same as "info" but only file names are printed
 	sccs unedit	remove an edited file without merging into s-file
 	sccs unget	undo a previous get of an SCCS file
-	sccs diffs	compare edited file with a version of an SCCS file
-	sccs ldiffs	compare edited file using local diff program from OS
-	sccs print	print the history and copmlete content of an SCCS file
-	sccs branch	create a branch on an SCCS file
-	sccs enter	create a new SCCS file from file content
-	sccs create	same as "enter" but followed by "get"
-	sccs istext	check whether a file needs to be encoded
-	sccs rcs2sccs	convert RCS history files into SCCS history files
+	sccs val	validate an SCCS file
+	sccs what	extract SCCS version information from a file
 
 -edit
 	edit [-r<SID>] [-c<cutoff>] [-i<list>] [-x<list>] [-a<seq no.>]

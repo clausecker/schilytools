@@ -1,4 +1,4 @@
-#ident @(#)sccs.mk	1.6 08/08/20 
+#ident @(#)sccs.mk	1.7 14/08/09 
 ###########################################################################
 SRCROOT=	../../../..
 RULESDIR=	RULES
@@ -16,6 +16,7 @@ CPPOPTS +=	-I../../hdr
 CPPOPTS +=	-DUSE_RECURSIVE
 CPPOPTS +=	-DUSE_NLS
 CPPOPTS +=	-DINS_BASE=\"${INS_BASE}\"
+CPPOPTS +=	-DSCCS_FATALHELP		# auto call to help
 
 CFILES=		sccs.c
 

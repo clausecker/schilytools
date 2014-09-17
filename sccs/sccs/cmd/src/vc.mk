@@ -1,4 +1,4 @@
-#ident @(#)vc.mk	1.3 11/04/30 
+#ident @(#)vc.mk	1.4 14/08/09 
 ###########################################################################
 # Sample makefile for general application programs
 ###########################################################################
@@ -17,6 +17,7 @@ CPPOPTS +=	-I../../../sgs/inc/common
 CPPOPTS +=	-I../../hdr
 CPPOPTS +=	-DUSE_NLS
 CPPOPTS +=	-DINS_BASE=\"${INS_BASE}\"
+CPPOPTS +=	-DSCCS_FATALHELP		# auto call to help
 
 CFILES=		vc.c
 

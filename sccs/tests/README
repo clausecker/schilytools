@@ -23,19 +23,33 @@ But note that some operating systems do not support everything.
 		as the time functions in libc return -1 or such dates
 		and this will lead to dates like: 69/12/31 23:59:59
 
+If you run "smake", this will install a copy of the current SCCS binaries
+under /tmp/SCCSTEST. If you like to test something else, either manually
+create a related set of binaries under /tmp/SCCSTEST or check below how to
+use dir= to tell make to search the test binaries under a different directory.
+
 If you only like to run the tests imported from CSSC, run:
 
 	smake cssc-tests
 
 The CSSC tests give a fairly good basic test coverage, but as CSSC does not
-support every feature from SCCS, it may not be complete. See for:
+support every feature from SCCS, it may not be complete. See:
 cssctests/README_ORIGIN for some hints on how we changed the CSSC test suite.
+
+Running:
+
+	smake cssc-v6-tests
+
+will run the tests from above in SCCS v6 mode, but only in case that
+the SCCS implementation under test supports SCCS v6 history files.
 
 If you only like to run only the SCCS specific enhancement tests, run:
 
 	smake sccs-tests
 
-These tests do not do a full test, but they check:
+These tests in the directory sccstests do not do a full test (they assume
+that thebasic tests are in cssctests). The tests in sccstests check in
+addition:
 
 -	Some SCCS features not tested by the CSSC test suite
 
@@ -56,9 +70,16 @@ These tests do not do a full test, but they check:
 -	Corner cases that have been made to work by this SCCS version,
 	e.g. support for the time period beyond 1969..2068.
 
+Running:
+
+	smake sccs-v6-tests
+
+will run the tests from above in SCCS v6 mode, but only in case that
+the SCCS implementation under test supports SCCS v6 history files.
+
 
 If you like to test other implementations or installations, run e.g.:
 
 	dir=/usr/ccs/bin smake
 
-to run all tests against the SVr4 default install directory for SCCS.
+to run all the tests against the SVr4 default install directory for SCCS.

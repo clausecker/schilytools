@@ -1,8 +1,8 @@
-/* @(#)mkisofs.c	1.272 14/02/11 joerg */
+/* @(#)mkisofs.c	1.274 14/08/23 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)mkisofs.c	1.272 14/02/11 joerg";
+	"@(#)mkisofs.c	1.274 14/08/23 joerg";
 #endif
 /*
  * Program mkisofs.c - generate iso9660 filesystem  based upon directory
@@ -491,7 +491,7 @@ get_boot_platid(opt_arg)
 	} else if (streql(opt_arg, "PPC")) {
 		val = EL_TORITO_ARCH_PPC;
 	} else if (streql(opt_arg, "Mac")) {
-		val = EL_TORITO_ARCH_PPC;
+		val = EL_TORITO_ARCH_MAC;
 	} else if (streql(opt_arg, "efi")) {
 		val = EL_TORITO_ARCH_EFI;
 	} else {
@@ -1364,7 +1364,7 @@ LOCAL const struct mki_option mki_options[] =
 	__("\1FILE\1Set HFS AutoStart file name")},
 	{{"no-desktop%0", &create_dt },
 	__("Do not create the HFS (empty) Desktop files")},
-	{{"hide-hfs&", NULL, (getpargfun)hfs_add_match },
+	{{"hide-hfs& ", NULL, (getpargfun)hfs_add_match },
 	__("\1GLOBFILE\1Hide HFS file")},
 	{{"hide-hfs-list&", NULL, (getpargfun)hfs_add_list },
 	__("\1FILE\1List of HFS files to hide")},

@@ -1,8 +1,8 @@
-/* @(#)sccscvt.c	1.14 11/11/13 Copyright 2011 J. Schilling */
+/* @(#)sccscvt.c	1.16 14/08/09 Copyright 2011-2014 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)sccscvt.c	1.14 11/11/13 Copyright 2011 J. Schilling";
+	"@(#)sccscvt.c	1.16 14/08/09 Copyright 2011-2014 J. Schilling";
 #endif
 /*
  *	Convert a SCCS v4 history file to a SCCS v6 file and vice versa.
@@ -10,7 +10,7 @@ static	UConst char sccsid[] =
  *	is kept in special degenerated comment at the beginning of the comment
  *	block.
  *
- *	Copyright (c) 2011 J. Schilling
+ *	Copyright (c) 2011-2014 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -81,6 +81,8 @@ main(ac, av)
 	 */
 	setlocale(LC_ALL, "");
 
+	sccs_setinsbase(INS_BASE);
+
 	/*
 	 * Set directory to search for general l10n SCCS messages.
 	 */
@@ -98,6 +100,10 @@ main(ac, av)
 
 	set_clean_up(clean_up);
 	Fflags = FTLEXIT | FTLMSG | FTLCLN;
+#ifdef	SCCS_FATALHELP
+	Fflags |= FTLFUNC;
+	Ffunc = sccsfatalhelp;
+#endif
 
 	cac = --ac;
 	cav = ++av;
@@ -114,7 +120,7 @@ main(ac, av)
 		usage(0);
 	if (pversion) {
 		printf(
-	_("sccscvt %s-SCCS version %s %s (%s-%s-%s) Copyright (C) 2011 %s\n"),
+	_("sccscvt %s-SCCS version %s %s (%s-%s-%s) Copyright (C) 2011-2014 %s\n"),
 			PROVIDER,
 			VERSION,
 			VDATE,
@@ -263,7 +269,7 @@ convert(file)
 	/*
 	 * Copy user permissions, flags,
 	 * v6 flags, v6 extensions and
-	 * descruptive user text.
+	 * descriptive user text.
 	 */
 	flushto(&gpkt, EUSERTXT, FLUSH_COPY);
 

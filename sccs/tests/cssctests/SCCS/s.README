@@ -1,4 +1,8 @@
-h63410
+h17123
+s 00004/00002/00010
+d D 1.2 14/08/26 14:43:59 joerg 2 1
+c Hinweis auf das original-CSSC README
+e
 s 00012/00000/00000
 d D 1.1 10/05/11 11:30:00 joerg 1 0
 c date and time created 10/05/11 11:30:00 by joerg
@@ -10,9 +14,19 @@
 t
 T
 I 1
+D 2
 This directory contains regression tests for the CSSC package (unit
 tests are in ../unit-tests).
+E 2
+I 2
+The text below is the original README from the imported CSSC tests:
+E 2
 
+I 2
+
+This directory contains regression tests for the CSSC package.
+
+E 2
 The environment variable "dir" selects where the programs to be tested
 are found, so if your machine has "genuine" SCCS in (say) /usr/sccs,
 you can say export dir=/usr/sccs and run these tests on the genuine
