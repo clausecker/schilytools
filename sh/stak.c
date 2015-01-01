@@ -41,7 +41,7 @@
 /*
  *				Copyright Geoff Collyer 1987-2005
  *
- * @(#)stak.c	2.9 13/09/25	Copyright 2010-2013 J. Schilling
+ * @(#)stak.c	2.11 14/12/22	Copyright 2010-2013 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -57,7 +57,7 @@
 
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)stak.c	2.9 13/09/25 Copyright 2010-2013 J. Schilling";
+	"@(#)stak.c	2.11 14/12/22 Copyright 2010-2013 J. Schilling";
 #endif
 
 
@@ -156,14 +156,18 @@ static char	*stkhigh;		/* Highest known addr on stak */
  */
 
 static void	*xmalloc	__PR((size_t size));
+#ifndef	TOSSGROWING_MACRO
 static void	tossgrowing	__PR((void));
+#endif
 static char	*stalloc	__PR((int size));
 static void	grostalloc	__PR((void));
 	unsigned char *getstak	__PR((Intptr_t asize));
 #ifdef	STAK_DEBUG
 static void	prnln		__PR((long));
 #endif
+#if defined(STAK_DEBUG) || defined(FREE_DEBUG) || defined(TOSSCHECK)
 static void	prln		__PR((long));
+#endif
 	unsigned char *locstak	__PR((void));
 	unsigned char *savstak	__PR((void));
 	unsigned char *endstak	__PR((unsigned char *argp));
@@ -207,12 +211,50 @@ xmalloc(size)
 	return ((void *)ret);
 }
 
+#ifdef	TOSSGROWING_MACRO
+#ifdef	TOSSCHECK
+#define	tosscheck(stk)							\
+		/* verify magic before freeing */			\
+		if (stk.topitem->h.magic != STMAGICNUM &&		\
+		    stk.topitem->h.magic != STNMAGICNUM) {		\
+			prs((unsigned char *)				\
+					"tossgrowing: stk.topitem->h.magic ");	\
+			prln((long)stk.topitem->h.magic);		\
+			prs((unsigned char *)"\n");			\
+			error("tossgrowing: bad magic on stack");	\
+		}
+#else
+#define	tosscheck(stk)
+#endif
+#define	tossgrowing()							\
+	if (stk.topitem != 0) {		/* any growing stack? */	\
+		Stackblk *nextitem;					\
+									\
+		tosscheck(stk);						\
+		stk.topitem->h.magic = 0;	/* erase magic */	\
+									\
+		/*							\
+		 * about to free the ptr to next, so copy it first	\
+		 */							\
+		nextitem = stk.topitem->h.word;				\
+									\
+		TPRS("tossgrowing freeing ");				\
+		TPRN((long)stk.topitem);				\
+		TPRS("\n");						\
+									\
+		free(stk.topitem);					\
+		stk.topitem = nextitem;					\
+	}
+#endif	/* TOSSGROWING_MACRO */
+
+#ifndef	tossgrowing
 static void
 tossgrowing()				/* free the growing stack */
 {
 	if (stk.topitem != 0) {		/* any growing stack? */
 		Stackblk *nextitem;
 
+#ifdef	TOSSCHECK
 		/* verify magic before freeing */
 		if (stk.topitem->h.magic != STMAGICNUM &&
 		    stk.topitem->h.magic != STNMAGICNUM) {
@@ -222,6 +264,7 @@ tossgrowing()				/* free the growing stack */
 			prs((unsigned char *)"\n");
 			error("tossgrowing: bad magic on stack");
 		}
+#endif	/* TOSSCHECK */
 		stk.topitem->h.magic = 0;	/* erase magic */
 
 		/*
@@ -237,6 +280,7 @@ tossgrowing()				/* free the growing stack */
 		stk.topitem = nextitem;
 	}
 }
+#endif	/* !tossgrowing */
 
 static char *
 stalloc(size)		/* allocate requested stack space (no frills) */
@@ -318,12 +362,14 @@ prnln(l)
 }
 #endif
 
+#if defined(STAK_DEBUG) || defined(FREE_DEBUG) || defined(TOSSCHECK)
 static void
 prln(l)
 	long	l;
 {
 	prs(&numbuf[ltos(l)]);
 }
+#endif
 
 /*
  * set up stack for local use (i.e. make it big).

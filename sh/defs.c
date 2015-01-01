@@ -31,16 +31,16 @@
 #endif
 
 /*
- * This file contains modifications Copyright 2008-2013 J. Schilling
+ * This file contains modifications Copyright 2008-2014 J. Schilling
  *
- * @(#)defs.c	1.11 13/09/24 2008-2013 J. Schilling
+ * @(#)defs.c	1.12 14/06/25 2008-2014 J. Schilling
  */
 #ifdef	SCHILY_INCLUDES
 #include <schily/mconfig.h>
 #endif
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)defs.c	1.11 13/09/24 2008-2013 J. Schilling";
+	"@(#)defs.c	1.12 14/06/25 2008-2014 J. Schilling";
 #endif
 
 /*
@@ -48,94 +48,94 @@ static	UConst char sccsid[] =
  */
 
 #ifdef	SCHILY_INCLUDES
-#include		<schily/mconfig.h>
-#include		<setjmp.h>
-#include		"mode.h"
-#include		"name.h"
-#include		<schily/param.h>
-#include		"defs.h"
+#include	<schily/mconfig.h>
+#include	<setjmp.h>
+#include	"mode.h"
+#include	"name.h"
+#include	<schily/param.h>
+#include	"defs.h"
 #else
-#include		<setjmp.h>
-#include		"mode.h"
-#include		"name.h"
-#include		<sys/param.h>
-#include		"defs.h"
+#include	<setjmp.h>
+#include	"mode.h"
+#include	"name.h"
+#include	<sys/param.h>
+#include	"defs.h"
 #endif
 #ifndef NOFILE
 #define	NOFILE 20
 #endif
-/* temp files and io */
 
-int				output = 2;
-int				ioset;
+/* temp files and io */
+int		output = STDERR_FILENO;
+int		ioset;
 struct ionod	*iotemp;	/* files to be deleted sometime */
 struct ionod	*fiotemp;	/* function files to be deleted sometime */
 struct ionod	*iopend;	/* documents waiting to be read at NL */
 struct fdsave	fdmap[NOFILE];
 
 /* substitution */
-int				dolc;
-unsigned char			**dolv;
+int		dolc;
+unsigned char	**dolv;
 struct dolnod	*argfor;
 struct argnod	*gchain;
 
 
 /* name tree and words */
-int				wdval;
-int				wdnum;
-int				fndef;
-int				nohash;
+int		wdval;
+int		wdnum;
+int		fndef;
+int		nohash;
 struct argnod	*wdarg;
-int				wdset;
-BOOL			reserv;
+int		wdset;
+BOOL		reserv;
 
 /* special names */
-unsigned char			*pcsadr;
-unsigned char			*pidadr;
-unsigned char			*cmdadr;
+unsigned char	*pcsadr;
+unsigned char	*pidadr;
+unsigned char	*cmdadr;
 
 /* transput */
-int			tmpout_offset;
-unsigned int		serial;
-int			peekc;
-int			peekn;
-unsigned char			*comdiv;
-long			flags;
-int				rwait;	/* flags read waiting */
+int		tmpout_offset;
+unsigned int	serial;
+int		peekc;		/* If set, return this by readwc() as next c */
+int		peekn;		/* If set, return this in favor of "peekc"   */
+unsigned char	*comdiv;
+long		flags;
+int		rwait;		/* flags read waiting */
 
 /* error exits from various parts of shell */
-jmp_buf			subshell;
-jmp_buf			errshell;
+jmp_buf		subshell;
+jmp_buf		errshell;
 
 /* fault handling */
-BOOL			trapnote;
+BOOL		trapnote;
 
 /* execflgs */
-int				exitval;
-int				retval;
-BOOL			execbrk;
-int				loopcnt;
-int				breakcnt;
-int			funcnt;
-int				eflag;
+int		exitval;
+int		retval;
+BOOL		execbrk;
+int		loopcnt;
+int		breakcnt;
+int		funcnt;
+int		eflag;
 /*
  * The following flag is set if you try to exit with stopped jobs.
  * On the second try the exit will succeed.
  */
-int			tried_to_exit;
+int		tried_to_exit;
 /*
  * The following flag is set to true if /usr/ucb is found in the path
  * before /usr/bin. This value is checked when executing the echo and test
  * built-in commands. If true, the command behaves as in BSD systems.
  */
-int				ucb_builtins;
+int		ucb_builtins;
 
 /* The following stuff is from stak.h	*/
 
 /*
  * staktop = stakbot + local stak size
  */
-unsigned char			*stakbas;	/* Stack base after addblok() */
-unsigned char			*staktop;	/* Points behind local stak */
-unsigned char			*stakbot = 0;	/* Bottom addr for local stak */
-unsigned char			*brkend;	/* The first invalid address */
+unsigned char	*stakbas;	/* Stack base after addblok() */
+unsigned char	*staktop;	/* Points behind local stak */
+unsigned char	*stakbot = 0;	/* Bottom addr for local stak */
+unsigned char	*brkend;	/* The first invalid address */

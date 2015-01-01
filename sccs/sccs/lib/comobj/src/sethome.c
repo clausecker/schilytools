@@ -14,15 +14,15 @@
  *
  *	Search for $SET_HOME/.sccs
  *
- * @(#)sethome.c	1.3 14/08/05 Copyright 2011-2014 J. Schilling
+ * @(#)sethome.c	1.4 14/09/30 Copyright 2011-2014 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)sethome.c	1.3 14/08/05 Copyright 2011-2014 J. Schilling"
+#pragma ident "@(#)sethome.c	1.4 14/09/30 Copyright 2011-2014 J. Schilling"
 #endif
 
 #if defined(sun)
 #pragma ident	"@(#)sethome.c"
-#pragma ident	"@(#)sccs:lib/mpwlib/sethome.c"
+#pragma ident	"@(#)sccs:lib/comobj/sethome.c"
 #endif
 #include	<defines.h>
 

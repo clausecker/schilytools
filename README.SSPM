@@ -22,9 +22,9 @@ example on how it is used:
 You may test the new system by first downloading the latest
 cdrtools package 
 
-	ftp://ftp.berlios.de/pub/cdrecord/alpha/cdrtools-1.11a11.tar.gz
+	https://sourceforge.net/projects/cdrtools/files/alpha/
 
-or newer. Then unpack the source tarball, chdir into the top level
+Then unpack the source tarball, chdir into the top level
 directory of the cdrtools package. Run 'make' and wait until the 
 compilation has finished.
 
@@ -36,7 +36,7 @@ Now, to understand what a "Slottable Source Plugin Module" is, fetch
 another source. There is currently only one demo source that is ready
 for testing:
 
-	ftp://ftp.berlios.de/pub/star/alpha/star-1.4a08-sspm.tar.gz
+	http://sourceforge.net/projects/s-tar/files/star-1.4-sspm.tar.gz
 
 Unpack this tarball in the top level directory of cdrtools and
 call 'make' again. The Schily makefile system does recognize that there

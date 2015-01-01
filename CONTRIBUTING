@@ -1,4 +1,4 @@
-# @(#)CONTRIBUTING	1.3 06/05/30 Copyright 2006 J. Schilling
+# @(#)CONTRIBUTING	1.4 14/12/03 Copyright 2006 J. Schilling
 
 If you like to send patches or code to add to the project, you are welcome.
 
@@ -21,9 +21,9 @@ requirements apply to your code:
 §6	Your code is cleanly indented (matches the coding style 
 	from "Cstyle"). See files:
 
-		ftp://ftp.berlios.de/pub/cdrecord/Cstyle
+		http://sf.net/projects/schilytools/files/cstyle/Cstyle
 	and
-		ftp://ftp.berlios.de/pub/cdrecord/cstyle
+		http://sf.net/projects/schilytools/files/cstyle/cstyle
 
 §7	You allow me to publish the code under any OSI approved
 	license (see http://www.opensource.org/). If you like to

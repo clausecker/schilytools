@@ -22,7 +22,7 @@ Short overview for those who don't read manuals:
 
 	My "smake" source is at:
 
-	ftp://ftp.berlios.de/pub/smake/alpha/
+	https://sourceforge.net/projects/s-make/files/
 
 	It is easy to compile and doesn't need a working make program
 	on your machine. If you don't have a working "make" program on the
@@ -356,7 +356,7 @@ Getting more information on the make file system:
 
 	For further information read
 
-		ftp://ftp.berlios.de/pub/makefiles/PortableSoftware.ps.gz
+	http://sf.net/projects/schilytools/files/makefiles/PortableSoftware.ps.gz
 
 
 Hints for compilation:
@@ -402,7 +402,7 @@ Hints for compilation:
 	If you like to use 'smake', please always compile it from source.
 	The packages are located on:
 
-		ftp://ftp.berlios.de/pub/smake/alpha/
+		https://sourceforge.net/projects/s-make/files/alpha/
 
 	Smake has a -D flag to see the actual makefile source used
 	and a -d flag that gives easy to read debugging info. Use smake -xM
@@ -476,7 +476,7 @@ Creating Blastwave packages:
 	If you want to see an example, please have a look at the "star"
 	source. It may be found on:
 
-		ftp://ftp.berlios.de/pub/star
+		http://sourceforge.net/projects/s-tar/files/
 
 	Have a look at the manual page, it is included in the distribution.
 	Install the manual page with 

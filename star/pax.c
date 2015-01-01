@@ -1,13 +1,13 @@
-/* @(#)pax.c	1.30 13/07/22 Copyright 1989, 2003-2013 J. Schilling */
+/* @(#)pax.c	1.31 14/12/17 Copyright 1989, 2003-2014 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char _p_sccsid[] =
-	"@(#)pax.c	1.30 13/07/22 Copyright 1989, 2003-2013 J. Schilling";
+	"@(#)pax.c	1.31 14/12/17 Copyright 1989, 2003-2014 J. Schilling";
 #endif
 /*
  *	PAX specific routines for star main program.
  *
- *	Copyright (c) 1989, 2003-2013 J. Schilling
+ *	Copyright (c) 1989, 2003-2014 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -166,7 +166,7 @@ gargs(ac, av)
 				gethdr, &chdrtype,	/* -x */
 				gethdr, &chdrtype,	/* artype= */
 #endif /* __old__lint */
-				nomount) < 0) {
+				&nomount) < 0) {
 		errmsgno(EX_BAD, "Bad Option: %s.\n", av[0]);
 		susage(EX_BAD);
 	}

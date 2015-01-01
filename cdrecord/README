@@ -1,4 +1,4 @@
-# @(#)README	1.26 08/10/12 Copyright 1996-2002 J. Schilling
+# @(#)README	1.27 14/12/03 Copyright 1996-2002 J. Schilling
 
 This is Version 2.0 of cdrecord
 
@@ -45,7 +45,8 @@ QNX:			x86 (coming soon)
 To learn how to compile and install cdrecord, read README.compile
 
 To compile on currently unknown platforms you definitely need 'smake'
-from ftp.berlios.de/pub/smake or ftp.berlios.de/pub/smake
+from https://sourceforge.net/projects/s-make/files/ or
+https://sourceforge.net/projects/schilytools/files/
 GNUmake is too dump to do this job as it does not include automake features
 like 'smake' does.
 
@@ -388,9 +389,9 @@ To unpack the archive use:
 
 The files are located on:
 
-ftp://ftp.berlios.de/pub/cdrecord/ ...
-ftp://ftp.berlios.de/pub/schily/kernel/scg/ ...
-ftp://ftp.berlios.de/pub/schily/kernel/fbk/ ...
+https://sourceforge.net/projects/cdrtools/files/ ...
+https://sourceforge.net/projects/schilytools/files/kernel/scg/ ...
+https://sourceforge.net/projects/schilytools/files/kernel/fbk/ ...
 
 Only use the mkisofs that is contained in this release.
 All other mkisofs versions are too buggy.
@@ -430,7 +431,8 @@ SunOS/Solaris. The first release of sformat has been made for SunOS 3.0
 (two years before Sun introduced their format utility). Sformat source
 including 10 years of competence in SCSI disk handling is available
 on:
-	ftp://ftp.berlios.de/pub/sformat
+	https://sourceforge.net/projects/schilytools/files/sformat/
+	https://sourceforge.net/projects/schilytools/files/schily-*
 
 I am interested to hear if someone is interested in a kernel based
 filesystem for Solaris that uses packet writing on the CD-Recorder.
@@ -442,11 +444,11 @@ Please mail suggestions to: wofs@schily.isdn.cs.tu-berlin.de
 If you want to use the CD-recorder as CD-ROM device, have a look at 
 
 Solaris only:
-ftp://ftp.berlios.de/pub/schily/kernel/sd
+https://sourceforge.net/projects/schilytools/files/kernel/sd/
 
 Current information on cdrecord may be found on:
 
-	http://cdrecord.berlios.de/private/cdrecord.html
+	http://cdrecord.org/private/cdrecord.html
 
 
 	Joerg Schilling

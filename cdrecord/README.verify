@@ -11,7 +11,11 @@ Mini-Howto for verifying a selfmade CD
 	If the CD-R device is connected to target 2 on SCSI bus 0
 	sformat -verify 2  0
 
-	sformat can be found on ftp://ftp.berlios.de/pub/sformat
+	sformat can be found on
+
+	https://sourceforge.net/projects/schilytools/files/sformat/
+	or
+	https://sourceforge.net/projects/schilytools/files/schily-*
 
 	NOTE: Not all CD-ROm drives support verifying
 	NOTE: All TAO tracks end in 2 unreadable run-out sectors
@@ -27,7 +31,9 @@ Mini-Howto for verifying a selfmade CD
 
 	If no errors can be found, all files are readable.
 
-	star can be found on ftp://ftp.berlios.de/pub/star
+	star can be found on
+
+	http://sourceforge.net/projects/s-tar/files/
 
 
 	You also may want to compare the filesystem on the CD

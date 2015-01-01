@@ -4,7 +4,7 @@ PKG=CSWstar
 NAME=star - Standard TAR (a POSIX compliant TAR and a configurable secure RMT remote tape server)
 VERSION=1.5,REV=2006.07.30
 CATEGORY=application
-VENDOR=http://cdrecord.berlios.de/old/private/star.html  packaged for CSW by Jörg Schilling
+VENDOR=http://cdrecord.org/private/star.html  packaged for CSW by Jörg Schilling
 HOTLINE=http://www.blastwave.org/bugtrack/
 EMAIL=joerg@blastwave.org
 BASEDIR=/opt/csw

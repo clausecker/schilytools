@@ -38,11 +38,11 @@
 /*
  * This file contains modifications Copyright 2008-2014 J. Schilling
  *
- * @(#)msg.c	1.26 14/05/25 2008-2014 J. Schilling
+ * @(#)msg.c	1.27 14/12/22 2008-2014 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)msg.c	1.26 14/05/25 2008-2014 J. Schilling";
+	"@(#)msg.c	1.27 14/12/22 2008-2014 J. Schilling";
 #endif
 
 /*
@@ -226,49 +226,65 @@ const char	export[] = "export";
 const char	readonly[] = "readonly";
 
 /*
+ * In the POSIX teleconferences from November and December 2014, we
+ * tried to create a new notation for shell builtins and the rules
+ * they need to follow.
+ *
+ * Special built-in utilities and intrinsic utilities are called before any
+ * attempt for a PATH search is done.
+ * Special built-in utilities in addition keep variable assignement in effect
+ * after the builtin completes.
+ *
  * Built-ins marked with "S" are POSIX special built-in utilities.
+ * Built-ins marked with "I" are POSIX intrinsic utilities.
+ * Built-ins marked with "i" may not be permitted intrincics in the future.
+ *
+ * The POSIX standard in addition defines the regular intrinsic utilities
+ * "fc" and "command" that are not part of the Bourne Shell.
+ * The POSIX standard in addition defines the permitted intrinsic utilities
+ * "printf" that is not part of the Bourne Shell.
  */
 const struct sysnod commands[] =
 {
-	{ ".",		SYSDOT	},	/* S */
-	{ ":",		SYSNULL	},	/* S */
+	{ ".",		SYSDOT	},	/* S  */
+	{ ":",		SYSNULL	},	/* S  */
 
 #ifndef RES
-	{ "[",		SYSTST },
+	{ "[",		SYSTST },	/*  i */
 #endif
 #ifdef	DO_SYSALIAS
-	{ "alias",	SYSALIAS },
+	{ "alias",	SYSALIAS },	/*  I */
 #endif
 #ifdef	DO_SYSALLOC
 	{ "alloc",	SYSALLOC },
 #endif
-	{ "bg",		SYSFGBG },
-	{ "break",	SYSBREAK },	/* S */
-	{ "cd",		SYSCD	},
+	{ "bg",		SYSFGBG },	/*  I */
+	{ "break",	SYSBREAK },	/* S  */
+	{ "cd",		SYSCD	},	/*  I */
 	{ "chdir",	SYSCD	},
-	{ "continue",	SYSCONT	},	/* S */
+	{ "continue",	SYSCONT	},	/* S  */
 #ifdef	DO_SYSPUSHD
 	{ "dirs",	SYSDIRS },
 #endif
 #ifdef	DO_SYSDOSH
 	{ "dosh",	SYSDOSH },
 #endif
-	{ "echo",	SYSECHO },
-	{ "eval",	SYSEVAL	},	/* S */
-	{ "exec",	SYSEXEC	},	/* S */
-	{ "exit",	SYSEXIT	},	/* S */
-	{ "export",	SYSXPORT },	/* S */
+	{ "echo",	SYSECHO },	/*  i */
+	{ "eval",	SYSEVAL	},	/* S  */
+	{ "exec",	SYSEXEC	},	/* S  */
+	{ "exit",	SYSEXIT	},	/* S  */
+	{ "export",	SYSXPORT },	/* S  */
 #ifdef	DO_SYSTRUE
-	{ "false",	SYSFALSE },
+	{ "false",	SYSFALSE },	/*  i */
 #endif
-	{ "fg",		SYSFGBG },
-	{ "getopts",	SYSGETOPT },
-	{ "hash",	SYSHASH	},
+	{ "fg",		SYSFGBG },	/*  I */
+	{ "getopts",	SYSGETOPT },	/*  I */
+	{ "hash",	SYSHASH	},	/*  I */
 #ifdef	INTERACTIVE
 	{ "history",	SYSHISTORY },
 #endif
-	{ "jobs",	SYSJOBS },
-	{ "kill",	SYSKILL },
+	{ "jobs",	SYSJOBS },	/*  I */
+	{ "kill",	SYSKILL },	/*  I */
 #ifdef RES
 	{ "login",	SYSLOGIN },
 #endif
@@ -278,46 +294,46 @@ const struct sysnod commands[] =
 #ifdef RES
 	{ "newgrp",	SYSLOGIN },
 #else
-	{ "newgrp",	SYSNEWGRP },
+	{ "newgrp",	SYSNEWGRP },	/*  i */
 #endif
 
 #ifdef	DO_SYSPUSHD
 	{ "popd",	SYSPOPD },
 	{ "pushd",	SYSPUSHD },
 #endif
-	{ "pwd",	SYSPWD },
-	{ "read",	SYSREAD	},
-	{ "readonly",	SYSRDONLY },	/* S */
+	{ "pwd",	SYSPWD },	/*  i */
+	{ "read",	SYSREAD	},	/*  I */
+	{ "readonly",	SYSRDONLY },	/* S  */
 #ifdef	DO_SYSREPEAT
 	{ "repeat",	SYSREPEAT },
 #endif
-	{ "return",	SYSRETURN },	/* S */
+	{ "return",	SYSRETURN },	/* S  */
 #ifdef	INTERACTIVE
 	{ "savehistory", SYSSAVEHIST },
 #endif
-	{ "set",	SYSSET	},	/* S */
-	{ "shift",	SYSSHFT	},	/* S */
+	{ "set",	SYSSET	},	/* S  */
+	{ "shift",	SYSSHFT	},	/* S  */
 	{ "stop",	SYSSTOP	},
 	{ "suspend",	SYSSUSP},
-	{ "test",	SYSTST },
-	{ "times",	SYSTIMES },	/* S */
-	{ "trap",	SYSTRAP	},	/* S */
+	{ "test",	SYSTST },	/*  i */
+	{ "times",	SYSTIMES },	/* S  */
+	{ "trap",	SYSTRAP	},	/* S  */
 #ifdef	DO_SYSTRUE
-	{ "true",	SYSTRUE },
+	{ "true",	SYSTRUE },	/*  i */
 #endif
-	{ "type",	SYSTYPE },
+	{ "type",	SYSTYPE },	/*  I */
 
 
 #ifndef RES
-	{ "ulimit",	SYSULIMIT },
-	{ "umask",	SYSUMASK },
+	{ "ulimit",	SYSULIMIT },	/*  I */
+	{ "umask",	SYSUMASK },	/*  I */
 #endif
 #ifdef	DO_SYSALIAS
-	{ "unalias",	SYSUNALIAS },
+	{ "unalias",	SYSUNALIAS },	/*  I */
 #endif
 
-	{ "unset",	SYSUNS },	/* S */
-	{ "wait",	SYSWAIT	}
+	{ "unset",	SYSUNS },	/* S  */
+	{ "wait",	SYSWAIT	}	/*  I */
 };
 
 const int no_commands = sizeof (commands)/sizeof (struct sysnod);

@@ -1,4 +1,4 @@
-# @(#)README.win32	1.7 02/12/16 Copyright 2000 J. Schilling
+# @(#)README.win32	1.10 14/12/07 Copyright 2000-2014 J. Schilling
 
 cdrecord-1.8a22 or later can be compiled on Win9X/NT4 using Cygnus' cygwin
 which is freely available from:
@@ -15,7 +15,7 @@ Get the tar'ed cdrtools source and unpack it with 'gnutar' or 'star',
 
 e.g. Start a bash command line window and type:
 
-	star -xpz < cdrtools-1.10.tar.gz
+	star -xpz < cdrtools-3.01.tar.gz
 
 	don't use winzip to unpack the tar archive, it will not
 	unpack symlinks correctly.
@@ -24,7 +24,7 @@ Then (from the bash command line window) run 'make' ...
 
 If you have problems with GNU make, get 'smake' from:
 
-	ftp://ftp.berlios.de/pub/smake/alpha/
+	http://sourceforge.net/projects/s-make/files/alpha/
 
 /*--------------------------------------------------------------------------*/
 A bash window is available from the START -> Programs -> Cygnus Solutions
@@ -33,7 +33,7 @@ menu or by clicking at the Cygwin Logo on the desktop.
 Pre-compiled current 'cdrtools' Win32 binaries which should run on
 W95, W98 and WNT are available from:
 
-	ftp://ftp.berlios.de/pub/cdrecord/alpha/win32
+	http://sourceforge.net/projects/cdrtools/files/alpha/win32
 
 To use the pre-compiled binary, put the files cygwin1.dll, mount.exe as well
 as the files:
@@ -49,7 +49,7 @@ type:
 
 for usage, see also:
 
-http://www.fokus.fhg.de/research/cc/glone/employees/joerg.schilling/private/man/cdrecord.html
+		http://cdrecord.org/
 
 All programs in this directory are Unix command line utilities and know
 nothing about DOS/WIN. They run in a POSIX subsystem that is supplied by
@@ -163,21 +163,16 @@ Jan 1st 1999 to be able to install it. Note that 'aspi_me' contains
 original Adaptec drivers and is banned from most ftp servers for this 
 reason. 
 
-You need a special ASPI driver version on NT-5.0 (Win2000)
+If you do not have superuser permission which would allow you to use
+the SPTI SCSI interface that is similar to a UNIX ioctl interface,
+you need a special ASPI driver version on NT-5.0 (Win2000)
 
-************************************ Seems to be dead
-You may get one by downloading
+You may get one by searching for:
 
-	http://www.poikosoft.com/writer/download.html
+	wnaspi32.dll
 
-and unpacking the file mightywriter121.exe using unzip.
-after you renamed ntaspi32.dll to wnaspi32.dll, cdrecord should work.
-************************************ Seems to be dead
 
-But here is a new source for ASPI drivers:
-
-http://www.fortunecity.com/skyscraper/solo/719/aspi_drivers.htm
-
+/*--------------------------------------------------------------------------*/
 
 			IMPORTANT
 

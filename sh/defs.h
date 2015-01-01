@@ -39,7 +39,7 @@
 /*
  * This file contains modifications Copyright 2008-2014 J. Schilling
  *
- * @(#)defs.h	1.60 14/06/11 2008-2014 J. Schilling
+ * @(#)defs.h	1.61 14/12/26 2008-2014 J. Schilling
  */
 
 #ifdef	__cplusplus
@@ -151,6 +151,8 @@ extern "C" {
 #define		SYSFALSE	46
 
 #define		SYSALLOC	47
+
+#define		SYSMAX		255	/* Must fit into low 8 ENTY.data bits */
 
 /* used for input and output of shell */
 #define		INIO 		19

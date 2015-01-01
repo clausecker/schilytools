@@ -1,4 +1,4 @@
-#ident "@(#)Makefile	1.41 14/06/05  Copyright (c) 2006-2014 J. Schilling"
+#ident "@(#)Makefile	1.42 14/06/25  Copyright (c) 2006-2014 J. Schilling"
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -42,6 +42,8 @@ CPPOPTS +=	-DDO_POSIX_FOR		# Support for i; do .... with semicolon
 CPPOPTS +=	-DDO_READ_ALLEXPORT	# Bugfix for set -a; read VAR
 
 #CPPOPTS +=	-DSTAK_DEBUG		# Include debug code for stak.c
+CPPOPTS +=	-DTOSSGROWING_MACRO	# Make stak.c::tossgrowing() a macro
+#CPPOPTS +=	-DTOSSCHECK		# Debug / verify magic in tossgrowing()
 #CPPOPTS +=	-DARGS_RIGHT_TO_LEFT	# Evaluate var2=val2 var1=val1 left to right
 #CPPOPTS +=	-DMY_GMATCH		# Enforce to use our local gmatch()
 					# instead if the gmatch() from -lgen

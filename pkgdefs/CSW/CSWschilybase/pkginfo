@@ -4,7 +4,7 @@ PKG=CSWschilybase
 NAME=schilybase - A collection of common files from J. Schilling
 VERSION=1.01,REV=2004.8.26
 CATEGORY=application
-VENDOR=http://cdrecord.berlios.de/old/private/  packaged for CSW by Jörg Schilling
+VENDOR=http://cdrecord.org/private/  packaged for CSW by Jörg Schilling
 HOTLINE=http://www.blastwave.org/bugtrack/
 EMAIL=joerg@blastwave.org
 BASEDIR=/opt/csw

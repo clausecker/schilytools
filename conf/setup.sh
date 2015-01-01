@@ -1,5 +1,5 @@
 #!/bin/sh
-# @(#)setup.sh  1.17 10/05/01 Copyright 2005 J. Schilling
+# @(#)setup.sh  1.18 14/12/09 Copyright 2005 J. Schilling
 ###########################################################################
 # Written 2005 by J. Schilling
 ###########################################################################
@@ -11,6 +11,8 @@
 # with the License.
 #
 # See the file CDDL.Schily.txt in this distribution for details.
+# A copy of the CDDL is also available via the Internet at
+# http://www.opensource.org/licenses/cddl1.txt
 #
 # When distributing Covered Code, include this CDDL HEADER in each
 # file and include the License file CDDL.Schily.txt from this distribution.
@@ -18,20 +20,20 @@
 
 # Benoetigte Kommandos:
 #
-#	makefiles	ftp://ftp.berlios.de/pub/makefiles/
-#	makefiles	ftp://ftp.berlios.de/pub/makefiles/testing/makefiles.tar
-#	smake		ftp://ftp.berlios.de/pub/smake/alpha/
-#	star		ftp://ftp.berlios.de/pub/star/alpha/
+#	makefiles	http://sourceforge.net/projects/schilytools/files/makefiles/
+#	makefiles	http://sourceforge.net/projects/schilytools/files/makefiles/testing/makefiles.tar
+#	smake		http://sourceforge.net/projects/s-make/files/alpha/
+#	star		http://sourceforge.net/projects/s-tar/files/alpha/
 #	gzip		ftp://wuarchive.wustl.edu/mirrors/gnu/gzip/gzip-1.2.4.tar
 #	wget		ftp://ftp.gnu.org/gnu/wget/wget-1.9.1.tar.gz
-#	wget		ftp://ftp.berlios.de/pub/makefiles/testing/wget-1.9.1-1.tar
+#	wget		http://sourceforge.net/projects/schilytools/files/makefiles/testing/wget-1.9.1-2.tar
 #	gzip		http://www.gzip.org/gzip-1.3.3.tar.gz
-#	gzip		ftp://ftp.berlios.de/pub/makefiles/testing/gzip-1.3.3.tar.gz
+#	gzip		http://sourceforge.net/projects/schilytools/files/makefiles/testing/gzip-1.3.3.tar.gz
 #	bzip2		ftp://sources.redhat.com/pub/bzip2/v102/bzip2-1.0.2.tar.gz
 #	bzip2		http://www.bzip.org/1.0.3/bzip2-1.0.3.tar.gz
-#	bzip2		ftp://ftp.berlios.de/pub/makefiles/testing/bzip2-1.0.3.tar.gz
+#	bzip2		http://sourceforge.net/projects/schilytools/files/makefiles/testing/bzip2-1.0.3.tar.gz
 #	patch		ftp://ftp.gnu.org/pub/gnu/patch/patch-2.5.4.tar.gz
-#	patch		ftp://ftp.berlios.de/pub/makefiles/testing/patch-2.5.4-1.tar.bz2
+#	patch		http://sourceforge.net/projects/schilytools/files/makefiles/testing/patch-2.5.4-1.tar.bz2
 
 trap 'if [ -f ./$xfile ]; then rm -f ./$xfile; fi; rm -rf /tmp/i.$$/; exit 1' 1 2 15
 
