@@ -1,8 +1,8 @@
-/* @(#)inputc.c	1.69 14/06/29 Copyright 1982, 1984-2014 J. Schilling */
+/* @(#)inputc.c	1.70 15/01/12 Copyright 1982, 1984-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)inputc.c	1.69 14/06/29 Copyright 1982, 1984-2014 J. Schilling";
+	"@(#)inputc.c	1.70 15/01/12 Copyright 1982, 1984-2015 J. Schilling";
 #endif
 /*
  *	inputc.c
@@ -20,7 +20,7 @@ static	UConst char sccsid[] =
  *	in 1982 and 1983. This prototype only contained the editor and called
  *	shell commands via system().
  *
- *	Copyright (c) 1982, 1984-2014 J. Schilling
+ *	Copyright (c) 1982, 1984-2015 J. Schilling
  *	This version was first coded August 1984 and rewritten 01/22/85
  *
  *	Exported functions:
@@ -123,8 +123,8 @@ static	UConst char sccsid[] =
 #define	BUFSIZE	133
 
 typedef struct {
-	int b_index;
-	char b_buf[BUFSIZE+MB_LEN_MAX];
+	int b_index;			/* Index in b_buf	*/
+	char b_buf[BUFSIZE+MB_LEN_MAX];	/* The buffer space	*/
 } BUF;
 
 #define	LINEQUANT	64
@@ -158,14 +158,17 @@ typedef struct {
 #define	SEARCHDOWN	(SEARCH|DOWNWARD)
 
 typedef struct histptr {
-	struct histptr	*h_prev,
-			*h_next;
-	wchar_t		*h_line;
-	unsigned	h_len;
-	unsigned	h_pos;
-	unsigned char	h_flags;
+	struct histptr	*h_prev;	/* Previous element in revolver	    */
+	struct histptr	*h_next;	/* Next element in revolver	    */
+	wchar_t		*h_line;	/* Space to store the line	    */
+	unsigned	h_len;		/* Number of wchar_t elements in line */
+	unsigned	h_pos;		/* wchar_t based offset in line	    */
+	unsigned char	h_flags;	/* Flags, see below		    */
 } _HISTPTR, *HISTPTR;
 
+/*
+ * Flags used in h_flags:
+ */
 #define	F_TMP	0x01		/* Claimed by a tmp pointer */
 
 EXPORT	FILE	*getinfile	__PR((void));
@@ -257,19 +260,19 @@ extern	char	*inithome;
 extern	BOOL	ins_mode;
 extern	BOOL	i_should_echo;
 
-LOCAL	FILE	*infile		= 0;
-LOCAL	HISTPTR	first_line	= (HISTPTR) NULL;
-LOCAL	HISTPTR	last_line	= (HISTPTR) NULL;
+LOCAL	FILE	*infile		= 0;			/* FILE * to read frm */
+LOCAL	HISTPTR	first_line	= (HISTPTR) NULL;	/* Oldest line	    */
+LOCAL	HISTPTR	last_line	= (HISTPTR) NULL;	/* Newest line in h   */
 LOCAL	HISTPTR	rub_line	= (HISTPTR) NULL;
 LOCAL	HISTPTR	del_line	= (HISTPTR) NULL;
-LOCAL	char	*hfilename	= NULL;
-LOCAL	char	*line_pointer	= NULL;
-LOCAL	wchar_t	*wline_pointer	= NULL;
-LOCAL	char	*iprompt	= NULL;
-LOCAL	int	histlen		= 0;
-LOCAL	int	no_lines	= 0;
-LOCAL	BUF	buf		= {0};
-LOCAL	char	mapesc		= '\0';
+LOCAL	char	*hfilename	= NULL;			/* Abs history path  */
+LOCAL	char	*line_pointer	= NULL;			/* Temp MB line ptr  */
+LOCAL	wchar_t	*wline_pointer	= NULL;			/* Temp WC line ptr  */
+LOCAL	char	*iprompt	= NULL;			/* Current promot    */
+LOCAL	int	histlen		= 0;			/* Max allowed h len */
+LOCAL	int	no_lines	= 0;			/* Current hist len  */
+LOCAL	BUF	buf		= {0};			/* BUF to optimize   */
+LOCAL	char	mapesc		= '\0';			/* ESC char for map  */
 #ifdef	notneeded
 LOCAL	int	eof;
 #endif

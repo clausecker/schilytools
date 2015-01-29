@@ -23,12 +23,12 @@
  * Use is subject to license terms.
  */
 /*
- * Copyright 2006-2014 J. Schilling
+ * Copyright 2006-2015 J. Schilling
  *
- * @(#)sccs.c	1.66 14/08/12 J. Schilling
+ * @(#)sccs.c	1.68 15/01/25 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)sccs.c 1.66 14/08/12 J. Schilling"
+#pragma ident "@(#)sccs.c 1.68 15/01/25 J. Schilling"
 #endif
 /*
  * @(#)sccs.c 1.85 06/12/12
@@ -661,6 +661,7 @@ main(argc, argv)
 #else
 		fprintf(stderr, gettext("Usage: sccs [ -r ][ -drootprefix ][ -p subdir ]\n\t subcommand [ option ...] [ filename ...]\n"));
 #endif
+		sccshelp(stderr, "basic sub-commands");
 		exit(EX_USAGE);
 		/*NOTREACHED*/
 	}
@@ -2020,6 +2021,11 @@ callprog(progpath, flags, argv, forkflag)
 		printf("callprog:\n");
 		for (i = 0; argv[i] != NULL; i++)
 			printf("\t\"%s\"\n", argv[i]);
+		/*
+		 * Avoid flush() problems caused by fork()/vfork()
+		 */
+		if (forkflag)
+			fflush(stdout);
 	}
 # endif
 
@@ -2036,7 +2042,7 @@ callprog(progpath, flags, argv, forkflag)
 		if (Debug)
 			printf("Forking\n");
 # endif
-		i = fork();
+		i = vfork();
 		if (i < 0)
 		{
 			syserr(gettext("cannot fork"));
@@ -2093,7 +2099,7 @@ callprog(progpath, flags, argv, forkflag)
 		didvfork = 1;
 #endif
 	}
-	else if (OutFile >= 0)
+	else if (OutFile >= 0)		/* !forkflag && ... */
 	{
 		syserr(gettext("callprog: setting stdout w/o forking"));
 		if (didvfork)

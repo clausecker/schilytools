@@ -1,0 +1,145 @@
+.\" @(#)sccs-log.1	1.21 15/01/19 Copyr 1997-2015 J. Schilling
+.\" Manual page for sccs-log
+.\"
+.\" The contents of this file are subject to the terms of the
+.\" Common Development and Distribution License, Version 1.0 only
+.\" (the "License").  You may not use this file except in compliance
+.\" with the License.
+.\"
+.\" See the file CDDL.Schily.txt in this distribution for details.
+.\" A copy of the CDDL is also available via the Internet at
+.\" http://www.opensource.org/licenses/cddl1.txt
+.\"
+.\" When distributing Covered Code, include this CDDL HEADER in each
+.\" file and include the License file CDDL.Schily.txt from this distribution.
+.\"
+.if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
+.if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
+.if t .ds u \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'u
+.if t .ds A \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'A
+.if t .ds O \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'O
+.if t .ds U \v'-0.77m'\h'0.30n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.75n'U
+.if t .ds s \\(*b
+.if t .ds S SS
+.if n .ds a ae
+.if n .ds o oe
+.if n .ds u ue
+.if n .ds s sz
+.TH sccs-log 1 "2015/01/19" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.SH NAME
+sccs-log, sccslog \- create changelog from SCCS history files
+.SH SYNOPSIS
+.B
+sccslog 
+.RI [ options ]
+.I file1 .. filen
+.SH DESCRIPTION
+.B Sccslog
+creates a Changelog file from SCCS history files.
+.LP
+If a file argument refers to a directory, the directory is scanned
+for file names that start with ``s.'' and examines all these files.
+. \" .SH RETURNS
+. \" .SH ERRORS
+.SH OPTIONS
+.LP
+.TP
+.B \-a
+.B sccslog
+normally collects all deltas with the same delta comment and prints them
+as one log table entry in case the related delta time for the files differs
+no more than one day. With 
+.BR \-a ,
+.B sccslog
+collects only those deltas that have been created within 60 seconds.
+.TP
+.B \-aa
+With 
+.BR \-aa ,
+.B sccslog
+collects only deltas that have been created in the same second.
+.TP
+.BI \-C dir
+Use
+.I dir
+as base directory for printed file names in the output.
+This option is used by
+.B "sccs \-R"
+to tell
+.B sccslog
+to print filenames that are suitable for complete project changelog files.
+.TP
+.BI \-p " subdir"
+Tell
+.B sccslog
+to use 
+.I subdir
+when dealing with file names.
+.TP
+.B \-x
+Print all comment lines, even those lines that start with
+.B ^Ac_ 
+and thus are no real comment but represent SCCS v6 metadata
+that has been wrapped as comment to survive modifications by SCCS v4 programs.
+Such wrapped data is file specific and will prevent to find more files with
+the same delta comment.
+.TP
+.B \-help
+Prints a short summary of the 
+.B sccslog
+options and exists.
+.TP
+.B \-V
+.TP
+.B \-version
+Prints the
+.B sccslog
+version number string and exists.
+.SH EXAMPLES
+.LP
+To creates a changelog for all SCCS history files in directory SCCS call:
+.IP
+.B "sccslog SCCS/s.*"
+.SH ENVIRONMENT VARIABLES
+None.
+.SH FILES
+.TP
+.B $HOME/.sccs/usermap
+This file contains a map list from user names to user descriptions.
+It consists of a list of lines (each for one user) that start with
+a user name, followed by white space and a user description.
+It may e.g. look like:
+.sp
+.nf
+joerg   Joerg Schilling <schily@somewhere.com>
+ronnie  Ronnie Nowhere <ronnie@nowhere.com>
+.fi
+.SH SEE ALSO
+.nh
+.LP
+.BR sccs (1),
+.BR sccs\-admin (1),
+.BR sccs\-cdc (1),
+.BR sccs\-comb (1),
+.BR sccs\-cvt (1),
+.BR sccs\-delta (1),
+.BR sccs\-get (1),
+.BR sccs\-help (1),
+.BR sccs\-prs (1),
+.BR sccs\-prt (1),
+.BR sccs\-rmdel (1),
+.BR sccs\-sact (1),
+.BR sccs\-sccsdiff (1),
+.BR sccs\-unget (1),
+.BR sccs\-val (1),
+.BR what (1),
+.BR sccschangeset (4),
+.BR sccsfile (4).
+.hy 14
+.SH DIAGNOSTICS
+.SH NOTES
+.SH BUGS
+.SH AUTHOR
+.BR sccslog (1)
+was origininally written by J\*org Schilling in 1997 and is still
+maintained by J\*org Schilling.

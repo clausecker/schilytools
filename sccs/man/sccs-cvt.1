@@ -1,0 +1,224 @@
+.\" @(#)sccs-cvt.1	1.14 15/01/21 Copyright 2011-2015 J. Schilling
+.\" Manual page for sccs-cvt
+.\"
+.\" The contents of this file are subject to the terms of the
+.\" Common Development and Distribution License, Version 1.0 only
+.\" (the "License").  You may not use this file except in compliance
+.\" with the License.
+.\"
+.\" See the file CDDL.Schily.txt in this distribution for details.
+.\" A copy of the CDDL is also available via the Internet at
+.\" http://www.opensource.org/licenses/cddl1.txt
+.\"
+.\" When distributing Covered Code, include this CDDL HEADER in each
+.\" file and include the License file CDDL.Schily.txt from this distribution.
+.\"
+.if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
+.if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
+.if t .ds u \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'u
+.if t .ds A \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'A
+.if t .ds O \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'O
+.if t .ds U \v'-0.77m'\h'0.30n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.75n'U
+.if t .ds s \\(*b
+.if t .ds S SS
+.if n .ds a ae
+.if n .ds o oe
+.if n .ds u ue
+.if n .ds s sz
+.TH sccs-cvt 1 "2015/01/21" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.SH NAME
+sccs-cvt, sccscvt \- convert SCCS history files between v4/v6
+.SH SYNOPSIS
+.B
+sccscvt
+.B "[ options ]"
+.I file1 .. filen
+.SH DESCRIPTION
+.B Sccscvt
+converts
+.B SCCS v4
+history files (as introduced in February 1977) into
+.B SCCS v6
+history files (as introduced in August 2011) and vice versa.
+.LP
+The first line, containing the SCCS magic number and the checksum is converted
+to the format that is appropriate. The time format in the delta table is
+converted by either removing the SCCS v6 extensions or by adding time zone
+information by assuming that all time stamps are from the local time zone. When
+converting from SCCS v6 to SCCs v4, the enhanced time stamp data is retained as
+the first delta comment line in a delta block.
+.LP
+SID specific SCCS v6 enhancements are converted into special delta comment to 
+prevent information loss when converting to SCCS v4.
+.LP
+The SCCS v6 enhancements that are between the SCCS v4 flags indicated by
+.B ^Af
+and the SCCS comment block that is bracketed between
+.B ^At
+and
+.B ^AT
+are untouched as these enhancements are not flagged by historic SCCS versions
+and retained by historic SCCS versions when a history file is modified.
+.LP
+If a file argument refers to a directory, the directory is scanned
+for file names that start with ``s.'' and examines all these files.
+. \" .SH RETURNS
+. \" .SH ERRORS
+.SH OPTIONS
+.LP
+.TP
+.B \-d
+When converting from SCCS v6 to SCCS v4,
+discard the extended SCCS v6 meta data instead of converting it into special
+degenerated delta comments.
+.TP
+.B \-k
+.TP
+.B \-keep
+Keep the original history file as
+.BI o. file\fR.
+When this option is missing, the original file is replaced by the
+converted file.
+.TP
+.B \-V4
+Convert a
+.B SCCS v6
+history file into a
+.B SCCS v4
+history file.
+.TP
+.B \-V6
+Convert a
+.B SCCS v4
+history file into a
+.B SCCS v6
+history file.
+.TP
+.B \-help
+Prints a short summary of the 
+.B sccscvt
+options and exists.
+.TP
+.B \-V
+.TP
+.B \-version
+Prints the
+.B sccscvt
+version number string and exists.
+.\" .SH EXAMPLES
+
+.SH ENVIRONMENT VARIABLES
+.sp
+.LP
+See
+.BR environ (5)
+for descriptions of the following environment variables that affect the
+execution of
+.BR sccscvt (1):
+.BR LANG ,
+.BR LC_ALL ,
+.BR LC_CTYPE ,
+.BR LC_MESSAGES ,
+and
+.BR NLSPATH .
+
+.br
+.ne 4
+.TP
+.B SCCS_NO_HELP
+If set,
+.BR sccscvt (1)
+will not automatically call
+.BR help (1)
+with the SCCS error code in order to print a more helpful
+error message. Scripts that depend on the exact error messages
+of SCCS commands should set the environment variable
+.B SCCS_NO_HELP
+and set
+.BR LC_ALL=C .
+
+.SH EXIT STATUS
+.sp
+.LP
+The following exit values are returned:
+.sp
+.ne 2
+.TP 5
+.B 0
+Successful completion.
+.sp
+.ne 2
+.TP
+.B 1
+An error occurred.
+.sp
+.ne 2
+.TP
+.B -1
+A wrong option or parameter was specified.
+
+.SH FILES
+.sp
+.ne 2
+.TP
+.BI s. file
+history file
+.sp
+.ne 2
+.TP
+.BI o. file
+saved original version of the history file
+.sp
+.ne 2
+.TP
+.BI x. file
+temporary copy of the
+.BR s. file;
+renamed to the
+.BR s. file
+after completion.
+
+.sp
+.ne 2
+.TP
+.BI z. file
+temporary lock file contains the binary process id in host byte order
+followed by the host name
+.SH SEE ALSO
+.nh
+.LP
+.BR sccs (1),
+.BR sccs\-admin (1),
+.BR sccs\-cdc (1),
+.BR sccs\-comb (1),
+.BR sccs\-delta (1),
+.BR sccs\-get (1),
+.BR sccs\-help (1),
+.BR sccs\-log (1),
+.BR sccs\-prs (1),
+.BR sccs\-prt (1),
+.BR sccs\-rmdel (1),
+.BR sccs\-sact (1),
+.BR sccs\-sccsdiff (1),
+.BR sccs\-unget (1),
+.BR sccs\-val (1),
+.BR bdiff (1), 
+.BR diff (1), 
+.BR what (1),
+.BR sccschangeset (4),
+.BR sccsfile (4),
+.BR attributes (5),
+.BR environ (5),
+.BR standards (5).
+.hy 14
+
+.SH DIAGNOSTICS
+.SH NOTES
+If a SCCS history file is converted from SCCS v4 to SCCS v6 and there is no
+retained SCCS v6 timestamp information in the delta comment, it may be a good
+idea to manually correct time zone information.
+.SH BUGS
+.SH AUTHOR
+.BR sccscvt (1)
+was origininally written by J\*org Schilling in 2011 and is still
+maintained by J\*org Schilling.

@@ -62,9 +62,9 @@ cleanup () {
     rm -f $files
 }
 
+setup
 cleanup
 remove command.log log log.stdout log.stderr 
-setup
 mkdir SCCS
 
 echo "Creating the input files..."

@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sccs-prt.1	1.10 14/09/15 Copyright 2007-2014 J. Schilling
+.\" @(#)sccs-prt.1	1.14 15/01/20 Copyright 2007-2015 J. Schilling
 .\" CDDL HEADER START
 .\"
 .\" The contents of this file are subject to the terms of the
@@ -31,7 +31,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sccs-prt 1 "2014/09/15" "SunOS 5.11" "User Commands"
+.TH sccs-prt 1 "2015/01/20" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs-prt, prt \- display delta table information from an SCCS file
 .SH SYNOPSIS
@@ -51,102 +51,172 @@ sccs-prt, prt \- display delta table information from an SCCS file
 .SH DESCRIPTION
 
 .LP
-\fBprt\fR prints selected portions of an \fBSCCS\fR file.  By default, it prints the delta table (version log).
-.sp
+.B prt
+prints selected portions of an
+.B SCCS
+file.  By default, it prints the delta table (version log).
 
 .LP
-If a directory name is used in place of the \fIs.filename\fR argument, the \fBprt\fR command applies to all \fBs.\fRfiles in that directory. Unreadable \fBs.\fRfiles produce an error; processing continues with the next file (if any). The use of `\fB\(mi\fR' as the \fIs.filename\fR argument indicates that the names
-of files are to be read from the standard input, one \fBs.\fRfile per line.
-.sp
+If a directory name is used in place of the
+.I s.filename
+argument, the
+.B prt
+command applies to all
+.BR s. files
+in that directory. Unreadable
+.BR s. files
+produce an error; processing continues with the next file (if any). The use of
+.RB ` \(mi '
+as the
+.I s.filename
+argument indicates that the names
+of files are to be read from the standard input, one
+.BR s. file
+per line.
 
 .SH OPTIONS
 
 .LP
-If any option other than \fB-y\fR, \fB-c\fR, or \fB-r\fR is supplied, the name of each file being processed (preceded by one \fBNEWLINE\fR
-and followed by two \fBNEWLINE\fR characters) appears above its contents.
-.sp
+If any option other than
+.BR -y ,
+.BR -c ,
+or
+.B -r
+is supplied, the name of each file being processed (preceded by one
+.B NEWLINE
+and followed by two
+.B NEWLINE
+characters) appears above its contents.
 
 .LP
-If none of the \fB-u\fR, \fB-f\fR, \fB-t\fR, or \fB-b\fR options are used, \fB-d\fR is assumed. \fB-s\fR, \fB-i\fR are mutually
-exclusive, as are \fB-c\fR and \fB-r\fR.
-.sp
+If none of the
+.BR -u ,
+.BR -f ,
+.BR -t ,
+or
+.B -b
+options are used,
+.B -d
+is assumed.
+.BR -s ,
+.B -i
+are mutually
+exclusive, as are
+.B -c
+and
+.BR -r .
 
-.sp
-.ne 2
+.br
+.ne 3
 .TP 13
-\fB\fB-a\fR\fR
+.B -a
 Display log entries for all deltas, including those marked as removed.
 
-.sp
-.ne 2
+.br
+.ne 3
 .TP
-\fB\fB-b\fR\fR
-Print the body of the \fBs.\fRfile.
+.B -b
+Print the body of the
+.BR s. file.
 
-.sp
-.ne 2
+.br
+.ne 3
 .TP
-\fB\fB-d\fR\fR
+.B -d
 Print delta table entries.  This is the default.
 
-.sp
-.ne 2
+.br
+.ne 3
 .TP
-\fB\fB-e\fR\fR
-Everything.  This option implies \fB-d\fR, \fB-i\fR, \fB-u\fR, \fB-f\fR, and \fB-t\fR.
+.B -e
+Everything.  This option implies
+.BR \-d ,
+.BR \-i ,
+.BR \-u ,
+.BR \-f ,
+and
+.BR \-t .
 
-.sp
-.ne 2
+.br
+.ne 3
 .TP
-\fB\fB-f\fR\fR
-Print the flags of each named \fBs.\fRfile.
+.B -f
+Print the flags of each named
+.BR s. file.
 
-.sp
-.ne 2
+.br
+.ne 3
 .TP
-\fB\fB-i\fR\fR
+.B -i
 Print the serial numbers of included, excluded, and ignored deltas.
 
-.sp
-.ne 2
+.br
+.ne 3
 .TP
-\fB\fB-s\fR\fR
-Print only the first line of the delta table entries; that is, only up to the statistics.
+.B -s
+Print only the first line of the delta table entries; that is,
+only up to the statistics.
 
-.sp
-.ne 2
+.br
+.ne 3
 .TP
-\fB\fB-t\fR\fR
-Print the descriptive text contained in the \fBs.\fRfile.
+.B -t
+Print the descriptive text contained in the
+.BR s. file.
 
-.sp
-.ne 2
+.br
+.ne 3
 .TP
-\fB\fB-u\fR\fR
-Print the user-names and/or numerical group \fBIDs\fR of users allowed to make deltas.
+.B -u
+Print the user-names and/or numerical group
+.B IDs
+of users allowed to make deltas.
 
-.sp
-.ne 2
+.br
+.ne 
 .TP
-\fB\fB-c\fR\fIdate-time\fR\fR
-Exclude delta table entries that are specified cutoff date and time. Each entry is printed as a single line,
-preceded by the name of the \fBSCCS\fR file.  This format (also produced by \fB-r\fR \fB,\fR and \fB-y\fR) makes it easy to sort multiple delta
-tables in chronological order. When both \fB-y\fR and \fB-c\fR, or \fB-y\fR and \fB-r\fR are supplied, \fBprt\fR stops printing when the first of the
+.BI -c date-time
+Exclude delta table entries that are specified cutoff date and time. Each
+entry is printed as a single line,
+preceded by the name of the
+.B SCCS
+file.  This format (also produced by
+.BR \-r ,
+and
+.BR \-y )
+makes it easy to sort multiple delta
+tables in chronological order. When both
+.B \-y
+and
+.BR \-c ,
+or
+.B \-y
+and
+.B \-r
+are supplied,
+.B prt
+stops printing when the first of the
 two conditions is met.
 
-.sp
-.ne 2
+.br
+.ne 3
 .TP
-\fB\fB-r\fR\fIdate-time\fR\fR
-Exclude delta table entries that are newer than the specified cutoff date and time.
+.BI -r date-time
+Exclude delta table entries that are newer than the specified
+cutoff date and time.
 
-.sp
-.ne 2
+.br
+.ne 3
 .TP
-\fB\fB-y\fR\fIsid\fR\fR
-Exclude delta table entries made prior to the \fBSID\fR specified.  If no delta in the
-table has the specified SID, the entire table is printed.  If no \fBSID\fR is specified, the most recent delta is printed.
+.BI -y sid
+Exclude delta table entries made prior to the
+.B SID
+specified.  If no delta in the
+table has the specified SID, the entire table is printed.  If no
+.B SID
+is specified, the most recent delta is printed.
 
+.br
 .ne 3
 .TP
 .B \-V
@@ -159,228 +229,198 @@ version number string and exists.
 .SS Output Format
 
 .LP
-The following format is used to print those portions of the \fBs.\fRfile that are specified by the various options.
-.sp
+The following format is used to print those portions of the
+.BR s. file
+that are specified by the various options.
 
-.sp
 .RS +4
 .TP
 .ie t \(bu
 .el o
-\fBNEWLINE\fR
-.sp
-
+.B NEWLINE
 .RE
 
-.sp
 .RS +4
 .TP
 .ie t \(bu
 .el o
-Type of delta (\fBD\fR or \fBR\fR)
-.sp
-
+Type of delta
+.RB ( D
+or
+.BR R )
 .RE
 
-.sp
 .RS +4
 .TP
 .ie t \(bu
 .el o
-\fBSPACE\fR
-.sp
-
+.B SPACE
 .RE
 
-.sp
 .RS +4
 .TP
 .ie t \(bu
 .el o
-\fBSCCS\fR delta  \fBID\fR (SID)
-.sp
-
+.B SCCS
+delta
+.B ID
+(SID)
 .RE
 
-.sp
 .RS +4
 .TP
 .ie t \(bu
 .el o
-\fBTAB\fR
-.sp
-
+.B TAB
 .RE
 
-.sp
 .RS +4
 .TP
 .ie t \(bu
 .el o
-Date and time of creation in the form: \fIyy\fR\fB/\fR\fImm\fR\fB/\fR\fBdd\fR \fIhh\fR\fB/\fR\fImm\fR\fB/\fR\fIss\fR
-.sp
-
+Date and time of creation in the form:
+.IB yy / mm / dd
+.IB hh / mm / ss
 .RE
 
-.sp
 .RS +4
 .TP
 .ie t \(bu
 .el o
-\fBSPACE\fR
-.sp
-
+.B SPACE
 .RE
 
-.sp
 .RS +4
 .TP
 .ie t \(bu
 .el o
 Username the delta's creator
-.sp
-
 .RE
 
-.sp
 .RS +4
 .TP
 .ie t \(bu
 .el o
-\fBTAB\fR
-.sp
-
+.B TAB
 .RE
 
-.sp
 .RS +4
 .TP
 .ie t \(bu
 .el o
 Serial number of the delta
-.sp
-
 .RE
 
-.sp
 .RS +4
 .TP
 .ie t \(bu
 .el o
-\fBSPACE\fR
-.sp
-
+.B SPACE
 .RE
 
-.sp
 .RS +4
 .TP
 .ie t \(bu
 .el o
 Predecessor delta's serial number
-.sp
-
 .RE
 
-.sp
 .RS +4
 .TP
 .ie t \(bu
 .el o
-\fBTAB\fR
-.sp
-
+.B TAB
 .RE
 
-.sp
 .RS +4
 .TP
 .ie t \(bu
 .el o
-Line-by-line change statistics in the form: \fIinserted\fR\fB/\fR\fIdeleted\fR\fB/\fR\fIunchanged\fR
-.sp
-
+Line-by-line change statistics in the form:
+.IB inserted / deleted /  unchanged
 .RE
 
-.sp
 .RS +4
 .TP
 .ie t \(bu
 .el o
-\fBNEWLINE\fR
-.sp
-
+.B NEWLINE
 .RE
 
-.sp
 .RS +4
 .TP
 .ie t \(bu
 .el o
-List of included deltas, followed by a \fBNEWLINE\fR (only if there were any such deltas and the \fB-i\fR options was used)
-.sp
-
+List of included deltas, followed by a
+.B NEWLINE
+(only if there were any such deltas and the
+.B -i
+options was used)
 .RE
 
-.sp
 .RS +4
 .TP
 .ie t \(bu
 .el o
-List of excluded deltas, followed by a \fBNEWLINE\fR (only if there were any such deltas and the \fB-i\fR options was used)
-.sp
-
+List of excluded deltas, followed by a
+.B NEWLINE
+(only if there were any such deltas and the
+.B -i
+options was used)
 .RE
 
-.sp
 .RS +4
 .TP
 .ie t \(bu
 .el o
-List of ignored deltas, followed by a \fBNEWLINE\fR (only if there were any such deltas and the \fB-i\fR options was used)
-.sp
-
+List of ignored deltas, followed by a
+.B NEWLINE
+(only if there were any such deltas and the
+.B -i
+options was used)
 .RE
 
-.sp
 .RS +4
 .TP
 .ie t \(bu
 .el o
-List of modification requests (MRs), followed by a \fBNEWLINE\fR (only if any \fBMR\fR numbers were supplied).
-.sp
-
+List of modification requests (MRs), followed by a
+.B NEWLINE
+(only if any
+.B MR
+numbers were supplied).
 .RE
 
-.sp
 .RS +4
 .TP
 .ie t \(bu
 .el o
-Lines of the delta commentary (if any), followed by a \fBNEWLINE.\fR
-.sp
-
+Lines of the delta commentary (if any), followed by a
+.BR NEWLINE .
 .RE
 
 .SH EXAMPLES
 .LP
-\fBExample 1 \fRExamples of \fBprt\fR.
+.B Example 1
+Examples of
+.BR prt .
 
 .LP
 The following command:
-.sp
 
 .LP
-\fBexample% /usr/ccs/bin/prt\fR \fB-y\fR \fBprogram.c\fR
-.sp
+.B "example% /usr/ccs/bin/prt -y program.c
 
 .LP
-produces a one-line display of the delta table entry for the most recent version:
-.sp
+produces a one-line display of the delta table entry for the
+most recent version:
 
 .LP
-\fBs.program.c:  D 1.6   88/07/06 21:39:39 username   5 4 00159/00080/00636\fR.\|.\|.
+.B s.program.c:
 .sp
+.B "D 1.6   88/07/06 21:39:39 username 5 4   00159/00080/00636
+.br
+\&.\|.\|.
 
 .SH ENVIRONMENT VARIABLES
 .sp
@@ -396,6 +436,7 @@ execution of
 .BR LC_MESSAGES ,
 and
 .BR NLSPATH .
+
 .br
 .ne 4
 .TP
@@ -439,9 +480,9 @@ history file, see
 
 .LP
 See 
-\fBattributes\fR(5) for descriptions of the following
+.BR attributes (5)
+for descriptions of the following
 attributes:
-.sp
 
 .LP
 
@@ -457,36 +498,40 @@ AvailabilitySUNWsprot
 .TE
 
 .SH SEE ALSO
+.nh
 .LP
 .BR sccs (1),
-.BR sccs-admin (1),
-.BR sccs-cdc (1),
-.BR sccs-comb (1),
-.BR sccs-delta (1),
-.BR sccs-get (1),
-.BR sccs-help (1),
-.BR sccs-prs (1),
-.BR sccs-rmdel (1),
-.BR sccs-sact (1),
-.BR sccs-sccsdiff (1),
-.BR sccs-unget (1),
-.BR sccs-val (1),
-.BR sccscvt (1),
-.BR sccslog (1),
+.BR sccs\-admin (1),
+.BR sccs\-cdc (1),
+.BR sccs\-comb (1),
+.BR sccs\-cvt (1),
+.BR sccs\-delta (1),
+.BR sccs\-get (1),
+.BR sccs\-help (1),
+.BR sccs\-log (1),
+.BR sccs\-prs (1),
+.BR sccs\-rmdel (1),
+.BR sccs\-sact (1),
+.BR sccs\-sccsdiff (1),
+.BR sccs\-unget (1),
+.BR sccs\-val (1),
 .BR bdiff (1), 
 .BR diff (1), 
 .BR what (1),
-.BR changeset (4),
+.BR sccschangeset (4),
 .BR sccsfile (4),
 .BR attributes (5),
 .BR environ (5),
 .BR standards (5).
+.hy 14
 
 .SH DIAGNOSTICS
 
 .LP
-Use the \fBSCCS\fR \fBhelp\fR command for explanations (see 
-\fBsccs-help\fR(1)).
+Use the
+.B SCCS help
+command for explanations (see 
+.BR sccs-help (1)).
 
 .SH AUTHORS
 The

@@ -1,8 +1,8 @@
-/* @(#)isoinfo.c	1.92 14/05/04 joerg */
+/* @(#)isoinfo.c	1.93 15/01/27 joerg */
 #include <schily/mconfig.h>
 #ifndef	lint
 static	UConst char sccsid[] =
-	"@(#)isoinfo.c	1.92 14/05/04 joerg";
+	"@(#)isoinfo.c	1.93 15/01/27 joerg";
 #endif
 /*
  * File isodump.c - dump iso9660 directory information.
@@ -11,7 +11,7 @@ static	UConst char sccsid[] =
  * Written by Eric Youngdale (1993).
  *
  * Copyright 1993 Yggdrasil Computing, Incorporated
- * Copyright (c) 1999-2014 J. Schilling
+ * Copyright (c) 1999-2015 J. Schilling
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2
@@ -1358,7 +1358,7 @@ main(argc, argv)
 	if (help)
 		usage(0);
 	if (prvers) {
-		printf(_("isoinfo %s (%s-%s-%s) Copyright (C) 1993-1999 %s (C) 1999-2014 %s\n"),
+		printf(_("isoinfo %s (%s-%s-%s) Copyright (C) 1993-1999 %s (C) 1999-2015 %s\n"),
 					VERSION,
 					HOST_CPU, HOST_VENDOR, HOST_OS,
 					_("Eric Youngdale"),
@@ -1596,11 +1596,11 @@ setcharset:
 	lseek(fileno(infile), ((off_t)(extent - sector_offset)) <<11, SEEK_SET);
 	read(fileno(infile), buffer, sizeof (buffer));
 #endif
-	if ((c = dump_rr((struct iso_directory_record *) buffer)) != 0) {
-		if ((c & (RR_FLAG_SP | RR_FLAG_ER)) == 0 || su_version < 1 || rr_version < 1) {
-			if (!debug)
-				use_rock = FALSE;
-		}
+	c = dump_rr((struct iso_directory_record *) buffer);
+	if (c == 0 ||
+	    (c & (RR_FLAG_SP | RR_FLAG_ER)) == 0 || su_version < 1 || rr_version < 1) {
+		if (!debug)
+			use_rock = FALSE;
 	}
 	if (do_pvd) {
 		/*

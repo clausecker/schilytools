@@ -1,4 +1,4 @@
-#ident @(#)Makefile	1.8 13/06/18 
+#ident @(#)Makefile	1.9 15/01/19 
 ###########################################################################
 # Sample makefile for installing manual pages
 ###########################################################################
@@ -13,11 +13,13 @@ XMK_FILE=	adminman.mk bdiffman.mk cdcman.mk changesetman.mk \
 		getman.mk helpman.mk prsman.mk prtman.mk rmdelman.mk \
 		sactman.mk \
 		sccs-adminman.mk sccs-cdcman.mk sccs-combman.mk \
+		sccs-cvtman.mk \
 		sccs-deltaman.mk sccs-getman.mk sccs-helpman.mk \
+		sccs-logman.mk \
 		sccs-prsman.mk sccs-prtman.mk sccs-rmdelman.mk \
 		sccs-sactman.mk sccs-sccsdiffman.mk sccs-ungetman.mk \
 		sccs-valman.mk \
-		sccscvtman.mk \
+		sccschangesetman.mk sccscvtman.mk \
 		sccsdiffman.mk sccsfileman.mk sccsman.mk ungetman.mk \
 		sccslogman.mk valman.mk whatman.mk \
 		sccs-rcs2sccsman.mk rcs2sccsman.mk \

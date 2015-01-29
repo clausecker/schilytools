@@ -1,5 +1,6 @@
 '\" te
-.\" @(#)sccs-prs.1	1.16 14/09/15 Copyright 2007-2014 J. Schilling
+.\" @(#)sccs-prs.1	1.22 15/01/21 Copyright 2007-2015 J. Schilling
+.\" Copyright (c) 1999, Sun Microsystems, Inc.
 .\" CDDL HEADER START
 .\"
 .\" The contents of this file are subject to the terms of the
@@ -18,7 +19,6 @@
 .\" information: Portions Copyright [yyyy] [name of copyright owner]
 .\"
 .\" CDDL HEADER END
-.\" Copyright (c) 1999, Sun Microsystems, Inc.
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
 .if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
 .if t .ds u \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'u
@@ -31,7 +31,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sccs-prs 1 "2014/09/15" "SunOS 5.11" "User Commands"
+.TH sccs-prs 1 "2015/01/21" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs-prs, prs \- display selected portions of an SCCS history
 .SH SYNOPSIS
@@ -54,44 +54,77 @@ sccs-prs, prs \- display selected portions of an SCCS history
 .SH DESCRIPTION
 
 .LP
-The \fBprs\fR utility displays part or all of the \fBSCCS\fR file (see 
-\fBsccsfile\fR(4)) in a user supplied format.
-.sp
+The
+.B prs
+utility displays part or all of the
+.B SCCS
+file (see 
+.BR sccsfile (4))
+in a user supplied format.
 
 .LP
-If a directory name is used in place of the \fIs.filename\fR argument, the \fBprs\fR command applies to all \fBs.\fRfiles in that directory. Unreadable \fBs.\fRfiles produce an error; processing continues with the next file (if any). The use of `\fB\(mi\fR' as the \fIs.filename\fR argument indicates that the names of files are to be read from the standard input, one \fBs.\fRfile per
-line.
-.sp
+If a directory name is used in place of the
+.I s.filename
+argument, the
+.B prs
+command applies to all
+.BR s. files
+in that directory. Unreadable
+.BR s. files
+produce an error; processing continues with the next file (if any). The use of
+.RB ` \(mi '
+as the
+.I s.filename
+argument indicates that the names of files are to be read from the
+standard input, one
+.BR s. file
+per line.
 
 .SH OPTIONS
 
 .LP
-In the absence of options, \fBprs\fR displays the delta table (version log). In the absence of \fB-d\fR, or \fB-l\fR, \fBprs\fR displays the entry for each delta indicated by the other options.
-.sp
+In the absence of options,
+.B prs
+displays the delta table (version log). In the absence of
+.BR -d ,
+or
+.BR -l ,
+.B prs
+displays the entry for each delta indicated by the other options.
 
-.sp
-.ne 2
+.br
+.ne 3
 .TP 13
-\fB\fB-a\fR \fR
+.B -a
 Includes all deltas, including those marked as removed (see 
-\fBsccs-rmdel\fR(1)). 
+.BR sccs-rmdel (1)).
 
-.sp
-.ne 2
+.br
+.ne 3
 .TP
-\fB\fB-e\fR \fR
-Requests information for all deltas created \fIearlier\fR than, and including, the delta indicated with \fB-r\fR or \fB-c\fR. 
+.B -e
+Requests information for all deltas created
+.I earlier
+than, and including, the delta indicated with
+.B -r
+or
+.BR -c .
 
-.sp
-.ne 2
+.br
+.ne 3
 .TP
-\fB\fB-l\fR \fR
-Requests information for all deltas created \fIlater\fR than, and including, the delta indicated with \fB-r\fR or \fB-c\fR. 
+.B -l
+Requests information for all deltas created
+.I later
+than, and including, the delta indicated with
+.B -r
+or
+.BR -c .
 
-.sp
-.ne 2
+.br
+.ne 3
 .TP
-\fB\fB-c\fR\fIdate-time\fR \fR
+.BI -c date-time
 Either options
 .B \-e
 or
@@ -99,25 +132,25 @@ or
 must be used with this option. 
 .BI \-c date-time
 displays information on the deltas checked in either prior to and including the
-date and time indicated by the \fIdate-time\fR argument (option
+date and time indicated by the
+.I date-time
+argument (option
 .BR \-e );
 or later than and including the date and time indicated (option
 .BR \-l ).
 .I date-time
 takes the form:
 .sp
-
-.sp
- \fIyy\fR[\fImm\fR[\fIdd\fR[\fIhh\fR[\fImm\fR[\fIss\fR]\|]\|]\|]\|]
-.sp
-
+.IR " yy" [ mm [ dd [\c
+.IR hh [ mm [ ss ]\|]\|]\|]\|]
 .sp
 Units omitted from the indicated date and time default to their maximum
 possible values; that is
 .B \-c7502
 is equivalent to
 .BR "\-c750228235959" .
-Any number of non-numeric characters may separate the various 2 digit components. 
+Any number of non-numeric characters may separate the various 2 digit
+components.
 If white-space characters occur, the
 .I date-time
 specification must be quoted. Values of
@@ -133,25 +166,49 @@ A
 .I date-time
 specification in the form:
 .sp
- \fIyyyy/\fR[\fImm\fR[\fIdd\fR[\fIhh\fR[\fImm\fR[\fIss\fR]\|]\|]\|]\|]
+.IR " yyyy" /[ mm [ dd [\c
+.IR hh [ mm [ ss ]\|]\|]\|]\|]
 .sp
 refers to a 4-digit year and allows to specify a year outside the
 range
 .BR 1969 \(mi 2068 .
 
-.sp
-.ne 2
+.br
+.ne 3
 .TP
-\fB\fB-d\fR\fIdataspec\fR \fR
-Produce a report according to the indicated data specification. \fIdataspec\fR consists of a (quoted) text string that includes embedded data keywords of the form: `\fB:\fR\fIkey\fR\fB:\fR' (see \fBData Keywords\fR, below). \fBprs\fR expands these keywords in the output it produces. To specify a \fBTAB\fR character in the output, use \fB\et\fR; to specify a NEWLINE in the output, use \fB\en\fR\&. 
+.BI -d dataspec
+Produce a report according to the indicated data specification.
+.I dataspec
+consists of a (quoted) text string that includes embedded
+data keywords of the form:
+.RB ` :\c
+.IB key :\c
+\&'
+(see
+.BR "Data Keywords" ,
+below).
+.B prs
+expands these keywords in the output it produces. To specify a
+.B TAB
+character in the output, use
+.BR \et ;
+to specify a NEWLINE in the output, use
+.BR \en \&. 
 
-.sp
-.ne 2
+.br
+.ne 3
 .TP
-\fB\fB-r\fR\fIsid\fR \fR
-Specifies the \fBSCCS\fR delta \fBID\fR (\fBSID\fR) of the delta for which information is desired. If no  \fBSID\fR is specified, the most recently created delta is used.
+.BI -r sid
+Specifies the
+.B SCCS
+delta
+.B ID
+.RB ( SID )
+of the delta for which information is desired. If no
+.B SID
+is specified, the most recently created delta is used.
 
-.sp
+.br
 .ne 3
 .TP
 .BI -q\fR[ nsedelim\fR]
@@ -173,7 +230,7 @@ extension that does not exist in historic
 .B sccs 
 implementations.
 
-.sp
+.br
 .ne 3
 .TP
 .B \-V
@@ -184,16 +241,24 @@ version number string and exists.
 .SH USAGE
 
 .LP
-Usage of \fBprs\fR is described below.
+Usage of
+.B prs
+is described below.
 .sp
 
 .SS Data Keywords
 
 .LP
-Data keywords specify which parts of an \fBSCCS\fR file are to be retrieved. All parts of an \fBSCCS\fR file (see 
-\fBsccsfile\fR(4)) have an associated data keyword. A data keyword may appear any number of times in a data specification argument to \fB-d\fR. These data keywords are listed in the
-table below: 
-.sp
+Data keywords specify which parts of an
+.B SCCS
+file are to be retrieved. All parts of an
+.B SCCS
+file (see 
+.BR sccsfile (4))
+have an associated data keyword. A data keyword may appear any number
+of times in a data specification argument to
+.BR -d .
+These data keywords are listed in the table below: 
 
 .LP
 .in +2
@@ -208,11 +273,11 @@ table below:
 .sp
 .TS
 tab();
-cw(.65i) cw(1.94i) cw(.65i) cw(1.62i) cw(.65i) 
-lw(.65i) lw(1.94i) lw(.65i) lw(1.62i) lw(.65i) 
+lw(.55i) lw(1.64i) lw(.65i) lw(1.62i) lw(.65i)
+lw(.55i) lw(1.64i) lw(.65i) lw(1.62i) lw(.65i)
 .
 \fIKeyword\fR\fIData Item\fR\fIFile Section*\fR\fIValue\fR\fIFormat\fR**
-\fB:A:\fRa format for the \fBwhat\fR string:N/A\fB:Z::Y: :M: :I::Z:\fRS
+\fB:A:\fRA form of \fBwhat\fR string:N/A\fB:Z::Y: :M: :I::Z:\fRS
 \fB:AC:\fRCMF validation programF\fItext\fRS
 \fB:B:\fRbranch numberD\fInnnn\fRS
 \fB:BD:\fRbodyB\fItext\fRM
@@ -269,44 +334,43 @@ T}D\fB:Dn:/:Dx:/:Dg:\fRS
 \fB:Tm:\fRminutes delta createdD\fInn\fRS
 \fB:Ts:\fRseconds delta createdD\fInn\fRS
 \fB:UN:\fRuser namesU\fItext\fRM
-\fB:W:\fRa form of \fBwhat\fR stringN/A\fB:Z::M:\et:I:\fRS
+\fB:W:\fRA form of \fBwhat\fR stringN/A\fB:Z::M:\et:I:\fRS
 \fB:Y:\fRmodule type flagF\fItext\fRS
 \fB:Z:\fR\fBwhat\fR string delimiterN/A\fB@(#)\fRS
 .TE
 
 .LP
 	*B = body, D = delta table, F = flags, U = user names 	
-.sp
-
 .LP
-**S = simple format, M = multi-line format
+	**S = simple format, M = multi-line format
 .sp
 
 .SH EXAMPLES
 .LP
-\fBExample 1 \fRDisplaying delta entries
+.B Example 1
+Displaying delta entries
 
 .LP
 The following command:
-.sp
 
 .LP
 .in +2
 .nf
-example% \fB/usr/ccs/bin/prs -e -d":I:\et:P:" program.c\fR
+example% \c
+.B
+/usr/ccs/bin/prs -e -d":I:\et:P:" program.c
 .fi
 .in -2
-.sp
 
 .LP
 produces:
-.sp
 
 .LP
 .in +2
 .nf
 1.6	username
-1.5 username...
+1.5	username
+\&.\|.\|.
 .fi
 .in -2
 .sp
@@ -326,6 +390,7 @@ execution of
 .BR LC_MESSAGES ,
 and
 .BR NLSPATH .
+
 .br
 .ne 4
 .TP
@@ -346,19 +411,19 @@ and set
 .LP
 The following exit values are returned:
 .sp
-.ne 2
+.ne 3
 .TP 5
 .B 0
 Successful completion.
 .sp
-.ne 2
+.ne 3
 .TP
 .B 1
 An error occurred.
 
 .SH FILES
 .sp
-.ne 2
+.ne 3
 .TP 15n
 .BI s. file
 .B SCCS
@@ -366,7 +431,7 @@ history file, see
 .BR sccsfile (4).
 
 .sp
-.ne 2
+.ne 3
 .TP
 .B /tmp/pr?????
 temporary file
@@ -375,7 +440,8 @@ temporary file
 
 .LP
 See 
-\fBattributes\fR(5) for descriptions of the following attributes:
+.BR attributes (5)
+for descriptions of the following attributes:
 .sp
 
 .LP
@@ -394,30 +460,32 @@ Interface StabilityStandard
 .TE
 
 .SH SEE ALSO
+.nh
 .LP
 .BR sccs (1),
-.BR sccs-admin (1),
-.BR sccs-cdc (1),
-.BR sccs-comb (1),
-.BR sccs-delta (1),
-.BR sccs-get (1),
-.BR sccs-help (1),
-.BR sccs-prt (1),
-.BR sccs-rmdel (1),
-.BR sccs-sact (1),
-.BR sccs-sccsdiff (1),
-.BR sccs-unget (1),
-.BR sccs-val (1),
-.BR sccscvt (1),
-.BR sccslog (1),
+.BR sccs\-admin (1),
+.BR sccs\-cdc (1),
+.BR sccs\-comb (1),
+.BR sccs\-cvt (1),
+.BR sccs\-delta (1),
+.BR sccs\-get (1),
+.BR sccs\-help (1),
+.BR sccs\-log (1),
+.BR sccs\-prt (1),
+.BR sccs\-rmdel (1),
+.BR sccs\-sact (1),
+.BR sccs\-sccsdiff (1),
+.BR sccs\-unget (1),
+.BR sccs\-val (1),
 .BR bdiff (1), 
 .BR diff (1), 
 .BR what (1),
-.BR changeset (4),
+.BR sccschangeset (4),
 .BR sccsfile (4),
 .BR attributes (5),
 .BR environ (5),
 .BR standards (5).
+.hy 14
 
 .SH DIAGNOSTICS
 .LP

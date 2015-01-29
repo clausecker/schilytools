@@ -1,4 +1,4 @@
-#ident "@(#)Makefile	1.41 14/06/05  Copyright (c) 2006-2014 J. Schilling"
+#ident "@(#)Makefile	1.42 15/01/09  Copyright (c) 2006-2014 J. Schilling"
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -59,9 +59,6 @@ CFILES=		args.c bltin.c cmd.c ctype.c defs.c echo.c error.c \
 
 HFILES=		ctype.h defs.h dup.h hash.h mac.h mode.h name.h \
 		sh_policy.h stak.h sym.h timeout.h version.h
-
-#LIBS=		-lunos
-#OOOLIBS=		-lxtermcap -lschily $(LIB_CRYPT)
 
 # -lgen		fuer gmatch()
 # -lsecdb	fuer getexecuser() free_execattr()

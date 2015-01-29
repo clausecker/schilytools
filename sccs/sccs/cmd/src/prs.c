@@ -25,12 +25,12 @@
  * Use is subject to license terms.
  */
 /*
- * Copyright 2006-2014 J. Schilling
+ * Copyright 2006-2015 J. Schilling
  *
- * @(#)prs.c	1.43 14/08/13 J. Schilling
+ * @(#)prs.c	1.44 15/01/26 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)prs.c 1.43 14/08/13 J. Schilling"
+#pragma ident "@(#)prs.c 1.44 15/01/26 J. Schilling"
 #endif
 /*
  * @(#)prs.c 1.33 06/12/12
@@ -80,7 +80,7 @@ static char	Getpgmp[]   =   NOGETTEXT(INS_BASE "/ccs/bin/" "get");
 #endif
 static char	Getpgm[]   =   NOGETTEXT("get");
 static char defline[] = NOGETTEXT(":Dt:\t:DL:\nMRs:\n:MR:COMMENTS:\n:C:");
-static char	Sid[32];
+static char	Sid[SID_STRSIZE];
 static char	Mod[FILESIZE];
 static char	Olddir[BUFSIZ];
 static char	Pname[BUFSIZ];
@@ -1316,8 +1316,8 @@ struct packet *pkt;
 {
 	int	i;
 	int	status;
-	char	str[128];
-	char	rarg[20];
+	char	str[SID_STRSIZE];
+	char	rarg[SID_STRSIZE+2];
 	char	filearg[80];
 
 	sid_ba(gsid,str);

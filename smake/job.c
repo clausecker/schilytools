@@ -1,11 +1,11 @@
-/* @(#)job.c	1.5 13/05/13 Copyright 1985, 87, 88, 91, 1995-2013 J. Schilling */
+/* @(#)job.c	1.6 15/01/05 Copyright 1985, 87, 88, 91, 1995-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)job.c	1.5 13/05/13 Copyright 1985, 87, 88, 91, 1995-2013 J. Schilling";
+	"@(#)job.c	1.6 15/01/05 Copyright 1985, 87, 88, 91, 1995-2015 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1985, 87, 88, 91, 1995-2013 by J. Schilling
+ *	Copyright (c) 1985, 87, 88, 91, 1995-2015 by J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -14,6 +14,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -262,12 +264,14 @@ docmd(cmd, obj)
 	 * Check whether we have a leading simple echo command that we may
 	 * inline in order to optimize command execution.
 	 */
+#ifndef	NO_MYECHO
 	if (strncmp(cmd, "echo", 4) == 0 &&
 	    (cmd[4] == ' ' || cmd[4] == '\t')) {
 		char *p = doecho(cmd, FALSE);
 		if (p != cmd)
 			myecho = TRUE;
 	}
+#endif
 	if (foundplus)
 		Silent = FALSE;
 	else if (!Silent && is_inlist(".SILENT", obj->o_name))
@@ -293,8 +297,10 @@ docmd(cmd, obj)
 		jobp->j_flags |= J_SILENT;
 	if (NoError)
 		jobp->j_flags |= J_NOERROR;
+#ifndef	NO_MYECHO
 	if (myecho)
 		jobp->j_flags |= J_MYECHO;
+#endif
 	jobp->j_cmd = cmd;
 	jobp->j_obj = obj;
 	curjobs++;
@@ -326,6 +332,7 @@ cmd_run(jobp)
 		jobp->j_flags &= ~J_MYECHO;
 
 	flush();			/* Flush stdout before running cmd */
+#ifndef	NO_MYECHO
 	if (jobp->j_flags & J_MYECHO) {
 		cmd = doecho(cmd, TRUE);
 		flush();
@@ -335,6 +342,7 @@ cmd_run(jobp)
 			return;
 		}
 	}
+#endif
 	if (*cmd == '\0') {		/* Skip empty command */
 		jobp->j_flags |= J_NOWAIT;
 		jobp->j_excode = 0;
@@ -536,6 +544,7 @@ has_meta(s)
  * be executed by the shell, because there is I/O redirection or a shell
  * variable inside the echo arguments.
  */
+#ifndef	NO_MYECHO
 LOCAL char *
 doecho(s, print)
 	register char	*s;
@@ -643,6 +652,7 @@ out:
 		printf("\n");
 	return (s);
 }
+#endif	/* NO_MYECHO */
 
 /*
  * Call a command via the shell.

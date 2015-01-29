@@ -37,9 +37,9 @@
 #endif
 
 /*
- * This file contains modifications Copyright 2008-2014 J. Schilling
+ * This file contains modifications Copyright 2008-2015 J. Schilling
  *
- * @(#)defs.h	1.61 14/12/26 2008-2014 J. Schilling
+ * @(#)defs.h	1.62 15/01/07 2008-2015 J. Schilling
  */
 
 #ifdef	__cplusplus
@@ -556,7 +556,8 @@ extern	int		pathopen __PR((unsigned char *path,
 extern	unsigned char *catpath	__PR((unsigned char *path,
 						unsigned char *name));
 extern	unsigned char *nextpath	__PR((unsigned char *path));
-extern	void		execa	__PR((unsigned char *at[], short pos, int isvfork));
+extern	void		execa	__PR((unsigned char *at[], short pos,
+						int isvfork));
 extern	void		trim	__PR((unsigned char *at));
 extern	void		trims	__PR((unsigned char *at));
 extern	unsigned char *mactrim	__PR((unsigned char *at));

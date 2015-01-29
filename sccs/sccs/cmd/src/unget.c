@@ -25,12 +25,12 @@
  * Use is subject to license terms.
  */
 /*
- * Copyright 2006-2014 J. Schilling
+ * Copyright 2006-2015 J. Schilling
  *
- * @(#)unget.c	1.25 14/08/09 J. Schilling
+ * @(#)unget.c	1.26 15/01/26 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)unget.c 1.25 14/08/09 J. Schilling"
+#pragma ident "@(#)unget.c 1.26 15/01/26 J. Schilling"
 #endif
 /*
  * @(#)unget.c 1.24 06/12/12
@@ -255,7 +255,7 @@ unget(file)
 char *file;
 {
 	char	gfilename[FILESIZE];
-	char	str[BUFSIZ];
+	char	str[max(BUFSIZ, SID_STRSIZE)];
 	struct	pfile *pp;
 	uid_t	holduid;
 

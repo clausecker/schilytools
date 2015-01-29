@@ -1,5 +1,8 @@
 '\" te
-.\" @(#)vc.1	1.6 14/08/10 Copyright 2011-2014 J. Schilling
+.\" @(#)vc.1	1.11 15/01/21 Copyright 2011-2015 J. Schilling
+.\" Copyright 1989 AT&T
+.\" Copyright (c) 1990, Sun Microsystems, Inc.  All Rights Reserved
+.\" Copyright (c) 2011-2015, J. Schilling
 .\"
 .\" CDDL HEADER START
 .\"
@@ -19,417 +22,351 @@
 .\" information: Portions Copyright [yyyy] [name of copyright owner]
 .\"
 .\" CDDL HEADER END
-.\" Copyright 1989 AT&T
-.\" Copyright (c) 1990, Sun Microsystems, Inc.  All Rights Reserved
-.TH vc 1 "2014/08/10" "SunOS 5.11" "User Commands"
+.TH vc 1 "2015/01/21" "SunOS 5.11" "User Commands"
 .SH NAME
 vc \- version control
 .SH SYNOPSIS
 .LP
-\fBvc\fR [\fB\-a\fR] [\fB\-t\fR] [\fB\-c\fR\ \fIchar\fR] [\fB\-s\fR] 
-[\fIkeyword=value\fR...\ \fIkeyword=value\fR]
+.B vc
+.RB [ \-a ]
+.RB [ \-t ]
+.RB [ \-c
+.IR char ]
+.RB [ \-s ]
+.RI [ keyword=value ...\  keyword=value ]
 
 .SH DESCRIPTION
 .sp
 .LP
-The \fBvc\fR command copies lines from the standard input to the standard output under control of its arguments and of ``control statements'' encountered in the standard input.
+The
+.B vc
+command copies lines from the standard input to the standard output under
+control of its arguments and of ``control statements'' encountered in the
+standard input.
 In the
-process of performing the copy operation, user-declared \fIkeyword\fRs may be replaced by their string \fIvalue\fR when they appear in plain text and/or control
+process of performing the copy operation, user-declared
+.I keyword
+may be replaced by their string
+.I value
+when they appear in plain text and/or control
 statements.
 .sp
 .LP
-The copying of lines from the standard input to the standard output is conditional, based on tests (in control statements) of keyword values specified in control statements or as \fBvc\fR
+The copying of lines from the standard input to the standard output is
+conditional,
+based on tests (in control statements) of keyword values specified in
+control statements or as
+.B vc
 command arguments.
 .sp
 .LP
-A control statement is a single line beginning with a control character, except as modified by the \fB\-t\fR keyletter (see below).
-The default control character is colon (\fB:\fR),
-except as modified by the \fB\-c\fR keyletter (see below).
-Input lines beginning with a backslash (\fB\e\fR) followed by a control character are not control lines and are copied
+A control statement is a single line beginning with a control character,
+except as modified by the
+.B \-t
+keyletter (see below).
+The default control character is colon
+.RB ( : ),
+except as modified by the
+.B \-c
+keyletter (see below).
+Input lines beginning with a backslash
+.RB ( \e )
+followed by a control character are not control lines and are copied
 to the standard output with the backslash removed.
-Lines beginning with a backslash followed by a non-control character are copied in their entirety.
+Lines beginning with a backslash followed by a non-control character
+are copied in their entirety.
 .sp
 .LP
 A keyword is composed of alphanumerics; the first must be alphabetic.
-A value is any \fBASCII\fR string that can be created with \fBed\fR; a numeric
+A value is any
+.B ASCII
+string that can be created with
+.BR ed;
+a numeric
 value is an unsigned string of digits.
 Keyword values may not contain blanks or tabs.
 .sp
 .LP
-Replacement of keywords by values is done whenever a keyword surrounded by control characters is encountered on a version control statement.
-The \fB\-a\fR keyletter (see below) forces replacement
+Replacement of keywords by values is done whenever a keyword surrounded by
+control characters is encountered on a version control statement.
+The
+.B \-a
+keyletter (see below) forces replacement
 of keywords in all lines of text.
-An uninterpreted control character may be included in a value by preceding it with \fB\e\fR\&.
-If a literal \fB\e\fR is desired, then it
-too must be preceded by \fB\e\fR\&.
+An uninterpreted control character may be included in a value by preceding
+it with
+.BR \e \&.
+If a literal
+.B \e
+is desired, then it
+too must be preceded by
+.BR \e \&.
 .SH OPTIONS
 .sp
 .LP
 The following options are supported:
-.sp
-.ne 2
-.mk
-.na
-\fB\-a\fR
-.ad
-.RS 10n
-.rt
-Forces replacement of keywords surrounded by control characters with their assigned value in
-all text lines and not just in \fBvc\fR statements.
-.RE
+.br
+.ne 3
+.TP 10n
+.B \-a
+Forces replacement of keywords surrounded by control characters with their
+assigned value in all text lines and not just in
+.B vc
+statements.
 
-.sp
-.ne 2
-.mk
-.na
-\fB\-t\fR
-.ad
-.RS 10n
-.rt
-All characters from the beginning of a line up to and including the first tab character are ignored for the purpose of detecting a control statement.
-If a control statement is found, all characters up to and including the tab are discarded.
-.RE
+.br
+.ne 3
+.TP
+.B \-t
+All characters from the beginning of a line up to and including the first
+tab character are ignored for the purpose of detecting a control statement.
+If a control statement is found, all characters up to and including the
+tab are discarded.
 
-.sp
-.ne 2
-.mk
-.na
-\fB\-c\fR\fIchar\fR
-.ad
-.RS 10n
-.rt
-Specifies a control character to be used in place of the ``\fB:\fR'' default.
-.RE
+.br
+.ne 3
+.TP
+.BI \-c char
+Specifies a control character to be used in place of the
+.RB `` : ''
+default.
 
-.sp
-.ne 2
-.mk
-.na
-\fB\-s\fR
-.ad
-.RS 10n
-.rt
-Silences warning messages (not error) that are normally printed on the diagnostic output.
-.RE
+.br
+.ne 3
+.TP
+.B \-s
+Silences warning messages (not error) that are normally printed on the
+diagnostic output.
 
 .sp
 .LP
-\fBvc\fR recognizes the following version control statements:
-.sp
-.ne 2
-.mk
-.na
-\fB:dcl \fR\fIkeyword\fR[\fB, \fR...\fB, \fR\fIkeyword\fR]\fR
-.ad
-.sp .6
-.RS 4n
+.B vc
+recognizes the following version control statements:
+.br
+.ne 3
+.TP 4n
+\fB:dcl \fIkeyword\fR[\fB, \fR...\fB, \fIkeyword\fR]
 Declare keywords.
 All keywords must be declared.
-.RE
 
-.sp
-.ne 2
-.mk
-.na
-\fB:asg \fR\fIkeyword\fR\fB=\fR\fIvalue\fR
-.ad
-.sp .6
-.RS 4n
+.br
+.ne 3
+.TP
+\fB:asg \fIkeyword\fB=\fR\fIvalue\fR
 Assign values to keywords.
-An \fBasg\fR
-statement overrides the assignment for the corresponding keyword on the \fBvc\fR command line and all previous \fBasg\fR statements for that keyword.
+An
+.B asg
+statement overrides the assignment for the corresponding keyword on the
+.B vc
+command line and all previous
+.B asg
+statements for that keyword.
 Keywords that are declared
 but are not assigned values have null values.
-.RE
 
-.sp
-.ne 2
-.mk
-.na
-\fB:if\fR\fI condition\fR
-.ad
 .br
-.na
-\fB\&.\|.\|.\fR
-.ad
-.br
-.na
-\fB:end\fR
-.ad
-.sp .6
-.RS 4n
+.ne 3
+.PD 0
+.TP
+.BI ":if " condition
+.TP
+.B \&.\|.\|.
+.TP
+.B :end
+.PD
 Skip lines of the standard input.
-If the condition is true, all lines between the \fBif\fR statement and the matching \fBend\fR statement are copied to the standard output.
+If the condition is true, all lines between the
+.B if
+statement and the matching
+.B end
+statement are copied to the standard output.
 If the condition is false, all intervening
 lines are discarded, including control statements.
-Note: Intervening \fBif\fR statements and matching \fBend\fR statements are recognized solely for the purpose of maintaining
-the proper \fBif-end\fR matching.
-.sp
-The syntax of a condition is:
-.sp
-.ne 2
-.mk
-.na
-\fB<cond>\fR
-.ad
-.RS 11n
-.rt
-::=  [ ``\fBnot\fR'' ] \fI<or>\fR
-.RE
-
-.sp
-.ne 2
-.mk
-.na
-\fB<or>\fR
-.ad
-.RS 11n
-.rt
-::=  \fI<and> | <and> \fR``\fB|\fR'' \fI<or>\fR
-.RE
-
-.sp
-.ne 2
-.mk
-.na
-\fB<and>\fR
-.ad
-.RS 11n
-.rt
-::=  \fI<exp> | <exp> \fR``\fB&\fR\&'' \fI<and>\fR
-.RE
-
-.sp
-.ne 2
-.mk
-.na
-\fB<exp>\fR
-.ad
-.RS 11n
-.rt
-::=  ``\fB(\fR'' \fI<or> \fR``\fB)\fR'' \fI| <value> <op> <value>\fR
-.RE
-
-.sp
-.ne 2
-.mk
-.na
-\fB<op>\fR
-.ad
-.RS 11n
-.rt
-::=  ``\fB=\fR'' \fI| \fR``\fB!=\fR'' \fI| ``\fR\fB<\fR\&'' | ``\fB>\fR''\fI\fR
-.RE
-
-.sp
-.ne 2
-.mk
-.na
-\fB<value>\fR
-.ad
-.RS 11n
-.rt
-::=  \fI<arbitrary ASCII string> | <numeric string>\fR
-.RE
-
-The available operators and their meanings are:
-.sp
-.ne 2
-.mk
-.na
-\fB=\fR
-.ad
-.RS 7n
-.rt
-equal
-.RE
-
-.sp
-.ne 2
-.mk
-.na
-\fB!=\fR
-.ad
-.RS 7n
-.rt
-not equal
-.RE
-
-.sp
-.ne 2
-.mk
-.na
-\fB&\fR
-.ad
-.RS 7n
-.rt
-and
-.RE
-
-.sp
-.ne 2
-.mk
-.na
-\fB|\fR
-.ad
-.RS 7n
-.rt
-or
-.RE
-
-.sp
-.ne 2
-.mk
-.na
-\fB>\fR
-.ad
-.RS 7n
-.rt
-greater than
-.RE
-
-.sp
-.ne 2
-.mk
-.na
-\fB<\fR
-.ad
-.RS 7n
-.rt
-less than
-.RE
-
-.sp
-.ne 2
-.mk
-.na
-\fB()\fR
-.ad
-.RS 7n
-.rt
-used for logical groupings
-.RE
-
-.sp
-.ne 2
-.mk
-.na
-\fBnot\fR
-.ad
-.RS 7n
-.rt
-may only occur immediately after the \fBif\fR, and when present, inverts the value of the entire condition
-.RE
-
-The \fB>\fR and \fB<\fR operate only on unsigned integer values (for example, \fB: 012 > 12\fR is false).
-All other operators take strings as arguments (for
-example, \fB: 012 != 12\fR is true).
-.sp
-The precedence of the operators (from highest to lowest) is:
-.sp
-.ne 2
-.mk
-.na
-\fB= != > <\fR
-.ad
-.RS 12n
-.rt
-all of equal precedence
-.RE
-
-.sp
-.ne 2
-.mk
-.na
-\fB&\fR
-.ad
-.RS 12n
-.rt
-
-.RE
-
-.sp
-.ne 2
-.mk
-.na
-\fB|\fR
-.ad
-.RS 12n
-.rt
-
-.RE
-
-Parentheses may be used to alter the order of precedence.
-.sp
-Values must be separated from operators or parentheses by at least one blank or tab.
-.RE
-
-.sp
-.ne 2
-.mk
-.na
-\fB::\fR\fItext\fR
-.ad
-.sp .6
+Note: Intervening
+.B if
+statements and matching
+.B end
+statements are recognized solely for the purpose of maintaining
+the proper
+.B if-end
+matching.
 .RS 4n
+.LP
+The syntax of a condition is:
+.br
+.ne 3
+.TP 11n
+.B <cond>
+::=  [ ``\fBnot\fR'' ] \fI<or>\fR
+
+.br
+.ne 3
+.TP
+.B <or>
+::=  \fI<and> | <and> \fR``\fB|\fR'' \fI<or>\fR
+
+.br
+.ne 3
+.TP
+.B <and>
+::=  \fI<exp> | <exp> \fR``\fB&\fR\&'' \fI<and>\fR
+
+.br
+.ne 3
+.TP
+.B <exp>
+::=  ``\fB(\fR'' \fI<or> \fR``\fB)\fR'' \fI| <value> <op> <value>\fR
+
+.br
+.ne 3
+.TP
+.B <op>
+::=  ``\fB=\fR'' \fI| \fR``\fB!=\fR'' \fI| ``\fB<\fR\&'' | ``\fB>\fR''\fR
+
+.br
+.ne 3
+.TP
+.B <value>
+::=
+.I " <arbitrary ASCII string> | <numeric string>
+.LP
+The available operators and their meanings are:
+.br
+.ne 3
+.TP 7n
+.B =
+equal
+
+.br
+.ne 3
+.TP
+.B !=
+not equal
+
+.br
+.ne 3
+.TP
+.B &
+and
+
+.br
+.ne 3
+.TP
+.B |
+or
+
+.br
+.ne 3
+.TP
+.B >
+greater than
+
+.br
+.ne 3
+.TP
+.B <
+less than
+
+.br
+.ne 3
+.TP
+.B ()
+used for logical groupings
+
+.br
+.ne 3
+.TP
+.B not
+may only occur immediately after the
+.BR if ,
+and when present, inverts the value of the entire condition
+.LP
+The
+.B >
+and
+.B <
+operate only on unsigned integer values (for example,
+.B ": 012 > 12
+is false).
+All other operators take strings as arguments (for
+example,
+.B ": 012 != 12
+is true).
+.LP
+The precedence of the operators (from highest to lowest) is:
+.br
+.ne 3
+.TP 12n
+.B "= != > <
+all of equal precedence
+
+.br
+.ne 3
+.TP
+.B &
+
+.br
+.ne 3
+.TP
+.B |
+.LP
+Parentheses may be used to alter the order of precedence.
+.LP
+Values must be separated from operators or parentheses by at least one
+blank or tab.
+.RE
+
+.br
+.ne 3
+.TP
+.BI :: text
 Replace keywords on lines that are copied to the standard output.
 The two leading control characters are removed,
-and keywords surrounded by control characters in text are replaced by their value before the line is copied to the output file.
-This action is independent of the \fB\-a\fR keyletter.
-.RE
+and keywords surrounded by control characters in text are replaced by their
+value before the line is copied to the output file.
+This action is independent of the
+.B \-a
+keyletter.
 
-.sp
-.ne 2
-.mk
-.na
-\fB:on\fR
-.ad
 .br
-.na
-\fB:off\fR
-.ad
-.sp .6
-.RS 4n
+.ne 3
+.TP
+.PD 0
+.B :on
+.TP
+.B :off
+.PD
 Turn on or off keyword replacement on all lines.
-.RE
 
-.sp
-.ne 2
-.mk
-.na
-\fB:ctl\fR\fI char\fR
-.ad
-.sp .6
-.RS 4n
-Change the control character to \fIchar\fR.
-.RE
+.br
+.ne 3
+.TP
+.BI ":ctl " char
+Change the control character to
+.IR char .
 
-.sp
-.ne 2
-.mk
-.na
-\fB:msg\fR\fI message\fR
-.ad
-.sp .6
-.RS 4n
-Print \fImessage\fR on the diagnostic output.
-.RE
+.br
+.ne 3
+.TP
+.BI ":msg " message
+Print
+.I message
+on the diagnostic output.
 
+.br
+.ne 3
+.TP
+.BI ":err " message
+Print
+.I message
+followed by:
 .sp
-.ne 2
-.mk
-.na
-\fB:err\fR\fI message\fR
-.ad
-.sp .6
-.RS 4n
-Print \fImessage\fR followed by:
-.sp
-\fB      ERROR: err statement on line ... (915)\fR
+.B "      ERROR: err statement on line ... (915)
 .sp
 on the diagnostic output.
-\fBvc\fR halts execution, and returns an exit code of \fB1\fR.
-.RE
+.B vc
+halts execution, and returns an exit code of
+.BR 1 .
 
 .SH ENVIRONMENT VARIABLES
 .sp
@@ -445,6 +382,7 @@ execution of
 .BR LC_MESSAGES ,
 and
 .BR NLSPATH .
+
 .br
 .ne 4
 .TP
@@ -478,15 +416,17 @@ An error occurred.
 .SH ATTRIBUTES
 .sp
 .LP
-See \fBattributes\fR(5) for descriptions of the following
+See
+.BR attributes (5)
+for descriptions of the following
 attributes:
 .sp
 
 .sp
 .TS
 tab() box;
-cw(2.75i) |cw(2.75i) 
-lw(2.75i) |lw(2.75i) 
+cw(2.75i) |cw(2.75i)
+lw(2.75i) |lw(2.75i)
 .
 ATTRIBUTE TYPEATTRIBUTE VALUE
 _
@@ -494,7 +434,9 @@ AvailabilitySUNWsprot
 .TE
 
 .SH SEE ALSO
+.nh
 .sp
 .LP
 .BR ed (1),
 .BR attributes (5).
+.hy 14

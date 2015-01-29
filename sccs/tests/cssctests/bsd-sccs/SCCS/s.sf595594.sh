@@ -1,4 +1,8 @@
-h49501
+h62065
+s 00001/00001/00098
+d D 1.3 15/01/28 20:07:29 joerg 3 2
+c setup vor cleanup rufen, damit rmdir: directory "SCCS": Directory not empty nicht kommt
+e
 s 00026/00000/00073
 d D 1.2 11/05/30 19:30:32 joerg 2 1
 c setup()/restore() neu um SCCS nach XSCCS und zurueck zu wandeln
@@ -80,10 +84,15 @@ cleanup () {
     rm -f $files
 }
 
+I 3
+setup
+E 3
 cleanup
 remove command.log log log.stdout log.stderr 
 I 2
+D 3
 setup
+E 3
 E 2
 mkdir SCCS
 

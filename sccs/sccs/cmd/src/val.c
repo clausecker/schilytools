@@ -25,12 +25,12 @@
  * Use is subject to license terms.
  */
 /*
- * Copyright 2006-2014 J. Schilling
+ * Copyright 2006-2015 J. Schilling
  *
- * @(#)val.c	1.41 14/08/17 J. Schilling
+ * @(#)val.c	1.42 15/01/26 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)val.c 1.41 14/08/17 J. Schilling"
+#pragma ident "@(#)val.c 1.42 15/01/26 J. Schilling"
 #endif
 /*
  * @(#)val.c 1.22 06/12/12
@@ -625,8 +625,8 @@ struct packet *pkt;
 	int	missfld = 0;
 
 	if (debug) {
-		char	str[32];
-		char	ostr[32];
+		char	str[SID_STRSIZE];
+		char	ostr[SID_STRSIZE];
 
 		del_ab(&lp[-2], &dt, pkt);	/* We are called with &lp[2] */
 
@@ -1297,7 +1297,7 @@ get_hashtest(ser)
 
 	if (pk2.p_hash[ser] != (pk2.p_ghash & 0xFFFF)) {
 		if (debug) {
-			char	str[32];
+			char	str[SID_STRSIZE];
 
 			sid_ba(&pk2.p_gotsid, str);
 			printf(gettext(

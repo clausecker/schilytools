@@ -27,14 +27,14 @@
  * Use is subject to license terms.
  */
 /*
- * Copyright 2006-2014 J. Schilling
+ * Copyright 2006-2015 J. Schilling
  *
- * @(#)defines.h	1.76 14/08/09 J. Schilling
+ * @(#)defines.h	1.79 15/01/27 J. Schilling
  */
 #ifndef	_HDR_DEFINES_H
 #define	_HDR_DEFINES_H
 #if defined(sun)
-#pragma ident "@(#)defines.h 1.76 14/08/09 J. Schilling"
+#pragma ident "@(#)defines.h 1.79 15/01/27 J. Schilling"
 #endif
 /*
  * @(#)defines.h 1.21 06/12/12
@@ -333,6 +333,11 @@ struct	sid {
 	int	s_seq;
 };
 
+/*
+ * String space needed for the SID:
+ */
+#define	SID_STRSIZE	45	/* 4 * 10 + 4 * '.' + '\0' */
+
 struct	deltab {
 	struct	sid	d_sid;
 	int	d_serial;
@@ -410,6 +415,7 @@ struct packet {
 	int	p_glines;	/* number of lines in current gfile */
 	int	p_glnno;	/* line number of current gfile line */
 	int	p_slnno;	/* line number of current input line */
+	int	p_insser;	/* serial number which inserted current line */
 	char	p_wrttn;	/* written flag (!0 = written) */
 	char	p_keep;		/* keep switch for readmod() */
 	char	p_encoding;	/* encoding flags for data */
@@ -430,6 +436,7 @@ struct packet {
 	time_t	p_cdt;		/* date/time of newest applied delta */
 	char	*p_lfile;	/* 0 = no l-file; else ptr to l arg */
 	struct	idel *p_idel;	/* ptr to internal delta table */
+	char	**p_pgmrs;	/* ptr to table of delta users */
 	FILE	*p_stdout;	/* standard output for warnings and messages */
 	FILE	*p_gout;	/* g-file output file */
 	char	p_user;		/* !0 = user on user list */
@@ -607,6 +614,9 @@ extern  void	set_init_path __PR((struct packet *, char *file, char *dir));
 extern	void	sccs_setinsbase __PR((char *));
 extern	int	sccsfatalhelp __PR((char *));
 extern	int	sccshelp __PR((FILE *, char *));
+extern	size_t	lhash_size	__PR((size_t size));
+extern	char	*lhash_add	__PR((char *str));
+extern	char	*lhash_lookup	__PR((char *str));
 
 /*
  * Declares for external variables in lib/mpwlib

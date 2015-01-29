@@ -1,4 +1,4 @@
-New features with AN-2014-12-99:
+New features with AN-2015-01-01:
 
 This is the first localization step for the schily source consolidation. Many
 programs now (hopefully) call gettext() for all strings that need localization.

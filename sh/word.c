@@ -36,13 +36,13 @@
 #include "defs.h"
 
 /*
- * This file contains modifications Copyright 2008-2014 J. Schilling
+ * This file contains modifications Copyright 2008-2015 J. Schilling
  *
- * @(#)word.c	1.33 14/04/24 2008-2014 J. Schilling
+ * @(#)word.c	1.37 15/01/09 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)word.c	1.33 14/04/24 2008-2014 J. Schilling";
+	"@(#)word.c	1.37 15/01/09 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -65,6 +65,14 @@ static	UConst char sccsid[] =
 #endif
 
 	int		word	__PR((void));
+static	unsigned char	*match_word __PR((unsigned char *argp,
+						unsigned int c,
+						unsigned int d,
+						unsigned int *wordcp));
+static	unsigned char	*match_literal __PR((unsigned char *argp));
+static	unsigned char	*match_block __PR((unsigned char *argp,
+						unsigned int c,
+						unsigned int d));
 	unsigned int	skipwc	__PR((void));
 	unsigned int	nextwc	__PR((void));
 	unsigned char	*readw	__PR((wchar_t d));
@@ -77,20 +85,16 @@ static	int		xread	__PR((int f, char *buf, int n));
 /* ========	character handling for command lines	======== */
 
 #ifdef	DO_SYSALIAS
-static	void	*seen;	/* Structure to track recursive alias calls */
+static	void		*seen;	/* Structure to track recursive alias calls */
 #endif
 
-int lev;
 int
 word()
 {
-	unsigned int	c, d, cc;
-	int		alpha = 1;
-	unsigned char *pc;
+	unsigned int	c, d;
 
 	wdnum = 0;
 	wdset = 0;
-lev++;
 
 	/*
 	 * We first call readwc() in order to make sure that the history editor
@@ -105,127 +109,30 @@ lev++;
 			/* LINTED */
 			;
 
-		if (c == COMCHAR)			/* Skip comment */
-		{
+		if (c == COMCHAR) {			/* Skip comment */
 			while ((c = readwc()) != NL && c != EOF)
 				/* LINTED */
 				;
-			peekc = c;
-		}
-		else
-		{
+			peekc = c;			/* NL or EOF */
+		} else {
 			break;	/* out of comment - white space loop */
 		}
 	}
 	if (!eofmeta(c)) {
 		struct argnod	*arg = (struct argnod *)locstak();
 		unsigned char	*argp = arg->argval;
+		unsigned int	wordc;	/* To restore c from  match_word() */
 
-		do
-		{
-			if (c == LITERAL) {
-				unsigned char	*oldargp = argp;
-
-				while ((c = readwc()) != '\0' && c != LITERAL) {
-					/*
-					 * quote each character within
-					 * single quotes
-					 */
-					pc = readw(c);
-					GROWSTAK(argp);
-					*argp++ = '\\';
-				/* Pick up rest of multibyte character */
-					if (c == NL)
-						chkpr();
-					while ((c = *pc++) != 0) {
-						GROWSTAK(argp);
-						*argp++ = (unsigned char)c;
-					}
-				}
-				if (argp == oldargp) { /* null argument - '' */
-				/*
-				 * Word will be represented by quoted null
-				 * in macro.c if necessary
-				 */
-					GROWSTAK(argp);
-					*argp++ = '"';
-					GROWSTAK(argp);
-					*argp++ = '"';
-				}
-			}
-			else
-			{
-				if (c == 0) {
-					GROWSTAK(argp);
-					*argp++ = 0;
-				} else {
-					pc = readw(c);
-					while (*pc) {
-						GROWSTAK(argp);
-						*argp++ = *pc++;
-					}
-				}
-				if (c == '\\') {
-					if ((cc = readwc()) == 0) {
-						GROWSTAK(argp);
-						*argp++ = 0;
-					} else {
-						pc = readw(cc);
-						while (*pc) {
-							GROWSTAK(argp);
-							*argp++ = *pc++;
-						}
-					}
-				}
-				if (c == '=')
-					wdset |= alpha;
-				if (!alphanum(c))
-					alpha = 0;
-				if (qotchar(c)) {
-					d = c;
-					for (;;) {
-						if ((c = nextwc()) == 0) {
-							GROWSTAK(argp);
-							*argp++ = 0;
-						} else {
-							pc = readw(c);
-							while (*pc) {
-								GROWSTAK(argp);
-								*argp++ = *pc++;
-							}
-						}
-						if (c == 0 || c == d)
-							break;
-						if (c == NL)
-							chkpr();
-						/*
-						 * don't interpret quoted
-						 * characters
-						 */
-						if (c != '\\')
-							continue;
-						/*
-						 * This is the quoted character:
-						 */
-						if ((cc = readwc()) == 0) {
-							GROWSTAK(argp);
-							*argp++ = 0;
-						} else {
-							pc = readw(cc);
-							while (*pc) {
-								GROWSTAK(argp);
-								*argp++ = *pc++;
-							}
-						}
-					}
-				}
-			}
-		} while ((c = nextwc(), !eofmeta(c)));
+		/*
+		 * As eofmeta(c) includes NL and EOF, we will not be here in
+		 * case that peekc was set.
+		 */
+		argp = match_word(argp, c, MARK, &wordc);
 		arg = (struct argnod *)endstak(argp);
 		if (!letter(arg->argval[0]))
 			wdset = 0;
 
-		peekn = c | MARK;
+		c = wordc;		/* Last c from inside match_word() */
 		if (arg->argval[1] == 0 &&
 		    (d = arg->argval[0], digit(d)) &&
 		    (c == '>' || c == '<')) {
@@ -249,15 +156,11 @@ lev++;
 				else
 					peekn = d | MARK;
 			}
-		}
-		else
-		{
+		} else {
 			peekn = d | MARK;
 			wdval = c;
 		}
-	}
-	else
-	{
+	} else {
 		if ((wdval = c) == EOF)
 			wdval = EOFSYM;
 		if (iopend && eolchar(c)) {
@@ -311,6 +214,166 @@ lev++;
 	seen = NULL;
 #endif
 	return (wdval);
+}
+
+/*
+ * Match and copy the next word from the input stream.
+ */
+static unsigned char *
+match_word(argp, c, d, wordcp)
+	unsigned char	*argp;		/* Output pointer	*/
+	unsigned int	c;		/* Last read character	*/
+	unsigned int	d;		/* Delimiter or MARK	*/
+	unsigned int	*wordcp;	/* Pointer to return c	*/
+{
+	unsigned int	cc;
+	unsigned char	*pc;
+	int		alpha = 1;
+
+	do {
+		if (c == LITERAL) {	/* '\'' */
+			argp = match_literal(argp);
+		} else {
+			if (c == 0) {
+				GROWSTAK(argp);
+				*argp++ = 0;
+			} else {
+				pc = readw(c);
+				while (*pc) {
+					GROWSTAK(argp);
+					*argp++ = *pc++;
+				}
+			}
+			if (d != MARK) {
+				if (c == 0 || c == d)
+					break;
+				if (c == NL)
+					chkpr();
+			}
+			if (c == '\\') {
+				if ((cc = readwc()) == 0) {
+					GROWSTAK(argp);
+					*argp++ = 0;
+				} else {
+					pc = readw(cc);
+					while (*pc) {
+						GROWSTAK(argp);
+						*argp++ = *pc++;
+					}
+				}
+			}
+			if (d == MARK) {
+				if (c == '=')
+					wdset |= alpha;
+				if (!alphanum(c))
+					alpha = 0;
+			}
+			if (qotchar(c)) {	/* '`' or '"' */
+				argp = match_block(argp, c, c);
+			}
+		}
+	} while ((c = nextwc(), d != MARK || !eofmeta(c)));
+
+	if (d == MARK) {
+		/*
+		 * We need to remember c for word() as c may have MARK set.
+		 */
+		*wordcp = c;
+		peekn = c | MARK;
+	}
+	return (argp);
+}
+
+/*
+ * Match and copy the next literal block (surrounded by '\'') from the
+ * input stream.
+ */
+static unsigned char *
+match_literal(argp)
+	unsigned char	*argp;		/* Output pointer	*/
+{
+	unsigned int	c;
+	unsigned char	*pc;
+	unsigned char	*oldargp = argp;
+
+	while ((c = readwc()) != '\0' && c != LITERAL) {
+		/*
+		 * quote each character within
+		 * single quotes
+		 */
+		pc = readw(c);
+		GROWSTAK(argp);
+		*argp++ = '\\';
+		/* Pick up rest of multibyte character */
+		if (c == NL)
+			chkpr();
+		while ((c = *pc++) != 0) {
+			GROWSTAK(argp);
+			*argp++ = (unsigned char)c;
+		}
+	}
+	if (argp == oldargp) { /* null argument - '' */
+		/*
+		 * Word will be represented by quoted null
+		 * in macro.c if necessary
+		 */
+		GROWSTAK(argp);
+		*argp++ = '"';
+		GROWSTAK(argp);
+		*argp++ = '"';
+	}
+	return (argp);
+}
+
+/*
+ * Match and copy the next quoted block (surrounded by e.g. '`' or '"') from the
+ * input stream.
+ */
+static unsigned char *
+match_block(argp, c, d)
+	unsigned char	*argp;		/* Output pointer	*/
+	unsigned int	c;		/* Last read character	*/
+	unsigned int	d;		/* Delimiter		*/
+{
+	unsigned int	cc;
+	unsigned char	*pc;
+
+	for (;;) {
+		if ((c = nextwc()) == 0) {
+			GROWSTAK(argp);
+			*argp++ = 0;
+		} else {
+			pc = readw(c);
+			while (*pc) {
+				GROWSTAK(argp);
+				*argp++ = *pc++;
+			}
+		}
+		if (c == 0 || c == d)
+			break;
+		if (c == NL)
+			chkpr();
+		/*
+		 * don't interpret quoted
+		 * characters
+		 */
+		if (c == '\\') {
+			/*
+			 * This is the quoted character:
+			 */
+			if ((cc = readwc()) == 0) {
+				GROWSTAK(argp);
+				*argp++ = 0;
+			} else {
+				pc = readw(cc);
+				while (*pc) {
+					GROWSTAK(argp);
+					*argp++ = *pc++;
+				}
+			}
+		}
+	}
+	return (argp);
 }
 
 unsigned int

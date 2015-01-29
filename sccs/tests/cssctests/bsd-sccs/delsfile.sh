@@ -1,7 +1,7 @@
 #! /bin/sh
 #
 # This is a test for a bug in sccs.c where the command 
-#   sccs unedit /tmp/SCCS/s.foo
+#   sccs unedit /tmp/sccstest.$$/SCCS/s.foo
 # causes the deletion of s.foo (instead, the file ./foo should be deleted).
 
 . ../common/test-common
@@ -29,30 +29,32 @@ sfiles="s.foo"
 
 
 cleanup () {
-    if [ -d /tmp/SCCS ] 
+    if [ -d /tmp/sccstest.$$/SCCS ] 
     then
-	for i in $files; do /bin/rm -f /tmp/SCCS/[spzd].$i $i; done
-	rmdir /tmp/SCCS
+	for i in $files; do /bin/rm -f /tmp/sccstest.$$/SCCS/[spzd].$i $i; done
+	rmdir /tmp/sccstest.$$/SCCS
+	rmdir /tmp/sccstest.$$/
     fi
     rm -f $files $sfiles
 }
 
 cleanup
 remove command.log log log.stdout log.stderr 
-mkdir /tmp/SCCS
+mkdir /tmp/sccstest.$$
+mkdir /tmp/sccstest.$$/SCCS
 
 echo "Creating the input files..."
-${admin} -n /tmp/SCCS/s.foo
+${admin} -n /tmp/sccstest.$$/SCCS/s.foo
 ${admin} -n s.foo
 
 docommand d1 "test -f s.foo" 0 "" IGNORE
-docommand d2 "${vg_sccs} edit /tmp/SCCS/s.foo" 0 IGNORE IGNORE
+docommand d2 "${vg_sccs} edit /tmp/sccstest.$$/SCCS/s.foo" 0 IGNORE IGNORE
 docommand d3 "test -f foo" 0 "" IGNORE
 
 # When we have the bug, this step will probably fail, because the delete
 # removes the wrong file, so the subsequent get finds that ./foo exists and 
 # is writable, so it fails.
-docommand d4 "${vg_sccs} unedit /tmp/SCCS/s.foo" 0 IGNORE IGNORE
+docommand d4 "${vg_sccs} unedit /tmp/sccstest.$$/SCCS/s.foo" 0 IGNORE IGNORE
 
 # This is the heart of the test; make sure sccs.c deleted the right file.
 # (the file should have been recreated as read-only).

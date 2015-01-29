@@ -1,5 +1,7 @@
 '\" te
-.\" @(#)sccs-get.1	1.28 14/09/15 Copyright 2007-2014 J. Schilling
+.\" @(#)sccs-get.1	1.34 15/01/28 Copyright 2007-2015 J. Schilling
+.\" Copyright (c) 1999, Sun Microsystems, Inc. All Rights Reserved
+.\" Copyright (c) 2007-2015, J. Schilling
 .\" CDDL HEADER START
 .\"
 .\" The contents of this file are subject to the terms of the
@@ -18,7 +20,6 @@
 .\" information: Portions Copyright [yyyy] [name of copyright owner]
 .\"
 .\" CDDL HEADER END
-.\" Copyright (c) 1999, Sun Microsystems, Inc. All Rights Reserved
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
 .if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
 .if t .ds u \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'u
@@ -31,12 +32,12 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sccs-get 1 "2014/09/15" "SunOS 5.11" "User Commands"
+.TH sccs-get 1 "2015/01/28" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs-get, get \- retrieve a version of an SCCS file
 .SH SYNOPSIS
 .LP
-.B /usr/ccs/bin/get\fR
+.B /usr/ccs/bin/get
 .RB [ -beFgkmnopst ]
 .RB [ -l
 [p]]
@@ -115,67 +116,145 @@ sccs-get, get \- retrieve a version of an SCCS file
 .fi
 
 .SH DESCRIPTION
+.LP
+The
+.B get
+utility retrieves a working copy from the SCCS history file,
+according to the specified options.
 
 .LP
-The \fBget\fR utility retrieves a working copy from the SCCS history file, according to the specified options.
-.sp
+For each
+.I s.filename
+argument,
+.B get
+displays the  SCCS delta
+.B ID
+(SID) and number of lines retrieved.
 
 .LP
-For each \fIs.filename\fR argument, \fBget\fR displays the  SCCS delta \fBID\fR (SID) and number of lines retrieved.
-.sp
+If a directory name is used in place of the
+.I s.filename
+argument, the
+.B get
+command applies to all
+.BR  s. files
+in that directory. Unreadable
+.BR s. files
+produce an error; processing continues with the next file (if
+any). The use of
+.RB ` \(mi \&'
+as the
+.I s.filename
+argument indicates
+that the names of files are to be read from the standard input, one
+.BR s. file
+per line.
 
 .LP
-If a directory name is used in place of the \fIs.filename\fR argument, the \fBget\fR command applies to all \fBs.\fRfiles in that directory. Unreadable \fBs.\fRfiles produce an error; processing continues with the next file (if any). The use of `\fB\(mi\fR' as the \fIs.filename\fR argument indicates that the names of files are to be read from the standard input, one \fBs.\fRfile per
-line.
-.sp
+The retrieved file normally has the same filename base as the
+.BR s. file,
+less the prefix, and is  referred to as the
+.BR g- file.
 
 .LP
-The retrieved file normally has the same filename base as the \fBs.\fRfile, less the prefix, and is  referred to as the \fBg-\fRfile.
-.sp
-
-.LP
-For each file processed, \fBget\fR responds (on the standard output) with the \fBSID\fR being accessed, and with the number of lines retrieved from the \fBs.\fRfile.
-.sp
+For each file processed,
+.B get
+responds (on the standard output) with the
+.B SID
+being accessed, and with the number of lines retrieved from the
+.BR s. file.
 
 .SH OPTIONS
 
 .LP
 The following options are supported:
-.sp
 
-.sp
-.ne 2
+.br
+.ne 4
 .TP 13
-\fB\fB-a\fR\fIsequence\fR\fR
-Retrieves the version corresponding to the indicated delta sequence number. This option is used primarily by the SCCS \fBcomb\fR command (see 
-\fBsccs-comb\fR(1)). For users, \fB-r\fR is an easier way to specify a version. The \fB-a\fR option supersedes the \fB-r\fR option when both are used.
+.B \-A
+Annotates the output. Precedes each line with the programmer who last
+changed that line and the related date. This option may be combined with
+the options
+.B \-m
+and
+.BR \-n .
+When combined with other annotate options, the text related to
+.B \-A
+is inserted last.
+Future versions of
+.BR get (1)
+may add support for a parameter to this option that implements some of
+the
+.B prs \-d
+data specs.
 .sp
-.ne 2
+This option is a
+.B SCHILY
+extension that does not exist in historic
+.B sccs
+implementations.
+
+.br
+.ne 4
 .TP
-\fB\fB-b\fR\fR
-Creates a new branch. Used with the \fB-e\fR option to indicate that the new delta should have a \fBSID\fR in a new branch. Instead of incrementing the level for version to be checked in, \fBget\fR indicates in the \fBp.\fRfile that the delta to be checked in should either initialize a new branch and sequence (if there is no existing branch at the current level), or
-increment the branch component of the \fBSID\fR. If the \fBb\fR flag is not set in the \fBs.\fRfile, this option is ignored.
-.sp
-.ne 2
+.BI -a sequence
+Retrieves the version corresponding to the indicated delta sequence number.
+This option is used primarily by the SCCS
+.B comb
+command (see 
+.BR sccs-comb (1)).
+For users,
+.B -r
+is an easier way to specify a
+version. The
+.B -a
+option supersedes the
+.B -r
+option when both are used.
+
+.br
+.ne 3
 .TP
-\fB\fB-c\fR \fIdate-time\fR
+.B -b
+Creates a new branch. Used with the
+.B -e
+option to indicate that the new delta should have a
+.B SID
+in a new branch. Instead of incrementing
+the level for version to be checked in,
+.B get
+indicates in the
+.BR p. file
+that the delta to be checked in should either initialize a new
+branch and sequence (if there is no existing branch at the current level),
+or increment the branch component of the
+.BR SID .
+If the
+.B b
+flag is not set in the
+.BR s. file,
+this option is ignored.
+
+.br
+.ne 3
 .TP
-\fB-c\fR\fIdate-time\fR\fR
+.BI "-c " date-time
+.TP
+.BI -c date-time
 Retrieves the latest version checked in prior to the date and time indicated by
 the
 .I date-time
 argument.
 .I date-time
 takes the form:
-.sp
 
 .sp
  \fIyy\fR[\fImm\fR[\fIdd\fR[ \fIhh\fR[\fImm\fR[\fIss\fR]\|]\|]\|]\|]
 .sp
 
-.sp
-Units omitted from the indicated date and time default to their maximum possible
-values; that is
+Units omitted from the indicated date and time default to their maximum
+possible values; that is
 .B \-c7502
 is equivalent to
 .BR \-c750228235959 .
@@ -200,42 +279,90 @@ specification in the form:
 refers to a 4-digit year and allows to specify a year outside the
 range
 .BR 1969 \(mi 2068 .
-.sp
-.ne 2
+
+.br
+.ne 3
 .TP
-\fB\fB-e\fR\fR
-Retrieves a version for editing. With this option, \fBget\fR places a lock on the \fBs.\fRfile, so that no one else can check in changes to the version  you have checked out. If the \fBj\fR flag is set in the \fBs.\fRfile, the lock is advisory: \fBget\fR issues a warning message. Concurrent use of `\fBget\fR  \fB-e\fR' for different \fBSID\fRs is allowed. However, \fBget\fR will not check out a version of the file if a writable version is present in the directory. All SCCS file protections stored in the \fBs.\fRfile, including the release ceiling, floor, and authorized user list, are honored by `\fBget\fR \fB-e\fR'.
-.sp
-.ne 2
+.B -e
+Retrieves a version for editing. With this option,
+.B get
+places a lock on the
+.BR s. file,
+so that no one else can check in changes to the version
+you have checked out. If the
+.B j
+flag is set in the
+.BR s. file,
+the lock is advisory:
+.B get
+issues a warning message. Concurrent use of
+.RB ` "get -e" '
+for different
+.BR SID s
+is allowed. However,
+.B get
+will not check out a version of the file if a writable version is present
+in the directory. All SCCS file protections stored in the
+.BR s. file,
+including the release ceiling, floor, and authorized user list, are honored by
+.RB ` "get -e" '.
+
+.br
+.ne 3
 .TP
 .B \-F
 Enforce to retrieve the
 .BR g. file
 even if a SID specific checksum missmatch has been detected.
-.sp
-.ne 2
+
+.br
+.ne 3
 .TP
-\fB\fB-g\fR\fR
-Gets the SCCS version \fBID\fR, without retrieving the version itself. Used to verify the existence of a particular \fBSID\fR.
-.sp
-.ne 2
+.B -g
+Gets the SCCS version
+.BR ID ,
+without retrieving the version itself. Used
+to verify the existence of a particular
+.BR SID .
+
+.br
+.ne 3
 .TP
-\fB\fB-G\fR\fInewname\fR\fR
-Uses \fInewname\fR as the name of the retrieved version.
-.sp
-.ne 2
+.BI -G newname
+Uses
+.I newname
+as the name of the retrieved version.
+
+.br
+.ne 3
 .TP
-\fB\fB-i\fR \fIsid-list\fR
+.BI "-i " sid-list
 .TP
-\fB-i\fR\fIsid-list\fR\fR
-Specifies a list of deltas to include in the retrieved version. The included deltas are noted in the standard output message. \fIsid-list\fR is a comma-separated list of \fBSID\fRs. To specify a range of deltas, use a  `\fB\(mi\fR' separator instead of a comma, between two \fBSID\fRs in the list.
-.sp
-.ne 2
+.BI -i sid-list
+Specifies a list of deltas to include in the retrieved version. The
+included deltas are noted in the standard output message.
+.I sid-list
+is a comma-separated list of
+.BR SID s.
+To specify a range of deltas, use a 
+.RB ` \(mi '
+separator instead of a comma, between two
+.BR SID s
+in the list.
+
+.br
+.ne 3
 .TP
-\fB\fB-k\fR\fR
-Suppresses expansion of \fBID\fR keywords. \fB-k\fR is implied by the \fB-e\fR.
-.sp
-.ne 2
+.B -k
+Suppresses expansion of
+.B ID
+keywords.
+.B -k
+is implied by the
+.BR -e .
+
+.br
+.ne 3
 .TP
 .BR \-l \|[\| p \|] 
 Retrieves a summary of the delta table (version log) and write it to a
@@ -246,24 +373,42 @@ prefix (called
 When 
 .B \-lp
 is used, write the summary onto the standard output.
-.sp
-.ne 2
+
+.br
+.ne 3
 .TP
 .B \-L
 Treated as if
 .B \-lp
 was given.
-.sp
-.ne 2
+
+.br
+.ne 3
 .TP
-\fB\fB-m\fR\fR
-Precedes each retrieved line with the \fBSID\fR of the delta in which it was added to the file. The \fBSID\fR is separated from the line with a TAB.
-.sp
-.ne 2
+.B -m
+Precedes each retrieved line with the
+.B SID
+of the delta in which it was added to the file. The
+.B SID
+is separated from the line with a TAB.
+
+.br
+.ne 3
 .TP
-\fB\fB-n\fR\fR
-Precedes each line with the \fB%\&M%\fR \fBID\fR keyword and a TAB. When both the \fB-m\fR and \fB-n\fR options are used, the \fBID\fR keyword precedes the \fBSID\fR, and the line of text.
-.sp
+.B -n
+Precedes each line with the
+.B "%\&M% ID"
+keyword and a TAB. When both the
+.B -m
+and
+.B -n
+options are used, the
+.B ID
+keyword precedes the
+.BR SID ,
+and the line of text.
+
+.br
 .ne 3
 .TP
 .B \-o
@@ -287,12 +432,16 @@ This option is a
 extension that does not exist in historic
 .B sccs
 implementations.
-.sp
-.ne 2
+
+.br
+.ne 3
 .TP
-\fB\fB-p\fR\fR
-Writes the text of the retrieved version to the standard output. All messages that normally go to the standard output are written to the standard error instead.
-.sp
+.B -p
+Writes the text of the retrieved version to the standard output. All
+messages that normally go to the standard output are written to the standard
+error instead.
+
+.br
 .ne 3
 .TP
 .BI -q\fR[ nsedelim\fR]
@@ -318,18 +467,24 @@ This option is an undocumented
 extension that does not exist in historic
 .B sccs 
 implementations.
+
+.br
+.ne 3
+.TP
+.B -s
+Suppresses all output normally written on the standard output. However,
+fatal error messages (which always go to the standard error) remain
+unaffected.
 .sp
 .ne 2
 .TP
-\fB\fB-s\fR\fR
-Suppresses all output normally written on the standard output. However, fatal error messages (which always go to the standard error) remain unaffected.
-.sp
-.ne 2
-.TP
-\fB\fB-t\fR\fR
-Retrieves the most recently created (top) delta in a given release (for example: \fB-r1\fR).
-.sp
-.ne 2
+.B -t
+Retrieves the most recently created (top) delta in a given release (for
+example:
+.BR -r1 ).
+
+.br
+.ne 3
 .TP
 .BI -w %\&W%-string
 The
@@ -352,8 +507,9 @@ This option is an undocumented
 extension that does not exist in historic
 .B sccs
 implementations.
-.sp
-.ne 2
+
+.br
+.ne 3
 .TP
 .BI -z\fR[ cmr\fR] 
 Append MR number to CMR list for CMF extensions.
@@ -363,6 +519,8 @@ This option is an undocumented
 extension that does not exist in historic
 .B sccs
 implementations.
+
+.br
 .ne 3
 .TP
 .BI \-C dir
@@ -374,6 +532,8 @@ By default, the
 is created in the current directory (independent from
 the location of the 
 .BI s. file\fR.
+
+.br
 .ne 3
 .TP
 .B \-V
@@ -383,8 +543,8 @@ version number string and exists.
 
 .SS /usr/ccs/bin/get
 
-.sp
-.ne 2
+.br
+.ne 3
 .TP 13
 .B \-d
 Do not print the number of gotten lines.
@@ -394,55 +554,112 @@ This option is an undocumented
 extension that does not exist in historic
 .B sccs
 implementations.
-.sp
-.ne 2
+
+.br
+.ne 3
 .TP
-\fB\fB-r\fR[\fIsid\fR]\fR
-Retrieves the version corresponding to the indicated \fBSID\fR (delta).
+.BI -r\fR[ sid\fR]
+Retrieves the version corresponding to the indicated
+.B SID
+(delta).
 .sp
-
+The
+.B SID
+for a given delta is a number, in Dewey decimal format,
+composed of two or four fields: the
+.I release
+and
+.I level
+fields, and for branch deltas, the
+.I branch
+and
+.I sequence
+fields.  For instance, if
+.B 1.2
+is the
+.BR SID ,
+.B 1
+is the release, and
+.B 2
+is the level number.  If
+.B 1.2.3.4
+is the
+.BR SID ,
+.B 3
+is the branch and
+.B 4
+is the sequence number.
 .sp
-The \fBSID\fR for a given delta is a number, in Dewey decimal format, composed of two or four fields: the \fIrelease\fR and \fIlevel\fR fields, and for branch deltas, the \fIbranch\fR and \fIsequence\fR fields.  For instance, if \fB1.2\fR is the \fBSID\fR, \fB1\fR is the release, and \fB2\fR is the level number.  If \fB1.2.3.4\fR is the \fBSID,\fR \fB3\fR is the branch and \fB4\fR is the sequence number.
-.sp
-
-.sp
-You need not specify the entire \fBSID\fR to retrieve a version with \fBget\fR. When you omit \fB-r\fR altogether, or when you omit both release and level, \fBget\fR normally retrieves the highest release and level.  If the \fBd\fR flag is set to an \fBSID\fR in the \fBs.\fRfile and you omit the \fBSID\fR, \fBget\fR retrieves the default
+You need not specify the entire
+.B SID
+to retrieve a version with
+.BR get .
+When you omit
+.B -r
+altogether, or when you omit both release and level,
+.B get
+normally retrieves the highest release and level.  If the
+.B d
+flag is set to an
+.B SID
+in the
+.BR s. file
+and you omit the
+.BR SID ,
+.B get
+retrieves the default
 version indicated by that flag.
 .sp
+When you specify a release but omit the level,
+.B get
+retrieves the highest level in that release. If that release does not exist,
+.B get
+retrieves highest level from the next-highest existing release.
+.sp
+Similarly with branches, if you specify a release, level and branch,
+.B get
+retrieves the highest sequence in that branch.
 
-.sp
-When you specify a release but omit the level, \fBget\fR retrieves the highest level in that release. If that release does not exist, \fBget\fR retrieves highest level from the next-highest existing release.
-.sp
-
-.sp
-Similarly with branches, if you specify a release, level and branch, \fBget\fR retrieves the highest sequence in that branch.
-.sp
-
-.sp
-.ne 2
+.br
+.ne 3
 .TP
-\fB\fB-x\fR \fIsid-list\fR
+.BI "-x " sid-list
 .TP
-\fB-x\fR[\fIsid-list\fR]\fR
-Excludes the indicated deltas from the retrieved version. The excluded deltas are noted in the standard output message. \fIsid-list\fR is a comma-separated list of \fBSID\fRs. To specify a range of deltas, use a  `\fB\(mi\fR' separator instead of a comma, between two  \fBSID\fRs in the list.
+.BI -x\fR[ sid-list\fR]
+Excludes the indicated deltas from the retrieved version. The excluded
+deltas are noted in the standard output message.
+.I sid-list
+is a comma-separated list of
+.BR SID s.
+To specify a range of deltas, use a
+.RB `  \(mi '
+separator instead of a comma, between two
+.BR SID s
+in the list.
 
 .RE
-
 .SS /usr/xpg4/bin/get
 
-.ne 2
+.ne 3
 .TP 13
-\fB\fB-r\fR \fIsid\fR
+.BI "-r " sid
 .TP
-\fB-r\fR\fIsid\fR\fR
-Same as for \fB/usr/ccs/bin/get\fR except that \fBSID\fR is mandatory.
-.sp
-.ne 2
+.BI -r sid
+Same as for
+.B /usr/ccs/bin/get
+except that
+.B SID
+is mandatory.
+
+.br
+.ne 3
 .TP
-\fB\fB-x\fR \fIsid-list\fR
+.BI "-x " sid-list
 .TP
-\fB-x\fR\fIsid-list\fR\fR
-Same as for \fB/usr/ccs/bin/get\fR except that
+.BI -x sid-list
+Same as for
+.B /usr/ccs/bin/get
+except that
 .B sid-list
 is mandatory.
 
@@ -451,8 +668,9 @@ is mandatory.
 .SS /usr/ccs/bin/get
 
 .LP
-The output format for \fB/usr/ccs/bin/get\fR is as follows:
-.sp
+The output format for
+.B /usr/ccs/bin/get
+is as follows:
 
 .LP
 .in +2
@@ -460,13 +678,13 @@ The output format for \fB/usr/ccs/bin/get\fR is as follows:
 \fB"%s\en%d lines\en"\fR, <\fISID\fR>, <\fInumber of lines\fR>
 .fi
 .in -2
-.sp
 
 .SS /usr/xpg4/bin/get
 
 .LP
-The output format for \fB/usr/xpg4/bin/get\fR is as follows:
-.sp
+The output format for
+.B /usr/xpg4/bin/get
+is as follows:
 
 .LP
 .in +2
@@ -474,19 +692,24 @@ The output format for \fB/usr/xpg4/bin/get\fR is as follows:
 \fB"%s\en%d\en"\fR, <\fISID\fR>, <\fInumber of lines\fR>
 .fi
 .in -2
-.sp
 
 .SH USAGE
 
 .LP
 Usage guidelines are as follows:
-.sp
 
 .SS ID Keywords
 
 .LP
-In the absence of \fB-e\fR or \fB-k\fR, \fBget\fR expands the following  \fBID\fR keywords by replacing them with the indicated values in the text of the retrieved source.
-.sp
+In the absence of
+.B -e
+or
+.BR -k ,
+.B get
+expands the following
+.B ID
+keywords by replacing them with the indicated values in the text of
+the retrieved source.
 
 .LP
 
@@ -507,7 +730,9 @@ _
 \fB%\&B%\fRSID branch component
 _
 \fB%\&C%\fRT{
-Current line number. Intended for identifying messages output by the program such as ``\fIthis shouldn't have happened\fR'' type errors.  It is \fInot\fR intended to be used on every line to provide sequence numbers.
+Current line number. Intended for identifying messages output by the program
+such as ``\fIthis shouldn't have happened\fR'' type errors.  It
+is \fInot\fR intended to be used on every line to provide sequence numbers.
 T}
 _
 \fB%\&D%\fRCurrent date: \fIyy\fR/\fImm\fR/\fIdd\fR
@@ -558,11 +783,13 @@ _
 \fB%\&T%\fRCurrent time: \fIhh\fR\fB:\fR\fImm\fR\fB:\fR\fIss\fR
 _
 \fB%\&U%\fRT{
-Time the newest applied delta was created: \fIhh\fR\fB:\fR\fImm\fR\fB:\fR\fIss\fR
+Time the newest applied delta was
+created: \fIhh\fR\fB:\fR\fImm\fR\fB:\fR\fIss\fR
 T}
 _
 \fB%\&W%\fRT{
-Shorthand notation for an \fBID\fR line with data for \fBwhat\fR: \fB%\&Z%%\&M%  %\&I%\fR or get -w argument
+Shorthand notation for an \fBID\fR line with data
+for \fBwhat\fR: \fB%\&Z%%\&M%  %\&I%\fR or get -w argument
 T}
 _
 \fB%\&Y%\fRT{
@@ -574,7 +801,10 @@ _
 T}
 .TE
 .LP
-A line with a string in the form \fB%\&sccs.include.\fIfilename\fB\&%\fR is replaced by
+A line with a string in the
+form
+.BI %\&sccs.include. filename \&%
+is replaced by
 the content of the file
 .IR filename .
 The file is searched for in the path list found in the environment variable
@@ -596,8 +826,8 @@ flag.
 .SS ID String
 
 .LP
-The table below explains how the  SCCS identification string is  determined for retrieving and creating deltas.
-.sp
+The table below explains how the  SCCS identification string is  determined
+for retrieving and creating deltas.
 
 .LP
 
@@ -638,83 +868,84 @@ R.L.B.SyesNo branch succ. R.L.B.SR.L.(mB+1).1
 R.L.B.S\(miBranch succ.R.L.B.SR.L.(mB+1).1
 .TE
 
-.sp
-.ne 2
-.mk
-.na
-\fB(1)\fR
-.ad
-.RS 5n
-.rt  
-`R', `L', `B', and `S' are the `release', `level', `branch', and `sequence' components of the \fBSID\fR, respectively; `m' means `maximum'. Thus, for example, `R.mL' means `the maximum level number within release R'; `R.L.(mB+1).1' means `the first sequence number on the \fInew\fR branch (that is, maximum branch number plus one) of level L within release R'. \fINote:\fR If the \fBSID\fR specified is of the form `R.L', `R.L.B', or `R.L.B.S', each of the specified components \fImust\fR exist.
-.sp
+.br
+.ne 3
+.TP 5n
+.B (1)
+`R', `L', `B', and `S' are the `release', `level', `branch', and `sequence'
+components of the
+.BR SID ,
+respectively; `m' means `maximum'. Thus, for
+example, `R.mL' means `the maximum level number within release R';
+`R.L.(mB+1).1' means `the first sequence number on the
+.I new
+branch (that is, maximum branch number plus one) of level L within release R'.
+.I Note:
+If the
+.B SID
+specified is of the form `R.L', `R.L.B', or `R.L.B.S',
+each of the specified components
+.I must
+exist.
 
-.RE
+.br
+.ne 3
+.TP
+.B (2)
+The
+.B -b
+option is effective only if the
+.B b
+flag is present in the file. An entry of
+.RB ` \(mi '
+means `irrelevant'.
 
-.sp
-.ne 2
-.mk
-.na
-\fB(2)\fR
-.ad
-.RS 5n
-.rt  
-The \fB-b\fR option is effective only if the \fBb\fR flag is present in the file. An entry of `\fB\(mi\fR' means `irrelevant'.
-.sp
+.br
+.ne 3
+.TP
+.B (3)
+This case applies if the
+.B d
+(default
+.BR SID )
+flag is
+.I not
+present in the file.  If the
+.B d
+flag
+.I is
+present in the file, the
+.B SID
+obtained from the
+.B d
+flag is interpreted as if it had been specified on the command line. Thus,
+one of the other cases in this table applies.
 
-.RE
+.br
+.ne 3
+.TP
+.B (4)
+Forces creation of the
+.I first
+delta in a
+.I new
+release.
 
-.sp
-.ne 2
-.mk
-.na
-\fB(3)\fR
-.ad
-.RS 5n
-.rt  
-This case applies if the \fBd\fR (default \fBSID\fR) flag is \fInot\fR present in the file.  If the \fBd\fR flag \fIis\fR present in the file, the \fBSID\fR obtained from the \fBd\fR flag is interpreted as if it had been specified on the command line. Thus, one of the other cases in this table applies.
-.sp
+.br
+.ne 3
+.TP
+.B (5)
+`hR' is the highest
+.I existing
+release that is lower than the specified,
+.IR nonexistent ,
+release R.
 
-.RE
-
-.sp
-.ne 2
-.mk
-.na
-\fB(4)\fR
-.ad
-.RS 5n
-.rt  
-Forces creation of the \fIfirst\fR delta in a \fInew\fR release.
-.sp
-
-.RE
-
-.sp
-.ne 2
-.mk
-.na
-\fB(5)\fR
-.ad
-.RS 5n
-.rt  
-`hR' is the highest \fIexisting\fR release that is lower than the specified, \fInonexistent\fR, release R.
-.sp
-
-.RE
-
-.sp
-.ne 2
-.mk
-.na
-\fB(6)\fR
-.ad
-.RS 5n
-.rt  
+.br
+.ne 3
+.TP
+.B (6)
 Successor.
-.sp
-
-.RE
 
 .SH ENVIRONMENT VARIABLES
 .sp
@@ -731,12 +962,16 @@ execution of
 .BR LC_MESSAGES ,
 and
 .BR NLSPATH .
+
 .br
 .ne 4
 .TP
 .B SCCS_INCLUDEPATH
 A colon separated list of directories where to look for include
-files for a \fB%\&sccs.include.\fIfilename\fB\&%\fR replacement.
+files for a
+.BI %\&sccs.include. filename \&%
+replacement.
+
 .br
 .ne 4
 .TP
@@ -769,20 +1004,21 @@ An error occurred.
 
 .SH FILES
 
-.sp
-.ne 2
+.br
+.ne 3
 .TP 12
 .B ``g-file''
-version retrieved by \fBget\fR
+version retrieved by
+.B get
 
-.sp
-.ne 2
+.br
+.ne 3
 .TP
 .BI l. file
 file containing extracted delta table info
 
-.sp
-.ne 2
+.br
+.ne 3
 .TP
 .BI p. file
 permissions (lock) file for checked-out versions.
@@ -845,7 +1081,7 @@ list of included and excluded deltas or to the CMR list from the
 NSE enhancements.
 .RE
 
-.sp
+.br
 .ne 3
 .TP
 .BI q. file
@@ -855,15 +1091,15 @@ renamed to the
 .BR p. file 
 after completion 
 
-.sp
-.ne 2
+.br
+.ne 3
 .TP
 .BI s. file
 .B SCCS
 history file, see
 .BR sccsfile (4).
 
-.sp
+.br
 .ne 3
 .TP
 .BI z. file
@@ -874,7 +1110,8 @@ followed by the host name
 
 .LP
 See 
-\fBattributes\fR(5) for descriptions of the following attributes:
+.BR attributes (5)
+for descriptions of the following attributes:
 .sp
 
 .SS /usr/ccs/bin/get
@@ -910,42 +1147,49 @@ Interface StabilityStandard
 .TE
 
 .SH SEE ALSO
+.nh
 .LP
 .BR sccs (1),
-.BR sccs-admin (1),
-.BR sccs-cdc (1),
-.BR sccs-comb (1),
-.BR sccs-delta (1),
-.BR sccs-help (1),
-.BR sccs-prs (1),
-.BR sccs-prt (1),
-.BR sccs-rmdel (1),
-.BR sccs-sact (1),
-.BR sccs-sccsdiff (1),
-.BR sccs-unget (1),
-.BR sccs-val (1),
-.BR sccscvt (1),
-.BR sccslog (1),
+.BR sccs\-admin (1),
+.BR sccs\-cdc (1),
+.BR sccs\-comb (1),
+.BR sccs\-cvt (1),
+.BR sccs\-delta (1),
+.BR sccs\-help (1),
+.BR sccs\-log (1),
+.BR sccs\-prs (1),
+.BR sccs\-prt (1),
+.BR sccs\-rmdel (1),
+.BR sccs\-sact (1),
+.BR sccs\-sccsdiff (1),
+.BR sccs\-unget (1),
+.BR sccs\-val (1),
 .BR bdiff (1), 
 .BR diff (1), 
 .BR what (1),
-.BR changeset (4),
+.BR sccschangeset (4),
 .BR sccsfile (4),
 .BR attributes (5),
 .BR environ (5),
 .BR standards (5).
+.hy 14
 
 .SH DIAGNOSTICS
 
 .LP
-Use the SCCS \fBhelp\fR command for explanations (see 
-\fBsccs-help\fR(1)).
-.sp
+Use the SCCS
+.B help
+command for explanations (see 
+.BR sccs-help (1)).
+
 
 .SH BUGS
 
 .LP
-If the effective user has write permission (either explicitly or implicitly) in the directory containing the SCCS files, but the real user does not, only one file may be named when using \fB-e\fR.
+If the effective user has write permission (either explicitly or
+implicitly) in the directory containing the SCCS files, but the real user
+does not, only one file may be named when using
+.BR -e .
 
 .SH AUTHORS
 The

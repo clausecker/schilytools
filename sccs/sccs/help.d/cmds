@@ -21,9 +21,9 @@
 * Copyright 1991 Sun Microsystems, Inc. All rights reserved.
 * Use is subject to license terms.
 *
-* Copyright 2006-2014 J. Schilling
+* Copyright 2006-2015 J. Schilling
 *
-* @(#)cmds	1.39 14/09/04 J. Schilling 
+* @(#)cmds	1.41 15/01/28 J. Schilling 
 *
 * @(#)cmds 1.3 06/12/12
 *
@@ -57,11 +57,12 @@ options:
 -get
 	get [-r<SID>] [-c<cutoff>] [-i<list>] [-x<list>] [-a<seq no.>] [-Cdir]
 	    [-k] [-e] [-F] [-l<p>] [-L] [-q[nsedelim]] [-w<%W%-replacement>]
-	    [-p] [-m] [-n] [-o] [-s] [-b] [-g] [-t] [-z<cmr>] file ...
+	    [-A] [-p] [-m] [-n] [-o] [-s] [-b] [-g] [-t] [-z<cmr>] file ...
 
 	Retrieve a version of an SCCS file
 
 options:
+	-A	Precede each line with annotate data for programmer and date
 	-aseq	Retrieve version based on sequence number
 	-b	Create a branch (with -e)
 	-cdate	Retrieve version based on cutoff-time
@@ -425,6 +426,24 @@ options:
 	-s	Suppress to display SID
 	-V	Print version number
 
+*
+* Used for sccs(1) without args.
+* The synopsis line is printed from inside sccs(1) to make sure it works even
+* with an incorrect help installation.
+*
+-basic sub-commands
+	sccs admin	create or administer SCCS history files
+	sccs delget	do a delta followed by a get
+	sccs diffs	compare edited file with a version of an SCCS file
+	sccs edit	get files for editing
+	sccs get	retrieve a version of an SCCS file
+	sccs help	print help for SCCS commands and error messages
+	sccs log	create a changelog using SCCS delta comments
+	
+	(do 'help sccs'         for a full list of sccs options)
+	(do 'help sccs_subcmds' for a full list of sccs subcommands)
+	(do 'help get_kywds'    for a description of recognized ID keywords)
+	(do 'help prs_kywds'    for a description of recognized data keywords)
 -intro
       sccs [-R] [-T] [-r] [-d<rdir>] [-p<sdir>] subcommand [opt ...] [file ...]
 

@@ -27,12 +27,12 @@
  * Use is subject to license terms.
  */
 /*
- * Copyright 2006-2014 J. Schilling
+ * Copyright 2006-2015 J. Schilling
  *
- * @(#)delta.c	1.61 14/08/09 J. Schilling
+ * @(#)delta.c	1.62 15/01/26 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)delta.c 1.61 14/08/09 J. Schilling"
+#pragma ident "@(#)delta.c 1.62 15/01/26 J. Schilling"
 #endif
 /*
  * @(#)delta.c 1.40 06/12/12
@@ -690,7 +690,7 @@ int orig_nlines;
 {
 	extern dtime_t Timenow;
 	struct deltab dt;
-	char str[BUFSIZ];
+	char str[max(BUFSIZ, SID_STRSIZE)];
 	int newser;
 	register char *p;
 	int ser_inc, opred, nulldel;
@@ -1236,7 +1236,7 @@ char ch;
 int n;
 struct sid *sidp;
 {
-	char str[32];
+	char str[SID_STRSIZE];
 	register struct apply *ap;
 
 	sid_ba(sidp,str);

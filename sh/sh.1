@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sh.1	1.41 14/06/01 Copyright 2012-2014 J. Schilling
+.\" @(#)sh.1	1.44 15/01/18 Copyright 2012-2015 J. Schilling
 .\" Copyright 1989 AT&T
 .\" Copyright (c) 2008, Sun Microsystems, Inc. All Rights Reserved.
 .\" Portions Copyright (c) 1992, X/Open Company Limited All Rights Reserved
@@ -47,7 +47,7 @@
 .\" information: Portions Copyright [yyyy] [name of copyright owner]
 .\"
 .\" CDDL HEADER END
-.TH sh 1 "2014/06/01" "Schily Bourne Shell" "User Commands"
+.TH sh 1 "2015/01/18" "Schily Bourne Shell" "User Commands"
 .SH NAME
 sh, jsh \- standard and job control shell and command interpreter
 .SH SYNOPSIS
@@ -534,10 +534,11 @@ After a token has been recognized, but before applying the grammatical rules,
 a resulting word that is identified as the command name of a simple command
 is examined whether it is an unquoted valid alias name.
 A valid alias name is replaced by the value of the alias.
-The shell prevents infinite alias loops by not expanding the same alias name more
-than once for the same word.
+The shell prevents infinite alias loops by not expanding the same alias 
+more than once for the same word.
 .LP
-Alias expansion is performed when the commands are read, not when they are executed.
+Alias expansion is performed when the commands are read, not when they
+are executed.
 .LP
 Aliases can be used to redefine
 .B built-in
@@ -642,7 +643,8 @@ known as variables) can be assigned values by writing:
 ] .\|.\|.
 .sp
 .LP
-The evaluation of the assignments is done from the left to the right in this shell.
+The evaluation of the assignments is done from the left to the right
+in this shell.
 .LP
 Pattern-matching is not performed on
 .IR value .
@@ -1766,7 +1768,8 @@ An argument in the form
 .IR alias-name = value
 causes
 .B alias
-to define or redefine an alias or to push an alias definition on top of an old one.
+to define or redefine an alias or to push an alias definition on top of
+an old one.
 If no argument was given,
 .B alias
 lists all current alias definitions.
@@ -1786,8 +1789,8 @@ The following options may be used to modify operation:
 .RS
 .TP
 .B \-a
-Define an alias definition that is expanded on all arguments of a command line and
-not only for command names. Use with care.
+Define an alias definition that is expanded on all arguments of a
+command line and not only for command names. Use with care.
 .TP
 .B \-e
 List the everlasting version of the persistent alias definitions instead of
@@ -2630,7 +2633,7 @@ names is printed.
 .br
 .ne 3
 .TP
-\fBrepeat\fR [ \fB\-c \fIcount\fR ]\fR [ \fB\-d \fIdelay\fR ]\fR \fIcommand\fR [ \fIargs\fR ]
+\fBrepeat\fR [ \fB\-c \fIcount\fR ] [ \fB\-d \fIdelay\fR ] \fIcommand\fR [ \fIargs\fR ]
 .sp .6
 The command
 .I command
@@ -4363,7 +4366,10 @@ _
 CSIEnabled
 .TE
 
+.br
+.ne 7
 .SH SEE ALSO
+.nh
 .sp
 .LP
 .BR Intro (1),
@@ -4374,6 +4380,7 @@ CSIEnabled
 .BR bsh (1),
 .BR ved (1),
 .BR ksh (1),
+.BR ksh93 (1),
 .BR login (1),
 .BR newgrp (1),
 .BR pfsh (1),
@@ -4406,6 +4413,7 @@ CSIEnabled
 .BR environ (5),
 .BR largefile (5),
 .BR XPG4 (5)
+.hy 1
 .SH WARNINGS
 .sp
 .LP
@@ -4538,6 +4546,11 @@ A function definition will delete a parameter with the same name and vice-versa.
 .LP
 Parameter assignments that precede a special command affect the shell itself.
 Parameter assignments that precede the call of a function are ignored.
+.LP
+This version of the Bourne Shell fixed the order of evaluation for
+parameter assignements to be left to right instead of right to left (as
+implemented in previous versions). This may cause scripts to fail if they
+expect the old non-standard behavior.
 .LP
 When the shell executes a shell script that attempts to execute a
 non-existent command interpreter, the shell returns an erroneous diagnostic

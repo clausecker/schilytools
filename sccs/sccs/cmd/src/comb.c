@@ -25,12 +25,12 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2014 J. Schilling
+ * This file contains modifications Copyright 2006-2015 J. Schilling
  *
- * @(#)comb.c	1.23 14/08/09 J. Schilling
+ * @(#)comb.c	1.24 15/01/26 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)comb.c 1.23 14/08/09 J. Schilling"
+#pragma ident "@(#)comb.c 1.24 15/01/26 J. Schilling"
 #endif
 /*
  * @(#)comb.c 1.15 06/12/12
@@ -224,7 +224,7 @@ char *file;
 	register int i, n;
 	register struct idel *rdp;
 	char *p;
-	char rarg[32];
+	char rarg[SID_STRSIZE];
 	int succnt;
 	struct sid *sp;
 	extern char had_dir, had_standinp;
@@ -408,7 +408,7 @@ int ser;
 FILE *fptr;
 char *file;
 {
-	char buf[32];
+	char buf[SID_STRSIZE];
 	struct sid *sp;
 
 	sid_ba(sp = &idp[ser].i_sid, buf);

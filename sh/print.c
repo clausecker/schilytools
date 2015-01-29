@@ -34,16 +34,16 @@
 #endif
 
 /*
- * This file contains modifications Copyright 2008-2013 J. Schilling
+ * This file contains modifications Copyright 2008-2015 J. Schilling
  *
- * @(#)print.c	1.20 13/09/24 2008-2013 J. Schilling
+ * @(#)print.c	1.21 15/01/06 2008-2015 J. Schilling
  */
 #ifdef	SCHILY_INCLUDES
 #include <schily/mconfig.h>
 #endif
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)print.c	1.20 13/09/24 2008-2013 J. Schilling";
+	"@(#)print.c	1.21 15/01/06 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -203,6 +203,10 @@ prn(n)
 	prs(numbuf);
 }
 
+/*
+ * Note that this currently only works correctly for unsigned integers.
+ * Negative parameters result in printed junk.
+ */
 void
 itos(n)
 	int	n;

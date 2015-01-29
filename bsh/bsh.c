@@ -1,13 +1,13 @@
-/* @(#)bsh.c	1.71 14/04/21 Copyright 1984,1985,1988,1989,1991,1994-2014 J. Schilling */
+/* @(#)bsh.c	1.72 15/01/12 Copyright 1984,1985,1988,1989,1991,1994-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)bsh.c	1.71 14/04/21 Copyright 1982,1984,1985,1988,1989,1991,1994-2014 J. Schilling";
+	"@(#)bsh.c	1.72 15/01/12 Copyright 1982,1984,1985,1988,1989,1991,1994-2015 J. Schilling";
 #endif
 /*
  *	bsh command interpreter - main Program
  *
- *	Copyright (c) 1982,1984,1985,1988,1989,1991,1994-2014 J. Schilling
+ *	Copyright (c) 1982,1984,1985,1988,1989,1991,1994-2015 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -905,9 +905,11 @@ gargs(ac, av, opts, no_i2flg, no_gaflg, no_laflg)
 	if (prversion) {
 		extern	int	MVERSION;
 		extern	int	mVERSION;
+		extern	char	dVERSION[];
 
-		printf("bsh %d.%02d (%s-%s-%s)\n\n", MVERSION, mVERSION, HOST_CPU, HOST_VENDOR, HOST_OS);
-		printf("Copyright (C) 1982, 1984, 1985, 1988-1989, 1991, 1994-2014 Jörg Schilling\n");
+		printf("bsh %d.%02d %s (%s-%s-%s)\n\n", MVERSION, mVERSION, dVERSION,
+						HOST_CPU, HOST_VENDOR, HOST_OS);
+		printf("Copyright (C) 1982, 1984, 1985, 1988-1989, 1991, 1994-2015 Jörg Schilling\n");
 		printf("This is free software; see the source for copying conditions.  There is NO\n");
 		printf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
 		exit(0);

@@ -1,5 +1,6 @@
 '\" te
-.\" @(#)sccs-sact.1	1.12 14/09/15 Copyright 2007-2014 J. Schilling
+.\" @(#)sccs-sact.1	1.16 15/01/20 Copyright 2007-2015 J. Schilling
+.\" Copyright (c) 1999, Sun Microsystems, Inc.
 .\" CDDL HEADER START
 .\"
 .\" The contents of this file are subject to the terms of the
@@ -18,7 +19,6 @@
 .\" information: Portions Copyright [yyyy] [name of copyright owner]
 .\"
 .\" CDDL HEADER END
-.\" Copyright (c) 1999, Sun Microsystems, Inc.
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
 .if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
 .if t .ds u \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'u
@@ -31,7 +31,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sccs-sact 1 "2014/09/15" "SunOS 5.11" "User Commands"
+.TH sccs-sact 1 "2015/01/20" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs-sact, sact \- show editing activity status of an SCCS file
 .SH SYNOPSIS
@@ -57,13 +57,17 @@ characters.
 .TP
 .ie t \(bu
 .el o
-\fBSID\fR of a delta that currently exists in the \fBSCCS\fR file, to which changes will be made to make the new delta
+.B SID
+of a delta that currently exists in the
+.B SCCS
+file, to which changes will be made to make the new delta
 .RE
 .RS +4
 .TP
 .ie t \(bu
 .el o
-\fBSID\fR for the new delta to be created
+.B SID
+for the new delta to be created
 .RE
 .RS +4
 .TP
@@ -84,14 +88,30 @@ Date that the version was checked out.
 Time that the version was checked out.
 .RE
 .LP
-If a directory name is used in place of the \fIs.filename\fR argument, the \fBsact\fR command applies to all \fBs.\fRfiles in that directory. Unreadable \fBs.\fRfiles produce an error; processing continues with the next file (if any). The use of `\fB\(mi\fR' as the \fIs.filename\fR argument indicates that the names of files are to be read from the standard input, one \fBs.\fRfile per
-line.
+If a directory name is used in place of the
+.I s.filename
+argument, the
+.B sact
+command applies to all
+.BR s. files
+in that directory. Unreadable
+.BR s. files
+produce an error; processing continues with the next file (if any). The use of
+.RB ` \(mi '
+as the
+.I s.filename
+argument indicates that the names of files are to be read from the
+standard input, one
+.BR s. file
+per line.
 .SH OPTIONS
+
 .br
 .ne 2
 .TP
 .B \-s
 Suppresses the error message when a file is not currently edited.
+
 .br
 .ne 2
 .TP
@@ -115,6 +135,7 @@ execution of
 .BR LC_MESSAGES ,
 and
 .BR NLSPATH .
+
 .br
 .ne 4
 .TP
@@ -146,8 +167,9 @@ Successful completion.
 An error occurred.
 
 .SH FILES
-.sp
-.ne 2
+
+.br
+.ne 3
 .TP 12
 .BI p. file
 permissions (lock) file for checked-out versions.
@@ -156,8 +178,8 @@ See
 for a description of the layout of the
 .BR p. file.
 
-.sp
-.ne 2
+.br
+.ne 3
 .TP
 .BI s. file
 .B SCCS
@@ -183,30 +205,32 @@ Interface StabilityStandard
 .TE
 
 .SH SEE ALSO
+.nh
 .LP
 .BR sccs (1),
-.BR sccs-admin (1),
-.BR sccs-cdc (1),
-.BR sccs-comb (1),
-.BR sccs-delta (1),
-.BR sccs-get (1),
-.BR sccs-help (1),
-.BR sccs-prs (1),
-.BR sccs-prt (1),
-.BR sccs-rmdel (1),
-.BR sccs-sccsdiff (1),
-.BR sccs-unget (1),
-.BR sccs-val (1),
-.BR sccscvt (1),
-.BR sccslog (1),
+.BR sccs\-admin (1),
+.BR sccs\-cdc (1),
+.BR sccs\-comb (1),
+.BR sccs\-cvt (1),
+.BR sccs\-delta (1),
+.BR sccs\-get (1),
+.BR sccs\-help (1),
+.BR sccs\-log (1),
+.BR sccs\-prs (1),
+.BR sccs\-prt (1),
+.BR sccs\-rmdel (1),
+.BR sccs\-sccsdiff (1),
+.BR sccs\-unget (1),
+.BR sccs\-val (1),
 .BR bdiff (1), 
 .BR diff (1), 
 .BR what (1),
-.BR changeset (4),
+.BR sccschangeset (4),
 .BR sccsfile (4),
 .BR attributes (5),
 .BR environ (5),
 .BR standards (5).
+.hy 14
 
 .SH DIAGNOSTICS
 .LP

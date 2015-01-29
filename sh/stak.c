@@ -41,7 +41,7 @@
 /*
  *				Copyright Geoff Collyer 1987-2005
  *
- * @(#)stak.c	2.11 14/12/22	Copyright 2010-2013 J. Schilling
+ * @(#)stak.c	2.12 15/01/07	Copyright 2010-2015 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -57,7 +57,7 @@
 
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)stak.c	2.11 14/12/22 Copyright 2010-2013 J. Schilling";
+	"@(#)stak.c	2.12 15/01/07 Copyright 2010-2015 J. Schilling";
 #endif
 
 
@@ -218,7 +218,7 @@ xmalloc(size)
 		if (stk.topitem->h.magic != STMAGICNUM &&		\
 		    stk.topitem->h.magic != STNMAGICNUM) {		\
 			prs((unsigned char *)				\
-					"tossgrowing: stk.topitem->h.magic ");	\
+				"tossgrowing: stk.topitem->h.magic ");	\
 			prln((long)stk.topitem->h.magic);		\
 			prs((unsigned char *)"\n");			\
 			error("tossgrowing: bad magic on stack");	\
@@ -765,7 +765,7 @@ chkmem()
 /*
  * The code below has been taken from the historical stak.c
  *
- * Copyright 2008-2013 J. Schilling
+ * Copyright 2008-2015 J. Schilling
  */
 
 /*

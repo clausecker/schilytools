@@ -1,4 +1,4 @@
-#ident @(#)changesetman.mk	1.1 15/01/19 
+#ident @(#)sccs-logman.mk	1.2 15/01/19 
 ###########################################################################
 # Sample makefile for installing manual pages
 ###########################################################################
@@ -8,12 +8,10 @@ include		$(SRCROOT)/$(RULESDIR)/rules.top
 ###########################################################################
 
 MANDIR=		man
-TARGETMAN=	changeset
-MANSECT=	$(MANSECT_FILEFORM)
-MANSUFFIX=	$(MANSUFF_FILEFORM)
-MANFILE=	changeset.4
-
-changeset.4.html: sccschangeset.4
+TARGETMAN=	sccs-log
+MANSECT=	$(MANSECT_CMD)
+MANSUFFIX=	$(MANSUFF_CMD)
+MANFILE=	sccs-log.1
 
 ###########################################################################
 include		$(SRCROOT)/$(RULESDIR)/rules.man

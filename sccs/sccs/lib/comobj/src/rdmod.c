@@ -25,12 +25,12 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2011 J. Schilling
+ * This file contains modifications Copyright 2006-2015 J. Schilling
  *
- * @(#)rdmod.c	1.8 11/09/02 J. Schilling
+ * @(#)rdmod.c	1.9 15/01/26 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)rdmod.c 1.8 11/09/02 J. Schilling"
+#pragma ident "@(#)rdmod.c 1.9 15/01/26 J. Schilling"
 #endif
 /*
  * @(#)rdmod.c 1.11 06/12/12
@@ -182,6 +182,7 @@ struct packet *pkt;
 	for (q = pkt->p_q; q; q = q->q_next) {
 		if (q->q_keep != '\0') {
 			if ((pkt->p_keep = q->q_keep) == YES) {
+				pkt->p_insser = q->q_sernum;
 				sp = &pkt->p_idel[q->q_sernum].i_sid;
 				pkt->p_inssid.s_rel = sp->s_rel;
 				pkt->p_inssid.s_lev = sp->s_lev;

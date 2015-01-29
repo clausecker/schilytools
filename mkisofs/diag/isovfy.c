@@ -1,8 +1,8 @@
-/* @(#)isovfy.c	1.45 12/12/02 joerg */
+/* @(#)isovfy.c	1.46 15/01/27 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)isovfy.c	1.45 12/12/02 joerg";
+	"@(#)isovfy.c	1.46 15/01/27 joerg";
 #endif
 /*
  * File isovfy.c - verify consistency of iso9660 filesystem.
@@ -11,7 +11,7 @@ static	UConst char sccsid[] =
  * Written by Eric Youngdale (1993).
  *
  * Copyright 1993 Yggdrasil Computing, Incorporated
- * Copyright (c) 1999-2012 J. Schilling
+ * Copyright (c) 1999-2015 J. Schilling
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2
@@ -70,9 +70,13 @@ static	UConst char sccsid[] =
 #define	ISO_BLOCKS(X)	(((X) / SECTOR_SIZE) + (((X)%SECTOR_SIZE)?1:0))
 
 #define	infile	in_image
-FILE *infile = NULL;
-BOOL ignerr = FALSE;
-int blocksize;
+EXPORT FILE *infile = NULL;
+EXPORT BOOL ignerr = FALSE;
+LOCAL int	su_version;
+LOCAL int	rr_version;
+LOCAL int	aa_version;
+LOCAL int	use_rock = TRUE;
+LOCAL int	blocksize;
 
 #define	PAGE	sizeof (buffer)
 
@@ -226,6 +230,20 @@ parse_rr(pnt, len, cont_flag)
 		if (strncmp((char *)pnt, "RE", 2) == 0) flag2 |= RR_FLAG_RE;
 		if (strncmp((char *)pnt, "TF", 2) == 0) flag2 |= RR_FLAG_TF;
 
+		if (strncmp((char *)pnt, "SP", 2) == 0) {
+			flag2 |= RR_FLAG_SP;					/* SUSP record */
+			su_version = pnt[3] & 0xff;
+		}
+		if (strncmp((char *)pnt, "AA", 2) == 0) {			/* Neither SUSP nor RR */
+			flag2 |= RR_FLAG_AA;					/* Apple Signature record */
+			aa_version = pnt[3] & 0xff;
+		}
+		if (strncmp((char *)pnt, "ER", 2) == 0) {
+			flag2 |= RR_FLAG_ER;					/* ER record */
+			rr_version = pnt[7] & 0xff;				/* Ext Version */
+/*			strlcpy(er_id, (char *)&pnt[8], (pnt[4] & 0xFF) + 1);*/
+		}
+
 		if (strncmp((char *)pnt, "CE", 2) == 0) {
 			cont_extent = (off_t)isonum_733((char *)pnt+4);
 			cont_offset = isonum_733((char *)pnt+12);
@@ -363,8 +381,7 @@ dump_rr(idr)
 
 	rr_goof = 0;
 	find_rr(idr, &pnt, &len);
-	parse_rr(pnt, len, 0);
-	return (rr_goof);
+	return (parse_rr(pnt, len, 0));
 }
 
 
@@ -446,8 +463,12 @@ check_tree(file_addr, file_size, parent_addr)
 				sprintf(&lbuffer[iline], ".             ");
 				iline += strlen(lbuffer + iline);
 				rflag = 0;
+#ifdef	Eric_seems_to_be_wrong
 				if (orig_file_addr != (off_t)(isonum_733(idr->extent) +
 							isonum_711((char *) idr->ext_attr_length))) {
+#else
+				if (orig_file_addr != (off_t)isonum_733(idr->extent)) {
+#endif
 					sprintf(&lbuffer[iline], _("***** Directory has null extent."));
 					goof++;
 					iline += strlen(lbuffer + iline);
@@ -461,8 +482,12 @@ check_tree(file_addr, file_size, parent_addr)
 				sprintf(&lbuffer[iline], "..            ");
 				iline += strlen(lbuffer + iline);
 				rflag = 0;
+#ifdef	Eric_seems_to_be_wrong
 				if (parent_file_addr != (off_t)(isonum_733(idr->extent) +
 							isonum_711((char *) idr->ext_attr_length))) {
+#else
+				if (parent_file_addr != (off_t)isonum_733(idr->extent)) {
+#endif
 					sprintf(&lbuffer[iline], _("***** Directory has null extent."));
 					goof++;
 					iline += strlen(lbuffer + iline);
@@ -524,7 +549,10 @@ check_tree(file_addr, file_size, parent_addr)
 				iline += strlen(lbuffer + iline);
 			}
 
-			goof += dump_rr(idr);
+			if (use_rock) {
+				dump_rr(idr);
+				goof += rr_goof;
+			}
 			sprintf(&lbuffer[iline], "\n");
 			iline += strlen(lbuffer + iline);
 
@@ -542,9 +570,15 @@ check_tree(file_addr, file_size, parent_addr)
 
 
 			if (rflag && (idr->flags[0] & 2))
+#ifdef	Eric_seems_to_be_wrong
 				check_tree((off_t)(isonum_733(idr->extent) + isonum_711((char *)idr->ext_attr_length)) * blocksize,
 						isonum_733(idr->size),
 						orig_file_addr * blocksize);
+#else
+				check_tree((off_t)isonum_733(idr->extent) * blocksize,
+						isonum_733(idr->size),
+						orig_file_addr * blocksize);
+#endif
 			i += buffer[i];
 			i1++;
 			if (i > 2048 - offsetof(struct iso_directory_record, name[0]))
@@ -675,6 +709,7 @@ main(argc, argv)
 {
 	int	cac;
 	char	* const *cav;
+	int	c;
 	char	*opts = "help,h,version,ignore-error,i*,dev*";
 	BOOL	help = FALSE;
 	BOOL	prvers = FALSE;
@@ -690,6 +725,7 @@ main(argc, argv)
 	int	typel_extent;
 	int	typem_extent;
 	int	path_table_size;
+	char	buffer[2048];
 
 	save_args(argc, argv);
 
@@ -721,7 +757,7 @@ main(argc, argv)
 	if (help)
 		usage(0);
 	if (prvers) {
-		printf(_("isovfy %s (%s-%s-%s) Copyright (C) 1993-1999 %s (C) 1999-2012 %s\n"),
+		printf(_("isovfy %s (%s-%s-%s) Copyright (C) 1993-1999 %s (C) 1999-2015 %s\n"),
 					VERSION,
 					HOST_CPU, HOST_VENDOR, HOST_OS,
 					_("Eric Youngdale"),
@@ -785,8 +821,24 @@ main(argc, argv)
 		blocksize = 2048;
 	}
 
+#ifdef	Eric_seems_to_be_wrong
 	file_addr = (off_t)isonum_733(idr->extent) + isonum_711((char *)idr->ext_attr_length);
+#else
+	file_addr = (off_t)isonum_733(idr->extent);
+#endif
 	file_size = isonum_733(idr->size);
+
+#ifdef	USE_SCG
+	readsecs(file_addr, buffer, ISO_BLOCKS(sizeof (buffer)));
+#else
+	lseek(fileno(infile), file_addr * blocksize, SEEK_SET);
+	read(fileno(infile), buffer, sizeof (buffer));
+#endif
+	c = dump_rr((struct iso_directory_record *) buffer);
+	if (c == 0 ||
+	    (c & (RR_FLAG_SP | RR_FLAG_ER)) == 0 || su_version < 1 || rr_version < 1) {
+		use_rock = FALSE;
+	}
 
 	if (sizeof (file_addr) > sizeof (long)) {
 		printf(_("Root at extent %llx, %d bytes\n"), (Llong)file_addr, file_size);

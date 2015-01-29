@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sccs-comb.1	1.8 14/09/15 Copyright 2007-2014 J. Schilling
+.\" @(#)sccs-comb.1	1.13 15/01/19 Copyright 2007-2015 J. Schilling
 .\" CDDL HEADER START
 .\"
 .\" The contents of this file are subject to the terms of the
@@ -31,7 +31,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sccs-comb 1 "2014/09/15" "SunOS 5.11" "User Commands"
+.TH sccs-comb 1 "2015/01/19" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs-comb, comb \- combine SCCS deltas
 .SH SYNOPSIS
@@ -49,72 +49,108 @@ sccs-comb, comb \- combine SCCS deltas
 .SH DESCRIPTION
 
 .LP
-\fBcomb\fR generates a shell script (see 
-\fBsh\fR(1))
-that you can use to reconstruct the indicated \fBs.\fRfiles.
+.B comb
+generates a shell script (see 
+.BR sh (1))
+that you can use to reconstruct the indicated
+.BR s. files.
 This script is written to the standard output.
-.sp
 
 .LP
-If a directory name is used in place of the \fIs.filename\fR argument, the \fBcomb\fR command applies to
-all \fBs.\fRfiles in that directory. Unreadable \fBs.\fRfiles produce an error; processing continues with the next file
-(if any). The use of `\fB\(mi\fR' as the \fIs.filename\fR argument indicates that the names of files are to be read
-from the standard input, one \fBs.\fRfile per line.
-.sp
+If a directory name is used in place of the
+.I s.filename
+argument, the
+.B comb
+command applies to all
+.BR s. files
+in that directory. Unreadable
+.BR s. files
+produce an error; processing continues with the next file
+(if any). The use of
+.RB ` \(mi '
+as the
+.I s.filename
+argument indicates that the names of files are to be read
+from the standard input, one
+.BR s. file
+per line.
 
 .LP
-If no options are specified, \fBcomb\fR preserves only
+If no options are specified,
+.B comb
+preserves only
 the most recent (leaf) delta in a branch, and the minimal number of ancestors
 needed to preserve the history.
-.sp
 
 .SH OPTIONS
 
 .LP
 The following options are supported:
-.sp
 
-.sp
-.ne 2
+.br
+.ne 3
 .TP 13
-\fB\fB-o\fR\fR
-For each `\fBget \fR\fB-e\fR'
+.B -o
+For each
+.RB ` "get -e" '
 generated, access the reconstructed file at the release of the delta to
 be created. Otherwise, the reconstructed file is accessed at the most recent
-ancestor. The use of \fB-o\fR may decrease the size of the reconstructed \fBs.\fRfile. It may also alter the shape of the delta tree of the original
-file.
-.sp
-.ne 2
+ancestor. The use of
+.B -o
+may decrease the size of the reconstructed
+.BR s. file.
+It may also alter the shape of the delta tree of the original file.
+
+.br
+.ne 3
 .TP
-\fB\fB-s\fR\fR
+.B -s
 Generate scripts
 to gather statistics, rather than combining deltas. When run, the shell
 scripts report: the file name, size (in blocks) after combining, original
-size (also in blocks), and the percentage size change, computed by the formula: 
-.sp
+size (also in blocks), and the percentage size change, computed by the formula:
 
 .sp
-100 * ( \fIoriginal\fR\fB \(mi \fR\fIcombined\fR\fB ) / \fR\fIoriginal\fR\fB\fR
-.sp
+  100
+.B * (
+.I original
+.B \(mi
+.I combined
+.B ) /
+.I original
 
 .sp
 This option can be used to calculate the space that will be saved,
 before actually doing the combining.
-.sp
 
-.sp
-.ne 2
+.br
+.ne 3
 .TP
-\fB\fB-c\fR\fIsid-list\fR\fR
+.BI -c sid-list
 Include the indicated list of deltas.  All other deltas
-are omitted. \fIsid-list\fR is a comma-separated list
-of \fBSCCS\fR delta \fBIDs\fR (SIDs). To specify a range of deltas, use a `\fB\(mi\fR' separator instead of a comma, between two \fBSIDs\fR in the list.
-.sp
-.ne 2
+are omitted.
+.I sid-list
+is a comma-separated list
+of
+.B SCCS
+delta
+.B IDs
+(SIDs). To specify a range of deltas, use a
+.RB ` \(mi '
+separator instead of a comma, between two
+.B SIDs
+in the list.
+
+.br
+.ne 3
 .TP
-\fB\fB-p\fR\fISID\fR\fR
-The \fBSID\fR of the oldest delta
+.BI -p SID
+The
+.B SID
+of the oldest delta
 to be preserved.
+
+.br
 .ne 3
 .TP
 .B \-V
@@ -137,6 +173,8 @@ execution of
 .BR LC_MESSAGES ,
 and
 .BR NLSPATH .
+
+.LP
 .br
 .ne 4
 .TP
@@ -167,41 +205,30 @@ Successful completion.
 .B 1
 An error occurred.
 
+.br
+.ne 4
 .SH FILES
-
 .sp
-.ne 2
-.mk
-.na
-\fB\fBs.\|COMB\fR\fR
-.ad
-.RS 11n
-.rt  
-reconstructed  \fBSCCS\fR file
+.ne 3
+.TP 11n
+.B s.\|COMB
+reconstructed
+.B SCCS
+file
 .sp
 
-.RE
-
-.sp
-.ne 2
-.mk
-.na
-\fB\fBcomb?????\fR\fR
-.ad
-.RS 11n
-.rt  
+.br
+.ne 3
+.TP
+.B comb?????
 temporary file
-.sp
-
-.RE
 
 .SH ATTRIBUTES
 
 .LP
 See 
-\fBattributes\fR(5)
+.BR attributes (5)
 for descriptions of the following attributes:
-.sp
 
 .LP
 
@@ -217,30 +244,32 @@ AvailabilitySUNWsprot
 .TE
 
 .SH SEE ALSO
+.nh
 .LP
 .BR sccs (1),
-.BR sccs-admin (1),
-.BR sccs-cdc (1),
-.BR sccs-delta (1),
-.BR sccs-get (1),
-.BR sccs-help (1),
-.BR sccs-prs (1),
-.BR sccs-prt (1),
-.BR sccs-rmdel (1),
-.BR sccs-sact (1),
-.BR sccs-sccsdiff (1),
-.BR sccs-unget (1),
-.BR sccs-val (1),
-.BR sccscvt (1),
-.BR sccslog (1),
+.BR sccs\-admin (1),
+.BR sccs\-cdc (1),
+.BR sccs\-cvt (1),
+.BR sccs\-delta (1),
+.BR sccs\-get (1),
+.BR sccs\-help (1),
+.BR sccs\-log (1),
+.BR sccs\-prs (1),
+.BR sccs\-prt (1),
+.BR sccs\-rmdel (1),
+.BR sccs\-sact (1),
+.BR sccs\-sccsdiff (1),
+.BR sccs\-unget (1),
+.BR sccs\-val (1),
 .BR bdiff (1), 
 .BR diff (1), 
 .BR what (1),
-.BR changeset (4),
+.BR sccschangeset (4),
 .BR sccsfile (4),
 .BR attributes (5),
 .BR environ (5),
 .BR standards (5).
+.hy 14
 
 .SH DIAGNOSTICS
 .LP

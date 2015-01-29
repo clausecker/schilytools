@@ -1,5 +1,6 @@
 '\" te
-.\" @(#)sccs-delta.1	1.27 14/09/15 Copyright 2007-2014 J. Schilling
+.\" @(#)sccs-delta.1	1.31 15/01/20 Copyright 2007-2015 J. Schilling
+.\" Copyright (c) 1999, Sun Microsystems, Inc. All Rights Reserved
 .\" CDDL HEADER START
 .\"
 .\" The contents of this file are subject to the terms of the
@@ -18,7 +19,6 @@
 .\" information: Portions Copyright [yyyy] [name of copyright owner]
 .\"
 .\" CDDL HEADER END
-.\" Copyright (c) 1999, Sun Microsystems, Inc. All Rights Reserved
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
 .if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
 .if t .ds u \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'u
@@ -31,7 +31,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sccs-delta 1 "2014/09/15" "SunOS 5.11" "User Commands"
+.TH sccs-delta 1 "2015/01/20" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs-delta, delta \- make a delta to an SCCS file
 .SH SYNOPSIS
@@ -64,42 +64,78 @@ sccs-delta, delta \- make a delta to an SCCS file
 .SH DESCRIPTION
 
 .LP
-The \fBdelta\fR utility checks in a record of the line-by-line differences made to a checked-out version of a file under \fBSCCS\fR control. These changes are taken from the writable working copy that was retrieved using the \fBSCCS\fR \fBget\fR command (see 
-\fBsccs-get\fR(1)).
-This working copy does not have the `\fBs.\fR' prefix, and is also referred to as a \fBg\fR-file.
-.sp
+The
+.B delta
+utility checks in a record of the line-by-line differences made to a
+checked-out version of a file under
+.B SCCS
+control. These changes are taken from the writable working copy that
+was retrieved using the
+.B SCCS get
+command (see 
+.BR sccs-get (1)).
+This working copy does not have the
+.RB ` s. '
+prefix, and is also referred to as a
+.BR g -file.
 
 .LP
-If a directory name is used in place of the \fIs.filename\fR argument, the \fBdelta\fR command applies to all \fBs.\fRfiles in that directory. Unreadable \fBs.\fRfiles produce an error; processing continues with the next file (if any). The use of `\fB\(mi\fR' as the \fIs.filename\fR argument indicates that the names of files are to be read from the standard input, one \fBs.\fRfile per
-line (requires \fB-y\fR, and in some cases, \fB-m\fR).
-.sp
+If a directory name is used in place of the
+.I s.filename
+argument, the
+.B delta
+command applies to all
+.BR s. files
+in that directory. Unreadable
+.BR s. files
+produce an error; processing continues with the next file (if any). The use of
+.RB ` \(mi '
+as the
+.I s.filename
+argument indicates that the names of files are to be read from the
+standard input, one
+.BR s. file
+per line (requires
+.BR -y ,
+and in some cases,
+.BR -m ).
 
 .LP
-\fBdelta\fR may issue prompts on the standard output depending upon the options specified and the flags that are set in the \fBs.\fRfile (see 
-\fBsccs-admin\fR(1), and the \fB-m\fR and \fB-y\fR options below, for details).
-.sp
+.B delta
+may issue prompts on the standard output depending upon the options specified
+and the flags that are set in the
+.BR s. file
+(see 
+.BR sccs-admin (1),
+and the
+.B -m
+and
+.B -y
+options below, for details).
 
 .SH OPTIONS
 
 .LP
 The following options are supported:
-.sp
 
-.sp
-.ne 2
+.br
+.ne 3
 .TP 26
 .B -d
 Use command 
-\fBdiff\fR(1) instead of 
-\fBbdiff\fR(1). Returns exit status
+.BR diff (1)
+instead of 
+.BR bdiff (1).
+Returns exit status
 .B 2
 instead of
 .B 1
 if the
 .BI s. filename
 argument is not specified.
-.sp
-.ne 2
+
+.br
+.ne 3
 .TP
 .B -f
 In NSE mode, this option allows to enforce a delta even when no
@@ -113,8 +149,9 @@ This option is an undocumented
 extension that does not exist in historic
 .B sccs 
 implementations.
-.sp
-.ne 2
+
+.br
+.ne 3
 .TP
 .B -h
 In NSE mode, this option allows to use
@@ -128,18 +165,24 @@ This option is an undocumented
 extension that does not exist in historic
 .B sccs 
 implementations.
-.sp
-.ne 2
+
+.br
+.ne 3
 .TP
 .B -n
-Retain the edited \fBg\fR-file, which is normally removed at the completion of processing.
-.sp
-.ne 2
+Retain the edited
+.BR g -file,
+which is normally removed at the completion of processing.
+
+.br
+.ne 4
 .TP
 .B -p
 Display line-by-line differences (in 
-\fBdiff\fR(1) format) on the standard output.
-.sp
+.BR diff (1)
+format) on the standard output.
+
+.br
 .ne 3
 .TP
 .BI -q\fR[ nsedelim\fR]
@@ -167,15 +210,18 @@ This option is an undocumented
 extension that does not exist in historic
 .B sccs 
 implementations.
-.sp
-.ne 2
+
+.br
+.ne 3
 .TP
-\fB\fB-s\fR\fR
-Silent.  Do not display warning or confirmation messages.  Do not suppress error messages (which are written to standard error).
-.sp
-.ne 2
+.B -s
+Silent.  Do not display warning or confirmation messages.  Do not
+suppress error messages (which are written to standard error).
+
+.br
+.ne 3
 .TP
-\fB\fB-g\fR \fIsid-list\fR | \fB-g\fR\fIsid-list\fR\fR
+\fB-g \fIsid-list\fR | \fB-g\fIsid-list\fR
 Specify a list of deltas to omit when the file is accessed at the
 .B SCCS
 version
@@ -197,10 +243,11 @@ To specify a range of deltas, use a
 separator instead of a comma, between two
 .BR SID s
 in the list.
-.sp
-.ne 2
+
+.br
+.ne 3
 .TP
-\fB\fB-m\fR \fImr-list\fR | \fB-m\fR\fImr-list\fR\fR
+\fB-m \fImr-list\fR | \fB-m\fImr-list\fR
 If the SCCS file has the
 .B v
 flag set (see 
@@ -224,7 +271,8 @@ has a value, it is taken to be the name of a program to validate the
 MR numbers. If that validation program returns a non-zero exit status,
 .B delta
 terminates without checking in the changes.
-.sp
+
+.br
 .ne 3
 .TP
 .B \-o
@@ -237,15 +285,28 @@ This option is a
 extension that does not exist in historic
 .B sccs
 implementations.
-.sp
+
+.br
+.ne 3
+.TP
+\fB-r \fIsid\fR | \fB-r\fIsid\fR
+When two or more versions are checked out, specify the version to
+check in. This
+.B SID
+value can be either the
+.B SID
+specified on the
+.B get
+command line, or the
+.B SID
+of the new version to be checked in as reported by
+.BR get .
+A diagnostic results if the specified
+.B SID
+is ambiguous, or if one is required but not supplied.
 .ne 2
 .TP
-\fB\fB-r\fR \fIsid\fR | \fB-r\fR\fIsid\fR\fR
-When two or more versions are checked out, specify the version to check in. This \fBSID\fR value can be either the \fBSID\fR specified on the \fBget\fR command line, or the \fBSID\fR of the new version to be checked in as reported by \fBget\fR. A diagnostic
-results if the specified \fBSID\fR is ambiguous, or if one is required but not supplied.
-.ne 2
-.TP
-\fB\fB-y\fR[\fIcomment\fR]\fR
+\fB-y\fR[\fIcomment\fR]
 Supply a comment for the delta table (version log). A null comment is accepted,
 and produces an empty commentary in the log. If
 .B \-y
@@ -254,6 +315,8 @@ is not specified and the standard input is a terminal,
 prompts with
 .RB ` comments? " '.
 An unescaped NEWLINE terminates the comment.
+
+.br
 .ne 3
 .TP
 .B \-z
@@ -265,6 +328,9 @@ This option is an undocumented
 extension that does not exist in historic
 .B sccs 
 implementations.
+
+.br
+.ne 3
 .TP
 .BI \-C dir
 Specify the base directory for the
@@ -275,6 +341,8 @@ By default, the
 is searched for in the current directory (independent from
 the location of the 
 .BI s. file\fR.
+
+.br
 .ne 3
 .TP
 .B \-V
@@ -297,6 +365,7 @@ execution of
 .BR LC_MESSAGES ,
 and
 .BR NLSPATH .
+
 .br
 .ne 4
 .TP
@@ -365,7 +434,7 @@ argument was not specified.
 
 .SH FILES
 
-.sp
+.br
 .ne 2
 .TP 12
 .BI d. file
@@ -374,7 +443,7 @@ temporary file created by the
 program with the content of the previous version, 
 used to compute differences to the current version
 
-.sp
+.br
 .ne 2
 .TP 12
 .BI e. file
@@ -382,7 +451,7 @@ temporary file to hold an uuencoded version of the
 .B g-file
 in case of an encoded history file
 
-.sp
+.br
 .ne 2
 .TP
 .BI p. file
@@ -392,7 +461,7 @@ See
 for a description of the layout of the
 .BR p. file.
 
-.sp
+.br
 .ne 2
 .TP
 .BI q. file
@@ -402,7 +471,7 @@ renamed to the
 .BR p. file
 after completion
 
-.sp
+.br
 .ne 2
 .TP
 .BI s. file
@@ -410,7 +479,7 @@ after completion
 history file, see
 .BR sccsfile (4).
 
-.sp
+.br
 .ne 2
 .TP
 .BI x. file
@@ -420,7 +489,7 @@ renamed to the
 .BR s. file 
 after completion 
 
-.sp
+.br
 .ne 2
 .TP
 .BI z. file
@@ -431,7 +500,8 @@ followed by the host name
 
 .LP
 See 
-\fBattributes\fR(5) for descriptions of the following attributes:
+.BR attributes (5)
+for descriptions of the following attributes:
 .sp
 
 .SS /usr/ccs/bin/delta
@@ -450,37 +520,40 @@ AvailabilitySUNWsprot
 .TE
 
 .SH SEE ALSO
+.nh
 .LP
 .BR sccs (1),
-.BR sccs-admin (1),
-.BR sccs-cdc (1),
-.BR sccs-comb (1),
-.BR sccs-get (1),
-.BR sccs-help (1),
-.BR sccs-prs (1),
-.BR sccs-prt (1),
-.BR sccs-rmdel (1),
-.BR sccs-sact (1),
-.BR sccs-sccsdiff (1),
-.BR sccs-unget (1),
-.BR sccs-val (1),
-.BR sccscvt (1),
-.BR sccslog (1),
+.BR sccs\-admin (1),
+.BR sccs\-cdc (1),
+.BR sccs\-comb (1),
+.BR sccs\-cvt (1),
+.BR sccs\-get (1),
+.BR sccs\-help (1),
+.BR sccs\-log (1),
+.BR sccs\-prs (1),
+.BR sccs\-prt (1),
+.BR sccs\-rmdel (1),
+.BR sccs\-sact (1),
+.BR sccs\-sccsdiff (1),
+.BR sccs\-unget (1),
+.BR sccs\-val (1),
 .BR bdiff (1), 
 .BR diff (1), 
 .BR what (1),
-.BR changeset (4),
+.BR sccschangeset (4),
 .BR sccsfile (4),
 .BR attributes (5),
 .BR environ (5),
 .BR standards (5).
+.hy 14
 
 .SH DIAGNOSTICS
 
 .LP
-Use the \fBSCCS\fR \fBhelp\fR command for explanations (see 
-\fBsccs-help\fR(1)).
-.sp
+Use the
+.B SCCS help
+command for explanations (see 
+.BR sccs-help (1)).
 
 .SH WARNINGS
 

@@ -27,12 +27,12 @@
  * Use is subject to license terms.
  */
 /*
- * Copyright 2006-2014 J. Schilling
+ * Copyright 2006-2015 J. Schilling
  *
- * @(#)get.c	1.59 14/08/21 J. Schilling
+ * @(#)get.c	1.66 15/01/27 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)get.c 1.59 14/08/21 J. Schilling"
+#pragma ident "@(#)get.c 1.66 15/01/27 J. Schilling"
 #endif
 /*
  * @(#)get.c 1.59 06/12/12
@@ -55,13 +55,13 @@
 #define	DATELEN	12
 
 #if defined(__STDC__) || defined(PROTOTYPES)
-#define INCPATH		INS_BASE "/ccs/include"	/* place to find binaries */
+#define	INCPATH		INS_BASE "/ccs/include"	/* place to find binaries */
 #else
 /*
  * XXX With a K&R compiler, you need to edit the following string in case
  * XXX you like to change the install path.
  */
-#define INCPATH		"/usr/ccs/include"	/* place to find binaries */
+#define	INCPATH		"/usr/ccs/include"	/* place to find binaries */
 #endif
 
 
@@ -74,38 +74,35 @@
  * retrieved).
  */
 
-static struct sid sid;
+static struct packet gpkt;		/* libcomobj data for get()	*/
 
-static struct packet gpkt;
-static unsigned	Ser;
-static int	num_files;
-static int	num_ID_lines;
-static int	cnt_ID_lines;
-static int	expand_IDs;
-static char	*list_expand_IDs;
-static char    *Whatstr = NULL;
-static char	Pfilename[FILESIZE];
-static char	*ilist, *elist, *lfile;
-static time_t	cutoff = MAX_TIME;
-static char	*cutoffstr;
-static char	Gfile[PATH_MAX];
-static char	gfile[PATH_MAX];
-static char	*Type;
-static struct utsname un;
-static char *uuname;
-static char	*Cwd = "";
+static struct sid sid;			/* To hold -r parameter		*/
+static unsigned	Ser;			/* To hold -a parameter		*/
+static char    *Whatstr = NULL;		/* To hold -w parameter		*/
+static char	*ilist;			/* To hold -i parameter		*/
+static char	*elist;			/* To hold -x parameter		*/
+static char	*lfile;			/* To hold -l parameter		*/
+static char	*cutoffstr;		/* To hold -c parameter		*/
+static char	Gfile[PATH_MAX];	/* To hold -G (g. + parameter)	*/
+static char	gfile[PATH_MAX];	/* To hold -G parameter		*/
+static char	*Cwd = "";		/* To hold -C parameter		*/
 
 /* Beginning of modifications made for CMF system. */
-#define CMRLIMIT 128
-static char	cmr[CMRLIMIT];
-static int	cmri = 0;
+#define	CMRLIMIT 128
+static char	cmr[CMRLIMIT];		/* To hold -z parameter		*/
 /* End of insertion */
+
+static int	num_files;		/* arg counter for main()/get()	*/
+static char	Pfilename[FILESIZE];	/* p.filename used in get()	*/
+static time_t	cutoff = MAX_TIME;	/* cutoff time for main()/get()	*/
+
 
 static	void    clean_up __PR((void));
 static	void	enter	__PR((struct packet *pkt, int ch, int n, struct sid *sidp));
 
 	int	main __PR((int argc, char **argv));
-static void	get __PR((char *file));
+static void	do_get __PR((char *file));
+static void	get __PR((struct packet *pkt, char *file));
 static void	gen_lfile __PR((struct packet *pkt));
 static void	idsetup __PR((struct packet *pkt));
 static void	makgdate __PR((char *old, char *new));
@@ -114,6 +111,7 @@ static char *	idsubst __PR((struct packet *pkt, char *line));
 static char *	_trans __PR((char *tp, char *str, char *rest));
 static int	readcopy __PR((char *name, char *tp));
 static void	prfx __PR((struct packet *pkt));
+static void	annotate __PR((struct packet *pkt));
 static void	wrtpfile __PR((struct packet *pkt, char *inc, char *exc));
 static int	cmrinsert __PR((struct packet *pkt));
 
@@ -128,6 +126,7 @@ register char *argv[];
 	extern int Fcnt;
 	int current_optind;
 	int no_arg;
+	int	cmri = 0;	/* CMF index for option parsing */
 
 	/*
 	 * Set locale for all categories.
@@ -177,7 +176,7 @@ register char *argv[];
 			}
 			no_arg = 0;
 			i = current_optind;
-		        c = getopt(argc, argv, "-r:c:ebi:x:kl:Lpsmnogta:G:w:zqdC:FV(version)");
+		        c = getopt(argc, argv, "-r:c:ebi:x:kl:Lpsmnogta:G:w:zqdC:AFV(version)");
 				/* this takes care of options given after
 				** file names.
 				*/
@@ -198,8 +197,8 @@ register char *argv[];
 			}
 			p = optarg;
 			switch (c) {
-    			case CMFFLAG:
-				/* Concatenate the rest of this argument with 
+    			case CMFFLAG:		/* 'z' */
+				/* Concatenate the rest of this argument with
 				 * the existing CMR list. */
 				if (p) {
 				   while (*p) {
@@ -249,7 +248,7 @@ register char *argv[];
 				} else {
 				   no_arg = 1;
 				   lfile = NULL;
-				}	
+				}
 				break;
 			case 'i':
 				if (*p == 0) continue;
@@ -280,10 +279,11 @@ register char *argv[];
 			case 's':
 			case 't':
 			case 'd':
+			case 'A':
 			case 'F':
 				if (p) {
 				   sprintf(SccsError,
-				     gettext("value after %c arg (cm8)"), 
+				     gettext("value after %c arg (cm8)"),
 				     c);
 				   fatal(SccsError);
 				}
@@ -310,8 +310,7 @@ register char *argv[];
 				exit(EX_OK);
 
 			default:
-			   fatal(gettext("Usage: get [-beFgkmLopst] [-l[p]] [-asequence] [-cdate-time] [-Gg-file] [-isid-list] [-rsid] [-xsid-list] file ..."));
-			
+			   fatal(gettext("Usage: get [-AbeFgkmLopst] [-l[p]] [-asequence] [-cdate-time] [-Gg-file] [-isid-list] [-rsid] [-xsid-list] file ..."));
 			}
 
 			/*
@@ -340,20 +339,28 @@ register char *argv[];
 	Fflags |= FTLJMP;
 	for (i=1; i<argc; i++)
 		if ((p=argv[i]) != NULL)
-			do_file(p, get, 1, 1);
+			do_file(p, do_get, 1, 1);
 
 	return (Fcnt ? 1 : 0);
 }
 
 static void
-get(file)
-char *file;
+do_get(file)
+	char		*file;
+{
+	get(&gpkt, file);
+}
+
+static void
+get(pkt, file)
+	struct packet	*pkt;
+	char		*file;
 {
 	register char *p;
 	register unsigned ser;
 	extern char had_dir, had_standinp;
 	struct stats stats;
-	char	str[32];		/* Must fit a SID string */
+	char	str[SID_STRSIZE];		/* Must fit a SID string */
 #ifdef	PROTOTYPES
 	char template[] = NOGETTEXT("/get.XXXXXX");
 #else
@@ -367,129 +374,110 @@ char *file;
 	if (setjmp(Fjmp))
 		return;
 	if (HADE) {
+		struct utsname	un;
+		char		*uuname;
+
 		/*
 		call `sinit' to check if file is an SCCS file
 		but don't open the SCCS file.
 		If it is, then create lock file.
 		pass both the PID and machine name to lockit
 		*/
-		sinit(&gpkt,file,0);
+		sinit(pkt, file, 0);
 		uname(&un);
 		uuname = un.nodename;
-		if (lockit(auxf(file,'z'),10, getpid(),uuname))
+		if (lockit(auxf(file, 'z'), 10, getpid(), uuname))
 			efatal(gettext("cannot create lock file (cm4)"));
 	}
 	/*
 	Open SCCS file and initialize packet
 	*/
-	sinit(&gpkt,file,1);
-	gpkt.p_ixuser = (HADI | HADX);
-	gpkt.p_reqsid.s_rel = sid.s_rel;
-	gpkt.p_reqsid.s_lev = sid.s_lev;
-	gpkt.p_reqsid.s_br = sid.s_br;
-	gpkt.p_reqsid.s_seq = sid.s_seq;
-	gpkt.p_verbose = (HADS) ? 0 : 1;
-	gpkt.p_stdout  = (HADP||lfile) ? stderr : stdout;
-	gpkt.p_cutoff = cutoff;
-	gpkt.p_lfile = lfile;
-	gpkt.p_enter = enter;
-	if ((gpkt.p_flags & PF_V6) == 0) {
-		gpkt.p_flags |= PF_GMT;
+	sinit(pkt, file, 1);
+	pkt->p_ixuser = (HADI | HADX);
+	pkt->p_reqsid.s_rel = sid.s_rel;
+	pkt->p_reqsid.s_lev = sid.s_lev;
+	pkt->p_reqsid.s_br = sid.s_br;
+	pkt->p_reqsid.s_seq = sid.s_seq;
+	pkt->p_verbose = (HADS) ? 0 : 1;
+	pkt->p_stdout  = (HADP||lfile) ? stderr : stdout;
+	pkt->p_cutoff = cutoff;
+	pkt->p_lfile = lfile;
+	pkt->p_enter = enter;
+	if ((pkt->p_flags & PF_V6) == 0) {
+		pkt->p_flags |= PF_GMT;
 	} else if (cutoffstr != NULL) {
 		if (parse_date(cutoffstr, &cutoff, 0))
 			fatal(gettext("bad date/time (cm5)"));
-		gpkt.p_cutoff = cutoff;
+		pkt->p_cutoff = cutoff;
 	}
+	if (HADUCA)
+		pkt->p_pgmrs = (char **)Null;
 	if (Gfile[0] == 0 || !first) {
-		cat(gfile,Cwd,auxf(gpkt.p_file,'g'), (char *)0);
-		cat(Gfile,Cwd,auxf(gpkt.p_file,'A'), (char *)0);
+		cat(gfile, Cwd, auxf(pkt->p_file, 'g'), (char *)0);
+		cat(Gfile, Cwd, auxf(pkt->p_file, 'A'), (char *)0);
 	}
 	strlcpy(buf1, dname(Gfile), sizeof (buf1));
 	strlcat(buf1, template, sizeof (buf1));
 	Gfile[0] = '\0';		/* File not yet created */
 	first = 0;
 
-	if (gpkt.p_verbose && (num_files > 1 || had_dir || had_standinp))
-		fprintf(gpkt.p_stdout,"\n%s:\n",gpkt.p_file);
-	if (dodelt(&gpkt,&stats,(struct sid *) 0,0) == 0)
-		fmterr(&gpkt);
-	finduser(&gpkt);
-	doflags(&gpkt);
-	if ((p = gpkt.p_sflags[SCANFLAG - 'a']) == NULL) {
-		num_ID_lines = 0;
-	} else {
-		num_ID_lines = atoi(p);
-	}
-	expand_IDs = 0;
-	if ((list_expand_IDs = gpkt.p_sflags[EXPANDFLAG - 'a']) != NULL) {
-		if (*list_expand_IDs) {
-			/*
-			 * The old Sun based code did break with get -k in case
-			 * that someone did previously call admin -fy...
-			 * Make sure that this now works correctly again.
-			 */
-			if (!HADK)		/* JS fix get -k */
-				expand_IDs = 1;
-		}
-	}
-	if (HADE) {
-		expand_IDs = 0;
-	}
-	if (!HADK) {
-		expand_IDs = 1;
-	}
+	if (pkt->p_verbose && (num_files > 1 || had_dir || had_standinp))
+		fprintf(pkt->p_stdout, "\n%s:\n", pkt->p_file);
+	if (dodelt(pkt, &stats, (struct sid *) 0, 0) == 0)
+		fmterr(pkt);
+	finduser(pkt);
+	doflags(pkt);
+
 	if (!HADA) {
-		ser = getser(&gpkt);
+		ser = getser(pkt);
 	} else {
-		if ((ser = Ser) > maxser(&gpkt))
+		if ((ser = Ser) > maxser(pkt))
 			fatal(gettext("serial number too large (ge19)"));
-		gpkt.p_gotsid = gpkt.p_idel[ser].i_sid;
-		if (HADR && sid.s_rel != gpkt.p_gotsid.s_rel) {
-			zero((char *) &gpkt.p_reqsid, sizeof(gpkt.p_reqsid));
-			gpkt.p_reqsid.s_rel = sid.s_rel;
+		pkt->p_gotsid = pkt->p_idel[ser].i_sid;
+		if (HADR && sid.s_rel != pkt->p_gotsid.s_rel) {
+			zero((char *) &pkt->p_reqsid, sizeof (pkt->p_reqsid));
+			pkt->p_reqsid.s_rel = sid.s_rel;
 		} else {
-			gpkt.p_reqsid = gpkt.p_gotsid;
+			pkt->p_reqsid = pkt->p_gotsid;
 		}
 	}
-	doie(&gpkt,ilist,elist,(char *) 0);
-	setup(&gpkt,(int) ser);
-	if ((Type = gpkt.p_sflags[TYPEFLAG - 'a']) == NULL)
-		Type = Null;
+	doie(pkt, ilist, elist, (char *) 0);
+	setup(pkt, (int) ser);
 	if (!(HADP || HADG)) {
 		if (exists(gfile) && (S_IWRITE & Statbuf.st_mode)) {
-			sprintf(SccsError,gettext("writable `%s' exists (ge4)"),
+			sprintf(SccsError, gettext("writable `%s' exists (ge4)"),
 				gfile);
 			fatal(SccsError);
 		}
 	}
-	if (gpkt.p_verbose) {
-		sid_ba(&gpkt.p_gotsid,str);
-		fprintf(gpkt.p_stdout,"%s\n",str);
+	if (pkt->p_verbose) {
+		sid_ba(&pkt->p_gotsid, str);
+		fprintf(pkt->p_stdout, "%s\n", str);
 	}
 	if (HADE) {
-		if (HADC || gpkt.p_reqsid.s_rel == 0)
-			gpkt.p_reqsid = gpkt.p_gotsid;
-		newsid(&gpkt, gpkt.p_sflags[BRCHFLAG - 'a'] && HADB);
-		permiss(&gpkt);
-		wrtpfile(&gpkt,ilist,elist);
+		if (HADC || pkt->p_reqsid.s_rel == 0)
+			pkt->p_reqsid = pkt->p_gotsid;
+		newsid(pkt, pkt->p_sflags[BRCHFLAG - 'a'] && HADB);
+		permiss(pkt);
+		wrtpfile(pkt, ilist, elist);
 	}
 	if (!HADG || HADL) {
-		if (gpkt.p_stdout) {
-			fflush(gpkt.p_stdout);
-			fflush (stderr);
+		if (pkt->p_stdout) {
+			fflush(pkt->p_stdout);
+			fflush(stderr);
 		}
 		holduid=geteuid();
 		holdgid=getegid();
 		setuid(getuid());
 		setgid(getgid());
 		if (HADL)
-			gen_lfile(&gpkt);
+			gen_lfile(pkt);
 		if (HADG)
 			goto unlock;
-		flushto(&gpkt,EUSERTXT,1);
-		idsetup(&gpkt);
-		gpkt.p_chkeof = 1;
-		gpkt.p_did_id = 0;
+		flushto(pkt, EUSERTXT, 1);
+		idsetup(pkt);
+		pkt->p_chkeof = 1;
+		pkt->p_did_id = 0;
 		/*
 		call `xcreate' which deletes the old `g-file' and
 		creates a new one except if the `p' keyletter is set in
@@ -497,9 +485,9 @@ char *file;
 		The mod of the file depends on whether or not the `k'
 		keyletter has been set.
 		*/
-		if (gpkt.p_gout == 0) {
+		if (pkt->p_gout == 0) {
 			if (HADP) {
-				gpkt.p_gout = stdout;
+				pkt->p_gout = stdout;
 			} else {
 #ifdef	HAVE_MKSTEMP
 				close(mkstemp(buf1));	/* safer than mktemp */
@@ -512,12 +500,12 @@ char *file;
 				 * instead of xfcreat() in order to avoid an
 				 * unlink()/create() chain.
 				 */
-				if ((exists(gpkt.p_file) && (S_IEXEC & Statbuf.st_mode)) ||
-				    (gpkt.p_flags & PF_SCOX)) {
-					gpkt.p_gout = xfcreat(Gfile,HADK ? 
+				if ((exists(pkt->p_file) && (S_IEXEC & Statbuf.st_mode)) ||
+				    (pkt->p_flags & PF_SCOX)) {
+					pkt->p_gout = xfcreat(Gfile, HADK ?
 						((mode_t)0755) : ((mode_t)0555));
 				} else {
-					gpkt.p_gout = xfcreat(Gfile,HADK ? 
+					pkt->p_gout = xfcreat(Gfile, HADK ?
 						((mode_t)0644) : ((mode_t)0444));
 				}
 #ifdef	USE_SETVBUF
@@ -525,78 +513,78 @@ char *file;
 				 * Do not call setvbuf() with stdout as this may result
 				 * in a second illegal call in gen_lfile().
 				 */
-				setvbuf(gpkt.p_gout, NULL, _IOFBF, VBUF_SIZE);
+				setvbuf(pkt->p_gout, NULL, _IOFBF, VBUF_SIZE);
 #endif
 			}
 		}
-		gpkt.p_ghash = 0;		/* Reset ghash */
-		if (gpkt.p_encoding & EF_UUENCODE) {
-			while (readmod(&gpkt)) {
-				decode(gpkt.p_line,gpkt.p_gout);
+		pkt->p_ghash = 0;		/* Reset ghash */
+		if (pkt->p_encoding & EF_UUENCODE) {
+			while (readmod(pkt)) {
+				decode(pkt->p_line, pkt->p_gout);
 			}
 		} else {
-			while (readmod(&gpkt)) {
-				prfx(&gpkt);
-				if (gpkt.p_flags & PF_NONL)
-					gpkt.p_line[gpkt.p_line_length-1] = '\0';
-				p = idsubst(&gpkt, gpkt.p_lineptr);
-				if (fputs(p,gpkt.p_gout)==EOF)
+			while (readmod(pkt)) {
+				prfx(pkt);
+				if (pkt->p_flags & PF_NONL)
+					pkt->p_line[pkt->p_line_length-1] = '\0';
+				p = idsubst(pkt, pkt->p_lineptr);
+				if (fputs(p, pkt->p_gout) == EOF)
 					xmsg(gfile, NOGETTEXT("get"));
 			}
 		}
-		if ((gpkt.p_flags & (PF_V6 | PF_V6TAGS)) && gpkt.p_hash) {
+		if ((pkt->p_flags & (PF_V6 | PF_V6TAGS)) && pkt->p_hash) {
 			/*
 			 * SCCS v6 is able to check against SID specific
 			 * checksums, but this will not work in case that
 			 * we use include or exclude lists.
 			 */
-			if (gpkt.p_hash[ser] != (gpkt.p_ghash & 0xFFFF) &&
+			if (pkt->p_hash[ser] != (pkt->p_ghash & 0xFFFF) &&
 			    elist == NULL && ilist == NULL && !HADUCF)
 				fatal(gettext("corrupted file version (co27)"));
 		}
-			
-		if (gpkt.p_gout) {
-			if (fflush(gpkt.p_gout) == EOF)
+
+		if (pkt->p_gout) {
+			if (fflush(pkt->p_gout) == EOF)
 				xmsg(gfile, NOGETTEXT("get"));
 			fflush (stderr);
 		}
-		if (gpkt.p_gout && gpkt.p_gout != stdout) {
+		if (pkt->p_gout && pkt->p_gout != stdout) {
 			/*
 			 * Force g-file to disk and verify
 			 * that it actually got there.
 			 */
 #ifdef	HAVE_FSYNC
-			if (fsync(fileno(gpkt.p_gout)) < 0)
+			if (fsync(fileno(pkt->p_gout)) < 0)
 				xmsg(gfile, NOGETTEXT("get"));
 #endif
-			if (fclose(gpkt.p_gout) == EOF)
+			if (fclose(pkt->p_gout) == EOF)
 				xmsg(gfile, NOGETTEXT("get"));
-			gpkt.p_gout = NULL;
+			pkt->p_gout = NULL;
 		}
-		if (gpkt.p_verbose) {
-#ifdef XPG4		
-		   fprintf(gpkt.p_stdout, NOGETTEXT("%d lines\n"), gpkt.p_glnno);
+		if (pkt->p_verbose) {
+#ifdef XPG4
+		   fprintf(pkt->p_stdout, NOGETTEXT("%d lines\n"), pkt->p_glnno);
 #else
 		   if (HADD == 0)
-		      fprintf(gpkt.p_stdout,gettext("%d lines\n"),gpkt.p_glnno);
+		      fprintf(pkt->p_stdout, gettext("%d lines\n"), pkt->p_glnno);
 #endif
-		}		
-		if (!gpkt.p_did_id && !HADK && !HADQ &&
-		    (!gpkt.p_sflags[EXPANDFLAG - 'a'] ||
-		    *(gpkt.p_sflags[EXPANDFLAG - 'a']))) {
-		   if (gpkt.p_sflags[IDFLAG - 'a']) {
-		      if (!(*gpkt.p_sflags[IDFLAG - 'a'])) {
+		}
+		if (!pkt->p_did_id && !HADK && !HADQ &&
+		    (!pkt->p_sflags[EXPANDFLAG - 'a'] ||
+		    *(pkt->p_sflags[EXPANDFLAG - 'a']))) {
+		   if (pkt->p_sflags[IDFLAG - 'a']) {
+		      if (!(*pkt->p_sflags[IDFLAG - 'a'])) {
 		         fatal(gettext("no id keywords (cm6)"));
 		      } else {
 			 fatal(gettext("invalid id keywords (cm10)"));
 		      }
 		   } else {
-		      if (gpkt.p_verbose) {
+		      if (pkt->p_verbose) {
 			 fprintf(stderr, gettext("No id keywords (cm7)\n"));
 		      }
 		   }
 		}
-		if (Gfile[0] != '\0' && exists(Gfile) ) {
+		if (Gfile[0] != '\0' && exists(Gfile)) {
 			rename(Gfile, gfile);
 			if (HADO) {
 				struct tm	tm;
@@ -604,18 +592,18 @@ char *file;
 				unsigned int	gser;
 				extern dtime_t	Timenow;
 
-				gser = sidtoser(&gpkt.p_gotsid, &gpkt);
+				gser = sidtoser(&pkt->p_gotsid, pkt);
 
 				ts[0].tv_sec = Timenow.dt_sec;
 				ts[0].tv_nsec = Timenow.dt_nsec;
-				ts[1].tv_sec = gpkt.p_idel[gser].i_datetime.tv_sec;
-				ts[1].tv_nsec = gpkt.p_idel[gser].i_datetime.tv_nsec;
+				ts[1].tv_sec = pkt->p_idel[gser].i_datetime.tv_sec;
+				ts[1].tv_nsec = pkt->p_idel[gser].i_datetime.tv_nsec;
 				/*
 				 * If we did cheat while scanning the delta
 				 * table and converted the time stamps assuming
 				 * GMT. Fix the resulting error here.
 				 */
-				if (gpkt.p_flags & PF_GMT) {
+				if (pkt->p_flags & PF_GMT) {
 					tm = *gmtime(&ts[1].tv_sec);
 					tm.tm_isdst = -1;
 					ts[1].tv_sec = mktime(&tm);
@@ -626,17 +614,20 @@ char *file;
 		setuid(holduid);
 		setgid(holdgid);
 	}
-	if (gpkt.p_iop) {
-		fclose(gpkt.p_iop);
-		gpkt.p_iop = NULL;
+	if (pkt->p_iop) {
+		fclose(pkt->p_iop);
+		pkt->p_iop = NULL;
 	}
 unlock:
 	if (HADE) {
-		copy(auxf(gpkt.p_file,'p'),Pfilename);
-		rename(auxf(gpkt.p_file,'q'),Pfilename);
+		struct utsname	un;
+		char		*uuname;
+
+		copy(auxf(pkt->p_file, 'p'), Pfilename);
+		rename(auxf(pkt->p_file, 'q'), Pfilename);
 		uname(&un);
 		uuname = un.nodename;
-		unlockit(auxf(gpkt.p_file,'z'), getpid(),uuname);
+		unlockit(auxf(pkt->p_file, 'z'), getpid(), uuname);
 	}
 	ffreeall();
 }
@@ -648,7 +639,7 @@ char ch;
 int n;
 struct sid *sidp;
 {
-	char	str[32];		/* Must fit a SID string */
+	char	str[SID_STRSIZE];		/* Must fit a SID string */
 	register struct apply *ap;
 
 	sid_ba(sidp,str);
@@ -685,7 +676,7 @@ register struct packet *pkt;
 {
 	char *n;
 	int reason;
-	char str[DT_ZSTRSIZE];		/* SCCS v6 date or SID str */
+	char str[max(DT_ZSTRSIZE, SID_STRSIZE)]; /* SCCS v6 date or SID str */
 	char line[BUFSIZ];
 	struct deltab dt;
 	FILE *in;
@@ -726,7 +717,7 @@ register struct packet *pkt;
 				}
 			}
 			switch (reason & (INCL | EXCL | CUTOFF)) {
-	
+
 			case INCL:
 				OUTPUTC('I');
 				break;
@@ -775,7 +766,7 @@ register struct packet *pkt;
 				case COMMENTS:
 					if (dt.d_type == 'D') {
 					   if (fprintf(out,"\t%s",&line[3]) == EOF)
-					      xmsg(outname, 
+					      xmsg(outname,
 					         NOGETTEXT("gen_lfile"));
 					}
 					continue;
@@ -800,22 +791,27 @@ register struct packet *pkt;
 #undef	OUTPUTC
 }
 
-static char	Curdatel[DT_ZSTRSIZE];
-static char	Curdate[DT_ZSTRSIZE];
-static char	*Curtime;
-static char	Gdate[DATELEN];
-static char	Gdatel[DATELEN];
-static char	Chgdate[DT_ZSTRSIZE];
-static char	Chgdatel[DT_ZSTRSIZE];
-static char	*Chgtime;
-static char	Gchgdate[DATELEN];
-static char	Gchgdatel[DATELEN];
-static char	Sid[32];
-static char	Mod[FILESIZE];
-static char	Olddir[BUFSIZ];
-static char	Pname[BUFSIZ];
-static char	Dir[BUFSIZ];
-static char	*Qsect;
+static char	Curdatel[DT_ZSTRSIZE];	/* d Current date: yyyy/mm/dd	*/
+static char	Curdate[DT_ZSTRSIZE];	/* D Current date: yy/mm/dd	*/
+static char	*Curtime;		/* T Current time: hh:mm:ss	*/
+static char	Gdate[DATELEN];		/* H Current date: mm/dd/yy	*/
+static char	Gdatel[DATELEN];	/* h Current date: mm/dd/yyyy	*/
+static char	Chgdate[DT_ZSTRSIZE];	/* E Delta date: yy/mm/dd	*/
+static char	Chgdatel[DT_ZSTRSIZE];	/* e Delta date: yyyy/mm/dd	*/
+static char	*Chgtime;		/* U Delta time: hh:mm:ss	*/
+static char	Gchgdate[DATELEN];	/* G Delta date: mm/dd/yy	*/
+static char	Gchgdatel[DATELEN];	/* g Delta date: mm/dd/yyyy	*/
+static char	Sid[SID_STRSIZE];	/* I SID: r.l.b.s		*/
+static char	Mod[FILESIZE];		/* M Module name		*/
+static char	Olddir[BUFSIZ];		/* P Used for current dir	*/
+static char	Pname[BUFSIZ];		/* P Used for out dir prefix	*/
+static char	Dir[BUFSIZ];		/* P Used for file dir prefix	*/
+static char	*Qsect;			/* 'q' flag for current file	*/
+static char	*Type;			/* 't' flag for current file	*/
+static int	num_ID_lines;		/* 's' flag for current file	*/
+static int	cnt_ID_lines;		/* current line cmp with above	*/
+static int	expand_IDs;		/* whether to expand ISs	*/
+static char	*list_expand_IDs;	/* 'y' flag for current file	*/
 
 static void
 idsetup(pkt)
@@ -856,16 +852,42 @@ register struct packet *pkt;
 	makgdate(Chgdate,Gchgdate);
 	makgdatel(Chgdatel,Gchgdatel);
 	sid_ba(&pkt->p_gotsid,Sid);
-	if ((p = pkt->p_sflags[MODFLAG - 'a']) != NULL)
-		copy(p,Mod);
+	if ((p = pkt->p_sflags[MODFLAG - 'a']) != NULL)		/* 'm' flag */
+		copy(p, Mod);
 	else
-		copy(auxf(gpkt.p_file,'g'), Mod);
-	if ((Qsect = pkt->p_sflags[QSECTFLAG - 'a']) == NULL)
+		copy(auxf(pkt->p_file, 'g'), Mod);
+	if ((Qsect = pkt->p_sflags[QSECTFLAG - 'a']) == NULL)	/* 'q' flag */
 		Qsect = Null;
+	if ((Type = pkt->p_sflags[TYPEFLAG - 'a']) == NULL)	/* 't' flag */
+		Type = Null;
+	if ((p = pkt->p_sflags[SCANFLAG - 'a']) == NULL) {	/* 's' flag */
+		num_ID_lines = 0;
+	} else {
+		num_ID_lines = atoi(p);
+	}
+
+	expand_IDs = 0;						/* 'y' flag */
+	if ((list_expand_IDs = pkt->p_sflags[EXPANDFLAG - 'a']) != NULL) {
+		if (*list_expand_IDs) {
+			/*
+			 * The old Sun based code did break with get -k in case
+			 * that someone did previously call admin -fy...
+			 * Make sure that this now works correctly again.
+			 */
+			if (!HADK)		/* JS fix get -k */
+				expand_IDs = 1;
+		}
+	}
+	if (HADE) {
+		expand_IDs = 0;
+	}
+	if (!HADK) {
+		expand_IDs = 1;
+	}
 }
 
 #ifdef	HAVE_STRFTIME
-static void 
+static void
 makgdate(old,new)
 register char *old, *new;
 {
@@ -875,7 +897,7 @@ register char *old, *new;
 	strftime (new, (size_t) DATELEN, NOGETTEXT("%D"), &tm);
 }
 
-static void 
+static void
 makgdatel(old,new)
 register char *old, *new;
 {
@@ -886,7 +908,7 @@ register char *old, *new;
 	tm.tm_mon--;
 	strftime (new, (size_t) DATELEN, NOGETTEXT("%m/%d/%Y"), &tm);
 }
-	
+
 
 #else	/* HAVE_STRFTIME not defined */
 
@@ -899,7 +921,7 @@ register char *old, *new;
 	if ((*new = old[3]) != '0')
 		new++;
 #else
-	*new++ = old[3];	
+	*new++ = old[3];
 #endif
 	*new++ = old[4];
 	*new++ = '/';
@@ -928,7 +950,7 @@ register char *old, *new;
 	off = p - old - 2;
 	if (off < 0)
 		off = 0;
-	
+
 #ifndef	NULL_PAD_DATE
 	if ((*new = old[3+off]) != '0')
 		new++;
@@ -956,11 +978,11 @@ register char *old, *new;
 #endif	/* HAVE_STRFTIME */
 
 
-static char Zkeywd[5] = "@(#)";
-static char *tline = NULL;
-static size_t tline_size = 0;
+static char Zkeywd[5] = "@(#)";		/* Constant string for Zkeyword	    */
+static char *tline = NULL;		/* Growable buffer for trans/readcopy */
+static size_t tline_size = 0;		/* Current size of growable buffer    */
 
-#define trans(a, b)	_trans(a, b, lp)
+#define	trans(a, b)	_trans(a, b, lp)
 
 static char *
 idsubst(pkt,line)
@@ -976,7 +998,7 @@ char line[];
 	int expand_XIDs;
 	char *expand_ID;
 	register char **sflags = pkt->p_sflags;
-		
+
 	cnt_ID_lines++;
 	if (HADK) {
 		if (!expand_IDs)
@@ -1260,7 +1282,7 @@ static void
 prfx(pkt)
 register struct packet *pkt;
 {
-	char str[32];		/* Must fit a SID string */
+	char str[SID_STRSIZE];		/* Must fit a SID string */
 
 	if (HADN)
 		if (fprintf(pkt->p_gout, "%s\t", Mod) == EOF)
@@ -1270,6 +1292,25 @@ register struct packet *pkt;
 		if (fprintf(pkt->p_gout, "%s\t", str) == EOF)
 			xmsg(gfile, NOGETTEXT("prfx"));
 	}
+	if (pkt->p_pgmrs)
+		annotate(pkt);
+}
+
+static void
+annotate(pkt)
+	register struct packet *pkt;
+{
+	char	str[SID_STRSIZE];	/* Must fit a SID string */
+	char	*p;
+
+	date_ba(&pkt->p_idel[pkt->p_insser].i_datetime.tv_sec,
+				str, pkt->p_flags);
+	p = strchr(str, ' ');
+	if (p)
+		*p = '\0';
+	if (fprintf(pkt->p_gout, "%-8s\t%s\t",
+				pkt->p_pgmrs[pkt->p_insser], str) == EOF)
+		xmsg(gfile, NOGETTEXT("prfx"));
 }
 
 static void
@@ -1292,12 +1333,15 @@ clean_up()
 		unlink(Gfile);
 	}
 	if (HADE) {
-	   uname(&un);
-	   uuname = un.nodename;
-	   if (mylock(auxf(gpkt.p_file,'z'), getpid(), uuname)) {
-	      unlink(auxf(gpkt.p_file,'q'));
-	      unlockit(auxf(gpkt.p_file,'z'), getpid(), uuname);
-	   }
+		struct utsname	un;
+		char		*uuname;
+
+		uname(&un);
+		uuname = un.nodename;
+		if (mylock(auxf(gpkt.p_file,'z'), getpid(), uuname)) {
+			unlink(auxf(gpkt.p_file,'q'));
+			unlockit(auxf(gpkt.p_file,'z'), getpid(), uuname);
+		}
 	}
 	ffreeall();
 }
@@ -1310,7 +1354,7 @@ register struct packet *pkt;
 char *inc, *exc;
 {
 	char line[64];
-	char str1[32], str2[32];	/* Must fit a SID string */
+	char str1[SID_STRSIZE], str2[SID_STRSIZE]; /* Must fit a SID string */
 	char *user, *pfile;
 	FILE *in, *out;
 	struct pfile pf;
@@ -1363,7 +1407,7 @@ char *inc, *exc;
 	sid_ba(&pkt->p_gotsid,str1);
 	sid_ba(&pkt->p_reqsid,str2);
 	/*
-	 * POSIX does not explicitly mention a 2-digit year for the p-file but 
+	 * POSIX does not explicitly mention a 2-digit year for the p-file but
 	 * refers to "date-time" which is most likely expected to have 2-digits.
 	 * We use 4-digits before 1969 and past 2068
 	 * which is outside the year range specified by POSIX.

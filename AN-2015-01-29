@@ -1,0 +1,181 @@
+New features with AN-2015-01-29:
+
+This is the first localization step for the schily source consolidation. Many
+programs now (hopefully) call gettext() for all strings that need localization.
+
+-	The next step will include dgettext() calls for the libraries and the
+	missing programs
+
+-	The following step will include the extracted strings
+
+-	The last step will include German translations and install support
+	for the resulting binary message object files.
+
+----------> Please test and report compilation problems! <---------
+
+***** NOTE: As mentioned since 2004, frontends to the tools should *****
+*****		call all programs in the "C" locale		   *****
+*****		by e.g. calling: LC_ALL=C cdrecord ....		   *****
+*****		unless these frontends support localized strings   *****
+*****		used by the cdrtools with NLS support.		   *****
+
+		*** WARNING        ***
+		*** Need new smake ***
+
+	*** Due to the fact that schily-tools 2014-04-03 introduced to use new macro
+	*** expansions and a related bug fix in smake, you need a new smake
+	*** to compile this source. To ensure this, call:
+
+	cd ./psmake
+	./MAKE-all
+	cd ..
+	psmake/smake
+	psmake/smake install
+
+
+	WARNING: the new version of the isoinfo program makes use of the 
+		*at() series of functions that have been introduced by Sun
+		in August 2001 and added to POSIX.1-2008. For older platforms,
+		libschily now includes emulations for these functions but
+		these emulations have not yet been tested thouroughly.
+		Please report problems!
+
+	The new smake version mentioned above is smake-1.2.4
+
+-	The file include/schily/dlfcn.h now defines HAVE_LOADABLE_LIBS
+	if either POSIX loadable libs, or HP-UX loadable libs or Win-DOS
+	loadable libs are present. The latter two will get a POSIX emulation
+	layer if available.
+
+-	Smake now allows to disable the built-in echo command by specifying
+
+		make COPTX=-DNO_MYECHO
+
+-	Mention in the Bourne Shell manual page that the new version
+	of the Bourne Shell does evaluation of parameter assignement in the
+	expected left to right order and not in the historical right to left 
+	order anymore. This aligns the Bourne Shell with the Korn Shell.
+
+-	sh/word.c was indented for better Cstyle compatibility.
+
+-	sh/word.c was restructured for better readability and maintainability
+	by creating new functions: match_word()/match_literal()/match_block()
+
+-	bsh -version now also prints the timestamp of version.h
+
+-	Better comment in bsh/inputc.c
+
+-	The SCCS script "sccsdiff" has been changed to call "get -o -Gfile ..."
+	instead of "get -g > file ..." in order to allow diff -u to print
+	useful timestamps for the diffed versions.
+
+-	The sccs command now also uses vfork() this has been prepared before
+	but the final change fork() -> vfork() was forgotten before.
+
+-	The sccs command now prints basic help (basic sub-commands) if
+	called without arguments.
+
+-	The SCCS man pages have been reworked and some more Sun-introduced
+	bugs have been fixed. The troff man page files no longer contain
+	endless long lines and correctly follows the man(5) rules again.
+
+-	The man page sccs-admin.1 now correclty mentions that:
+
+	%M%	Is expanded to the value of the 'm' flag in the history file.
+
+	%Q%	Is expanded to the value of the 'q' flag in the history file.
+
+	%Y%	Is expanded to the value of the 't' flag in the history file.
+
+	Before, Sun did destroy the strings %M%, %Q%, %Y% with their conversion
+	from troff to xml and back to troff using defective converters.
+
+-	Various enhancements have been made to the SCCS manual pages:
+
+	-	\f[BRI] font switching from the buggy Sun
+		troff -> xml -> troff conversion has been mostly converted
+		to man(5) compatible .B .I .R ...
+
+	-	Non-standard hanging tags from the buggy Sun
+		troff -> xml -> troff conversion have been converted to man(5)
+		compaitble .TP tags.
+
+	-	changeset.1 was renamed to sccschangeset.1, changeset.1 now
+		contains a .so statement.
+
+	-	sccsvct.1 was renamed to sccs-cvt.1, sccscvt.1 now
+		contains a .so statement.
+
+	-	sccslog.1 was renamed to sccs-log.1, sccslog.1 now
+		contains a .so statement.
+
+	-	sccs.1 now mentions that this version of SCCS will
+		automatically create the SCCS subdirectory if needed.
+
+	-	Hyphenation is now disabled in the SEE ALSO section.
+		This helps to get working HTML links when using man2html(1).
+
+-	Changes after this line have been made after SCCS-5.07
+
+-	The SCCS manpage sccsfile.4 has been changed to use bold text
+	for the haning tags on the first page. 
+
+-	All SCCS programs have been fixed to provide a sufficient amount of
+	string space for the SID -> string conversion. AT&T used 32 bytes
+	but historic SCCS was only planned for a maximum SID component
+	value of 30000. That would need a string space of 24 bytes. Today,
+	we permit max unsigned with 31 bit that needs a maximum string
+	space of 44 bytes if all SID components use the maximum value
+	(but this is impopssible). The maximum possible value (all components
+	at aprox. 500000000) would still consume 40 bytes.
+
+-	A new #define SID_STRSIZE (45) helps to avoid buffer overflows with
+	large SIDs. Before, most SID string buffers have only been 32 chars.
+
+-	When the SCCSv6 history format is used, negative GMT offsets (e.g. USA)
+	are now printed correctly. This was a fix in libcomobj.
+
+-	The SCCS struct packet now includes p_insser - the serial number
+	for the last extracted line.
+
+-	New SCCS source file sccs/lib/comobj/src/lhash.c implements a
+	string hash for programmer names.
+
+-	SCCS libcomobj now allows to keep a list of programmer names for
+	each SID. This is done with hashed strings to limit the needed
+	memory space for that operation.
+
+-	The SCCS get command now implements an experimental option -A
+	that annotates the gotten lines with programmer names and dates.
+
+-	The SCCS get command restructured the code to make it cleaner.
+
+-	Some SCCS tests in the directory sccs/tests have been modified to avoid
+	error messages like rmdir: directory not empty.
+
+
+-	The mkisofs program isoinfo no longer tries to print Rock Ridge
+	attribute data for ISO images that do not have correct RR data.
+
+-	The mkisofs program isovfy no longer tries to print Rock Ridge
+	attribute data for ISO images that do not have correct RR data.
+
+-	The mkisofs program isodump no longer tries to print Rock Ridge
+	attribute data for ISO images that do not have correct RR data.
+
+	This is a result from trying to use these programs on the
+	plan9 CD image.
+
+-	cdrtools have been bumped to version 3.01a27
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.net, js@cs.tu-berlin.de
+	joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

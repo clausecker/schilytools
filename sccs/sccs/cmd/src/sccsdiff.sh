@@ -162,9 +162,9 @@ do
 	rm -f /tmp/get[abc]$$
 	# Good place to check if tmp-files are not deleted
 	# if [ -f /tmp/geta$$ ] ...
-	if $get $nseflag -s -p -k -r$sid1 $i > /tmp/geta$$
+	if $get $nseflag -s -o -k -r$sid1 $i -G/tmp/geta$$
 	then
-		if $get $nseflag -s -p -k -r$sid2 $i > /tmp/getb$$
+		if $get $nseflag -s -o -k -r$sid2 $i -G/tmp/getb$$
 		then
 			diff $flags /tmp/geta$$ /tmp/getb$$ > /tmp/getc$$
 		else

@@ -1,8 +1,8 @@
-/* @(#)isodump.c	1.47 12/12/02 joerg */
+/* @(#)isodump.c	1.48 15/01/27 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)isodump.c	1.47 12/12/02 joerg";
+	"@(#)isodump.c	1.48 15/01/27 joerg";
 #endif
 /*
  * File isodump.c - dump iso9660 directory information.
@@ -11,7 +11,7 @@ static	UConst char sccsid[] =
  * Written by Eric Youngdale (1993).
  *
  * Copyright 1993 Yggdrasil Computing, Incorporated
- * Copyright (c) 1999-2012 J. Schilling
+ * Copyright (c) 1999-2015 J. Schilling
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2
@@ -70,12 +70,15 @@ static	UConst char sccsid[] =
 #define	ISO_BLOCKS(X)	(((X) / SECTOR_SIZE) + (((X)%SECTOR_SIZE)?1:0))
 
 #define	infile	in_image
-FILE	*infile = NULL;
-BOOL	ignerr = FALSE;
-off_t	file_addr;
-unsigned char buffer[2048];
-unsigned char search[64];
-int blocksize;
+EXPORT FILE	*infile = NULL;
+EXPORT BOOL	ignerr = FALSE;
+LOCAL off_t	file_addr;
+LOCAL int	su_version;
+LOCAL int	rr_version;
+LOCAL int	use_rock = TRUE;
+LOCAL unsigned char buffer[2048];
+LOCAL unsigned char search[64];
+LOCAL int blocksize;
 
 #define	PAGE	sizeof (buffer)
 
@@ -89,7 +92,7 @@ LOCAL void	onsusp		__PR((int signo));
 LOCAL void	crsr2		__PR((int row, int col));
 LOCAL int	parse_rr	__PR((unsigned char * pnt, int len, int cont_flag));
 LOCAL void	find_rr		__PR((struct iso_directory_record * idr, Uchar **pntp, int *lenp));
-LOCAL void	dump_rr		__PR((struct iso_directory_record * idr));
+LOCAL int	dump_rr		__PR((struct iso_directory_record * idr));
 LOCAL void	showblock	__PR((int flag));
 LOCAL int	getbyte		__PR((void));
 LOCAL void	usage		__PR((int excode));
@@ -297,16 +300,20 @@ parse_rr(pnt, len, cont_flag)
 		}
 
 		if (strncmp((char *)pnt, "ER", 2) == 0) {		/* ER */
+			flag2 |= RR_FLAG_ER;				/* ER record */
 			int	lid = pnt[4] & 0xFF;			/* Len ID  */
 			int	ldes = pnt[5] & 0xFF;			/* Len des */
 			int	lsrc = pnt[6] & 0xFF;			/* Len src */
 			int	xver = pnt[7] & 0xFF;			/* X vers  */
 
+			rr_version = xver;
 			printf(_("=[len_id=%d,len_des=%d,len_src=%d,ext_ver=%d,id=\"%.*s\"]"),
 				lid, ldes, lsrc, xver, lid, &pnt[8]);
 
 		}
 		if (strncmp((char *)pnt, "SP", 2) == 0) {		/* SUSP */
+			flag2 |= RR_FLAG_SP;				/* SUSP record */
+			su_version = pnt[3] & 0xff;
 			printf(_("=[skip=%d]"), pnt[6] & 0xFF);		/* SUSP skip off */
 
 		}
@@ -428,7 +435,7 @@ find_rr(idr, pntp, lenp)
 	*lenp = len;
 }
 
-LOCAL void
+LOCAL int
 dump_rr(idr)
 	struct iso_directory_record *idr;
 {
@@ -436,7 +443,7 @@ dump_rr(idr)
 	unsigned char	*pnt;
 
 	find_rr(idr, &pnt, &len);
-	parse_rr(pnt, len, 0);
+	return (parse_rr(pnt, len, 0));
 }
 
 
@@ -479,7 +486,8 @@ showblock(flag)
 				for (j = 0; j < (int)idr->name_len[0]; j++) printf("%c", idr->name[j]);
 				for (j = 0; j < (14 - (int)idr->name_len[0]); j++) printf(" ");
 			}
-			dump_rr(idr);
+			if (use_rock)
+				dump_rr(idr);
 			printf("\n");
 			i += buffer[i];
 			if (i > 2048 - offsetof(struct iso_directory_record, name[0]))
@@ -579,7 +587,7 @@ main(argc, argv)
 	if (help)
 		usage(0);
 	if (prvers) {
-		printf(_("isodump %s (%s-%s-%s) Copyright (C) 1993-1999 %s (C) 1999-2012 %s\n"),
+		printf(_("isodump %s (%s-%s-%s) Copyright (C) 1993-1999 %s (C) 1999-2015 %s\n"),
 					VERSION,
 					HOST_CPU, HOST_VENDOR, HOST_OS,
 					_("Eric Youngdale"),
@@ -643,6 +651,18 @@ main(argc, argv)
 
 	file_addr = (off_t)isonum_733(idr->extent);
 	file_addr = file_addr * blocksize;
+
+#ifdef	USE_SCG
+	readsecs(file_addr / 2048, buffer, ISO_BLOCKS(sizeof (buffer)));
+#else
+	lseek(fileno(infile), file_addr, SEEK_SET);
+	read(fileno(infile), buffer, sizeof (buffer));
+#endif
+	i = dump_rr((struct iso_directory_record *) buffer);
+	if (i == 0 ||
+	    (i & (RR_FLAG_SP | RR_FLAG_ER)) == 0 || su_version < 1 || rr_version < 1) {
+		use_rock = FALSE;
+	}
 
 /* Now setup the keyboard for single character input. */
 #ifdef USE_V7_TTY

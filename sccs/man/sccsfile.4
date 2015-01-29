@@ -1,5 +1,8 @@
 '\" te
-.\" @(#)sccsfile.4	1.33 14/09/15 Copyright 2007-2014 J. Schilling */
+.\" @(#)sccsfile.4	1.37 15/01/27 Copyright 2007-2015 J. Schilling */
+.\" Copyright (c) 2002, Sun Microsystems, Inc. All Rights Reserved.
+.\" Copyright 1989 AT&T
+.\" Copyright (c) 2007-2015 J. Schilling
 .\" CDDL HEADER START
 .\"
 .\" The contents of this file are subject to the terms of the
@@ -18,9 +21,6 @@
 .\" information: Portions Copyright [yyyy] [name of copyright owner]
 .\"
 .\" CDDL HEADER END
-.\" Copyright (c) 2002, Sun Microsystems, Inc. All Rights Reserved.
-.\" Copyright 1989 AT&T
-.\"  Copyright 2007-2014 J. Schilling
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
 .if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
 .if t .ds u \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'u
@@ -33,7 +33,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sccsfile 4 "2014/09/15" "SunOS 5.11" "File Formats"
+.TH sccsfile 4 "2015/01/27" "SunOS 5.11" "File Formats"
 .SH NAME
 sccsfile \- format of an SCCS history file
 .SH DESCRIPTION
@@ -53,54 +53,54 @@ or eight logical parts
 .sp
 .ne 3
 .TP 12
-.I checksum
+.B checksum
 Character sum computed on the rest of the file, used for error detection.
 .sp
 .ne 3
 .TP
-.I "delta table
+.B "delta table
 Log containing version info and statistics about each delta.
 .sp
 .ne 3
 .TP
-.I usernames
+.B usernames
 Login names and/or group IDs of users who may add deltas.
 .sp
 .ne 3
 .TP
-.I flags
+.B flags
 Definitions of internal keywords and configuration for user defined behavior
 .RB ( "SCCS\ v4" ).
 .sp
 .ne 3
 .TP
-.I v6 flags
+.B v6 flags
 Optional further internal definitions.
 .B "SCCS\ v6
 only.
 .sp
 .ne 3
 .TP
-.I v6 metadata
+.B v6 metadata
 Optional global metadata.
 .B "SCCS\ v6
 only.
 .sp
 .ne 3
 .TP
-.I extensions
+.B extensions
 This is the area where future versions of
 .B SCCS
 will add extensions.
 .sp
 .ne 3
 .TP
-.I comments
+.B comments
 An arbitrary descriptive information block about the file.
 .sp
 .ne 3
 .TP
-.I body
+.B body
 the Actual text lines intermixed with control lines.
 This body is also known as
 .B interleaved deltas
@@ -186,7 +186,7 @@ introduces a different checksum line:
 .LP
 .in +2
 .nf
-^AhV6,sum=\fIddddd\fR
+.RI ^AhV6,sum= ddddd
 .fi
 .in -2
 .LP
@@ -215,7 +215,7 @@ Further checksums may be added in the future, e.g.:
 .LP
 .in +2
 .nf
-^AhV6,sum=\fIddddd\fR,md5=\fIhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh\fR
+.RI ^AhV6,sum= ddddd ,md5= hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh
 .fi
 .in -2
 .LP
@@ -239,15 +239,17 @@ The delta table consists of a variable number of entries of the form:
 .LP
 .in +2
 .nf
-^As \fIinserted\|\fR/\fIdeleted\fR/\fIunchanged\fR
-^Ad \fItype  sid  yr\fR/\fImo\fR/\fIda hr\fR:\fImi\fR:\fIse  username  serial-number \e
-predecessor-sn\fR
-^Ai \fIinclude-list\fR
-^Ax \fIexclude-list\fR
-^Ag \fIignored-list\fR
-^Am \fImr-number\fR
+.RI "^As " inserted \|/ deleted / unchanged
+.RI "^Ad " "type  sid  yr"  / mo / "da \c
+.IR hr : mi : "se  \c
+.I "username  serial-number \e
+.I predecessor-sn
+.RI "^Ai " include-list
+.RI "^Ax " exclude-list
+.RI "^Ag " ignored-list
+.RI "^Am " mr-number
 \&...
-^Ac \fIcomments\fR ...
+.RI "^Ac " comments " ...
 \&...
 ^Ae 
 .fi
@@ -316,7 +318,8 @@ lines (optional) each contain one MR number associated with the delta.
 The
 .B ^Ac
 lines contain comments associated with the delta.
-If there is more than one comment line, each comment line appears after a separate
+If there is more than one comment line, each comment line appears after a
+separate
 .B ^Ac
 lead in.
 .LP
@@ -333,17 +336,19 @@ uses an enhanced delta table:
 .LP
 .in +2
 .nf
-^As \fIinserted\|\fR/\fIdeleted\fR/\fIunchanged\fR
-^Ad \fItype  sid  yr\fR/\fImo\fR/\fIda hr\fR:\fImi\fR:\fIse\fR[.\fIss\fR]+-\fIhhmm\fR \fIusername \e
-serial-number predecessor-sn\fR
-^Ai \fIinclude-list\fR
-^Ax \fIexclude-list\fR
-^Ag \fIignored-list\fR
-^Am \fImr-number\fR
+.RI "^As " inserted \|/ deleted / unchanged
+.RI "^Ad " "type  sid  yr" / mo / "da \c
+.IR hr : mi : se\c
+.RI [. ss ]+- "hhmm username \e
+.I "serial-number predecessor-sn
+.RI "^Ai " include-list
+.RI "^Ax " exclude-list
+.RI "^Ag " ignored-list
+.RI "^Am " mr-number
 \&...
-^AS \fIsid-specific metadata\fR
+.RI "^AS " "sid-specific metadata
 \&...
-^Ac \fIcomments\fR ...
+.RI "^Ac " comments " ...
 \&...
 ^Ae 
 .fi
@@ -510,13 +515,13 @@ character outside the specified range appears as flag character.
 The following flags are defined in order of appearance:
 .ne 3
 .TP 24
-\fB\fB^Af t\fR \fItype-of-program\fR\fR
+.BI "^Af t " type-of-program
 Defines the replacement for the
 .B %\&Y%
 ID keyword.
 .ne 3
 .TP
-\fB\fB^Af v\fR \fIprogram-name\fR\fR
+.BI "^Af v " program-name
 Controls prompting for MR numbers in addition to comments. If the optional
 text is present, it defines an MR number validity checking program.
 .sp
@@ -527,7 +532,7 @@ flag and the
 flag are mutually exclusive.
 .ne 3
 .TP
-\fB\fB^Af i\fR [\fIvalue\fR]
+.BI "^Af i\fR [" value\fR]
 Indicates that the
 .RB `  "No id keywords" '
 message is to generate an error that terminates the SCCS command.
@@ -554,7 +559,7 @@ flag is a
 extension.
 .ne 3
 .TP
-\fB\fB^Af b\fR \fR
+.B ^Af b
 Indicates that the
 .B \-b
 option may be used with the SCCS
@@ -562,23 +567,23 @@ option may be used with the SCCS
 command to create a branch in the delta tree.
 .ne 3
 .TP
-\fB\fB^Af m\fR \fImodule-name\fR\fR
+.BI "^Af m " module-name
 Defines the first choice for the replacement text of the
 .B %\&M%
 ID keyword.
 .ne 3
 .TP
-\fB\fB^Af f\fR \fIfloor\fR\fR
+.BI "^Af f " floor
 Defines the "floor" release, that is, the release below which no deltas
 may be added.
 .ne 3
 .TP
-\fB\fB^Af c\fR \fIceiling\fR\fR
+.BI "^Af c " ceiling
 Defines the "ceiling" release, that is, the release above which no deltas
 may be added.
 .ne 3
 .TP
-\fB\fB^Af d\fR \fIdefault-sid\fR\fR
+.BI "^Af d " default-sid
 The
 .B d
 flag defines the default SID to be used when none is specified on an SCCS
@@ -586,7 +591,7 @@ flag defines the default SID to be used when none is specified on an SCCS
 command.
 .ne 3
 .TP
-\fB\fB^Af n\fR \fR
+.B ^Af n
 The
 .B n
 flag enables the SCCS
@@ -599,7 +604,7 @@ release (for example,
 when delta 5.1 is made after delta 2.7, releases 3 and 4 are skipped).
 .ne 3
 .TP
-\fB\fB^Af j\fR \fR
+.B ^Af j
 Enables concurrent
 .B get \-e
 calls for editing on the same base
@@ -609,17 +614,17 @@ This allows multiple concurrent updates to take place on the same version
 of the SCCS file.
 .ne 3
 .TP
-\fB\fB^Af l\fR \fIlock-releases\fR\fR
+.BI "^Af l " lock-releases
 Defines a list of releases that are locked against editing.
 .ne 3
 .TP
-\fB\fB^Af q\fR \fIuser-defined\fR\fR
+.BI "^Af q " user-defined
 Defines the replacement for the
 .B %\&Q%
 ID keyword.
 .ne 3
 .TP
-\fB\fB^Af e\fR \fB0\fR|\fB1\fR\fR
+.BR "^Af e 0" | 1
 The
 .B e
 flag indicates whether a source file is encoded or not. A
@@ -804,7 +809,7 @@ that is used to help to identify single files
 across renames during the lifetime of the sccs history.
 .sp
 The pseudo random number is a hexadecimal string that represents the
-microseconds since 2004\ Jan\ 10\ 13:37:04\ UTC when initially creating the
+microseconds since 2004\ Jan\ 10\ 13:37:04\ GMT when initially creating the
 sccs history for a specific file.
 Including microseconds gives sufficient randomness
 to make clashes rare.
@@ -817,7 +822,7 @@ With a 64 bit pseudo random number, more than 500000 years are covered.
 The minimal length for the pseudo random
 number is thirteen hexadecimal characters. If the number could be represented
 with less digits, it is left filled with zeroes. This allows to have a unique
-length for this number until 2146 Sep 27 13:30:51 GMT.
+length for this number until 2146 Sep 27 13:30:51\ GMT.
 .RE
 .LP
 The
@@ -901,9 +906,9 @@ represented by:
 .LP
 .in +2
 .nf
-^AI \fIddddd\fR
-^AD \fIddddd\fR
-^AE \fIddddd\fR 
+.RI ^AI " ddddd
+.RI ^AD " ddddd
+.RI ^AE " ddddd
 .fi
 .in -2
 
@@ -943,28 +948,30 @@ without a need to add another quote.
 .br
 .ne 5
 .SH SEE ALSO
+.nh
 .LP
 .BR sccs (1),
-.BR sccs-admin (1),
-.BR sccs-cdc (1),
-.BR sccs-comb (1),
-.BR sccs-delta (1),
-.BR sccs-get (1),
-.BR sccs-help (1),
-.BR sccs-prs (1),
-.BR sccs-prt (1),
-.BR sccs-rmdel (1),
-.BR sccs-sact (1),
-.BR sccs-sccsdiff (1),
-.BR sccs-unget (1),
-.BR sccs-val (1),
-.BR sccscvt (1),
-.BR sccslog (1),
+.BR sccs\-admin (1),
+.BR sccs\-cdc (1),
+.BR sccs\-comb (1),
+.BR sccs\-cvt (1),
+.BR sccs\-delta (1),
+.BR sccs\-get (1),
+.BR sccs\-help (1),
+.BR sccs\-log (1),
+.BR sccs\-prs (1),
+.BR sccs\-prt (1),
+.BR sccs\-rmdel (1),
+.BR sccs\-sact (1),
+.BR sccs\-sccsdiff (1),
+.BR sccs\-unget (1),
+.BR sccs\-val (1),
 .BR bdiff (1), 
 .BR diff (1), 
 .BR what (1),
-.BR changeset (4).
+.BR sccschangeset (4).
 .\".BR sccsfile (4).
+.hy 14
 
 .SH NOTES
 .LP

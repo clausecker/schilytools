@@ -1,4 +1,4 @@
-/* @(#)version.h	1.21 14/08/05 Copyright 2007-2014 J. Schilling */
+/* @(#)version.h	1.23 15/01/28 Copyright 2007-2015 J. Schilling */
 
 /*
  * The version for sccs programs
@@ -9,11 +9,11 @@
 #include <schily/mconfig.h>
 
 #ifndef	VERSION
-#define	VERSION	"5.06"
+#define	VERSION	"5.07"
 #endif
 
 #ifndef	VDATE
-#define	VDATE	"2014/08/05"
+#define	VDATE	"2015/01/28"
 #endif
 
 #ifdef	SCHILY_BUILD
@@ -48,6 +48,9 @@
 #endif
 #ifndef	HOST_OS
 #define	HOST_OS		"unknown"
+#endif
+#ifndef	HOST_SUB
+#define	HOST_SUB	"unknown"
 #endif
 
 #endif	/* _HDR_VERSION_H */

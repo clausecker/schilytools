@@ -1,5 +1,6 @@
 '\" te
-.\" @(#)sccs-sccsdiff.1	1.9 14/09/15 Copyright 2007-2014 J. Schilling
+.\" @(#)sccs-sccsdiff.1	1.14 15/01/20 Copyright 2007-2015 J. Schilling
+.\" Copyright (c) 2001, Sun Microsystems, Inc.
 .\" CDDL HEADER START
 .\"
 .\" The contents of this file are subject to the terms of the
@@ -18,7 +19,6 @@
 .\" information: Portions Copyright [yyyy] [name of copyright owner]
 .\"
 .\" CDDL HEADER END
-.\" Copyright (c) 2001, Sun Microsystems, Inc.
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
 .if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
 .if t .ds u \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'u
@@ -31,7 +31,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sccs-sccsdiff 1 "2014/09/15" "SunOS 5.11" "User Commands"
+.TH sccs-sccsdiff 1 "2015/01/20" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs-sccsdiff, sccsdiff \- compare two versions of an SCCS file
 .SH SYNOPSIS
@@ -48,36 +48,60 @@ sccs-sccsdiff, sccsdiff \- compare two versions of an SCCS file
 .SH DESCRIPTION
 
 .LP
-\fBsccsdiff\fR compares two versions of an \fBSCCS\fR file and displays the differences between the two versions. Any number of \fBSCCS\fR files may be specified. The options specified apply to all named \fBs.\fRfiles.
-.sp
+.B sccsdiff
+compares two versions of an
+.B SCCS
+file and displays the differences between the two versions. Any number of
+.B SCCS
+files may be specified. The options specified apply to all named
+.BR s. files.
 
 .SH OPTIONS
 
 .LP
 The following options are supported:
-.sp
 
-.sp
-.ne 2
+.br
+.ne 3
 .TP 13
-\fB\fB-p\fR\fR
+.B -p
 Pipe output for each file through 
-\fBpr\fR(1).
+.BR pr (1).
 
-.sp
+.br
+.ne 3
+.TP
+.BI -r sid
+Specify a version corresponding to the indicated
+.B SCCS
+delta
+.B ID
+(SID) for comparison.  Versions are passed to 
+.BR diff (1)
+in the order given.
+
+.br
 .ne 2
 .TP
-\fB\fB-r\fR\fIsid\fR\fR
-Specify a version corresponding to the indicated \fBSCCS\fR delta \fBID\fR (SID) for comparison.  Versions are passed to 
-\fBdiff\fR(1) in the order given.
-
-.sp
-.ne 2
-.TP
-\fB\fIdiff-options\fR\fR
+.I diff-options
 Pass options to 
-\fBdiff\fR(1), including: \fB-b\fR, \fB-c\fR, \fB-e\fR, \fB-f\fR, \fB-h\fR, \fB-u\fR, \fB-C\fR \fInumber\fR, \fB-U\fR \fInumber\fR, and \fB-D\fR \fIstring\fR.
+.BR diff (1),
+including:
+.BR \-b ,
+.BR \-c ,
+.BR \-e ,
+.BR \-f ,
+.BR \-h ,
+.BR \-u ,
+.B \-C
+.IR number ,
+.B \-U
+.IR number ,
+and
+.B \-D
+.IR string .
 
+.br
 .ne 3
 .TP
 .B \-V
@@ -86,7 +110,6 @@ Prints the
 version number string and exists.
 
 .SH ENVIRONMENT VARIABLES
-.sp
 .LP
 See
 .BR environ (5)
@@ -100,6 +123,7 @@ execution of
 .BR LC_MESSAGES ,
 and
 .BR NLSPATH .
+
 .br
 .ne 4
 .TP
@@ -117,25 +141,18 @@ and set
 
 .SH FILES
 
-.sp
-.ne 2
-.mk
-.na
-\fB\fB/tmp/get?????\fR\fR
-.ad
-.RS 15n
-.rt  
+.br
+.ne 3
+.TP 15n
+.B /tmp/get?????
 temporary files
-.sp
-
-.RE
 
 .SH ATTRIBUTES
 
 .LP
 See 
-\fBattributes\fR(5) for descriptions of the following attributes:
-.sp
+.BR attributes (5)
+for descriptions of the following attributes:
 
 .LP
 
@@ -151,45 +168,41 @@ AvailabilitySUNWsprot
 .TE
 
 .SH SEE ALSO
+.nh
 .LP
 .BR sccs (1),
-.BR sccs-admin (1),
-.BR sccs-cdc (1),
-.BR sccs-comb (1),
-.BR sccs-delta (1),
-.BR sccs-get (1),
-.BR sccs-help (1),
-.BR sccs-prs (1),
-.BR sccs-prt (1),
-.BR sccs-rmdel (1),
-.BR sccs-sact (1),
-.BR sccs-unget (1),
-.BR sccs-val (1),
-.BR sccscvt (1),
-.BR sccslog (1),
+.BR sccs\-admin (1),
+.BR sccs\-cdc (1),
+.BR sccs\-comb (1),
+.BR sccs\-cvt (1),
+.BR sccs\-delta (1),
+.BR sccs\-get (1),
+.BR sccs\-help (1),
+.BR sccs\-log (1),
+.BR sccs\-prs (1),
+.BR sccs\-prt (1),
+.BR sccs\-rmdel (1),
+.BR sccs\-sact (1),
+.BR sccs\-unget (1),
+.BR sccs\-val (1),
 .BR bdiff (1), 
 .BR diff (1), 
 .BR what (1),
-.BR changeset (4),
+.BR sccschangeset (4),
 .BR sccsfile (4),
 .BR attributes (5),
 .BR environ (5),
 .BR standards (5).
+.hy 14
 
 .SH DIAGNOSTICS
 
-.sp
-.ne 2
-.mk
-.na
-\fB\fIfilename\fR\fB: No differences\fR\fR
-.ad
-.RS 26n
-.rt  
+.br
+.ne 3
+.TP 27n
+.IB filename ": No differences
 If the two versions are the same.
 .sp
-
-.RE
 
 .LP
 Use the SCCS

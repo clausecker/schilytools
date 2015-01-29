@@ -1,4 +1,4 @@
-/* @(#)dlfcn.h	1.2 09/06/14 Copyright 2009 J. Schilling */
+/* @(#)dlfcn.h	1.3 15/01/04 Copyright 2009 J. Schilling */
 /*
  *	Abstraction from dlfcn.h
  *
@@ -11,6 +11,8 @@
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -39,6 +41,18 @@
 #define	FOUND_DLFCN_H
 #endif
 #endif
+#endif
+
+#if defined(HAVE_DLOPEN) && defined(HAVE_DLCLOSE)		/* POSIX */
+#define	HAVE_LOADABLE_LIBS
+#endif
+
+#if !defined(HAVE_LOADABLE_LIBS) && defined(HAVE_SHL_LOAD)	/* HP-UX */
+#define	HAVE_LOADABLE_LIBS
+#endif
+
+#if !defined(HAVE_LOADABLE_LIBS) && defined(HAVE_LOADLIBRARY)	/* Win-DOS */
+#define	HAVE_LOADABLE_LIBS
 #endif
 
 /*

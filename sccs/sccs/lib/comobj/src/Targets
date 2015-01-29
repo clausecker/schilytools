@@ -1,4 +1,4 @@
-# @(#)Targets	1.14 14/08/09 Copyright 2006-2008 J. Schilling
+# @(#)Targets	1.15 15/01/27 Copyright 2006-2008 J. Schilling
 
 CFILES=	auxf.c cdata.c chkid.c chksid.c cmpdate.c \
 	date_ab.c date_ba.c date_bal.c \
@@ -7,7 +7,7 @@ CFILES=	auxf.c cdata.c chkid.c chksid.c cmpdate.c \
 	dtime.c encode.c \
 	eqsid.c flushto.c fmterr.c getline.c getser.c \
 	help.c \
-	logname.c newsid.c \
+	lhash.c logname.c newsid.c \
 	newstats.c permiss.c pf_ab.c putline.c putmeta.c \
 	rdmod.c \
 	sethome.c setinitpath.c setup.c sid_ab.c \

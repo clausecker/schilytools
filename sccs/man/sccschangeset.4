@@ -1,0 +1,235 @@
+'\" t
+.\" @(#)sccschangeset.4	1.7 15/01/19 Copyright 2011-2015 J. Schilling 
+.\"
+.\" The contents of this file are subject to the terms of the
+.\" Common Development and Distribution License, Version 1.0 only
+.\" (the "License").  You may not use this file except in compliance
+.\" with the License.
+.\"
+.\" See the file CDDL.Schily.txt in this distribution for details.
+.\"
+.\" When distributing Covered Code, include this CDDL HEADER in each
+.\" file and include the License file CDDL.Schily.txt from this distribution.
+.\"
+.\" Manual page for sccschangeset
+.\"
+.if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
+.if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
+.if t .ds u \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'u
+.if t .ds A \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'A
+.if t .ds O \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'O
+.if t .ds U \v'-0.77m'\h'0.30n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.75n'U
+.if t .ds s \\(*b
+.if t .ds S SS
+.if n .ds a ae
+.if n .ds o oe
+.if n .ds u ue
+.if n .ds s sz
+.TH sccschangeset 4 "2015/01/19" "J\*org Schilling" "File Formats"
+.SH NAME
+sccschangeset \- format of an SCCS changeset file
+.SH DESCRIPTION
+.LP
+An SCCS
+.B changeset
+file is an
+.B ASCII
+file consisting of a list of entries
+that describe the state of a project-set under control of SCCSv6 or later.
+.LP
+The
+.B changeset
+file itself is under control of SCCS.
+SCCS works directly on the 
+.BR s. changeset
+file.
+There is no need to check out the related file content, as the deltas
+can be consructed without explicitely running the 
+.BR diff (1)
+program.
+
+.SS Conventions
+.LP
+The following terms are used in this documentation:
+.br
+.ne 5
+.TP 20
+.B project set
+A set of one or more files under control of SCCS that form a project.
+.br
+.ne 5
+.TP
+.B project set home
+A directory that is above all files from the related
+.BR "project set" .
+This directory holds a directory
+.B .sccs
+with 
+.B project set
+related meta data such as the
+.B changeset
+file.
+.br
+.ne 5
+.TP
+.B commit set
+A single set of changes into the repository for a project set.
+.br
+.ne 5
+.TP
+.B committer
+The person who formed a commit set.
+.br
+.ne 5
+.TP
+.B email address
+The email address used to identify a committer.
+.SS File Format
+.LP
+Each entry in the
+.B changeset
+file describes the new state of a single file after it was modified, renamed,
+removed or restored in a related
+.BR "commit set" .
+.LP
+Each entry in the
+.B changeset
+file ends in a newline character. If the file name from the related file
+contains a newline character, additional newlines may be in the related entry.
+.LP
+Each entry in the
+.B changeset
+file consists of six fields that are separated by a
+.B vertical line
+character (ASCII 0x7C).
+The
+.B vertical line
+character may not be part of the email address, it however may appear
+in the path name.
+.br
+.ne 5
+.LP
+The following fields appear in the order of the following list:
+.RS
+.br
+.ne 5
+.TP 15
+.B urand
+A unified pseudo random number that is used to help to identify single
+files across renames during the lifetime of the sccs history.
+The unified random number is unique to any file from the
+.BR "project set" .
+See
+.BR sccsfile (4)
+for a detailed description of the unified pseudo random number.
+.sp
+The minimal length for the pseudo random
+number is thirteen hexadecimal characters. If the number could be represented
+with less digits, it is left filled with zeroes. This allows to have a unique
+length for this number until 2146 Sep 27 13:30:51 GMT.
+.br
+.ne 5
+.TP
+.B date-time
+A date-time specification in the form
+.B yyyymmDDHHMMSS
+as specified for the
+.B \-c
+option
+of the
+.B get
+command.
+Only four or more digits are permitted to specify the year.
+.sp
+All
+.B date-time
+values in the 
+.B changeset
+file that belong to a single
+.B commit set
+are equal. Different changesets use different
+.B date-time
+values.
+.sp
+In order to keep the
+.B date-time
+values monotonic, the time used for
+.B date-time
+is the time the changeset was added to the current repository.
+In case a changeset was imported from another repository, the
+.B date-time
+value may differ from the time the changeset was entered to the 
+original repository.
+.br
+.ne 5
+.TP
+.B sid-sum
+The SID specific checksum for the related file.
+See
+.BR sccsfile (4)
+for a detailed description of the SID specific checksums for a file.
+.br
+.ne 5
+.TP
+.B email
+The configured e-mail address for the
+.BR committer .
+.br
+.ne 5
+.TP
+.B path length
+A decimal number representing the number of bytes in the path name not
+including the final newline character.
+.br
+.ne 5
+.TP
+.B path name
+The path name of the related file after the commit has been applied.
+The path name holds a relative path as seen from the
+.B project set home
+directory.
+As the path name is the last member in the lines of a changeset file,
+it may contain the
+.B vertical line
+character (ASCII 0x7C).
+.RE
+.LP
+A typical entry in the
+.B changeset
+file may look like:
+.sp
+  0e31666e43286|20111205172040|45206|joerg@some.org|15|some/dir/file.c
+.sp
+.LP
+
+.br
+.ne 5
+.SH SEE ALSO
+.nh
+.LP
+.BR sccs (1),
+.BR sccs\-admin (1),
+.BR sccs\-cdc (1),
+.BR sccs\-comb (1),
+.BR sccs\-cvt (1),
+.BR sccs\-delta (1),
+.BR sccs\-get (1),
+.BR sccs\-help (1),
+.BR sccs\-log (1),
+.BR sccs\-prs (1),
+.BR sccs\-prt (1),
+.BR sccs\-rmdel (1),
+.BR sccs\-sact (1),
+.BR sccs\-sccsdiff (1),
+.BR sccs\-unget (1),
+.BR sccs\-val (1),
+.BR bdiff (1), 
+.BR diff (1), 
+.BR what (1),
+.BR sccsfile (4).
+.hy 14
+
+.SH NOTES
+.SH BUGS
+.SH AUTHOR
+.LP

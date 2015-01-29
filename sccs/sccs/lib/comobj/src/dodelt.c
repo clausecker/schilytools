@@ -27,12 +27,12 @@
  * Use is subject to license terms.
  */
 /*
- * Copyright 2006-2013 J. Schilling
+ * Copyright 2006-2015 J. Schilling
  *
- * @(#)dodelt.c	1.19 13/10/31 J. Schilling
+ * @(#)dodelt.c	1.20 15/01/27 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)dodelt.c 1.19 13/10/31 J. Schilling"
+#pragma ident "@(#)dodelt.c 1.20 15/01/27 J. Schilling"
 #endif
 /*
  * @(#)dodelt.c 1.8 06/12/12
@@ -88,6 +88,12 @@ char type;
 					fmalloc((unsigned) (n=((dt.d_serial+1)*
 					sizeof(*pkt->p_apply))));
 			zero((char *) pkt->p_apply,n);
+			if (pkt->p_pgmrs != NULL) {
+				pkt->p_pgmrs = (char **)
+					fmalloc((unsigned) (n=((dt.d_serial+1)*
+					sizeof (char *))));
+				zero((char *) pkt->p_pgmrs, n);
+			}
 			pkt->p_idel->i_pred = dt.d_serial;
 		}
 		if (dt.d_type == 'D') {
@@ -135,6 +141,10 @@ char type;
 			else
 				pkt->p_first_esc = pkt->p_first_cmt = founddel = 0;
 			pkt->p_maxr = max(pkt->p_maxr,dt.d_sid.s_rel);
+			if (pkt->p_pgmrs != NULL) {
+				pkt->p_pgmrs[dt.d_serial] =
+						lhash_lookup(dt.d_pgmr);
+			}
 			rdp = &pkt->p_idel[dt.d_serial];
 			rdp->i_sid.s_rel = dt.d_sid.s_rel;
 			rdp->i_sid.s_lev = dt.d_sid.s_lev;
