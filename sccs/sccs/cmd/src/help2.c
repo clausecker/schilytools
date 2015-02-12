@@ -25,12 +25,12 @@
  * Use is subject to license terms.
  */
 /*
- * Copyright 2006-2014 J. Schilling
+ * Copyright 2006-2015 J. Schilling
  *
- * @(#)help2.c	1.18 14/08/10 J. Schilling
+ * @(#)help2.c	1.19 15/02/02 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)help2.c 1.18 14/08/10 J. Schilling"
+#pragma ident "@(#)help2.c 1.19 15/02/02 J. Schilling"
 #endif
 /*
  * @(#)help2.c 1.10 06/12/12
@@ -115,7 +115,7 @@ main(argc, argv)
 #else
 	char *default_locale = NOGETTEXT("C"); /* Default English. */
 #endif
-	char *helpdir = NOGETTEXT("/usr/ccs/lib/help/locale/");
+	char *helpdir = NOGETTEXT("/ccs/lib/help/locale/");
 	char help_dir[200]; /* Directory to search for help text. */
 	char *locale = NULL; /* User's locale. */
 

@@ -1,4 +1,5 @@
 #! /bin/sh
+# @(#)sccsdiff.sh	1.6 15/01/30 Copyright 2011-2015 J. Schilling
 #
 # CDDL HEADER START
 #

@@ -25,12 +25,12 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2009 J. Schilling
+ * This file contains modifications Copyright 2006-2015 J. Schilling
  *
- * @(#)newsid.c	1.6 11/10/15 J. Schilling
+ * @(#)newsid.c	1.7 15/02/07 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)newsid.c 1.6 11/10/15 J. Schilling"
+#pragma ident "@(#)newsid.c 1.7 15/02/07 J. Schilling"
 #endif
 /*
  * @(#)newsid.c 1.7 06/12/12
@@ -115,7 +115,7 @@ struct	sid	*sp;
 struct	packet	*pkt;
 {
 	struct	pfile	pf;
-	char	line[BUFSIZ];
+	char	line[MAXLINE];
 	char	*p;
 	FILE	*in;
 

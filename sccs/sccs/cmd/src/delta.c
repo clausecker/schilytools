@@ -29,10 +29,10 @@
 /*
  * Copyright 2006-2015 J. Schilling
  *
- * @(#)delta.c	1.62 15/01/26 J. Schilling
+ * @(#)delta.c	1.63 15/02/06 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)delta.c 1.62 15/01/26 J. Schilling"
+#pragma ident "@(#)delta.c 1.63 15/02/06 J. Schilling"
 #endif
 /*
  * @(#)delta.c 1.40 06/12/12
@@ -335,14 +335,14 @@ char *file;
 	 * Init and check for validity of file name but do not open the file.
 	 * This prevents us from potentially damaging files with lockit().
 	 */
-	sinit(&gpkt, file, 0);
+	sinit(&gpkt, file, SI_INIT);
 
 	uname(&un);
 	uuname = un.nodename;
 	if (lockit(auxf(gpkt.p_file,'z'),SCCS_LOCK_ATTEMPTS,getpid(),uuname))
 		efatal(gettext("cannot create lock file (cm4)"));
 
-	sinit(&gpkt,file,1);
+	sinit(&gpkt, file, SI_OPEN);
 	gpkt.p_enter = enter;
 	if ((gpkt.p_flags & PF_V6) == 0)
 		gpkt.p_flags |= PF_GMT;

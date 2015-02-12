@@ -25,12 +25,12 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2011 J. Schilling
+ * This file contains modifications Copyright 2011-2015 J. Schilling
  *
- * @(#)pf_ab.c	1.4 11/06/27 J. Schilling
+ * @(#)pf_ab.c	1.5 15/02/07 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)pf_ab.c 1.4 11/06/27 J. Schilling"
+#pragma ident "@(#)pf_ab.c 1.5 15/02/07 J. Schilling"
 #endif
 /*
  * @(#)pf_ab.c 1.6 06/12/12
@@ -54,6 +54,8 @@ int all;
 	char *xp;
 	char stmp[MAXLINE];
 
+	if (size(s) > MAXLINE)
+		fatal(gettext("line too long (co31)"));
 	xp = p = stmp;
 	copy(s,p);
 	for (; *p; p++)

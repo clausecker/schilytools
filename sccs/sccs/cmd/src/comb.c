@@ -27,10 +27,10 @@
 /*
  * This file contains modifications Copyright 2006-2015 J. Schilling
  *
- * @(#)comb.c	1.24 15/01/26 J. Schilling
+ * @(#)comb.c	1.25 15/02/06 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)comb.c 1.24 15/01/26 J. Schilling"
+#pragma ident "@(#)comb.c 1.25 15/02/06 J. Schilling"
 #endif
 /*
  * @(#)comb.c 1.15 06/12/12
@@ -232,7 +232,7 @@ char *file;
 
 	if (setjmp(Fjmp))
 		return;
-	sinit(&gpkt, file, 1);
+	sinit(&gpkt, file, SI_OPEN);
 	gpkt.p_verbose = -1;
 	gpkt.p_stdout = stderr;
 	gpkt.p_enter = enter;

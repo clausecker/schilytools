@@ -27,10 +27,10 @@
 /*
  * Copyright 2006-2015 J. Schilling
  *
- * @(#)unget.c	1.26 15/01/26 J. Schilling
+ * @(#)unget.c	1.27 15/02/06 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)unget.c 1.26 15/01/26 J. Schilling"
+#pragma ident "@(#)unget.c 1.27 15/02/06 J. Schilling"
 #endif
 /*
  * @(#)unget.c 1.24 06/12/12
@@ -266,7 +266,7 @@ char *file;
 	 * Initialize packet, but do not open SCCS file.
 	 * As we do not open the file, we may obtain the lock later.
 	 */
-	sinit(&gpkt,file,0);
+	sinit(&gpkt, file, SI_INIT);
 	gpkt.p_stdout = stdout;
 	gpkt.p_verbose = (HADS) ? 0 : 1;
 

@@ -1,8 +1,8 @@
-/* @(#)sccscvt.c	1.16 14/08/09 Copyright 2011-2014 J. Schilling */
+/* @(#)sccscvt.c	1.17 15/02/06 Copyright 2011-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)sccscvt.c	1.16 14/08/09 Copyright 2011-2014 J. Schilling";
+	"@(#)sccscvt.c	1.17 15/02/06 Copyright 2011-2015 J. Schilling";
 #endif
 /*
  *	Convert a SCCS v4 history file to a SCCS v6 file and vice versa.
@@ -10,7 +10,7 @@ static	UConst char sccsid[] =
  *	is kept in special degenerated comment at the beginning of the comment
  *	block.
  *
- *	Copyright (c) 2011-2014 J. Schilling
+ *	Copyright (c) 2011-2015 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -120,7 +120,7 @@ main(ac, av)
 		usage(0);
 	if (pversion) {
 		printf(
-	_("sccscvt %s-SCCS version %s %s (%s-%s-%s) Copyright (C) 2011-2014 %s\n"),
+	_("sccscvt %s-SCCS version %s %s (%s-%s-%s) Copyright (C) 2011-2015 %s\n"),
 			PROVIDER,
 			VERSION,
 			VDATE,
@@ -209,7 +209,7 @@ convert(file)
 	 * Init and check for validity of file name but do not open the file.
 	 * This prevents us from potentially damaging files with lockit().
 	 */
-	sinit(&gpkt, file, 0);
+	sinit(&gpkt, file, SI_INIT);
 
 	/*
 	 * Obtain a lock on the SCCS history file.
@@ -223,7 +223,7 @@ convert(file)
 	/*
 	 * Open s. file.
 	 */
-	sinit(&gpkt, file, 1);
+	sinit(&gpkt, file, SI_OPEN);
 	if (dov6) {
 		if (gpkt.p_flags & PF_V6) {
 			errmsgno(EX_BAD, _("%s: already in SCCS v6 format.\n"),
@@ -589,7 +589,7 @@ get_setup(file)
 {
 	struct stats stats;
 
-	sinit(&pk2, file, 1);
+	sinit(&pk2, file, SI_OPEN);
 
 	pk2.p_stdout = stderr;
 	pk2.p_reopen = 1;

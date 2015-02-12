@@ -29,12 +29,12 @@
 /*
  * Copyright 2006-2015 J. Schilling
  *
- * @(#)defines.h	1.79 15/01/27 J. Schilling
+ * @(#)defines.h	1.82 15/02/07 J. Schilling
  */
 #ifndef	_HDR_DEFINES_H
 #define	_HDR_DEFINES_H
 #if defined(sun)
-#pragma ident "@(#)defines.h 1.79 15/01/27 J. Schilling"
+#pragma ident "@(#)defines.h 1.82 15/02/07 J. Schilling"
 #endif
 /*
  * @(#)defines.h 1.21 06/12/12
@@ -234,14 +234,13 @@ extern	char	saveid[50];	/* defined in lib/comobj/src/logname.c */
 
 # define MINR		1		/* minimum release number */
 # define MAXR		9999		/* maximum release number */
-# define FILESIZE	MAXPATHLEN
-# define MAXLINE	BUFSIZ
-# define DEF_LINE_SIZE	128
-# undef	MAX
-# define MAX		9999
-# define DELIVER	'*'
+# define MAXL		9999		/* max level for dolist() -> maxint? */
+# define FILESIZE	max(MAXPATHLEN, 8192)	/* Space for path names */
+# define MAXLINE	max(BUFSIZ, 8192)	/* Buffer size for various */
+# define DEF_LINE_SIZE	128		/* start size for alocated lines */
+# define DELIVER	'*'		/* MR number was "delivered" no rmdel */
 # define LOGSIZE	(33)		/* TWCP SCCS compatibility */
-# define MAXERRORLEN	(1024+MAXPATHLEN)	/* max length of SccsError buffer */
+# define MAXERRORLEN	(1024+FILESIZE)	/* max length of SccsError buffer */
 
 # define FAILPUT    fatal("fputs could not write to file (ut13)")
 # define SCCS_LOCK_ATTEMPTS	4       /* maximum number of lock   attempts  */
@@ -256,6 +255,19 @@ extern	char	saveid[50];	/* defined in lib/comobj/src/logname.c */
 # define FLUSH_COPY		0	/* Copy all read lines until match */
 # define FLUSH_NOCOPY		1	/* Skip all read lines until match */
 # define FLUSH_COPY_UNTIL	2	/* Copy read lines until before match */
+
+/*
+ * The third argument for the function sinit() is a flag that controls the
+ * behavior. Unless SI_FORCE is used, the filename is checked to be either
+ * "s.name" or "xxx/s.name". SI_FORCE allows us to open the "x.file" for
+ * reading.
+ */
+# define SI_INIT		0	/* Check filename and init pkt	    */
+# define SI_OPEN		1	/* Check filename init pkt open file */
+# define SI_FORCE		2	/* Init pkt & open any file name    */
+
+# define SI_FORCEOPEN		(SI_OPEN|SI_FORCE)
+
 
 /*
 	SCCS Internal Structures.
@@ -327,16 +339,20 @@ struct queue {
 #define NO	(2)
 
 struct	sid {
-	int	s_rel;
-	int	s_lev;
-	int	s_br;
-	int	s_seq;
+	int	s_rel;		/* Release			*/
+	int	s_lev;		/* Level			*/
+	int	s_br;		/* Branch			*/
+	int	s_seq;		/* Sequence (if branch != 0)	*/
 };
 
 /*
- * String space needed for the SID:
+ * String space needed for the SID.
+ *
+ * Currently s_rel is limited to the range MINR .. MAXR and as long
+ * as MAXR stays 1ith 9999, 38 chars would be enough. It is however
+ * safer to permit the whole range for SID -> string conversion.
  */
-#define	SID_STRSIZE	45	/* 4 * 10 + 4 * '.' + '\0' */
+#define	SID_STRSIZE	45	/* 4 * 10 + 3 * '.' + '\0' = 44 */
 
 struct	deltab {
 	struct	sid	d_sid;
@@ -523,10 +539,21 @@ extern	void	cmrerror __PR((const char *));
 /*
  * Declares for external variables in lib/comobj
  */
-extern	char	*sccs_insbase;
-extern	char	*Comments;
-extern	char	*Mrs;
-extern	int	Domrs;
+extern	char	*sccs_insbase;	/* Installation base dir or "/usr"	   */
+extern	char	*Comments;	/* Comments from -y option		   */
+extern	char	*Mrs;		/* List of Mr numbers from -m option	   */
+extern	int	Domrs;		/* 'v' fööag was found in the histroy file */
+
+				/*
+				 * If it is not possible to retrieve "setahome",
+				 * it may be a NULL pointer. The variables
+				 * "setrhome" and "cwdprefix" are always set
+				 * from sethome().
+				 */
+extern	char	*setrhome;	/* Relative path to the project set home dir */
+extern	char	*setahome;	/* Absolute path to the project set home dir */
+extern	char	*cwdprefix;	/* Prefix from project set home dir to cwd */
+extern	int	homedist;	/* The # of dirs to the project set home dir */
 
 /*
  Declares for external functions in lib/comobj
@@ -622,10 +649,6 @@ extern	char	*lhash_lookup	__PR((char *str));
  * Declares for external variables in lib/mpwlib
  */
 extern	char	SccsError[MAXERRORLEN];
-extern	char    *setrhome; 
-extern	char    *setahome; 
-extern	char    *cwdprefix; 
-extern	int     homedist; 
 
 /*
  Declares for external functions in lib/mpwlib

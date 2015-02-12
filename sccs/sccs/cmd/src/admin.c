@@ -27,12 +27,12 @@
  * Use is subject to license terms.
  */
 /*
- * Copyright 2006-2014 J. Schilling
+ * Copyright 2006-2015 J. Schilling
  *
- * @(#)admin.c	1.83 14/08/13 J. Schilling
+ * @(#)admin.c	1.89 15/02/06 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)admin.c 1.83 14/08/13 J. Schilling"
+#pragma ident "@(#)admin.c 1.89 15/02/06 J. Schilling"
 #endif
 /*
  * @(#)admin.c 1.39 06/12/12
@@ -84,51 +84,56 @@ and end of the string MUST be included in the translation.  Formatting
 characters, e.g. "%s" "%c" "%d" "\n" "\t" must appear in the
 translated string exactly as they do in the msgid string.  Spaces
 and/or tabs around these formats must be maintained.
- 
+
 The following are examples of text that should not be translated, but
 should appear exactly as they do in the msgid string:
- 
+
 - Any SCCS error code, which will be one or two letters followed by one
   or two numbers all in parenthesis, e.g. "(ad3)",
 
 - All descriptions of SCCS option flags, e.g. "-r" or " 'e'" , or "f",
   or "-fz"
- 
+
 - ".FRED", "sid", "SID", "MRs", "CMR", "p-file", "CASSI",  "cassi",
-  function names, e.g. "getcwd()", 
+  function names, e.g. "getcwd()",
 */
 
 # define MAXNAMES 9
 
-static char	stdin_file_buf [20];
-static char	*ifile, *tfile;
-static char	*dir_name;
-static struct timespec	ifile_mtime;
-static int	Ncomma = 0;
-static int	Nsdot = 1;
-static int	Nsubd;
-static char	*Nprefix;
-static char	*Nparm;
-static char	*CMFAPPL;	/* CMF MODS */
-static char	*z;			/* for validation program name */
-static char	had_flag[NFLAGS], rm_flag[NFLAGS];
+static char	stdin_file_buf [20];	/* For "/tmp/admin.XXXXXX"	*/
+static char	*ifile;			/* -i argument			*/
+static char	*tfile;			/* -t argument			*/
+static char	*dir_name;		/* directory for -N		*/
+static struct timespec	ifile_mtime;	/* Timestamp for -i -o		*/
+static int	Ncomma = 0;		/* Found -N,*			*/
+static int	Nsdot = 1;		/* Found -N*s.			*/
+static int	Nsubd;			/* Found -NSCCS			*/
+static char	*Nprefix;		/* "s." /  "* /s." / "* /SCCS"	*/
+static char	*Nparm;			/* -N argument			*/
+static char	*CMFAPPL;		/* CMF MODS			*/
+static char	*z;			/* for validation program name	*/
+static char	had_flag[NFLAGS];	/* -f seen list			*/
+static char	rm_flag[NFLAGS];	/* -d seen list			*/
 #if	defined(PROTOTYPES) && defined(INS_BASE)
 static char	Valpgmp[]	=	NOGETTEXT(INS_BASE "/ccs/bin/" "val");
 #endif
 static char	Valpgm[]	=	NOGETTEXT("val");
-static int	fexists, num_files;
-static int	VFLAG  =  0;
-static int	versflag = 4;
-static struct sid	new_sid;
-static char	*anames[MAXNAMES], *enames[MAXNAMES];
-static char	*unlock;
-static char	*locks;
-static char	*flag_p[NFLAGS];
-static int	asub, esub;
-static int	check_id;
-static struct	utsname	un;
-static char	*uuname;
-static int 	Encoded = EF_TEXT;	/* Default encoding is '0' */
+static int	fexists;		/* Current file exists		*/
+static int	num_files;		/* Number of file args		*/
+static int	VFLAG  =  0;		/* -v option seen		*/
+static int	versflag = 4;		/* history vers for new files	*/
+static struct sid	new_sid;	/* -r argument			*/
+static char	*anames[MAXNAMES];	/* -a arguments			*/
+static char	*enames[MAXNAMES];	/* -e arguments			*/
+static char	*unlock;		/* -dl argument			*/
+static char	*locks;			/* 'l' flag value in file	*/
+static char	*flag_p[NFLAGS];	/* -f arguments			*/
+static int	asub;			/* Index for anames[]		*/
+static int	esub;			/* Index for enames[]		*/
+static int	check_id;		/* To check for Keywds with -i	*/
+static struct	utsname	un;		/* uname for lockit()		*/
+static char	*uuname;		/* un.nodename			*/
+static int 	Encoded = EF_TEXT;	/* Default encoding is '0'	*/
 static off_t	Encodeflag_offset;	/* offset in file where encoded flag is stored */
 static off_t	Checksum_offset;	/* offset in file where g-file hash is stored */
 
@@ -170,7 +175,7 @@ char *argv[];
 	 * Set locale for all categories.
 	 */
 	setlocale(LC_ALL, NOGETTEXT(""));
-	
+
 	sccs_setinsbase(INS_BASE);
 
 	/*
@@ -183,7 +188,7 @@ char *argv[];
 	(void) bindtextdomain(NOGETTEXT("SUNW_SPRO_SCCS"),
 	   NOGETTEXT("/usr/ccs/lib/locale/"));
 #endif
-	
+
 	(void) textdomain(NOGETTEXT("SUNW_SPRO_SCCS"));
 
 	tzset();	/* Set up timezome related vars */
@@ -232,7 +237,7 @@ char *argv[];
 			no_arg = 0;
 			j = current_optind;
 		        c = getopt(argc, argv, "-i:t:m:y:d:f:r:nN:hzboqa:e:V:(version)");
-		        	/*
+				/*
 				*  this takes care of options given after
 				*  file names.
 				*/
@@ -297,7 +302,7 @@ char *argv[];
 				if (optarg == argv[j+1]) {
 				   no_arg = 1;
 				   Comments = "";
-				} else {  
+				} else {
 				   Comments = p;
 				}
 				break;
@@ -566,7 +571,7 @@ char *argv[];
 		}
 	}
 
-	if (num_files == 0) 
+	if (num_files == 0 && !HADUCN)
 		fatal(gettext("missing file arg (cm3)"));
 
 	if (HADUCN) {
@@ -593,7 +598,7 @@ char *argv[];
 				len++;
 			}
 			len += 3;
-			Nprefix = fmalloc(len);			
+			Nprefix = fmalloc(len);
 			cat(Nprefix, Nparm, slseen?"":"/", "s.", (char *)0);
 			Nsubd = 1;
 		}
@@ -625,6 +630,9 @@ char *argv[];
 	for (j=1; j<argc; j++)
 		if ((p = argv[j]) != NULL)
 			do_file(p, admin, HADN|HADI ? 0 : 1, Nsdot);
+
+	if (num_files == 0 && HADUCN)
+		do_file("-", admin, 0, Nsdot);
 
 	return (Fcnt ? 1 : 0);
 }
@@ -680,6 +688,7 @@ char	*afile;
 	ck_it = 0;
 	from_stdin = 0;
 	dir_name = "";
+ 	Encoded = EF_TEXT;	/* Default encoding is '0' */
 
 	zero((char *) &stats,sizeof(stats));
 
@@ -771,11 +780,11 @@ char	*afile;
 	if (fexists) { /* modifying */
 		int	cklen = 8;
 
-		sinit(&gpkt,afile,1);	/* init pkt & open s-file */
+		sinit(&gpkt, afile, SI_OPEN);	/* init pkt & open s-file */
 
 		if (gpkt.p_flags & PF_V6)
 			cklen = 15;
-	
+
 		/* Modify checksum if corrupted */
 
 		if ((int) strlen(gpkt.p_line) > cklen &&
@@ -814,7 +823,7 @@ char	*afile;
 				fclose(xf);
 		}
 
-		sinit(&gpkt,afile,0);	/* and init pkt */
+		sinit(&gpkt, afile, SI_INIT);	/* and init pkt */
 
 		/*
 		 * Initialize global meta data
@@ -1156,7 +1165,7 @@ char	*afile;
 			so that if we later discover that the file contains
 			non-ASCII characters we can flag it as encoded
 			by setting the value to 1.
-		 	*/
+			*/
 			Encodeflag_offset = ftell(gpkt.p_xiop);
 			sprintf(line,"%c%c %c %d\n",
 				CTLCHAR, FLAG, ENCODEFLAG, Encoded);
@@ -1274,11 +1283,11 @@ char	*afile;
 				/* from standard input */
 				int    err = 0, cnt;
 				char   buf[BUFSIZ];
-				FILE * out;	
+				FILE * out;
 				mode_t cur_umask;
 
 				from_stdin = 1;
-				ifile 	   = stdin_file_buf;
+				ifile	   = stdin_file_buf;
 				strlcpy(stdin_file_buf, "/tmp/admin.XXXXXX", sizeof (stdin_file_buf));
 				cur_umask = umask((mode_t)((S_IRWXU|S_IRWXG|S_IRWXO)&~(S_IRUSR|S_IWUSR)));
 #ifdef	HAVE_MKSTEMP
@@ -1408,7 +1417,7 @@ char	*afile;
 	/* If encoded file, put change "fe" flag and recalculate
 	   the hash value
 	 */
-	
+
 	if (Encoded & EF_UUENCODE)
 	{
 		strcpy(line,"0");
@@ -1501,11 +1510,11 @@ struct	packet	*pkt;		/* struct paket for output	*/
 
 	/*
 	 * This gives the illusion that a zero-length file ends
-	 * in a newline so that it won't be mistaken for a 
+	 * in a newline so that it won't be mistaken for a
 	 * binary file.
 	 */
 	lastchar = '\n';
-	
+
 	nline = 0;
 	(void)memset(line, '\377', sizeof (line));
 #ifndef	RECORD_IO
@@ -1605,7 +1614,7 @@ struct	packet	*pkt;		/* struct paket for output	*/
 		    if (fflag) {
 		       return(-1);
 		    } else {
-		       sprintf(SccsError, 
+		       sprintf(SccsError,
 			 gettext("file '%s' contains illegal data on line %jd (ad21)"),
 			 file, (intmax_t)nline);
 		       fatal(SccsError);
@@ -1624,7 +1633,7 @@ struct	packet	*pkt;		/* struct paket for output	*/
 		    ibase += idx;
 		 }
 	      }
-	   }   
+	   }
 	   if (check_id && pkt->p_did_id == 0) {
 		pkt->p_did_id =
 			chkid(line, flag_p[IDFLAG - 'a'], flag_p);
@@ -1686,7 +1695,7 @@ warnctl(file, nline)
 		*dir_name?"/":"",
 		file, (intmax_t)nline);
 }
- 
+
 static void
 clean_up()
 {

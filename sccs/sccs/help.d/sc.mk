@@ -1,15 +1,16 @@
-#ident @(#)Makefile	1.4 15/02/02 
+#ident "@(#)sc.mk	1.1 15/02/02 "
 ###########################################################################
-# Sample makefile for sub-makes in one directory
+# Sample makefile for installing non-localized auxiliary files
 ###########################################################################
 SRCROOT=	../../..
 RULESDIR=	RULES
 include		$(SRCROOT)/$(RULESDIR)/rules.top
 ###########################################################################
 
-MK_FILES=	ad.mk bd.mk cb.mk cm.mk cmds.mk co.mk de.mk default.mk ge.mk he.mk pr.mk prs.mk rc.mk sc.mk un.mk ut.mk va.mk vc.mk
-
+INSDIR=		ccs/lib/help/locale/C
+TARGET=		sc
+#XMK_FILE=	Makefile.man
 
 ###########################################################################
-include		$(SRCROOT)/$(RULESDIR)/rules.mks
+include		$(SRCROOT)/$(RULESDIR)/rules.aux
 ###########################################################################

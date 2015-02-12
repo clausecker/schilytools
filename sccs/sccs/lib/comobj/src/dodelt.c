@@ -29,10 +29,10 @@
 /*
  * Copyright 2006-2015 J. Schilling
  *
- * @(#)dodelt.c	1.20 15/01/27 J. Schilling
+ * @(#)dodelt.c	1.21 15/02/07 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)dodelt.c 1.20 15/01/27 J. Schilling"
+#pragma ident "@(#)dodelt.c 1.21 15/02/07 J. Schilling"
 #endif
 /*
  * @(#)dodelt.c 1.8 06/12/12
@@ -230,6 +230,8 @@ struct ixg **ixgp;
 	type = *p++;
 	NONBLANK(p);
 	while (numeric(*p)) {
+		if ((ip - v) >= MAXLINE)
+			fatal(gettext("too many include exclude or ignore entries (co30)"));
 		p = satoi(p,ip++);
 		NONBLANK(p);
 	}

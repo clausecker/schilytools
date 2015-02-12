@@ -25,12 +25,12 @@
  * Use is subject to license terms.
  */
 /*
- * Copyright 2006-2014 J. Schilling
+ * Copyright 2006-2015 J. Schilling
  *
- * @(#)dofile.c	1.11 14/03/31 J. Schilling
+ * @(#)dofile.c	1.12 15/02/08 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)dofile.c 1.11 14/03/31 J. Schilling"
+#pragma ident "@(#)dofile.c 1.12 15/02/08 J. Schilling"
 #endif
 /*
  * @(#)dofile.c 1.12 06/12/12
@@ -94,7 +94,8 @@ int need_sdot;		/* Skip non s. files */
 #ifdef	HAVE_DIRENT_D_INO
 					if(dir[0]->d_ino == 0) continue;
 #endif
-					sprintf(str,"%s/%s",ibuf,dir[0]->d_name);
+					snprintf(str, sizeof (str),
+						"%s/%s", ibuf, dir[0]->d_name);
 					if (!need_sdot) {
 						Ffile = str;
 						(*func)(str);
@@ -137,7 +138,8 @@ int need_sdot;		/* Skip non s. files */
 #ifdef	HAVE_DIRENT_D_INO
 			if(dir[0]->d_ino == 0) continue;
 #endif
-			sprintf(str,"%s/%s",p,dir[0]->d_name);
+			snprintf(str, sizeof (str),
+				"%s/%s", p, dir[0]->d_name);
 			if (!need_sdot) {
 				Ffile = str;
 				(*func)(str);

@@ -1,0 +1,127 @@
+New features with AN-2015-02-12:
+
+This is the first localization step for the schily source consolidation. Many
+programs now (hopefully) call gettext() for all strings that need localization.
+
+-	The next step will include dgettext() calls for the libraries and the
+	missing programs
+
+-	The following step will include the extracted strings
+
+-	The last step will include German translations and install support
+	for the resulting binary message object files.
+
+----------> Please test and report compilation problems! <---------
+
+***** NOTE: As mentioned since 2004, frontends to the tools should *****
+*****		call all programs in the "C" locale		   *****
+*****		by e.g. calling: LC_ALL=C cdrecord ....		   *****
+*****		unless these frontends support localized strings   *****
+*****		used by the cdrtools with NLS support.		   *****
+
+		*** WARNING        ***
+		*** Need new smake ***
+
+	*** Due to the fact that schily-tools 2014-04-03 introduced to use new macro
+	*** expansions and a related bug fix in smake, you need a new smake
+	*** to compile this source. To ensure this, call:
+
+	cd ./psmake
+	./MAKE-all
+	cd ..
+	psmake/smake
+	psmake/smake install
+
+
+	WARNING: the new version of the isoinfo program makes use of the 
+		*at() series of functions that have been introduced by Sun
+		in August 2001 and added to POSIX.1-2008. For older platforms,
+		libschily now includes emulations for these functions but
+		these emulations have not yet been tested thouroughly.
+		Please report problems!
+
+	The new smake version mentioned above is smake-1.2.4
+
+-	The makefile rules for installing man pages have been changed so that
+	OBJ/<archdir>/man/ is no longer a direct dependency of the man page.
+	This results in repeated "make install" calls not to reinstall
+	up-to-date man pages again.
+
+-	The makefile rules for installing localized sripts have been changed so
+	hat OBJ/<archdir>/ is no longer a direct dependency of the man page.
+	This results in repeated "make install" calls not to reinstall
+	up-to-date scripts again.
+
+-	SCCS admin fixed a bug that caused it in bulk mode (using -N) to
+	cause checksum errors if the previous file was a binary file that
+	had to be uuencoded. Admin now reinitializes the related variable on
+	each new entry of the admin() function.
+
+-	SCCS admin now also reads filenames from stdin if called "admin -N"
+	(without '-') as sccs(1) also expands stdin to an arg vector and
+	calling "sccs admin -N -" would cause sccs(1) to overflow the max.
+	arg vector size.
+
+-	SCCS sccs now avoids to print annoying "file not found" messages from
+	libfind if called as "sccs -R clean". These messages were from the
+	fact that "sccs clean" removes files that will be processed by libfind
+	later.
+
+-	SCCS sccs: fix(), unedit(), diffs(), enter(), editor() and istext()
+	are now separate functions. "sccs editor" now checks whether
+	EDITOR= points to a name from the sccs-Subcommands.
+	The new diffs() code frees "args".
+
+-	SCCS help2 has been fixed to no longer print:
+
+		"Unrecognized locale... setting to English\n"
+
+	as a result os a superfluous "/usr" in the help path that was left over
+	from reorganizing the source to support the INS_BASE definition.
+
+-	A new SCCS helpfile <INS_BASE>/ccs/lib/help/locale/C/sc has been
+	introduced to the help system to allow sccs(1) specific help texts.
+
+-	The SCCS function sinit() from libcomobj now implements more
+	functionality with the openflag. There os now:
+	SI_INIT		-> 0
+	SI_OPEN		-> 1
+	SI_FORCE	-> 2 New to avoid the check toe s.filename
+
+-	SCCS libcomobj: some more sprintf() calls have been replaced by
+	snprintf()
+
+-	SCCS libcomobj: some BUFSIZEd buffers are now MAXLINE as they are
+	really line buffers.
+
+-	SCCS libcomobj: some MAXLINEd buffers are noe FILESIZE as they are
+	file path buffers.
+
+-	SCCS libcomobj: the MAX #define from sccs/sccs/hdr/defines.h has been
+	removed and some of the uses have been replaced by MAXR,others by MAXL.
+
+-	SCCS libcomobj: the #defined MAXLINE and FILESIZE from
+	sccs/sccs/hdr/defines.h are now to be granted 8192 or more.
+
+-	SCCS libcomobj: some previous buffer overflows now create a fatal error.
+
+-	SCCS help: some new "common" error messages have been defined.
+
+-	CPP: The static limit of 240kB for macro string space has been removed.
+	The related data is now allocated.
+
+-	CPP: The static limit of 4000 macro definitions has been removed.
+	The related data is now allocated.
+
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.net, js@cs.tu-berlin.de
+	joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

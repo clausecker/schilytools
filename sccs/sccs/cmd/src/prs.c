@@ -27,10 +27,10 @@
 /*
  * Copyright 2006-2015 J. Schilling
  *
- * @(#)prs.c	1.44 15/01/26 J. Schilling
+ * @(#)prs.c	1.45 15/02/06 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)prs.c 1.44 15/01/26 J. Schilling"
+#pragma ident "@(#)prs.c 1.45 15/02/06 J. Schilling"
 #endif
 /*
  * @(#)prs.c 1.33 06/12/12
@@ -363,7 +363,7 @@ register	char	*file;
 	if (setjmp(Fjmp))	/* set up to return here from 'fatal' */
 		return;		/* and return to caller of 'process' */
 
-	sinit(&gpkt,file,1);	/* init packet and open SCCS file */
+	sinit(&gpkt, file, SI_OPEN);	/* init packet and open SCCS file */
 
 	/*
 	move value of global sid into gpkt.p_reqsid for

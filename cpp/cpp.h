@@ -1,6 +1,6 @@
-/* @(#)cpp.h	1.4 10/09/21 Copyright 2010 J. Schilling */
+/* @(#)cpp.h	1.5 15/02/12 Copyright 2010-2015 J. Schilling */
 /*
- * Copyright (c) 2010 J. Schilling
+ * Copyright (c) 2010-2015 J. Schilling
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,6 +36,7 @@
 struct symtab {
 	char	*name;
 	char	*value;
+	struct symtab *next;
 };
 
 extern	char	*skipbl	__PR((char *));

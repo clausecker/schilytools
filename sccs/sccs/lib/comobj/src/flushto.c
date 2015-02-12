@@ -25,12 +25,12 @@
  * Use is subject to license terms.
  */
 /*
- * Copyright 2006-2009 J. Schilling
+ * Copyright 2006-2015 J. Schilling
  *
- * @(#)flushto.c	1.6 11/11/01 J. Schilling
+ * @(#)flushto.c	1.7 15/02/08 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)flushto.c 1.6 11/11/01 J. Schilling"
+#pragma ident "@(#)flushto.c 1.7 15/02/08 J. Schilling"
 #endif
 /*
  * @(#)flushto.c 1.3 06/12/12
@@ -40,7 +40,7 @@
 #pragma ident	"@(#)flushto.c"
 #pragma ident	"@(#)sccs:lib/comobj/flushto.c"
 #endif
-# include	<defines.h>
+#include	<defines.h>
 
 void
 flushto(pkt, ch, put)
@@ -51,15 +51,15 @@ flushto(pkt, ch, put)
 	register char *p;
 
 	while ((p = getline(pkt)) != NULL && !(*p++ == CTLCHAR && *p == ch))
-		pkt->p_wrttn = (char) (put & 1);
+		pkt->p_wrttn = (char)(put & 1);
 
 	if (p == NULL)
 		fmterr(pkt);
 
 	if (put == FLUSH_COPY_UNTIL) {	/* Do not copy matching line */
-		pkt->p_wrttn = (char) 1; /* Prevent writing by default */
+		pkt->p_wrttn = (char)1;	/* Prevent writing by default */
 		return;
 	}
 
-	putline(pkt, (char *) 0);
+	putline(pkt, (char *)0);
 }

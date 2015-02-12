@@ -27,10 +27,10 @@
 /*
  * Copyright 2006-2015 J. Schilling
  *
- * @(#)val.c	1.42 15/01/26 J. Schilling
+ * @(#)val.c	1.43 15/02/06 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)val.c 1.42 15/01/26 J. Schilling"
+#pragma ident "@(#)val.c 1.43 15/02/06 J. Schilling"
 #endif
 /*
  * @(#)val.c 1.22 06/12/12
@@ -1229,7 +1229,7 @@ get_setup(file)
 {
 	struct stats stats;
 
-	sinit(&pk2, file, 1);
+	sinit(&pk2, file, SI_OPEN);
 
 	pk2.do_chksum = 0;
 	pk2.p_stdout = stderr;

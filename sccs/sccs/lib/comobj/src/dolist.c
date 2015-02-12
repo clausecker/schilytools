@@ -25,12 +25,12 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2009 J. Schilling
+ * This file contains modifications Copyright 2006-2015 J. Schilling
  *
- * @(#)dolist.c	1.7 11/10/10 J. Schilling
+ * @(#)dolist.c	1.8 15/02/06 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)dolist.c 1.7 11/10/10 J. Schilling"
+#pragma ident "@(#)dolist.c 1.8 15/02/06 J. Schilling"
 #endif
 /*
  * @(#)dolist.c 1.5 06/12/12
@@ -121,13 +121,13 @@ register struct sid *sp;
 	if (old == p || sp->s_rel == 0)
 		fatal(gettext("delta list syntax (co13)"));
 	if (sp->s_lev == 0) {
-		sp->s_lev = MAX;
+		sp->s_lev = MAXL;
 		if (sp->s_br || sp->s_seq)
 			fatal(gettext("delta list syntax (co13)"));
 	}
 	else if (sp->s_br) {
 		if (sp->s_seq == 0)
-			sp->s_seq = MAX;
+			sp->s_seq = MAXL;
 	}
 	else if (sp->s_seq)
 		fatal(gettext("delta list syntax (co13)"));

@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sccs-admin.1	1.39 15/01/19 Copyright 2007-2015 J. Schilling
+.\" @(#)sccs-admin.1	1.41 15/01/31 Copyright 2007-2015 J. Schilling
 .\"  Copyright (c) 2002, Sun Microsystems, Inc. All Rights Reserved.
 .\" CDDL HEADER START
 .\"
@@ -31,7 +31,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sccs-admin 1 "2015/01/19" "SunOS 5.11" "User Commands"
+.TH sccs-admin 1 "2015/01/31" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs-admin, admin \- create and administer SCCS history files
 .SH SYNOPSIS
@@ -578,9 +578,20 @@ In order to overcome the limited number of
 arguments, it is recommended to use
 .RB ` \(mi \&'
 as the file name parameter for
-.B admin
+.BR admin (1)
 and to send a list of path names to
 .BR stdin .
+If
+.BR admin (1)
+is called via
+.BR sccs (1),
+it is recommended to leave out the
+.RB ` \(mi \&'
+to prevent
+.BR sccs (1)
+from trying to expand the file names from
+.B stdin
+into an arg vector.
 .PP
 This option is a
 .B SCHILY
@@ -797,7 +808,7 @@ and the SCCS history files will be put into SCCS sub directories:
 .nf
 example% \c
 .B
-find usr/src -type f | sccs admin -NSCCS -
+find usr/src -type f | sccs admin -NSCCS
 .fi
 .in -2
 .sp
@@ -821,7 +832,7 @@ has been successfully put under SCCS control:
 .nf
 example% \c
 .B
-find usr/src -type f | sccs admin -N,SCCS -
+find usr/src -type f | sccs admin -N,SCCS
 .fi
 .in -2
 .sp

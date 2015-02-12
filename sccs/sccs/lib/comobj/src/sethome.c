@@ -14,10 +14,10 @@
  *
  *	Search for $SET_HOME/.sccs
  *
- * @(#)sethome.c	1.4 14/09/30 Copyright 2011-2014 J. Schilling
+ * @(#)sethome.c	1.5 15/02/05 Copyright 2011-2015 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)sethome.c	1.4 14/09/30 Copyright 2011-2014 J. Schilling"
+#pragma ident "@(#)sethome.c	1.5 15/02/05 Copyright 2011-2015 J. Schilling"
 #endif
 
 #if defined(sun)
@@ -59,7 +59,7 @@ static	int	shinit;
 		return (dorel(buf, sizeof (buf)));
 
 	errno = 0;
-	len = searchabs(buf);
+	len = searchabs(buf);				/* Index after home */
 	if (len < 0) {
 		if (errno != 0)
 			return (-1);
@@ -132,7 +132,8 @@ searchabs(path)
 
 /*
  * Search for the directory $SET_HOME/.sccs using the relative path names from
- * the current directory.
+ * the current directory. This function is only called in case that it did not
+ * work to retrieve the absolute pathname.
  */
 LOCAL int
 dorel(bp, len)

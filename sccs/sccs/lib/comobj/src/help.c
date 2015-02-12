@@ -25,12 +25,12 @@
  * Use is subject to license terms.
  */
 /*
- * Copyright 2006-2014 J. Schilling
+ * Copyright 2006-2015 J. Schilling
  *
- * @(#)help.c	1.18 14/08/10 J. Schilling
+ * @(#)help.c	1.19 15/02/07 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)help.c 1.18 14/08/10 J. Schilling"
+#pragma ident "@(#)help.c 1.19 15/02/07 J. Schilling"
 #endif
 
 #if defined(sun)
@@ -309,7 +309,7 @@ lochelp(ky, fi, fisize)
 	size_t	fisize;
 {
 	FILE *fp;
-	char locfile[MAXLINE + 1];
+	char locfile[FILESIZE + 1];
 	char *hold;
 
 	strlcpy(locfile, sccs_insbase?sccs_insbase:"/usr", sizeof (locfile));

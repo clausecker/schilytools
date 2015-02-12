@@ -29,10 +29,10 @@
 /*
  * Copyright 2006-2015 J. Schilling
  *
- * @(#)get.c	1.66 15/01/27 J. Schilling
+ * @(#)get.c	1.67 15/02/06 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)get.c 1.66 15/01/27 J. Schilling"
+#pragma ident "@(#)get.c 1.67 15/02/06 J. Schilling"
 #endif
 /*
  * @(#)get.c 1.59 06/12/12
@@ -383,7 +383,7 @@ get(pkt, file)
 		If it is, then create lock file.
 		pass both the PID and machine name to lockit
 		*/
-		sinit(pkt, file, 0);
+		sinit(pkt, file, SI_INIT);
 		uname(&un);
 		uuname = un.nodename;
 		if (lockit(auxf(file, 'z'), 10, getpid(), uuname))
@@ -392,7 +392,7 @@ get(pkt, file)
 	/*
 	Open SCCS file and initialize packet
 	*/
-	sinit(pkt, file, 1);
+	sinit(pkt, file, SI_OPEN);
 	pkt->p_ixuser = (HADI | HADX);
 	pkt->p_reqsid.s_rel = sid.s_rel;
 	pkt->p_reqsid.s_lev = sid.s_lev;

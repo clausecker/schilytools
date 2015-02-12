@@ -25,12 +25,12 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2011 J. Schilling
+ * This file contains modifications Copyright 2006-2015 J. Schilling
  *
- * @(#)sinit.c	1.11 11/10/15 J. Schilling
+ * @(#)sinit.c	1.12 15/02/06 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)sinit.c 1.11 11/10/15 J. Schilling"
+#pragma ident "@(#)sinit.c 1.12 15/02/06 J. Schilling"
 #endif
 /*
  * @(#)sinit.c 1.7 06/12/12
@@ -73,12 +73,14 @@ extern	void __comobj __PR((void));
 	zero((char *)pkt, sizeof(*pkt));
 	if (size(file) > FILESIZE)
 		fatal(gettext("too long (co7)"));
-	if (!sccsfile(file))
-		fatal(gettext("not an SCCS file (co1)"));
+	if ((openflag & SI_FORCE) == 0) {
+		if (!sccsfile(file))
+			fatal(gettext("not an SCCS file (co1)"));
+	}
 	copy(file,pkt->p_file);
 	pkt->p_wrttn = 1;
 	pkt->do_chksum = 1;	/* turn on checksum check for getline */
-	if (openflag) {
+	if (openflag & SI_OPEN) {
 		pkt->p_iop = xfopen(file, O_RDONLY|O_BINARY);
 #ifdef	USE_SETVBUF
 		setvbuf(pkt->p_iop, NULL, _IOFBF, VBUF_SIZE);

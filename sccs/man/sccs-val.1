@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sccs-val.1	1.20 15/01/21 Copyright 2007-2015 J. Schilling
+.\" @(#)sccs-val.1	1.21 15/02/03 Copyright 2007-2015 J. Schilling
 .\" CDDL HEADER START
 .\"
 .\" The contents of this file are subject to the terms of the
@@ -31,7 +31,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sccs-val 1 "2015/01/21" "SunOS 5.11" "User Commands"
+.TH sccs-val 1 "2015/02/03" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs-val, val \- validate an SCCS file
 .SH SYNOPSIS
@@ -166,11 +166,13 @@ When in debug mode, extra tests are enabled for:
 The statistics line in the SCCS history file is written but not used.
 This is why this test is only enabled in debug mode and why a defective
 statistics line does not affect the exit code.
+The test still only checks for semantical correctness but not for correct
+values (e.g. whether the number of inserted lines is correct).
 .TP
 .B time stamps
 The time stamps in the SCCS history file are only used when a cut-off time
 was specified. This test checks for monotonic growing time stamps. A warning
-caused by time stamps that go backwards does not affect the exit code.
+is issued if time stamps go backwards, but this does not affect the exit code.
 .LP
 For a complete consistency check, it is recommended to run
 .B val

@@ -25,12 +25,12 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2009 J. Schilling
+ * This file contains modifications Copyright 2009-2015 J. Schilling
  *
- * @(#)getser.c	1.4 11/10/15 J. Schilling
+ * @(#)getser.c	1.5 15/02/06 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)getser.c 1.4 11/10/15 J. Schilling"
+#pragma ident "@(#)getser.c 1.5 15/02/06 J. Schilling"
 #endif
 /*
  * @(#)getser.c 1.7 06/12/12
@@ -56,7 +56,7 @@ register struct packet *pkt;
 		if ((p = pkt->p_sflags[DEFTFLAG - 'a']) != NULL)
 			chksid(sid_ab(p, &pkt->p_reqsid), &pkt->p_reqsid);
 		else {
-			pkt->p_reqsid.s_rel = MAX;
+			pkt->p_reqsid.s_rel = MAXR;
 			def = 1;
 		}
 	}

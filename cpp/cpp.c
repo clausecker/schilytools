@@ -1,8 +1,8 @@
-/* @(#)cpp.c	1.30 14/04/01 2010-2014 J. Schilling */
+/* @(#)cpp.c	1.33 15/02/12 2010-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)cpp.c	1.30 14/04/01 2010-2014 J. Schilling";
+	"@(#)cpp.c	1.33 15/02/12 2010-2015 J. Schilling";
 #endif
 /*
  * C command
@@ -13,7 +13,7 @@ static	UConst char sccsid[] =
  * This implementation is based on the UNIX 32V release from 1978
  * with permission from Caldera Inc.
  *
- * Copyright (c) 2010-2014 J. Schilling
+ * Copyright (c) 2010-2015 J. Schilling
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -193,12 +193,12 @@ STATIC	char *ptrtab;
 STATIC	char buffer[SYMLEN+BUFFERSIZ+BUFFERSIZ+SYMLEN];
 
 /*
- * SBSIZE was 12000 in 1978, we need to have a way to
+ * SBSIZE was static 12000 chars in 1978, we now have a method to
  * malloc more space.
  */
-# define SBSIZE 240000
-STATIC	char	sbf[SBSIZE];
-STATIC	char	*savch	= sbf;
+# define SBSIZE 65536
+STATIC	char	*sbf;
+STATIC	char	*savch;
 
 # define DROP 0xFE	/* special character not legal ASCII or EBCDIC */
 # define WARN DROP
@@ -269,7 +269,7 @@ LOCAL	char		*unfill	__PR((char *));
 LOCAL	char		*doincl	__PR((char *));
 LOCAL	int		equfrm	__PR((char *, char *, char *));
 LOCAL	char		*dodef	__PR((char *));
-LOCAL	char		*control __PR((char *));
+LOCAL	void		control __PR((char *));
 LOCAL	struct symtab	*stsym	__PR((char *));
 LOCAL	struct symtab	*ppsym	__PR((char *));
 EXPORT	void		pperror	__PR((char *fmt, ...));
@@ -283,6 +283,8 @@ LOCAL	char		*copy	__PR((char *));
 LOCAL	char		*strdex	__PR((char *, int));
 EXPORT	int		yywrap	__PR((void));
 EXPORT	int		main	__PR((int argc, char **argav));
+LOCAL	void		newsbf	__PR((void));
+LOCAL	struct symtab	*newsym	__PR((void));
 
 
 # if gcos
@@ -296,9 +298,10 @@ static jmp_buf env;
 extern FILE *_f[];
 # define symsiz 500
 # else
-# define symsiz 4000
+# define symsiz 500
 # endif
-STATIC	struct symtab stab[symsiz];
+#define	SYMINCR	340	/* Number of symtab entries to allocate as a block */
+STATIC	struct symtab *stab[symsiz];
 
 STATIC	struct symtab *defloc;
 STATIC	struct symtab *udfloc;
@@ -674,8 +677,13 @@ unfill(p) register char *p; {
 	}
 	if (fretop>0) np=bufstack[--fretop];
 	else {
-		np=savch; savch+=BUFFERSIZ;
-		if (savch>=sbf+SBSIZE) {pperror("no space"); exit(exfail);}
+		np = savch;
+		savch += BUFFERSIZ;
+		if (savch >= sbf+SBSIZE) {
+			newsbf(); 
+			np = savch;
+			savch += BUFFERSIZ;
+		}
 		*savch++='\0';
 	}
 	instack[mactop]=np; op=pend-BUFFERSIZ; if (op<p) op=p;
@@ -726,7 +734,10 @@ doincl(p) register char *p; {
 	if (ifno+1 >=MAXINC) {
 		pperror("Unreasonable include nesting",0); return(p);
 	}
-	if((nfil=savch)>sbf+SBSIZE-BUFFERSIZ) {pperror("no space"); exit(exfail);}
+	if ((nfil = savch) > sbf+SBSIZE-BUFFERSIZ) {
+		newsbf();
+		nfil = savch;
+	}
 	filok=0;
 	for (dirp=dirs+inctype; *dirp; ++dirp) {
 		if (
@@ -788,7 +799,9 @@ dodef(p) char *p; {/* process '#define' */
 
 	formtxt[0] = '\0';	/* Make lint quiet */
 
-	if (savch>sbf+SBSIZE-BUFFERSIZ) {pperror("too much defining"); return(p);}
+	if (savch > sbf+SBSIZE-BUFFERSIZ) {
+		newsbf();
+	}
 	oldsavch=savch; /* to reclaim space if redefinition */
 	++flslvl; /* prevent macro expansion during 'define' */
 	p=skipbl(p); pin=inptr;
@@ -879,7 +892,7 @@ dodef(p) char *p; {/* process '#define' */
 #define fasscan() ptrtab=fastab+COFF
 #define sloscan() ptrtab=slotab+COFF
 
-STATIC char *
+STATIC void
 control(p) register char *p; {/* find and handle preprocessor control lines */
 	register struct symtab *np;
 for (;;) {
@@ -1104,27 +1117,55 @@ char *namep;
 int enterf;
 {
 	register char *np, *snp;
-	register int c, i; int around;
+	register int c, i;
 	register struct symtab *sp;
+	struct symtab *prev;
+static struct symtab nsym;		/* Hack: Dummy nulled symtab */
 
 	/* namep had better not be too long (currently, <=symlen chars) */
-	np=namep; around=0; i=cinit;
-	while ((c = *np++) != '\0') i += i+c; c=i;	/* c=i for register usage on pdp11 */
-	c %= symsiz; if (c<0) c += symsiz;
-	sp = &stab[c];
-	while ((snp=sp->name) != NULL) {
+	np = namep;
+	i = cinit;
+	while ((c = *np++) != '\0')
+		i += i+c;
+	c = i;				/* c = i for register usage on pdp11 */
+	c %= symsiz;
+	if (c < 0)
+		c += symsiz;
+	sp = stab[c];
+	prev = sp;
+	while (sp != NULL) {
+		snp = sp->name;
 		np = namep;
-		while (*snp++ == *np) if (*np++ == '\0') {
-				if (enterf==DROP) {sp->name[0]= DROP; sp->value=0;}
-				return(lastsym=sp);
+		while (*snp++ == *np) {
+			if (*np++ == '\0') {
+				if (enterf == DROP) {
+					sp->name[0] = DROP;
+					sp->value = 0;
+				}
+				return (lastsym = sp);
 			}
-		if (--sp < &stab[0]) {
-			if (around) {pperror("too many defines", 0); exit(exfail);}
-			else {++around; sp = &stab[symsiz-1];}
 		}
+		prev = sp;
+		sp = sp->next;
 	}
-	if (enterf>0) sp->name=namep;
-	return(lastsym=sp);
+	if (enterf > 0) {
+		sp = newsym();
+		sp->name = namep;
+		sp->value = NULL;
+		sp->next = NULL;
+		if (prev)
+			prev->next = sp;
+		else
+			stab[c] = sp;
+	}
+	/*
+	 * Hack: emulate the behavior of the old code with static stab[], where
+	 * a non-matching request returns a zeroed (because previously empty)
+	 * struct symtab.
+	 */
+	if (sp == NULL)
+		sp = &nsym;
+	return (lastsym = sp);
 }
 
 STATIC struct symtab *
@@ -1312,6 +1353,9 @@ main(argc,argv)
 	for ((t23+COFF)[i=ALFSIZ+7-COFF]=1; --i>=-COFF; )
 		if (((t23+COFF)[i]=(t23+COFF+1)[i]<<1)==0) (t23+COFF)[i]=1;
 #endif
+
+	fnames[ifno=0] = "";	/* Allow pperror() to work correctly	  */
+	newsbf();		/* Must be called before copy() / ppsym() */
 
 # if unix
 	fnames[ifno=0] = "";
@@ -1603,4 +1647,38 @@ main(argc,argv)
 	outptr=inptr=pend;
 	control(pend);
 	return (exfail);
+}
+
+STATIC void
+newsbf()
+{
+	/*
+	 * All name space in symbols is obtained from sbf[] via copy(), so we
+	 * cannot use realloc() here as this might relocate sbf[]. We instead
+	 * throw away the last part of the current sbf[] and allocate new space
+	 * for new symbols.
+	 */
+	if ((sbf = malloc(SBSIZE)) == NULL) {
+		pperror("no buffer space");
+		exit(exfail);
+	}
+	savch = sbf;		/* Start at new buffer space */
+}
+
+STATIC struct symtab *
+newsym()
+{
+	static	int		nelem = 0;
+	static struct symtab	*syms = NULL;
+
+	if (nelem <= 0) {
+		syms = malloc(SYMINCR * sizeof (struct symtab));
+		if (syms == NULL) {
+			pperror("too many defines");
+			exit(exfail);
+		}
+		nelem = SYMINCR;
+	}
+	nelem--;
+	return (syms++);
 }

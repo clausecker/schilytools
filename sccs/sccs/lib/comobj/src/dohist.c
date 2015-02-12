@@ -25,12 +25,12 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2011 J. Schilling
+ * This file contains modifications Copyright 2006-2015 J. Schilling
  *
- * @(#)dohist.c	1.9 11/10/15 J. Schilling
+ * @(#)dohist.c	1.11 15/02/08 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)dohist.c 1.9 11/10/15 J. Schilling"
+#pragma ident "@(#)dohist.c 1.11 15/02/08 J. Schilling"
 #endif
 /*
  * @(#)dohist.c 1.7 06/12/12
@@ -101,7 +101,6 @@ char *file;
 	if (!Comments) {
 		if (doprmt)
 			printf(gettext("comments? "));
-		sprintf(line,"\n");
 		Comments = getcomments();
 	}
 }
@@ -112,7 +111,7 @@ getresp(repstr,result)
 char *repstr;
 char *result;
 {
-	char line[BUFSIZ];	/* Line length for typed in MR numbers */
+	char line[MAXLINE];	/* Line length for typed in MR numbers */
 	register int done, sz;
 	register char *p;
 	extern char	had_standinp;
@@ -211,6 +210,7 @@ getcomments()
 		buffer[cnt] = '\0';
 	return (buffer);
 }
+
 static char	*Qarg[NVARGS];
 char	**Varg = Qarg;
 

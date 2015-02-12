@@ -27,12 +27,12 @@
  * Use is subject to license terms.
  */
 /*
- * Copyright 2006-2014 J. Schilling
+ * Copyright 2006-2015 J. Schilling
  *
- * @(#)rmchg.c	1.41 14/08/09 J. Schilling
+ * @(#)rmchg.c	1.42 15/02/06 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)rmchg.c 1.41 14/08/09 J. Schilling"
+#pragma ident "@(#)rmchg.c 1.42 15/02/06 J. Schilling"
 #endif
 /*
  * @(#)rmchg.c 1.19 06/12/12
@@ -358,7 +358,7 @@ char *file;
 	 * Init and check for validity of file name but do not open the file.
 	 * This prevents us from potentially damaging files with lockit().
 	 */
-	sinit(&gpkt, file, 0);
+	sinit(&gpkt, file, SI_INIT);
 
 	/*
 	Lock out any other user who may be trying to process
@@ -369,7 +369,7 @@ char *file;
 	if (lockit(auxf(file,'z'),SCCS_LOCK_ATTEMPTS,getpid(),uuname))
 		efatal(gettext("cannot create lock file (cm4)"));
 
-	sinit(&gpkt,file,1);	/* initialize packet and open s-file */
+	sinit(&gpkt, file, SI_OPEN);	/* initialize packet and open s-file */
 
 	gpkt.p_escdodelt = escdodelt;
 	gpkt.p_fredck = fredck;
