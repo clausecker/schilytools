@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sccs-admin.1	1.41 15/01/31 Copyright 2007-2015 J. Schilling
+.\" @(#)sccs-admin.1	1.43 15/02/25 Copyright 2007-2015 J. Schilling
 .\"  Copyright (c) 2002, Sun Microsystems, Inc. All Rights Reserved.
 .\" CDDL HEADER START
 .\"
@@ -31,14 +31,14 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sccs-admin 1 "2015/01/31" "SunOS 5.11" "User Commands"
+.TH sccs-admin 1 "2015/02/25" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs-admin, admin \- create and administer SCCS history files
 .SH SYNOPSIS
 .LP
 .LP
 .B /usr/ccs/bin/admin
-.RB [ -bhnoz ]
+.RB [ -bhknoz ]
 .RB [ -a\c
 .IR " username " | " groupid" ]...
 .br
@@ -57,6 +57,8 @@ sccs-admin, admin \- create and administer SCCS history files
 .br
 .RB "    [" -q\c
 .RI [ nsedelim ]]
+.RB [ -w\c
+.IR %\&W%-string ]
 .br
 .RB "    [" -r\c
 .IR release "] \c
@@ -479,7 +481,28 @@ If you like to initialize more than one
 in one call, use the
 .B \-N
 option.
+
+.br
+.ne 3
+.TP
+.B -k
+Suppresses expansion of
+.B ID
+keywords when
+.BR admin (1)
+is doing an implicit
+.BR get (1)
+operation because
+.BI  -N+ ...
+was specified.
 .sp
+This option is a
+.B \s-1SCHILY\s+1
+extension that does not exist in historic
+.B sccs
+implementations.
+
+.br
 .ne 3
 .TP
 .BI "-m " mr-list
@@ -501,8 +524,70 @@ This option allows to do an efficient mass creation of SCCS history files
 and to initialize the SCCS history files from named files that
 are the respective counterpart to the actual SCCS history file.
 .sp
-The following option types are supported:
+The
+.I bulk-spec
+parameter is composed from an optional list of
+.B flag
+parameters followed by an optional
+.B path
+specifier.
+.sp
+The following flag types are supported:
 .RS
+.TP 10
+.B \-
+If
+.I bulk-spec
+is preceded by a
+.BR `,' ,
+.BR admin (1)
+removes the original g-files after the initial history files
+have been created. This flag cannot be used together with
+the
+.RB ` , '
+flag.
+.TP
+.B +
+If
+.I bulk-spec
+is preceded by a
+.BR `,' ,
+.BR admin (1)
+removes the original g-files and replaces them by file content that is
+retrieved by a
+.BR get (1)
+operation on the related
+.BI s. file\fR.
+This flag can be used together with the
+.RB ` , '
+flag.
+.TP
+.B ,
+If
+.I bulk-spec
+is preceded by a
+.BR `,' ,
+.BR admin (1)
+renames the g-file from where the SCCS history file was initialized from
+to
+.B ,name
+similar to what happens with
+.BR "sccs create" .
+It is recommended to let
+.BR admin (1)
+rename the original file as this file usually contains unexpanded keywords
+and as this file usually is writable.
+.LP
+If
+.B sccs
+is used in forced delta mode where no
+.B sccs edit
+is needed, it is recommended to use no flag character in the
+.I bulk-spec
+in order to retain a writable g-file.
+
+.LP
+The following path specifier types are supported:
 .TP 10
 .B \-N
 The file name parameters to the
@@ -558,21 +643,6 @@ A typical value for
 is
 .BR SCCS .
 .PP
-If
-.I bulk-spec
-starts with a
-.BR `,' ,
-.BR admin (1)
-renames the g-file from where the SCCS history file was initialized from
-to
-.B ,name
-similar to what happens with
-.BR sccs create .
-It is recommended to let
-.BR admin (1)
-rename the original file as tis file usually contains unexpanded keywords
-and as this file usually is writable.
-.PP
 In order to overcome the limited number of
 .BR exec (2)
 arguments, it is recommended to use
@@ -594,7 +664,7 @@ from trying to expand the file names from
 into an arg vector.
 .PP
 This option is a
-.B SCHILY
+.B \s-1SCHILY\s+1
 extension that does not exist in historic
 .B sccs
 implementations.
@@ -612,9 +682,17 @@ Use the original time of the existing file for the delta time
 when creating a new
 .BR s. file.
 In NSE mode, this is the default behavior.
+If
+.BR admin (1)
+is doing an implicit
+.BR get (1)
+operation because
+.BI  -N+ ...
+was specified, the new g-file is also set to the original file
+date.
 .sp
 This option is a
-.B SCHILY
+.B \s-1SCHILY\s+1
 extension that does not exist in historic
 .B sccs
 implementations.
@@ -683,7 +761,39 @@ removes the descriptive text, if any; a
 option with a
 .I description-file
 replaces the existing text.
+
+.br
+.ne 3
+.TP
+.BI -w %\&W%-string
+The
+.I %\&W%-string
+is used as a replacement for the
+.B %\&W%
+keyword when
+.BR admin (1)
+is doing an implicit
+.BR get (1)
+operation because
+.BI  -N+ ...
+was specified.
+If
+.B \-w
+was not specified, 
+.B %\&W%
+is expanded to
+.BR "%\&Z%%\&M%  %\&I%" ,
+otherwise the argument from
+.B \-w
+is used.
 .sp
+This option is an undocumented
+.B SUN
+extension that does not exist in historic
+.B sccs
+implementations.
+
+.br
 .ne 3
 .TP
 .B \-V
@@ -812,6 +922,7 @@ find usr/src -type f | sccs admin -NSCCS
 .fi
 .in -2
 .sp
+The original g-files will be left untouched.
 
 .LP
 .B Example 4
@@ -854,6 +965,7 @@ sccs admin -NSCCS .
 .fi
 .in -2
 .sp
+The original g-files will be left untouched.
 
 .SH ENVIRONMENT VARIABLES
 .sp

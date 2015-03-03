@@ -29,10 +29,10 @@
 /*
  * Copyright 2006-2015 J. Schilling
  *
- * @(#)delta.c	1.63 15/02/06 J. Schilling
+ * @(#)delta.c	1.67 15/03/01 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)delta.c 1.63 15/02/06 J. Schilling"
+#pragma ident "@(#)delta.c 1.67 15/03/01 J. Schilling"
 #endif
 /*
  * @(#)delta.c 1.40 06/12/12
@@ -66,6 +66,7 @@ static int	num_files;
 static int	number_of_lines;
 static off_t	size_of_file;
 static off_t	Szqfile;
+static off_t	Checksum_offset;
 #ifdef	PROTOTYPES
 static char	BDiffpgm[]  =   NOGETTEXT(INS_BASE "/ccs/bin/" "bdiff");
 #else
@@ -85,8 +86,9 @@ static char	*ilist, *elist, *glist, Cmrs[300], *Nsid;
 static char	Pfilename[FILESIZE];
 static char	*uuname;
 static char	*Cwd = "";
+static char	*Dfilename;
 
-static	time_t	gfile_mtime;
+static struct timespec	gfile_mtime;	/* Timestamp for -o		*/
 static	time_t	cutoff = MAX_TIME;
 
 static struct sid sid;
@@ -112,6 +114,7 @@ static void	skipline __PR((char *lp, int num));
 static char *	rddiff __PR((char *s, int n));
 static void	fgetchk __PR((char *file, struct packet *pkt));
 static void	warnctl __PR((char *file, off_t nline));
+static void 	fixghash __PR((struct packet *pkt, int ser));
 
 extern int	org_ihash;
 extern int	org_chash;
@@ -178,7 +181,7 @@ register char *argv[];
 			}
 			no_arg = 0;
 			i = current_optind;
-		        c = getopt(argc, argv, "-r:dpsnm:g:y:fhoqzC:V(version)");
+		        c = getopt(argc, argv, "-r:dpsnm:g:y:fhoqzC:D:V(version)");
 
 				/* this takes care of options given after
 				** file names.
@@ -251,6 +254,9 @@ register char *argv[];
 			case 'C':
 				Cwd = p;
 				break;
+			case 'D':
+				Dfilename = p;
+				break;
 
 			case 'V':		/* version */
 				printf("delta %s-SCCS version %s %s (%s-%s-%s)\n",
@@ -261,7 +267,7 @@ register char *argv[];
 				exit(EX_OK);
 
 			default:
-				fatal(gettext("Usage: delta [ -dnops ][ -g sid-list ][ -m mr-list ]\n\t[ -r SID ][ -y[comment] ] s.filename... "));
+				fatal(gettext("Usage: delta [ -dnops ][ -g sid-list ][ -m mr-list ][ -r SID ]\n\t[ -y[comment] ][ -D diff-file ] s.filename... "));
 			}
 
 			/*
@@ -311,12 +317,12 @@ char *file;
 	char type;
 	register int ser;
 	extern char had_dir, had_standinp;
-	char nsid[50];
+	char nsid[SID_STRSIZE];
 	char dfilename[FILESIZE];
 	char gfilename[FILESIZE];
 	char line[BUFSIZ];
 	struct stats stats;
-	struct pfile *pp;
+	struct pfile *pp = NULL;
 	struct stat sbuf;
 	int inserted, deleted, orig;
 	int newser;
@@ -357,23 +363,13 @@ char *file;
 #ifdef	USE_SETVBUF
 	setvbuf(Gin, NULL, _IOFBF, VBUF_SIZE);
 #endif
-	pp = rdpfile(&gpkt,&sid);
+	Pfilename[0] = '\0';
+	if (!HADF || exists(auxf(gpkt.p_file,'p')))
+		pp = rdpfile(&gpkt, &sid);
 
-	if((pp->pf_cmrlist)==0)
-		Cmrs[0] = 0;
-	else
+	Cmrs[0] = 0;
+	if (pp != NULL && pp->pf_cmrlist != NULL)
 		strlcpy(Cmrs, pp->pf_cmrlist, sizeof (Cmrs));
-
-	if(!pp->pf_nsid.s_br) {
-		sprintf(nsid, NOGETTEXT("%d.%d"),
-		  pp->pf_nsid.s_rel, pp->pf_nsid.s_lev);
-	}
-	else {
-		sprintf(nsid, NOGETTEXT("%d.%d.%d.%d"),
-		  pp->pf_nsid.s_rel, pp->pf_nsid.s_lev,
-		  pp->pf_nsid.s_br,  pp->pf_nsid.s_seq);
-	}
-	Nsid=nsid;
 
 	if (dodelt(&gpkt,&stats,(struct sid *) 0,0) == 0)
 		fmterr(&gpkt);
@@ -386,11 +382,11 @@ char *file;
                 gpkt.p_reqsid.s_lev = 0;
                 gpkt.p_reqsid.s_br = 0;
                 gpkt.p_reqsid.s_seq = 0;
-                gpkt.p_cutoff = time(0);
+                gpkt.p_cutoff = cutoff;
                 ilist = 0;
                 elist = 0;
                 ser = getser(&gpkt);
-                newsid(&gpkt, 0);
+                newsid(&gpkt, 0);	/* sets gpkt.p_reqsid */
         } else {        
                 gpkt.p_cutoff = pp->pf_date;
                 ilist = pp->pf_ilist;
@@ -400,6 +396,8 @@ char *file;
                                 fatal(gettext("invalid sid in p-file (de3)"));
 		gpkt.p_reqsid = pp->pf_nsid;
         }
+	sid_ba(&gpkt.p_reqsid, nsid);
+	Nsid=nsid;
         if ((HADO || HADQ) && stat(gfilename, &sbuf) == 0) {
                 /*
 		 * When specifying -o (original date) and when
@@ -410,14 +408,14 @@ char *file;
 		 * In non-original date mode, sccs is vulnerable to a mis-set of
 		 * the local clock while calling 'delta'.
                  */
-                gfile_mtime = sbuf.st_mtime;
+                gfile_mtime.tv_sec = sbuf.st_mtime;
+                gfile_mtime.tv_nsec = stat_mnsecs(&sbuf);
 	}
 
 	doie(&gpkt,ilist,elist,glist);
 	setup(&gpkt,ser);
 	finduser(&gpkt);
 	doflags(&gpkt);
-	gpkt.p_reqsid = pp->pf_nsid;
 	permiss(&gpkt);
 	flushto(&gpkt,EUSERTXT,1);
 	gpkt.p_chkeof = 1;
@@ -541,6 +539,9 @@ char *file;
 		getline(&gpkt);
 		gpkt.p_wrttn = 1;
 		gpkt.p_ghash = ghash;	/* ghash may be destroyed in loop */
+		if (glist && gpkt.p_flags & PF_V6) {
+			gpkt.p_ghash = 0; /* write 00000 before correcting */
+		}
         	if (HADF) {
                 	newser = mkdelt(&gpkt, &gpkt.p_reqsid, &gpkt.p_gotsid, 
 				diffloop, orig);
@@ -640,6 +641,14 @@ command, to check the differences found between two files.
 		unlink(auxf(gpkt.p_file,'e'));
 	}
 	unlink(dfilename);
+	/*
+	 * If we had a glist, the checked out file will differ from the checked
+	 * in file. Check out the real new content and recompute + correct the
+	 * ghash.
+	 */
+	if (glist && gpkt.p_flags & PF_V6)
+		fixghash(&gpkt, newser);
+
 	stats.s_ins = inserted;
 	stats.s_del = deleted;
 	stats.s_unc = orig - deleted;
@@ -655,7 +664,7 @@ command, to check the differences found between two files.
 
 	chown(gpkt.p_file, (unsigned int)sbuf.st_uid,
 			(unsigned int)sbuf.st_gid);
-	if (!HADF) {
+	if (!HADF || Pfilename[0] != '\0') {
 		char	*qfile;
 		
 		if (exists(qfile = auxf(gpkt.p_file, 'q'))) {
@@ -747,8 +756,8 @@ int orig_nlines;
          * supported), the delta time is set to be the mtime of the clear
          * file.
          */
-        if ((HADO || HADQ) && (gfile_mtime != 0)) {
-		time2dt(&dt.d_dtime, gfile_mtime, 0);
+        if ((HADO || HADQ) && (gfile_mtime.tv_sec != 0)) {
+		time2dt(&dt.d_dtime, gfile_mtime.tv_sec, gfile_mtime.tv_nsec);
         }
 	strncpy(dt.d_pgmr,logname(),LOGSIZE-1);
 	dt.d_type = 'D';
@@ -784,8 +793,10 @@ int orig_nlines;
 		}
 		putcmrs(pkt); /* this routine puts cmrs on the out put file */
 	}
-	if (pkt->p_flags & PF_V6)
+	if (pkt->p_flags & PF_V6) {
+		Checksum_offset = ftell(gpkt.p_xiop);
 		sidext_ba(pkt, &dt);
+	}
 
 	sprintf(str, NOGETTEXT("%c%c "), CTLCHAR, COMMENTS);
 	putline(pkt,str);
@@ -979,6 +990,8 @@ int difflim;
 	char num[10];
 	struct rlimit	rlim;
 
+	if (HADUCD)
+		return  (xfopen(Dfilename, O_RDONLY|O_BINARY));
 	xpipe(pfd);
 	if ((i = vfork()) < 0) {
 		int	errsav = errno;
@@ -1469,7 +1482,51 @@ warnctl(file, nline)
 		"WARNING [%s]: line %jd begins with ^A\n"),
 		file, (intmax_t)nline);
 }
- 
+
+static void 
+fixghash(pkt, ser)
+	struct	packet	*pkt;
+	int		ser;
+{
+	char		ghbuf[10];
+	signed char	*q;
+	struct packet	pk2;
+	struct stats	stats;
+
+	putline(pkt,(char *) 0);	/* Flush last unwritten line	*/
+	fflush(pkt->p_xiop);		/* Flush stdio buffers		*/
+
+	sinit(&pk2, auxf(pkt->p_file,'x'), SI_OPEN|SI_FORCE);
+
+	pk2.do_chksum = 0;		/* Checksums are still wrong	*/
+	pk2.p_stdout = stderr;
+	pk2.p_cutoff = MAX_TIME;
+
+	if (dodelt(&pk2, &stats, (struct sid *) 0, 0) == 0)
+		fmterr(&pk2);
+	flushto(&pk2, EUSERTXT, FLUSH_NOCOPY);
+
+	pk2.p_chkeof = 1;
+	pk2.p_gotsid = pk2.p_idel[ser].i_sid;
+	pk2.p_reqsid = pk2.p_gotsid;
+
+	setup(&pk2, ser);
+
+	pk2.p_ghash = 0;
+	while (readmod(&pk2))		/* Compute ghash for gotten content */
+		;
+	pk2.p_ghash &= 0xFFFF;
+
+	fseek(pkt->p_xiop, Checksum_offset, SEEK_SET);
+	fprintf(pkt->p_xiop, "%c%c s %5.5d\n",
+		CTLCHAR, SIDEXTENS, pk2.p_ghash);
+	pkt->p_nhash -= 5 * '0';
+	sprintf(ghbuf, "%5.5d", pk2.p_ghash);
+	q = (signed char *) ghbuf;
+	while (*q)
+		pkt->p_nhash += *q++;
+}
+
 /* SVR4.0 does not support getdtablesize().				  */
 
 #ifndef	HAVE_GETDTABLESIZE

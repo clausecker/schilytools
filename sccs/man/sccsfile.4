@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sccsfile.4	1.37 15/01/27 Copyright 2007-2015 J. Schilling */
+.\" @(#)sccsfile.4	1.38 15/02/25 Copyright 2007-2015 J. Schilling */
 .\" Copyright (c) 2002, Sun Microsystems, Inc. All Rights Reserved.
 .\" Copyright 1989 AT&T
 .\" Copyright (c) 2007-2015 J. Schilling
@@ -33,7 +33,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sccsfile 4 "2015/01/27" "SunOS 5.11" "File Formats"
+.TH sccsfile 4 "2015/02/25" "SunOS 5.11" "File Formats"
 .SH NAME
 sccsfile \- format of an SCCS history file
 .SH DESCRIPTION
@@ -809,7 +809,9 @@ that is used to help to identify single files
 across renames during the lifetime of the sccs history.
 .sp
 The pseudo random number is a hexadecimal string that represents the
-microseconds since 2004\ Jan\ 10\ 13:37:04\ GMT when initially creating the
+microseconds since
+Jul\ 13\ 11:01:20\ 2012\ GMT
+when initially creating the
 sccs history for a specific file.
 Including microseconds gives sufficient randomness
 to make clashes rare.
@@ -822,7 +824,8 @@ With a 64 bit pseudo random number, more than 500000 years are covered.
 The minimal length for the pseudo random
 number is thirteen hexadecimal characters. If the number could be represented
 with less digits, it is left filled with zeroes. This allows to have a unique
-length for this number until 2146 Sep 27 13:30:51\ GMT.
+length for this number until
+Mar\ 31\ 10:55:07\ 2155\ GMT.
 .RE
 .LP
 The

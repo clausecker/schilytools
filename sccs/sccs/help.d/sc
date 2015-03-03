@@ -20,7 +20,7 @@
 *
 * Copyright 2015 J. Schilling
 *
-* @(#)sc	1.1 15/02/02 J. Schilling
+* @(#)sc	1.4 15/02/17 J. Schilling
 *
 *	Messages for the sccs command.
 *
@@ -28,3 +28,14 @@
 "illegal editor in environment"
 The environment "SCCS_EDITOR" or "EDITOR" defines a value that matches
 an internal sccs(1) subcommand. This is not permitted.
+-2
+"invalid operator"
+The specified sccs subcommand is not implemented. This is an implementation
+botch, please contact your SCCS administrator.
+-3
+"already inialized"
+The specified directory or a directory "above" that directory was already
+initalized. Use the -f (force) flag if you like to create a nested repository.
+-4
+"already tracked"
+The named file is already tracked for this project.

@@ -1,8 +1,8 @@
-/* @(#)cpp.c	1.33 15/02/12 2010-2015 J. Schilling */
+/* @(#)cpp.c	1.36 15/02/19 2010-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)cpp.c	1.33 15/02/12 2010-2015 J. Schilling";
+	"@(#)cpp.c	1.36 15/02/19 2010-2015 J. Schilling";
 #endif
 /*
  * C command
@@ -233,6 +233,7 @@ STATIC	char	*fnames[MAXINC];
 STATIC	char	*dirnams[MAXINC];	/* actual directory of #include files */
 STATIC	int	fins[MAXINC];
 STATIC	int	lineno[MAXINC];
+STATIC	char	*input;
 
 /*
  * We need:
@@ -244,12 +245,16 @@ STATIC	int	lineno[MAXINC];
 STATIC	char	*dirs[MAXIDIRS+3];	/* -I and <> directories */
 STATIC	int	fin	= STDIN_FILENO;
 STATIC	FILE	*fout;			/* Init in main(), Mac OS is nonPOSIX */
+STATIC	FILE	*mout;			/* Output for -M */
 STATIC	int	nd	= 1;
 STATIC	int	pflag;	/* don't put out lines "# 12 foo.c" */
 STATIC	int	passcom;	/* don't delete comments */
 STATIC	int rflag;	/* allow macro recursion */
 STATIC	int	hflag;	/* Print included filenames */
+STATIC	int	mflag;	/* Generate make dependencies */
+STATIC	int	noinclude;	/* -noinclude /usr/include */
 STATIC	int	nopredef;	/* -undef all */
+	int	char_is_signed = -1;	/* for -xuc -xsc */
 STATIC	int	ifno;
 # define NPREDEF 64
 STATIC	char *prespc[NPREDEF];
@@ -775,6 +780,8 @@ doincl(p) register char *p; {
 		sayline(ENTERINCLUDE);
 		if (hflag)
 			fprintf(stderr, "%s\n", nfil);
+		if (mflag)
+			fprintf(mout, "%s: %s\n", input, fnames[ifno]);
 		/* save current contents of buffer */
 		while (!eob(p)) p=unfill(p);
 		inctop[ifno]=mactop;
@@ -1400,9 +1407,23 @@ main(argc,argv)
 					}
 					*prund++ = argv[i]+2;
 					continue;
+				case 'n':
+					if (strcmp(argv[i], "-noinclude") == 0)
+						noinclude = 1;
+					else
+						goto unknown;
+					continue;
 				case 'u':
 					if (strcmp(argv[i], "-undef") == 0)
 						nopredef = 1;
+					else
+						goto unknown;
+					continue;
+				case 'x':
+					if (strcmp(argv[i], "-xsc") == 0)
+						char_is_signed = 1;
+					else if (strcmp(argv[i], "-xuc") == 0)
+						char_is_signed = 0;
 					else
 						goto unknown;
 					continue;
@@ -1415,6 +1436,9 @@ main(argc,argv)
 					continue;
 				case 'H':		/* Print included filenames */
 					hflag++;
+					continue;
+				case 'M':		/* Generate make dependencies */
+					mflag++;
 					continue;
 				case 'Y':		/* Replace system include dir */
 					sysdir = argv[i]+2;
@@ -1430,8 +1454,9 @@ main(argc,argv)
 					if (0>(fin=open(argv[i], O_RDONLY))) {
 						pperror("No source file %s",argv[i]); exit(8);
 					}
-					fnames[ifno]=copy(argv[i]);
-					dirs[0]=dirnams[ifno]=trmdir(argv[i]);
+					fnames[ifno] = copy(argv[i]);
+					input = copy(argv[i]);
+					dirs[0] = dirnams[ifno] = trmdir(argv[i]);
 # ifndef gcos
 /* too dangerous to have file name in same syntactic position
    be input or outptrut file depending on file redirections,
@@ -1448,12 +1473,32 @@ main(argc,argv)
 			}
 		}
 
+	if (mflag) {
+		if (input == NULL) {
+			pperror("cpp: no input file specified with -M flag");
+			exit(8);
+		}
+		p = strrchr(input, '.');
+		if (p == NULL || p[1] == '\0') {
+			pperror("cpp: no filename suffix");
+			exit(8);
+		}
+		p[1] = 'o';
+		p = strrchr(input, '/');
+		if (p != NULL)
+			input = &p[1];
+		mout = fout;
+		if (NULL == (fout = fopen("/dev/null", "w"))) {
+			pperror("Can't create /dev/null");
+			exit(8);
+		}
+	}
 	fins[ifno]=fin;
 	exfail = 0;
 		/* after user -I files here are the standard include libraries */
 	if (sysdir != NULL) {
 		dirs[nd++] = sysdir;
-	} else {
+	} else if (!noinclude) {
 # if unix
 	dirs[nd++] = "/usr/include";
 # endif
@@ -1645,6 +1690,8 @@ main(argc,argv)
 	trulvl = 0; flslvl = 0;
 	lineno[0] = 1; sayline(NOINCLUDE);
 	outptr=inptr=pend;
+	if (mflag)
+		fprintf(mout, "%s: %s\n", input, fnames[ifno]);
 	control(pend);
 	return (exfail);
 }

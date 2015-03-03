@@ -27,10 +27,10 @@
 /*
  * Copyright 2006-2015 J. Schilling
  *
- * @(#)prs.c	1.45 15/02/06 J. Schilling
+ * @(#)prs.c	1.46 15/02/23 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)prs.c 1.45 15/02/06 J. Schilling"
+#pragma ident "@(#)prs.c 1.46 15/02/23 J. Schilling"
 #endif
 /*
  * @(#)prs.c 1.33 06/12/12
@@ -132,9 +132,9 @@ static void	getbody __PR((struct sid *gsid, struct packet *pkt));
 static void	getit __PR((char *str, char *cp));
 static void	aux_create __PR((FILE *iop, char *file, int delchar));
 #if defined(BUG_1205145) || defined(GMT_TIME)
-static void	idsetup __PR((struct sid *gsid, struct packet *pkt, struct deltab *dt));
+static void	prs_idsetup __PR((struct sid *gsid, struct packet *pkt, struct deltab *dt));
 #else
-static void	idsetup __PR((struct sid *gsid, struct packet *pkt, time_t *bdate));
+static void	prs_idsetup __PR((struct sid *gsid, struct packet *pkt, time_t *bdate));
 #endif
 static void	putmr __PR((char *cp));
 static void	putsx __PR((char *cp));
@@ -636,9 +636,9 @@ struct	stats	*statp;
 	'scanspec' substitution
 	*/
 #if defined(BUG_1205145) || defined(GMT_TIME)
-	idsetup(&dtp->d_sid,&gpkt,dtp);
+	prs_idsetup(&dtp->d_sid, &gpkt, dtp);
 #else
-	idsetup(&dtp->d_sid,&gpkt,&dtp->d_dtime.dt_sec);
+	prs_idsetup(&dtp->d_sid, &gpkt, &dtp->d_dtime.dt_sec);
 #endif
 
 	/*
@@ -1415,9 +1415,9 @@ char	delchar;
 
 static void
 #if defined(BUG_1205145) || defined(GMT_TIME)
-idsetup(gsid,pkt,dt)
+prs_idsetup(gsid, pkt, dt)
 #else
-idsetup(gsid,pkt,bdate)
+prs_idsetup(gsid, pkt, bdate)
 #endif
 struct	sid	*gsid;
 struct	packet	*pkt;

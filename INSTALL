@@ -336,6 +336,18 @@ Creating executables using the Sun Studio compiler on Linux:
 	lines like: "#if defined(__GNUC__) && !defined(__STRICT_ANSI__)"
 	as well as the related #endif.
 
+Using a different compiler binary name:
+
+	Call:
+
+		make CC=/opt/instrumented/bin/cc
+
+	Note that all knowledge about the options of a compiler are derived
+	from the CCOM= variable, so if you like to use an instrumented gcc
+	variant, you may like to call:
+
+		make CCOM=gcc CC=fluffy-gcc
+
 
 
 Getting help from make:
@@ -571,6 +583,7 @@ Compiling in a cross compilation environment:
 	OSREL=			# 5.11
 	OSVERSION=		# snv_130
 	CCOM=			# generic compiler name (e.g. "gcc")
+	CC=			# compiler to call (name for binary)
 	CC_COM=			# compiler to call (name + basic args)
 
 	ARCH=			overwrites M_ARCH and P_ARCH

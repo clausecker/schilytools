@@ -10,10 +10,10 @@
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 /*
- * @(#)setinitpath.c	1.1 14/08/03 Copyright 2011-2014 J. Schilling
+ * @(#)setinitpath.c	1.2 15/02/28 Copyright 2011-2015 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)setinitpath.c 1.1 14/08/03 J. Schilling"
+#pragma ident "@(#)setinitpath.c 1.2 15/02/28 J. Schilling"
 #endif
 
 #if defined(sun)
@@ -44,7 +44,7 @@ set_init_path(pkt, file, dir)
 		homedist > 0 ? cwdprefix:"",
 			homedist > 0 ? "/": "",
 			dir, *dir ? "/":"",
-			auxf(file, 'g'));
+			auxf(file, 'I'));
 		p = fmalloc(size(line));
 		strcpy(p, line);
 		pkt->p_init_path = p;

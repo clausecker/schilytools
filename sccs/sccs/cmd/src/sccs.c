@@ -25,10 +25,10 @@
 /*
  * Copyright 2006-2015 J. Schilling
  *
- * @(#)sccs.c	1.73 15/02/06 J. Schilling
+ * @(#)sccs.c	1.76 15/03/02 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)sccs.c 1.73 15/02/06 J. Schilling"
+#pragma ident "@(#)sccs.c 1.76 15/03/02 J. Schilling"
 #endif
 /*
  * @(#)sccs.c 1.85 06/12/12
@@ -287,11 +287,19 @@ static void do_diffs __PR((char *file));
 static int enter __PR((int nfiles, char **argv));
 static int editor __PR((int nfiles, char **argv));
 static int istext __PR((int nfiles, char **argv));
+static int addcmd __PR((int nfiles, char **argv));
+static int commitcmd __PR((int nfiles, char **argv));
+static int initcmd __PR((int nfiles, char **argv));
+static int initdir __PR((char *path, int intree));
+static int removecmd __PR((int nfiles, char **argv));
+static int renamecmd __PR((int nfiles, char **argv));
+static int statuscmd __PR((int nfiles, char **argv));
 static char *makegfile __PR((char *name));
 #ifdef	USE_RECURSIVE
 static int dorecurse __PR((char **argv, char **np, char *dir, struct sccsprog *cmd));
 #endif
 static int fgetchk	__PR((char *file, int dov6, int silent));
+static void sethdebug	__PR((void));
 
 /* values for sccsoper */
 #define	PROG		0	/* call a program */
@@ -306,6 +314,12 @@ static int fgetchk	__PR((char *file, int dov6, int silent));
 #define	ENTER		7	/* enter new files */
 #define	EDITOR		8	/* get -e + call $EDITOR */
 #define	ISTEXT		9	/* check whether file needs encoding */
+#define	ADD		10	/* add specified files on next commit */
+#define	COMMIT		11	/* commit changes to project repository */
+#define	INIT		12	/* initialize empty project repository */
+#define	REMOVE		13	/* remove specified files on next commit */
+#define	RENAME		14	/* rename specified files on next commit */
+#define	STATUS		15	/* show changed files in the project */
 
 /* bits for sccsflags */
 #define	NO_SDOT	0001	/* no s. on front of args */
@@ -376,6 +390,12 @@ static struct sccsprog SccsProg[] =
 	{ "enter",	ENTER,	NO_SDOT,		NULL },
 	{ "create",	CMACRO,	NO_SDOT,
 	   "enter:abdfmortyzV/get:ixbeskcl -t" },
+	{ "add",	ADD,	REALUSER|NO_SDOT,	NULL },
+	{ "commit",	COMMIT,	REALUSER|NO_SDOT,	NULL },
+	{ "init",	INIT,	REALUSER|NO_SDOT,	NULL },
+	{ "remove",	REMOVE,	REALUSER|NO_SDOT,	NULL },
+	{ "rename",	RENAME,	REALUSER|NO_SDOT,	NULL },
+	{ "status",	STATUS,	REALUSER|NO_SDOT,	NULL },
 	{ NULL,		-1,	0,			NULL }
 };
 
@@ -671,6 +691,9 @@ main(argc, argv)
 		exit(EX_USAGE);
 		/*NOTREACHED*/
 	}
+
+	xsethome(NULL);
+
 	i = command(argv, FALSE, "");
 	return (i);
 }
@@ -1176,8 +1199,8 @@ command(argv, forkflag, arg0)
 			}
 		      }
 		      if (!hady && strncmp(p, "-y", 2) == 0) {
-			 if (!strcmp(cmd->sccsname,"deledit") ||
-			     !strcmp(cmd->sccsname,"delget"))
+			 if (strcmp(cmd->sccsname,"deledit") == 0 ||
+			     strcmp(cmd->sccsname,"delget")  == 0)
 				hady = 1;
 		      }
 		      if (strcmp(p,"-C") == 0) {
@@ -1214,9 +1237,9 @@ command(argv, forkflag, arg0)
 	if (Rflag > 0) {
 		np[0] = NULL;
 		if (!hady &&
-		    (!strcmp(cmd->sccsname, "delta") ||
-		    !strcmp(cmd->sccsname, "deledit") ||
-		    !strcmp(cmd->sccsname, "delget"))) {
+		    (strcmp(cmd->sccsname, "delta")  == 0 ||
+		    strcmp(cmd->sccsname, "deledit") == 0 ||
+		    strcmp(cmd->sccsname, "delget")  == 0)) {
 			if (Comments == NULL)
 				get_sccscomment();
 			*np++ = Comments;
@@ -1242,12 +1265,12 @@ command(argv, forkflag, arg0)
 		return (rval);
 	}
 	if (Rflag && bitset(COLLECT, cmd->sccsflags) &&
-	    !strcmp(cmd->sccsname, "log")) {
+	    strcmp(cmd->sccsname, "log") == 0) {
 		*np++ = "-p";
 		*np++ = SccsPath;
 	} else if (Cwd && Cwd[2] && cmd->sccsoper == PROG &&
-	    (!strcmp(cmd->sccsname, "get") ||
-	    !strcmp(cmd->sccsname, "delta"))) {
+	    (strcmp(cmd->sccsname, "get")  == 0 ||
+	    strcmp(cmd->sccsname, "delta") == 0)) {
 		*np++ = Cwd;
 	}
 #endif
@@ -1279,7 +1302,7 @@ command(argv, forkflag, arg0)
 # endif
 
 	  case PROG:		/* call an sccs prog */
-		if (create_macro == 1 && !strcmp(cmd->sccsname, "get")) {
+		if (create_macro == 1 && strcmp(cmd->sccsname, "get") == 0) {
 			char Gname[FILESIZE];
 			char *  gfp;
 			int     ind, ind1 = 0;
@@ -1325,7 +1348,7 @@ command(argv, forkflag, arg0)
 						Arr += cur_num_file;
 					}
 				}
-				if (!strcmp(cmd->sccsname, "delta")) {
+				if (strcmp(cmd->sccsname, "delta") == 0) {
 					/* first part of del_macro (deledit or delget) */
 					if (Arr != NULL) {
 						*Arr = getNsid(ap[ind], user_name);
@@ -1369,11 +1392,11 @@ command(argv, forkflag, arg0)
 
 		/* step through & execute each part of the macro */
 		ap_for_get = NULL;
-		if (!strcmp(cmd->sccsname, "create")) {
+		if (strcmp(cmd->sccsname, "create") == 0) {
 			create_macro = 1;
 		} else {
-			if (!strcmp(cmd->sccsname, "deledit") ||
-			    !strcmp(cmd->sccsname, "delget")) {
+			if (strcmp(cmd->sccsname, "deledit") == 0 ||
+			    strcmp(cmd->sccsname, "delget")  == 0) {
 
 				del_macro = 1;
 				if ((user_name = logname()) == NULL)
@@ -1425,8 +1448,8 @@ command(argv, forkflag, arg0)
 					for (cnt = 0; ap[cnt] != NULL; cnt++) ;
 					xsize = cnt - nfiles + 2;
 					if (!hady) {
-						if (!strcmp(cmd->sccsname, "deledit") ||
-						    !strcmp(cmd->sccsname, "delget")) {
+						if (strcmp(cmd->sccsname, "deledit") == 0 ||
+						    strcmp(cmd->sccsname, "delget")  == 0) {
 							/* additional element for '-ycomments' parameter */
 							xsize++;
 						}
@@ -1440,8 +1463,8 @@ command(argv, forkflag, arg0)
 						ap1[ind] = ap[ind];
 					}
 					if (!hady) {
-						if (!strcmp(cmd->sccsname, "deledit") ||
-						    !strcmp(cmd->sccsname, "delget")) {
+						if (strcmp(cmd->sccsname, "deledit") == 0 ||
+						    strcmp(cmd->sccsname, "delget")  == 0) {
 							if (Comments == NULL)
 								get_sccscomment();
 							ap1[xsize - 3] = Comments;
@@ -1515,8 +1538,32 @@ command(argv, forkflag, arg0)
 		rval = istext(nfiles, ap);
 		break;
 
+	  case ADD:		/* add specified files on next commit  */
+		rval = addcmd(nfiles, ap);
+		break;
+
+	  case COMMIT:		/* commit changes to project repository */
+		rval = commitcmd(nfiles, ap);
+		break;
+
+	  case INIT:		/* initialize empty project repository */
+		rval = initcmd(nfiles, ap);
+		break;
+
+	  case REMOVE:		/* remove specified files on next commit  */
+		rval = removecmd(nfiles, ap);
+		break;
+
+	  case RENAME:		/* rename specified files on next commit  */
+		rval = renamecmd(nfiles, ap);
+		break;
+
+	  case STATUS:		/* show changed files in the project */
+		rval = statuscmd(nfiles, ap);
+		break;
+
 	  default:
-		syserr("oper %d", cmd->sccsoper);
+		syserr("oper %d (sc2)", cmd->sccsoper);
 		exit(EX_SOFTWARE);
 	}
 # ifdef DEBUG
@@ -2765,6 +2812,12 @@ usrerr(f, va_alist)
 	fprintf(stderr, "\n");
 	va_end(ap);
 
+#ifdef	SCCS_FATALHELP
+	if (strchr(f, '(')) {
+		sccsfatalhelp((char *)f);
+		errno = 0;
+	}
+#endif
 	return (-1);
 }
 
@@ -2804,6 +2857,12 @@ syserr(f, va_alist)
 	fprintf(stderr, "\n");
 	va_end(ap);
 
+#ifdef	SCCS_FATALHELP
+	if (errno == 0 && strchr(f, '(')) {
+		sccsfatalhelp((char *)f);
+		errno = 0;
+	}
+#endif
 	if (errno == 0) {
 		if (didvfork)
 			_exit(EX_SOFTWARE);
@@ -3008,7 +3067,7 @@ char *file;
 		{
 			char	*diffcmd = NOGETTEXT("-diff:elsfnhbwtCIDUu");
 
-			if (!strcmp(maincmd->sccsname, "ldiffs"))
+			if (strcmp(maincmd->sccsname, "ldiffs") == 0)
 				diffcmd = NOGETTEXT("-ldiff:elsfnhbwtCIDUu");
 			if( command(&diffs_ap[1], TRUE, diffcmd) > 1 )
 			{
@@ -3286,6 +3345,380 @@ istext(nfiles, argv)
 		usrerr(gettext(" missing file arg (cm3)"));
 		rval = EX_USAGE;
 		exit(EX_USAGE);
+	}
+	return (rval);
+}
+
+static char	**anames;
+static int	alen;
+static int	anum;
+static int	addfile		__PR((char *file));
+static int	readncache	__PR((void));
+static int	addcmp		__PR((const void *file1, const void *file2));
+static int
+addfile(file)
+	char	*file;
+{
+	if (alen <= anum) {
+		alen += 128;
+		anames = realloc(anames, alen * sizeof (char *));
+		if (anames == NULL)
+			efatal("out of space (ut9)");
+	}
+	if ((anames[anum++] = strdup(file)) == NULL)
+		efatal("out of space (ut9)");
+	return (0);
+}
+
+static int
+readncache()
+{
+	char	nbuf[FILESIZE];
+	char	lbuf[MAXLINE];
+	FILE	*nfp;
+
+	strlcpy(nbuf, setrhome, sizeof (nbuf));
+	strlcat(nbuf, "/.sccs/ncache", sizeof (nbuf));
+	nfp = fopen(nbuf, "rb");
+	if (nfp == NULL) {
+		return (-1);
+	}
+	while (fgets(lbuf, sizeof (lbuf), nfp) != NULL) {
+		size_t	llen = strlen(lbuf);
+
+		if (llen > 0 && lbuf[llen-1] == '\n')
+			lbuf[llen-1] = '\0';
+		addfile(lbuf);
+	}
+	fclose(nfp);
+	return (0);
+}
+
+static int
+addcmp(file1, file2)
+	const void	*file1;
+	const void	*file2;
+{
+	int	ret = strcmp(&(*(char **)file1)[13], &(*(char **)file2)[13]);
+
+	if (ret == 0) {
+		Ffile = &(*(char **)file1)[13];
+		fatal(gettext("already tracked (sc4)"));
+	}
+	return (ret);
+}
+
+static int
+addcmd(nfiles, argv)
+	int	nfiles;
+	char	**argv;
+{
+	char	nbuf[FILESIZE];
+	size_t	nboff;
+	int	rval = 0;
+	char	**np;
+	char	**ap = argv;
+	int	files = 0;
+	struct stat statb;
+
+	for (np = &ap[1]; *np != NULL; np++) {
+		if (**np == '-') {
+			/* we have a flag */
+			switch ((*np)[1]) {
+
+			default:
+				usrerr("%s %s", gettext("unknown option"), *np);
+				rval = EX_USAGE;
+				exit(EX_USAGE);
+				break;
+			}
+			continue;
+		}
+		if (files == 0) {
+			checkhome(NULL);
+			readncache();
+		}
+		files |= 1;
+		strlcpy(nbuf, "A 0000000000 ", sizeof (nbuf));
+		if (stat(*np, &statb) < 0)
+			xmsg(*np, NOGETTEXT("add"));
+		sprintf(&nbuf[2], "%10ld ", (long)statb.st_mtime);
+		nboff = 13;
+		if (cwdprefix[0]) {
+			strlcpy(&nbuf[nboff], cwdprefix, sizeof (nbuf) - nboff);
+			nboff += cwdprefixlen;
+			strlcpy(&nbuf[nboff], "/", sizeof (nbuf) - nboff);
+			nboff += 1;
+		}
+		resolvepath(*np, &nbuf[nboff], sizeof (nbuf) - nboff);	/* Must exist */
+		addfile(nbuf);
+	}
+	if (files == 0) {
+		usrerr(gettext(" missing file arg (cm3)"));
+	} else {
+		FILE	*nfp;
+		int	i;
+
+		qsort((void *)anames, anum, sizeof (char *), addcmp);
+
+		strlcpy(nbuf, setrhome, sizeof (nbuf));
+		strlcat(nbuf, "/.sccs/ncache", sizeof (nbuf));
+		nfp = xfcreat(nbuf, 0666);
+		for (i = 0; i < anum; i++) {
+			fputs(anames[i], nfp);
+			fputs("\n", nfp);
+		}
+		fclose(nfp);
+	}
+	return (rval);
+}
+
+static int
+commitcmd(nfiles, argv)
+	int	nfiles;
+	char	**argv;
+{
+	int	rval = 0;
+	char	**np;
+	char	**ap = argv;
+	int	files = 0;
+
+	for (np = &ap[1]; *np != NULL; np++) {
+		if (**np == '-') {
+			/* we have a flag */
+			switch ((*np)[1]) {
+
+			default:
+				usrerr("%s %s", gettext("unknown option"), *np);
+				rval = EX_USAGE;
+				exit(EX_USAGE);
+				break;
+			}
+			continue;
+		}
+		if (files == 0) {
+			checkhome(NULL);
+		}
+		files |= 1;
+/*		rval |= initdir(*np, flags);*/
+	}
+	if (files == 0) {
+/*		rval |= initdir(".", flags);*/
+	}
+	fprintf(stderr, "sccs: 'commit' not yet implemented\n");
+	rval = 1;
+	return (rval);
+}
+
+static int
+initcmd(nfiles, argv)
+	int	nfiles;
+	char	**argv;
+{
+	int	rval = 0;
+	char	**np;
+	char	**ap = argv;
+	int	flags = 0;
+	int	files = 0;
+
+	for (np = &ap[1]; *np != NULL; np++) {
+		if (**np == '-') {
+			/* we have a flag */
+			switch ((*np)[1]) {
+
+#define	IF_INTREE	1
+			case 'i':
+				flags |= IF_INTREE;
+				break;
+
+#define	IF_FORCE	2
+			case 'f':
+				flags |= IF_FORCE;
+				break;
+
+			default:
+				usrerr("%s %s", gettext("unknown option"), *np);
+				rval = EX_USAGE;
+				exit(EX_USAGE);
+				break;
+			}
+			continue;
+		}
+		files |= 1;
+		rval |= initdir(*np, flags);
+	}
+	if (files == 0) {
+		rval |= initdir(".", flags);
+	}
+	xsethome(NULL);
+	return (rval);
+}
+
+LOCAL int
+initdir(hpath, flags)
+	char	*hpath;
+	int	flags;
+{
+	char	nbuf[FILESIZE];
+	int	err = 0;
+
+	resolvenpath(hpath, nbuf, sizeof (nbuf));	/* Max not yet exist */
+	xmkdir(nbuf, S_IRWXU|S_IRWXG|S_IRWXO);
+
+	unsethome();
+	xsethome(hpath);
+
+#ifdef	DEBUG
+	if (Debug) {
+		sethdebug();
+	}
+#endif
+
+	if ((flags & IF_FORCE) == 0 && SETHOME_INIT()) {
+		int	Oflags = Fflags;
+
+		Fflags &= ~FTLACT;
+		Ffile = setahome ? setahome : setrhome;
+		fatal(gettext("already initialized (sc3)"));
+		Ffile = NULL;
+		Fflags = Oflags;
+		return (1);
+	}
+
+	strlcat(nbuf, "/.sccs", sizeof (nbuf));
+	xmkdir(nbuf, S_IRWXU|S_IRWXG|S_IRWXO);
+	strlcat(nbuf, "/SCCS", sizeof (nbuf));
+	xmkdir(nbuf, S_IRWXU|S_IRWXG|S_IRWXO);
+	nbuf[strlen(nbuf) -4] = '\0';
+	strlcat(nbuf, "dels", sizeof (nbuf));
+	xmkdir(nbuf, S_IRWXU|S_IRWXG|S_IRWXO);
+	strlcat(nbuf, "/SCCS", sizeof (nbuf));
+	xmkdir(nbuf, S_IRWXU|S_IRWXG|S_IRWXO);
+	if ((flags & IF_INTREE) == 0) {
+		nbuf[strlen(nbuf) -9] = '\0';
+		strlcat(nbuf, "data", sizeof (nbuf));
+		xmkdir(nbuf, S_IRWXU|S_IRWXG|S_IRWXO);
+	}
+	unsethome();
+	return (err);
+}
+
+static int
+removecmd(nfiles, argv)
+	int	nfiles;
+	char	**argv;
+{
+	int	rval = 0;
+	char	**np;
+	char	**ap = argv;
+	int	files = 0;
+
+	for (np = &ap[1]; *np != NULL; np++) {
+		if (**np == '-') {
+			/* we have a flag */
+			switch ((*np)[1]) {
+
+			default:
+				usrerr("%s %s", gettext("unknown option"), *np);
+				rval = EX_USAGE;
+				exit(EX_USAGE);
+				break;
+			}
+			continue;
+		}
+		if (files == 0) {
+			checkhome(NULL);
+		}
+		files |= 1;
+/*		rval |= initdir(*np, flags);*/
+	}
+	if (files == 0) {
+/*		rval |= initdir(".", flags);*/
+	}
+	fprintf(stderr, "sccs: 'remove' not yet implemented\n");
+	rval = 1;
+	return (rval);
+}
+
+static int
+renamecmd(nfiles, argv)
+	int	nfiles;
+	char	**argv;
+{
+	int	rval = 0;
+	char	**np;
+	char	**ap = argv;
+	int	files = 0;
+
+	for (np = &ap[1]; *np != NULL; np++) {
+		if (**np == '-') {
+			/* we have a flag */
+			switch ((*np)[1]) {
+
+			default:
+				usrerr("%s %s", gettext("unknown option"), *np);
+				rval = EX_USAGE;
+				exit(EX_USAGE);
+				break;
+			}
+			continue;
+		}
+		if (files == 0) {
+			checkhome(NULL);
+		}
+		files |= 1;
+/*		rval |= initdir(*np, flags);*/
+	}
+	if (files == 0) {
+/*		rval |= initdir(".", flags);*/
+	}
+	fprintf(stderr, "sccs: 'rename' not yet implemented\n");
+	rval = 1;
+	return (rval);
+}
+
+static int
+statuscmd(nfiles, argv)
+	int	nfiles;
+	char	**argv;
+{
+	int	rval = 0;
+	char	**np;
+	char	**ap = argv;
+	int	files = 0;
+	int	i;
+
+	for (np = &ap[1]; *np != NULL; np++) {
+		if (**np == '-') {
+			/* we have a flag */
+			switch ((*np)[1]) {
+
+			default:
+				usrerr("%s %s", gettext("unknown option"), *np);
+				rval = EX_USAGE;
+				exit(EX_USAGE);
+				break;
+			}
+			continue;
+		}
+		if (files == 0) {
+			checkhome(NULL);
+			readncache();
+		}
+		files |= 1;
+/*		rval |= initdir(*np, flags);*/
+	}
+	if (files == 0) {
+/*		rval |= initdir(".", flags);*/
+	}
+	for (i = 0; i < anum; i++) {
+		char	nbuf[FILESIZE];
+		struct stat statb;
+
+		if (stat(anames[i]+13, &statb) < 0)
+			xmsg(*np, NOGETTEXT("add"));
+
+		resolvepath(anames[i]+13, nbuf, sizeof (nbuf));
 	}
 	return (rval);
 }
@@ -3790,3 +4223,22 @@ fgetchk(file, dov6, silent)
 	}
 	return (err);
 }
+
+#ifdef	DEBUG
+LOCAL void
+sethdebug()
+{
+	printf("setphome:  '%s'\n", setphome != NULL ? setphome : "NULL");
+	printf("setrhome:  '%s'\n", setrhome != NULL ? setrhome : "NULL");
+	printf("setahome:  '%s'\n", setahome != NULL ? setahome : "NULL");
+	printf("cwdprefix: '%s'\n", cwdprefix != NULL ? cwdprefix : "NULL");
+	printf("homedist:  %d\n", homedist);
+	printf("setahomelen: %d\n", setahomelen);
+	printf("setrhomelen: %d\n", setrhomelen);
+	printf("cwdprefixlen: %d\n", cwdprefixlen);
+	printf("sethomestat: 0x%8.8X\n", sethomestat);
+	printf("sethome OK: %d INIT: %d\n",
+			(sethomestat & SETHOME_OK) != 0,
+			SETHOME_INIT());
+}
+#endif

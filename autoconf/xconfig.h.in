@@ -1,4 +1,4 @@
-/* @(#)xconfig.h.in	1.244 14/05/15 Copyright 1998-2014 J. Schilling */
+/* @(#)xconfig.h.in	1.245 15/03/02 Copyright 1998-2014 J. Schilling */
 /*
  *	Dynamic autoconf C-include code.
  *	Do not edit, this file has been created automatically.
@@ -655,6 +655,7 @@
 #undef HAVE_WCRTOMB		/* wcrtomb() is present in libc */
 
 #undef HAVE_PRINTF_J		/* *printf() in libc supports %jd */
+#undef HAVE_PRINTF_Z		/* *printf() in libc supports %zd */
 #undef HAVE_PRINTF_LL		/* *printf() in libc supports %lld */
 
 /*

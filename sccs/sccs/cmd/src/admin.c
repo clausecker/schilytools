@@ -29,10 +29,10 @@
 /*
  * Copyright 2006-2015 J. Schilling
  *
- * @(#)admin.c	1.89 15/02/06 J. Schilling
+ * @(#)admin.c	1.96 15/03/02 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)admin.c 1.89 15/02/06 J. Schilling"
+#pragma ident "@(#)admin.c 1.96 15/03/02 J. Schilling"
 #endif
 /*
  * @(#)admin.c 1.39 06/12/12
@@ -106,6 +106,8 @@ static char	*tfile;			/* -t argument			*/
 static char	*dir_name;		/* directory for -N		*/
 static struct timespec	ifile_mtime;	/* Timestamp for -i -o		*/
 static int	Ncomma = 0;		/* Found -N,*			*/
+static int	Nunlink = 0;		/* Found -N-*			*/
+static int	Nget = 0;		/* Found -N+*			*/
 static int	Nsdot = 1;		/* Found -N*s.			*/
 static int	Nsubd;			/* Found -NSCCS			*/
 static char	*Nprefix;		/* "s." /  "* /s." / "* /SCCS"	*/
@@ -152,6 +154,7 @@ static	int	range __PR((register char *line));
 static	FILE *	code __PR((FILE *iptr, char *afile, off_t offset, int thash, struct packet *pktp));
 static	void	direrror __PR((char *dir, int keylet));
 static	char *	bulkprepare __PR((char *afile));
+static	void 	aget	__PR((char *afile, char *gname, int ser));
 
 extern int	org_ihash;
 extern int	org_chash;
@@ -236,7 +239,7 @@ char *argv[];
 			}
 			no_arg = 0;
 			j = current_optind;
-		        c = getopt(argc, argv, "-i:t:m:y:d:f:r:nN:hzboqa:e:V:(version)");
+		        c = getopt(argc, argv, "-i:t:m:y:d:f:r:nN:hzboqkw:a:e:V:(version)");
 				/*
 				*  this takes care of options given after
 				*  file names.
@@ -486,6 +489,7 @@ char *argv[];
 				break;
 			case 'n':	/* creating new SCCS file */
 			case 'h':	/* only check hash of file */
+			case 'k':	/* get(1) without keyword expand */
 			case 'z':	/* zero the input hash */
 			case 'b':	/* force file to be encoded (binary) */
 			case 'o':	/* use original file date */
@@ -500,6 +504,11 @@ char *argv[];
                                         nsedelim = (char *) 0;
                                 }
                                 break;
+
+			case 'w':
+				if (p)
+					whatsetup(p);
+				break;
 
 			case 'a':	/* user-name allowed to make deltas */
 				testklt = 0;
@@ -548,7 +557,7 @@ char *argv[];
 				    argv[argc-1][1] == 'V' &&
 				    argv[argc-1][2] == '\0')
 					goto doversion;
-				fatal(gettext("Usage: admin [ -bhnoz ][ -ausername|groupid ]\n\t[ -dflag ][ -eusername|groupid ]\n\t[ -fflag [value]][ -i [filename]]\n\t[ -m mr-list][ -r release ][ -t [description-file]]\n\t[ -N[bulk-spec]] [ -y[comment]] s.filename ..."));
+				fatal(gettext("Usage: admin [ -bhknoz ][ -ausername|groupid ]\n\t[ -dflag ][ -eusername|groupid ]\n\t[ -fflag [value]][ -i [filename]]\n\t[ -m mr-list][ -r release ][ -t [description-file]]\n\t[ -N[bulk-spec]] [ -y[comment]] s.filename ..."));
 			}
 			/*
 			 * Make sure that we only collect option letters from
@@ -574,11 +583,21 @@ char *argv[];
 	if (num_files == 0 && !HADUCN)
 		fatal(gettext("missing file arg (cm3)"));
 
-	if (HADUCN) {
+	if (HADUCN) {					/* Parse -N args  */
 		HADI = HADN = 1;
-		if (*Nparm == ',') {
-			Ncomma = 1;
-			Nparm++;
+		while (*Nparm && any(*Nparm, "+-,")) {
+			if (*Nparm == '-') {
+				Nunlink = 1;		/* Unlink ifile	   */
+				Nparm++;
+			}
+			if (*Nparm == '+') {
+				Nget = 1;		/* Get ifile	   */
+				Nparm++;
+			}
+			if (*Nparm == ',') {
+				Ncomma = 1;		/* Rename to ,file */
+				Nparm++;
+			}
 		}
 		Nsdot = sccsfile(Nparm);
 		if (Nsdot) {				/* Nparm ends in s. */
@@ -605,17 +624,14 @@ char *argv[];
 	}
 	if ((HADY || HADM) && ! (HADI || HADN))
 		fatal(gettext("illegal use of 'y' or 'm' keyletter (ad30)"));
-	if (HADI && num_files > 1) /* only one file allowed with `i' */
+	if (HADI && !HADUCN && num_files > 1) /* only one file allowed with `i' */
 		fatal(gettext("more than one file (ad15)"));
 	if ((HADI || HADN) && ! logname())
 		fatal(gettext("USER ID not in password file (cm9)"));
 
 	setsig();
 
-	errno = 0;
-	i = sethome();
-	if (i < 0)
-		efatal(gettext("cannot get project home directory (cm11)"));
+	xsethome(NULL);
 
 	/*
 	Change flags for 'fatal' so that it will return to this
@@ -909,6 +925,8 @@ char	*afile;
 
 		dt.d_serial = 1;
 		dt.d_pred = 0;
+
+		gpkt.p_reqsid = dt.d_sid;	/* set sid for changelog */
 
 		del_ba(&dt,line, gpkt.p_flags);	/* form and write */
 		putline(&gpkt,line);	/* delta-table entry */
@@ -1405,6 +1423,14 @@ char	*afile;
 			while (*q)
 				gpkt.p_nhash += *q++;
 		}
+
+#ifdef	TEST_CHANGE
+		if (versflag == 6) {
+			char	cbuf[MAXPATHLEN];
+			change_ba(&gpkt, cbuf, sizeof (cbuf));
+			fprintf(stderr, "%s\n", cbuf);
+		}
+#endif
 	} else {
 		/*
 		Indicate that EOF at this point is ok, and
@@ -1452,17 +1478,37 @@ char	*afile;
 			chmod(gpkt.p_file, sbuf.st_mode);
 			chown(gpkt.p_file,sbuf.st_uid, sbuf.st_gid);
 		}
-		if (HADI && *ifile && Ncomma) {
-			char cfile[FILESIZE];
-			register char *snp;
+		if (HADI && *ifile) {
+			if (Ncomma) {
+				char cfile[FILESIZE];
+				register char *snp;
 
-			snp = sname(ifile);
+				snp = sname(ifile);
 
-			strlcpy(cfile, ifile, sizeof (cfile));
-			cfile[snp-ifile] = '\0';
-			strlcat(cfile, ",", sizeof (cfile));
-			if (strlcat(cfile, snp, sizeof (cfile)) < sizeof (cfile))
-				rename(ifile, cfile);
+				strlcpy(cfile, ifile, sizeof (cfile));
+				cfile[snp-ifile] = '\0';
+				strlcat(cfile, ",", sizeof (cfile));
+				if (strlcat(cfile, snp, sizeof (cfile)) <
+				    sizeof (cfile)) {
+					rename(ifile, cfile);
+				}
+			} else if(Nunlink) {
+				unlink(ifile);
+			} else if (Nget) {
+				unlink(ifile);
+				aget(gpkt.p_file, ifile, 1);
+				if (HADO) {
+					struct timespec	ts[2];
+					extern dtime_t	Timenow;
+
+					ts[0].tv_sec = Timenow.dt_sec;
+					ts[0].tv_nsec = Timenow.dt_nsec;
+					ts[1].tv_sec = ifile_mtime.tv_sec;
+					ts[1].tv_nsec = ifile_mtime.tv_nsec;
+
+					utimensat(AT_FDCWD, ifile, ts, 0);
+				}
+			}
 		}
 		xrm(&gpkt);
 		uname(&un);
@@ -1657,6 +1703,10 @@ struct	packet	*pkt;		/* struct paket for output	*/
 			fseek(pkt->p_xiop, ioff + soff, SEEK_SET);
 
 			putctlnnl(pkt);
+			/*
+			 * Write again already written text without recomputing
+			 * the checksum for this part of the text.
+			 */
 			while ((idx =
 			    fread(line, 1, sizeof (line) - 1, inptr)) > 0) {
 				if (fwrite(line, 1, idx, pkt->p_xiop) <= 0)
@@ -1961,7 +2011,7 @@ static char	Nhold[MAXPATHLEN];
 		dfd = open(".", O_SEARCH);	/* on failure use full path */
 	} else {
 		if (fchdir(dfd) < 0)
-			xmsg(".",NOGETTEXT("admin"));
+			xmsg(".", NOGETTEXT("admin"));
 	}
 #endif
 
@@ -1977,7 +2027,7 @@ static char	Nhold[MAXPATHLEN];
 				ifile_mtime.tv_nsec = stat_mnsecs(&Statbuf);
 			}
 		} else {
-			xmsg(afile,NOGETTEXT("admin"));
+			xmsg(afile, NOGETTEXT("admin"));
 		}
 		if (sn == afile) {		/* No dir for short names */
 			Dir[0] = '\0';
@@ -1996,7 +2046,7 @@ static char	Nhold[MAXPATHLEN];
 			if ((len = resolvepath(Dir, Dir, sizeof (Dir))) == -1)
 				efatal(gettext("path conversion error (cm12)"));
 			else if (len >= sizeof (Dir))
-				fatal(gettext("resolved path too long (cm11)"));
+				fatal(gettext("resolved path too long (cm13)"));
 		}
 		if (Dir[0] != '\0' && (dfd < 0 || chdir(Dir) < 0)) {
 			cat(Nhold, Dir, *Dir?"/":"", Nprefix, sn, (char *)0);
@@ -2037,7 +2087,7 @@ static char	Nhold[MAXPATHLEN];
 				if ((len = resolvepath(Dir, Dir, sizeof (Dir))) == -1)
 					efatal(gettext("path conversion error (cm12)"));
 				else if (len >= sizeof (Dir))
-					fatal(gettext("resolved path too long (cm11)"));
+					fatal(gettext("resolved path too long (cm13)"));
 
 				if (chdir(Dir) < 0)
 					efatal("Chdir");
@@ -2045,13 +2095,13 @@ static char	Nhold[MAXPATHLEN];
 				if (dir_name[0] == '.' && dir_name[1] == '/')
 					dir_name += 2;
 				afile = np;
-				copy(auxf(np,'g'), Nhold);
+				copy(auxf(np, 'g'), Nhold);
 			} else {
-				cat(Nhold, afile, "/", auxf(np,'g'), (char *)0);
+				cat(Nhold, afile, "/", auxf(np, 'g'), (char *)0);
 			}
 			np[-1] = '/';
 		} else {
-			copy(auxf(np,'g'), Nhold);
+			copy(auxf(np, 'g'), Nhold);
 		}
 		ifile = Nhold;
 
@@ -2063,18 +2113,94 @@ static char	Nhold[MAXPATHLEN];
 				ifile_mtime.tv_nsec = stat_mnsecs(&Statbuf);
 			}
 		} else {
-			xmsg(afile,NOGETTEXT("admin"));
+			xmsg(ifile, NOGETTEXT("admin"));
 		}
 	}
 	if (Nsubd) {			/* Want to put s.file in subdir */
 		char	dbuf[MAXPATHLEN];
 
 		copy (afile, dbuf);	/* Copy as dname() modifies arg */
-		dname(dbuf);
+		dname(dbuf);		/* Get directory name for s.file */
 		if (!exists(dbuf)) {
+			/*
+			 * Make sure that the subdir is present.
+			 */
 			if (mkdir(dbuf, 0777) < 0)
 				xmsg(dbuf, NOGETTEXT("admin"));
 		}
 	}
 	return (afile);
+}
+
+static void 
+aget(afile, gname, ser)
+	char		*afile;
+	char		*gname;
+	int		ser;
+{
+	struct packet	pk2;
+	struct stats	stats;
+	char		ohade;
+
+	sinit(&pk2, afile, SI_OPEN);
+
+	pk2.p_stdout = stderr;
+	pk2.p_cutoff = MAX_TIME;
+
+	if (dodelt(&pk2, &stats, (struct sid *) 0, 0) == 0)
+		fmterr(&pk2);
+	finduser(&pk2);
+	doflags(&pk2);
+	flushto(&pk2, EUSERTXT, FLUSH_NOCOPY);
+
+	pk2.p_chkeof = 1;
+	pk2.p_gotsid = pk2.p_idel[ser].i_sid;
+	pk2.p_reqsid = pk2.p_gotsid;
+
+	setup(&pk2, ser);
+	ohade = HADE;
+	HADE = 0;
+	idsetup(&pk2, NULL);
+	HADE = ohade;
+
+	if (exists(afile) && (S_IEXEC & Statbuf.st_mode)) {
+		pk2.p_gout = xfcreat(gname, HADK ?
+			((mode_t)0755) : ((mode_t)0555));
+	} else {
+		pk2.p_gout = xfcreat(gname, HADK ?
+			((mode_t)0644) : ((mode_t)0444));
+	}
+
+#ifdef	USE_SETVBUF
+	setvbuf(pk2.p_gout, NULL, _IOFBF, VBUF_SIZE);
+#endif
+
+	pk2.p_ghash = 0;
+	if (pk2.p_encoding & EF_UUENCODE) {
+		while (readmod(&pk2)) {
+			decode(pk2.p_line, pk2.p_gout);
+		}
+	} else {
+		while (readmod(&pk2)) {
+			char	*p;
+
+			if (pk2.p_flags & PF_NONL)
+				pk2.p_line[pk2.p_line_length-1] = '\0';
+			p = idsubst(&pk2, pk2.p_lineptr);
+			if (fputs(p, pk2.p_gout) == EOF)
+				xmsg(gname, NOGETTEXT("get"));
+		}
+	}
+	if (fflush(pk2.p_gout) == EOF)
+		xmsg(gname, NOGETTEXT("get"));
+	/*
+	 * Force g-file to disk and verify
+	 * that it actually got there.
+	 */
+#ifdef	HAVE_FSYNC
+	if (fsync(fileno(pk2.p_gout)) < 0)
+		xmsg(gname, NOGETTEXT("get"));
+#endif
+	if (fclose(pk2.p_gout) == EOF)
+		xmsg(gname, NOGETTEXT("get"));
 }

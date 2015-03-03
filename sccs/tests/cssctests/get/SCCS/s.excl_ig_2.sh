@@ -1,4 +1,8 @@
-h22631
+h29979
+s 00000/00012/00129
+d D 1.3 15/02/19 22:31:35 joerg 3 2
+c Test ei27 klappt nun auch mit SCCSv6
+e
 s 00013/00000/00128
 d D 1.2 14/09/15 22:42:00 joerg 2 1
 c Hinweis auf SCCSv6 Bug mit delta -gsid
@@ -135,17 +139,21 @@ inserted in 1.6
 
 docommand ei25 "${vg_get}  -e $s" 0 IGNORE IGNORE
 I 2
+D 3
 #cp $s $s.1
 #cp $g $g.1
+E 3
 E 2
 docommand ei26 "${delta} -g1.5 -yNone $s" 0 IGNORE IGNORE
 I 2
+D 3
 if $TESTING_SCCS_V6
 then
 #	exit
 	echo 'The next test is expected to fail due to a known SCCSv6 bug in delta.'
 	echo 'See BUGS section in the delta(1) man page.'
 fi
+E 3
 E 2
 docommand ei27 "${vg_get} -s -p $s" 0 '1.10 inserted in 1.1
 inserted on branch 1.1.1.1
@@ -157,10 +165,12 @@ This line inserted in 1.3 and deleted in 1.4
 # cat $s
 remove $files
 I 2
+D 3
 if $TESTING_SCCS_V6
 then
 	remove get.*	# Remove file left over from failed v6 test above
 fi
+E 3
 E 2
 success
 E 1

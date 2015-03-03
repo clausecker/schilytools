@@ -116,15 +116,7 @@ inserted in 1.6
 ' IGNORE
 
 docommand ei25 "${vg_get}  -e $s" 0 IGNORE IGNORE
-#cp $s $s.1
-#cp $g $g.1
 docommand ei26 "${delta} -g1.5 -yNone $s" 0 IGNORE IGNORE
-if $TESTING_SCCS_V6
-then
-#	exit
-	echo 'The next test is expected to fail due to a known SCCSv6 bug in delta.'
-	echo 'See BUGS section in the delta(1) man page.'
-fi
 docommand ei27 "${vg_get} -s -p $s" 0 '1.10 inserted in 1.1
 inserted on branch 1.1.1.1
 inserted in 1.6
@@ -134,8 +126,4 @@ This line inserted in 1.3 and deleted in 1.4
 
 # cat $s
 remove $files
-if $TESTING_SCCS_V6
-then
-	remove get.*	# Remove file left over from failed v6 test above
-fi
 success

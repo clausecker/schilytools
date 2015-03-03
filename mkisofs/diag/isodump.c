@@ -1,8 +1,8 @@
-/* @(#)isodump.c	1.48 15/01/27 joerg */
+/* @(#)isodump.c	1.49 15/02/25 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)isodump.c	1.48 15/01/27 joerg";
+	"@(#)isodump.c	1.49 15/02/25 joerg";
 #endif
 /*
  * File isodump.c - dump iso9660 directory information.
@@ -300,11 +300,11 @@ parse_rr(pnt, len, cont_flag)
 		}
 
 		if (strncmp((char *)pnt, "ER", 2) == 0) {		/* ER */
-			flag2 |= RR_FLAG_ER;				/* ER record */
 			int	lid = pnt[4] & 0xFF;			/* Len ID  */
 			int	ldes = pnt[5] & 0xFF;			/* Len des */
 			int	lsrc = pnt[6] & 0xFF;			/* Len src */
 			int	xver = pnt[7] & 0xFF;			/* X vers  */
+			flag2 |= RR_FLAG_ER;				/* ER record */
 
 			rr_version = xver;
 			printf(_("=[len_id=%d,len_des=%d,len_src=%d,ext_ver=%d,id=\"%.*s\"]"),

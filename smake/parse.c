@@ -1,14 +1,14 @@
-/* @(#)parse.c	1.108 12/12/20 Copyright 1985-2012 J. Schilling */
+/* @(#)parse.c	1.109 15/02/22 Copyright 1985-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)parse.c	1.108 12/12/20 Copyright 1985-2012 J. Schilling";
+	"@(#)parse.c	1.109 15/02/22 Copyright 1985-2015 J. Schilling";
 #endif
 /*
  *	Make program
  *	Parsing routines
  *
- *	Copyright (c) 1985-2012 by J. Schilling
+ *	Copyright (c) 1985-2015 by J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -17,6 +17,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -110,6 +112,7 @@ parsefile()
 	if (Dmake > 0)
 		error(">>>>>>>>>>>>>>>> Reading makefile '%s'\n", mfname);
 
+	ovec[0] = 0;
 	lineno = 1;
 	col = 0;
 	getch();
@@ -226,7 +229,7 @@ printf("\n");
 		 */
 /*		if (basetype(type) == COLON) {*/
 		if (basetype(type) == COLON ||
-		    (basetype(type) == EQUAL && deplist &&
+		    (basetype(type) == EQUAL && deplist && objcnt > 0 &&
 					ovec[0]->o_name[0] == '.')) {
 			cmdlist = getcmd();
 		} else {

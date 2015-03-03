@@ -1,5 +1,5 @@
 '\" t
-.\" @(#)sccschangeset.4	1.7 15/01/19 Copyright 2011-2015 J. Schilling 
+.\" @(#)sccschangeset.4	1.8 15/02/25 Copyright 2011-2015 J. Schilling 
 .\"
 .\" The contents of this file are subject to the terms of the
 .\" Common Development and Distribution License, Version 1.0 only
@@ -25,7 +25,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sccschangeset 4 "2015/01/19" "J\*org Schilling" "File Formats"
+.TH sccschangeset 4 "2015/02/25" "J\*org Schilling" "File Formats"
 .SH NAME
 sccschangeset \- format of an SCCS changeset file
 .SH DESCRIPTION
@@ -126,40 +126,15 @@ for a detailed description of the unified pseudo random number.
 The minimal length for the pseudo random
 number is thirteen hexadecimal characters. If the number could be represented
 with less digits, it is left filled with zeroes. This allows to have a unique
-length for this number until 2146 Sep 27 13:30:51 GMT.
+length for this number until
+Mar\ 31\ 10:55:07\ 2155\ GMT.
 .br
 .ne 5
 .TP
-.B date-time
-A date-time specification in the form
-.B yyyymmDDHHMMSS
-as specified for the
-.B \-c
-option
-of the
-.B get
-command.
-Only four or more digits are permitted to specify the year.
-.sp
-All
-.B date-time
-values in the 
-.B changeset
-file that belong to a single
-.B commit set
-are equal. Different changesets use different
-.B date-time
-values.
-.sp
-In order to keep the
-.B date-time
-values monotonic, the time used for
-.B date-time
-is the time the changeset was added to the current repository.
-In case a changeset was imported from another repository, the
-.B date-time
-value may differ from the time the changeset was entered to the 
-original repository.
+.B sid
+The file specific SID that was used for the file mentioned in that
+line of the
+.BR changeset .
 .br
 .ne 5
 .TP
@@ -168,12 +143,6 @@ The SID specific checksum for the related file.
 See
 .BR sccsfile (4)
 for a detailed description of the SID specific checksums for a file.
-.br
-.ne 5
-.TP
-.B email
-The configured e-mail address for the
-.BR committer .
 .br
 .ne 5
 .TP
@@ -198,7 +167,7 @@ A typical entry in the
 .B changeset
 file may look like:
 .sp
-  0e31666e43286|20111205172040|45206|joerg@some.org|15|some/dir/file.c
+  0e31666e43286|1.3|45206|15|some/dir/file.c
 .sp
 .LP
 

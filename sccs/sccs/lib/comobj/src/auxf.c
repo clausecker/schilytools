@@ -25,12 +25,12 @@
  * Use is subject to license terms.
  */
 /*
- * Copyright 2009-2011 J. Schilling
+ * Copyright 2009-2015 J. Schilling
  *
- * @(#)auxf.c	1.4 11/10/05 J. Schilling
+ * @(#)auxf.c	1.5 15/02/28 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)auxf.c 1.4 11/10/05 J. Schilling"
+#pragma ident "@(#)auxf.c 1.5 15/02/28 J. Schilling"
 #endif
 /*
  * @(#)auxf.c 1.5 06/12/12
@@ -70,18 +70,24 @@ register char ch;
 	switch(ch) {
 
 	case 0:
-	case 'g':
+	case 'g':	/* Basename from g-file derived from sfile */
 			strlcpy(auxfile, &snp[2], sizeof (auxfile));
 			break;
-	case 'A':
+
+	case 'A':	/* "g." + Basename from g-file derived from sfile */
 			strlcpy(auxfile, "g.", sizeof (auxfile));
 			strlcat(auxfile, &snp[2], sizeof (auxfile));
 			break;
-	case 'l':
+
+	case 'l':	/* "l." + Basename from g-file derived from sfile */
 			strlcpy(auxfile, snp, sizeof (auxfile));
 			auxfile[0] = 'l';
 			break;
-	case 'G':
+
+	case 'G':	/*
+			 * Note: called with gfile. not with sfile.
+			 * Pathname from gfile with "g." inserted after last '/'
+			 */
 			strlcpy(auxfile, sfile, sizeof (auxfile));
 			if ((snp-sfile) >= sizeof (auxfile))
 				auxfile[0] = '\0';
@@ -90,7 +96,20 @@ register char ch;
 			strlcat(auxfile, "g.", sizeof (auxfile));
 			strlcat(auxfile, snp, sizeof (auxfile));
 			break;
-	default:
+
+	case 'I':	/*
+			 * Note: called with sfile.
+			 * Pathname from sfile with "s." removed after last '/'
+			 */
+			strlcpy(auxfile, sfile, sizeof (auxfile));
+			if ((snp-sfile) >= sizeof (auxfile))
+				auxfile[0] = '\0';
+			else
+				auxfile[snp-sfile] = '\0';
+			strlcat(auxfile, &snp[2], sizeof (auxfile));
+			break;
+
+	default:	/* Pathname from sfile with "s." replaced by "<ch>." */
 			strlcpy(auxfile, sfile, sizeof (auxfile));
 			if ((snp-sfile) >= sizeof (auxfile))
 				auxfile[0] = '\0';

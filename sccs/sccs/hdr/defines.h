@@ -29,12 +29,12 @@
 /*
  * Copyright 2006-2015 J. Schilling
  *
- * @(#)defines.h	1.82 15/02/07 J. Schilling
+ * @(#)defines.h	1.93 15/03/02 J. Schilling
  */
 #ifndef	_HDR_DEFINES_H
 #define	_HDR_DEFINES_H
 #if defined(sun)
-#pragma ident "@(#)defines.h 1.82 15/02/07 J. Schilling"
+#pragma ident "@(#)defines.h 1.93 15/03/02 J. Schilling"
 #endif
 /*
  * @(#)defines.h 1.21 06/12/12
@@ -53,7 +53,7 @@
 # include	<schily/fcntl.h>
 # include	<schily/stdio.h>
 # include	<schily/stdlib.h>
-# include	<schily/varargs.h>	/* needed for the vfprintf() prototype */
+# include	<schily/varargs.h>	/* needed for vfprintf() prototype */
 # include	<schily/unistd.h>
 # include	<schily/string.h>
 # include	<schily/standard.h>	/* define signed */
@@ -120,6 +120,11 @@ extern char *optarg;
 #define	NEED_SCHILY_PRINT	/* We need defines for js_snprintf() */
 #endif
 
+#if	(!defined(HAVE_SNPRINTF) && !defined(NO_SNPRINTF)) || \
+	defined(NEED_PRINTF_Z) && !defined(HAVE_PRINTF_Z)
+#define	NEED_SCHILY_PRINT	/* We need defines for js_snprintf() */
+#endif
+
 /*
  * Always include schily/schily.h to allow POSIX bug workarounds to be
  * implemented in schily/schily.h.
@@ -165,8 +170,13 @@ extern time_t	Y1969;			/* defined in lib/comobj/src/xtzset.c */
 #define	MAX_TIME	(time_t)_YM9999	/* We currently support 4 digit years */
 #endif
 
-#define	ALIGNMENT  	(sizeof (long long))
-#define	ROUND(x,base)   (((x) + (base-1)) & ~(base-1))
+/*
+ * The epoche start for urandom() time -> rand computation:
+ */
+#define	URAND_BASE	0x50000000	/* 2012 Jul 13 11:01:20 UTC */
+
+#define	ALIGNMENT	(sizeof (long long))
+#define	ROUND(x, base)	(((x) + (base-1)) & ~(base-1))
 
 # define CTLSTR		"%c%c\n"
 
@@ -185,7 +195,7 @@ extern time_t	Y1969;			/* defined in lib/comobj/src/xtzset.c */
 # define EDELTAB	'e'	/* ^Ae the end of a delta table		    */
 
 # define BUSERNAM	'u'	/* ^Au begin list of allowed delta users    */
-# define EUSERNAM	'U'	/* ^AU end list of allowed delta users      */
+# define EUSERNAM	'U'	/* ^AU end list of allowed delta users	    */
 
 #define	NFLAGS	28
 #define	NLOWER		('z'-'a'+1)
@@ -235,16 +245,22 @@ extern	char	saveid[50];	/* defined in lib/comobj/src/logname.c */
 # define MINR		1		/* minimum release number */
 # define MAXR		9999		/* maximum release number */
 # define MAXL		9999		/* max level for dolist() -> maxint? */
-# define FILESIZE	max(MAXPATHLEN, 8192)	/* Space for path names */
-# define MAXLINE	max(BUFSIZ, 8192)	/* Buffer size for various */
+#ifndef	MINFBFSZ
+# define MINFBFSZ	2048	/* Mininum File Buffer Size */
+#endif
+# define FILESIZE	max(MAXPATHLEN, MINFBFSZ) /* Space for path names */
+#ifndef	MINLINESZ
+# define MINLINESZ	8192	/* Minimum Line Buffer Size */
+#endif
+# define MAXLINE	max(BUFSIZ, MINLINESZ)	/* Buffer size for various */
 # define DEF_LINE_SIZE	128		/* start size for alocated lines */
 # define DELIVER	'*'		/* MR number was "delivered" no rmdel */
 # define LOGSIZE	(33)		/* TWCP SCCS compatibility */
 # define MAXERRORLEN	(1024+FILESIZE)	/* max length of SccsError buffer */
 
 # define FAILPUT    fatal("fputs could not write to file (ut13)")
-# define SCCS_LOCK_ATTEMPTS	4       /* maximum number of lock   attempts  */
-# define SCCS_CREAT_ATTEMPTS	4       /* maximum number of create attempts  */
+# define SCCS_LOCK_ATTEMPTS	4	/* maximum number of lock   attempts  */
+# define SCCS_CREAT_ATTEMPTS	4	/* maximum number of create attempts  */
 
 /*
  * The third argument for the function flushto() controls whether the data
@@ -270,8 +286,8 @@ extern	char	saveid[50];	/* defined in lib/comobj/src/logname.c */
 
 
 /*
-	SCCS Internal Structures.
-*/
+ *	SCCS Internal Structures.
+ */
 
 /*
  * Definitions for date+time
@@ -310,21 +326,21 @@ struct apply {
 /*
  * Definitions for a_code
  */
-#define SX_EMPTY	(0)
-#define APPLY		(1)
-#define NOAPPLY		(2)
+#define	SX_EMPTY	(0)
+#define	APPLY		(1)
+#define	NOAPPLY		(2)
 
 /*
  * Definitions for a_reason
  */
-# define IGNR		0100
-# define USER		040
-# define INCL		1
-# define EXCL		2
-# define CUTOFF		4
-# define INCLUSER	(USER | INCL)
-# define EXCLUSER	(USER | EXCL)
-# define IGNRUSER	(USER | IGNR)
+#define	IGNR		0100
+#define	USER		040
+#define	INCL		1
+#define	EXCL		2
+#define	CUTOFF		4
+#define	INCLUSER	(USER | INCL)
+#define	EXCLUSER	(USER | EXCL)
+#define	IGNRUSER	(USER | IGNR)
 
 struct queue {
 	struct queue *q_next;
@@ -335,8 +351,8 @@ struct queue {
 	char	q_user;		/* inex'ed by user */
 };
 
-#define YES	(1)
-#define NO	(2)
+#define	YES	(1)
+#define	NO	(2)
 
 struct	sid {
 	int	s_rel;		/* Release			*/
@@ -470,7 +486,9 @@ struct packet {
 	/*
 	 * Various other s-file specific data
 	 */
-	void	(*p_enter) __PR((struct packet *pkt, int ch, int n, struct sid *sidp));
+	void	(*p_enter) __PR((struct packet *pkt,
+					int ch, int n,
+					struct sid *sidp));
 	void	(*p_escdodelt) __PR((struct packet *pkt));
 	void	(*p_fredck) __PR((struct packet *pkt));
 	char	p_cdid_mrs;	/* for cdc to check MRs */
@@ -528,10 +546,14 @@ struct	pfile	{
 };
 
 /*
- Declares for external functions in lib/cassi
-*/
-extern	char*	gf	__PR((char *));
-extern	int	sweep	__PR((int, char *, char *, int, int, int, char **, char *, char **, int (*)(char *, int, char **), int (*)(char **, char **, int)));
+ * Declares for external functions in lib/cassi
+ */
+extern	char	*gf	__PR((char *));
+extern	int	sweep	__PR((int, char *, char *, int, int, int, char **,
+				char *, char **,
+				int (*)(char *, int, char **),
+				int (*)(char **, char **,
+				int)));
 extern	int	cmrcheck __PR((char *, char *));
 extern	int	deltack __PR((char [], char *, char *, char *, char *[]));
 extern	void	cmrerror __PR((const char *));
@@ -539,10 +561,10 @@ extern	void	cmrerror __PR((const char *));
 /*
  * Declares for external variables in lib/comobj
  */
-extern	char	*sccs_insbase;	/* Installation base dir or "/usr"	   */
-extern	char	*Comments;	/* Comments from -y option		   */
-extern	char	*Mrs;		/* List of Mr numbers from -m option	   */
-extern	int	Domrs;		/* 'v' fööag was found in the histroy file */
+extern	char	*sccs_insbase;	/* Installation base dir or "/usr"	  */
+extern	char	*Comments;	/* Comments from -y option		  */
+extern	char	*Mrs;		/* List of Mr numbers from -m option	  */
+extern	int	Domrs;		/* 'v' flag was found in the histroy file */
 
 				/*
 				 * If it is not possible to retrieve "setahome",
@@ -550,34 +572,53 @@ extern	int	Domrs;		/* 'v' fööag was found in the histroy file */
 				 * "setrhome" and "cwdprefix" are always set
 				 * from sethome().
 				 */
+extern	char	*setphome;	/* Best path to the project set home dir */
 extern	char	*setrhome;	/* Relative path to the project set home dir */
 extern	char	*setahome;	/* Absolute path to the project set home dir */
 extern	char	*cwdprefix;	/* Prefix from project set home dir to cwd */
 extern	int	homedist;	/* The # of dirs to the project set home dir */
+extern	int	setrhomelen;	/* strlen(setrhome) */
+extern	int	setahomelen;	/* strlen(setahome) */
+extern	int	cwdprefixlen;	/* strlen(cwdprefix) */
+extern	int	sethomestat;	/* sethome() status flags */
 
 /*
- Declares for external functions in lib/comobj
-*/
+ * sethome() status flags:
+ */
+#define	SETHOME_NONE	0	/* $SET_HOME/.sccs could not be found	*/
+#define	SETHOME_OK	1	/* $SET_HOME/.sccs was found		*/
+#define	SETHOME_ABS	2	/* Using setahome is preferred		*/
+#define	SETHOME_INTREE	4	/* $SET_HOME/.sccs/data missing, SCCS in tree */
+#define	SETHOME_OFFTREE	8	/* $SET_HOME/.sccs/data found, SCCS off tree */
+#define	SETHOME_DELS_OK 16	/* $SET_HOME/.sccs/dels was found	*/
 
-extern	char*	auxf	__PR((char *, int));
+#define	SETHOME_ALL_OK	(SETHOME_OK|SETHOME_DELS_OK)
+
+#define	SETHOME_INIT()	((sethomestat & SETHOME_ALL_OK) == SETHOME_ALL_OK)
+
+/*
+ * Declares for external functions in lib/comobj
+ */
+
+extern	char	*auxf	__PR((char *, int));
 extern	void	sinit	__PR((struct packet *, char *, int));
 extern	char	*checkmagic __PR((struct packet *, char *));
 extern	void	setup	__PR((struct packet *, int));
 extern	void	finduser __PR((struct packet *));
 extern	void	permiss	__PR((struct packet *));
-extern	char*	sid_ab	__PR((char *, struct sid *));
-extern	char*	sid_ba	__PR((struct sid *, char *));
+extern	char	*sid_ab	__PR((char *, struct sid *));
+extern	char	*sid_ba	__PR((struct sid *, char *));
 extern	void	sidext_ab __PR((struct packet *, struct deltab *, char *));
 extern	void	sidext_v4compat_ab __PR((struct packet *, struct deltab *));
 extern	void	sidext_ba __PR((struct packet *, struct deltab *));
-extern	char*	omit_sid __PR((char *));
+extern	char	*omit_sid __PR((char *));
 extern	int	date_ab	__PR((char *, time_t *, int flags));
 extern	int	date_abz __PR((char *, dtime_t *, int flags));
-extern	char*	date_ba	__PR((time_t *, char *, int flags));
-extern	char*	date_bal __PR((time_t *, char *, int flags));
-extern	char*	date_bazl __PR((dtime_t *, char *, int flags));
+extern	char	*date_ba __PR((time_t *, char *, int flags));
+extern	char	*date_bal __PR((time_t *, char *, int flags));
+extern	char	*date_bazl __PR((dtime_t *, char *, int flags));
 extern	char	del_ab	__PR((char *, struct deltab *, struct packet *));
-extern	char*	del_ba	__PR((struct deltab *, char *, int flags));
+extern	char	*del_ba	__PR((struct deltab *, char *, int flags));
 extern	void	stats_ab __PR((struct packet *, struct stats *));
 extern	void	pf_ab	__PR((char *, struct pfile *, int));
 extern	int	getser	__PR((struct packet *));
@@ -585,14 +626,15 @@ extern	int	sidtoser __PR((struct sid *, struct packet *));
 extern	int	eqsid	__PR((struct sid *, struct sid *));
 extern	void	chksid	__PR((char *, struct sid *));
 extern	void	newsid	__PR((struct packet *, int));
-extern	void	newstats __PR((struct packet *, char *, char *)); 
+extern	void	newstats __PR((struct packet *, char *, char *));
 extern	void	condset	__PR((struct apply *, int, int));
 extern	void	dolist	__PR((struct packet *, char *, int));
 extern	void	dohist	__PR((char *));
 extern	void	doie	__PR((struct packet *, char *, char *, char *));
 extern	void	doflags	__PR((struct packet *));
 extern	void	dometa	__PR((struct packet *));
-extern	struct idel *dodelt __PR((struct packet *, struct stats *, struct sid *, int));
+extern	struct idel *dodelt __PR((struct packet *,
+				struct stats *, struct sid *, int));
 extern	void	do_file __PR((char *, void (*func)(char *), int, int));
 extern	void	fmterr	__PR((struct packet *));
 /*
@@ -607,9 +649,9 @@ extern	void	putctl	__PR((struct packet *));
 extern	void	putctlnnl __PR((struct packet *));
 extern	void	putmagic __PR((struct packet *, char *));
 extern	void	putmeta	__PR((struct packet *));
-extern	char*	logname	__PR((void));
+extern	char	*logname	__PR((void));
 extern	int	mystrptime __PR((char *, struct tm *, int));
-extern	char*	savecmt	__PR((char *));
+extern	char	*savecmt	__PR((char *));
 extern	void	mrfixup	__PR((void));
 extern	void	xrm	__PR((struct packet *));
 extern	void	flushto	__PR((struct packet *, int, int));
@@ -624,11 +666,14 @@ extern	int	cmpdate	__PR((struct tm *, struct tm *));
 extern	void	addq	__PR((struct packet *, int, int, int, int));
 extern	void	remq	__PR((struct packet *, int));
 extern	void	setkeep	__PR((struct packet *));
-extern	void	get_Del_Date_time __PR((char *, struct deltab *, struct packet *, struct tm *));
-extern	char*	stalloc	__PR((unsigned int));
+extern	void	get_Del_Date_time __PR((char *, struct deltab *,
+					struct packet *, struct tm *));
+extern	char	*stalloc	__PR((unsigned int));
 extern	int	mosize	__PR((int y, int t));
-extern	int	gN	__PR((char *str, char **next, int num, int *digits, int *chars));
-extern	int	gNp	__PR((char *str, char **next, int num, int *digits, int *chars));
+extern	int	gN	__PR((char *str, char **next, int num,
+					int *digits, int *chars));
+extern	int	gNp	__PR((char *str, char **next, int num,
+					int *digits, int *chars));
 extern	int	gns	__PR((char *str, char **next));
 extern	int	gtz	__PR((char *str, char **next));
 extern	void	xtzset	__PR((void));
@@ -644,6 +689,17 @@ extern	int	sccshelp __PR((FILE *, char *));
 extern	size_t	lhash_size	__PR((size_t size));
 extern	char	*lhash_add	__PR((char *str));
 extern	char	*lhash_lookup	__PR((char *str));
+extern	void	sccs_xpg4 __PR((int val));
+extern	void	whatsetup __PR((char *w));
+extern	void	idsetup __PR((struct packet *pkt, char *gname));
+extern	char *	idsubst __PR((struct packet *pkt, char *line));
+extern	char *	getmodname __PR((void));
+extern	char *	urand_ab __PR((char *aurand, urand_t *urandp));
+extern	char *	urand_ba __PR((urand_t *urandp,
+					char *aurand, size_t aurandsize));
+extern	void	change_ba __PR((struct packet *pkt,
+					char *cbuf, size_t cbuflen));
+extern	char *	change_ab __PR((char *cbuf, struct packet *pkt));
 
 /*
  * Declares for external variables in lib/mpwlib
@@ -651,8 +707,8 @@ extern	char	*lhash_lookup	__PR((char *str));
 extern	char	SccsError[MAXERRORLEN];
 
 /*
- Declares for external functions in lib/mpwlib
-*/
+ * Declares for external functions in lib/mpwlib
+ */
 
 extern	int	any	__PR((int, char *));
 #ifdef	HAVE_STRCHR
@@ -679,21 +735,26 @@ extern	int	mylock	__PR((char *, pid_t, char *));
 extern	int	sccs_index __PR((char *, char *));
 extern	int	imatch	__PR((char *, char *));
 extern	int	xmsg	__PR((const char *, const char *));
-extern	FILE*	fdfopen	__PR((int, int));
+extern	FILE	*fdfopen	__PR((int, int));
 extern	int	xcreat	__PR((char *, mode_t));
+extern	int	xmkdir	__PR((char *, mode_t));
+extern	int	xmkdirs	__PR((char *, mode_t));
 extern	int	xopen	__PR((char [], int));
 extern	int	xlink	__PR((const char *, const char *));
 extern	int	xunlink	__PR((const char *));
 extern	int	xpipe	__PR((int *));
 extern	void	setsig	__PR((void));
 extern	int	check_permission_SccsDir __PR((char *));
-extern  char*	get_Sccs_Comments __PR((void));
+extern  char	*get_Sccs_Comments __PR((void));
 extern	int	userexit __PR((int code));
 extern	void	*zrealloc __PR((void *ptr, size_t amt));
 extern	int	urandom	__PR((urand_t *urp));
 extern	void	tv2urand __PR((struct timeval *tvp, urand_t *urp));
 extern	void	urand2tv __PR((urand_t *urp, struct timeval *tvp));
-extern	int	sethome	__PR((void));
+extern	int	checkhome __PR((char *path));
+extern	int	sethome	__PR((char *path));
+extern	void	unsethome __PR((void));
+extern	int	xsethome __PR((char *path));
 
 #ifdef	DBG_MALLOC
 extern	void	*dbg_fmalloc __PR((unsigned, char *, int));
@@ -717,19 +778,19 @@ extern	void	set_clean_up	__PR((void (*f)(void)));
 # define VSTART		3
 
 /*
-**	The following five definitions (copy, xfopen, xfcreat, remove,
-**	USXALLOC) are taken from macros.h 1.1
-*/
+ *	The following five definitions (copy, xfopen, xfcreat, remove,
+ *	USXALLOC) are taken from macros.h 1.1
+ */
 
-# define copy(srce,dest)	cat(dest, srce, (char *)0)
-# define xfopen(file,mode)	fdfopen(xopen(file,mode),mode)
-# define xfcreat(file,mode)	fdfopen(xcreat(file,mode), O_WRONLY|O_BINARY)
+# define copy(srce, dest)	cat(dest, srce, (char *)0)
+# define xfopen(file, mode)	fdfopen(xopen(file, mode), mode)
+# define xfcreat(file, mode)	fdfopen(xcreat(file, mode), O_WRONLY|O_BINARY)
 # define remove(file)		xunlink(file)
 # define USXALLOC() \
-		char *alloc(n) {return((char *)xalloc((unsigned)n));} \
-		free(n) char *n; {xfree(n);} \
-		char *malloc(n) unsigned n; {int p; p=xalloc(n); \
-			return((char *)(p != -1?p:0));}
+		char *alloc(n) {return ((char *)xalloc((unsigned)n)); } \
+		free(n) char *n; {xfree(n); } \
+		char *malloc(n) unsigned n; {int p; p = xalloc(n); \
+			return ((char *)(p != -1?p:0)); }
 
 
 #if defined(linux) && !defined(NO_LINUX_SETVBUF_HACK) && \
@@ -739,7 +800,7 @@ extern	void	set_clean_up	__PR((void (*f)(void)));
  * Work around a performance problem in the baroque stdio implementaion on
  * Linux.
  */
-#define	setvbuf(f, buf, type, sz)     setvbuf(f, malloc(sz), type, sz)
+#define	setvbuf(f, buf, type, sz)	setvbuf(f, malloc(sz), type, sz)
 
 static inline int xfclose __PR((FILE *f));
 static inline int xfclose(f)

@@ -25,10 +25,10 @@
  *	scalar type will be unable to work past 2038 Jan 19 03:14:07 GMT.
  *	For this reason, it is sufficient to support 52 bits for such systems.
  *
- * @(#)urandom.c	1.2 14/08/02 Copyright 2011-2014 J. Schilling
+ * @(#)urandom.c	1.3 15/02/24 Copyright 2011-2015 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)urandom.c	1.2 14/08/02 Copyright 2011-2014 J. Schilling"
+#pragma ident "@(#)urandom.c	1.3 15/02/24 Copyright 2011-2015 J. Schilling"
 #endif
 
 #if defined(sun)
@@ -60,7 +60,7 @@ urandom(urp)
 		timerfix(&tv);
 	}
 	otv = tv;
-	tv.tv_sec -= 0x40000000;	/* 2004 Jan 10 13:37:04 UTC */
+	tv.tv_sec -= URAND_BASE;	/* 2012 Jul 13 11:01:20 UTC */
 #ifdef	HAVE_LONG_LONG
 	*urp = tv.tv_sec * 1000000LL + tv.tv_usec;
 #else
@@ -120,7 +120,7 @@ rtime(tvp)
  * This is sufficient for any date before 2038 Jan 19 03:14:08 GMT.
  *
  * The struct timeval for these two functions is not based on
- * 1970 Jan 1 00:00:00 UTC, but based on 2004 Jan 10 13:37:04 UTC.
+ * 1970 Jan 1 00:00:00 UTC, but based on 2012 Jul 13 11:01:20 UTC.
  */
 EXPORT void
 tv2urand(tvp, urp)

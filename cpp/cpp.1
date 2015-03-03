@@ -1,4 +1,4 @@
-.\" @(#)cpp.1	1.1 10/09/18 Copyright 2010 J. Schilling
+.\" @(#)cpp.1	1.4 15/02/19 Copyright 2010-2015 J. Schilling
 .\" Manual page for cpp
 .\"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -13,7 +13,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH CPP 1 "10/09/18" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH CPP 1 "15/02/19" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 cpp \- the C language preprocessor
 .SH SYNOPSIS
@@ -61,6 +61,13 @@ The default is to suppress C-style comments.
 Print the path names of includes files on standard error.
 Each name is printed on a separate line, names pay appear more than once.
 .TP
+.B \-M
+Generates a list of dependencies and
+write them to the output.
+This list is in makefile format and indicates that the related
+.B .o
+file depends on the input file and the used include files.
+.TP
 .B \-P
 Do not include line control information in the preprocessor output.
 .TP
@@ -72,8 +79,23 @@ Only check for the first eight characters in macro names.
 This option allows backwards compatibility with old systems
 that only check for the first eight characters.
 .TP
+.B \-noinclude
+Remove the standard system include directory (usually
+.BR /usr/include )
+from the search path.
+.TP
 .B \-undef
 Remove all initially predefined macros.
+.TP
+.B \-xsc
+Character constants are treated as
+.B signed char
+regardless of the default in the compiler.
+.TP
+.B \-xuc
+Character constants are treated as
+.B unsigned char
+regardless of the default in the compiler.
 .TP
 .BI \-D name
 Defines 

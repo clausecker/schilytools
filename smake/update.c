@@ -1,14 +1,14 @@
-/* @(#)update.c	1.126 14/03/25 Copyright 1985, 88, 91, 1995-2014 J. Schilling */
+/* @(#)update.c	1.130 15/03/02 Copyright 1985, 88, 91, 1995-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)update.c	1.126 14/03/25 Copyright 1985, 88, 91, 1995-2014 J. Schilling";
+	"@(#)update.c	1.130 15/03/02 Copyright 1985, 88, 91, 1995-2015 J. Schilling";
 #endif
 /*
  *	Make program
  *	Macro handling / Dependency Update
  *
- *	Copyright (c) 1985, 88, 91, 1995-2014 by J. Schilling
+ *	Copyright (c) 1985, 88, 91, 1995-2015 by J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -75,6 +75,7 @@ EXPORT	char	*substitute	__PR((char *cmd, obj_t * obj, obj_t * source, char *suff
 LOCAL	char	*subst		__PR((char *cmd, obj_t * obj, obj_t * source, char *suffix, list_t * depends));
 LOCAL	char	*dynmac		__PR((char *cmd, obj_t * obj, obj_t * source, char *suffix, list_t * depends, BOOL  domod));
 LOCAL	void	warn_implicit	__PR((obj_t *obj, char *mac, char *exp));
+LOCAL	void	warn_displaced	__PR((obj_t *obj, char *mac, char *exp));
 LOCAL	void	extr_filenames	__PR((char *names));
 LOCAL	void	extr_dirnames	__PR((char *names));
 LOCAL	char	*exp_var	__PR((char end, char *cmd, obj_t * obj, obj_t * source, char *suffix, list_t *depends));
@@ -531,6 +532,9 @@ list_nth(list, n)
 	register list_t *list;
 		int	n;
 {
+	if (n < 0)
+		return ((list_t *)NULL);
+
 	for (; list; list = list->l_next)
 		if (--n < 0)
 			return (list);
@@ -783,8 +787,10 @@ subst(cmd, obj, source, suffix, depends)
 			/*
 			 * No need to update 'sb' as we exit here...
 			 */
-			if (sb != gbuf)
+			if (sb != gbuf) {
 				sp = gbuf + (sp - sb);
+				sb = gbuf;
+			}
 			comerrno(EX_BAD,
 				"Fatal error '$' at end of string '%s$'\n",
 									sp);
@@ -803,8 +809,10 @@ subst(cmd, obj, source, suffix, depends)
 	sub_s_put(cmd);
 	*sub_ptr = '\0';
 	depth--;
-	if (sb != gbuf)
+	if (sb != gbuf) {
 		sp = gbuf + (sp - sb);
+		sb = gbuf;
+	}
 	return (sp);
 }
 
@@ -830,6 +838,7 @@ dynmac(cmd, obj, source, suffix, depends, domod)
 	char	*sp1;
 	char	*sb1;
 	register char	*p = cmd;
+	char	*ocmd;
 
 	switch (*cmd++) {
 
@@ -877,6 +886,8 @@ dynmac(cmd, obj, source, suffix, depends, domod)
 		break;
 	case '0': case '1': case '2': case '3': case '4':
 	case '5': case '6': case '7': case '8': case '9':
+		if (depends->l_obj == NULL && obj->o_type == 0 && !nowarn("$#"))
+			warn_displaced(obj, "$#", "");
 		cmd = astoi(p, &num);		/* $1 -> first dependency */
 		sub_arg(num, depends, (obj_t *)0); /* $0 -> implicit source  */
 		break;
@@ -885,9 +896,22 @@ dynmac(cmd, obj, source, suffix, depends, domod)
 		 * $r0 -> all dependencies + implicit source
 		 * $r1 -> all dependencies
 		 */
+		if (depends->l_obj == NULL && obj->o_type == 0 &&
+		    !nowarn("$r#"))
+			warn_displaced(obj, "$r#", "");
 		sp1 = sub_ptr;
 		sb1 = gbuf;
+		ocmd = cmd;
 		cmd = astoi(cmd, &num);
+		if (num < 0 || cmd == ocmd) {
+			/*
+			 * sub_arg() deals with negative "num" values, but
+			 * while (num++) could nearly take forever.
+			 */
+			errmsgno(EX_BAD,
+			"WARNING: illegal substitution: '$r%s'\n", ocmd);
+			break;
+		}
 		while (sub_arg(num++, depends, (obj_t *)0)) {
 			if (sb1 != gbuf)
 				sp1 = gbuf + (sp1 - sb1);
@@ -898,6 +922,7 @@ dynmac(cmd, obj, source, suffix, depends, domod)
 		}
 		if (sb != gbuf)
 			sp = gbuf + (sp - sb);
+		sb = gbuf;
 		if (sp != sub_ptr && sub_ptr[-1] == ' ')
 			sub_ptr--;		/* Kill last space */
 		break;
@@ -915,6 +940,7 @@ dynmac(cmd, obj, source, suffix, depends, domod)
 		}
 		if (sb != gbuf)
 			sp = gbuf + (sp - sb);
+		sb = gbuf;
 		if (sp != sub_ptr && sub_ptr[-1] == ' ')
 			sub_ptr--;		/* Kill last space */
 		break;
@@ -932,6 +958,7 @@ dynmac(cmd, obj, source, suffix, depends, domod)
 		}
 		if (sb != gbuf)
 			sp = gbuf + (sp - sb);
+		sb = gbuf;
 		if (sp != sub_ptr && sub_ptr[-1] == ' ')
 			sub_ptr--;		/* Kill last space */
 		break;
@@ -943,6 +970,7 @@ dynmac(cmd, obj, source, suffix, depends, domod)
 		return (cmd);
 	if (sb != gbuf)
 		sp = gbuf + (sp - sb);
+	sb = gbuf;
 	if (*cmd == 'F') {
 		extr_filenames(sp);		/* 'sp' must be in gbuf */
 		return (++cmd);
@@ -969,6 +997,23 @@ warn_implicit(obj, mac, exp)
 	errmsgno(EX_BAD,
 		"WARNING: Current working directory:  '%s', Makefile '%s'\n",
 				curwdir(), MakeFileNames[obj->o_fileindex]);
+}
+
+LOCAL void
+warn_displaced(obj, mac, exp)
+	obj_t	*obj;
+	char	*mac;
+	char	*exp;
+{
+	errmsgno(EX_BAD,
+	"WARNING: requesting dynmac '%s' in target definition\n",
+			mac);
+	errmsgno(EX_BAD,
+		"WARNING: expanding implicit dynmac  '%s' to '%s'\n",
+			mac, exp);
+	errmsgno(EX_BAD,
+		"WARNING: Current working directory:  '%s', Makefile '%s'\n",
+				curwdir(), mfname);
 }
 
 /*
@@ -998,6 +1043,7 @@ extr_filenames(names)
 	if (sb != gbuf) {
 		sp = gbuf + (sp - sb);
 		names = gbuf + (names - sb);
+		sb = gbuf;
 	}
 	for (np = p = names, s = sp; np && *np; p = np) {
 		np = strchr(np, ' ');
@@ -1051,6 +1097,7 @@ extr_dirnames(names)
 	if (sb != gbuf) {
 		sp = gbuf + (sp - sb);
 		names = gbuf + (names - sb);
+		sb = gbuf;
 	}
 	for (np = p = names, s = sp; np && *np; p = np) {
 		np = strchr(np, ' ');
@@ -1239,6 +1286,7 @@ exp_var(end, cmd, obj, source, suffix, depends)
 		s2 = subst(name, obj, source, suffix, depends);
 		if (sb != gbuf)
 			sp = gbuf + (sp - sb);
+		sb = gbuf;
 		sub_ptr = sp;
 		if (*s2) {
 			if (strlcpy(name, s2, nlen) >= nlen) {
@@ -1398,6 +1446,7 @@ patssub(name, f1, f2, t1, t2)
 	if (sb != gbuf) {
 		sp = gbuf + (sp - sb);
 		sub_ptr = gbuf + (sub_ptr - sb);
+		sb = gbuf;
 	}
 	sub_s_put(&sp[1]);
 }
@@ -1473,6 +1522,7 @@ patmsub(name, f1, f2, t1, t2)
 	if (sb != gbuf) {
 		sp = gbuf + (sp - sb);
 		sub_ptr = gbuf + (sub_ptr - sb);
+		sb = gbuf;
 	}
 	sub_s_put(&sp[1]);
 }
@@ -1561,6 +1611,7 @@ shout(cmd)
 	*sub_ptr = '\0';
 	if (sbuf != gbuf)
 		sptr = gbuf + (sptr - sbuf);
+	sbuf = gbuf;
 	return (sptr);
 }
 
@@ -1592,6 +1643,7 @@ shsub(l, obj, source, suffix, depends)
 	if (sbuf != gbuf)
 		sptr = gbuf + (sptr - sbuf);
 	sub_ptr = sptr;
+	sbuf = gbuf;
 
 	return (shout(sptr));
 }
@@ -1658,6 +1710,7 @@ exp_name(name, obj, source, suffix, depends, pat)
 						parsepat(epa, &f1, &f2, &t1, &t2);
 						if (sb != gbuf)
 							sp = gbuf + (sp - sb);
+						sb = gbuf;
 						/*
 						 * patmsub() expects first
 						 * parameter to be in 'gbuf'
@@ -1692,6 +1745,7 @@ exp_name(name, obj, source, suffix, depends, pat)
 			if (sb != gbuf)
 				sp = gbuf + (sp - sb);
 			sub_ptr = sp;
+			sb = gbuf;
 			(void) shout(sp);
 		}
 		return;
@@ -1720,6 +1774,7 @@ exp_name(name, obj, source, suffix, depends, pat)
 		if (ispat) {
 			if (sb != gbuf)
 				sp = gbuf + (sp - sb);
+			sb = gbuf;
 			/*
 			 * patmsub() expects first parameter to be in 'gbuf'
 			 */
@@ -1738,6 +1793,7 @@ exp_name(name, obj, source, suffix, depends, pat)
 		if (ispat) {
 			if (sb != gbuf)
 				sp = gbuf + (sp - sb);
+			sb = gbuf;
 			/*
 			 * patmsub() expects first parameter to be in 'gbuf'
 			 */
@@ -2341,7 +2397,7 @@ default_cmd(obj, depname, deptime, deplevel, must_exist, dlev)
 		errmsgno(EX_BAD,
 			"Recursion in default rule for '%s'.\n",
 			obj->o_name);
-		return (NOTIME);
+		return (RECURSETIME);
 	}
 
 	if (((obj->o_flags & F_TERM) == 0) &&

@@ -1,4 +1,4 @@
-dnl @(#)aclocal.m4	1.101 14/03/24 Copyright 1998-2014 J. Schilling
+dnl @(#)aclocal.m4	1.102 15/03/02 Copyright 1998-2014 J. Schilling
 
 dnl Set VARIABLE to VALUE in C-string form, verbatim, or 1.
 dnl AC_DEFINE_STRING(VARIABLE [, VALUE])
@@ -2611,6 +2611,26 @@ exit(1);}],
                 [ac_cv_func_printf_j=no])])
 if test $ac_cv_func_printf_j = yes; then
   AC_DEFINE(HAVE_PRINTF_J)
+fi])
+
+dnl Checks if *printf() supports %zd
+dnl Defines HAVE_PRINTF_Z on success.
+AC_DEFUN([AC_FUNC_PRINTF_Z],
+[AC_CACHE_CHECK([whether *printf() supports %zd], ac_cv_func_printf_z,
+                [AC_TRY_RUN([
+#include <sys/types.h>
+int
+main()
+{ size_t m = 1234567890;
+char buf[32];
+sprintf(buf, "%zd", m);
+if (strcmp(buf, "1234567890") == 0)
+	exit(0);
+exit(1);}],
+                [ac_cv_func_printf_z=yes],
+                [ac_cv_func_printf_z=no])])
+if test $ac_cv_func_printf_z = yes; then
+  AC_DEFINE(HAVE_PRINTF_Z)
 fi])
 
 dnl Checks if *printf() supports %lld

@@ -25,12 +25,12 @@
  * Use is subject to license terms.
  */
 /*
- * Copyright 2006-2011 J. Schilling
+ * Copyright 2006-2015 J. Schilling
  *
- * @(#)permiss.c	1.18 11/10/15 J. Schilling
+ * @(#)permiss.c	1.19 15/03/02 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)permiss.c 1.18 11/10/15 J. Schilling"
+#pragma ident "@(#)permiss.c 1.19 15/03/02 J. Schilling"
 #endif
 /*
  * @(#)permiss.c 1.9 06/12/12
@@ -140,8 +140,8 @@ struct packet *pkt;
 	if (p == NULL)			/* 'x' flag not set */
 		return;
 	NONBLANK(p);
-	if (*p == '\0')
-		pkt->p_flags |= PF_SCOX;
+	if (*p == '\0')			/* Empty parameter after 'x' flag, */
+		pkt->p_flags |= PF_SCOX; /* add read-only support for SCO 'x' */
 	for (k = 0; *p; ) {
 		char	*p2;
 

@@ -1,11 +1,11 @@
-/* @(#)alloc.c	1.53 11/11/14 Copyright 1985,1988,1991,1995-2011 J. Schilling */
+/* @(#)alloc.c	1.54 15/02/28 Copyright 1985,1988,1991,1995-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)alloc.c	1.53 11/11/14 Copyright 1985,1988,1991,1995-2011 J. Schilling";
+	"@(#)alloc.c	1.54 15/02/28 Copyright 1985,1988,1991,1995-2015 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1985,1988,1991,1995-2011 J. Schilling
+ *	Copyright (c) 1985,1988,1991,1995-2015 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -14,6 +14,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -560,6 +562,9 @@ dbg_stat()
 			mstat[i].ms_which);
 	}
 	error("%d entries max size: %zd\n", i, (char *)heapend - (char *)heapbeg);
+#ifdef	XADEBUG
+	(void) acheckdamage();
+#endif
 }
 
 LOCAL void

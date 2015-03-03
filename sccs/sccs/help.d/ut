@@ -18,9 +18,9 @@
 *
 * CDDL HEADER END
 *
-* Copyright 2006-2014 J. Schilling
+* Copyright 2006-2015 J. Schilling
 *
-* @(#)ut	1.3 14/08/10 J. Schilling
+* @(#)ut	1.6 15/02/28 J. Schilling
 *
 * @(#)ut 1.2 06/12/12
 *
@@ -91,3 +91,10 @@ This error is caused by failure of the fputs library call.
 A file could not be written to by the fputs function.
 Try command again later.
 If continues to occure contact local UNIX support group.
+-14
+"cannot make directory"
+The directory cannot be created, check for write permission for this operation.
+-15
+"cannot make directories"
+The directories cannot be created, check for write permission for this operation.
+Check whether an existing path component is not a directory.

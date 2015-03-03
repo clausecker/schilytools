@@ -25,15 +25,15 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2011 J. Schilling
+ * This file contains modifications Copyright 2006-2015 J. Schilling
  *
- * @(#)fatal.h	1.8 11/04/20 J. Schilling
+ * @(#)fatal.h	1.9 15/02/16 J. Schilling
  */
 #ifndef	_COMMON_FATAL_H
 #define	_COMMON_FATAL_H
 
 #if defined(sun)
-#pragma ident "@(#)fatal.h 1.8 11/04/20 J. Schilling"
+#pragma ident "@(#)fatal.h 1.9 15/02/16 J. Schilling"
 #endif
 /*
  * @(#)fatal.h 1.3 06/12/12
@@ -46,21 +46,24 @@
 #include <schily/standard.h>
 #include <setjmp.h>
 
-extern	int	Fflags;
-extern	char	*Ffile;
-extern	int	Fvalue;
-extern	int	(*Ffunc) __PR((char *));
-extern	jmp_buf	Fjmp;
+extern	int	Fflags;		/* Flags, see below			  */
+extern	char	*Ffile;		/* Filename, (Fflags & FTLMSG) != 0	  */
+extern	int	Fvalue;		/* Return value, (Fflags & FTLACT) == FTLRET */
+extern	int	(*Ffunc) __PR((char *)); /* Function for Fflags & FTLFUNC */
+extern	jmp_buf	Fjmp;		/* Jump buffer for Fflags & FTLJMP	  */
 extern  char    *nsedelim;
 
-# define FTLMSG		0100000
-# define FTLCLN		 040000
-# define FTLFUNC	 020000
-# define FTLVFORK	 010000
-# define FTLACT		    077
-# define FTLJMP		     02
-# define FTLEXIT	     01
-# define FTLRET		      0
+/*
+ * Definitions for Fflags:
+ */
+# define FTLMSG		0100000	/* Print "ERROR [filename]: " first	  */
+# define FTLCLN		 040000	/* Call clean up function		  */
+# define FTLFUNC	 020000	/* Call (*Ffunc)(msg)			  */
+# define FTLVFORK	 010000	/* A vfork() child that must call _exit() */
+# define FTLACT		    077	/* Mask for fatal() return behavior:	  */
+# define FTLJMP		     02	/* Call longjmp(Fjmp, 1);		  */
+# define FTLEXIT	     01	/* Call exit();				  */
+# define FTLRET		      0	/* Call return(Fvalue);			  */
 
 # define FSAVE(val)	SAVE(Fflags,old_Fflags); Fflags = val;
 # define FRSTR()	RSTR(Fflags,old_Fflags);

@@ -14,10 +14,10 @@
  *
  *	Search for $SET_HOME/.sccs
  *
- * @(#)sethome.c	1.5 15/02/05 Copyright 2011-2015 J. Schilling
+ * @(#)sethome.c	1.10 15/02/25 Copyright 2011-2015 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)sethome.c	1.5 15/02/05 Copyright 2011-2015 J. Schilling"
+#pragma ident "@(#)sethome.c	1.10 15/02/25 Copyright 2011-2015 J. Schilling"
 #endif
 
 #if defined(sun)
@@ -26,58 +26,135 @@
 #endif
 #include	<defines.h>
 
+LOCAL	int	shinit;	/* sethome was initialized */
 /*
  * If it is not possible to retrieve "setahome", it may be a NULL pointer.
  * The variables "setrhome" and "cwdprefix" are always set from sethome().
  */
+char	*setphome;	/* Best path to the project set home directory */
 char	*setrhome;	/* Relative path to the project set home directory */
 char	*setahome;	/* Absolute path to the project set home directory */
 char	*cwdprefix;	/* Prefix from project set home directory to cwd */
 int	homedist;	/* The # of directories to the project set home dir */
+int	setrhomelen;	/* strlen(setrhome) */
+int	setahomelen;	/* strlen(setahome) */
+int	cwdprefixlen;	/* strlen(cwdprefix) */
+int	sethomestat;	/* sethome() status flags */
 
 LOCAL	int	searchabs	__PR((char *path));
 LOCAL	int	dorel		__PR((char *bp, size_t len));
 LOCAL	void	mkrelhome	__PR((char *bp, size_t len, int i));
 LOCAL	int	mkprefix	__PR((char *bp, size_t len, int i));
+LOCAL	int	searchdotsccs	__PR((char *path));
+
+EXPORT void
+unsethome()
+{
+	if (setrhome != NULL) {
+		free(setrhome);
+		setrhome = NULL;
+	}
+	if (setahome != NULL) {
+		free(setahome);
+		setahome = NULL;
+	}
+	if (cwdprefix != NULL) {
+		free(cwdprefix);
+		cwdprefix = NULL;
+	}
+	setphome = NULL;
+	homedist = setrhomelen = setahomelen = cwdprefixlen = sethomestat = 0;
+	shinit = 0;
+}
+
+/*
+ * A variant of sethome() that includes error handling.
+ */
+EXPORT int
+xsethome(path)
+	char	*path;
+{
+	int	ret;
+
+	errno = 0;
+	ret = sethome(path);
+	if (ret < 0)
+		efatal(gettext("cannot get project home directory (co32)"));
+	errno = 0;
+	return (ret);
+}
 
 /*
  * Try to find the project set home directory and a path from that directory
  * to the current directory.
+ *
+ * This is the central function for sccs when it tries to support whole
+ * projects instead of just unrelated single files.
+ *
+ * Returns:
+ *
+ *	-1	Error, cannot scan directories for ".sccs"
+ *	 0	$SET_HOME/.sccs not found
+ *	 1	$SET_HOME/.sccs found
  */
 EXPORT int
-sethome()
+sethome(path)
+	char	*path;
 {
 	char	buf[max(8192, PATH_MAX+1)];
 	int	len;
-static	int	shinit;
 
 	if (shinit != 0)
-		return (0);
+		return (sethomestat & SETHOME_OK);
 	shinit = 1;
 
-	if (abspath(".", buf, sizeof (buf)) == NULL)
+	if (path == NULL)
+		path = ".";
+	if (abspath(path, buf, sizeof (buf)) == NULL) {
+		resolvenpath(path, buf, sizeof (buf));	/* Rationalize path */
 		return (dorel(buf, sizeof (buf)));
+	}
 
 	errno = 0;
 	len = searchabs(buf);				/* Index after home */
 	if (len < 0) {
-		if (errno != 0)
+		if (errno != 0)				/* Other than ENOENT */
 			return (-1);
-		return (0);
+		return (0);				/* No $SET_HOME/.sccs */
 	}
 
+	/*
+	 * $SET_HOME/.sccs was found and len is the offset
+	 * in buf where we may append "/.sccs".
+	 */
 	buf[len] = '\0';
-	if (len == 0)
+	if (len == 0) {
 		setahome = strdup("/");
-	else
+		setahomelen = 1;
+	} else {
 		setahome = strdup(buf);
+		setahomelen = len;
+	}
 	cwdprefix = strdup(&buf[len+1]);
-	if (setahome == NULL || cwdprefix == NULL)	/* no mem */
-		return (-1);
+	cwdprefixlen = strlen(&buf[len+1]);
+	if (setahome == NULL || cwdprefix == NULL) {	/* no mem */
+		setahomelen = 0;
+		cwdprefixlen = 0;
+		return (-1);				/* Return error */
+	}
+	resolvenpath(path, buf, sizeof (buf));		/* Rationalize path */
 	mkrelhome(buf, sizeof (buf), homedist);
 	if (setrhome == NULL)				/* no mem */
-		return (-1);
-	return (1);
+		return (-1);				/* return error */
+	if (setahomelen > 0 && setahomelen < setrhomelen) {
+		sethomestat |= SETHOME_ABS;
+		setphome = setahome;
+	} else {
+		setphome = setrhome;
+	}
+	sethomestat |= SETHOME_OK;
+	searchdotsccs(setrhome);
+	return (1);					/* $SET_HOME/.sccs OK */
 }
 
 /*
@@ -104,7 +181,8 @@ searchabs(path)
 		strlcpy(p, "/.sccs", sizeof (buf) - (p - buf));
 		found = 0;
 		if (stat(buf, &sb) >= 0) {
-			found++;
+			if (S_ISDIR(sb.st_mode))
+				found++;
 			break;
 		} else if (errno != ENOENT) {
 			err = errno;
@@ -148,19 +226,32 @@ dorel(bp, len)
 	int	i;
 	int	found = 0;
 
-	bp[0] = '\0';
-	for (i = (len - 6) / 3; --i >= 0; ) {
-		strlcat(bp, "../", len);
-	}
-	strlcat(bp, ".sccs", len);
 	p = bp + strlen(bp);
-	p -= 5;
-	s = p + 1;
+	if (bp[0] == '.' && bp[1] == '\0') {
+		p = bp;
+		s = &bp[1];
+		strlcpy(bp, ".sccs", len);
+	} else {
+		if (stat(bp, &sb) < 0) {
+			/*
+			 * If we cannot stat() the given initial path for
+			 * whatever reason, we will not be able to scan the
+			 * filesystem tree to search for ".sccs".
+			 */
+			return (0);
+		}
+		if (strlcat(bp, "/.sccs", len) >= len) {
+			return (-1);
+		} else {
+			s = p + 2;
+		}
+	}
 	i = 0;
-	while (p >= bp) {
+	for (;;) {
 		found = 0;
-		if (stat(p, &sb) >= 0) {
-			found++;
+		if (stat(bp, &sb) >= 0) {
+			if (S_ISDIR(sb.st_mode))
+				found++;
 			break;
 		} else if (errno != ENOENT) {
 			err = errno;
@@ -169,31 +260,46 @@ dorel(bp, len)
 		*s = '\0';
 		sb.st_ino = (ino_t)-1;
 		sb2.st_ino = (ino_t)-2;
-		stat(p, &sb);		/* "." */
-		p -= 3;
-		stat(p, &sb2);		/* ".." */
+		stat(bp, &sb);		/* "." */
+		s[0] = '.';		/* Make it ".." */
+		s[1] = '\0';
+		stat(bp, &sb2);		/* ".." */
 		if (sb.st_ino == sb2.st_ino &&
 		    sb.st_dev == sb2.st_dev) {
-			break;
+			break;		/* We found the root directory. */
 		}
-		*s = 's';
+		if (strlcat(bp, "/.sccs", len) >= len)
+			return (-1);
+		s += 3;
 		i++;
 	}
 	if (!found) {
 		if (err) {
 			errno = err;
-			return (-1);
+			return (-1);			/* Other than ENOENT */
 		}
-		return (0);
+		return (0);				/* No $SET_HOME/.sccs */
 	}
+	s -= 2;
+	if (s > bp)
+		s[0] = '\0';
+	if (p == bp) {
+		setrhome = strdup(".");
+	} else
+		setrhome = strdup(bp);
+	if (setrhome != NULL)
+		setrhomelen = strlen(bp);
+	homedist = i;
+	if (setrhome == NULL)				/* no mem */
+		return (-1);
+	setphome = setrhome;
+	sethomestat |= SETHOME_OK;
+	searchdotsccs(setrhome);
+	*p = '\0';					/* Cut off new text */
 	errno = 0;
-	if (!mkprefix(bp, len, i))
+	if (!mkprefix(bp, len, i))			/* Not found */
 		return (-1);
 	if (cwdprefix == NULL)				/* no mem */
-		return (-1);
-	homedist = i;
-	mkrelhome(bp, len, homedist);
-	if (setrhome == NULL)				/* no mem */
 		return (-1);
 	return (1);
 }
@@ -209,16 +315,28 @@ mkrelhome(bp, len, n)
 	size_t	len;
 	int	n;
 {
-	bp[0] = '\0';
-	if (n == 0) {
+	int	isdot = bp[0] == '.' && bp[1] == '\0';
+
+	if (isdot)
+		bp[0] = '\0';
+	if (n == 0 && isdot) {
 		strlcat(bp, ".", len);
 	} else {
-		while (--n > 0) {
-			strlcat(bp, "../", len);
+		if (isdot) {
+			bp[1] = '.';
+			bp[2] = '\0';
 		}
-		strlcat(bp, "..", len);
+		if (n > 0 && bp[0] == '\0') {
+			strlcat(bp, "..", len);
+			n--;
+		}
+		while (--n >= 0) {
+			strlcat(bp, "/..", len);
+		}
 	}
 	setrhome = strdup(bp);
+	if (setrhome != NULL)
+		setrhomelen = strlen(bp);
 }
 
 /*
@@ -238,26 +356,40 @@ mkprefix(bp, len, n)
 	char	buf[max(8192, PATH_MAX+1)];
 	char	pfx[max(8192, PATH_MAX+1)];
 	char	*p;
+	char	*s;
 	int	i;
 	int	found;
 	DIR	*dp;
 	struct dirent *de;
 
-	bp[0] = '\0';
+	if (bp[0]) {
+		if (stat(bp, &sb) < 0) {
+			/*
+			 * If we cannot stat() the given initial path for
+			 * whatever reason, we will not be able to scan the
+			 * filesystem tree to search for ".sccs".
+			 */
+			return (0);
+		}
+		strlcat(bp, "/", len);
+	}
 	i = n;
 	for (; --i >= 0; ) {
 		strlcat(bp, "../", len);
 	}
 	strlcat(bp, ".", len);
 
+	s = bp + strlen(bp);
 	i = n;
 	pfx[0] = '\0';
-	while (--i >= 0) {
+	while (--i >= 0) {		/* Enter only if n > 0 */
 
-		stat(&bp[(n-i)*3], &sb);	/* Dir to match */
-		dp = opendir(&bp[(n-i-1)*3]);	/* one level above that dir */
-
-		strlcpy(buf, &bp[(n-i-1)*3], sizeof (buf));
+		s[-3] = '\0';
+		stat(bp, &sb);		/* Dir to match */
+		s[-3] = '.';
+		dp = opendir(bp);	/* one level above that dir */
+		
+		strlcpy(buf, bp, sizeof (buf));
 		p = buf + strlen(buf)-1;
 		found = 0;
 		while ((de = readdir(dp)) != NULL) {
@@ -277,7 +409,67 @@ mkprefix(bp, len, n)
 		if (pfx[0])
 			strlcat(pfx, "/", sizeof (pfx));
 		strlcat(pfx, sname(buf), sizeof (pfx));
+		s -= 3;
+		*s = '\0';
 	}
 	cwdprefix = strdup(pfx);
+	if (cwdprefix != NULL)
+		cwdprefixlen = strlen(pfx);
+	return (1);				/* cwdprefix found */
+}
+
+LOCAL int
+searchdotsccs(path)
+	char	*path;
+{
+	struct stat sb;
+	char	buf[max(8192, PATH_MAX+1)];
+	char	*p;
+	int	len;
+	int	err = 0;
+
+	strlcpy(buf, path, sizeof (buf));
+	len = strlen(buf);
+	p = &buf[len];
+
+	strlcpy(p, "/.sccs/data", sizeof (buf) - (p - buf));
+	if (stat(buf, &sb) >= 0) {
+		if (S_ISDIR(sb.st_mode)) {
+			sethomestat &= ~SETHOME_INTREE;
+			sethomestat |=  SETHOME_OFFTREE;
+		}
+	} else if (errno != ENOENT) {
+		err = errno;
+	} else {
+		sethomestat |=  SETHOME_INTREE;
+		sethomestat &= ~SETHOME_OFFTREE;
+	}
+	p += 7;					/* Skip "/.sccs/" */
+	strlcpy(p, "dels", sizeof (buf) - (p - buf));
+	if (stat(buf, &sb) >= 0) {
+		if (S_ISDIR(sb.st_mode))
+			sethomestat |= SETHOME_DELS_OK;
+	} else if (errno != ENOENT) {
+		err = errno;
+	} else {
+		sethomestat &= ~SETHOME_DELS_OK;
+	}
+	if (err) {
+		errno = err;
+		return (-1);			/* Other than ENOENT */
+	}
+	return (0);
+}
+
+EXPORT int
+checkhome(path)
+	char	*path;
+{
+	if (shinit != 0)
+		xsethome(path);
+	if (!SETHOME_INIT()) {
+		efatal(gettext("no SCCS project home directory (co33)"));
+		return (0);			/* (Fflags & FTLACT= == 0) */
+	}
 	return (1);
 }

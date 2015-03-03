@@ -1,13 +1,13 @@
-/* @(#)yylex.c	1.7 11/08/03 2010-2011 J. Schilling */
+/* @(#)yylex.c	1.8 15/02/19 2010-2015 J. Schilling */
 #ifndef lint
 static	char sccsid[] =
-	"@(#)yylex.c	1.7 11/08/03 2010-2011 J. Schilling";
+	"@(#)yylex.c	1.8 15/02/19 2010-2015 J. Schilling";
 #endif
 /*
  * This implementation is based on the UNIX 32V release from 1978
  * with permission from Caldera Inc.
  *
- * Copyright (c) 2010-2011 J. Schilling
+ * Copyright (c) 2010-2015 J. Schilling
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -97,6 +97,7 @@ yylex()
 	static char *opc="b\bt\tn\nf\fr\r\\\\";
 	extern char fastab[];
 	extern char *outptr,*inptr,*newp; extern int flslvl;
+	extern int char_is_signed;
 	register char savc, *s;
 	int val;
 	register char **p2;
@@ -125,11 +126,28 @@ for (;;) {
 	} else 	if (*inptr=='\'') {/* character constant */
 		val=number;
 		if (inptr[1]=='\\') {/* escaped */
-			char c; if (newp[-1]=='\'') newp[-1]='\0';
+			char		c;
+#if	defined(__STDC__) || defined(CHAR_IS_UNSIGNED)
+			signed char	sc;
+#else
+			char		sc;
+#endif
+			unsigned char	uc;
+
+			if (newp[-1] == '\'')
+				newp[-1] = '\0';
 			s=opc;
 			while (*s) if (*s++!=inptr[2]) ++s; else {yylval= *s; goto ret;}
-			if (inptr[2]<='9' && inptr[2]>='0') yylval=c=tobinary(inptr+2,8);
-			else yylval=inptr[2];
+			if (inptr[2]<='9' && inptr[2]>='0') {
+				if (char_is_signed < 0)
+					yylval= c = tobinary(inptr+2, 8);
+				else if (char_is_signed == 0)
+					yylval= uc = tobinary(inptr+2, 8);
+				else
+					yylval= sc = tobinary(inptr+2, 8);
+			} else {
+				yylval=inptr[2];
+			}
 		} else yylval=inptr[1];
 	} else if (0==strcmp("\\\n",inptr)) {*newp=savc; continue;}
 	else {

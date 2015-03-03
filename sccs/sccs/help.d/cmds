@@ -23,7 +23,7 @@
 *
 * Copyright 2006-2015 J. Schilling
 *
-* @(#)cmds	1.41 15/01/28 J. Schilling 
+* @(#)cmds	1.44 15/03/02 J. Schilling 
 *
 * @(#)cmds 1.3 06/12/12
 *
@@ -32,7 +32,7 @@
 *
 -delta
 	delta [-r<SID>] [-s] [-n] [-o] [-g<list>] [-m<mrlist>] [-q[nsedelim]]
-		[-y<comment>]
+		[-y<comment>] [-D diff-file]
 		[-d] [-f] [-h] [-p] [-z] [-Cdir] file ...
 
 	Make a delta to an SCCS file
@@ -52,6 +52,7 @@ options:
 	-ycmt	Supply delta comment
 	-z	Enable CMF extensions for MR numbers
 	-Cdir	Working directory for g-file
+	-Ddfile	Provide a file with prepared diff output to delta
 	-V	Print version number
 
 -get
@@ -128,8 +129,8 @@ Keyword       Type
 -admin
      admin [-n] [-i<name>] [-r<rel>] [-t<name>] [-f<add-flag<flag-val>>] ...
            [-d<del-flag>] ... [-a<add-login>] ... [-e<erase-login>] ...
-           [-m<mrlist>] [-N[bulk-spec]] [-q[nsedelim]] [-y<comment>]
-           [-b] [-h] [-o] [-z] file ...
+           [-m<mrlist>] [-N[bulk-spec]] [-q[nsedelim]] [-w<%W%-replacement>]
+           [-y<comment>] [-b] [-h] [-k] [-o] [-z] file ...
 
 	Create and administer SCCS history files
 
@@ -141,6 +142,7 @@ options:
 	-fflag	Add indicated flag in SCCS file
 	-h	Check the structure of an existing SCCS file
 	-ifile	Initialize history with text from file
+	-k	Suppress expansion of keywords when doing a get(1) with -N+
 	-mMR	Supply MR-number
 	-Nspec	Create a bulk of SCCS history files and initialize them
 	-n	Create a new SCCS history file
@@ -148,6 +150,7 @@ options:
 	-qnsed	Enable NSE mode. The parameter "nsed" is ignored.
 	-rSID	Supply SCCS ID
 	-tfile	Insert descriptive text from file
+	-w	Redefine the expansion for the %W% keyword for get(1) with -N+
 	-ycmt	Supply initial delta comment
 	-z	Recompute the checksum
 	-C	Working directory for g-file
@@ -439,7 +442,15 @@ options:
 	sccs get	retrieve a version of an SCCS file
 	sccs help	print help for SCCS commands and error messages
 	sccs log	create a changelog using SCCS delta comments
-	
+
+basic project oriented sub-commands:
+	sccs add	add specified files on next commit
+	sccs commit	commit changes to project repository
+	sccs init	initialize empty project repository
+	sccs remove	remove specified files on next commit
+	sccs rename	rename specified files on next commit
+	sccs status	show changed files in the project
+
 	(do 'help sccs'         for a full list of sccs options)
 	(do 'help sccs_subcmds' for a full list of sccs subcommands)
 	(do 'help get_kywds'    for a description of recognized ID keywords)
@@ -455,7 +466,15 @@ basic sub-commands:
 	sccs get	retrieve a version of an SCCS file
 	sccs help	print help for SCCS commands and error messages
 	sccs log	create a changelog using SCCS delta comments
-	
+
+basic project oriented sub-commands:
+	sccs add	add specified files on next commit
+	sccs commit	commit changes to project repository
+	sccs init	initialize empty project repository
+	sccs remove	remove specified files on next commit
+	sccs rename	rename specified files on next commit
+	sccs status	show changed files in the project
+
 	(do 'help sccs'         for a full list of sccs options)
 	(do 'help sccs_subcmds' for a full list of sccs subcommands)
 	(do 'help get_kywds'    for a description of recognized ID keywords)
@@ -673,3 +692,12 @@ options:
 options:
 	-rm	Remove RCS files after completion
 	-V6	Convert into SCCS v6 history
+
+-init
+	init [-f] [-i] [dir]
+
+	Initalize a new repository.
+
+options:
+	-f	Force to initialize even if already initialized
+	-i	Keep SCCS directories inside the source tree

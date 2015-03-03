@@ -1,16 +1,19 @@
-# @(#)Targets	1.15 15/01/27 Copyright 2006-2008 J. Schilling
+# @(#)Targets	1.19 15/02/28 Copyright 2006-2015 J. Schilling
 
-CFILES=	auxf.c cdata.c chkid.c chksid.c cmpdate.c \
+CFILES=	auxf.c \
+	cdata.c change_ab.c change_ba.c chkid.c chksid.c cmpdate.c \
 	date_ab.c date_ba.c date_bal.c \
 	del_ab.c \
 	del_ba.c dodelt.c dofile.c dohist.c doie.c dolist.c dometa.c \
 	dtime.c encode.c \
 	eqsid.c flushto.c fmterr.c getline.c getser.c \
 	help.c \
+	idsubst.c \
 	lhash.c logname.c newsid.c \
 	newstats.c permiss.c pf_ab.c putline.c putmeta.c \
 	rdmod.c \
 	sethome.c setinitpath.c setup.c sid_ab.c \
 	sid_ba.c sidext_ab.c sidext_ba.c sidtoser.c sinit.c stats_ab.c strptim.c \
-	ssum.c usum.c \
+	ssum.c \
+	urand_ab.c urand_ba.c usum.c \
 	xgmtime.c xlocaltime.c xmktime.c xtzset.c
