@@ -1,9 +1,9 @@
-/* @(#)resolvepath.c	1.4 13/10/29 Copyright 2011-2013 J. Schilling */
+/* @(#)resolvepath.c	1.5 15/03/03 Copyright 2011-2015 J. Schilling */
 /*
  *	resolvepath() removes "./" and non-leading "/.." path components.
  *	It tries to do the same as the Solaris syscall with the same name.
  *
- *	Copyright (c) 2011-2013 J. Schilling
+ *	Copyright (c) 2011-2015 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -39,6 +39,13 @@ LOCAL	int	pathresolve	__PR((const char *path, const char *p,
 LOCAL	int	shorten		__PR((char *path));
 
 #ifndef	HAVE_RESOLVEPATH
+/*
+ * Warning: The Solaris system call "resolvepath()" does not null-terminate
+ * the result in "buf". Code that used resolvepath() should manually
+ * null-terminate the buffer.
+ *
+ * Note: Path needs to exist.
+ */
 EXPORT int
 resolvepath(path, buf, bufsiz)
 	register const char	*path;
@@ -49,6 +56,9 @@ resolvepath(path, buf, bufsiz)
 }
 #endif
 
+/*
+ * Path may not exist.
+ */
 EXPORT int
 resolvenpath(path, buf, bufsiz)
 	register const char	*path;
@@ -59,7 +69,10 @@ resolvenpath(path, buf, bufsiz)
 }
 
 /*
- * The behavior may be controlled via flags.
+ * The behavior may be controlled via flags:
+ *
+ * RSPF_EXIST		All path components must exist
+ * RSPF_NOFOLLOW_LAST	Do not follow link in last path component
  */
 EXPORT int
 resolvefpath(path, buf, bufsiz, flags)

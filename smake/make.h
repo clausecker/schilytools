@@ -1,7 +1,7 @@
-/* @(#)make.h	1.96 13/03/26 Copyright 1985, 87, 91, 1995-2013 J. Schilling */
+/* @(#)make.h	1.97 15/03/05 Copyright 1985, 87, 91, 1995-2015 J. Schilling */
 /*
  *	Definitions for make.
- *	Copyright (c) 1985, 87, 91, 1995-2013 by J. Schilling
+ *	Copyright (c) 1985, 87, 91, 1995-2015 by J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -10,6 +10,8 @@
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -263,7 +265,7 @@ extern	BOOL	Qflag;		/* If up to date exit (0)		*/
 extern	int	Debug;		/* Print reson for rebuild		*/
 extern	int	XDebug;		/* Print extended debug info		*/
 extern	int	Dmake;		/* Display makefile			*/
-extern	BOOL	Prdep;		/* Print include dependendy		*/
+extern	BOOL	Prdep;		/* Print include dependency		*/
 extern	BOOL	No_Warn;	/* Don't print warning Messages.	*/
 extern	BOOL	Do_Warn;	/* Print extra warnings			*/
 extern	char   **MakeFileNames;	/* List of pathnames of the Makefiles.	*/
@@ -314,7 +316,7 @@ extern	patr_t	**pattail;
 extern	char	chartype[256];
 
 /*
- * Definitiond for chartype[] bits:
+ * Definitions for chartype[] bits:
  */
 #define	DYNCHAR	0x01
 #define	NUMBER	0x02

@@ -1,8 +1,8 @@
-/* @(#)update.c	1.130 15/03/02 Copyright 1985, 88, 91, 1995-2015 J. Schilling */
+/* @(#)update.c	1.136 15/03/14 Copyright 1985, 88, 91, 1995-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)update.c	1.130 15/03/02 Copyright 1985, 88, 91, 1995-2015 J. Schilling";
+	"@(#)update.c	1.136 15/03/14 Copyright 1985, 88, 91, 1995-2015 J. Schilling";
 #endif
 /*
  *	Make program
@@ -258,7 +258,7 @@ isprecious(obj)
 
 /*
  * Return TRUE if 'obj' is in the list of targets that should not be checked
- * aginst existing files. A .PHONY target is asumed to be never up to date,
+ * aginst existing files. A .PHONY target is assumed to be never up to date,
  * it is not removed in case a signal is received.
  */
 EXPORT BOOL
@@ -974,8 +974,7 @@ dynmac(cmd, obj, source, suffix, depends, domod)
 	if (*cmd == 'F') {
 		extr_filenames(sp);		/* 'sp' must be in gbuf */
 		return (++cmd);
-	}
-	if (*cmd == 'D') {
+	} else if (*cmd == 'D') {
 		extr_dirnames(sp);		/* 'sp' must be in gbuf */
 		return (++cmd);
 	}
@@ -1033,23 +1032,49 @@ extr_filenames(names)
 	char	*s;
 	char	*sp;
 	char	*sb;
+	char	*sbe;
 
 	sp = ++sub_ptr;
 	sb = gbuf;
+	sbe = gbufend;
 	/*
 	 * Make sure that gbuf has enough room for the copy.
+	 * Getting the size with sub_ptr - names only works if "names"
+	 * is on gbuf.
 	 */
-	grant_gbuf(sub_ptr - names);
+	if (wason_gbuf(names))
+		grant_gbuf(sub_ptr - names);
 	if (sb != gbuf) {
 		sp = gbuf + (sp - sb);
-		names = gbuf + (names - sb);
+		if (wason_gbuf(names))
+			names = gbuf + (names - sb);
 		sb = gbuf;
+		sbe = gbufend;
 	}
 	for (np = p = names, s = sp; np && *np; p = np) {
 		np = strchr(np, ' ');
 		if (np)
 			*np++ = '\0';
 		p = filename(p);
+
+		/*
+		 * Make sure the next string fits on gbuf.
+		 */
+		sub_ptr = s;		/* needed by grant_gbuf() */
+		grant_gbuf(strlen(p)+2); /* add null-byte and space */
+		if (sb != gbuf) {
+			sp = gbuf + (sp - sb);
+			s = gbuf + (s - sb);
+			if (wason_gbuf(names)) {
+				names = gbuf + (names - sb);
+				p = gbuf + (p - sb);
+				if (np)
+					np = gbuf + (np - sb);
+			}
+			sb = gbuf;
+			sbe = gbufend;
+		}
+
 		while (*p)
 			*s++ = *p++;
 		if (np)
@@ -1057,12 +1082,13 @@ extr_filenames(names)
 	}
 	*s = '\0';
 	/*
-	 * Now copy down from uppe part of gbuf.
+	 * Now copy down from upper part of gbuf.
 	 */
 	for (s = names, p = sp; *p; )
 		*s++ = *p++;
 	*s = '\0';
-	sub_ptr = s;
+	if (wason_gbuf(names))
+		sub_ptr = s;
 }
 
 /*
@@ -1082,6 +1108,7 @@ extr_dirnames(names)
 	char	*s;
 	char	*sp;
 	char	*sb;
+	char	*sbe;
 	char	_base[TYPICAL_NAMEMAX];
 	char	*base = _base;
 	char	*bp = NULL;
@@ -1090,14 +1117,20 @@ extr_dirnames(names)
 
 	sp = ++sub_ptr;
 	sb = gbuf;
+	sbe = gbufend;
 	/*
 	 * Make sure that gbuf has enough room for the copy.
+	 * Getting the size with sub_ptr - names only works if "names"
+	 * is on gbuf.
 	 */
-	grant_gbuf(sub_ptr - names);
+	if (wason_gbuf(names))
+		grant_gbuf(sub_ptr - names);
 	if (sb != gbuf) {
 		sp = gbuf + (sp - sb);
-		names = gbuf + (names - sb);
+		if (wason_gbuf(names))
+			names = gbuf + (names - sb);
 		sb = gbuf;
+		sbe = gbufend;
 	}
 	for (np = p = names, s = sp; np && *np; p = np) {
 		np = strchr(np, ' ');
@@ -1106,6 +1139,24 @@ extr_dirnames(names)
 			len = np - p;
 		} else {
 			len = strlen(p) + 1;
+		}
+
+		/*
+		 * Make sure the next string fits on gbuf.
+		 */
+		sub_ptr = s;		/* needed by grant_gbuf() */
+		grant_gbuf(len+1);	/* add null-byte and space */
+		if (sb != gbuf) {
+			sp = gbuf + (sp - sb);
+			s = gbuf + (s - sb);
+			if (wason_gbuf(names)) {
+				names = gbuf + (names - sb);
+				p = gbuf + (p - sb);
+				if (np)
+					np = gbuf + (np - sb);
+			}
+			sb = gbuf;
+			sbe = gbufend;
 		}
 		if (len > blen) {
 			blen = len + 32;	/* Add some reserve */
@@ -1127,7 +1178,8 @@ extr_dirnames(names)
 	for (s = names, p = sp; *p; )
 		*s++ = *p++;
 	*s = '\0';
-	sub_ptr = s;
+	if (wason_gbuf(names))
+		sub_ptr = s;
 }
 
 #define	white(c)	((c) == ' ' || (c) == '\t')
@@ -1135,7 +1187,7 @@ extr_dirnames(names)
 /*
  * Expand a macro.
  * As the replacement may be a suffix rule or a pattern rule too,
- * we first must get the basic name the macro referres to.
+ * we first must get the basic name the macro refers to.
  */
 #ifdef	PROTOTYPES
 LOCAL char *
@@ -1200,8 +1252,10 @@ exp_var(end, cmd, obj, source, suffix, depends)
 			name = ___realloc(np, nlen, "macro name");
 			if (np == NULL) {
 				/*
-				 * Copy old content
+				 * Copy old content.
+				 * First null-terminate the current buffer.
 				 */
+				*rname = '\0';
 				strlcpy(name, _name, sizeof (_name));
 				rname = name + (rname - _name);
 			} else {
@@ -1246,8 +1300,11 @@ exp_var(end, cmd, obj, source, suffix, depends)
 				pat = ___realloc(pp, plen, "macro pattern");
 				if (pp == NULL) {
 					/*
-					 * Copy old content
+					 * Copy old content.
+					 * First null-terminate the
+					 * current buffer.
 					 */
+					*rname = '\0';
 					strlcpy(pat, _pat, sizeof (_pat));
 					rname = pat + (rname - _pat);
 				} else {
@@ -1271,7 +1328,7 @@ exp_var(end, cmd, obj, source, suffix, depends)
 		found_make = TRUE;
 
 	/*
-	 * If the name of the macro contains a '$', resursively expand it.
+	 * If the name of the macro contains a '$', recursively expand it.
 	 * We need to check if we should rather expand anything between the
 	 * brackets (e.g {...}) however, this may fail to expand long lists.
 	 * See also comment in exp_name() regarding USE_SUBPAT
@@ -1454,7 +1511,7 @@ patssub(name, f1, f2, t1, t2)
 
 /*
  * Do pattern substitution in a macro that may contain multiple words.
- * Subtitution is applied separately to each word.
+ * Substitution is applied separately to each word.
  *
  * The parameter 'name' is expected to be on the 'growable buffer'.
  * If we ever need to use patmsub() otherwise, we need to add a boolean
@@ -1494,15 +1551,25 @@ patmsub(name, f1, f2, t1, t2)
 		if (sb != gbuf) {
 			sp = gbuf + (sp - sb);
 			osp = gbuf + (osp - sb);
-			name = gbuf + (name - sb);
-			if (b != NULL)
-				b = gbuf + (b - sb);
+			if (wason_gbuf(name)) {
+				name = gbuf + (name - sb);
+				if (b != NULL)
+					b = gbuf + (b - sb);
+			}
 			sb = gbuf;
 			sbe = gbufend;
 		}
 
 		if (b) {
 			sub_c_put(c);
+			if (sb != gbuf) {
+				sp = gbuf + (sp - sb);
+				osp = gbuf + (osp - sb);
+				if (wason_gbuf(b))
+					b = gbuf + (b - sb);
+				sb = gbuf;
+				sbe = gbufend;
+			}
 			while (*b != '\0' && white(*b)) {
 				sub_put(b++, 1);
 				if (sb != gbuf) {
@@ -1523,6 +1590,7 @@ patmsub(name, f1, f2, t1, t2)
 		sp = gbuf + (sp - sb);
 		sub_ptr = gbuf + (sub_ptr - sb);
 		sb = gbuf;
+		sbe = gbufend;
 	}
 	sub_s_put(&sp[1]);
 }
@@ -1594,7 +1662,12 @@ shout(cmd)
 	char	*sptr = sub_ptr;
 	char	*sbuf = gbuf;
 
-	if (sub_ptr == NULL)
+	/*
+	 * getshvar() does not know about sub_ptr and thus cannot initialize
+	 * it. As it first overwrites gbuf and then calls us with name == gbuf,
+	 * we can do the needed initialization for sub_c_put() here.
+	 */
+	if (sub_ptr == NULL || cmd == gbuf)
 		sptr = sub_ptr = gbuf;
 
 	f = popen(cmd, "r");
@@ -1649,7 +1722,7 @@ shsub(l, obj, source, suffix, depends)
 }
 
 /*
- * Expand a macro for which the name is explicitely known.
+ * Expand a macro for which the name is explicitly known.
  */
 LOCAL void
 exp_name(name, obj, source, suffix, depends, pat)
@@ -1679,8 +1752,8 @@ exp_name(name, obj, source, suffix, depends, pat)
 		o = objlook(name, FALSE);
 		if (o == (obj_t *)NULL) {
 			/*
-			 * Check for $O -> ObjDir (speudo dyn) macro.
-			 * $O is a speudo dyn macro as we allow to overwrite it
+			 * Check for $O -> ObjDir (pseudo dyn) macro.
+			 * $O is a pseudo dyn macro as we allow to overwrite it
 			 * in order get full POSIX make compliance.
 			 */
 			if (name[0] == 'O' && name[1] == '\0') {
@@ -1940,7 +2013,7 @@ patr_src(name, prule, rtypep, suffixp, pcmd, dlev)
 	cmd_t	**pcmd;
 	int	dlev;
 {
-		char	*xname = name;
+		char	*xname;
 	register obj_t	*source;
 		obj_t	newsource;
 		char	_sourcename[TYPICAL_NAMEMAX];
@@ -1970,7 +2043,7 @@ again:
 	*suffixp = (char *)prule->p_tgt_suffix;
 
 	p = (char *)prule->p_tgt_prefix;
-	xname += prule->p_tgt_pfxlen;	/* strip matching prefix */
+	xname = name + prule->p_tgt_pfxlen;	/* strip matching prefix */
 /*error("name: '%s'\n", xname);*/
 	p = rstr(xname, (char *)prule->p_tgt_suffix);
 /*error("p: '%s'\n", p);*/
@@ -2173,8 +2246,10 @@ one_suff_src(name, suffix, pcmd, dlev)
 						"suffix source name");
 			if (sp == NULL) {
 				/*
-				 * Copy old content
+				 * Copy old content.
+				 * First null-terminate the current buffer.
 				 */
+				_sourcename[sizeof (_sourcename) - 1] = '\0';
 				strlcpy(sourcename, _sourcename, sourcelen+1);
 			}
 			newsource.o_name = sp = sourcename;
@@ -2274,8 +2349,10 @@ ssuff_src(name, rule, rtypep, suffixp, pcmd, dlev)
 						"simple suffix source name");
 			if (sp == NULL) {
 				/*
-				 * Copy old content
+				 * Copy old content.
+				 * First null-terminate the current buffer.
 				 */
+				_sourcename[sizeof (_sourcename) - 1] = '\0';
 				strlcpy(sourcename, _sourcename, sourcelen+1);
 			}
 			newsource.o_name = sp = sourcename;
@@ -2638,10 +2715,10 @@ make(obj, must_exist, dlev)
 		if (obj->o_flags & F_DCOLON)
 			dcolon_time(obj);
 		/*
-		 * Fake sucsess for targets listed in the makefile that have
-		 * no exlicit commands no explicit dependencies (prerequisites)
+		 * Fake success for targets listed in the makefile that have
+		 * no explicit commands no explicit dependencies (prerequisites)
 		 * and where we could not find implicit dependencies.
-		 * These intermediate placeholde targets look similar to FORCE:
+		 * These intermediate placeholder targets look similar to FORCE:
 		 */
 		if (obj->o_list == NULL && obj->o_date == NOTIME && must_exist)
 			obj->o_date = newtime;

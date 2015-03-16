@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sccs-get.1	1.34 15/01/28 Copyright 2007-2015 J. Schilling
+.\" @(#)sccs-get.1	1.36 15/03/11 Copyright 2007-2015 J. Schilling
 .\" Copyright (c) 1999, Sun Microsystems, Inc. All Rights Reserved
 .\" Copyright (c) 2007-2015, J. Schilling
 .\" CDDL HEADER START
@@ -32,7 +32,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sccs-get 1 "2015/01/28" "SunOS 5.11" "User Commands"
+.TH sccs-get 1 "2015/03/11" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs-get, get \- retrieve a version of an SCCS file
 .SH SYNOPSIS
@@ -70,7 +70,10 @@ sccs-get, get \- retrieve a version of an SCCS file
 .BI -x sid-list\c
 ]
 .RB [ -z\c
-.RI [ cmr "]] \c
+.RI [ cmr "]]
+.br
+.RB "    [" -N\c
+.IR bulk-spec "] \c
 .IR s.filename ...
 
 .LP
@@ -111,7 +114,10 @@ sccs-get, get \- retrieve a version of an SCCS file
 .BI -x sid-list\c
 ] \c
 .RB [ -z\c
-.RI [ cmr "]] \c
+.RI [ cmr "]]
+.br
+.RB "    [" -N\c
+.IR bulk-spec "] \c
 .IR s.filename ...
 .fi
 
@@ -391,6 +397,113 @@ Precedes each retrieved line with the
 of the delta in which it was added to the file. The
 .B SID
 is separated from the line with a TAB.
+
+.sp
+.ne 3
+.TP
+.BI -N bulk-spec
+Processes a bulk of SCCS history files.
+This option allows to do an efficient mass processing of SCCS history files.
+.sp
+The
+.I bulk-spec
+parameter is composed from an optional list of
+.B flag
+parameters followed by an optional
+.B path
+specifier.
+.sp
+The following flag types are supported:
+.RS
+.TP 10
+.B ++
+If
+.I bulk-spec
+is preceded by a
+.BR `++' ,
+.BR get (1)
+expects to process filenames that are prepended by a plus sign,
+the related
+.B SID
+and another plus sign following the form:
+.sp
+.BI "    +" sid +\c
+.I filename
+.sp
+This permits each file to be retrieved with an individual
+.BR SID .
+.LP
+The following path specifier types are supported:
+.TP 10
+.B \-N
+The file name parameters to the
+.B get
+command are not
+.I s.filename
+files but the names of the g-files.
+The
+.I s.filename
+names are automatically derived from the g-file names by prepending
+.B s.
+to the last path name component.
+.TP
+.B \-Ns.
+The file name parameters to the
+.B get
+command are
+.I s.filename
+files.
+The the g-files names are automatically derived by removing
+.B s.
+from the beginning of last path name component of the
+.IR s.filename.
+.TP
+.BI \-N dir
+The file name parameters to the
+.B get
+command are not
+.I s.filename
+files but the names of the g-files.
+The
+.I s.filename
+names are put into directory
+.IR dir ,
+the names are automatically derived from the g-file names by prepending
+.IB dir /s.
+to the last path name component.
+.TP
+.BI \-N dir /s.
+The file name parameters to the
+.B get
+command are
+.I s.filename
+files in directory
+.IR dir .
+The the g-files names are automatically derived by removing
+.IB dir /s.
+from the beginning of last path name component of the
+.IR s.filename.
+.PP
+A typical value for
+.I dir
+is
+.BR SCCS .
+.PP
+In order to overcome the limited number of
+.BR exec (2)
+arguments, it is recommended to use
+.RB ` \(mi \&'
+as the file name parameter for
+.BR get (1)
+and to send a list of path names to
+.BR stdin .
+.PP
+This option is a
+.B \s-1SCHILY\s+1
+extension that does not exist in historic
+.B sccs
+implementations.
+.RE
 
 .br
 .ne 3

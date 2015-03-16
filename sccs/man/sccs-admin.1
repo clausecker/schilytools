@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sccs-admin.1	1.43 15/02/25 Copyright 2007-2015 J. Schilling
+.\" @(#)sccs-admin.1	1.44 15/03/10 Copyright 2007-2015 J. Schilling
 .\"  Copyright (c) 2002, Sun Microsystems, Inc. All Rights Reserved.
 .\" CDDL HEADER START
 .\"
@@ -31,7 +31,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sccs-admin 1 "2015/02/25" "SunOS 5.11" "User Commands"
+.TH sccs-admin 1 "2015/03/10" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs-admin, admin \- create and administer SCCS history files
 .SH SYNOPSIS
@@ -539,7 +539,7 @@ The following flag types are supported:
 If
 .I bulk-spec
 is preceded by a
-.BR `,' ,
+.BR `\-' ,
 .BR admin (1)
 removes the original g-files after the initial history files
 have been created. This flag cannot be used together with
@@ -551,7 +551,7 @@ flag.
 If
 .I bulk-spec
 is preceded by a
-.BR `,' ,
+.BR `+' ,
 .BR admin (1)
 removes the original g-files and replaces them by file content that is
 retrieved by a

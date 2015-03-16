@@ -29,10 +29,10 @@
 /*
  * Copyright 2006-2015 J. Schilling
  *
- * @(#)delta.c	1.67 15/03/01 J. Schilling
+ * @(#)delta.c	1.68 15/03/10 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)delta.c 1.67 15/03/01 J. Schilling"
+#pragma ident "@(#)delta.c 1.68 15/03/10 J. Schilling"
 #endif
 /*
  * @(#)delta.c 1.40 06/12/12
@@ -60,6 +60,7 @@
 # define	LENMR	60
 
 static FILE	*Diffin, *Gin;
+static Nparms	N;			/* Keep -N parameters		*/
 static struct packet	gpkt;
 static struct utsname	un;
 static int	num_files;
@@ -181,7 +182,7 @@ register char *argv[];
 			}
 			no_arg = 0;
 			i = current_optind;
-		        c = getopt(argc, argv, "-r:dpsnm:g:y:fhoqzC:D:V(version)");
+		        c = getopt(argc, argv, "-r:dpsnm:g:y:fhoqzC:D:N:V(version)");
 
 				/* this takes care of options given after
 				** file names.
@@ -258,6 +259,15 @@ register char *argv[];
 				Dfilename = p;
 				break;
 
+			case 'N':	/* Bulk names */
+				initN(&N);
+				if (optarg == argv[i+1]) {
+				   no_arg = 1;
+				   break;
+				}
+				N.n_parm = p;
+				break;
+
 			case 'V':		/* version */
 				printf("delta %s-SCCS version %s %s (%s-%s-%s)\n",
 					PROVIDER,
@@ -267,7 +277,7 @@ register char *argv[];
 				exit(EX_OK);
 
 			default:
-				fatal(gettext("Usage: delta [ -dnops ][ -g sid-list ][ -m mr-list ][ -r SID ]\n\t[ -y[comment] ][ -D diff-file ] s.filename... "));
+				fatal(gettext("Usage: delta [ -dnops ][ -g sid-list ][ -m mr-list ][ -r SID ]\n\t[ -y[comment] ][ -D diff-file ][ -N[bulk-spec]] s.filename... "));
 			}
 
 			/*
@@ -297,12 +307,19 @@ register char *argv[];
  	   fatal(gettext("missing file arg (cm3)"));
  	   exit(2);
  	}
+	if (HADUCN) {					/* Parse -N args  */
+		parseN(&N);
+	}
 	setsig();
+	xsethome(NULL);
+	if (HADUCN && N.n_sdot && (sethomestat & SETHOME_OFFTREE))
+		fatal(gettext("-Ns. not supported in off-tree project mode"));
+
 	Fflags &= ~FTLEXIT;
 	Fflags |= FTLJMP;
 	for (i=1; i<argc; i++)
 		if ((p=argv[i]) != NULL)
-			do_file(p, delta, 1, 1);
+			do_file(p, delta, 1, N.n_sdot);
 
 	return (Fcnt ? 1 : 0);
 }
@@ -320,6 +337,7 @@ char *file;
 	char nsid[SID_STRSIZE];
 	char dfilename[FILESIZE];
 	char gfilename[FILESIZE];
+	char *ifile;
 	char line[BUFSIZ];
 	struct stats stats;
 	struct pfile *pp = NULL;
@@ -336,6 +354,20 @@ char *file;
 	Gin = NULL;
 	if (setjmp(Fjmp))
 		return;
+
+	if (HADUCN) {
+		char	*ofile = file;
+
+		file = bulkprepare(&N, file);
+		if (file == NULL) {
+			if (N.n_ifile)
+				ofile = N.n_ifile;
+			fatal(gettext("directory specified as s-file (cm14)"));
+		}
+		ifile = N.n_ifile;
+	} else {
+		ifile = NULL;
+	}
 
 	/*
 	 * Init and check for validity of file name but do not open the file.
@@ -358,7 +390,12 @@ char *file;
 	}
 	gpkt.p_reopen = 1;
 	gpkt.p_stdout = stdout;
-	cat(gfilename,Cwd,auxf(gpkt.p_file,'g'), (char *)0);
+	gfilename[0] = '\0';
+	strlcatl(gfilename, sizeof (gfilename),
+		Cwd,
+		ifile ? ifile :
+			auxf(gpkt.p_file, 'g'),
+		(char *)0);
 	Gin = xfopen(gfilename, O_RDONLY|O_BINARY);
 #ifdef	USE_SETVBUF
 	setvbuf(Gin, NULL, _IOFBF, VBUF_SIZE);

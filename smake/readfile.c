@@ -1,14 +1,14 @@
-/* @(#)readfile.c	1.61 12/12/20 Copyright 1985-2012 J. Schilling */
+/* @(#)readfile.c	1.63 15/03/10 Copyright 1985-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)readfile.c	1.61 12/12/20 Copyright 1985-2012 J. Schilling";
+	"@(#)readfile.c	1.63 15/03/10 Copyright 1985-2015 J. Schilling";
 #endif
 /*
  *	Make program
  *	File/string reading routines
  *
- *	Copyright (c) 1985-2012 by J. Schilling
+ *	Copyright (c) 1985-2015 by J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -17,6 +17,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -67,12 +69,13 @@ LOCAL	char	*readbfend;			/* end of current read buf  */
 LOCAL	char	rdbuf[RDBUF_SIZE];		/* the real read buffer	    */
 LOCAL	char	*rd_buffer	= rdbuf;	/* a pointer to start of buf */
 
+#define	UC	(unsigned char)
 /*
  * Get or peek a character from current Makefile.
  */
-#define	mygetc()	((readbfp >= readbfend) ? fillrdbuf() : *readbfp++)
+#define	mygetc()	((readbfp >= readbfend) ? fillrdbuf() : UC *readbfp++)
 #define	mypeekc()	((readbfp >= readbfend) ? (fillrdbuf() == EOF ?	\
-						EOF:*--readbfp) : *readbfp)
+					    EOF : UC *--readbfp) : UC *readbfp)
 
 /*
  * Fill or refill the read buffer that is used by the mygetc() CPP macro.
@@ -92,7 +95,7 @@ fillrdbuf()
 	readbfend = rd_buffer + ret;
 	if (readbfp >= readbfend)
 		return (EOF);
-	return ((int) *readbfp++);
+	return ((int) UC *readbfp++);
 }
 
 EXPORT char *
@@ -114,7 +117,7 @@ getrdbufsize()
 }
 
 /*
- * Switch the bahaviour of the reader for parsing commandlines/others.
+ * Switch the behaviour of the reader for parsing commandlines/others.
  */
 EXPORT void
 setincmd(isincmd)
@@ -364,7 +367,7 @@ doinclude(name, must_exist)
 		o->o_date = 0;
 		/*
 		 * Now add this object to the list of objects that must be
-		 * remade to force integrity of uour lists before we start
+		 * remade to force integrity of our lists before we start
 		 * to make the real targets.
 		 */
 		lp = (list_t *) fastalloc(sizeof (*lp));

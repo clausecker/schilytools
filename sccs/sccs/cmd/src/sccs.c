@@ -25,10 +25,10 @@
 /*
  * Copyright 2006-2015 J. Schilling
  *
- * @(#)sccs.c	1.76 15/03/02 J. Schilling
+ * @(#)sccs.c	1.80 15/03/04 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)sccs.c 1.76 15/03/02 J. Schilling"
+#pragma ident "@(#)sccs.c 1.80 15/03/04 J. Schilling"
 #endif
 /*
  * @(#)sccs.c 1.85 06/12/12
@@ -258,7 +258,7 @@ int main __PR((int argc, char **argv));
 static char *getNsid __PR((char *file, char *user));
 static int command __PR((char **argv, bool forkflag, char *arg0));
 static void get_sccscomment __PR((void));
-static void get_list_files __PR((struct list_files *listfilesp, char *filename, bool no_sdot));
+static void get_list_files __PR((struct list_files **listftailpp, char *filename, bool no_sdot));
 static struct sccsprog *lookup __PR((char *name));
 static int callprog __PR((char *progpath, int flags, char **argv, bool forkflag));
 static char *makefile __PR((char *name, const char *in_SccsDir));
@@ -802,6 +802,7 @@ command(argv, forkflag, arg0)
 	char *editchs, *macro_opstr_p;
 	bool	no_sdot;
 	struct	list_files	head_files;
+	struct	list_files	*listftailp;
 	struct	list_files	*listfilesp;
 
 # ifdef DEBUG
@@ -847,6 +848,7 @@ command(argv, forkflag, arg0)
 
 	np = ap = &nav[1];
 	head_files.next = NULL;
+	listftailp = &head_files;
 	editchs = NULL;		/* arg0 -> cmd:editchs/next... */
 	macro_opstr_p = NULL;
 	for (p = arg0, q = buf; *p != '\0' && *p != '/'; )
@@ -974,12 +976,12 @@ command(argv, forkflag, arg0)
 			          exit(EX_OSERR);
 			       }
 			       sprintf(str,"%s/%s",ibuf,dir->d_name);
-			       get_list_files(&head_files, str, no_sdot);
+			       get_list_files(&listftailp, str, no_sdot);
 			       cnt_files_from_stdin++;
 			    }
 			    closedir(dirf);
 			 } else {
-			    get_list_files(&head_files, ibuf, no_sdot);
+			    get_list_files(&listftailp, ibuf, no_sdot);
 			    cnt_files_from_stdin++;
 			    ibuf = malloc(BUFSIZ);
 		            if (ibuf == NULL) {
@@ -1218,7 +1220,7 @@ command(argv, forkflag, arg0)
 		      pp = NULL;
 		   }
 		} else {
-		   get_list_files(&head_files, p, no_sdot);
+		   get_list_files(&listftailp, p, no_sdot);
 		}
 	}
 	if (cnt_files_from_stdin) {
@@ -1595,15 +1597,14 @@ get_sccscomment()
 }
 
 static void
-get_list_files(listfilesp, filename, no_sdot)
-   struct list_files *listfilesp;
+get_list_files(listftailpp, filename, no_sdot)
+   struct list_files **listftailpp;
    char	*filename;
    bool	no_sdot;
 
 {
-   while (listfilesp->next != 0) {
-      listfilesp = listfilesp->next;
-   }
+   struct list_files *listfilesp = *listftailpp;
+
    listfilesp->next = malloc(sizeof(struct list_files));
    if (listfilesp->next == NULL) {
       perror(gettext("Sccs: no mem"));
@@ -1616,6 +1617,7 @@ get_list_files(listfilesp, filename, no_sdot)
       filename = makefile(filename,SccsDir);
    }
    listfilesp->s_filename = filename;
+   *listftailpp = listfilesp;
 }
 
 /*
@@ -3416,6 +3418,7 @@ addcmd(nfiles, argv)
 	char	nbuf[FILESIZE];
 	size_t	nboff;
 	int	rval = 0;
+	int	nlen;
 	char	**np;
 	char	**ap = argv;
 	int	files = 0;
@@ -3450,8 +3453,20 @@ addcmd(nfiles, argv)
 			strlcpy(&nbuf[nboff], "/", sizeof (nbuf) - nboff);
 			nboff += 1;
 		}
-		resolvepath(*np, &nbuf[nboff], sizeof (nbuf) - nboff);	/* Must exist */
-		addfile(nbuf);
+ 		nlen = resolvepath(*np, &nbuf[nboff], sizeof (nbuf) - nboff);	/* Must exist */
+		if (nlen < 0) {
+			efatal("path conversion error (cm12)");
+		} else if (nlen >= sizeof (nbuf) - nboff) {
+			fatal("resolved path too long (cm13)");
+		} else {
+			/*
+			 * While the libschily implementation null terminates
+			 * the names, this is not the case for the Solaris
+			 * syscall resolvepath().
+			 */
+			nbuf[nboff + nlen] = '\0';
+			addfile(nbuf);
+		}
 	}
 	if (files == 0) {
 		usrerr(gettext(" missing file arg (cm3)"));
@@ -3713,12 +3728,25 @@ statuscmd(nfiles, argv)
 	}
 	for (i = 0; i < anum; i++) {
 		char	nbuf[FILESIZE];
+		int	nlen;
 		struct stat statb;
 
 		if (stat(anames[i]+13, &statb) < 0)
 			xmsg(*np, NOGETTEXT("add"));
 
-		resolvepath(anames[i]+13, nbuf, sizeof (nbuf));
+		nlen = resolvepath(anames[i]+13, nbuf, sizeof (nbuf));
+		if (nlen < 0) {
+			efatal("path conversion error (cm12)");
+		} else if (nlen >= sizeof (nbuf)) {
+			fatal("resolved path too long (cm13)");
+		} else {
+			/*
+			 * While the libschily implementation null terminates
+			 * the names, this is not the case for the Solaris
+			 * syscall resolvepath().
+			 */
+			nbuf[nlen] = '\0';
+		}
 	}
 	return (rval);
 }

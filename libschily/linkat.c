@@ -1,4 +1,4 @@
-/* @(#)linkat.c	1.2 13/10/30 Copyright 2011-2013 J. Schilling */
+/* @(#)linkat.c	1.3 15/03/03 Copyright 2011-2015 J. Schilling */
 /*
  *	Emulate the behavior of linkat(int fd1, const char *name1, int fd2,
  *						const char *name2, int flag)
@@ -12,7 +12,7 @@
  *	to know that we do more than a simple open() here and that the
  *	working directory may be changed by us.
  *
- *	Copyright (c) 2013 J. Schilling
+ *	Copyright (c) 2011-2015 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -39,6 +39,10 @@
 
 #ifndef	HAVE_LINKAT
 
+#ifndef	ENAMETOOLONG
+#define	ENAMETOOLONG	EINVAL
+#endif
+
 EXPORT int	linkfollow	__PR((const char *old, const char *new));
 EXPORT int
 linkfollow(old, new)
@@ -46,10 +50,17 @@ linkfollow(old, new)
 	const char	*new;
 {
 	char	buf[max(8192, PATH_MAX+1)];
+	int	blen;
 
 	buf[0] = '\0';
-	if (resolvepath(old, buf, sizeof (buf)) < 0)
+	if ((blen = resolvepath(old, buf, sizeof (buf))) < 0) {
 		return (-1);
+	} else if (blen >= sizeof (buf)) {
+		 seterrno(ENAMETOOLONG);
+		return (-1);		/* Path too long */
+	} else {
+		buf[blen] = '\0'; /* Solaris syscall does not null-terminate */
+	}
 	return (link(buf, new));
 }
 

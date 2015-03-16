@@ -1,0 +1,159 @@
+New features with AN-2015-03-16:
+
+This is the first localization step for the schily source consolidation. Many
+programs now (hopefully) call gettext() for all strings that need localization.
+
+-	The next step will include dgettext() calls for the libraries and the
+	missing programs
+
+-	The following step will include the extracted strings
+
+-	The last step will include German translations and install support
+	for the resulting binary message object files.
+
+----------> Please test and report compilation problems! <---------
+
+***** NOTE: As mentioned since 2004, frontends to the tools should *****
+*****		call all programs in the "C" locale		   *****
+*****		by e.g. calling: LC_ALL=C cdrecord ....		   *****
+*****		unless these frontends support localized strings   *****
+*****		used by the cdrtools with NLS support.		   *****
+
+		*** WARNING        ***
+		*** Need new smake ***
+
+	*** Due to the fact that schily-tools 2014-04-03 introduced to use new macro
+	*** expansions and a related bug fix in smake, you need a new smake
+	*** to compile this source. To ensure this, call:
+
+	cd ./psmake
+	./MAKE-all
+	cd ..
+	psmake/smake
+	psmake/smake install
+
+
+	WARNING: the new version of the isoinfo program makes use of the 
+		*at() series of functions that have been introduced by Sun
+		in August 2001 and added to POSIX.1-2008. For older platforms,
+		libschily now includes emulations for these functions but
+		these emulations have not yet been tested thouroughly.
+		Please report problems!
+
+	The new smake version mentioned above is smake-1.2.4
+
+-	libschily new functions strlcatl() and wcslcatl()
+
+-	libschily::linkat.c now manually null-terminates the result from
+	resolvepath() as the Solaris syscall implementation does not
+	null-terminate it in all cases.
+
+-	libschily::resolvepath.c comment added to remind on the fact that
+	in contrary to out implementation the Solaris resolvepath() syscall
+	does not null-terminate the buffer.
+
+-	SCCS admin changes some line buffer sizes from BUFSIZ -> MAXLINE
+
+-	SCCS admin changes cat() (no length check) to strlcatl() when processing
+	a -fl... argument.
+
+-	SCCS admin changes cat() to strlcatl() in bulkprepare()
+
+-	SCCS admin changes copy() to strlcpy() in bulkprepare()
+
+-	SCCS admin fixed a bug that could cause admin in -V6 mode to assume
+	that a file that has a null byte past a newline but before any other
+	newline in a file to be non-binary. This caused such files not to be
+	uuencoded and thus not restorable.
+
+-	SCCS admin now supports a bulk-creation of many files using the new
+	off-tree repository mode. In the off-tree mode, the SCCS history files
+	are not on a subdirectory SCCS in the same directory as the sources but
+	in a SCCS directory inside a shadow tree that starts in the directory
+	".sccs/data" in the project set home directory.
+
+-	SCCS admin now manually null-terminates all buffers from resolvepath()
+
+-	SCCS sccs now manually null-terminates all buffers from resolvepath()
+	calls.
+
+-	SCCS sccs when reading filenames from stdin for "sccs <subcmd> -"
+	sccs(1) now uses a more efficient way to append the next argument to the
+	list. This speeds up "find . -type f | sccs add -" by a factor os 200.
+
+-	SCCS bulkprepare() and related functions have been moved to libcomobj to
+	allow to use them in other SCCS commands as well.
+
+-	SCCS get now also supports the -N bulk names option. Note that get -l
+	does not yet work as expected together with -N
+
+-	SCCS delta now also supports the -N bulk names option.
+
+-	Heiko Eiﬂfeldt has checked smake with a test system that tries to push
+	programs into unusual code paths. This is why we discovered a lot
+	of bugs that did not hit during the past 30 years. The name of the
+	test program is "american fuzzy lop".
+
+-	smake: several typos in the comment and in strings have been fixed.
+
+-	smake: With help from Heiko Eiﬂfeldt, we fixed two more places where
+	smake did not correctly realign local pointers into the string stack.
+	Note that the related coredumps did not happen on Solaris due to a
+	different environment length and did not happen with Makefiles of
+	usual langth. In both cases, the buffer relocation takes place at
+	different places in the code and thus does not trigger a core dump.
+
+-	smake: Heiko Eiﬂfeldt discovered that one has to be careful even with
+	strlcpy() as it expects a null-terminated from-string. This was not the
+	case for some cases in the parser when a token was read-in and the buffer
+	had to be expanded. Smake not first temporarily null-terminates the 
+	current buffer before using strlcpy() to copy the old content to the
+	new grown buffer.
+
+-	smake: Heiko Eiﬂfeldt discovered that under rare conditions, the
+	functions extr_filenames() and extr_dirnames() could overwrite the
+	growable string stack. These functions now check and grow (if needed)
+	the string stack before appending another iteration of text.
+
+-	smake: Heiko Eiﬂfeldt discovered that cvtvpath() could overwrite
+	the intermediate buffer.
+
+-	smake: Heiko Eiﬂfeldt presented a makefile that contains the character
+	'\377' at offset 2048 and thus triggered a long known bug in mygetc()
+	that made it impossible to distinct '\377' from EOF. The problem is
+	now fixed
+
+-	smake: Heiko Eiﬂfeldt presented a makefile that triggered a object
+	dereference from a warning where only the null object was present. 
+	Smake now prints "<empty>" instead of dumping core.
+
+-	smake: Heiko Eiﬂfeldt discovered a problem with a not correctly inialized
+	sub_ptr from getshvar() that caused problens in dosh() -> sub_c_put()
+
+-	smake: Heiko Eiﬂfeldt discovered a problem with blown up memory
+	from a direct recusive dependency. This was so far detected in the
+	interpreter but not in the parser already. A new check in the parser
+	prevents smake from allocating infinite amounts of memory.
+
+-	smake: Heiko Eiﬂfeldt discovered a problem in
+	getobjname() getname() getln() and getcmd(): growgbuf() needs probably
+	be called before the null-byte is added to the string.
+
+-	smake: Heiko Eiﬂfeldt discovered a problem resulting from a bug in
+	update.c::patr_src() where a name pointer was erreneously repeatedly 
+	incremented instead of adding an offset to the the base name when doing
+	a second iteration. This could cause core dumps with some makefiles.
+	
+
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.net, js@cs.tu-berlin.de
+	joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

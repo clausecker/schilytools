@@ -1,8 +1,8 @@
-/* @(#)job.c	1.6 15/01/05 Copyright 1985, 87, 88, 91, 1995-2015 J. Schilling */
+/* @(#)job.c	1.7 15/03/05 Copyright 1985, 87, 88, 91, 1995-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)job.c	1.6 15/01/05 Copyright 1985, 87, 88, 91, 1995-2015 J. Schilling";
+	"@(#)job.c	1.7 15/03/05 Copyright 1985, 87, 88, 91, 1995-2015 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1985, 87, 88, 91, 1995-2015 by J. Schilling
@@ -152,7 +152,7 @@ setup_SHELL()
 	 * Notes: c:/djgpp/share/config.site defines 'SHELL' with the required string.
 	 *
 	 * Using system("sh -ce 'cmd'") and spawn("command.com /c sh -ce 'cmd'")
-	 * cause GPF's (not enough memmory?)
+	 * cause GPF's (not enough memory?)
 	 *
 	 * Temporary solution: Use DJGPP_SH envp. var. (must be set manually)
 	 */

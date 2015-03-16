@@ -29,12 +29,12 @@
 /*
  * Copyright 2006-2015 J. Schilling
  *
- * @(#)defines.h	1.93 15/03/02 J. Schilling
+ * @(#)defines.h	1.95 15/03/10 J. Schilling
  */
 #ifndef	_HDR_DEFINES_H
 #define	_HDR_DEFINES_H
 #if defined(sun)
-#pragma ident "@(#)defines.h 1.93 15/03/02 J. Schilling"
+#pragma ident "@(#)defines.h 1.95 15/03/10 J. Schilling"
 #endif
 /*
  * @(#)defines.h 1.21 06/12/12
@@ -370,6 +370,24 @@ struct	sid {
  */
 #define	SID_STRSIZE	45	/* 4 * 10 + 3 * '.' + '\0' = 44 */
 
+/*
+ * Parameters for the -N option:
+ */
+typedef struct Nparms {
+	char	n_comma;		/* Found -N,*			*/
+	char	n_unlink;		/* Found -N-*			*/
+	char	n_get;			/* Found -N+* or -N++*		*/
+	char	n_sdot;			/* Found -N*s.			*/
+	char	n_subd;			/* Found -NSCCS			*/
+	char	*n_prefix;		/* "s." /  "* /s." / "* /SCCS"	*/
+	char	*n_parm;		/* -N argument			*/
+	char	*n_ifile;		/* The plain g-file name	*/
+	char	*n_dir_name;		/* directory for -N		*/
+	struct sid	n_sid;		/* SID if n_get == 2		*/
+	struct timespec	n_mtime;	/* Timestamp for -i -o		*/
+} Nparms;
+
+
 struct	deltab {
 	struct	sid	d_sid;
 	int	d_serial;
@@ -700,6 +718,9 @@ extern	char *	urand_ba __PR((urand_t *urandp,
 extern	void	change_ba __PR((struct packet *pkt,
 					char *cbuf, size_t cbuflen));
 extern	char *	change_ab __PR((char *cbuf, struct packet *pkt));
+extern	void	initN	__PR((Nparms *N));
+extern	void	parseN	__PR((Nparms *N));
+extern	char *	bulkprepare __PR((Nparms *N, char *afile));
 
 /*
  * Declares for external variables in lib/mpwlib

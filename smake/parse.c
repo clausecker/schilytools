@@ -1,8 +1,8 @@
-/* @(#)parse.c	1.109 15/02/22 Copyright 1985-2015 J. Schilling */
+/* @(#)parse.c	1.114 15/03/12 Copyright 1985-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)parse.c	1.109 15/02/22 Copyright 1985-2015 J. Schilling";
+	"@(#)parse.c	1.114 15/03/12 Copyright 1985-2015 J. Schilling";
 #endif
 /*
  *	Make program
@@ -67,6 +67,7 @@ LOCAL	int	exp_ovec	__PR((obj_t ** ovec, int objcnt));
 LOCAL	int	read_ovec	__PR((obj_t ** ovec, int *typep));
 EXPORT	list_t	*cvtvpath	__PR((list_t *l));
 EXPORT	BOOL	is_inlist	__PR((char *objname, char *name));
+LOCAL	BOOL	obj_in_list	__PR((obj_t *obj, list_t *l));
 EXPORT	BOOL	nowarn		__PR((char *name));
 LOCAL	void	warn		__PR((char *, ...)) __printflike__(1, 2);
 LOCAL	void	exerror		__PR((char *, ...)) __printflike__(1, 2);
@@ -261,6 +262,13 @@ define_obj(obj, n, objcnt, type, dep, cmd)
 	register list_t	*dep;
 		cmd_t	*cmd;
 {
+	/*
+	 * First check for possible direct recursions to avoid to blow
+	 * up memory immediately.
+	 */
+	if (obj_in_list(obj, dep))
+		exerror("Recursion in dependencies for '%s'", obj->o_name);
+
 	/*
 	 * If we have a list of targets with the same dependency list,
 	 * we copy the list structure to be able to separately
@@ -563,7 +571,7 @@ check_ssuffrule(obj, dep)
 	extern	 int	xssrules;
 
 	/*
-	 * Check if the first charater of the target is a '.' or
+	 * Check if the first character of the target is a '.' or
 	 * if the target name equals "", but make sure this is
 	 * not a vanilla target that just starts with "./".
 	 */
@@ -727,6 +735,8 @@ getobjname()
 		n++;
 		getch();
 	}
+	if (p >= gbufend)
+		p = growgbuf(p);
 	*p = '\0';				/* Terminate with null char */
 	return (n);
 }
@@ -798,6 +808,8 @@ getname(type)
 		n++;
 		getch();
 	}
+	if (p >= gbufend)
+		p = growgbuf(p);
 	*p = '\0';				/* Terminate with null char */
 	return (n);
 }
@@ -836,6 +848,8 @@ getln()
 		n++;
 		getch();
 	}
+	if (p >= gbufend)
+		p = growgbuf(p);
 	*p = '\0';				/* Terminate with null char */
 	return (n);
 }
@@ -1111,6 +1125,8 @@ getcmd()
 				p = growgbuf(p);
 			*p++ = lastc;
 		}
+		if (p >= gbufend)
+			p = growgbuf(p);
 		*p = '\0';
 		*tail = item = (cmd_t *) fastalloc(sizeof (cmd_t));
 		item->c_line = strsave(gbuf);
@@ -1235,8 +1251,8 @@ read_ovec(ovec, typep)
 			*typep = ASSIGN;
 			if (!nowarn(":=")) {
 				warn(
-				"Nonportable ':=' assignement found for macro '%s'.\n",
-				o->o_name);
+				"Nonportable ':=' assignment found for macro '%s'",
+				o ? o->o_name : "<empty>");
 			}
 			break;
 		}
@@ -1269,10 +1285,13 @@ cvtvpath(l)
 	list_t	*list = (list_t *)0;
 	list_t	**tail = &list;
 	char	vpath[NAMEMAX];
+	char	*vpe = &vpath[NAMEMAX-1];
 	char	*p1, *p2;
 
 	if (l != NULL) {
 		for (p1 = l->l_obj->o_name, p2 = vpath; *p1; p2++) {
+			if (p2 >= vpe)
+				break;
 			if ((*p2 = *p1++) == ':')
 				*p2 = ' ';
 		}
@@ -1306,6 +1325,19 @@ is_inlist(objname, name)
 	for (l = objlist(objname); l != NULL; l = l->l_next) {
 		if (streql(l->l_obj->o_name, name))
 			return (TRUE);
+	}
+	return (FALSE);
+}
+
+LOCAL BOOL
+obj_in_list(obj, l)
+	register obj_t	*obj;
+	register list_t	*l;
+{
+	while (l) {
+		if (obj == l->l_obj)
+			return (TRUE);
+		l = l->l_next;
 	}
 	return (FALSE);
 }

@@ -21,9 +21,9 @@
 * Copyright 2002 Sun Microsystems, Inc. All rights reserved.
 * Use is subject to license terms.
 *
-* Copyright 2006-2014 J. Schilling
+* Copyright 2006-2015 J. Schilling
 *
-* @(#)ad	1.5 14/08/10 J. Schilling
+* @(#)ad	1.7 15/03/10 J. Schilling
 *
 * @(#)ad 1.6 06/12/12
 *
@@ -193,10 +193,12 @@ The named line in the file you supplied for the 'i' or 't' keyletter
 begins with the SCCS control character SOH(ASCII 001). It is illegal
 to input such data to the description file or to the file that is used
 to initialize the history file. (see sccs-admin(1), keyletter 'b').
+# outdated:
 -37
 "not in specified sub directory"
 The s.filename argument to admin does not contain the expected
 subdirectory as specified by -Ndir/s.
+# outdated:
 -38
 "bad N argument"
 The argument to the 'N' keyletter contains the string 's.' but does

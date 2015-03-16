@@ -1,6 +1,7 @@
-# @(#)Targets	1.19 15/02/28 Copyright 2006-2015 J. Schilling
+# @(#)Targets	1.20 15/03/07 Copyright 2006-2015 J. Schilling
 
 CFILES=	auxf.c \
+	bulk.c \
 	cdata.c change_ab.c change_ba.c chkid.c chksid.c cmpdate.c \
 	date_ab.c date_ba.c date_bal.c \
 	del_ab.c \

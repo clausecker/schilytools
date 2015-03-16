@@ -1,4 +1,4 @@
-/* @(#)schily.h	1.113 14/01/02 Copyright 1985-2014 J. Schilling */
+/* @(#)schily.h	1.114 15/03/03 Copyright 1985-2014 J. Schilling */
 /*
  *	Definitions for libschily
  *
@@ -449,9 +449,15 @@ extern	void	raisecond __PR((const char *, long));
 extern	int	sprintf __PR((char *, const char *, ...));
 #endif
 extern	char	*strcatl __PR((char *, ...));
+#ifdef	FOUND_SIZE_T
+extern	size_t	strlcatl __PR((char *, size_t, ...));
+#endif
 extern	int	streql __PR((const char *, const char *));
 #ifdef	_SCHILY_WCHAR_H
 extern	wchar_t	*wcscatl __PR((wchar_t *, ...));
+#ifdef	FOUND_SIZE_T
+extern	size_t	wcslcatl __PR((wchar_t *, size_t, ...));
+#endif
 extern	int	wcseql __PR((const wchar_t *, const wchar_t *));
 #endif
 #ifdef	va_arg

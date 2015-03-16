@@ -29,10 +29,10 @@
 /*
  * Copyright 2006-2015 J. Schilling
  *
- * @(#)get.c	1.68 15/02/23 J. Schilling
+ * @(#)get.c	1.69 15/03/10 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)get.c 1.68 15/02/23 J. Schilling"
+#pragma ident "@(#)get.c 1.69 15/03/10 J. Schilling"
 #endif
 /*
  * @(#)get.c 1.59 06/12/12
@@ -76,6 +76,7 @@
 
 static struct packet gpkt;		/* libcomobj data for get()	*/
 
+static Nparms	N;			/* Keep -N parameters		*/
 static struct sid sid;			/* To hold -r parameter		*/
 static unsigned	Ser;			/* To hold -a parameter		*/
 static char	*ilist;			/* To hold -i parameter		*/
@@ -172,7 +173,7 @@ register char *argv[];
 			}
 			no_arg = 0;
 			i = current_optind;
-		        c = getopt(argc, argv, "-r:c:ebi:x:kl:Lpsmnogta:G:w:zqdC:AFV(version)");
+		        c = getopt(argc, argv, "-r:c:ebi:x:kl:Lpsmnogta:G:w:zqdC:AFN:V(version)");
 				/* this takes care of options given after
 				** file names.
 				*/
@@ -297,6 +298,15 @@ register char *argv[];
 				Cwd = p;
 				break;
 
+			case 'N':	/* Bulk names */
+				initN(&N);
+				if (optarg == argv[i+1]) {
+				   no_arg = 1;
+				   break;
+				}
+				N.n_parm = p;
+				break;
+
 			case 'V':		/* version */
 				printf("get %s-SCCS version %s %s (%s-%s-%s)\n",
 					PROVIDER,
@@ -306,7 +316,7 @@ register char *argv[];
 				exit(EX_OK);
 
 			default:
-			   fatal(gettext("Usage: get [-AbeFgkmLopst] [-l[p]] [-asequence] [-cdate-time] [-Gg-file] [-isid-list] [-rsid] [-xsid-list] file ..."));
+			   fatal(gettext("Usage: get [-AbeFgkmLopst] [-l[p]] [-asequence] [-cdate-time] [-Gg-file]\n\t[-isid-list] [-rsid] [-xsid-list][ -N[bulk-spec]] file ..."));
 			}
 
 			/*
@@ -330,12 +340,19 @@ register char *argv[];
 		HADK = 1;
 	if (HADE && !logname())
 		fatal(gettext("User ID not in password file (cm9)"));
+	if (HADUCN) {					/* Parse -N args  */
+		parseN(&N);
+	}
 	setsig();
+	xsethome(NULL);
+	if (HADUCN && N.n_sdot && (sethomestat & SETHOME_OFFTREE))
+		fatal(gettext("-Ns. not supported in off-tree project mode"));
+
 	Fflags &= ~FTLEXIT;
 	Fflags |= FTLJMP;
 	for (i=1; i<argc; i++)
 		if ((p=argv[i]) != NULL)
-			do_file(p, do_get, 1, 1);
+			do_file(p, do_get, 1, N.n_sdot);
 
 	return (Fcnt ? 1 : 0);
 }
@@ -362,6 +379,7 @@ get(pkt, file)
 #else
 	char *template = NOGETTEXT("/get.XXXXXX");
 #endif
+	char *ifile;
 	char buf1[PATH_MAX];
 	uid_t holduid;
 	gid_t holdgid;
@@ -369,6 +387,26 @@ get(pkt, file)
 
 	if (setjmp(Fjmp))
 		return;
+	if (HADUCN) {
+		char	*ofile = file;
+
+		file = bulkprepare(&N, file);
+		if (file == NULL) {
+			if (N.n_ifile)
+				ofile = N.n_ifile;
+			fatal(gettext("directory specified as s-file (cm14)"));
+		}
+		ifile = N.n_ifile;
+		if (sid.s_rel == 0 && N.n_sid.s_rel != 0) {
+			sid.s_rel = N.n_sid.s_rel;
+			sid.s_lev = N.n_sid.s_lev;
+			sid.s_br  = N.n_sid.s_br;
+			sid.s_seq = N.n_sid.s_seq;
+		}
+	} else {
+		ifile = NULL;
+	}
+
 	if (HADE) {
 		struct utsname	un;
 		char		*uuname;
@@ -409,8 +447,18 @@ get(pkt, file)
 	if (HADUCA)
 		pkt->p_pgmrs = (char **)Null;
 	if (Gfile[0] == 0 || !first) {
-		cat(gfile, Cwd, auxf(pkt->p_file, 'g'), (char *)0);
-		cat(Gfile, Cwd, auxf(pkt->p_file, 'A'), (char *)0);
+		gfile[0] = '\0';
+		strlcatl(gfile, sizeof (gfile),
+			Cwd,
+			ifile ? ifile :
+				auxf(pkt->p_file, 'g'),
+				(char *)0);
+		Gfile[0] = '\0';
+		strlcatl(Gfile, sizeof (Gfile),
+			Cwd,
+			ifile ? auxf(ifile, 'G') :
+				auxf(pkt->p_file, 'A'),
+			(char *)0);
 	}
 	strlcpy(buf1, dname(Gfile), sizeof (buf1));
 	strlcat(buf1, template, sizeof (buf1));

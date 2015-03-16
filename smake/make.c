@@ -1,8 +1,8 @@
-/* @(#)make.c	1.195 15/01/05 Copyright 1985, 87, 88, 91, 1995-2015 J. Schilling */
+/* @(#)make.c	1.196 15/03/05 Copyright 1985, 87, 88, 91, 1995-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)make.c	1.195 15/01/05 Copyright 1985, 87, 88, 91, 1995-2015 J. Schilling";
+	"@(#)make.c	1.196 15/03/05 Copyright 1985, 87, 88, 91, 1995-2015 J. Schilling";
 #endif
 /*
  *	Make program
@@ -221,13 +221,13 @@ usage(exitcode)
 	error("	-e	Environment overrides variables in Makefile.\n");
 	error("	-i	Ignore errors from commands.\n");
 	error("	-k	Ignore target errors, continue on unrelated targets.\n");
-	error("	-N	Continue if no source for nonexistent dependencies found.\n");
+	error("	-N	Continue if no source for nonexistent dependencies is found.\n");
 	error("	-n	Don't make - only say what to do.\n");
 	error("	-p	Print all macro and target definitions.\n");
 	error("	-q	Question mode. Exit code is 0 if target is up to date.\n");
 	error("	-r	Turn off internal rules.\n");
 	error("	-s	Be silent.\n");
-	error("	-S	Undo the effect of the -k option, terminate on target erros.\n");
+	error("	-S	Undo the effect of the -k option, terminate on target errors.\n");
 	error("	-t	Touch Objects instead of executing defined commands.\n");
 	error("	-w	Don't print warning Messages.\n");
 	error("	-W	Print extra (debug) warning Messages.\n");
@@ -244,7 +244,7 @@ usage(exitcode)
 	error("	-posix	Force POSIX behaviour.\n");
 	error("	-C dir	Change directory to 'dir' before starting work.\n");
 	error("	mf=makefilename | -f makefilename\n");
-	error("More than -f makefile option may be specified.\n");
+	error("More than one -f makefile option may be specified.\n");
 	exit(exitcode);
 }
 
@@ -391,7 +391,7 @@ read_makefiles()
 	xpatrules = Patrules != NULL;
 	/*
 	 * The pattern rules which are defined in the external makefiles
-	 * must superseede the pattern rules from the internal rules.
+	 * must supersede the pattern rules from the internal rules.
 	 * Concat the pattern rules found in internal rules to the end of
 	 * the patern rules list from external makefiles.
 	 */
@@ -834,7 +834,7 @@ main(ac, av)
 	}
 	if (newdir) {
 		if (chdir(newdir) < 0)
-			comerr("Cannot change diretory to '%s'\n", newdir);
+			comerr("Cannot change directory to '%s'\n", newdir);
 	}
 	/*
 	 * XXX Is this the right place to set the options and cmd line macros
@@ -965,7 +965,7 @@ main(ac, av)
 }
 
 /*
- * Check for old makefile systems without patten matching rules.
+ * Check for old makefile systems without pattern matching rules.
  *
  * Old makefile systems only define simple suffix rules. Now that newer smake
  * releases support POSIX suffix rules, the makefile system will only work
@@ -977,7 +977,7 @@ check_old_makefiles()
 {
 	obj_t	*o;
 
-	if (Suffixes == NULL)	/* No/Empty .SUFFIXES, no compat probelems */
+	if (Suffixes == NULL)	/* No/Empty .SUFFIXES, no compat problems */
 		return;
 	if (xssrules == 0)	/* Makefile did not define simple suff rule*/
 		return;
@@ -1346,7 +1346,7 @@ static	char	makeenv[MAKEENV_SIZE_STATIC];
 /*
  * Strip out macro defs inherited from MAKELAGS, that will be overwritten
  * by command line macro defs.
- * Return new write poiner at end of string.
+ * Return new write pointer at end of string.
  */
 LOCAL char *
 stripmacros(macbase, new)
@@ -1975,7 +1975,7 @@ out:
 	/*
 	 * Linux signal handling is broken. This is caused by a bug in 'bash'.
 	 * Bash does jobcontrol even if called as "sh -ce 'command'".
-	 * This is illegal. Only the foregound (make) process and with some
+	 * This is illegal. Only the foreground (make) process and with some
 	 * bash versions the descendant 'make' processes are killed.
 	 * The following code tries to kill the others too.
 	 */

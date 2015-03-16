@@ -20,7 +20,7 @@
 *
 * Copyright 2006-2015 J. Schilling
 *
-* @(#)cm	1.5 15/02/16 J. Schilling
+* @(#)cm	1.6 15/03/10 J. Schilling
 *
 * @(#)cm 1.2 06/12/12
 *
@@ -109,3 +109,6 @@ A path could not be converted into a normalized path without
 -13
 "resolved path too long"
 The resolved path name is too long for further processing.
+-14
+"directory specified as s-file"
+A directory was specified as s-file when only plain files were expected.
