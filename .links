@@ -234,6 +234,13 @@
 ./RULES/9000-899-hp-ux-cc.rul
 ./RULES/9000-899-hp-ux-cc64.rul
 ./RULES/9000-899-hp-ux-gcc.rul
+./RULES/aarch64-linux-cc.rul
+./RULES/aarch64-linux-clang.rul
+./RULES/aarch64-linux-clang32.rul
+./RULES/aarch64-linux-clang64.rul
+./RULES/aarch64-linux-gcc.rul
+./RULES/aarch64-linux-gcc32.rul
+./RULES/aarch64-linux-gcc64.rul
 ./RULES/alpha-linux-cc.rul
 ./RULES/alpha-linux-gcc.rul
 ./RULES/alpha-netbsd-cc.rul
@@ -321,8 +328,10 @@
 ./RULES/i586-cygwin32_nt-gcc.rul
 ./RULES/i586-gnu-kfreebsd-cc.rul
 ./RULES/i586-gnu-kfreebsd-gcc.rul
+./RULES/i586-linux-cc64.rul
 ./RULES/i586-linux-clang32.rul
 ./RULES/i586-linux-clang64.rul
+./RULES/i586-linux-gcc64.rul
 ./RULES/i586-linux-suncc32.rul
 ./RULES/i586-linux-suncc64.rul
 ./RULES/i586-ms-dos-gcc.rul
@@ -525,6 +534,7 @@
 ./RULES/x86_64-linux-suncc.rul
 ./RULES/x86_64-linux-suncc64.rul
 ./TEMPLATES/cmd.mk
+./TEMPLATES/ldummy.lnk
 ./TEMPLATES/inc.mk
 ./TEMPLATES/lib.mk
 ./TEMPLATES/shl.mk

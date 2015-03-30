@@ -1,6 +1,6 @@
-#ident "@(#)cc-apollo.rul	1.14 13/11/13 "
+#ident "@(#)cc-apollo.rul	1.15 15/03/26 "
 ###########################################################################
-# Written 2001-2013 by J. Schilling
+# Written 2001-2015 by J. Schilling
 ###########################################################################
 #
 # Platform dependent MACROS for DomainOS (sys5.3, 10.4.1) cc
@@ -78,6 +78,7 @@ RMDEP=		:
 #MKDEP=		@echo "	==> MAKING DEPENDENCIES \"$@\""; $(RMDEP); cc -M
 MKDEP=		@echo "	==> MAKING DEPENDENCIES \"$@\""; $(RMDEP); /user/local/com/makedepend
 MKDEP_OUT=
+_MKDIR=		$(_MKDIR_SH)
 MKDIR=		$(MKDIR_SH)
 INSMKDIR=	$(INSMKDIR_SH)
 

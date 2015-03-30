@@ -1,10 +1,10 @@
 #!/bin/sh
 ###########################################################################
-#ident "@(#)MKLINKS	1.118 14/06/06 "
+#ident "@(#)MKLINKS	1.120 15/03/26 "
 ###########################################################################
-# Written 1996-2014 by J. Schilling
+# Written 1996-2015 by J. Schilling
 ###########################################################################
-# Copyright (c) 1996-2014 J. Schilling
+# Copyright (c) 1996-2015 J. Schilling
 ###########################################################################
 # The contents of this file are subject to the terms of the
 # Common Development and Distribution License, Version 1.0 only
@@ -181,11 +181,13 @@ $symlink	i386-bsd-os-cc.rul	sparc-bsd-os-cc.rul
 $symlink	i386-bsd-os-gcc.rul	sparc-bsd-os-gcc.rul
 $symlink	i386-bsd-os3-cc.rul	sparc-bsd-os3-cc.rul
 $symlink	i386-bsd-os3-gcc.rul	sparc-bsd-os3-gcc.rul
+$symlink	i586-linux-cc.rul	i586-linux-cc64.rul
 $symlink	i586-linux-cc.rul	i386-linux-cc.rul
 $symlink	i586-linux-clang.rul	i586-linux-clang32.rul
 $symlink	i586-linux-clang.rul	i586-linux-clang64.rul
 $symlink	i586-linux-cc.rul	i486-linux-cc.rul
 $symlink	i586-linux-cc.rul	i686-linux-cc.rul
+$symlink	i586-linux-gcc.rul	i586-linux-gcc64.rul
 $symlink	i586-linux-gcc.rul	i386-linux-gcc.rul
 $symlink	i586-linux-gcc.rul	i486-linux-gcc.rul
 $symlink	i586-linux-gcc.rul	i686-linux-gcc.rul
@@ -240,6 +242,13 @@ $symlink	i586-linux-cc.rul	armv6l-linux-cc.rul
 $symlink	i586-linux-gcc.rul	armv6l-linux-gcc.rul
 $symlink	i586-linux-cc.rul	armv7l-linux-cc.rul
 $symlink	i586-linux-gcc.rul	armv7l-linux-gcc.rul
+$symlink	i586-linux-cc.rul	aarch64-linux-cc.rul
+$symlink	i586-linux-clang.rul	aarch64-linux-clang.rul
+$symlink	i586-linux-clang32.rul	aarch64-linux-clang32.rul
+$symlink	i586-linux-clang64.rul	aarch64-linux-clang64.rul
+$symlink	i586-linux-gcc.rul	aarch64-linux-gcc.rul
+$symlink	i586-linux-gcc32.rul	aarch64-linux-gcc32.rul
+$symlink	i586-linux-gcc64.rul	aarch64-linux-gcc64.rul
 $symlink	i586-linux-cc.rul	sh3-linux-cc.rul
 $symlink	i586-linux-gcc.rul	sh3-linux-gcc.rul
 $symlink	i586-linux-cc.rul	sh4-linux-cc.rul

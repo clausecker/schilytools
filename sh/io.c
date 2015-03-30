@@ -36,13 +36,13 @@
 #include "defs.h"
 
 /*
- * This file contains modifications Copyright 2008-2013 J. Schilling
+ * This file contains modifications Copyright 2008-2015 J. Schilling
  *
- * @(#)io.c	1.20 13/09/25 2008-2013 J. Schilling
+ * @(#)io.c	1.21 15/03/29 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)io.c	1.20 13/09/25 2008-2013 J. Schilling";
+	"@(#)io.c	1.21 15/03/29 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -295,6 +295,7 @@ copy(ioparg)
 	unsigned int	c;
 	unsigned char	*ends;
 	unsigned char	*start;
+	ptrdiff_t	poff;
 	int		fd;
 	int		i;
 	int		stripflg;
@@ -319,6 +320,7 @@ copy(ioparg)
 		iotemp = iop;
 
 		cline = clinep = start = locstak();
+		poff = 0;
 		if (stripflg) {
 			iop->iofile &= ~IOSTRIP;
 			while (*ends == '\t')
@@ -335,7 +337,7 @@ copy(ioparg)
 				while (!eolchar(c)) {
 					pc = readw(c);
 					while (*pc) {
-						GROWSTAK(clinep);
+						GROWSTAK2(clinep, poff);
 						*clinep++ = *pc++;
 					}
 					c = readwc();
@@ -349,7 +351,7 @@ copy(ioparg)
 				while (!eolchar(c)) {
 					pc = readw(c);
 					while (*pc) {
-						GROWSTAK(clinep);
+						GROWSTAK2(clinep, poff);
 						*clinep++ = *pc++;
 					}
 					if (c == '\\') {
@@ -358,11 +360,11 @@ copy(ioparg)
 						/* BEGIN CSTYLED */
 						if (*pc) {
 							while (*pc) {
-								GROWSTAK(clinep);
+								GROWSTAK2(clinep, poff);
 								*clinep++ = *pc++;
 							}
 						} else {
-							GROWSTAK(clinep);
+							GROWSTAK2(clinep, poff);
 							*clinep++ = *pc;
 						}
 						/* END CSTYLED */
@@ -371,21 +373,30 @@ copy(ioparg)
 				}
 			}
 
-			GROWSTAK(clinep);
+			GROWSTAK2(clinep, poff);
 			*clinep = 0;
 			if (eof || eq(cline, ends)) {
+				if (poff) {
+					cline += poff;
+					start += poff;
+					poff = 0;
+				}
 				if ((i = cline - start) > 0)
 					write(fd, start, i);
 				break;
 			} else {
-				GROWSTAK(clinep);
+				GROWSTAK2(clinep, poff);
 				*clinep++ = NL;
 			}
 
-			if ((i = clinep - start) < CPYSIZ)
+			if (poff) {
+				cline += poff;
+				start += poff;
+				poff = 0;
+			}
+			if ((i = clinep - start) < CPYSIZ) {
 				cline = clinep;
-			else
-			{
+			} else {
 				write(fd, start, i);
 				cline = clinep = start;
 			}

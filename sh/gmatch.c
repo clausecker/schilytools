@@ -1,8 +1,8 @@
-/* @(#)gmatch.c	1.8 12/04/20 2008-2012 J. Schilling */
+/* @(#)gmatch.c	1.9 15/03/29 2008-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)gmatch.c	1.8 12/04/20 2008-2012 J. Schilling";
+	"@(#)gmatch.c	1.9 15/03/29 2008-2015 J. Schilling";
 #endif
 
 #include <schily/mconfig.h>
@@ -117,6 +117,8 @@ gmatch(s, p)
 			break;
 
 		case '*':
+			while (*p == '*')
+				p++;
 			do {
 				if (*p == '\0' || gmatch(os, p))
 					return (1);

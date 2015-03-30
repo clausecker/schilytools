@@ -224,7 +224,7 @@ Compiling in a different ELF RUNPATH:
 
 	In order to allow binaries to work correctly even if the shared
 	libraries are not in the default search path of the runtime linker,
-	a RUINPATH needs to be set.
+	a RUNPATH needs to be set.
 
 	The ELF RUNPATH is by default derived from $(INS_BASE). If you like to
 	set INS_BASE=/usr and create binaries that do not include a RUNPATH at all,

@@ -37,7 +37,7 @@ EXPORT size_t
 strlcatl(char *to, size_t len, ...)
 #else
 EXPORT size_t
-strlcatl(to, len va_alist)
+strlcatl(to, len, va_alist)
 	char	*to;
 	size_t	len;
 	va_dcl

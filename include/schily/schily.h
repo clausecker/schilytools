@@ -1,4 +1,4 @@
-/* @(#)schily.h	1.114 15/03/03 Copyright 1985-2014 J. Schilling */
+/* @(#)schily.h	1.116 15/03/30 Copyright 1985-2014 J. Schilling */
 /*
  *	Definitions for libschily
  *
@@ -476,6 +476,8 @@ extern	int	qftoes __PR((char *, long double, int, int));
 extern	int	qftofs __PR((char *, long double, int, int));
 #endif
 
+/*PRINTFLIKE1*/
+extern	int	js_error __PR((const char *, ...)) __printflike__(1, 2);
 #ifdef	EOF	/* stdio.h has been included */
 /*PRINTFLIKE2*/
 extern	int	js_fprintf	__PR((FILE *, const char *, ...))
@@ -532,6 +534,10 @@ extern	int	_openfd64	__PR((const char *, int));
 
 #ifndef	NO_SCHILY_PRINT		/* Define to disable *printf() redirects */
 #ifdef	SCHILY_PRINT
+#ifdef	__never__
+#undef	error
+#define	error		js_error
+#endif
 #undef	fprintf
 #define	fprintf		js_fprintf
 #undef	printf

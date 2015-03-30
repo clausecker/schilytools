@@ -1,8 +1,8 @@
-/* @(#)parse.c	1.114 15/03/12 Copyright 1985-2015 J. Schilling */
+/* @(#)parse.c	1.115 15/03/25 Copyright 1985-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)parse.c	1.114 15/03/12 Copyright 1985-2015 J. Schilling";
+	"@(#)parse.c	1.115 15/03/25 Copyright 1985-2015 J. Schilling";
 #endif
 /*
  *	Make program
@@ -141,7 +141,7 @@ parsefile()
 		if ((objcnt = read_ovec(ovec, &type)) == 0) {
 			if (Do_Warn && (type & NWARN) == 0) {
 				/*
-				 * This is when $(EMPTY) was expanded tonothing
+				 * This is when $(EMPTY) was expanded to nothing
 				 * in exp_ovec() inside read_ovec().
 				 */
 				warn("Missing object name");

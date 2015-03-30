@@ -38,7 +38,7 @@ EXPORT size_t
 wcslcatl(wchar_t *to, size_t len, ...)
 #else
 EXPORT size_t
-wcslcatl(to, len va_alist)
+wcslcatl(to, len, va_alist)
 	wchar_t	*to;
 	size_t	len;
 	va_dcl

@@ -1,8 +1,8 @@
-/* @(#)dbgmalloc.h	1.5 10/09/19 Copyright 2010 J. Schilling */
+/* @(#)dbgmalloc.h	1.6 15/03/29 Copyright 2009-2015 J. Schilling */
 /*
  *	Definitions for libdmalloc
  *
- *	Copyright (c) 2009-2010 J. Schilling
+ *	Copyright (c) 2009-2015 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -11,6 +11,8 @@
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -47,6 +49,9 @@ extern	void	*dbg_realloc		__PR((void *t, size_t size, char *file,
 
 #endif	/* DBG_MALLOC */
 
+#ifdef	USE_JS_BOOL			/* #define USE_JS_BOOL if there is a */
+#define	BOOL	JS_BOOL			/* different (incompatible) BOOL in  */
+#endif					/* the using code		    */
 #include <schily/standard.h>
 
 #ifdef __cplusplus
@@ -56,6 +61,10 @@ extern "C" {
 extern	BOOL	acheckdamage		__PR((void));
 extern	void	freechecking		__PR((BOOL val));
 extern	void	nomemraising		__PR((BOOL val));
+
+#ifdef	USE_JS_BOOL			/* If in workaround mode, */
+#undef	BOOL				/* revert to default BOOL */
+#endif
 
 #ifdef __cplusplus
 }

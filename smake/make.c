@@ -1,8 +1,8 @@
-/* @(#)make.c	1.196 15/03/05 Copyright 1985, 87, 88, 91, 1995-2015 J. Schilling */
+/* @(#)make.c	1.197 15/03/23 Copyright 1985, 87, 88, 91, 1995-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)make.c	1.196 15/03/05 Copyright 1985, 87, 88, 91, 1995-2015 J. Schilling";
+	"@(#)make.c	1.197 15/03/23 Copyright 1985, 87, 88, 91, 1995-2015 J. Schilling";
 #endif
 /*
  *	Make program
@@ -43,7 +43,7 @@ static	UConst char sccsid[] =
 #include "make.h"
 #include "job.h"
 
-char	make_version[] = "1.2.4";
+char	make_version[] = "1.2.5";
 
 #ifdef	NO_DEFAULTS_PATH
 #undef	DEFAULTS_PATH

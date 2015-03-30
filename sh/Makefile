@@ -1,4 +1,4 @@
-#ident "@(#)Makefile	1.43 15/01/09  Copyright (c) 2006-2014 J. Schilling"
+#ident "@(#)Makefile	1.44 15/03/29  Copyright (c) 2006-2015 J. Schilling"
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -18,6 +18,7 @@ CPPOPTS +=	-DSCHILY_INCLUDES	# Tell the code to use schily include files
 CPPOPTS +=	-DBOURNE_SHELL		# Tell the code that we compile for sh
 CPPOPTS +=	-DUSE_LARGEFILES	# Allow Large Files (> 2 GB)
 CPPOPTS +=	-DUSE_NLS		# Enable NLS support in include/schily/*.h
+CPPOPTS +=	-DUSE_JS_BOOL		# Allow to use schily/dbgmalloc.h
 #CPPOPTS +=	-DNO_LOCALE		# Don't use setlocale()
 #CPPOPTS +=	-DNO_WCHAR		# Don't use wide chars
 #CPPOPTS +=	-DNO_VFORK		# Don't use vfork()

@@ -39,7 +39,7 @@
 /*
  * This file contains modifications Copyright 2008-2015 J. Schilling
  *
- * @(#)defs.h	1.62 15/01/07 2008-2015 J. Schilling
+ * @(#)defs.h	1.63 15/03/29 2008-2015 J. Schilling
  */
 
 #ifdef	__cplusplus
@@ -581,6 +581,11 @@ extern	unsigned char *setbrk	__PR((int));
 
 #define	GROWSTAK(a)	if ((a) >= brkend) \
 				(a) = growstak(a);
+#define	GROWSTAK2(a, o)	if ((a) >= brkend) {\
+				char *oa = (char *)(a); \
+				(a) = growstak(a); \
+				(o) += (char *)(a) - oa; \
+			}
 #define	GROWSTAKTOP()	if (staktop >= brkend) \
 				(void) growstak(staktop);
 

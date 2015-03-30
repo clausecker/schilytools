@@ -1,4 +1,4 @@
-#ident "@(#)r-gmake.dep	1.13 06/07/21 "
+#ident "@(#)r-gmake.dep	1.15 15/03/26 "
 ###########################################################################
 # Written 1996 by J. Schilling
 ###########################################################################
@@ -14,6 +14,8 @@
 # with the License.
 #
 # See the file CDDL.Schily.txt in this distribution for details.
+# A copy of the CDDL is also available via the Internet at
+# http://www.opensource.org/licenses/cddl1.txt
 #
 # When distributing Covered Code, include this CDDL HEADER in each
 # file and include the License file CDDL.Schily.txt from this distribution.
@@ -38,9 +40,11 @@ rmdep:
 ###########################################################################
 #
 # Make the complete path to the architecture subdirectory.
+# Make $(ARCHDIR)/man as well here to avoid this directory to become root
+# owned when root later calls "make install".
 #
 ###########################################################################
-$(ARCHDIR):
+$(ARCHDIR) $(ARCHDIR)/man:
 		$(MKDIR) -p $@
 
 ###########################################################################
@@ -77,11 +81,13 @@ $(ARCHDIR)/%.d: %.cxx
 
 $(PDEP_FILE): $(DEP_DEP)
 
-$(PDEP_FILE): $(DEP_DEP)
-
-$(DEP_DEP):	$(ARCHDIR)
-	@if [ ! -f $@ ]; then	\
-		echo > $@;	\
+$(DEP_DEP):
+	@if [ ! -f $@ ]; then				\
+		echo "	==> MAKING DIRECTORY \"$(ARCHDIR)\"";	\
+		$(_MKDIR) -p $(ARCHDIR);		\
+		echo "	==> MAKING DIRECTORY \"$(ARCHDIR)/man\""; \
+		$(_MKDIR) -p $(ARCHDIR)/man;		\
+		echo > $@;				\
 	fi
 
 ###########################################################################

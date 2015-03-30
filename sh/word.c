@@ -38,11 +38,11 @@
 /*
  * This file contains modifications Copyright 2008-2015 J. Schilling
  *
- * @(#)word.c	1.37 15/01/09 2008-2015 J. Schilling
+ * @(#)word.c	1.38 15/03/29 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)word.c	1.37 15/01/09 2008-2015 J. Schilling";
+	"@(#)word.c	1.38 15/03/29 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -559,7 +559,7 @@ readb(f, toread, rest)
 		 * copies the remaining 'rest' bytes from f->fnxt
 		 * to f->fbuf
 		 */
-		(void) memcpy(f->fbuf, f->fnxt, rest);
+		(void) memmove(f->fbuf, f->fnxt, rest);
 		f->fnxt = f->fbuf;
 		f->fend = f->fnxt + rest;
 		f->nxtoff = 0;

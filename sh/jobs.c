@@ -36,13 +36,13 @@
 #include "defs.h"
 
 /*
- * This file contains modifications Copyright 2008-2013 J. Schilling
+ * This file contains modifications Copyright 2008-2015 J. Schilling
  *
- * @(#)jobs.c	1.30 13/09/26 2008-2013 J. Schilling
+ * @(#)jobs.c	1.31 15/03/29 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)jobs.c	1.30 13/09/26 2008-2013 J. Schilling";
+	"@(#)jobs.c	1.31 15/03/29 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -766,7 +766,7 @@ allocjob(cmdp, cwdp, monitor)
 	int jid, cmdlen, cwdlen;
 
 	cmdlen = strlen(cmdp) + 1;
-	if (cmdp[cmdlen-2] == '&') {
+	if (cmdlen > 1 && cmdp[cmdlen-2] == '&') {
 		cmdp[cmdlen-3] = 0;
 		cmdlen -= 2;
 	}

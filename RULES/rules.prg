@@ -1,4 +1,4 @@
-#ident "@(#)rules.prg	1.20 10/05/15 "
+#ident "@(#)rules.prg	1.21 15/03/26 "
 ###########################################################################
 # Written 1996 by J. Schilling
 ###########################################################################
@@ -14,6 +14,8 @@
 # with the License.
 #
 # See the file CDDL.Schily.txt in this distribution for details.
+# A copy of the CDDL is also available via the Internet at
+# http://www.opensource.org/licenses/cddl1.txt
 #
 # When distributing Covered Code, include this CDDL HEADER in each
 # file and include the License file CDDL.Schily.txt from this distribution.
@@ -104,7 +106,9 @@ ARFLAGS=	cr
 RANLIB=		@echo "	==> RANDOMIZING ARCHIVE \"$@\""; true
 MKDEP=		@echo "	==> MAKING DEPENDENCIES \"$@\""; makedepend
 MKDEP_OUT=	-f -
+_MKDIR=		$(UMASK); mkdir
 MKDIR=		@echo "	==> MAKING DIRECTORY \"$@\""; $(UMASK); mkdir
+_MKDIR_SH=	$(UMASK); sh $(SRCROOT)/conf/mkdir-sh
 MKDIR_SH=	@echo "	==> MAKING DIRECTORY \"$@\""; $(UMASK); sh $(SRCROOT)/conf/mkdir-sh
 INSMKDIR=	@echo "	==> MAKING DIRECTORY \"$@\""; $(INSUMASK); mkdir
 INSMKDIR_SH=	@echo "	==> MAKING DIRECTORY \"$@\""; $(INSUMASK); sh $(SRCROOT)/conf/mkdir-sh

@@ -1,8 +1,8 @@
-/* @(#)alloc.c	1.54 15/02/28 Copyright 1985,1988,1991,1995-2015 J. Schilling */
+/* @(#)alloc.c	1.55 15/03/29 Copyright 1985,1988,1991,1995-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)alloc.c	1.54 15/02/28 Copyright 1985,1988,1991,1995-2015 J. Schilling";
+	"@(#)alloc.c	1.55 15/03/29 Copyright 1985,1988,1991,1995-2015 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1985,1988,1991,1995-2015 J. Schilling
@@ -554,14 +554,15 @@ dbg_stat()
 		if (mstat[i].ms_which[0] == '\0') {
 			break;
 		}
-		error("%d	size: %8zd	sum %8zd	%s %s\n",
+		js_error("%d	size: %8zd	sum %8zd	%s %s\n",
 			mstat[i].ms_calls,
 			mstat[i].ms_size,
 			mstat[i].ms_size * mstat[i].ms_calls,
 			dbg_type[mstat[i].ms_type],
 			mstat[i].ms_which);
 	}
-	error("%d entries max size: %zd\n", i, (char *)heapend - (char *)heapbeg);
+	js_error("%d entries max size: %zd\n",
+			i, (char *)heapend - (char *)heapbeg);
 #ifdef	XADEBUG
 	(void) acheckdamage();
 #endif
@@ -1001,16 +1002,16 @@ adbgdamaged(this)
 	(void) acheckdamage();
 #endif
 	next = (struct space *)((char *)this->snext-2*sizeof (struct space *));
-	error("this:  %p ", this);
-	error("store: %p ", &this->store);
-	error("snext: %p ", next->snext);
-	error("chunksz: %lld ", (Llong)chunksize(this));
-	error("size: %ld %lX ", (long)next->sfree, (long)next->sfree);
+	js_error("this:  %p ", this);
+	js_error("store: %p ", &this->store);
+	js_error("snext: %p ", next->snext);
+	js_error("chunksz: %lld ", (Llong)chunksize(this));
+	js_error("size: %ld %lX ", (long)next->sfree, (long)next->sfree);
 #ifdef	PR_LASTBYTE
-	error("lastbyte: %CX\n", ((char *)&this->store)[(long)next->sfree]);
+	js_error("lastbyte: %CX\n", ((char *)&this->store)[(long)next->sfree]);
 #else
-	error("caller: file '%s' line %d ", this->file, this->line);
-	error("\n");
+	js_error("caller: file '%s' line %d ", this->file, this->line);
+	js_error("\n");
 #endif
 }
 
@@ -1042,7 +1043,7 @@ acheckdamage()
 				ret = TRUE;
 				aprints(f, s, "BUSY");
 #ifdef	XADEBUG
-				error(" caller: file %s line %d ",
+				js_error(" caller: file %s line %d ",
 							s->file, s->line);
 				aprdamaged(f, s);
 #endif

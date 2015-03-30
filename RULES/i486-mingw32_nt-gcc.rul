@@ -1,4 +1,4 @@
-#ident "@(#)i486-mingw32_nt-gcc.rul	1.11 14/04/03 "
+#ident "@(#)i486-mingw32_nt-gcc.rul	1.12 15/03/26 "
 ###########################################################################
 #
 # Platform dependent MACROS for Win32/Mingw32
@@ -44,5 +44,6 @@ LDOPTS=		$(LIBS_PATH) $(LDPATH)
 LORDER=		echo
 TSORT=		cat
 
+_MKDIR=		$(_MKDIR_SH)
 MKDIR=		$(MKDIR_SH)
 INSMKDIR=	$(INSMKDIR_SH)

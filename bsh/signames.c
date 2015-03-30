@@ -1,14 +1,14 @@
-/* @(#)signames.c	1.8 13/09/24 Copyright 1998-2013 J. Schilling */
+/* @(#)signames.c	1.9 15/03/29 Copyright 1998-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)signames.c	1.8 13/09/24 Copyright 1998-2013 J. Schilling";
+	"@(#)signames.c	1.9 15/03/29 Copyright 1998-2015 J. Schilling";
 #endif
 /*
  *	Handle signal names for systems that don't have
  *	strsignal()/str2sig()/sig2str()
  *
- *	Copyright (c) 1998-2013 J. Schilling
+ *	Copyright (c) 1998-2015 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -26,9 +26,15 @@ static	UConst char sccsid[] =
 
 #include <schily/stdio.h>
 #include <schily/string.h>
+#ifdef	USE_JS_BOOL			/* #define USE_JS_BOOL if there is a */
+#define	BOOL	JS_BOOL			/* different (incompatible) BOOL in  */
+#endif					/* the using code, e.g. Boune Shell  */
 #include <schily/standard.h>
 #include <schily/signal.h>
 #include <schily/schily.h>
+#ifdef	USE_JS_BOOL			/* If in workaround mode, */
+#undef	BOOL				/* revert to default BOOL */
+#endif
 
 #if	!(defined(HAVE_STRSIGNAL) && defined(HAVE_STR2SIG) && \
 		defined(HAVE_SIG2STR))
