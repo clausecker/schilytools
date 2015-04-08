@@ -35,13 +35,13 @@
 #include "defs.h"
 
 /*
- * This file contains modifications Copyright 2008-2013 J. Schilling
+ * This file contains modifications Copyright 2008-2015 J. Schilling
  *
- * @(#)func.c	1.13 13/09/24 2008-2013 J. Schilling
+ * @(#)func.c	1.14 15/03/31 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)func.c	1.13 13/09/24 2008-2013 J. Schilling";
+	"@(#)func.c	1.14 15/03/31 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -279,15 +279,27 @@ prf(t)
 			}
 
 			case TCOM:
+#ifdef	PARSE_DEBUG
+				prs_buff(UC "TCOM ");
+#endif
 				if (comptr(t)->comset) {
+#ifdef	PARSE_DEBUG
+				prs_buff(UC "COMSET ");
+#endif
 					prarg(comptr(t)->comset);
 					prc_buff(SPACE);
 				}
+#ifdef	PARSE_DEBUG
+				prs_buff(UC "COMARG ");
+#endif
 				prarg(comptr(t)->comarg);
 				prio(comptr(t)->comio);
 				break;
 
 			case TFORK:
+#ifdef	PARSE_DEBUG
+				prs_buff(UC "TFORK ");
+#endif
 				prf(forkptr(t)->forktre);
 				prio(forkptr(t)->forkio);
 				if (forkptr(t)->forktyp & FAMP)
@@ -295,6 +307,9 @@ prf(t)
 				break;
 
 			case TPAR:
+#ifdef	PARSE_DEBUG
+				prs_buff(UC "TPAR ");
+#endif
 				prs_buff(UC "(");
 				prf(parptr(t)->partre);
 				prs_buff(UC ")");
@@ -437,13 +452,24 @@ static void
 prarg(argp)
 	struct argnod	*argp;
 {
-	while (argp)
-	{
+#ifdef	PARSE_DEBUG
+	int i = 0;
+#endif
+	while (argp) {
+#ifdef	PARSE_DEBUG
+		prs_buff(UC "AV[");
+		prn_buff(i++);
+		prs_buff(UC "]: ");
+#endif
 		prs_buff(argp->argval);
 		argp = argp->argnxt;
 		if (argp)
 			prc_buff(SPACE);
 	}
+#ifdef	PARSE_DEBUG
+	if (i > 0)
+		prs_buff(UC "AVEND ");
+#endif
 }
 
 static void

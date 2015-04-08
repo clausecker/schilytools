@@ -36,13 +36,13 @@
 #include "defs.h"
 
 /*
- * This file contains modifications Copyright 2008-2014 J. Schilling
+ * This file contains modifications Copyright 2008-2015 J. Schilling
  *
- * @(#)main.c	1.29 14/04/18 2008-2014 J. Schilling
+ * @(#)main.c	1.30 15/03/31 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)main.c	1.29 14/04/18 2008-2014 J. Schilling";
+	"@(#)main.c	1.30 15/03/31 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -578,6 +578,13 @@ exfile(prof)
 		{
 			struct trenod *t;
 			t = cmd(NL, MTFLG);
+#ifdef	PARSE_DEBUG
+			if (t) {
+				prs(UC "COMMAND: ");
+				prf(t); flushb();
+				prs(UC " COMMANDEND\n");
+			}
+#endif
 			if (t == NULL && flags & ttyflg)
 				freejobs();
 			else
@@ -589,6 +596,9 @@ exfile(prof)
 	}
 }
 
+/*
+ * Print secondary prompt if not using the history editor.
+ */
 void
 chkpr()
 {

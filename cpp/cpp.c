@@ -1,8 +1,8 @@
-/* @(#)cpp.c	1.36 15/02/19 2010-2015 J. Schilling */
+/* @(#)cpp.c	1.37 15/04/01 2010-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)cpp.c	1.36 15/02/19 2010-2015 J. Schilling";
+	"@(#)cpp.c	1.37 15/04/01 2010-2015 J. Schilling";
 #endif
 /*
  * C command
@@ -234,6 +234,7 @@ STATIC	char	*dirnams[MAXINC];	/* actual directory of #include files */
 STATIC	int	fins[MAXINC];
 STATIC	int	lineno[MAXINC];
 STATIC	char	*input;
+STATIC	char	*target;
 
 /*
  * We need:
@@ -246,6 +247,7 @@ STATIC	char	*dirs[MAXIDIRS+3];	/* -I and <> directories */
 STATIC	int	fin	= STDIN_FILENO;
 STATIC	FILE	*fout;			/* Init in main(), Mac OS is nonPOSIX */
 STATIC	FILE	*mout;			/* Output for -M */
+STATIC	FILE	*dout;			/* Output for "SUNPRO_DEPENDENCIES" */
 STATIC	int	nd	= 1;
 STATIC	int	pflag;	/* don't put out lines "# 12 foo.c" */
 STATIC	int	passcom;	/* don't delete comments */
@@ -782,6 +784,8 @@ doincl(p) register char *p; {
 			fprintf(stderr, "%s\n", nfil);
 		if (mflag)
 			fprintf(mout, "%s: %s\n", input, fnames[ifno]);
+		if (dout)
+			fprintf(dout, "%s: %s\n", target, fnames[ifno]);
 		/* save current contents of buffer */
 		while (!eob(p)) p=unfill(p);
 		inctop[ifno]=mactop;
@@ -1491,6 +1495,14 @@ main(argc,argv)
 		if (NULL == (fout = fopen("/dev/null", "w"))) {
 			pperror("Can't create /dev/null");
 			exit(8);
+		}
+	}
+	if ((p = getenv("SUNPRO_DEPENDENCIES")) != NULL) {
+		if ((target = strchr(p, ' ')) != NULL) {
+			*target++ = '\0';
+			if (NULL == (dout = fopen(p, "a"))) {
+				pperror("Can't create %s", p); exit(8);
+			}
 		}
 	}
 	fins[ifno]=fin;

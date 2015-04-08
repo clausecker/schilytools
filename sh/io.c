@@ -38,11 +38,11 @@
 /*
  * This file contains modifications Copyright 2008-2015 J. Schilling
  *
- * @(#)io.c	1.21 15/03/29 2008-2015 J. Schilling
+ * @(#)io.c	1.22 15/03/31 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)io.c	1.21 15/03/29 2008-2015 J. Schilling";
+	"@(#)io.c	1.22 15/03/31 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -375,25 +375,25 @@ copy(ioparg)
 
 			GROWSTAK2(clinep, poff);
 			*clinep = 0;
+			if (poff) {
+				cline += poff;
+				start += poff;
+				poff = 0;
+			}
 			if (eof || eq(cline, ends)) {
-				if (poff) {
-					cline += poff;
-					start += poff;
-					poff = 0;
-				}
 				if ((i = cline - start) > 0)
 					write(fd, start, i);
 				break;
 			} else {
 				GROWSTAK2(clinep, poff);
 				*clinep++ = NL;
+				if (poff) {
+					cline += poff;
+					start += poff;
+					poff = 0;
+				}
 			}
 
-			if (poff) {
-				cline += poff;
-				start += poff;
-				poff = 0;
-			}
 			if ((i = clinep - start) < CPYSIZ) {
 				cline = clinep;
 			} else {

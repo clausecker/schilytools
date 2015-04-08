@@ -1,13 +1,13 @@
-/* @(#)map.c	1.32 13/09/25 Copyright 1986-2013 J. Schilling */
+/* @(#)map.c	1.33 15/04/07 Copyright 1986-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)map.c	1.32 13/09/25 Copyright 1986-2013 J. Schilling";
+	"@(#)map.c	1.33 15/04/07 Copyright 1986-2015 J. Schilling";
 #endif
 /*
  *	The map package for BSH & VED
  *
- *	Copyright (c) 1986-2013 J. Schilling
+ *	Copyright (c) 1986-2015 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -397,8 +397,13 @@ _add_map(mn, ms, comment)
 	tn = (smap_t *)malloc(sizeof (*tn));
 	if (tn == (smap_t *)NULL)
 		return (FALSE);
+#ifdef	__support_null__
 	*movebytes((char *)mn, (char *)tn->m_from, M_NAMELEN) = '\0';
 	*movebytes((char *)ms, (char *)tn->m_to, M_STRINGLEN) = '\0';
+#else
+	strlcpy((char *)tn->m_from, (char *)mn, sizeof (tn->m_from));
+	strlcpy((char *)tn->m_to,   (char *)ms, sizeof (tn->m_to));
+#endif
 	if (comment) {
 		tn->m_comment = malloc(strlen(comment)+1);
 		if (tn->m_comment)

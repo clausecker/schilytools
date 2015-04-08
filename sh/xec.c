@@ -36,13 +36,13 @@
 #include "defs.h"
 
 /*
- * This file contains modifications Copyright 2008-2014 J. Schilling
+ * This file contains modifications Copyright 2008-2015 J. Schilling
  *
- * @(#)xec.c	1.30 14/06/11 2008-2014 J. Schilling
+ * @(#)xec.c	1.33 15/04/07 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)xec.c	1.30 14/06/11 2008-2014 J. Schilling";
+	"@(#)xec.c	1.33 15/04/07 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -153,7 +153,6 @@ int *pf1, *pf2;
 
 		case TCOM:		/* some kind of command */
 			{
-				unsigned char	*a1;
 				int	argn;
 				struct argnod	*schain = gchain;
 				struct ionod	*io = t->treio;
@@ -165,7 +164,6 @@ int *pf1, *pf2;
 				gchain = 0;
 				argn = getarg((struct comnod *)t);
 				com = scan(argn);
-				a1 = com[1];
 				gchain = schain;
 
 				if (argn != 0)
@@ -261,6 +259,7 @@ int *pf1, *pf2;
 			pid_t opgid = mypgid;
 			struct ionod *ofiot = fiotemp;
 			struct ionod *oiot = iotemp;
+			struct fileblk *ostandin = standin;
 #endif
 
 			exitval = 0;
@@ -393,6 +392,7 @@ script:
 						isvfork = 0;
 						fiotemp = ofiot;
 						iotemp = oiot;
+						standin = ostandin;
 						restoresigs();
 						if (exflag == 2) {
 							exflag = 0;

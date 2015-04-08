@@ -1,4 +1,4 @@
-#ident "@(#)Makefile	1.42 15/01/09  Copyright (c) 2006-2014 J. Schilling"
+#ident "@(#)Makefile	1.43 15/04/07  Copyright (c) 2006-2014 J. Schilling"
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -39,6 +39,7 @@ CPPOPTS +=	-DACCT					# Shell Accounting
 #CPPOPTS +=	-DDO_SET_O		# Include support for set -o
 #CPPOPTS +=	-DDO_UMASK_S		# Include support for umask -S
 #CPPOPTS +=	-DDO_POSIX_FOR		# Support for i; do .... with semicolon
+#CPPOPTS +=	-DDO_PIPE_SEMI_SYNTAX_E	# Report a syntax error for "echo foo |;"
 #CPPOPTS +=	-DDO_READ_ALLEXPORT	# Bugfix for set -a; read VAR
 
 #CPPOPTS +=	-DSTAK_DEBUG		# Include debug code for stak.c

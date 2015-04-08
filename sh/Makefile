@@ -1,4 +1,4 @@
-#ident "@(#)Makefile	1.44 15/03/29  Copyright (c) 2006-2015 J. Schilling"
+#ident "@(#)Makefile	1.46 15/04/07  Copyright (c) 2006-2015 J. Schilling"
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -40,8 +40,10 @@ CPPOPTS +=	-DDO_READ_R		# Include support for read -r
 CPPOPTS +=	-DDO_SET_O		# Include support for set -o
 CPPOPTS +=	-DDO_UMASK_S		# Include support for umask -S
 CPPOPTS +=	-DDO_POSIX_FOR		# Support for i; do .... with semicolon
+CPPOPTS +=	-DDO_PIPE_SEMI_SYNTAX_E	# Report a syntax error for "echo foo |;"
 CPPOPTS +=	-DDO_READ_ALLEXPORT	# Bugfix for set -a; read VAR
 
+#CPPOPTS +=	-DPARSE_DEBUG		# Include debug code/messages for parser
 #CPPOPTS +=	-DSTAK_DEBUG		# Include debug code for stak.c
 CPPOPTS +=	-DTOSSGROWING_MACRO	# Make stak.c::tossgrowing() a macro
 #CPPOPTS +=	-DTOSSCHECK		# Debug / verify magic in tossgrowing()

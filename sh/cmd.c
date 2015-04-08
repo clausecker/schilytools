@@ -36,13 +36,13 @@
 #include "defs.h"
 
 /*
- * This file contains modifications Copyright 2008-2014 J. Schilling
+ * This file contains modifications Copyright 2008-2015 J. Schilling
  *
- * @(#)cmd.c	1.27 14/04/20 2008-2014 J. Schilling
+ * @(#)cmd.c	1.28 15/04/07 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)cmd.c	1.27 14/04/20 2008-2014 J. Schilling";
+	"@(#)cmd.c	1.28 15/04/07 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -60,7 +60,7 @@ static	struct trenod *list	__PR((int flg));
 static	struct trenod *term	__PR((int flg));
 static	struct regnod *syncase	__PR((int esym));
 static	struct trenod *item	__PR((BOOL flag));
-static	int	skipnl		__PR((void));
+static	int	skipnl		__PR((int flag));
 static	struct ionod *inout	__PR((struct ionod *lastio));
 static	void	chkword		__PR((void));
 static	void	chksym		__PR((int sym));
@@ -83,9 +83,6 @@ getstor(asize)
 
 
 /* ========	command line decoding	======== */
-
-
-
 
 struct trenod *
 makefork(flgs, i)
@@ -126,6 +123,9 @@ makelist(type, i, r)
  *	list
  *	list & [ cmd ]
  *	list [ ; cmd ]
+ *
+ * This is the main parser entry point that is called as cmd(NL, MTFLG)
+ * from main.c::exfile(). MTFLG permits emtpy commands in the main loop.
  */
 struct trenod *
 cmd(sym, flg)
@@ -205,7 +205,7 @@ term(flg)
 	abegin = 1;
 	reserv++;
 	if (flg & NLFLG)
-		skipnl();
+		skipnl(0);
 	else
 		word();
 
@@ -225,12 +225,14 @@ term(flg)
 		return (t);
 }
 
-
+/*
+ * case statement, parse things after "case <word> in" here
+ */
 static struct regnod *
 syncase(esym)
 int	esym;
 {
-	skipnl();
+	skipnl(0);
 	if (wdval == esym)
 		return (0);
 	else
@@ -318,7 +320,7 @@ item(flag)
 				t->swarg = make(wdarg->argval);
 			else
 				t->swarg = wdarg->argval;
-			skipnl();
+			skipnl(0);
 			chksym(INSYM | BRSYM);
 			t->swlst = syncase(wdval == INSYM ? ESSYM : KTSYM);
 			t->swtyp = TSW;
@@ -359,7 +361,7 @@ item(flag)
 				t->fornam = make(wdarg->argval);
 			else
 				t->fornam = wdarg->argval;
-			if (skipnl() == INSYM)
+			if (skipnl(1) == INSYM)
 			{
 				chkword();
 
@@ -371,10 +373,14 @@ item(flag)
 					synbad();
 				if (wdval == NL)
 					chkpr();
-				skipnl();
+				skipnl(0);
 #ifdef	DO_POSIX_FOR
 			} else if (wdval == ';') {
-				skipnl();
+				/*
+				 * "for i; do cmd ...; done" is valid syntax
+				 * see Austin bug #581
+				 */
+				skipnl(0);
 #endif
 			}
 			chksym(DOSYM | BRSYM);
@@ -457,7 +463,7 @@ item(flag)
 					f->fndnam = wdarg->argval;
 				f->fndref = 0;
 				reserv++;
-				skipnl();
+				skipnl(0);
 				f->fndval = (struct trenod *)item(0);
 				fndef--;
 
@@ -580,12 +586,17 @@ item(flag)
 	return (r);
 }
 
-
+/* ARGSUSED */
 static int
-skipnl()
+skipnl(flag)
+	int	flag;
 {
 	while ((reserv++, word() == NL))
 		chkpr();
+#ifdef	DO_PIPE_SEMI_SYNTAX_E
+	if (!flag && wdval == ';')
+		synbad();
+#endif
 	return (wdval);
 }
 
