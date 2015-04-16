@@ -1,8 +1,8 @@
-/* @(#)readfile.c	1.63 15/03/10 Copyright 1985-2015 J. Schilling */
+/* @(#)readfile.c	1.65 15/04/15 Copyright 1985-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)readfile.c	1.63 15/03/10 Copyright 1985-2015 J. Schilling";
+	"@(#)readfile.c	1.65 15/04/15 Copyright 1985-2015 J. Schilling";
 #endif
 /*
  *	Make program
@@ -30,6 +30,7 @@ static	UConst char sccsid[] =
 #include <schily/stdlib.h>
 #include <schily/string.h>
 #include <schily/schily.h>
+#include <schily/ctype.h>
 #include "make.h"
 
 LOCAL	int	fillrdbuf	__PR((void));
@@ -96,6 +97,44 @@ fillrdbuf()
 	if (readbfp >= readbfend)
 		return (EOF);
 	return ((int) UC *readbfp++);
+}
+
+EXPORT BOOL
+istext(c)
+	int	c;
+{
+	return (isalnum(c) || c == SLASH);
+}
+
+/*
+ * Copy easy characters to speed up parsing by avoiding to call getch()
+ */
+EXPORT char *
+gtext(s)
+	char	*s;
+{
+	register int	c;
+	register char	*p = readbfp;
+
+	while (p < readbfend) {
+		c = (int) UC *p++;
+		/*
+		 * We support easy to detect chars that are very probable
+		 * with the usual names.
+		 */
+		if (!isalnum(c) && c != SLASH && c != '-' && c != '.') {
+			--p;
+			break;
+		}
+		if (s >= gbufend)
+			s = growgbuf(s);
+		*s++ = c;
+	}
+	if (p != readbfp) {
+		lastc = c;
+		readbfp = p;
+	}
+	return (s);
 }
 
 EXPORT char *
@@ -360,12 +399,6 @@ doinclude(name, must_exist)
 			error("Reading file '%s' from '%s'\n", name, mfname);
 
 		/*
-		 * Zurücksetzen des Datums bewirkt Neuauswertung
-		 * der Abhängigkeitsliste.
-		 * XXX Das kann Probleme bei make depend geben.
-		 */
-		o->o_date = 0;
-		/*
 		 * Now add this object to the list of objects that must be
 		 * remade to force integrity of our lists before we start
 		 * to make the real targets.
@@ -376,6 +409,10 @@ doinclude(name, must_exist)
 		inctail = &lp->l_next;
 		lp->l_next = 0;
 
+		/*
+		 * The code in update.c needs to make sure that o->o_level has
+		 * the right value tp create the right name for include.
+		 */
 		iname = build_path(o->o_level, o->o_name, o->o_namelen,
 					includename, sizeof (includename));
 /*error("include '%s' -> '%s' %s\n", o->o_name, iname, prtime(o->o_date));*/
@@ -388,6 +425,12 @@ doinclude(name, must_exist)
 				"Cannot build path for 'include %s'.\n",
 				o->o_name);
 		}
+		/*
+		 * Zurücksetzen des Datums bewirkt Neuauswertung
+		 * der Abhängigkeitsliste.
+		 * XXX Das kann Probleme bei make depend geben.
+		 */
+		o->o_date = 0;
 	}
 
 	lastc = slc;

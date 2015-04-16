@@ -39,7 +39,7 @@
 /*
  * This file contains modifications Copyright 2008-2015 J. Schilling
  *
- * @(#)defs.h	1.63 15/03/29 2008-2015 J. Schilling
+ * @(#)defs.h	1.64 15/04/12 2008-2015 J. Schilling
  */
 
 #ifdef	__cplusplus
@@ -819,36 +819,37 @@ extern unsigned char			*comdiv;
 extern const char			devnull[];
 
 /* flags */
-#define			noexec		01
-#define			sysflg		01
-#define			intflg		02
+#define			noexec		01		/* set -n noexec */
+#define			intflg		02		/* set -i interactive */
 #define			prompt		04
-#define			setflg		010
-#define			errflg		020
-#define			ttyflg		040
-#define			forked		0100
-#define			oneflg		0200
-#define			rshflg		0400
-#define			subsh		01000
-#define			stdflg		02000
+#define			setflg		010		/* set -u nounset */
+#define			errflg		020		/* set -r errexit */
+#define			ttyflg		040		/* in + out is a tty */
+#define			forked		0100		/* *forked child */
+#define			oneflg		0200		/* set -t onecmd */
+#define			rshflg		0400		/* set -r restrictive */
+#define			subsh		01000		/* Is a subshell */
+#define			stdflg		02000		/* set -s stdin */
 #define			STDFLG		's'
-#define			execpr		04000
-#define			readpr		010000
-#define			keyflg		020000
-#define			hashflg		040000
-#define			vforked		0100000
-#define			nofngflg	0200000
-#define			exportflg	0400000
-#define			monitorflg	01000000
-#define			jcflg		02000000
-#define			privflg		04000000
-#define			forcexit	010000000
-#define			jcoff		020000000
-#define			pfshflg		040000000
-#define			versflg		0100000000
-#define			globalaliasflg	0200000000
-#define			localaliasflg	0400000000
-#define			aliasownerflg	01000000000
+#define			execpr		04000		/* set -x xtrace */
+#define			readpr		010000		/* set -v verbose */
+#define			keyflg		020000		/* set -k keyword */
+#define			hashflg		040000		/* set -h hashall */
+#define			vforked		0100000		/* A vforked child */
+#define			nofngflg	0200000		/* set -f noglob */
+#define			exportflg	0400000		/* set -a allexport */
+#define			monitorflg	01000000	/* set -m monitor */
+#define			jcflg		02000000	/* Do jobcontrol */
+#define			privflg		04000000	/* Keep privs */
+#define			forcexit	010000000	/* Terminate shell */
+#define			jcoff		020000000	/* Tmp jobcontrol off */
+#define			pfshflg		040000000	/* pfexec() support */
+#define			versflg		0100000000	/* Print version */
+#define			globalaliasflg	0200000000	/* Use global aliases */
+#define			localaliasflg	0400000000	/* Use local aliases */
+#define			aliasownerflg	01000000000	/* Second alias owner */
+#define			viflg		02000000000	/* VI  cmd line edit */
+#define			vedflg		04000000000	/* VED cmd line edit */
 
 extern long				flags;
 extern int				exflag;	/* Use _exit(), not exit() */

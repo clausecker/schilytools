@@ -1,6 +1,6 @@
 #!/bin/sh
 ###########################################################################
-#ident "@(#)MKLINKS	1.120 15/03/26 "
+#ident "@(#)MKLINKS	1.121 15/04/13 "
 ###########################################################################
 # Written 1996-2015 by J. Schilling
 ###########################################################################
@@ -401,4 +401,6 @@ $symlink	atarist-freemint-gcc.rul	aranym-freemint-gcc.rul
 $symlink	bepc-beos-gcc.rul	bemac-beos-gcc.rul
 $symlink	bepc-haiku-cc.rul	bemac-haiku-cc.rul
 $symlink	bepc-haiku-gcc.rul	bemac-haiku-gcc.rul
+$symlink	bepc-haiku-cc.rul	x86_64-haiku-cc.rul
+$symlink	bepc-haiku-gcc.rul	x86_64-haiku-gcc.rul
 $symlink	alpha-openvms-cc.rul	alphaserver_ds20_500_mhz-openvms-cc.rul

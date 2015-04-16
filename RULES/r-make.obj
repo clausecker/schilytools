@@ -1,4 +1,4 @@
-#ident @(#)r-make.obj	1.8 13/07/22 
+#ident @(#)r-make.obj	1.9 15/04/15 
 ###########################################################################
 # Written 1996 by J. Schilling
 ###########################################################################
@@ -47,14 +47,14 @@ ___OUTPUT_OPTION=	$(__OUTPUT_OPTION:$(_UNIQ)=-o $@)
 _OUTPUT_OPTION=		$(___OUTPUT_OPTION:$(_UNIQ)%=%)
 ###########################################################################
 
-$(ARCHDIR)/%.$o:	%.c
+$(ARCHDIR)/%.$o: %.c
 			$(_COMPILE.c) $(_OUTPUT_OPTION) $<  $(CC_OUTPUT_FILTER)
-$(ARCHDIR)/%.$o:	%.C
+$(ARCHDIR)/%.$o: %.C
 			$(_COMPILE.cc) $(_OUTPUT_OPTION) $< $(CC_OUTPUT_FILTER)
-$(ARCHDIR)/%.$o:	%.cc
+$(ARCHDIR)/%.$o: %.cc
 			$(_COMPILE.cc) $(_OUTPUT_OPTION) $< $(CC_OUTPUT_FILTER)
-$(ARCHDIR)/%.$o:	%.cpp
+$(ARCHDIR)/%.$o: %.cpp
 			$(_COMPILE.cc) $(_OUTPUT_OPTION) $< $(CC_OUTPUT_FILTER)
-$(ARCHDIR)/%.$o:	%.cxx
+$(ARCHDIR)/%.$o: %.cxx
 			$(_COMPILE.cc) $(_OUTPUT_OPTION) $< $(CC_OUTPUT_FILTER)
 ###########################################################################

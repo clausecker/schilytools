@@ -1,8 +1,8 @@
-/* @(#)make.c	1.197 15/03/23 Copyright 1985, 87, 88, 91, 1995-2015 J. Schilling */
+/* @(#)make.c	1.198 15/04/15 Copyright 1985, 87, 88, 91, 1995-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)make.c	1.197 15/03/23 Copyright 1985, 87, 88, 91, 1995-2015 J. Schilling";
+	"@(#)make.c	1.198 15/04/15 Copyright 1985, 87, 88, 91, 1995-2015 J. Schilling";
 #endif
 /*
  *	Make program
@@ -1461,8 +1461,13 @@ setmakeenv(envbase, envp)
 
 /*
  * Move a target file to ObjDir.
+ *
+ * Returns:
+ *	FALSE		Failure
+ *	TRUE		OK, but no file was moved
+ *	TRUE + 1	OK and file actually moved
  */
-EXPORT BOOL
+EXPORT int
 move_tgt(from)
 	register obj_t	*from;
 {
@@ -1495,9 +1500,10 @@ move_tgt(from)
 	if (!Sflag || Nflag)
 		printf("%smove %s %s\n", posixmode?"\t":"...", from->o_name, objname);
 	if (Nflag) {
-		ret = TRUE;
+		ret = TRUE + 1;
 		goto out;
 	}
+	ret = TRUE + 1;
 
 	if ((from->o_name == objname) ||
 	    (gfileid(from->o_name) == gfileid(objname))) {

@@ -1,4 +1,4 @@
-/* @(#)make.h	1.97 15/03/05 Copyright 1985, 87, 91, 1995-2015 J. Schilling */
+/* @(#)make.h	1.99 15/04/15 Copyright 1985, 87, 91, 1995-2015 J. Schilling */
 /*
  *	Definitions for make.
  *	Copyright (c) 1985, 87, 91, 1995-2015 by J. Schilling
@@ -171,7 +171,7 @@ extern	void	setup_dotvars	__PR((void));
 extern	char	*searchtype	__PR((int mode));
 extern	void	doexport	__PR((char *));
 extern	void	dounexport	__PR((char *));
-extern	BOOL	move_tgt	__PR((obj_t * from));
+extern	int	move_tgt	__PR((obj_t * from));
 extern	BOOL	touch_file	__PR((char * name));
 extern	date_t	gftime		__PR((char * file));
 extern	Llong	gfileid		__PR((char * file));
@@ -186,6 +186,8 @@ extern	void	setup_arch	__PR((void));
 /*
  * readfile.c
  */
+extern	BOOL	istext		__PR((int c));
+extern	char	*gtext		__PR((char * s));
 extern	char	*peekrdbuf	__PR((void));
 extern	char	*getrdbuf	__PR((void));
 extern	int	getrdbufsize	__PR((void));

@@ -1,8 +1,8 @@
-/* @(#)parse.c	1.115 15/03/25 Copyright 1985-2015 J. Schilling */
+/* @(#)parse.c	1.116 15/04/15 Copyright 1985-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)parse.c	1.115 15/03/25 Copyright 1985-2015 J. Schilling";
+	"@(#)parse.c	1.116 15/04/15 Copyright 1985-2015 J. Schilling";
 #endif
 /*
  *	Make program
@@ -423,12 +423,13 @@ listappend(obj, dep)
 	register obj_t	*obj;
 	register list_t	*dep;
 {
-	if (streql(obj->o_name, ".SSUFFIX_RULES") && dep == NULL)
+	if (dep == NULL && obj->o_name[0] == '.' &&
+	    streql(obj->o_name, ".SSUFFIX_RULES"))
 		clear_ssufftab();
 	if (obj->o_list != (list_t *) NULL) {
 		register list_t *l = obj->o_list;
 
-		if (dep == NULL) {
+		if (dep == NULL && obj->o_name[0] == '.') {
 			/*
 			 * Allow to clear special targets.
 			 */
@@ -691,7 +692,6 @@ varvaln(name, n)
 LOCAL int
 getobjname()
 {
-	register int	n = 0;
 	register char	*p = gbuf;
 	register int	beg = 0;
 	register int	end = 0;
@@ -725,6 +725,9 @@ getobjname()
 		if (p >= gbufend)
 			p = growgbuf(p);
 		*p++ = lastc;
+		if (istext(lastc))		/* Can we avoid getch()? */
+			p = gtext(p);		/* Get usual text faster */
+
 		if (nestlevel <= 0 && lastc == '\\') {
 			if (white(peekch()) && objlist(".SPACE_IN_NAMES")) {
 				getch();
@@ -732,13 +735,12 @@ getobjname()
 				*p++ = lastc;
 			}
 		}
-		n++;
 		getch();
 	}
 	if (p >= gbufend)
 		p = growgbuf(p);
 	*p = '\0';				/* Terminate with null char */
-	return (n);
+	return (p - gbuf);
 }
 
 /*
@@ -759,7 +761,6 @@ LOCAL int
 getname(type)
 	int	type;
 {
-	register int	n = 0;
 	register char	*p = gbuf;
 	register int	beg = 0;
 	register int	end = 0;
@@ -798,6 +799,9 @@ getname(type)
 		if (p >= gbufend)
 			p = growgbuf(p);
 		*p++ = lastc;
+		if (istext(lastc))		/* Can we avoid getch()? */
+			p = gtext(p);		/* Get usual text faster */
+
 		if (nestlevel <= 0 && lastc == '\\') {
 			if (white(peekch()) && objlist(".SPACE_IN_NAMES")) {
 				getch();
@@ -805,13 +809,12 @@ getname(type)
 				*p++ = lastc;
 			}
 		}
-		n++;
 		getch();
 	}
 	if (p >= gbufend)
 		p = growgbuf(p);
 	*p = '\0';				/* Terminate with null char */
-	return (n);
+	return (p - gbuf);
 }
 
 /*
@@ -831,7 +834,6 @@ getnam(type)
 LOCAL int
 getln()
 {
-	register int	n = 0;
 	register char	*p = gbuf;
 
 	while (white(lastc))
@@ -845,13 +847,13 @@ getln()
 		if (p >= gbufend)
 			p = growgbuf(p);
 		*p++ = lastc;
-		n++;
+		p = gtext(p);			/* Get usual text faster */
 		getch();
 	}
 	if (p >= gbufend)
 		p = growgbuf(p);
 	*p = '\0';				/* Terminate with null char */
-	return (n);
+	return (p - gbuf);
 }
 
 /*
@@ -1047,6 +1049,9 @@ is_shvar(op, typep, tailp)
 	list_t	***tailp;
 {
 	obj_t	*o = *op;
+
+	if (o->o_name[0] != 's')
+		return (FALSE);
 
 	if (streql(o->o_name, "sh=")) {
 		*typep = SHVAR;
@@ -1422,7 +1427,16 @@ exerror(msg, va_alist)
 
 #define	MyObjTabSize	128	/* # of Hash table entries (power of two) .*/
 
-#define	ObjHash(name) (name[0] & (MyObjTabSize - 1))
+#define	ObjHash(name, h)	{				\
+	register unsigned char *str = (unsigned char *)(name);	\
+	register int	sum = 0;				\
+	register int	i;					\
+	register int	c;					\
+								\
+	for (i = 0; (c = *str++) != '\0'; i++)			\
+		sum ^= (c << (i&7));				\
+	(h) = sum & (MyObjTabSize -1);				\
+}
 
 LOCAL	obj_t	*ObjTab[MyObjTabSize];
 LOCAL	obj_t	*SuffTab[MyObjTabSize];
@@ -1442,8 +1456,10 @@ _objlook(table, name, create)
 	register obj_t	*p;
 	register char	*new;
 	register char	*old;
+		int	hash;
 
-	for (pp = &table[ObjHash(name)]; (p = *pp) != NULL; ) {
+	ObjHash(name, hash);
+	for (pp = &table[hash]; (p = *pp) != NULL; ) {
 		for (new = name, old = p->o_name; *new++ == *old; ) {
 			if (*old++ == '\0')	/* Found 'name' */
 				return (p);

@@ -1,8 +1,9 @@
-/* @(#)wait3.c	1.13 09/08/04 Copyright 1995-2009 J. Schilling */
+/* @(#)wait3.c	1.14 15/04/15 Copyright 1995-2009 J. Schilling */
+#undef	USE_LARGEFILES	/* XXX Temporärer Hack für Solaris */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)wait3.c	1.13 09/08/04 Copyright 1995-2009 J. Schilling";
+	"@(#)wait3.c	1.14 15/04/15 Copyright 1995-2009 J. Schilling";
 #endif
 /*
  * Compatibility function for BSD wait3().
@@ -16,6 +17,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -84,6 +87,7 @@ static	UConst char sccsid[] =
 #endif
 
 #ifdef	WNOWAIT		/* We are on SVR4 */
+#define	DID_WAIT3
 
 #include <stdio.h>
 #include <sys/types.h>
@@ -103,9 +107,9 @@ static	UConst char sccsid[] =
 static	int	wait_prusage(siginfo_t *, int, struct tms *, struct rusage *);
 static	int	wait_status(int, int);
 static	void	wait_times(siginfo_t *, struct rusage *);
-	int	wait3(int *status, int options, struct rusage *rusage);
+	pid_t	wait3(int *status, int options, struct rusage *rusage);
 
-int
+pid_t
 wait3(status, options, rusage)
 		int	*status;
 		int	options;
@@ -135,7 +139,7 @@ wait3(status, options, rusage)
 	options &= (WNOHANG|WUNTRACED);
 	options |= (WEXITED|WSTOPPED|WTRAPPED);
 	if (waitid(P_ALL, 0, &info, options|WNOWAIT) < 0)
-		return (-1);
+		return ((pid_t)-1);
 
 	(void) wait_prusage(&info, options, &tms_start, rusage);
 	if (status)
@@ -266,3 +270,12 @@ static void wait_times(info, rusage)
 }
 
 #endif		/* WNOWAIT */
+
+#if	!defined(HAVE_WAIT3) && !defined(DID_WAIT3)
+
+/*
+ * If we like to implement wait3() on top of other interfaces like wait4()
+ * or waitpid(), the code goes here.
+ */
+
+#endif	/* !defined(HAVE_WAIT3) && !defined(DID_WAIT3) */

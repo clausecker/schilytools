@@ -41,11 +41,11 @@
 /*
  * This file contains modifications Copyright 2008-2015 J. Schilling
  *
- * @(#)args.c	1.35 15/01/07 2008-2015 J. Schilling
+ * @(#)args.c	1.38 15/04/13 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)args.c	1.35 15/01/07 2008-2015 J. Schilling";
+	"@(#)args.c	1.38 15/04/13 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -56,6 +56,7 @@ static	UConst char sccsid[] =
 
 static	void		prversion	__PR((void));
 	int		options		__PR((int argc, unsigned char **argv));
+static	void		setopts		__PR((void));
 	void		setargs		__PR((unsigned char *argi[]));
 static void		freedolh	__PR((void));
 	struct dolnod	*freeargs	__PR((struct dolnod *blk));
@@ -104,6 +105,10 @@ unsigned char	flagchar[] =
 	0,
 	0,
 	0,
+#ifdef	INTERACTIVE
+	0,
+	0,
+#endif
 	0
 };
 
@@ -130,6 +135,10 @@ char	*flagname[] =
 	"globalaliases",
 	"localaliases",
 	"aliasowner",
+#ifdef	INTERACTIVE
+	"vi",
+	"ved",
+#endif
 	0
 };
 #endif
@@ -156,6 +165,10 @@ long	flagval[]  =
 	globalaliasflg,
 	localaliasflg,
 	aliasownerflg,
+#ifdef	INTERACTIVE
+	viflg,
+	vedflg,
+#endif
 	0
 };
 
@@ -197,10 +210,12 @@ options(argc, argv)
 	unsigned char *cp;
 	unsigned char **argp = argv;
 	unsigned char *flagc;
-	unsigned char	*flagp;
 	int		len;
 	wchar_t		wc;
 
+#ifdef	DO_MULTI_OPT
+again:
+#endif
 	if (argc > 1 && *argp[1] == '-')
 	{
 		cp = argp[1];
@@ -221,6 +236,9 @@ options(argc, argv)
 		{
 			argp[1] = argp[0];
 			argc--;
+#ifdef	DO_MULTI_OPT
+			setopts();
+#endif
 			return (argc);
 		}
 		if (cp[1] == '\0')
@@ -305,6 +323,15 @@ options(argc, argv)
 				} else {
 							/* LINTED */
 					flags |= flagval[flagc-flagchar];
+					/*
+					 * Disallow to set -n on an interactive
+					 * shell as this cannot be reset.
+					 */
+					if (flags & intflg)
+						flags &= ~noexec;
+#ifdef	INTERACTIVE
+					flags &= ~viflg;
+#endif
 					if (flags & errflg)
 						eflag = errflg;
 #ifdef	EXECATTR_FILENAME
@@ -339,6 +366,7 @@ options(argc, argv)
 		}
 		argp[1] = argp[0];
 		argc--;
+		argp++;
 	} else if (argc > 1 &&
 		    *argp[1] == '+')	{ /* unset flags x, k, t, n, v, e, u */
 
@@ -419,10 +447,26 @@ options(argc, argv)
 		}
 		argp[1] = argp[0];
 		argc--;
+		argp++;
 	}
-	/*
-	 * set up $-
-	 */
+#ifdef	DO_MULTI_OPT
+	if (argc > 1 && (*argp[1] == '-' || *argp[1] == '+'))
+		goto again;
+#endif
+
+	setopts();
+	return (argc);
+}
+
+/*
+ * set up $-
+ */
+static void
+setopts()
+{
+	unsigned char	*flagc;
+	unsigned char	*flagp;
+
 	flagp = flagadr;
 	if (flags)
 	{
@@ -436,7 +480,6 @@ options(argc, argv)
 		}
 	}
 	*flagp = 0;
-	return (argc);
 }
 
 /*

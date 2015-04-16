@@ -1,13 +1,13 @@
-/* @(#)abbrev.c	1.53 13/09/26 Copyright 1985-2013 J. Schilling */
+/* @(#)abbrev.c	1.55 15/04/12 Copyright 1985-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)abbrev.c	1.53 13/09/26 Copyright 1985-2013 J. Schilling";
+	"@(#)abbrev.c	1.55 15/04/12 Copyright 1985-2015 J. Schilling";
 #endif
 /*
  *	Abbreviation symbol handling
  *
- *	Copyright (c) 1985-2013 J. Schilling
+ *	Copyright (c) 1985-2015 J. Schilling
  *
  *	.global & .local alias abbreviations are handled here
  *
@@ -96,8 +96,10 @@ LOCAL	char	sn_badfile[]	= "bad_sym_file";
  * The Bourne shell does not use stdio, so we need to redefine some functions.
  * Be sure to first #undef things that might be #define'd in schily/schily.h.
  */
+#undef	filemopen
+#define	filemopen(n, m, c)	open(n, m, c)
 #undef	fileopen
-#define	fileopen(n, m)	open(n, m, 0666)
+#define	fileopen(n, m)	open(n, m, S_IRUSR|S_IWUSR|S_IRGRP|S_IROTH)
 #define	fileread	read
 #undef	filestat
 #define	filestat	fstat
@@ -327,7 +329,7 @@ _ab_output(ap)
 		ab_eupdated(ap);
 		return;
 	}
-	f = fileopen(ap->at_fname, for_wct);
+	f = filemopen(ap->at_fname, for_wct, S_IRUSR|S_IWUSR|S_IRGRP|S_IROTH);
 	if (open_failed(f)) {
 		raisecond(sn_badfile, (long)ap->at_fname);
 	} else {
@@ -668,8 +670,12 @@ ab_read(tab, fname)
 		return;
 	}
 	if (filestat(f, &sb) >= 0) {
-		if (geteuid() != sb.st_uid &&
-		    (ap->at_altowner == (uid_t)-1 ||
+		if (geteuid() == sb.st_uid) {
+			if (sb.st_mode & (S_IWGRP|S_IWOTH)) {
+				fclose(f);
+				return;
+			}
+		} else if ((ap->at_altowner == (uid_t)-1 ||
 		    ap->at_altowner != sb.st_uid)) {
 			fclose(f);
 			return;

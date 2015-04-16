@@ -1,4 +1,4 @@
-#ident @(#)Makefile	1.9 15/01/19 
+#ident @(#)Makefile	1.10 15/04/13 
 ###########################################################################
 # Sample makefile for installing manual pages
 ###########################################################################
@@ -6,6 +6,8 @@ SRCROOT=	../..
 RULESDIR=	RULES
 include		$(SRCROOT)/$(RULESDIR)/rules.top
 ###########################################################################
+
+TARGET=dummy	# Avoid an empty target
 
 XMK_FILE=	adminman.mk bdiffman.mk cdcman.mk changesetman.mk \
 		combman.mk deltaman.mk \

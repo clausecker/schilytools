@@ -1,4 +1,4 @@
-#ident "@(#)Makefile	1.46 15/04/07  Copyright (c) 2006-2015 J. Schilling"
+#ident "@(#)Makefile	1.47 15/04/13  Copyright (c) 2006-2015 J. Schilling"
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -38,6 +38,7 @@ CPPOPTS +=	-DDO_SYSPUSHD		# Include pushd / popd / dirs builtin && cd -
 CPPOPTS +=	-DDO_SYSTRUE		# Include true / false builtin
 CPPOPTS +=	-DDO_READ_R		# Include support for read -r
 CPPOPTS +=	-DDO_SET_O		# Include support for set -o
+CPPOPTS +=	-DDO_MULTI_OPT		# Include support for sh -v -x / set -v -x
 CPPOPTS +=	-DDO_UMASK_S		# Include support for umask -S
 CPPOPTS +=	-DDO_POSIX_FOR		# Support for i; do .... with semicolon
 CPPOPTS +=	-DDO_PIPE_SEMI_SYNTAX_E	# Report a syntax error for "echo foo |;"

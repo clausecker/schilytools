@@ -38,11 +38,11 @@
 /*
  * This file contains modifications Copyright 2008-2015 J. Schilling
  *
- * @(#)main.c	1.30 15/03/31 2008-2015 J. Schilling
+ * @(#)main.c	1.31 15/04/12 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)main.c	1.30 15/03/31 2008-2015 J. Schilling";
+	"@(#)main.c	1.31 15/04/12 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -383,6 +383,9 @@ main(c, v, e)
 					*flagc = '\0';
 				}
 				flags |= intflg;
+#ifdef	INTERACTIVE
+				flags |= vedflg;
+#endif
 			}
 		}
 		if ((flags & intflg) && (flags & privflg) == 0) {
@@ -548,14 +551,14 @@ exfile(prof)
 			 * indirectly here.
 			 */
 #define	EDIT_RPOMPTS	2
-			{ char *prompts[EDIT_RPOMPTS];
-			prompts[0] = (char *)ps1nod.namval;
-			prompts[1] = (char *)ps2nod.namval;
-			shedit_setprompts(0, EDIT_RPOMPTS, prompts);
-			}
-#else
-			prs(ps1nod.namval);
+			if (flags & vedflg) {
+				char *prompts[EDIT_RPOMPTS];
+				prompts[0] = (char *)ps1nod.namval;
+				prompts[1] = (char *)ps2nod.namval;
+				shedit_setprompts(0, EDIT_RPOMPTS, prompts);
+			} else
 #endif
+				prs(ps1nod.namval);
 
 #ifdef TIME_OUT
 			alarm(TIMEOUT);
@@ -602,10 +605,11 @@ exfile(prof)
 void
 chkpr()
 {
-#ifndef	INTERACTIVE
+#ifdef	INTERACTIVE
+	if ((flags & vedflg) == 0)
+#endif
 	if ((flags & prompt) && standin->fstak == 0)
 		prs(ps2nod.namval);
-#endif
 }
 
 void

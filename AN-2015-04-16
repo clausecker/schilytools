@@ -1,0 +1,120 @@
+New features with AN-2015-04-16:
+
+This is the first localization step for the schily source consolidation. Many
+programs now (hopefully) call gettext() for all strings that need localization.
+
+-	The next step will include dgettext() calls for the libraries and the
+	missing programs
+
+-	The following step will include the extracted strings
+
+-	The last step will include German translations and install support
+	for the resulting binary message object files.
+
+----------> Please test and report compilation problems! <---------
+
+***** NOTE: As mentioned since 2004, frontends to the tools should *****
+*****		call all programs in the "C" locale		   *****
+*****		by e.g. calling: LC_ALL=C cdrecord ....		   *****
+*****		unless these frontends support localized strings   *****
+*****		used by the cdrtools with NLS support.		   *****
+
+		*** WARNING        ***
+		*** Need new smake ***
+
+	*** Due to the fact that schily-tools 2014-04-03 introduced to use new macro
+	*** expansions and a related bug fix in smake, you need a new smake
+	*** to compile this source. To ensure this, call:
+
+	cd ./psmake
+	./MAKE-all
+	cd ..
+	psmake/smake
+	psmake/smake install
+
+
+	WARNING: the new version of the isoinfo program makes use of the 
+		*at() series of functions that have been introduced by Sun
+		in August 2001 and added to POSIX.1-2008. For older platforms,
+		libschily now includes emulations for these functions but
+		these emulations have not yet been tested thouroughly.
+		Please report problems!
+
+	The new smake version mentioned above is smake-1.2.4
+
+-	Support for x86_64-haiku-cc.rul and x86_64-haiku-gcc.rul was added
+	to the makefile system.
+
+-	The file RULES/r-gmake.dep was modified to make fure that the 
+	dependency files (*.d) depend from the include files as well.
+	Previous versions included xxx.d instread of $(ARCHDIR)/xxx.d
+
+-	smake: the auto .OBJDIR code has been fixed:
+
+	-	smake now takes a note on whether the object file was moved
+		to $(.OBJDIR) at all and keep the current path index in
+		it's data structures.
+
+	-	smake no longer tries to move a target that includes a
+		slash ('/') in it's pathame. This is to align the calling
+		code with the behavior of the fnction move_tgt()
+
+	Note that this fix is needed with a planned update of the makefile
+	rules for smake in the near future. So be careful and update your
+	local smake installation.
+
+-	smake now uses a better hash algorithm. This speeds up smake in case
+	that all filenames start with the same char (e.g. $(ARCHDIR)/f.o)
+
+-	smake now implements a more efficient parser to allow to read longer
+	object names without extra costs. With this new code, smake now
+	only spends 1/10th of the user CPU time used by gmake for the
+	same task. Before it was 1/7th of the user CPU time used by gmake.
+
+-	smake now tries to avoid to call streql() at some places that
+	need to frequently compare strings. Smake now first compares the
+	first character and thus may trop a bundle of streql() calls.
+
+-	bsh/wait3.c now uses pid_t as return type instead if int.
+
+-	The files $HOME/.globals and .locals from bsh and the Bourne Shell
+	are now written with mode 0600.
+
+-	The files $HOME/.globals and .locals from bsh and the Bourne Shell
+	are no longer read in case that they are writable by others.
+
+-	Bourne Shell: set -n is now ignored when in interactive mode.
+
+-	Bourne Shell: "set -v -x -- 1 2 3" now sets options -v and -x and
+	the arg vector to "1 2 3". The unfixed Bourne Shell would set only
+	option -v and set the arg vector to "-x -- 1 2 3". The new fix is
+	turned on via -DDO_MULTI_OPT
+
+-	Bourne Shell: The shell now supports "set -o vi" and "set -o ved".
+	"set -o vi" is required by POSIX and cannot be switched on in the
+	Bourne Shell. "set -o ved" is turned on by default if the shell is
+	an interacrive shel and tells the shell to implement command line
+	editing via the built in ved(1) commands. If turned off, the
+	Bourne Shell now behaves eactly like an old Bourne Shell at command
+	line prompt level. Previous versions did only allow to disable the
+	history via HISTORY=0, but command line editing was still active
+	on the current input line.
+
+-	Heiko Eißfeldt started with tests on the Bourne Shell using the
+	test software: "american fuzzy lop"
+
+	-	libgetopt/getopt.c no longer causes SIGSEGV with some
+		non-conforming shell scripts that call getopts(1).
+
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.net, js@cs.tu-berlin.de
+	joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

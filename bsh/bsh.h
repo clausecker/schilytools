@@ -1,4 +1,4 @@
-/* @(#)bsh.h	1.61 14/04/14 Copyright 1985-2014 J. Schilling */
+/* @(#)bsh.h	1.62 15/04/15 Copyright 1985-2014 J. Schilling */
 /*
  *	Bsh general definitions
  *
@@ -411,7 +411,11 @@ extern	void	*get_heapend	__PR((void));
 #ifdef	RUSAGE_SELF
 #ifdef	_SCHILY_WAIT_H			/* Needed for WAIT_T */
 
-extern	int	wait3	__PR((WAIT_T *status, int options,
+/*
+ * XXX if this no longer compiles on UnixWare, change back pid_t to int
+ * XXX here and in wait3.c
+ */
+extern	pid_t	wait3	__PR((WAIT_T *status, int options,
 						struct rusage *rusage));
 #endif
 #endif

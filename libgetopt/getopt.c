@@ -24,12 +24,12 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2009 J. Schilling
+ * This file contains modifications Copyright 2006-2015 J. Schilling
  *
- * @(#)getopt.c	1.9 09/11/08 J. Schilling
+ * @(#)getopt.c	1.10 15/04/09 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)getopt.c 1.9 09/11/08 J. Schilling"
+#pragma ident "@(#)getopt.c 1.10 15/04/09 J. Schilling"
 #endif
 
 #if defined(sun)
@@ -228,14 +228,13 @@ getopt(argc, argv, optstring)
 	 *	argv[optind]	points to the string "--"
 	 * getopt() returns -1 after incrementing optind.
 	 */
-	if (_sp == 1) {
-		if (optind >= argc || argv[optind][0] != '-' ||
-		    argv[optind] == NULL || argv[optind][1] == '\0')
-			return (EOF);
-		else if (strcmp(argv[optind], "--") == 0) {
-			optind++;
-			return (EOF);
-		}
+	if (optind >= argc || argv[optind] == NULL ||
+	    argv[optind][0] != '-' || argv[optind][1] == '\0') {
+		return (EOF);
+	} else if (argv[optind][0] == '-' && argv[optind][1] == '-' &&
+	    argv[optind][2] == '\0') {		/* "--" */
+		optind++;
+		return (EOF);
 	}
 
 	/*

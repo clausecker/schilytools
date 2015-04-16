@@ -1,8 +1,8 @@
-/* @(#)update.c	1.136 15/03/14 Copyright 1985, 88, 91, 1995-2015 J. Schilling */
+/* @(#)update.c	1.137 15/04/15 Copyright 1985, 88, 91, 1995-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)update.c	1.136 15/03/14 Copyright 1985, 88, 91, 1995-2015 J. Schilling";
+	"@(#)update.c	1.137 15/04/15 Copyright 1985, 88, 91, 1995-2015 J. Schilling";
 #endif
 /*
  *	Make program
@@ -2599,7 +2599,16 @@ default_cmd(obj, depname, deptime, deplevel, must_exist, dlev)
 	if ((rtype & RTYPE_NEEDFREE) != 0 && cmd != NULL)
 		fastfree((char *)cmd, sizeof (*cmd));
 
-	if (!Tflag && ObjDir != (char *)NULL && obj->o_level == WDLEVEL) {
+	/*
+	 * A file is only subject to automatic movement to the object directory
+	 * if there is no slash in the path name. move_tgt() will not move such
+	 * a file and we thus do not check such files here as well.
+	 */
+	if (!Tflag && ObjDir != (char *)NULL &&
+	    obj->o_level == WDLEVEL && strchr(obj->o_name, SLASH) == NULL) {
+		int	m;			/* for move status */
+		int	a = 0;			/* == 1 if file at src level */
+
 		if (Debug > 3) {
 			list_t	*l = list_nth(SearchList, source->o_level-2);
 
@@ -2610,11 +2619,14 @@ default_cmd(obj, depname, deptime, deplevel, must_exist, dlev)
 		}
 		obj->o_level = source->o_level;
 		if ((source->o_level & 1) == 0)	/* Source has lower level  */
-			obj->o_level += 1;	/* use corresponding ObjDir*/
+			a = 1;			/* add one if source level */
+		obj->o_level += a;		/* use corresponding ObjDir*/
 
-		if (!move_tgt(obj)) {		/* move target into ObjDir */
+		if ((m = move_tgt(obj)) == 0) {	/* move target into ObjDir */
 			obj->o_level = WDLEVEL;
 			return (BADTIME);	/* move failed */
+		} else if (m == TRUE) {		/* OK, but did not move */
+			obj->o_level -= a;	/* Restore original level */
 		}
 /*		obj->o_level = OBJLEVEL;*/
 	}

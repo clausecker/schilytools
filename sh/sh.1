@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sh.1	1.44 15/01/18 Copyright 2012-2015 J. Schilling
+.\" @(#)sh.1	1.46 15/04/12 Copyright 2012-2015 J. Schilling
 .\" Copyright 1989 AT&T
 .\" Copyright (c) 2008, Sun Microsystems, Inc. All Rights Reserved.
 .\" Portions Copyright (c) 1992, X/Open Company Limited All Rights Reserved
@@ -47,7 +47,7 @@
 .\" information: Portions Copyright [yyyy] [name of copyright owner]
 .\"
 .\" CDDL HEADER END
-.TH sh 1 "2015/01/18" "Schily Bourne Shell" "User Commands"
+.TH sh 1 "2015/04/12" "Schily Bourne Shell" "User Commands"
 .SH NAME
 sh, jsh \- standard and job control shell and command interpreter
 .SH SYNOPSIS
@@ -2733,13 +2733,10 @@ Switch job control mode on.
 .TP
 .B \-n
 Read commands but do not execute them.
-Note that this cannot be undone as after setting
-.BR \-n ,
-commands are no longer executed.
 Setting
 .B \-n
-in an interactive shell removes the ability to
-leave this shell.
+in an interactive shell is ignored as this could not be undone and the shell
+could not even be terminated anymore.
 
 .br
 .ne 3
@@ -2861,6 +2858,18 @@ Equivalent to
 .B verbose
 Equivalent to
 .BR \-v .
+.TP
+.B ved
+Allow shell command line editing using the built in
+.B ved
+editor.
+.TP
+.B vi
+Allow shell command line editing using the built in
+.B vi
+editor.
+The Bourne Shell currently does not allow to set the vi mode
+for any type of terminal.
 .TP
 .B xtrace
 Equivalent to
@@ -3861,6 +3870,17 @@ and has been inspired by the behavior of the editor
 The history is implemented as limited ring buffer.
 The size of the ring buffer is in
 .BR HISTORY .
+If
+.B HISTORY
+is unset or set to 
+.BR 0 ,
+the current command line history is lost and
+command line editing is only supported on the current line and
+this line is not kept in the history.
+Command line editing may be turned off completely by issuing the command
+.RB ` "set +o ved" '.
+The existing history is not affected by turning off the command line editor.
+.LP
 Command lines from the existing history may be retrieved with the cursor keys
 .RB ( "Cursor up " and " Cursor down" ).
 Typing

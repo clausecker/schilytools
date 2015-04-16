@@ -525,6 +525,8 @@
 ./RULES/x86_64-gnu-kfreebsd-cc.rul
 ./RULES/x86_64-gnu-kfreebsd-gcc.rul
 ./RULES/x86_64-gnu-kfreebsd-gcc32.rul
+./RULES/x86_64-haiku-cc.rul
+./RULES/x86_64-haiku-gcc.rul
 ./RULES/x86_64-linux-cc.rul
 ./RULES/x86_64-linux-clang.rul
 ./RULES/x86_64-linux-clang32.rul
