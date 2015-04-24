@@ -1,8 +1,8 @@
-/* @(#)fifo.c	1.65 10/12/19 Copyright 1989,1997-2010 J. Schilling */
+/* @(#)fifo.c	1.66 15/04/22 Copyright 1989,1997-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)fifo.c	1.65 10/12/19 Copyright 1989,1997-2010 J. Schilling";
+	"@(#)fifo.c	1.66 15/04/22 Copyright 1989,1997-2015 J. Schilling";
 #endif
 /*
  *	A "fifo" that uses shared memory between two processes
@@ -11,7 +11,7 @@ static	UConst char sccsid[] =
  *	and a proposal from Finn Arne Gangstad <finnag@guardian.no>
  *	who had the idea to use a ring buffer to handle average size chunks.
  *
- *	Copyright (c) 1989,1997-2010 J. Schilling
+ *	Copyright (c) 1989,1997-2015 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -20,6 +20,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -383,9 +385,12 @@ beosshm_child()
 	delete_area(area_for(faio_addr));
 	/*
 	 * Clone (share) the original one.
+	 * The original implementaion used B_ANY_ADDRESS, but newer Haiku
+	 * versions implement address randomization that prevents us from
+	 * using the pointer in the child. So we noe use B_EXACT_ADDRESS.
 	 */
 	faio_aid = clone_area(faio_name, &faio_addr,
-			B_ANY_ADDRESS, B_READ_AREA|B_WRITE_AREA,
+			B_EXACT_ADDRESS, B_READ_AREA|B_WRITE_AREA,
 			faio_aid);
 	if (bufbase != faio_addr) {
 		comerrno(EX_BAD, _("Panic FIFO addr.\n"));

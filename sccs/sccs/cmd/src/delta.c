@@ -29,10 +29,10 @@
 /*
  * Copyright 2006-2015 J. Schilling
  *
- * @(#)delta.c	1.68 15/03/10 J. Schilling
+ * @(#)delta.c	1.69 15/04/23 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)delta.c 1.68 15/03/10 J. Schilling"
+#pragma ident "@(#)delta.c 1.69 15/04/23 J. Schilling"
 #endif
 /*
  * @(#)delta.c 1.40 06/12/12
@@ -616,12 +616,9 @@ char *file;
  		*/
 
  		/*
- 		 * The logical shift operator construct ">>" below
- 		 * does not violate i18n rules, since "status" is
- 		 * an internally used variable and is not used
- 		 * for i/o.
+		 * 32 is the exit code below after a failed execlp() call.
  		 */
- 		if (((status >> 8) & 0377) == 32) { /* 'execl' failed */
+ 		if (WEXITSTATUS(status) == 32) { /* 'execl' failed */
  		   sprintf(SccsError,
  		      gettext("cannot execute '%s' (de12)"), BDiffpgm);
  		   fatal(SccsError);

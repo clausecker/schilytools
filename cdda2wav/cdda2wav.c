@@ -1,8 +1,8 @@
-/* @(#)cdda2wav.c	1.155 15/01/01 Copyright 1993-2004 Heiko Eissfeldt, Copyright 2004-2015 J. Schilling */
+/* @(#)cdda2wav.c	1.156 15/04/22 Copyright 1993-2004 Heiko Eissfeldt, Copyright 2004-2015 J. Schilling */
 #include "config.h"
 #ifndef lint
 static	UConst char sccsid[] =
-"@(#)cdda2wav.c	1.155 15/01/01 Copyright 1993-2004 Heiko Eissfeldt, Copyright 2004-2015 J. Schilling";
+"@(#)cdda2wav.c	1.156 15/04/22 Copyright 1993-2004 Heiko Eissfeldt, Copyright 2004-2015 J. Schilling";
 
 #endif
 #undef	DEBUG_BUFFER_ADDRESSES
@@ -3822,9 +3822,16 @@ main(argc, argv)
 					_("find_area: no such area name.\n"));
 					exit(SHMMEM_ERROR);
 				}
-				/* clone the parent mapping without cow. */
+				/*
+				 * clone the parent mapping without cow.
+				 * The original implementaion used
+				 * B_ANY_ADDRESS, but newer Haiku versions
+				 * implement address randomization that
+				 * prevents us from using the pointer in the
+				 * child. So we noe use B_EXACT_ADDRESS.
+				 */
 				if (B_OK > clone_area("shm_child",
-				    &area_address, B_ANY_ADDRESS,
+				    &area_address, B_EXACT_ADDRESS,
 				    B_READ_AREA | B_WRITE_AREA, area_parent)) {
 					errmsgno(EX_BAD,
 						_("clone_area failed\n"));

@@ -28,12 +28,12 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2011 J. Schilling
+ * This file contains modifications Copyright 2006-2015 J. Schilling
  *
- * @(#)bdiff.c	1.15 11/08/05 J. Schilling
+ * @(#)bdiff.c	1.16 15/04/23 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)bdiff.c 1.15 11/08/05 J. Schilling"
+#pragma ident "@(#)bdiff.c 1.16 15/04/23 J. Schilling"
 #endif
 
 #if defined(sun)
@@ -362,7 +362,7 @@ main(argc, argv)
 
 			/* EOF on pipe. */
 			(void) wait(&status);
-			if (status&~0x100) {
+			if (!WIFEXITED(status) || (WEXITSTATUS(status) & ~1)) {
 				(void) snprintf(Error, sizeof (Error),
 				    "'%s' failed", diff);
 				fatal(Error);

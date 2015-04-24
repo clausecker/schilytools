@@ -1,8 +1,8 @@
-/* @(#)readfile.c	1.65 15/04/15 Copyright 1985-2015 J. Schilling */
+/* @(#)readfile.c	1.66 15/04/15 Copyright 1985-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)readfile.c	1.65 15/04/15 Copyright 1985-2015 J. Schilling";
+	"@(#)readfile.c	1.66 15/04/15 Copyright 1985-2015 J. Schilling";
 #endif
 /*
  *	Make program
@@ -113,7 +113,7 @@ EXPORT char *
 gtext(s)
 	char	*s;
 {
-	register int	c;
+	register int	c = 0;		/* keep stupid gcc happy */
 	register char	*p = readbfp;
 
 	while (p < readbfend) {

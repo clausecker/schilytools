@@ -25,12 +25,12 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2009 J. Schilling
+ * This file contains modifications Copyright 2006-2015 J. Schilling
  *
- * @(#)setsig.c	1.8 11/10/08 J. Schilling
+ * @(#)setsig.c	1.9 15/04/23 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)setsig.c 1.8 11/10/08 J. Schilling"
+#pragma ident "@(#)setsig.c 1.9 15/04/23 J. Schilling"
 #endif
 /*
  * @(#)setsig.c 1.8 06/12/12
@@ -43,8 +43,6 @@
 # include       <defines.h>
 # include       <i18n.h>
 # include	<signal.h>
-
-#define ONSIG	16
 
 /*
 	General-purpose signal setting routine.
@@ -66,22 +64,46 @@
 
 extern	void	(*f_clean_up) __PR((void));
 
-static char	*Mesg[ONSIG]={
-	0,
-	0,	/* Hangup */
-	0,	/* Interrupt */
-	0,	/* Quit */
-	"Illegal instruction",
-	"Trace/BPT trap",
-	"IOT trap",
-	"EMT trap",
-	"Floating exception",
-	"Killed",
-	"Bus error",
-	"Memory fault",
-	"Bad system call",
-	0,	/* Broken pipe */
-	"Alarm clock"
+static struct sigs {
+	int	signo;
+	char	*msg;
+} Mesg[] = {
+#ifdef	SIGILL
+	{ SIGILL,	"Illegal instruction" },
+#endif
+#ifdef	SIGTRAP
+	{ SIGTRAP,	"Trace/BPT trap" },
+#endif
+#ifdef	SIGIOT
+	{ SIGIOT,	"IOT trap" },
+#endif
+#ifdef	SIGEMT
+	{ SIGEMT,	"EMT trap" },
+#endif
+#ifdef	SIGFPE
+	{ SIGFPE,	"Floating exception" },
+#endif
+#ifdef	SIGKILL
+	{ SIGKILL,	"Killed" },
+#endif
+#ifdef	SIGBUS
+	{ SIGBUS,	"Bus error" },
+#endif
+#ifdef	SIGSEGV
+	{ SIGSEGV,	"Memory fault" },
+#endif
+#ifdef	SIGSYS
+	{ SIGSYS,	"Bad system call" },
+#endif
+#ifdef	__pipe__handler
+#ifdef	SIGPIPE
+	{ SIGPIPE,	NULL },
+#endif
+#endif
+#ifdef	SIGALRM
+	{ SIGALRM,	"Alarm clock" },
+#endif
+	{ 0, NULL }
 };
 
 static void setsig1	__PR((int sig));
@@ -92,12 +114,9 @@ setsig()
 	register int j;
 	register void (*n) __PR((int));
 
-	for (j = 1; j < ONSIG; j++) {
-#ifdef	SIGBUS
-		if (j != SIGBUS)
-#endif
-			if ((n=signal(j, setsig1)) != NULL)
-				signal(j, n);
+	for (j = 0; Mesg[j].signo != 0; j++) {
+		if ((n = signal(Mesg[j].signo, setsig1)) != NULL)
+			signal(Mesg[j].signo, n);
 	}
 }
 
@@ -107,6 +126,7 @@ setsig1(sig)
 int sig;
 {
 	static int die = 0;
+		int	j;
 	
 	if (die++) {
 #ifdef	SIGIOT
@@ -120,9 +140,14 @@ int sig;
 #endif
 		exit(1);
 	}
-	if (Mesg[sig]) {
+
+	for (j = 0; Mesg[j].msg != NULL; j++)
+		if (Mesg[j].signo == sig)
+			break;
+
+	if (Mesg[j].msg) {
 		(void) write(2, gettext("SIGNAL: "), length("SIGNAL: "));
-		(void) write(2, gettext(Mesg[sig]), length(Mesg[sig]));
+		(void) write(2, gettext(Mesg[j].msg), length(Mesg[j].msg));
 		(void) write(2, NOGETTEXT(" (ut12)\n"), length(" (ut12)\n"));
 	}
 	else

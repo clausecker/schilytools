@@ -1,13 +1,13 @@
-/* @(#)execcmds.c	1.45 13/06/20 Copyright 1984-1986, 1995-2013 J. Schilling */
+/* @(#)execcmds.c	1.46 15/04/23 Copyright 1984-1986, 1995-2013 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)execcmds.c	1.45 13/06/20 Copyright 1984-1986, 1995-2013 J. Schilling";
+	"@(#)execcmds.c	1.46 15/04/23 Copyright 1984-1986, 1995-2015 J. Schilling";
 #endif
 /*
  *	Commands that deal with execution of shell commands from ved
  *
- *	Copyright (c) 1984-1986, 1995-2013 J. Schilling
+ *	Copyright (c) 1984-1986, 1995-2015 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -265,7 +265,7 @@ spawncmd(wp, name, arg)
 		stat = -1;
 #else
 	newpid = wait(&stat);
-	if (stat & 0200)
+	if (WCOREDUMP(stat))
 		unlink("core");
 #endif
 	settmodes(wp);

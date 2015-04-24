@@ -38,11 +38,11 @@
 /*
  * This file contains modifications Copyright 2008-2015 J. Schilling
  *
- * @(#)io.c	1.22 15/03/31 2008-2015 J. Schilling
+ * @(#)io.c	1.23 15/04/22 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)io.c	1.22 15/03/31 2008-2015 J. Schilling";
+	"@(#)io.c	1.23 15/04/22 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -427,6 +427,11 @@ link_iodocs(i)
 			    size_left, "%u", serial);
 			serial++;
 			r = link(i->ioname, (char *)tmpout);
+
+#ifdef	HAVE_SYMLINK	/* Need to support Haiku */
+			if (r == -1 && errno != EEXIST)
+				r = symlink(i->ioname, (char *)tmpout);
+#endif
 			if ((serial >= UINT_MAX) || (len >= size_left)) {
 			/*
 			 * We've already cycled through all the possible

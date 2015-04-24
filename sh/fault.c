@@ -36,13 +36,13 @@
 #include "defs.h"
 
 /*
- * This file contains modifications Copyright 2008-2014 J. Schilling
+ * This file contains modifications Copyright 2008-2015 J. Schilling
  *
- * @(#)fault.c	1.24 14/06/05 2008-2014 J. Schilling
+ * @(#)fault.c	1.25 15/04/23 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)fault.c	1.24 14/06/05 2008-2014 J. Schilling";
+	"@(#)fault.c	1.25 15/04/23 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -134,13 +134,13 @@ static BOOL trapflg[MAXTRAP] =
 	0,	/* hangup */
 	0,	/* interrupt */
 	0,	/* quit */
+#ifdef	__never__ /* For portability, we cannot asume > 3 signals */
 	0,	/* illegal instr */
 	0,	/* trace trap */
 	0,	/* IOT */
 	0,	/* EMT */
 	0,	/* float pt. exp */
 	0,	/* kill */
-#ifdef	__never__ /* For portability, we cannot asume > 9 signals */
 	0,	/* bus error */
 	0,	/* memory faults */
 	0,	/* bad sys call */
@@ -177,13 +177,13 @@ sigval[MAXTRAP])) __PR((int)) =
 	done,	/* hangup */
 	fault,	/* interrupt */
 	fault,	/* quit */
+#ifdef	__never__ /* For portability, we cannot asume > 3 signals */
 	done,	/* illegal instr */
 	done,	/* trace trap */
-	done,	/* IOT */
+	done,	/* IOT / ABRT */
 	done,	/* EMT */
 	done,	/* floating pt. exp */
 	0,	/* kill */
-#ifdef	__never__ /* For portability, we cannot asume > 9 signals */
 	done,	/* bus error */
 	sigsegv,	/* memory faults */
 	done,	/* bad sys call */
@@ -742,17 +742,13 @@ init_sigval()
 	set_sigval(SIGUSR2, done);
 #endif
 #ifdef	SIGCHLD
-#ifdef	__set_nullsig__
 	set_sigval(SIGCHLD, 0);
-#endif
 #endif
 #ifdef	SIGPWR
 	set_sigval(SIGPWR, done);
 #endif
 #ifdef	SIGWINCH
-#ifdef	__set_nullsig__
 	set_sigval(SIGWINCH, 0);
-#endif
 #endif
 #ifdef	SIGURG
 	set_sigval(SIGURG, done);
@@ -761,29 +757,19 @@ init_sigval()
 	set_sigval(SIGPOLL, done);
 #endif
 #ifdef	SIGSTOP
-#ifdef	__set_nullsig__
 	set_sigval(SIGSTOP, 0);
 #endif
-#endif
 #ifdef	SIGTSTP
-#ifdef	__set_nullsig__
 	set_sigval(SIGTSTP, 0);
 #endif
-#endif
 #ifdef	SIGCONT
-#ifdef	__set_nullsig__
 	set_sigval(SIGCONT, 0);
 #endif
-#endif
 #ifdef	SIGTTIN
-#ifdef	__set_nullsig__
 	set_sigval(SIGTTIN, 0);
 #endif
-#endif
 #ifdef	SIGTTOU
-#ifdef	__set_nullsig__
 	set_sigval(SIGTTOU, 0);
-#endif
 #endif
 #ifdef	SIGVTALRM
 	set_sigval(SIGVTALRM, done);
@@ -796,6 +782,18 @@ init_sigval()
 #endif
 #ifdef	SIGXFSZ
 	set_sigval(SIGXFSZ, done);
+#endif
+#ifdef	SIGWAITING
+	set_sigval(SIGWAITING, 0);
+#endif
+#ifdef	SIGLWP
+	set_sigval(SIGLWP, 0);
+#endif
+#ifdef	SIGFREEZE
+	set_sigval(SIGFREEZE, 0);
+#endif
+#ifdef	SIGTHAW
+	set_sigval(SIGTHAW, 0);
 #endif
 
 #ifdef	SIGSTKFLT

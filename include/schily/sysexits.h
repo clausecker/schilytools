@@ -1,7 +1,7 @@
-/* @(#)sysexits.h	1.5 09/06/14 J. Schilling */
+/* @(#)sysexits.h	1.6 15/04/22 J. Schilling */
 /*
  *
- * Copyright (c) 2009 J. Schilling
+ * Copyright (c) 2009-2015 J. Schilling
  *
  * Copyright (c) 1987, 1993
  *	The Regents of the University of California.  All rights reserved.
@@ -42,7 +42,7 @@
 
 #ifdef	HAVE_SYSEXITS_H
 #include <sysexits.h>
-#else
+#endif	/* HAVE_SYSEXITS_H */
 
 /*
  *  SYSEXITS.H -- Exit status codes for system programs.
@@ -99,10 +99,17 @@
  *		perform the operation.  This is not intended for
  *		file system problems, which should use NOINPUT or
  *		CANTCREAT, but rather for higher level permissions.
+ *
+ * Haiku recently added an #ifdef _BSD_SOURCE around the definitions,
+ * so we may need to #define things even though we did include the
+ * system's sysexits.h.
  */
 
+#ifndef	EX_OK
 #define	EX_OK		0	/* successful termination */
+#endif
 
+#ifndef	EX__BASE
 #define	EX__BASE	64	/* base value for error messages */
 
 #define	EX_USAGE	64	/* command line usage error */
@@ -123,6 +130,6 @@
 
 #define	EX_NOTFOUND	79	/* entry not found */
 #define	EX__MAX		79	/* maximum listed value */
+#endif
 
-#endif	/* HAVE_SYSEXITS_H */
 #endif	/* !_SCHILY_SYSEXITS_H */

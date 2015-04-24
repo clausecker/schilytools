@@ -36,12 +36,12 @@
  * contributors.
  */
 /*
- * This file contains modifications Copyright 2006-2013 J. Schilling
+ * This file contains modifications Copyright 2006-2015 J. Schilling
  *
- * @(#)diff.c	1.39 13/07/22 J. Schilling
+ * @(#)diff.c	1.40 15/04/23 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)diff.c 1.39 13/07/22 J. Schilling"
+#pragma ident "@(#)diff.c 1.40 15/04/23 J. Schilling"
 #endif
 
 #if defined(sun)
@@ -2081,10 +2081,10 @@ calldiff(wantpr)
 		continue;
 	while (wait((int *)0) != (pid_t)-1)
 		continue;
-	if ((diffstatus&0177) != 0)
-		return (2);
+	if (WIFEXITED(diffstatus))
+		return (WEXITSTATUS(diffstatus));
 	else
-		return ((diffstatus>>8) & 0377);
+		return (2);
 }
 
 #ifdef	PROTOTYPES

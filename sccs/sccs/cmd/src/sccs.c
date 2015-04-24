@@ -25,10 +25,10 @@
 /*
  * Copyright 2006-2015 J. Schilling
  *
- * @(#)sccs.c	1.80 15/03/04 J. Schilling
+ * @(#)sccs.c	1.81 15/04/23 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)sccs.c 1.80 15/03/04 J. Schilling"
+#pragma ident "@(#)sccs.c 1.81 15/04/23 J. Schilling"
 #endif
 /*
  * @(#)sccs.c 1.85 06/12/12
@@ -1724,12 +1724,12 @@ callprog(progpath, flags, argv, forkflag)
 		{
 			while ((wpid = wait(&st)) != -1 && wpid != i)
 				;
-			if ((sigcode = st & 0377) == 0)
-				st = (st >> 8) & 0377;
+			if (WIFEXITED(st))
+				st = WEXITSTATUS(st);
 			else
 			{
-				coredumped = sigcode & 0200;
-				sigcode &= 0177;
+				coredumped = WCOREDUMP(st);
+				sigcode =  WTERMSIG(st);
 #ifdef	SIGPIPE
 				if (sigcode != SIGINT && sigcode != SIGPIPE)
 #else

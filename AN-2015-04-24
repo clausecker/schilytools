@@ -1,0 +1,122 @@
+New features with AN-2015-04-24:
+
+This is the first localization step for the schily source consolidation. Many
+programs now (hopefully) call gettext() for all strings that need localization.
+
+-	The next step will include dgettext() calls for the libraries and the
+	missing programs
+
+-	The following step will include the extracted strings
+
+-	The last step will include German translations and install support
+	for the resulting binary message object files.
+
+----------> Please test and report compilation problems! <---------
+
+***** NOTE: As mentioned since 2004, frontends to the tools should *****
+*****		call all programs in the "C" locale		   *****
+*****		by e.g. calling: LC_ALL=C cdrecord ....		   *****
+*****		unless these frontends support localized strings   *****
+*****		used by the cdrtools with NLS support.		   *****
+
+		*** WARNING        ***
+		*** Need new smake ***
+
+	*** Due to the fact that schily-tools 2014-04-03 introduced to use new macro
+	*** expansions and a related bug fix in smake, you need a new smake
+	*** to compile this source. To ensure this, call:
+
+	cd ./psmake
+	./MAKE-all
+	cd ..
+	psmake/smake
+	psmake/smake install
+
+
+	WARNING: the new version of the isoinfo program makes use of the 
+		*at() series of functions that have been introduced by Sun
+		in August 2001 and added to POSIX.1-2008. For older platforms,
+		libschily now includes emulations for these functions but
+		these emulations have not yet been tested thouroughly.
+		Please report problems!
+
+	The new smake version mentioned above is smake-1.2.4
+
+-	include/schily/sysexits.h adopts to the recent changes on Haiku that
+	prevent usual autoconf tests as #include <sysexits.h> works but symbols
+	are only defined with #define _BSD_SOURCE
+
+-	include/schily/wait.h now knows about the Haiku specific macro
+	WIFCORED() and #defines WCOREDUMP() to WIFCORED().
+
+-	The program isaexec(1) has been added to the software. The compilation
+	is not yet connected to the global list. If you like to compile isaexec,
+	you need to chdir into isaexec/ and call "smake".
+
+-	The programs cdrecord, star and cdda2wav adopt to the recent Haiku
+	changes with a randomized address space and now use B_EXACT_ADDRESS
+	instead of B_ANY_ADDRESS for the clone_area() call to get shared memory
+	for a FIFO.
+
+-	SCCS: sccs/man/Makefile was fixed again. It now still avoids a gmake
+	warning but no longer complains about a missing source for the target
+	"dummy".
+
+-	SCCS: sccs/sccs/lib/mpwlib/src/setsig.c no longer depends on the exact
+	numbers for signals in the range 1..15 for UNIX. As Haiku deviates from
+	UNIX starting with signal #5, this change was needed to prevent sccs
+	programs from dying from SIGCHLD.
+
+-	SCCS: sccs/sccs/cmd/src/bdiff.c now calls wait.h W*() macros for
+	portability to Haiku. Note that Haiku uses a different byte-order
+	in the status parameter of wait() than used on UNIX.
+
+-	SCCS: sccs/sccs/cmd/src/diff.c now calls wait.h W*() macros for
+	portability to Haiku.
+
+-	SCCS: sccs/sccs/cmd/src/delta.c now calls wait.h W*() macros for
+	portability to Haiku.
+
+-	SCCS: sccs/sccs/cmd/src/sccs.c now calls wait.h W*() macros for
+	portability to Haiku.
+
+-	Bourne Shell: sh/fault.c no longer depends on the exact numbers for
+	signals in the range 1..9 for UNIX. As Haiku deviates from UNIX
+	starting with signal #5, this change was needed to prevent the shell
+	from dying from SIGCHLD.
+
+-	ved/execcmds.c now calls wait.h W*() macros for
+	portability to Haiku.
+
+-	Bourne Shell: sh/io.c now also tries to symlink temp files. This was
+	needed as Haiku prevents usual autoconf tests for link() (the function
+	is present on Haiku but does not work), we need to check the return
+	code from link() and call symlink() if link() fails for errors other
+	then EEXIST.
+
+The Bourne Shell is now fully functional on Haiku. It works to use the Bourne 
+Shell for calling "configure" and:
+
+  CONFIG_SHELL=/boot/opt/schily/bin/sh /boot/opt/schily/bin/sh ./configure
+
+is aprox. 15-20% faster than bash.
+
+SCCS is now nearly fully functional on Haiku. The following problems stay:
+
+-	test suite calls uncompress(1) that is missing on Haiku 
+
+-	Some time stamp problems exist for times around 1960 in SCCS history files.
+
+
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.net, js@cs.tu-berlin.de
+	joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.
