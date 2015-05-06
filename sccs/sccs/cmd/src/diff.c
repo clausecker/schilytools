@@ -38,10 +38,10 @@
 /*
  * This file contains modifications Copyright 2006-2015 J. Schilling
  *
- * @(#)diff.c	1.40 15/04/23 J. Schilling
+ * @(#)diff.c	1.41 15/05/05 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)diff.c 1.40 15/04/23 J. Schilling"
+#pragma ident "@(#)diff.c 1.41 15/05/05 J. Schilling"
 #endif
 
 #if defined(sun)
@@ -1419,7 +1419,11 @@ dump_context_vec()
 		if (file2ok == 0)
 			b = 1;
 		(void) printf("@@ -%d,%d +%d,%d @@\n",
+		    lowa > upb ? upb : 		/* Needed for -U0 */
 		    lowa - a, upb - lowa + 1,
+#ifdef	__symmetric_low__			/* othogonal but wrong */
+		    lowc > upd ? upd :
+#endif
 		    lowc - b, upd - lowc + 1);
 	} else {
 		(void) printf("***************\n*** ");

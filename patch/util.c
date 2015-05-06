@@ -1,12 +1,12 @@
-/* @(#)util.c	1.21 11/11/07 2011 J. Schilling */
+/* @(#)util.c	1.22 15/04/30 2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)util.c	1.21 11/11/07 2011 J. Schilling";
+	"@(#)util.c	1.22 15/04/30 2011 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1986 Larry Wall
- *	Copyright (c) 2011 J. Schilling
+ *	Copyright (c) 2011-2015 J. Schilling
  *
  *	This program may be copied as long as you don't try to make any
  *	money off of it, or pretend that you wrote it.
@@ -47,7 +47,7 @@ move_file(from, to)
 				from);
 		}
 		while ((i = read(fromfd, buf, sizeof (buf))) > 0)
-			if (write(1, buf, i) != 1)
+			if (write(STDOUT_FILENO, buf, i) != 1)
 				fatal(_("patch: write failed\n"));
 		Close(fromfd);
 		return (0);
@@ -298,7 +298,7 @@ ask(fmt, va_alist)
 	va_list	args;
 	int	ttyfd;
 	int	r;
-	bool	tty2 = isatty(2);
+	bool	tty2 = isatty(STDERR_FILENO);
 
 #ifdef	PROTOTYPES
 	va_start(args, fmt);
@@ -312,22 +312,24 @@ ask(fmt, va_alist)
 #endif
 	va_end(args);
 	Fflush(stderr);
-	write(2, buf, strlen(buf));
+	write(STDERR_FILENO, buf, strlen(buf));
 	if (tty2) {			/* might be redirected to a file */
-		r = read(2, buf, sizeof (buf));
-	} else if (isatty(1)) {		/* this may be new file output */
+		r = read(STDERR_FILENO, buf, sizeof (buf));
+	} else if (isatty(STDOUT_FILENO)) {
+					/* this may be new file output */
 		Fflush(stdout);
-		write(1, buf, strlen(buf));
-		r = read(1, buf, sizeof (buf));
+		write(STDOUT_FILENO, buf, strlen(buf));
+		r = read(STDOUT_FILENO, buf, sizeof (buf));
 	} else if ((ttyfd = open("/dev/tty", 2)) >= 0 && isatty(ttyfd)) {
 					/* might be deleted or unwriteable */
 		write(ttyfd, buf, strlen(buf));
 		r = read(ttyfd, buf, sizeof (buf));
 		Close(ttyfd);
-	} else if (isatty(0)) {		/* this is probably patch input */
+	} else if (isatty(STDIN_FILENO)) {
+					/* this is probably patch input */
 		Fflush(stdin);
-		write(0, buf, strlen(buf));
-		r = read(0, buf, sizeof (buf));
+		write(STDIN_FILENO, buf, strlen(buf));
+		r = read(STDIN_FILENO, buf, sizeof (buf));
 	} else {			/* no terminal at all--default it */
 		buf[0] = '\n';
 		r = 1;
@@ -337,7 +339,7 @@ ask(fmt, va_alist)
 	else
 		buf[r] = '\0';
 	if (!tty2)
-		say(buf);
+		say("%s", buf);
 }
 
 /* How to handle certain events when not in a critical region. */

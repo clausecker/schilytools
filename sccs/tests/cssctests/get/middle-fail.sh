@@ -6,6 +6,13 @@
 # b exists.  In fact iot should carry on a check out a copy of c.
 
 . ../common/test-common
+
+# The test suite fails if you run it as root, particularly because
+# "test -w foo" returns 0 if you are root, even if foo is a readonly
+# file. We try to avoid this by calling the "wtest" function instead
+# of just "test".
+# Please don't run the test suite as root, because it may spuriously
+# fail.
 . ../common/not-root
 
 
@@ -69,7 +76,8 @@ docommand e3 "${vg_get} SCCS" 1 IGNORE IGNORE
 for i in a c 
 do
     docommand e4${i}1 "test -f $i" 0 "" ""
-    docommand e4${i}2 "test -w $i" 1 "" ""
+#    docommand e4${i}2 "test -w $i" 1 "" ""
+    docommand e4${i}2 "wtest -w $i" 1 "" ""
 done
 
 docommand e5 "test -w b" 0 "" ""

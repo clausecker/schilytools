@@ -5,6 +5,13 @@
 # causes the deletion of s.foo (instead, the file ./foo should be deleted).
 
 . ../common/test-common
+
+# The test suite fails if you run it as root, particularly because
+# "test -w foo" returns 0 if you are root, even if foo is a readonly
+# file. We try to avoid this by calling the "wtest" function instead
+# of just "test".
+# Please don't run the test suite as root, because it may spuriously
+# fail.
 . ../common/not-root
 
 
@@ -59,7 +66,8 @@ docommand d4 "${vg_sccs} unedit /tmp/sccstest.$$/SCCS/s.foo" 0 IGNORE IGNORE
 # This is the heart of the test; make sure sccs.c deleted the right file.
 # (the file should have been recreated as read-only).
 docommand d5 "test -r foo"   0 "" IGNORE
-docommand d5 "test -w foo"   1 "" IGNORE
+#docommand d5 "test -w foo"   1 "" IGNORE
+docommand d5 "wtest -w foo"   1 "" IGNORE
 
 # make sure we didn't delete the innocent bystander file s.foo.
 docommand d6 "test -f s.foo" 0 "" IGNORE

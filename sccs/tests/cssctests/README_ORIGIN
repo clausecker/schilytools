@@ -111,6 +111,18 @@ Past 2011, we added the following modifications in August 2014:
 					behave different vor SCCS v4 and v6.
 
 -	get/excl_ig_2.sh		Warns on a SCCSv6 bug with delta -gsid
+					This has been removed after
+					delta -gsid was made working in
+					February 2015
+
+We added the following modifications in April 2015:
+
+-	bsd-sccs/driver-basic.sh	The "test -w file" calls have been
+	bsd-sccs/sf595594.sh		replaced by "wtest -w file" calls.
+	bsd-sccs/delsfile.sh		"wtest" is a shell funtion that
+	get/writable.sh			uses ls -l | grep "^-r--r--r--" to
+	get/middle-fail.sh		check. Needed as recent Haiku only
+					allows to run commands as root.
 
 
 If you are interested in the original version of the test suite below this

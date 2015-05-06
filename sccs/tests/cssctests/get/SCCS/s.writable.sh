@@ -1,4 +1,8 @@
-h04040
+h45384
+s 00010/00002/00070
+d D 1.2 15/04/25 18:43:53 joerg 2 1
+c test -w -> wtest -w ... wtest ist eine Funktion mit ls -l | grep
+e
 s 00072/00000/00000
 d D 1.1 10/05/11 11:30:00 joerg 1 0
 c date and time created 10/05/11 11:30:00 by joerg
@@ -17,6 +21,14 @@
 . ../common/test-common
 
 # You cannot run the test suite as root.
+I 2
+# The test suite fails if you run it as root, particularly because
+# "test -w foo" returns 0 if you are root, even if foo is a readonly
+# file. We try to avoid this by calling the "wtest" function instead
+# of just "test".
+# Please don't run the test suite as root, because it may spuriously
+# fail.
+E 2
 . ../common/not-root
 
 remove command.log log log.stdout log.stderr
@@ -53,7 +65,13 @@ docommand W4 "${vg_get} s.$f" 0 "1.1\n0 lines\n" IGNORE
 
 # Make sure the file is read only.
 echo_nonl "W5..."
+D 2
 if test -w $f 
+E 2
+I 2
+#if test -w $f 
+if wtest -w $f 
+E 2
 then
     fail W5: "get s.$f created writable $f"
 fi
@@ -67,7 +85,13 @@ docommand W6 "${vg_get} -k s.$f" 0 "1.1\n0 lines\n" IGNORE
 
 # Make sure the file is read only.
 echo_nonl "W7..."
+D 2
 if test -w $f 
+E 2
+I 2
+#if test -w $f 
+if wtest -w $f 
+E 2
 then
     true
 else

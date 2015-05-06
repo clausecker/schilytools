@@ -1,14 +1,14 @@
-/* @(#)header.c	1.149 13/11/03 Copyright 1985, 1994-2013 J. Schilling */
+/* @(#)header.c	1.150 15/05/01 Copyright 1985, 1994-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)header.c	1.149 13/11/03 Copyright 1985, 1994-2013 J. Schilling";
+	"@(#)header.c	1.150 15/05/01 Copyright 1985, 1994-2015 J. Schilling";
 #endif
 /*
  *	Handling routines to read/write, parse/create
  *	archive headers
  *
- *	Copyright (c) 1985, 1994-2013 J. Schilling
+ *	Copyright (c) 1985, 1994-2015 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -1297,13 +1297,15 @@ info_to_star(info, ptb)
 	ptb->dbuf.t_magic[1] = 'a';
 	ptb->dbuf.t_magic[2] = 'r';
 	if (!numeric) {
-		ic_nameuid(ptb->dbuf.t_uname, STUNMLEN, info->f_uid);
+		char	opfx0 = ptb->dbuf.t_prefix[0];
+
+		ic_nameuid(ptb->dbuf.t_uname, STUNMLEN+1, info->f_uid);
 		/* XXX Korrektes overflowchecking */
 		if (ptb->dbuf.t_uname[STUNMLEN-1] != '\0' &&
 		    props.pr_flags & PR_XHDR) {
 			info->f_xflags |= XF_UNAME;
 		}
-		ic_namegid(ptb->dbuf.t_gname, STGNMLEN, info->f_gid);
+		ic_namegid(ptb->dbuf.t_gname, STGNMLEN+1, info->f_gid);
 		/* XXX Korrektes overflowchecking */
 		if (ptb->dbuf.t_gname[STGNMLEN-1] != '\0' &&
 		    props.pr_flags & PR_XHDR) {
@@ -1317,6 +1319,7 @@ info_to_star(info, ptb)
 			info->f_gname = ptb->dbuf.t_gname;
 			info->f_gmaxlen = STGNMLEN;
 		}
+		ptb->dbuf.t_prefix[0] = opfx0;	/* Overwritten by strlcpy() */
 	}
 
 	if (is_sparse(info) || is_multivol(info)) {

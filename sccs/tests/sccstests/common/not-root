@@ -35,5 +35,9 @@ rm -rf ${dstdir}
 
 if test $rootflag = TRUE
 then
-	 xfail "Please do not run the suite as root"
+	if [ ."${FORCE_ROOT}" = .true ]; then
+		:
+	else
+		xfail "Please do not run the suite as root"
+	fi
 fi

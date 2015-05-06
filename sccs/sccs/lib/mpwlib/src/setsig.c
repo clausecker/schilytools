@@ -27,10 +27,10 @@
 /*
  * This file contains modifications Copyright 2006-2015 J. Schilling
  *
- * @(#)setsig.c	1.9 15/04/23 J. Schilling
+ * @(#)setsig.c	1.10 15/05/02 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)setsig.c 1.9 15/04/23 J. Schilling"
+#pragma ident "@(#)setsig.c 1.10 15/05/02 J. Schilling"
 #endif
 /*
  * @(#)setsig.c 1.8 06/12/12
@@ -115,6 +115,14 @@ setsig()
 	register void (*n) __PR((int));
 
 	for (j = 0; Mesg[j].signo != 0; j++) {
+#ifdef	SETSIG_NO_SIGBUS
+		/*
+		 * Original behavior was not to catch SIGBUS.
+		 * #define SETSIG_NO_SIGBUS to get historic behavior.
+		 */
+		if (Mesg[j].signo == SIGBUS)
+			continue;
+#endif
 		if ((n = signal(Mesg[j].signo, setsig1)) != NULL)
 			signal(Mesg[j].signo, n);
 	}
@@ -154,6 +162,10 @@ int sig;
 		signal(sig, SIG_IGN);
 	(*f_clean_up)();
 	if(open(NOGETTEXT("dump.core"), O_RDONLY|O_BINARY) > 0) {
+		/*
+		 * If the file "dump.core" exists in the current directory and
+		 * is readable for us, dump the core via abort().
+		 */
 #ifdef	SIGIOT
 		signal(SIGIOT, SIG_DFL);
 #endif

@@ -1,7 +1,7 @@
-/* @(#)common.h	1.15 11/05/06 2011 J. Schilling */
+/* @(#)common.h	1.16 15/04/30 2011-2015 J. Schilling */
 /*
  *	Copyright (c) 1986, 1988 Larry Wall
- *	Copyright (c) 2011 J. Schilling
+ *	Copyright (c) 2011-2015 J. Schilling
  *
  *	This program may be copied as long as you don't try to make any
  *	money off of it, or pretend that you wrote it.
@@ -22,6 +22,7 @@
 #include <schily/ctype.h>
 #include <schily/signal.h>
 #include <schily/utypes.h>
+#include <schily/errno.h>
 #include <schily/nlsdefs.h>
 #ifndef	NO_SCHILY_PRINT
 #include <schily/schily.h>

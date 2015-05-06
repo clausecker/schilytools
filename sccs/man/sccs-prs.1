@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sccs-prs.1	1.22 15/01/21 Copyright 2007-2015 J. Schilling
+.\" @(#)sccs-prs.1	1.23 15/04/29 Copyright 2007-2015 J. Schilling
 .\" Copyright (c) 1999, Sun Microsystems, Inc.
 .\" CDDL HEADER START
 .\"
@@ -31,7 +31,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sccs-prs 1 "2015/01/21" "SunOS 5.11" "User Commands"
+.TH sccs-prs 1 "2015/04/29" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs-prs, prs \- display selected portions of an SCCS history
 .SH SYNOPSIS
@@ -435,6 +435,16 @@ history file, see
 .TP
 .B /tmp/pr?????
 temporary file
+
+.br
+.ne 3
+.TP
+.B dump.core
+If the file
+.B dump.core
+exists in the current directory and a fatal signal is received, a coredump
+is initiated via
+.BR abort (3).
 
 .SH ATTRIBUTES
 

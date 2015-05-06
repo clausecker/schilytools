@@ -1,8 +1,8 @@
-/* @(#)job.c	1.7 15/03/05 Copyright 1985, 87, 88, 91, 1995-2015 J. Schilling */
+/* @(#)job.c	1.8 15/04/25 Copyright 1985, 87, 88, 91, 1995-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)job.c	1.7 15/03/05 Copyright 1985, 87, 88, 91, 1995-2015 J. Schilling";
+	"@(#)job.c	1.8 15/04/25 Copyright 1985, 87, 88, 91, 1995-2015 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1985, 87, 88, 91, 1995-2015 by J. Schilling
@@ -479,8 +479,10 @@ cmd_wait(jobp)
 
 nowait:
 	if (Exit) {
-		errmsgno(Exit>>8, "*** Code %d from command line for target '%s'%s.\n",
-			Exit>>8,
+		int	excode = WEXITSTATUS(Exit);
+		errmsgno(excode,
+			"*** Code %d from command line for target '%s'%s.\n",
+			excode,
 			obj->o_name,
 			NoError?" (ignored)":"");
 		if (Silent && Debug <= 0) {

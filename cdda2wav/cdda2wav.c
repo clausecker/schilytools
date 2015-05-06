@@ -1,8 +1,8 @@
-/* @(#)cdda2wav.c	1.156 15/04/22 Copyright 1993-2004 Heiko Eissfeldt, Copyright 2004-2015 J. Schilling */
+/* @(#)cdda2wav.c	1.157 15/04/27 Copyright 1993-2004 Heiko Eissfeldt, Copyright 2004-2015 J. Schilling */
 #include "config.h"
 #ifndef lint
 static	UConst char sccsid[] =
-"@(#)cdda2wav.c	1.156 15/04/22 Copyright 1993-2004 Heiko Eissfeldt, Copyright 2004-2015 J. Schilling";
+"@(#)cdda2wav.c	1.157 15/04/27 Copyright 1993-2004 Heiko Eissfeldt, Copyright 2004-2015 J. Schilling";
 
 #endif
 #undef	DEBUG_BUFFER_ADDRESSES
@@ -3828,7 +3828,7 @@ main(argc, argv)
 				 * B_ANY_ADDRESS, but newer Haiku versions
 				 * implement address randomization that
 				 * prevents us from using the pointer in the
-				 * child. So we noe use B_EXACT_ADDRESS.
+				 * child. So we now use B_EXACT_ADDRESS.
 				 */
 				if (B_OK > clone_area("shm_child",
 				    &area_address, B_EXACT_ADDRESS,

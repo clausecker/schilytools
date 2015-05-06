@@ -1,4 +1,8 @@
-h26930
+h42249
+s 00005/00001/00038
+d D 1.2 15/04/25 19:50:21 joerg 2 1
+c FORCE_ROOT=true erlaubt einen Test als root
+e
 s 00039/00000/00000
 d D 1.1 11/05/28 12:31:44 joerg 1 0
 c date and time created 11/05/28 12:31:44 by joerg
@@ -47,6 +51,15 @@ rm -rf ${dstdir}
 
 if test $rootflag = TRUE
 then
+D 2
 	 xfail "Please do not run the suite as root"
+E 2
+I 2
+	if [ ."${FORCE_ROOT}" = .true ]; then
+		:
+	else
+		xfail "Please do not run the suite as root"
+	fi
+E 2
 fi
 E 1

@@ -1,12 +1,12 @@
-/* @(#)patch.c	1.20 11/09/06 2011 J. Schilling */
+/* @(#)patch.c	1.24 15/05/05 2011-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)patch.c	1.20 11/09/06 2011 J. Schilling";
+	"@(#)patch.c	1.24 15/05/05 2011-2015 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1984-1988 Larry Wall
- *	Copyright (c) 2011 J. Schilling
+ *	Copyright (c) 2011-2015 J. Schilling
  *
  *	This program may be copied as long as you don't try to make any
  *	money off of it, or pretend that you wrote it.
@@ -365,7 +365,7 @@ _("%d out of %d hunks failed--saving rejects to %s\n"),
 	 * Avoid to create a resulting virtual exit code of "0" in case of an
 	 * unfortunate failure counter.
 	 */
-	if (failtotal % 256 == 0)
+	if (failtotal > 0 && failtotal % 256 == 0)
 		failtotal--;
 	my_exit(failtotal);
 	/* NOTREACHED */
@@ -612,7 +612,7 @@ _("Argument to -D not an identifier.\n"));
 					HOST_CPU, HOST_VENDOR, HOST_OS);
 				printf(
 				_("Copyright (C) 1984 - 1988 Larry Wall\n"));
-				printf(_("Copyright (C) 2011 %s\n"),
+				printf(_("Copyright (C) 2011 - 2015 %s\n"),
 					_("Joerg Schilling"));
 				printf(
 _("This is free software; see the source for copying conditions.  There is NO\n"));
@@ -644,7 +644,7 @@ _("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n
 				_("patch: unrecognized option `%s'\n"), Argv[0]);
 				if (do_posix) {
 					fprintf(stderr, _("\
-Usage: patch [-blNR] [-c|-e|-n] [-d dir] [-D define] [-i patchfile]\n\
+Usage: patch [-blNR] [-c|-e|-n|-u] [-d dir] [-D define] [-i patchfile]\n\
              [-o outfile] [-p num] [-r rejectfile] [file]\n\
 "));
 				} else {
@@ -963,6 +963,13 @@ patch_match(base, offset, fuzz)
 	LINENUM pline = 1 + fuzz;
 	LINENUM iline;
 	LINENUM pat_lines = pch_ptrn_lines() - fuzz;
+
+	/*
+	 * If we never enter the for() loop, we cannot do any match attepmpt
+	 * and thus must assume a non-match.
+	 */
+	if (pline > pat_lines)
+		return (FALSE);
 
 	for (iline = base+offset+fuzz; pline <= pat_lines; pline++, iline++) {
 		if (canonicalize) {

@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sccs-prt.1	1.14 15/01/20 Copyright 2007-2015 J. Schilling
+.\" @(#)sccs-prt.1	1.15 15/04/29 Copyright 2007-2015 J. Schilling
 .\" CDDL HEADER START
 .\"
 .\" The contents of this file are subject to the terms of the
@@ -31,7 +31,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sccs-prt 1 "2015/01/20" "SunOS 5.11" "User Commands"
+.TH sccs-prt 1 "2015/04/29" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs-prt, prt \- display delta table information from an SCCS file
 .SH SYNOPSIS
@@ -475,6 +475,16 @@ An error occurred.
 .B SCCS
 history file, see
 .BR sccsfile (4).
+
+.br
+.ne 3
+.TP
+.B dump.core
+If the file
+.B dump.core
+exists in the current directory and a fatal signal is received, a coredump
+is initiated via
+.BR abort (3).
 
 .SH ATTRIBUTES
 

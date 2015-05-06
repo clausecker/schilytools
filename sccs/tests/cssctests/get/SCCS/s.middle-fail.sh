@@ -1,4 +1,8 @@
-h64823
+h41286
+s 00009/00001/00081
+d D 1.3 15/04/25 18:43:53 joerg 3 2
+c test -w -> wtest -w ... wtest ist eine Funktion mit ls -l | grep
+e
 s 00025/00000/00057
 d D 1.2 11/05/30 19:30:32 joerg 2 1
 c setup()/restore() neu um SCCS nach XSCCS und zurueck zu wandeln
@@ -22,6 +26,15 @@
 # b exists.  In fact iot should carry on a check out a copy of c.
 
 . ../common/test-common
+I 3
+
+# The test suite fails if you run it as root, particularly because
+# "test -w foo" returns 0 if you are root, even if foo is a readonly
+# file. We try to avoid this by calling the "wtest" function instead
+# of just "test".
+# Please don't run the test suite as root, because it may spuriously
+# fail.
+E 3
 . ../common/not-root
 
 
@@ -91,7 +104,13 @@ docommand e3 "${vg_get} SCCS" 1 IGNORE IGNORE
 for i in a c 
 do
     docommand e4${i}1 "test -f $i" 0 "" ""
+D 3
     docommand e4${i}2 "test -w $i" 1 "" ""
+E 3
+I 3
+#    docommand e4${i}2 "test -w $i" 1 "" ""
+    docommand e4${i}2 "wtest -w $i" 1 "" ""
+E 3
 done
 
 docommand e5 "test -w b" 0 "" ""

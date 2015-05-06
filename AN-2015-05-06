@@ -1,0 +1,127 @@
+New features with AN-2015-05-06:
+
+This is the first localization step for the schily source consolidation. Many
+programs now (hopefully) call gettext() for all strings that need localization.
+
+-	The next step will include dgettext() calls for the libraries and the
+	missing programs
+
+-	The following step will include the extracted strings
+
+-	The last step will include German translations and install support
+	for the resulting binary message object files.
+
+----------> Please test and report compilation problems! <---------
+
+***** NOTE: As mentioned since 2004, frontends to the tools should *****
+*****		call all programs in the "C" locale		   *****
+*****		by e.g. calling: LC_ALL=C cdrecord ....		   *****
+*****		unless these frontends support localized strings   *****
+*****		used by the cdrtools with NLS support.		   *****
+
+		*** WARNING        ***
+		*** Need new smake ***
+
+	*** Due to the fact that schily-tools 2014-04-03 introduced to use new macro
+	*** expansions and a related bug fix in smake, you need a new smake
+	*** to compile this source. To ensure this, call:
+
+	cd ./psmake
+	./MAKE-all
+	cd ..
+	psmake/smake
+	psmake/smake install
+
+
+	WARNING: the new version of the isoinfo program makes use of the 
+		*at() series of functions that have been introduced by Sun
+		in August 2001 and added to POSIX.1-2008. For older platforms,
+		libschily now includes emulations for these functions but
+		these emulations have not yet been tested thouroughly.
+		Please report problems!
+
+	The new smake version mentioned above is smake-1.2.4
+
+
+-	libschily/spawn.c:wait_chld() no longer returns 0 if the child process
+	was killed by a signal.
+
+-	libschily now adds some of the existing (old) man pages for various
+	functions from libschily.
+
+-	libfind/idcache.c now saves uname/gname as long as possible and uses
+	strlcpy() instead of strncpy().
+
+-	star now again stores up tp 16 bytes for uname in the old star
+	archive format - not null terminated in case all bytes are used.
+
+-	star -diff now correctly deals with the non null-terminated uname/gname
+	strings from the old star archive format.
+
+-	smake/job.c wait() now uses WEXITSTATUS(status) instead of Exit>>8
+
+-	Fixed a typo in a comment from cdda2wav
+
+-	patch now uses STD*_FILENO macros instead od 0, 1, 2.
+
+-	patch added a security fix say(buf) -> say("%s", buf) as buf is
+	text that was read from stdin before.
+
+-	patch no longer uses atol() to parse line numbers in patches as atol()
+	does not include a range overflow indication. A new function atolnum()
+	was written to replace atol().
+
+-	patch no longer tries to apply a patch to a place where no match
+	was found at all. This usually happens with patches without context
+	that need fuzzy matching. Previous patch versions tried fuzzy matching
+	and under some conditions returned a "match" even though the loop with
+	the match code was never entered.
+
+-	patch no longer exit()s with -1 by default. This was a bug introduced
+	when we where trying to avoid to cause wait() to report "exit code 0"
+	just because wait() (in contrary to waitid()) limits the  exit code to
+	8 bits and only the lower 8 bits have been 0.
+
+-	The patch usage output for the POSIX variant now mentions the -u
+	option.
+
+-	The patch man page now mentions all names: "patch", "spatch", "opatch"
+	and "sccspatch" and explains whether they behave like POSIX or like
+	an enhanced original patch program from Larry Wall.
+
+-	diff now returns correct line numbers for diff -U0 and inserted lines.
+	This fixes a Solaris diff bug that is a result of a bug in the
+	POSIX standard. Note that this bug affected patch(1) but not SCCS delta.
+
+-	The SCCS test suite now tries to implement a workaround for the fact
+	that "test -w file" does not work as expected for root. This is needed
+	as Haiku currently does not allow to run any command for a non-root
+	user.
+
+-	The SCCS test suite now is clever enough to call gzip -d if uncompress
+	is not installed on the test platform. This is needed on Haiku that
+	by default does not include uncompress(1).
+
+-	The SCCS manpages now mention that the existence of a file "dump.core" may
+	tell the programs to cump core if certain signals have been delivered.
+	These programs usually don't dump core and thus make debugging harder.
+
+
+SCCS is now nearly fully functional on Haiku. The following problem stays:
+
+-	Some time stamp problems exist for times around 1960 in SCCS history files.
+	This seems to be a bug in localtime() on Haiku that causes an off by
+	1 second error in the time_t result.
+
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.net, js@cs.tu-berlin.de
+	joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

@@ -5,6 +5,12 @@
 . ../common/test-common
 
 # You cannot run the test suite as root.
+# The test suite fails if you run it as root, particularly because
+# "test -w foo" returns 0 if you are root, even if foo is a readonly
+# file. We try to avoid this by calling the "wtest" function instead
+# of just "test".
+# Please don't run the test suite as root, because it may spuriously
+# fail.
 . ../common/not-root
 
 remove command.log log log.stdout log.stderr
@@ -41,7 +47,8 @@ docommand W4 "${vg_get} s.$f" 0 "1.1\n0 lines\n" IGNORE
 
 # Make sure the file is read only.
 echo_nonl "W5..."
-if test -w $f 
+#if test -w $f 
+if wtest -w $f 
 then
     fail W5: "get s.$f created writable $f"
 fi
@@ -55,7 +62,8 @@ docommand W6 "${vg_get} -k s.$f" 0 "1.1\n0 lines\n" IGNORE
 
 # Make sure the file is read only.
 echo_nonl "W7..."
-if test -w $f 
+#if test -w $f 
+if wtest -w $f 
 then
     true
 else

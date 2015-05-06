@@ -1,0 +1,103 @@
+. \"  Manual Seite fuer getallargs
+. \" @(#)getallargs.3	1.1
+. \"
+.if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
+.if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
+.if t .ds u \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'u
+.if t .ds A \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'A
+.if t .ds O \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'O
+.if t .ds U \v'-0.77m'\h'0.30n'\z.\h'0.45n'\z.\v'0.77m'\h'-.75n'U
+.if t .ds s \(*b
+.if t .ds S SS
+.if n .ds a ae
+.if n .ds o oe
+.if n .ds u ue
+.if n .ds s sz
+.TH GETALLARGS 3 "15. Juli 1988" "J\*org Schilling" "Schily\'s LIBRARY FUNCTIONS"
+.SH NAME
+getallargs() \- parses all the flag-type arguments
+.SH SYNOPSIS
+.nf
+.B
+int getallargs(pac,pav,fmt,a1,\|.\|.\|.,an)
+.B
+	int *pac;       /* pointer to arg count */
+.B
+	char *(*pav)[]; /* pointer to address of arg vector */
+.B
+	char *fmt;      /* format string */
+.B
+	type *a1;       /* pointer to result 1 */
+.B
+                        /* (corresponding to the */
+.B
+                        /* first descriptor in fmt) */
+.B
+	type *an;       /* pointer to result n */
+.B
+                        /* (corresponding to the */
+.B
+                        /* nth descriptor in fmt) */
+.fi
+.SH DESCRIPTION
+getallargs() parses all flag arguments (anywhere on the line).
+It does not return until all the arguments have been parsed
+correctly (returning 0), or an error has occurred (returning <
+0).
+.PP
+See getargs() for a more detailed description of the parameter
+matching.
+.SH RETURNS
+.TP
+.B 0
+successfully examined all arguments.
+.TP
+.B \-1
+a bad flag argument was supplied to the program.
+The *pav contains the offending switch.
+.TP
+.B \-2
+a bad descriptor string.
+The program, rather than the user, was in error.
+
+.SH EXAMPLES
+
+.SH "SEE ALSO"
+
+.SH NOTES
+getallargs() must be called with the address of a count of items
+in the vector and the address of a pointer to the vector. Both
+addresses must already have been properly treated in order to
+skip over the first parameter which is the name of the program.
+[e.g. \--ac; ++av].
+.PP
+Since getallargs() will destroy these values, copies should be
+made for later use in the program. If an error occurs, av[0]
+points to the unmatched argument.
+.PP
+The special argument, "--", is ignored, but the following
+argument in the command line is treated as a literal filename
+argument. This way, filenames beginning with "-", "+", or
+containing "=" can be passed to the routine.
+
+.SH BUGS
+none
+
+.SH AUTHOR
+.nf
+J\*org Schilling
+Seestr. 110
+D\-13353 Berlin
+Germany
+.fi
+.PP
+Mail bugs and suggestions to:
+.PP
+.B
+schilling@fokus.gmd.de
+or
+.B
+js@cs.tu\-berlin.de
+or
+.B
+joerg@schily.isdn.cs.tu\-berlin.de

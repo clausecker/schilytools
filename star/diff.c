@@ -1,14 +1,14 @@
-/* @(#)diff.c	1.88 13/11/05 Copyright 1993-2013 J. Schilling */
+/* @(#)diff.c	1.89 15/05/01 Copyright 1993-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)diff.c	1.88 13/11/05 Copyright 1993-2013 J. Schilling";
+	"@(#)diff.c	1.89 15/05/01 Copyright 1993-2015 J. Schilling";
 #endif
 /*
  *	List differences between a (tape) archive and
  *	the filesystem
  *
- *	Copyright (c) 1993-2013 J. Schilling
+ *	Copyright (c) 1993-2015 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -241,12 +241,17 @@ diff_tcb(info)
 	if ((diffopts & D_GID) && info->f_gid != finfo.f_gid) {
 		diffs |= D_GID;
 	}
+
+	/*
+	 * Note that uname/gname in the old star header are not always
+	 * null terminated.
+	 */
 	if ((diffopts & D_UNAME) && info->f_uname && finfo.f_uname) {
-		if (!streql(info->f_uname, finfo.f_uname))
+		if (strncmp(info->f_uname, finfo.f_uname, info->f_umaxlen))
 			diffs |= D_UNAME;
 	}
 	if ((diffopts & D_GNAME) && info->f_gname && finfo.f_gname) {
-		if (!streql(info->f_gname, finfo.f_gname))
+		if (strncmp(info->f_gname, finfo.f_gname, info->f_gmaxlen))
 			diffs |= D_GNAME;
 	}
 

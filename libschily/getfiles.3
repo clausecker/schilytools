@@ -1,0 +1,80 @@
+. \"  Manual Seite fuer getfiles
+. \" @(#)getfiles.3	1.1
+. \"
+.if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
+.if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
+.if t .ds u \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'u
+.if t .ds A \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'A
+.if t .ds O \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'O
+.if t .ds U \v'-0.77m'\h'0.30n'\z.\h'0.45n'\z.\v'0.77m'\h'-.75n'U
+.if t .ds s \(*b
+.if t .ds S SS
+.if n .ds a ae
+.if n .ds o oe
+.if n .ds u ue
+.if n .ds s sz
+.TH GETFILES 3 "15. Juli 1988" "J\*org Schilling" "Schily\'s LIBRARY FUNCTIONS"
+.SH NAME
+getfiles() \- gets next non flag-type argument
+.SH SYNOPSIS
+.nf
+.B
+int getfiles(pac,pav,fmt)
+.B
+	int *pac;       /* pointer to arg count */
+.B
+	char *(*pav)[]; /* pointer to address of arg vector */
+.B
+	char *fmt;      /* format string */
+.fi
+.SH DESCRIPTION
+getfiles() returns, with a value of +1, whenever a non-flag type
+argument is encountered. Flag-type arguments, along with their
+values, are ignored. The filename is at *pav[0]. The caller
+must increment *pav and decrement *pac before calling getfiles()
+again.
+.SH RETURNS
+.TP
+.B \-2
+error in format string.
+.TP
+.B \-1
+parameter error.
+.TP
+.B 0
+no more file arguments.
+.TP
+.B 1
+no more flag-type arguments.
+
+.SH EXAMPLES
+
+.SH "SEE ALSO"
+
+.SH NOTES
+Initially, *pav must point to the first argument (not the
+program name) and *pac must not count the program name. Before
+calling getfiles() again, decrement *pac and increment *pav, or
+the same name will be pointed to by *pav.
+
+.SH BUGS
+none
+
+.SH AUTHOR
+.nf
+J\*org Schilling
+Seestr. 110
+D\-13353 Berlin
+Germany
+.fi
+.PP
+Mail bugs and suggestions to:
+.PP
+.B
+schilling@fokus.gmd.de
+or
+.B
+js@cs.tu\-berlin.de
+or
+.B
+joerg@schily.isdn.cs.tu\-berlin.de

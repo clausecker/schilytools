@@ -1,13 +1,13 @@
-/* @(#)pch.c	1.16 11/05/22 2011 J. Schilling */
+/* @(#)pch.c	1.17 15/05/02 2011-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)pch.c	1.16 11/05/22 2011 J. Schilling";
+	"@(#)pch.c	1.17 15/05/02 2011-2015 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1986-1988 Larry Wall
  *	Copyright (c) 1990 Wayne Davison
- *	Copyright (c) 2011 J. Schilling
+ *	Copyright (c) 2011-2015 J. Schilling
  *
  *	This program may be copied as long as you don't try to make any
  *	money off of it, or pretend that you wrote it.
@@ -51,6 +51,7 @@ static	void	next_intuit_at __PR((LINENUM file_pos, LINENUM file_line));
 static	void	skip_to __PR((off_t file_pos, off_t file_line));
 static	void	malformed __PR((void));
 static	char	*pgets __PR((char *bf, int sz, FILE *fp));
+static	LINENUM	atolnum __PR((char *s));
 
 /* Prepare to look for the next patch in the patch file. */
 
@@ -128,6 +129,7 @@ grow_hunkmax()
 	}
 	if (!using_plan_a)
 		fatal(_("patch: out of memory (grow_hunkmax)\n"));
+
 	out_of_mem = TRUE;	/* whatever is null will be allocated again */
 				/* from within plan_a(), of all places */
 }
@@ -302,7 +304,7 @@ intuit_diff_type()
 		}
 		if ((!diff_type || diff_type == UNI_DIFF) &&
 		    strnEQ(s, "@@ -", 4)) {
-			if (!atol(s+3))
+			if (!atolnum(s+3))
 				ok_to_create_file = TRUE;
 			p_indent = indent;
 			p_start = this_line;
@@ -314,7 +316,7 @@ intuit_diff_type()
 		if ((!diff_type || diff_type == CONTEXT_DIFF) &&
 		    stars_last_line &&
 		    strnEQ(s, "*** ", 4)) {
-			if (!atol(s+4))
+			if (!atolnum(s+4))
 				ok_to_create_file = TRUE;
 			/* if this is a new context diff the character just */
 			/* before the newline is a '*'. */
@@ -558,7 +560,7 @@ _("Unexpected end of hunk at line %lld.\n"),
 					malformed();
 				if (strnEQ(s, "0,0", 3))
 					strcpy(s, s+2);
-				p_first = (LINENUM) atol(s);
+				p_first = atolnum(s);
 				while (isdigit(*s))
 					s++;
 				if (*s == ',') {
@@ -568,7 +570,7 @@ _("Unexpected end of hunk at line %lld.\n"),
 					}
 					if (!*s)
 						malformed();
-					p_ptrn_lines = ((LINENUM)atol(s)) -
+					p_ptrn_lines = atolnum(s) -
 								p_first + 1;
 				} else if (p_first) {
 					p_ptrn_lines = 1;
@@ -629,7 +631,7 @@ _("%s \"---\" at line %lld--check line numbers at line %lld.\n"),
 					}
 					if (!*s)
 						malformed();
-					p_newfirst = (LINENUM) atol(s);
+					p_newfirst = atolnum(s);
 					while (isdigit(*s))
 						s++;
 					if (*s == ',') {
@@ -639,7 +641,7 @@ _("%s \"---\" at line %lld--check line numbers at line %lld.\n"),
 						}
 						if (!*s)
 							malformed();
-						p_repl_lines = ((LINENUM)atol(s)) - p_newfirst + 1;
+						p_repl_lines = atolnum(s) - p_newfirst + 1;
 					} else if (p_newfirst) {
 						p_repl_lines = 1;
 					} else {
@@ -826,11 +828,11 @@ _("Replacement text or line numbers mangled in hunk at line %lld\n"),
 		s = buf+4;
 		if (!*s)
 			malformed();
-		p_first = (LINENUM) atol(s);
+		p_first = atolnum(s);
 		while (isdigit(*s))
 			s++;
 		if (*s == ',') {
-			p_ptrn_lines = (LINENUM) atol(++s);
+			p_ptrn_lines = atolnum(++s);
 			while (isdigit(*s))
 				s++;
 		} else {
@@ -840,11 +842,11 @@ _("Replacement text or line numbers mangled in hunk at line %lld\n"),
 			s++;
 		if (*s != '+' || !*++s)
 			malformed();
-		p_newfirst = (LINENUM) atol(s);
+		p_newfirst = atolnum(s);
 		while (isdigit(*s))
 			s++;
 		if (*s == ',') {
-			p_repl_lines = (LINENUM) atol(++s);
+			p_repl_lines = atolnum(++s);
 			while (isdigit(*s)) s++;
 		} else {
 			p_repl_lines = 1;
@@ -976,13 +978,13 @@ _("Unexpected end of file in patch.\n"));
 			next_intuit_at(line_beginning, p_input_line);
 			return (FALSE);
 		}
-		p_first = (LINENUM)atol(buf);
+		p_first = atolnum(buf);
 		for (s = buf; isdigit(*s); s++) {
 			;
 			/* LINTED */
 		}
 		if (*s == ',') {
-			p_ptrn_lines = (LINENUM)atol(++s) - p_first + 1;
+			p_ptrn_lines = atolnum(++s) - p_first + 1;
 			while (isdigit(*s))
 				s++;
 		} else {
@@ -991,13 +993,13 @@ _("Unexpected end of file in patch.\n"));
 		hunk_type = *s;
 		if (hunk_type == 'a')
 			p_first++;	/* do append rather than insert */
-		min = (LINENUM)atol(++s);
+		min = atolnum(++s);
 		for (; isdigit(*s); s++) {
 			;
 			/* LINTED */
 		}
 		if (*s == ',')
-			max = (LINENUM)atol(++s);
+			max = atolnum(++s);
 		else
 			max = min;
 		if (hunk_type == 'd')
@@ -1374,4 +1376,41 @@ do_ed_script()
 		chmod(outname, filemode);
 	}
 	set_signals(1);
+}
+
+static LINENUM
+atolnum(s)
+	char	*s;
+{
+	char	*os;
+	LINENUM	l = 0;
+	LINENUM	multmax;
+	LINENUM	lmax;
+	int	c;
+	int	neg = 0;
+
+	lmax = TYPE_MAXVAL(LINENUM);
+	multmax = TYPE_MAXVAL(LINENUM) / 10;
+
+	if (*s == '-') {
+		neg++;
+		s++;
+	} else if (*s == '+')
+		s++;
+
+	os = s;
+	while ((c = *s++) != '\0') {
+		if (c < '0' || c > '9')
+			break;
+		if (l > multmax)
+			malformed();
+		l *= 10;
+		c -= '0';
+		if (c > (lmax - l))
+			malformed();
+		l += c;
+	}
+	if (s == ++os)
+		malformed();
+	return (neg? -l:l);
 }

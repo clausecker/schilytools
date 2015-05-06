@@ -1,4 +1,8 @@
-h59216
+h37804
+s 00012/00000/00119
+d D 1.5 15/04/26 10:45:42 joerg 5 4
+c wtest Funktion neu
+e
 s 00002/00000/00117
 d D 1.4 14/09/15 22:46:51 joerg 4 3
 c get/excl_ig_2.sh SCCSv6 delta -g Bug Warnung neu
@@ -159,10 +163,28 @@ Past 2011, we added the following modifications in August 2014:
 
 I 4
 -	get/excl_ig_2.sh		Warns on a SCCSv6 bug with delta -gsid
+I 5
+					This has been removed after
+					delta -gsid was made working in
+					February 2015
+E 5
 E 4
 
+I 5
+We added the following modifications in April 2015:
+E 5
 I 4
 
+I 5
+-	bsd-sccs/driver-basic.sh	The "test -w file" calls have been
+	bsd-sccs/sf595594.sh		replaced by "wtest -w file" calls.
+	bsd-sccs/delsfile.sh		"wtest" is a shell funtion that
+	get/writable.sh			uses ls -l | grep "^-r--r--r--" to
+	get/middle-fail.sh		check. Needed as recent Haiku only
+					allows to run commands as root.
+
+
+E 5
 E 4
 E 3
 D 2

@@ -1,7 +1,7 @@
 .rn '' }`
 ''' $Header: patch.man,v 2.0.1.2 88/06/22 20:47:18 lwall Locked $
 . \"
-. \" @(#)patch.1	1.11 11/05/07 Copyr 2011 J. Schilling
+. \" @(#)patch.1	1.12 15/05/04 Copyr 2011-2015 J. Schilling
 . \"  Manual page for patch
 . \"
 ''' 
@@ -83,11 +83,29 @@
 .ds L' `
 .ds R' '
 'br\}
-.TH PATCH 1 "2011/05/07"
+.TH PATCH 1 "2015/05/04"
 .SH NAME
 patch - a program for applying a diff file to an original
 .SH SYNOPSIS
 .B patch
+.I [options]
+.I orig
+.I patchfile
+.I "[+ [options] orig]
+.sp
+.B spatch
+.I [options]
+.I orig
+.I patchfile
+.I "[+ [options] orig]
+.sp
+.B opatch
+.I [options]
+.I orig
+.I patchfile
+.I "[+ [options] orig]
+.sp
+.B sccspatch
 .I [options]
 .I orig
 .I patchfile
@@ -117,6 +135,23 @@ switch.
 If
 .I patchfile
 is omitted, or is a hyphen, the patch will be read from standard input.
+.PP
+If called as
+.B patch
+or
+.BR spatch ,
+.B patch
+behaves
+.B POSIX
+compliant and does not permit extensions.
+If called as
+.B opatch
+or
+.BR sccspatch ,
+.B patch
+behaves similar to an original
+.B patch
+with additional features.
 .PP
 Upon startup, patch will attempt to determine the type of the diff listing,
 unless over-ruled by a

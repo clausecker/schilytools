@@ -1,13 +1,13 @@
-/* @(#)idcache.c	1.29 09/11/16 Copyright 1993, 1995-2009 J. Schilling */
+/* @(#)idcache.c	1.30 15/05/01 Copyright 1993, 1995-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)idcache.c	1.29 09/11/16 Copyright 1993, 1995-2009 J. Schilling";
+	"@(#)idcache.c	1.30 15/05/01 Copyright 1993, 1995-2015 J. Schilling";
 #endif
 /*
  *	UID/GID caching functions
  *
- *	Copyright (c) 1993, 1995-2009 J. Schilling
+ *	Copyright (c) 1993, 1995-2015 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -16,6 +16,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -32,7 +34,7 @@ static	UConst char sccsid[] =
 #define	TUNMLEN	32			/* Max. UID name len (POSIX)	*/
 #define	TGNMLEN	32			/* Max. GID name len (POSIX)	*/
 
-#define	C_SIZE	16			/* Cache size (cachee is static) */
+#define	C_SIZE	16			/* Cache size (cache is static) */
 
 typedef struct u_id {
 	uid_t	uid;
@@ -95,17 +97,11 @@ ic_nameuid(name, namelen, uid)
 	idp->uid = uid;
 	idp->name[0] = '\0';
 	idp->valid = 1;
-	if ((pw = getpwuid(uid)) != NULL) {
-		strncpy(idp->name, pw->pw_name, TUNMLEN);
-		idp->name[TUNMLEN] = '\0';
-		/*
-		 * XXX We should find a better method than shortening the cache
-		 */
-		if (namelen <= (TUNMLEN+1))
-			idp->name[namelen-1] = 0;
-	}
+	if ((pw = getpwuid(uid)) != NULL)
+		strlcpy(idp->name, pw->pw_name, sizeof (idp->name));
+
 out:
-	strcpy(name, idp->name);
+	strlcpy(name, idp->name, namelen);
 	return (name[0] != '\0');
 }
 
@@ -147,8 +143,7 @@ ic_uidname(name, namelen, uidp)
 
 	idp->uid = 0;
 	idp->name[0] = '\0';
-	strncpy(idp->name, name, len);
-	idp->name[len] = '\0';
+	strlcpy(idp->name, name, len+1);	/* uidc_t.name is TUNMLEN+1 */
 	idp->valid = 1;
 	if ((pw = getpwnam(idp->name)) != NULL) {
 		idp->uid = pw->pw_uid;
@@ -192,17 +187,11 @@ ic_namegid(name, namelen, gid)
 	idp->gid = gid;
 	idp->name[0] = '\0';
 	idp->valid = 1;
-	if ((gr = getgrgid(gid)) != NULL) {
-		strncpy(idp->name, gr->gr_name, TGNMLEN);
-		idp->name[TGNMLEN] = '\0';
-		/*
-		 * XXX We should find a better method than shortening the cache
-		 */
-		if (namelen <= (TGNMLEN+1))
-			idp->name[namelen-1] = 0;
-	}
+	if ((gr = getgrgid(gid)) != NULL)
+		strlcpy(idp->name, gr->gr_name, sizeof (idp->name));
+
 out:
-	strcpy(name, idp->name);
+	strlcpy(name, idp->name, namelen);
 	return (name[0] != '\0');
 }
 
@@ -244,8 +233,7 @@ ic_gidname(name, namelen, gidp)
 
 	idp->gid = 0;
 	idp->name[0] = '\0';
-	strncpy(idp->name, name, len);
-	idp->name[len] = '\0';
+	strlcpy(idp->name, name, len+1);	/* gidc_t.name is TGNMLEN+1 */
 	idp->valid = 1;
 	if ((gr = getgrnam(idp->name)) != NULL) {
 		idp->gid = gr->gr_gid;

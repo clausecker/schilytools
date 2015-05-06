@@ -1,8 +1,8 @@
-/* @(#)spawn.c	1.28 10/10/21 Copyright 1985, 1989, 1995-2010 J. Schilling */
+/* @(#)spawn.c	1.29 15/04/25 Copyright 1985, 1989, 1995-2015 J. Schilling */
 /*
  *	Spawn another process/ wait for child process
  *
- *	Copyright (c) 1985, 1989, 1995-2010 J. Schilling
+ *	Copyright (c) 1985, 1989, 1995-2015 J. Schilling
  *
  *	This is an interface that exists in the public since 1982.
  *	The POSIX.1-2008 standard did ignore POSIX rules not to
@@ -16,6 +16,8 @@
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -216,6 +218,8 @@ wait_chld(pid)
 	if (WCOREDUMP(status))
 		unlink("core");
 
-	return (WEXITSTATUS(status));
+	if (WIFEXITED(status))
+		return (WEXITSTATUS(status));
+	return (-WTERMSIG(status));
 }
 #endif	/* __DO__FSPAWNL__ */

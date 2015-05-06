@@ -1,4 +1,8 @@
-h54656
+h41191
+s 00013/00008/00259
+d D 1.3 15/04/25 18:43:53 joerg 3 2
+c test -w -> wtest -w ... wtest ist eine Funktion mit ls -l | grep
+e
 s 00029/00002/00238
 d D 1.2 11/05/30 19:30:32 joerg 2 1
 c setup()/restore() neu um SCCS nach XSCCS und zurueck zu wandeln
@@ -23,10 +27,19 @@
 
 # The test suite fails if you run it as root, particularly because
 # "test -w foo" returns 0 if you are root, even if foo is a readonly
+D 3
 # file.
 # So please don't run the test suite as root, because it will spuriously
+E 3
+I 3
+# file. We try to avoid this by calling the "wtest" function instead
+# of just "test".
+# Please don't run the test suite as root, because it may spuriously
+E 3
 # fail.
+D 3
 true 
+E 3
 . ../common/not-root
 
 I 2
@@ -135,7 +148,13 @@ docommand b4 "${vg_sccs} deledit -y'' $s" IGNORE \
  "1.3\n1 inserted\n0 deleted\n2 unchanged\n1.3\nnew delta 1.4\n" \
  IGNORE
 # g-file should now exist and be writable.
+D 3
 docommand b5 "test -w $g" 0 "" ""
+E 3
+I 3
+#docommand b5 "test -w $g" 0 "" ""
+docommand b5 "wtest -w $g" 0 "" ""
+E 3
 
 
 echo '%A%' >>$g
@@ -143,7 +162,13 @@ docommand b6 "${vg_sccs} delget -y'' $s" 0 \
  "1.4\n1 inserted\n0 deleted\n3 unchanged\n1.4\n4 lines\n" \
  IGNORE
 # g-file should now exist but not be writable.
+D 3
 docommand b7 "test -w $g" 1 "" ""
+E 3
+I 3
+#docommand b7 "test -w $g" 1 "" ""
+docommand b7 "wtest -w $g" 1 "" ""
+E 3
 docommand b8 "test -f $g" 0 "" ""
 
 
@@ -201,13 +226,27 @@ docommand g1 "${vg_sccs} edit SCCS/s.foo" 0 \
 # Make sure foo and tfile exist but only foo is writable.
 docommand g2 "test -f foo"   0 "" ""
 docommand g3 "test -f tfile" 0 "" ""
+D 3
 docommand g4 "test -w foo"   0 "" ""
 docommand g5 "test -w tfile" 1 "" ""
+E 3
+I 3
+#docommand g4 "test -w foo"   0 "" ""
+#docommand g5 "test -w tfile" 1 "" ""
+docommand g4 "wtest -w foo"   0 "" ""
+docommand g5 "wtest -w tfile" 1 "" ""
+E 3
 docommand g6 "${vg_sccs} clean" 0 IGNORE ""
 # Make sure tfile is now gone and foo is not.
 docommand g7 "test -f tfile" 1 "" ""
 docommand g8 "test -f foo"   0 "" ""
+D 3
 docommand g9 "test -w foo"   0 "" ""
+E 3
+I 3
+#docommand g9 "test -w foo"   0 "" ""
+docommand g9 "wtest -w foo"   0 "" ""
+E 3
 
 #
 # unedit 

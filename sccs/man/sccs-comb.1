@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sccs-comb.1	1.13 15/01/19 Copyright 2007-2015 J. Schilling
+.\" @(#)sccs-comb.1	1.14 15/04/29 Copyright 2007-2015 J. Schilling
 .\" CDDL HEADER START
 .\"
 .\" The contents of this file are subject to the terms of the
@@ -31,7 +31,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sccs-comb 1 "2015/01/19" "SunOS 5.11" "User Commands"
+.TH sccs-comb 1 "2015/04/29" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs-comb, comb \- combine SCCS deltas
 .SH SYNOPSIS
@@ -222,6 +222,16 @@ file
 .TP
 .B comb?????
 temporary file
+
+.br
+.ne 3
+.TP
+.B dump.core
+If the file
+.B dump.core
+exists in the current directory and a fatal signal is received, a coredump
+is initiated via
+.BR abort (3).
 
 .SH ATTRIBUTES
 

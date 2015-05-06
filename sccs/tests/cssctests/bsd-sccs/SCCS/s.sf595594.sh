@@ -1,4 +1,8 @@
-h62065
+h49344
+s 00013/00003/00096
+d D 1.4 15/04/25 18:43:53 joerg 4 3
+c test -w -> wtest -w ... wtest ist eine Funktion mit ls -l | grep
+e
 s 00001/00001/00098
 d D 1.3 15/01/28 20:07:29 joerg 3 2
 c setup vor cleanup rufen, damit rmdir: directory "SCCS": Directory not empty nicht kommt
@@ -26,6 +30,15 @@
 # b exists.  In fact it should carry on a check out a copy of c.
 
 . ../common/test-common
+I 4
+
+# The test suite fails if you run it as root, particularly because
+# "test -w foo" returns 0 if you are root, even if foo is a readonly
+# file. We try to avoid this by calling the "wtest" function instead
+# of just "test".
+# Please don't run the test suite as root, because it may spuriously
+# fail.
+E 4
 . ../common/not-root
 
 
@@ -106,7 +119,13 @@ done
 
 
 docommand e1 "${sccs} edit b" 0 IGNORE IGNORE
+D 4
 docommand e2 "test -w b" 0 "" ""
+E 4
+I 4
+#docommand e2 "test -w b" 0 "" ""
+docommand e2 "wtest -w b" 0 "" ""
+E 4
 docommand e3 "${vg_sccs} get SCCS" 1 IGNORE IGNORE
 
 # At this point, a read-only copy of a and c should exist.
@@ -115,10 +134,22 @@ docommand e3 "${vg_sccs} get SCCS" 1 IGNORE IGNORE
 for i in a c 
 do
     docommand e4${i}1 "test -f $i" 0 "" ""
+D 4
     docommand e4${i}2 "test -w $i" 1 "" ""
+E 4
+I 4
+#    docommand e4${i}2 "test -w $i" 1 "" ""
+    docommand e4${i}2 "wtest -w $i" 1 "" ""
+E 4
 done
 
+D 4
 docommand e5 "test -w b" 0 "" ""
+E 4
+I 4
+#docommand e5 "test -w b" 0 "" ""
+docommand e5 "wtest -w b" 0 "" ""
+E 4
 
 cleanup
 I 2

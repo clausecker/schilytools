@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sccs-admin.1	1.44 15/03/10 Copyright 2007-2015 J. Schilling
+.\" @(#)sccs-admin.1	1.45 15/04/29 Copyright 2007-2015 J. Schilling
 .\"  Copyright (c) 2002, Sun Microsystems, Inc. All Rights Reserved.
 .\" CDDL HEADER START
 .\"
@@ -31,7 +31,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sccs-admin 1 "2015/03/10" "SunOS 5.11" "User Commands"
+.TH sccs-admin 1 "2015/04/29" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs-admin, admin \- create and administer SCCS history files
 .SH SYNOPSIS
@@ -1063,6 +1063,16 @@ after completion.
 .BI z. file
 temporary lock file contains the binary process id in host byte order
 followed by the host name
+
+.br
+.ne 3
+.TP
+.B dump.core
+If the file
+.B dump.core
+exists in the current directory and a fatal signal is received, a coredump
+is initiated via
+.BR abort (3).
 
 .SH ATTRIBUTES
 .sp

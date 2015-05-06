@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sccs-get.1	1.36 15/03/11 Copyright 2007-2015 J. Schilling
+.\" @(#)sccs-get.1	1.37 15/04/29 Copyright 2007-2015 J. Schilling
 .\" Copyright (c) 1999, Sun Microsystems, Inc. All Rights Reserved
 .\" Copyright (c) 2007-2015, J. Schilling
 .\" CDDL HEADER START
@@ -32,7 +32,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sccs-get 1 "2015/03/11" "SunOS 5.11" "User Commands"
+.TH sccs-get 1 "2015/04/29" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs-get, get \- retrieve a version of an SCCS file
 .SH SYNOPSIS
@@ -1218,6 +1218,16 @@ history file, see
 .BI z. file
 temporary lock file contains the binary process id in host byte order 
 followed by the host name
+
+.br
+.ne 3
+.TP
+.B dump.core
+If the file
+.B dump.core
+exists in the current directory and a fatal signal is received, a coredump
+is initiated via
+.BR abort (3).
 
 .SH ATTRIBUTES
 
