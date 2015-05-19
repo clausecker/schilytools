@@ -1,7 +1,7 @@
 .rn '' }`
 ''' $Header: patch.man,v 2.0.1.2 88/06/22 20:47:18 lwall Locked $
 . \"
-. \" @(#)patch.1	1.12 15/05/04 Copyr 2011-2015 J. Schilling
+. \" @(#)patch.1	1.18 15/05/16 Copyr 2011-2015 J. Schilling
 . \"  Manual page for patch
 . \"
 ''' 
@@ -83,7 +83,7 @@
 .ds L' `
 .ds R' '
 'br\}
-.TH PATCH 1 "2015/05/04"
+.TH PATCH 1 "2015/05/16"
 .SH NAME
 patch - a program for applying a diff file to an original
 .SH SYNOPSIS
@@ -136,160 +136,29 @@ If
 .I patchfile
 is omitted, or is a hyphen, the patch will be read from standard input.
 .PP
-If called as
-.B patch
-or
-.BR spatch ,
-.B patch
-behaves
-.B POSIX
-compliant and does not permit extensions.
-If called as
-.B opatch
-or
-.BR sccspatch ,
-.B patch
-behaves similar to an original
-.B patch
-with additional features.
-.PP
-Upon startup, patch will attempt to determine the type of the diff listing,
-unless over-ruled by a
-.BR \-c ,
-.BR \-e ,
-.BR \-n ,
-or
-.B \-u
-switch.
-Context diffs (old-style, new-style, and unified) and
-normal diffs are applied by the
-.B patch
-program itself, while ed diffs are simply fed to the
-.B ed
-editor via a pipe.
-.PP
-.B Patch
-will try to skip any leading garbage, apply the diff,
-and then skip any trailing garbage.
-Thus you could feed an article or message containing a
-diff listing to
-.BR patch ,
-and it should work.
-If the entire diff is indented by a consistent amount,
-this will be taken into account.
-.PP
-With context diffs, and to a lesser extent with normal diffs,
-.B patch
-can detect when the line numbers mentioned in the patch are incorrect,
-and will attempt to find the correct place to apply each hunk of the patch.
-As a first guess, it takes the line number mentioned for the hunk, plus or
-minus any offset used in applying the previous hunk.
-If that is not the correct place,
-.B patch
-will scan both forwards and backwards for a set of lines matching the context
-given in the hunk.
-First
-.B patch
-looks for a place where all lines of the context match.
-If no such place is found, and it's a context diff, and the maximum fuzz factor
-is set to 1 or more, then another scan takes place ignoring the first and last
-line of context.
-If that fails, and the maximum fuzz factor is set to 2 or more,
-the first two and last two lines of context are ignored,
-and another scan is made.
-(The default maximum fuzz factor is 2.)
-If
-.B patch
-cannot find a place to install that hunk of the patch, it will put the
-hunk out to a reject file, which normally is the name of the output file
-plus \*(L".rej\*(R" or \*(L"#\*(R" .
-(Note that the rejected hunk will come out in context diff form whether the
-input patch was a context diff or a normal diff.
-If the input was a normal diff, many of the contexts will simply be null.)
-The line numbers on the hunks in the reject file may be different than
-in the patch file: they reflect the approximate location patch thinks the
-failed hunks belong in the new file rather than the old one.
-.PP
-As each hunk is completed, you will be told whether the hunk succeeded or
-failed, and which line (in the new file)
-.B patch
-thought the hunk should go on.
-If this is different from the line number specified in the diff you will
-be told the offset.
-A single large offset MAY be an indication that a hunk was installed in the
-wrong place.
-You will also be told if a fuzz factor was used to make the match, in which
-case you should also be slightly suspicious.
-.PP
-If no original file is specified on the command line,
-.B patch
-will try to figure out from the leading garbage what the name of the file
-to edit is.
-In the header of a context diff, the filename is found from lines beginning
-with \*(L"***\*(R" or \*(L"---\*(R", with the shortest name of an existing
-file winning.
-Only context diffs have lines like that, but if there is an \*(L"Index:\*(R"
-line in the leading garbage,
-.B patch
-will try to use the filename from that line.
-The context diff header takes precedence over an Index line.
-If no filename can be intuited from the leading garbage, you will be asked
-for the name of the file to patch.
-.PP
-(If the original file cannot be found, but a suitable SCCS or RCS file is
-handy,
-.B patch
-will attempt to get or check out the file.)
-.PP
-Additionally, if not in strict POSIX mode and
-if the leading garbage contains a \*(L"Prereq: \*(R" line,
-.B patch
-will take the first word from the prerequisites line (normally a version
-number) and check the input file to see if that word can be found.
-If not,
-.B patch
-will ask for confirmation before proceeding.
-.PP
-The upshot of all this is that you should be able to say, while in a news
-interface, the following:
-.Sp
-	| patch \-d /usr/src/local/blurfl
-.Sp
-and patch a file in the blurfl directory directly from the article containing
-the patch.
-.PP
-If the patch file contains more than one patch,
-.B patch
-will try to apply each of them as if they came from separate patch files.
-This means, among other things, that it is assumed that the name of the file
-to patch must be determined for each diff listing,
-and that the garbage before each diff listing will
-be examined for interesting things such as filenames and revision level, as
-mentioned previously.
-If
-.B patch
-is not on POSIX mode,
-you can give switches (and another original file name) for the second and
-subsequent patches by separating the corresponding argument lists
-by a \*(L'+\*(R'.
-(The argument list for a second or subsequent patch may not specify a new
-patch file, however.)
-.PP
 By default, this version of
 .B patch
-is in POSIX mode.
+is in strict POSIX mode and does not permit extensions.
 If
 .B patch
 is called as
 .BR opatch ,
 it behaves like the original
 .B patch
-utility from Larry Wall.
-If the environment variable
-.B POSIXLY_CORRECT
-is present,
-.B patch
-operates in POSIX mode but also recognizes the additional non-POSIX options.
+utility from Larry Wall (except for 
+.BR "filename determination" )
+but with new additional features enabled.
+The name
+.B spatch
+may be used as an alternate name for the strict
+.BR "POSIX patch" .
+The name
+.B sccspatch
+may be used to select
+.B "POSIX patch"
+behavior with extensions from Larry Wall and extensions from recent development.
+
+.SH OPTIONS
 .PP
 .B Patch
 recognizes the following switches:
@@ -322,6 +191,13 @@ causes the next argument to be interpreted as a prefix to the backup file
 name. If this argument is specified any argument from 
 .B \-z
 will be ignored.
+For example, with
+.B -B /old/
+the backup file name for
+.B src/patch/util.c
+is
+.BR /old/src/patch/util.c .
+.sp
 This argument is an extension to Larry Wall's patch v2.0.1.4, patchlevel 8,
 made by M. Greim (greim@sbsvax.uucp).
 .sp
@@ -347,9 +223,6 @@ construct to mark changes.
 The argument following 
 .B \-D
 will be used as the differentiating symbol.
-Note that, unlike the C compiler, there must be a space between the
-.B \-D
-and the argument.
 .TP
 .B \-E
 Remove output files that are empty after patching.
@@ -366,9 +239,9 @@ to the beginning of the year 1970 UTC like in the following
 example diff output header:
 .nf
 \fB
---- old/Makefile          2011-01-25 12:08:18 +0100
+\-\-\- old/Makefile          2011-01-25 12:08:18 +0100
 +++ new/Makefile          1970-01-01 01:00:00 +0100
-@@ -1,18 +0,0 @@
+@@ \-1,18 +0,0 @@
 \fP
 .fi
 The zero time stamp is only recognized in case the time stamp
@@ -387,7 +260,7 @@ forces
 .B patch
 to assume that the user knows exactly what he or she is doing, and to not
 ask any questions.
-It does not suppress commentary, however.
+It does not suppress informational messages, however.
 Use
 .B \-s
 for that.
@@ -447,8 +320,6 @@ For example, supposing the filename in the patch file was
 	/u/howard/src/blurfl/blurfl.c
 .sp
 setting
-.B \-p
-or
 .B \-p0
 gives the entire pathname unmodified,
 .B \-p1
@@ -472,7 +343,10 @@ switch.
 .sp
 When in POSIX mode,
 .B \-p
-always must have an argument.
+always must have an argument, in non-POSIX mode
+.B \-p
+may be used as an alias for
+.BR \-p0 .
 .TP
 .BI \-r " rejectfile
 causes the next argument to be interpreted as the reject file name.
@@ -542,6 +416,49 @@ to print out it's revision header and patch level.
 .sp
 This option is not available in strict POSIX mode.
 .TP
+.B \-W+
+Causes
+.B patch
+to permit enhancements in POSIX mode.
+.TP
+.B \-Wall
+Causes
+.B patch
+to implement compatibility for Larry Wall's
+.BR patch-2.0 .
+.sp
+This currently only applies to the way
+.B patch
+selects the filename from the patchfile.
+By default,
+.B patch
+uses the
+.B filename determination
+algorithm from POSIX that defaults to the
+.I original
+filename from the diff header.
+The algorithm from
+.B patch-2.0
+defaults to the shorter name, assuming that
+.IB filename .orig
+is used as
+.B original
+filename and
+.I filename
+is used as
+.B new
+filename.
+.TP
+.B \-Wposix
+Causes
+.B patch
+to go into strict POSIX mode.
+This disables the effect of a previous
+.B \-W+
+and
+.B \-Wall
+option.
+.TP
 .BI \-x number
 sets internal debugging flags, and is of interest only to
 .B patch
@@ -555,6 +472,199 @@ causes the next argument to be interpreted as the backup extension, to be
 used in place of \*(L".orig\*(R" or \*(L"~\*(R".
 .sp
 This option is not available in strict POSIX mode.
+
+.SH "EXTENDED DESCRIPTION
+.PP
+Upon startup, patch will attempt to determine the type of the diff listing,
+unless over-ruled by a
+.BR \-c ,
+.BR \-e ,
+.BR \-n ,
+or
+.B \-u
+switch.
+Context diffs (old-style, new-style, and unified) and
+normal diffs are applied by the
+.B patch
+program itself, while ed diffs are simply fed to the
+.B ed
+editor via a pipe.
+.PP
+.B Patch
+will try to skip any leading garbage, apply the diff,
+and then skip any trailing garbage.
+Thus you could feed an article or message containing a
+diff listing to
+.BR patch ,
+and it should work.
+If the entire diff is indented by a consistent amount,
+this will be taken into account.
+.PP
+With context diffs, and to a lesser extent with normal diffs,
+.B patch
+can detect when the line numbers mentioned in the patch are incorrect,
+and will attempt to find the correct place to apply each hunk of the patch.
+As a first guess, it takes the line number mentioned for the hunk, plus or
+minus any offset used in applying the previous hunk.
+If that is not the correct place,
+.B patch
+will scan both forwards and backwards for a set of lines matching the context
+given in the hunk.
+First
+.B patch
+looks for a place where all lines of the context match.
+If no such place is found, and it's a context diff, and the maximum fuzz factor
+is set to 1 or more, then another scan takes place ignoring the first and last
+line of context.
+If that fails, and the maximum fuzz factor is set to 2 or more,
+the first two and last two lines of context are ignored,
+and another scan is made.
+(The default maximum fuzz factor is 2.)
+If
+.B patch
+cannot find a place to install that hunk of the patch, it will put the
+hunk out to a reject file, which normally is the name of the output file
+plus \*(L".rej\*(R" or \*(L"#\*(R" .
+(Note that the rejected hunk will come out in context diff form whether the
+input patch was a context diff or a normal diff.
+If the input was a normal diff, many of the contexts will simply be null.)
+The line numbers on the hunks in the reject file may be different than
+in the patch file: they reflect the approximate location patch thinks the
+failed hunks belong in the new file rather than the old one.
+.PP
+As each hunk is completed, you will be told whether the hunk succeeded or
+failed, and which line (in the new file)
+.B patch
+thought the hunk should go on.
+If this is different from the line number specified in the diff you will
+be told the offset.
+A single large offset MAY be an indication that a hunk was installed in the
+wrong place.
+You will also be told if a fuzz factor was used to make the match, in which
+case you should also be slightly suspicious.
+
+.SS Patch File Format
+.PP
+If no original file is specified on the command line,
+.B patch
+will try to figure out from the leading garbage what the name of the file
+to edit is.
+The following formats are recognized.
+.PP
+.ne 5
+A context diff includes the following headers:
+.PP
+    \*(L"\fB***\fP \fIfilename timestamp\fP\*(R"
+.br
+    \*(L"\fB\-\-\-\fP \fIfilename timestamp\fP\*(R"
+.sp
+The first line refers to the
+.I filename
+and
+.I timestamp
+of the original file and the second line refers to the changed file.
+
+.PP
+.ne 5
+A unified context diff includes the following headers:
+.PP
+    \*(L"\fB\-\-\-\fP \fIfilename timestamp\fP\*(R"
+.br
+    \*(L"\fB+++\fP \fIfilename timestamp\fP\*(R"
+.sp
+The first line refers to the
+.I filename
+and
+.I timestamp
+of the original file and the second line refers to the changed file.
+
+.PP
+    \*(L"\fBIndex:\fP\fIfilename\fP\*(R"
+.sp
+May be added in order to give the filename in case if a normal diff
+or an ed script.
+
+If not in strict POSIX mode, 
+.PP
+    \*(L"\fBPrereq:\fP \fIversion-id\fP\*(R"
+.sp
+is recognized and used to match against a version specific string in
+the file to patch.
+
+.SS Filename Determination
+.PP
+If no original file is specified on the command line,
+.B patch
+will use the following search preference:
+.TP
+.B 1.
+In the header of a context diff, the filename is found from lines beginning
+with \*(L"\fB***\fP\*(R" or \*(L"\fB\-\-\-\fP\*(R" (if the patch is a unified context diff).
+.TP
+.B 2.
+In the header of a context diff, the filename is found from lines beginning
+with \*(L"\fB\-\-\-\fP\*(R" or \*(L"\fB+++\fP\*(R" (if the patch is a unified context diff).
+.sp
+If the option
+.B \-Wall
+was specified, the shortest name of an existing file from the two above wins.
+.TP
+.B 3.
+If the diff type is not context and
+there is an \*(L"\fBIndex:\fP\*(R"
+line in the leading garbage,
+.B patch
+will try to use the filename from that line.
+The context diff header takes precedence over an Index line.
+.TP
+.B 4.
+If the original file cannot be found, but a suitable SCCS or RCS file is
+handy,
+.B patch
+will attempt to get or check out the file.
+.TP
+.B 5.
+If no filename can be intuited from the leading garbage, you will be asked
+for the name of the file to patch via the controlling terminal (e.g. via
+.B stderr
+or
+.BR /dev/tty ).
+.PP
+Additionally, if not in strict POSIX mode and
+if the leading garbage contains a \*(L"\fBPrereq:\fP \*(R" line,
+.B patch
+will take the first word from the prerequisites line (normally a version
+number) and check the input file to see if that word can be found.
+If not,
+.B patch
+will ask for confirmation before proceeding.
+.PP
+The upshot of all this is that you should be able to say, while in a news
+interface, the following:
+.Sp
+	| patch \-d /usr/src/local/blurfl
+.Sp
+and patch a file in the blurfl directory directly from the article containing
+the patch.
+
+.SS Patch Application
+.PP
+If the patch file contains more than one patch,
+.B patch
+will try to apply each of them as if they came from separate patch files.
+This means, among other things, that it is assumed that the name of the file
+to patch must be determined for each diff listing,
+and that the garbage before each diff listing will
+be examined for interesting things such as filenames and revision level, as
+mentioned previously.
+If
+.B patch
+is not in POSIX mode,
+you can give switches (and another original file name) for the second and
+subsequent patches by separating the corresponding argument lists
+by a \*(L'+\*(R'.
+(The argument list for a second or subsequent patch may not specify a new
+patch file, however.)
 .SH ENVIRONMENT
 .TP
 .B POSIXLY_CORRECT
@@ -563,14 +673,41 @@ If present,
 operates in POSIX mode but also recognizes the additional non-POSIX options
 and permits non-POSIX behavior like removing files that have been marked
 removed in the 
-.B diff -Nur
+.B diff \-Nur
 output. See
 .B \-E
 option for more information.
+This behavior is implemented to make
+.B patch
+more compatible to the
+.B gpatch
+program.
 .SH FILES
 /tmp/patch*
+.SH EXIT STATUS
+.PP
+The following exit values are returned:
+.sp
+.ne 2
+.TP 6n
+.B 0
+Successful completion.
+
+.sp
+.ne 2
+.TP
+.B 1
+One or more lines were written to a reject file.
+
+.sp
+.ne 2
+.TP
+.B >1
+An error occurred.
+
 .SH SEE ALSO
-.BR diff (1)
+.BR diff (1),
+.BR ed (1).
 .br
 .ne 5
 .SH NOTES FOR PATCH SENDERS
@@ -607,9 +744,7 @@ the patch file and that
 is attempting to intuit whether there is a patch in that text and, if so,
 what kind of patch it is.
 .PP
-.B Patch
-will exit with a non-zero status if any reject files were created.
-When applying a set of patches in a loop it behooves you to check this
+When applying a set of patches in a loop it behooves you to check the
 exit status so you don't apply a later patch to a partially patched file.
 .SH CAVEATS
 .B Patch
@@ -628,12 +763,188 @@ guessing.
 However, the results are guaranteed to be correct only when the patch is
 applied to exactly the same version of the file that the patch was
 generated from.
+
+.SH COMPATIBILITY ISSUES
+.PP
+The POSIX standard introduced some small differences to the traditional
+behavior of
+.BR patch .
+The behavior of
+.B gpatch
+.RB ( "GNU patch" )
+differs from both, the traditional
+.B patch
+and 
+.BR "POSIX patch" .
+.PP
+If you like to write portable patch scripts, you should be aware of the
+differences:
+.TP
+.B \(bu
+Traditional patch by default created backups with the
+.B .orig
+suffix and the
+.B \-b
+option allowed to define a different suffix.
+Modern
+.B patch
+implementations by default do not create backup files and allow to
+enable backups with the
+.B \-b
+option that does not permit a parameter with POSIX.
+.sp
+The
+.BI \-b " suffix"
+behavior of the traditional
+.B patch
+is equivalent to
+.B \-b \-z
+.I suffix
+with modern
+.B patch
+implementations in case that enhancements over POSIX are permitted. 
+.TP
+.B \(bu
+.B Patch
+writes informational messages to
+.B stderr
+and does not use
+.BR stdout ,
+while
+.B gpatch
+uses
+.B stdout
+for informational messages.
+.TP
+.B \(bu
+.B Gpatch
+changed some of the informational messages;
+you cannot expect to get the same messages as with
+.BR patch .
+.sp
+For portable scripts, do not rely on informational messages.
+.TP
+.B \(bu
+In traditional
+.BR patch ,
+the
+.B \-p
+option did not need to have an operand. With
+.BR "POSIX patch" ,
+.B \-p
+always must have an operand. The option
+.B \-p
+without argument in traditional
+.B patch
+is equivalent to
+.BR \-p " 0"
+in
+.BR "POSIX patch" .
+.sp
+For portability, use the
+.B \-p
+option with no space to the following argument, e.g.
+.BR \-p 1.
+.TP
+.B \(bu
+The option
+.BI \-i " patchfile
+is only supported by 
+.BR "POSIX patch" ,
+but not by traditional
+.B patch
+or
+.BR gpatch .
+
+.TP
+.B \(bu
+Traditional
+.B patch
+used several different and partly undocumented methods to determine
+the name of the file to be patched from the patchfile that could e.g.
+result to create an incorrect new file with new filename if a line
+was inserted at the beginning of an existing file.
+This
+.B patch
+and
+.B POSIX patch
+use the POSIX method for
+.B Filename Determination
+and only permit to use the the special
+.B Index:
+line.
+.TP
+.B \(bu
+.B Gpatch
+uses a different method to read replies to questions to the user than
+.B patch
+does.
+Do not rely on
+.B patch
+to read from
+.BR stderr .
+.TP
+.B \(bu
+Traditional
+.B patch
+used an exit code value that reflected the number of failed hunks and
+an exit code
+.B 1
+if there was one failed hunk or any other problem.
+.B POSIX patch
+uses exit code
+.B 1
+if there was any failed hunk and an exit code
+.B > 1
+if other problems occurred.
+.TP
+.B \(bu
+.B Patch
+does not implement support for long options, while
+.B gpatch
+documents and implements various long options.
+.PP
+For maximum portability, limit yourself to the following options:
+.RS 4
+.PD 0
+.TP
+.B \-c
+.TP
+.BI \-d " dir
+.TP
+.BI \-D " define
+.TP
+.B \-e
+.TP
+.B \-l
+.TP
+.B \-n
+.TP
+.B \-N
+.TP
+.BI \-o " outfile
+.TP
+.BI \-p num
+.TP
+.B \-R
+.TP
+.BI \-r " rejectfile
+.TP
+.B \-u
+.PD
+.RE
+.PP
+Never use long options.
+Use a shorter name for the original filename in the diff header
+of the patchfile.
+
 .SH BUGS
 Could be smarter about partial matches, excessively \&deviant offsets and
 swapped code, but that would take an extra pass.
 .PP
-If code has been duplicated (for instance with #ifdef OLDCODE ... #else ...
-#endif),
+If code has been duplicated (for instance with
+.BR "#ifdef OLDCODE" " ... " #else " ... "
+.BR #endif ),
 .B patch
 is incapable of patching both versions, and, if it works at all, will likely
 patch the wrong one, and tell you that it succeeded to boot.
@@ -650,5 +961,7 @@ wrote the original version of
 .sp
 Wayne Davison added unidiff support.
 .sp
-J\*org Schilling added modern portability code, large file support and
+J\*org Schilling added modern portability code, 
+code to support arbitrarily long lines,
+large file support and
 code to support POSIX compliance.

@@ -1,13 +1,13 @@
-/* @(#)fjmem.c	1.13 09/07/08 Copyright 1998-2009 J. Schilling */
+/* @(#)fjmem.c	1.14 15/05/10 Copyright 1998-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)fjmem.c	1.13 09/07/08 Copyright 1998-2009 J. Schilling";
+	"@(#)fjmem.c	1.14 15/05/10 Copyright 1998-2015 J. Schilling";
 #endif
 /*
  *	Memory handling with error checking
  *
- *	Copyright (c) 1998-2009 J. Schilling
+ *	Copyright (c) 1998-2015 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -16,6 +16,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -30,9 +32,23 @@ static	UConst char sccsid[] =
 #include <schily/schily.h>
 #include <schily/nlsdefs.h>
 
+EXPORT	int	__fjmexval	__PR((int exval));
 EXPORT	void	*__fjmalloc	__PR((FILE *f, size_t size, char *msg, sigjmps_t *jmp));
 EXPORT	void	*__fjrealloc	__PR((FILE *f, void *ptr, size_t size, char *msg, sigjmps_t *jmp));
 EXPORT	char	*__fjsavestr	__PR((FILE *f, const char *s, sigjmps_t *jmp));
+
+LOCAL	int	fjmexval;
+
+EXPORT	int
+__fjmexval(exval)
+	int	exval;
+{
+	int	ret = fjmexval;
+
+	fjmexval = exval;
+
+	return (ret);
+}
 
 EXPORT void *
 __fjmalloc(f, size, msg, jmp)
@@ -52,6 +68,8 @@ __fjmalloc(f, size, msg, jmp)
 				gettext("Cannot allocate memory for %s.\n"),
 									msg);
 		}
+		if (fjmexval)
+			err = fjmexval;
 		if (jmp == JM_EXIT)
 			comexit(err);
 		if (jmp != NULL)
@@ -82,6 +100,8 @@ __fjrealloc(f, ptr, size, msg, jmp)
 				gettext("Cannot realloc memory for %s.\n"),
 									msg);
 		}
+		if (fjmexval)
+			err = fjmexval;
 		if (jmp == JM_EXIT)
 			comexit(err);
 		if (jmp != NULL)

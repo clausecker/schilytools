@@ -1,12 +1,12 @@
-/* @(#)getargs.c	2.66 14/01/19 Copyright 1985, 1988, 1994-2014 J. Schilling */
+/* @(#)getargs.c	2.67 15/05/09 Copyright 1985, 1988, 1994-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)getargs.c	2.66 14/01/19 Copyright 1985, 1988, 1994-2014 J. Schilling";
+	"@(#)getargs.c	2.67 15/05/09 Copyright 1985, 1988, 1994-2015 J. Schilling";
 #endif
 #define	NEW
 /*
- *	Copyright (c) 1985, 1988, 1994-2014 J. Schilling
+ *	Copyright (c) 1985, 1988, 1994-2015 J. Schilling
  *
  *	1.3.88	 Start implementation of release 2
  */
@@ -1156,6 +1156,8 @@ again:
 		}
 		if (*fmt != '\0')
 			fmt++;
+		else
+			break;
 
 		if ((flags & (SETARGS|ARGVECTOR)) == SETARGS)
 			curarg = va_arg(args, void *);

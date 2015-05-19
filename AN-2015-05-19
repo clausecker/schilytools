@@ -1,0 +1,125 @@
+New features with AN-2015-05-19:
+
+This is the first localization step for the schily source consolidation. Many
+programs now (hopefully) call gettext() for all strings that need localization.
+
+-	The next step will include dgettext() calls for the libraries and the
+	missing programs
+
+-	The following step will include the extracted strings
+
+-	The last step will include German translations and install support
+	for the resulting binary message object files.
+
+----------> Please test and report compilation problems! <---------
+
+***** NOTE: As mentioned since 2004, frontends to the tools should *****
+*****		call all programs in the "C" locale		   *****
+*****		by e.g. calling: LC_ALL=C cdrecord ....		   *****
+*****		unless these frontends support localized strings   *****
+*****		used by the cdrtools with NLS support.		   *****
+
+		*** WARNING        ***
+		*** Need new smake ***
+
+	*** Due to the fact that schily-tools 2014-04-03 introduced to use new macro
+	*** expansions and a related bug fix in smake, you need a new smake
+	*** to compile this source. To ensure this, call:
+
+	cd ./psmake
+	./MAKE-all
+	cd ..
+	psmake/smake
+	psmake/smake install
+
+
+	WARNING: the new version of the isoinfo program makes use of the 
+		*at() series of functions that have been introduced by Sun
+		in August 2001 and added to POSIX.1-2008. For older platforms,
+		libschily now includes emulations for these functions but
+		these emulations have not yet been tested thouroughly.
+		Please report problems!
+
+	The new smake version mentioned above is smake-1.2.4
+
+-	libschily/getargs.c now is more careful with calling va_arg()
+	and only calls it as many times as a related format is found in the
+	format string.
+
+-	libschily now contains a getdelim() implementation and always uses
+	getdelim() to implement the fgetaline() function.
+
+-	libschily: the *mem.c implementations now include new *mexval()
+	functions to set the exit code on failure to a static value instead
+	of the default "errno" value for the failure.
+
+-	libschily: the linker map file now also lists the forgotten new entries:
+	strlcatl() and wcslcatl()
+
+-	libsiconv: the forgotten sic_base() was added to the linker map file
+
+-	libfind: the forgotten entries find_hasexec() and find_hasprint()
+	have been added to the linker map file
+
+-	Patch: The arbitrary limit MAXHUNKSIZE has been removed
+
+-	Patch: the previous line length limit (8192 bytes) has been removed.
+	patch now supports an arbitrary line length as long as memory serves.
+
+-	Patch: An "out of memory" situation is now handled more carefully.
+	Recovery from Pan A to Plan B may now work again.
+
+-	Patch: exit() codes are now POSIX compliant.
+
+-	Patch: The man page now documents the differences between patch,
+	traditional patch and gpatch.
+
+-	Patch: The method to detect ED scripts was enhanced. Before, patch
+	could believe that parts of a multi patch script were comment where the
+	same patches put into separte files worked fine.
+
+-	Patch: The man page now documents the patch fie format and the
+	filename determination algorithm.
+
+-	Patch: A typo from the old ages from before 1990 was fixed. Patch no
+	longer complains about a non-existing write error on stdout.
+
+-	Patch: New option -W with the folowing meaning:
+
+	-W+	Allow extensions to the strict POSIX behavior.
+		-W is the POSIX option reserved to vendor unique behavior
+		so implementing -W is OK for a strict POSIX program.
+
+	-Wall	Revert to old Larry Wall behavior.
+		This currenty only affects the algorithm for
+		Filename Determination and causes patch to use the shortest
+		name from old and new name. The default it to let the
+		original filename win.
+
+	-Wposix	Switch tp POSIX behavior
+
+-	Patch: If called as "sccspatch", patch now defaults to POSIX behavior
+	with extensions enabled. "patch" and "spatch" default to strict
+	POSIX as before and "opatch" defaults to pre-POSIX behavior except
+	for the filename determination.
+
+-	Patch: If there is a failing "normal" patch that starts with a delete
+	only hunk, patch no longer tries to reverse the patch as a context
+	free insertion will always succeed but makes no sense.
+
+-	Patch: now passes extensive systematic tests that use random files
+	with random differences.
+
+-	Patch: Version is now 3.0
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.net, js@cs.tu-berlin.de
+	joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

@@ -1,4 +1,4 @@
-/* @(#)common.h	1.16 15/04/30 2011-2015 J. Schilling */
+/* @(#)common.h	1.21 15/05/18 2011-2015 J. Schilling */
 /*
  *	Copyright (c) 1986, 1988 Larry Wall
  *	Copyright (c) 2011-2015 J. Schilling
@@ -55,9 +55,7 @@
 
 /* constants */
 
-#define	MAXHUNKSIZE	100000		/* is this enough lines? */
 #define	INITHUNKMAX	125		/* initial dynamic allocation size */
-#define	MAXLINELEN	8192
 #define	BUFFERSIZE	8192
 #define	SCCSPREFIX	"s."
 #define	GET		"get -e %s"
@@ -100,7 +98,8 @@ EXT char **Argv_last;
 EXT struct stat file_stat;		/* file statistics area */
 EXT int filemode;
 
-EXT char buf[MAXLINELEN];		/* general purpose buffer */
+EXT char *buf;				/* general purpose buffer */
+EXT size_t bufsize;			/* current size of buf */
 EXT FILE *ofp;				/* output file pointer */
 EXT FILE *rejfp;			/* reject file pointer */
 
@@ -141,6 +140,7 @@ EXT int strippath;			/*   -p#		*/
 EXT bool canonicalize;			/*   -l			*/
 
 EXT bool do_posix;			/* POSIX vers. old patch behavior */
+EXT bool do_wall;			/* Old Larry patch-2.0 compatibility */
 EXT bool wall_plus;			/* Permit enhancements from old patch */
 EXT bool do_backup;			/* Create backup from original file */
 
@@ -150,8 +150,15 @@ EXT bool do_backup;			/* Create backup from original file */
 #define	NEW_CONTEXT_DIFF	4
 #define	UNI_DIFF		5
 
+#define	EXIT_OK			0
+#define	EXIT_REJECT		1
+#define	EXIT_FAIL		2
+#define	EXIT_SIGNAL		3
+
 EXT int diff_type;			/*   -c/-e/-n/-u	*/
 
 EXT char *revision;			/* prerequisite revision, if any */
+
+EXT LINENUM p_repl_lines;		/* From pch.c # of replacement lines */
 
 extern	void	my_exit __PR((int status));

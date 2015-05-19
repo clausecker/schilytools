@@ -1,4 +1,4 @@
-/* @(#)pch.h	1.7 11/01/31 2011 J. Schilling */
+/* @(#)pch.h	1.8 15/05/11 2011 J. Schilling */
 /*
  *	Copyright (c) 1986, 1987 Larry Wall
  *	Copyright (c) 2011 J. Schilling
@@ -19,7 +19,7 @@ extern	LINENUM	pch_newfirst __PR((void));
 extern	LINENUM	pch_repl_lines __PR((void));
 extern	LINENUM	pch_end __PR((void));
 extern	LINENUM	pch_context __PR((void));
-extern	short	pch_line_len __PR((LINENUM line));
+extern	size_t	pch_line_len __PR((LINENUM line));
 extern	char	pch_char __PR((LINENUM line));
 extern	char	*pfetch __PR((LINENUM line));
 extern	LINENUM	pch_hunk_beg __PR((void));

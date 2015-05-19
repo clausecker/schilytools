@@ -1,8 +1,8 @@
-/* @(#)patch.c	1.24 15/05/05 2011-2015 J. Schilling */
+/* @(#)patch.c	1.32 15/05/19 2011-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)patch.c	1.24 15/05/05 2011-2015 J. Schilling";
+	"@(#)patch.c	1.32 15/05/19 2011-2015 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1984-1988 Larry Wall
@@ -19,7 +19,8 @@ static	UConst char sccsid[] =
 #include "util.h"
 #include "pch.h"
 #include "inp.h"
-#include "patchlevel.h"
+
+#define	PATCHVERSION	"3.0"
 
 /* procedures */
 
@@ -70,6 +71,7 @@ main(argc, argv)
 	int hunk = 0;
 	int failed = 0;
 	int failtotal = 0;
+	int reject_written = 0;
 	int i;
 #if	defined(USE_NLS) && defined(INS_BASE)
 	char *dir;
@@ -98,6 +100,9 @@ main(argc, argv)
 	(void) textdomain(TEXT_DOMAIN);
 #endif
 	time(&starttime);
+	bufsize = BUFFERSIZE;
+	___mexval(EXIT_FAIL);
+	buf = ___malloc(BUFFERSIZE, _("general purpose buffer"));
 
 	for (i = 0; i < MAXFILEC; i++)
 		filearg[i] = Nullch;
@@ -191,7 +196,18 @@ main(argc, argv)
 					where = locate_hunk(fuzz);
 					if (hunk == 1 && where == Nulline &&
 					    !force) {
-						/* dwim for reversed patch? */
+						/*
+						 * dwim for reversed patch?
+						 *
+						 * In case of a normal diff,
+						 * swapping a simple delete will
+						 * always work and this is not
+						 * what we like to do...
+						 */
+						if (diff_type == NORMAL_DIFF &&
+						    p_repl_lines == 0)
+							continue;
+
 						if (!pch_swap()) {
 							if (fuzz == Nulline)
 								say(
@@ -238,7 +254,8 @@ _("Apply anyway? [n] "));
 								if (*buf != 'y')
 									skip_rest_of_patch = TRUE;
 								where = Nulline;
-								reverse = !reverse;
+								reverse =
+								    !reverse;
 								/*
 								 * put it back
 								 * to normal
@@ -327,6 +344,9 @@ _("\n\nRan out of memory using Plan A--trying again...\n\n"));
 		rejfp = Nullfp;
 		if (failed) {
 			failtotal += failed;
+			if (failtotal <= 0)
+				failtotal = 1;
+
 			if (!*rejname) {
 				Strcpy(rejname, outname);
 #ifndef FLEXFILENAMES
@@ -356,17 +376,23 @@ _("%d out of %d hunks ignored--saving rejects to %s\n"),
 _("%d out of %d hunks failed--saving rejects to %s\n"),
 				    failed, hunk, rejname);
 			}
-			if (move_file(TMPREJNAME, rejname) < 0)
+			if (move_file(TMPREJNAME, rejname) < 0) {
 				trejkeep = TRUE;
+				reject_written = EXIT_FAIL;
+			} else {
+				reject_written = EXIT_REJECT;
+			}
 		}
 		set_signals(1);
 	}
+
+	if (reject_written)
+		my_exit(reject_written);
 	/*
-	 * Avoid to create a resulting virtual exit code of "0" in case of an
-	 * unfortunate failure counter.
+	 * Use POSIX exit code for erors if any failure happened.
 	 */
-	if (failtotal > 0 && failtotal % 256 == 0)
-		failtotal--;
+	if (failtotal > 0)
+		failtotal = EXIT_FAIL;
 	my_exit(failtotal);
 	/* NOTREACHED */
 	return (failtotal);
@@ -424,8 +450,12 @@ init_defaults()
 			s = Argv[0];
 		else
 			s++;
-		if (!strEQ(s, "opatch") && !strEQ(s, "sccspatch"))
+		if (strEQ(s, "sccspatch")) {
 			do_posix = TRUE;
+			wall_plus = TRUE; /* POSIX + old patch options	*/
+		} else if (!strEQ(s, "opatch")) {
+			do_posix = TRUE;
+		}
 	}
 	if (getenv("POSIXLY_CORRECT") != Nullch) {
 		do_posix = TRUE; /* Do it similar to GNU patch	*/
@@ -607,18 +637,31 @@ _("Argument to -D not an identifier.\n"));
 					goto unknown;
 
 				printf(
-				_("patch 2.0 Patch level %s (%s-%s-%s)\n\n"),
-					PATCHLEVEL,
+				_("patch %s (%s-%s-%s)\n\n"),
+					PATCHVERSION,
 					HOST_CPU, HOST_VENDOR, HOST_OS);
 				printf(
 				_("Copyright (C) 1984 - 1988 Larry Wall\n"));
 				printf(_("Copyright (C) 2011 - 2015 %s\n"),
 					_("Joerg Schilling"));
-				printf(
-_("This is free software; see the source for copying conditions.  There is NO\n"));
-				printf(
-_("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n"));
-				exit(0);
+				printf(_(
+"This is free software; see the source for copying conditions.  There is NO\n"
+));
+				printf(_(
+"warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n"
+));
+				exit(EXIT_OK);
+				break;
+			case 'W':			/* POSIX: vendor */
+				if (strEQ(s, "W+")) {	/* POSIX +old */
+					wall_plus = TRUE;
+				} else if (strEQ(s, "Wall")) {
+					do_wall = TRUE;	/* Larry 2.0 compat */
+				} else if (strEQ(s, "Wposix")) {
+					do_posix = TRUE;
+					wall_plus = FALSE;
+					do_wall = FALSE;
+				}
 				break;
 #ifdef DEBUGGING
 			case 'x':			/* Wall: all vers */
@@ -641,21 +684,22 @@ _("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n
 			default:
 			unknown:
 				fprintf(stderr,
-				_("patch: unrecognized option `%s'\n"), Argv[0]);
-				if (do_posix) {
+				_("patch: unrecognized option `%s'\n"),
+					Argv[0]);
+				if (do_posix && !wall_plus) {
 					fprintf(stderr, _("\
 Usage: patch [-blNR] [-c|-e|-n|-u] [-d dir] [-D define] [-i patchfile]\n\
-             [-o outfile] [-p num] [-r rejectfile] [file]\n\
+\t[-o outfile] [-p num] [-r rejectfile] [file]\n\
 "));
 				} else {
 					fprintf(stderr, _("\
-Usage: patch [-bcEeflnNRsSuv] \n\
-       [-z backup-ext] [-B backup-prefix] [-d directory]\n\
-       [-D symbol] [-Fmax-fuzz] [-i patchfile] [-o out-file] [-p[strip-count]]\n\
-       [-r rej-name] [origfile] [patchfile] [[+] [options] [origfile]...]\n\
+Usage: patch [-bEflNRsSv] [-c|-e|-n|-u]\n\
+\t[-z backup-ext] [-B backup-prefix] [-d directory]\n\
+\t[-D symbol] [-Fmax-fuzz] [-i patchfile] [-o out-file] [-p[strip-count]]\n\
+\t[-r rej-name] [origfile] [patchfile] [[+] [options] [origfile]...]\n\
 "));
 				}
-				my_exit(1);
+				my_exit(EXIT_FAIL);
 			}
 		}
 	}
@@ -826,7 +870,7 @@ _("Out-of-sync patch, lines %lld,%lld--mangled text or line numbers, maybe?\n"),
 			say("oldchar = '%c', newchar = '%c'\n",
 			    pch_char(old), pch_char(new));
 #endif
-			my_exit(1);
+			my_exit(EXIT_FAIL);
 		} else if (pch_char(new) == '!') {
 			copy_till(where + old - 1);
 			if (R_do_defines) {

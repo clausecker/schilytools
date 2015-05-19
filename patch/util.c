@@ -1,8 +1,8 @@
-/* @(#)util.c	1.22 15/04/30 2011 J. Schilling */
+/* @(#)util.c	1.25 15/05/16 2011-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)util.c	1.22 15/04/30 2011 J. Schilling";
+	"@(#)util.c	1.25 15/05/16 2011-2015 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1986 Larry Wall
@@ -21,6 +21,7 @@ static	UConst char sccsid[] =
 #include <schily/errno.h>
 
 static	Llong	fetchtime	__PR((char *t));
+static	void	sig_exit	__PR((int signo));
 
 /* Rename a file, copying it if necessary. */
 
@@ -46,8 +47,12 @@ move_file(from, to)
 			fatal(_("patch: internal error, can't reopen %s\n"),
 				from);
 		}
-		while ((i = read(fromfd, buf, sizeof (buf))) > 0)
-			if (write(STDOUT_FILENO, buf, i) != 1)
+		/*
+		 * For file copy operations, we use the minimal buf size that
+		 * is better aligned.
+		 */
+		while ((i = read(fromfd, buf, BUFFERSIZE)) > 0)
+			if (write(STDOUT_FILENO, buf, i) != i)
 				fatal(_("patch: write failed\n"));
 		Close(fromfd);
 		return (0);
@@ -146,7 +151,11 @@ backup_done:
 			fatal(_("patch: internal error, can't reopen %s\n"),
 				from);
 		}
-		while ((i = read(fromfd, buf, sizeof (buf))) > 0)
+		/*
+		 * For file copy operations, we use the minimal buf size that
+		 * is better aligned.
+		 */
+		while ((i = read(fromfd, buf, BUFFERSIZE)) > 0)
 			if (write(tofd, buf, i) != i)
 				fatal(_("patch: write failed\n"));
 		Close(fromfd);
@@ -194,7 +203,11 @@ copy_file(from, to)
 	fromfd = open(from, 0);
 	if (fromfd < 0)
 		fatal(_("patch: internal error, can't reopen %s\n"), from);
-	while ((i = read(fromfd, buf, sizeof (buf))) > 0)
+	/*
+	 * For file copy operations, we use the minimal buf size that
+	 * is better aligned.
+	 */
+	while ((i = read(fromfd, buf, BUFFERSIZE)) > 0)
 		if (write(tofd, buf, i) != i)
 			fatal(_("patch: write (%s) failed\n"), to);
 	Close(fromfd);
@@ -278,7 +291,7 @@ fatal(fmt, va_alist)
 	(void) js_fprintf(stderr, "%r", fmt, args);
 #endif
 	va_end(args);
-	my_exit(1);
+	my_exit(EXIT_FAIL);
 }
 
 
@@ -314,22 +327,22 @@ ask(fmt, va_alist)
 	Fflush(stderr);
 	write(STDERR_FILENO, buf, strlen(buf));
 	if (tty2) {			/* might be redirected to a file */
-		r = read(STDERR_FILENO, buf, sizeof (buf));
+		r = read(STDERR_FILENO, buf, bufsize);
 	} else if (isatty(STDOUT_FILENO)) {
 					/* this may be new file output */
 		Fflush(stdout);
 		write(STDOUT_FILENO, buf, strlen(buf));
-		r = read(STDOUT_FILENO, buf, sizeof (buf));
+		r = read(STDOUT_FILENO, buf, bufsize);
 	} else if ((ttyfd = open("/dev/tty", 2)) >= 0 && isatty(ttyfd)) {
 					/* might be deleted or unwriteable */
 		write(ttyfd, buf, strlen(buf));
-		r = read(ttyfd, buf, sizeof (buf));
+		r = read(ttyfd, buf, bufsize);
 		Close(ttyfd);
 	} else if (isatty(STDIN_FILENO)) {
 					/* this is probably patch input */
 		Fflush(stdin);
 		write(STDIN_FILENO, buf, strlen(buf));
-		r = read(STDIN_FILENO, buf, sizeof (buf));
+		r = read(STDIN_FILENO, buf, bufsize);
 	} else {			/* no terminal at all--default it */
 		buf[0] = '\n';
 		r = 1;
@@ -354,16 +367,23 @@ set_signals(reset)
 #ifdef	SIGHUP
 		hupval = signal(SIGHUP, SIG_IGN);
 		if (hupval != SIG_IGN)
-			hupval = (RETSIGTYPE(*) __PR((int)))my_exit;
+			hupval = (RETSIGTYPE(*) __PR((int)))sig_exit;
 #endif
 		intval = signal(SIGINT, SIG_IGN);
 		if (intval != SIG_IGN)
-			intval = (RETSIGTYPE(*) __PR((int)))my_exit;
+			intval = (RETSIGTYPE(*) __PR((int)))sig_exit;
 	}
 #ifdef	SIGHUP
 	Signal(SIGHUP, hupval);
 #endif
 	Signal(SIGINT, intval);
+}
+
+static void
+sig_exit(signo)
+	int	signo;
+{
+	my_exit(EXIT_SIGNAL);
 }
 
 /* How to handle certain events when in a critical region. */

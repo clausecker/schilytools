@@ -1,4 +1,4 @@
-# @(#)Targets	1.49 15/03/03 Copyright 1995-2014 J. Schilling
+# @(#)Targets	1.50 15/05/09 Copyright 1995-2014 J. Schilling
 
 CFILES_STDIO=	cvmod.c dat.c fcons.c fdown.c fdup.c \
 		ffileread.c ffilewrite.c \
@@ -6,6 +6,7 @@ CFILES_STDIO=	cvmod.c dat.c fcons.c fdown.c fdup.c \
 		fileclose.c fileluopen.c fileopen.c filemopen.c \
 		filepos.c fileread.c filereopen.c fileseek.c filesize.c \
 		filestat.c filewrite.c flag.c flush.c fpipe.c \
+		getdelim.c \
 		niread.c niwrite.c nixread.c nixwrite.c openfd.c peekc.c \
 		fcons64.c fdup64.c fileluopen64.c fileopen64.c filemopen64.c \
 		filepos64.c filereopen64.c fileseek64.c filesize64.c \

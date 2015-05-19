@@ -1,6 +1,6 @@
-/* @(#)fgetaline.c	1.3 14/03/27 Copyright 2011-2014 J. Schilling */
+/* @(#)fgetaline.c	1.5 15/05/09 Copyright 2011-2015 J. Schilling */
 /*
- *	Copyright (c) 2011-2014 J. Schilling
+ *	Copyright (c) 2011-2015 J. Schilling
  *
  */
 /*
@@ -32,7 +32,7 @@ fgetaline(f, bufp, lenp)
 			char	**bufp;
 	register	size_t	*lenp;
 {
-#ifdef	HAVE_GETDELIM
+#if	defined(HAVE_GETDELIM) || !defined(USE_FGETS_FOR_FGETALINE)
 	return (getdelim(bufp, lenp, '\n', f));
 #else
 	/*
@@ -54,8 +54,10 @@ fgetaline(f, bufp, lenp)
 	line_size = *lenp;
 	line = *bufp;
 	if (line == NULL || line_size == 0) {
-		line_size = DEF_LINE_SIZE;
-		line = (char *) malloc(line_size);
+		if (line_size == 0)
+			line_size = DEF_LINE_SIZE;
+		if (line == NULL)
+			line = (char *) malloc(line_size);
 		if (line == NULL)
 			return (-1);
 	}

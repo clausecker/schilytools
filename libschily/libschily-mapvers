@@ -1,5 +1,17 @@
-# /* @(#)libschily-mapvers	1.46 14/06/03 Copyright 2005-2014 J. Schilling */
+# /* @(#)libschily-mapvers	1.48 15/05/19 Copyright 2005-2015 J. Schilling */
 #include <schily/mconfig.h>
+
+SCHILY_1.7 {
+global:
+#ifndef	HAVE_GETDELIM
+	getdelim;
+#endif
+	js_fjmexval;
+	js_jmexval;
+	js_mexval;
+	strlcatl;
+	wcslcatl;
+} SCHILY_1.6;
 
 SCHILY_1.6 {
 global:

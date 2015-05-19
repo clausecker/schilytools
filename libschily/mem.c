@@ -1,13 +1,13 @@
-/* @(#)mem.c	1.10 09/07/08 Copyright 1998-2009 J. Schilling */
+/* @(#)mem.c	1.11 15/05/10 Copyright 1998-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)mem.c	1.10 09/07/08 Copyright 1998-2009 J. Schilling";
+	"@(#)mem.c	1.11 15/05/10 Copyright 1998-2015 J. Schilling";
 #endif
 /*
  *	Memory handling with error checking
  *
- *	Copyright (c) 1998-2009 J. Schilling
+ *	Copyright (c) 1998-2015 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -16,6 +16,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -29,9 +31,23 @@ static	UConst char sccsid[] =
 #include <schily/schily.h>
 #include <schily/nlsdefs.h>
 
+EXPORT	int	___mexval	__PR((int exval));
 EXPORT	void	*___malloc	__PR((size_t size, char *msg));
 EXPORT	void	*___realloc	__PR((void *ptr, size_t size, char *msg));
 EXPORT	char	*___savestr	__PR((const char *s));
+
+LOCAL	int	mexval;
+
+EXPORT	int
+___mexval(exval)
+	int	exval;
+{
+	int	ret = mexval;
+
+	mexval = exval;
+
+	return (ret);
+}
 
 EXPORT void *
 ___malloc(size, msg)
@@ -42,7 +58,12 @@ ___malloc(size, msg)
 
 	ret = malloc(size);
 	if (ret == NULL) {
-		comerr(gettext("Cannot allocate memory for %s.\n"), msg);
+		int	err = geterrno();
+
+		errmsg(gettext("Cannot allocate memory for %s.\n"), msg);
+		if (mexval)
+			err = mexval;
+		comexit(err);
 		/* NOTREACHED */
 	}
 	return (ret);
@@ -61,7 +82,12 @@ ___realloc(ptr, size, msg)
 	else
 		ret = realloc(ptr, size);
 	if (ret == NULL) {
-		comerr(gettext("Cannot realloc memory for %s.\n"), msg);
+		int	err = geterrno();
+
+		errmsg(gettext("Cannot realloc memory for %s.\n"), msg);
+		if (mexval)
+			err = mexval;
+		comexit(err);
 		/* NOTREACHED */
 	}
 	return (ret);

@@ -1,4 +1,4 @@
-#ident "@(#)Makefile	1.13 11/09/05 "
+#ident "@(#)Makefile	1.14 15/05/19 "
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -15,7 +15,7 @@ CPPOPTS +=	-DINS_BASE=\"${INS_BASE}\"
 CPPOPTS +=	-DTEXT_DOMAIN=\"SCHILY_UTILS\"
 
 CFILES=		patch.c inp.c pch.c util.c
-HFILES=		common.h inp.h pch.h util.h patchlevel.h
+HFILES=		common.h inp.h pch.h util.h
 
 LIBS=		-lschily $(LIB_INTL)
 XMK_FILE=	patch_sym.mk Makefile.man

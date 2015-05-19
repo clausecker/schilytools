@@ -1,9 +1,9 @@
-/* @(#)libport.h	1.43 14/05/11 Copyright 1995-2014 J. Schilling */
+/* @(#)libport.h	1.44 15/05/09 Copyright 1995-2015 J. Schilling */
 /*
  *	Prototypes for POSIX standard functions that may be missing on the
  *	local platform and thus are implemented inside libschily.
  *
- *	Copyright (c) 1995-2014 J. Schilling
+ *	Copyright (c) 1995-2015 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -61,13 +61,21 @@ extern "C" {
 
 #ifdef	FOUND_SIZE_T
 /*
- * We currently cannot define this here because there IXIX has a definition
+ * We currently cannot define this here because there IRIX has a definition
  * than violates the standard.
  */
 #ifndef	HAVE_SNPRINTF
 /*PRINTFLIKE3*/
 extern	int	snprintf __PR((char *, size_t, const char *, ...))
 					__printflike__(3, 4);
+#endif
+#endif
+
+#ifdef	EOF		/* stdio.h has been included */
+#ifdef	FOUND_SIZE_T
+#ifndef	HAVE_GETDELIM
+extern	ssize_t	getdelim	__PR((char **, size_t *, int, FILE *));
+#endif
 #endif
 #endif
 

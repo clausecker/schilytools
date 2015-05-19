@@ -1,4 +1,4 @@
-/* @(#)schily.h	1.116 15/03/30 Copyright 1985-2014 J. Schilling */
+/* @(#)schily.h	1.117 15/05/10 Copyright 1985-2014 J. Schilling */
 /*
  *	Definitions for libschily
  *
@@ -581,6 +581,7 @@ extern	int	_openfd64	__PR((const char *, int));
 #define	fspawnl		js_fspawnl
 #endif
 
+extern	int	js_mexval	__PR((int exval));
 #ifdef	FOUND_SIZE_T
 extern	void	*js_malloc	__PR((size_t size, char *msg));
 extern	void	*js_realloc	__PR((void *ptr, size_t size, char *msg));
@@ -597,6 +598,7 @@ extern	char	*js_savestr	__PR((const char *s));
 #define	JM_EXIT		((sigjmps_t *)-1) /* Call comexit(errno) instead */
 #define	JM_RETURN	((sigjmps_t *)0)  /* Return instead		 */
 
+extern	int	js_jmexval	__PR((int exval));
 #ifdef	FOUND_SIZE_T
 extern	void	*js_jmalloc	__PR((size_t size, char *msg, sigjmps_t *jmp));
 extern	void	*js_jrealloc	__PR((void *ptr, size_t size, char *msg,
@@ -604,6 +606,7 @@ extern	void	*js_jrealloc	__PR((void *ptr, size_t size, char *msg,
 #endif
 extern	char	*js_jsavestr	__PR((const char *s, sigjmps_t *jmp));
 
+extern	int	js_fjmexval	__PR((int exval));
 #ifdef	EOF	/* stdio.h has been included */
 #ifdef	FOUND_SIZE_T
 extern	void	*js_fjmalloc	__PR((FILE *f, size_t size, char *msg,
@@ -615,13 +618,16 @@ extern	char	*js_fjsavestr	__PR((FILE *f, const char *s, sigjmps_t *jmp));
 #endif	/* EOF */
 #endif	/* _SCHILY_JMPDEFS_H */
 
+#define	___mexval	js_mexval
 #define	___malloc	js_malloc
 #define	___realloc	js_realloc
 #define	___savestr	js_savestr
+#define	__jmexval	js_jmexval
 #define	__jmalloc	js_jmalloc
 #define	__jrealloc	js_jrealloc
 #define	__jsavestr	js_jsavestr
 #define	__fjmalloc	js_fjmalloc
+#define	__fjmexval	js_fjmexval
 #define	__fjrealloc	js_fjrealloc
 #define	__fjsavestr	js_fjsavestr
 
