@@ -8,7 +8,7 @@
 # the relevant delta was already in use.
 
 # Import common functions & definitions.
-. ../common/test-common
+. ../../common/test-common
 
 
 g=foo.txt

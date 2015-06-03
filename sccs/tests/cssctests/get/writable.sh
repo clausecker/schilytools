@@ -2,7 +2,7 @@
 # writable.sh:  Will get over-write a writable file?
 
 # Import common functions & definitions.
-. ../common/test-common
+. ../../common/test-common
 
 # You cannot run the test suite as root.
 # The test suite fails if you run it as root, particularly because
@@ -11,7 +11,7 @@
 # of just "test".
 # Please don't run the test suite as root, because it may spuriously
 # fail.
-. ../common/not-root
+. ../../common/not-root
 
 remove command.log log log.stdout log.stderr
 

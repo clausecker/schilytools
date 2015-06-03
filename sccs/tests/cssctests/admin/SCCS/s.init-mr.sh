@@ -1,4 +1,8 @@
-h25018
+h35371
+s 00001/00001/00109
+d D 1.2 15/06/03 00:06:43 joerg 2 1
+c ../common/test-common -> ../../common/test-common
+e
 s 00110/00000/00000
 d D 1.1 11/04/30 19:50:22 joerg 1 0
 c date and time created 11/04/30 19:50:22 by joerg
@@ -15,7 +19,12 @@
 # init-mr.sh:  Testing for MR numbers at initialisation time.
 
 # Import common functions & definitions.
+D 2
 . ../common/test-common
+E 2
+I 2
+. ../../common/test-common
+E 2
 
 s=s.new.txt
 

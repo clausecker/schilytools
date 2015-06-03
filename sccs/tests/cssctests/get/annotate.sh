@@ -3,7 +3,7 @@
 # Tests for the -n and -m options of get.
 
 # Import common functions & definitions.
-. ../common/test-common
+. ../../common/test-common
 
 
 f=1test

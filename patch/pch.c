@@ -1,16 +1,31 @@
-/* @(#)pch.c	1.24 15/05/18 2011-2015 J. Schilling */
+/* @(#)pch.c	1.29 15/06/03 2011-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)pch.c	1.24 15/05/18 2011-2015 J. Schilling";
+	"@(#)pch.c	1.29 15/06/03 2011-2015 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1986-1988 Larry Wall
  *	Copyright (c) 1990 Wayne Davison
  *	Copyright (c) 2011-2015 J. Schilling
  *
- *	This program may be copied as long as you don't try to make any
- *	money off of it, or pretend that you wrote it.
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following condition is met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice,
+ * this condition and the following disclaimer.
+ * 
+ * THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE FOR
+ * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+ * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+ * SUCH DAMAGE.
  */
 
 #define	EXT	extern
@@ -52,7 +67,6 @@ static	void	skip_to __PR((off_t file_pos, off_t file_line));
 static	void	malformed __PR((void));
 static	void	ovstrcpy __PR((char *p2, char *p1));
 static	ssize_t	pgets __PR((char **bfp, size_t *szp, FILE *fp));
-static	LINENUM	atolnum __PR((char *s));
 
 /* Prepare to look for the next patch in the patch file. */
 
@@ -77,7 +91,7 @@ open_patch_file(filename)
 	if (filename == Nullch || !*filename || strEQ(filename, "-")) {
 		pfp = fopen(TMPPATNAME, "w");
 		if (pfp == Nullfp)
-			fatal(_("patch: can't create %s.\n"), TMPPATNAME);
+			pfatal(_("can't create %s.\n"), TMPPATNAME);
 		while (fgetaline(stdin, &buf, &bufsize) > 0)
 			fputs(buf, pfp);
 		Fclose(pfp);
@@ -85,7 +99,7 @@ open_patch_file(filename)
 	}
 	pfp = fopen(filename, "r");
 	if (pfp == Nullfp)
-		fatal(_("patch file %s not found\n"), filename);
+		pfatal(_("patch file %s not found\n"), filename);
 	Fstat(fileno(pfp), &file_stat);
 	p_filesize = file_stat.st_size;
 	next_intuit_at((LINENUM)0, (LINENUM)1);	/* start at the beginning */
@@ -270,11 +284,11 @@ intuit_diff_type()
 			else
 				indent++;
 		}
-		for (t = s; isdigit(*t) || *t == ','; t++) {
+		for (t = s; isdigit(UCH *t) || *t == ','; t++) {
 			;
 			/* LINTED */
 		}
-		this_is_a_command = (isdigit(*s) &&
+		this_is_a_command = (isdigit(UCH *s) &&
 		    (*t == 'd' || *t == 'c' || *t == 'a'));
 		if (first_command_line < 0L && this_is_a_command) {
 			first_command_line = this_line;
@@ -288,8 +302,8 @@ intuit_diff_type()
 				goto scan_exit;
 			}
 		}
-		if (first_command_line < 0L && isdigit(*s) &&
-		    (*t == L'i' || *t == L's')) {
+		if (first_command_line < 0L && isdigit(UCH *s) &&
+		    (*t == 'i' || *t == 's')) {
 			p_start = first_command_line;
 			p_sline = fcl_line;
 			retval = ED_DIFF;
@@ -305,12 +319,12 @@ intuit_diff_type()
 			indtmp = savestr(s+6);
 		} else if (wall_plus &&
 			    strnEQ(s, "Prereq:", 7)) {
-			for (t = s+7; isspace(*t); t++) {
+			for (t = s+7; isspace(UCH *t); t++) {
 				;
 				/* LINTED */
 			}
 			revision = savestr(t);
-			for (t = revision; *t && !isspace(*t); t++) {
+			for (t = revision; *t && !isspace(UCH *t); t++) {
 				;
 				/* LINTED */
 			}
@@ -601,7 +615,7 @@ _("Unexpected end of hunk at line %lld.\n"),
 					p_end--;
 					return (FALSE);
 				}
-				for (s = buf; *s && !isdigit(*s); s++) {
+				for (s = buf; *s && !isdigit(UCH *s); s++) {
 					;
 					/* LINTED */
 				}
@@ -610,10 +624,10 @@ _("Unexpected end of hunk at line %lld.\n"),
 				if (strnEQ(s, "0,0", 3))
 					strcpy(s, s+2);
 				p_first = atolnum(s);
-				while (isdigit(*s))
+				while (isdigit(UCH *s))
 					s++;
 				if (*s == ',') {
-					for (; *s && !isdigit(*s); s++) {
+					for (; *s && !isdigit(UCH *s); s++) {
 						;
 						/* LINTED */
 					}
@@ -678,17 +692,20 @@ _("%s \"---\" at line %lld--check line numbers at line %lld.\n"),
 						return (FALSE);
 					}
 					p_char[p_end] = '=';
-					for (s = buf; *s && !isdigit(*s); s++) {
+					for (s = buf;
+					    *s && !isdigit(UCH *s); s++) {
 						;
 						/* LINTED */
 					}
 					if (!*s)
 						malformed();
 					p_newfirst = atolnum(s);
-					while (isdigit(*s))
+					while (isdigit(UCH *s))
 						s++;
 					if (*s == ',') {
-						for (; *s && !isdigit(*s); s++) {
+						for (;
+						    *s && !isdigit(UCH *s);
+						    s++) {
 							;
 							/* LINTED */
 						}
@@ -720,7 +737,8 @@ _("%s \"---\" at line %lld--check line numbers at line %lld.\n"),
 			change_line:
 				if (buf[1] == '\n' && canonicalize)
 					strcpy(buf+1, " \n");
-				if (!isspace(buf[1]) && buf[1] != '>' && buf[1] != '<' &&
+				if (!isspace(UCH buf[1]) &&
+				    buf[1] != '>' && buf[1] != '<' &&
 				    repl_beginning && repl_could_be_missing) {
 					repl_missing = TRUE;
 					goto hunk_done;
@@ -757,7 +775,7 @@ _("%s \"---\" at line %lld--check line numbers at line %lld.\n"),
 				}
 				break;
 			case ' ':
-				if (!isspace(buf[1]) &&
+				if (!isspace(UCH buf[1]) &&
 				    repl_beginning && repl_could_be_missing) {
 					repl_missing = TRUE;
 					goto hunk_done;
@@ -881,11 +899,11 @@ _("Replacement text or line numbers mangled in hunk at line %lld\n"),
 		if (!*s)
 			malformed();
 		p_first = atolnum(s);
-		while (isdigit(*s))
+		while (isdigit(UCH *s))
 			s++;
 		if (*s == ',') {
 			p_ptrn_lines = atolnum(++s);
-			while (isdigit(*s))
+			while (isdigit(UCH *s))
 				s++;
 		} else {
 			p_ptrn_lines = 1;
@@ -895,11 +913,11 @@ _("Replacement text or line numbers mangled in hunk at line %lld\n"),
 		if (*s != '+' || !*++s)
 			malformed();
 		p_newfirst = atolnum(s);
-		while (isdigit(*s))
+		while (isdigit(UCH *s))
 			s++;
 		if (*s == ',') {
 			p_repl_lines = atolnum(++s);
-			while (isdigit(*s)) s++;
+			while (isdigit(UCH *s)) s++;
 		} else {
 			p_repl_lines = 1;
 		}
@@ -1030,18 +1048,18 @@ _("Unexpected end of file in patch.\n"));
 		p_context = 0;
 		ret = pgets(&buf, &bufsize, pfp);
 		p_input_line++;
-		if (ret <= 0 || !isdigit(*buf)) {
+		if (ret <= 0 || !isdigit(UCH *buf)) {
 			next_intuit_at(line_beginning, p_input_line);
 			return (FALSE);
 		}
 		p_first = atolnum(buf);
-		for (s = buf; isdigit(*s); s++) {
+		for (s = buf; isdigit(UCH *s); s++) {
 			;
 			/* LINTED */
 		}
 		if (*s == ',') {
 			p_ptrn_lines = atolnum(++s) - p_first + 1;
-			while (isdigit(*s))
+			while (isdigit(UCH *s))
 				s++;
 		} else {
 			p_ptrn_lines = (*s != 'a');
@@ -1050,7 +1068,7 @@ _("Unexpected end of file in patch.\n"));
 		if (hunk_type == 'a')
 			p_first++;	/* do append rather than insert */
 		min = atolnum(++s);
-		for (; isdigit(*s); s++) {
+		for (; isdigit(UCH *s); s++) {
 			;
 			/* LINTED */
 		}
@@ -1407,11 +1425,11 @@ do_ed_script()
 			break;
 		}
 		p_input_line++;
-		for (t = buf; isdigit(*t) || *t == ','; t++) {
+		for (t = buf; isdigit(UCH *t) || *t == ','; t++) {
 			;
 			/* LINTED */
 		}
-		this_line_is_command = (isdigit(*buf) &&
+		this_line_is_command = (isdigit(UCH *buf) &&
 		    (*t == 'd' || *t == 'c' || *t == 'a'));
 		if (this_line_is_command) {
 			if (!skip_rest_of_patch)
@@ -1446,7 +1464,7 @@ do_ed_script()
 	set_signals(1);
 }
 
-static LINENUM
+LINENUM
 atolnum(s)
 	char	*s;
 {
@@ -1470,15 +1488,41 @@ atolnum(s)
 	while ((c = *s++) != '\0') {
 		if (c < '0' || c > '9')
 			break;
-		if (l > multmax)
-			malformed();
+		if (l > multmax) {
+			if (p_input_line)
+				malformed();
+			else
+				fatal(_("Number '%s' too large.\n"), os);
+		}
 		l *= 10;
 		c -= '0';
-		if (c > (lmax - l))
-			malformed();
+		if (c > (lmax - l)) {
+			if (p_input_line)
+				malformed();
+			else
+				fatal(_("Number '%s' too large.\n"), os);
+		}
 		l += c;
 	}
-	if (s == ++os)
-		malformed();
+	if (s == ++os) {
+		if (p_input_line)
+			malformed();
+		else
+			fatal(_("Not a number '%s'.\n"), --os);
+	}
 	return (neg? -l:l);
+}
+
+int
+atoinum(s)
+	char	*s;
+{
+	LINENUM	l = atolnum(s);
+	int	ret;
+
+	ret = l;
+	if (ret != l)
+		fatal(_("Number '%lld' too large.\n"), (Llong)l);
+
+	return (ret);
 }

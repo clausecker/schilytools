@@ -5,8 +5,8 @@
 
 # Import common functions & definitions.
 
-. ../common/test-common
-. ../common/real-thing
+. ../../common/test-common
+. ../../common/real-thing
 
 remove command.log 
 

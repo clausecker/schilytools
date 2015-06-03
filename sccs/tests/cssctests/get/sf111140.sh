@@ -2,7 +2,7 @@
 # included.sh:  Extra tests using the test file from bug number 111140.
 
 # Import common functions & definitions.
-. ../common/test-common
+. ../../common/test-common
 
 
 g=sf111140_testcase.txt
@@ -14,7 +14,7 @@ u=sf111140_testcase.uue
 
 remove $g $s $x $z $p
 
-../../testutils/uu_decode --decode <$u || 
+${SRCROOT}/tests/testutils/uu_decode --decode <$u || 
     miscarry could not uudecode file $u.
 
 

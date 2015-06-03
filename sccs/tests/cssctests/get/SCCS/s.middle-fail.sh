@@ -1,4 +1,8 @@
-h41286
+h54217
+s 00002/00002/00088
+d D 1.4 15/06/03 00:06:44 joerg 4 3
+c ../common/test-common -> ../../common/test-common
+e
 s 00009/00001/00081
 d D 1.3 15/04/25 18:43:53 joerg 3 2
 c test -w -> wtest -w ... wtest ist eine Funktion mit ls -l | grep
@@ -25,7 +29,12 @@
 # SCCS difrectory stops processing at b, because a writable version of 
 # b exists.  In fact iot should carry on a check out a copy of c.
 
+D 4
 . ../common/test-common
+E 4
+I 4
+. ../../common/test-common
+E 4
 I 3
 
 # The test suite fails if you run it as root, particularly because
@@ -35,7 +44,12 @@
 # Please don't run the test suite as root, because it may spuriously
 # fail.
 E 3
+D 4
 . ../common/not-root
+E 4
+I 4
+. ../../common/not-root
+E 4
 
 
 files="a b c"

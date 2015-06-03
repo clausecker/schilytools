@@ -1,4 +1,8 @@
-h62673
+h07491
+s 00001/00001/00028
+d D 1.2 15/06/03 00:06:44 joerg 2 1
+c ../common/test-common -> ../../common/test-common
+e
 s 00029/00000/00000
 d D 1.1 11/04/26 03:04:16 joerg 1 0
 c date and time created 11/04/26 03:04:16 by joerg
@@ -15,7 +19,12 @@
 # default.sh: test the default behaviour.
 
 # Import common functions & definitions.
+D 2
 . ../common/test-common
+E 2
+I 2
+. ../../common/test-common
+E 2
 
 cleanup () {
     for prefix in s p z l

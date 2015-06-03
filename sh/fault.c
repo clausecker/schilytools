@@ -38,11 +38,11 @@
 /*
  * This file contains modifications Copyright 2008-2015 J. Schilling
  *
- * @(#)fault.c	1.25 15/04/23 2008-2015 J. Schilling
+ * @(#)fault.c	1.26 15/05/20 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)fault.c	1.25 15/04/23 2008-2015 J. Schilling";
+	"@(#)fault.c	1.26 15/05/20 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -170,6 +170,10 @@ static BOOL trapflg[MAXTRAP] =
 #endif
 };
 
+/*
+ * NOTE: Signal numbers other then 1, 2, 3, 6, 9, 14, and 15 are not portable.
+ *	 We thus cannot use a pre-initialized table for signal numbers > 3.
+ */
 static void (*(
 sigval[MAXTRAP])) __PR((int)) =
 {

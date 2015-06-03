@@ -2,7 +2,7 @@
 # admin.sh:  The creation of very large (>99999 lines) SCCS files.
 
 # Import common functions & definitions.
-. ../common/test-common
+. ../../common/test-common
 
 g=bigfile.txt
 s=s.$g
@@ -14,7 +14,7 @@ lines=100002
 
 remove command.log log log.stdout log.stderr $g $s $z $x $p
 
-( ../../testutils/yes '%C%' | head -${lines} > $g )  || miscarry Cannot create large input file.
+( ${SRCROOT}/tests/testutils/yes '%C%' | head -${lines} > $g )  || miscarry Cannot create large input file.
 
 docommand A1 "${vg_admin} -i${g} ${s}" 0 "" ""
 mv ${g} old.${g} || miscarry "Rename failed"

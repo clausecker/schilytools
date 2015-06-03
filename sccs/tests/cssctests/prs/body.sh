@@ -3,7 +3,7 @@
 # body.sh:  Testing for :GB: keyword of prs.
 
 # Import common functions & definitions.
-. ../common/test-common
+. ../../common/test-common
 
 remove s.1 p.1 z.1 1 command.log DESC s.foo p.foo z.foo 
 

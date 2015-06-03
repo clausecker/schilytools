@@ -1,4 +1,12 @@
-h53386
+h15235
+s 00001/00001/00063
+d D 1.3 15/06/03 00:06:44 joerg 3 2
+c ../common/test-common -> ../../common/test-common
+e
+s 00001/00001/00063
+d D 1.2 15/06/01 23:55:23 joerg 2 1
+c ../../testutils/ -> ${SRCROOT}/tests/testutils/
+e
 s 00064/00000/00000
 d D 1.1 11/04/30 19:50:22 joerg 1 0
 c date and time created 11/04/30 19:50:22 by joerg
@@ -13,14 +21,24 @@
 #! /bin/sh
 
 # Import common functions & definitions.
+D 3
 . ../common/test-common
+E 3
+I 3
+. ../../common/test-common
+E 3
 
 g=keys.txt
 s=s.$g
 l=l.$g
 p=p.$g
 remove $s $g $l $p
+D 2
 ../../testutils/uu_decode --decode < keys.uue || miscarry could not extract test file.
+E 2
+I 2
+${SRCROOT}/tests/testutils/uu_decode --decode < keys.uue || miscarry could not extract test file.
+E 2
 
 summary="\
     1.2	97/10/25 23:04:58 james

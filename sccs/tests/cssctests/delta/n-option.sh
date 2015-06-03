@@ -2,7 +2,7 @@
 # n-option.sh:  Testing for the -n option of "delta"
 
 # Import common functions & definitions.
-. ../common/test-common
+. ../../common/test-common
 
 g=foo
 s=s.$g

@@ -3,7 +3,7 @@
 # t-option.sh:  Testing for correct operation of admin -t.
 
 # Import common functions & definitions.
-. ../common/test-common
+. ../../common/test-common
 
 expands_to () {
     # $1 -- label

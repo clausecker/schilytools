@@ -3,10 +3,10 @@
 # y-flag.sh:  Testing for the 'y' flag for admin (admin -fy).
 
 # Import common functions & definitions.
-. ../common/test-common
+. ../../common/test-common
 
 # Determine if we are testing CSSC or the real thing.
-. ../common/real-thing
+. ../../common/real-thing
 
 g=bar
 s=s.${g}

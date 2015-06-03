@@ -3,10 +3,10 @@
 # comment.sh:  Testing for comments at initialisation time.
 
 # Import common functions & definitions.
-. ../common/test-common
+. ../../common/test-common
 
 # Import function which tells us if we're testing CSSC, or something else.
-. ../common/real-thing
+. ../../common/real-thing
 
 s=s.new.txt
 remove foo new.txt [xzs].new.txt [xzs].1 [xzs].2 command.log

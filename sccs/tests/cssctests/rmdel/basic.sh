@@ -2,7 +2,7 @@
 # basic.sh:  Tests for the basic operation of "rmdel".
 
 # Import common functions & definitions.
-. ../common/test-common
+. ../../common/test-common
 
 g=testfile.txt
 s=s.$g

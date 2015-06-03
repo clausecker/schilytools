@@ -1,0 +1,74 @@
+h35163
+s 00001/00002/00038
+d D 1.3 15/06/03 00:16:41 joerg 3 2
+c Anpassungen an neue Position im Dateibaum (eine Stufe hoch)
+e
+s 00004/00000/00036
+d D 1.2 11/05/30 01:21:28 joerg 2 1
+c help, sccslog neu
+e
+s 00036/00000/00000
+d D 1.1 11/05/28 12:13:34 joerg 1 0
+c date and time created 11/05/28 12:13:34 by joerg
+e
+u
+U
+f e 0
+f y 
+t
+T
+I 1
+#!/bin/sh
+
+D 3
+SRCROOT=`../../../../conf/srcroot.sh`
+. ${SRCROOT}/tests/bin/base
+E 3
+I 3
+. ${SRCROOT:=`../../../conf/srcroot.sh`}/tests/bin/base
+E 3
+
+admin=${dir-/usr/bin}/admin
+cdc=${dir-/usr/bin}/cdc
+delta=${dir-/usr/bin}/delta
+get=${dir-/usr/bin}/get
+I 2
+help=${dir-/usr/bin}/help
+E 2
+prs=${dir-/usr/bin}/prs
+prt=${dir-/usr/bin}/prt
+rmdel=${dir-/usr/bin}/rmdel
+sact=${dir-/usr/bin}/sact
+sccs=${dir-/usr/bin}/sccs
+sccsdiff=${dir-/usr/bin}/sccsdiff
+I 2
+sccslog=${dir-/usr/bin}/sccslog
+E 2
+unget=${dir-/usr/bin}/unget
+val=${dir-/usr/bin}/val
+what=${dir-/usr/bin}/what
+
+vg_admin=${admin}
+vg_cdc=${cdc}
+vg_delta=${delta}
+vg_get=${get}
+I 2
+vg_help=${help}
+E 2
+vg_prs=${prs}
+vg_prt=${prt}
+vg_rmdel=${rmdel}
+vg_sact=${sact}
+vg_sccs=${sccs}
+vg_sccsdiff=${sccsdiff}
+I 2
+vg_sccslog=${sccslog}
+E 2
+vg_unget=${unget}
+vg_val=${val}
+vg_what=${what}
+
+sccsargs=""		# We do not support CSSC --prefix=
+
+DIFF=${DIFF-diff}
+E 1

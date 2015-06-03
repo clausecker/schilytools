@@ -3,23 +3,23 @@
 # Basic tests for extended SCCS options
 
 # Read test core functions
-. ../common/test-common
+. ../../common/test-common
 
-cmd=admin		# for ../common/optv
-ocmd=${admin}		# for ../common/optv
+cmd=admin		# for ../../common/optv
+ocmd=${admin}		# for ../../common/optv
 g=foo
 s=s.$g
 p=p.$g
 z=z.$g
-output=got.output	# for ../common/optv
-error=got.error		# for ../common/optv
+output=got.output	# for ../../common/optv
+error=got.error		# for ../../common/optv
 
 remove $z $s $p $g
 
 #
 # Checking whether SCCS ${cmd} supports extended options
 #
-. ../common/optv
+. ../../common/optv
 
 echo '%M%' > $g		|| miscarry "Could not create $g"
 touch 0101000090 $g	|| miscarry "Could not touch $g"

@@ -1,4 +1,4 @@
-#ident "@(#)rules1.top	1.47 15/03/25 "
+#ident "@(#)rules1.top	1.48 15/06/03 "
 ###########################################################################
 # Written 1996-2015 by J. Schilling
 ###########################################################################
@@ -321,6 +321,7 @@ OINCSDIR=	$(SRCROOTSL)incs/$(OARCH)
 # Location for targets:
 #
 # - all						: see appropriate rules
+# - man installman				: rules.man
 # - lint					: rules.lnt
 # - clean, clobber, distclean, relink, rmtarget	: rules.clr
 # - rel						: rules.rel
@@ -343,11 +344,11 @@ OINCSDIR=	$(SRCROOTSL)incs/$(OARCH)
 # If we would add .help and tinfo, we would get multiple defined target
 # messages.
 ###########################################################################
-ALLTARGETS=	all lint clean clobber distclean ibins depend rmdep \
+ALLTARGETS=	all man lint clean clobber distclean ibins depend rmdep \
 		config TAGS tags rmtarget relink rel \
 		$(INSTALLTARGETS) $(MANTARGETS) $(PKGTARGETS)
 
-INSTALLTARGETS=	install
+INSTALLTARGETS=	install installman
 MANTARGETS=	html htmlx htmlxn
 PKGTARGETS=	tarpkg tarpkg1 tarpkg2
 

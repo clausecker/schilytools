@@ -6,7 +6,7 @@
 # [ Bug #110537 ] Invalid SID got in branch where Rtrunk greater than Rbranch
 
 # Import common functions & definitions. 
-. ../common/test-common 
+. ../../common/test-common 
 # Get a test file... 
 s=s.tst 
 p=p.tst 

@@ -2,13 +2,13 @@
 # sid-select.sh:  Do we select the correct SIDs?
 
 # Import common functions & definitions.
-. ../common/test-common
+. ../../common/test-common
 
 
 # Get a test file...
 s=s.testfile
 remove $s
-../../testutils/uu_decode --decode < testfile.uue || 
+${SRCROOT}/tests/testutils/uu_decode --decode < testfile.uue || 
     miscarry could not extract test file.
 
 get_expect () {

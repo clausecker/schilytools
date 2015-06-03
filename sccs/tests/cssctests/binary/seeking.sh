@@ -2,9 +2,9 @@
 # auto.sh:  Tests for "admin"'s detection of binary files.
 
 # Import common functions & definitions.
-. ../common/test-common
-. ../common/real-thing
-. ../common/config-data
+. ../../common/test-common
+. ../../common/real-thing
+. ../../common/config-data
 
 if $binary_support
 then
@@ -126,8 +126,8 @@ expect_fail=false
 adminflags=""
 
 remove long-text-file
-../../testutils/yammer 1000 "this is a text file" > long-text-file
-#../../testutils/yes "this is a text file" | nl | head -1000 >long-text-file
+${SRCROOT}/tests/testutils/yammer 1000 "this is a text file" > long-text-file
+#${SRCROOT}/tests/testutils/yes "this is a text file" | nl | head -1000 >long-text-file
 if test -s long-text-file
 then
     true 

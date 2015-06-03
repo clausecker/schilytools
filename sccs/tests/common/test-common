@@ -1,0 +1,11 @@
+#!/bin/sh
+
+. ${SRCROOT:=`../../../../conf/srcroot.sh`}/tests/bin/base
+
+. ${SRCROOT}/sccs/tests/common/command-names
+
+export SRCROOT
+
+miscarry() {
+	xfail "$@"
+}

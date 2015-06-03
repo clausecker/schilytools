@@ -1,4 +1,12 @@
-h12451
+h30098
+s 00001/00001/00032
+d D 1.3 15/06/03 00:06:44 joerg 3 2
+c ../common/test-common -> ../../common/test-common
+e
+s 00000/00000/00033
+d D 1.2 15/06/01 23:55:23 joerg 2 1
+c ../../testutils/ -> ${SRCROOT}/tests/testutils/
+e
 s 00033/00000/00000
 d D 1.1 11/04/26 03:04:16 joerg 1 0
 c date and time created 11/04/26 03:04:16 by joerg
@@ -15,7 +23,12 @@
 # wrongsid.sh:  what happens if the desired SID does not exist?
 
 # Import common functions & definitions.
+D 3
 . ../common/test-common
+E 3
+I 3
+. ../../common/test-common
+E 3
 
 cleanup () {
     for prefix in s p z l

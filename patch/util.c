@@ -1,15 +1,30 @@
-/* @(#)util.c	1.25 15/05/16 2011-2015 J. Schilling */
+/* @(#)util.c	1.30 15/06/02 2011-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)util.c	1.25 15/05/16 2011-2015 J. Schilling";
+	"@(#)util.c	1.30 15/06/02 2011-2015 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1986 Larry Wall
  *	Copyright (c) 2011-2015 J. Schilling
  *
- *	This program may be copied as long as you don't try to make any
- *	money off of it, or pretend that you wrote it.
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following condition is met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice,
+ * this condition and the following disclaimer.
+ * 
+ * THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE FOR
+ * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+ * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+ * SUCH DAMAGE.
  */
 
 #define	EXT	extern
@@ -20,8 +35,15 @@ static	UConst char sccsid[] =
 #include <schily/varargs.h>
 #include <schily/errno.h>
 
+#ifndef	HAVE_STRERROR
+#define	strerror	errmsgstr
+#endif
+
 static	Llong	fetchtime	__PR((char *t));
 static	void	sig_exit	__PR((int signo));
+static	int	wday		__PR((char *d));
+static	int	month		__PR((char *m));
+static	Llong	fetchctime	__PR((char *t));
 
 /* Rename a file, copying it if necessary. */
 
@@ -44,7 +66,7 @@ move_file(from, to)
 #endif
 		fromfd = open(from, 0);
 		if (fromfd < 0) {
-			fatal(_("patch: internal error, can't reopen %s\n"),
+			pfatal(_("internal error, can't reopen %s\n"),
 				from);
 		}
 		/*
@@ -53,7 +75,7 @@ move_file(from, to)
 		 */
 		while ((i = read(fromfd, buf, BUFFERSIZE)) > 0)
 			if (write(STDOUT_FILENO, buf, i) != i)
-				fatal(_("patch: write failed\n"));
+				pfatal(_("write failed\n"));
 		Close(fromfd);
 		return (0);
 	}
@@ -82,7 +104,7 @@ move_file(from, to)
 			to_inode == file_stat.st_ino) {
 			if (file_stat.st_ctime >= starttime) /* mult patches */
 				goto backup_done;
-			for (s = simplename; *s && !islower(*s); s++) {
+			for (s = simplename; *s && !islower(UCH *s); s++) {
 				;
 				/* LINTED */
 			}
@@ -125,7 +147,7 @@ backup_done:
 			if (debug & 4)
 				say(_("Removing file %s\n"), to);
 			if (unlink(to) != 0 && errno != ENOENT)
-				fatal(_("Can't remove file %s\n"), to);
+				pfatal(_("Can't remove file %s\n"), to);
 		}
 		return (0);
 	}
@@ -148,7 +170,7 @@ backup_done:
 		}
 		fromfd = open(from, 0);
 		if (fromfd < 0) {
-			fatal(_("patch: internal error, can't reopen %s\n"),
+			pfatal(_("internal error, can't reopen %s\n"),
 				from);
 		}
 		/*
@@ -157,7 +179,7 @@ backup_done:
 		 */
 		while ((i = read(fromfd, buf, BUFFERSIZE)) > 0)
 			if (write(tofd, buf, i) != i)
-				fatal(_("patch: write failed\n"));
+				pfatal(_("write failed\n"));
 		Close(fromfd);
 		Close(tofd);
 	}
@@ -199,17 +221,17 @@ copy_file(from, to)
 
 	tofd = creat(to, 0666);
 	if (tofd < 0)
-		fatal(_("patch: can't create %s.\n"), to);
+		pfatal(_("can't create %s.\n"), to);
 	fromfd = open(from, 0);
 	if (fromfd < 0)
-		fatal(_("patch: internal error, can't reopen %s\n"), from);
+		pfatal(_("internal error, can't reopen %s\n"), from);
 	/*
 	 * For file copy operations, we use the minimal buf size that
 	 * is better aligned.
 	 */
 	while ((i = read(fromfd, buf, BUFFERSIZE)) > 0)
 		if (write(tofd, buf, i) != i)
-			fatal(_("patch: write (%s) failed\n"), to);
+			pfatal(_("write (%s) failed\n"), to);
 	Close(fromfd);
 	Close(tofd);
 }
@@ -229,7 +251,7 @@ savestr(s)
 		if (using_plan_a) {
 			out_of_mem = TRUE;
 		} else {
-			fatal(_("patch: out of memory (savestr)\n"));
+			pfatal(_("out of memory (savestr)\n"));
 			/* NOTREACHED */
 		}
 	}
@@ -289,6 +311,43 @@ fatal(fmt, va_alist)
 	(void) vfprintf(stderr, fmt, args);
 #else
 	(void) js_fprintf(stderr, "%r", fmt, args);
+#endif
+	va_end(args);
+	my_exit(EXIT_FAIL);
+}
+
+
+/* VARARGS1 */
+#ifdef	PROTOTYPES
+EXPORT void
+pfatal(const char *fmt, ...)
+#else
+EXPORT void
+pfatal(fmt, va_alist)
+	char	*fmt;
+	va_dcl
+#endif
+{
+	va_list	args;
+	int	errsav = errno;
+	char	*err;
+	char	errbuf[32];
+
+	err = strerror(errsav);
+	if (err == NULL) {
+		sprintf(errbuf, "Error %d", errsav);
+		err = errbuf;
+	}
+#ifdef	PROTOTYPES
+	va_start(args, fmt);
+#else
+	va_start(args);
+#endif
+#ifdef	USE_VPRINTF
+	(void) fprintf(stderr, "patch: %s. ", err);
+	(void) vfprintf(stderr, fmt, args);
+#else
+	(void) js_fprintf(stderr, "patch: %s. %r", err, fmt, args);
 #endif
 	va_end(args);
 	my_exit(EXIT_FAIL);
@@ -477,7 +536,7 @@ fetchname(at, strip_leading, assume_exists, isnulldate)
 	if (!at)
 		return (Nullch);
 	s = savestr(at);
-	for (t = s; isspace(*t); t++) {
+	for (t = s; isspace(UCH *t); t++) {
 		;
 		/* LINTED */
 	}
@@ -487,7 +546,7 @@ fetchname(at, strip_leading, assume_exists, isnulldate)
 		say(_("fetchname %s %d %d\n"),
 			name, strip_leading, assume_exists);
 #endif
-	for (; *t && !isspace(*t); t++)
+	for (; *t && !isspace(UCH *t); t++)
 		if (*t == '/')
 			if (--strip_leading >= 0)
 				name = t+1;
@@ -524,6 +583,81 @@ fetchname(at, strip_leading, assume_exists, isnulldate)
 	return (name);
 }
 
+static int
+wday(d)
+	char	*d;
+{
+	char	*days = "SunMonTueWedThuFriSat";
+	char	day[4];
+	char	*p;
+
+	strlcpy(day, d, 4);
+	p = strstr(days, day);
+	if (p == NULL)
+		return (-1);
+	return ((p - days) / 3);
+}
+
+static int
+month(m)
+	char	*m;
+{
+	char	*months = "JanFebMarAprMayJunJulAugSepOctNovDec";
+	char	mon[4];
+	char	*p;
+
+	strlcpy(mon, m, 4);
+	p = strstr(months, mon);
+	if (p == NULL)
+		return (-1);
+	return ((p - months) / 3);
+}
+
+static Llong
+fetchctime(t)
+	char	*t;
+{
+	Llong	d = -1;
+	struct tm tm;
+	int	n;
+
+	for (; *t != '\0' && isspace(UCH *t); t++)
+		;
+	n = wday(t);
+	if (n < 0)
+		return (d);
+	tm.tm_wday = n;
+	t += 3;
+	for (; *t != '\0' && isspace(UCH *t); t++)
+		;
+	n = month(t);
+	if (n < 0)
+		return (d);
+	tm.tm_mon = n;
+	t += 3;
+	for (; *t != '\0' && isspace(UCH *t); t++)
+		;
+	if (!isdigit(UCH *t))
+		return (d);
+	n = atoi(t);
+	if (n < 1 || n > 31)
+		return (d);
+	tm.tm_mday = n;
+	for (; *t != '\0' && isdigit(UCH *t); t++)
+		;
+	for (; *t != '\0' && isspace(UCH *t); t++)
+		;
+	n = sscanf(t, "%2d:%2d:%2d %4d",
+			&tm.tm_hour, &tm.tm_min, &tm.tm_sec,
+			&tm.tm_year);
+	tm.tm_year -= 1900;
+	if (n != 4)
+		return (d);
+	d = mktime(&tm);
+	return (d);
+}
+
+
 static Llong
 fetchtime(t)
 	char	*t;
@@ -534,8 +668,17 @@ fetchtime(t)
 	int	h;
 	int	m;
 
-	for (++t; *t != '\0' && isspace(*t); t++)
+	for (++t; *t != '\0' && isspace(UCH *t); t++)
 		;
+	/*
+	 * Check format from: date "+%a %b %e %T %Y"
+	 */
+	if (wday(t) >= 0) {
+		return (fetchctime(t));
+	}
+	/*
+	 * Parse format from: date '+%Y-%m-%d %H:%M:%S'
+	 */
 	n = sscanf(t, "%4d-%2d-%2d %2d:%2d:%2d",
 			&tm.tm_year, &tm.tm_mon, &tm.tm_mday,
 			&tm.tm_hour, &tm.tm_min, &tm.tm_sec);
@@ -545,14 +688,24 @@ fetchtime(t)
 	if (n != 6)
 		return (d);
 
-	if (strlen(t) <= 19)
+	if (strlen(t) <= 19)	/* Assume time >= y1000 */
 		return (d);
 
-	t += 19;
-	for (; *t != '\0' && !isspace(*t); t++)
+	t += 19;		/* Skip minimum length */
+
+	/*
+	 * Skip fraction of a second
+	 */
+	for (; *t != '\0' && !isspace(UCH *t); t++)
 		;
-	for (; *t != '\0' && isspace(*t); t++)
+	/*
+	 * Skip until until the timezone offset field
+	 */
+	for (; *t != '\0' && isspace(UCH *t); t++)
 		;
+	/*
+	 * Scan timezone hours and minutes
+	 */
 	n = sscanf(t, "%3d%2d", &h, &m);
 	if (n != 2)
 		return (d);
@@ -563,6 +716,6 @@ fetchtime(t)
 	d = mklgmtime(&tm);
 	m += 60 * h;
 	m *= 60;
-	d -= m;
+	d -= m;			/* Add timezone offset */
 	return (d);
 }

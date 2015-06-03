@@ -3,7 +3,7 @@
 # Basic tests for SCCS flags in the range 'a'..'z'
 
 # Read test core functions
-. ../common/test-common
+. ../../common/test-common
 
 g=foo
 s=s.$g

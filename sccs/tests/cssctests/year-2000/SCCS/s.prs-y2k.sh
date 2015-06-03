@@ -1,4 +1,8 @@
-h60017
+h06909
+s 00002/00002/00109
+d D 1.3 15/06/03 00:06:44 joerg 3 2
+c ../common/test-common -> ../../common/test-common
+e
 s 00009/00000/00102
 d D 1.2 11/05/31 21:54:19 joerg 2 1
 c expect_fail=true fuer AIX um einen Abbruch zu vermeiden
@@ -21,8 +25,14 @@
 #               with regard to date issues.
 
 # Import common functions & definitions.
+D 3
 . ../common/test-common
 . ../common/real-thing
+E 3
+I 3
+. ../../common/test-common
+. ../../common/real-thing
+E 3
 
 
 s=s.y2k.txt

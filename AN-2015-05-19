@@ -78,7 +78,7 @@ programs now (hopefully) call gettext() for all strings that need localization.
 	could believe that parts of a multi patch script were comment where the
 	same patches put into separte files worked fine.
 
--	Patch: The man page now documents the patch fie format and the
+-	Patch: The man page now documents the patch file format and the
 	filename determination algorithm.
 
 -	Patch: A typo from the old ages from before 1990 was fixed. Patch no

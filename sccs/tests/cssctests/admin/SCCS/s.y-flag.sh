@@ -1,4 +1,8 @@
-h14691
+h27779
+s 00002/00002/00196
+d D 1.3 15/06/03 00:06:43 joerg 3 2
+c ../common/test-common -> ../../common/test-common
+e
 s 00002/00002/00196
 d D 1.2 11/05/30 01:18:22 joerg 2 1
 c test -e -> test -r
@@ -19,10 +23,20 @@
 # y-flag.sh:  Testing for the 'y' flag for admin (admin -fy).
 
 # Import common functions & definitions.
+D 3
 . ../common/test-common
+E 3
+I 3
+. ../../common/test-common
+E 3
 
 # Determine if we are testing CSSC or the real thing.
+D 3
 . ../common/real-thing
+E 3
+I 3
+. ../../common/real-thing
+E 3
 
 g=bar
 s=s.${g}

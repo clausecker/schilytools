@@ -3,7 +3,7 @@
 # exists.sh:  Testing for correct behaviour when a file isn't there.
 
 # Import common functions & definitions.
-. ../common/test-common
+. ../../common/test-common
 
 
 # If we invert the order of the arguments to prs here, so that the

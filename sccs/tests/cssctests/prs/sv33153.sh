@@ -4,7 +4,7 @@
 
 
 # Import common functions & definitions.
-. ../common/test-common
+. ../../common/test-common
 
 s=s.sv33153
 cleanup () {

@@ -9,8 +9,8 @@
 #               SCCS implementations do not do this.
 
 # Import common functions & definitions.
-. ../common/test-common
-. ../common/real-thing
+. ../../common/test-common
+. ../../common/real-thing
 
 
 s=s.y2k.txt

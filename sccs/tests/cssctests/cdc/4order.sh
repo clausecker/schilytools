@@ -2,7 +2,7 @@
 # 4order.sh:  Testing for ordering of the components of the comment.
 
 # Import common functions & definitions.
-. ../common/test-common
+. ../../common/test-common
 
 g=testfile
 s=s.$g

@@ -1,6 +1,6 @@
-#ident "@(#)rules.man	1.7 15/01/31 "
+#ident "@(#)rules.man	1.8 15/06/03 "
 ###########################################################################
-# Written 1997 by J. Schilling
+# Written 1997-2015 by J. Schilling
 ###########################################################################
 #
 # Manual page building rules
@@ -46,9 +46,11 @@ _INSMODEI=	$(_UNIQ)$(INSMODE)
 __INSMODEI=	$(_INSMODEI:$(_UNIQ)=$(INSMODEF))
 INSMODEI=	$(__INSMODEI:$(_UNIQ)%=%)
 
-all:		$(ARCHDIR) $(PTARGET)
+all man:	$(ARCHDIR) $(PTARGET)
 
-install:	$(ARCHDIR)
+install installman:	$(ARCHDIR)
+
+installman:	man install
 
 $(PTARGET):	$(SRCFILE)
 		$(LOCALIZE) $(SRCFILE) $@

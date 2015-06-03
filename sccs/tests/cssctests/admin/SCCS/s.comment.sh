@@ -1,4 +1,8 @@
-h50924
+h64030
+s 00002/00002/00084
+d D 1.5 15/06/03 00:06:43 joerg 5 4
+c ../common/test-common -> ../../common/test-common
+e
 s 00011/00001/00075
 d D 1.4 14/08/26 20:11:31 joerg 4 3
 c Anpassung an erweitertes Datumsformat von SCCSv6
@@ -27,11 +31,21 @@
 # comment.sh:  Testing for comments at initialisation time.
 
 # Import common functions & definitions.
+D 5
 . ../common/test-common
+E 5
+I 5
+. ../../common/test-common
+E 5
 
 I 4
 # Import function which tells us if we're testing CSSC, or something else.
+D 5
 . ../common/real-thing
+E 5
+I 5
+. ../../common/real-thing
+E 5
 
 E 4
 s=s.new.txt

@@ -1,4 +1,8 @@
-h53804
+h64153
+s 00001/00001/00123
+d D 1.2 15/06/03 00:06:43 joerg 2 1
+c ../common/test-common -> ../../common/test-common
+e
 s 00124/00000/00000
 d D 1.1 10/05/11 11:30:00 joerg 1 0
 c date and time created 10/05/11 11:30:00 by joerg
@@ -15,7 +19,12 @@
 # flags.sh:  Testing for setting /unsetting flags.
 
 # Import common functions & definitions.
+D 2
 . ../common/test-common
+E 2
+I 2
+. ../../common/test-common
+E 2
 
 g=new.txt
 s=s.$g

@@ -1,15 +1,30 @@
-/* @(#)patch.c	1.32 15/05/19 2011-2015 J. Schilling */
+/* @(#)patch.c	1.40 15/06/03 2011-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)patch.c	1.32 15/05/19 2011-2015 J. Schilling";
+	"@(#)patch.c	1.40 15/06/03 2011-2015 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1984-1988 Larry Wall
  *	Copyright (c) 2011-2015 J. Schilling
  *
- *	This program may be copied as long as you don't try to make any
- *	money off of it, or pretend that you wrote it.
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following condition is met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice,
+ * this condition and the following disclaimer.
+ * 
+ * THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE FOR
+ * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+ * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+ * SUCH DAMAGE.
  */
 
 #define	EXT
@@ -20,7 +35,7 @@ static	UConst char sccsid[] =
 #include "pch.h"
 #include "inp.h"
 
-#define	PATCHVERSION	"3.0"
+#define	PATCHVERSION	"3.1"
 
 /* procedures */
 
@@ -291,7 +306,8 @@ _("Lost hunk on alloc error!\n"));
 					    hunk, (Llong)newwhere);
 			} else {
 				apply_hunk(where);
-				if (verbose) {
+				if (verbose > TRUE ||
+				    (verbose && (fuzz || last_offset))) {
 					say(_("Hunk #%d succeeded at %lld"),
 					    hunk, (Llong)newwhere);
 					if (fuzz)
@@ -536,13 +552,13 @@ get_some_switches()
 				if (!*++s)
 					s = nextarg();
 				if (chdir(s) < 0)
-					fatal(_("Can't cd to %s.\n"), s);
+					pfatal(_("Can't cd to %s.\n"), s);
 				break;
 			case 'D':			/* POSIX: ~..OK	*/
 				do_defines = TRUE;
 				if (!*++s)
 					s = nextarg();
-				if (!isalpha(*s) && '_' != *s)
+				if (!isalpha(UCH *s) && '_' != *s)
 					fatal(
 _("Argument to -D not an identifier.\n"));
 				Sprintf(if_defined, "#ifdef %s\n", s);
@@ -572,7 +588,7 @@ _("Argument to -D not an identifier.\n"));
 					goto unknown;
 				if (*++s == '=')
 					s++;
-				maxfuzz = atoi(s);
+				maxfuzz = atolnum(s);
 				break;
 			case 'i':			/* POSIX: only	*/
 				if (!*++s)
@@ -606,7 +622,7 @@ _("Argument to -D not an identifier.\n"));
 					s = nextarg();
 				else if (*s == '=')
 					s++;
-				strippath = atoi(s);
+				strippath = atoinum(s);
 				break;
 			case 'r':			/* POSIX: OK	*/
 				Strcpy(rejname, nextarg());
@@ -635,6 +651,11 @@ _("Argument to -D not an identifier.\n"));
 			case 'v':			/* Wall: all vers */
 				if (!wall_plus)
 					goto unknown;
+				if (s[1] == 'v') {
+					s++;
+					verbose = TRUE + 1;
+					break;
+				}
 
 				printf(
 				_("patch %s (%s-%s-%s)\n\n"),
@@ -661,13 +682,16 @@ _("Argument to -D not an identifier.\n"));
 					do_posix = TRUE;
 					wall_plus = FALSE;
 					do_wall = FALSE;
+				} else if (strEQ(s, "W-posix")) {
+					do_posix = FALSE;
+					do_wall = FALSE;
 				}
 				break;
 #ifdef DEBUGGING
 			case 'x':			/* Wall: all vers */
 				if (!wall_plus)
 					goto unknown;
-				debug = atoi(s+1);
+				debug = atoinum(s+1);
 				break;
 #endif
 			case 'z':			/* GNU		*/
@@ -697,6 +721,7 @@ Usage: patch [-bEflNRsSv] [-c|-e|-n|-u]\n\
 \t[-z backup-ext] [-B backup-prefix] [-d directory]\n\
 \t[-D symbol] [-Fmax-fuzz] [-i patchfile] [-o out-file] [-p[strip-count]]\n\
 \t[-r rej-name] [origfile] [patchfile] [[+] [options] [origfile]...]\n\
+\t[-W+] [-Wall] [-Wposix] [-W-posix]\n\
 "));
 				}
 				my_exit(EXIT_FAIL);
@@ -931,7 +956,7 @@ init_output(name)
 {
 	ofp = fopen(name, "w");
 	if (ofp == Nullfp)
-		fatal(_("patch: can't create %s.\n"), name);
+		pfatal(_("can't create %s.\n"), name);
 }
 
 /* Open a file to put hunks we can't locate. */
@@ -942,7 +967,7 @@ init_reject(name)
 {
 	rejfp = fopen(name, "w");
 	if (rejfp == Nullfp)
-		fatal(_("patch: can't create %s.\n"), name);
+		pfatal(_("can't create %s.\n"), name);
 }
 
 /* Copy input file to output, up to wherever hunk is to be applied. */
@@ -1039,12 +1064,12 @@ similar(a, b, len)
 	int len;
 {
 	while (len) {
-		if (isspace(*b)) {		/* whitespace or \n to match? */
-			if (!isspace(*a))	/* no correspond. whitespace? */
+		if (isspace(UCH *b)) {		/* whitespace or \n to match? */
+			if (!isspace(UCH *a))	/* no correspond. whitespace? */
 				return (FALSE);
-			while (len && isspace(*b) && *b != '\n')
+			while (len && isspace(UCH *b) && *b != '\n')
 				b++, len--;	/* skip pattern whitespace */
-			while (isspace(*a) && *a != '\n')
+			while (isspace(UCH *a) && *a != '\n')
 				a++;		/* skip target whitespace */
 			if (*a == '\n' || *b == '\n')
 				return (*a == *b); /* should end in sync */

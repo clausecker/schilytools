@@ -1,4 +1,8 @@
-h55199
+h00010
+s 00001/00001/00021
+d D 1.2 15/06/03 00:06:44 joerg 2 1
+c ../common/test-common -> ../../common/test-common
+e
 s 00022/00000/00000
 d D 1.1 11/04/30 16:33:45 joerg 1 0
 c date and time created 11/04/30 16:33:45 by joerg
@@ -16,7 +20,12 @@
 
 
 # Import common functions & definitions.
+D 2
 . ../common/test-common
+E 2
+I 2
+. ../../common/test-common
+E 2
 
 s=s.sv33153
 cleanup () {

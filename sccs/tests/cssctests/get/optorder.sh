@@ -3,7 +3,7 @@
 #   "get s.foo -Gbar" and "get -Gbar s.foo" should be equivalent.
 
 # Import common functions & definitions.
-. ../common/test-common
+. ../../common/test-common
 
 remove command.log log log.stdout log.stderr passwd blah
 mkdir test 2>/dev/null

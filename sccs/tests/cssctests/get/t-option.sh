@@ -3,7 +3,7 @@
 #               correct SIDs with and without the "-t" option.
 
 # Import common functions & definitions.
-. ../common/test-common
+. ../../common/test-common
 
 
 # Get a test file...

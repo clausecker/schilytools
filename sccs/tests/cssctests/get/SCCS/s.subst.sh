@@ -1,4 +1,12 @@
-h18167
+h63339
+s 00001/00001/00094
+d D 1.3 15/06/03 00:06:44 joerg 3 2
+c ../common/test-common -> ../../common/test-common
+e
+s 00003/00003/00092
+d D 1.2 15/06/01 23:55:23 joerg 2 1
+c ../../testutils/ -> ${SRCROOT}/tests/testutils/
+e
 s 00095/00000/00000
 d D 1.1 10/04/29 02:05:14 joerg 1 0
 c date and time created 10/04/29 02:05:14 by joerg
@@ -16,7 +24,12 @@
 
 
 # Import common functions & definitions.
+D 3
 . ../common/test-common
+E 3
+I 3
+. ../../common/test-common
+E 3
 
 
 # Get a test file...
@@ -26,7 +39,12 @@ output=get.output
 
 
 remove $s $f
+D 2
 ../../testutils/uu_decode --decode < keywords.uue || miscarry could not extract test file.
+E 2
+I 2
+${SRCROOT}/tests/testutils/uu_decode --decode < keywords.uue || miscarry could not extract test file.
+E 2
 
 # Expand all the keywords from the s.file and save the format in 
 # a temporary file.   We then examine this file later.
@@ -60,7 +78,12 @@ expands_to G "_G_ 10/25/97\n"
 expands_to I "_I_ 1.1\n" 
 expands_to L "_L_ 1\n"                         
 expands_to M "_M_ keywords.txt\n"	         
+D 2
 expands_to P "_P_ `../../testutils/realpwd`/s.keywords.txt\n"     
+E 2
+I 2
+expands_to P "_P_ `${SRCROOT}/tests/testutils/realpwd`/s.keywords.txt\n"     
+E 2
 expands_to Q "_Q_ \n"                          
 expands_to R "_R_ 1\n"                         
 expands_to S "_S_ 0\n"                         
@@ -92,7 +115,12 @@ remove $s $output
 # and so forth when working with the -c date cutoff.
 s=s.keys.txt
 remove $s
+D 2
 ../../testutils/uu_decode --decode < keys.uue || miscarry could not extract test file.
+E 2
+I 2
+${SRCROOT}/tests/testutils/uu_decode --decode < keys.uue || miscarry could not extract test file.
+E 2
 docommand K1 "${vg_get} -p -c971025230458 $s" 0 "1.2 1.2\n" "1.2\n1 lines\n"
 docommand K2 "${vg_get} -p -c971025230457 $s" 0 "1.1 1.1\n" \
 	"IGNORE"

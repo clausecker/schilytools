@@ -3,7 +3,7 @@
 # init-mr.sh:  Testing for MR numbers at initialisation time.
 
 # Import common functions & definitions.
-. ../common/test-common
+. ../../common/test-common
 
 s=s.new.txt
 

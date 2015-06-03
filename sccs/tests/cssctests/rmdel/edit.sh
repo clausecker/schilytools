@@ -3,7 +3,7 @@
 #           has been rmdel'ed -- this is what "sccs fix" does.
 
 # Import common functions & definitions.
-. ../common/test-common
+. ../../common/test-common
 
 g=testfile.txt
 s=s.$g

@@ -2,7 +2,7 @@
 # general.sh:  Testing for general aspects of cdc.
 
 # Import common functions & definitions.
-. ../common/test-common
+. ../../common/test-common
 
 g=testfile
 s=s.$g

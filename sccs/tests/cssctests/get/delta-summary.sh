@@ -1,14 +1,14 @@
 #! /bin/sh
 
 # Import common functions & definitions.
-. ../common/test-common
+. ../../common/test-common
 
 g=keys.txt
 s=s.$g
 l=l.$g
 p=p.$g
 remove $s $g $l $p
-../../testutils/uu_decode --decode < keys.uue || miscarry could not extract test file.
+${SRCROOT}/tests/testutils/uu_decode --decode < keys.uue || miscarry could not extract test file.
 
 summary="\
     1.2	97/10/25 23:04:58 james

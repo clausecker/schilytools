@@ -3,7 +3,7 @@
 # delta_ixg.sh:  Testing for reporting included, excluded, ignored deltas.
 
 # Import common functions & definitions.
-. ../common/test-common
+. ../../common/test-common
 
 cleanup () {
     remove command.log

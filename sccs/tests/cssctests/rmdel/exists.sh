@@ -2,7 +2,7 @@
 # exists.sh:  What if the input file doesn't exist?
 
 # Import common functions & definitions.
-. ../common/test-common
+. ../../common/test-common
 
 s=s.testfile
 

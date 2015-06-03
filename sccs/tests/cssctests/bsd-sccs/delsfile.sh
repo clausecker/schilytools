@@ -4,7 +4,7 @@
 #   sccs unedit /tmp/sccstest.$$/SCCS/s.foo
 # causes the deletion of s.foo (instead, the file ./foo should be deleted).
 
-. ../common/test-common
+. ../../common/test-common
 
 # The test suite fails if you run it as root, particularly because
 # "test -w foo" returns 0 if you are root, even if foo is a readonly
@@ -12,7 +12,7 @@
 # of just "test".
 # Please don't run the test suite as root, because it may spuriously
 # fail.
-. ../common/not-root
+. ../../common/not-root
 
 
 # If LANG is defined but the system is misconfigured, we will produce

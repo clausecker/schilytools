@@ -2,7 +2,7 @@
 # basic.sh:  Testing for the basic operation of "delta".
 
 # Import common functions & definitions.
-. ../common/test-common
+. ../../common/test-common
 
 remove command.log log log.stdout log.stderr
 mkdir test 2>/dev/null

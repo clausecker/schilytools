@@ -1,4 +1,12 @@
-h58856
+h16412
+s 00001/00001/00130
+d D 1.3 15/06/03 00:06:44 joerg 3 2
+c ../common/test-common -> ../../common/test-common
+e
+s 00001/00001/00130
+d D 1.2 15/06/01 23:55:23 joerg 2 1
+c ../../testutils/ -> ${SRCROOT}/tests/testutils/
+e
 s 00131/00000/00000
 d D 1.1 10/04/29 02:05:14 joerg 1 0
 c date and time created 10/04/29 02:05:14 by joerg
@@ -14,7 +22,12 @@
 # included.sh:  Extra tests using the test file from bug number 111140.
 
 # Import common functions & definitions.
+D 3
 . ../common/test-common
+E 3
+I 3
+. ../../common/test-common
+E 3
 
 
 g=sf111140_testcase.txt
@@ -26,7 +39,12 @@ u=sf111140_testcase.uue
 
 remove $g $s $x $z $p
 
+D 2
 ../../testutils/uu_decode --decode <$u || 
+E 2
+I 2
+${SRCROOT}/tests/testutils/uu_decode --decode <$u || 
+E 2
     miscarry could not uudecode file $u.
 
 

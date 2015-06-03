@@ -5,7 +5,7 @@
 
 
 # Import common functions & definitions.
-. ../common/test-common
+. ../../common/test-common
 
 g=foo
 s=s.$g

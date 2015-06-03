@@ -3,13 +3,13 @@
 # default.sh:  Tests for prt no involving several deltas.
 
 # Import common functions & definitions.
-. ../common/test-common
-. ../common/need-prt
+. ../../common/test-common
+. ../../common/need-prt
 
 s=s.testfile
 
 remove $s
-../../testutils/uu_decode --decode < testfile.uue || miscarry could not uudecode testfile.uue.
+${SRCROOT}/tests/testutils/uu_decode --decode < testfile.uue || miscarry could not uudecode testfile.uue.
 
 # XXX: the IGNORE in the followig lines is because of the warning message we
 #      get about the excluded deltas feature not being fully tested.

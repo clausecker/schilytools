@@ -2,9 +2,9 @@
 # binbasic.sh:  Testing for the basic operation of "delta", for binary files.
 
 # Import common functions & definitions.
-. ../common/test-common
-. ../common/real-thing
-. ../common/config-data
+. ../../common/test-common
+. ../../common/real-thing
+. ../../common/config-data
 
 if $binary_support
 then

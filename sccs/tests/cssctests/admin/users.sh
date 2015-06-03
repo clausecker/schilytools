@@ -3,7 +3,7 @@
 # users.sh:  Testing for -a and -e options of admin.
 
 # Import common functions & definitions.
-. ../common/test-common
+. ../../common/test-common
 
 g=bar
 s=s.${g}

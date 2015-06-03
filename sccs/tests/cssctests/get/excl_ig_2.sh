@@ -2,8 +2,8 @@
 # excl_ig_2.sh:  More tests for exclusions and ignores.
 
 # Import common functions & definitions.
-. ../common/test-common
-. ../common/real-thing
+. ../../common/test-common
+. ../../common/real-thing
 
 g=foo
 s=s.$g

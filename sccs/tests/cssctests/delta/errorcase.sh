@@ -2,8 +2,8 @@
 # errorcase.sh:  Testing for the various error cases for "delta".
 
 # Import common functions & definitions.
-. ../common/test-common
-. ../common/real-thing
+. ../../common/test-common
+. ../../common/real-thing
 
 remove command.log log log.stdout log.stderr
 mkdir test 2>/dev/null
@@ -47,7 +47,7 @@ removedirs () {
 }
 
 
-if wrong_group=`../../testutils/user foreigngroup`
+if wrong_group=`${SRCROOT}/tests/testutils/user foreigngroup`
 then
     true
 else
@@ -86,14 +86,14 @@ docommand E11 "${vg_delta} -yNoComment $s"   0 IGNORE IGNORE
 
 # Now, what if the authorised user list just excludes?
 remove $s
-if mygroup=`../../testutils/user group`
+if mygroup=`${SRCROOT}/tests/testutils/user group`
 then
     true
 else
     miscarry "could not determine group-id"
 fi
 
-if myname=`../../testutils/user name`
+if myname=`${SRCROOT}/tests/testutils/user name`
 then
     true
 else

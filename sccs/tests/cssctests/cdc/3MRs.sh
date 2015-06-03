@@ -2,7 +2,7 @@
 # 3MRs.sh:  Testing for MR numbers with the cdc program..
 
 # Import common functions & definitions.
-. ../common/test-common
+. ../../common/test-common
 
 g=testfile
 s=s.$g

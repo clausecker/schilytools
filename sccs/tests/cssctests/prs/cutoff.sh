@@ -3,7 +3,7 @@
 # cutoff.sh:  Tests for prs -e and prs -l (with both -c and -r).
 
 # Import common functions & definitions.
-. ../common/test-common
+. ../../common/test-common
 
 s="../year-2000/s.y2k.txt"
 cleanup () {

@@ -5,7 +5,7 @@
 #               used.
 
 # Import common functions & definitions.
-. ../common/test-common
+. ../../common/test-common
 
 
 g=X

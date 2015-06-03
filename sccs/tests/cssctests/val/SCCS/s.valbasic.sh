@@ -1,4 +1,8 @@
-h36880
+h47253
+s 00001/00001/00096
+d D 1.4 15/06/03 00:06:44 joerg 4 3
+c ../common/test-common -> ../../common/test-common
+e
 s 00006/00005/00091
 d D 1.3 11/06/15 23:36:37 joerg 3 2
 c Test ob chmod 0 eine Datei unlesbar macht
@@ -23,7 +27,12 @@
 # valbasic.sh:  Basic tests for the "val" command.
 
 # Import common functions & definitions.
+D 4
 . ../common/test-common
+E 4
+I 4
+. ../../common/test-common
+E 4
 
 files="f s.f"
 

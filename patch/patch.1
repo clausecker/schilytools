@@ -1,7 +1,7 @@
 .rn '' }`
 ''' $Header: patch.man,v 2.0.1.2 88/06/22 20:47:18 lwall Locked $
 . \"
-. \" @(#)patch.1	1.18 15/05/16 Copyr 2011-2015 J. Schilling
+. \" @(#)patch.1	1.20 15/05/30 Copyr 2011-2015 J. Schilling
 . \"  Manual page for patch
 . \"
 ''' 
@@ -83,7 +83,7 @@
 .ds L' `
 .ds R' '
 'br\}
-.TH PATCH 1 "2015/05/16"
+.TH PATCH 1 "2015/05/30"
 .SH NAME
 patch - a program for applying a diff file to an original
 .SH SYNOPSIS
@@ -416,10 +416,15 @@ to print out it's revision header and patch level.
 .sp
 This option is not available in strict POSIX mode.
 .TP
+.B \-vv
+causes
+.B patch
+to be more verbose.
+.TP
 .B \-W+
 Causes
 .B patch
-to permit enhancements in POSIX mode.
+to permit enhancements from historic and recent versions in POSIX mode.
 .TP
 .B \-Wall
 Causes
@@ -457,6 +462,15 @@ This disables the effect of a previous
 .B \-W+
 and
 .B \-Wall
+option.
+.TP
+.B \-W\-posix
+Causes
+.B patch
+to revert the effect of a previous
+.B \-W+
+and
+.B \-Wposix
 option.
 .TP
 .BI \-x number

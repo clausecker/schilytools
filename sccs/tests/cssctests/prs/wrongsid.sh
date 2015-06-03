@@ -3,7 +3,7 @@
 # wrongsid.sh:  what happens if the desired SID does not exist?
 
 # Import common functions & definitions.
-. ../common/test-common
+. ../../common/test-common
 
 cleanup () {
     for prefix in s p z l

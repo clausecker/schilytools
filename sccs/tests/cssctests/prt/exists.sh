@@ -3,8 +3,8 @@
 # exists.sh:  What if the input file doesn't exist?
 
 # Import common functions & definitions.
-. ../common/test-common
-. ../common/need-prt
+. ../../common/test-common
+. ../../common/need-prt
 
 s=s.testfile
 

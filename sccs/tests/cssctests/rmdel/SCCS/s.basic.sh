@@ -1,4 +1,8 @@
-h35530
+h45884
+s 00001/00001/00037
+d D 1.2 15/06/03 00:06:44 joerg 2 1
+c ../common/test-common -> ../../common/test-common
+e
 s 00038/00000/00000
 d D 1.1 10/05/11 11:30:00 joerg 1 0
 c date and time created 10/05/11 11:30:00 by joerg
@@ -14,7 +18,12 @@
 # basic.sh:  Tests for the basic operation of "rmdel".
 
 # Import common functions & definitions.
+D 2
 . ../common/test-common
+E 2
+I 2
+. ../../common/test-common
+E 2
 
 g=testfile.txt
 s=s.$g

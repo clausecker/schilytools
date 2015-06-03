@@ -1,4 +1,8 @@
-h32433
+h42792
+s 00001/00001/00134
+d D 1.3 15/06/03 00:06:44 joerg 3 2
+c ../common/test-common -> ../../common/test-common
+e
 s 00005/00003/00130
 d D 1.2 11/05/30 01:14:19 joerg 2 1
 c diff -u -> diff
@@ -23,7 +27,12 @@
 # Create an SCCS file with two deltas. sccsdiff the two deltas.
 
 # Import common functions & definitions.
+D 3
 . ../common/test-common
+E 3
+I 3
+. ../../common/test-common
+E 3
 export get
 
 # invariant label file1 file2 

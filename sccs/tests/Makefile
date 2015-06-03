@@ -1,4 +1,4 @@
-#ident "@(#)Makefile	1.2 14/09/08 "
+#ident "@(#)Makefile	1.3 15/06/03 "
 ###########################################################################
 SRCROOT=	../..
 RULESDIR=	RULES
@@ -25,13 +25,13 @@ sccs-tests:
 cssc-v6-tests:
 	cd cssctests && \
 		(dir=$${dir-/tmp/SCCSTEST/ccs/bin}; SCCS_V6=; export dir SCCS_V6; \
-		(cd common; . ./real-thing; eval $$TESTING_SCCS_V6) && $(MAKE) )
+		(cd ../common; . ./real-thing; eval $$TESTING_SCCS_V6) && $(MAKE) )
 	@echo "Watch for FAIL and XFAIL in the output"
 
 sccs-v6-tests:
 	cd sccstests && \
 		(dir=$${dir-/tmp/SCCSTEST/ccs/bin}; SCCS_V6=; export dir SCCS_V6; \
-		(cd common; . ./real-thing; eval $$TESTING_SCCS_V6) && $(MAKE) )
+		(cd ../common; . ./real-thing; eval $$TESTING_SCCS_V6) && $(MAKE) )
 	@echo "Watch for FAIL and XFAIL in the output"
 
 bins: /tmp/SCCSTEST

@@ -1,4 +1,4 @@
-#ident "@(#)Makefile.man	1.1 11/01/25 "
+#ident "@(#)Makefile.man	1.2 15/06/01 "
 ###########################################################################
 # Sample makefile for installing manual pages
 ###########################################################################
@@ -8,7 +8,7 @@ include		$(SRCROOT)/$(RULESDIR)/rules.top
 ###########################################################################
 
 MANDIR=		man
-TARGETMAN=	patch
+TARGETMAN=	spatch
 MANSECT=	$(MANSECT_CMD)
 MANSUFFIX=	$(MANSUFF_CMD)
 MANFILE=	patch.1

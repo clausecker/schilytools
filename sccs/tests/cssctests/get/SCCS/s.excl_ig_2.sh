@@ -1,4 +1,8 @@
-h29979
+h42414
+s 00002/00002/00127
+d D 1.4 15/06/03 00:06:44 joerg 4 3
+c ../common/test-common -> ../../common/test-common
+e
 s 00000/00012/00129
 d D 1.3 15/02/19 22:31:35 joerg 3 2
 c Test ei27 klappt nun auch mit SCCSv6
@@ -22,9 +26,15 @@
 # excl_ig_2.sh:  More tests for exclusions and ignores.
 
 # Import common functions & definitions.
+D 4
 . ../common/test-common
 I 2
 . ../common/real-thing
+E 4
+I 4
+. ../../common/test-common
+. ../../common/real-thing
+E 4
 E 2
 
 g=foo

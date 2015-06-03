@@ -1,4 +1,8 @@
-h25384
+h37818
+s 00002/00002/00081
+d D 1.4 15/06/03 00:06:44 joerg 4 3
+c ../common/test-common -> ../../common/test-common
+e
 s 00003/00001/00080
 d D 1.3 11/05/31 21:53:45 joerg 3 2
 c expect_fail=true um den Abbruch auf einigen Plattformen zu vermeiden
@@ -29,8 +33,14 @@
 #               SCCS implementations do not do this.
 
 # Import common functions & definitions.
+D 4
 . ../common/test-common
 . ../common/real-thing
+E 4
+I 4
+. ../../common/test-common
+. ../../common/real-thing
+E 4
 
 
 s=s.y2k.txt

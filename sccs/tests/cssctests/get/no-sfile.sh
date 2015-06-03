@@ -4,7 +4,7 @@
 #     Make sure that we don't coredump if there is no input file.
 
 # Import common functions & definitions.
-. ../common/test-common
+. ../../common/test-common
 
 
 docommand N1 "${vg_get} -p" 1 IGNORE IGNORE

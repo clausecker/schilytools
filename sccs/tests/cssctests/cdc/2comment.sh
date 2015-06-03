@@ -2,7 +2,7 @@
 # 2comment.sh:  Testing for comments
 
 # Import common functions & definitions.
-. ../common/test-common
+. ../../common/test-common
 
 g=testfile
 s=s.$g

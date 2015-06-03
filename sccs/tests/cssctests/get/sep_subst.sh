@@ -7,7 +7,7 @@
 #     which last touched that line.
 
 # Import common functions & definitions.
-. ../common/test-common
+. ../../common/test-common
 
 
 f=1test

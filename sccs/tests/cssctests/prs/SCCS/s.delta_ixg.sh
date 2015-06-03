@@ -1,4 +1,8 @@
-h42309
+h52675
+s 00001/00001/00087
+d D 1.3 15/06/03 00:06:44 joerg 3 2
+c ../common/test-common -> ../../common/test-common
+e
 s 00006/00006/00082
 d D 1.2 11/10/21 23:07:38 joerg 2 1
 c prs -d:DI: Tests sind nun POSIX konform
@@ -19,7 +23,12 @@
 # delta_ixg.sh:  Testing for reporting included, excluded, ignored deltas.
 
 # Import common functions & definitions.
+D 3
 . ../common/test-common
+E 3
+I 3
+. ../../common/test-common
+E 3
 
 cleanup () {
     remove command.log

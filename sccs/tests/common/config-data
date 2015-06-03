@@ -1,0 +1,11 @@
+#!/bin/sh
+
+. ${SRCROOT:=`../../../conf/srcroot.sh`}/tests/bin/base
+
+. ${SRCROOT}/sccs/tests/common/command-names
+. ${SRCROOT}/sccs/tests/common/real-thing
+
+CSSC_BINARY_SUPPORT=enabled
+export CSSC_BINARY_SUPPORT
+
+binary_support=true

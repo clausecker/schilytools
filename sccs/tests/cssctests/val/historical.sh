@@ -4,7 +4,7 @@
 #                 SCCS files makde by historical versions of SCCS.
 
 # Import common functions & definitions.
-. ../common/test-common
+. ../../common/test-common
 
 # s.comment-nospace has a comment line in which 
 # no space follows the ^Ac.  A space is more

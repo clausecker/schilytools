@@ -3,8 +3,8 @@
 # Basic tests for SCCS text/binary files
 
 # Read test core functions
-. ../common/test-common
-. ../common/real-thing
+. ../../common/test-common
+. ../../common/real-thing
 
 g=foo
 s=s.$g

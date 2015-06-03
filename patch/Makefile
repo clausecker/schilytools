@@ -1,4 +1,4 @@
-#ident "@(#)Makefile	1.14 15/05/19 "
+#ident "@(#)Makefile	1.17 15/06/02 "
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -18,7 +18,7 @@ CFILES=		patch.c inp.c pch.c util.c
 HFILES=		common.h inp.h pch.h util.h
 
 LIBS=		-lschily $(LIB_INTL)
-XMK_FILE=	patch_sym.mk Makefile.man
+XMK_FILE=	patch_sym.mk Makefile.man opatch.mk1 patch.mk1 sccspatch.mk1
 
 ###########################################################################
 include		$(SRCROOT)/$(RULESDIR)/rules.cmd

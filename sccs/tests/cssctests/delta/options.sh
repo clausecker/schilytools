@@ -2,7 +2,7 @@
 # options.sh:  Testing for the various command-line options of "delta".
 
 # Import common functions & definitions.
-. ../common/test-common
+. ../../common/test-common
 
 remove command.log log log.stdout log.stderr
 mkdir test 2>/dev/null

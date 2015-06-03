@@ -1,4 +1,8 @@
-h01467
+h16051
+s 00003/00003/00130
+d D 1.5 15/06/03 00:06:43 joerg 5 4
+c ../common/test-common -> ../../common/test-common
+e
 s 00012/00002/00121
 d D 1.4 14/08/26 20:19:40 joerg 4 3
 c ascii/binary Unterschiede bei SCCSv4 <-> SCCSv6 beruecksichtigen
@@ -26,9 +30,16 @@
 # auto.sh:  Tests for "admin"'s detection of binary files.
 
 # Import common functions & definitions.
+D 5
 . ../common/test-common
 . ../common/real-thing
 . ../common/config-data
+E 5
+I 5
+. ../../common/test-common
+. ../../common/real-thing
+. ../../common/config-data
+E 5
 
 
 

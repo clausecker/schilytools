@@ -3,7 +3,7 @@
 # format.sh:  Testing for correct interpretation of the format string.
 
 # Import common functions & definitions.
-. ../common/test-common
+. ../../common/test-common
 
 
 # If we invert the order of the arguments to prs here, so that the

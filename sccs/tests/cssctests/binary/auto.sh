@@ -2,9 +2,9 @@
 # auto.sh:  Tests for "admin"'s detection of binary files.
 
 # Import common functions & definitions.
-. ../common/test-common
-. ../common/real-thing
-. ../common/config-data
+. ../../common/test-common
+. ../../common/real-thing
+. ../../common/config-data
 
 
 

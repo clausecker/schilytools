@@ -1,4 +1,12 @@
-h44566
+h16277
+s 00002/00002/00208
+d D 1.5 15/06/03 00:06:44 joerg 5 4
+c ../common/test-common -> ../../common/test-common
+e
+s 00003/00003/00207
+d D 1.4 15/06/01 23:55:23 joerg 4 3
+c ../../testutils/ -> ${SRCROOT}/tests/testutils/
+e
 s 00004/00003/00206
 d D 1.3 11/06/15 23:36:37 joerg 3 2
 c Test ob chmod 0 eine Datei unlesbar macht
@@ -22,8 +30,14 @@
 # errorcase.sh:  Testing for the various error cases for "delta".
 
 # Import common functions & definitions.
+D 5
 . ../common/test-common
 . ../common/real-thing
+E 5
+I 5
+. ../../common/test-common
+. ../../common/real-thing
+E 5
 
 remove command.log log log.stdout log.stderr
 mkdir test 2>/dev/null
@@ -67,7 +81,12 @@ removedirs () {
 }
 
 
+D 4
 if wrong_group=`../../testutils/user foreigngroup`
+E 4
+I 4
+if wrong_group=`${SRCROOT}/tests/testutils/user foreigngroup`
+E 4
 then
     true
 else
@@ -106,14 +125,24 @@ docommand E11 "${vg_delta} -yNoComment $s"   0 IGNORE IGNORE
 
 # Now, what if the authorised user list just excludes?
 remove $s
+D 4
 if mygroup=`../../testutils/user group`
+E 4
+I 4
+if mygroup=`${SRCROOT}/tests/testutils/user group`
+E 4
 then
     true
 else
     miscarry "could not determine group-id"
 fi
 
+D 4
 if myname=`../../testutils/user name`
+E 4
+I 4
+if myname=`${SRCROOT}/tests/testutils/user name`
+E 4
 then
     true
 else

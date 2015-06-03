@@ -1,4 +1,8 @@
-h23253
+h35463
+s 00002/00002/00021
+d D 1.2 15/06/03 00:06:44 joerg 2 1
+c ../common/test-common -> ../../common/test-common
+e
 s 00023/00000/00000
 d D 1.1 10/05/11 11:30:00 joerg 1 0
 c date and time created 10/05/11 11:30:00 by joerg
@@ -14,8 +18,14 @@
 # reportmr.sh:  Testing for MR the reporting of numbers.
 
 # Import common functions & definitions.
+D 2
 . ../common/test-common
 . ../common/need-prt
+E 2
+I 2
+. ../../common/test-common
+. ../../common/need-prt
+E 2
 
 
 g=reportmr.1 

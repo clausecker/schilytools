@@ -1,4 +1,8 @@
-h44963
+h55311
+s 00001/00001/00013
+d D 1.2 15/06/03 00:06:44 joerg 2 1
+c ../common/test-common -> ../../common/test-common
+e
 s 00014/00000/00000
 d D 1.1 11/05/10 23:24:24 joerg 1 0
 c date and time created 11/05/10 23:24:24 by joerg
@@ -16,7 +20,12 @@
 #                 SCCS files makde by historical versions of SCCS.
 
 # Import common functions & definitions.
+D 2
 . ../common/test-common
+E 2
+I 2
+. ../../common/test-common
+E 2
 
 # s.comment-nospace has a comment line in which 
 # no space follows the ^Ac.  A space is more

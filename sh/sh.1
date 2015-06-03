@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sh.1	1.46 15/04/12 Copyright 2012-2015 J. Schilling
+.\" @(#)sh.1	1.47 15/06/01 Copyright 2012-2015 J. Schilling
 .\" Copyright 1989 AT&T
 .\" Copyright (c) 2008, Sun Microsystems, Inc. All Rights Reserved.
 .\" Portions Copyright (c) 1992, X/Open Company Limited All Rights Reserved
@@ -47,7 +47,7 @@
 .\" information: Portions Copyright [yyyy] [name of copyright owner]
 .\"
 .\" CDDL HEADER END
-.TH sh 1 "2015/04/12" "Schily Bourne Shell" "User Commands"
+.TH sh 1 "2015/06/01" "Schily Bourne Shell" "User Commands"
 .SH NAME
 sh, jsh \- standard and job control shell and command interpreter
 .SH SYNOPSIS
@@ -685,10 +685,37 @@ is substituted.
 .br
 .ne 3
 .TP
+.BI ${ parameter \(mi word  }
+Use Default Values. If
+.I parameter
+is unset, the expansion of
+.I word
+is substituted; otherwise, the value of
+.I parameter
+is substituted.
+
+.br
+.ne 3
+.TP
 .BI ${ parameter := word }
 Assign Default Values. If
 .I parameter
 is unset or null, the expansion of
+.I word
+is assigned to
+.IR parameter .
+In all cases, the final value of
+.I parameter
+is substituted. Only variables, not positional parameters
+or special parameters, can be assigned in this way.
+
+.br
+.ne 3
+.TP
+.BI ${ parameter = word }
+Assign Default Values. If
+.I parameter
+is unset, the expansion of
 .I word
 is assigned to
 .IR parameter .
@@ -712,6 +739,18 @@ is omitted, the message "parameter null or not set" is printed.
 .br
 .ne 3
 .TP
+.BI ${ parameter  ? word }
+If
+.I parameter
+is set, substitute its value; otherwise, print
+.I word
+and exit from the shell. If
+.I word
+is omitted, the message "parameter null or not set" is printed.
+
+.br
+.ne 3
+.TP
 .BI ${ parameter :+ word }
 If
 .I parameter
@@ -719,6 +758,53 @@ is set and is non-null, substitute
 .IR word ;
 otherwise substitute nothing.
 
+.br
+.ne 3
+.TP
+.BI ${ parameter + word }
+If
+.I parameter
+is set, substitute
+.IR word ;
+otherwise substitute nothing.
+
+.LP
+If the colon
+.RB ( : )
+is omitted from the above expressions, the shell
+only checks whether
+.I parameter
+is set or not.
+The following table summarizes the effect of the <colon>:
+.LP
+.br
+.ne 19
+.TS
+tab();
+cw(1.83i) |cw(1.6i) |cw(1.5i) |cw(1.5i)
+lw(1.83i) |lw(1.6i) |lw(1.5i) |lw(1.5i)
+.
+parameter nonnullparameter nullparameter unset
+_
+\fB${\fIparameter\fB:-\fIword\fB}\fRsubst. \fIparameter\fRsubst. \fIword\fRsubst. \fIword\fR
+_
+\fB${\fIparameter\fB\(mi\fIword\fB}\fRsubst. \fIparameter\fRsubst. nullsubst. \fIword\fR
+_
+\fB${\fIparameter\fB:=\fIword\fB}\fRsubst. \fIparameter\fRassign \fIword\fRassign \fIword\fR
+_
+\fB${\fIparameter\fB=\fIword\fB}\fRsubst. \fIparameter\fRsubst. nullassign \fIword\fR
+_
+\fB${\fIparameter\fB:?\fIword\fB}\fRsubst. \fIparameter\fRerror, exiterror, exit
+_
+\fB${\fIparameter\fB?\fIword\fB}\fRsubst. \fIparameter\fRsubst. nullerror, exit
+_
+\fB${\fIparameter\fB:+\fIword\fB}\fRsubst. \fIword\fRsubst. nullsubst. null
+_
+\fB${\fIparameter\fB+\fIword\fB}\fRsubsti. \fIword\fRsubst. \fIword\fRsubst. null
+_
+.TE
+.LP
+In all cases shown with "assign", parameter is assigned that value, which also replaces the expression.
 .sp
 .LP
 In the above,
@@ -737,15 +823,6 @@ is not set or is null:
 .in -2
 .sp
 
-.sp
-.LP
-If the colon
-.RB ( : )
-is omitted from the above expressions, the shell
-only checks whether
-.I parameter
-is set or not.
-.sp
 .LP
 The following parameters are automatically set by the shell.
 .br

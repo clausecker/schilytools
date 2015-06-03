@@ -1,4 +1,12 @@
-h11959
+h36097
+s 00001/00001/00129
+d D 1.4 15/06/03 00:06:44 joerg 4 3
+c ../common/test-common -> ../../common/test-common
+e
+s 00001/00001/00129
+d D 1.3 15/06/01 23:55:23 joerg 3 2
+c ../../testutils/ -> ${SRCROOT}/tests/testutils/
+e
 s 00003/00003/00127
 d D 1.2 11/10/21 23:07:39 joerg 2 1
 c prs -d:DI: Tests sind nun POSIX konform
@@ -19,7 +27,12 @@
 # keywords.sh:  Testing for correct expansion of formats for prs -d.
 
 # Import common functions & definitions.
+D 4
 . ../common/test-common
+E 4
+I 4
+. ../../common/test-common
+E 4
 
 
 sid=1.1
@@ -45,7 +58,12 @@ docommand P3 "${get} -e s.1" 0 "1.1\nnew delta 1.2\n0 lines\n" IGNORE
 echo "hello from %M%" >> 1
 docommand P4 "${delta} -y s.1" 0 "1.2\n1 inserted\n0 deleted\n0 unchanged\n" ""
 
+D 3
 expands_to z1 :PN:      `../../testutils/realpwd`"/s.1\n"
+E 3
+I 3
+expands_to z1 :PN:      `${SRCROOT}/tests/testutils/realpwd`"/s.1\n"
+E 3
 
 
 expands_to X1  :I:      "1.1\n"

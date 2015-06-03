@@ -2,8 +2,8 @@
 # reportmr.sh:  Testing for MR the reporting of numbers.
 
 # Import common functions & definitions.
-. ../common/test-common
-. ../common/need-prt
+. ../../common/test-common
+. ../../common/need-prt
 
 
 g=reportmr.1 

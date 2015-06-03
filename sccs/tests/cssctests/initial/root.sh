@@ -4,7 +4,7 @@
 #                   
 
 # Import common functions & definitions.
-. ../common/test-common
+. ../../common/test-common
 
 # The test suite fails if you run it as root, particularly because
 # "test -w foo" returns 0 if you are root, even if foo is a readonly
@@ -14,7 +14,7 @@
 true
 
 echo_nonl "r1..."
-. ../common/not-root
+. ../../common/not-root
 echo "passed "
 
 success

@@ -2,7 +2,7 @@
 # sf664900.sh: tests for SourceForge bug number 664900 
 
 # Import common functions & definitions.
-. ../common/test-common
+. ../../common/test-common
 
 
 g=foo.txt

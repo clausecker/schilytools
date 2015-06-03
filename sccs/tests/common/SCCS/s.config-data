@@ -1,0 +1,40 @@
+h47472
+s 00003/00004/00008
+d D 1.2 15/06/03 00:16:41 joerg 2 1
+c Anpassungen an neue Position im Dateibaum (eine Stufe hoch)
+e
+s 00012/00000/00000
+d D 1.1 11/05/28 12:07:48 joerg 1 0
+c date and time created 11/05/28 12:07:48 by joerg
+e
+u
+U
+f e 0
+f y 
+t
+T
+I 1
+#!/bin/sh
+
+D 2
+SRCROOT=`../../../../conf/srcroot.sh`
+. ${SRCROOT}/tests/bin/base
+E 2
+I 2
+. ${SRCROOT:=`../../../conf/srcroot.sh`}/tests/bin/base
+E 2
+
+D 2
+. ../common/command-names
+. ../common/real-thing
+E 2
+I 2
+. ${SRCROOT}/sccs/tests/common/command-names
+. ${SRCROOT}/sccs/tests/common/real-thing
+E 2
+
+CSSC_BINARY_SUPPORT=enabled
+export CSSC_BINARY_SUPPORT
+
+binary_support=true
+E 1

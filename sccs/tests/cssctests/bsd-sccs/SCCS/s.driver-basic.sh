@@ -1,4 +1,8 @@
-h41191
+h54114
+s 00002/00002/00270
+d D 1.4 15/06/03 00:06:43 joerg 4 3
+c ../common/test-common -> ../../common/test-common
+e
 s 00013/00008/00259
 d D 1.3 15/04/25 18:43:53 joerg 3 2
 c test -w -> wtest -w ... wtest ist eine Funktion mit ls -l | grep
@@ -23,7 +27,12 @@
 #                   We test each of the subcommands.
 
 # Import common functions & definitions.
+D 4
 . ../common/test-common
+E 4
+I 4
+. ../../common/test-common
+E 4
 
 # The test suite fails if you run it as root, particularly because
 # "test -w foo" returns 0 if you are root, even if foo is a readonly
@@ -40,7 +49,12 @@
 D 3
 true 
 E 3
+D 4
 . ../common/not-root
+E 4
+I 4
+. ../../common/not-root
+E 4
 
 I 2
 setup() {

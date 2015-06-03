@@ -2,9 +2,9 @@
 # eightbit.sh:  Testing for 8-bit clean operation 
 
 # Import common functions & definitions.
-. ../common/test-common
-. ../common/real-thing
-. ../common/config-data
+. ../../common/test-common
+. ../../common/real-thing
+. ../../common/config-data
 
 
 if $binary_support
@@ -46,7 +46,7 @@ docommand a1 "${vg_admin} -i$g $s" 0 IGNORE IGNORE
 docommand a2 "${vg_get} -p $s" 0 "garçon mañana áóäæèêëìñåòôùé\n" IGNORE
 
 echo_nonl a3...
-if ../../testutils/uu_decode --decode < s.umsp.uue
+if ${SRCROOT}/tests/testutils/uu_decode --decode < s.umsp.uue
 then
     echo passed
 else
@@ -63,7 +63,7 @@ docommand a4 "${vg_get} -p s.umsp.txt" 0 "garçon mañana áóäæèêëìñåòôùé\n" IGNORE
 ## as EOF.  That would be a bug.
 
 echo_nonl a5...
-if ../../testutils/uu_decode --decode < char255.uue
+if ${SRCROOT}/tests/testutils/uu_decode --decode < char255.uue
 then
     echo passed
 else

@@ -3,7 +3,7 @@
 # Basic tests for SCCS long lines
 
 # Read test core functions
-. ../common/test-common
+. ../../common/test-common
 
 g=foo
 s=s.$g

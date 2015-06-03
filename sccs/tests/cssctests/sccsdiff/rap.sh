@@ -7,7 +7,7 @@
 # Create an SCCS file with two deltas. sccsdiff the two deltas.
 
 # Import common functions & definitions.
-. ../common/test-common
+. ../../common/test-common
 export get
 
 # invariant label file1 file2 

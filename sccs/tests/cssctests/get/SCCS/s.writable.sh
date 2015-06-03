@@ -1,4 +1,8 @@
-h45384
+h58303
+s 00002/00002/00078
+d D 1.3 15/06/03 00:06:44 joerg 3 2
+c ../common/test-common -> ../../common/test-common
+e
 s 00010/00002/00070
 d D 1.2 15/04/25 18:43:53 joerg 2 1
 c test -w -> wtest -w ... wtest ist eine Funktion mit ls -l | grep
@@ -18,7 +22,12 @@
 # writable.sh:  Will get over-write a writable file?
 
 # Import common functions & definitions.
+D 3
 . ../common/test-common
+E 3
+I 3
+. ../../common/test-common
+E 3
 
 # You cannot run the test suite as root.
 I 2
@@ -29,7 +38,12 @@
 # Please don't run the test suite as root, because it may spuriously
 # fail.
 E 2
+D 3
 . ../common/not-root
+E 3
+I 3
+. ../../common/not-root
+E 3
 
 remove command.log log log.stdout log.stderr
 

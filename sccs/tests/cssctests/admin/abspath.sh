@@ -4,10 +4,10 @@
 #              is specified by an absolute path name.
 
 # Import common functions & definitions.
-. ../common/test-common
+. ../../common/test-common
 
 remove s.bar 
-d=`../../testutils/realpwd`
+d=`${SRCROOT}/tests/testutils/realpwd`
 s=${d}/s.bar
 
 docommand P1 "${vg_admin} -n ${s}" 0 "" IGNORE

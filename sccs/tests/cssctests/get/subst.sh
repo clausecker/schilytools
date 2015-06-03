@@ -4,7 +4,7 @@
 
 
 # Import common functions & definitions.
-. ../common/test-common
+. ../../common/test-common
 
 
 # Get a test file...
@@ -14,7 +14,7 @@ output=get.output
 
 
 remove $s $f
-../../testutils/uu_decode --decode < keywords.uue || miscarry could not extract test file.
+${SRCROOT}/tests/testutils/uu_decode --decode < keywords.uue || miscarry could not extract test file.
 
 # Expand all the keywords from the s.file and save the format in 
 # a temporary file.   We then examine this file later.
@@ -48,7 +48,7 @@ expands_to G "_G_ 10/25/97\n"
 expands_to I "_I_ 1.1\n" 
 expands_to L "_L_ 1\n"                         
 expands_to M "_M_ keywords.txt\n"	         
-expands_to P "_P_ `../../testutils/realpwd`/s.keywords.txt\n"     
+expands_to P "_P_ `${SRCROOT}/tests/testutils/realpwd`/s.keywords.txt\n"     
 expands_to Q "_Q_ \n"                          
 expands_to R "_R_ 1\n"                         
 expands_to S "_S_ 0\n"                         
@@ -80,7 +80,7 @@ remove $s $output
 # and so forth when working with the -c date cutoff.
 s=s.keys.txt
 remove $s
-../../testutils/uu_decode --decode < keys.uue || miscarry could not extract test file.
+${SRCROOT}/tests/testutils/uu_decode --decode < keys.uue || miscarry could not extract test file.
 docommand K1 "${vg_get} -p -c971025230458 $s" 0 "1.2 1.2\n" "1.2\n1 lines\n"
 docommand K2 "${vg_get} -p -c971025230457 $s" 0 "1.1 1.1\n" \
 	"IGNORE"

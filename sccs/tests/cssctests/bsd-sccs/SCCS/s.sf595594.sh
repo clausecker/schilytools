@@ -1,4 +1,8 @@
-h49344
+h62277
+s 00002/00002/00107
+d D 1.5 15/06/03 00:06:43 joerg 5 4
+c ../common/test-common -> ../../common/test-common
+e
 s 00013/00003/00096
 d D 1.4 15/04/25 18:43:53 joerg 4 3
 c test -w -> wtest -w ... wtest ist eine Funktion mit ls -l | grep
@@ -29,7 +33,12 @@
 # SCCS difrectory stops processing at b, because a writable version of 
 # b exists.  In fact it should carry on a check out a copy of c.
 
+D 5
 . ../common/test-common
+E 5
+I 5
+. ../../common/test-common
+E 5
 I 4
 
 # The test suite fails if you run it as root, particularly because
@@ -39,7 +48,12 @@
 # Please don't run the test suite as root, because it may spuriously
 # fail.
 E 4
+D 5
 . ../common/not-root
+E 5
+I 5
+. ../../common/not-root
+E 5
 
 
 # If LANG is defined but the system is misconfigured, we will produce

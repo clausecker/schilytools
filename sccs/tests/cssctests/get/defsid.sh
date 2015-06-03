@@ -2,7 +2,7 @@
 # defsid.sh:  Tests for the "d" (default sid) flag.
 
 # Import common functions & definitions.
-. ../common/test-common
+. ../../common/test-common
 
 remove command.log 
 

@@ -1,13 +1,13 @@
-/* @(#)change.c	1.42 13/05/06 Copyright 1985, 87-90, 95-99, 2000-2013 J. Schilling */
+/* @(#)change.c	1.43 15/06/02 Copyright 1985, 87-90, 95-99, 2000-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)change.c	1.42 13/05/06 Copyright 1985, 87-90, 95-99, 2000-2013 J. Schilling";
+	"@(#)change.c	1.43 15/06/02 Copyright 1985, 87-90, 95-99, 2000-2015 J. Schilling";
 #endif
 /*
  *	find pattern and substitute in files
  *
- *	Copyright (c) 1985, 87-90, 95-99, 2000-2013 J. Schilling
+ *	Copyright (c) 1985, 87-90, 95-99, 2000-2015 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -16,6 +16,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -46,32 +48,35 @@ static	UConst char sccsid[] =
 #ifndef	MAXLINE
 #define	MAXLINE	8196
 #endif
+#define	LINEINCR 1024
 #define	MAXNAME	1024
 
 
-int	Vflag = 0;
-int	Cflag = 0;
-int	Iflag = 0;
-int	Nflag = 0;
-int	CHcnt = MAXLINE;
+LOCAL	int	Vflag = 0;
+LOCAL	int	Cflag = 0;
+LOCAL	int	Iflag = 0;
+LOCAL	int	Nflag = 0;
+LOCAL	int	CHcnt = MAXLINE;
 
-char	oline[MAXLINE];
-char	newline[MAXLINE];
-char	tmpname[MAXNAME];
-int	*aux;
-int	*state;
-FILE	*tty;
-STATBUF ostat;	/* Old stat buf */
-STATBUF cstat;	/* Changed file stat buf */
+LOCAL	char	*oline;
+LOCAL	size_t	osize;
+LOCAL	char	*newline;
+LOCAL	size_t	newsize;
+LOCAL	char	tmpname[MAXNAME];
+LOCAL	int	*aux;
+LOCAL	int	*state;
+LOCAL	FILE	*tty;
+LOCAL	STATBUF ostat;	/* Old stat buf */
+LOCAL	STATBUF cstat;	/* Changed file stat buf */
 
 LOCAL	void	usage	__PR((int excode));
 LOCAL	RETSIGTYPE intr	__PR((int signo));
 EXPORT	int	main	__PR((int ac, char **av));
 LOCAL	int	match	__PR((char *pat, int *auxp, char *linep, int off, int len, int alt));
 LOCAL	int	change	__PR((char *name, FILE *ifile, FILE *ofile, char *pat, char *subst, int *auxp, int alt));
-LOCAL	int	catsubst __PR((char *linep, char *newp, int start, int end, char *subst, int idx, int max));
-LOCAL	int	appchar	__PR((int c, char *buf, int off, int max));
-LOCAL	void	showchange __PR((char *name, char *linep, int start, int end, char *subst, int out, int max));
+LOCAL	int	catsubst __PR((char *linep, char **newpp, int start, int end, char *subst, int idx, size_t *maxp));
+LOCAL	int	appchar	__PR((int c, char **bufp, int off, size_t *maxp));
+LOCAL	void	showchange __PR((char *name, char *linep, int start, int end, char *subst, int out, size_t max));
 LOCAL	BOOL	yes	__PR((char *form, ...));
 LOCAL	void	mktmp	__PR((char *name));
 LOCAL	BOOL	mkbak	__PR((char *name));
@@ -152,8 +157,8 @@ main(ac, av)
 	}
 	if (help) usage(0);
 	if (prversion) {
-		printf("Change release %s (%s-%s-%s) Copyright (C) 1985, 87-90, 95-99, 2000-2013 Jörg Schilling\n",
-				"1.42",
+		printf("Change release %s (%s-%s-%s) Copyright (C) 1985, 87-90, 95-99, 2000-2015 Jörg Schilling\n",
+				"1.43",
 				HOST_CPU, HOST_VENDOR, HOST_OS);
 		exit(0);
 	}
@@ -192,8 +197,7 @@ main(ac, av)
 		usage(EX_BAD);
 	}
 	subst = cav[0];
-	if (strlen(subst) >= MAXLINE)
-		comerrno(EX_BAD, "Substitution pattern too long.\n");
+
 	cac--, cav++;
 
 	if (getfiles(&cac, &cav, opt) <= 0) {
@@ -302,25 +306,25 @@ change(name, ifile, ofile, pat, subst, auxp, alt)
 	int	*auxp;
 	int	alt;
 {
-	register char	*linep	= oline;
-	register char	*newp	= newline;
+	register char	*linep;
 	int	idx;
 	int	cnt = 0;
 	int	matend;
 	int	lastmend;
 	int	out;
-	int	llen;
+	ssize_t	llen;
 	int	changed;
+	BOOL	hasnl;
 
-	while ((llen = fgetline(ifile, linep, MAXLINE)) >= 0) {
-		if (llen >= MAXLINE-1) {
-			errmsgno(EX_BAD, "Input line truncated: %s\n", linep);
-			/*
-			 * Abort if not in filter mode.
-			 */
-			if (ofile != stdout)
-				return (-1);
+	while ((llen = fgetaline(ifile, &oline, &osize)) > 0) {
+		linep = oline;
+		if (linep[llen-1] == '\n') {
+			linep[--llen] = '\0';
+			hasnl = TRUE;
+		} else {
+			hasnl = FALSE;
 		}
+
 		changed = 0;
 		out = 0;
 		lastmend = -1;
@@ -330,40 +334,44 @@ change(name, ifile, ofile, pat, subst, auxp, alt)
 				lastmend = matend;
 				if (changed >= CHcnt) {
 					matend = llen;
-					out = catsubst(linep, newp, idx, matend, "&", out, MAXLINE);
+					out = catsubst(linep, &newline, idx, matend, "&", out, &newsize);
 					break;
 				}
 				if (Vflag && !changed)
 					fprintf(stderr, "%s%s%s\n",
 						name, *name?": ":"", linep);
 				if (Iflag) {
-					showchange(name, linep, idx, matend, subst, out, MAXLINE);
+					showchange(name, linep, idx, matend, subst, out, llen);
 					if (!yes("OK? ")) {
-						out = catsubst(linep, newp, idx, matend, "&", out, MAXLINE);
+						out = catsubst(linep, &newline, idx, matend, "&", out, &newsize);
 						idx = matend;
 						continue;
 					}
 				}
-				out = catsubst(linep, newp, idx, matend, subst, out, MAXLINE);
+				out = catsubst(linep, &newline, idx, matend, subst, out, &newsize);
 				cnt++;
 				changed++;
 			}
 			if (matend == -1 || matend == idx)
-				out = appchar(linep[idx++], newp, out, MAXLINE);
+				out = appchar(linep[idx++], &newline, out, &newsize);
 			else
 				idx = matend;
 		}
-		if (appchar('\0', newp, out, MAXLINE) < 0) {
-			errmsgno(EX_BAD, "Output line truncated: %s\n", newp);
+		if (appchar('\0', &newline, out, &newsize) < 0) {
+			errmsgno(EX_BAD, "Output line truncated: %s\n", newline);
 			/*
 			 * Abort if not in filter mode.
 			 */
 			if (ofile != stdout)
 				return (-1);
 		}
-		fprintf(ofile, "%s\n", newp);
+		fprintf(ofile, "%s%s", newline, hasnl?"\n":"");
 		if (Cflag && changed)
-			fprintf(stderr, "%s%s%s\n", name, *name?": ":"", newp);
+			fprintf(stderr, "%s%s%s\n", name, *name?": ":"", newline);
+	}
+	if (llen < 0 && !feof(ifile)) {
+		errmsg("Input read error on '%s'.\n", *name?name:"stdin");
+		return (-1);
 	}
 	return (cnt);
 }
@@ -372,26 +380,26 @@ change(name, ifile, ofile, pat, subst, auxp, alt)
  * Concatenate substitution to current version of new line.
  */
 LOCAL int
-catsubst(linep, newp, start, end, subst, idx, max)
+catsubst(linep, newpp, start, end, subst, idx, maxp)
 	char	*linep;
-	char	*newp;
+	char	**newpp;
 	int	start;
 	int	end;
 	char	*subst;
 	int	idx;
-	int	max;
+	size_t	*maxp;
 {
 	int	i;
 
 	while (*subst != '\0') {
 		if (*subst == '&') {
 			for (i = start; i < end; i++)
-				idx = appchar(linep[i], newp, idx, max);
+				idx = appchar(linep[i], newpp, idx, maxp);
 			subst++;
 		} else {
 			if (*subst == '\\')
 				subst++;
-			idx = appchar(*subst++, newp, idx, max);
+			idx = appchar(*subst++, newpp, idx, maxp);
 		}
 	}
 	return (idx);
@@ -401,15 +409,30 @@ catsubst(linep, newp, start, end, subst, idx, max)
  * Append a character to the buffer, use position off.
  */
 LOCAL int
-appchar(c, buf, off, max)
+appchar(c, bufp, off, maxp)
 	char	c;
-	char	*buf;
+	char	**bufp;
 	int	off;
-	int	max;
+	size_t	*maxp;
 {
-	if (off < 0 || off >= max)
+	size_t	bufsize = *maxp;
+
+	if (off < 0)
 		return (-1);
-	buf[off++] = c;
+	if (off >= bufsize) {
+		char	*newbuf;
+
+		while (bufsize <= off)
+			bufsize += LINEINCR;
+		newbuf = realloc(*bufp, bufsize);
+		if (newbuf == NULL) {
+			errmsg("No memory to append to current line.\n");
+			return (-1);
+		}
+		*bufp = newbuf;
+		*maxp = bufsize;
+	}
+	(*bufp)[off++] = c;
 	return (off);
 }
 
@@ -421,16 +444,25 @@ showchange(name, linep, start, end, subst, out, max)
 	int	end;
 	char	*subst;
 	int	out;
-	int	max;
+	size_t	max;
 {
-	char	tmp[MAXLINE];
-	char	*newp = tmp;
+static	char	*tmp = NULL;
+static	size_t	tmpsize = 0;
+
+	max++;
+	while (tmpsize < max)
+		tmpsize += LINEINCR;
+	tmp = realloc(tmp, tmpsize);
+	if (tmp == NULL) {
+		errmsg("No memory for change preview.\n");
+		return;
+	}
 
 	movebytes(newline, tmp, max);
-	out = catsubst(linep, newp, start, end, subst, out, max);
-	if (appchar('\0', newp, out, max) < 0)
+	out = catsubst(linep, &tmp, start, end, subst, out, &tmpsize);
+	if (appchar('\0', &tmp, out, &tmpsize) < 0)
 		error("Line will be truncated!\n");
-	fprintf(stderr, "%s%s%s%s\n", name, *name?": ":"", newp, &linep[end]);
+	fprintf(stderr, "%s%s%s%s\n", name, *name?": ":"", tmp, &linep[end]);
 }
 
 /* VARARGS1 */
@@ -523,7 +555,7 @@ mkbak(name)
 		errmsg("Cannot rename '%s' to '%s'\n", tmpname, name);
 		if (!Nflag) {
 			/*
-			 *try make .bak current again.
+			 * Try to make .bak current again.
 			 */
 			if (rename(bakname, name) < 0)
 				errmsg("Cannot rename backup '%s' back to '%s'\n",

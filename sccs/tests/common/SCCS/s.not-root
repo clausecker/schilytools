@@ -1,0 +1,74 @@
+h56191
+s 00001/00002/00041
+d D 1.3 15/06/03 00:16:41 joerg 3 2
+c Anpassungen an neue Position im Dateibaum (eine Stufe hoch)
+e
+s 00005/00001/00038
+d D 1.2 15/04/25 19:50:21 joerg 2 1
+c FORCE_ROOT=true erlaubt einen Test als root
+e
+s 00039/00000/00000
+d D 1.1 11/05/28 12:31:44 joerg 1 0
+c date and time created 11/05/28 12:31:44 by joerg
+e
+u
+U
+f e 0
+f y 
+t
+T
+I 1
+#!/bin/sh
+
+D 3
+SRCROOT=`../../../../conf/srcroot.sh`
+. ${SRCROOT}/tests/bin/base
+E 3
+I 3
+. ${SRCROOT:=`../../../conf/srcroot.sh`}/tests/bin/base
+E 3
+
+chmodprog="${CHMODPROG-chmod}"
+chownprog="${CHOWNPROG-chown}"
+chgrpprog="${CHGRPPROG-chgrp}"
+
+chmodcmd="$chmodprog 0755"
+chowncmd=""
+chgrpcmd=""
+#
+# Check if we are 'root' to avoid chown as non root user
+#
+rootflag=FALSE
+dstdir=/tmp/xd.$$
+dsttmp=${dstdir}/xx.$$
+#trap "rm -f ${dsttmp}; rm -rf ${dstdir}" 0
+mkdir ${dstdir}
+${chmodcmd} ${dstdir}
+echo > ${dsttmp}
+${chownprog} root ${dsttmp} 2> /dev/null && ${chmodcmd} ${dsttmp} 2> /dev/null && rootflag=TRUE
+#
+# Win95 has no user 'root' and chown succeeds always.
+# Unfortunately, there is also no user 'bin' and chown complains about
+# user 'bin' being non-existant.
+# Check if the file is now really owned by 'root' to avoid the Win95 probems
+#
+if [ $rootflag = TRUE ]; then
+	ls -l ${dsttmp} 2> /dev/null | grep root > /dev/null || rootflag=FALSE
+fi
+rm -f ${dsttmp}
+rm -rf ${dstdir}
+
+if test $rootflag = TRUE
+then
+D 2
+	 xfail "Please do not run the suite as root"
+E 2
+I 2
+	if [ ."${FORCE_ROOT}" = .true ]; then
+		:
+	else
+		xfail "Please do not run the suite as root"
+	fi
+E 2
+fi
+E 1

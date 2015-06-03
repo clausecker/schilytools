@@ -3,7 +3,7 @@
 # valbasic.sh:  Basic tests for the "val" command.
 
 # Import common functions & definitions.
-. ../common/test-common
+. ../../common/test-common
 
 files="f s.f"
 

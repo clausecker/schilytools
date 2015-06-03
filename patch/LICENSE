@@ -1,245 +1,64 @@
-https://groups.google.com/group/gnu.utils.bug/msg/73b3e2bf681d3c0b?hl=de&dmode=source
+Date: Tue, 2 Jun 2015 09:49:00 -0700
+Subject: Re: "patch" license
+From: Larry Wall <larry@wall.org>
+To: Joerg Schilling <Joerg.Schilling@fokus.fraunhofer.de>
 
-From: "Darren/Torin/Who Ever..." <torin@daft.com>
-Subject: [larry@wall.org (Larry Wall)] Re: patch and copyrights
-Date: 1997/02/15
-Message-ID: <87u3ndb4vz.fsf@perv.daft.com>
-X-Deja-AN: 219121790
-Sender: torin@perv.daft.com
-X-Web: http://www.daft.com/~torin/
-X-Address: 2608 Second Avenue, #282
-X-Phone-Fax: +1-800-921-4996/+1-206-727-5084
-X-Face: @E5e"O[(T!v&8{hyJLrPQnww-"r;+642m"aAJi~H2t#QCQj)UkGNh4FL,;\sc{e[]|MXbF|
-Organization: Discordian Alliance For Teaching
-x-gateway: relay4.UU.NET from bug-gnu-utils to gnu.utils.bug; Sun, 16 Feb 1997 02:14:29 EST
-X-Discordia: Hail Eris - keep up OM
-Newsgroups: gnu.utils.bug
-X-Mailer: Gnus v5.4.10/XEmacs 19.14
-
-
------BEGIN PGP SIGNED MESSAGE-----
-
-Do you think that you could mention that Larry has put patch under the
-Artistic or GPL license?  It will possibly mean that he'll get less mail asking
-about the copying conditions of patch.
-
-I've enclosed my e-mail with him about this...
-
-Thanks,
-  Darren
-- -- 
-<torin@daft.com> <http://www.daft.com/~torin> <torin@debian.org> <torin@io.com>
-Darren Stalder/2608 Second Ave, @282/Seattle, WA 98121-1212/USA/+1-800-921-4996
-@ Do you have your clothes on? I probably don't. Take yours off. Feel better. @
-@ Sysadmin, webweaver, postmaster for hire.  C/Perl/CGI programmer and tutor. @
-- ------- Start of forwarded message -------
-Date: Sat, 15 Feb 1997 12:08:53 -0800
-From: larry@wall.org (Larry Wall)
-Message-Id: <199702152008.MAA08141@wall.org>
-To: torin@daft.com ("Darren/Torin/Who Ever...")
-Cc: Larry Wall <larry@wall.org>
-Subject: Re: patch and copyrights
-
-Darren/Torin/Who Ever... writes:
-: -----BEGIN PGP SIGNED MESSAGE-----
-: 
-: Larry,
-:   I'm the current maintainer for patch for the Debian Linux
-: distribution.  The following comment in patch.c was pointed out to me:
-: /* patch - a program to apply diffs to original files
-:  *
-:  * Copyright 1986, Larry Wall
-:  *
-:  * This program may be copied as long as you don't try to make any
-:  * money off of it, or pretend that you wrote it.
-: 
-: Some folks are trying to make money off of selling Debian Linux on CD
-: and so violate your copyright.  Would you be willing to allow patch to
-: be distributed with the rest of the Debian distribution even if someone
-: charged for the distribution?  Even better, would you be willing to put
-: patch under the Artistic License.
-: 
-: BTW, Perl (and patch) please the Author of my story quite a bit.
-: Thanks.
-: 
-: Darren
-: - -- 
-: <torin@daft.com> <http://www.daft.com/~torin> <torin@debian.org> <torin@io.com>
-: Darren Stalder/2608 Second Ave, @282/Seattle, WA 98121-1212/USA/+1-800-921-4996
-: @ Do you have your clothes on? I probably don't. Take yours off. Feel better. @
-: @ Sysadmin, webweaver, postmaster for hire.  C/Perl/CGI programmer and tutor. @
-: 
-: -----BEGIN PGP SIGNATURE-----
-: Version: 2.6.2
-: Comment: Processed by Mailcrypt 3.4, an Emacs/PGP interface
-: 
-: iQCVAwUBMwWCt44wrq++1Ls5AQGowQP+JrBc7PLllKKUhpFC37myRcc0QucYCvXK
-: 2OSQET/tpxp2A6bo0/vx7CgyUXRyd0cN4vioE4j77l7NgLsrpC1vk4gXH93xqYXS
-: l/eXpqtQ4EbIwHLYxhUp0D/n71yKF9iWuiEkIk0ucMNUu/sdDxl+8tbttVFnSXsE
-: fdZKTVSQxM8=
-: =B/vn
-: -----END PGP SIGNATURE-----
-: [Acked]
-
-Below is my form letter for that.  So the answer to your question is "yes".
+I'm fine with that.
 
 Larry
 
-- ----------------------------------------
-I have no problem with anyone including patch in a commercial
-distribution.  The copyright was only put there to scare off anyone who
-might take patch when it was still young and innocent and try to dupe
-someone else into paying for something that can be had for free.
-You're not trying to dupe people.  And patch is no longer young and
-innocent.
+On Tue, Jun 2, 2015 at 9:27 AM, Joerg Schilling <
+Joerg.Schilling@fokus.fraunhofer.de> wrote:
 
-If you want to know my real feelings about the matter, the Artistic License
-that comes with Perl is a more mature formulation.  I'll include it below.
-I basically wrote it to reassure people who were worried by certain aspects
-of the GNU General Public License.  (Of course, points 6 and 7 don't apply
-to patch.)
-
-Larry
-
-
-
-			 The "Artistic License"
-
-				Preamble
-
-The intent of this document is to state the conditions under which a
-Package may be copied, such that the Copyright Holder maintains some
-semblance of artistic control over the development of the package,
-while giving the users of the package the right to use and distribute
-the Package in a more-or-less customary fashion, plus the right to make
-reasonable modifications.
-
-Definitions:
-
-	"Package" refers to the collection of files distributed by the
-	Copyright Holder, and derivatives of that collection of files
-	created through textual modification.
-
-	"Standard Version" refers to such a Package if it has not been
-	modified, or has been modified in accordance with the wishes
-	of the Copyright Holder as specified below.
-
-	"Copyright Holder" is whoever is named in the copyright or
-	copyrights for the package.
-
-	"You" is you, if you're thinking about copying or distributing
-	this Package.
-
-	"Reasonable copying fee" is whatever you can justify on the
-	basis of media cost, duplication charges, time of people involved,
-	and so on.  (You will not be required to justify it to the
-	Copyright Holder, but only to the computing community at large
-	as a market that must bear the fee.)
-
-	"Freely Available" means that no fee is charged for the item
-	itself, though there may be fees involved in handling the item.
-	It also means that recipients of the item may redistribute it
-	under the same conditions they received it.
-
-1. You may make and give away verbatim copies of the source form of the
-Standard Version of this Package without restriction, provided that you
-duplicate all of the original copyright notices and associated disclaimers.
-
-2. You may apply bug fixes, portability fixes and other modifications
-derived from the Public Domain or from the Copyright Holder.  A Package
-modified in such a way shall still be considered the Standard Version.
-
-3. You may otherwise modify your copy of this Package in any way, provided
-that you insert a prominent notice in each changed file stating how and
-when you changed that file, and provided that you do at least ONE of the
-following:
-
-    a) place your modifications in the Public Domain or otherwise make them
-    Freely Available, such as by posting said modifications to Usenet or
-    an equivalent medium, or placing the modifications on a major archive
-    site such as uunet.uu.net, or by allowing the Copyright Holder to include
-    your modifications in the Standard Version of the Package.
-
-    b) use the modified Package only within your corporation or organization.
-
-    c) rename any non-standard executables so the names do not conflict
-    with standard executables, which must also be provided, and provide
-    a separate manual page for each non-standard executable that clearly
-    documents how it differs from the Standard Version.
-
-    d) make other distribution arrangements with the Copyright Holder.
-
-4. You may distribute the programs of this Package in object code or
-executable form, provided that you do at least ONE of the following:
-
-    a) distribute a Standard Version of the executables and library files,
-    together with instructions (in the manual page or equivalent) on where
-    to get the Standard Version.
-
-    b) accompany the distribution with the machine-readable source of
-    the Package with your modifications.
-
-    c) give non-standard executables non-standard names, and clearly
-    document the differences in manual pages (or equivalent), together
-    with instructions on where to get the Standard Version.
-
-    d) make other distribution arrangements with the Copyright Holder.
-
-5. You may charge a reasonable copying fee for any distribution of this
-Package.  You may charge any fee you choose for support of this
-Package.  You may not charge a fee for this Package itself.  However,
-you may distribute this Package in aggregate with other (possibly
-commercial) programs as part of a larger (possibly commercial) software
-distribution provided that you do not advertise this Package as a
-product of your own.  You may embed this Package's interpreter within
-an executable of yours (by linking); this shall be construed as a mere
-form of aggregation, provided that the complete Standard Version of the
-interpreter is so embedded.
-
-6. The scripts and library files supplied as input to or produced as
-output from the programs of this Package do not automatically fall
-under the copyright of this Package, but belong to whomever generated
-them, and may be sold commercially, and may be aggregated with this
-Package.  If such scripts or library files are aggregated with this
-Package via the so-called "undump" or "unexec" methods of producing a
-binary executable image, then distribution of such an image shall
-neither be construed as a distribution of this Package nor shall it
-fall under the restrictions of Paragraphs 3 and 4, provided that you do
-not represent such an executable image as a Standard Version of this
-Package.
-
-7. C subroutines (or comparably compiled subroutines in other
-languages) supplied by you and linked into this Package in order to
-emulate subroutines and variables of the language defined by this
-Package shall not be considered part of this Package, but are the
-equivalent of input as in Paragraph 6, provided these subroutines do
-not change the language in any way that would cause it to fail the
-regression tests for the language.
-
-8. Aggregation of this Package with a commercial distribution is always
-permitted provided that the use of this Package is embedded; that is,
-when no overt attempt is made to make this Package's interfaces visible
-to the end user of the commercial distribution.  Such use shall not be
-construed as a distribution of this Package.
-
-9. The name of the Copyright Holder may not be used to endorse or promote
-products derived from this software without specific prior written permission.
-
-10. THIS PACKAGE IS PROVIDED "AS IS" AND WITHOUT ANY EXPRESS OR
-IMPLIED WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED
-WARRANTIES OF MERCHANTIBILITY AND FITNESS FOR A PARTICULAR PURPOSE.
-
-				The End
-
-- ------- End of forwarded message -------
-
------BEGIN PGP SIGNATURE-----
-Version: 2.6.2
-Comment: Processed by Mailcrypt 3.4, an Emacs/PGP interface
-
-iQCVAwUBMwazfI4wrq++1Ls5AQElLgP/ambCSPHHGM4kaj7xY6HV8iQjM52bI+R8
-EWWTwn8gRzwwEJsAAY8Qr+nMx244ijf81EOJtdFxTLVqBmkoiUluy0b7JL9qKw3Y
-AmPyLl5A3faHKsOa7ns8eW0DBq51Nk9JZTtzXTqcvZKCLv0qGS0LvLSgK9EyUzia
-qtxgTLT26mQ=
-=y/wS
------END PGP SIGNATURE-----
+> Hi,
+>
+> since January 2011, I am maintaining a variant of your "patch" implementation
+> in order to have a version of patch for OpenSolaris that has a chance to pass
+> a POSIX compliance test.
+>
+> An old version is already integrated in my OpenSolaris source repository
+> at:
+>
+>
+>
+> https://sourceforge.net/p/schillix-on/schillix-on/ci/default/tree/usr/src/cmd/patch/
+>
+> and recent development versions are in the tarball of the schily tools collection
+> at:
+>
+>         https://sourceforge.net/projects/schilytools/files/
+>
+> I am interested in having a clean license agreement with you instead of the
+> original text from the 1980s.
+>
+> The license agreement you negotiated with the OpenBSD project seems to be nice.
+> Could you please send me an explicit permission to use the text from OpenBSD
+> for my patch as well:
+>
+>  * Redistribution and use in source and binary forms, with or without
+>  * modification, are permitted provided that the following condition is met:
+>  * 1. Redistributions of source code must retain the above copyright notice,
+>  * this condition and the following disclaimer.
+>  *
+>  * THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND ANY
+>  * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+>  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+>  * DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE FOR
+>  * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+>  * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+>  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+>  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+>  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+>  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+>  * SUCH DAMAGE.
+>
+> I am going to honor your license decision for my enhancements as well...
+>
+> Thank you in advance
+>
+> Jörg
+>
+> --
+>  EMail:joerg@schily.net                    (home) Jörg Schilling D-13353 Berlin
+>        joerg.schilling@fokus.fraunhofer.de (work) Blog: http://schily.blogspot.com/
+>  URL:  http://cdrecord.org/private/ http://sourceforge.net/projects/schilytools/files/

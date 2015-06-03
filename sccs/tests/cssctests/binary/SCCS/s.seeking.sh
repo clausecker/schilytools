@@ -1,4 +1,12 @@
-h55676
+h27053
+s 00003/00003/00241
+d D 1.6 15/06/03 00:06:43 joerg 6 5
+c ../common/test-common -> ../../common/test-common
+e
+s 00002/00002/00242
+d D 1.5 15/06/01 23:55:23 joerg 5 4
+c ../../testutils/ -> ${SRCROOT}/tests/testutils/
+e
 s 00078/00010/00166
 d D 1.4 14/08/26 20:19:40 joerg 4 3
 c ascii/binary Unterschiede bei SCCSv4 <-> SCCSv6 beruecksichtigen
@@ -26,9 +34,16 @@
 # auto.sh:  Tests for "admin"'s detection of binary files.
 
 # Import common functions & definitions.
+D 6
 . ../common/test-common
 . ../common/real-thing
 . ../common/config-data
+E 6
+I 6
+. ../../common/test-common
+. ../../common/real-thing
+. ../../common/config-data
+E 6
 
 if $binary_support
 then
@@ -157,8 +172,14 @@ expect_fail=false
 adminflags=""
 
 remove long-text-file
+D 5
 ../../testutils/yammer 1000 "this is a text file" > long-text-file
 #../../testutils/yes "this is a text file" | nl | head -1000 >long-text-file
+E 5
+I 5
+${SRCROOT}/tests/testutils/yammer 1000 "this is a text file" > long-text-file
+#${SRCROOT}/tests/testutils/yes "this is a text file" | nl | head -1000 >long-text-file
+E 5
 if test -s long-text-file
 then
     true 

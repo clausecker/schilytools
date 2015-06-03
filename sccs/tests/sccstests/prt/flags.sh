@@ -3,8 +3,8 @@
 # Basic tests for extended SCCS flags woth prt
 
 # Read test core functions
-. ../common/test-common
-. ../common/need-prt
+. ../../common/test-common
+. ../../common/need-prt
 
 g=foo
 s=s.$g

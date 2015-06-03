@@ -1,15 +1,30 @@
-/* @(#)inp.c	1.14 15/05/18 2011-2015 J. Schilling */
+/* @(#)inp.c	1.17 15/06/02 2011-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)inp.c	1.14 15/05/18 2011-2015 J. Schilling";
+	"@(#)inp.c	1.17 15/06/02 2011-2015 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1986, 1988 Larry Wall
  *	Copyright (c) 2011-2015 J. Schilling
  *
- *	This program may be copied as long as you don't try to make any
- *	money off of it, or pretend that you wrote it.
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following condition is met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice,
+ * this condition and the following disclaimer.
+ * 
+ * THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE FOR
+ * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+ * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+ * SUCH DAMAGE.
  */
 
 #define	EXT	extern
@@ -134,7 +149,7 @@ _("Can't find %s--attempting to get it from SCCS.\n"),
 	if (i_womp == Nullch)
 		return (FALSE);
 	if ((ifd = open(filename, 0)) < 0)
-		fatal(_("Can't open file %s\n"), filename);
+		pfatal(_("Can't open file %s\n"), filename);
 	if (read(ifd, i_womp, (int)i_size) != i_size) {
 		Close(ifd);	/* probably means i_size > 15 / 16 bits worth */
 		free(i_womp);	/* at this point it doesn't matter if i_womp */
@@ -207,9 +222,9 @@ plan_b(filename)
 
 	using_plan_a = FALSE;
 	if ((ifp = fopen(filename, "r")) == Nullfp)
-		fatal(_("Can't open file %s\n"), filename);
+		pfatal(_("Can't open file %s\n"), filename);
 	if ((tifd = creat(TMPINNAME, 0666)) < 0)
-		fatal(_("Can't open file %s\n"), TMPINNAME);
+		pfatal(_("Can't open file %s\n"), TMPINNAME);
 	while ((i = fgetaline(ifp, &buf, &bufsize)) > 0) {
 		if (revision != Nullch && !found_revision && rev_in_string(buf))
 			found_revision = TRUE;
@@ -249,15 +264,15 @@ _("Good.  This file appears to be the %s version.\n"),
 	for (i = 1; ; i++) {
 		if (! (i % lines_per_buf)) /* new block */
 			if (write(tifd, tibuf[0], tibufsize) < tibufsize)
-				fatal(_("patch: can't write temp file.\n"));
+				pfatal(_("can't write temp file.\n"));
 		if (fgets(tibuf[0] + maxlen * (i%lines_per_buf),
 		    maxlen + 1, ifp) == Nullch) {
 			input_lines = i - 1;
 			if (i % lines_per_buf) {
 				if (write(tifd, tibuf[0], tibufsize) <
 				    tibufsize) {
-					fatal(
-					_("patch: can't write temp file.\n"));
+					pfatal(
+					_("can't write temp file.\n"));
 				}
 			}
 			break;
@@ -266,7 +281,7 @@ _("Good.  This file appears to be the %s version.\n"),
 	Fclose(ifp);
 	Close(tifd);
 	if ((tifd = open(TMPINNAME, 0)) < 0) {
-		fatal(_("Can't reopen file %s\n"), TMPINNAME);
+		pfatal(_("Can't reopen file %s\n"), TMPINNAME);
 	}
 }
 
@@ -293,7 +308,7 @@ ifetch(line, whichbuf)
 			tiline[whichbuf] = baseline;
 			Lseek(tifd, baseline / lines_per_buf * tibufsize, 0);
 			if (read(tifd, tibuf[whichbuf], tibufsize) < 0) {
-				fatal(_("Error reading tmp file %s.\n"),
+				pfatal(_("Error reading tmp file %s.\n"),
 				    TMPINNAME);
 			}
 		}
@@ -313,11 +328,11 @@ rev_in_string(string)
 	if (revision == Nullch)
 		return (TRUE);
 	patlen = strlen(revision);
-	if (strnEQ(string, revision, patlen) && isspace(string[patlen]))
+	if (strnEQ(string, revision, patlen) && isspace(UCH string[patlen]))
 		return (TRUE);
 	for (s = string; *s; s++) {
-		if (isspace(*s) && strnEQ(s+1, revision, patlen) &&
-		    isspace(s[patlen+1])) {
+		if (isspace(UCH *s) && strnEQ(s+1, revision, patlen) &&
+		    isspace(UCH s[patlen+1])) {
 			return (TRUE);
 		}
 	}

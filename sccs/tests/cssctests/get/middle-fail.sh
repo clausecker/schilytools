@@ -5,7 +5,7 @@
 # SCCS difrectory stops processing at b, because a writable version of 
 # b exists.  In fact iot should carry on a check out a copy of c.
 
-. ../common/test-common
+. ../../common/test-common
 
 # The test suite fails if you run it as root, particularly because
 # "test -w foo" returns 0 if you are root, even if foo is a readonly
@@ -13,7 +13,7 @@
 # of just "test".
 # Please don't run the test suite as root, because it may spuriously
 # fail.
-. ../common/not-root
+. ../../common/not-root
 
 
 files="a b c"

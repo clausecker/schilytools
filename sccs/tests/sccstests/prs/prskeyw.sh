@@ -3,7 +3,7 @@
 # Basic tests for extended SCCS keywords
 
 # Read test core functions
-. ../common/test-common
+. ../../common/test-common
 
 g=foo
 s=s.$g

@@ -1,4 +1,8 @@
-h24489
+h34841
+s 00001/00001/00044
+d D 1.2 15/06/03 00:06:44 joerg 2 1
+c ../common/test-common -> ../../common/test-common
+e
 s 00045/00000/00000
 d D 1.1 10/04/29 02:05:14 joerg 1 0
 c date and time created 10/04/29 02:05:14 by joerg
@@ -15,7 +19,12 @@
 # exists.sh:  Testing for correct behaviour when a file isn't there.
 
 # Import common functions & definitions.
+D 2
 . ../common/test-common
+E 2
+I 2
+. ../../common/test-common
+E 2
 
 
 # If we invert the order of the arguments to prs here, so that the
