@@ -36,14 +36,14 @@
 /*
  * This file contains modifications Copyright 2008-2015 J. Schilling
  *
- * @(#)print.c	1.21 15/01/06 2008-2015 J. Schilling
+ * @(#)print.c	1.25 15/06/23 2008-2015 J. Schilling
  */
 #ifdef	SCHILY_INCLUDES
 #include <schily/mconfig.h>
 #endif
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)print.c	1.21 15/01/06 2008-2015 J. Schilling";
+	"@(#)print.c	1.25 15/06/23 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -67,8 +67,8 @@ static	UConst char sccsid[] =
 #endif
 
 #define		BUFLEN		256
-
-unsigned char numbuf[21];	/* big enough for 64 bits */
+#define		NUMBUFLEN	21	/* big enough for 64 bits */
+unsigned char numbuf[NUMBUFLEN+1];	/* Add one for sign */
 
 static unsigned char buffer[BUFLEN];
 static unsigned char *bufp = buffer;
@@ -81,7 +81,9 @@ static int buffd = 1;
 	void	prwc	__PR((wchar_t c));
 	void	prt	__PR((long t));
 	void	prn	__PR((int n));
+static	void	_itos	__PR((unsigned int n, char *out, size_t	outlen));
 	void	itos	__PR((int n));
+	void	sitos	__PR((int n));
 	int	stoi	__PR((unsigned char *icp));
 	int	ltos	__PR((long n));
 
@@ -167,14 +169,13 @@ prt(t)
 	long	t;	/* t is time in clock ticks, not seconds */
 {
 	int hr, min, sec, frac;
-	int _hz = HZ;
+	int _hz = HZ;	/* HZ may be a macro to a sysconf() call */
 
 	frac = t % _hz;
 	if (_hz > 1000)
 		frac %= 1000;
 	else
 		frac *= 1000 / _hz;
-	t += _hz / 2;	/* round to nearest second */
 	t /= _hz;
 	sec = t % 60;
 	t /= 60;
@@ -204,16 +205,17 @@ prn(n)
 }
 
 /*
- * Note that this currently only works correctly for unsigned integers.
- * Negative parameters result in printed junk.
+ * Convert unsigned int into "out" buffer.
  */
-void
-itos(n)
-	int	n;
+static void
+_itos(n, out, outlen)
+	unsigned int	n;
+	char	*out;
+	size_t	outlen;
 {
-	unsigned char buf[21];
-	unsigned char *abuf = &buf[20];
-	int d;
+	unsigned char buf[NUMBUFLEN];
+	unsigned char *abuf = &buf[NUMBUFLEN-1];
+	unsigned int d;
 
 	*--abuf = (unsigned char)'\0';
 
@@ -221,7 +223,34 @@ itos(n)
 		 *--abuf = (unsigned char)('0' + n - 10 * (d = n / 10));
 	} while ((n = d) != 0);
 
-	strncpy((char *)numbuf, (char *)abuf, sizeof (numbuf));
+	strncpy(out, (char *)abuf, outlen);
+}
+
+/*
+ * Convert int into numbuf as if it was an unsigned.
+ */
+void
+itos(n)
+	int	n;
+{
+	_itos(n, (char *)numbuf, sizeof (numbuf));
+}
+
+/*
+ * Convert signed int into numbuf.
+ */
+void
+sitos(n)
+	int	n;
+{
+	char *np = (char *)numbuf;
+
+	if (n < 0) {
+		*np++ = '-';
+		_itos(-n, np, sizeof (numbuf) -1);
+		return;
+	}
+	_itos(n, (char *)numbuf, sizeof (numbuf));
 }
 
 int
@@ -247,13 +276,26 @@ stoi(icp)
 }
 
 int
+stosi(icp)
+	unsigned char	*icp;
+{
+	int	sign = 1;
+
+	if (*icp == '-') {
+		sign = -1;
+		icp++;
+	}
+	return (sign * stoi(icp));
+}
+
+int
 ltos(n)
 	long	n;
 {
 	int i;
 
-	numbuf[20] = '\0';
-	for (i = 19; i >= 0; i--) {
+	numbuf[NUMBUFLEN-1] = '\0';
+	for (i = NUMBUFLEN-2; i >= 0; i--) {
 		numbuf[i] = n % 10 + '0';
 		if ((n /= 10) == 0) {
 			break;
@@ -269,8 +311,8 @@ ulltos(n)
 	int i;
 
 	/* The max unsigned long long is 20 characters (+1 for '\0') */
-	numbuf[20] = '\0';
-	for (i = 19; i >= 0; i--) {
+	numbuf[NUMBUFLEN-1] = '\0';
+	for (i = NUMBUFLEN-2; i >= 0; i--) {
 		numbuf[i] = n % 10 + '0';
 		if ((n /= 10) == 0) {
 			break;

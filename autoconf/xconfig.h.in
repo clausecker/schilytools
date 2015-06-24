@@ -1,9 +1,9 @@
-/* @(#)xconfig.h.in	1.245 15/03/02 Copyright 1998-2014 J. Schilling */
+/* @(#)xconfig.h.in	1.246 15/06/22 Copyright 1998-2015 J. Schilling */
 /*
  *	Dynamic autoconf C-include code.
  *	Do not edit, this file has been created automatically.
  *
- *	Copyright (c) 1998-2014 J. Schilling
+ *	Copyright (c) 1998-2015 J. Schilling
  *
  *	The layout for this file is controlled by "configure".
  *	Switch off cstyle(1) checks for now.
@@ -320,6 +320,7 @@
 #undef HAVE_WAIT		/* wait() is present in libc */
 #undef HAVE_WAIT3		/* working wait3() is present in libc */
 #undef HAVE_WAIT4		/* wait4() is present in libc */
+#undef HAVE_WAIT6		/* wait6() is present in libc */
 #undef HAVE_WAITID		/* waitid() is present in libc */
 #undef HAVE_WAITPID		/* waitpid() is present in libc */
 #undef HAVE_CWAIT		/* cwait() is present in libc */
@@ -931,6 +932,9 @@
 #undef uintmax_t		/* To be used if uintmax_t is not present */
 
 #undef	HAVE_TYPE_GREG_T	/* if <sys/frame.h> defines greg_t */
+
+#undef	HAVE_TYPE_IDTYPE_T	/* if <sys/wait.h> defines idtype_t */
+#undef	HAVE_TYPE_SIGINFO_T	/* if <sys/wait.h> defines siginfo_t */
 
 #undef	HAVE_STACK_T		/* if <signal.h> defines stack_t */
 #undef	HAVE_SIGINFO_T		/* if <signal.h> defines siginfo_t */

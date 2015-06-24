@@ -1,4 +1,4 @@
-. \" @(#)hdump.1	1.4 10/12/19 Copyright 1985-2010 J. Schilling
+. \" @(#)hdump.1	1.6 15/06/08 Copyright 1985-2015 J. Schilling
 . \"  Manual page for hdump
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -13,20 +13,63 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH HDUMP 1 "10/12/19" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH HDUMP 1 "15/06/08" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
-hdump \- displays (dumps) binary contents of a file
+hdump, od \- displays (dumps) binary contents of a file
 .SH SYNOPSIS
 .B
 hdump
-[
-.I options
-] [
+[\c
+.I options\c
+] [\c
 .I file
-[
-.IR starting_address "[.][\fIb\f0|\fIB\f0]"
-.I count
-] ] ]
+[\c
+.IR starting_address "[.][\fIb\f0|\fIB\f0] [\c"
+.I count\c
+]]]
+.sp
+.B
+hdump
+[\c
+.I options\c
+] [\c
+.I file\c
+\&.\&.\&.]
+.sp
+.B
+od
+[\c
+.I options\c
+] [\c
+.I file
+[\c
+.IR starting_address "[.][\fIb\f0|\fIB\f0]]]"
+.sp
+.B
+od
+[\c
+.I options\c
+] [\c
+.I file\c
+\&.\&.\&.]
+.sp
+.B
+xpg4/bin/od
+[\c
+.I options\c
+] [\c
+.I file
+[\c
+.IR starting_address "[.][\fIb\f0|\fIB\f0]]]"
+.sp
+.B
+xpg4/bin/od
+[\c
+.I options\c
+] [\c
+.I file\c
+\&.\&.\&.]
+.sp
 .SH DESCRIPTION
 .PP
 .B Hdump 

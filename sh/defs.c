@@ -31,16 +31,16 @@
 #endif
 
 /*
- * This file contains modifications Copyright 2008-2014 J. Schilling
+ * This file contains modifications Copyright 2008-2015 J. Schilling
  *
- * @(#)defs.c	1.12 14/06/25 2008-2014 J. Schilling
+ * @(#)defs.c	1.13 15/06/23 2008-2015 J. Schilling
  */
 #ifdef	SCHILY_INCLUDES
 #include <schily/mconfig.h>
 #endif
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)defs.c	1.12 14/06/25 2008-2014 J. Schilling";
+	"@(#)defs.c	1.13 15/06/23 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -111,6 +111,8 @@ jmp_buf		errshell;
 BOOL		trapnote;
 
 /* execflgs */
+struct excode	ex;
+struct excode	retex;
 int		exitval;
 int		retval;
 BOOL		execbrk;

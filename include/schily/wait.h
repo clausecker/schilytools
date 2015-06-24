@@ -1,4 +1,4 @@
-/* @(#)wait.h	1.20 15/04/23 Copyright 1995-2015 J. Schilling */
+/* @(#)wait.h	1.23 15/06/22 Copyright 1995-2015 J. Schilling */
 /*
  *	Definitions to deal with various kinds of wait flavour
  *
@@ -69,10 +69,32 @@
 #	endif
 #endif
 
+#if !defined(HAVE_TYPE_SIGINFO_T) && defined(HAVE_SIGINFO_T)
+#ifndef	_SCHILY_SIGNAL_H
+#include <schily/signal.h>
+#endif
+#endif
 
 #ifdef	__cplusplus
 extern "C" {
 #endif
+
+/*
+ * waitid() idtype_t definition, define when missing:
+ */
+#ifndef	HAVE_TYPE_IDTYPE_T
+typedef enum {
+	P_PID,		/* A process identifier.		*/
+	P_PPID,		/* A parent process identifier.		*/
+	P_PGID,		/* A process group (job control group)	*/
+			/* identifier.				*/
+	P_SID,		/* A session identifier.		*/
+	P_CID,		/* A scheduling class identifier.	*/
+	P_UID,		/* A user identifier.			*/
+	P_GID,		/* A group identifier.			*/
+	P_ALL,		/* All processes.			*/
+} idtype_t;
+#endif	/* HAVE_TYPE_IDTYPE_T */
 
 #ifndef	WCOREFLG
 #define	WCOREFLG	0x80
@@ -117,6 +139,19 @@ extern "C" {
 #define	NO_WTRAPPED
 #endif
 
+/*
+ * waitid() code values, #define them when they are missing:
+ */
+#ifndef	CLD_EXITED		/* Assume all is missing then */
+#define	CLD_EXITED	1	/* child has exited */
+#define	CLD_KILLED	2	/* child was killed */
+#define	CLD_DUMPED	3	/* child has coredumped */
+#define	CLD_TRAPPED	4	/* traced child has stopped */
+#define	CLD_STOPPED	5	/* child has stopped on signal */
+#define	CLD_CONTINUED	6	/* stopped child has continued */
+#define	NO_CLD_EXITED
+#endif	/* CLD_EXITED */
+
 #if defined(HAVE_UNION_WAIT) && defined(USE_UNION_WAIT)
 #	define WAIT_T union wait
 #	define	_W_U(w)	((union wait *)&(w))
@@ -160,7 +195,7 @@ extern "C" {
 #	endif
 #	ifndef WCOREDUMP
 #	ifdef WIFCORED				/* Haiku */
-#		define WCOREDUMP(status)	(WIFCORED(_W_I(status))
+#		define WCOREDUMP(status)	(WIFCORED(_W_I(status)))
 #	else
 #		define WCOREDUMP(status)	(_W_I(status) & 0x80)
 #	endif

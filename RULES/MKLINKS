@@ -1,6 +1,6 @@
 #!/bin/sh
 ###########################################################################
-#ident "@(#)MKLINKS	1.121 15/04/13 "
+#ident "@(#)MKLINKS	1.122 15/06/10 "
 ###########################################################################
 # Written 1996-2015 by J. Schilling
 ###########################################################################
@@ -290,7 +290,9 @@ $symlink	i586-linux-gcc32.rul	x86_64-gnu-kfreebsd-gcc32.rul
 #$symlink	os-cygwin32_nt.id	os-cygwin_nt-5.1.id
 $symlink	os-cygwin_95-4.0.id	os-cygwin_98-4.0.id
 $symlink	os-unixware.id		os-openunix.id
+$symlink	i486-cygwin32_nt-cc.rul	i486-cygwin32_nt-cc32.rul
 $symlink	i486-cygwin32_nt-cc.rul	i486-cygwin32_nt-cc64.rul
+$symlink	i486-cygwin32_nt-gcc.rul	i486-cygwin32_nt-gcc32.rul
 $symlink	i486-cygwin32_nt-gcc.rul	i486-cygwin32_nt-gcc64.rul
 $symlink	i486-cygwin32_nt-cc.rul	i386-cygwin32_nt-cc.rul
 $symlink	i486-cygwin32_nt-cc.rul	i586-cygwin32_nt-cc.rul
@@ -316,6 +318,9 @@ $symlink	i486-cygwin32_nt-gcc.rul	i686-cygwin32_wow64-gcc.rul
 $symlink	i486-cygwin32_nt-gcc.rul	i786-cygwin32_wow64-gcc.rul
 $symlink	i486-cygwin32_nt-gcc64.rul	i686-cygwin32_wow64-gcc64.rul
 $symlink	i486-cygwin32_nt-gcc64.rul	i786-cygwin32_wow64-gcc64.rul
+$symlink	i486-cygwin32_nt-gcc.rul	x86_64-cygwin32_nt-gcc.rul
+$symlink	i486-cygwin32_nt-gcc32.rul	x86_64-cygwin32_nt-gcc32.rul
+$symlink	i486-cygwin32_nt-gcc64.rul	x86_64-cygwin32_nt-gcc64.rul
 $symlink	power-macintosh-rhapsody-cc.rul	power-macintosh-mac-os10-cc.rul
 $symlink	power-macintosh-rhapsody-gcc.rul	power-macintosh-mac-os10-gcc.rul
 $symlink	power-macintosh-darwin-cc.rul	power-macintosh-darwin-cc32.rul

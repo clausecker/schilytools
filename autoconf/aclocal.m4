@@ -1,4 +1,4 @@
-dnl @(#)aclocal.m4	1.102 15/03/02 Copyright 1998-2014 J. Schilling
+dnl @(#)aclocal.m4	1.103 15/06/22 Copyright 1998-2015 J. Schilling
 
 dnl Set VARIABLE to VALUE in C-string form, verbatim, or 1.
 dnl AC_DEFINE_STRING(VARIABLE [, VALUE])
@@ -2979,6 +2979,68 @@ main()
                 [ac_cv_realloc_null=no])])
 if test $ac_cv_realloc_null = yes; then
   AC_DEFINE(HAVE_REALLOC_NULL)
+fi])
+
+
+dnl Checks if waitid() is present and is at least minimally usable.
+dnl Mac OS X is POSIX certified but definitely not POSIX compliant
+dnl so we need to to implement a complex test for waitid().
+dnl Defines HAVE_WAITID on success.
+AC_DEFUN([AC_FUNC_WAITID],
+[AC_CHECK_HEADERS(stdlib.h)
+AC_CHECK_HEADERS(unistd.h)
+AC_CHECK_HEADERS(wait.h)
+AC_HEADER_SYS_WAIT
+AC_CACHE_CHECK([for halfway POSIX compliant waitid()], ac_cv_func_waitid,
+                [AC_TRY_RUN([
+#ifdef	HAVE_STDLIB_H
+#include <stdlib.h>
+#endif
+#ifdef	HAVE_UNISTD_H
+#include <unistd.h>
+#endif
+#if	defined(HAVE_WAIT_H)
+#	include <wait.h>
+#else
+#include <sys/wait.h>
+#endif
+#include <signal.h>
+/*
+ * Non-standard compliant platforms may need 
+ * #include <signal.h> or something similar
+ * in addition to the include files above.
+ */
+
+int
+main()
+{
+	siginfo_t	si;
+	pid_t	pid;
+	int	ret;
+
+	if ((pid = fork()) < 0)
+		exit(1);
+	if (pid == 0) {
+		_exit(1234567890);
+	}
+	ret = waitid(P_PID, pid, &si, WEXITED);
+	if (ret < 0)
+		exit(1);
+	if (pid != si.si_pid)		/* Mac OS X has si.si_pid == 0 */
+		exit(2);
+	if (si.si_code != CLD_EXITED)	/* Mac OS X has si.si_code == 0 */
+		exit(3);
+	if ((si.si_status & 0xFFFF) != (1234567890 & 0xFFFF))
+		exit(4);		/* Should deliver more than 8 bits */
+					/* Linux only delivers 8 bits */
+					/* Mac OS X delivers 24 bits */
+
+	exit(0);
+}],
+                [ac_cv_func_waitid=yes],
+                [ac_cv_func_waitid=no])])
+if test $ac_cv_func_waitid = yes; then
+  AC_DEFINE(HAVE_WAITID)
 fi])
 
 

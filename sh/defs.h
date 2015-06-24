@@ -39,7 +39,7 @@
 /*
  * This file contains modifications Copyright 2008-2015 J. Schilling
  *
- * @(#)defs.h	1.64 15/04/12 2008-2015 J. Schilling
+ * @(#)defs.h	1.67 15/06/23 2008-2015 J. Schilling
  */
 
 #ifdef	__cplusplus
@@ -292,7 +292,6 @@ extern pid_t	mypgid;
 extern pid_t	mysid;
 
 /* getopt */
-
 extern int		optind;
 extern int		opterr;
 extern int 		_sp;
@@ -442,6 +441,7 @@ extern	void	restore		__PR((int last));
 /*
  * jobs.c
  */
+extern	char	*code2str	__PR((int code));
 extern	void	collect_fg_job	__PR((void));
 extern	void	freejobs	__PR((void));
 extern	void	startjobs	__PR((void));
@@ -459,6 +459,8 @@ extern	void	sysstop		__PR((int argc, char *argv[]));
 extern	void	syskill		__PR((int argc, char *argv[]));
 extern	void	syssusp		__PR((int argc, char *argv[]));
 extern	void	hupforegnd	__PR((void));
+extern	pid_t	wait_id		__PR((idtype_t idtype, pid_t id,
+					int *codep, int *statusp, int opts));
 
 /*
  * macro.c
@@ -476,8 +478,6 @@ extern	void	setmail		__PR((unsigned char *));
 #define	setmode		set_imode	/* Conflicts w. FreeBSD libc function */
 extern	void	setmode		__PR((int prof));
 extern	void	secpolicy_print __PR((int level, const char *msg));
-
-
 
 /*
  * name.c
@@ -516,7 +516,9 @@ extern	void	prwc		__PR((wchar_t c));
 extern	void	prt		__PR((long t));
 extern	void	prn		__PR((int n));
 extern	void	itos		__PR((int n));
+extern	void	sitos		__PR((int n));
 extern	int	stoi		__PR((unsigned char *icp));
+extern	int	stosi		__PR((unsigned char *icp));
 extern	int	ltos		__PR((long n));
 
 extern	void	flushb		__PR((void));
@@ -544,7 +546,6 @@ extern	struct argnod *pop_dir	__PR((int offset));
 extern	void	init_dirs	__PR((void));
 extern	int	pr_dirs		__PR((int minlen));
 
-
 /*
  * service.c
  */
@@ -567,7 +568,6 @@ extern	int 		getarg	__PR((struct comnod *ac));
 extern	void	suspacct	__PR((void));
 extern	void	preacct		__PR((unsigned char *cmdadr));
 extern	void	doacct		__PR((void));
-
 
 /*
  * setbrk.c
@@ -605,7 +605,6 @@ extern	unsigned char *movstrstak	__PR((unsigned char *a,
 extern	unsigned char *memcpystak	__PR((unsigned char *s1,
 							unsigned char *s2,
 							int n));
-
 
 /*
  * string.c
@@ -861,7 +860,6 @@ extern jmp_buf			subshell;
 extern jmp_buf			errshell;
 
 /* fault handling */
-
 extern unsigned			brkincr;
 #define		MINTRAP		0
 #define		MAXTRAP		NSIG
@@ -888,6 +886,8 @@ extern const char				duperr[];
 extern const char				readonly[];
 
 /* execflgs */
+extern struct excode			ex;
+extern struct excode			retex;
 extern int				exitval;
 extern int				retval;
 extern BOOL				execbrk;
@@ -980,13 +980,11 @@ extern const char				noparen[];
 extern const char				noarg[];
 
 /*	'builtin' error messages	*/
-
 extern const char				btest[];
 extern const char				badop[];
 extern const char				badumask[];
 
 /*	fork constant	*/
-
 #define		FORKLIM 	32
 
 extern address			end[];
@@ -999,11 +997,10 @@ extern int				ucb_builtins;
  * `trapnote' is set to SIGSET when fault is seen and
  * no trap has been set.
  */
-
 #define		sigchk()	if (trapnote & SIGSET)	\
 					exitsh(exitval ? exitval : SIGFAIL)
 
-#define		exitset()	retval = exitval
+#define		exitset()	(retex = ex, retval = exitval)
 
 /* Multibyte characters */
 unsigned char *readw	__PR((wchar_t));

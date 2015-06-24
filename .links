@@ -247,9 +247,9 @@
 ./RULES/alpha-netbsd-gcc.rul
 ./RULES/alphaserver_ds20_500_mhz-openvms-cc.rul
 ./RULES/amd64-freebsd-cc.rul
-./RULES/amd64-freebsd-clang64.rul
-./RULES/amd64-freebsd-clang32.rul
 ./RULES/amd64-freebsd-clang.rul
+./RULES/amd64-freebsd-clang32.rul
+./RULES/amd64-freebsd-clang64.rul
 ./RULES/amd64-freebsd-gcc.rul
 ./RULES/amd64-gnu-kfreebsd-cc.rul
 ./RULES/amd64-gnu-kfreebsd-gcc.rul
@@ -313,7 +313,9 @@
 ./RULES/i386-linux-suncc.rul
 ./RULES/i386-nextstep-cc.rul
 ./RULES/i386-nextstep-gcc.rul
+./RULES/i486-cygwin32_nt-cc32.rul
 ./RULES/i486-cygwin32_nt-cc64.rul
+./RULES/i486-cygwin32_nt-gcc32.rul
 ./RULES/i486-cygwin32_nt-gcc64.rul
 ./RULES/i486-gnu-kfreebsd-cc.rul
 ./RULES/i486-gnu-kfreebsd-gcc.rul
@@ -511,6 +513,9 @@
 ./RULES/sun4v-sunos5-cc64.rul
 ./RULES/sun4v-sunos5-gcc.rul
 ./RULES/sun4v-sunos5-gcc64.rul
+./RULES/x86_64-cygwin32_nt-gcc.rul
+./RULES/x86_64-cygwin32_nt-gcc32.rul
+./RULES/x86_64-cygwin32_nt-gcc64.rul
 ./RULES/x86_64-darwin-cc.rul
 ./RULES/x86_64-darwin-cc32.rul
 ./RULES/x86_64-darwin-cc64.rul

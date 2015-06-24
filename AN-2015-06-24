@@ -1,0 +1,220 @@
+New features with AN-2015-06-99:
+
+This is the first localization step for the schily source consolidation. Many
+programs now (hopefully) call gettext() for all strings that need localization.
+
+-	The next step will include dgettext() calls for the libraries and the
+	missing programs
+
+-	The following step will include the extracted strings
+
+-	The last step will include German translations and install support
+	for the resulting binary message object files.
+
+----------> Please test and report compilation problems! <---------
+
+***** NOTE: As mentioned since 2004, frontends to the tools should *****
+*****		call all programs in the "C" locale		   *****
+*****		by e.g. calling: LC_ALL=C cdrecord ....		   *****
+*****		unless these frontends support localized strings   *****
+*****		used by the cdrtools with NLS support.		   *****
+
+		*** WARNING        ***
+		*** Need new smake ***
+
+	*** Due to the fact that schily-tools 2014-04-03 introduced to use new macro
+	*** expansions and a related bug fix in smake, you need a new smake
+	*** to compile this source. To ensure this, call:
+
+	cd ./psmake
+	./MAKE-all
+	cd ..
+	psmake/smake
+	psmake/smake install
+
+
+	WARNING: the new version of the isoinfo program makes use of the 
+		*at() series of functions that have been introduced by Sun
+		in August 2001 and added to POSIX.1-2008. For older platforms,
+		libschily now includes emulations for these functions but
+		these emulations have not yet been tested thoroughly.
+		Please report problems!
+
+	The new smake version mentioned above is smake-1.2.4
+
+-	include/schily/signal.h now includes siginfo.h to make sure it
+	compiles even on very old Solaris versions where signal.h did not
+	yet include siginfo.h.
+
+-	include/schily/wait.h add a missing closing bracket for Haiku
+
+-	include/schily/wait.h added CLD_* macros and the enum idtype_t in case
+	they are missing. This allows to implement a waitid() emulation.
+
+-	include/schily/wait.h now includes schily/signal.h in case that
+	the local /usrinclude/sys/wait.h is non-POSIX and does not
+	define siginfo_t. This is e.g. the case on FreeBSD.
+
+-	The configure tests now include test that correctly identify Mac OS X as
+	non-POSIX with respect to waitid(). This prevents potential users of
+	waitid() from the unusable implementation on Mac OS X.
+
+	The rule for accepting an existing waitid() is the following:
+
+	-	si.si_pid is set to be equal to the awaited pid
+
+	-	si.si_code == CLD_EXITED for a chilt terminated by exit(2)
+
+	-	si.si_status contains at least 16 bits from the exit(2)
+		code. This is still not POSIX but better than what we would
+		get from a historical wait*() call.
+
+-	The configure tests now check for the new FreeBSD wait6() and for
+	idtype_t.
+
+-	A new symlink for x86_64-cygwin32_nt-gcc.rul was added
+
+-	The hdump man page now mentions that the program also implements the od(1)
+	comand line interface.
+
+-	Install an "od" man(1) page as an alias to the "hdump" man page.
+
+-	A "new" program "scut" was added to schilytools
+
+-	A "new" program "spaste" was added to schilytools
+
+-	Bsh now again uses our own wait3() implementation on Solaris and thus
+	is again able to report more than just the times for the command status.
+	Compilation now can also be controlled manually using:
+	COPTX=-DFORCE_OWN_WAIT3
+	and
+	COPTX=-DNO_OWN_WAIT3
+
+-	Bourne Shell: New timestamp for the shell version.
+
+-	Bourne Shell: The builtin "times" no longer rounds up the seconds.
+	This has become nonsense since we added milliseconds in May 2012.
+
+-	Bourne Shell: the builtin "true" now causes the shell to exit in case
+	that set -e was used. The wrong behavior was introduced in May 2014
+	when trus and false did become builtin commands.
+
+-	Bourne Shell: is now using waitid() instead of waitpid().
+
+-	Bourne Shell: now implements a waitid() emulation based on waitpid().
+	This is needed on many non-POSIX platforms such as FreeBSD and Mac OS X.
+	While newer FreeBSD include a working waitid() emulation, Mac OS X
+	offers a waitid() that is completely unusable even though it claims
+	to have a POSIX certification.
+
+-	Bourne Shell: now implements a new function code2str() to convert
+	the values from struct siginfo .si_code into a string.
+
+-	Bourne Shell: added a new function wait_id() for backtick expansion
+	that allows to get the whole 32 bits from the exit(2) parameter.
+
+-	Bourne Shell: smake COPTX=-DNO_WAITID allows to enforce the waitid()
+	emulation via waitpid() to enforce the old behavior where the
+	exit code is limited to 8 bits.
+
+-	Bourne Shell: a new structure "excode" and new excode variables
+	"ex" and "retex" will be used for enhanced status reporting in
+	the future. They currently only work correctly for non-builtin
+	commands where the status can be retrieved from waitid().
+
+-	Bourne Shell: A new function sitos() allows to convert negative
+	integers correctly. This is mainly needed in order to be able to
+	print the full signed int exitcode retrieved via waitid().
+
+-	Bourne Shell: exit(1) now allows to use negative parameters. This
+	reflects the fact that exit(2) has a signed integer as parameter.
+
+-	Bourne Shell: New readonly status variables have been added. These
+	variables are not the final state but a discussion base for a POSIX
+	enhancement:
+
+	$excode		The numerical value of siginfo_t.si_code.
+			Note that there is not yet a special value that flags
+			"exit values" that do not come from a child process
+			but from the shell itself.
+
+	$excodename	The name for $excode, created by stripping off the
+			initial "CLD_" prefix. Currently the following names
+			are possible:
+
+			EXITED	Program exited nomally, $exstatus has 
+				the exit(2) parameter.
+
+			KILLED	Program was killed by a signal $exstatus has
+				signal number.
+
+			DUMPED	Program was killed by a signal and dumped core.
+				$exstatus has signal number.
+
+			TRAPPED	Traced child has stopped
+
+			STOPPED	Program was stopped by a signal $exstatus has 
+				signal number.
+
+			CONTINUED Program was continued.
+
+	$exstatus	The numerical value of siginfo_t.si_status.
+
+	$extermsig	The value from siginfo_t.si_status converted into a
+			signal name using the kill(1) rules (stipping off
+			"SIG"). This conversion always takes place, not just
+			when the program was terminated by a signal.
+
+	$exsigno	The numerical value that caused the action. For now,
+			this only affects waitid() and thus always contains
+			SIGCHLD. Later versions of the shell will set this
+			variable to the causing signal when a trap(1) command
+			is executed.
+
+	$exsigname	The signal name for $signo
+
+	$expid		The pid of the process that was waited on.
+
+
+-	Bourne Shell: If $exstatus is != 0 and $? is == 0, $? is assigned
+	the special value 128. This helps to avoid that a script incorrectly
+	believes that a program exited with a zero exit code just because
+	exitcode & 0xFF == 0.
+
+
+
+-	The SVr4 package meta data information for the CSW packets has been 
+	made up to date:
+
+	-	od is now delivered as link to hdump
+
+	-	cstyle is included
+
+	-	mdigest is included
+
+	-	scut and spaste are included
+
+	-	osh (the portable unfixed version of the OpenSolaris Bourne Shell)
+		is included
+
+	-	The new libschily man pages are included
+
+	-	The man pages sccs-log(1), sccs-cvt(1) and sccschangeset(4)
+		have been added
+
+	-	Various new include files from include/schily have been added.
+
+	-	various directories that are created by the package CSWcommon
+		no longer include permission and owner information
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.net, js@cs.tu-berlin.de
+	joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

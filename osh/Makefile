@@ -1,4 +1,4 @@
-#ident "@(#)Makefile	1.44 15/04/13  Copyright (c) 2006-2014 J. Schilling"
+#ident "@(#)Makefile	1.46 15/06/23  Copyright (c) 2006-2015 J. Schilling"
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -21,6 +21,7 @@ CPPOPTS +=	-DUSE_NLS		# Enable NLS support in include/schily/*.h
 #CPPOPTS +=	-DNO_LOCALE		# Don't use setlocale()
 #CPPOPTS +=	-DNO_WCHAR		# Don't use wide chars
 CPPOPTS +=	-DNO_VFORK		# Don't use vfork()
+CPPOPTS +=	-DNO_WAITID		# Don't use waitid()
 
 CPPOPTS +=	-D_iBCS2 				# SCO echo compat
 CPPOPTS +=	-DTEXT_DOMAIN='"SUNW_OST_OSCMD"'	# gettext()
@@ -42,6 +43,7 @@ CPPOPTS +=	-DACCT					# Shell Accounting
 #CPPOPTS +=	-DDO_POSIX_FOR		# Support for i; do .... with semicolon
 #CPPOPTS +=	-DDO_PIPE_SEMI_SYNTAX_E	# Report a syntax error for "echo foo |;"
 #CPPOPTS +=	-DDO_READ_ALLEXPORT	# Bugfix for set -a; read VAR
+#CPPOPTS +=	-DDO_SIGNED_EXIT	# Allow negative exit(1) parameters
 
 #CPPOPTS +=	-DSTAK_DEBUG		# Include debug code for stak.c
 CPPOPTS +=	-DARGS_RIGHT_TO_LEFT	# Evaluate var2=val2 var1=val1 left to right

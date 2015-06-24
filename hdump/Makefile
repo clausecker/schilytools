@@ -1,4 +1,4 @@
-#ident @(#)Makefile	1.10 10/12/23 
+#ident @(#)Makefile	1.11 15/06/08 
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -31,7 +31,7 @@ GCCOPTOPT=	-O3  -fexpensive-optimizations
 CFILES=		hdump.c
 #HFILES=
 LIBS=		-lschily $(LIB_INTL)
-XMK_FILE=	Makefile.man
+XMK_FILE=	Makefile.man od.mk1
 
 ###########################################################################
 include		$(SRCROOT)/$(RULESDIR)/rules.cmd

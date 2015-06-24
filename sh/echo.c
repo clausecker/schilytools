@@ -35,13 +35,13 @@
 #include "defs.h"
 
 /*
- * This file contains modifications Copyright 2008-2012 J. Schilling
+ * This file contains modifications Copyright 2008-2015 J. Schilling
  *
- * @(#)echo.c	1.9 12/03/12 2008-2012 J. Schilling
+ * @(#)echo.c	1.10 15/06/19 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)echo.c	1.9 12/03/12 2008-2012 J. Schilling";
+	"@(#)echo.c	1.10 15/06/19 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -49,8 +49,6 @@ static	UConst char sccsid[] =
  */
 
 #define	exit(a)	flushb(); return (a)
-
-extern int exitval;
 
 int echo	__PR((int argc, unsigned char **argv));
 

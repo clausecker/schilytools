@@ -35,13 +35,13 @@
 #include "defs.h"
 
 /*
- * This file contains modifications Copyright 2008-2013 J. Schilling
+ * This file contains modifications Copyright 2008-2015 J. Schilling
  *
- * @(#)macro.c	1.21 13/09/25 2008-2013 J. Schilling
+ * %Z%%M%	%I% %E% 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)macro.c	1.21 13/09/25 2008-2013 J. Schilling";
+	"%Z%%M%	%I% %E% 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -61,6 +61,7 @@ static unsigned char	quoted;	/* used locally */
 
 static void	copyto		__PR((unsigned char endch, int trimflag));
 static void	skipto		__PR((unsigned char endch));
+static unsigned char *exvar	__PR((unsigned char *v));
 static int	getch		__PR((unsigned char endch, int trimflag));
 	unsigned char *macro	__PR((unsigned char *as));
 static void	comsubst	__PR((int));
@@ -203,6 +204,39 @@ out:
 		error(badsub);
 }
 
+static unsigned char *
+exvar(v)
+	unsigned char	*v;
+{
+	if (*v == 's' && eq(v, "status")) {
+		sitos(retex.ex_status);
+		v = numbuf;
+	} else if (*v == 'c' && eq(v, "code")) {
+		itos(retex.ex_code);
+		v = numbuf;
+	} else if (*v == 'c' && eq(v, "codename")) {
+		v = UC code2str(retex.ex_code);
+	} else if (*v == 'p' && eq(v, "pid")) {
+		itos(retex.ex_pid);
+		v = numbuf;
+	} else if (*v == 's' && eq(v, "signo")) {
+		itos(retex.ex_signo);
+		v = numbuf;
+	} else if (*v == 's' && eq(v, "signame")) {
+		sig2str(retex.ex_signo, (char *)numbuf);
+		v = numbuf;
+	} else if (*v == 't' && eq(v, "termsig")) {
+		numbuf[0] = '\0';
+		sig2str(retex.ex_status, (char *)numbuf);
+		v = numbuf;
+		if (numbuf[0] == '\0')
+			strcpy((char *)numbuf, "NONE");
+	} else {
+		return (NULL);
+	}
+	return (v);
+}
+
 #ifdef	PROTOTYPES
 static int
 getch(unsigned char endch, int trimflag)
@@ -238,8 +272,11 @@ retry:
 			BOOL		bra;
 			BOOL		nulflg;
 			unsigned char	*argp, *v = NULL;
+			unsigned char	*exv;
 			unsigned char		idb[2];
 			unsigned char		*id = idb;
+
+			*id = '\0';
 
 			if ((bra = (c == BRACE)) != FALSE)
 				c = readwc();
@@ -254,12 +291,21 @@ retry:
 				}
 				GROWSTAKTOP();
 				zerostak();
-				n = lookup(absstak(argp));
+/*				n = lookup(absstak(argp));*/
+				v = absstak(argp);		/* Variable name */
+				if (v[0] == 'e' && v[1] == 'x' &&
+					(exv = exvar(&v[2])) != NULL) {
+					v = exv;
+				} else {
+					n = lookup(v);
+					if (n->namflg & N_FUNCTN) {
+						setstak(argp);
+						error(badsub);
+					}
+					v = n->namval;
+					id = (unsigned char *)n->namid;
+				}
 				setstak(argp);
-				if (n->namflg & N_FUNCTN)
-					error(badsub);
-				v = n->namval;
-				id = (unsigned char *)n->namid;
 				peekc = c | MARK;
 			} else if (digchar(c)) {
 				*id = c;
@@ -590,22 +636,29 @@ comsubst(trimflag)
 	}
 	{
 		extern pid_t parent;
-		int exstat;
-		int rc;
+		int	rc;
 		int	ret = 0;
+		int	wstatus;
+		int	wcode;
 
-		while ((ret = waitpid(parent, &exstat, 0)) != parent) {
-			/* break out if waitpid(2) has failed */
+		while ((ret = wait_id(P_PID, parent,
+				&wcode, &wstatus,
+				(WEXITED|WTRAPPED))) != parent) {
+			/* break out if waitid(2) has failed */
 			if (ret == -1)
 				break;
 		}
-		if (WIFEXITED(exstat))
-			rc = WEXITSTATUS(exstat);
-		else
-			rc = (WTERMSIG(exstat) | SIGFLG);
+		rc = wstatus & 0xFF;
+		if (wcode == CLD_KILLED || wcode == CLD_DUMPED)
+			rc |= SIGFLG;
+		if (wstatus != 0 && rc == 0)
+			rc = SIGFLG;	/* Use special value 128 */
 		if (rc && (flags & errflg))
 			exitsh(rc);
 		exitval = rc;
+		ex.ex_status = wstatus;
+		ex.ex_code = wcode;
+		ex.ex_pid = parent;
 		flags |= eflag;
 		exitset();
 	}

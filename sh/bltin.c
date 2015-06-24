@@ -36,13 +36,13 @@
 #include "defs.h"
 
 /*
- * This file contains modifications Copyright 2008-2014 J. Schilling
+ * This file contains modifications Copyright 2008-2015 J. Schilling
  *
- * @(#)bltin.c	1.40 14/06/05 2008-2014 J. Schilling
+ * @(#)bltin.c	1.43 15/06/23 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)bltin.c	1.40 14/06/05 2008-2014 J. Schilling";
+	"@(#)bltin.c	1.43 15/06/23 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -133,7 +133,11 @@ struct trenod *t;
 	case SYSEXIT:
 		if (tried_to_exit++ || endjobs(JOB_STOPPED)) {
 			flags |= forcexit;	/* force exit */
+#ifdef	DO_SIGNED_EXIT
+			exitsh(a1 ? stosi(a1) : retval);
+#else
 			exitsh(a1 ? stoi(a1) : retval);
+#endif
 		}
 		break;
 
@@ -762,6 +766,8 @@ struct trenod *t;
 		break;
 	case SYSFALSE:
 		exitval = 1;
+		if (flags & errflg)
+			done(0);
 		break;
 #endif
 

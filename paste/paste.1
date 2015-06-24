@@ -1,0 +1,85 @@
+. \" @(#)paste.1	1.4 15/06/09 Copyr 1982-2015 J. Schilling
+. \"  Manual page for paste
+. \"
+.if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
+.if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
+.if t .ds u \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'u
+.if t .ds A \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'A
+.if t .ds O \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'O
+.if t .ds U \v'-0.77m'\h'0.30n'\z.\h'0.45n'\z.\v'0.77m'\h'-.75n'U
+.if t .ds s \(*b
+.if t .ds S SS
+.if n .ds a ae
+.if n .ds o oe
+.if n .ds u ue
+.if n .ds s sz
+.TH PASTE 1 "2015/06/09" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.SH NAME
+paste \- pastes fields in files together
+.SH SYNOPSIS
+.B paste
+[
+.BI d= list
+] [
+.I options
+] [
+.I file1 .\|.\|. filen
+]
+.sp
+.B spaste
+[
+.BI d= list
+] [
+.I options
+] [
+.I file1 .\|.\|. filen
+]
+.SH DESCRIPTION
+.B Paste
+joins separate files by fields. It is the opposite of the program cut.
+.PP
+.B Paste
+joins corresponding lines of files creating a single line
+of text with a single character delimiter separating each field.
+The result is displayed on standard output.
+.SH OPTIONS
+.TP
+.BI d= list
+Where
+.I list
+specifies the list of field
+delimiters used to separate the fields on output.
+The fields from the list are used in a cyclic way.
+The first element in the list is always used for the delimiter after the
+first file.
+If the list includes a backslash (\e), the next character is used with a
+special meaning:
+.RS
+.TP
+.B \en
+A newline is used as the delimiter.
+.TP
+.B \et
+A TAB is used as the delimiter.
+.TP
+.B \e\e
+A backslash is used as the delimiter.
+.TP
+.B \e0
+No delimiter is inserted.
+.LP
+The default delimiter is a single TAB.
+.RE
+.TP
+.B \-e
+Do not output empty lines.
+.TP
+.B \-s
+Do not paste lines from all files but paste all lines from a single file.
+Start with the first entry from the delimiter list with the beginning of a new file.
+.TP
+.BR width =#, w =#
+Set the maximum output linewidth (default is to allow an "infinite" output
+line width).
+.SH NOTES
+The maximum number of files that you can join together is 253.

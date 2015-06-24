@@ -1,18 +1,18 @@
-#ident @(#)Makefile	1.4 11/09/28 
+#ident "%W% %E% %Q%"
 ###########################################################################
-# Sample makefile for creating SVr4 packages
+# Sample makefile for installing localized shell scripts
 ###########################################################################
-SRCROOT=	../../..
+SRCROOT=	..
 RULESDIR=	RULES
 include		$(SRCROOT)/$(RULESDIR)/rules.top
 ###########################################################################
 
-PKG_RELOC=no
-PKGROOTX=,.	# Add "." to the -R root path
+INSDIR=		bin
+INSMODE=	0755
+TARGET=		Cstyle
+SCRFILE=	Cstyle.sh
+#XMK_FILE=	Makefile.man
 
-include		$(SRCROOT)/$(RULESDIR)/rules.csw
 ###########################################################################
-include		$(SRCROOT)/$(RULESDIR)/rules.pkg
+include		$(SRCROOT)/$(RULESDIR)/rules.scr
 ###########################################################################
-
-VERSION :sh=	../../../proto/`../../../conf/oarch.sh`/opt/csw/bin/sccs -V | awk '{ print $4}'

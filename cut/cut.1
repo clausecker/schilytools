@@ -1,0 +1,84 @@
+. \" @(#)cut.1	1.1 97/02/19 Copyright 1985-1997 J. Schilling
+. \"  Manual page for cut
+. \"
+.if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
+.if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
+.if t .ds u \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'u
+.if t .ds A \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'A
+.if t .ds O \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'O
+.if t .ds U \v'-0.77m'\h'0.30n'\z.\h'0.45n'\z.\v'0.77m'\h'-.75n'U
+.if t .ds s \(*b
+.if t .ds S SS
+.if n .ds a ae
+.if n .ds o oe
+.if n .ds u ue
+.if n .ds s sz
+.TH CUT 1 "15. Juli 1988" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.SH NAME
+cut \- dissects files by field
+.SH SYNOPSIS
+.B
+cut
+[
+.BI d= C
+] [
+.BI od= C
+] [
+.BI c= range
+] [
+.BI f=r ange
+] [
+.B \-nod
+] [
+.B \-s
+] [
+.B file
+]
+.SH DESCRIPTION
+.I Cut
+isolates specified columns or fields of a file, or standard
+input if no file is specified, and reorders them to standard
+output.
+.PP
+.I Cut
+assumes that the input file is divided into columns of
+characters or fields separated by tabs. You can, however,
+specify other single character delimiters with the
+.BI d= C
+option.
+.PP
+.I Cut
+writes its result to standard output with either the default
+tab or the specified delimiter character, specified with the
+.BI od= C
+option.
+.SH OPTIONS
+.TP
+.BI d= C
+C (a single character) specifies input delimiter
+(default character is TAB, \\t).
+.TP
+.BI od= C
+C (a single character) specifies output delimiter
+(default character is TAB, \\t).
+.TP
+.BI c= range
+Specifies the character position to extract. Character
+positions can be specified individually, by ranges or
+both, e.g., c=1,2 or c=1-3,5,7-9. Character positions
+are numbered beginning with 1.
+.TP
+.BI f= range
+Specifies field number to extract. Fields can be
+specified individually or in ranges as with c=range.
+Fields are numbered beginning with 1.
+.TP
+.B \-nod
+Suppress output delimiter when cutting by fields.
+Cutting by columns never has an output delimiter.
+.TP
+.B \-s
+Suppresses lines without the delimiter. This option is
+mutually exclusive to character specification.
+.SH NOTES
+none

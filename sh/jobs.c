@@ -38,11 +38,11 @@
 /*
  * This file contains modifications Copyright 2008-2015 J. Schilling
  *
- * @(#)jobs.c	1.31 15/03/29 2008-2015 J. Schilling
+ * @(#)jobs.c	1.34 15/06/23 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)jobs.c	1.31 15/03/29 2008-2015 J. Schilling";
+	"@(#)jobs.c	1.34 15/06/23 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -66,27 +66,58 @@ static	UConst char sccsid[] =
 #endif
 
 #ifndef	WCONTINUED
-#define	WCONTINUED	0
-#define	WIFCONTINUED(s)	0
+#define	WCONTINUED	0		/* BSD from wait3() and POSIX */
+#define	WIFCONTINUED(s)	0		/* Can't be there without WCONTINUED */
 #endif
 #ifndef	WIFCONTINUED
-#define	WIFCONTINUED(s)	0
+#define	WIFCONTINUED(s)	0		/* May be missing separately */
 #endif
 #ifndef	WNOWAIT
-#define	WNOWAIT		0
+#define	WNOWAIT		0		/* SVr4 / SunOS / POSIX */
+#endif
+#ifndef	WEXITED
+#define	WEXITED		0		/* SVr4 / SunOS / POSIX */
+#endif
+#ifndef	WTRAPPED
+#define	WTRAPPED	0		/* SVr4 / SunOS / POSIX */
 #endif
 #if defined(linux) || defined(IS_MACOS_X) || defined(_IBMR2) || defined(_AIX)
 /*
  * AIX, Linux and Mac OS X return EINVAL if WNOWAIT is used
+ * XXX: We need to verify whether this is true as well with waitid().
  */
 #undef	WNOWAIT
 #define	WNOWAIT		0
 #endif
 
+#ifdef	NO_WAITID
+#undef	HAVE_WAITID
+#endif
+#ifndef	HAVE_WAITID		/* Need to define everything for waitid() */
+
+/*
+ * Minimal structure to emulate waitid() via waitpid().
+ * In case of a waitid() emulation, we mainly get a reduced si_status range.
+ */
+#undef	si_code
+#undef	si_pid
+#undef	si_status
+
+typedef struct {
+	int	si_code;	/* Child status code */
+	pid_t	si_pid;		/* Child pid */
+	int	si_status;	/* Child exit code or signal number */
+} my_siginfo_t;
+
+#define	siginfo_t	my_siginfo_t
+#define	waitid		my_waitid
+#define	id_t		pid_t
+
+#endif	/* HAVE_WAITID */
+
 /*
  * one of these for each active job
  */
-
 struct job
 {
 	struct job *j_nxtp;	/* next job in job ID order */
@@ -96,14 +127,16 @@ struct job
 	pid_t	j_pgid;		/* job's process group ID */
 	pid_t	j_tgid;		/* job's foreground process group ID */
 	UInt32_t j_jid;		/* job ID */
-	UInt16_t j_xval;	/* exit code, or exit or stop signal */
+	Int32_t j_xval;		/* exit code, or exit or stop signal */
+	Int16_t j_xcode;	/* exit or stop reason */
 	UInt16_t j_flag;	/* various status flags defined below */
 	char	*j_pwd;		/* job's working directory */
 	char	*j_cmd;		/* cmd used to invoke this job */
 };
 
-/* defines for j_flag */
-
+/*
+ * defines for j_flag
+ */
 #define	J_DUMPED	0001	/* job has core dumped */
 #define	J_NOTIFY	0002	/* job has changed status */
 #define	J_SAVETTY	0004	/* job was stopped in foreground, and its */
@@ -114,8 +147,23 @@ struct job
 #define	J_RUNNING	0100	/* job is currently running */
 #define	J_FOREGND	0200	/* job was put in foreground by shell */
 
-/* options to the printjob() function defined below */
+static struct codename {
+	int	c_code;		/* The si_code value */
+	char	*c_name;	/* The name for si_code */
+} _codename[] = {
+	{ CLD_EXITED,	"EXITED" },	/* Child normal exit() */
+	{ CLD_KILLED,	"KILLED" },	/* Child was killed by signal */
+	{ CLD_DUMPED,	"DUMPED" },	/* Killed child dumped core */
+	{ CLD_TRAPPED,	"TRAPPED" },	/* Traced child has stopped */
+	{ CLD_STOPPED,	"STOPPED" },	/* Child has stopped on signal */
+	{ CLD_CONTINUED, "CONTINUED" }	/* Stopped child was continued */
+};
+#define	CODENAMESIZE	(sizeof (_codename) / sizeof (_codename[0]))
 
+
+/*
+ * options to the printjob() function defined below
+ */
 #define	PR_CUR		00001	/* print job currency ('+', '-', or ' ') */
 #define	PR_JID		00002	/* print job ID				 */
 #define	PR_PGID		00004	/* print job's process group ID		 */
@@ -146,10 +194,11 @@ static struct job	*jobcur, /* active jobs listed in currency order */
 
 static struct job *pgid2job	__PR((pid_t pgid));
 static struct job *str2job	__PR((char *cmdp, char *job, int mustbejob));
+	char	*code2str	__PR((int code));
 static void	freejob		__PR((struct job *jp));
 	void	collect_fg_job	__PR((void));
 static int	statjob		__PR((struct job *jp,
-					int exstat, int fg, int rc));
+					siginfo_t *si, int fg, int rc));
 static void	collectjobs	__PR((int wnohang));
 	void	freejobs	__PR((void));
 static void	waitjob		__PR((struct job *jp));
@@ -171,6 +220,12 @@ static void	sigv		__PR((char *cmdp, int sig, char *args));
 	void	sysstop		__PR((int argc, char *argv[]));
 	void	syskill		__PR((int argc, char *argv[]));
 	void	syssusp		__PR((int argc, char *argv[]));
+	pid_t	wait_id		__PR((idtype_t idtype, pid_t id,
+					int *codep, int *statusp, int opts));
+#ifndef	HAVE_WAITID
+static	int	waitid		__PR((idtype_t idtype, id_t id,
+					siginfo_t *infop, int opts));
+#endif
 
 #if	!defined(HAVE_TCGETPGRP) && defined(TIOCGPGRP)
 pid_t
@@ -272,6 +327,19 @@ str2job(cmdp, job, mustbejob)
 	return (jp);
 }
 
+char *
+code2str(code)
+	int	code;
+{
+	int	i;
+
+	for (i = 0; i < CODENAMESIZE; i++) {
+		if (code == _codename[i].c_code)
+			return (_codename[i].c_name);
+	}
+	return ("UNKNOWN");
+}
+
 static void
 freejob(jp)
 	struct job	*jp;
@@ -303,9 +371,9 @@ freejob(jp)
 void
 collect_fg_job()
 {
-	struct job *jp;
-	pid_t pid;
-	int exstat;
+	struct job	*jp;
+	int		err;
+	siginfo_t	si;
 
 	for (jp = joblst; jp; jp = jp->j_nxtp)
 		if (jp->j_flag & J_FOREGND)
@@ -323,8 +391,9 @@ collect_fg_job()
 	/* CONSTCOND */
 	while (1) {
 		errno = 0;
-		pid = waitpid(jp->j_pid, &exstat, 0);
-		if (pid == jp->j_pid || (pid == -1 && errno == ECHILD))
+		si.si_pid = 0;
+		err = waitid(P_PID, jp->j_pid, &si, (WEXITED|WTRAPPED));
+		if (si.si_pid == jp->j_pid || (err == -1 && errno == ECHILD))
 			break;
 	}
 }
@@ -332,18 +401,19 @@ collect_fg_job()
 /*
  * analyze the status of a job
  */
-
 static int
-statjob(jp, exstat, fg, rc)
+statjob(jp, si, fg, rc)
 	struct job	*jp;
-	int		exstat;
+	siginfo_t	*si;
 	int		fg;
 	int		rc;
 {
+	int	code = si->si_code;
 	pid_t tgid;
 	int jdone = 0;
 
-	if (WIFCONTINUED(exstat)) {
+	jp->j_xcode = code;
+	if (code == CLD_CONTINUED) {
 		if (jp->j_flag & J_STOPPED) {
 			jp->j_flag &= ~(J_STOPPED|J_SIGNALED|J_SAVETTY);
 			jp->j_flag |= J_RUNNING;
@@ -352,8 +422,8 @@ statjob(jp, exstat, fg, rc)
 				jobnote++;
 			}
 		}
-	} else if (WIFSTOPPED(exstat)) {
-		jp->j_xval = WSTOPSIG(exstat);
+	} else if (code == CLD_STOPPED || code == CLD_TRAPPED) {
+		jp->j_xval = si->si_status;		/* Stopsig */
 		jp->j_flag &= ~J_RUNNING;
 		jp->j_flag |= (J_SIGNALED|J_STOPPED);
 		jp->j_pgid = getpgid(jp->j_pid);
@@ -376,17 +446,17 @@ statjob(jp, exstat, fg, rc)
 		jp->j_flag |= J_DONE;
 		jdone++;
 		jobdone++;
-		if (WIFSIGNALED(exstat)) {
-			jp->j_xval = WTERMSIG(exstat);
+		if (code == CLD_KILLED || code == CLD_DUMPED) {
+			jp->j_xval = si->si_status;	/* Termsig */
 			jp->j_flag |= J_SIGNALED;
-			if (WCOREDUMP(exstat))
+			if (code == CLD_DUMPED)
 				jp->j_flag |= J_DUMPED;
 			if (!fg || jp->j_xval != SIGINT) {
 				jp->j_flag |= J_NOTIFY;
 				jobnote++;
 			}
-		} else { /* WIFEXITED */
-			jp->j_xval = WEXITSTATUS(exstat);
+		} else { /* CLD_EXITED */
+			jp->j_xval = si->si_status;	/* Exit status */
 			jp->j_flag &= ~J_SIGNALED;
 			if (!fg && jp->j_jid) {
 				jp->j_flag |= J_NOTIFY;
@@ -400,10 +470,20 @@ statjob(jp, exstat, fg, rc)
 		}
 	}
 	if (rc) {
-		exitval = jp->j_xval;
+		ex.ex_status = exitval = jp->j_xval;
+		ex.ex_code = jp->j_xcode;
+		ex.ex_pid = si->si_pid;
+#ifdef	SIGCHLD
+		ex.ex_signo = SIGCHLD;
+#else
+		ex.ex_signo = 1000;	/* Need to distinct this from builtin */
+#endif
+		exitval &= 0xFF;	/* As dumb as with historic wait */
 		if (jp->j_flag & J_SIGNALED)
 			exitval |= SIGFLG;
-		exitset();
+		else if (ex.ex_status != 0 && exitval == 0)
+			exitval = SIGFLG; /* Use special value 128 */
+		exitset();		/* Set retval from exitval for $? */
 	}
 	if (jdone && !(jp->j_flag & J_NOTIFY))
 		freejob(jp);
@@ -421,28 +501,31 @@ statjob(jp, exstat, fg, rc)
  * wnohang == 0, because that only happens from syswait() which is called
  * from builtin() where chktrap() is already called.
  */
-
 static void
 collectjobs(wnohang)
 int wnohang;
 {
-	pid_t pid;
-	struct job *jp;
-	int exstat, n;
-	int wflags;
+	pid_t		pid;
+	struct job	*jp;
+	int		n;
+	siginfo_t	si;
+	int		wflags;
 
 	if ((flags & (monitorflg|jcflg|jcoff)) == (monitorflg|jcflg))
 		wflags = WUNTRACED|WCONTINUED;
 	else
 		wflags = 0;
+	wflags |= (WEXITED|WTRAPPED);	/* Needed for waitid() */
 
 	for (n = jobcnt - jobdone; n > 0; n--) {
-		if ((pid = waitpid(-1, &exstat, wnohang|wflags)) <= 0)
+		if (waitid(P_ALL, 0, &si, wnohang|wflags) < 0)
+			break;
+		pid = si.si_pid;
+		if (pid == 0)
 			break;
 		if ((jp = pgid2job(pid)) != NULL)
-			(void) statjob(jp, exstat, 0, 0);
+			(void) statjob(jp, &si, 0, 0);
 	}
-
 }
 
 void
@@ -482,30 +565,39 @@ static void
 waitjob(jp)
 	struct job	*jp;
 {
-	int exstat;
-	int jdone;
-	pid_t pid = jp->j_pid;
-	int wflags;
-	int ret = 0;
-	int	err = 0;
+	siginfo_t	si;
+	int		jdone;
+	pid_t		pid = jp->j_pid;
+	int		wflags;
+	int		ret = 0;
+	int		err = 0;
 
 	if ((flags & (monitorflg|jcflg|jcoff)) == (monitorflg|jcflg))
 		wflags = WUNTRACED;
 	else
 		wflags = 0;
+	wflags |= (WEXITED|WTRAPPED);	/* Needed for waitid() */
 	do {
 		errno = 0;
-		ret = waitpid(pid, &exstat, wflags|WNOWAIT);
+		ret = waitid(P_PID, pid, &si, wflags|WNOWAIT);
 		err = errno;
-		if (ret == -1 && err == ECHILD) {
-			exstat = 0;
+		if (ret == -1 && err == ECHILD) { /* No children */
+			si.si_status = 0;
+			si.si_code = 0;
+			si.si_pid = 0;
 			break;
 		}
-	} while (ret != pid);
+		/*
+		 * si.si_pid == 0: no status is available for pid
+		 */
+	} while (si.si_pid != pid);
 
-	jdone = statjob(jp, exstat, 1, 1);
-	if (!WIFSTOPPED(exstat))		/* Avoid hang on FreeBSD */
-		waitpid(pid, 0, wflags);
+	jdone = statjob(jp, &si, 1, 1);	/* Sets exitval, see below */
+	/*
+	 * Avoid hang on FreeBSD, so wait/reap here only for died children.
+	 */
+	if (si.si_code != CLD_STOPPED && si.si_code != CLD_TRAPPED)
+		waitid(P_PID, pid, &si, wflags);
 	if (jdone && exitval && (flags & errflg))
 		exitsh(exitval);
 	flags |= eflag;
@@ -515,7 +607,6 @@ waitjob(jp)
  * modify the foreground process group to *new* only if the
  * current foreground process group is equal to *expected*
  */
-
 static int
 settgid(new, expected)
 pid_t new, expected;
@@ -622,7 +713,7 @@ printjob(jp, propts)
 				sp -= strlen(sigstr);
 				prs_buff((unsigned char *)sigstr);
 			} else {
-				itos(jp->j_xval);
+				sitos(jp->j_xval);
 				gmsg = gettext(signalnum);
 				sp -= strlen((char *)numbuf) + strlen(gmsg);
 				prs_buff((unsigned char *)gmsg);
@@ -634,12 +725,12 @@ printjob(jp, propts)
 				prs_buff((unsigned char *)gmsg);
 			}
 		} else if (jp->j_flag & J_DONE) {
-			itos(jp->j_xval);
+			sitos(jp->j_xval);
 			gmsg = gettext(exited);
 			sp -= strlen(gmsg) + strlen((char *)numbuf) + 2;
 			prs_buff((unsigned char *)gmsg);
 			prc_buff('(');
-			itos(jp->j_xval);
+			sitos(jp->j_xval);
 			prs_buff(numbuf);
 			prc_buff(')');
 		} else {
@@ -675,15 +766,12 @@ printjob(jp, propts)
 
 	prc_buff(NL);
 	flushb();
-
 }
-
 
 /*
  * called to initialize job control for each new input file to the shell,
  * and after the "exec" builtin
  */
-
 void
 startjobs()
 {
@@ -704,7 +792,6 @@ startjobs()
 		mypgid = mypid;
 		(void) settgid(mypgid, svpgid);
 	}
-
 }
 
 int
@@ -744,11 +831,9 @@ int check_if;
 	return (1);
 }
 
-
 /*
  * called by the shell to reserve a job slot for a job about to be spawned
  */
-
 void
 deallocjob()
 {
@@ -810,7 +895,6 @@ clearjobs()
 	jobcnt = 0;
 	jobnote = 0;
 	jobdone = 0;
-
 }
 
 void
@@ -841,13 +925,11 @@ makejob(monitor, fg)
  * called by the shell after job has been spawned, to fill in the
  * job slot, and wait for the job if in the foreground
  */
-
 void
 postjob(pid, fg)
 pid_t pid;
 int fg;
 {
-
 	int propts;
 
 	thisjob->j_nxtp = *nextjob;
@@ -881,7 +963,6 @@ int fg;
 /*
  * the builtin "jobs" command
  */
-
 void
 sysjobs(argc, argv)
 int argc;
@@ -970,7 +1051,6 @@ err:
 	} else do
 		printjob(str2job(cmdp, argv[loptind++], 1), propts);
 	while (loptind < argc);
-
 }
 
 /*
@@ -1004,27 +1084,26 @@ sysfgbg(argc, argv)
 			restartjob(str2job(cmdp, *argv, 1), fg);
 		} while (*++argv);
 	}
-
 }
 
 /*
  * the builtin "wait" commands
  */
-
 void
 syswait(argc, argv)
 int argc;
 char *argv[];
 {
-	char *cmdp = *argv;
-	struct job *jp;
-	int exstat;
-	int wflags;
+	char		*cmdp = *argv;
+	struct job	*jp;
+	int		wflags;
+	siginfo_t	si;
 
 	if ((flags & (monitorflg|jcflg|jcoff)) == (monitorflg|jcflg))
 		wflags = WUNTRACED;
 	else
 		wflags = 0;
+	wflags |= (WEXITED|WTRAPPED);	/* Needed for waitid() */
 
 	if (argc == 1)
 		collectjobs(0);
@@ -1033,9 +1112,9 @@ char *argv[];
 			continue;
 		if (!(jp->j_flag & J_RUNNING))
 			continue;
-		if (waitpid(jp->j_pid, &exstat, wflags) <= 0)
+		if (waitid(P_PID, jp->j_pid, &si, wflags) < 0)
 			break;
-		(void) statjob(jp, exstat, 0, 1);
+		(void) statjob(jp, &si, 0, 1);
 	}
 }
 
@@ -1117,7 +1196,6 @@ sigv(cmdp, sig, args)
 		setpgid(0, mypgid);
 		(void) settgid(mypgid, svpgid);
 	}
-
 }
 
 void
@@ -1185,7 +1263,6 @@ syskill(argc, argv)
 
 	while (*++argv)
 		sigv(cmdp, sig, *argv);
-
 }
 
 void
@@ -1218,3 +1295,85 @@ hupforegnd()
 	}
 	sigprocmask(SIG_SETMASK, &oset, 0);
 }
+
+/*
+ * Simple interface to waitid() that avoids the need to use our internal
+ * siginfo_t emulation in case the platform does not offer waitid().
+ * It still allows to return more than the low 8 bits from exit().
+ */
+pid_t
+wait_id(idtype, id, codep, statusp, opts)
+	idtype_t	idtype;
+	pid_t		id;
+	int		*codep;
+	int		*statusp;
+	int		opts;
+{
+	siginfo_t	si;
+	pid_t		ret;
+
+	ret = waitid(idtype, id, &si, opts);
+	if (ret == (pid_t)-1)
+		return ((pid_t)-1);
+	if (codep)
+		*codep = si.si_code;
+	if (statusp)
+		*statusp = si.si_status;
+	return (si.si_pid);
+}
+
+#ifndef	HAVE_WAITID
+static int
+waitid(idtype, id, infop, opts)
+	idtype_t	idtype;
+	id_t		id;
+	siginfo_t	*infop;		/* Must be != NULL */
+	int		opts;
+{
+	int	exstat;
+	pid_t	pid;
+
+	opts &= ~(WEXITED|WTRAPPED);	/* waitpid() doesn't understand them */
+
+	if (idtype == P_PID)
+		pid = id;
+	else if (idtype == P_PGID)
+		pid = -id;
+	else if (idtype == P_ALL)
+		pid = -1;
+	else
+		pid = 0;
+
+	pid = waitpid(pid, &exstat, opts);
+	infop->si_pid = pid;
+	infop->si_code = 0;
+	infop->si_status = 0;
+
+	if (pid == (pid_t)-1)
+		return (-1);
+
+	if (WIFEXITED(exstat)) {
+		infop->si_code = CLD_EXITED;
+		infop->si_status = WEXITSTATUS(exstat);
+	} else if (WIFSIGNALED(exstat)) {
+		if (WCOREDUMP(exstat))
+			infop->si_code = CLD_DUMPED;
+		else
+			infop->si_code = CLD_KILLED;
+		infop->si_status = WTERMSIG(exstat);
+	} else if (WIFSTOPPED(exstat)) {
+#ifdef	SIGTRAP
+		if (WSTOPSIG(exstat) == SIGTRAP)
+			infop->si_code = CLD_TRAPPED;
+		else
+#endif
+			infop->si_code = CLD_STOPPED;
+		infop->si_status = WSTOPSIG(exstat);
+	} else if (WIFCONTINUED(exstat)) {
+		infop->si_code = CLD_CONTINUED;
+		infop->si_status = 0;
+	}
+
+	return (0);
+}
+#endif

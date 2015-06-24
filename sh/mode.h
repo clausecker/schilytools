@@ -35,9 +35,9 @@
 #define	_MODE_H
 
 /*
- * This file contains modifications Copyright 2008-2013 J. Schilling
+ * This file contains modifications Copyright 2008-2015 J. Schilling
  *
- * @(#)mode.h	1.12 13/09/24 2008-2013 J. Schilling
+ * @(#)mode.h	1.13 15/06/23 2008-2015 J. Schilling
  */
 
 /*
@@ -136,6 +136,16 @@ struct filehdr
 	unsigned char	**feval;
 	struct fileblk	*fstak;
 	unsigned char	_fbuf[1];
+};
+
+/*
+ * For the results from waitid()
+ */
+struct excode {
+	int	ex_code;	/* Child status code */
+	int	ex_status;	/* Child exit code or signal number */
+	pid_t	ex_pid;		/* Child pid */
+	int	ex_signo;	/* Causing signal, SIGCLD for wait() */
 };
 
 struct sysnod

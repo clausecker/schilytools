@@ -1,9 +1,9 @@
-/* @(#)wait3.c	1.14 15/04/15 Copyright 1995-2009 J. Schilling */
+/* @(#)wait3.c	1.17 15/06/17 Copyright 1995-2015 J. Schilling */
 #undef	USE_LARGEFILES	/* XXX Temporärer Hack für Solaris */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)wait3.c	1.14 15/04/15 Copyright 1995-2009 J. Schilling";
+	"@(#)wait3.c	1.17 15/06/17 Copyright 1995-2015 J. Schilling";
 #endif
 /*
  * Compatibility function for BSD wait3().
@@ -82,6 +82,23 @@ static	UConst char sccsid[] =
 #undef	HAVE_WAIT3
 #endif
 
+#ifdef	__sun
+/*
+ * wait3() exists on newer Solaris versions but doesnot fill more than ru_utime
+ * and ru_stime. We fill anything but the rss related parts from procfs.
+ */
+#undef	HAVE_WAIT3
+#endif
+
+#ifdef	FORCE_OWN_WAIT3
+#undef	HAVE_WAIT3
+#endif
+
+#ifdef	NO_OWN_WAIT3
+#undef	WNOWAIT
+#endif
+
+
 #if	defined(HAVE_WAIT3) || !defined(HAVE_SYS_PROCFS_H)
 #undef	WNOWAIT
 #endif
@@ -158,7 +175,9 @@ static int wait_prusage(info, options, tms_startp, rusage)
 	char		cproc[32];
 	prusage_t	prusage;
 #endif
-	struct  tms	tms_stop;
+#ifndef	HAVE_SI_UTIME
+	struct  tms	tms_stop;	/* Cannot use siginfo, use times() */
+#endif
 	siginfo_t	info2;
 	int		ret;
 
@@ -173,7 +192,7 @@ static int wait_prusage(info, options, tms_startp, rusage)
 #ifdef	PIOCUSAGE
 #ifdef	profs_2_COMMENT
 	/*
-	 * If Solaris removes PROFS1 support we need to open and read this:
+	 * If Solaris removes PROCFS1 support we need to open and read this:
 	 */
 	sprintf(cproc, "/proc/%ld/usage", (long)info->si_pid);
 #endif

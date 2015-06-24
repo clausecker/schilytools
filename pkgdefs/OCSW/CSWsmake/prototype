@@ -2,7 +2,7 @@ i pkginfo
 i depend
 #i copyright
 i checkpkg_override
-d none share/doc 0755 root bin
+d none share/doc ? ? ?
 d none share/doc/smake 0755 root bin
 f none share/doc/smake/license=$pkgbase/copyright 0444 root bin
 d none bin ? ? ?

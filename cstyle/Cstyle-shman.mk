@@ -1,18 +1,18 @@
-#ident @(#)Makefile	1.4 11/09/28 
+#ident "%W% %E% %Q%"
 ###########################################################################
-# Sample makefile for creating SVr4 packages
+# Sample makefile for installing manual pages
 ###########################################################################
-SRCROOT=	../../..
+SRCROOT=	..
 RULESDIR=	RULES
 include		$(SRCROOT)/$(RULESDIR)/rules.top
 ###########################################################################
 
-PKG_RELOC=no
-PKGROOTX=,.	# Add "." to the -R root path
+MANDIR=		man
+TARGETMAN=	Cstyle
+MANSECT=	$(MANSECT_CMD)
+MANSUFFIX=	$(MANSUFF_CMD)
+MANFILE=	Cstyle.1
 
-include		$(SRCROOT)/$(RULESDIR)/rules.csw
 ###########################################################################
-include		$(SRCROOT)/$(RULESDIR)/rules.pkg
+include		$(SRCROOT)/$(RULESDIR)/rules.man
 ###########################################################################
-
-VERSION :sh=	../../../proto/`../../../conf/oarch.sh`/opt/csw/bin/sccs -V | awk '{ print $4}'
