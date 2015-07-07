@@ -1,9 +1,9 @@
-/* @(#)wait3.c	1.17 15/06/17 Copyright 1995-2015 J. Schilling */
+/* @(#)wait3.c	1.18 15/06/25 Copyright 1995-2015 J. Schilling */
 #undef	USE_LARGEFILES	/* XXX Temporärer Hack für Solaris */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)wait3.c	1.17 15/06/17 Copyright 1995-2015 J. Schilling";
+	"@(#)wait3.c	1.18 15/06/25 Copyright 1995-2015 J. Schilling";
 #endif
 /*
  * Compatibility function for BSD wait3().
@@ -251,6 +251,10 @@ static int wait_status(code, status)
 	switch (code) {
 
 	case CLD_EXITED:
+#if defined(BSH) && !defined(NO_STATUS_NULL_FIX)
+		if (status != 0 && stat == 0)
+			stat = 128;
+#endif
 		stat <<= 8;
 		break;
 	case CLD_KILLED:

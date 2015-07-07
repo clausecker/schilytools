@@ -33,14 +33,14 @@
 /*
  * This file contains modifications Copyright 2008-2015 J. Schilling
  *
- * @(#)defs.c	1.13 15/06/23 2008-2015 J. Schilling
+ * @(#)defs.c	1.14 15/07/05 2008-2015 J. Schilling
  */
 #ifdef	SCHILY_INCLUDES
 #include <schily/mconfig.h>
 #endif
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)defs.c	1.13 15/06/23 2008-2015 J. Schilling";
+	"@(#)defs.c	1.14 15/07/05 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -109,6 +109,7 @@ jmp_buf		errshell;
 
 /* fault handling */
 BOOL		trapnote;
+int		trapsig;	/* Last signal */
 
 /* execflgs */
 struct excode	ex;

@@ -1,12 +1,12 @@
 ----------------------------------------------------------------------------
 * autoconf -- The Schily Autoconf program
-  Copyright (c) 1996-2011 J. Schilling
+  Copyright (c) 1996-2015 J. Schilling
   Copyright (C) 1992, 93, 94, 95, 96 Free Software Foundation, Inc.
   License: GPL
 
 ----------------------------------------------------------------------------
 * bsh
-  Copyright 1982-2011 J. Schilling
+  Copyright 1982-2015 J. Schilling
   License: CDDL
 
 ----------------------------------------------------------------------------
@@ -21,7 +21,7 @@
 
 ----------------------------------------------------------------------------
 * change
-  Copyright 1985-2011 J. Schilling
+  Copyright 1985-2015 J. Schilling
   License: CDDL
 
 ----------------------------------------------------------------------------
@@ -31,12 +31,12 @@
 
 ----------------------------------------------------------------------------
 * conf
-  Copyright 1996-2011 J. Schilling
+  Copyright 1996-2015 J. Schilling
   License: CDDL
 
 ----------------------------------------------------------------------------
 * copy
-  Copyright 1984-2010 J. Schilling
+  Copyright 1984-2013 J. Schilling
   License: CDDL
 
 ----------------------------------------------------------------------------
@@ -48,12 +48,12 @@
 * cpp
   Written by John F. Reiser in July/August 1978
   Copyright Caldera International Inc. 2001-2002
-  Copyright 2010-2011 J. Schilling
+  Copyright 2010-2015 J. Schilling
   License: BSD
 
 ----------------------------------------------------------------------------
 * hdump
-  Copyright 1986-2011 J. Schilling
+  Copyright 1986-2015 J. Schilling
   License: CDDL
 
 ----------------------------------------------------------------------------
@@ -68,14 +68,14 @@
 
 ----------------------------------------------------------------------------
 * libgetopt
-  Copyright 2006-2009 J. Schilling
+  Copyright 2006-2015 J. Schilling
   Copyright 2004 Sun Microsystems
   Copyright 1988 AT&T
   License: CDDL
 
 ----------------------------------------------------------------------------
 * libmdigest
-  Copyright 2008-2010 J. Schilling
+  Copyright 2008-2015 J. Schilling
   Written 1993 by Colin Plumb (md4, md5)
   Written 2001 by Markus Friedl (rmd160)
   Written by Steve Reid (sha1)
@@ -85,7 +85,7 @@
 
 ----------------------------------------------------------------------------
 * librmt
-  Copyright 1990-2010 J. Schilling
+  Copyright 1990-2013 J. Schilling
   License: CDDL
 
 ----------------------------------------------------------------------------
@@ -95,17 +95,17 @@
 
 ----------------------------------------------------------------------------
 * libshedit
-  Copyright 1982-2011 J. Schilling
+  Copyright 1982-2013 J. Schilling
   License: CDDL
 
 ----------------------------------------------------------------------------
 * libxtermcap
-  Copyright 1986-2010 J. Schilling
+  Copyright 1986-2013 J. Schilling
   License: CDDL
 
 ----------------------------------------------------------------------------
 * lndir
-  Copyright 2004-2011 J. Schilling
+  Copyright 2004-2013 J. Schilling
   Copyright (c) 1990, 1998 The Open Group
   License:
 
@@ -132,7 +132,7 @@
 
 ----------------------------------------------------------------------------
 * match
-  Copyright 1985-2009 J. Schilling
+  Copyright 1985-2013 J. Schilling
   License: CDDL
 
 ----------------------------------------------------------------------------
@@ -158,7 +158,7 @@
 ----------------------------------------------------------------------------
 * patch
   Copyright (c) 1986-1988 Larry Wall
-  Copyright (c) 2011 J. Schilling
+  Copyright (c) 2011-2015 J. Schilling
   License: 
 This program may be copied as long as you don't try to make any
 money off of it, or pretend that you wrote it.
@@ -174,12 +174,12 @@ innocent.
 
 ----------------------------------------------------------------------------
 * pkgdefs
-  Copyright 2002-2011 J. Schilling
+  Copyright 2002-2015 J. Schilling
   License: CDDL
 
 ----------------------------------------------------------------------------
 * psmake
-  Copyright 1985-2011 J. Schilling
+  Copyright 1985-2015 J. Schilling
   License: CDDL
 
 ----------------------------------------------------------------------------
@@ -199,15 +199,20 @@ innocent.
 
 ----------------------------------------------------------------------------
 * RULES
-  Copyright 1992-2012 J. Schilling
+  Copyright 1992-2015 J. Schilling
   License: CDDL
 
 ----------------------------------------------------------------------------
 * sccs
-  Copyright 1997-2011 J. Schilling
+  Copyright 1997-2015 J. Schilling
   Copyright 1993-2005 Sun Microsystems, Inc.
   Copyright (c) 1988 AT&T
   Written   1972 by Marc J. Rochkind at Bell Labs
+  License: CDDL
+
+----------------------------------------------------------------------------
+* scut
+  Copyright 1985-2015 J. Schilling
   License: CDDL
 
 ----------------------------------------------------------------------------
@@ -222,7 +227,7 @@ innocent.
 
 ----------------------------------------------------------------------------
 * sformat
-  Copyright 1986-2011 J. Schilling
+  Copyright 1986-2013 J. Schilling
   License: CDDL
 
 ----------------------------------------------------------------------------
@@ -232,19 +237,24 @@ innocent.
 
 ----------------------------------------------------------------------------
 * sh
-  Copyright 2006-2011 J. Schilling
-  Copyright 1990-2006 Sun Microsystems, Inc.
+  Copyright 1982-2015 J. Schilling
+  Copyright 1989-2006 Sun Microsystems, Inc.
   Copyright (c) 1984, 1986, 1987, 1988, 1989 AT&T
   License: CDDL
 
 ----------------------------------------------------------------------------
 * smake
-  Copyright 1985-2011 J. Schilling
+  Copyright 1985-2015 J. Schilling
   License: CDDL
 
 ----------------------------------------------------------------------------
 * star
-  Copyright 1982-2012 J. Schilling
+  Copyright 1982-2015 J. Schilling
+  License: CDDL
+
+----------------------------------------------------------------------------
+* spaste
+  Copyright 1985-2015 J. Schilling
   License: CDDL
 
 ----------------------------------------------------------------------------
@@ -254,12 +264,12 @@ innocent.
 
 ----------------------------------------------------------------------------
 * tartest
-  Copyright 2002-2011 J. Schilling
+  Copyright 2002-2013 J. Schilling
   License: CDDL
 
 ----------------------------------------------------------------------------
 * termcap
-  Copyright 2000-2011 J. Schilling
+  Copyright 2000-2013 J. Schilling
   License: CDDL
 
 ----------------------------------------------------------------------------
@@ -274,7 +284,7 @@ innocent.
 
 ----------------------------------------------------------------------------
 * ved
-  Copyright 1984-2011 J. Schilling
+  Copyright 1984-2015 J. Schilling
   License: CDDL
 
 ----------------------------------------------------------------------------
@@ -285,7 +295,7 @@ innocent.
 ----------------------------------------------------------------------------
 ----------------------------------------------------------------------------
 * cdrecord -- Record data on a CD/DVD/Blu-Ray-Recorder
-  Copyright (c) 1995-2011 J. Schilling
+  Copyright (c) 1995-2015 J. Schilling
   License: CDDL
 
 When using the original name "cdrecord" or a similar name:
@@ -312,7 +322,7 @@ clause.
 
 * cdda2wav
   Copyright 1993-2004 Heiko Eißfeldt
-  Copyright 2004-2011 Jörg Schilling
+  Copyright 2004-2015 Jörg Schilling
   License: CDDL
 
 ------------------------------------------
@@ -321,7 +331,7 @@ clause.
   Written by Eric Youngdale (1993).
   Copyright (c) 1993-1997 Eric Youngdale
   Copyright 1993 Yggdrasil Computing, Incorporated
-  Copyright (c) 1997-2011 J. Schilling
+  Copyright (c) 1997-2015 J. Schilling
   parts Copyright (c) 2002 Olaf Beck - olaf_sc@yahoo.com
   parts Copyright (c) 1997, 1998, 1999, 2000 James Pearson
   APPLE_HYB James Pearson j.pearson@ge.ucl.ac.uk 22/2/2000
@@ -339,7 +349,7 @@ clause.
 
 * libedc compact disc reed-solomon routines
   (c) 1998-2002 by Heiko Eissfeldt, heiko@colossus.escape.de
-  (c) 1998-2010 by Joerg Schilling
+  (c) 1998-2013 by Joerg Schilling
   License: CDDL
 
 ------------------------------------------
@@ -385,7 +395,7 @@ clause.
 ------------------------------------------
 
 * libhfs_iso - Modified version of libhfs (v2.0) to work with mkhybrid.
-  Copyright 2000-2009 Jörg Schilling
+  Copyright 2000-2013 Jörg Schilling
   Copyright 1997-2001 James Pearson
   (C) 1996, 1997 Robert Leslie
   License: GPLv2
@@ -394,25 +404,25 @@ clause.
 
 * libparanoia
   (C) 1997-2001,2008 by Christopher Montgomery "Monty" (xiphmont@mit.edu)
-  (C) 1997-2011 by Joerg Schilling
+  (C) 1997-2013 by Joerg Schilling
   License: LGPLv2.1
 
 ------------------------------------------
 
 * libdeflt
-  Copyright (c) 1997-2011 J. Schilling
+  Copyright (c) 1997-2013 J. Schilling
   License: CDDL
 
 ------------------------------------------
 
 * libfind
-  Copyright 1993, 1995-2011 J. Schilling
+  Copyright 1993, 1995-2015 J. Schilling
   License: CDDL
 
 ------------------------------------------
 
 * readcd
-  Copyright (C) 1987, 1995-2011 J. Schilling
+  Copyright (C) 1987, 1995-2015 J. Schilling
   License: CDDL
 
 ------------------------------------------
@@ -449,8 +459,8 @@ clause.
 ------------------------------------------
 
 * libscg
-  Copyright (C) 1986-2011 Jörg Schilling
-  Platform specific parts Copyright (C) 1986-2011 Jörg Schilling, in addition:
+  Copyright (C) 1986-2013 Jörg Schilling
+  Platform specific parts Copyright (C) 1986-2013 Jörg Schilling, in addition:
   libscg/scg/srb_os2.h:   parts Copyright (c) 1998 D. Dorau, C. Wohlgemuth
   libscg/scsi-linux-pg.c: parts Copyright (c) 1998 Grant R. Guenther <grant@torque.net>
   libscg/scsi-os2.c:      parts Copyright (c) 1998 C. Wohlgemuth
@@ -499,7 +509,7 @@ clause.
 ------------------------------------------
 
 * librscg
-  Copyright 1990,2000-2009 J. Schilling
+  Copyright 1990,2000-2013 J. Schilling
   License: CDDL
   | The following exceptions apply:
   | CDDL §3.6 needs to be replaced by: "You may create a Larger Work by
@@ -512,7 +522,7 @@ clause.
 ------------------------------------------
 
 * libschily
-  Copyright (c) 1984-1989, 1994-2011 J. Schilling
+  Copyright (c) 1984-1989, 1994-2015 J. Schilling
   License: CDDL
 
   License of libschily/fnmatch.c:
@@ -567,7 +577,7 @@ clause.
 ------------------------------------------
 
 * libsiconv
-  Copyright (C) 2007-2010 Jörg Schilling
+  Copyright (C) 2007-2014 Jörg Schilling
 
   libsiconv/tables/:
   (c) 1994-2002, 2005 by Apple Computer, Inc., all rights
@@ -639,7 +649,7 @@ The buildsystem consists of files in various Files and subdirectories:
 - DEFAULTS_ENG
 - Makefile
 - Mcsw
-  Copyright (C) 1994-2012 Jörg Schilling
+  Copyright (C) 1994-2015 Jörg Schilling
   Additional copyright of include/schily/fnmatch.h / include/schily/sysexits.h:
   Copyright (c) 1987, 1992, 1993 The Regents of the University of California.  All rights reserved.
 

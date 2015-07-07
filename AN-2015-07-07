@@ -1,0 +1,219 @@
+New features with AN-2015-07-07:
+
+This is the first localization step for the schily source consolidation. Many
+programs now (hopefully) call gettext() for all strings that need localization.
+
+-	The next step will include dgettext() calls for the libraries and the
+	missing programs
+
+-	The following step will include the extracted strings
+
+-	The last step will include German translations and install support
+	for the resulting binary message object files.
+
+----------> Please test and report compilation problems! <---------
+
+***** NOTE: As mentioned since 2004, frontends to the tools should *****
+*****		call all programs in the "C" locale		   *****
+*****		by e.g. calling: LC_ALL=C cdrecord ....		   *****
+*****		unless these frontends support localized strings   *****
+*****		used by the cdrtools with NLS support.		   *****
+
+		*** WARNING        ***
+		*** Need new smake ***
+
+	*** Due to the fact that schily-tools 2014-04-03 introduced to use new macro
+	*** expansions and a related bug fix in smake, you need a new smake
+	*** to compile this source. To ensure this, call:
+
+	cd ./psmake
+	./MAKE-all
+	cd ..
+	psmake/smake
+	psmake/smake install
+
+
+	WARNING: the new version of the isoinfo program makes use of the 
+		*at() series of functions that have been introduced by Sun
+		in August 2001 and added to POSIX.1-2008. For older platforms,
+		libschily now includes emulations for these functions but
+		these emulations have not yet been tested thoroughly.
+		Please report problems!
+
+	The new smake version mentioned above is smake-1.2.4
+
+-	File Schily.Copyright was updated
+
+-	Added support for cygwin32_wow (not the already present cygwin32_wow64).
+
+-	The makefile system now allows to use:
+
+		COPTX=-DNO_PRAGMA_WEAK
+
+	to disable the use of #pragma weak. This may help to debug some
+	oddities of the GNU linker.
+
+-	The makefile system now includes a new test that needs constraints
+	that are not really supported by autoconf: it checks whether the
+	linker supports to link against external weak symbols in another
+	file. For this reason, a handcrafted complest was written.
+	This (currently) should fail on Cygwin due to a Cygwin bug.
+	A platform that allows to link against weak symbols defines
+	HAVE_LINK_WEAK. This permits the system to automatically detect
+	usability once e.g. linking on Cygwin will be fixed.
+
+	Thanks to Thomas Plank for reporting the known #pragma weak problem
+	in a new source file (libschily/error.c). Note that error() is a
+	UNIX (UNOS) libc function that exists since 1980 but some libc
+	implementors do not follow the rule not to introduce incompatible 
+	interfaces for existing names. So we need to find a workaround
+	on these platforms.
+
+-	autoconf now checks for the type rlim_t in sys/resource.h
+
+-	libschily and libmdigest now use the test:
+
+		#if defined(HAVE_PRAGMA_WEAK) && defined(HAVE_LINK_WEAK)
+
+	to prevent assuming that is suffucuent when the compiler supports
+	#pragma weak. We also need to have a linker that links against
+	weak symbols in libraries. HAVE_LINK_WEAK is e.g. not defined
+	on Cygwin...
+
+-	libschily/comerr.c and libschily/fcomerr.c now have better 
+	comment.
+
+-	hdump/od now includes ctype.h as this is not automatically included
+	from wchar.h on Cygwin. Thanks to Thomas Plank for reporting.
+
+-	bsh: wait3.c now sets the narrowed exit code to 128 in case that
+	it would be zero because of truncation to 8 bits.
+
+-	bsh and Bourne Shell: signames.c now first list SIGCHLD (the POSIX
+	name) before SIGCLD (the Sysv name) if our private sig2str()
+	implementation is used.
+
+-	bsh and Bourne Shell: signames.c now first list EXIT" before NULL
+	to make sure that kill -l 0 works as expected by the POSIX standard
+	if our private sig2str() implementation is used.
+
+-	bsh and Bourne Shell: signames.c now includes support for SIGDIL (HP-UX)
+	and SIGINFO (BSD).
+
+-	bsh and Bourne Shell: signames.c now includes support for more realtime
+	signals and for dynamic realtime signal numbers.
+
+-	bsh and Bourne Shell: signames.c now includes support for 17 new singals
+	that have been found in the ksh93 source.
+
+-	Bourne Shell: kill -l now lists signals that have no equivalent in
+	sig2str() with the name "bad sig". This helps to find new unsupported
+	signal names.
+
+-	bsh and Bourne Shell: kill -l #...
+	now lists the names of signals that match a specific $? value for a
+	process kiled by a signal.
+
+-	Bourne Shell: the new function wait_id() was renamed to wait_status()
+	and the idtype_t parameter was removed in order to make portablity
+	simpler for non-POSIX platforms like Cygwin.
+	Thanks to Thomas Plank for reporting.
+
+-	Bourne Shell: ulimit(1) now prints the option names if it
+	prints more than one resource. This helps to make ulimit(1)
+	halfway usable compared to the csh "limit" builtin.
+
+-	Bourne Shell: The options for the builtin command "repeat"
+	work again.
+
+-	Bourne Shell: new readonly parameters
+
+	.sh.shell	The name of this shell.
+
+	.sh.version	The version of this shell.
+
+-	Bourne Shell: the readonly parameters $ex* have been renamed to
+	${.sh.*}. Support for these variables is turned on via:
+
+		COPTX=-DDO_DOT_SH_PARAMS
+
+	Please report, if there are problems with the new variables
+	and builtin shell commands or shell syntax elements.
+
+-	Here is the new documentation for the parameter names:
+
+     .sh.code
+             The numerical  reason  waitid(2)  returned  for  the
+             child  status  change.  It matches the CLD_* defini-
+             tions from signal.h.  Note that the numbers are usu-
+             ally  in  the range 1..6 but this is not guaranteed.
+             Use ${.sh.codename} for portability.
+
+     .sh.codename
+             The reason waitid(2) returned for the  child  status
+             change  as  text  that is generated by stripping off
+             CLD_ from the  related  definitions  from  signal.h.
+             Possible values are:
+
+             EXITED      The program had a normal termination and
+                         the exit(2) code is in ${.sh.status}.
+
+             KILLED      The program was killed by a signal,  the
+                         signal  number  is  in ${.sh.status} the
+                         signal name is in ${.sh.termsig}.
+
+             DUMPED      The program  was  killed  by  a  signal,
+                         similar to KILLED above, but the program
+                         in addition created a core dump.
+
+             TRAPPED     A traced child has trapped.
+
+             STOPPED     The program was stopped by a signal, the
+                         signal  number  is  in ${.sh.status} the
+                         signal name is in ${.sh.termsig}.
+
+             CONTINUED   A stopped child was continued.
+
+     .sh.pid The process number of the process  that  caused  the
+             current waitid(2) status.
+
+     .sh.signame
+             The name of the causing signal.  If  the  status  is
+             related to a set of waitid(2) return values, this is
+             CHLD or CLD, depending on the os.  When a trap  com-
+             mand  is  executed,  ${.sh.signame} holds the signal
+             that caused the trap.
+
+     .sh.signo
+             The signal number related to ${.sh.signame}.
+
+     .sh.status
+             The decimal value returned by the last synchronously
+             executed  command.   The value is unaltered and con-
+             tains the full int from  the  exit(2)  call  in  the
+             child in case the shell is run on a modern os.
+
+     .sh.termsig
+             The   signal   name   related   to   the   numerical
+             ${.sh.status} value. The translation to signal names
+             takes place regardless of whether the child was ter-
+             minated by a signal or terminated normally.
+
+     Note that trying to use the ${.sh.xxx} parameters  on  older
+     shells  will  cause the older shells to exit with a bad sub-
+     stitution message unless the shell is an interactive shell.
+
+
+-	Bourne Shell: now uses a new version date: "2015/06/27"
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.net, js@cs.tu-berlin.de
+	joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

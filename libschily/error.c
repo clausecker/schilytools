@@ -1,4 +1,4 @@
-/* @(#)error.c	1.16 15/03/29 Copyright 1985, 1989, 1995-2015 J. Schilling */
+/* @(#)error.c	1.17 15/07/06 Copyright 1985, 1989, 1995-2015 J. Schilling */
 /*
  *	fprintf() on standard error stdio stream
  *
@@ -25,7 +25,15 @@
 #include <schily/schily.h>
 
 #undef	error
-#ifdef	HAVE_PRAGMA_WEAK
+
+/*
+ * The Cygwin compile environment incorrectly implements #pragma weak.
+ * The weak symbols are only defined as local symbols making it impossible
+ * to use them from outside the scope of this source file.
+ * A platform that allows linking with global symbols has HAVE_LINK_WEAK
+ * defined.
+ */
+#if defined(HAVE_PRAGMA_WEAK) && defined(HAVE_LINK_WEAK)
 #pragma	weak error =	js_error
 #else
 /* VARARGS1 */

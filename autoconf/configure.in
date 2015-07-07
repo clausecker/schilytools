@@ -1,6 +1,6 @@
-dnl @(#)configure.in	1.259 15/06/22 Copyright 1998-2015 J. Schilling
+dnl @(#)configure.in	1.261 15/07/06 Copyright 1998-2015 J. Schilling
 dnl Process this file with autoconf to produce a configure script.
-AC_REVISION(1.259)dnl
+AC_REVISION(1.261)dnl
 
 dnl AC_INIT(xconfig.h.in)
 AC_INIT(config.guess)
@@ -155,6 +155,27 @@ dnl AC_USER_MALLOC must be past AC_CHECK_FUNCS(strdup)
 AC_DYN_ARRAYS
 AC_PRAGMA_WEAK
 
+dnl This is a hack to compile two files and to check whether a weak alias from
+dnl one file can be seen in another file. The reason for this test is to detect
+dnl a bug on Cygwin that causes waek symbols to become "local" symbols that
+dnl are useless because they would be invisible for other parts of the code.
+
+if test $ac_cv_pragma_weak = yes; then
+AC_TRY_COMPILE2([#pragma weak weakname = conffunc],[],[true],[true])
+ac_save_LIBS="$LIBS"
+LIBS="conftest2.$ac_cv_objext"
+AC_CACHE_CHECK([if linker allows pragma weak], ac_cv_link_weak,
+                [AC_TRY_LINK([extern int weakname();],
+[return weakname();],
+                [ac_cv_link_weak=yes],
+                [ac_cv_link_weak=no])])
+LIBS="$ac_save_LIBS"
+if test $ac_cv_link_weak = yes; then
+  AC_DEFINE(HAVE_LINK_WEAK)
+fi
+rm -f conftest2.*
+fi
+
 AC_TYPE_UID_T
 AC_TYPE_SIZE_T
 AC_CHECK_TYPE(ssize_t, int)
@@ -175,6 +196,7 @@ AC_CHECK_TYPE(blkcnt_t, Intmax_t)
 AC_TYPE_CLOCK_T
 AC_TYPE_SOCKLEN_T
 AC_HAVE_TYPE([#include <sys/frame.h>], greg_t)
+AC_HAVE_TYPE([#include <sys/resource.h>], rlim_t)
 AC_HAVE_TYPE([#include <sys/wait.h>], idtype_t)
 AC_HAVE_TYPE([#include <sys/wait.h>], siginfo_t)
 AC_TYPE_STACK_T

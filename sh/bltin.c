@@ -36,13 +36,13 @@
 #include "defs.h"
 
 /*
- * This file contains modifications Copyright 2008-2015 J. Schilling
+ * Copyright 2008-2015 J. Schilling
  *
- * @(#)bltin.c	1.43 15/06/23 2008-2015 J. Schilling
+ * @(#)bltin.c	1.46 15/07/05 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)bltin.c	1.43 15/06/23 2008-2015 J. Schilling";
+	"@(#)bltin.c	1.46 15/07/05 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -79,8 +79,10 @@ struct trenod *t;
 	unsigned char *a1 = argv[1];
 	struct argnod *np = NULL;
 
-	switch (type)
-	{
+	exitval = 0;
+	exval_clear();
+
+	switch (type) {
 
 	case SYSSUSP:
 		syssusp(argc, (char **)argv);
@@ -103,8 +105,7 @@ struct trenod *t;
 		break;
 
 	case SYSDOT:
-		if (a1)
-		{
+		if (a1) {
 			int	f;
 
 			if ((f = pathopen(getpath(a1), a1)) < 0)
@@ -145,8 +146,7 @@ struct trenod *t;
 		break;
 
 	case SYSCONT:
-		if (loopcnt)
-		{
+		if (loopcnt) {
 			execbrk = breakcnt = 1;
 			if (a1)
 				breakcnt = stoi(a1);
@@ -158,8 +158,7 @@ struct trenod *t;
 		break;
 
 	case SYSBREAK:
-		if (loopcnt)
-		{
+		if (loopcnt) {
 			execbrk = breakcnt = 1;
 			if (a1)
 				breakcnt = stoi(a1);
@@ -196,8 +195,7 @@ struct trenod *t;
 			failed(argv[0], restricted);
 		else if (!endjobs(JOB_STOPPED|JOB_RUNNING))
 			break;
-		else
-		{
+		else {
 			flags |= forcexit; /* bad exec will terminate shell */
 			oldsigs(TRUE);
 			rmtemp(0);
@@ -299,12 +297,10 @@ struct trenod *t;
 			    (*(a1+1) == '.' && *(a1+2) == '/'))))
 				cdpath = UC nullstr;
 
-			do
-			{
+			do {
 				dir = cdpath;
 				cdpath = catpath(cdpath, a1);
-			}
-			while ((f = chdir((const char *) curstak())) < 0 &&
+			} while ((f = chdir((const char *) curstak())) < 0 &&
 			    cdpath);
 
 			free(np);
@@ -333,9 +329,7 @@ struct trenod *t;
 					failed(a1, baddir);
 					break;
 				}
-			}
-			else
-			{
+			} else {
 				unsigned char	*wd;
 
 				cwd(curstak());		/* Canonic from stak */
@@ -363,9 +357,7 @@ struct trenod *t;
 #endif
 			}
 			zapcd();
-		}
-		else
-		{
+		} else {
 			free(np);
 			/*
 			 * cd "" is not permitted,
@@ -377,7 +369,6 @@ struct trenod *t;
 			else
 				error(nohome);
 		}
-
 		break;
 
 	case SYSSHFT:
@@ -386,15 +377,13 @@ struct trenod *t;
 
 			places = a1 ? stoi(a1) : 1;
 
-			if ((dolc -= places) < 0)
-			{
+			if ((dolc -= places) < 0) {
 				dolc = 0;
 				error(badshift);
-			}
-			else
+			} else {
 				dolv += places;
+			}
 		}
-
 		break;
 
 	case SYSWAIT:
@@ -410,15 +399,13 @@ struct trenod *t;
 		break;
 
 	case SYSSET:
-		if (a1)
-		{
+		if (a1) {
 			int	cnt;
 
 			cnt = options(argc, argv);
 			if (cnt > 1)
 				setargs(argv + argc - cnt);
-		} else if (comptr(t)->comset == 0)
-		{
+		} else if (comptr(t)->comset == 0) {
 			/*
 			 * scan name chain and print
 			 */
@@ -427,35 +414,29 @@ struct trenod *t;
 		break;
 
 	case SYSRDONLY:
-		exitval = 0;
-		if (a1)
-		{
+		if (a1) {
 			while (*++argv)
 				attrib(lookup(*argv), N_RDONLY);
-		}
-		else
+		} else {
 			namscan(printro);
-
+		}
 		break;
 
 	case SYSXPORT:
 		{
 			struct namnod	*n;
 
-			exitval = 0;
-			if (a1)
-			{
-				while (*++argv)
-				{
+			if (a1) {
+				while (*++argv) {
 					n = lookup(*argv);
 					if (n->namflg & N_FUNCTN)
 						error(badexport);
 					else
 						attrib(n, N_EXPORT);
 				}
-			}
-			else
+			} else {
 				namscan(printexp);
+			}
 		}
 		break;
 
@@ -500,6 +481,7 @@ struct trenod *t;
 			int	savoptind;
 			int	savsp;
 			char	*savoptarg;
+			int	roptind;
 			int	c;
 			int	delay = 0;
 			int	count = -1;
@@ -527,6 +509,7 @@ struct trenod *t;
 					err = 1;
 				}
 			}
+			roptind = optind;
 			optind = savoptind;
 			opterr = savopterr;
 			_sp = savsp;
@@ -538,16 +521,15 @@ struct trenod *t;
 				unsigned char		*sav = savstak();
 				struct ionod		*iosav = iotemp;
 
-				execexp(argv[optind],
-					(Intptr_t)&argv[optind+1]);
+				execexp(argv[roptind],
+					(Intptr_t)&argv[roptind+1]);
 				tdystak(sav, iosav);
 
 				if (delay > 0)
 					sh_sleep(delay);
 				if (count > 0)
 					count--;
-				if (trapnote & SIGSET)
-					break;
+				sigchk();
 			}
 		} else {
 			gfailure(UC usage, repuse);
@@ -574,45 +556,33 @@ struct trenod *t;
 		break;
 
 	case SYSHASH:
-		exitval = 0;
-
-		if (a1)
-		{
-			if (a1[0] == '-')
-			{
+		if (a1) {
+			if (a1[0] == '-') {
 				if (a1[1] == 'r')
 					zaphash();
 				else
 					error(badopt);
-			}
-			else
-			{
-				while (*++argv)
-				{
+			} else {
+				while (*++argv) {
 					if (hashtype(hash_cmd(*argv)) ==
 							NOTFOUND) {
 						failed(*argv, notfound);
 					}
 				}
 			}
-		}
-		else
+		} else {
 			hashpr();
-
+		}
 		break;
 
 #ifdef	DO_SYSPUSHD
 	case SYSDIRS:
-		exitval = 0;
 		pr_dirs(0);
 		break;
 #endif
 
 	case SYSPWD:
-		{
-			exitval = 0;
-			cwdprint();
-		}
+		cwdprint();
 		break;
 
 	case SYSRETURN:
@@ -624,9 +594,7 @@ struct trenod *t;
 		break;
 
 	case SYSTYPE:
-		exitval = 0;
-		if (a1)
-		{
+		if (a1) {
 			/* return success only if all names are found */
 			while (*++argv) {
 #ifdef	DO_SYSALIAS
@@ -658,9 +626,7 @@ struct trenod *t;
 		break;
 
 	case SYSUNS:
-		exitval = 0;
-		if (a1)
-		{
+		if (a1) {
 			while (*++argv)
 				unset_name(*argv);
 		}
@@ -775,8 +741,8 @@ struct trenod *t;
 		prs_buff(_gettext("unknown builtin\n"));
 	}
 
-
-	flushb();
-	restore(fdindex);
-	chktrap();
+	flushb();		/* Flush print buffer */
+	restore(fdindex);	/* Restore file descriptors */
+	exval_set(exitval);	/* Prepare ${.sh.*} parameters */
+	chktrap();		/* Run installed traps */
 }

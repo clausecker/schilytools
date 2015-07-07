@@ -38,11 +38,11 @@
 /*
  * This file contains modifications Copyright 2008-2015 J. Schilling
  *
- * @(#)jobs.c	1.34 15/06/23 2008-2015 J. Schilling
+ * @(#)jobs.c	1.38 15/07/02 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)jobs.c	1.34 15/06/23 2008-2015 J. Schilling";
+	"@(#)jobs.c	1.38 15/07/02 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -220,7 +220,7 @@ static void	sigv		__PR((char *cmdp, int sig, char *args));
 	void	sysstop		__PR((int argc, char *argv[]));
 	void	syskill		__PR((int argc, char *argv[]));
 	void	syssusp		__PR((int argc, char *argv[]));
-	pid_t	wait_id		__PR((idtype_t idtype, pid_t id,
+	pid_t	wait_status	__PR((pid_t id,
 					int *codep, int *statusp, int opts));
 #ifndef	HAVE_WAITID
 static	int	waitid		__PR((idtype_t idtype, id_t id,
@@ -1241,7 +1241,7 @@ syskill(argc, argv)
 
 			for (i = 1; i < MAXTRAP; i++) {
 				if (sig2str(i, buf) < 0)
-					continue;
+					strcpy(buf, "bad sig");	/* continue; */
 				if (sep)
 					prc_buff(sep);
 				prs_buff((unsigned char *)buf);
@@ -1252,6 +1252,22 @@ syskill(argc, argv)
 			}
 			prc_buff(NL);
 			return;
+#ifdef	DO_KILL_L_SIG
+		} else if (eq(argv[1], "-l")) {
+			char buf[12];
+
+			++argv;
+			while (*++argv) {
+				sig = stoi((unsigned char *)*argv) & 0x7F;
+				if (sig2str(sig, buf) < 0) {
+					failure((unsigned char *)*argv, badsig);
+					return;
+				}
+				prs_buff((unsigned char *)buf);
+				prc_buff(NL);
+			}
+			return;
+#endif
 		}
 
 		if (str2sig(&argv[1][1], &sig)) {
@@ -1298,20 +1314,35 @@ hupforegnd()
 
 /*
  * Simple interface to waitid() that avoids the need to use our internal
- * siginfo_t emulation in case the platform does not offer waitid().
+ * siginfo_t emulation and our internal idtype_t emulation in case the
+ * platform does not offer waitid().
  * It still allows to return more than the low 8 bits from exit().
  */
 pid_t
-wait_id(idtype, id, codep, statusp, opts)
-	idtype_t	idtype;
-	pid_t		id;
+wait_status(pid, codep, statusp, opts)
+	pid_t		pid;
 	int		*codep;
 	int		*statusp;
 	int		opts;
 {
 	siginfo_t	si;
 	pid_t		ret;
+	idtype_t	idtype;
+	pid_t		id;
 
+	if (pid > 0) {
+		idtype = P_PID;
+		id = pid;
+	} else if (pid < -1) {
+		idtype = P_PGID;
+		id = -pid;
+	} else if (pid == -1) {
+		idtype = P_ALL;
+		id = 0;
+	} else {
+		idtype = P_PGID;
+		id = getpgid(0);
+	}
 	ret = waitid(idtype, id, &si, opts);
 	if (ret == (pid_t)-1)
 		return ((pid_t)-1);

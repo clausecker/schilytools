@@ -1,4 +1,4 @@
-/* @(#)resource.h	1.9 13/04/30 Copyright 1995-2013 J. Schilling */
+/* @(#)resource.h	1.10 15/07/03 Copyright 1995-2013 J. Schilling */
 /*
  *	Abstraction from resource limits
  *
@@ -13,6 +13,8 @@
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -98,9 +100,13 @@ struct	rusage {
 #define	RLIM_INFINITY	0x7fffffff
 #endif
 
+#ifndef	HAVE_TYPE_RLIM_T
+#define	rlim_t	Intmax_t
+#endif
+
 struct rlimit {
-	int	rlim_cur;		/* current (soft) limit */
-	int	rlim_max;		/* maximum value for rlim_cur */
+	rlim_t	rlim_cur;		/* current (soft) limit */
+	rlim_t	rlim_max;		/* maximum value for rlim_cur */
 };
 
 #endif	/* RLIMIT_CPU */

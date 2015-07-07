@@ -36,13 +36,13 @@
 #include "defs.h"
 
 /*
- * This file contains modifications Copyright 2008-2015 J. Schilling
+ * Copyright 2008-2015 J. Schilling
  *
- * @(#)xec.c	1.33 15/04/07 2008-2015 J. Schilling
+ * @(#)xec.c	1.35 15/07/06 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)xec.c	1.33 15/04/07 2008-2015 J. Schilling";
+	"@(#)xec.c	1.35 15/07/06 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -110,6 +110,7 @@ int *pf1, *pf2;
 				struct namnod	*n = lookup(f->fndnam);
 
 				exitval = 0;
+				exval_clear();
 
 				if (n->namflg & N_RDONLY)
 					failed(n->namid, wtfailed);
@@ -160,6 +161,7 @@ int *pf1, *pf2;
 				short	comtype = 0;
 
 				exitval = 0;
+				exval_clear();
 
 				gchain = 0;
 				argn = getarg((struct comnod *)t);
@@ -263,6 +265,7 @@ int *pf1, *pf2;
 #endif
 
 			exitval = 0;
+			exval_clear();
 
 			if (!(xflags & XEC_EXECED) || treeflgs&(FPOU|FAMP))
 			{
@@ -576,16 +579,21 @@ script:
 		case TWH:		/* "while" loop */
 		case TUN:		/* "until" loop */
 			{
-				int	i = 0;
+				int		i = 0;
+				struct excode	savex;
 
+				exval_clear();
+				savex = ex;
 				loopcnt++;
 				while (execbrk == 0 && (execute(whptr(t)->whtre,
 				    XEC_NOSTOP, 0,
 				    no_pipe, no_pipe) == 0) == (type == TWH) &&
 				    (flags&noexec) == 0) {
+					exval_clear();
 					i = execute(whptr(t)->dotre,
 						XEC_NOSTOP, errorflg,
 						no_pipe, no_pipe);
+					savex = ex;
 					if (breakcnt < 0)
 						execbrk = (++breakcnt != 0);
 				}
@@ -594,6 +602,7 @@ script:
 
 				loopcnt--;
 				exitval = i;
+				ex = savex;
 			}
 			break;
 
@@ -611,6 +620,8 @@ script:
 			} else {
 				/* force zero exit for if-then-fi */
 				exitval = 0;
+				exval_clear();
+				exval_set(0);
 			}
 			break;
 

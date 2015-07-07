@@ -1,13 +1,13 @@
-/* @(#)builtin.c	1.84 14/06/29 Copyright 1988-2014 J. Schilling */
+/* @(#)builtin.c	1.86 15/07/02 Copyright 1988-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)builtin.c	1.84 14/06/29 Copyright 1988-2014 J. Schilling";
+	"@(#)builtin.c	1.86 15/07/02 Copyright 1988-2015 J. Schilling";
 #endif
 /*
  *	Builtin commands
  *
- *	Copyright (c) 1985-2014 J. Schilling
+ *	Copyright (c) 1985-2015 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -825,6 +825,25 @@ bkill(vp, std, flag)
 		return;
 	}
 	if (list) {
+		if (ac > 0) {
+			char	sname[32];
+			char	*cp;
+
+			for (i = 0; i < ac; i++) {
+				sig = 0;
+				cp = astoi(av[i], &sig);
+				sig &= 0x7F;
+				if (*cp || sig2str(sig, sname) < 0) {
+					fprintf(std[2], "%s: Bad sig: '%s'.\n",
+						vp->av_av[0],
+						av[i]);
+					ex_status = 1;
+					return;
+				}
+				fprintf(std[1], "%s\n", sname);
+			}
+			return;
+		}
 		for (i = 1; i <= NSIG-1; i++) {
 			char	sname[32];
 

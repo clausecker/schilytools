@@ -36,13 +36,13 @@
 #include "defs.h"
 
 /*
- * This file contains modifications Copyright 2008-2014 J. Schilling
+ * Copyright 2008-2015 J. Schilling
  *
- * @(#)error.c	1.11 14/06/01 2008-2014 J. Schilling
+ * @(#)error.c	1.12 15/07/05 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)error.c	1.11 14/06/01 2008-2014 J. Schilling";
+	"@(#)error.c	1.12 15/07/05 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -114,6 +114,7 @@ failure_real(s1, s2, gflag)
 
 	flags |= eflag;
 	exitval = ERROR;
+	exval_set(exitval);
 	exitset();
 }
 
@@ -130,17 +131,51 @@ exitsh(xno)
 	 * Action is to return to command level or exit.
 	 */
 	exitval = xno;
+	exval_set(xno);
 	flags |= eflag;
-	if ((flags & (forcexit | forked | errflg | ttyflg)) != ttyflg)
+	if ((flags & (forcexit | forked | errflg | ttyflg)) != ttyflg) {
 		done(0);
-	else
-	{
+	} else {
 		clearup();
 		restore(0);
 		(void) setb(1);
 		execbrk = breakcnt = funcnt = 0;
 		longjmp(errshell, 1);
 	}
+}
+
+void
+exval_clear()
+{
+	ex.ex_code = 0;
+	ex.ex_status = 0;
+	ex.ex_pid = mypid;
+	ex.ex_signo = 0;
+}
+
+void
+exval_sig()
+{
+	ex.ex_code = CLD_KILLED;
+	ex.ex_status = trapsig;
+	ex.ex_pid = mypid;
+	ex.ex_signo = 0;
+}
+
+void
+exval_set(xno)
+	int	xno;
+{
+	if (ex.ex_code == CLD_EXITED && xno != ex.ex_status) {
+		ex.ex_status = xno;
+		return;
+	} else if (ex.ex_code) {
+		return;
+	}
+	ex.ex_code = CLD_EXITED;
+	ex.ex_status = xno;
+	ex.ex_pid = mypid;
+	ex.ex_signo = 0;
 }
 
 /*

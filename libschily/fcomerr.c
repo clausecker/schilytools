@@ -1,8 +1,8 @@
-/* @(#)fcomerr.c	1.5 13/12/31 Copyright 1985-1989, 1995-2013 J. Schilling */
+/* @(#)fcomerr.c	1.6 15/06/28 Copyright 1985-1989, 1995-2015 J. Schilling */
 /*
  *	Routines for printing command errors on a specified FILE *
  *
- *	Copyright (c) 1985-1989, 1995-2013 J. Schilling
+ *	Copyright (c) 1985-1989, 1995-2015 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -35,6 +35,9 @@ EXPORT	void	fxcomerrno	__PR((FILE *, int, int, const char *, ...));
 EXPORT	int	ferrmsg		__PR((FILE *, const char *, ...));
 EXPORT	int	ferrmsgno	__PR((FILE *, int, const char *, ...));
 
+/*
+ * Fetch current errno, print a related message and exit(errno).
+ */
 /* VARARGS1 */
 #ifdef	PROTOTYPES
 EXPORT void
@@ -59,6 +62,9 @@ fcomerr(f, msg, va_alist)
 	va_end(args);
 }
 
+/*
+ * Fetch current errno, print a related message and exit(exc).
+ */
 /* VARARGS2 */
 #ifdef	PROTOTYPES
 EXPORT void
@@ -84,6 +90,9 @@ fxcomerr(f, exc, msg, va_alist)
 	va_end(args);
 }
 
+/*
+ * Print a message related to err and exit(err).
+ */
 /* VARARGS2 */
 #ifdef	PROTOTYPES
 EXPORT void
@@ -109,6 +118,9 @@ fcomerrno(f, err, msg, va_alist)
 	va_end(args);
 }
 
+/*
+ * Print a message related to err and exit(exc).
+ */
 /* VARARGS3 */
 #ifdef	PROTOTYPES
 EXPORT void
@@ -135,6 +147,9 @@ fxcomerrno(f, exc, err, msg, va_alist)
 	va_end(args);
 }
 
+/*
+ * Fetch current errno, print a related message and return(errno).
+ */
 /* VARARGS1 */
 #ifdef	PROTOTYPES
 EXPORT int
@@ -160,6 +175,9 @@ ferrmsg(f, msg, va_alist)
 	return (ret);
 }
 
+/*
+ * Print a message related to err and return(err).
+ */
 /* VARARGS2 */
 #ifdef	PROTOTYPES
 EXPORT int

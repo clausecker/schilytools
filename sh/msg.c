@@ -36,13 +36,13 @@
 #include "defs.h"
 
 /*
- * This file contains modifications Copyright 2008-2014 J. Schilling
+ * This file contains modifications Copyright 2008-2015 J. Schilling
  *
- * @(#)msg.c	1.27 14/12/22 2008-2014 J. Schilling
+ * @(#)msg.c	1.29 15/07/05 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)msg.c	1.27 14/12/22 2008-2014 J. Schilling";
+	"@(#)msg.c	1.29 15/07/05 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -125,7 +125,7 @@ const char	repuse[]	= "repeat [-c count] [-d delay] cmd [args]";
 #endif
 const char	stopuse[]	= "stop id ...";
 const char	ulimuse[]	= "ulimit [ -HSacdflmnstuv ] [ limit ]";
-const char	killuse[]	= "kill [ [ -sig ] id ... | -l ]";
+const char	killuse[]	= "kill [ [ -sig ] id ... | -l [ signo ... ] ]";
 const char	jobsuse[]	= "jobs [ [ -l | -p ] [ id ... ] | -x cmd ]";
 const char	nosuchjob[]	= "no such job";
 const char	nosuchpid[]	= "no such process";
@@ -190,6 +190,7 @@ const char	sysrcfile[]	= "/etc/sh.shrc";
 #endif
 const char	globalname[]	= ".globals";
 const char	localname[]	= ".locals";
+const unsigned char shname[]	= "sh (Schily Bourne Shell)";
 
 /*
  * locale testing

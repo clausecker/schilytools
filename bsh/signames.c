@@ -1,8 +1,8 @@
-/* @(#)signames.c	1.9 15/03/29 Copyright 1998-2015 J. Schilling */
+/* @(#)signames.c	1.17 15/07/02 Copyright 1998-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)signames.c	1.9 15/03/29 Copyright 1998-2015 J. Schilling";
+	"@(#)signames.c	1.17 15/07/02 Copyright 1998-2015 J. Schilling";
 #endif
 /*
  *	Handle signal names for systems that don't have
@@ -36,8 +36,28 @@ static	UConst char sccsid[] =
 #undef	BOOL				/* revert to default BOOL */
 #endif
 
+#ifdef	FORCE_SIGNAMES
+#undef	HAVE_STRSIGNAL
+#undef	HAVE_STR2SIG
+#undef	HAVE_SIG2STR
+#endif
+
 #if	!(defined(HAVE_STRSIGNAL) && defined(HAVE_STR2SIG) && \
 		defined(HAVE_SIG2STR))
+
+/*
+ * Linux uses __SIGRTMIN instead of _SIGRTMIN.
+ */
+#ifndef	_SIGRTMIN
+#ifdef	__SIGRTMIN
+#define	_SIGRTMIN	__SIGRTMIN
+#endif
+#endif
+#ifndef	_SIGRTMAX
+#ifdef	__SIGRTMAX
+#define	_SIGRTMAX	__SIGRTMAX
+#endif
+#endif
 
 #ifndef	HAVE_STRSIGNAL
 EXPORT	char	*strsignal	__PR((int sig));
@@ -47,6 +67,9 @@ EXPORT	int	str2sig		__PR((const char *s, int *sigp));
 #endif
 #ifndef	HAVE_SIG2STR
 EXPORT	int	sig2str		__PR((int sig, char *s));
+#endif
+#ifdef	_SIGRTMIN
+LOCAL	void	_rtsiginit	__PR((void));
 #endif
 
 #ifdef	MAIN
@@ -70,147 +93,150 @@ main()
 }
 #endif
 
+/*
+ * Let "EXIT" be first, to make the shell trap(1) command work as expected.
+ */
 LOCAL struct signames {
 	int	signo;
 	char	*signame;
 	char	*sigtext;
 } signames[] = {
-	{ 0,		"NULL",	"Null Signal", },
-	{ 0,		"EXIT",	"Unknown Signal", },
+	{ 0,		"EXIT",		"Unknown Signal", },
+	{ 0,		"NULL",		"Null Signal", },
 #ifdef	SIGNULL
-	{ SIGNULL,	"NULL",	"Null Signal", },
+	{ SIGNULL,	"NULL",		"Null Signal", },
 #endif
 #ifdef	SIGHUP
-	{ SIGHUP,	"HUP",	"Hangup", },
+	{ SIGHUP,	"HUP",		"Hangup", },
 #endif
 #ifdef	SIGINT
-	{ SIGINT,	"INT",	"Interrupt", },
+	{ SIGINT,	"INT",		"Interrupt", },
 #endif
 #ifdef	SIGQUIT
-	{ SIGQUIT,	"QUIT",	"Quit", },
+	{ SIGQUIT,	"QUIT",		"Quit", },
 #endif
 #ifdef	SIGILL
-	{ SIGILL,	"ILL",	"Illegal Instruction", },
+	{ SIGILL,	"ILL",		"Illegal Instruction", },
 #endif
 #ifdef	SIGTRAP
-	{ SIGTRAP,	"TRAP",	"Trace/Breakpoint Trap", },
+	{ SIGTRAP,	"TRAP",		"Trace/Breakpoint Trap", },
 #endif
 #ifdef	SIGABRT
-	{ SIGABRT,	"ABRT",	"IOT trap/Abort", },
+	{ SIGABRT,	"ABRT",		"IOT trap/Abort", },
 #endif
 #ifdef	SIGIOT
-	{ SIGIOT,	"IOT",	"IOT trap/Abort", },
+	{ SIGIOT,	"IOT",		"IOT trap/Abort", },
 #endif
 #ifdef	SIGEMT
-	{ SIGEMT,	"EMT",	"Emulation Trap", },
+	{ SIGEMT,	"EMT",		"Emulation Trap", },
 #endif
 #ifdef	SIGFPE
-	{ SIGFPE,	"FPE",	"Arithmetic Exception", },
+	{ SIGFPE,	"FPE",		"Arithmetic Exception", },
 #endif
 #ifdef	SIGKILL
-	{ SIGKILL,	"KILL",	"Killed", },
+	{ SIGKILL,	"KILL",		"Killed", },
 #endif
 #ifdef	SIGBUS
-	{ SIGBUS,	"BUS",	"Bus Error", },
+	{ SIGBUS,	"BUS",		"Bus Error", },
 #endif
 #ifdef	SIGSEGV
-	{ SIGSEGV,	"SEGV",	"Segmentation Fault", },
+	{ SIGSEGV,	"SEGV",		"Segmentation Fault", },
 #endif
 #ifdef	SIGSYS
-	{ SIGSYS,	"SYS",	"Bad System Call", },
+	{ SIGSYS,	"SYS",		"Bad System Call", },
 #endif
 #ifdef	SIGPIPE
-	{ SIGPIPE,	"PIPE",	"Broken Pipe", },
+	{ SIGPIPE,	"PIPE",		"Broken Pipe", },
 #endif
 #ifdef	SIGALRM
-	{ SIGALRM,	"ALRM",	"Alarm Clock", },
+	{ SIGALRM,	"ALRM",		"Alarm Clock", },
 #endif
 #ifdef	SIGTERM
-	{ SIGTERM,	"TERM",	"Terminated", },
+	{ SIGTERM,	"TERM",		"Terminated", },
 #endif
 #ifdef	SIGUSR1
-	{ SIGUSR1,	"USR1",	"User defined Signal 1", },
+	{ SIGUSR1,	"USR1",		"User defined Signal 1", },
 #endif
 #ifdef	SIGUSR2
-	{ SIGUSR2,	"USR2",	"User defined Signal 2", },
+	{ SIGUSR2,	"USR2",		"User defined Signal 2", },
 #endif
 #ifdef	SIGSTKFLT
-	{ SIGSTKFLT,	"STKFLT", "Stack Fault", },
+	{ SIGSTKFLT,	"STKFLT",	"Stack Fault", },
+#endif
+#ifdef	SIGCHLD		/* POSIX name should appear first */
+	{ SIGCHLD,	"CHLD",		"Child Status Changed", },
 #endif
 #ifdef	SIGCLD
-	{ SIGCLD,	"CLD",	"Child Status Changed", },
-#endif
-#ifdef	SIGCHLD
-	{ SIGCHLD,	"CHLD",	"Child Status Changed", },
+	{ SIGCLD,	"CLD",		"Child Status Changed", },
 #endif
 #ifdef	SIGPWR
-	{ SIGPWR,	"PWR",	"Power-Fail/Restart", },
+	{ SIGPWR,	"PWR",		"Power-Fail/Restart", },
 #endif
 #ifdef	SIGWINCH
 	{ SIGWINCH,	"WINCH",	"Window Size Change", },
 #endif
 #ifdef	SIGURG
-	{ SIGURG,	"URG",	"Urgent Socket Condition", },
+	{ SIGURG,	"URG",		"Urgent Socket Condition", },
 #endif
 #ifdef	SIGPOLL
-	{ SIGPOLL,	"POLL",	"Pollable Event", },
+	{ SIGPOLL,	"POLL",		"Pollable Event", },
 #endif
 #ifdef	SIGIO
-	{ SIGIO,	"IO",	"Possible I/O", },
+	{ SIGIO,	"IO",		"Possible I/O", },
 #endif
 #ifdef	SIGLOST
-	{ SIGLOST,	"LOST",	"Resource Lost", },
+	{ SIGLOST,	"LOST",		"Resource Lost", },
 #endif
 #ifdef	SIGSTOP
-	{ SIGSTOP,	"STOP",	"Stopped (signal)", },
+	{ SIGSTOP,	"STOP",		"Stopped (signal)", },
 #endif
 #ifdef	SIGTSTP
-	{ SIGTSTP,	"TSTP",	"Stopped (user)", },
+	{ SIGTSTP,	"TSTP",		"Stopped (user)", },
 #endif
 #ifdef	SIGCONT
-	{ SIGCONT,	"CONT",	"Continued", },
+	{ SIGCONT,	"CONT",		"Continued", },
 #endif
 #ifdef	SIGTTIN
-	{ SIGTTIN,	"TTIN",	"Stopped (tty input)", },
+	{ SIGTTIN,	"TTIN",		"Stopped (tty input)", },
 #endif
 #ifdef	SIGTTOU
-	{ SIGTTOU,	"TTOU",	"Stopped (tty output)", },
+	{ SIGTTOU,	"TTOU",		"Stopped (tty output)", },
 #endif
 #ifdef	SIGVTALRM
 	{ SIGVTALRM,	"VTALRM",	"Virtual Timer Expired", },
 #endif
 #ifdef	SIGPROF
-	{ SIGPROF,	"PROF",	"Profiling Timer Expired", },
+	{ SIGPROF,	"PROF",		"Profiling Timer Expired", },
 #endif
 #ifdef	SIGXCPU
-	{ SIGXCPU,	"XCPU",	"Cpu Time Limit Exceeded", },
+	{ SIGXCPU,	"XCPU",		"Cpu Time Limit Exceeded", },
 #endif
 #ifdef	SIGXFSZ
-	{ SIGXFSZ,	"XFSZ",	"File Size Limit Exceeded", },
+	{ SIGXFSZ,	"XFSZ",		"File Size Limit Exceeded", },
 #endif
 #ifdef	SIGWAITING
 	{ SIGWAITING,	"WAITING",	"No runnable lwp", },
 #endif
 #ifdef	SIGLWP
-	{ SIGLWP,	"LWP",	"Inter-lwp signal", },
+	{ SIGLWP,	"LWP",		"Inter-lwp signal", },
 #endif
 #ifdef	SIGFREEZE
 	{ SIGFREEZE,	"FREEZE",	"Checkpoint Freeze", },
 #endif
 #ifdef	SIGTHAW
-	{ SIGTHAW,	"THAW",	"Checkpoint Thaw", },
+	{ SIGTHAW,	"THAW",		"Checkpoint Thaw", },
 #endif
-#ifdef	_SIGRTMIN
-	{ _SIGRTMIN,	"RTMIN",	"First Realtime Signal", },
-	{ _SIGRTMIN+1,	"RTMIN+1",	"Second Realtime Signal", },
-	{ _SIGRTMIN+2,	"RTMIN+2",	"Third Realtime Signal", },
-	{ _SIGRTMIN+3,	"RTMIN+3",	"Fourth Realtime Signal", },
+#ifdef	SIGCANCEL
+	{ SIGCANCEL,	"CANCEL",	"Thread Cancellation", },
 #endif
-#ifdef	_SIGRTMAX
-	{ _SIGRTMAX-3,	"RTMAX-3",	"Fourth Last Realtime Signal", },
-	{ _SIGRTMAX-2,	"RTMAX-2",	"Third Last Realtime Signal", },
-	{ _SIGRTMAX-1,	"RTMAX-1",	"Second Last Realtime Signal", },
-	{ _SIGRTMAX,	"RTMAX",	"Last Realtime Signal", },
+#ifdef	SIGXRES
+	{ SIGXRES,	"XRES",		"Resource Control Exceeded", },
+#endif
+#ifdef	SIGJVM1
+	{ SIGJVM1,	"JVM1",		"Reserved for JVM 1", },
+#endif
+#ifdef	SIGJVM2
+	{ SIGJVM2,	"JVM2",		"Reserved for JVM 2", },
 #endif
 #ifdef	SIGUNUSED
 	{ SIGUNUSED,	"UNUSED",	"Unused Signal", },
@@ -230,19 +256,211 @@ LOCAL struct signames {
 #ifdef	SIGDGNOTIFY
 	{ SIGDGNOTIFY,	"DGNOTIFY",	"DG Notify", },
 #endif
+#ifdef	SIGINFO
+	{ SIGINFO,	"INFO",		"Information Request", },
+#endif
+#ifdef	SIGDIL	/* HP-UX */
+	{ SIGDIL,	"DIL",		"DIL Signal", },
+#endif
+#ifdef	SIGAIO
+	{ SIGAIO,	"AIO",		"Asynchronous I/O", },
+#endif
+#ifdef	SIGALRM1
+	{ SIGALRM1,	"ALRM1",	"Scheduling - reserved", },
+#endif
+#ifdef	SIGAPOLLO
+	{ SIGAPOLLO,	"APOLLO",	"SIGAPOLLO", },
+#endif
+#ifdef	SIGCPUFAIL
+	{ SIGCPUFAIL,	"CPUFAIL",	"Predictive processor deconfiguration", },
+#endif
+#ifdef	SIGDANGER
+	{ SIGDANGER,	"DANGER",	"System crash soon", },
+#endif
+#ifdef	SIGERR
+	{ SIGERR,	"ERR",		"", },
+#endif
+#ifdef	SIGGRANT
+	{ SIGGRANT,	"GRANT",	"Grant monitor mode", },
+#endif
+#ifdef	SIGLAB
+	{ SIGLAB,	"LAB",		"Security label changed", },
+#endif
+#ifdef	SIGMIGRATE
+	{ SIGMIGRATE,	"MIGRATE",	"Migrate process", },
+#endif
+#ifdef	SIGMSG
+	{ SIGMSG,	"MSG",		"Ring buffer input data", },
+#endif
+#ifdef	SIGPHONE
+	{ SIGPHONE,	"PHONE",	"Phone interrupt", },
+#endif
+#ifdef	SIGPRE
+	{ SIGPRE,	"PRE",		"Programming exception", },
+#endif
+#ifdef	SIGRETRACT
+	{ SIGRETRACT,	"RETRACT",	"Relinquish monitor mode", },
+#endif
+#ifdef	SIGSAK
+	{ SIGSAK,	"SAK",		"Secure attention key", },
+#endif
+#ifdef	SIGSOUND
+	{ SIGSOUND,	"SOUND",	"Sound completed", },
+#endif
+#ifdef	SIGTINT
+	{ SIGTINT,	"TINT",		"Interrupt", },
+#endif
+#ifdef	SIGVIRT
+	{ SIGVIRT,	"VIRT",		"Virtual timer alarm", },
+#endif
 	{ 0,	0,	0, },
 };
 
+#ifdef	_SIGRTMIN
+LOCAL struct signames rtsignames[] = {
+#ifdef	_SIGRTMIN
+	{ _SIGRTMIN,	"RTMIN",	"First Realtime Signal", },
+	{ _SIGRTMIN+1,	"RTMIN+1",	"Second Realtime Signal", },
+	{ _SIGRTMIN+2,	"RTMIN+2",	"Third Realtime Signal", },
+	{ _SIGRTMIN+3,	"RTMIN+3",	"Fourth Realtime Signal", },
+#endif
+#if	(_SIGRTMAX - _SIGRTMIN) >= 9
+	{ _SIGRTMIN+4,	"RTMIN+4",	"Fifth Realtime Signal", },
+#endif
+#if	(_SIGRTMAX - _SIGRTMIN) >= 11
+	{ _SIGRTMIN+5,	"RTMIN+5",	"Sixth Realtime Signal", },
+#endif
+#if	(_SIGRTMAX - _SIGRTMIN) >= 13
+	{ _SIGRTMIN+6,	"RTMIN+6",	"Seventh Realtime Signal", },
+#endif
+#if	(_SIGRTMAX - _SIGRTMIN) >= 15
+	{ _SIGRTMIN+7,	"RTMIN+7",	"Eighth Realtime Signal", },
+#endif
+#if	(_SIGRTMAX - _SIGRTMIN) >= 17
+	{ _SIGRTMIN+8,	"RTMIN+8",	"Nint Realtime Signal", },
+#endif
+#if	(_SIGRTMAX - _SIGRTMIN) >= 19
+	{ _SIGRTMIN+9,	"RTMIN+9",	"Tenth Realtime Signal", },
+#endif
+#if	(_SIGRTMAX - _SIGRTMIN) >= 21
+	{ _SIGRTMIN+10,	"RTMIN+10",	"Eleventh Realtime Signal", },
+#endif
+#if	(_SIGRTMAX - _SIGRTMIN) >= 23
+	{ _SIGRTMIN+11,	"RTMIN+11",	"Twelfth Realtime Signal", },
+#endif
+#if	(_SIGRTMAX - _SIGRTMIN) >= 25
+	{ _SIGRTMIN+12,	"RTMIN+12",	"Thirteenth Realtime Signal", },
+#endif
+#if	(_SIGRTMAX - _SIGRTMIN) >= 27
+	{ _SIGRTMIN+13,	"RTMIN+13",	"Fourteenth Realtime Signal", },
+#endif
+#if	(_SIGRTMAX - _SIGRTMIN) >= 29
+	{ _SIGRTMIN+14,	"RTMIN+14",	"Fifteenth Realtime Signal", },
+#endif
+#if	(_SIGRTMAX - _SIGRTMIN) >= 31
+	{ _SIGRTMIN+15,	"RTMIN+15",	"Sixteenth Realtime Signal", },
+#endif
+#if	(_SIGRTMAX - _SIGRTMIN) >= 31
+	{ _SIGRTMAX-15,	"RTMAX-15",	"Sixteenth Last Realtime Signal", },
+#endif
+#if	(_SIGRTMAX - _SIGRTMIN) >= 29
+	{ _SIGRTMAX-14,	"RTMAX-14",	"Fifteenth Last Realtime Signal", },
+#endif
+#if	(_SIGRTMAX - _SIGRTMIN) >= 27
+	{ _SIGRTMAX-13,	"RTMAX-13",	"Fourteenth Last Realtime Signal", },
+#endif
+#if	(_SIGRTMAX - _SIGRTMIN) >= 25
+	{ _SIGRTMAX-12,	"RTMAX-12",	"Thirteenth Last Realtime Signal", },
+#endif
+#if	(_SIGRTMAX - _SIGRTMIN) >= 23
+	{ _SIGRTMAX-11,	"RTMAX-11",	"Twelfth Last Realtime Signal", },
+#endif
+#if	(_SIGRTMAX - _SIGRTMIN) >= 21
+	{ _SIGRTMAX-10,	"RTMAX-10",	"Eleventh Last Realtime Signal", },
+#endif
+#if	(_SIGRTMAX - _SIGRTMIN) >= 19
+	{ _SIGRTMAX-9,	"RTMAX-9",	"Tenth Last Realtime Signal", },
+#endif
+#if	(_SIGRTMAX - _SIGRTMIN) >= 17
+	{ _SIGRTMAX-8,	"RTMAX-8",	"Nint Last Realtime Signal", },
+#endif
+#if	(_SIGRTMAX - _SIGRTMIN) >= 15
+	{ _SIGRTMAX-7,	"RTMAX-7",	"Eighth Last Realtime Signal", },
+#endif
+#if	(_SIGRTMAX - _SIGRTMIN) >= 13
+	{ _SIGRTMAX-6,	"RTMAX-6",	"Seventh Last Realtime Signal", },
+#endif
+#if	(_SIGRTMAX - _SIGRTMIN) >= 11
+	{ _SIGRTMAX-5,	"RTMAX-5",	"Sixth Last Realtime Signal", },
+#endif
+#if	(_SIGRTMAX - _SIGRTMIN) >= 9
+	{ _SIGRTMAX-4,	"RTMAX-4",	"Fifth Last Realtime Signal", },
+#endif
+#ifdef	_SIGRTMAX
+	{ _SIGRTMAX-3,	"RTMAX-3",	"Fourth Last Realtime Signal", },
+	{ _SIGRTMAX-2,	"RTMAX-2",	"Third Last Realtime Signal", },
+	{ _SIGRTMAX-1,	"RTMAX-1",	"Second Last Realtime Signal", },
+	{ _SIGRTMAX,	"RTMAX",	"Last Realtime Signal", },
+#endif
+	{ 0,	0,	0, },
+};
+
+LOCAL int	rtmin;
+LOCAL int	rtmax;
+
+/*
+ * Make the numbers in rtsignames match the current numbers.
+ * This is needed as SIGRTMIN and SIGRTMAX are macros that call
+ * an interface that may not return the same numbers as
+ * _SIGRTMIN and _SIGRTMAX.
+ */
+LOCAL void
+_rtsiginit()
+{
+	register	int	i;
+			int	nmed;
+			int	max;
+
+	rtmin = SIGRTMIN;
+	rtmax = SIGRTMAX;
+	nmed = (rtmin + rtmax) / 2;
+
+	for (i = 0; rtsignames[i].signame; i++)
+		;
+	max = i-1;
+
+	for (i = 0; rtsignames[i].signame; i++) {
+		rtsignames[i].signo = 0;
+		if ((rtmin + i) <= nmed) {
+			rtsignames[i].signo = rtmin + i;
+		} else if ((rtmax - max + i) > nmed) {
+			rtsignames[i].signo = (rtmax - max) + i;
+		}
+	}
+}
+#endif	/* _SIGRTMIN */
+
 #ifndef	HAVE_STRSIGNAL
+/*
+ * Convert the signal number into the signal description text.
+ */
 EXPORT char *
 strsignal(sig)
 	int	sig;
 {
 	register int	i;
+		struct signames *sn = signames;
 
-	for (i = 0; signames[i].signame; i++) {
-		if (signames[i].signo == sig)
-			return (signames[i].sigtext);
+#ifdef	_SIGRTMIN
+	if (rtmin == 0)
+		_rtsiginit();
+
+	if (sig >= rtmin && sig <= rtmax)
+		sn = rtsignames;
+#endif
+	for (i = 0; sn[i].signame; i++) {
+		if (sn[i].signo == sig)
+			return (sn[i].sigtext);
 	}
 	return (NULL);
 }
@@ -250,48 +468,78 @@ strsignal(sig)
 #endif
 
 #ifndef	HAVE_STR2SIG
+/*
+ * Convert "HUP" or 1 into SIGHUP and similar for other signals.
+ */
 EXPORT int
 str2sig(s, sigp)
 	const char	*s;
 	int		*sigp;
 {
 	register	int	i;
+		struct signames *sn = signames;
 
+#ifdef	_SIGRTMIN
+	if (rtmin == 0)
+		_rtsiginit();
+#endif
 	if (*s >= '0' && *s <= '9') {
 		int	val;
 
 		if (*astoi(s, &val) != '\0')
 			return (-1);
 
-		for (i = 0; signames[i].signame; i++) {
-			if (signames[i].signo == val) {
+#ifdef	_SIGRTMIN
+		if (val >= rtmin && val <= rtmax)
+			sn = rtsignames;
+#endif
+		for (i = 0; sn[i].signame; i++) {
+			if (sn[i].signo == val) {
 				*sigp = val;
 				return (0);
 			}
 		}
 		return (-1);
 	}
-	for (i = 0; signames[i].signame; i++) {
-		if (strcmp(s, signames[i].signame) == 0) {
-			*sigp = signames[i].signo;
-			return (0);
+	do {
+		for (i = 0; sn[i].signame; i++) {
+			if (strcmp(s, sn[i].signame) == 0) {
+				*sigp = sn[i].signo;
+				return (0);
+			}
 		}
-	}
+#ifdef	_SIGRTMIN
+	} while (sn == signames && (sn = rtsignames));
+#else
+	} while (0);
+#endif
+
 	return (-1);
 }
 #endif
 
 #ifndef	HAVE_SIG2STR
+/*
+ * Convert signal numbers into the signal names (e.g. 1 -> "HUP").
+ */
 EXPORT int
 sig2str(sig, s)
 	int	sig;
 	char	*s;
 {
 	register	int	i;
+		struct signames *sn = signames;
 
-	for (i = 0; signames[i].signame; i++) {
-		if (signames[i].signo == sig) {
-			strcpy(s, signames[i].signame);
+#ifdef	_SIGRTMIN
+	if (rtmin == 0)
+		_rtsiginit();
+
+	if (sig >= rtmin && sig <= rtmax)
+		sn = rtsignames;
+#endif
+	for (i = 0; sn[i].signame; i++) {
+		if (sn[i].signo == sig) {
+			strcpy(s, sn[i].signame);
 			return (0);
 		}
 	}

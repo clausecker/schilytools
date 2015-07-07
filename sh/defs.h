@@ -37,9 +37,9 @@
 #endif
 
 /*
- * This file contains modifications Copyright 2008-2015 J. Schilling
+ * Copyright 2008-2015 J. Schilling
  *
- * @(#)defs.h	1.67 15/06/23 2008-2015 J. Schilling
+ * @(#)defs.h	1.70 15/07/05 2008-2015 J. Schilling
  */
 
 #ifdef	__cplusplus
@@ -361,6 +361,9 @@ extern	void	failed_real	__PR((unsigned char *s1,
 extern	void	failure_real	__PR((unsigned char *s1,
 						const char *s2, int gflag));
 extern	void	exitsh		__PR((int xno)) __NORETURN;
+extern	void	exval_clear	__PR((void));
+extern	void	exval_sig	__PR((void));
+extern	void	exval_set	__PR((int xno));
 extern	void	rmtemp		__PR((struct ionod *base));
 extern	void	rmfunctmp	__PR((void));
 
@@ -459,7 +462,7 @@ extern	void	sysstop		__PR((int argc, char *argv[]));
 extern	void	syskill		__PR((int argc, char *argv[]));
 extern	void	syssusp		__PR((int argc, char *argv[]));
 extern	void	hupforegnd	__PR((void));
-extern	pid_t	wait_id		__PR((idtype_t idtype, pid_t id,
+extern	pid_t	wait_status	__PR((pid_t id,
 					int *codep, int *statusp, int opts));
 
 /*
@@ -695,8 +698,8 @@ extern	void	execexp		__PR((unsigned char *s, Intptr_t f));
 #define		gfailure(s1, s2)	failure_real(s1, s2, 1)
 
 /* temp files and io */
-extern int				output;
-extern int				ioset;
+extern int		output;
+extern int		ioset;
 extern struct ionod	*iotemp; /* files to be deleted sometime */
 extern struct ionod	*fiotemp; /* function files to be deleted sometime */
 extern struct ionod	*iopend; /* documents waiting to be read at NL */
@@ -704,8 +707,8 @@ extern struct fdsave	fdmap[];
 extern int savpipe;
 
 /* substitution */
-extern int				dolc;
-extern unsigned char				**dolv;
+extern int		dolc;
+extern unsigned char	**dolv;
 extern struct dolnod	*argfor;
 extern struct argnod	*gchain;
 
@@ -721,138 +724,138 @@ extern struct argnod	*gchain;
 #endif
 
 /* string constants */
-extern const char				atline[];
-extern const char				readmsg[];
-extern const char				colon[];
-extern const char				minus[];
-extern const char				nullstr[];
-extern const char				sptbnl[];
-extern const char				unexpected[];
-extern const char				endoffile[];
-extern const char				synmsg[];
+extern const char		atline[];
+extern const char		readmsg[];
+extern const char		colon[];
+extern const char		minus[];
+extern const char		nullstr[];
+extern const char		sptbnl[];
+extern const char		unexpected[];
+extern const char		endoffile[];
+extern const char		synmsg[];
 
 /* name tree and words */
 extern const struct sysnod	reserved[];
-extern const int				no_reserved;
+extern const int		no_reserved;
 extern const struct sysnod	commands[];
-extern const int				no_commands;
+extern const int		no_commands;
 
-extern int				wdval;
-extern int				wdnum;
-extern int				fndef;
-extern int				nohash;
-extern struct argnod	*wdarg;
-extern int				wdset;
-extern BOOL				reserv;
+extern int			wdval;
+extern int			wdnum;
+extern int			fndef;
+extern int			nohash;
+extern struct argnod		*wdarg;
+extern int			wdset;
+extern BOOL			reserv;
 
 /* prompting */
-extern const char				stdprompt[];
-extern const char				supprompt[];
-extern const char				profile[];
-extern const char				sysprofile[];
-extern const char				rcfile[];
-extern const char				sysrcfile[];
-extern const char				globalname[];
-extern const char				localname[];
+extern const char		stdprompt[];
+extern const char		supprompt[];
+extern const char		profile[];
+extern const char		sysprofile[];
+extern const char		rcfile[];
+extern const char		sysrcfile[];
+extern const char		globalname[];
+extern const char		localname[];
 
 /* locale testing */
-extern const char			localedir[];
-extern int				localedir_exists;
+extern const char		localedir[];
+extern int			localedir_exists;
 
 /* built in names */
-extern struct namnod	fngnod;
-extern struct namnod	cdpnod;
-extern struct namnod	envnod;
-extern struct namnod	ifsnod;
-extern struct namnod	homenod;
-extern struct namnod	mailnod;
-extern struct namnod	pathnod;
-extern struct namnod	ps1nod;
-extern struct namnod	ps2nod;
-extern struct namnod	mchknod;
-extern struct namnod	acctnod;
-extern struct namnod	mailpnod;
+extern struct namnod		fngnod;
+extern struct namnod		cdpnod;
+extern struct namnod		envnod;
+extern struct namnod		ifsnod;
+extern struct namnod		homenod;
+extern struct namnod		mailnod;
+extern struct namnod		pathnod;
+extern struct namnod		ps1nod;
+extern struct namnod		ps2nod;
+extern struct namnod		mchknod;
+extern struct namnod		acctnod;
+extern struct namnod		mailpnod;
 
 /* special names */
-extern unsigned char				flagadr[];
-extern unsigned char				*pcsadr;
-extern unsigned char				*pidadr;
-extern unsigned char				*cmdadr;
+extern unsigned char		flagadr[];
+extern unsigned char		*pcsadr;
+extern unsigned char		*pidadr;
+extern unsigned char		*cmdadr;
 
 /* names always present */
-extern const char				defpath[];
-extern const char				mailname[];
-extern const char				homename[];
-extern const char				pathname[];
-extern const char				cdpname[];
-extern const char				envname[];
-extern const char				ifsname[];
-extern const char				ps1name[];
-extern const char				ps2name[];
-extern const char				mchkname[];
-extern const char				opwdname[];
-extern const char				pwdname[];
-extern const char				acctname[];
-extern const char				mailpname[];
+extern const char		defpath[];
+extern const char		mailname[];
+extern const char		homename[];
+extern const char		pathname[];
+extern const char		cdpname[];
+extern const char		envname[];
+extern const char		ifsname[];
+extern const char		ps1name[];
+extern const char		ps2name[];
+extern const char		mchkname[];
+extern const char		opwdname[];
+extern const char		pwdname[];
+extern const char		acctname[];
+extern const char		mailpname[];
 
 /* transput */
-extern unsigned char				tmpout[];
-extern int 					tmpout_offset;
-extern unsigned int				serial;
+extern unsigned char		tmpout[];
+extern int 			tmpout_offset;
+extern unsigned int		serial;
 
 /*
  * allow plenty of room for size for temp file name:
  * "/tmp/sh"(7) + <pid> (<=6) + <unsigned int #> (<=10) + \0 (1)
  */
-#define			TMPOUTSZ 		32
+#define		TMPOUTSZ	32
 
 extern struct fileblk	*standin;
 
 #define		input		(standin->fdes)
-#define		eof			(standin->feof)
+#define		eof		(standin->feof)
 
-#define	peekc	peekc_			/* AIX has a hidden peekc() in libc */
-extern int				peekc;
-extern int				peekn;
-extern unsigned char			*comdiv;
-extern const char			devnull[];
+#define	peekc	peekc_		/* AIX has a hidden peekc() in libc */
+extern int			peekc;
+extern int			peekn;
+extern unsigned char		*comdiv;
+extern const char		devnull[];
 
 /* flags */
-#define			noexec		01		/* set -n noexec */
-#define			intflg		02		/* set -i interactive */
-#define			prompt		04
-#define			setflg		010		/* set -u nounset */
-#define			errflg		020		/* set -r errexit */
-#define			ttyflg		040		/* in + out is a tty */
-#define			forked		0100		/* *forked child */
-#define			oneflg		0200		/* set -t onecmd */
-#define			rshflg		0400		/* set -r restrictive */
-#define			subsh		01000		/* Is a subshell */
-#define			stdflg		02000		/* set -s stdin */
-#define			STDFLG		's'
-#define			execpr		04000		/* set -x xtrace */
-#define			readpr		010000		/* set -v verbose */
-#define			keyflg		020000		/* set -k keyword */
-#define			hashflg		040000		/* set -h hashall */
-#define			vforked		0100000		/* A vforked child */
-#define			nofngflg	0200000		/* set -f noglob */
-#define			exportflg	0400000		/* set -a allexport */
-#define			monitorflg	01000000	/* set -m monitor */
-#define			jcflg		02000000	/* Do jobcontrol */
-#define			privflg		04000000	/* Keep privs */
-#define			forcexit	010000000	/* Terminate shell */
-#define			jcoff		020000000	/* Tmp jobcontrol off */
-#define			pfshflg		040000000	/* pfexec() support */
-#define			versflg		0100000000	/* Print version */
-#define			globalaliasflg	0200000000	/* Use global aliases */
-#define			localaliasflg	0400000000	/* Use local aliases */
-#define			aliasownerflg	01000000000	/* Second alias owner */
-#define			viflg		02000000000	/* VI  cmd line edit */
-#define			vedflg		04000000000	/* VED cmd line edit */
+#define		noexec		01		/* set -n noexec */
+#define		intflg		02		/* set -i interactive */
+#define		prompt		04
+#define		setflg		010		/* set -u nounset */
+#define		errflg		020		/* set -r errexit */
+#define		ttyflg		040		/* in + out is a tty */
+#define		forked		0100		/* *forked child */
+#define		oneflg		0200		/* set -t onecmd */
+#define		rshflg		0400		/* set -r restrictive */
+#define		subsh		01000		/* Is a subshell */
+#define		stdflg		02000		/* set -s stdin */
+#define		STDFLG		's'
+#define		execpr		04000		/* set -x xtrace */
+#define		readpr		010000		/* set -v verbose */
+#define		keyflg		020000		/* set -k keyword */
+#define		hashflg		040000		/* set -h hashall */
+#define		vforked		0100000		/* A vforked child */
+#define		nofngflg	0200000		/* set -f noglob */
+#define		exportflg	0400000		/* set -a allexport */
+#define		monitorflg	01000000	/* set -m monitor */
+#define		jcflg		02000000	/* Do jobcontrol */
+#define		privflg		04000000	/* Keep privs */
+#define		forcexit	010000000	/* Terminate shell */
+#define		jcoff		020000000	/* Tmp jobcontrol off */
+#define		pfshflg		040000000	/* pfexec() support */
+#define		versflg		0100000000	/* Print version */
+#define		globalaliasflg	0200000000	/* Use global aliases */
+#define		localaliasflg	0400000000	/* Use local aliases */
+#define		aliasownerflg	01000000000	/* Second alias owner */
+#define		viflg		02000000000	/* VI  cmd line edit */
+#define		vedflg		04000000000	/* VED cmd line edit */
 
-extern long				flags;
-extern int				exflag;	/* Use _exit(), not exit() */
-extern int				rwait;	/* flags read waiting */
+extern long			flags;
+extern int			exflag;		/* Use _exit(), not exit() */
+extern int			rwait;		/* flags read waiting */
 
 /* error exits from various parts of shell */
 #include	<setjmp.h>
@@ -866,10 +869,11 @@ extern unsigned			brkincr;
 
 #define		TRAPSET		2
 #define		SIGSET		4
-#define			SIGMOD		8
-#define			SIGIGN		16
+#define		SIGMOD		8
+#define		SIGIGN		16
 
-extern BOOL				trapnote;
+extern BOOL			trapnote;
+extern int			trapsig;
 
 /* name tree and words */
 #ifdef	HAVE_ENVIRON_DEF
@@ -878,127 +882,137 @@ extern BOOL				trapnote;
  * We should not use our own definitions here.
  */
 #else
-extern char					**environ;
+extern char			**environ;
 #endif
-extern unsigned char				numbuf[];
-extern const char				export[];
-extern const char				duperr[];
-extern const char				readonly[];
+extern unsigned char		numbuf[];
+extern const char		export[];
+extern const char		duperr[];
+extern const char		readonly[];
 
 /* execflgs */
-extern struct excode			ex;
-extern struct excode			retex;
-extern int				exitval;
-extern int				retval;
-extern BOOL				execbrk;
-extern int				loopcnt;
-extern int				breakcnt;
-extern int				funcnt;
-extern int				tried_to_exit;
+extern struct excode		ex;
+extern struct excode		retex;
+extern int			exitval;
+extern int			retval;
+extern BOOL			execbrk;
+extern int			loopcnt;
+extern int			breakcnt;
+extern int			funcnt;
+extern int			tried_to_exit;
 
 /* fault */
-extern int				*intrptr;
-extern int				intrcnt;
+extern int			*intrptr;
+extern int			intrcnt;
 
 /* messages */
-extern const char				mailmsg[];
-extern const char				coredump[];
-extern const char				badopt[];
-extern const char				emptystack[];
-extern const char				badparam[];
-extern const char				unset[];
-extern const char				badsub[];
-extern const char				nospace[];
-extern const char				nostack[];
-extern const char				notfound[];
-extern const char				badtrap[];
-extern const char				baddir[];
-extern const char				badoff[];
-extern const char				badshift[];
-extern const char				restricted[];
-extern const char				execpmsg[];
-extern const char				notid[];
-extern const char 				badulimit[];
-extern const char 				ulimit[];
-extern const char				wtfailed[];
-extern const char				badcreate[];
-extern const char				nofork[];
-extern const char				noswap[];
-extern const char				piperr[];
-extern const char				badopen[];
-extern const char				badnum[];
-extern const char				badsig[];
-extern const char				badid[];
-extern const char				arglist[];
-extern const char				txtbsy[];
-extern const char				toobig[];
-extern const char				badexec[];
-extern const char				badfile[];
-extern const char				badreturn[];
-extern const char				badexport[];
-extern const char				badunset[];
-extern const char				nohome[];
-extern const char				badperm[];
-extern const char				mssgargn[];
-extern const char				toomanyargs[];
-extern const char				libacc[];
-extern const char				libbad[];
-extern const char				libscn[];
-extern const char				libmax[];
-extern const char				emultihop[];
-extern const char				nulldir[];
-extern const char				enotdir[];
-extern const char				eisdir[];
-extern const char				enoent[];
-extern const char				eacces[];
-extern const char				enolink[];
-extern const char				exited[];
-extern const char				running[];
-extern const char				ambiguous[];
-extern const char				nosuchjob[];
-extern const char				nosuchpid[];
-extern const char				nosuchpgid[];
-extern const char				usage[];
-extern const char				nojc[];
-extern const char				killuse[];
-extern const char				jobsuse[];
-extern const char				aliasuse[];
-extern const char				unaliasuse[];
-extern const char				repuse[];
-extern const char				stopuse[];
-extern const char				ulimuse[];
-extern const char				nocurjob[];
-extern const char				loginsh[];
-extern const char				jobsstopped[];
-extern const char				jobsrunning[];
-extern const char				nlorsemi[];
-extern const char				signalnum[];
-extern const char				badpwd[];
-extern const char				badlocale[];
-extern const char				nobracket[];
-extern const char				noparen[];
-extern const char				noarg[];
+extern const char		mailmsg[];
+extern const char		coredump[];
+extern const char		badopt[];
+extern const char		emptystack[];
+extern const char		badparam[];
+extern const char		unset[];
+extern const char		badsub[];
+extern const char		nospace[];
+extern const char		nostack[];
+extern const char		notfound[];
+extern const char		badtrap[];
+extern const char		baddir[];
+extern const char		badoff[];
+extern const char		badshift[];
+extern const char		restricted[];
+extern const char		execpmsg[];
+extern const char		notid[];
+extern const char 		badulimit[];
+extern const char 		ulimit[];
+extern const char		wtfailed[];
+extern const char		badcreate[];
+extern const char		nofork[];
+extern const char		noswap[];
+extern const char		piperr[];
+extern const char		badopen[];
+extern const char		badnum[];
+extern const char		badsig[];
+extern const char		badid[];
+extern const char		arglist[];
+extern const char		txtbsy[];
+extern const char		toobig[];
+extern const char		badexec[];
+extern const char		badfile[];
+extern const char		badreturn[];
+extern const char		badexport[];
+extern const char		badunset[];
+extern const char		nohome[];
+extern const char		badperm[];
+extern const char		mssgargn[];
+extern const char		toomanyargs[];
+extern const char		libacc[];
+extern const char		libbad[];
+extern const char		libscn[];
+extern const char		libmax[];
+extern const char		emultihop[];
+extern const char		nulldir[];
+extern const char		enotdir[];
+extern const char		eisdir[];
+extern const char		enoent[];
+extern const char		eacces[];
+extern const char		enolink[];
+extern const char		exited[];
+extern const char		running[];
+extern const char		ambiguous[];
+extern const char		nosuchjob[];
+extern const char		nosuchpid[];
+extern const char		nosuchpgid[];
+extern const char		usage[];
+extern const char		nojc[];
+extern const char		killuse[];
+extern const char		jobsuse[];
+extern const char		aliasuse[];
+extern const char		unaliasuse[];
+extern const char		repuse[];
+extern const char		stopuse[];
+extern const char		ulimuse[];
+extern const char		nocurjob[];
+extern const char		loginsh[];
+extern const char		jobsstopped[];
+extern const char		jobsrunning[];
+extern const char		nlorsemi[];
+extern const char		signalnum[];
+extern const char		badpwd[];
+extern const char		badlocale[];
+extern const char		nobracket[];
+extern const char		noparen[];
+extern const char		noarg[];
 
-/*	'builtin' error messages	*/
-extern const char				btest[];
-extern const char				badop[];
-extern const char				badumask[];
+/*
+ * 'builtin' error messages
+ */
+extern const char		btest[];
+extern const char		badop[];
+extern const char		badumask[];
+
+/*
+ * Shell name
+ */
+extern const unsigned char	shname[];
+extern	    unsigned char	*shvers;
 
 /*	fork constant	*/
 #define		FORKLIM 	32
 
 extern address			end[];
 
-extern int				eflag;
-extern int				ucb_builtins;
+extern int			eflag;
+extern int			ucb_builtins;
 
 /*
  * Find out if it is time to go away.
  * `trapnote' is set to SIGSET when fault is seen and
  * no trap has been set.
  */
-#define		sigchk()	if (trapnote & SIGSET)	\
-					exitsh(exitval ? exitval : SIGFAIL)
+#define		sigchk()	if (trapnote & SIGSET)	{ \
+					exval_sig();	\
+					exitsh(exitval ? exitval : SIGFAIL); \
+				}
 
 #define		exitset()	(retex = ex, retval = exitval)
 

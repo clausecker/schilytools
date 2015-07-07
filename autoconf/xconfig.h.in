@@ -1,4 +1,4 @@
-/* @(#)xconfig.h.in	1.246 15/06/22 Copyright 1998-2015 J. Schilling */
+/* @(#)xconfig.h.in	1.248 15/07/06 Copyright 1998-2015 J. Schilling */
 /*
  *	Dynamic autoconf C-include code.
  *	Do not edit, this file has been created automatically.
@@ -933,6 +933,7 @@
 
 #undef	HAVE_TYPE_GREG_T	/* if <sys/frame.h> defines greg_t */
 
+#undef	HAVE_TYPE_RLIM_T	/* if <sys/resource.h> defines rlim_t */
 #undef	HAVE_TYPE_IDTYPE_T	/* if <sys/wait.h> defines idtype_t */
 #undef	HAVE_TYPE_SIGINFO_T	/* if <sys/wait.h> defines siginfo_t */
 
@@ -1096,6 +1097,7 @@
 #undef NO_USER_XCVT		/* If we cannot define our own ecvt()/fcvt()/gcvt() */
 #undef HAVE_DYN_ARRAYS		/* If the compiler allows dynamic sized arrays */
 #undef HAVE_PRAGMA_WEAK		/* If the compiler allows #pragma weak */
+#undef HAVE_LINK_WEAK		/* If the linker sees weak entries in other files */
 #undef HAVE_STRINGIZE		/* If the cpp supports ANSI C stringize */
 #undef inline
 

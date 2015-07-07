@@ -1,8 +1,8 @@
-/* @(#)mconfig.h	1.69 14/01/03 Copyright 1995-2014 J. Schilling */
+/* @(#)mconfig.h	1.70 15/06/28 Copyright 1995-2015 J. Schilling */
 /*
  *	definitions for machine configuration
  *
- *	Copyright (c) 1995-2014 J. Schilling
+ *	Copyright (c) 1995-2015 J. Schilling
  *
  *	This file must be included before any other file.
  *	If this file is not included before stdio.h you will not be
@@ -174,6 +174,15 @@ extern "C" {
 #ifdef	NO_SCANSTACK
 #	ifdef	HAVE_SCANSTACK
 #	undef	HAVE_SCANSTACK
+#	endif
+#endif
+
+/*
+ * This is the global switch to deactivate using #pragma weak
+ */
+#ifdef	NO_PRAGMA_WEAK
+#	ifdef	HAVE_PRAGMA_WEAK
+#	undef	HAVE_PRAGMA_WEAK
 #	endif
 #endif
 

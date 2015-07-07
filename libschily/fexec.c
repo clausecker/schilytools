@@ -1,8 +1,8 @@
-/* @(#)fexec.c	1.49 13/01/27 Copyright 1985, 1995-2013 J. Schilling */
+/* @(#)fexec.c	1.51 15/07/06 Copyright 1985, 1995-2015 J. Schilling */
 /*
  *	Execute a program with stdio redirection
  *
- *	Copyright (c) 1985, 1995-2013 J. Schilling
+ *	Copyright (c) 1985, 1995-2015 J. Schilling
  *
  *	This is an interface that exists in the public since 1982.
  *	The POSIX.1-2008 standard did ignore POSIX rules not to
@@ -16,6 +16,8 @@
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -68,7 +70,15 @@ extern	char **environ;
 #undef	fexecle
 #undef	fexecv
 #undef	fexecve
-#ifdef	HAVE_PRAGMA_WEAK
+
+/*
+ * The Cygwin compile environment incorrectly implements #pragma weak.
+ * The weak symbols are only defined as local symbols making it impossible
+ * to use them from outside the scope of this source file.
+ * A platform that allows linking with global symbols has HAVE_LINK_WEAK
+ * defined.
+ */
+#if defined(HAVE_PRAGMA_WEAK) && defined(HAVE_LINK_WEAK)
 #pragma	weak fexecl =	js_fexecl
 #pragma	weak fexecle =	js_fexecle
 #pragma	weak fexecv =	js_fexecv
@@ -116,7 +126,7 @@ fexecve(name, in, out, err, av, env)
 {
 	return (js_fexecve(name, in, out, err, av, env));
 }
-#endif	/* HAVE_PRAGMA_WEAK */
+#endif	/* HAVE_PRAGMA_WEAK && HAVE_LINK_WEAK */
 #endif	/* NO_FEXEC_COMPAT */
 
 

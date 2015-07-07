@@ -34,16 +34,16 @@
 #endif
 
 /*
- * This file contains modifications Copyright 2008-2013 J. Schilling
+ * This file contains modifications Copyright 2008-2015 J. Schilling
  *
- * @(#)ulimit.c	1.15 13/09/24 2008-2013 J. Schilling
+ * @(#)ulimit.c	1.16 15/07/03 2008-2015 J. Schilling
  */
 #ifdef	SCHILY_INCLUDES
 #include <schily/mconfig.h>
 #endif
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)ulimit.c	1.15 13/09/24 2008-2013 J. Schilling";
+	"@(#)ulimit.c	1.16 15/07/03 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -53,7 +53,6 @@ static	UConst char sccsid[] =
 #ifdef	SCHILY_INCLUDES
 #include <schily/time.h>
 #include <schily/resource.h>
-#define	rlim_t	Intmax_t	/* XXX may go away with <schily/resource.h> */
 #else
 #include <sys/resource.h>
 #include <stdlib.h>
@@ -62,42 +61,43 @@ static	UConst char sccsid[] =
 #include "defs.h"
 
 static struct rlimtab {
-	int	value;
-	char	*name;
-	char	*scale;
-	rlim_t	divisor;
+	int		value;
+	char		*name;
+	char		*scale;
+	unsigned char	option;
+	rlim_t		divisor;
 } rlimtab[] = {
 #ifdef	RLIMIT_CPU
-{	RLIMIT_CPU,	"time",		"seconds",	1,	},
+{	RLIMIT_CPU,	"time",		"seconds",	't', 1,	},
 #endif
 #ifdef	RLIMIT_FSIZE
-{	RLIMIT_FSIZE,	"file",		"blocks",	512,	},
+{	RLIMIT_FSIZE,	"file",		"blocks",	'f', 512,	},
 #endif
 #ifdef	RLIMIT_DATA
-{	RLIMIT_DATA,	"data",		"kbytes",	1024,	},
+{	RLIMIT_DATA,	"data",		"kbytes",	'd', 1024,	},
 #endif
 #ifdef	RLIMIT_STACK
-{	RLIMIT_STACK,	"stack",	"kbytes",	1024,	},
+{	RLIMIT_STACK,	"stack",	"kbytes",	's', 1024,	},
 #endif
 #ifdef	RLIMIT_CORE
-{	RLIMIT_CORE,	"coredump",	"blocks",	512,	},
+{	RLIMIT_CORE,	"coredump",	"blocks",	'c', 512,	},
 #endif
 #ifdef	RLIMIT_MEMLOCK
-{	RLIMIT_MEMLOCK,	"memlock",	"kbytes",	1024	},
+{	RLIMIT_MEMLOCK,	"memlock",	"kbytes",	'l', 1024	},
 #endif
 #ifdef	RLIMIT_RSS
-{	RLIMIT_RSS,	"memoryuse",	"kbytes",	1024,	},
+{	RLIMIT_RSS,	"memoryuse",	"kbytes",	'm', 1024,	},
 #endif
 #ifdef	RLIMIT_NOFILE
-{	RLIMIT_NOFILE,	"nofiles",	"descriptors",	1,	},
+{	RLIMIT_NOFILE,	"nofiles",	"descriptors",	'n', 1,	},
 #endif
 #ifdef	RLIMIT_NPROC
-{	RLIMIT_NPROC,	"processes",	"count",	1	},
+{	RLIMIT_NPROC,	"processes",	"count",	'u', 1	},
 #endif
 #ifdef	RLIMIT_VMEM
-{	RLIMIT_VMEM,	"memory",	"kbytes",	1024,	},
+{	RLIMIT_VMEM,	"memory",	"kbytes",	'v', 1024,	},
 #endif
-{	0,		NULL,		NULL,		0,	},
+{	0,		NULL,		NULL,		0, 0,	},
 };
 
 	void	sysulimit	__PR((int argc, char **argv));
@@ -149,56 +149,16 @@ sysulimit(argc, argv)
 			cnt = RLIM_NLIMITS;
 #endif
 			continue;
-		case 'c':
-#ifdef	RLIMIT_CORE
-			res = RLIMIT_CORE;
-#endif
+
+		default:
+			for (rlp = rlimtab; rlp->name; rlp++) {
+				if (rlp->option == c) {
+					res = rlp->value;
+					break;
+				}
+			}
 			break;
-		case 'd':
-#ifdef	RLIMIT_DATA
-			res = RLIMIT_DATA;
-#endif
-			break;
-		case 'f':
-#ifdef	RLIMIT_FSIZE
-			res = RLIMIT_FSIZE;
-#endif
-			break;
-		case 'l':
-#ifdef	RLIMIT_MEMLOCK
-			res = RLIMIT_MEMLOCK;
-#endif
-			break;
-		case 'm':
-#ifdef	RLIMIT_RSS
-			res = RLIMIT_RSS;
-#endif
-			break;
-		case 'n':
-#ifdef	RLIMIT_NOFILE
-			res = RLIMIT_NOFILE;
-#endif
-			break;
-		case 's':
-#ifdef	RLIMIT_STACK
-			res = RLIMIT_STACK;
-#endif
-			break;
-		case 't':
-#ifdef	RLIMIT_CPU
-			res = RLIMIT_CPU;
-#endif
-			break;
-		case 'u':
-#ifdef	RLIMIT_NPROC
-			res = RLIMIT_NPROC;
-#endif
-			break;
-		case 'v':
-#ifdef	RLIMIT_VMEM
-			res = RLIMIT_VMEM;
-#endif
-			break;
+
 		case '?':
 			gfailure((unsigned char *)usage, ulimuse);
 			goto err;
@@ -217,7 +177,6 @@ sysulimit(argc, argv)
 	/*
 	 * if out of arguments, then print the specified resources
 	 */
-
 	if (optind == argc) {
 		if (!hard && !soft) {
 			soft++;
@@ -236,6 +195,12 @@ sysulimit(argc, argv)
 				continue;
 			}
 			if (cnt > 1) {
+#ifdef	DO_ULIMIT_OPTS
+				prc_buff('-');
+				prc_buff(rlp->option);
+				prc_buff(':');
+				prc_buff(' ');
+#endif
 				prs_buff(_gettext(rlp->name));
 				prc_buff('(');
 				prs_buff(_gettext(rlp->scale));

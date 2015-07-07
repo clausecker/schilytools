@@ -1,8 +1,8 @@
-/* @(#)fnmatch.c	8.18 13/04/25 2005-2013 J. Schilling from 8.2 (Berkeley) */
+/* @(#)fnmatch.c	8.20 15/07/06 2005-2015 J. Schilling from 8.2 (Berkeley) */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)fnmatch.c	8.18 13/04/25 2005-2013 J. Schilling from 8.2 (Berkeley)";
+	"@(#)fnmatch.c	8.20 15/07/06 2005-2015 J. Schilling from 8.2 (Berkeley)";
 #endif
 /*
  * Copyright (c) 1989, 1993, 1994
@@ -37,7 +37,7 @@ static	UConst char sccsid[] =
  */
 
 #if defined(LIBC_SCCS) && !defined(lint)
-static UConst char sccsid[] = "@(#)fnmatch.c	8.18 (Berkeley) 04/25/13";
+static UConst char sccsid[] = "@(#)fnmatch.c	8.20 (Berkeley) 07/06/15";
 #endif /* LIBC_SCCS and not lint */
 /* "FBSD src/lib/libc/gen/fnmatch.c,v 1.19 2010/04/16 22:29:24 jilles Exp $" */
 
@@ -77,7 +77,15 @@ static int fnmatch1 __PR((const char *, const char *, const char *, int,
 
 #ifndef	HAVE_FNMATCH
 #undef	fnmatch
-#ifdef	HAVE_PRAGMA_WEAK
+
+/*
+ * The Cygwin compile environment incorrectly implements #pragma weak.
+ * The weak symbols are only defined as local symbols making it impossible
+ * to use them from outside the scope of this source file.
+ * A platform that allows linking with global symbols has HAVE_LINK_WEAK
+ * defined.
+ */
+#if defined(HAVE_PRAGMA_WEAK) && defined(HAVE_LINK_WEAK)
 #pragma	weak fnmatch =	js_fnmatch
 #else
 int

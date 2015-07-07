@@ -37,11 +37,11 @@
 /*
  * This file contains modifications Copyright 2008-2015 J. Schilling
  *
- * @(#)macro.c	1.26 15/07/06 2008-2015 J. Schilling
+ * %Z%%M%	%I% %E% 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)macro.c	1.26 15/07/06 2008-2015 J. Schilling";
+	"%Z%%M%	%I% %E% 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -61,11 +61,7 @@ static unsigned char	quoted;	/* used locally */
 
 static void	copyto		__PR((unsigned char endch, int trimflag));
 static void	skipto		__PR((unsigned char endch));
-#ifdef	DO_DOT_SH_PARAMS
-static unsigned char *shvar	__PR((unsigned char *v));
-#endif
-static unsigned int dolname	__PR((unsigned char **argpp,
-					unsigned int c, unsigned int addc));
+static unsigned char *exvar	__PR((unsigned char *v));
 static int	getch		__PR((unsigned char endch, int trimflag));
 	unsigned char *macro	__PR((unsigned char *as));
 static void	comsubst	__PR((int));
@@ -208,74 +204,37 @@ out:
 		error(badsub);
 }
 
-/*
- * Expand special shell variables ${.sh.xxx}.
- */
-#ifdef	DO_DOT_SH_PARAMS
 static unsigned char *
-shvar(v)
+exvar(v)
 	unsigned char	*v;
 {
-	if (eq(v, "status")) {			/* exit status */
+	if (*v == 's' && eq(v, "status")) {
 		sitos(retex.ex_status);
 		v = numbuf;
-	} else if (eq(v, "termsig")) {		/* kill signame */
+	} else if (*v == 'c' && eq(v, "code")) {
+		itos(retex.ex_code);
+		v = numbuf;
+	} else if (*v == 'c' && eq(v, "codename")) {
+		v = UC code2str(retex.ex_code);
+	} else if (*v == 'p' && eq(v, "pid")) {
+		itos(retex.ex_pid);
+		v = numbuf;
+	} else if (*v == 's' && eq(v, "signo")) {
+		itos(retex.ex_signo);
+		v = numbuf;
+	} else if (*v == 's' && eq(v, "signame")) {
+		sig2str(retex.ex_signo, (char *)numbuf);
+		v = numbuf;
+	} else if (*v == 't' && eq(v, "termsig")) {
 		numbuf[0] = '\0';
 		sig2str(retex.ex_status, (char *)numbuf);
 		v = numbuf;
 		if (numbuf[0] == '\0')
-			strcpy((char *)numbuf, "UNKNOWN");
-	} else if (eq(v, "code")) {		/* exit code (reason) */
-		itos(retex.ex_code);
-		v = numbuf;
-	} else if (eq(v, "codename")) {		/* text for above */
-		v = UC code2str(retex.ex_code);
-	} else if (eq(v, "pid")) {		/* exited pid */
-		itos(retex.ex_pid);
-		v = numbuf;
-	} else if (eq(v, "signo")) {		/* SIGCHLD or trapsig */
-		itos(retex.ex_signo);
-		v = numbuf;
-	} else if (eq(v, "signame")) {		/* text for above */
-		sig2str(retex.ex_signo, (char *)numbuf);
-		v = numbuf;
-	} else if (eq(v, "shell")) {		/* Shell implementation name */
-		v = UC shname;
-	} else if (eq(v, "version")) {		/* Shell version */
-		v = UC shvers;
+			strcpy((char *)numbuf, "NONE");
 	} else {
 		return (NULL);
 	}
 	return (v);
-}
-#endif
-
-/*
- * Collect the parameter name.
- * If "addc" is null, collect a normal parameter name,
- * else "addc" is an additional permitted character.
- * This is typically '.' for the ".sh.xxx" parameters.
- * Returns the first non-matching character to allow the rest
- * of the parser to recover.
- */
-static unsigned int
-dolname(argpp, c, addc)
-	unsigned char	**argpp;
-	unsigned int	c;
-	unsigned int	addc;
-{
-	unsigned char	*argp;
-
-	argp = (unsigned char *)relstak();
-	while (alphanum(c) || (addc && c == addc)) {
-		GROWSTAKTOP();
-		pushstak(c);
-		c = readwc();
-	}
-	GROWSTAKTOP();
-	zerostak();
-	*argpp = argp;
-	return (c);
 }
 
 #ifdef	PROTOTYPES
@@ -313,6 +272,7 @@ retry:
 			BOOL		bra;
 			BOOL		nulflg;
 			unsigned char	*argp, *v = NULL;
+			unsigned char	*exv;
 			unsigned char		idb[2];
 			unsigned char		*id = idb;
 
@@ -322,13 +282,30 @@ retry:
 				c = readwc();
 			if (letter(c))
 			{
-				c = dolname(&argp, c, 0);
-				n = lookup(absstak(argp));
+				argp = (unsigned char *)relstak();
+				while (alphanum(c))
+				{
+					GROWSTAKTOP();
+					pushstak(c);
+					c = readwc();
+				}
+				GROWSTAKTOP();
+				zerostak();
+/*				n = lookup(absstak(argp));*/
+				v = absstak(argp);		/* Variable name */
+				if (v[0] == 'e' && v[1] == 'x' &&
+					(exv = exvar(&v[2])) != NULL) {
+					v = exv;
+				} else {
+					n = lookup(v);
+					if (n->namflg & N_FUNCTN) {
+						setstak(argp);
+						error(badsub);
+					}
+					v = n->namval;
+					id = (unsigned char *)n->namid;
+				}
 				setstak(argp);
-				if (n->namflg & N_FUNCTN)
-					error(badsub);
-				v = n->namval;
-				id = (unsigned char *)n->namid;
 				peekc = c | MARK;
 			} else if (digchar(c)) {
 				*id = c;
@@ -362,27 +339,9 @@ retry:
 			} else if (c == '?') {
 				itos(retval);
 				v = numbuf;
-			} else if (c == '-') {
+			} else if (c == '-')
 				v = flagadr;
-#ifdef	DO_DOT_SH_PARAMS
-			} else if (bra && c == '.') {
-				unsigned char	*shv;
-
-				c = dolname(&argp, c, '.');
-				v = absstak(argp);	/* Variable name */
-				if (v[0] == '.' &&
-				    v[1] == 's' &&
-				    v[2] == 'h' &&
-				    v[3] == '.' &&
-					(shv = shvar(&v[4])) != NULL) {
-					v = shv;
-				} else {
-					v = NULL;
-				}
-				setstak(argp);
-				peekc = c | MARK;
-#endif
-			} else if (bra)
+			else if (bra)
 				error(badsub);
 			else
 				goto retry;

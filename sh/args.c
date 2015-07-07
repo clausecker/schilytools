@@ -39,13 +39,13 @@
 #include "version.h"
 
 /*
- * This file contains modifications Copyright 2008-2015 J. Schilling
+ * Copyright 2008-2015 J. Schilling
  *
- * @(#)args.c	1.38 15/04/13 2008-2015 J. Schilling
+ * @(#)args.c	1.39 15/07/05 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)args.c	1.38 15/04/13 2008-2015 J. Schilling";
+	"@(#)args.c	1.39 15/07/05 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -172,6 +172,8 @@ long	flagval[]  =
 	0
 };
 
+unsigned char *shvers;
+
 /* ========	option handling	======== */
 
 static void
@@ -180,9 +182,8 @@ prversion()
 	char	vbuf[BUFFERSIZE];
 
 	snprintf(vbuf, sizeof (vbuf),
-			"sh (Schily Bourne Shell) version %s %s (%s-%s-%s)\n",
-			VERSION_DATE, VERSION_STR,
-			HOST_CPU, HOST_VENDOR, HOST_OS);
+			"%s %s\n",
+			shname, shvers);
 	prs(UC vbuf);
 	if (dolv == NULL) {
 		/*
@@ -212,6 +213,18 @@ options(argc, argv)
 	unsigned char *flagc;
 	int		len;
 	wchar_t		wc;
+
+	if (shvers == NULL) {
+		char	vbuf[BUFFERSIZE];
+		size_t	vlen;
+
+		vlen = snprintf(vbuf, sizeof (vbuf),
+			"version %s %s (%s-%s-%s)",
+			VERSION_DATE, VERSION_STR,
+			HOST_CPU, HOST_VENDOR, HOST_OS);
+		shvers = alloc(vlen + 1);
+		strcpy((char *)shvers, vbuf);
+	}
 
 #ifdef	DO_MULTI_OPT
 again:

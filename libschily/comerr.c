@@ -1,8 +1,8 @@
-/* @(#)comerr.c	1.41 13/12/31 Copyright 1985-1989, 1995-2013 J. Schilling */
+/* @(#)comerr.c	1.43 15/07/01 Copyright 1985-1989, 1995-2015 J. Schilling */
 /*
  *	Routines for printing command errors
  *
- *	Copyright (c) 1985-1989, 1995-2013 J. Schilling
+ *	Copyright (c) 1985-1989, 1995-2015 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -49,6 +49,11 @@ typedef	struct ex {
 
 LOCAL	ex_t	*exfuncs;
 
+/*
+ * Set list of callback functions to call with *comerr() and comexit().
+ * The function set up last with on_comerr() is called first on exit;
+ * in other words: call order is the reverse order of registration.
+ */
 EXPORT	int
 on_comerr(func, arg)
 	void	(*func) __PR((int, void *));
@@ -67,6 +72,9 @@ on_comerr(func, arg)
 	return (0);
 }
 
+/*
+ * Fetch current errno, print a related message and exit(errno).
+ */
 /* VARARGS1 */
 #ifdef	PROTOTYPES
 EXPORT void
@@ -90,6 +98,9 @@ comerr(msg, va_alist)
 	va_end(args);
 }
 
+/*
+ * Fetch current errno, print a related message and exit(exc).
+ */
 /* VARARGS2 */
 #ifdef	PROTOTYPES
 EXPORT void
@@ -114,6 +125,9 @@ xcomerr(exc, msg, va_alist)
 	va_end(args);
 }
 
+/*
+ * Print a message related to err and exit(err).
+ */
 /* VARARGS2 */
 #ifdef	PROTOTYPES
 EXPORT void
@@ -138,6 +152,9 @@ comerrno(err, msg, va_alist)
 	va_end(args);
 }
 
+/*
+ * Print a message related to err and exit(exc).
+ */
 /* VARARGS3 */
 #ifdef	PROTOTYPES
 EXPORT void
@@ -163,6 +180,9 @@ xcomerrno(exc, err, msg, va_alist)
 	va_end(args);
 }
 
+/*
+ * Fetch current errno, print a related message and return(errno).
+ */
 /* VARARGS1 */
 #ifdef	PROTOTYPES
 EXPORT int
@@ -187,6 +207,9 @@ errmsg(msg, va_alist)
 	return (ret);
 }
 
+/*
+ * Print a message related to err and return(err).
+ */
 /* VARARGS2 */
 #ifdef	PROTOTYPES
 EXPORT int
@@ -234,12 +257,12 @@ errmsgno(err, msg, va_alist)
 #endif
 EXPORT int
 _comerr(f, exflg, exc, err, msg, args)
-	FILE		*f;
-	int		exflg;
-	int		exc;
-	int		err;
-	const char	*msg;
-	va_list		args;
+	FILE		*f;	/* FILE * to print to */
+	int		exflg;	/* COMERR_RETURN, COMERR_EXIT, COMERR_EXCODE */
+	int		exc;	/* Use for exit() if exflg & COMERR_EXCODE */
+	int		err;	/* Errno for text, exit(err) if !COMERR_EXIT*/
+	const char	*msg;	/* printf() format */
+	va_list		args;	/* printf() args for format */
 {
 	char	errbuf[20];
 	char	*errnam;
@@ -300,6 +323,10 @@ _ex_clash(exc)
 	return (exc);
 }
 
+/*
+ * Do a program exit() with previously calling functions registered via
+ * on_comerr().
+ */
 EXPORT void
 comexit(err)
 	int	err;
@@ -312,6 +339,11 @@ comexit(err)
 	/* NOTREACHED */
 }
 
+/*
+ * Wrapper around the strange POSIX strerror().
+ * If there is a problem with retrieving the correct error text,
+ * return NULL.
+ */
 EXPORT char *
 errmsgstr(err)
 	int	err;

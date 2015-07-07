@@ -1,4 +1,4 @@
-#ident "@(#)Makefile	1.46 15/06/23  Copyright (c) 2006-2015 J. Schilling"
+#ident "@(#)Makefile	1.50 15/07/03  Copyright (c) 2006-2015 J. Schilling"
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -44,6 +44,9 @@ CPPOPTS +=	-DACCT					# Shell Accounting
 #CPPOPTS +=	-DDO_PIPE_SEMI_SYNTAX_E	# Report a syntax error for "echo foo |;"
 #CPPOPTS +=	-DDO_READ_ALLEXPORT	# Bugfix for set -a; read VAR
 #CPPOPTS +=	-DDO_SIGNED_EXIT	# Allow negative exit(1) parameters
+#CPPOPTS +=	-DDO_DOT_SH_PARAMS	# Include support for ${.sh.xxx} parapeters
+#CPPOPTS +=	-DDO_KILL_L_SIG		# Include support for kill -l signo
+#CPPOPTS +=	-DDO_ULIMIT_OPTS	# Add options to the ulimit(1) output
 
 #CPPOPTS +=	-DSTAK_DEBUG		# Include debug code for stak.c
 CPPOPTS +=	-DARGS_RIGHT_TO_LEFT	# Evaluate var2=val2 var1=val1 left to right

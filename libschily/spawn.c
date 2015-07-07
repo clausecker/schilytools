@@ -1,4 +1,4 @@
-/* @(#)spawn.c	1.29 15/04/25 Copyright 1985, 1989, 1995-2015 J. Schilling */
+/* @(#)spawn.c	1.30 15/07/06 Copyright 1985, 1989, 1995-2015 J. Schilling */
 /*
  *	Spawn another process/ wait for child process
  *
@@ -48,7 +48,15 @@
 #undef	fspawnv
 #undef	fspawnl
 #undef	fspawnv_nowait
-#ifdef	HAVE_PRAGMA_WEAK
+
+/*
+ * The Cygwin compile environment incorrectly implements #pragma weak.
+ * The weak symbols are only defined as local symbols making it impossible
+ * to use them from outside the scope of this source file.
+ * A platform that allows linking with global symbols has HAVE_LINK_WEAK
+ * defined.
+ */
+#if defined(HAVE_PRAGMA_WEAK) && defined(HAVE_LINK_WEAK)
 #pragma	weak fspawnv =	js_fspawnv
 #pragma	weak fspawnl =	js_fspawnl
 #pragma	weak fspawnv_nowait =	js_fspawnv_nowait
@@ -87,7 +95,7 @@ fspawnv_nowait(in, out, err, name, argc, argv)
 #undef	js_fspawnl
 #undef	__DO__FSPAWNL__
 
-#endif	/* HAVE_PRAGMA_WEAK */
+#endif	/* HAVE_PRAGMA_WEAK && HAVE_LINK_WEAK */
 #endif	/* NO_FSPAWN_COMPAT */
 
 EXPORT int

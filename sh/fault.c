@@ -36,13 +36,13 @@
 #include "defs.h"
 
 /*
- * This file contains modifications Copyright 2008-2015 J. Schilling
+ * Copyright 2008-2015 J. Schilling
  *
- * @(#)fault.c	1.26 15/05/20 2008-2015 J. Schilling
+ * @(#)fault.c	1.29 15/07/06 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)fault.c	1.26 15/05/20 2008-2015 J. Schilling";
+	"@(#)fault.c	1.29 15/07/06 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -265,14 +265,21 @@ done(sig)
 {
 	unsigned char	*t;
 	int	savxit;
+	struct excode savex;
+	struct excode savrex;
 
 	if ((t = trapcom[0]) != NULL)
 	{
 		trapcom[0] = 0;
 		/* Save exit value so trap handler will not change its val */
 		savxit = exitval;
+		savex = ex;
+		savrex = retex;
+		retex.ex_signo = 0;
 		execexp(t, (Intptr_t)0);
 		exitval = savxit;		/* Restore exit value */
+		ex = savex;
+		retex = savrex;
 		free(t);
 	}
 	else
@@ -342,6 +349,7 @@ fault(sig)
 
 	trapnote |= flag;
 	trapflg[sig] |= flag;
+	trapsig = sig;
 }
 
 int
@@ -506,8 +514,16 @@ chktrap()
 			trapflg[i] &= ~TRAPSET;
 			if ((t = trapcom[i]) != NULL) {
 				int	savxit = exitval;
+				struct excode savex;
+				struct excode savrex;
+
+				savex = ex;
+				savrex = retex;
+				retex.ex_signo = i;
 				execexp(t, (Intptr_t)0);
 				exitval = savxit;
+				ex = savex;
+				retex = savrex;
 				exitset();
 			}
 		}

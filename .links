@@ -345,6 +345,12 @@
 ./RULES/i686-cygwin32_nt-cl.rul
 ./RULES/i686-cygwin32_nt-cl64.rul
 ./RULES/i686-cygwin32_nt-gcc.rul
+./RULES/i686-cygwin32_wow-cc.rul
+./RULES/i686-cygwin32_wow-cc64.rul
+./RULES/i686-cygwin32_wow-cl.rul
+./RULES/i686-cygwin32_wow-cl64.rul
+./RULES/i686-cygwin32_wow-gcc.rul
+./RULES/i686-cygwin32_wow-gcc64.rul
 ./RULES/i686-cygwin32_wow64-cc.rul
 ./RULES/i686-cygwin32_wow64-cc64.rul
 ./RULES/i686-cygwin32_wow64-cl.rul
@@ -361,6 +367,12 @@
 ./RULES/i786-cygwin32_nt-cl.rul
 ./RULES/i786-cygwin32_nt-cl64.rul
 ./RULES/i786-cygwin32_nt-gcc.rul
+./RULES/i786-cygwin32_wow-cc.rul
+./RULES/i786-cygwin32_wow-cc64.rul
+./RULES/i786-cygwin32_wow-cl.rul
+./RULES/i786-cygwin32_wow-cl64.rul
+./RULES/i786-cygwin32_wow-gcc.rul
+./RULES/i786-cygwin32_wow-gcc64.rul
 ./RULES/i786-cygwin32_wow64-cc.rul
 ./RULES/i786-cygwin32_wow64-cc64.rul
 ./RULES/i786-cygwin32_wow64-cl.rul
