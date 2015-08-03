@@ -41,11 +41,11 @@
 /*
  * Copyright 2008-2015 J. Schilling
  *
- * @(#)args.c	1.39 15/07/05 2008-2015 J. Schilling
+ * @(#)args.c	1.48 15/08/01 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)args.c	1.39 15/07/05 2008-2015 J. Schilling";
+	"@(#)args.c	1.48 15/08/01 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -56,7 +56,7 @@ static	UConst char sccsid[] =
 
 static	void		prversion	__PR((void));
 	int		options		__PR((int argc, unsigned char **argv));
-static	void		setopts		__PR((void));
+	void		setopts		__PR((void));
 	void		setargs		__PR((unsigned char *argi[]));
 static void		freedolh	__PR((void));
 	struct dolnod	*freeargs	__PR((struct dolnod *blk));
@@ -102,12 +102,21 @@ unsigned char	flagchar[] =
 	'p',
 	'P',
 	'V',
-	0,
-	0,
-	0,
+#ifdef	DO_FDPIPE
+	0,			/* set -o fdpipe */
+#endif
+#ifdef	DO_TIME
+	0,			/* set -o time */
+#endif
+#ifdef	DO_FULLEXCODE
+	0,			/* set -o fullexcode */
+#endif
+	0,			/* set -o globalaliases */
+	0,			/* set -o localaliases */
+	0,			/* set -o aliasowner */
 #ifdef	INTERACTIVE
-	0,
-	0,
+	0,			/* set -o vi */
+	0,			/* set -o ved */
 #endif
 	0
 };
@@ -132,6 +141,15 @@ char	*flagname[] =
 	"privileged",		/* -p ksh93: only if really privileged */
 	"pfsh",			/* -P Schily Bourne Shell */
 	"version",		/* -V Schily Bourne Shell */
+#ifdef	DO_FDPIPE
+	"fdpipe",		/* e.g. 2| for pipe from stderr */
+#endif
+#ifdef	DO_TIME
+	"time",			/* -o time, enable timing */
+#endif
+#ifdef	DO_FULLEXCODE
+	"fullexitcode",		/* -o fullexitcode, so not mask $? */
+#endif
 	"globalaliases",
 	"localaliases",
 	"aliasowner",
@@ -143,7 +161,7 @@ char	*flagname[] =
 };
 #endif
 
-long	flagval[]  =
+unsigned long	flagval[]  =
 {
 	execpr,
 	noexec,
@@ -162,6 +180,15 @@ long	flagval[]  =
 	privflg,
 	pfshflg,
 	versflg,
+#ifdef	DO_FDPIPE
+	fl2 | fdpipeflg,
+#endif
+#ifdef	DO_TIME
+	fl2 | timeflg,
+#endif
+#ifdef	DO_FULLEXCODE
+	fl2 | fullexitcodeflg,
+#endif
 	globalaliasflg,
 	localaliasflg,
 	aliasownerflg,
@@ -182,8 +209,8 @@ prversion()
 	char	vbuf[BUFFERSIZE];
 
 	snprintf(vbuf, sizeof (vbuf),
-			"%s %s\n",
-			shname, shvers);
+	    "%s %s\n",
+	    shname, shvers);
 	prs(UC vbuf);
 	if (dolv == NULL) {
 		/*
@@ -213,6 +240,7 @@ options(argc, argv)
 	unsigned char *flagc;
 	int		len;
 	wchar_t		wc;
+	unsigned long	fv;
 
 	if (shvers == NULL) {
 		char	vbuf[BUFFERSIZE];
@@ -287,7 +315,9 @@ again:
 				if (argarg != NULL)
 					*argarg = '\0';
 				for (flagc = flagchar;
+							/* LINTED */
 				    flagname[flagc-flagchar]; flagc++) {
+							/* LINTED */
 					if (eq(argp[2],
 					    flagname[flagc-flagchar])) {
 						argp[1] = argp[0];
@@ -295,6 +325,7 @@ again:
 						argc--;
 						wc = *flagc;
 #ifdef	DO_SYSALIAS
+							/* LINTED */
 						if (flagval[flagc-flagchar] &
 						    aliasownerflg) {
 							char *owner;
@@ -334,8 +365,13 @@ again:
 				    wc && any(wc, UC "sicrp")) {
 					failed(argv[1], badopt);
 				} else {
+					unsigned long *fp = &flags;
+
 							/* LINTED */
-					flags |= flagval[flagc-flagchar];
+					fv = flagval[flagc-flagchar];
+					if (fv & fl2)
+						fp = &flags2;
+					*fp |= fv & ~fl2;
 					/*
 					 * Disallow to set -n on an interactive
 					 * shell as this cannot be reset.
@@ -345,24 +381,24 @@ again:
 #ifdef	INTERACTIVE
 					flags &= ~viflg;
 #endif
-					if (flags & errflg)
+					if (fv & errflg)
 						eflag = errflg;
 #ifdef	EXECATTR_FILENAME
-					if (flags & pfshflg)
+					if (fv & pfshflg)
 						secpolicy_init();
 #endif
-					if (flags & versflg) {
+					if (fv & versflg) {
 						flags &= ~versflg;
 						prversion();
 					}
 #ifdef	DO_SYSALIAS
-					if (flags & globalaliasflg) {
+					if (fv & globalaliasflg) {
 						catpath(homenod.namval,
 						    UC globalname);
 						ab_use(GLOBAL_AB,
 						    (char *)make(curstak()));
 					}
-					if (flags & localaliasflg) {
+					if (fv & localaliasflg) {
 						ab_use(LOCAL_AB,
 							(char *)localname);
 					}
@@ -406,7 +442,9 @@ again:
 					continue;
 				}
 				for (flagc = flagchar;
+							/* LINTED */
 				    flagname[flagc-flagchar]; flagc++) {
+							/* LINTED */
 					if (eq(argp[2],
 					    flagname[flagc-flagchar])) {
 						argp[1] = argp[0];
@@ -434,24 +472,26 @@ again:
 			 */
 			if (wc == 0 ||
 			    (!any(wc, UC "sicrp") && wc == *flagc)) {
+				unsigned long *fp = &flags;
 							/* LINTED */
-				int nflag = flagval[flagc-flagchar];
-
-				flags &= ~nflag;
+				fv = flagval[flagc-flagchar];
+				if (fv & fl2)
+					fp = &flags2;
+				*fp &= ~fv;
 				if (wc == 'e')
 					eflag = 0;
 #ifdef	EXECATTR_FILENAME
-				if (nflag & pfshflg)
+				if (fv & pfshflg)
 					secpolicy_end();
 #endif
 #ifdef	DO_SYSALIAS
-				if (nflag & globalaliasflg) {
+				if (fv & globalaliasflg) {
 					ab_use(GLOBAL_AB, NULL);
 				}
-				if (nflag & localaliasflg) {
+				if (fv & localaliasflg) {
 					ab_use(LOCAL_AB, NULL);
 				}
-				if (nflag & aliasownerflg) {
+				if (fv & aliasownerflg) {
 					ab_setaltowner(GLOBAL_AB, "");
 					ab_setaltowner(LOCAL_AB, "");
 				}
@@ -473,19 +513,18 @@ again:
 
 /*
  * set up $-
+ * $- is only constructed from flag values in the basic "flags"
  */
-static void
+void
 setopts()
 {
 	unsigned char	*flagc;
 	unsigned char	*flagp;
 
 	flagp = flagadr;
-	if (flags)
-	{
+	if (flags) {
 		flagc = flagchar;
-		while (*flagc)
-		{
+		while (*flagc) {
 						/* LINTED */
 			if (flags & flagval[flagc-flagchar])
 				*flagp++ = *flagc;
@@ -752,37 +791,46 @@ listopts(parse)
 {
 	unsigned char *flagc;
 	int		len;
+	unsigned long	fv;
+	unsigned long	*fp;
 
+					/* LINTED */
 	for (flagc = flagchar; flagname[flagc-flagchar]; flagc++) {
 		if (*flagc == 'V')
 			continue;
+					/* LINTED */
+		fv = flagval[flagc-flagchar];
 #ifdef	DO_SYSALIAS
-		if (flagval[flagc-flagchar] == aliasownerflg) {
+		if (fv == aliasownerflg) {
+					/* LINTED */
 			listaliasowner(parse, flagc-flagchar);
 			continue;
 		}
 #endif
+		fp = &flags;
+		if (fv & fl2) {
+			fp = &flags2;
+			fv &= ~fl2;
+		}
 		if (parse) {
 			if (any(*flagc, UC "sicrp"))	/* Unsettable?    */
 				continue;		/* so do not list */
 			prs_buff(UC "set ");
-			prs_buff(UC(flags &
-				flagval[flagc-flagchar] ?
-				"-":"+"));
+			prs_buff(UC(*fp & fv ? "-":"+"));
 			prs_buff(UC "o ");
 		}
+					/* LINTED */
 		prs_buff(UC flagname[flagc-flagchar]);
 		if (parse) {
 			prc_buff(NL);
 			continue;
 		}
+					/* LINTED */
 		len = length(UC flagname[flagc-flagchar]);
 		while (++len <= 16)
 			prc_buff(SPACE);
 		prc_buff(TAB);
-		prs_buff(UC(flags &
-			flagval[flagc-flagchar] ?
-			"on":"off"));
+		prs_buff(UC(*fp & fv ? "on":"off"));
 		prc_buff(NL);
 	}
 }

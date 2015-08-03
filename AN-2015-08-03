@@ -1,0 +1,377 @@
+New features with AN-2015-08-03:
+
+This is the first localization step for the schily source consolidation. Many
+programs now (hopefully) call gettext() for all strings that need localization.
+
+-	The next step will include dgettext() calls for the libraries and the
+	missing programs
+
+-	The following step will include the extracted strings
+
+-	The last step will include German translations and install support
+	for the resulting binary message object files.
+
+----------> Please test and report compilation problems! <---------
+
+***** NOTE: As mentioned since 2004, frontends to the tools should *****
+*****		call all programs in the "C" locale		   *****
+*****		by e.g. calling: LC_ALL=C cdrecord ....		   *****
+*****		unless these frontends support localized strings   *****
+*****		used by the cdrtools with NLS support.		   *****
+
+		*** WARNING        ***
+		*** Need new smake ***
+
+	*** Due to the fact that schily-tools 2014-04-03 introduced to use new macro
+	*** expansions and a related bug fix in smake, you need a new smake
+	*** to compile this source. To ensure this, call:
+
+	cd ./psmake
+	./MAKE-all
+	cd ..
+	psmake/smake
+	psmake/smake install
+
+
+	WARNING: the new version of the isoinfo program makes use of the 
+		*at() series of functions that have been introduced by Sun
+		in August 2001 and added to POSIX.1-2008. For older platforms,
+		libschily now includes emulations for these functions but
+		these emulations have not yet been tested thoroughly.
+		Please report problems!
+
+	The new smake version mentioned above is smake-1.2.4
+
+-	Cdrtools bumped to version 3.01a30. This is the current release
+	candidate for 3.01-final. We have some minor fixes added here
+	in the schily snapshot, see below:
+
+-	README.compile now includes an example on how to cross compile 
+	on Linux for Android.
+
+-	include/schily/find.h modified to avoid a GCC warning from
+	using libfind in the Bourne Shell.
+
+-	include/schily/dlfcn.h modified to avoid a GCC warning from
+	the new builtin management code in the Bourne Shell.
+
+-	libschily/resolvepath.c now #define's lstat stat if lstat()
+	is missing.
+
+-	libschily/error.c now allows to be compiled without weak
+	symbols by using -DNO_WEAK_SYMBOLS
+
+-	libshedit: work around a name space problem in libshedit that
+	occurs with static linking. The name space problem exists since
+	there are variants of functions in libshedit that exist in
+	libschily with a "FILE *" parameter and in libshedit with "int *"
+	parameter to support the stdio-less Bourne Shell. We now use
+	a "shell_" prefix for all non-local functions in libshedit.
+	The dynamic library variant of libshedit uses a mapfile to make
+	those functions invisible to code outside libshedit.
+
+-	mkisofs/diag/isoinfo.c now test for HAVE_MKNOD in order to avoid
+	calling mknod() on MINGW32.
+
+-	SCCS: diff now uses strftime() for diff -u where cftime() is
+	missing. Thanks to David Clissold from IBM for reporting the
+	wrong time format from the ctime() fallback.
+
+-	SCCS: diff now includes a workaround for HP/UX strftime() that
+	returns the %Z string for both %z and %Z.
+
+-	bsh version was increased to 6.14
+
+-	bsh now also prints the time stamp seen with "bsh -version"
+	when typing a '#' in interactive mode.
+
+-	bsh: limit(1) now supports new [gs]etrlimit() parameters for "limit" 
+
+	-	RLIMIT_NPTS	FreeBSD # of pty's
+
+	-	RLIMIT_SWAP	FreeBSD Swap to be used
+
+	-	RLIMIT_RTTIME	Linux max real time quantum
+
+-	Bourne Shell: now supports new [gs]etrlimit() parameters for "ulimit"
+
+	-	RLIMIT_AS	Address space (usually the same as RLIMIT_VMEM)
+
+	-	RLIMIT_NICE	Linux nice priority limit
+
+	-	RLIMIT_SIGPENDING number of pending signals
+
+	-	RLIMIT_MSGQUEUE	number of POSIX message queues
+
+	-	RLIMIT_RTPRIO	Linux maximum real time priority
+
+	-	RLIMIT_RTTIME	Linux max real time quantum
+
+	-	RLIMIT_LOCKS	Maximum number of file locks
+
+	-	RLIMIT_NPTS	FreeBSD # of pty's
+
+	-	RLIMIT_SWAP	FreeBSD Swap to be used
+
+-	bsh and Bourne Shell: The alias code no longer calls fstat()
+	followed by an unnecessary stat() on the .gloals and .locals
+	file.
+
+-	Bourne Shell: The global and local alias files are no longer
+	read three times at shell startup.
+
+-	Bourne Shell: added a new builtin command "builtin" to manage
+	builtin commands. This command was taken from ksh. Note that
+	the new command is not yet fully complete. The commands:
+
+	builtin		list all builtins
+
+	builtin -i	list all shell intrinsic commands
+
+	builtin -s	list all special builtins
+
+	already work. More is planned for the near future.
+
+	Note that the -i option is not in ksh93, but we recently
+	restructured POSIX for POSIX.1-issue-7-tc2 to mention
+	a new class of shell builtins that will be a base for a further
+	shell restructuring with POSIX.1-issue-8.
+
+-	Bourne Shell: added a new builtin command "find" similar to
+	what is available in "bsh" since April 2007. This builtin could
+	or could not stay statically linked in the Bourne Shell. We need
+	to decide this when loadable builtins are implemented. In
+	the latter case, it may be converted into a dynamically loaded
+	builtin in the near future. It may however be sufficient, to 
+	mark libfind a "lazy load" library. Note that lazy-loading
+	only works with the AT&T UNIX linker (e.g. available in the
+	UNIX "ld" on OpenSolaris) but not with "gld" on Linux.
+
+	The current implementation however allows to check whether
+	e.g. interrupt handling works between the Bourne Shell and
+	libfind. We did already identify a name space problem with
+	libshedit and the Bourne Shell as a result of includind the
+	find(1) builtin based on libfind.
+
+	The main reason for making it a builtin is that a
+	shell builtin can call shell procedures without a need
+	to fork()/exec(). I plan to add a new find(1) primary "-call"
+	to libfind that allows to call other shell builtins from libfind.
+
+	Another reason is to have a modern find(1) implementation 
+	available by default, e.g. an implementation that supports a
+	fine grained file time stamp search that is missing in Solaris
+	find and GNU find.
+
+-	Bourne Shell: several instances of plain numbers have been changed
+	towards O_RDONLY/O_WRONLY and STDIN_FILENO for better readability.
+
+-	Bourne Shell: the struct namnod flags have been documented.
+
+-	Bourne Shell: the hash code has been documented. This helps
+	to make this code maintainable, e.g. for introducing PATH
+	tagged builtin commands. The concept of PATH tagged shell
+	builtins was designed by Sun Microsystems and David Korn
+	before ksh93 was integrated into OpenSolaris in August 2007.
+	This concept was recently chosen to become the official
+	POSIX.1-issue-8 method for adding shell builtins bejond the
+	list of shell builtins documented by POSIX today.
+
+-	Bourne Shell: a new #define FORCE_WAITID allows to enforce
+	using waitid() even on platforms that fail to pass the
+	related autoconf test. This helps to test the Bourne Shell on
+	non-POSIX platforms that like to make their waitid() implementation
+	POSIX compliant, such as Linux or Mac OS X.
+
+-	Bourne Shell: struct sysnod added a new struct member "sysflg"
+	that allows to implement the builtin command "builtin" and to
+	mark different types of builtin commands.
+
+-	Bourne Shell: "struct sysnod commands" now sets BLT_SPC for special
+	builtin commands.
+
+-	Bourne Shell: "struct sysnod commands" now sets BLT_INT for intrinsic
+	shell commands. Intrinsic commands have been recently defined by
+	POSIX.
+
+-	Bourne Shell: some messages are no longer compiled into msg.c if the
+	related error codes are not available on the actual compile platform.
+
+-	Bourne Shell: the POSIX exit codes 126/127 for $? are now supported
+	for non-executable existing file and non-existing file.
+
+-	Bourne Shell: new codes for .sh.codename have been introduced:
+
+	NOTFOUND	an executable file could not be found
+
+	NOEXEC		an executable file could be found but not executed
+
+	Note that these error codes in ${.sh.codename} need shared memory, 
+	e.g. via vfork() for the non-hash case of PATH search to be reliable
+	as the standard does not allow to report more than a single value (an
+	exit code) to the parent and an exit code from the forked (but not
+	exec'd) shell cannot be distinguished from an exit code that was used
+	by the expected child process.
+
+-	Bourne Shell: A bug in the code to generate the "$-" string (specific to
+	the Shily Burne Shell) was fixed and $- now contains the 'i' for
+	interactive shells as expected and recently changed in the source when
+	introducing support for $ENV and /etc/shrc & ~/.shrc.
+
+-	Bourne Shell: the "type" builtin is now POSIX compliant and reports
+	keywords as well.
+
+-	Bourne Shell: the "type" builtin now distincts between builtins, 
+	special builtins and shell intrinsics.
+
+	In preparation of the upcoming POSIX.1-issue-7-tc2 we distinct
+	non-special builtins from "intrinsic commands"; a new category that
+	was introduced recently for builtins that need to be a builtin command
+	but without "special" treatment.
+
+-	Bourne Shell: A new builtin command "@" was added similar to existing
+	implementations in bsh and csh. This helps to speed up loops. Use
+	something like:
+
+	i=0
+	while [ $i -lt 1000 ]; do
+		doit $i
+		@ i++
+	done
+
+	Such a loop now typically takes 20 usecs per iteration. A conservative
+	implementation using "i=`expr $i + 1`" instead of "@ i++" would take
+	3 milliseconds per iteration.
+
+-	Bourne Shell: A new builtin command "sync" was added similar to what
+	is in bsh since 1982 and what has been recently added to ksh93.
+
+-	Bourne Shell: A new builtin command "pgrp" was added similar to what
+	is in bsh since 1985.
+
+-	bsh and Bourne Shell: the pgrp builtin command now also prints information
+	about session groups. This helps to identify session group leaders.
+
+-	Bourne Shell: A new builtin command "errstr" was added similar to what
+	is in bsh since 1985.
+
+-	Bourne Shell: A new builtin command "killpg" was added similar to what
+	is in bsh since 1985.
+
+-	Bourne Shell: The builtin command "suspend" is now able to suspend the
+	shell even in case it was started by a debugger (e.g. truss) or by sudo.
+	To do so, it always reverted to the saved process group but this did
+	suffer from ESRCH. Now, it reverts to the saved process group and stops
+	that saved group.
+
+	********************
+	Please report if the current implementation causes any unexpected
+	problems.
+	********************
+
+-	Bourne Shell: Support for tilde expansion was added.
+	Currently, there is not yet support for tilde expansion in the 
+	parameter expansion and for tilde's that appear after an colon (:),
+	e.g. in
+		PATH=/bin:~/bin
+
+-	bsh and Bourne Shell now support tilde auto-completion via ^C
+	(and TAB for bash compatibility) in the history editor. The expansion
+	is done the same way, the Bourne Shell expands '~' in the parser:
+
+	~	expands to the users home directory $(HOME)
+
+	~+	expands to $PWD
+
+	~-	expands to $OLDPWD
+
+	~user	expands to the home directory for "user" from the passwd file
+
+-	Bourne Shell: Support for up to 120 flag bits has been added. This allows
+	to introduce a sufficient amount of new set(1) -o options in the future.
+
+-	Bourne Shell: Support for pipes from arbitrary other file descriptors
+	than #1 (stdout) was added. This feature is enabled via "set -o fdpipe"
+	and allows to precede the pipe symbol by a digit that describes file
+	descriptor # to use instead of stdout, e.g. 2| for a pipe from stderr.
+	This feature is based on a feature from bsh introduced in 1991.
+
+	This feature permits to use a pager for messages from stderr. As
+	"mkisofs -help" prints a lot of messages to stderr, one might call:
+
+		set -o fdpipe
+		mkisofs -help 2| more
+
+	to be able to decently read the long help text from stderr.
+
+-	Bourne Shell: a new option "set -o fullexitcode" has been added. It permits
+	to tell the shell not to mask $? with 0xFF and to return the full 32 Bits
+	from the exit code from child processes on operating systems that support
+	waitid(2). Platforms that do not implement waitid(2), mask the exit code
+	in the kernel and give no way access the full exit code.
+
+	Note that even with that setup, the historic namespace clash with the exit
+	codes 126/126 and 128+signal-number remains. It however gives an easier to
+	type method for most cases. Call:
+
+		set -o fullexitcode
+		bosh -c "exit 1234567890"; echo $?	# some shells limit exit
+		1234567890
+
+	to check this feature.
+
+	*******
+	As this setup is reverted before calling shell scripts, it can be used
+	without problems for interactive shells and set up from inside $HOME/.shrc
+	*******
+
+-	Bourne Shell: The builtin command "times" now uses getrusage(2) instead of
+	times(2) and thus gets a microsecond resolution (at least on OpenSolaris,
+	you really get that resolution) instead of just 10ms.
+
+-	Bourne Shell: a new option "set -o time" enables automatic timing for
+	commands. The current implementation only supports basic test code for
+	external commands and built-ins. TIMEFORMAT does not yet work, the output
+	format is based in the shell builtin times(1) but the minutes are omitted
+	in case that they are zero; future versions will allow to configure the
+	output format via $TIMEFORMAT
+
+-	Bourne Shell: The shell variable TIMEFORMAT= was introduced in preparation
+	of the future configurable time format.
+
+
+-	The following builtins (that are available in bsh) are still missing in
+	the Bourne Shell:
+
+	err			echo with output going to stderr
+	glob			echo with '\0' instead of ' ' between args
+	env			a builtin version of /usr/bin/env
+
+	The following bsh intrinsics are still missing in the Bourne Shell:
+
+	-			A method to add matching aliases to the history
+				in order to allow to edit them via the command
+				line history editor.
+
+	-			the restricted bsh has restriction features that
+				are missing in the Bourne shell.
+
+	-			bsh by default uses the prompt:
+
+					"<hostname> <username> >"
+
+	and probably more features not yet identified to be bsh unique.
+
+
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.net, js@cs.tu-berlin.de
+	joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

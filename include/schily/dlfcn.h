@@ -1,8 +1,8 @@
-/* @(#)dlfcn.h	1.3 15/01/04 Copyright 2009 J. Schilling */
+/* @(#)dlfcn.h	1.4 15/07/13 Copyright 2015 J. Schilling */
 /*
  *	Abstraction from dlfcn.h
  *
- *	Copyright (c) 2009 J. Schilling
+ *	Copyright (c) 2015 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -89,13 +89,13 @@ extern "C" {
 #endif
 
 #ifndef	HAVE_DLOPEN
-extern	void	*dlopen	__PR((const char *pathname, int mode));
+extern	void	*dlopen	__PR((const char *__pathname, int mode));
 #endif
 #ifndef	HAVE_DLCLOSE
-extern	int	dlclose	__PR((void *handle));
+extern	int	dlclose	__PR((void *__handle));
 #endif
 #ifndef	HAVE_DLSYM
-extern	void	*dlsym	__PR((void  *handle, const char *name));
+extern	void	*dlsym	__PR((void  *__handle, const char *name));
 #endif
 #ifndef	HAVE_DLERROR
 extern	const char *dlerror __PR((void));

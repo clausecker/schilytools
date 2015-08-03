@@ -1,8 +1,8 @@
-/* @(#)isoinfo.c	1.93 15/01/27 joerg */
+/* @(#)isoinfo.c	1.95 15/07/22 joerg */
 #include <schily/mconfig.h>
 #ifndef	lint
 static	UConst char sccsid[] =
-	"@(#)isoinfo.c	1.93 15/01/27 joerg";
+	"@(#)isoinfo.c	1.95 15/07/22 joerg";
 #endif
 /*
  * File isodump.c - dump iso9660 directory information.
@@ -852,6 +852,9 @@ static	BOOL		isfirst = TRUE;
 
 	switch (fstat_buf.st_mode & S_IFMT) {
 
+#ifndef	HAVE_MKNOD
+	err:
+#endif
 	default:
 			errmsgno(EX_BAD,
 				"Unsupported file type %0lo for '%s'.\n",
@@ -861,6 +864,9 @@ static	BOOL		isfirst = TRUE;
 		
 
 	case S_IFDIR:
+#ifdef	__MINGW32__
+#define	mkdir(n, m)	mkdir(n)
+#endif
 			if (mkdir(fname, fstat_buf.st_mode) < 0 &&
 			    geterrno() != EEXIST)
 				errmsg("Cannot make directory '%s'.\n", fname);
@@ -868,27 +874,43 @@ static	BOOL		isfirst = TRUE;
 
 #ifdef	S_IFBLK
 	case S_IFBLK:
+#ifdef	HAVE_MKNOD
 			if (mknod(fname, fstat_buf.st_mode, fstat_buf.st_rdev) < 0)
 				errmsg("Cannot make block device '%s'.\n", fname);
 			goto setmode;
+#else
+			goto err;
+#endif
 #endif
 #ifdef	S_IFCHR
 	case S_IFCHR:
+#ifdef	HAVE_MKNOD
 			if (mknod(fname, fstat_buf.st_mode, fstat_buf.st_rdev) < 0)
 				errmsg("Cannot make character device '%s'.\n", fname);
 			goto setmode;
+#else
+			goto err;
+#endif
 #endif
 #ifdef	S_IFIFO
 	case S_IFIFO:
+#ifdef	HAVE_MKFIFO
 			if (mkfifo(fname, fstat_buf.st_mode) < 0)
 				errmsg("Cannot make fifo '%s'.\n", fname);
 			goto setmode;
+#else
+			goto err;
+#endif
 #endif
 #ifdef	S_IFSOCK
 	case S_IFSOCK:
+#ifdef	HAVE_MKNOD
 			if (mknod(fname, fstat_buf.st_mode, 0) < 0)
 				errmsg("Cannot make socket '%s'.\n", fname);
 			goto setmode;
+#else
+			goto err;
+#endif
 #endif
 #ifdef	S_IFLNK
 	case S_IFLNK:

@@ -31,30 +31,30 @@
 #define	_NAME_H
 
 /*
- * This file contains modifications Copyright 2009-2012 J. Schilling
- * @(#)name.h	1.5 12/04/22 2009-2012 J. Schilling
+ * Copyright 2009-2015 J. Schilling
+ * @(#)name.h	1.6 15/07/09 2009-2015 J. Schilling
  */
 /*
  *	UNIX shell
  */
 
 
-#define	N_ENVCHG 0020
-#define	N_RDONLY 0010
-#define	N_EXPORT 0004
-#define	N_ENVNAM 0002
-#define	N_FUNCTN 0001
+#define	N_ENVCHG 0020			/* This was changed after env import */
+#define	N_RDONLY 0010			/* This node is read-only forever */
+#define	N_EXPORT 0004			/* This node will be exported to env */
+#define	N_ENVNAM 0002			/* This node was imported from env */
+#define	N_FUNCTN 0001			/* This is a function, not a param */
 
-#define	N_DEFAULT 0
+#define	N_DEFAULT 0			/* No attributes (yet) */
 
 struct namnod
 {
-	struct namnod	*namlft;
-	struct namnod	*namrgt;
-	unsigned char	*namid;
-	unsigned char	*namval;
-	unsigned char	*namenv;
-	int	namflg;
+	struct namnod	*namlft;	/* Left name tree */
+	struct namnod	*namrgt;	/* Right name tree */
+	unsigned char	*namid;		/* Node name, e.g. "HOME" */
+	unsigned char	*namval;	/* Node value, e.g. "/home/joe" */
+	unsigned char	*namenv;	/* Imported value or function node */
+	int		namflg;		/* Flags, see above */
 };
 
 #endif /* _NAME_H */

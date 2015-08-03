@@ -34,16 +34,16 @@
 #endif
 
 /*
- * This file contains modifications Copyright 2008-2015 J. Schilling
+ * Copyright 2008-2015 J. Schilling
  *
- * @(#)ulimit.c	1.16 15/07/03 2008-2015 J. Schilling
+ * @(#)ulimit.c	1.19 15/07/18 2008-2015 J. Schilling
  */
 #ifdef	SCHILY_INCLUDES
 #include <schily/mconfig.h>
 #endif
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)ulimit.c	1.16 15/07/03 2008-2015 J. Schilling";
+	"@(#)ulimit.c	1.19 15/07/18 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -97,6 +97,35 @@ static struct rlimtab {
 #ifdef	RLIMIT_VMEM
 {	RLIMIT_VMEM,	"memory",	"kbytes",	'v', 1024,	},
 #endif
+#ifdef	RLIMIT_AS
+{	RLIMIT_AS,	"addressspace",	"kbytes",	'M', 1024,	},
+#endif
+#ifdef	RLIMIT_NICE
+{	RLIMIT_NICE,	"schedpriority", "nice",	'e', 1,	},
+#endif
+#ifdef	RLIMIT_SIGPENDING
+{	RLIMIT_SIGPENDING, "sigpending", "count",	'i', 1,	},
+#endif
+#ifdef	RLIMIT_NPTS
+{	RLIMIT_NPTS,	"npty",		 "count",	'P', 1,	},
+#endif
+#ifdef	RLIMIT_MSGQUEUE
+{	RLIMIT_MSGQUEUE, "messagequeues", "count",	'q', 1,	},
+#endif
+#ifdef	RLIMIT_RTPRIO
+{	RLIMIT_RTPRIO,	"rtpriority",	"nice",		'r', 1,	},
+#endif
+#ifdef	RLIMIT_SWAP
+{	RLIMIT_SWAP,	"swap",		"kbytes",	'S', 1024,	},
+#endif
+#ifdef	RLIMIT_RTTIME
+{	RLIMIT_RTTIME,	"rttime",	"usec",		'R', 1,	},
+#endif
+#ifdef	RLIMIT_LOCKS
+{	RLIMIT_LOCKS,	"locks",	"count",	'L', 1,	},
+/* bash compat: -x */
+{	RLIMIT_LOCKS,	"locks",	"count",	'x', 1,	},
+#endif
 {	0,		NULL,		NULL,		0, 0,	},
 };
 
@@ -133,7 +162,7 @@ sysulimit(argc, argv)
 	soft = 0;
 	cnt = 0;
 
-	while ((c = getopt(argc, argv, "HSacdflmnstuv")) != -1) {
+	while ((c = getopt(argc, argv, "HSacdefilmnqrstuvxLMPR")) != -1) {
 		switch (c) {
 		case 'S':
 			soft++;

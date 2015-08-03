@@ -36,13 +36,13 @@
 #include "defs.h"
 
 /*
- * This file contains modifications Copyright 2008-2015 J. Schilling
+ * Copyright 2008-2015 J. Schilling
  *
- * @(#)jobs.c	1.38 15/07/02 2008-2015 J. Schilling
+ * @(#)jobs.c	1.60 15/07/29 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)jobs.c	1.38 15/07/02 2008-2015 J. Schilling";
+	"@(#)jobs.c	1.60 15/07/29 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -56,6 +56,8 @@ static	UConst char sccsid[] =
 #include	<schily/param.h>
 #include	<schily/fcntl.h>
 #include	<schily/errno.h>
+#include	<schily/times.h>
+#include	<schily/resource.h>
 #else
 #include	<sys/termio.h>
 #include	<sys/types.h>
@@ -63,6 +65,7 @@ static	UConst char sccsid[] =
 #include	<sys/param.h>
 #include	<fcntl.h>
 #include	<errno.h>
+#include	<sys/resource.h>
 #endif
 
 #ifndef	WCONTINUED
@@ -90,6 +93,9 @@ static	UConst char sccsid[] =
 #define	WNOWAIT		0
 #endif
 
+#ifdef	FORCE_WAITID		/* Allow to enforce using waitid() to test */
+#define	HAVE_WAITID		/* platforms where waitid() was considered */
+#endif				/* unasable by "configure" .		   */
 #ifdef	NO_WAITID
 #undef	HAVE_WAITID
 #endif
@@ -102,11 +108,15 @@ static	UConst char sccsid[] =
 #undef	si_code
 #undef	si_pid
 #undef	si_status
+#undef	si_utime
+#undef	si_stime
 
 typedef struct {
 	int	si_code;	/* Child status code */
 	pid_t	si_pid;		/* Child pid */
 	int	si_status;	/* Child exit code or signal number */
+	clock_t	si_utime;
+	clock_t	si_stime;
 } my_siginfo_t;
 
 #define	siginfo_t	my_siginfo_t
@@ -123,6 +133,10 @@ struct job
 	struct job *j_nxtp;	/* next job in job ID order */
 	struct job *j_curp;	/* next job in job currency order */
 	struct termios j_stty;	/* termio save area when job stops */
+#ifdef	DO_TIME
+	struct timeval j_start;	/* job start time */
+	struct rusage j_rustart; /* resource usage at start of job */
+#endif
 	pid_t	j_pid;		/* job leader's process ID */
 	pid_t	j_pgid;		/* job's process group ID */
 	pid_t	j_tgid;		/* job's foreground process group ID */
@@ -146,6 +160,7 @@ struct job
 #define	J_DONE		0040	/* job has finished */
 #define	J_RUNNING	0100	/* job is currently running */
 #define	J_FOREGND	0200	/* job was put in foreground by shell */
+#define	J_BLTIN		0400	/* job was a shell builtin */
 
 static struct codename {
 	int	c_code;		/* The si_code value */
@@ -156,7 +171,9 @@ static struct codename {
 	{ CLD_DUMPED,	"DUMPED" },	/* Killed child dumped core */
 	{ CLD_TRAPPED,	"TRAPPED" },	/* Traced child has stopped */
 	{ CLD_STOPPED,	"STOPPED" },	/* Child has stopped on signal */
-	{ CLD_CONTINUED, "CONTINUED" }	/* Stopped child was continued */
+	{ CLD_CONTINUED, "CONTINUED" },	/* Stopped child was continued */
+	{ C_NOEXEC,	"NOEXEC" },	/* No exec permissions on file */
+	{ C_NOTFOUND,	"NOTFOUND" }	/* File not found */
 };
 #define	CODENAMESIZE	(sizeof (_codename) / sizeof (_codename[0]))
 
@@ -207,21 +224,36 @@ static void	restartjob	__PR((struct job *jp, int fg));
 static void	printjob	__PR((struct job *jp, int propts));
 	void	startjobs	__PR((void));
 	int	endjobs		__PR((int check_if));
-	void	deallocjob	__PR((void));
+	void	deallocjob	__PR((struct job *jp));
 	void	allocjob	__PR((char *cmdp,
 					unsigned char *cwdp, int monitor));
 	void	clearjobs	__PR((void));
 	void	makejob		__PR((int monitor, int fg));
-	void	postjob		__PR((pid_t pid, int fg));
+	struct job *
+		postjob		__PR((pid_t pid, int fg, int blt));
 	void	sysjobs		__PR((int argc, char *argv[]));
 	void	sysfgbg		__PR((int argc, char *argv[]));
 	void	syswait		__PR((int argc, char *argv[]));
-static void	sigv		__PR((char *cmdp, int sig, char *args));
+#define	F_KILL		1
+#define	F_KILLPG	2
+#define	F_PGRP		3
+#define	F_SUSPEND	4
+static void	sigv		__PR((char *cmdp, int sig, int f, char *args));
 	void	sysstop		__PR((int argc, char *argv[]));
 	void	syskill		__PR((int argc, char *argv[]));
 	void	syssusp		__PR((int argc, char *argv[]));
+#ifdef	DO_SYSPGRP
+static void	pr_pgrp		__PR((pid_t pid, pid_t pgrp, pid_t sgrp));
+	void	syspgrp		__PR((int argc, char *argv[]));
+#endif
 	pid_t	wait_status	__PR((pid_t id,
 					int *codep, int *statusp, int opts));
+#ifdef	DO_TIME
+	void	prtime		__PR((struct job *jp));
+#endif
+#ifndef	HAVE_GETRUSAGE
+	int	getrusage	__PR((int who, struct rusage *r_usage));
+#endif
 #ifndef	HAVE_WAITID
 static	int	waitid		__PR((idtype_t idtype, id_t id,
 					siginfo_t *infop, int opts));
@@ -470,15 +502,22 @@ statjob(jp, si, fg, rc)
 		}
 	}
 	if (rc) {
-		ex.ex_status = exitval = jp->j_xval;
-		ex.ex_code = jp->j_xcode;
-		ex.ex_pid = si->si_pid;
+		/*
+		 * First check whether we have a prefilled exit code
+		 * from a previous vfork()d child that matches this child.
+		 */
+		if (ex.ex_code < C_NOEXEC || ex.ex_pid != si->si_pid) {
+			ex.ex_status = exitval = jp->j_xval;
+			ex.ex_code = jp->j_xcode;
+			ex.ex_pid = si->si_pid;
+		}
 #ifdef	SIGCHLD
 		ex.ex_signo = SIGCHLD;
 #else
 		ex.ex_signo = 1000;	/* Need to distinct this from builtin */
 #endif
-		exitval &= 0xFF;	/* As dumb as with historic wait */
+		if ((flags2 & fullexitcodeflg) == 0)
+			exitval &= 0xFF; /* As dumb as with historic wait */
 		if (jp->j_flag & J_SIGNALED)
 			exitval |= SIGFLG;
 		else if (ex.ex_status != 0 && exitval == 0)
@@ -536,7 +575,7 @@ freejobs()
 	collectjobs(WNOHANG);
 
 	if (jobnote) {
-		int save_fd = setb(2);
+		int save_fd = setb(STDERR_FILENO);
 		for (jp = joblst; jp; jp = jp->j_nxtp) {
 			if (jp->j_flag & J_NOTIFY) {
 				if (jp->j_jid)
@@ -572,6 +611,10 @@ waitjob(jp)
 	int		ret = 0;
 	int		err = 0;
 
+#ifdef	DO_TIME
+	getrusage(RUSAGE_CHILDREN, &jp->j_rustart);
+#endif
+
 	if ((flags & (monitorflg|jcflg|jcoff)) == (monitorflg|jcflg))
 		wflags = WUNTRACED;
 	else
@@ -592,12 +635,25 @@ waitjob(jp)
 		 */
 	} while (si.si_pid != pid);
 
-	jdone = statjob(jp, &si, 1, 1);	/* Sets exitval, see below */
+#if	WNOWAIT != 0
 	/*
 	 * Avoid hang on FreeBSD, so wait/reap here only for died children.
 	 */
-	if (si.si_code != CLD_STOPPED && si.si_code != CLD_TRAPPED)
-		waitid(P_PID, pid, &si, wflags);
+	if (si.si_code != CLD_STOPPED && si.si_code != CLD_TRAPPED) {
+		siginfo_t	si2;
+
+		waitid(P_PID, pid, &si2, wflags);
+		si.si_utime = si2.si_utime;
+		si.si_stime = si2.si_stime;
+	}
+#endif
+	jdone = statjob(jp, &si, 1, 1);	/* Sets exitval, see below */
+
+#ifdef	DO_TIME
+	if (flags2 & timeflg)
+		prtime(jp);
+#endif
+
 	if (jdone && exitval && (flags & errflg))
 		exitsh(exitval);
 	flags |= eflag;
@@ -611,13 +667,13 @@ static int
 settgid(new, expected)
 pid_t new, expected;
 {
-	pid_t current = tcgetpgrp(0);
+	pid_t current = tcgetpgrp(STDIN_FILENO);
 
 	if (current != expected)
 		return (current);
 
 	if (new != current)
-		tcsetpgrp(0, new);
+		tcsetpgrp(STDIN_FILENO, new);
 
 	return (0);
 }
@@ -777,7 +833,8 @@ startjobs()
 {
 	svpgid = mypgid;
 
-	if (tcgetattr(0, &mystty) == -1 || (svtgid = tcgetpgrp(0)) == -1) {
+	if (tcgetattr(0, &mystty) == -1 ||
+	    (svtgid = tcgetpgrp(STDIN_FILENO)) == -1) {
 		flags &= ~jcflg;
 		return;
 	}
@@ -788,9 +845,9 @@ startjobs()
 	handle(SIGTSTP, SIG_DFL);
 
 	if (mysid != mypgid) {
-		setpgid(0, 0);
-		mypgid = mypid;
-		(void) settgid(mypgid, svpgid);
+		setpgid(0, 0);		/* Make me a process group leader */
+		mypgid = mypid;		/* and remember my new pgid	  */
+		(void) settgid(mypgid, svpgid);	/* and set up my tty pgrp */
 	}
 }
 
@@ -832,15 +889,24 @@ int check_if;
 }
 
 /*
- * called by the shell to reserve a job slot for a job about to be spawned
+ * Called by the shell to destroy a job slot from allocjob() if spawn failed.
+ * We need to check whether we really need to have the jp parameter for
+ * timing of builtin commands.
  */
 void
-deallocjob()
+deallocjob(jp)
+	struct job	*jp;
 {
-	free(thisjob);
+	if (jp == NULL)
+		jp = thisjob;
+	free(jp);
 	jobcnt--;
 }
 
+/*
+ * Called by the shell to reserve a job slot for a job about to be spawned.
+ * Resulting job slot is in "thisjob".
+ */
 void
 allocjob(cmdp, cwdp, monitor)
 	char		*cmdp;
@@ -864,6 +930,7 @@ allocjob(cmdp, cwdp, monitor)
 	strcpy(jp->j_cmd, cmdp);
 	jp->j_pwd = jp->j_cmd + cmdlen;
 	strcpy(jp->j_pwd, (char *)cwdp);
+	jp->j_nxtp = jp->j_curp = NULL;
 
 	jpp = &joblst;
 
@@ -906,7 +973,7 @@ makejob(monitor, fg)
 		mypgid = mypid;
 		setpgid(0, 0);
 		if (fg)
-			tcsetpgrp(0, mypid);
+			tcsetpgrp(STDIN_FILENO, mypid);
 		handle(SIGTTOU, SIG_DFL);
 		handle(SIGTSTP, SIG_DFL);
 	} else if (!fg) {
@@ -917,7 +984,8 @@ makejob(monitor, fg)
 		handle(SIGINT,  SIG_IGN);
 		handle(SIGQUIT, SIG_IGN);
 		if (!ioset)
-			renamef(chkopen((unsigned char *)devnull, 0), 0);
+			renamef(chkopen((unsigned char *)devnull, O_RDONLY),
+					STDIN_FILENO);
 	}
 }
 
@@ -925,17 +993,20 @@ makejob(monitor, fg)
  * called by the shell after job has been spawned, to fill in the
  * job slot, and wait for the job if in the foreground
  */
-void
-postjob(pid, fg)
-pid_t pid;
-int fg;
+struct job *
+postjob(pid, fg, blt)
+	pid_t	pid;	/* The pid of the new job			*/
+	int	fg;	/* Whether this is a foreground job		*/
+	int	blt;	/* Whether this is a temp slot for a builtin	*/
 {
 	int propts;
 
-	thisjob->j_nxtp = *nextjob;
-	*nextjob = thisjob;
-	thisjob->j_curp = jobcur;
-	jobcur = thisjob;
+	if (!blt) {	/* Do not connect slots for builtin commands	*/
+		thisjob->j_nxtp = *nextjob;
+		*nextjob = thisjob;
+		thisjob->j_curp = jobcur;
+		jobcur = thisjob;
+	}
 
 	if (thisjob->j_jid) {
 		thisjob->j_pgid = pid;
@@ -945,6 +1016,9 @@ int fg;
 		propts = PR_PGID;
 	}
 
+#ifdef	DO_TIME
+	gettimeofday(&thisjob->j_start, NULL);
+#endif
 	thisjob->j_flag = J_RUNNING;
 	thisjob->j_tgid = thisjob->j_pgid;
 	thisjob->j_pid = pid;
@@ -952,12 +1026,20 @@ int fg;
 
 	if (fg) {
 		thisjob->j_flag |= J_FOREGND;
-		waitjob(thisjob);
+		if (blt) {
+			thisjob->j_flag |= J_BLTIN;
+#ifdef	DO_TIME
+			getrusage(RUSAGE_SELF, &thisjob->j_rustart);
+#endif
+		} else {
+			waitjob(thisjob);
+		}
 	} else  {
 		if (flags & ttyflg)
 			printjob(thisjob, propts);
 		assnum(&pcsadr, (long)pid);
 	}
+	return (thisjob);
 }
 
 /*
@@ -1119,9 +1201,10 @@ char *argv[];
 }
 
 static void
-sigv(cmdp, sig, args)
+sigv(cmdp, sig, f, args)
 	char	*cmdp;
 	int	sig;
+	int	f;
 	char	*args;
 {
 	int pgrp = 0;
@@ -1152,19 +1235,54 @@ sigv(cmdp, sig, args)
 		}
 	}
 
+#ifdef	DO_SYSPGRP
+	if (f == F_PGRP) {
+		pid_t	pgid = getpgid(id);
+
+		if (pgid == (pid_t)-1) {
+			flushb();
+			failure((unsigned char *)cmdp, "cannot get pgid");
+		} else {
+			pid_t	sgrp = (pid_t)-1;
+
+#ifdef	HAVE_GETSID
+			sgrp = getsid(id);
+#endif
+			pr_pgrp(id, pgid, sgrp);
+		}
+		return;
+	}
+#endif
+
 	if (sig == SIGSTOP) {
+		/*
+		 * If the id equals our session group id, this is the id
+		 * of the session group leader and thus the login shell.
+		 *
+		 * If the id equals our process id and our process group id
+		 * equals our session group id, we are the login shell.
+		 */
 		if (id == mysid || (id == mypid && mypgid == mysid)) {
 			failure((unsigned char *)cmdp, loginsh);
 			return;
 		}
+
+		/*
+		 * If the id equals our process group id and our process group
+		 * id differs from our saved process group id, we are not the
+		 * login shell, but need to restore the previous process
+		 * group id first.
+		 */
 		if (id == mypgid && mypgid != svpgid) {
 			(void) settgid(svtgid, mypgid);
 			setpgid(0, svpgid);
 			stopme++;
+			if (f == F_SUSPEND)	/* Called by the suspend cmd */
+				id = svpgid;	/* Stop our caller as well */
 		}
 	}
 
-	if (pgrp)
+	if (pgrp || f == F_KILLPG)
 		id = -id;
 
 	if (kill(id, sig) < 0) {
@@ -1209,7 +1327,7 @@ sysstop(argc, argv)
 		return;
 	}
 	while (*++argv)
-		sigv(cmdp, SIGSTOP, *argv);
+		sigv(cmdp, SIGSTOP, F_KILL, *argv);
 }
 
 void
@@ -1219,11 +1337,13 @@ syskill(argc, argv)
 {
 	char *cmdp = *argv;
 	int sig = SIGTERM;
+	int	pg;
 
 	if (argc == 1) {
 		gfailure((unsigned char *)usage, killuse);
 		return;
 	}
+	pg = eq("killpg", cmdp);
 
 	if (argv[1][0] == '-') {
 
@@ -1278,7 +1398,7 @@ syskill(argc, argv)
 	}
 
 	while (*++argv)
-		sigv(cmdp, sig, *argv);
+		sigv(cmdp, sig, pg ? F_KILLPG : F_KILL, *argv);
 }
 
 void
@@ -1288,8 +1408,55 @@ syssusp(argc, argv)
 {
 	if (argc != 1)
 		failed((unsigned char *)argv[0], badopt);
-	sigv(argv[0], SIGSTOP, "0");
+	sigv(argv[0], SIGSTOP, F_SUSPEND, "0");
 }
+
+#ifdef	DO_SYSPGRP
+static void
+pr_pgrp(pid, pgrp, sgrp)
+	pid_t	pid;
+	pid_t	pgrp;
+	pid_t	sgrp;
+{
+	prs_buff(UC "pid: ");
+	prs_buff(&numbuf[ltos((long)pid)]);
+	prs_buff(UC " processgroup: ");
+	prs_buff(&numbuf[ltos((long)pgrp)]);
+	if (sgrp != (pid_t)-1) {
+		prs_buff(UC " sessiongroup: ");
+		prs_buff(&numbuf[ltos((long)sgrp)]);
+	}
+	prc_buff(NL);
+}
+
+void
+syspgrp(argc, argv)
+	int	argc;
+	char	*argv[];
+{
+	char *cmdp = *argv;
+
+	if (argc == 1) {
+		pid_t	pgrp = tcgetpgrp(STDIN_FILENO);
+		pid_t	sgrp = (pid_t)-1;
+
+#ifdef	HAVE_GETSID
+		sgrp = getsid(0);
+#endif
+		prs_buff(UC "ttyprocessgroup: ");
+		prs_buff(&numbuf[ltos((long)pgrp)]);
+		prc_buff(NL);
+		pr_pgrp(mypid, mypgid, sgrp);
+		return;
+	}
+#if	!defined(HAVE_GETPGID) && !defined(HAVE_BSD_GETPGRP)
+	failure((unsigned char *)cmdp, unimplemented);
+#else
+	while (*++argv)
+		sigv(cmdp, 0, F_PGRP, *argv);
+#endif
+}
+#endif
 
 void
 hupforegnd()
@@ -1353,6 +1520,78 @@ wait_status(pid, codep, statusp, opts)
 	return (si.si_pid);
 }
 
+#ifdef	DO_TIME
+void
+prtime(jp)
+	struct job	*jp;
+{
+	struct timeval	stop;
+	struct rusage	rustop;
+	UIntmax_t	cpu;
+	UIntmax_t	per;
+	int		save_fd = setb(STDERR_FILENO);
+
+	gettimeofday(&stop, NULL);
+	if (jp->j_flag & J_BLTIN)
+		getrusage(RUSAGE_SELF, &rustop);
+	else
+		getrusage(RUSAGE_CHILDREN, &rustop);
+
+	timersub(&stop, &jp->j_start);
+	timersub(&rustop.ru_utime, &jp->j_rustart.ru_utime);
+	timersub(&rustop.ru_stime, &jp->j_rustart.ru_stime);
+
+	cpu =  rustop.ru_utime.tv_sec*1000 + rustop.ru_utime.tv_usec/1000;
+	cpu += rustop.ru_stime.tv_sec*1000 + rustop.ru_stime.tv_usec/1000;
+	per = stop.tv_sec*1000 + stop.tv_usec/1000;
+	if (per < 1)
+		per = 1;
+	per = 100 * cpu / per;
+
+	prc_buff('r');
+	prtv(&stop, FALSE);
+	prc_buff(SPACE);
+	prc_buff('u');
+	prtv(&rustop.ru_utime, FALSE);
+	prc_buff(SPACE);
+	prc_buff('s');
+	prtv(&rustop.ru_stime, FALSE);
+	prc_buff(SPACE);
+	prull_buff(per);
+	prc_buff('%');
+	prc_buff(NL);
+	flushb();
+
+	(void) setb(save_fd);
+}
+#endif	/* DO_TIME */
+
+#ifndef	HAVE_GETRUSAGE
+int
+getrusage(who, r_usage)
+	int		who;
+	struct rusage	*r_usage;
+{
+	int		ret = -1;
+#ifdef	HAVE_TIMES
+	struct tms	tms;
+
+	times(&tms);
+#endif
+	memset(r_usage, 0, sizeof (*r_usage));
+#ifdef	HAVE_TIMES
+	if (who == RUSAGE_SELF) {
+		clock2tv(tms.tms_utime, &r_usage->ru_utime);
+		clock2tv(tms.tms_stime, &r_usage->ru_stime);
+	} else if (who == RUSAGE_CHILDREN) {
+		clock2tv(tms.tms_cutime, &r_usage->ru_utime);
+		clock2tv(tms.tms_cstime, &r_usage->ru_stime);
+	}
+#endif
+	return (ret);
+}
+#endif	/* HAVE_GETRUSAGE */
+
 #ifndef	HAVE_WAITID
 static int
 waitid(idtype, id, infop, opts)
@@ -1361,8 +1600,11 @@ waitid(idtype, id, infop, opts)
 	siginfo_t	*infop;		/* Must be != NULL */
 	int		opts;
 {
-	int	exstat;
-	pid_t	pid;
+	int		exstat;
+	pid_t		pid;
+#ifdef	__needed__
+	struct tms	tms;
+#endif
 
 	opts &= ~(WEXITED|WTRAPPED);	/* waitpid() doesn't understand them */
 
@@ -1375,6 +1617,13 @@ waitid(idtype, id, infop, opts)
 	else
 		pid = 0;
 
+	infop->si_utime = 0;
+	infop->si_stime = 0;
+#ifdef	__needed__
+	if (WNOWAIT == 0 || (opts & WNOWAIT) == 0) {
+		times(&tms);
+	}
+#endif
 	pid = waitpid(pid, &exstat, opts);
 	infop->si_pid = pid;
 	infop->si_code = 0;
@@ -1382,6 +1631,16 @@ waitid(idtype, id, infop, opts)
 
 	if (pid == (pid_t)-1)
 		return (-1);
+
+#ifdef	__needed__
+	if (WNOWAIT == 0 || (opts & WNOWAIT) == 0) {
+		infop->si_utime = tms.tms_cutime;
+		infop->si_stime = tms.tms_cstime;
+		times(&tms);
+		infop->si_utime = tms.tms_cutime - infop->si_utime;
+		infop->si_stime = tms.tms_cstime - infop->si_stime;
+	}
+#endif
 
 	if (WIFEXITED(exstat)) {
 		infop->si_code = CLD_EXITED;

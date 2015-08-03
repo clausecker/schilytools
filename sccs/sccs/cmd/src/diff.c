@@ -38,10 +38,10 @@
 /*
  * This file contains modifications Copyright 2006-2015 J. Schilling
  *
- * @(#)diff.c	1.41 15/05/05 J. Schilling
+ * @(#)diff.c	1.43 15/07/28 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)diff.c 1.41 15/05/05 J. Schilling"
+#pragma ident "@(#)diff.c 1.43 15/07/28 J. Schilling"
 #endif
 
 #if defined(sun)
@@ -250,10 +250,6 @@
 #define	D_BUFSIZ	(32*1024)
 #endif
 
-#ifndef	HAVE_CFTIME
-#define	cftime(buf, dcmsg, tl)	(strcpy(buf, ctime(tl)), buf[24] = 0)
-#endif
-
 /*
  * In case this is missing in /usr/include/ (e.g. SunOS-4.x)
  */
@@ -326,6 +322,11 @@ static struct dir *setupdir __PR((char *));
 static off_t	ftellbuf __PR((int));
 static wint_t	wcput	__PR((wint_t));
 static wint_t	getbufwchar __PR((int, int *));
+#if !defined(HAVE_CFTIME) && defined(HAVE_STRFTIME)
+static time_t	gmtoff __PR((const time_t *clk));
+#endif
+static void	cf_time	__PR((char *s, size_t maxsize,
+				char *fmt, const time_t *clk));
 
 
 /*
@@ -1037,6 +1038,9 @@ change(a, b, c, d)
 	char	*dcmsg;
 	char	*p;
 
+#if	BUFSIZ < 40	/* 36 should be sufficient */
+	error time buffer too small
+#endif
 	if (opt != D_IFDEF && a > b && c > d)
 		return;
 	if (anychange == 0) {
@@ -1063,7 +1067,8 @@ change(a, b, c, d)
 				dcmsg = dcgettext(NULL, "%a %b %e %T %Y",
 								LC_TIME);
 			}
-			(void) cftime(time_buf, dcmsg, &stb1.st_mtime);
+			cf_time(time_buf, sizeof (time_buf),
+						dcmsg, &stb1.st_mtime);
 			/*
 			 * Be careful here: in the German locale, the string
 			 * contains "So. " for "Sonntag".
@@ -1082,7 +1087,8 @@ change(a, b, c, d)
 			else
 				(void) printf("*** %s	%s\n", input_file1,
 				    time_buf);
-			(void) cftime(time_buf, dcmsg, &stb2.st_mtime);
+			cf_time(time_buf, sizeof (time_buf),
+						dcmsg, &stb2.st_mtime);
 			/*
 			 * Be careful here: in the German locale, the string
 			 * contains "So. " for "Sonntag".
@@ -2671,4 +2677,87 @@ getbufwchar(filen, blen)
 		*blen = chlen;
 		return ((wint_t)wc);
 	}
+}
+
+#if !defined(HAVE_CFTIME) && defined(HAVE_STRFTIME)
+static time_t
+gmtoff(clk)
+	const time_t	*clk;
+{
+	struct tm	local;
+	struct tm	gmt;
+	time_t		crtime;
+
+	local = *localtime(clk);
+	gmt   = *gmtime(clk);
+
+	local.tm_sec  -= gmt.tm_sec;
+	local.tm_min  -= gmt.tm_min;
+	local.tm_hour -= gmt.tm_hour;
+	local.tm_yday -= gmt.tm_yday;
+	local.tm_year -= gmt.tm_year;
+	if (local.tm_year)		/* Hit new-year limit	*/
+		local.tm_yday = local.tm_year;	/* yday = +-1	*/
+
+	crtime = local.tm_sec + 60 *
+		    (local.tm_min + 60 *
+			(local.tm_hour + 24 * local.tm_yday));
+
+	return (crtime);
+}
+#endif
+
+# define DO2(p,n,c)	*p++ = ((char) ((n)/10) + '0'); *p++ = ( (char) ((n)%10) + '0'); *p++ = c;
+# define DO2_(p,n)	*p++ = ((char) ((n)/10) + '0'); *p++ = ( (char) ((n)%10) + '0');
+
+static void
+cf_time(s, maxsize, fmt, clk)
+	char		*s;
+	size_t		maxsize;
+	char		*fmt;
+	const time_t	*clk;
+{
+#ifdef	HAVE_CFTIME
+	cftime(s, fmt, clk);
+#else
+#ifdef	HAVE_STRFTIME
+	struct	tm	*tp = localtime(clk);
+	char		*p;
+
+	strftime(s, maxsize, fmt, tp);
+	/*
+	 * HP/UX implements %z as %Z and we need to correct this...
+	 */
+	p = strchr(s, ' ');
+	if (p) {
+		p = strchr(++p, ' ');
+		if (p++) {
+			if (*p != '+' && *p != '-') {
+				register int	z;
+				register int	n;
+
+				z = gmtoff(clk) / 60;	/* seconds -> minutes */
+				if (z < 0) {
+					*p++ = '-';
+					z = -z;
+				} else {
+					*p++ = '+';
+				}
+				n = z / 60;
+				DO2_(p, n);
+				n = z % 60;
+				DO2(p, n, 0);
+			}
+		}
+	}
+#else
+	/*
+	 * This is not the correct time format, but we are not on a POSIX
+	 * platform and need to do the best we can.
+	 */
+	strlcpy(s, ctime(clk), maxsize);
+	if (maxsize > 24)
+		s[24] = '\0';
+#endif
+#endif
 }

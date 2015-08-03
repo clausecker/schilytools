@@ -1,4 +1,4 @@
-#ident "@(#)Makefile	1.53 15/07/03  Copyright (c) 2006-2015 J. Schilling"
+#ident "@(#)Makefile	1.69 15/07/27  Copyright (c) 2006-2015 J. Schilling"
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -42,12 +42,26 @@ CPPOPTS +=	-DDO_SET_O		# Include support for set -o
 CPPOPTS +=	-DDO_MULTI_OPT		# Include support for sh -v -x / set -v -x
 CPPOPTS +=	-DDO_UMASK_S		# Include support for umask -S
 CPPOPTS +=	-DDO_POSIX_FOR		# Support for i; do .... with semicolon
+CPPOPTS +=	-DDO_POSIX_TYPE		# Report keywords as well
 CPPOPTS +=	-DDO_PIPE_SEMI_SYNTAX_E	# Report a syntax error for "echo foo |;"
 CPPOPTS +=	-DDO_READ_ALLEXPORT	# Bugfix for set -a; read VAR
 CPPOPTS +=	-DDO_SIGNED_EXIT	# Allow negative exit(1) parameters
 CPPOPTS +=	-DDO_DOT_SH_PARAMS	# Include support for ${.sh.xxx} parapeters
+CPPOPTS +=	-DDO_POSIX_EXIT		# Use POSIX exit codes 126/127
+CPPOPTS +=	-DDO_TILDE		# Include support for tilde expansion
+CPPOPTS +=	-DDO_TIME		# Include support for set -o time
+CPPOPTS +=	-DDO_FULLEXCODE		# Include support for set -o fullexitcode
+CPPOPTS +=	-DDO_FDPIPE		# Include support for 2| for stderr pipe
 CPPOPTS +=	-DDO_KILL_L_SIG		# Include support for kill -l signo
 CPPOPTS +=	-DDO_ULIMIT_OPTS	# Add options to the ulimit(1) output
+CPPOPTS +=	-DDO_SYSBUILTIN		# Include the "builtin" builtin
+CPPOPTS +=	-DDO_SYSATEXPR		# Include the "@" builtin
+CPPOPTS +=	-DDO_SYSSYNC		# Include the "sync" builtin
+CPPOPTS +=	-DDO_SYSPGRP		# Include the "pgrp" builtin
+CPPOPTS +=	-DDO_SYSKILLPG		# Include the "killpg" builtin
+CPPOPTS +=	-DDO_SYSERRSTR		# Include the "errstr" builtin
+CPPOPTS +=	-DDO_SYSFIND		# Include the "find" builtin
+LIB_FIND +=	-lfind			# Add libfind
 
 #CPPOPTS +=	-DPARSE_DEBUG		# Include debug code/messages for parser
 #CPPOPTS +=	-DSTAK_DEBUG		# Include debug code for stak.c
@@ -59,6 +73,7 @@ CPPOPTS +=	-DTOSSGROWING_MACRO	# Make stak.c::tossgrowing() a macro
 
 
 CPPOPTS +=	-DINTERACTIVE		# Include command line history editor
+CPPOPTS +=	-DINT_DOLMINUS		# Auto set -i for interactive shell
 
 #CPPOPTS +=	-DNO_SIGSEGV		# Do not install a SIGSEGV handler for debug
 
@@ -66,7 +81,7 @@ CFILES=		abbrev.c args.c bltin.c cmd.c ctype.c defs.c echo.c error.c \
 		expand.c fault.c func.c hash.c hashserv.c io.c jobs.c macro.c \
 		main.c msg.c name.c print.c pwd.c service.c \
 		sh_policy.c stak.c string.c test.c ulimit.c word.c xec.c \
-		signames.c gmatch.c umask.c alias.c
+		signames.c gmatch.c umask.c alias.c builtin.c find.c
 
 HFILES=		abbrev.h ctype.h defs.h dup.h hash.h mac.h mode.h name.h \
 		sh_policy.h stak.h sym.h timeout.h version.h
@@ -74,8 +89,10 @@ HFILES=		abbrev.h ctype.h defs.h dup.h hash.h mac.h mode.h name.h \
 # -lgen		fuer gmatch()
 # -lsecdb	fuer getexecuser() free_execattr()
 #
-LIBS=		$(LIB_GEN) $(LIB_SECDB) -lshelledit -lxtermcap -lgetopt -lschily \
-		$(LIB_INTL)
+LIBS=		$(LIB_GEN) $(LIB_SECDB) -lshelledit -lxtermcap -lgetopt \
+		$(LIB_FIND) \
+		-lschily \
+		$(LIB_INTL) $(LIB_DL)
 #LIBS=		-lgen -lsecdb 
 XMK_FILE=	Makefile.man bosh.mk1 jsh.mk1 pfsh.mk1
 

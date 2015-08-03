@@ -39,7 +39,7 @@
 /*
  * Copyright 2008-2015 J. Schilling
  *
- * @(#)defs.h	1.70 15/07/05 2008-2015 J. Schilling
+ * @(#)defs.h	1.95 15/07/28 2008-2015 J. Schilling
  */
 
 #ifdef	__cplusplus
@@ -63,10 +63,19 @@ extern "C" {
 #define		ENV_NOFREE	01
 
 /* error exits from various parts of shell */
-#define		ERROR		1
-#define		SYNBAD		2
+#define		ERROR		1	/* Standard shell error/exit code */
+#define		SYNBAD		2	/* Shell error/exit for bad syntax */
 #define		SIGFAIL 	2000
-#define		SIGFLG		0200
+#define		SIGFLG		0200	/* $? == SIGFLG + signo */
+#define		C_NOEXEC	126	/* Shell error/exit for exec error */
+#define		C_NOTFOUND	127	/* Shell error/exit for exec notfound */
+#ifdef	DO_POSIX_EXIT
+#define		ERR_NOEXEC	C_NOEXEC
+#define		ERR_NOTFOUND	C_NOTFOUND
+#else
+#define		ERR_NOEXEC	ERROR
+#define		ERR_NOTFOUND	ERROR
+#endif
 
 /* command tree */
 #define		FPIN		0x0100	/* PIPE from stdin		*/
@@ -89,7 +98,11 @@ extern "C" {
 #define		TFOR		0x00B0	/* for ... do .. done node	*/
 #define		TFND		0x00C0	/* function definition node	*/
 
-/* execute table */
+/*
+ * execute table
+ *
+ * Numbers for builtin commands
+ */
 #define		SYSSET		1
 #define		SYSCD		2
 #define		SYSEXEC		3
@@ -152,23 +165,38 @@ extern "C" {
 
 #define		SYSALLOC	47
 
-#define		SYSMAX		255	/* Must fit into low 8 ENTY.data bits */
+#define		SYSBUILTIN	48
+#define		SYSFIND		49
+#define		SYSEXPR		50
+#define		SYSSYNC		51
+#define		SYSPGRP		52
+#define		SYSERRSTR	53
+
+#define		SYSMAX		255	/* Must fit into low 8 ENTRY.data bits */
+
+/*
+ * Sysnode flags for builtin commands:
+ */
+#define		BLT_SPC		1	/* A special builtin */
+#define		BLT_INT		2	/* A shell intrinsic */
+#define		BLT_DEL		8	/* Builtin was deleted */
 
 /* used for input and output of shell */
 #define		INIO 		19
 
 /* io nodes */
-#define		USERIO		10
-#define		IOUFD		15	/* mask for UNIX file descriptor # */
-#define		IODOC		0x0010
-#define		IOPUT		0x0020
-#define		IOAPP		0x0040
-#define		IOMOV		0x0080
-#define		IORDW		0x0100
-#define		IOSTRIP		0x0200
-#define		IODOC_SUBST	0x0400
-#define		INPIPE		0
-#define		OTPIPE		1
+#define		USERIO		10	/* User definable fds in range 0..9 */
+#define		IOUFD		15	/* mask for UNIX file descriptor #  */
+#define		IODOC		0x0010	/* << here document		    */
+#define		IOPUT		0x0020	/* >  redirection		    */
+#define		IOAPP		0x0040	/* >> redirection		    */
+#define		IOMOV		0x0080	/* <& or >& redirection		    */
+#define		IORDW		0x0100	/* <> redirection open with O_RDWR  */
+#define		IOSTRIP		0x0200	/* <<-word: strip leading tabs	    */
+#define		IODOC_SUBST	0x0400	/* <<\word: no substitution	    */
+
+#define		INPIPE		0	/* Input fd index in pipe fd array  */
+#define		OTPIPE		1	/* Output fd index in pipe fd array */
 
 /* arg list terminator */
 #define		ENDARGS		0
@@ -317,6 +345,7 @@ extern char 		*optarg;
  * args.c
  */
 extern	int		options		__PR((int argc, unsigned char **argv));
+extern	void		setopts		__PR((void));
 extern	void		setargs		__PR((unsigned char *argi[]));
 extern	struct dolnod	*freeargs	__PR((struct dolnod *blk));
 extern	void		clearup		__PR((void));
@@ -355,10 +384,10 @@ extern	int	echo		__PR((int argc, unsigned char **argv));
  * error.c
  */
 extern	void	error		__PR((const char *s)) __NORETURN;
-extern	void	failed_real	__PR((unsigned char *s1,
+extern	void	failed_real	__PR((int err, unsigned char *s1,
 						const char *s2,
 						unsigned char *s3)) __NORETURN;
-extern	void	failure_real	__PR((unsigned char *s1,
+extern	void	failure_real	__PR((int err, unsigned char *s1,
 						const char *s2, int gflag));
 extern	void	exitsh		__PR((int xno)) __NORETURN;
 extern	void	exval_clear	__PR((void));
@@ -449,21 +478,31 @@ extern	void	collect_fg_job	__PR((void));
 extern	void	freejobs	__PR((void));
 extern	void	startjobs	__PR((void));
 extern	int	endjobs		__PR((int check_if));
-extern	void	deallocjob	__PR((void));
 extern	void	allocjob	__PR((char *_cmd, unsigned char *cwd,
 							int monitor));
 extern	void	clearjobs	__PR((void));
 extern	void	makejob		__PR((int monitor, int fg));
-extern	void	postjob		__PR((pid_t pid, int fg));
+/*
+ * This is a partial type declaration for struct job. After this line,
+ * we may use struct job * in a parameter list.
+ */
+extern	struct job *
+		postjob		__PR((pid_t pid, int fg, int blt));
+extern	void	deallocjob	__PR((struct job *jp));
 extern	void	sysjobs		__PR((int argc, char *argv[]));
 extern	void	sysfgbg		__PR((int argc, char *argv[]));
 extern	void	syswait		__PR((int argc, char *argv[]));
 extern	void	sysstop		__PR((int argc, char *argv[]));
 extern	void	syskill		__PR((int argc, char *argv[]));
 extern	void	syssusp		__PR((int argc, char *argv[]));
+extern	void	syspgrp		__PR((int argc, char *argv[]));
 extern	void	hupforegnd	__PR((void));
 extern	pid_t	wait_status	__PR((pid_t id,
 					int *codep, int *statusp, int opts));
+extern	void	prtime		__PR((struct job *jp));
+#ifndef	HAVE_GETRUSAGE
+extern	int	getrusage	__PR((int who, struct rusage *r_usage));
+#endif
 
 /*
  * macro.c
@@ -488,6 +527,9 @@ extern	void	secpolicy_print __PR((int level, const char *msg));
 extern	int	syslook		__PR((unsigned char *w,
 						const struct sysnod syswds[],
 						int n));
+extern	const struct sysnod *
+		sysnlook	__PR((unsigned char *w,
+					const struct sysnod syswds[], int n));
 extern	void	setlist		__PR((struct argnod *arg, int xp));
 extern	void	replace		__PR((unsigned char **a, unsigned char *v));
 extern	void	dfault		__PR((struct namnod *n, unsigned char *v));
@@ -516,7 +558,9 @@ extern	void	prp		__PR((void));
 extern	void	prs		__PR((unsigned char *as));
 extern	void	prc		__PR((unsigned char c));
 extern	void	prwc		__PR((wchar_t c));
+extern	void	clock2tv	__PR((clock_t t, struct timeval	*tp));
 extern	void	prt		__PR((long t));
+extern	void	prtv		__PR((struct timeval *tp, int lf));
 extern	void	prn		__PR((int n));
 extern	void	itos		__PR((int n));
 extern	void	sitos		__PR((int n));
@@ -637,6 +681,9 @@ extern	int	sig2str		__PR((int sig, char *s));
  * test.c
  */
 extern	int	test		__PR((int argn, unsigned char *com[]));
+#ifdef	DO_SYSATEXPR
+extern	void	expr		__PR((int argn, unsigned char *com[]));
+#endif
 
 /*
  * ulimit.c
@@ -654,6 +701,20 @@ extern	void	sysumask	__PR((int argc, char **argv));
 #ifdef	DO_SYSALIAS
 extern	void	sysalias	__PR((int argc, unsigned char **argv));
 extern	void	sysunalias	__PR((int argc, unsigned char **argv));
+#endif
+
+/*
+ * builtin.c
+ */
+#ifdef	DO_SYSBUILTIN
+extern	void	sysbuiltin	__PR((int argc, unsigned char **argv));
+#endif
+
+/*
+ * find.c
+ */
+#ifdef	DO_SYSFIND
+extern	void	sysfind		__PR((int argc, unsigned char **argv));
 #endif
 
 /*
@@ -687,15 +748,19 @@ extern	void	execexp		__PR((unsigned char *s, Intptr_t f));
 /*
  * macros using failed_real(). Only s2 is gettext'd with both functions.
  */
-#define		failed(s1, s2)		failed_real(s1, s2, NULL)
-#define		bfailed(s1, s2, s3)	failed_real(s1, s2, s3)
+#define		failed(s1, s2)		failed_real(ERROR, s1, s2, NULL)
+#define		failedx(e, s1, s2)	failed_real(e, s1, s2, NULL)
+#define		bfailed(s1, s2, s3)	failed_real(ERROR, s1, s2, s3)
+#define		bfailedx(e, s1, s2, s3)	failed_real(e, s1, s2, s3)
 
 /*
  * macros using failure_real(). s1 and s2 is gettext'd with gfailure(), but
  * only s2 is gettext'd with failure().
  */
-#define		failure(s1, s2)		failure_real(s1, s2, 0)
-#define		gfailure(s1, s2)	failure_real(s1, s2, 1)
+#define		failure(s1, s2)		failure_real(ERROR, s1, s2, 0)
+#define		failurex(e, s1, s2)	failure_real(e, s1, s2, 0)
+#define		gfailure(s1, s2)	failure_real(ERROR, s1, s2, 1)
+#define		gfailurex(e, s1, s2)	failure_real(e, s1, s2, 1)
 
 /* temp files and io */
 extern int		output;
@@ -768,6 +833,8 @@ extern struct namnod		cdpnod;
 extern struct namnod		envnod;
 extern struct namnod		ifsnod;
 extern struct namnod		homenod;
+extern struct namnod		pwdnod;
+extern struct namnod		opwdnod;
 extern struct namnod		mailnod;
 extern struct namnod		pathnod;
 extern struct namnod		ps1nod;
@@ -775,6 +842,7 @@ extern struct namnod		ps2nod;
 extern struct namnod		mchknod;
 extern struct namnod		acctnod;
 extern struct namnod		mailpnod;
+extern struct namnod		timefmtnod;
 
 /* special names */
 extern unsigned char		flagadr[];
@@ -797,6 +865,7 @@ extern const char		opwdname[];
 extern const char		pwdname[];
 extern const char		acctname[];
 extern const char		mailpname[];
+extern const char		timefmtname[];
 
 /* transput */
 extern unsigned char		tmpout[];
@@ -820,7 +889,9 @@ extern int			peekn;
 extern unsigned char		*comdiv;
 extern const char		devnull[];
 
-/* flags */
+/*
+ * flags
+ */
 #define		noexec		01		/* set -n noexec */
 #define		intflg		02		/* set -i interactive */
 #define		prompt		04
@@ -853,7 +924,19 @@ extern const char		devnull[];
 #define		viflg		02000000000	/* VI  cmd line edit */
 #define		vedflg		04000000000	/* VED cmd line edit */
 
-extern long			flags;
+#define		fl2		010000000000	/* If in flagval: see flags2 */
+#define		fl3		020000000000	/* If in flagval: see flags3 */
+#define		fl4		(fl2 | fl3)	/* If in flagval: see flags4 */
+
+/*
+ * flags2
+ */
+#define		fdpipeflg	01		/* e.g. 2| pipe from stderr */
+#define		timeflg		02		/* set -o time		*/
+#define		fullexitcodeflg	04		/* set -o fullexitcode	*/
+
+extern unsigned long		flags;		/* Flags for set(1) and more */
+extern unsigned long		flags2;		/* Second set of flags */
 extern int			exflag;		/* Use _exit(), not exit() */
 extern int			rwait;		/* flags read waiting */
 
@@ -969,6 +1052,7 @@ extern const char		jobsuse[];
 extern const char		aliasuse[];
 extern const char		unaliasuse[];
 extern const char		repuse[];
+extern const char		builtinuse[];
 extern const char		stopuse[];
 extern const char		ulimuse[];
 extern const char		nocurjob[];
@@ -982,6 +1066,7 @@ extern const char		badlocale[];
 extern const char		nobracket[];
 extern const char		noparen[];
 extern const char		noarg[];
+extern const char		unimplemented[];
 
 /*
  * 'builtin' error messages

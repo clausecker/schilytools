@@ -1,8 +1,8 @@
-/* @(#)builtin.c	1.86 15/07/02 Copyright 1988-2015 J. Schilling */
+/* @(#)builtin.c	1.87 15/07/29 Copyright 1988-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)builtin.c	1.86 15/07/02 Copyright 1988-2015 J. Schilling";
+	"@(#)builtin.c	1.87 15/07/29 Copyright 1988-2015 J. Schilling";
 #endif
 /*
  *	Builtin commands
@@ -1075,6 +1075,9 @@ bpgrp(vp, std, flag)
 	pid_t	p;
 	long	lp;
 	pid_t	pgrp = 0;
+#ifdef	HAVE_GETSID
+	pid_t	sgrp;
+#endif
 
 	if (vp->av_ac > 2) {
 		wrong_args(vp, std);
@@ -1103,7 +1106,12 @@ bpgrp(vp, std, flag)
 						(long)p, errstr(ex_status));
 		return;
 	}
-	fprintf(std[1], "pid: %ld processgroup: %ld\n", (long)p, (long)pgrp);
+	fprintf(std[1], "pid: %ld processgroup: %ld", (long)p, (long)pgrp);
+#ifdef	HAVE_GETSID
+	sgrp = getsid(p);
+	fprintf(std[1], " sessiongroup: %ld", (long)sgrp);
+#endif
+	fprintf(std[1], "\n");
 }
 
 /* ARGSUSED */

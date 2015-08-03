@@ -1,8 +1,8 @@
-/* @(#)inputc.c	1.70 15/01/12 Copyright 1982, 1984-2015 J. Schilling */
+/* @(#)inputc.c	1.73 15/08/01 Copyright 1982, 1984-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)inputc.c	1.70 15/01/12 Copyright 1982, 1984-2015 J. Schilling";
+	"@(#)inputc.c	1.73 15/08/01 Copyright 1982, 1984-2015 J. Schilling";
 #endif
 /*
  *	inputc.c
@@ -72,6 +72,7 @@ static	UConst char sccsid[] =
 #include <schily/termios.h>	/* For WIN-DOS test and USE_GETCH */
 #undef	putch			/* Restore our old value */
 #undef	ungetch			/* Restore our old value */
+#include <schily/pwd.h>
 #include "bsh.h"
 #include "map.h"
 #include "node.h"
@@ -82,6 +83,9 @@ static	UConst char sccsid[] =
 #include "ctype.h"
 #endif	/* USE_WCHAR */
 #undef	toint		/* Atari MiNT has this nonstandard definition */
+#ifdef	LIB_SHEDIT
+#define	toint		shell_toint
+#endif
 
 #ifdef	XDEBUG		/* eXpand Debug */
 #define	DO_DEBUG
@@ -224,8 +228,9 @@ LOCAL	wchar_t	*undo_del	__PR((wchar_t *lp, wchar_t *cp,
 						unsigned int *lenp));
 LOCAL	char	*strwchr	__PR((char *s, wchar_t c));
 LOCAL	wchar_t	*xpwcs		__PR((wchar_t *cp));
+LOCAL	wchar_t *xp_tilde	__PR((char *ns, int *delp));
 LOCAL	wchar_t	*xp_files	__PR((wchar_t *lp, wchar_t *cp, BOOL show,
-						int *multip));
+						int *multip, int *delp));
 LOCAL	wchar_t	*exp_files	__PR((wchar_t **lpp, wchar_t *cp,
 						unsigned int *lenp,
 						unsigned int *maxlenp,
@@ -1663,6 +1668,48 @@ xpwcs(cp)
 }
 
 /*
+ * Expand tilde.
+ * delp returns the number of characters to delete left to the cursor.
+ * Returns the allocated replacement as wide string.
+ */
+LOCAL wchar_t *
+xp_tilde(ns, delp)
+	char	*ns;
+	int	*delp;
+{
+	struct passwd	*pw;
+	char		*ep = NULL;	/* Keep GCC happy ;-) */
+	int		dels = 0;
+
+	if (*ns == '\0') {
+		dels = 1;
+		ep = getcurenv("HOME");
+	} else if (*ns == '+' && ns[1] == '\0') {
+		dels = 2;
+		ep = getcurenv("PWD");
+	} else if (*ns == '-' && ns[1] == '\0') {
+		dels = 2;
+		ep = getcurenv("OLDPWD");
+	}
+	if (dels) {
+		if (ep == NULL)
+			return (0);
+		if (delp)
+			*delp = dels;
+		return (towcs((wchar_t *)NULL, 0, ep, -1));
+	}
+	dels = strlen(ns) + 1;
+
+	pw = getpwnam(ns);
+	endpwent();
+	if (pw == NULL)
+		return (0);
+	if (delp)
+		*delp = dels;
+	return (towcs((wchar_t *)NULL, 0, pw->pw_dir, -1));
+}
+
+/*
  * The characters ' ' ... '&' are handled by the shell parser as word separators
  */
 LOCAL char wschars[] = " \t<>%|;()&"; /* Chars that are word separators */
@@ -1671,13 +1718,16 @@ LOCAL char wschars[] = " \t<>%|;()&"; /* Chars that are word separators */
  * Expand filenames (implement file name completion).
  * This is the basic function that either expands or lists filenames.
  * It gets called by exp_files() and by show_files().
+ *
+ * Returns pointer with string to insert
  */
 LOCAL wchar_t *
-xp_files(lp, cp, show, multip)
+xp_files(lp, cp, show, multip, delp)
 	register wchar_t	*lp;	/* Begin of current line	*/
 	register wchar_t	*cp;	/* Current cursor position	*/
 		BOOL	show;	/* Show list of multi-results		*/
 		int	*multip; /* Found mult results in non show mode */
+		int	*delp;	/* Chars to delete before cursor	*/
 {
 	Tnode	*np;
 	Tnode	*l1;
@@ -1740,12 +1790,22 @@ again:
 	if (tp == NULL)
 		return (0);
 	wcsncpy(tp, wp, len);
-	tp[len] = '*';
-	tp[len+1] = '\0';
+	tp[len] = '\0';
+	if (tp[0] != '~') {
+		tp[len] = '*';
+		tp[len+1] = '\0';
+	}
 	ns = tombs(NULL, 0, tp, -1);
 	free(tp);
 	if (ns == NULL)
 		return (0);
+
+	if (ns[0] == '~')
+		return (xp_tilde(++ns, delp));
+
+	/*
+	 * Call path name expand routing from bsh
+	 */
 	np = expand(ns);
 	free(ns);
 	if (np == NULL) {
@@ -1876,8 +1936,9 @@ exp_files(lpp, cp, lenp, maxlenp, multip)
 {
 	wchar_t	*p;
 	int	diff;
+	int	del = 0;
 
-	p = xp_files(*lpp, cp, FALSE, multip);
+	p = xp_files(*lpp, cp, FALSE, multip, &del);
 	if (p) {
 		diff = wcslen(p);
 		if (*lenp + diff >= *maxlenp) {
@@ -1886,6 +1947,10 @@ exp_files(lpp, cp, lenp, maxlenp, multip)
 			diff = cp - *lpp;
 			*lpp = new_line(*lpp, *lenp, *maxlenp);
 			cp = *lpp + diff;
+		}
+		while (--del >= 0 && cp > *lpp) {
+			del_char(--cp);
+			(*lenp)--;
 		}
 		cp = insert(cp, p, lenp);
 		free(p);
@@ -1906,7 +1971,7 @@ show_files(lp, cp)
 {
 		wchar_t		*p;
 
-	p = xp_files(lp, cp, TRUE, NULL);
+	p = xp_files(lp, cp, TRUE, NULL, NULL);
 	if (p)
 		free(p);
 	redisp(lp, cp);

@@ -36,13 +36,13 @@
 #include "defs.h"
 
 /*
- * This file contains modifications Copyright 2008-2014 J. Schilling
+ * Copyright 2008-2015 J. Schilling
  *
- * @(#)name.c	1.31 14/06/05 2008-2014 J. Schilling
+ * @(#)name.c	1.33 15/07/24 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)name.c	1.31 14/06/05 2008-2014 J. Schilling";
+	"@(#)name.c	1.33 15/07/24 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -59,6 +59,9 @@ static	UConst char sccsid[] =
 extern int	mailchk;
 
 	int	syslook		__PR((unsigned char *w,
+					const struct sysnod syswds[], int n));
+	const struct sysnod *
+		sysnlook	__PR((unsigned char *w,
 					const struct sysnod syswds[], int n));
 	void	setlist		__PR((struct argnod *arg, int xp));
 static void	setname		__PR((unsigned char *, int));
@@ -159,10 +162,16 @@ struct namnod opwdnod =			/* OLDPWD= */
 	(struct namnod *)NIL,
 	(unsigned char *)opwdname,
 };
+struct namnod timefmtnod =		/* TIMEFORMAT= */
+{
+	(struct namnod *)NIL,
+	(struct namnod *)NIL,
+	(unsigned char *)timefmtname,
+};
 struct namnod acctnod =			/* SHACCT= */
 {
 	&pwdnod,
-	(struct namnod *)NIL,
+	&timefmtnod,
 	(unsigned char *)acctname
 };
 struct namnod mailpnod =		/* MAILPATH= */
@@ -179,6 +188,19 @@ struct namnod *namep = &mchknod;
 
 int
 syslook(w, syswds, n)
+	unsigned char	*w;
+	const struct sysnod	syswds[];
+	int		n;
+{
+	const struct sysnod	*res = sysnlook(w, syswds, n);
+
+	if (res == NULL)
+		return (0);
+	return (res->sysval);
+}
+
+const struct sysnod *
+sysnlook(w, syswds, n)
 	unsigned char	*w;
 	const struct sysnod	syswds[];
 	int		n;
@@ -203,7 +225,7 @@ syslook(w, syswds, n)
 		else if (cond > 0)
 			low = mid + 1;
 		else
-			return (syswds[mid].sysval);
+			return (&syswds[mid]);
 	}
 	return (0);
 }

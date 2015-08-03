@@ -1,11 +1,11 @@
-/* @(#)edit.c	1.18 13/09/25 Copyright 2006-2013 J. Schilling */
+/* @(#)edit.c	1.19 15/08/01 Copyright 2006-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)edit.c	1.18 13/09/25 Copyright 2006-2013 J. Schilling";
+	"@(#)edit.c	1.19 15/08/01 Copyright 2006-2015 J. Schilling";
 #endif
 /*
- *	Copyright (c) 2006-2013 J. Schilling
+ *	Copyright (c) 2006-2015 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -29,6 +29,7 @@ static	UConst char sccsid[] =
 #include "strsubs.h"
 #include <schily/fstream.h>
 #include <schily/shedit.h>
+#define	toint		shell_toint
 
 LOCAL fstream	*instrm = (fstream *) NULL;	/* Aliasexpanded input stream */
 LOCAL fstream	*rawstrm = (fstream *) NULL;	/* Unexpanded input stream */

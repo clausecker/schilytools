@@ -1,11 +1,11 @@
-/* @(#)str.c	1.30 14/04/21 Copyright 1986-2014 J. Schilling */
+/* @(#)str.c	1.31 15/07/18 Copyright 1986-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)str.c	1.30 14/04/21 Copyright 1986-2014 J. Schilling";
+	"@(#)str.c	1.31 15/07/18 Copyright 1986-2015 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1986-2014 J. Schilling
+ *	Copyright (c) 1986-2015 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -27,7 +27,7 @@ static	UConst char sccsid[] =
 
 char	relmsg[]	= "\
 \
-bsh V%d.%02d (%s-%s-%s)\n\n\
+bsh V%d.%02d %s (%s-%s-%s)\n\n\
 	By J. Schilling\n\
 	bsh -> best shell\n";
 

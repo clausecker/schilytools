@@ -36,13 +36,13 @@
 #include "defs.h"
 
 /*
- * This file contains modifications Copyright 2008-2014 J. Schilling
+ * Copyright 2008-2015 J. Schilling
  *
- * @(#)service.c	1.30 14/06/05 2008-2014 J. Schilling
+ * @(#)service.c	1.35 15/07/25 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)service.c	1.30 14/06/05 2008-20014 J. Schilling";
+	"@(#)service.c	1.35 15/07/25 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -115,7 +115,8 @@ initio(iop, save)
 			if (iof & IODOC_SUBST) {
 				struct tempblk tb;
 
-				subst(chkopen(ion, 0), (fd = tmpfil(&tb)));
+				subst(chkopen(ion, O_RDONLY),
+					    (fd = tmpfil(&tb)));
 
 				/*
 				 * pushed in tmpfil() --
@@ -124,7 +125,7 @@ initio(iop, save)
 				 */
 				poptemp();
 
-				fd = chkopen(tmpout, 0);
+				fd = chkopen(tmpout, O_RDONLY);
 				unlink((const char *)tmpout);
 			} else if (iof & IOMOV) {
 				if (eq(minus, ion)) {
@@ -136,14 +137,14 @@ initio(iop, save)
 				else
 					fd = dup(fd);
 			} else if (((iof & IOPUT) == 0) && ((iof & IORDW) == 0))
-				fd = chkopen(ion, 0);
+				fd = chkopen(ion, O_RDONLY);
 			else if (iof & IORDW) /* For <> */ {
 				newmode = O_RDWR|O_CREAT;
 				fd = chkopen(ion, newmode);
 			} else if (flags & rshflg) {
 				failed(ion, restricted);
 			} else if (iof & IOAPP &&
-			    (fd = open((char *)ion, 1)) >= 0) {
+			    (fd = open((char *)ion, O_WRONLY)) >= 0) {
 				lseek(fd, (off_t)0, SEEK_END);
 			} else {
 				fd = create(ion);
@@ -223,7 +224,7 @@ pathopen(path, name)
 	do {
 		do {
 			path = catpath(path, name);
-		} while ((f = open((char *)curstak(), 0)) < 0 && path);
+		} while ((f = open((char *)curstak(), O_RDONLY)) < 0 && path);
 		if (f >= 0) {
 			struct stat sb;
 
@@ -318,7 +319,8 @@ execa(at, pos, isvfork)
 		while ((path = execs(path, t, isvfork)) != NULL)
 			/* LINTED */
 			;
-		failed(*t, xecmsg);
+		failedx(errno == ENOENT ? ERR_NOTFOUND : ERR_NOEXEC,
+			*t, xecmsg);
 	}
 }
 
@@ -330,6 +332,8 @@ execs(ap, t, isvfork)
 {
 	int		pfstatus = NOATTRS;
 	int		oexflag = exflag;
+	struct excode	oex;
+	int		e = ERR_NOEXEC;
 	unsigned char	*p, *prefix;
 #ifdef	EXECATTR_FILENAME
 	unsigned char	*savptr;
@@ -365,24 +369,30 @@ execs(ap, t, isvfork)
 		execve((const char *)p, (char *const *)&t[0],
 		    (char *const *)xecenv);
 	}
+	oex = ex;
+	ex.ex_status =
+	ex.ex_code = ERR_NOEXEC;
+	ex.ex_pid = mypid;
 
 	if (isvfork)
 		exflag = TRUE;	/* Call _exit() instead of exit() */
 	switch (errno) {
 	case ENOEXEC:		/* could be a shell script */
+		ex = oex;
 		if (isvfork) {
 			exflag = 2;
 			_exit(126);
 		}
-		funcnt = 0;
-		flags = 0;
-		*flagadr = 0;
-		comdiv = 0;
-		ioset = 0;
+		funcnt = 0;	/* Reset to global argc/argv */
+		flags = 0;	/* Clear flags		*/
+		flags2 = 0;	/* Clear flags2		*/
+		*flagadr = 0;	/* Clear $-		*/
+		comdiv = 0;	/* Clear sh -c arg	*/
+		ioset = 0;	/* Clear /dev/null redirect */
 		clearup();	/* remove open files and for loop junk */
 		if (input)
 			close(input);
-		input = chkopen(p, 0);
+		input = chkopen(p, O_RDONLY);	/* Open script as stdin	*/
 
 #ifdef ACCT
 		preacct(p);	/* reset accounting */
@@ -398,38 +408,38 @@ execs(ap, t, isvfork)
 		/* NOTREACHED */
 
 	case ENOMEM:
-		failed(p, toobig);
+		failedx(e, p, toobig);
 		/* NOTREACHED */
 
 	case E2BIG:
-		failed(p, arglist);
+		failedx(e, p, arglist);
 		/* NOTREACHED */
 
 	case ETXTBSY:
-		failed(p, txtbsy);
+		failedx(e, p, txtbsy);
 		/* NOTREACHED */
 
 #ifdef	ELIBACC
 	case ELIBACC:
-		failed(p, libacc);
+		failedx(e, p, libacc);
 		/* NOTREACHED */
 #endif
 
 #ifdef	ELIBBAD
 	case ELIBBAD:
-		failed(p, libbad);
+		failedx(e, p, libbad);
 		/* NOTREACHED */
 #endif
 
 #ifdef	ELIBSCN
 	case ELIBSCN:
-		failed(p, libscn);
+		failedx(e, p, libscn);
 		/* NOTREACHED */
 #endif
 
 #ifdef	ELIBMAX
 	case ELIBMAX:
-		failed(p, libmax);
+		failedx(e, p, libmax);
 		/* NOTREACHED */
 #endif
 
@@ -438,6 +448,9 @@ execs(ap, t, isvfork)
 		/* FALLTHROUGH */
 
 	case ENOENT:
+		if (errno == ENOENT)
+			ex.ex_status =
+			ex.ex_code = ERR_NOTFOUND;
 		return (prefix);
 	}
 }

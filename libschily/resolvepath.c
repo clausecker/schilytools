@@ -1,4 +1,4 @@
-/* @(#)resolvepath.c	1.5 15/03/03 Copyright 2011-2015 J. Schilling */
+/* @(#)resolvepath.c	1.6 15/07/20 Copyright 2011-2015 J. Schilling */
 /*
  *	resolvepath() removes "./" and non-leading "/.." path components.
  *	It tries to do the same as the Solaris syscall with the same name.
@@ -26,6 +26,10 @@
 #include <schily/string.h>
 #include <schily/standard.h>
 #include <schily/schily.h>
+
+#ifndef	HAVE_LSTAT
+#define	lstat	stat
+#endif
 
 #ifndef	HAVE_RESOLVEPATH
 EXPORT	int	resolvepath	__PR((const char *path, char *buf,

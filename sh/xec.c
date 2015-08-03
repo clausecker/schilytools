@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2015 J. Schilling
  *
- * @(#)xec.c	1.35 15/07/06 2008-2015 J. Schilling
+ * @(#)xec.c	1.43 15/07/28 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)xec.c	1.35 15/07/06 2008-2015 J. Schilling";
+	"@(#)xec.c	1.43 15/07/28 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -186,12 +186,21 @@ int *pf1, *pf2;
 
 					if (comtype == NOTFOUND) {
 						pos = hashdata(cmdhash);
-						if (pos == 1)
-							failure(*com, notfound);
-						else if (pos == 2)
-							failure(*com, badexec);
-						else
-							failure(*com, badperm);
+						ex.ex_status = C_NOEXEC;
+						if (pos == 1) {
+							ex.ex_status =
+							ex.ex_code = C_NOTFOUND;
+							failurex(ERR_NOTFOUND,
+								*com, notfound);
+						} else if (pos == 2) {
+							ex.ex_code = C_NOEXEC;
+							failurex(ERR_NOEXEC,
+								*com, badexec);
+						} else {
+							ex.ex_code = C_NOEXEC;
+							failurex(ERR_NOEXEC,
+								*com, badperm);
+						}
 						break;
 					} else if (comtype == PATH_COMMAND) {
 						pos = -1;
@@ -199,8 +208,33 @@ int *pf1, *pf2;
 						    (COMMAND | REL_COMMAND)) {
 						pos = hashdata(cmdhash);
 					} else if (comtype == BUILTIN) {
+#ifdef	DO_TIME
+						struct job	*jp = NULL;
+
+						if ((flags2 & timeflg) &&
+						    !(xflags & XEC_EXECED) &&
+						    !(treeflgs&(FPOU|FAMP))) {
+							/*
+							 * treeflgs is always 0
+							 * here and if we don't
+							 * check xflags as well
+							 * we come here even
+							 * for the left side of
+							 * a pipe or backgr job.
+							 */
+							allocjob("", UC "", 0);
+							jp =
+							postjob(parent, 1, 1);
+						}
+#endif
 						builtin(hashdata(cmdhash),
 								argn, com, t);
+#ifdef	DO_TIME
+						if (jp) {
+							prtime(jp);
+							deallocjob(jp);
+						}
+#endif
 						freejobs();
 						break;
 					} else if (comtype == FUNCTION) {
@@ -332,16 +366,16 @@ script:
 					switch (errno)
 					{
 					case ENOMEM:
-						deallocjob();
+						deallocjob(NULL);
 						error(noswap);
 						break;
 					default:
-						deallocjob();
+						deallocjob(NULL);
 						error(nofork);
 						break;
 					}
 				} else if (errno == EPERM) {
-					deallocjob();
+					deallocjob(NULL);
 					error(eacces);
 					break;
 				}
@@ -373,7 +407,7 @@ script:
 						closepipe(pf1);
 					if (!(treeflgs&FPOU)) {
 						postjob(parent,
-							!(treeflgs&FAMP));
+							!(treeflgs&FAMP), 0);
 						freejobs();
 					}
 #ifdef	HAVE_VFORK
@@ -445,14 +479,17 @@ script:
 			 */
 			if (treeflgs & FPIN)
 			{
-				renamef(pf1[INPIPE], 0);
+				renamef(pf1[INPIPE], STDIN_FILENO);
 				close(pf1[OTPIPE]);
 			}
 
 			if (treeflgs & FPOU)
 			{
 				close(pf2[INPIPE]);
-				renamef(pf2[OTPIPE], 1);
+				/*
+				 * pipe fd # is in low bits of treeflgs
+				 */
+				renamef(pf2[OTPIPE], treeflgs & IOUFD);
 			}
 
 			/*

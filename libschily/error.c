@@ -1,4 +1,4 @@
-/* @(#)error.c	1.17 15/07/06 Copyright 1985, 1989, 1995-2015 J. Schilling */
+/* @(#)error.c	1.18 15/08/01 Copyright 1985, 1989, 1995-2015 J. Schilling */
 /*
  *	fprintf() on standard error stdio stream
  *
@@ -26,6 +26,7 @@
 
 #undef	error
 
+#ifndef	NO_WEAK_SYMBOLS
 /*
  * The Cygwin compile environment incorrectly implements #pragma weak.
  * The weak symbols are only defined as local symbols making it impossible
@@ -60,6 +61,7 @@ error(fmt, va_alist)
 	return (ret);
 }
 #endif
+#endif	/* NO_WEAK_SYMBOLS */
 
 /* VARARGS1 */
 #ifdef	PROTOTYPES

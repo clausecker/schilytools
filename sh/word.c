@@ -36,13 +36,13 @@
 #include "defs.h"
 
 /*
- * This file contains modifications Copyright 2008-2015 J. Schilling
+ * Copyright 2008-2015 J. Schilling
  *
- * @(#)word.c	1.39 15/04/12 2008-2015 J. Schilling
+ * @(#)word.c	1.45 15/07/27 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)word.c	1.39 15/04/12 2008-2015 J. Schilling";
+	"@(#)word.c	1.45 15/07/27 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -62,6 +62,9 @@ static	UConst char sccsid[] =
 #else
 #include	<errno.h>
 #include	<fcntl.h>
+#endif
+#ifdef	DO_TILDE
+#include	<schily/pwd.h>
 #endif
 
 	int		word	__PR((void));
@@ -135,7 +138,12 @@ word()
 		c = wordc;		/* Last c from inside match_word() */
 		if (arg->argval[1] == 0 &&
 		    (d = arg->argval[0], digit(d)) &&
+#ifdef	DO_FDPIPE
+		    (c == '>' || c == '<' ||
+		    ((flags2 & fdpipeflg) && c == '|'))) {
+#else
 		    (c == '>' || c == '<')) {
+#endif
 			word();
 			wdnum = d - '0';
 		} else { /* check for reserved words */
@@ -212,6 +220,59 @@ word()
 		}
 	}
 	seen = NULL;
+#endif
+#ifdef	DO_TILDE
+	if (wdval == 0 && wdarg->argval[0] == '~') {
+		struct filehdr *fb;
+		unsigned char	*val = NULL;
+		unsigned char	*u = wdarg->argval;
+		unsigned char	*p;
+
+		for (p = ++u; *p && *p != '/'; p++)
+			;
+		if (p == u) {
+			val = homenod.namval;
+		} else if ((p - u) == 1) {
+			if (*u == '+')
+				val = pwdnod.namval;
+			else if (*u == '-')
+				val = opwdnod.namval;
+		}
+		if (val == NULL) {
+			struct passwd	*pw;
+
+			c = *p;
+			*p = '\0';
+			pw = getpwnam((char *)u);
+			endpwent();
+			*p = c;
+			if (pw)
+				val = UC pw->pw_dir;
+		}
+
+		if (val == NULL)
+			return (wdval);			/* No replacement */
+
+		if (peekn &&
+		    (peekn & 0x7fffffff) == standin->fnxt[-1]) {
+			peekn = 0;
+			standin->fnxt--;
+			standin->nxtoff--;
+		}
+
+		if (*p) {
+			fb = alloc(sizeof (struct filehdr));
+			push((struct fileblk *)fb);	/* Push tmp filehdr */
+			estabf(p);			/* Install old value */
+			standin->fdes = -2;		/* Make it auto-pop */
+		}
+		fb = alloc(sizeof (struct filehdr));
+		push((struct fileblk *)fb);		/* Push tmp filehdr */
+		estabf(val);				/* Install replacem. */
+		standin->fdes = -2;			/* Make it auto-pop */
+
+		return (word());			/* Parse replacement */
+	}
 #endif
 	return (wdval);
 }

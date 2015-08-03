@@ -34,15 +34,16 @@
 #endif
 
 #include "defs.h"
+#include <schily/errno.h>
 
 /*
  * This file contains modifications Copyright 2008-2015 J. Schilling
  *
- * @(#)msg.c	1.29 15/07/05 2008-2015 J. Schilling
+ * @(#)msg.c	1.46 15/07/25 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)msg.c	1.29 15/07/05 2008-2015 J. Schilling";
+	"@(#)msg.c	1.46 15/07/25 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -99,17 +100,29 @@ const char	badperm[]	= "execute permission denied";
 const char	longpwd[]	= "sh error: pwd too long";
 const char	mssgargn[]	= "missing arguments";
 const char	toomanyargs[]	= "too many arguments";
+#ifdef	ELIBACC
 const char	libacc[]	= "can't access a needed shared library";
+#endif
+#ifdef	ELIBBAD
 const char	libbad[]	= "accessing a corrupted shared library";
+#endif
+#ifdef	ELIBSCN
 const char	libscn[]	= ".lib section in a.out corrupted";
+#endif
+#ifdef	ELIBMAX
 const char	libmax[]	= "attempting to link in too many libs";
+#endif
+#ifdef	EMULTIHOP
 const char	emultihop[]	= "Multihop attempted";
+#endif
 const char	nulldir[]	= "null directory";
 const char	enotdir[]	= "not a directory";
 const char	eisdir[]	= "is a directory";
 const char	enoent[]	= "does not exist";
 const char	eacces[]	= "permission denied";
+#ifdef	ENOLINK
 const char	enolink[]	= "remote link inactive";
+#endif
 const char	exited[]	= "Done";
 const char	running[]	= "Running";
 const char	ambiguous[]	= "ambiguous";
@@ -123,8 +136,13 @@ const char	unaliasuse[]	= "unalias [-a] [-g] [-l] [-p] [name...]";
 #ifdef	DO_SYSREPEAT
 const char	repuse[]	= "repeat [-c count] [-d delay] cmd [args]";
 #endif
+#ifdef	DO_SYSBUILTIN
+const char	builtinuse[]	=
+		"builtin [-d] [-f lib] [-i] [-s] [pathname...]";
+#endif
 const char	stopuse[]	= "stop id ...";
-const char	ulimuse[]	= "ulimit [ -HSacdflmnstuv ] [ limit ]";
+const char	ulimuse[]	=
+		"ulimit [ -HSacdefilmnqrstuvLMPRS ] [ limit ]";
 const char	killuse[]	= "kill [ [ -sig ] id ... | -l [ signo ... ] ]";
 const char	jobsuse[]	= "jobs [ [ -l | -p ] [ id ... ] | -x cmd ]";
 const char	nosuchjob[]	= "no such job";
@@ -141,6 +159,7 @@ const char	badlocale[]	= "couldn't set locale correctly\n";
 const char	nobracket[]	= "] missing";
 const char	noparen[]	= ") expected";
 const char	noarg[]		= "argument expected";
+const char	unimplemented[]	= "unimplemented";
 
 /*
  * messages for 'builtin' functions
@@ -165,6 +184,7 @@ const char	opwdname[]	= "OLDPWD";
 const char	pwdname[]	= "PWD";
 const char	acctname[]	= "SHACCT";
 const char	mailpname[]	= "MAILPATH";
+const char	timefmtname[]	= "TIMEFORMAT";
 
 /*
  * string constants
@@ -247,94 +267,114 @@ const char	readonly[] = "readonly";
  */
 const struct sysnod commands[] =
 {
-	{ ".",		SYSDOT	},	/* S  */
-	{ ":",		SYSNULL	},	/* S  */
-
+	{ ".",		SYSDOT,		BLT_SPC	},	/* S  */
+	{ ":",		SYSNULL,	BLT_SPC	},	/* S  */
+#ifdef DO_SYSATEXPR
+	{ "@",		SYSEXPR,	0	},
+#endif
 #ifndef RES
-	{ "[",		SYSTST },	/*  i */
+	{ "[",		SYSTST,		0 },		/*  i */
 #endif
 #ifdef	DO_SYSALIAS
-	{ "alias",	SYSALIAS },	/*  I */
+	{ "alias",	SYSALIAS,	BLT_INT },	/*  I */
 #endif
 #ifdef	DO_SYSALLOC
-	{ "alloc",	SYSALLOC },
+	{ "alloc",	SYSALLOC,	0 },
 #endif
-	{ "bg",		SYSFGBG },	/*  I */
-	{ "break",	SYSBREAK },	/* S  */
-	{ "cd",		SYSCD	},	/*  I */
-	{ "chdir",	SYSCD	},
-	{ "continue",	SYSCONT	},	/* S  */
+	{ "bg",		SYSFGBG,	BLT_INT },	/*  I */
+	{ "break",	SYSBREAK,	BLT_SPC },	/* S  */
+#ifdef	DO_SYSBUILTIN
+	{ "builtin",	SYSBUILTIN },
+#endif
+	{ "cd",		SYSCD,		BLT_INT },	/*  I */
+	{ "chdir",	SYSCD,		0 },
+	{ "continue",	SYSCONT,	BLT_SPC	},	/* S  */
 #ifdef	DO_SYSPUSHD
-	{ "dirs",	SYSDIRS },
+	{ "dirs",	SYSDIRS,	0 },
 #endif
 #ifdef	DO_SYSDOSH
-	{ "dosh",	SYSDOSH },
+	{ "dosh",	SYSDOSH,	0 },
 #endif
-	{ "echo",	SYSECHO },	/*  i */
-	{ "eval",	SYSEVAL	},	/* S  */
-	{ "exec",	SYSEXEC	},	/* S  */
-	{ "exit",	SYSEXIT	},	/* S  */
-	{ "export",	SYSXPORT },	/* S  */
+	{ "echo",	SYSECHO,	0 },		/*  i */
+#ifdef	DO_SYSERRSTR
+	{ "errstr",	SYSERRSTR,	0 },
+#endif
+	{ "eval",	SYSEVAL,	BLT_SPC	},	/* S  */
+	{ "exec",	SYSEXEC,	BLT_SPC	},	/* S  */
+	{ "exit",	SYSEXIT,	BLT_SPC	},	/* S  */
+	{ "export",	SYSXPORT,	BLT_SPC },	/* S  */
 #ifdef	DO_SYSTRUE
-	{ "false",	SYSFALSE },	/*  i */
+	{ "false",	SYSFALSE,	0 },		/*  i */
 #endif
-	{ "fg",		SYSFGBG },	/*  I */
-	{ "getopts",	SYSGETOPT },	/*  I */
-	{ "hash",	SYSHASH	},	/*  I */
+	{ "fg",		SYSFGBG,	BLT_INT },	/*  I */
+#ifdef	DO_SYSFIND
+	{ "find",	SYSFIND },
+#endif
+	{ "getopts",	SYSGETOPT,	BLT_INT },	/*  I */
+	{ "hash",	SYSHASH,	BLT_INT },	/*  I */
 #ifdef	INTERACTIVE
-	{ "history",	SYSHISTORY },
+	{ "history",	SYSHISTORY,	0 },
 #endif
-	{ "jobs",	SYSJOBS },	/*  I */
-	{ "kill",	SYSKILL },	/*  I */
+	{ "jobs",	SYSJOBS,	BLT_INT },	/*  I */
+	{ "kill",	SYSKILL,	BLT_INT },	/*  I */
+#ifdef	DO_SYSKILLPG
+	{ "killpg",	SYSKILL,	0 },		/*    */
+#endif
 #ifdef RES
-	{ "login",	SYSLOGIN },
+	{ "login",	SYSLOGIN,	0 },
 #endif
 #ifdef	INTERACTIVE
-	{ "map",	SYSMAP },
+	{ "map",	SYSMAP,		0 },
 #endif
 #ifdef RES
-	{ "newgrp",	SYSLOGIN },
+	{ "newgrp",	SYSLOGIN,	0 },
 #else
-	{ "newgrp",	SYSNEWGRP },	/*  i */
+	{ "newgrp",	SYSNEWGRP,	0 },		/*  i */
 #endif
 
+#ifdef	DO_SYSPGRP
+	{ "pgrp",	SYSPGRP,	0 },
+#endif
 #ifdef	DO_SYSPUSHD
-	{ "popd",	SYSPOPD },
-	{ "pushd",	SYSPUSHD },
+	{ "popd",	SYSPOPD,	0 },
+	{ "pushd",	SYSPUSHD,	0 },
 #endif
-	{ "pwd",	SYSPWD },	/*  i */
-	{ "read",	SYSREAD	},	/*  I */
-	{ "readonly",	SYSRDONLY },	/* S  */
+	{ "pwd",	SYSPWD,		0 },		/*  i */
+	{ "read",	SYSREAD,	BLT_INT },	/*  I */
+	{ "readonly",	SYSRDONLY,	BLT_SPC },	/* S  */
 #ifdef	DO_SYSREPEAT
-	{ "repeat",	SYSREPEAT },
+	{ "repeat",	SYSREPEAT,	0 },
 #endif
-	{ "return",	SYSRETURN },	/* S  */
+	{ "return",	SYSRETURN,	BLT_SPC },	/* S  */
 #ifdef	INTERACTIVE
-	{ "savehistory", SYSSAVEHIST },
+	{ "savehistory", SYSSAVEHIST,	0 },
 #endif
-	{ "set",	SYSSET	},	/* S  */
-	{ "shift",	SYSSHFT	},	/* S  */
-	{ "stop",	SYSSTOP	},
-	{ "suspend",	SYSSUSP},
-	{ "test",	SYSTST },	/*  i */
-	{ "times",	SYSTIMES },	/* S  */
-	{ "trap",	SYSTRAP	},	/* S  */
+	{ "set",	SYSSET,		BLT_SPC	},	/* S  */
+	{ "shift",	SYSSHFT,	BLT_SPC	},	/* S  */
+	{ "stop",	SYSSTOP,	0 },
+	{ "suspend",	SYSSUSP,	0 },
+#ifdef	DO_SYSSYNC
+	{ "sync",	SYSSYNC,	0 },
+#endif
+	{ "test",	SYSTST,		0 },		/*  i */
+	{ "times",	SYSTIMES,	BLT_SPC },	/* S  */
+	{ "trap",	SYSTRAP,	BLT_SPC	},	/* S  */
 #ifdef	DO_SYSTRUE
-	{ "true",	SYSTRUE },	/*  i */
+	{ "true",	SYSTRUE,	0 },		/*  i */
 #endif
-	{ "type",	SYSTYPE },	/*  I */
+	{ "type",	SYSTYPE,	BLT_INT },	/*  I */
 
 
 #ifndef RES
-	{ "ulimit",	SYSULIMIT },	/*  I */
-	{ "umask",	SYSUMASK },	/*  I */
+	{ "ulimit",	SYSULIMIT,	BLT_INT },	/*  I */
+	{ "umask",	SYSUMASK,	BLT_INT },	/*  I */
 #endif
 #ifdef	DO_SYSALIAS
-	{ "unalias",	SYSUNALIAS },	/*  I */
+	{ "unalias",	SYSUNALIAS,	BLT_INT },	/*  I */
 #endif
 
-	{ "unset",	SYSUNS },	/* S  */
-	{ "wait",	SYSWAIT	}	/*  I */
+	{ "unset",	SYSUNS,		BLT_SPC },	/* S  */
+	{ "wait",	SYSWAIT,	BLT_INT }	/*  I */
 };
 
 const int no_commands = sizeof (commands)/sizeof (struct sysnod);

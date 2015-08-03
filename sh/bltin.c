@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2015 J. Schilling
  *
- * @(#)bltin.c	1.46 15/07/05 2008-2015 J. Schilling
+ * @(#)bltin.c	1.55 15/07/28 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)bltin.c	1.46 15/07/05 2008-2015 J. Schilling";
+	"@(#)bltin.c	1.55 15/07/28 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -64,6 +64,8 @@ static	UConst char sccsid[] =
 #include	<sys/types.h>
 #include	<sys/stat.h>
 #include	<sys/times.h>
+
+#include	<schily/resource.h>
 
 	void	builtin	__PR((int type, int argc, unsigned char **argv,
 							struct trenod *t));
@@ -117,16 +119,17 @@ struct trenod *t;
 
 	case SYSTIMES:
 		{
-			struct tms tms;
+			struct rusage	ru;
 
-			times(&tms);
-			prt(tms.tms_utime);
+			getrusage(RUSAGE_SELF, &ru);
+			prtv(&ru.ru_utime, TRUE);
 			prc_buff(SPACE);
-			prt(tms.tms_stime);
+			prtv(&ru.ru_stime, TRUE);
 			prc_buff(NL);
-			prt(tms.tms_cutime);
+			getrusage(RUSAGE_CHILDREN, &ru);
+			prtv(&ru.ru_utime, TRUE);
 			prc_buff(SPACE);
-			prt(tms.tms_cstime);
+			prtv(&ru.ru_stime, TRUE);
 			prc_buff(NL);
 		}
 		break;
@@ -551,6 +554,12 @@ struct trenod *t;
 		exitval = test(argc, argv);
 		break;
 
+#ifdef	DO_SYSATEXPR
+	case SYSEXPR:
+		expr(argc, argv);
+		break;
+#endif
+
 	case SYSECHO:
 		exitval = echo(argc, argv);
 		break;
@@ -734,6 +743,54 @@ struct trenod *t;
 		exitval = 1;
 		if (flags & errflg)
 			done(0);
+		break;
+#endif
+
+#ifdef	DO_SYSBUILTIN
+	case SYSBUILTIN:
+		sysbuiltin(argc, argv);
+		break;
+#endif
+
+#ifdef	DO_SYSFIND
+	case SYSFIND:
+		sysfind(argc, argv);
+		break;
+#endif
+
+#ifdef	DO_SYSSYNC
+	case SYSSYNC:
+#ifdef	HAVE_SYNC
+		sync();
+#else
+		failure(*argv, unimplemented);
+#endif
+		break;
+#endif
+
+#ifdef	DO_SYSPGRP
+	case SYSPGRP:
+		syspgrp(argc, (char **)argv);
+		break;
+#endif
+
+#ifdef	DO_SYSERRSTR
+	case SYSERRSTR: {
+			int	err;
+			char	*msg;
+#ifndef	HAVE_STRERROR
+#define	strerror(a)	errmsgstr(a)
+#endif
+
+			if (a1 && (err = stoi(a1)) > 0) {
+				errno = 0;
+				msg = strerror(err);
+				if (errno == 0 && msg) {
+					prs_buff(UC msg);
+					prc_buff(NL);
+				}
+			}
+		}
 		break;
 #endif
 

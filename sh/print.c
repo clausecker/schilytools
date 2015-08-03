@@ -36,14 +36,14 @@
 /*
  * This file contains modifications Copyright 2008-2015 J. Schilling
  *
- * @(#)print.c	1.25 15/06/23 2008-2015 J. Schilling
+ * @(#)print.c	1.27 15/07/28 2008-2015 J. Schilling
  */
 #ifdef	SCHILY_INCLUDES
 #include <schily/mconfig.h>
 #endif
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)print.c	1.25 15/06/23 2008-2015 J. Schilling";
+	"@(#)print.c	1.27 15/07/28 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -80,6 +80,7 @@ static int buffd = 1;
 	void	prc	__PR((unsigned char c));
 	void	prwc	__PR((wchar_t c));
 	void	prt	__PR((long t));
+	void	prtv	__PR((struct timeval *tp, int lf));
 	void	prn	__PR((int n));
 static	void	_itos	__PR((unsigned int n, char *out, size_t	outlen));
 	void	itos	__PR((int n));
@@ -165,29 +166,52 @@ prwc(c)
 #endif
 
 void
+clock2tv(t, tp)
+	clock_t		t;
+	struct timeval	*tp;
+{
+	int _hz = HZ;	/* HZ may be a macro to a sysconf() call */
+
+	tp->tv_sec = t / _hz;
+	tp->tv_usec = t % _hz;
+	if (_hz <= 1000000)
+		tp->tv_usec *= 1000000 / _hz;
+	else
+		tp->tv_usec /= _hz / 1000000;
+}
+
+void
 prt(t)
 	long	t;	/* t is time in clock ticks, not seconds */
 {
-	int hr, min, sec, frac;
-	int _hz = HZ;	/* HZ may be a macro to a sysconf() call */
+	struct timeval	tv;
 
-	frac = t % _hz;
-	if (_hz > 1000)
-		frac %= 1000;
-	else
-		frac *= 1000 / _hz;
-	t /= _hz;
-	sec = t % 60;
-	t /= 60;
-	min = t % 60;
+	clock2tv(t, &tv);
+	prtv(&tv, TRUE);
+}
 
-	if ((hr = t / 60) != 0) {
+void
+prtv(tp, lf)
+	struct timeval	*tp;
+	int		lf;	/* Long format */
+{
+	int s, hr, min, sec, frac;
+
+	frac = tp->tv_usec / 1000;
+	s = tp->tv_sec;
+	sec = s % 60;
+	s /= 60;
+	min = s % 60;
+
+	if ((hr = s / 60) != 0) {
 		prn_buff(hr);
 		prc_buff('h');
 	}
 
-	prn_buff(min);
-	prc_buff('m');
+	if (lf || min > 0) {
+		prn_buff(min);
+		prc_buff('m');
+	}
 	prn_buff(sec);
 	prc_buff('.');
 	itos(frac+1000);

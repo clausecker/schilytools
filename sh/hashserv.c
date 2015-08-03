@@ -36,13 +36,13 @@
 #include "defs.h"
 
 /*
- * This file contains modifications Copyright 2008-2013 J. Schilling
+ * This file contains modifications Copyright 2008-2015 J. Schilling
  *
- * @(#)hashserv.c	1.16 13/09/24 2008-2013 J. Schilling
+ * @(#)hashserv.c	1.21 15/07/24 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)hashserv.c	1.16 13/09/24 2008-2013 J. Schilling";
+	"@(#)hashserv.c	1.21 15/07/24 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -54,12 +54,10 @@ static	UConst char sccsid[] =
 #include	<sys/stat.h>
 #include	<errno.h>
 
-#define		EXECUTE		01
-
 static unsigned char	cost;
-static int	dotpath;
-static int	multrel;
-static struct entry	relcmd;
+static int	dotpath;		/* PATH index for "::" */
+static int	multrel;		/* Multiple "::" entries exist */
+static struct entry	relcmd;		/* List of "relative" cmds */
 
 	short	pathlook	__PR((unsigned char *com,
 					int flg, struct argnod *arg));
@@ -79,11 +77,14 @@ static	int	findpath	__PR((unsigned char *name, int oldpath));
 static void	pr_path		__PR((unsigned char *name, int count));
 static int	argpath		__PR((struct argnod *arg));
 
+/*
+ * The central PATH and builtin / function search routine.
+ */
 short
 pathlook(com, flg, arg)
-	unsigned char	*com;
-	int		flg;
-	struct argnod	*arg;
+	unsigned char	*com;	/* The command name to look for */
+	int		flg;	/* Whether to manage cache hits */
+	struct argnod	*arg;	/* Additional environment for cmd */
 {
 	unsigned char	*name = com;
 	ENTRY		*h;
@@ -94,8 +95,6 @@ pathlook(com, flg, arg)
 	int		pathset = 0;
 	int		oldpath = 0;
 
-
-
 	hentry.data = 0;
 
 	if (any('/', name))
@@ -103,11 +102,8 @@ pathlook(com, flg, arg)
 
 	h = hfind(name);
 
-
-	if (h)
-	{
-		if (h->data & (BUILTIN | FUNCTION))
-		{
+	if (h) {
+		if (h->data & (BUILTIN | FUNCTION)) {
 			if (flg)
 				h->hits++;
 			return (h->data);
@@ -116,8 +112,7 @@ pathlook(com, flg, arg)
 		if (arg && (pathset = argpath(arg)))
 			return (PATH_COMMAND);
 
-		if ((h->data & DOT_COMMAND) == DOT_COMMAND)
-		{
+		if ((h->data & DOT_COMMAND) == DOT_COMMAND) {
 			if (multrel == 0 && hashdata(h->data) > dotpath)
 				oldpath = hashdata(h->data);
 			else
@@ -127,8 +122,7 @@ pathlook(com, flg, arg)
 			goto pathsrch;
 		}
 
-		if (h->data & (COMMAND | REL_COMMAND))
-		{
+		if (h->data & (COMMAND | REL_COMMAND)) {
 			if (flg)
 				h->hits++;
 			return (h->data);
@@ -138,52 +132,44 @@ pathlook(com, flg, arg)
 		h->cost = 0;
 	}
 
-	if ((i = syslook(name, commands, no_commands)) != 0)
-	{
+	if ((i = syslook(name, commands, no_commands)) != 0) {
 		hentry.data = (BUILTIN | i);
 		count = 1;
-	}
-	else
-	{
+	} else {
 		if (arg && (pathset = argpath(arg)))
 			return (PATH_COMMAND);
 pathsrch:
 			count = findpath(name, oldpath);
 	}
 
-	if (count > 0)
-	{
-		if (h == 0)
-		{
+	if (count > 0) {
+		if (h == 0) {
 			hentry.cost = 0;
 			hentry.key = make(name);
 			h = henter(hentry);
 		}
 
-		if (h->data == 0)
-		{
-			if (count < dotpath)
+		if (h->data == 0) {
+			if (count < dotpath) {
 				h->data = COMMAND | count;
-			else
-			{
+			} else {
 				h->data = REL_COMMAND | count;
 				h->next = relcmd.next;
 				relcmd.next = h;
 			}
 		}
 
-
 		h->hits = flg;
 		h->cost += cost;
 		return (h->data);
-	}
-	else
-	{
+	} else {
 		return (-count);
 	}
 }
 
-
+/*
+ * Remove any PATH related attributes from entry.
+ */
 static void
 zapentry(h)
 	ENTRY *h;
@@ -191,6 +177,9 @@ zapentry(h)
 	h->data &= HASHZAP;
 }
 
+/*
+ * Remove any PATH related attributes from whole hash database.
+ */
 void
 zaphash()
 {
@@ -198,6 +187,9 @@ zaphash()
 	relcmd.next = 0;
 }
 
+/*
+ * Mark all relative commands as outdated after a chdir()
+ */
 void
 zapcd()
 {
@@ -210,7 +202,9 @@ zapcd()
 	relcmd.next = 0;
 }
 
-
+/*
+ * Print hash attributes for entry.
+ */
 static void
 hashout(h)
 	ENTRY *h;
@@ -228,7 +222,6 @@ hashout(h)
 	if (h->data & REL_COMMAND)
 		prc_buff('*');
 
-
 	prc_buff(TAB);
 	prn_buff(h->cost);
 	prc_buff(TAB);
@@ -237,6 +230,9 @@ hashout(h)
 	prc_buff(NL);
 }
 
+/*
+ * Print hash statistics.
+ */
 void
 hashpr()
 {
@@ -244,6 +240,9 @@ hashpr()
 	hscan(hashout);
 }
 
+/*
+ * Find index of "::" in PATH and remember the result in 'dotpath'.
+ */
 void
 set_dotpath()
 {
@@ -254,25 +253,24 @@ set_dotpath()
 	path = getpath((unsigned char *)"");
 
 	while (path && *path) {
-		if (*path == '/')
+		if (*path == '/') {
 			cnt++;
-		else
-		{
-			if (dotpath == 10000)
+		} else {
+			if (dotpath == 10000) {
 				dotpath = cnt;
-			else
-			{
+			} else {
 				multrel = 1;
 				return;
 			}
 		}
-
 		path = nextpath(path);
 	}
-
 	multrel = 0;
 }
 
+/*
+ * Add new function to hash.
+ */
 void
 hash_func(name)
 	unsigned char	*name;
@@ -282,10 +280,9 @@ hash_func(name)
 
 	h = hfind(name);
 
-	if (h)
+	if (h) {
 		h->data = FUNCTION;
-	else
-	{
+	} else {
 		hentry.data = FUNCTION;
 		hentry.key = make(name);
 		hentry.cost = 0;
@@ -294,6 +291,10 @@ hash_func(name)
 	}
 }
 
+/*
+ * Remove function from hash.
+ * Reestablish builtin if function did hide the builtin.
+ */
 void
 func_unhash(name)
 	unsigned char	*name;
@@ -311,7 +312,9 @@ func_unhash(name)
 	}
 }
 
-
+/*
+ * Hash search / entry code for "hash" builtin.
+ */
 short
 hash_cmd(name)
 	unsigned char *name;
@@ -323,12 +326,13 @@ hash_cmd(name)
 
 	h = hfind(name);
 
-	if (h)
-	{
-		if (h->data & (BUILTIN | FUNCTION))
+	if (h) {
+		if (h->data & (BUILTIN | FUNCTION)) {
 			return (h->data);
-		else if ((h->data & REL_COMMAND) == REL_COMMAND)
-		{ /* unlink h from relative command list */
+		} else if ((h->data & REL_COMMAND) == REL_COMMAND) {
+			/*
+			 * unlink h from relative command list
+			 */
 			ENTRY *ptr = &relcmd;
 			while (ptr-> next != h)
 				ptr = ptr->next;
@@ -342,6 +346,7 @@ hash_cmd(name)
 
 
 /*
+ * Search command an print command type.
  * Return 0 if found, 1 if not.
  */
 int
@@ -351,82 +356,90 @@ what_is_path(name)
 	ENTRY	*h;
 	int	cnt;
 	short	hashval;
+	const struct sysnod	*sp;
 
 	h = hfind(name);
 
 	prs_buff(name);
-	if (h)
-	{
+	if (h) {
 		hashval = hashdata(h->data);
 
-		switch (hashtype(h->data))
-		{
-			case BUILTIN:
-				prs_buff(_gettext(" is a shell builtin\n"));
-				return (0);
+		switch (hashtype(h->data)) {
 
-			case FUNCTION:
-			{
-				struct namnod *n = lookup(name);
-				struct fndnod *f = fndptr(n->namenv);
+		case BUILTIN:
+			prs_buff(_gettext(" is a shell builtin\n"));
+			return (0);
 
-				prs_buff(_gettext(" is a function\n"));
-				prs_buff(name);
-				prs_buff((unsigned char *)"(){\n");
-				if (f != NULL)
-					prf((struct trenod *)f->fndval);
-				prs_buff((unsigned char *)"\n}\n");
-				return (0);
-			}
+		case FUNCTION: {
+			struct namnod *n = lookup(name);
+			struct fndnod *f = fndptr(n->namenv);
 
-			case REL_COMMAND:
-			{
-				short hash;
+			prs_buff(_gettext(" is a function\n"));
+			prs_buff(name);
+			prs_buff((unsigned char *)"(){\n");
+			if (f != NULL)
+				prf((struct trenod *)f->fndval);
+			prs_buff((unsigned char *)"\n}\n");
+			return (0);
+		}
 
-				if ((h->data & DOT_COMMAND) == DOT_COMMAND)
-				{
-					hash = pathlook(name,
-							0, (struct argnod *)0);
-					if (hashtype(hash) == NOTFOUND)
-					{
-						prs_buff(_gettext(
-							" not found\n"));
-						return (1);
-					}
-					else
-						hashval = hashdata(hash);
+		case REL_COMMAND: {
+			short	hash;
+
+			if ((h->data & DOT_COMMAND) == DOT_COMMAND) {
+				hash = pathlook(name, 0, (struct argnod *)0);
+				if (hashtype(hash) == NOTFOUND) {
+					prs_buff(_gettext(" not found\n"));
+					return (1);
+				} else {
+					hashval = hashdata(hash);
 				}
 			}
-			/* FALLTHROUGH */
+		}
+		/* FALLTHROUGH */
 
-			case COMMAND:
-				prs_buff(_gettext(" is hashed ("));
-				pr_path(name, hashval);
-				prs_buff((unsigned char *)")\n");
-				return (0);
+		case COMMAND:
+			prs_buff(_gettext(" is hashed ("));
+			pr_path(name, hashval);
+			prs_buff((unsigned char *)")\n");
+			return (0);
 		}
 	}
 
-	if (syslook(name, commands, no_commands))
-	{
-		prs_buff(_gettext(" is a shell builtin\n"));
+#ifdef DO_POSIX_TYPE
+	if (syslook(name, reserved, no_reserved)) {
+		prs_buff(_gettext(" is a keyword\n"));
+		return (0);
+	}
+#endif
+
+	if ((sp = sysnlook(name, commands, no_commands)) != NULL) {
+#ifdef DO_POSIX_TYPE
+		if (sp->sysflg & BLT_SPC)
+			prs_buff(_gettext(" is a special shell builtin\n"));
+		else if (sp->sysflg & BLT_INT)
+			prs_buff(_gettext(" is a shell intrinsic\n"));
+		else
+#endif
+			prs_buff(_gettext(" is a shell builtin\n"));
 		return (0);
 	}
 
-	if ((cnt = findpath(name, 0)) > 0)
-	{
+	if ((cnt = findpath(name, 0)) > 0) {
 		prs_buff(_gettext(" is "));
 		pr_path(name, cnt);
 		prc_buff(NL);
 		return (0);
-	}
-	else
-	{
+	} else {
 		prs_buff(_gettext(" not found\n"));
 		return (1);
 	}
 }
 
+/*
+ * Find 'name' in PATH and return index.
+ * Start search at 'oldpath'.
+ */
 static int
 findpath(name, oldpath)
 	unsigned char	*name;
@@ -442,14 +455,12 @@ findpath(name, oldpath)
 	cost = 0;
 	path = getpath(name);
 
-	if (oldpath)
-	{
+	if (oldpath) {
 		count = dotpath;
 		while (--count)
 			path = nextpath(path);
 
-		if (oldpath > dotpath)
-		{
+		if (oldpath > dotpath) {
 			catpath(path, name);
 			p = curstak();
 			cost = 1;
@@ -458,13 +469,12 @@ findpath(name, oldpath)
 				return (dotpath);
 			else
 				return (oldpath);
-		}
-		else
+		} else {
 			count = dotpath;
+		}
 	}
 
-	while (path)
-	{
+	while (path) {
 		path = catpath(path, name);
 		cost++;
 		p = curstak();
@@ -485,6 +495,12 @@ findpath(name, oldpath)
  * given by mode.
  * Regflag argument non-zero means not to consider
  * a non-regular file as executable.
+ *
+ * Return codes:
+ * 0	Access OK
+ * 1	Other error (e.g. file not found)
+ * 2	Executable but not regular
+ * 3	File found but access error
  */
 #ifdef	PROTOTYPES
 int
@@ -534,6 +550,9 @@ chk_access(name, mode, regflag)
 	return (errno == EACCES ? 3 : 1);
 }
 
+/*
+ * Print path for command based on command name and index in PATH
+ */
 static void
 pr_path(name, count)
 	unsigned char	*name;
@@ -550,7 +569,9 @@ pr_path(name, count)
 	prs_buff(curstak());
 }
 
-
+/*
+ * Return 1 if argnode contains a PATH= definition.
+ */
 static int
 argpath(arg)
 	struct argnod	*arg;
@@ -558,27 +579,23 @@ argpath(arg)
 	unsigned char	*s;
 	unsigned char	*start;
 
-	while (arg)
-	{
+	while (arg) {
 		s = arg->argval;
 		start = s;
 
-		if (letter(*s))
-		{
+		if (letter(*s)) {
 			while (alphanum(*s))
 				s++;
 
-			if (*s == '=')
-			{
+			if (*s == '=') {
 				*s = 0;
 
-				if (eq(start, pathname))
-				{
+				if (eq(start, pathname)) {
 					*s = '=';
 					return (1);
-				}
-				else
+				} else {
 					*s = '=';
+				}
 			}
 		}
 		arg = arg->argnxt;

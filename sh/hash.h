@@ -40,9 +40,9 @@
 #endif
 
 /*
- * This file contains modifications Copyright 2008-2013 J. Schilling
+ * This file contains modifications Copyright 2008-2015 J. Schilling
  *
- * @(#)hash.h	1.7 13/09/20 2008-2013 J. Schilling
+ * @(#)hash.h	1.8 15/07/11 2008-2015 J. Schilling
  */
 
 /*
@@ -52,15 +52,15 @@
 extern "C" {
 #endif
 
-#define		HASHZAP		0x03FF
-#define		CDMARK		0x8000
+#define		HASHZAP		0x03FF	/* Mask all but BUILTIN / FUNCTION */
+#define		CDMARK		0x8000	/* Mark outdated "::" based entries */
 
-#define		NOTFOUND	0x0000
-#define		BUILTIN		0x0100
-#define		FUNCTION	0x0200
-#define		COMMAND		0x0400
-#define		REL_COMMAND	0x0800
-#define		PATH_COMMAND	0x1000
+#define		NOTFOUND	0x0000	/* Cannot exec, reason in low 8 bits */
+#define		BUILTIN		0x0100	/* Builtin, builtin # in low 8 bits */
+#define		FUNCTION	0x0200	/* Data value for all functions */
+#define		COMMAND		0x0400	/* Command, PATH index in low 8 bits */
+#define		REL_COMMAND	0x0800	/* Relative command from "::" in PATH */
+#define		PATH_COMMAND	0x1000	/* Command with PATH= in local env */
 #define		DOT_COMMAND	0x8800	/* CDMARK | REL_COMMAND */
 
 #define		hashtype(x)	(x & 0x1F00)
@@ -69,10 +69,10 @@ extern "C" {
 
 typedef struct entry
 {
-	unsigned char	*key;
-	short		data;
-	unsigned char	hits;
-	unsigned char	cost;
+	unsigned char	*key;		/* Hash key string (command name) */
+	short		data;		/* Hash data, see flags above */
+	unsigned char	hits;		/* # of hash hits % 256 */
+	unsigned char	cost;		/* cost: # of PATH entries to search */
 	struct entry	*next;
 } ENTRY;
 

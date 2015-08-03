@@ -35,13 +35,13 @@
 #include "defs.h"
 
 /*
- * This file contains modifications Copyright 2008-2013 J. Schilling
+ * This file contains modifications Copyright 2008-2015 J. Schilling
  *
- * @(#)hash.c	1.12 13/09/24 2008-2013 J. Schilling
+ * @(#)hash.c	1.13 15/07/11 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)hash.c	1.12 13/09/24 2008-2013 J. Schilling";
+	"@(#)hash.c	1.13 15/07/11 2008-2015 J. Schilling";
 #endif
 
 #include	"hash.h"
@@ -66,12 +66,12 @@ struct node
 	struct node *next;
 };
 
-static struct node	**last;
-static struct node	*next;
-static struct node	**table;
+static struct node	**last;			/* Ptr to begin of hash chain */
+static struct node	*next;			/* next == *last */
+static struct node	**table;		/* The hash table */
 
 static unsigned int	bitsper;		/* Bits per byte */
-static unsigned int	shift;
+static unsigned int	shift;			/* Bits per int - LOG2LEN */
 
 	void	hcreate		__PR((void));
 	void	hscan		__PR((void (*uscan)(ENTRY *)));
@@ -79,7 +79,9 @@ static unsigned int	shift;
 	ENTRY	*henter		__PR((ENTRY item));
 static unsigned int crunch	__PR((unsigned char *));
 
-
+/*
+ * Create the hash table and initialize parameters.
+ */
 void
 hcreate()
 {
@@ -102,7 +104,9 @@ hcreate()
 	shift = (bitsper * sizeof (int)) - LOG2LEN;
 }
 
-
+/*
+ * Scan hash table and call 'uscan' function for every entry.
+ */
 void
 hscan(uscan)
 	void	(*uscan) __PR((ENTRY *));
@@ -122,8 +126,9 @@ hscan(uscan)
 	}
 }
 
-
-
+/*
+ * Find hash entry for 'str', return NULL if not found.
+ */
 ENTRY *
 hfind(str)
 	unsigned char	*str;
@@ -162,6 +167,9 @@ hfind(str)
 	}
 }
 
+/*
+ * Enter new hash node at the place computed by hfind() before.
+ */
 ENTRY *
 henter(item)
 	ENTRY item;
@@ -174,7 +182,9 @@ henter(item)
 	return (&(p->item));
 }
 
-
+/*
+ * The hash fuction
+ */
 static unsigned int
 crunch(key)
 	unsigned char	*key;
@@ -185,5 +195,5 @@ crunch(key)
 	for (s = 0; *key; s++)			/* Simply add up the bytes */
 		sum += *key++;
 
-	return (sum + s);
+	return (sum + s);			/* Add strlen for quality */
 }

@@ -1,13 +1,13 @@
-/* @(#)hashcmd.c	1.29 12/06/03 Copyright 1986-2012 J. Schilling */
+/* @(#)hashcmd.c	1.30 15/07/18 Copyright 1986-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)hashcmd.c	1.29 12/06/03 Copyright 1986-2012 J. Schilling";
+	"@(#)hashcmd.c	1.30 15/07/18 Copyright 1986-2015 J. Schilling";
 #endif
 /*
  *	bsh - Commands dealing with #<letter> commands
  *
- *	Copyright (c) 1986-2012 J. Schilling
+ *	Copyright (c) 1986-2015 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -16,6 +16,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -38,6 +40,7 @@ extern	int	delim;
 extern	int	ttyflg;
 extern	int	MVERSION;
 extern	int	mVERSION;
+extern	char	dVERSION[];
 extern	char	*initav0;
 extern	char	*cmdfname;
 extern	Tnode	*lastcmd;	/* Used by ancient #e command */
@@ -72,7 +75,7 @@ hashcmd(std)
 	else
 		cmd = tolower(delim);
 	if (cmd != ' ' && argend(nl, 0)) {
-		fprintf(std[2], relmsg, MVERSION, mVERSION, HOST_CPU, HOST_VENDOR, HOST_OS);
+		fprintf(std[2], relmsg, MVERSION, mVERSION, dVERSION, HOST_CPU, HOST_VENDOR, HOST_OS);
 
 		unquote();
 		return;

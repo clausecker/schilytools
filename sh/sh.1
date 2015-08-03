@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sh.1	1.51 15/07/05 Copyright 2012-2015 J. Schilling
+.\" @(#)sh.1	1.71 15/07/29 Copyright 2012-2015 J. Schilling
 .\" Copyright 1989 AT&T
 .\" Copyright (c) 2008, Sun Microsystems, Inc. All Rights Reserved.
 .\" Portions Copyright (c) 1992, X/Open Company Limited All Rights Reserved
@@ -47,7 +47,19 @@
 .\" information: Portions Copyright [yyyy] [name of copyright owner]
 .\"
 .\" CDDL HEADER END
-.TH sh 1 "2015/07/05" "Schily Bourne Shell" "User Commands"
+.if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
+.if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
+.if t .ds u \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'u
+.if t .ds A \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'A
+.if t .ds O \v'-0.77m'\h'0.25n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.70n'O
+.if t .ds U \v'-0.77m'\h'0.30n'\z.\h'0.45n'\z.\v'0.77m'\h'-0.75n'U
+.if t .ds s \\(*b
+.if t .ds S SS
+.if n .ds a ae
+.if n .ds o oe
+.if n .ds u ue
+.if n .ds s sz
+.TH sh 1 "2015/07/29" "Schily Bourne Shell" "User Commands"
 .SH NAME
 sh, jsh \- standard and job control shell and command interpreter
 .SH SYNOPSIS
@@ -255,6 +267,20 @@ but the last is connected by a
 .BR pipe (2)
 to the standard input of the next
 .IR command .
+If the
+.B extended pipe syntax
+is enabled via
+.BR "set\ \-o\ fdpipe" ,
+the pipe symbol
+.RB ( | )
+may be preceded by a digit that specifies the file descriptor
+which should be associated to the command from the left side
+instead of the default
+.BR stdout ,
+e.g.
+.B 2|
+for a pipe from
+.BR stderr .
 Each
 .I command
 is run as a separate process. The shell waits for the last
@@ -299,7 +325,7 @@ that is, the shell waits for the
 .I pipeline
 to finish before executing any commands
 following the semicolon. An ampersand
-.RB  ( & )
+.RB ( & )
 causes asynchronous
 execution of the preceding pipeline, that is, the shell does
 .B not
@@ -579,6 +605,46 @@ Local aliases are specific to the current working directory. The local
 aliases definitions from the previous working directory are automatically
 disabled when the working directory is changed to a different directory.
 Local aliases have higher precedence than global aliases.
+
+.SS "Tilde Substitution"
+.sp
+.LP
+After alias substitution is performed, each word is checked to see if it
+begins with an unquoted tilde
+.RB ( ~ ).
+.RI "For tilde substitution," " word"
+also refers to the
+.I word
+portion of parameter expansion. See
+.BR "Parameter Expansion" .
+.sp
+.LP
+If it does, the word up to a
+.B /
+is checked to see if it matches a user
+name in the password database. If a match is found, the
+.B ~
+and the
+matched login name are replaced by the login directory of the matched user.
+If no match is found, the original text is left unchanged. A
+.B ~
+by
+itself, or in front of a
+.BR / ,
+is replaced by
+.BR $HOME .
+A
+.BR ~
+followed by a
+.B +
+or
+.B -
+is replaced by the value of
+.B $PWD
+and
+.B $OLDPWD
+respectively.
+
 .SS "Command Substitution"
 .sp
 .LP
@@ -676,7 +742,7 @@ is set from argument zero when the shell is invoked.
 .br
 .ne 3
 .TP
-.BI ${ parameter :\(mi word  }
+.BI ${ parameter :\(mi word }
 Use Default Values. If
 .I parameter
 is unset or null, the expansion of
@@ -688,7 +754,7 @@ is substituted.
 .br
 .ne 3
 .TP
-.BI ${ parameter \(mi word  }
+.BI ${ parameter \(mi word }
 Use Default Values. If
 .I parameter
 is unset, the expansion of
@@ -885,7 +951,15 @@ command.
 .TP
 .B ?
 The decimal value returned by the last synchronously executed command.
-Only the low 8 bits of the exit code from the command are visible.
+Only the low 8 bits of the exit code from the command are visible
+unless exit code masking is switched off by
+.RB `` "set -o fullexitcode" ''.
+The ability to see all 32 bits from the exit code requires a
+modern operating system with support for
+.BR waitid (2)
+in addition.
+If the executable file could not be found, the returned value is 127.
+If the file exists but could not be executed, the returned value is 126.
 If the command was killed by a signal, the returned value is 128 +
 the signal number.
 .br
@@ -958,6 +1032,36 @@ the signal name is in
 .TP
 .B CONTINUED
 A stopped child was continued.
+.TP
+.B NOEXEC
+An existing file could not be executed. This can happen when
+e.g. either the type of the file is not
+.B plain file
+or when the file does not have execute permission, or when
+the argument list is too long.
+.sp
+This is not a result from
+.BR waitid (2)
+but from
+.BR execve (2).
+.TP
+.B NOTFOUND
+A file was not found and thus could not be executed.
+.sp
+This is not a result from
+.BR waitid (2)
+but from
+.BR execve (2).
+.LP
+The child codes
+.B NOEXEC
+and
+.B NOTFOUND
+in
+.B ${.sh.codename}
+need shared memory (e.g. from
+.BR vfork (2))
+to allow a reliable reporting.
 .RE
 .br
 .ne 3
@@ -986,7 +1090,9 @@ return values, this is
 or
 .BR CLD ,
 depending on the os.
-When a trap command is executed, 
+When a
+.BR trap (1)
+command is executed, 
 .B ${.sh.signame}
 holds the signal that caused the trap.
 .br
@@ -1307,7 +1413,7 @@ is empty or not set, then the
 environment is scanned for pathnames of files that contain a
 .B termcap
 database.
-It holds a list of filenames separated by colons or spaces (i.e.,  ":" or " ").
+It holds a list of filenames separated by colons or spaces (i.e., ":" or " ").
 If the
 .B TERMPATH
 symbol is not set, the files
@@ -1324,6 +1430,12 @@ environment is prepended to the name.
 is only supported if
 .B sh
 was compiled with support for history editing.
+
+.br
+.ne 3
+.TP
+.B TIMEFORMAT
+Controls the output format for command timing. Currently not implemented.
 
 .sp
 .LP
@@ -1523,7 +1635,7 @@ Similarly for the standard output using
 .br
 .ne 3
 .TP
-.B  <&\(mi
+.B <&\(mi
 The standard input is closed. Similarly for the standard output using
 .BR >&\(mi .
 
@@ -1783,7 +1895,7 @@ and
 .sp
 .in +2
 .nf
-.BI "(export TERM; TERM=450;"  " command" )
+.BI "(export TERM; TERM=450;" " command" )
 .fi
 .in -2
 .sp
@@ -1800,7 +1912,7 @@ is a Special Command, then
 .sp
 .in +2
 .nf
-.BI TERM=450  " command
+.BI TERM=450 " command
 .fi
 .in -2
 .sp
@@ -1910,13 +2022,14 @@ whenever the
 variable is changed or the
 .B hash \-r
 command is executed (see below).
-.SS "Special Commands"
+.SS "Built-in Commands"
 .sp
 .LP
-Input/output redirection is now permitted for these commands. File
+The following commands are executed in the shell process.
+Input/output redirection is permitted for these commands. File
 descriptor 1 is the default output location. When Job Control is enabled,
 additional
-.B Special Commands
+.B Built-in Commands
 are added to the shell's environment (see
 .B Job Control
 section below).
@@ -1939,6 +2052,69 @@ specified by
 .B PATH
 is used to find the directory containing
 .IR filename .
+
+.br
+.ne 5
+.PD 0
+.TP
+.BI @ " name = expr
+.TP
+.BI @ " name" ++
+.TP
+.BI @ " name" --
+.PD
+.sp
+Set the variable
+.I name
+to the value that
+.I expr
+evaluates to.
+.sp
+.I Expr
+may contain
+.B test
+expressions.
+See
+.B test
+builtin below.
+
+.sp
+If the expression contains the characters
+.BR * ,
+.BR > ,
+.BR < ,
+.BR & ,
+.BR | ,
+.BR ( ,
+or
+.BR ) ,
+then at least this part of expr must be quoted.
+.sp
+The operators
+.BR *= ,
+.BR += ,
+and so forth, are available and may be used instead of the
+assignment operator.
+Spaces are mandatory in separating
+.IR name ,
+the assignment operator and
+.I expr
+to make them separate words.
+
+The second and third form increment
+.B ++
+and decrement
+.BR -- ,
+.IR name ,
+respectively.
+No spaces are allowed between
+.I name
+and the operator.
+.sp
+The
+.B @
+command was not supported in older versions of
+.BR sh .
 
 .br
 .ne 3
@@ -1984,6 +2160,11 @@ If no argument was given,
 lists all current alias definitions.
 .sp
 Alias definitions must be written with appropriate quoting.
+.sp
+The
+.B alias
+command was not supported in older versions of
+.BR sh .
 .sp
 When operating on temporary aliases (i.e. when neither
 .B \-g
@@ -2069,7 +2250,11 @@ calling
 .BR "unalias \-a" .
 No arguments are allowed with this option.
 .TP
+.B \-R
+.PD 0
+.TP
 .B \-\-raw
+.PD
 Output the listing in the raw format that is used in the persistent
 definition files
 .B $HOME/.globals
@@ -2082,7 +2267,7 @@ command is omitted.
 .LP
 Aliases are often used together with the
 .B dosh
-builtin in order to run small parameterized shell scripts.
+builtin in order to run small parameterized pseudo shell scripts.
 .RE
 
 .br
@@ -2098,6 +2283,7 @@ command prints information about the curren state of the storage
 subsystem; otherwise
 .B alloc
 is a dummy command.
+.sp
 The
 .B alloc
 command was not supported in older versions of
@@ -2118,6 +2304,49 @@ is omitted the current job is assumed.
 (See
 .B Job Control
 section below for more detail.)
+
+.br
+.ne 3
+.TP
+\fBbuiltin\fR [ \fB\-dis\fR ] [ \fB\-f\fI lib\fR ] [ \fIname ...\fR ]
+.sp .6
+The
+.B builtin
+command allows to manage builtin commands.
+.sp
+When no
+.I name
+parameter and neither 
+.B \-d
+nor
+.B \-f
+are specified, the list of builtin commands is printed.
+When
+.B \-i
+is specified, only shell intrinsic commands are listed.
+When
+.B \-s
+is specified, only special builtin commands are listed.
+.sp
+When
+.B \-d
+is specified, each named builtin command is deleted.
+Special builtin commands cannot be deleted.
+.sp
+On platforms that allow to load dynamic libraries,
+.B \-f
+allows to load a dynamic library that contains builtin commands.
+.sp
+Without
+.B \-d
+all
+.B name
+parameters are added as builtins.
+.sp
+The
+.B builtin
+command was not supported in older versions of
+.BR sh .
 
 .br
 .ne 3
@@ -2222,6 +2451,7 @@ and the
 command.
 If there is no directory stack, the result is the same as with calling
 .BR pwd .
+.sp
 The
 .B dirs
 command was not supported in older versions of
@@ -2264,6 +2494,7 @@ does not exit the shell but returns from the
 The
 .B dosh
 command is often used together with aliases.
+.sp
 The
 .B dosh
 command was not supported in older versions of
@@ -2347,6 +2578,18 @@ code is the 1-, 2- or 3-digit octal number representing that character.
 .br
 .ne 3
 .TP
+\fBerrstr\fR [ \fIerrno\fR ]
+.sp .6
+Print the error message for errno on stdout.
+.sp
+The
+.B errstr
+command was not supported in older versions of
+.BR sh .
+
+.br
+.ne 3
+.TP
 \fBeval\fR [ \fIargument\fR .\|.\|. ]
 .sp .6
 The arguments are read as input to the shell and the resulting command(s)
@@ -2401,7 +2644,17 @@ exported.
 The
 .B false
 builtin
-does nothing. A non-zero exit code is returned.
+does nothing. A non-zero exit code
+.RB ( 1 )
+is returned.
+Used with
+.B until
+for infinite loops.
+.sp
+The
+.B false
+command was not supported in older versions of
+.BR sh .
 
 .br
 .ne 3
@@ -2548,6 +2801,7 @@ The
 command is only supported if
 .B sh
 was compiled with support for history editing.
+.sp
 The
 .B history
 command was not supported in older versions of
@@ -2613,6 +2867,27 @@ argument list may contain signal numbers or
 exit values that refer to a program terminated by a signal.
 (See
 .BR kill (1)).
+
+.br
+.ne 3
+.TP
+\fBkillpg\fR [ \fB\-\fIsig\fR ] \fB%\fIjob\fR .\|.\|.
+.PD 0
+.TP
+.B killpg \-l\fR [ \sIsig\fR ] .\|.\|. 
+.PD
+.sp .6
+Sends either the
+.B TERM
+(terminate) signal or the specified signal to
+the specified jobs or processgroups. See
+.B kill
+for more information.
+.sp
+The
+.B killpg
+command was not supported in older versions of
+.BR sh .
 
 .br
 .ne 3
@@ -2691,6 +2966,7 @@ For more information and for escape sequences known by the mapper
 see the section
 .B "History Editing Input Mappings
 below.
+.sp
 The
 .B map
 command was not supported in older versions of
@@ -2707,6 +2983,39 @@ Equivalent to
 See
 .BR newgrp (1)
 for usage and description.
+
+.br
+.ne 3
+.TP
+\fBpgrp\fR [\fB%\fIjobid ...\fR]
+.sp .6
+Print the process groups and session groups for the
+specified processes or jobs.
+The argument
+.I job
+can be the process id of a process that is not a member
+of one of the active jobs. See
+.B Job Control
+section below for a description of the format of
+.IR job .
+If
+.BI % jobid
+is omitted, the process group for the current shell
+and the process group for the tty connected to
+.B stdin
+of the
+.B pgrp
+command is printed.
+.sp
+If the process group id equals the process id, the process
+ia a progrss group leader.
+If the session group id equals the process id, the process
+ia a session group leader.
+.sp
+The
+.B pgrp
+command was not supported in older versions of
+.BR sh .
 
 .br
 .ne 3
@@ -2736,6 +3045,7 @@ See
 .B dirs
 for an explanation of
 .IR offset .
+.sp
 The
 .B popd
 command was not supported in older versions of
@@ -2770,6 +3080,7 @@ See
 .B dirs
 for an explanation of
 .IR offset .
+.sp
 The
 .B pushd
 command was not supported in older versions of
@@ -2870,6 +3181,7 @@ waits
 seconds before
 .I command
 is executed again, otherwise there is no delay between executions.
+.sp
 The
 .B repeat
 command was not supported in older versions of
@@ -2894,6 +3206,7 @@ executed.
 .sp .6
 Save the current history in the file
 .BR $HOME/.history .
+.sp
 The
 .B savehistory
 command was not supported in older versions of
@@ -3004,6 +3317,31 @@ owner to the empty string disables the feature.
 Equivalent to
 .BR \-e .
 .TP
+.B fdpipe
+Enables the
+.B extended pipe syntax
+that allows to have a pipe output
+file descriptor number in front of the pipe sign
+.RB ( | ),
+e.g.
+.B 2|
+for a pipe from
+.BR stderr .
+It is recommended to put
+.RB ` "set\ \-o\ fdpipe" '
+into the file
+.B $HOME/.shrc
+to enable the extended pipe syntax for interactive shells by default.
+Scripts that like to use this feature, need to enable it.
+.TP
+.B fullexitcode
+Do not mask the exit code with 0xFF when expanding 
+.BR $? .
+This gives access to the full 32 bits from the child's exit code via
+.B $?
+on all modern operating systems that support
+.BR waitid (2).
+.TP
 .B globalaliases
 Enables/disables persistent global aliases that are read from the file
 .BR $HOME/.globals .
@@ -3069,6 +3407,14 @@ Equivalent to
 .B stdin
 Equivalent to
 .BR \-s .
+.TP
+.B time
+Switch on automatic timing for commands.
+Currently, only a simple implementation to print timing for
+external foreground programs is implemented.
+Later, the variable
+.B TIMEFORMAT
+may be used to control the output format.
 .TP
 .B verbose
 Equivalent to
@@ -3561,6 +3907,14 @@ The
 .B true
 builtin
 does nothing. A zero exit code is returned.
+Used with
+.B while
+for infinite loops.
+.sp
+The
+.B true
+command was not supported in older versions of
+.BR sh .
 
 .br
 .ne 4
@@ -3570,14 +3924,64 @@ does nothing. A zero exit code is returned.
 For each
 .IR name ,
 indicate how it would be interpreted if used as a command name.
-
+.B type
+displays information about each operand identifying the operand
+as a
+.BR "shell built-in" ,
+.BR "shell intrinsic" ,
+.BR function ,
+.BR alias ,
+.BR "hashed command" ,
+or
+.BR keyword ,
+and where applicable, may display the operand's path name.
+The meaning is as follows:
+.RS
+.TP 18
+.B shell built-in
+A normal command built into the shell.
+Some of these commands do not need to be built into the shell.
+A command usually is in this group because it was built into the
+shell for historical reasons or because it is an extension to the
+current POSIX standard.
+.TP
+.B special shell built-in
+A command built into the shell that is subject to special treatment.
+This type of commands needs to be built into the shell in order
+to be able to have the desired result.
+.TP
+.B shell intrinsic
+A command built into the shell.
+This type of commands needs to be built into the shell in order
+to be able to have the desired result.
+.TP
+.B global alias
+A global alias that is expanded in any directory.
+.TP
+.B local alias
+A local alias that is bound to the current directory
+and expanded in the current directory only.
+.TP
+.B function
+A function defined in this shell.
+.TP
+.B keyword
+A keyword in the syntax of this shell.
+.TP
+.B command
+An external command identified by it's path name.
+.TP
+.B hashed command
+An external command that was already subject to a path name search
+and hashing.
+.RE
 .br
 .ne 3
 .TP
-\fBulimit\fR [ [\fB\-HS\fR] [\fB\-a\fR | \fB\-cdflmnstuv\fR] ]
+\fBulimit\fR [ [\fB\-HS\fR] [\fB\-a\fR | \fB\-McdefilLmnPqrRsStuv\fR] ]
 .PD 0
 .TP
-\fBulimit\fR [ [\fB\-HS\fR] [\fB\-c\fR|\fB\-d\fR|\fB\-f\fR|\fB\-l\fR|\fB\-m\fR|\fB\-n\fR|\fB\-s\fR|\fB\-t\fR|\fB\-u\fR|\fB\-v\fR] ] \fBlimit\fR
+\fBulimit\fR [ [\fB\-HS\fR] [\fIresource-option\fR] ] \fBlimit\fR
 .PD
 .sp .6
 .B ulimit
@@ -3623,6 +4027,14 @@ or set. If no option is specified, the file size limit is printed or set.
 .br
 .ne 3
 .TP
+.B \-M
+address space limit (in kbytes), usually 
+.B \-v
+alias
+.br
+.ne 3
+.PD 0
+.TP
 .B \-c
 maximum core file size (in 512-byte blocks)
 .br
@@ -3633,13 +4045,28 @@ maximum size of data segment or heap (in kbytes)
 .br
 .ne 3
 .TP
+.B \-e
+maximum scheduling priority
+.br
+.ne 3
+.TP
 .B \-f
 maximum file size (in 512-byte blocks)
 .br
 .ne 3
 .TP
+.B \-i
+maximum number of pending signals
+.br
+.ne 3
+.TP
 .B \-l
 maximum size of locked memory (in kbytes)
+.br
+.ne 3
+.TP
+.B \-L
+maximum number of file locks
 .br
 .ne 3
 .TP
@@ -3653,8 +4080,33 @@ maximum file descriptor plus 1
 .br
 .ne 3
 .TP
+.B \-P
+maximum number of pseudo ttys
+.br
+.ne 3
+.TP
+.B \-q
+maximum number of POSIX message queues
+.br
+.ne 3
+.TP
+.B \-r
+maximum realtime priority
+.br
+.ne 3
+.TP
+.B \-R
+maximum realtime quantum (in usec)
+.br
+.ne 3
+.TP
 .B \-s
 maximum size of stack segment (in kbytes)
+.br
+.ne 3
+.TP
+.B \-S
+maximum size of swap (in kbytes)
 .br
 .ne 3
 .TP
@@ -3670,6 +4122,7 @@ maximum number of child processes
 .TP
 .B \-v
 maximum size of virtual memory (in kbytes)
+.PD
 .LP
 Not all resources are supported on all platforms.
 .LP
@@ -3735,6 +4188,7 @@ Print the current file-creation mask in symbolic form.
 The output is suitable as argument for the
 .B umask
 command.
+.sp
 .LP
 The symbolic mode was not supported in older versions of
 .BR sh .
@@ -3756,6 +4210,10 @@ that affect only the current execution environment as well as
 persistent aliases that affect all interactive shells that are called after a
 persistent alias definition was entered or modified.
 .sp
+The
+.B unalias
+command was not supported in older versions of
+.BR sh .
 .sp
 When operating on temporary aliases (i.e. when neither
 .B \-g
@@ -4041,6 +4499,25 @@ to provide the functionality of the
 .B kill
 command for processes identified with a
 .IR jobid .
+
+.br
+.ne 3
+.TP
+\fBkillpg\fR [ \fB\-signal\fR ] \fB%\fIjobid\fR
+.sp .6
+Builtin version of
+.B killpg
+to provide the functionality of the
+.B killpg
+command for processes groups identified with a
+.IR jobid .
+
+.br
+.ne 3
+.TP
+\fBpgrp\fR [\fB%\fIjobid ...\fR]
+.sp .6
+Print process group id's for jobs.
 
 .br
 .ne 3
@@ -4791,3 +5268,30 @@ expect the old non-standard behavior.
 When the shell executes a shell script that attempts to execute a
 non-existent command interpreter, the shell returns an erroneous diagnostic
 message that the shell script file does not exist.
+
+.br
+.ne 5
+.SH AUTHORS
+The
+.B Bourne Shell
+was origininally written by Stephen Richard Bourne at Bell Labs in 1977.
+The SVr4 release was written by various authors at AT&T in 1989.
+The
+.B Bourne Shell
+was later maintained by various people at AT&T and Sun Microsystems.
+Since 2006, the
+.B Bourne Shell
+is maintained by J\*org Schilling.
+.LP
+The
+.B history editor
+that has been added to the Bourne Shell in 2006
+was designed and implemented as a prototype in 1982
+by J\*org Schilling on
+.BR UNOS ,
+the first UNIX clone.
+The current version of the
+.B history editor
+was written in August 1984 by
+J\*org Schilling and P. Teuchert and is maintained
+by J\*org Schilling since 1985.

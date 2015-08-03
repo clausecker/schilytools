@@ -37,7 +37,7 @@
 /*
  * This file contains modifications Copyright 2008-2015 J. Schilling
  *
- * @(#)mode.h	1.13 15/06/23 2008-2015 J. Schilling
+ * @(#)mode.h	1.15 15/07/27 2008-2015 J. Schilling
  */
 
 /*
@@ -150,8 +150,19 @@ struct excode {
 
 struct sysnod
 {
-	char	*sysnam;
-	int	sysval;
+	char	*sysnam;	/* Name of reserved / builtin	*/
+	UInt16_t sysval;	/* Value to identify above	*/
+	UInt16_t sysflg;	/* Flag for builtins		*/
+};
+
+typedef  void    (*bftype) __PR((int argc, char *argv[]));
+
+struct sysnod2
+{
+	char	*sysnam;	/* Name of reserved / builtin	*/
+	UInt16_t sysval;	/* Value to identify above	*/
+	UInt16_t sysflg;	/* Flag for builtins		*/
+	bftype	sysptr;		/* Ptr to function		*/
 };
 
 /* this node is a proforma for those that follow */

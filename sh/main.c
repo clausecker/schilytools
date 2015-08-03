@@ -38,11 +38,11 @@
 /*
  * This file contains modifications Copyright 2008-2015 J. Schilling
  *
- * @(#)main.c	1.31 15/04/12 2008-2015 J. Schilling
+ * @(#)main.c	1.34 15/08/01 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)main.c	1.31 15/04/12 2008-2015 J. Schilling";
+	"@(#)main.c	1.34 15/08/01 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -125,7 +125,6 @@ main(c, v, e)
 {
 	int		rflag = ttyflg;
 	int		rsflag = 1;	/* local restricted flag */
-	unsigned char	*flagc = flagadr;
 	struct namnod	*n;
 
 	init_sigval();
@@ -249,13 +248,7 @@ main(c, v, e)
 
 	if (dolc < 2) {
 		flags |= stdflg;
-		{
-
-			while (*flagc)
-				flagc++;
-			*flagc++ = STDFLG;
-			*flagc = 0;
-		}
+		setopts();				/* set flagadr */
 	}
 	if ((flags & stdflg) == 0)
 		dolc--;
@@ -364,30 +357,24 @@ main(c, v, e)
 		}
 		if (rsflag == 0 || rflag == 0) {
 			if ((flags & rshflg) == 0) {
-				while (*flagc)
-					flagc++;
-				*flagc++ = 'r';
-				*flagc = '\0';
+				flags |= rshflg;
+				setopts();		/* set flagadr */
 			}
-			flags |= rshflg;
 		}
+#if	defined(INT_DOLMINUS) || defined(INTERACTIVE)
 		if ((flags & stdflg) && (flags & oneflg) == 0 && comdiv == 0) {
 			/*
 			 * This is an interactive shell, mark it as interactive.
 			 */
 			if ((flags & intflg) == 0) {
-				if ((flags & rshflg) == 0) {
-					while (*flagc)
-						flagc++;
-					*flagc++ = 'i';
-					*flagc = '\0';
-				}
 				flags |= intflg;
 #ifdef	INTERACTIVE
 				flags |= vedflg;
 #endif
+				setopts();		/* set flagadr */
 			}
 		}
+#endif
 		if ((flags & intflg) && (flags & privflg) == 0) {
 #ifdef	DO_SHRCFILES
 			unsigned char	*env = envnod.namval;
@@ -415,10 +402,18 @@ main(c, v, e)
 				exfile(rflag);
 				flags &= ~ttyflg;
 			}
-			flags |= intflg;	/* restore interactive */
+			flags |= intflg;	/* restore interactive	*/
+			setopts();		/* and flagadr		*/
 			free(env);
 #endif
 #ifdef	DO_SYSALIAS
+#ifdef	__never__
+			/*
+			 * The only way to have the global and local alias flag
+			 * set is via the set(1) command and the set command
+			 * code already reads the global and local alias files
+			 * when the related flags are set.
+			 */
 			if ((flags & globalaliasflg) && homenod.namval) {
 				catpath(homenod.namval, UC globalname);
 				ab_use(GLOBAL_AB, (char *)make(curstak()));
@@ -426,6 +421,7 @@ main(c, v, e)
 			if (flags & localaliasflg) {
 				ab_use(LOCAL_AB, (char *)localname);
 			}
+#endif
 #endif
 		}
 
@@ -461,7 +457,7 @@ main(c, v, e)
 			 */
 
 				flags |= forcexit;
-				input = chkopen(cmdadr, 0);
+				input = chkopen(cmdadr, O_RDONLY);
 				flags &= ~forcexit;
 			}
 

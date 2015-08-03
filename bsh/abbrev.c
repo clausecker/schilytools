@@ -1,8 +1,8 @@
-/* @(#)abbrev.c	1.55 15/04/12 Copyright 1985-2015 J. Schilling */
+/* @(#)abbrev.c	1.56 15/08/01 Copyright 1985-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)abbrev.c	1.55 15/04/12 Copyright 1985-2015 J. Schilling";
+	"@(#)abbrev.c	1.56 15/08/01 Copyright 1985-2015 J. Schilling";
 #endif
 /*
  *	Abbreviation symbol handling
@@ -194,6 +194,7 @@ LOCAL	char	*ab_beginword	__PR((char *p, abtab_t *ap));
 LOCAL	char	*ab_endword	__PR((char *p, abtab_t *ap));
 LOCAL	char	*ab_endline	__PR((char *p, abtab_t *ap));
 LOCAL	BOOL	ab_inblock	__PR((abidx_t tab, char *p));
+LOCAL	time_t	ab_statmtime	__PR((struct stat *sp));
 LOCAL	time_t	ab_filemtime	__PR((char *fname));
 EXPORT	void	ab_read		__PR((abidx_t tab, char *fname));
 EXPORT	void	ab_sname	__PR((abidx_t tab, char *fname));
@@ -552,6 +553,15 @@ ab_inblock(tab, p)
 }
 
 LOCAL time_t
+ab_statmtime(sp)
+	struct stat	*sp;
+{
+	if (sp->st_mtime == (time_t)0)
+		sp->st_mtime++;
+	return (sp->st_mtime);
+}
+
+LOCAL time_t
 ab_filemtime(fname)
 	char	*fname;
 {
@@ -560,9 +570,7 @@ ab_filemtime(fname)
 	if (stat(fname, &sb) < 0)
 		return ((time_t)0);
 
-	if (sb.st_mtime == (time_t)0)
-		sb.st_mtime++;
-	return (sb.st_mtime);
+	return (ab_statmtime(&sb));
 }
 
 /*
@@ -680,9 +688,11 @@ ab_read(tab, fname)
 			fclose(f);
 			return;
 		}
+		ap->at_mtime = ab_statmtime(&sb);
 	}
 	fsize = filesize(f);
-	ap->at_mtime = ab_filemtime(fname);
+	if (ap->at_mtime == 0)
+		ap->at_mtime = ab_filemtime(fname);
 #ifdef DEBUG
 	berror("ab_read(%d, %s)-> %d %.24s", tab, fname,
 			ap->at_mtime, ctime(&ap->at_mtime));

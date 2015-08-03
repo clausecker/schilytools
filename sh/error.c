@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2015 J. Schilling
  *
- * @(#)error.c	1.12 15/07/05 2008-2015 J. Schilling
+ * @(#)error.c	1.14 15/07/16 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)error.c	1.12 15/07/05 2008-2015 J. Schilling";
+	"@(#)error.c	1.14 15/07/16 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -55,9 +55,10 @@ static	UConst char sccsid[] =
 	void error	__PR((const char *s));
 static void failed_body	__PR((unsigned char *s1, const char *s2,
 				unsigned char *s3, int gflag));
-	void failed_real __PR((unsigned char *s1, const char *s2,
+	void failed_real __PR((int err, unsigned char *s1, const char *s2,
 				unsigned char *s3));
-	void failure_real __PR((unsigned char *s1, const char *s2, int gflag));
+	void failure_real __PR((int err, unsigned char *s1, const char *s2,
+				int gflag));
 	void exitsh	__PR((int xno));
 	void rmtemp	__PR((struct ionod *base));
 	void rmfunctmp	__PR((void));
@@ -92,17 +93,19 @@ failed_body(s1, s2, s3, gflag)
 }
 
 void
-failed_real(s1, s2, s3)
+failed_real(err, s1, s2, s3)
+	int		err;
 	unsigned char	*s1;
 	const char	*s2;
 	unsigned char	*s3;
 {
 	failed_body(s1, s2, s3, 0);
-	exitsh(ERROR);
+	exitsh(err);
 }
 
 void
-failure_real(s1, s2, gflag)
+failure_real(err, s1, s2, gflag)
+	int		err;
 	unsigned char	*s1;
 	const char	*s2;
 	int		gflag;
@@ -110,10 +113,10 @@ failure_real(s1, s2, gflag)
 	failed_body(s1, s2, NULL, gflag);
 
 	if (flags & errflg)
-		exitsh(ERROR);
+		exitsh(err);
 
 	flags |= eflag;
-	exitval = ERROR;
+	exitval = err;
 	exval_set(exitval);
 	exitset();
 }
@@ -138,7 +141,7 @@ exitsh(xno)
 	} else {
 		clearup();
 		restore(0);
-		(void) setb(1);
+		(void) setb(STDOUT_FILENO);
 		execbrk = breakcnt = funcnt = 0;
 		longjmp(errshell, 1);
 	}

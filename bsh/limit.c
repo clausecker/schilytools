@@ -1,8 +1,8 @@
-/* @(#)limit.c	1.39 13/04/25 Copyright 1987-2013 J. Schilling */
+/* @(#)limit.c	1.40 15/07/15 Copyright 1987-2013 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)limit.c	1.39 13/04/25 Copyright 1987-2013 J. Schilling";
+	"@(#)limit.c	1.40 15/07/15 Copyright 1987-2013 J. Schilling";
 #endif
 /*
  *	Resource usage routines
@@ -16,6 +16,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -120,8 +122,17 @@ LIMIT	limits[] = {
 #ifdef	RLIMIT_RTPRIO
 	{	"maxrtprio",	RLIMIT_RTPRIO,	1,	""		},
 #endif
-#ifdef	RLIMIT_SBSIZE	/* FreeBSD */
+#ifdef	RLIMIT_RTTIME
+	{	"maxrttime",	RLIMIT_RTTIME,	1,	"usec(s)"	},
+#endif
+#ifdef	RLIMIT_SBSIZE	/* FreeBSD maximum size of all socket buffers */
 	{	"sbsize",	RLIMIT_SBSIZE,	1,	""		},
+#endif
+#ifdef	RLIMIT_NPTS	/* FreeBSD maximum # of pty's */
+	{	"npts",		RLIMIT_NPTS,	1,	""		},
+#endif
+#ifdef	RLIMIT_SWAP	/* FreeBSD swap used */
+	{	"swap",		RLIMIT_SWAP,	1024,	"kBytes"	},
 #endif
 };
 

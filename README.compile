@@ -596,7 +596,16 @@ Compiling in a cross compilation environment:
 	If you are on Linux and like to compile for Android, do the following:
 
 	1) 	set up CC acording to the instructions from the cross compiler
-		tool chain
+		tool chain. Important: you need to read the information for your
+		tool chain. A working setup may look similar to:
+
+		NDK=/home/joerg/android-ndk-r7
+		SYSROOT=\$NDK/platforms/android-14/arch-arm
+		CC="\$NDK/toolchains/arm-linux-androideabi-4.4.3/prebuilt/linux-x86/bin/arm-linux-androideabi-gcc --sysroot=\$SYSROOT"
+		export NDK
+		export SYSROOT
+		export CC
+
 
 	2)	set environment variables CONFIG_RMTCALL / CONFIG_RMTHOST, e.g.:
 		setenv CONFIG_RMTCALL `pwd`/conf/runrmt_android

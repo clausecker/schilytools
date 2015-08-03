@@ -1,4 +1,4 @@
-#ident "@(#)Makefile	1.50 15/07/03  Copyright (c) 2006-2015 J. Schilling"
+#ident "@(#)Makefile	1.53 15/07/14  Copyright (c) 2006-2015 J. Schilling"
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -47,6 +47,7 @@ CPPOPTS +=	-DACCT					# Shell Accounting
 #CPPOPTS +=	-DDO_DOT_SH_PARAMS	# Include support for ${.sh.xxx} parapeters
 #CPPOPTS +=	-DDO_KILL_L_SIG		# Include support for kill -l signo
 #CPPOPTS +=	-DDO_ULIMIT_OPTS	# Add options to the ulimit(1) output
+#CPPOPTS +=	-DDO_SYSBUILTIN		# Include the "builtin" builtin
 
 #CPPOPTS +=	-DSTAK_DEBUG		# Include debug code for stak.c
 CPPOPTS +=	-DARGS_RIGHT_TO_LEFT	# Evaluate var2=val2 var1=val1 left to right
@@ -55,6 +56,7 @@ CPPOPTS +=	-DARGS_RIGHT_TO_LEFT	# Evaluate var2=val2 var1=val1 left to right
 
 
 #CPPOPTS +=	-DINTERACTIVE		# Include command line history editor
+#CPPOPTS +=	-DINT_DOLMINUS		# Auto set -i for interactive shell
 
 #CPPOPTS +=	-DNO_SIGSEGV		# Do not install a SIGSEGV handler for debug
 

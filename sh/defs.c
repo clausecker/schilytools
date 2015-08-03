@@ -31,16 +31,16 @@
 #endif
 
 /*
- * This file contains modifications Copyright 2008-2015 J. Schilling
+ * Copyright 2008-2015 J. Schilling
  *
- * @(#)defs.c	1.14 15/07/05 2008-2015 J. Schilling
+ * @(#)defs.c	1.15 15/07/22 2008-2015 J. Schilling
  */
 #ifdef	SCHILY_INCLUDES
 #include <schily/mconfig.h>
 #endif
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)defs.c	1.14 15/07/05 2008-2015 J. Schilling";
+	"@(#)defs.c	1.15 15/07/22 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -100,7 +100,8 @@ unsigned int	serial;
 int		peekc;		/* If set, return this by readwc() as next c */
 int		peekn;		/* If set, return this in favor of "peekc"   */
 unsigned char	*comdiv;
-long		flags;
+unsigned long	flags;		/* Flags for set(1) and more */
+unsigned long	flags2;		/* Second set of flags */
 int		rwait;		/* flags read waiting */
 
 /* error exits from various parts of shell */

@@ -37,11 +37,11 @@
 /*
  * This file contains modifications Copyright 2008-2015 J. Schilling
  *
- * @(#)macro.c	1.26 15/07/06 2008-2015 J. Schilling
+ * @(#)macro.c	1.27 15/07/22 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)macro.c	1.26 15/07/06 2008-2015 J. Schilling";
+	"@(#)macro.c	1.27 15/07/22 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -641,7 +641,7 @@ comsubst(trimflag)
 		 * this is done like this so that the pipe
 		 * is open only when needed
 		 */
-		t = makefork(FPOU, cmd(EOFSYM, MTFLG | NLFLG));
+		t = makefork(FPOU|STDOUT_FILENO, cmd(EOFSYM, MTFLG | NLFLG));
 		chkpipe(pv);
 		savpipe = pv[OTPIPE];
 		initf(pv[INPIPE]); /* read from pipe */
