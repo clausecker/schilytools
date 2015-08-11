@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sh.1	1.82 15/08/10 Copyright 2012-2015 J. Schilling
+.\" @(#)sh.1	1.85 15/08/11 Copyright 2012-2015 J. Schilling
 .\" Copyright 1989 AT&T
 .\" Copyright (c) 2008, Sun Microsystems, Inc. All Rights Reserved.
 .\" Portions Copyright (c) 1992, X/Open Company Limited All Rights Reserved
@@ -59,7 +59,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sh 1 "2015/08/10" "Schily Bourne Shell" "User Commands"
+.TH sh 1 "2015/08/11" "Schily Bourne Shell" "User Commands"
 .SH NAME
 sh, jsh \- standard and job control shell and command interpreter
 .SH SYNOPSIS
@@ -1331,6 +1331,29 @@ The variable
 .B ENV
 was not supported in older versions of
 .BR sh .
+.sp
+.ne 8
+The recommended content of the file
+.B ${ENV}
+is:
+.sp
+.B set -o globalaliases
+.br
+.B set -o localaliases
+.br
+.B set -o fdpipe
+.br
+.B set -o hashcmds
+.br
+.B set -o hostprompt
+.br
+.B set -o time
+.sp
+Make sure
+.B set -o time
+is the last entry to avoid timing the commands from the
+.B .shrc
+file.
 
 .br
 .ne 3
@@ -3054,7 +3077,7 @@ section below for more detail.)
 \fBkill\fR [ \fB\-\fIsig\fR ] \fB%\fIjob\fR .\|.\|.
 .PD 0
 .TP
-.B kill \-l\fR [ \sIsig\fR ] .\|.\|. 
+.B kill \-l\fR [ \fIsig\fR ] .\|.\|. 
 .PD
 .sp .6
 Sends either the
@@ -3099,7 +3122,7 @@ exit values that refer to a program terminated by a signal.
 \fBkillpg\fR [ \fB\-\fIsig\fR ] \fB%\fIjob\fR .\|.\|.
 .PD 0
 .TP
-.B killpg \-l\fR [ \sIsig\fR ] .\|.\|. 
+.B killpg \-l\fR [ \fIsig\fR ] .\|.\|. 
 .PD
 .sp .6
 Sends either the

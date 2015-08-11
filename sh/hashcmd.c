@@ -1,8 +1,8 @@
-/* @(#)hashcmd.c	1.2 15/08/11 Copyright 1986-2015 J. Schilling */
+/* @(#)hashcmd.c	1.3 15/08/11 Copyright 1986-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)hashcmd.c	1.2 15/08/11 Copyright 1986-2015 J. Schilling";
+	"@(#)hashcmd.c	1.3 15/08/11 Copyright 1986-2015 J. Schilling";
 #endif
 /*
  *	Commands dealing with #<letter> commands
@@ -29,6 +29,7 @@ static	UConst char sccsid[] =
 #include "hashtab.h"
 #include "abbrev.h"
 
+#undef	tolower
 #define	tolower(c)	(((c) >= 'A' && (c) <= 'Z') ? (c) + ('a'-'A') : (c))
 
 LOCAL	abidx_t	deftab		= GLOBAL_AB;	/* Use .globals by default */
