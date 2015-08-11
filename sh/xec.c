@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2015 J. Schilling
  *
- * @(#)xec.c	1.43 15/07/28 2008-2015 J. Schilling
+ * @(#)xec.c	1.44 15/08/05 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)xec.c	1.43 15/07/28 2008-2015 J. Schilling";
+	"@(#)xec.c	1.44 15/08/05 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -728,7 +728,11 @@ execprint(com)
 	int	argn = 0;
 	unsigned char	*s;
 
+#ifdef	DO_PS34
+	prs(macro(ps4nod.namval?ps4nod.namval:UC execpmsg));
+#else
 	prs(_gettext(execpmsg));
+#endif
 	while (com[argn] != ENDARGS)
 	{
 		s = com[argn++];

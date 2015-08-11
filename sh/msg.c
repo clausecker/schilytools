@@ -39,11 +39,11 @@
 /*
  * This file contains modifications Copyright 2008-2015 J. Schilling
  *
- * @(#)msg.c	1.46 15/07/25 2008-2015 J. Schilling
+ * @(#)msg.c	1.48 15/08/05 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)msg.c	1.46 15/07/25 2008-2015 J. Schilling";
+	"@(#)msg.c	1.48 15/08/05 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -160,6 +160,9 @@ const char	nobracket[]	= "] missing";
 const char	noparen[]	= ") expected";
 const char	noarg[]		= "argument expected";
 const char	unimplemented[]	= "unimplemented";
+#ifdef DO_SYSATEXPR
+const char	divzero[]	= "division by zero";
+#endif
 
 /*
  * messages for 'builtin' functions
@@ -179,6 +182,8 @@ const char	mailname[]	= "MAIL";
 const char	ifsname[]	= "IFS";
 const char	ps1name[]	= "PS1";
 const char	ps2name[]	= "PS2";
+const char	ps3name[]	= "PS3";
+const char	ps4name[]	= "PS4";
 const char	mchkname[]	= "MAILCHECK";
 const char	opwdname[]	= "OLDPWD";
 const char	pwdname[]	= "PWD";
@@ -199,6 +204,7 @@ const char	unexpected[]	= " unexpected";
 const char	atline[]	= " at line ";
 const char	devnull[]	= "/dev/null";
 const char	execpmsg[]	= "+ ";
+const char	selectmsg[]	= "#? ";
 const char	readmsg[]	= "> ";
 const char	stdprompt[]	= "$ ";
 const char	supprompt[]	= "# ";

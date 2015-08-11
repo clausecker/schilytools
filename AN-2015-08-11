@@ -1,0 +1,159 @@
+New features with AN-2015-08-11:
+
+This is the first localization step for the schily source consolidation. Many
+programs now (hopefully) call gettext() for all strings that need localization.
+
+-	The next step will include dgettext() calls for the libraries and the
+	missing programs
+
+-	The following step will include the extracted strings
+
+-	The last step will include German translations and install support
+	for the resulting binary message object files.
+
+----------> Please test and report compilation problems! <---------
+
+***** NOTE: As mentioned since 2004, frontends to the tools should *****
+*****		call all programs in the "C" locale		   *****
+*****		by e.g. calling: LC_ALL=C cdrecord ....		   *****
+*****		unless these frontends support localized strings   *****
+*****		used by the cdrtools with NLS support.		   *****
+
+		*** WARNING        ***
+		*** Need new smake ***
+
+	*** Due to the fact that schily-tools 2014-04-03 introduced to use new macro
+	*** expansions and a related bug fix in smake, you need a new smake
+	*** to compile this source. To ensure this, call:
+
+	cd ./psmake
+	./MAKE-all
+	cd ..
+	psmake/smake
+	psmake/smake install
+
+
+	WARNING: the new version of the isoinfo program makes use of the 
+		*at() series of functions that have been introduced by Sun
+		in August 2001 and added to POSIX.1-2008. For older platforms,
+		libschily now includes emulations for these functions but
+		these emulations have not yet been tested thoroughly.
+		Please report problems!
+
+	The new smake version mentioned above is smake-1.2.4
+
+
+-	Support for Win-10 when compiling with non automake-aware
+	make implementations like "gmake" was added.
+
+-	Cdrtools bumped to version 3.01a31. This is the current release
+	candidate for 3.01-final.
+
+-	spaste: The new version outputs an empty line for an empty file
+	with spaste -s. This makes it correct with regards to the new
+	POSIX text after POSIX Bug 973 was fixed. This change makes spaste
+	aligned with other implementations.
+
+-	man2html: This was added to schilytools as the original man2html
+	command has a bug with processing sub-sections and as the original
+	man2html is completely unmaintained since August 12 1997.
+
+-	man2html: subsections are now handled correctly and may be
+	longer than a single character.
+
+-	ved: The man page now starts overview tables with a single space
+	in order to avoid them to be converted into headlines by man2html.
+
+-	ved: Makefile.warn now supports all Schily makefile targets and
+	no longer aborts by e.g. "make installman"
+
+-	ved: map.c was changed the same way as for bsh/libschedit.
+
+-	libshedit: append_line() was added to the exported functions in order
+	to support a new feature in the Bourne Shell: allow to add an alias
+	definition to the history to make it editable by the history editor.
+
+-	libshedit: a "fileread()" entry was added. This permits to implement
+	optimized reading of the history and cursor mappings from the
+	Bourne Shell instead of reading byte-wise as a result of not using
+	stdio.
+
+-	bsh/libshedit: map.c was rewritten to read the mapfile with built-in
+	buffering.
+
+-	bsh/libshedit: inputc.c was rewritten to read the history file 
+	with built-in buffering.
+
+-	bsh: Fixed a memory leak in the hash command interpreter that was
+	identified when porting this code to the Bourne Shell.
+
+-	bsh and Bourne Shell: avoiding a coredump from division by zero in
+	the '@' builtin that was recently added to the Bourne Shell but
+	exists since 30 years in bsh with the same bug.
+
+-	Bourne Shell manpage: better information on how to use the "dosh"
+	builtin command (that implements a concept from "bsh") together 
+	with aliases in order to create parameterizable aliases.
+	Note that parameterizable aliases have been available in bsh since
+	1980. Parameterizable aliases are now available in bsh, csh and the
+	Bourne Shell, but not in ksh or bash. So have a look at the documentation
+	if you did not yet know this unique characteristics in the Bourne Shell.
+
+-	Bourne Shell manpage: Source download URL added
+
+-	Bourne Shell manpage: Better explanation for the unique characteristics
+	of the command line history editor.
+
+-	Bourne Shell: Support for the POSIX/ksh PS4 string was added. The PS4
+	string permits to control the prefix for "set -x" messages. The PS4
+	string is subject to parameter substitution before every use, so it
+	may e.g. contain "$$".
+
+-	Bourne Shell: hash commands (a concept from the UNOS command interpreter
+	from 1980 and bsh) have been added. This helps to deal with complex aliases
+	that would need highly complex quoting when using the alias(1) interface.
+	To edit an existing persistent alias in the command line history editor
+	do the following:
+
+		set -o hashcmds		# Enable hash commands
+		#lh aliasname
+		type cursor up key
+		edit the alias and hit ENTER
+		Now the new alias is in effect.
+
+	Note that enabling hash commands via set(1) -o hashcmds may cause some 
+	minor problems with certain comments in shell scripts. For this reason,
+	hash commands are turned off by default.
+
+-	Bourne Shell: "set -o hostprompt" allows to set PS1 to automatically
+	be "<hostname> <username>> " which is the default prompt used by "bsh"
+	since 1985.
+	
+
+-	The following builtins (that are available in bsh) are still missing in
+	the Bourne Shell:
+
+	err			echo with output going to stderr
+	glob			echo with '\0' instead of ' ' between args
+	env			a builtin version of /usr/bin/env
+
+	The following bsh intrinsics are still missing in the Bourne Shell:
+
+	-			the restricted bsh has restriction features that
+				are missing in the Bourne shell.
+
+	and probably more features not yet identified to be bsh unique.
+
+
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.net, js@cs.tu-berlin.de
+	joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

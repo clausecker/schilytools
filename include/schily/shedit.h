@@ -1,4 +1,4 @@
-/* @(#)shedit.h	1.5 13/09/25 Copyright 2006-2013 J. Schilling */
+/* @(#)shedit.h	1.6 15/08/07 Copyright 2006-2013 J. Schilling */
 /*
  *	Definitions for libshedit, the history editor for the shell.
  *
@@ -40,6 +40,7 @@ extern "C" {
  * shedit_treset():	reset terminal modes to non-edit
  * shedit_bhist():	the builtin history command
  * shedit_bshist():	the builtin savehistory command
+ * shedit_append_line(): to append a line to the history
  * shedit_remap():	the builtin to reread termcap/mapping defaults
  * shedit_list_map():	the builtin to list mappings
  * shedit_del_map():	the builtin to delete mappings
@@ -52,6 +53,8 @@ extern	int	shedit_getdelim	__PR((void));
 extern	void	shedit_treset	__PR((void));
 extern	void	shedit_bhist	__PR((void));
 extern	void	shedit_bshist	__PR((int **intrpp));
+extern	void	shedit_append_line __PR((char *linep, unsigned int len,
+						unsigned int pos));
 extern	void	shedit_chghistory __PR((char *__val));
 extern	void	shedit_remap	__PR((void));
 extern	void	shedit_list_map	__PR((int *f));

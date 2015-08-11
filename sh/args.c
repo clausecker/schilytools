@@ -41,11 +41,11 @@
 /*
  * Copyright 2008-2015 J. Schilling
  *
- * @(#)args.c	1.48 15/08/01 2008-2015 J. Schilling
+ * @(#)args.c	1.50 15/08/09 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)args.c	1.48 15/08/01 2008-2015 J. Schilling";
+	"@(#)args.c	1.50 15/08/09 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -54,7 +54,7 @@ static	UConst char sccsid[] =
 
 #include	"sh_policy.h"
 
-static	void		prversion	__PR((void));
+	void		prversion	__PR((void));
 	int		options		__PR((int argc, unsigned char **argv));
 	void		setopts		__PR((void));
 	void		setargs		__PR((unsigned char *argi[]));
@@ -72,6 +72,7 @@ static	void		listaliasowner	__PR((int parse, int flagidx));
 #endif
 #ifdef	DO_SET_O
 static	void		listopts	__PR((int parse));
+static	void		hostprompt	__PR((int on));
 #endif
 
 static struct dolnod *dolh;
@@ -96,6 +97,12 @@ unsigned char	flagchar[] =
 	'k',
 	'u',
 	'h',
+#ifdef	DO_HASHCMDS
+	0,			/* -o hashcmds, enable # commands */
+#endif
+#ifdef	DO_HOSTPROMPT
+	0,			/* -o hostprompt, "<host> <user>> " prompt */
+#endif
 	'f',
 	'a',
 	'm',
@@ -135,6 +142,12 @@ char	*flagname[] =
 	"keyword",		/* -k bash/ksh93 name */
 	"nounset",		/* -u POSIX */
 	"hashall",		/* -h bash name (ksh93 uses "trackall") */
+#ifdef	DO_HASHCMDS
+	"hashcmds",		/* -o hashcmds, enable # commands */
+#endif
+#ifdef	DO_HOSTPROMPT
+	"hostprompt",		/* -o hostprompt, "<host> <user>> " prompt */
+#endif
 	"noglob",		/* -f POSIX */
 	"allexport",		/* -a POSIX */
 	"monitor",		/* -m POSIX */
@@ -174,6 +187,12 @@ unsigned long	flagval[]  =
 	keyflg,
 	setflg,
 	hashflg,
+#ifdef	DO_HASHCMDS
+	fl2 | hashcmdsflg,	/* -o hashcmds, enable # commands */
+#endif
+#ifdef	DO_HOSTPROMPT
+	fl2 | hostpromptflg,		/* -o hostprompt, "<host> <user>> " prompt */
+#endif
 	nofngflg,
 	exportflg,
 	monitorflg,
@@ -203,7 +222,7 @@ unsigned char *shvers;
 
 /* ========	option handling	======== */
 
-static void
+void
 prversion()
 {
 	char	vbuf[BUFFERSIZE];
@@ -398,10 +417,14 @@ again:
 						ab_use(GLOBAL_AB,
 						    (char *)make(curstak()));
 					}
-					if (fv & localaliasflg) {
+					if (fv & hostpromptflg) {
 						ab_use(LOCAL_AB,
 							(char *)localname);
 					}
+#endif
+#ifdef	DO_HOSTPROMPT
+					if (fv == (fl2 | hostpromptflg))
+						hostprompt(TRUE);
 #endif
 				}
 			} else if (wc == 'c' && argc > 2 && comdiv == 0) {
@@ -495,6 +518,10 @@ again:
 					ab_setaltowner(GLOBAL_AB, "");
 					ab_setaltowner(LOCAL_AB, "");
 				}
+#endif
+#ifdef	DO_HOSTPROMPT
+				if (fv == (fl2 | hostpromptflg))
+					hostprompt(FALSE);
 #endif
 			}
 		}
@@ -834,4 +861,49 @@ listopts(parse)
 		prc_buff(NL);
 	}
 }
+
+#ifdef	DO_HOSTPROMPT
+#include <schily/utsname.h>
+#include <schily/pwd.h>
+static void
+hostprompt(on)
+	int	on;
+{
+#ifdef	HAVE_UNAME
+	struct utsname	un;
+	struct passwd	*pw;
+	unsigned char	pr[1000];
+	unsigned char	*p;
+	uid_t		euid = geteuid();
+
+	if (on) {
+		if (ps1nod.namval != NULL &&
+		    !eq(ps1nod.namval, (euid ? stdprompt : supprompt)))
+			return;
+	}
+	uname(&un);
+	pw = getpwuid(euid);
+	if (pw == NULL)
+		return;
+	if ((length(UC un.nodename) + length(UC pw->pw_name) + 3) >
+	    sizeof (pr))
+		return;
+	p = movstr(UC un.nodename, pr);
+	*p++ = ' ';
+	p = movstr(UC pw->pw_name, p);
+	*p++ = '>';
+	*p++ = ' ';
+	*p++ = '\0';
+	if (!on) {
+		if (ps1nod.namval != NULL &&
+		    !eq(ps1nod.namval, pr))
+			return;
+	}
+	if (on)
+		assign(&ps1nod, pr);
+	else
+		assign(&ps1nod, UC (euid ? stdprompt : supprompt));
+#endif
+}
+#endif	/* DO_HOSTPROMPT */
 #endif	/* DO_SET_O */

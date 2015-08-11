@@ -1,6 +1,6 @@
-/* @(#)str.h	1.15 14/04/21 Copyright 1986-2014 J. Schilling */
+/* @(#)str.h	1.16 15/08/05 Copyright 1986-2015 J. Schilling */
 /*
- *	Copyright (c) 1986-2014 J. Schilling
+ *	Copyright (c) 1986-2015 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -132,6 +132,7 @@ extern	char	expected[];
 extern	char	unexpected[];
 extern	char	number[];
 extern	char	argument[];
+extern	char	divzero[];
 #endif
 
 

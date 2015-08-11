@@ -39,7 +39,7 @@
 /*
  * Copyright 2008-2015 J. Schilling
  *
- * @(#)defs.h	1.95 15/07/28 2008-2015 J. Schilling
+ * @(#)defs.h	1.99 15/08/09 2008-2015 J. Schilling
  */
 
 #ifdef	__cplusplus
@@ -344,6 +344,7 @@ extern char 		*optarg;
 /*
  * args.c
  */
+extern	void		prversion	__PR((void));
 extern	int		options		__PR((int argc, unsigned char **argv));
 extern	void		setopts		__PR((void));
 extern	void		setargs		__PR((unsigned char *argi[]));
@@ -450,6 +451,11 @@ extern	short	hash_cmd	__PR((unsigned char *name));
 extern	int	what_is_path	__PR((unsigned char *name));
 extern	int	chk_access	__PR((unsigned char *name,
 						mode_t mode, int regflag));
+
+/*
+ * hashcmd.c
+ */
+extern	void	hashcmd		__PR((void));
 
 /*
  * io.c
@@ -791,6 +797,7 @@ extern struct argnod	*gchain;
 /* string constants */
 extern const char		atline[];
 extern const char		readmsg[];
+extern const char		selectmsg[];
 extern const char		colon[];
 extern const char		minus[];
 extern const char		nullstr[];
@@ -839,6 +846,8 @@ extern struct namnod		mailnod;
 extern struct namnod		pathnod;
 extern struct namnod		ps1nod;
 extern struct namnod		ps2nod;
+extern struct namnod		ps3nod;
+extern struct namnod		ps4nod;
 extern struct namnod		mchknod;
 extern struct namnod		acctnod;
 extern struct namnod		mailpnod;
@@ -860,6 +869,8 @@ extern const char		envname[];
 extern const char		ifsname[];
 extern const char		ps1name[];
 extern const char		ps2name[];
+extern const char		ps3name[];
+extern const char		ps4name[];
 extern const char		mchkname[];
 extern const char		opwdname[];
 extern const char		pwdname[];
@@ -934,6 +945,8 @@ extern const char		devnull[];
 #define		fdpipeflg	01		/* e.g. 2| pipe from stderr */
 #define		timeflg		02		/* set -o time		*/
 #define		fullexitcodeflg	04		/* set -o fullexitcode	*/
+#define		hashcmdsflg	010		/* set -o hashcmds	*/
+#define		hostpromptflg	020		/* set -o hostprompt	*/
 
 extern unsigned long		flags;		/* Flags for set(1) and more */
 extern unsigned long		flags2;		/* Second set of flags */
@@ -1067,6 +1080,7 @@ extern const char		nobracket[];
 extern const char		noparen[];
 extern const char		noarg[];
 extern const char		unimplemented[];
+extern const char		divzero[];
 
 /*
  * 'builtin' error messages

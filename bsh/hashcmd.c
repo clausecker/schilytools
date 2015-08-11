@@ -1,8 +1,8 @@
-/* @(#)hashcmd.c	1.30 15/07/18 Copyright 1986-2015 J. Schilling */
+/* @(#)hashcmd.c	1.31 15/08/08 Copyright 1986-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)hashcmd.c	1.30 15/07/18 Copyright 1986-2015 J. Schilling";
+	"@(#)hashcmd.c	1.31 15/08/08 Copyright 1986-2015 J. Schilling";
 #endif
 /*
  *	bsh - Commands dealing with #<letter> commands
@@ -131,6 +131,7 @@ hashcmd(std)
 	skipwhite();
 	name = pstring(spaces, 0);	/* Get next word */
 	if (name != NULL && streql(name, helpname)) {
+		free(name);
 		abbusage(std, cmd);
 		eatline();
 		return;
@@ -145,11 +146,10 @@ hashcmd(std)
 			val = pstring(nl, 0);
 			if (val == NULL)
 				val = makestr(nullstr);
-			name2 = makestr(name);
 			if (cmd == 'p')
-				ab_push(tab, name2, val, bflg);
+				ab_push(tab, name, val, bflg);
 			else
-				ab_insert(tab, name2, val, bflg);
+				ab_insert(tab, name, val, bflg);
 		}
 		else
 			abbusage(std, cmd);

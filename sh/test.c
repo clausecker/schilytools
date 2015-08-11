@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2015 J. Schilling
  *
- * @(#)test.c	1.19 15/07/25 2008-2015 J. Schilling
+ * @(#)test.c	1.20 15/08/04 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)test.c	1.19 15/07/25 2008-2015 J. Schilling";
+	"@(#)test.c	1.20 15/08/04 2008-2015 J. Schilling";
 #endif
 
 
@@ -179,8 +179,14 @@ aexpr(n, op, y)
 	case '+':	return (x + y);
 	case '-':	return (x - y);
 	case '*':	return (x * y);
-	case '/':	return (x / y);
-	case '%':	return (x % y);
+	case '/':
+			if (y == 0)
+				failed((unsigned char *)"@", divzero);
+			return (x / y);
+	case '%':
+			if (y == 0)
+				failed((unsigned char *)"@", divzero);
+			return (x % y);
 
 	default:
 		bfailed((unsigned char *)"@", badop, op);
@@ -362,10 +368,16 @@ e3()
 				return (ll_1 - ll_2);
 			if (c == '*')
 				return (ll_1 * ll_2);
-			if (c == '/')
+			if (c == '/') {
+				if (ll_2 == 0)
+					failed((unsigned char *)"@", divzero);
 				return (ll_1 / ll_2);
-			if (c == '%')
+			}
+			if (c == '%') {
+				if (ll_2 == 0)
+					failed((unsigned char *)"@", divzero);
 				return (ll_1 % ll_2);
+			}
 			if (c == '&')
 				return (ll_1 & ll_2);
 			if (c == '|')

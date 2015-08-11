@@ -1,4 +1,4 @@
-#ident "@(#)Makefile	1.69 15/07/27  Copyright (c) 2006-2015 J. Schilling"
+#ident "@(#)Makefile	1.72 15/08/09  Copyright (c) 2006-2015 J. Schilling"
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -31,6 +31,8 @@ CPPOPTS +=	-DACCT					# Shell Accounting
 #CPPOPTS +=	RES			# "Research" include "login", disable others
 
 CPPOPTS +=	-DDO_SHRCFILES		# Enable rcfiles "/etc/sh.shrc" "$HOME/.shrc"
+CPPOPTS +=	-DDO_HASHCMDS		# Include hash cmds (line starts with #)
+CPPOPTS +=	-DDO_HOSTPROMPT		# Set PS1 to "hostname uname> "
 CPPOPTS +=	-DDO_SYSALIAS		# Include alias/unalias builtin
 CPPOPTS +=	-DDO_SYSALLOC		# Include the "alloc" debug builtin
 CPPOPTS +=	-DDO_SYSREPEAT		# Include the "repeat" builtin
@@ -53,6 +55,7 @@ CPPOPTS +=	-DDO_TIME		# Include support for set -o time
 CPPOPTS +=	-DDO_FULLEXCODE		# Include support for set -o fullexitcode
 CPPOPTS +=	-DDO_FDPIPE		# Include support for 2| for stderr pipe
 CPPOPTS +=	-DDO_KILL_L_SIG		# Include support for kill -l signo
+CPPOPTS +=	-DDO_PS34		# Include support for PS3 and PS4
 CPPOPTS +=	-DDO_ULIMIT_OPTS	# Add options to the ulimit(1) output
 CPPOPTS +=	-DDO_SYSBUILTIN		# Include the "builtin" builtin
 CPPOPTS +=	-DDO_SYSATEXPR		# Include the "@" builtin
@@ -81,10 +84,11 @@ CFILES=		abbrev.c args.c bltin.c cmd.c ctype.c defs.c echo.c error.c \
 		expand.c fault.c func.c hash.c hashserv.c io.c jobs.c macro.c \
 		main.c msg.c name.c print.c pwd.c service.c \
 		sh_policy.c stak.c string.c test.c ulimit.c word.c xec.c \
-		signames.c gmatch.c umask.c alias.c builtin.c find.c
+		signames.c gmatch.c umask.c alias.c builtin.c find.c \
+		hashcmd.c hashtab.c
 
 HFILES=		abbrev.h ctype.h defs.h dup.h hash.h mac.h mode.h name.h \
-		sh_policy.h stak.h sym.h timeout.h version.h
+		sh_policy.h stak.h sym.h timeout.h version.h hashtab.h
 
 # -lgen		fuer gmatch()
 # -lsecdb	fuer getexecuser() free_execattr()

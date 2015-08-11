@@ -1,6 +1,10 @@
-# @(#)Makefile.warn	1.1 00/12/28 Copyr 2000 J. Schilling
+# @(#)Makefile.warn	1.2 15/08/05 Copyr 2000-2015 J. Schilling
 
-install:
+SRCROOT=	..
+RULESDIR=	RULES
+include		$(SRCROOT)/$(RULESDIR)/rules.top
+
+$(ALLTARGETS):
 	@echo
 	@echo
 	@echo "Don't forget to install the helper files from dotfiles.tar ..."

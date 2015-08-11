@@ -1,8 +1,8 @@
-/* @(#)abbrev.c	1.56 15/08/01 Copyright 1985-2015 J. Schilling */
+/* @(#)abbrev.c	1.59 15/08/11 Copyright 1985-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)abbrev.c	1.56 15/08/01 Copyright 1985-2015 J. Schilling";
+	"@(#)abbrev.c	1.59 15/08/11 Copyright 1985-2015 J. Schilling";
 #endif
 /*
  *	Abbreviation symbol handling
@@ -16,7 +16,7 @@ static	UConst char sccsid[] =
  *						is trusted
  *		ab_getaltoname(tab)		Get name of alternate file
  *						owner that is trusted
- *		ab_setaltowner(tab, uname)	Set alternate file owner that
+ *		ab_setaltowner(tab, usrname)	Set alternate file owner that
  *						is trusted
  *		ab_read(tab, fname)		Read new abbrev table from fname
  *		ab_use(tab, fname)		Use new abbrev table from fname
@@ -87,6 +87,7 @@ static	UConst char sccsid[] =
 #include <schily/fcntl.h>
 #include <schily/stat.h>
 #include <schily/pwd.h>
+#include <schily/shedit.h>
 
 LOCAL	char	sn_badtab[]	= "bad_astab_number";
 LOCAL	char	sn_no_mem[]	= "no_memory";
@@ -117,7 +118,16 @@ LOCAL	char	sn_badfile[]	= "bad_sym_file";
 
 #define	ctlc		intrcnt
 
-#else
+#ifndef	HAVE_SNPRINTF
+	/*
+	 * Try to avoid js_snprintf() in the Bourne Shell
+	 * to allow to lazyload libschily
+	 */
+#undef	snprintf
+#define	js_snprintf	snprintf
+#endif
+
+#else	/* !BOURNE_SHELL */
 #include <schily/stdio.h>
 #include <schily/string.h>
 #include <schily/stdlib.h>
@@ -131,7 +141,7 @@ LOCAL	char	sn_badfile[]	= "bad_sym_file";
 #include <schily/patmatch.h>
 
 #define	open_failed(f)	(f == (FILE *)0)
-#endif
+#endif	/* !BOURNE_SHELL */
 
 /*
  * Replacement node entry, one is allocated for each abbrev/alias replacement
@@ -619,19 +629,19 @@ static	char oname[12];
  * shell user.
  */
 EXPORT void
-ab_setaltowner(tab, uname)
+ab_setaltowner(tab, usrname)
 	abidx_t	tab;
-	char	*uname;
+	char	*usrname;
 {
 	register abtab_t *ap = _ab_down(tab);
 	register struct passwd *pw;
-	register char	*p = uname;
+	register char	*p = usrname;
 
-	if (*uname == '\0') {
+	if (*usrname == '\0') {
 		ap->at_altowner = (uid_t)-1;
 		return;
 	}
-	pw = getpwnam(uname);
+	pw = getpwnam(usrname);
 	endpwent();
 
 	if (pw) {
@@ -644,7 +654,7 @@ ab_setaltowner(tab, uname)
 		if (*p++ > '9')
 			return;
 	}
-	ap->at_altowner = atoi(uname);
+	ap->at_altowner = atoi(usrname);
 }
 
 /*
@@ -1153,13 +1163,15 @@ _ab_phist(np, f, aflags)
 		FILE_p		f;
 		int		aflags;
 {
-#ifndef	BOURNE_SHELL
+#ifdef	BOURNE_SHELL
+#define	append_line	shedit_append_line
+#endif
 	if (np->ab_value == NULL)
 		return;
 	if (np->ab_push && (aflags & AB_ALL))
 		_ab_phist(np->ab_push, f, aflags);
 
-	{	char		buf[4096];
+	{	char		buf[8192];
 		unsigned int	len;
 
 		js_snprintf(buf, sizeof (buf),
@@ -1170,7 +1182,6 @@ _ab_phist(np, f, aflags)
 		len = strlen(buf);
 		append_line(buf, len + 1, len);
 	}
-#endif
 }
 
 #ifdef	BOURNE_SHELL

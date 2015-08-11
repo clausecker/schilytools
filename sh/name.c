@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2015 J. Schilling
  *
- * @(#)name.c	1.33 15/07/24 2008-2015 J. Schilling
+ * @(#)name.c	1.34 15/08/05 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)name.c	1.33 15/07/24 2008-2015 J. Schilling";
+	"@(#)name.c	1.34 15/08/05 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -132,6 +132,18 @@ struct namnod ps1nod =			/* PS1= */
 	&ps2nod,
 	(unsigned char *)ps1name
 };
+struct namnod ps4nod =			/* PS4= */
+{
+	(struct namnod *)NIL,
+	(struct namnod *)NIL,
+	(unsigned char *)ps4name
+};
+struct namnod ps3nod =			/* PS3= */
+{
+	(struct namnod *)NIL,
+	&ps4nod,
+	(unsigned char *)ps3name
+};
 struct namnod homenod =			/* HOME= */
 {
 	&cdpnod,
@@ -152,7 +164,7 @@ struct namnod mchknod =			/* MAILCHECK= */
 };
 struct namnod pwdnod =			/* PWD= */
 {
-	(struct namnod *)NIL,
+	&ps3nod,
 	(struct namnod *)NIL,
 	(unsigned char *)pwdname,
 };
@@ -624,6 +636,12 @@ lookup(nam)
 	nscan->namflg = N_DEFAULT;
 	nscan->namenv = 0;
 
+#ifdef	NAME_DEBUG
+	/*
+	 * Allow to set up handcrafted pointers in *nod structures.
+	 */
+	printf("prev = %p name '%s' ME %p\n", prev, nam, nscan);
+#endif
 	return (*prev = nscan);
 }
 

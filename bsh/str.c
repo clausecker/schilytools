@@ -1,8 +1,8 @@
-/* @(#)str.c	1.31 15/07/18 Copyright 1986-2015 J. Schilling */
+/* @(#)str.c	1.32 15/08/05 Copyright 1986-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)str.c	1.31 15/07/18 Copyright 1986-2015 J. Schilling";
+	"@(#)str.c	1.32 15/08/05 Copyright 1986-2015 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1986-2015 J. Schilling
@@ -150,6 +150,7 @@ char	expected[]	= "%s expected";
 char	unexpected[]	= "%s unexpected";
 char	number[]	= "number";
 char	argument[]	= "argument";
+char	divzero[]	= "division by zero";
 #endif
 
 

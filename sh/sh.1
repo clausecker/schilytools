@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sh.1	1.71 15/07/29 Copyright 2012-2015 J. Schilling
+.\" @(#)sh.1	1.82 15/08/10 Copyright 2012-2015 J. Schilling
 .\" Copyright 1989 AT&T
 .\" Copyright (c) 2008, Sun Microsystems, Inc. All Rights Reserved.
 .\" Portions Copyright (c) 1992, X/Open Company Limited All Rights Reserved
@@ -59,7 +59,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sh 1 "2015/07/29" "Schily Bourne Shell" "User Commands"
+.TH sh 1 "2015/08/10" "Schily Bourne Shell" "User Commands"
 .SH NAME
 sh, jsh \- standard and job control shell and command interpreter
 .SH SYNOPSIS
@@ -554,6 +554,145 @@ A word beginning with
 .B #
 causes that word and all the following
 characters up to a newline to be ignored.
+.SS "# commands"
+.sp
+.LP
+If the hash character
+.B #
+is the first character in a command line and hash commands
+have been enabled via
+.BR "set\ \-o\ hashcmds" ,
+the whole line is processed by the hash command interpreter.
+This allows to have an alternate entry to the
+.B alias
+definitions that avoids complex quoting by working on
+the raw alias definitions.
+.LP
+Hash commands are frequently used to edit alias definitions using the
+command line history editor.
+.LP
+No I/O redirection is possible for hash commands.
+For all hash commands, there is a built in help text that is printed
+when 
+.BI # c "\ -help
+is called, where
+.I c
+is one of the command letters.
+.LP
+When hash commands are enabled, the character that immediately follows the
+.B #
+is the
+.BR "command character" .
+The command character may be followed by one or more command modifier characters.
+The following commands are supported:
+
+.br
+.ne 3
+.TP
+.BI "#a[g|l]" " name value
+Add a new
+.B all expand
+alias. Such an alias is expanded regardless where it
+occurs on the command line.
+Without modifier, the alias
+is entered into the current default table.
+.sp
+When using the
+.RB ' g '
+modifier, the command works on global aliases,
+regardless of the current default.
+.sp
+When using the
+.RB ' l '
+modifier, the command works on local aliases,
+regardless of the current default.
+.br
+.ne 3
+.TP
+.BI "#b[g|l]" " name value
+Add a new
+.BR "begin alias" .
+Such an alias is only expanded for the first word
+in a command.
+Without modifier, the alias
+is entered into the current default table.
+.br
+.ne 3
+.TP
+.BI "#d[g|l]" " name
+Removed the alias
+.I name
+from the list os known aliases.
+Without modifier, the alias
+is removed from the current default table.
+.br
+.ne 5
+.TP
+.B #h
+.PD 0
+.TP
+.B #?
+.PD
+Print an overview help for all
+.B #
+commands.
+.br
+.ne 3
+.TP
+.BI "#l[g|l][h] [" "name" ]
+Lists aliases from the table.
+Without modifier, the aliases
+from the current default table are printed.
+Without
+.IR name ,
+all aliases are listed. With
+.IR name ,
+only matching aliases are listed. Wildcards may be used.
+.sp
+When using the
+.RB ' h '
+modifier, the alias is also entered into the command history.
+This permits to edit existing aliases with the history
+editor and to re-enter the modified entries into the
+list of aliases.
+.br
+.ne 3
+.TP
+.BI "#p[g|l][a|b]" " name value
+With the
+.B #p
+command, an alias may be pushed on top of an existing alias
+without writing to the related file. When a pushed value
+is removed, the old definition reappears.
+.sp
+When using the
+.RB ' a '
+modifier, an
+.B all expand
+alias is pushed.
+.sp
+When using the
+.RB ' b '
+modifier, a
+.B begin
+alias is pushed.
+.br
+.ne 3
+.TP
+.B #s[g|l]
+Set or list the default table for other 
+.B #
+command alias operations.
+If no modifier letter is used, the current default is printed
+otherwise the new default is set.
+.br
+.ne 3
+.TP
+.B #
+When entered on the command line, this prints the shell version.
+When seen inside a shell script and a space follows, the rest of
+the line is interpreted as comment.
+
 .SS "Alias Substitution"
 .LP
 After a token has been recognized, but before applying the grammatical rules,
@@ -953,7 +1092,7 @@ command.
 The decimal value returned by the last synchronously executed command.
 Only the low 8 bits of the exit code from the command are visible
 unless exit code masking is switched off by
-.RB `` "set -o fullexitcode" ''.
+.RB `` "set\ \-o\ fullexitcode" ''.
 The ability to see all 32 bits from the exit code requires a
 modern operating system with support for
 .BR waitid (2)
@@ -1187,6 +1326,11 @@ or
 the file
 .B /etc/sh.shrc
 is not executed.
+.sp
+The variable
+.B ENV
+was not supported in older versions of
+.BR sh .
 
 .br
 .ne 3
@@ -1202,6 +1346,11 @@ The default is not to ignore EOF.
 is only supported if
 .B sh
 was compiled with support for history editing.
+.sp
+The variable
+.B IGNOREEOF
+was not supported in older versions of
+.BR sh .
 
 .br
 .ne 3
@@ -1213,6 +1362,11 @@ The default is to keep 100 lines of command history.
 is only supported if
 .B sh
 was compiled with support for history editing.
+.sp
+The variable
+.B HISTORY
+was not supported in older versions of
+.BR sh .
 
 .br
 .ne 3
@@ -1267,6 +1421,11 @@ is not set before the first
 or
 .B popd
 command.
+.sp
+The variable
+.B OLDPWD
+was not supported in older versions of
+.BR sh .
 
 .br
 .ne 3
@@ -1288,13 +1447,39 @@ as the index of the next argument to be processed.
 .ne 3
 .TP
 .B PS1
-Primary prompt string, by default " $ \|".
+Primary prompt string, by default "$ \|".
 
 .br
 .ne 3
 .TP
 .B PS2
-Secondary prompt string, by default " > \|".
+Secondary prompt string, by default "> \|".
+
+.br
+.ne 3
+.TP
+.B PS3
+Selection prompt string, by default "#? \|".
+.sp
+This variable is currently unused by the shell.
+.sp
+The variable
+.B PS3
+was not supported in older versions of
+.BR sh .
+
+.br
+.ne 3
+.TP
+.B PS4
+Execution trace prompt string, by default "+ \|".
+If unset, "+ \|" is used.
+The content of this variable is subject to parameter expansion.
+.sp
+The variable
+.B PS4
+was not supported in older versions of
+.BR sh .
 
 .br
 .ne 3
@@ -1353,6 +1538,11 @@ The default is not to save the history.
 is only supported if
 .B sh
 was compiled with support for history editing.
+.sp
+The variable
+.B SAVEHISTORY
+was not supported in older versions of
+.BR sh .
 
 .br
 .ne 3
@@ -1380,6 +1570,11 @@ If this variable is unset or null, an unspecified default terminal type is used.
 is only supported if
 .B sh
 was compiled with support for history editing.
+.sp
+The variable
+.B TERM
+was not supported in older versions of
+.BR sh .
 
 .br
 .ne 3
@@ -1401,6 +1596,11 @@ based applications.
 is only supported if
 .B sh
 was compiled with support for history editing.
+.sp
+The variable
+.B TERMCAP
+was not supported in older versions of
+.BR sh .
 
 .br
 .ne 3
@@ -1430,12 +1630,22 @@ environment is prepended to the name.
 is only supported if
 .B sh
 was compiled with support for history editing.
+.sp
+The variable
+.B TERMPATH
+was not supported in older versions of
+.BR sh .
 
 .br
 .ne 3
 .TP
 .B TIMEFORMAT
 Controls the output format for command timing. Currently not implemented.
+.sp
+The variable
+.B TIMEFORMAT
+was not supported in older versions of
+.BR sh .
 
 .sp
 .LP
@@ -2111,6 +2321,11 @@ No spaces are allowed between
 .I name
 and the operator.
 .sp
+In case of a syntax error or a division by zero,
+a non-zero result is returned and
+.I name
+is not changed.
+.sp
 The
 .B @
 command was not supported in older versions of
@@ -2264,10 +2479,20 @@ This increases readability as the quoting needed for defining an alias
 with the
 .B alias
 command is omitted.
+.sp
+Aliases can be edited in the raw format using
+.BR "#\ commands" ,
+see the related section above.
 .LP
 Aliases are often used together with the
 .B dosh
 builtin in order to run small parameterized pseudo shell scripts.
+An alias to list files in the long format and to pipe the result into
+.BR more (1)
+could be implemented this way:
+.LP
+.B
+    alias lm='dosh '\e''ls -l "$@" | more'\e'' lm-alias'
 .RE
 
 .br
@@ -3354,6 +3579,18 @@ the persistent global aliases are loaded.
 Equivalent to
 .BR \-h .
 .TP
+.B hashcmds
+Enable hash commands, see section
+.B #\ commands
+above.
+.TP
+.B hostprompt
+Set the
+.B PS1
+value to
+.BI \fR`` "hostname\ uname" ">\ " \fR''
+if it was not yet changed from the default value.
+.TP
 .B interactive
 Equivalent to
 .BR \-i .
@@ -3422,7 +3659,7 @@ Equivalent to
 .TP
 .B ved
 Allow shell command line editing using the built in
-.B ved
+.BR ved (1)
 editor.
 .TP
 .B vi
@@ -4317,7 +4554,10 @@ background processes are waited for and the return code is zero.
 .sp
 .LP
 When the shell is invoked as
-.BR jsh ,
+.B jsh 
+or after
+.B set -m
+was called,
 Job Control is enabled in addition
 to all of the functionality described previously for
 .BR sh .
@@ -4554,12 +4794,22 @@ If compiled with
 the
 .B Bourne Shell
 includes a command line history and a command line editor.
-The behavior of the command line editor is the same as introduced in 1984 with
-.BR bsh (1)
-and has been inspired by the behavior of the editor
-.BR ved (1).
 .LP
-The history is implemented as limited ring buffer.
+The behavior of the command line editor was defined with a prototype
+implementation in 1982 and has unique characteristics compared to other
+implementations. The basic editing functions have been inspired by the
+behavior of the editor
+.BR ved (1).
+The command history editor in the Bourne Shell
+is using the same code that was introduced in 1984 with
+.BR bsh (1).
+.LP
+The history is implemented as limited
+.BR "ring buffer" .
+The
+.B last recently used
+command line is always moved from it's previous
+position in the history list to the most recent entry.
 The size of the ring buffer is in
 .BR HISTORY .
 If
@@ -5097,6 +5347,7 @@ CSIEnabled
 .BR newgrp (1),
 .BR pfsh (1),
 .BR pfexec (1),
+.BR privileges (5),
 .BR ps (1),
 .BR pwd (1),
 .BR set (1),
@@ -5111,6 +5362,7 @@ CSIEnabled
 .BR swap (1M),
 .BR sysdef (1M),
 .BR termcap (1),
+.BR ved (1),
 .BR dup (2),
 .BR exec (2),
 .BR fork (2),
@@ -5292,6 +5544,26 @@ by J\*org Schilling on
 the first UNIX clone.
 The current version of the
 .B history editor
-was written in August 1984 by
-J\*org Schilling and P. Teuchert and is maintained
+is compatible to
+.BR ved (1).
+It was written in August 1984 by
+J\*org Schilling and P. Teuchert for the shell
+.BR bsh (1)
+and is maintained
 by J\*org Schilling since 1985.
+.SH "SOURCE DOWNLOAD"
+The source code for the
+.B Bourne Shell
+is included in the
+.B schilytools
+project and may be retrieved from the
+.B schilytools
+project at Sourceforge at:
+.LP
+.B
+    http://sourceforge.net/projects/schilytools/
+.LP
+The download directory is:
+.LP
+.B
+    http://sourceforge.net/projects/schilytools/files/

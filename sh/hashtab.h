@@ -1,7 +1,6 @@
-/* @(#)version.h	1.15 15/08/09 Copyright 2012-2015 J. Schilling */
-
+/* @(#)hashtab.h	1.1 15/08/08 Copyright 1986-2015 J. Schilling */
 /*
- * The version for the Bourne Shell
+ *	Copyright (c) 1986-2015 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -17,5 +16,9 @@
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#define	VERSION_DATE	"2015/08/09"
-#define	VERSION_STR	"a+"
+struct abbtab {
+	char a_c;
+	char *a_msg;
+};
+
+extern struct abbtab	abbtab[];

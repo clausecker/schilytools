@@ -1,4 +1,4 @@
-/* @(#)stdio.h	1.10 15/08/01 Copyright 2006-2015 J. Schilling */
+/* @(#)stdio.h	1.12 15/08/08 Copyright 2006-2015 J. Schilling */
 /*
  *	Defines to make FILE * -> int *, used to allow
  *	the Bourne shell to use functions that expect stdio.
@@ -70,6 +70,7 @@ extern	int	__err__;
 
 #define	putc		shell_putc
 
+#define	fileread	shell_fileread
 #define	filewrite	shell_filewrite
 
 #define	fdown(f)	(*(f))
@@ -90,6 +91,7 @@ extern	int	putc	__PR((int c, FILE *f));
 #define	list_map	shedit_list_map
 #define	add_map		shedit_add_map
 #define	del_map		shedit_del_map
+#define	append_line	shedit_append_line
 
 /*
  * dat.c
@@ -165,7 +167,6 @@ extern	int	putc	__PR((int c, FILE *f));
  * inputc.c
  */
 #define	_nextwc		shell__nextwc
-#define	append_line	shell_append_line
 #define	append_wline	shell_append_wline
 #define	get_histlen	shell_get_histlen
 #define	get_line	shell_get_line

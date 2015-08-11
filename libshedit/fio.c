@@ -1,8 +1,8 @@
-/* @(#)fio.c	1.6 09/07/11 Copyright 2006-2009 J. Schilling */
+/* @(#)fio.c	1.7 15/08/07 Copyright 2006-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)fio.c	1.6 09/07/11 Copyright 2006-2009 J. Schilling";
+	"@(#)fio.c	1.7 15/08/07 Copyright 2006-2009 J. Schilling";
 #endif
 /*
  *	Replacement for some libschily/stdio/ *.c to allow
@@ -17,6 +17,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -58,6 +60,15 @@ putc(c, f)
 	if (c != 1)
 		return (EOF);
 	return (ch);
+}
+
+ssize_t
+fileread(f, buf, n)
+	FILE	*f;
+	void	*buf;
+	size_t	n;
+{
+	return (read(*f, buf, n));
 }
 
 ssize_t

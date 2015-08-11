@@ -1,8 +1,8 @@
-/* @(#)paste.c	1.20 15/06/09 Copyright 1985-2015 J. Schilling */
+/* @(#)paste.c	1.21 15/08/06 Copyright 1985-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)paste.c	1.20 15/06/09 Copyright 1985-2015 J. Schilling";
+	"@(#)paste.c	1.21 15/08/06 Copyright 1985-2015 J. Schilling";
 #endif
 /*
  *	Paste some files together
@@ -95,7 +95,7 @@ main(ac, av)
 	if (prvers) {
 		/* CSTYLED */
 		printf("Paste release %s (%s-%s-%s) Copyright (C) 1985-2015 Jörg Schilling\n",
-				"1.20",
+				"1.21",
 				HOST_CPU, HOST_VENDOR, HOST_OS);
 		exit(0);
 	}
@@ -241,8 +241,8 @@ spaste(f)
 			if (c)
 				putchar(c);
 		}
-		putchar('\n');
 	}
+	putchar('\n');
 	fclose(f);
 }
 

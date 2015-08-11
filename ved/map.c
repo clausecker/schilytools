@@ -1,8 +1,8 @@
-/* @(#)map.c	1.34 15/04/07 Copyright 1986-2015 J. Schilling */
+/* @(#)map.c	1.35 15/08/09 Copyright 1986-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)map.c	1.34 15/04/07 Copyright 1986-2015 J. Schilling";
+	"@(#)map.c	1.35 15/08/09 Copyright 1986-2015 J. Schilling";
 #endif
 /*
  *	The map package for BSH & VED
@@ -223,13 +223,15 @@ pushmap(sp, n)
 EXPORT void
 map_init()
 {
+#define	BUF_SIZE	8192
 	register FILE	*f;
 		char	mapfname[512];
-		char	linebuf[1024];
+		char	linebuf[BUF_SIZE+1];	/* + space for null byte */
 		char	*array[3];
 		char	*home;
 	register char	**ap;
 	register char	*lp;
+	register int	amt;
 
 	home = myhome();
 	if (home != NULL) {
@@ -265,7 +267,32 @@ map_init()
 
 	ap = array;
 	lp = linebuf;
-	while (fgetline(f, lp, sizeof (linebuf)) != EOF) {
+	amt = BUF_SIZE;
+	linebuf[amt] = '\0';			/* Final null byte after buf */
+
+	while ((amt = fileread(f, lp, amt)) > 0) {
+		register char	*ep;
+
+		amt += lp - linebuf;		/* Continue on whole rest */
+		lp = linebuf;
+
+	again:
+		ep = strchr(lp, '\n');
+		if (ep == NULL && lp > linebuf && amt >= BUF_SIZE) {
+			/*
+			 * If no '\n' could be found, we need to check whether
+			 * we are in the middle of a line. If the buffer was
+			 * not full, we are at EOF already.
+			 */
+			amt = amt - (lp - linebuf);	/* Unprocessed amt */
+			movebytes(lp, linebuf, amt);	/* Move to start   */
+			lp = &linebuf[amt];		/* Point past old  */
+			amt = BUF_SIZE - amt;		/* Compute remaining */
+			continue;			/* Fill up buf	   */
+		}
+		if (ep)					/* Buf contains '\n' */
+			*ep = '\0';			/* so clear it	   */
+
 		if (breakline(lp, ':', ap, 3) < 2)
 			continue;
 		if (!add_map(ap[0], ap[1], ap[2])) {
@@ -274,6 +301,18 @@ map_init()
 error("'%s' already defined.", pretty_string(ap[0]))
 #endif
 			;
+		}
+
+		if (ep) {			/* Found '\n', check rest */
+			lp = &ep[1];
+			if ((lp - linebuf) >= amt && amt < BUF_SIZE) /* EOF */
+				break;
+			goto again;
+		} else {
+			if (amt < BUF_SIZE)			    /* EOF */
+				break;
+			lp = linebuf;
+			amt = BUF_SIZE;
 		}
 	}
 	fclose(f);

@@ -1,5 +1,5 @@
 '\" t
-.\" @(#)ved.1	1.13 12/05/07 Copyright 1984-2010 J. Schilling
+.\" @(#)ved.1	1.16 15/08/05 Copyright 1984-2015 J. Schilling
 . \"  Manual page for ved
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -14,7 +14,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH VED 1L "12/05/07" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH VED 1L "2015/08/05" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 ved \- visual editor (screen-oriented)
 .SH SYNOPSIS
@@ -356,16 +356,16 @@ lb lw1b lb lb lb lb
 lb lw1b l l l l
 .
 
-Key//CTRL/ESC CTRL/ALT/ALT ESC
-Label////set mark first/set mark first
-/
-|\(<-/A/start of line/start of para/start of line/start of para
-F2/B/go to beginning/go to bottom/go to beginning/go to bottom
-\(->|/E/end of line/end of para/end of line/end of para
-\(->/F/forward char/forward word/forward char/forward word
-\(<-/H/back char/back word/back char/back word
-\(da/N/down line/down para/down line/down para
-\(ua/P/up line/up para/up line/up para
+ Key//CTRL/ESC CTRL/ALT/ALT ESC
+ Label////set mark first/set mark first
+ /
+ |\(<-/A/start of line/start of para/start of line/start of para
+ F2/B/go to beginning/go to bottom/go to beginning/go to bottom
+ \(->|/E/end of line/end of para/end of line/end of para
+ \(->/F/forward char/forward word/forward char/forward word
+ \(<-/H/back char/back word/back char/back word
+ \(da/N/down line/down para/down line/down para
+ \(ua/P/up line/up para/up line/up para
 .TE
 .in +0.5i
 
@@ -832,18 +832,18 @@ lb lw1b lb lb lb lb
 lb lw1b l l l l
 .
 
-Key//CTRL/ESC CTRL/ALT/ALT ESC
-Label////set mark first/set mark first
-/
-F3/D/delete char/delete words/~/~
-TAB/I/tab/~/tab/~
-NL/J/insert new line/~/jump to mark/switch mark
-/////and cursor
-F4/K/kill line/kill para/kill selection/~
-CR/M/insert new line/change modes/sets mark/~
-F5/O/open line/~/open line/~
-/\(ul/undo delete/~/clear mark/~
-DEL/DEL/erase char/erase word/~/~
+ Key//CTRL/ESC CTRL/ALT/ALT ESC
+ Label////set mark first/set mark first
+ /
+ F3/D/delete char/delete words/~/~
+ TAB/I/tab/~/tab/~
+ NL/J/insert new line/~/jump to mark/switch mark
+ /////and cursor
+ F4/K/kill line/kill para/kill selection/~
+ CR/M/insert new line/change modes/sets mark/~
+ F5/O/open line/~/open line/~
+ /\(ul/undo delete/~/clear mark/~
+ DEL/DEL/erase char/erase word/~/~
 .TE
 .in +0.5i
 
@@ -1054,17 +1054,17 @@ lb lw1b lb lb lb lb
 lb lw1b l l l l
 .
 
-Key//CTRL/ESC CTRL/ALT/ALT ESC
-Label////set mark first/set mark first
-/
-.\"F6/T/save line/save para/save selection/save selection
-/T/save line/save para/save selection/~
-//into paste buf/into paste buf/into paste buf/into paste buf/
-F7/V/paste/paste and/replace select/replace select
-///clear paste buf/with paste buf/clear paste buf
-/Y/save char/save word/~/~
-//into paste buf/into paste buf//
-F8/\\\\/chng paste buf/clr paste buf/~/~
+ Key//CTRL/ESC CTRL/ALT/ALT ESC
+ Label////set mark first/set mark first
+ /
+.\" F6/T/save line/save para/save selection/save selection
+ F6/T/save line/save para/save selection/~
+ //into paste buf/into paste buf/into paste buf/into paste buf/
+ F7/V/paste/paste and/replace select/replace select
+ ///clear paste buf/with paste buf/clear paste buf
+ /Y/save char/save word/~/~
+ //into paste buf/into paste buf//
+ F8/\\\\/chng paste buf/clr paste buf/~/~
 .TE
 .in +0.5i
 
@@ -1191,11 +1191,11 @@ lb lw1b lb lb lb lb
 lb lw1b l l l l
 .
 
-Key//CTRL/ESC CTRL/ALT/ALT ESC
-Label////set mark first/set mark first
-/
-F9/R/forward search/reverse search/forward search/reverse search
-F10/Z/re-search/reverse re-srch/re-srch/reverse re-srch
+ Key//CTRL/ESC CTRL/ALT/ALT ESC
+ Label////set mark first/set mark first
+ /
+ F9/R/forward search/reverse search/forward search/reverse search
+ F10/Z/re-search/reverse re-srch/re-srch/reverse re-srch
 .TE
 .in +0.5i
 
@@ -2744,7 +2744,7 @@ it tends to be non-portable between different platforms.
 While
 .B termcap
 allows to have a private terminal database in the NFS mounted home directory,
-this tend to gives problems with
+the same attept tends to give problems with
 .B terminfo
 if a vendor did make private additions.
 Because
@@ -2769,8 +2769,7 @@ appears before characters, i.e.,
 .PP
 None currently known.
 
-.SH
-AUTHOR
+.SH AUTHOR
 .nf
 J\*org Schilling
 Seestr. 110
@@ -2781,10 +2780,7 @@ Germany
 Mail bugs and suggestions to:
 .PP
 .B
-schilling@fokus.gmd.de
+joerg.schilling@fokus.fraunhofer.de
 or
 .B
 js@cs.tu-berlin.de
-or
-.B
-joerg@schily.isdn.cs.tu-berlin.de

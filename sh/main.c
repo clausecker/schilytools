@@ -38,11 +38,11 @@
 /*
  * This file contains modifications Copyright 2008-2015 J. Schilling
  *
- * @(#)main.c	1.34 15/08/01 2008-2015 J. Schilling
+ * @(#)main.c	1.36 15/08/08 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)main.c	1.34 15/08/01 2008-2015 J. Schilling";
+	"@(#)main.c	1.36 15/08/08 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -322,6 +322,10 @@ main(c, v, e)
 
 	dfault(&mchknod, (unsigned char *)MAILCHECK);
 	mailchk = stoi(mchknod.namval);
+#ifdef	DO_PS34
+	dfault(&ps3nod, (unsigned char *)selectmsg);
+	dfault(&ps4nod, (unsigned char *)execpmsg);
+#endif
 
 	/* initialize OPTIND for getopt */
 
@@ -574,6 +578,12 @@ exfile(prof)
 		alarm(0);
 #endif
 
+#ifdef	DO_HASHCMDS
+		if (peekc == '#' && (flags2 & hashcmdsflg)) {
+			peekc = 0;
+			hashcmd();
+		} else
+#endif
 		{
 			struct trenod *t;
 			t = cmd(NL, MTFLG);

@@ -1,8 +1,8 @@
-/* @(#)inputc.c	1.73 15/08/01 Copyright 1982, 1984-2015 J. Schilling */
+/* @(#)inputc.c	1.75 15/08/09 Copyright 1982, 1984-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)inputc.c	1.73 15/08/01 Copyright 1982, 1984-2015 J. Schilling";
+	"@(#)inputc.c	1.75 15/08/09 Copyright 1982, 1984-2015 J. Schilling";
 #endif
 /*
  *	inputc.c
@@ -2415,30 +2415,69 @@ EXPORT void
 readhistory(f)
 	register FILE	*f;
 {
-		char	line[512];
-	register char	*s = line;
+#define	BUF_SIZE	8192		/* XXX Dymanic resize ???	*/
+		char	rbuf[BUF_SIZE+1]; /* + space for null byte	*/
+	register char	*s = rbuf;	/* Start of current line	*/
+	register char	*ep;		/* End of current line		*/
 	register int	len;
+	register int	amt;
 
-	while ((len = fgetline(f, s, sizeof (line))) >= 0) {
-		if (len == 0)
-			continue;
+	amt = BUF_SIZE;
+	rbuf[amt] = '\0';		/* Final null byte after rbuf */
+	while ((amt = fileread(f, s, amt)) > 0) {
+		amt += s - rbuf;	/* Continue to work on whole rest */
+		s = rbuf;
+
+	again:
+		ep = strchr(s, '\n');
+		if (ep == NULL && s > rbuf && amt >= BUF_SIZE) {
+			/*
+			 * If no '\n' could be found, we need to check whether
+			 * we are in the middle of a line. If the buffer was
+			 * not full, we are at EOF already.
+			 */
+			amt = amt - (s - rbuf);	/* Compute unprocessed amt  */
+			movebytes(s, rbuf, amt); /* Move to the start of buf */
+			s = &rbuf[amt];		/* Point past old content   */
+			amt = BUF_SIZE - amt;	/* Compute remaining space  */
+			continue;		/* Read again to fill buf   */
+		}
+		if (ep)				/* Current line ends in '\n' */
+			*ep = '\0';		/* so clear it		    */
+
+#ifdef	__skip__bash_timestamps__
 		/*
 		 * Skip bash timestamps
 		 */
-		if (line[0] == '#' && line[1] == '+') {
+		if (s[0] == '#' && s[1] == '+') {
 			register char	*p;
 
-			for (p = &line[2]; *p != '\0'; p++)
+			for (p = &s[2]; *p != '\0'; p++)
 				if (!_isdigit((unsigned char)*p))
 					break;
 			if (*p == '\0')
 				continue;
+			s = p;
 		}
-#ifdef	DEBUG
-		fprintf(stderr, "appending: %s\r\n", s);
-#endif
+#endif	/* __skip__bash_timestamps__ */
+
 		len = strlen(s);
+#ifdef	DEBUG
+		fprintf(stderr, "appending: %d bytes: %s\r\n", len, s);
+#endif
 		append_line(s, (unsigned)len+1, len);
+
+		if (ep) {			/* Found '\n', check rest */
+			s = &ep[1];
+			if ((s - rbuf) >= amt && amt < BUF_SIZE) /* EOF */
+				break;
+			goto again;
+		} else {
+			if (amt < BUF_SIZE)			/* EOF */
+				break;
+			s = rbuf;
+			amt = BUF_SIZE;
+		}
 	}
 }
 

@@ -1,13 +1,13 @@
-/* @(#)test.c	1.28 11/08/04 Copyright 1986,1995-2009 J. Schilling */
+/* @(#)test.c	1.29 15/08/05 Copyright 1986,1995-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)test.c	1.28 11/08/04 Copyright 1986,1995-2009 J. Schilling";
+	"@(#)test.c	1.29 15/08/05 Copyright 1986,1995-2015 J. Schilling";
 #endif
 /*
  *	Test routine (the test builtin command)
  *
- *	Copyright (c) 1986,1995-2009 J. Schilling
+ *	Copyright (c) 1986,1995-2015 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -16,6 +16,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -351,10 +353,16 @@ expn()
 		return (x - y);
 	if (streql(op, "*"))
 		return (x * y);
-	if (streql(op, slash))
+	if (streql(op, slash)) {
+		if (y == 0)
+			expr_syntax(divzero);	/* never returns */		
 		return (x / y);
-	if (streql(op, "%"))
+	}
+	if (streql(op, "%")) {
+		if (y == 0)
+			expr_syntax(divzero);	/* never returns */		
 		return (x % y);
+	}
 	if (streql(op, "&"))
 		return (x & y);
 	if (streql(op, "|"))
@@ -405,8 +413,12 @@ ass_expr(name, op, y)
 
 	case '+' :	return (x + y);
 	case '-' :	return (x - y);
-	case '/' :	return (x / y);
-	case '%' :	return (x % y);
+	case '/' :	if (y == 0)
+				expr_syntax(divzero);	/* never returns */		
+			return (x / y);
+	case '%' :	if (y == 0)
+				expr_syntax(divzero);	/* never returns */		
+			return (x % y);
 	case '*' :	return (x * y);
 
 	default  :	expr_syntax(ebadop, op);	/* never returns */
