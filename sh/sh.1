@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sh.1	1.85 15/08/11 Copyright 2012-2015 J. Schilling
+.\" @(#)sh.1	1.91 15/08/16 Copyright 2012-2015 J. Schilling
 .\" Copyright 1989 AT&T
 .\" Copyright (c) 2008, Sun Microsystems, Inc. All Rights Reserved.
 .\" Portions Copyright (c) 1992, X/Open Company Limited All Rights Reserved
@@ -59,7 +59,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sh 1 "2015/08/11" "Schily Bourne Shell" "User Commands"
+.TH sh 1 "2015/08/16" "Schily Bourne Shell" "User Commands"
 .SH NAME
 sh, jsh \- standard and job control shell and command interpreter
 .SH SYNOPSIS
@@ -571,7 +571,13 @@ the raw alias definitions.
 Hash commands are frequently used to edit alias definitions using the
 command line history editor.
 .LP
-No I/O redirection is possible for hash commands.
+.B No I/O redirection
+is possible for hash commands.
+.B No exit code
+is created for hash commands,
+.B $?
+is left intact from the last regular command.
+Quoting is not possible for hash commands.
 For all hash commands, there is a built in help text that is printed
 when 
 .BI # c "\ -help
@@ -583,7 +589,8 @@ When hash commands are enabled, the character that immediately follows the
 .B #
 is the
 .BR "command character" .
-The command character may be followed by one or more command modifier characters.
+The command character may be followed by one or more
+.BR "command modifier characters" .
 The following commands are supported:
 
 .br
@@ -597,15 +604,29 @@ occurs on the command line.
 Without modifier, the alias
 is entered into the current default table.
 .sp
+The first word surrounded by spaces is taken as the
+.B alias
+.IR name ,
+after skipping spaces, all text up to the end of the line is taken as
+the
+.B alias
+.IR value .
+.sp
 When using the
 .RB ' g '
-modifier, the command works on global aliases,
+modifier, the command works on
+.BR "global aliases" ,
 regardless of the current default.
 .sp
 When using the
 .RB ' l '
-modifier, the command works on local aliases,
+modifier, the command works on
+.BR "local aliases" ,
 regardless of the current default.
+.sp
+At startup, the default is to use
+the
+.BR "global aliases" .
 .br
 .ne 3
 .TP
@@ -620,9 +641,9 @@ is entered into the current default table.
 .ne 3
 .TP
 .BI "#d[g|l]" " name
-Removed the alias
+Removes the alias
 .I name
-from the list os known aliases.
+from the list of known aliases.
 Without modifier, the alias
 is removed from the current default table.
 .br
@@ -1663,12 +1684,193 @@ was not supported in older versions of
 .ne 3
 .TP
 .B TIMEFORMAT
-Controls the output format for command timing. Currently not implemented.
+Controls the output format for command timing.
+The
+.B %
+character introduces a format sequence that is
+expanded to a time value or other information.
 .sp
+The meaning of format sequences are as follows:
+.RS
+.TP 10
+.B %%
+Prints a literal
+.BR % .
+.TP
+.BI % p T
+Set the threshold to
+.I p
+seconds,
+.I p
+is a single digit.
+If the number of seconds computed from adding the user and
+system cpu time is less than the threshold, the rest of
+the format string is not processed;
+if this format appears at the beginning of
+.BR TIMEFORMAT ,
+the whole output is suppressed in that case.
+.TP
+.B %P
+Prints the cpu percentage computed as 100*(U\ +\ S)\ /\ R.
+On multi-cpu systems, this value may be larger than 100.
+.TP
+.BR % [\fIp\fP][\fIf\fP] E
+Prints the elapsed (real) wallclock time in seconds.
+.TP
+.BR % [\fIp\fP][\fIf\fP] S
+Prints the number of cpu seconds spend in system mode.
+.TP
+.BR % [\fIp\fP][\fIf\fP] U
+Prints the number of cpu seconds spend in user mode.
+.TP
+.B %W
+Number of times the process was swapped.
+.TP
+.B %X
+The average amount in shared text space used in Kbytes.
+This field is currently not supported.
+.TP
+.B %D
+The average amount in unshared data space used in Kbytes.
+This field is currently not supported.
+.TP
+.B %K
+The average amount of unshared stack space used in Kbytes.
+This field is currently not supported.
+.TP
+.B %M
+The maximum memory the process had in use at any time in Kbytes.
+This field is currently not supported.
+.TP
+.B %F
+The number of major page faults (page faults that caused physical I/O).
+.TP
+.B %R
+The number of minor page faults (page faults that did not caused physical I/O).
+.TP
+.B %I
+The number of input operations
+.TP
+.B %O
+The number of output operations.
+.TP
+.B %r
+The number of socket messages received.
+.TP
+.B %s
+The number of socket messages sent.
+.TP
+.B %k
+The number of signals received.
+.TP
+.B %w
+Number of voluntary context switches (waits).
+.TP
+.B %c
+Number of involuntary context switches.
+.TP
+.B %J
+The name of this job. This string is only available when in
+.B job control
+mode.
+.LP
+On some minimal
+.B POSIX
+systems and on
+.B BeOS
+and
+.B Haiku
+only the times are supported.
+.LP
+The optional
+.I p
+is a digit specifying the
+.IR precision ,
+the number of fractional digits after a decimal point.
+A value of
+.B 0
+causes no decimal point to be printed.
+A value larger than
+.B 6
+is treated as
+.BR 6 .
+If
+.I p
+is not specified, the value
+.B 3
+is used.
+.LP
+The optional
+.I f
+is a letter specifying the format to be used.
+If it is missing, a plain floating point number
+based on seconds is used.
+The following characters are supported to specify
+a different format:
+.TP
+.B l
+The
+.BR l -format
+is the POSIX output format for
+.BR times (1).
+It always prints minutes and seconds in the following form:
+.IB dd m dd.ppp s\fR.
+.TP
+.B L
+The
+.BR L -format
+is similar to the
+.BR l -format
+but it prints hours and minutes where the
+.BR l -format
+prints just minutes regardless of
+whether there are more than 59 minutes.
+Minutes and hours are only printed if the value is more
+than 59 seconds or 59 minutes.
+The format is:
+.IB dd h dd m dd.ppp s\fR.
+.TP
+.B :
+The
+.BR : -format
+is similar to the
+.BR L -format
+but it prints no
+.B s
+after the seconds and it
+replaces
+.B m
+and
+.B h
+by
+.BR : .
+The format is:
+.IB dd : dd : dd.ppp\fR.
+.LP
+If
+.B TIMEFORMAT
+is unset, the value:
+.sp
+.B "  '%:E\ real\ %U\ user\ %S\ sys\ %\&P%%\ cpu'
+.sp
+is used. If
+.B TIMEFORMAT
+is empty, no timing information is printed.
+A recommended format that is similar to what
+.BR csh(1)
+prints by default,
+but with the available precision from
+modern operating systems is:
+.sp
+.B "  '%6:Er\ %6Uu\ %6Ss\ %\&P%%\ %I+%Oio\ %Fpf+%Ww'
+.LP
+A trailing newline is added when the format string is displayed.
+.LP
 The variable
 .B TIMEFORMAT
 was not supported in older versions of
 .BR sh .
+.RE
 
 .sp
 .LP
@@ -3670,9 +3872,7 @@ Equivalent to
 .TP
 .B time
 Switch on automatic timing for commands.
-Currently, only a simple implementation to print timing for
-external foreground programs is implemented.
-Later, the variable
+The variable
 .B TIMEFORMAT
 may be used to control the output format.
 .TP

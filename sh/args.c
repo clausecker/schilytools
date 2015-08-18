@@ -41,11 +41,11 @@
 /*
  * Copyright 2008-2015 J. Schilling
  *
- * @(#)args.c	1.51 15/08/11 2008-2015 J. Schilling
+ * @(#)args.c	1.52 15/08/17 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)args.c	1.51 15/08/11 2008-2015 J. Schilling";
+	"@(#)args.c	1.52 15/08/17 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -192,7 +192,7 @@ unsigned long	flagval[]  =
 	fl2 | hashcmdsflg,	/* -o hashcmds, enable # commands */
 #endif
 #ifdef	DO_HOSTPROMPT
-	fl2 | hostpromptflg,		/* -o hostprompt, "<host> <user>> " prompt */
+	fl2 | hostpromptflg,	/* -o hostprompt, "<host> <user>> " prompt */
 #endif
 	nofngflg,
 	exportflg,
@@ -910,7 +910,7 @@ hostprompt(on)
 	if (on)
 		assign(&ps1nod, pr);
 	else
-		assign(&ps1nod, UC (euid ? stdprompt : supprompt));
+		assign(&ps1nod, UC(euid ? stdprompt : supprompt));
 #endif
 }
 #endif	/* DO_HOSTPROMPT */

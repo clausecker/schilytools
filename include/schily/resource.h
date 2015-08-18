@@ -1,10 +1,10 @@
-/* @(#)resource.h	1.10 15/07/03 Copyright 1995-2013 J. Schilling */
+/* @(#)resource.h	1.11 15/08/14 Copyright 1995-2015 J. Schilling */
 /*
  *	Abstraction from resource limits
  *
  *	Missing parts for wait3() taken from SunOS
  *
- *	Copyright (c) 1995-2013 J. Schilling
+ *	Copyright (c) 1995-2015 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -61,14 +61,23 @@ extern "C" {
 
 #ifndef	HAVE_STRUCT_RUSAGE
 
+/*
+ * On a vanilla BSD system, all fields are set.
+ * On other systems, parts may not be supported.
+ *
+ * S: 0 means that the value is 0 on Solaris
+ * S: * means that the value is the sum of rm_asrss on Solaris
+ *
+ * POSIX and BeOS/Haiku define only ru_utime and ru_stime.
+ */
 struct	rusage {
 	struct timeval ru_utime;	/* user time used */
 	struct timeval ru_stime;	/* system time used */
-	long	ru_maxrss;
+	long	ru_maxrss;		/* maximum resident set size S: 0 */
 #define	ru_first	ru_ixrss
-	long	ru_ixrss;		/* XXX: 0 */
-	long	ru_idrss;		/* XXX: sum of rm_asrss */
-	long	ru_isrss;		/* XXX: 0 */
+	long	ru_ixrss;		/* integral shared memory size S: 0 */
+	long	ru_idrss;		/* integral unshared data size S: * */
+	long	ru_isrss;		/* integral unshared stack size S: 0 */
 	long	ru_minflt;		/* any page faults not requiring I/O */
 	long	ru_majflt;		/* any page faults requiring I/O */
 	long	ru_nswap;		/* swaps */

@@ -1,8 +1,8 @@
-/* @(#)hashcmd.c	1.3 15/08/11 Copyright 1986-2015 J. Schilling */
+/* @(#)hashcmd.c	1.5 15/08/17 Copyright 1986-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)hashcmd.c	1.3 15/08/11 Copyright 1986-2015 J. Schilling";
+	"@(#)hashcmd.c	1.5 15/08/17 Copyright 1986-2015 J. Schilling";
 #endif
 /*
  *	Commands dealing with #<letter> commands
@@ -58,10 +58,10 @@ hashcmd()
 	int	histflg = 0;
 	abidx_t	tab = deftab;
 
-	cmdc = nextch();						/* First skip '#' */
+	cmdc = nextch();				/* First skip '#' */
 	skipwhite();
-	if (!isatty(standin->fdes) && (space(cmdc) || eolchar(delim)))	/* Kommentar */
-		cmdc = ' ';
+	if (!isatty(standin->fdes) && (space(cmdc) || eolchar(delim)))
+		cmdc = ' ';				/* # in script: ign. */
 	else
 		cmdc = tolower(delim);
 	if (cmdc != ' ' && eolchar(delim)) {
@@ -166,7 +166,7 @@ hashcmd()
 	case 's':
 		deftab = tab;
 		prs_buff(_gettext("Default: "));
-		prs_buff(UC (deftab == GLOBAL_AB?globalname:localname));
+		prs_buff(UC(deftab == GLOBAL_AB?globalname:localname));
 		prc_buff(NL);
 		flushb();
 		break;
@@ -177,6 +177,20 @@ hashcmd()
 	case '!':	/* This shell always ignores #! */
 	case ' ':
 		break;	/* Kommentar */
+		/*
+		 * We do not implement all commands from the original concept
+		 * in the UNOS command interpreter. The original did support
+		 * the following additional commands:
+		 *
+		 * #!	Manage other interpreters in scripts at user level.
+		 * #e	re-execute the parsed tree from the last command.
+		 * #q	quit the shell.
+		 * #v	switch on/off command verbosity similar to "set -x".
+		 * #x	manage the environemt variables.
+		 *
+		 * So keep in mind that the command characters from the list
+		 * above should not be used for future extensions.
+		 */
 	default:
 		herror("Unknown command");
 		abballusage();

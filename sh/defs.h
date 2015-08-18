@@ -39,7 +39,7 @@
 /*
  * Copyright 2008-2015 J. Schilling
  *
- * @(#)defs.h	1.99 15/08/09 2008-2015 J. Schilling
+ * @(#)defs.h	1.100 15/08/14 2008-2015 J. Schilling
  */
 
 #ifdef	__cplusplus
@@ -566,7 +566,7 @@ extern	void	prc		__PR((unsigned char c));
 extern	void	prwc		__PR((wchar_t c));
 extern	void	clock2tv	__PR((clock_t t, struct timeval	*tp));
 extern	void	prt		__PR((long t));
-extern	void	prtv		__PR((struct timeval *tp, int lf));
+extern	void	prtv		__PR((struct timeval *tp, int digs, int lf));
 extern	void	prn		__PR((int n));
 extern	void	itos		__PR((int n));
 extern	void	sitos		__PR((int n));
@@ -579,6 +579,7 @@ extern	void	prc_buff	__PR((unsigned char c));
 extern	void	prs_buff	__PR((unsigned char *s));
 extern	void	prs_cntl	__PR((unsigned char *s));
 extern	void	prull_buff	__PR((UIntmax_t lc));
+extern	void	prl_buff	__PR((long l));
 extern	void	prn_buff	__PR((int n));
 extern	int	setb		__PR((int fd));
 

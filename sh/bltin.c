@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2015 J. Schilling
  *
- * @(#)bltin.c	1.55 15/07/28 2008-2015 J. Schilling
+ * @(#)bltin.c	1.57 15/08/16 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)bltin.c	1.55 15/07/28 2008-2015 J. Schilling";
+	"@(#)bltin.c	1.57 15/08/16 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -122,14 +122,14 @@ struct trenod *t;
 			struct rusage	ru;
 
 			getrusage(RUSAGE_SELF, &ru);
-			prtv(&ru.ru_utime, TRUE);
+			prtv(&ru.ru_utime, 3, 'l');
 			prc_buff(SPACE);
-			prtv(&ru.ru_stime, TRUE);
+			prtv(&ru.ru_stime, 3, 'l');
 			prc_buff(NL);
 			getrusage(RUSAGE_CHILDREN, &ru);
-			prtv(&ru.ru_utime, TRUE);
+			prtv(&ru.ru_utime, 3, 'l');
 			prc_buff(SPACE);
-			prtv(&ru.ru_stime, TRUE);
+			prtv(&ru.ru_stime, 3, 'l');
 			prc_buff(NL);
 		}
 		break;

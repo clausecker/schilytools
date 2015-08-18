@@ -36,14 +36,14 @@
 /*
  * This file contains modifications Copyright 2008-2015 J. Schilling
  *
- * @(#)print.c	1.27 15/07/28 2008-2015 J. Schilling
+ * @(#)print.c	1.29 15/08/16 2008-2015 J. Schilling
  */
 #ifdef	SCHILY_INCLUDES
 #include <schily/mconfig.h>
 #endif
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)print.c	1.27 15/07/28 2008-2015 J. Schilling";
+	"@(#)print.c	1.29 15/08/16 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -80,7 +80,7 @@ static int buffd = 1;
 	void	prc	__PR((unsigned char c));
 	void	prwc	__PR((wchar_t c));
 	void	prt	__PR((long t));
-	void	prtv	__PR((struct timeval *tp, int lf));
+	void	prtv	__PR((struct timeval *tp, int digs, int lf));
 	void	prn	__PR((int n));
 static	void	_itos	__PR((unsigned int n, char *out, size_t	outlen));
 	void	itos	__PR((int n));
@@ -187,36 +187,56 @@ prt(t)
 	struct timeval	tv;
 
 	clock2tv(t, &tv);
-	prtv(&tv, TRUE);
+	prtv(&tv, 3, TRUE);
 }
 
+static int	divs[7] = { 1000000, 100000, 10000, 1000, 100, 10, 1 };
+
 void
-prtv(tp, lf)
+prtv(tp, digs, lf)
 	struct timeval	*tp;
+	int		digs;
 	int		lf;	/* Long format */
 {
 	int s, hr, min, sec, frac;
 
-	frac = tp->tv_usec / 1000;
+	if (digs < 0)
+		digs = 3;
+	if (digs > 6)
+		digs = 6;
+	frac = tp->tv_usec / divs[digs];
 	s = tp->tv_sec;
-	sec = s % 60;
-	s /= 60;
-	min = s % 60;
+	if (lf) {
+		sec = s % 60;	/* Pure seconds		*/
+		s /= 60;	/* s now holds minutes	*/
+		min = s % 60;	/* Pure minutes		*/
+		if (lf == 'l')
+			min = s;
+		hr = 0;
 
-	if ((hr = s / 60) != 0) {
-		prn_buff(hr);
-		prc_buff('h');
+		if ((lf != 'l') && (hr = s / 60) != 0) {
+			prn_buff(hr);
+			prc_buff(lf == ':' ? ':':'h');
+		}
+		if (lf == 'l' || hr > 0 || min > 0) {
+			if (lf == ':' && min < 10 && hr > 0)
+				prc_buff('0');
+			prn_buff(min);
+			prc_buff(lf == ':' ? ':':'m');
+		}
+	} else {
+		sec = s;
 	}
-
-	if (lf || min > 0) {
-		prn_buff(min);
-		prc_buff('m');
-	}
+	if (lf == ':' && sec < 10 && tp->tv_sec >= 60)
+		prc_buff('0');
 	prn_buff(sec);
-	prc_buff('.');
-	itos(frac+1000);
-	prs_buff(numbuf+1);
-	prc_buff('s');
+	if (digs > 0) {
+		prc_buff('.');
+		itos(frac+1000000);
+		prs_buff(numbuf+7-digs);
+	}
+	if (lf != FALSE && lf != ':')
+		prc_buff('s');
 }
 
 void
@@ -485,6 +505,13 @@ prull_buff(lc)
 	UIntmax_t	lc;
 {
 	prs_buff(&numbuf[ulltos(lc)]);
+}
+
+void
+prl_buff(l)
+	long	l;
+{
+	prs_buff(&numbuf[ltos(l)]);
 }
 
 void

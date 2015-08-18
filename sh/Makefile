@@ -1,4 +1,4 @@
-#ident "@(#)Makefile	1.72 15/08/09  Copyright (c) 2006-2015 J. Schilling"
+#ident "@(#)Makefile	1.73 15/08/17  Copyright (c) 2006-2015 J. Schilling"
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -92,10 +92,12 @@ HFILES=		abbrev.h ctype.h defs.h dup.h hash.h mac.h mode.h name.h \
 
 # -lgen		fuer gmatch()
 # -lsecdb	fuer getexecuser() free_execattr()
+# $(LIB_ACL_TEST) fuer libfind
 #
 LIBS=		$(LIB_GEN) $(LIB_SECDB) -lshelledit -lxtermcap -lgetopt \
 		$(LIB_FIND) \
 		-lschily \
+		$(LIB_ACL_TEST) \
 		$(LIB_INTL) $(LIB_DL)
 #LIBS=		-lgen -lsecdb 
 XMK_FILE=	Makefile.man bosh.mk1 jsh.mk1 pfsh.mk1

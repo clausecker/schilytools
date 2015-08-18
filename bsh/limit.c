@@ -1,13 +1,13 @@
-/* @(#)limit.c	1.40 15/07/15 Copyright 1987-2013 J. Schilling */
+/* @(#)limit.c	1.41 15/08/17 Copyright 1987-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)limit.c	1.40 15/07/15 Copyright 1987-2013 J. Schilling";
+	"@(#)limit.c	1.41 15/08/17 Copyright 1987-2015 J. Schilling";
 #endif
 /*
  *	Resource usage routines
  *
- *	Copyright (c) 1987-2013 J. Schilling
+ *	Copyright (c) 1987-2015 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the

@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2015 J. Schilling
  *
- * @(#)name.c	1.34 15/08/05 2008-2015 J. Schilling
+ * @(#)name.c	1.35 15/08/17 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)name.c	1.34 15/08/05 2008-2015 J. Schilling";
+	"@(#)name.c	1.35 15/08/17 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -767,26 +767,27 @@ pushnam(n)
 	unsigned char	*p;
 	unsigned char	*namval;
 
-	if (((flg & N_ENVCHG) && (flg & N_EXPORT)) || (flg & N_FUNCTN))
+	if (((flg & N_ENVCHG) && (flg & N_EXPORT)) || (flg & N_FUNCTN)) {
 		namval = n->namval;
-	else {
+	} else {
 		/* Discard Local variable in child process */
 		if (!(flg & ~N_ENVCHG)) {
-			n->namflg = 0;
-			n->namenv = 0;
-			if (n->namval) {
-				/* Release for re-use */
-				if (!(namflg & ENV_NOFREE)) {
+			if (!(namflg & ENV_NOFREE)) {
+				n->namflg = 0;
+				n->namenv = 0;
+				if (n->namval) {
+					/* Release for re-use */
 					free(n->namval);
 					n->namval = (unsigned char *)NIL;
 				}
 			}
+			namval = (unsigned char *)NIL;
+		} else {
+			namval = n->namenv;
 		}
-		namval = n->namenv;
 	}
 
-	if (namval)
-	{
+	if (namval) {
 		p = movstrstak(n->namid, staktop);
 		p = movstrstak((unsigned char *)"=", p);
 		p = movstrstak(namval, p);

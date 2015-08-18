@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2015 J. Schilling
  *
- * @(#)jobs.c	1.60 15/07/29 2008-2015 J. Schilling
+ * @(#)jobs.c	1.63 15/08/17 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)jobs.c	1.60 15/07/29 2008-2015 J. Schilling";
+	"@(#)jobs.c	1.63 15/08/17 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -1529,7 +1529,15 @@ prtime(jp)
 	struct rusage	rustop;
 	UIntmax_t	cpu;
 	UIntmax_t	per;
+	unsigned char	*fmt;
+	unsigned char	*ofmt;
+	unsigned char	c;
 	int		save_fd = setb(STDERR_FILENO);
+
+	fmt = timefmtnod.namval;
+	if (fmt == NULL)
+		fmt = UC "%:E real %U user %S sys %P%% cpu";
+	ofmt = fmt;
 
 	gettimeofday(&stop, NULL);
 	if (jp->j_flag & J_BLTIN)
@@ -1547,19 +1555,121 @@ prtime(jp)
 	if (per < 1)
 		per = 1;
 	per = 100 * cpu / per;
+	cpu /= 1000;
 
-	prc_buff('r');
-	prtv(&stop, FALSE);
-	prc_buff(SPACE);
-	prc_buff('u');
-	prtv(&rustop.ru_utime, FALSE);
-	prc_buff(SPACE);
-	prc_buff('s');
-	prtv(&rustop.ru_stime, FALSE);
-	prc_buff(SPACE);
-	prull_buff(per);
-	prc_buff('%');
-	prc_buff(NL);
+	while ((c = *fmt++) != '\0') {
+		if (c == '%') {
+			int	dig = -1;
+			int	longopt = FALSE;
+
+			if ((c = *fmt++) == '\0')
+				break;
+			if (c >= '0' && c <= '9') {
+				dig = c - '0';
+				if ((c = *fmt++) == '\0')
+					break;
+			}
+			if (c == 'l' || c == 'L' || c == ':') {
+				longopt = c;
+				if ((c = *fmt++) == '\0')
+					break;
+			}
+			switch (c) {
+			case 'T':
+				if (dig > cpu) {
+					fmt -= 3;
+					goto out;
+				}
+				break;
+			case 'J':
+				prs_buff((unsigned char *)jp->j_cmd);
+				break;
+			case 'P':
+				prull_buff(per);
+				break;
+			case 'E':
+				prtv(&stop, dig, longopt);
+				break;
+			case 'S':
+				prtv(&rustop.ru_stime, dig, longopt);
+				break;
+			case 'U':
+				prtv(&rustop.ru_utime, dig, longopt);
+				break;
+
+#if !defined(__BEOS__) && !defined(__HAIKU__)	/* XXX dirty hack */
+			case 'W':
+				prl_buff(rustop.ru_nswap -
+					jp->j_rustart.ru_nswap);
+				break;
+#ifdef	__future__
+			case 'X':	/* shared */
+				ru_ixrss * pagesize()/1024 / tics
+				break;
+			case 'D':	/* unshared data */
+				ru_idrss * pagesize()/1024 / tics
+				break;
+			case 'K':	/* unshared stack */
+				ru_isrss * pagesize()/1024 / tics
+				break;
+			case 'M':
+				ru_maxrss * pagesize()/1024(/2 ?)
+				break;
+#else
+			case 'X':
+			case 'D':
+			case 'K':
+			case 'M':
+				prc_buff('0');
+				break;
+#endif
+			case 'F':
+				prl_buff(rustop.ru_majflt -
+					jp->j_rustart.ru_majflt);
+				break;
+			case 'R':
+				prl_buff(rustop.ru_minflt -
+					jp->j_rustart.ru_minflt);
+				break;
+			case 'I':
+				prl_buff(rustop.ru_inblock -
+					jp->j_rustart.ru_inblock);
+				break;
+			case 'O':
+				prl_buff(rustop.ru_oublock -
+					jp->j_rustart.ru_oublock);
+				break;
+			case 'r':
+				prl_buff(rustop.ru_msgrcv -
+					jp->j_rustart.ru_msgrcv);
+				break;
+			case 's':
+				prl_buff(rustop.ru_msgsnd -
+					jp->j_rustart.ru_msgsnd);
+				break;
+			case 'k':
+				prl_buff(rustop.ru_nsignals -
+					jp->j_rustart.ru_nsignals);
+				break;
+			case 'w':
+				prl_buff(rustop.ru_nvcsw -
+					jp->j_rustart.ru_nvcsw);
+				break;
+			case 'c':
+				prl_buff(rustop.ru_nivcsw -
+					jp->j_rustart.ru_nivcsw);
+				break;
+#endif
+			default:
+				prc_buff(c);
+			}
+		} else {
+			prc_buff(c);
+		}
+	}
+out:
+	if ((fmt - ofmt) > 0)
+		prc_buff(NL);
 	flushb();
 
 	(void) setb(save_fd);

@@ -1,9 +1,9 @@
-/* @(#)wait3.c	1.18 15/06/25 Copyright 1995-2015 J. Schilling */
+/* @(#)wait3.c	1.19 15/08/17 Copyright 1995-2015 J. Schilling */
 #undef	USE_LARGEFILES	/* XXX Temporärer Hack für Solaris */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)wait3.c	1.18 15/06/25 Copyright 1995-2015 J. Schilling";
+	"@(#)wait3.c	1.19 15/08/17 Copyright 1995-2015 J. Schilling";
 #endif
 /*
  * Compatibility function for BSD wait3().
@@ -206,10 +206,10 @@ static int wait_prusage(info, options, tms_startp, rusage)
 	close(f);
 #ifdef	COMMENT
 Missing fields:
-	rusage->ru_maxrss = XXX;
-	rusage->ru_ixrss = XXX;
-	rusage->ru_idrss = XXX;
-	rusage->ru_isrss = XXX;
+	rusage->ru_maxrss = XXX;	/* maximum resident set size */
+	rusage->ru_ixrss = XXX;		/* integral shared memory size */
+	rusage->ru_idrss = XXX;		/* integral unshared data size */
+	rusage->ru_isrss = XXX;		/* integral unshared stack size */
 #endif
 	rusage->ru_minflt = prusage.pr_minf;
 	rusage->ru_majflt = prusage.pr_majf;

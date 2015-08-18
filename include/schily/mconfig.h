@@ -1,4 +1,4 @@
-/* @(#)mconfig.h	1.70 15/06/28 Copyright 1995-2015 J. Schilling */
+/* @(#)mconfig.h	1.71 15/08/14 Copyright 1995-2015 J. Schilling */
 /*
  *	definitions for machine configuration
  *
@@ -547,7 +547,7 @@ extern "C" {
 /*
  * We need to include this here already in order to make sure that
  * every program that is based on mconfig.h will include schily/dbgmalloc.h
- * in case that we specify -DDBD_MALLOC
+ * in case that we specify -DDBG_MALLOC
  */
 #include <schily/dbgmalloc.h>
 #endif

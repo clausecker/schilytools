@@ -1,0 +1,127 @@
+New features with AN-2015-08-18:
+
+This is the first localization step for the schily source consolidation. Many
+programs now (hopefully) call gettext() for all strings that need localization.
+
+-	The next step will include dgettext() calls for the libraries and the
+	missing programs
+
+-	The following step will include the extracted strings
+
+-	The last step will include German translations and install support
+	for the resulting binary message object files.
+
+----------> Please test and report compilation problems! <---------
+
+***** NOTE: As mentioned since 2004, frontends to the tools should *****
+*****		call all programs in the "C" locale		   *****
+*****		by e.g. calling: LC_ALL=C cdrecord ....		   *****
+*****		unless these frontends support localized strings   *****
+*****		used by the cdrtools with NLS support.		   *****
+
+		*** WARNING        ***
+		*** Need new smake ***
+
+	*** Due to the fact that schily-tools 2014-04-03 introduced to use new macro
+	*** expansions and a related bug fix in smake, you need a new smake
+	*** to compile this source. To ensure this, call:
+
+	cd ./psmake
+	./MAKE-all
+	cd ..
+	psmake/smake
+	psmake/smake install
+
+
+	WARNING: the new version of the isoinfo program makes use of the 
+		*at() series of functions that have been introduced by Sun
+		in August 2001 and added to POSIX.1-2008. For older platforms,
+		libschily now includes emulations for these functions but
+		these emulations have not yet been tested thoroughly.
+		Please report problems!
+
+	The new smake version mentioned above is smake-1.2.4
+
+-	Schily.Copyright updated
+
+-	include/schily/mconfig.h: fixed a typo
+
+-	include/schily/resource.h: added comment to the struct rusage members that
+	are unsopported on Solaris.
+
+-	include/schily/dbgmalloc.h: Added a workaround for source files
+	that first #include <schily/standard.h> and thus have no viable
+	BOOL defintion while <schily/mconfig.h> is included. This now permits
+	to compile the whole libschily with
+
+		smake COPTX=-DDBG_MALLOC LDOPTX=-ldbgmalloc
+
+	in order to debug malloc()/free() calls.
+
+-	bsh and libdbgmalloc: changed a casting from (int) to (UIntptr_t)
+	to avoid a GCC warning.
+	Thanks to Jan Engelhardt <jengelh@inai.de> for reporting.
+
+-	libfind: added a workaround for a Linux/gcc bug that causes
+	a variable that has been initialized to NULL to have a value != NULL
+	in doexec() when calling free(aav) even though that variable
+	was never assined a value != NULL before. This prevents a core dump
+	with libfind when calling:
+
+		find /usr/include -type f -exec grep 123abc {} \;
+
+
+-	Bourne Shell: the built in timing now supports more fields from
+	getrusage() than just the times.
+
+	The resource usage metering is not yet correct for the "find"
+	builtin in case it is called with -exec, as it only meters SELF
+	values for builtin commands for now but find consumes a mix of
+	SELF and CHILDREN resources.
+
+-	Bourne Shell: the TIMEFORMAT= variable is now supported and allows
+	four different time printing flavors and up to 6 digits in the
+	second fraction.
+
+-	Bourne Shell: Added $(LIB_ACL_TEST) to the linker libraries in Makfile.
+	This is needed on Linux when ACL support was installed. Thanks to
+	Jan Engelhardt <jengelh@inai.de> for reporting.
+
+-	Bourne Shell: hashcmd.c added a comment about the origins of the
+	#-Commands and a list of previously supported commands.
+
+-	Bourne Shell: Fixed a bug in environment handling that was introduced
+	with adding vfork() support. The bug caused "export" to work correrctly
+	only when the variable was exported after a change and before calling
+	a fork/exec command.
+
+-	Bourne Shell: new version date
+
+
+-	The following builtins (that are available in bsh) are still missing in
+	the Bourne Shell:
+
+	err			echo with output going to stderr
+	glob			echo with '\0' instead of ' ' between args
+	env			a builtin version of /usr/bin/env
+
+	The following bsh intrinsics are still missing in the Bourne Shell:
+
+	-			the restricted bsh has restriction features that
+				are missing in the Bourne shell.
+
+	and probably more features not yet identified to be bsh unique.
+
+
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.net, js@cs.tu-berlin.de
+	joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

@@ -1,4 +1,4 @@
-/* @(#)dbgmalloc.h	1.6 15/03/29 Copyright 2009-2015 J. Schilling */
+/* @(#)dbgmalloc.h	1.7 15/08/14 Copyright 2009-2015 J. Schilling */
 /*
  *	Definitions for libdmalloc
  *
@@ -58,9 +58,15 @@ extern	void	*dbg_realloc		__PR((void *t, size_t size, char *file,
 extern "C" {
 #endif
 
+#ifndef	FALSE
+extern	int	acheckdamage		__PR((void));
+extern	void	freechecking		__PR((int val));
+extern	void	nomemraising		__PR((int val));
+#else
 extern	BOOL	acheckdamage		__PR((void));
 extern	void	freechecking		__PR((BOOL val));
 extern	void	nomemraising		__PR((BOOL val));
+#endif
 
 #ifdef	USE_JS_BOOL			/* If in workaround mode, */
 #undef	BOOL				/* revert to default BOOL */

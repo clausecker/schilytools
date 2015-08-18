@@ -1,14 +1,14 @@
 /*#define	PLUS_DEBUG*/
-/* @(#)find.c	1.98 13/11/19 Copyright 2004-2013 J. Schilling */
+/* @(#)find.c	1.99 15/08/17 Copyright 2004-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)find.c	1.98 13/11/19 Copyright 2004-2013 J. Schilling";
+	"@(#)find.c	1.99 15/08/17 Copyright 2004-2015 J. Schilling";
 #endif
 /*
  *	Another find implementation...
  *
- *	Copyright (c) 2004-2013 J. Schilling
+ *	Copyright (c) 2004-2015 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -1864,7 +1864,12 @@ doexec(f, t, ac, av, state)
 		ferrmsg(state->std[2], gettext("Cannot fork child.\n"));
 #endif
 #ifdef	HAVE_VFORK
-		if (aav)
+		/*
+		 * Ugly code as a workaround for a broken GCC on Linux that
+		 * causes aav to be != NULL even when malloc() above was never
+		 * called. Freeing a random address on Linux causes a coredump.
+		 */
+		if (aav && f && ac >= 32)
 			free(aav);
 #endif
 		return (FALSE);
@@ -1874,7 +1879,12 @@ doexec(f, t, ac, av, state)
 			/* LINTED */
 			;
 #ifdef	HAVE_VFORK
-		if (aav)
+		/*
+		 * Ugly code as a workaround for a broken GCC on Linux that
+		 * causes aav to be != NULL even when malloc() above was never
+		 * called. Freeing a random address on Linux causes a coredump.
+		 */
+		if (aav && f && ac >= 32)
 			free(aav);
 #endif
 		return (retval == 0);

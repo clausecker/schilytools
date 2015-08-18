@@ -1,8 +1,8 @@
-/* @(#)alloc.c	1.55 15/03/29 Copyright 1985,1988,1991,1995-2015 J. Schilling */
+/* @(#)alloc.c	1.56 15/08/17 Copyright 1985,1988,1991,1995-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)alloc.c	1.55 15/03/29 Copyright 1985,1988,1991,1995-2015 J. Schilling";
+	"@(#)alloc.c	1.56 15/08/17 Copyright 1985,1988,1991,1995-2015 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1985,1988,1991,1995-2015 J. Schilling
@@ -706,7 +706,7 @@ malloc(size)
 	 * die von auszen gewuenschte Speichermenge + der Anteil in
 	 * struct space der vor space->store liegt.
 	 */
-	size = max(size, sizeof (new->store)) + (int)&((SPACE *)0)->store;
+	size = max(size, sizeof (new->store)) + (UIntptr_t)&((SPACE *)0)->store;
 #ifdef	XADEBUG
 #ifdef	ALWAYS_55
 	/*
