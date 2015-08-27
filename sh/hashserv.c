@@ -38,11 +38,11 @@
 /*
  * This file contains modifications Copyright 2008-2015 J. Schilling
  *
- * @(#)hashserv.c	1.21 15/07/24 2008-2015 J. Schilling
+ * @(#)hashserv.c	1.23 15/08/27 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)hashserv.c	1.21 15/07/24 2008-2015 J. Schilling";
+	"@(#)hashserv.c	1.23 15/08/27 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -53,6 +53,7 @@ static	UConst char sccsid[] =
 #include	<sys/types.h>
 #include	<sys/stat.h>
 #include	<errno.h>
+#include	<schily/fcntl.h>	/* for faccessat() */
 
 static unsigned char	cost;
 static int	dotpath;		/* PATH index for "::" */
@@ -508,9 +509,9 @@ chk_access(unsigned char *name, mode_t mode, int regflag)
 #else
 int
 chk_access(name, mode, regflag)
-	unsigned char	*name;
-	mode_t		mode;
-	int		regflag;
+	unsigned char	*name;		/* The filename */
+	mode_t		mode;		/* F_OK, S_IREAD, S_IWRITE, S_IEXEC */
+	int		regflag;	/* if TRUE: file must be regular */
 #endif
 {
 	static int flag;
@@ -523,13 +524,29 @@ chk_access(name, mode, regflag)
 		flag = 1;
 	}
 	if (stat((char *)name, &statb) == 0) {
+		int	amode = 0;
+
 		ftype = statb.st_mode & S_IFMT;
 		if (mode == S_IEXEC && regflag && ftype != S_IFREG)
 			return (2);
-#ifdef	HAVE_ACCESS_E_OK
-		if (access((char *)name, 010|(mode>>6)) == 0) {
+
+		if (mode == F_OK)
+			amode = F_OK;
+		if (mode & S_IREAD)
+			amode |= R_OK;
+		if (mode & S_IWRITE)
+			amode |= W_OK;
+		if (mode & S_IEXEC)
+			amode |= X_OK;
+
+#ifdef	HAVE_FACCESSAT
+		if (faccessat(AT_FDCWD, (char *)name, amode, AT_EACCESS) == 0) {
 #else
-		if (access((char *)name, (mode>>6)) == 0) {
+#ifdef	HAVE_ACCESS_E_OK
+		if (access((char *)name, 010|amode) == 0) {
+#else
+		if (access((char *)name, amode) == 0) {
+#endif
 #endif
 			if (euid == 0) {
 				if (ftype != S_IFREG || mode != S_IEXEC)

@@ -1,14 +1,14 @@
-/* @(#)star_unix.c	1.104 14/03/31 Copyright 1985, 1995, 2001-2014 J. Schilling */
+/* @(#)star_unix.c	1.105 15/08/23 Copyright 1985, 1995, 2001-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)star_unix.c	1.104 14/03/31 Copyright 1985, 1995, 2001-2014 J. Schilling";
+	"@(#)star_unix.c	1.105 15/08/23 Copyright 1985, 1995, 2001-2015 J. Schilling";
 #endif
 /*
  *	Stat / mode / owner routines for unix like
  *	operating systems
  *
- *	Copyright (c) 1985, 1995, 2001-2014 J. Schilling
+ *	Copyright (c) 1985, 1995, 2001-2015 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -297,8 +297,8 @@ again:
 			info->f_rdevmaj	= 0;
 			info->f_rdevmin	= 0;
 			break;
-#ifdef	S_IFCNT
-	case S_IFCNT:	/* contiguous file */
+#ifdef	S_IFCTG
+	case S_IFCTG:	/* contiguous file */
 			info->f_filetype = F_FILE;
 			info->f_xftype = XT_CONT;
 			info->f_rsize = info->f_size = sp->st_size;

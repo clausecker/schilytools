@@ -1,9 +1,9 @@
 /*#define	PLUS_DEBUG*/
-/* @(#)find.c	1.99 15/08/17 Copyright 2004-2015 J. Schilling */
+/* @(#)find.c	1.100 15/08/26 Copyright 2004-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)find.c	1.99 15/08/17 Copyright 2004-2015 J. Schilling";
+	"@(#)find.c	1.100 15/08/26 Copyright 2004-2015 J. Schilling";
 #endif
 /*
  *	Another find implementation...
@@ -1843,7 +1843,7 @@ doexec(f, t, ac, av, state)
 	struct WALK *state;
 {
 #ifdef	HAVE_VFORK
-	char	**aav = NULL;
+	char	** volatile aav = NULL;
 #endif
 	pid_t	pid;
 	int	retval;
@@ -1865,9 +1865,14 @@ doexec(f, t, ac, av, state)
 #endif
 #ifdef	HAVE_VFORK
 		/*
-		 * Ugly code as a workaround for a broken GCC on Linux that
-		 * causes aav to be != NULL even when malloc() above was never
-		 * called. Freeing a random address on Linux causes a coredump.
+		 * Ugly code as a workaround for broken Linux include files
+		 * that do not specify vfork() as a problem. This may
+		 * cause aav to be != NULL even when malloc() above was never
+		 * called. Freeing a random address on some platforms causes a
+		 * coredump.
+		 * As similar problems may exist on other platforms, where the
+		 * correct fix to mark aav volatile does not work, we keep the
+		 * workaround to check f and ac as well.
 		 */
 		if (aav && f && ac >= 32)
 			free(aav);
@@ -1880,9 +1885,14 @@ doexec(f, t, ac, av, state)
 			;
 #ifdef	HAVE_VFORK
 		/*
-		 * Ugly code as a workaround for a broken GCC on Linux that
-		 * causes aav to be != NULL even when malloc() above was never
-		 * called. Freeing a random address on Linux causes a coredump.
+		 * Ugly code as a workaround for broken Linux include files
+		 * that do not specify vfork() as a problem. This may
+		 * cause aav to be != NULL even when malloc() above was never
+		 * called. Freeing a random address on some platforms causes a
+		 * coredump.
+		 * As similar problems may exist on other platforms, where the
+		 * correct fix to mark aav volatile does not work, we keep the
+		 * workaround to check f and ac as well.
 		 */
 		if (aav && f && ac >= 32)
 			free(aav);

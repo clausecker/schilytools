@@ -37,11 +37,11 @@
 /*
  * This file contains modifications Copyright 2008-2015 J. Schilling
  *
- * @(#)func.c	1.14 15/03/31 2008-2015 J. Schilling
+ * @(#)func.c	1.16 15/08/25 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)func.c	1.14 15/03/31 2008-2015 J. Schilling";
+	"@(#)func.c	1.16 15/08/25 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -499,10 +499,15 @@ prio(iop)
 				else
 					prs_buff(UC "<&");
 
-			} else if ((iof & IOPUT) == 0)
-				prc_buff('<');
-			else if (iof & IOAPP)
+			} else if ((iof & IOPUT) == 0) {
+				if (iof & IORDW)
+					prs_buff(UC "<>");
+				else
+					prc_buff('<');
+			} else if (iof & IOAPP)
 				prs_buff(UC ">>");
+			else if (iof & IOCLOB)
+				prs_buff(UC ">|");
 			else
 				prc_buff('>');
 

@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2015 J. Schilling
  *
- * @(#)test.c	1.20 15/08/04 2008-2015 J. Schilling
+ * @(#)test.c	1.24 15/08/25 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)test.c	1.20 15/08/04 2008-2015 J. Schilling";
+	"@(#)test.c	1.24 15/08/25 2008-2015 J. Schilling";
 #endif
 
 
@@ -84,6 +84,13 @@ static	int	e2		__PR((void));
 static	int	e3		__PR((void));
 static	int	ftype		__PR((unsigned char *f, int field));
 static	int	filtyp		__PR((unsigned char *f, int field));
+#ifdef	DO_EXT_TEST
+static	int	fsame		__PR((unsigned char *f1, unsigned char *f2));
+static	int	ftime		__PR((unsigned char *f1, unsigned char *f2));
+static	int	fnew		__PR((unsigned char *));
+static	int	fowner		__PR((unsigned char *f, uid_t owner));
+static	int	fgroup		__PR((unsigned char *f, uid_t owner));
+#endif
 static	int	fsizep		__PR((unsigned char *f));
 static	Intmax_t str2imax	__PR((unsigned char *a));
 
@@ -275,6 +282,10 @@ e3()
 	p2 = nxtarg(1);
 	ap--;
 	if ((p2 == 0) || (!eq(p2, "=") && !eq(p2, "!="))) {
+#ifdef	DO_POSIX_TEST
+		if (eq(a, "-e"))
+			return (chk_access(nxtarg(0), F_OK, 0) == 0);
+#endif
 		if (eq(a, "-r"))
 			return (chk_access(nxtarg(0), S_IREAD, 0) == 0);
 		if (eq(a, "-w"))
@@ -283,6 +294,20 @@ e3()
 			return (chk_access(nxtarg(0), S_IEXEC, 0) == 0);
 		if (eq(a, "-d"))
 			return (filtyp(nxtarg(0), S_IFDIR));
+#ifdef	DO_EXT_TEST
+		if (eq(a, "-D"))
+#ifdef	S_IFDOOR
+			return (filtyp(nxtarg(0), S_IFDOOR));
+#else
+			return (0);
+#endif
+		if (eq(a, "-C"))
+#ifdef	S_IFCTG
+			return (filtyp(nxtarg(0), S_IFCTG));
+#else
+			return (0);
+#endif
+#endif
 		if (eq(a, "-c"))
 			return (filtyp(nxtarg(0), S_IFCHR));
 		if (eq(a, "-b"))
@@ -302,11 +327,40 @@ e3()
 		if (eq(a, "-g"))
 			return (ftype(nxtarg(0), S_ISGID));
 		if (eq(a, "-k"))
+#ifdef	S_ISVTX
 			return (ftype(nxtarg(0), S_ISVTX));
+#else
+			return (0);
+#endif
+#if	defined(DO_EXT_TEST) && defined(DO_SET_O)
+		if (eq(a, "-o")) {
+			a = nxtarg(0);
+			if (a && *a == '?') {
+				return (lookopt(++a) != NULL);
+			}
+			return (optval(lookopt(a)));
+		}
+#endif
 		if (eq(a, "-p"))
 			return (filtyp(nxtarg(0), S_IFIFO));
 		if (eq(a, "-h") || eq(a, "-L"))
 			return (filtyp(nxtarg(0), S_IFLNK));
+#ifdef	DO_EXT_TEST
+		if (eq(a, "-P"))
+#ifdef	S_IFPORT
+			return (filtyp(nxtarg(0), S_IFPORT));
+#else
+			return (0);
+#endif
+#endif
+#ifdef	DO_POSIX_TEST
+		if (eq(a, "-S"))
+#ifdef	S_IFSOCK
+			return (filtyp(nxtarg(0), S_IFSOCK));
+#else
+			return (0);
+#endif
+#endif
 		if (eq(a, "-s"))
 			return (fsizep(nxtarg(0)));
 		if (eq(a, "-t")) {
@@ -318,6 +372,14 @@ e3()
 			} else
 				return (isatty(atoi((char *)a)));
 		}
+#ifdef	DO_EXT_TEST
+		if (eq(a, "-O"))
+			return (fowner(nxtarg(0), geteuid()));
+		if (eq(a, "-G"))
+			return (fgroup(nxtarg(0), getegid()));
+		if (eq(a, "-N"))
+			return (fnew(nxtarg(0)));
+#endif
 		if (eq(a, "-n"))
 			return (!eq(nxtarg(0), ""));
 		if (eq(a, "-z"))
@@ -338,6 +400,14 @@ e3()
 		ap--;
 		return (!eq(a, ""));
 	}
+#ifdef	DO_EXT_TEST
+	if (eq(p2, "-ef"))
+		return (fsame(a, nxtarg(0)));
+	if (eq(p2, "-nt"))
+		return (ftime(a, nxtarg(0)) > 0);
+	if (eq(p2, "-ot"))
+		return (ftime(a, nxtarg(0)) < 0);
+#endif
 	if (eq(p2, "="))
 		return (eq(nxtarg(0), a));
 	if (eq(p2, "!="))
@@ -439,6 +509,92 @@ filtyp(f, field)
 		return (0);
 }
 
+#ifdef	DO_EXT_TEST
+static int
+fsame(f1, f2)
+	unsigned char	*f1;
+	unsigned char	*f2;
+{
+	struct	stat	statb1;
+	struct	stat	statb2;
+
+	if (stat((char *)f1, &statb1) < 0)	/* lstat() ??? */
+		return (FALSE);
+	if (stat((char *)f2, &statb2) < 0)	/* lstat() ??? */
+		return (FALSE);
+	if (statb1.st_ino == statb2.st_ino && statb1.st_dev == statb2.st_dev)
+		return (1);
+	return (FALSE);
+}
+
+static int					/* mod time f1 - mod time f2 */
+ftime(f1, f2)
+	unsigned char	*f1;
+	unsigned char	*f2;
+{
+	struct	stat	statb1;
+	struct	stat	statb2;
+	int		ret;
+
+	ret = stat((char *)f1, &statb1);	/* lstat() ??? */
+	if (stat((char *)f2, &statb2) < 0)	/* lstat() ??? */
+		return (ret < 0 ? 0:1);
+	if (ret < 0)
+		return (-1);
+	if (statb1.st_mtime > statb2.st_mtime)
+		return (1);
+	if (statb1.st_mtime == statb2.st_mtime &&
+	    stat_mnsecs(&statb1) > stat_mnsecs(&statb2))
+		return (1);
+	if (statb1.st_mtime < statb2.st_mtime)
+		return (-1);
+	if (statb1.st_mtime == statb2.st_mtime &&
+	    stat_mnsecs(&statb1) < stat_mnsecs(&statb2))
+		return (-1);
+	return (0);
+}
+
+static int
+fnew(f)
+	unsigned char	*f;
+{
+	struct	stat	statb;
+
+	if (stat((char *)f, &statb) < 0)	/* lstat() ??? */
+		return (0);
+
+	if (statb.st_mtime > statb.st_atime)
+		return (1);
+	if (statb.st_mtime == statb.st_atime &&
+	    stat_mnsecs(&statb) > stat_ansecs(&statb))
+		return (1);
+	return (0);
+}
+
+static int
+fowner(f, owner)
+	unsigned char	*f;
+	uid_t		owner;
+{
+	struct	stat	statb;
+
+	if (stat((char *)f, &statb) < 0)	/* lstat() ??? */
+		return (FALSE);
+	return (statb.st_uid == owner);
+}
+
+static int
+fgroup(f, group)
+	unsigned char	*f;
+	gid_t		group;
+{
+	struct	stat	statb;
+
+	if (stat((char *)f, &statb) < 0)	/* lstat() ??? */
+		return (FALSE);
+	return (statb.st_gid == group);
+}
+#endif
 
 static int
 fsizep(f)

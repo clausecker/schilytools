@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2015 J. Schilling
  *
- * @(#)jobs.c	1.63 15/08/17 2008-2015 J. Schilling
+ * @(#)jobs.c	1.64 15/08/22 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)jobs.c	1.63 15/08/17 2008-2015 J. Schilling";
+	"@(#)jobs.c	1.64 15/08/22 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -1549,6 +1549,15 @@ prtime(jp)
 	timersub(&rustop.ru_utime, &jp->j_rustart.ru_utime);
 	timersub(&rustop.ru_stime, &jp->j_rustart.ru_stime);
 
+#ifdef	HAVE_LONGLONG	/* 64 bits result in 65 years with usec resolution */
+	cpu =  rustop.ru_utime.tv_sec*1000000 + rustop.ru_utime.tv_usec;
+	cpu += rustop.ru_stime.tv_sec*1000000 + rustop.ru_stime.tv_usec;
+	per = stop.tv_sec*1000000 + stop.tv_usec;
+	if (per < 1)
+		per = 1;
+	per = 100 * cpu / per;
+	cpu /= 1000000;
+#else			/* 32 bits result in 24 days with msec resolution */
 	cpu =  rustop.ru_utime.tv_sec*1000 + rustop.ru_utime.tv_usec/1000;
 	cpu += rustop.ru_stime.tv_sec*1000 + rustop.ru_stime.tv_usec/1000;
 	per = stop.tv_sec*1000 + stop.tv_usec/1000;
@@ -1556,6 +1565,7 @@ prtime(jp)
 		per = 1;
 	per = 100 * cpu / per;
 	cpu /= 1000;
+#endif
 
 	while ((c = *fmt++) != '\0') {
 		if (c == '%') {

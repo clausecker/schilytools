@@ -39,11 +39,11 @@
 /*
  * This file contains modifications Copyright 2008-2015 J. Schilling
  *
- * @(#)msg.c	1.48 15/08/05 2008-2015 J. Schilling
+ * @(#)msg.c	1.49 15/08/25 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)msg.c	1.48 15/08/05 2008-2015 J. Schilling";
+	"@(#)msg.c	1.49 15/08/25 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -72,6 +72,9 @@ const char	badparam[]	= "parameter null or not set";
 const char	unset[]		= "parameter not set";
 const char	badsub[]	= "bad substitution";
 const char	badcreate[]	= "cannot create";
+#ifdef	DO_NOCLOBBER
+const char	eclobber[]	= "file already exists";
+#endif
 const char	nofork[]	= "fork failed - too many processes";
 const char	noswap[]	= "cannot fork: no swap space";
 const char	restricted[]	= "restricted";

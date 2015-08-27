@@ -1,8 +1,8 @@
-/* @(#)test.c	1.29 15/08/05 Copyright 1986,1995-2015 J. Schilling */
+/* @(#)test.c	1.30 15/08/24 Copyright 1986,1995-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)test.c	1.29 15/08/05 Copyright 1986,1995-2015 J. Schilling";
+	"@(#)test.c	1.30 15/08/24 Copyright 1986,1995-2015 J. Schilling";
 #endif
 /*
  *	Test routine (the test builtin command)
@@ -282,6 +282,12 @@ expn()
 #endif
 	if (streql(a, "-d"))
 		return (ftype(getarg(0), S_IFDIR));
+	if (streql(a, "-D"))
+#ifdef	S_IFDOOR
+		return (ftype(getarg(0), S_IFDOOR));
+#else
+		return (FALSE);
+#endif
 	if (streql(a, "-c"))
 #ifdef	S_IFCHR
 		return (ftype(getarg(0), S_IFCHR));
@@ -311,6 +317,12 @@ expn()
 	if (streql(a, "-p"))
 #ifdef	S_IFIFO
 		return (ftype(getarg(0), S_IFIFO));
+#else
+		return (FALSE);
+#endif
+	if (streql(a, "-P"))
+#ifdef	S_IFPORT
+		return (ftype(getarg(0), S_IFPORT));
 #else
 		return (FALSE);
 #endif

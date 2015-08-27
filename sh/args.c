@@ -41,11 +41,11 @@
 /*
  * Copyright 2008-2015 J. Schilling
  *
- * @(#)args.c	1.52 15/08/17 2008-2015 J. Schilling
+ * @(#)args.c	1.56 15/08/25 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)args.c	1.52 15/08/17 2008-2015 J. Schilling";
+	"@(#)args.c	1.56 15/08/25 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -67,6 +67,7 @@ static	struct dolnod	*clean_args	__PR((struct dolnod *blk));
 	void		restorargs	__PR((struct dolnod *olddolh,
 							int funcntp));
 	struct dolnod	*useargs	__PR((void));
+static	unsigned char	*lookcopt	__PR((int wc));
 #if defined(DO_SET_O) && defined(DO_SYSALIAS)
 static	void		listaliasowner	__PR((int parse, int flagidx));
 #endif
@@ -102,6 +103,9 @@ unsigned char	flagchar[] =
 #endif
 #ifdef	DO_HOSTPROMPT
 	0,			/* -o hostprompt, "<host> <user>> " prompt */
+#endif
+#ifdef	DO_NOCLOBBER
+	'C',			/* -C, set -o noclobber */
 #endif
 	'f',
 	'a',
@@ -149,6 +153,9 @@ char	*flagname[] =
 #ifdef	DO_HOSTPROMPT
 	"hostprompt",		/* -o hostprompt, "<host> <user>> " prompt */
 #endif
+#ifdef	DO_NOCLOBBER
+	"noclobber",		/* -C, set -o noclobber */
+#endif
 	"noglob",		/* -f POSIX */
 	"allexport",		/* -a POSIX */
 	"monitor",		/* -m POSIX */
@@ -193,6 +200,9 @@ unsigned long	flagval[]  =
 #endif
 #ifdef	DO_HOSTPROMPT
 	fl2 | hostpromptflg,	/* -o hostprompt, "<host> <user>> " prompt */
+#endif
+#ifdef	DO_NOCLOBBER
+	fl2 | noclobberflg,	/* -C, set -o noclobber */
 #endif
 	nofngflg,
 	exportflg,
@@ -313,7 +323,6 @@ again:
 		cp++;
 		while (*cp) {
 			if ((len = mbtowc(&wc, (char *)cp, MB_LEN_MAX)) <= 0) {
-printf("failed1\n");
 				(void) mbtowc(NULL, NULL, 0);
 				len = 1;
 				wc = (unsigned char)*cp;
@@ -322,7 +331,7 @@ printf("failed1\n");
 			cp += len;
 
 #ifdef	DO_SET_O
-			if (wc == 'o') {
+			if (wc == 'o') {		/* set set -o */
 				unsigned char *argarg;
 				int	dolistopts = argc <= 2 ||
 						argp[2][0] == '-' ||
@@ -335,12 +344,7 @@ printf("failed1\n");
 				argarg = UC strchr((char *)argp[2], '=');
 				if (argarg != NULL)
 					*argarg = '\0';
-				for (flagc = flagchar;
-							/* LINTED */
-				    flagname[flagc-flagchar]; flagc++) {
-							/* LINTED */
-					if (eq(argp[2],
-					    flagname[flagc-flagchar])) {
+				if ((flagc = lookopt(argp[2])) != NULL) {
 						argp[1] = argp[0];
 						argp++;
 						argc--;
@@ -362,26 +366,19 @@ printf("failed1\n");
 							    LOCAL_AB, owner);
 						}
 #endif
-						break;
-					}
 				}
 				if (argarg != NULL)
 					*argarg = '=';
-				if (wc != *flagc) {
+				if (flagc == NULL || wc != *flagc) {
 					if (argc > 2)
 						failed(argp[2], badopt);
 					continue;
 				}
-			} else {
+			} else {		/* Not set -o, but: set -c */
 #else	/* !DO_SET_O */
 			{
 #endif
-				flagc = flagchar;
-				while (flagc < &flagchar[NFLAGCHAR]) {
-					if (*flagc && wc == *flagc)
-						break;
-					flagc++;
-				}
+				flagc = lookcopt(wc);
 			}
 			if (wc == *flagc)
 			{
@@ -460,7 +457,7 @@ printf("failed1\n");
 			cp += len;
 
 #ifdef	DO_SET_O
-			if (wc == 'o') {
+			if (wc == 'o') {		/* set +o */
 				int	dolistopts = argc <= 2 ||
 						argp[2][0] == '-' ||
 						argp[2][0] == '+';
@@ -469,34 +466,22 @@ printf("failed1\n");
 					listopts(1);
 					continue;
 				}
-				for (flagc = flagchar;
-							/* LINTED */
-				    flagname[flagc-flagchar]; flagc++) {
-							/* LINTED */
-					if (eq(argp[2],
-					    flagname[flagc-flagchar])) {
+				if ((flagc = lookopt(argp[2])) != NULL) {
 						argp[1] = argp[0];
 						argp++;
 						argc--;
 						wc = *flagc;
-						break;
-					}
 				}
-				if (wc != *flagc) {
+				if (flagc == NULL || wc != *flagc) {
 					if (argc > 2)
 						failed(argp[2], badopt);
 					continue;
 				}
-			} else {
+			} else {		/* Not set +o, but: set +c */
 #else	/* !DO_SET_O */
 			{
 #endif
-				flagc = flagchar;
-				while (flagc < &flagchar[NFLAGCHAR]) {
-					if (*flagc && wc == *flagc)
-						break;
-					flagc++;
-				}
+				flagc = lookcopt(wc);
 			}
 			/*
 			 * step through flags
@@ -792,7 +777,60 @@ useargs()
 	return (dolh);
 }
 
+static unsigned char *
+lookcopt(wc)
+	int		wc;
+{
+	unsigned char *flagc;
+
+	flagc = flagchar;
+	while (flagc < &flagchar[NFLAGCHAR]) {
+		if (*flagc && wc == *flagc)
+			break;
+		flagc++;
+	}
+	return (flagc);
+}
+
 #ifdef	DO_SET_O
+unsigned char *
+lookopt(name)
+	unsigned char	*name;
+{
+	unsigned char *flagc;
+
+	for (flagc = flagchar;
+				/* LINTED */
+	    flagname[flagc-flagchar]; flagc++) {
+				/* LINTED */
+		if (eq(name,
+		    flagname[flagc-flagchar])) {
+			return (flagc);
+		}
+	}
+	return (NULL);
+}
+
+int
+optval(flagc)
+	unsigned char *flagc;
+{
+	unsigned long	fv;
+	unsigned long	*fp;
+
+	if (flagc == NULL)
+		return (0);
+
+				/* LINTED */
+	fv = flagval[flagc-flagchar];
+	fp = &flags;
+	if (fv & fl2) {
+		fp = &flags2;
+		fv &= ~fl2;
+	}
+	return (*fp & fv ? 1:0);
+}
+
 #ifdef	DO_SYSALIAS
 static void
 listaliasowner(parse, flagidx)
@@ -827,7 +865,6 @@ listopts(parse)
 	unsigned char *flagc;
 	int		len;
 	unsigned long	fv;
-	unsigned long	*fp;
 
 					/* LINTED */
 	for (flagc = flagchar; flagname[flagc-flagchar]; flagc++) {
@@ -842,16 +879,12 @@ listopts(parse)
 			continue;
 		}
 #endif
-		fp = &flags;
-		if (fv & fl2) {
-			fp = &flags2;
-			fv &= ~fl2;
-		}
+		fv = optval(flagc);
 		if (parse) {
 			if (any(*flagc, UC "sicrp"))	/* Unsettable?    */
 				continue;		/* so do not list */
 			prs_buff(UC "set ");
-			prs_buff(UC(*fp & fv ? "-":"+"));
+			prs_buff(UC(fv ? "-":"+"));
 			prs_buff(UC "o ");
 		}
 					/* LINTED */
@@ -865,7 +898,7 @@ listopts(parse)
 		while (++len <= 16)
 			prc_buff(SPACE);
 		prc_buff(TAB);
-		prs_buff(UC(*fp & fv ? "on":"off"));
+		prs_buff(UC(fv ? "on":"off"));
 		prc_buff(NL);
 	}
 }

@@ -1,4 +1,4 @@
-#ident "@(#)Makefile	1.53 15/07/14  Copyright (c) 2006-2015 J. Schilling"
+#ident "@(#)Makefile	1.57 15/08/25  Copyright (c) 2006-2015 J. Schilling"
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -41,13 +41,31 @@ CPPOPTS +=	-DACCT					# Shell Accounting
 #CPPOPTS +=	-DDO_MULTI_OPT		# Include support for sh -v -x / set -v -x
 #CPPOPTS +=	-DDO_UMASK_S		# Include support for umask -S
 #CPPOPTS +=	-DDO_POSIX_FOR		# Support for i; do .... with semicolon
+#CPPOPTS +=	-DDO_POSIX_TYPE		# Report keywords as well
 #CPPOPTS +=	-DDO_PIPE_SEMI_SYNTAX_E	# Report a syntax error for "echo foo |;"
 #CPPOPTS +=	-DDO_READ_ALLEXPORT	# Bugfix for set -a; read VAR
+#CPPOPTS +=	-DDO_O_APPEND		# Support O_APPEND instead of lseek() for >>
+#CPPOPTS +=	-DDO_EXPAND_DIRSLASH	# Expand dir*/ to dir/
 #CPPOPTS +=	-DDO_SIGNED_EXIT	# Allow negative exit(1) parameters
 #CPPOPTS +=	-DDO_DOT_SH_PARAMS	# Include support for ${.sh.xxx} parapeters
+#CPPOPTS +=	-DDO_POSIX_EXIT		# Use POSIX exit codes 126/127
+#CPPOPTS +=	-DDO_POSIX_TEST		# Implement POSIX test -e & text -S
+#CPPOPTS +=	-DDO_EXT_TEST		# Implement extended test features
+#CPPOPTS +=	-DDO_TILDE		# Include support for tilde expansion
+#CPPOPTS +=	-DDO_TIME		# Include support for set -o time
+#CPPOPTS +=	-DDO_FULLEXCODE		# Include support for set -o fullexitcode
+#CPPOPTS +=	-DDO_NOCLOBBER		# Include support for set -o noclobber
+#CPPOPTS +=	-DDO_FDPIPE		# Include support for 2| for stderr pipe
 #CPPOPTS +=	-DDO_KILL_L_SIG		# Include support for kill -l signo
+#CPPOPTS +=	-DDO_PS34		# Include support for PS3 and PS4
 #CPPOPTS +=	-DDO_ULIMIT_OPTS	# Add options to the ulimit(1) output
 #CPPOPTS +=	-DDO_SYSBUILTIN		# Include the "builtin" builtin
+#CPPOPTS +=	-DDO_SYSATEXPR		# Include the "@" builtin
+#CPPOPTS +=	-DDO_SYSSYNC		# Include the "sync" builtin
+#CPPOPTS +=	-DDO_SYSPGRP		# Include the "pgrp" builtin
+#CPPOPTS +=	-DDO_SYSKILLPG		# Include the "killpg" builtin
+#CPPOPTS +=	-DDO_SYSERRSTR		# Include the "errstr" builtin
+#CPPOPTS +=	-DDO_SYSFIND		# Include the "find" builtin
 
 #CPPOPTS +=	-DSTAK_DEBUG		# Include debug code for stak.c
 CPPOPTS +=	-DARGS_RIGHT_TO_LEFT	# Evaluate var2=val2 var1=val1 left to right

@@ -1,14 +1,14 @@
-/* @(#)table.c	1.27 10/08/23 Copyright 1994-96 2000-2010 J. Schilling */
+/* @(#)table.c	1.28 15/08/23 Copyright 1994-96 2000-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)table.c	1.27 10/08/23 Copyright 1994-96 2000-2010 J. Schilling";
+	"@(#)table.c	1.28 15/08/23 Copyright 1994-96 2000-2015 J. Schilling";
 #endif
 /*
  *	Conversion tables for efficient conversion
  *	of different file type representations
  *
- *	Copyright (c) 1994-96 2000-2010 J. Schilling
+ *	Copyright (c) 1994-96 2000-2015 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -17,6 +17,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -45,8 +47,8 @@ static	UConst char sccsid[] =
 #ifndef	S_IFMPB			/* If system knows no multiplexed b	*/
 #define	S_IFMPB		S_IFREG	/* Map multiplexed b to regular files	*/
 #endif
-#ifndef	S_IFCNT			/* If system knows no contiguous files	*/
-#define	S_IFCNT		S_IFREG	/* Map contiguous file to regular files */
+#ifndef	S_IFCTG			/* If system knows no contiguous files	*/
+#define	S_IFCTG		S_IFREG	/* Map contiguous file to regular files */
 #endif
 #ifndef	S_IFLNK			/* If system knows no symbolic links	*/
 #define	S_IFLNK		S_IFREG	/* Map symbolic links to regular files */
@@ -144,7 +146,7 @@ char	vttoxt_tab[] = {
  */
 /* BEGIN CSTYLED */
 mode_t	xttoif_tab[] = {
-		/* 0 */	0,       S_IFREG,  S_IFCNT, S_IFREG,
+		/* 0 */	0,       S_IFREG,  S_IFCTG, S_IFREG,
 		/* 4 */	S_IFLNK, S_IFDIR,  S_IFCHR, S_IFBLK,
 		/* 8 */	S_IFIFO, S_IFSOCK, S_IFMPC, S_IFMPB,
 		/*12 */	S_IFNAM, S_IFNAM,  S_IFDOOR, S_IFEVC,

@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sh.1	1.91 15/08/16 Copyright 2012-2015 J. Schilling
+.\" @(#)sh.1	1.95 15/08/27 Copyright 2012-2015 J. Schilling
 .\" Copyright 1989 AT&T
 .\" Copyright (c) 2008, Sun Microsystems, Inc. All Rights Reserved.
 .\" Portions Copyright (c) 1992, X/Open Company Limited All Rights Reserved
@@ -59,7 +59,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sh 1 "2015/08/16" "Schily Bourne Shell" "User Commands"
+.TH sh 1 "2015/08/27" "Schily Bourne Shell" "User Commands"
 .SH NAME
 sh, jsh \- standard and job control shell and command interpreter
 .SH SYNOPSIS
@@ -1960,7 +1960,23 @@ as standard input (file descriptor 0).
 Use file
 .I word
 as standard output (file descriptor 1). If the file
-does not exist, it is created; otherwise, it is truncated to zero length.
+does not exist, it is created.
+If the file exists, and the
+.B noclobber
+option is on, this causes an error.
+Otherwise, it is truncated to zero length.
+
+.br
+.ne 3
+.TP
+.BI >| word
+Same as
+.BR > ,
+except that it overrides the
+.B noclobber
+option.
+This feature was not supported in older versions of
+.BR sh .
 
 .br
 .ne 3
@@ -3048,11 +3064,18 @@ executed.
 .br
 .ne 3
 .TP
-\fBexec\fR [ \fIargument\fR .\|.\|. ]
+\fBexec\fR [\fB-a \fIname\fR] [ \fIargument\fR .\|.\|. ]
 .sp .6
 The command specified by the arguments is executed in place of this shell
 without creating a new process. Input/output arguments can appear and, if no
 other arguments are given, cause the shell input/output to be modified.
+The
+.B \-a
+option causes
+.I name
+rather than the first arg, to become
+.B argv[0]
+for the new process. 
 
 .br
 .ne 3
@@ -3677,6 +3700,23 @@ Mark variables which are modified or created for export.
 .br
 .ne 3
 .TP
+.B \-C
+Prevents redirection
+.RB ( > )
+from truncating existing files.
+Files that are created are opened with the
+.B O_EXCL
+mode. Requires
+.B >|
+to truncate a file when turned on.
+The option
+.B \-C
+was not supported in older versions of
+.BR sh .
+
+.br
+.ne 3
+.TP
 .B \-e
 Exit immediately if a command exits with a non-zero exit status.
 
@@ -3837,6 +3877,10 @@ the persistent local aliases are loaded from the current directory.
 .B monitor
 Equivalent to
 .BR \-m .
+.TP
+.B noclobber
+Equivalent to
+.BR \-C .
 .TP
 .B noexec
 Equivalent to
@@ -4048,11 +4092,47 @@ exists and is a character special file.
 .br
 .ne 3
 .TP
+.BI \-C " file
+.B True
+if
+.I file
+exists and is a contiguous file.
+The option
+.B \-C
+was not supported in older versions of
+.BR sh .
+.br
+.ne 3
+.TP
 .BI \-d " file
 .B True
 if
 .I file
 exists and is a directory.
+.br
+.ne 3
+.TP
+.BI \-D " file
+.B True
+if
+.I file
+exists and is a door.
+The option
+.B \-D
+was not supported in older versions of
+.BR sh .
+.br
+.ne 3
+.TP
+.BI \-e " file
+.B True
+if
+.I file
+exists.
+The option
+.B \-e
+was not supported in older versions of
+.BR sh .
 .br
 .ne 3
 .TP
@@ -4085,6 +4165,20 @@ if
 exists and its
 .B set group ID
 flag is set.
+.br
+.ne 3
+.TP
+.BI \-G " file
+.B True
+if
+.I file
+exists and its
+.B group
+matches the effective group id of this process.
+The option
+.B \-G
+was not supported in older versions of
+.BR sh .
 .br
 .ne 3
 .TP
@@ -4122,12 +4216,73 @@ is non-zero.
 .br
 .ne 3
 .TP
+.BI \-N " file
+.B True
+if
+.I file
+exists and its
+.B modification time
+is greater than its
+.B "access time" .
+The option
+.B \-N
+was not supported in older versions of
+.BR sh .
+.br
+.ne 5
+.TP
+.BI \-o " option
+.B True
+if the option named
+.I option
+is on.
+.br
+.ne 3
+.TP
+.BI "\-o ?" option
+.B True
+if the option named
+.I option
+is a valid option name.
+The option
+.B \-o
+was not supported in older versions of
+.BR sh .
+.br
+.ne 3
+.TP
+.BI \-O " file
+.B True
+if
+.I file
+exists and its
+.B owner
+matches the effective user id of this process.
+The option
+.B \-O
+was not supported in older versions of
+.BR sh .
+.br
+.ne 3
+.TP
 .BI \-p " file
 .B True
 if
 .I file
 exists and is a named pipe
 .RB ( FIFO ).
+.br
+.ne 3
+.TP
+.BI \-P " file
+.B True
+if
+.I file
+exists and is an event port.
+The option
+.B \-P
+was not supported in older versions of
+.BR sh .
 .br
 .ne 3
 .TP
@@ -4144,6 +4299,18 @@ exists and is readable.
 if
 .I file
 exists and has a size greater then zero.
+.br
+.ne 3
+.TP
+.BI \-S " file
+.B True
+if
+.I file
+exists and is a socket.
+The option
+.B \-S
+was not supported in older versions of
+.BR sh .
 .br
 .ne 3
 .TP
@@ -4193,6 +4360,54 @@ If file is a directory, true indicates that file can be searched.
 if the length of
 .I string
 is zero.
+.sp
+.ne 3
+.TP
+.IB file1 " \-ef " file2
+.B True
+if
+.I file1
+and
+.I file2
+exists and refer to the same file.
+The option
+.B \-ef
+was not supported in older versions of
+.BR sh .
+.br
+.ne 3
+.TP
+.IB file1 " \-nt " file2
+.B True
+if
+.I file1
+exists and
+.I file2
+does not or
+.I file1
+is newer than
+.IR file2 .
+The option
+.B \-nt
+was not supported in older versions of
+.BR sh .
+.br
+.ne 3
+.TP
+.IB file1 " \-ot " file2
+.B True
+if
+.I file2
+exists and
+.I file1
+does not or
+.I file1
+is older than
+.IR file2 .
+The option
+.B \-ot
+was not supported in older versions of
+.BR sh .
 .sp
 .ne 3
 .TP

@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2015 J. Schilling
  *
- * @(#)bltin.c	1.57 15/08/16 2008-2015 J. Schilling
+ * @(#)bltin.c	1.58 15/08/27 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)bltin.c	1.57 15/08/16 2008-2015 J. Schilling";
+	"@(#)bltin.c	1.58 15/08/27 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -78,6 +78,7 @@ unsigned char **argv;
 struct trenod *t;
 {
 	short fdindex = initio(t->treio, (type != SYSEXEC));
+	unsigned char *a0 = NULL;
 	unsigned char *a1 = argv[1];
 	struct argnod *np = NULL;
 
@@ -181,6 +182,12 @@ struct trenod *t;
 			setmode(0);
 			break;
 		}
+		if (eq(a1, "-a")) {
+			argv++;
+			if (*argv) {
+				a0 = *argv++;
+			}
+		}
 		/* FALLTHROUGH */
 
 #ifdef RES	/* Research includes login as part of the shell */
@@ -189,7 +196,7 @@ struct trenod *t;
 		if (!endjobs(JOB_STOPPED|JOB_RUNNING))
 			break;
 		oldsigs(TRUE);
-		execa(argv, -1, FALSE);
+		execa(argv, -1, FALSE, a0);
 		done(0);
 #else
 
@@ -206,7 +213,7 @@ struct trenod *t;
 #ifdef ACCT
 			doacct();
 #endif
-			execa(argv, -1, FALSE);
+			execa(argv, -1, FALSE, a0);
 			done(0);
 			/* NOTREACHED */
 		}

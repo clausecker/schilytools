@@ -39,7 +39,7 @@
 /*
  * Copyright 2008-2015 J. Schilling
  *
- * @(#)defs.h	1.100 15/08/14 2008-2015 J. Schilling
+ * @(#)defs.h	1.103 15/08/27 2008-2015 J. Schilling
  */
 
 #ifdef	__cplusplus
@@ -194,6 +194,7 @@ extern "C" {
 #define		IORDW		0x0100	/* <> redirection open with O_RDWR  */
 #define		IOSTRIP		0x0200	/* <<-word: strip leading tabs	    */
 #define		IODOC_SUBST	0x0400	/* <<\word: no substitution	    */
+#define		IOCLOB		0x1000	/* >| clobber files		    */
 
 #define		INPIPE		0	/* Input fd index in pipe fd array  */
 #define		OTPIPE		1	/* Output fd index in pipe fd array */
@@ -354,6 +355,8 @@ extern	struct dolnod	*savargs	__PR((int funcnt));
 extern	void 		restorargs	__PR((struct dolnod *olddolh,
 							int funcnt));
 extern	struct dolnod	*useargs	__PR((void));
+extern	unsigned char	*lookopt	__PR((unsigned char *name));
+extern	int		optval		__PR((unsigned char *flagc));
 
 /*
  * blok.c
@@ -468,7 +471,7 @@ extern	int	poptemp		__PR((void));
 extern	void	chkpipe		__PR((int *pv));
 extern	int	chkopen		__PR((unsigned char *idf, int mode));
 extern	void	renamef		__PR((int f1, int f2));
-extern	int	create		__PR((unsigned char *s));
+extern	int	create		__PR((unsigned char *s, int iof));
 extern	int	tmpfil		__PR((struct tempblk *tb));
 extern	void	copy		__PR((struct ionod *ioparg));
 extern	void	link_iodocs	__PR((struct ionod *i));
@@ -612,7 +615,8 @@ extern	unsigned char *catpath	__PR((unsigned char *path,
 						unsigned char *name));
 extern	unsigned char *nextpath	__PR((unsigned char *path));
 extern	void		execa	__PR((unsigned char *at[], short pos,
-						int isvfork));
+						int isvfork,
+						unsigned char *av0));
 extern	void		trim	__PR((unsigned char *at));
 extern	void		trims	__PR((unsigned char *at));
 extern	unsigned char *mactrim	__PR((unsigned char *at));
@@ -948,6 +952,7 @@ extern const char		devnull[];
 #define		fullexitcodeflg	04		/* set -o fullexitcode	*/
 #define		hashcmdsflg	010		/* set -o hashcmds	*/
 #define		hostpromptflg	020		/* set -o hostprompt	*/
+#define		noclobberflg	040		/* set -o noclobber	*/
 
 extern unsigned long		flags;		/* Flags for set(1) and more */
 extern unsigned long		flags2;		/* Second set of flags */
@@ -1023,6 +1028,7 @@ extern const char 		badulimit[];
 extern const char 		ulimit[];
 extern const char		wtfailed[];
 extern const char		badcreate[];
+extern const char		eclobber[];
 extern const char		nofork[];
 extern const char		noswap[];
 extern const char		piperr[];

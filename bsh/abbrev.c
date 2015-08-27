@@ -1,8 +1,8 @@
-/* @(#)abbrev.c	1.59 15/08/11 Copyright 1985-2015 J. Schilling */
+/* @(#)abbrev.c	1.60 15/08/22 Copyright 1985-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)abbrev.c	1.59 15/08/11 Copyright 1985-2015 J. Schilling";
+	"@(#)abbrev.c	1.60 15/08/22 Copyright 1985-2015 J. Schilling";
 #endif
 /*
  *	Abbreviation symbol handling
@@ -326,6 +326,7 @@ _ab_output(ap)
 {
 	register FILE_p f;
 		time_t	mtime;
+		struct stat sb;
 
 #ifdef DEBUG
 	berror("updating: %s", ap->at_fname);
@@ -340,6 +341,11 @@ _ab_output(ap)
 		ab_eupdated(ap);
 		return;
 	}
+	if (lstat(ap->at_fname, &sb) < 0) /* Check whether a symlink */
+		;			/* No file yet		   */
+	else if (S_ISLNK(sb.st_mode))
+		return;
+
 	f = filemopen(ap->at_fname, for_wct, S_IRUSR|S_IWUSR|S_IRGRP|S_IROTH);
 	if (open_failed(f)) {
 		raisecond(sn_badfile, (long)ap->at_fname);
@@ -682,11 +688,16 @@ ab_read(tab, fname)
 
 	if (fname == NULL)
 		return;
-	f = fileopen(fname, for_ru);
-	if (open_failed(f)) {
-		ap->at_blk = NULL;
+
+	if (lstat(fname, &sb) < 0)	/* Check whether a symlink */
+		return;			/* No file to open, return */
+	if (S_ISLNK(sb.st_mode))
 		return;
-	}
+
+	f = fileopen(fname, for_ru);
+	if (open_failed(f))
+		return;
+
 	if (filestat(f, &sb) >= 0) {
 		if (geteuid() == sb.st_uid) {
 			if (sb.st_mode & (S_IWGRP|S_IWOTH)) {

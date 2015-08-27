@@ -38,11 +38,11 @@
 /*
  * This file contains modifications Copyright 2008-2015 J. Schilling
  *
- * @(#)cmd.c	1.29 15/07/19 2008-2015 J. Schilling
+ * @(#)cmd.c	1.30 15/08/25 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)cmd.c	1.29 15/07/19 2008-2015 J. Schilling";
+	"@(#)cmd.c	1.30 15/08/25 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -629,6 +629,14 @@ inout(lastio)
 			iof |= IOAPP;
 			break;
 		}
+#ifdef	DO_NOCLOBBER
+		else {
+			if ((c = nextwc()) == '|')
+				iof |= IOCLOB;
+			else
+				peekn = c | MARK;
+		}
+#endif
 		/* FALLTHROUGH */
 
 	case '<':

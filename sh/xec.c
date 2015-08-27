@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2015 J. Schilling
  *
- * @(#)xec.c	1.44 15/08/05 2008-2015 J. Schilling
+ * @(#)xec.c	1.45 15/08/27 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)xec.c	1.44 15/08/05 2008-2015 J. Schilling";
+	"@(#)xec.c	1.45 15/08/27 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -513,7 +513,7 @@ script:
 					rmtemp(0);
 					clearjobs();
 				}
-				execa(com, pos, isvfork);
+				execa(com, pos, isvfork, NULL);
 			}
 			done(0);
 			/* NOTREACHED */

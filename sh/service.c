@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2015 J. Schilling
  *
- * @(#)service.c	1.35 15/07/25 2008-2015 J. Schilling
+ * @(#)service.c	1.38 15/08/27 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)service.c	1.35 15/07/25 2008-2015 J. Schilling";
+	"@(#)service.c	1.38 15/08/27 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -71,9 +71,11 @@ static	UConst char sccsid[] =
 						unsigned char *name));
 	unsigned char *nextpath	__PR((unsigned char *path));
 	void		execa	__PR((unsigned char *at[], short pos,
-						int isvfork));
+						int isvfork,
+						unsigned char *av0));
 static unsigned char *execs	__PR((unsigned char *ap, unsigned char *t[],
-						int isvfork));
+						int isvfork,
+						unsigned char *av0));
 	void		trim	__PR((unsigned char *at));
 	void		trims	__PR((unsigned char *at));
 	unsigned char *mactrim	__PR((unsigned char *at));
@@ -144,10 +146,14 @@ initio(iop, save)
 			} else if (flags & rshflg) {
 				failed(ion, restricted);
 			} else if (iof & IOAPP &&
+#if defined(DO_O_APPEND) && defined(O_APPEND)
+			    (fd = open((char *)ion, O_WRONLY|O_APPEND)) >= 0) {
+#else
 			    (fd = open((char *)ion, O_WRONLY)) >= 0) {
+#endif
 				lseek(fd, (off_t)0, SEEK_END);
 			} else {
-				fd = create(ion);
+				fd = create(ion, iof);
 			}
 			if (fd >= 0)
 				renamef(fd, ioufd);
@@ -289,13 +295,14 @@ static unsigned char	**xecenv;
 
 #ifdef	PROTOTYPES
 void
-execa(unsigned char *at[], short pos, int isvfork)
+execa(unsigned char *at[], short pos, int isvfork, unsigned char *av0)
 #else
 void
-execa(at, pos, isvfork)
+execa(at, pos, isvfork, av0)
 	unsigned char	*at[];
 	short		pos;
 	int		isvfork;
+	unsigned char	*av0;
 #endif
 {
 	unsigned char	*path;
@@ -313,10 +320,10 @@ execa(at, pos, isvfork)
 				++cnt;
 				path = nextpath(path);
 			}
-			execs(path, t, isvfork);
+			execs(path, t, isvfork, av0);
 			path = getpath(*t);
 		}
-		while ((path = execs(path, t, isvfork)) != NULL)
+		while ((path = execs(path, t, isvfork, av0)) != NULL)
 			/* LINTED */
 			;
 		failedx(errno == ENOENT ? ERR_NOTFOUND : ERR_NOEXEC,
@@ -325,10 +332,11 @@ execa(at, pos, isvfork)
 }
 
 static unsigned char *
-execs(ap, t, isvfork)
+execs(ap, t, isvfork, av0)
 	unsigned char	*ap;
 	unsigned char	*t[];
 	int		isvfork;
+	unsigned char	*av0;
 {
 	int		pfstatus = NOATTRS;
 	int		oexflag = exflag;
@@ -366,8 +374,14 @@ execs(ap, t, isvfork)
 #endif
 
 	if (pfstatus == NOATTRS) {
+		unsigned char	*a0 = t[0];
+
+		if (av0)
+			t[0] = av0;
 		execve((const char *)p, (char *const *)&t[0],
 		    (char *const *)xecenv);
+		if (av0)
+			t[0] = a0;
 	}
 	oex = ex;
 	ex.ex_status =

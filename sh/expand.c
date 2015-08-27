@@ -34,13 +34,13 @@
 #include "defs.h"
 
 /*
- * This file contains modifications Copyright 2008-2013 J. Schilling
+ * This file contains modifications Copyright 2008-2015 J. Schilling
  *
- * @(#)expand.c	1.16 13/09/26 2008-2013 J. Schilling
+ * @(#)expand.c	1.17 15/08/25 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)expand.c	1.16 13/09/26 2008-2013 J. Schilling";
+	"@(#)expand.c	1.17 15/08/25 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -190,6 +190,19 @@ expand(as, rcnt)
 			}
 		} while (*rs++);
 
+#ifdef	DO_EXPAND_DIRSLASH
+		if (*cs == 0) {
+			/*
+			 * We have been able to open the directory before, so
+			 * the empty new name after "dir* /" is no problem.
+			 * The whole path definitely applies to a directory.
+			 * We thus pretend that we found a match and append
+			 * the empty string to the current path.
+			 */
+			addg(s, (unsigned char *)"", rescan, slashsav);
+			count++;
+		} else
+#endif
 		while ((e = readdir(dirf)) != 0 && (trapnote & SIGSET) == 0) {
 			if (e->d_name[0] == '.' && *cs != '.')
 				continue;

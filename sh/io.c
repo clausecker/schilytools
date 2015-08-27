@@ -38,11 +38,11 @@
 /*
  * This file contains modifications Copyright 2008-2015 J. Schilling
  *
- * @(#)io.c	1.23 15/04/22 2008-2015 J. Schilling
+ * @(#)io.c	1.24 15/08/25 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)io.c	1.23 15/04/22 2008-2015 J. Schilling";
+	"@(#)io.c	1.24 15/08/25 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -77,7 +77,7 @@ static	void	pushtemp	__PR((int fd, struct tempblk *tb));
 	void	chkpipe		__PR((int *pv));
 	int	chkopen		__PR((unsigned char *idf, int mode));
 	void	renamef		__PR((int f1, int f2));
-	int	create		__PR((unsigned char *s));
+	int	create		__PR((unsigned char *s, int iof));
 	int	tmpfil		__PR((struct tempblk *tb));
 	void	copy		__PR((struct ionod *ioparg));
 	void	link_iodocs	__PR((struct ionod *i));
@@ -229,12 +229,32 @@ renamef(f1, f2)
 }
 
 int
-create(s)
+create(s, iof)
 	unsigned char	*s;
+	int		iof;
 {
 	int	rc;
+#ifdef	O_CREAT
+	int	omode = O_WRONLY|O_CREAT|O_TRUNC;
+#endif
+#ifdef	DO_NOCLOBBER
+	struct stat statb;
 
+	if ((flags2 & noclobberflg) && (iof & IOCLOB) == 0) {
+		if (stat((char *)s, &statb) >= 0) {
+			failed(s, eclobber);
+			/* NOTREACHED */
+		}
+#ifdef	O_CREAT
+		omode |= O_EXCL;
+#endif
+	}
+#endif
+#ifdef	O_CREAT
+	if ((rc = open((char *)s, omode, 0666)) < 0) {
+#else
 	if ((rc = creat((char *)s, 0666)) < 0) {
+#endif
 		failed(s, badcreate);
 		/* NOTREACHED */
 	} else
