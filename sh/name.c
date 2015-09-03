@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2015 J. Schilling
  *
- * @(#)name.c	1.35 15/08/17 2008-2015 J. Schilling
+ * @(#)name.c	1.37 15/08/31 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)name.c	1.35 15/08/17 2008-2015 J. Schilling";
+	"@(#)name.c	1.37 15/08/31 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -64,7 +64,7 @@ extern int	mailchk;
 		sysnlook	__PR((unsigned char *w,
 					const struct sysnod syswds[], int n));
 	void	setlist		__PR((struct argnod *arg, int xp));
-static void	setname		__PR((unsigned char *, int));
+	void	setname		__PR((unsigned char *, int));
 	void	replace		__PR((unsigned char **a, unsigned char *v));
 	void	dfault		__PR((struct namnod *n, unsigned char *v));
 	void	assign		__PR((struct namnod *n, unsigned char *v));
@@ -79,13 +79,14 @@ static	BOOL	chkid		__PR((unsigned char *nam));
 static void	namwalk		__PR((struct namnod *));
 	void	printnam	__PR((struct namnod *n));
 	void	printro		__PR((struct namnod *n));
+	void	printpro	__PR((struct namnod *n));
 	void	printexp	__PR((struct namnod *n));
 	void	setup_env	__PR((void));
 static void	countnam	__PR((struct namnod *n));
 static void	pushnam		__PR((struct namnod *n));
 	unsigned char **local_setenv __PR((int flg));
 	struct namnod *findnam	__PR((unsigned char *nam));
-	void	unset_name	__PR((unsigned char *name));
+	void	unset_name	__PR((unsigned char *name, int uflg));
 static void	dolocale	__PR((char *nm));
 
 #ifndef	HAVE_ISASTREAM
@@ -266,7 +267,7 @@ setlist(arg, xp)
 	}
 }
 
-static void
+void
 setname(argi, xp)			/* does parameter assignments */
 	unsigned char	*argi;
 	int		xp;
@@ -285,7 +286,11 @@ setname(argi, xp)			/* does parameter assignments */
 
 			n = lookup(argi);
 			*argscan++ = '=';
-			attrib(n, xp);
+#ifdef	DO_POSIX_EXPORT
+			if ((n->namflg & N_FUNCTN) && (xp & N_EXPORT))
+				error(badexport);
+#endif
+
 			if (xp & N_ENVNAM)
 			{
 				n->namenv = n->namval = argscan;
@@ -294,6 +299,7 @@ setname(argi, xp)			/* does parameter assignments */
 			}
 			else
 				assign(n, argscan);
+			attrib(n, xp);	/* readonly attrib after assignement */
 
 			dolocale((char *)n->namid);
 			return;
@@ -726,6 +732,28 @@ printro(n)
 	}
 }
 
+#ifdef	DO_POSIX_EXPORT
+void
+printpro(n)
+	struct namnod	*n;
+{
+	if (n->namflg & N_RDONLY)
+	{
+		unsigned char	*s;
+
+		prs_buff(UC readonly);
+		prc_buff(SPACE);
+		prs_buff(n->namid);
+		if ((s = n->namval) != NULL) {
+			prs_buff(UC "='");
+			prs_buff(s);
+			prc_buff('\'');
+		}
+		prc_buff(NL);
+	}
+}
+#endif
+
 void
 printexp(n)
 	struct namnod	*n;
@@ -738,6 +766,28 @@ printexp(n)
 		prc_buff(NL);
 	}
 }
+
+#ifdef	DO_POSIX_EXPORT
+void
+printpexp(n)
+	struct namnod	*n;
+{
+	if (n->namflg & N_EXPORT)
+	{
+		unsigned char	*s;
+
+		prs_buff(UC export);
+		prc_buff(SPACE);
+		prs_buff(n->namid);
+		if ((s = n->namval) != NULL) {
+			prs_buff(UC "='");
+			prs_buff(s);
+			prc_buff('\'');
+		}
+		prc_buff(NL);
+	}
+}
+#endif
 
 void
 setup_env()
@@ -836,16 +886,21 @@ findnam(nam)
 }
 
 void
-unset_name(name)
+unset_name(name, uflg)
 	unsigned char	*name;
+	int		uflg;
 {
 	struct namnod	*n;
 	unsigned char	call_dolocale = 0;
 
 	if ((n = findnam(name)) != NULL)
 	{
-		if (n->namflg & N_RDONLY)
-			failed(name, wtfailed);
+		if (n->namflg & N_RDONLY) {
+#ifdef	DO_POSIX_UNSET
+			if (uflg == 0 || uflg == UNSET_VAR)
+#endif
+				failed(name, wtfailed);
+		}
 
 		if (n == &pathnod ||
 		    n == &ifsnod ||
@@ -865,11 +920,19 @@ unset_name(name)
 
 		if (n->namflg & N_FUNCTN)
 		{
+#ifdef	DO_POSIX_UNSET
+			if (uflg && uflg != UNSET_FUNC)
+				return;
+#endif
 			func_unhash(name);
 			freefunc(n);
 		}
 		else
 		{
+#ifdef	DO_POSIX_UNSET
+			if (uflg && uflg != UNSET_VAR)
+				return;
+#endif
 			call_dolocale++;
 			free(n->namval);
 			free(n->namenv);

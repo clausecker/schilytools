@@ -1,8 +1,8 @@
-/* @(#)edit.c	1.19 15/08/01 Copyright 2006-2015 J. Schilling */
+/* @(#)edit.c	1.20 15/08/29 Copyright 2006-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)edit.c	1.19 15/08/01 Copyright 2006-2015 J. Schilling";
+	"@(#)edit.c	1.20 15/08/29 Copyright 2006-2015 J. Schilling";
 #endif
 /*
  *	Copyright (c) 2006-2015 J. Schilling
@@ -345,6 +345,15 @@ shedit_putenv(penv)
 	extern	void	(*__put_env)	__PR((char *__name));
 
 	__put_env = penv;
+}
+
+EXPORT void
+shedit_igneof(ieof)
+	BOOL	(*ieof) __PR((void));
+{
+	extern	BOOL	(*__ign_eof)	__PR((void));
+
+	__ign_eof = ieof;
 }
 
 EXPORT void

@@ -1,7 +1,7 @@
-/* @(#)alias.c	1.4 13/09/24 Copyright 1986-2013 J. Schilling */
+/* @(#)alias.c	1.5 15/09/02 Copyright 1986-2013 J. Schilling */
 #include <schily/mconfig.h>
 static	UConst char sccsid[] =
-	"@(#)alias.c	1.4 13/09/24 Copyright 1986-2013 J. Schilling";
+	"@(#)alias.c	1.5 15/09/02 Copyright 1986-2013 J. Schilling";
 /*
  *	The built-in commands "alias" and "unalias".
  *
@@ -32,11 +32,7 @@ sysalias(argc, argv)
 	int	argc;
 	unsigned char	**argv;
 {
-extern int opterr, optind;
-	int	savopterr = opterr;
-	int	savoptind = optind;
-	int	savsp = _sp;
-	char	*savoptarg = optarg;
+	struct optv optv;
 	int	c;
 	int	ret = 1;
 	int	badflag = 0;	/* -g/-l with {local!global}aliases disabled */
@@ -54,12 +50,11 @@ extern int opterr, optind;
 	unsigned char	*a1;
 	unsigned char	o[3];
 
-	optind = 1;
-	_sp = 1;
-	opterr = 0;
+	optinit(&optv);
+	optv.opterr = 0;
 	o[0] = '-';
 	o[2] = '\0';
-	while ((c = getopt(argc, (char **)argv,
+	while ((c = optget(argc, argv, &optv,
 			    "aeglprR(raw)")) != -1) {
 		switch (c) {
 		case 'a':
@@ -101,12 +96,8 @@ extern int opterr, optind;
 		}
 	}
 	ret = 0;
-	c = optind;
+	c = optv.optind;
 err:
-	optind = savoptind;
-	opterr = savopterr;
-	_sp = savsp;
-	optarg = savoptarg;
 	if (badflag) {
 		failed(o, badopt);
 		/* NOTREACHED */
@@ -168,11 +159,7 @@ sysunalias(argc, argv)
 	int	argc;
 	unsigned char	**argv;
 {
-extern int opterr, optind;
-	int	savopterr = opterr;
-	int	savoptind = optind;
-	int	savsp = _sp;
-	char	*savoptarg = optarg;
+	struct optv optv;
 	int	c;
 	int	ret = 1;
 	int	badflag = 0;	/* -g/-l with {local!global}aliases disabled */
@@ -185,13 +172,11 @@ extern int opterr, optind;
 	unsigned char	*a1;
 	unsigned char	o[3];
 
-	optind = 1;
-	_sp = 1;
-	opterr = 0;
+	optinit(&optv);
+	optv.opterr = 0;
 	o[0] = '-';
 	o[2] = '\0';
-	while ((c = getopt(argc, (char **)argv,
-			    "aglp")) != -1) {
+	while ((c = optget(argc, argv, &optv, "aglp")) != -1) {
 		switch (c) {
 		case 'a':
 			allflag++;
@@ -223,12 +208,8 @@ extern int opterr, optind;
 		}
 	}
 	ret = 0;
-	c = optind;
+	c = optv.optind;
 err:
-	optind = savoptind;
-	opterr = savopterr;
-	_sp = savsp;
-	optarg = savoptarg;
 	if (badflag) {
 		failed(o, badopt);
 		/* NOTREACHED */

@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2015 J. Schilling
  *
- * @(#)word.c	1.45 15/07/27 2008-2015 J. Schilling
+ * @(#)word.c	1.47 15/08/29 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)word.c	1.45 15/07/27 2008-2015 J. Schilling";
+	"@(#)word.c	1.47 15/08/29 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -82,6 +82,7 @@ static	unsigned char	*match_block __PR((unsigned char *argp,
 	unsigned int	readwc	__PR((void));
 static int		readb	__PR((struct fileblk *, int, int));
 #ifdef	INTERACTIVE
+static	BOOL		chk_igneof __PR((void));
 static	int		xread	__PR((int f, char *buf, int n));
 #endif
 
@@ -682,6 +683,12 @@ retry:
 }
 
 #ifdef	INTERACTIVE
+static BOOL
+chk_igneof()
+{
+	return (flags2 & ignoreeofflg);
+}
+
 static int
 xread(f, buf, n)
 	int	f;
@@ -696,6 +703,7 @@ xread(f, buf, n)
 			init = 1;
 			shedit_getenv(getcurenv);
 			shedit_putenv(ev_insert);
+			shedit_igneof(chk_igneof);
 		}
 		c = shedit_egetc();
 		*buf = c;

@@ -37,7 +37,7 @@
 /*
  * This file contains modifications Copyright 2008-2015 J. Schilling
  *
- * @(#)mode.h	1.15 15/07/27 2008-2015 J. Schilling
+ * @(#)mode.h	1.17 15/09/01 2008-2015 J. Schilling
  */
 
 /*
@@ -274,6 +274,14 @@ struct fdsave
 	int dup_fd;
 };
 
+struct optv
+{
+	int	opterr;
+	int	optind;
+	int	optopt;
+	int	opt_sp;
+	char	*optarg;
+};
 
 #define		fndptr(x)	((struct fndnod *)x)
 #define		comptr(x)	((struct comnod *)x)

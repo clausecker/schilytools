@@ -41,11 +41,11 @@
 /*
  * Copyright 2008-2015 J. Schilling
  *
- * @(#)args.c	1.56 15/08/25 2008-2015 J. Schilling
+ * @(#)args.c	1.66 15/08/30 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)args.c	1.56 15/08/25 2008-2015 J. Schilling";
+	"@(#)args.c	1.66 15/08/30 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -87,16 +87,23 @@ unsigned char	flagadr[20];
 
 unsigned char	flagchar[] =
 {
-	'x',
-	'n',
-	'v',
-	't',
-	STDFLG,
-	'i',
+#ifdef	DO_SYSALIAS
+	0,			/* set -o aliasowner */
+#endif
+	'a',			/* -a / -o allexport */
+#ifdef	DO_BGNICE
+	0,			/* -o bgnice */
+#endif
 	'e',
-	'r',
-	'k',
-	'u',
+#ifdef	DO_FDPIPE
+	0,			/* set -o fdpipe */
+#endif
+#ifdef	DO_FULLEXCODE
+	0,			/* set -o fullexcode */
+#endif
+#ifdef	DO_SYSALIAS
+	0,			/* set -o globalaliases */
+#endif
 	'h',
 #ifdef	DO_HASHCMDS
 	0,			/* -o hashcmds, enable # commands */
@@ -104,31 +111,41 @@ unsigned char	flagchar[] =
 #ifdef	DO_HOSTPROMPT
 	0,			/* -o hostprompt, "<host> <user>> " prompt */
 #endif
+#ifdef	INTERACTIVE
+	0,			/* -o ignoreeof POSIX name */
+#endif
+	'i',
+	'k',			/* -k / -o keyword */
+#ifdef	DO_SYSALIAS
+	0,			/* set -o localaliases */
+#endif
+	'm',
 #ifdef	DO_NOCLOBBER
 	'C',			/* -C, set -o noclobber */
 #endif
-	'f',
-	'a',
-	'm',
-	'p',
-	'P',
-	'V',
-#ifdef	DO_FDPIPE
-	0,			/* set -o fdpipe */
+	'n',
+	'f',			/* -f / -o noglob */
+#ifdef	DO_NOTIFY
+	'b',			/* -b / -o notify */
 #endif
+	'u',			/* -u / -o nounset */
+	't',			/* -t / -o onecmd */
+	'P',
+	'p',
+	'r',
+	STDFLG,			/* -s / -o stdin */
+	'V',
 #ifdef	DO_TIME
 	0,			/* set -o time */
 #endif
-#ifdef	DO_FULLEXCODE
-	0,			/* set -o fullexcode */
-#endif
-	0,			/* set -o globalaliases */
-	0,			/* set -o localaliases */
-	0,			/* set -o aliasowner */
 #ifdef	INTERACTIVE
-	0,			/* set -o vi */
 	0,			/* set -o ved */
 #endif
+	'v',
+#ifdef	INTERACTIVE
+	0,			/* set -o vi */
+#endif
+	'x',
 	0
 };
 #define	NFLAGCHAR	((sizeof (flagchar) / sizeof (flagchar[0])) - 1)
@@ -136,16 +153,23 @@ unsigned char	flagchar[] =
 #ifdef	DO_SET_O
 char	*flagname[] =
 {
-	"xtrace",		/* -x POSIX */
-	"noexec",		/* -n POSIX */
-	"verbose",		/* -v POSIX */
-	"onecmd",		/* -t bash name */
-	"stdin",		/* -s Schily name */
-	"interactive",		/* -i ksh93 name */
+#ifdef	DO_SYSALIAS
+	"aliasowner",
+#endif
+	"allexport",		/* -a POSIX */
+#ifdef	DO_BGNICE
+	"bgnice",		/* -o bgnice */
+#endif
 	"errexit",		/* -e POSIX */
-	"restricted",		/* -r ksh93 name */
-	"keyword",		/* -k bash/ksh93 name */
-	"nounset",		/* -u POSIX */
+#ifdef	DO_FDPIPE
+	"fdpipe",		/* e.g. 2| for pipe from stderr */
+#endif
+#ifdef	DO_FULLEXCODE
+	"fullexitcode",		/* -o fullexitcode, do not mask $? */
+#endif
+#ifdef	DO_SYSALIAS
+	"globalaliases",
+#endif
 	"hashall",		/* -h bash name (ksh93 uses "trackall") */
 #ifdef	DO_HASHCMDS
 	"hashcmds",		/* -o hashcmds, enable # commands */
@@ -153,47 +177,64 @@ char	*flagname[] =
 #ifdef	DO_HOSTPROMPT
 	"hostprompt",		/* -o hostprompt, "<host> <user>> " prompt */
 #endif
+#ifdef	INTERACTIVE
+	"ignoreeof",		/* -o ignoreeof POSIX name */
+#endif
+	"interactive",		/* -i ksh93 name */
+	"keyword",		/* -k bash/ksh93 name */
+#ifdef	DO_SYSALIAS
+	"localaliases",
+#endif
+	"monitor",		/* -m POSIX */
 #ifdef	DO_NOCLOBBER
 	"noclobber",		/* -C, set -o noclobber */
 #endif
+	"noexec",		/* -n POSIX */
 	"noglob",		/* -f POSIX */
-	"allexport",		/* -a POSIX */
-	"monitor",		/* -m POSIX */
-	"privileged",		/* -p ksh93: only if really privileged */
-	"pfsh",			/* -P Schily Bourne Shell */
-	"version",		/* -V Schily Bourne Shell */
-#ifdef	DO_FDPIPE
-	"fdpipe",		/* e.g. 2| for pipe from stderr */
+#ifdef	DO_NOTIFY
+	"notify",		/* -b POSIX */
 #endif
+	"nounset",		/* -u POSIX */
+	"onecmd",		/* -t bash name */
+	"pfsh",			/* -P Schily Bourne Shell */
+	"privileged",		/* -p ksh93: only if really privileged */
+	"restricted",		/* -r ksh93 name */
+	"stdin",		/* -s Schily name */
+	"version",		/* -V Schily Bourne Shell */
 #ifdef	DO_TIME
 	"time",			/* -o time, enable timing */
 #endif
-#ifdef	DO_FULLEXCODE
-	"fullexitcode",		/* -o fullexitcode, so not mask $? */
-#endif
-	"globalaliases",
-	"localaliases",
-	"aliasowner",
 #ifdef	INTERACTIVE
-	"vi",
 	"ved",
 #endif
+	"verbose",		/* -v POSIX */
+#ifdef	INTERACTIVE
+	"vi",
+#endif
+	"xtrace",		/* -x POSIX */
 	0
 };
 #endif
 
 unsigned long	flagval[]  =
 {
-	execpr,
-	noexec,
-	readpr,
-	oneflg,
-	stdflg,
-	intflg,
+#ifdef	DO_SYSALIAS
+	aliasownerflg,
+#endif
+	exportflg,		/* -a / -o allexport */
+#ifdef	DO_BGNICE
+	fl2 | bgniceflg,	/* -o bgnice */
+#endif
 	errflg,
-	rshflg,
-	keyflg,
-	setflg,
+#ifdef	DO_FDPIPE
+	fl2 | fdpipeflg,
+#endif
+#ifdef	DO_FULLEXCODE
+	fl2 | fullexitcodeflg,
+#endif
+#ifdef	DO_SYSALIAS
+	globalaliasflg,
+#endif
 	hashflg,
 #ifdef	DO_HASHCMDS
 	fl2 | hashcmdsflg,	/* -o hashcmds, enable # commands */
@@ -201,31 +242,41 @@ unsigned long	flagval[]  =
 #ifdef	DO_HOSTPROMPT
 	fl2 | hostpromptflg,	/* -o hostprompt, "<host> <user>> " prompt */
 #endif
+#ifdef	INTERACTIVE
+	fl2 | ignoreeofflg,	/* -o ignoreeof POSIX name */
+#endif
+	intflg,
+	keyflg,			/* -k / -o keyword */
+#ifdef	DO_SYSALIAS
+	localaliasflg,
+#endif
+	monitorflg,
 #ifdef	DO_NOCLOBBER
 	fl2 | noclobberflg,	/* -C, set -o noclobber */
 #endif
-	nofngflg,
-	exportflg,
-	monitorflg,
-	privflg,
-	pfshflg,
-	versflg,
-#ifdef	DO_FDPIPE
-	fl2 | fdpipeflg,
+	noexec,			/* -n / -o noexec */
+	nofngflg,		/* -f / -o noglob */
+#ifdef	DO_NOTIFY
+	notifyflg,		/* -b / -o notify */
 #endif
+	setflg,			/* -u / -o nounset */
+	oneflg,			/* -t / -o onecmd */
+	pfshflg,
+	privflg,
+	rshflg,
+	stdflg,			/* -s / -o stdin */
+	versflg,
 #ifdef	DO_TIME
 	fl2 | timeflg,
 #endif
-#ifdef	DO_FULLEXCODE
-	fl2 | fullexitcodeflg,
-#endif
-	globalaliasflg,
-	localaliasflg,
-	aliasownerflg,
 #ifdef	INTERACTIVE
-	viflg,
 	vedflg,
 #endif
+	readpr,			/* -v / -o verbose */
+#ifdef	INTERACTIVE
+	viflg,
+#endif
+	execpr,
 	0
 };
 

@@ -1,6 +1,6 @@
 #!/bin/sh
 ###########################################################################
-#ident "@(#)MKLINKS	1.5 14/04/18 "
+#ident "@(#)MKLINKS	1.6 15/09/02 "
 ###########################################################################
 # Written 2008-2011 by J. Schilling
 ###########################################################################
@@ -67,6 +67,7 @@ $symlink ../sh/macro.c			.
 $symlink ../sh/main.c			.
 $symlink ../sh/msg.c			.
 $symlink ../sh/name.c			.
+$symlink ../sh/optget.c			.
 $symlink ../sh/print.c			.
 $symlink ../sh/pwd.c			.
 $symlink ../sh/service.c		.

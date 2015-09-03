@@ -1,0 +1,145 @@
+New features with AN-2015-09-03:
+
+This is the first localization step for the schily source consolidation. Many
+programs now (hopefully) call gettext() for all strings that need localization.
+
+-	The next step will include dgettext() calls for the libraries and the
+	missing programs
+
+-	The following step will include the extracted strings
+
+-	The last step will include German translations and install support
+	for the resulting binary message object files.
+
+----------> Please test and report compilation problems! <---------
+
+***** NOTE: As mentioned since 2004, frontends to the tools should *****
+*****		call all programs in the "C" locale		   *****
+*****		by e.g. calling: LC_ALL=C cdrecord ....		   *****
+*****		unless these frontends support localized strings   *****
+*****		used by the cdrtools with NLS support.		   *****
+
+		*** WARNING        ***
+		*** Need new smake ***
+
+	*** Due to the fact that schily-tools 2014-04-03 introduced to use new macro
+	*** expansions and a related bug fix in smake, you need a new smake
+	*** to compile this source. To ensure this, call:
+
+	cd ./psmake
+	./MAKE-all
+	cd ..
+	psmake/smake
+	psmake/smake install
+
+
+	WARNING: the new version of the isoinfo program makes use of the 
+		*at() series of functions that have been introduced by Sun
+		in August 2001 and added to POSIX.1-2008. For older platforms,
+		libschily now includes emulations for these functions but
+		these emulations have not yet been tested thoroughly.
+		Please report problems!
+
+	The new smake version mentioned above is smake-1.2.4
+
+-	Bourne Shell: Support for set -o bgnice was aded
+
+-	Bourne Shell: Support for set -o ignoreeof was added
+
+-	Bourne Shell: Support for set -b / set -o notify was added.
+	There is currenly no related function in the shell.
+
+-	Bourne Shell: Support for export -p name=value and readonly -p name=value
+	was added, making this interface POSIX compliant.
+
+-	Bourne Shell: Fixed a job control problem we introduced with reordering
+	code in jobs.c. (exec ps) will no longer cause the shell to die on SIGTTIN.
+
+-	Bourne Shell: Added a workaround for Linux for the above SIGTTIN problem
+	that exists because Linux comed with an incomplete waitid() implementation
+	where WNOWAIT is not supported.
+
+-	Bourne Shell: the output from set -o is now sorted.
+
+-	Bourne Shell: unset(1) now supports the POSIX options -f and -v.
+
+-	Bourne Shell: getopts(1) now supports long-only options (long options
+	with no related short option). To set up a long-only option, replace the
+	short option letter by "?ddd?", where ddd is a decimal number that should
+	be >= 256. if you call:
+
+		getopts "?9000?(long)" XOPT
+
+	in a script and the script is called with "--long" as an argument, then
+	getopts places the value "9000" in the shell variable "XOPT".
+
+-	Bourne Shell: some code that should have been #ifdef'd is now in proper
+	#ifdef statements to help to reduce the size of "osh".
+
+-	"osh": We no longer use the waitid() emulation if the platform comes
+	with a working waitid() implementation. This helps to reduce the
+	size of osh.
+
+-	bsh / Bourne Shell: a Typo in abbrev.c was fixed and the Bourne Shell is
+	now able to link without libschily in case the platform supports snprintf().
+
+-	bsh / Bourne Shell (libshedit): The method to store multi line commands
+	such as:
+
+		if true
+		then
+			echo ok
+		fi
+
+	was modified to work with bsh and Bourne Shell. Now the ANSI-NL character
+	is only used in the history file; the history editor uses a \n displayed
+	as ^J as the "line end" character between the lines from the previous
+	command.
+
+-	libgetopt now supports long only options. See getopts(1) above for more
+	information.
+
+-	libshedit: New interface function shedit_igneof() to set up a function
+	pointer that returns != 0 in case the shell was set up with
+	"set -o ignoreeof"
+
+-	Bourne Shell: The builtin commands no longer use getopt() but the new
+	optget() that maintains state and thus makes the implementation more 
+	readable than with the previous code that has the state management code
+	visible in every builtin command.
+
+-	bsh libshedit (Bourne Shell): a bug in inputc.c was fixed that could
+	cause a coredump if a command line was longer than 512 chars. This was
+	because of a typo the numbe of bytes was used for the available
+	length nstead of the number of wchar_t entries in an array.
+
+
+-	The following builtins (that are available in bsh) are still missing in
+	the Bourne Shell:
+
+	err			echo with output going to stderr
+	glob			echo with '\0' instead of ' ' between args
+	env			a builtin version of /usr/bin/env
+
+	The following bsh intrinsics are still missing in the Bourne Shell:
+
+	-			the restricted bsh has restriction features that
+				are missing in the Bourne shell.
+
+	-	source -h	read file into history but do not excute
+
+	and probably more features not yet identified to be bsh unique.
+
+
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.net, js@cs.tu-berlin.de
+	joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

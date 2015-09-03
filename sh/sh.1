@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sh.1	1.95 15/08/27 Copyright 2012-2015 J. Schilling
+.\" @(#)sh.1	1.102 15/08/31 Copyright 2012-2015 J. Schilling
 .\" Copyright 1989 AT&T
 .\" Copyright (c) 2008, Sun Microsystems, Inc. All Rights Reserved.
 .\" Portions Copyright (c) 1992, X/Open Company Limited All Rights Reserved
@@ -59,7 +59,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sh 1 "2015/08/27" "Schily Bourne Shell" "User Commands"
+.TH sh 1 "2015/08/31" "Schily Bourne Shell" "User Commands"
 .SH NAME
 sh, jsh \- standard and job control shell and command interpreter
 .SH SYNOPSIS
@@ -1384,8 +1384,14 @@ If set to
 .BR on ,
 the shell will not exit if a
 .B ^D
-is typed and the cursor is on an empty command line.
+is typed and the cursor is on an empty command line;
+the command
+.B exit
+must be used instead.
 The default is not to ignore EOF.
+See also the command
+.B set -o ignoreeof
+below.
 .B IGNOREEOF
 is only supported if
 .B sh
@@ -3095,7 +3101,7 @@ also causes the shell to exit.)
 .br
 .ne 3
 .TP
-\fBexport\fR [ \fIname\fR .\|.\|. ]
+\fBexport\fR [ \fB\-p\fR ] [ \fIname\fR[\fB=\fIvalue\fR] .\|.\|. ]
 .sp .6
 The given
 .IR name s
@@ -3103,11 +3109,22 @@ are marked for automatic export to the
 .I environment
 of subsequently executed commands. If no arguments are
 given, variable names that have been marked for export during the current
-shell's execution are listed. (Variable names exported from a parent shell
+shell's execution are listed.
+The
+.B \-p
+option causes the word
+.B export
+to be inserted before each name.
+(Variable names exported from a parent shell
 are listed only if they have been exported again during the current shell's
 execution.) Function names are
 .B not
 exported.
+.sp
+The option
+.B \-p
+was not supported in older versions of
+.BR sh .
 
 .br
 .ne 3
@@ -3168,7 +3185,7 @@ or the global
 of the current shell, using
 .I optstring
 as option definition.
-Each time it is invoked, it places the next option into the variable
+Each time it is invoked, it places the next option character into the variable
 .I name
 and the index of the next argument to be processed into
 .BR OPTIND .
@@ -3232,6 +3249,25 @@ and
 .B \-\-output\-file
 is the equivalent of
 .BR \-o .
+.LP
+.B getopts
+also supports one or more long options with no related short option.
+You must set up a decimal numerical value >= 256 between two question mark
+signs in place of an option letter in
+.IR optstring :
+.LP
+  getopts "f:(file)(input-file)?900?:(output-file)"
+.LP
+In the above example, the long option
+.B \-\-output\-file
+is associated to the integer value
+.B 900
+and in case the option
+.B \-\-output\-file
+was specified, string
+.B 900
+is set up as the value for
+.IR name .
 .RE
 
 .br
@@ -3616,7 +3652,7 @@ was not supported in older versions of
 .br
 .ne 3
 .TP
-\fBreadonly\fR [ \fIname\fR .\|.\|. ]
+\fBreadonly\fR [ \fB\-p\fR ] [ \fIname\fR[\fB=\fIvalue\fR] .\|.\|. ]
 .sp .6
 The given
 .IR name s
@@ -3628,6 +3664,16 @@ can not be changed by subsequent assignment. If no arguments are
 given, a list of all
 .B readonly
 names is printed.
+The
+.B \-p
+option causes the word
+.B readonly
+to be inserted before each name.
+.sp
+The option
+.B \-p
+was not supported in older versions of
+.BR sh .
 
 .br
 .ne 3
@@ -3688,7 +3734,7 @@ command was not supported in older versions of
 .br
 .ne 3
 .TP
-\fBset\fR [ \fB\-aefhkmntuvxP\fR [ \fIargument\fR .\|.\|. ] ]
+\fBset\fR [ \fB\-abCefhkmntuvxP\fR [ \fB-o \fR[ \fIoption\fR ]] [ \fIargument\fR .\|.\|. ] ]
 .sp .6
 .RS
 .br
@@ -3696,6 +3742,18 @@ command was not supported in older versions of
 .TP 6n
 .B \-a
 Mark variables which are modified or created for export.
+
+.br
+.ne 3
+.TP
+.B \-b
+Prints job completion messages as soon as a background job
+changes state rather than waiting for the next prompt.
+This options is currently without effect.
+The option
+.B \-b
+was not supported in older versions of
+.BR sh .
 
 .br
 .ne 3
@@ -3803,6 +3861,10 @@ owned by the current shell user. This option allows to set up
 an alternate file owner that is accepted. Setting the alternate
 owner to the empty string disables the feature.
 .TP
+.B bgnice
+All background jobs are run at a lower priority.
+This is the default in interactive mode.
+.TP
 .B errexit
 Equivalent to
 .BR \-e .
@@ -3856,6 +3918,25 @@ value to
 .BI \fR`` "hostname\ uname" ">\ " \fR''
 if it was not yet changed from the default value.
 .TP
+.B ignoreeof
+The POSIX variant of telling the shell not to exit on EOF;
+the command
+.B exit
+must be used instead.
+The original method of the history editor introduced in 1984
+is to set
+.B IGNOREEOF=on
+see section
+.B Parameter Substitution
+for more information.
+If the parameter
+.B IGNOREEOF=on
+was set and
+.B ignoreeof
+is
+.BR off ,
+EOF is still ignored.
+.TP
 .B interactive
 Equivalent to
 .BR \-i .
@@ -3889,6 +3970,10 @@ Equivalent to
 .B noglob
 Equivalent to
 .BR \-f .
+.TP
+.B notify
+Equivalent to
+.BR \-b .
 .TP
 .B nounset
 Equivalent to
@@ -3940,6 +4025,11 @@ for any type of terminal.
 Equivalent to
 .BR \-x .
 .PD
+.LP
+The option
+.B \-o
+was not supported in older versions of
+.BR sh .
 .RE
 
 .br
@@ -4962,7 +5052,7 @@ remains active, but the file with persistent alias definitions is not touched.
 .br
 .ne 3
 .TP
-\fBunset\fR [ \fIname\fR .\|.\|. ]
+\fBunset\fR [ \fB\-f\fR | \fB\-v\fR ] [ \fIname\fR .\|.\|. ]
 .sp .6
 For each
 .IR name ,
@@ -4974,6 +5064,24 @@ remove the corresponding variable or function value. The variables
 and
 .B IFS
 cannot be unset.
+Readonly variables cannot be unset.
+If the option
+.B \-v
+is used, only
+.B variables
+will be unset.
+If the option
+.B \-f
+is used, only
+.B functions
+will be unset.
+.sp
+The options
+.B \-f
+and
+.B \-v
+have not been supported in older versions of
+.BR sh .
 
 .br
 .ne 3

@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2015 J. Schilling
  *
- * @(#)jobs.c	1.64 15/08/22 2008-2015 J. Schilling
+ * @(#)jobs.c	1.68 15/09/02 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)jobs.c	1.64 15/08/22 2008-2015 J. Schilling";
+	"@(#)jobs.c	1.68 15/09/02 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -162,6 +162,7 @@ struct job
 #define	J_FOREGND	0200	/* job was put in foreground by shell */
 #define	J_BLTIN		0400	/* job was a shell builtin */
 
+#ifdef	DO_DOT_SH_PARAMS
 static struct codename {
 	int	c_code;		/* The si_code value */
 	char	*c_name;	/* The name for si_code */
@@ -176,6 +177,7 @@ static struct codename {
 	{ C_NOTFOUND,	"NOTFOUND" }	/* File not found */
 };
 #define	CODENAMESIZE	(sizeof (_codename) / sizeof (_codename[0]))
+#endif
 
 
 /*
@@ -231,7 +233,7 @@ static void	printjob	__PR((struct job *jp, int propts));
 	void	makejob		__PR((int monitor, int fg));
 	struct job *
 		postjob		__PR((pid_t pid, int fg, int blt));
-	void	sysjobs		__PR((int argc, char *argv[]));
+	void	sysjobs		__PR((int argc, unsigned char *argv[]));
 	void	sysfgbg		__PR((int argc, char *argv[]));
 	void	syswait		__PR((int argc, char *argv[]));
 #define	F_KILL		1
@@ -359,6 +361,7 @@ str2job(cmdp, job, mustbejob)
 	return (jp);
 }
 
+#ifdef	DO_DOT_SH_PARAMS
 char *
 code2str(code)
 	int	code;
@@ -371,6 +374,7 @@ code2str(code)
 	}
 	return ("UNKNOWN");
 }
+#endif
 
 static void
 freejob(jp)
@@ -496,8 +500,10 @@ statjob(jp, si, fg, rc)
 			}
 		}
 		if (fg) {
+			pid_t	jgid = getpgid(jp->j_pid);
+
 			if (!settgid(mypgid, jp->j_pgid) ||
-			    !settgid(mypgid, getpgid(jp->j_pid)))
+			    !settgid(mypgid, jgid == (pid_t)-1 ? svpgid:jgid))
 				tcgetattr(0, &mystty);
 		}
 	}
@@ -637,6 +643,16 @@ waitjob(jp)
 
 #if	WNOWAIT != 0
 	/*
+	 * On a complete waitid() implementation, we have WNOWAIT and thus are
+	 * able to get the real process group for pid as the process still
+	 * exists. Other systems may not have set the final process group of
+	 * this pid before we start to waid and after the wait, the process
+	 * cannot be retrieved anymore as it was already removed.
+	 * To be always able to retrieve the progrcc group for pid, we need
+	 * to call statjog() here.
+	 */
+	jdone = statjob(jp, &si, 1, 1);	/* Sets exitval, see below */
+	/*
 	 * Avoid hang on FreeBSD, so wait/reap here only for died children.
 	 */
 	if (si.si_code != CLD_STOPPED && si.si_code != CLD_TRAPPED) {
@@ -646,8 +662,14 @@ waitjob(jp)
 		si.si_utime = si2.si_utime;
 		si.si_stime = si2.si_stime;
 	}
-#endif
+#else
+	/*
+	 * Inclomplete waitid() implementation (e.g. Linux). We may fail
+	 * to get the right progrss group for pid and fail to restore
+	 * our process group in the terninal.
+	 */
 	jdone = statjob(jp, &si, 1, 1);	/* Sets exitval, see below */
+#endif
 
 #ifdef	DO_TIME
 	if (flags2 & timeflg)
@@ -977,8 +999,13 @@ makejob(monitor, fg)
 		handle(SIGTTOU, SIG_DFL);
 		handle(SIGTSTP, SIG_DFL);
 	} else if (!fg) {
+#ifdef	DO_BGNICE
+		if (flags2 & bgniceflg)
+			nice(5);
+#else
 #ifdef NICE
 		nice(NICE);
+#endif
 #endif
 		handle(SIGTTIN, SIG_IGN);
 		handle(SIGINT,  SIG_IGN);
@@ -1047,30 +1074,25 @@ postjob(pid, fg, blt)
  */
 void
 sysjobs(argc, argv)
-int argc;
-char *argv[];
+	int		argc;
+	unsigned char	*argv[];
 {
-	char *cmdp = *argv;
+	unsigned char *cmdp = *argv;
 	struct job *jp;
 	int propts, c;
-	extern int opterr;
-	int savoptind = optind;
-	int loptind = -1;
-	int savopterr = opterr;
-	int savsp = _sp;
-	char *savoptarg = optarg;
-	optind = 1;
-	opterr = 0;
-	_sp = 1;
+	struct optv optv;
+
+	optinit(&optv);
+	optv.opterr = 0;
 	propts = 0;
 
 	if ((flags & jcflg) == 0)
 		failed((unsigned char *)cmdp, nojc);
 
-	while ((c = getopt(argc, argv, "lpx")) != -1) {
+	while ((c = optget(argc, argv, &optv, "lpx")) != -1) {
 		if (propts) {
 			gfailure((unsigned char *)usage, jobsuse);
-			goto err;
+			return;
 		}
 		switch (c) {
 			case 'x':
@@ -1084,29 +1106,21 @@ char *argv[];
 				break;
 			case '?':
 				gfailure((unsigned char *)usage, jobsuse);
-				goto err;
+				return;
 		}
 	}
 
-	loptind = optind;
-err:
-	optind = savoptind;
-	optarg = savoptarg;
-	opterr = savopterr;
-	_sp = savsp;
-	if (loptind == -1)
-		return;
-
 	if (propts == -1) {
 		unsigned char *bp;
-		char *cp;
+		unsigned char *cp;
 		unsigned char *savebp;
-		for (savebp = bp = locstak(); loptind < argc; loptind++) {
-			cp = argv[loptind];
+		for (savebp = bp = locstak(); optv.optind < argc;
+							optv.optind++) {
+			cp = argv[optv.optind];
 			if (*cp == '%') {
-				jp = str2job(cmdp, cp, 1);
+				jp = str2job((char *)cmdp, (char *)cp, 1);
 				itos(jp->j_pid);
-				cp = (char *)numbuf;
+				cp = numbuf;
 			}
 			while (*cp) {
 				GROWSTAK(bp);
@@ -1125,14 +1139,14 @@ err:
 	if (propts == 0)
 		propts = PR_DFL;
 
-	if (loptind == argc) {
+	if (optv.optind == argc) {
 		for (jp = joblst; jp; jp = jp->j_nxtp) {
 			if (jp->j_jid)
 				printjob(jp, propts);
 		}
-	} else do
-		printjob(str2job(cmdp, argv[loptind++], 1), propts);
-	while (loptind < argc);
+	} else do {
+		printjob(str2job(C cmdp, C argv[optv.optind++], 1), propts);
+	} while (optv.optind < argc);
 }
 
 /*

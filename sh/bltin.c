@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2015 J. Schilling
  *
- * @(#)bltin.c	1.58 15/08/27 2008-2015 J. Schilling
+ * @(#)bltin.c	1.63 15/09/02 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)bltin.c	1.58 15/08/27 2008-2015 J. Schilling";
+	"@(#)bltin.c	1.63 15/09/02 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -104,7 +104,7 @@ struct trenod *t;
 		break;
 
 	case SYSJOBS:
-		sysjobs(argc, (char **)argv);
+		sysjobs(argc, argv);
 		break;
 
 	case SYSDOT:
@@ -182,12 +182,14 @@ struct trenod *t;
 			setmode(0);
 			break;
 		}
+#ifdef	DO_EXEC_AC
 		if (eq(a1, "-a")) {
 			argv++;
 			if (*argv) {
 				a0 = *argv++;
 			}
 		}
+#endif
 		/* FALLTHROUGH */
 
 #ifdef RES	/* Research includes login as part of the shell */
@@ -425,8 +427,21 @@ struct trenod *t;
 
 	case SYSRDONLY:
 		if (a1) {
-			while (*++argv)
+#ifdef	DO_POSIX_EXPORT
+			if (eq(a1, "-p")) {
+				if (!(++argv)[1])
+					namscan(printpro);
+			}
+#endif
+			while (*++argv) {
+#ifdef	DO_POSIX_EXPORT
+				if (strchr((char *)*argv, '=')) {
+					setname(*argv, N_RDONLY);
+					continue;
+				}
+#endif
 				attrib(lookup(*argv), N_RDONLY);
+			}
 		} else {
 			namscan(printro);
 		}
@@ -437,7 +452,19 @@ struct trenod *t;
 			struct namnod	*n;
 
 			if (a1) {
+#ifdef	DO_POSIX_EXPORT
+				if (eq(a1, "-p")) {
+					if (!(++argv)[1])
+						namscan(printpexp);
+				}
+#endif
 				while (*++argv) {
+#ifdef	DO_POSIX_EXPORT
+					if (strchr((char *)*argv, '=')) {
+						setname(*argv, N_EXPORT);
+						continue;
+					}
+#endif
 					n = lookup(*argv);
 					if (n->namflg & N_FUNCTN)
 						error(badexport);
@@ -486,44 +513,29 @@ struct trenod *t;
 #ifdef	DO_SYSREPEAT
 	case SYSREPEAT:
 		if (a1) {
-			extern int opterr, optind;
-			int	savopterr;
-			int	savoptind;
-			int	savsp;
-			char	*savoptarg;
-			int	roptind;
+			struct optv optv;
 			int	c;
 			int	delay = 0;
 			int	count = -1;
 			int	err = 0;
 
-			savoptind = optind;
-			savopterr = opterr;
-			savsp = _sp;
-			savoptarg = optarg;
-			optind = 1;
-			_sp = 1;
-			opterr = 0;
+			optinit(&optv);
+			optv.opterr = 0;
 
-			while ((c = getopt(argc, (char **)argv,
+			while ((c = optget(argc, argv, &optv,
 						"c:(count)d:(delay)")) != -1) {
 				switch (c) {
 				case 'c':
-					count = stoi(UC optarg);
+					count = stoi(UC optv.optarg);
 					break;
 				case 'd':
-					delay = stoi(UC optarg);
+					delay = stoi(UC optv.optarg);
 					break;
 				case '?':
 					gfailure(UC usage, repuse);
 					err = 1;
 				}
 			}
-			roptind = optind;
-			optind = savoptind;
-			opterr = savopterr;
-			_sp = savsp;
-			optarg = savoptarg;
 			if (err)
 				break;
 
@@ -531,8 +543,8 @@ struct trenod *t;
 				unsigned char		*sav = savstak();
 				struct ionod		*iosav = iotemp;
 
-				execexp(argv[roptind],
-					(Intptr_t)&argv[roptind+1]);
+				execexp(argv[optv.optind],
+					(Intptr_t)&argv[optv.optind+1]);
 				tdystak(sav, iosav);
 
 				if (delay > 0)
@@ -549,7 +561,7 @@ struct trenod *t;
 
 #ifndef RES
 	case SYSULIMIT:
-		sysulimit(argc, (char **)argv);
+		sysulimit(argc, argv);
 		break;
 
 	case SYSUMASK:
@@ -643,8 +655,19 @@ struct trenod *t;
 
 	case SYSUNS:
 		if (a1) {
+			int	uflg = 0;
+
+#ifdef	DO_POSIX_UNSET
+			if (eq(a1, "-f")) {
+				uflg |= UNSET_FUNC;
+				argv++;
+			} else if (eq(a1, "-v")) {
+				uflg |= UNSET_VAR;
+				argv++;
+			}
+#endif
 			while (*++argv)
-				unset_name(*argv);
+				unset_name(*argv, uflg);
 		}
 		break;
 
@@ -683,7 +706,19 @@ struct trenod *t;
 		c[0] = (char)getoptval;
 		c[1] = '\0';
 		n = lookup(varnam);
-		assign(n, c);
+		if (getoptval > 256) {
+			/*
+			 * We should come here only with the Schily enhanced
+			 * getopt() from libgetopt.
+			 */
+#ifdef	DO_GETOPT_LONGONLY
+			itos(getoptval);
+			assign(n, numbuf);
+#else
+			assign(n, UC "?");	/* Pretend illegal option */
+#endif
+		} else
+			assign(n, c);
 		n = lookup(UC "OPTARG");
 		assign(n, UC optarg);
 		}

@@ -39,7 +39,7 @@
 /*
  * Copyright 2008-2015 J. Schilling
  *
- * @(#)defs.h	1.103 15/08/27 2008-2015 J. Schilling
+ * @(#)defs.h	1.111 15/09/02 2008-2015 J. Schilling
  */
 
 #ifdef	__cplusplus
@@ -294,7 +294,14 @@ extern "C" {
 
 #endif	/* ! SCHILY_INCLUDES */
 
+#define	CH	(char)
+#define	UCH	(unsigned char)
+#define	C	(char *)
 #define	UC	(unsigned char *)
+#define	CP	(char **)
+#define	UCP	(unsigned char **)
+#define	CPP	(char ***)
+#define	UCPP	(unsigned char ***)
 
 #ifndef	__NORETURN
 #define	__NORETURN
@@ -394,9 +401,15 @@ extern	void	failed_real	__PR((int err, unsigned char *s1,
 extern	void	failure_real	__PR((int err, unsigned char *s1,
 						const char *s2, int gflag));
 extern	void	exitsh		__PR((int xno)) __NORETURN;
+#ifdef	DO_DOT_SH_PARAMS
 extern	void	exval_clear	__PR((void));
 extern	void	exval_sig	__PR((void));
 extern	void	exval_set	__PR((int xno));
+#else
+#define	exval_clear()
+#define	exval_sig()
+#define	exval_set(a)
+#endif
 extern	void	rmtemp		__PR((struct ionod *base));
 extern	void	rmfunctmp	__PR((void));
 
@@ -498,7 +511,7 @@ extern	void	makejob		__PR((int monitor, int fg));
 extern	struct job *
 		postjob		__PR((pid_t pid, int fg, int blt));
 extern	void	deallocjob	__PR((struct job *jp));
-extern	void	sysjobs		__PR((int argc, char *argv[]));
+extern	void	sysjobs		__PR((int argc, unsigned char *argv[]));
 extern	void	sysfgbg		__PR((int argc, char *argv[]));
 extern	void	syswait		__PR((int argc, char *argv[]));
 extern	void	sysstop		__PR((int argc, char *argv[]));
@@ -540,6 +553,7 @@ extern	const struct sysnod *
 		sysnlook	__PR((unsigned char *w,
 					const struct sysnod syswds[], int n));
 extern	void	setlist		__PR((struct argnod *arg, int xp));
+extern	void	setname		__PR((unsigned char *nam, int xp));
 extern	void	replace		__PR((unsigned char **a, unsigned char *v));
 extern	void	dfault		__PR((struct namnod *n, unsigned char *v));
 extern	void	assign		__PR((struct namnod *n, unsigned char *v));
@@ -550,11 +564,16 @@ extern	struct namnod *lookup	__PR((unsigned char *nam));
 extern	void	namscan		__PR((void (*fn)(struct namnod *n)));
 extern	void	printnam	__PR((struct namnod *n));
 extern	void	printro		__PR((struct namnod *n));
+extern	void	printpro	__PR((struct namnod *n));
 extern	void	printexp	__PR((struct namnod *n));
+extern	void	printpexp	__PR((struct namnod *n));
 extern	void	setup_env	__PR((void));
 extern	unsigned char **local_setenv __PR((int flg));
 extern	struct namnod *findnam	__PR((unsigned char *nam));
-extern	void	unset_name	__PR((unsigned char *name));
+
+#define	UNSET_FUNC	1
+#define	UNSET_VAR	2
+extern	void	unset_name	__PR((unsigned char *name, int uflg));
 #ifdef INTERACTIVE
 extern	char	*getcurenv	__PR((char *name));
 extern	void	ev_insert	__PR((char *name));
@@ -699,7 +718,7 @@ extern	void	expr		__PR((int argn, unsigned char *com[]));
 /*
  * ulimit.c
  */
-extern	void	sysulimit	__PR((int argc, char **argv));
+extern	void	sysulimit	__PR((int argc, unsigned char **argv));
 
 /*
  * umask.c
@@ -727,6 +746,14 @@ extern	void	sysbuiltin	__PR((int argc, unsigned char **argv));
 #ifdef	DO_SYSFIND
 extern	void	sysfind		__PR((int argc, unsigned char **argv));
 #endif
+
+/*
+ * optget.c
+ */
+extern	void	optinit		__PR((struct optv *optv));
+extern	int	optget		__PR((int argc, unsigned char **argv,
+					struct optv *optv,
+					const char *optstring));
 
 /*
  * word.c
@@ -953,6 +980,9 @@ extern const char		devnull[];
 #define		hashcmdsflg	010		/* set -o hashcmds	*/
 #define		hostpromptflg	020		/* set -o hostprompt	*/
 #define		noclobberflg	040		/* set -o noclobber	*/
+#define		bgniceflg	0100		/* set -o bgnice	*/
+#define		ignoreeofflg	0200		/* set -o ignoreeof	*/
+#define		notifyflg	0400		/* set -o notify / -b	*/
 
 extern unsigned long		flags;		/* Flags for set(1) and more */
 extern unsigned long		flags2;		/* Second set of flags */

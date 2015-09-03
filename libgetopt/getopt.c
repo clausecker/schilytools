@@ -26,10 +26,10 @@
 /*
  * This file contains modifications Copyright 2006-2015 J. Schilling
  *
- * @(#)getopt.c	1.10 15/04/09 J. Schilling
+ * @(#)getopt.c	1.11 15/08/31 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)getopt.c 1.10 15/04/09 J. Schilling"
+#pragma ident "@(#)getopt.c 1.11 15/08/31 J. Schilling"
 #endif
 
 #if defined(sun)
@@ -71,6 +71,9 @@ extern int optind, opterr, optopt;
 extern char *optarg;
 
 static char *parseshort __PR((const char *optstring, const int c));
+#ifdef	DO_GETOPT_LONGONLY
+static int  parseshortval __PR((const char *optstring, const char *cp));
+#endif
 static char *parselong  __PR((const char *optstring, const char *opt, char **longoptarg));
 
 /*
@@ -117,6 +120,19 @@ parseshort(optstring, c)
 	if (c == ':' || c == '(')
 		return (NULL);
 	do {
+#ifdef	DO_GETOPT_LONGONLY
+		if (*cp == '?' && cp[1] >= '0' && cp[1] <= '9') {
+			const char *ocp = cp;
+
+			do {
+				cp++;
+			} while (*cp >= '0' && *cp <= '9');
+			if (*cp == '?')
+				cp++;
+			else
+				cp = (char *)ocp;
+		}
+#endif
 		if (*cp == c)
 			return (cp);
 		while (*cp == '(')
@@ -125,6 +141,41 @@ parseshort(optstring, c)
 	} while (*cp++ != '\0');
 	return (NULL);
 }
+
+#ifdef	DO_GETOPT_LONGONLY
+/*
+ * Parse strings in the form "?ddd?", where ddd represents a
+ * decimal numeric value. We are called with cp pointing to the
+ * rightmost '?'.
+ */
+static int
+parseshortval(optstring, cp)
+	const char *optstring;
+	const char *cp;
+{
+	const char *p = cp;
+
+	while (p > optstring) {
+		p--;
+		if (*p < '0' || *p > '9')
+			break;
+	}
+	if ((p + 1) == cp)	/* Did not find a number before '?' */
+		return ('?');
+	if (*p == '?') {
+		int	i = 0;
+
+		while (*++p != '?') {
+			if (i > 2000000000)	/* Avoid integer overflow */
+				return (-1);
+			i *= 10;
+			i += *p - '0';
+		}
+		return (i);
+	}
+	return ('?');
+}
+#endif
 
 /*
  * Determine if the specified string (opt) is present in the string
@@ -211,7 +262,7 @@ getopt(argc, argv, optstring)
 	char *const	*argv;
 	const char	*optstring;
 {
-	char	c;
+	int	c;
 	char	*cp;
 	int	longopt;
 	char	*longoptarg = NULL;
@@ -275,7 +326,16 @@ getopt(argc, argv, optstring)
 		}
 		return ('?');
 	}
-	optopt = c = *cp;
+	optopt = c = (unsigned char)*cp;
+#ifdef	DO_GETOPT_LONGONLY
+	if (*cp == '?') {
+		optopt = c = parseshortval(optstring, cp);
+		if (c < 0) {
+			optopt = (unsigned char)argv[optind++][_sp];
+			return ('?');
+		}
+	}
+#endif
 
 	/*
 	 * A valid option has been identified.  If it should have an

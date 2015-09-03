@@ -36,14 +36,14 @@
 /*
  * Copyright 2008-2015 J. Schilling
  *
- * @(#)ulimit.c	1.19 15/07/18 2008-2015 J. Schilling
+ * @(#)ulimit.c	1.20 15/09/02 2008-2015 J. Schilling
  */
 #ifdef	SCHILY_INCLUDES
 #include <schily/mconfig.h>
 #endif
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)ulimit.c	1.19 15/07/18 2008-2015 J. Schilling";
+	"@(#)ulimit.c	1.20 15/09/02 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -129,17 +129,15 @@ static struct rlimtab {
 {	0,		NULL,		NULL,		0, 0,	},
 };
 
-	void	sysulimit	__PR((int argc, char **argv));
+	void	sysulimit	__PR((int argc, unsigned char **argv));
 
 void
 sysulimit(argc, argv)
-	int	argc;
-	char	**argv;
+	int		argc;
+	unsigned char	**argv;
 {
-	extern int opterr, optind;
-	int savopterr, savoptind, savsp;
-	char *savoptarg;
-	char *args;
+	struct optv optv;
+	unsigned char *args;
 	char errargs[PATH_MAX];
 	int hard, soft, cnt, c, res;
 	rlim_t limit, new_limit;
@@ -151,18 +149,14 @@ sysulimit(argc, argv)
 		resources[res] = 0;
 	}
 
-	savoptind = optind;
-	savopterr = opterr;
-	savsp = _sp;
-	savoptarg = optarg;
-	optind = 1;
-	_sp = 1;
-	opterr = 0;
+	optinit(&optv);
+	optv.opterr = 0;
 	hard = 0;
 	soft = 0;
 	cnt = 0;
 
-	while ((c = getopt(argc, argv, "HSacdefilmnqrstuvxLMPR")) != -1) {
+	while ((c = optget(argc, argv, &optv,
+			    "HSacdefilmnqrstuvxLMPR")) != -1) {
 		switch (c) {
 		case 'S':
 			soft++;
@@ -190,7 +184,7 @@ sysulimit(argc, argv)
 
 		case '?':
 			gfailure((unsigned char *)usage, ulimuse);
-			goto err;
+			return;
 		}
 		resources[res]++;
 		cnt++;
@@ -206,7 +200,7 @@ sysulimit(argc, argv)
 	/*
 	 * if out of arguments, then print the specified resources
 	 */
-	if (optind == argc) {
+	if (optv.optind == argc) {
 		if (!hard && !soft) {
 			soft++;
 		}
@@ -257,18 +251,18 @@ sysulimit(argc, argv)
 			}
 			prc_buff('\n');
 		}
-		goto err;
+		return;
 	}
 
-	if (cnt > 1 || optind + 1 != argc) {
+	if (cnt > 1 || optv.optind + 1 != argc) {
 		gfailure((unsigned char *)usage, ulimuse);
-		goto err;
+		return;
 	}
 
-	if (eq(argv[optind], "unlimited")) {
+	if (eq(argv[optv.optind], "unlimited")) {
 		limit = RLIM_INFINITY;
 	} else {
-		args = argv[optind];
+		args = argv[optv.optind];
 
 		new_limit = limit = 0;
 		do {
@@ -276,7 +270,7 @@ sysulimit(argc, argv)
 				snprintf(errargs, PATH_MAX-1,
 				"%s: %s", argv[0], args);
 				failure((unsigned char *)errargs, badnum);
-				goto err;
+				return;
 			}
 			/* Check for overflow! */
 			new_limit = (limit * 10) + (*args - '0');
@@ -286,7 +280,7 @@ sysulimit(argc, argv)
 				snprintf(errargs, PATH_MAX-1,
 				"%s: %s", argv[0], args);
 				failure((unsigned char *)errargs, badnum);
-				goto err;
+				return;
 			}
 		} while (*++args);
 
@@ -305,13 +299,13 @@ sysulimit(argc, argv)
 			snprintf(errargs, PATH_MAX-1,
 			"%s: %s", argv[0], args);
 			failure((unsigned char *)errargs, badnum);
-			goto err;
+			return;
 		}
 	}
 
 	if (getrlimit(res, &rlimit) < 0) {
 		failure((unsigned char *)argv[0], badnum);
-		goto err;
+		return;
 	}
 
 	if (!hard && !soft) {
@@ -328,13 +322,7 @@ sysulimit(argc, argv)
 	if (setrlimit(res, &rlimit) < 0) {
 	fail:
 		snprintf(errargs, PATH_MAX-1,
-		"%s: %s", argv[0], argv[optind]);
+		"%s: %s", argv[0], argv[optv.optind]);
 		failure((unsigned char *)errargs, badulimit);
 	}
-
-err:
-	optind = savoptind;
-	opterr = savopterr;
-	_sp = savsp;
-	optarg = savoptarg;
 }

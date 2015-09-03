@@ -1,8 +1,8 @@
-/* @(#)abbrev.c	1.60 15/08/22 Copyright 1985-2015 J. Schilling */
+/* @(#)abbrev.c	1.62 15/08/30 Copyright 1985-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)abbrev.c	1.60 15/08/22 Copyright 1985-2015 J. Schilling";
+	"@(#)abbrev.c	1.62 15/08/30 Copyright 1985-2015 J. Schilling";
 #endif
 /*
  *	Abbreviation symbol handling
@@ -118,7 +118,7 @@ LOCAL	char	sn_badfile[]	= "bad_sym_file";
 
 #define	ctlc		intrcnt
 
-#ifndef	HAVE_SNPRINTF
+#ifdef	HAVE_SNPRINTF
 	/*
 	 * Try to avoid js_snprintf() in the Bourne Shell
 	 * to allow to lazyload libschily
@@ -342,7 +342,7 @@ _ab_output(ap)
 		return;
 	}
 	if (lstat(ap->at_fname, &sb) < 0) /* Check whether a symlink */
-		;			/* No file yet		   */
+		/* EMPTY */;		/* No file yet		   */
 	else if (S_ISLNK(sb.st_mode))
 		return;
 

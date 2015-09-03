@@ -69,6 +69,7 @@
 ./osh/main.c
 ./osh/msg.c
 ./osh/name.c
+./osh/optget.c
 ./osh/print.c
 ./osh/pwd.c
 ./osh/service.c

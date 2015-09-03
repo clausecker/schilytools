@@ -1,8 +1,8 @@
-/* @(#)shedit.h	1.6 15/08/07 Copyright 2006-2013 J. Schilling */
+/* @(#)shedit.h	1.7 15/08/29 Copyright 2006-2015 J. Schilling */
 /*
  *	Definitions for libshedit, the history editor for the shell.
  *
- *	Copyright (c) 2006-2013 J. Schilling
+ *	Copyright (c) 2006-2015 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -47,6 +47,7 @@ extern "C" {
  * shedit_add_map():	the builtin to add mappings
  * shedit_getenv():	set up pointer to local getenv() from the shell
  * shedit_putenv():	set up pointer to local putenv() from the shell
+ * shedit_igneof():	set up pointer to local ignoreeof() from the shell
  */
 extern	int	shedit_egetc	__PR((void));
 extern	int	shedit_getdelim	__PR((void));
@@ -62,6 +63,7 @@ extern	int	shedit_del_map	__PR((char *from));
 extern	int	shedit_add_map	__PR((char *from, char *to, char *comment));
 extern	void	shedit_getenv	__PR((char *(*genv)(char *name)));
 extern	void	shedit_putenv	__PR((void (*penv) (char *name)));
+extern	void	shedit_igneof	__PR((BOOL (*ieof) (void)));
 extern	void	shedit_setprompts __PR((int promptidx, int nprompts,
 							char *newprompts[]));
 

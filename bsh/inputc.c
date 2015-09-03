@@ -1,8 +1,8 @@
-/* @(#)inputc.c	1.75 15/08/09 Copyright 1982, 1984-2015 J. Schilling */
+/* @(#)inputc.c	1.78 15/09/02 Copyright 1982, 1984-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)inputc.c	1.75 15/08/09 Copyright 1982, 1984-2015 J. Schilling";
+	"@(#)inputc.c	1.78 15/09/02 Copyright 1982, 1984-2015 J. Schilling";
 #endif
 /*
  *	inputc.c
@@ -281,6 +281,8 @@ LOCAL	char	mapesc		= '\0';			/* ESC char for map  */
 #ifdef	notneeded
 LOCAL	int	eof;
 #endif
+EXPORT	BOOL	(*__ign_eof)	__PR((void));
+
 
 
 /* Begin wide string support routines -------> */
@@ -1099,7 +1101,7 @@ append_line(linep, len, pos)
 	wchar_t		wline[512];
 	wchar_t		*wp;
 
-	wp = towcs(wline, sizeof (wline), linep, len);
+	wp = towcs(wline, sizeof (wline) / sizeof (wline[0]), linep, len);
 	if (wp == NULL)
 		return;
 
@@ -1166,7 +1168,11 @@ append_hline(linep, len)
 
 	len += p->h_len;
 	lp = malloc(len * sizeof (*lp));
+#ifdef	USE_ANSI_NL_SEPARATOR
 	anl[0] = '\205';
+#else
+	anl[0] = '\n';
+#endif
 	anl[1] = '\0';
 	wcscatl(lp, p->h_line, anl, linep, (wchar_t *)NULL);
 	free(p->h_line);
@@ -1295,7 +1301,8 @@ match_hist(pattern)
 		wpattern[1] = '\0';
 		wp = wpattern;
 	} else {
-		wp = towcs(wpattern, sizeof (wpattern), pattern, -1);
+		wp = towcs(wpattern, sizeof (wpattern) / sizeof (wpattern[0]),
+								pattern, -1);
 		if (wp == NULL)
 			return (NULL);
 	}
@@ -1463,7 +1470,8 @@ edit_line(cur_line)
 		case CTRLD:
 			multi = 0;
 			if ((cp == lp && !wcslen(lp) &&
-				!ev_eql(ignoreeofname, on)) || c == EOF) {
+				!ev_eql(ignoreeofname, on) &&
+				!(__ign_eof && (*__ign_eof)())) || c == EOF) {
 				delim = EOF;
 				clearline(lp, cp);
 				reset_tty_modes();
@@ -2355,10 +2363,20 @@ put_history(f, intrflg)
 		} else {
 			char	line[512];
 			char	*lp;
+#ifndef	USE_ANSI_NL_SEPARATOR
+			char	*cp;
+#endif
 
 			lp = tombs(line, sizeof (line), p->h_line, -1);
 			if (lp == NULL)
 				continue;
+
+#ifndef	USE_ANSI_NL_SEPARATOR
+			for (cp = lp; *cp; cp++) {
+				if (*cp == '\n')
+					*cp = '\205';
+			}
+#endif
 			/*
 			 * XXX could be fprintf(f, "%ws\n", p->h_line);
 			 */
@@ -2461,7 +2479,17 @@ readhistory(f)
 		}
 #endif	/* __skip__bash_timestamps__ */
 
+#ifdef	USE_ANSI_NL_SEPARATOR
 		len = strlen(s);
+#else
+		{
+			char *cp;
+			for (cp = s, len = 0; *cp; cp++, len++) {
+				if (*cp == '\205')
+					*cp = '\n';
+			}
+		}
+#endif
 #ifdef	DEBUG
 		fprintf(stderr, "appending: %d bytes: %s\r\n", len, s);
 #endif

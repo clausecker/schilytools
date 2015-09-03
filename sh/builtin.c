@@ -1,7 +1,7 @@
-/* @(#)builtin.c	1.4 15/07/24 Copyright 2015 J. Schilling */
+/* @(#)builtin.c	1.5 15/09/02 Copyright 2015 J. Schilling */
 #include <schily/mconfig.h>
 static	UConst char sccsid[] =
-	"@(#)builtin.c	1.4 15/07/24 Copyright 2015 J. Schilling";
+	"@(#)builtin.c	1.5 15/09/02 Copyright 2015 J. Schilling";
 #ifdef DO_SYSBUILTIN
 /*
  *	builtlin builtin
@@ -35,10 +35,7 @@ sysbuiltin(argc, argv)
 	int	argc;
 	unsigned char	**argv;
 {
-	int savoptind;
-	int savopterr;
-	int savsp;
-	char *savoptarg;
+	struct optv optv;
 	int del;
 	UInt16_t	mask;
 	int c;
@@ -46,25 +43,19 @@ sysbuiltin(argc, argv)
 	const struct sysnod	*sp = commands;
 	int		i;
 
-	savoptind = optind;
-	savopterr = opterr;
-	savsp = _sp;
-	savoptarg = optarg;
-	optind = 1;
-	_sp = 1;
-	opterr = 0;
-	optarg = NULL;
+	optinit(&optv);
+	optv.opterr = 0;
 	del = 0;
 	mask = 0;
 	farg = NULL;
 
-	while ((c = getopt(argc, (char **)argv, "df:is")) != -1) {
+	while ((c = optget(argc, argv, &optv, "df:is")) != -1) {
 		switch (c) {
 		case 'd':
 			del++;
 			continue;
 		case 'f':
-			farg = optarg;
+			farg = optv.optarg;
 			continue;
 		case 'i':
 			mask |= BLT_INT;
@@ -78,14 +69,14 @@ sysbuiltin(argc, argv)
 
 		case '?':
 			gfailure((unsigned char *)usage, builtinuse);
-			goto err;
+			return;
 		}
 	}
 
 	/*
 	 * If no arguments, just print the builtin commands
 	 */
-	if (optind == argc && !del && !farg) {
+	if (optv.optind == argc && !del && !farg) {
 		for (i = 0; i < no_commands; i++) {
 			if (sp[i].sysflg & BLT_DEL)
 				continue;
@@ -108,15 +99,9 @@ sysbuiltin(argc, argv)
 	/*
 	 * Add or delete builtin
 	 */
-	for (; optind < argc; optind++) {
-		printf("arg[%d] '%s'\n", optind, argv[optind]);
+	for (; optv.optind < argc; optv.optind++) {
+		printf("arg[%d] '%s'\n", optv.optind, argv[optv.optind]);
 	}
-
-err:
-	optind = savoptind;
-	opterr = savopterr;
-	_sp = savsp;
-	optarg = savoptarg;
 }
 
 struct sysnod2 *

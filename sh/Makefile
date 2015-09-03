@@ -1,4 +1,4 @@
-#ident "@(#)Makefile	1.77 15/08/25  Copyright (c) 2006-2015 J. Schilling"
+#ident "@(#)Makefile	1.84 15/09/02  Copyright (c) 2006-2015 J. Schilling"
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -39,10 +39,12 @@ CPPOPTS +=	-DDO_SYSREPEAT		# Include the "repeat" builtin
 CPPOPTS +=	-DDO_SYSDOSH		# Include the "dosh" builtin
 CPPOPTS +=	-DDO_SYSPUSHD		# Include pushd / popd / dirs builtin && cd -
 CPPOPTS +=	-DDO_SYSTRUE		# Include true / false builtin
+CPPOPTS +=	-DDO_EXEC_AC		# Include support for exec -c -a
 CPPOPTS +=	-DDO_READ_R		# Include support for read -r
 CPPOPTS +=	-DDO_SET_O		# Include support for set -o
 CPPOPTS +=	-DDO_MULTI_OPT		# Include support for sh -v -x / set -v -x
 CPPOPTS +=	-DDO_UMASK_S		# Include support for umask -S
+CPPOPTS +=	-DDO_GETOPT_LONGONLY	# Include support for getopts "?900?(lo)"
 CPPOPTS +=	-DDO_POSIX_FOR		# Support for i; do .... with semicolon
 CPPOPTS +=	-DDO_POSIX_TYPE		# Report keywords as well
 CPPOPTS +=	-DDO_PIPE_SEMI_SYNTAX_E	# Report a syntax error for "echo foo |;"
@@ -52,12 +54,16 @@ CPPOPTS +=	-DDO_EXPAND_DIRSLASH	# Expand dir*/ to dir/
 CPPOPTS +=	-DDO_SIGNED_EXIT	# Allow negative exit(1) parameters
 CPPOPTS +=	-DDO_DOT_SH_PARAMS	# Include support for ${.sh.xxx} parapeters
 CPPOPTS +=	-DDO_POSIX_EXIT		# Use POSIX exit codes 126/127
+CPPOPTS +=	-DDO_POSIX_EXPORT	# Support export/readonly -p name=value
+CPPOPTS +=	-DDO_POSIX_UNSET	# Support unset -f / -v
 CPPOPTS +=	-DDO_POSIX_TEST		# Implement POSIX test -e & text -S
 CPPOPTS +=	-DDO_EXT_TEST		# Implement extended test features
 CPPOPTS +=	-DDO_TILDE		# Include support for tilde expansion
+CPPOPTS +=	-DDO_BGNICE		# Include support for set -o bgnice
 CPPOPTS +=	-DDO_TIME		# Include support for set -o time
 CPPOPTS +=	-DDO_FULLEXCODE		# Include support for set -o fullexitcode
 CPPOPTS +=	-DDO_NOCLOBBER		# Include support for set -o noclobber
+CPPOPTS +=	-DDO_NOTIFY		# Include support for set -o notify
 CPPOPTS +=	-DDO_FDPIPE		# Include support for 2| for stderr pipe
 CPPOPTS +=	-DDO_KILL_L_SIG		# Include support for kill -l signo
 CPPOPTS +=	-DDO_PS34		# Include support for PS3 and PS4
@@ -90,7 +96,8 @@ CFILES=		abbrev.c args.c bltin.c cmd.c ctype.c defs.c echo.c error.c \
 		main.c msg.c name.c print.c pwd.c service.c \
 		sh_policy.c stak.c string.c test.c ulimit.c word.c xec.c \
 		signames.c gmatch.c umask.c alias.c builtin.c find.c \
-		hashcmd.c hashtab.c
+		hashcmd.c hashtab.c \
+		optget.c
 
 HFILES=		abbrev.h ctype.h defs.h dup.h hash.h mac.h mode.h name.h \
 		sh_policy.h stak.h sym.h timeout.h version.h hashtab.h

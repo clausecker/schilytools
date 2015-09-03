@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2015 J. Schilling
  *
- * @(#)error.c	1.14 15/07/16 2008-2015 J. Schilling
+ * @(#)error.c	1.15 15/08/30 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)error.c	1.14 15/07/16 2008-2015 J. Schilling";
+	"@(#)error.c	1.15 15/08/30 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -59,9 +59,11 @@ static void failed_body	__PR((unsigned char *s1, const char *s2,
 				unsigned char *s3));
 	void failure_real __PR((int err, unsigned char *s1, const char *s2,
 				int gflag));
+#ifdef	DO_DOT_SH_PARAMS
 	void exitsh	__PR((int xno));
 	void rmtemp	__PR((struct ionod *base));
 	void rmfunctmp	__PR((void));
+#endif
 
 void
 error(s)
@@ -147,6 +149,7 @@ exitsh(xno)
 	}
 }
 
+#ifdef	DO_DOT_SH_PARAMS
 void
 exval_clear()
 {
@@ -180,6 +183,7 @@ exval_set(xno)
 	ex.ex_pid = mypid;
 	ex.ex_signo = 0;
 }
+#endif
 
 /*
  * Previous sbrk() based versions of the Bourne Shell fed this function

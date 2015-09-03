@@ -38,11 +38,11 @@
 /*
  * This file contains modifications Copyright 2008-2015 J. Schilling
  *
- * @(#)main.c	1.36 15/08/08 2008-2015 J. Schilling
+ * @(#)main.c	1.37 15/08/28 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)main.c	1.36 15/08/08 2008-2015 J. Schilling";
+	"@(#)main.c	1.37 15/08/28 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -372,6 +372,9 @@ main(c, v, e)
 			 */
 			if ((flags & intflg) == 0) {
 				flags |= intflg;
+#ifdef	DO_BGNICE
+				flags2 |= bgniceflg;
+#endif
 #ifdef	INTERACTIVE
 				flags |= vedflg;
 #endif
