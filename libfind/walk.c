@@ -1,8 +1,8 @@
-/* @(#)walk.c	1.44 11/10/19 Copyright 2004-2011 J. Schilling */
+/* @(#)walk.c	1.45 15/09/12 Copyright 2004-2011 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)walk.c	1.44 11/10/19 Copyright 2004-2011 J. Schilling";
+	"@(#)walk.c	1.45 15/09/12 Copyright 2004-2011 J. Schilling";
 #endif
 /*
  *	Walk a directory tree
@@ -30,6 +30,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -420,7 +422,7 @@ type_known:
 				state->flags |= WALK_WF_NOHOME;
 				if ((state->walkflags & WALK_NOMSG) == 0) {
 					ferrmsg(state->std[2],
-					gettext(
+					_(
 					"Cannot chdir to '..' from '%s/'.\n"),
 						varp->Curdir);
 				}
@@ -534,7 +536,7 @@ walkgethome(state)
 	if (varp == NULL) {
 		if ((state->walkflags & WALK_NOMSG) == 0)
 			ferrmsg(state->std[2],
-				gettext("walkgethome: NULL twprivate\n"));
+				_("walkgethome: NULL twprivate\n"));
 		if ((state->walkflags & WALK_NOEXIT) == 0)
 			comexit(err);
 		return (-1);
@@ -547,7 +549,7 @@ walkgethome(state)
 		state->flags |= WALK_WF_NOCWD;
 		if ((state->walkflags & WALK_NOMSG) == 0)
 			ferrmsg(state->std[2],
-				gettext("Cannot get working directory.\n"));
+				_("Cannot get working directory.\n"));
 		if ((state->walkflags & WALK_NOEXIT) == 0)
 			comexit(err);
 		return (-1);
@@ -561,7 +563,7 @@ walkgethome(state)
 		state->flags |= WALK_WF_NOCWD;
 		if ((state->walkflags & WALK_NOMSG) == 0)
 			ferrmsg(state->std[2],
-				gettext("Cannot get working directory.\n"));
+				_("Cannot get working directory.\n"));
 		if ((state->walkflags & WALK_NOEXIT) == 0)
 			comexit(err);
 		return (-1);

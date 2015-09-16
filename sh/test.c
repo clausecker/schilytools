@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2015 J. Schilling
  *
- * @(#)test.c	1.24 15/08/25 2008-2015 J. Schilling
+ * @(#)test.c	1.25 15/09/13 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)test.c	1.24 15/08/25 2008-2015 J. Schilling";
+	"@(#)test.c	1.25 15/09/13 2008-2015 J. Schilling";
 #endif
 
 
@@ -94,9 +94,18 @@ static	int	fgroup		__PR((unsigned char *f, uid_t owner));
 static	int	fsizep		__PR((unsigned char *f));
 static	Intmax_t str2imax	__PR((unsigned char *a));
 
+#undef	failed
+#undef	bfailed
+#define		failed(s1, s2)		bfailed(s1, s2, NULL)
+static	void	bfailed		__PR((unsigned char *s1,
+					const char *s2,
+					unsigned char *s3));
+
+
 static int	isexpr;
 static int	ap, ac;
 static unsigned char **av;
+static jmp_buf	testsyntax;
 
 int
 test(argn, com)
@@ -109,11 +118,15 @@ test(argn, com)
 	isexpr = 0;
 
 	if (eq(com[0], "[")) {
-		if (!eq(com[--ac], "]"))
-			failed((unsigned char *)"test", nobracket);
+		if (!eq(com[--ac], "]")) {
+			Failure((unsigned char *)"test", nobracket);
+			return (SYNBAD);
+		}
 	}
 	com[ac] = 0;
 	if (ac <= 1)
+		return (1);
+	if (setjmp(testsyntax))
 		return (1);
 	return (exp() ? 0 : 1);
 }
@@ -148,11 +161,16 @@ expr(argn, com)
 				n = lookup(av[ap]);
 			}
 		}
-		if (incr == 0)
-			failed((unsigned char *)"@", noarg);
+		if (incr == 0) {
+			Failure((unsigned char *)"@", noarg);
+			return;
+		}
 	} else if (ac < 4) {
-		failed((unsigned char *)"@", noarg);
+		Failure((unsigned char *)"@", noarg);
+		return;
 	}
+	if (setjmp(testsyntax))
+		return;
 	if (incr) {
 		snprintf(buf, sizeof (buf), "%ld", aexpr(n, UC "+=", incr));
 	} else {
@@ -618,4 +636,18 @@ str2imax(a)
 	i = strtol((char *)a, NULL, 10);
 #endif
 	return (i);
+}
+
+static void
+bfailed(s1, s2, s3)
+	unsigned char	*s1;
+	const char	*s2;
+	unsigned char	*s3;
+{
+#ifdef	DO_POSIX_FAILURE
+	failure_real(ERROR, s1, s2, s3, 0);
+#else
+	failed_real(ERROR, s1, s2, s3);
+#endif
+	longjmp(testsyntax, 1);
 }

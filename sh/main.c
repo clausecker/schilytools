@@ -38,11 +38,11 @@
 /*
  * This file contains modifications Copyright 2008-2015 J. Schilling
  *
- * @(#)main.c	1.37 15/08/28 2008-2015 J. Schilling
+ * @(#)main.c	1.38 15/09/12 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)main.c	1.37 15/08/28 2008-2015 J. Schilling";
+	"@(#)main.c	1.38 15/09/12 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -325,6 +325,11 @@ main(c, v, e)
 #ifdef	DO_PS34
 	dfault(&ps3nod, (unsigned char *)selectmsg);
 	dfault(&ps4nod, (unsigned char *)execpmsg);
+#endif
+#ifdef	DO_PPID
+	itos(getppid()); 
+	dfault(&ppidnod, numbuf);
+	attrib((&ppidnod), N_RDONLY);
 #endif
 
 	/* initialize OPTIND for getopt */

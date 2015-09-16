@@ -1,8 +1,8 @@
-/* @(#)find_misc.c	1.15 09/11/29 Copyright 2004-2009 J. Schilling */
+/* @(#)find_misc.c	1.16 15/09/12 Copyright 2004-2009 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)find_misc.c	1.15 09/11/29 Copyright 2004-2009 J. Schilling";
+	"@(#)find_misc.c	1.16 15/09/12 Copyright 2004-2009 J. Schilling";
 #endif
 /*
  *	Copyright (c) 2004-2009 J. Schilling
@@ -14,6 +14,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -85,7 +87,7 @@ has_acl(f, name, sname, sp)
 		if (geterrno() == ENOSYS)
 			return (FALSE);
 #endif
-		ferrmsg(f, gettext("Cannot get ACL count for '%s'.\n"), name);
+		ferrmsg(f, _("Cannot get ACL count for '%s'.\n"), name);
 		return (FALSE);
 	}
 	return (aclcount > MIN_ACL_ENTRIES);

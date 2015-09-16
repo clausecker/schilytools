@@ -37,11 +37,11 @@
 /*
  * This file contains modifications Copyright 2008-2015 J. Schilling
  *
- * @(#)macro.c	1.27 15/07/22 2008-2015 J. Schilling
+ * @(#)macro.c	1.28 15/09/16 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)macro.c	1.27 15/07/22 2008-2015 J. Schilling";
+	"@(#)macro.c	1.28 15/09/16 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -327,7 +327,12 @@ retry:
 				setstak(argp);
 				if (n->namflg & N_FUNCTN)
 					error(badsub);
-				v = n->namval;
+#ifdef	DO_LINENO
+				if (n == &linenonod) {
+					v = linenoval();
+				} else
+#endif
+					v = n->namval;
 				id = (unsigned char *)n->namid;
 				peekc = c | MARK;
 			} else if (digchar(c)) {

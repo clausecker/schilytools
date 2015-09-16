@@ -1,7 +1,7 @@
-/* @(#)builtin.c	1.5 15/09/02 Copyright 2015 J. Schilling */
+/* @(#)builtin.c	1.7 15/09/13 Copyright 2015 J. Schilling */
 #include <schily/mconfig.h>
 static	UConst char sccsid[] =
-	"@(#)builtin.c	1.5 15/09/02 Copyright 2015 J. Schilling";
+	"@(#)builtin.c	1.7 15/09/13 Copyright 2015 J. Schilling";
 #ifdef DO_SYSBUILTIN
 /*
  *	builtlin builtin
@@ -86,6 +86,10 @@ sysbuiltin(argc, argv)
 			prc_buff(NL);
 		}
 	} else if (flags & rshflg) {	/* Managing builtins is restricted */
+		/*
+		 * For security reasons, abort scripts that try to use
+		 * restricted features in a restricted shell.
+		 */
 		failed(argv[0], restricted);
 	} else if (farg) {		/* Add shared library */
 		void	*lh;
@@ -93,7 +97,7 @@ sysbuiltin(argc, argv)
 		lh = dlopen(farg, RTLD_LAZY);
 		printf("lh %p\n", lh);
 #else
-		failed(argv[0], "-f not supported on this platform");
+		failure(argv[0], "-f not supported on this platform");
 #endif
 	}
 	/*

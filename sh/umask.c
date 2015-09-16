@@ -1,14 +1,14 @@
-/* @(#)umask.c	1.3 14/04/19 Copyright 2004-2014 J. Schilling */
+/* @(#)umask.c	1.5 15/09/13 Copyright 2004-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef RES
 static	UConst char sccsid[] =
-	"@(#)umask.c	1.3 14/04/19 Copyright 2004-2014 J. Schilling";
+	"@(#)umask.c	1.5 15/09/13 Copyright 2004-2015 J. Schilling";
 /*
  *	Parser for chmod(1)/find(1)-perm, ....
  *	The code has been taken from libschily/getperm.c and adopted to
  *	avoid stdio for the Bourne Shell.
  *
- *	Copyright (c) 2004-2014 J. Schilling
+ *	Copyright (c) 2004-2015 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -389,7 +389,7 @@ sysumask(argc, argv)
 				/*
 				 * This is a "bad option".
 				 */
-				failed((unsigned char *)&badumask[4], badumask);
+				failure((unsigned char *)&badumask[4], badumask);
 			}
 		}
 		i = 0;
@@ -404,7 +404,7 @@ sysumask(argc, argv)
 		umask(i = umask(0));
 		i = ~i;
 		if (getperm(argv[1], &i, i, GP_NOX)) {
-			failed((unsigned char *)&badumask[4], badumask);
+			failure((unsigned char *)&badumask[4], badumask);
 		}
 		umask(~i);
 	} else {

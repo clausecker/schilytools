@@ -1,8 +1,8 @@
-/* @(#)find_list.c	1.27 10/08/23 Copyright 1985, 1995, 2000-2010 J. Schilling */
+/* @(#)find_list.c	1.28 15/09/12 Copyright 1985, 1995, 2000-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)find_list.c	1.27 10/08/23 Copyright 1985, 1995, 2000-2010 J. Schilling";
+	"@(#)find_list.c	1.28 15/09/12 Copyright 1985, 1995, 2000-2010 J. Schilling";
 #endif
 /*
  *	List a file
@@ -16,6 +16,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -229,7 +231,7 @@ char	*lnamep = lname;
 				lsize = readlink(sname, lname, sizeof (lname));
 				if (lsize < 0)
 					ferrmsg(std[2],
-					gettext("Cannot read link '%s'.\n"),
+					_("Cannot read link '%s'.\n"),
 						name);
 				lname[sizeof (lname)-1] = '\0';
 				if (lsize >= 0)

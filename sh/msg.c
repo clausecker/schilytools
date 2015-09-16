@@ -39,11 +39,11 @@
 /*
  * This file contains modifications Copyright 2008-2015 J. Schilling
  *
- * @(#)msg.c	1.49 15/08/25 2008-2015 J. Schilling
+ * @(#)msg.c	1.52 15/09/15 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)msg.c	1.49 15/08/25 2008-2015 J. Schilling";
+	"@(#)msg.c	1.52 15/09/15 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -144,6 +144,9 @@ const char	builtinuse[]	=
 		"builtin [-d] [-f lib] [-i] [-s] [pathname...]";
 #endif
 const char	stopuse[]	= "stop id ...";
+#ifdef	DO_POSIX_TRAP
+const char	trapuse[]	= "trap [action condition ...]";
+#endif
 const char	ulimuse[]	=
 		"ulimit [ -HSacdefilmnqrstuvLMPRS ] [ limit ]";
 const char	killuse[]	= "kill [ [ -sig ] id ... | -l [ signo ... ] ]";
@@ -178,6 +181,7 @@ const char	badumask[]	= "bad umask";
  * built in names
  */
 const char	pathname[]	= "PATH";
+const char	ppidname[]	= "PPID";
 const char	cdpname[]	= "CDPATH";
 const char	envname[]	= "ENV";
 const char	homename[]	= "HOME";
@@ -187,6 +191,7 @@ const char	ps1name[]	= "PS1";
 const char	ps2name[]	= "PS2";
 const char	ps3name[]	= "PS3";
 const char	ps4name[]	= "PS4";
+const char	linenoname[]	= "LINENO";
 const char	mchkname[]	= "MAILCHECK";
 const char	opwdname[]	= "OLDPWD";
 const char	pwdname[]	= "PWD";

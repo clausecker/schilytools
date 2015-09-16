@@ -1,8 +1,8 @@
-/* @(#)setuid.c	1.22 11/08/03 Copyright 1998,1999,2004 Heiko Eissfeldt, Copyright 2004-2011 J. Schilling */
+/* @(#)setuid.c	1.23 15/09/15 Copyright 1998,1999,2004 Heiko Eissfeldt, Copyright 2004-2011 J. Schilling */
 #include "config.h"
 #ifndef lint
 static	UConst char sccsid[] =
-"@(#)setuid.c	1.22 11/08/03 Copyright 1998,1999,2004 Heiko Eissfeldt, Copyright 2004-2011 J. Schilling";
+"@(#)setuid.c	1.23 15/09/15 Copyright 1998,1999,2004 Heiko Eissfeldt, Copyright 2004-2011 J. Schilling";
 
 #endif
 /*
@@ -32,6 +32,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -208,6 +210,9 @@ neverneedroot()
 		errmsgno(EX_BAD, _("Fatal error: initsecurity() not called.\n"));
 		exit(INTERNAL_ERROR);
 	}
+	if (geteuid() != effective_uid) {
+		needroot(1);
+	}
 	if (geteuid() == effective_uid) {
 #if defined(HAVE_SETUID)
 		if (setuid(real_uid)) {
@@ -348,6 +353,9 @@ neverneedgroup()
 		errmsgno(EX_BAD, _("Fatal error: initsecurity() not called.\n"));
 		exit(INTERNAL_ERROR);
 	}
+	if (getegid() != effective_gid) {
+		needgroup(1);
+	}
 	if (getegid() == effective_gid) {
 #if defined(HAVE_SETGID)
 		if (setgid(real_gid)) {
@@ -370,6 +378,12 @@ neverneedgroup()
 	if (getegid() != real_gid || getgid() != real_gid) {
 		errmsgno(EX_BAD,
 			_("Fatal error: did not drop group privilege.\n"));
+#ifdef DEBUG
+		fprintf(stderr,
+		"in  to neverneedgroup (_egid_=%d, gid=%d), current=%d/%d, pid=%d\n",
+			effective_gid, real_gid,
+			getegid(), getgid(), getpid());
+#endif
 		exit(PERM_ERROR);
 	}
 	effective_gid = real_gid;

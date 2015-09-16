@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2015 J. Schilling
  *
- * @(#)jobs.c	1.68 15/09/02 2008-2015 J. Schilling
+ * @(#)jobs.c	1.70 15/09/14 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)jobs.c	1.68 15/09/02 2008-2015 J. Schilling";
+	"@(#)jobs.c	1.70 15/09/14 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -331,9 +331,11 @@ str2job(cmdp, job, mustbejob)
 				continue;
 			for (p = njp->j_cmd, j = strlen(p); j >= i; p++, j--) {
 				if (strncmp(job, p, i) == 0) {
-					if (jp != 0)
-						failed((unsigned char *)cmdp,
+					if (jp != 0) {
+						Failure((unsigned char *)cmdp,
 						    ambiguous);
+						return ((struct job *)0);
+					}
 					jp = njp;
 					break;
 				}
@@ -347,17 +349,19 @@ str2job(cmdp, job, mustbejob)
 				continue;
 			if (strncmp(job, njp->j_cmd, i) == 0) {
 				if (jp != 0) {
-					failed((unsigned char *)cmdp,
+					Failure((unsigned char *)cmdp,
 							ambiguous);
+					return ((struct job *)0);
 				}
 				jp = njp;
 			}
 		}
 	}
 
-	if (mustbejob && (jp == 0 || jp->j_jid == 0))
-		failed((unsigned char *)cmdp, nosuchjob);
-
+	if (mustbejob && (jp == 0 || jp->j_jid == 0)) {
+		Failure((unsigned char *)cmdp, nosuchjob);
+		return ((struct job *)0);
+	}
 	return (jp);
 }
 
@@ -705,6 +709,8 @@ restartjob(jp, fg)
 	struct job	*jp;
 	int		fg;
 {
+	if (jp == NULL)
+		return;
 	if (jp != jobcur) {
 		struct job *t;
 		for (t = jobcur; t->j_curp != jp; t = t->j_curp)
@@ -748,6 +754,8 @@ printjob(jp, propts)
 {
 	int sp = 0;
 
+	if (jp == NULL)
+		return;
 	if (jp->j_flag & J_NOTIFY) {
 		jobnote--;
 		jp->j_flag &= ~J_NOTIFY;
@@ -1086,9 +1094,10 @@ sysjobs(argc, argv)
 	optv.opterr = 0;
 	propts = 0;
 
-	if ((flags & jcflg) == 0)
-		failed((unsigned char *)cmdp, nojc);
-
+	if ((flags & jcflg) == 0) {
+		Failure((unsigned char *)cmdp, nojc);
+		return;
+	}
 	while ((c = optget(argc, argv, &optv, "lpx")) != -1) {
 		if (propts) {
 			gfailure((unsigned char *)usage, jobsuse);
@@ -1119,6 +1128,8 @@ sysjobs(argc, argv)
 			cp = argv[optv.optind];
 			if (*cp == '%') {
 				jp = str2job((char *)cmdp, (char *)cp, 1);
+				if (jp == NULL)
+					return;
 				itos(jp->j_pid);
 				cp = numbuf;
 			}
@@ -1161,16 +1172,19 @@ sysfgbg(argc, argv)
 	char *cmdp = *argv;
 	int fg;
 
-	if ((flags & jcflg) == 0)
-		failed((unsigned char *)cmdp, nojc);
-
+	if ((flags & jcflg) == 0) {
+		Failure((unsigned char *)cmdp, nojc);
+		return;
+	}
 	fg = eq("fg", cmdp);
 
 	if (*++argv == 0) {
 		struct job *jp;
 		for (jp = jobcur; ; jp = jp->j_curp) {
-			if (jp == 0)
-				failed((unsigned char *)cmdp, nocurjob);
+			if (jp == 0) {
+				Failure((unsigned char *)cmdp, nocurjob);
+				return;
+			}
 			if (jp->j_jid)
 				break;
 		}
@@ -1228,6 +1242,8 @@ sigv(cmdp, sig, f, args)
 	if (*args == '%') {
 		struct job *jp;
 		jp = str2job(cmdp, args, 1);
+		if (jp == NULL)
+			return;
 		id = jp->j_pgid;
 		pgrp++;
 	} else {
@@ -1420,8 +1436,10 @@ syssusp(argc, argv)
 	int	argc;
 	char	*argv[];
 {
-	if (argc != 1)
-		failed((unsigned char *)argv[0], badopt);
+	if (argc != 1) {
+		Failure((unsigned char *)argv[0], badopt);
+		return;
+	}
 	sigv(argv[0], SIGSTOP, F_SUSPEND, "0");
 }
 

@@ -38,11 +38,11 @@
 /*
  * This file contains modifications Copyright 2008-2015 J. Schilling
  *
- * @(#)cmd.c	1.30 15/08/25 2008-2015 J. Schilling
+ * @(#)cmd.c	1.31 15/09/15 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)cmd.c	1.30 15/08/25 2008-2015 J. Schilling";
+	"@(#)cmd.c	1.31 15/09/15 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -125,7 +125,11 @@ makelist(type, i, r)
  *	list [ ; cmd ]
  *
  * This is the main parser entry point that is called as cmd(NL, MTFLG)
- * from main.c::exfile(). MTFLG permits emtpy commands in the main loop.
+ * from main.c::exfile(). MTFLG permits empty commands in the main loop.
+ *
+ * It cmd() is called with NLFLG in flg at top level, this causes the whole
+ * file to be read at once and a single treenode * to be constructed from that.
+ * This method is e.g. used by "eval" and ".".
  */
 struct trenod *
 cmd(sym, flg)

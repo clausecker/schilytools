@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sh.1	1.102 15/08/31 Copyright 2012-2015 J. Schilling
+.\" @(#)sh.1	1.114 15/09/16 Copyright 2012-2015 J. Schilling
 .\" Copyright 1989 AT&T
 .\" Copyright (c) 2008, Sun Microsystems, Inc. All Rights Reserved.
 .\" Portions Copyright (c) 1992, X/Open Company Limited All Rights Reserved
@@ -59,7 +59,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sh 1 "2015/08/31" "Schily Bourne Shell" "User Commands"
+.TH sh 1 "2015/09/16" "Schily Bourne Shell" "User Commands"
 .SH NAME
 sh, jsh \- standard and job control shell and command interpreter
 .SH SYNOPSIS
@@ -1421,6 +1421,18 @@ was not supported in older versions of
 .br
 .ne 3
 .TP
+.B LINENO
+The line number of the current line within  the script.
+This variable currently does not have all POSIX features.
+.sp
+The variable
+.B LINENO
+was not supported in older versions of
+.BR sh .
+
+.br
+.ne 3
+.TP
 .B MAIL
 If this parameter is set to the name of a mail file
 .I and
@@ -1492,6 +1504,18 @@ to store the argument if an option is using arguments.
 This variable is used by
 .B getopts
 as the index of the next argument to be processed.
+
+.br
+.ne 3
+.TP
+.B PPID
+The process number of the parent of the shell.
+The variable is setup once at program start and then set readonly.
+.sp
+The variable
+.B PPID
+was not supported in older versions of
+.BR sh .
 
 .br
 .ne 3
@@ -2490,17 +2514,45 @@ additional
 are added to the shell's environment (see
 .B Job Control
 section below).
+.LP
+Commands marked with a
+.B +
+are treated specially in the following ways:
+.RS
+.br
+.ne 4
+.TP 7
+.B 1.
+Parameter assignments that precede a special builtin command
+affect the shell itself.
+.br
+.ne 4
+.TP
+.B 2.
+I/O redirections are processed after variable assignments for variables
+that precede the builtin command.
+.br
+.ne 4
+.TP
+.B 3.
+Errors may cause a script that contains them to abort.
+.RE
+.sp
+In older versions of
+.BR sh ,
+parameter assignments that precede any builtin command did
+affect the shell itself.
 .br
 .ne 3
 .TP 4n
-.B :
+.B + :
 .sp .6
 No effect; the command does nothing. A zero exit code is returned.
 
 .br
 .ne 3
 .TP
-.BI \&. " filename
+.BI "+ \&." " filename
 .sp
 Read and execute commands from
 .I filename
@@ -2823,7 +2875,7 @@ command was not supported in older versions of
 .br
 .ne 3
 .TP
-\fBbreak\fR [ \fIn\fR ]
+\fB+ break\fR [ \fIn\fR ]
 .sp .6
 Exit from the enclosing
 .B for
@@ -2894,7 +2946,7 @@ change to the directory named by that value.
 .br
 .ne 3
 .TP
-\fBcontinue\fR [ \fIn\fR ]
+\fB+ continue\fR [ \fIn\fR ]
 .sp .6
 Resume the next iteration of the enclosing
 .B for
@@ -3062,7 +3114,7 @@ command was not supported in older versions of
 .br
 .ne 3
 .TP
-\fBeval\fR [ \fIargument\fR .\|.\|. ]
+\fB+ eval\fR [ \fIargument\fR .\|.\|. ]
 .sp .6
 The arguments are read as input to the shell and the resulting command(s)
 executed.
@@ -3070,7 +3122,7 @@ executed.
 .br
 .ne 3
 .TP
-\fBexec\fR [\fB-a \fIname\fR] [ \fIargument\fR .\|.\|. ]
+\fB+ exec\fR [\fB-a \fIname\fR] [ \fIargument\fR .\|.\|. ]
 .sp .6
 The command specified by the arguments is executed in place of this shell
 without creating a new process. Input/output arguments can appear and, if no
@@ -3086,7 +3138,7 @@ for the new process.
 .br
 .ne 3
 .TP
-\fBexit\fR [ \fIn\fR ]
+\fB+ exit\fR [ \fIn\fR ]
 .sp .6
 Causes the calling shell or shell script to exit with the exit status
 specified by
@@ -3101,7 +3153,7 @@ also causes the shell to exit.)
 .br
 .ne 3
 .TP
-\fBexport\fR [ \fB\-p\fR ] [ \fIname\fR[\fB=\fIvalue\fR] .\|.\|. ]
+\fB+ export\fR [ \fB\-p\fR ] [ \fIname\fR[\fB=\fIvalue\fR] .\|.\|. ]
 .sp .6
 The given
 .IR name s
@@ -3123,6 +3175,11 @@ exported.
 .sp
 The option
 .B \-p
+was not supported in older versions of
+.BR sh .
+.br
+Specifying a
+.I value
 was not supported in older versions of
 .BR sh .
 
@@ -3652,7 +3709,7 @@ was not supported in older versions of
 .br
 .ne 3
 .TP
-\fBreadonly\fR [ \fB\-p\fR ] [ \fIname\fR[\fB=\fIvalue\fR] .\|.\|. ]
+\fB+ readonly\fR [ \fB\-p\fR ] [ \fIname\fR[\fB=\fIvalue\fR] .\|.\|. ]
 .sp .6
 The given
 .IR name s
@@ -3672,6 +3729,11 @@ to be inserted before each name.
 .sp
 The option
 .B \-p
+was not supported in older versions of
+.BR sh .
+.br
+Specifying a
+.I value
 was not supported in older versions of
 .BR sh .
 
@@ -3709,7 +3771,7 @@ command was not supported in older versions of
 .br
 .ne 3
 .TP
-\fBreturn\fR [ \fIn\fR ]
+\fB+ return\fR [ \fIn\fR ]
 .sp .6
 Causes a function to exit with the return value specified by
 .IR n .
@@ -3734,7 +3796,7 @@ command was not supported in older versions of
 .br
 .ne 3
 .TP
-\fBset\fR [ \fB\-abCefhkmntuvxP\fR [ \fB-o \fR[ \fIoption\fR ]] [ \fIargument\fR .\|.\|. ] ]
+\fB+ set\fR [ \fB\-abCefhkmntuvxP\fR [ \fB-o \fR[ \fIoption\fR ]] [ \fIargument\fR .\|.\|. ] ]
 .sp .6
 .RS
 .br
@@ -4113,7 +4175,7 @@ parameters and are assigned, in order, to
 .br
 .ne 3
 .TP
-\fBshift\fR [ \fIn\fR ]
+\fB+ shift\fR [ \fIn\fR ]
 .sp .6
 The positional parameters from
 .BI $ n +1
@@ -4624,7 +4686,7 @@ binary primary is left associative.
 .br
 .ne 3
 .TP
-.B times
+.B + times
 .sp .6
 Print the accumulated user and system times for processes run from the
 shell.
@@ -4632,7 +4694,7 @@ shell.
 .br
 .ne 3
 .TP
-\fBtrap\fR [ [\fIargument\fR] \fIn\fR [ \fIn2\fR .\|.\|. ]]
+\fB+ trap\fR [ [\fIargument\fR] \fIn\fR [ \fIn2\fR .\|.\|. ]]
 .sp .6
 The command
 .I argument
@@ -4645,7 +4707,9 @@ is scanned once when the trap is set and once when the trap
 is taken.) Trap commands are executed in order of signal number or
 corresponding symbolic names. Any attempt to set a trap on a signal that was
 ignored on entry to the current shell is ineffective. An attempt to trap on
-signal 11 (memory fault) produces an error. If
+signal 11 (memory fault) produces an error.
+.sp
+If
 .I argument
 is absent, all trap(s)
 .I n
@@ -4655,13 +4719,30 @@ is the
 null string, this signal is ignored by the shell and by the commands it
 invokes. If
 .I n
-is 0, the command
+is
+.B 0
+or
+.BR EXIT ,
+the command
 .I argument
 is executed on exit
 from the shell. The
 .B trap
 command with no arguments prints a list of
 commands associated with each signal number.
+.sp
+If
+.I argument
+is
+.BR - ,
+all trap(s)
+.I n
+are reset to their original values.
+.sp
+The
+.B -
+argument was not supported in older versions of
+.BR sh .
 
 .br
 .ne 3
@@ -5052,7 +5133,7 @@ remains active, but the file with persistent alias definitions is not touched.
 .br
 .ne 3
 .TP
-\fBunset\fR [ \fB\-f\fR | \fB\-v\fR ] [ \fIname\fR .\|.\|. ]
+\fB+ unset\fR [ \fB\-f\fR | \fB\-v\fR ] [ \fIname\fR .\|.\|. ]
 .sp .6
 For each
 .IR name ,
@@ -5556,9 +5637,9 @@ to get one
 .B nul character
 in the edit input.
 To enter a mapped string (such as cursor key output), first enter the
-quote character of the command line history editor
-.RB ( ^ ),
-then enter
+quote character of the command line history editor control ^
+.RB ( ^^ ") octal 036,
+then enter a
 .B nul character
 and finally the otherwise mapped text.
 
@@ -6055,17 +6136,64 @@ in an interactive environment.
 There is only one namespace for both functions and parameters.
 A function definition will delete a parameter with the same name and vice-versa.
 .LP
-Parameter assignments that precede a special command affect the shell itself.
+Parameter assignments that precede a special builtin command
+affect the shell itself.
 Parameter assignments that precede the call of a function are ignored.
-.LP
-This version of the Bourne Shell fixed the order of evaluation for
-parameter assignements to be left to right instead of right to left (as
-implemented in previous versions). This may cause scripts to fail if they
-expect the old non-standard behavior.
 .LP
 When the shell executes a shell script that attempts to execute a
 non-existent command interpreter, the shell returns an erroneous diagnostic
 message that the shell script file does not exist.
+
+.br
+.ne 5
+.SH COMPATIBILITY
+This Bourne Shell started with the source state from OpenSolaris
+build 51 from October 2006.
+It was later changed to the equivalent state of build 144 from July 2010.
+The changes up to build 147 have not been applied because these 
+later versions from Sun reduced the functionality.
+.LP
+Most changes fixed bugs or added functionality without changing the expected
+previous behavior.
+.LP
+The following incompatible changes have been introduced in order to follow the
+.B POSIX
+standard.
+.TP
+.B parameter assignment
+This version of the Bourne Shell fixed the order of evaluation for
+parameter assignements to be left to right instead of right to left (as
+implemented in previous versions). This may cause scripts to fail if they
+expect the old non-standard behavior.
+.TP
+.B parameter assignment preceding builtin commands
+With this version of the Bourne Shell, parameter assignment preceding
+builtin commands only affects the shell itself if this is related to a
+.BR "special builtin command" . 
+In previous versions, this affected the shell itself for any builtin command.
+.TP
+.B syntax errors in builtin commands
+With this version of the Bourne Shell, only special builtin commands may
+terminate the whole shell in case that shell is not an interactive shell.
+In previous versions, all builtin commands could terminate a non-ineractive
+shell if a syntax error or a fatal error was encountered.
+.TP
+.B times
+The output of the
+.B times
+command was modified to be compatible to the POSIX standard.
+This is not expected to cause problems.
+.TP
+.B trap
+The output of the
+.B trap
+command was modified to be compatible to the POSIX standard.
+Scripts that depend on the output of the trap command,
+when listing existing trap state,
+should be converted to be portable by
+checking whether the output starts with
+.B trap --
+and then use a POSIX compliant parser.
 
 .br
 .ne 5

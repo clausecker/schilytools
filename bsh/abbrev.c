@@ -1,8 +1,8 @@
-/* @(#)abbrev.c	1.62 15/08/30 Copyright 1985-2015 J. Schilling */
+/* @(#)abbrev.c	1.64 15/09/12 Copyright 1985-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)abbrev.c	1.62 15/08/30 Copyright 1985-2015 J. Schilling";
+	"@(#)abbrev.c	1.64 15/09/12 Copyright 1985-2015 J. Schilling";
 #endif
 /*
  *	Abbreviation symbol handling
@@ -1054,7 +1054,7 @@ ab_eupdated(ap)
 	abtab_t *ap;
 {
 #ifdef	BOURNE_SHELL
-	failed(UC ap->at_fname, "updated by another shell, cannot write back.");
+	gfailure(UC ap->at_fname, "updated by another shell, cannot write back.");
 #else
 	berror("'%s' was updated by another shell, cannot write back.",
 		ap->at_fname);

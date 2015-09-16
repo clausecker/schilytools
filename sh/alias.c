@@ -1,11 +1,11 @@
-/* @(#)alias.c	1.5 15/09/02 Copyright 1986-2013 J. Schilling */
+/* @(#)alias.c	1.7 15/09/11 Copyright 1986-2015 J. Schilling */
 #include <schily/mconfig.h>
 static	UConst char sccsid[] =
-	"@(#)alias.c	1.5 15/09/02 Copyright 1986-2013 J. Schilling";
+	"@(#)alias.c	1.7 15/09/11 Copyright 1986-2015 J. Schilling";
 /*
  *	The built-in commands "alias" and "unalias".
  *
- *	Copyright (c) 1986-2013 J. Schilling
+ *	Copyright (c) 1986-2015 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -99,8 +99,8 @@ sysalias(argc, argv)
 	c = optv.optind;
 err:
 	if (badflag) {
-		failed(o, badopt);
-		/* NOTREACHED */
+		failure(o, badopt);
+		return;
 	}
 	if (ret)
 		return;
@@ -121,8 +121,8 @@ err:
 		char	*fname;
 
 		if (c < argc) {
-			failed(argv[0], toomanyargs);
-			/* NOTREACHED */
+			failure(argv[0], toomanyargs);
+			return;
 		}
 		fname = ab_gname(tab);
 		ab_use(tab, fname);
@@ -211,8 +211,8 @@ sysunalias(argc, argv)
 	c = optv.optind;
 err:
 	if (badflag) {
-		failed(o, badopt);
-		/* NOTREACHED */
+		failure(o, badopt);
+		return;
 	}
 	if (ret)
 		return;

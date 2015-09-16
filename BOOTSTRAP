@@ -1,9 +1,10 @@
-# @(#)BOOTSTRAP	1.2 03/05/06 Copyright 1999 J. Schilling
+# @(#)BOOTSTRAP	1.4 14/11/25 Copyright 1999 J. Schilling
 
 To bootstrap smake:
 
-If you are of good luck and have a working make program on your system,
-you may simply try to call 'make' in the top level directory (the
+**** If you are of good luck and have a working 'make' program on your system:
+
+You may simply try to call 'make' in the top level directory (the
 directory where this file is located). In this case, a bootstrap 'smake'
 binary is created in the psmake/ directory. To be able to do this, a 
 shell script called 'MAKE-all' which is located inside the psmake directory
@@ -17,6 +18,22 @@ call configure from the makefiles. Sorry for this inconvenience but I did not
 find any safe way that would work with only one run of configure.
 For more information on the makefile system please read the file 'COMPILE'.
 
+	If this did work, then you already compiled the final smake binary.
+
+
+**** If this did not work:
+
+You should first try to use the semi automated method:
+
+1)	chdir to 'psmake'
+2)	call ./MAKE-all
+
+	If this did work, then you need to chdir back to '..' and then
+	call psmake/smake to create the final smake binary.
+
+
+**** If the above methods did not work......
+
 If it doesn't work to simply call 'make' or if your system does not provide
 a working make program, follow the instructions below.
 
@@ -25,7 +42,16 @@ Please first read the NOTE section between the star lines below step 3):
 1)	chdir to 'psmake'
 /*--------------------------------------------------------------------------*/
 
-2)	call ./configure'
+2)	If you are on a system that supports symbolic links, call:
+
+	./lnfiles
+
+	If you are on a system without symlink support, call:
+
+	./cpfiles
+/*--------------------------------------------------------------------------*/
+
+3)	call ./configure'
 
 	If you are using gcc, call:
 		CC=gcc ./configure
@@ -39,7 +65,7 @@ Please first read the NOTE section between the star lines below step 3):
 	to use the the compiler that comes with HP-UX
 /*--------------------------------------------------------------------------*/
 
-3)	call 'make'
+4)	call 'make'
 
 	If you are using gcc, call 'make CC=gcc'
 
@@ -51,7 +77,7 @@ Please first read the NOTE section between the star lines below step 3):
 
 *****************************************************************************
 
-	NOTE:	Steps 2 & 3 are automated in a shell script called MAKE-all
+	NOTE:	Steps 2 .. 4 are automated in a shell script called MAKE-all
 		that can be found inside the 'psmake' directory.
 
 		The MAKE-all script will allow you to compile the first 'smake'
@@ -65,10 +91,10 @@ Please first read the NOTE section between the star lines below step 3):
 
 /*--------------------------------------------------------------------------*/
 
-4)	cd ..
+5)	cd ..
 
 /*--------------------------------------------------------------------------*/
-5)	call 'psmake/smake'
+6)	call 'psmake/smake'
 
 	On HP-UX 10.x or newer call:
 

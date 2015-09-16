@@ -1,0 +1,157 @@
+New features with AN-2015-09-16:
+
+This is the first localization step for the schily source consolidation. Many
+programs now (hopefully) call gettext() for all strings that need localization.
+
+-	The next step will include dgettext() calls for the libraries and the
+	missing programs
+
+-	The following step will include the extracted strings
+
+-	The last step will include German translations and install support
+	for the resulting binary message object files.
+
+----------> Please test and report compilation problems! <---------
+
+***** NOTE: As mentioned since 2004, frontends to the tools should *****
+*****		call all programs in the "C" locale		   *****
+*****		by e.g. calling: LC_ALL=C cdrecord ....		   *****
+*****		unless these frontends support localized strings   *****
+*****		used by the cdrtools with NLS support.		   *****
+
+		*** WARNING        ***
+		*** Need new smake ***
+
+	*** Due to the fact that schily-tools 2014-04-03 introduced to use new macro
+	*** expansions and a related bug fix in smake, you need a new smake
+	*** to compile this source. To ensure this, call:
+
+	cd ./psmake
+	./MAKE-all
+	cd ..
+	psmake/smake
+	psmake/smake install
+
+
+	WARNING: the new version of the isoinfo program makes use of the 
+		*at() series of functions that have been introduced by Sun
+		in August 2001 and added to POSIX.1-2008. For older platforms,
+		libschily now includes emulations for these functions but
+		these emulations have not yet been tested thoroughly.
+		Please report problems!
+
+	The new smake version mentioned above is smake-1.2.4
+
+-	The file BOOTSTRAP has been updated to mention how to manually
+	bootstrap when there is no gmake program.
+
+-	The top level Makefile was renamed to "SMakefile", the top level
+	GNUmakefile was renamed to "Makefile". This helps to automate
+	the bootstrap process to deal with other make implementations that
+	do not support the schily makefilesystem. in special, this helps
+	to automate the bootstrap process on *BSD systems.
+
+-	A autoconf test that caused a hang on newer Cygwin versions has been
+	disabled as it seems that Cygwin is unmantained and does not fix
+	bugs even within several years.
+
+-	SCCS was bumped to version 5.08
+
+-	*************** Warning for NetBSD users:
+
+	NetBSD has a   typedef int idtype_t   in /usr/include/types.h
+
+	This typedef is not needed in NetBSD (accurding to the NetBSD folks)
+	and it is in conflict with the POSIX standard. If you like to compile
+	schily tools, first remove that definition from /usr/include/types.h
+	before you compile (automatically run "configure" from the makefiles).
+	If you did already call "make" before you correct your system,
+	call:
+		./.clean
+
+	and try again.
+
+	The POSIX standard requires idtype_t to be an enumeration type that
+	includes at least:
+
+		P_ALL
+		P_PGID
+		P_PID
+
+	****************************************************************
+
+-	cdda2wav: fixed the file setuid.c to work on NetBSD. Thanks to
+	Heiko Eißfeldt for reporting.
+
+-	Bourne Shell: the trap command is now POSIX compliant and prints the
+	list of the current trap definitions the way POSIX defines.
+
+-	Bourne Shell: A bug with shell variable handling caused by vfork()
+	has been fixed. The command "ZZZ=aaa ls" will no longer leave ZZZ=aaa
+	in the main shell process.
+
+-	Bourne Shell: Now only parameter assignements that precede 
+	special builtins result in an effect in the main shell process.
+	For other builtin commands, the results are reverted after calling
+	the related builtin command.
+
+-	Bourne Shell: the alias/builtin/map/pushd/popd/umask/unalias commands
+	no longer exit a shell script if called with incorrect syntax or
+	fatal errors. The original implementation copied behavior from
+	other shell builtins and thus followed the original Bourne Shell
+	behavior instead of trying to be compatible to the new POSIX
+	rule not to exit the shell in case of non-special builtins. 
+
+-	Bourne Shell: test.c may now be compiled POSIX compliant with
+	-DDO_POSIX_FAILURE
+
+-	Bourne Shell: hash builtin may now be compiled POSIX compliant with
+	-DDO_POSIX_FAILURE
+
+-	Bourne Shell: read builtin may now be compiled POSIX compliant with
+	-DDO_POSIX_FAILURE
+
+-	Bourne Shell: bg/fg/jobs/kill/killpg/pgrp/stop/suspend
+	builtins may now be compiled POSIX compliant with -DDO_POSIX_FAILURE
+
+-	Bourne Shell: cd/chdir/dirs/pwd
+	builtins may now be compiled POSIX compliant with -DDO_POSIX_FAILURE
+
+-	Borne Shell: Support for the POSIX variable PPID= was added.
+
+-	Borne Shell: First hacky support for the POSIX variable LINENO= was
+	added. Note that this currently does not yet work for "dosh", "eval"
+	functions and the "." builtin command.
+
+-	libfind no longer uses gettext() but dgettext() and thus no longer
+	destroys the message binding from the Bourne Shell
+
+-	The following builtins (that are available in bsh) are still missing in
+	the Bourne Shell:
+
+	err			echo with output going to stderr
+	glob			echo with '\0' instead of ' ' between args
+	env			a builtin version of /usr/bin/env
+
+	The following bsh intrinsics are still missing in the Bourne Shell:
+
+	-			the restricted bsh has restriction features that
+				are missing in the Bourne shell.
+
+	-	source -h	read file into history but do not excute
+
+	and probably more features not yet identified to be bsh unique.
+
+
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.net, js@cs.tu-berlin.de
+	joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

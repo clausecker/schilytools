@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2015 J. Schilling
  *
- * @(#)error.c	1.15 15/08/30 2008-2015 J. Schilling
+ * @(#)error.c	1.19 15/09/12 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)error.c	1.15 15/08/30 2008-2015 J. Schilling";
+	"@(#)error.c	1.19 15/09/12 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -58,6 +58,7 @@ static void failed_body	__PR((unsigned char *s1, const char *s2,
 	void failed_real __PR((int err, unsigned char *s1, const char *s2,
 				unsigned char *s3));
 	void failure_real __PR((int err, unsigned char *s1, const char *s2,
+				unsigned char *s3,
 				int gflag));
 #ifdef	DO_DOT_SH_PARAMS
 	void exitsh	__PR((int xno));
@@ -65,14 +66,15 @@ static void failed_body	__PR((unsigned char *s1, const char *s2,
 	void rmfunctmp	__PR((void));
 #endif
 
+/*
+ * As error() finally calls exitsh(), it should only be called if scripts
+ * need to be aborted as a result of the error to report.
+ */
 void
 error(s)
 	const char	*s;
 {
-	prp();
-	prs(_gettext(s));
-	newline();
-	exitsh(ERROR);
+	failed_real(ERROR, _gettext(s), NULL, NULL);
 }
 
 static void
@@ -87,13 +89,20 @@ failed_body(s1, s2, s3, gflag)
 		prs(_gettext((const char *)s1));
 	else
 		prs_cntl(s1);
-	prs((unsigned char *)colon);
-	prs(_gettext(s2));
+	if (s2) {
+		prs((unsigned char *)colon);
+		prs(_gettext(s2));
+	}
 	if (s3)
 		prs(s3);
 	newline();
 }
 
+/*
+ * Called from "fatal errors", from locations where either a real exit() is
+ * expected or from an interactive command where a longjmp() to the next prompt
+ * is expected.
+ */
 void
 failed_real(err, s1, s2, s3)
 	int		err;
@@ -102,17 +111,25 @@ failed_real(err, s1, s2, s3)
 	unsigned char	*s3;
 {
 	failed_body(s1, s2, s3, 0);
+#if !defined(NO_VFORK) || defined(DO_POSIX_SPEC_BLTIN)
+	namscan(popval);
+#endif
 	exitsh(err);
 }
 
+/*
+ * A normal error that usually does not cause an exit() of the shell.
+ * Except when "set -e" has been issued, we just set up $? and return.
+ */
 void
-failure_real(err, s1, s2, gflag)
+failure_real(err, s1, s2, s3, gflag)
 	int		err;
 	unsigned char	*s1;
 	const char	*s2;
+	unsigned char	*s3;
 	int		gflag;
 {
-	failed_body(s1, s2, NULL, gflag);
+	failed_body(s1, s2, s3, gflag);
 
 	if (flags & errflg)
 		exitsh(err);
@@ -139,8 +156,16 @@ exitsh(xno)
 	exval_set(xno);
 	flags |= eflag;
 	if ((flags & (forcexit | forked | errflg | ttyflg)) != ttyflg) {
+		/*
+		 * If not from a "tty" or when special flags are set,
+		 * do a real exit().
+		 */
 		done(0);
 	} else {
+		/*
+		 * The standard error case from "tty" causes a longjmp()
+		 * to the next prompt.
+		 */
 		clearup();
 		restore(0);
 		(void) setb(STDOUT_FILENO);

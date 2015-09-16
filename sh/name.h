@@ -32,13 +32,14 @@
 
 /*
  * Copyright 2009-2015 J. Schilling
- * @(#)name.h	1.6 15/07/09 2009-2015 J. Schilling
+ * @(#)name.h	1.7 15/09/11 2009-2015 J. Schilling
  */
 /*
  *	UNIX shell
  */
 
 
+#define	N_PUSHOV 0040			/* This node has a pushed old value  */
 #define	N_ENVCHG 0020			/* This was changed after env import */
 #define	N_RDONLY 0010			/* This node is read-only forever */
 #define	N_EXPORT 0004			/* This node will be exported to env */
@@ -51,6 +52,7 @@ struct namnod
 {
 	struct namnod	*namlft;	/* Left name tree */
 	struct namnod	*namrgt;	/* Right name tree */
+	struct namnod	*nampush;	/* Pushed old value */
 	unsigned char	*namid;		/* Node name, e.g. "HOME" */
 	unsigned char	*namval;	/* Node value, e.g. "/home/joe" */
 	unsigned char	*namenv;	/* Imported value or function node */

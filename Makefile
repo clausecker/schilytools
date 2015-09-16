@@ -1,25 +1,13 @@
-#ident @(#)Makefile	1.6 11/04/14 
-###########################################################################
-SRCROOT=	.
-DIRNAME=	SRCROOT
-RULESDIR=	RULES
-###########################################################################
-all:
-all clean depend config install: RULES autoconf libedc libschily readcd smake
-
-RULES autoconf libedc libschily readcd smake:
-	@echo "	==> MAKING SYMLINKS in ." && sh ./MKLINKS
-
-$(SRCROOT)/$(RULESDIR)/rules.top: RULES
-###########################################################################
-include		$(SRCROOT)/$(RULESDIR)/rules.top
-###########################################################################
-
 #
-# include Targetdirs no longer needed, we use SSPM
-#include		$(SRCROOT)/TARGETS/Targetdirs
-#include		$(SRCROOT)/TARGETS/Targetdirs.$(M_ARCH)
+# This is only the bootstrap makefile.
+# The 'real' makefile is called 'SMakefile'. It is used in the special
+# case of compiling 'smake' to help to make the compiling as simple
+# as possible. Smake first looks for 'SMakefile' and thus the 
+# command 'psmake/smake $@' will use 'SMakefile' to read rules.
+#
+.PHONY: all clean clobber distclean install ibins depend rmdep config TAGS tags rmtarget relink
 
-###########################################################################
-include		$(SRCROOT)/$(RULESDIR)/rules.dir
-###########################################################################
+all man lint clean clobber distclean install installman ibins depend rmdep config TAGS tags rmtarget relink:
+	@echo "NOTICE: Using bootstrap 'Makefile' to make '$@'"
+	cd psmake && sh ./MAKE-all
+	./psmake/smake -r $@

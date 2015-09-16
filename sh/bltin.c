@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2015 J. Schilling
  *
- * @(#)bltin.c	1.63 15/09/02 2008-2015 J. Schilling
+ * @(#)bltin.c	1.70 15/09/14 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)bltin.c	1.63 15/09/02 2008-2015 J. Schilling";
+	"@(#)bltin.c	1.70 15/09/14 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -236,14 +236,14 @@ struct trenod *t;
 				a1 = opwdnod.namval;
 				if (a1 == NULL || *a1 == '\0') {
 					free(np);
-					failed(a1, baddir);
+					failure(a1, baddir);
 					break;
 				}
 			} else {
 				int	off = stoi(&a1[1]);
 
 				if (!(np = pop_dir(off))) {
-					failed(a1, badoff);
+					failure(a1, badoff);
 					break;
 				}
 				a1 = np->argval;
@@ -255,7 +255,11 @@ struct trenod *t;
 			 * init_dirs() grants pop_dir(0) != NULL
 			 */
 			if (dnp->argnxt == NULL) {
-				error(emptystack);
+				/*
+				 * "dnp" is the static "dirs",
+				 * no need to free()
+				 */
+				gfailure(UC emptystack, NULL);
 				break;
 			}
 			a1 = dnp->argnxt->argval;
@@ -278,7 +282,7 @@ struct trenod *t;
 				a1 = opwdnod.namval;
 				if (a1 == NULL || *a1 == '\0') {
 					free(np);
-					failed(a1, baddir);
+					failure(a1, baddir);
 					break;
 				}
 			}
@@ -320,27 +324,28 @@ struct trenod *t;
 				switch (errno) {
 #ifdef	EMULTIHOP
 				case EMULTIHOP:
-					failed(a1, emultihop);
+					Failure(a1, emultihop);
 					break;
 #endif
 				case ENOTDIR:
-					failed(a1, enotdir);
+					Failure(a1, enotdir);
 					break;
 				case ENOENT:
-					failed(a1, enoent);
+					Failure(a1, enoent);
 					break;
 				case EACCES:
-					failed(a1, eacces);
+					Failure(a1, eacces);
 					break;
 #ifdef	ENOLINK
 				case ENOLINK:
-					failed(a1, enolink);
+					Failure(a1, enolink);
 					break;
 #endif
 				default:
-					failed(a1, baddir);
+					Failure(a1, baddir);
 					break;
 				}
+				break;	/* No zapcd(), chdir() did not work */
 			} else {
 				unsigned char	*wd;
 
@@ -377,9 +382,9 @@ struct trenod *t;
 			 * but $HOME was not set.
 			 */
 			if (a1)
-				error(nulldir);
+				Error(nulldir);
 			else
-				error(nohome);
+				Error(nohome);
 		}
 		break;
 
@@ -403,8 +408,10 @@ struct trenod *t;
 		break;
 
 	case SYSREAD:
-		if (argc < 2)
-			failed(argv[0], mssgargn);
+		if (argc < 2) {
+			Failure(argv[0], mssgargn);
+			break;
+		}
 		rwait = 1;
 		exitval = readvar(&argv[1]);
 		rwait = 0;
@@ -589,12 +596,12 @@ struct trenod *t;
 				if (a1[1] == 'r')
 					zaphash();
 				else
-					error(badopt);
+					Error(badopt);
 			} else {
 				while (*++argv) {
 					if (hashtype(hash_cmd(*argv)) ==
 							NOTFOUND) {
-						failed(*argv, notfound);
+						Failure(*argv, notfound);
 					}
 				}
 			}
@@ -746,18 +753,23 @@ struct trenod *t;
 			} else if (argc == 3 && eq(argv[1], "-u")) {
 				shedit_del_map((char *)argv[2]);
 			} else if (argc == 3 || argc == 4) {
+				/*
+				 * argv[1] is map from
+				 * argv[2] is map to
+				 * argv[3] is the optional comment
+				 */
 				if (!shedit_add_map((char *)argv[1],
 						(char *)argv[2],
 						(char *)argv[3])) {
 					prs(argv[1]);
 					prs(UC ": ");
 					prs(UC "already defined\n");
-					error("bad map");
+					gfailure(UC "bad map", NULL);
 				}
 			} else if (argc > 4) {
-				error(arglist);
+				gfailure(UC arglist, NULL);
 			} else {
-				error(mssgargn);
+				gfailure(UC mssgargn, NULL);
 			}
 		}
 		break;

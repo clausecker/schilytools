@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2015 J. Schilling
  *
- * @(#)xec.c	1.45 15/08/27 2008-2015 J. Schilling
+ * @(#)xec.c	1.47 15/09/11 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)xec.c	1.45 15/08/27 2008-2015 J. Schilling";
+	"@(#)xec.c	1.47 15/09/11 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -159,6 +159,10 @@ int *pf1, *pf2;
 				struct ionod	*io = t->treio;
 				short	cmdhash = 0;
 				short	comtype = 0;
+#ifdef	DO_POSIX_SPEC_BLTIN
+				const struct sysnod	*sp = 0;
+#endif
+				int			pushov = 0;
 
 				exitval = 0;
 				exval_clear();
@@ -174,7 +178,13 @@ int *pf1, *pf2;
 
 				if (argn == 0 ||
 				    (comtype = hashtype(cmdhash)) == BUILTIN) {
-					setlist(comptr(t)->comset, 0);
+#ifdef	DO_POSIX_SPEC_BLTIN
+					sp = sysnlook(com[0],
+							commands, no_commands);
+					if (sp && (sp->sysflg & BLT_SPC) == 0)
+						pushov = N_PUSHOV;
+#endif
+					setlist(comptr(t)->comset, pushov);
 				}
 
 				if (argn && (flags&noexec) == 0)
@@ -229,6 +239,10 @@ int *pf1, *pf2;
 #endif
 						builtin(hashdata(cmdhash),
 								argn, com, t);
+#ifdef	DO_POSIX_SPEC_BLTIN
+						if (pushov)
+							namscan(popval);
+#endif
 #ifdef	DO_TIME
 						if (jp) {
 							prtime(jp);
@@ -430,6 +444,7 @@ script:
 						fiotemp = ofiot;
 						iotemp = oiot;
 						standin = ostandin;
+						namscan(popval);
 						restoresigs();
 						if (exflag == 2) {
 							exflag = 0;
@@ -502,8 +517,10 @@ script:
 					xflags | XEC_EXECED,
 					errorflg, no_pipe, no_pipe);
 			} else if (com != NULL && com[0] != ENDARGS) {
+				int	pushov = isvfork?N_PUSHOV:0;
+
 				eflag = 0;
-				setlist(comptr(t)->comset, N_EXPORT);
+				setlist(comptr(t)->comset, N_EXPORT|pushov);
 #ifdef	HAVE_VFORK
 				if (isvfork)
 					rmtemp(oiot);

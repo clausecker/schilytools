@@ -1,4 +1,4 @@
-#ident "@(#)Makefile	1.65 15/09/02  Copyright (c) 2006-2015 J. Schilling"
+#ident "@(#)Makefile	1.70 15/09/16  Copyright (c) 2006-2015 J. Schilling"
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -50,10 +50,13 @@ CPPOPTS +=	-DACCT					# Shell Accounting
 #CPPOPTS +=	-DDO_EXPAND_DIRSLASH	# Expand dir*/ to dir/
 #CPPOPTS +=	-DDO_SIGNED_EXIT	# Allow negative exit(1) parameters
 #CPPOPTS +=	-DDO_DOT_SH_PARAMS	# Include support for ${.sh.xxx} parapeters
+#CPPOPTS +=	-DDO_POSIX_SPEC_BLTIN	# Only special builtins keep var assignment
+#CPPOPTS +=	-DDO_POSIX_FAILURE	# Only special builtins exit() on errors
 #CPPOPTS +=	-DDO_POSIX_EXIT		# Use POSIX exit codes 126/127
 #CPPOPTS +=	-DDO_POSIX_EXPORT	# Support export/readonly -p name=value
 #CPPOPTS +=	-DDO_POSIX_UNSET	# Support unset -f / -v
 #CPPOPTS +=	-DDO_POSIX_TEST		# Implement POSIX test -e & text -S
+#CPPOPTS +=	-DDO_POSIX_TRAP		# Implement POSIX trap -- for output
 #CPPOPTS +=	-DDO_EXT_TEST		# Implement extended test features
 #CPPOPTS +=	-DDO_TILDE		# Include support for tilde expansion
 #CPPOPTS +=	-DDO_BGNICE		# Include support for set -o bgnice
@@ -64,6 +67,8 @@ CPPOPTS +=	-DACCT					# Shell Accounting
 #CPPOPTS +=	-DDO_FDPIPE		# Include support for 2| for stderr pipe
 #CPPOPTS +=	-DDO_KILL_L_SIG		# Include support for kill -l signo
 #CPPOPTS +=	-DDO_PS34		# Include support for PS3 and PS4
+#CPPOPTS +=	-DDO_PPID		# Include support for POSIX PPID
+#CPPOPTS +=	-DDO_LINENO		# Include support for POSIX LINENO
 #CPPOPTS +=	-DDO_ULIMIT_OPTS	# Add options to the ulimit(1) output
 #CPPOPTS +=	-DDO_SYSBUILTIN		# Include the "builtin" builtin
 #CPPOPTS +=	-DDO_SYSATEXPR		# Include the "@" builtin

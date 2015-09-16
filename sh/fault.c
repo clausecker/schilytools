@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2015 J. Schilling
  *
- * @(#)fault.c	1.29 15/07/06 2008-2015 J. Schilling
+ * @(#)fault.c	1.30 15/09/07 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)fault.c	1.29 15/07/06 2008-2015 J. Schilling";
+	"@(#)fault.c	1.30 15/09/07 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -545,9 +545,21 @@ systrap(argc, argv)
 		 */
 		for (sig = 0; sig < MAXTRAP; sig++) {
 			if (trapcom[sig]) {
+#ifdef	DO_POSIX_TRAP
+				char	buf[12];
+
+				prs_buff(UC "trap -- '");
+				prs_buff(trapcom[sig]);
+				prs_buff(UC "' ");
+				if (sig2str(sig, buf) < 0)
+					prn_buff(sig);
+				else
+					prs_buff(UC buf);
+#else
 				prn_buff(sig);
 				prs_buff((unsigned char *)colon);
 				prs_buff(trapcom[sig]);
+#endif
 				prc_buff(NL);
 			}
 		}
@@ -555,12 +567,29 @@ systrap(argc, argv)
 		/*
 		 * set the action for the list of signals
 		 *
+		 * a1 is guaranteed to be != NULL here
 		 */
 		char *cmdp = *argv, *a1 = *(argv+1);
-		BOOL noa1;
-		noa1 = (str2sig(a1, &sig) == 0);
-		if (noa1 == 0)
+		BOOL noa1 = FALSE;
+
+#ifdef	DO_POSIX_TRAP
+		if (a1[0] == '-') {
+			if (a1[1] == '\0') {
+				noa1++;
+			} else if (a1[1] == '-' && a1[2] == '\0') {
+				a1 = *(++argv + 1);
+			} else {
+				gfailure(UC usage, trapuse);
+				return;
+			}
 			++argv;
+		} else
+#endif
+		{
+			noa1 = (str2sig(a1, &sig) == 0);
+			if (noa1 == 0)
+				++argv;
+		}
 		while (*++argv) {
 			if (str2sig(*argv, &sig) < 0 ||
 			    sig >= MAXTRAP || sig < MINTRAP ||
@@ -568,7 +597,7 @@ systrap(argc, argv)
 				failure((unsigned char *)cmdp, badtrap);
 			} else if (noa1) {
 				/*
-				 * no action specifed so reset the siganl
+				 * no action specifed so reset the signal
 				 * to its default disposition
 				 *
 				 */

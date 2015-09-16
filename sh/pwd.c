@@ -39,11 +39,11 @@
 /*
  * This file contains modifications Copyright 2008-2014 J. Schilling
  *
- * @(#)pwd.c	1.18 14/04/20 2008-2014 J. Schilling
+ * @(#)pwd.c	1.19 15/09/14 2008-2014 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)pwd.c	1.18 14/04/20 2008-2014 J. Schilling";
+	"@(#)pwd.c	1.19 15/09/14 2008-2014 J. Schilling";
 #endif
 
 /*
@@ -318,9 +318,10 @@ cwdprint()
 	if (didpwd == FALSE) {
 		if (getcwd((char *)cwdname, PATH_MAX+1) == NULL) {
 			if (errno && errno != ERANGE)
-				error(badpwd);
+				Error(badpwd);
 			else
-				error(longpwd);
+				Error(longpwd);
+			return;
 		}
 		didpwd = TRUE;
 	}

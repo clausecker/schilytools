@@ -39,7 +39,7 @@
 /*
  * Copyright 2008-2015 J. Schilling
  *
- * @(#)defs.h	1.111 15/09/02 2008-2015 J. Schilling
+ * @(#)defs.h	1.122 15/09/16 2008-2015 J. Schilling
  */
 
 #ifdef	__cplusplus
@@ -399,7 +399,10 @@ extern	void	failed_real	__PR((int err, unsigned char *s1,
 						const char *s2,
 						unsigned char *s3)) __NORETURN;
 extern	void	failure_real	__PR((int err, unsigned char *s1,
-						const char *s2, int gflag));
+						const char *s2,
+						unsigned char *s3,
+						int gflag));
+
 extern	void	exitsh		__PR((int xno)) __NORETURN;
 #ifdef	DO_DOT_SH_PARAMS
 extern	void	exval_clear	__PR((void));
@@ -563,10 +566,14 @@ extern	unsigned char *make	__PR((unsigned char *v));
 extern	struct namnod *lookup	__PR((unsigned char *nam));
 extern	void	namscan		__PR((void (*fn)(struct namnod *n)));
 extern	void	printnam	__PR((struct namnod *n));
+#ifdef	DO_LINENO
+extern	unsigned char *linenoval __PR((void));
+#endif
 extern	void	printro		__PR((struct namnod *n));
 extern	void	printpro	__PR((struct namnod *n));
 extern	void	printexp	__PR((struct namnod *n));
 extern	void	printpexp	__PR((struct namnod *n));
+extern	void	popval		__PR((struct namnod *n));
 extern	void	setup_env	__PR((void));
 extern	unsigned char **local_setenv __PR((int flg));
 extern	struct namnod *findnam	__PR((unsigned char *nam));
@@ -785,6 +792,10 @@ extern	void	execexp		__PR((unsigned char *s, Intptr_t f));
 
 /*
  * macros using failed_real(). Only s2 is gettext'd with both functions.
+ *
+ * Called from "fatal errors", from locations where either a real exit() is
+ * expected or from an interactive command where a longjmp() to the next prompt
+ * is expected.
  */
 #define		failed(s1, s2)		failed_real(ERROR, s1, s2, NULL)
 #define		failedx(e, s1, s2)	failed_real(e, s1, s2, NULL)
@@ -794,11 +805,38 @@ extern	void	execexp		__PR((unsigned char *s, Intptr_t f));
 /*
  * macros using failure_real(). s1 and s2 is gettext'd with gfailure(), but
  * only s2 is gettext'd with failure().
+ *
+ * From a normal error that usually does not cause an exit() of the shell.
+ * Except when "set -e" has been issued, we just set up $? and return.
  */
-#define		failure(s1, s2)		failure_real(ERROR, s1, s2, 0)
-#define		failurex(e, s1, s2)	failure_real(e, s1, s2, 0)
-#define		gfailure(s1, s2)	failure_real(ERROR, s1, s2, 1)
-#define		gfailurex(e, s1, s2)	failure_real(e, s1, s2, 1)
+#define		failure(s1, s2)		failure_real(ERROR, s1, s2, NULL, 0)
+#define		failurex(e, s1, s2)	failure_real(e, s1, s2, NULL, 0)
+#define		bfailure(s1, s2, s3)	failure_real(ERROR, s1, s2, s3, 0)
+#define		bfailurex(e, s1, s2, s3) failure_real(e, s1, s2, s3, 0)
+#define		gfailure(s1, s2)	failure_real(ERROR, s1, s2, NULL, 1)
+#define		gfailurex(e, s1, s2)	failure_real(e, s1, s2, NULL, 1)
+#define		gbfailure(s1, s2, s3)	failure_real(ERROR, s1, s2, s3, 1)
+#define		gbfailurex(e, s1, s2, s3) failure_real(e, s1, s2, s3, 1)
+
+/*
+ * Failure macros for builtin commands that historically aborted scripts
+ * in case of syntax errors or "fatal errors".
+ *
+ * Should we make this runtime settable?
+ */
+#ifdef	DO_POSIX_FAILURE
+#define		Failure(s1, s2)		failure(s1, s2)
+#define		Failurex(e, s1, s2)	failurex(e, s1, s2)
+#define		BFailure(s1, s2, s3)	bfailure(s1, s2, s3)
+#define		BFailurex(e, s1, s2, s3) bfailurex(e, s1, s2, s3)
+#define		Error(s1)		gfailure(UC s1, NULL)
+#else
+#define		Failure(s1, s2)		failed(s1, s2)
+#define		Failurex(e, s1, s2)	failedx(e, s1, s2)
+#define		BFailure(s1, s2, s3)	bfailed(s1, s2, s3)
+#define		BFailurex(e, s1, s2, s3) bfailedx(e, s1, s2, s3)
+#define		Error(s1)		error(s1)
+#endif
 
 /* temp files and io */
 extern int		output;
@@ -874,8 +912,10 @@ extern struct namnod		ifsnod;
 extern struct namnod		homenod;
 extern struct namnod		pwdnod;
 extern struct namnod		opwdnod;
+extern struct namnod		linenonod;
 extern struct namnod		mailnod;
 extern struct namnod		pathnod;
+extern struct namnod		ppidnod;
 extern struct namnod		ps1nod;
 extern struct namnod		ps2nod;
 extern struct namnod		ps3nod;
@@ -893,9 +933,11 @@ extern unsigned char		*cmdadr;
 
 /* names always present */
 extern const char		defpath[];
+extern const char		linenoname[];
 extern const char		mailname[];
 extern const char		homename[];
 extern const char		pathname[];
+extern const char		ppidname[];
 extern const char		cdpname[];
 extern const char		envname[];
 extern const char		ifsname[];
@@ -939,7 +981,7 @@ extern const char		devnull[];
 #define		intflg		02		/* set -i interactive */
 #define		prompt		04
 #define		setflg		010		/* set -u nounset */
-#define		errflg		020		/* set -r errexit */
+#define		errflg		020		/* set -e errexit */
 #define		ttyflg		040		/* in + out is a tty */
 #define		forked		0100		/* *forked child */
 #define		oneflg		0200		/* set -t onecmd */
@@ -1104,6 +1146,7 @@ extern const char		unaliasuse[];
 extern const char		repuse[];
 extern const char		builtinuse[];
 extern const char		stopuse[];
+extern const char		trapuse[];
 extern const char		ulimuse[];
 extern const char		nocurjob[];
 extern const char		loginsh[];

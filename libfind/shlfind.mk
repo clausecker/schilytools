@@ -1,4 +1,4 @@
-#ident @(#)shlfind.mk	1.3 09/12/06 
+#ident @(#)shlfind.mk	1.4 15/09/12 
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -18,6 +18,8 @@ CPPOPTS +=	-DUSE_LARGEFILES
 CPPOPTS +=	-DUSE_ACL
 CPPOPTS +=	-DUSE_XATTR
 CPPOPTS +=	-DUSE_NLS
+CPPOPTS +=	-DUSE_DGETTEXT			# _() -> dgettext()
+CPPOPTS +=	-DTEXT_DOMAIN=\"SCHILY_FIND\"
 CPPOPTS +=	-DSCHILY_PRINT
 
 include		Targets

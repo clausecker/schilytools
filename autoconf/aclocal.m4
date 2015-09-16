@@ -1,4 +1,4 @@
-dnl @(#)aclocal.m4	1.103 15/06/22 Copyright 1998-2015 J. Schilling
+dnl @(#)aclocal.m4	1.104 15/09/05 Copyright 1998-2015 J. Schilling
 
 dnl Set VARIABLE to VALUE in C-string form, verbatim, or 1.
 dnl AC_DEFINE_STRING(VARIABLE [, VALUE])
@@ -2466,6 +2466,7 @@ dnl Defines NO_USER_MALLOC if we cannot.
 AC_DEFUN([AC_USER_MALLOC],
 [AC_CACHE_CHECK([if we may not define our own malloc()], ac_cv_no_user_malloc,
                 [AC_TRY_RUN([
+#if !defined(__CYGWIN32__) && !defined(__CYGWIN__)
 static int mcalled;
 char *
 malloc(s)
@@ -2484,14 +2485,17 @@ malloc(s)
 }
 
 free(p) char *p;{}
+#endif	/* !defined(__CYGWIN32__) && !defined(__CYGWIN__) */
 	
 main()
 {
+#if !defined(__CYGWIN32__) && !defined(__CYGWIN__)
 #ifdef	HAVE_STRDUP
 	strdup("aaa");
 #else
 	exit(0);
 #endif
+#endif	/* !defined(__CYGWIN32__) && !defined(__CYGWIN__) */
 	exit(1);}],
                 [ac_cv_no_user_malloc=no],
                 [ac_cv_no_user_malloc=yes])])

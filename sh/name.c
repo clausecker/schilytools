@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2015 J. Schilling
  *
- * @(#)name.c	1.37 15/08/31 2008-2015 J. Schilling
+ * @(#)name.c	1.41 15/09/16 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)name.c	1.37 15/08/31 2008-2015 J. Schilling";
+	"@(#)name.c	1.41 15/09/16 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -78,9 +78,16 @@ static	BOOL	chkid		__PR((unsigned char *nam));
 	void	namscan		__PR((void (*fn)(struct namnod *n)));
 static void	namwalk		__PR((struct namnod *));
 	void	printnam	__PR((struct namnod *n));
+#ifdef	DO_LINENO
+	unsigned char *linenoval __PR((void));
+#endif
 	void	printro		__PR((struct namnod *n));
 	void	printpro	__PR((struct namnod *n));
 	void	printexp	__PR((struct namnod *n));
+#if !defined(NO_VFORK) || defined(DO_POSIX_SPEC_BLTIN)
+static void	pushval		__PR((struct namnod *n));
+	void	popval		__PR((struct namnod *n));
+#endif
 	void	setup_env	__PR((void));
 static void	countnam	__PR((struct namnod *n));
 static void	pushnam		__PR((struct namnod *n));
@@ -101,10 +108,12 @@ struct namnod ps2nod =			/* PS2= */
 {
 	(struct namnod *)NIL,
 	&acctnod,
+	(struct namnod *)NIL,
 	(unsigned char *)ps2name
 };
 struct namnod envnod =			/* ENV= */
 {
+	(struct namnod *)NIL,
 	(struct namnod *)NIL,
 	(struct namnod *)NIL,
 	(unsigned char *)envname
@@ -113,11 +122,20 @@ struct namnod cdpnod =			/* CDPATH= */
 {
 	(struct namnod *)NIL,
 	&envnod,
+	(struct namnod *)NIL,
 	(unsigned char *)cdpname
+};
+struct namnod ppidnod =			/* PPID= */
+{
+	(struct namnod *)NIL,
+	(struct namnod *)NIL,
+	(struct namnod *)NIL,
+	(unsigned char *)ppidname
 };
 struct namnod pathnod =			/* PATH= */
 {
 	&mailpnod,
+	&ppidnod,
 	(struct namnod *)NIL,
 	(unsigned char *)pathname
 };
@@ -125,16 +143,19 @@ struct namnod ifsnod =			/* IFS= */
 {
 	&homenod,
 	&mailnod,
+	(struct namnod *)NIL,
 	(unsigned char *)ifsname
 };
 struct namnod ps1nod =			/* PS1= */
 {
 	&pathnod,
 	&ps2nod,
+	(struct namnod *)NIL,
 	(unsigned char *)ps1name
 };
 struct namnod ps4nod =			/* PS4= */
 {
+	(struct namnod *)NIL,
 	(struct namnod *)NIL,
 	(struct namnod *)NIL,
 	(unsigned char *)ps4name
@@ -143,16 +164,26 @@ struct namnod ps3nod =			/* PS3= */
 {
 	(struct namnod *)NIL,
 	&ps4nod,
+	(struct namnod *)NIL,
 	(unsigned char *)ps3name
 };
 struct namnod homenod =			/* HOME= */
 {
 	&cdpnod,
 	(struct namnod *)NIL,
+	(struct namnod *)NIL,
 	(unsigned char *)homename
+};
+struct namnod linenonod =		/* LINENO= */
+{
+	(struct namnod *)NIL,
+	(struct namnod *)NIL,
+	(struct namnod *)NIL,
+	(unsigned char *)linenoname
 };
 struct namnod mailnod =			/* MAIL= */
 {
+	&linenonod,
 	(struct namnod *)NIL,
 	(struct namnod *)NIL,
 	(unsigned char *)mailname
@@ -161,16 +192,19 @@ struct namnod mchknod =			/* MAILCHECK= */
 {
 	&ifsnod,
 	&ps1nod,
+	(struct namnod *)NIL,
 	(unsigned char *)mchkname
 };
 struct namnod pwdnod =			/* PWD= */
 {
 	&ps3nod,
 	(struct namnod *)NIL,
+	(struct namnod *)NIL,
 	(unsigned char *)pwdname,
 };
 struct namnod opwdnod =			/* OLDPWD= */
 {
+	(struct namnod *)NIL,
 	(struct namnod *)NIL,
 	(struct namnod *)NIL,
 	(unsigned char *)opwdname,
@@ -179,18 +213,21 @@ struct namnod timefmtnod =		/* TIMEFORMAT= */
 {
 	(struct namnod *)NIL,
 	(struct namnod *)NIL,
+	(struct namnod *)NIL,
 	(unsigned char *)timefmtname,
 };
 struct namnod acctnod =			/* SHACCT= */
 {
 	&pwdnod,
 	&timefmtnod,
+	(struct namnod *)NIL,
 	(unsigned char *)acctname
 };
 struct namnod mailpnod =		/* MAILPATH= */
 {
 	(struct namnod *)NIL,
 	&opwdnod,
+	(struct namnod *)NIL,
 	(unsigned char *)mailpname
 };
 
@@ -297,8 +334,13 @@ setname(argi, xp)			/* does parameter assignments */
 				if (n == &pathnod)
 					set_builtins_path();
 			}
-			else
+			else {
+#if !defined(NO_VFORK) || defined(DO_POSIX_SPEC_BLTIN)
+				if (xp & N_PUSHOV)
+					pushval(n);
+#endif
 				assign(n, argscan);
+			}
 			attrib(n, xp);	/* readonly attrib after assignement */
 
 			dolocale((char *)n->namid);
@@ -636,7 +678,7 @@ lookup(nam)
 	 * add name node
 	 */
 	nscan = (struct namnod *)alloc(sizeof (*nscan));
-	nscan->namlft = nscan->namrgt = (struct namnod *)NIL;
+	nscan->namlft = nscan->namrgt = nscan->nampush = (struct namnod *)NIL;
 	nscan->namid = make(nam);
 	nscan->namval = 0;
 	nscan->namflg = N_DEFAULT;
@@ -709,6 +751,13 @@ printnam(n)
 		if (f != NULL)
 			prf((struct trenod *)f->fndval);
 		prs_buff((unsigned char *)"\n}\n");
+#ifdef	DO_LINENO
+	} else if (n == &linenonod) {
+		prs_buff(n->namid);
+		prc_buff('=');
+		prs_buff(linenoval());
+		prc_buff(NL);
+#endif
 	} else if ((s = n->namval) != NULL) {
 		prs_buff(n->namid);
 		prc_buff('=');
@@ -716,6 +765,32 @@ printnam(n)
 		prc_buff(NL);
 	}
 }
+
+#ifdef	DO_LINENO
+unsigned char *
+linenoval()
+{
+	struct fileblk *f = standin;
+
+#ifdef	LINENO_DEBUG
+	while (1) {
+		printf("F %p des %d\n", f, f->fdes);
+		if (f->fstak == NULL)
+			break;
+		f = f->fstak;
+	}
+	f = standin;
+#endif
+	if (f->fstak != NULL)
+		f = f->fstak;
+	/*
+	 * Subtract 1 as parsing of the current
+	 * was already done.
+	 */
+	itos(f->flin - 1);
+	return (numbuf);
+}
+#endif
 
 static int namec;
 
@@ -785,6 +860,53 @@ printpexp(n)
 			prc_buff('\'');
 		}
 		prc_buff(NL);
+	}
+}
+#endif
+
+#if !defined(NO_VFORK) || defined(DO_POSIX_SPEC_BLTIN)
+/*
+ * Push the current value by dulicating the content in
+ * preparation of a later change of the node value.
+ */
+static void
+pushval(n)
+	struct namnod	*n;
+{
+	if (n->namval) {
+		struct namnod *nscan = (struct namnod *)alloc(sizeof (*nscan));
+
+		*nscan = *n;
+		n->namval = make(n->namval);
+		n->nampush = nscan;
+	}
+	attrib(n, N_PUSHOV);
+}
+
+/*
+ * If the node has a pushed value, restore the original value.
+ */
+void
+popval(n)
+	struct namnod	*n;
+{
+	if ((n->namflg & N_PUSHOV) == 0)
+		return;
+
+	if (n->nampush) {
+		struct namnod	*p = n->nampush;
+
+		if (n->namval)
+			free(n->namval);
+		n->namval = p->namval;
+		n->namflg = p->namflg;
+		n->nampush = 0;
+		free (p);
+	} else {
+		if (n->namval)
+			free(n->namval);
+		n->namval = 0;
+		n->namflg = N_DEFAULT;
 	}
 }
 #endif

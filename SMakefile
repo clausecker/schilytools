@@ -1,0 +1,25 @@
+#ident @(#)Makefile	1.6 11/04/14 
+###########################################################################
+SRCROOT=	.
+DIRNAME=	SRCROOT
+RULESDIR=	RULES
+###########################################################################
+all:
+all clean depend config install: RULES autoconf libedc libschily readcd smake
+
+RULES autoconf libedc libschily readcd smake:
+	@echo "	==> MAKING SYMLINKS in ." && sh ./MKLINKS
+
+$(SRCROOT)/$(RULESDIR)/rules.top: RULES
+###########################################################################
+include		$(SRCROOT)/$(RULESDIR)/rules.top
+###########################################################################
+
+#
+# include Targetdirs no longer needed, we use SSPM
+#include		$(SRCROOT)/TARGETS/Targetdirs
+#include		$(SRCROOT)/TARGETS/Targetdirs.$(M_ARCH)
+
+###########################################################################
+include		$(SRCROOT)/$(RULESDIR)/rules.dir
+###########################################################################
