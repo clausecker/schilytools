@@ -1,8 +1,8 @@
-/* @(#)map.c	1.34 15/08/09 Copyright 1986-2015 J. Schilling */
+/* @(#)map.c	1.35 15/10/08 Copyright 1986-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)map.c	1.34 15/08/09 Copyright 1986-2015 J. Schilling";
+	"@(#)map.c	1.35 15/10/08 Copyright 1986-2015 J. Schilling";
 #endif
 /*
  *	The map package for BSH & VED
@@ -718,6 +718,7 @@ LOCAL struct fk_maps {
 
 	{ "kA", UC "",	"Insert line" },
 	{ "kD", UC "\177",	"Delete char" },
+	{ "kb", UC "\177",	"Key Backspace -> Delete char" },
 	{ "kE", UC "",	"Delete to eol" },
 	{ "@7", UC "",	"Go to eol" },
 	{ "kh", UC "",	"Go to sol" },
@@ -835,6 +836,7 @@ init_cursor_maps()
 		char	*kh;
 		char	*ke;
 		char	*kD;
+		char	*kb;
 		char	*tname;
 		char	**esav;
 	extern	char	**environ;
@@ -859,6 +861,7 @@ init_cursor_maps()
 		kh = tgetstr("kh", &sbp);		/* Cursor -> Home */
 		ke = tgetstr("@7", &sbp);		/* Cursor -> End */
 		kD = tgetstr("kD", &sbp);		/* Delete Character */
+		kb = tgetstr("kb", &sbp);		/* Key Backspace */
 
 		if (ku) {
 			_add_map(UC ku, UC "", "Cursor up");
@@ -897,6 +900,9 @@ init_cursor_maps()
 			_add_map(UC kD, UC "\177", "Delete Char");
 		else
 			_add_map(UC "\33[3~", UC "\177", "Delete Char");
+
+		if (kb)
+			_add_map(UC kb, UC "\177", "Key Backspace -> Delete Char");
 	} else {
 		/*
 		 * ANSI Cursor mapping in "edit mode".

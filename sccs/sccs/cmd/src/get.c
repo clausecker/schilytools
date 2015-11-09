@@ -29,10 +29,10 @@
 /*
  * Copyright 2006-2015 J. Schilling
  *
- * @(#)get.c	1.69 15/03/10 J. Schilling
+ * @(#)get.c	1.70 15/10/15 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)get.c 1.69 15/03/10 J. Schilling"
+#pragma ident "@(#)get.c 1.70 15/10/15 J. Schilling"
 #endif
 /*
  * @(#)get.c 1.59 06/12/12
@@ -228,7 +228,11 @@ register char *argv[];
 			case 'c':
 				if (*p == 0) continue;
 				cutoffstr = p;
+#if defined(BUG_1205145) || defined(GMT_TIME)
+				if (parse_date(p,&cutoff, 0))
+#else
 				if (parse_date(p,&cutoff, PF_GMT))
+#endif
 				   fatal(gettext("bad date/time (cm5)"));
 				break;
 			case 'L':
@@ -437,6 +441,7 @@ get(pkt, file)
 	pkt->p_cutoff = cutoff;
 	pkt->p_lfile = lfile;
 	pkt->p_enter = enter;
+#if defined(BUG_1205145) || defined(GMT_TIME)
 	if ((pkt->p_flags & PF_V6) == 0) {
 		pkt->p_flags |= PF_GMT;
 	} else if (cutoffstr != NULL) {
@@ -444,6 +449,7 @@ get(pkt, file)
 			fatal(gettext("bad date/time (cm5)"));
 		pkt->p_cutoff = cutoff;
 	}
+#endif
 	if (HADUCA)
 		pkt->p_pgmrs = (char **)Null;
 	if (Gfile[0] == 0 || !first) {
@@ -647,11 +653,13 @@ get(pkt, file)
 				 * table and converted the time stamps assuming
 				 * GMT. Fix the resulting error here.
 				 */
+#if defined(BUG_1205145) || defined(GMT_TIME)
 				if (pkt->p_flags & PF_GMT) {
 					tm = *gmtime(&ts[1].tv_sec);
 					tm.tm_isdst = -1;
 					ts[1].tv_sec = mktime(&tm);
 				}
+#endif
 				utimensat(AT_FDCWD, gfile, ts, 0);
 			}
 		}

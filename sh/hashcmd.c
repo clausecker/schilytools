@@ -1,8 +1,8 @@
-/* @(#)hashcmd.c	1.5 15/08/17 Copyright 1986-2015 J. Schilling */
+/* @(#)hashcmd.c	1.6 15/10/13 Copyright 1986-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)hashcmd.c	1.5 15/08/17 Copyright 1986-2015 J. Schilling";
+	"@(#)hashcmd.c	1.6 15/10/13 Copyright 1986-2015 J. Schilling";
 #endif
 /*
  *	Commands dealing with #<letter> commands
@@ -32,7 +32,7 @@ static	UConst char sccsid[] =
 #undef	tolower
 #define	tolower(c)	(((c) >= 'A' && (c) <= 'Z') ? (c) + ('a'-'A') : (c))
 
-LOCAL	abidx_t	deftab		= GLOBAL_AB;	/* Use .globals by default */
+EXPORT	abidx_t	deftab		= GLOBAL_AB;	/* Use .globals by default */
 LOCAL	int	delim;
 
 EXPORT	void	hashcmd		__PR((void));

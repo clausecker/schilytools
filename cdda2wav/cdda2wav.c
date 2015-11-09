@@ -1,8 +1,8 @@
-/* @(#)cdda2wav.c	1.157 15/04/27 Copyright 1993-2004 Heiko Eissfeldt, Copyright 2004-2015 J. Schilling */
+/* @(#)cdda2wav.c	1.162 15/10/19 Copyright 1993-2004,2015 Heiko Eissfeldt, Copyright 2004-2015 J. Schilling */
 #include "config.h"
 #ifndef lint
 static	UConst char sccsid[] =
-"@(#)cdda2wav.c	1.157 15/04/27 Copyright 1993-2004 Heiko Eissfeldt, Copyright 2004-2015 J. Schilling";
+"@(#)cdda2wav.c	1.162 15/10/19 Copyright 1993-2004,2015 Heiko Eissfeldt, Copyright 2004-2015 J. Schilling";
 
 #endif
 #undef	DEBUG_BUFFER_ADDRESSES
@@ -27,8 +27,8 @@ static	UConst char sccsid[] =
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 /*
- * Copright 1993-2004	(C) Heiko Eissfeldt
- * Copright 2004-2015	(C) J. Schilling
+ * Copright 1993-2004,2015	(C) Heiko Eissfeldt
+ * Copright 2004-2015		(C) J. Schilling
  *
  * last changes:
  *   18.12.93 - first version,	OK
@@ -214,15 +214,16 @@ EXPORT global_t	global;
  */
 LOCAL unsigned long	nSamplesDone = 0;
 LOCAL unsigned long	*nSamplesToDo;
-LOCAL unsigned int	current_track;
+LOCAL unsigned int	current_track_reading;
+LOCAL unsigned int	current_track_writing;
 LOCAL int		bulk = 0;
 
-unsigned int get_current_track __PR((void));
+unsigned int get_current_track_writing __PR((void));
 
 unsigned int
-get_current_track()
+get_current_track_writing()
 {
-	return (current_track);
+	return (current_track_writing);
 }
 
 #ifdef	ECHO_TO_SOUNDCARD
@@ -1141,7 +1142,7 @@ OPTIONS:\n\
   (-c) channels=channels	set 1 for mono, 2 or s for stereo (s: channels swapped).\n\
   (-s) -stereo			select stereo recording.\n\
   (-m) -mono			select mono recording.\n\
-  (-x) -max			select maximum quality (stereo/16-bit/44.1 KHz).\n\
+  (-x) -max			select maximum quality (stereo/16-bit/44.1 kHz).\n\
   (-b) bits=bits		set bits per sample per channel (8, 12 or 16 bits).\n\
   (-r) rate=rate		set rate in samples per second. -R gives all rates\n\
   (-a) divider=divider		set rate to 44100Hz / divider. -R gives all rates\n\
@@ -1814,7 +1815,7 @@ paranoia_callback(inpos, function)
 			if (inpos > para_stat->c2maxerrs)
 				para_stat->c2maxerrs = inpos;
 			if (inpos > 100)
-				 para_stat->c2badsecs++;
+				para_stat->c2badsecs++;
 			break;
 
 		case	PARANOIA_CB_SKIP:
@@ -2162,11 +2163,11 @@ do_read(p, total_unsuccessful_retries)
 	lSector += SectorBurst - global.overlap;
 
 #if	defined	PERCENTAGE_PER_TRACK && defined HAVE_FORK_AND_SHAREDMEM
-	{
+	if (global.iloop > 0) {
 		int as;
-		while ((as = Get_StartSector(current_track+1)) != -1 &&
+		while ((as = Get_StartSector(current_track_reading+1)) != -1 &&
 							lSector >= as) {
-			current_track++;
+			current_track_reading++;
 		}
 	}
 #endif
@@ -2186,14 +2187,16 @@ print_percentage(poper, c_offset)
 #ifdef	PERCENTAGE_PER_TRACK
 	/* Thomas Niederreiter wants percentage per track */
 	unsigned start_in_track = max(BeginAtSample,
-		Get_AudioStartSector(current_track)*CD_FRAMESAMPLES);
+		Get_AudioStartSector(current_track_writing)*CD_FRAMESAMPLES);
 
 	per = min(BeginAtSample + (long)*nSamplesToDo,
-		Get_StartSector(current_track+1)*CD_FRAMESAMPLES)
+		Get_StartSector(current_track_writing+1)*CD_FRAMESAMPLES)
 		- (long)start_in_track;
 
 	if (per > 0)
 		per = (BeginAtSample+nSamplesDone - start_in_track)/(per/100);
+	else
+		per = 0;
 
 #else
 	per = global.iloop ? (nSamplesDone)/(*nSamplesToDo/100) : 100;
@@ -2227,16 +2230,15 @@ do_write(p)
 	/* how many samples are wanted? */
 	InSamples = min((*nSamplesToDo-nSamplesDone), InSamples);
 
-	/* when track end is reached, close current file and start a new one */
 	while ((nSamplesDone < *nSamplesToDo) && (InSamples != 0)) {
 		long unsigned int how_much = InSamples;
 
 		long int left_in_track;
-		left_in_track  = Get_StartSector(current_track+1) *
+		left_in_track  = Get_StartSector(current_track_writing+1) *
 					CD_FRAMESAMPLES
 					- (int)(BeginAtSample+nSamplesDone);
 
-		if (*eorecording != 0 && current_track == cdtracks+1 &&
+		if (*eorecording != 0 && current_track_writing == cdtracks+1 &&
 		    (*total_segments_read) == (*total_segments_written)+1) {
 			/*
 			 * limit, if the actual end of the last track is
@@ -2247,8 +2249,8 @@ do_write(p)
 
 		if (left_in_track < 0) {
 			errmsgno(EX_BAD,
-			_("internal error: negative left_in_track:%ld, current_track=%d\n"),
-				left_in_track, current_track);
+			_("internal error: negative left_in_track:%ld, current_track_writing=%d\n"),
+				left_in_track, current_track_writing);
 		}
 
 		if (bulk) {
@@ -2285,6 +2287,7 @@ do_write(p)
 				(InSamples - how_much) * 4);
 		}
 
+		/* when track end is reached, close current file and start a new one */
 		if ((unsigned long) left_in_track <= InSamples ||
 		    SamplesToWrite == 0) {
 			/*
@@ -2306,7 +2309,7 @@ do_write(p)
 #ifdef INFOFILES
 			if (global.no_infofile == 0) {
 				write_md5_info(global.fname_base,
-						current_track,
+						current_track_writing,
 						bulk && global.multiname == 0);
 			}
 #endif
@@ -2327,15 +2330,15 @@ do_write(p)
 					fputs(_(" incomplete"), outfp);
 				}
 #endif
-				if (global.tracktitle[current_track] != NULL) {
+				if (global.tracktitle[current_track_writing] != NULL) {
 					fprintf(outfp,
 					_(" track %2u '%s' recorded"),
-					current_track,
-					global.tracktitle[current_track]);
+					current_track_writing,
+					global.tracktitle[current_track_writing]);
 				} else {
 					fprintf(outfp,
 						_(" track %2u recorded"),
-						current_track);
+						current_track_writing);
 				}
 #ifdef	USE_PARANOIA
 				oper = para_stat->readerrs + para_stat->skips +
@@ -2350,6 +2353,8 @@ do_write(p)
 				if (para_stat->readerrs || para_stat->c2badsecs) {
 					fprintf(outfp,
 						_(" with audible hard errors"));
+					fprintf(outfp,
+						_(" %u c2badsecs"), para_stat->c2badsecs);
 				} else if ((para_stat->skips) > 0) {
 					fprintf(outfp,
 						_(" with %sretry/skip errors"),
@@ -2478,7 +2483,7 @@ do_write(p)
 						snprintf(fname, sizeof (fname),
 							"%s_%02u.%s",
 							global.fname_base,
-							current_track+1,
+							current_track_writing+1,
 							audio_type);
 					} else {
 						snprintf(fname, sizeof (fname),
@@ -2489,13 +2494,13 @@ do_write(p)
 
 					OpenAudio(fname, rate, bits,
 						global.channels,
-						(Get_AudioStartSector(current_track+1) -
-						Get_AudioStartSector(current_track))
+						(Get_AudioStartSector(current_track_writing+1) -
+						Get_AudioStartSector(current_track_writing))
 						*CD_FRAMESIZE_RAW,
 						global.audio_out);
 				} /* global.nofile */
 			} /* if (bulk && SamplesToWrite > 0) */
-			current_track++;
+			current_track_writing++;
 
 		} /* left_in_track <= InSamples */
 		InSamples -= how_much;
@@ -2716,7 +2721,7 @@ paranoia_usage()
 	minoverlap=amt	set the min. number of sectors used for dynamic overlap.\n\
 	maxoverlap=amt	set the max. number of sectors used for dynamic overlap.\n\
 	c2check		check C2 pointers from drive to rate quality.\n\
-	proof		shortcut for minoverlap=20,retries=200,readahead=600.\n\
+	proof		alias: minoverlap=20,retries=200,readahead=600,c2check.\n\
 "),
 		stderr);
 	/* END CSTYLED */
@@ -2884,6 +2889,7 @@ handle_paranoia_opts(optstr, flagp)
 			global.paranoia_parms.mindynoverlap = -1;
 			global.paranoia_parms.retries = 200;
 			global.paranoia_parms.readahead = 600;
+#define	__should_we__
 #ifdef	__should_we__
 			/*
 			 * c2check may cause some drives to become unable
@@ -3608,7 +3614,8 @@ main(argc, argv)
 	if (global.user_sound_device[0] != '\0') {
 		set_snd_device(global.user_sound_device);
 	}
-	init_soundcard(rate, bits);
+	if (global.no_fork)
+		init_soundcard(rate, bits);
 #endif /* ECHO_TO_SOUNDCARD */
 
 	if (global.userspeed > -1)
@@ -3618,7 +3625,7 @@ main(argc, argv)
 		SelectSpeed(get_scsi_p(), global.speed);
 	}
 
-	current_track = track;
+	current_track_reading = current_track_writing = track;
 
 	if (!global.no_file) {
 		{
@@ -3637,7 +3644,7 @@ main(argc, argv)
 		cut_extension(global.fname_base);
 		if (bulk && global.multiname == 0) {
 			sprintf(fname, "%s_%02u.%s",
-				global.fname_base, current_track, audio_type);
+				global.fname_base, current_track_writing, audio_type);
 		} else {
 			sprintf(fname, "%s.%s", global.fname_base, audio_type);
 		}
@@ -3704,12 +3711,15 @@ main(argc, argv)
 			paranoia_mode &= ~PARANOIA_MODE_REPAIR;
 		}
 		if (global.paranoia_parms.enable_c2_check) {
-			if (ReadCddaFallbackMMC_C2 == NULL) {
+			/* test if we can read C2 with ReadCdRom_C2() */
+			char buffer[3000];
+			cdda_read_c2(get_scsi_p(), buffer, Get_StartSector(1), 1);
+			if (ReadCdRom_C2 == NULL) {
 				if (global.verbose)
 					fprintf(outfp, _("c2check not supported by drive.\n"));
 			} else {
 				if (global.verbose)
-					fprintf(outfp, _("using c2check in to verify reads.\n"));
+					fprintf(outfp, _("using c2check to verify reads.\n"));
 				paranoia_mode |= PARANOIA_MODE_C2CHECK;
 			}
 		}
@@ -3786,6 +3796,9 @@ main(argc, argv)
 	if (global.child_pid == 0) {
 		/* child WRITER section */
 
+#ifdef  ECHO_TO_SOUNDCARD
+		init_soundcard(rate, bits);
+#endif /* ECHO_TO_SOUNDCARD */
 #ifdef	HAVE_AREAS
 		/*
 		 * Under BeOS a fork() with shared memory does not work as
@@ -4033,7 +4046,7 @@ gargs(argc, argv)
 		/*
 		 * Make the version string similar for all cdrtools programs.
 		 */
-		printf(_("cdda2wav %s (%s-%s-%s) Copyright (C) 1993-2004 %s (C) 2004-2015 %s\n"),
+		printf(_("cdda2wav %s (%s-%s-%s) Copyright (C) 1993-2004,2015 %s (C) 2004-2015 %s\n"),
 					VERSION,
 					HOST_CPU, HOST_VENDOR, HOST_OS,
 					_("Heiko Eissfeldt"),

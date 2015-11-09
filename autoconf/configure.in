@@ -1,6 +1,6 @@
-dnl @(#)configure.in	1.261 15/07/06 Copyright 1998-2015 J. Schilling
+dnl @(#)configure.in	1.263 15/11/03 Copyright 1998-2015 J. Schilling
 dnl Process this file with autoconf to produce a configure script.
-AC_REVISION(1.261)dnl
+AC_REVISION(1.263)dnl
 
 dnl AC_INIT(xconfig.h.in)
 AC_INIT(config.guess)
@@ -197,7 +197,9 @@ AC_TYPE_CLOCK_T
 AC_TYPE_SOCKLEN_T
 AC_HAVE_TYPE([#include <sys/frame.h>], greg_t)
 AC_HAVE_TYPE([#include <sys/resource.h>], rlim_t)
-AC_HAVE_TYPE([#include <sys/wait.h>], idtype_t)
+dnl NetBSD-5 has an idtype_t that is in conflict with POSIX
+dnl AC_HAVE_TYPE([#include <sys/wait.h>], idtype_t)
+AC_TYPE_IDTYPE_T
 AC_HAVE_TYPE([#include <sys/wait.h>], siginfo_t)
 AC_TYPE_STACK_T
 AC_TYPE_SIGINFO_T
@@ -549,7 +551,7 @@ AC_CHECK_DFUNC([
 #include <termios.h>
 #endif
 ], tcsetattr)
-AC_CHECK_FUNCS(tcgetpgrp tcsetpgrp)
+AC_CHECK_FUNCS(tcgetpgrp tcsetpgrp tcgetsid)
 AC_CHECK_FUNCS(getenv putenv setenv unsetenv)
 AC_CHECK_FUNCS(snprintf strcasecmp strncasecmp)
 

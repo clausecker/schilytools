@@ -1,0 +1,114 @@
+This is a portable and reworked version of the SCCS source.
+
+SCCS is the most mature Revision Control System. This source is:
+
+-	Based on the original SCCS project that started in 1972 at Bell Labs.
+
+-	Including all Sun / Solaris extensions.
+
+-	Large file aware
+
+-	Allowing to selectively disable/enable expansion of specific SCCS
+	keywords (like 1.5, , ...).
+
+-	Correctly dealing with lockfiles even in a NFS based multi machine 
+	environment.
+
+-	Using gettext() for internationalized texts.
+
+-	Completely using a type clean set of function prototypes and external
+	variable definitions.
+
+-	Ported to and tested on all major OS platforms.
+
+To compile, just run "smake" (or Sun make or GNU make).
+
+The binaries by default install to /opt/schily/ccs/bin & /opt/schily/xpg4/bin
+"/opt/schily" is called "Installation Base" and may be controlled via the
+make macro INS_BASE.
+
+If you like to install SCCS to a different directory, you need to do 
+the following:
+
+If you like to install to e.g. /usr/sccs, call:
+
+	smake INS_BASE=/usr/sccs
+	smake INS_BASE=/usr/sccs install
+
+The binaries then are located in /usr/sccs/ccs/bin and /usr/sccs/xpg4/bin
+
+If you like to create binaries to incorporate into a standard UNIX distribution,
+call:
+
+	smake INS_BASE=/usr
+	smake INS_BASE=/usr install
+
+The binaries then are located in /usr/ccs/bin and /usr/xpg4/bin
+
+
+Note that you need to at least recompile sccs.c, delta.c, help.c and help2.c
+in case that you like to change the install directory. The other programs
+need to be recompiled too, in order to allow them to find their international
+string translation files, so is is a good idea to recompile everything:
+
+smake clean
+smake INS_BASE=/usr/sccs
+smake INS_BASE=/usr/sccs install
+
+or at least:
+
+rm cmd/sccs/cmd/*/OBJ/*/*.o
+smake INS_BASE=/usr/sccs
+smake INS_BASE=/usr/sccs install
+
+NOTE: If you are compiling using a K&R C-compiler and like to install
+to a different dir than /usr/ccs, you need to edit all *.c files in
+the directory cmd/sccs/cmd/src. Look for the comments tagged XXX for further
+help and edit all strings in the #else parts of #ifdef PROTOTYPES.
+Replace the "/usr" prefix with your intended install path.
+
+
+If you like to "install" to a different intermediate directory, call e.g.:
+
+smake install DESTDIR=/tmp
+
+If you like to use sccs, you need to add /opt/schily/ccs/bin to your PATH.
+
+If your PATH includes: ${INS_BASE}/xpg4/bin:${INS_BASE}/ccs/bin
+you will use the POSIX compliant variants of the SCCS tools.
+
+Further compile time options:
+
+SCCS implements the following compile time options that can be activated via
+
+	smake COPTX=-DXXX
+or
+	smake "COPTX=-DXXX -DYYY ..."
+
+where XXX is one of the following:
+
+BUG_1205145
+or
+GMT_TIME
+		This is a hacky compile time option introduced by Sun
+		between 1989 and 2006. It allows to store GMT based timestamps
+		in the SCCS history files instead of local time based timestamps.
+
+		Note that this compile option is deprecated since SCCS
+		started to support the SCCSv6 history format that stores
+		local time + GMT offset.
+
+		Future versions of SCCS may not support this anymore or
+		just stop compiling when the option is used.
+
+
+SCCS_FATALHELP
+		Print the equivalent of the "sccs help" command for failing commands
+		in addition to the historic short message that only includes the
+		SCCS error code.
+
+		This option is enabled by default.
+
+
+NO_NANOSECS
+		Do not include nanoseconds in the SCCSv6 time stamps.

@@ -37,7 +37,7 @@
 /*
  * This file contains modifications Copyright 2008-2015 J. Schilling
  *
- * @(#)mode.h	1.17 15/09/01 2008-2015 J. Schilling
+ * @(#)mode.h	1.19 15/10/24 2008-2015 J. Schilling
  */
 
 /*
@@ -99,13 +99,21 @@ typedef union
  * If you change it, have fun...
  */
 
+#ifdef	FBUF_BUFFERSIZE
+#define	BUFFERSIZE	FBUF_BUFFERSIZE
+#else
 #define	BUFFERSIZE	128
+#endif
 struct fileblk
 {
 	int	fdes;
 	unsigned flin;
 	BOOL	feof;
+#if BUFFERSIZE > 128
+	unsigned int	fsiz;
+#else
 	unsigned char	fsiz;
+#endif
 	unsigned char	*fnxt;
 	unsigned char	*fend;
 	off_t		nxtoff;		/* file offset */
@@ -283,6 +291,7 @@ struct optv
 	char	*optarg;
 };
 
+#define		treptr(x)	((struct trenod *)x)
 #define		fndptr(x)	((struct fndnod *)x)
 #define		comptr(x)	((struct comnod *)x)
 #define		forkptr(x)	((struct forknod *)x)

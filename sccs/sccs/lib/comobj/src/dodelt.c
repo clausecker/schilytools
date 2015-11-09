@@ -29,10 +29,10 @@
 /*
  * Copyright 2006-2015 J. Schilling
  *
- * @(#)dodelt.c	1.21 15/02/07 J. Schilling
+ * @(#)dodelt.c	1.22 15/10/14 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)dodelt.c 1.21 15/02/07 J. Schilling"
+#pragma ident "@(#)dodelt.c 1.22 15/10/14 J. Schilling"
 #endif
 /*
  * @(#)dodelt.c 1.8 06/12/12
@@ -72,8 +72,10 @@ char type;
 
 	dtime(&Timenow);
 	TN = Timenow.dt_sec;
+#if defined(BUG_1205145) || defined(GMT_TIME)
 	if (pkt->p_flags & PF_GMT)
 		TN += Timenow.dt_zone;
+#endif
 	stats_ab(pkt,statp);
 	lhash = pkt->p_clhash;
 	while (getadel(pkt,&dt) == BDELTAB) {

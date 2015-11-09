@@ -1,7 +1,7 @@
-/* @(#)cdda2wav.h	1.8 06/05/13 Copyright 1998,1999,2000 Heiko Eissfeldt, Copyright 2004-2006 J. Schilling */
+/* @(#)cdda2wav.h	1.9 15/10/19 Copyright 1998-2000,2015 Heiko Eissfeldt, Copyright 2004-2006 J. Schilling */
 /*
- * Copyright (C) by Heiko Eissfeldt
- * Copyright (c) 2004-2006 J. Schilling
+ * Copyright (C) 1998-2000,2015  Heiko Eissfeldt
+ * Copyright (c) 2004-2006       J. Schilling
  *
  * prototypes from cdda2wav.c
  */
@@ -12,6 +12,8 @@
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -46,7 +48,7 @@
 extern	void		FatalError	__PR((int err, const char *szMessage, ...));
 extern	void		AnalyzeQchannel	__PR((unsigned frame));
 extern	long		SamplesNeeded	__PR((long amount, long undersampling));
-extern	unsigned int	get_current_track __PR((void));
+extern	unsigned int	get_current_track_writing __PR((void));
 
 #if defined(sun) && !defined(SVR4)
 #define	atexit(f)	on_exit(f, 0)

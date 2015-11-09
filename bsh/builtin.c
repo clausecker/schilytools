@@ -1,8 +1,8 @@
-/* @(#)builtin.c	1.87 15/07/29 Copyright 1988-2015 J. Schilling */
+/* @(#)builtin.c	1.88 15/11/03 Copyright 1988-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)builtin.c	1.87 15/07/29 Copyright 1988-2015 J. Schilling";
+	"@(#)builtin.c	1.88 15/11/03 Copyright 1988-2015 J. Schilling";
 #endif
 /*
  *	Builtin commands
@@ -38,6 +38,7 @@ static	UConst char sccsid[] =
 #include <schily/unistd.h>
 #include <schily/stdlib.h>
 #include <schily/fcntl.h>
+#include <schily/termios.h>
 #include <schily/utypes.h>
 #include <schily/getargs.h>
 #include <schily/time.h>
@@ -1085,9 +1086,32 @@ bpgrp(vp, std, flag)
 	} else if (vp->av_ac == 1) {
 		lp = mypid;
 
+#ifdef	TIOCGPGRP
+		/*
+		 * Prefer the ioctl() as the POSIX function tcgetpgrp() limits
+		 * access in a way that we cannot accept.
+		 */
+	        if (ioctl(fdown(std[0]), TIOCGPGRP, (char *)&pgrp) < 0)
+                	pgrp = -1;
+#else
 		pgrp = tty_getpgrp(fdown(std[0]));
+#endif
+#if	defined(HAVE_GETSID) && defined(HAVE_TCGETSID)
+#ifdef	TIOCGSID
+		/*
+		 * Prefer the ioctl() as the POSIX function tcgetsid() limits
+		 * access in a way that we cannot accept.
+		 */
+	        if (ioctl(fdown(std[0]), TIOCGSID, (char *)&sgrp) < 0)
+                	sgrp = -1;
+#else
+		sgrp = tcgetsid(fdown(std[0]));
+#endif
+		fprintf(std[1], "ttyprocessgroup: %ld ttysessiongroup %ld\n",
+				(long)pgrp, (long)sgrp);
+#else
 		fprintf(std[1], "ttyprocessgroup: %ld\n", (long)pgrp);
-
+#endif
 	} else if (!tolong(std, vp->av_av[1], &lp))
 		return;
 	p = lp;

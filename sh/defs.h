@@ -39,7 +39,7 @@
 /*
  * Copyright 2008-2015 J. Schilling
  *
- * @(#)defs.h	1.122 15/09/16 2008-2015 J. Schilling
+ * @(#)defs.h	1.123 15/11/03 2008-2015 J. Schilling
  */
 
 #ifdef	__cplusplus
@@ -83,6 +83,7 @@ extern "C" {
 #define		FAMP		0x0400	/* Forked because of "cmd &"	*/
 #define		COMMSK		0x00F0	/* Node type mask, see below	*/
 #define		CNTMSK		0x000F	/* Count mask - no longer used	*/
+#define		IOFMSK		0x000F	/* I/O fd# mask for pipes	*/
 
 #define		TCOM		0x0000	/* some kind of command node 	*/
 #define		TPAR		0x0010	/* "()" parentized cmd node	*/
@@ -601,6 +602,7 @@ extern	void	itos		__PR((int n));
 extern	void	sitos		__PR((int n));
 extern	int	stoi		__PR((unsigned char *icp));
 extern	int	stosi		__PR((unsigned char *icp));
+extern	int	sltos		__PR((long n));
 extern	int	ltos		__PR((long n));
 
 extern	void	flushb		__PR((void));

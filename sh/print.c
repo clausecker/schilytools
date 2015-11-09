@@ -36,14 +36,14 @@
 /*
  * This file contains modifications Copyright 2008-2015 J. Schilling
  *
- * @(#)print.c	1.29 15/08/16 2008-2015 J. Schilling
+ * @(#)print.c	1.30 15/11/03 2008-2015 J. Schilling
  */
 #ifdef	SCHILY_INCLUDES
 #include <schily/mconfig.h>
 #endif
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)print.c	1.29 15/08/16 2008-2015 J. Schilling";
+	"@(#)print.c	1.30 15/11/03 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -330,6 +330,23 @@ stosi(icp)
 		icp++;
 	}
 	return (sign * stoi(icp));
+}
+
+/*
+ * Convert signed long
+ */
+int
+sltos(n)
+	long	n;
+{
+	if (n < 0) {
+		int i;
+
+		i = ltos(-n);
+		numbuf[--i] = '-';
+		return (i);
+	}
+	return (ltos(n));
 }
 
 int

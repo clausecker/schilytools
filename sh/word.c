@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2015 J. Schilling
  *
- * @(#)word.c	1.47 15/08/29 2008-2015 J. Schilling
+ * @(#)word.c	1.48 15/09/17 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)word.c	1.47 15/08/29 2008-2015 J. Schilling";
+	"@(#)word.c	1.48 15/09/17 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -493,8 +493,8 @@ readwc()
 	wchar_t	c;
 	int	len;
 	struct fileblk	*f;
-	int	mbmax = MB_CUR_MAX;
-	int	i, mlen = 0;
+	int	mbmax;
+	int	i, mlen;
 
 	if (peekn) {
 		c = peekn & 0x7fffffff;
@@ -513,7 +513,8 @@ retry:
 		/*
 		 * something in buffer
 		 */
-		if (*f->fnxt == 0) {
+		c = (unsigned char)*f->fnxt;
+		if (c == 0) {
 			f->fnxt++;
 			f->nxtoff++;
 			if (f->feval == 0)
@@ -522,17 +523,17 @@ retry:
 				c = EOF;
 			else
 				c = SPACE;
-			if (flags & readpr && standin->fstak == 0)
+			if ((flags & readpr) && standin->fstak == 0)
 				prc(c);
 			if (c == NL)
 				f->flin++;
 			return (c);
 		}
 
-		if (isascii(c = (unsigned char)*f->fnxt)) {
+		if (isascii(c)) {
 			f->fnxt++;
 			f->nxtoff++;
-			if (flags & readpr && standin->fstak == 0)
+			if ((flags & readpr) && standin->fstak == 0)
 				prc(c);
 			if (c == NL)
 				f->flin++;
@@ -540,6 +541,8 @@ retry:
 		}
 
 		(void) mbtowc(NULL, NULL, 0);
+		mbmax = MB_CUR_MAX;
+		mlen = 0;
 		for (i = 1; i <= mbmax; i++) {
 			int	rest;
 			if ((rest = f->fend - f->fnxt) < i) {
@@ -572,7 +575,7 @@ retry:
 
 		f->fnxt += mlen;
 		f->nxtoff += mlen;
-		if (flags & readpr && standin->fstak == 0)
+		if ((flags & readpr) && standin->fstak == 0)
 			prwc(c);
 		if (c == NL)
 			f->flin++;

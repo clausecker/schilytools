@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sh.1	1.114 15/09/16 Copyright 2012-2015 J. Schilling
+.\" @(#)sh.1	1.122 15/10/14 Copyright 2012-2015 J. Schilling
 .\" Copyright 1989 AT&T
 .\" Copyright (c) 2008, Sun Microsystems, Inc. All Rights Reserved.
 .\" Portions Copyright (c) 1992, X/Open Company Limited All Rights Reserved
@@ -59,7 +59,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sh 1 "2015/09/16" "Schily Bourne Shell" "User Commands"
+.TH sh 1 "2015/10/14" "Schily Bourne Shell" "User Commands"
 .SH NAME
 sh, jsh \- standard and job control shell and command interpreter
 .SH SYNOPSIS
@@ -1029,7 +1029,7 @@ _
 _
 \fB${\fIparameter\fB:+\fIword\fB}\fRsubst. \fIword\fRsubst. nullsubst. null
 _
-\fB${\fIparameter\fB+\fIword\fB}\fRsubsti. \fIword\fRsubst. \fIword\fRsubst. null
+\fB${\fIparameter\fB+\fIword\fB}\fRsubst. \fIword\fRsubst. \fIword\fRsubst. null
 _
 .TE
 .LP
@@ -1584,6 +1584,11 @@ or
 .B cd .
 before depending on the content of
 .BR PWD .
+.sp
+The variable
+.B PWD
+was not supported in older versions of
+.BR sh .
 
 .br
 .ne 3
@@ -5469,6 +5474,15 @@ The following commands allow to edit a command line:
 .TP 10
 .B ^H
 Move cursor one character to the left.
+.sp
+.B Warning:
+On terminals that offer a large backspace key for deleting characters,
+.B ^H
+does not work directly as it is mapped to
+.BR DEL .
+Use the
+.B Cursor left
+key instead in such a case.
 .TP
 .B ^F
 Move cursor one character to the right.
@@ -5568,6 +5582,13 @@ A mapping may be prevented by typing the map quote character which is the
 character
 .RB ( ^@ ),
 directly before the matching text is entered.
+If this text is usually interpreted by the history editor, you first need to
+type the history editing quoting character
+.BR ^^ .
+To be sure that you are able to literarily enter some text, type
+.BR ^^^@
+.RB ( "control up-arrow" " followed by " "Nul" " and the text).
+
 .LP
 At startup (directly before the first shell command prompt is shown),
 the command line history editor first tries to initialize the
@@ -5577,14 +5598,99 @@ terminal setup using the variables
 .B TERMCAP
 and
 .BR TERMPATH .
-Then it tries to read the file
-.B $HOME/.bshmap
-to retrieve additional mappings.
 .LP
 If
 .B TERM
 is not set, the mapper establishes standard mappings for the cursor keys
 assuming an ANSI-compatible terminal.
+.LP
+.B TERM
+is set, the mapper establishes mappings for the following
+.B termcap
+capabilities:
+.TP
+.PD
+.B ku
+.BR "Key cursor up" ,
+mapped to
+.BR ^P .
+.br
+The previous command line from the history is displayed.
+.TP
+.B kd
+.BR "Key cursor down" ,
+mapped to
+.BR ^N .
+.br
+The next command line from the history is displayed.
+.TP
+.B kr
+.BR "Key cursor forward (right)" ,
+mapped to
+.BR ^F .
+.br
+Move cursor one character to the right.
+.TP
+.B kl
+.BR "Key cursor left" ,
+mapped to
+.BR ^H .
+.br
+Move cursor one character to the left.
+.TP
+.B kh
+.BR "Key cursor -> Home" ,
+mapped to
+.BR ^A .
+.br
+The Cursor is moved to the beginning of the current command line.
+.TP
+.B @7
+.BR "Key cursor -> End" ,
+mapped to
+.BR ^E .
+.br
+The Cursor is moved to the end of the current command line.
+.TP
+.B kD
+.BR "Key Delete Character" ,
+mapped to
+.BR \e177 " (" DEL ).
+.br
+Erase one character to the left of the cursor.
+.TP
+.B kb
+.BR "Key Backspace" ,
+mapped to
+.BR \e177 " (" DEL ).
+.br
+Erase one character to the left of the cursor.
+.sp
+Note that the
+.B Backspace Key
+is the larger key that is just above the
+.BR "Carriage Return Key" .
+In former times, this key was called
+.B Delete
+and send the 
+.BR \e177 " (" DEL )
+character.
+Since companies followed the design of the IBM PC keyboard layout,
+the related key usually sends
+.BR \e010 .
+If you like to literarily enter a backspace into the command line, type
+.BR ^^^@^H
+.RB ( "control up-arrow" " followed by " "Nul"
+.RB "followed by " ^H ).
+.PD
+
+.LP
+After the mappings from the
+.B termcap
+entry for the current terminal type
+have been established, the shell tries to read the file
+.B $HOME/.bshmap
+to retrieve additional mappings.
 .LP
 Each line in the file
 .B $HOME/.bshmap
@@ -6176,7 +6282,7 @@ In previous versions, this affected the shell itself for any builtin command.
 With this version of the Bourne Shell, only special builtin commands may
 terminate the whole shell in case that shell is not an interactive shell.
 In previous versions, all builtin commands could terminate a non-ineractive
-shell if a syntax error or a fatal error was encountered.
+shell if a utility syntax error or a fatal utility error was encountered.
 .TP
 .B times
 The output of the
@@ -6200,7 +6306,7 @@ and then use a POSIX compliant parser.
 .SH AUTHORS
 The
 .B Bourne Shell
-was origininally written by Stephen Richard Bourne at Bell Labs in 1977.
+was initially written by Stephen Richard Bourne at Bell Labs in 1976.
 The SVr4 release was written by various authors at AT&T in 1989.
 The
 .B Bourne Shell
@@ -6241,3 +6347,7 @@ The download directory is:
 .LP
 .B
     http://sourceforge.net/projects/schilytools/files/
+.LP
+Check for the
+.B schily\-*.tar.bz2
+archives.

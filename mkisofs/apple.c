@@ -1,12 +1,12 @@
-/* @(#)apple.c	1.44 14/01/19 joerg, Copyright 1997, 1998, 1999, 2000 James Pearson, Copyright 2000-2014 J. Schilling */
+/* @(#)apple.c	1.45 15/09/20 joerg, Copyright 1997, 1998, 1999, 2000 James Pearson, Copyright 2000-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)apple.c	1.44 14/01/19 joerg, Copyright 1997, 1998, 1999, 2000 James Pearson, Copyright 2000-2014 J. Schilling";
+	"@(#)apple.c	1.45 15/09/20 joerg, Copyright 1997, 1998, 1999, 2000 James Pearson, Copyright 2000-2015 J. Schilling";
 #endif
 /*
  *      Copyright (c) 1997, 1998, 1999, 2000 James Pearson
- *	Copyright (c) 2000-2014 J. Schilling
+ *	Copyright (c) 2000-2015 J. Schilling
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -756,11 +756,11 @@ get_es_info(hname, dname, s_entry, ret)
 		set_Finfo(uinfo->finderinfo, hfs_ent);
 
 		/* set create and modified date - if they exist */
-		if (uinfo->ctime)
+		if (d_getl(uinfo->ctime))
 			hfs_ent->crdate =
 				d_getl(uinfo->ctime);
 
-		if (uinfo->mtime)
+		if (d_getl(uinfo->mtime))
 			hfs_ent->mddate =
 				d_getl(uinfo->mtime);
 	} else {

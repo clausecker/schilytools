@@ -1,5 +1,5 @@
 '\" t
-.\" @(#)cdda2wav.1	1.59 14/03/03 Copyright 1998,1999,2000 Heiko Eissfeldt, Copyright 2004-2013 J. Schilling
+.\" @(#)cdda2wav.1	1.61 15/11/03 Copyright 1998,1999,2000 Heiko Eissfeldt, Copyright 2004-2015 J. Schilling
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
 .if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
 .if t .ds u \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'u
@@ -14,7 +14,7 @@
 .if n .ds s sz
 .if t .ds m \\(*m
 .if n .ds m micro
-.TH CDDA2WAV 1 "Version 3.0"
+.TH CDDA2WAV 1 "Version 3.02 2015/11/03"
 .SH NAME
 cdda2wav \- dumps CD audio data into sound files with extra data verification
 .SH SYNOPSIS
@@ -95,7 +95,9 @@ The
 parameter to the
 .B dev=
 option
-explained below refers to
+explained below refers to the
+.B SCSI\ CAM
+standard notation for
 .IR scsibus / target / lun
 of the CD/DVD/BluRay-Recorder.
 If a file /etc/default/cdrecord exists, the parameter to the
@@ -1699,7 +1701,7 @@ D-13353 Berlin
 Germany
 .fi
 .SH DATE
-2014/03/03
+2015/11/03
 .br
 .ne 7
 .SH "INTERFACE STABILITY

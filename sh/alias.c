@@ -1,7 +1,7 @@
-/* @(#)alias.c	1.7 15/09/11 Copyright 1986-2015 J. Schilling */
+/* @(#)alias.c	1.8 15/10/23 Copyright 1986-2015 J. Schilling */
 #include <schily/mconfig.h>
 static	UConst char sccsid[] =
-	"@(#)alias.c	1.7 15/09/11 Copyright 1986-2015 J. Schilling";
+	"@(#)alias.c	1.8 15/10/23 Copyright 1986-2015 J. Schilling";
 /*
  *	The built-in commands "alias" and "unalias".
  *
@@ -129,6 +129,9 @@ err:
 		return;
 	}
 	if (c >= argc) {
+		/*
+		 * Just list everysthing, never fail.
+		 */
 		ab_dump(tab, 1, lflags | pflags);
 		return;
 	}
@@ -140,16 +143,24 @@ err:
 		if (val) {
 			*val++ = '\0';
 			if (pflag || (doglobal == 0 && dolocal == 0)) {
-				ab_push(tab,
-					(char *)make(a1), (char *)make(val),
-					aflags);
+				if (!ab_push(tab,
+						(char *)make(a1),
+						(char *)make(val),
+						aflags)) {
+					failure(a1, "cannot push alias");
+				}
+
 			} else {
-				ab_insert(tab,
-					(char *)make(a1), (char *)make(val),
-					aflags);
+				if (!ab_insert(tab,
+						(char *)make(a1),
+						(char *)make(val),
+						aflags)) {
+					failure(a1, "cannot define alias");
+				}
 			}
 		} else {
-			ab_list(tab, (char *)a1, 1, lflags | pflags);
+			if (!ab_list(tab, (char *)a1, 1, lflags | pflags))
+				failure(a1, "alias not found");
 		}
 	}
 }
@@ -227,10 +238,14 @@ err:
 		return;
 	}
 	for (; c < argc; c++) {
+		BOOL	r;
+
 		a1 = argv[c];
 		if (pflag || (doglobal == 0 && dolocal == 0))
-			ab_delete(tab, (char *)a1, AB_POP | AB_POPALL);
+			r = ab_delete(tab, (char *)a1, AB_POP | AB_POPALL);
 		else
-			ab_delete(tab, (char *)a1, 0);
+			r = ab_delete(tab, (char *)a1, 0);
+		if (!r)
+			failure(a1, "alias not found");
 	}
 }

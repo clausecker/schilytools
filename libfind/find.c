@@ -1,9 +1,9 @@
 /*#define	PLUS_DEBUG*/
-/* @(#)find.c	1.101 15/09/12 Copyright 2004-2015 J. Schilling */
+/* @(#)find.c	1.102 15/10/27 Copyright 2004-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)find.c	1.101 15/09/12 Copyright 2004-2015 J. Schilling";
+	"@(#)find.c	1.102 15/10/27 Copyright 2004-2015 J. Schilling";
 #endif
 /*
  *	Another find implementation...
@@ -148,6 +148,7 @@ LOCAL struct plusargs *plusp;		/* Avoid PLUS_DEBUG if possible	*/
 
 extern	time_t	find_sixmonth;		/* 6 months before limit (ls)	*/
 extern	time_t	find_now;		/* now limit (ls)		*/
+LOCAL	time_t	find_xnow;		/* The exact start time		*/
 
 LOCAL	findn_t	Printnode = { 0, 0, 0, PRINT };
 
@@ -226,6 +227,7 @@ EXPORT void
 find_timeinit(now)
 	time_t	now;
 {
+	find_xnow	= now;
 	find_now	= now + 60;
 	find_sixmonth	= now - 6L*30L*24L*60L*60L;
 }
@@ -1547,20 +1549,20 @@ find_expr(f, ff, fs, state, t)
 
 		switch (*(t->left)) {
 		case '+':
-			return ((find_now-xtime)/DAYSECS >  t->val.time);
+			return ((find_xnow-xtime)/DAYSECS >  t->val.time);
 		case '-':
-			return ((find_now-xtime)/DAYSECS <  t->val.time);
+			return ((find_xnow-xtime)/DAYSECS <  t->val.time);
 		default:
-			return ((find_now-xtime)/DAYSECS == t->val.time);
+			return ((find_xnow-xtime)/DAYSECS == t->val.time);
 		}
 	timex:
 		switch (*(t->left)) {
 		case '+':
-			return ((find_now-xtime) >  t->val.time);
+			return ((find_xnow-xtime) >  t->val.time);
 		case '-':
-			return ((find_now-xtime) <  t->val.time);
+			return ((find_xnow-xtime) <  t->val.time);
 		default:
-			return ((find_now-xtime) == t->val.time);
+			return ((find_xnow-xtime) == t->val.time);
 		}
 
 	case NEWERAA:

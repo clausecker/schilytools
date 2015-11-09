@@ -1,4 +1,4 @@
-dnl @(#)aclocal.m4	1.104 15/09/05 Copyright 1998-2015 J. Schilling
+dnl @(#)aclocal.m4	1.105 15/09/18 Copyright 1998-2015 J. Schilling
 
 dnl Set VARIABLE to VALUE in C-string form, verbatim, or 1.
 dnl AC_DEFINE_STRING(VARIABLE [, VALUE])
@@ -1496,6 +1496,23 @@ AC_DEFUN([AC_TYPE_SIGINFO_T],
                                 [ac_cv_siginfo_t=no])])
 if test $ac_cv_siginfo_t = yes; then
   AC_DEFINE(HAVE_SIGINFO_T)
+fi])
+
+dnl Checks for type idtype_t
+dnl Defines HAVE_TYPE_IDTYPE_T on success.
+AC_DEFUN([AC_TYPE_IDTYPE_T],
+[AC_CACHE_CHECK([if idtype_t is declared correctly in wait.h], ac_cv_have_type_idtype_t,
+                [AC_TRY_COMPILE([
+#if	defined(HAVE_WAIT_H)
+#	include <wait.h>
+#else
+#include <sys/wait.h>
+#endif],
+                                [idtype_t idt; idt = P_ALL; idt = P_PGID; idt = P_PID; exit (idt == P_PID);],
+                                [ac_cv_have_type_idtype_t=yes],
+                                [ac_cv_have_type_idtype_t=no])])
+if test $ac_cv_have_type_idtype_t = yes; then
+  AC_DEFINE(HAVE_TYPE_IDTYPE_T)
 fi])
 
 dnl Checks for type struct sockaddr_storage

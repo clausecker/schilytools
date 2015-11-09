@@ -1,4 +1,4 @@
-.\" @(#)sccs-cvt.1	1.14 15/01/21 Copyright 2011-2015 J. Schilling
+.\" @(#)sccs-cvt.1	1.15 15/10/19 Copyright 2011-2015 J. Schilling
 .\" Manual page for sccs-cvt
 .\"
 .\" The contents of this file are subject to the terms of the
@@ -25,7 +25,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sccs-cvt 1 "2015/01/21" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH sccs-cvt 1 "2015/10/19" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 sccs-cvt, sccscvt \- convert SCCS history files between v4/v6
 .SH SYNOPSIS
@@ -36,22 +36,35 @@ sccscvt
 .SH DESCRIPTION
 .B Sccscvt
 converts
-.B SCCS v4
+.B SCCS\ v4
 history files (as introduced in February 1977) into
-.B SCCS v6
+.B SCCS\ v6
 history files (as introduced in August 2011) and vice versa.
 .LP
 The first line, containing the SCCS magic number and the checksum is converted
 to the format that is appropriate. The time format in the delta table is
-converted by either removing the SCCS v6 extensions or by adding time zone
+converted by either removing the
+.B SCCS\ v6
+extensions or by adding time zone
 information by assuming that all time stamps are from the local time zone. When
-converting from SCCS v6 to SCCs v4, the enhanced time stamp data is retained as
+converting from
+.B SCCS\ v6
+to
+.BR "SCCS\ v4" ,
+the enhanced time stamp data is retained as
 the first delta comment line in a delta block.
 .LP
-SID specific SCCS v6 enhancements are converted into special delta comment to 
-prevent information loss when converting to SCCS v4.
+SID specific
+.B SCCS\ v6
+enhancements are converted into special delta comment to 
+prevent information loss when converting to
+.BR "SCCS\ v4" .
 .LP
-The SCCS v6 enhancements that are between the SCCS v4 flags indicated by
+The
+.B SCCS\ v6
+enhancements that are between the
+.B SCCS\ v4
+flags indicated by
 .B ^Af
 and the SCCS comment block that is bracketed between
 .B ^At
@@ -68,8 +81,13 @@ for file names that start with ``s.'' and examines all these files.
 .LP
 .TP
 .B \-d
-When converting from SCCS v6 to SCCS v4,
-discard the extended SCCS v6 meta data instead of converting it into special
+When converting from
+.B SCCS\ v6
+to
+.BR "SCCS\ v4" ,
+discard the extended
+.B SCCS\ v6
+meta data instead of converting it into special
 degenerated delta comments.
 .TP
 .B \-k
@@ -82,16 +100,16 @@ converted file.
 .TP
 .B \-V4
 Convert a
-.B SCCS v6
+.B SCCS\ v6
 history file into a
-.B SCCS v4
+.B SCCS\ v4
 history file.
 .TP
 .B \-V6
 Convert a
-.B SCCS v4
+.B SCCS\ v4
 history file into a
-.B SCCS v6
+.B SCCS\ v6
 history file.
 .TP
 .B \-help
@@ -136,6 +154,15 @@ of SCCS commands should set the environment variable
 .B SCCS_NO_HELP
 and set
 .BR LC_ALL=C .
+
+.br
+.ne 4
+.TP
+.B TZ
+Used for the timezone when converting between
+.B SCCS\ v4
+and
+.BR "SCCS\ v6" .
 
 .SH EXIT STATUS
 .sp
@@ -214,8 +241,14 @@ followed by the host name
 
 .SH DIAGNOSTICS
 .SH NOTES
-If a SCCS history file is converted from SCCS v4 to SCCS v6 and there is no
-retained SCCS v6 timestamp information in the delta comment, it may be a good
+If a SCCS history file is converted from
+.B SCCS\ v4
+to
+.B SCCS\ v6
+and there is no
+retained
+.B SCCS\ v6
+timestamp information in the delta comment, it may be a good
 idea to manually correct time zone information.
 .SH BUGS
 .SH AUTHOR

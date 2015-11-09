@@ -27,10 +27,10 @@
 /*
  * Copyright 2006-2015 J. Schilling
  *
- * @(#)prs.c	1.46 15/02/23 J. Schilling
+ * @(#)prs.c	1.48 15/10/14 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)prs.c 1.46 15/02/23 J. Schilling"
+#pragma ident "@(#)prs.c 1.48 15/10/14 J. Schilling"
 #endif
 /*
  * @(#)prs.c 1.33 06/12/12
@@ -1433,12 +1433,14 @@ time_t	*bdate;
 #if defined(BUG_1205145) || defined(GMT_TIME)
 	Dtime = localtime(&dt->d_dtime.dt_sec);
 	/*
-	Local time corrections before del_ba() and date_ba() calls.
-	Because these functions use gmtime() instead of localtime().
-	*/
+	 * Local time corrections before del_ba() and date_ba() calls.
+	 * Because these functions use gmtime() instead of localtime().
+	 * This allows to print the local time for the :Dt: keywd instead
+	 * of the GMT based time from the s-file.
+	 */
 	dt->d_dtime.dt_sec = mklgmtime(Dtime);
 
-	del_ba(dt, dt_line);				/* create delta table line for :Dt: keywd */
+	del_ba(dt, dt_line, pkt->p_flags|PF_GMT);	/* create delta table line for :Dt: keywd */
 	date_ba(&dt->d_dtime.dt_sec,Deltadate, 0);
 	date_bal(&dt->d_dtime.dt_sec,Deltadatel, 0);
 #else

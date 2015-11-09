@@ -1,4 +1,4 @@
-/* @(#)xconfig.h.in	1.248 15/07/06 Copyright 1998-2015 J. Schilling */
+/* @(#)xconfig.h.in	1.249 15/11/03 Copyright 1998-2015 J. Schilling */
 /*
  *	Dynamic autoconf C-include code.
  *	Do not edit, this file has been created automatically.
@@ -317,6 +317,7 @@
 #undef HAVE_TCSETATTR		/* tcsetattr() is present in libc */
 #undef HAVE_TCGETPGRP		/* tcgetpgrp() is present in libc */
 #undef HAVE_TCSETPGRP		/* tcsetpgrp() is present in libc */
+#undef HAVE_TCGETSID		/* tcgetsid() is present in libc */
 #undef HAVE_WAIT		/* wait() is present in libc */
 #undef HAVE_WAIT3		/* working wait3() is present in libc */
 #undef HAVE_WAIT4		/* wait4() is present in libc */

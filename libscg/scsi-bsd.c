@@ -1,7 +1,7 @@
-/* @(#)scsi-bsd.c	1.52 11/01/01 Copyright 1997-2011 J. Schilling */
+/* @(#)scsi-bsd.c	1.53 15/10/08 Copyright 1997-2015 J. Schilling */
 #ifndef lint
 static	char __sccsid[] =
-	"@(#)scsi-bsd.c	1.52 11/01/01 Copyright 1997-2011 J. Schilling";
+	"@(#)scsi-bsd.c	1.53 15/10/08 Copyright 1997-2015 J. Schilling";
 #endif
 /*
  *	Interface for the NetBSD/FreeBSD/OpenBSD generic SCSI implementation.
@@ -18,7 +18,7 @@ static	char __sccsid[] =
  *	Choose your name instead of "schily" and make clear that the version
  *	string is related to a modified source.
  *
- *	Copyright (c) 1997-2011 J. Schilling
+ *	Copyright (c) 1997-2015 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -27,6 +27,8 @@ static	char __sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * The following exceptions apply:
  * CDDL §3.6 needs to be replaced by: "You may create a Larger Work by
@@ -57,7 +59,7 @@ static	char __sccsid[] =
  *	Choose your name instead of "schily" and make clear that the version
  *	string is related to a modified source.
  */
-LOCAL	char	_scg_trans_version[] = "scsi-bsd.c-1.52";	/* The version for this transport*/
+LOCAL	char	_scg_trans_version[] = "scsi-bsd.c-1.53";	/* The version for this transport*/
 
 #define	MAX_SCG		32	/* Max # of SCSI controllers */
 #define	MAX_TGT		16
@@ -134,7 +136,11 @@ scgo_help(scgp, f)
 	FILE	*f;
 {
 	__scg_help(f, "SCIOCCOMMAND", "SCSI for devices known by *BSD",
+#if	defined(__OpenBSD__)
+		"", "device or bus,target,lun", "/dev/rcd0c:@ or 1,2,0", FALSE, TRUE);
+#else
 		"", "device or bus,target,lun", "/dev/rcd0a:@ or 1,2,0", FALSE, TRUE);
+#endif
 	return (0);
 }
 
@@ -228,8 +234,8 @@ scgo_open(scgp, device)
 					return (1);
 				}
 			} else {
-#if	defined(__OpenBSD__) && defined(ENOMEDIUM)
-				if (errno == ENOMEDIUM && myslicename < 16) {
+#if	defined(__OpenBSD__) && defined(ENOMEDIUM) && defined(ENXIO)
+				if ((errno == ENOMEDIUM || errno == ENXIO) && myslicename < 16) {
 					myslicename = getslice(l);
 					goto nextslice1;
 				}
@@ -258,8 +264,8 @@ scgo_open(scgp, device)
 			if (scg_setup(scgp, f, busno, tgt, tlun))
 				nopen++;
 		} else {
-#if	defined(__OpenBSD__) && defined(ENOMEDIUM)
-			if (errno == ENOMEDIUM && myslicename < 16) {
+#if	defined(__OpenBSD__) && defined(ENOMEDIUM) && defined(ENXIO)
+			if ((errno == ENOMEDIUM || errno == ENXIO) && myslicename < 16) {
 				myslicename = getslice(l);
 				goto nextslice2;
 			}
@@ -701,7 +707,7 @@ scgo_send(scgp)
  *	Choose your name instead of "schily" and make clear that the version
  *	string is related to a modified source.
  */
-LOCAL	char	_scg_trans_version[] = "scsi-bsd.c-1.52";	/* The version for this transport*/
+LOCAL	char	_scg_trans_version[] = "scsi-bsd.c-1.53";	/* The version for this transport*/
 
 #define	CAM_MAXDEVS	128
 struct scg_local {

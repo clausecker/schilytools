@@ -1,4 +1,4 @@
-#ident "@(#)Makefile	1.89 15/09/16  Copyright (c) 2006-2015 J. Schilling"
+#ident "@(#)Makefile	1.90 15/10/24  Copyright (c) 2006-2015 J. Schilling"
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -48,6 +48,7 @@ CPPOPTS +=	-DDO_GETOPT_LONGONLY	# Include support for getopts "?900?(lo)"
 CPPOPTS +=	-DDO_POSIX_FOR		# Support for i; do .... with semicolon
 CPPOPTS +=	-DDO_POSIX_TYPE		# Report keywords as well
 CPPOPTS +=	-DDO_PIPE_SEMI_SYNTAX_E	# Report a syntax error for "echo foo |;"
+CPPOPTS +=	-DDO_PIPE_SYNTAX_E	# Report a syntax error for "echo foo |"
 CPPOPTS +=	-DDO_READ_ALLEXPORT	# Bugfix for set -a; read VAR
 CPPOPTS +=	-DDO_O_APPEND		# Support O_APPEND instead of lseek() for >>
 CPPOPTS +=	-DDO_EXPAND_DIRSLASH	# Expand dir*/ to dir/

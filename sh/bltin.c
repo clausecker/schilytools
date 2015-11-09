@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2015 J. Schilling
  *
- * @(#)bltin.c	1.70 15/09/14 2008-2015 J. Schilling
+ * @(#)bltin.c	1.71 15/09/21 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)bltin.c	1.70 15/09/14 2008-2015 J. Schilling";
+	"@(#)bltin.c	1.71 15/09/21 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -107,7 +107,7 @@ struct trenod *t;
 		sysjobs(argc, argv);
 		break;
 
-	case SYSDOT:
+	case SYSDOT:			/* POSIX special builtin */
 		if (a1) {
 			int	f;
 
@@ -118,7 +118,7 @@ struct trenod *t;
 		}
 		break;
 
-	case SYSTIMES:
+	case SYSTIMES:			/* POSIX special builtin */
 		{
 			struct rusage	ru;
 
@@ -135,7 +135,7 @@ struct trenod *t;
 		}
 		break;
 
-	case SYSEXIT:
+	case SYSEXIT:			/* POSIX special builtin */
 		if (tried_to_exit++ || endjobs(JOB_STOPPED)) {
 			flags |= forcexit;	/* force exit */
 #ifdef	DO_SIGNED_EXIT
@@ -146,10 +146,10 @@ struct trenod *t;
 		}
 		break;
 
-	case SYSNULL:
+	case SYSNULL:			/* POSIX special builtin */
 		break;
 
-	case SYSCONT:
+	case SYSCONT:			/* POSIX special builtin */
 		if (loopcnt) {
 			execbrk = breakcnt = 1;
 			if (a1)
@@ -161,7 +161,7 @@ struct trenod *t;
 		}
 		break;
 
-	case SYSBREAK:
+	case SYSBREAK:			/* POSIX special builtin */
 		if (loopcnt) {
 			execbrk = breakcnt = 1;
 			if (a1)
@@ -171,11 +171,11 @@ struct trenod *t;
 		}
 		break;
 
-	case SYSTRAP:
+	case SYSTRAP:			/* POSIX special builtin */
 		systrap(argc, (char **)argv);
 		break;
 
-	case SYSEXEC:
+	case SYSEXEC:			/* POSIX special builtin */
 		argv++;
 		ioset = 0;
 		if (a1 == 0) {
@@ -388,7 +388,7 @@ struct trenod *t;
 		}
 		break;
 
-	case SYSSHFT:
+	case SYSSHFT:			/* POSIX special builtin */
 		{
 			int places;
 
@@ -417,7 +417,7 @@ struct trenod *t;
 		rwait = 0;
 		break;
 
-	case SYSSET:
+	case SYSSET:			/* POSIX special builtin */
 		if (a1) {
 			int	cnt;
 
@@ -432,7 +432,7 @@ struct trenod *t;
 		}
 		break;
 
-	case SYSRDONLY:
+	case SYSRDONLY:			/* POSIX special builtin */
 		if (a1) {
 #ifdef	DO_POSIX_EXPORT
 			if (eq(a1, "-p")) {
@@ -454,7 +454,7 @@ struct trenod *t;
 		}
 		break;
 
-	case SYSXPORT:
+	case SYSXPORT:			/* POSIX special builtin */
 		{
 			struct namnod	*n;
 
@@ -484,7 +484,7 @@ struct trenod *t;
 		}
 		break;
 
-	case SYSEVAL:
+	case SYSEVAL:			/* POSIX special builtin */
 		if (a1)
 			execexp(a1, (Intptr_t)&argv[2]);
 		break;
@@ -620,7 +620,7 @@ struct trenod *t;
 		cwdprint();
 		break;
 
-	case SYSRETURN:
+	case SYSRETURN:			/* POSIX special builtin */
 		if (funcnt == 0)
 			error(badreturn);
 
@@ -660,7 +660,7 @@ struct trenod *t;
 		}
 		break;
 
-	case SYSUNS:
+	case SYSUNS:			/* POSIX special builtin */
 		if (a1) {
 			int	uflg = 0;
 

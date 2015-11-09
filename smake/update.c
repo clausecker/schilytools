@@ -1,8 +1,8 @@
-/* @(#)update.c	1.137 15/04/15 Copyright 1985, 88, 91, 1995-2015 J. Schilling */
+/* @(#)update.c	1.138 15/09/20 Copyright 1985, 88, 91, 1995-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)update.c	1.137 15/04/15 Copyright 1985, 88, 91, 1995-2015 J. Schilling";
+	"@(#)update.c	1.138 15/09/20 Copyright 1985, 88, 91, 1995-2015 J. Schilling";
 #endif
 /*
  *	Make program
@@ -1254,9 +1254,12 @@ exp_var(end, cmd, obj, source, suffix, depends)
 				/*
 				 * Copy old content.
 				 * First null-terminate the current buffer.
+				 * We did originally use sizeof (_name) for
+				 * strlcpy(), but clang likes to be foxier
+				 * than it is and writes a warning.
 				 */
 				*rname = '\0';
-				strlcpy(name, _name, sizeof (_name));
+				strlcpy(name, _name, nlen);
 				rname = name + (rname - _name);
 			} else {
 				rname = name + (rname - np);
@@ -1303,9 +1306,13 @@ exp_var(end, cmd, obj, source, suffix, depends)
 					 * Copy old content.
 					 * First null-terminate the
 					 * current buffer.
+					 * We did originally use sizeof (_pat)
+					 * for strlcpy(), but clang likes to be
+					 * foxier than it is and writes a
+					 * warning.
 					 */
 					*rname = '\0';
-					strlcpy(pat, _pat, sizeof (_pat));
+					strlcpy(pat, _pat, plen);
 					rname = pat + (rname - _pat);
 				} else {
 					rname = pat + (rname - pp);

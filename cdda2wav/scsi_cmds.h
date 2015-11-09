@@ -1,4 +1,4 @@
-/* @(#)scsi_cmds.h	1.18 13/12/24 Copyright 1998,1999 Heiko Eissfeldt, Copyright 2004-2013 J. Schilling */
+/* @(#)scsi_cmds.h	1.19 15/10/19 Copyright 1998,1999,2015 Heiko Eissfeldt, Copyright 2004-2013 J. Schilling */
 /*
  * header file for scsi_cmds.c
  */
@@ -70,6 +70,9 @@ extern	int	ReadCddaFallbackMMC	__PR((SCSI *scgp, UINT4 *p,
 						unsigned lSector,
 						unsigned SctorBurstVal));
 extern	int	ReadCddaFallbackMMC_C2	__PR((SCSI *scgp, UINT4 *p,
+						unsigned lSector,
+						unsigned SctorBurstVal));
+extern	int	ReadCddaNoFallback_C2	__PR((SCSI *scgp, UINT4 *p,
 						unsigned lSector,
 						unsigned SctorBurstVal));
 extern	int	ReadCddaSubSony		__PR((SCSI *scgp, UINT4 *p,

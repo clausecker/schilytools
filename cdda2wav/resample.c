@@ -1,8 +1,8 @@
-/* @(#)resample.c	1.34 10/12/19 Copyright 1998,1999,2000 Heiko Eissfeldt, Copyright 2004-2010 J. Schilling */
+/* @(#)resample.c	1.35 15/10/19 Copyright 1998-2000,2015 Heiko Eissfeldt, Copyright 2004-2010 J. Schilling */
 #include "config.h"
 #ifndef lint
 static	UConst char sccsid[] =
-"@(#)resample.c	1.34 10/12/19 Copyright 1998,1999,2000 Heiko Eissfeldt, Copyright 2004-2010 J. Schilling";
+"@(#)resample.c	1.35 15/10/19 Copyright 1998-2000,2015 Heiko Eissfeldt, Copyright 2004-2010 J. Schilling";
 #endif
 /*
  * resampling module
@@ -20,6 +20,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -853,7 +855,7 @@ SaveBuffer(p, SamplesToDo, TotSamplesDone)
 		pDst = (unsigned char *) pSrcStop;	/* set pDst to end */
 
 		if (global.deemphasize &&
-		    (Get_Preemphasis(get_current_track()))) {
+		    (Get_Preemphasis(get_current_track_writing()))) {
 			/*
 			 * this implements an attenuation treble shelving
 			 * filter to undo the effect of pre-emphasis.

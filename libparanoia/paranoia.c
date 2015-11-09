@@ -1,14 +1,14 @@
-/* @(#)paranoia.c	1.46 13/12/24 J. Schilling from cdparanoia-III-alpha9.8 */
+/* @(#)paranoia.c	1.47 15/10/05 J. Schilling from cdparanoia-III-alpha9.8 */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-"@(#)paranoia.c	1.46 13/12/24 J. Schilling from cdparanoia-III-alpha9.8";
+"@(#)paranoia.c	1.47 15/10/05 J. Schilling from cdparanoia-III-alpha9.8";
 
 #endif
 /*
  * CopyPolicy: GNU Lesser General Public License v2.1 applies
  * Copyright (C) 1997-2001,2008 by Monty (xiphmont@mit.edu)
- * Copyright (C) 2002-2013 by J. Schilling
+ * Copyright (C) 2002-2015 by J. Schilling
  *
  * Toplevel file for the paranoia abstraction over the cdda lib
  *
@@ -3054,15 +3054,16 @@ static	int		pagesize = -1;
 
 			if (callback) {
 				(*callback) (thisread, PARANOIA_CB_SECS);
-				if (c2errs.c2errs > 0)
-					(*callback) (adjread * CD_FRAMEWORDS, PARANOIA_CB_C2ERR);
-				if (c2errs.c2bytes > 0)
-					(*callback) (c2errs.c2bytes, PARANOIA_CB_C2BYTES);
-				if (c2errs.c2secs > 0)
-					(*callback) (c2errs.c2secs, PARANOIA_CB_C2SECS);
-				if (c2errs.c2maxerrs > 0)
-					(*callback) (c2errs.c2maxerrs, PARANOIA_CB_C2MAXERRS);
-
+				if (p->enable & PARANOIA_MODE_C2CHECK) {
+					if (c2errs.c2errs > 0)
+						(*callback) (adjread * CD_FRAMEWORDS, PARANOIA_CB_C2ERR);
+					if (c2errs.c2bytes > 0)
+						(*callback) (c2errs.c2bytes, PARANOIA_CB_C2BYTES);
+					if (c2errs.c2secs > 0)
+						(*callback) (c2errs.c2secs, PARANOIA_CB_C2SECS);
+					if (c2errs.c2maxerrs > 0)
+						(*callback) (c2errs.c2maxerrs, PARANOIA_CB_C2MAXERRS);
+				}
 				(*callback) ((adjread + secread - 1) * CD_FRAMEWORDS, PARANOIA_CB_READ);
 			}
 

@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2015 J. Schilling
  *
- * @(#)jobs.c	1.70 15/09/14 2008-2015 J. Schilling
+ * @(#)jobs.c	1.74 15/11/03 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)jobs.c	1.70 15/09/14 2008-2015 J. Schilling";
+	"@(#)jobs.c	1.74 15/11/03 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -663,8 +663,12 @@ waitjob(jp)
 		siginfo_t	si2;
 
 		waitid(P_PID, pid, &si2, wflags);
+#ifdef	__needed__				/* Only on real SVr4 */
+						/* or on our emulation */
+						/* FreeBSD misses si_utime */
 		si.si_utime = si2.si_utime;
 		si.si_stime = si2.si_stime;
+#endif
 	}
 #else
 	/*
@@ -1007,12 +1011,14 @@ makejob(monitor, fg)
 		handle(SIGTTOU, SIG_DFL);
 		handle(SIGTSTP, SIG_DFL);
 	} else if (!fg) {
+#ifdef	HAVE_NICE
 #ifdef	DO_BGNICE
 		if (flags2 & bgniceflg)
 			nice(5);
 #else
 #ifdef NICE
 		nice(NICE);
+#endif
 #endif
 #endif
 		handle(SIGTTIN, SIG_IGN);
@@ -1469,15 +1475,43 @@ syspgrp(argc, argv)
 	char *cmdp = *argv;
 
 	if (argc == 1) {
-		pid_t	pgrp = tcgetpgrp(STDIN_FILENO);
-		pid_t	sgrp = (pid_t)-1;
+		pid_t	pgrp;
+		pid_t	sgrp;
 
+#ifdef	TIOCGPGRP
+		/*
+		 * Prefer the ioctl() as the POSIX function tcgetpgrp() limits
+		 * access in a way that we cannot accept.
+		 */
+		if (ioctl(STDIN_FILENO, TIOCGPGRP, (char *)&pgrp) < 0)
+			pgrp = -1;
+#else
+		pgrp = tcgetpgrp(STDIN_FILENO);
+#endif
+#if	defined(HAVE_GETSID) && defined(HAVE_TCGETSID)
+#ifdef	TIOCGSID
+		/*
+		 * Prefer the ioctl() as the POSIX function tcgetsid() limits
+		 * access in a way that we cannot accept.
+		 */
+		if (ioctl(STDIN_FILENO, TIOCGSID, (char *)&sgrp) < 0)
+			sgrp = -1;
+#else
+		sgrp = tcgetsid(STDIN_FILENO);
+#endif
+#endif
+
+		prs_buff(UC "ttyprocessgroup: ");
+		prs_buff(&numbuf[sltos((long)pgrp)]);
+#if	defined(HAVE_GETSID) && defined(HAVE_TCGETSID)
+		prs_buff(UC " ttysessiongroup: ");
+		prs_buff(&numbuf[sltos((long)sgrp)]);
+#endif
+		prc_buff(NL);
+		sgrp = (pid_t)-1;
 #ifdef	HAVE_GETSID
 		sgrp = getsid(0);
 #endif
-		prs_buff(UC "ttyprocessgroup: ");
-		prs_buff(&numbuf[ltos((long)pgrp)]);
-		prc_buff(NL);
 		pr_pgrp(mypid, mypgid, sgrp);
 		return;
 	}

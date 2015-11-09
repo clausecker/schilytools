@@ -1,8 +1,8 @@
-/* @(#)scsi_cmds.c	1.53 13/12/24 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2004-2013 J. Schilling */
+/* @(#)scsi_cmds.c	1.55 15/10/19 Copyright 1998-2002,2015 Heiko Eissfeldt, Copyright 2004-2015 J. Schilling */
 #include "config.h"
 #ifndef lint
 static	UConst char sccsid[] =
-"@(#)scsi_cmds.c	1.53 13/12/24 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2004-2013 J. Schilling";
+"@(#)scsi_cmds.c	1.55 15/10/19 Copyright 1998-2002,2015 Heiko Eissfeldt, Copyright 2004-2015 J. Schilling";
 #endif
 /*
  * file for all SCSI commands
@@ -1462,7 +1462,7 @@ ReadCdda12_C2(scgp, p, lSector, SectorBurstVal)
 	/*
 	 * has all or something been read?
 	 */
-	return (SectorBurstVal - scg_getresid(scgp)/CD_FRAMESIZE_RAW);
+	return (SectorBurstVal - scg_getresid(scgp)/CD_FRAMESIZE_RAWER);
 }
 
 /*
@@ -1588,17 +1588,28 @@ ReadCddaMMC12_C2(scgp, p, lSector, SectorBurstVal)
 
 	scgp->cmdname = "ReadCD MMC 12 C2";
 
+	scgp->silent++;
 	if (scg_cmd(scgp) < 0) {
-		scgp->silent++;
+		/*
+		 * if the command is not available, disable this method
+		 * by setting the ReadCdRom_C2 pointer to NULL.
+		 */
+		if (scg_sense_key(scgp) == 0x05 
+			&& scg_sense_code(scgp) == 0x24
+			&& scg_sense_qual(scgp) == 0x00) {
+			ReadCdRom_C2 = NULL;
+		}
 		unit_ready(scgp);
+
 		scgp->silent--;
 		return (0);
 	}
+	scgp->silent--;
 
 	/*
 	 * has all or something been read?
 	 */
-	return (SectorBurstVal - scg_getresid(scgp)/CD_FRAMESIZE_RAW);
+	return (SectorBurstVal - scg_getresid(scgp)/CD_FRAMESIZE_RAWER);
 }
 
 int
@@ -1653,6 +1664,34 @@ static int	ReadCdda12_C2_unknown = 0;
 		scgp->silent--;
 		ReadCdRom_C2 = ReadCddaMMC12_C2;
 		return (ReadCddaMMC12_C2(scgp, p, lSector, SectorBurstVal));
+	}
+	scgp->silent--;
+	return (retval);
+}
+
+int
+ReadCddaNoFallback_C2(scgp, p, lSector, SectorBurstVal)
+	SCSI		*scgp;
+	UINT4		*p;
+	unsigned	lSector;
+	unsigned	SectorBurstVal;
+{
+static int	ReadCdda12_C2_unknown = 0;
+	int	retval = -999;
+
+	scgp->silent++;
+	if (ReadCdda12_C2_unknown ||
+	    ((retval = ReadCdda12_C2(scgp, p, lSector, SectorBurstVal)) <= 0)) {
+		/*
+		 * if the command is not available, disable this method
+		 * by setting the ReadCdRom_C2 pointer to NULL.
+		 */
+		if (retval <= 0 && scg_sense_key(scgp) == 0x05 
+			&& scg_sense_code(scgp) == 0x24
+			&& scg_sense_qual(scgp) == 0x00) {
+			ReadCdda12_C2_unknown = 1;
+		}
+		ReadCdRom_C2 = NULL;
 	}
 	scgp->silent--;
 	return (retval);

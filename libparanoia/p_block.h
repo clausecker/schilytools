@@ -1,8 +1,8 @@
-/* @(#)p_block.h	1.20 13/12/22 J. Schilling from cdparanoia-III-alpha9.8 */
+/* @(#)p_block.h	1.21 15/09/20 J.^ Schilling from cdparanoia-III-alpha9.8 */
 /*
  * CopyPolicy: GNU Lesser General Public License v2.1 applies
  * Copyright (C) 1997-2001 by Monty (xiphmont@mit.edu)
- * Copyright (C) 2002-2013 by J. Schilling
+ * Copyright (C) 2002-2015 by J. Schilling
  */
 
 #ifndef	_P_BLOCK_H
@@ -17,6 +17,8 @@
 #define	JIGGLE_MODULO		  15	/* sectors */
 #define	MIN_SILENCE_BOUNDARY	1024	/* 16 bit words */
 
+#undef	abs
+#define	abs(x)		((x) < 0 ? -(x) : (x))
 #undef	min
 #define	min(x, y)	((x) < (y) ? (x) : (y))
 #undef	max

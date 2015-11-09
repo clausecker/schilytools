@@ -38,11 +38,11 @@
 /*
  * This file contains modifications Copyright 2008-2015 J. Schilling
  *
- * @(#)main.c	1.38 15/09/12 2008-2015 J. Schilling
+ * @(#)main.c	1.40 15/10/14 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)main.c	1.38 15/09/12 2008-2015 J. Schilling";
+	"@(#)main.c	1.40 15/10/14 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -327,7 +327,7 @@ main(c, v, e)
 	dfault(&ps4nod, (unsigned char *)execpmsg);
 #endif
 #ifdef	DO_PPID
-	itos(getppid()); 
+	itos(getppid());
 	dfault(&ppidnod, numbuf);
 	attrib((&ppidnod), N_RDONLY);
 #endif
@@ -597,8 +597,11 @@ exfile(prof)
 			t = cmd(NL, MTFLG);
 #ifdef	PARSE_DEBUG
 			if (t) {
+				int	save_fd;
 				prs(UC "COMMAND: ");
+				save_fd = setb(output);
 				prf(t); flushb();
+				setb(save_fd);
 				prs(UC " COMMANDEND\n");
 			}
 #endif

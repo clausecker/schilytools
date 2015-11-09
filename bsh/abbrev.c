@@ -1,8 +1,8 @@
-/* @(#)abbrev.c	1.64 15/09/12 Copyright 1985-2015 J. Schilling */
+/* @(#)abbrev.c	1.66 15/10/23 Copyright 1985-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)abbrev.c	1.64 15/09/12 Copyright 1985-2015 J. Schilling";
+	"@(#)abbrev.c	1.66 15/10/23 Copyright 1985-2015 J. Schilling";
 #endif
 /*
  *	Abbreviation symbol handling
@@ -189,15 +189,17 @@ typedef struct abtab {
 LOCAL	abtab_t	ab_tabs[ABTABS]	= {	{0, 0, 0, 0, 0, (uid_t)-1},
 					{0, 0, 0, 0, 0, (uid_t)-1}};
 
+	abidx_t	deftab;
+
 LOCAL	abtab_t	*_ab_down	__PR((abidx_t tab));
 LOCAL	abent_t	*_ab_lookup	__PR((abtab_t *ap, char *name, BOOL new));
 LOCAL	abent_t	*_ab_newnode	__PR((void));
 LOCAL	void	_ab_output	__PR((abtab_t *ap));
-LOCAL	void	_ab_print	__PR((abidx_t tab, char *name, FILE_p f,
+LOCAL	BOOL	_ab_print	__PR((abidx_t tab, char *name, FILE_p f,
 								int aflags));
 LOCAL	void	_ab_dump	__PR((abent_t *np, FILE_p f, int aflags));
 LOCAL	void	_ab_list	__PR((abent_t *np, FILE_p f, int aflags));
-LOCAL	void	_ab_match	__PR((abent_t *np, FILE_p f, int aflags,
+LOCAL	BOOL	_ab_match	__PR((abent_t *np, FILE_p f, int aflags,
 				char *pattern, int *aux, int alt, int *state));
 LOCAL	void	_ab_close	__PR((abent_t *np, abidx_t tab));
 LOCAL	char	*ab_beginword	__PR((char *p, abtab_t *ap));
@@ -211,18 +213,18 @@ EXPORT	void	ab_sname	__PR((abidx_t tab, char *fname));
 EXPORT	char	*ab_gname	__PR((abidx_t tab));
 EXPORT	void	ab_use		__PR((abidx_t tab, char *fname));
 EXPORT	void	ab_close	__PR((abidx_t tab));
-EXPORT	void	ab_insert	__PR((abidx_t tab, char *name, char *val,
+EXPORT	BOOL	ab_insert	__PR((abidx_t tab, char *name, char *val,
 								int aflags));
-EXPORT	void	ab_push		__PR((abidx_t tab, char *name, char *val,
+EXPORT	BOOL	ab_push		__PR((abidx_t tab, char *name, char *val,
 								int aflags));
 LOCAL	void	_ab_delete	__PR((abent_t *np, abidx_t tab, int aflags));
-EXPORT	void	ab_delete	__PR((abidx_t tab, char *name, int aflags));
+EXPORT	BOOL	ab_delete	__PR((abidx_t tab, char *name, int aflags));
 LOCAL	void	_ab_deleteall	__PR((abent_t *np, abidx_t tab, int aflags));
 EXPORT	void	ab_deleteall	__PR((abidx_t tab, int aflags));
 EXPORT	char	*ab_value	__PR((abidx_t tab, char *name, void **seen,
 								int aflags));
 EXPORT	void	ab_dump		__PR((abidx_t tab, FILE_p f, int aflags));
-EXPORT	void	ab_list		__PR((abidx_t tab, char *pattern, FILE_p f,
+EXPORT	BOOL	ab_list		__PR((abidx_t tab, char *pattern, FILE_p f,
 								int aflags));
 LOCAL	void	ab_eupdated	__PR((abtab_t *ap));
 LOCAL	void	_ab_pr		__PR((abent_t *np, FILE_p f, int aflags));
@@ -370,15 +372,22 @@ _ab_output(ap)
 /*
  * Print a single name/value replacement entry to an open file.
  */
-LOCAL void
+LOCAL BOOL
 _ab_print(tab, name, f, aflags)
 	abidx_t	tab;
 	char	*name;
 	FILE_p	f;
 	int	aflags;		/* should push into History? */
 {
-	_ab_list(_ab_lookup(_ab_down(tab), name, FALSE), f, aflags);
+	register abent_t *np;
+
+	np = _ab_lookup(_ab_down(tab), name, FALSE);
+	if (np == NULL)
+		return (FALSE);
+
+	_ab_list(np, f, aflags);
 	fflush(f);
+	return (TRUE);
 }
 
 /*
@@ -443,7 +452,7 @@ _ab_list(np, f, aflags)
 }
 
 
-LOCAL void
+LOCAL BOOL
 _ab_match(np, f, aflags, pattern, aux, alt, state)
 	register abent_t *np;
 		FILE_p	f;
@@ -457,25 +466,31 @@ _ab_match(np, f, aflags, pattern, aux, alt, state)
 #ifndef	BOURNE_SHELL
 	register char	*p;
 #endif
+	BOOL		ok;
 
 	if (np == AB_NULL)
-		return;
-	_ab_match(np->ab_next, f, aflags, pattern, aux, alt, state);
+		return (FALSE);
+	ok = _ab_match(np->ab_next, f, aflags, pattern, aux, alt, state);
 	if (ctlc)
-		return;
+		return (FALSE);
 	tp = np;
 	while (tp->ab_push != AB_NULL)
 		tp = tp->ab_push;
 #ifdef	BOURNE_SHELL
-	if (gmatch(tp->ab_name, pattern))
+	if (gmatch(tp->ab_name, pattern)) {
 		_ab_list(tp, f, aflags);
+		return(TRUE);
+	}
 #else
 	p = (char *)patmatch((unsigned char *)pattern, aux,
 		(unsigned char *)tp->ab_name, 0, strlen(tp->ab_name),
 		alt, state);
-	if (p && *p == '\0')
+	if (p && *p == '\0') {
 		_ab_list(tp, f, aflags);
+		return(TRUE);
+	}
 #endif
+	return (ok);
 }
 
 /*
@@ -820,7 +835,7 @@ ab_close(tab)
 /*
  * Insert a new name/value pair into an abbreviation/alias table.
  */
-EXPORT void
+EXPORT BOOL
 ab_insert(tab, name, val, aflags)
 	abidx_t	tab;
 	char	*name;
@@ -831,6 +846,8 @@ ab_insert(tab, name, val, aflags)
 	register abent_t *np;
 
 	np = _ab_lookup(ap, name, TRUE);
+	if (np == NULL)
+		return (FALSE);
 	if (np->ab_value != NULL && !ab_inblock(tab, np->ab_value))
 		free(np->ab_value);
 	np->ab_value = val;
@@ -844,13 +861,14 @@ ab_insert(tab, name, val, aflags)
 	 */
 	if (np->ab_push == AB_NULL)
 		_ab_output(ap);
+	return (TRUE);
 }
 
 
 /*
  * Push a new name/value pair on top of an abbreviation/alias table entry.
  */
-EXPORT void
+EXPORT BOOL
 ab_push(tab, name, val, aflags)
 	abidx_t	tab;
 	char	*name;
@@ -862,7 +880,11 @@ ab_push(tab, name, val, aflags)
 	register abent_t	*new;
 
 	np = _ab_lookup(ap, name, TRUE);
+	if (np == NULL)
+		return (FALSE);
 	new = _ab_newnode();		/* Get space for node to push	*/
+	if (new == NULL)
+		return (FALSE);
 	new->ab_name = np->ab_name;	/* Dup to allow to list all	*/
 	new->ab_value = np->ab_value;	/* First save old node data	*/
 	new->ab_flags = np->ab_flags;
@@ -873,6 +895,7 @@ ab_push(tab, name, val, aflags)
 		np->ab_flags |= ABF_BEGIN;
 	else
 		np->ab_flags &= ~ABF_BEGIN;
+	return (TRUE);
 }
 
 
@@ -918,7 +941,7 @@ _ab_delete(np, tab, aflags)
 	}
 }
 
-EXPORT void
+EXPORT BOOL
 ab_delete(tab, name, aflags)
 	abidx_t	tab;
 	char	*name;
@@ -928,7 +951,10 @@ ab_delete(tab, name, aflags)
 	abent_t	*np;
 
 	np = _ab_lookup(ap, name, FALSE);
+	if (np == NULL)
+		return (FALSE);
 	_ab_delete(np, tab, aflags);
+	return (TRUE);
 }
 
 LOCAL void
@@ -1010,7 +1036,7 @@ ab_dump(tab, f, aflags)
 /*
  * Print all name/value replacements with matched entries to an open file.
  */
-EXPORT void
+EXPORT BOOL
 ab_list(tab, pattern, f, aflags)
 		abidx_t	tab;
 	register char	*pattern;
@@ -1024,28 +1050,39 @@ ab_list(tab, pattern, f, aflags)
 	register int	patlen;		/* pattern lenght */
 #endif
 
+	if ((aflags & AB_POSIX) == 0 && (tab != deftab)) {
+		if (tab == GLOBAL_AB)
+			aflags |= AB_PGLOBAL;
+		else
+			aflags |= AB_PLOCAL;
+	}
+
 	if (!any_match(pattern)) {
-		_ab_print(tab, pattern, f, aflags);
+		return (_ab_print(tab, pattern, f, aflags));
 	} else {
+		BOOL	ok;
+
 #ifndef	BOURNE_SHELL
 		patlen = strlen(pattern);
 		aux = (int *)malloc((size_t)patlen * sizeof (int));
 		state = (int *)malloc((size_t)(patlen+1) * sizeof (int));
 		alt = patcompile((unsigned char *)pattern, patlen, aux);
 		if (alt) {
-			_ab_match(_ab_down(tab)->at_ent,
+			ok = _ab_match(_ab_down(tab)->at_ent,
 					f, aflags, pattern, aux, alt, state);
 			fflush(f);
 		} else {
 			berror("%s", ebadpattern);
+			return (FALSE);
 		}
 		free((char *)aux);
 		free((char *)state);
 #else
-		_ab_match(_ab_down(tab)->at_ent,
+		ok = _ab_match(_ab_down(tab)->at_ent,
 				f, aflags, pattern, aux, alt, state);
 		fflush(f);
 #endif
+		return (ok);
 	}
 }
 
@@ -1085,6 +1122,10 @@ _ab_pr(np, f, aflags)
 	if (np->ab_push)
 		prc_buff('p');
 	prc_buff((np->ab_flags & ABF_BEGIN) ? 'b':'a');
+	if (aflags & AB_PLOCAL)
+		prc_buff('l');
+	else if (aflags & AB_PGLOBAL)
+		prc_buff('g');
 	prc_buff(' ');
 	prs_buff(UC np->ab_name);
 	len = length(UC np->ab_name);
@@ -1094,9 +1135,11 @@ _ab_pr(np, f, aflags)
 	prs_buff(UC np->ab_value);
 	prc_buff(NL);
 #else
-	fprintf(f, "#%s%c %-8s %s\n",
+	fprintf(f, "#%s%c%s %-8s %s\n",
 				np->ab_push ? "p":"",
 				np->ab_flags & ABF_BEGIN ? 'b':'a',
+				(aflags & AB_PLOCAL) ? "l":
+				(aflags & AB_PGLOBAL) ? "g":"",
 				np->ab_name, np->ab_value);
 #endif
 }
@@ -1186,9 +1229,11 @@ _ab_phist(np, f, aflags)
 		unsigned int	len;
 
 		js_snprintf(buf, sizeof (buf),
-				"#%s%c %-8s %s",
+				"#%s%c%s %-8s %s",
 				np->ab_push ? "p":"",
 				np->ab_flags & ABF_BEGIN ? 'b':'a',
+				(aflags & AB_PLOCAL) ? "l":
+				(aflags & AB_PGLOBAL) ? "g":"",
 				np->ab_name, np->ab_value);
 		len = strlen(buf);
 		append_line(buf, len + 1, len);

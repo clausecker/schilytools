@@ -1,4 +1,4 @@
-/* @(#)wait.h	1.23 15/06/22 Copyright 1995-2015 J. Schilling */
+/* @(#)wait.h	1.24 15/09/18 Copyright 1995-2015 J. Schilling */
 /*
  *	Definitions to deal with various kinds of wait flavour
  *
@@ -80,9 +80,31 @@ extern "C" {
 #endif
 
 /*
- * waitid() idtype_t definition, define when missing:
+ * waitid() idtype_t definition, define when missing or broken.
+ * NetBSD-5 has an idtype_t that is in conflict with POSIX.
  */
 #ifndef	HAVE_TYPE_IDTYPE_T
+
+#undef  HAVE_WAITID	/* Can't have waitid() with broken idtype_t */
+
+#undef	P_PID
+#undef	P_PPID
+#undef	P_PGID
+#undef	P_SID
+#undef	P_CID
+#undef	P_UID
+#undef	P_GID
+#undef	P_ALL
+
+#define	P_PID	MY_P_PID
+#define	P_PPID	MY_P_PPID
+#define	P_PGID	MY_P_PGID
+#define	P_SID	MY_P_SID
+#define	P_CID	MY_P_CID
+#define	P_UID	MY_P_UID
+#define	P_GID	MY_P_GID
+#define	P_ALL	MY_P_ALL
+
 typedef enum {
 	P_PID,		/* A process identifier.		*/
 	P_PPID,		/* A parent process identifier.		*/
@@ -93,7 +115,11 @@ typedef enum {
 	P_UID,		/* A user identifier.			*/
 	P_GID,		/* A group identifier.			*/
 	P_ALL,		/* All processes.			*/
-} idtype_t;
+} my_idtype_t;
+
+#undef	idtype_t
+#define	idtype_t	my_idtype_t
+
 #endif	/* HAVE_TYPE_IDTYPE_T */
 
 #ifndef	WCOREFLG

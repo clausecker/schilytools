@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2015 J. Schilling
  *
- * @(#)name.c	1.41 15/09/16 2008-2015 J. Schilling
+ * @(#)name.c	1.42 15/10/05 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)name.c	1.41 15/09/16 2008-2015 J. Schilling";
+	"@(#)name.c	1.42 15/10/05 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -333,8 +333,7 @@ setname(argi, xp)			/* does parameter assignments */
 				n->namenv = n->namval = argscan;
 				if (n == &pathnod)
 					set_builtins_path();
-			}
-			else {
+			} else {
 #if !defined(NO_VFORK) || defined(DO_POSIX_SPEC_BLTIN)
 				if (xp & N_PUSHOV)
 					pushval(n);
@@ -901,7 +900,7 @@ popval(n)
 		n->namval = p->namval;
 		n->namflg = p->namflg;
 		n->nampush = 0;
-		free (p);
+		free(p);
 	} else {
 		if (n->namval)
 			free(n->namval);

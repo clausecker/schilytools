@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sccs.1	4.36 15/01/20 Copyright 2007-2015 J. Schilling
+.\" @(#)sccs.1	4.37 15/10/19 Copyright 2007-2015 J. Schilling
 .\" 
 .\" CDDL HEADER START
 .\"
@@ -32,7 +32,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sccs 1 "2015/01/20" "SunOS 5.11" "User Commands"
+.TH sccs 1 "2015/10/19" "SunOS 5.11" "User Commands"
 .SH NAME
 sccs \- front end for the Source Code Control System (SCCS)
 .SH SYNOPSIS
@@ -187,7 +187,10 @@ flags are passed to the second
 .ne 3
 .TP
 .B cvt
-Convert SCCS history files between SCCS v4 and SCCS v6.
+Convert SCCS history files between
+.B "SCCS\ v4"
+and
+.BR "SCCS\ v6" .
 Equivalent to ``sccscvt''.
 
 .br
@@ -848,15 +851,22 @@ the time of the initial delta.
 .B cvt
 .sp .6
 Convert
-.B SCCS v4
+.B SCCS\ v4
 history files (as introduced in February 1977) into
-.B SCCS v6
+.B SCCS\ v6
 history files (as introduced in August 2011) and vice versa.
 Refer to
 .BR sccs-cvt (1)
 for more information about the
 .B sccscvt
 utility.
+In order to convert a larger historic project (like e.g. the 
+BSD CSRG sccs history) from a different timezone than the local
+timezone into
+.B SCCS\ v6
+use a command similar to:
+.sp
+.B "    TZ=PST sccs -R cvt -V6 .
 .sp
 This subcommand is a
 .B \s-1SCHILY\s+1
@@ -1463,13 +1473,17 @@ to be encoded.
 Be silent. If all file are pure text, the exit code is 0.
 .TP
 .B \-V4
-Check with SCCS v4 rules.
+Check with
+.B SCCS\ v4
+rules.
 A file is not pure text if it contains one or more null characters,
 if a line starts with \e001 (^A) or if the file does not end with
 a newline character.
 .TP
 .B \-V6
-Check with SCCS v6 rules.
+Check with
+.B SCCS\ v6
+rules.
 A file is not pure text if it contains one or more null characters.
 .RE
 .sp
@@ -2136,6 +2150,16 @@ of SCCS commands should set the environment variable
 .B SCCS_NO_HELP
 and set
 .BR LC_ALL=C .
+
+.br
+.ne 4
+.TP
+.B TZ
+Used for the timezone when reading or writing the SCCS history file or
+when converting between
+.B SCCS\ v4
+and
+.BR "SCCS\ v6" .
 
 .SH EXIT STATUS
 .LP

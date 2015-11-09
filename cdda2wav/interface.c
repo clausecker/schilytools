@@ -1,13 +1,13 @@
-/* @(#)interface.c	1.80 14/08/17 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2006-2014 J. Schilling */
+/* @(#)interface.c	1.81 15/10/19 Copyright 1998-2002,2015 Heiko Eissfeldt, Copyright 2006-2014 J. Schilling */
 #include "config.h"
 #ifndef lint
 static	UConst char sccsid[] =
-"@(#)interface.c	1.80 14/08/17 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2006-2014 J. Schilling";
+"@(#)interface.c	1.81 15/10/19 Copyright 1998-2002,2015 Heiko Eissfeldt, Copyright 2006-2014 J. Schilling";
 
 #endif
 /*
- * Copyright (C) 1994-1997 Heiko Eissfeldt heiko@colossus.escape.de
- * Copyright (c) 2006-2014 J. Schilling
+ * Copyright (C) 1998-2002,2015 Heiko Eissfeldt heiko@colossus.escape.de
+ * Copyright (c) 2006-2014      J. Schilling
  *
  * Interface module for cdrom drive access
  *
@@ -291,6 +291,7 @@ SetupSCSI(scgp)
 	EnableCdda = (void (*) __PR((SCSI *, int, unsigned)))Dummy;
 	ReadCdRom = ReadCdda12;
 	ReadCdRomSub = ReadCddaSubSony;
+	ReadCdRom_C2 = ReadCddaNoFallback_C2;
 	ReadCdRomData = (int (*) __PR((SCSI *,
 					unsigned char *,
 					unsigned, unsigned))) ReadStandardData;

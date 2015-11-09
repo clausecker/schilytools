@@ -247,6 +247,9 @@
 ./RULES/alpha-netbsd-cc.rul
 ./RULES/alpha-netbsd-gcc.rul
 ./RULES/alphaserver_ds20_500_mhz-openvms-cc.rul
+./RULES/amd64-bitrig-clang32.rul
+./RULES/amd64-bitrig-clang64.rul
+./RULES/i386-bitrig-clang.rul
 ./RULES/amd64-freebsd-cc.rul
 ./RULES/amd64-freebsd-clang.rul
 ./RULES/amd64-freebsd-clang32.rul

@@ -1,5 +1,5 @@
 '\" t
-.\" @(#)ved.1	1.16 15/08/05 Copyright 1984-2015 J. Schilling
+.\" @(#)ved.1	1.17 15/10/14 Copyright 1984-2015 J. Schilling
 . \"  Manual page for ved
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -14,7 +14,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH VED 1L "2015/08/05" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH VED 1L "2015/10/14" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 ved \- visual editor (screen-oriented)
 .SH SYNOPSIS
@@ -2480,6 +2480,238 @@ They also may recursively call each other and you may set
 to a value greater than one to execute a macro more than once.
 There is currently no way to execute a macro in a conditional way.
 
+.SS "Input Mappings"
+.LP
+The command line history editor maps input from the terminal into mapped text
+before it is interpreted by the editor. If a match is found on the input
+from the terminal, the related input text is directly replaced by it's
+replacement string.
+A mapping may be prevented by typing the map quote character which is the
+.B nul
+character
+.RB ( ^@ ),
+directly before the matching text is entered.
+If this text is usually interpreted by the history editor, you first need to
+type the history editing quoting character
+.BR ^^ .
+To be sure that you are able to literarily enter some text, type
+.BR ^^^@
+.RB ( "control up-arrow" " followed by " "Nul" " and the text).
+
+.LP
+At startup,
+.B ved
+first tries to initialize the
+terminal setup using the variables
+.BR HOME ,
+.BR TERM ,
+.B TERMCAP
+and
+.BR TERMPATH .
+.LP
+If
+.B TERM
+is not set, the mapper establishes standard mappings for the cursor keys
+assuming an ANSI-compatible terminal.
+.LP
+.B TERM
+is set, the mapper establishes mappings for the following
+.B termcap
+capabilities:
+.TP
+.PD
+.B ku
+.BR "Key cursor up" ,
+mapped to
+.BR ^P .
+.br
+The previous command line from the history is displayed.
+.TP
+.B kd
+.BR "Key cursor down" ,
+mapped to
+.BR ^N .
+.br
+The next command line from the history is displayed.
+.TP
+.B kr
+.BR "Key cursor forward (right)" ,
+mapped to
+.BR ^F .
+.br
+Move cursor one character to the right.
+.TP
+.B kl
+.BR "Key cursor left" ,
+mapped to
+.BR ^H .
+.br
+Move cursor one character to the left.
+.TP
+.B kh
+.BR "Key cursor -> Home" ,
+mapped to
+.BR ^A .
+.br
+The Cursor is moved to the beginning of the current command line.
+.TP
+.B @7
+.BR "Key cursor -> End" ,
+mapped to
+.BR ^E .
+.br
+The Cursor is moved to the end of the current command line.
+.TP
+.B kD
+.BR "Key Delete Character" ,
+mapped to
+.BR \e177 " (" DEL ).
+.br
+Erase one character to the left of the cursor.
+.TP
+.B kb
+.BR "Key Backspace" ,
+mapped to
+.BR \e177 " (" DEL ).
+.br
+Erase one character to the left of the cursor.
+.sp
+Note that the
+.B Backspace Key
+is the larger key that is just above the
+.BR "Carriage Return Key" .
+In former times, this key was called
+.B Delete
+and send the 
+.BR \e177 " (" DEL )
+character.
+Since companies followed the design of the IBM PC keyboard layout,
+the related key usually sends
+.BR \e010 .
+If you like to literarily enter a backspace into the command line, type
+.BR ^^^@^H
+.RB ( "control up-arrow" " followed by " "Nul"
+.RB "followed by " ^H ).
+.TP
+.B k1
+.BR "Key F1" ,
+mapped to
+.B Quit Editor
+.RB ( ^C ).
+.TP
+.B k2
+.BR "Key F2" ,
+mapped to
+.B Top of File
+.RB ( ^B ).
+.TP
+.B k3
+.BR "Key F3" ,
+mapped to
+.B Delete char
+.RB ( ^D ).
+.TP
+.B k4
+.BR "Key F4" ,
+mapped to
+.B Delete line
+.RB ( ^K ).
+.TP
+.B k5
+.BR "Key F5" ,
+mapped to
+.B Open line
+.RB ( ^O ).
+.TP
+.B k6
+.BR "Key F6" ,
+mapped to
+.B Cut line
+.RB ( ^T ).
+.TP
+.B k7
+.BR "Key F7" ,
+mapped to
+.B Paste
+.RB ( ^V ).
+.TP
+.B k8
+.BR "Key F8" ,
+mapped to
+.B Change buffer
+.RB ( ^\ ).
+.TP
+.B k9
+.BR "Key F9" ,
+mapped to
+.B Search down
+.RB ( ^R ).
+.TP
+.B k;
+.BR "Key F10" ,
+mapped to
+.B "Re search
+.RB ( ^Z ).
+.TP
+.B F1
+.BR "Key F11" ,
+mapped to
+.B Get from
+.RB ( ^G ).
+.TP
+.B F2
+.BR "Key F12" ,
+mapped to
+.B Write to
+.RB ( ^W ).
+.TP
+.B kA
+.BR "Key Insert" ,
+mapped to
+.B Insert line
+.RB ( ^A^O ).
+.TP
+.B kE
+.BR "Key Clear EOL" ,
+mapped to
+.B Delete to eol
+.RB ( ^K ).
+.TP
+.B kL
+.BR "Key delete line" ,
+mapped to
+.B Delete line
+.RB ( ^A^K ).
+.TP
+.B kN
+.BR "Key Page down" ,
+mapped to
+.B Page down
+.RB ( ^[n ).
+.TP
+.B kP
+.BR "Key Page up" ,
+mapped to
+.B Page up
+.RB ( ^[p ).
+.TP
+.B kS
+.BR "Key Clear EOS" ,
+mapped to
+.B Delete to end of screen
+.RB ( ^[999999\e015^K ).
+.PD
+
+.LP
+After the mappings from the
+.B termcap
+entry for the current terminal type
+have been established,
+.B ved
+tries to read the file
+.B $HOME/.vedmap
+to retrieve additional mappings.
+
 .SH "MAPPINGS"
 You may create mappings in
 .B ved
@@ -2520,6 +2752,179 @@ The fields are separated by a colon.
 The text in the macro file is fed through
 .B tdecode()
 to allow the same escape sequences as you may have in the termcap file.
+
+.SS Termcap
+.LP
+The
+.B termcap
+data base is used to make the command history editor independent
+from the terminal capabilities. Cursor key output is retrieved from
+the data base and mapped to the cursor movement commands of the
+history editor.
+.LP
+.ne 5
+The following variables are used by
+.BR termcap:
+.TP 10
+.B HOME
+To find the private files like
+.BR $HOME/.termcap .
+.TP
+.B TERM
+A name representing the type of the current terminal.
+.TP
+.B
+TERMCAP
+This environment variable holds either a precompiled
+.B termcap
+entry or the pathname to be used to find a
+.BR "termcap database file" .
+If it holds a precompiled entry that does not match the
+.B TERM
+environment, the termcap database is parsed as if the
+.B TERMCAP
+environment is not set.
+See section
+.B Parameter Substitution
+above for more information.
+.TP
+.B TERMPATH
+If
+.B TERMCAP
+is empty or not set, then the
+.B TERMPATH
+environment is
+scanned for pathnames of files that contain a
+.B termcap
+database. It holds a list of filenames separated by
+colons or spaces (i.e., ":" or " ").
+See section
+.B Parameter Substitution
+above for more information.
+.LP
+.ne 6
+The following escape sequences are understood by the
+.B termcap
+implementation used by
+.BR sh :
+.TP 8
+.B \e\e
+The literal character
+.BR \e .
+.PD 0
+.TP
+.B \eE
+The
+.B ESC
+character (ASCII
+.BR 033 ).
+.TP
+.B \ee
+The
+.B ESC
+character (ASCII
+.BR 033 ).
+.TP
+.B \e^
+The literal character
+.BR ^ .
+.TP
+.B \e:
+The literal character
+.BR : .
+.TP
+.B \e,
+The literal character
+.BR , .
+.TP
+.B \eb
+The
+.B BACKSPACE
+character (ASCII
+.BR 010 ).
+.TP
+.B \ef
+The
+.B FORMFEED
+character (ASCII
+.BR 014 ).
+.TP
+.B \el
+The
+.B LINEFEED
+character (ASCII
+.BR 012 ).
+.TP
+.B \en
+The
+.B NEWLINE
+character (ASCII
+.BR 012 ).
+.TP
+.B \er
+The
+.B CR
+character (ASCII
+.BR 015 ).
+.TP
+.B \es
+The
+.B SPACE
+character (ASCII
+.BR 040 ).
+.TP
+.B \et
+The
+.B TAB
+character (ASCII
+.BR 007 ).
+.TP
+.B \ev
+The
+.B VERTICAL TAB
+character (ASCII
+.BR 013 ).
+.TP
+.BI ^ c
+Maps to
+.BI control( c )
+for any appropriate
+.BR c .
+.TP
+.B ^?
+The
+.B DEL
+character (ASCII
+.BR 0177 ).
+.TP
+.BI \e nnn
+Maps to a character with the octal representation
+.I nnn
+with 1..3 octal digits.
+.TP
+.B \e0
+Maps to ASCII
+.BR 0200 .
+.TP
+.B ^@
+Maps to ASCII
+.BR 00 .
+.PD
+.LP
+Mapping
+.B \e0
+to ASCII
+.B 0200
+is required by the
+.B termcap
+documentation.
+A real
+.B nul character
+created from
+.RB ( ^@ )
+is currently neither supported by the upper layers of
+.BR termcap ,
+nor by the upper layers of the mapper.
 
 .SH ENVIRONMENT
 .TP

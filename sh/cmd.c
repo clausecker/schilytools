@@ -38,11 +38,11 @@
 /*
  * This file contains modifications Copyright 2008-2015 J. Schilling
  *
- * @(#)cmd.c	1.31 15/09/15 2008-2015 J. Schilling
+ * @(#)cmd.c	1.32 15/10/24 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)cmd.c	1.31 15/09/15 2008-2015 J. Schilling";
+	"@(#)cmd.c	1.32 15/10/24 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -220,12 +220,18 @@ term(flg)
 	{
 		struct trenod	*left;
 		struct trenod	*right;
+		struct trenod	*tr;
 		int		pio = wdnum & IOUFD;
 
 		if (wdnum == 0)
 			pio = STDOUT_FILENO;
 		left = makefork(FPOU|pio, t);
-		right = makefork(FPIN, term(NLFLG));
+		tr = term(NLFLG);
+#if defined(DO_PIPE_SYNTAX_E)
+		if (tr == NULL)
+			synbad();
+#endif
+		right = makefork(FPIN, tr);
 		return (makefork(0, makelist(TFIL, left, right)));
 	}
 	else
