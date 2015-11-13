@@ -1,4 +1,4 @@
-#ident @(#)local.cnf	1.11 14/04/03 
+#ident @(#)local.cnf	1.12 15/11/10 
 ###########################################################################
 # Written 1998-2014 by J. Schilling
 ###########################################################################
@@ -36,7 +36,8 @@ $(ARCHDIR)/local.cnf $(ARCHDIR)/lconfig.h: $(LCONFIG_DEP) $(ARCHDIR)/Inull \
 	$(RUL_LCONF)
 
 ###########################################################################
-RUL_LCONF=	@echo "	==> CONFIGURING LOCAL RULES \"$@\""; $(RM_F) $@; \
+RUL_LCONF=	@echo "	==> CONFIGURING LOCAL RULES \"$@\""; \
+		$(RM_F) $(ARCHDIR)/local.cnf $(ARCHDIR)/lconfig.h; \
 		cd $(ARCHDIR); \
 		CONFIG_NOFAIL=TRUE CC="$(XCC_COM)" CFLAGS="$(CFLAGS)" \
 		CXXFLAGS="$(C++FLAGS)" CPPFLAGS="$(OS_DEFS)" \

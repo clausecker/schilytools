@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2015 J. Schilling
  *
- * @(#)xec.c	1.47 15/09/11 2008-2015 J. Schilling
+ * @(#)xec.c	1.48 15/11/12 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)xec.c	1.47 15/09/11 2008-2015 J. Schilling";
+	"@(#)xec.c	1.48 15/11/12 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -64,12 +64,17 @@ static	UConst char sccsid[] =
 #endif
 
 pid_t parent;
+#ifdef	DO_PIPE_PARENT
+static jmp_buf	forkjmp;	/* To go back to TNOFORK in case of builtins */
+#endif
 
 	int	execute		__PR((struct trenod *argt,
 					int xflags, int errorflg,
 					int *pf1, int *pf2));
 	void	execexp		__PR((unsigned char *s, Intptr_t f));
 static	void	execprint	__PR((unsigned char **));
+static	int	ismonitor	__PR((int xflags));
+static	int	exallocjob	__PR((struct trenod *t, int xflags));
 
 #define	no_pipe	(int *)0
 
@@ -176,6 +181,23 @@ int *pf1, *pf2;
 					cmdhash = pathlook(com[0],
 							1, comptr(t)->comset);
 
+#ifdef	DO_PIPE_PARENT
+				if (xflags & XEC_NOBLTIN) {
+					/*
+					 * Check whether we cannot run the
+					 * builtin in the main shell because we
+					 * would need to fork when in the
+					 * middle of a longer pipe.
+					 */
+					comtype = hashtype(cmdhash);
+					if (comtype == BUILTIN ||
+					    comtype == FUNCTION) {
+						tdystak(sav, iosav);
+						longjmp(forkjmp, 1);
+					}
+				}
+#endif	/* DO_PIPE_PARENT */
+
 				if (argn == 0 ||
 				    (comtype = hashtype(cmdhash)) == BUILTIN) {
 #ifdef	DO_POSIX_SPEC_BLTIN
@@ -218,6 +240,11 @@ int *pf1, *pf2;
 						    (COMMAND | REL_COMMAND)) {
 						pos = hashdata(cmdhash);
 					} else if (comtype == BUILTIN) {
+#ifdef	DO_PIPE_PARENT
+						pid_t	pgid = curpgid();
+						int	monitor =
+							    ismonitor(xflags);
+#endif
 #ifdef	DO_TIME
 						struct job	*jp = NULL;
 
@@ -239,6 +266,11 @@ int *pf1, *pf2;
 #endif
 						builtin(hashdata(cmdhash),
 								argn, com, t);
+#ifdef	DO_PIPE_PARENT
+						resetjobfd();	/* Rest stdin */
+						if (monitor)
+							settgid(mypgid, pgid);
+#endif
 #ifdef	DO_POSIX_SPEC_BLTIN
 						if (pushov)
 							namscan(popval);
@@ -274,6 +306,9 @@ int *pf1, *pf2;
 						    errorflg, pf1, pf2);
 						execbrk = 0;
 						restore(idx);
+#ifdef	DO_PIPE_PARENT
+						resetjobfd();	/* Rest stdin */
+#endif
 						(void) restorargs(olddolh,
 								funcnt);
 						dolv = olddolv;
@@ -298,6 +333,9 @@ int *pf1, *pf2;
 			/* FALLTHROUGH */
 
 		case TFORK:		/* running forked cmd */
+#ifdef	DO_PIPE_PARENT
+		dofork:			/* In case we modify a TNOFORK cmd */
+#endif
 		{
 			int monitor = 0;
 			int linked = 0;
@@ -317,34 +355,25 @@ int *pf1, *pf2;
 
 			if (!(xflags & XEC_EXECED) || treeflgs&(FPOU|FAMP))
 			{
-
 				int forkcnt = 1;
 
-				if (!(treeflgs&FPOU))
-				{
-					monitor = (!(xflags & XEC_NOSTOP) &&
-					    (flags&(monitorflg|jcflg|jcoff))
-					    == (monitorflg|jcflg));
-					if (monitor) {
-						int save_fd;
-
-						save_fd = setb(-1);
-						prcmd(t);
-						allocjob((char *)stakbot,
-							cwdget(), monitor);
-						(void) setb(save_fd);
-					} else {
-						allocjob("",
-							(unsigned char *)"", 0);
-					}
+#ifdef	DO_PIPE_PARENT
+				if ((xflags & XEC_ALLOCJOB) ||
+				    !(treeflgs & FPOU)) {
+#else
+				if (!(treeflgs & FPOU)) {
+#endif
+					/*
+					 * Allocate job slot
+					 */
+					monitor = exallocjob(t, xflags);
+#ifdef	DO_PIPE_PARENT
+					xflags |= XEC_ALLOCJOB;
+#endif
 				}
 
-				if (treeflgs & (FPOU|FAMP)) {
-					link_iodocs(iotemp);
-					linked = 1;
-				}
 #ifdef	HAVE_VFORK
-				else if (type == TCOM) {
+				if (type == TCOM) {
 					if (com != NULL && com[0] != ENDARGS &&
 					    !(flags & vforked)) {
 						isvfork = TRUE;
@@ -363,9 +392,18 @@ int *pf1, *pf2;
 					 * that would be clobbered by vfork().
 					 */
 				}
+				if (!isvfork &&
+				    (treeflgs & (FPOU|FAMP))) {
+					link_iodocs(iotemp);
+					linked = 1;
+				}
 script:
 				while ((parent = isvfork?vfork():fork()) == -1)
 #else
+				if (treeflgs & (FPOU|FAMP)) {
+					link_iodocs(iotemp);
+					linked = 1;
+				}
 				while ((parent = fork()) == -1)
 #endif
 				{
@@ -397,7 +435,17 @@ script:
 				sh_sleep(forkcnt);
 				}
 
-				if (parent) {
+				if (parent) {	/* Parent != 0 -> Child pid */
+#ifdef	DO_PIPE_PARENT
+					pid_t pgid = curpgid();
+
+					/*
+					 * The first process in this command
+					 * Remember the id as process group.
+					 */
+					if (pgid == 0 && monitor)
+						setjobpgid(parent);
+#endif
 					/*
 					 * XXX Do we need to call restoresigs()
 					 * XXX here too on Solaris?
@@ -416,7 +464,11 @@ script:
 					}
 #endif
 					if (monitor)
+#ifdef	DO_PIPE_PARENT
+						setpgid(parent, pgid);
+#else
 						setpgid(parent, 0);
+#endif
 					if (treeflgs & FPIN)
 						closepipe(pf1);
 					if (!(treeflgs&FPOU)) {
@@ -458,6 +510,30 @@ script:
 					break;		/* From case TFORK: */
 				}
 				mypid = getpid();	/* This is the child */
+#ifdef	DO_PIPE_PARENT
+				if (monitor) {
+					pid_t pgid = curpgid();
+
+					/*
+					 * The first process in this command
+					 * Remember the id as process group.
+					 *
+					 * In special when using vfork together
+					 * with the new pipe setup, we need to
+					 * set the process group for every
+					 * child but cannot do this from the
+					 * parent as the parent process is
+					 * blocked until the child called exec()
+					 */
+					if (pgid == 0) {
+						pgid = mypid;
+						setjobpgid(pgid);
+					}
+					setpgid(mypid, pgid);
+					if (!(treeflgs & FAMP))
+						settgid(pgid, mypgid);
+				}
+#endif	/* DO_PIPE_PARENT */
 			}
 
 			/*
@@ -536,6 +612,62 @@ script:
 			/* NOTREACHED */
 		}
 
+#ifdef	DO_PIPE_PARENT
+		case TNOFORK:		/* running avoid fork cmd */
+		{
+			struct trenod	*anod = forkptr(t)->forktre;
+
+			/*
+			 * pipe-in only -> last element of a pipeline
+			 * we execute builtin command in the main shell
+			 */
+			if ((treeflgs & ~COMMSK) == FPIN) {
+				int		sfd = -1;
+				extern short	topfd;
+
+				if ((xflags & XEC_STDINSAV) == 0) {
+					/*
+					 * Move stdin to save it. This move is
+					 * restored from inside postjob().
+					 */
+					sfd = topfd;
+					fdmap[topfd].org_fd = STDIN_FILENO;
+					fdmap[topfd].dup_fd =
+							savefd(STDIN_FILENO);
+					setjobfd(fdmap[topfd++].dup_fd, sfd);
+				}
+				renamef(pf1[INPIPE], STDIN_FILENO);
+				close(pf1[OTPIPE]);
+				execute(anod,
+					xflags | XEC_STDINSAV,
+					errorflg, pf1, pf2);
+				break;
+			}
+
+			/*
+			 * Other cases: need to fork if a builtin is part
+			 * of a pipeline. This construct helps to use vfork for
+			 * non-builtin commands.
+			 */
+			if (setjmp(forkjmp)) {
+				type = TFORK;
+				xflags |= XEC_ALLOCJOB;	/* Was in a register? */
+				goto dofork;
+			} else {
+				struct comnod	tnod;
+
+				tnod = *comptr(anod);
+				tnod.comtyp |= treeflgs & (FPIN|FPOU|IOFMSK);
+				execute(treptr(&tnod),
+					xflags | XEC_NOBLTIN,
+					errorflg, pf1, pf2);
+				break;
+			}
+		}
+			/* NOTREACHED */
+#endif	/* DO_PIPE_PARENT */
+
+
 		case TPAR:		/* "()" parentized cmd */
 			/*
 			 * Forked process is subshell:  may want job control
@@ -555,11 +687,24 @@ script:
 				int pv[2];
 
 				chkpipe(pv);
+
+#ifdef	DO_PIPE_PARENT
+				if (!(xflags & XEC_ALLOCJOB) &&
+				    !(treeflgs&FPOU)) {
+					/*
+					 * Allocate job slot
+					 */
+					exallocjob(t, xflags);
+					xflags |= XEC_ALLOCJOB;
+				}
+#endif	/* DO_PIPE_PARENT */
 				if (execute(lstptr(t)->lstlef,
-				    xflags & XEC_NOSTOP, errorflg,
+				    xflags & (XEC_NOSTOP|XEC_ALLOCJOB),
+				    errorflg,
 				    pf1, pv) == 0) {
 					execute(lstptr(t)->lstrit,
-						xflags, errorflg,
+						xflags,
+						errorflg,
 						pv, pf2);
 				} else {
 					closepipe(pv);
@@ -758,4 +903,34 @@ execprint(com)
 	}
 
 	newline();
+}
+
+static int
+ismonitor(xflags)
+	int		xflags;
+{
+	return (!(xflags & XEC_NOSTOP) &&
+		    (flags&(monitorflg|jcflg|jcoff)) == (monitorflg|jcflg));
+}
+
+static int
+exallocjob(t, xflags)
+	struct trenod	*t;
+	int		xflags;
+{
+	int	monitor = ismonitor(xflags);
+
+	if (xflags & XEC_ALLOCJOB) {
+		/* EMPTY */;
+	} else if (monitor) {
+		int save_fd;
+
+		save_fd = setb(-1);
+		prcmd(t);
+		allocjob((char *)stakbot, cwdget(), monitor);
+		(void) setb(save_fd);
+	} else {
+		allocjob("", (unsigned char *)"", 0);
+	}
+	return (monitor);
 }

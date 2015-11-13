@@ -39,7 +39,7 @@
 /*
  * Copyright 2008-2015 J. Schilling
  *
- * @(#)defs.h	1.123 15/11/03 2008-2015 J. Schilling
+ * @(#)defs.h	1.124 15/11/12 2008-2015 J. Schilling
  */
 
 #ifdef	__cplusplus
@@ -54,6 +54,9 @@ extern "C" {
 #define		XEC_EXECED	01	/* Forked cmd with recursive execute */
 #define		XEC_LINKED	02	/* Forked lhs of "|" or "&"	    */
 #define		XEC_NOSTOP	04	/* Do no jobcontrol for this cmd    */
+#define		XEC_NOBLTIN	010	/* Do not execute functions / bltins */
+#define		XEC_STDINSAV	020	/* STDIN_FILENO was moved away	    */
+#define		XEC_ALLOCJOB	040	/* A job slot was already allocated */
 
 /* endjobs flags */
 #define		JOB_STOPPED	01
@@ -81,7 +84,7 @@ extern "C" {
 #define		FPIN		0x0100	/* PIPE from stdin		*/
 #define		FPOU		0x0200	/* PIPE to stdout		*/
 #define		FAMP		0x0400	/* Forked because of "cmd &"	*/
-#define		COMMSK		0x00F0	/* Node type mask, see below	*/
+#define		COMMSK		0x10F0	/* Node type mask, see below	*/
 #define		CNTMSK		0x000F	/* Count mask - no longer used	*/
 #define		IOFMSK		0x000F	/* I/O fd# mask for pipes	*/
 
@@ -96,6 +99,7 @@ extern "C" {
 #define		TAND		0x0080	/* "&&" command node		*/
 #define		TORF		0x0090	/* "||" command node		*/
 #define		TFORK		0x00A0	/* node running forked cmd	*/
+#define		TNOFORK		0x10A0	/* node running avoid fork cmd	*/
 #define		TFOR		0x00B0	/* for ... do .. done node	*/
 #define		TFND		0x00C0	/* function definition node	*/
 
@@ -502,6 +506,7 @@ extern	void	restore		__PR((int last));
 extern	char	*code2str	__PR((int code));
 extern	void	collect_fg_job	__PR((void));
 extern	void	freejobs	__PR((void));
+extern	int	settgid		__PR((pid_t new, pid_t expexted));
 extern	void	startjobs	__PR((void));
 extern	int	endjobs		__PR((int check_if));
 extern	void	allocjob	__PR((char *_cmd, unsigned char *cwd,
@@ -515,6 +520,10 @@ extern	void	makejob		__PR((int monitor, int fg));
 extern	struct job *
 		postjob		__PR((pid_t pid, int fg, int blt));
 extern	void	deallocjob	__PR((struct job *jp));
+extern	pid_t	curpgid		__PR((void));
+extern	void	setjobpgid	__PR((pid_t pgid));
+extern	void	setjobfd	__PR((int fd, int sfd));
+extern	void	resetjobfd	__PR((void));
 extern	void	sysjobs		__PR((int argc, unsigned char *argv[]));
 extern	void	sysfgbg		__PR((int argc, char *argv[]));
 extern	void	syswait		__PR((int argc, char *argv[]));
@@ -793,6 +802,8 @@ extern	void	execexp		__PR((unsigned char *s, Intptr_t f));
 #define		_gettext(s)	(unsigned char *)gettext(s)
 
 /*
+ * Exit shell or longjmp before next prompt.
+ *
  * macros using failed_real(). Only s2 is gettext'd with both functions.
  *
  * Called from "fatal errors", from locations where either a real exit() is
@@ -805,6 +816,8 @@ extern	void	execexp		__PR((unsigned char *s, Intptr_t f));
 #define		bfailedx(e, s1, s2, s3)	failed_real(e, s1, s2, s3)
 
 /*
+ * Prepare non-zero $? for this command.
+ *
  * macros using failure_real(). s1 and s2 is gettext'd with gfailure(), but
  * only s2 is gettext'd with failure().
  *

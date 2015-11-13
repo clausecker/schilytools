@@ -1,4 +1,4 @@
-/* @(#)make.h	1.99 15/04/15 Copyright 1985, 87, 91, 1995-2015 J. Schilling */
+/* @(#)make.h	1.100 15/11/06 Copyright 1985, 87, 91, 1995-2015 J. Schilling */
 /*
  *	Definitions for make.
  *	Copyright (c) 1985, 87, 91, 1995-2015 by J. Schilling
@@ -25,9 +25,18 @@
 #endif
 
 /*
- * XXX if sizeof(date_t) is < sizeof(time_t) there may be problems
+ * If sizeof(date_t) is < sizeof(time_t) there may be problems.
+ * We thus need to be careful with our typedef.
  */
+#if	SIZEOF_UNSIGNED_LONG_INT >= SIZEOF_TIME_T
 typedef unsigned long	date_t;
+#else
+#if	SIZEOF_ULLONG >= SIZEOF_TIME_T
+typedef ULlong		date_t;
+#else
+typedef	time_t		date_t;
+#endif
+#endif
 
 /*
  * XXX It may be a good idea to make "newtime" > RECURSETIME as

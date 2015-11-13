@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sh.1	1.122 15/10/14 Copyright 2012-2015 J. Schilling
+.\" @(#)sh.1	1.125 15/11/12 Copyright 2012-2015 J. Schilling
 .\" Copyright 1989 AT&T
 .\" Copyright (c) 2008, Sun Microsystems, Inc. All Rights Reserved.
 .\" Portions Copyright (c) 1992, X/Open Company Limited All Rights Reserved
@@ -59,7 +59,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sh 1 "2015/10/14" "Schily Bourne Shell" "User Commands"
+.TH sh 1 "2015/11/12" "Schily Bourne Shell" "User Commands"
 .SH NAME
 sh, jsh \- standard and job control shell and command interpreter
 .SH SYNOPSIS
@@ -6265,12 +6265,16 @@ previous behavior.
 The following incompatible changes have been introduced in order to follow the
 .B POSIX
 standard.
+.br
+.ne 4
 .TP
 .B parameter assignment
 This version of the Bourne Shell fixed the order of evaluation for
 parameter assignements to be left to right instead of right to left (as
 implemented in previous versions). This may cause scripts to fail if they
 expect the old non-standard behavior.
+.br
+.ne 4
 .TP
 .B parameter assignment preceding builtin commands
 With this version of the Bourne Shell, parameter assignment preceding
@@ -6283,12 +6287,16 @@ With this version of the Bourne Shell, only special builtin commands may
 terminate the whole shell in case that shell is not an interactive shell.
 In previous versions, all builtin commands could terminate a non-ineractive
 shell if a utility syntax error or a fatal utility error was encountered.
+.br
+.ne 4
 .TP
 .B times
 The output of the
 .B times
 command was modified to be compatible to the POSIX standard.
 This is not expected to cause problems.
+.br
+.ne 4
 .TP
 .B trap
 The output of the
@@ -6300,6 +6308,25 @@ should be converted to be portable by
 checking whether the output starts with
 .B trap --
 and then use a POSIX compliant parser.
+.LP
+The following other incompatible changes have been introduced:
+.br
+.ne 4
+.TP
+.B pipes
+While in the original Bourne Shell none of the commands from a pipeline
+command was a child of the original shell, this version of the Bourne Shell
+tries to make all simple commands in a pipeline children from the original
+shell.
+In addition, if a builtin command is the rightmost command of a pipeline,
+it will now be run in the original shell.
+This permits commands like:
+.sp
+.BI " echo foo | read " var
+.sp
+to set the variable
+.I var
+in the main shell.
 
 .br
 .ne 5
@@ -6351,3 +6378,8 @@ The download directory is:
 Check for the
 .B schily\-*.tar.bz2
 archives.
+.LP
+Separate project informations for the Schily Bourne Shell project may be retrieved from:
+.LP
+.B
+    http://schilytools.sourceforge.net/bosh.php

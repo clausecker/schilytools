@@ -1,0 +1,123 @@
+New features with AN-2015-11-12:
+
+This is the first localization step for the schily source consolidation. Many
+programs now (hopefully) call gettext() for all strings that need localization.
+
+-	The next step will include dgettext() calls for the libraries and the
+	missing programs
+
+-	The following step will include the extracted strings
+
+-	The last step will include German translations and install support
+	for the resulting binary message object files.
+
+----------> Please test and report compilation problems! <---------
+
+***** NOTE: As mentioned since 2004, frontends to the tools should *****
+*****		call all programs in the "C" locale		   *****
+*****		by e.g. calling: LC_ALL=C cdrecord ....		   *****
+*****		unless these frontends support localized strings   *****
+*****		used by the cdrtools with NLS support.		   *****
+
+		*** WARNING        ***
+		*** Need new smake ***
+
+	*** Due to the fact that schily-tools 2014-04-03 introduced to use new macro
+	*** expansions and a related bug fix in smake, you need a new smake
+	*** to compile this source. To ensure this, call:
+
+	cd ./psmake
+	./MAKE-all
+	cd ..
+	psmake/smake
+	psmake/smake install
+
+
+	WARNING: the new version of the isoinfo program makes use of the 
+		*at() series of functions that have been introduced by Sun
+		in August 2001 and added to POSIX.1-2008. For older platforms,
+		libschily now includes emulations for these functions but
+		these emulations have not yet been tested thoroughly.
+		Please report problems!
+
+	The new smake version mentioned above is smake-1.2.4
+
+-	Makefile system: the rules for running "configure" have been changed so
+	that an updated autoconf/configure file only results in a single
+	"configure" run as now, the two resulting files are both removed before
+	"configure" is called.
+
+-	Trying to support "Minix" and "Bitrig" in config.guess and config.sub.
+
+-	star now flushes the verbose file stream before checking for missing
+	links. This tries to avoid mixed output when people call
+		star  2>&1 | tee
+
+-	mkisofs -> isoinfo: Implement a workaround for filesystem images that
+	have been created with "mkisofs -r" and add directory wrote permission
+	for the owner if not run by root.
+
+-	mkisofs -> isoinfo: Call chmod() after chown() to avoid a reset
+	of the suid and sgid bits.
+
+-	mkisofs -> isoinfo: Skip the "rr_moved" directory in Rock Ridge mode.
+
+-	mkisofs -> isoinfo: Support for following relocated Rock Ridge
+	directories was added.
+
+-	smake: make.h now contains a typedef for date_t that is compatible with
+	sizeof (time_t) == 8 on a 32 bit platform. This follows a comment from
+	2001 when there was no related autocinf test yet.
+	This makes smake work on Minix 3.
+	Thanks to Heiko Eiﬂfeldt for reporting.
+
+-	Added support for Minix 3 in the makefile rules.
+	Thanks to Heiko Eiﬂfeldt for reporting.
+
+-	bsh: Use our wait3() emulation only if waitid() is present.
+	Thanks to Heiko Eiﬂfeldt for reporting.
+
+-	Bourne Shell: The parser and the interpreter have been rewritten to make
+	all simple commands from a pipeline children of the main shell and in
+	order to make the rightmost programm an unforked shell builtin if it is
+	a builtin. This permits e.g.
+
+		echo bla | read var
+
+	to set the shell macro "var" in the main shell.
+
+	As this was a major rewrite, please test and report problems!
+	
+-	Bourne Shell: jobs -p now correctly prints the progrss group id for jobs 
+	instead of printing the process id of the rightmost process.
+
+
+-	The following builtins (that are available in bsh) are still missing in
+	the Bourne Shell:
+
+	err			echo with output going to stderr
+	glob			echo with '\0' instead of ' ' between args
+	env			a builtin version of /usr/bin/env
+
+	The following bsh intrinsics are still missing in the Bourne Shell:
+
+	-			the restricted bsh has restriction features that
+				are missing in the Bourne shell.
+
+	-	source -h	read file into history but do not excute
+
+	and probably more features not yet identified to be bsh unique.
+
+
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.net, js@cs.tu-berlin.de
+	joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

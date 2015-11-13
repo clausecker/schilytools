@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2015 J. Schilling
  *
- * @(#)jobs.c	1.74 15/11/03 2008-2015 J. Schilling
+ * @(#)jobs.c	1.76 15/11/12 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)jobs.c	1.74 15/11/03 2008-2015 J. Schilling";
+	"@(#)jobs.c	1.76 15/11/12 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -199,6 +199,10 @@ static int		eofflg,
 			jobcnt,	 /* number of active jobs		 */
 			jobdone, /* number of active but finished jobs	 */
 			jobnote; /* jobs requiring notification		 */
+static int		jobfd;	 /* fd where stdin was moved during job	 */
+#ifdef	DO_PIPE_PARENT
+static int		jobsfd;	 /* saved topfd when jobfd > 0		 */
+#endif
 static pid_t		svpgid,	 /* saved process group ID		 */
 			svtgid;	 /* saved foreground process group ID	 */
 static struct job	*jobcur, /* active jobs listed in currency order */
@@ -221,12 +225,16 @@ static int	statjob		__PR((struct job *jp,
 static void	collectjobs	__PR((int wnohang));
 	void	freejobs	__PR((void));
 static void	waitjob		__PR((struct job *jp));
-static	int	settgid		__PR((pid_t new, pid_t expexted));
+	int	settgid		__PR((pid_t new, pid_t expexted));
 static void	restartjob	__PR((struct job *jp, int fg));
 static void	printjob	__PR((struct job *jp, int propts));
 	void	startjobs	__PR((void));
 	int	endjobs		__PR((int check_if));
 	void	deallocjob	__PR((struct job *jp));
+	pid_t	curpgid		__PR((void));
+	void	setjobpgid	__PR((pid_t pgid));
+	void	resetjobfd	__PR((void));
+	void	setjobfd	__PR((int fd, int sfd));
 	void	allocjob	__PR((char *cmdp,
 					unsigned char *cwdp, int monitor));
 	void	clearjobs	__PR((void));
@@ -472,9 +480,14 @@ statjob(jp, si, fg, rc)
 			if ((tgid = settgid(mypgid, jp->j_pgid)) != 0)
 				jp->j_tgid = tgid;
 			else {
+				int	fd = STDIN_FILENO;
+
 				jp->j_flag |= J_SAVETTY;
-				tcgetattr(0, &jp->j_stty);
-				(void) tcsetattr(0, TCSANOW, &mystty);
+				if (tcgetattr(fd, &jp->j_stty) < 0 &&
+				    jobfd > 0 && !isatty(fd)) {
+					tcgetattr(fd = jobfd, &jp->j_stty);
+				}
+				(void) tcsetattr(fd, TCSANOW, &mystty);
 			}
 		}
 		if (jp->j_jid) {
@@ -507,8 +520,13 @@ statjob(jp, si, fg, rc)
 			pid_t	jgid = getpgid(jp->j_pid);
 
 			if (!settgid(mypgid, jp->j_pgid) ||
-			    !settgid(mypgid, jgid == (pid_t)-1 ? svpgid:jgid))
-				tcgetattr(0, &mystty);
+			    !settgid(mypgid, jgid == (pid_t)-1 ? svpgid:jgid)) {
+				int	fd = STDIN_FILENO;
+
+				if (tcgetattr(fd, &mystty) < 0 &&
+				    jobfd > 0 && !isatty(fd))
+					tcgetattr(jobfd, &mystty);
+			}
 		}
 	}
 	if (rc) {
@@ -620,6 +638,7 @@ waitjob(jp)
 	int		wflags;
 	int		ret = 0;
 	int		err = 0;
+	struct job	j;
 
 #ifdef	DO_TIME
 	getrusage(RUSAGE_CHILDREN, &jp->j_rustart);
@@ -652,9 +671,10 @@ waitjob(jp)
 	 * exists. Other systems may not have set the final process group of
 	 * this pid before we start to waid and after the wait, the process
 	 * cannot be retrieved anymore as it was already removed.
-	 * To be always able to retrieve the progrcc group for pid, we need
-	 * to call statjog() here.
+	 * To be always able to retrieve the progcess group for pid, we need
+	 * to call statjob() here.
 	 */
+	j = *jp;
 	jdone = statjob(jp, &si, 1, 1);	/* Sets exitval, see below */
 	/*
 	 * Avoid hang on FreeBSD, so wait/reap here only for died children.
@@ -670,18 +690,42 @@ waitjob(jp)
 		si.si_stime = si2.si_stime;
 #endif
 	}
-#else
+#else	/* WNOWAIT == 0 */
 	/*
 	 * Inclomplete waitid() implementation (e.g. Linux). We may fail
 	 * to get the right progrss group for pid and fail to restore
 	 * our process group in the terninal.
 	 */
+	j = *jp;
 	jdone = statjob(jp, &si, 1, 1);	/* Sets exitval, see below */
+#endif	/* WNOWAIT != 0 */
+
+#ifndef	DO_PIPE_PARENT
+	/*
+	 * This is a hack for now as long as we don't have a node for every
+	 * process created by the main shell. We currently don't know whether
+	 * we may call waitid() without WNOHANG. Currently we may miss a
+	 * process for every pipeline we create and catch it only with the
+	 * next foreground command.
+	 */
+	/* CONSTCOND */
+	while (1) {
+		errno = 0;
+		si.si_pid = 0;
+		err = waitid(P_ALL, 0, &si, wflags|WCONTINUED|WNOHANG);
+		if (si.si_pid == 0 || (err == -1 && errno == ECHILD))
+			break;
+	}
 #endif
 
 #ifdef	DO_TIME
+	/*
+	 * Currently, jp is free()d by statjob() and we need to use a copy.
+	 * This may change once we introduce an own process node for every
+	 * process from a pipe created with DO_PIPE_PARENT.
+	 */
 	if (flags2 & timeflg)
-		prtime(jp);
+		prtime(&j);
 #endif
 
 	if (jdone && exitval && (flags & errflg))
@@ -693,17 +737,30 @@ waitjob(jp)
  * modify the foreground process group to *new* only if the
  * current foreground process group is equal to *expected*
  */
-static int
+int
 settgid(new, expected)
 pid_t new, expected;
 {
-	pid_t current = tcgetpgrp(STDIN_FILENO);
+	int	fd = STDIN_FILENO;
+	pid_t	current = tcgetpgrp(fd);
 
+	/*
+	 * "current" may be -1 in case that STDIN_FILENO was a renamed pipe,
+	 * and errno in this case will be ENOTTY or EINVAL.
+	 * Try to use the moved stdin in this case.
+	 */
+	if (current == (pid_t)-1 && jobfd > 0 && !isatty(fd))
+		current = tcgetpgrp(fd = jobfd);
+
+	/*
+	 * Another case is when tcgetpgrp() worked but returned a different id
+	 * than expected. Do not try to call tcsetpgrp() in any of the cases.
+	 */
 	if (current != expected)
 		return (current);
 
 	if (new != current)
-		tcsetpgrp(STDIN_FILENO, new);
+		tcsetpgrp(fd, new);
 
 	return (0);
 }
@@ -732,10 +789,16 @@ restartjob(jp, fg)
 #ifdef	VDSUSP
 			jp->j_stty.c_cc[VDSUSP] = mystty.c_cc[VDSUSP];
 #endif
-			(void) tcsetattr(0, TCSADRAIN, &jp->j_stty);
+			(void) tcsetattr(STDIN_FILENO, TCSADRAIN, &jp->j_stty);
 		}
 		(void) settgid(jp->j_tgid, mypgid);
 	}
+	/*
+	 * First explicitly continue the foreground process as we otherwise may
+	 * get a CLD_STOPPED message from waitid() in case of a longer pipeline
+	 * where it may take some time to wakeup all processes from a group.
+	 */
+	(void) kill(thisjob->j_pid, SIGCONT);
 	(void) kill(-(jp->j_pgid), SIGCONT);
 	if (jp->j_tgid != jp->j_pgid)
 		(void) kill(-(jp->j_tgid), SIGCONT);
@@ -787,7 +850,7 @@ printjob(jp, propts)
 	if (propts & PR_PGID) {
 		while (sp-- > 0)
 			prc_buff(SPACE);
-		prn_buff(jp->j_pid);
+		prn_buff(jp->j_pgid);
 		sp = 1;
 	}
 
@@ -867,7 +930,7 @@ startjobs()
 {
 	svpgid = mypgid;
 
-	if (tcgetattr(0, &mystty) == -1 ||
+	if (tcgetattr(STDIN_FILENO, &mystty) == -1 ||
 	    (svtgid = tcgetpgrp(STDIN_FILENO)) == -1) {
 		flags &= ~jcflg;
 		return;
@@ -937,6 +1000,56 @@ deallocjob(jp)
 	jobcnt--;
 }
 
+#ifdef	DO_PIPE_PARENT
+/*
+ * Return current process group id.
+ */
+pid_t
+curpgid()
+{
+	if (!thisjob)
+		return (0);
+	return (thisjob->j_pgid);
+}
+
+/*
+ * Set up "pgid" as process group id in case this has noe been done already.
+ */
+void
+setjobpgid(pgid)
+	pid_t	pgid;
+{
+	if (!thisjob)
+		return;
+	if (thisjob->j_jid) {
+		thisjob->j_pgid = pgid;
+	} else {
+		thisjob->j_pgid = mypgid;
+	}
+}
+
+void
+setjobfd(fd, sfd)
+	int	fd;
+	int	sfd;
+{
+	jobfd = fd;
+	jobsfd = sfd;
+}
+
+void
+resetjobfd()
+{
+	/*
+	 * Restore stdin in case it was moved away.
+	 */
+	if (jobfd > 0) {
+		restore(jobsfd);
+		jobsfd = jobfd = 0;
+	}
+}
+#endif	/* DO_PIPE_PARENT */
+
 /*
  * Called by the shell to reserve a job slot for a job about to be spawned.
  * Resulting job slot is in "thisjob".
@@ -965,6 +1078,8 @@ allocjob(cmdp, cwdp, monitor)
 	jp->j_pwd = jp->j_cmd + cmdlen;
 	strcpy(jp->j_pwd, (char *)cwdp);
 	jp->j_nxtp = jp->j_curp = NULL;
+	jp->j_flag = 0;
+	jp->j_pid = jp->j_pgid = jp->j_tgid = 0;
 
 	jpp = &joblst;
 
@@ -1004,10 +1119,12 @@ makejob(monitor, fg)
 	int	fg;
 {
 	if (monitor) {
+#ifndef	DO_PIPE_PARENT
 		mypgid = mypid;
 		setpgid(0, 0);
 		if (fg)
 			tcsetpgrp(STDIN_FILENO, mypid);
+#endif
 		handle(SIGTTOU, SIG_DFL);
 		handle(SIGTSTP, SIG_DFL);
 	} else if (!fg) {
@@ -1047,13 +1164,28 @@ postjob(pid, fg, blt)
 		*nextjob = thisjob;
 		thisjob->j_curp = jobcur;
 		jobcur = thisjob;
+#ifdef	DO_PIPE_PARENT
+		resetjobfd();	/* Restore stdin in case it was moved away. */
+#endif
 	}
 
+	/*
+	 * In case of the historic pipe setup, the rightmost program in a pipe
+	 * was the process group leader and it's pid was equal to j_pgid.
+	 * With the new optimized pipe setup where the shell is the parent
+	 * of all pipe processes, the process group leader is the leftmost
+	 * program in a pipe. postjob() hoewver is called for the rightmost
+	 * program as we wait for it.
+	 * We thus are not allowed to overwrite j_pgid in the latter case after
+	 * it has been set up for the process group leader via setjobpgid().
+	 */
 	if (thisjob->j_jid) {
-		thisjob->j_pgid = pid;
+		if (thisjob->j_pgid == 0)
+			thisjob->j_pgid = pid;
 		propts = PR_JID|PR_PGID;
 	} else {
-		thisjob->j_pgid = mypgid;
+		if (thisjob->j_pgid == 0)
+			thisjob->j_pgid = mypgid;
 		propts = PR_PGID;
 	}
 

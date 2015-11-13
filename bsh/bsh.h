@@ -1,4 +1,4 @@
-/* @(#)bsh.h	1.63 15/08/17 Copyright 1985-2015 J. Schilling */
+/* @(#)bsh.h	1.64 15/11/08 Copyright 1985-2015 J. Schilling */
 /*
  *	Bsh general definitions
  *
@@ -408,6 +408,7 @@ extern	void	*get_heapend	__PR((void));
  */
 #ifndef	_LFS64_ASYNCHRONOUS_IO		/* Hack for Solaris >= 2.6 */
 #ifndef	HAVE_WAIT3
+#ifdef	HAVE_WAITID
 #ifdef	RUSAGE_SELF
 #ifdef	_SCHILY_WAIT_H			/* Needed for WAIT_T */
 
@@ -417,6 +418,7 @@ extern	void	*get_heapend	__PR((void));
  */
 extern	pid_t	wait3	__PR((WAIT_T *status, int options,
 						struct rusage *rusage));
+#endif
 #endif
 #endif
 #endif

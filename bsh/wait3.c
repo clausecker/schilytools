@@ -1,9 +1,9 @@
-/* @(#)wait3.c	1.19 15/08/17 Copyright 1995-2015 J. Schilling */
+/* @(#)wait3.c	1.20 15/11/08 Copyright 1995-2015 J. Schilling */
 #undef	USE_LARGEFILES	/* XXX Temporärer Hack für Solaris */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)wait3.c	1.19 15/08/17 Copyright 1995-2015 J. Schilling";
+	"@(#)wait3.c	1.20 15/11/08 Copyright 1995-2015 J. Schilling";
 #endif
 /*
  * Compatibility function for BSD wait3().
@@ -99,7 +99,7 @@ static	UConst char sccsid[] =
 #endif
 
 
-#if	defined(HAVE_WAIT3) || !defined(HAVE_SYS_PROCFS_H)
+#if	defined(HAVE_WAIT3) || !defined(HAVE_SYS_PROCFS_H) || !defined(HAVE_WAITID)
 #undef	WNOWAIT
 #endif
 
@@ -112,7 +112,9 @@ static	UConst char sccsid[] =
 #include <sys/time.h>
 #include <sys/times.h>
 #include <sys/siginfo.h>
+#ifdef	HAVE_SYS_PROCSET_H
 #include <sys/procset.h>
+#endif
 #include <sys/param.h>
 #include <sys/procfs.h>
 #include <string.h>

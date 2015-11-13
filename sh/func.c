@@ -35,13 +35,13 @@
 #include "defs.h"
 
 /*
- * This file contains modifications Copyright 2008-2015 J. Schilling
+ * Copyright 2008-2015 J. Schilling
  *
- * @(#)func.c	1.16 15/08/25 2008-2015 J. Schilling
+ * @(#)func.c	1.17 15/11/12 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)func.c	1.16 15/08/25 2008-2015 J. Schilling";
+	"@(#)func.c	1.17 15/11/12 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -56,6 +56,10 @@ static void	freereg		__PR((struct regnod *));
 static	void	prbgnlst	__PR((void));
 static	void	prendlst	__PR((void));
 	void	prcmd		__PR((struct trenod *t));
+#ifdef	PARSE_DEBUG
+	void	prct		__PR((struct trenod *t));
+	void	prnt		__PR((struct trenod *t));
+#endif
 	void	prf		__PR((struct trenod *t));
 static void	prarg		__PR((struct argnod *argp));
 static void	prio		__PR((struct ionod *iop));
@@ -252,6 +256,97 @@ prcmd(t)
 	nonl = 0;
 }
 
+#ifdef	PARSE_DEBUG
+/*
+ * Print Com Type
+ */
+void
+prct(t)
+	struct trenod	*t;
+{
+	int	type;
+
+	if (!t)
+		return;
+
+	type = t->tretyp & COMMSK;
+
+	switch (type) {
+	case TFND:
+		prs_buff(UC "TFND ");
+		break;
+
+	case TCOM:
+		prs_buff(UC "TCOM ");
+		break;
+
+	case TFORK:
+		prs_buff(UC "TFORK ");
+		break;
+
+	case TNOFORK:
+		prs_buff(UC "TNOFORK ");
+		break;
+
+	case TPAR:
+		prs_buff(UC "TPAR ");
+		break;
+
+	case TFIL:
+		prs_buff(UC "TFIL ");
+		break;
+
+	case TLST:
+		prs_buff(UC "TLST ");
+		break;
+
+	case TAND:
+		prs_buff(UC "TAND ");
+		break;
+
+	case TORF:
+		prs_buff(UC "TORF ");
+		break;
+
+	case TFOR:
+		prs_buff(UC "TFOR ");
+		break;
+
+	case TWH:
+		prs_buff(UC "TWH ");
+		break;
+	case TUN:
+		prs_buff(UC "TUN ");
+		break;
+
+	case TIF:
+		prs_buff(UC "TIF ");
+		break;
+
+	case TSW:
+		prs_buff(UC "TSW ");
+		break;
+
+	default:
+		prs_buff(UC "??? ");
+	}
+}
+
+/*
+ * Print Node Type
+ */
+void
+prnt(t)
+	struct trenod	*t;
+{
+	prs_buff(UC "Node Type: ");
+	prct(t);
+	prs_buff(UC " Node addr: ");
+	prull_buff((UIntmax_t)t);
+	prc_buff(NL);
+}
+#endif
+
 void
 prf(t)
 	struct trenod	*t;
@@ -264,6 +359,9 @@ prf(t)
 
 		type = t->tretyp & COMMSK;
 
+#ifdef	PARSE_DEBUG
+		prnt(t);
+#endif
 		switch (type) {
 			case TFND:
 			{
@@ -306,6 +404,16 @@ prf(t)
 					prs_buff(UC " &");
 				break;
 
+			case TNOFORK:
+#ifdef	PARSE_DEBUG
+				prs_buff(UC "TNOFORK ");
+#endif
+				prf(forkptr(t)->forktre);
+				prio(forkptr(t)->forkio);
+				if (forkptr(t)->forktyp & FAMP)
+					prs_buff(UC " &");
+				break;
+
 			case TPAR:
 #ifdef	PARSE_DEBUG
 				prs_buff(UC "TPAR ");
@@ -316,24 +424,48 @@ prf(t)
 				break;
 
 			case TFIL:
+#ifdef	PARSE_DEBUG
+				prs_buff(UC "TFIL Left: ");
+				prnt(lstptr(t)->lstlef);
+				prs_buff(UC "TFIL right: ");
+				prnt(lstptr(t)->lstrit);
+#endif
 				prf(lstptr(t)->lstlef);
 				prs_buff(UC " | ");
 				prf(lstptr(t)->lstrit);
 				break;
 
 			case TLST:
+#ifdef	PARSE_DEBUG
+				prs_buff(UC "TLST Left: ");
+				prnt(lstptr(t)->lstlef);
+				prs_buff(UC "TLST right: ");
+				prnt(lstptr(t)->lstrit);
+#endif
 				prf(lstptr(t)->lstlef);
 				prendlst();
 				prf(lstptr(t)->lstrit);
 				break;
 
 			case TAND:
+#ifdef	PARSE_DEBUG
+				prs_buff(UC "TAND Left: ");
+				prnt(lstptr(t)->lstlef);
+				prs_buff(UC "TAND right: ");
+				prnt(lstptr(t)->lstrit);
+#endif
 				prf(lstptr(t)->lstlef);
 				prs_buff(UC " && ");
 				prf(lstptr(t)->lstrit);
 				break;
 
 			case TORF:
+#ifdef	PARSE_DEBUG
+				prs_buff(UC "TORF Left: ");
+				prnt(lstptr(t)->lstlef);
+				prs_buff(UC "TORF right: ");
+				prnt(lstptr(t)->lstrit);
+#endif
 				prf(lstptr(t)->lstlef);
 				prs_buff(UC " || ");
 				prf(lstptr(t)->lstrit);

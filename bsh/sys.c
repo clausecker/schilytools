@@ -1,11 +1,11 @@
-/* @(#)sys.c	1.74 12/04/26 Copyright 1986-2012 J. Schilling */
+/* @(#)sys.c	1.75 15/11/08 Copyright 1986-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)sys.c	1.74 12/04/26 Copyright 1986-2012 J. Schilling";
+	"@(#)sys.c	1.75 15/11/08 Copyright 1986-2015 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1986-2012 J. Schilling
+ *	Copyright (c) 1986-2015 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -14,6 +14,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -41,7 +43,7 @@ Error fexec canno be implemented
 
 /*#undef	HAVE_WAIT3*/
 /*#undef	HAVE_SYS_PROCFS_H*/
-#if	defined(HAVE_WAIT3) || defined(HAVE_SYS_PROCFS_H) /*see wait3.c*/
+#if	defined(HAVE_WAIT3) || (defined(HAVE_SYS_PROCFS_H) && defined(HAVE_WAITID)) /*see wait3.c*/
 #	ifndef	HAVE_WAITID
 	/*
 	 * XXX Hack: Interix has sys/procfs.h but no waitid()
@@ -445,7 +447,7 @@ ewait(child, flag)
 	seterrno(0);
 #endif
 	do {
-#	if	defined(HAVE_WAIT3) || defined(HAVE_SYS_PROCFS_H) /*see wait3.c*/
+#	if	defined(HAVE_WAIT3) || (defined(HAVE_SYS_PROCFS_H) && defined(HAVE_WAITID)) /*see wait3.c*/
 
 		/* Brain damaged AIX requires loop */
 		do {
@@ -476,7 +478,7 @@ printf("ewait: back from child (WSTOPPED).\n");
 			status.type = status.exit;
 			status.exit = stype;
 		}
-#	else	/* defined(HAVE_WAIT3) || defined(HAVE_SYS_PROCFS_H) */
+#	else	/* defined(HAVE_WAIT3) || (defined(HAVE_SYS_PROCFS_H) && defined(HAVE_WAITID) */
 #if	defined(HAVE_SYS_TIMES_H) && defined(HAVE_TIMES)
 		times(&tms1);
 #endif
@@ -504,7 +506,7 @@ printf("ewait: back from child (WSTOPPED).\n");
 			prusage.ru_stime.tv_usec = ((tms2.tms_cstime - tms1.tms_cstime) % CLK_TCK) * (1000000/CLK_TCK);
 		}
 #endif
-#	endif	/* ! defined(HAVE_WAIT3) || defined(HAVE_SYS_PROCFS_H) */
+#	endif	/* ! defined(HAVE_WAIT3) || (defined(HAVE_SYS_PROCFS_H) && defined(HAVE_WAITID) */
 #if defined(__BEOS__) || defined(__HAIKU__)	/* Dirty Hack for BeOS, we should better use the W* macros */
 		{	int i = status.exit;
 			status.exit = status.type;

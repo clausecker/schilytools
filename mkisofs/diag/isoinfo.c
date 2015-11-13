@@ -1,8 +1,8 @@
-/* @(#)isoinfo.c	1.95 15/07/22 joerg */
+/* @(#)isoinfo.c	1.98 15/11/13 joerg */
 #include <schily/mconfig.h>
 #ifndef	lint
 static	UConst char sccsid[] =
-	"@(#)isoinfo.c	1.95 15/07/22 joerg";
+	"@(#)isoinfo.c	1.98 15/11/13 joerg";
 #endif
 /*
  * File isodump.c - dump iso9660 directory information.
@@ -148,8 +148,10 @@ LOCAL char	er_id[256];
 LOCAL int	su_version = 0;
 LOCAL int	rr_version = 0;
 LOCAL int	aa_version = 0;
+LOCAL int	cl_extent = 0;
 LOCAL int	ucs_level = 0;
 LOCAL BOOL	iso9660_inodes = FALSE;
+LOCAL uid_t	myuid;
 
 #ifdef	USE_FIND
 LOCAL findn_t	*find_node;		/* syntaxtree from find_parse()	*/
@@ -208,6 +210,9 @@ LOCAL	void	extract		__PR((char *rootname,
 LOCAL	void	extract_file	__PR((int f,
 					struct iso_directory_record * idr,
 					char *fname));
+LOCAL	void	parse_cl_dir	__PR((struct iso_directory_record *idr,
+					int extent));
+LOCAL	BOOL	parse_de	__PR((struct iso_directory_record *idr));
 LOCAL	void	parse_dir	__PR((char * rootname, int extent, int len));
 LOCAL	void	usage		__PR((int excode));
 EXPORT	int	main		__PR((int argc, char *argv[]));
@@ -459,7 +464,6 @@ parse_rr(pnt, len, cont_flag)
 	int slen;
 	int xlen;
 	int ncount;
-	int cl_extent;
 	int pl_extent;
 	int cont_extent, cont_offset, cont_size;
 	int flag1, flag2;
@@ -469,7 +473,7 @@ parse_rr(pnt, len, cont_flag)
 
 	symlinkname[0] = 0;
 
-	cont_extent = cont_offset = cont_size = 0;
+	cl_extent = cont_extent = cont_offset = cont_size = 0;
 
 	ncount = 0;
 	flag1 = -1;
@@ -962,8 +966,14 @@ static	BOOL		isfirst = TRUE;
 	close(f);
 	return;
 setmode:
-	fchmodat(AT_FDCWD, fname, fstat_buf.st_mode, AT_SYMLINK_NOFOLLOW);
 	fchownat(AT_FDCWD, fname, fstat_buf.st_uid, fstat_buf.st_gid, AT_SYMLINK_NOFOLLOW);
+	if (myuid != 0 && S_ISDIR(fstat_buf.st_mode)) {
+		/*
+		 * Temporary hack until we have a dirstack like star.
+		 */
+		fstat_buf.st_mode |= S_IWUSR;
+	}
+	fchmodat(AT_FDCWD, fname, fstat_buf.st_mode, AT_SYMLINK_NOFOLLOW);
 	times[0].tv_sec = fstat_buf.st_atime;
 	times[0].tv_nsec = stat_ansecs(&fstat_buf);
 	times[1].tv_sec = fstat_buf.st_mtime;
@@ -1001,6 +1011,143 @@ extract_file(f, idr, fname)
 	}
 }
 
+
+LOCAL void
+parse_cl_dir(idr, extent)
+	struct iso_directory_record	*idr;
+	int				extent;
+{
+	char				cl_name_buf[256*3];
+
+	strlcpy(cl_name_buf, name_buf, sizeof (cl_name_buf));
+#ifdef	USE_SCG
+	readsecs(extent - sector_offset, idr, 1);
+#else
+	lseek(fileno(infile), ((off_t)(extent - sector_offset)) << 11, SEEK_SET);
+	read(fileno(infile), idr, 2048);
+#endif
+
+	if (parse_de(idr) && use_rock)
+		dump_rr(idr);
+	strlcpy(name_buf, cl_name_buf, sizeof (name_buf));
+}
+
+LOCAL BOOL
+parse_de(idr)
+	struct iso_directory_record	*idr;
+{
+	unsigned char	uc;
+
+	if (idr->length[0] == 0)
+		return (FALSE);
+	memset(&fstat_buf, 0, sizeof (fstat_buf));
+	found_rr = 0;
+	name_buf[0] = xname[0] = 0;
+	fstat_buf.st_size = (off_t)(unsigned)isonum_733((unsigned char *)idr->size);
+	if (idr->flags[0] & 2)
+		fstat_buf.st_mode |= S_IFDIR;
+	else
+		fstat_buf.st_mode |= S_IFREG;
+	if (idr->name_len[0] == 1 && idr->name[0] == 0)
+		strcpy(name_buf, ".");
+	else if (idr->name_len[0] == 1 && idr->name[0] == 1)
+		strcpy(name_buf, "..");
+	else {
+		switch (ucs_level) {
+		case 3:
+		case 2:
+		case 1:
+			/*
+			 * Unicode name.  Convert as best we can.
+			 */
+			{
+			int	j;
+				name_buf[0] = '\0';
+#ifdef	USE_ICONV
+			if (use_iconv(unls)) {
+				int	u;
+				char	*to = name_buf;
+
+				for (j = 0, u = 0; j < (int)idr->name_len[0] / 2; j++) {
+					char	*ibuf = (char *)&idr->name[j*2];
+					size_t	isize = 2;		/* UCS-2 character size */
+					size_t	osize = 4;
+
+					if (iconv(unls->sic_uni2cd, (__IC_CONST char **)&ibuf, &isize,
+							(char **)&to, &osize) == -1) {
+						int	err = geterrno();
+
+						if ((err == EINVAL || err == EILSEQ) &&
+						    osize == 4) {
+							*to = '_';
+							u += 1;
+							to++;
+						}
+					} else {
+						u += 4 - osize;
+						to = &name_buf[u];
+					}
+				}
+				j = u;
+			} else
+#endif
+			for (j = 0; j < (int)idr->name_len[0] / 2; j++) {
+				UInt16_t	unichar;
+
+				unichar = (idr->name[j*2] & 0xFF) * 256 +
+					    (idr->name[j*2+1] & 0xFF);
+
+				/*
+				 * Get the backconverted char
+				 */
+				if (unls)
+					uc = sic_uni2c(unls, unichar);
+				else
+					uc = unichar > 255 ? '_' : unichar;
+
+				name_buf[j] = uc ? uc : '_';
+			}
+			name_buf[j] = '\0';
+			}
+			break;
+		case 0:
+			/*
+			 * Normal non-Unicode name.
+			 */
+			strncpy(name_buf, idr->name, idr->name_len[0]);
+			name_buf[idr->name_len[0]] = 0;
+			break;
+		default:
+			/*
+			 * Don't know how to do these yet.  Maybe they are the same
+			 * as one of the above.
+			 */
+			exit(1);
+		}
+	}
+	memcpy(date_buf, idr->date, 9);
+	/*
+	 * Always first set up time stamps and file modes from
+	 * ISO-9660. This is used as a fallback in case that
+	 * there is no related Rock Ridge based data.
+	 */
+	fstat_buf.st_atime =
+	fstat_buf.st_mtime =
+	fstat_buf.st_ctime = iso9660_time(date_buf, NULL, FALSE);
+	fstat_buf.st_mode |= S_IRUSR|S_IXUSR |
+		    S_IRGRP|S_IXGRP |
+		    S_IROTH|S_IXOTH;
+	fstat_buf.st_nlink = 1;
+	fstat_buf.st_ino = 0;
+	fstat_buf.st_uid = 0;
+	fstat_buf.st_gid = 0;
+	if (iso9660_inodes) {
+		fstat_buf.st_ino = (unsigned long)
+		    isonum_733((unsigned char *)idr->extent);
+	}
+	return (TRUE);
+}
+
 LOCAL void
 parse_dir(rootname, extent, len)
 	char	*rootname;
@@ -1012,12 +1159,14 @@ parse_dir(rootname, extent, len)
 	struct iso_directory_record * idr;
 	struct iso_directory_record	didr;
 	struct stat			dstat;
+	unsigned char	cl_buffer[2048];
 	unsigned char	uc;
 	unsigned char	flags = 0;
 	Llong		size = 0;
 	int		sextent = 0;
 	int	rlen;
 	int	blen;
+	int	rr_flags = 0;
 static	char	*n = 0;
 static	int	nlen = 0;
 
@@ -1039,115 +1188,23 @@ static	int	nlen = 0;
 		i = 0;
 		while (1 == 1) {
 			idr = (struct iso_directory_record *) &buffer[i];
-			if (idr->length[0] == 0) break;
-			memset(&fstat_buf, 0, sizeof (fstat_buf));
-			found_rr = 0;
-			name_buf[0] = xname[0] = 0;
-			fstat_buf.st_size = (off_t)(unsigned)isonum_733((unsigned char *)idr->size);
-			if (idr->flags[0] & 2)
-				fstat_buf.st_mode |= S_IFDIR;
-			else
-				fstat_buf.st_mode |= S_IFREG;
-			if (idr->name_len[0] == 1 && idr->name[0] == 0)
-				strcpy(name_buf, ".");
-			else if (idr->name_len[0] == 1 && idr->name[0] == 1)
-				strcpy(name_buf, "..");
-			else {
-				switch (ucs_level) {
-				case 3:
-				case 2:
-				case 1:
+			if (idr->length[0] == 0)
+				break;
+			parse_de(idr);
+			if (use_rock) {
+				rr_flags = dump_rr(idr);
+
+				if (rr_flags & RR_FLAG_CL) {
 					/*
-					 * Unicode name.  Convert as best we can.
+					 * Need to reparse the child link
+					 * but note that we parse "CL/."
+					 * so we get no usable file name.
 					 */
-					{
-					int	j;
-
-					name_buf[0] = '\0';
-#ifdef	USE_ICONV
-					if (use_iconv(unls)) {
-						int	u;
-						char	*to = name_buf;
-
-						for (j = 0, u = 0; j < (int)idr->name_len[0] / 2; j++) {
-							char	*ibuf = (char *)&idr->name[j*2];
-							size_t	isize = 2;		/* UCS-2 character size */
-							size_t	osize = 4;
-
-							if (iconv(unls->sic_uni2cd, (__IC_CONST char **)&ibuf, &isize,
-									(char **)&to, &osize) == -1) {
-								int	err = geterrno();
-
-								if ((err == EINVAL || err == EILSEQ) &&
-								    osize == 4) {
-									*to = '_';
-									u += 1;
-									to++;
-								}
-							} else {
-								u += 4 - osize;
-								to = &name_buf[u];
-							}
-						}
-						j = u;
-					} else
-#endif
-					for (j = 0; j < (int)idr->name_len[0] / 2; j++) {
-						UInt16_t	unichar;
-
-						unichar = (idr->name[j*2] & 0xFF) * 256 +
-							    (idr->name[j*2+1] & 0xFF);
-
-						/*
-						 * Get the backconverted char
-						 */
-						if (unls)
-							uc = sic_uni2c(unls, unichar);
-						else
-							uc = unichar > 255 ? '_' : unichar;
-
-						name_buf[j] = uc ? uc : '_';
-					}
-					name_buf[j] = '\0';
-					}
-					break;
-				case 0:
-					/*
-					 * Normal non-Unicode name.
-					 */
-					strncpy(name_buf, idr->name, idr->name_len[0]);
-					name_buf[idr->name_len[0]] = 0;
-					break;
-				default:
-					/*
-					 * Don't know how to do these yet.  Maybe they are the same
-					 * as one of the above.
-					 */
-					exit(1);
-				}
+					idr = (struct iso_directory_record *) cl_buffer;
+					parse_cl_dir(idr, cl_extent);
+				} else if (rr_flags & RR_FLAG_RE)
+					goto cont;	/* skip rr_moved */
 			}
-			memcpy(date_buf, idr->date, 9);
-			/*
-			 * Always first set up time stamps and file modes from
-			 * ISO-9660. This is used as a fallback in case that
-			 * there is no related Rock Ridge based data.
-			 */
-			fstat_buf.st_atime =
-			fstat_buf.st_mtime =
-			fstat_buf.st_ctime = iso9660_time(date_buf, NULL, FALSE);
-			fstat_buf.st_mode |= S_IRUSR|S_IXUSR |
-				    S_IRGRP|S_IXGRP |
-				    S_IROTH|S_IXOTH;
-			fstat_buf.st_nlink = 1;
-			fstat_buf.st_ino = 0;
-			fstat_buf.st_uid = 0;
-			fstat_buf.st_gid = 0;
-			if (iso9660_inodes) {
-				fstat_buf.st_ino = (unsigned long)
-				    isonum_733((unsigned char *)idr->extent);
-			}
-			if (use_rock)
-				dump_rr(idr);
 			if (Xtract &&
 			    (idr->flags[0] & 2) != 0 &&
 			    idr->name_len[0] == 1 &&
@@ -1170,7 +1227,8 @@ static	int	nlen = 0;
 				n[rlen] = '\0';
 
 			if ((idr->flags[0] & 2) != 0 &&
-			    (idr->name_len[0] != 1 ||
+			    ((rr_flags & RR_FLAG_CL) ||
+			    idr->name_len[0] != 1 ||
 			    (idr->name[0] != 0 && idr->name[0] != 1))) {
 				/*
 				 * This is a plain directory (neither "xxx/."
@@ -1253,6 +1311,7 @@ static	int	nlen = 0;
 				if ((idr->flags[0] & ISO_MULTIEXTENT) == 0)
 					size = 0;
 			}
+		cont:
 			i += buffer[i];
 			if (i > 2048 - offsetof(struct iso_directory_record, name[0])) break;
 		}
@@ -1387,6 +1446,7 @@ main(argc, argv)
 					_("Joerg Schilling"));
 		exit(0);
 	}
+	myuid = getuid();
 #ifdef	USE_FIND
 	if (do_find) {
 		finda_t	fa;

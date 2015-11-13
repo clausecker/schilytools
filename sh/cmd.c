@@ -36,13 +36,13 @@
 #include "defs.h"
 
 /*
- * This file contains modifications Copyright 2008-2015 J. Schilling
+ * Copyright 2008-2015 J. Schilling
  *
- * @(#)cmd.c	1.32 15/10/24 2008-2015 J. Schilling
+ * @(#)cmd.c	1.33 15/11/12 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)cmd.c	1.32 15/10/24 2008-2015 J. Schilling";
+	"@(#)cmd.c	1.33 15/11/12 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -227,12 +227,40 @@ term(flg)
 			pio = STDOUT_FILENO;
 		left = makefork(FPOU|pio, t);
 		tr = term(NLFLG);
-#if defined(DO_PIPE_SYNTAX_E)
+#if defined(DO_PIPE_SYNTAX_E) || defined(DO_PIPE_PARENT)
 		if (tr == NULL)
 			synbad();
 #endif
+#ifdef	DO_PIPE_PARENT
+		/*
+		 * Build a tree that allows us to make all pipe commands
+		 * children from the main shell process.
+		 *
+		 * Special right nodes:
+		 * -	TFORK	() Avoid to add another fork
+		 * -	TFIL	Pipe to right pipe, avoid fork
+		 */
+		switch (tr->tretyp & COMMSK) {
+		case TFORK:
+			tr->tretyp |= FPIN;
+			right = tr;
+			break;
+
+		case TFIL:
+		case TCOM:
+			right = makefork(FPIN, tr);
+			right->tretyp |= TNOFORK;
+			break;
+		default:
+			right = makefork(FPIN, tr);
+		}
+		if ((t->tretyp & COMMSK) == TCOM)
+			left->tretyp |= TNOFORK;
+		return (makelist(TFIL, left, right));
+#else	/* !DO_PIPE_PARENT */
 		right = makefork(FPIN, tr);
 		return (makefork(0, makelist(TFIL, left, right)));
+#endif
 	}
 	else
 		return (t);
