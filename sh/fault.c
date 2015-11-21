@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2015 J. Schilling
  *
- * @(#)fault.c	1.30 15/09/07 2008-2015 J. Schilling
+ * @(#)fault.c	1.31 15/11/15 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)fault.c	1.30 15/09/07 2008-2015 J. Schilling";
+	"@(#)fault.c	1.31 15/11/15 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -276,7 +276,7 @@ done(sig)
 		savex = ex;
 		savrex = retex;
 		retex.ex_signo = 0;
-		execexp(t, (Intptr_t)0);
+		execexp(t, (Intptr_t)0, 0);
 		exitval = savxit;		/* Restore exit value */
 		ex = savex;
 		retex = savrex;
@@ -520,7 +520,7 @@ chktrap()
 				savex = ex;
 				savrex = retex;
 				retex.ex_signo = i;
-				execexp(t, (Intptr_t)0);
+				execexp(t, (Intptr_t)0, 0);
 				exitval = savxit;
 				ex = savex;
 				retex = savrex;

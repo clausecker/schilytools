@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2015 J. Schilling
  *
- * @(#)bltin.c	1.71 15/09/21 2008-2015 J. Schilling
+ * @(#)bltin.c	1.72 15/11/15 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)bltin.c	1.71 15/09/21 2008-2015 J. Schilling";
+	"@(#)bltin.c	1.72 15/11/15 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -68,14 +68,15 @@ static	UConst char sccsid[] =
 #include	<schily/resource.h>
 
 	void	builtin	__PR((int type, int argc, unsigned char **argv,
-							struct trenod *t));
+					struct trenod *t, int xflags));
 
 void
-builtin(type, argc, argv, t)
+builtin(type, argc, argv, t, xflags)
 int type;
 int argc;
 unsigned char **argv;
 struct trenod *t;
+int xflags;
 {
 	short fdindex = initio(t->treio, (type != SYSEXEC));
 	unsigned char *a0 = NULL;
@@ -114,7 +115,7 @@ struct trenod *t;
 			if ((f = pathopen(getpath(a1), a1)) < 0)
 				failed(a1, notfound);
 			else
-				execexp(0, (Intptr_t)f);
+				execexp(0, (Intptr_t)f, xflags);
 		}
 		break;
 
@@ -486,7 +487,7 @@ struct trenod *t;
 
 	case SYSEVAL:			/* POSIX special builtin */
 		if (a1)
-			execexp(a1, (Intptr_t)&argv[2]);
+			execexp(a1, (Intptr_t)&argv[2], xflags);
 		break;
 
 #ifdef	DO_SYSDOSH
@@ -507,7 +508,7 @@ struct trenod *t;
 			funcnt++;
 			setargs(&argv[2]);
 			idx = initio(io, 1);
-			execexp(a1, (Intptr_t)0);
+			execexp(a1, (Intptr_t)0, xflags);
 			restore(idx);
 			(void) restorargs(olddolh, funcnt);
 			dolv = olddolv;
@@ -551,7 +552,7 @@ struct trenod *t;
 				struct ionod		*iosav = iotemp;
 
 				execexp(argv[optv.optind],
-					(Intptr_t)&argv[optv.optind+1]);
+					(Intptr_t)&argv[optv.optind+1], xflags);
 				tdystak(sav, iosav);
 
 				if (delay > 0)

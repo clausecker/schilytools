@@ -1,8 +1,8 @@
-/* @(#)cut.c	1.20 15/06/13 Copyright 1985-2015 J. Schilling */
+/* @(#)cut.c	1.21 15/11/17 Copyright 1985-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	const char sccsid[] =
-	"@(#)cut.c	1.20 15/06/13 Copyright 1985-2015 J. Schilling";
+	"@(#)cut.c	1.21 15/11/17 Copyright 1985-2015 J. Schilling";
 #endif
 /*
  *	Cut files into fields
@@ -117,7 +117,7 @@ main(ac, av)
 	if (prvers) {
 		/* CSTYLED */
 		printf("Cut release %s (%s-%s-%s) Copyright (C) 1985-2015 Jörg Schilling\n",
-				"1.20",
+				"1.21",
 				HOST_CPU, HOST_VENDOR, HOST_OS);
 		exit(0);
 	}
@@ -406,7 +406,7 @@ cut_cols(fp, nfields)
 						putchar(line[col]);
 					else
 						printf("%.*s",
-						    end-col, &line[col]);
+						    (int)(end-col), &line[col]);
 				}
 			} else {
 				col++;

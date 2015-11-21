@@ -36,14 +36,14 @@
 /*
  * Copyright 2008-2015 J. Schilling
  *
- * @(#)ulimit.c	1.20 15/09/02 2008-2015 J. Schilling
+ * @(#)ulimit.c	1.21 15/11/16 2008-2015 J. Schilling
  */
 #ifdef	SCHILY_INCLUDES
 #include <schily/mconfig.h>
 #endif
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)ulimit.c	1.20 15/09/02 2008-2015 J. Schilling";
+	"@(#)ulimit.c	1.21 15/11/16 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -234,7 +234,7 @@ sysulimit(argc, argv)
 				if (rlimit.rlim_cur == RLIM_INFINITY) {
 					prs_buff(_gettext("unlimited"));
 				} else  {
-					prull_buff(rlimit.rlim_cur /
+					prull_buff((UIntmax_t)rlimit.rlim_cur /
 					    rlp->divisor);
 				}
 			}
@@ -245,7 +245,7 @@ sysulimit(argc, argv)
 				if (rlimit.rlim_max == RLIM_INFINITY) {
 					prs_buff(_gettext("unlimited"));
 				} else  {
-					prull_buff(rlimit.rlim_max /
+					prull_buff((UIntmax_t)rlimit.rlim_max /
 					    rlp->divisor);
 				}
 			}

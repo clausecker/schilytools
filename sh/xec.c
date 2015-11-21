@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2015 J. Schilling
  *
- * @(#)xec.c	1.48 15/11/12 2008-2015 J. Schilling
+ * @(#)xec.c	1.50 15/11/15 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)xec.c	1.48 15/11/12 2008-2015 J. Schilling";
+	"@(#)xec.c	1.50 15/11/15 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -71,7 +71,8 @@ static jmp_buf	forkjmp;	/* To go back to TNOFORK in case of builtins */
 	int	execute		__PR((struct trenod *argt,
 					int xflags, int errorflg,
 					int *pf1, int *pf2));
-	void	execexp		__PR((unsigned char *s, Intptr_t f));
+	void	execexp		__PR((unsigned char *s, Intptr_t f,
+					int xflags));
 static	void	execprint	__PR((unsigned char **));
 static	int	ismonitor	__PR((int xflags));
 static	int	exallocjob	__PR((struct trenod *t, int xflags));
@@ -217,6 +218,11 @@ int *pf1, *pf2;
 						execprint(com);
 
 					if (comtype == NOTFOUND) {
+#ifdef	DO_PIPE_PARENT
+						resetjobfd();	/* Rest stdin */
+						if (ismonitor(xflags))
+							settgid(mypgid, curpgid());
+#endif
 						pos = hashdata(cmdhash);
 						ex.ex_status = C_NOEXEC;
 						if (pos == 1) {
@@ -265,7 +271,7 @@ int *pf1, *pf2;
 						}
 #endif
 						builtin(hashdata(cmdhash),
-								argn, com, t);
+							argn, com, t, xflags);
 #ifdef	DO_PIPE_PARENT
 						resetjobfd();	/* Rest stdin */
 						if (monitor)
@@ -865,9 +871,10 @@ script:
 }
 
 void
-execexp(s, f)
+execexp(s, f, xflags)
 	unsigned char	*s;
 	Intptr_t	f;
+	int		xflags;
 {
 	struct fileblk	fb;
 
@@ -879,7 +886,7 @@ execexp(s, f)
 	} else if (f >= 0)
 		initf(f);
 	execute(cmd(NL, NLFLG | MTFLG),
-		0, (int)(flags & errflg), no_pipe, no_pipe);
+		xflags, (int)(flags & errflg), no_pipe, no_pipe);
 	pop();
 }
 

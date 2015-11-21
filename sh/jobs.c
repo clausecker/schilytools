@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2015 J. Schilling
  *
- * @(#)jobs.c	1.76 15/11/12 2008-2015 J. Schilling
+ * @(#)jobs.c	1.79 15/11/20 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)jobs.c	1.76 15/11/12 2008-2015 J. Schilling";
+	"@(#)jobs.c	1.79 15/11/20 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -50,6 +50,7 @@ static	UConst char sccsid[] =
  */
 
 #ifdef	SCHILY_INCLUDES
+#include	<schily/ioctl.h>	/* Must be before termios.h BSD botch */
 #include	<schily/termios.h>
 #include	<schily/types.h>
 #include	<schily/wait.h>
@@ -756,8 +757,20 @@ pid_t new, expected;
 	 * Another case is when tcgetpgrp() worked but returned a different id
 	 * than expected. Do not try to call tcsetpgrp() in any of the cases.
 	 */
-	if (current != expected)
-		return (current);
+	if (current != expected) {
+		/*
+		 * POSIX says: tcgetpgrp() returns a nonexisting process group
+		 * id when no foreground process group was set up.
+		 * Some older Linux versions (e.g. 2.6.18) return a nonexisting
+		 * pgrp in case no process from the expected process group
+		 * exists anymore. If no process with the returned process group
+		 * exists, pretend success - otherwise return (current).
+		 */
+		errno = 0;
+		if (current == (pid_t)-1 ||
+		    kill(-current, 0) >= 0 || errno != ESRCH)
+			return (current);
+	}
 
 	if (new != current)
 		tcsetpgrp(fd, new);
@@ -1279,7 +1292,7 @@ sysjobs(argc, argv)
 			*bp++ = SPACE;
 		}
 		savebp = endstak(bp);
-		execexp(savebp, (Intptr_t)0);
+		execexp(savebp, (Intptr_t)0, 0);
 		return;
 	}
 

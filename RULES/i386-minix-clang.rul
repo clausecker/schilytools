@@ -1,4 +1,4 @@
-#ident "@(#)i386-minix-clang.rul	1.1 15/11/08 "
+#ident "@(#)i386-minix-clang.rul	1.2 15/11/18 "
 ###########################################################################
 # Written 2015 by J. Schilling
 ###########################################################################
@@ -38,7 +38,4 @@ LIB_KVM=
 
 LDOPTS=		$(LIBS_PATH) $(LDPATH)
 
-#RANLIB=		@echo "	==> RANDOMIZING ARCHIVE \"$@\""; ranlib
-RANLIB=		@echo "	==> RANDOMIZING ARCHIVE \"$@\""; true
-LORDER=		echo
-TSORT=		cat
+RANLIB=		@echo "	==> RANDOMIZING ARCHIVE \"$@\""; ranlib

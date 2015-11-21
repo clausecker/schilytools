@@ -1,4 +1,4 @@
-/* @(#)renameat.c	1.1 13/10/30 Copyright 2011-2013 J. Schilling */
+/* @(#)renameat.c	1.2 15/11/17 Copyright 2011-2015 J. Schilling */
 /*
  *	Emulate the behavior of renameat(int fd1, const char *name1,
  *					int fd2, const char *name2)
@@ -12,7 +12,7 @@
  *	to know that we do more than a simple open() here and that the
  *	working directory may be changed by us.
  *
- *	Copyright (c) 2013 J. Schilling
+ *	Copyright (c) 2015 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -28,6 +28,7 @@
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
+#include <schily/stdio.h>	/* POSIX requires stdio.h for rename */
 #include <schily/unistd.h>
 #include <schily/types.h>
 #include <schily/fcntl.h>

@@ -1,8 +1,8 @@
-/* @(#)isoinfo.c	1.98 15/11/13 joerg */
+/* @(#)isoinfo.c	1.100 15/11/17 joerg */
 #include <schily/mconfig.h>
 #ifndef	lint
 static	UConst char sccsid[] =
-	"@(#)isoinfo.c	1.98 15/11/13 joerg";
+	"@(#)isoinfo.c	1.100 15/11/17 joerg";
 #endif
 /*
  * File isodump.c - dump iso9660 directory information.
@@ -718,6 +718,7 @@ struct todo
 };
 
 LOCAL struct todo	*todo_idr = NULL;
+LOCAL struct todo	**todo_pp = &todo_idr;
 
 LOCAL char		*months[12] = {"Jan", "Feb", "Mar", "Apr",
 				"May", "Jun", "Jul",
@@ -1160,7 +1161,6 @@ parse_dir(rootname, extent, len)
 	struct iso_directory_record	didr;
 	struct stat			dstat;
 	unsigned char	cl_buffer[2048];
-	unsigned char	uc;
 	unsigned char	flags = 0;
 	Llong		size = 0;
 	int		sextent = 0;
@@ -1235,23 +1235,22 @@ static	int	nlen = 0;
 				 * nor "xxx/..").
 				 * Add this directory to the todo list.
 				 */
-				td = todo_idr;
-				if (td != NULL) {
-					while (td->next != NULL)
-						td = td->next;
-					td->next = (struct todo *) malloc(sizeof (*td));
-					td = td->next;
-				} else {
-					todo_idr = td = (struct todo *) malloc(sizeof (*td));
-				}
+				td = (struct todo *) malloc(sizeof (*td));
+				if (td == NULL)
+					comerr(_("No memory.\n"));
 				td->next = NULL;
 				td->extent = isonum_733((unsigned char *)idr->extent);
 				td->length = isonum_733((unsigned char *)idr->size);
 				td->name = (char *) malloc(strlen(rootname)
 								+ strlen(name_buf) + 2);
+				if (td->name == NULL)
+					comerr(_("No memory.\n"));
 				strcpy(td->name, rootname);
 				strcat(td->name, name_buf);
 				strcat(td->name, "/");
+
+				*todo_pp = td;
+				todo_pp = &td->next;
 			} else {
 				if (xtract && strcmp(xtract, n) == 0) {
 					extract_file(STDOUT_FILENO, idr, "stdout");

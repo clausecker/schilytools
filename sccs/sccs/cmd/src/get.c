@@ -29,10 +29,10 @@
 /*
  * Copyright 2006-2015 J. Schilling
  *
- * @(#)get.c	1.70 15/10/15 J. Schilling
+ * @(#)get.c	1.71 15/11/17 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)get.c 1.70 15/10/15 J. Schilling"
+#pragma ident "@(#)get.c 1.71 15/11/17 J. Schilling"
 #endif
 /*
  * @(#)get.c 1.59 06/12/12
@@ -637,7 +637,9 @@ get(pkt, file)
 		if (Gfile[0] != '\0' && exists(Gfile)) {
 			rename(Gfile, gfile);
 			if (HADO) {
+#if defined(BUG_1205145) || defined(GMT_TIME)
 				struct tm	tm;
+#endif
 				struct timespec	ts[2];
 				unsigned int	gser;
 				extern dtime_t	Timenow;

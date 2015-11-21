@@ -1,13 +1,13 @@
-/* @(#)calc.c	1.18 09/07/11 Copyright 1985-2009 J. Schilling */
+/* @(#)calc.c	1.19 15/11/18 Copyright 1985-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)calc.c	1.18 09/07/11 Copyright 1985-2009 J. Schilling";
+	"@(#)calc.c	1.19 15/11/18 Copyright 1985-2015 J. Schilling";
 #endif
 /*
  *	Simples Taschenrechnerprogramm
  *
- *	Copyright (c) 1985-2009 J. Schilling
+ *	Copyright (c) 1985-2015 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -16,6 +16,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -85,8 +87,8 @@ main(ac, av)
 	if (help)
 		usage(0);
 	if (prversion) {
-		printf("Calc release %s (%s-%s-%s) Copyright (C) 1985, 89-91, 1996, 2000-2009 Jörg Schilling\n",
-				"1.18",
+		printf("Calc release %s (%s-%s-%s) Copyright (C) 1985, 89-91, 1996, 2000-2015 Jörg Schilling\n",
+				"1.19",
 				HOST_CPU, HOST_VENDOR, HOST_OS);
 		exit(0);
 	}
@@ -125,7 +127,7 @@ main(ac, av)
 		case 2:
 			op = *argumente[0];
 			if (op != '!' && op != '~') {
-				printf("Unzulässiger Oparator für: ");
+				printf("Unzulässiger Operator für: ");
 				printf("'op argument1'\n?");
 				continue;
 			}

@@ -1,13 +1,13 @@
-/* @(#)tgetent.c	1.40 13/11/07 Copyright 1986-2013 J. Schilling */
+/* @(#)tgetent.c	1.41 15/11/17 Copyright 1986-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)tgetent.c	1.40 13/11/07 Copyright 1986-2013 J. Schilling";
+	"@(#)tgetent.c	1.41 15/11/17 Copyright 1986-2015 J. Schilling";
 #endif
 /*
  *	Access routines for TERMCAP database.
  *
- *	Copyright (c) 1986-2013 J. Schilling
+ *	Copyright (c) 1986-2015 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -39,6 +39,7 @@ static	UConst char sccsid[] =
 #include <schily/signal.h>
 #include <schily/errno.h>
 #include <schily/schily.h>
+#include <schily/ioctl.h>	/* Need to be before termios.h (BSD botch) */
 #include <schily/termios.h>
 #include <schily/ctype.h>
 #include <schily/utypes.h>

@@ -1,8 +1,8 @@
-/* @(#)cdda2wav.c	1.162 15/10/19 Copyright 1993-2004,2015 Heiko Eissfeldt, Copyright 2004-2015 J. Schilling */
+/* @(#)cdda2wav.c	1.163 15/11/15 Copyright 1993-2004,2015 Heiko Eissfeldt, Copyright 2004-2015 J. Schilling */
 #include "config.h"
 #ifndef lint
 static	UConst char sccsid[] =
-"@(#)cdda2wav.c	1.162 15/10/19 Copyright 1993-2004,2015 Heiko Eissfeldt, Copyright 2004-2015 J. Schilling";
+"@(#)cdda2wav.c	1.163 15/11/15 Copyright 1993-2004,2015 Heiko Eissfeldt, Copyright 2004-2015 J. Schilling";
 
 #endif
 #undef	DEBUG_BUFFER_ADDRESSES
@@ -1495,9 +1495,11 @@ prio_done:
 	dontneedroot();
 }
 #else
-#if defined(_POSIX_PRIORITY_SCHEDULING) && _POSIX_PRIORITY_SCHEDULING -0 >= 0
+#if defined(_POSIX_PRIORITY_SCHEDULING) && _POSIX_PRIORITY_SCHEDULING -0 >= 0 && \
+    defined(HAVE_SCHED_SETSCHEDULER)
 #define	USE_POSIX_PRIORITY_SCHEDULING
 #endif
+
 #ifdef	USE_POSIX_PRIORITY_SCHEDULING
 #include <sched.h>
 

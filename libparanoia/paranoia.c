@@ -1,8 +1,8 @@
-/* @(#)paranoia.c	1.47 15/10/05 J. Schilling from cdparanoia-III-alpha9.8 */
+/* @(#)paranoia.c	1.48 15/11/17 J. Schilling from cdparanoia-III-alpha9.8 */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-"@(#)paranoia.c	1.47 15/10/05 J. Schilling from cdparanoia-III-alpha9.8";
+"@(#)paranoia.c	1.48 15/11/17 J. Schilling from cdparanoia-III-alpha9.8";
 
 #endif
 /*
@@ -2973,6 +2973,13 @@ static	int		pagesize = -1;
 
 		if (secread > 0) {
 			struct c2errs	c2errs;
+
+			/*
+			 * We only evaluate it when the PARANOIA_MODE_C2CHECK
+			 * flag is present, but let us be nice.
+			 */
+			c2errs.c2errs = c2errs.c2bytes = c2errs.c2secs =
+					c2errs.c2maxerrs = 0;
 
 			if (firstread < 0)
 				firstread = adjread;

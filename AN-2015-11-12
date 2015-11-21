@@ -54,7 +54,7 @@ programs now (hopefully) call gettext() for all strings that need localization.
 		star  2>&1 | tee
 
 -	mkisofs -> isoinfo: Implement a workaround for filesystem images that
-	have been created with "mkisofs -r" and add directory wrote permission
+	have been created with "mkisofs -r" and add directory write permission
 	for the owner if not run by root.
 
 -	mkisofs -> isoinfo: Call chmod() after chown() to avoid a reset
@@ -67,7 +67,7 @@ programs now (hopefully) call gettext() for all strings that need localization.
 
 -	smake: make.h now contains a typedef for date_t that is compatible with
 	sizeof (time_t) == 8 on a 32 bit platform. This follows a comment from
-	2001 when there was no related autocinf test yet.
+	2001 when there was no related autoconf test yet.
 	This makes smake work on Minix 3.
 	Thanks to Heiko Eiﬂfeldt for reporting.
 
@@ -88,7 +88,7 @@ programs now (hopefully) call gettext() for all strings that need localization.
 
 	As this was a major rewrite, please test and report problems!
 	
--	Bourne Shell: jobs -p now correctly prints the progrss group id for jobs 
+-	Bourne Shell: jobs -p now correctly prints the progress group id for jobs 
 	instead of printing the process id of the rightmost process.
 
 

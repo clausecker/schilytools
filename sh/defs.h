@@ -39,7 +39,7 @@
 /*
  * Copyright 2008-2015 J. Schilling
  *
- * @(#)defs.h	1.124 15/11/12 2008-2015 J. Schilling
+ * @(#)defs.h	1.126 15/11/18 2008-2015 J. Schilling
  */
 
 #ifdef	__cplusplus
@@ -367,8 +367,8 @@ extern	struct dolnod	*savargs	__PR((int funcnt));
 extern	void 		restorargs	__PR((struct dolnod *olddolh,
 							int funcnt));
 extern	struct dolnod	*useargs	__PR((void));
-extern	unsigned char	*lookopt	__PR((unsigned char *name));
 extern	int		optval		__PR((unsigned char *flagc));
+extern	unsigned char	*lookopt	__PR((unsigned char *name));
 
 /*
  * blok.c
@@ -382,7 +382,7 @@ extern	void	chkmem		__PR((void));
  * bltin.c
  */
 extern	void	builtin		__PR((int type, int argc, unsigned char **argv,
-							struct trenod *t));
+						struct trenod *t, int xflags));
 
 /*
  * cmd.c
@@ -788,7 +788,8 @@ extern	unsigned int	readwc	__PR((void));
 extern	int	execute		__PR((struct trenod *argt, int xflags,
 						int errorflg,
 						int *pf1, int *pf2));
-extern	void	execexp		__PR((unsigned char *s, Intptr_t f));
+extern	void	execexp		__PR((unsigned char *s, Intptr_t f,
+						int xflags));
 
 
 #define		_cf(a, b)	cf((unsigned char *)(a), (unsigned char *)(b))

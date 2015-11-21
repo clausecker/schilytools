@@ -1,0 +1,179 @@
+New features with AN-2015-11-21:
+
+This is the first localization step for the schily source consolidation. Many
+programs now (hopefully) call gettext() for all strings that need localization.
+
+-	The next step will include dgettext() calls for the libraries and the
+	missing programs
+
+-	The following step will include the extracted strings
+
+-	The last step will include German translations and install support
+	for the resulting binary message object files.
+
+----------> Please test and report compilation problems! <---------
+
+***** NOTE: As mentioned since 2004, frontends to the tools should *****
+*****		call all programs in the "C" locale		   *****
+*****		by e.g. calling: LC_ALL=C cdrecord ....		   *****
+*****		unless these frontends support localized strings   *****
+*****		used by the cdrtools with NLS support.		   *****
+
+		*** WARNING        ***
+		*** Need new smake ***
+
+	*** Due to the fact that schily-tools 2014-04-03 introduced to use new macro
+	*** expansions and a related bug fix in smake, you need a new smake
+	*** to compile this source. To ensure this, call:
+
+	cd ./psmake
+	./MAKE-all
+	cd ..
+	psmake/smake
+	psmake/smake install
+
+
+	WARNING: the new version of the isoinfo program makes use of the 
+		*at() series of functions that have been introduced by Sun
+		in August 2001 and added to POSIX.1-2008. For older platforms,
+		libschily now includes emulations for these functions but
+		these emulations have not yet been tested thoroughly.
+		Please report problems!
+
+	The new smake version mentioned above is smake-1.2.4
+
+-	psmake/MAKE-sh now tries to find "clang"
+	Thanks to Heiko Eiﬂfeldt for reporting that Minix does not have
+	a "cc". As we recently discovered a clang optimizer bug with 
+	isoinfo, we use -O0 with clang.
+
+-	Minix and Bitrig seem to have tsort, lorder and ranlib.
+
+-	cdrtools bumped to version 3.02a02
+
+-	libparanoia: Avoid GCC uninitialized warning even though the main
+	problem was fixed some time ago already.
+	Thanks to Heiko Eiﬂfeldt for reporting.
+
+-	libschily/renameat.c now includes stdio.h as POSIX requires
+	stdio.h to be included for rename()
+
+-	cdda2wav: man page now mentions that Heiko modified source code
+	in 2015
+
+-	cdrecord & cdda2wav: POSIX real time scheduling is no longer
+	used in case that sched_setscheduler() is missing. Minix comes
+	with miss-configured system include files that announces the
+	presence of sched_setscheduler() but the functions are not
+	implemented.
+	Thanks to Heiko Eiﬂfeldt for reporting.
+
+-	mkisofs/diag/isoinfo.c: removed an unused variable.
+
+-	mkisofs/diag/isoinfo.c: The "todo" directory list handling was
+	rewritten to speed up things by not looping over the whole
+	list anymore everytime a new directory is added.
+
+-	mkisofs/diag/isoinfo.c: Abort with error message when malloc()
+	returns NULL.
+
+-	libxtermcap, bsh, ved, Bourne Shell: #include sys/ioctl.h before
+	termios.h which is wrong according to POSIX but is needed for 
+	BSD based system includes. It is important to first include
+	sys/ioctl.h as the other way may cause redefined warnings.
+
+-	ved: version bumped to 1.7a10
+
+-	cut: Cast from pointerdiff -> int to correctly handle %.*s
+
+-	calc: Fixed a typo in the messages.
+	Thanks to Heiko Eiﬂfeldt for reporting.
+
+-	sformat: fixed a printf() format size problem on Minix3 32 bits.
+	Thanks to Heiko Eiﬂfeldt for reporting.	
+
+-	SCCS: get now avoids a unused variable warning from GCC
+
+-	bsh: now compiles on Minix. A bug with the #ifdefs
+	to configure the wait() interface has been corrected
+
+-	Bourne Shell: fix a bug with the set up from "$-" that suffered from
+	null Bytes in a character array after the output from "set -o"
+	was reordered to be alphabetically sorted with respect to the names
+	of the long options.
+
+-	Bourne Shell: fix a mirroring bug with "$-" that was related to the
+	new support for up to 120 flag bits that are now supported.
+
+-	Bourne Shell: the "alloc" builtin now prints the amount of allocated
+	data.
+
+-	Bourne Shell: added some casts to long long in a function call as the
+	free HP-UX compiler is K&R but supports long long
+
+-	Bourne Shell: added a workaround for a Linux problem with tcgetpgrp()
+	on at least Linux 2.6.18 (what Sourceforge uses for it's shell service)
+	that prevented jobcontrol from resetting the tty process group to the
+	group of the shell after a child died.
+
+-	Bourne Shell: fix a bug introduced with the new pipe parser:
+	restore stdin if the right side of a pipe is a non-existing command.
+
+-	Bourne Shell: fix a bug with job control introduced 1989 that now
+	hits with the new pipe parser: we now forward execution flags
+	to builtin commands that execute further commands. This prevents
+
+		dosh 'troff -man $@ | col -x' xxx.1 | more
+
+	from stopping the more command after troff | col wrote everything
+	to the more pipe already and exit.
+
+-	Bourne Shell: the new pipe handling now seems to be mature enough
+	for daily use.
+
+-	Bourne Shell TODO:
+
+	-	Try to make
+
+		lastline=
+		while read line
+		do
+			lastline=$line
+		done < /etc/passwd
+		echo "lastline=$lastline"
+
+		print the last line of /etc/passwd without the exec trick.
+
+	-	Finish loadable builtin support.
+
+	-	Implement ". -h" as a replacement for "source -h"
+
+-	The following builtins (that are available in bsh) are still missing in
+	the Bourne Shell:
+
+	err			echo with output going to stderr
+	glob			echo with '\0' instead of ' ' between args
+	env			a builtin version of /usr/bin/env
+
+	The following bsh intrinsics are still missing in the Bourne Shell:
+
+	-			the restricted bsh has restriction features that
+				are missing in the Bourne shell.
+
+	-	source -h	read file into history but do not excute
+
+	and probably more features not yet identified to be bsh unique.
+
+
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.net, js@cs.tu-berlin.de
+	joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

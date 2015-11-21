@@ -41,7 +41,7 @@
 /*
  *				Copyright Geoff Collyer 1987-2005
  *
- * @(#)stak.c	2.12 15/01/07	Copyright 2010-2015 J. Schilling
+ * @(#)stak.c	2.15 15/11/16	Copyright 2010-2015 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -57,7 +57,7 @@
 
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)stak.c	2.12 15/01/07 Copyright 2010-2015 J. Schilling";
+	"@(#)stak.c	2.15 15/11/16 Copyright 2010-2015 J. Schilling";
 #endif
 
 
@@ -758,6 +758,14 @@ shfree(ap)
 void
 chkmem()
 {
+	prs_buff((unsigned char *)"stklow: ");		/* Do not translate */
+	prull_buff((UIntmax_t)(UIntptr_t)stklow);
+	prs_buff((unsigned char *)" stkhigh: ");	/* Do not translate */
+	prull_buff((UIntmax_t)(UIntptr_t)stkhigh);
+	prs_buff((unsigned char *)" total: ");		/* Translate this? */
+	prull_buff((UIntmax_t)(stkhigh-stklow));
+	prc_buff(NL);
+	flushb();
 }
 #endif
 

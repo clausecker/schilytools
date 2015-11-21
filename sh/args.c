@@ -41,11 +41,11 @@
 /*
  * Copyright 2008-2015 J. Schilling
  *
- * @(#)args.c	1.66 15/08/30 2008-2015 J. Schilling
+ * @(#)args.c	1.68 15/11/18 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)args.c	1.66 15/08/30 2008-2015 J. Schilling";
+	"@(#)args.c	1.68 15/11/18 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -595,9 +595,8 @@ setopts()
 	flagp = flagadr;
 	if (flags) {
 		flagc = flagchar;
-		while (*flagc) {
-						/* LINTED */
-			if (flags & flagval[flagc-flagchar])
+		while (flagc < &flagchar[NFLAGCHAR]) {
+			if (*flagc && optval(flagc))
 				*flagp++ = *flagc;
 			flagc++;
 		}
@@ -843,25 +842,6 @@ lookcopt(wc)
 	return (flagc);
 }
 
-#ifdef	DO_SET_O
-unsigned char *
-lookopt(name)
-	unsigned char	*name;
-{
-	unsigned char *flagc;
-
-	for (flagc = flagchar;
-				/* LINTED */
-	    flagname[flagc-flagchar]; flagc++) {
-				/* LINTED */
-		if (eq(name,
-		    flagname[flagc-flagchar])) {
-			return (flagc);
-		}
-	}
-	return (NULL);
-}
-
 int
 optval(flagc)
 	unsigned char *flagc;
@@ -880,6 +860,25 @@ optval(flagc)
 		fv &= ~fl2;
 	}
 	return (*fp & fv ? 1:0);
+}
+
+#ifdef	DO_SET_O
+unsigned char *
+lookopt(name)
+	unsigned char	*name;
+{
+	unsigned char *flagc;
+
+	for (flagc = flagchar;
+				/* LINTED */
+	    flagname[flagc-flagchar]; flagc++) {
+				/* LINTED */
+		if (eq(name,
+		    flagname[flagc-flagchar])) {
+			return (flagc);
+		}
+	}
+	return (NULL);
 }
 
 #ifdef	DO_SYSALIAS

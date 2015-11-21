@@ -1,5 +1,5 @@
 #!/bin/sh
-#ident "@(#)MAKE-sh	1.19 14/01/15 "
+#ident "@(#)MAKE-sh	1.21 15/11/21 "
 ###############################################################################
 #
 # The shell variables CFLAGS & LDFLAGS may be used to pass additional flags
@@ -105,10 +105,10 @@ if [ $? = 0 ]; then
 	SYSTEM=`uname -s`
 fi
 
-ENV_CC=${CC-none}
-CC=${CC-cc}
-CF=
-LF=
+ENV_CC=${CC-none}		# Remember "cc" we got from the environment
+CC=${CC-cc}			# Default to "cc"
+CF=				# Internal CFLAGS
+LF=				# Internal linker flahs
 INCLUDE="-Iinclude -I."
 #
 # Defines:
@@ -123,13 +123,21 @@ INCLUDE="-Iinclude -I."
 DEFINES="-DSCHILY_BUILD -DNO_FLOATINGPOINT -DNO_FPRFORMAT -DNO_NL_ARGS -DNO_SCANSTACK -DNO_USG_STDIO"
 o=o
 
-if [ $ENV_CC = none ]; then
+if [ "$ENV_CC" = none ]; then
 	echo 'Trying to find GCC'
 
 	gcc -v 2> /dev/null && CC=gcc
+	if [ "$CC" != gcc ]; then
+		echo 'Trying to find Clang'
+
+		clang -v 2> /dev/null && CC=clang
+	fi
 fi
-if [ $CC = gcc ]; then
+if [ "$CC" = gcc ]; then
 	GCC_OPT=-O
+	OPT=${CC_OPT-$GCC_OPT}
+elif [ "$CC" = clang ]; then
+	GCC_OPT=-O0		# Clang's optimizer still has bugs
 	OPT=${CC_OPT-$GCC_OPT}
 else
 	OPT=${CC_OPT-}
@@ -137,7 +145,7 @@ else
 		CF=-Ae
 	fi
 fi
-if [ $CC = cl ]; then
+if [ "$CC" = cl ]; then
 	o=obj
 fi
 #
@@ -149,7 +157,7 @@ fi
 #
 # Set stack size to 256k on QNX
 #
-if [ "$SYSTEM" = QNX -a $CC != gcc ]; then 
+if [ "$SYSTEM" = QNX -a "$CC" != gcc ]; then 
 	LF="-N 256k"
 fi 
 #
@@ -161,7 +169,7 @@ case "$SYSTEM" in
 	#
 	# Default to cc on VMS
 	#
-	if [ $ENV_CC = none ]; then
+	if [ "$ENV_CC" = none ]; then
 		CC=cc
 	fi
 	INCLUDE="-I./include -I."
@@ -189,7 +197,7 @@ fi
 if [ -r config.cache ]; then
 	echo "Using old configure run results..."
 else
-	if [ .$CF != . ]; then
+	if [ ."$CF" != . ]; then
 		eval CC=$CC CFLAGS=$CF CONFIG_NOFAIL=TRUE sh ./configure
 	else
 		eval CC=$CC CONFIG_NOFAIL=TRUE sh ./configure

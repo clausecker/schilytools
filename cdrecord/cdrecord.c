@@ -1,8 +1,8 @@
-/* @(#)cdrecord.c	1.412 15/01/01 Copyright 1995-2015 J. Schilling */
+/* @(#)cdrecord.c	1.413 15/11/15 Copyright 1995-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)cdrecord.c	1.412 15/01/01 Copyright 1995-2015 J. Schilling";
+	"@(#)cdrecord.c	1.413 15/11/15 Copyright 1995-2015 J. Schilling";
 #endif
 /*
  *	Record data on a CD/CVD-Recorder
@@ -65,7 +65,8 @@ static	UConst char sccsid[] =
 
 char	cdr_version[] = VERSION;
 
-#if defined(_POSIX_PRIORITY_SCHEDULING) && _POSIX_PRIORITY_SCHEDULING -0 >= 0
+#if defined(_POSIX_PRIORITY_SCHEDULING) && _POSIX_PRIORITY_SCHEDULING -0 >= 0 && \
+    defined(HAVE_SCHED_SETSCHEDULER)
 #ifdef  HAVE_SYS_PRIOCNTL_H	/* The preferred SYSvR4 schduler */
 #else
 #define	USE_POSIX_PRIORITY_SCHEDULING
@@ -4565,7 +4566,7 @@ load_media(scgp, dp, doexit)
 	scgp->silent--;
 	err = geterrno();
 	if (code < 0 && (err == EPERM || err == EACCES)) {
-		linuxcheck();	/* For version 1.412 of cdrecord.c */
+		linuxcheck();	/* For version 1.413 of cdrecord.c */
 		scg_openerr("");
 	}
 
@@ -5007,9 +5008,9 @@ raisepri(pri)
 	}
 }
 
-#else	/* HAVE_SYS_PRIOCNTL_H */
+#else	/* !HAVE_SYS_PRIOCNTL_H */
 
-#if defined(_POSIX_PRIORITY_SCHEDULING) && _POSIX_PRIORITY_SCHEDULING -0 >= 0
+#ifdef	USE_POSIX_PRIORITY_SCHEDULING
 /*
  * The second best choice: POSIX real time scheduling.
  */
@@ -5051,7 +5052,7 @@ rt_raisepri(pri)
 	return (0);
 }
 
-#else	/* _POSIX_PRIORITY_SCHEDULING */
+#else	/* !USE_POSIX_PRIORITY_SCHEDULING */
 
 #if defined(__CYGWIN32__) || defined(__CYGWIN__) || defined(__MINGW32__) || defined(_MSC_VER)
 /*
@@ -5111,7 +5112,7 @@ rt_raisepri(pri)
 
 #endif	/* __CYGWIN32__ || __CYGWIN__ || __MINGW32__ */
 
-#endif	/* _POSIX_PRIORITY_SCHEDULING */
+#endif	/* !USE_POSIX_PRIORITY_SCHEDULING */
 
 EXPORT	void
 raisepri(pri)
@@ -5460,7 +5461,7 @@ set_wrmode(dp, wmode, tflags)
 }
 
 /*
- * I am sorry that even for version 1.412 of cdrecord.c, I am forced to do
+ * I am sorry that even for version 1.413 of cdrecord.c, I am forced to do
  * things like this, but defective versions of cdrecord cause a lot of
  * work load to me.
  *
@@ -5477,7 +5478,7 @@ set_wrmode(dp, wmode, tflags)
 #endif
 
 LOCAL void
-linuxcheck()				/* For version 1.412 of cdrecord.c */
+linuxcheck()				/* For version 1.413 of cdrecord.c */
 {
 #if	defined(linux) || defined(__linux) || defined(__linux__)
 #ifdef	HAVE_UNAME

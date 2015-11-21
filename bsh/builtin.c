@@ -1,8 +1,8 @@
-/* @(#)builtin.c	1.88 15/11/03 Copyright 1988-2015 J. Schilling */
+/* @(#)builtin.c	1.89 15/11/17 Copyright 1988-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)builtin.c	1.88 15/11/03 Copyright 1988-2015 J. Schilling";
+	"@(#)builtin.c	1.89 15/11/17 Copyright 1988-2015 J. Schilling";
 #endif
 /*
  *	Builtin commands
@@ -38,6 +38,7 @@ static	UConst char sccsid[] =
 #include <schily/unistd.h>
 #include <schily/stdlib.h>
 #include <schily/fcntl.h>
+#include <schily/ioctl.h>	/* Need to be before termios.h (BSD botch) */
 #include <schily/termios.h>
 #include <schily/utypes.h>
 #include <schily/getargs.h>

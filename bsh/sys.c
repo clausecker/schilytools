@@ -1,8 +1,8 @@
-/* @(#)sys.c	1.75 15/11/08 Copyright 1986-2015 J. Schilling */
+/* @(#)sys.c	1.76 15/11/17 Copyright 1986-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)sys.c	1.75 15/11/08 Copyright 1986-2015 J. Schilling";
+	"@(#)sys.c	1.76 15/11/17 Copyright 1986-2015 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1986-2015 J. Schilling
@@ -44,13 +44,21 @@ Error fexec canno be implemented
 /*#undef	HAVE_WAIT3*/
 /*#undef	HAVE_SYS_PROCFS_H*/
 #if	defined(HAVE_WAIT3) || (defined(HAVE_SYS_PROCFS_H) && defined(HAVE_WAITID)) /*see wait3.c*/
-#	ifndef	HAVE_WAITID
+#	define	USE_WAIT3
+#endif
+
+#ifndef	HAVE_WAITID
 	/*
 	 * XXX Hack: Interix has sys/procfs.h but no waitid()
 	 */
-#	undef	HAVE_SYS_PROCFS_H
-#	endif
+#undef	HAVE_SYS_PROCFS_H
 #endif
+
+#ifdef	NO_WAIT3
+#undef	USE_WAIT3
+#endif
+
+
 #if	defined(HAVE_SYS_TIMES_H) && defined(HAVE_TIMES)
 #include <schily/times.h>
 #include <schily/param.h>
@@ -430,7 +438,7 @@ ewait(child, flag)
 	} status;
 #endif
 	struct rusage prusage;
-#if	!defined(HAVE_WAIT3) && !defined(HAVE_SYS_PROCFS_H) /*see wait3.c*/
+#if	!defined(USE_WAIT3)	/* see wait3.c and above */
 #if	defined(HAVE_SYS_TIMES_H) && defined(HAVE_TIMES)
 	struct tms	tms1;
 	struct tms	tms2;
@@ -447,7 +455,7 @@ ewait(child, flag)
 	seterrno(0);
 #endif
 	do {
-#	if	defined(HAVE_WAIT3) || (defined(HAVE_SYS_PROCFS_H) && defined(HAVE_WAITID)) /*see wait3.c*/
+#	if	defined(USE_WAIT3)	/* see wait3.c and above */
 
 		/* Brain damaged AIX requires loop */
 		do {
@@ -478,7 +486,7 @@ printf("ewait: back from child (WSTOPPED).\n");
 			status.type = status.exit;
 			status.exit = stype;
 		}
-#	else	/* defined(HAVE_WAIT3) || (defined(HAVE_SYS_PROCFS_H) && defined(HAVE_WAITID) */
+#	else	/* !defined(USE_WAIT3) */
 #if	defined(HAVE_SYS_TIMES_H) && defined(HAVE_TIMES)
 		times(&tms1);
 #endif
@@ -506,7 +514,7 @@ printf("ewait: back from child (WSTOPPED).\n");
 			prusage.ru_stime.tv_usec = ((tms2.tms_cstime - tms1.tms_cstime) % CLK_TCK) * (1000000/CLK_TCK);
 		}
 #endif
-#	endif	/* ! defined(HAVE_WAIT3) || (defined(HAVE_SYS_PROCFS_H) && defined(HAVE_WAITID) */
+#	endif	/* !defined(USE_WAIT3) */
 #if defined(__BEOS__) || defined(__HAIKU__)	/* Dirty Hack for BeOS, we should better use the W* macros */
 		{	int i = status.exit;
 			status.exit = status.type;
