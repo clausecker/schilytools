@@ -1,0 +1,137 @@
+New features with AN-2015-11-26:
+
+This is the first localization step for the schily source consolidation. Many
+programs now (hopefully) call gettext() for all strings that need localization.
+
+-	The next step will include dgettext() calls for the libraries and the
+	missing programs
+
+-	The following step will include the extracted strings
+
+-	The last step will include German translations and install support
+	for the resulting binary message object files.
+
+----------> Please test and report compilation problems! <---------
+
+***** NOTE: As mentioned since 2004, frontends to the tools should *****
+*****		call all programs in the "C" locale		   *****
+*****		by e.g. calling: LC_ALL=C cdrecord ....		   *****
+*****		unless these frontends support localized strings   *****
+*****		used by the cdrtools with NLS support.		   *****
+
+		*** WARNING        ***
+		*** Need new smake ***
+
+	*** Due to the fact that schily-tools 2014-04-03 introduced to use new macro
+	*** expansions and a related bug fix in smake, you need a new smake
+	*** to compile this source. To ensure this, call:
+
+	cd ./psmake
+	./MAKE-all
+	cd ..
+	psmake/smake
+	psmake/smake install
+
+
+	WARNING: the new version of the isoinfo program makes use of the 
+		*at() series of functions that have been introduced by Sun
+		in August 2001 and added to POSIX.1-2008. For older platforms,
+		libschily now includes emulations for these functions but
+		these emulations have not yet been tested thoroughly.
+		Please report problems!
+
+	The new smake version mentioned above is smake-1.2.4
+
+-	libmdigest: sha3 support was added
+
+-	mdigest: sha3 support was added
+
+-	sformat: diskfmt.c now casts a computation to always result in a long long
+	printf() argument.
+
+-	mkisofs: some structure part copies have been rewritten to avoid compiler
+	warnigs about virtual variable overrun.
+	Thanks to Heiko Eiﬂfeldt for reporting.
+
+-	mkisofs: Both UDF volume descriptors need to have the same ID that is
+	derived from the time. Thanks to a report and patch from:
+	"Ganssauge, Gottfried" <Gottfried.Ganssauge@haufe-lexware.com>
+
+-	An autoconf test was added for the include file posix/malloc.h from Haiku
+
+-	An autoconf test was added to check whether waitpid() supports the flag
+	WNOWAIT. This flag was added by AT&T/Sun for SVr4 in 1989 for both
+	waitid() and waitpid() but it seems to be unimplemented on various platforms.
+	Thanks to Heiko Eiﬂfeldt for reporting.
+
+-	Bourne Shell: WNOWAIT usage now depends on the autoconf test as the list of
+	platforms that are not SVr4 compatible now already contains:
+
+	Linux, Mac OS X, NetBSD, AIX
+
+	Thanks to Heiko Eiﬂfeldt for reporting.
+
+-	Bourne Shell: correct an #ifdef typo to enable waiting for pipe szombies
+	that would otherwise be created with the new pipe parser.
+
+-	Bourne Shell: Fix a bug with jobcontrol with the new pipe parser that
+	did make this command:
+
+		while true; do date; done | uniq -c
+
+	unkillable by signals from the tty because the tty process groups was 
+	incorrectly reset early to the process group of the main shell by
+	the while loop.
+
+-	Bourne Shell: job.c now prefers WSTOPPED over WUNTRACED as WSTOPPED
+	is the POSIX name.
+
+-	Bourne Shell: the new pipe handling now seems to be mature enough
+	for daily use.
+
+-	Bourne Shell TODO:
+
+	-	Try to make
+
+		lastline=
+		while read line
+		do
+			lastline=$line
+		done < /etc/passwd
+		echo "lastline=$lastline"
+
+		print the last line of /etc/passwd without the exec trick.
+
+	-	Finish loadable builtin support.
+
+	-	Implement ". -h" as a replacement for "source -h"
+
+-	The following builtins (that are available in bsh) are still missing in
+	the Bourne Shell:
+
+	err			echo with output going to stderr
+	glob			echo with '\0' instead of ' ' between args
+	env			a builtin version of /usr/bin/env
+
+	The following bsh intrinsics are still missing in the Bourne Shell:
+
+	-			the restricted bsh has restriction features that
+				are missing in the Bourne shell.
+
+	-	source -h	read file into history but do not excute
+
+	and probably more features not yet identified to be bsh unique.
+
+
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.net, js@cs.tu-berlin.de
+	joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

@@ -1,8 +1,8 @@
-/* @(#)eltorito.c	1.51 12/12/02 joerg */
+/* @(#)eltorito.c	1.52 15/11/23 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)eltorito.c	1.51 12/12/02 joerg";
+	"@(#)eltorito.c	1.52 15/11/23 joerg";
 
 #endif
 /*
@@ -12,7 +12,7 @@ static	UConst char sccsid[] =
  *  Written by Michael Fulbright <msf@redhat.com> (1996).
  *
  * Copyright 1996 RedHat Software, Incorporated
- * Copyright (c) 1999-2012 J. Schilling
+ * Copyright (c) 1999-2015 J. Schilling
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -269,7 +269,7 @@ get_torito_desc(boot_desc)
 
 	memset(boot_desc, 0, sizeof (*boot_desc));
 	boot_desc->type[0] = 0;
-	memcpy(boot_desc->id, ISO_STANDARD_ID, sizeof (ISO_STANDARD_ID));
+	strncpy(boot_desc->id, ISO_STANDARD_ID, sizeof (boot_desc->id));
 	boot_desc->version[0] = 1;
 
 	memcpy(boot_desc->system_id, EL_TORITO_ID, sizeof (EL_TORITO_ID));

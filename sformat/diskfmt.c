@@ -1,8 +1,8 @@
-/* @(#)diskfmt.c	1.30 15/11/18 Copyright 1988-2015 J. Schilling */
+/* @(#)diskfmt.c	1.31 15/11/21 Copyright 1988-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)diskfmt.c	1.30 15/11/18 Copyright 1988-2015 J. Schilling";
+	"@(#)diskfmt.c	1.31 15/11/21 Copyright 1988-2015 J. Schilling";
 #endif
 /*
  *	Format SCSI disks
@@ -758,7 +758,7 @@ prpercent(ftim)
 		if (gettimeofday(&tv, (struct timezone *)0) < 0)
 			break;
 		printf("%4lld%%\b\b\b\b\b",
-			(Llong)(tv.tv_sec-starttime.tv_sec)*100/ftim);
+			(Llong)(tv.tv_sec-starttime.tv_sec)*100/(Llong)ftim);
 		flush();
 	}
 	return (pid);

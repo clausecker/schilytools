@@ -1,8 +1,8 @@
-/* @(#)isoinfo.c	1.100 15/11/17 joerg */
+/* @(#)isoinfo.c	1.101 15/11/24 joerg */
 #include <schily/mconfig.h>
 #ifndef	lint
 static	UConst char sccsid[] =
-	"@(#)isoinfo.c	1.100 15/11/17 joerg";
+	"@(#)isoinfo.c	1.101 15/11/24 joerg";
 #endif
 /*
  * File isodump.c - dump iso9660 directory information.
@@ -169,7 +169,7 @@ LOCAL struct stat	fstat_buf;
 LOCAL int		found_rr;
 LOCAL char		name_buf[256*3];
 LOCAL char		xname[8192];
-LOCAL unsigned char	date_buf[9];
+LOCAL unsigned char	date_buf[9];	/* iso_directory_record.date[7] */
 /*
  * Use sector_offset != 0 (-N #) if we have an image file
  * of a single session and we need to list the directory contents.
@@ -1126,7 +1126,7 @@ parse_de(idr)
 			exit(1);
 		}
 	}
-	memcpy(date_buf, idr->date, 9);
+	memcpy(date_buf, idr->date, sizeof (idr->date));
 	/*
 	 * Always first set up time stamps and file modes from
 	 * ISO-9660. This is used as a fallback in case that

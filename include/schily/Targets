@@ -1,4 +1,4 @@
-#ident @(#)Targets	1.22 13/09/19 
+#ident @(#)Targets	1.23 15/11/22 
 
 X_MK_LIST=	\
 		align.mk alloca.mk archdefs.mk assert.mk avoffset.mk \
@@ -21,7 +21,7 @@ X_MK_LIST=	\
 		param.mk patmatch.mk poll.mk priv.mk procfs.mk prototyp.mk pwd.mk \
 		regex.mk _regex.mk resource.mk rmd160.mk rmtio.mk \
 		schily.mk schilyp.mk select.mk sem.mk shedit.mk shm.mk \
-		setjmp.mk sha1.mk sha2.mk shcall.mk \
+		setjmp.mk sha1.mk sha2.mk sha3.mk shcall.mk \
 		siconv.mk shadow.mk \
 		sigblk.mk signal.mk sigset.mk socket.mk standard.mk stat.mk \
 		stdarg.mk stdint.mk stdio.mk \

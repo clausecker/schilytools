@@ -1,6 +1,6 @@
-dnl @(#)configure.in	1.263 15/11/03 Copyright 1998-2015 J. Schilling
+dnl @(#)configure.in	1.265 15/11/23 Copyright 1998-2015 J. Schilling
 dnl Process this file with autoconf to produce a configure script.
-AC_REVISION(1.263)dnl
+AC_REVISION(1.265)dnl
 
 dnl AC_INIT(xconfig.h.in)
 AC_INIT(config.guess)
@@ -69,7 +69,7 @@ AC_CHECK_HEADERS(getopt.h)
 AC_CHECK_HEADERS(limits.h)
 AC_CHECK_HEADERS(a.out.h aouthdr.h elf.h)
 AC_CHECK_HEADERS(sysexits.h)
-AC_CHECK_HEADERS(malloc.h sgtty.h termios.h termio.h)
+AC_CHECK_HEADERS(malloc.h posix/malloc.h sgtty.h termios.h termio.h)
 AC_CHECK_HEADERS(pwd.h grp.h sys/acl.h aclutils.h acllib.h acl/libacl.h)
 AC_CHECK_HEADERS(signal.h siginfo.h sys/siginfo.h ucontext.h)
 AC_CHECK_HEADERS(shadow.h syslog.h)
@@ -138,6 +138,7 @@ AC_HEADER_USG_STDIO
 AC_HEADER_ERRNO_DEF
 AC_HEADER_ENVIRON_DEF
 AC_HEADER_SYS_SIGLIST_DEF
+AC_WNOWAIT_WAITPID
 
 dnl Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST

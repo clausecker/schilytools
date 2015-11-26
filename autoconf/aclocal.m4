@@ -1,4 +1,4 @@
-dnl @(#)aclocal.m4	1.105 15/09/18 Copyright 1998-2015 J. Schilling
+dnl @(#)aclocal.m4	1.106 15/11/22 Copyright 1998-2015 J. Schilling
 
 dnl Set VARIABLE to VALUE in C-string form, verbatim, or 1.
 dnl AC_DEFINE_STRING(VARIABLE [, VALUE])
@@ -3062,6 +3062,52 @@ main()
                 [ac_cv_func_waitid=no])])
 if test $ac_cv_func_waitid = yes; then
   AC_DEFINE(HAVE_WAITID)
+fi])
+
+
+dnl Checks whether waitpid() is present and supports WNOWAIT.
+dnl SVr4 supports it but POSIX does not list it.
+dnl Defines HAVE_WNOWAIT_WAITPID on success.
+AC_DEFUN([AC_WNOWAIT_WAITPID],
+[AC_CHECK_HEADERS(stdlib.h)
+AC_CHECK_HEADERS(unistd.h)
+AC_CHECK_HEADERS(wait.h)
+AC_HEADER_SYS_WAIT
+AC_HEADER_ERRNO_DEF
+AC_CACHE_CHECK([for SVr4 compliant waitpid() with WNOWAIT support], ac_cv_wnowait_waitpid,
+                [AC_TRY_RUN([
+#ifdef	HAVE_STDLIB_H
+#include <stdlib.h>
+#endif
+#ifdef	HAVE_UNISTD_H
+#include <unistd.h>
+#endif
+#if	defined(HAVE_WAIT_H)
+#	include <wait.h>
+#else
+#include <sys/wait.h>
+#endif
+#include <errno.h>
+#ifndef	HAVE_ERRNO_DEF
+extern	int	errno;
+#endif
+
+int
+main()
+{
+	int	xstat;
+	pid_t	pid = -1;
+	int	ret;
+
+	ret = waitpid(pid, &xstat, WNOWAIT);
+	if (ret < 0 && errno == EINVAL)
+		exit(1);
+	exit(0);
+}],
+                [ac_cv_wnowait_waitpid=yes],
+                [ac_cv_wnowait_waitpid=no])])
+if test $ac_cv_wnowait_waitpid = yes; then
+  AC_DEFINE(HAVE_WNOWAIT_WAITPID)
 fi])
 
 

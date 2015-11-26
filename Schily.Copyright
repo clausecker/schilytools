@@ -80,8 +80,10 @@
   Written 2001 by Markus Friedl (rmd160)
   Written by Steve Reid (sha1)
   Written 2000-2001 by Aaron D. Gifford (sha2)
+  Copyright: 2013 Aleksey Kravchenko <rhash.admin@gmail.com> (sha3)
   License: Public Domain (md4, md5, sha1)
   License: BSD 2 clause from OpenBSD (rmd160, sha2)
+  License: MIT (sha3)
 
 ----------------------------------------------------------------------------
 * librmt

@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2015 J. Schilling
  *
- * @(#)jobs.c	1.79 15/11/20 2008-2015 J. Schilling
+ * @(#)jobs.c	1.82 15/11/25 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)jobs.c	1.79 15/11/20 2008-2015 J. Schilling";
+	"@(#)jobs.c	1.82 15/11/25 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -85,13 +85,12 @@ static	UConst char sccsid[] =
 #ifndef	WTRAPPED
 #define	WTRAPPED	0		/* SVr4 / SunOS / POSIX */
 #endif
-#if defined(linux) || defined(IS_MACOS_X) || defined(_IBMR2) || defined(_AIX)
-/*
- * AIX, Linux and Mac OS X return EINVAL if WNOWAIT is used
- * XXX: We need to verify whether this is true as well with waitid().
- */
-#undef	WNOWAIT
-#define	WNOWAIT		0
+#ifndef	WSTOPPED			/* Prefer POSIX name */
+#ifdef	WUNTRACED
+#define	WSTOPPED	WUNTRACED	/* SVr4 / SunOS / POSIX */
+#else
+#define	WSTOPPED	0
+#endif
 #endif
 
 #ifdef	FORCE_WAITID		/* Allow to enforce using waitid() to test */
@@ -101,6 +100,17 @@ static	UConst char sccsid[] =
 #undef	HAVE_WAITID
 #endif
 #ifndef	HAVE_WAITID		/* Need to define everything for waitid() */
+
+
+/*
+ * AIX, Linux and Mac OS X, NetBSD return EINVAL if WNOWAIT is used
+ * with waitpid().
+ * XXX: We need to verify whether this is true as well with waitid().
+ */
+#ifndef	HAVE_WNOWAIT_WAITPID
+#undef	WNOWAIT
+#define	WNOWAIT		0
+#endif
 
 /*
  * Minimal structure to emulate waitid() via waitpid().
@@ -580,7 +590,7 @@ int wnohang;
 	int		wflags;
 
 	if ((flags & (monitorflg|jcflg|jcoff)) == (monitorflg|jcflg))
-		wflags = WUNTRACED|WCONTINUED;
+		wflags = WSTOPPED|WCONTINUED;
 	else
 		wflags = 0;
 	wflags |= (WEXITED|WTRAPPED);	/* Needed for waitid() */
@@ -646,7 +656,7 @@ waitjob(jp)
 #endif
 
 	if ((flags & (monitorflg|jcflg|jcoff)) == (monitorflg|jcflg))
-		wflags = WUNTRACED;
+		wflags = WSTOPPED;
 	else
 		wflags = 0;
 	wflags |= (WEXITED|WTRAPPED);	/* Needed for waitid() */
@@ -701,7 +711,7 @@ waitjob(jp)
 	jdone = statjob(jp, &si, 1, 1);	/* Sets exitval, see below */
 #endif	/* WNOWAIT != 0 */
 
-#ifndef	DO_PIPE_PARENT
+#ifdef	DO_PIPE_PARENT
 	/*
 	 * This is a hack for now as long as we don't have a node for every
 	 * process created by the main shell. We currently don't know whether
@@ -1361,7 +1371,7 @@ char *argv[];
 	siginfo_t	si;
 
 	if ((flags & (monitorflg|jcflg|jcoff)) == (monitorflg|jcflg))
-		wflags = WUNTRACED;
+		wflags = WSTOPPED;
 	else
 		wflags = 0;
 	wflags |= (WEXITED|WTRAPPED);	/* Needed for waitid() */

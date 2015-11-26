@@ -1,30 +1,17 @@
-/* @(#)udf.c	1.42 13/04/24 Copyright 2001-2013 J. Schilling */
+/* @(#)udf.c	1.43 15/11/25 Copyright 2001-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)udf.c	1.42 13/04/24 Copyright 2001-2013 J. Schilling";
+	"@(#)udf.c	1.43 15/11/25 Copyright 2001-2015 J. Schilling";
 #endif
 /*
  * udf.c - UDF support for mkisofs
  *
  * Written by Ben Rudiak-Gould (2001).
  *
- * Copyright 2001-2013 J. Schilling.
+ * Copyright 2001-2015 J. Schilling.
  */
-/*
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2
- * as published by the Free Software Foundation.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along with
- * this program; see the file COPYING.  If not, write to the Free Software
- * Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
- */
+/*@@C@@*/
 
 /*
  * Some remaining issues:
@@ -98,7 +85,7 @@ static	UConst char sccsid[] =
 extern	int	use_sparcboot;
 
 extern struct directory *root;
-extern time_t		begun;
+extern struct timeval	tv_begun;
 
 static unsigned lba_main_seq;
 static unsigned lba_main_seq_copy;
@@ -110,7 +97,7 @@ static unsigned lba_end_anchor_vol_desc;
 static unsigned num_udf_files;
 static unsigned num_udf_directories;
 
-static unsigned volume_set_id[2];
+static unsigned volume_set_id[2] = { 0, 0 };
 
 #define	UDF_MAIN_SEQ_LENGTH (16)
 #define	UDF_INTEG_SEQ_LENGTH (2)
@@ -723,7 +710,7 @@ set_primary_vol_desc(buf, lba)
 	/*pvd->volume_abstract;*/
 	/*pvd->volume_copyright_notice;*/
 	/*pvd->application_ident;*/
-	set_timestamp_from_time_t(&pvd->recording_date_and_time, begun);
+	set_timestamp_from_time_t(&pvd->recording_date_and_time, tv_begun.tv_sec);
 	set_impl_ident(&pvd->impl_ident);
 	set_tag(&pvd->desc_tag, UDF_TAGID_PRIMARY_VOLUME_DESC, lba, 512);
 }
@@ -831,7 +818,7 @@ set_logical_vol_integrity_desc(buf, lba)
 	udf_logical_volume_integrity_desc *lvid =
 				(udf_logical_volume_integrity_desc *)buf;
 
-	set_timestamp_from_time_t(&lvid->recording_date, begun);
+	set_timestamp_from_time_t(&lvid->recording_date, tv_begun.tv_sec);
 	set32(&lvid->integrity_type, UDF_INTEGRITY_TYPE_CLOSE);
 	/*lvid->next_integrity_extent;*/
 	set64(&lvid->logical_volume_contents_use.unique_id,
@@ -859,7 +846,7 @@ set_file_set_desc(buf, rba)
 {
 	udf_file_set_desc *fsd = (udf_file_set_desc *)buf;
 
-	set_timestamp_from_time_t(&fsd->recording_date_and_time, begun);
+	set_timestamp_from_time_t(&fsd->recording_date_and_time, tv_begun.tv_sec);
 	set16(&fsd->interchange_level, 3);
 	set16(&fsd->maximum_interchange_level, 3);
 	set32(&fsd->character_set_list, 1);
@@ -1986,8 +1973,10 @@ udf_main_seq_write(out)
 	 * volume_set_id needs to be set to a (64-bit) "unique" number.
 	 * This will have to do for now.
 	 */
-	volume_set_id[0] = begun;
-	volume_set_id[1] = (unsigned)clock();	/* XXX Maybe non-portable */
+	if (volume_set_id[0] == 0) {
+		volume_set_id[0] = tv_begun.tv_sec;
+		volume_set_id[1] = (unsigned)tv_begun.tv_usec;
+	}
 
 	memset(buf, 0, sizeof (buf));
 	set_primary_vol_desc(buf, last_extent_written++);

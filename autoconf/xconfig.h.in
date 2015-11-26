@@ -1,4 +1,4 @@
-/* @(#)xconfig.h.in	1.249 15/11/03 Copyright 1998-2015 J. Schilling */
+/* @(#)xconfig.h.in	1.251 15/11/23 Copyright 1998-2015 J. Schilling */
 /*
  *	Dynamic autoconf C-include code.
  *	Do not edit, this file has been created automatically.
@@ -44,6 +44,7 @@
 #undef HAVE_SYS_NDIR_H	/* to use sys/ndir.h */
 #undef HAVE_ALLOCA_H	/* if alloca.h exists */
 #undef HAVE_MALLOC_H	/* if malloc.h exists */
+#undef HAVE_POSIX_MALLOC_H /* The Haiku include file for malloc()/valloc()/... */
 #undef HAVE_SGTTY_H	/* if sgtty.h exists */
 #undef HAVE_TERMIOS_H	/* to use POSIX termios.h */
 #undef HAVE_TERMIO_H	/* to use SVR4 termio.h */
@@ -324,6 +325,7 @@
 #undef HAVE_WAIT6		/* wait6() is present in libc */
 #undef HAVE_WAITID		/* waitid() is present in libc */
 #undef HAVE_WAITPID		/* waitpid() is present in libc */
+#undef HAVE_WNOWAIT_WAITPID	/* waitpid() supports NOWAIT */
 #undef HAVE_CWAIT		/* cwait() is present in libc */
 #undef HAVE_GETHOSTID		/* gethostid() is present in libc */
 #undef HAVE_GETHOSTNAME		/* gethostname() is present in libc */

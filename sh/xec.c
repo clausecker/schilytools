@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2015 J. Schilling
  *
- * @(#)xec.c	1.50 15/11/15 2008-2015 J. Schilling
+ * @(#)xec.c	1.52 15/11/26 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)xec.c	1.50 15/11/15 2008-2015 J. Schilling";
+	"@(#)xec.c	1.52 15/11/26 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -534,6 +534,18 @@ script:
 					if (pgid == 0) {
 						pgid = mypid;
 						setjobpgid(pgid);
+						/*
+						 * If this is a subshell with a
+						 * new job entry (pgid == 0),
+						 * we need to remember the pgid
+						 * as mypgid to avoid to reset
+						 * the tty process group from
+						 * inside waitjob(). This
+						 * assignment to mypgid used to
+						 * be in makejob().
+						 */
+						if (type == TFORK)
+							mypgid = pgid;
 					}
 					setpgid(mypid, pgid);
 					if (!(treeflgs & FAMP))
@@ -547,7 +559,7 @@ script:
 			 * now.  If it is, the presence of a left parenthesis
 			 * will trigger the jcoff flag to be turned off.
 			 * When jcoff is turned on, monitoring is not going on
-			 * and waitpid will not look for WUNTRACED.
+			 * and waitpid will not look for WSTOPPED.
 			 */
 
 			flags |= (forked|jcoff);

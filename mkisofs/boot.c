@@ -1,29 +1,16 @@
-/* @(#)boot.c	1.25 10/12/19 Copyright 1999-2010 J. Schilling */
+/* @(#)boot.c	1.27 15/11/24 Copyright 1999-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)boot.c	1.25 10/12/19 Copyright 1999-2010 J. Schilling";
+	"@(#)boot.c	1.27 15/11/24 Copyright 1999-2015 J. Schilling";
 #endif
 /*
  *	Support for generic boot (sector 0..16)
  *	and to boot Sun sparc and Sun x86 systems.
  *
- *	Copyright (c) 1999-2010 J. Schilling
+ *	Copyright (c) 1999-2015 J. Schilling
  */
-/*
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2
- * as published by the Free Software Foundation.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along with
- * this program; see the file COPYING.  If not, write to the Free Software
- * Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
- */
+/*@@C@@*/
 
 #include "mkisofs.h"
 #include <schily/fcntl.h>
@@ -447,10 +434,10 @@ sunlabel_size(starting_extent)
 }
 
 /*
- * Cumpute the checksum and write a Sun disk label to the first sector
+ * Compute the checksum and write a Sun disk label to the first sector
  * of the disk.
  * If the -generic-boot option has been specified too, overlay the
- * Sun disk label on the firs 512 bytes of the generic boot code.
+ * Sun disk label on the first 512 bytes of the generic boot code.
  */
 LOCAL int
 sunlabel_write(outfile)
@@ -482,7 +469,10 @@ sunlabel_write(outfile)
 			sx86_label.dkl_cksum[0] ^= *p++;
 			sx86_label.dkl_cksum[1] ^= *p++;
 		}
-		memcpy(&buffer[0x1BE], fdisk_part.part, 512-0x1BE);
+		memcpy(&buffer[0x1BE], fdisk_part.part, sizeof (fdisk_part.part));
+		p = &buffer[510];
+		*p++ = 0x55;
+		*p   = 0xAA;
 		memcpy(&buffer[1024], &sx86_label, 512);
 	} else {
 		/*

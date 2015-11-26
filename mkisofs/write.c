@@ -1,8 +1,8 @@
-/* @(#)write.c	1.138 14/02/11 joerg */
+/* @(#)write.c	1.139 15/11/23 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)write.c	1.138 14/02/11 joerg";
+	"@(#)write.c	1.139 15/11/23 joerg";
 #endif
 /*
  * Program write.c - dump memory  structures to  file for iso9660 filesystem.
@@ -10,7 +10,7 @@ static	UConst char sccsid[] =
  * Written by Eric Youngdale (1993).
  *
  * Copyright 1993 Yggdrasil Computing, Incorporated
- * Copyright (c) 1999-2014 J. Schilling
+ * Copyright (c) 1999-2015 J. Schilling
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -2015,7 +2015,7 @@ extern	ldate		modification_date;
 	/* Next we write out the primary descriptor for the disc */
 	memset(&vol_desc, 0, sizeof (vol_desc));
 	vol_desc.type[0] = ISO_VD_PRIMARY;
-	memcpy(vol_desc.id, ISO_STANDARD_ID, sizeof (ISO_STANDARD_ID));
+	strncpy(vol_desc.id, ISO_STANDARD_ID, sizeof (vol_desc.id));
 	vol_desc.version[0] = 1;
 
 	memset(vol_desc.system_id, ' ', sizeof (vol_desc.system_id));
@@ -2151,7 +2151,7 @@ evd_write(outfile)
 	 */
 	memset(&evol_desc, 0, sizeof (evol_desc));
 	evol_desc.type[0] = (unsigned char) ISO_VD_END;
-	memcpy(evol_desc.id, ISO_STANDARD_ID, sizeof (ISO_STANDARD_ID));
+	strncpy(evol_desc.id, ISO_STANDARD_ID, sizeof (evol_desc.id));
 	evol_desc.version[0] = 1;
 	xfwrite(&evol_desc, SECTOR_SIZE, 1, outfile, 0, TRUE);
 	last_extent_written += 1;

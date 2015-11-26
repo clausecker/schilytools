@@ -1,14 +1,14 @@
-/* @(#)mdigest.c	1.2 09/08/12 Copyright 2009 J. Schilling */
+/* @(#)mdigest.c	1.3 15/11/22 Copyright 2009-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
 /*static	const char sccsid[] =*/
-	"@(#)mdigest.c	1.2 09/08/12 Copyright 2009 J. Schilling";
+	"@(#)mdigest.c	1.3 15/11/22 Copyright 2009-2015 J. Schilling";
 #endif
 /*
  *	Compute the message digest for files
  *
- *	Copyright (c) 2009 J. Schilling
+ *	Copyright (c) 2009-2015 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -17,6 +17,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -37,6 +39,7 @@ static	UConst char sccsid[] =
 #include <schily/rmd160.h>
 #include <schily/sha1.h>
 #include <schily/sha2.h>
+#include <schily/sha3.h>
 
 typedef union uctx {
 	MD4_CTX		ctx_md4;
@@ -44,6 +47,9 @@ typedef union uctx {
 	RMD160_CTX	ctx_rmd160;
 	SHA1_CTX	ctx_sha1;
 	SHA2_CTX	ctx_sha2;
+#ifdef	sha3_224_hash_size
+	SHA3_CTX	ctx_sha3;
+#endif
 } U_CTX;
 
 struct adigest {
@@ -71,6 +77,18 @@ struct adigest dlist[] = {
 #endif
 #ifdef	SHA512_BLOCK_LENGTH
 { "sha512", SHA512_DIGEST_LENGTH, (PI) SHA512Init, (PU) SHA512Update, (PP) SHA512Pad, (PF) SHA512Final },
+#endif
+#ifdef	sha3_224_hash_size
+{ "sha3-224", sha3_224_hash_size, (PI) SHA3_224_INIT, (PU) SHA3_UPDATE, (PP) NULL, (PF) SHA3_FINAL },
+#endif
+#ifdef	sha3_256_hash_size
+{ "sha3-256", sha3_256_hash_size, (PI) SHA3_256_INIT, (PU) SHA3_UPDATE, (PP) NULL, (PF) SHA3_FINAL },
+#endif
+#ifdef	sha3_384_hash_size
+{ "sha3-384", sha3_384_hash_size, (PI) SHA3_384_INIT, (PU) SHA3_UPDATE, (PP) NULL, (PF) SHA3_FINAL },
+#endif
+#ifdef	sha3_512_hash_size
+{ "sha3-512", sha3_512_hash_size, (PI) SHA3_512_INIT, (PU) SHA3_UPDATE, (PP) NULL, (PF) SHA3_FINAL },
 #endif
 { NULL, 0, (PI) NULL, (PU) NULL, (PP) NULL, (PF) NULL },
 };
@@ -134,8 +152,8 @@ struct	adigest	*dp = dlist;
 	}
 	if (help) usage(0);
 	if (prvers) {
-		printf("mdigest %s (%s-%s-%s)\n\n", "1.2", HOST_CPU, HOST_VENDOR, HOST_OS);
-		printf("Copyright (C) 2009 Jörg Schilling\n");
+		printf("mdigest %s (%s-%s-%s)\n\n", "1.3", HOST_CPU, HOST_VENDOR, HOST_OS);
+		printf("Copyright (C) 2009-2015 Jörg Schilling\n");
 		printf("This is free software; see the source for copying conditions.  There is NO\n");
 		printf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
 		exit(0);
