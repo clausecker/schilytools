@@ -1,4 +1,4 @@
-#ident "@(#)rs6000-aix-cc.rul	1.10 07/05/08 "
+#ident "@(#)rs6000-aix-cc.rul	1.11 15/12/01 "
 ###########################################################################
 # Written 1996 by J. Schilling
 ###########################################################################
@@ -14,13 +14,17 @@
 # with the License.
 #
 # See the file CDDL.Schily.txt in this distribution for details.
+# A copy of the CDDL is also available via the Internet at
+# http://www.opensource.org/licenses/cddl1.txt
 #
 # When distributing Covered Code, include this CDDL HEADER in each
 # file and include the License file CDDL.Schily.txt from this distribution.
 ###########################################################################
 include $(SRCROOT)/$(RULESDIR)/rules.prg
 ###########################################################################
-include $(SRCROOT)/$(RULESDIR)/cc-ibm.rul
+include $(SRCROOT)/$(RULESDIR)/cc-$(C_ARCH:cc%=ibm%).rul
+
+AIX_ARCH=	$(IBMCC_OPTXX:-q%=-X%)
 
 OSDEFS +=	-DPROTOTYTPES
 
@@ -31,3 +35,6 @@ LIB_MATH=	-lm
 #LIB_KVM=	-lkvm
 
 RANLIB=		@echo "	==> RANDOMIZING ARCHIVE \"$@\""; ranlib
+
+LORDER=		lorder $(AIX_ARCH)
+AR=		@echo "	==> ARCHIVING  \"$@\""; ar $(AIX_ARCH)

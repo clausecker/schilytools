@@ -249,7 +249,6 @@
 ./RULES/alphaserver_ds20_500_mhz-openvms-cc.rul
 ./RULES/amd64-bitrig-clang32.rul
 ./RULES/amd64-bitrig-clang64.rul
-./RULES/i386-bitrig-clang.rul
 ./RULES/amd64-freebsd-cc.rul
 ./RULES/amd64-freebsd-clang.rul
 ./RULES/amd64-freebsd-clang32.rul
@@ -291,10 +290,13 @@
 ./RULES/cc-clang64.rul
 ./RULES/cc-gcc32.rul
 ./RULES/cc-gcc64.rul
+./RULES/cc-ibm32.rul
+./RULES/cc-ibm64.rul
 ./RULES/cc-sunpro32.rul
 ./RULES/cc-sunpro64.rul
 ./RULES/falcon-freemint-gcc.rul
 ./RULES/hades-freemint-gcc.rul
+./RULES/i386-bitrig-clang.rul
 ./RULES/i386-cygwin32_nt-cc.rul
 ./RULES/i386-cygwin32_nt-cl.rul
 ./RULES/i386-cygwin32_nt-gcc.rul
@@ -337,6 +339,7 @@
 ./RULES/i586-linux-cc64.rul
 ./RULES/i586-linux-clang32.rul
 ./RULES/i586-linux-clang64.rul
+./RULES/i586-linux-gcc32.rul
 ./RULES/i586-linux-gcc64.rul
 ./RULES/i586-linux-suncc32.rul
 ./RULES/i586-linux-suncc64.rul
@@ -403,6 +406,7 @@
 ./RULES/ip20-irix-gcc.rul
 ./RULES/ip20-irix-gcc64.rul
 ./RULES/ip22-irix-cc64.rul
+./RULES/ip22-irix-gcc64.rul
 ./RULES/ip27-irix-cc.rul
 ./RULES/ip27-irix-cc64.rul
 ./RULES/ip27-irix-gcc.rul
@@ -472,6 +476,10 @@
 ./RULES/r-build.obj
 ./RULES/r-build.tag
 ./RULES/r-gmake.obj
+./RULES/rs6000-aix-cc32.rul
+./RULES/rs6000-aix-cc64.rul
+./RULES/rs6000-aix-gcc32.rul
+./RULES/rs6000-aix-gcc64.rul
 ./RULES/s390-linux-cc.rul
 ./RULES/s390-linux-gcc.rul
 ./RULES/s390x-linux-cc.rul
@@ -497,6 +505,7 @@
 ./RULES/sparc64-linux-cc.rul
 ./RULES/sparc64-linux-gcc.rul
 ./RULES/sparc64-linux-gcc32.rul
+./RULES/sparc64-linux-gcc64.rul
 ./RULES/sun4-sunos5-cc32.rul
 ./RULES/sun4-sunos5-cc64.rul
 ./RULES/sun4-sunos5-clang32.rul
@@ -554,6 +563,7 @@
 ./RULES/x86_64-linux-clang64.rul
 ./RULES/x86_64-linux-gcc.rul
 ./RULES/x86_64-linux-gcc32.rul
+./RULES/x86_64-linux-gcc64.rul
 ./RULES/x86_64-linux-suncc.rul
 ./RULES/x86_64-linux-suncc64.rul
 ./TEMPLATES/cmd.mk

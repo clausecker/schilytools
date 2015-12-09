@@ -1,6 +1,6 @@
-dnl @(#)configure.in	1.265 15/11/23 Copyright 1998-2015 J. Schilling
+dnl @(#)configure.in	1.266 15/11/30 Copyright 1998-2015 J. Schilling
 dnl Process this file with autoconf to produce a configure script.
-AC_REVISION(1.265)dnl
+AC_REVISION(1.266)dnl
 
 dnl AC_INIT(xconfig.h.in)
 AC_INIT(config.guess)
@@ -88,7 +88,7 @@ AC_CHECK_HEADERS(sys/types.h sys/stat.h types.h stat.h)
 AC_CHECK_HEADERS(sys/stypes.h sys/filedesc.h)
 AC_CHECK_HEADERS(sys/acct.h)
 AC_CHECK_HEADERS(poll.h sys/poll.h sys/select.h)
-AC_CHECK_HEADERS(netdb.h sys/socket.h netinet/in.h stropts.h)
+AC_CHECK_HEADERS(netdb.h arpa/aixrcmds.h sys/socket.h netinet/in.h stropts.h)
 AC_CHECK_HEADERS(ieeefp.h fp.h)
 AC_CHECK_HEADERS(values.h float.h math.h)
 AC_CHECK_HEADERS(arpa/inet.h)

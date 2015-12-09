@@ -1,8 +1,8 @@
-/* @(#)tree.c	1.132 15/08/23 joerg */
+/* @(#)tree.c	1.133 15/12/08 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)tree.c	1.132 15/08/23 joerg";
+	"@(#)tree.c	1.133 15/12/08 joerg";
 #endif
 /*
  * File tree.c - scan directory  tree and build memory structures for iso9660
@@ -1013,6 +1013,12 @@ find_rr_attribute(pnt, len, attr_type)
 			errmsgno(EX_BAD,
 				_("**BAD RRVERSION (%d) in '%c%c' field (%2.2X %2.2X).\n"),
 				pnt[3], pnt[0], pnt[1], pnt[0], pnt[1]);
+		}
+		if (pnt[2] < 4) {
+			errmsgno(EX_BAD,
+				_("**BAD RRLEN (%d) in '%2.2s' field %2.2X %2.2X.\n"),
+				pnt[2], pnt, pnt[0], pnt[1]);
+			return (NULL);
 		}
 		if (strncmp((char *)pnt, attr_type, 2) == 0)
 			return ((char *)pnt);

@@ -1,4 +1,4 @@
-/* @(#)xconfig.h.in	1.251 15/11/23 Copyright 1998-2015 J. Schilling */
+/* @(#)xconfig.h.in	1.252 15/11/30 Copyright 1998-2015 J. Schilling */
 /*
  *	Dynamic autoconf C-include code.
  *	Do not edit, this file has been created automatically.
@@ -120,6 +120,7 @@
 #undef HAVE_SYS_SELECT_H	/* if we may have sys/select.h nonstandard use for select() on some systems*/
 #undef NEED_SYS_SELECT_H	/* if we need sys/select.h to use select() (this is nonstandard) */
 #undef HAVE_NETDB_H		/* if we have netdb.h for get*by*() and rcmd() */
+#undef HAVE_ARPA_AIXRCMDS_H	/* if we have arpa/aixrcmds.h for get*by*() and rcmd() */
 #undef HAVE_SYS_SOCKET_H	/* if we have sys/socket.h for socket() */
 #undef NEED_SYS_SOCKET_H	/* if we need sys/socket.h to use select() (this is nonstandard) */
 #undef HAVE_NETINET_IN_H	/* if we have netinet/in.h */

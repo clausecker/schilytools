@@ -39,7 +39,7 @@
 /*
  * Copyright 2008-2015 J. Schilling
  *
- * @(#)defs.h	1.126 15/11/18 2008-2015 J. Schilling
+ * @(#)defs.h	1.127 15/12/07 2008-2015 J. Schilling
  */
 
 #ifdef	__cplusplus
@@ -176,6 +176,7 @@ extern "C" {
 #define		SYSSYNC		51
 #define		SYSPGRP		52
 #define		SYSERRSTR	53
+#define		SYSPRINTF	54
 
 #define		SYSMAX		255	/* Must fit into low 8 ENTRY.data bits */
 
@@ -394,6 +395,8 @@ extern	struct trenod *cmd	__PR((int sym, int flg));
  * echo.c
  */
 extern	int	echo		__PR((int argc, unsigned char **argv));
+extern unsigned char *escape_char __PR((unsigned char *cp, unsigned char *res,
+					int echomode));
 
 
 /*
@@ -531,6 +534,7 @@ extern	void	sysstop		__PR((int argc, char *argv[]));
 extern	void	syskill		__PR((int argc, char *argv[]));
 extern	void	syssusp		__PR((int argc, char *argv[]));
 extern	void	syspgrp		__PR((int argc, char *argv[]));
+extern	int	sysprintf	__PR((int argc, unsigned char *argv[]));
 extern	void	hupforegnd	__PR((void));
 extern	pid_t	wait_status	__PR((pid_t id,
 					int *codep, int *statusp, int opts));
@@ -772,6 +776,10 @@ extern	void	optinit		__PR((struct optv *optv));
 extern	int	optget		__PR((int argc, unsigned char **argv,
 					struct optv *optv,
 					const char *optstring));
+extern	void	optbad		__PR((int argc, unsigned char **argv,
+					struct optv *optv));
+extern	int	optskip		__PR((int argc, unsigned char **argv,
+					const char *use));
 
 /*
  * word.c

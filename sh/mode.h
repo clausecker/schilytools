@@ -37,7 +37,7 @@
 /*
  * This file contains modifications Copyright 2008-2015 J. Schilling
  *
- * @(#)mode.h	1.19 15/10/24 2008-2015 J. Schilling
+ * @(#)mode.h	1.20 15/12/07 2008-2015 J. Schilling
  */
 
 /*
@@ -284,11 +284,11 @@ struct fdsave
 
 struct optv
 {
-	int	opterr;
-	int	optind;
-	int	optopt;
-	int	opt_sp;
-	char	*optarg;
+	int	opterr;		/* Whether getopt() prints error messages */
+	int	optind;		/* Index in argv */
+	int	optopt;		/* Option character */
+	int	opt_sp;		/* Index in multi opt arg like -abc */
+	char	*optarg;	/* Option argument string */
 };
 
 #define		treptr(x)	((struct trenod *)x)

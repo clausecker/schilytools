@@ -39,11 +39,11 @@
 /*
  * This file contains modifications Copyright 2008-2015 J. Schilling
  *
- * @(#)msg.c	1.52 15/09/15 2008-2015 J. Schilling
+ * @(#)msg.c	1.54 15/12/07 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)msg.c	1.52 15/09/15 2008-2015 J. Schilling";
+	"@(#)msg.c	1.54 15/12/07 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -273,66 +273,66 @@ const char	readonly[] = "readonly";
  * Built-ins marked with "S" are POSIX special built-in utilities.
  * Built-ins marked with "I" are POSIX intrinsic utilities.
  * Built-ins marked with "i" may not be permitted intrincics in the future.
+ * Built-ins marked with "-" do not follow utility syntax guidelines.
+ * Built-ins marked with "U" follow utility syntax guidelines and support --.
  *
  * The POSIX standard in addition defines the regular intrinsic utilities
  * "fc" and "command" that are not part of the Bourne Shell.
- * The POSIX standard in addition defines the permitted intrinsic utilities
- * "printf" that is not part of the Bourne Shell.
  */
 const struct sysnod commands[] =
 {
-	{ ".",		SYSDOT,		BLT_SPC	},	/* S  */
-	{ ":",		SYSNULL,	BLT_SPC	},	/* S  */
+	{ ".",		SYSDOT,		BLT_SPC	},	/* S - */
+	{ ":",		SYSNULL,	BLT_SPC	},	/* S - */
 #ifdef DO_SYSATEXPR
 	{ "@",		SYSEXPR,	0	},
 #endif
 #ifndef RES
-	{ "[",		SYSTST,		0 },		/*  i */
+	{ "[",		SYSTST,		0 },		/*  i  */
 #endif
 #ifdef	DO_SYSALIAS
-	{ "alias",	SYSALIAS,	BLT_INT },	/*  I */
+	{ "alias",	SYSALIAS,	BLT_INT },	/*  I  */
 #endif
 #ifdef	DO_SYSALLOC
 	{ "alloc",	SYSALLOC,	0 },
 #endif
-	{ "bg",		SYSFGBG,	BLT_INT },	/*  I */
-	{ "break",	SYSBREAK,	BLT_SPC },	/* S  */
+	{ "bg",		SYSFGBG,	BLT_INT },	/*  I  */
+	{ "break",	SYSBREAK,	BLT_SPC },	/* S - */
 #ifdef	DO_SYSBUILTIN
 	{ "builtin",	SYSBUILTIN },
 #endif
-	{ "cd",		SYSCD,		BLT_INT },	/*  I */
+	{ "cd",		SYSCD,		BLT_INT },	/*  I  */
 	{ "chdir",	SYSCD,		0 },
-	{ "continue",	SYSCONT,	BLT_SPC	},	/* S  */
+	{ "continue",	SYSCONT,	BLT_SPC	},	/* S - */
 #ifdef	DO_SYSPUSHD
 	{ "dirs",	SYSDIRS,	0 },
 #endif
 #ifdef	DO_SYSDOSH
 	{ "dosh",	SYSDOSH,	0 },
 #endif
-	{ "echo",	SYSECHO,	0 },		/*  i */
+	{ "echo",	SYSECHO,	0 },		/*  i  */
 #ifdef	DO_SYSERRSTR
 	{ "errstr",	SYSERRSTR,	0 },
 #endif
-	{ "eval",	SYSEVAL,	BLT_SPC	},	/* S  */
-	{ "exec",	SYSEXEC,	BLT_SPC	},	/* S  */
-	{ "exit",	SYSEXIT,	BLT_SPC	},	/* S  */
-	{ "export",	SYSXPORT,	BLT_SPC },	/* S  */
+	{ "eval",	SYSEVAL,	BLT_SPC	},	/* S - */
+	{ "exec",	SYSEXEC,	BLT_SPC	},	/* S - */
+	{ "exit",	SYSEXIT,	BLT_SPC	},	/* S - */
+	{ "export",	SYSXPORT,	BLT_SPC },	/* S U */
 #ifdef	DO_SYSTRUE
-	{ "false",	SYSFALSE,	0 },		/*  i */
+	{ "false",	SYSFALSE,	0 },		/*  i  */
 #endif
-	{ "fg",		SYSFGBG,	BLT_INT },	/*  I */
+	{ "fg",		SYSFGBG,	BLT_INT },	/*  I  */
 #ifdef	DO_SYSFIND
 	{ "find",	SYSFIND },
 #endif
-	{ "getopts",	SYSGETOPT,	BLT_INT },	/*  I */
-	{ "hash",	SYSHASH,	BLT_INT },	/*  I */
+	{ "getopts",	SYSGETOPT,	BLT_INT },	/*  I  */
+	{ "hash",	SYSHASH,	BLT_INT },	/*  I  */
 #ifdef	INTERACTIVE
 	{ "history",	SYSHISTORY,	0 },
 #endif
-	{ "jobs",	SYSJOBS,	BLT_INT },	/*  I */
-	{ "kill",	SYSKILL,	BLT_INT },	/*  I */
+	{ "jobs",	SYSJOBS,	BLT_INT },	/*  I  */
+	{ "kill",	SYSKILL,	BLT_INT },	/*  I  */
 #ifdef	DO_SYSKILLPG
-	{ "killpg",	SYSKILL,	0 },		/*    */
+	{ "killpg",	SYSKILL,	0 },		/*     */
 #endif
 #ifdef RES
 	{ "login",	SYSLOGIN,	0 },
@@ -343,7 +343,7 @@ const struct sysnod commands[] =
 #ifdef RES
 	{ "newgrp",	SYSLOGIN,	0 },
 #else
-	{ "newgrp",	SYSNEWGRP,	0 },		/*  i */
+	{ "newgrp",	SYSNEWGRP,	0 },		/*  i  */
 #endif
 
 #ifdef	DO_SYSPGRP
@@ -351,44 +351,49 @@ const struct sysnod commands[] =
 #endif
 #ifdef	DO_SYSPUSHD
 	{ "popd",	SYSPOPD,	0 },
+#endif
+#ifdef	DO_SYSPRINTF
+	{ "printf",	SYSPRINTF,	0 },		/*  i  */
+#endif
+#ifdef	DO_SYSPUSHD
 	{ "pushd",	SYSPUSHD,	0 },
 #endif
-	{ "pwd",	SYSPWD,		0 },		/*  i */
-	{ "read",	SYSREAD,	BLT_INT },	/*  I */
-	{ "readonly",	SYSRDONLY,	BLT_SPC },	/* S  */
+	{ "pwd",	SYSPWD,		0 },		/*  i  */
+	{ "read",	SYSREAD,	BLT_INT },	/*  I  */
+	{ "readonly",	SYSRDONLY,	BLT_SPC },	/* S U */
 #ifdef	DO_SYSREPEAT
 	{ "repeat",	SYSREPEAT,	0 },
 #endif
-	{ "return",	SYSRETURN,	BLT_SPC },	/* S  */
+	{ "return",	SYSRETURN,	BLT_SPC },	/* S - */
 #ifdef	INTERACTIVE
 	{ "savehistory", SYSSAVEHIST,	0 },
 #endif
-	{ "set",	SYSSET,		BLT_SPC	},	/* S  */
-	{ "shift",	SYSSHFT,	BLT_SPC	},	/* S  */
+	{ "set",	SYSSET,		BLT_SPC	},	/* S U */
+	{ "shift",	SYSSHFT,	BLT_SPC	},	/* S - */
 	{ "stop",	SYSSTOP,	0 },
 	{ "suspend",	SYSSUSP,	0 },
 #ifdef	DO_SYSSYNC
 	{ "sync",	SYSSYNC,	0 },
 #endif
-	{ "test",	SYSTST,		0 },		/*  i */
-	{ "times",	SYSTIMES,	BLT_SPC },	/* S  */
-	{ "trap",	SYSTRAP,	BLT_SPC	},	/* S  */
+	{ "test",	SYSTST,		0 },		/*  i  */
+	{ "times",	SYSTIMES,	BLT_SPC },	/* S - */
+	{ "trap",	SYSTRAP,	BLT_SPC	},	/* S U */
 #ifdef	DO_SYSTRUE
-	{ "true",	SYSTRUE,	0 },		/*  i */
+	{ "true",	SYSTRUE,	0 },		/*  i  */
 #endif
-	{ "type",	SYSTYPE,	BLT_INT },	/*  I */
+	{ "type",	SYSTYPE,	BLT_INT },	/*  I  */
 
 
 #ifndef RES
-	{ "ulimit",	SYSULIMIT,	BLT_INT },	/*  I */
-	{ "umask",	SYSUMASK,	BLT_INT },	/*  I */
+	{ "ulimit",	SYSULIMIT,	BLT_INT },	/*  I  */
+	{ "umask",	SYSUMASK,	BLT_INT },	/*  I  */
 #endif
 #ifdef	DO_SYSALIAS
-	{ "unalias",	SYSUNALIAS,	BLT_INT },	/*  I */
+	{ "unalias",	SYSUNALIAS,	BLT_INT },	/*  I  */
 #endif
 
-	{ "unset",	SYSUNS,		BLT_SPC },	/* S  */
-	{ "wait",	SYSWAIT,	BLT_INT }	/*  I */
+	{ "unset",	SYSUNS,		BLT_SPC },	/* S U */
+	{ "wait",	SYSWAIT,	BLT_INT }	/*  I  */
 };
 
 const int no_commands = sizeof (commands)/sizeof (struct sysnod);

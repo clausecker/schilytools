@@ -1,13 +1,13 @@
-/* @(#)stream.c	1.16 10/12/19 Copyright 2002-2010 J. Schilling */
+/* @(#)stream.c	1.17 15/12/08 Copyright 2002-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)stream.c	1.16 10/12/19 Copyright 2002-2010 J. Schilling";
+	"@(#)stream.c	1.17 15/12/08 Copyright 2002-2015 J. Schilling";
 #endif
 /*
  *	ISO-9660 stream (pipe) file module for mkisofs
  *
- *	Copyright (c) 2002-2010 J. Schilling
+ *	Copyright (c) 2002-2015 J. Schilling
  *	Implemented after an idea from M.H. Voase
  */
 /*
@@ -22,7 +22,7 @@ static	UConst char sccsid[] =
  *
  * You should have received a copy of the GNU General Public License along with
  * this program; see the file COPYING.  If not, write to the Free Software
- * Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ * Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
 #include "mkisofs.h"
@@ -189,7 +189,6 @@ LOCAL int
 write_str_dir(outfile)
 	FILE	*outfile;
 {
-	int	to_write;
 	int	reclen;
 	char	*buf;
 
@@ -224,16 +223,13 @@ write_str_dir(outfile)
 	set_723((char *)s_dir.volume_sequence_number, volume_sequence_number);
 	s_dir.name_len[0] = strlen(stream_filename);
 	memcpy(s_dir.name, stream_filename, s_dir.name_len[0]);
-	xfwrite(&s_dir, offsetof(struct iso_directory_record, name[0])
-		+ s_dir.name_len[0], 1, outfile, 0, FALSE);
+	xfwrite(&s_dir, reclen, 1, outfile, 0, FALSE);
 
 	/*
 	 * This calc is: 2 single char directory entries (34) + an additional entry
 	 * with filename length stream_filename + round up for even lenght count
 	 */
-	to_write = (s_dir.name_len[0] % 2) ? 0 : 1;
-	xfwrite(buf, SECTOR_SIZE - ((3 * 34) + s_dir.name_len[0]) +
-		to_write, 1, outfile, 0, FALSE);
+	xfwrite(buf, SECTOR_SIZE - ((2 * 34) + reclen), 1, outfile, 0, FALSE);
 	free(buf);
 	last_extent_written++;
 	return (0);

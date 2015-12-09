@@ -1,8 +1,8 @@
-/* @(#)isoinfo.c	1.101 15/11/24 joerg */
+/* @(#)isoinfo.c	1.107 15/12/09 joerg */
 #include <schily/mconfig.h>
 #ifndef	lint
 static	UConst char sccsid[] =
-	"@(#)isoinfo.c	1.101 15/11/24 joerg";
+	"@(#)isoinfo.c	1.107 15/12/09 joerg";
 #endif
 /*
  * File isodump.c - dump iso9660 directory information.
@@ -186,6 +186,18 @@ LOCAL siconvt_t	*unls;
 
 #define	ISODCL(from, to) (to - from + 1)
 
+struct todo
+{
+	struct todo	*next;
+	struct todo	*prev;
+	char		*name;
+	int		extent;
+	int		length;
+};
+
+LOCAL struct todo	*todo_idr = NULL;
+LOCAL struct todo	**todo_pp = &todo_idr;
+
 
 LOCAL	int	isonum_721	__PR((char * p));
 LOCAL	int	isonum_723	__PR((char * p));
@@ -213,7 +225,8 @@ LOCAL	void	extract_file	__PR((int f,
 LOCAL	void	parse_cl_dir	__PR((struct iso_directory_record *idr,
 					int extent));
 LOCAL	BOOL	parse_de	__PR((struct iso_directory_record *idr));
-LOCAL	void	parse_dir	__PR((char * rootname, int extent, int len));
+LOCAL	void	parse_dir	__PR((struct todo *dp,
+					char * rootname, int extent, int len));
 LOCAL	void	usage		__PR((int excode));
 EXPORT	int	main		__PR((int argc, char *argv[]));
 LOCAL	void	list_vd		__PR((struct iso_primary_descriptor *vp, BOOL ucs));
@@ -483,6 +496,10 @@ parse_rr(pnt, len, cont_flag)
 			printf(_("**BAD RRVERSION (%d) in '%2.2s' field %2.2X %2.2X.\n"), pnt[3], pnt, pnt[0], pnt[1]);
 			return (0);		/* JS ??? Is this right ??? */
 		}
+		if (pnt[2] < 4) {
+			printf(_("**BAD RRLEN (%d) in '%2.2s' field %2.2X %2.2X.\n"), pnt[2], pnt, pnt[0], pnt[1]);
+			return (0);		/* JS ??? Is this right ??? */
+		}
 
 		ncount++;
 		if (pnt[0] == 'R' && pnt[1] == 'R') flag1 = pnt[4] & 0xff;
@@ -709,17 +726,6 @@ dump_rr(idr)
 	return (parse_rr(pnt, len, 0));
 }
 
-struct todo
-{
-	struct todo	*next;
-	char		*name;
-	int		extent;
-	int		length;
-};
-
-LOCAL struct todo	*todo_idr = NULL;
-LOCAL struct todo	**todo_pp = &todo_idr;
-
 LOCAL char		*months[12] = {"Jan", "Feb", "Mar", "Apr",
 				"May", "Jun", "Jul",
 				"Aug", "Sep", "Oct", "Nov", "Dec"};
@@ -941,15 +947,15 @@ static	BOOL		isfirst = TRUE;
 	lseek(f, 0, SEEK_END);
 	extract_file(f, idr, fname);
 	if ((idr->flags[0] & ISO_MULTIEXTENT) == 0) {
-#ifdef	HAVE_FCHMOD
-		fchmod(f, fstat_buf.st_mode);
-#else
-		fchmodat(AT_FDCWD, fname, fstat_buf.st_mode, 0);
-#endif
 #ifdef	HAVE_FCHOWN
 		fchown(f, fstat_buf.st_uid, fstat_buf.st_gid);
 #else
 		fchownat(AT_FDCWD, fname, fstat_buf.st_uid, fstat_buf.st_gid, 0);
+#endif
+#ifdef	HAVE_FCHMOD
+		fchmod(f, fstat_buf.st_mode);
+#else
+		fchmodat(AT_FDCWD, fname, fstat_buf.st_mode, 0);
 #endif
 		times[0].tv_sec = fstat_buf.st_atime;
 		times[0].tv_nsec = stat_ansecs(&fstat_buf);
@@ -968,12 +974,6 @@ static	BOOL		isfirst = TRUE;
 	return;
 setmode:
 	fchownat(AT_FDCWD, fname, fstat_buf.st_uid, fstat_buf.st_gid, AT_SYMLINK_NOFOLLOW);
-	if (myuid != 0 && S_ISDIR(fstat_buf.st_mode)) {
-		/*
-		 * Temporary hack until we have a dirstack like star.
-		 */
-		fstat_buf.st_mode |= S_IWUSR;
-	}
 	fchmodat(AT_FDCWD, fname, fstat_buf.st_mode, AT_SYMLINK_NOFOLLOW);
 	times[0].tv_sec = fstat_buf.st_atime;
 	times[0].tv_nsec = stat_ansecs(&fstat_buf);
@@ -1150,10 +1150,11 @@ parse_de(idr)
 }
 
 LOCAL void
-parse_dir(rootname, extent, len)
+parse_dir(dp, rootname, extent, len)
+	struct todo	*dp;
 	char	*rootname;
-	int	extent;
-	int	len;
+	int	extent;			/* Directory extent */
+	int	len;			/* Directory size   */
 {
 	struct todo 	*td;
 	int		i;
@@ -1228,29 +1229,44 @@ static	int	nlen = 0;
 
 			if ((idr->flags[0] & 2) != 0 &&
 			    ((rr_flags & RR_FLAG_CL) ||
-			    idr->name_len[0] != 1 ||
-			    (idr->name[0] != 0 && idr->name[0] != 1))) {
+			    (idr->name_len[0] != 1 ||
+			    (idr->name[0] != 0 && idr->name[0] != 1)))) {
 				/*
 				 * This is a plain directory (neither "xxx/."
 				 * nor "xxx/..").
 				 * Add this directory to the todo list.
 				 */
-				td = (struct todo *) malloc(sizeof (*td));
-				if (td == NULL)
-					comerr(_("No memory.\n"));
-				td->next = NULL;
-				td->extent = isonum_733((unsigned char *)idr->extent);
-				td->length = isonum_733((unsigned char *)idr->size);
-				td->name = (char *) malloc(strlen(rootname)
-								+ strlen(name_buf) + 2);
-				if (td->name == NULL)
-					comerr(_("No memory.\n"));
-				strcpy(td->name, rootname);
-				strcat(td->name, name_buf);
-				strcat(td->name, "/");
+				int		dir_loop = 0;
+				int		nextent;
+				struct todo 	*tp = dp;
 
-				*todo_pp = td;
-				todo_pp = &td->next;
+				nextent = isonum_733((unsigned char *)idr->extent);
+				while (tp) {
+					if (tp->extent == nextent) {
+						dir_loop = 1;
+						break;
+					}
+					tp = tp->prev;
+				}
+				if (dir_loop == 0) {
+					td = (struct todo *) malloc(sizeof (*td));
+					if (td == NULL)
+						comerr(_("No memory.\n"));
+					td->next = NULL;
+					td->prev = dp;
+					td->extent = isonum_733((unsigned char *)idr->extent);
+					td->length = isonum_733((unsigned char *)idr->size);
+					td->name = (char *) malloc(strlen(rootname)
+								+ strlen(name_buf) + 2);
+					if (td->name == NULL)
+						comerr(_("No memory.\n"));
+					strcpy(td->name, rootname);
+					strcat(td->name, name_buf);
+					strcat(td->name, "/");
+
+					*todo_pp = td;
+					todo_pp = &td->next;
+				}
 			} else {
 				if (xtract && strcmp(xtract, n) == 0) {
 					extract_file(STDOUT_FILENO, idr, "stdout");
@@ -1286,6 +1302,10 @@ static	int	nlen = 0;
 									S_IROTH|S_IWOTH|S_IXOTH,
 									FALSE);
 							} else {
+								if (myuid != 0 &&
+								    S_ISDIR(fstat_buf.st_mode)) {
+									fstat_buf.st_mode |= S_IWUSR;
+								}
 								extract(rootname, idr, n);
 							}
 						}
@@ -1341,7 +1361,7 @@ usage(excode)
 	error(_("\t-help,-h	Print this help\n"));
 	error(_("\t-version	Print version info and exit\n"));
 	error(_("\t-debug		Print additional debug info\n"));
-	error(_("\t-inore-error	Ignore errors\n"));
+	error(_("\t-ignore-error Ignore errors\n"));
 	error(_("\t-d		Print information from the primary volume descriptor\n"));
 	error(_("\t-f		Generate output similar to 'find .  -print'\n"));
 #ifdef	USE_FIND
@@ -1911,11 +1931,11 @@ setcharset:
 		}
 	}
 
-	parse_dir("/", isonum_733((unsigned char *)idr->extent),
+	parse_dir(todo_idr, "/", isonum_733((unsigned char *)idr->extent),
 				isonum_733((unsigned char *)idr->size));
 	td = todo_idr;
 	while (td) {
-		parse_dir(td->name, td->extent, td->length);
+		parse_dir(td, td->name, td->extent, td->length);
 		free(td->name);
 		td = td->next;
 	}

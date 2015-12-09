@@ -1,8 +1,8 @@
-/* @(#)inode.c	1.17 13/04/24 Copyright 2006-2013 J. Schilling */
+/* @(#)inode.c	1.18 15/12/08 Copyright 2006-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)inode.c	1.17 13/04/24 Copyright 2006-2013 J. Schilling";
+	"@(#)inode.c	1.18 15/12/08 Copyright 2006-2015 J. Schilling";
 #endif
 /*
  *	Inode and link count handling for ISO-9660/RR
@@ -14,7 +14,7 @@ static	UConst char sccsid[] =
  *	of asigning the related number to the "extent" field in the ISO
  *	directory record.
  *
- *	Copyright (c) 2006-2013 J. Schilling
+ *	Copyright (c) 2006-2015 J. Schilling
  */
 /*
  * This program is free software; you can redistribute it and/or modify
@@ -345,6 +345,12 @@ update_inode(s_entry, value)
 				_("**BAD RRVERSION (%d) in '%c%c' field (%2.2X %2.2X).\n"),
 				pnt[3], pnt[0], pnt[1], pnt[0], pnt[1]);
 		}
+		if (pnt[2] < 4) {
+			errmsgno(EX_BAD,
+				_("**BAD RRLEN (%d) in '%2.2s' field %2.2X %2.2X.\n"),
+				pnt[2], pnt, pnt[0], pnt[1]);
+			break;
+		}
 		if (pnt[0] == 'P' && pnt[1] == 'X') {
 			if ((pnt[2] & 0xFF) < 44)	/* Paranoia */
 				return;
@@ -375,6 +381,12 @@ update_nlink(s_entry, value)
 			errmsgno(EX_BAD,
 				_("**BAD RRVERSION (%d) in '%c%c' field (%2.2X %2.2X).\n"),
 				pnt[3], pnt[0], pnt[1], pnt[0], pnt[1]);
+		}
+		if (pnt[2] < 4) {
+			errmsgno(EX_BAD,
+				_("**BAD RRLEN (%d) in '%2.2s' field %2.2X %2.2X.\n"),
+				pnt[2], pnt, pnt[0], pnt[1]);
+			break;
 		}
 		if (pnt[0] == 'P' && pnt[1] == 'X') {
 			set_733((char *)pnt + 12, value);

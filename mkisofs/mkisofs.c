@@ -1,8 +1,8 @@
-/* @(#)mkisofs.c	1.275 15/01/01 joerg */
+/* @(#)mkisofs.c	1.276 15/12/07 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)mkisofs.c	1.275 15/01/01 joerg";
+	"@(#)mkisofs.c	1.276 15/12/07 joerg";
 #endif
 /*
  * Program mkisofs.c - generate iso9660 filesystem  based upon directory
@@ -2356,7 +2356,7 @@ args_ok:
 			comerrno(EX_BAD, _("Illegal character '/' in stream-file-name.\n"));
 		iso9660_level = 4;
 	} else {
-		stream_filename = "STREAM.IMG;1";
+		stream_filename = omit_version_number ? "STREAM.IMG" : "STREAM.IMG;1";
 	}
 	if (system_id) {
 		if (strlen(system_id) > 32) {

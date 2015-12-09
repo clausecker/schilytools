@@ -1,7 +1,7 @@
-/* @(#)builtin.c	1.7 15/09/13 Copyright 2015 J. Schilling */
+/* @(#)builtin.c	1.8 15/11/28 Copyright 2015 J. Schilling */
 #include <schily/mconfig.h>
 static	UConst char sccsid[] =
-	"@(#)builtin.c	1.7 15/09/13 Copyright 2015 J. Schilling";
+	"@(#)builtin.c	1.8 15/11/28 Copyright 2015 J. Schilling";
 #ifdef DO_SYSBUILTIN
 /*
  *	builtlin builtin
@@ -95,7 +95,7 @@ sysbuiltin(argc, argv)
 		void	*lh;
 #ifdef	HAVE_LOADABLE_LIBS
 		lh = dlopen(farg, RTLD_LAZY);
-		printf("lh %p\n", lh);
+		printf("lh %p\n", lh);		/* XXX avoid printf */
 #else
 		failure(argv[0], "-f not supported on this platform");
 #endif
@@ -104,6 +104,7 @@ sysbuiltin(argc, argv)
 	 * Add or delete builtin
 	 */
 	for (; optv.optind < argc; optv.optind++) {
+		/* XXX avoid printf */
 		printf("arg[%d] '%s'\n", optv.optind, argv[optv.optind]);
 	}
 }

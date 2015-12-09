@@ -1,4 +1,4 @@
-#ident "@(#)Makefile	1.91 15/11/12  Copyright (c) 2006-2015 J. Schilling"
+#ident "@(#)Makefile	1.93 15/12/07  Copyright (c) 2006-2015 J. Schilling"
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -39,6 +39,7 @@ CPPOPTS +=	-DDO_SYSREPEAT		# Include the "repeat" builtin
 CPPOPTS +=	-DDO_SYSDOSH		# Include the "dosh" builtin
 CPPOPTS +=	-DDO_SYSPUSHD		# Include pushd / popd / dirs builtin && cd -
 CPPOPTS +=	-DDO_SYSTRUE		# Include true / false builtin
+CPPOPTS +=	-DDO_ECHO_A		# Include support for echo \a
 CPPOPTS +=	-DDO_EXEC_AC		# Include support for exec -c -a
 CPPOPTS +=	-DDO_READ_R		# Include support for read -r
 CPPOPTS +=	-DDO_SET_O		# Include support for set -o
@@ -82,6 +83,7 @@ CPPOPTS +=	-DDO_SYSPGRP		# Include the "pgrp" builtin
 CPPOPTS +=	-DDO_SYSKILLPG		# Include the "killpg" builtin
 CPPOPTS +=	-DDO_SYSERRSTR		# Include the "errstr" builtin
 CPPOPTS +=	-DDO_SYSFIND		# Include the "find" builtin
+CPPOPTS +=	-DDO_SYSPRINTF		# Include the "printf" builtin
 LIB_FIND +=	-lfind			# Add libfind
 
 #CPPOPTS +=	-DPARSE_DEBUG		# Include debug code/messages for parser
@@ -104,7 +106,7 @@ CFILES=		abbrev.c args.c bltin.c cmd.c ctype.c defs.c echo.c error.c \
 		sh_policy.c stak.c string.c test.c ulimit.c word.c xec.c \
 		signames.c gmatch.c umask.c alias.c builtin.c find.c \
 		hashcmd.c hashtab.c \
-		optget.c
+		optget.c printf.c
 
 HFILES=		abbrev.h ctype.h defs.h dup.h hash.h mac.h mode.h name.h \
 		sh_policy.h stak.h sym.h timeout.h version.h hashtab.h

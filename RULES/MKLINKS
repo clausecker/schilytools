@@ -1,6 +1,6 @@
 #!/bin/sh
 ###########################################################################
-#ident "@(#)MKLINKS	1.124 15/10/08 "
+#ident "@(#)MKLINKS	1.127 15/12/01 "
 ###########################################################################
 # Written 1996-2015 by J. Schilling
 ###########################################################################
@@ -54,6 +54,8 @@ $symlink	cc-gcc.rul		cc-gcc32.rul
 $symlink	cc-gcc.rul		cc-gcc64.rul
 $symlink	cc-sunpro.rul		cc-sunpro32.rul
 $symlink	cc-sunpro.rul		cc-sunpro64.rul
+$symlink	cc-ibm.rul		cc-ibm32.rul
+$symlink	cc-ibm.rul		cc-ibm64.rul
 
 if [ -r r-make.c4x ]; then
 	$symlink	r-make.c4x		r-gmake.c4x
@@ -119,7 +121,9 @@ $symlink	hppa-nextstep-cc.rul	m68k-nextstep-gcc.rul
 $symlink	hppa-nextstep-cc.rul	sparc-nextstep-gcc.rul
 $symlink	os-irix.id		os-irix64.id
 $symlink	ip22-irix-cc.rul	ip22-irix-cc64.rul
-#$symlink	ip22-irix-gcc.rul	ip22-irix-gcc64.rul does not work because of GCC_OPT64= -mabi=64
+# it is not clear whether the next entry works:
+# comment was:  does not work because of GCC_OPT64= -mabi=64
+$symlink	ip22-irix-gcc.rul	ip22-irix-gcc64.rul
 $symlink	ip22-irix-cc.rul	ip17-irix-cc.rul
 $symlink	ip22-irix-cc.rul	ip20-irix-cc.rul
 $symlink	ip22-irix-cc.rul	ip27-irix-cc.rul
@@ -190,6 +194,7 @@ $symlink	i586-linux-clang.rul	i586-linux-clang32.rul
 $symlink	i586-linux-clang.rul	i586-linux-clang64.rul
 $symlink	i586-linux-cc.rul	i486-linux-cc.rul
 $symlink	i586-linux-cc.rul	i686-linux-cc.rul
+$symlink	i586-linux-gcc.rul	i586-linux-gcc32.rul
 $symlink	i586-linux-gcc.rul	i586-linux-gcc64.rul
 $symlink	i586-linux-gcc.rul	i386-linux-gcc.rul
 $symlink	i586-linux-gcc.rul	i486-linux-gcc.rul
@@ -259,7 +264,9 @@ $symlink	i586-linux-gcc.rul	sh4-linux-gcc.rul
 $symlink	i586-linux-cc.rul	sh4a-linux-cc.rul
 $symlink	i586-linux-gcc.rul	sh4a-linux-gcc.rul
 $symlink	i586-linux-gcc32.rul	x86_64-linux-gcc32.rul
+$symlink	i586-linux-gcc.rul	x86_64-linux-gcc64.rul
 $symlink	i586-linux-gcc32.rul	sparc64-linux-gcc32.rul
+$symlink	i586-linux-gcc.rul	sparc64-linux-gcc64.rul
 $symlink	i586-linux-gcc32.rul	mips64-linux-gcc32.rul
 $symlink	i586-linux-gcc32.rul	parisc64-linux-gcc32.rul
 $symlink	i586-linux-suncc.rul	i586-linux-suncc32.rul
@@ -424,3 +431,7 @@ $symlink	bepc-haiku-gcc.rul	bemac-haiku-gcc.rul
 $symlink	bepc-haiku-cc.rul	x86_64-haiku-cc.rul
 $symlink	bepc-haiku-gcc.rul	x86_64-haiku-gcc.rul
 $symlink	alpha-openvms-cc.rul	alphaserver_ds20_500_mhz-openvms-cc.rul
+$symlink	rs6000-aix-cc.rul	rs6000-aix-cc32.rul
+$symlink	rs6000-aix-cc.rul	rs6000-aix-cc64.rul
+$symlink	rs6000-aix-gcc.rul	rs6000-aix-gcc32.rul
+$symlink	rs6000-aix-gcc.rul	rs6000-aix-gcc64.rul

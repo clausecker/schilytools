@@ -1,6 +1,10 @@
-#!/bin/sh
+#ident "@(#)os-mingw32_nt-6.4.id	1.1 15/12/09 "
 ###########################################################################
-# @(#)base	1.2 15/04/25 Written 2011-2015 by J. Schilling
+#
+# OS specific MACRO definitions for Win32/Mingw32
+#
+###########################################################################
+# Copyright (c) J. Schilling
 ###########################################################################
 # The contents of this file are subject to the terms of the
 # Common Development and Distribution License, Version 1.0 only
@@ -14,14 +18,5 @@
 # When distributing Covered Code, include this CDDL HEADER in each
 # file and include the License file CDDL.Schily.txt from this distribution.
 ###########################################################################
-#
-# Include all base definitions if not done already
-#
-###########################################################################
-if test ."$x_echo" = .
-then
-	. ${SRCROOT}/tests/bin/echo_nonl
-	. ${SRCROOT}/tests/bin/misc
-	. ${SRCROOT}/tests/bin/docommand
-	. ${SRCROOT}/tests/bin/xtest
-fi
+O_ARCH=		mingw32_nt
+-O_ARCH=	-$(O_ARCH)

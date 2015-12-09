@@ -1,13 +1,13 @@
-/* @(#)buffer.c	1.166 13/10/05 Copyright 1985, 1995, 2001-2013 J. Schilling */
+/* @(#)buffer.c	1.167 15/11/30 Copyright 1985, 1995, 2001-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)buffer.c	1.166 13/10/05 Copyright 1985, 1995, 2001-2013 J. Schilling";
+	"@(#)buffer.c	1.167 15/11/30 Copyright 1985, 1995, 2001-2015 J. Schilling";
 #endif
 /*
  *	Buffer handling routines
  *
- *	Copyright (c) 1985, 1995, 2001-2013 J. Schilling
+ *	Copyright (c) 1985, 1995, 2001-2015 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -1995,23 +1995,6 @@ LOCAL void
 compressclose()
 {
 #ifdef HAVE_FORK
-	char	*zip_prog = "gzip";
-
-	if (compress_prg)
-		zip_prog = compress_prg;
-	else if (bzflag)
-		zip_prog = "bzip2";
-	else if (Zflag)
-		zip_prog = "compress";
-	else if (lzoflag)
-		zip_prog = "lzop";
-	else if (p7zflag)
-		zip_prog = "p7zip";
-	else if (xzflag)
-		zip_prog = "xz";
-	else if (lzipflag)
-		zip_prog = "lzip";
-
 #ifdef __DJGPP__
 	if (cflag) {
 		if (compress_tmpf) {
@@ -2019,6 +2002,22 @@ compressclose()
 			FILE	*zipf;
 			int	cnt = -1;
 			char	buf[8192];
+			char	*zip_prog = "gzip";
+
+			if (compress_prg)
+				zip_prog = compress_prg;
+			else if (bzflag)
+				zip_prog = "bzip2";
+			else if (Zflag)
+				zip_prog = "compress";
+			else if (lzoflag)
+				zip_prog = "lzop";
+			else if (p7zflag)
+				zip_prog = "p7zip";
+			else if (xzflag)
+				zip_prog = "xz";
+			else if (lzipflag)
+				zip_prog = "lzip";
 
 			js_snprintf(zip_cmd, sizeof (zip_cmd), "%s.exe", zip_prog);
 

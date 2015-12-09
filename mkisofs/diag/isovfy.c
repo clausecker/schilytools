@@ -1,8 +1,8 @@
-/* @(#)isovfy.c	1.46 15/01/27 joerg */
+/* @(#)isovfy.c	1.50 15/12/09 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)isovfy.c	1.46 15/01/27 joerg";
+	"@(#)isovfy.c	1.50 15/12/09 joerg";
 #endif
 /*
  * File isovfy.c - verify consistency of iso9660 filesystem.
@@ -80,6 +80,11 @@ LOCAL int	blocksize;
 
 #define	PAGE	sizeof (buffer)
 
+struct diraddr {
+	struct diraddr	*next;
+	int		addr;
+};
+
 LOCAL int	isonum_721	__PR((char * p));
 LOCAL int	isonum_723	__PR((char * p));
 LOCAL int	isonum_711	__PR((char * p));
@@ -92,7 +97,7 @@ LOCAL int	isonum_733	__PR((char * p));
 LOCAL int	parse_rr	__PR((unsigned char * pnt, int len, int cont_flag));
 LOCAL void	find_rr		__PR((struct iso_directory_record * idr, Uchar **pntp, int *lenp));
 LOCAL int	dump_rr		__PR((struct iso_directory_record * idr));
-LOCAL void	check_tree	__PR((off_t file_addr, int file_size, off_t parent_addr));
+LOCAL void	check_tree	__PR((struct diraddr *dirs, off_t file_addr, int file_size, off_t parent_addr));
 #if 0
 LOCAL void	check_path_tables __PR((int typel_extent, int typem_extent, int path_table_size));
 #endif
@@ -215,6 +220,14 @@ parse_rr(pnt, len, cont_flag)
 
 		if (pnt[3] != 1 && pnt[3] != 2) {
 			sprintf(lbuffer+iline, _("**BAD RRVERSION (%d)\n"), pnt[3]);
+			rr_goof++;
+			iline += strlen(lbuffer + iline);
+			return (flag2);
+		}
+		if (pnt[2] < 4) {
+			sprintf(lbuffer+iline,
+				_("**BAD RRLEN (%d) in '%2.2s' field %2.2X %2.2X.\n"),
+				pnt[2], pnt, pnt[0], pnt[1]);
 			rr_goof++;
 			iline += strlen(lbuffer + iline);
 			return (flag2);
@@ -390,7 +403,8 @@ LOCAL int	dir_size_count = 0;
 LOCAL int	ngoof = 0;
 
 LOCAL void
-check_tree(file_addr, file_size, parent_addr)
+check_tree(dirs, file_addr, file_size, parent_addr)
+	struct diraddr *dirs;
 	off_t	file_addr;
 	int	file_size;
 	off_t	parent_addr;
@@ -569,16 +583,33 @@ check_tree(file_addr, file_size, parent_addr)
 
 
 
-			if (rflag && (idr->flags[0] & 2))
+			if (rflag && (idr->flags[0] & 2)) {
+				struct diraddr	dir;
+				struct diraddr	*dp;
+				int		addr = isonum_733(idr->extent);
+				BOOL		isloop = FALSE;
+
+				dir.next = dirs;
+				dir.addr = addr;
+
+				for (dp = dirs; dp; dp = dp->next) {
+					if (addr == dp->addr) {
+						isloop = TRUE;
+						break;
+					}
+				}
+				if (!isloop) {
 #ifdef	Eric_seems_to_be_wrong
-				check_tree((off_t)(isonum_733(idr->extent) + isonum_711((char *)idr->ext_attr_length)) * blocksize,
+					check_tree(&dir, (off_t)(adr + isonum_711((char *)idr->ext_attr_length)) * blocksize,
 						isonum_733(idr->size),
 						orig_file_addr * blocksize);
 #else
-				check_tree((off_t)isonum_733(idr->extent) * blocksize,
+					check_tree(&dir, (off_t)addr * blocksize,
 						isonum_733(idr->size),
 						orig_file_addr * blocksize);
 #endif
+				}
+			}
 			i += buffer[i];
 			i1++;
 			if (i > 2048 - offsetof(struct iso_directory_record, name[0]))
@@ -695,10 +726,10 @@ usage(excode)
 	error(_("Options:\n"));
 	error(_("\t-help, -h	Print this help\n"));
 	error(_("\t-version	Print version info and exit\n"));
-	error(_("\t-inore-error	Ignore errors\n"));
+	error(_("\t-ignore-error Ignore errors\n"));
 	error(_("\t-i filename	Filename to read ISO-9660 image from\n"));
 	error(_("\tdev=target	SCSI target to use as CD/DVD-Recorder\n"));
-	error(_("\nIf neither -i nor dev= are speficied, <image> is needed.\n"));
+	error(_("\nIf neither -i nor dev= are specified, <image> is needed.\n"));
 	exit(excode);
 }
 
@@ -847,7 +878,7 @@ main(argc, argv)
 	}
 	file_addr = file_addr * blocksize;
 
-	check_tree(file_addr, file_size, file_addr);
+	check_tree((struct diraddr *)NULL, file_addr, file_size, file_addr);
 
 	typel_extent = isonum_731((char *)ipd.type_l_path_table);
 	typem_extent = isonum_732((char *)ipd.type_m_path_table);

@@ -1,4 +1,4 @@
-/* @(#)stdlib.h	1.10 15/11/23 Copyright 1996-2015 J. Schilling */
+/* @(#)stdlib.h	1.11 15/11/28 Copyright 1996-2015 J. Schilling */
 /*
  *	Definitions for stdlib
  *
@@ -30,32 +30,34 @@
 #include <stdlib.h>
 #define	_INCL_STDLIB_H
 #endif
+#endif	/* HAVE_STDLIB_H */
 
-#else	/* !HAVE_STDLIB_H */
 
 #ifdef	HAVE_POSIX_MALLOC_H	/* Haiku */
 #ifndef	_INCL_POSIX_MALLOC_H
 #include <posix/malloc.h>
 #define	_INCL_POSIX_MALLOC_H
 #endif
-#else	/* !HAVE_POSIX_MALLOC_H */
+#endif	/* HAVE_POSIX_MALLOC_H */
 
 #ifdef	__cplusplus
 extern "C" {
 #endif
 
+#if !defined(_INCL_STDLIB_H) && !defined(_INCL_POSIX_MALLOC_H)
 extern	char	*malloc();
 extern	char	*realloc();
+#endif
 
+#ifndef	_INCL_STDLIB_H
 extern	double	atof();
+#endif
 
 #ifdef	__cplusplus
 }
 #endif
 
-#endif	/* !HAVE_POSIX_MALLOC_H */
 
-#endif	/* HAVE_STDLIB_H */
 
 #ifndef	EXIT_FAILURE
 #define	EXIT_FAILURE	1

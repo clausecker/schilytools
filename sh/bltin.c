@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2015 J. Schilling
  *
- * @(#)bltin.c	1.72 15/11/15 2008-2015 J. Schilling
+ * @(#)bltin.c	1.73 15/12/07 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)bltin.c	1.72 15/11/15 2008-2015 J. Schilling";
+	"@(#)bltin.c	1.73 15/12/07 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -846,6 +846,12 @@ int xflags;
 				}
 			}
 		}
+		break;
+#endif
+
+#ifdef	DO_SYSPRINTF
+	case SYSPRINTF:
+		sysprintf(argc, argv);
 		break;
 #endif
 

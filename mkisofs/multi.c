@@ -1,8 +1,8 @@
-/* @(#)multi.c	1.98 15/11/23 joerg */
+/* @(#)multi.c	1.99 15/12/08 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)multi.c	1.98 15/11/23 joerg";
+	"@(#)multi.c	1.99 15/12/08 joerg";
 #endif
 /*
  * File multi.c - scan existing iso9660 image and merge into
@@ -282,6 +282,12 @@ parse_rrflags(pnt, len, cont_flag)
 				pnt[3], pnt[0], pnt[1], pnt[0], pnt[1]);
 			return (0);	/* JS ??? Is this right ??? */
 		}
+		if (pnt[2] < 4) {
+			errmsgno(EX_BAD,
+				_("**BAD RRLEN (%d) in '%2.2s' field %2.2X %2.2X.\n"),
+				pnt[2], pnt, pnt[0], pnt[1]);
+			return (0);	/* JS ??? Is this right ??? */
+		}
 		ncount++;
 		if (pnt[0] == 'R' && pnt[1] == 'R')
 			flag1 = pnt[4] & 0xff;
@@ -379,6 +385,12 @@ parse_rr(pnt, len, dpnt)
 				pnt[3], pnt[0], pnt[1], pnt[0], pnt[1]);
 			return (-1);
 		}
+		if (pnt[2] < 4) {
+			errmsgno(EX_BAD,
+				_("**BAD RRLEN (%d) in '%2.2s' field %2.2X %2.2X.\n"),
+				pnt[2], pnt, pnt[0], pnt[1]);
+			return (-1);
+		}
 		if (strncmp((char *)pnt, "NM", 2) == 0) {
 			strncpy(name_buf, (char *)pnt + 5, pnt[2] - 5);
 			name_buf[pnt[2] - 5] = 0;
@@ -469,6 +481,12 @@ check_rr_dates(dpnt, current, statbuf, lstatbuf)
 			errmsgno(EX_BAD,
 				_("**BAD RRVERSION (%d) in '%c%c' field (%2.2X %2.2X).\n"),
 				pnt[3], pnt[0], pnt[1], pnt[0], pnt[1]);
+			return (-1);
+		}
+		if (pnt[2] < 4) {
+			errmsgno(EX_BAD,
+				_("**BAD RRLEN (%d) in '%2.2s' field %2.2X %2.2X.\n"),
+				pnt[2], pnt, pnt[0], pnt[1]);
 			return (-1);
 		}
 
@@ -1951,6 +1969,12 @@ check_rr_relocation(de)
 			errmsgno(EX_BAD,
 				_("**BAD RRVERSION (%d) in '%c%c' field (%2.2X %2.2X).\n"),
 				pnt[3], pnt[0], pnt[1], pnt[0], pnt[1]);
+		}
+		if (pnt[2] < 4) {
+			errmsgno(EX_BAD,
+				_("**BAD RRLEN (%d) in '%2.2s' field %2.2X %2.2X.\n"),
+				pnt[2], pnt, pnt[0], pnt[1]);
+			break;
 		}
 		if (strncmp((char *)pnt, "CL", 2) == 0) {
 			struct dir_extent_link *dlink = e_malloc(sizeof (*dlink));

@@ -1,8 +1,8 @@
-/* @(#)translit.c	1.16 09/07/26 Copyright 1985-2009 J. Schilling */
+/* @(#)translit.c	1.17 15/11/30 Copyright 1985-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)translit.c	1.16 09/07/26 Copyright 1985-2009 J. Schilling";
+	"@(#)translit.c	1.17 15/11/30 Copyright 1985-2015 J. Schilling";
 #endif
 
 /*
@@ -10,7 +10,7 @@ static	UConst char sccsid[] =
  *
  *	translit fromset toset file1...filen
  *
- *	Copyright 1985-2009 J. Schilling
+ *	Copyright 1985-2015 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -19,6 +19,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -101,8 +103,8 @@ main(ac, av)
 		usage(0);
 	if (prversion) {
 		printf(
-"Translit release %s (%s-%s-%s) Copyright (C) 1985-2009 Jörg Schilling\n",
-				"1.16",
+"Translit release %s (%s-%s-%s) Copyright (C) 1985-2015 Jörg Schilling\n",
+				"1.17",
 				HOST_CPU, HOST_VENDOR, HOST_OS);
 		exit(0);
 	}
@@ -229,7 +231,7 @@ buildtabs(fromset, toset, sqset)
 		foldflag = FALSE;
 }
 
-#define	put(c, p, l, tn)	((((l)-- <= 0) && etoolarge(tn)), \
+#define	put(c, p, l, tn)	((void)(((l)-- <= 0) && etoolarge(tn)), \
 							*(p)++ = (c) & 255)
 #define	vput(c, p, l, tn)	(void)put(c, p, l, tn)
 

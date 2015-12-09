@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sh.1	1.125 15/11/12 Copyright 2012-2015 J. Schilling
+.\" @(#)sh.1	1.127 15/12/07 Copyright 2012-2015 J. Schilling
 .\" Copyright 1989 AT&T
 .\" Copyright (c) 2008, Sun Microsystems, Inc. All Rights Reserved.
 .\" Portions Copyright (c) 1992, X/Open Company Limited All Rights Reserved
@@ -59,7 +59,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sh 1 "2015/11/12" "Schily Bourne Shell" "User Commands"
+.TH sh 1 "2015/12/07" "Schily Bourne Shell" "User Commands"
 .SH NAME
 sh, jsh \- standard and job control shell and command interpreter
 .SH SYNOPSIS
@@ -3619,6 +3619,98 @@ for an explanation of
 .sp
 The
 .B popd
+command was not supported in older versions of
+.BR sh .
+
+.br
+.ne 3
+.TP
+\fBprintf\fR \fIformat\fR [\fIargument ...\fR]
+.sp .6
+The
+.B printf
+command writes formatted operands to the standard output.
+The
+.I argument
+operands are formatted under control of the
+.I format
+operand.
+The
+.I format
+operand is treated like a
+.BR printf (3)
+format string and the escape sequences
+.BR '\ea' ,
+.BR '\eb' ,
+.BR '\ef' ,
+.BR '\en' ,
+.BR '\er' ,
+.BR '\et' ,
+.BR '\ev' ,
+.B '\e\e'
+and
+.BR '\eddd' ,
+where
+.I ddd
+is one to three octal digits, are expanded as if they were in a C string.
+.sp
+In addition to the format specifiers
+.BR %c ,
+.BR %s ,
+.BR %d ,
+.BR %i ,
+.BR %o ,
+.BR %u ,
+.BR %x ,
+.BR %X ,
+the format
+.BR %b 
+is supported.
+The integers are handled internally as
+.B intmax_t
+to avoid range problems
+even though only the standard int type spcifiers are supported in the
+.I format
+operand.
+The format
+.BR %b 
+is treated like
+.BR %s 
+except that escape sequences in the argument string are expanded as with the
+.B echo
+command.
+.sp
+Field width and precision may be specified either numerically in the
+.I format
+operand
+or via the
+.B '*'
+format specifier and related arguments.
+.sp
+The
+.BR printf (3)
+flag characters
+.BR '+' ,
+.BR '\ ' ,
+.B '#'
+and
+.BR '0'
+are supported.
+.sp
+The
+.I format
+operand is reused as often as necessary to satisfy the
+.I argument
+operands.
+If the
+.I format
+operand contains more format specifiers than
+.I argument
+operands have been specified, string formats are treated as if an empty string
+has been supplied and integer arguments are treated as if a 0 has been supplied.
+.sp
+The
+.B printf
 command was not supported in older versions of
 .BR sh .
 

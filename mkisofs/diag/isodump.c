@@ -1,8 +1,8 @@
-/* @(#)isodump.c	1.49 15/02/25 joerg */
+/* @(#)isodump.c	1.52 15/12/08 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)isodump.c	1.49 15/02/25 joerg";
+	"@(#)isodump.c	1.52 15/12/08 joerg";
 #endif
 /*
  * File isodump.c - dump iso9660 directory information.
@@ -262,6 +262,9 @@ parse_rr(pnt, len, cont_flag)
 		if (pnt[3] != 1 && pnt[3] != 2) {
 			printf(_("**BAD RRVERSION (%d) for %c%c\n"), pnt[3], pnt[0], pnt[1]);
 			return (0);	/* JS ??? Is this right ??? */
+		} else if (pnt[2] < 4) {
+			printf(_("**BAD RRLEN (%d) in '%2.2s' field %2.2X %2.2X.\n"), pnt[2], pnt, pnt[0], pnt[1]);
+			return (0);		/* JS ??? Is this right ??? */
 		} else if (pnt[0] == 'R' && pnt[1] == 'R') {
 			printf("=%d", pnt[3]);			/* RR version */
 		}
@@ -530,10 +533,10 @@ usage(excode)
 	error(_("Options:\n"));
 	error(_("\t-help, -h	Print this help\n"));
 	error(_("\t-version	Print version info and exit\n"));
-	error(_("\t-inore-error	Ignore errors\n"));
+	error(_("\t-ignore-error Ignore errors\n"));
 	error(_("\t-i filename	Filename to read ISO-9660 image from\n"));
 	error(_("\tdev=target	SCSI target to use as CD/DVD-Recorder\n"));
-	error(_("\nIf neither -i nor dev= are speficied, <image> is needed.\n"));
+	error(_("\nIf neither -i nor dev= are specified, <image> is needed.\n"));
 	exit(excode);
 }
 

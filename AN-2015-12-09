@@ -1,0 +1,207 @@
+New features with AN-2015-12-09:
+
+This is the first localization step for the schily source consolidation. Many
+programs now (hopefully) call gettext() for all strings that need localization.
+
+-	The next step will include dgettext() calls for the libraries and the
+	missing programs
+
+-	The following step will include the extracted strings
+
+-	The last step will include German translations and install support
+	for the resulting binary message object files.
+
+----------> Please test and report compilation problems! <---------
+
+***** NOTE: As mentioned since 2004, frontends to the tools should *****
+*****		call all programs in the "C" locale		   *****
+*****		by e.g. calling: LC_ALL=C cdrecord ....		   *****
+*****		unless these frontends support localized strings   *****
+*****		used by the cdrtools with NLS support.		   *****
+
+		*** WARNING        ***
+		*** Need new smake ***
+
+	*** Due to the fact that schily-tools 2014-04-03 introduced to use new macro
+	*** expansions and a related bug fix in smake, you need a new smake
+	*** to compile this source. To ensure this, call:
+
+	cd ./psmake
+	./MAKE-all
+	cd ..
+	psmake/smake
+	psmake/smake install
+
+
+	WARNING: the new version of the isoinfo program makes use of the 
+		*at() series of functions that have been introduced by Sun
+		in August 2001 and added to POSIX.1-2008. For older platforms,
+		libschily now includes emulations for these functions but
+		these emulations have not yet been tested thoroughly.
+		Please report problems!
+
+	The new smake version mentioned above is smake-1.2.4
+
+-	Fix the new include code for posix/malloc.h from Haiku in
+	include/schily/stdlib.h that was introduced incorrectly with 
+	the last release.
+
+-	New autoconf test for AIX arpa/aixrcmds.h
+
+-	include/schily/netdb.h now may #include <arpa/aixrcmds.h>
+
+-	inc/align_test.c avoids some warnings with GCC-4.8.3
+
+-	Make rs6000-aix-gcc.rul aware of 64 bit support and create links:
+	rs6000-aix-gcc32.rul rs6000-aix-gcc64.rul
+
+-	Trying to make rs6000-aix-cc.rul aware of 64 bit support and
+	create links:
+	rs6000-aix-cc32.rul rs6000-aix-cc64.rul
+
+	Note that this code could not yet be tested because of the lack of a
+	compiler
+
+-	Trying to add support for CCOM=gcc64 on IRIX
+
+-	Added new files RULES/os-mingw32_nt-6.*.id
+
+-	mkisofs/diag all diagnostic helper programs had a typo in the usage()
+	-inore-errs instead of -ignore-errs
+	Thanks to Heiko Eißfeldt for reporting
+
+-	mkisofs/diag/isoinfo.c: add a directory loop regognition to avoid
+	endless loops that eat up all memory with file system images that
+	contain loops.
+	Thanks to Heiko Eißfeldt for doing some handcrafted
+        tests based on iso images created by "american fuzzy lop".
+
+-	mkisofs/diag/isoinfo.c: now adds write permission to directories only
+	temporarily.
+
+-	Cdrtools bumped to 3.02a03
+
+-	mkisofs/disg/isovfy.c add a directory loop regognition to avoid
+	endless loops that eat up all memory with file system images that
+	contain loops.
+
+-	mkisofs: make sure that the stream media filename nonors the
+	-omit-version-number option
+
+-	mkisofs: use the correct directory size for the stream media filename.
+	mkisofs did write 1 Byte to few data in case of an odd file name length.
+
+-	mkisofs/diag all diagnostic helper programs had a typo in the usage()
+	speficied instead of specified
+
+-	mkisofs + diag all diagnostic helper programs have been vulnerable
+	to endless lopps when a defective iso image with Rock Ridge was read.
+	Thanks to Heiko Eißfeldt for running related automated tests.
+
+-	star: avoid a warning from GCC-4.8.3
+
+-	translit: avoid a warning from GCC-4.8.3
+
+-	bsh and Bourne Shell: abbrev.c modified to keep the AIX linker happy
+	with the variable "deftab"
+
+-	Bourne Shell: jobs.c avoid a warning from GCC-4.8.3
+
+-	Bourne Shell: jobs.c now handles the problems from AIX:
+
+	AIX is not POSIX compliant as it comes with a broken waitid() interface.
+	So we need to emulate waitid() with waitpid().
+
+	AIX defines WSTOPPED != WUNTRACED even though they define the same
+	feature so we need to be careful with our waitid() emulation that 
+	is based on waitpid().
+
+	This problem was caused from enhancements that changed the wait
+	code to call waitid() (+ a possible waitpid() based emulation) 
+	instead of directly calling waitpid(). The final hang problem
+	on AIX was caused by the move from WUNTRACED -> WSTOPPED with
+	schily tools 2015-11-26
+
+-	Bourne Shell: builtin.c add a hint that a vanilla printf() should
+	be avoided as the Bourne Shell by default does not support stdio.
+
+-	Bourne Shell: restructure echo.c to prepare a printf
+	builtin.
+
+-	Bourne Shell: echo now supports \a as defined by POSIX
+
+-	Bourne Shell: a printf builtin command was added.
+
+-	Bourne Shell: a new option parsing routine was implemented to allow
+	most option-less builtins to understand "--" in future.
+
+-	Bourne Shell: the new pipe handling now seems to be mature enough
+	for daily use.
+
+-	Bourne Shell Missing features for POSIX compliance:
+
+	- Parameter substitution with these constructs:
+
+		${#parameter}
+		${parameter%[word]}
+		${parameter%%[word]}
+		${parameter#[word]}
+		${parameter##[word]}
+
+	- IFS first char as separator for "$*" expansion
+
+	- Command Substitution with $(cmd)
+
+	- Arithmetic Substitution with $((expression))
+
+	- "--" support for some builtin commands is missing
+
+-	Bourne Shell further TODO list:
+
+	-	Try to make
+
+		lastline=
+		while read line
+		do
+			lastline=$line
+		done < /etc/passwd
+		echo "lastline=$lastline"
+
+		print the last line of /etc/passwd without the exec "trick"
+		that is documented in the man page.
+	
+	-	write a printf builtin
+
+	-	Finish loadable builtin support.
+
+	-	Implement ". -h" as a replacement for "source -h"
+
+-	The following builtins (that are available in bsh) are still missing in
+	the Bourne Shell:
+
+	err			echo with output going to stderr
+	glob			echo with '\0' instead of ' ' between args
+	env			a builtin version of /usr/bin/env
+
+	The following bsh intrinsics are still missing in the Bourne Shell:
+
+	-			the restricted bsh has restriction features that
+				are missing in the Bourne shell.
+
+	-	source -h	read file into history but do not excute
+
+	and probably more features not yet identified to be bsh unique.
+
+
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.net, js@cs.tu-berlin.de
+	joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

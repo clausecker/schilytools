@@ -1,13 +1,13 @@
-/* @(#)align_test.c	1.30 13/04/25 Copyright 1995-2013 J. Schilling */
+/* @(#)align_test.c	1.31 15/11/30 Copyright 1995-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef	lint
 static	UConst char sccsid[] =
-	"@(#)align_test.c	1.30 13/04/25 Copyright 1995-2013 J. Schilling";
+	"@(#)align_test.c	1.31 15/11/30 Copyright 1995-2015 J. Schilling";
 #endif
 /*
  *	Generate machine dependant align.h
  *
- *	Copyright (c) 1995-2013 J. Schilling
+ *	Copyright (c) 1995-2015 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -16,6 +16,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -125,6 +127,7 @@ LOCAL	void	speed_ptr	__PR((char *, int));
 
 #define	sm_off(s, m)	((size_t)&((s)0)->m)
 
+LOCAL	void	used		__PR((int i));
 LOCAL	int	off_short	__PR((void));
 LOCAL	int	off_int		__PR((void));
 LOCAL	int	off_long	__PR((void));
@@ -704,6 +707,14 @@ speed_check(p, sfunc, n)
  * by the compiler to keep the apropriate type on a properly aligned
  * address.
  */
+LOCAL	int	used_var;
+LOCAL void
+used(i)
+	int	i;
+{
+	used_var = i;
+}
+
 LOCAL int
 off_short()
 {
@@ -712,6 +723,7 @@ off_short()
 		short	s;
 	} ss;
 	ss.c = 0;		/* fool C-compiler */
+	used(ss.c);
 
 	return (sm_off(struct ss *, s));
 }
@@ -724,6 +736,7 @@ off_int()
 		int	i;
 	} si;
 	si.c = 0;		/* fool C-compiler */
+	used(si.c);
 
 	return (sm_off(struct si *, i));
 }
@@ -736,6 +749,7 @@ off_long()
 		long	l;
 	} sl;
 	sl.c = 0;		/* fool C-compiler */
+	used(sl.c);
 
 	return (sm_off(struct sl *, l));
 }
@@ -749,6 +763,7 @@ off_longlong()
 		Llong	ll;
 	} sll;
 	sll.c = 0;		/* fool C-compiler */
+	used(sll.c);
 
 	return (sm_off(struct sll *, ll));
 }
@@ -762,6 +777,7 @@ off_float()
 		float	f;
 	} sf;
 	sf.c = 0;		/* fool C-compiler */
+	used(sf.c);
 
 	return (sm_off(struct sf *, f));
 }
@@ -774,6 +790,7 @@ off_double()
 		double	d;
 	} sd;
 	sd.c = 0;		/* fool C-compiler */
+	used(sd.c);
 
 	return (sm_off(struct sd *, d));
 }
@@ -787,6 +804,7 @@ off_ldouble()
 		long double	ld;
 	} sd;
 	sd.c = 0;		/* fool C-compiler */
+	used(sd.c);
 
 	return (sm_off(struct sd *, ld));
 }
@@ -800,6 +818,7 @@ off_ptr()
 		char	*p;
 	} sp;
 	sp.c = 0;		/* fool C-compiler */
+	used(sp.c);
 
 	return (sm_off(struct sp *, p));
 }

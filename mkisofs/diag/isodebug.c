@@ -1,11 +1,11 @@
-/* @(#)isodebug.c	1.29 12/12/02 Copyright 1996-2012 J. Schilling */
+/* @(#)isodebug.c	1.30 15/11/29 Copyright 1996-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)isodebug.c	1.29 12/12/02 Copyright 1996-2012 J. Schilling";
+	"@(#)isodebug.c	1.30 15/11/29 Copyright 1996-2015 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1996-2012 J. Schilling
+ *	Copyright (c) 1996-2015 J. Schilling
  */
 /*
  * This program is free software; you can redistribute it and/or modify
@@ -19,7 +19,7 @@ static	UConst char sccsid[] =
  *
  * You should have received a copy of the GNU General Public License along with
  * this program; see the file COPYING.  If not, write to the Free Software
- * Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ * Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
 #include <schily/stdio.h>
@@ -127,7 +127,7 @@ usage(excode)
 	error(_("Options:\n"));
 	error(_("\t-help,-h	Print this help\n"));
 	error(_("\t-version	Print version info and exit\n"));
-	error(_("\t-inore-error	Ignore errors\n"));
+	error(_("\t-ignore-error Ignore errors\n"));
 	error(_("\t-i filename	Filename to read ISO-9660 image from\n"));
 	error(_("\tdev=target	SCSI target to use as CD/DVD-Recorder\n"));
 	error(_("\nIf neither -i nor dev= are speficied, <image> is needed.\n"));
@@ -276,7 +276,7 @@ main(argc, argv)
 	if (help)
 		usage(0);
 	if (prvers) {
-		printf(_("isodebug %s (%s-%s-%s) Copyright (C) 1996-2012 %s\n"),
+		printf(_("isodebug %s (%s-%s-%s) Copyright (C) 1996-2015 %s\n"),
 					VERSION,
 					HOST_CPU, HOST_VENDOR, HOST_OS,
 					_("Joerg Schilling"));

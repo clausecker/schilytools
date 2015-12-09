@@ -1,4 +1,4 @@
-#ident "@(#)cc-ibm.rul	1.12 13/11/13 "
+#ident "@(#)cc-ibm.rul	1.13 15/12/01 "
 ###########################################################################
 # Written 1996-2013 by J. Schilling
 ###########################################################################
@@ -21,17 +21,27 @@
 # file and include the License file CDDL.Schily.txt from this distribution.
 ###########################################################################
 
+IBMCC_OPT=
+IBMCC_OPT32=	-q32
+IBMCC_OPT64=	-q64
+IBMCC_OPTXX=	$(IBMCC_OPT$(C_ARCH:cc%=%))
+
+IBMLD_OPT=
+IBMLD_OPT32=	-b32
+IBMLD_OPT64=	-b64
+IBMLC_OPTXX=	$(IBMLD_OPT$(C_ARCH:cc%=%))
+
 CPPFLAGS=	-DSCHILY_BUILD $(CPPOPTS) $(CPPOPTX) $(OSINCDIRS:%=-I%) $(OSDEFS) $(OSDEFSX)
 CFLAGS=		$(COPTS) $(CWARNOPTS) $(COPTOPT) $(IBMCOPTOPT) $(COPTX)
 C++FLAGS=	$(C++OPTS) $(C++WARNOPTS) $(C++OPTOPT) $(IBMC++OPTOPT) $(C++OPTX)
 
 CPPOPTS=	-I$(ARCHDIR) -I$(OINCSDIR) $(INCDIRS:%=-I%) $(INCDIRSX:%=-I%)
-COPTS=
+COPTS=		$(IBMCC_OPTXX)
 CWOPTS=		
 COPTOPT=	-O
 COPTDYN=	-pic
 COPTGPROF=	-pg
-C++OPTS=
+C++OPTS=	$(IBMCC_OPTXX)
 C++WOPTS=	
 #C++OPTOPT=	-O
 #C++OPTDYN=	-Kpic
@@ -67,12 +77,12 @@ CC++_COM_DEF=	echo "C++ not yet supported"; exit -1; :
 CC=		$(CC_COM_DEF)
 CCC=		$(CC++_COM_DEF)
 
-CCCC=		@echo "	==> COMPILING \"$@\""; $(CC_COM)
-LDCC=		@echo "	==> LINKING \"$@\""; $(CC_COM)
+CCCC=		@echo "	==> COMPILING \"$@\""; $(CC_COM) $(IBMCC_OPTXX)
+LDCC=		@echo "	==> LINKING \"$@\""; $(CC_COM) $(IBMCC_OPTXX)
 DYNLD=		@echo "	==> LINKING dynamic library \"$@\""; ld
 
 RMDEP=		:
-MKDEP=		@echo "	==> MAKING DEPENDENCIES \"$@\""; $(RMDEP); $(SRCROOT)/conf/mkdep-aix.sh
+MKDEP=		@echo "	==> MAKING DEPENDENCIES \"$@\""; $(RMDEP); $(SRCROOT)/conf/mkdep-aix.sh $(IBMCC_OPTXX)
 MKDEP_OUT=
 
 #$RMDEP=		:
@@ -80,8 +90,8 @@ MKDEP_OUT=
 #$MKDEP=		@echo "	==> MAKING DEPENDENCIES \"$@\""; $(RMDEP); echo "Cannot do -M with IBM'cc"; :
 #$MKDEP_OUT=
 
-CC++ =		@echo "	==> COMPILING \"$@\""; $(CC++_COM)
-LDCC++ =	@echo "	==> LINKING \"$@\""; $(CC++_COM)
-DYNLDC++ =	@echo "	==> LINKING dynamic library \"$@\""; $(CC++_COM)
+CC++ =		@echo "	==> COMPILING \"$@\""; $(CC++_COM) $(IBMCC_OPTXX)
+LDCC++ =	@echo "	==> LINKING \"$@\""; $(CC++_COM) $(IBMCC_OPTXX)
+DYNLDC++ =	@echo "	==> LINKING dynamic library \"$@\""; $(CC++_COM) $(IBMCC_OPTXX)
 MKC++DEP=	@echo "	==> MAKING DEPENDENCIES \"$@\""; $(RMDEP); $(CC++_COM); # mkdep-aix.sh?
 MKC++DEP_OUT=

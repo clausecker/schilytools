@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2015 J. Schilling
  *
- * @(#)jobs.c	1.82 15/11/25 2008-2015 J. Schilling
+ * @(#)jobs.c	1.84 15/11/30 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)jobs.c	1.82 15/11/25 2008-2015 J. Schilling";
+	"@(#)jobs.c	1.84 15/11/30 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -649,7 +649,9 @@ waitjob(jp)
 	int		wflags;
 	int		ret = 0;
 	int		err = 0;
+#ifdef	DO_TIME
 	struct job	j;
+#endif
 
 #ifdef	DO_TIME
 	getrusage(RUSAGE_CHILDREN, &jp->j_rustart);
@@ -685,7 +687,9 @@ waitjob(jp)
 	 * To be always able to retrieve the progcess group for pid, we need
 	 * to call statjob() here.
 	 */
+#ifdef	DO_TIME
 	j = *jp;
+#endif
 	jdone = statjob(jp, &si, 1, 1);	/* Sets exitval, see below */
 	/*
 	 * Avoid hang on FreeBSD, so wait/reap here only for died children.
@@ -707,7 +711,9 @@ waitjob(jp)
 	 * to get the right progrss group for pid and fail to restore
 	 * our process group in the terninal.
 	 */
+#ifdef	DO_TIME
 	j = *jp;
+#endif
 	jdone = statjob(jp, &si, 1, 1);	/* Sets exitval, see below */
 #endif	/* WNOWAIT != 0 */
 
@@ -1948,6 +1954,12 @@ waitid(idtype, id, infop, opts)
 #endif
 
 	opts &= ~(WEXITED|WTRAPPED);	/* waitpid() doesn't understand them */
+#if	WSTOPPED != WUNTRACED
+	if (opts & WSTOPPED) {
+		opts &= ~WSTOPPED;
+		opts |= WUNTRACED;
+	}
+#endif
 
 	if (idtype == P_PID)
 		pid = id;

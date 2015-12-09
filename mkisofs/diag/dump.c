@@ -1,8 +1,8 @@
-/* @(#)dump.c	1.39 12/12/02 joerg */
+/* @(#)dump.c	1.41 15/12/07 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)dump.c	1.39 12/12/02 joerg";
+	"@(#)dump.c	1.41 15/12/07 joerg";
 #endif
 /*
  * File dump.c - dump a file/device both in hex and in ASCII.
@@ -10,7 +10,7 @@ static	UConst char sccsid[] =
  * Written by Eric Youngdale (1993).
  *
  * Copyright 1993 Yggdrasil Computing, Incorporated
- * Copyright (c) 1999-2012 J. Schilling
+ * Copyright (c) 1999-2015 J. Schilling
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2
@@ -246,10 +246,10 @@ usage(excode)
 	error(_("Options:\n"));
 	error(_("\t-help, -h	Print this help\n"));
 	error(_("\t-version	Print version info and exit\n"));
-	error(_("\t-inore-error	Ignore errors\n"));
+	error(_("\t-ignore-error Ignore errors\n"));
 	error(_("\t-i filename	Filename to read ISO-9660 image from\n"));
 	error(_("\tdev=target	SCSI target to use as CD/DVD-Recorder\n"));
-	error(_("\nIf neither -i nor dev= are speficied, <image> is needed.\n"));
+	error(_("\nIf neither -i nor dev= are specified, <image> is needed.\n"));
 	exit(excode);
 }
 
@@ -302,7 +302,7 @@ main(argc, argv)
 	if (help)
 		usage(0);
 	if (prvers) {
-		printf(_("devdump %s (%s-%s-%s) Copyright (C) 1993-1999 %s (C) 1999-2012 %s\n"),
+		printf(_("devdump %s (%s-%s-%s) Copyright (C) 1993-1999 %s (C) 1999-2015 %s\n"),
 					VERSION,
 					HOST_CPU, HOST_VENDOR, HOST_OS,
 					_("Eric Youngdale"),

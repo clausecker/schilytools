@@ -1,9 +1,7 @@
-#ident "@(#)ip22-irix-gcc64.rul	1.13 09/11/29 "
-###########################################################################
-# Written 1996 by J. Schilling
+#ident "@(#)os-mingw32_nt-6.0.id	1.1 15/12/09 "
 ###########################################################################
 #
-# Platform dependent MACROS for Silicon Graphics IRIX
+# OS specific MACRO definitions for Win32/Mingw32
 #
 ###########################################################################
 # Copyright (c) J. Schilling
@@ -20,29 +18,5 @@
 # When distributing Covered Code, include this CDDL HEADER in each
 # file and include the License file CDDL.Schily.txt from this distribution.
 ###########################################################################
-include $(SRCROOT)/$(RULESDIR)/rules.prg
-###########################################################################
-include $(SRCROOT)/$(RULESDIR)/cc-gcc64.rul
-GCC_OPT64=	-mabi=64
-
-OSDEFS +=	-D__SVR4 -DSVR4
-
-KDEFINES=	-DKERNEL -D_KERNEL
-
-LIB_SOCKET=	
-LIB_MATH=	-lm
-LIB_KVM=	
-
-#LDOPTS=		$(LIBS_PATH) $(LDPATH) $(RUNPATH:-R%=-Wl,-R%)
-LDOPTS=		$(LIBS_PATH) $(LDPATH)
-LDOPTDYN=
-LNDYNLIB=	@
-
-FLOAT_OPTIONS=	
-
-ARFLAGS=	crs
-#
-# lorder seems not to work on some machines, disable it
-#
-LORDER=		echo
-TSORT=		cat
+O_ARCH=		mingw32_nt
+-O_ARCH=	-$(O_ARCH)

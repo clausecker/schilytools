@@ -1,7 +1,7 @@
-/* @(#)optget.c	1.2 15/09/01 Copyright 2015 J. Schilling */
+/* @(#)optget.c	1.3 15/12/07 Copyright 2015 J. Schilling */
 #include <schily/mconfig.h>
 static	UConst char sccsid[] =
-	"@(#)optget.c	1.2 15/09/01 Copyright 2015 J. Schilling";
+	"@(#)optget.c	1.3 15/12/07 Copyright 2015 J. Schilling";
 /*
  *	A version of getopt() that maintains state
  *	so it can be used from witin a shell builtin
@@ -77,4 +77,57 @@ optget(argc, argv, optv, optstring)
 	optarg = savoptarg;
 
 	return (ret);
+}
+
+void
+optbad(argc, argv, optv)
+	int		argc;
+	unsigned char	**argv;
+	struct optv	*optv;
+{
+	unsigned char	*p;
+	unsigned char	opt[4];
+
+	if (optv->optopt == '-' && argc >= optv->optind) {
+		p = locstak();
+		*p = ' ';
+		movstrstak(argv[optv->optind-1], &p[1]);
+		p += stakbot - p;
+	} else {
+		opt[0] = ' '; opt[1] = '-',
+		opt[2] = optv->optopt; opt[3] = '\0';
+		p = opt;
+	}
+	bfailure(argv[0], badopt, p);
+}
+
+int
+optskip(argc, argv, use)
+	int	argc;
+	unsigned char	**argv;
+	const	 char	*use;
+{
+	struct optv optv;
+	int c;
+
+	optinit(&optv);
+	optv.opterr = 0;
+
+	while ((c = optget(argc, argv, &optv, ":?1000?(help)")) != -1) {
+		switch (c) {
+
+		default:
+			break;
+
+		case '?':
+			optbad(argc, argv, &optv);
+			/* FALLTHROUGH */
+
+		case 1000:
+			if (use)
+				gfailure((unsigned char *)usage, use);
+			return (-1);
+		}
+	}
+	return (optv.optind);
 }

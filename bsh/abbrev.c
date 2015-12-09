@@ -1,8 +1,8 @@
-/* @(#)abbrev.c	1.66 15/10/23 Copyright 1985-2015 J. Schilling */
+/* @(#)abbrev.c	1.67 15/11/28 Copyright 1985-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)abbrev.c	1.66 15/10/23 Copyright 1985-2015 J. Schilling";
+	"@(#)abbrev.c	1.67 15/11/28 Copyright 1985-2015 J. Schilling";
 #endif
 /*
  *	Abbreviation symbol handling
@@ -189,7 +189,7 @@ typedef struct abtab {
 LOCAL	abtab_t	ab_tabs[ABTABS]	= {	{0, 0, 0, 0, 0, (uid_t)-1},
 					{0, 0, 0, 0, 0, (uid_t)-1}};
 
-	abidx_t	deftab;
+extern	abidx_t	deftab;		/* Variable is defined in hashcmd.c */
 
 LOCAL	abtab_t	*_ab_down	__PR((abidx_t tab));
 LOCAL	abent_t	*_ab_lookup	__PR((abtab_t *ap, char *name, BOOL new));
