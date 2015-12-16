@@ -1,4 +1,4 @@
-#ident @(#)Makefile	1.45 13/04/24 
+#ident @(#)Makefile	1.46 15/12/15 
 ###########################################################################
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 2
@@ -27,7 +27,7 @@ CPPOPTS +=	-DUSE_LARGEFILES
 CPPOPTS +=	-DAPPLE_HFS_HYB
 CPPOPTS +=	-DAPPLE_HYB
 CPPOPTS +=	-DUDF
-CPPOPTS +=	-DDVD_VIDEO
+CPPOPTS +=	-DDVD_AUD_VID
 CPPOPTS +=	-DSORTING
 CPPOPTS +=	-I../libscg
 CPPOPTS +=	-I../libscgcmd

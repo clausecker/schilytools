@@ -39,7 +39,7 @@
 /*
  * Copyright 2008-2015 J. Schilling
  *
- * @(#)defs.h	1.127 15/12/07 2008-2015 J. Schilling
+ * @(#)defs.h	1.129 15/12/15 2008-2015 J. Schilling
  */
 
 #ifdef	__cplusplus
@@ -574,7 +574,7 @@ extern	void	setname		__PR((unsigned char *nam, int xp));
 extern	void	replace		__PR((unsigned char **a, unsigned char *v));
 extern	void	dfault		__PR((struct namnod *n, unsigned char *v));
 extern	void	assign		__PR((struct namnod *n, unsigned char *v));
-extern	int	readvar		__PR((unsigned char **names));
+extern	int	readvar		__PR((int namec, unsigned char **names));
 extern	void	assnum		__PR((unsigned char **p, long i));
 extern	unsigned char *make	__PR((unsigned char *v));
 extern	struct namnod *lookup	__PR((unsigned char *nam));
@@ -778,6 +778,10 @@ extern	int	optget		__PR((int argc, unsigned char **argv,
 					const char *optstring));
 extern	void	optbad		__PR((int argc, unsigned char **argv,
 					struct optv *optv));
+extern	int	optnext		__PR((int argc, unsigned char **argv,
+					struct optv *optv,
+					const char *optstring,
+					const char *use));
 extern	int	optskip		__PR((int argc, unsigned char **argv,
 					const char *use));
 

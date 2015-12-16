@@ -1,8 +1,8 @@
-/* @(#)ifo_read.c	1.15 10/12/19 joerg */
+/* @(#)ifo_read.c	1.16 15/12/15 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)ifo_read.c	1.15 10/12/19 joerg";
+	"@(#)ifo_read.c	1.16 15/12/15 joerg";
 #endif
 /*
  * Copyright (C) 2002 Olaf Beck <olaf_sc@yahoo.com>
@@ -33,7 +33,7 @@ static	UConst char sccsid[] =
  * DON'T USE THIS LIBRARY IN ANY OTHER PROGRAM GET THE REAL
  * LIBDVDREAD INSTEAD
  */
-#ifdef DVD_VIDEO
+#ifdef DVD_AUD_VID
 
 #include "mkisofs.h"
 #include <schily/fcntl.h>
@@ -452,4 +452,4 @@ ifoClose(ifofile)
 	free(ifofile);
 	ifofile = 0;
 }
-#endif /* DVD_VIDEO */
+#endif /* DVD_AUD_VID */

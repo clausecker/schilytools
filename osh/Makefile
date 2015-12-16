@@ -1,4 +1,4 @@
-#ident "@(#)Makefile	1.70 15/09/16  Copyright (c) 2006-2015 J. Schilling"
+#ident "@(#)Makefile	1.71 15/12/16  Copyright (c) 2006-2015 J. Schilling"
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -87,6 +87,7 @@ CPPOPTS +=	-DARGS_RIGHT_TO_LEFT	# Evaluate var2=val2 var1=val1 left to right
 #CPPOPTS +=	-DINTERACTIVE		# Include command line history editor
 #CPPOPTS +=	-DINT_DOLMINUS		# Auto set -i for interactive shell
 
+CPPOPTS +=	-DNO_OPTNEXT		# Do not support optnext() and optskip()
 #CPPOPTS +=	-DNO_SIGSEGV		# Do not install a SIGSEGV handler for debug
 
 CFILES=		args.c bltin.c cmd.c ctype.c defs.c echo.c error.c \

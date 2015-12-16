@@ -1,8 +1,8 @@
-/* @(#)tree.c	1.133 15/12/08 joerg */
+/* @(#)tree.c	1.134 15/12/15 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)tree.c	1.133 15/12/08 joerg";
+	"@(#)tree.c	1.134 15/12/15 joerg";
 #endif
 /*
  * File tree.c - scan directory  tree and build memory structures for iso9660
@@ -1882,7 +1882,7 @@ insert_file_entry(this_dir, whole_path, short_name, statp, have_rsrc)
 	 */
 	s_entry->sort = this_dir->sort;
 
-#ifdef  DVD_VIDEO
+#ifdef  DVD_AUD_VID
 	/*
 	 * No use at all to do a sort if we don't make a dvd video/audio
 	 */
@@ -1896,7 +1896,7 @@ insert_file_entry(this_dir, whole_path, short_name, statp, have_rsrc)
 	 * sort_matches would slow things to a crawl.
 	 */
 
-	if (dvd_video) {
+	if (dvd_aud_vid_flag) {
 		s_entry->sort = assign_dvd_weights(s_entry->name, this_dir, s_entry->sort);
 		/*
 		 * Turn on sorting if necessary, regardless of cmd-line options

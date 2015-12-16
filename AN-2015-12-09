@@ -70,7 +70,7 @@ programs now (hopefully) call gettext() for all strings that need localization.
 	-inore-errs instead of -ignore-errs
 	Thanks to Heiko Eiﬂfeldt for reporting
 
--	mkisofs/diag/isoinfo.c: add a directory loop regognition to avoid
+-	mkisofs/diag/isoinfo.c: add a directory loop recognition to avoid
 	endless loops that eat up all memory with file system images that
 	contain loops.
 	Thanks to Heiko Eiﬂfeldt for doing some handcrafted
@@ -81,21 +81,21 @@ programs now (hopefully) call gettext() for all strings that need localization.
 
 -	Cdrtools bumped to 3.02a03
 
--	mkisofs/disg/isovfy.c add a directory loop regognition to avoid
+-	mkisofs/diag/isovfy.c add a directory loop regognition to avoid
 	endless loops that eat up all memory with file system images that
 	contain loops.
 
--	mkisofs: make sure that the stream media filename nonors the
+-	mkisofs: make sure that the stream media filename honors the
 	-omit-version-number option
 
 -	mkisofs: use the correct directory size for the stream media filename.
-	mkisofs did write 1 Byte to few data in case of an odd file name length.
+	mkisofs did write 1 Byte too few data in case of an odd file name length.
 
 -	mkisofs/diag all diagnostic helper programs had a typo in the usage()
 	speficied instead of specified
 
 -	mkisofs + diag all diagnostic helper programs have been vulnerable
-	to endless lopps when a defective iso image with Rock Ridge was read.
+	to endless loops when a defective iso image with Rock Ridge was read.
 	Thanks to Heiko Eiﬂfeldt for running related automated tests.
 
 -	star: avoid a warning from GCC-4.8.3

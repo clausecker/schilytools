@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2015 J. Schilling
  *
- * @(#)jobs.c	1.84 15/11/30 2008-2015 J. Schilling
+ * @(#)jobs.c	1.85 15/12/12 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)jobs.c	1.84 15/11/30 2008-2015 J. Schilling";
+	"@(#)jobs.c	1.85 15/12/12 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -1336,14 +1336,20 @@ sysfgbg(argc, argv)
 	int	argc;
 	char	*argv[];
 {
-	char *cmdp = *argv;
-	int fg;
+	char	*cmdp = *argv;
+	int	fg = eq("fg", cmdp);
+#ifdef	DO_GETOPT_UTILS
+	int	ind = optskip(argc, UCP argv, fg?"fg [job ...]":"bg [job ...]");
 
+	if (ind-- < 0)
+		return;
+	argc -= ind;
+	argv += ind;
+#endif
 	if ((flags & jcflg) == 0) {
 		Failure((unsigned char *)cmdp, nojc);
 		return;
 	}
-	fg = eq("fg", cmdp);
 
 	if (*++argv == 0) {
 		struct job *jp;
@@ -1375,6 +1381,14 @@ char *argv[];
 	struct job	*jp;
 	int		wflags;
 	siginfo_t	si;
+#ifdef	DO_GETOPT_UTILS
+	int	ind = optskip(argc, UCP argv, "wait [job ...]");
+
+	if (ind-- < 0)
+		return;
+	argc -= ind;
+	argv += ind;
+#endif
 
 	if ((flags & (monitorflg|jcflg|jcoff)) == (monitorflg|jcflg))
 		wflags = WSTOPPED;
@@ -1519,6 +1533,14 @@ sysstop(argc, argv)
 	char	*argv[];
 {
 	char *cmdp = *argv;
+#ifdef	DO_GETOPT_UTILS
+	int	ind = optskip(argc, UCP argv, stopuse);
+
+	if (ind-- < 0)
+		return;
+	argc -= ind;
+	argv += ind;
+#endif
 	if (argc <= 1) {
 		gfailure((unsigned char *)usage, stopuse);
 		return;
@@ -1534,13 +1556,20 @@ syskill(argc, argv)
 {
 	char *cmdp = *argv;
 	int sig = SIGTERM;
-	int	pg;
+	int	pg = eq("killpg", cmdp);
+#ifdef	DO_GETOPT_UTILS
+	int	ind = optskip(argc, UCP argv, killuse);
+
+	if (ind-- < 0)
+		return;
+	argc -= ind;
+	argv += ind;
+#endif
 
 	if (argc == 1) {
 		gfailure((unsigned char *)usage, killuse);
 		return;
 	}
-	pg = eq("killpg", cmdp);
 
 	if (argv[1][0] == '-') {
 
@@ -1603,11 +1632,21 @@ syssusp(argc, argv)
 	int	argc;
 	char	*argv[];
 {
+	char *cmdp = *argv;
+#ifdef	DO_GETOPT_UTILS
+	int	ind = optskip(argc, UCP argv, "suspend");
+
+	if (ind-- < 0)
+		return;
+	argc -= ind;
+	argv += ind;
+#endif
+
 	if (argc != 1) {
-		Failure((unsigned char *)argv[0], badopt);
+		Failure((unsigned char *)cmdp, badopt);
 		return;
 	}
-	sigv(argv[0], SIGSTOP, F_SUSPEND, "0");
+	sigv(cmdp, SIGSTOP, F_SUSPEND, "0");
 }
 
 #ifdef	DO_SYSPGRP
@@ -1634,6 +1673,14 @@ syspgrp(argc, argv)
 	char	*argv[];
 {
 	char *cmdp = *argv;
+#ifdef	DO_GETOPT_UTILS
+	int	ind = optskip(argc, UCP argv, "pgrp [job ...]");
+
+	if (ind-- < 0)
+		return;
+	argc -= ind;
+	argv += ind;
+#endif
 
 	if (argc == 1) {
 		pid_t	pgrp;

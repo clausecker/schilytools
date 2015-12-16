@@ -37,11 +37,11 @@
 /*
  * This file contains modifications Copyright 2008-2015 J. Schilling
  *
- * @(#)macro.c	1.28 15/09/16 2008-2015 J. Schilling
+ * @(#)macro.c	1.29 15/12/12 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)macro.c	1.28 15/09/16 2008-2015 J. Schilling";
+	"@(#)macro.c	1.29 15/12/12 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -460,14 +460,26 @@ retry:
 							v = dolv[dolg];
 							if (*id == '*' &&
 							    quote) {
-/*
- * push quoted space so that " $* " will not be broken into separate arguments
- */
+								unsigned char sep = ' ';
+
+#ifdef	DO_IFS_SEP
+								if (ifsnod.namval)
+									sep = *ifsnod.namval;
+#endif
+				/*
+				 * push quoted separator so that "$*" will
+				 * not be broken into separate arguments.
+				 */
+								if (sep) {
+									GROWSTAKTOP();
+									pushstak('\\');
+									GROWSTAKTOP();
+									pushstak(sep);
+								}
+							} else {
 								GROWSTAKTOP();
-								pushstak('\\');
+								pushstak(' ');
 							}
-							GROWSTAKTOP();
-							pushstak(' ');
 						}
 					}
 				}

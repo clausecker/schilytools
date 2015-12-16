@@ -1,8 +1,8 @@
-/* @(#)stdint.h	1.36 12/12/03 Copyright 1997-2012 J. Schilling */
+/* @(#)stdint.h	1.37 15/12/10 Copyright 1997-2015 J. Schilling */
 /*
  *	Abstraction from stdint.h
  *
- *	Copyright (c) 1997-2012 J. Schilling
+ *	Copyright (c) 1997-2015 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -11,6 +11,8 @@
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -74,8 +76,9 @@
  * 	011	+3	+3
  *
  * Computing -TYPE_MINVAL(type) will not work on 2's complement machines
- * if 'type' is int or more. Use -(UIntmax_t)TYPE_MINVAL(type), it works
- * for both 1's complement and 2's complement machines.
+ * if 'type' is int or more. Use:
+ *		((unsigned type)(-1 * (TYPE_MINVAL(type)+1))) + 1;
+ * it works for both 1's complement and 2's complement machines.
  */
 #define	TYPE_ISSIGNED(t)	(((t)-1) < ((t)0))
 #define	TYPE_ISUNSIGNED(t)	(!TYPE_ISSIGNED(t))

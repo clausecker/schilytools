@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sh.1	1.127 15/12/07 Copyright 2012-2015 J. Schilling
+.\" @(#)sh.1	1.132 15/12/14 Copyright 2012-2015 J. Schilling
 .\" Copyright 1989 AT&T
 .\" Copyright (c) 2008, Sun Microsystems, Inc. All Rights Reserved.
 .\" Portions Copyright (c) 1992, X/Open Company Limited All Rights Reserved
@@ -59,7 +59,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sh 1 "2015/12/07" "Schily Bourne Shell" "User Commands"
+.TH sh 1 "2015/12/14" "Schily Bourne Shell" "User Commands"
 .SH NAME
 sh, jsh \- standard and job control shell and command interpreter
 .SH SYNOPSIS
@@ -1088,7 +1088,23 @@ All positional parameters starting from
 .BR $1 .
 \fB"$*"\fR
 expands to one argument that contains
-all positional parameters separated by spaces.
+all positional parameters separated by the first character in the
+.B IFS
+variable or by a space, in case
+.B IFS
+is unset.
+If
+.B IFS
+is set to a null string,
+its first character does not exist, so the parameter values are concatenated.
+.br
+In older versions of
+.BR sh ,
+.B IFS
+was not evaluated for
+.B
+"$*"
+and the separator was always a space character.
 .br
 .ne 3
 .TP
@@ -3311,6 +3327,52 @@ and
 .B \-\-output\-file
 is the equivalent of
 .BR \-o .
+.LP
+If
+.B optstring
+starts with "\c
+.B ()\c
+",
+.B getopts
+supports long options with a single dash.
+Long options with a single dash have been introduced with
+.B Multics
+and appeared on
+.B UNIX
+around 1980, see e.g.
+.BR kill (1).
+.LP
+If a long name argument follows a single dash and cannot be identified as
+a long option, it is retried as a combination of single character
+letters.
+To suppress error messages, the optional initial colon in
+.B optstring
+must precede the "\c
+.B ()\c
+":
+.LP
+  getopts ":()f:(file)(input-file)o:(output-file)"
+.LP
+In the above example,
+.BR \-file ,
+.BR \-\-file ,
+.BR \-input\-file ,
+.B \-\-input\-file
+are the equivalent of
+.BR \-f ,
+and
+.B \-output\-file
+and
+.B \-\-output\-file
+is the equivalent of
+.BR \-o .
+Error messages from
+.B getopts
+are suppressed and a colon is placed in
+.I name
+when an option argument for an option like
+.B \-f
+is missing.
 .LP
 .B getopts
 also supports one or more long options with no related short option.

@@ -1,8 +1,8 @@
-/* @(#)multi.c	1.99 15/12/08 joerg */
+/* @(#)multi.c	1.100 15/12/10 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)multi.c	1.99 15/12/08 joerg";
+	"@(#)multi.c	1.100 15/12/10 joerg";
 #endif
 /*
  * File multi.c - scan existing iso9660 image and merge into
@@ -613,7 +613,13 @@ read_merging_directory(mrootp, nentp)
 	while (i < len) {
 		idr = (struct iso_directory_record *)&dirbuff[i];
 		if (idr->length[0] == 0) {
+			int	oi = i;
+
 			i = ISO_ROUND_UP(i);
+			if (i == 0 || oi == i)
+				comerrno(EX_BAD,
+					_("Zero directory length for '%.*s'.\n"),
+					idr->name_len[0] & 0xFF, idr->name);
 			continue;
 		}
 		nent++;

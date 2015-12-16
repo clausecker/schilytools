@@ -1,4 +1,4 @@
-#ident "@(#)Makefile	1.93 15/12/07  Copyright (c) 2006-2015 J. Schilling"
+#ident "@(#)Makefile	1.95 15/12/12  Copyright (c) 2006-2015 J. Schilling"
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -46,6 +46,7 @@ CPPOPTS +=	-DDO_SET_O		# Include support for set -o
 CPPOPTS +=	-DDO_MULTI_OPT		# Include support for sh -v -x / set -v -x
 CPPOPTS +=	-DDO_UMASK_S		# Include support for umask -S
 CPPOPTS +=	-DDO_GETOPT_LONGONLY	# Include support for getopts "?900?(lo)"
+CPPOPTS +=	-DDO_GETOPT_UTILS	# Include support for -- in all builtins
 CPPOPTS +=	-DDO_POSIX_FOR		# Support for i; do .... with semicolon
 CPPOPTS +=	-DDO_POSIX_TYPE		# Report keywords as well
 CPPOPTS +=	-DDO_PIPE_SEMI_SYNTAX_E	# Report a syntax error for "echo foo |;"
@@ -72,6 +73,7 @@ CPPOPTS +=	-DDO_NOCLOBBER		# Include support for set -o noclobber
 CPPOPTS +=	-DDO_NOTIFY		# Include support for set -o notify
 CPPOPTS +=	-DDO_FDPIPE		# Include support for 2| for stderr pipe
 CPPOPTS +=	-DDO_KILL_L_SIG		# Include support for kill -l signo
+CPPOPTS +=	-DDO_IFS_SEP		# First char in IFS is "$*" separator
 CPPOPTS +=	-DDO_PS34		# Include support for PS3 and PS4
 CPPOPTS +=	-DDO_PPID		# Include support for POSIX PPID
 CPPOPTS +=	-DDO_LINENO		# Include support for POSIX LINENO

@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2015 J. Schilling
  *
- * @(#)bltin.c	1.73 15/12/07 2008-2015 J. Schilling
+ * @(#)bltin.c	1.84 15/12/15 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)bltin.c	1.73 15/12/07 2008-2015 J. Schilling";
+	"@(#)bltin.c	1.84 15/12/15 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -409,12 +409,14 @@ int xflags;
 		break;
 
 	case SYSREAD:
+#ifndef	DO_READ_R
 		if (argc < 2) {
 			Failure(argv[0], mssgargn);
 			break;
 		}
+#endif
 		rwait = 1;
-		exitval = readvar(&argv[1]);
+		exitval = readvar(argc, argv);
 		rwait = 0;
 		break;
 
@@ -434,38 +436,63 @@ int xflags;
 		break;
 
 	case SYSRDONLY:			/* POSIX special builtin */
-		if (a1) {
+		{
 #ifdef	DO_POSIX_EXPORT
-			if (eq(a1, "-p")) {
-				if (!(++argv)[1])
-					namscan(printpro);
+			struct optv	optv;
+			int		c;
+			int		isp = 0;
+
+			optinit(&optv);
+
+			while ((c = optnext(argc, argv, &optv, "p",
+				    "readonly [-p] [name ...]")) != -1) {
+				if (c == 0)	/* Was -help */
+					goto out;
+				else if (c == 'p')
+					isp++;
 			}
+			argv += --optv.optind;
 #endif
-			while (*++argv) {
+			if (argv[1]) {
+				while (*++argv) {
 #ifdef	DO_POSIX_EXPORT
-				if (strchr((char *)*argv, '=')) {
-					setname(*argv, N_RDONLY);
-					continue;
+					if (strchr((char *)*argv, '=')) {
+						setname(*argv, N_RDONLY);
+						continue;
+					}
+#endif
+					attrib(lookup(*argv), N_RDONLY);
 				}
+			} else {
+#ifdef	DO_POSIX_EXPORT
+				namscan(isp?printpro:printro);
+#else
+				namscan(printro);
 #endif
-				attrib(lookup(*argv), N_RDONLY);
 			}
-		} else {
-			namscan(printro);
 		}
 		break;
 
 	case SYSXPORT:			/* POSIX special builtin */
 		{
 			struct namnod	*n;
-
-			if (a1) {
 #ifdef	DO_POSIX_EXPORT
-				if (eq(a1, "-p")) {
-					if (!(++argv)[1])
-						namscan(printpexp);
-				}
+			struct optv	optv;
+			int		c;
+			int		isp = 0;
+
+			optinit(&optv);
+
+			while ((c = optnext(argc, argv, &optv, "p",
+				    "export [-p] [name ...]")) != -1) {
+				if (c == 0)	/* Was -help */
+					goto out;
+				else if (c == 'p')
+					isp++;
+			}
+			argv += --optv.optind;
 #endif
+			if (argv[1]) {
 				while (*++argv) {
 #ifdef	DO_POSIX_EXPORT
 					if (strchr((char *)*argv, '=')) {
@@ -480,7 +507,11 @@ int xflags;
 						attrib(n, N_EXPORT);
 				}
 			} else {
+#ifdef	DO_POSIX_EXPORT
+				namscan(isp?printpexp:printexp);
+#else
 				namscan(printexp);
+#endif
 			}
 		}
 		break;
@@ -500,15 +531,22 @@ int xflags;
 			int		olddolc = dolc;
 			struct ionod	*io = t->treio;
 			short		idx;
+			int		ind = optskip(argc, argv,
+					    "dosh command [commandname args]");
+
+			if (ind < 0)
+				return;
+			if (ind >= argc)
+				return;
 
 			/*
 			 * save current positional parameters
 			 */
 			olddolh = (struct dolnod *)savargs(funcnt);
 			funcnt++;
-			setargs(&argv[2]);
+			setargs(&argv[ind+1]);
 			idx = initio(io, 1);
-			execexp(a1, (Intptr_t)0, xflags);
+			execexp(argv[ind], (Intptr_t)0, xflags);
 			restore(idx);
 			(void) restorargs(olddolh, funcnt);
 			dolv = olddolv;
@@ -592,32 +630,58 @@ int xflags;
 		break;
 
 	case SYSHASH:
-		if (a1) {
-			if (a1[0] == '-') {
+		{
+#ifdef	DO_GETOPT_UTILS
+			struct optv	optv;
+			int		c;
+
+			optinit(&optv);
+
+			while ((c = optnext(argc, argv, &optv, "r",
+				    "hash [-r] [name ...]")) != -1) {
+				if (c == 0)	/* Was -help */
+					goto out;
+				else if (c == 'r') {
+					zaphash();
+					goto out;
+				}
+			}
+			argv += --optv.optind;
+#else
+			if (a1 && a1[0] == '-') {
 				if (a1[1] == 'r')
 					zaphash();
 				else
 					Error(badopt);
-			} else {
+				break;
+			}
+#endif
+			if (argv[1]) {
 				while (*++argv) {
 					if (hashtype(hash_cmd(*argv)) ==
-							NOTFOUND) {
+						NOTFOUND) {
 						Failure(*argv, notfound);
 					}
 				}
+			} else {
+				hashpr();
 			}
-		} else {
-			hashpr();
 		}
 		break;
 
 #ifdef	DO_SYSPUSHD
 	case SYSDIRS:
+		if (optskip(argc, argv, C argv[0]) < 0)
+			return;
 		pr_dirs(0);
 		break;
 #endif
 
 	case SYSPWD:
+#ifdef	DO_GETOPT_UTILS
+		if (optskip(argc, argv, C argv[0]) < 0)
+			return;
+#endif
 		cwdprint();
 		break;
 
@@ -631,6 +695,14 @@ int xflags;
 
 	case SYSTYPE:
 		if (a1) {
+#ifdef	DO_GETOPT_UTILS
+			int	ind = optskip(argc, argv, "type name ...");
+
+			if (ind-- < 0)
+				return;
+			argc -= ind;
+			argv += ind;
+#endif
 			/* return success only if all names are found */
 			while (*++argv) {
 #ifdef	DO_SYSALIAS
@@ -664,15 +736,22 @@ int xflags;
 	case SYSUNS:			/* POSIX special builtin */
 		if (a1) {
 			int	uflg = 0;
-
 #ifdef	DO_POSIX_UNSET
-			if (eq(a1, "-f")) {
-				uflg |= UNSET_FUNC;
-				argv++;
-			} else if (eq(a1, "-v")) {
-				uflg |= UNSET_VAR;
-				argv++;
+			struct optv	optv;
+			int		c;
+
+			optinit(&optv);
+
+			while ((c = optnext(argc, argv, &optv, "fv",
+					"unset [-f | -v] [name ...]")) != -1) {
+				if (c == 0)	/* Was -help */
+					goto out;
+				else if (c == 'f')
+					uflg |= UNSET_FUNC;
+				else if (c == 'v')
+					uflg |= UNSET_VAR;
 			}
+			argv += --optv.optind;
 #endif
 			while (*++argv)
 				unset_name(*argv, uflg);
@@ -683,19 +762,31 @@ int xflags;
 		int getoptval;
 		struct namnod *n;
 		extern unsigned char numbuf[];
-		unsigned char *varnam = argv[2];
+		unsigned char *varnam;
 		unsigned char c[2];
+		unsigned char *cmdp = *argv;
+#ifdef	DO_GETOPT_UTILS
+		int	ind = optskip(argc, argv,
+					"getopts optstring name [arg ...]");
+
+		if (ind-- < 0)
+			return;
+		argc -= ind;
+		argv += ind;
+#endif
 		if (argc < 3) {
-			failure(argv[0], mssgargn);
+			failure(cmdp, mssgargn);
 			break;
 		}
 		exitval = 0;
 		n = lookup(UC "OPTIND");
 		optind = stoi(n->namval);
+		varnam = argv[2];
 		if (argc > 3) {
 			argv[2] = dolv[0];
 			getoptval = getopt(argc-2,
 					(char **)&argv[2], (char *)argv[1]);
+			argv[2] = varnam;
 		} else {
 			getoptval = getopt(dolc+1,
 					(char **)dolv, (char *)argv[1]);
@@ -708,7 +799,6 @@ int xflags;
 			exitval = 1;
 			break;
 		}
-		argv[2] = varnam;
 		itos(optind);
 		assign(n, numbuf);
 		c[0] = (char)getoptval;
@@ -745,14 +835,33 @@ int xflags;
 
 	case SYSMAP:
 		{
-			int	f = 1;
+			int		f = STDOUT_FILENO;
+			struct optv	optv;
+			int		c;
+			int		rfl = 0;
+			int		ufl = 0;
+			unsigned char	*cmdp = *argv;
 
-			if (argc == 1) {
+			optinit(&optv);
+
+			while ((c = optnext(argc, argv, &optv, "ru",
+			  "map [-r | -u] [fromstr [tostr [comment]]]")) != -1) {
+				if (c == 0)	/* Was -help */
+					goto out;
+				else if (c == 'r')
+					rfl++;
+				else if (c == 'u')
+					ufl++;
+			}
+			argv += --optv.optind;
+			argc -= optv.optind;
+
+			if (argc == 1 && (rfl+ufl) == 0) {
 				shedit_list_map(&f);
-			} else if (argc == 2 && eq(argv[1], "-r")) {
+			} else if (argc == 1 && rfl) {
 				shedit_remap();
-			} else if (argc == 3 && eq(argv[1], "-u")) {
-				shedit_del_map((char *)argv[2]);
+			} else if (argc == 2 && ufl) {
+				shedit_del_map((char *)argv[1]);
 			} else if (argc == 3 || argc == 4) {
 				/*
 				 * argv[1] is map from
@@ -762,7 +871,7 @@ int xflags;
 				if (!shedit_add_map((char *)argv[1],
 						(char *)argv[2],
 						(char *)argv[3])) {
-					prs(argv[1]);
+					prs(cmdp);
 					prs(UC ": ");
 					prs(UC "already defined\n");
 					gfailure(UC "bad map", NULL);
@@ -833,9 +942,14 @@ int xflags;
 	case SYSERRSTR: {
 			int	err;
 			char	*msg;
+			int	ind = optskip(argc, argv, "errstr errno");
 #ifndef	HAVE_STRERROR
 #define	strerror(a)	errmsgstr(a)
 #endif
+			if (ind < 0)
+				return;
+
+			a1 = argv[ind];
 
 			if (a1 && (err = stoi(a1)) > 0) {
 				errno = 0;
@@ -858,7 +972,10 @@ int xflags;
 	default:
 		prs_buff(_gettext("unknown builtin\n"));
 	}
-
+#if defined(DO_POSIX_EXPORT) || defined(DO_POSIX_UNSET) || \
+    defined(DO_GETOPT_UTILS) || defined(INTERACTIVE)
+out:
+#endif
 	flushb();		/* Flush print buffer */
 	restore(fdindex);	/* Restore file descriptors */
 	exval_set(exitval);	/* Prepare ${.sh.*} parameters */

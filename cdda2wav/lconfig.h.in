@@ -1,5 +1,5 @@
 #if 0
-/* @(#)lconfig.h.in	1.11 15/10/19 Copyright 1998-2003,2015 Heiko Eissfeldt, Copyright 2006-2009 J. Schilling */
+/* @(#)lconfig.h.in	1.12 15/12/14 Copyright 1998-2003,2015 Heiko Eissfeldt, Copyright 2006-2009 J. Schilling */
 #endif
 #undef HAVE_SYS_CDIO_H		/* if we should use sys/cdio.h */
 
@@ -29,3 +29,4 @@
 
 #undef HAVE_PULSE_PULSEAUDIO_H	/* if we should use pulse/pulseaudio.h */
 
+#undef HAVE_PULSE_SIMPLE_H	/* if we should use pulse/simple.h */

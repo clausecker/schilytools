@@ -34,16 +34,16 @@
 #endif
 
 /*
- * This file contains modifications Copyright 2008-2015 J. Schilling
+ * Copyright 2008-2015 J. Schilling
  *
- * @(#)print.c	1.30 15/11/03 2008-2015 J. Schilling
+ * @(#)print.c	1.32 15/12/12 2008-2015 J. Schilling
  */
 #ifdef	SCHILY_INCLUDES
 #include <schily/mconfig.h>
 #endif
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)print.c	1.30 15/11/03 2008-2015 J. Schilling";
+	"@(#)print.c	1.32 15/12/12 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -402,7 +402,12 @@ prc_buff(c)
 #endif
 {
 	if (c) {
-		if (buffd != -1 && bindex + 1 >= BUFLEN) {
+		if (buffd == -1) {
+			if (bufp+bindex+1 >= brkend) {
+				bufp = growstak(bufp+bindex+1);
+				bufp -= bindex + 1;
+			}
+		} else if (bindex + 1 >= BUFLEN) {
 			flushb();
 		}
 
@@ -419,7 +424,12 @@ prs_buff(s)
 {
 	int len = length(s) - 1;
 
-	if (buffd != -1 && bindex + len >= BUFLEN) {
+	if (buffd == -1) {
+		if (bufp+bindex+len >= brkend) {
+			bufp = growstak(bufp+bindex+len);
+			bufp -= bindex + len;
+		}
+	} else if (bindex + len >= BUFLEN) {
 		flushb();
 	}
 

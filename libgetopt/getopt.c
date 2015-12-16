@@ -24,12 +24,12 @@
  * Use is subject to license terms.
  */
 /*
- * This file contains modifications Copyright 2006-2015 J. Schilling
+ * Copyright 2006-2015 J. Schilling
  *
- * @(#)getopt.c	1.11 15/08/31 J. Schilling
+ * @(#)getopt.c	1.13 15/12/14 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)getopt.c 1.11 15/08/31 J. Schilling"
+#pragma ident "@(#)getopt.c 1.13 15/12/14 J. Schilling"
 #endif
 
 #if defined(sun)
@@ -266,6 +266,7 @@ getopt(argc, argv, optstring)
 	char	*cp;
 	int	longopt;
 	char	*longoptarg = NULL;
+	int	l = 2;
 
 	/*
 	 * Has the end of the options been encountered?  The following
@@ -310,9 +311,28 @@ getopt(argc, argv, optstring)
 	optopt = c = (unsigned char)argv[optind][_sp];
 	optarg = NULL;
 	longopt = (_sp == 1 && c == '-');
+#ifdef	DO_GETOPT_SDASH_LONG
+	if (optstring[0] == '(' ||
+	    (optstring[0] == ':' && optstring[1] == '(')) {
+		if (!longopt && _sp == 1 &&
+		    c != '\0' && argv[optind][2] != '\0') {
+			longopt = l = 1;
+		}
+	}
+tryshort:
+#endif
 	if (!(longopt ?
-	    ((cp = parselong(optstring, argv[optind]+2, &longoptarg)) != NULL) :
+	    ((cp = parselong(optstring, argv[optind]+l, &longoptarg)) != NULL) :
 	    ((cp = parseshort(optstring, c)) != NULL))) {
+#ifdef	DO_GETOPT_SDASH_LONG
+		if (longopt && optopt != '-') {
+			/*
+			 * In case of "-long" retry as combined short options.
+			 */
+			longopt = 0;
+			goto tryshort;
+		}
+#endif
 		/* LINTED: variable format specifier */
 		ERR(_libc_gettext("%s: illegal option -- %s\n"),
 		    c, (longopt ? optind : 0));

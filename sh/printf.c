@@ -1,7 +1,7 @@
-/* @(#)printf.c	1.1 15/12/07 Copyright 2015 J. Schilling */
+/* @(#)printf.c	1.2 15/12/11 Copyright 2015 J. Schilling */
 #include <schily/mconfig.h>
 static	UConst char sccsid[] =
-	"@(#)printf.c	1.1 15/12/07 Copyright 2015 J. Schilling";
+	"@(#)printf.c	1.2 15/12/11 Copyright 2015 J. Schilling";
 #ifdef DO_SYSPRINTF
 /*
  *	printf builtin
@@ -122,7 +122,8 @@ grangechk(p, ep)
 		bfailure(av0, "expected numeric value: ", p);
 	} else if (*ep) {
 		bfailure(av0, "not completely converted: ", p);
-	} else if (errno == ERANGE) {
+	}
+	if (errno == ERANGE) {
 		bfailure(av0, "range error: ", p);
 	}
 }

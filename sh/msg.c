@@ -37,13 +37,13 @@
 #include <schily/errno.h>
 
 /*
- * This file contains modifications Copyright 2008-2015 J. Schilling
+ * Copyright 2008-2015 J. Schilling
  *
- * @(#)msg.c	1.54 15/12/07 2008-2015 J. Schilling
+ * @(#)msg.c	1.55 15/12/12 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)msg.c	1.54 15/12/07 2008-2015 J. Schilling";
+	"@(#)msg.c	1.55 15/12/12 2008-2015 J. Schilling";
 #endif
 
 /*

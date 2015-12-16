@@ -1,4 +1,4 @@
-dnl @(#)configure.in	1.12 15/10/07	Copyright 1998-2003,2015 Heiko Eiﬂfeldt
+dnl @(#)configure.in	1.13 15/12/14	Copyright 1998-2003,2015 Heiko Eiﬂfeldt
 dnl Process this file with autoconf to produce a configure script.
 AC_INIT(cdda2wav.c)
 AC_CONFIG_HEADER(lconfig.h)
@@ -19,8 +19,8 @@ case "$host_os" in
 AC_CHECK_LIB(posix4, sched_get_priority_max)
 ;;
 esac
-AC_CHECK_LIB(asound, snd_pcm_open)
 AC_CHECK_LIB(ossaudio, _oss_ioctl)
+AC_CHECK_LIB(asound, snd_pcm_open)
 AC_CHECK_LIB(sndio, sio_open)
 AC_CHECK_LIB(pulse, pa_strerror)
 AC_CHECK_LIB(pulse-simple, pa_simple_new)
@@ -33,13 +33,26 @@ AC_SUBST(EXTRALIBS)
 dnl check header files
 AC_CHECK_HEADERS(sys/cdio.h sys/cdrio.h sundev/srreg.h sys/audioio.h sun/audioio.h)
 AC_CHECK_HEADERS(soundcard.h sys/soundcard.h linux/soundcard.h machine/soundcard.h)
-AC_CHECK_HEADERS(sndio.h alsa/asoundlib.h)
+case "${ac_cv_lib_asound_snd_pcm_open}" in
+   *yes*)
+   AC_CHECK_HEADERS(alsa/asoundlib.h sys/asoundlib.h)
+;;
+esac
+case "${ac_cv_lib_sndio_sio_open}" in
+   *yes*)
+   AC_CHECK_HEADERS(sndio.h)
+;;
+esac
+case "${ac_cv_lib_pulse_simple_pa_simple_new}""${ac_cv_lib_pulse_pa_strerror}" in
+   *yesyes*)
+   AC_CHECK_HEADERS(pulse/pulseaudio.h pulse/simple.h)
+;;
+esac
 dnl We no longer include HAVE_WINDOWS_H in lconfig.h but we need the test
 dnl result together with the test for mmsystem.h
-AC_CHECK_HEADERS(sys/asoundlib.h windows.h mmsystem.h)
-AC_CHECK_HEADERS(pulse/pulseaudio.h)
+AC_CHECK_HEADERS(windows.h mmsystem.h)
 
-case "${ac_cv_header_sndio_h}" in
+case "${ac_cv_header_sndio_h}""${ac_cv_lib_sndio_sio_open}" in
    *yes*)
 HAVE_SNDIO=1
 ;;
@@ -87,6 +100,16 @@ HAVE_ALSA=1
 HAVE_ALSA=
 ;;
 esac
+case "${HAVE_ALSA}""${ac_cv_lib_asound_snd_pcm_open}" in
+   1*yes*)
+HAVE_ALSA=1
+;;
+   *)
+HAVE_ALSA=
+HAVE_SYS_ASOUNDLIB_H=
+HAVE_ALSA_ASOUNDLIB_H=
+;;
+esac
 AC_SUBST(HAVE_ALSA)
 
 AC_SUBST(HAVE_SYS_ASOUNDLIB_H)
@@ -111,6 +134,16 @@ HAVE_OS2SOUND=
 ;;
 esac
 AC_SUBST(HAVE_OS2SOUND)
+
+case "${ac_cv_header_pulse_pulseaudio_h}""${ac_cv_lib_pulse_simple_pa_simple_new}""${ac_cv_lib_pulse_pa_strerror}" in
+   *yesyesyes*)
+HAVE_PULSE_SIMPLE_H=1
+;;
+   *)
+HAVE_PULSE_SIMPLE_H=
+HAVE_PULSE_PULSEAUDIO_H=
+;;
+esac
 AC_SUBST(HAVE_PULSE_SIMPLE_H)
 
 dnl Checks for library functions.

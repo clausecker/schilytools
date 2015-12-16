@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2015 J. Schilling
  *
- * @(#)test.c	1.25 15/09/13 2008-2015 J. Schilling
+ * @(#)test.c	1.26 15/12/12 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)test.c	1.25 15/09/13 2008-2015 J. Schilling";
+	"@(#)test.c	1.26 15/12/12 2008-2015 J. Schilling";
 #endif
 
 
@@ -143,7 +143,9 @@ expr(argn, com)
 
 	ac = argn;
 	av = com;
-	ap = 1;
+ 	ap = optskip(argn, com, "@ expr");
+	if (ap < 0)
+		return;
 	isexpr = 1;
 
 	if (ac == 2) {				/* @ var++ */

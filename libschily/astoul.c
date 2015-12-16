@@ -1,7 +1,6 @@
-/* @(#)astoi.c	1.11 15/12/10 Copyright 1985, 1995-2015 J. Schilling */
+/* @(#)astoul.c	1.1 15/12/10 Copyright 1985, 2000-2015 J. Schilling */
 /*
- *	astoi() converts a string to int
- *	astol() converts a string to long
+ *	astoul() converts a string to unsigned long
  *
  *	Leading tabs and spaces are ignored.
  *	Both return pointer to the first char that has not been used.
@@ -11,7 +10,7 @@
  *	leading "0"  makes conversion octal (base 8)
  *	leading "0x" makes conversion hex   (base 16)
  *
- *	Copyright (c) 1985, 1995-2015 J. Schilling
+ *	Copyright (c) 1985, 2000-2015 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -27,7 +26,9 @@
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
+#include <schily/mconfig.h>
 #include <schily/standard.h>
+#include <schily/utypes.h>
 #include <schily/schily.h>
 #include <schily/errno.h>
 
@@ -47,69 +48,30 @@
 #define	BASE_MAX	('z' - 'a' + 10 + 1)	/* This is ASCII */
 #endif
 
-#ifdef	notdef
-EXPORT int
-atoi(s)
-	char	*s;
-{
-	long	l;
 
-	(void) astol(s, &l);
-	return ((int)l);
-}
 
-EXPORT long
-atol(s)
-	char	*s;
-{
-	long	l;
-
-	(void) astol(s, &l);
-	return (l);
-}
-#endif
+EXPORT	char *astoul	__PR((const char *s, unsigned long *l));
+EXPORT	char *astoulb	__PR((const char *s, unsigned long *l, int base));
 
 EXPORT char *
-astoi(s, i)
-	const char *s;
-	int *i;
-{
-	long l;
-	char *ret;
-
-	ret = astol(s, &l);
-	*i = l;
-#if	SIZEOF_INT != SIZEOF_LONG_INT
-	if (*i != l) {
-		if (l < 0) {
-			*i = TYPE_MINVAL(int);
-		} else {
-			*i = TYPE_MAXVAL(int);
-		}
-		seterrno(ERANGE);
-	}
-#endif
-	return (ret);
-}
-
-EXPORT char *
-astol(s, l)
+astoul(s, l)
 	register const char *s;
-	long *l;
+	unsigned long *l;
 {
-	return (astolb(s, l, 0));
+	return (astoulb(s, l, 0));
 }
 
 EXPORT char *
-astolb(s, l, base)
+astoulb(s, l, base)
 	register const char *s;
-	long *l;
+	unsigned long *l;
 	register int base;
 {
+#ifdef	DO_SIGNED
 	int neg = 0;
-	register unsigned long ret = 0L;
+#endif
+	register unsigned long ret = (unsigned long)0;
 		unsigned long maxmult;
-		unsigned long maxval;
 	register int digit;
 	register char c;
 
@@ -124,8 +86,13 @@ astolb(s, l, base)
 	if (*s == '+') {
 		s++;
 	} else if (*s == '-') {
+#ifndef	DO_SIGNED
+		seterrno(EINVAL);
+		return ((char *)s);
+#else
 		s++;
 		neg++;
+#endif
 	}
 
 	if (base == 0) {
@@ -140,16 +107,7 @@ astolb(s, l, base)
 			base = 10;
 		}
 	}
-	if (neg) {
-		/*
-		 * Portable way to compute the positive value of "min-long"
-		 * as -TYPE_MINVAL(long) does not work.
-		 */
-		maxval = ((unsigned long)(-1 * (TYPE_MINVAL(long)+1))) + 1;
-	} else {
-		maxval = TYPE_MAXVAL(long);
-	}
-	maxmult = maxval / base;
+	maxmult = TYPE_MAXVAL(unsigned long) / base;
 	for (; (c = *s) != 0; s++) {
 
 		if (is_digit(c)) {
@@ -166,18 +124,18 @@ astolb(s, l, base)
 			if (ret > maxmult)
 				goto overflow;
 			ret *= base;
-			if (maxval - ret < digit)
+			if (TYPE_MAXVAL(unsigned long) - ret < digit)
 				goto overflow;
 			ret += digit;
 		} else {
 			break;
 		}
 	}
-	if (neg) {
-		*l = (Llong)-1 * ret;
-	} else {
-		*l = (Llong)ret;
-	}
+#ifdef	DO_SIGNED
+	if (neg)
+		ret = -ret;
+#endif
+	*l = ret;
 	return ((char *)s);
 overflow:
 	for (; (c = *s) != 0; s++) {
@@ -194,11 +152,7 @@ overflow:
 		if (digit >= base)
 			break;
 	}
-	if (neg) {
-		*l = TYPE_MINVAL(long);
-	} else {
-		*l = TYPE_MAXVAL(long);
-	}
+	*l = TYPE_MAXVAL(unsigned long);
 	seterrno(ERANGE);
 	return ((char *)s);
 }

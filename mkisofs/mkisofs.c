@@ -1,8 +1,8 @@
-/* @(#)mkisofs.c	1.276 15/12/07 joerg */
+/* @(#)mkisofs.c	1.277 15/12/15 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)mkisofs.c	1.276 15/12/07 joerg";
+	"@(#)mkisofs.c	1.277 15/12/15 joerg";
 #endif
 /*
  * Program mkisofs.c - generate iso9660 filesystem  based upon directory
@@ -298,8 +298,11 @@ int	use_udf = 0;		/* -udf or -UDF			*/
 int	create_udfsymlinks = 1;	/* include symlinks in UDF	*/
 #endif
 
-#ifdef DVD_VIDEO
+#ifdef DVD_AUD_VID
+int	dvd_audio = 0;
+int	dvd_hybrid = 0;
 int	dvd_video = 0;
+int	dvd_aud_vid_flag = DVD_SPEC_NONE;
 #endif
 
 #ifdef SORTING
@@ -940,7 +943,8 @@ getL(arg, valp, pac, pav, opt)	/* Follow all symlinks */
 		if (legacy) {
 			errmsgno(EX_BAD, _("The option '-L' is deprecated since 2002.\n"));
 			errmsgno(EX_BAD, _("The option '-L' was disabled in 2006.\n"));
-			errmsgno(EX_BAD, _("Use '-allow-leading-dots' instead of '-L' as documented instead of using the legacy mode.\n"));
+			errmsgno(EX_BAD,
+				_("Use '-allow-leading-dots' instead of '-L' as documented instead of using the legacy mode.\n"));
 			allow_leading_dots = TRUE;
 			return (1);
 		}
@@ -1282,7 +1286,11 @@ LOCAL const struct mki_option mki_options[] =
 	__("Do not reate symbolic links on UDF image")},
 #endif
 
-#ifdef DVD_VIDEO
+#ifdef DVD_AUD_VID
+	{{"dvd-audio", &dvd_audio },
+	"Generate DVD-Audio compliant UDF file system"},
+	{{"dvd-hybrid", &dvd_hybrid },
+	"Generate a hybrid (DVD-Audio and DVD-Video) compliant UDF file system"},
 	{{"dvd-video", &dvd_video },
 	__("Generate DVD-Video compliant UDF file system")},
 #endif
@@ -1631,7 +1639,9 @@ susage(excode)
 	error(_("	-J, -joliet		Generate Joliet directory information\n"));
 	error(_("	-print-size		Print estimated filesystem size and exit\n"));
 	error(_("	-UDF			Generate UDF file system\n"));
+	error(_("	-dvd-audio		Generate DVD-Audio compliant UDF file system\n"));
 	error(_("	-dvd-video		Generate DVD-Video compliant UDF file system\n"));
+	error(_("	-dvd-hybrid		Generate a hybrid (DVD-Audio/DVD-Video) compliant UDF file system\n"));
 	error(_("	-iso-level LEVEL	Set ISO9660 level (1..3) or 4 for ISO9660 v 2\n"));
 	error(_("	-V ID, -volid ID	Set Volume ID\n"));
 	error(_("	-graft-points		Allow to use graft points for filenames\n"));
@@ -2130,6 +2140,13 @@ args_ok:
 		}
 	}
 #endif
+#ifdef DVD_AUD_VID
+
+	dvd_aud_vid_flag = (dvd_audio ? DVD_SPEC_AUDIO : 0)
+			| (dvd_hybrid ? DVD_SPEC_HYBRD : 0)
+			| (dvd_video ? DVD_SPEC_VIDEO : 0);
+
+#endif
 
 	if (abstract) {
 		if (strlen(abstract) > 37) {
@@ -2371,8 +2388,8 @@ args_ok:
 	if (ucs_level < 1 || ucs_level > 3)
 		comerrno(EX_BAD, _("Illegal UCS Level %d, use 1..3.\n"),
 						ucs_level);
-#ifdef	DVD_VIDEO
-	if (dvd_video) {
+#ifdef	DVD_AUD_VID
+	if (dvd_aud_vid_flag) {
 		if (!use_udf)
 			rationalize_udf++;
 	}
@@ -2630,10 +2647,10 @@ args_ok:
 	 * XXX This is a hack until we have a decent separate name handling
 	 * XXX for UDF filenames.
 	 */
-#ifdef DVD_VIDEO
-	if (dvd_video && use_Joliet) {
+#ifdef DVD_AUD_VID
+	if (dvd_aud_vid_flag && use_Joliet) {
 		use_Joliet = 0;
-		error(_("Warning: Disabling Joliet support for DVD-Video.\n"));
+		error(_("Warning: Disabling Joliet support for DVD-Video/DVD-Audio.\n"));
 	}
 #endif
 #ifdef	UDF

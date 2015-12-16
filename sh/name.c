@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2015 J. Schilling
  *
- * @(#)name.c	1.42 15/10/05 2008-2015 J. Schilling
+ * @(#)name.c	1.44 15/12/15 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)name.c	1.42 15/10/05 2008-2015 J. Schilling";
+	"@(#)name.c	1.44 15/12/15 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -70,7 +70,7 @@ extern int	mailchk;
 	void	assign		__PR((struct namnod *n, unsigned char *v));
 static void	set_builtins_path	__PR((void));
 static int	patheq		__PR((unsigned char *component, char *dir));
-	int	readvar		__PR((unsigned char **names));
+	int	readvar		__PR((int namec, unsigned char **names));
 	void	assnum		__PR((unsigned char **p, long i));
 unsigned char	*make		__PR((unsigned char *v));
 struct namnod	*lookup		__PR((unsigned char *nam));
@@ -457,7 +457,8 @@ patheq(component, dir)
 }
 
 int
-readvar(names)
+readvar(namec, names)
+	int		namec;
 	unsigned char	**names;
 {
 	struct fileblk	fb;
@@ -472,14 +473,27 @@ readvar(names)
 	unsigned int	(*nextwchar)__PR((void));
 
 #ifdef	DO_READ_R
-	if (eq(*names, "-r")) {
-		if (*++names == NULL)
-			failed(names[-2], mssgargn);
-		nextwchar = readwc;
-	} else {
-		nextwchar = nextwc;
+	struct optv	optv;
+	int		ch;
+	unsigned char	*cmdp = *names;
+
+	optinit(&optv);
+
+	nextwchar = nextwc;
+	while ((ch = optnext(namec, names, &optv, "r",
+			  "read [-r] name ...")) != -1) {
+		if (ch == 0)	/* Was -help */
+			return (1);
+		else if (ch == 'r')
+			nextwchar = readwc;
+	}
+	names += optv.optind;
+	if (*names == NULL) {
+		Failure(cmdp, mssgargn);
+		return (1);
 	}
 #else
+	names++;
 	nextwchar = nextwc;
 #endif
 
@@ -487,7 +501,7 @@ readvar(names)
 	rel = (unsigned char *)relstak();
 
 	push(f);
-	initf(dup(0));
+	initf(dup(STDIN_FILENO));
 
 	/*
 	 * If stdin is a pipe then this lseek(2) will fail with ESPIPE, so
@@ -496,7 +510,7 @@ readvar(names)
 	 * to read a byte at a time instead
 	 *
 	 */
-	if (lseek(0, (off_t)0, SEEK_CUR) == -1)
+	if (lseek(STDIN_FILENO, (off_t)0, SEEK_CUR) == -1)
 		f->fsiz = 1;
 
 	/*
@@ -506,7 +520,7 @@ readvar(names)
 	 * to read a byte at a time instead
 	 *
 	 */
-	if (isastream(0) == 1)
+	if (isastream(STDIN_FILENO) == 1)
 		f->fsiz = 1;
 
 	/*
@@ -611,7 +625,7 @@ readvar(names)
 	if (eof)
 		rc = 1;
 
-	if (isastream(0) != 1)
+	if (isastream(STDIN_FILENO) != 1)
 		/*
 		 * If we are reading on a stream do not attempt to
 		 * lseek(2) back towards the start because this is
@@ -620,7 +634,7 @@ readvar(names)
 		 * from attempting it and breaking our code here
 		 *
 		 */
-		lseek(0, (off_t)(f->nxtoff - f->endoff), SEEK_CUR);
+		lseek(STDIN_FILENO, (off_t)(f->nxtoff - f->endoff), SEEK_CUR);
 
 	pop();
 	return (rc);

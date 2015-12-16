@@ -1,4 +1,4 @@
-/* @(#)mkisofs.h	1.148 13/04/25 joerg */
+/* @(#)mkisofs.h	1.149 15/12/15 joerg */
 /*
  * Header file mkisofs.h - assorted structure definitions and typecasts.
  *
@@ -40,7 +40,7 @@
 #include <schily/libport.h>	/* Define missing prototypes */
 #include "scsi.h"
 
-#ifdef	DVD_VIDEO
+#ifdef	DVD_AUD_VID
 #ifndef	UDF
 #define	UDF
 #endif
@@ -220,7 +220,7 @@ extern struct output_fragment strpath_desc;
 extern struct output_fragment hfs_desc;
 
 #endif	/* APPLE_HYB */
-#ifdef DVD_VIDEO
+#ifdef DVD_AUD_VID
 /*
  * This structure holds the information necessary to create a valid
  * DVD-Video image. Basically it's how much to pad the files so the
@@ -247,7 +247,7 @@ typedef struct {
 	int		num_titles;
 	title_set_t	*title_set;
 } title_set_info_t;
-#endif /* DVD_VIDEO */
+#endif /* DVD_AUD_VID */
 
 /*
  * This structure describes one complete directory.  It has pointers
@@ -411,9 +411,17 @@ extern char	*trans_tbl;
 #define	JLONGMAX	103	/* out of spec Joliet file name length */
 extern int	jlen;		/* selected maximum Joliet file name length */
 
-#ifdef DVD_VIDEO
+#ifdef DVD_AUD_VID
+
+#define	DVD_SPEC_NONE	0x0
+#define	DVD_SPEC_VIDEO	0x1
+#define	DVD_SPEC_AUDIO	0x2
+#define	DVD_SPEC_HYBRD	(DVD_SPEC_VIDEO | DVD_SPEC_AUDIO)
+extern int	dvd_audio;
+extern int	dvd_hybrid;
 extern int	dvd_video;
-#endif /* DVD_VIDEO */
+extern int	dvd_aud_vid_flag;
+#endif /* DVD_AUD_VID */
 
 
 #ifdef APPLE_HYB

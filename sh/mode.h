@@ -37,7 +37,7 @@
 /*
  * This file contains modifications Copyright 2008-2015 J. Schilling
  *
- * @(#)mode.h	1.20 15/12/07 2008-2015 J. Schilling
+ * @(#)mode.h	1.21 15/12/14 2008-2015 J. Schilling
  */
 
 /*
@@ -288,6 +288,8 @@ struct optv
 	int	optind;		/* Index in argv */
 	int	optopt;		/* Option character */
 	int	opt_sp;		/* Index in multi opt arg like -abc */
+	int	optret;		/* Return from last getopt() */
+	int	ooptind;	/* Index in argv from before getopt() call */
 	char	*optarg;	/* Option argument string */
 };
 

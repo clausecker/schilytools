@@ -1,8 +1,8 @@
-/* @(#)write.c	1.139 15/11/23 joerg */
+/* @(#)write.c	1.140 15/12/15 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)write.c	1.139 15/11/23 joerg";
+	"@(#)write.c	1.140 15/12/15 joerg";
 #endif
 /*
  * Program write.c - dump memory  structures to  file for iso9660 filesystem.
@@ -38,7 +38,7 @@ static	UConst char sccsid[] =
 #include <schily/errno.h>
 #include <schily/schily.h>
 #include <schily/checkerr.h>
-#ifdef DVD_VIDEO
+#ifdef DVD_AUD_VID
 #include "dvd_reader.h"
 #include "dvd_file.h"
 #include "ifo_read.h"
@@ -620,17 +620,17 @@ write_files(outfile)
 		}
 
 
-#ifndef DVD_VIDEO
-#define	dvd_video	0
+#ifndef DVD_AUD_VID
+#define	dvd_aud_vid_flag	0
 #endif
 
 #ifndef APPLE_HYB
 #define	apple_hyb	0
 #endif
 
-#if	defined(APPLE_HYB) || defined(DVD_VIDEO)
+#if	defined(APPLE_HYB) || defined(DVD_AUD_VID)
 
-		if ((apple_hyb && !donotwrite_macpart) || dvd_video) {
+		if ((apple_hyb && !donotwrite_macpart) || (dvd_aud_vid_flag & DVD_SPEC_VIDEO)) {
 			/*
 			 * we may have to pad out ISO files to work with HFS
 			 * clump sizes
@@ -643,7 +643,7 @@ write_files(outfile)
 
 			last_extent_written += dwpnt->pad;
 		}
-#endif	/* APPLE_HYB || DVD_VIDEO */
+#endif	/* APPLE_HYB || DVD_AUD_VID */
 
 
 		dwnext = dwpnt;
@@ -1037,15 +1037,15 @@ sort_file_addresses()
 			set_733((char *)s_entry->isorec.extent, start_extent);
 			start_extent += ISO_BLOCKS(s_entry->size);
 		}
-#ifdef DVD_VIDEO
+#ifdef DVD_AUD_VID
 		/*
 		 * Shouldn't this be done for every type of sort? Otherwise
 		 * we will loose every pad info we add if we sort the files
 		 */
-		if (dvd_video) {
+		if (dvd_aud_vid_flag & DVD_SPEC_VIDEO) {
 			start_extent += dwpnt->pad;
 		}
-#endif /* DVD_VIDEO */
+#endif /* DVD_AUD_VID */
 
 		/* cache start extents for any linked files */
 		add_hash(s_entry);
@@ -1067,7 +1067,7 @@ assign_file_addresses(dpnt, isnest)
 	struct file_hash *s_hash;
 	struct deferred_write *dwpnt;
 	char		whole_path[PATH_MAX];
-#ifdef DVD_VIDEO
+#ifdef DVD_AUD_VID
 	char		dvd_path[PATH_MAX];
 	title_set_info_t *title_set_info = NULL;
 	char	*p;
@@ -1075,8 +1075,8 @@ assign_file_addresses(dpnt, isnest)
 	BOOL	ret = FALSE;
 
 	while (dpnt) {
-#ifdef DVD_VIDEO
-		if (dvd_video && root == dpnt->parent &&
+#ifdef DVD_AUD_VID
+		if ((dvd_aud_vid_flag & DVD_SPEC_VIDEO) && root == dpnt->parent &&
 		    ((p = strstr(dpnt->whole_name, "VIDEO_TS")) != 0)&&
 					strcmp(p, "VIDEO_TS") == 0) {
 			int	maxlen = strlen(dpnt->whole_name)-8+1;
@@ -1092,13 +1092,13 @@ assign_file_addresses(dpnt, isnest)
 				/*
 				 * Do not switch off -dvd-video but let is fail later.
 				 */
-/*				dvd_video = 0;*/
+/*				dvd_aud_vid_flag &= ~DVD_SPEC_VIDEO;*/
 				errmsgno(EX_BAD, _("Unable to parse DVD-Video structures.\n"));
 			} else {
 				ret = TRUE;
 			}
 		}
-#endif /* DVD_VIDEO */
+#endif /* DVD_AUD_VID */
 
 		for (s_entry = dpnt->contents; s_entry;
 						s_entry = s_entry->next) {
@@ -1186,7 +1186,7 @@ assign_file_addresses(dpnt, isnest)
 						break;
 					finddir = finddir->next;
 					if (!finddir) {
-#ifdef	DVD_VIDEO
+#ifdef	DVD_AUD_VID
 						if (title_set_info != 0) {
 							DVDFreeFileSet(title_set_info);
 						}
@@ -1264,8 +1264,8 @@ assign_file_addresses(dpnt, isnest)
 				/* set the initial padding to zero */
 				dwpnt->pad = 0;
 				dwpnt->dw_flags = 0;
-#ifdef DVD_VIDEO
-				if (dvd_video && (title_set_info != 0)) {
+#ifdef DVD_AUD_VID
+				if ((dvd_aud_vid_flag & DVD_SPEC_VIDEO) && (title_set_info != 0)) {
 					int pad;
 
 					pad = DVDGetFilePad(title_set_info, s_entry->name);
@@ -1283,7 +1283,7 @@ assign_file_addresses(dpnt, isnest)
 								dwpnt->pad, s_entry->name);
 					}
 				}
-#endif /* DVD_VIDEO */
+#endif /* DVD_AUD_VID */
 #ifdef APPLE_HYB
 				/*
 				 * maybe an offset to start of the real
@@ -1384,12 +1384,12 @@ assign_file_addresses(dpnt, isnest)
 				}
 #endif
 #endif	/* APPLE_HYB */
-#ifdef DVD_VIDEO
+#ifdef DVD_AUD_VID
 				/* Shouldn't we always add the pad info? */
-				if (dvd_video) {
+				if (dvd_aud_vid_flag & DVD_SPEC_VIDEO) {
 					last_extent += dwpnt->pad;
 				}
-#endif /* DVD_VIDEO */
+#endif /* DVD_AUD_VID */
 				if (verbose > 2) {
 					fprintf(stderr, "%u %d %s\n",
 						s_entry->starting_block,
@@ -1442,15 +1442,15 @@ assign_file_addresses(dpnt, isnest)
 		}
 		dpnt = dpnt->next;
 	}
-#ifdef DVD_VIDEO
+#ifdef DVD_AUD_VID
 	if (title_set_info != NULL) {
 		DVDFreeFileSet(title_set_info);
 	}
-	if (dvd_video && !ret && !isnest) {
+	if ((dvd_aud_vid_flag & DVD_SPEC_VIDEO)&& !ret && !isnest) {
 		errmsgno(EX_BAD,
 			_("Could not find correct 'VIDEO_TS' directory.\n"));
 	}
-#endif /* DVD_VIDEO */
+#endif /* DVD_AUD_VID */
 	return (ret);
 } /* assign_file_addresses(... */
 
@@ -2396,8 +2396,8 @@ file_gen()
 #endif	/* APPLE_HYB */
 
 	if (!assign_file_addresses(root, FALSE)) {
-#ifdef DVD_VIDEO
-		if (dvd_video) {
+#ifdef DVD_AUD_VID
+		if (dvd_aud_vid_flag & DVD_SPEC_VIDEO) {
 			comerrno(EX_BAD, _("Unable to make a DVD-Video image.\n"));
 		}
 #else

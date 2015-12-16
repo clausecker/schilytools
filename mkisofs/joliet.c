@@ -1,8 +1,8 @@
-/* @(#)joliet.c	1.65 10/12/19 joerg */
+/* @(#)joliet.c	1.66 15/12/15 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)joliet.c	1.65 10/12/19 joerg";
+	"@(#)joliet.c	1.66 15/12/15 joerg";
 #endif
 /*
  * File joliet.c - handle Win95/WinNT long file/unicode extensions for iso9660.
@@ -1146,7 +1146,7 @@ joliet_compare_dirs(rr, ll)
 	if (strcmp(lpnt, "..") == 0)
 		return (1);
 
-#ifdef DVD_VIDEO
+#ifdef DVD_AUD_VID
 	/*
 	 * There're rumors claiming that some players assume VIDEO_TS.IFO
 	 * to be the first file in VIDEO_TS/ catalog. Well, it's basically
@@ -1159,7 +1159,7 @@ joliet_compare_dirs(rr, ll)
 	 * XXX to the UDF implementation if we implement decent UDF support
 	 * XXX with a separate name space for the UDF file tree.
 	 */
-	if (dvd_video) {
+	if (dvd_aud_vid_flag & DVD_SPEC_VIDEO) {
 		if (strcmp(rpnt, "VIDEO_TS.IFO") == 0)
 			return (-1);
 		if (strcmp(lpnt, "VIDEO_TS.IFO") == 0)

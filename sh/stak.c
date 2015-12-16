@@ -41,7 +41,7 @@
 /*
  *				Copyright Geoff Collyer 1987-2005
  *
- * @(#)stak.c	2.15 15/11/16	Copyright 2010-2015 J. Schilling
+ * @(#)stak.c	2.16 15/12/12	Copyright 2010-2015 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -57,7 +57,7 @@
 
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)stak.c	2.15 15/11/16 Copyright 2010-2015 J. Schilling";
+	"@(#)stak.c	2.16 15/12/12 Copyright 2010-2015 J. Schilling";
 #endif
 
 
@@ -71,6 +71,10 @@ static	UConst char sccsid[] =
  */
 #undef	BRKINCR
 #define	BRKINCR 1024
+
+#ifdef	NO_TOSSGROWING_MACRO
+#undef	TOSSGROWING_MACRO
+#endif
 
 #define	UC		(unsigned char *)
 

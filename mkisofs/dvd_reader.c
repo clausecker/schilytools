@@ -1,8 +1,8 @@
-/* @(#)dvd_reader.c	1.11 10/12/19 joerg */
+/* @(#)dvd_reader.c	1.12 15/12/15 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)dvd_reader.c	1.11 10/12/19 joerg";
+	"@(#)dvd_reader.c	1.12 15/12/15 joerg";
 #endif
 /*
  * Copyright (C) 2001, 2002 Billy Biggs <vektor@dumbterm.net>,
@@ -36,7 +36,7 @@ static	UConst char sccsid[] =
  * DON'T USE THIS LIBRARY IN ANY OTHER PROGRAM GET THE REAL
  * LIBDVDREAD INSTEAD
  */
-#ifdef DVD_VIDEO
+#ifdef DVD_AUD_VID
 
 #include "mkisofs.h"
 #include <schily/fcntl.h>
@@ -289,4 +289,4 @@ DVDFileSize(dvd_file)
 	return (dvd_file->filesize);
 }
 
-#endif /* DVD_VIDEO */
+#endif /* DVD_AUD_VID */

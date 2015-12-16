@@ -1,7 +1,7 @@
 '\" t
 .\" To print, first run through tbl
 .\" -*- nroff -*-
-.\" @(#)mkisofs.8	1.154 15/11/02 Copyright 1997-2015 J. Schilling
+.\" @(#)mkisofs.8	1.155 15/12/15 Copyright 1997-2015 J. Schilling
 .\"
 .\" This program is free software; you can redistribute it and/or modify
 .\" it under the terms of the GNU General Public License version 2
@@ -29,7 +29,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH MKISOFS 8 "2015/11/02" "Version 3.02"
+.TH MKISOFS 8 "2015/12/15" "Version 3.02"
 .SH NAME
 mkisofs \- create an hybrid ISO-9660/JOLIET/HFS/UDF filesystem-image with optional Rock Ridge attributes.
 .SH SYNOPSIS
@@ -897,15 +897,34 @@ in the tree specified by the source-path.
 Specifying the
 .B \-dir\-mode
 option automatically enables Rock Ridge extensions.
+.br
+.ne 4
+.TP
+.B \-dvd\-audio
+Generate DVD-Audio compliant UDF file system. This is done by sorting the
+order of the content of the appropriate files.
+.\" Audio is currently not sorted
+.\" and by adding padding between the files if needed.
+Sorting only works if the DVD-Audio filenames include upper case
+characters only.
+.sp
+Note that in order to get a DVD-Audio compliant filesystem image, you need
+to prepare a DVD-Audio compliant directory tree. This means you need to
+have a directory AUDIO_TS (all caps) in the root directory of the resulting DVD
+and you should have a directory VIDEO_TS. The directory AUDIO_TS needs to
+include all needed files (file names must be all caps) for a compliant DVD-Audio
+filesystem.
+.TP
+.B \-dvd\-hybrid
+Equivalent to selecting both -dvd-audio and -dvd-video
 .TP
 .B \-dvd\-video
 Generate DVD-Video compliant UDF file system. This is done by sorting the
 order of the content of the appropriate files and by adding padding 
 between the files if needed.
-Note that the sorting only works if the DVD-Video filenames include upper case
+Sorting only works if the DVD-Video filenames include upper case
 characters only.
-.br
-.br
+.sp
 Note that in order to get a DVD-Video compliant filesystem image, you need
 to prepare a DVD-Video compliant directory tree. This means you need to
 have a directory VIDEO_TS (all caps) in the root directory of the resulting DVD
@@ -3358,6 +3377,11 @@ ISO-9660/RockRidge CD.
 .PP
 There are probably all sorts of strange results possible with
 combinations of the hide options ...
+.PP
+To create a DVD-Audio of the DVD-Audio compliant source directory
+.IR DVD :
+.PP
+% mkisofs \-o dvda.iso \-dvd\-audio DVD
 
 .SH AUTHOR
 .br

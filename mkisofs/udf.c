@@ -1,8 +1,8 @@
-/* @(#)udf.c	1.43 15/11/25 Copyright 2001-2015 J. Schilling */
+/* @(#)udf.c	1.44 15/12/15 Copyright 2001-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)udf.c	1.43 15/11/25 Copyright 2001-2015 J. Schilling";
+	"@(#)udf.c	1.44 15/12/15 Copyright 2001-2015 J. Schilling";
 #endif
 /*
  * udf.c - UDF support for mkisofs
@@ -2228,6 +2228,7 @@ struct output_fragment udf_pad_to_sector_256_frag = { NULL, udf_pad_to_sector_25
 struct output_fragment udf_padend_avdp_frag = { NULL, udf_padend_avdp_size, NULL, udf_padend_avdp_write, "UDF Pad end" };
 /* END CSTYLED */
 
+#ifdef	OLD_DVD_WEIGHTS
 /*
  * This function assigns weights as follows:
  *
@@ -2314,6 +2315,286 @@ assign_dvd_weights(name, this_dir, val)
 		return (val);
 	}
 }
+#else	/* !OLD_DVD_WEIGHTS */
+
+/* ======================================================================== */
+/*	DVD-Audio patch							    */
+/* ======================================================================== */
+
+/*
+ * sorts support for DVD-Audio and DVD-Video for mkisofs
+ *
+ * Written by Jerome Brock, adpated by Fabrice Nicol to cdrtools-3.00
+ *
+ * (This is a rewrite of the assign_dvd_weights function in cdrtools)
+ */
+
+struct ts_info_rec {
+	int num;
+	int sub;
+} ts_info;
+
+#define	is_digit(c)		((c >= '0') && (c <= '9'))
+
+#define	get_digit_from_char(c)	(c - '0')
+
+#define	get_ts_num(name)	(get_digit_from_char(name[4]) * 10 + \
+					get_digit_from_char(name[5]))
+
+#define	get_ts_sub_num(name)	(get_digit_from_char(name[7]))
+
+/*
+ * the end of arrays containing a "" signal value
+ */
+#define	list_end(val)		(val[0] == 0)
+
+/*
+ * Parses a string representing an {Audio,Video} Title Set
+ *
+ * Examples would be: VTS_12_0.IFO, ATS_03_4.AOB, VTS_24_0.BUP
+ *
+ * If the string parses correctly, then this function fills the structure
+ * pointed to by the info parameter with the parsed information and
+ * returns a pointer to the same structure
+ *
+ * returns NULL on failure
+ */
+LOCAL inline struct ts_info_rec *
+parse_ts_info  __PR((const char *name, struct ts_info_rec *info));
+
+LOCAL inline struct ts_info_rec *
+parse_ts_info(name, info)
+	const char *name;
+	struct ts_info_rec *info;
+{
+	if (!(is_digit(name[4]) && is_digit(name[5]) && is_digit(name[7])))
+		return (NULL);
+
+	info->num =  get_ts_num(name);
+	info->sub = get_ts_sub_num(name);
+
+	/*
+	 * legal track numbers are 01-99
+	 */
+	if (info->num == 0)
+		return (NULL);
+
+	/*
+	 * only title set object files can have a non-zero sub
+	 */
+	if ((strcmp(name+9, "OB") == 0) && (info->sub != 0))
+		return (NULL);
+
+	return (info);
+}
+
+/*
+ * Searchs array for a string.
+ *
+ * The array must contain an empty string, i.e. "", to signal
+ * that the end of the array has been reached
+ *
+ * returns the index of the found string, or -1 if not found
+ */
+LOCAL inline int
+search_array __PR((const char *const array[], const char *str));
+
+LOCAL inline int
+search_array(array, str)
+	const char *const array[];
+	const char *str;
+{
+	int idx = 0;
+	const char *curr = array[idx];
+
+	while (!list_end(curr) && strncmp(str, curr, strlen(curr)) != 0)
+		curr = array[++idx];
+
+	return (list_end(curr) ? -1 : idx);
+}
+
+
+#define	MAX_INFO_SIZE	3
+
+struct dvd_spec_section_rec {
+	/*
+	 * using "" as end of list marker
+	 */
+	const char *const pre[MAX_INFO_SIZE + 1]; /* valid file prefixes in sorts order */
+	const char *const ext[MAX_INFO_SIZE + 1]; /* valid file extensions in sorts order */
+};
+
+struct dvd_spec_dir_rec {
+	const char *const name; /* directory name supported by this spec */
+	const int spec; /* the dvd_spec that this dir supports, i.e. DVD_SPEC_* flags */
+	const struct dvd_spec_section_rec dvd_spec_section[2]; /* [0]=non-ts [1]=ts */
+};
+
+static const struct dvd_spec_dir_rec dvd_spec_dirs[] =
+{	/*
+	 * top-level entries (dvd_spec_dir_rec's) are in sorts order
+	 */
+	{ "AUDIO_TS", (DVD_SPEC_AUDIO | DVD_SPEC_HYBRD),
+	    {	{ 	{"AUDIO_PP", "AUDIO_TS", "AUDIO_SV", ""},
+			{".IFO", ".VOB", ".BUP", ""},
+		},
+		{	{"ATS_", ""},
+			{".IFO", ".AOB", ".BUP", ""},
+		},
+	    },
+	},
+	{ "VIDEO_TS", (DVD_SPEC_VIDEO | DVD_SPEC_HYBRD),
+	    {	{	{"VIDEO_TS", ""},
+			{".IFO", ".VOB", ".BUP", ""},
+		},
+		{	{"VTS_", ""},
+			{".IFO", ".VOB", ".BUP", ""},
+		},
+	    },
+	},
+};
+
+#define	DVD_SPEC_DIRS_QTY	(sizeof (dvd_spec_dirs) / sizeof (dvd_spec_dirs[0]))
+
+/*
+ * This function assigns weights to DVD-Audio and DVD-Video filenames
+ *
+ * The weights ensure that the files will be correctly ordered on the
+ * finished dvd.  The actual weight values are not important in the
+ * absolute sense, i.e. it is not true that file X1 "must" have a
+ * value of Y1.  What is important is that the relative weight values
+ * maintain the ordering below, i.e. if file X1 is higher on the list
+ * than file X2, then Y1 > Y2.
+ *
+ * Current ordering (and values):
+ *
+ * /AUDIO_TS/AUDIO_PP.IFO   20000
+ * /AUDIO_TS/AUDIO_TS.IFO   19997
+ * /AUDIO_TS/AUDIO_TS.VOB   19996
+ * /AUDIO_TS/AUDIO_TS.BUP   19995
+ * /AUDIO_TS/AUDIO_SV.IFO   19994
+ * /AUDIO_TS/AUDIO_SV.VOB   19993
+ * /AUDIO_TS/AUDIO_SV.BUP   19992
+ * /AUDIO_TS/ATS_01_0.IFO   19970
+ * /AUDIO_TS/ATS_01_0.AOB   19960
+ *           :               :
+ * /AUDIO_TS/ATS_01_9.AOB   19951
+ * /AUDIO_TS/ATS_01_0.BUP   19950
+ *           :               :
+ * /AUDIO_TS/ATS_99_0.BUP   17010
+ *           :               :
+ *           :               :
+ *           :               :
+ * /VIDEO_TS/VIDEO_TS.IFO   15000
+ * /VIDEO_TS/VIDEO_TS.VOB   14999
+ * /VIDEO_TS/VIDEO_TS.BUP   14998
+ * /VIDEO_TS/VTS_01_0.IFO   14970
+ * /VIDEO_TS/VTS_01_0.VOB   14960
+ *           :               :
+ * /VIDEO_TS/VTS_01_9.VOB   14951
+ * /VIDEO_TS/VTS_01_0.BUP   14950
+ *           :               :
+ * /VIDEO_TS/VTS_99_0.BUP   12010
+ *
+ * This ensures that DVD-Audio and Video files are laid out properly on the disc.
+ *
+ * Note: JACKET_P files would be easy to add (if they require special sorts handling)
+ */
+EXPORT int assign_dvd_weights __PR((char *name, struct directory *this_dir, int val));
+
+EXPORT int
+assign_dvd_weights(name, this_dir, val)
+	char			*name;
+	struct directory	*this_dir;
+	int			val;
+{
+	const int SORT_BASE =		20000;
+	const int SORT_TYPE_SIZE =	5000;
+
+	/*
+	 * worst case for PREFIX_SIZE, is
+	 *
+	 *  {Audio,Video} Object Set for Title,
+	 *   i.e. {A,V}TS_dd_0.VOB - {A,V}TS_dd_9.VOB
+	 *
+	 * so we will allow that much sorts number space for each prefix
+	 *
+	 * EXTENSION_QTY can't possibly be greater than the space we allocated to store the extensions
+	 */
+	const int PREFIX_SIZE =		10;
+	const int EXTENSION_QTY =	MAX_INFO_SIZE;
+	const int TS_SIZE =		EXTENSION_QTY * PREFIX_SIZE;
+
+	const struct dvd_spec_dir_rec	*dir_spec = NULL;
+	const struct dvd_spec_section_rec *curr_section = NULL;
+
+	unsigned int	sort_type_index = 0;
+	int		prefix_index = 0;
+	int		extension_index = 0;
+	int		is_ts_file = 0;
+	int		found = 0;
+	int		offset = 0;
+	int		sort_type_offset = 0;
+
+	if (this_dir->parent != root)
+		return (val);
+
+	if (strlen(name) != 12)
+		return (val);
+
+	for (sort_type_index = 0; sort_type_index < DVD_SPEC_DIRS_QTY; sort_type_index++) {
+		if (!(dvd_aud_vid_flag & dvd_spec_dirs[sort_type_index].spec))
+			continue;
+
+		if (strcmp(this_dir->de_name, dvd_spec_dirs[sort_type_index].name) != 0)
+			continue;
+
+		dir_spec = &dvd_spec_dirs[sort_type_index];
+
+		/*
+		 * check for a ts file first since its most likely
+		 */
+		for (is_ts_file = 1; is_ts_file >= 0; is_ts_file--) {
+
+			curr_section = &(dir_spec->dvd_spec_section[is_ts_file]);
+
+			if ((prefix_index = search_array(curr_section->pre, name)) == -1)
+				continue;
+
+			if ((extension_index = search_array(curr_section->ext, name+8)) == -1)
+				continue;
+
+			found = 1;
+			goto done_searching;  /* break out of both for loops */
+		}
+	}
+	done_searching:
+
+	if (!found)
+		return (val);
+
+	if (is_ts_file && (parse_ts_info(name, &ts_info) == NULL))
+		return (val);
+
+	if (is_ts_file) {
+		offset = (ts_info.num * TS_SIZE) +
+			    (extension_index * PREFIX_SIZE) +
+			    ts_info.sub;
+	} else {
+		/*
+		 * Since title set numbers start at 01,
+		 * we use the space for the "illegal" 00
+		 * ts to store the non-ts files.
+		 */
+		offset = (prefix_index * EXTENSION_QTY) + extension_index;
+	}
+
+	sort_type_offset = sort_type_index * SORT_TYPE_SIZE;
+
+	return (SORT_BASE - (offset + sort_type_offset));
+}
+#endif	/* !OLD_DVD_WEIGHTS */
+
 
 #ifndef	ENAMETOOLONG
 #define	ENAMETOOLONG	EINVAL
