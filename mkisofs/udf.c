@@ -1,8 +1,8 @@
-/* @(#)udf.c	1.44 15/12/15 Copyright 2001-2015 J. Schilling */
+/* @(#)udf.c	1.45 15/12/28 Copyright 2001-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)udf.c	1.44 15/12/15 Copyright 2001-2015 J. Schilling";
+	"@(#)udf.c	1.45 15/12/28 Copyright 2001-2015 J. Schilling";
 #endif
 /*
  * udf.c - UDF support for mkisofs
@@ -2431,7 +2431,8 @@ struct dvd_spec_dir_rec {
 };
 
 static const struct dvd_spec_dir_rec dvd_spec_dirs[] =
-{	/*
+{
+	/*
 	 * top-level entries (dvd_spec_dir_rec's) are in sorts order
 	 */
 	{ "AUDIO_TS", (DVD_SPEC_AUDIO | DVD_SPEC_HYBRD),

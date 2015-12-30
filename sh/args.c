@@ -41,11 +41,11 @@
 /*
  * Copyright 2008-2015 J. Schilling
  *
- * @(#)args.c	1.68 15/11/18 2008-2015 J. Schilling
+ * @(#)args.c	1.69 15/12/17 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)args.c	1.68 15/11/18 2008-2015 J. Schilling";
+	"@(#)args.c	1.69 15/12/17 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -219,7 +219,7 @@ char	*flagname[] =
 unsigned long	flagval[]  =
 {
 #ifdef	DO_SYSALIAS
-	aliasownerflg,
+	fl2 | aliasownerflg,
 #endif
 	exportflg,		/* -a / -o allexport */
 #ifdef	DO_BGNICE
@@ -233,7 +233,7 @@ unsigned long	flagval[]  =
 	fl2 | fullexitcodeflg,
 #endif
 #ifdef	DO_SYSALIAS
-	globalaliasflg,
+	fl2 | globalaliasflg,
 #endif
 	hashflg,
 #ifdef	DO_HASHCMDS
@@ -248,7 +248,7 @@ unsigned long	flagval[]  =
 	intflg,
 	keyflg,			/* -k / -o keyword */
 #ifdef	DO_SYSALIAS
-	localaliasflg,
+	fl2 | localaliasflg,
 #endif
 	monitorflg,
 #ifdef	DO_NOCLOBBER
@@ -265,16 +265,16 @@ unsigned long	flagval[]  =
 	privflg,
 	rshflg,
 	stdflg,			/* -s / -o stdin */
-	versflg,
+	fl2 | versflg,
 #ifdef	DO_TIME
 	fl2 | timeflg,
 #endif
 #ifdef	INTERACTIVE
-	vedflg,
+	fl2 | vedflg,
 #endif
 	readpr,			/* -v / -o verbose */
 #ifdef	INTERACTIVE
-	viflg,
+	fl2 | viflg,
 #endif
 	execpr,
 	0
@@ -403,7 +403,7 @@ again:
 #ifdef	DO_SYSALIAS
 							/* LINTED */
 						if (flagval[flagc-flagchar] ==
-						    aliasownerflg) {
+						    (fl2 | aliasownerflg)) {
 							char *owner;
 
 							if (argarg != NULL)
@@ -451,7 +451,7 @@ again:
 					if (flags & intflg)
 						flags &= ~noexec;
 #ifdef	INTERACTIVE
-					flags &= ~viflg;
+					flags2 &= ~viflg;
 #endif
 					if (fv == errflg)
 						eflag = errflg;
@@ -459,18 +459,18 @@ again:
 					if (fv == pfshflg)
 						secpolicy_init();
 #endif
-					if (fv == versflg) {
-						flags &= ~versflg;
+					if (fv == (fl2 | versflg)) {
+						flags2 &= ~versflg;
 						prversion();
 					}
 #ifdef	DO_SYSALIAS
-					if (fv == globalaliasflg) {
+					if (fv == (fl2 | globalaliasflg)) {
 						catpath(homenod.namval,
 						    UC globalname);
 						ab_use(GLOBAL_AB,
 						    (char *)make(curstak()));
 					}
-					if (fv == localaliasflg) {
+					if (fv == (fl2 | localaliasflg)) {
 						ab_use(LOCAL_AB,
 							(char *)localname);
 					}
@@ -552,13 +552,13 @@ again:
 					secpolicy_end();
 #endif
 #ifdef	DO_SYSALIAS
-				if (fv == globalaliasflg) {
+				if (fv == (fl2 | globalaliasflg)) {
 					ab_use(GLOBAL_AB, NULL);
 				}
-				if (fv == localaliasflg) {
+				if (fv == (fl2 | localaliasflg)) {
 					ab_use(LOCAL_AB, NULL);
 				}
-				if (fv == aliasownerflg) {
+				if (fv == (fl2 | aliasownerflg)) {
 					ab_setaltowner(GLOBAL_AB, "");
 					ab_setaltowner(LOCAL_AB, "");
 				}
@@ -923,7 +923,7 @@ listopts(parse)
 					/* LINTED */
 		fv = flagval[flagc-flagchar];
 #ifdef	DO_SYSALIAS
-		if (fv == aliasownerflg) {
+		if (fv == (fl2 | aliasownerflg)) {
 					/* LINTED */
 			listaliasowner(parse, flagc-flagchar);
 			continue;

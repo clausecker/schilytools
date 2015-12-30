@@ -37,11 +37,11 @@
 /*
  * Copyright 2008-2015 J. Schilling
  *
- * @(#)func.c	1.17 15/11/12 2008-2015 J. Schilling
+ * @(#)func.c	1.20 15/12/26 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)func.c	1.17 15/11/12 2008-2015 J. Schilling";
+	"@(#)func.c	1.20 15/12/26 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -106,6 +106,12 @@ freetree(t)
 				freetree(forkptr(t)->forktre);
 				break;
 
+#ifdef	DO_TIME
+			case TTIME:
+#endif
+#ifdef	DO_NOTSYM
+			case TNOT:
+#endif
 			case TPAR:
 				freetree(parptr(t)->partre);
 				break;
@@ -257,6 +263,23 @@ prcmd(t)
 }
 
 #ifdef	PARSE_DEBUG
+void
+prtree(t, label)
+	struct trenod	*t;
+	char		*label;
+{
+	int	save_fd;
+
+	if (!t)
+		return;
+
+	save_fd = setb(output);
+	prs_buff(UC label);
+	prs_buff(UC "COMMAND: ");
+	prf(t); flushb();
+	prs_buff(UC " COMMANDEND\n");
+	setb(save_fd);
+}
 /*
  * Print Com Type
  */
@@ -275,6 +298,18 @@ prct(t)
 	case TFND:
 		prs_buff(UC "TFND ");
 		break;
+
+#ifdef	DO_TIME
+	case TTIME:
+		prs_buff(UC "TTIME ");
+		break;
+#endif
+
+#ifdef	DO_NOTSYM
+	case TNOT:
+		prs_buff(UC "TNOT ");
+		break;
+#endif
 
 	case TCOM:
 		prs_buff(UC "TCOM ");
@@ -375,6 +410,26 @@ prf(t)
 				prs_buff(UC "}");
 				break;
 			}
+
+#ifdef	DO_TIME
+			case TTIME:
+#ifdef	PARSE_DEBUG
+				prs_buff(UC "TTIME ");
+#endif
+				prs_buff(UC "time ");
+				prf(parptr(t)->partre);
+				break;
+#endif
+
+#ifdef	DO_NOTSYM
+			case TNOT:
+#ifdef	PARSE_DEBUG
+				prs_buff(UC "TNOT ");
+#endif
+				prs_buff(UC "! ");
+				prf(parptr(t)->partre);
+				break;
+#endif
 
 			case TCOM:
 #ifdef	PARSE_DEBUG

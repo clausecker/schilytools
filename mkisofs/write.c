@@ -1,8 +1,8 @@
-/* @(#)write.c	1.140 15/12/15 joerg */
+/* @(#)write.c	1.142 15/12/30 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)write.c	1.140 15/12/15 joerg";
+	"@(#)write.c	1.142 15/12/30 joerg";
 #endif
 /*
  * Program write.c - dump memory  structures to  file for iso9660 filesystem.
@@ -1021,6 +1021,7 @@ sort_file_addresses()
 
 		if (s_entry->de_flags & MULTI_EXTENT) {
 			struct directory_entry  *s_e;
+			UInt32_t		ext = start_extent;
 
 			s_entry->mxroot->starting_block = start_extent;
 			set_733((char *)s_entry->mxroot->isorec.extent,
@@ -1029,9 +1030,12 @@ sort_file_addresses()
 			    s_e && s_e->mxroot == s_entry->mxroot;
 			    s_e = s_e->next) {
 				set_733((char *)s_e->isorec.extent,
-								start_extent);
-				s_entry->starting_block = start_extent;
-				start_extent += ISO_BLOCKS(s_e->size);
+								ext);
+				s_entry->starting_block = ext;
+				if (s_e == s_entry->mxroot)
+					start_extent += ISO_BLOCKS(s_e->size);
+				else
+					ext += ISO_BLOCKS(s_e->size);
 			}
 		} else {
 			set_733((char *)s_entry->isorec.extent, start_extent);
@@ -1181,20 +1185,18 @@ assign_file_addresses(dpnt, isnest)
 					strcmp(s_entry->name, "..") != 0 &&
 					s_entry->isorec.flags[0] & ISO_DIRECTORY) {
 				finddir = dpnt->subdir;
-				while (1 == 1) {
-					if (finddir->self == s_entry)
-						break;
+				while (finddir && finddir->self != s_entry) {
 					finddir = finddir->next;
-					if (!finddir) {
+				}
+				if (!finddir) {
 #ifdef	DVD_AUD_VID
-						if (title_set_info != 0) {
-							DVDFreeFileSet(title_set_info);
-						}
-#endif
-						comerrno(EX_BAD,
-							_("Fatal goof - could not find dir entry for '%s'\n"),
-							s_entry->name);
+					if (title_set_info != 0) {
+						DVDFreeFileSet(title_set_info);
 					}
+#endif
+					comerrno(EX_BAD,
+						_("Fatal goof - could not find dir entry for '%s'\n"),
+						s_entry->name);
 				}
 				set_733((char *)s_entry->isorec.extent,
 						finddir->extent);

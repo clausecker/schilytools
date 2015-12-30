@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sh.1	1.132 15/12/14 Copyright 2012-2015 J. Schilling
+.\" @(#)sh.1	1.137 15/12/23 Copyright 2012-2015 J. Schilling
 .\" Copyright 1989 AT&T
 .\" Copyright (c) 2008, Sun Microsystems, Inc. All Rights Reserved.
 .\" Portions Copyright (c) 1992, X/Open Company Limited All Rights Reserved
@@ -59,7 +59,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sh 1 "2015/12/14" "Schily Bourne Shell" "User Commands"
+.TH sh 1 "2015/12/23" "Schily Bourne Shell" "User Commands"
 .SH NAME
 sh, jsh \- standard and job control shell and command interpreter
 .SH SYNOPSIS
@@ -289,6 +289,16 @@ to terminate. The exit status of a
 .I pipeline
 is the exit status of the last command in the
 .IR pipeline .
+Each pipeline can be preceded by the reserved word
+.BR ! .
+This causes the exit status of the pipeline to become
+.B 0
+if the exit status of the last command is
+.BR non-zero ,
+and
+.B 1
+if the exit status of the last command is
+.BR 0 .
 .sp
 .LP
 A
@@ -390,6 +400,7 @@ in the list.
 .I word
 .B in
 [
+.RB [ ( ]
 .I pattern
 [ |
 .I pattern
@@ -413,6 +424,9 @@ as that used for file-name generation (see
 .B File Name Generation
 section), except that a slash, a leading dot, or a dot immediately following
 a slash need not be matched explicitly.
+.sp
+The optional opening parenthesis was not supported by older versions of
+.BR sh .
 .br
 .ne 3
 .HP
@@ -541,12 +555,52 @@ if the body of the function is a
 .I command
 as defined above, under
 .BR Commands .
+.br
+.ne 3
+.HP
+.BI time " pipeline
+.br
+The
+.I pipeline
+is executed and the elapsed time as well as the user and system time
+are printed to standard error.
+The
+.B TIMEFORMAT
+variable can be set to a format string that specifies how the
+timing information should be displayed.
+Command based timing from
+.B "set\ \-o\ time"
+is temporarily disabled while pipeline based timing is in effect.
+If
+.B time
+is followed by white space and a
+.RB ' \- ',
+it is interpreted as a normal command in order to permit
+.BR "time\ \-p" ,
+as required by POSIX.
 .LP
 The following words are only recognized as the first word of a command and
 when not quoted:
 .sp
 .LP
-.B "if  then  else  elif  fi  case  esac  for  while  until  do  done  { }
+.in +2
+.nf
+.B
+!          if       then     else    elif    fi      case
+.B
+esac       for      while    until   do      done    {   }
+.B
+time
+.\"function   select   [[  ]]
+.fi
+.in -2
+.LP
+The reserved words
+.B !
+and
+.B time
+were not supported in older versions of
+.BR sh .
 .SS "Comments Lines"
 .sp
 .LP
@@ -1136,6 +1190,11 @@ modern operating system with support for
 in addition.
 If the executable file could not be found, the returned value is 127.
 If the file exists but could not be executed, the returned value is 126.
+If a command's exit code modulo 256 is zero and
+.RB `` "set\ \-o\ fullexitcode" ''
+is not in effect, the returned value is 128 except when the operating
+system does not support
+.BR waitid (2).
 If the command was killed by a signal, the returned value is 128 +
 the signal number.
 .br
@@ -1756,10 +1815,13 @@ seconds,
 is a single digit.
 If the number of seconds computed from adding the user and
 system cpu time is less than the threshold, the rest of
-the format string is not processed;
+the format string is not processed,
+except when the timing is a result of using the
+.B time
+reserved word;
 if this format appears at the beginning of
 .BR TIMEFORMAT ,
-the whole output is suppressed in that case.
+the whole output is suppressed.
 .TP
 .B %P
 Prints the cpu percentage computed as 100*(U\ +\ S)\ /\ R.
@@ -1904,7 +1966,16 @@ is unset, the value:
 .sp
 .B "  '%:E\ real\ %U\ user\ %S\ sys\ %\&P%%\ cpu'
 .sp
-is used. If
+is used for automatic timing with
+.B set\ \-o\ time
+and:
+.sp
+.B "  '\enreal\ \ \ %6:E\enuser\ \ \ %6U\ensys\ \ \ \ %6S'
+.sp
+is used for pipelines prefixed with the
+.B time
+reserved word.
+If
 .B TIMEFORMAT
 is empty, no timing information is printed.
 A recommended format that is similar to what
@@ -3459,7 +3530,7 @@ section below for more detail.)
 .br
 .ne 3
 .TP
-\fBkill\fR [ \fB\-\fIsig\fR ] \fB%\fIjob\fR .\|.\|.
+\fBkill\fR [ \fB\-\fIsig\fR | \fB\-s\ \fIsig\fR ] \fB%\fIjob\fR .\|.\|.
 .PD 0
 .TP
 .B kill \-l\fR [ \fIsig\fR ] .\|.\|. 
@@ -3500,11 +3571,20 @@ argument list may contain signal numbers or
 exit values that refer to a program terminated by a signal.
 (See
 .BR kill (1)).
+.sp
+The
+.B kill
+option
+.B \-s
+and
+.B "kill \-l"
+with arguments was not supported in older versions of
+.BR sh .
 
 .br
 .ne 3
 .TP
-\fBkillpg\fR [ \fB\-\fIsig\fR ] \fB%\fIjob\fR .\|.\|.
+\fBkillpg\fR [ \fB\-\fIsig\fR | \fB\-s\ \fIsig\fR ] \fB%\fIjob\fR .\|.\|.
 .PD 0
 .TP
 .B killpg \-l\fR [ \fIsig\fR ] .\|.\|. 
@@ -5517,7 +5597,7 @@ passing it
 .br
 .ne 3
 .TP
-\fBkill\fR [ \fB\-signal\fR ] \fB%\fIjobid\fR
+\fBkill\fR [ \fB\-\fIsignal\fR | \fB\-s\ \fIsignal\fR ] \fB%\fIjobid\fR
 .sp .6
 Builtin version of
 .B kill
@@ -5529,7 +5609,7 @@ command for processes identified with a
 .br
 .ne 3
 .TP
-\fBkillpg\fR [ \fB\-signal\fR ] \fB%\fIjobid\fR
+\fBkillpg\fR [ \fB\-\fIsignal\fR | \fB\-s\ \fIsignal\fR ] \fB%\fIjobid\fR
 .sp .6
 Builtin version of
 .B killpg
@@ -6444,6 +6524,15 @@ shell if a utility syntax error or a fatal utility error was encountered.
 .br
 .ne 4
 .TP
+.B kill
+The option parsing of the
+.B kill
+command was modified to be compatible to the POSIX standard.
+This is not expected to cause problems as the change only affects
+marginal cases with negative process id's that caused problems before as well.
+.br
+.ne 4
+.TP
 .B times
 The output of the
 .B times
@@ -6536,4 +6625,4 @@ archives.
 Separate project informations for the Schily Bourne Shell project may be retrieved from:
 .LP
 .B
-    http://schilytools.sourceforge.net/bosh.php
+    http://schilytools.sourceforge.net/bosh.html

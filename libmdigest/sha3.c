@@ -1,8 +1,8 @@
-/* @(#)sha3.c	1.3 15/11/22 2015 J. Schilling */
+/* @(#)sha3.c	1.4 15/12/27 2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)sha3.c	1.3 15/11/22 2015 J. Schilling";
+	"@(#)sha3.c	1.4 15/12/27 2015 J. Schilling";
 #endif
 /*
  * SHA3 hash code taken from
@@ -65,51 +65,51 @@ static void rhash_sha3_process_block __PR((UInt64_t hash[25],
  * defined.
  */
 #if defined(HAVE_PRAGMA_WEAK) && defined(HAVE_LINK_WEAK)
-#pragma	weak SHA3_224_INIT = rhash_sha3_224_init
-#pragma	weak SHA3_256_INIT = rhash_sha3_256_init
-#pragma	weak SHA3_384_INIT = rhash_sha3_384_init
-#pragma	weak SHA3_512_INIT = rhash_sha3_512_init
-#pragma	weak SHA3_UPDATE = rhash_sha3_update
+#pragma	weak SHA3_224_Init = rhash_sha3_224_init
+#pragma	weak SHA3_256_Init = rhash_sha3_256_init
+#pragma	weak SHA3_384_Init = rhash_sha3_384_init
+#pragma	weak SHA3_512_Init = rhash_sha3_512_init
+#pragma	weak SHA3_Update = rhash_sha3_update
 #else
 
-void SHA3_224_INIT	__PR((SHA3_CTX *ctx));
-void SHA3_256_INIT	__PR((SHA3_CTX *ctx));
-void SHA3_384_INIT	__PR((SHA3_CTX *ctx));
-void SHA3_512_INIT	__PR((SHA3_CTX *ctx));
-void SHA3_UPDATE	__PR((SHA3_CTX *ctx,
+void SHA3_224_Init	__PR((SHA3_CTX *ctx));
+void SHA3_256_Init	__PR((SHA3_CTX *ctx));
+void SHA3_384_Init	__PR((SHA3_CTX *ctx));
+void SHA3_512_Init	__PR((SHA3_CTX *ctx));
+void SHA3_Update	__PR((SHA3_CTX *ctx,
 				const unsigned char *msg,
 				size_t size));
 
 void
-SHA3_224_INIT(ctx)
+SHA3_224_Init(ctx)
 	SHA3_CTX	*ctx;
 {
 	rhash_sha3_224_init(ctx);
 }
 
 void
-SHA3_256_INIT(ctx)
+SHA3_256_Init(ctx)
 	SHA3_CTX	*ctx;
 {
 	rhash_sha3_256_init(ctx);
 }
 
 void
-SHA3_384_INIT(ctx)
+SHA3_384_Init(ctx)
 	SHA3_CTX	*ctx;
 {
 	rhash_sha3_384_init(ctx);
 }
 
 void
-SHA3_512_INIT(ctx)
+SHA3_512_Init(ctx)
 	SHA3_CTX	*ctx;
 {
 	rhash_sha3_512_init(ctx);
 }
 
 void
-SHA3_UPDATE(ctx, msg, size)
+SHA3_Update(ctx, msg, size)
 	SHA3_CTX	*ctx;
 	const unsigned char *msg;
 	size_t		size;
@@ -466,7 +466,7 @@ rhash_sha3_final(ctx, result)
 }
 
 void
-SHA3_FINAL(result, ctx)
+SHA3_Final(result, ctx)
 	UInt8_t		*result;
 	SHA3_CTX	*ctx;
 {

@@ -1,13 +1,13 @@
-/* @(#)fmt.c	1.95 12/03/16 Copyright 1986-1991, 93-97, 2000-2012 J. Schilling */
+/* @(#)fmt.c	1.96 15/12/23 Copyright 1986-1991, 93-97, 2000-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)fmt.c	1.95 12/03/16 Copyright 1986-1991, 93-97, 2000-2012 J. Schilling";
+	"@(#)fmt.c	1.96 15/12/23 Copyright 1986-1991, 93-97, 2000-2015 J. Schilling";
 #endif
 /*
  *	Format & check/repair SCSI disks
  *
- *	Copyright (c) 1986-1991, 93-97, 2000-2012 J. Schilling
+ *	Copyright (c) 1986-1991, 93-97, 2000-2015 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -16,6 +16,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -336,7 +338,7 @@ main(ac, av)
 		xusage(0);
 	if (prvers) {
 		printf("sformat %s (%s-%s-%s)\n\n", fmt_version, HOST_CPU, HOST_VENDOR, HOST_OS);
-		printf("Copyright (C) 1986-1991, 93-97, 2000-2012 Jörg Schilling\n");
+		printf("Copyright (C) 1986-1991, 93-97, 2000-2015 Jörg Schilling\n");
 		printf("This is free software; see the source for copying conditions.  There is NO\n");
 		printf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
 		exit(0);

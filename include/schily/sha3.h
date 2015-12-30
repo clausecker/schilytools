@@ -1,4 +1,4 @@
-/* @(#)sha3.h	1.3 15/11/22 2015 J. Schilling */
+/* @(#)sha3.h	1.4 15/12/27 2015 J. Schilling */
 /* sha3.h */
 /*
  * SHA3 hash code taken from
@@ -54,14 +54,14 @@ void rhash_sha3_update __PR((sha3_ctx *ctx,
 				size_t size));
 void rhash_sha3_final __PR((sha3_ctx *ctx, unsigned char *result));
 
-void SHA3_224_INIT	__PR((SHA3_CTX *ctx));
-void SHA3_256_INIT	__PR((SHA3_CTX *ctx));
-void SHA3_384_INIT	__PR((SHA3_CTX *ctx));
-void SHA3_512_INIT	__PR((SHA3_CTX *ctx));
-void SHA3_UPDATE	__PR((SHA3_CTX *ctx,
+void SHA3_224_Init	__PR((SHA3_CTX *ctx));
+void SHA3_256_Init	__PR((SHA3_CTX *ctx));
+void SHA3_384_Init	__PR((SHA3_CTX *ctx));
+void SHA3_512_Init	__PR((SHA3_CTX *ctx));
+void SHA3_Update	__PR((SHA3_CTX *ctx,
 				const unsigned char *msg,
 				size_t size));
-void SHA3_FINAL		__PR((unsigned char *result, SHA3_CTX *ctx));
+void SHA3_Final		__PR((unsigned char *result, SHA3_CTX *ctx));
 
 #ifdef USE_KECCAK
 #define	rhash_keccak_224_init	rhash_sha3_224_init

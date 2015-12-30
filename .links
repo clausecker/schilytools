@@ -42,6 +42,7 @@
 ./osh/defs.h
 ./osh/dup.h
 ./osh/hash.h
+./osh/jobs.h
 ./osh/mac.h
 ./osh/mode.h
 ./osh/name.h

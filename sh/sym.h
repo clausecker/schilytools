@@ -27,8 +27,8 @@
 #pragma ident	"@(#)sym.h	1.8	05/06/08 SMI"	/* SVr4.0 1.6	*/
 #endif
 /*
- * This file contains modifications Copyright 2009-2013 J. Schilling
- * @(#)sym.h	1.5 13/09/23 2009-2013 J. Schilling
+ * This file contains modifications Copyright 2009-2015 J. Schilling
+ * @(#)sym.h	1.7 15/12/23 2009-2015 J. Schilling
  */
 /*
  *	UNIX shell
@@ -36,6 +36,7 @@
 
 
 /* symbols for parsing */
+#define	NOTSYM	'!'		/* "!"		*/
 #define	DOSYM	0405		/* "do"		*/
 #define	FISYM	0420		/* "fi"		*/
 #define	EFSYM	0422		/* "elif"	*/
@@ -51,6 +52,7 @@
 #define	WHSYM	0433		/* "while"	*/
 #define	UNSYM	0427		/* "until"	*/
 #define	CASYM	0417		/* "case"	*/
+#define	TIMSYM	0474		/* "time"	*/
 
 #define	SYMREP	04000		/* symbols with doubled characters */
 #define	ECSYM	(SYMREP|';')	/* ";;"		*/

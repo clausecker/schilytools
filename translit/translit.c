@@ -1,8 +1,8 @@
-/* @(#)translit.c	1.17 15/11/30 Copyright 1985-2015 J. Schilling */
+/* @(#)translit.c	1.18 15/12/26 Copyright 1985-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)translit.c	1.17 15/11/30 Copyright 1985-2015 J. Schilling";
+	"@(#)translit.c	1.18 15/12/26 Copyright 1985-2015 J. Schilling";
 #endif
 
 /*
@@ -104,7 +104,7 @@ main(ac, av)
 	if (prversion) {
 		printf(
 "Translit release %s (%s-%s-%s) Copyright (C) 1985-2015 Jörg Schilling\n",
-				"1.17",
+				"1.18",
 				HOST_CPU, HOST_VENDOR, HOST_OS);
 		exit(0);
 	}
@@ -347,7 +347,7 @@ unesc(cpp)
 	switch (c = **cpp) {
 
 	case 'a':
-		return ('\a');	/* HP cc complains but inserts correct value */
+		return (ALERT);
 	case 'b':
 		return ('\b');
 	case 'f':

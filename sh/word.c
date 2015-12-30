@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2015 J. Schilling
  *
- * @(#)word.c	1.48 15/09/17 2008-2015 J. Schilling
+ * @(#)word.c	1.50 15/12/23 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)word.c	1.48 15/09/17 2008-2015 J. Schilling";
+	"@(#)word.c	1.50 15/12/23 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -153,6 +153,22 @@ word()
 					reserved, no_reserved)) == 0) {
 				wdval = 0;
 			}
+#ifdef	DO_TIME
+			else if (wdval == TIMSYM) {
+				/*
+				 * POSIX requires to support "time -p command",
+				 * so check for "time -" and disable the
+				 * "time" reserved word if needed.
+				 */
+				while (c = nextwc(), space(c))	/* skipc() */
+					/* LINTED */
+					;
+				if (c)
+					peekn = c;
+				if (c == '-')
+					wdval = 0;
+			}
+#endif
 			/* set arg for reserved words too */
 			wdarg = arg;
 		}
@@ -698,7 +714,7 @@ xread(f, buf, n)
 	char	*buf;
 	int	n;
 {
-	if (f == 0 && isatty(f) && (flags & vedflg)) {
+	if (f == 0 && isatty(f) && (flags2 & vedflg)) {
 		static	int	init = 0;
 			int	c;
 

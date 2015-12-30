@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2015 J. Schilling
  *
- * @(#)cmd.c	1.33 15/11/12 2008-2015 J. Schilling
+ * @(#)cmd.c	1.37 15/12/23 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)cmd.c	1.33 15/11/12 2008-2015 J. Schilling";
+	"@(#)cmd.c	1.37 15/12/23 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -213,6 +213,27 @@ term(flg)
 	else
 		word();
 
+#if defined(DO_NOTSYM) || defined(DO_TIME)
+#if defined(DO_NOTSYM) && !defined(DO_TIME)
+	if (wdval == NOTSYM) {
+#else
+#if defined(DO_TIME) && !defined(DO_NOTSYM)
+	if (wdval == TIMSYM) {
+#else
+	if (wdval == NOTSYM || wdval == TIMSYM) {
+#endif
+#endif
+		struct parnod	*p;
+
+		p = (struct parnod *)getstor(sizeof (struct parnod));
+		p->partyp = TTIME;
+		if (wdval == NOTSYM)
+			p->partyp = TNOT;
+		p->partre = term(0);
+		t = treptr(p);
+	} else
+#endif
+
 	/*
 	 * ^ is a relic from the days of UPPER CASE ONLY tty model 33s
 	 */
@@ -262,8 +283,7 @@ term(flg)
 		return (makefork(0, makelist(TFIL, left, right)));
 #endif
 	}
-	else
-		return (t);
+	return (t);
 }
 
 /*
@@ -283,6 +303,10 @@ int	esym;
 		struct argnod *argp;
 
 		r->regptr = 0;
+#ifdef	DO_POSIX_CASE
+		if (wdval == '(')
+			skipnl(0);
+#endif
 		for (;;)
 		{
 			if (fndef)

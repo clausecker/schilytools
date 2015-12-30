@@ -1,7 +1,7 @@
-/* @(#)builtin.c	1.8 15/11/28 Copyright 2015 J. Schilling */
+/* @(#)builtin.c	1.9 15/12/17 Copyright 2015 J. Schilling */
 #include <schily/mconfig.h>
 static	UConst char sccsid[] =
-	"@(#)builtin.c	1.8 15/11/28 Copyright 2015 J. Schilling";
+	"@(#)builtin.c	1.9 15/12/17 Copyright 2015 J. Schilling";
 #ifdef DO_SYSBUILTIN
 /*
  *	builtlin builtin
@@ -44,7 +44,6 @@ sysbuiltin(argc, argv)
 	int		i;
 
 	optinit(&optv);
-	optv.opterr = 0;
 	del = 0;
 	mask = 0;
 	farg = NULL;

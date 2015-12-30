@@ -1,8 +1,8 @@
-/* @(#)multi.c	1.100 15/12/10 joerg */
+/* @(#)multi.c	1.103 15/12/29 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)multi.c	1.100 15/12/10 joerg";
+	"@(#)multi.c	1.103 15/12/29 joerg";
 #endif
 /*
  * File multi.c - scan existing iso9660 image and merge into
@@ -71,6 +71,9 @@ LOCAL	int	check_rr_dates	__PR((struct directory_entry *dpnt,
 					struct directory_entry *current,
 					struct stat *statbuf,
 					struct stat *lstatbuf));
+LOCAL	BOOL 	valid_iso_directory __PR((struct iso_directory_record *idr,
+					int idr_off,
+					size_t space_left));
 LOCAL	struct directory_entry **
 		read_merging_directory __PR((struct iso_directory_record *, int *));
 LOCAL	int	free_mdinfo	__PR((struct directory_entry **, int len));
@@ -560,6 +563,100 @@ check_rr_dates(dpnt, current, statbuf, lstatbuf)
 	return (same_file);
 }
 
+LOCAL BOOL
+valid_iso_directory(idr, idr_off, space_left)
+	struct iso_directory_record	*idr;
+	int				idr_off;
+	size_t				space_left;
+{
+	size_t	idr_length	= idr->length[0] & 0xFF;
+	size_t	idr_ext_length	= idr->ext_attr_length[0] & 0xFF;
+	size_t	idr_namelength	= idr->name_len[0] & 0xFF;
+	int	namelimit	= space_left -
+				offsetof(struct iso_directory_record, name[0]);
+	int	nlimit		= (idr_namelength < namelimit) ?
+					idr_namelength : namelimit;
+
+	/*
+	 * Check for sane length entries.
+	 */
+	if (idr_length > space_left) {
+		comerrno(EX_BAD,
+		    _("Bad directory length %zu (> %d available) for '%.*s'.\n"),
+				idr_length, namelimit, nlimit, idr->name);
+	}
+
+	if (idr_length == 0) {
+		if ((idr_off % SECTOR_SIZE) != 0) {
+			/*
+			 * It marks a valid continuation entry.
+			 */
+			return (TRUE);
+		} else {
+			comerrno(EX_BAD,
+				_("Zero directory length for '%.*s'.\n"),
+				nlimit, idr->name);
+		}
+	}
+	if (idr_length <= offsetof(struct iso_directory_record, name[0])) {
+		comerrno(EX_BAD, _("Bad directory length %zu (< %zu minimum).\n"),
+				idr_length, 1 + offsetof(struct iso_directory_record, name[0]));
+	}
+	if ((idr_length & 1) != 0) {
+		comerrno(EX_BAD, _("Odd directory length %zu for '%.*s'.\n"),
+				idr_length, nlimit, idr->name);
+	}
+
+	if (idr_namelength == 0) {
+		comerrno(EX_BAD, _("Zero filename length.\n"));
+	}
+
+	if (!(idr_namelength & 1)) {
+		/*
+		 * if nam_len[0] is even, there has to be a pad byte at the end
+		 * to make the directory length even
+		 */
+		idr_namelength++;
+	}
+	if ((offsetof(struct iso_directory_record, name[0]) +
+	    idr_namelength + idr_ext_length) > idr_length) {
+		int	xlimit = idr_length -
+			offsetof(struct iso_directory_record, name[0]) -
+			idr_namelength;
+
+		comerrno(EX_BAD, _("Bad extended attribute length %zu (> %d) for '%.*s'.\n"),
+				idr_ext_length, xlimit, nlimit, idr->name);
+	}
+	if ((offsetof(struct iso_directory_record, name[0]) +
+	    idr_namelength) > idr_length) {
+		int	xlimit = idr_length -
+			offsetof(struct iso_directory_record, name[0]);
+
+		if (nlimit < xlimit)
+			xlimit = nlimit;
+		comerrno(EX_BAD, _("Bad filename length %zu (> %d) for '%.*s'.\n"),
+				idr_namelength, xlimit, xlimit, idr->name);
+	}
+
+#ifdef	__do_rr_
+	/* check for rock ridge extensions */
+
+	if (no_rr) {
+		/*
+		 * Rock Ridge extensions are not present or manually disabled.
+		 */
+		return (TRUE);
+	} else {
+		int	rlen =  idr_length -
+				offsetof(struct iso_directory_record, name[0]) -
+				idr_namelength;
+
+		/* Check for the minimum of Rock Ridge extensions. */
+	}
+#endif
+	return (TRUE);
+}
+
 LOCAL struct directory_entry **
 read_merging_directory(mrootp, nentp)
 	struct iso_directory_record *mrootp;
@@ -610,16 +707,14 @@ read_merging_directory(mrootp, nentp)
 	nent = 0;
 	nmult = 0;
 	mx = 0;
-	while (i < len) {
+	while ((i + offsetof(struct iso_directory_record, name[0])) < len) {
 		idr = (struct iso_directory_record *)&dirbuff[i];
-		if (idr->length[0] == 0) {
-			int	oi = i;
 
+		if (!valid_iso_directory(idr, i, len - i))
+			break;
+
+		if (idr->length[0] == 0) {
 			i = ISO_ROUND_UP(i);
-			if (i == 0 || oi == i)
-				comerrno(EX_BAD,
-					_("Zero directory length for '%.*s'.\n"),
-					idr->name_len[0] & 0xFF, idr->name);
 			continue;
 		}
 		nent++;
@@ -649,12 +744,12 @@ read_merging_directory(mrootp, nentp)
 	seen_rockridge = 0;
 	tt_size = 0;
 	mx = 0;
-	while (i < len) {
+	while ((i + offsetof(struct iso_directory_record, name[0])) < len) {
 		idr = (struct iso_directory_record *)&dirbuff[i];
-		if ((i + (idr->length[0] & 0xFF)) > len) {
-			comerrno(EX_BAD, _("Bad directory length for '%.*s'.\n"),
-					idr->name_len[0] & 0xFF, idr->name);
-		}
+
+		if (!valid_iso_directory(idr, i, len - i))
+			break;
+
 		if (idr->length[0] == 0) {
 			i = ISO_ROUND_UP(i);
 			continue;
@@ -753,7 +848,7 @@ read_merging_directory(mrootp, nentp)
 		/*
 		 * If the filename len from the old session is more
 		 * then 31 chars, there is a high risk of hard violations
-		 * if the ISO9660 standard.
+		 * of the ISO9660 standard.
 		 * Run it through our name canonication machine....
 		 */
 		if (idr->name_len[0] > LEN_ISONAME || check_oldnames) {
@@ -814,7 +909,7 @@ read_merging_directory(mrootp, nentp)
 			/*
 			 * Sum up the total file size for the multi extent file
 			 */
-			while (i2 < len) {
+			while ((i2 + offsetof(struct iso_directory_record, name[0])) < len) {
 				idr2 = (struct iso_directory_record *)&dirbuff[i2];
 				if (idr2->length[0] == 0) {
 					i2 = ISO_ROUND_UP(i2);
@@ -1552,9 +1647,14 @@ merge_old_directory_into_tree(dpnt, parent)
 	}
 
 	/* Set the name for this directory. */
-	strlcpy(whole_path, parent->de_name, sizeof (whole_path));
-	strcat(whole_path, SPATH_SEPARATOR);
-	strcat(whole_path, dpnt->name);
+	if (strlcpy(whole_path, parent->de_name, sizeof (whole_path)) >= sizeof (whole_path) ||
+	    strlcat(whole_path, SPATH_SEPARATOR, sizeof (whole_path)) >= sizeof (whole_path) ||
+	    strlcat(whole_path, dpnt->name, sizeof (whole_path)) >= sizeof (whole_path))
+		comerrno(EX_BAD, _("Path name '%s%s%s' exceeds max length %zd\n"),
+					parent->de_name,
+					SPATH_SEPARATOR,
+					dpnt->name,
+					sizeof (whole_path));
 	this_dir->de_name = e_strdup(whole_path);
 	this_dir->whole_name = e_strdup(whole_path);
 
@@ -1596,9 +1696,14 @@ merge_old_directory_into_tree(dpnt, parent)
 		/*
 		 * Set the whole name for this file.
 		 */
-		strlcpy(whole_path, this_dir->whole_name, sizeof (whole_path));
-		strcat(whole_path, SPATH_SEPARATOR);
-		strcat(whole_path, contents[i]->name);
+		if (strlcpy(whole_path, this_dir->whole_name, sizeof (whole_path)) >= sizeof (whole_path) ||
+		    strlcat(whole_path, SPATH_SEPARATOR, sizeof (whole_path)) >= sizeof (whole_path) ||
+		    strlcat(whole_path, contents[i]->name, sizeof (whole_path)) >= sizeof (whole_path))
+			comerrno(EX_BAD, _("Path name '%s%s%s' exceeds max length %zd\n"),
+						this_dir->whole_name,
+						SPATH_SEPARATOR,
+						contents[i]->name,
+						sizeof (whole_path));
 
 		contents[i]->whole_name = e_strdup(whole_path);
 

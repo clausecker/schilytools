@@ -39,11 +39,11 @@
 /*
  * Copyright 2008-2015 J. Schilling
  *
- * @(#)msg.c	1.55 15/12/12 2008-2015 J. Schilling
+ * @(#)msg.c	1.58 15/12/23 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)msg.c	1.55 15/12/12 2008-2015 J. Schilling";
+	"@(#)msg.c	1.58 15/12/23 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -149,7 +149,7 @@ const char	trapuse[]	= "trap [action condition ...]";
 #endif
 const char	ulimuse[]	=
 		"ulimit [ -HSacdefilmnqrstuvLMPRS ] [ limit ]";
-const char	killuse[]	= "kill [ [ -sig ] id ... | -l [ signo ... ] ]";
+const char	killuse[]	= "kill [ [ -sig | -s sig ] id ... | -l [ signo ... ] ]";
 const char	jobsuse[]	= "jobs [ [ -l | -p ] [ id ... ] | -x cmd ]";
 const char	nosuchjob[]	= "no such job";
 const char	nosuchpid[]	= "no such process";
@@ -238,6 +238,9 @@ int		localedir_exists;
 
 const struct sysnod reserved[] =
 {
+#ifdef	DO_NOTSYM
+	{ "!",		NOTSYM	},
+#endif
 	{ "case",	CASYM	},
 	{ "do",		DOSYM	},
 	{ "done",	ODSYM	},
@@ -249,6 +252,9 @@ const struct sysnod reserved[] =
 	{ "if",		IFSYM	},
 	{ "in",		INSYM	},
 	{ "then",	THSYM	},
+#ifdef	DO_TIME
+	{ "time",	TIMSYM	},
+#endif
 	{ "until",	UNSYM	},
 	{ "while",	WHSYM	},
 	{ "{",		BRSYM	},

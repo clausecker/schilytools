@@ -1,14 +1,14 @@
-/* @(#)searchinpath.c	1.3 10/11/18 Copyright 1999-2010 J. Schilling */
+/* @(#)searchinpath.c	1.4 15/12/29 Copyright 1999-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)searchinpath.c	1.3 10/11/18 Copyright 1999-2010 J. Schilling";
+	"@(#)searchinpath.c	1.4 15/12/29 Copyright 1999-2015 J. Schilling";
 #endif
 /*
  *	Search a file name in the PATH of the current exeecutable.
  *	Return the path to the file name in allocated space.
  *
- *	Copyright (c) 1999-2010 J. Schilling
+ *	Copyright (c) 1999-2015 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -17,6 +17,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -78,9 +80,16 @@ searchfileinpath(name, mode, file_mode, path)
 	int	oerrno = geterrno();
 	int	err = 0;
 #ifdef	HAVE_GETEXECNAME
-	char	*pn = (char *)getexecname();
+	char	*pn = (char *)getexecname();	/* pn is on the stack */
 #else
-	char	*pn = getexecpath();
+	char	*pn = getexecpath();		/* pn is from strdup() */
+	char	ebuf[NAMEMAX];
+
+	if (pn) {
+		strlcpy(ebuf, pn, sizeof (ebuf));
+		free(pn);
+		pn = ebuf;
+	}
 #endif
 
 	if (pn == NULL)

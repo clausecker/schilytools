@@ -39,7 +39,7 @@
 /*
  * Copyright 2008-2015 J. Schilling
  *
- * @(#)defs.h	1.129 15/12/15 2008-2015 J. Schilling
+ * @(#)defs.h	1.133 15/12/26 2008-2015 J. Schilling
  */
 
 #ifdef	__cplusplus
@@ -102,6 +102,8 @@ extern "C" {
 #define		TNOFORK		0x10A0	/* node running avoid fork cmd	*/
 #define		TFOR		0x00B0	/* for ... do .. done node	*/
 #define		TFND		0x00C0	/* function definition node	*/
+#define		TTIME		0x00D0	/* "time" node			*/
+#define		TNOT		0x10D0	/* "!" node			*/
 
 /*
  * execute table
@@ -453,6 +455,7 @@ extern	void 	init_sigval	 __PR((void));
 extern	void	freefunc	__PR((struct namnod  *n));
 extern	void	freetree	__PR((struct trenod  *n));
 extern	void	prcmd		__PR((struct trenod *t));
+extern	void	prtree		__PR((struct trenod *t, char *label));
 extern	void	prf		__PR((struct trenod *t));
 
 #ifndef	HAVE_GMATCH
@@ -1030,12 +1033,6 @@ extern const char		devnull[];
 #define		forcexit	010000000	/* Terminate shell */
 #define		jcoff		020000000	/* Tmp jobcontrol off */
 #define		pfshflg		040000000	/* pfexec() support */
-#define		versflg		0100000000	/* Print version */
-#define		globalaliasflg	0200000000	/* Use global aliases */
-#define		localaliasflg	0400000000	/* Use local aliases */
-#define		aliasownerflg	01000000000	/* Second alias owner */
-#define		viflg		02000000000	/* VI  cmd line edit */
-#define		vedflg		04000000000	/* VED cmd line edit */
 
 #define		fl2		010000000000	/* If in flagval: see flags2 */
 #define		fl3		020000000000	/* If in flagval: see flags3 */
@@ -1046,13 +1043,20 @@ extern const char		devnull[];
  */
 #define		fdpipeflg	01		/* e.g. 2| pipe from stderr */
 #define		timeflg		02		/* set -o time		*/
-#define		fullexitcodeflg	04		/* set -o fullexitcode	*/
-#define		hashcmdsflg	010		/* set -o hashcmds	*/
-#define		hostpromptflg	020		/* set -o hostprompt	*/
-#define		noclobberflg	040		/* set -o noclobber	*/
-#define		bgniceflg	0100		/* set -o bgnice	*/
-#define		ignoreeofflg	0200		/* set -o ignoreeof	*/
-#define		notifyflg	0400		/* set -o notify / -b	*/
+#define		systime		04		/* "time pipeline"	*/
+#define		fullexitcodeflg	010		/* set -o fullexitcode	*/
+#define		hashcmdsflg	020		/* set -o hashcmds	*/
+#define		hostpromptflg	040		/* set -o hostprompt	*/
+#define		noclobberflg	0100		/* set -o noclobber	*/
+#define		bgniceflg	0200		/* set -o bgnice	*/
+#define		ignoreeofflg	0400		/* set -o ignoreeof	*/
+#define		notifyflg	01000		/* set -o notify / -b	*/
+#define		versflg		02000		/* set -V (print version) */
+#define		globalaliasflg	04000		/* set -o globalaliases */
+#define		localaliasflg	010000		/* set -o localaliases  */
+#define		aliasownerflg	020000		/* set -o aliasowner=   */
+#define		viflg		040000		/* set -o vi VI cmdln. edit  */
+#define		vedflg		0100000		/* set -o ved VED cmdln. edit */
 
 extern unsigned long		flags;		/* Flags for set(1) and more */
 extern unsigned long		flags2;		/* Second set of flags */

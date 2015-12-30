@@ -1,4 +1,4 @@
-#ident "@(#)Makefile	1.71 15/12/16  Copyright (c) 2006-2015 J. Schilling"
+#ident "@(#)Makefile	1.73 15/12/23  Copyright (c) 2006-2015 J. Schilling"
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -97,7 +97,8 @@ CFILES=		args.c bltin.c cmd.c ctype.c defs.c echo.c error.c \
 		signames.c gmatch.c umask.c \
 		optget.c
 
-HFILES=		ctype.h defs.h dup.h hash.h mac.h mode.h name.h \
+HFILES=		ctype.h defs.h dup.h hash.h jobs.h \
+		mac.h mode.h name.h \
 		sh_policy.h stak.h sym.h timeout.h version.h
 
 # -lgen		fuer gmatch()

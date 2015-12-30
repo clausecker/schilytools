@@ -1,8 +1,8 @@
-/* @(#)hdump.c	1.36 15/06/25 Copyright 1986-2015 J. Schilling */
+/* @(#)hdump.c	1.37 15/12/26 Copyright 1986-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)hdump.c	1.36 15/06/25 Copyright 1986-2015 J. Schilling";
+	"@(#)hdump.c	1.37 15/12/26 Copyright 1986-2015 J. Schilling";
 #endif
 /*
  *	hex dump for files
@@ -429,7 +429,7 @@ main(ac, av)
 		printf(
 		_("%s release %s (%s-%s-%s) Copyright (C) 1986-2015 %s\n"),
 				is_od ? "Od":"Hdump",
-				"1.36",
+				"1.37",
 				HOST_CPU, HOST_VENDOR, HOST_OS,
 				_("Joerg Schilling"));
 		exit(0);
@@ -904,7 +904,7 @@ prch(cnt, buf, dstp)
 		else switch (c) {
 
 		case '\0':	printf("  \\0"); break;
-		case '\a':	printf("  \\a"); break;
+		case ALERT:	printf("  \\a"); break;
 		case '\b':	printf("  \\b"); break;
 		case '\f':	printf("  \\f"); break;
 		case '\n':	printf("  \\n"); break;
@@ -972,7 +972,7 @@ again:
 			switch (wc) {
 
 			case '\0':	printf("  \\0"); break;
-			case '\a':	printf("  \\a"); break;
+			case ALERT:	printf("  \\a"); break;
 			case '\b':	printf("  \\b"); break;
 			case '\f':	printf("  \\f"); break;
 			case '\n':	printf("  \\n"); break;

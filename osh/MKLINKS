@@ -1,6 +1,6 @@
 #!/bin/sh
 ###########################################################################
-#ident "@(#)MKLINKS	1.6 15/09/02 "
+#ident "@(#)MKLINKS	1.7 15/12/23 "
 ###########################################################################
 # Written 2008-2011 by J. Schilling
 ###########################################################################
@@ -39,6 +39,7 @@ $symlink ../sh/ctype.h			.
 $symlink ../sh/defs.h			.
 $symlink ../sh/dup.h			.
 $symlink ../sh/hash.h			.
+$symlink ../sh/jobs.h			.
 $symlink ../sh/mac.h			.
 $symlink ../sh/mode.h			.
 $symlink ../sh/name.h			.

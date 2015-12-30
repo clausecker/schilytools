@@ -36,14 +36,14 @@
 /*
  * Copyright 2008-2015 J. Schilling
  *
- * @(#)ulimit.c	1.21 15/11/16 2008-2015 J. Schilling
+ * @(#)ulimit.c	1.22 15/12/17 2008-2015 J. Schilling
  */
 #ifdef	SCHILY_INCLUDES
 #include <schily/mconfig.h>
 #endif
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)ulimit.c	1.21 15/11/16 2008-2015 J. Schilling";
+	"@(#)ulimit.c	1.22 15/12/17 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -150,7 +150,6 @@ sysulimit(argc, argv)
 	}
 
 	optinit(&optv);
-	optv.opterr = 0;
 	hard = 0;
 	soft = 0;
 	cnt = 0;

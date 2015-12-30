@@ -1,4 +1,4 @@
-#ident "@(#)Makefile	1.95 15/12/12  Copyright (c) 2006-2015 J. Schilling"
+#ident "@(#)Makefile	1.99 15/12/23  Copyright (c) 2006-2015 J. Schilling"
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -48,6 +48,7 @@ CPPOPTS +=	-DDO_UMASK_S		# Include support for umask -S
 CPPOPTS +=	-DDO_GETOPT_LONGONLY	# Include support for getopts "?900?(lo)"
 CPPOPTS +=	-DDO_GETOPT_UTILS	# Include support for -- in all builtins
 CPPOPTS +=	-DDO_POSIX_FOR		# Support for i; do .... with semicolon
+CPPOPTS +=	-DDO_POSIX_CASE		# Support for POSIX case with _(_ pat )
 CPPOPTS +=	-DDO_POSIX_TYPE		# Report keywords as well
 CPPOPTS +=	-DDO_PIPE_SEMI_SYNTAX_E	# Report a syntax error for "echo foo |;"
 CPPOPTS +=	-DDO_PIPE_SYNTAX_E	# Report a syntax error for "echo foo |"
@@ -64,11 +65,13 @@ CPPOPTS +=	-DDO_POSIX_EXPORT	# Support export/readonly -p name=value
 CPPOPTS +=	-DDO_POSIX_UNSET	# Support unset -f / -v
 CPPOPTS +=	-DDO_POSIX_TEST		# Implement POSIX test -e & text -S
 CPPOPTS +=	-DDO_POSIX_TRAP		# Implement POSIX trap -- for output
+CPPOPTS +=	-DDO_NOTSYM		# Implement POSIX NOT symbol (!)
 CPPOPTS +=	-DDO_EXT_TEST		# Implement extended test features
 CPPOPTS +=	-DDO_TILDE		# Include support for tilde expansion
 CPPOPTS +=	-DDO_BGNICE		# Include support for set -o bgnice
 CPPOPTS +=	-DDO_TIME		# Include support for set -o time
 CPPOPTS +=	-DDO_FULLEXCODE		# Include support for set -o fullexitcode
+CPPOPTX +=	-DDO_EXIT_MODFIX	# Prevent $? == 0 whith exitcode & 0xFF
 CPPOPTS +=	-DDO_NOCLOBBER		# Include support for set -o noclobber
 CPPOPTS +=	-DDO_NOTIFY		# Include support for set -o notify
 CPPOPTS +=	-DDO_FDPIPE		# Include support for 2| for stderr pipe
@@ -110,7 +113,8 @@ CFILES=		abbrev.c args.c bltin.c cmd.c ctype.c defs.c echo.c error.c \
 		hashcmd.c hashtab.c \
 		optget.c printf.c
 
-HFILES=		abbrev.h ctype.h defs.h dup.h hash.h mac.h mode.h name.h \
+HFILES=		abbrev.h ctype.h defs.h dup.h hash.h jobs.h \
+		mac.h mode.h name.h \
 		sh_policy.h stak.h sym.h timeout.h version.h hashtab.h
 
 # -lgen		fuer gmatch()

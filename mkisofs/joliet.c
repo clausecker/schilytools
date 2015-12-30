@@ -1,15 +1,15 @@
-/* @(#)joliet.c	1.66 15/12/15 joerg */
+/* @(#)joliet.c	1.68 15/12/30 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)joliet.c	1.66 15/12/15 joerg";
+	"@(#)joliet.c	1.68 15/12/30 joerg";
 #endif
 /*
  * File joliet.c - handle Win95/WinNT long file/unicode extensions for iso9660.
  *
  * Copyright 1997 Eric Youngdale.
  * APPLE_HYB James Pearson j.pearson@ge.ucl.ac.uk 22/2/2000
- * Copyright (c) 1999-2010 J. Schilling
+ * Copyright (c) 1999-2015 J. Schilling
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -255,6 +255,7 @@ convert_to_unicode(buffer, size, source, inls)
 	int		j;
 	UInt16_t	unichar;
 	unsigned char	uc;
+	int		jsize = size;
 
 	/*
 	 * If we get a NULL pointer for the source, it means we have an
@@ -277,8 +278,14 @@ convert_to_unicode(buffer, size, source, inls)
 		 * Let all valid unicode characters pass
 		 * through (according to charset). Others are set to '_' .
 		 */
-		uc = tmpbuf[j];			/* temporary copy */
-		if (uc != '\0') {		/* must be converted */
+		if (j < jsize)
+			uc = tmpbuf[j];		/* temporary copy */
+		else
+			uc = '\0';
+		if (uc == '\0') {
+			jsize = j;
+			unichar = 0;
+		} else {			/* must be converted */
 #ifdef	USE_ICONV
 			if (use_iconv(inls)) {
 				Uchar		ob[2];
@@ -287,6 +294,12 @@ convert_to_unicode(buffer, size, source, inls)
 				char	*obuf = (char *)ob;
 				size_t	osize = 2;
 
+				/*
+				 * iconv() from glibc ignores osize and thus
+				 * may try to access more than a single multi
+				 * byte character from the input and read from
+				 * non-existent memory.
+				 */
 				if (iconv(inls->sic_cd2uni, &inbuf, &isize,
 							&obuf, &osize) == -1) {
 					int	err = geterrno();
@@ -332,8 +345,6 @@ convert_to_unicode(buffer, size, source, inls)
 			}
 		all_chars:
 			;
-		} else {
-			unichar = 0;
 		}
 		buffer[i] = unichar >> 8 & 0xFF; /* final UNICODE */
 		buffer[i + 1] = unichar & 0xFF;	/* conversion */
@@ -379,6 +390,12 @@ joliet_strlen(string, maxlen, inls)
 			char	*obuf = (char *)ob;
 			size_t	osize = 2;
 
+			/*
+			 * iconv() from glibc ignores osize and thus
+			 * may try to access more than a single multi
+			 * byte character from the input and read from
+			 * non-existent memory.
+			 */
 			if (iconv(inls->sic_cd2uni, &inbuf, &isize,
 						&obuf, &osize) == -1) {
 				int	err = geterrno();
@@ -873,13 +890,12 @@ generate_one_joliet_directory(dpnt, outfile)
 				} else {
 					finddir = dpnt->subdir;
 				}
-				while (1 == 1) {
-					if (finddir->self == s_entry1)
-						break;
+				while (finddir && finddir->self != s_entry1) {
 					finddir = finddir->next;
-					if (!finddir) {
-						comerrno(EX_BAD, _("Fatal goof - unable to find directory location\n"));
-					}
+				}
+				if (!finddir) {
+					comerrno(EX_BAD,
+						_("Fatal goof - unable to find directory location\n"));
 				}
 				set_733((char *)jrec.extent, finddir->jextent);
 				set_733((char *)jrec.size,

@@ -1,8 +1,8 @@
-/* @(#)job.c	1.8 15/04/25 Copyright 1985, 87, 88, 91, 1995-2015 J. Schilling */
+/* @(#)job.c	1.9 15/12/26 Copyright 1985, 87, 88, 91, 1995-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)job.c	1.8 15/04/25 Copyright 1985, 87, 88, 91, 1995-2015 J. Schilling";
+	"@(#)job.c	1.9 15/12/26 Copyright 1985, 87, 88, 91, 1995-2015 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1985, 87, 88, 91, 1995-2015 by J. Schilling
@@ -610,7 +610,7 @@ doecho(s, print)
 				if (c == '\\' && s[1] != '\0') {
 					c = *++s;
 					switch (c) {
-					case 'a': c = '\a'; break;
+					case 'a': c = ALERT; break;
 					case 'b': c = '\b'; break;
 					case 'c': print = FALSE; goto ndone;
 					case 'f': c = '\f'; break;

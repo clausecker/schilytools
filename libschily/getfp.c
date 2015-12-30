@@ -1,8 +1,8 @@
-/* @(#)getfp.c	1.18 08/06/14 Copyright 1988-2008 J. Schilling */
+/* @(#)getfp.c	1.19 15/12/23 Copyright 1988-2015 J. Schilling */
 /*
  *	Get frame pointer
  *
- *	Copyright (c) 1988-2008 J. Schilling
+ *	Copyright (c) 1988-2015 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -11,6 +11,8 @@
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -50,8 +52,17 @@
 #	define	FP_OFF		0
 #endif
 
+#if defined(__clang__) || \
+	(defined(__GNUC__) && \
+	    ((__GNUC__ > 4) || (__GNUC__ == 4 && __GNUC_MINOR__ > 7)))
+#define	ATTRIBUTE_NO_SANITIZE_ADDRESS	__attribute__((no_sanitize_address))
+#else
+#define	ATTRIBUTE_NO_SANITIZE_ADDRESS
+#endif
+
 EXPORT	void	**___fpoff	__PR((char *cp));
 
+ATTRIBUTE_NO_SANITIZE_ADDRESS
 EXPORT void **
 getfp()
 {

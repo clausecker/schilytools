@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2015 J. Schilling
  *
- * @(#)bltin.c	1.84 15/12/15 2008-2015 J. Schilling
+ * @(#)bltin.c	1.86 15/12/17 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)bltin.c	1.84 15/12/15 2008-2015 J. Schilling";
+	"@(#)bltin.c	1.86 15/12/17 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -369,7 +369,7 @@ int xflags;
 					}
 				}
 #ifdef	DO_SYSALIAS
-				if (flags & localaliasflg) {
+				if (flags2 & localaliasflg) {
 					ab_use(LOCAL_AB, (char *)localname);
 				}
 #endif
@@ -566,7 +566,6 @@ int xflags;
 			int	err = 0;
 
 			optinit(&optv);
-			optv.opterr = 0;
 
 			while ((c = optget(argc, argv, &optv,
 						"c:(count)d:(delay)")) != -1) {

@@ -1,8 +1,8 @@
-/* @(#)tgetent.c	1.41 15/11/17 Copyright 1986-2015 J. Schilling */
+/* @(#)tgetent.c	1.42 15/12/26 Copyright 1986-2015 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)tgetent.c	1.41 15/11/17 Copyright 1986-2015 J. Schilling";
+	"@(#)tgetent.c	1.42 15/12/26 Copyright 1986-2015 J. Schilling";
 #endif
 /*
  *	Access routines for TERMCAP database.
@@ -71,7 +71,11 @@ LOCAL	char	_tc[]		= "tc";
 				 * Additional terminfo quotes
 				 * "e^[" "::" ",," "s " "l\n"
 				 */
+#ifdef	PROTOTYPES
 LOCAL	char	_quotetab[]	= "E^^\\\\e::,,s l\nn\nr\rt\ta\ab\bf\fv\v";
+#else
+LOCAL	char	_quotetab[]	= "E^^\\\\e::,,s l\nn\nr\rt\ta\07b\bf\fv\v";
+#endif
 
 LOCAL	char	_etoolong[]	= "Termcap entry too long\n";
 LOCAL	char	_ebad[]		= "Bad termcap entry\n";

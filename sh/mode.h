@@ -37,7 +37,7 @@
 /*
  * This file contains modifications Copyright 2008-2015 J. Schilling
  *
- * @(#)mode.h	1.21 15/12/14 2008-2015 J. Schilling
+ * @(#)mode.h	1.22 15/12/21 2008-2015 J. Schilling
  */
 
 /*
@@ -290,8 +290,14 @@ struct optv
 	int	opt_sp;		/* Index in multi opt arg like -abc */
 	int	optret;		/* Return from last getopt() */
 	int	ooptind;	/* Index in argv from before getopt() call */
+	int	optflag;	/* Flags used by getopt() / optnext() */
 	char	*optarg;	/* Option argument string */
 };
+
+/*
+ * Values for optflag:
+ */
+#define	OPT_NOFAIL	1	/* Do not print a message for wrong opts */
 
 #define		treptr(x)	((struct trenod *)x)
 #define		fndptr(x)	((struct fndnod *)x)

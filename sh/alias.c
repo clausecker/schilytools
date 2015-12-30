@@ -1,7 +1,7 @@
-/* @(#)alias.c	1.8 15/10/23 Copyright 1986-2015 J. Schilling */
+/* @(#)alias.c	1.10 15/12/17 Copyright 1986-2015 J. Schilling */
 #include <schily/mconfig.h>
 static	UConst char sccsid[] =
-	"@(#)alias.c	1.8 15/10/23 Copyright 1986-2015 J. Schilling";
+	"@(#)alias.c	1.10 15/12/17 Copyright 1986-2015 J. Schilling";
 /*
  *	The built-in commands "alias" and "unalias".
  *
@@ -51,7 +51,6 @@ sysalias(argc, argv)
 	unsigned char	o[3];
 
 	optinit(&optv);
-	optv.opterr = 0;
 	o[0] = '-';
 	o[2] = '\0';
 	while ((c = optget(argc, argv, &optv,
@@ -64,7 +63,7 @@ sysalias(argc, argv)
 			persist++;
 			break;
 		case 'g':
-			if ((flags & globalaliasflg) == 0) {
+			if ((flags2 & globalaliasflg) == 0) {
 				o[1] = c;
 				badflag++;
 				goto err;
@@ -73,7 +72,7 @@ sysalias(argc, argv)
 			doglobal++;
 			break;
 		case 'l':
-			if ((flags & localaliasflg) == 0) {
+			if ((flags2 & localaliasflg) == 0) {
 				o[1] = c;
 				badflag++;
 				goto err;
@@ -114,7 +113,7 @@ err:
 	if (pflag) {
 		if (dolocal)
 			pflags |= AB_PLOCAL;
-		else if ((flags & globalaliasflg) != 0)
+		else if ((flags2 & globalaliasflg) != 0)
 			pflags |= AB_PGLOBAL;
 	}
 	if (doreload) {
@@ -184,7 +183,6 @@ sysunalias(argc, argv)
 	unsigned char	o[3];
 
 	optinit(&optv);
-	optv.opterr = 0;
 	o[0] = '-';
 	o[2] = '\0';
 	while ((c = optget(argc, argv, &optv, "aglp")) != -1) {
@@ -193,7 +191,7 @@ sysunalias(argc, argv)
 			allflag++;
 			break;
 		case 'g':
-			if ((flags & globalaliasflg) == 0) {
+			if ((flags2 & globalaliasflg) == 0) {
 				o[1] = c;
 				badflag++;
 				goto err;
@@ -202,7 +200,7 @@ sysunalias(argc, argv)
 			doglobal++;
 			break;
 		case 'l':
-			if ((flags & localaliasflg) == 0) {
+			if ((flags2 & localaliasflg) == 0) {
 				o[1] = c;
 				badflag++;
 				goto err;

@@ -1,8 +1,8 @@
-/* @(#)prototyp.h	1.16 13/10/22 Copyright 1995-2013 J. Schilling */
+/* @(#)prototyp.h	1.17 15/12/26 Copyright 1995-2015 J. Schilling */
 /*
  *	Definitions for dealing with ANSI / KR C-Compilers
  *
- *	Copyright (c) 1995-2013 J. Schilling
+ *	Copyright (c) 1995-2015 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -116,6 +116,12 @@ extern "C" {
 #	ifndef	volatile
 #		define	volatile
 #	endif
+#endif
+
+#ifdef	PROTOTYPES
+#define	ALERT	'\a'
+#else
+#define	ALERT	'\07'
 #endif
 
 #ifdef	__cplusplus

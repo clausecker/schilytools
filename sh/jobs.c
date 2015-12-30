@@ -34,15 +34,16 @@
 #endif
 
 #include "defs.h"
+#include "jobs.h"
 
 /*
  * Copyright 2008-2015 J. Schilling
  *
- * @(#)jobs.c	1.85 15/12/12 2008-2015 J. Schilling
+ * @(#)jobs.c	1.92 15/12/27 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)jobs.c	1.85 15/12/12 2008-2015 J. Schilling";
+	"@(#)jobs.c	1.92 15/12/27 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -136,43 +137,6 @@ typedef struct {
 
 #endif	/* HAVE_WAITID */
 
-/*
- * one of these for each active job
- */
-struct job
-{
-	struct job *j_nxtp;	/* next job in job ID order */
-	struct job *j_curp;	/* next job in job currency order */
-	struct termios j_stty;	/* termio save area when job stops */
-#ifdef	DO_TIME
-	struct timeval j_start;	/* job start time */
-	struct rusage j_rustart; /* resource usage at start of job */
-#endif
-	pid_t	j_pid;		/* job leader's process ID */
-	pid_t	j_pgid;		/* job's process group ID */
-	pid_t	j_tgid;		/* job's foreground process group ID */
-	UInt32_t j_jid;		/* job ID */
-	Int32_t j_xval;		/* exit code, or exit or stop signal */
-	Int16_t j_xcode;	/* exit or stop reason */
-	UInt16_t j_flag;	/* various status flags defined below */
-	char	*j_pwd;		/* job's working directory */
-	char	*j_cmd;		/* cmd used to invoke this job */
-};
-
-/*
- * defines for j_flag
- */
-#define	J_DUMPED	0001	/* job has core dumped */
-#define	J_NOTIFY	0002	/* job has changed status */
-#define	J_SAVETTY	0004	/* job was stopped in foreground, and its */
-				/*   termio settings were saved */
-#define	J_STOPPED	0010	/* job has been stopped */
-#define	J_SIGNALED	0020	/* job has received signal; j_xval has it */
-#define	J_DONE		0040	/* job has finished */
-#define	J_RUNNING	0100	/* job is currently running */
-#define	J_FOREGND	0200	/* job was put in foreground by shell */
-#define	J_BLTIN		0400	/* job was a shell builtin */
-
 #ifdef	DO_DOT_SH_PARAMS
 static struct codename {
 	int	c_code;		/* The si_code value */
@@ -261,6 +225,10 @@ static void	printjob	__PR((struct job *jp, int propts));
 #define	F_SUSPEND	4
 static void	sigv		__PR((char *cmdp, int sig, int f, char *args));
 	void	sysstop		__PR((int argc, char *argv[]));
+static void	listsigs	__PR((void));
+#if	defined(DO_KILL_L_SIG) || defined(DO_GETOPT_UTILS)
+static void	namesigs	__PR((char *argv[]));
+#endif
 	void	syskill		__PR((int argc, char *argv[]));
 	void	syssusp		__PR((int argc, char *argv[]));
 #ifdef	DO_SYSPGRP
@@ -271,6 +239,8 @@ static void	pr_pgrp		__PR((pid_t pid, pid_t pgrp, pid_t sgrp));
 					int *codep, int *statusp, int opts));
 #ifdef	DO_TIME
 	void	prtime		__PR((struct job *jp));
+	void	ruget		__PR((struct rusage *rup));
+static	void	ruadd		__PR((struct rusage *ru, struct rusage *ru2));
 #endif
 #ifndef	HAVE_GETRUSAGE
 	int	getrusage	__PR((int who, struct rusage *r_usage));
@@ -559,8 +529,10 @@ statjob(jp, si, fg, rc)
 			exitval &= 0xFF; /* As dumb as with historic wait */
 		if (jp->j_flag & J_SIGNALED)
 			exitval |= SIGFLG;
+#ifdef	DO_EXIT_MODFIX
 		else if (ex.ex_status != 0 && exitval == 0)
 			exitval = SIGFLG; /* Use special value 128 */
+#endif
 		exitset();		/* Set retval from exitval for $? */
 	}
 	if (jdone && !(jp->j_flag & J_NOTIFY))
@@ -654,7 +626,7 @@ waitjob(jp)
 #endif
 
 #ifdef	DO_TIME
-	getrusage(RUSAGE_CHILDREN, &jp->j_rustart);
+	ruget(&jp->j_rustart);
 #endif
 
 	if ((flags & (monitorflg|jcflg|jcoff)) == (monitorflg|jcflg))
@@ -741,7 +713,7 @@ waitjob(jp)
 	 * This may change once we introduce an own process node for every
 	 * process from a pipe created with DO_PIPE_PARENT.
 	 */
-	if (flags2 & timeflg)
+	if ((flags2 & (timeflg | systime)) == timeflg)
 		prtime(&j);
 #endif
 
@@ -1231,7 +1203,7 @@ postjob(pid, fg, blt)
 		if (blt) {
 			thisjob->j_flag |= J_BLTIN;
 #ifdef	DO_TIME
-			getrusage(RUSAGE_SELF, &thisjob->j_rustart);
+			ruget(&thisjob->j_rustart);
 #endif
 		} else {
 			waitjob(thisjob);
@@ -1258,7 +1230,6 @@ sysjobs(argc, argv)
 	struct optv optv;
 
 	optinit(&optv);
-	optv.opterr = 0;
 	propts = 0;
 
 	if ((flags & jcflg) == 0) {
@@ -1339,6 +1310,10 @@ sysfgbg(argc, argv)
 	char	*cmdp = *argv;
 	int	fg = eq("fg", cmdp);
 #ifdef	DO_GETOPT_UTILS
+	/*
+	 * optskip() is sufficient, even ksh93 only supports "fg -- -1234".
+	 * Bourne Shell did not need "--", nor support -1234.
+	 */
 	int	ind = optskip(argc, UCP argv, fg?"fg [job ...]":"bg [job ...]");
 
 	if (ind-- < 0)
@@ -1382,6 +1357,10 @@ char *argv[];
 	int		wflags;
 	siginfo_t	si;
 #ifdef	DO_GETOPT_UTILS
+	/*
+	 * optskip() is sufficient, even ksh93 only supports "wait -- -1234".
+	 * Bourne Shell did not need "--", nor support -1234.
+	 */
 	int	ind = optskip(argc, UCP argv, "wait [job ...]");
 
 	if (ind-- < 0)
@@ -1409,6 +1388,11 @@ char *argv[];
 	}
 }
 
+/*
+ * Convert a job spec in "args" into a process id and send "sig".
+ * A leading '%' marks job specifiers.
+ * A leading '-' names a process group id instead of a pricess id.
+ */
 static void
 sigv(cmdp, sig, f, args)
 	char	*cmdp;
@@ -1493,8 +1477,10 @@ sigv(cmdp, sig, f, args)
 		}
 	}
 
-	if (pgrp || f == F_KILLPG)
+	if (pgrp || f == F_KILLPG) {
+		pgrp++;
 		id = -id;
+	}
 
 	if (kill(id, sig) < 0) {
 
@@ -1549,6 +1535,51 @@ sysstop(argc, argv)
 		sigv(cmdp, SIGSTOP, F_KILL, *argv);
 }
 
+/*
+ * List all signals on this platform
+ */
+static void
+listsigs()
+{
+	int i;
+	int cnt = 0;
+	char sep = 0;
+	char buf[12];
+
+	for (i = 1; i < MAXTRAP; i++) {
+		if (sig2str(i, buf) < 0)
+			strcpy(buf, "bad sig");	/* continue; */
+		if (sep)
+			prc_buff(sep);
+		prs_buff((unsigned char *)buf);
+		if ((flags & ttyflg) && (++cnt % 10))
+			sep = TAB;
+		else
+			sep = NL;
+	}
+	prc_buff(NL);
+}
+
+#if	defined(DO_KILL_L_SIG) || defined(DO_GETOPT_UTILS)
+static void
+namesigs(argv)
+	char	*argv[];
+{
+	int sig;
+	char buf[12];
+
+	while (*++argv) {
+		sig = stoi((unsigned char *)*argv) & 0x7F;
+		if (sig2str(sig, buf) < 0) {
+			failure((unsigned char *)*argv, badsig);
+			return;
+		}
+		prs_buff((unsigned char *)buf);
+		prc_buff(NL);
+	}
+}
+#endif
+
 void
 syskill(argc, argv)
 	int	argc;
@@ -1558,70 +1589,88 @@ syskill(argc, argv)
 	int sig = SIGTERM;
 	int	pg = eq("killpg", cmdp);
 #ifdef	DO_GETOPT_UTILS
-	int	ind = optskip(argc, UCP argv, killuse);
+	struct optv	optv;
+	int		c;
+	int		lfl = 0;
+	int		sfl = 0;
 
-	if (ind-- < 0)
+	optinit(&optv);
+	optv.optflag |= OPT_NOFAIL;
+	/*
+	 * Even ksh93 only supports "kill -- -1234".
+	 * With the SVr4 Bourne Shell, "--" was not needed nor supported,
+	 * but "kill -1234" used "-1234" as signal number and thus failed.
+	 */
+	while ((c = optnext(argc, UCP argv, &optv, ":ls:", killuse)) != -1) {
+		switch (c) {
+		case 0:		return;	/* --help */
+
+		case 'l':	lfl = 1;
+				break;
+		case 's':
+				if (str2sig(optv.optarg, &sig)) {
+					failure((unsigned char *)cmdp, badsig);
+					return;
+				}
+				sfl = 1;
+				break;
+		case '?':
+				if (!sfl) {
+					if (str2sig(&argv[optv.ooptind][1],
+					    &sig) == 0) {
+						optv.optind = optv.ooptind + 1;
+						goto optdone;
+					}
+				}
+		case ':':
+				optbad(argc, UCP argv, &optv);
+				gfailure((unsigned char *)usage, killuse);
+				return;
+		}
+	}
+optdone:
+	if (lfl + sfl > 1) {
+		gfailure((unsigned char *)usage, killuse);
 		return;
-	argc -= ind;
-	argv += ind;
+	}
+	argc -= --optv.optind;
+	argv += optv.optind;
+	if (lfl) {
+		if (argc > 1)
+			namesigs(argv);
+		else
+			listsigs();
+		return;
+	}
 #endif
-
 	if (argc == 1) {
 		gfailure((unsigned char *)usage, killuse);
 		return;
 	}
 
+#ifndef	DO_GETOPT_UTILS
 	if (argv[1][0] == '-') {
 
 		if (argc == 2) {
-
-			int i;
-			int cnt = 0;
-			char sep = 0;
-			char buf[12];
-
 			if (!eq(argv[1], "-l")) {
 				gfailure((unsigned char *)usage, killuse);
 				return;
 			}
-
-			for (i = 1; i < MAXTRAP; i++) {
-				if (sig2str(i, buf) < 0)
-					strcpy(buf, "bad sig");	/* continue; */
-				if (sep)
-					prc_buff(sep);
-				prs_buff((unsigned char *)buf);
-				if ((flags & ttyflg) && (++cnt % 10))
-					sep = TAB;
-				else
-					sep = NL;
-			}
-			prc_buff(NL);
+			listsigs();
 			return;
 #ifdef	DO_KILL_L_SIG
 		} else if (eq(argv[1], "-l")) {
-			char buf[12];
-
-			++argv;
-			while (*++argv) {
-				sig = stoi((unsigned char *)*argv) & 0x7F;
-				if (sig2str(sig, buf) < 0) {
-					failure((unsigned char *)*argv, badsig);
-					return;
-				}
-				prs_buff((unsigned char *)buf);
-				prc_buff(NL);
-			}
+			namesigs(++argv);
 			return;
 #endif
 		}
-
 		if (str2sig(&argv[1][1], &sig)) {
 			failure((unsigned char *)cmdp, badsig);
 			return;
 		}
 		argv++;
 	}
+#endif
 
 	while (*++argv)
 		sigv(cmdp, sig, pg ? F_KILLPG : F_KILL, *argv);
@@ -1809,15 +1858,15 @@ prtime(jp)
 	int		save_fd = setb(STDERR_FILENO);
 
 	fmt = timefmtnod.namval;
-	if (fmt == NULL)
-		fmt = UC "%:E real %U user %S sys %P%% cpu";
+	if (fmt == NULL) {
+		fmt = flags2 & systime ?
+			UC "\nreal   %6:E\nuser   %6U\nsys    %6S" :
+			UC "%:E real %U user %S sys %P%% cpu";
+	}
 	ofmt = fmt;
 
 	gettimeofday(&stop, NULL);
-	if (jp->j_flag & J_BLTIN)
-		getrusage(RUSAGE_SELF, &rustop);
-	else
-		getrusage(RUSAGE_CHILDREN, &rustop);
+	ruget(&rustop);
 
 	timersub(&stop, &jp->j_start);
 	timersub(&rustop.ru_utime, &jp->j_rustart.ru_utime);
@@ -1860,7 +1909,7 @@ prtime(jp)
 			}
 			switch (c) {
 			case 'T':
-				if (dig > cpu) {
+				if ((flags2 & systime) == 0 && dig > cpu) {
 					fmt -= 3;
 					goto out;
 				}
@@ -1957,6 +2006,45 @@ out:
 	flushb();
 
 	(void) setb(save_fd);
+}
+
+void
+ruget(rup)
+	struct rusage	*rup;
+{
+	struct rusage	ruc;
+
+	getrusage(RUSAGE_SELF, rup);
+	getrusage(RUSAGE_CHILDREN, &ruc);
+	ruadd(rup, &ruc);
+}
+
+static void
+ruadd(ru, ru2)
+	struct rusage	*ru;
+	struct rusage	*ru2;
+{
+	timeradd(&ru->ru_utime, &ru2->ru_utime);
+	timeradd(&ru->ru_stime, &ru2->ru_stime);
+
+#ifdef	__future__
+	if (ru2->ru_maxrss > ru->ru_maxrss)
+		ru->ru_maxrss =	ru2->ru_maxrss;
+
+	ru->ru_ixrss += ru2->ru_ixrss;
+	ru->ru_idrss += ru2->ru_idrss;
+	ru->ru_isrss += ru2->ru_isrss;
+#endif
+	ru->ru_minflt += ru2->ru_minflt;
+	ru->ru_majflt += ru2->ru_majflt;
+	ru->ru_nswap += ru2->ru_nswap;
+	ru->ru_inblock += ru2->ru_inblock;
+	ru->ru_oublock += ru2->ru_oublock;
+	ru->ru_msgsnd += ru2->ru_msgsnd;
+	ru->ru_msgrcv += ru2->ru_msgrcv;
+	ru->ru_nsignals += ru2->ru_nsignals;
+	ru->ru_nvcsw += ru2->ru_nvcsw;
+	ru->ru_nivcsw += ru2->ru_nivcsw;
 }
 #endif	/* DO_TIME */
 

@@ -37,11 +37,11 @@
 /*
  * This file contains modifications Copyright 2008-2015 J. Schilling
  *
- * @(#)macro.c	1.29 15/12/12 2008-2015 J. Schilling
+ * @(#)macro.c	1.32 15/12/26 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)macro.c	1.29 15/12/12 2008-2015 J. Schilling";
+	"@(#)macro.c	1.32 15/12/26 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -662,6 +662,9 @@ comsubst(trimflag)
 		chkpipe(pv);
 		savpipe = pv[OTPIPE];
 		initf(pv[INPIPE]); /* read from pipe */
+#ifdef	PARSE_DEBUG
+		prtree(t, "Command Substitution: ");
+#endif
 		execute(t, XEC_NOSTOP, (int)(flags & errflg), 0, pv);
 		close(pv[OTPIPE]);
 		savpipe = -1;
@@ -706,11 +709,15 @@ comsubst(trimflag)
 			if (ret == -1)
 				break;
 		}
-		rc = wstatus & 0xFF;
+		rc = wstatus;
+		if ((flags2 & fullexitcodeflg) == 0)
+			rc &= 0xFF; /* As dumb as with historic wait */
 		if (wcode == CLD_KILLED || wcode == CLD_DUMPED)
 			rc |= SIGFLG;
-		if (wstatus != 0 && rc == 0)
+#ifdef	DO_EXIT_MODFIX
+		else if (wstatus != 0 && rc == 0)
 			rc = SIGFLG;	/* Use special value 128 */
+#endif
 		if (rc && (flags & errflg))
 			exitsh(rc);
 		exitval = rc;

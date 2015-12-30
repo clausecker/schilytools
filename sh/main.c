@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2015 J. Schilling
  *
- * @(#)main.c	1.41 15/12/12 2008-2015 J. Schilling
+ * @(#)main.c	1.43 15/12/26 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)main.c	1.41 15/12/12 2008-2015 J. Schilling";
+	"@(#)main.c	1.43 15/12/26 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -381,7 +381,7 @@ main(c, v, e)
 				flags2 |= bgniceflg;
 #endif
 #ifdef	INTERACTIVE
-				flags |= vedflg;
+				flags2 |= vedflg;
 #endif
 				setopts();		/* set flagadr */
 			}
@@ -426,11 +426,11 @@ main(c, v, e)
 			 * code already reads the global and local alias files
 			 * when the related flags are set.
 			 */
-			if ((flags & globalaliasflg) && homenod.namval) {
+			if ((flags2 & globalaliasflg) && homenod.namval) {
 				catpath(homenod.namval, UC globalname);
 				ab_use(GLOBAL_AB, (char *)make(curstak()));
 			}
-			if (flags & localaliasflg) {
+			if (flags2 & localaliasflg) {
 				ab_use(LOCAL_AB, (char *)localname);
 			}
 #endif
@@ -559,7 +559,7 @@ exfile(prof)
 			 * indirectly here.
 			 */
 #define	EDIT_RPOMPTS	2
-			if (flags & vedflg) {
+			if (flags2 & vedflg) {
 				char *prompts[EDIT_RPOMPTS];
 				prompts[0] = (char *)ps1nod.namval;
 				prompts[1] = (char *)ps2nod.namval;
@@ -596,14 +596,7 @@ exfile(prof)
 			struct trenod *t;
 			t = cmd(NL, MTFLG);
 #ifdef	PARSE_DEBUG
-			if (t) {
-				int	save_fd;
-				prs(UC "COMMAND: ");
-				save_fd = setb(output);
-				prf(t); flushb();
-				setb(save_fd);
-				prs(UC " COMMANDEND\n");
-			}
+			prtree(t, "Commandline: ");
 #endif
 			if (t == NULL && flags & ttyflg)
 				freejobs();
@@ -623,7 +616,7 @@ void
 chkpr()
 {
 #ifdef	INTERACTIVE
-	if ((flags & vedflg) == 0)
+	if ((flags2 & vedflg) == 0)
 #endif
 	if ((flags & prompt) && standin->fstak == 0)
 		prs(ps2nod.namval);

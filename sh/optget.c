@@ -1,7 +1,7 @@
-/* @(#)optget.c	1.6 15/12/15 Copyright 2015 J. Schilling */
+/* @(#)optget.c	1.8 15/12/21 Copyright 2015 J. Schilling */
 #include <schily/mconfig.h>
 static	UConst char sccsid[] =
-	"@(#)optget.c	1.6 15/12/15 Copyright 2015 J. Schilling";
+	"@(#)optget.c	1.8 15/12/21 Copyright 2015 J. Schilling";
 /*
  *	A version of getopt() that maintains state
  *	so it can be used from witin a shell builtin
@@ -39,6 +39,7 @@ optinit(optv)
 	optv->opt_sp = 1;
 	optv->optret = 0;
 	optv->ooptind = 1;
+	optv->optflag = 0;
 	optv->optarg = 0;
 }
 
@@ -92,6 +93,7 @@ optget(argc, argv, optv, optstring)
 	return (ret);
 }
 
+#ifndef	NO_OPTNEXT
 /*
  * Routine to complain about bad option arguments.
  */
@@ -123,7 +125,6 @@ optbad(argc, argv, optv)
 		bfailure(argv[0], badopt, p);
 }
 
-#ifndef	NO_OPTNEXT
 /*
  * A variant of optget() that supports the -help option.
  * Make sure not to use 999 as a long only option identifier in optstring.
@@ -160,6 +161,8 @@ optnext(argc, argv, optv, optstring, use)
 
 	case ':':	/* Option requires argument	*/
 	case '?':	/* Bad option			*/
+		if (optv->optflag & OPT_NOFAIL)
+			return (c);
 		optbad(argc, argv, optv);
 		/* FALLTHROUGH */
 

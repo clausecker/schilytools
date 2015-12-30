@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2015 J. Schilling
  *
- * @(#)xec.c	1.52 15/11/26 2008-2015 J. Schilling
+ * @(#)xec.c	1.54 15/12/23 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)xec.c	1.52 15/11/26 2008-2015 J. Schilling";
+	"@(#)xec.c	1.54 15/12/23 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -53,6 +53,9 @@ static	UConst char sccsid[] =
 
 #include	"sym.h"
 #include	"hash.h"
+#ifdef	DO_TIME
+#include	"jobs.h"
+#endif
 #ifdef	SCHILY_INCLUDES
 #include	<schily/times.h>
 #include	<schily/vfork.h>
@@ -158,6 +161,47 @@ int *pf1, *pf2;
 				break;
 			}
 
+#ifdef	DO_TIME
+		case TTIME:		/* "time" command prefix */
+			{
+				struct parnod	*p = parptr(t);
+				struct job	j;
+				int		osystime = flags2 & systime;
+
+				exitval = 0;
+				exval_clear();
+
+				gettimeofday(&j.j_start, NULL);
+				ruget(&j.j_rustart);
+				flags2 |= systime;
+				execute(p->partre, xflags, errorflg, pf1, pf2);
+				prtime(&j);
+				if (!osystime)
+					flags2 &= ~systime;
+				break;
+			}
+#endif
+
+#ifdef	DO_NOTSYM
+		case TNOT:		/* NOT command prefix */
+			{
+				struct parnod	*p = parptr(t);
+
+				exitval = 0;
+				exval_clear();
+
+				execute(p->partre, xflags, errorflg, pf1, pf2);
+				/*
+				 * In extended Bourne Shell mode, exitval does
+				 * not suffer from the exitcode mod 256 problem
+				 * and exitval is != 0 if exitcode is != 0, even
+				 * when exitcode is masked by 0xFF.
+				 */
+				ex.ex_status = exitval = !exitval;
+				break;
+			}
+#endif
+
 		case TCOM:		/* some kind of command */
 			{
 				int	argn;
@@ -220,8 +264,10 @@ int *pf1, *pf2;
 					if (comtype == NOTFOUND) {
 #ifdef	DO_PIPE_PARENT
 						resetjobfd();	/* Rest stdin */
-						if (ismonitor(xflags))
-							settgid(mypgid, curpgid());
+						if (ismonitor(xflags)) {
+							settgid(mypgid,
+								curpgid());
+						}
 #endif
 						pos = hashdata(cmdhash);
 						ex.ex_status = C_NOEXEC;
@@ -254,7 +300,9 @@ int *pf1, *pf2;
 #ifdef	DO_TIME
 						struct job	*jp = NULL;
 
-						if ((flags2 & timeflg) &&
+						if (((flags2 &
+						    (timeflg|systime)) ==
+						    timeflg) &&
 						    !(xflags & XEC_EXECED) &&
 						    !(treeflgs&(FPOU|FAMP))) {
 							/*

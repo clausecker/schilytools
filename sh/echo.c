@@ -37,11 +37,11 @@
 /*
  * Copyright 2008-2015 J. Schilling
  *
- * @(#)echo.c	1.13 15/12/07 2008-2015 J. Schilling
+ * @(#)echo.c	1.14 15/12/26 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)echo.c	1.13 15/12/07 2008-2015 J. Schilling";
+	"@(#)echo.c	1.14 15/12/26 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -166,7 +166,7 @@ escape_char(cp, res, echomode)
 
 	switch (*++cp) {
 #if	defined(DO_SYSPRINTF) || defined(DO_ECHO_A)
-	case 'a':	c = '\a'; break;
+	case 'a':	c = ALERT; break;
 #endif
 	case 'b':	c = '\b'; break;
 	case 'c':	if (echomode) return (NULL); goto norm;

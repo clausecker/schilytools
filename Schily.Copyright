@@ -11,7 +11,7 @@
 
 ----------------------------------------------------------------------------
 * calc
-  Copyright 1985-2009 J. Schilling
+  Copyright 1985-2015 J. Schilling
   License: CDDL
 
 ----------------------------------------------------------------------------
@@ -58,7 +58,7 @@
 
 ----------------------------------------------------------------------------
 * label
-  Copyright 1986-2010 J. Schilling
+  Copyright 1986-2011 J. Schilling
   License: CDDL
 
 ----------------------------------------------------------------------------
@@ -97,12 +97,12 @@
 
 ----------------------------------------------------------------------------
 * libshedit
-  Copyright 1982-2013 J. Schilling
+  Copyright 1982-2015 J. Schilling
   License: CDDL
 
 ----------------------------------------------------------------------------
 * libxtermcap
-  Copyright 1986-2013 J. Schilling
+  Copyright 1986-2015 J. Schilling
   License: CDDL
 
 ----------------------------------------------------------------------------
@@ -145,7 +145,7 @@
 
 ----------------------------------------------------------------------------
 * mdigest
-  Copyright 2009 J. Schilling
+  Copyright 2009-2015 J. Schilling
   License: CDDL
 
 ----------------------------------------------------------------------------
@@ -165,20 +165,27 @@
 
 ----------------------------------------------------------------------------
 * patch
-  Copyright (c) 1986-1988 Larry Wall
+  Copyright (c) 1984-1988 Larry Wall
   Copyright (c) 2011-2015 J. Schilling
   License: 
-This program may be copied as long as you don't try to make any
-money off of it, or pretend that you wrote it.
-
-According to Larry Wall:
-
-I have no problem with anyone including patch in a commercial
-distribution.  The copyright was only put there to scare off anyone who
-might take patch when it was still young and innocent and try to dupe
-someone else into paying for something that can be had for free.
-You're not trying to dupe people.  And patch is no longer young and
-innocent.
+ 
+  Redistribution and use in source and binary forms, with or without
+  modification, are permitted provided that the following condition is met:
+ 
+  1. Redistributions of source code must retain the above copyright notice,
+  this condition and the following disclaimer.
+  
+  THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND ANY
+  EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+  DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE FOR
+  ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+  DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+  SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+  CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+  SUCH DAMAGE.
 
 ----------------------------------------------------------------------------
 * pkgdefs
@@ -235,7 +242,7 @@ innocent.
 
 ----------------------------------------------------------------------------
 * sformat
-  Copyright 1986-2013 J. Schilling
+  Copyright 1986-2015 J. Schilling
   License: CDDL
 
 ----------------------------------------------------------------------------
@@ -282,7 +289,7 @@ innocent.
 
 ----------------------------------------------------------------------------
 * translit
-  Copyright 1985-2009 J. Schilling
+  Copyright 1985-2015 J. Schilling
   License: CDDL
 
 ----------------------------------------------------------------------------
@@ -329,7 +336,7 @@ clause.
 ------------------------------------------
 
 * cdda2wav
-  Copyright 1993-2004 Heiko Eißfeldt
+  Copyright 1993-2004,2015 Heiko Eißfeldt
   Copyright 2004-2015 Jörg Schilling
   License: CDDL
 
@@ -412,7 +419,7 @@ clause.
 
 * libparanoia
   (C) 1997-2001,2008 by Christopher Montgomery "Monty" (xiphmont@mit.edu)
-  (C) 1997-2013 by Joerg Schilling
+  (C) 1997-2015 by Joerg Schilling
   License: LGPLv2.1
 
 ------------------------------------------
@@ -467,8 +474,8 @@ clause.
 ------------------------------------------
 
 * libscg
-  Copyright (C) 1986-2013 Jörg Schilling
-  Platform specific parts Copyright (C) 1986-2013 Jörg Schilling, in addition:
+  Copyright (C) 1986-2015 Jörg Schilling
+  Platform specific parts Copyright (C) 1986-2015 Jörg Schilling, in addition:
   libscg/scg/srb_os2.h:   parts Copyright (c) 1998 D. Dorau, C. Wohlgemuth
   libscg/scsi-linux-pg.c: parts Copyright (c) 1998 Grant R. Guenther <grant@torque.net>
   libscg/scsi-os2.c:      parts Copyright (c) 1998 C. Wohlgemuth

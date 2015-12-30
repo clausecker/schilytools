@@ -1,5 +1,15 @@
 # /* %Z%%M%        %I% %E% Copyright 2009-2010 J. Schilling */
 
+SCHILY_1.1 {
+global:
+	SHA3_224_Init;
+	SHA3_256_Init;
+	SHA3_384_Init;
+	SHA3_512_Init;
+	SHA3_Update;
+	SHA3_Final;
+} SCHILY_1.0;
+
 SCHILY_1.0 {
 global:
 	MD4Final;
