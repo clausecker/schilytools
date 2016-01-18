@@ -36,13 +36,13 @@
 #include "defs.h"
 
 /*
- * This file contains modifications Copyright 2008-2015 J. Schilling
+ * This file contains modifications Copyright 2008-2016 J. Schilling
  *
- * @(#)io.c	1.24 15/08/25 2008-2015 J. Schilling
+ * @(#)io.c	1.25 16/01/01 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)io.c	1.24 15/08/25 2008-2015 J. Schilling";
+	"@(#)io.c	1.25 16/01/01 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -242,11 +242,21 @@ create(s, iof)
 
 	if ((flags2 & noclobberflg) && (iof & IOCLOB) == 0) {
 		if (stat((char *)s, &statb) >= 0) {
-			failed(s, eclobber);
-			/* NOTREACHED */
+			if (S_ISREG(statb.st_mode)) {
+				failed(s, eclobber);
+				/* NOTREACHED */
+			}
+		} else {
+			statb.st_mode = 0;
 		}
 #ifdef	O_CREAT
-		omode |= O_EXCL;
+		/*
+		 * As we here assume that no plain file of that name exists,
+		 * it would be wrong truncate the file.
+		 */
+		omode &= ~O_TRUNC;
+		if (statb.st_mode == 0)
+			omode |= O_EXCL;
 #endif
 	}
 #endif

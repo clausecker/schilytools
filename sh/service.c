@@ -36,13 +36,13 @@
 #include "defs.h"
 
 /*
- * Copyright 2008-2015 J. Schilling
+ * Copyright 2008-2016 J. Schilling
  *
- * @(#)service.c	1.38 15/08/27 2008-2015 J. Schilling
+ * @(#)service.c	1.39 16/01/04 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)service.c	1.38 15/08/27 2008-2015 J. Schilling";
+	"@(#)service.c	1.39 16/01/04 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -197,6 +197,10 @@ getpath(s)
 			/* NOTREACHED */
 		} else
 			return ((unsigned char *)nullstr);
+#ifdef	DO_SYSCOMMAND
+	} else if (flags & ppath) {
+		return ((unsigned char *)defppath);
+#endif
 	} else if ((path = pathnod.namval) == 0)
 		return ((unsigned char *)defpath);
 	else {

@@ -36,13 +36,13 @@
 #include "defs.h"
 
 /*
- * Copyright 2008-2015 J. Schilling
+ * Copyright 2008-2016 J. Schilling
  *
- * @(#)test.c	1.26 15/12/12 2008-2015 J. Schilling
+ * @(#)test.c	1.28 16/01/04 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)test.c	1.26 15/12/12 2008-2015 J. Schilling";
+	"@(#)test.c	1.28 16/01/04 2008-2016 J. Schilling";
 #endif
 
 
@@ -143,7 +143,7 @@ expr(argn, com)
 
 	ac = argn;
 	av = com;
- 	ap = optskip(argn, com, "@ expr");
+	ap = optskip(argn, com, "@ expr");
 	if (ap < 0)
 		return;
 	isexpr = 1;

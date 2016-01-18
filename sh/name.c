@@ -36,13 +36,13 @@
 #include "defs.h"
 
 /*
- * Copyright 2008-2015 J. Schilling
+ * Copyright 2008-2016 J. Schilling
  *
- * @(#)name.c	1.44 15/12/15 2008-2015 J. Schilling
+ * @(#)name.c	1.45 16/01/04 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)name.c	1.44 15/12/15 2008-2015 J. Schilling";
+	"@(#)name.c	1.45 16/01/04 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -481,7 +481,7 @@ readvar(namec, names)
 
 	nextwchar = nextwc;
 	while ((ch = optnext(namec, names, &optv, "r",
-			  "read [-r] name ...")) != -1) {
+			    "read [-r] name ...")) != -1) {
 		if (ch == 0)	/* Was -help */
 			return (1);
 		else if (ch == 'r')

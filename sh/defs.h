@@ -37,9 +37,9 @@
 #endif
 
 /*
- * Copyright 2008-2015 J. Schilling
+ * Copyright 2008-2016 J. Schilling
  *
- * @(#)defs.h	1.133 15/12/26 2008-2015 J. Schilling
+ * @(#)defs.h	1.136 16/01/06 2008-2016 J. Schilling
  */
 
 #ifdef	__cplusplus
@@ -179,6 +179,7 @@ extern "C" {
 #define		SYSPGRP		52
 #define		SYSERRSTR	53
 #define		SYSPRINTF	54
+#define		SYSCOMMAND	55
 
 #define		SYSMAX		255	/* Must fit into low 8 ENTRY.data bits */
 
@@ -403,16 +404,21 @@ extern unsigned char *escape_char __PR((unsigned char *cp, unsigned char *res,
 
 /*
  * error.c
+ *
+ * error() and failed_real() used to have the __NORETURN tag, but since we
+ * support the "command" builtin, we need to be able to prevent the exit
+ * on error (or longjmp to prompt) behavior via (flags & noexit) != 0.
  */
-extern	void	error		__PR((const char *s)) __NORETURN;
+extern	void	error		__PR((const char *s));
 extern	void	failed_real	__PR((int err, unsigned char *s1,
 						const char *s2,
-						unsigned char *s3)) __NORETURN;
+						unsigned char *s3));
 extern	void	failure_real	__PR((int err, unsigned char *s1,
 						const char *s2,
 						unsigned char *s3,
 						int gflag));
 
+extern	void	exvalsh		__PR((int xno));
 extern	void	exitsh		__PR((int xno)) __NORETURN;
 #ifdef	DO_DOT_SH_PARAMS
 extern	void	exval_clear	__PR((void));
@@ -478,7 +484,7 @@ extern	void	set_dotpath	__PR((void));
 extern	void	hash_func	__PR((unsigned char *name));
 extern	void	func_unhash	__PR((unsigned char *name));
 extern	short	hash_cmd	__PR((unsigned char *name));
-extern	int	what_is_path	__PR((unsigned char *name));
+extern	int	what_is_path	__PR((unsigned char *name, int verbose));
 extern	int	chk_access	__PR((unsigned char *name,
 						mode_t mode, int regflag));
 
@@ -622,18 +628,15 @@ extern	int	sltos		__PR((long n));
 extern	int	ltos		__PR((long n));
 
 extern	void	flushb		__PR((void));
+extern	void	unprs_buff	__PR((int));
 extern	void	prc_buff	__PR((unsigned char c));
-extern	void	prs_buff	__PR((unsigned char *s));
+extern	int	prs_buff	__PR((unsigned char *s));
 extern	void	prs_cntl	__PR((unsigned char *s));
 extern	void	prull_buff	__PR((UIntmax_t lc));
 extern	void	prl_buff	__PR((long l));
 extern	void	prn_buff	__PR((int n));
 extern	int	setb		__PR((int fd));
 
-extern	void	prc_buff	__PR((unsigned char c));
-extern	void	prs_buff	__PR((unsigned char *s));
-extern	void	prn_buff	__PR((int n));
-extern	void	prs_cntl	__PR((unsigned char *s));
 
 /*
  * pwd.c
@@ -964,6 +967,7 @@ extern unsigned char		*cmdadr;
 
 /* names always present */
 extern const char		defpath[];
+extern const char		defppath[];
 extern const char		linenoname[];
 extern const char		mailname[];
 extern const char		homename[];
@@ -1033,6 +1037,9 @@ extern const char		devnull[];
 #define		forcexit	010000000	/* Terminate shell */
 #define		jcoff		020000000	/* Tmp jobcontrol off */
 #define		pfshflg		040000000	/* pfexec() support */
+#define		ppath		0100000000	/* Use POSIX default PATH */
+#define		noexit		0200000000	/* Inhibit exit from builtins */
+#define		nofuncs		0400000000	/* Inhibit functions */
 
 #define		fl2		010000000000	/* If in flagval: see flags2 */
 #define		fl3		020000000000	/* If in flagval: see flags3 */

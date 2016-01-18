@@ -1,8 +1,8 @@
-/* @(#)mkisofs.c	1.277 15/12/15 joerg */
+/* @(#)mkisofs.c	1.278 16/01/06 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)mkisofs.c	1.277 15/12/15 joerg";
+	"@(#)mkisofs.c	1.278 16/01/06 joerg";
 #endif
 /*
  * Program mkisofs.c - generate iso9660 filesystem  based upon directory
@@ -11,7 +11,7 @@ static	UConst char sccsid[] =
  * Written by Eric Youngdale (1993).
  *
  * Copyright 1993 Yggdrasil Computing, Incorporated
- * Copyright (c) 1997-2015 J. Schilling
+ * Copyright (c) 1997-2016 J. Schilling
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -2082,7 +2082,7 @@ args_ok:
 	if (help)
 		usage(0);
 	if (pversion) {
-		printf(_("mkisofs %s (%s-%s-%s) Copyright (C) 1993-1997 %s (C) 1997-2015 %s\n"),
+		printf(_("mkisofs %s (%s-%s-%s) Copyright (C) 1993-1997 %s (C) 1997-2016 %s\n"),
 			version_string,
 			HOST_CPU, HOST_VENDOR, HOST_OS,
 			_("Eric Youngdale"),
@@ -3194,6 +3194,7 @@ path_done:
 		 * finish_cl_pl_entries can do its job
 		 */
 		match_cl_re_entries();
+		free(mrootp);
 	}
 #ifdef APPLE_HYB
 	/* free up any HFS filename mapping memory */

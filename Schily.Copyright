@@ -252,7 +252,7 @@
 
 ----------------------------------------------------------------------------
 * sh
-  Copyright 1982-2015 J. Schilling
+  Copyright 1982-2016 J. Schilling
   Copyright 1989-2006 Sun Microsystems, Inc.
   Copyright (c) 1984, 1986, 1987, 1988, 1989 AT&T
   License: CDDL
@@ -346,7 +346,7 @@ clause.
   Written by Eric Youngdale (1993).
   Copyright (c) 1993-1997 Eric Youngdale
   Copyright 1993 Yggdrasil Computing, Incorporated
-  Copyright (c) 1997-2015 J. Schilling
+  Copyright (c) 1997-2016 J. Schilling
   parts Copyright (c) 2002 Olaf Beck - olaf_sc@yahoo.com
   parts Copyright (c) 1997, 1998, 1999, 2000 James Pearson
   APPLE_HYB James Pearson j.pearson@ge.ucl.ac.uk 22/2/2000

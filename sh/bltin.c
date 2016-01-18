@@ -36,13 +36,13 @@
 #include "defs.h"
 
 /*
- * Copyright 2008-2015 J. Schilling
+ * Copyright 2008-2016 J. Schilling
  *
- * @(#)bltin.c	1.86 15/12/17 2008-2015 J. Schilling
+ * @(#)bltin.c	1.89 16/01/05 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)bltin.c	1.86 15/12/17 2008-2015 J. Schilling";
+	"@(#)bltin.c	1.89 16/01/05 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -69,6 +69,11 @@ static	UConst char sccsid[] =
 
 	void	builtin	__PR((int type, int argc, unsigned char **argv,
 					struct trenod *t, int xflags));
+static	int	whatis	__PR((unsigned char *arg, int verbose));
+#ifdef	DO_SYSCOMMAND
+static	void	syscommand __PR((int argc, unsigned char **argv,
+					struct trenod *t, int xflags));
+#endif
 
 void
 builtin(type, argc, argv, t, xflags)
@@ -704,30 +709,7 @@ int xflags;
 #endif
 			/* return success only if all names are found */
 			while (*++argv) {
-#ifdef	DO_SYSALIAS
-				char *val;
-
-				if ((val = ab_value(LOCAL_AB,
-							(char *)*argv, NULL,
-							AB_BEGIN)) != NULL) {
-					prs_buff(*argv);
-					prs_buff(_gettext(
-						" is a local alias for '"));
-					prs_buff(UC val);
-					prs_buff(UC "'\n");
-					continue;
-				} else if ((val = ab_value(GLOBAL_AB,
-							(char *)*argv, NULL,
-							AB_BEGIN)) != NULL) {
-					prs_buff(*argv);
-					prs_buff(_gettext(
-						" is a global alias for '"));
-					prs_buff(UC val);
-					prs_buff(UC "'\n");
-					continue;
-				}
-#endif
-				exitval |= what_is_path(*argv);
+				exitval |= whatis(*argv, 2);
 			}
 		}
 		break;
@@ -844,7 +826,8 @@ int xflags;
 			optinit(&optv);
 
 			while ((c = optnext(argc, argv, &optv, "ru",
-			  "map [-r | -u] [fromstr [tostr [comment]]]")) != -1) {
+			    "map [-r | -u] [fromstr [tostr [comment]]]")) !=
+			    -1) {
 				if (c == 0)	/* Was -help */
 					goto out;
 				else if (c == 'r')
@@ -968,6 +951,12 @@ int xflags;
 		break;
 #endif
 
+#ifdef	DO_SYSCOMMAND
+	case SYSCOMMAND:
+		syscommand(argc, argv, t, xflags);
+		break;
+#endif
+
 	default:
 		prs_buff(_gettext("unknown builtin\n"));
 	}
@@ -980,3 +969,117 @@ out:
 	exval_set(exitval);	/* Prepare ${.sh.*} parameters */
 	chktrap();		/* Run installed traps */
 }
+
+static int
+whatis(arg, verbose)
+	unsigned char	*arg;
+	int		verbose;
+{
+#ifdef	DO_SYSALIAS
+	char		*val;
+
+	if ((val = ab_value(LOCAL_AB, (char *)arg, NULL,
+				AB_BEGIN)) != NULL) {
+		if (verbose) {
+			prs_buff(arg);
+			prs_buff(_gettext(" is a local alias for '"));
+		}
+		prs_buff(UC val);
+		if (verbose)
+			prs_buff(UC "'\n");
+		else
+			prs_buff(UC "\n");
+		return (0);
+	} else if ((val = ab_value(GLOBAL_AB, (char *)arg, NULL,
+				AB_BEGIN)) != NULL) {
+		if (verbose) {
+			prs_buff(arg);
+			prs_buff(_gettext(" is a global alias for '"));
+		}
+		prs_buff(UC val);
+		if (verbose)
+			prs_buff(UC "'\n");
+		else
+			prs_buff(UC "\n");
+		return (0);
+	}
+#endif
+	return (what_is_path(arg, verbose));
+}
+
+#ifdef	DO_SYSCOMMAND
+static void
+syscommand(argc, argv, t, xflags)
+	int		argc;
+	unsigned char	**argv;
+	struct trenod	*t;
+	int		xflags;
+{
+	struct optv	optv;
+	int		c;
+	int		pflg = 0;
+	int		vflg = 0;
+	int		Vflg = 0;
+	char		*cusage = "command [-p][-v | -V] [name [arg ...]]";
+
+	optinit(&optv);
+
+	while ((c = optnext(argc, argv, &optv, "pvV", cusage)) != -1) {
+		if (c == 0) {	/* Was -help */
+			return;
+		} else if (c == 'p') {
+			pflg++;
+		} else if (c == 'v') {
+			if (Vflg) {
+				optbad(argc, UCP argv, &optv);
+				gfailure((unsigned char *)usage, cusage);
+				return;
+			}
+			vflg++;
+		} else if (c == 'V') {
+			if (vflg) {
+				optbad(argc, UCP argv, &optv);
+				gfailure((unsigned char *)usage, cusage);
+				return;
+			}
+			Vflg++;
+		}
+	}
+	argc -= optv.optind;
+	argv += optv.optind;
+	if ((vflg + Vflg) && *argv == NULL) {
+		gfailure((unsigned char *)usage, cusage);
+		return;
+	}
+	if (pflg) {
+		flags |= ppath;
+	}
+	if (vflg) {
+		exitval = whatis(*argv, 0);
+	} else if (Vflg) {
+		exitval = whatis(*argv, 1);
+	} else if (*argv) {
+		short	cmdhash = pathlook(argv[0], 0, (struct argnod *)0);
+
+		if (hashtype(cmdhash) == BUILTIN) {
+			struct ionod	*iop = t->treio;
+
+			flags |= noexit;
+			t->treio = NULL;
+			builtin(hashdata(cmdhash), argc, argv, t, xflags);
+			t->treio = iop;
+			flags &= ~(ppath | noexit);
+			return;
+		} else {
+			unsigned char		*sav = savstak();
+			struct ionod		*iosav = iotemp;
+
+			flags |= nofuncs;
+			execexp(argv[0], (Intptr_t)&argv[1], xflags);
+			flags &= ~nofuncs;
+			tdystak(sav, iosav);
+		}
+	}
+	flags &= ~ppath;
+}
+#endif

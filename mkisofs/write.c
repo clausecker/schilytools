@@ -1,8 +1,8 @@
-/* @(#)write.c	1.142 15/12/30 joerg */
+/* @(#)write.c	1.143 15/12/31 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)write.c	1.142 15/12/30 joerg";
+	"@(#)write.c	1.143 15/12/31 joerg";
 #endif
 /*
  * Program write.c - dump memory  structures to  file for iso9660 filesystem.
@@ -1023,19 +1023,26 @@ sort_file_addresses()
 			struct directory_entry  *s_e;
 			UInt32_t		ext = start_extent;
 
+			/*
+			 * For unknown reason, we sometimes get mxroot as
+			 * part of the chain and sometime it's missing.
+			 * Be careful to distinct between the mxroot entry and
+			 * others to select both corectly in a conservative way.
+			 */
 			s_entry->mxroot->starting_block = start_extent;
 			set_733((char *)s_entry->mxroot->isorec.extent,
 								start_extent);
+			start_extent += ISO_BLOCKS(s_entry->mxroot->size);
+
 			for (s_e = s_entry;
 			    s_e && s_e->mxroot == s_entry->mxroot;
 			    s_e = s_e->next) {
-				set_733((char *)s_e->isorec.extent,
-								ext);
-				s_entry->starting_block = ext;
 				if (s_e == s_entry->mxroot)
-					start_extent += ISO_BLOCKS(s_e->size);
-				else
-					ext += ISO_BLOCKS(s_e->size);
+					continue;
+
+				set_733((char *)s_e->isorec.extent, ext);
+				s_entry->starting_block = ext;
+				ext += ISO_BLOCKS(s_e->size);
 			}
 		} else {
 			set_733((char *)s_entry->isorec.extent, start_extent);

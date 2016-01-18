@@ -37,13 +37,13 @@
 #include <schily/errno.h>
 
 /*
- * Copyright 2008-2015 J. Schilling
+ * Copyright 2008-2016 J. Schilling
  *
- * @(#)msg.c	1.58 15/12/23 2008-2015 J. Schilling
+ * @(#)msg.c	1.61 16/01/06 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)msg.c	1.58 15/12/23 2008-2015 J. Schilling";
+	"@(#)msg.c	1.61 16/01/06 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -149,7 +149,8 @@ const char	trapuse[]	= "trap [action condition ...]";
 #endif
 const char	ulimuse[]	=
 		"ulimit [ -HSacdefilmnqrstuvLMPRS ] [ limit ]";
-const char	killuse[]	= "kill [ [ -sig | -s sig ] id ... | -l [ signo ... ] ]";
+const char	killuse[]	=
+		"kill [ [ -sig | -s sig ] id ... | -l [ signo ... ] ]";
 const char	jobsuse[]	= "jobs [ [ -l | -p ] [ id ... ] | -x cmd ]";
 const char	nosuchjob[]	= "no such job";
 const char	nosuchpid[]	= "no such process";
@@ -205,6 +206,14 @@ const char	timefmtname[]	= "TIMEFORMAT";
 const char	nullstr[]	= "";
 const char	sptbnl[]	= " \t\n";
 const char	defpath[]	= "/usr/bin:";
+#ifdef	DO_SYSCOMMAND
+/*
+ * The correct POSIX default PATH for Solaris + "/bin" after "/usr/bin" should
+ * be sufficient for all platforms.
+ */
+const char	defppath[]	=
+"/usr/xpg6/bin:/usr/xpg4/bin:/usr/ccs/bin:/usr/bin:/bin:/opt/SUNWspro/bin:";
+#endif
 const char	colon[]		= ": ";
 const char	minus[]		= "-";
 const char	endoffile[]	= "end of file";
@@ -282,8 +291,10 @@ const char	readonly[] = "readonly";
  * Built-ins marked with "-" do not follow utility syntax guidelines.
  * Built-ins marked with "U" follow utility syntax guidelines and support --.
  *
- * The POSIX standard in addition defines the regular intrinsic utilities
- * "fc" and "command" that are not part of the Bourne Shell.
+ * The POSIX standard in addition defines the regular intrinsic utility
+ * "fc" that is not part of the Bourne Shell as the Bourne Shell uses a command
+ * line history editor taken from "bsh" that was fully integrated in 1984
+ * already, when ksh still called an external editor command.
  */
 const struct sysnod commands[] =
 {
@@ -308,6 +319,9 @@ const struct sysnod commands[] =
 #endif
 	{ "cd",		SYSCD,		BLT_INT },	/*  I  */
 	{ "chdir",	SYSCD,		0 },
+#ifdef	DO_SYSCOMMAND
+	{ "command",	SYSCOMMAND,	BLT_INT },	/*  I  */
+#endif
 	{ "continue",	SYSCONT,	BLT_SPC	},	/* S - */
 #ifdef	DO_SYSPUSHD
 	{ "dirs",	SYSDIRS,	0 },
@@ -338,7 +352,7 @@ const struct sysnod commands[] =
 	{ "jobs",	SYSJOBS,	BLT_INT },	/*  I  */
 	{ "kill",	SYSKILL,	BLT_INT },	/*  I  */
 #ifdef	DO_SYSKILLPG
-	{ "killpg",	SYSKILL,	0 },		/*     */
+	{ "killpg",	SYSKILL,	0 },
 #endif
 #ifdef RES
 	{ "login",	SYSLOGIN,	0 },

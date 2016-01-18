@@ -1,7 +1,7 @@
-/* @(#)scsi-linux-sg.c	1.96 13/05/28 Copyright 1997-2013 J. Schilling */
+/* @(#)scsi-linux-sg.c	1.98 16/01/11 Copyright 1997-2016 J. Schilling */
 #ifndef lint
 static	char __sccsid[] =
-	"@(#)scsi-linux-sg.c	1.96 13/05/28 Copyright 1997-2013 J. Schilling";
+	"@(#)scsi-linux-sg.c	1.98 16/01/11 Copyright 1997-2016 J. Schilling";
 #endif
 /*
  *	Interface for Linux generic SCSI implementation (sg).
@@ -39,7 +39,7 @@ static	char __sccsid[] =
  *	Choose your name instead of "schily" and make clear that the version
  *	string is related to a modified source.
  *
- *	Copyright (c) 1997-2013 J. Schilling
+ *	Copyright (c) 1997-2016 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -48,6 +48,8 @@ static	char __sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * The following exceptions apply:
  * CDDL §3.6 needs to be replaced by: "You may create a Larger Work by
@@ -127,7 +129,7 @@ static	char __sccsid[] =
  *	Choose your name instead of "schily" and make clear that the version
  *	string is related to a modified source.
  */
-LOCAL	char	_scg_trans_version[] = "scsi-linux-sg.c-1.96";	/* The version for this transport*/
+LOCAL	char	_scg_trans_version[] = "scsi-linux-sg.c-1.98";	/* The version for this transport*/
 
 #ifndef	SCSI_IOCTL_GET_BUS_NUMBER
 #define	SCSI_IOCTL_GET_BUS_NUMBER 0x5386
@@ -1486,14 +1488,19 @@ again:
 		to.tv_usec = 500000;
 		__scg_times(scgp);
 
-		if (scgp->cmdstop->tv_sec < to.tv_sec ||
+		if (scgp->cmdstop->tv_sec > to.tv_sec ||
 		    (scgp->cmdstop->tv_sec == to.tv_sec &&
-			scgp->cmdstop->tv_usec < to.tv_usec)) {
+			scgp->cmdstop->tv_usec > to.tv_usec)) {
 
 			sp->ux_errno = 0;
 			sp->error = SCG_TIMEOUT;	/* a timeout */
 		} else {
 			sp->error = SCG_RETRYABLE;
+			if (!scgp->silent) {
+				js_fprintf((FILE *)scgp->errfile,
+					"Unknown sg_io.host_status %X\n",
+						sg_io.host_status);
+			}
 		}
 		break;
 	}

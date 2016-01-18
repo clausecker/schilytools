@@ -36,13 +36,13 @@
 #include "defs.h"
 
 /*
- * Copyright 2008-2015 J. Schilling
+ * Copyright 2008-2016 J. Schilling
  *
- * @(#)error.c	1.19 15/09/12 2008-2015 J. Schilling
+ * @(#)error.c	1.21 16/01/06 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)error.c	1.19 15/09/12 2008-2015 J. Schilling";
+	"@(#)error.c	1.21 16/01/06 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -60,8 +60,9 @@ static void failed_body	__PR((unsigned char *s1, const char *s2,
 	void failure_real __PR((int err, unsigned char *s1, const char *s2,
 				unsigned char *s3,
 				int gflag));
-#ifdef	DO_DOT_SH_PARAMS
+	void exvalsh	__PR((int xno));
 	void exitsh	__PR((int xno));
+#ifdef	DO_DOT_SH_PARAMS
 	void rmtemp	__PR((struct ionod *base));
 	void rmfunctmp	__PR((void));
 #endif
@@ -69,6 +70,10 @@ static void failed_body	__PR((unsigned char *s1, const char *s2,
 /*
  * As error() finally calls exitsh(), it should only be called if scripts
  * need to be aborted as a result of the error to report.
+ *
+ * error() used to have the __NORETURN tag, but since we support
+ * the "command" builtin, we need to be able to prevent the exit
+ * on error (or longjmp to prompt) behavior via (flags & noexit) != 0.
  */
 void
 error(s)
@@ -102,6 +107,10 @@ failed_body(s1, s2, s3, gflag)
  * Called from "fatal errors", from locations where either a real exit() is
  * expected or from an interactive command where a longjmp() to the next prompt
  * is expected.
+ *
+ * failed_real() used to have the __NORETURN tag, but since we support
+ * the "command" builtin, we need to be able to prevent the exit
+ * on error (or longjmp to prompt) behavior via (flags & noexit) != 0.
  */
 void
 failed_real(err, s1, s2, s3)
@@ -114,7 +123,10 @@ failed_real(err, s1, s2, s3)
 #if !defined(NO_VFORK) || defined(DO_POSIX_SPEC_BLTIN)
 	namscan(popval);
 #endif
-	exitsh(err);
+	if (!(flags & noexit))
+		exitsh(err);
+
+	exvalsh(err);
 }
 
 /*
@@ -134,9 +146,16 @@ failure_real(err, s1, s2, s3, gflag)
 	if (flags & errflg)
 		exitsh(err);
 
+	exvalsh(err);
+}
+
+void
+exvalsh(xno)
+	int	xno;
+{
 	flags |= eflag;
-	exitval = err;
-	exval_set(exitval);
+	exitval = xno;
+	exval_set(xno);
 	exitset();
 }
 
@@ -152,9 +171,7 @@ exitsh(xno)
 	 *
 	 * Action is to return to command level or exit.
 	 */
-	exitval = xno;
-	exval_set(xno);
-	flags |= eflag;
+	exvalsh(xno);
 	if ((flags & (forcexit | forked | errflg | ttyflg)) != ttyflg) {
 		/*
 		 * If not from a "tty" or when special flags are set,

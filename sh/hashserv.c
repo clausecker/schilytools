@@ -36,13 +36,13 @@
 #include "defs.h"
 
 /*
- * This file contains modifications Copyright 2008-2015 J. Schilling
+ * This file contains modifications Copyright 2008-2016 J. Schilling
  *
- * @(#)hashserv.c	1.23 15/08/27 2008-2015 J. Schilling
+ * @(#)hashserv.c	1.27 16/01/05 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)hashserv.c	1.23 15/08/27 2008-2015 J. Schilling";
+	"@(#)hashserv.c	1.27 16/01/05 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -71,7 +71,7 @@ static void	hashout		__PR((ENTRY *h));
 	void	hash_func	__PR((unsigned char *name));
 	void	func_unhash	__PR((unsigned char *name));
 	short	hash_cmd	__PR((unsigned char *name));
-	int	what_is_path	__PR((unsigned char *name));
+	int	what_is_path	__PR((unsigned char *name, int verbose));
 static	int	findpath	__PR((unsigned char *name, int oldpath));
 	int	chk_access	__PR((unsigned char *name,
 					mode_t mode, int regflag));
@@ -102,12 +102,22 @@ pathlook(com, flg, arg)
 		return (COMMAND);
 
 	h = hfind(name);
+	if (h && (flags & ppath)) {
+		if (h->data & (BUILTIN | FUNCTION))
+			if (!(h->data & FUNCTION) || !(flags & nofuncs))
+				return (h->data);
+		/*
+		 * Do not hash regular commands with "command -p ..."
+		 */
+		h = NULL;
+	}
 
 	if (h) {
 		if (h->data & (BUILTIN | FUNCTION)) {
 			if (flg)
 				h->hits++;
-			return (h->data);
+			if (!(h->data & FUNCTION) || !(flags & nofuncs))
+				return (h->data);
 		}
 
 		if (arg && (pathset = argpath(arg)))
@@ -135,12 +145,20 @@ pathlook(com, flg, arg)
 
 	if ((i = syslook(name, commands, no_commands)) != 0) {
 		hentry.data = (BUILTIN | i);
+		if ((flags & ppath))
+			return (hentry.data);
 		count = 1;
 	} else {
 		if (arg && (pathset = argpath(arg)))
 			return (PATH_COMMAND);
 pathsrch:
-			count = findpath(name, oldpath);
+		count = findpath(name, oldpath);
+		if ((flags & ppath)) {
+			if (count > 0)
+				return (COMMAND | count);
+			else
+				return (-count);
+		}
 	}
 
 	if (count > 0) {
@@ -351,23 +369,36 @@ hash_cmd(name)
  * Return 0 if found, 1 if not.
  */
 int
-what_is_path(name)
+what_is_path(name, verbose)
 	unsigned char	*name;
+	int		verbose;
 {
 	ENTRY	*h;
 	int	cnt;
+	int	amt;
 	short	hashval;
 	const struct sysnod	*sp;
 
 	h = hfind(name);
+	if (h && (flags & ppath)) {
+		/*
+		 * Do not hash regular commands with "command -p ..."
+		 */
+		if (!(h->data & (BUILTIN | FUNCTION)))
+			h = NULL;
+	}
 
-	prs_buff(name);
+	amt = prs_buff(name);
 	if (h) {
 		hashval = hashdata(h->data);
 
 		switch (hashtype(h->data)) {
 
 		case BUILTIN:
+			if (!verbose) {
+				prc_buff(NL);
+				return (0);
+			}
 			prs_buff(_gettext(" is a shell builtin\n"));
 			return (0);
 
@@ -375,7 +406,13 @@ what_is_path(name)
 			struct namnod *n = lookup(name);
 			struct fndnod *f = fndptr(n->namenv);
 
+			if (!verbose) {
+				prc_buff(NL);
+				return (0);
+			}
 			prs_buff(_gettext(" is a function\n"));
+			if (verbose <= 1)
+				return (0);
 			prs_buff(name);
 			prs_buff((unsigned char *)"(){\n");
 			if (f != NULL)
@@ -390,8 +427,12 @@ what_is_path(name)
 			if ((h->data & DOT_COMMAND) == DOT_COMMAND) {
 				hash = pathlook(name, 0, (struct argnod *)0);
 				if (hashtype(hash) == NOTFOUND) {
+					if (!verbose) {
+						unprs_buff(amt);
+						return (ERR_NOTFOUND);
+					}
 					prs_buff(_gettext(" not found\n"));
-					return (1);
+					return (ERR_NOTFOUND);
 				} else {
 					hashval = hashdata(hash);
 				}
@@ -400,6 +441,12 @@ what_is_path(name)
 		/* FALLTHROUGH */
 
 		case COMMAND:
+			if (!verbose) {
+				unprs_buff(amt);
+				pr_path(name, hashval);
+				prc_buff(NL);
+				return (0);
+			}
 			prs_buff(_gettext(" is hashed ("));
 			pr_path(name, hashval);
 			prs_buff((unsigned char *)")\n");
@@ -409,12 +456,20 @@ what_is_path(name)
 
 #ifdef DO_POSIX_TYPE
 	if (syslook(name, reserved, no_reserved)) {
+		if (!verbose) {
+			prc_buff(NL);
+			return (0);
+		}
 		prs_buff(_gettext(" is a keyword\n"));
 		return (0);
 	}
 #endif
 
 	if ((sp = sysnlook(name, commands, no_commands)) != NULL) {
+		if (!verbose) {
+			prc_buff(NL);
+			return (0);
+		}
 #ifdef DO_POSIX_TYPE
 		if (sp->sysflg & BLT_SPC)
 			prs_buff(_gettext(" is a special shell builtin\n"));
@@ -427,13 +482,23 @@ what_is_path(name)
 	}
 
 	if ((cnt = findpath(name, 0)) > 0) {
+		if (!verbose) {
+			unprs_buff(amt);
+			pr_path(name, cnt);
+			prc_buff(NL);
+			return (0);
+		}
 		prs_buff(_gettext(" is "));
 		pr_path(name, cnt);
 		prc_buff(NL);
 		return (0);
 	} else {
+		if (!verbose) {
+			unprs_buff(amt);
+			return (ERR_NOTFOUND);
+		}
 		prs_buff(_gettext(" not found\n"));
-		return (1);
+		return (ERR_NOTFOUND);
 	}
 }
 

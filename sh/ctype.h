@@ -27,8 +27,8 @@
 #pragma ident	"@(#)ctype.h	1.8	05/06/08 SMI"	/* SVr4.0 1.10.1.1 */
 #endif
 /*
- * This file contains modifications Copyright 2009-2012 J. Schilling
- * @(#)ctype.h	1.4 12/04/22 2009-2012 J. Schilling
+ * This file contains modifications Copyright 2009-2016 J. Schilling
+ * @(#)ctype.h	1.6 16/01/14 2009-2016 J. Schilling
  */
 /*
  *	UNIX shell
@@ -46,50 +46,56 @@
 #define	T_ESC	0200
 
 /* table 2 */
-#define	T_BRC	01
-#define	T_DEF	02
-#define	T_AST	04
-#define	T_DIG	010
-#define	T_SHN	040
-#define	T_IDC	0100
-#define	T_SET	0200
+#define	T_BRC	01			/* '{'			*/
+#define	T_DEF	02			/* defchars "}=-+?"	*/
+#define	T_AST	04			/* '*' or '@'		*/
+#define	T_DIG	010			/* Digits		*/
+#define	T_SHN	040			/* Legal parameter characters */
+#define	T_IDC	0100			/* Upper + Lower ID Characters */
+#define	T_SET	0200			/* Parameter set '+'	*/
 
 /* for single chars */
-#define	_TAB	(T_SPC)
-#define	_SPC	(T_SPC)
-#define	_UPC	(T_IDC)
-#define	_LPC	(T_IDC)
-#define	_DIG	(T_DIG)
-#define	_EOF	(T_EOF)
-#define	_EOR	(T_EOR)
-#define	_BAR	(T_DIP)
-#define	_HAT	(T_MET)
-#define	_BRA	(T_MET)
-#define	_KET	(T_MET)
-#define	_AMP	(T_DIP)
-#define	_SEM	(T_DIP)
-#define	_LT	(T_DIP)
-#define	_GT	(T_DIP)
-#define	_LQU	(T_QOT|T_ESC)
-#define	_BSL	(T_ESC)
-#define	_DQU	(T_QOT|T_ESC)
-#define	_DOL1	(T_SUB|T_ESC)
+#define	_TAB	(T_SPC)			/* '\11' (^I)	*/
+#define	_SPC	(T_SPC)			/* ' '		*/
+#define	_UPC	(T_IDC)			/* Upper case	*/
+#define	_LPC	(T_IDC)			/* Lower case	*/
+#define	_DIG	(T_DIG)			/* Digits	*/
+#define	_EOF	(T_EOF)			/* '\0'		*/
+#define	_EOR	(T_EOR)			/* '\n'		*/
+#define	_BAR	(T_DIP)			/* '|'		*/
+#define	_HAT	(T_MET)			/* '^'		*/
+#define	_BRA	(T_MET)			/* '('		*/
+#define	_KET	(T_MET)			/* ')'		*/
+#define	_AMP	(T_DIP)			/* '&'		*/
+#define	_SEM	(T_DIP)			/* ';'		*/
+#define	_LT	(T_DIP)			/* '<'		*/
+#define	_GT	(T_DIP)			/* '>'		*/
+#define	_LQU	(T_QOT|T_ESC)		/* '`'		*/
+#define	_BSL	(T_ESC)			/* '\\'		*/
+#define	_DQU	(T_QOT|T_ESC)		/* '"'		*/
+#define	_DOL1	(T_SUB|T_ESC)		/* '$'		*/
 
-#define	_CBR	T_BRC
-#define	_CKT	T_DEF
-#define	_AST	(T_AST)
-#define	_EQ	(T_DEF)
-#define	_MIN	(T_DEF|T_SHN)
-#define	_PCS	(T_SHN)
-#define	_NUM	(T_SHN)
-#define	_DOL2	(T_SHN)
-#define	_PLS	(T_DEF|T_SET)
-#define	_AT	(T_AST)
-#define	_QU	(T_DEF|T_SHN)
+#define	_CBR	T_BRC			/* '{'		*/
+#define	_CKT	T_DEF			/* '}'		*/
+#define	_AST	(T_AST)			/* '*'		*/
+#define	_EQ	(T_DEF)			/* '='		*/
+#define	_MIN	(T_DEF|T_SHN)		/* '-'		*/
+#define	_PCS	(T_SHN)			/* '!'		*/
+#ifdef	DO_SUBSTRING			/* ${parm%word}	*/
+#define	_PCT	(T_DEF|T_SET)		/* '%'		*/
+#define	_NUM	(T_DEF|T_SHN|T_SET)	/* '#'		*/
+#else
+#define	_PCT	(0)			/* '%'		*/
+#define	_NUM	(T_SHN)			/* '#'		*/
+#endif
+#define	_DOL2	(T_SHN)			/* '$'		*/
+#define	_PLS	(T_DEF|T_SET)		/* '+'		*/
+#define	_AT	(T_AST)			/* '@'		*/
+#define	_QU	(T_DEF|T_SHN)		/* '?'		*/
 
 /* abbreviations for tests */
-#define	_IDCH	(T_IDC|T_DIG)
-#define	_META	(T_SPC|T_DIP|T_MET|T_EOR)
+#define	_IDCH	(T_IDC|T_DIG)		/* Alphanumeric	*/
+#define	_META	(T_SPC|T_DIP|T_MET|T_EOR) /* " |&;<>^()\n" */
 
 extern
 #ifdef __STDC__

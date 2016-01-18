@@ -1,15 +1,15 @@
-/* @(#)multi.c	1.103 15/12/29 joerg */
+/* @(#)multi.c	1.104 16/01/06 joerg */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)multi.c	1.103 15/12/29 joerg";
+	"@(#)multi.c	1.104 16/01/06 joerg";
 #endif
 /*
  * File multi.c - scan existing iso9660 image and merge into
  * iso9660 filesystem.  Used for multisession support.
  *
  * Written by Eric Youngdale (1996).
- * Copyright (c) 1999-2015 J. Schilling
+ * Copyright (c) 1999-2016 J. Schilling
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -619,6 +619,19 @@ valid_iso_directory(idr, idr_off, space_left)
 		idr_namelength++;
 	}
 	if ((offsetof(struct iso_directory_record, name[0]) +
+	    idr_namelength) > idr_length) {
+		int	xlimit = idr_length -
+			offsetof(struct iso_directory_record, name[0]) -
+			idr_ext_length;
+
+		if (xlimit < 0)
+			xlimit = 0;
+		if (nlimit < xlimit)
+			xlimit = nlimit;
+		comerrno(EX_BAD, _("Bad filename length %zu (> %d) for '%.*s'.\n"),
+				idr_namelength, xlimit, xlimit, idr->name);
+	}
+	if ((offsetof(struct iso_directory_record, name[0]) +
 	    idr_namelength + idr_ext_length) > idr_length) {
 		int	xlimit = idr_length -
 			offsetof(struct iso_directory_record, name[0]) -
@@ -626,16 +639,6 @@ valid_iso_directory(idr, idr_off, space_left)
 
 		comerrno(EX_BAD, _("Bad extended attribute length %zu (> %d) for '%.*s'.\n"),
 				idr_ext_length, xlimit, nlimit, idr->name);
-	}
-	if ((offsetof(struct iso_directory_record, name[0]) +
-	    idr_namelength) > idr_length) {
-		int	xlimit = idr_length -
-			offsetof(struct iso_directory_record, name[0]);
-
-		if (nlimit < xlimit)
-			xlimit = nlimit;
-		comerrno(EX_BAD, _("Bad filename length %zu (> %d) for '%.*s'.\n"),
-				idr_namelength, xlimit, xlimit, idr->name);
 	}
 
 #ifdef	__do_rr_

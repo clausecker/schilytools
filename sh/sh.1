@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sh.1	1.137 15/12/23 Copyright 2012-2015 J. Schilling
+.\" @(#)sh.1	1.142 16/01/14 Copyright 2012-2015 J. Schilling
 .\" Copyright 1989 AT&T
 .\" Copyright (c) 2008, Sun Microsystems, Inc. All Rights Reserved.
 .\" Portions Copyright (c) 1992, X/Open Company Limited All Rights Reserved
@@ -59,7 +59,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sh 1 "2015/12/23" "Schily Bourne Shell" "User Commands"
+.TH sh 1 "2016/01/14" "Schily Bourne Shell" "User Commands"
 .SH NAME
 sh, jsh \- standard and job control shell and command interpreter
 .SH SYNOPSIS
@@ -934,7 +934,8 @@ There cannot be a function and a variable with the same
 .ne 3
 .TP 25n
 .BI ${ parameter }
-The value, if any, of the parameter is substituted. The braces are required
+.BR "The value" ,
+if any, of the parameter is substituted. The braces are required
 only when
 .I parameter
 is followed by a letter, digit, or underscore that
@@ -957,7 +958,8 @@ is set from argument zero when the shell is invoked.
 .ne 3
 .TP
 .BI ${ parameter :\(mi word }
-Use Default Values. If
+.BR "Use Default Values" .
+If
 .I parameter
 is unset or null, the expansion of
 .I word
@@ -969,7 +971,8 @@ is substituted.
 .ne 3
 .TP
 .BI ${ parameter \(mi word }
-Use Default Values. If
+.BR "Use Default Values" .
+If
 .I parameter
 is unset, the expansion of
 .I word
@@ -981,7 +984,8 @@ is substituted.
 .ne 3
 .TP
 .BI ${ parameter := word }
-Assign Default Values. If
+.BR "Assign Default Values" .
+If
 .I parameter
 is unset or null, the expansion of
 .I word
@@ -996,7 +1000,8 @@ or special parameters, can be assigned in this way.
 .ne 3
 .TP
 .BI ${ parameter = word }
-Assign Default Values. If
+.BR "Assign Default Values" .
+If
 .I parameter
 is unset, the expansion of
 .I word
@@ -1011,6 +1016,7 @@ or special parameters, can be assigned in this way.
 .ne 3
 .TP
 .BI ${ parameter  :? word }
+.BR "Indicate Error if Null or Unset" .
 If
 .I parameter
 is set and is non-null, substitute its value; otherwise, print
@@ -1023,6 +1029,7 @@ is omitted, the message "parameter null or not set" is printed.
 .ne 3
 .TP
 .BI ${ parameter  ? word }
+.BR "Indicate Error if Null or Unset" .
 If
 .I parameter
 is set, substitute its value; otherwise, print
@@ -1035,6 +1042,7 @@ is omitted, the message "parameter null or not set" is printed.
 .ne 3
 .TP
 .BI ${ parameter :+ word }
+.BR "Use Alternative Value" .
 If
 .I parameter
 is set and is non-null, substitute
@@ -1045,6 +1053,7 @@ otherwise substitute nothing.
 .ne 3
 .TP
 .BI ${ parameter + word }
+.BR "Use Alternative Value" .
 If
 .I parameter
 is set, substitute
@@ -1105,6 +1114,103 @@ is not set or is null:
 .fi
 .in -2
 .sp
+.LP
+.br
+.ne 3
+.TP 25n
+.BI ${# parameter }
+.BR "String Length" .
+The length in characters of the value of
+.IR parameter .
+If
+.I parameter
+is
+.B *
+or
+.BR @ ,
+the results are unspecified.
+
+.LP
+The following four varieties of parameter expansion provide for
+substring processing. In each case, pattern matching notation,
+rather than regular expression notation, is used to evaluate the patterns.
+If
+.I parameter
+is
+.B *
+or
+.BR @ ,
+the results are unspecified.
+Enclosing the full parameter expansion string in double-quotes 
+does not cause the following four varieties of
+pattern characters to be quoted, whereas quoting characters
+within the braces has this effect.
+
+.br
+.ne 3
+.TP 25n
+.BI ${ parameter % word }
+.BR "Remove Smallest Suffix Pattern" .
+The
+.I word
+is expanded to produce a pattern.
+The parameter expansion then results in 
+.IR parameter , 
+with the smallest portion of the suffix matched by the
+.I pattern
+deleted.
+If
+.I word
+begins with a
+.RB ' % ',
+the character needs to be quoted.
+
+.br
+.ne 3
+.TP
+.BI ${ parameter %% word }
+.BR "Remove Largest Suffix Pattern" . 
+The
+.I word
+is expanded to produce a pattern.
+The parameter expansion then results in
+.IR parameter ,
+with the largest portion of the suffix matched by the
+.I pattern
+deleted.
+
+.br
+.ne 3
+.TP
+.BI ${ parameter # word }
+.BR "Remove Smallest Prefix Pattern". 
+The
+.I word
+is expanded to produce a pattern.
+The parameter expansion then results in
+.IR parameter ,
+with the smallest portion of the prefix matched by the
+.I pattern
+deleted.
+If
+.I word
+begins with a
+.RB ' # ',
+the character needs to be quoted.
+
+.br
+.ne 3
+.TP
+.BI ${ parameter ## word }
+.BR "Remove Largest Prefix Pattern" . 
+The
+.I word
+is expanded to produce a pattern.
+The parameter expansion then results in
+.IR parameter ,
+with the largest portion of the prefix matched by the
+.I pattern
+deleted.
 
 .LP
 The following parameters are automatically set by the shell.
@@ -1497,7 +1603,7 @@ was not supported in older versions of
 .ne 3
 .TP
 .B LINENO
-The line number of the current line within  the script.
+The line number of the current line within the script.
 This variable currently does not have all POSIX features.
 .sp
 The variable
@@ -3038,6 +3144,62 @@ change to the directory named by that value.
 .br
 .ne 3
 .TP
+\fBcommand\fR [ \fP\-p\fR ] [ \fB\-v\fR | \fB\-V\fR ] \fIname\fR [\fIarg\fR ...]
+.sp .6
+Without the option
+.B \-v
+or
+.BR \-V , 
+.B command
+executes
+.I name
+with the arguments specified by
+.IR arg .
+.sp
+With
+.B \-v
+or
+.BR \-V ,
+.I name
+is not executed but a description of
+.I name
+is printed.
+With
+.BR \-V ,
+the output is like the output from the
+.B type
+built-in command but function definitions are not listed. With
+.BR -v ,
+the output is less verbose.
+.sp
+The option
+.B \-p
+causes a default path to be searched that grants all POSIX commands to be found,
+rather than using the search path defined by the value of
+.BR PATH .
+.sp
+Functions are not searched when trying to execute
+.IR name .
+In addition, if
+.I name
+refers to a special built-in, none of the special properties
+associated with the built-in commands marked with
+leading daggers are honored.
+For example, using
+.B command\ exec
+instead of
+.B exec
+prevents a script from terminating when an
+invalid redirection is specified.
+.sp
+The
+.B command
+built-in command was not supported in older versions of
+.BR sh .
+
+.br
+.ne 3
+.TP
 \fB+ continue\fR [ \fIn\fR ]
 .sp .6
 Resume the next iteration of the enclosing
@@ -3292,7 +3454,7 @@ for infinite loops.
 .sp
 The
 .B false
-command was not supported in older versions of
+command was not a builtin command in older versions of
 .BR sh .
 
 .br
@@ -3853,7 +4015,7 @@ has been supplied and integer arguments are treated as if a 0 has been supplied.
 .sp
 The
 .B printf
-command was not supported in older versions of
+command was not a builtin command in older versions of
 .BR sh .
 
 .br
@@ -4998,7 +5160,7 @@ for infinite loops.
 .sp
 The
 .B true
-command was not supported in older versions of
+command was not a builtin command in older versions of
 .BR sh .
 
 .br

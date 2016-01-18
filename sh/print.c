@@ -34,16 +34,16 @@
 #endif
 
 /*
- * Copyright 2008-2015 J. Schilling
+ * Copyright 2008-2016 J. Schilling
  *
- * @(#)print.c	1.32 15/12/12 2008-2015 J. Schilling
+ * @(#)print.c	1.33 16/01/04 2008-2016 J. Schilling
  */
 #ifdef	SCHILY_INCLUDES
 #include <schily/mconfig.h>
 #endif
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)print.c	1.32 15/12/12 2008-2015 J. Schilling";
+	"@(#)print.c	1.33 16/01/04 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -90,19 +90,15 @@ static	void	_itos	__PR((unsigned int n, char *out, size_t	outlen));
 
 static int ulltos	__PR((UIntmax_t n));
 	void flushb	__PR((void));
+	void unprs_buff	__PR((int));
 	void prc_buff	__PR((unsigned char c));
-	void prs_buff	__PR((unsigned char *s));
+	int  prs_buff	__PR((unsigned char *s));
 static unsigned char *octal __PR((unsigned char c, unsigned char *ptr));
 	void prs_cntl	__PR((unsigned char *s));
 	void prull_buff	__PR((UIntmax_t lc));
 	void prn_buff	__PR((int n));
 	int setb	__PR((int fd));
 
-
-void	prc_buff	__PR((unsigned char c));
-void	prs_buff	__PR((unsigned char *s));
-void	prn_buff	__PR((int n));
-void	prs_cntl	__PR((unsigned char *s));
 
 /*
  * printing and io conversion
@@ -392,6 +388,17 @@ flushb()
 	}
 }
 
+void
+unprs_buff(amt)
+	int	amt;
+{
+	if (!bindex)
+		return;
+	bindex -= amt;
+	if (bindex < 0)
+		bindex = 0;
+}
+
 #ifdef	PROTOTYPES
 void
 prc_buff(unsigned char c)
@@ -418,7 +425,7 @@ prc_buff(c)
 	}
 }
 
-void
+int
 prs_buff(s)
 	unsigned char	*s;
 {
@@ -435,9 +442,11 @@ prs_buff(s)
 
 	if (buffd != -1 && len >= BUFLEN) {
 		write(buffd, s, len);
+		return (0);
 	} else {
 		movstr(s, &bufp[bindex]);
 		bindex += len;
+		return (len);
 	}
 }
 
