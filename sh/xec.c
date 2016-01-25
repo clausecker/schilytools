@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2015 J. Schilling
  *
- * @(#)xec.c	1.54 15/12/23 2008-2015 J. Schilling
+ * @(#)xec.c	1.55 16/01/20 2008-2015 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)xec.c	1.54 15/12/23 2008-2015 J. Schilling";
+	"@(#)xec.c	1.55 16/01/20 2008-2015 J. Schilling";
 #endif
 
 /*
@@ -994,7 +994,11 @@ exallocjob(t, xflags)
 
 		save_fd = setb(-1);
 		prcmd(t);
-		allocjob((char *)stakbot, cwdget(), monitor);
+		/*
+		 * We use cwdget(CHDIR_L) as this does not modify PWD
+		 * unless it is definitely invalid.
+		 */
+		allocjob((char *)stakbot, cwdget(CHDIR_L), monitor);
 		(void) setb(save_fd);
 	} else {
 		allocjob("", (unsigned char *)"", 0);

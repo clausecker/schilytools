@@ -1,13 +1,13 @@
-/* @(#)fmt.c	1.96 15/12/23 Copyright 1986-1991, 93-97, 2000-2015 J. Schilling */
+/* @(#)fmt.c	1.97 16/01/24 Copyright 1986-1991, 93-97, 2000-2016 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)fmt.c	1.96 15/12/23 Copyright 1986-1991, 93-97, 2000-2015 J. Schilling";
+	"@(#)fmt.c	1.97 16/01/24 Copyright 1986-1991, 93-97, 2000-2016 J. Schilling";
 #endif
 /*
  *	Format & check/repair SCSI disks
  *
- *	Copyright (c) 1986-1991, 93-97, 2000-2015 J. Schilling
+ *	Copyright (c) 1986-1991, 93-97, 2000-2016 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -152,6 +152,7 @@ usage(ret)
 	error("Usage:\tformat [options] [dev=scsidev]|[target lun [scsibus]]\n");
 	error("options:\n");
 	error("\tdev=target	SCSI target to use\n");
+	error("\tscgopts=spec	SCSI options for libscg\n");
 	error("\t-help,-h\tprint this help\n");
 	error("\t-xhelp\t\tprint extended help\n");
 	error("\t-version\tPrint version number.\n");
@@ -240,7 +241,7 @@ xusage(ret)
 	exit(ret);
 }	
 
-char opts[] = "version,dev*,kdebug#,kd#,xdebug#,xd#,debug#,d+,silent,s,verbose+,v+,Verbose+,V+,nomap,nowait,force,ask,noformat,smp,defmodes,no_defaults,scsi_compliant,ign_not_found,data*,Proto,Prpart,P,label,l,lname*,lproto*,tr,t,auto,a,dmdl,r,reassign,greassign,verify,repair,refresh_only,modes,setmodes,timeout#,noparity,wrveri,VL#,Cveri#,C#,Vstart#L,Vend#L,CWveri#,CW#,maxbad#L,randrw,RW#L,S,ESDI#,inq,prgeom,prcurgeom,clearnull,readnull,damage,prdefect,seek,start,stop,nhead#l,lhead#l,pcyl#l,atrk#l,lacyl#l,lncyl#l,tpz#l,spt#l,lspt#l,aspz#l,secsize#l,rpm#l,trskew#l,cylskew#l,interlv#l,fmtpat#l,help,h,xhelp";
+char opts[] = "version,dev*,scgopts*,kdebug#,kd#,xdebug#,xd#,debug#,d+,silent,s,verbose+,v+,Verbose+,V+,nomap,nowait,force,ask,noformat,smp,defmodes,no_defaults,scsi_compliant,ign_not_found,data*,Proto,Prpart,P,label,l,lname*,lproto*,tr,t,auto,a,dmdl,r,reassign,greassign,verify,repair,refresh_only,modes,setmodes,timeout#,noparity,wrveri,VL#,Cveri#,C#,Vstart#L,Vend#L,CWveri#,CW#,maxbad#L,randrw,RW#L,S,ESDI#,inq,prgeom,prcurgeom,clearnull,readnull,damage,prdefect,seek,start,stop,nhead#l,lhead#l,pcyl#l,atrk#l,lacyl#l,lncyl#l,tpz#l,spt#l,lspt#l,aspz#l,secsize#l,rpm#l,trskew#l,cylskew#l,interlv#l,fmtpat#l,help,h,xhelp";
 
 #define	MAXVERI	100
 
@@ -263,6 +264,7 @@ main(ac, av)
 	int	noparity = 0;
 	SCSI	*scgp;
 	char	*dev = NULL;
+	char	*scgopts = NULL;
 
 	save_args(ac, av);
 
@@ -274,7 +276,7 @@ main(ac, av)
 
 	if (getallargs(&cac, &cav, opts,
 #ifndef	lint		/* lint kann leider nur 52 args !!! */
-			&prvers, &dev,
+			&prvers, &dev, &scgopts,
 			&kdebug, &kdebug, &xdebug, &xdebug, &debug, &debug,
 			&silent, &silent,
 			&verbose, &verbose,
@@ -338,7 +340,7 @@ main(ac, av)
 		xusage(0);
 	if (prvers) {
 		printf("sformat %s (%s-%s-%s)\n\n", fmt_version, HOST_CPU, HOST_VENDOR, HOST_OS);
-		printf("Copyright (C) 1986-1991, 93-97, 2000-2015 Jörg Schilling\n");
+		printf("Copyright (C) 1986-1991, 93-97, 2000-2016 Jörg Schilling\n");
 		printf("This is free software; see the source for copying conditions.  There is NO\n");
 		printf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
 		exit(0);
@@ -455,6 +457,11 @@ main(ac, av)
 		scg_settarget(scgp, scsibus, target, lun);
 		if (scg__open(scgp, NULL) <= 0)
 			comerr("Cannot open SCSI driver.\n");
+	}
+	if (scgopts) {
+		int	i = scg_opts(scgp, scgopts);
+		if (i <= 0)
+			exit(i < 0 ? EX_BAD : 0);
 	}
 	scgp->silent = silent;
 	scgp->verbose = verbose;

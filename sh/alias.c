@@ -1,11 +1,11 @@
-/* @(#)alias.c	1.10 15/12/17 Copyright 1986-2015 J. Schilling */
+/* @(#)alias.c	1.11 16/01/21 Copyright 1986-2016 J. Schilling */
 #include <schily/mconfig.h>
 static	UConst char sccsid[] =
-	"@(#)alias.c	1.10 15/12/17 Copyright 1986-2015 J. Schilling";
+	"@(#)alias.c	1.11 16/01/21 Copyright 1986-2016 J. Schilling";
 /*
  *	The built-in commands "alias" and "unalias".
  *
- *	Copyright (c) 1986-2015 J. Schilling
+ *	Copyright (c) 1986-2016 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -54,7 +54,7 @@ sysalias(argc, argv)
 	o[0] = '-';
 	o[2] = '\0';
 	while ((c = optget(argc, argv, &optv,
-			    "aeglprR(raw)")) != -1) {
+			    "()aeglprR(raw)")) != -1) {
 		switch (c) {
 		case 'a':
 			allflag++;

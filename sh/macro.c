@@ -37,11 +37,11 @@
 /*
  * This file contains modifications Copyright 2008-2016 J. Schilling
  *
- * @(#)macro.c	1.37 16/01/17 2008-2016 J. Schilling
+ * @(#)macro.c	1.38 16/01/18 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)macro.c	1.37 16/01/17 2008-2016 J. Schilling";
+	"@(#)macro.c	1.38 16/01/18 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -329,7 +329,9 @@ retry:
 
 			if ((bra = (c == BRACE)) != FALSE)
 				c = readwc();
+#ifdef	DO_SUBSTRING
 getname:
+#endif
 			if (letter(c)) {	/* valid parameter name */
 
 				c = dolname(&argp, c, 0);

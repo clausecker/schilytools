@@ -1,11 +1,11 @@
-/* @(#)scgcheck.c	1.21 11/08/03 Copyright 1998-2011 J. Schilling */
+/* @(#)scgcheck.c	1.22 16/01/24 Copyright 1998-2016 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)scgcheck.c	1.21 11/08/03 Copyright 1998-2011 J. Schilling";
+	"@(#)scgcheck.c	1.22 16/01/24 Copyright 1998-2016 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1998-2011 J. Schilling
+ *	Copyright (c) 1998-2016 J. Schilling
  *
  * Warning: This program has been written to verify the correctness
  * of the upper layer interface from the library "libscg". If you
@@ -19,6 +19,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -58,6 +60,7 @@ EXPORT	int	chkgetline	__PR((char *, int));
 
 
 	char	*dev;
+	char	*scgopts;
 int		debug;		/* print debug messages */
 int		kdebug;		/* kernel debug messages */
 int		scsi_verbose;	/* SCSI verbose flag */
@@ -86,6 +89,7 @@ usage(ret)
 	error(_("Options:\n"));
 	error(_("\t-version	print version information and exit\n"));
 	error(_("\tdev=target	SCSI target to use\n"));
+	error(_("\tscgopts=spec	SCSI options for libscg\n"));
 	error(_("\ttimeout=#	set the default SCSI command timeout to #.\n"));
 	error(_("\tdebug=#,-d	Set to # or increment misc debug level\n"));
 	error(_("\tkdebug=#,kd=#	do Kernel debugging\n"));
@@ -98,7 +102,7 @@ usage(ret)
 	exit(ret);
 }
 
-char	opts[]   = "debug#,d+,kdebug#,kd#,timeout#,verbose+,v+,Verbose+,V+,silent,s,x+,xd#,help,h,version,dev*,f*,auto";
+char	opts[]   = "debug#,d+,kdebug#,kd#,timeout#,verbose+,v+,Verbose+,V+,silent,s,x+,xd#,help,h,version,dev*,scgopts*,f*,auto";
 
 EXPORT int
 main(ac, av)
@@ -151,7 +155,7 @@ main(ac, av)
 			&silent, &silent,
 			&xdebug, &xdebug,
 			&help, &help, &pversion,
-			&dev,
+			&dev, &scgopts,
 			&filename, &autotest) < 0) {
 		errmsgno(EX_BAD, _("Bad flag: %s.\n"), cav[0]);
 		usage(EX_BAD);
@@ -159,7 +163,7 @@ main(ac, av)
 	if (help)
 		usage(0);
 	if (pversion) {
-		printf(_("scgcheck %s (%s-%s-%s) Copyright (C) 1998-2011 %s\n"),
+		printf(_("scgcheck %s (%s-%s-%s) Copyright (C) 1998-2016 %s\n"),
 								scgc_version,
 								HOST_CPU, HOST_VENDOR, HOST_OS,
 								_("Joerg Schilling"));
@@ -184,7 +188,7 @@ main(ac, av)
 		comerr(_("Cannot open logfile.\n"));
 
 	chkprint(_("Scgcheck %s (%s-%s-%s) SCSI user level transport library ABI checker.\n\
-Copyright (C) 1998-2011 %s\n"),
+Copyright (C) 1998-2016 %s\n"),
 						scgc_version,
 						HOST_CPU, HOST_VENDOR, HOST_OS,
 						_("Joerg Schilling"));
@@ -424,6 +428,11 @@ doopen(sdevname)
 		return (scgp);
 	}
 	scg_settimeout(scgp, deftimeout);
+	if (scgopts) {
+		int	i = scg_opts(scgp, scgopts);
+		if (i <= 0)
+			exit(i < 0 ? EX_BAD : 0);
+	}
 	scgp->verbose = scsi_verbose;
 	scgp->silent = silent;
 	scgp->debug = debug;

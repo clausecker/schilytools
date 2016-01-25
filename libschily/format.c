@@ -1,4 +1,4 @@
-/* @(#)format.c	1.58 14/03/31 Copyright 1985-2014 J. Schilling */
+/* @(#)format.c	1.60 16/01/21 Copyright 1985-2016 J. Schilling */
 /*
  *	format
  *	common code for printf fprintf & sprintf
@@ -6,7 +6,7 @@
  *	allows recursive printf with "%r", used in:
  *	error, comerr, comerrno, errmsg, errmsgno and the like
  *
- *	Copyright (c) 1985-2014 J. Schilling
+ *	Copyright (c) 1985-2016 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -133,8 +133,14 @@ typedef union {
 #endif
 
 typedef struct f_args {
+#ifdef	FORMAT_BUFFER
+#define	BFSIZ	256
+	char	*ptr;			/* Current ptr in buf		*/
+	int	cnt;			/* Free char count in buf	*/
+#else
 	void  (*outf)__PR((char, long)); /* Func from format(fun, arg)	*/
-	long	farg;			/* Arg from format (fun, arg)	*/
+#endif
+ 	long	farg;			/* Arg from format (fun, arg)	*/
 	int	minusflag;		/* Fieldwidth is negative	*/
 	int	flags;			/* General flags (+-#)		*/
 	int	fldwidth;		/* Field width as in %3d	*/
@@ -145,6 +151,12 @@ typedef struct f_args {
 	char	fillc;			/* Left fill char (' ' or '0')	*/
 	char	*prefix;		/* Prefix to print before buf	*/
 	int	prefixlen;		/* Len of prefix ('+','-','0x')	*/
+#ifdef	FORMAT_BUFFER
+					/* rarely used members last:	*/
+	char	iobuf[BFSIZ];		/* buffer for stdio		*/
+	FILE	*fp;			/* FILE * for fprformat()	*/
+	int	err;			/* FILE * I/O error		*/
+#endif
 } f_args;
 
 #define	MINUSFLG	1	/* '-' flag */
@@ -187,6 +199,30 @@ extern	void	_fmtgetarg  __PR((const char *fmt, int num, va_lists_t *));
 #endif
 #endif
 
+#ifdef	FORMAT_BUFFER
+LOCAL char	xflsbuf	__PR((int c, f_args *ap));
+
+LOCAL char
+xflsbuf(c, ap)
+	int	c;
+	f_args	*ap;
+{
+	*ap->ptr++ = c;
+	if (filewrite((FILE *)ap->fp, ap->iobuf, ap->ptr - ap->iobuf) < 0)
+		ap->err = 1;
+
+	ap->cnt = BFSIZ;
+	ap->ptr = ap->iobuf;
+	return (c);
+}
+
+#undef	ofun
+#define	ofun(c, xp)		(--((f_args *)xp)->cnt <= 0 ? \
+					xflsbuf(c, (f_args *)xp) : \
+					(*(((f_args *)xp)->ptr)++ = (c)))
+
+#endif
+
 #ifndef	FORMAT_FUNC_NAME
 #define	FORMAT_FUNC_NAME	format
 #define	FORMAT_FUNC_PARM
@@ -196,6 +232,12 @@ extern	void	_fmtgetarg  __PR((const char *fmt, int num, va_lists_t *));
 #define	FORMAT_FUNC_KR_ARGS	fun,
 
 #define	ofun(c, fp)		(*fun)(c, fp)
+#endif
+
+#ifdef	FORMAT_BUFFER
+#define	FARG		(farg|1)
+#else
+#define	FARG		farg
 #endif
 
 #ifdef	PROTOTYPES
@@ -244,6 +286,17 @@ FORMAT_FUNC_NAME(FORMAT_FUNC_KR_ARGS farg, fmt, oargs)
 	BOOL		didlist = FALSE; /* Need to scan arguments */
 #endif
 
+#ifdef	FORMAT_BUFFER
+	if ((farg & 1) == 0) {		/* Called externally	*/
+		fa.cnt	= BFSIZ;
+		fa.ptr	= fa.iobuf;
+		fa.fp	= (FILE *)farg;
+		fa.err	= 0;
+		farg	= fa.farg = (long)&fa;
+	} else {			/* recursion		*/
+		farg &= ~1;
+	}
+#endif
 #ifdef	FORMAT_FUNC_PARM
 	fa.outf = fun;
 #endif
@@ -263,7 +316,7 @@ FORMAT_FUNC_NAME(FORMAT_FUNC_KR_ARGS farg, fmt, oargs)
 		c = *fmt;
 		while (c != '%') {
 			if (c == '\0')
-				return (count);
+				goto out;
 			ofun(c, farg);
 			c = *(++fmt);
 			count++;
@@ -720,7 +773,7 @@ error sizeof (ptrdiff_t) is unknown
 			 * __va_arg_list() in stdarg.h
 			 */
 			count += FORMAT_FUNC_NAME(FORMAT_FUNC_KR_ARGS
-					farg, rfmt, __va_arg_list(args));
+					FARG, rfmt, __va_arg_list(args));
 			continue;
 
 		gotn:
@@ -968,6 +1021,16 @@ error sizeof (ptrdiff_t) is unknown
 			fa.fillc = ' ';
 		count += prbuf(fa.bufp, &fa);
 	}
+out:
+#ifdef	FORMAT_BUFFER
+	if (farg == (long)&fa) {	/* Top level call, flush buffer */
+		if (fa.err)
+			return (EOF);
+		if ((fa.ptr != fa.iobuf) &&
+		    (filewrite(fa.fp, fa.iobuf, fa.ptr - fa.iobuf) < 0))
+			return (EOF);
+	}
+#endif
 	return (count);
 }
 

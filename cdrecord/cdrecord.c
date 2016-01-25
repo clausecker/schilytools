@@ -1,13 +1,13 @@
-/* @(#)cdrecord.c	1.413 15/11/15 Copyright 1995-2015 J. Schilling */
+/* @(#)cdrecord.c	1.415 16/01/21 Copyright 1995-2016 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)cdrecord.c	1.413 15/11/15 Copyright 1995-2015 J. Schilling";
+	"@(#)cdrecord.c	1.415 16/01/21 Copyright 1995-2016 J. Schilling";
 #endif
 /*
  *	Record data on a CD/CVD-Recorder
  *
- *	Copyright (c) 1995-2015 J. Schilling
+ *	Copyright (c) 1995-2016 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -231,7 +231,8 @@ LOCAL	BOOL	checkdsize	__PR((SCSI *scgp, cdr_t *dp,
 LOCAL	void	raise_fdlim	__PR((void));
 LOCAL	void	raise_memlock	__PR((void));
 LOCAL	int	getfilecount	__PR((int ac, char *const *av, const char *fmt));
-LOCAL	void	gargs		__PR((int, char **, int *, track_t *, char **,
+LOCAL	void	gargs		__PR((int, char **, int *, track_t *,
+					char **, char **,
 					int *, cdr_t **,
 					int *, UInt32_t *, int *));
 LOCAL	int	default_wr_mode	__PR((int tracks, track_t *trackp,
@@ -297,6 +298,7 @@ main(ac, av)
 	long	startsec = 0L;
 	int	errs = 0;
 	SCSI	*scgp = NULL;
+	char	*scgopts = NULL;
 	char	errstr[80];
 	BOOL	gracedone = FALSE;
 
@@ -365,8 +367,8 @@ main(ac, av)
 		track[i].track = track[i].trackno = i;
 	track[0].tracktype = TOC_MASK;
 	raise_fdlim();
-	gargs(ac, av, &tracks, track, &dev, &timeout, &dp, &speed, &flags,
-							&blanktype);
+	gargs(ac, av, &tracks, track, &dev, &scgopts, &timeout, &dp, &speed,
+						&flags, &blanktype);
 	if ((track[0].tracktype & TOC_MASK) == TOC_MASK)
 		comerrno(EX_BAD, _("Internal error: Bad TOC type.\n"));
 
@@ -438,7 +440,7 @@ main(ac, av)
 #	define	CLONE_TITLE	""
 #endif
 	if ((flags & F_MSINFO) == 0 || lverbose || flags & F_VERSION) {
-		printf(_("Cdrecord%s%s%s %s (%s-%s-%s) Copyright (C) 1995-2015 %s\n"),
+		printf(_("Cdrecord%s%s%s %s (%s-%s-%s) Copyright (C) 1995-2016 %s\n"),
 								PRODVD_TITLE,
 								PROBD_TITLE,
 								CLONE_TITLE,
@@ -620,6 +622,11 @@ main(ac, av)
 	 * XXX this function calls raisepri() to lower the priority slightly.
 	 */
 	scg_settimeout(scgp, timeout);
+	if (scgopts) {
+		i = scg_opts(scgp, scgopts);
+		if (i <= 0)
+			exit(i < 0 ? EX_BAD : 0);
+	}
 	scgp->flags |= SCGF_PERM_PRINT;
 	scgp->verbose = scsi_verbose;
 	scgp->silent = silent;
@@ -1967,6 +1974,7 @@ usage(excode)
 	error(_("Options:\n"));
 	error(_("\t-version	print version information and exit\n"));
 	error(_("\tdev=target	SCSI target to use as CD/DVD/BD-Recorder\n"));
+	error(_("\tscgopts=spec	SCSI options for libscg\n"));
 	error(_("\tgracetime=#	set the grace time before starting to write to #.\n"));
 	error(_("\ttimeout=#	set the default SCSI command timeout to #.\n"));
 	error(_("\tdebug=#,-d	Set to # or increment misc debug level\n"));
@@ -3639,7 +3647,7 @@ getfilecount(ac, av, fmt)
 
 char	*opts =
 /* CSTYLED */
-"help,version,checkdrive,prcap,inq,scanbus,reset,abort,overburn,ignsize,useinfo,dev*,timeout#,driver*,driveropts*,setdropts,tsize&,padsize&,pregap&,defpregap&,speed#,load,lock,eject,dummy,minfo,media-info,msinfo,toc,atip,multi,fix,nofix,waiti,immed,debug#,d+,kdebug#,kd#,verbose+,v+,Verbose+,V+,x+,xd#,silent,s,audio,data,mode2,xa,xa1,xa2,xamix,cdi,isosize,nopreemp,preemp,nocopy,copy,nopad,pad,swab,fs&,ts&,blank&,format,pktsize#,packet,noclose,force,tao,dao,sao,raw,raw96r,raw96p,raw16,clone,scms,isrc*,mcn*,index*,cuefile*,textfile*,text,shorttrack,noshorttrack,gracetime#,minbuf#";
+"help,version,checkdrive,prcap,inq,scanbus,reset,abort,overburn,ignsize,useinfo,dev*,scgopts*,timeout#,driver*,driveropts*,setdropts,tsize&,padsize&,pregap&,defpregap&,speed#,load,lock,eject,dummy,minfo,media-info,msinfo,toc,atip,multi,fix,nofix,waiti,immed,debug#,d+,kdebug#,kd#,verbose+,v+,Verbose+,V+,x+,xd#,silent,s,audio,data,mode2,xa,xa1,xa2,xamix,cdi,isosize,nopreemp,preemp,nocopy,copy,nopad,pad,swab,fs&,ts&,blank&,format,pktsize#,packet,noclose,force,tao,dao,sao,raw,raw96r,raw96p,raw16,clone,scms,isrc*,mcn*,index*,cuefile*,textfile*,text,shorttrack,noshorttrack,gracetime#,minbuf#";
 
 /*
  * Defines used to find whether a write mode has been specified.
@@ -3650,13 +3658,14 @@ char	*opts =
 #define	M_PACKET	8	/* Packed mode */
 
 LOCAL void
-gargs(ac, av, tracksp, trackp, devp, timeoutp, dpp, speedp, flagsp, blankp)
+gargs(ac, av, tracksp, trackp, devp, scgoptp, timeoutp, dpp, speedp, flagsp, blankp)
 	int	ac;
 	char	**av;
 	int	*tracksp;
 	track_t	*trackp;
 	cdr_t	**dpp;
 	char	**devp;
+	char	**scgoptp;
 	int	*timeoutp;
 	int	*speedp;
 	UInt32_t *flagsp;
@@ -3770,7 +3779,8 @@ gargs(ac, av, tracksp, trackp, devp, timeoutp, dpp, speedp, flagsp, blankp)
 				&help, &version, &checkdrive, &prcap,
 				&inq, &scanbus, &reset, &doabort, &overburn, &ignsize,
 				&useinfo,
-				devp, timeoutp, &driver, &driveropts, &setdropts,
+				devp, scgoptp, timeoutp, &driver,
+				&driveropts, &setdropts,
 				getllnum, &tracksize,
 				getllnum, &padsize,
 				getnum, &pregapsize,
@@ -4566,7 +4576,7 @@ load_media(scgp, dp, doexit)
 	scgp->silent--;
 	err = geterrno();
 	if (code < 0 && (err == EPERM || err == EACCES)) {
-		linuxcheck();	/* For version 1.413 of cdrecord.c */
+		linuxcheck();	/* For version 1.415 of cdrecord.c */
 		scg_openerr("");
 	}
 
@@ -5461,7 +5471,7 @@ set_wrmode(dp, wmode, tflags)
 }
 
 /*
- * I am sorry that even for version 1.413 of cdrecord.c, I am forced to do
+ * I am sorry that even for version 1.415 of cdrecord.c, I am forced to do
  * things like this, but defective versions of cdrecord cause a lot of
  * work load to me.
  *
@@ -5478,7 +5488,7 @@ set_wrmode(dp, wmode, tflags)
 #endif
 
 LOCAL void
-linuxcheck()				/* For version 1.413 of cdrecord.c */
+linuxcheck()				/* For version 1.415 of cdrecord.c */
 {
 #if	defined(linux) || defined(__linux) || defined(__linux__)
 #ifdef	HAVE_UNAME

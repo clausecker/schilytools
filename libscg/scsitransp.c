@@ -1,7 +1,7 @@
-/* @(#)scsitransp.c	1.99 13/05/28 Copyright 1988,1995,2000-2013 J. Schilling */
+/* @(#)scsitransp.c	1.100 16/01/21 Copyright 1988,1995,2000-2016 J. Schilling */
 /*#ifndef lint*/
 static	char sccsid[] =
-	"@(#)scsitransp.c	1.99 13/05/28 Copyright 1988,1995,2000-2013 J. Schilling";
+	"@(#)scsitransp.c	1.100 16/01/21 Copyright 1988,1995,2000-2016 J. Schilling";
 /*#endif*/
 /*
  *	SCSI user level command transport routines (generic part).
@@ -12,7 +12,7 @@ static	char sccsid[] =
  *	Choose your name instead of "schily" and make clear that the version
  *	string is related to a modified source.
  *
- *	Copyright (c) 1988,1995,2000-2013 J. Schilling
+ *	Copyright (c) 1988,1995,2000-2016 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -21,6 +21,8 @@ static	char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * The following exceptions apply:
  * CDDL §3.6 needs to be replaced by: "You may create a Larger Work by
@@ -414,6 +416,8 @@ scg_cmd(scgp)
 	ret = SCGO_SEND(scgp);
 	scgp->running = FALSE;
 	__scg_times(scgp);
+	if (scgp->flags & SCGF_IGN_RESID)
+		scmd->resid = 0;
 	if (ret < 0) {
 		if (scmd->ux_errno == 0)
 			scmd->ux_errno = geterrno();

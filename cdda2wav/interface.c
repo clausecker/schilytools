@@ -1,13 +1,13 @@
-/* @(#)interface.c	1.81 15/10/19 Copyright 1998-2002,2015 Heiko Eissfeldt, Copyright 2006-2014 J. Schilling */
+/* @(#)interface.c	1.82 16/01/24 Copyright 1998-2002,2015 Heiko Eissfeldt, Copyright 2006-2016 J. Schilling */
 #include "config.h"
 #ifndef lint
 static	UConst char sccsid[] =
-"@(#)interface.c	1.81 15/10/19 Copyright 1998-2002,2015 Heiko Eissfeldt, Copyright 2006-2014 J. Schilling";
+"@(#)interface.c	1.82 16/01/24 Copyright 1998-2002,2015 Heiko Eissfeldt, Copyright 2006-2016 J. Schilling";
 
 #endif
 /*
  * Copyright (C) 1998-2002,2015 Heiko Eissfeldt heiko@colossus.escape.de
- * Copyright (c) 2006-2014      J. Schilling
+ * Copyright (c) 2006-2016      J. Schilling
  *
  * Interface module for cdrom drive access
  *
@@ -700,6 +700,11 @@ OpenCdRom(pdev_name)
 		scgp = _scgp;
 		scg_settimeout(scgp, 300);
 		scg_settimeout(scgp, 60);
+		if (global.dev_opts) {
+			int	i = scg_opts(scgp, global.dev_opts);
+			if (i <= 0)
+				exit(i < 0 ? EX_BAD : 0);
+		}
 		scgp->silent = global.scsi_silent;
 		scgp->verbose = global.scsi_verbose;
 		scgp->debug = global.scsi_debug;

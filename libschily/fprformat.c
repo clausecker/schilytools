@@ -1,4 +1,4 @@
-/* @(#)fprformat.c	1.3 14/01/05 Copyright 2013-2014 J. Schilling */
+/* @(#)fprformat.c	1.4 16/01/18 Copyright 2013-2016 J. Schilling */
 /*
  *	fprformat
  *	common code for printf fprintf & sprintf
@@ -10,7 +10,7 @@
  *	allows recursive printf with "%r", used in:
  *	error, comerr, comerrno, errmsg, errmsgno and the like
  *
- *	Copyright (c) 2013-2014 J. Schilling
+ *	Copyright (c) 2013-2016 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -50,5 +50,13 @@
 #else
 #define	ofun(c, fp)		putc(c, (FILE *)fp)
 #endif
+
+/*
+ * If enabled, an internally buffered version of fprformat() is implemented
+ * that avoids completely unbuffered printing on onubuffered FILE pointers.
+ * This is 15% slower than the version that directly calls putc_unlocked()
+ * but it works on any OS.
+ */
+#define	FORMAT_BUFFER
 
 #include "format.c"

@@ -1,13 +1,13 @@
-/* @(#)skel.c	1.25 10/12/19 Copyright 1987, 1995-2010 J. Schilling */
+/* @(#)skel.c	1.26 16/01/24 Copyright 1987, 1995-2016 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)skel.c	1.25 10/12/19 Copyright 1987, 1995-2010 J. Schilling";
+	"@(#)skel.c	1.26 16/01/24 Copyright 1987, 1995-2016 J. Schilling";
 #endif
 /*
  *	Skeleton for the use of the scg genearal SCSI - driver
  *
- *	Copyright (c) 1987, 1995-2010 J. Schilling
+ *	Copyright (c) 1987, 1995-2016 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -16,6 +16,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -90,6 +92,7 @@ usage(ret)
 	error(_("Options:\n"));
 	error(_("\t-version	print version information and exit\n"));
 	error(_("\tdev=target	SCSI target to use\n"));
+	error(_("\tscgopts=spec	SCSI options for libscg\n"));
 	error(_("\tf=filename	Name of firmware file to read from\n"));
 	error(_("\tts=#		set maximum transfer size for a single SCSI command\n"));
 	error(_("\ttimeout=#	set the default SCSI command timeout to #.\n"));
@@ -104,7 +107,7 @@ usage(ret)
 }
 
 /* CSTYLED */
-char	opts[]   = "debug#,d+,kdebug#,kd#,timeout#,quiet,q,verbose+,v+,Verbose+,V+,x+,xd#,silent,s,help,h,version,scanbus,dev*,ts&,f*";
+char	opts[]   = "debug#,d+,kdebug#,kd#,timeout#,quiet,q,verbose+,v+,Verbose+,V+,x+,xd#,silent,s,help,h,version,scanbus,dev*,scgopts*,ts&,f*";
 
 EXPORT int
 main(ac, av)
@@ -112,6 +115,7 @@ main(ac, av)
 	char	*av[];
 {
 	char	*dev = NULL;
+	char	*scgopts = NULL;
 	int	fcount;
 	int	cac;
 	char	* const *cav;
@@ -166,7 +170,7 @@ main(ac, av)
 			&silent, &silent,
 			&help, &help, &pversion,
 			&scanbus,
-			&dev,
+			&dev, &scgopts,
 			getnum, &Sbufsize,
 			&filename) < 0) {
 		errmsgno(EX_BAD, _("Bad flag: %s.\n"), cav[0]);
@@ -175,7 +179,7 @@ main(ac, av)
 	if (help)
 		usage(0);
 	if (pversion) {
-		printf(_("btcflash %s (%s-%s-%s) Copyright (C) 1987, 1995-2010 %s (C) 2004 David Huang\n"),
+		printf(_("btcflash %s (%s-%s-%s) Copyright (C) 1987, 1995-2016 %s (C) 2004 David Huang\n"),
 								skel_version,
 								HOST_CPU, HOST_VENDOR, HOST_OS,
 								_("Joerg Schilling"));
@@ -265,6 +269,11 @@ main(ac, av)
 		scg_settarget(scgp, scsibus, target, lun);
 		if (scg__open(scgp, NULL) <= 0)
 			comerr(_("Cannot open SCSI driver.\n"));
+	}
+	if (scgopts) {
+		int	i = scg_opts(scgp, scgopts);
+		if (i <= 0)
+			exit(i < 0 ? EX_BAD : 0);
 	}
 	scgp->silent = silent;
 	scgp->verbose = verbose;

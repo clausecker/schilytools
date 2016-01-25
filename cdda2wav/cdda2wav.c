@@ -1,8 +1,8 @@
-/* @(#)cdda2wav.c	1.163 15/11/15 Copyright 1993-2004,2015 Heiko Eissfeldt, Copyright 2004-2015 J. Schilling */
+/* @(#)cdda2wav.c	1.164 16/01/24 Copyright 1993-2004,2015 Heiko Eissfeldt, Copyright 2004-2016 J. Schilling */
 #include "config.h"
 #ifndef lint
 static	UConst char sccsid[] =
-"@(#)cdda2wav.c	1.163 15/11/15 Copyright 1993-2004,2015 Heiko Eissfeldt, Copyright 2004-2015 J. Schilling";
+"@(#)cdda2wav.c	1.164 16/01/24 Copyright 1993-2004,2015 Heiko Eissfeldt, Copyright 2004-2016 J. Schilling";
 
 #endif
 #undef	DEBUG_BUFFER_ADDRESSES
@@ -28,7 +28,7 @@ static	UConst char sccsid[] =
  */
 /*
  * Copright 1993-2004,2015	(C) Heiko Eissfeldt
- * Copright 2004-2015		(C) J. Schilling
+ * Copright 2004-2016		(C) J. Schilling
  *
  * last changes:
  *   18.12.93 - first version,	OK
@@ -192,7 +192,7 @@ find-extremes,F,find-mono,G,no-infofile,H,no-textdefaults,\
 no-textfile,cuefile,no-hidden-track,\
 deemphasize,T,info-only,J,silent-scsi,Q,\
 cddbp-server*,cddbp-port*,\
-scanbus,device*,dev*,D*,debug#,debug-scsi#,kdebug#,kd#,kdebug-scsi#,ts&,\
+scanbus,device*,dev*,D*,scgopts*,debug#,debug-scsi#,kdebug#,kd#,kdebug-scsi#,ts&,\
 auxdevice*,A*,interface*,I*,output-format*,O*,\
 output-endianess*,E*,cdrom-endianess*,C*,speed#,S#,\
 playback-realtime#L,p#L,md5,M,set-overlap#,P#,sound-device*,K*,\
@@ -1132,6 +1132,7 @@ OPTIONS:\n\
 	/* BEGIN CSTYLED */
 	fputs(_("\
   (-D) dev=device		set the cdrom or scsi device (as Bus,Id,Lun).\n\
+       scgopts=spec		SCSI options for libscg\n\
        ts=#			set maximum transfer size for a single SCSI command\n\
   (-A) auxdevice=device		set the aux device (typically /dev/cdrom).\n\
   (-K) sound-device=device	set the sound device to use for -e (typically /dev/dsp).\n\
@@ -1232,6 +1233,7 @@ init_globals()
 #ifdef	HISTORICAL_JUNK
 	global.dev_name = CD_DEVICE;	/* device name */
 #endif
+	global.dev_opts = NULL;		/* scg device options */
 	global.aux_name = AUX_DEVICE;	/* auxiliary cdrom device name */
 	global.out_fp = stderr;		/* -out-fd FILE * for messages */
 	strncpy(global.fname_base, FILENAME,
@@ -3989,6 +3991,7 @@ gargs(argc, argv)
 			&global.cddbp_server, &global.cddbp_port,
 			&global.scanbus,
 			&global.dev_name, &global.dev_name, &global.dev_name,
+			&global.dev_opts,
 			&global.scsi_debug, &global.scsi_debug,
 			&global.scsi_kdebug, &global.scsi_kdebug, &global.scsi_kdebug,
 			getnum, &global.bufsize,
@@ -4048,7 +4051,7 @@ gargs(argc, argv)
 		/*
 		 * Make the version string similar for all cdrtools programs.
 		 */
-		printf(_("cdda2wav %s (%s-%s-%s) Copyright (C) 1993-2004,2015 %s (C) 2004-2015 %s\n"),
+		printf(_("cdda2wav %s (%s-%s-%s) Copyright (C) 1993-2004,2015 %s (C) 2004-2016 %s\n"),
 					VERSION,
 					HOST_CPU, HOST_VENDOR, HOST_OS,
 					_("Heiko Eissfeldt"),

@@ -1,4 +1,4 @@
-#ident "@(#)Makefile	1.101 16/01/14  Copyright (c) 2006-2016 J. Schilling"
+#ident "@(#)Makefile	1.102 16/01/20  Copyright (c) 2006-2016 J. Schilling"
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -61,6 +61,7 @@ CPPOPTS +=	-DDO_DOT_SH_PARAMS	# Include support for ${.sh.xxx} parameters
 CPPOPTS +=	-DDO_SUBSTRING		# Include support for substring operations
 CPPOPTS +=	-DDO_POSIX_SPEC_BLTIN	# Only special builtins keep var assignment
 CPPOPTS +=	-DDO_POSIX_FAILURE	# Only special builtins exit() on errors
+CPPOPTS +=	-DDO_POSIX_CD		# cd/pwd/... implement POSIX -L/-P
 CPPOPTS +=	-DDO_POSIX_EXIT		# Use POSIX exit codes 126/127
 CPPOPTS +=	-DDO_POSIX_EXPORT	# Support export/readonly -p name=value
 CPPOPTS +=	-DDO_POSIX_UNSET	# Support unset -f / -v

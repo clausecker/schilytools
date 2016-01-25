@@ -1,8 +1,8 @@
-/* @(#)scsitransp.h	1.57 13/05/28 Copyright 1995-2013 J. Schilling */
+/* @(#)scsitransp.h	1.58 16/01/21 Copyright 1995-2016 J. Schilling */
 /*
  *	Definitions for commands that use functions from scsitransp.c
  *
- *	Copyright (c) 1995-2013 J. Schilling
+ *	Copyright (c) 1995-2016 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -11,6 +11,8 @@
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * The following exceptions apply:
  * CDDL §3.6 needs to be replaced by: "You may create a Larger Work by
@@ -101,6 +103,9 @@ struct scg_scsi {
  */
 #define	SCGF_PERM_EXIT	0x01		/* Exit on permission problems */
 #define	SCGF_PERM_PRINT	0x02		/* Print msg on permission problems */
+#define	SCGF_IGN_RESID	0x04		/* Ignore DMA residual count	*/
+
+#define	SCGF_USER_FLAGS	0x04		/* All user definable flags */
 
 /*
  * Drive specific flags for struct SCSI:
@@ -233,6 +238,11 @@ extern	int	scg_close	__PR((SCSI * scgp));
 extern	void	scg_settimeout	__PR((SCSI * scgp, int timeout));
 extern	SCSI	*scg_smalloc	__PR((void));
 extern	void	scg_sfree	__PR((SCSI *scgp));
+
+/*
+ * From scsiopts.c:
+ */
+extern	int	scg_opts	__PR((SCSI *scgp, const char *scgoptions));
 
 /*
  * From scgsettarget.c:

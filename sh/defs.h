@@ -39,7 +39,7 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)defs.h	1.136 16/01/06 2008-2016 J. Schilling
+ * @(#)defs.h	1.138 16/01/20 2008-2016 J. Schilling
  */
 
 #ifdef	__cplusplus
@@ -189,6 +189,12 @@ extern "C" {
 #define		BLT_SPC		1	/* A special builtin */
 #define		BLT_INT		2	/* A shell intrinsic */
 #define		BLT_DEL		8	/* Builtin was deleted */
+
+/*
+ * Flags for cd/pwd reladed builtin commands:
+ */
+#define		CHDIR_L		1	/* Use logical mode (symlinks kept)   */
+#define		CHDIR_P		2	/* Use physcal mode (expand symlinks) */
 
 /* used for input and output of shell */
 #define		INIO 		19
@@ -642,13 +648,15 @@ extern	int	setb		__PR((int fd));
  * pwd.c
  */
 extern	void	cwd		__PR((unsigned char *dir));
-extern	unsigned char *cwdget	__PR((void));
+extern	int	cwdrel2abs	__PR((void));
+extern	unsigned char *cwdget	__PR((int cdflg));
 extern	unsigned char *cwdset	__PR((void));
-extern	void	cwdprint	__PR((void));
+extern	void	cwdprint	__PR((int cdflg));
+extern	void	ocwdnod		__PR((void));
 extern	struct argnod *push_dir	__PR((unsigned char *name));
 extern	struct argnod *pop_dir	__PR((int offset));
 extern	void	init_dirs	__PR((void));
-extern	int	pr_dirs		__PR((int minlen));
+extern	int	pr_dirs		__PR((int minlen, int cdflg));
 
 /*
  * service.c

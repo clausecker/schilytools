@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)bltin.c	1.89 16/01/05 2008-2016 J. Schilling
+ * @(#)bltin.c	1.93 16/01/20 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)bltin.c	1.89 16/01/05 2008-2016 J. Schilling";
+	"@(#)bltin.c	1.93 16/01/20 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -69,6 +69,10 @@ static	UConst char sccsid[] =
 
 	void	builtin	__PR((int type, int argc, unsigned char **argv,
 					struct trenod *t, int xflags));
+#ifdef	DO_POSIX_CD
+static	int	opt_LP	__PR((int argc, unsigned char **argv,
+					int *opts, const char *use));
+#endif
 static	int	whatis	__PR((unsigned char *arg, int verbose));
 #ifdef	DO_SYSCOMMAND
 static	void	syscommand __PR((int argc, unsigned char **argv,
@@ -87,6 +91,11 @@ int xflags;
 	unsigned char *a0 = NULL;
 	unsigned char *a1 = argv[1];
 	struct argnod *np = NULL;
+	int		cdopt = 0;
+#if defined(DO_POSIX_CD) || defined(DO_SYSPUSHD) || defined(DO_SYSDOSH) || \
+	defined(DO_GETOPT_UTILS) || defined(DO_SYSERRSTR)
+	int		ind = 1;
+#endif
 
 	exitval = 0;
 	exval_clear();
@@ -232,11 +241,19 @@ int xflags;
 	case SYSPOPD:
 		/* FALLTHROUGH */
 	case SYSPUSHD:
+#ifdef	DO_POSIX_CD
+		cdopt = -1;
+		ind = opt_LP(argc, argv, &cdopt,
+			type == SYSPOPD ?
+				"popd [ -L | -P ] [-offset]":
+				"pushd [ -L | -P ] [-offset | directory]");
+		if (ind < 0)
+			break;
+		a1 = argv[ind];
+#endif
 		init_dirs();
 		if (a1 && a1[0] == '-') {
-			if (a1[1] == '-' && a1[2] == '\0') {	/* "--" */
-				a1 = argv[2];
-			} else if (type == SYSPUSHD && a1[1] == '\0') {
+			if (type == SYSPUSHD && a1[1] == '\0') {
 				extern struct namnod opwdnod;
 
 				a1 = opwdnod.namval;
@@ -275,14 +292,21 @@ int xflags;
 
 		/* FALLTHROUGH */
 	case SYSCD:
+#ifdef	DO_POSIX_CD
+		if (type == SYSCD) {
+			ind = opt_LP(argc, argv, &cdopt, "cd [ -L | -P ] directory");
+			if (ind < 0)
+				break;
+			a1 = argv[ind];
+		}
+#endif
+
 #ifdef	DO_SYSPUSHD
 		/*
 		 * Enable cd - & cd -- ... only with DO_SYSPUSHD
 		 */
 		if (type == SYSCD && a1 && a1[0] == '-') {
-			if (a1[1] == '-' && a1[2] == '\0') {	/* "--" */
-				a1 = argv[2];
-			} else if (a1[1] == '\0') {
+			if (a1[1] == '\0') {
 				extern struct namnod opwdnod;
 
 				a1 = opwdnod.namval;
@@ -322,6 +346,18 @@ int xflags;
 			do {
 				dir = cdpath;
 				cdpath = catpath(cdpath, a1);
+#ifdef	DO_POSIX_CD
+				if ((cdopt & CHDIR_L) && *curstak() != '/') {
+					/*
+					 * Concatenate $PWD and curstak() and
+					 * normalize the resulting path.
+					 */
+					if (!cwdrel2abs()) {
+						Failure(a1, baddir);
+						goto out;
+					}
+				}
+#endif
 			} while ((f = chdir((const char *) curstak())) < 0 &&
 			    cdpath);
 
@@ -355,13 +391,14 @@ int xflags;
 			} else {
 				unsigned char	*wd;
 
+				ocwdnod();		/* Update OLDPWD=    */
 				cwd(curstak());		/* Canonic from stak */
-				wd = cwdget();		/* Get reliable cwd  */
+				wd = cwdget(cdopt);	/* Get reliable cwd  */
 #ifdef	DO_SYSPUSHD
 				if (type != SYSPUSHD)
 					free(pop_dir(0));
 				push_dir(wd);		/* Update dir stack  */
-				if (pr_dirs(1))		/* If already printed */
+				if (pr_dirs(1, cdopt))	/* If already printed */
 					wd = NULL;	/* don't do it again */
 #endif
 				if (cf(UC nullstr, dir) &&
@@ -536,13 +573,13 @@ int xflags;
 			int		olddolc = dolc;
 			struct ionod	*io = t->treio;
 			short		idx;
-			int		ind = optskip(argc, argv,
-					    "dosh command [commandname args]");
 
+			ind = optskip(argc, argv,
+					    "dosh command [commandname args]");
 			if (ind < 0)
-				return;
+				break;
 			if (ind >= argc)
-				return;
+				break;
 
 			/*
 			 * save current positional parameters
@@ -675,18 +712,22 @@ int xflags;
 
 #ifdef	DO_SYSPUSHD
 	case SYSDIRS:
-		if (optskip(argc, argv, C argv[0]) < 0)
-			return;
-		pr_dirs(0);
+		ind = opt_LP(argc, argv, &cdopt, "dirs [ -L | -P ]");
+		if (ind < 0)
+			break;
+		pr_dirs(0, cdopt);
 		break;
 #endif
 
 	case SYSPWD:
-#ifdef	DO_GETOPT_UTILS
-		if (optskip(argc, argv, C argv[0]) < 0)
-			return;
+		{
+#ifdef	DO_POSIX_CD
+			ind = opt_LP(argc, argv, &cdopt, "pwd [ -L | -P ]");
+			if (ind < 0)
+				break;
 #endif
-		cwdprint();
+			cwdprint(cdopt);
+		}
 		break;
 
 	case SYSRETURN:			/* POSIX special builtin */
@@ -700,10 +741,9 @@ int xflags;
 	case SYSTYPE:
 		if (a1) {
 #ifdef	DO_GETOPT_UTILS
-			int	ind = optskip(argc, argv, "type name ...");
-
+			ind = optskip(argc, argv, "type name ...");
 			if (ind-- < 0)
-				return;
+				break;
 			argc -= ind;
 			argv += ind;
 #endif
@@ -746,12 +786,12 @@ int xflags;
 		unsigned char *varnam;
 		unsigned char c[2];
 		unsigned char *cmdp = *argv;
-#ifdef	DO_GETOPT_UTILS
-		int	ind = optskip(argc, argv,
-					"getopts optstring name [arg ...]");
 
+#ifdef	DO_GETOPT_UTILS
+		ind = optskip(argc, argv,
+					"getopts optstring name [arg ...]");
 		if (ind-- < 0)
-			return;
+			break;
 		argc -= ind;
 		argv += ind;
 #endif
@@ -924,12 +964,13 @@ int xflags;
 	case SYSERRSTR: {
 			int	err;
 			char	*msg;
-			int	ind = optskip(argc, argv, "errstr errno");
+
+			ind = optskip(argc, argv, "errstr errno");
 #ifndef	HAVE_STRERROR
 #define	strerror(a)	errmsgstr(a)
 #endif
 			if (ind < 0)
-				return;
+				break;
 
 			a1 = argv[ind];
 
@@ -961,7 +1002,8 @@ int xflags;
 		prs_buff(_gettext("unknown builtin\n"));
 	}
 #if defined(DO_POSIX_EXPORT) || defined(DO_POSIX_UNSET) || \
-    defined(DO_GETOPT_UTILS) || defined(INTERACTIVE)
+    defined(DO_GETOPT_UTILS) || defined(INTERACTIVE) || \
+    defined(DO_POSIX_CD)
 out:
 #endif
 	flushb();		/* Flush print buffer */
@@ -969,6 +1011,45 @@ out:
 	exval_set(exitval);	/* Prepare ${.sh.*} parameters */
 	chktrap();		/* Run installed traps */
 }
+
+#ifdef	DO_POSIX_CD
+static int
+opt_LP(argc, argv, opts, use)
+	int		argc;
+	unsigned char	**argv;
+	int		*opts;
+	const	 char	*use;
+{
+	struct optv	optv;
+	int		c;
+	int		opt = *opts;
+
+	optinit(&optv);
+	if (opt < 0) {
+		optv.optflag |= OPT_NOFAIL;
+		*opts = 0;
+	}
+	while ((c = optnext(argc, argv, &optv, "LP", use)) != -1) {
+		if (c == 0) {	/* Was -help or bad opt */
+			return (-1);
+		} else if (c == '?') {
+			if (opt < 0) {
+				c = argv[optv.ooptind][1];
+				if (c >= '0' && c <= '9')
+					return (optv.ooptind);
+				optbad(argc, argv, &optv);
+				gfailure((unsigned char *)usage, use);
+				return (-1);
+			}
+		} else if (c == 'L') {
+			*opts = CHDIR_L;
+		} else if (c == 'P') {
+			*opts = CHDIR_P;
+		}
+	}
+	return (optv.optind);
+}
+#endif
 
 static int
 whatis(arg, verbose)

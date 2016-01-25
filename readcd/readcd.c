@@ -1,13 +1,13 @@
-/* @(#)readcd.c	1.126 15/01/01 Copyright 1987, 1995-2015 J. Schilling */
+/* @(#)readcd.c	1.127 16/01/24 Copyright 1987, 1995-2016 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)readcd.c	1.126 15/01/01 Copyright 1987, 1995-2015 J. Schilling";
+	"@(#)readcd.c	1.127 16/01/24 Copyright 1987, 1995-2016 J. Schilling";
 #endif
 /*
  *	Skeleton for the use of the scg genearal SCSI - driver
  *
- *	Copyright (c) 1987, 1995-2015 J. Schilling
+ *	Copyright (c) 1987, 1995-2016 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -281,6 +281,7 @@ usage(ret)
 	error(_("Options:\n"));
 	error(_("\t-version	print version information and exit\n"));
 	error(_("\tdev=target	SCSI target to use\n"));
+	error(_("\tscgopts=spec	SCSI options for libscg\n"));
 	error(_("\tf=filename	Name of file to read/write\n"));
 	error(_("\tsectors=range	Range of sectors to read/write\n"));
 	error(_("\tspeed=#		set speed of drive (MMC only)\n"));
@@ -319,7 +320,7 @@ usage(ret)
 }
 
 /* CSTYLED */
-char	opts[]   = "debug#,d+,kdebug#,kd#,timeout#,quiet,q,verbose+,v+,Verbose+,V+,x+,xd#,silent,s,help,h,version,scanbus,dev*,sectors*,w,c2scan,cxscan,pi8scan,pifscan,plot,fulltoc,clone,edc-corr,noerror,nocorr,notrunc,retries#,factor,f*,speed#,ts&,overhead,meshpoints#";
+char	opts[]   = "debug#,d+,kdebug#,kd#,timeout#,quiet,q,verbose+,v+,Verbose+,V+,x+,xd#,silent,s,help,h,version,scanbus,dev*,scgopts*,sectors*,w,c2scan,cxscan,pi8scan,pifscan,plot,fulltoc,clone,edc-corr,noerror,nocorr,notrunc,retries#,factor,f*,speed#,ts&,overhead,meshpoints#";
 
 EXPORT int
 main(ac, av)
@@ -327,6 +328,7 @@ main(ac, av)
 	char	*av[];
 {
 	char	*dev = NULL;
+	char	*scgopts = NULL;
 	int	fcount;
 	int	cac;
 	char	* const *cav;
@@ -392,7 +394,7 @@ main(ac, av)
 			&xdebug, &xdebug,
 			&silent, &silent,
 			&help, &help, &pversion,
-			&scanbus, &dev, &sectors, &do_write,
+			&scanbus, &dev, &scgopts, &sectors, &do_write,
 			&c2scan, &cxscan, &pi8scan, &pifscan,
 			&plot,
 			&fulltoc, &clone,
@@ -407,7 +409,7 @@ main(ac, av)
 	if (help)
 		usage(0);
 	if (pversion) {
-		printf(_("readcd %s (%s-%s-%s) Copyright (C) 1987, 1995-2015 %s\n"),
+		printf(_("readcd %s (%s-%s-%s) Copyright (C) 1987, 1995-2016 %s\n"),
 								cdr_version,
 								HOST_CPU, HOST_VENDOR, HOST_OS,
 								_("Joerg Schilling"));
@@ -521,6 +523,11 @@ main(ac, av)
 		scg_settarget(scgp, scsibus, target, lun);
 		if (scg__open(scgp, NULL) <= 0)
 			comerr(_("Cannot open SCSI driver.\n"));
+	}
+	if (scgopts) {
+		int	i = scg_opts(scgp, scgopts);
+		if (i <= 0)
+			exit(i < 0 ? EX_BAD : 0);
 	}
 	scgp->silent = silent;
 	scgp->verbose = verbose;

@@ -37,13 +37,13 @@
 #include "defs.h"
 
 /*
- * This file contains modifications Copyright 2008-2015 J. Schilling
+ * Copyright 2008-2016 J. Schilling
  *
- * @(#)pwd.c	1.20 15/09/18 2008-2015 J. Schilling
+ * @(#)pwd.c	1.24 16/01/20 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)pwd.c	1.20 15/09/18 2008-2015 J. Schilling";
+	"@(#)pwd.c	1.24 16/01/20 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -67,14 +67,18 @@ static	UConst char sccsid[] =
 #define	NULL	0
 #endif
 #define	SLASH	'/'
-#define	PARTLY	2
+#define	PARTLY	2		/* cwdname may contain symlinks */
 
 	void	cwd		__PR((unsigned char *dir));
-static	void	cwd2		__PR((void));
-	unsigned char *cwdget	__PR((void));
-	void	cwdprint	__PR((void));
+static	void	cwd2		__PR((int cdflg));
+static	int	cwd3		__PR((struct stat *statp));
+#ifdef	DO_POSIX_CD
+	int	cwdrel2abs	__PR((void));
+#endif
+	unsigned char *cwdget	__PR((int cdflg));
+	void	cwdprint	__PR((int cdflg));
 static void	rmslash		__PR((unsigned char *string));
-static void	ocwdnod		__PR((void));
+	void	ocwdnod		__PR((void));
 static void	cwdnod		__PR((void));
 
 #ifdef __STDC__
@@ -90,6 +94,8 @@ static int	didpwd = FALSE;
 
 /*
  * Try to update cwdname.
+ * Called by the "cd" builtin.
+ *
  * Incorrect values will be detected by cwd2().
  */
 void
@@ -98,10 +104,6 @@ cwd(dir)
 {
 	unsigned char *pcwd;
 	unsigned char *pdir;
-
-	/* Update OLDPWD= to point to previous dir */
-
-	ocwdnod();
 
 	/* First remove extra /'s */
 
@@ -231,45 +233,36 @@ cwd(dir)
 /*
  * Verify that "cwdname" is identical to "."
  * Set didpwd = FALSE in case of problems.
+ * If cdflg is not CHDIR_L, check for symlinks in "cwdname"
+ * and set didpwd = FALSE in case a symlink was seen.
  */
 static void
-cwd2()
+cwd2(cdflg)
+	int	cdflg;
 {
 	struct stat stat1, stat2;
-	unsigned char *pcwd;
 	/* check if there are any symbolic links in pathname */
 
 	if (didpwd == FALSE)
 		return;
-	pcwd = cwdname + 1;
+
 	if (didpwd == PARTLY) {
-		while (*pcwd) {
-			char c;
-			while ((c = *pcwd++) != SLASH && c != '\0')
-				/* LINTED */
-				;
-			*--pcwd = '\0';
-			if (lstat((char *)cwdname, &stat1) == -1 ||
-			    (stat1.st_mode & S_IFMT) == S_IFLNK) {
-				didpwd = FALSE;
-				*pcwd = c;
+		if (!(cdflg & CHDIR_L)) {
+			if (!cwd3(&stat1))
 				return;
-			}
-			*pcwd = c;
-			if (c)
-				pcwd++;
-		}
-		didpwd = TRUE;
-	} else
-		if (stat((char *)cwdname, &stat1) == -1) {
+		} else if (stat((char *)cwdname, &stat1) == -1) {
 			didpwd = FALSE;
 			return;
 		}
+	} else if (stat((char *)cwdname, &stat1) == -1) {
+			didpwd = FALSE;
+			return;
+	}
+
 	/*
 	 * check if ino's and dev's match; pathname could
 	 * consist of symbolic links with ".."
 	 */
-
 	if (stat(".", &stat2) == -1 ||
 	    stat1.st_dev != stat2.st_dev ||
 	    stat1.st_ino != stat2.st_ino)
@@ -277,13 +270,111 @@ cwd2()
 }
 
 /*
+ * Check all pathname components for symlinks.
+ * Set didpwd = FALSE in case a symlink was seen.
+ */
+static int
+cwd3(statp)
+	struct stat	*statp;
+{
+	unsigned char *pcwd = cwdname + 1;
+
+	while (*pcwd) {
+		char c;
+		while ((c = *pcwd++) != SLASH && c != '\0')
+			/* LINTED */
+			;
+		*--pcwd = '\0';
+		if (lstat((char *)cwdname, statp) == -1 ||
+		    (statp->st_mode & S_IFMT) == S_IFLNK) {
+			didpwd = FALSE;
+			*pcwd = c;
+			return (FALSE);
+		}
+		*pcwd = c;
+		if (c)
+			pcwd++;
+	}
+	didpwd = TRUE;
+	return (TRUE);
+}
+
+#ifdef	DO_POSIX_CD
+/*
+ * Convert a relative pathname into an absolute patname when in -L mode.
+ * The relative pathname is expected in curstak() and the result is
+ * written to the same location.
+ */
+int
+cwdrel2abs()
+{
+	unsigned char	cwdnm[PATH_MAX+1];
+	unsigned char	*p;
+	unsigned char	*p2;
+	int		odidpwd = didpwd;
+	int		ret;
+
+	/*
+	 * Check whether there is no way to make it "right".
+	 */
+	if (didpwd == FALSE || cwdname[0] == '\0')
+		return (FALSE);
+
+	/*
+	 * cwdname is granted to be null terminated after the above test.
+	 */
+	movstr(cwdname, cwdnm);			/* save old value */
+
+	/*
+	 * Create space for $PWD + "/" + curstak()
+	 */
+	ret = length(curstak());
+	p = curstak() + length(cwdname) + ret;
+	GROWSTAK(p);
+
+	/*
+	 * Now concat $PWD + "/" + curstak() above current curstak().
+	 */
+	p = curstak() + ret;
+	p2 = movstr(cwdname, p);
+	*p2++ = '/';
+	movstr(curstak(), p2);
+
+	/*
+	 * Canonicalize new absolute path.
+	 * The input value at curstak() is still valid.
+	 */
+	cwd(p);
+	if (didpwd == FALSE) {
+		/*
+		 * TODO: Check whether a long path could be converted into
+		 * an absolute path that is shorter.
+		 */
+		ret = FALSE;
+		goto out;
+	}
+	ret = TRUE;
+	movstr(cwdname, curstak());		/* move result to curstak() */
+out:
+	movstr(cwdnm, cwdname);			/* restore old cwdname	*/
+	didpwd = odidpwd;
+	return (ret);
+}
+#endif
+
+/*
  * Get the current working directory.
  * Mark didpwd that we have a real value.
+ *
+ * Externally used by the "cd" builtin to update PWD= and by xec.c when
+ * setting up a new job slot.
+ * Internally used by cwdset() below.
  */
 unsigned char *
-cwdget()
+cwdget(cdflg)
+	int	cdflg;
 {
-	cwd2();
+	cwd2(cdflg);
 	if (didpwd == FALSE) {
 		if (getcwd((char *)cwdname, PATH_MAX+1) == NULL)
 			*cwdname = 0;
@@ -296,12 +387,15 @@ cwdget()
 
 /*
  * Set cwdname (call cwdget()) if needed.
+ *
+ * We use cwdget(CHDIR_L) as this does not modify PWD
+ * unless it is definitely invalid.
  */
 unsigned char *
 cwdset()
 {
 	if (cwdname[0] == '\0')
-		cwdget();
+		cwdget(CHDIR_L);
 	return (cwdname);
 }
 
@@ -310,11 +404,38 @@ cwdset()
  *	Used by the "pwd" builtin.
  */
 void
-cwdprint()
+cwdprint(cdflg)
+	int	cdflg;
 {
-	unsigned char *cp;
+	unsigned char	*cwdptr = cwdname;
+#ifdef	DO_POSIX_CD
+	unsigned char	cwdnm[PATH_MAX+1];
 
-	cwd2();
+	/*
+	 * As cwdprint() is only used to print the current working directory,
+	 * it should only update cwdname[] in case it is definitely invalid.
+	 * For this reason, we call cwd2(CHDIR_L) to just check whether the
+	 * content does not point to the current working directory.
+	 */
+	cwd2(CHDIR_L);
+	if (didpwd == FALSE || (didpwd == PARTLY && !(cdflg & CHDIR_L))) {
+		
+		if (getcwd((char *)cwdnm, PATH_MAX+1) == NULL) {
+			if (errno && errno != ERANGE)
+				Error(badpwd);
+			else
+				Error(longpwd);
+			return;
+		}
+		if (didpwd == FALSE) {
+			movstr(cwdnm, cwdname);
+			didpwd = TRUE;
+		} else {
+			cwdptr = cwdnm;
+		}
+	}
+#else
+	cwd2(cdflg);
 	if (didpwd == FALSE) {
 		if (getcwd((char *)cwdname, PATH_MAX+1) == NULL) {
 			if (errno && errno != ERANGE)
@@ -325,11 +446,9 @@ cwdprint()
 		}
 		didpwd = TRUE;
 	}
+#endif
 
-	for (cp = cwdname; *cp; cp++) {
-		prc_buff(*cp);
-	}
-
+	prs_buff(cwdptr);
 	prc_buff(NL);
 	cwdnod();
 }
@@ -337,7 +456,6 @@ cwdprint()
 /*
  *	This routine will remove repeated slashes from string.
  */
-
 static void
 rmslash(string)
 	unsigned char *string;
@@ -369,7 +487,7 @@ rmslash(string)
 /*
  * Update OLDPWD= node
  */
-static void
+void
 ocwdnod()
 {
 #ifdef	DO_SYSPUSHD
@@ -450,8 +568,9 @@ init_dirs()
 }
 
 int
-pr_dirs(minlen)
+pr_dirs(minlen, cdflg)
 	int	minlen;
+	int	cdflg;
 {
 	struct argnod	*d;
 
@@ -461,7 +580,7 @@ pr_dirs(minlen)
 	d = dirs;
 	if (d->argnxt == NULL) {
 		if (minlen == 0)
-			cwdprint();
+			cwdprint(cdflg);
 		return (minlen == 0);
 	}
 	while (d) {

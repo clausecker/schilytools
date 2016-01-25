@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sh.1	1.142 16/01/14 Copyright 2012-2015 J. Schilling
+.\" @(#)sh.1	1.144 16/01/21 Copyright 2012-2016 J. Schilling
 .\" Copyright 1989 AT&T
 .\" Copyright (c) 2008, Sun Microsystems, Inc. All Rights Reserved.
 .\" Portions Copyright (c) 1992, X/Open Company Limited All Rights Reserved
@@ -59,7 +59,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sh 1 "2016/01/14" "Schily Bourne Shell" "User Commands"
+.TH sh 1 "2016/01/21" "Schily Bourne Shell" "User Commands"
 .SH NAME
 sh, jsh \- standard and job control shell and command interpreter
 .SH SYNOPSIS
@@ -2965,6 +2965,8 @@ No arguments are allowed with this option.
 .B \-R
 .PD 0
 .TP
+.B \-raw
+.TP
 .B \-\-raw
 .PD
 Output the listing in the raw format that is used in the persistent
@@ -3088,10 +3090,13 @@ levels.
 .br
 .ne 3
 .TP
-\fBcd\fR [ \fIargument\fR ]
+\fBcd\fR [ \fB\-L\fR | \fB\-P\fR ] [ \fIargument\fR ]
 .sp .6
 Change the current directory to
 .IR argument .
+If arg is
+.B \-
+the directory is changed to the previous directory.
 The shell parameter
 .B HOME
 is the default
@@ -3121,11 +3126,63 @@ The previous working directory is kept in the shell parameter
 the new working directory is kept in the shell parameter
 .BR PWD .
 The top of the directory stack is replaced by the new working directory.
+.RS
+.br
+.ne 3
+.TP
+.B \-L
+Handles the operation
+.B dot-dot
+.RB ( .. )
+logically.
+Symbolic link components are
+.B not
+resolved before
+.B dot-dot
+components are processed.
+.br
+.ne 3
+.TP
+.B \-P
+Handles the operation
+.B dot-dot
+physically.
+Symbolic link components
+.B are
+resolved before
+.B dot-dot
+components are processed.
+.LP
+.ne 3
+If both
+.B \-L
+and
+.B \-P
+are specified, the last one applies.
+If neither
+.B \-L
+nor
+.B \-P
+is specified,
+.B cd
+behaves as if
+.B \-P
+had been specified.
+.sp
+The options
+.B \-L
+and
+.B \-P
+and the special parameter
+.B \-
+were not recognised by older versions of
+.BR sh .
+.RE
 
 .br
 .ne 3
 .TP
-\fBchdir\fR [ \fIdir\fR ]
+\fBchdir\fR [ \fB\-L\fR | \fB\-P\fR ] [ \fIdir\fR ]
 .sp .6
 .B chdir
 changes the shell's working directory to directory
@@ -3215,7 +3272,7 @@ enclosing loop.
 .br
 .ne 3
 .TP
-.B dirs
+.BR dirs " [ " \-L " | " \-P " ]
 .sp .6
 Print the content of the directory stack.
 The top of the stack is the leftmost element which has the logical offset
@@ -3229,11 +3286,55 @@ and the
 command.
 If there is no directory stack, the result is the same as with calling
 .BR pwd .
+.RS
+.br
+.ne 3
+.TP
+.B \-L
+If the
+.B PWD
+shell parameter contains an absolute pathname of the current
+directory that does not contain the filenames 
+.B dot 
+or
+.BR dot-dot , 
+.B pwd
+writes this pathname to standard output,
+regardless of whether it contains filename components
+that refer to symbolic links.
+Otherwise, the
+.B \-L
+option behaves like the
+.B \-P
+option.
+.br
+.ne 3
+.TP
+.B \-P
+The absolute pathname written does not contain
+filename components that refer to files of type symbolic link.
+.LP
+.ne 3
+If both
+.B \-L
+and
+.B \-P
+are specified, the last one applies.
+If neither
+.B \-L
+nor
+.B \-P
+is specified,
+.B pwd
+behaves as if
+.B \-P
+had been specified.
 .sp
 The
 .B dirs
 command was not supported in older versions of
 .BR sh .
+.RE
 
 .br
 .ne 3
@@ -3895,7 +3996,7 @@ command was not supported in older versions of
 .br
 .ne 3
 .TP
-\fBpopd\fR [ \fI\-offset\fR ]
+\fBpopd\fR [ \fB\-L\fR | \fB\-P\fR ] [ \fI\-offset\fR ]
 .sp .6
 Calling
 .B popd
@@ -3920,11 +4021,49 @@ See
 .B dirs
 for an explanation of
 .IR offset .
+.RS
+.br
+.ne 3
+.TP
+.B \-L
+Handles the operation logically.
+Symbolic link components are
+.B not
+resolved before the
+.B PWD
+shell parameter is assigned the new value.
+.br
+.ne 3
+.TP
+.B \-P
+Handles the operation physically.
+Symbolic link components
+.B are
+resolved before the
+.B PWD
+shell parameter is assigned the new value.
+.LP
+.ne 3
+If both
+.B \-L
+and
+.B \-P
+are specified, the last one applies.
+If neither
+.B \-L
+nor
+.B \-P
+is specified,
+.B cd
+behaves as if
+.B \-P
+had been specified.
 .sp
 The
 .B popd
 command was not supported in older versions of
 .BR sh .
+.RE
 
 .br
 .ne 3
@@ -4021,10 +4160,10 @@ command was not a builtin command in older versions of
 .br
 .ne 3
 .TP
-\fBpushd\fR [ \fIname\fR ]
+\fBpushd\fR [ \fB\-L\fR | \fB\-P\fR ] [ \fIname\fR ]
 .PD 0
 .TP
-\fBpushd\fR [ \fI\-offset\fR ]
+\fBpushd\fR [ \fB\-L\fR | \fB\-P\fR ] [ \fI\-offset\fR ]
 .PD
 .sp .6
 The
@@ -4047,22 +4186,124 @@ See
 .B dirs
 for an explanation of
 .IR offset .
+.RS
+.br
+.ne 3
+.TP
+.B \-L
+Handles the operation
+.B dot-dot
+.RB ( .. )
+logically.
+Symbolic link components are
+.B not
+resolved before
+.B dot-dot
+components are processed.
+.br
+.ne 3
+.TP
+.B \-P
+Handles the operation
+.B dot-dot
+physically.
+Symbolic link components
+.B are
+resolved before
+.B dot-dot
+components are processed.
+.LP
+.ne 3
+If both
+.B \-L
+and
+.B \-P
+are specified, the last one applies.
+If neither
+.B \-L
+nor
+.B \-P
+is specified,
+.B pushd
+behaves as if
+.B \-P
+had been specified.
 .sp
 The
 .B pushd
 command was not supported in older versions of
 .BR sh .
+.RE
 
 .br
 .ne 3
 .TP
-.B pwd
+.BR pwd " [ " \-L " | " \-P " ]
 .sp .6
-Print the current working directory. See
+Print the current working directory as absolute pathname that does not contain
+the filenames
+.B dot
+.RB ( . )
+or
+.B dot-dot
+.RB ( .. ).
+See
 .BR pwd (1)
 for usage and description.
 The current working directory is kept in the shell parameter
 .BR PWD .
+.RS
+.br
+.ne 3
+.TP
+.B \-L
+If the
+.B PWD
+shell parameter contains an absolute pathname of the current
+directory that does not contain the filenames 
+.B dot 
+or
+.BR dot-dot , 
+.B pwd
+writes this pathname to standard output,
+regardless of whether it contains filename components
+that refer to symbolic links.
+Otherwise, the
+.B \-L
+option behaves like the
+.B \-P
+option.
+.br
+.ne 3
+.TP
+.B \-P
+The absolute pathname written does not contain
+filename components that refer to files of type symbolic link.
+.LP
+.ne 3
+If both
+.B \-L
+and
+.B \-P
+are specified, the last one applies.
+If neither
+.B \-L
+nor
+.B \-P
+is specified,
+.B pwd
+behaves as if
+.B \-P
+had been specified.
+.sp
+The options
+.B \-L
+and
+.B \-P
+.B \-
+were not recognised by older versions of
+.BR sh .
+.RE
 
 .br
 .ne 3

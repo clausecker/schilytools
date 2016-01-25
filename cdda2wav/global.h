@@ -1,4 +1,4 @@
-/* @(#)global.h	1.36 13/12/24 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2013 J. Schilling */
+/* @(#)global.h	1.37 16/01/24 Copyright 1998-2004 Heiko Eissfeldt, Copyright 2004-2016 J. Schilling */
 /*
  * Global Variables
  */
@@ -33,6 +33,7 @@ typedef struct index_list {
 typedef struct global {
 
 	char			*dev_name;		/* device name */
+	char			*dev_opts;		/* SCG device options */
 	char			*aux_name;		/* auxiliary cdrom device name */
 	char			fname_base[200];	/* current file name base */
 

@@ -1,6 +1,6 @@
-/* @(#)jsprintf.c	1.18 14/01/03 Copyright 1985, 1995-2014 J. Schilling */
+/* @(#)jsprintf.c	1.19 16/01/21 Copyright 1985, 1995-2016 J. Schilling */
 /*
- *	Copyright (c) 1985, 1995-2014 J. Schilling
+ *	Copyright (c) 1985, 1995-2016 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -23,14 +23,10 @@
 #include <schily/standard.h>
 #include <schily/schily.h>
 
-#if	defined(__SVR4) && defined(__sun)
-#ifndef	USE_FPRFORMAT
-#define	USE_FPRFORMAT
-#endif
-#endif
-
 #ifdef	NO_FPRFORMAT
 #undef	USE_FPRFORMAT
+#else
+#define	USE_FPRFORMAT
 #endif
 
 #ifdef	USE_FPRFORMAT
