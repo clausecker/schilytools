@@ -36,14 +36,14 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)print.c	1.33 16/01/04 2008-2016 J. Schilling
+ * @(#)print.c	1.34 16/02/02 2008-2016 J. Schilling
  */
 #ifdef	SCHILY_INCLUDES
 #include <schily/mconfig.h>
 #endif
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)print.c	1.33 16/01/04 2008-2016 J. Schilling";
+	"@(#)print.c	1.34 16/02/02 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -559,6 +559,8 @@ prn_buff(n)
 	prs_buff(numbuf);
 }
 
+static unsigned char *locbufp;
+
 int
 setb(fd)
 	int	fd;
@@ -566,6 +568,10 @@ setb(fd)
 	int ofd;
 
 	if ((ofd = buffd) == -1) {
+		/*
+		 * Previous buffer was a growing buffer,
+		 * so make it semi-permanent and remember value.
+		 */
 		if (bufp+bindex+1 >= brkend) {
 			bufp = growstak(bufp+bindex+1);
 			bufp -= bindex + 1;
@@ -573,15 +579,31 @@ setb(fd)
 		if (bufp[bindex-1]) {
 			bufp[bindex++] = 0;
 		}
-		bufp = endstak(bufp+bindex);
+		locbufp = endstak(bufp+bindex);
 	} else {
+		/*
+		 * Previous buffer was static, so just flush it.
+		 */
+		locbufp = NULL;
 		flushb();
 	}
 	if ((buffd = fd) == -1) {
+		/*
+		 * Get new growing buffer
+		 */
 		bufp = locstak();
 	} else {
 		bufp = buffer;
 	}
 	bindex = 0;
 	return (ofd);
+}
+
+/*
+ * Hack to get the address of the semi-permanent buffer after setb(-1).
+ */
+unsigned char *
+endb()
+{
+	return (locbufp);
 }

@@ -1,5 +1,5 @@
 . \"  Manual Seite fuer getargs
-. \" @(#)getargs.3	1.1
+. \" @(#)getargs.3	1.4 16/01/27 Copyright 1985 J. Schilling
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
 .if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
@@ -19,7 +19,7 @@ getargs() \- parses arguments until a non-flag is reached
 .SH SYNOPSIS
 .nf
 .B
-int getargs(pac,pav,fmt,a1,\|.\|.\|.,an)
+int getargs(pac, pav, fmt, a1, \|.\|.\|., an)
 .B
 	int *pac;       /* pointer to arg count */
 .B
@@ -29,28 +29,65 @@ int getargs(pac,pav,fmt,a1,\|.\|.\|.,an)
 .B
 	type *a1;       /* pointer to result 1 (corresponding */
 .B
-                        /* to the first descriptor in fmt) */
+	                /* to the first descriptor in fmt) */
 .B
 	type *an;       /* pointer to result n (corresponding */
 .B
-                        /* to the nth descriptor in fmt) */
+	                /* to the nth descriptor in fmt) */
 .fi
 .SH DESCRIPTION
-getargs() looks at each argument that begins with '-', '+', or
-has an '=' in it and trys to find a matching description in fmt.
-If a match is found, the corresponding value pointed at by a1 to
-an is set to the value according to the conversion specification.
+.BR getargs ()
+looks at each argument that begins with
+.RB ' \- ',
+.RB ' + ',
+or has an
+.RB ' = '
+in it and trys to find a matching description in
+.BR fmt .
+If a match is found, the corresponding value pointed at by
+.B a1
+to an is set to the value according to the conversion specification.
 .PP
-If a match is not found, getargs() returns the error code \-1, 
-with *pav[0] pointing to the bad argument. If an argument that does 
-not begin with '-' or '+' or contain an '=' is found, 
-getargs() returns +1, again with av[0] pointing to the non-flag argument.
+If a match is not found,
+.BR getargs ()
+returns the error code
+.BR \-1 ,
+with
+.B *pav[0]
+pointing to the bad argument. If an argument that does
+not begin with
+.RB ' \- '
+or
+.RB ' + '
+or contain an
+.RB ' = '
+is found,
+.BR getargs ()
+returns
+.BR +1 ,
+again with
+.B av[0]
+pointing to the non-flag argument.
 .PP
-In the description, it is assumed that pac=&ac and pav=&av,
-where ac and av are the two arguments passed to main(). The
-pointers are necessary so that getargs() can update ac and av as
-it verifies each argument and reflects the `current` position
-back to the user.
+In the description, it is assumed that
+.B pac=&ac
+and
+.BR pav=&av ,
+where
+.B ac
+and
+.B av
+are the two arguments passed to
+.BR main (). 
+The pointers are necessary so that
+.BR getargs ()
+can update
+.B ac
+and
+.B av
+as it verifies each argument and reflects the
+.I current
+position back to the user.
 .PP
 Descriptors are composed of standard characters, which must
 match, followed by a conversion character.
@@ -58,62 +95,71 @@ match, followed by a conversion character.
 Legal conversions and their meanings are:
 .TP
 .BR #s " or " #S
-Short integer
+.B Short integer
 .RS
 .PP
 The remainder of the current argument, or if it is
 empty, the next existing argument is converted to a
 short integer value. An error in conversion results
-in a NOMATCH situation.
+in a
+.B NOMATCH
+situation.
 .RE
 .TP
 .BR #l " or " #L
-Long integer
+.B Long integer
 .RS
 .PP
 The remainder of the current argument, or if it is
 empty, the next existing argument is converted to a
 long integer value. An error in conversion results
-in a NOMATCH situation.
+in a
+.B NOMATCH
+situation.
 .RE
 .TP
 .BR #i " or " #I
-Integer
+.B Integer
 .RS
 .PP
 The remainder of the current argument, or, if it is
 empty, the next existing argument is converted to an
 int value. An error in conversion results in a
-NOMATCH situation.
+.B NOMATCH
+situation.
 .RE
 .TP
 .B ?
-Character
+.B Character
 .RS
 .PP
 The next character in the current argument is the
 result. If there is no next char, the result is
-'\\0'.
+.RB ' \e0 '.
 .RE
 .TP
 .B *
-String
+.B String
 .RS
 .PP
 A pointer to the remainder of the current argument
 is returned. If there are no more data in the
 argument the next argument is used, and if there is
-no next argument, a NOMATCH situation exists.
+no next argument, a
+.B NOMATCH
+situation exists.
 .RE
 .TP
 .B &
-Function
+.B Function
 .RS
 .PP
 The address argument is a pointer to a function to
 call with a pointer to the current argument. The
-function must return one of these values: YES = +1,
-NOMATCH = \-1, ERROR = \-2.
+function must return one of these values:
+.BR YES "\ =\ " +1 ,
+.BR NOMATCH "\ =\ " \-1 ,
+.BR ERROR "\ =\ " \-2 .
 .PP
 Because the argument just after the address argument is passed
 as a second argument to the function, common routines can have
@@ -125,30 +171,48 @@ each time.
 .RE
 .PP
 If no conversion is specified, the flag is assumed to be a
-Boolean indicator and the corresponding value is set to TRUE
-(+1).
+Boolean indicator and the corresponding value is set to
+.B TRUE
+.RB ( +1 ).
 .PP
-Descriptors are separated by a ',' (without whitespace) in the
-format string. They correspond in order to the resultant
-pointers, a1\|.\|.\|.an.
+Descriptors are separated by a
+.RB ' , '
+(without whitespace) in the
+format string. They correspond in order to the resultant pointers,
+.BR a1\|.\|.\|.an .
 .PP
 It is an error to expect more than one conversion from a single
-match (e.g., "x#*" to attempt to get both the numerical value
-and the actual string for the x flag); a \-2 error will result if
-this is attempted.
+match (e.g.,
+.B
+"x#*"
+to attempt to get both the numerical value
+and the actual string for the
+.B x
+flag); a \-2 error will result if this is attempted.
 .PP
 Although Boolean flags must appear exactly as they do in the
 format string, the format string does not contain the leading
-'-'. Flags, where conversion is to take place, may appear
+.RB ' \- '.
+.PP
+.ne 3
+Flags, where conversion is to take place, may appear
 either as:
 .TP
 .BI \-f value
+.PD 0
 .TP
 .BI f= value
 .TP
 .BI f= " value"
+.TP
+.BI \-f= value
+.TP
+.BI \-f= " value"
+.PD
 .PP
-where f is the matching flag string. No additional effort is
+where
+.B f
+is the matching flag string. No additional effort is
 required to get these different ways of specifying values.
 .SH RETURNS
 .TP
@@ -167,17 +231,33 @@ signifying a bad descriptor.
 .SH EXAMPLES
 
 .SH "SEE ALSO"
+.nh 
+.sp 
+.LP
+.BR getallargs (3),
+.BR getfiles (3).
 
 .SH NOTES
-getargs() assumes the first argument is at av[0]. Commands are
-invoked by the system with the command name in av[0] and the
-first argument in av[1], so they must increment av and decrement
-ac before calling getargs().
+.BR getargs ()
+assumes the first argument is at
+.BR av[0] .
+Commands are invoked by the system with the command name in
+.B av[0]
+and the first argument in
+.BR av[1] ,
+so they must increment
+.B av
+and decrement
+.B ac
+before calling
+.BR getargs ().
 .PP
-getargs() should only be used when the position of the switches
+.BR getargs ()
+should only be used when the position of the switches
 influences how an argument is processed (e.g., format and pr
 commands), or when all switches must be before all the arguments
-(e.g, write command). In other cases, use getallargs().
+(e.g, write command). In other cases, use
+.BR getallargs ().
 
 .SH BUGS
 none

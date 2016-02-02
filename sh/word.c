@@ -36,13 +36,13 @@
 #include "defs.h"
 
 /*
- * Copyright 2008-2015 J. Schilling
+ * Copyright 2008-2016 J. Schilling
  *
- * @(#)word.c	1.50 15/12/23 2008-2015 J. Schilling
+ * @(#)word.c	1.51 16/02/02 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)word.c	1.50 15/12/23 2008-2015 J. Schilling";
+	"@(#)word.c	1.51 16/02/02 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -72,7 +72,10 @@ static	unsigned char	*match_word __PR((unsigned char *argp,
 						unsigned int c,
 						unsigned int d,
 						unsigned int *wordcp));
-static	unsigned char	*match_literal __PR((unsigned char *argp));
+#ifdef	DO_DOL_PAREN
+static	unsigned char	*match_cmd	__PR((unsigned char *argp));
+#endif
+static	unsigned char	*match_literal	__PR((unsigned char *argp));
 static	unsigned char	*match_block __PR((unsigned char *argp,
 						unsigned int c,
 						unsigned int d));
@@ -346,6 +349,18 @@ match_word(argp, c, d, wordcp)
 				if (!alphanum(c))
 					alpha = 0;
 			}
+#ifdef	DO_DOL_PAREN
+			if (c == DOLLAR) {
+				/*
+				 * Check for '$(' in unquoted text
+				 */
+				if ((c = nextwc()) == '(') {
+					argp = match_cmd(argp);
+				} else {
+					peekc = c | MARK;
+				}
+			} else
+#endif
 			if (qotchar(c)) {	/* '`' or '"' */
 				argp = match_block(argp, c, c);
 			}
@@ -361,6 +376,44 @@ match_word(argp, c, d, wordcp)
 	}
 	return (argp);
 }
+
+#ifdef	DO_DOL_PAREN
+static unsigned char *
+match_cmd(argp)
+	unsigned char	*argp;		/* Output pointer	*/
+{
+	struct argnod	*arg;
+	struct trenod	*tc;
+	int		save_fd;
+
+	/*
+	 * Add the '( and make the string null terminated semi permanent.
+	 */
+	argp += 2;
+	GROWSTAK(argp);
+	argp -= 2;
+	*argp++ = '(';
+	*argp++ = 0;
+	arg = (struct argnod *)endstak(argp);
+
+	tc = cmd(')', MTFLG | NLFLG);	/* Tell parser to stop at ) */
+
+	save_fd = setb(-1);
+	prs_buff(arg->argval);		/* Copy begin of argument */
+	prcmd(tc);			/* Convert cmd to string  */
+	prs_buff(UC ")");		/* Add closing ) from $() */
+	argp = stakbot;
+	(void) setb(save_fd);
+	argp = endb();
+
+	/*
+	 * Create new growable local stack and copy over the current text.
+	 */
+	arg = (struct argnod *)locstak();
+	argp = movstrstak(argp, arg->argval);
+	return (argp);
+}
+#endif
 
 /*
  * Match and copy the next literal block (surrounded by '\'') from the
@@ -450,6 +503,18 @@ match_block(argp, c, d)
 				}
 			}
 		}
+#ifdef	DO_DOL_PAREN
+		if (c == DOLLAR) {
+			/*
+			 * Check for '$(' in quoted text
+			 */
+			if ((c = nextwc()) == '(') {
+				argp = match_cmd(argp);
+			} else {
+				peekc = c | MARK;
+			}
+		}
+#endif
 	}
 	return (argp);
 }

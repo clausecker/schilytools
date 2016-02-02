@@ -36,13 +36,13 @@
 #include "defs.h"
 
 /*
- * Copyright 2008-2015 J. Schilling
+ * Copyright 2008-2016 J. Schilling
  *
- * @(#)cmd.c	1.37 15/12/23 2008-2015 J. Schilling
+ * @(#)cmd.c	1.38 16/02/02 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)cmd.c	1.37 15/12/23 2008-2015 J. Schilling";
+	"@(#)cmd.c	1.38 16/02/02 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -105,10 +105,9 @@ makelist(type, i, r)
 {
 	struct lstnod *t = 0;
 
-	if (i == 0 || r == 0)
+	if (i == 0 || r == 0) {
 		synbad();
-	else
-	{
+	} else {
 		t = (struct lstnod *)getstor(sizeof (struct lstnod));
 		t->lsttyp = type;
 		t->lstlef = i;
@@ -146,9 +145,9 @@ cmd(sym, flg)
 			wdval = ';';
 			chkpr();
 		}
-	} else if (i == 0 && (flg & MTFLG) == 0)
+	} else if (i == 0 && (flg & MTFLG) == 0) {
 		synbad();
-
+	}
 	switch (wdval)
 	{
 	case '&':
@@ -161,8 +160,9 @@ cmd(sym, flg)
 	case ';':
 		if ((e = cmd(sym, flg | MTFLG)) != NULL)
 			i = makelist(TLST, i, e);
-		else if (i == 0)
+		else if (i == 0) {
 			synbad();
+		}
 		break;
 
 	case EOFSYM:

@@ -39,7 +39,7 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)defs.h	1.138 16/01/20 2008-2016 J. Schilling
+ * @(#)defs.h	1.139 16/02/02 2008-2016 J. Schilling
  */
 
 #ifdef	__cplusplus
@@ -642,6 +642,7 @@ extern	void	prull_buff	__PR((UIntmax_t lc));
 extern	void	prl_buff	__PR((long l));
 extern	void	prn_buff	__PR((int n));
 extern	int	setb		__PR((int fd));
+extern	unsigned char *endb	__PR((void));
 
 
 /*

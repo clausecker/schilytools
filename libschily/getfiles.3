@@ -1,5 +1,5 @@
 . \"  Manual Seite fuer getfiles
-. \" @(#)getfiles.3	1.1
+. \" @(#)getfiles.3	1.3 16/01/27 Copyright 1985 J. Schilling
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
 .if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
@@ -19,7 +19,7 @@ getfiles() \- gets next non flag-type argument
 .SH SYNOPSIS
 .nf
 .B
-int getfiles(pac,pav,fmt)
+int getfiles(pac, pav, fmt)
 .B
 	int *pac;       /* pointer to arg count */
 .B
@@ -28,10 +28,19 @@ int getfiles(pac,pav,fmt)
 	char *fmt;      /* format string */
 .fi
 .SH DESCRIPTION
-getfiles() returns, with a value of +1, whenever a non-flag type
-argument is encountered. Flag-type arguments, along with their
-values, are ignored. The filename is at *pav[0]. The caller
-must increment *pav and decrement *pac before calling getfiles()
+.BR getfiles ()
+returns, with a value of
+.BR +1 ,
+whenever a non-flag type argument is encountered.
+Flag-type arguments, along with their
+values, are ignored. The filename is at
+.BR *pav[0] .
+The caller must increment
+.B *pav
+and decrement
+.B *pac
+before calling
+.BR getfiles ()
 again.
 .SH RETURNS
 .TP
@@ -50,12 +59,26 @@ no more flag-type arguments.
 .SH EXAMPLES
 
 .SH "SEE ALSO"
+.nh 
+.sp 
+.LP
+.BR getallargs (3),
+.BR getargs (3).
 
 .SH NOTES
-Initially, *pav must point to the first argument (not the
-program name) and *pac must not count the program name. Before
-calling getfiles() again, decrement *pac and increment *pav, or
-the same name will be pointed to by *pav.
+Initially, 
+.B *pav
+must point to the first argument (not the
+program name) and
+.B *pac
+must not count the program name. Before calling
+.BR getfiles ()
+again, decrement
+.B *pac
+and increment
+.BR *pav ,
+or the same name will be pointed to by
+.BR *pav .
 
 .SH BUGS
 none

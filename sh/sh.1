@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sh.1	1.144 16/01/21 Copyright 2012-2016 J. Schilling
+.\" @(#)sh.1	1.146 16/02/02 Copyright 2012-2016 J. Schilling
 .\" Copyright 1989 AT&T
 .\" Copyright (c) 2008, Sun Microsystems, Inc. All Rights Reserved.
 .\" Portions Copyright (c) 1992, X/Open Company Limited All Rights Reserved
@@ -59,7 +59,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sh 1 "2016/01/21" "Schily Bourne Shell" "User Commands"
+.TH sh 1 "2016/02/02" "Schily Bourne Shell" "User Commands"
 .SH NAME
 sh, jsh \- standard and job control shell and command interpreter
 .SH SYNOPSIS
@@ -862,22 +862,30 @@ respectively.
 .SS "Command Substitution"
 .sp
 .LP
-The shell reads commands from the string between two grave accents
+The shell reads
+.I commands
+enclosed in parenthesis preceded by a dollar sign (that is,
+.BI $( command)\c
+) or from the string between two grave accents
 .RB ( `` )
 and the standard output from these commands can be used as all or
 part of a word. Trailing newlines from the standard output are removed.
 .sp
 .LP
-No interpretation is done on the string before the string is read, except
-to remove backslashes
+No interpretation is done on the string before the string is read,
+except when using the second (obsolete) form using the backquoted syntax,
+where backslashes
 .RB ( \e )
-used to escape other characters.
-Backslashes can be used to escape a grave accent
+are used to escape other characters.
+.LP
+When using the backquoted syntax,
+backslashes can be used to escape a grave accent
 .RB ( ` )
 or another backslash
 .RB ( \e )
 and are removed before the command string is read.
-Escaping grave accents allows nested command substitution. If the command
+Escaping grave accents allows nested command substitution in this form.
+If the command
 substitution lies within a pair of double quotes (\c
 .B
 " .\|.\|.\|` .\|.\|.\|` \&.\|.\|.\| "\c
@@ -901,6 +909,110 @@ sign has no effect. Backslashes that precede characters other than
 and
 .B $
 are left intact when the command string is read.
+.LP
+In the
+.B $()
+form, nested command substitutions do not need special quoting.
+.LP
+Command substitution allows the output of a command to be substituted 
+in place of the command name itself. Command substitution occurs when
+the command is enclosed as follows:
+.LP
+.in +2
+.BI $( command )
+.in -2
+.LP
+or (backquoted version):
+.LP
+.in +2
+.BI ` command `
+.in -2
+.LP
+The shell expands the command substitution by executing
+.I command
+in a subshell environment and replacing the command substitution
+(the text of command plus the enclosing
+.B $()
+or backquotes) with the standard output of the command, removing
+sequences of one or more newline characters at the end of the
+substitution. Embedded newline characters before the end of the 
+output is not be removed; however, they can be treated as field
+delimiters and eliminated during field splitting, depending on 
+the value of
+.B IFS
+and quoting that is in effect.
+.LP
+With the
+.BI $( command )
+form, all characters following the open parenthesis to the matching
+closing parenthesis constitute the command. Any valid shell script
+can be used for
+.IR command .
+.LP
+The results of command substitution are not field splitting and pathname
+expansion processed for further tilde expansion, parameter expansion,
+command substitution or arithmetic  expansion. If a command substitution
+occurs inside double-quotes, it is not be performed on the results of the
+substitution.
+.LP
+The
+.B $()
+form of command substitution solves a problem of inconsistent behavior when
+using backquotes. For example:
+.TS
+tab() box;
+cw(2.75i) cw(2.75i)
+lw(2.75i) lw(2.75i)
+.
+CommandOutput
+_
+echo '\e$x'\e$x
+echo `echo '\e$x'`$x
+echo $(echo '\e$x')\e$x
+.TE
+.LP
+Additionally, the backquoted syntax has historical restrictions on the
+contents of the embedded command. While the new
+.B $()
+form can process
+any kind of valid embedded script, the backquoted form cannot handle some
+valid scripts that include backquotes. For example, these otherwise valid
+embedded scripts do not work in the left column, but do work on the right:
+.TS
+tab() box;
+lw(2.75i) lw(2.75i)
+lw(2.75i) lw(2.75i)
+.
+echo `echo $(
+cat <<eofcat <<eof
+a here-doc with `a here-doc with )
+eofeof
+`)
+echo `echo $(
+echo abc # a comment with `echo abc # a comment with )
+`)
+echo `echo $(
+echo '`'echo ')'
+`)
+.TE
+.LP
+Because of these inconsistent behaviors, the backquoted variety of command
+substitution is not recommended for new applications that nest command
+substitutions or attempt to embed complex scripts.
+.LP
+If the command substitution consists of a single subshell, such as:
+.LP
+.in +2
+.BI "$( (" command ") )
+.in -2
+.LP
+a portable application must separate the
+.B $(
+and
+.B (
+into two tokens (that is, separate them with white space). This is
+required to avoid any ambiguities with arithmetic expansion.
+
 .SS "Parameter Substitution"
 .sp
 .LP
@@ -6924,6 +7036,13 @@ With this version of the Bourne Shell, only special builtin commands may
 terminate the whole shell in case that shell is not an interactive shell.
 In previous versions, all builtin commands could terminate a non-ineractive
 shell if a utility syntax error or a fatal utility error was encountered.
+.sp
+The most prominent result of this change is that the builtin
+.B cd
+command no longer terminates a shell script in case that the
+.B cd
+command did not work for whatever reason. So be careful and always check the
+exit code in shell scripts.
 .br
 .ne 4
 .TP
@@ -6973,6 +7092,20 @@ This permits commands like:
 to set the variable
 .I var
 in the main shell.
+.br
+.ne 4
+.TP
+.B time
+The
+.B time
+token is now a reserved word. This permits to time pipelines as a whole
+but may cause problems when people assume that it is a command.
+When in doubt, call
+.B
+"time\ \-p"
+instead as the fact that the next word is an option disables the
+.B time
+token to be recognized as a reserved word.
 
 .br
 .ne 5

@@ -1,4 +1,4 @@
-. \" @(#)patcompile.3	1.2 00/11/12 Copyright 1985,1995-2000 J. Schilling
+. \" @(#)patcompile.3	1.3 16/01/27 Copyright 1985,1995-2016 J. Schilling
 . \"  Manual Seite fuer patcompile
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -30,7 +30,7 @@ int patcompile(pattern, length, aux)
 .SH DESCRIPTION
 .B patcompile()
 compiles a pattern into an internal form which
-.BR patmatch(3)
+.BR patmatch (3)
 can use.
 .PP
 The string at
@@ -40,7 +40,7 @@ with size
 is scanned. The array
 .B aux
 is filled in with state information for
-.BR patchmatch (3).
+.BR patmatch (3).
 .B aux
 should have at least
 .I length

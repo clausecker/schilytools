@@ -1,5 +1,5 @@
 '\" t
-.\" @(#)cdda2wav.1	1.62 15/11/14 Copyright 1998,1999,2000 Heiko Eissfeldt, Copyright 2004-2015 J. Schilling
+.\" @(#)cdda2wav.1	1.63 16/01/26 Copyright 1998,1999,2000 Heiko Eissfeldt, Copyright 2004-2016 J. Schilling
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
 .if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
 .if t .ds u \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'u
@@ -14,7 +14,7 @@
 .if n .ds s sz
 .if t .ds m \\(*m
 .if n .ds m micro
-.TH CDDA2WAV 1 "Version 3.02 2015/11/14"
+.TH CDDA2WAV 1 "Version 3.02 2016/01/26"
 .SH NAME
 cdda2wav \- dumps CD audio data into sound files with extra data verification
 .SH SYNOPSIS
@@ -835,6 +835,13 @@ strings. This option may be used to find SCSI address of the
 CD/DVD-Recorder on a system.
 The numbers printed out as labels are computed by: 
 .B "bus * 100 + target
+.TP
+.BI scgopts= list
+A comma separated list of SCSI options that are handled by libscg.
+The implemented options may be uptated indepentendly from applications.
+Currently, one option:
+.B ignore\-resid
+is supported to work around a Linux kernel bug.
 .TP
 .BI ts= #
 Set the maximum transfer size for a single SCSI command to #.
@@ -1701,7 +1708,7 @@ D-13353 Berlin
 Germany
 .fi
 .SH DATE
-2015/11/14
+2016/01/26
 .br
 .ne 7
 .SH "INTERFACE STABILITY

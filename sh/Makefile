@@ -1,4 +1,4 @@
-#ident "@(#)Makefile	1.102 16/01/20  Copyright (c) 2006-2016 J. Schilling"
+#ident "@(#)Makefile	1.103 16/02/02  Copyright (c) 2006-2016 J. Schilling"
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -68,6 +68,7 @@ CPPOPTS +=	-DDO_POSIX_UNSET	# Support unset -f / -v
 CPPOPTS +=	-DDO_POSIX_TEST		# Implement POSIX test -e & text -S
 CPPOPTS +=	-DDO_POSIX_TRAP		# Implement POSIX trap -- for output
 CPPOPTS +=	-DDO_NOTSYM		# Implement POSIX NOT symbol (!)
+CPPOPTS +=	-DDO_DOL_PAREN		# Implement POSIX $(...) command subst
 CPPOPTS +=	-DDO_EXT_TEST		# Implement extended test features
 CPPOPTS +=	-DDO_TILDE		# Include support for tilde expansion
 CPPOPTS +=	-DDO_BGNICE		# Include support for set -o bgnice

@@ -35,13 +35,13 @@
 #include "defs.h"
 
 /*
- * This file contains modifications Copyright 2008-2016 J. Schilling
+ * Copyright 2008-2016 J. Schilling
  *
- * @(#)macro.c	1.38 16/01/18 2008-2016 J. Schilling
+ * @(#)macro.c	1.39 16/02/02 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)macro.c	1.38 16/01/18 2008-2016 J. Schilling";
+	"@(#)macro.c	1.39 16/02/02 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -59,6 +59,9 @@ static	UConst char sccsid[] =
 static unsigned char	quote;	/* used locally */
 static unsigned char	quoted;	/* used locally */
 
+#define		COM_BACKQUOTE	0	/* `command`  type command substitution */
+#define		COM_DOL_PAREN	1	/* $(command) type command substitution */
+
 static void	copyto		__PR((unsigned char endch, int trimflag));
 static void	skipto		__PR((unsigned char endch));
 #ifdef	DO_DOT_SH_PARAMS
@@ -68,7 +71,7 @@ static unsigned int dolname	__PR((unsigned char **argpp,
 					unsigned int c, unsigned int addc));
 static int	getch		__PR((unsigned char endch, int trimflag));
 	unsigned char *macro	__PR((unsigned char *as));
-static void	comsubst	__PR((int));
+static void	comsubst	__PR((int, int));
 	void	subst		__PR((int in, int ot));
 static void	flush		__PR((int));
 
@@ -622,13 +625,18 @@ getname:
 				failed(id, unset);
 			}
 			goto retry;
+#ifdef		DO_DOL_PAREN
+		} else if (c == '(') {
+			comsubst(trimflag, COM_DOL_PAREN);
+			goto retry;
+#endif
 		} else {
 			peekc = c | MARK;
 		}
-	} else if (d == endch)
+	} else if (d == endch) {
 		return (d);
-	else if (d == SQUOTE) {
-		comsubst(trimflag);
+	} else if (d == SQUOTE) {
+		comsubst(trimflag, COM_BACKQUOTE);
 		goto retry;
 	} else if (d == DQUOTE && trimflag) {
 		if (!quote) {
@@ -678,8 +686,9 @@ unsigned char	*as;
 int savpipe = -1;
 
 static void
-comsubst(trimflag)
+comsubst(trimflag, type)
 	int	trimflag;
+	int	type;
 /* trimflag - used to determine if argument will later be trimmed */
 {
 	/*
@@ -692,6 +701,9 @@ comsubst(trimflag)
 	unsigned char *savptr = fixstak();
 	struct ionod *iosav = iotemp;
 	unsigned char	*pc;
+	struct trenod	*tc;
+
+	if (type == COM_BACKQUOTE) {  /* `command`  type command substitution */
 
 	usestak();
 	while ((d = readwc()) != SQUOTE && d) {
@@ -725,7 +737,14 @@ comsubst(trimflag)
 		argc = fixstak();
 		push(&cb);
 		estabf(argc);  /* read from string */
+		tc = cmd(EOFSYM, MTFLG | NLFLG);
 	}
+	}
+#ifdef	DO_DOL_PAREN
+	else {	/* $(command) type command substitution */
+		tc = cmd(')', MTFLG | NLFLG);
+	}
+#endif
 	{
 		struct trenod	*t;
 		int		pv[2];
@@ -734,9 +753,15 @@ comsubst(trimflag)
 		 * this is done like this so that the pipe
 		 * is open only when needed
 		 */
-		t = makefork(FPOU|STDOUT_FILENO, cmd(EOFSYM, MTFLG | NLFLG));
+		t = makefork(FPOU|STDOUT_FILENO, tc);
 		chkpipe(pv);
 		savpipe = pv[OTPIPE];
+#ifdef	DO_DOL_PAREN
+		if (type != COM_BACKQUOTE) {
+			push(&cb);
+			estabf(NULL);
+		}
+#endif
 		initf(pv[INPIPE]); /* read from pipe */
 #ifdef	PARSE_DEBUG
 		prtree(t, "Command Substitution: ");

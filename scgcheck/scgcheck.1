@@ -1,4 +1,4 @@
-.\" @(#)scgcheck.1	1.19 14/12/03 Copyright 2000-2009 J. Schilling
+.\" @(#)scgcheck.1	1.20 16/01/26 Copyright 2000-2016 J. Schilling
 .\"
 .\" The contents of this file are subject to the terms of the
 .\" Common Development and Distribution License, Version 1.0 only
@@ -24,7 +24,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH SCGCHECK 1 "Version 3.0" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH SCGCHECK 1 "Version 3.0 2016/01/26" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 scgcheck \- check and validate the ABI of libscg
 .SH SYNOPSIS
@@ -237,6 +237,13 @@ slows down the process and may be the reason for a buffer underrun.
 Tell the 
 .BR scg -driver
 to modify the kernel debug value while SCSI commands are running.
+.TP
+.BI scgopts= list
+A comma separated list of SCSI options that are handled by libscg.
+The implemented options may be uptated indepentendly from applications.
+Currently, one option:
+.B ignore\-resid
+is supported to work around a Linux kernel bug.
 .TP
 .BR \-silent ", " \-s
 Do not print out a status report for failed SCSI commands.

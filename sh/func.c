@@ -35,18 +35,20 @@
 #include "defs.h"
 
 /*
- * Copyright 2008-2015 J. Schilling
+ * Copyright 2008-2016 J. Schilling
  *
- * @(#)func.c	1.20 15/12/26 2008-2015 J. Schilling
+ * @(#)func.c	1.23 16/02/02 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)func.c	1.20 15/12/26 2008-2015 J. Schilling";
+	"@(#)func.c	1.23 16/02/02 2008-2016 J. Schilling";
 #endif
 
 /*
  * UNIX shell
  */
+
+#include	<schily/fcntl.h>
 
 	void	freefunc	__PR((struct namnod  *n));
 	void	freetree	__PR((struct trenod *));
@@ -486,7 +488,14 @@ prf(t)
 				prnt(lstptr(t)->lstrit);
 #endif
 				prf(lstptr(t)->lstlef);
-				prs_buff(UC " | ");
+#ifdef	DO_FDPIPE
+				if ((lstptr(t)->lstlef->tretyp & IOFMSK) != STDOUT_FILENO) {
+					prc_buff(' ');
+					prn_buff(lstptr(t)->lstlef->tretyp & IOFMSK);
+					prs_buff(UC "| ");
+				} else
+#endif
+					prs_buff(UC " | ");
 				prf(lstptr(t)->lstrit);
 				break;
 
@@ -627,6 +636,7 @@ prf(t)
 						prs_buff(UC ";;");
 						swl = swl->regnxt;
 					}
+					prs_buff(UC " esac");
 				}
 				break;
 			}
@@ -677,8 +687,13 @@ prio(iop)
 
 			prn_buff(iof & IOUFD);
 
-			if (iof & IODOC)
+			if (iof & IODOC) {
 				prs_buff(UC "<<");
+#ifdef	DO_DOL_PAREN
+				if ((iof & IODOC_SUBST) == 0)
+					prc_buff('\\');
+#endif
+			}
 			else if (iof & IOMOV)
 			{
 				if (iof & IOPUT)
@@ -699,6 +714,23 @@ prio(iop)
 				prc_buff('>');
 
 			prs_buff(ion);
+#ifdef	DO_DOL_PAREN
+			if (iof & IODOC) {
+#define	IO_BLK_SZ	512
+				unsigned char	buf[IO_BLK_SZ+1];
+				int		amt;
+				int		fd = chkopen(ion, O_RDONLY);
+
+				prc_buff(NL);
+				while ((amt = read(fd, buf, IO_BLK_SZ)) > 0) {
+					buf[amt] = 0;
+					prs_buff(buf);
+				}
+				close(fd);
+				prs_buff(ion);
+				prc_buff(NL);
+			}
+#endif
 		}
 		iop = iop->ionxt;
 	}

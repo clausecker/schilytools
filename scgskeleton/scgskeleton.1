@@ -1,4 +1,4 @@
-.\" @(#)scgskeleton.1	1.3 14/12/03 Copyright 1986-2010 J. Schilling
+.\" @(#)scgskeleton.1	1.4 16/01/26 Copyright 1986-2016 J. Schilling
 .\" Manual page for scgskeleton
 .\"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
@@ -13,7 +13,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH SCGSKELETON 1L "2010/05/13" "J\*org Schilling" "Schily\'s USER COMMANDS"
+.TH SCGSKELETON 1L "2016/01/26" "J\*org Schilling" "Schily\'s USER COMMANDS"
 .SH NAME
 scgskeleton \- Skeleton program for SCSI transport using libscg
 .SH SYNOPSIS
@@ -277,6 +277,13 @@ strings. This option may be used to find SCSI address of the
 devices on a system.
 The numbers printed out as labels are computed by: 
 .B "bus * 100 + target
+.TP
+.BI scgopts= list
+A comma separated list of SCSI options that are handled by libscg.
+The implemented options may be uptated indepentendly from applications.
+Currently, one option:
+.B ignore\-resid
+is supported to work around a Linux kernel bug.
 .TP
 .BR ts= #
 Set the maximum transfer size for a single SCSI command to #.

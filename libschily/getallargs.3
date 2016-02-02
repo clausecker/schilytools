@@ -1,5 +1,5 @@
 . \"  Manual Seite fuer getallargs
-. \" @(#)getallargs.3	1.1
+. \" @(#)getallargs.3	1.3 16/01/27 Copyright 1985 J. Schilling
 . \"
 .if t .ds a \v'-0.55m'\h'0.00n'\z.\h'0.40n'\z.\v'0.55m'\h'-0.40n'a
 .if t .ds o \v'-0.55m'\h'0.00n'\z.\h'0.45n'\z.\v'0.55m'\h'-0.45n'o
@@ -19,7 +19,7 @@ getallargs() \- parses all the flag-type arguments
 .SH SYNOPSIS
 .nf
 .B
-int getallargs(pac,pav,fmt,a1,\|.\|.\|.,an)
+int getallargs(pac, pav, fmt, a1, \|.\|.\|., an)
 .B
 	int *pac;       /* pointer to arg count */
 .B
@@ -29,23 +29,26 @@ int getallargs(pac,pav,fmt,a1,\|.\|.\|.,an)
 .B
 	type *a1;       /* pointer to result 1 */
 .B
-                        /* (corresponding to the */
+	                /* (corresponding to the */
 .B
-                        /* first descriptor in fmt) */
+	                /* first descriptor in fmt) */
 .B
 	type *an;       /* pointer to result n */
 .B
-                        /* (corresponding to the */
+	                /* (corresponding to the */
 .B
-                        /* nth descriptor in fmt) */
+	                /* nth descriptor in fmt) */
 .fi
 .SH DESCRIPTION
-getallargs() parses all flag arguments (anywhere on the line).
+.BR getallargs ()
+parses all flag arguments (anywhere on the line).
 It does not return until all the arguments have been parsed
 correctly (returning 0), or an error has occurred (returning <
 0).
 .PP
-See getargs() for a more detailed description of the parameter
+See
+.BR getargs ()
+for a more detailed description of the parameter
 matching.
 .SH RETURNS
 .TP
@@ -63,22 +66,39 @@ The program, rather than the user, was in error.
 .SH EXAMPLES
 
 .SH "SEE ALSO"
+.nh 
+.sp 
+.LP
+.BR getargs (3),
+.BR getfiles (3).
 
 .SH NOTES
-getallargs() must be called with the address of a count of items
+.BR getallargs ()
+must be called with the address of a count of items
 in the vector and the address of a pointer to the vector. Both
 addresses must already have been properly treated in order to
 skip over the first parameter which is the name of the program.
-[e.g. \--ac; ++av].
+[e.g.
+.BR "\-\-ac; ++av" ].
 .PP
-Since getallargs() will destroy these values, copies should be
-made for later use in the program. If an error occurs, av[0]
+Since
+.BR getallargs ()
+will destroy these values, copies should be
+made for later use in the program. If an error occurs,
+.B av[0]
 points to the unmatched argument.
 .PP
-The special argument, "--", is ignored, but the following
+The special argument,
+.B
+"\-\-"\fP,
+is ignored, but the following
 argument in the command line is treated as a literal filename
-argument. This way, filenames beginning with "-", "+", or
-containing "=" can be passed to the routine.
+argument. This way, filenames beginning with
+.RB ' \- ',
+.RB ' + ',
+or containing
+.RB ' = '
+can be passed to the routine.
 
 .SH BUGS
 none
