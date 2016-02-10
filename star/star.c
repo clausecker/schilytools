@@ -1,11 +1,11 @@
-/* @(#)star.c	1.347 15/11/12 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2015 J. Schilling */
+/* @(#)star.c	1.348 16/02/08 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2016 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)star.c	1.347 15/11/12 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2015 J. Schilling";
+	"@(#)star.c	1.348 16/02/08 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2016 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1985, 88-90, 92-96, 98, 99, 2000-2015 J. Schilling
+ *	Copyright (c) 1985, 88-90, 92-96, 98, 99, 2000-2016 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -1653,7 +1653,7 @@ star_helpvers(name, help, xhelp, prvers)
 		opt_xattr();
 #endif
 		printf("\n\n");
-		printf("Copyright (C) 1985, 88-90, 92-96, 98, 99, 2000-2015 Jörg Schilling\n");
+		printf("Copyright (C) 1985, 88-90, 92-96, 98, 99, 2000-2016 Jörg Schilling\n");
 		printf("This is free software; see the source for copying conditions.  There is NO\n");
 		printf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
 		exit(0);

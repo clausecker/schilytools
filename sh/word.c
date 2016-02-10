@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)word.c	1.51 16/02/02 2008-2016 J. Schilling
+ * @(#)word.c	1.52 16/02/09 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)word.c	1.51 16/02/02 2008-2016 J. Schilling";
+	"@(#)word.c	1.52 16/02/09 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -87,6 +87,9 @@ static int		readb	__PR((struct fileblk *, int, int));
 #ifdef	INTERACTIVE
 static	BOOL		chk_igneof __PR((void));
 static	int		xread	__PR((int f, char *buf, int n));
+#endif
+#ifdef	DO_TILDE
+static unsigned char	*do_tilde __PR((unsigned char *arg));
 #endif
 
 /* ========	character handling for command lines	======== */
@@ -241,59 +244,6 @@ word()
 	}
 	seen = NULL;
 #endif
-#ifdef	DO_TILDE
-	if (wdval == 0 && wdarg->argval[0] == '~') {
-		struct filehdr *fb;
-		unsigned char	*val = NULL;
-		unsigned char	*u = wdarg->argval;
-		unsigned char	*p;
-
-		for (p = ++u; *p && *p != '/'; p++)
-			;
-		if (p == u) {
-			val = homenod.namval;
-		} else if ((p - u) == 1) {
-			if (*u == '+')
-				val = pwdnod.namval;
-			else if (*u == '-')
-				val = opwdnod.namval;
-		}
-		if (val == NULL) {
-			struct passwd	*pw;
-
-			c = *p;
-			*p = '\0';
-			pw = getpwnam((char *)u);
-			endpwent();
-			*p = c;
-			if (pw)
-				val = UC pw->pw_dir;
-		}
-
-		if (val == NULL)
-			return (wdval);			/* No replacement */
-
-		if (peekn &&
-		    (peekn & 0x7fffffff) == standin->fnxt[-1]) {
-			peekn = 0;
-			standin->fnxt--;
-			standin->nxtoff--;
-		}
-
-		if (*p) {
-			fb = alloc(sizeof (struct filehdr));
-			push((struct fileblk *)fb);	/* Push tmp filehdr */
-			estabf(p);			/* Install old value */
-			standin->fdes = -2;		/* Make it auto-pop */
-		}
-		fb = alloc(sizeof (struct filehdr));
-		push((struct fileblk *)fb);		/* Push tmp filehdr */
-		estabf(val);				/* Install replacem. */
-		standin->fdes = -2;			/* Make it auto-pop */
-
-		return (word());			/* Parse replacement */
-	}
-#endif
 	return (wdval);
 }
 
@@ -310,6 +260,14 @@ match_word(argp, c, d, wordcp)
 	unsigned int	cc;
 	unsigned char	*pc;
 	int		alpha = 1;
+#ifdef	DO_TILDE
+	int		iskey = 0;
+	int		tilde = -1;
+extern	int		abegin;
+
+	if (c == '~')
+		tilde = argp - stakbot;
+#endif
 
 	do {
 		if (c == LITERAL) {	/* '\'' */
@@ -344,8 +302,15 @@ match_word(argp, c, d, wordcp)
 				}
 			}
 			if (d == MARK) {
-				if (c == '=')
+				if (c == '=') {
 					wdset |= alpha;
+#ifdef	DO_TILDE
+					if (abegin > 0 || flags & keyflg) {
+						tilde = argp - stakbot;
+						iskey++;
+					}
+#endif
+				}
 				if (!alphanum(c))
 					alpha = 0;
 			}
@@ -364,6 +329,24 @@ match_word(argp, c, d, wordcp)
 			if (qotchar(c)) {	/* '`' or '"' */
 				argp = match_block(argp, c, c);
 			}
+
+#ifdef	DO_TILDE
+			if (tilde >= 0) {
+				c = readwc();
+				peekc = c | MARK;
+				if (c == '/' || c == ':' || eofmeta(c)) {
+					unsigned char	*val;
+
+					*argp = '\0';
+					val = do_tilde(stakbot+tilde);
+					if (val)
+						argp = movstrstak(val,
+								stakbot+tilde);
+					tilde = -1;
+				}
+			} else if (c == ':' && iskey)
+				tilde = argp - stakbot;
+#endif
 		}
 	} while ((c = nextwc(), d != MARK || !eofmeta(c)));
 
@@ -798,5 +781,42 @@ xread(f, buf, n)
 		return (1);
 	}
 	return (read(f, buf, n));
+}
+#endif
+
+#ifdef	DO_TILDE
+static unsigned char *
+do_tilde(arg)
+	unsigned char	*arg;
+{
+	unsigned char	*val = NULL;
+	unsigned char	*u = arg;
+	unsigned char	*p;
+
+	if (*u++ != '~')
+		return (NULL);
+	for (p = u; *p && *p != '/'; p++)
+		;
+	if (p == u) {
+		val = homenod.namval;
+	} else if ((p - u) == 1) {
+		if (*u == '+')
+			val = pwdnod.namval;
+		else if (*u == '-')
+			val = opwdnod.namval;
+	}
+	if (val == NULL) {
+		struct passwd	*pw;
+		unsigned int	c;
+
+		c = *p;
+		*p = '\0';
+		pw = getpwnam((char *)u);
+		endpwent();
+		*p = c;
+		if (pw)
+			val = UC pw->pw_dir;
+	}
+	return (val);
 }
 #endif

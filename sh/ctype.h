@@ -28,7 +28,7 @@
 #endif
 /*
  * This file contains modifications Copyright 2009-2016 J. Schilling
- * @(#)ctype.h	1.6 16/01/14 2009-2016 J. Schilling
+ * @(#)ctype.h	1.7 16/02/05 2009-2016 J. Schilling
  */
 /*
  *	UNIX shell
@@ -111,6 +111,7 @@ unsigned char	_ctype1[];
 #define	dipchar(c)	((c < QUOTE) && _ctype1[c]&(T_DIP))
 #define	subchar(c)	((c < QUOTE) && _ctype1[c]&(T_SUB|T_QOT))
 #define	escchar(c)	((c < QUOTE) && _ctype1[c]&(T_ESC))
+#define	escmeta(c)	((c < QUOTE) && _ctype1[c]&(_META|T_ESC))
 
 extern
 #ifdef __STDC__

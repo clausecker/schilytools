@@ -39,11 +39,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)msg.c	1.61 16/01/06 2008-2016 J. Schilling
+ * @(#)msg.c	1.62 16/02/03 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)msg.c	1.61 16/01/06 2008-2016 J. Schilling";
+	"@(#)msg.c	1.62 16/02/03 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -97,7 +97,9 @@ const char	notid[]		= "is not an identifier";
 const char	badulimit[]	= "exceeds allowable limit";
 const char	badreturn[]	= "cannot return when not in function";
 const char	badexport[]	= "cannot export functions";
+#ifndef	DO_POSIX_UNSET
 const char	badunset[]	= "cannot unset";
+#endif
 const char	nohome[]	= "no home directory";
 const char	badperm[]	= "execute permission denied";
 const char	longpwd[]	= "sh error: pwd too long";

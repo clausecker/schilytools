@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)bltin.c	1.93 16/01/20 2008-2016 J. Schilling
+ * @(#)bltin.c	1.94 16/02/07 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)bltin.c	1.93 16/01/20 2008-2016 J. Schilling";
+	"@(#)bltin.c	1.94 16/02/07 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -543,9 +543,11 @@ int xflags;
 					}
 #endif
 					n = lookup(*argv);
+#ifndef	DO_POSIX_UNSET
 					if (n->namflg & N_FUNCTN)
 						error(badexport);
 					else
+#endif
 						attrib(n, N_EXPORT);
 				}
 			} else {
@@ -768,9 +770,9 @@ int xflags;
 				if (c == 0)	/* Was -help */
 					goto out;
 				else if (c == 'f')
-					uflg |= UNSET_FUNC;
+					uflg = UNSET_FUNC;
 				else if (c == 'v')
-					uflg |= UNSET_VAR;
+					uflg = UNSET_VAR;
 			}
 			argv += --optv.optind;
 #endif

@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)service.c	1.39 16/01/04 2008-2016 J. Schilling
+ * @(#)service.c	1.40 16/02/03 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)service.c	1.39 16/01/04 2008-2016 J. Schilling";
+	"@(#)service.c	1.40 16/02/03 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -693,6 +693,10 @@ unsigned char	*s;
 	unsigned char	*argp;
 	int		c;
 	int		count = 0;
+	unsigned char	*ifs = ifsnod.namval;
+
+	if (ifs == NULL)
+		ifs = (unsigned char *)sptbnl;
 
 	(void) mbtowc(NULL, NULL, 0);
 	for (;;)
@@ -702,6 +706,7 @@ unsigned char	*s;
 		argp = locstak() + BYTESPERWORD;
 		while ((c = *s) != 0) {
 			wchar_t wc;
+
 			if ((clength = mbtowc(&wc, (char *)s,
 					MB_LEN_MAX)) <= 0) {
 				(void) mbtowc(NULL, NULL, 0);
@@ -729,7 +734,7 @@ unsigned char	*s;
 				continue;
 			}
 
-			if (anys(s, ifsnod.namval)) {
+			if (anys(s, ifs)) {
 				/* skip to next character position */
 				s += clength;
 				break;

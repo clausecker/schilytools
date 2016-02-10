@@ -37,11 +37,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)macro.c	1.39 16/02/02 2008-2016 J. Schilling
+ * @(#)macro.c	1.41 16/02/07 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)macro.c	1.39 16/02/02 2008-2016 J. Schilling";
+	"@(#)macro.c	1.41 16/02/07 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -340,8 +340,10 @@ getname:
 				c = dolname(&argp, c, 0);
 				n = lookup(absstak(argp));
 				setstak(argp);
+#ifndef	DO_POSIX_UNSET
 				if (n->namflg & N_FUNCTN)
 					error(badsub);
+#endif
 #ifdef	DO_LINENO
 				if (n == &linenonod) {
 					v = linenoval();
@@ -701,7 +703,7 @@ comsubst(trimflag, type)
 	unsigned char *savptr = fixstak();
 	struct ionod *iosav = iotemp;
 	unsigned char	*pc;
-	struct trenod	*tc;
+	struct trenod	*tc = NULL;
 
 	if (type == COM_BACKQUOTE) {  /* `command`  type command substitution */
 

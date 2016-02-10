@@ -36,13 +36,13 @@
 #include "defs.h"
 
 /*
- * This file contains modifications Copyright 2008-2016 J. Schilling
+ * Copyright 2008-2016 J. Schilling
  *
- * @(#)hashserv.c	1.27 16/01/05 2008-2016 J. Schilling
+ * @(#)hashserv.c	1.29 16/02/10 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)hashserv.c	1.27 16/01/05 2008-2016 J. Schilling";
+	"@(#)hashserv.c	1.29 16/02/10 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -404,7 +404,7 @@ what_is_path(name, verbose)
 
 		case FUNCTION: {
 			struct namnod *n = lookup(name);
-			struct fndnod *f = fndptr(n->namenv);
+			struct fndnod *f = fndptr(n->funcval);
 
 			if (!verbose) {
 				prc_buff(NL);

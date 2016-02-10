@@ -36,13 +36,13 @@
 #include "defs.h"
 
 /*
- * Copyright 2008-2015 J. Schilling
+ * Copyright 2008-2016 J. Schilling
  *
- * @(#)main.c	1.43 15/12/26 2008-2015 J. Schilling
+ * @(#)main.c	1.45 16/02/05 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)main.c	1.43 15/12/26 2008-2015 J. Schilling";
+	"@(#)main.c	1.45 16/02/05 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -329,7 +329,9 @@ main(c, v, e)
 #ifdef	DO_PPID
 	itos(getppid());
 	dfault(&ppidnod, numbuf);
+#ifdef	__readonly_ppid__
 	attrib((&ppidnod), N_RDONLY);
+#endif
 #endif
 
 	/* initialize OPTIND for getopt */
@@ -561,12 +563,15 @@ exfile(prof)
 #define	EDIT_RPOMPTS	2
 			if (flags2 & vedflg) {
 				char *prompts[EDIT_RPOMPTS];
-				prompts[0] = (char *)ps1nod.namval;
-				prompts[1] = (char *)ps2nod.namval;
+				if ((prompts[0] = C ps1nod.namval) == NULL)
+					prompts[0] = C nullstr; 
+				if ((prompts[1] = C ps2nod.namval) == NULL)
+					prompts[1] = C nullstr;
+				
 				shedit_setprompts(0, EDIT_RPOMPTS, prompts);
 			} else
 #endif
-				prs(ps1nod.namval);
+				prs(ps1nod.namval);	/* Ignores NULL ptr */
 
 #ifdef TIME_OUT
 			alarm(TIMEOUT);

@@ -36,14 +36,14 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)print.c	1.34 16/02/02 2008-2016 J. Schilling
+ * @(#)print.c	1.35 16/02/05 2008-2016 J. Schilling
  */
 #ifdef	SCHILY_INCLUDES
 #include <schily/mconfig.h>
 #endif
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)print.c	1.34 16/02/02 2008-2016 J. Schilling";
+	"@(#)print.c	1.35 16/02/05 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -535,6 +535,77 @@ prs_cntl(s)
 	prs(bufp);
 }
 
+#ifdef	DO_POSIX_UNSET
+/*
+ * Quoted string printing as needed for the env(1) builtin when printing
+ * the list of shell variables in order to be POSIX compliant.
+ */
+void
+qprs_buff(s)
+	unsigned char	*s;
+{
+	int		n;
+	char		c;
+	wchar_t		wc = 0;
+	int		isq = *s == '\0';
+	unsigned char	*os = s;
+
+	(void) mbtowc(NULL, NULL, 0);
+	for (;;) {
+		if ((n = mbtowc(&wc, (const char *)s, MB_LEN_MAX)) < 0) {
+			(void) mbtowc(NULL, NULL, 0);
+			n = 1;
+			wc = *s;
+		}
+		if (wc == 0)
+			break;
+		if (wc == '\'')
+			break;
+		if (!isq) {
+			isq = escmeta(wc);
+			if (!isq)
+				isq =   wc == '*' || wc == '?' ||
+					wc == '[' || wc == '~';
+		}
+		s += n;
+	}
+	if (wc != '\'') {
+		if (isq)
+			prc_buff('\'');
+		prs_buff(os);
+		if (isq)
+			prc_buff('\'');
+		return;
+	}
+	/*
+	 * String contains at least one single quote:
+	 */
+	s = os;
+	prc_buff('\'');
+	while (*s) {
+		if ((n = mbtowc(&wc, (const char *)s, MB_LEN_MAX)) < 0) {
+			(void) mbtowc(NULL, NULL, 0);
+			n = 1;
+			wc = *s;
+		}
+		if (wc == 0)
+			break;
+		if (wc == '\'') {
+			c = *s;
+			*s = '\0';
+			prs_buff(os);
+			prs_buff(UC "'\\''");
+			*s = c;
+			os = s += n;
+		} else {
+			s += n;
+		}
+	}
+	if (*os)
+		prs_buff(os);
+	prc_buff('\'');
+}
+#endif
 
 void
 prull_buff(lc)

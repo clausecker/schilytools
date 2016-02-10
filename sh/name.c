@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)name.c	1.45 16/01/04 2008-2016 J. Schilling
+ * @(#)name.c	1.49 16/02/07 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)name.c	1.45 16/01/04 2008-2016 J. Schilling";
+	"@(#)name.c	1.49 16/02/07 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -236,6 +236,9 @@ struct namnod *namep = &mchknod;
 
 /* ========	variable and string handling	======== */
 
+/*
+ * Return numeric identifier for reserved words and builtin commands.
+ */
 int
 syslook(w, syswds, n)
 	unsigned char	*w;
@@ -249,6 +252,10 @@ syslook(w, syswds, n)
 	return (res->sysval);
 }
 
+/*
+ * Lookup function for reserved words and builtin commands,
+ * return sysnod structure.
+ */
 const struct sysnod *
 sysnlook(w, syswds, n)
 	unsigned char	*w;
@@ -280,6 +287,10 @@ sysnlook(w, syswds, n)
 	return (0);
 }
 
+/*
+ * Set up the list of local shell variable definitions to be
+ * exported for the next command.
+ */
 void
 setlist(arg, xp)
 	struct argnod	*arg;
@@ -304,8 +315,11 @@ setlist(arg, xp)
 	}
 }
 
+/*
+ * does parameter assignments for cases when a NAME=value string exists
+ */
 void
-setname(argi, xp)			/* does parameter assignments */
+setname(argi, xp)
 	unsigned char	*argi;
 	int		xp;
 {
@@ -357,6 +371,9 @@ replace(a, v)
 	*a = make(v);
 }
 
+/*
+ * Assign a default value to a shell variable that is currently unset.
+ */
 void
 dfault(n, v)
 	struct namnod	*n;
@@ -366,6 +383,9 @@ dfault(n, v)
 		assign(n, v);
 }
 
+/*
+ * Unconditionally assign a value to a shell variable.
+ */
 void
 assign(n, v)
 	struct namnod	*n;
@@ -383,15 +403,16 @@ assign(n, v)
 	}
 #endif
 
+#ifndef	DO_POSIX_UNSET
 	else if (n->namflg & N_FUNCTN)
 	{
 		func_unhash(n->namid);
 		freefunc(n);
 
-		n->namenv = 0;
+		n->funcval = 0;
 		n->namflg = N_DEFAULT;
 	}
-
+#endif
 	if (n == &mchknod)
 	{
 		mailchk = stoi(v);
@@ -456,6 +477,9 @@ patheq(component, dir)
 	}
 }
 
+/*
+ * The read(1) builtin.
+ */
 int
 readvar(namec, names)
 	int		namec;
@@ -471,6 +495,7 @@ readvar(namec, names)
 	unsigned char *pc, *rest;
 	int		d;
 	unsigned int	(*nextwchar)__PR((void));
+	unsigned char	*ifs;
 
 #ifdef	DO_READ_R
 	struct optv	optv;
@@ -496,6 +521,9 @@ readvar(namec, names)
 	names++;
 	nextwchar = nextwc;
 #endif
+	ifs = ifsnod.namval;
+	if (ifs == NULL)
+		ifs = (unsigned char *)sptbnl;
 
 	n = lookup(*names++);		/* done now to avoid storage mess */
 	rel = (unsigned char *)relstak();
@@ -536,14 +564,14 @@ readvar(namec, names)
 		while ((*pc++ = *rest++) != '\0')
 			/* LINTED */
 			;
-		if (!anys(c, ifsnod.namval))
+		if (!anys(c, ifs))
 			break;
 	}
 
 	oldstak = curstak();
 	for (;;)
 	{
-		if ((*names && anys(c, ifsnod.namval)) || eolchar(d))
+		if ((*names && anys(c, ifs)) || eolchar(d))
 		{
 			GROWSTAKTOP();
 			zerostak();
@@ -570,7 +598,7 @@ readvar(namec, names)
 					while ((*pc++ = *rest++) != '\0')
 						/* LINTED */
 						;
-					if (!anys(c, ifsnod.namval))
+					if (!anys(c, ifs))
 						break;
 				}
 		}
@@ -592,7 +620,7 @@ readvar(namec, names)
 					GROWSTAKTOP();
 					pushstak(d);
 				}
-				if (!anys(c, ifsnod.namval))
+				if (!anys(c, ifs))
 					oldstak = staktop;
 			}
 			d = nextwchar();
@@ -664,7 +692,10 @@ unsigned char	*v;
 		return (0);
 }
 
-
+/*
+ * Lookup a shell variable and allocate a new node if the
+ * variable does not yet exist.
+ */
 struct namnod *
 lookup(nam)
 	unsigned char	*nam;
@@ -696,6 +727,9 @@ lookup(nam)
 	nscan->namval = 0;
 	nscan->namflg = N_DEFAULT;
 	nscan->namenv = 0;
+#ifdef	DO_POSIX_UNSET
+	nscan->funcval = 0;
+#endif
 
 #ifdef	NAME_DEBUG
 	/*
@@ -706,6 +740,10 @@ lookup(nam)
 	return (*prev = nscan);
 }
 
+/*
+ * A valid shell variable name starts with a letter and
+ * contains only letters or digits.
+ */
 static BOOL
 chkid(nam)
 unsigned char	*nam;
@@ -757,24 +795,33 @@ printnam(n)
 	sigchk();
 
 	if (n->namflg & N_FUNCTN) {
-		struct fndnod *f = fndptr(n->namenv);
+		struct fndnod *f = fndptr(n->funcval);
 
 		prs_buff(n->namid);
 		prs_buff((unsigned char *)"(){\n");
 		if (f != NULL)
 			prf((struct trenod *)f->fndval);
 		prs_buff((unsigned char *)"\n}\n");
+#ifndef	DO_POSIX_UNSET
+		return;
+#endif
+	}
 #ifdef	DO_LINENO
-	} else if (n == &linenonod) {
+	if (n == &linenonod) {
 		prs_buff(n->namid);
 		prc_buff('=');
 		prs_buff(linenoval());
 		prc_buff(NL);
+	} else
 #endif
-	} else if ((s = n->namval) != NULL) {
+	if ((s = n->namval) != NULL) {
 		prs_buff(n->namid);
 		prc_buff('=');
+#ifdef	DO_POSIX_UNSET
+		qprs_buff(s);
+#else
 		prs_buff(s);
+#endif
 		prc_buff(NL);
 	}
 }
@@ -944,6 +991,10 @@ countnam(n)
 		namec++;
 }
 
+/*
+ * Set up a single environ entry for a new external command, called only
+ * local_setenv().
+ */
 static void
 pushnam(n)
 	struct namnod	*n;
@@ -952,7 +1003,11 @@ pushnam(n)
 	unsigned char	*p;
 	unsigned char	*namval;
 
+#ifndef	DO_POSIX_UNSET
 	if (((flg & N_ENVCHG) && (flg & N_EXPORT)) || (flg & N_FUNCTN)) {
+#else
+	if ((flg & N_ENVCHG) && (flg & N_EXPORT)) {
+#endif
 		namval = n->namval;
 	} else {
 		/* Discard Local variable in child process */
@@ -981,6 +1036,9 @@ pushnam(n)
 	}
 }
 
+/*
+ * Prepare the environ for a new external command.
+ */
 unsigned char **
 local_setenv(flg)
 	int	flg;
@@ -1037,6 +1095,7 @@ unset_name(name, uflg)
 				failed(name, wtfailed);
 		}
 
+#ifndef	DO_POSIX_UNSET
 		if (n == &pathnod ||
 		    n == &ifsnod ||
 		    n == &ps1nod ||
@@ -1045,6 +1104,10 @@ unset_name(name, uflg)
 		{
 			failed(name, badunset);
 		}
+#else
+		if (n == &mchknod)
+			mailchk = 0;
+#endif
 
 #ifndef RES
 
@@ -1053,28 +1116,31 @@ unset_name(name, uflg)
 
 #endif
 
-		if (n->namflg & N_FUNCTN)
-		{
-#ifdef	DO_POSIX_UNSET
-			if (uflg && uflg != UNSET_FUNC)
-				return;
-#endif
+#ifndef	DO_POSIX_UNSET
+		if (n->namflg & N_FUNCTN) {
 			func_unhash(name);
 			freefunc(n);
-		}
-		else
-		{
-#ifdef	DO_POSIX_UNSET
-			if (uflg && uflg != UNSET_VAR)
-				return;
-#endif
+		} else {
 			call_dolocale++;
 			free(n->namval);
 			free(n->namenv);
 		}
-
 		n->namval = n->namenv = 0;
 		n->namflg = N_DEFAULT;
+#else
+		if ((n->namflg & N_FUNCTN) && (uflg & UNSET_FUNC)) {
+			func_unhash(name);
+			freefunc(n);
+			n->funcval = 0;
+			n->namflg &= ~N_FUNCTN;
+		} else {
+			call_dolocale++;
+			free(n->namval);
+			free(n->namenv);
+			n->namval = n->namenv = 0;
+			n->namflg &= N_FUNCTN;
+		}
+#endif
 
 		if (call_dolocale)
 			dolocale((char *)name);
@@ -1083,7 +1149,8 @@ unset_name(name, uflg)
 		{
 			if (n == &mailpnod)
 				setmail(mailnod.namval);
-			else if (n == &mailnod && mailpnod.namflg == N_DEFAULT)
+			else if (n == &mailnod &&
+				    (mailpnod.namflg & ~N_FUNCTN) == N_DEFAULT)
 				setmail(0);
 		}
 	}
@@ -1233,6 +1300,9 @@ isastream(fd)
 #endif
 
 #ifdef INTERACTIVE
+/*
+ * Functions needed by the history editor.
+ */
 char *
 getcurenv(name)
 	char	*name;

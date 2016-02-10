@@ -31,8 +31,8 @@
 #define	_NAME_H
 
 /*
- * Copyright 2009-2015 J. Schilling
- * @(#)name.h	1.7 15/09/11 2009-2015 J. Schilling
+ * Copyright 2009-2016 J. Schilling
+ * @(#)name.h	1.8 16/02/07 2009-2016 J. Schilling
  */
 /*
  *	UNIX shell
@@ -56,7 +56,14 @@ struct namnod
 	unsigned char	*namid;		/* Node name, e.g. "HOME" */
 	unsigned char	*namval;	/* Node value, e.g. "/home/joe" */
 	unsigned char	*namenv;	/* Imported value or function node */
+#ifdef	DO_POSIX_UNSET
+	unsigned char	*funcval;	/* Function node when in POSIX mode */
+#endif
 	int		namflg;		/* Flags, see above */
 };
+
+#ifndef	DO_POSIX_UNSET
+#define	funcval	namenv
+#endif
 
 #endif /* _NAME_H */

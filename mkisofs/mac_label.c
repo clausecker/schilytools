@@ -1,12 +1,12 @@
-/* @(#)mac_label.c	1.19 10/12/19 joerg, Copyright 1997-2000 James Pearson, Copyright 2004-2010 J. Schilling */
+/* @(#)mac_label.c	1.20 16/02/08 joerg, Copyright 1997-2000 James Pearson, Copyright 2004-2016 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)mac_label.c	1.19 10/12/19 joerg, Copyright 1997-2000 James Pearson, Copyright 2004-2010 J. Schilling";
+	"@(#)mac_label.c	1.20 16/02/08 joerg, Copyright 1997-2000 James Pearson, Copyright 2004-2016 J. Schilling";
 #endif
 /*
  *      Copyright (c) 1997, 1998, 1999, 2000 James Pearson
- *	Copyright (c) 2004-2010 J. Schilling
+ *	Copyright (c) 2004-2016 J. Schilling
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -185,6 +185,7 @@ gen_mac_label(mac_boot)
 		if (fread(tmp, 1, SECTOR_SIZE, fp) != SECTOR_SIZE) {
 			sprintf(hce->error, _("unable to read HFS boot file %s"),
 								mac_boot->name);
+			fclose(fp);
 			return (-1);
 		}
 		/* check we have a bootable partition */
@@ -194,6 +195,7 @@ gen_mac_label(mac_boot)
 		    strncmp((char *)mac_part->pmPartType, pmPartType_2, 12) == 0)) {
 			sprintf(hce->error, _("%s is not a HFS boot file"),
 								mac_boot->name);
+			fclose(fp);
 			return (-1);
 		}
 		/* check we have a boot block as well - last 2 blocks of file */
@@ -201,12 +203,14 @@ gen_mac_label(mac_boot)
 		if (fseek(fp, (off_t)-2 * HFS_BLOCKSZ, SEEK_END) != 0) {
 			sprintf(hce->error, _("unable to seek HFS boot file %s"),
 								mac_boot->name);
+			fclose(fp);
 			return (-1);
 		}
 		/* overwrite (empty) boot block for our HFS volume */
 		if (fread(hce->hfs_hdr, 2, HFS_BLOCKSZ, fp) != HFS_BLOCKSZ) {
 			sprintf(hce->error, _("unable to read HFS boot block %s"),
 								mac_boot->name);
+			fclose(fp);
 			return (-1);
 		}
 		fclose(fp);

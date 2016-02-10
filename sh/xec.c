@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)xec.c	1.56 16/02/02 2008-2016 J. Schilling
+ * @(#)xec.c	1.57 16/02/07 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)xec.c	1.56 16/02/02 2008-2016 J. Schilling";
+	"@(#)xec.c	1.57 16/02/07 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -133,13 +133,16 @@ int *pf1, *pf2;
 				 */
 				if (n->namflg & N_FUNCTN) {
 					freefunc(n);
-				} else {
+				}
+#ifndef	DO_POSIX_UNSET
+				else {
 					free(n->namval);
 					free(n->namenv);
 
 					n->namval = 0;
 					n->namflg &= ~(N_EXPORT | N_ENVCHG);
 				}
+#endif
 				/*
 				 * If function is defined within function,
 				 * we don't want to free it along with the
@@ -151,11 +154,11 @@ int *pf1, *pf2;
 					f->fndref++;
 
 				/*
-				 * We hang a fndnod on the namenv so that
+				 * We hang a fndnod on the funcval so that
 				 * ref cnt(fndref) can be increased while
 				 * running in the function.
 				 */
-				n->namenv = (unsigned char *)f;
+				n->funcval = (unsigned char *)f;
 				attrib(n, N_FUNCTN);
 				hash_func(n->namid);
 				break;
@@ -345,7 +348,7 @@ int *pf1, *pf2;
 						unsigned char **olddolv = dolv;
 						int olddolc = dolc;
 						n = findnam(com[0]);
-						f = fndptr(n->namenv);
+						f = fndptr(n->funcval);
 						/* just in case */
 						if (f == NULL)
 							break;
@@ -369,7 +372,7 @@ int *pf1, *pf2;
 						dolc = olddolc;
 						funcnt--;
 						/*
-						 * n->namenv may have been
+						 * n->funcval may have been
 						 * pointing different func.
 						 * Therefore, we can't use
 						 * freefunc(n).

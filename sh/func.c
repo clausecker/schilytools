@@ -37,11 +37,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)func.c	1.23 16/02/02 2008-2016 J. Schilling
+ * @(#)func.c	1.24 16/02/07 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)func.c	1.23 16/02/02 2008-2016 J. Schilling";
+	"@(#)func.c	1.24 16/02/07 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -70,7 +70,7 @@ void
 freefunc(n)
 	struct namnod	*n;
 {
-	freetree((struct trenod *)(n->namenv));
+	freetree((struct trenod *)(n->funcval));
 }
 
 void

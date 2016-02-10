@@ -1,4 +1,4 @@
-/* @(#)cvt.c	1.8 06/09/13 Copyright 1998 J. Schilling */
+/* @(#)cvt.c	1.11 16/02/08 Copyright 1998-2016 J. Schilling */
 /*
  *	Compatibility routines for 4.4BSD based C-libraries ecvt()/fcvt()
  *	and a working gcvt() that is needed on 4.4BSD and GNU libc systems.
@@ -8,7 +8,7 @@
  *
  *	Neither __dtoa() nor [efg]cvt() are MT safe.
  *
- *	Copyright (c) 1998 J. Schilling
+ *	Copyright (c) 1998-2016 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -17,6 +17,8 @@
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -25,12 +27,15 @@
 #include <schily/stdlib.h>
 #include <schily/utypes.h>
 #include <schily/standard.h>
+#include <schily/nlsdefs.h>
 
 #ifdef	HAVE_DTOA	/* 4.4BSD floating point implementation */
 #ifdef	HAVE_DTOA_R
-extern	char *__dtoa	__PR((double value, int mode, int ndigit, int *decpt, int *sign, char **ep, char **resultp));
+extern	char *__dtoa	__PR((double value, int mode, int ndigit, int *decpt,
+					int *sign, char **ep, char **resultp));
 #else
-extern	char *__dtoa	__PR((double value, int mode, int ndigit, int *decpt, int *sign, char **ep));
+extern	char *__dtoa	__PR((double value, int mode, int ndigit, int *decpt,
+					int *sign, char **ep));
 #endif
 #else
 
@@ -193,10 +198,16 @@ gcvt(number, ndigit, buf)
 {
 		int	sign;
 		int	decpt;
+		char	dpoint;
 	register char	*b;
 	register char	*rs;
 	register int	i;
 
+#if defined(HAVE_LOCALECONV) && defined(USE_LOCALE)
+	dpoint = *(localeconv()->decimal_point);
+#else
+	dpoint = '.';
+#endif
 	b = ecvt(number, ndigit, &decpt, &sign);
 	rs = buf;
 	if (sign)
@@ -208,10 +219,10 @@ gcvt(number, ndigit, buf)
 #else
 	if ((decpt >= 0 && decpt-ndigit > 0) ||
 #endif
-	    (decpt < 0 && decpt < -3)) {	/* e-format */
+	    (decpt < -3)) {			/* e-format */
 		decpt--;
 		*rs++ = *b++;
-		*rs++ = '.';
+		*rs++ = dpoint;			/* '.' */
 		for (i = 1; i < ndigit; i++)
 			*rs++ = *b++;
 		*rs++ = 'e';
@@ -233,7 +244,7 @@ gcvt(number, ndigit, buf)
 #ifndef	V7_FLOATSTYLE
 				*rs++ = '0';
 #endif
-				*rs++ = '.';
+				*rs++ = dpoint;	/* '.' */
 			}
 			while (decpt < 0) {
 				decpt++;
@@ -243,15 +254,15 @@ gcvt(number, ndigit, buf)
 		for (i = 1; i <= ndigit; i++) {
 			*rs++ = *b++;
 			if (i == decpt)
-				*rs++ = '.';
+				*rs++ = dpoint;	/* '.' */
 		}
 		if (ndigit < decpt) {
 			while (ndigit++ < decpt)
 				*rs++ = '0';
-			*rs++ = '.';
+			*rs++ = dpoint;		/* '.' */
 		}
 	}
-	if (rs[-1] == '.')
+	if (rs[-1] == dpoint)			/* '.' */
 		rs--;
 	*rs = '\0';
 	return (buf);

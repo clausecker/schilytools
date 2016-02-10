@@ -1,13 +1,13 @@
-/* @(#)make.c	1.198 15/04/15 Copyright 1985, 87, 88, 91, 1995-2015 J. Schilling */
+/* @(#)make.c	1.199 16/02/08 Copyright 1985, 87, 88, 91, 1995-2016 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)make.c	1.198 15/04/15 Copyright 1985, 87, 88, 91, 1995-2015 J. Schilling";
+	"@(#)make.c	1.199 16/02/08 Copyright 1985, 87, 88, 91, 1995-2016 J. Schilling";
 #endif
 /*
  *	Make program
  *
- *	Copyright (c) 1985, 87, 88, 91, 1995-2015 by J. Schilling
+ *	Copyright (c) 1985, 87, 88, 91, 1995-2016 by J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -443,7 +443,6 @@ setup_dotvars()
 	 * Create special variable $O -> ObjDir
 	 */
 	define_var("O", ObjDir ? ObjDir : ".");
-}
 #endif
 
 	obj = objlook(".OBJSEARCH", FALSE);
@@ -827,7 +826,7 @@ main(ac, av)
 	if (help)
 		usage(0);
 	if (pversion) {
-		printf("Smake release %s (%s-%s-%s) Copyright (C) 1985, 87, 88, 91, 1995-2015 Jörg Schilling\n",
+		printf("Smake release %s (%s-%s-%s) Copyright (C) 1985, 87, 88, 91, 1995-2016 Jörg Schilling\n",
 				make_version,
 				HOST_CPU, HOST_VENDOR, HOST_OS);
 		exit(0);

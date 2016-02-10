@@ -1,4 +1,4 @@
-New features with AN-2016-02-02:
+New features with AN-2016-02-10:
 
 This is the first localization step for the schily source consolidation. Many
 programs now (hopefully) call gettext() for all strings that need localization.
@@ -42,52 +42,54 @@ programs now (hopefully) call gettext() for all strings that need localization.
 
 	The new smake version mentioned above is smake-1.2.4
 
--	libschily: format.3 man page no longer has lines starting with a '.'.
+-	smake: make.c removed a stray '}' in inactive code.
+	Thanks to heiko Eiﬂfeldt for reporting.
 
--	libschily: getallargs.3 man page fixed formatting
+-	libschily/cvt.c: Removed a superfluous comparison.
+	Thanks to heiko Eiﬂfeldt for reporting.
 
--	libschily: getargs.3 man page fixed formatting
+-	mkisofs/mac_label.c: fixed a file descriptor leak
+	Thanks to heiko Eiﬂfeldt for reporting.
 
--	libschily: getfiles.3 man page fixed formatting
+-	star/acltext.c: fixed a memory leak in case that malloc() failed
+	in acltotext().
+	Thanks to heiko Eiﬂfeldt for reporting.
 
--	libschily: patcompile.3 man page fixed formatting
+-	Bourne Shell: The following shell variables now may be unset:
 
--	cdrtools: version bumped to 3.02a06
+	-	PATH
+	-	IFS
+	-	PS1
+	-	PS2
+	-	MAILCHECK
 
--	cdrtools: man pages now document the new libscg option "scgopts="
+	This avoids problems with a IFS POSIX conformance test from
+	Sven Mascheck and POSIX mentions an unset IFS parameter.
 
--	Bourne Shell: The syntax tree listing function used by "set(1)" and
-	by the job control code has been enhanced to be able to list pipes
-	from other file descriptors than stdout.
+-	Bourne Shell: The shell variable PPID is no longer readonly.
+	This is because otherwise the set command with saved variables
+	would fail to restore the values.
 
--	Bourne Shell: while trying to fix the printout of the "case" statements
-	with "type funcname" and adding a missing "in", it has been overlooked
-	that the reserved word "esac" was also missing. This bug has been fixed
-	now.
+-	Bourne Shell: added "apropriate" quoting for the output from the
+	"set" command with no arguments to support POSIX requirements.
 
--	Bourne Shell: "type funcname" now also prints the content of here-document
-	files. This is needed to support here documents inside $() command
-	substitution.
+-	Bourne Shell: Permit functions with the same name as shell variables.
 
--	Bourne Shell: Command Substitution with $(cmd) now works.
-	Thanks to Thorsten Glaser for a nice idea on how to implement this
-	feature using a recursive parser.
+-	Bourne Shell: Tilde expansion is now fully supported even after 
+	an unquoted ':' in variable assignment.
+
 
 
 -	Bourne Shell Missing features for POSIX compliance:
 
-	- Tilde expansion after unquoted ':' in variable assignment
-
 	- Arithmetic Substitution with $((expression))
 
-	- Permit functions with the same name as shell variables
-
 	- Do not list functions when calling "set" with no arguments.
+	  Note that this POSIX requirement is seen as a POSIX bug as there
+	  is no POSIX command to list function definitions.
+	  NOTE that this will not be implemented before POSIX bug
+	  http://austingroupbugs.net/view.php?id=1025 was fixed.
 
-	- add "apropriate" quoting for the output from the "set" command 
-	  with no arguments.
-
-	- Permit "unset IFS"
 
 	- Support for $'...' quoting (this is not needed for the current
 					version of POSIX but for the next POSIX

@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)cmd.c	1.38 16/02/02 2008-2016 J. Schilling
+ * @(#)cmd.c	1.39 16/02/07 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)cmd.c	1.38 16/02/02 2008-2016 J. Schilling";
+	"@(#)cmd.c	1.39 16/02/07 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -513,7 +513,7 @@ item(flag)
 				 * We increase fndef before calling getstor(),
 				 * so that getstor() uses malloc to allocate
 				 * memory instead of stack. This is necessary
-				 * since fndnod will be hung on np->namenv,
+				 * since fndnod will be hung on np->funcval,
 				 * which persists over command executions.
 				 */
 				fndef++;

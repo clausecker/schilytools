@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sh.1	1.146 16/02/02 Copyright 2012-2016 J. Schilling
+.\" @(#)sh.1	1.150 16/02/09 Copyright 2012-2016 J. Schilling
 .\" Copyright 1989 AT&T
 .\" Copyright (c) 2008, Sun Microsystems, Inc. All Rights Reserved.
 .\" Portions Copyright (c) 1992, X/Open Company Limited All Rights Reserved
@@ -59,7 +59,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sh 1 "2016/02/02" "Schily Bourne Shell" "User Commands"
+.TH sh 1 "2016/02/09" "Schily Bourne Shell" "User Commands"
 .SH NAME
 sh, jsh \- standard and job control shell and command interpreter
 .SH SYNOPSIS
@@ -820,21 +820,127 @@ aliases definitions from the previous working directory are automatically
 disabled when the working directory is changed to a different directory.
 Local aliases have higher precedence than global aliases.
 
-.SS "Tilde Substitution"
+.br
+.ne 4
+.SS "Tilde Expansion"
 .sp
 .LP
-After alias substitution is performed, each word is checked to see if it
-begins with an unquoted tilde
-.RB ( ~ ).
-.RI "For tilde substitution," " word"
-also refers to the
-.I word
-portion of parameter expansion. See
-.BR "Parameter Expansion" .
+A
+.I tilde-prefix
+consists of an unquoted tilde character at the beginning of a word,
+followed by all of the characters preceding the first
+unquoted slash in the word, or all the characters in the word if there is no
+slash. In an assignment, multiple tilde-prefixes can be used: at the
+beginning of the word (that is, following the equal sign of the assignment),
+following any unquoted colon or both. A tilde-prefix in an assignment is
+terminated by the first unquoted colon or slash. If none of the characters
+in the tilde-prefix are quoted, the characters in the tilde-prefix following
+the tilde are treated as a possible login name from the user database.
 .sp
 .LP
-If it does, the word up to a
+A portable login name cannot contain characters outside the set given in
+the description of the
+.B LOGNAME
+environment variable. If the login name
+is null (that is, the tilde-prefix contains only the tilde), the
+tilde-prefix is replaced by the value of the variable
+.BR HOME .
+If
+\fBHOME\fR is unset, the results are unspecified. Otherwise, the
+tilde-prefix is replaced by a pathname of the home directory associated with
+the login name obtained using the
+.B getpwnam
+function. If the system
+does not recognize the login name, the results are undefined.
+.sp
+.LP
+Tilde expansion generally occurs only at the beginning of words, but an
+exception based on historical practice has been included:
+.sp
+.in +2
+.nf
+.B
+PATH=/usr/xpg4/bin:~joerg/bin
+.fi
+.in -2
+
+.sp
+.LP
+is eligible for tilde expansion because tilde follows a colon and none of
+the relevant characters is quoted. Consideration was given to prohibiting
+this behavior because any of the following are reasonable substitutes:
+.sp
+.in +2
+.nf
+.B
+PATH=$(printf %s ~karels/bin : ~bostic/bin)
+.B
+for Dir in ~maart/bin ~srb/bin .
+.B
+do
+.B
+     PATH=${PATH:+$PATH:}$Dir
+.B
+done
+.fi
+.in -2
+
+.sp
+.LP
+With the first command, explicit colons are used for each directory. In all
+cases, the shell performs tilde expansion on each directory because all are
+separate words to the shell.
+.sp
+.LP
+Expressions in operands such as:
+.sp
+.in +2
+.nf
+.B
+make -k mumble LIBDIR=~chet/lib
+.fi
+.in -2
+
+.sp
+.LP
+do not qualify as shell variable assignments and tilde expansion is not
+performed (unless the command does so itself, which
+.B make
+does not).
+.sp
+.LP
+Because of the requirement that the word not be quoted, the following are
+not equivalent; only the last causes tilde expansion:
+.sp
+.in +2
+.nf
+\fB\e~hlj/   ~h\elj/   ~"hlj"/   ~hlj\e/   ~hlj/\fR
+.fi
+.in -2
+.sp
+
+.sp
+.LP
+The results of giving tilde with an unknown login name are undefined by
+.B POSIX
+because the
+.B Bourne Shell
+.B ~+
+and
+.B ~\-
+constructs make use of this condition, but in general it is an error to
+give an incorrect login name with tilde. The results of having
+.B HOME
+unset are unspecified because
+some historical shells treat this as an error.
+.sp
+.LP
+If a tilde that matches the criteria is found,
+the word up to a
 .B /
+(or up to a
+.B :
+in case of a variable assignment)
 is checked to see if it matches a user
 name in the password database. If a match is found, the
 .B ~
@@ -6988,9 +7094,6 @@ mode via
 .B set \-m
 in an interactive environment.
 .LP
-There is only one namespace for both functions and parameters.
-A function definition will delete a parameter with the same name and vice-versa.
-.LP
 Parameter assignments that precede a special builtin command
 affect the shell itself.
 Parameter assignments that precede the call of a function are ignored.
@@ -7046,6 +7149,12 @@ exit code in shell scripts.
 .br
 .ne 4
 .TP
+.B functions
+There is now a separate name space for functions and shell variables.
+This is not expected to cause problems.
+.br
+.ne 4
+.TP
 .B kill
 The option parsing of the
 .B kill
@@ -7053,6 +7162,15 @@ command was modified to be compatible to the POSIX standard.
 This is not expected to cause problems as the change only affects
 marginal cases with negative process id's that caused problems before as well.
 .br
+.ne 4
+.TP
+.B set
+.br
+The output of the
+.B set
+command with no arguments was modified to include the quoting
+required by the POSIX standard.
+This is not expected to cause problems but the new output may be used as shell.
 .ne 4
 .TP
 .B times

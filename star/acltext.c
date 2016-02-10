@@ -1,8 +1,8 @@
-/* @(#)acltext.c	1.15 09/07/11 2005-2009 J. Schilling from SMI */
+/* @(#)acltext.c	1.16 16/02/08 2005-2016 J. Schilling from SMI */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)acltext.c	1.15 09/07/11 2005-2009 J. Schilling from SMI";
+	"@(#)acltext.c	1.16 16/02/08 2005-2016 J. Schilling from SMI";
 #endif
 /*
  * Copyright 2005 Sun Microsystems, Inc.  All rights reserved.
@@ -100,8 +100,10 @@ acltotext(aclent_t *aclp, int aclcnt)
 	if ((dstr = malloc(sizeof (struct dynaclstr))) == NULL)
 		return (NULL);
 	dstr->bufsize = aclcnt * ACL_ENTRY_SIZE;
-	if ((dstr->aclexport = malloc(dstr->bufsize)) == NULL)
+	if ((dstr->aclexport = malloc(dstr->bufsize)) == NULL) {
+		free(dstr);
 		return (NULL);
+	}
 	*dstr->aclexport = '\0';
 	where = dstr->aclexport;
 
