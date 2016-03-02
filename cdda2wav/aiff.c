@@ -1,8 +1,8 @@
-/* @(#)aiff.c	1.14 10/01/12 Copyright 1998,1999 Heiko Eissfeldt, Copyright 2006-2010 J. Schilling */
+/* @(#)aiff.c	1.15 16/02/14 Copyright 1998,1999 Heiko Eissfeldt, Copyright 2006-2010 J. Schilling */
 #include "config.h"
 #ifndef lint
 static	UConst char sccsid[] =
-"@(#)aiff.c	1.14 10/01/12 Copyright 1998,1999 Heiko Eissfeldt, Copyright 2006-2010 J. Schilling";
+"@(#)aiff.c	1.15 16/02/14 Copyright 1998,1999 Heiko Eissfeldt, Copyright 2006-2010 J. Schilling";
 
 #endif
 /*
@@ -18,6 +18,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -137,14 +139,14 @@ InitSound(audio, channels, rate, nBitsPerSample, expected_bytes)
 	fillbytes(&AiffHdr, sizeof (AiffHdr), '\0');
 	AiffHdr.formChk.ckid  = cpu_to_be32(FOURCC_FORM);
 	AiffHdr.formChk.dwSize = cpu_to_be32(expected_bytes +
-					offset_of(AIFFHDR, blocksize) +
+					offsetof(AIFFHDR, blocksize) +
 					sizeof (AiffHdr.blocksize)
 			- offsetof(AIFFHDR, formType));
 	AiffHdr.formType	= cpu_to_be32(FOURCC_AIFF);
 
 	AiffHdr.commChk.ckid	= cpu_to_be32(FOURCC_COMM);
-	AiffHdr.commChk.dwSize	= cpu_to_be32(offset_of(AIFFHDR, ssndChkid)
-					- offset_of(AIFFHDR, numChannels));
+	AiffHdr.commChk.dwSize	= cpu_to_be32(offsetof(AIFFHDR, ssndChkid)
+					- offsetof(AIFFHDR, numChannels));
 
 	AiffHdr.numChannels[1]	   = channels;
 	tmp = cpu_to_be32(expected_bytes/(channels * (nBitsPerSample/8)));
@@ -156,8 +158,8 @@ InitSound(audio, channels, rate, nBitsPerSample, expected_bytes)
 	Format_samplerate(rate, AiffHdr.sample_rate);
 
 	memcpy(AiffHdr.ssndChkid, "SSND", 4);
-	tmp = cpu_to_be32(expected_bytes + offset_of(AIFFHDR, blocksize) +
-		sizeof (AiffHdr.blocksize) - offset_of(AIFFHDR, offset));
+	tmp = cpu_to_be32(expected_bytes + offsetof(AIFFHDR, blocksize) +
+		sizeof (AiffHdr.blocksize) - offsetof(AIFFHDR, offset));
 	AiffHdr.dwSize[0] = tmp >> 24;
 	AiffHdr.dwSize[1] = tmp >> 16;
 	AiffHdr.dwSize[2] = tmp >> 8;

@@ -1,8 +1,8 @@
-/* @(#)toc.c	1.99 13/11/18 Copyright 1998-2003 Heiko Eissfeldt, Copyright 2004-2013 J. Schilling */
+/* @(#)toc.c	1.100 16/02/14 Copyright 1998-2003 Heiko Eissfeldt, Copyright 2004-2013 J. Schilling */
 #include "config.h"
 #ifndef lint
 static	UConst char sccsid[] =
-"@(#)toc.c	1.99 13/11/18 Copyright 1998-2003 Heiko Eissfeldt, Copyright 2004-2013 J. Schilling";
+"@(#)toc.c	1.100 16/02/14 Copyright 1998-2003 Heiko Eissfeldt, Copyright 2004-2013 J. Schilling";
 #endif
 /*
  * CDDA2WAV (C) Heiko Eissfeldt heiko@hexco.de
@@ -188,15 +188,15 @@ void
 AnalyzeQchannel(frame)
 	unsigned	frame;
 {
-	subq_chnl	*sub_ch;
-
 	if (trackindex_disp != 0) {
+		subq_chnl	*sub_ch;
+
 		sub_ch = ReadSubQ(get_scsi_p(), GET_POSITIONDATA, 0);
 
-			/*
-			 * analyze sub Q-channel data
-			 */
-			if (sub_ch->track != g_track ||
+		/*
+		 * analyze sub Q-channel data
+		 */
+		if (sub_ch->track != g_track ||
 				sub_ch->index != g_index) {
 			UpdateTrackData(sub_ch->track);
 			UpdateIndexData(sub_ch->index);
@@ -1932,21 +1932,21 @@ emit_cdindex_form(fname_baseval)
 
 		while (i.hasNextTrack(&i)) {
 			struct TOC	*p = i.getNextTrack(&i);
-			int		ii = GETTRACK(p);
+			unsigned int	ii = GETTRACK(p);
 
 			if (ii == CDROM_LEADOUT)
 				break;
 			if (IS__AUDIO(p)) {
 				fprintf(cdindex_form,
-				"      <Track Num=\"%d\">\n         <Name>%s</Name>\n      </Track>\n",
+				"      <Track Num=\"%u\">\n         <Name>%s</Name>\n      </Track>\n",
 				    ii, global.tracktitle[ii] ? ascii2html(global.tracktitle[ii]) : "");
 			} else {
 				fprintf(cdindex_form,
-				"      <Track Num=\"%d\">\n         <Name>data track</Name>\n      </Track>\n",
+				"      <Track Num=\"%u\">\n         <Name>data track</Name>\n      </Track>\n",
 				    ii);
 			}
 		}
-			fprintf(cdindex_form, "   </SingleArtistCD>\n");
+		fprintf(cdindex_form, "   </SingleArtistCD>\n");
 	} else {
 		struct iterator	i;
 
@@ -1956,7 +1956,7 @@ emit_cdindex_form(fname_baseval)
 
 		while (i.hasNextTrack(&i)) {
 			struct TOC	*p = i.getNextTrack(&i);
-			int		ii = GETTRACK(p);
+			unsigned int	ii = GETTRACK(p);
 
 			if (ii == CDROM_LEADOUT)
 				break;
@@ -2124,14 +2124,15 @@ dump_extra_info(from)
 {
 #ifdef CD_EXTRA
 	unsigned char	*p;
-	unsigned	pos;
-	unsigned	length;
 
 	if (from == 0)
 		return;
 
 	p = Extra_buffer + 48;
 	while (*p != '\0') {
+		unsigned	pos;
+		unsigned	length;
+
 		pos    = GET_BE_UINT_FROM_CHARP(p+2);
 		length = GET_BE_UINT_FROM_CHARP(p+6);
 		if (pos == (unsigned)-1) {
@@ -2553,7 +2554,7 @@ DisplayToc_no_gui(dw)
 		}
 	}
 	if ((global.verbose & SHOW_TITLES) != 0) {
-		int maxlen = 0;
+		unsigned int maxlen = 0;
 
 		if (global.disctitle != NULL) {
 			fprintf(outfp, _("Album title: '%s'"), global.disctitle);
@@ -2566,10 +2567,12 @@ DisplayToc_no_gui(dw)
 		InitIterator(&i, 1);
 		for (; i.hasNextTrack(&i); ) {
 			TOC *p = i.getNextTrack(&i);
-			int jj = GETTRACK(p);
+			unsigned int jj = GETTRACK(p);
 
 			if (global.tracktitle[jj] != NULL) {
-				int len = strlen((char *)global.tracktitle[jj]);
+				unsigned int len;
+
+				len = strlen((char *)global.tracktitle[jj]);
 				maxlen = max(maxlen, len);
 			}
 		}
@@ -2578,7 +2581,7 @@ DisplayToc_no_gui(dw)
 		InitIterator(&i, 1);
 		for (; i.hasNextTrack(&i); ) {
 			TOC *p = i.getNextTrack(&i);
-			int jj;
+			unsigned int jj;
 
 			if (IS__DATA(p))
 				continue;
@@ -2848,7 +2851,7 @@ Get_Set_ISRC(tr)
 	subq_chnl	*sub_ch;
 	subq_track_isrc	*subq_tr;
 
-	fprintf(outfp, _("\rscanning for ISRCs: %d ..."), tr);
+	fprintf(outfp, _("\rscanning for ISRCs: %u ..."), tr);
 
 	subq_tr = NULL;
 	sub_ch = ReadSubQ(get_scsi_p(), GET_TRACK_ISRC, tr);
@@ -2991,7 +2994,7 @@ Get_Set_ISRC(tr)
 
 					Get_ISRC(tr)[0] = '\0';
 					fprintf(outfp,
-					_("\nIllegal ISRC for track %d, skipped: "),
+					_("\nIllegal ISRC for track %u, skipped: "),
 						tr);
 					for (y = 0; y < 15; y++) {
 						fprintf(outfp, "%02x ",
@@ -3119,7 +3122,7 @@ Read_MCN_ISRC()
 
 			if (GETISRC(p)[0] != '\0') {
 				fprintf(outfp,
-					"\rT: %2d ISRC: %15.15s\n",
+					"\rT: %2u ISRC: %15.15s\n",
 					ii, GETISRC(p));
 				fflush(outfp);
 			}
@@ -3200,7 +3203,7 @@ ReadSubChannel(sec)
 		}
 		ReadSubChannels = NULL;
 		fprintf(outfp,
-		_("\nCould not get position information (%02x) for sectors %d, %d, %d: switching ReadSubChannels off !\n"),
+		_("\nCould not get position information (%02x) for sectors %u, %u, %u: switching ReadSubChannels off !\n"),
 		sub_ch->control_adr &0x0f, sec-1, sec, sec+2);
 	}
 
@@ -3241,10 +3244,11 @@ HaveSCMS(StartSector)
 	unsigned	StartSector;
 {
 	int	i;
-	int	cr;
 	int	copy_bits_set = 0;
 
 	for (i = 0; i < 8; i++) {
+		int	cr;
+
 		cr = ReadSubControl(StartSector + i);
 		if (cr == -1)
 			continue;
@@ -3294,7 +3298,7 @@ GetIndexOfSector(sec, track)
 	if (sub_ch->index != 0 && track != sub_ch->track) {
 		if (global.verbose)
 			fprintf(outfp,
-			_("\ntrack mismatch: %1d, in-track subchannel: %1d (index %1d, sector %1d)\n"),
+			_("\ntrack mismatch: %1u, in-track subchannel: %1u (index %1u, sector %1u)\n"),
 			track, sub_ch->track, sub_ch->index, sec);
 	}
 #endif
@@ -3676,7 +3680,7 @@ ScanIndices(track, cd_index, bulk)
 			if (global.illleadout_cd && global.reads_illleadout &&
 			    ii == endtrack) {
 				fprintf(outfp,
-				_("Analysis of track %d skipped due to unknown length\n"), ii);
+				_("Analysis of track %u skipped due to unknown length\n"), ii);
 			}
 		}
 		if (global.illleadout_cd && global.reads_illleadout &&
@@ -3688,7 +3692,7 @@ ScanIndices(track, cd_index, bulk)
 			Set_SCMS(ii);
 		}
 		if (global.verbose & SHOW_INDICES) {
-			fprintf(outfp, _("\rindex scan: %d..."), ii);
+			fprintf(outfp, _("\rindex scan: %u..."), ii);
 			fflush(outfp);
 		}
 		LastIndex = ScanBackwardFrom(Get_EndSector(ii), StartSector,
@@ -3721,7 +3725,7 @@ ScanIndices(track, cd_index, bulk)
 
 		if ((global.verbose & SHOW_INDICES) && LastIndex > 1) {
 			fprintf(outfp,
-			_("\rtrack %2d has %d indices, index table (pairs of 'index: frame offset')\n"),
+			_("\rtrack %2u has %d indices, index table (pairs of 'index: frame offset')\n"),
 			ii, LastIndex);
 		}
 		startindex = 0;
@@ -3767,7 +3771,7 @@ ScanIndices(track, cd_index, bulk)
 							fputs("\n", outfp);
 					} else {
 						fprintf(outfp,
-						"\rT%02d I%02u N/A\n",
+						"\rT%02u I%02u N/A\n",
 						ii, j);
 					}
 				}
@@ -3783,7 +3787,7 @@ ScanIndices(track, cd_index, bulk)
 							fputs("\n", outfp);
 					} else {
 						fprintf(outfp,
-						"\rT%02d I%02u %06lu\n",
+						"\rT%02u I%02u %06lu\n",
 						ii,
 						j,
 						IndexOffset-
@@ -3891,9 +3895,10 @@ TOC_entries(tracks, a, b, binvalid)
 
 	for (i = 1; i <= (int)tracks; i++) {
 		unsigned char *p;
-		unsigned long dwStartSector;
 
 		if (binvalid) {
+			unsigned long dwStartSector;
+
 			p = a + 8*(i-1);
 
 			g_toc[i].bFlags = p[1];

@@ -1,8 +1,8 @@
-/* @(#)scsi_cmds.c	1.55 15/10/19 Copyright 1998-2002,2015 Heiko Eissfeldt, Copyright 2004-2015 J. Schilling */
+/* @(#)scsi_cmds.c	1.56 16/02/14 Copyright 1998-2002,2015 Heiko Eissfeldt, Copyright 2004-2015 J. Schilling */
 #include "config.h"
 #ifndef lint
 static	UConst char sccsid[] =
-"@(#)scsi_cmds.c	1.55 15/10/19 Copyright 1998-2002,2015 Heiko Eissfeldt, Copyright 2004-2015 J. Schilling";
+"@(#)scsi_cmds.c	1.56 16/02/14 Copyright 1998-2002,2015 Heiko Eissfeldt, Copyright 2004-2015 J. Schilling";
 #endif
 /*
  * file for all SCSI commands
@@ -506,6 +506,7 @@ struct tocdesc {
 	unsigned char	pframe;
 };
 
+#if 0
 struct outer_old {
 	unsigned char	len_msb;
 	unsigned char	len_lsb;
@@ -513,6 +514,7 @@ struct outer_old {
 	unsigned char	last_track;
 	struct tocdesc_old	ent[1];
 };
+#endif
 
 struct outer {
 	unsigned char	len_msb;
@@ -1594,9 +1596,9 @@ ReadCddaMMC12_C2(scgp, p, lSector, SectorBurstVal)
 		 * if the command is not available, disable this method
 		 * by setting the ReadCdRom_C2 pointer to NULL.
 		 */
-		if (scg_sense_key(scgp) == 0x05 
-			&& scg_sense_code(scgp) == 0x24
-			&& scg_sense_qual(scgp) == 0x00) {
+		if (scg_sense_key(scgp) == 0x05 &&
+			scg_sense_code(scgp) == 0x24 &&
+			scg_sense_qual(scgp) == 0x00) {
 			ReadCdRom_C2 = NULL;
 		}
 		unit_ready(scgp);
@@ -1686,9 +1688,9 @@ static int	ReadCdda12_C2_unknown = 0;
 		 * if the command is not available, disable this method
 		 * by setting the ReadCdRom_C2 pointer to NULL.
 		 */
-		if (retval <= 0 && scg_sense_key(scgp) == 0x05 
-			&& scg_sense_code(scgp) == 0x24
-			&& scg_sense_qual(scgp) == 0x00) {
+		if (retval <= 0 && scg_sense_key(scgp) == 0x05 &&
+			scg_sense_code(scgp) == 0x24 &&
+			scg_sense_qual(scgp) == 0x00) {
 			ReadCdda12_C2_unknown = 1;
 		}
 		ReadCdRom_C2 = NULL;
@@ -2054,7 +2056,6 @@ SpeedSelectSCSIToshiba(scgp, speed)
 {
 static unsigned char	mode [4 + 3];
 	unsigned char	*page = mode + 4;
-	int		retval;
 
 	fillbytes((caddr_t)mode, sizeof (mode), '\0');
 	/*
@@ -2071,8 +2072,7 @@ static unsigned char	mode [4 + 3];
 	/*
 	 * do the scsi cmd
 	 */
-	if ((retval = mode_select(scgp, mode, 7, 0,
-					scgp->inq->data_format >= 2)) < 0)
+	if (mode_select(scgp, mode, 7, 0, scgp->inq->data_format >= 2) < 0)
 		fprintf(stderr, _("speed select Toshiba failed\n"));
 	scgp->silent--;
 }
@@ -2084,7 +2084,6 @@ SpeedSelectSCSINEC(scgp, speed)
 {
 static unsigned char	mode [4 + 8];
 	unsigned char	*page = mode + 4;
-	int		retval;
 	register struct	scg_cmd	*scmd = scgp->scmd;
 
 	fillbytes((caddr_t)mode, sizeof (mode), '\0');
@@ -2117,7 +2116,7 @@ static unsigned char	mode [4 + 8];
 	 */
 	scgp->cmdname = "speed select NEC";
 
-	if ((retval = scg_cmd(scgp)) < 0)
+	if (scg_cmd(scgp) < 0)
 		errmsgno(EX_BAD, _("Speed select NEC failed.\n"));
 }
 
@@ -2132,7 +2131,6 @@ SpeedSelectSCSIPhilipsCDD2600(scgp, speed)
 	 */
 static unsigned char	mode [4 + 8];
 	unsigned char	*page = mode + 4;
-	int		retval;
 
 	fillbytes((caddr_t)mode, sizeof (mode), '\0');
 	/*
@@ -2148,8 +2146,7 @@ static unsigned char	mode [4 + 8];
 	/*
 	 * do the scsi cmd
 	 */
-	if ((retval = mode_select(scgp, mode, 12, 0,
-					scgp->inq->data_format >= 2)) < 0)
+	if (mode_select(scgp, mode, 12, 0, scgp->inq->data_format >= 2) < 0)
 		errmsgno(EX_BAD, _("Speed select PhilipsCDD2600 failed.\n"));
 }
 
@@ -2160,7 +2157,6 @@ SpeedSelectSCSISony(scgp, speed)
 {
 static unsigned char	mode [4 + 4];
 	unsigned char	*page = mode + 4;
-	int		retval;
 
 	fillbytes((caddr_t)mode, sizeof (mode), '\0');
 	/*
@@ -2176,8 +2172,7 @@ static unsigned char	mode [4 + 4];
 	 * do the scsi cmd
 	 */
 	scgp->silent++;
-	if ((retval = mode_select(scgp, mode, 8, 0,
-					scgp->inq->data_format >= 2)) < 0)
+	if (mode_select(scgp, mode, 8, 0, scgp->inq->data_format >= 2) < 0)
 		errmsgno(EX_BAD, _("Speed select Sony failed.\n"));
 	scgp->silent--;
 }
@@ -2189,7 +2184,6 @@ SpeedSelectSCSIYamaha(scgp, speed)
 {
 static unsigned char	mode [4 + 4];
 	unsigned char	*page = mode + 4;
-	int		retval;
 
 	fillbytes((caddr_t)mode, sizeof (mode), '\0');
 	/*
@@ -2204,8 +2198,7 @@ static unsigned char	mode [4 + 4];
 	/*
 	 * do the scsi cmd
 	 */
-	if ((retval = mode_select(scgp, mode, 8, 0,
-					scgp->inq->data_format >= 2)) < 0)
+	if (mode_select(scgp, mode, 8, 0, scgp->inq->data_format >= 2) < 0)
 		errmsgno(EX_BAD, _("Speed select Yamaha failed.\n"));
 }
 

@@ -1,12 +1,12 @@
-/* @(#)getargs.c	2.67 15/05/09 Copyright 1985, 1988, 1994-2015 J. Schilling */
+/* @(#)getargs.c	2.68 16/02/12 Copyright 1985, 1988, 1994-2016 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)getargs.c	2.67 15/05/09 Copyright 1985, 1988, 1994-2015 J. Schilling";
+	"@(#)getargs.c	2.68 16/02/12 Copyright 1985, 1988, 1994-2016 J. Schilling";
 #endif
 #define	NEW
 /*
- *	Copyright (c) 1985, 1988, 1994-2015 J. Schilling
+ *	Copyright (c) 1985, 1988, 1994-2016 J. Schilling
  *
  *	1.3.88	 Start implementation of release 2
  */
@@ -1041,7 +1041,13 @@ dosflags(argp, vfmt, pac, pav, flags, oargs)
 			curfun = flagp->ga_funcp;
 		}
 	} else if (flags & SETARGS) {
+		/*
+		 * We set curfun to curarg. We later get the real
+		 * curarg in case that we see a function callback
+		 * but we need curfun first in this case.
+		 */
 		curarg = va_arg(args, void *);
+		curfun = (getpargfun)curarg;
 	}
 
 	for (i = 0; i < sizeof (fl); i++) {
@@ -1131,7 +1137,6 @@ again:
 						fmt += 2;
 						rsf[i].fmt = '~';
 						rsf[i].type = '~';
-						rsf[i].curfun = curarg;
 						rsf[i].curfun = (void *)curfun;
 						if ((flags & (SETARGS|ARGVECTOR)) == SETARGS)
 							curarg = va_arg(args, void *);
@@ -1147,7 +1152,10 @@ again:
 			}
 		}
 		while (*fmt != ',' && *fmt != '\0') {
-			/* function has extra arg on stack */
+			/*
+			 * function has extra arg on stack. The code above
+			 * prevents us from fetching this arg twice.
+			 */
 			if ((*fmt == '&' || *fmt == '~') &&
 			    (flags & (SETARGS|ARGVECTOR)) == SETARGS) {
 				curarg = va_arg(args, void *);
@@ -1159,8 +1167,15 @@ again:
 		else
 			break;
 
-		if ((flags & (SETARGS|ARGVECTOR)) == SETARGS)
+		if ((flags & (SETARGS|ARGVECTOR)) == SETARGS) {
+			/*
+			 * We set curfun to curarg. We later get the real
+			 * curarg in case that we see a function callback
+			 * but we need curfun first in this case.
+			 */
 			curarg = va_arg(args, void *);
+			curfun = (getpargfun)curarg;
+		}
 	}
 	if ((flags & ARGVECTOR) && flagp[1].ga_format != NULL) {
 		flagp++;

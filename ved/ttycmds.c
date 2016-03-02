@@ -1,13 +1,13 @@
-/* @(#)ttycmds.c	1.26 12/05/06 Copyright 1984-2012 J. Schilling */
+/* @(#)ttycmds.c	1.27 16/02/16 Copyright 1984-2016 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)ttycmds.c	1.26 12/05/06 Copyright 1984-2012 J. Schilling";
+	"@(#)ttycmds.c	1.27 16/02/16 Copyright 1984-2016 J. Schilling";
 #endif
 /*
  *	Lower layer support routines for terminal.c
  *
- *	Copyright (c) 1984-2012 J. Schilling
+ *	Copyright (c) 1984-2016 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -16,6 +16,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -109,6 +111,7 @@ char	*CE;		/* Clear to End of Line			*/
 char	*CL;		/* Clear Scereen			*/
 char	*CM;		/* Cursor Motion			*/
 char	*CR;		/* Carriage return			*/
+#undef	CS		/* We may have included sys/regset.h	*/
 char	*CS;		/* Change scrolling region		*/
 char	*DC;		/* Delete 1 character			*/
 char	*DC_PARM;	/* Delete n characters			*/

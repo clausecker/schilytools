@@ -37,11 +37,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)macro.c	1.41 16/02/07 2008-2016 J. Schilling
+ * @(#)macro.c	1.42 16/03/01 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)macro.c	1.41 16/02/07 2008-2016 J. Schilling";
+	"@(#)macro.c	1.42 16/03/01 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -739,12 +739,12 @@ comsubst(trimflag, type)
 		argc = fixstak();
 		push(&cb);
 		estabf(argc);  /* read from string */
-		tc = cmd(EOFSYM, MTFLG | NLFLG);
+		tc = cmd(EOFSYM, MTFLG | NLFLG | SEMIFLG);
 	}
 	}
 #ifdef	DO_DOL_PAREN
 	else {	/* $(command) type command substitution */
-		tc = cmd(')', MTFLG | NLFLG);
+		tc = cmd(')', MTFLG | NLFLG | SEMIFLG);
 	}
 #endif
 	{

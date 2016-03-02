@@ -1,4 +1,4 @@
-#ident "@(#)Makefile	1.103 16/02/02  Copyright (c) 2006-2016 J. Schilling"
+#ident "@(#)Makefile	1.104 16/03/01  Copyright (c) 2006-2016 J. Schilling"
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -52,6 +52,7 @@ CPPOPTS +=	-DDO_POSIX_CASE		# Support for POSIX case with _(_ pat )
 CPPOPTS +=	-DDO_POSIX_TYPE		# Report keywords as well
 CPPOPTS +=	-DDO_PIPE_SEMI_SYNTAX_E	# Report a syntax error for "echo foo |;"
 CPPOPTS +=	-DDO_PIPE_SYNTAX_E	# Report a syntax error for "echo foo |"
+CPPOPTS +=	-DDO_EMPTY_SEMI		# Permit ";" and ";echo" as valid commands
 CPPOPTS +=	-DDO_PIPE_PARENT	# Optimized pipes: Shell always parent
 CPPOPTS +=	-DDO_READ_ALLEXPORT	# Bugfix for set -a; read VAR
 CPPOPTS +=	-DDO_O_APPEND		# Support O_APPEND instead of lseek() for >>

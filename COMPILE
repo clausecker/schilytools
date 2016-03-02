@@ -336,6 +336,19 @@ Creating executables using the Sun Studio compiler on Linux:
 	lines like: "#if defined(__GNUC__) && !defined(__STRICT_ANSI__)"
 	as well as the related #endif.
 
+Creating executables using the clang compiler:
+
+	Simply call:
+
+		make CCOM=clang
+
+	And in order to intentionally create 32 bit or 64 bit binaries, call:
+
+		make CCOM=clang64
+	or
+		make CCOM=clang64
+
+
 Using a different compiler binary name:
 
 	Call:

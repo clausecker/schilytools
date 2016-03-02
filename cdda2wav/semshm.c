@@ -1,8 +1,8 @@
-/* @(#)semshm.c 1.32 13/04/28 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2004-2013 J. Schilling */
+/* @(#)semshm.c 1.33 16/02/14 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2004-2013 J. Schilling */
 #include "config.h"
 #ifndef lint
 static	UConst char sccsid[] =
-"@(#)semshm.c	1.32 13/04/28 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2004-2013 J. Schilling";
+"@(#)semshm.c	1.33 16/02/14 Copyright 1998-2002 Heiko Eissfeldt, Copyright 2004-2013 J. Schilling";
 #endif
 
 #define	IPCTST
@@ -21,6 +21,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -252,10 +254,10 @@ semrequest(dummy, semnum)
 	if (!global.have_forked)
 		return (0);
 	if (semnum == FREE_SEM /* 0 */)  {
-		int	retval;
-
 		if ((*total_segments_read) - (*total_segments_written) >=
 		    global.buffers) {
+			int	retval;
+
 			/*
 			 * parent/reader waits for freed buffers from the
 			 * child/writer
@@ -265,9 +267,9 @@ semrequest(dummy, semnum)
 			return (retval);
 		}
 	} else {
-		int	retval;
-
 		if ((*total_segments_read) == (*total_segments_written)) {
+			int	retval;
+
 			/*
 			 * child/writer waits for defined buffers from the
 			 * parent/reader
@@ -383,6 +385,10 @@ shm_request_nommap(size, memptr)
 		buf.shm_perm.cuid, buf.shm_perm.cgid,
 		buf.shm_perm.mode, buf.shm_segsz);
 #endif
+	if (ret_val == -1) {
+		errmsg(_("Shmctl failed.\n"));
+		return (-1);
+	}
 
 	*memptr = (unsigned char *) shmat(SHMEM_ID, NULL, 0);
 	if (*memptr == (unsigned char *) -1) {

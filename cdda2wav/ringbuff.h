@@ -1,4 +1,4 @@
-/* @(#)ringbuff.h	1.7 06/05/13 Copyright 1998,1999,2000 Heiko Eissfeldt */
+/* @(#)ringbuff.h	1.8 16/02/14 Copyright 1998,1999,2000 Heiko Eissfeldt */
 /*
  * This file contains data structures that reside in the shared memory
  * segment.
@@ -10,6 +10,8 @@
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -86,13 +88,13 @@ extern	volatile int	*eorecording;
 #define	palign(x, a)	(((char *)(x)) + ((a) - 1 - (((unsigned)((x)-1))%(a))))
 #define	multpage(x, a)	((((x) + (a) - 1) / (a)) * (a))
 
-#define	HEADER_SIZE	multpage(offset_of(struct ringbuffheader, data), global.pagesize)
+#define	HEADER_SIZE	multpage(offsetof(struct ringbuffheader, data), global.pagesize)
 #define	SEGMENT_SIZE	(global.nsectors*CD_FRAMESIZE_RAW)
 #define	ENTRY_SIZE_PAGE_AL	multpage(SEGMENT_SIZE + \
-				offset_of(myringbuff, data), global.pagesize)
+				offsetof(myringbuff, data), global.pagesize)
 
 #define	RB_BASE		((myringbuff *)(((unsigned char *)he_fill_buffer) + \
-			HEADER_SIZE - offset_of(myringbuff, data)))
+			HEADER_SIZE - offsetof(myringbuff, data)))
 
 #define	INC(a)		(myringbuff *)(((char *)RB_BASE) + \
 			(((((char *) (a))-((char *)RB_BASE))/ENTRY_SIZE_PAGE_AL + 1) % \

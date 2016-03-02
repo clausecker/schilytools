@@ -1,8 +1,8 @@
-/* @(#)cdda2wav.c	1.164 16/01/24 Copyright 1993-2004,2015 Heiko Eissfeldt, Copyright 2004-2016 J. Schilling */
+/* @(#)cdda2wav.c	1.165 16/02/14 Copyright 1993-2004,2015 Heiko Eissfeldt, Copyright 2004-2016 J. Schilling */
 #include "config.h"
 #ifndef lint
 static	UConst char sccsid[] =
-"@(#)cdda2wav.c	1.164 16/01/24 Copyright 1993-2004,2015 Heiko Eissfeldt, Copyright 2004-2016 J. Schilling";
+"@(#)cdda2wav.c	1.165 16/02/14 Copyright 1993-2004,2015 Heiko Eissfeldt, Copyright 2004-2016 J. Schilling";
 
 #endif
 #undef	DEBUG_BUFFER_ADDRESSES
@@ -808,7 +808,6 @@ LOCAL	unsigned int	track = (unsigned int)-1;
 LOCAL void
 CloseAll()
 {
-	WAIT_T	chld_return_status;
 	int	amiparent;
 
 	/*
@@ -876,6 +875,9 @@ CloseAll()
 
 
 	if (global.have_forked == 1) {
+#ifdef	HAVE_FORK
+		WAIT_T	chld_return_status;
+#endif
 #ifdef DEBUG_CLEANUP
 		fprintf(stderr, _("Parent wait for child death, \n"));
 #endif
@@ -907,12 +909,12 @@ CloseAll()
 				WSTOPSIG(chld_return_status));
 			}
 		}
-#endif
 
 #ifdef DEBUG_CLEANUP
 		fprintf(stderr,
 			_("\nW Parent child death, state:%d\n"),
 			chld_return_status);
+#endif
 #endif
 	}
 
@@ -1214,7 +1216,7 @@ prdefaults(f)
 	/* BEGIN CSTYLED */
 	fprintf(f, _("\n\
 Defaults: %s, %d bit, %d.%02d Hz, track 1, no offset, one track,\n"),
-		  CHANNELS-1?_("stereo"):_("mono"), BITS_P_S,
+		  (CHANNELS-1) ? _("stereo") : _("mono"), BITS_P_S,
 		 44100 / UNDERSAMPLING,
 		 (4410000 / UNDERSAMPLING) % 100);
 
@@ -2025,7 +2027,6 @@ do_read(p, total_unsuccessful_retries)
 		retry_count = 0;
 		do {
 			SCSI *scgp = get_scsi_p();
-			int retval;
 #ifdef DEBUG_READS
 			fprintf(stderr,
 				"reading from %lu to %lu, overlap %u\n",
@@ -2090,8 +2091,7 @@ do_read(p, total_unsuccessful_retries)
 
 				}
 			} else {
-				retval = ReadCdRom(scgp, p->data, lSector,
-								SectorBurst);
+				ReadCdRom(scgp, p->data, lSector, SectorBurst);
 			}
 			handle_inputendianess(p->data,
 						SectorBurst * CD_FRAMESAMPLES);
@@ -2207,12 +2207,12 @@ print_percentage(poper, c_offset)
 #endif
 
 	if (global.overlap > 0) {
-		fprintf(outfp, "\r%2d/%2d/%2d/%7d %3d%%",
+		fprintf(outfp, "\r%2u/%2u/%2u/%7d %3u%%",
 			minover, maxover, global.overlap,
 			c_offset - global.overlap*CD_FRAMESIZE_RAW,
 			per);
 	} else if (*poper != per) {
-		fprintf(outfp, "\r%3d%%", per);
+		fprintf(outfp, "\r%3u%%", per);
 	}
 	*poper = per;
 	fflush(outfp);
@@ -3179,7 +3179,7 @@ main(argc, argv)
 
 	if (global.verbose != 0) {
 		fprintf(outfp,
-		_("%u bytes buffer memory requested, transfer size %ld bytes, %d buffers, %d sectors\n"),
+		_("%u bytes buffer memory requested, transfer size %ld bytes, %u buffers, %u sectors\n"),
 			global.shmsize, global.bufsize, global.buffers, global.nsectors);
 	}
 
@@ -3377,10 +3377,10 @@ main(argc, argv)
 		if (lSector < 0) {
 			if (bulk == 0 && !global.alltracks) {
 				FatalError(EX_BAD,
-					_("Track %d not found.\n"), track);
+					_("Track %u not found.\n"), track);
 			} else {
 				fprintf(outfp,
-					_("Skipping data track %d...\n"), track);
+					_("Skipping data track %u...\n"), track);
 				if (global.endtrack == track)
 					global.endtrack++;
 				track++;
@@ -3407,7 +3407,7 @@ main(argc, argv)
 	 */
 	if (lSector >= lSector_p1) {
 		fprintf(stderr,
-		_("W Sector offset %lu exceeds track size (ignored)\n"),
+		_("W Sector offset %ld exceeds track size (ignored)\n"),
 			global.sector_offset);
 		lSector -= global.sector_offset;
 	}

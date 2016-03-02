@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)main.c	1.45 16/02/05 2008-2016 J. Schilling
+ * @(#)main.c	1.46 16/03/01 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)main.c	1.45 16/02/05 2008-2016 J. Schilling";
+	"@(#)main.c	1.46 16/03/01 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -599,7 +599,7 @@ exfile(prof)
 #endif
 		{
 			struct trenod *t;
-			t = cmd(NL, MTFLG);
+			t = cmd(NL, MTFLG | SEMIFLG);
 #ifdef	PARSE_DEBUG
 			prtree(t, "Commandline: ");
 #endif

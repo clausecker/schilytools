@@ -1,4 +1,4 @@
-#ident "@(#)rules.htm	1.5 15/08/04 "
+#ident "@(#)rules.htm	1.6 16/01/27 "
 ###########################################################################
 # Written 2007 by J. Schilling
 ###########################################################################
@@ -30,6 +30,13 @@ htmlxn:	$(MANFILE).html
 
 $(MANFILE).html: $(MANFILE)
 	soelim $(MANFILE) | tbl | nroff -u1 -Tlp -man - | col -x | \
+			(sed -e 's/XXX/$(MANFILE)/g' $(SRCROOT)/conf/pre.html; \
+			man2html  -cgiurl '../man$$section$$subsection/$$title.$$section$$subsection.html' -compress -nodepage; \
+			cat $(SRCROOT)/conf/post.html) | \
+			egrep -v 'HTML|BODY'> $(MANFILE).html
+
+$(MANFILE).dhtml: $(MANFILE)
+	soelim $(MANFILE) | tbl | nroff -u1 -Tlp -mdoc - | col -x | \
 			(sed -e 's/XXX/$(MANFILE)/g' $(SRCROOT)/conf/pre.html; \
 			man2html  -cgiurl '../man$$section$$subsection/$$title.$$section$$subsection.html' -compress -nodepage; \
 			cat $(SRCROOT)/conf/post.html) | \

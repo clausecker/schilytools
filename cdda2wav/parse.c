@@ -1,8 +1,8 @@
-/* @(#)parse.c	1.10 10/12/19 Copyright 2001-2010 J. Schilling */
+/* @(#)parse.c	1.11 16/02/14 Copyright 2001-2010 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)parse.c	1.10 10/12/19 Copyright 2001-2010 J. Schilling";
+	"@(#)parse.c	1.11 16/02/14 Copyright 2001-2010 J. Schilling";
 #endif
 /*
  *	Interactive command parser for cdda2wav
@@ -16,6 +16,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -282,9 +284,9 @@ LOCAL char *
 nextline(f)
 	FILE	*f;
 {
-	register int	len;
-
 	do {
+		register int	len;
+
 		fillbytes(linebuf, sizeof (linebuf), '\0');
 		len = fgetline(f, linebuf, sizeof (linebuf));
 		if (len < 0)

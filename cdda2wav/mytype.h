@@ -1,4 +1,4 @@
-/* @(#)mytype.h	1.4 06/05/13 Copyright 1998,1999 Heiko Eissfeldt */
+/* @(#)mytype.h	1.5 16/02/14 Copyright 1998,1999 Heiko Eissfeldt */
 
 /*
  * The contents of this file are subject to the terms of the
@@ -7,6 +7,8 @@
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -28,12 +30,13 @@ error need an integer type with 32 bits, but do not know one!
 #endif
 #endif
 #endif
+#ifndef	TRUE
 #define	TRUE	1
-#define	FALSE	0
-
-#ifndef	offset_of
-#define	offset_of(TYPE, MEMBER)	((size_t) ((TYPE *)0)->MEMBER)
 #endif
+#ifndef	FALSE
+#define	FALSE	0
+#endif
+
 #ifndef	offsetof
 #define	offsetof(TYPE, MEMBER)	((size_t) &((TYPE *)0)->MEMBER)
 #endif

@@ -1,8 +1,8 @@
-/* @(#)interface.c	1.82 16/01/24 Copyright 1998-2002,2015 Heiko Eissfeldt, Copyright 2006-2016 J. Schilling */
+/* @(#)interface.c	1.83 16/02/14 Copyright 1998-2002,2015 Heiko Eissfeldt, Copyright 2006-2016 J. Schilling */
 #include "config.h"
 #ifndef lint
 static	UConst char sccsid[] =
-"@(#)interface.c	1.82 16/01/24 Copyright 1998-2002,2015 Heiko Eissfeldt, Copyright 2006-2016 J. Schilling";
+"@(#)interface.c	1.83 16/02/14 Copyright 1998-2002,2015 Heiko Eissfeldt, Copyright 2006-2016 J. Schilling";
 
 #endif
 /*
@@ -1026,14 +1026,14 @@ ReadToc_sim(x, toc)
 	toc[i].frms = (toc[i].dwStartSector+150) % (75);
 #else
 	{
-	int	starts[15] = { 23625, 30115, 39050, 51777, 67507,
+		int	starts[15] = { 23625, 30115, 39050, 51777, 67507,
 				88612, 112962, 116840, 143387, 162662,
 				173990, 186427, 188077, 209757, 257120};
 
-	trcks = 14 + 1;
-	sim_indices = 1;
+		trcks = 14 + 1;
+		sim_indices = 1;
 
-	for (i = 0; i < trcks; i++) {
+		for (i = 0; i < trcks; i++) {
 			toc[i].bFlags = 0x0;
 			toc[i].bTrack = i + 1;
 			toc[i].dwStartSector = starts[i];
@@ -1195,18 +1195,16 @@ SetupInterface()
 			if (sector_size != 2048 &&
 			    set_sectorsize(scgp, 2048)) {
 				fprintf(stderr,
-				_("Could not change sector size from %d to 2048\n"),
+				_("Could not change sector size from %u to 2048\n"),
 					sector_size);
 			}
-		} else {
-			sector_size = 2048;
 		}
 
-	/*
-	 * get cache setting
-	 *
-	 * set cache to zero
-	 */
+		/*
+		 * get cache setting
+		 *
+		 * set cache to zero
+		 */
 	} else {
 #if defined(HAVE_IOCTL_INTERFACE)
 		_scgp = malloc(sizeof (* _scgp));

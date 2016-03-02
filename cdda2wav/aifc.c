@@ -1,8 +1,8 @@
-/* @(#)aifc.c	1.15 10/01/12 Copyright 1998,1999 Heiko Eissfeldt, Copyright 2006-2010 J. Schilling */
+/* @(#)aifc.c	1.16 16/02/14 Copyright 1998,1999 Heiko Eissfeldt, Copyright 2006-2010 J. Schilling */
 #include "config.h"
 #ifndef lint
 static	UConst char sccsid[] =
-"@(#)aifc.c	1.15 10/01/12 Copyright 1998,1999 Heiko Eissfeldt, Copyright 2006-2010 J. Schilling";
+"@(#)aifc.c	1.16 16/02/14 Copyright 1998,1999 Heiko Eissfeldt, Copyright 2006-2010 J. Schilling";
 
 #endif
 /*
@@ -18,6 +18,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -150,7 +152,7 @@ InitSound(audio, channels, rate, nBitsPerSample, expected_bytes)
 	fillbytes(&AifcHdr, sizeof (AifcHdr), '\0');
 	AifcHdr.formChk.ckid	= cpu_to_be32(FOURCC_FORM);
 	AifcHdr.formChk.dwSize	= cpu_to_be32(expected_bytes +
-					offset_of(AIFCHDR, blocksize) +
+					offsetof(AIFCHDR, blocksize) +
 					sizeof (AifcHdr.blocksize) -
 					offsetof(AIFCHDR, commChk));
 	AifcHdr.formType	= cpu_to_be32(FOURCC_AIFC);
@@ -171,8 +173,8 @@ InitSound(audio, channels, rate, nBitsPerSample, expected_bytes)
 	AifcHdr.timestamp	= cpu_to_be32(UINT4_C(0xA2805140));
 
 	AifcHdr.commChk.ckid	= cpu_to_be32(FOURCC_COMM);
-	AifcHdr.commChk.dwSize	= cpu_to_be32(offset_of(AIFCHDR, ssndChkid)
-					- offset_of(AIFCHDR, numChannels));
+	AifcHdr.commChk.dwSize	= cpu_to_be32(offsetof(AIFCHDR, ssndChkid)
+					- offsetof(AIFCHDR, numChannels));
 
 	AifcHdr.numChannels[1] = channels;
 
@@ -185,8 +187,8 @@ InitSound(audio, channels, rate, nBitsPerSample, expected_bytes)
 	Format_samplerate(rate, AifcHdr.sample_rate);
 
 	memcpy(AifcHdr.ssndChkid, "SSND", 4);
-	tmp = cpu_to_be32(expected_bytes + offset_of(AIFCHDR, blocksize) +
-		sizeof (AifcHdr.blocksize) - offset_of(AIFCHDR, offset));
+	tmp = cpu_to_be32(expected_bytes + offsetof(AIFCHDR, blocksize) +
+		sizeof (AifcHdr.blocksize) - offsetof(AIFCHDR, offset));
 	AifcHdr.dwSize[0] = tmp >> 24;
 	AifcHdr.dwSize[1] = tmp >> 16;
 	AifcHdr.dwSize[2] = tmp >> 8;

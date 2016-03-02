@@ -1,8 +1,8 @@
-/* @(#)resample.c	1.35 15/10/19 Copyright 1998-2000,2015 Heiko Eissfeldt, Copyright 2004-2010 J. Schilling */
+/* @(#)resample.c	1.36 16/02/14 Copyright 1998-2000,2015 Heiko Eissfeldt, Copyright 2004-2010 J. Schilling */
 #include "config.h"
 #ifndef lint
 static	UConst char sccsid[] =
-"@(#)resample.c	1.35 15/10/19 Copyright 1998-2000,2015 Heiko Eissfeldt, Copyright 2004-2010 J. Schilling";
+"@(#)resample.c	1.36 16/02/14 Copyright 1998-2000,2015 Heiko Eissfeldt, Copyright 2004-2010 J. Schilling";
 #endif
 /*
  * resampling module
@@ -584,20 +584,24 @@ ReSampleBuffer(p, newp, samples, samplesize)
 	long		samples;
 	int		samplesize;
 {
-	double	idx = 0.0;
 	UINT4	di = 0;
-	UINT4	si = 0;
 
 	if (global.playback_rate == 100.0) {
 		memcpy(newp, p, samplesize* samples);
 		di = samples;
-	} else while (si < (UINT4)samples) {
-		memcpy(newp+(di*samplesize), p+(si*samplesize), samplesize);
-		idx += (double)(global.playback_rate/100.0);
-		si = (UINT4)idx;
-		di++;
+	} else {
+		UINT4	si = 0;
+		double	idx = 0.0;
+
+		while (si < (UINT4)samples) {
+			memcpy(newp+(di*samplesize), p+(si*samplesize),
+								samplesize);
+			idx += (double)(global.playback_rate/100.0);
+			si = (UINT4)idx;
+			di++;
+		}
 	}
-	return (di*samplesize);
+	return ((long)di*samplesize);
 }
 #endif
 
@@ -731,7 +735,6 @@ synchronize(p, SamplesToDo, TotSamplesDone)
 	unsigned	SamplesToDo;
 	unsigned	TotSamplesDone;
 {
-static int	jitter = 0;
 	char	*pSrc;		/* start of cdrom buffer */
 
 	/*
@@ -745,6 +748,8 @@ static int	jitter = 0;
 			return (NULL);
 		}
 		if (pSrc) {
+			int	jitter;
+
 			jitter = ((unsigned char *)pSrc -
 				(((unsigned char *)p) +
 				global.overlap*CD_FRAMESIZE_RAW))/4;
@@ -1159,8 +1164,6 @@ none__missing:
 
 			todo = outlen;
 			while (todo != 0) {
-				int retval_;
-
 #ifdef	MD5_SIGNATURES
 				if (global.md5count) {
 					global.md5size += todo;
@@ -1169,11 +1172,11 @@ none__missing:
 						global.md5count -= todo;
 				}
 #endif
-				retval_ = global.audio_out->WriteSound(global.audio, p2, todo);
-				if (retval_ < 0)
+				retval = global.audio_out->WriteSound(global.audio, p2, todo);
+				if (retval < 0)
 					break;
-				p2 += retval_;
-				todo -= retval_;
+				p2 += retval;
+				todo -= retval;
 			}
 		}
 		if (todo == 0) {

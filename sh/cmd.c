@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)cmd.c	1.39 16/02/07 2008-2016 J. Schilling
+ * @(#)cmd.c	1.40 16/03/01 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)cmd.c	1.39 16/02/07 2008-2016 J. Schilling";
+	"@(#)cmd.c	1.40 16/03/01 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -118,7 +118,7 @@ makelist(type, i, r)
 
 /*
  * cmd
- *	empty
+ *	empty			(Only if not called with MTFLG)
  *	list
  *	list & [ cmd ]
  *	list [ ; cmd ]
@@ -209,7 +209,7 @@ term(flg)
 	abegin = 1;
 	reserv++;
 	if (flg & NLFLG)
-		skipnl(0);
+		skipnl(flg);
 	else
 		word();
 
@@ -237,8 +237,8 @@ term(flg)
 	/*
 	 * ^ is a relic from the days of UPPER CASE ONLY tty model 33s
 	 */
-	if ((t = item(TRUE)) != 0 && (wdval == '^' || wdval == '|'))
-	{
+	if ((t = item(DOIOFLG | (flg&SEMIFLG))) != 0 &&
+	    (wdval == '^' || wdval == '|')) {
 		struct trenod	*left;
 		struct trenod	*right;
 		struct trenod	*tr;
@@ -366,7 +366,7 @@ item(flag)
 	struct trenod *r;
 	struct ionod *io;
 
-	if (flag)
+	if (flag & DOIOFLG)
 		io = inout((struct ionod *)0);
 	else
 		io = 0;
@@ -426,7 +426,7 @@ item(flag)
 				t->fornam = make(wdarg->argval);
 			else
 				t->fornam = wdarg->argval;
-			if (skipnl(1) == INSYM)
+			if (skipnl(SEMIFLG) == INSYM)
 			{
 				chkword();
 
@@ -487,6 +487,17 @@ item(flag)
 			return (0);
 		/* FALLTHROUGH */
 
+#ifdef	DO_EMPTY_SEMI
+	case ';':
+		if (io == 0) {
+			if (!(flag&SEMIFLG))
+				return (0);
+
+			if (word() == ';')
+				synbad();
+		}
+		/* FALLTHROUGH */
+#endif
 	case 0:
 		{
 			struct comnod *t;
@@ -659,7 +670,7 @@ skipnl(flag)
 	while ((reserv++, word() == NL))
 		chkpr();
 #ifdef	DO_PIPE_SEMI_SYNTAX_E
-	if (!flag && wdval == ';')
+	if (!(flag&SEMIFLG) && wdval == ';')
 		synbad();
 #endif
 	return (wdval);

@@ -1,7 +1,7 @@
-/* @(#)cd_extra.c	1.19 10/12/19 Copyright 2000-2001 Heiko Eissfeldt, Copyright 2004-2010 J. Schilling */
+/* @(#)cd_extra.c	1.20 16/02/14 Copyright 2000-2001 Heiko Eissfeldt, Copyright 2004-2010 J. Schilling */
 #ifndef lint
 static	const char _sccsid[] =
-"@(#)cd_extra.c	1.19 10/12/19 Copyright 2000-2001 Heiko Eissfeldt, Copyright 2004-2010 J. Schilling";
+"@(#)cd_extra.c	1.20 16/02/14 Copyright 2000-2001 Heiko Eissfeldt, Copyright 2004-2010 J. Schilling";
 #endif
 
 /*
@@ -14,6 +14,8 @@ static	const char _sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -211,7 +213,7 @@ Read_Subinfo(pos, length)
 
 	num_infos = Subp[45]+(Subp[44] << 8);
 #ifdef DEBUG_XTRA
-	fprintf(stderr, "subinfo version %c%c.%c%c, %d info packets\n",
+	fprintf(stderr, "subinfo version %c%c.%c%c, %u info packets\n",
 			Subp[8],
 			Subp[9],
 			Subp[10],
@@ -269,7 +271,7 @@ Read_Subinfo(pos, length)
 
 		if (id >= INFOPACKETTYPES) {
 			fprintf(stderr,
-			"Off=%4d, ind=%2d/%2d, unknown Id=%2u, len=%2u ",
+			"Off=%4d, ind=%2u/%2u, unknown Id=%2u, len=%2u ",
 				/*
 				 * this pointer difference is assumed to be
 				 * small enough for an int.
@@ -281,7 +283,7 @@ Read_Subinfo(pos, length)
 			break;
 		}
 #ifdef DEBUG_XTRA
-		fprintf(stderr, "info packet %d\n", id);
+		fprintf(stderr, "info packet %u\n", id);
 #endif
 
 		switch (id) {

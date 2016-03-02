@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)word.c	1.52 16/02/09 2008-2016 J. Schilling
+ * @(#)word.c	1.53 16/03/01 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)word.c	1.52 16/02/09 2008-2016 J. Schilling";
+	"@(#)word.c	1.53 16/03/01 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -368,9 +368,10 @@ match_cmd(argp)
 	struct argnod	*arg;
 	struct trenod	*tc;
 	int		save_fd;
+	struct ionod	*tmp_iopend = iopend;
 
 	/*
-	 * Add the '( and make the string null terminated semi permanent.
+	 * Add the '(' and make the string null terminated semi permanent.
 	 */
 	argp += 2;
 	GROWSTAK(argp);
@@ -379,7 +380,9 @@ match_cmd(argp)
 	*argp++ = 0;
 	arg = (struct argnod *)endstak(argp);
 
-	tc = cmd(')', MTFLG | NLFLG);	/* Tell parser to stop at ) */
+	iopend = 0;
+	tc = cmd(')', MTFLG | NLFLG | SEMIFLG);	/* Tell parser to stop at ) */
+	iopend = tmp_iopend;
 
 	save_fd = setb(-1);
 	prs_buff(arg->argval);		/* Copy begin of argument */

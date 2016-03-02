@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)xec.c	1.57 16/02/07 2008-2016 J. Schilling
+ * @(#)xec.c	1.58 16/03/01 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)xec.c	1.57 16/02/07 2008-2016 J. Schilling";
+	"@(#)xec.c	1.58 16/03/01 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -948,7 +948,7 @@ execexp(s, f, xflags)
 		fb.feval = (unsigned char **)(f);
 	} else if (f >= 0)
 		initf(f);
-	execute(cmd(NL, NLFLG | MTFLG),
+	execute(cmd(NL, NLFLG | MTFLG | SEMIFLG),
 		xflags, (int)(flags & errflg), no_pipe, no_pipe);
 	pop();
 }
