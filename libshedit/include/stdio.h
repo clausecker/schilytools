@@ -1,9 +1,9 @@
-/* @(#)stdio.h	1.13 16/02/16 Copyright 2006-2016 J. Schilling */
+/* @(#)stdio.h	1.12 15/08/08 Copyright 2006-2015 J. Schilling */
 /*
  *	Defines to make FILE * -> int *, used to allow
  *	the Bourne shell to use functions that expect stdio.
  *
- *	Copyright (c) 2006-2016 J. Schilling
+ *	Copyright (c) 2006-2015 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -19,7 +19,6 @@
  * file and include the License file CDDL.Schily.txt from this distribution.
  */
 
-#ifndef	NO_SCHILY_STDIO_H
 #ifndef	_STDIO_H
 #define	_STDIO_H
 
@@ -261,4 +260,3 @@ extern	int	putc	__PR((int c, FILE *f));
 #define	tty_setpgrp	shell_tty_setpgrp
 
 #endif /* _STDIO_H */
-#endif /* NO_SCHILY_STDIO_H */

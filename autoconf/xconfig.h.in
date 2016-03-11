@@ -1,4 +1,4 @@
-/* @(#)xconfig.h.in	1.252 15/11/30 Copyright 1998-2015 J. Schilling */
+/* @(#)xconfig.h.in	1.253 16/03/09 Copyright 1998-2015 J. Schilling */
 /*
  *	Dynamic autoconf C-include code.
  *	Do not edit, this file has been created automatically.
@@ -802,6 +802,7 @@
 #undef HAVE_UNION_WAIT		/* have union wait in wait.h */
 #undef USE_UNION_WAIT		/* union wait in wait.h is used by default */
 #undef HAVE_DIRENT_D_INO	/* have d_ino in struct dirent */
+#undef HAVE_DIRENT_D_TYPE	/* have d_type in struct dirent */
 #undef HAVE_DIR_DD_FD		/* have dd_fd in DIR * */
 /*
  * SCO UnixWare has st_atim.st__tim.tv_nsec but the st_atim.tv_nsec tests also

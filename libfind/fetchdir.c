@@ -1,13 +1,13 @@
-/* @(#)fetchdir.c	1.28 13/04/28 Copyright 2002-2013 J. Schilling */
+/* @(#)fetchdir.c	1.29 16/03/10 Copyright 2002-2016 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)fetchdir.c	1.28 13/04/28 Copyright 2002-2013 J. Schilling";
+	"@(#)fetchdir.c	1.29 16/03/10 Copyright 2002-2016 J. Schilling";
 #endif
 /*
  *	Blocked directory handling.
  *
- *	Copyright (c) 2002-2013 J. Schilling
+ *	Copyright (c) 2002-2016 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -16,6 +16,8 @@ static	UConst char sccsid[] =
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -37,8 +39,13 @@ static	UConst char sccsid[] =
 #define	lstat	stat
 #endif
 
-EXPORT	char	*fetchdir	__PR((char *dir, int *entp, int *lenp, ino_t **inop));
-EXPORT	char	*dfetchdir	__PR((DIR *dir, char *dir_name, int *entp, int *lenp, ino_t **inop));
+EXPORT	char	*fetchdir	__PR((char *dir, int *entp, int *lenp,
+						ino_t **inop));
+#ifdef	HAVE_DIRENT_D_TYPE
+LOCAL	int	fdt		__PR((int type));
+#endif
+EXPORT	char	*dfetchdir	__PR((DIR *dir, char *dir_name, int *entp,
+						int *lenp, ino_t **inop));
 
 EXPORT char *
 fetchdir(dir, entp, lenp, inop)
@@ -56,6 +63,42 @@ fetchdir(dir, entp, lenp, inop)
 	closedir(d);
 	return (ret);
 }
+
+#ifdef	HAVE_DIRENT_D_TYPE
+LOCAL int
+fdt(type)
+	int	type;
+{
+	switch (type) {
+
+#ifdef	DT_FIFO
+	case DT_FIFO: return (FDT_FIFO);
+#endif
+#ifdef	DT_CHR
+	case DT_CHR: return (FDT_CHR);
+#endif
+#ifdef	DT_DIR
+	case DT_DIR: return (FDT_DIR);
+#endif
+#ifdef	DT_BLK
+	case DT_BLK: return (FDT_BLK);
+#endif
+#ifdef	DT_REG
+	case DT_REG: return (FDT_REG);
+#endif
+#ifdef	DT_LNK
+	case DT_LNK: return (FDT_LNK);
+#endif
+#ifdef	DT_SOCK
+	case DT_SOCK: return (FDT_SOCK);
+#endif
+#ifdef	DT_WHT
+	case DT_WHT: return (FDT_WHT);
+#endif
+	default: return (FDT_UNKN);
+	}
+}
+#endif	/* HAVE_DIRENT_D_TYPE */
 
 /*
  * Fetch content of a directory and return all entries (except '.' & '..')
@@ -152,7 +195,11 @@ dfetchdir(d, dir_name, entp, lenp, inop)
 		if (off > 0)
 			erg[off-1] = 2;	/* Hack: ^B statt ^@ zwischen Namen */
 #endif
-		erg[off++] = 1;		/* Platzhalter: ^A vor jeden Namen  */
+#ifdef	HAVE_DIRENT_D_TYPE
+		erg[off++] = fdt(dp->d_type); /* File type		    */
+#else
+		erg[off++] = FDT_UNKN;	/* Platzhalter: ^A vor jeden Namen  */
+#endif
 
 		strcpy(&erg[off], name);
 		off += nlen -3;		/* ^A  + ^@^@ Platz fuer Ende	    */

@@ -1,8 +1,8 @@
-/* @(#)walk.h	1.30 11/08/03 Copyright 2004-2011 J. Schilling */
+/* @(#)walk.h	1.31 16/03/10 Copyright 2004-2016 J. Schilling */
 /*
  *	Definitions for directory tree walking
  *
- *	Copyright (c) 2004-2011 J. Schilling
+ *	Copyright (c) 2004-2016 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -11,6 +11,8 @@
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -111,6 +113,7 @@ struct WALK {
 #define	WALK_WF_NOCHDIR	4	/* walk() -> (*walkfun)(): WALK_DNR w chdir() */
 #define	WALK_WF_NOCWD	8	/* walk() -> caller: cannot get working dir  */
 #define	WALK_WF_NOHOME	16	/* walk() -> caller: cannot chdir("..")	    */
+#define	WALK_WF_NOTDIR	32	/* walk() -> walk(): file is not a directory */
 
 typedef	int	(*walkfun)	__PR((char *_nm, struct stat *_fs, int _type,
 						struct WALK *_state));

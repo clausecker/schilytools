@@ -1,4 +1,4 @@
-#ident @(#)Makefile	1.26 13/11/05 
+#ident @(#)Makefile	1.27 16/03/04 
 ###########################################################################
 #include		$(MAKE_M_ARCH).def
 SRCROOT=	..
@@ -28,6 +28,8 @@ CPPOPTS +=	-DUSE_XATTR
 CPPOPTS +=	-DUSE_FFLAGS
 CPPOPTS +=	-DCOPY_LINKS_DELAYED
 CPPOPTS +=	-DSTAR_FAT
+CPPOPTS +=	-DUSE_NLS
+CPPOPTS +=	-DTEXT_DOMAIN=\"SCHILY_utils\"
 CPPOPTS +=	-DSCHILY_PRINT
 CFILES=		star_fat.c header.c cpiohdr.c xheader.c xattr.c \
 		list.c extract.c create.c append.c diff.c restore.c \

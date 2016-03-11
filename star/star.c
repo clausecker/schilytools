@@ -1,8 +1,8 @@
-/* @(#)star.c	1.348 16/02/08 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2016 J. Schilling */
+/* @(#)star.c	1.351 16/03/04 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2016 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)star.c	1.348 16/02/08 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2016 J. Schilling";
+	"@(#)star.c	1.351 16/03/04 Copyright 1985, 88-90, 92-96, 98, 99, 2000-2016 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1985, 88-90, 92-96, 98, 99, 2000-2016 J. Schilling
@@ -45,6 +45,9 @@ static	UConst char sccsid[] =
 #include <schily/walk.h>
 #include <schily/find.h>
 #endif
+
+#include <schily/nlsdefs.h>
+
 #include "starsubs.h"
 #include "checkerr.h"
 
@@ -349,6 +352,28 @@ main(ac, av)
 	char		*tgt_dir = NULL;
 
 	save_args(ac, av);
+
+#ifdef  USE_NLS 
+	setlocale(LC_ALL, "");
+
+#if !defined(TEXT_DOMAIN)	/* Should be defined by cc -D */
+#define	TEXT_DOMAIN "star"	/* Use this only if it weren't */
+#endif
+	{ char	*dir;
+	dir = searchfileinpath("share/locale", F_OK,
+					SIP_ANY_FILE|SIP_NO_PATH, NULL);
+	if (dir)
+		(void) bindtextdomain(TEXT_DOMAIN, dir);
+	else
+#if defined(PROTOTYPES) && defined(INS_BASE)
+	(void) bindtextdomain(TEXT_DOMAIN, INS_BASE "/share/locale");
+#else
+	(void) bindtextdomain(TEXT_DOMAIN, "/usr/share/locale");
+#endif
+	(void) textdomain(TEXT_DOMAIN);
+	}
+
+#endif 	/* USE_NLS */
 
 	my_uid = geteuid();
 	my_uid = getuid();
@@ -657,6 +682,8 @@ star_create(ac, av)
 		walkstate.err		= 0;
 		walkstate.pflags	= 0;
 
+		if ((currdir = dir_flags) != NULL)
+			dochdir(currdir, TRUE);
 		nodesc = TRUE;
 		for (av = find_av; av != find_pav; av++) {
 			treewalk(*av, walkfunc, &walkstate);
@@ -1549,11 +1576,13 @@ BOOL	Ointeractive	 = FALSE;
 		char *const * cav = find_av;
 		finda_t	fa;
 
+		if (copyflag)
+			cac--;
 		find_firstprim(&cac, &cav);
 		find_pac = cac;
 		find_pav = cav;
 		files = find_ac - cac;
-		if (!cflag && files > 0)
+		if (!copyflag && !cflag && files > 0)
 			comerrno(EX_BAD, "Path arguments not yet supported in extract mode.\n");
 
 		if (cac > 0) {

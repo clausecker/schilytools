@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)name.c	1.49 16/02/07 2008-2016 J. Schilling
+ * @(#)name.c	1.51 16/03/06 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)name.c	1.49 16/02/07 2008-2016 J. Schilling";
+	"@(#)name.c	1.51 16/03/06 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -68,6 +68,7 @@ extern int	mailchk;
 	void	replace		__PR((unsigned char **a, unsigned char *v));
 	void	dfault		__PR((struct namnod *n, unsigned char *v));
 	void	assign		__PR((struct namnod *n, unsigned char *v));
+static void	use		__PR((struct namnod *n));
 static void	set_builtins_path	__PR((void));
 static int	patheq		__PR((unsigned char *component, char *dir));
 	int	readvar		__PR((int namec, unsigned char **names));
@@ -413,24 +414,28 @@ assign(n, v)
 		n->namflg = N_DEFAULT;
 	}
 #endif
-	if (n == &mchknod)
-	{
-		mailchk = stoi(v);
-	}
-
 	replace(&n->namval, v);
-	attrib(n, N_ENVCHG);
+	attrib(n, N_ENVCHG);	/* Mark as changed after env inport */
 
-	if (n == &pathnod)
-	{
+	use(n);
+}
+
+/*
+ * Let the shell use the new value.
+ */
+static void
+use(n)
+	struct namnod	*n;
+{
+	if (n == &mchknod) {
+		mailchk = stoi(n->namval);
+
+	} else if (n == &pathnod) {
 		zaphash();
 		set_dotpath();
 		set_builtins_path();
-		return;
-	}
 
-	if (flags & prompt)
-	{
+	} if (flags & prompt) {
 		if ((n == &mailpnod) ||
 		    (n == &mailnod && mailpnod.namflg == N_DEFAULT)) {
 			setmail(n->namval);
@@ -552,10 +557,16 @@ readvar(namec, names)
 		f->fsiz = 1;
 
 	/*
+	 * Read first character and
 	 * strip leading IFS characters
 	 */
+	c[0] = '\0';
+#ifndef	DO_POSIX_READ
 	for (;;)
 	{
+#else
+	do {
+#endif
 		d = nextwchar();
 		if (eolchar(d))
 			break;
@@ -564,9 +575,13 @@ readvar(namec, names)
 		while ((*pc++ = *rest++) != '\0')
 			/* LINTED */
 			;
+#ifndef	DO_POSIX_READ
 		if (!anys(c, ifs))
 			break;
 	}
+#else
+	} while (0);
+#endif
 
 	oldstak = curstak();
 	for (;;)
@@ -587,9 +602,14 @@ readvar(namec, names)
 				n = 0;
 			if (eolchar(d)) {
 				break;
-			} else		/* strip imbedded IFS characters */
+			} else {	/* strip imbedded IFS characters */
+				c[0] = '\0';
+#ifndef	DO_POSIX_READ
 				/* CONSTCOND */
 				while (1) {
+#else
+				do {
+#endif
 					d = nextwchar();
 					if (eolchar(d))
 						break;
@@ -598,9 +618,14 @@ readvar(namec, names)
 					while ((*pc++ = *rest++) != '\0')
 						/* LINTED */
 						;
+#ifndef	DO_POSIX_READ
 					if (!anys(c, ifs))
 						break;
 				}
+#else
+				} while (0);
+#endif
+			}
 		}
 		else
 		{
@@ -968,6 +993,7 @@ popval(n)
 		n->namval = 0;
 		n->namflg = N_DEFAULT;
 	}
+	use(n);
 }
 #endif
 

@@ -1,6 +1,6 @@
-dnl @(#)configure.in	1.266 15/11/30 Copyright 1998-2015 J. Schilling
+dnl @(#)configure.in	1.267 16/03/09 Copyright 1998-2015 J. Schilling
 dnl Process this file with autoconf to produce a configure script.
-AC_REVISION(1.266)dnl
+AC_REVISION(1.267)dnl
 
 dnl AC_INIT(xconfig.h.in)
 AC_INIT(config.guess)
@@ -417,6 +417,7 @@ AC_STRUCT_ST_RDEV
 AC_STRUCT_ST_FLAG
 AC_STRUCT_ST_FLAGS
 AC_STRUCT_DIRENT_D_INO
+AC_STRUCT_DIRENT_D_TYPE
 AC_STRUCT_DIR_DD_FD
 AC_STRUCT_UTSNAME_ARCH
 AC_STRUCT_UTSNAME_PROCESSOR

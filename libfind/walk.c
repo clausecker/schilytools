@@ -1,13 +1,13 @@
-/* @(#)walk.c	1.45 15/09/12 Copyright 2004-2011 J. Schilling */
+/* @(#)walk.c	1.46 16/03/10 Copyright 2004-2016 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)walk.c	1.45 15/09/12 Copyright 2004-2011 J. Schilling";
+	"@(#)walk.c	1.46 16/03/10 Copyright 2004-2016 J. Schilling";
 #endif
 /*
  *	Walk a directory tree
  *
- *	Copyright (c) 2004-2011 J. Schilling
+ *	Copyright (c) 2004-2016 J. Schilling
  *
  *	In order to make treewalk() thread safe, we need to make it to not use
  *	chdir(2)/fchdir(2) which is process global.
@@ -114,15 +114,19 @@ struct pdirs {
 
 typedef	int	(*statfun)	__PR((const char *_nm, struct stat *_fs));
 
-EXPORT	int	treewalk	__PR((char *nm, walkfun fn, struct WALK *_state));
-LOCAL	int	walk		__PR((char *nm, statfun sf, walkfun fn, struct WALK *state, struct pdirs *last));
+EXPORT	int	treewalk	__PR((char *nm, walkfun fn,
+						struct WALK *_state));
+LOCAL	int	walk		__PR((char *nm, statfun sf, walkfun fn,
+						struct WALK *state,
+						struct pdirs *last));
 LOCAL	int	incr_dspace	__PR((FILE *f, struct twvars *varp, int amt));
 EXPORT	void	walkinitstate	__PR((struct WALK *_state));
 EXPORT	void	*walkopen	__PR((struct WALK *_state));
 EXPORT	int	walkgethome	__PR((struct WALK *_state));
 EXPORT	int	walkhome	__PR((struct WALK *_state));
 EXPORT	int	walkclose	__PR((struct WALK *_state));
-LOCAL	int	xchdotdot	__PR((struct pdirs *last, int tail, struct WALK *_state));
+LOCAL	int	xchdotdot	__PR((struct pdirs *last, int tail,
+						struct WALK *_state));
 LOCAL	int	xchdir		__PR((char *p));
 
 EXPORT int
@@ -218,7 +222,6 @@ walk(nm, sf, fn, state, last)
 
 	otail = varp->Curdtail;
 	state->base = otail;
-	state->flags = 0;
 	if (varp->Curdtail == 0 || varp->Curdir[varp->Curdtail-1] == '/') {
 		if (varp->Curdtail == 0 &&
 		    (state->walkflags & WALK_STRIPLDOT) &&
@@ -237,7 +240,11 @@ walk(nm, sf, fn, state, last)
 	}
 
 	if ((state->walkflags & WALK_NOSTAT) &&
-	    last != NULL && !last->p_stat && last->p_nlink <= 0) {
+	    (
+#ifdef	HAVE_DIRENT_D_TYPE
+	    (state->flags & WALK_WF_NOTDIR) ||
+#endif
+	    (last != NULL && !last->p_stat && last->p_nlink <= 0))) {
 		/*
 		 * Set important fields to useful values to make sure that
 		 * no wrong information is evaluated in the no stat(2) case.
@@ -249,11 +256,14 @@ walk(nm, sf, fn, state, last)
 		fs.st_size = 0;
 
 		type = WALK_F;
+		state->flags = 0;
+
 		goto type_known;
 	} else {
 		while ((ret = (*sf)(nm, &fs)) < 0 && geterrno() == EINTR)
 			;
 	}
+	state->flags = 0;
 	if (ret >= 0) {
 #ifdef	HAVE_ST_FSTYPE
 		/*
@@ -405,6 +415,10 @@ type_known:
 					}
 					Dspace += incr;
 				}
+#ifdef	HAVE_DIRENT_D_TYPE
+				if (dp[0] != FDT_DIR && dp[0] != FDT_UNKN)
+					state->flags |= WALK_WF_NOTDIR;
+#endif
 				state->level++;
 				ret = walk(name, sf, fn, state, &thisd);
 				state->level--;

@@ -1,4 +1,4 @@
-dnl @(#)aclocal.m4	1.106 15/11/22 Copyright 1998-2015 J. Schilling
+dnl @(#)aclocal.m4	1.107 16/03/09 Copyright 1998-2015 J. Schilling
 
 dnl Set VARIABLE to VALUE in C-string form, verbatim, or 1.
 dnl AC_DEFINE_STRING(VARIABLE [, VALUE])
@@ -908,6 +908,50 @@ AC_DEFUN([AC_STRUCT_DIRENT_D_INO],
                                 [ac_cv_struct_dirent_d_ino=no])])
 if test $ac_cv_struct_dirent_d_ino = yes; then
   AC_DEFINE(HAVE_DIRENT_D_INO)
+fi])
+
+dnl Checks if structure 'dirent' have field 'd_type'.
+dnl Defines HAVE_DIRENT_D_TYPE on success.
+AC_DEFUN([AC_STRUCT_DIRENT_D_TYPE],
+[AC_CACHE_CHECK([if struct dirent contains d_type], ac_cv_struct_dirent_d_type,
+                [AC_TRY_COMPILE([
+/*
+ * This must be kept in sync with schily/dirdesf.h
+ */
+#ifdef	HAVE_SYS_TYPES_H
+#	include <sys/types.h>
+#endif
+#ifdef	HAVE_SYS_STAT_H
+#	include <sys/stat.h>
+#endif
+#	ifdef	HAVE_DIRENT_H		/* This a POSIX compliant system */
+#		include <dirent.h>
+#		define	_FOUND_DIR_
+#	else				/* This is a Pre POSIX system	 */
+
+#	define 	dirent	direct
+
+#	if	defined(HAVE_SYS_DIR_H)
+#		include <sys/dir.h>
+#		define	_FOUND_DIR_
+#	endif
+
+#	if	defined(HAVE_NDIR_H) && !defined(_FOUND_DIR_)
+#		include <ndir.h>
+#		define	_FOUND_DIR_
+#	endif
+
+#	if	defined(HAVE_SYS_NDIR_H) && !defined(_FOUND_DIR_)
+#		include <sys/ndir.h>
+#		define	_FOUND_DIR_
+#	endif
+#	endif	/* HAVE_DIRENT_H */
+				],
+                                [struct  dirent d; d.d_type = 0;],
+                                [ac_cv_struct_dirent_d_type=yes],
+                                [ac_cv_struct_dirent_d_type=no])])
+if test $ac_cv_struct_dirent_d_type = yes; then
+  AC_DEFINE(HAVE_DIRENT_D_TYPE)
 fi])
 
 dnl Checks if structure 'DIR' have field 'dd_fd'.

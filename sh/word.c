@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)word.c	1.53 16/03/01 2008-2016 J. Schilling
+ * @(#)word.c	1.55 16/03/02 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)word.c	1.53 16/03/01 2008-2016 J. Schilling";
+	"@(#)word.c	1.55 16/03/02 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -73,7 +73,9 @@ static	unsigned char	*match_word __PR((unsigned char *argp,
 						unsigned int d,
 						unsigned int *wordcp));
 #ifdef	DO_DOL_PAREN
+static	unsigned char	*dolparen	__PR((unsigned char *argp));
 static	unsigned char	*match_cmd	__PR((unsigned char *argp));
+static	unsigned char	*match_arith	__PR((unsigned char *argp));
 #endif
 static	unsigned char	*match_literal	__PR((unsigned char *argp));
 static	unsigned char	*match_block __PR((unsigned char *argp,
@@ -316,14 +318,7 @@ extern	int		abegin;
 			}
 #ifdef	DO_DOL_PAREN
 			if (c == DOLLAR) {
-				/*
-				 * Check for '$(' in unquoted text
-				 */
-				if ((c = nextwc()) == '(') {
-					argp = match_cmd(argp);
-				} else {
-					peekc = c | MARK;
-				}
+				argp = dolparen(argp);
 			} else
 #endif
 			if (qotchar(c)) {	/* '`' or '"' */
@@ -362,13 +357,40 @@ extern	int		abegin;
 
 #ifdef	DO_DOL_PAREN
 static unsigned char *
+dolparen(argp)
+	unsigned char	*argp;		/* Output pointer	*/
+{
+	unsigned int	c;		/* Last read character	*/
+
+	/*
+	 * Check for '$('
+	 */
+	if ((c = nextwc()) == '(') {
+		/*
+		 * Check for '$(('
+		 */
+		if ((c = readwc()) == '(') {
+			argp = match_arith(argp);
+		} else {
+			peekc = c | MARK;
+			argp = match_cmd(argp);
+		}
+	} else {
+		peekc = c | MARK;
+	}
+	return (argp);
+}
+
+static unsigned char *
 match_cmd(argp)
 	unsigned char	*argp;		/* Output pointer	*/
 {
 	struct argnod	*arg;
 	struct trenod	*tc;
 	int		save_fd;
-	struct ionod	*tmp_iopend = iopend;
+	struct ionod	*oiopend = iopend;
+	int		owdnum = wdnum;
+	int		owdset = wdset;
 
 	/*
 	 * Add the '(' and make the string null terminated semi permanent.
@@ -382,7 +404,9 @@ match_cmd(argp)
 
 	iopend = 0;
 	tc = cmd(')', MTFLG | NLFLG | SEMIFLG);	/* Tell parser to stop at ) */
-	iopend = tmp_iopend;
+	iopend = oiopend;
+	wdset = owdset;
+	owdnum = wdnum;
 
 	save_fd = setb(-1);
 	prs_buff(arg->argval);		/* Copy begin of argument */
@@ -397,6 +421,47 @@ match_cmd(argp)
 	 */
 	arg = (struct argnod *)locstak();
 	argp = movstrstak(argp, arg->argval);
+	return (argp);
+}
+
+static unsigned char *
+match_arith(argp)
+	unsigned char	*argp;		/* Output pointer	*/
+{
+	int		nest = 2;
+	unsigned int	c;
+	unsigned char	*pc;
+	/*
+	 * Add the "((".
+	 */
+	argp += 3;
+	GROWSTAK(argp);
+	argp -= 3;
+	*argp++ = '(';
+	*argp++ = '(';
+	*argp = 0;
+	while ((c = readwc()) != '\0') {
+		/*
+		 * quote each character within
+		 * single quotes
+		 */
+		pc = readw(c);
+		if (c == NL)
+			chkpr();
+		while (*pc) {
+			GROWSTAK(argp);
+			*argp++ = *pc++;
+		}
+		if (c == '(') {
+			nest++;
+		} else if (c == ')') {
+			if (--nest == 0)
+				break;
+		} else if (c == DOLLAR) {
+			argp = dolparen(argp);
+			continue;
+		}
+	}
 	return (argp);
 }
 #endif
@@ -491,14 +556,7 @@ match_block(argp, c, d)
 		}
 #ifdef	DO_DOL_PAREN
 		if (c == DOLLAR) {
-			/*
-			 * Check for '$(' in quoted text
-			 */
-			if ((c = nextwc()) == '(') {
-				argp = match_cmd(argp);
-			} else {
-				peekc = c | MARK;
-			}
+			argp = dolparen(argp);
 		}
 #endif
 	}
