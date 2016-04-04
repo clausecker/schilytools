@@ -1,8 +1,8 @@
-/* @(#)stdio.h	1.9 14/01/02 Copyright 2009-2014 J. Schilling */
+/* @(#)stdio.h	1.10 16/03/29 Copyright 2009-2016 J. Schilling */
 /*
  *	Abstraction from stdio.h
  *
- *	Copyright (c) 2009-2014 J. Schilling
+ *	Copyright (c) 2009-2016 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -27,10 +27,19 @@
 #include <schily/mconfig.h>
 #endif
 
+#ifdef	INCL_MYSTDIO
+#ifndef _INCL_MYSTDIO_H
+#include <mystdio.h>
+#define	_INCL_MYSTDIO_H
+#endif
+
+#else	/* INCL_MYSTDIO */
+
 #ifndef _INCL_STDIO_H
 #include <stdio.h>
 #define	_INCL_STDIO_H
 #endif
+#endif	/* INCL_MYSTDIO */
 
 #ifdef	HAVE_LARGEFILES
 /*

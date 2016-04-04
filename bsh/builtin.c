@@ -1,13 +1,13 @@
-/* @(#)builtin.c	1.89 15/11/17 Copyright 1988-2015 J. Schilling */
+/* @(#)builtin.c	1.90 16/04/04 Copyright 1988-2016 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)builtin.c	1.89 15/11/17 Copyright 1988-2015 J. Schilling";
+	"@(#)builtin.c	1.90 16/04/04 Copyright 1988-2016 J. Schilling";
 #endif
 /*
  *	Builtin commands
  *
- *	Copyright (c) 1985-2015 J. Schilling
+ *	Copyright (c) 1985-2016 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -1794,11 +1794,11 @@ builtin(vp, std, flag)
 
 	if (ctlc)
 		return (TRUE);
+	if ((bp = blook(name, bitab, n_builtin)) == (btab *) NULL)
+		return (FALSE);
 	setstime();
 	getpruself(&ru1);
 	getpruchld(&cru1);
-	if ((bp = blook(name, bitab, n_builtin)) == (btab *) NULL)
-		return (FALSE);
 	ex_status = 0;
 	if (!helpwanted(vp, std)) {
 		if (bp->b_argc && vp->av_ac != bp->b_argc)

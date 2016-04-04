@@ -1,4 +1,4 @@
-/* @(#)schilyio.h	1.2 08/02/03 Copyright 2006-2008 J. Schilling */
+/* @(#)schilyio.h	1.3 16/03/29 Copyright 2006-2008 J. Schilling */
 /*
  *	Replacement for libschily/stdio/schilyio.h to allow
  *	FILE * -> int *
@@ -12,6 +12,8 @@
  * with the License.
  *
  * See the file CDDL.Schily.txt in this distribution for details.
+ * A copy of the CDDL is also available via the Internet at
+ * http://www.opensource.org/licenses/cddl1.txt
  *
  * When distributing Covered Code, include this CDDL HEADER in each
  * file and include the License file CDDL.Schily.txt from this distribution.
@@ -21,7 +23,7 @@
 #include <schily/unistd.h>	/* include <sys/types.h> try to get size_t */
 #include <schily/stdlib.h>	/* Try again for size_t	*/
 
-#include <stdio.h>
+#include <mystdio.h>
 #include <schily/varargs.h>
 #include <schily/standard.h>
 #include <schily/schily.h>

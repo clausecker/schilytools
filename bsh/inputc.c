@@ -1,8 +1,8 @@
-/* @(#)inputc.c	1.78 15/09/02 Copyright 1982, 1984-2015 J. Schilling */
+/* @(#)inputc.c	1.79 16/03/29 Copyright 1982, 1984-2016 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)inputc.c	1.78 15/09/02 Copyright 1982, 1984-2015 J. Schilling";
+	"@(#)inputc.c	1.79 16/03/29 Copyright 1982, 1984-2016 J. Schilling";
 #endif
 /*
  *	inputc.c
@@ -20,7 +20,7 @@ static	UConst char sccsid[] =
  *	in 1982 and 1983. This prototype only contained the editor and called
  *	shell commands via system().
  *
- *	Copyright (c) 1982, 1984-2015 J. Schilling
+ *	Copyright (c) 1982, 1984-2016 J. Schilling
  *	This version was first coded August 1984 and rewritten 01/22/85
  *
  *	Exported functions:
@@ -62,7 +62,8 @@ static	UConst char sccsid[] =
 #include <schily/stdlib.h>
 #include <schily/fcntl.h>
 #include <schily/limits.h>	/* for  MB_LEN_MAX	*/
-#include <schily/wchar.h>	/* wchar_t		*/
+#include <schily/pwd.h>		/* #includes <stdio.h> */
+#include <schily/wchar.h>	/* wchar_t #includes <stdio.h>	*/
 #include <schily/wctype.h>	/* For iswprint()	*/
 #include <schily/patmatch.h>	/* Past wchar.h to enable patchwmatch() */
 #undef	NO_SCHILY_STDIO_H
@@ -72,7 +73,6 @@ static	UConst char sccsid[] =
 #include <schily/termios.h>	/* For WIN-DOS test and USE_GETCH */
 #undef	putch			/* Restore our old value */
 #undef	ungetch			/* Restore our old value */
-#include <schily/pwd.h>
 #include "bsh.h"
 #include "map.h"
 #include "node.h"
@@ -85,6 +85,9 @@ static	UConst char sccsid[] =
 #undef	toint		/* Atari MiNT has this nonstandard definition */
 #ifdef	LIB_SHEDIT
 #define	toint		shell_toint
+#define	MYFILE		int
+#else
+#define	MYFILE		FILE
 #endif
 
 #ifdef	XDEBUG		/* eXpand Debug */
@@ -175,7 +178,7 @@ typedef struct histptr {
  */
 #define	F_TMP	0x01		/* Claimed by a tmp pointer */
 
-EXPORT	FILE	*getinfile	__PR((void));
+EXPORT	MYFILE	*getinfile	__PR((void));
 EXPORT	int	get_histlen	__PR((void));
 EXPORT	void	chghistory	__PR((char *cp));
 LOCAL	void	changehistory	__PR((int n));
@@ -241,13 +244,13 @@ LOCAL	wchar_t	*esc_process	__PR((int xc, wchar_t *lp, wchar_t *cp,
 						unsigned int *lenp));
 LOCAL	wchar_t	*sget_line	__PR((void));
 LOCAL	wchar_t	*iget_line	__PR((void));
-EXPORT	char	*make_line	__PR((int (*f)(FILE *), FILE *arg));
-LOCAL	char	*fread_line	__PR((FILE *f));
-EXPORT	char	*get_line	__PR((int n, FILE *f));
-EXPORT	void	put_history	__PR((FILE *f, int intrflg));
+EXPORT	char	*make_line	__PR((int (*f)(MYFILE *), MYFILE *arg));
+LOCAL	char	*fread_line	__PR((MYFILE *f));
+EXPORT	char	*get_line	__PR((int n, MYFILE *f));
+EXPORT	void	put_history	__PR((MYFILE *f, int intrflg));
 EXPORT	void	save_history	__PR((int intrflg));
 EXPORT	void	read_init_history	__PR((void));
-EXPORT	void	readhistory	__PR((FILE *f));
+EXPORT	void	readhistory	__PR((MYFILE *f));
 LOCAL	void	term_init	__PR((void));
 LOCAL	void	tty_init	__PR((void));
 LOCAL	void	tty_term	__PR((void));
@@ -265,7 +268,7 @@ extern	char	*inithome;
 extern	BOOL	ins_mode;
 extern	BOOL	i_should_echo;
 
-LOCAL	FILE	*infile		= 0;			/* FILE * to read frm */
+LOCAL	MYFILE	*infile		= 0;			/* FILE * to read frm */
 LOCAL	HISTPTR	first_line	= (HISTPTR) NULL;	/* Oldest line	    */
 LOCAL	HISTPTR	last_line	= (HISTPTR) NULL;	/* Newest line in h   */
 LOCAL	HISTPTR	rub_line	= (HISTPTR) NULL;
@@ -412,7 +415,7 @@ tombs(cbuf, bsize, ws, wlen)
 /*
  * Return actual input FILE *
  */
-EXPORT FILE *
+EXPORT MYFILE *
 getinfile()
 {
 	return (infile);
@@ -2241,8 +2244,8 @@ iget_line()
 /* VARARGS1 */
 EXPORT char *
 make_line(f, arg)
-	register int	(*f) __PR((FILE *));
-	register FILE	*arg;
+	register int	(*f) __PR((MYFILE *));
+	register MYFILE	*arg;
 {
 	register unsigned	maxl;
 	register unsigned	llen;
@@ -2279,9 +2282,9 @@ make_line(f, arg)
  */
 LOCAL char *
 fread_line(f)
-	FILE	*f;
+	MYFILE	*f;
 {
-	extern int	fgetc __PR((FILE *));
+	extern int	fgetc __PR((MYFILE *));
 
 	return (make_line(fgetc, f));
 }
@@ -2296,7 +2299,7 @@ fread_line(f)
 EXPORT char *
 get_line(n, f)
 	int	n;		/* Prompt index */
-	FILE	*f;		/* FILE * to read from */
+	MYFILE	*f;		/* FILE * to read from */
 {
 	if (line_pointer) {
 		free(line_pointer);
@@ -2347,7 +2350,7 @@ get_line(n, f)
  */
 EXPORT void
 put_history(f, intrflg)
-	register FILE	*f;
+	register MYFILE	*f;
 	register int	intrflg;
 {
 	register HISTPTR p;
@@ -2397,7 +2400,7 @@ EXPORT void
 save_history(intrflg)
 	int intrflg;
 {
-	FILE	*f;
+	MYFILE	*f;
 
 	if (no_lines == 0)	/* don't damage history File */
 		return;
@@ -2415,7 +2418,7 @@ save_history(intrflg)
 EXPORT void
 read_init_history()
 {
-	FILE	*f;
+	MYFILE	*f;
 
 	hfilename = concat(inithome, slash, historyname, (char *)NULL);
 	f = fileopen(hfilename, for_read);
@@ -2431,7 +2434,7 @@ read_init_history()
  */
 EXPORT void
 readhistory(f)
-	register FILE	*f;
+	register MYFILE	*f;
 {
 #define	BUF_SIZE	8192		/* XXX Dymanic resize ???	*/
 		char	rbuf[BUF_SIZE+1]; /* + space for null byte	*/

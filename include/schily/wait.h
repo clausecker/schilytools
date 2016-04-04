@@ -1,8 +1,8 @@
-/* @(#)wait.h	1.24 15/09/18 Copyright 1995-2015 J. Schilling */
+/* @(#)wait.h	1.26 16/04/02 Copyright 1995-2016 J. Schilling */
 /*
  *	Definitions to deal with various kinds of wait flavour
  *
- *	Copyright (c) 1995-2015 J. Schilling
+ *	Copyright (c) 1995-2016 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -123,18 +123,36 @@ typedef enum {
 #endif	/* HAVE_TYPE_IDTYPE_T */
 
 #ifndef	WCOREFLG
+#ifdef	WCOREFLAG
+#define	WCOREFLG	WCOREFLAG
+#else
 #define	WCOREFLG	0x80
+#endif
 #define	NO_WCOREFLG
 #endif
 
 #ifndef	WSTOPFLG
+#ifdef	_WSTOPPED
+#define	WSTOPFLG	_WSTOPPED
+#else
 #define	WSTOPFLG	0x7F
+#endif
 #define	NO_WSTOPFLG
 #endif
 
 #ifndef	WCONTFLG
 #define	WCONTFLG	0xFFFF
 #define	NO_WCONTFLG
+#endif
+
+/*
+ * Work around a NetBSD bug that has been imported from BSD.
+ * There is a #define WSTOPPED _WSTOPPED that is in conflict with the
+ * AT&T waitid() flags definition that is part of the POSIX standard.
+ */
+#if	defined(WSTOPPED) && defined(_WSTOPPED) && WSTOPPED == _WSTOPPED
+#undef	WSTOPPED
+#define	WSTOPPED	WUNTRACED
 #endif
 
 /*
@@ -157,7 +175,11 @@ typedef enum {
 #define	NO_WNOWAIT
 #endif
 #ifndef	WSTOPPED
+#ifdef	WUNTRACED
+#define	WSTOPPED	WUNTRACED
+#else
 #define	WSTOPPED	0
+#endif
 #define	NO_WSTOPPED
 #endif
 #ifndef	WTRAPPED
@@ -181,9 +203,6 @@ typedef enum {
 #if defined(HAVE_UNION_WAIT) && defined(USE_UNION_WAIT)
 #	define WAIT_T union wait
 #	define	_W_U(w)	((union wait *)&(w))
-#	ifndef WSTOPPED
-#		define	WSTOPPED	0x7F
-#	endif
 #	ifndef WTERMSIG
 #		define WTERMSIG(status)		(_W_U(status)->w_termsig)
 #	endif
@@ -201,16 +220,16 @@ typedef enum {
 #	endif
 #	ifndef WIFSTOPPED
 #		define WIFSTOPPED(status)	(_W_U(status)->w_stopval == \
-								WSTOPPED)
+								WSTOPFLG)
 #	endif
 #	ifndef WIFSIGNALED
 #		define WIFSIGNALED(status) 	(_W_U(status)->w_stopval != \
-						WSTOPPED && \
+						WSTOPFLG && \
 						_W_U(status)->w_termsig != 0)
 #	endif
 #	ifndef WIFEXITED
 #		define WIFEXITED(status)	(_W_U(status)->w_stopval != \
-						WSTOPPED && \
+						WSTOPFLG && \
 						_W_U(status)->w_termsig == 0)
 #	endif
 #else

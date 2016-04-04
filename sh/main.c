@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)main.c	1.46 16/03/01 2008-2016 J. Schilling
+ * @(#)main.c	1.47 16/04/01 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)main.c	1.46 16/03/01 2008-2016 J. Schilling";
+	"@(#)main.c	1.47 16/04/01 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -379,14 +379,14 @@ main(c, v, e)
 			 */
 			if ((flags & intflg) == 0) {
 				flags |= intflg;
+			}
 #ifdef	DO_BGNICE
-				flags2 |= bgniceflg;
+			flags2 |= bgniceflg;
 #endif
 #ifdef	INTERACTIVE
-				flags2 |= vedflg;
+			flags2 |= vedflg;
 #endif
-				setopts();		/* set flagadr */
-			}
+			setopts();			/* set flagadr */
 		}
 #endif
 		if ((flags & intflg) && (flags & privflg) == 0) {

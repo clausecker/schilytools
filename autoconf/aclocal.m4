@@ -1,4 +1,4 @@
-dnl @(#)aclocal.m4	1.107 16/03/09 Copyright 1998-2015 J. Schilling
+dnl @(#)aclocal.m4	1.108 16/03/22 Copyright 1998-2015 J. Schilling
 
 dnl Set VARIABLE to VALUE in C-string form, verbatim, or 1.
 dnl AC_DEFINE_STRING(VARIABLE [, VALUE])
@@ -872,7 +872,7 @@ AC_DEFUN([AC_STRUCT_DIRENT_D_INO],
 [AC_CACHE_CHECK([if struct dirent contains d_ino], ac_cv_struct_dirent_d_ino,
                 [AC_TRY_COMPILE([
 /*
- * This must be kept in sync with schily/dirdesf.h
+ * This must be kept in sync with schily/dirent.h
  */
 #ifdef	HAVE_SYS_TYPES_H
 #	include <sys/types.h>
@@ -916,7 +916,7 @@ AC_DEFUN([AC_STRUCT_DIRENT_D_TYPE],
 [AC_CACHE_CHECK([if struct dirent contains d_type], ac_cv_struct_dirent_d_type,
                 [AC_TRY_COMPILE([
 /*
- * This must be kept in sync with schily/dirdesf.h
+ * This must be kept in sync with schily/dirent.h
  */
 #ifdef	HAVE_SYS_TYPES_H
 #	include <sys/types.h>

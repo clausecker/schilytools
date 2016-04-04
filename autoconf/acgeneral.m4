@@ -1,4 +1,4 @@
-dnl @(#)acgeneral.m4	1.16 15/07/06 Copyright 1998-2015 J. Schilling
+dnl @(#)acgeneral.m4	1.17 16/03/22 Copyright 1998-2016 J. Schilling
 dnl
 dnl Parameterized macros.
 dnl Requires GNU m4.
@@ -55,7 +55,7 @@ divert(-1)dnl Throw away output until AC_INIT is called.
 changequote([, ])
 
 define(AC_ACVERSION, 2.13)
-define(AC_ACVERSION_SCHILY, 1.16-Schily)
+define(AC_ACVERSION_SCHILY, 1.17-Schily)
 
 dnl Some old m4's don't support m4exit.  But they provide
 dnl equivalent functionality by core dumping because of the
@@ -151,7 +151,7 @@ AC_DEFUN(AC_INIT_NOTICE,
 [# Guess values for system-dependent variables and create Makefiles.
 # Generated automatically using autoconf version] AC_ACVERSION AC_ACVERSION_SCHILY [
 # Copyright (C) 1992, 93, 94, 95, 96 Free Software Foundation, Inc.
-# Copyright (C) 1998-2015 J. Schilling
+# Copyright (C) 1998-2016 J. Schilling
 #
 # This configure script is free software; the Free Software Foundation
 # gives unlimited permission to copy, distribute and modify it.
@@ -1301,10 +1301,20 @@ dnl ### Compiler-running mechanics
 
 dnl The purpose of this macro is to "configure:123: command line"
 dnl written into config.log for every test run.
+dnl
+dnl Note that previous versions of AC_TRY_EVAL did use () around the complete
+dnl eval commands. This causes unneeded sub-shells and reduces the performance
+dnl by 5% with a typical shell.
+dnl Given that the command passed to "eval" is in a shell variable, I/O
+dnl redirections and pipe calls in that variable are not parsed by the first
+dnl shell parser call but passed as textual arguments to the "eval" builtin and
+dnl then parsed inside "eval". For this reason there is no need for the () even
+dnl in case that the command contains an I/O redirection.
+dnl
 dnl AC_TRY_EVAL(VARIABLE)
 AC_DEFUN(AC_TRY_EVAL,
-[{ (eval echo configure:__oline__: \"[$]$1\") 1>&AC_FD_CC; dnl
-(eval [$]$1) 2>&AC_FD_CC; }])
+[{ eval echo configure:__oline__: \"[$]$1\" 1>&AC_FD_CC; dnl
+eval [$]$1 2>&AC_FD_CC; }])
 
 dnl AC_TRY_COMMAND(COMMAND)
 AC_DEFUN(AC_TRY_COMMAND,

@@ -1,0 +1,191 @@
+New features with AN-2016-04-05:
+
+This is the first localization step for the schily source consolidation. Many
+programs now (hopefully) call gettext() for all strings that need localization.
+
+-	The next step will include dgettext() calls for the libraries and the
+	missing programs
+
+-	The following step will include the extracted strings
+
+-	The last step will include German translations and install support
+	for the resulting binary message object files.
+
+----------> Please test and report compilation problems! <---------
+
+***** NOTE: As mentioned since 2004, frontends to the tools should *****
+*****		call all programs in the "C" locale		   *****
+*****		by e.g. calling: LC_ALL=C cdrecord ....		   *****
+*****		unless these frontends support localized strings   *****
+*****		used by the cdrtools with NLS support.		   *****
+
+		*** WARNING        ***
+		*** Need new smake ***
+
+	*** Due to the fact that schily-tools 2014-04-03 introduced to use new macro
+	*** expansions and a related bug fix in smake, you need a new smake
+	*** to compile this source. To ensure this, call:
+
+	cd ./psmake
+	./MAKE-all
+	cd ..
+	psmake/smake
+	psmake/smake install
+
+
+	WARNING: the new version of the isoinfo program makes use of the 
+		*at() series of functions that have been introduced by Sun
+		in August 2001 and added to POSIX.1-2008. For older platforms,
+		libschily now includes emulations for these functions but
+		these emulations have not yet been tested thoroughly.
+		Please report problems!
+
+	The new smake version mentioned above is smake-1.2.4
+
+-	autoconf: fix a typo in aclocal.m4
+
+-	autoconf: rewrite some m4 rules to avoid running tests in unneeded
+	subshells. This speeds up the performance of "configure" on Solaris
+	by 5% and probably much more on Cygwin.
+
+-	include/schily/wait.h: work around a NetBSD bug (imported from BSD) that
+	is caused by an illegal
+
+		#define WSTOPPED _WSTOPPED
+
+	in <sys/wait.h> that is in conflict with the POSIX standard. This 
+	NetBSD bug caused incorrect behavior for background processes in the
+	Bourne Shell.
+
+-	libschily: A new function js_dprintf() was added.
+
+-	libshedit: new concept to switch from FILE * to int * works with
+	clang on Solaris and with other platforms that got into problems
+	with our last attempt to upport clang on Solaris.
+
+	The current concept is:
+
+	-	For all files that we fully control and that need stdio.h
+		include schily/stdio.h and tell it to include ./mystdio.h
+		instead of stdio.h. mystdio.h first includes the system
+		stdio.h in order to avoid later uncontrolled includes and
+		then undefines / redefines what we need to use int * instead
+		of FILE *.
+
+	-	For all files we cannot fully control (e.g. inputc.c) because
+		they need system include files that (stelthy) include stdio.h
+		or parts from stdio.h, let these #includes appear first and
+		then include ./mystdio.h in a way that a local MYFILE is
+		defined to "FILE" in case if a stdio based compilateion and
+		#define MYFILE to "int" in case of a stdio-less compilation.
+
+	The new concept has been verified on Solaris, HP-UX, OS X, AIX, 
+	FreeBSD, Linux.
+
+-	libedc_ecc_dec: Avoid an array out of bound subscription. Thanks to
+	Heiko Eiﬂfeldt for cheking the code after a compiler warning.
+
+-	bsh: Now uses waitid() on POSIX compliant platforms and is again
+	able to retrieve all 32 bits from exit() as it has been on UNOS
+	35 years ago.
+
+-	bsh: the getrusage() emulation now supports procfs2 and times() as well.
+
+-	Bourne Shell: bosh -i now sets "-o ved" by default as expected. This
+	was a bug triggered by newer versions of "script" on Linux that call
+	the shell with -i.
+
+-	Bourne Shell: "set --" now clears all current arguments, needed for
+	POSIX. The SVr4 way was to only set a new argument vector when there
+	are arguments following to "set --".
+
+-	Bourne Shell: echo ${10} now prints the 10th argument from the parameter
+	list. Before, only $0 .. $9 have been supported. This is to support the
+	requirements from POSIX.
+	Thanks to Robert Elz <kre@munnari.oz.au> for reporting.
+
+-	Bourne Shell: unset X; set -u; echo ${X#foo} now fails as expected.
+	Thanks to Robert Elz <kre@munnari.oz.au> for reporting.
+
+-	Bourne Shell:  a() { ls; }& now results in a correct job message 
+	a() { ls; } instead of  a() { ls }
+
+-	Bourne Shell: fixed a bug caused by a typo that caused a global
+	variable from the lexer not tp be restored after a recursive parser
+	call for $() parsing.
+
+
+-	Bourne Shell Missing features for POSIX compliance:
+
+	- Arithmetic Substitution with $((expression))
+
+	- Do not list functions when calling "set" with no arguments.
+	  Note that this POSIX requirement is seen as a POSIX bug as there
+	  is no POSIX command to list function definitions.
+	  NOTE that this will not be implemented before POSIX bug
+	  http://austingroupbugs.net/view.php?id=1025 was fixed.
+
+	- A POSIX whitepaper at: http://www.unix.org/whitepapers/shdiffs.html
+	  claims that:
+			IFS=o; violet
+
+	  should not execute "vi". The normative text in the POSIX standard
+	  describes the historic Bourne Shell behavior, but the rationale
+	  describes the deviating behavior from "ksh".
+
+
+	- Support for $'...' quoting (this is not needed for the current
+					version of POSIX but for the next POSIX
+					version that will be SUSv8)
+
+	We are getting very close to full POSIX support.
+
+
+-	Bourne Shell further TODO list:
+
+	-	Try to make
+
+		lastline=
+		while read line
+		do
+			lastline=$line
+		done < /etc/passwd
+		echo "lastline=$lastline"
+
+		print the last line of /etc/passwd without the exec "trick"
+		that is documented in the man page.
+	
+	-	Finish loadable builtin support.
+
+	-	POSIX does not allow us to implement ". -h", so we will
+		add a "source" builtin to be able to implement "source -h"
+
+-	The following builtins (that are available in bsh) are still missing in
+	the Bourne Shell:
+
+	err			echo with output going to stderr
+	glob			echo with '\0' instead of ' ' between args
+	env			a builtin version of /usr/bin/env
+
+	The following bsh intrinsics are still missing in the Bourne Shell:
+
+	-			the restricted bsh has restriction features that
+				are missing in the Bourne shell.
+
+	-	source -h	read file into history but do not excute
+
+	and probably more features not yet identified to be bsh unique.
+
+
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.net, js@cs.tu-berlin.de
+	joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

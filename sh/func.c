@@ -37,11 +37,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)func.c	1.24 16/02/07 2008-2016 J. Schilling
+ * @(#)func.c	1.25 16/04/03 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)func.c	1.24 16/02/07 2008-2016 J. Schilling";
+	"@(#)func.c	1.25 16/04/03 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -408,7 +408,7 @@ prf(t)
 				prs_buff(UC "(){");
 				prbgnlst();
 				prf(f->fndval);
-				prbgnlst();
+				prendlst();
 				prs_buff(UC "}");
 				break;
 			}

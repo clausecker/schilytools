@@ -1,4 +1,4 @@
-#ident "@(#)Makefile	1.16 15/08/22 "
+#ident "@(#)Makefile	1.19 16/03/30 "
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -22,9 +22,10 @@ CPPOPTS +=	-DTESTMAIL		# Do mail file checking
 
 CPPOPTS	+=	-DBOURNE
 CPPOPTS	+=	-DLIB_SHEDIT
+CPPOPTS	+=	-DINCL_MYSTDIO
 CPPOPTS	+=	-DNO_WEAK_SYMBOLS
 CPPOPTS	+=	-DNO_GETLINE_COMPAT
-CPPOPTS	+=	-Iinclude
+CPPOPTS	+=	-I.
 #CPPOPTS +=	-DNO_LOCALE		# Don't use setlocale()
 #CPPOPTS +=	-DNO_WCHAR		# Don't use wide chars
 
@@ -48,7 +49,7 @@ CFILES=		edit.c inputc.c expand.c node.c map.c strsubs.c str.c ttymodes.c \
 
 HFILES=		bsh.h map.h node.h \
 		str.h \
-		strsubs.h bshconf.h schilyio.h include/stdio.h
+		strsubs.h bshconf.h schilyio.h mystdio.h
 LIBS=		-lxtermcap -lschily -lc
 #XMK_FILE=	Makefile.man
 XMK_FILE=	

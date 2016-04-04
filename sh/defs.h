@@ -39,7 +39,7 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)defs.h	1.140 16/02/05 2008-2016 J. Schilling
+ * @(#)defs.h	1.141 16/03/22 2008-2016 J. Schilling
  */
 
 #ifdef	__cplusplus
@@ -1079,6 +1079,9 @@ extern unsigned long		flags;		/* Flags for set(1) and more */
 extern unsigned long		flags2;		/* Second set of flags */
 extern int			exflag;		/* Use _exit(), not exit() */
 extern int			rwait;		/* flags read waiting */
+#ifdef	DO_POSIX_SET
+extern int			dashdash;	/* flags set -- encountered */
+#endif
 
 /* error exits from various parts of shell */
 #include	<setjmp.h>

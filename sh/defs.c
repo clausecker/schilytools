@@ -31,16 +31,16 @@
 #endif
 
 /*
- * Copyright 2008-2015 J. Schilling
+ * Copyright 2008-2016 J. Schilling
  *
- * @(#)defs.c	1.15 15/07/22 2008-2015 J. Schilling
+ * @(#)defs.c	1.16 16/03/22 2008-2016 J. Schilling
  */
 #ifdef	SCHILY_INCLUDES
 #include <schily/mconfig.h>
 #endif
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)defs.c	1.15 15/07/22 2008-2015 J. Schilling";
+	"@(#)defs.c	1.16 16/03/22 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -103,6 +103,9 @@ unsigned char	*comdiv;
 unsigned long	flags;		/* Flags for set(1) and more */
 unsigned long	flags2;		/* Second set of flags */
 int		rwait;		/* flags read waiting */
+#ifdef	DO_POSIX_SET
+int		dashdash;	/* flags set -- encountered */
+#endif
 
 /* error exits from various parts of shell */
 jmp_buf		subshell;

@@ -1,4 +1,4 @@
-/* @(#)fprint.c	1.2 13/09/25 Copyright 1985, 1989, 1995-2013 J. Schilling */
+/* @(#)fprint.c	1.3 16/03/29 Copyright 1985, 1989, 1995-2013 J. Schilling */
 /*
  *	Copyright (c) 1985, 1989, 1995-2013 J. Schilling
  */
@@ -20,7 +20,7 @@
 #include <schily/unistd.h>	/* include <sys/types.h> try to get size_t */
 #include <schily/stdlib.h>	/* Try again for size_t	*/
 
-#include <stdio.h>
+#include <schily/stdio.h>
 #include <schily/varargs.h>
 #include <schily/standard.h>
 #include <schily/schily.h>

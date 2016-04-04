@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)bltin.c	1.94 16/02/07 2008-2016 J. Schilling
+ * @(#)bltin.c	1.95 16/03/22 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)bltin.c	1.94 16/02/07 2008-2016 J. Schilling";
+	"@(#)bltin.c	1.95 16/03/22 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -467,7 +467,11 @@ int xflags;
 			int	cnt;
 
 			cnt = options(argc, argv);
+#ifdef	DO_POSIX_SET
+			if (cnt > 1 || dashdash)
+#else
 			if (cnt > 1)
+#endif
 				setargs(argv + argc - cnt);
 		} else if (comptr(t)->comset == 0) {
 			/*

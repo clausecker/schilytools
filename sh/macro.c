@@ -37,11 +37,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)macro.c	1.42 16/03/01 2008-2016 J. Schilling
+ * @(#)macro.c	1.45 16/04/03 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)macro.c	1.42 16/03/01 2008-2016 J. Schilling";
+	"@(#)macro.c	1.45 16/04/03 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -361,13 +361,24 @@ getname:
 						atflag = 1;
 					}
 					dolg = 1;
-					c = '1';
+					c = 1;
+				} else if (digit(c)) {
+					c -= '0';
+#ifdef	DO_POSIX_PARAM
+					if (bra) {
+						int	dd;
+
+						while ((dd = readwc(),
+							digit(dd)))
+							c = 10 * c + (dd - '0');
+						peekc = dd | MARK;
+					}
+#endif
 				}
 				/*
 				 * Double cast is needed to work around a
 				 * GCC bug.
 				 */
-				c -= '0';
 				v = ((c == 0) ?
 					cmdadr :
 					((int)c <= dolc) ?
@@ -471,27 +482,37 @@ getname:
 				itos(l);
 				v = numbuf;
 			}
-			if (v && (c == '#' || c == '%')) {
-				int		largest = 0;
-				unsigned char	*oargp = argp;
-				UIntptr_t	a;
+			if ((c == '#' || c == '%')) {
+				if (v) {
+					int		largest = 0;
+					unsigned char	*oargp = argp;
+					UIntptr_t	a;
 
-				if (dolg)
-					error(badsub);
-				if (*argp == c) {
-					largest++;
-					argp++;
-				}
-				staktop++;
-				a = relstak();
-				macro(argp);
-				argp = absstak(a);
-				if (c == '#') {
-					v = prefsubstr(v, argp, largest);
+					if (dolg)
+						error(badsub);
+					if (*argp == c) {
+						largest++;
+						argp++;
+					}
+					staktop++;
+					a = relstak();
+					macro(argp);
+					argp = absstak(a);
+					if (c == '#') {
+						v = prefsubstr(v, argp,
+								largest);
+					} else {
+						vsize = suffsubstr(v, argp,
+								largest);
+					}
+					staktop = oargp;
 				} else {
-					vsize = suffsubstr(v, argp, largest);
+					/*
+					 * Clear to let it fail later with
+					 * an unset error with set -u.
+					 */
+					argp = 0;
 				}
-				staktop = oargp;
 			}
 #endif
 			if (v && (!nulflg || *v)) {

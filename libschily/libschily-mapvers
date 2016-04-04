@@ -1,10 +1,11 @@
-# /* @(#)libschily-mapvers	1.49 15/12/10 Copyright 2005-2015 J. Schilling */
+# /* @(#)libschily-mapvers	1.50 16/04/02 Copyright 2005-2015 J. Schilling */
 #include <schily/mconfig.h>
 
 SCHILY_1.8 {
 global:
 	astoul;
 	astoulb;
+	js_dprintf;
 } SCHILY_1.7;
 
 SCHILY_1.7 {

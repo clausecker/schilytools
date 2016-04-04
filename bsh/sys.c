@@ -1,11 +1,11 @@
-/* @(#)sys.c	1.76 15/11/17 Copyright 1986-2015 J. Schilling */
+/* @(#)sys.c	1.78 16/04/04 Copyright 1986-2016 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)sys.c	1.76 15/11/17 Copyright 1986-2015 J. Schilling";
+	"@(#)sys.c	1.78 16/04/04 Copyright 1986-2016 J. Schilling";
 #endif
 /*
- *	Copyright (c) 1986-2015 J. Schilling
+ *	Copyright (c) 1986-2016 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -106,6 +106,12 @@ EXPORT	int	fexec		__PR((char **path, char *name, FILE *in, FILE *out, FILE *err,
 LOCAL	void	fdmove		__PR((int fd1, int fd2));
 LOCAL	BOOL	is_binary	__PR((char *name));
 EXPORT	char	*_findinpath	__PR((char *name, int mode, BOOL plain_file));
+
+#ifdef	HAVE_WAITID
+LOCAL	void	ruget		__PR((struct rusage *rup));
+LOCAL	void	ruadd		__PR((struct rusage *ru, struct rusage *ru2));
+LOCAL	void	rusub		__PR((struct rusage *ru, struct rusage *ru2));
+#endif
 
 EXPORT void
 start(vp, std, flag)
@@ -424,6 +430,15 @@ ewait(child, flag)
 #endif
 {
 	pid_t died;
+#ifdef	HAVE_WAITID
+	siginfo_t	sinfo;
+	struct rusage	rustart;
+
+	struct {
+		int type;
+		int exit;
+	} status;
+#else
 #if defined(i386) || defined(__x86) || defined(vax)
 	struct {
 		char 	type;
@@ -436,7 +451,8 @@ ewait(child, flag)
 		char 	exit;
 		char 	type;
 	} status;
-#endif
+#endif	/* defined(i386) || defined(__x86) || defined(vax) */
+#endif	/* !HAVE_WAITID */
 	struct rusage prusage;
 #if	!defined(USE_WAIT3)	/* see wait3.c and above */
 #if	defined(HAVE_SYS_TIMES_H) && defined(HAVE_TIMES)
@@ -455,6 +471,57 @@ ewait(child, flag)
 	seterrno(0);
 #endif
 	do {
+#ifdef	HAVE_WAITID
+		ruget(&rustart);
+		do {
+			seterrno(0);
+			died = waitid(P_ALL, 0, &sinfo, WEXITED|WTRAPPED|WSTOPPED);
+			status.exit = sinfo.si_status;
+			status.type = sinfo.si_code;
+#ifdef DEBUG
+printf("ewait: back from child.\n");
+printf("       died       = %lx (%ld) errno= %d\n",
+			(long)sinfo.si_pid, (long)sinfo.si_pid, geterrno());
+printf("       wait       = %4.4x\n", *(int *)&status);
+printf("       exit_state = %2.2x\n", status.exit);
+printf("       return     = %2.2x\n", status.type);
+#endif
+		} while (died < 0 && geterrno() == EINTR);
+		if (died < 0) {
+			status.type = geterrno();
+			berror("%s", enochildren);
+			break;			/* out of outer wait loop */
+		} else {
+			ruget(&prusage);
+			rusub(&prusage, &rustart);
+			ex_status = status.exit;
+			died = sinfo.si_pid;
+#ifdef	JOBCONTROL
+			if (sinfo.si_code == CLD_KILLED &&
+			    sinfo.si_status == SIGINT)
+				ctlc++;
+			if (sinfo.si_code == CLD_STOPPED)
+				lastsusp = died;	/* XXX Temporary !!! */
+#endif
+			mesg = strsignal(status.exit);
+			if (mesg != NULL && sinfo.si_code != CLD_EXITED) {
+				fprintf(stderr, "\r\n");
+				if (child != died ||
+				    sinfo.si_code == CLD_STOPPED)
+					fprintf(stderr, "%ld: ", (long)died);
+
+				fprintf(stderr, "%s%s\n",
+					mesg,
+					sinfo.si_code == CLD_DUMPED ?
+							ecore:nullstr);
+			}
+		}
+		/*
+		 * We do not come here in case of died < 0.
+		 */
+		if ((flag & NOTMS) == 0 && getcurenv("TIME"))
+			prtimes(gstd, &prusage);
+#else	/* !HAVE_WAITID */
 #	if	defined(USE_WAIT3)	/* see wait3.c and above */
 
 		/* Brain damaged AIX requires loop */
@@ -467,17 +534,16 @@ ewait(child, flag)
 #endif
 		} while (died < 0 && geterrno() == EINTR);
 
-#ifndef	WSTOPFLG
 	/*
-	 * SVR4 hat WSTOPPED als Alias für WUNTRACED
+	 * SVR4/POSIX hat WSTOPPED als Alias für WUNTRACED
 	 * WSTOPFLG entspricht dem Wert im wait Status.
+	 * BSD hat dafuer _WSTOPPED und teilweise fehlerhaterweise
+	 * auch WSTOPPED. Workaround ist in schily/wait.h
 	 */
-#define	WSTOPFLG	WSTOPPED
-#endif
 		if (status.type == WSTOPFLG) {
-/* BSD Korrekt!	if (status.type == WSTOPPED) {*/
+/* BSD Korrekt!	if (status.type == _WSTOPPED) {*/
 #ifdef DEBUG
-printf("ewait: back from child (WSTOPPED).\n");
+printf("ewait: back from child (WSTOPFLG).\n");
 #endif
 #ifdef	JOBCONTROL
 			lastsusp = died;	/* XXX Temporary !!! */
@@ -500,7 +566,7 @@ printf("ewait: back from child (WSTOPPED).\n");
 			printf("CLK_TCK: %d\n", CLK_TCK);
 			printf("tms_utime %ld\n", (long) (tms2.tms_cutime - tms1.tms_cutime));
 			printf("tms_stime %ld\n", (long) (tms2.tms_cstime - tms1.tms_cstime));
-#endif
+#endif	/* TIMES_DEBUG */
 			/*
 			 * Hack for Haiku, where the times may sometime be negative
 			 */
@@ -515,6 +581,7 @@ printf("ewait: back from child (WSTOPPED).\n");
 		}
 #endif
 #	endif	/* !defined(USE_WAIT3) */
+
 #if defined(__BEOS__) || defined(__HAIKU__)	/* Dirty Hack for BeOS, we should better use the W* macros */
 		{	int i = status.exit;
 			status.exit = status.type;
@@ -545,7 +612,7 @@ printf("       return     = %2.2x\n", status.type);
 			if (mesg != NULL && (status.type & 0177) != 0) {
 				fprintf(stderr, "\r\n");
 				if (child != died || stype == WSTOPFLG)
-/* BSD Korrekt!			if (child != died || stype == WSTOPPED)*/
+/* BSD Korrekt!			if (child != died || stype == _WSTOPPED)*/
 					fprintf(stderr, "%ld: ", (long)died);
 
 				fprintf(stderr, "%s%s\n",
@@ -555,6 +622,7 @@ printf("       return     = %2.2x\n", status.type);
 		}
 		if ((flag & NOTMS) == 0 && getcurenv("TIME"))
 			prtimes(gstd, &prusage);
+#endif	/* !HAVE_WAITID */
 	} while (child != died && child != 0 && (flag & WALL) != 0);
 #ifdef DEBUG
 printf("ewait: returning %x (%d)\n", status.type, status.type);
@@ -841,3 +909,73 @@ _findinpath(name, mode, plain_file)
 	seterrno(exerr);
 	return (NULL);
 }
+
+/*--------------------------------------------------------------------------*/
+#ifdef	HAVE_WAITID
+LOCAL void
+ruget(rup)
+	struct rusage	*rup;
+{
+	struct rusage	ruc;
+
+	getrusage(RUSAGE_SELF, rup);
+	getrusage(RUSAGE_CHILDREN, &ruc);
+	ruadd(rup, &ruc);
+}
+
+LOCAL void
+ruadd(ru, ru2)
+	struct rusage	*ru;
+	struct rusage	*ru2;
+{
+	timeradd(&ru->ru_utime, &ru2->ru_utime);
+	timeradd(&ru->ru_stime, &ru2->ru_stime);
+
+#ifdef	__future__
+	if (ru2->ru_maxrss > ru->ru_maxrss)
+		ru->ru_maxrss =	ru2->ru_maxrss;
+
+	ru->ru_ixrss += ru2->ru_ixrss;
+	ru->ru_idrss += ru2->ru_idrss;
+	ru->ru_isrss += ru2->ru_isrss;
+#endif
+	ru->ru_minflt += ru2->ru_minflt;
+	ru->ru_majflt += ru2->ru_majflt;
+	ru->ru_nswap += ru2->ru_nswap;
+	ru->ru_inblock += ru2->ru_inblock;
+	ru->ru_oublock += ru2->ru_oublock;
+	ru->ru_msgsnd += ru2->ru_msgsnd;
+	ru->ru_msgrcv += ru2->ru_msgrcv;
+	ru->ru_nsignals += ru2->ru_nsignals;
+	ru->ru_nvcsw += ru2->ru_nvcsw;
+	ru->ru_nivcsw += ru2->ru_nivcsw;
+}
+
+LOCAL void
+rusub(ru, ru2)
+	struct rusage	*ru;
+	struct rusage	*ru2;
+{
+	timersub(&ru->ru_utime, &ru2->ru_utime);
+	timersub(&ru->ru_stime, &ru2->ru_stime);
+
+#ifdef	__future__
+	if (ru2->ru_maxrss > ru->ru_maxrss)
+		ru->ru_maxrss =	ru2->ru_maxrss;
+
+	ru->ru_ixrss -= ru2->ru_ixrss;
+	ru->ru_idrss -= ru2->ru_idrss;
+	ru->ru_isrss -= ru2->ru_isrss;
+#endif
+	ru->ru_minflt -= ru2->ru_minflt;
+	ru->ru_majflt -= ru2->ru_majflt;
+	ru->ru_nswap -= ru2->ru_nswap;
+	ru->ru_inblock -= ru2->ru_inblock;
+	ru->ru_oublock -= ru2->ru_oublock;
+	ru->ru_msgsnd -= ru2->ru_msgsnd;
+	ru->ru_msgrcv -= ru2->ru_msgrcv;
+	ru->ru_nsignals -= ru2->ru_nsignals;
+	ru->ru_nvcsw -= ru2->ru_nvcsw;
+	ru->ru_nivcsw -= ru2->ru_nivcsw;
+}
+#endif	/* HAVE_WAITID */

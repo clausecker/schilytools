@@ -1,4 +1,4 @@
-/* @(#)schily.h	1.117 15/05/10 Copyright 1985-2014 J. Schilling */
+/* @(#)schily.h	1.118 16/04/02 Copyright 1985-2016 J. Schilling */
 /*
  *	Definitions for libschily
  *
@@ -18,7 +18,7 @@
  *	include ctype.h past schily/schily.h as OpenBSD does not follow POSIX
  *	and defines EOF in ctype.h
  *
- *	Copyright (c) 1985-2014 J. Schilling
+ *	Copyright (c) 1985-2016 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -478,6 +478,9 @@ extern	int	qftofs __PR((char *, long double, int, int));
 
 /*PRINTFLIKE1*/
 extern	int	js_error __PR((const char *, ...)) __printflike__(1, 2);
+/*PRINTFLIKE2*/
+extern	int	js_dprintf	__PR((int, const char *, ...))
+							__printflike__(2, 3);
 #ifdef	EOF	/* stdio.h has been included */
 /*PRINTFLIKE2*/
 extern	int	js_fprintf	__PR((FILE *, const char *, ...))
@@ -538,6 +541,8 @@ extern	int	_openfd64	__PR((const char *, int));
 #undef	error
 #define	error		js_error
 #endif
+#undef	dprintf
+#define	dprintf		js_dprintf
 #undef	fprintf
 #define	fprintf		js_fprintf
 #undef	printf

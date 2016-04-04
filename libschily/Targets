@@ -1,4 +1,4 @@
-# @(#)Targets	1.51 15/12/10 Copyright 1995-2014 J. Schilling
+# @(#)Targets	1.52 16/04/02 Copyright 1995-2014 J. Schilling
 
 CFILES_STDIO=	cvmod.c dat.c fcons.c fdown.c fdup.c \
 		ffileread.c ffilewrite.c \
@@ -43,7 +43,7 @@ CFILES_REST=	abspath.c astoi.c astoll.c astoul.c astoull.c basename.c breakline.
 		getnstimeofday.c gettimeofday.c \
 		gid.c \
 		handlecond.c \
-		jsprintf.c jssnprintf.c jssprintf.c \
+		jsdprintf.c jsprintf.c jssnprintf.c jssprintf.c \
 		kill.c \
 		lchmod.c linkat.c lutimens.c \
 		lxchdir.c \

@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sh.1	1.152 16/03/06 Copyright 2012-2016 J. Schilling
+.\" @(#)sh.1	1.153 16/03/21 Copyright 2012-2016 J. Schilling
 .\" Copyright 1989 AT&T
 .\" Copyright (c) 2008, Sun Microsystems, Inc. All Rights Reserved.
 .\" Portions Copyright (c) 1992, X/Open Company Limited All Rights Reserved
@@ -59,7 +59,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sh 1 "2016/03/06" "Schily Bourne Shell" "User Commands"
+.TH sh 1 "2016/03/21" "Schily Bourne Shell" "User Commands"
 .SH NAME
 sh, jsh \- standard and job control shell and command interpreter
 .SH SYNOPSIS
@@ -4660,6 +4660,10 @@ command was not supported in older versions of
 .sp .6
 .RS
 .br
+The
+.B set
+commands supports the following options:
+.br
 .ne 3
 .TP 6n
 .B \-a
@@ -5005,6 +5009,12 @@ option.
 Stop option processing.
 Further parameters are handled as normal args even when they start with a
 .BR \- .
+If no arguments follow this delimiter, then the positional parameters are unset.
+.sp
+Older versions of
+.B sh
+did not allow to unset the positional parameters with
+.RB `` "set \-\-" ''.
 .LP
 Using
 .B +
@@ -7183,6 +7193,13 @@ The output of the
 command with no arguments was modified to include the quoting
 required by the POSIX standard.
 This is not expected to cause problems but the new output may be used as shell.
+.sp
+Calling
+.RB `` "set \-\-" ''
+now causes the positional parameters to be unset. Previous versions of the shell
+left the positional parameters untouched in this case.
+A portable method to clear the positional parameters is to call
+.RB `` "shift $#" ''.
 .ne 4
 .TP
 .B times

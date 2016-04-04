@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)word.c	1.55 16/03/02 2008-2016 J. Schilling
+ * @(#)word.c	1.56 16/04/04 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)word.c	1.55 16/03/02 2008-2016 J. Schilling";
+	"@(#)word.c	1.56 16/04/04 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -406,7 +406,7 @@ match_cmd(argp)
 	tc = cmd(')', MTFLG | NLFLG | SEMIFLG);	/* Tell parser to stop at ) */
 	iopend = oiopend;
 	wdset = owdset;
-	owdnum = wdnum;
+	wdnum = owdnum;
 
 	save_fd = setb(-1);
 	prs_buff(arg->argval);		/* Copy begin of argument */
