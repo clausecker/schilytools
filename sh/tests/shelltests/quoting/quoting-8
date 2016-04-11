@@ -1,0 +1,5 @@
+ACRO_INSTALL_DIR=/usr/Acroread/Reader
+
+directory=$(echo "ba\s\te\
+name" \"$ACRO_INSTALL_DIR\")
+printf '%s\n' "<$directory>"

@@ -1,0 +1,5 @@
+# Switch off localization for tests to allow to compare the output
+LC_ALL=C
+getopts ":abf:" OPT -a
+echo '$?' "'"$?"'" '$OPT' "'"$OPT"'" '$OPTARG' "'"$OPTARG"'" '$OPTIND' "'"$OPTIND"'"
+exit 0

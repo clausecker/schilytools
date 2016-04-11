@@ -24,12 +24,12 @@
  * Use is subject to license terms.
  */
 /*
- * Copyright 2006-2015 J. Schilling
+ * Copyright 2006-2016 J. Schilling
  *
- * @(#)getopt.c	1.13 15/12/14 J. Schilling
+ * @(#)getopt.c	1.14 16/04/10 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)getopt.c 1.13 15/12/14 J. Schilling"
+#pragma ident "@(#)getopt.c 1.14 16/04/10 J. Schilling"
 #endif
 
 #if defined(sun)
@@ -55,7 +55,10 @@
 /*#include "synonyms.h"*/
 /*#include "_libc_gettext.h"*/
 
-#define	_libc_gettext	gettext
+#if !defined(TEXT_DOMAIN)	/* Should be defined by cc -D */
+#define	TEXT_DOMAIN "SYS_TEST"	/* Use this only if it weren't */
+#endif
+#define	_libc_gettext(s)	dgettext(TEXT_DOMAIN, s)
 
 #include <schily/nlsdefs.h>
 

@@ -1,8 +1,8 @@
-/* @(#)sys.c	1.78 16/04/04 Copyright 1986-2016 J. Schilling */
+/* @(#)sys.c	1.79 16/04/08 Copyright 1986-2016 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)sys.c	1.78 16/04/04 Copyright 1986-2016 J. Schilling";
+	"@(#)sys.c	1.79 16/04/08 Copyright 1986-2016 J. Schilling";
 #endif
 /*
  *	Copyright (c) 1986-2016 J. Schilling
@@ -438,7 +438,7 @@ ewait(child, flag)
 		int type;
 		int exit;
 	} status;
-#else
+#else	/* !HAVE_WAITID */
 #if defined(i386) || defined(__x86) || defined(vax)
 	struct {
 		char 	type;
@@ -452,6 +452,9 @@ ewait(child, flag)
 		char 	type;
 	} status;
 #endif	/* defined(i386) || defined(__x86) || defined(vax) */
+
+	int	stype = 0;
+
 #endif	/* !HAVE_WAITID */
 	struct rusage prusage;
 #if	!defined(USE_WAIT3)	/* see wait3.c and above */
@@ -460,7 +463,6 @@ ewait(child, flag)
 	struct tms	tms2;
 #endif
 #endif
-	int	stype = 0;
 
 	const char *mesg;
 

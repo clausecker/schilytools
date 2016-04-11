@@ -1,0 +1,12 @@
+prefix() { sed -e "s/^/$1:/"; }
+DASH_CODE() { :; }
+
+prefix A <<XXX && echo "$(prefix B <<XXX
+echo line 1
+XXX
+echo line 2)" && prefix DASH_CODE <<DASH_CODE
+echo line 3
+XXX
+echo line 4)"
+echo line 5
+DASH_CODE

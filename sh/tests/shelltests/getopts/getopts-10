@@ -1,0 +1,5 @@
+# Switch off localization for tests to allow to compare the output
+LC_ALL=C
+getopts ":()ab?1000?:(file)" OPT -file argument
+echo '$?' "'"$?"'" '$OPT' "'"$OPT"'" '$OPTARG' "'"$OPTARG"'" '$OPTIND' "'"$OPTIND"'"
+exit 0

@@ -37,11 +37,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)func.c	1.25 16/04/03 2008-2016 J. Schilling
+ * @(#)func.c	1.27 16/04/08 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)func.c	1.25 16/04/03 2008-2016 J. Schilling";
+	"@(#)func.c	1.27 16/04/08 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -234,6 +234,7 @@ freereg(regp)
 
 
 static int nonl = 0;
+static int didnl = 0;
 
 static void
 prbgnlst()
@@ -247,7 +248,9 @@ prbgnlst()
 static void
 prendlst()
 {
-	if (nonl) {
+	if (didnl) {
+		didnl = 0;
+	} else if (nonl) {
 		prc_buff(';');
 		prc_buff(SPACE);
 	}
@@ -260,6 +263,7 @@ prcmd(t)
 	struct trenod	*t;
 {
 	nonl++;
+	didnl = 0;
 	prf(t);
 	nonl = 0;
 }
@@ -400,248 +404,242 @@ prf(t)
 		prnt(t);
 #endif
 		switch (type) {
-			case TFND:
-			{
-				struct fndnod *f = (struct fndnod *)t;
 
-				prs_buff(f->fndnam);
-				prs_buff(UC "(){");
-				prbgnlst();
-				prf(f->fndval);
-				prendlst();
-				prs_buff(UC "}");
-				break;
+		case TFND:
+			{
+			struct fndnod *f = (struct fndnod *)t;
+
+			prs_buff(f->fndnam);
+			prs_buff(UC "(){");
+			prbgnlst();
+			prf(f->fndval);
+			prendlst();
+			prs_buff(UC "}");
+			break;
 			}
 
 #ifdef	DO_TIME
-			case TTIME:
+		case TTIME:
 #ifdef	PARSE_DEBUG
-				prs_buff(UC "TTIME ");
+			prs_buff(UC "TTIME ");
 #endif
-				prs_buff(UC "time ");
-				prf(parptr(t)->partre);
-				break;
+			prs_buff(UC "time ");
+			prf(parptr(t)->partre);
+			break;
 #endif
 
 #ifdef	DO_NOTSYM
-			case TNOT:
+		case TNOT:
 #ifdef	PARSE_DEBUG
-				prs_buff(UC "TNOT ");
+			prs_buff(UC "TNOT ");
 #endif
-				prs_buff(UC "! ");
-				prf(parptr(t)->partre);
-				break;
+			prs_buff(UC "! ");
+			prf(parptr(t)->partre);
+			break;
 #endif
 
-			case TCOM:
+		case TCOM:
 #ifdef	PARSE_DEBUG
-				prs_buff(UC "TCOM ");
+			prs_buff(UC "TCOM ");
 #endif
-				if (comptr(t)->comset) {
+			if (comptr(t)->comset) {
 #ifdef	PARSE_DEBUG
 				prs_buff(UC "COMSET ");
 #endif
-					prarg(comptr(t)->comset);
-					prc_buff(SPACE);
-				}
+				prarg(comptr(t)->comset);
+				prc_buff(SPACE);
+			}
 #ifdef	PARSE_DEBUG
-				prs_buff(UC "COMARG ");
+			prs_buff(UC "COMARG ");
 #endif
-				prarg(comptr(t)->comarg);
-				prio(comptr(t)->comio);
-				break;
+			prarg(comptr(t)->comarg);
+			prio(comptr(t)->comio);
+			break;
 
-			case TFORK:
+		case TFORK:
 #ifdef	PARSE_DEBUG
-				prs_buff(UC "TFORK ");
+			prs_buff(UC "TFORK ");
 #endif
-				prf(forkptr(t)->forktre);
-				prio(forkptr(t)->forkio);
-				if (forkptr(t)->forktyp & FAMP)
-					prs_buff(UC " &");
-				break;
+			prf(forkptr(t)->forktre);
+			prio(forkptr(t)->forkio);
+			if (forkptr(t)->forktyp & FAMP)
+				prs_buff(UC " &");
+			break;
 
-			case TNOFORK:
+		case TNOFORK:
 #ifdef	PARSE_DEBUG
-				prs_buff(UC "TNOFORK ");
+			prs_buff(UC "TNOFORK ");
 #endif
-				prf(forkptr(t)->forktre);
-				prio(forkptr(t)->forkio);
-				if (forkptr(t)->forktyp & FAMP)
-					prs_buff(UC " &");
-				break;
+			prf(forkptr(t)->forktre);
+			prio(forkptr(t)->forkio);
+			if (forkptr(t)->forktyp & FAMP)
+				prs_buff(UC " &");
+			break;
 
-			case TPAR:
+		case TPAR:
 #ifdef	PARSE_DEBUG
-				prs_buff(UC "TPAR ");
+			prs_buff(UC "TPAR ");
 #endif
-				prs_buff(UC "(");
-				prf(parptr(t)->partre);
-				prs_buff(UC ")");
-				break;
+			prs_buff(UC "(");
+			prf(parptr(t)->partre);
+			prs_buff(UC ")");
+			break;
 
-			case TFIL:
+		case TFIL:
 #ifdef	PARSE_DEBUG
-				prs_buff(UC "TFIL Left: ");
-				prnt(lstptr(t)->lstlef);
-				prs_buff(UC "TFIL right: ");
-				prnt(lstptr(t)->lstrit);
+			prs_buff(UC "TFIL Left: ");
+			prnt(lstptr(t)->lstlef);
+			prs_buff(UC "TFIL right: ");
+			prnt(lstptr(t)->lstrit);
 #endif
-				prf(lstptr(t)->lstlef);
+			prf(lstptr(t)->lstlef);
 #ifdef	DO_FDPIPE
-				if ((lstptr(t)->lstlef->tretyp & IOFMSK) != STDOUT_FILENO) {
-					prc_buff(' ');
-					prn_buff(lstptr(t)->lstlef->tretyp & IOFMSK);
-					prs_buff(UC "| ");
-				} else
+			if ((lstptr(t)->lstlef->tretyp & IOFMSK) != STDOUT_FILENO) {
+				prc_buff(' ');
+				prn_buff(lstptr(t)->lstlef->tretyp & IOFMSK);
+				prs_buff(UC "| ");
+			} else
 #endif
-					prs_buff(UC " | ");
-				prf(lstptr(t)->lstrit);
-				break;
+				prs_buff(UC " | ");
+			prf(lstptr(t)->lstrit);
+			break;
 
-			case TLST:
+		case TLST:
 #ifdef	PARSE_DEBUG
-				prs_buff(UC "TLST Left: ");
-				prnt(lstptr(t)->lstlef);
-				prs_buff(UC "TLST right: ");
-				prnt(lstptr(t)->lstrit);
+			prs_buff(UC "TLST Left: ");
+			prnt(lstptr(t)->lstlef);
+			prs_buff(UC "TLST right: ");
+			prnt(lstptr(t)->lstrit);
 #endif
-				prf(lstptr(t)->lstlef);
-				prendlst();
-				prf(lstptr(t)->lstrit);
-				break;
+			prf(lstptr(t)->lstlef);
+			prendlst();
+			prf(lstptr(t)->lstrit);
+			break;
 
-			case TAND:
+		case TAND:
 #ifdef	PARSE_DEBUG
-				prs_buff(UC "TAND Left: ");
-				prnt(lstptr(t)->lstlef);
-				prs_buff(UC "TAND right: ");
-				prnt(lstptr(t)->lstrit);
+			prs_buff(UC "TAND Left: ");
+			prnt(lstptr(t)->lstlef);
+			prs_buff(UC "TAND right: ");
+			prnt(lstptr(t)->lstrit);
 #endif
-				prf(lstptr(t)->lstlef);
-				prs_buff(UC " && ");
-				prf(lstptr(t)->lstrit);
-				break;
+			prf(lstptr(t)->lstlef);
+			prs_buff(UC " && ");
+			prf(lstptr(t)->lstrit);
+			break;
 
-			case TORF:
+		case TORF:
 #ifdef	PARSE_DEBUG
-				prs_buff(UC "TORF Left: ");
-				prnt(lstptr(t)->lstlef);
-				prs_buff(UC "TORF right: ");
-				prnt(lstptr(t)->lstrit);
+			prs_buff(UC "TORF Left: ");
+			prnt(lstptr(t)->lstlef);
+			prs_buff(UC "TORF right: ");
+			prnt(lstptr(t)->lstrit);
 #endif
-				prf(lstptr(t)->lstlef);
-				prs_buff(UC " || ");
-				prf(lstptr(t)->lstrit);
-				break;
+			prf(lstptr(t)->lstlef);
+			prs_buff(UC " || ");
+			prf(lstptr(t)->lstrit);
+			break;
 
-			case TFOR:
-				{
-					struct argnod	*arg;
-					struct fornod	*f = (struct fornod *)t;
-
-					prs_buff(UC "for ");
-					prs_buff(f->fornam);
-
-					if (f->forlst)
-					{
-						arg = f->forlst->comarg;
-						prs_buff(UC " in");
-
-						while (arg != ENDARGS)
-						{
-							prc_buff(SPACE);
-							prs_buff(arg->argval);
-							arg = arg->argnxt;
-						}
-					}
-
-					prendlst();
-					prs_buff(UC "do");
-					prbgnlst();
-					prf(f->fortre);
-					prendlst();
-					prs_buff(UC "done");
-				}
-				break;
-
-			case TWH:
-			case TUN:
-				if (type == TWH)
-					prs_buff(UC "while ");
-				else
-					prs_buff(UC "until ");
-				prf(whptr(t)->whtre);
-				prendlst();
-				prs_buff(UC "do");
-				prbgnlst();
-				prf(whptr(t)->dotre);
-				prendlst();
-				prs_buff(UC "done");
-				break;
-
-			case TIF:
+		case TFOR:
 			{
-				struct ifnod *f = (struct ifnod *)t;
+			struct argnod	*arg;
+			struct fornod	*f = (struct fornod *)t;
 
-				prs_buff(UC "if ");
-				prf(f->iftre);
-				prendlst();
-				prs_buff(UC "then");
-				prendlst();
-				prf(f->thtre);
+			prs_buff(UC "for ");
+			prs_buff(f->fornam);
 
-				if (f->eltre)
-				{
-					prendlst();
-					prs_buff(UC "else");
-					prendlst();
-					prf(f->eltre);
+			if (f->forlst) {
+				arg = f->forlst->comarg;
+				prs_buff(UC " in");
+
+				while (arg != ENDARGS) {
+					prc_buff(SPACE);
+					prs_buff(arg->argval);
+					arg = arg->argnxt;
 				}
-
-				prendlst();
-				prs_buff(UC "fi");
-				break;
 			}
 
-			case TSW:
-				{
-					struct regnod	*swl;
+			prendlst();
+			prs_buff(UC "do");
+			prbgnlst();
+			prf(f->fortre);
+			prendlst();
+			prs_buff(UC "done");
+			break;
+			}
 
-					prs_buff(UC "case ");
-					prs_buff(swptr(t)->swarg);
-					prs_buff(UC " in ");
+		case TWH:
+		case TUN:
+			if (type == TWH)
+				prs_buff(UC "while ");
+			else
+				prs_buff(UC "until ");
+			prf(whptr(t)->whtre);
+			prendlst();
+			prs_buff(UC "do");
+			prbgnlst();
+			prf(whptr(t)->dotre);
+			prendlst();
+			prs_buff(UC "done");
+			break;
 
-					swl = swptr(t)->swlst;
-					while (swl)
-					{
-						struct argnod	*arg;
+		case TIF:
+			{
+			struct ifnod *f = (struct ifnod *)t;
 
-						arg = swl->regptr;
-						if (arg)
-						{
-							prs_buff(arg->argval);
-							arg = arg->argnxt;
-						}
+			prs_buff(UC "if ");
+			prf(f->iftre);
+			prendlst();
+			prs_buff(UC "then");
+			prendlst();
+			prf(f->thtre);
 
-						while (arg)
-						{
-							prs_buff(UC " | ");
-							prs_buff(arg->argval);
-							arg = arg->argnxt;
-						}
+			if (f->eltre) {
+				prendlst();
+				prs_buff(UC "else");
+				prendlst();
+				prf(f->eltre);
+			}
 
-						prs_buff(UC ")");
-						prf(swl->regcom);
-						prs_buff(UC ";;");
-						swl = swl->regnxt;
-					}
-					prs_buff(UC " esac");
+			prendlst();
+			prs_buff(UC "fi");
+			break;
+			}
+
+		case TSW:
+			{
+			struct regnod	*swl;
+
+			prs_buff(UC "case ");
+			prs_buff(swptr(t)->swarg);
+			prs_buff(UC " in ");
+
+			swl = swptr(t)->swlst;
+			while (swl) {
+				struct argnod	*arg;
+
+				arg = swl->regptr;
+				if (arg) {
+					prs_buff(arg->argval);
+					arg = arg->argnxt;
 				}
-				break;
+
+				while (arg) {
+					prs_buff(UC " | ");
+					prs_buff(arg->argval);
+					arg = arg->argnxt;
+				}
+
+				prs_buff(UC ")");
+				prf(swl->regcom);
+				prs_buff(UC ";;");
+				swl = swl->regnxt;
+			}
+			prs_buff(UC " esac");
+			break;
 			}
 		}
-
+	}
 	sigchk();
 }
 
@@ -715,7 +713,7 @@ prio(iop)
 
 			prs_buff(ion);
 #ifdef	DO_DOL_PAREN
-			if (iof & IODOC) {
+			if (nonl != 1 && iof & IODOC) {
 #define	IO_BLK_SZ	512
 				unsigned char	buf[IO_BLK_SZ+1];
 				int		amt;
@@ -729,6 +727,7 @@ prio(iop)
 				close(fd);
 				prs_buff(ion);
 				prc_buff(NL);
+				didnl++;
 			}
 #endif
 		}

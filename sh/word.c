@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)word.c	1.56 16/04/04 2008-2016 J. Schilling
+ * @(#)word.c	1.57 16/04/07 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)word.c	1.56 16/04/04 2008-2016 J. Schilling";
+	"@(#)word.c	1.57 16/04/07 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -408,9 +408,15 @@ match_cmd(argp)
 	wdset = owdset;
 	wdnum = owdnum;
 
+	/*
+	 * Convert the syntax tree back into a command line.
+	 * Use prf() to get a command line with new-lines instead of ';'
+	 * since our current parser does not walways grok ';' where a
+	 * new line is ok.
+	 */
 	save_fd = setb(-1);
 	prs_buff(arg->argval);		/* Copy begin of argument */
-	prcmd(tc);			/* Convert cmd to string  */
+	prf(tc);			/* Convert cmd to string  */
 	prs_buff(UC ")");		/* Add closing ) from $() */
 	argp = stakbot;
 	(void) setb(save_fd);

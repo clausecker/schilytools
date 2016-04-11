@@ -1,0 +1,4 @@
+echo $(
+cat <<\eof
+  here-doc with )
+eof)

@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)cmd.c	1.40 16/03/01 2008-2016 J. Schilling
+ * @(#)cmd.c	1.41 16/04/08 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)cmd.c	1.40 16/03/01 2008-2016 J. Schilling";
+	"@(#)cmd.c	1.41 16/04/08 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -118,7 +118,7 @@ makelist(type, i, r)
 
 /*
  * cmd
- *	empty			(Only if not called with MTFLG)
+ *	empty			(Only if called with MTFLG)
  *	list
  *	list & [ cmd ]
  *	list [ ; cmd ]

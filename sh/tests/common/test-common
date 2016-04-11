@@ -1,0 +1,14 @@
+#!/bin/sh
+
+. ${SRCROOT:=`../../../../conf/srcroot.sh`}/tests/bin/base
+export SRCROOT
+
+shell=${shell:=../../../OBJ/`$SRCROOT/conf/oarch.sh`/sh}
+SHELL="$shell"
+export SHELL
+
+#set
+
+miscarry() {
+	xfail "$@"
+}

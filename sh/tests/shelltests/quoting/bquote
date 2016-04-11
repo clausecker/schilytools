@@ -1,0 +1,3 @@
+ACRO_INSTALL_DIR=/usr/Acroread/Reader
+directory="`basename \"$ACRO_INSTALL_DIR\"`"
+echo "<$directory>"

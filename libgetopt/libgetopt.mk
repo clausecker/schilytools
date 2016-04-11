@@ -1,5 +1,5 @@
 
-#ident @(#)libgetopt.mk	1.3 15/12/13 
+#ident @(#)libgetopt.mk	1.4 16/04/10 
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -11,6 +11,7 @@ TARGETLIB=	getopt
 CPPOPTS +=	-DUSE_SCANSTACK
 CPPOPTS +=	-DDO_GETOPT_LONGONLY	# Support getopt(.. "?900?(long)")
 CPPOPTS +=	-DDO_GETOPT_SDASH_LONG	# Support -long also
+CPPOPTS +=	-DTEXT_DOMAIN='"SUNW_OST_OSLIB"'	# dgettext
 include		Targets
 LIBS=		
 

@@ -1,0 +1,4 @@
+echo $(
+  case x in (x) echo x
+  esac
+)

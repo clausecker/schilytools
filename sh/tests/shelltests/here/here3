@@ -1,0 +1,10 @@
+echo $(if cat <<EOF
+1
+2
+3
+EOF)
+EOF
+then
+echo a
+fi)
+
