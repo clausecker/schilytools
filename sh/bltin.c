@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)bltin.c	1.95 16/03/22 2008-2016 J. Schilling
+ * @(#)bltin.c	1.96 16/04/24 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)bltin.c	1.95 16/03/22 2008-2016 J. Schilling";
+	"@(#)bltin.c	1.96 16/04/24 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -87,7 +87,7 @@ unsigned char **argv;
 struct trenod *t;
 int xflags;
 {
-	short fdindex = initio(t->treio, (type != SYSEXEC));
+	short fdindex;
 	unsigned char *a0 = NULL;
 	unsigned char *a1 = argv[1];
 	struct argnod *np = NULL;
@@ -96,9 +96,21 @@ int xflags;
 	defined(DO_GETOPT_UTILS) || defined(DO_SYSERRSTR)
 	int		ind = 1;
 #endif
+#ifdef	DO_POSIX_FAILURE
+	unsigned long	oflags = flags;
+#endif
 
 	exitval = 0;
 	exval_clear();
+#ifdef	DO_POSIX_FAILURE
+	flags |= noexit;
+#endif
+	fdindex = initio(t->treio, (type != SYSEXEC));
+#ifdef	DO_POSIX_FAILURE
+	flags = oflags;
+	if (exitval)
+		goto out;
+#endif
 
 	switch (type) {
 
@@ -294,7 +306,8 @@ int xflags;
 	case SYSCD:
 #ifdef	DO_POSIX_CD
 		if (type == SYSCD) {
-			ind = opt_LP(argc, argv, &cdopt, "cd [ -L | -P ] directory");
+			ind = opt_LP(argc, argv, &cdopt,
+						"cd [ -L | -P ] directory");
 			if (ind < 0)
 				break;
 			a1 = argv[ind];
@@ -1009,7 +1022,7 @@ int xflags;
 	}
 #if defined(DO_POSIX_EXPORT) || defined(DO_POSIX_UNSET) || \
     defined(DO_GETOPT_UTILS) || defined(INTERACTIVE) || \
-    defined(DO_POSIX_CD)
+    defined(DO_POSIX_CD) || defined(DO_POSIX_FAILURE)
 out:
 #endif
 	flushb();		/* Flush print buffer */

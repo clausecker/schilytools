@@ -1,0 +1,643 @@
+'\" te
+.\" Copyright (c) 2007, Sun Microsystems, Inc.  All Rights Reserved.
+.\" Copyright (c) 2012-2016, J. Schilling
+.\" Copyright (c) 2013, Andreas Roehler
+.\" Copyright 1989 AT&T
+.\" Portions Copyright (c) 2001, the Institute of Electrical and Electronics Engineers, Inc. and The Open Group. All Rights Reserved.
+.\"
+.\" Sun Microsystems, Inc. gratefully acknowledges The Open Group for
+.\" permission to reproduce portions of its copyrighted documentation.
+.\" Original documentation from The Open Group can be obtained online
+.\" at http://www.opengroup.org/bookstore/.
+.\"
+.\" The Institute of Electrical and Electronics Engineers and The Open Group,
+.\" have given us permission to reprint portions of their documentation.
+.\"
+.\" In the following statement, the phrase "this text" refers to portions
+.\" of the system documentation.
+.\"
+.\" Portions of this text are reprinted and reproduced in electronic form in
+.\" the Sun OS Reference Manual, from IEEE Std 1003.1, 2004 Edition, Standard
+.\" for Information Technology -- Portable Operating System Interface (POSIX),
+.\" The Open Group Base Specifications Issue 6, Copyright (C) 2001-2004 by the
+.\" Institute of Electrical and Electronics Engineers, Inc and The Open Group.
+.\" In the event of any discrepancy between these versions and the original
+.\" IEEE and The Open Group Standard, the original IEEE and The Open Group
+.\" Standard is the referee document.
+.\"
+.\" The original Standard can be obtained online at
+.\" http://www.opengroup.org/unix/online.html.
+.\"
+.\" This notice shall appear on any product containing this material.
+.\"
+.\" CDDL HEADER START
+.\"
+.\" The contents of this file are subject to the terms of the
+.\" Common Development and Distribution License ("CDDL"), version 1.0.
+.\" You may only use this file in accordance with the terms of version
+.\" 1.0 of the CDDL.
+.\"
+.\" A full copy of the text of the CDDL should have accompanied this
+.\" source.  A copy of the CDDL is also available via the Internet at
+.\" http://www.opensource.org/licenses/cddl1.txt
+.\"
+.\" When distributing Covered Code, include this CDDL HEADER in each
+.\" file and include the License file at usr/src/OPENSOLARIS.LICENSE.
+.\" If applicable, add the following below this CDDL HEADER, with the
+.\" fields enclosed by brackets "[]" replaced with your own identifying
+.\" information: Portions Copyright [yyyy] [name of copyright owner]
+.\"
+.\" CDDL HEADER END
+.TH getopt 3C "26 Apr 2016" "SunOS 5.11" "Standard C Library Functions"
+.SH NAME
+getopt \- command option parsing
+.SH SYNOPSIS
+.SS "SVID3, XPG3"
+.LP
+.nf
+#include <stdio.h>
+
+\fBint\fR \fBgetopt\fR(\fBint\fR \fIargc\fR, \fBchar * const\fR \fIargv\fR[], \fBconst char *\fIoptstring\fR);
+.fi
+
+.LP
+.nf
+\fBextern char *\fIoptarg\fR;
+.fi
+
+.LP
+.nf
+\fBextern int\fR \fIoptind\fR, \fIopterr\fR, \fIoptopt\fR;
+.fi
+
+.SS "POSIX.2, XPG4, SUS, SUSv2, SUSv3"
+.LP
+.nf
+#include <unistd.h>
+
+\fBint\fR \fBgetopt\fR(\fBint\fR \fIargc\fR, \fBchar * const\fR \fIargv\fR[], \fBconst char *\fIoptstring\fR);
+.fi
+
+.LP
+.nf
+\fBextern char *\fIoptarg\fR;
+.fi
+
+.LP
+.nf
+\fBextern int\fR \fIoptind\fR, \fIopterr\fR, \fIoptopt\fR;
+.fi
+
+.SH DESCRIPTION
+.sp
+.LP
+The
+.B getopt()
+function is a command line parser that can be used by
+applications that follow Basic Utility Syntax Guidelines 3, 4, 5, 6, 7, 9,
+and 10 which parallel those defined by application portability standards
+(see intro(1)). It can also be used by applications which additionally
+follow the Command Line Interface Paradigm (CLIP) syntax extension
+guidelines 15, 16, and 17. It partially enforces guideline 18 by requiring
+that every option has a short-name, but it allows multiple long-names to be
+associated with an option.  The remaining guidelines are not addressed by
+.B getopt()
+and are the responsibility of the application.
+.sp
+.LP
+The
+.I argc
+and
+.I argv
+arguments are the argument count and argument
+array as passed to main (see
+.BR exec (2)).
+The
+.I optstring
+argument
+specifies the acceptable options. For utilities wanting to conform to the
+Basic Utility Syntax Guidelines,
+.I optstring
+is a string of recognized
+option characters. All option characters allowed by Utility Syntax Guideline
+3 are allowed in
+.IR optstring .
+If a character is followed by a colon (:),
+the option is expected to have an option-argument, which can be separated
+from it by white space.
+.LP
+Utilities wanting to conform to the extended CLIP guidelines
+can specify long-option equivalents to short options in the form
+.B \-\-long\-name
+by following
+the short-option character (and optional colon) with a sequence of strings,
+each enclosed in parentheses, that specify the long-option aliases.
+.LP
+Utilities that like to define long-options that have no equivalent short option
+may specify
+.B ?ddd?
+instead of a short option character where
+.B ddd
+is a decimal number that should be above
+.B 255
+and that is used as the return value for
+.BR getopt ()
+when the related long option is seen.
+.LP
+Utilities that like to support the traditional UNIX form of long options
+.RB "(using " \-long\-name )
+can specify the string
+.B
+"()"
+at the beginning of
+.I optstring
+or directly after the initial
+.B
+":"
+in
+.IR optstring .
+.sp
+.LP
+The
+.B getopt()
+function returns the short-option character in
+.I optstring
+that corresponds to the next option found in
+.IR argv .
+.sp
+.LP
+The
+.B getopt()
+function places in
+.I optind
+the
+.I argv
+index of
+the next argument to be processed. The
+.I optind
+variable is external and
+is initialized to 1 before the first call to
+.BR getopt() .
+The
+.B getopt()
+function sets the variable
+.I optarg
+to point to the start
+of the option-argument as follows:
+.RS +4
+.TP
+.ie t \(bu
+.el o
+If the option is a short option and that character is the last character in
+the argument, then
+.I optarg
+contains the next element of
+.IR argv ,
+and
+.I optind
+is incremented by 2.
+.RE
+.RS +4
+.TP
+.ie t \(bu
+.el o
+If the option is a short option and that character is not the last
+character in the argument, then
+.I optarg
+points to the string following
+the option character in that argument, and
+.I optind
+is incremented by
+1.
+.RE
+.RS +4
+.TP
+.ie t \(bu
+.el o
+If the option is a long option and the character equals is not found in the
+argument, then
+.I optarg
+contains the next element of
+.IR argv ,
+and
+.I optind
+is incremented by 2.
+.RE
+.RS +4
+.TP
+.ie t \(bu
+.el o
+If the option is a long option and the character equals is found in the
+argument, then
+.I optarg
+points to the string following the equals
+character in that argument and
+.I optind
+is incremented by 1.
+.RE
+.sp
+.LP
+In all cases, if the resulting value of
+.I optind
+is not less than
+.IR argc ,
+.RB "this indicates a missing option-argument and" " getopt()"
+returns an error indication.
+.sp
+.LP
+When all options have been processed (that is, up to the first operand),
+.B
+getopt() \c
+returns -1. The special option "--"(two hyphens) can be used
+to delimit the end of the options; when it is encountered, -1 is returned
+and "--" is skipped. This is useful in delimiting non-option arguments that
+begin with "-" (hyphen).
+.sp
+.LP
+If
+.B getopt()
+encounters a short-option character or a long-option
+string not described in the
+.I opstring
+argument, it returns the
+question-mark (?) character. If it detects a missing option-argument, it
+also returns the question-mark (?) character, unless the first character of
+the
+.I optstring
+.RB "argument was a colon (:), in which case" " getopt()"
+returns the colon (:) character. For short options,
+.B getopt()
+sets the
+variable
+.I optopt
+to the option character that caused the error. For
+long options,
+.I optopt
+is set to the hyphen (-) character and the
+.RI "failing long option can be identified through " argv [ optind -1].
+If
+the application has not set the variable
+.I opterr
+to 0 and the first
+character of
+.I optstring
+is not a colon (:),
+.B getopt()
+also prints
+a diagnostic message to
+.BR stderr .
+.SH RETURN VALUES
+.sp
+.LP
+The
+.B getopt()
+function returns the short-option character associated
+with the option recognized.
+.sp
+.LP
+A colon (:) is returned if
+.B getopt()
+detects a missing argument and
+the first character of
+.I optstring
+was a colon (:).
+.sp
+.LP
+A question mark (?) is returned if
+.B getopt()
+encounters an option not
+specified in
+.I optstring
+or detects a missing argument and the first
+character of
+.I optstring
+was not a colon (:).
+.sp
+.LP
+Otherwise,
+.B getopt()
+returns -1 when all command line options are
+parsed.
+.SH ERRORS
+.sp
+.LP
+No errors are defined.
+.SH EXAMPLES
+.LP
+.B Example 1
+Parsing Command Line Options
+.sp
+.LP
+The following code fragment shows how you might process the arguments for a
+utility that can take the mutually-exclusive options
+.B a
+and
+.B b
+and
+the options
+.B f
+and
+.BR o ,
+both of which require arguments:
+
+.sp
+.in +2
+.nf
+#include <unistd.h>
+
+int
+main(int argc, char *argv[ ])
+{
+    int c;
+    int bflg, aflg, errflg;
+    char *ifile;
+    char *ofile;
+    extern char *optarg;
+    extern int optind, optopt;
+    . . .
+    while ((c = getopt(argc, argv, ":abf:o:")) != -1) {
+        switch(c) {
+        case 'a':
+            if (bflg)
+                errflg++;
+            else
+                aflg++;
+            break;
+        case 'b':
+            if (aflg)
+                errflg++;
+            else {
+                bflg++;
+                bproc();
+            }
+            break;
+        case 'f':
+            ifile = optarg;
+            break;
+        case 'o':
+            ofile = optarg;
+            break;
+        case ':':   /* -f or -o without operand */
+            fprintf(stderr,
+                   "Option -%c requires an operand\en", optopt);
+            errflg++;
+            break;
+        case '?':
+            fprintf(stderr,
+                   "Unrecognized option: -%c\en", optopt);
+            errflg++;
+        }
+    }
+    if (errflg) {
+        fprintf(stderr, "usage: . . . ");
+        exit(2);
+    }
+    for ( ; optind < argc; optind++) {
+        if (access(argv[optind], R_OK)) {
+    . . .
+}
+.fi
+.in -2
+
+.sp
+.LP
+This code accepts any of the following as equivalent:
+
+.sp
+.in +2
+.nf
+cmd -ao arg path path
+cmd -a -o arg path path
+cmd -o arg -a path path
+cmd -a -o arg -- path path
+cmd -a -oarg path path
+cmd -aoarg path path
+.fi
+.in -2
+
+.LP
+.B Example 2
+Check Options and Arguments.
+.sp
+.LP
+The following example parses a set of command line options and prints
+messages to standard output for each option and argument that it
+encounters.
+
+.sp
+.in +2
+.nf
+#include <unistd.h>
+#include <stdio.h>
+\&...
+int c;
+char *filename;
+extern char *optarg;
+extern int optind, optopt, opterr;
+\&...
+while ((c = getopt(argc, argv, ":abf:")) != -1) {
+    switch(c) {
+    case 'a':
+         printf("a is set\en");
+         break;
+    case 'b':
+         printf("b is set\en");
+         break;
+    case 'f':
+         filename = optarg;
+         printf("filename is %s\en", filename);
+         break;
+    case ':':
+         printf("-%c without filename\en", optopt);
+         break;
+    case '?':
+         printf("unknown arg %c\en", optopt);
+         break;
+    }
+}
+.fi
+.in -2
+
+.sp
+.LP
+This example can be expanded to be CLIP-compliant by substituting the
+following string for the
+.I optstring
+argument:
+
+.sp
+.in +2
+.nf
+:a(ascii)b(binary)f:(in-file)o:(out-file)V(version)?(help)
+.fi
+.in -2
+
+.sp
+.LP
+and by replacing the '?' case processing with:
+
+.sp
+.in +2
+.nf
+case 'V':
+    fprintf(stdout, "cmd 1.1\en");
+    exit(0);
+case '?':
+    if (optopt == '?') {
+        print_help();
+        exit(0);
+    }
+    if (optopt == '-')
+        fprintf(stderr,
+            "unrecognized option: %s\en", argv[optind-1]);
+    else
+        fprintf(stderr,
+            "unrecognized option: -%c\en", optopt);
+    errflg++;
+    break;
+.fi
+.in -2
+
+.sp
+.LP
+and by replacing the ':' case processing with:
+
+.sp
+.in +2
+.nf
+case ':':   /* -f or -o without operand */
+    if (optopt == '-')
+        fprintf(stderr,
+            "Option %s requires an operand\en", argv[optind-1]);
+    else
+        fprintf(stderr,
+            "Option -%c requires an operand\en", optopt);
+    errflg++;
+    break;
+.fi
+.in -2
+
+.sp
+.LP
+While not encouraged by the CLIP specification, multiple long-option
+aliases can also be assigned as shown in the following example:
+
+.sp
+.in +2
+.nf
+:a(ascii)b(binary):(in-file)(input)o:(outfile)(output)V(version)?(help)
+.fi
+.in -2
+
+.SH ENVIRONMENT VARIABLES
+.sp
+.LP
+See
+.BR environ (5)
+for descriptions of the following environment
+variables that affect the execution of
+.BR getopt() :
+.BR LANG ,
+.BR LC_ALL ,
+and
+.BR LC_MESSAGES .
+.sp
+.ne 2
+.mk
+.na
+.B LC_CTYPE
+.ad
+.RS 12n
+.rt
+Determine the locale for the interpretation of sequences of bytes as
+characters in
+.IR optstring .
+.RE
+
+.SH USAGE
+.sp
+.LP
+The
+.B getopt()
+function does not fully check for mandatory arguments
+because there is no unambiguous algorithm to do so. Given an option string
+\fBa\fR:\fBb\fR and the input
+.BR "-a -b" ,
+\fBgetopt()\fR assumes that
+.B -b
+is the mandatory argument to the
+.B -a
+option and not that
+.B -a
+is missing a mandatory argument.  Indeed, the only time a missing
+option-argument can be reliably detected is when the option is the final
+option on the command line and is not followed by any command arguments.
+.sp
+.LP
+It is a violation of the Basic Utility Command syntax standard (see
+.BR Intro (1))
+for options with arguments to be grouped with other options,
+as in
+.B "cmd -abo"
+.I filename
+, where
+.B a
+and
+.B b
+are
+options,
+.B o
+is an option that requires an argument, and
+.I filename
+is the argument to
+.BR o .
+Although this syntax is permitted in the current
+implementation, it should not be used because it may not be supported in
+future releases.  The correct syntax to use is:
+.sp
+.in +2
+.nf
+cmd \(miab \(mio filename
+.fi
+.in -2
+.sp
+
+.SH ATTRIBUTES
+.sp
+.LP
+See
+.BR attributes (5)
+for descriptions of the following attributes:
+.sp
+
+.sp
+.TS
+tab() box;
+cw(2.75i) |cw(2.75i)
+lw(2.75i) |lw(2.75i)
+.
+ATTRIBUTE TYPEATTRIBUTE VALUE
+_
+Interface StabilityCommitted
+_
+MT-LevelUnsafe
+_
+StandardSee below.
+.TE
+
+.sp
+.LP
+For the Basic Utility Command syntax is Standard, see
+.BR standards (5).
+.SH SEE ALSO
+.sp
+.LP
+.BR Intro (1),
+.BR getopt (1),
+.BR getopts (1),
+.BR getsubopt (3C),
+.BR gettext (3C),
+.BR setlocale (3C),
+.BR attributes (5),
+.BR environ (5),
+.BR standards (5)

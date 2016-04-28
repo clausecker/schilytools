@@ -41,11 +41,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)args.c	1.71 16/03/22 2008-2016 J. Schilling
+ * @(#)args.c	1.72 16/04/24 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)args.c	1.71 16/03/22 2008-2016 J. Schilling";
+	"@(#)args.c	1.72 16/04/24 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -88,7 +88,7 @@ unsigned char	flagadr[20];
 unsigned char	flagchar[] =
 {
 #ifdef	DO_SYSALIAS
-	0,			/* set -o aliasowner */
+	0,			/* set -o aliasowner= */
 #endif
 	'a',			/* -a / -o allexport */
 #ifdef	DO_BGNICE
@@ -219,23 +219,23 @@ char	*flagname[] =
 unsigned long	flagval[]  =
 {
 #ifdef	DO_SYSALIAS
-	fl2 | aliasownerflg,
+	fl2 | aliasownerflg,	/* -o aliasowner= */
 #endif
 	exportflg,		/* -a / -o allexport */
 #ifdef	DO_BGNICE
 	fl2 | bgniceflg,	/* -o bgnice */
 #endif
-	errflg,
+	errflg,			/* -e */
 #ifdef	DO_FDPIPE
-	fl2 | fdpipeflg,
+	fl2 | fdpipeflg,	/* -o fdpipe */
 #endif
 #ifdef	DO_FULLEXCODE
-	fl2 | fullexitcodeflg,
+	fl2 | fullexitcodeflg,	/* -o fullexitcode */
 #endif
 #ifdef	DO_SYSALIAS
-	fl2 | globalaliasflg,
+	fl2 | globalaliasflg,	/* -o globalaliases */
 #endif
-	hashflg,
+	hashflg,		/* -h / -o hashall */
 #ifdef	DO_HASHCMDS
 	fl2 | hashcmdsflg,	/* -o hashcmds, enable # commands */
 #endif
@@ -245,12 +245,12 @@ unsigned long	flagval[]  =
 #ifdef	INTERACTIVE
 	fl2 | ignoreeofflg,	/* -o ignoreeof POSIX name */
 #endif
-	intflg,
+	intflg,			/* -i / -o interactive */
 	keyflg,			/* -k / -o keyword */
 #ifdef	DO_SYSALIAS
-	fl2 | localaliasflg,
+	fl2 | localaliasflg,	/* -o localaliases */
 #endif
-	monitorflg,
+	monitorflg,		/* -m / -o monitor */
 #ifdef	DO_NOCLOBBER
 	fl2 | noclobberflg,	/* -C, set -o noclobber */
 #endif
@@ -261,22 +261,22 @@ unsigned long	flagval[]  =
 #endif
 	setflg,			/* -u / -o nounset */
 	oneflg,			/* -t / -o onecmd */
-	pfshflg,
-	privflg,
-	rshflg,
+	pfshflg,		/* -P */
+	privflg,		/* -p */
+	rshflg,			/* -r / -o restrictive */
 	stdflg,			/* -s / -o stdin */
-	fl2 | versflg,
+	fl2 | versflg,		/* -V */
 #ifdef	DO_TIME
-	fl2 | timeflg,
+	fl2 | timeflg,		/* -o time */
 #endif
 #ifdef	INTERACTIVE
-	fl2 | vedflg,
+	fl2 | vedflg,		/* -o ved */
 #endif
 	readpr,			/* -v / -o verbose */
 #ifdef	INTERACTIVE
-	fl2 | viflg,
+	fl2 | viflg,		/* -o vi */
 #endif
-	execpr,
+	execpr,			/* -x / -o xtrace */
 	0
 };
 

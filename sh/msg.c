@@ -39,11 +39,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)msg.c	1.62 16/02/03 2008-2016 J. Schilling
+ * @(#)msg.c	1.63 16/04/19 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)msg.c	1.62 16/02/03 2008-2016 J. Schilling";
+	"@(#)msg.c	1.63 16/04/19 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -96,7 +96,9 @@ const char	wtfailed[]	= "is read only";
 const char	notid[]		= "is not an identifier";
 const char	badulimit[]	= "exceeds allowable limit";
 const char	badreturn[]	= "cannot return when not in function";
+#ifndef	DO_POSIX_UNSET
 const char	badexport[]	= "cannot export functions";
+#endif
 #ifndef	DO_POSIX_UNSET
 const char	badunset[]	= "cannot unset";
 #endif

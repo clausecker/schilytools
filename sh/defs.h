@@ -39,7 +39,7 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)defs.h	1.141 16/03/22 2008-2016 J. Schilling
+ * @(#)defs.h	1.142 16/04/24 2008-2016 J. Schilling
  */
 
 #ifdef	__cplusplus
@@ -1043,10 +1043,10 @@ extern const char		devnull[];
 #define		exportflg	0400000		/* set -a allexport */
 #define		monitorflg	01000000	/* set -m monitor */
 #define		jcflg		02000000	/* Do jobcontrol */
-#define		privflg		04000000	/* Keep privs */
+#define		privflg		04000000	/* set -p Keep privs */
 #define		forcexit	010000000	/* Terminate shell */
 #define		jcoff		020000000	/* Tmp jobcontrol off */
-#define		pfshflg		040000000	/* pfexec() support */
+#define		pfshflg		040000000	/* set -P pfexec() support */
 #define		ppath		0100000000	/* Use POSIX default PATH */
 #define		noexit		0200000000	/* Inhibit exit from builtins */
 #define		nofuncs		0400000000	/* Inhibit functions */

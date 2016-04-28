@@ -32,9 +32,9 @@
 #endif
 
 /*
- * This file contains modifications Copyright 2008-2013 J. Schilling
+ * This file contains modifications Copyright 2008-2016 J. Schilling
  *
- * @(#)stak.h	1.9 13/09/24 2008-2013 J. Schilling
+ * @(#)stak.h	1.10 16/04/28 2008-2016 J. Schilling
  */
 
 /*
@@ -50,6 +50,7 @@
  * d) `absstak' gives real address if needed
  */
 #define		relstak()	(staktop-stakbot)
+#define		relstakp(x)	(((unsigned char *)(x))-stakbot)
 #define		absstak(x)	(stakbot+Rcheat(x))
 #define		setstak(x)	(staktop = absstak(x))
 #define		pushstak(c)	(*staktop++ = (c))

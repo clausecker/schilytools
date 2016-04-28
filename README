@@ -3,3 +3,23 @@ For more information, see the README file in the directories
 cdda2wav cdrecord mkisofs and in the directory "READMEs".
 
 Or check other directories for README files.
+
+README.compile		A documentation on how compilation works and
+			how it can be influenced. This includes
+			a howto for cross compilation.
+
+PORTING			A coarse documentation on how to adapt the
+			makefile system to new and unknown platforms
+			and compilers. This is when the automake
+			features of the makefile system do not help.
+
+BOOTSTRAP		A documentation on what to do if the
+			automated bootstrap process that first creates
+			a helper "smake" program does not work.
+
+CONTRIBUTING		What to respect when contributing code to
+			this project.
+
+COPYING			A list of subdirectories with their content
+			together with the licenses that apply to
+			the named directories and sub-projects.

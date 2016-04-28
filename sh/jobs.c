@@ -37,13 +37,13 @@
 #include "jobs.h"
 
 /*
- * Copyright 2008-2015 J. Schilling
+ * Copyright 2008-2016 J. Schilling
  *
- * @(#)jobs.c	1.92 15/12/27 2008-2015 J. Schilling
+ * @(#)jobs.c	1.93 16/04/22 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)jobs.c	1.92 15/12/27 2008-2015 J. Schilling";
+	"@(#)jobs.c	1.93 16/04/22 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -1872,21 +1872,31 @@ prtime(jp)
 	timersub(&rustop.ru_utime, &jp->j_rustart.ru_utime);
 	timersub(&rustop.ru_stime, &jp->j_rustart.ru_stime);
 
-#ifdef	HAVE_LONGLONG	/* 64 bits result in 65 years with usec resolution */
-	cpu =  rustop.ru_utime.tv_sec*1000000 + rustop.ru_utime.tv_usec;
-	cpu += rustop.ru_stime.tv_sec*1000000 + rustop.ru_stime.tv_usec;
-	per = stop.tv_sec*1000000 + stop.tv_usec;
+#ifdef	USE_LONGLONG	/* 64 bits result in 584942 years with usec res. */
+	/*
+	 * Note that rustop.ru_utime.tv_sec is a long, so we need to cast
+	 * 1000000 in order to get a long long result from the multiplication.
+	 */
+	cpu =  rustop.ru_utime.tv_sec * (UIntmax_t)1000000 +
+		rustop.ru_utime.tv_usec;
+	cpu += rustop.ru_stime.tv_sec * (UIntmax_t)1000000 +
+		rustop.ru_stime.tv_usec;
+	per = stop.tv_sec * (UIntmax_t)1000000 +
+		stop.tv_usec;
 	if (per < 1)
 		per = 1;
 	per = 100 * cpu / per;
 	cpu /= 1000000;
-#else			/* 32 bits result in 24 days with msec resolution */
+#else			/* 32 bits result in 49 days with msec resolution */
 	cpu =  rustop.ru_utime.tv_sec*1000 + rustop.ru_utime.tv_usec/1000;
 	cpu += rustop.ru_stime.tv_sec*1000 + rustop.ru_stime.tv_usec/1000;
 	per = stop.tv_sec*1000 + stop.tv_usec/1000;
 	if (per < 1)
 		per = 1;
-	per = 100 * cpu / per;
+	if (cpu > (UINT32_MAX / 100))
+		per = cpu / (per / 100);
+	else
+		per = 100 * cpu / per;
 	cpu /= 1000;
 #endif
 

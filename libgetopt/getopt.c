@@ -26,10 +26,10 @@
 /*
  * Copyright 2006-2016 J. Schilling
  *
- * @(#)getopt.c	1.14 16/04/10 J. Schilling
+ * @(#)getopt.c	1.16 16/04/26 J. Schilling
  */
 #if defined(sun)
-#pragma ident "@(#)getopt.c 1.14 16/04/10 J. Schilling"
+#pragma ident "@(#)getopt.c 1.16 16/04/26 J. Schilling"
 #endif
 
 #if defined(sun)
@@ -77,7 +77,8 @@ static char *parseshort __PR((const char *optstring, const int c));
 #ifdef	DO_GETOPT_LONGONLY
 static int  parseshortval __PR((const char *optstring, const char *cp));
 #endif
-static char *parselong  __PR((const char *optstring, const char *opt, char **longoptarg));
+static char *parselong  __PR((const char *optstring, const char *opt,
+				char **longoptarg));
 
 /*
  * Generalized error processing macro. The parameter i is a pointer to
@@ -233,10 +234,10 @@ parselong(optstring, opt, longoptarg)
 			if (match && *ip == ')' &&
 			    (*op == '\0' || *op == '=')) {
 				if ((*op) == '=') {
-				    /* may be an empty string - OK */
-				    (*longoptarg) = op + 1;
+					/* may be an empty string - OK */
+					(*longoptarg) = op + 1;
 				} else {
-				    (*longoptarg) = NULL;
+					(*longoptarg) = NULL;
 				}
 				return (cp);
 			}
@@ -250,7 +251,7 @@ parselong(optstring, opt, longoptarg)
 		 * required argument.
 		 */
 		while ((cp > optstring) && ((*cp) == ':')) {
-		    --cp;
+			--cp;
 		}
 	} while (*cp != '\0');
 	return (NULL);
@@ -285,11 +286,11 @@ getopt(argc, argv, optstring)
 	 */
 	if (optind >= argc || argv[optind] == NULL ||
 	    argv[optind][0] != '-' || argv[optind][1] == '\0') {
-		return (EOF);
+		return (-1);
 	} else if (argv[optind][0] == '-' && argv[optind][1] == '-' &&
 	    argv[optind][2] == '\0') {		/* "--" */
 		optind++;
-		return (EOF);
+		return (-1);
 	}
 
 	/*
@@ -315,6 +316,10 @@ getopt(argc, argv, optstring)
 	optarg = NULL;
 	longopt = (_sp == 1 && c == '-');
 #ifdef	DO_GETOPT_SDASH_LONG
+	/*
+	 * If optstring starts with "()", traditional UNIX -long options are
+	 * allowed in addition to --long.
+	 */
 	if (optstring[0] == '(' ||
 	    (optstring[0] == ':' && optstring[1] == '(')) {
 		if (!longopt && _sp == 1 &&

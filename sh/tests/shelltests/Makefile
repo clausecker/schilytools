@@ -1,4 +1,5 @@
 all-tests:	test-cmdsub	\
+		test-errflg	\
 		test-exit	\
 		test-getopts	\
 		test-here	\
@@ -10,6 +11,9 @@ all-tests:	test-cmdsub	\
 
 test-cmdsub:
 	cd cmdsub && for i in *.sh; do echo Running test cmdsub/$$i; $(SHELL) $$i; done
+
+test-errflg:
+	cd errflg && for i in *.sh; do echo Running test errflg/$$i; $(SHELL) $$i; done
 
 test-exit:
 	cd exit && for i in *.sh; do echo Running test exit/$$i; $(SHELL) $$i; done

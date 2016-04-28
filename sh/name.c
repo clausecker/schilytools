@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)name.c	1.51 16/03/06 2008-2016 J. Schilling
+ * @(#)name.c	1.52 16/04/19 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)name.c	1.51 16/03/06 2008-2016 J. Schilling";
+	"@(#)name.c	1.52 16/04/19 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -338,10 +338,6 @@ setname(argi, xp)
 
 			n = lookup(argi);
 			*argscan++ = '=';
-#ifdef	DO_POSIX_EXPORT
-			if ((n->namflg & N_FUNCTN) && (xp & N_EXPORT))
-				error(badexport);
-#endif
 
 			if (xp & N_ENVNAM)
 			{

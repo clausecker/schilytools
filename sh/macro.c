@@ -37,11 +37,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)macro.c	1.45 16/04/03 2008-2016 J. Schilling
+ * @(#)macro.c	1.47 16/04/28 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)macro.c	1.45 16/04/03 2008-2016 J. Schilling";
+	"@(#)macro.c	1.47 16/04/28 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -71,6 +71,7 @@ static unsigned int dolname	__PR((unsigned char **argpp,
 					unsigned int c, unsigned int addc));
 static int	getch		__PR((unsigned char endch, int trimflag));
 	unsigned char *macro	__PR((unsigned char *as));
+static	unsigned char *_macro	__PR((unsigned char *as));
 static void	comsubst	__PR((int, int));
 	void	subst		__PR((int in, int ot));
 static void	flush		__PR((int));
@@ -485,18 +486,26 @@ getname:
 			if ((c == '#' || c == '%')) {
 				if (v) {
 					int		largest = 0;
-					unsigned char	*oargp = argp;
 					UIntptr_t	a;
+					UIntptr_t	b = relstakp(argp);
 
 					if (dolg)
 						error(badsub);
+					if (quote) {
+						/*
+						 * This is a copy that we may
+						 * shrink.
+						 */
+						trim(argp);
+					}
 					if (*argp == c) {
 						largest++;
 						argp++;
 					}
+
 					staktop++;
 					a = relstak();
-					macro(argp);
+					_macro(argp);
 					argp = absstak(a);
 					if (c == '#') {
 						v = prefsubstr(v, argp,
@@ -505,7 +514,7 @@ getname:
 						vsize = suffsubstr(v, argp,
 								largest);
 					}
-					staktop = oargp;
+					setstak(b);
 				} else {
 					/*
 					 * Clear to let it fail later with
@@ -676,12 +685,21 @@ unsigned char *
 macro(as)
 unsigned char	*as;
 {
+	(void) _macro(as);
+	return (fixstak());
+}
+
+static unsigned char *
+_macro(as)
+unsigned char	*as;
+{
 	/*
 	 * Strip "" and do $ substitution
 	 * Leaves result on top of stack
 	 */
 	BOOL	savqu = quoted;
 	unsigned char	savq = quote;
+	UIntptr_t	b = relstak();
 	struct filehdr	fb;
 
 	fb.fsiz = 1;	/* It's a filehdr not a fileblk */
@@ -703,7 +721,7 @@ unsigned char	*as;
 	}
 	quote = savq;
 	quoted = savqu;
-	return (fixstak());
+	return (absstak(b));
 }
 /* Save file descriptor for command substitution */
 int savpipe = -1;

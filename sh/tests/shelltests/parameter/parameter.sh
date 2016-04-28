@@ -63,4 +63,39 @@ docommand param40 "$SHELL -c 'echo \${xxx:}'" 0 "\n" ""
 docommand param41 "$SHELL -c 'echo \${xxx:a}'" 1 "" IGNORE
 docommand param42 "$SHELL -c 'xxx=/home/joerg; echo \${xxx:}'" 0 "/home/joerg\n" ""
 
+#
+# Test from Robert Elz <kre@munnari.oz.au>
+# $ set -- "abab*cbb" 
+# $ echo "${1} ${1#a} ${1%b} ${1##ab} ${1%%b} ${1#*\*} ${1%\**}"
+#
+cmd='set -- "abab*cbb"; echo "${1} ${1#a}"'
+docommand param43 "$SHELL -c '$cmd'" 0 "abab*cbb bab*cbb\n" ""
+cmd='set -- "abab*cbb"; echo ${1} ${1#a}'
+docommand param44 "$SHELL -c '$cmd'" 0 "abab*cbb bab*cbb\n" ""
+
+cmd='set -- "abab*cbb"; echo "${1} ${1%b}"'
+docommand param45 "$SHELL -c '$cmd'" 0 "abab*cbb abab*cb\n" ""
+cmd='set -- "abab*cbb"; echo ${1} ${1%b}'
+docommand param46 "$SHELL -c '$cmd'" 0 "abab*cbb abab*cb\n" ""
+
+cmd='set -- "abab*cbb"; echo "${1} ${1##ab}"'
+docommand param47 "$SHELL -c '$cmd'" 0 "abab*cbb ab*cbb\n" ""
+cmd='set -- "abab*cbb"; echo ${1} ${1##ab}'
+docommand param48 "$SHELL -c '$cmd'" 0 "abab*cbb ab*cbb\n" ""
+
+cmd='set -- "abab*cbb"; echo "${1} ${1%%b}"'
+docommand param49 "$SHELL -c '$cmd'" 0 "abab*cbb abab*cb\n" ""
+cmd='set -- "abab*cbb"; echo ${1} ${1%%b}'
+docommand param50 "$SHELL -c '$cmd'" 0 "abab*cbb abab*cb\n" ""
+
+cmd='set -- "abab*cbb"; echo "${1} ${1#*\*}"'
+docommand param51 "$SHELL -c '$cmd'" 0 "abab*cbb cbb\n" ""
+cmd='set -- "abab*cbb"; echo ${1} ${1#*\*}'
+docommand param52 "$SHELL -c '$cmd'" 0 "abab*cbb cbb\n" ""
+
+cmd='set -- "abab*cbb"; echo "${1} ${1%\**}"'
+docommand param53 "$SHELL -c '$cmd'" 0 "abab*cbb abab\n" ""
+cmd='set -- "abab*cbb"; echo ${1} ${1%\**}'
+docommand param54 "$SHELL -c '$cmd'" 0 "abab*cbb abab\n" ""
+
 success

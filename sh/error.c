@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)error.c	1.21 16/01/06 2008-2016 J. Schilling
+ * @(#)error.c	1.22 16/04/24 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)error.c	1.21 16/01/06 2008-2016 J. Schilling";
+	"@(#)error.c	1.22 16/04/24 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -123,7 +123,7 @@ failed_real(err, s1, s2, s3)
 #if !defined(NO_VFORK) || defined(DO_POSIX_SPEC_BLTIN)
 	namscan(popval);
 #endif
-	if (!(flags & noexit))
+	if ((flags & errflg) || !(flags & noexit))
 		exitsh(err);
 
 	exvalsh(err);

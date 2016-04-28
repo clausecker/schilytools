@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)xec.c	1.58 16/03/01 2008-2016 J. Schilling
+ * @(#)xec.c	1.59 16/04/24 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)xec.c	1.58 16/03/01 2008-2016 J. Schilling";
+	"@(#)xec.c	1.59 16/04/24 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -341,6 +341,7 @@ int *pf1, *pf2;
 						freejobs();
 						break;
 					} else if (comtype == FUNCTION) {
+						unsigned long	oflags = flags;
 						struct dolnod *olddolh;
 						struct namnod *n;
 						struct fndnod *f;
@@ -357,10 +358,22 @@ int *pf1, *pf2;
 								savargs(funcnt);
 						f->fndref++;
 						funcnt++;
+#ifdef	DO_POSIX_FAILURE
+						flags |= noexit;
+#endif
 						idx = initio(io, 1);
+						flags = oflags;
 						setargs(com);
-						execute(f->fndval, xflags,
-						    errorflg, pf1, pf2);
+						/*
+						 * If flags & noexit is not set,
+						 * we do not come here in case
+						 * exitval != 0,
+						 */
+						if (exitval == 0) {
+							execute(f->fndval,
+							    xflags,
+							    errorflg, pf1, pf2);
+						}
 						execbrk = 0;
 						restore(idx);
 #ifdef	DO_PIPE_PARENT

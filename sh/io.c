@@ -38,11 +38,11 @@
 /*
  * This file contains modifications Copyright 2008-2016 J. Schilling
  *
- * @(#)io.c	1.25 16/01/01 2008-2016 J. Schilling
+ * @(#)io.c	1.26 16/04/24 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)io.c	1.25 16/01/01 2008-2016 J. Schilling";
+	"@(#)io.c	1.26 16/04/24 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -180,19 +180,24 @@ chkopen(idf, mode)
 
 	if ((rc = open((char *)idf, mode, 0666)) < 0) {
 		failed(idf, badopen);
-		/* NOTREACHED */
+		/*
+		 * Returns only if flags & noexit is set.
+		 */
 	} else {
 		struct stat sb;
 
 		if (fstat(rc, &sb) < 0 || S_ISDIR(sb.st_mode)) {
 			close(rc);
 			failed(idf, eisdir);
-			/* NOTREACHED */
+			/*
+			 * Returns only if flags & noexit is set.
+			 */
+			return (-1);
 		}
 		return (rc);
 	}
 
-	return (-1);		/* Not reached, but keeps GCC happy */
+	return (-1);
 }
 
 /*
@@ -244,7 +249,10 @@ create(s, iof)
 		if (stat((char *)s, &statb) >= 0) {
 			if (S_ISREG(statb.st_mode)) {
 				failed(s, eclobber);
-				/* NOTREACHED */
+				/*
+				 * Returns only if flags & noexit is set.
+				 */
+				return (-1);
 			}
 		} else {
 			statb.st_mode = 0;
@@ -266,11 +274,13 @@ create(s, iof)
 	if ((rc = creat((char *)s, 0666)) < 0) {
 #endif
 		failed(s, badcreate);
-		/* NOTREACHED */
-	} else
+		/*
+		 * Returns only if flags & noexit is set.
+		 */
+	} else {
 		return (rc);
-
-	return (-1);		/* Not reached, but keeps GCC happy */
+	}
+	return (-1);
 }
 
 
@@ -476,8 +486,9 @@ link_iodocs(i)
 		if (r != -1) {
 			i->iolink = (char *)make(tmpout);
 			i = i->iolst;
-		} else
+		} else {
 			failed(tmpout, badcreate);
+		}
 
 	}
 }
