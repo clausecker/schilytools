@@ -39,7 +39,7 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)defs.h	1.142 16/04/24 2008-2016 J. Schilling
+ * @(#)defs.h	1.147 16/05/18 2008-2016 J. Schilling
  */
 
 #ifdef	__cplusplus
@@ -602,6 +602,7 @@ extern	void	printro		__PR((struct namnod *n));
 extern	void	printpro	__PR((struct namnod *n));
 extern	void	printexp	__PR((struct namnod *n));
 extern	void	printpexp	__PR((struct namnod *n));
+extern	void	popvars		__PR((void));
 extern	void	popval		__PR((struct namnod *n));
 extern	void	setup_env	__PR((void));
 extern	unsigned char **local_setenv __PR((int flg));
@@ -631,6 +632,7 @@ extern	void	sitos		__PR((int n));
 extern	int	stoi		__PR((unsigned char *icp));
 extern	int	stosi		__PR((unsigned char *icp));
 extern	int	sltos		__PR((long n));
+extern	int	slltos		__PR((Intmax_t n));
 extern	int	ltos		__PR((long n));
 
 extern	void	flushb		__PR((void));
@@ -722,6 +724,11 @@ extern	unsigned char *memcpystak	__PR((unsigned char *s1,
 							int n));
 
 /*
+ * strexpr.c
+ */
+extern	Intmax_t	strexpr	__PR((unsigned char *arg));
+
+/*
  * string.c
  */
 extern	unsigned char *movstr	__PR((unsigned char *a, unsigned char *b));
@@ -805,6 +812,7 @@ extern	int	optskip		__PR((int argc, unsigned char **argv,
  * word.c
  */
 extern	int		word	__PR((void));
+extern	unsigned char	*match_arith	__PR((unsigned char *argp));
 extern	unsigned int	skipwc	__PR((void));
 extern	unsigned int	nextwc	__PR((void));
 extern	unsigned char	*readw	__PR((wchar_t d));
@@ -1337,6 +1345,13 @@ unsigned char *readw	__PR((wchar_t));
 
 #ifdef	SCHILY_INCLUDES
 
+#ifdef	USE_BYTES
+#define	memset(s, c, n)		fillbytes(s, n, c)
+#define	memchr(s, c, n)		findbytes(s, n, c)
+#define	memcpy(s1, s2, n)	movebytes(s2, s1, n)
+#define	memmove(s1, s2, n)	movebytes(s2, s1, n)
+#endif
+
 #if !defined(HAVE_MEMSET) && !defined(memset)
 #define	memset(s, c, n)		fillbytes(s, n, c)
 #endif
@@ -1344,10 +1359,10 @@ unsigned char *readw	__PR((wchar_t));
 #define	memchr(s, c, n)		findbytes(s, n, c)
 #endif
 #if !defined(HAVE_MEMCPY) && !defined(memcpy)
-#define	memcpy(s1, s2, n)	movebytes(s2, s1, c)
+#define	memcpy(s1, s2, n)	movebytes(s2, s1, n)
 #endif
 #if !defined(HAVE_MEMMOVE) && !defined(memmove)
-#define	memmove(s1, s2, n)	movebytes(s2, s1, c)
+#define	memmove(s1, s2, n)	movebytes(s2, s1, n)
 #endif
 
 /*

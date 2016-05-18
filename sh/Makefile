@@ -1,4 +1,4 @@
-#ident "@(#)Makefile	1.108 16/04/10  Copyright (c) 2006-2016 J. Schilling"
+#ident "@(#)Makefile	1.109 16/05/17  Copyright (c) 2006-2016 J. Schilling"
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -117,7 +117,8 @@ CPPOPTS +=	-DINT_DOLMINUS		# Auto set -i for interactive shell
 CFILES=		abbrev.c args.c bltin.c cmd.c ctype.c defs.c echo.c error.c \
 		expand.c fault.c func.c hash.c hashserv.c io.c jobs.c macro.c \
 		main.c msg.c name.c print.c pwd.c service.c \
-		sh_policy.c stak.c string.c test.c ulimit.c word.c xec.c \
+		sh_policy.c stak.c string.c strexpr.c test.c \
+		ulimit.c word.c xec.c \
 		signames.c gmatch.c umask.c alias.c builtin.c find.c \
 		hashcmd.c hashtab.c \
 		optget.c printf.c

@@ -36,14 +36,14 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)print.c	1.35 16/02/05 2008-2016 J. Schilling
+ * @(#)print.c	1.37 16/05/09 2008-2016 J. Schilling
  */
 #ifdef	SCHILY_INCLUDES
 #include <schily/mconfig.h>
 #endif
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)print.c	1.35 16/02/05 2008-2016 J. Schilling";
+	"@(#)print.c	1.37 16/05/09 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -227,7 +227,11 @@ prtv(tp, digs, lf)
 		prc_buff('0');
 	prn_buff(sec);
 	if (digs > 0) {
+#if defined(HAVE_LOCALECONV) && defined(USE_LOCALE)
+		prc_buff(*(localeconv()->decimal_point));
+#else
 		prc_buff('.');
+#endif
 		itos(frac+1000000);
 		prs_buff(numbuf+7-digs);
 	}
@@ -344,6 +348,25 @@ sltos(n)
 	}
 	return (ltos(n));
 }
+
+#ifdef	DO_DOL_PAREN
+/*
+ * Convert signed long long
+ */
+int
+slltos(n)
+	Intmax_t	n;
+{
+	if (n < 0) {
+		int i;
+
+		i = ulltos(-n);
+		numbuf[--i] = '-';
+		return (i);
+	}
+	return (ulltos(n));
+}
+#endif
 
 int
 ltos(n)

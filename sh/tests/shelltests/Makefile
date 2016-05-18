@@ -1,4 +1,5 @@
-all-tests:	test-cmdsub	\
+all-tests:	test-arith \
+		test-cmdsub	\
 		test-errflg	\
 		test-exit	\
 		test-getopts	\
@@ -8,6 +9,9 @@ all-tests:	test-cmdsub	\
 		test-quoting	\
 		test-return
 	echo Tests passed.
+
+test-arith:
+	cd arith && for i in *.sh; do echo Running test arith/$$i; $(SHELL) $$i; done
 
 test-cmdsub:
 	cd cmdsub && for i in *.sh; do echo Running test cmdsub/$$i; $(SHELL) $$i; done

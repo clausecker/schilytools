@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)word.c	1.57 16/04/07 2008-2016 J. Schilling
+ * @(#)word.c	1.58 16/05/01 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)word.c	1.57 16/04/07 2008-2016 J. Schilling";
+	"@(#)word.c	1.58 16/05/01 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -75,7 +75,7 @@ static	unsigned char	*match_word __PR((unsigned char *argp,
 #ifdef	DO_DOL_PAREN
 static	unsigned char	*dolparen	__PR((unsigned char *argp));
 static	unsigned char	*match_cmd	__PR((unsigned char *argp));
-static	unsigned char	*match_arith	__PR((unsigned char *argp));
+	unsigned char	*match_arith	__PR((unsigned char *argp));
 #endif
 static	unsigned char	*match_literal	__PR((unsigned char *argp));
 static	unsigned char	*match_block __PR((unsigned char *argp,
@@ -430,7 +430,7 @@ match_cmd(argp)
 	return (argp);
 }
 
-static unsigned char *
+unsigned char *
 match_arith(argp)
 	unsigned char	*argp;		/* Output pointer	*/
 {

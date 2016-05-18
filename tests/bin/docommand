@@ -1,18 +1,8 @@
 #!/bin/sh
 ###########################################################################
-# @(#)docommand	1.5 15/06/03 Written 2011-2015 by J. Schilling
+# @(#)docommand	1.7 16/05/14 Written 2011-2016 by J. Schilling
 ###########################################################################
-# The contents of this file are subject to the terms of the
-# Common Development and Distribution License, Version 1.0 only
-# (the "License").  You may not use this file except in compliance
-# with the License.
-#
-# See the file CDDL.Schily.txt in this distribution for details.
-# A copy of the CDDL is also available via the Internet at
-# http://www.opensource.org/licenses/cddl1.txt
-#
-# When distributing Covered Code, include this CDDL HEADER in each
-# file and include the License file CDDL.Schily.txt from this distribution.
+#@@C@@
 ###########################################################################
 #
 # docommand()	the base test function
@@ -26,7 +16,7 @@
 # Parameters:
 # $1 a command label to be printed
 # $2 a command to be executed
-# $3 the expected exit code			or IGNORE
+# $3 the expected exit code			or IGNORE or "!=0"
 # $4 the expected stdout			or IGNORE
 # $5 the expected stderr			or IGNORE
 #
@@ -63,7 +53,10 @@ docommand() {
 
 	if test "$3" != "IGNORE"		# Verify exit code?
 	then
-		if test "$3" -eq "$cmd_exit"
+		if test "$3" = "!=0" -a "$cmd_exit" -ne 0
+		then
+			:
+		elif test "$3" != "!=0" -a "$3" -eq "$cmd_exit"
 		then
 			:
 		else
@@ -100,7 +93,7 @@ $msg"
 
 ###########################################################################
 #
-# do_output()	alternate test function
+# do_output()	alternate test function with "stdout" reference in a file
 #
 # Call: do_output [options] parameters
 #
@@ -111,7 +104,7 @@ $msg"
 # Parameters:
 # $1 a command label to be printed
 # $2 a command to be executed
-# $3 the expected exit code			or IGNORE
+# $3 the expected exit code			or IGNORE or "!=0"
 # $4 the expected stdout contained in a file	or IGNORE
 # $5 the expected stderr			or IGNORE
 #
@@ -149,7 +142,10 @@ do_output() {
 
 	if test "$3" != "IGNORE"		# Verify exit code?
 	then
-		if test "$3" -eq "$cmd_exit"
+		if test "$3" = "!=0" -a "$cmd_exit" -ne 0
+		then
+			:
+		elif test "$3" != "!=0" -a "$3" -eq "$cmd_exit"
 		then
 			:
 		else
@@ -183,7 +179,7 @@ $msg"
 
 ###########################################################################
 #
-# do_error()	alternate test function
+# do_error()	alternate test function with "stderr" reference in a file
 #
 # Call: do_error [options] parameters
 #
@@ -194,7 +190,7 @@ $msg"
 # Parameters:
 # $1 a command label to be printed
 # $2 a command to be executed
-# $3 the expected exit code			or IGNORE
+# $3 the expected exit code			or IGNORE or "!=0"
 # $4 the expected stdout			or IGNORE
 # $5 the expected stderr contained in a file	or IGNORE
 #
@@ -232,7 +228,10 @@ do_error() {
 
 	if test "$3" != "IGNORE"		# Verify exit code?
 	then
-		if test "$3" -eq "$cmd_exit"
+		if test "$3" = "!=0" -a "$cmd_exit" -ne 0
+		then
+			:
+		elif test "$3" != "!=0" -a "$3" -eq "$cmd_exit"
 		then
 			:
 		else
@@ -266,7 +265,7 @@ $msg"
 
 ###########################################################################
 #
-# do_outerr()	alternate test function
+# do_outerr()	alternate test function with "stdout/err" reference in a file
 #
 # Call: do_outerr [options] parameters
 #

@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)service.c	1.40 16/02/03 2008-2016 J. Schilling
+ * @(#)service.c	1.41 16/05/07 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)service.c	1.40 16/02/03 2008-2016 J. Schilling";
+	"@(#)service.c	1.41 16/05/07 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -499,9 +499,8 @@ trim(at)
 			}
 
 			if (wc != '\\') {
-				memmove(last, current, len);
-				last += len;
-				current += len;
+				while (--len >= 0)
+					*last++ = *current++;
 				continue;
 			}
 
@@ -516,9 +515,8 @@ trim(at)
 					current++;
 					continue;
 				}
-				memmove(last, current, len);
-				last += len;
-				current += len;
+				while (--len >= 0)
+					*last++ = *current++;
 			} else
 				current++;
 		}
@@ -552,8 +550,8 @@ unsigned char	*at;
 			}
 
 			if (wc != '\\') {
-				memmove(last, current, len);
-				last += len; current += len;
+				while (--len >= 0)
+					*last++ = *current++;
 				continue;
 			}
 
@@ -578,8 +576,8 @@ unsigned char	*at;
 				current++;
 				continue;
 			}
-			memmove(last, current, len);
-			last += len; current += len;
+			while (--len >= 0)
+				*last++ = *current++;
 		}
 		*last = 0;
 	}

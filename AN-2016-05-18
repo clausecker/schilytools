@@ -1,0 +1,175 @@
+New features with AN-2016-05-18:
+
+This is the first localization step for the schily source consolidation. Many
+programs now (hopefully) call gettext() for all strings that need localization.
+
+-	The next step will include dgettext() calls for the libraries and the
+	missing programs
+
+-	The following step will include the extracted strings
+
+-	The last step will include German translations and install support
+	for the resulting binary message object files.
+
+----------> Please test and report compilation problems! <---------
+
+***** NOTE: As mentioned since 2004, frontends to the tools should *****
+*****		call all programs in the "C" locale		   *****
+*****		by e.g. calling: LC_ALL=C cdrecord ....		   *****
+*****		unless these frontends support localized strings   *****
+*****		used by the cdrtools with NLS support.		   *****
+
+		*** WARNING        ***
+		*** Need new smake ***
+
+	*** Due to the fact that schily-tools 2014-04-03 introduced to use new macro
+	*** expansions and a related bug fix in smake, you need a new smake
+	*** to compile this source. To ensure this, call:
+
+	cd ./psmake
+	./MAKE-all
+	cd ..
+	psmake/smake
+	psmake/smake install
+
+
+	WARNING: the new version of the isoinfo program makes use of the 
+		*at() series of functions that have been introduced by Sun
+		in August 2001 and added to POSIX.1-2008. For older platforms,
+		libschily now includes emulations for these functions but
+		these emulations have not yet been tested thoroughly.
+		Please report problems!
+
+	The new smake version mentioned above is smake-1.2.4
+
+-	bsh: bsh -version now prints 2016
+
+-	Automatic test system in tests/: A new "exit code" value: "!=0"
+	was introduced to expect any non-zero exit code from the test.
+
+-	Bourne Shell: When using vfork() or executing a builtin command,
+	the shell now resets it's locale after a command with a pushed
+	locale from something like e.g. "LC_ALL=C command".
+
+-	Bourne Shell: LC_NUMERIC now also affects the shell's locale.
+
+-	Bourne Shell: the man page now mentions LC_NUMERIC
+
+-	Bourne Shell: The reset code for the shell variables after a 
+	vfork()d child or after a non-special builtin has been modified
+	to give better performance. In small shell loop that are based
+	in shell arithmetic, this reset code had become dominant before.
+
+-	Bourne Shell: some minor optimizations have been added to avoid
+	calling mem*() functions when less than 16 bytes are being
+	moved. This mainly affects multi-byte character handling and
+	memory allocation.
+
+-	Bourne Shell: POSIX requires "times" to print a printf-like
+	format as with "%f". We therefore need to let prtv() use
+	*(localeconv()->decimal_point) instead of just '.' as the fraction
+	separator. This affects the internal timing with "set -o time"
+	or with the keyword "time" and $TIMEFORMAT as well.
+
+-	Bourne Shell: fixed a bug that triggers when sh is compiled on a
+	platform without mem*() functions.
+
+-	Bourne Shell: New compile time #define USE_BYTES allows to enforce
+	to use the libschily *bytes() functions instead of the mem*() functions
+	to be able to run the BSD performance analyzer "gprof" on them.
+
+-	Bourne Shell: add a hint to
+		http://austingroupbugs.net/view.php?id=854#c2495
+	to the comment in msg.c to permit people to understand the new
+	SUSv7 tc2 name "shell intrinsic" for non-special builtins.
+
+-	Bourne Shell: $((arithmetic expression)) is now 80% ready.
+	We currently miss:
+
+	-	Conditional expressions -> ?:
+
+	-	Variable assignment
+
+	-	Skipping "expr" in "1 || expr" or "0 && expr" instead of
+		evaluating it.
+
+	Please test and report!
+
+
+-	Bourne Shell: Plenty of new compliance tests have been added to the
+	test suite to verify correct behavior. If you discover a bug that
+	slipped through the teste, please report!
+
+
+-	Bourne Shell Missing features for POSIX compliance:
+
+	- Do not list functions when calling "set" with no arguments.
+	  Note that this POSIX requirement is seen as a POSIX bug as there
+	  is no POSIX command to list function definitions.
+	  NOTE that this will not be implemented before POSIX bug
+	  http://austingroupbugs.net/view.php?id=1025 was fixed.
+
+	- A POSIX whitepaper at: http://www.unix.org/whitepapers/shdiffs.html
+	  claims that:
+			IFS=o; violet
+
+	  should not execute "vi". The normative text in the POSIX standard
+	  describes the historic Bourne Shell behavior, but the rationale
+	  describes the deviating behavior from "ksh".
+
+
+	- Support for $'...' quoting (this is not needed for the current
+					version of POSIX but for the next POSIX
+					version that will be SUSv8)
+
+	We are getting very close to full POSIX support.
+
+
+-	Bourne Shell further TODO list:
+
+	-	Try to make
+
+		lastline=
+		while read line
+		do
+			lastline=$line
+		done < /etc/passwd
+		echo "lastline=$lastline"
+
+		print the last line of /etc/passwd without the exec "trick"
+		that is documented in the man page.
+	
+	-	Finish loadable builtin support.
+
+	-	POSIX does not allow us to implement ". -h", so we will
+		add a "source" builtin to be able to implement "source -h"
+
+-	The following builtins (that are available in bsh) are still missing in
+	the Bourne Shell:
+
+	err			echo with output going to stderr
+	glob			echo with '\0' instead of ' ' between args
+	env			a builtin version of /usr/bin/env
+
+	The following bsh intrinsics are still missing in the Bourne Shell:
+
+	-			the restricted bsh has restriction features that
+				are missing in the Bourne shell.
+
+	-	source -h	read file into history but do not excute
+
+	and probably more features not yet identified to be bsh unique.
+
+
+
+Author:
+
+Joerg Schilling
+Seestr. 110
+D-13353 Berlin
+Germany
+
+Email: 	joerg@schily.net, js@cs.tu-berlin.de
+	joerg.schilling@fokus.fraunhofer.de
+
+Please mail bugs and suggestions to me.

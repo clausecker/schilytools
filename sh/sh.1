@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sh.1	1.153 16/03/21 Copyright 2012-2016 J. Schilling
+.\" @(#)sh.1	1.155 16/05/17 Copyright 2012-2016 J. Schilling
 .\" Copyright 1989 AT&T
 .\" Copyright (c) 2008, Sun Microsystems, Inc. All Rights Reserved.
 .\" Portions Copyright (c) 1992, X/Open Company Limited All Rights Reserved
@@ -59,7 +59,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sh 1 "2016/03/21" "Schily Bourne Shell" "User Commands"
+.TH sh 1 "2016/05/17" "Schily Bourne Shell" "User Commands"
 .SH NAME
 sh, jsh \- standard and job control shell and command interpreter
 .SH SYNOPSIS
@@ -1118,6 +1118,96 @@ and
 .B (
 into two tokens (that is, separate them with white space). This is
 required to avoid any ambiguities with arithmetic expansion.
+
+.SS "Arithmetic Expansion"
+.sp
+.LP
+An arithmetic expression enclosed in double parentheses preceded by a
+dollar sign is replaced by
+the value of the arithmetic expression within the double parenthesis.
+.B Arithmetic expansion
+provides a mechanism for evaluating an arithmetic
+expression and substituting its value. The format for arithmetic expansion
+is as follows:
+.sp
+.in +2
+.nf
+.BI $(( arithmetic-expression ))
+.fi
+.in -2
+.sp
+.LP
+The expression is treated as if it were in double-quotes, except that a
+double-quote inside the expression is not treated specially. The shell
+expands all tokens in the expression for parameter expansion, command
+substitution and quote removal.
+.sp
+.LP
+Next, the shell treats this as an arithmetic expression and substitutes the
+value of the expression. The arithmetic expression is processed according to
+the rules of the ISO C with the following exceptions:
+.RS
+.TP
+.B
+.ie t \(bu
+.el o
+Only signed long long integer arithmetic is supported.
+.TP
+.B
+.ie t \(bu
+.el o
+The
+.B sizeof()
+operator is not supported.
+.TP
+.B
+.ie t \(bu
+.el o
+The prefix and postfix
+.B ++
+and
+.B \(mi\|\(mi
+operators are not yet supported.
+.TP
+.B
+.ie t \(bu
+.el o
+Variable assignment is not yet supported.
+.TP
+.B
+.ie t \(bu
+.el o
+Currently both sides of a boolean expression are evaluated,
+regardless of the value. 
+.TP
+.B
+.ie t \(bu
+.el o
+The conditional operator is not yet supported.
+.TP
+.B
+.ie t \(bu
+.el o
+Selection, iteration, and jump statements are not supported.
+.RE
+.LP
+If the expression is invalid, the expansion fails and the
+shell writes a message to standard error indicating the failure.
+.sp
+.LP
+A simple example using arithmetic expansion:
+.sp
+.in +2
+.nf
+# repeat a command 100 times
+x=100
+while [ $x \(migt 0 ]
+do
+     command
+     x=$((x\(mi1))
+done
+.fi
+.in -2
 
 .SS "Parameter Substitution"
 .sp
@@ -2284,6 +2374,12 @@ by
 The format is:
 .IB dd : dd : dd.ppp\fR.
 .LP
+The value of the decimal point in the floating point formats
+above is subject to locale specific adoptions based on
+.B LC_NUMERIC
+or
+.BR LC_ALL .
+.LP
 If
 .B TIMEFORMAT
 is unset, the value:
@@ -2327,9 +2423,10 @@ variables that affect the execution of
 .BR sh :
 .BR LANG ,
 .BR LC_ALL ,
-.B LC_CTYPE
+.B LC_CTYPE ,
+.B LC_MESSAGES
 and
-.BR LC_MESSAGES .
+.BR LC_NUMERIC .
 .sp
 .LP
 The shell gives default values to

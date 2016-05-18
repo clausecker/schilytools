@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)name.c	1.52 16/04/19 2008-2016 J. Schilling
+ * @(#)name.c	1.55 16/05/18 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)name.c	1.52 16/04/19 2008-2016 J. Schilling";
+	"@(#)name.c	1.55 16/05/18 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -87,6 +87,8 @@ static void	namwalk		__PR((struct namnod *));
 	void	printexp	__PR((struct namnod *n));
 #if !defined(NO_VFORK) || defined(DO_POSIX_SPEC_BLTIN)
 static void	pushval		__PR((struct namnod *n));
+	void	popvars		__PR((void));
+static void	_popvars	__PR((struct namnod *n));
 	void	popval		__PR((struct namnod *n));
 #endif
 	void	setup_env	__PR((void));
@@ -732,7 +734,6 @@ lookup(nam)
 	{
 		if ((LR = cf(nam, nscan->namid)) == 0)
 			return (nscan);
-
 		else if (LR < 0)
 			prev = &(nscan->namlft);
 		else
@@ -964,6 +965,24 @@ pushval(n)
 	attrib(n, N_PUSHOV);
 }
 
+void
+popvars()
+{
+	_popvars(namep);
+}
+
+static void
+_popvars(np)
+	struct namnod	*np;
+{
+	if (np) {
+		_popvars(np->namlft);
+		if ((np->namflg & N_PUSHOV) != 0)
+			popval(np);
+		_popvars(np->namrgt);
+	}
+}
+
 /*
  * If the node has a pushed value, restore the original value.
  */
@@ -990,6 +1009,7 @@ popval(n)
 		n->namflg = N_DEFAULT;
 	}
 	use(n);
+	dolocale((char *)n->namid);
 }
 #endif
 
@@ -1188,6 +1208,7 @@ static char *localevar[] = {
 	"LC_ALL",
 	"LC_CTYPE",
 	"LC_MESSAGES",
+	"LC_NUMERIC",
 	"LANG",
 	0
 };
@@ -1234,7 +1255,7 @@ dolocale(nm)
 	 */
 	if ((*nm != 'L') || !localedir_exists ||
 	    (!(eq(nm, "LC_ALL") || eq(nm, "LC_CTYPE") ||
-	    eq(nm, "LANG") || eq(nm, "LC_MESSAGES"))))
+	    eq(nm, "LANG") || eq(nm, "LC_MESSAGES") || eq(nm, "LC_NUMERIC"))))
 		return;
 
 	/*

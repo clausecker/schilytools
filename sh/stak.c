@@ -41,7 +41,7 @@
 /*
  *				Copyright Geoff Collyer 1987-2005
  *
- * @(#)stak.c	2.16 15/12/12	Copyright 2010-2015 J. Schilling
+ * @(#)stak.c	2.17 16/05/09	Copyright 2010-2016 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -57,7 +57,7 @@
 
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)stak.c	2.16 15/12/12 Copyright 2010-2015 J. Schilling";
+	"@(#)stak.c	2.17 16/05/09 Copyright 2010-2016 J. Schilling";
 #endif
 
 
@@ -610,7 +610,16 @@ __growstak(incr)
 
 		if (new == (unsigned char *)NIL)
 			error(nostack);
-		memcpy(new, oldbsy, staklen);
+		if (staklen > 16) {
+			memcpy(new, oldbsy, staklen);
+		} else {
+			register int		amt = staklen;
+			register unsigned char	*to = new;
+			register unsigned char	*fr = oldbsy;
+
+			while (amt--)
+				*to++ = *fr++;
+		}
 		free(oldbsy);
 		oldbsy = new;
 	} else {
@@ -777,7 +786,7 @@ chkmem()
 /*
  * The code below has been taken from the historical stak.c
  *
- * Copyright 2008-2015 J. Schilling
+ * Copyright 2008-2016 J. Schilling
  */
 
 /*

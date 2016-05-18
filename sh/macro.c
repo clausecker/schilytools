@@ -37,11 +37,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)macro.c	1.47 16/04/28 2008-2016 J. Schilling
+ * @(#)macro.c	1.49 16/05/17 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)macro.c	1.47 16/04/28 2008-2016 J. Schilling";
+	"@(#)macro.c	1.49 16/05/17 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -783,6 +783,35 @@ comsubst(trimflag, type)
 	}
 #ifdef	DO_DOL_PAREN
 	else {	/* $(command) type command substitution */
+		d = readwc();
+		if (d == '(') {		/* This is an arithmetic expression */
+			unsigned char	*argc;
+Intmax_t	i;
+
+			/*
+			 * savptr holds strlngth bytes in a saved area
+			 * containing the already parsed part of the string.
+			 * Use match_arith() to find the end of the expresssion
+			 * and call macro() with this string to expand
+			 * variables and embedded command substitutions.
+			 */
+			staktop = match_arith(stakbot);
+			argc = staktop-1;
+			while (argc > stakbot && *(--argc) != ')')
+				;
+			*argc = 0;
+			argc = fixstak();
+			argc = macro(&argc[2]);
+			(void) memcpystak(stakbot, savptr, strlngth);
+			staktop = stakbot + strlngth;
+			/*
+			 * First implementation: just return the expanded string
+			 */
+			i = strexpr(argc);
+			staktop = movstrstak(&numbuf[slltos(i)], staktop);
+			return;
+		}
+		peekc = d | MARK;
 		tc = cmd(')', MTFLG | NLFLG | SEMIFLG);
 	}
 #endif

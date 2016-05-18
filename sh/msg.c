@@ -39,11 +39,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)msg.c	1.63 16/04/19 2008-2016 J. Schilling
+ * @(#)msg.c	1.64 16/05/10 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)msg.c	1.63 16/04/19 2008-2016 J. Schilling";
+	"@(#)msg.c	1.64 16/05/10 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -288,6 +288,8 @@ const char	readonly[] = "readonly";
  * attempt for a PATH search is done.
  * Special built-in utilities in addition keep variable assignement in effect
  * after the builtin completes.
+ * See http://austingroupbugs.net/view.php?id=854#c2495 for the new POSIX
+ * classification of shell builtins.
  *
  * Built-ins marked with "S" are POSIX special built-in utilities.
  * Built-ins marked with "I" are POSIX intrinsic utilities.
