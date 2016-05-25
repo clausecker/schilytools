@@ -1,14 +1,14 @@
-/* @(#)signames.c	1.17 15/07/02 Copyright 1998-2015 J. Schilling */
+/* @(#)signames.c	1.18 16/05/19 Copyright 1998-2016 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)signames.c	1.17 15/07/02 Copyright 1998-2015 J. Schilling";
+	"@(#)signames.c	1.18 16/05/19 Copyright 1998-2016 J. Schilling";
 #endif
 /*
  *	Handle signal names for systems that don't have
  *	strsignal()/str2sig()/sig2str()
  *
- *	Copyright (c) 1998-2015 J. Schilling
+ *	Copyright (c) 1998-2016 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -272,7 +272,8 @@ LOCAL struct signames {
 	{ SIGAPOLLO,	"APOLLO",	"SIGAPOLLO", },
 #endif
 #ifdef	SIGCPUFAIL
-	{ SIGCPUFAIL,	"CPUFAIL",	"Predictive processor deconfiguration", },
+	{ SIGCPUFAIL,	"CPUFAIL",
+				"Predictive processor deconfiguration", },
 #endif
 #ifdef	SIGDANGER
 	{ SIGDANGER,	"DANGER",	"System crash soon", },

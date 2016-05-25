@@ -1,8 +1,8 @@
-/* @(#)builtin.c	1.90 16/04/04 Copyright 1988-2016 J. Schilling */
+/* @(#)builtin.c	1.91 16/05/19 Copyright 1988-2016 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)builtin.c	1.90 16/04/04 Copyright 1988-2016 J. Schilling";
+	"@(#)builtin.c	1.91 16/05/19 Copyright 1988-2016 J. Schilling";
 #endif
 /*
  *	Builtin commands
@@ -447,7 +447,7 @@ bsetcmd(vp, std, flag)
 		uid_t	altuid = ab_getaltowner(GLOBAL_AB);
 		char	*altuname = "";
 
-		if (altuid != (uid_t)-1) 
+		if (altuid != (uid_t)-1)
 			altuname = ab_getaltoname(GLOBAL_AB);
 
 		fprintf(std[1], "Current option settings\n");
@@ -1092,8 +1092,8 @@ bpgrp(vp, std, flag)
 		 * Prefer the ioctl() as the POSIX function tcgetpgrp() limits
 		 * access in a way that we cannot accept.
 		 */
-	        if (ioctl(fdown(std[0]), TIOCGPGRP, (char *)&pgrp) < 0)
-                	pgrp = -1;
+		if (ioctl(fdown(std[0]), TIOCGPGRP, (char *)&pgrp) < 0)
+			pgrp = -1;
 #else
 		pgrp = tty_getpgrp(fdown(std[0]));
 #endif
@@ -1103,8 +1103,8 @@ bpgrp(vp, std, flag)
 		 * Prefer the ioctl() as the POSIX function tcgetsid() limits
 		 * access in a way that we cannot accept.
 		 */
-	        if (ioctl(fdown(std[0]), TIOCGSID, (char *)&sgrp) < 0)
-                	sgrp = -1;
+		if (ioctl(fdown(std[0]), TIOCGSID, (char *)&sgrp) < 0)
+			sgrp = -1;
 #else
 		sgrp = tcgetsid(fdown(std[0]));
 #endif

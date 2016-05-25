@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sh.1	1.155 16/05/17 Copyright 2012-2016 J. Schilling
+.\" @(#)sh.1	1.157 16/05/24 Copyright 2012-2016 J. Schilling
 .\" Copyright 1989 AT&T
 .\" Copyright (c) 2008, Sun Microsystems, Inc. All Rights Reserved.
 .\" Portions Copyright (c) 1992, X/Open Company Limited All Rights Reserved
@@ -59,7 +59,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sh 1 "2016/05/17" "Schily Bourne Shell" "User Commands"
+.TH sh 1 "2016/05/24" "Schily Bourne Shell" "User Commands"
 .SH NAME
 sh, jsh \- standard and job control shell and command interpreter
 .SH SYNOPSIS
@@ -1159,31 +1159,6 @@ Only signed long long integer arithmetic is supported.
 The
 .B sizeof()
 operator is not supported.
-.TP
-.B
-.ie t \(bu
-.el o
-The prefix and postfix
-.B ++
-and
-.B \(mi\|\(mi
-operators are not yet supported.
-.TP
-.B
-.ie t \(bu
-.el o
-Variable assignment is not yet supported.
-.TP
-.B
-.ie t \(bu
-.el o
-Currently both sides of a boolean expression are evaluated,
-regardless of the value. 
-.TP
-.B
-.ie t \(bu
-.el o
-The conditional operator is not yet supported.
 .TP
 .B
 .ie t \(bu
@@ -3075,6 +3050,7 @@ specified by
 is used to find the directory containing
 .IR filename .
 
+.if 0 \{
 .br
 .ne 5
 .PD 0
@@ -3142,9 +3118,9 @@ The
 .B @
 command was not supported in older versions of
 .BR sh .
-
+\}
 .br
-.ne 3
+.ne 4
 .HP
 .B [
 .RI [ expr "] ]

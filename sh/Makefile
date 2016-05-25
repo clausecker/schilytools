@@ -1,4 +1,4 @@
-#ident "@(#)Makefile	1.109 16/05/17  Copyright (c) 2006-2016 J. Schilling"
+#ident "@(#)Makefile	1.110 16/05/19  Copyright (c) 2006-2016 J. Schilling"
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -91,7 +91,7 @@ CPPOPTS +=	-DDO_LINENO		# Include support for POSIX LINENO
 CPPOPTS +=	-DDO_ULIMIT_OPTS	# Add options to the ulimit(1) output
 CPPOPTS +=	-DDO_SYSBUILTIN		# Include the "builtin" builtin
 CPPOPTS +=	-DDO_SYSCOMMAND		# Include the "command" builtin
-CPPOPTS +=	-DDO_SYSATEXPR		# Include the "@" builtin
+#CPPOPTS +=	-DDO_SYSATEXPR		# Include the "@" builtin
 CPPOPTS +=	-DDO_SYSSYNC		# Include the "sync" builtin
 CPPOPTS +=	-DDO_SYSPGRP		# Include the "pgrp" builtin
 CPPOPTS +=	-DDO_SYSKILLPG		# Include the "killpg" builtin

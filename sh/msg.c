@@ -39,11 +39,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)msg.c	1.64 16/05/10 2008-2016 J. Schilling
+ * @(#)msg.c	1.65 16/05/19 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)msg.c	1.64 16/05/10 2008-2016 J. Schilling";
+	"@(#)msg.c	1.65 16/05/19 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -171,7 +171,7 @@ const char	nobracket[]	= "] missing";
 const char	noparen[]	= ") expected";
 const char	noarg[]		= "argument expected";
 const char	unimplemented[]	= "unimplemented";
-#ifdef DO_SYSATEXPR
+#if	defined(DO_DOL_PAREN) || defined(DO_SYSATEXPR)
 const char	divzero[]	= "division by zero";
 #endif
 

@@ -39,11 +39,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)pwd.c	1.24 16/01/20 2008-2016 J. Schilling
+ * @(#)pwd.c	1.25 16/05/19 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)pwd.c	1.24 16/01/20 2008-2016 J. Schilling";
+	"@(#)pwd.c	1.25 16/05/19 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -419,7 +419,7 @@ cwdprint(cdflg)
 	 */
 	cwd2(CHDIR_L);
 	if (didpwd == FALSE || (didpwd == PARTLY && !(cdflg & CHDIR_L))) {
-		
+
 		if (getcwd((char *)cwdnm, PATH_MAX+1) == NULL) {
 			if (errno && errno != ERANGE)
 				Error(badpwd);

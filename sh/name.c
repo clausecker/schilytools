@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)name.c	1.55 16/05/18 2008-2016 J. Schilling
+ * @(#)name.c	1.56 16/05/22 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)name.c	1.55 16/05/18 2008-2016 J. Schilling";
+	"@(#)name.c	1.56 16/05/22 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -732,9 +732,23 @@ lookup(nam)
 
 	while (nscan)
 	{
+#define	INLINE_CMP
+#ifdef	INLINE_CMP
+		{
+			unsigned char	*s1 = nam;
+			unsigned char	*s2 = nscan->namid;
+
+			while (*s1++ == *s2)
+				if (*s2++ == 0)
+					return (nscan);
+			LR = *--s1 - *s2;
+		}
+		if (LR < 0)
+#else
 		if ((LR = cf(nam, nscan->namid)) == 0)
 			return (nscan);
 		else if (LR < 0)
+#endif
 			prev = &(nscan->namlft);
 		else
 			prev = &(nscan->namrgt);

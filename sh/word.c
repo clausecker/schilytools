@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)word.c	1.58 16/05/01 2008-2016 J. Schilling
+ * @(#)word.c	1.59 16/05/22 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)word.c	1.58 16/05/01 2008-2016 J. Schilling";
+	"@(#)word.c	1.59 16/05/22 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -437,6 +437,7 @@ match_arith(argp)
 	int		nest = 2;
 	unsigned int	c;
 	unsigned char	*pc;
+
 	/*
 	 * Add the "((".
 	 */
@@ -468,6 +469,7 @@ match_arith(argp)
 			continue;
 		}
 	}
+	*argp = 0;
 	return (argp);
 }
 #endif

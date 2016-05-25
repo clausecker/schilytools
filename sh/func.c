@@ -37,11 +37,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)func.c	1.27 16/04/08 2008-2016 J. Schilling
+ * @(#)func.c	1.28 16/05/19 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)func.c	1.27 16/04/08 2008-2016 J. Schilling";
+	"@(#)func.c	1.28 16/05/19 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -494,7 +494,8 @@ prf(t)
 #endif
 			prf(lstptr(t)->lstlef);
 #ifdef	DO_FDPIPE
-			if ((lstptr(t)->lstlef->tretyp & IOFMSK) != STDOUT_FILENO) {
+			if ((lstptr(t)->lstlef->tretyp & IOFMSK) !=
+			    STDOUT_FILENO) {
 				prc_buff(' ');
 				prn_buff(lstptr(t)->lstlef->tretyp & IOFMSK);
 				prs_buff(UC "| ");
@@ -691,9 +692,7 @@ prio(iop)
 				if ((iof & IODOC_SUBST) == 0)
 					prc_buff('\\');
 #endif
-			}
-			else if (iof & IOMOV)
-			{
+			} else if (iof & IOMOV) {
 				if (iof & IOPUT)
 					prs_buff(UC ">&");
 				else

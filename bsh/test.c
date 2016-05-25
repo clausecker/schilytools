@@ -1,13 +1,13 @@
-/* @(#)test.c	1.30 15/08/24 Copyright 1986,1995-2015 J. Schilling */
+/* @(#)test.c	1.31 16/05/19 Copyright 1986,1995-2016 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)test.c	1.30 15/08/24 Copyright 1986,1995-2015 J. Schilling";
+	"@(#)test.c	1.31 16/05/19 Copyright 1986,1995-2016 J. Schilling";
 #endif
 /*
  *	Test routine (the test builtin command)
  *
- *	Copyright (c) 1986,1995-2015 J. Schilling
+ *	Copyright (c) 1986,1995-2016 J. Schilling
  */
 /*
  * The contents of this file are subject to the terms of the
@@ -367,12 +367,12 @@ expn()
 		return (x * y);
 	if (streql(op, slash)) {
 		if (y == 0)
-			expr_syntax(divzero);	/* never returns */		
+			expr_syntax(divzero);	/* never returns */
 		return (x / y);
 	}
 	if (streql(op, "%")) {
 		if (y == 0)
-			expr_syntax(divzero);	/* never returns */		
+			expr_syntax(divzero);	/* never returns */
 		return (x % y);
 	}
 	if (streql(op, "&"))
@@ -426,10 +426,10 @@ ass_expr(name, op, y)
 	case '+' :	return (x + y);
 	case '-' :	return (x - y);
 	case '/' :	if (y == 0)
-				expr_syntax(divzero);	/* never returns */		
+				expr_syntax(divzero);	/* never returns */
 			return (x / y);
 	case '%' :	if (y == 0)
-				expr_syntax(divzero);	/* never returns */		
+				expr_syntax(divzero);	/* never returns */
 			return (x % y);
 	case '*' :	return (x * y);
 

@@ -1,7 +1,8 @@
-/* @(#)strexpr.c	1.5 16/05/17 Copyright 2016 J. Schilling */
+/* @(#)strexpr.c	1.15 16/05/24 Copyright 2016 J. Schilling */
 #include <schily/mconfig.h>
 static	UConst char sccsid[] =
-	"@(#)strexpr.c	1.5 16/05/17 Copyright 2016 J. Schilling";
+	"@(#)strexpr.c	1.15 16/05/24 Copyright 2016 J. Schilling";
+#ifdef	DO_DOL_PAREN
 /*
  *	Arithmetic expansion
  *
@@ -23,6 +24,16 @@ static	UConst char sccsid[] =
 
 #include "defs.h"
 
+#ifdef	STREX_DEBUG
+#define	ARITH_DEBUG
+#else
+#ifdef	PROTOTYPES
+#define	fprintf(...)
+#else
+#define	fprintf()
+#endif
+#endif
+
 struct expr {
 	unsigned char	*expr;
 	unsigned char	*subexpr;
@@ -35,17 +46,28 @@ struct expr {
 	Intmax_t	val;
 };
 
-#define	EX_OP		1	/* Looking for an operator */
+#define	EX_OP		1	/* Looking for an operator	*/
+#define	EX_NOEVAL	2	/* Parse but do not evaluate	*/
 
 #define	LOCAL	static
 
+LOCAL	const char	nolvalue[] = "lvalue required";
+LOCAL	const char	badexpr[]  = "bad expression";
+
+
 	Intmax_t	strexpr		__PR((unsigned char *arg));
+#ifdef	NEED_PEEKTOK
+LOCAL	int		peektok		__PR((struct expr *ep));
+#endif
 LOCAL	int		exprtok		__PR((struct expr *ep));
 LOCAL	Intmax_t	expreval	__PR((struct expr *ep,
 							int precedence));
 LOCAL	Intmax_t	unary		__PR((struct expr *ep, Intmax_t v,
 							int op));
 LOCAL	int		getop		__PR((struct expr *ep));
+LOCAL	UIntmax_t	number		__PR((struct expr *ep,
+						unsigned char *str,
+						unsigned char **endptr));
 #ifdef	ARITH_DEBUG
 LOCAL	char		*tokname	__PR((int t));
 #endif
@@ -53,6 +75,7 @@ LOCAL	char		*tokname	__PR((int t));
 /*
  * Token definitions for the parser
  */
+#define	TK_NONE		0
 #define	TK_EOF		1	/* End of string seen */
 #define	TK_ADD		2	/* +  */
 #define	TK_SUB		3	/* -  */
@@ -96,8 +119,8 @@ LOCAL	char		*tokname	__PR((int t));
 #define	TK_COMMA	41	/*  , */
 #define	TK_END		42	/* op-delimiter */
 #define	TK_NUM		43	/* numerical value */
-#define	TK_VAR		45	/* variable name */
-#define	TK_ERROR	47	/* No token found */
+#define	TK_VAR		44	/* variable name */
+#define	TK_ERROR	45	/* No token found */
 
 #define	TK_ISBINARYOP	((t) >= TK_ADD && (t) <= TK_LOR)
 #define	TK_ISASSIGN(t)	((t) >= TK_ASSIGN && (t) <= TK_BORASN)
@@ -135,7 +158,6 @@ struct ops {
 	{ "--",		2,	TK_MINUSMINUS,	PR_PRIMARY, },
 	{ "==",		2,	TK_EQUAL,	PR_EQUAL, },
 	{ "!=",		2,	TK_NEQUAL,	PR_EQUAL, },
-
 	{ "+=",		2,	TK_PLUSASN,	PR_ASSIGN, },
 	{ "-=",		2,	TK_MINUSASN,	PR_ASSIGN, },
 	{ "*=",		2,	TK_MULTASN,	PR_ASSIGN, },
@@ -184,6 +206,9 @@ strexpr(arg)
 	struct expr	exp;
 	Intmax_t	ret;
 
+#ifdef	ARITH_DEBUG
+	fprintf(stderr, "strexpr('%s')\n", arg);
+#endif
 	memset(&exp, 0, sizeof (exp));
 	exp.expr = exp.subexpr = exp.tokenp = arg;
 
@@ -191,6 +216,19 @@ strexpr(arg)
 	ret = expreval(&exp, PR_MAXPREC);
 	return (ret);
 }
+
+#ifdef	NEED_PEEKTOK
+LOCAL int
+peektok(ep)
+	struct expr	*ep;
+{
+	struct expr	exp;
+
+	exp = *ep;
+	exp.flags = EX_OP | EX_NOEVAL;
+	return (exprtok(&exp));
+}
+#endif
 
 /*
  * Returns the next token.
@@ -210,7 +248,7 @@ exprtok(ep)
 		exprtok(ep);
 		if (ep->token == TK_OPAREN) {
 			exprtok(ep);
-			expreval(ep, ep->precedence);
+			expreval(ep, PR_PRIMARY);
 		}
 		ep->val = unary(ep, ep->val, tok);
 		return (tok);
@@ -219,13 +257,9 @@ exprtok(ep)
 		UIntmax_t	i;
 		unsigned char	*np;
 
-#ifdef	HAVE_STRTOULL
-		i = strtoull(C ep->tokenp, CP &np, 0);
-#else
-		np = UC astoull(C ep->tokenp, &i);
-#endif
-
+		i = number(ep, ep->tokenp, &np);
 		ep->val = unary(ep, i, ep->unop);
+		ep->var = NULL;
 		ep->tokenp = np;
 
 	} else if (tok == TK_VAR) {
@@ -233,6 +267,7 @@ exprtok(ep)
 		unsigned char	*np = ep->tokenp;
 		struct namnod	*n;
 		int		c;
+		UIntmax_t	i = 0;
 
 		while ((c = *np++) != '\0') {
 			if (!alphanum(c))
@@ -245,17 +280,12 @@ exprtok(ep)
 		ep->tokenp = --np;
 		n = lookup(staktop);
 		if (n->namval == NULL || *n->namval == '\0') {
-			ep->val = 0;
+			ep->val = i;
 		} else {
-			UIntmax_t	i;
-
-#ifdef	HAVE_STRTOULL
-			i = strtoull(C n->namval, CP &np, 0);
-#else
-			np = UC astoull(C n->namval, &i);
-#endif
-			ep->val = unary(ep, i, ep->unop);
+			i = number(ep, n->namval, &np);
 		}
+		ep->var = n;
+		ep->val = unary(ep, i, ep->unop);
 	}
 	return (tok);
 }
@@ -264,7 +294,7 @@ exprtok(ep)
  * Returns the result.
  *
  * We start with the first token already read.
- * The first call to exprtok() for this reason either returns the oparator
+ * The first call to exprtok() for this reason either returns the operator
  * or TK_EOF.
  */
 LOCAL Intmax_t
@@ -273,26 +303,39 @@ expreval(ep, precedence)
 	int		precedence;
 {
 	Intmax_t	v;
+	struct namnod	*n;
 	int		tok;
 	int		otok;
-	int		ntok = TK_EOF;
+	int		ntok = TK_NONE;
 	int		prec;
+	int		nprec;
 
-	if (ep->token == TK_OPAREN) {
+
+	if ((tok = ep->token) == TK_OPAREN) {
 		exprtok(ep);
-		expreval(ep, ep->precedence);
-	} else if (ep->token > TK_EOF &&
-		    ep->token < TK_NUM &&
-		    ep->token != TK_CLPAREN) {
+		expreval(ep, PR_PRIMARY);
+		ep->var = NULL;
+	} else if (tok > TK_EOF &&
+		    tok < TK_NUM &&
+		    tok != TK_CLPAREN) {
 		failed(ep->expr, synmsg);
 	}
 	v = ep->val;
+	n = ep->var;
 	otok = ep->token;
 	ep->flags |= EX_OP;
-	tok = exprtok(ep);		/* get next token (oparator) */
+	tok = exprtok(ep);		/* get next token (operator) */
 	prec = ep->precedence;
 	if (tok == TK_PLUSPLUS || tok == TK_MINUSMINUS) {
-		failed(ep->expr, "lvalue required");
+		/*
+		 * The operator was a post-increment or post-decrement op.
+		 * Apply it and fetch next operator.
+		 */
+		(void) unary(ep, v, tok);
+		ep->flags |= EX_OP;
+		tok = exprtok(ep);	/* get next token (operator) */
+		prec = ep->precedence;
+		n = NULL;
 	}
 
 	/*
@@ -304,12 +347,21 @@ expreval(ep, precedence)
 	}
 
 	/*
-	 * If we found a normal (non-assignment) oparator, fetch the
-	 * second value. The "second value" may be "(".
+	 * Check whether we need at least one additional argument.
+	 * This is the case with normal binary operators, with
+	 * the conditional operator and with the assignment operators.
+	 * The "second value" may be "(".
 	 */
-	if (tok >= TK_ADD && tok <= TK_QUEST)
-		ntok = exprtok(ep);
+	if ((tok >= TK_ADD && tok <= TK_BORASN) || tok == TK_COMMA) {
+		int	oflags = ep->flags;
 
+		if ((tok == TK_LAND || tok == TK_QUEST) && v == 0)
+			ep->flags |= EX_NOEVAL;
+		if ((tok == TK_LOR) && v != 0)
+			ep->flags |= EX_NOEVAL;
+		ntok = exprtok(ep);
+		ep->flags = oflags;
+	}
 
 	if (ntok == TK_EOF)
 		failed(ep->expr, "missing token");
@@ -320,48 +372,96 @@ expreval(ep, precedence)
 
 		otok = tok;
 		if (ntok == TK_OPAREN) {
+			int	oflags = ep->flags;
+
+			if ((tok == TK_LAND || tok == TK_QUEST) && v == 0)
+				ep->flags |= EX_NOEVAL;
+			if ((tok == TK_LOR) && v != 0)
+				ep->flags |= EX_NOEVAL;
 			exprtok(ep);
-			expreval(ep, ep->precedence);
+			expreval(ep, PR_PRIMARY);
+			ep->flags = oflags;
 		}
 		otokenp = ep->tokenp;
 		otoken = ep->token;
 		ep->flags |= EX_OP;
-		ntok = exprtok(ep);	/* Check for next oparator */
+		ntok = exprtok(ep);	/* Check for next operator */
+		nprec = ep->precedence;
+		if (ntok == TK_PLUSPLUS || ntok == TK_MINUSMINUS) {
+			int	oflags = ep->flags;
+
+			if ((tok == TK_LAND || tok == TK_QUEST) && v == 0)
+				ep->flags |= EX_NOEVAL;
+			if ((tok == TK_LOR) && v != 0)
+				ep->flags |= EX_NOEVAL;
+
+			/*
+			 * The operator was a post-increment or
+			 * post-decrement op. Apply it and fetch next operator.
+			 */
+			(void) unary(ep, ep->val, ntok);
+			ep->flags |= EX_OP;
+			ntok = exprtok(ep);	/* get next token (operator) */
+			prec = ep->precedence;
+			ep->flags = oflags;
+		}
+
+
 		/*
 		 * XXX expreval() rekursiv wenn "ntok" höhere Prezedenz hat.
 		 */
 		if (ntok != TK_EOF && prec > ep->precedence) {
+			int	oflags = ep->flags;
+
+			if ((tok == TK_LAND || tok == TK_QUEST) && v == 0)
+				ep->flags |= EX_NOEVAL;
+			if ((tok == TK_LOR) && v != 0)
+				ep->flags |= EX_NOEVAL;
 			ep->tokenp = otokenp;
 			ep->token = otoken;
 			expreval(ep, ep->precedence);
+			ep->flags = oflags;
 			ntok = ep->token;
+			nprec = ep->precedence;
 			tok = otok;
 		}
 
+		if (n == NULL && TK_ISASSIGN(tok)) {
+			failed(ep->expr, nolvalue);
+		}
+		if (ep->flags & EX_NOEVAL)
+			goto noeval;
 		switch (tok) {
 		case TK_DIV:
 		case TK_DIVASN:
 		case TK_MOD:
 		case TK_MODASN:
 			if (ep->val == 0) {
-				failed(ep->expr, "divide by zero");
+				failed(ep->expr, divzero);
 				ep->val = 1;
 			}
 		}
 		switch (tok) {
 
+		case TK_PLUSASN:
 		case TK_ADD:	ep->val = v + ep->val;
 				break;
+		case TK_MINUSASN:
 		case TK_SUB:	ep->val = v - ep->val;
 				break;
+		case TK_MULTASN:
 		case TK_MULT:	ep->val = v * ep->val;
 				break;
+		case TK_DIVASN:
 		case TK_DIV:	ep->val = v / ep->val;
 				break;
+		case TK_MODASN:
 		case TK_MOD:	ep->val = v % ep->val;
 				break;
+		case TK_LSHIFTASN:
 		case TK_LSHIFT:	ep->val = v << ep->val;
 				break;
+		case TK_RSHIFTASN:
 		case TK_RSHIFT:	ep->val = v >> ep->val;
 				break;
 		case TK_LT:	ep->val = v < ep->val;
@@ -376,10 +476,13 @@ expreval(ep, precedence)
 				break;
 		case TK_NEQUAL:	ep->val = v != ep->val;
 				break;
+		case TK_BANDASN:
 		case TK_BAND:	ep->val = v & ep->val;
 				break;
+		case TK_BXORASN:
 		case TK_BXOR:	ep->val = v ^ ep->val;
 				break;
+		case TK_BORASN:
 		case TK_BOR:	ep->val = v | ep->val;
 				break;
 		case TK_LAND:	ep->val = v && ep->val;
@@ -387,23 +490,46 @@ expreval(ep, precedence)
 		case TK_LOR:	ep->val = v || ep->val;
 				break;
 
-		case TK_QUEST:
-		case TK_COLON:
-				ep->val = 999;
+		case TK_QUEST: {
+					int		oflags = ep->flags;
+					Intmax_t	oval = ep->val;
+
+					if (v)
+						ep->flags |= EX_NOEVAL;
+					exprtok(ep);
+					expreval(ep, PR_QUEST);
+					ep->flags = oflags;
+					ntok = ep->token;
+					if (v)
+						ep->val = oval;
+				}
+				break;
+
+		case TK_COLON:	failed(ep->expr, synmsg);
 				break;
 
 		}
-		if (precedence <= ep->precedence) {
+		if (TK_ISASSIGN(tok)) {
+			assign(n, &numbuf[slltos(ep->val)]);
+		}
+	noeval:
+		/*
+		 * "precedence" is the precedence we have been called with.
+		 * Comparing only works with non-primary expressions, so
+		 * if this call was because of an expression in parenthesis
+		 * we may not leave here.
+		 */
+		if (precedence > PR_PRIMARY && precedence < nprec) {
 			return (ep->val);
 		}
 
 		tok = ntok;
 		prec = ep->precedence;
 		v = ep->val;
-		if (tok != TK_EOF && tok != TK_CLPAREN) {
+		if (tok != TK_EOF && tok != TK_CLPAREN && tok != TK_COLON) {
 			ntok = exprtok(ep);
 		}
-	} while (tok != TK_EOF && tok != TK_CLPAREN);
+	} while (tok != TK_EOF && tok != TK_CLPAREN && tok != TK_COLON);
 
 	return (ep->val);
 }
@@ -414,6 +540,18 @@ unary(ep, v, op)
 	Intmax_t	v;
 	int		op;
 {
+	if (op == TK_PLUSPLUS || op == TK_MINUSMINUS) {
+		if (ep->var == NULL) {
+			failed(ep->expr, nolvalue);
+			return (0);
+		}
+		if ((ep->flags & EX_NOEVAL) == 0) {
+			assign(ep->var,
+				&numbuf[slltos(op == TK_PLUSPLUS ? ++v:--v)]);
+		}
+		ep->var = NULL;
+		return (v);
+	}
 	switch (op) {
 
 	case 0:
@@ -421,12 +559,10 @@ unary(ep, v, op)
 	case TK_UPLUS:		return (v);
 	case TK_SUB:
 	case TK_UMINUS:		return (-v);
-	case TK_PLUSPLUS:	return (++v);
-	case TK_MINUSMINUS:	return (--v);
 	case TK_BNOT:		return (~v);
 	case TK_LNOT:		return (!v);
 
-	default:		failed(ep->expr, "bad expression");
+	default:		failed(ep->expr, badexpr);
 				return (0);
 	}
 }
@@ -452,7 +588,7 @@ again:
 	--p;
 	if (digit(c)) {
 		if (val == TK_PLUSPLUS || val == TK_MINUSMINUS) {
-			failed(ep->expr, "lvalue required");
+			failed(ep->expr, nolvalue);
 			return (ep->token = val);
 		}
 
@@ -480,6 +616,7 @@ again:
 					p += ops[i].nlen;
 
 				if (val == TK_COMMA) {
+#ifdef	__needed__
 					/*
 					 * A comma without a space before only
 					 * may appear inside international
@@ -487,6 +624,7 @@ again:
 					 */
 					if (ep->subexpr == ep->tokenp)
 						break;
+#endif
 					ep->subexpr = ep->tokenp;
 				} else if ((ep->flags & EX_OP) == 0 &&
 					    (val == TK_ADD || val == TK_SUB ||
@@ -502,9 +640,29 @@ again:
 			}
 		}
 	}
-	failed(ep->expr, "bad expression");
+	failed(ep->expr, badexpr);
 	ep->flags &= ~EX_OP;
 	return (ep->token = TK_ERROR);
+}
+
+LOCAL UIntmax_t
+number(ep, str, endptr)
+	struct expr	*ep;
+	unsigned char	*str;
+	unsigned char	**endptr;
+{
+	UIntmax_t	i;
+	int		c;
+
+#ifdef	HAVE_STRTOULL
+	i = strtoull(C str, CP endptr, 0);
+#else
+	*endptr = UC astoull(C str, &i);
+#endif
+	c = **endptr;
+	if (alphanum(c))
+		failed(ep->expr, badnum);
+	return (i);
 }
 
 #ifdef	ARITH_DEBUG
@@ -543,3 +701,4 @@ tokname(t)
 	return ("???");
 }
 #endif
+#endif	/* DO_DOL_PAREN */

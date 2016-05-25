@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)main.c	1.47 16/04/01 2008-2016 J. Schilling
+ * @(#)main.c	1.48 16/05/19 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)main.c	1.47 16/04/01 2008-2016 J. Schilling";
+	"@(#)main.c	1.48 16/05/19 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -564,10 +564,10 @@ exfile(prof)
 			if (flags2 & vedflg) {
 				char *prompts[EDIT_RPOMPTS];
 				if ((prompts[0] = C ps1nod.namval) == NULL)
-					prompts[0] = C nullstr; 
+					prompts[0] = C nullstr;
 				if ((prompts[1] = C ps2nod.namval) == NULL)
 					prompts[1] = C nullstr;
-				
+
 				shedit_setprompts(0, EDIT_RPOMPTS, prompts);
 			} else
 #endif

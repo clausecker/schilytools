@@ -35,13 +35,13 @@
 #include "defs.h"
 
 /*
- * Copyright 2008-2015 J. Schilling
+ * Copyright 2008-2016 J. Schilling
  *
- * @(#)echo.c	1.14 15/12/26 2008-2015 J. Schilling
+ * @(#)echo.c	1.15 16/05/19 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)echo.c	1.14 15/12/26 2008-2015 J. Schilling";
+	"@(#)echo.c	1.15 16/05/19 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -51,7 +51,8 @@ static	UConst char sccsid[] =
 #define	exit(a)	flushb(); return (a)
 
 	int	echo		__PR((int argc, unsigned char **argv));
-unsigned char	*escape_char	__PR((unsigned char *cp, unsigned char *res, int echomode));
+unsigned char	*escape_char	__PR((unsigned char *cp, unsigned char *res,
+							int echomode));
 
 int
 echo(argc, argv)
@@ -169,7 +170,9 @@ escape_char(cp, res, echomode)
 	case 'a':	c = ALERT; break;
 #endif
 	case 'b':	c = '\b'; break;
-	case 'c':	if (echomode) return (NULL); goto norm;
+	case 'c':	if (echomode)
+				return (NULL);
+			goto norm;
 	case 'f':	c = '\f'; break;
 	case 'n':	c = '\n'; break;
 	case 'r':	c = '\r'; break;

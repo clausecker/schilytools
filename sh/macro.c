@@ -37,11 +37,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)macro.c	1.49 16/05/17 2008-2016 J. Schilling
+ * @(#)macro.c	1.51 16/05/22 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)macro.c	1.49 16/05/17 2008-2016 J. Schilling";
+	"@(#)macro.c	1.51 16/05/22 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -59,8 +59,8 @@ static	UConst char sccsid[] =
 static unsigned char	quote;	/* used locally */
 static unsigned char	quoted;	/* used locally */
 
-#define		COM_BACKQUOTE	0	/* `command`  type command substitution */
-#define		COM_DOL_PAREN	1	/* $(command) type command substitution */
+#define	COM_BACKQUOTE	0	/* `command`  type command substitution */
+#define	COM_DOL_PAREN	1	/* $(command) type command substitution */
 
 static void	copyto		__PR((unsigned char endch, int trimflag));
 static void	skipto		__PR((unsigned char endch));
@@ -785,8 +785,10 @@ comsubst(trimflag, type)
 	else {	/* $(command) type command substitution */
 		d = readwc();
 		if (d == '(') {		/* This is an arithmetic expression */
+			Intmax_t	i;
 			unsigned char	*argc;
-Intmax_t	i;
+			struct argnod	*arg = (struct argnod *)locstak();
+			unsigned char	*argp = arg->argval;
 
 			/*
 			 * savptr holds strlngth bytes in a saved area
@@ -794,13 +796,19 @@ Intmax_t	i;
 			 * Use match_arith() to find the end of the expresssion
 			 * and call macro() with this string to expand
 			 * variables and embedded command substitutions.
+			 * NOTE: match_arith() expects the string to be part
+			 * of struct argnod, so argp must not start at stakbot.
 			 */
-			staktop = match_arith(stakbot);
+			*argp = '\0';
+			staktop = match_arith(argp);
+			arg = (struct argnod *)stakbot;
 			argc = staktop-1;
-			while (argc > stakbot && *(--argc) != ')')
+			argp = arg->argval;
+			while (argc > argp && *(--argc) != ')')
 				;
 			*argc = 0;
-			argc = fixstak();
+			arg = (struct argnod *)fixstak();
+			argc = arg->argval;
 			argc = macro(&argc[2]);
 			(void) memcpystak(stakbot, savptr, strlngth);
 			staktop = stakbot + strlngth;
@@ -1064,6 +1072,6 @@ suffsubstr(v, pat, largest)
 		}
 		s = mbdecr(v, s);
 	}
-	return(size);
+	return (size);
 }
 #endif

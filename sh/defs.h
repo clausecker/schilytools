@@ -39,7 +39,7 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)defs.h	1.147 16/05/18 2008-2016 J. Schilling
+ * @(#)defs.h	1.148 16/05/19 2008-2016 J. Schilling
  */
 
 #ifdef	__cplusplus
@@ -244,6 +244,10 @@ extern "C" {
 
 #ifndef	HAVE_SYS_ACCT_H
 #undef	ACCT
+#endif
+
+#ifdef	NO_SYSATEXPR
+#undef	DO_SYSATEXPR
 #endif
 
 #else	/* SCHILY_INCLUDES */

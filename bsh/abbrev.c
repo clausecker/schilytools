@@ -1,13 +1,13 @@
-/* @(#)abbrev.c	1.67 15/11/28 Copyright 1985-2015 J. Schilling */
+/* @(#)abbrev.c	1.68 16/05/19 Copyright 1985-2016 J. Schilling */
 #include <schily/mconfig.h>
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)abbrev.c	1.67 15/11/28 Copyright 1985-2015 J. Schilling";
+	"@(#)abbrev.c	1.68 16/05/19 Copyright 1985-2016 J. Schilling";
 #endif
 /*
  *	Abbreviation symbol handling
  *
- *	Copyright (c) 1985-2015 J. Schilling
+ *	Copyright (c) 1985-2016 J. Schilling
  *
  *	.global & .local alias abbreviations are handled here
  *
@@ -479,7 +479,7 @@ _ab_match(np, f, aflags, pattern, aux, alt, state)
 #ifdef	BOURNE_SHELL
 	if (gmatch(tp->ab_name, pattern)) {
 		_ab_list(tp, f, aflags);
-		return(TRUE);
+		return (TRUE);
 	}
 #else
 	p = (char *)patmatch((unsigned char *)pattern, aux,
@@ -487,7 +487,7 @@ _ab_match(np, f, aflags, pattern, aux, alt, state)
 		alt, state);
 	if (p && *p == '\0') {
 		_ab_list(tp, f, aflags);
-		return(TRUE);
+		return (TRUE);
 	}
 #endif
 	return (ok);
@@ -1091,7 +1091,8 @@ ab_eupdated(ap)
 	abtab_t *ap;
 {
 #ifdef	BOURNE_SHELL
-	gfailure(UC ap->at_fname, "updated by another shell, cannot write back.");
+	gfailure(UC ap->at_fname,
+		"updated by another shell, cannot write back.");
 #else
 	berror("'%s' was updated by another shell, cannot write back.",
 		ap->at_fname);
