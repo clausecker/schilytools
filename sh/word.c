@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)word.c	1.59 16/05/22 2008-2016 J. Schilling
+ * @(#)word.c	1.64 16/06/07 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)word.c	1.59 16/05/22 2008-2016 J. Schilling";
+	"@(#)word.c	1.64 16/06/07 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -154,7 +154,16 @@ word()
 		    (c == '>' || c == '<')) {
 #endif
 			word();
+			/*
+			 * wdnum is cleared when entering word() but may
+			 * already contain IOSTRIP here. Keep the bug for
+			 * the old Bourne Shell variant.
+			 */
+#ifndef	DO_IOSTRIP_FIX
 			wdnum = d - '0';
+#else
+			wdnum |= d - '0';
+#endif
 		} else { /* check for reserved words */
 			if (reserv == FALSE ||
 			    (wdval = syslook(arg->argval,
@@ -203,7 +212,6 @@ word()
 			copy(tmp_iopend);
 		}
 	}
-	reserv = FALSE;
 
 #ifdef	DO_SYSALIAS
 	/*
@@ -246,6 +254,7 @@ word()
 	}
 	seen = NULL;
 #endif
+	reserv = FALSE;
 	return (wdval);
 }
 
@@ -369,7 +378,7 @@ dolparen(argp)
 		/*
 		 * Check for '$(('
 		 */
-		if ((c = readwc()) == '(') {
+		if ((c = nextwc()) == '(') {
 			argp = match_arith(argp);
 		} else {
 			peekc = c | MARK;
@@ -393,12 +402,14 @@ match_cmd(argp)
 	int		owdset = wdset;
 
 	/*
-	 * Add the '(' and make the string null terminated semi permanent.
+	 * Add "( " and make the string null terminated semi permanent.
+	 * Note that the space is needed to avoid confusion with "$((".
 	 */
-	argp += 2;
+	argp += 3;
 	GROWSTAK(argp);
-	argp -= 2;
+	argp -= 3;
 	*argp++ = '(';
+	*argp++ = ' ';
 	*argp++ = 0;
 	arg = (struct argnod *)endstak(argp);
 
@@ -447,7 +458,7 @@ match_arith(argp)
 	*argp++ = '(';
 	*argp++ = '(';
 	*argp = 0;
-	while ((c = readwc()) != '\0') {
+	while ((c = nextwc()) != '\0') {
 		/*
 		 * quote each character within
 		 * single quotes

@@ -1,16 +1,8 @@
 #!/bin/sh
 ###########################################################################
-# @(#)misc	1.2 11/05/28 Written 2011 by J. Schilling
+# @(#)misc	1.3 16/05/25 Written 2011-2016 by J. Schilling
 ###########################################################################
-# The contents of this file are subject to the terms of the
-# Common Development and Distribution License, Version 1.0 only
-# (the "License").  You may not use this file except in compliance
-# with the License.
-#
-# See the file CDDL.Schily.txt in this distribution for details.
-#
-# When distributing Covered Code, include this CDDL HEADER in each
-# file and include the License file CDDL.Schily.txt from this distribution.
+#@@C@@
 ###########################################################################
 #
 # Miscellaneous test functions
@@ -94,9 +86,14 @@ fail() {
 	if ${expect_fail-false}
 	then
 		echo XFAIL "$0" "$@"
+		failed=true
 		false
 	else
 		echo FAIL "$0" "$@"
 		exit 2
 	fi
+}
+
+fail_init() {
+	failed=false
 }

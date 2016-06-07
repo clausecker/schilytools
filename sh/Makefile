@@ -1,4 +1,4 @@
-#ident "@(#)Makefile	1.110 16/05/19  Copyright (c) 2006-2016 J. Schilling"
+#ident "@(#)Makefile	1.112 16/06/07  Copyright (c) 2006-2016 J. Schilling"
 ###########################################################################
 SRCROOT=	..
 RULESDIR=	RULES
@@ -80,6 +80,8 @@ CPPOPTS +=	-DDO_TIME		# Include support for set -o time
 CPPOPTS +=	-DDO_FULLEXCODE		# Include support for set -o fullexitcode
 #					# The next feature is currently not POSIX
 #CPPOPTX +=	-DDO_EXIT_MODFIX	# Prevent $? == 0 whith exitcode & 0xFF
+CPPOPTS +=	-DDO_CONT_BRK_FIX	# Fix the SYS III (1981) continue/break bug
+CPPOPTS +=	-DDO_IOSTRIP_FIX	# Fix the SYS III (1981) cat 0<<-EOF bug
 CPPOPTS +=	-DDO_NOCLOBBER		# Include support for set -o noclobber
 CPPOPTS +=	-DDO_NOTIFY		# Include support for set -o notify
 CPPOPTS +=	-DDO_FDPIPE		# Include support for 2| for stderr pipe

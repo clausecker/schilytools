@@ -1,7 +1,7 @@
-/* @(#)strexpr.c	1.15 16/05/24 Copyright 2016 J. Schilling */
+/* @(#)strexpr.c	1.21 16/06/07 Copyright 2016 J. Schilling */
 #include <schily/mconfig.h>
 static	UConst char sccsid[] =
-	"@(#)strexpr.c	1.15 16/05/24 Copyright 2016 J. Schilling";
+	"@(#)strexpr.c	1.21 16/06/07 Copyright 2016 J. Schilling";
 #ifdef	DO_DOL_PAREN
 /*
  *	Arithmetic expansion
@@ -268,6 +268,10 @@ exprtok(ep)
 		struct namnod	*n;
 		int		c;
 		UIntmax_t	i = 0;
+		int		neg = 0;
+		unsigned char	*otokenp;
+		int		otoken;
+		int		xtok;
 
 		while ((c = *np++) != '\0') {
 			if (!alphanum(c))
@@ -282,10 +286,26 @@ exprtok(ep)
 		if (n->namval == NULL || *n->namval == '\0') {
 			ep->val = i;
 		} else {
-			i = number(ep, n->namval, &np);
+			unsigned char	*nv = n->namval;
+
+			if (*nv == '-') {
+				neg++;
+				nv++;
+			}
+			i = number(ep, nv, &np);
 		}
 		ep->var = n;
-		ep->val = unary(ep, i, ep->unop);
+		ep->val = unary(ep, neg?-i:i, ep->unop);
+		otokenp = ep->tokenp;
+		otoken = ep->token;
+		xtok = getop(ep);
+		if (xtok == TK_PLUSPLUS || xtok == TK_MINUSMINUS) {
+			unary(ep, ep->val, xtok);
+			ep->token = otoken;
+		} else {
+			ep->tokenp = otokenp;
+			ep->token = otoken;
+		}
 	}
 	return (tok);
 }
@@ -305,11 +325,11 @@ expreval(ep, precedence)
 	Intmax_t	v;
 	struct namnod	*n;
 	int		tok;
-	int		otok;
 	int		ntok = TK_NONE;
 	int		prec;
 	int		nprec;
-
+	unsigned char	*otokenp;
+	int		otoken;
 
 	if ((tok = ep->token) == TK_OPAREN) {
 		exprtok(ep);
@@ -322,27 +342,22 @@ expreval(ep, precedence)
 	}
 	v = ep->val;
 	n = ep->var;
-	otok = ep->token;
+	otokenp = ep->tokenp;
+	otoken = ep->token;
 	ep->flags |= EX_OP;
 	tok = exprtok(ep);		/* get next token (operator) */
 	prec = ep->precedence;
-	if (tok == TK_PLUSPLUS || tok == TK_MINUSMINUS) {
-		/*
-		 * The operator was a post-increment or post-decrement op.
-		 * Apply it and fetch next operator.
-		 */
-		(void) unary(ep, v, tok);
-		ep->flags |= EX_OP;
-		tok = exprtok(ep);	/* get next token (operator) */
-		prec = ep->precedence;
-		n = NULL;
-	}
 
 	/*
 	 * If there is no next token, then we return the previous value.
 	 */
-	if ((tok == TK_EOF || tok == TK_CLPAREN) &&
-	    ep->precedence == PR_PRIMARY) {
+	if (tok == TK_EOF ||
+	    ((tok == TK_CLPAREN) && ep->precedence == PR_PRIMARY) ||
+	    ((tok == TK_COLON) && ep->precedence == PR_QUEST)) {
+		if (tok == TK_COLON) {
+			ep->tokenp = otokenp;
+			ep->token = otoken;
+		}
 		return (ep->val);
 	}
 
@@ -367,19 +382,21 @@ expreval(ep, precedence)
 		failed(ep->expr, "missing token");
 
 	do {
-		unsigned char	*otokenp;
-		int		otoken;
+		int	otok = tok;
 
-		otok = tok;
-		if (ntok == TK_OPAREN) {
+		if (ntok == TK_OPAREN || tok == TK_QUEST) {
 			int	oflags = ep->flags;
 
 			if ((tok == TK_LAND || tok == TK_QUEST) && v == 0)
 				ep->flags |= EX_NOEVAL;
 			if ((tok == TK_LOR) && v != 0)
 				ep->flags |= EX_NOEVAL;
-			exprtok(ep);
-			expreval(ep, PR_PRIMARY);
+			if (ntok == TK_OPAREN) {
+				exprtok(ep);
+				expreval(ep, PR_PRIMARY);
+			} else {
+				expreval(ep, PR_QUEST);
+			}
 			ep->flags = oflags;
 		}
 		otokenp = ep->tokenp;
@@ -387,38 +404,23 @@ expreval(ep, precedence)
 		ep->flags |= EX_OP;
 		ntok = exprtok(ep);	/* Check for next operator */
 		nprec = ep->precedence;
-		if (ntok == TK_PLUSPLUS || ntok == TK_MINUSMINUS) {
-			int	oflags = ep->flags;
-
-			if ((tok == TK_LAND || tok == TK_QUEST) && v == 0)
-				ep->flags |= EX_NOEVAL;
-			if ((tok == TK_LOR) && v != 0)
-				ep->flags |= EX_NOEVAL;
-
-			/*
-			 * The operator was a post-increment or
-			 * post-decrement op. Apply it and fetch next operator.
-			 */
-			(void) unary(ep, ep->val, ntok);
-			ep->flags |= EX_OP;
-			ntok = exprtok(ep);	/* get next token (operator) */
-			prec = ep->precedence;
-			ep->flags = oflags;
-		}
-
 
 		/*
 		 * XXX expreval() rekursiv wenn "ntok" höhere Prezedenz hat.
 		 */
-		if (ntok != TK_EOF && prec > ep->precedence) {
+		if (ntok != TK_EOF &&
+		    ((prec > ep->precedence) ||
+		    TK_ISASSIGN(ntok))) {
 			int	oflags = ep->flags;
 
 			if ((tok == TK_LAND || tok == TK_QUEST) && v == 0)
 				ep->flags |= EX_NOEVAL;
 			if ((tok == TK_LOR) && v != 0)
 				ep->flags |= EX_NOEVAL;
-			ep->tokenp = otokenp;
-			ep->token = otoken;
+			if (otoken != TK_COLON) {
+				ep->tokenp = otokenp;
+				ep->token = otoken;
+			}
 			expreval(ep, ep->precedence);
 			ep->flags = oflags;
 			ntok = ep->token;
@@ -429,8 +431,11 @@ expreval(ep, precedence)
 		if (n == NULL && TK_ISASSIGN(tok)) {
 			failed(ep->expr, nolvalue);
 		}
-		if (ep->flags & EX_NOEVAL)
+		if (ep->flags & EX_NOEVAL) {
+			if (tok == TK_QUEST)
+				goto quest;
 			goto noeval;
+		}
 		switch (tok) {
 		case TK_DIV:
 		case TK_DIVASN:
@@ -490,6 +495,7 @@ expreval(ep, precedence)
 		case TK_LOR:	ep->val = v || ep->val;
 				break;
 
+		quest:
 		case TK_QUEST: {
 					int		oflags = ep->flags;
 					Intmax_t	oval = ep->val;
@@ -499,13 +505,19 @@ expreval(ep, precedence)
 					exprtok(ep);
 					expreval(ep, PR_QUEST);
 					ep->flags = oflags;
+					if (ntok == TK_COLON) {
+						nprec = PR_MAXPREC +1;
+					}
 					ntok = ep->token;
 					if (v)
 						ep->val = oval;
 				}
+				if (ep->flags & EX_NOEVAL)
+					goto noeval;
 				break;
 
-		case TK_COLON:	failed(ep->expr, synmsg);
+		case TK_COLON:
+				failed(ep->expr, synmsg);
 				break;
 
 		}
@@ -528,6 +540,9 @@ expreval(ep, precedence)
 		v = ep->val;
 		if (tok != TK_EOF && tok != TK_CLPAREN && tok != TK_COLON) {
 			ntok = exprtok(ep);
+		} else if (tok == TK_COLON) {
+			ep->tokenp = otokenp;
+			ep->token = otoken;
 		}
 	} while (tok != TK_EOF && tok != TK_CLPAREN && tok != TK_COLON);
 
@@ -583,7 +598,7 @@ getop(ep)
 
 	ep->unop = 0;
 again:
-	while (c = *p++, space(c))
+	while (c = *p++, white(c))
 		;
 	--p;
 	if (digit(c)) {

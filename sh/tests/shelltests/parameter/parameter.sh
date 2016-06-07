@@ -1,4 +1,7 @@
 #! /bin/sh
+#
+# @(#)parameter.sh	1.3 16/06/04 Copyright 2016 J. Schilling
+#
 
 # Read test core functions
 . ../../common/test-common

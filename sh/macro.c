@@ -37,11 +37,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)macro.c	1.51 16/05/22 2008-2016 J. Schilling
+ * @(#)macro.c	1.52 16/06/03 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)macro.c	1.51 16/05/22 2008-2016 J. Schilling";
+	"@(#)macro.c	1.52 16/06/03 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -382,7 +382,7 @@ getname:
 				 */
 				v = ((c == 0) ?
 					cmdadr :
-					((int)c <= dolc) ?
+					(dolc > 0 && c <= dolc) ?
 					dolv[c] :
 					(unsigned char *)(Intptr_t)(dolg = 0));
 			} else if (c == '$') {

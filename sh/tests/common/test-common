@@ -3,9 +3,23 @@
 . ${SRCROOT:=`../../../../conf/srcroot.sh`}/tests/bin/base
 export SRCROOT
 
-shell=${shell:=../../../OBJ/`$SRCROOT/conf/oarch.sh`/sh}
+OARCH=`$SRCROOT/conf/oarch.sh`
+case "$OARCH" in
+
+powerpc-aix-*)
+		OARCH=`echo $OARCH |sed -e 's/powerpc-/rs6000-/'`
+		;;
+esac
+
+shell=${shell:=../../../OBJ/$OARCH/sh}
 SHELL="$shell"
 export SHELL
+
+case `$SHELL --version < /dev/null 2>&1 > /dev/null` in
+
+*Schily\ Bourne\ Shell*)	is_bosh=true;;
+*)				is_bosh=false;;
+esac
 
 #set
 

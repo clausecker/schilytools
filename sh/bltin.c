@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)bltin.c	1.96 16/04/24 2008-2016 J. Schilling
+ * @(#)bltin.c	1.97 16/06/03 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)bltin.c	1.96 16/04/24 2008-2016 J. Schilling";
+	"@(#)bltin.c	1.97 16/06/03 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -183,8 +183,10 @@ int xflags;
 				breakcnt = stoi(a1);
 			if (breakcnt > loopcnt)
 				breakcnt = loopcnt;
+#ifndef	DO_CONT_BRK_FIX
 			else
-				breakcnt = -breakcnt;
+#endif
+			breakcnt = -breakcnt;
 		}
 		break;
 

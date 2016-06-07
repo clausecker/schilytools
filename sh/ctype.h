@@ -28,7 +28,7 @@
 #endif
 /*
  * This file contains modifications Copyright 2009-2016 J. Schilling
- * @(#)ctype.h	1.7 16/02/05 2009-2016 J. Schilling
+ * @(#)ctype.h	1.8 16/06/01 2009-2016 J. Schilling
  */
 /*
  *	UNIX shell
@@ -105,6 +105,7 @@ unsigned char	_ctype1[];
 
 /* nb these args are not call by value !!!! */
 #define	space(c)	((c < QUOTE) && _ctype1[c]&(T_SPC))
+#define	white(c)	((c < QUOTE) && _ctype1[c]&(T_SPC|T_EOR))
 #define	eofmeta(c)	((c < QUOTE) && _ctype1[c]&(_META|T_EOF))
 #define	qotchar(c)	((c < QUOTE) && _ctype1[c]&(T_QOT))
 #define	eolchar(c)	((c < QUOTE) && _ctype1[c]&(T_EOR|T_EOF))

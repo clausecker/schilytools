@@ -1,5 +1,5 @@
 '\" te
-.\" @(#)sh.1	1.157 16/05/24 Copyright 2012-2016 J. Schilling
+.\" @(#)sh.1	1.162 16/06/04 Copyright 2012-2016 J. Schilling
 .\" Copyright 1989 AT&T
 .\" Copyright (c) 2008, Sun Microsystems, Inc. All Rights Reserved.
 .\" Portions Copyright (c) 1992, X/Open Company Limited All Rights Reserved
@@ -59,7 +59,7 @@
 .if n .ds o oe
 .if n .ds u ue
 .if n .ds s sz
-.TH sh 1 "2016/05/24" "Schily Bourne Shell" "User Commands"
+.TH sh 1 "2016/06/04" "Schily Bourne Shell" "User Commands"
 .SH NAME
 sh, jsh \- standard and job control shell and command interpreter
 .SH SYNOPSIS
@@ -1151,7 +1151,9 @@ the rules of the ISO C with the following exceptions:
 .B
 .ie t \(bu
 .el o
-Only signed long long integer arithmetic is supported.
+Only
+.B signed long long integer
+arithmetic is supported.
 .TP
 .B
 .ie t \(bu
@@ -1168,7 +1170,23 @@ Selection, iteration, and jump statements are not supported.
 .LP
 If the expression is invalid, the expansion fails and the
 shell writes a message to standard error indicating the failure.
-.sp
+.LP
+.B POSIX
+does not require to support the prefix and postfix
+.B ++
+and
+.B \(mi\|\(mi
+operators, so avoid them in portable shell scripts.
+.LP
+.B POSIX
+does not require to support more than
+.B signed long
+arithmetic, so avoid arithmetic that requires more in portable scripts.
+.LP
+In older versions of
+.BR sh ,
+.B arithmetic expansion
+was not supported.
 .LP
 A simple example using arithmetic expansion:
 .sp
@@ -2102,6 +2120,25 @@ executed.
 When the shell is invoked, it scans the environment (see
 .B Environment
 section below) for this name.
+If the past pathname component equals to
+.B rsh
+or
+.BR rbosh ,
+the shell is swichted into a restricted shell.
+
+.br
+.ne 3
+.TP
+.B SYSV3
+When the
+.B SYSV3 Environment
+is set, the builtin
+.B echo
+command is switched into
+.B SYSV3
+mode and supports escape sequences and the
+.B BSD \-n
+option to suppress the newline character at the end of the output.
 
 .br
 .ne 3
@@ -7235,6 +7272,18 @@ exit code in shell scripts.
 .br
 .ne 4
 .TP
+.B continue
+With SVr2 (1986), a parameter was introduced for
+.BR continue .
+Unfortunately, at the same time a bug was introduced and a big number did not
+.B continue
+the outermost loop, but rather did
+.B break
+the outermost loop.
+This shell fixes this bug.
+.br
+.ne 4
+.TP
 .B functions
 There is now a separate name space for functions and shell variables.
 This is not expected to cause problems.
@@ -7343,8 +7392,8 @@ is maintained by J\*org Schilling.
 .LP
 The
 .B history editor
-that has been added to the Bourne Shell in 2006
-was designed and implemented as a prototype in 1982
+that has been added to the Bourne Shell in 2006.
+It was designed and implemented as a prototype in 1982
 by J\*org Schilling on
 .BR UNOS ,
 the first UNIX clone.

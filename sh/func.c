@@ -37,11 +37,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)func.c	1.28 16/05/19 2008-2016 J. Schilling
+ * @(#)func.c	1.29 16/06/05 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)func.c	1.28 16/05/19 2008-2016 J. Schilling";
+	"@(#)func.c	1.29 16/06/05 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -692,6 +692,13 @@ prio(iop)
 				if ((iof & IODOC_SUBST) == 0)
 					prc_buff('\\');
 #endif
+				/*
+				 * This is probably a no-op since IOSTRIP is
+				 * cleared in copy() after leading TABS have
+				 * been removed with the initial read.
+				 */
+				if (iof & IOSTRIP)
+					prc_buff('-');
 			} else if (iof & IOMOV) {
 				if (iof & IOPUT)
 					prs_buff(UC ">&");

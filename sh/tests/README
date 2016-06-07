@@ -1,0 +1,73 @@
+#
+# @(#)README	1.2 16/06/05 Copyright 2016 J. Schilling
+#
+
+		This is the test suite for the Schily Bourne Shell
+
+The directory "common" contains the linkage to the test suite, that calls the
+test framework in "$SRCROOT/tests", the directory "shelltests" contains the
+shell test suite itself.
+
+To run the tests, simply call "make" to test the just compiled Schily Bourne
+Shell at "$SRCROOT/sh/OBJ/<arch-dir>/sh". If a single test fails and is not
+expected to fail, all further tests are stopped. Tests that are expected to
+fail are e.g. tests that check whether it works to retrieve all 32 bits from
+the exit code of a process. Such a POSIX-specific test is expected to fail
+on non-POSIX compliant platforms like Linux and cause the test suite to
+continue with other tests.
+
+Failed tests leave debugging files in the subdirectory where the test did
+take place, e.g. "$SRCROOT/sh/tests/shelltests/exit". If the output of the
+test suite contains the word "FAIL", an unexpected failure was seen. If the
+output of the test suite contains the word "XFAIL", an expected failure was
+seen.
+
+To run all tests even in case of a single unexpected failure, call
+"EXPECT_FAIL=true make".
+
+To run the tests with other shells, you need to specify the absolute path
+to the shell in question. Call e.g.: "shell=/usr/bin/ksh93 make" or
+"EXPECT_FAIL=true shell=/usr/bin/ksh93 make". With other shells, more
+tests are defined to be tests that are expected to fail. ksh93 e.g. does
+not handle octal numbers in arithmetic expressions the way POSIX requires.
+
+Note that the test suite contains tests for "bosh" specific features.
+
+Many tests have been taken from the "mksh" test suite (see notes in the
+related test scripts) and some of these tests are currently disabled as
+they fail with "bosh" but it has not yet been verified whether this is
+an expected failure or whether "bosh" fails because of a non-compliance.
+
+The following tests are currently disabled:
+
+$SRCROOT/sh/tests/shelltests/here/here02.sh:
+
+here07:		POSIX introduced a non-compliance we do not yet support
+
+$SRCROOT/sh/tests/shelltests/glob/glob.sh:
+
+glob05:		The results depend on whether we use gmatch() from
+		AT&Ts libgen or our own implementation from gmatch.c
+
+$SRCROOT/sh/tests/shelltests/parameter/parameter02.sh:
+
+parameter-2-00:#4
+parameter-2-00:#6
+parameter-2-00:#7
+parameter-2-00:#9
+parameter-2-00:#14
+parameter-2-00:#15
+parameter-2-00:#25
+parameter-2-00:#28
+parameter-2-00:#29
+parameter-2-00:#30
+parameter-2-00:#31
+parameter-2-00:#32
+parameter-2-00:#35
+parameter-2-00:#39
+
+parameter-2-01:#7
+parameter-2-01:#8
+parameter-2-01:#9
+
+parameter-2-08

@@ -38,11 +38,11 @@
 /*
  * Copyright 2008-2016 J. Schilling
  *
- * @(#)xec.c	1.60 16/05/18 2008-2016 J. Schilling
+ * @(#)xec.c	1.61 16/05/25 2008-2016 J. Schilling
  */
 #ifndef lint
 static	UConst char sccsid[] =
-	"@(#)xec.c	1.60 16/05/18 2008-2016 J. Schilling";
+	"@(#)xec.c	1.61 16/05/25 2008-2016 J. Schilling";
 #endif
 
 /*
@@ -329,7 +329,7 @@ int *pf1, *pf2;
 							settgid(mypgid, pgid);
 #endif
 #ifdef	DO_POSIX_SPEC_BLTIN
-						if (pushov)
+						if (pushov && comptr(t)->comset)
 							popvars();
 #endif
 #ifdef	DO_TIME
@@ -566,7 +566,8 @@ script:
 						fiotemp = ofiot;
 						iotemp = oiot;
 						standin = ostandin;
-						popvars();
+						if (comptr(t)->comset)
+							popvars();
 						restoresigs();
 						if (exflag == 2) {
 							exflag = 0;
